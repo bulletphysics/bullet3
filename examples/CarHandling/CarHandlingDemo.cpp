@@ -61,7 +61,7 @@ public:
 
 	virtual void resetCamera()
 	{
-		float dist = 8;
+		float dist = 5*8;
 		float pitch = -45;
 		float yaw = 32;
 		float targetPos[3] = { -0.33, -0.72, 4.5 };
@@ -119,6 +119,7 @@ void CarHandlingDemo::initPhysics()
 	//The default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
 	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
 
+	//Creates the dynamics world, wich will be responsable for managing our physics objects and constraints
 	this->dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
 
 	this->dynamicsWorld->setGravity(btVector3(0, -10, 0));
@@ -130,13 +131,16 @@ void CarHandlingDemo::initPhysics()
 	btAlignedObjectArray<btCollisionShape*> collisionShapes;
 
 	{
-		//Create a shape and store for reuse
+		//Creates the ground shape
 		btCollisionShape* groundShape = new btBoxShape(btVector3(100, 1, 100));
 
+		//Stores on an array for reusing
 		collisionShapes.push_back(groundShape);
 
+		//Creates the ground rigidbody
 		btRigidBody* groundRigidBody = this->createGroundRigidBodyFromShape(groundShape);
 
+		//Adds it to the world
 		this->dynamicsWorld->addRigidBody(groundRigidBody);
 	}
 
@@ -147,23 +151,44 @@ void CarHandlingDemo::initPhysics()
 		//The btBoxShape is centered at the origin
 		btCollisionShape* chassisShape = new btBoxShape(halfExtends);
 
+		//Stores on an array for reusing
 		collisionShapes.push_back(chassisShape);
 
-		btRigidBody* chassisRigidBody = this->createChassisRigidBodyFromShape(chassisShape);
+		//A compound shape is used so we can easily shift the center of gravity of our vehicle to its bottom
+		//This is needed to make our vehicle more stable
+		btCompoundShape* compound = new btCompoundShape();
 
+		collisionShapes.push_back(compound);
+
+		btTransform localTransform;
+		localTransform.setIdentity();
+		localTransform.setOrigin(btVector3(0, 1, 0));
+
+		//The center of gravity of the compound shape is the origin. When we add a rigidbody to the compound shape
+		//it's center of gravity does not change. This way we can add the chassis rigidbody one unit above our center of gravity
+		//keeping it under our chassis, and not in the middle of it
+		compound->addChildShape(localTransform, chassisShape);
+
+		//Creates a rigid body
+		btRigidBody* chassisRigidBody = this->createChassisRigidBodyFromShape(compound);
+
+		//Adds the vehicle chassis to the world
 		this->dynamicsWorld->addRigidBody(chassisRigidBody);
 
 		btVehicleRaycaster* vehicleRayCaster = new btDefaultVehicleRaycaster(this->dynamicsWorld);
 
 		btRaycastVehicle::btVehicleTuning tuning;
 
+		//Creates a new instance of the raycast vehicle
 		this->vehicle = new btRaycastVehicle(tuning, chassisRigidBody, vehicleRayCaster);
 
 		//Never deactivate the vehicle
 		chassisRigidBody->setActivationState(DISABLE_DEACTIVATION);
 
+		//Adds the vehicle to the world
 		this->dynamicsWorld->addVehicle(this->vehicle);
 
+		//Adds the wheels to the vehicle
 		this->addWheels(&halfExtends, this->vehicle, tuning);
 	}
 
@@ -177,9 +202,10 @@ btRigidBody* CarHandlingDemo::createChassisRigidBodyFromShape(btCollisionShape* 
 	chassisTransform.setOrigin(btVector3(0, 1, 0));
 
 	{
-		//chassis mass, its dynamic, so we calculate its local inertia
+		//chassis mass 
 		btScalar mass(1200);
 
+		//since it is dynamic, we calculate its local inertia
 		btVector3 localInertia(0, 0, 0);
 		chassisShape->calculateLocalInertia(mass, localInertia);
 
@@ -198,8 +224,10 @@ btRigidBody* CarHandlingDemo::createGroundRigidBodyFromShape(btCollisionShape* g
 	groundTransform.setOrigin(btVector3(0, -1, 0));
 
 	{
-		//since the ground will not move, we set its mass to 0
+		//The ground is not dynamic, we set its mass to 0
 		btScalar mass(0.);
+
+		//No need for calculating the inertia on a static object
 		btVector3 localInertia(0, 0, 0);
 
 		//using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
@@ -221,35 +249,38 @@ void CarHandlingDemo::addWheels(
 	//The axis which the wheel rotates arround
 	btVector3 wheelAxleCS(-1, 0, 0);
 
-	btScalar suspensionRestLength(0.6);
+	btScalar suspensionRestLength(0.7);
 
-	btScalar wheelWidth(0.6f);
+	btScalar wheelWidth(0.4f);
 
 	btScalar wheelRadius(0.5f);
 
-	btScalar connectionHeight(.2f);
+	//The height where the wheels are connected to the chassis
+	btScalar connectionHeight(1.2f);
 
 	//All the wheel configuration assumes the vehicle is centered at the origin and a right handed coordinate system is used
 	btVector3 wheelConnectionPoint(halfExtents->x() - wheelRadius, connectionHeight, halfExtents->z() - wheelWidth);
 
-	//Adds the front wheels to the btRaycastVehicle by shifting the connection point
+	//Adds the front wheels
 	vehicle->addWheel(wheelConnectionPoint, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, true);
-	btVector3 p2(wheelConnectionPoint);
+
 	vehicle->addWheel(wheelConnectionPoint * btVector3(-1, 1, 1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, true);
-	btVector3 p3(wheelConnectionPoint * btVector3(-1, 1, 1));
-	//Adds the rear wheels, notice that the last parameter value is false
+
+	//Adds the rear wheels
 	vehicle->addWheel(wheelConnectionPoint* btVector3(1, 1, -1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, false);
-	btVector3 p4(wheelConnectionPoint*btVector3(1, 1, -1));
+
 	vehicle->addWheel(wheelConnectionPoint * btVector3(-1, 1, -1), wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, tuning, false);
-	btVector3 p5(wheelConnectionPoint * btVector3(-1, 1, -1));
+
 	//Configures each wheel of our vehicle, setting its friction, damping compression, etc.
+	//For more details on what each parameter does, refer to the docs
 	for (int i = 0; i < vehicle->getNumWheels(); i++)
 	{
 		btWheelInfo& wheel = vehicle->getWheelInfo(i);
 		wheel.m_suspensionStiffness = 50;
+		wheel.m_wheelsDampingCompression = btScalar(0.8);
 		wheel.m_wheelsDampingRelaxation = 1;
-		wheel.m_wheelsDampingCompression = 0.8f;
-		wheel.m_frictionSlip = 0.8f;
+		//Larger friction slips will result in better handling
+		wheel.m_frictionSlip = btScalar(1.2);
 		wheel.m_rollInfluence = 1;
 	}
 }
@@ -286,6 +317,7 @@ bool CarHandlingDemo::keyboardCallback(int key, int state)
 {
 	bool handled = false;
 
+	//Key pressed events
 	if (state)
 	{
 		if (key == B3G_LEFT_ARROW)
@@ -304,39 +336,48 @@ bool CarHandlingDemo::keyboardCallback(int key, int state)
 
 		if (key == B3G_UP_ARROW)
 		{
-			this->vehicle->applyEngineForce(1000.f, 2);
-			this->vehicle->applyEngineForce(1000.f, 3);
+			this->vehicle->applyEngineForce(5000.f, 2);
+			this->vehicle->applyEngineForce(5000.f, 3);
+			handled = true;
+		}
+		
+		if (key == B3G_DOWN_ARROW)
+		{
+			this->vehicle->applyEngineForce(-3000.f, 2);
+			this->vehicle->applyEngineForce(-3000.f, 3);
 			handled = true;
 		}
 
-		if (key == B3G_DOWN_ARROW)
+		//Handbrake
+		if (key == B3G_CONTROL)
 		{
-			this->vehicle->setBrake(100.f, 2);
-			this->vehicle->setBrake(100.f, 2);
+			this->vehicle->setBrake(500.f, 2);
+			this->vehicle->setBrake(500.f, 3);
 			handled = true;
 		}
 
 	}
+	//Key released events
 	else
 	{
-		if (key == B3G_LEFT_ARROW)
+		if (key == B3G_LEFT_ARROW || key == B3G_RIGHT_ARROW)
 		{
 			this->vehicle->setSteeringValue(0, 0);
 			this->vehicle->setSteeringValue(0, 1);
 			handled = true;
 		}
 
-		if (key == B3G_RIGHT_ARROW)
-		{
-			this->vehicle->setSteeringValue(0, 0);
-			this->vehicle->setSteeringValue(0, 1);
-			handled = true;
-		}
-
-		if (key == B3G_UP_ARROW)
+		if (key == B3G_UP_ARROW || key == B3G_DOWN_ARROW)
 		{
 			this->vehicle->applyEngineForce(0, 2);
 			this->vehicle->applyEngineForce(0, 3);	
+			handled = true;
+		}
+
+		if (key == B3G_CONTROL)
+		{
+			this->vehicle->setBrake(0, 2);
+			this->vehicle->setBrake(0, 3);
 			handled = true;
 		}
 	}
