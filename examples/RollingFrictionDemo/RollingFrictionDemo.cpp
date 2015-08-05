@@ -199,7 +199,7 @@ void	RollingFrictionDemo::initPhysics()
 					for(int j = 0;j<ARRAY_SIZE_Z;j++)
 					{
 						startTransform.setOrigin(SCALING*btVector3(
-											btScalar(2.0*i + start_x)+25,
+											btScalar(2.0*i + start_x),
 											btScalar(2.0*j + start_z),
 											btScalar(20+2.0*k + start_y)));
 

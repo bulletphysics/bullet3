@@ -14,7 +14,7 @@ struct SimpleOpenGL3App : public CommonGraphicsApp
 
 	class GLPrimitiveRenderer*	m_primRenderer;
 	class GLInstancingRenderer* m_instancingRenderer;
-	
+	virtual void setBackgroundColor(float red, float green, float blue);
 
 	SimpleOpenGL3App(const char* title, int width,int height);
 	virtual ~SimpleOpenGL3App();

@@ -2,6 +2,8 @@
 #include "gwenUserInterface.h"
 #include "gwenInternalData.h"
 #include "Gwen/Controls/ImagePanel.h"
+#include "Gwen/Controls/ColorPicker.h"
+//#include "Gwen/Controls/HSVColorPicker.h"
 
 class MyGraphWindow* graphWindow = 0;
 
@@ -365,18 +367,21 @@ void	GwenUserInterface::init(int width, int height,Gwen::Renderer::Base* rendere
 
 	Gwen::UnicodeString explorerStr1(L"Explorer");
 	m_data->m_explorerPage = explorerTab->AddPage(explorerStr1);
-	Gwen::UnicodeString shapesStr1(L"Shapes");
-	explorerTab->AddPage(shapesStr1);
-	Gwen::UnicodeString testStr1(L"Test");
-	explorerTab->AddPage(testStr1);
+	Gwen::UnicodeString shapesStr1(L"Test");
+	Gwen::Controls::TabButton* shapes = explorerTab->AddPage(shapesStr1);
 
+	///todo(erwincoumans) figure out why the HSV color picker is extremely slow
+	//Gwen::Controls::HSVColorPicker* color = new Gwen::Controls::HSVColorPicker(shapes->GetPage());
+	Gwen::Controls::ColorPicker* color = new Gwen::Controls::ColorPicker(shapes->GetPage());
+	color->SetKeyboardInputEnabled(true);
+	
 	Gwen::Controls::TreeControl* ctrl = new Gwen::Controls::TreeControl(m_data->m_explorerPage->GetPage());
 	m_data->m_explorerTreeCtrl = ctrl;
 	ctrl->SetKeyboardInputEnabled(true);
 	ctrl->Focus();
 	ctrl->SetBounds(2, 10, 236, 300);
 
-		m_data->m_exampleInfoGroupBox = new Gwen::Controls::Label( m_data->m_explorerPage->GetPage() );
+	m_data->m_exampleInfoGroupBox = new Gwen::Controls::Label( m_data->m_explorerPage->GetPage() );
 	m_data->m_exampleInfoGroupBox->SetPos(2, 314);
 	m_data->m_exampleInfoGroupBox->SetHeight( 15 );
 	m_data->m_exampleInfoGroupBox->SetWidth(234);
@@ -517,38 +522,83 @@ bool	GwenUserInterface::mouseMoveCallback( float x, float y)
 
 bool	GwenUserInterface::keyboardCallback(int bulletKey, int state)
 {
-	int key = -1;
+	int gwenKey = -1;
 	if (m_data->pCanvas)
 	{
 		//convert 'Bullet' keys into 'Gwen' keys
 		switch (bulletKey)
 		{
-		case B3G_RETURN:
+		case B3G_LEFT_ARROW:
 		{
-				   key = Gwen::Key::Return;
-				   break;
+			gwenKey = Gwen::Key::Left;
+			break;
 		}
-		case 	B3G_LEFT_ARROW:
-			key = Gwen::Key::Left;
+	case B3G_RIGHT_ARROW:
+		{
+			gwenKey = Gwen::Key::Right;
 			break;
-		case B3G_RIGHT_ARROW:
-			key = Gwen::Key::Right;
+		}
+	case B3G_UP_ARROW:
+		{
+			gwenKey = Gwen::Key::Up;
 			break;
+		}
+	case B3G_DOWN_ARROW:
+		{
+			gwenKey = Gwen::Key::Down;
+			break;
+		}
+	case B3G_BACKSPACE:
+		{
+			gwenKey = Gwen::Key::Backspace;
+			break;
+		}
+	case B3G_DELETE:
+		{
+			gwenKey = Gwen::Key::Delete;
+			break;
+		}
+	case B3G_HOME:
+		{
+			gwenKey = Gwen::Key::Home;
+			break;
+		}
+	case B3G_END:
+		{
+			gwenKey = Gwen::Key::End;
+			break;
+		}
+	case B3G_SHIFT:
+		{
+			gwenKey = Gwen::Key::Shift;
+			break;
+		}
+	case B3G_CONTROL:
+		{
+			gwenKey = Gwen::Key::Control;
+			break;
+		}
 
-		case	B3G_UP_ARROW:
-			key = Gwen::Key::Up;
-			break;
-		case B3G_DOWN_ARROW:
-			key = Gwen::Key::Down;
-			break;
 		default:
 		{
-
+			
 		}
 		};
 		bool bDown = (state == 1);
 
-		return m_data->pCanvas->InputKey(key, bDown);
+		if (gwenKey>=0)
+		{
+				return m_data->pCanvas->InputKey(gwenKey,state==1);
+		} else
+		{
+			if (bulletKey<256 && state)
+			{
+				Gwen::UnicodeChar c = ( Gwen::UnicodeChar ) bulletKey;
+				return m_data->pCanvas->InputCharacter(c);
+			}
+		}
+
+	
 	}
 	return false;
 }

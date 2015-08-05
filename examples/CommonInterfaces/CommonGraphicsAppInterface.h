@@ -42,6 +42,7 @@ struct CommonGraphicsApp
 	float	m_mouseXpos;
 	float	m_mouseYpos;
 	bool	m_mouseInitialized;
+	float	m_backgroundColorRGB[3];
 
 	CommonGraphicsApp()
 		:m_window(0),
@@ -57,6 +58,9 @@ struct CommonGraphicsApp
 		m_mouseYpos(0.f),
 		m_mouseInitialized(false)
 	{
+		m_backgroundColorRGB[0] = 0.9;
+		m_backgroundColorRGB[1] = 0.9;
+		m_backgroundColorRGB[2] = 1;
 	}
 	virtual ~CommonGraphicsApp()
 	{
@@ -64,7 +68,42 @@ struct CommonGraphicsApp
 
 	virtual void dumpNextFrameToPng(const char* pngFilename){}
     virtual void dumpFramesToVideo(const char* mp4Filename){}
-   
+	virtual void getBackgroundColor(float* red, float* green, float* blue) const
+	{
+		if (red)
+			*red = m_backgroundColorRGB[0];
+		if (green)
+			*green = m_backgroundColorRGB[1];
+		if (blue)
+			*blue = m_backgroundColorRGB[2];
+	}
+	virtual void setBackgroundColor(float red, float green, float blue)
+	{
+		m_backgroundColorRGB[0] = red;
+		m_backgroundColorRGB[1] = green;
+		m_backgroundColorRGB[2] = blue;
+	}
+	virtual void setMouseWheelMultiplier(float mult)
+	{
+		m_wheelMultiplier = mult;
+	}
+	virtual float getMouseWheelMultiplier() const
+	{
+		return m_wheelMultiplier;
+	}
+
+	virtual void setMouseMoveMultiplier(float mult)
+	{
+		m_mouseMoveMultiplier = mult;
+	}
+	
+	virtual float getMouseMoveMultiplier() const
+	{
+		return m_mouseMoveMultiplier;
+	}
+
+	
+
 	virtual void drawGrid(DrawGridData data=DrawGridData()) = 0;
 	virtual void setUpAxis(int axis) = 0;
 	virtual int getUpAxis() const = 0;

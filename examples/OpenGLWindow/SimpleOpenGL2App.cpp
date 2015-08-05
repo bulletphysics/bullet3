@@ -137,7 +137,11 @@ SimpleOpenGL2App::SimpleOpenGL2App(const char* title, int width, int height)
 	
 
     glGetError();//don't remove this call, it is needed for Ubuntu
-	glClearColor(0.9,0.9,1,1);
+	glClearColor(	m_backgroundColorRGB[0],
+					m_backgroundColorRGB[1],
+					m_backgroundColorRGB[2],
+					1.f);
+	
 
     b3Assert(glGetError() ==GL_NO_ERROR);
 
@@ -166,6 +170,12 @@ SimpleOpenGL2App::~SimpleOpenGL2App()
 {
 	gApp2 = 0;
 	delete m_data;
+}
+
+void SimpleOpenGL2App::setBackgroundColor(float red, float green, float blue)
+{
+	CommonGraphicsApp::setBackgroundColor(red,green,blue);
+	glClearColor(m_backgroundColorRGB[0],m_backgroundColorRGB[1],m_backgroundColorRGB[2],1.f);
 }
 
 void SimpleOpenGL2App::drawGrid(DrawGridData data)
