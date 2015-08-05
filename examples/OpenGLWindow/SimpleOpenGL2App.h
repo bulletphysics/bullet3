@@ -18,7 +18,7 @@ public:
 	
 	virtual void swapBuffer();
 	virtual void drawText( const char* txt, int posX, int posY);
-
+	virtual void setBackgroundColor(float red, float green, float blue);
 	virtual int	registerCubeShape(float halfExtentsX,float halfExtentsY, float halfExtentsZ)
 	{
 		return 0;

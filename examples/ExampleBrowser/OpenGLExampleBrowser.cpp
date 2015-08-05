@@ -69,6 +69,8 @@ extern bool useShadowMap;
 static bool visualWireframe=false;
 static bool renderVisualGeometry=true;
 static bool renderGrid = true;
+static bool enable_experimental_opencl = false;
+
 int gDebugDrawFlags = 0;
 static bool pauseSimulation=false;
 int midiBaseIndex = 176;
@@ -100,6 +102,10 @@ void deleteDemo()
 		s_guiHelper = 0;
 	}
 }
+
+const char* gPngFileName = 0;
+
+
 
 
 b3KeyboardCallback prevKeyboardCallback = 0;
@@ -172,6 +178,29 @@ void MyKeyboardCallback(int key, int state)
 		useShadowMap=!useShadowMap;
 	}
 #endif
+	if (key==B3G_F1)
+	{
+		static int count=0;
+		if (state)
+		{
+			b3Printf("F1 pressed %d", count++);
+
+			if (gPngFileName)
+			{
+				b3Printf("disable image dump");
+
+				gPngFileName=0;
+			} else
+			{
+				gPngFileName = gAllExamples->getExampleName(sCurrentDemoIndex);
+				b3Printf("enable image dump %s",gPngFileName);
+
+			}
+		} else 
+		{
+			b3Printf("F1 released %d",count++);
+		}
+	}
 	if (key==B3G_ESCAPE && s_window)
 	{
         
@@ -181,6 +210,7 @@ void MyKeyboardCallback(int key, int state)
 	if (prevKeyboardCallback)
 		prevKeyboardCallback(key,state);
 }
+
 
 b3MouseMoveCallback prevMouseMoveCallback = 0;
 static void MyMouseMoveCallback( float x, float y)
@@ -313,31 +343,53 @@ void selectDemo(int demoIndex)
 #include <stdio.h>
 
 
-static void saveCurrentDemoEntry(int currentEntry,const char* startFileName)
+static void saveCurrentSettings(int currentEntry,const char* startFileName)
 {
 	FILE* f = fopen(startFileName,"w");
 	if (f)
 	{
-		fprintf(f,"%d\n",currentEntry);
+		fprintf(f,"--start_demo_name=%s\n", gAllExamples->getExampleName(sCurrentDemoIndex));
+		fprintf(f,"--mouse_move_multiplier=%f\n", s_app->getMouseMoveMultiplier());
+		fprintf(f,"--mouse_wheel_multiplier=%f\n", s_app->getMouseWheelMultiplier());
+		float red,green,blue;
+		s_app->getBackgroundColor(&red,&green,&blue);
+		fprintf(f,"--background_color_red= %f\n", red);
+		fprintf(f,"--background_color_green= %f\n", green);
+		fprintf(f,"--background_color_blue= %f\n", blue);
+
+		if (enable_experimental_opencl)
+		{
+			fprintf(f,"--enable_experimental_opencl\n");
+		}
+		if (sUseOpenGL2 )
+		{
+			fprintf(f,"--opengl2\n");
+		}
+
 		fclose(f);
 	}
 };
 
-static int loadCurrentDemoEntry(const char* startFileName)
+static void loadCurrentSettings(const char* startFileName, b3CommandLineArgs& args)
 {
 	int currentEntry= 0;
 	FILE* f = fopen(startFileName,"r");
 	if (f)
 	{
 		int result;
-		result = fscanf(f,"%d",&currentEntry);
-		if (result)
+		char oneline[1024];
+		char* argv[] = {0,&oneline[0]};
+		
+		while( fgets (oneline, 1024, f)!=NULL ) 
 		{
-			return currentEntry;
+			char *pos;
+			if ((pos=strchr(oneline, '\n')) != NULL)
+				*pos = '\0';
+			args.addArgs(2,argv);
 		}
 		fclose(f);
 	}
-	return 0;
+
 };
 
 void	MyComboBoxCallback(int comboId, const char* item)
@@ -351,7 +403,7 @@ void	MyComboBoxCallback(int comboId, const char* item)
 			if (strcmp(item,allNames[i])==0)
 			{
 				selectDemo(i);
-				saveCurrentDemoEntry(sCurrentDemoIndex,startFileName);
+				saveCurrentSettings(sCurrentDemoIndex,startFileName);
 				break;
 			}
 		}
@@ -429,7 +481,7 @@ struct MyMenuItemHander :public Gwen::Event::Handler
 
 		
 		selectDemo(sCurrentHightlighted);
-		saveCurrentDemoEntry(sCurrentDemoIndex, startFileName);
+		saveCurrentSettings(sCurrentDemoIndex, startFileName);
 	}
 	void onButtonC(Gwen::Controls::Base* pControl)
 	{
@@ -452,7 +504,7 @@ struct MyMenuItemHander :public Gwen::Event::Handler
 
 	//	printf("onKeyReturn ! \n");
 		selectDemo(sCurrentHightlighted);
-		saveCurrentDemoEntry(sCurrentDemoIndex, startFileName);
+		saveCurrentSettings(sCurrentDemoIndex, startFileName);
 
 	}
 
@@ -607,6 +659,8 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 {
     b3CommandLineArgs args(argc,argv);
     
+	loadCurrentSettings(startFileName, args);
+
 	
 	///The OpenCL rigid body pipeline is experimental and 
 	///most OpenCL drivers and OpenCL compilers have issues with our kernels.
@@ -615,6 +669,7 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 	///Note that several old OpenCL physics examples still have to be ported over to this new Example Browser
 	if (args.CheckCmdLineFlag("enable_experimental_opencl"))
 	{
+		enable_experimental_opencl = true;
 		gAllExamples->initOpenCLExampleEntries();
 	}
 
@@ -671,6 +726,27 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 	s_app->m_renderer->getActiveCamera()->setCameraPitch(0);
 	s_app->m_renderer->getActiveCamera()->setCameraTargetPosition(0,0,0);
 
+	float mouseMoveMult= s_app->getMouseMoveMultiplier();
+	if (args.GetCmdLineArgument("mouse_move_multiplier", mouseMoveMult))
+	{
+		s_app->setMouseMoveMultiplier(mouseMoveMult);
+	}
+
+	
+	float mouseWheelMult= s_app->getMouseWheelMultiplier();
+	if (args.GetCmdLineArgument("mouse_wheel_multiplier",mouseWheelMult))
+	{
+		s_app->setMouseWheelMultiplier(mouseWheelMult);
+	}
+
+	
+	float red,green,blue;
+	s_app->getBackgroundColor(&red,&green,&blue);
+	args.GetCmdLineArgument("background_color_red",red);
+	args.GetCmdLineArgument("background_color_green",green);
+	args.GetCmdLineArgument("background_color_blue",blue);
+	s_app->setBackgroundColor(red,green,blue);
+
 	b3SetCustomWarningMessageFunc(MyGuiPrintf);
 	b3SetCustomPrintfFunc(MyGuiPrintf);
 	b3SetCustomErrorMessageFunc(MyStatusBarError);
@@ -725,12 +801,12 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 
 	//char nodeText[1024];
 	//int curDemo = 0;
-	int selectedDemo = loadCurrentDemoEntry(startFileName);
+	int selectedDemo = 0;
 	Gwen::Controls::TreeNode* curNode = tree;
 	MyMenuItemHander* handler2 = new MyMenuItemHander(-1);
 
 	char* demoNameFromCommandOption = 0;
-	args.GetCmdLineArgument("demo-name", demoNameFromCommandOption);
+	args.GetCmdLineArgument("start_demo_name", demoNameFromCommandOption);
 	if (demoNameFromCommandOption) {
 		selectedDemo = -1;
 	}
@@ -770,9 +846,16 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 
 
 			}
-			if (demoNameFromCommandOption && strcmp(gAllExamples->getExampleName(d), demoNameFromCommandOption) == 0) {
-				firstAvailableDemoIndex = d;
-				firstNode = pNode;
+			
+			if (demoNameFromCommandOption )
+			{
+				const char* demoName = gAllExamples->getExampleName(d);
+				int res = strcmp(demoName, demoNameFromCommandOption);
+				if (res==0)
+				{
+					firstAvailableDemoIndex = d;
+					firstNode = pNode;
+				}
 			}
 
 			MyMenuItemHander* handler = new MyMenuItemHander(d);
@@ -837,13 +920,8 @@ bool OpenGLExampleBrowser::requestedExit()
 
 void OpenGLExampleBrowser::update(float deltaTime)
 {
-/*	if (sCurrentDemo)
-	{
-		sCurrentDemo->stepSimulation(deltaTime);
-	}
-	*/
 
-			assert(glGetError()==GL_NO_ERROR);
+		assert(glGetError()==GL_NO_ERROR);
 		s_instancingRenderer->init();
         DrawGridData dg;
         dg.upAxis = s_app->getUpAxis();
@@ -882,6 +960,25 @@ void OpenGLExampleBrowser::update(float deltaTime)
 			{
 				//printf("---------------------------------------------------\n");
 				//printf("Framecount = %d\n",frameCount);
+
+				if (gPngFileName)
+				{
+					
+					static int skip = 0;
+					skip++;
+					if (skip>10)
+					{
+						skip=0;
+						//printf("gPngFileName=%s\n",gPngFileName);
+						static int s_frameCount = 0;
+						char fileName[1024];
+						sprintf(fileName,"%s%d.png",gPngFileName,s_frameCount++);
+						b3Printf("Made screenshot %s",fileName);
+						s_app->dumpNextFrameToPng(fileName);
+						 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+					}
+				}
+				
 
 				sCurrentDemo->stepSimulation(deltaTime);//1./60.f);
 			}
@@ -937,6 +1034,10 @@ void OpenGLExampleBrowser::update(float deltaTime)
             }
 
 		}
+	
+	
+	
+				
 		toggle=1-toggle;
         {
             BT_PROFILE("Sync Parameters");
