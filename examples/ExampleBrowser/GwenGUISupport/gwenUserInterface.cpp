@@ -528,6 +528,11 @@ bool	GwenUserInterface::keyboardCallback(int bulletKey, int state)
 		//convert 'Bullet' keys into 'Gwen' keys
 		switch (bulletKey)
 		{
+		case B3G_RETURN:
+		{
+			gwenKey = Gwen::Key::Return;
+			break;
+		}
 		case B3G_LEFT_ARROW:
 		{
 			gwenKey = Gwen::Key::Left;

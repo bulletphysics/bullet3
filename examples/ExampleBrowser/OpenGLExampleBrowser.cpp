@@ -360,16 +360,10 @@ static void saveCurrentSettings(int currentEntry,const char* startFileName)
 		if (enable_experimental_opencl)
 		{
 			fprintf(f,"--enable_experimental_opencl\n");
-		} else
-		{
-			fprintf(f,"//enable_experimental_opencl\n");
 		}
 		if (sUseOpenGL2 )
 		{
 			fprintf(f,"--opengl2\n");
-		} else
-		{
-			fprintf(f,"//opengl2\n");
 		}
 
 		fclose(f);
@@ -926,13 +920,8 @@ bool OpenGLExampleBrowser::requestedExit()
 
 void OpenGLExampleBrowser::update(float deltaTime)
 {
-/*	if (sCurrentDemo)
-	{
-		sCurrentDemo->stepSimulation(deltaTime);
-	}
-	*/
 
-			assert(glGetError()==GL_NO_ERROR);
+		assert(glGetError()==GL_NO_ERROR);
 		s_instancingRenderer->init();
         DrawGridData dg;
         dg.upAxis = s_app->getUpAxis();
