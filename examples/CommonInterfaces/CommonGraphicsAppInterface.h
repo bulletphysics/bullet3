@@ -27,6 +27,14 @@ struct DrawGridData
     }
 };
 
+enum EnumSphereLevelOfDetail
+{
+	SPHERE_LOD_POINT_SPRITE=0,
+	SPHERE_LOD_LOW,
+	SPHERE_LOD_MEDIUM,
+	SPHERE_LOD_HIGH,
+
+};
 struct CommonGraphicsApp
 {
 	class CommonWindowInterface*	m_window;
@@ -111,8 +119,9 @@ struct CommonGraphicsApp
 	virtual void swapBuffer() = 0;
 	virtual void drawText( const char* txt, int posX, int posY) = 0;
 	virtual void drawText3D( const char* txt, float posX, float posZY, float posZ, float size)=0;
-	virtual int	registerCubeShape(float halfExtentsX,float halfExtentsY, float halfExtentsZ)=0;
-	virtual int	registerGraphicsSphereShape(float radius, bool usePointSprites=true, int largeSphereThreshold=100, int mediumSphereThreshold=10)=0;
+	virtual int	registerCubeShape(float halfExtentsX,float halfExtentsY, float halfExtentsZ, int textureIndex = -1)=0;
+	virtual int	registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lod, int textureId=-1) = 0;
+
 	virtual void registerGrid(int xres, int yres, float color0[4], float color1[4])=0;
 
 	void defaultMouseButtonCallback( int button, int state, float x, float y)

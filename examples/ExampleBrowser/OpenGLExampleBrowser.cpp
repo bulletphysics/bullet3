@@ -51,7 +51,7 @@ static OpenGLGuiHelper*	s_guiHelper=0;
 static MyProfileWindow* s_profWindow =0;
 
 #define DEMO_SELECTION_COMBOBOX 13
-const char* startFileName = "bulletDemo.txt";
+const char* startFileName = "0_Bullet3Demo.txt";
 
 static GwenUserInterface* gui  = 0;
 static int sCurrentDemoIndex = -1;

@@ -40,24 +40,46 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(std::vector<tiny
 					vtx0.xyzw[2] = shape.mesh.positions[shape.mesh.indices[f]*3+2];
 					vtx0.xyzw[3] = 0.f;
 					
-					vtx0.uv[0] = 0.5f;//shape.mesh.positions[shape.mesh.indices[f]*3+2];?
-					vtx0.uv[1] = 0.5f;
+					if (shape.mesh.texcoords.size())
+					{
+						vtx0.uv[0] = shape.mesh.texcoords[shape.mesh.indices[f]*2+0];
+						vtx0.uv[1] = shape.mesh.texcoords[shape.mesh.indices[f]*2+1];
+					} else
+					{
+						vtx0.uv[0] = 0.5;
+						vtx0.uv[1] = 0.5;
+					}
 					
 					GLInstanceVertex vtx1;
 					vtx1.xyzw[0] = shape.mesh.positions[shape.mesh.indices[f+1]*3+0];
 					vtx1.xyzw[1] = shape.mesh.positions[shape.mesh.indices[f+1]*3+1];
 					vtx1.xyzw[2] = shape.mesh.positions[shape.mesh.indices[f+1]*3+2];
 					vtx1.xyzw[3]= 0.f;
-					vtx1.uv[0] = 0.5f;//obj->textureList[face->vertex_index[1]]->e[0];
-					vtx1.uv[1] = 0.5f;//obj->textureList[face->vertex_index[1]]->e[1];
+
+					if (shape.mesh.texcoords.size())
+					{
+						vtx1.uv[0] = shape.mesh.texcoords[shape.mesh.indices[f+1]*2+0];
+						vtx1.uv[1] = shape.mesh.texcoords[shape.mesh.indices[f+1]*2+1];
+					} else
+					{
+						vtx1.uv[0] = 0.5f;
+						vtx1.uv[1] = 0.5f;
+					}
 					
 					GLInstanceVertex vtx2;
 					vtx2.xyzw[0] = shape.mesh.positions[shape.mesh.indices[f+2]*3+0];
 					vtx2.xyzw[1] = shape.mesh.positions[shape.mesh.indices[f+2]*3+1];
 					vtx2.xyzw[2] = shape.mesh.positions[shape.mesh.indices[f+2]*3+2];
 					vtx2.xyzw[3] = 0.f;
-					vtx2.uv[0] = 0.5f;
-					vtx2.uv[1] = 0.5f;
+					if (shape.mesh.texcoords.size())
+					{
+						vtx2.uv[0] = shape.mesh.texcoords[shape.mesh.indices[f+2]*2+0];
+						vtx2.uv[1] = shape.mesh.texcoords[shape.mesh.indices[f+2]*2+1];
+					} else
+					{
+						vtx2.uv[0] = 0.5;
+						vtx2.uv[1] = 0.5;
+					}
 					
 					
 					btVector3 v0(vtx0.xyzw[0],vtx0.xyzw[1],vtx0.xyzw[2]);
