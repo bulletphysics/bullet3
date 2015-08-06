@@ -20,7 +20,7 @@ public:
 	virtual ~PhysicsServerSharedMemory();
 
 	//todo: implement option to allocated shared memory from client 
-	virtual bool connectSharedMemory(bool allowSharedMemoryInitialization, class btMultiBodyDynamicsWorld* dynamicsWorld, struct GUIHelperInterface* guiHelper);
+	virtual bool connectSharedMemory(class btMultiBodyDynamicsWorld* dynamicsWorld, struct GUIHelperInterface* guiHelper);
 
 	virtual void disconnectSharedMemory (bool deInitializeSharedMemory);
 

@@ -24,9 +24,9 @@ class PhysicsServerExample : public SharedMemoryCommon
 {
 	PhysicsServerSharedMemory	m_physicsServer;
 
-	
-	bool m_wantsShutdown;
+    bool m_wantsShutdown;
 
+    bool m_isConnected;
 	
 public:
     
@@ -50,11 +50,14 @@ public:
 	}
     
     virtual bool wantsTermination();
+    virtual bool isConnected();
+
 };
 
 PhysicsServerExample::PhysicsServerExample(GUIHelperInterface* helper)
 :SharedMemoryCommon(helper),
-m_wantsShutdown(false)
+m_wantsShutdown(false),
+m_isConnected(false)
 {
 	b3Printf("Started PhysicsServer\n");
 }
@@ -65,6 +68,12 @@ PhysicsServerExample::~PhysicsServerExample()
 {
 	bool deInitializeSharedMemory = true;
 	m_physicsServer.disconnectSharedMemory(deInitializeSharedMemory);
+    m_isConnected = false;
+}
+
+bool PhysicsServerExample::isConnected()
+{
+    return m_isConnected;
 }
 
 void	PhysicsServerExample::initPhysics()
@@ -80,8 +89,7 @@ void	PhysicsServerExample::initPhysics()
 	grav[upAxis] = 0;//-9.8;
 	this->m_dynamicsWorld->setGravity(grav);
     
-	bool allowSharedMemoryInitialization = true;
-	m_physicsServer.connectSharedMemory(allowSharedMemoryInitialization, m_dynamicsWorld,m_guiHelper);
+	m_isConnected = m_physicsServer.connectSharedMemory( m_dynamicsWorld,m_guiHelper);
   
 }
 

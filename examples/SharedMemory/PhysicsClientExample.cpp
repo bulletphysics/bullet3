@@ -9,6 +9,15 @@
 #include "PhysicsClient.h"
 #include "SharedMemoryCommands.h"
 
+struct MyMotorInfo2
+{
+	btScalar m_velTarget;
+	btScalar m_maxForce;
+	int		m_uIndex;
+};
+
+#define MAX_NUM_MOTORS 128
+
 class PhysicsClientExample : public SharedMemoryCommon
 {
 protected:
@@ -21,6 +30,11 @@ protected:
 	void	createButton(const char* name, int id, bool isTrigger );
 
 public:
+    
+    //@todo, add accessor methods
+	MyMotorInfo2 m_motorTargetVelocities[MAX_NUM_MOTORS];
+	int m_numMotors;
+
     
 	PhysicsClientExample(GUIHelperInterface* helper);
 	virtual ~PhysicsClientExample();
@@ -42,9 +56,18 @@ public:
     {
         return m_wantsTermination;
     }
+    
+    virtual bool isConnected()
+    {
+        return m_physicsClient.isConnected();
+    }
+    
 	void enqueueCommand(const SharedMemoryCommand& orgCommand);
 	
 };
+
+
+
 
 
 void MyCallback(int buttonId, bool buttonState, void* userPtr)
@@ -58,8 +81,8 @@ void MyCallback(int buttonId, bool buttonState, void* userPtr)
 	case  CMD_LOAD_URDF:
 		{
 			command.m_type =CMD_LOAD_URDF;
-			sprintf(command.m_urdfArguments.m_urdfFileName,"hinge.urdf");//r2d2.urdf");
-			command.m_urdfArguments.m_initialPosition[0] = 0.0;
+			sprintf(command.m_urdfArguments.m_urdfFileName,"kuka_lwr/kuka.urdf");
+            command.m_urdfArguments.m_initialPosition[0] = 0.0;
 			command.m_urdfArguments.m_initialPosition[1] = 0.0;
 			command.m_urdfArguments.m_initialPosition[2] = 0.0;
 			command.m_urdfArguments.m_initialOrientation[0] = 0.0;
@@ -92,36 +115,29 @@ void MyCallback(int buttonId, bool buttonState, void* userPtr)
 	
     case CMD_SEND_DESIRED_STATE:
 		{
-				command.m_type =CMD_SEND_DESIRED_STATE;
-				int controlMode = CONTROL_MODE_VELOCITY;//CONTROL_MODE_TORQUE;
+            command.m_type =CMD_SEND_DESIRED_STATE;
+            int controlMode = CONTROL_MODE_VELOCITY;//CONTROL_MODE_TORQUE;
 
-				command.m_sendDesiredStateCommandArgument.m_controlMode = controlMode;
-				//todo: expose a drop box in the GUI for this
-				switch (controlMode)
-				{
-				case CONTROL_MODE_VELOCITY:
-					{
-						for (int i=0;i<MAX_DEGREE_OF_FREEDOM;i++)
-						{
-							command.m_sendDesiredStateCommandArgument.m_desiredStateQdot[i] = 1;
-							command.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[i] = 100;
-						}
-						break;
-					}
-				case CONTROL_MODE_TORQUE:
-					{
-						for (int i=0;i<MAX_DEGREE_OF_FREEDOM;i++)
-						{
-							command.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[i] = 100;
-						}
-						break;
-					}
-				default:
-					{
-						b3Printf("Unknown control mode in client CMD_SEND_DESIRED_STATE");
-						btAssert(0);
-					}
-				}
+            command.m_sendDesiredStateCommandArgument.m_controlMode = controlMode;
+            
+            for (int i=0;i<MAX_DEGREE_OF_FREEDOM;i++)
+            {
+                command.m_sendDesiredStateCommandArgument.m_desiredStateQdot[i] = 0;
+                command.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[i] = 1000;
+            }
+            for (int i=0;i<cl->m_numMotors;i++)
+            {
+                btScalar targetVel = cl->m_motorTargetVelocities[i].m_velTarget;
+                
+                int uIndex = cl->m_motorTargetVelocities[i].m_uIndex;
+                if (targetVel>1)
+                {
+                    printf("testme");
+                }
+                command.m_sendDesiredStateCommandArgument.m_desiredStateQdot[uIndex] = targetVel;
+                
+            }
+            
 			cl->enqueueCommand(command);		
 			break;
 		}
@@ -200,7 +216,7 @@ void	PhysicsClientExample::initPhysics()
 
 	if (!m_physicsClient.connect())
 	{
-		b3Warning("Cannot eonnect to physics client");
+		b3Warning("Cannot connect to physics client");
 	}
 
 }
@@ -222,6 +238,36 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 				b3Printf("Joint %s at q-index %d and u-index %d\n",info.m_jointName,info.m_qIndex,info.m_uIndex);
 				
 			}
+            
+            if (hasStatus && status.m_type == CMD_URDF_LOADING_COMPLETED)
+            {
+                for (int i=0;i<m_physicsClient.getNumJoints();i++)
+                {
+                    b3JointInfo info;
+                    m_physicsClient.getJointInfo(i,info);
+                    b3Printf("Joint %s at q-index %d and u-index %d\n",info.m_jointName,info.m_qIndex,info.m_uIndex);
+                    
+                    if (info.m_flags & JOINT_HAS_MOTORIZED_POWER)
+                    {
+                        if (m_numMotors<MAX_NUM_MOTORS)
+                        {
+                            char motorName[1024];
+                            sprintf(motorName,"%s q'", info.m_jointName);
+                            MyMotorInfo2* motorInfo = &m_motorTargetVelocities[m_numMotors];
+                            motorInfo->m_velTarget = 0.f;
+                            motorInfo->m_uIndex = info.m_uIndex;
+                            
+                            SliderParams slider(motorName,&motorInfo->m_velTarget);
+                            slider.m_minVal=-4;
+                            slider.m_maxVal=4;
+                            m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+                            m_numMotors++;
+                        }
+                    }
+                    
+                }
+
+            }
 		}
     
 		if (m_physicsClient.canSubmitCommand())
