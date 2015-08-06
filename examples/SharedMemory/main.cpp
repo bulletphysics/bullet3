@@ -22,8 +22,7 @@ subject to the following restrictions:
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "SharedMemoryCommon.h"
 
-#include <signal.h>
-#include <err.h>
+
 #include <stdlib.h>
 
 
@@ -31,6 +30,8 @@ static SharedMemoryCommon*    example = NULL;
 static bool interrupted = false;
 
 #ifndef _WIN32
+#include <signal.h>
+#include <err.h>
 #include <unistd.h>
 static void cleanup(int signo)
 {
