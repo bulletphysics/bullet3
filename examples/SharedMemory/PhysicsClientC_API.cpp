@@ -191,10 +191,11 @@ int b3CreateSensorEnable6DofJointForceTorqueSensor(struct SharedMemoryCommand* c
 }
 
 
-b3PhysicsClientHandle b3ConnectSharedMemory( int allowSharedMemoryInitialization)
+b3PhysicsClientHandle b3ConnectSharedMemory()
 {
 	PhysicsClientSharedMemory* cl = new PhysicsClientSharedMemory();
-	cl->connect(allowSharedMemoryInitialization);
+    ///client should never create shared memory, only the server does
+	cl->connect();
 	return (b3PhysicsClientHandle ) cl;
 }
 

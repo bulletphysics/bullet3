@@ -12,6 +12,7 @@ public:
 	}
 
 	virtual bool wantsTermination()=0;
+    virtual bool isConnected()=0;
 };
 #endif//
 

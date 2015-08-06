@@ -15,7 +15,9 @@ public:
 	virtual ~PhysicsClientSharedMemory();
 
 	//return true if connection succesfull, can also check 'isConnected'
-	virtual bool	connect(bool allowSharedMemoryInitialization = true);
+	virtual bool	connect();
+    
+    virtual void disconnectSharedMemory ();
 
 	virtual bool	isConnected() const;
 

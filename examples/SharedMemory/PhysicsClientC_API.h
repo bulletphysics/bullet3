@@ -12,7 +12,8 @@ B3_DECLARE_HANDLE(b3PhysicsRobotHandle);
 extern "C" { 
 #endif
 
-b3PhysicsClientHandle b3ConnectSharedMemory(int allowSharedMemoryInitialization);
+///make sure to start the server first!
+b3PhysicsClientHandle b3ConnectSharedMemory();
 
 void	b3DisconnectSharedMemory(b3PhysicsClientHandle physClient);
 

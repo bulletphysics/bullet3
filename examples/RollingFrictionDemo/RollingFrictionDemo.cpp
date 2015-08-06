@@ -229,6 +229,9 @@ void	RollingFrictionDemo::initPhysics()
 	}
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+
+	if (0)
+	{	
 	btSerializer* s = new btDefaultSerializer;
 	m_dynamicsWorld->serialize(s);
 	b3ResourcePath p;
@@ -238,6 +241,7 @@ void	RollingFrictionDemo::initPhysics()
 		FILE* f = fopen(resourcePath,"wb");
 		fwrite(s->getBufferPointer(),s->getCurrentBufferSize(),1,f);
 		fclose(f);
+	}
 	}
 }
 
