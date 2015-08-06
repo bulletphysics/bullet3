@@ -794,8 +794,8 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 							vis.m_localMaterial = **mat;
 						} else
 						{
-							logger->reportError("Cannot find material with name:");
-							logger->reportError(vis.m_materialName.c_str());
+							//logger->reportError("Cannot find material with name:");
+							//logger->reportError(vis.m_materialName.c_str());
 						}
 					}
 				}

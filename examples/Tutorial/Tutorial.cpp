@@ -61,6 +61,9 @@ struct LWRightBody
 			//Exponential map
 			//google for "Practical Parameterization of Rotations Using the Exponential Map", F. Sebastian Grassia
 
+			//btQuaternion q_w = [ sin(|w|*dt/2) * w/|w| , cos(|w|*dt/2)]
+			//btQuaternion q_new =  q_w * q_old;
+			
 			btVector3 axis;
 			btScalar	fAngle = m_angularVelocity.length(); 
 			//limit the angular motion
@@ -88,6 +91,7 @@ struct LWRightBody
 			predictedOrn.normalize();
 			m_worldPose.m_worldOrientation = predictedOrn;
 		}
+
 	}
 	
 
@@ -99,13 +103,9 @@ struct LWRightBody
 
 
 
-///quick demo showing the right-handed coordinate system and positive rotations around each axis
 class Tutorial : public CommonExampleInterface
 {
     CommonGraphicsApp* m_app;
-    float m_x;
-    float m_y;
-    float m_z;
     int m_tutorialIndex;
 
 	LWRightBody*	m_body;
@@ -114,14 +114,14 @@ public:
     
     Tutorial(CommonGraphicsApp* app, int tutorialIndex)
     :m_app(app),
-    m_x(0),
-    m_y(0),
-	m_z(0),
 	m_tutorialIndex(tutorialIndex)
     {
 		m_app->setUpAxis(2);
 
-
+		switch (m_tutorialIndex)
+		{
+				
+		}
 		{
 
 		 int boxId = m_app->registerCubeShape(100,100,1);
@@ -186,10 +186,6 @@ public:
     }
     virtual void	stepSimulation(float deltaTime)
     {
-        m_x+=0.01f;
-        m_y+=0.01f;
-		m_z+=0.01f;
-		//m_body->m_worldPose.m_worldPosition+= btVector3(0,0.01,0);
 		//m_body->m_linearVelocity=btVector3(0,0.1,0);
 		m_body->m_angularVelocity =btVector3(0,0.1,0);
 		m_body->integrateTransform(deltaTime);

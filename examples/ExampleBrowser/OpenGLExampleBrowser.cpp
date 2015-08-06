@@ -266,9 +266,8 @@ void openFileDemo(const char* filename)
     s_parameterInterface->removeAllParameters();
    
 
-	CommonExampleOptions options(s_guiHelper,0);
+	CommonExampleOptions options(s_guiHelper,1);
 	options.m_fileName = filename;
-
 	char fullPath[1024];
 	sprintf(fullPath, "%s", filename);
 	b3FileUtils::toLower(fullPath);
