@@ -38,7 +38,7 @@
 #include "../SharedMemory/PhysicsClientExample.h"
 #include "../Constraints/TestHingeTorque.h"
 #include "../RenderingExamples/TimeSeriesExample.h"
-
+#include "../Tutorial/Tutorial.h"
 
 #ifdef ENABLE_LUA
 #include "../LuaDemo/LuaPhysicsSetup.h"
@@ -75,6 +75,10 @@ struct ExampleEntry
 
 static ExampleEntry gDefaultExamples[]=
 {
+	
+	ExampleEntry(0,"Tutorial"),
+	ExampleEntry(1,"Free Rigid Body","Free moving rigid body, without external or constraint forces", TutorialCreateFunc,0),
+
 	
 	
 	ExampleEntry(0,"API"),

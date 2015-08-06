@@ -8,7 +8,7 @@
 #include "Wavefront2GLInstanceGraphicsShape.h"
 #include "../../Utils/b3ResourcePath.h"
 #include "Bullet3Common/b3FileUtils.h"
-
+#include "stb_image/stb_image.h"
 
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 
@@ -58,7 +58,7 @@ void ImportObjSetup::initPhysics()
 	m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
 
 
-   const char* fileName = "samurai_monastry.obj";
+   const char* fileName = "sphere8.obj";
         char relativeFileName[1024];
         if (b3ResourcePath::findResourcePath(fileName, relativeFileName, 1024))
         {
@@ -86,10 +86,49 @@ void ImportObjSetup::initPhysics()
 		btVector3 position = trans.getOrigin();
 		btQuaternion orn = trans.getRotation();
 		
-		btVector3 color(0,0,1);
+		btVector3 color(1,1,1);
 		
+		int textureIndex = -1;
+		//try to load some texture
+		for (int i=0;i<shapes.size();i++)
+		{
+			const tinyobj::shape_t& shape = shapes[i];
+			if (shape.material.diffuse_texname.length()>0)
+			{
+
+				int width,height,n;
+				const char* filename = shape.material.diffuse_texname.c_str();
+				const unsigned char* image=0;
 		
-		int shapeId = m_guiHelper->getRenderInterface()->registerShape(&gfxShape->m_vertices->at(0).xyzw[0], gfxShape->m_numvertices, &gfxShape->m_indices->at(0), gfxShape->m_numIndices);
+				const char* prefix[]={"./","./data/","../data/","../../data/","../../../data/","../../../../data/"};
+				int numprefix = sizeof(prefix)/sizeof(const char*);
+		
+				for (int i=0;!image && i<numprefix;i++)
+				{
+					char relativeFileName[1024];
+					sprintf(relativeFileName,"%s%s",prefix[i],filename);
+					image = stbi_load(relativeFileName, &width, &height, &n, 0);
+				}
+		
+				if (image)
+				{
+					textureIndex = m_guiHelper->getRenderInterface()->registerTexture(image,width,height);
+					if (textureIndex>=0)
+					{
+						break;
+					}
+				}
+
+			}
+
+		}
+		
+		if (1)
+		{
+			
+		}
+
+		int shapeId = m_guiHelper->getRenderInterface()->registerShape(&gfxShape->m_vertices->at(0).xyzw[0], gfxShape->m_numvertices, &gfxShape->m_indices->at(0), gfxShape->m_numIndices,B3_GL_TRIANGLES,textureIndex);
 		
 		//int id = 
 		m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId,position,orn,color,scaling);

@@ -13,6 +13,7 @@ layout (location = 6) in vec3 instance_scale;
 
 uniform mat4 ModelViewMatrix;
 uniform mat4 ProjectionMatrix;
+uniform vec3 lightDirIn;
 
 out Fragment
 {
@@ -60,17 +61,13 @@ out vec3 lightDir,normal,ambient;
 void main(void)
 {
 	vec4 q = instance_quaternion;
-	ambient = vec3(0.3,.3,0.3);
-		
-		
-	vec4 local_normal = (quatRotate3( vertexnormal,q));
-	vec3 light_pos = vec3(-0.3,0.1,0.1);
-	normal = local_normal.xyz;//normalize(ModelViewMatrix * local_normal).xyz;
-
-	lightDir = normalize(light_pos);//gl_LightSource[0].position.xyz));
-//	lightDir = normalize(vec3(gl_LightSource[0].position));
-		
-	vec4 axis = vec4(1,1,1,0);
+	ambient = vec3(0.6,.6,0.6);
+	
+	vec4 worldNormal =  (quatRotate3( vertexnormal,q));
+	normal = normalize(worldNormal).xyz;
+	
+	lightDir = lightDirIn;
+	
 	vec4 localcoord = quatRotate3( position.xyz*instance_scale,q);
 	vec4 vertexPos = ProjectionMatrix * ModelViewMatrix *(instance_position+localcoord);
 
