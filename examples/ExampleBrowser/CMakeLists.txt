@@ -27,6 +27,8 @@ SET(App_ExampleBrowser_SRCS
 	../BasicDemo/BasicExample.h
 	../ForkLift/ForkLiftDemo.cpp
 	../ForkLift/ForkLiftDemo.h
+	../Tutorial/Tutorial.cpp
+	../Tutorial/Tutorial.h
 	../GyroscopicDemo/GyroscopicSetup.cpp
 	../GyroscopicDemo/GyroscopicSetup.h
 	../Planar2D/Planar2D.cpp
@@ -41,6 +43,7 @@ SET(App_ExampleBrowser_SRCS
 	../FractureDemo/btFractureDynamicsWorld.h
 	../DynamicControlDemo/MotorDemo.cpp
 	../DynamicControlDemo/MotorDemo.h
+	
 		../RenderingExamples/CoordinateSystemDemo.cpp
 	../RenderingExamples/CoordinateSystemDemo.h
 	../RenderingExamples/RaytracerSetup.cpp
@@ -118,6 +121,9 @@ SET(App_ExampleBrowser_SRCS
   ../Constraints/ConstraintPhysicsSetup.h
   
 	
+	../ThirdPartyLibs/stb_image/stb_image.cpp
+	../ThirdPartyLibs/stb_image/stb_image.h
+
     ../ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
     ../ThirdPartyLibs/tinyxml/tinystr.cpp
     ../ThirdPartyLibs/tinyxml/tinyxml.cpp

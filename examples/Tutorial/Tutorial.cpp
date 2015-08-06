@@ -5,9 +5,10 @@
 
 #include "../CommonInterfaces/CommonExampleInterface.h"
 #include "LinearMath/btTransform.h"
-#include "stb_image/stb_image.h"
 
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
+
+#include "stb_image/stb_image.h"
 
 struct LWPose
 {
@@ -227,7 +228,7 @@ public:
 
 	virtual void resetCamera()
 	{
-		float dist = 3.5;
+		float dist = 10.5;
 		float pitch = 136;
 		float yaw = 32;
 		float targetPos[3]={0,0,0};

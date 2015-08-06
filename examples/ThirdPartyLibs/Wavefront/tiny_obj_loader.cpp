@@ -606,8 +606,8 @@ LoadObj(
 
       std::string err_mtl = LoadMtl(material_map, namebuf, mtl_basepath);
       if (!err_mtl.empty()) {
-        faceGroup.resize(0);  // for safety
-        return err_mtl;
+        //faceGroup.resize(0);  // for safety
+        //return err_mtl;
       }
       continue;
     }

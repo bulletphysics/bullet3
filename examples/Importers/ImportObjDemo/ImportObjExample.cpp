@@ -8,6 +8,7 @@
 #include "Wavefront2GLInstanceGraphicsShape.h"
 #include "../../Utils/b3ResourcePath.h"
 #include "Bullet3Common/b3FileUtils.h"
+
 #include "stb_image/stb_image.h"
 
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
@@ -24,10 +25,10 @@ public:
 
 	virtual void resetCamera()
 	{
-		float dist = 50;
-		float pitch = 61;
-		float yaw = 18;
-		float targetPos[3]={-15,-15,47};
+		float dist = 18;
+		float pitch = 120;
+		float yaw = 46;
+		float targetPos[3]={-2,-2,-2};
 		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
 	}
 
@@ -58,7 +59,7 @@ void ImportObjSetup::initPhysics()
 	m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
 
 
-   const char* fileName = "sphere8.obj";
+   const char* fileName = "sphere8.obj";//sponza_closed.obj";//sphere8.obj";
         char relativeFileName[1024];
         if (b3ResourcePath::findResourcePath(fileName, relativeFileName, 1024))
         {

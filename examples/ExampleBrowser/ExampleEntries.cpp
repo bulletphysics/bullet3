@@ -76,9 +76,7 @@ struct ExampleEntry
 static ExampleEntry gDefaultExamples[]=
 {
 	
-	ExampleEntry(0,"Tutorial"),
-	ExampleEntry(1,"Free Rigid Body","Free moving rigid body, without external or constraint forces", TutorialCreateFunc,0),
-
+	
 	
 	
 	ExampleEntry(0,"API"),
@@ -109,6 +107,10 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"TestJointTorque","Apply a torque to a btMultiBody with 1-DOF joints (mobilizers). This setup is similar to API/TestHingeTorque.", TestJointTorqueCreateFunc),
  ExampleEntry(1,"Constraint Feedback", "The example shows how to receive joint reaction forces in a btMultiBody. Also the applied impulse is available for a btMultiBodyJointMotor", MultiBodyConstraintFeedbackCreateFunc),
 	ExampleEntry(1,"Inverted Pendulum PD","Keep an inverted pendulum up using open loop PD control", InvertedPendulumPDControlCreateFunc),
+
+	ExampleEntry(0,"Tutorial"),
+	ExampleEntry(1,"Free Rigid Body","(Preliminary work in progress) Free moving rigid body, without external or constraint forces", TutorialCreateFunc,0),
+
 
 #ifdef INCLUDE_CLOTH_DEMOS
 	ExampleEntry(0,"Soft Body"),
