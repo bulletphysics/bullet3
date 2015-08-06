@@ -27,6 +27,8 @@ SET(App_ExampleBrowser_SRCS
 	../BasicDemo/BasicExample.h
 	../ForkLift/ForkLiftDemo.cpp
 	../ForkLift/ForkLiftDemo.h
+	../CarHandling/CarHandlingDemo.cpp
+	../CarHandling/CarHandlingDemo.h
 	../GyroscopicDemo/GyroscopicSetup.cpp
 	../GyroscopicDemo/GyroscopicSetup.h
 	../Planar2D/Planar2D.cpp
