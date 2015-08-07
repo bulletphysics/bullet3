@@ -124,7 +124,7 @@ void PhysicsServerSharedMemory::createEmptyDynamicsWorld()
 	
 	m_data->m_dynamicsWorld = new btMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
 	
-	m_data->m_dynamicsWorld->setGravity(btVector3(0, -10, 0));
+	m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
 }
 
 void PhysicsServerSharedMemory::deleteDynamicsWorld()
@@ -187,14 +187,19 @@ void PhysicsServerSharedMemory::deleteDynamicsWorld()
 	m_data->m_collisionShapes.clear();
 
 	delete m_data->m_dynamicsWorld;
+	m_data->m_dynamicsWorld=0;
 
 	delete m_data->m_solver;
+	m_data->m_solver=0;
 
 	delete m_data->m_broadphase;
+	m_data->m_broadphase=0;
 
 	delete m_data->m_dispatcher;
+	m_data->m_dispatcher=0;
 
 	delete m_data->m_collisionConfiguration;
+	m_data->m_collisionConfiguration=0;
 
 }
 

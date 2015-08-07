@@ -44,7 +44,12 @@ SET(App_ExampleBrowser_SRCS
 	../DynamicControlDemo/MotorDemo.cpp
 	../DynamicControlDemo/MotorDemo.h
 	
-		../RenderingExamples/CoordinateSystemDemo.cpp
+	../RenderingExamples/TimeSeriesCanvas.cpp
+	../RenderingExamples/TimeSeriesCanvas.h
+	../RenderingExamples/TimeSeriesFontData.cpp
+	../RenderingExamples/TimeSeriesFontData.h
+	
+	../RenderingExamples/CoordinateSystemDemo.cpp
 	../RenderingExamples/CoordinateSystemDemo.h
 	../RenderingExamples/RaytracerSetup.cpp
 	../RenderingExamples/RaytracerSetup.h
