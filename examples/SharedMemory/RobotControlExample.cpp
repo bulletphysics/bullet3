@@ -72,10 +72,16 @@ public:
     
     virtual bool wantsTermination();
     virtual bool isConnected();
-	virtual void	renderScene(){}
+	virtual void	renderScene()
+	{
+		m_physicsServer.renderScene();
+	}
 	virtual void    exitPhysics(){}
 	
-	virtual void	physicsDebugDraw(int debugFlags){}
+	virtual void	physicsDebugDraw(int debugFlags)
+	{
+		m_physicsServer.physicsDebugDraw(debugFlags);
+	}
 	virtual bool	mouseMoveCallback(float x,float y){return false;};
 	virtual bool	mouseButtonCallback(int button, int state, float x, float y){return false;}
 	virtual bool	keyboardCallback(int key, int state){return false;}
@@ -104,6 +110,7 @@ void MyCallback2(int buttonId, bool buttonState, void* userPtr)
 	case  CMD_LOAD_URDF:
 		{
 			command.m_type =CMD_LOAD_URDF;
+			command.m_updateFlags = URDF_ARGS_FILE_NAME|URDF_ARGS_INITIAL_POSITION|URDF_ARGS_INITIAL_ORIENTATION;
 			sprintf(command.m_urdfArguments.m_urdfFileName,"r2d2.urdf");
 			command.m_urdfArguments.m_initialPosition[0] = 0.0;
 			command.m_urdfArguments.m_initialPosition[1] = 0.0;

@@ -112,7 +112,7 @@ static GLuint BindFont(const CTexFont *_Font)
 
 extern unsigned char OpenSansData[];
 
-SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
+SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height, bool allowRetina)
 {
 	gApp = this;
 	m_data = new SimpleInternalData;
@@ -123,6 +123,8 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height)
 	m_data->m_upAxis = 1;
 
 	m_window = new b3gDefaultOpenGLWindow();
+	m_window->setAllowRetina(allowRetina);
+	
 	b3gWindowConstructionInfo ci;
 	ci.m_title = title;
 	ci.m_width = width;

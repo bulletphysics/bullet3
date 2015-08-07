@@ -52,12 +52,14 @@ static MyProfileWindow* s_profWindow =0;
 
 #define DEMO_SELECTION_COMBOBOX 13
 const char* startFileName = "0_Bullet3Demo.txt";
-
+char staticPngFileName[1024];
 static GwenUserInterface* gui  = 0;
 static int sCurrentDemoIndex = -1;
 static int sCurrentHightlighted = 0;
 static CommonExampleInterface* sCurrentDemo = 0;
 static b3AlignedObjectArray<const char*> allNames;
+static float gFixedTimeStep = 0;
+bool gAllowRetina = true;
 
 static class ExampleEntries* gAllExamples=0;
 bool sUseOpenGL2 = false;
@@ -358,6 +360,11 @@ static void saveCurrentSettings(int currentEntry,const char* startFileName)
 		fprintf(f,"--background_color_red= %f\n", red);
 		fprintf(f,"--background_color_green= %f\n", green);
 		fprintf(f,"--background_color_blue= %f\n", blue);
+		fprintf(f,"--fixed_timestep= %f\n", gFixedTimeStep);
+		if (!gAllowRetina)
+		{
+			fprintf(f,"--disable_retina");
+		}
 
 		if (enable_experimental_opencl)
 		{
@@ -663,6 +670,7 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
     
 	loadCurrentSettings(startFileName, args);
 
+	args.GetCmdLineArgument("fixed_timestep",gFixedTimeStep);
 	
 	///The OpenCL rigid body pipeline is experimental and 
 	///most OpenCL drivers and OpenCL compilers have issues with our kernels.
@@ -674,7 +682,11 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 		enable_experimental_opencl = true;
 		gAllExamples->initOpenCLExampleEntries();
 	}
-
+	if (args.CheckCmdLineFlag("disable_retina"))
+	{
+		gAllowRetina = false;
+	}
+		
 	
 	int width = 1024;
     int height=768;
@@ -703,7 +715,7 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
     {
 		char title[1024];
 		sprintf(title,"%s using OpenGL3+. %s", appTitle,optMode);
-        simpleApp = new SimpleOpenGL3App(title,width,height);
+        simpleApp = new SimpleOpenGL3App(title,width,height, gAllowRetina);
         s_app = simpleApp;
     }
 #endif
@@ -974,17 +986,23 @@ void OpenGLExampleBrowser::update(float deltaTime)
 					{
 						skip=0;
 						//printf("gPngFileName=%s\n",gPngFileName);
-						static int s_frameCount = 0;
-						char fileName[1024];
-						sprintf(fileName,"%s%d.png",gPngFileName,s_frameCount++);
-						b3Printf("Made screenshot %s",fileName);
-						s_app->dumpNextFrameToPng(fileName);
+						static int s_frameCount = 100;
+						
+						sprintf(staticPngFileName,"%s%d.png",gPngFileName,s_frameCount++);
+						//b3Printf("Made screenshot %s",staticPngFileName);
+						s_app->dumpNextFrameToPng(staticPngFileName);
 						 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 					}
 				}
 				
 
-				sCurrentDemo->stepSimulation(deltaTime);//1./60.f);
+				if (gFixedTimeStep>0)
+				{
+					sCurrentDemo->stepSimulation(gFixedTimeStep);
+				} else
+				{
+					sCurrentDemo->stepSimulation(deltaTime);//1./60.f);
+				}
 			}
 			
 			if (renderVisualGeometry && ((gDebugDrawFlags&btIDebugDraw::DBG_DrawWireframe)==0))
