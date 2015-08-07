@@ -13,10 +13,12 @@ env:
 matrix:
   exclude:
     - os: osx
-      env: TARGET_BOX=WIN64 CMAKE_ARGS="-DBUILD_BULLET2_DEMOS=OFF -DUSE_GLUT=0 -DBUILD_OPENGL3_DEMOS=OFF -DBUILD_CPU_DEMOS=OFF -DCMAKE_TOOLCHAIN_FILE=toolchain-mingw64.cmake"
+      env: TARGET_BOX=WIN64 CMAKE_ARGS="-DBUILD_BULLET2_DEMOS=OFF -DUSE_GLUT=0 -DBUILD_OPENGL3_DEMOS=OFF -DBUILD_CPU_DEMOS=OFF -DCMAKE_TOOLCHAIN_FILE=toolchain-mingw64.cmake -DCMAKE_CXX_FLAGS_RELEASE="-fpermissive""
+    - compiler: clang
+      env: TARGET_BOX=WIN64 CMAKE_ARGS="-DBUILD_BULLET2_DEMOS=OFF -DUSE_GLUT=0 -DBUILD_OPENGL3_DEMOS=OFF -DBUILD_CPU_DEMOS=OFF -DCMAKE_TOOLCHAIN_FILE=toolchain-mingw64.cmake -DCMAKE_CXX_FLAGS_RELEASE="-fpermissive""
 
 before_install:
- - if test "$TRAVIS_OS_NAME" = "linux" -a "$TARGET_BOX" = "WIN64"; then sudo apt-get install -qq g++-mingw-w64-x86-64; wget https://raw.githubusercontent.com/thp/psmoveapi/master/contrib/toolchain-mingw64.cmake; fi
+ - if test "$TRAVIS_OS_NAME" = "linux" -a "$TARGET_BOX" = "WIN64"; then sudo apt-get install -qq binutils-mingw-w64-x86-64 g++-mingw-w64-x86-64; wget https://raw.githubusercontent.com/thp/psmoveapi/master/contrib/toolchain-mingw64.cmake; sed -i "s|#set(COMPILER_PREFIX \"x86_64-w64-mingw32\"|set(COMPILER_PREFIX \"x86_64-w64-mingw32\")|g" toolchain-mingw64.cmake; export CXX=; fi
 
 script:
   - echo "CXX="$CXX
