@@ -3,6 +3,7 @@
 #include "LinearMath/btAlignedObjectArray.h"
 #include "TimeSeriesFontData.h"
 #include "LinearMath/btVector3.h"
+#include <stdio.h>
 
 struct DataSource
 {

@@ -7,7 +7,7 @@
 #include "LinearMath/btTransform.h"
 
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
-
+#include "../RenderingExamples/TimeSeriesCanvas.h"
 #include "stb_image/stb_image.h"
 
 struct LWPose
@@ -109,6 +109,9 @@ class Tutorial : public CommonExampleInterface
     int m_tutorialIndex;
 
 	LWRightBody*	m_body;
+	
+	TimeSeriesCanvas*			m_timeSeriesCanvas;
+	
 
 public:
     
@@ -118,6 +121,13 @@ public:
     {
 		m_app->setUpAxis(2);
 
+		m_timeSeriesCanvas = new TimeSeriesCanvas(app->m_2dCanvasInterface,512,256,"Position and Velocity");
+		m_timeSeriesCanvas ->setupTimeSeries(5,100, 0);
+		m_timeSeriesCanvas->addDataSource("X position (m)", 255,0,0);
+		m_timeSeriesCanvas->addDataSource("X velocity (m/s)", 0,0,255);
+		m_timeSeriesCanvas->addDataSource("dX/dt (m/s)", 0,0,0);
+
+		
 		switch (m_tutorialIndex)
 		{
 				
@@ -173,6 +183,8 @@ public:
     }
     virtual ~Tutorial()
     {
+		delete m_timeSeriesCanvas;
+		m_timeSeriesCanvas = 0;
         m_app->m_renderer->enableBlend(false);
     }
     
@@ -186,8 +198,22 @@ public:
     }
     virtual void	stepSimulation(float deltaTime)
     {
-		//m_body->m_linearVelocity=btVector3(0,0.1,0);
-		m_body->m_angularVelocity =btVector3(0,0.1,0);
+
+		m_body->m_linearVelocity=btVector3(1,0,0);
+
+		
+		float time = m_timeSeriesCanvas->getCurrentTime();
+		
+		float xPos = m_body->m_worldPose.m_worldPosition.x();
+		
+		float xVel = m_body->m_linearVelocity.x();
+		
+		m_timeSeriesCanvas->insertDataAtCurrentTime(xPos,0,true);
+		m_timeSeriesCanvas->insertDataAtCurrentTime(xVel,1,true);
+		
+		m_timeSeriesCanvas->nextTick();
+
+		
 		m_body->integrateTransform(deltaTime);
 
 		m_app->m_renderer->writeSingleInstanceTransformToCPU(m_body->m_worldPose.m_worldPosition, m_body->m_worldPose.m_worldOrientation, m_body->m_graphicsIndex);

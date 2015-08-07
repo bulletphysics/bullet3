@@ -39,7 +39,7 @@ void dumpInfo(void)
 
 
 
-
+extern bool gAllowRetina;
 
 // -------------------- View ------------------------
 
@@ -398,7 +398,10 @@ void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
     //support HighResolutionOSX for Retina Macbook
     if (ci.m_openglVersion>=3)
     {
-        [m_internalData->m_myview  setWantsBestResolutionOpenGLSurface:YES];
+		if (gAllowRetina)
+		{
+			[m_internalData->m_myview  setWantsBestResolutionOpenGLSurface:YES];
+		}
     }
     NSSize sz;
     sz.width = 1;

@@ -135,6 +135,7 @@ void Dof6ConstraintTutorial::initPhysics()
 		m_dynamicsWorld->setGravity(btVector3(0,0,0));
 
 		// Setup a big ground box
+	if (0)
 		{
 			btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(200.),btScalar(5.),btScalar(200.)));
 			btTransform groundTransform;
