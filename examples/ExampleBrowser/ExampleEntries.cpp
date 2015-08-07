@@ -39,7 +39,7 @@
 #include "../SharedMemory/PhysicsClientExample.h"
 #include "../Constraints/TestHingeTorque.h"
 #include "../RenderingExamples/TimeSeriesExample.h"
-
+#include "../Tutorial/Tutorial.h"
 
 #ifdef ENABLE_LUA
 #include "../LuaDemo/LuaPhysicsSetup.h"
@@ -78,6 +78,8 @@ static ExampleEntry gDefaultExamples[]=
 {
 	
 	
+	
+	
 	ExampleEntry(0,"API"),
 	ExampleEntry(1,"Basic Example","Create some rigid bodies using box collision shapes. This is a good example to familiarize with the basic initialization of Bullet. The Basic Example can also be compiled without graphical user interface, as a console application. Press W for wireframe, A to show AABBs, I to suspend/restart physics simulation. Press D to toggle auto-deactivation of the simulation. ", BasicExampleCreateFunc),
 
@@ -106,6 +108,10 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"TestJointTorque","Apply a torque to a btMultiBody with 1-DOF joints (mobilizers). This setup is similar to API/TestHingeTorque.", TestJointTorqueCreateFunc),
  ExampleEntry(1,"Constraint Feedback", "The example shows how to receive joint reaction forces in a btMultiBody. Also the applied impulse is available for a btMultiBodyJointMotor", MultiBodyConstraintFeedbackCreateFunc),
 	ExampleEntry(1,"Inverted Pendulum PD","Keep an inverted pendulum up using open loop PD control", InvertedPendulumPDControlCreateFunc),
+
+	ExampleEntry(0,"Tutorial"),
+	ExampleEntry(1,"Free Rigid Body","(Preliminary work in progress) Free moving rigid body, without external or constraint forces", TutorialCreateFunc,0),
+
 
 #ifdef INCLUDE_CLOTH_DEMOS
 	ExampleEntry(0,"Soft Body"),

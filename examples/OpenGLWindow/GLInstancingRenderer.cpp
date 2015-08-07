@@ -214,6 +214,8 @@ static GLint	createShadow_depthMVP=0;
 
 static GLint	ModelViewMatrix=0;
 static GLint	ProjectionMatrix=0;
+static GLint	regularLightDirIn=0;
+
 
 static GLint                uniform_texture_diffuse = 0;
 
@@ -688,6 +690,8 @@ void GLInstancingRenderer::InitShaders()
 	ModelViewMatrix = glGetUniformLocation(instancingShader, "ModelViewMatrix");
 	ProjectionMatrix = glGetUniformLocation(instancingShader, "ProjectionMatrix");
 	uniform_texture_diffuse = glGetUniformLocation(instancingShader, "Diffuse");
+	regularLightDirIn  = glGetUniformLocation(instancingShader,"lightDirIn");
+
 	glUseProgram(0);
 
 		instancingShaderPointSprite = gltLoadShaderPair(pointSpriteVertexShader,pointSpriteFragmentShader);
@@ -1559,6 +1563,11 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 							glUseProgram(instancingShader);
 							glUniformMatrix4fv(ProjectionMatrix, 1, false, &m_data->m_projectionMatrix[0]);
 							glUniformMatrix4fv(ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
+							
+							b3Vector3 gLightDir = gLightPos;
+							gLightDir.normalize();
+							glUniform3f(regularLightDirIn,gLightDir[0],gLightDir[1],gLightDir[2]);
+
 							glUniform1i(uniform_texture_diffuse, 0);
 							glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexOffset, gfxObj->m_numGraphicsInstances);
 							break;

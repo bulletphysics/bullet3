@@ -77,9 +77,21 @@ PhysicsClientSharedMemory::PhysicsClientSharedMemory()
 
 PhysicsClientSharedMemory::~PhysicsClientSharedMemory()
 {
-	m_data->m_sharedMemory->releaseSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE);
+    if (m_data->m_isConnected)
+    {
+        disconnectSharedMemory();
+    }
 	delete m_data->m_sharedMemory;
 	delete m_data;
+}
+
+void PhysicsClientSharedMemory::disconnectSharedMemory ()
+{
+    if (m_data->m_isConnected)
+    {
+        m_data->m_sharedMemory->releaseSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE);
+        m_data->m_isConnected = false;
+    }
 }
 
 bool	PhysicsClientSharedMemory::isConnected() const
@@ -87,28 +99,21 @@ bool	PhysicsClientSharedMemory::isConnected() const
 	return m_data->m_isConnected ;
 }
 
-bool PhysicsClientSharedMemory::connect(bool allowSharedMemoryInitialization)
+bool PhysicsClientSharedMemory::connect()
 {
-	bool allowCreation = true;
+    ///server always has to create and initialize shared memory
+    bool allowCreation = false;
 	m_data->m_testBlock1 = (SharedMemoryBlock*)m_data->m_sharedMemory->allocateSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE, allowCreation);
 	
     if (m_data->m_testBlock1)
     {
         if (m_data->m_testBlock1->m_magicId !=SHARED_MEMORY_MAGIC_NUMBER)
         {
-			if (allowSharedMemoryInitialization)
-			{
-				InitSharedMemoryBlock(m_data->m_testBlock1);
-				b3Printf("Created and initialized shared memory block");
-				m_data->m_isConnected = true;
-			} else
-			{
-				b3Error("Error: please start server before client\n");
-				m_data->m_sharedMemory->releaseSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE);
-				m_data->m_testBlock1 = 0;
-				return false;
-			}
-        } else
+            b3Error("Error: please start server before client\n");
+            m_data->m_sharedMemory->releaseSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE);
+            m_data->m_testBlock1 = 0;
+            return false;
+       } else
 		{
 			b3Printf("Connected to existing shared memory, status OK.\n");
 			m_data->m_isConnected = true;

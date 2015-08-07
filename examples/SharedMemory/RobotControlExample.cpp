@@ -71,8 +71,13 @@ public:
 	}
     
     virtual bool wantsTermination();
+    virtual bool isConnected();
 };
 
+bool RobotControlExample::isConnected()
+{
+    return m_physicsClient.isConnected();
+}
 
 void MyCallback2(int buttonId, bool buttonState, void* userPtr)
 {
@@ -131,6 +136,12 @@ void MyCallback2(int buttonId, bool buttonState, void* userPtr)
 	case CMD_CREATE_BOX_COLLISION_SHAPE:
 		{
 			command.m_type =CMD_CREATE_BOX_COLLISION_SHAPE;
+            command.m_updateFlags = BOX_SHAPE_HAS_INITIAL_POSITION;
+            command.m_createBoxShapeArguments.m_initialPosition[0] = 0;
+            command.m_createBoxShapeArguments.m_initialPosition[1] = 0;
+            command.m_createBoxShapeArguments.m_initialPosition[2] = -3;
+            
+            
 			cl->enqueueCommand(command);
 			break;
 		}
@@ -232,6 +243,7 @@ m_numMotors(0)
 RobotControlExample::~RobotControlExample()
 {
 	bool deInitializeSharedMemory = true;
+    m_physicsClient.disconnectSharedMemory();
 	m_physicsServer.disconnectSharedMemory(deInitializeSharedMemory);
 }
 
@@ -248,8 +260,7 @@ void	RobotControlExample::initPhysics()
 	grav[upAxis] = 0;//-9.8;
 	this->m_dynamicsWorld->setGravity(grav);
     
-	bool allowSharedMemoryInitialization = true;
-	m_physicsServer.connectSharedMemory(allowSharedMemoryInitialization, m_dynamicsWorld,m_guiHelper);
+	m_physicsServer.connectSharedMemory( m_dynamicsWorld,m_guiHelper);
   
 	if (m_guiHelper && m_guiHelper->getParameterInterface())
 	{

@@ -92,7 +92,7 @@ PhysicsServerSharedMemory::~PhysicsServerSharedMemory()
 
 
 
-bool PhysicsServerSharedMemory::connectSharedMemory(bool allowSharedMemoryInitialization, class btMultiBodyDynamicsWorld* dynamicsWorld, struct GUIHelperInterface* guiHelper)
+bool PhysicsServerSharedMemory::connectSharedMemory( class btMultiBodyDynamicsWorld* dynamicsWorld, struct GUIHelperInterface* guiHelper)
 {
 	m_data->m_dynamicsWorld = dynamicsWorld;
 	m_data->m_guiHelper = guiHelper;
@@ -100,34 +100,37 @@ bool PhysicsServerSharedMemory::connectSharedMemory(bool allowSharedMemoryInitia
 	bool allowCreation = true;
 	bool allowConnectToExistingSharedMemory = false;
 
+    if (m_data->m_isConnected)
+    {
+        b3Warning("connectSharedMemory, while already connected");
+        return m_data->m_isConnected;
+    }
+    
+    
 	m_data->m_testBlock1 = (SharedMemoryBlock*)m_data->m_sharedMemory->allocateSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE,allowCreation);
     if (m_data->m_testBlock1)
     {
-        if (!allowConnectToExistingSharedMemory || (m_data->m_testBlock1->m_magicId !=SHARED_MEMORY_MAGIC_NUMBER))
+        int magicId =m_data->m_testBlock1->m_magicId;
+        b3Printf("magicId = %d\n", magicId);
+        
+        if (m_data->m_testBlock1->m_magicId !=SHARED_MEMORY_MAGIC_NUMBER)
         {
-			if (allowSharedMemoryInitialization)
-			{
-				InitSharedMemoryBlock(m_data->m_testBlock1);
-				b3Printf("Created and initialized shared memory block");
-				m_data->m_isConnected = true;
-			} else
-			{
-				b3Error("Error: please start server before client\n");
-				m_data->m_sharedMemory->releaseSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE);
-				m_data->m_testBlock1 = 0;
-				return false;
-			}
+            InitSharedMemoryBlock(m_data->m_testBlock1);
+            b3Printf("Created and initialized shared memory block\n");
+            m_data->m_isConnected = true;
         } else
 		{
-			b3Printf("Connected to existing shared memory, status OK.\n");
-			m_data->m_isConnected = true;
+			b3Error("Server cannot connect to existing shared memory, disconnecting shared memory.\n");
+            m_data->m_sharedMemory->releaseSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE);
+            m_data->m_testBlock1 = 0;
+            m_data->m_isConnected = false;
 		}
     } else
 	{
 		b3Error("Cannot connect to shared memory");
-		return false;
+		m_data->m_isConnected = false;
 	}
-	return true;
+	return m_data->m_isConnected;
 }
 
 
@@ -693,7 +696,7 @@ void PhysicsServerSharedMemory::processClientCommands()
 				case CMD_CREATE_BOX_COLLISION_SHAPE:
 					{
                         btVector3 halfExtents(1,1,1);
-                        if (clientCmd.m_updateFlags | BOX_SHAPE_HAS_HALF_EXTENTS)
+                        if (clientCmd.m_updateFlags & BOX_SHAPE_HAS_HALF_EXTENTS)
                         {
                             halfExtents = btVector3(
                                                   clientCmd.m_createBoxShapeArguments.m_halfExtentsX,
@@ -702,7 +705,7 @@ void PhysicsServerSharedMemory::processClientCommands()
                         }
 						btTransform startTrans;
 						startTrans.setIdentity();
-                        if (clientCmd.m_updateFlags | BOX_SHAPE_HAS_INITIAL_POSITION)
+                        if (clientCmd.m_updateFlags & BOX_SHAPE_HAS_INITIAL_POSITION)
                         {
                             startTrans.setOrigin(btVector3(
                                                  clientCmd.m_createBoxShapeArguments.m_initialPosition[0],
@@ -710,8 +713,10 @@ void PhysicsServerSharedMemory::processClientCommands()
                                                  clientCmd.m_createBoxShapeArguments.m_initialPosition[2]));
                         }
 
-                        if (clientCmd.m_updateFlags | BOX_SHAPE_HAS_INITIAL_ORIENTATION)
+                        if (clientCmd.m_updateFlags & BOX_SHAPE_HAS_INITIAL_ORIENTATION)
                         {
+                            
+                            b3Printf("test\n");
                             startTrans.setRotation(btQuaternion(
                                                            clientCmd.m_createBoxShapeArguments.m_initialOrientation[0],
                                                                  clientCmd.m_createBoxShapeArguments.m_initialOrientation[1],

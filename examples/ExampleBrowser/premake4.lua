@@ -62,6 +62,7 @@
 		"../SharedMemory/PosixSharedMemory.cpp",
 		"../SharedMemory/Win32SharedMemory.cpp",
 		"../BasicDemo/BasicExample.*",
+		"../Tutorial/*",
 		"../Benchmarks/*",
 		"../CommonInterfaces/*",
 		"../ForkLift/ForkLiftDemo.*",

@@ -13,6 +13,9 @@
 
 #include "ExampleEntries.h"
 #include "Bullet3Common/b3Logging.h"
+
+
+
 int main(int argc, char* argv[])
 {
 	b3CommandLineArgs args(argc,argv);

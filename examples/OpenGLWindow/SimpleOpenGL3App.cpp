@@ -419,7 +419,7 @@ struct GfxVertex
 		float u,v;
 	};
 
-int	SimpleOpenGL3App::registerCubeShape(float halfExtentsX,float halfExtentsY, float halfExtentsZ)
+int	SimpleOpenGL3App::registerCubeShape(float halfExtentsX,float halfExtentsY, float halfExtentsZ, int textureIndex)
 {
 
 
@@ -442,7 +442,7 @@ int	SimpleOpenGL3App::registerCubeShape(float halfExtentsX,float halfExtentsY, f
 		verts[i].v = cube_vertices[i*9+8];
 	}
 	
-	int shapeId = m_instancingRenderer->registerShape(&verts[0].x,numVertices,cube_indices,numIndices);
+	int shapeId = m_instancingRenderer->registerShape(&verts[0].x,numVertices,cube_indices,numIndices,B3_GL_TRIANGLES,textureIndex);
 	return shapeId;
 }
 
@@ -480,42 +480,46 @@ void SimpleOpenGL3App::registerGrid(int cells_x, int cells_z, float color0[4], f
 	
 }
 
-
-int	SimpleOpenGL3App::registerGraphicsSphereShape(float radius, bool usePointSprites, int largeSphereThreshold, int mediumSphereThreshold)
+int	SimpleOpenGL3App::registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lod, int textureId)
 {
 
 	int strideInBytes = 9*sizeof(float);
 
 	int graphicsShapeIndex = -1;
 
-	if (radius>=largeSphereThreshold)
+	switch (lod)
 	{
-		int numVertices = sizeof(detailed_sphere_vertices)/strideInBytes;
-		int numIndices = sizeof(detailed_sphere_indices)/sizeof(int);
-		graphicsShapeIndex = m_instancingRenderer->registerShape(&detailed_sphere_vertices[0],numVertices,detailed_sphere_indices,numIndices);
-	} else
-	{
-
-		if (usePointSprites)
+		case 		SPHERE_LOD_POINT_SPRITE:
 		{
 			int numVertices = sizeof(point_sphere_vertices)/strideInBytes;
 			int numIndices = sizeof(point_sphere_indices)/sizeof(int);
-			graphicsShapeIndex = m_instancingRenderer->registerShape(&point_sphere_vertices[0],numVertices,point_sphere_indices,numIndices,B3_GL_POINTS);
-		} else
-		{
-			if (radius>=mediumSphereThreshold)
-			{
-				int numVertices = sizeof(medium_sphere_vertices)/strideInBytes;
-				int numIndices = sizeof(medium_sphere_indices)/sizeof(int);
-				graphicsShapeIndex = m_instancingRenderer->registerShape(&medium_sphere_vertices[0],numVertices,medium_sphere_indices,numIndices);
-			} else
-			{
-				int numVertices = sizeof(low_sphere_vertices)/strideInBytes;
-				int numIndices = sizeof(low_sphere_indices)/sizeof(int);
-				graphicsShapeIndex = m_instancingRenderer->registerShape(&low_sphere_vertices[0],numVertices,low_sphere_indices,numIndices);
-			}
+			graphicsShapeIndex = m_instancingRenderer->registerShape(&point_sphere_vertices[0],numVertices,point_sphere_indices,numIndices,B3_GL_POINTS,textureId);
+			break;
 		}
-	}
+
+		case SPHERE_LOD_LOW:
+		{
+			int numVertices = sizeof(low_sphere_vertices)/strideInBytes;
+			int numIndices = sizeof(low_sphere_indices)/sizeof(int);
+			graphicsShapeIndex = m_instancingRenderer->registerShape(&low_sphere_vertices[0],numVertices,low_sphere_indices,numIndices,B3_GL_TRIANGLES,textureId);
+			break;
+		}
+		case SPHERE_LOD_MEDIUM:
+		{
+			int numVertices = sizeof(medium_sphere_vertices)/strideInBytes;
+			int numIndices = sizeof(medium_sphere_indices)/sizeof(int);
+			graphicsShapeIndex = m_instancingRenderer->registerShape(&medium_sphere_vertices[0],numVertices,medium_sphere_indices,numIndices,B3_GL_TRIANGLES,textureId);
+			break;
+		}
+		case SPHERE_LOD_HIGH:
+		default:
+		{
+			int numVertices = sizeof(detailed_sphere_vertices)/strideInBytes;
+			int numIndices = sizeof(detailed_sphere_indices)/sizeof(int);
+			graphicsShapeIndex = m_instancingRenderer->registerShape(&detailed_sphere_vertices[0],numVertices,detailed_sphere_indices,numIndices,B3_GL_TRIANGLES,textureId);
+			break;
+		}
+	};
 	return graphicsShapeIndex;
 }
 

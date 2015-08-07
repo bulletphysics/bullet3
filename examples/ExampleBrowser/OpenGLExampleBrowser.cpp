@@ -51,7 +51,7 @@ static OpenGLGuiHelper*	s_guiHelper=0;
 static MyProfileWindow* s_profWindow =0;
 
 #define DEMO_SELECTION_COMBOBOX 13
-const char* startFileName = "bulletDemo.txt";
+const char* startFileName = "0_Bullet3Demo.txt";
 
 static GwenUserInterface* gui  = 0;
 static int sCurrentDemoIndex = -1;
@@ -266,9 +266,8 @@ void openFileDemo(const char* filename)
     s_parameterInterface->removeAllParameters();
    
 
-	CommonExampleOptions options(s_guiHelper,0);
+	CommonExampleOptions options(s_guiHelper,1);
 	options.m_fileName = filename;
-
 	char fullPath[1024];
 	sprintf(fullPath, "%s", filename);
 	b3FileUtils::toLower(fullPath);
