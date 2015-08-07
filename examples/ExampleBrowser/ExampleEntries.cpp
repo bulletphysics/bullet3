@@ -39,6 +39,7 @@
 #include "../Constraints/TestHingeTorque.h"
 #include "../RenderingExamples/TimeSeriesExample.h"
 #include "../Tutorial/Tutorial.h"
+#include "../Tutorial/Dof6ConstraintTutorial.h"
 
 #ifdef ENABLE_LUA
 #include "../LuaDemo/LuaPhysicsSetup.h"
@@ -110,7 +111,7 @@ static ExampleEntry gDefaultExamples[]=
 
 	ExampleEntry(0,"Tutorial"),
 	ExampleEntry(1,"Free Rigid Body","(Preliminary work in progress) Free moving rigid body, without external or constraint forces", TutorialCreateFunc,0),
-
+	ExampleEntry(1,"Spring constraint","A rigid body with a spring constraint attached", Dof6ConstraintTutorialCreateFunc,0),
 
 #ifdef INCLUDE_CLOTH_DEMOS
 	ExampleEntry(0,"Soft Body"),

@@ -95,7 +95,7 @@ void TimeSeriesCanvas::addDataSource(const char* dataSourceLabel, unsigned char 
 		int numSources = m_internalData->m_dataSources.size();
 		int row = numSources%3;
 		int column = numSources/3;
-		grapicalPrintf(dataSourceLabel, sTimeSeriesFontData, 30+200*column,m_internalData->m_height-48+row*16,
+		grapicalPrintf(dataSourceLabel, sTimeSeriesFontData, 50+200*column,m_internalData->m_height-48+row*16,
 			red, green,blue,255);
 	}
 

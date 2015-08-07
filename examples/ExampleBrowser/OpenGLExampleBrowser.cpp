@@ -58,6 +58,7 @@ static int sCurrentDemoIndex = -1;
 static int sCurrentHightlighted = 0;
 static CommonExampleInterface* sCurrentDemo = 0;
 static b3AlignedObjectArray<const char*> allNames;
+static float gFixedTimeStep = 0;
 
 static class ExampleEntries* gAllExamples=0;
 bool sUseOpenGL2 = false;
@@ -358,6 +359,8 @@ static void saveCurrentSettings(int currentEntry,const char* startFileName)
 		fprintf(f,"--background_color_red= %f\n", red);
 		fprintf(f,"--background_color_green= %f\n", green);
 		fprintf(f,"--background_color_blue= %f\n", blue);
+		fprintf(f,"--fixed_timestep= %f\n", gFixedTimeStep);
+		
 
 		if (enable_experimental_opencl)
 		{
@@ -663,6 +666,7 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
     
 	loadCurrentSettings(startFileName, args);
 
+	args.GetCmdLineArgument("fixed_timestep",gFixedTimeStep);
 	
 	///The OpenCL rigid body pipeline is experimental and 
 	///most OpenCL drivers and OpenCL compilers have issues with our kernels.
@@ -984,7 +988,13 @@ void OpenGLExampleBrowser::update(float deltaTime)
 				}
 				
 
-				sCurrentDemo->stepSimulation(deltaTime);//1./60.f);
+				if (gFixedTimeStep>0)
+				{
+					sCurrentDemo->stepSimulation(gFixedTimeStep);
+				} else
+				{
+					sCurrentDemo->stepSimulation(deltaTime);//1./60.f);
+				}
 			}
 			
 			if (renderVisualGeometry && ((gDebugDrawFlags&btIDebugDraw::DBG_DrawWireframe)==0))

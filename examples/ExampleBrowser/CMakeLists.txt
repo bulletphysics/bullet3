@@ -29,6 +29,8 @@ SET(App_ExampleBrowser_SRCS
 	../ForkLift/ForkLiftDemo.h
 	../Tutorial/Tutorial.cpp
 	../Tutorial/Tutorial.h
+	../Tutorial/Dof6ConstraintTutorial.cpp
+	../Tutorial/Dof6ConstraintTutorial.h
 	../GyroscopicDemo/GyroscopicSetup.cpp
 	../GyroscopicDemo/GyroscopicSetup.h
 	../Planar2D/Planar2D.cpp
