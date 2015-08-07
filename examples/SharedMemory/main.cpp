@@ -25,6 +25,7 @@ subject to the following restrictions:
 
 #include <stdlib.h>
 
+int gSharedMemoryKey = -1;
 
 static SharedMemoryCommon*    example = NULL;
 static bool interrupted = false;
@@ -70,6 +71,8 @@ int main(int argc, char* argv[])
 
 	CommonExampleOptions options(&noGfx);
 
+	args.GetCmdLineArgument("shared_memory_key", gSharedMemoryKey);
+	
   	if (args.CheckCmdLineFlag("client"))
     {
         example = (SharedMemoryCommon*)PhysicsClientCreateFunc(options);
@@ -77,6 +80,7 @@ int main(int argc, char* argv[])
     {
         example = (SharedMemoryCommon*)PhysicsServerCreateFunc(options);
     }
+	
 	
 	example->initPhysics();
 	while (example->isConnected() && !(example->wantsTermination() || interrupted))

@@ -29,6 +29,8 @@ protected:
 
 	void	createButton(const char* name, int id, bool isTrigger );
 
+	void createButtons();
+	
 public:
     
     //@todo, add accessor methods
@@ -64,6 +66,18 @@ public:
     
 	void enqueueCommand(const SharedMemoryCommand& orgCommand);
 	
+	virtual void    exitPhysics(){};
+	virtual void	renderScene(){}
+	virtual void	physicsDebugDraw(int debugFlags){}
+	virtual bool	mouseMoveCallback(float x,float y){return false;};
+	virtual bool	mouseButtonCallback(int button, int state, float x, float y){return false;}
+	virtual bool	keyboardCallback(int key, int state){return false;}
+
+	
+	virtual void setSharedMemoryKey(int key)
+	{
+		m_physicsClient.setSharedMemoryKey(key);
+	}
 };
 
 
@@ -97,6 +111,11 @@ void MyCallback(int buttonId, bool buttonState, void* userPtr)
 	case CMD_CREATE_BOX_COLLISION_SHAPE:
 		{
 			command.m_type =CMD_CREATE_BOX_COLLISION_SHAPE;
+			command.m_updateFlags = BOX_SHAPE_HAS_INITIAL_POSITION;
+			command.m_createBoxShapeArguments.m_initialPosition[0] = 0;
+			command.m_createBoxShapeArguments.m_initialPosition[1] = 0;
+			command.m_createBoxShapeArguments.m_initialPosition[2] = -3;
+			
 			cl->enqueueCommand(command);
 			break;
 		}
@@ -115,6 +134,7 @@ void MyCallback(int buttonId, bool buttonState, void* userPtr)
 	
     case CMD_SEND_DESIRED_STATE:
 		{
+			
             command.m_type =CMD_SEND_DESIRED_STATE;
             int controlMode = CONTROL_MODE_VELOCITY;//CONTROL_MODE_TORQUE;
 
@@ -139,6 +159,12 @@ void MyCallback(int buttonId, bool buttonState, void* userPtr)
             }
             
 			cl->enqueueCommand(command);		
+			break;
+		}
+		case CMD_RESET_SIMULATION:
+		{
+			command.m_type = CMD_RESET_SIMULATION;
+			cl->enqueueCommand(command);
 			break;
 		}
 	case CMD_SEND_BULLET_DATA_STREAM:
@@ -167,7 +193,8 @@ void MyCallback(int buttonId, bool buttonState, void* userPtr)
 
 PhysicsClientExample::PhysicsClientExample(GUIHelperInterface* helper)
 :SharedMemoryCommon(helper),
-m_wantsTermination(false)
+m_wantsTermination(false),
+m_numMotors(0)
 {
 	b3Printf("Started PhysicsClientExample\n");
 }
@@ -184,18 +211,26 @@ void	PhysicsClientExample::createButton(const char* name, int buttonId, bool isT
 	button.m_userPointer = this;
 	m_guiHelper->getParameterInterface()->registerButtonParameter(button);
 }
+
+void	PhysicsClientExample::createButtons()
+{
+	bool isTrigger = false;
+	
+	createButton("Load URDF",CMD_LOAD_URDF,  isTrigger);
+	createButton("Step Sim",CMD_STEP_FORWARD_SIMULATION,  isTrigger);
+	createButton("Send Bullet Stream",CMD_SEND_BULLET_DATA_STREAM,  isTrigger);
+	createButton("Get State",CMD_REQUEST_ACTUAL_STATE,  isTrigger);
+	createButton("Send Desired State",CMD_SEND_DESIRED_STATE,  isTrigger);
+	createButton("Create Box Collider",CMD_CREATE_BOX_COLLISION_SHAPE,isTrigger);
+	createButton("Reset Simulation",CMD_RESET_SIMULATION,isTrigger);
+
+}
+
 void	PhysicsClientExample::initPhysics()
 {
 	if (m_guiHelper && m_guiHelper->getParameterInterface())
 	{
-		bool isTrigger = false;
-		
-		createButton("Load URDF",CMD_LOAD_URDF,  isTrigger);
-		createButton("Step Sim",CMD_STEP_FORWARD_SIMULATION,  isTrigger);
-		createButton("Send Bullet Stream",CMD_SEND_BULLET_DATA_STREAM,  isTrigger);
-		createButton("Get State",CMD_REQUEST_ACTUAL_STATE,  isTrigger);
-		createButton("Send Desired State",CMD_SEND_DESIRED_STATE,  isTrigger);
-		createButton("Create Box Collider",CMD_CREATE_BOX_COLLISION_SHAPE,isTrigger);
+		createButtons();		
 		
 	} else
 	{
@@ -285,6 +320,14 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 
 				m_userCommandRequests.pop_back();
 				
+				//for the CMD_RESET_SIMULATION we need to do something special: clear the GUI sliders
+				if (command.m_type==CMD_RESET_SIMULATION)
+				{
+					m_guiHelper->getParameterInterface()->removeAllParameters();
+					m_numMotors=0;
+					createButtons();
+				}
+				
 				m_physicsClient.submitClientCommand(command);
 			}
 		}
@@ -293,8 +336,15 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 
 }
 
+extern int gSharedMemoryKey;
+
 
 class CommonExampleInterface*    PhysicsClientCreateFunc(struct CommonExampleOptions& options)
 {
-    return new PhysicsClientExample(options.m_guiHelper);
+    PhysicsClientExample* example = new PhysicsClientExample(options.m_guiHelper);
+	if (gSharedMemoryKey>=0)
+	{
+		example->setSharedMemoryKey(gSharedMemoryKey);
+	}
+	return example;
 }

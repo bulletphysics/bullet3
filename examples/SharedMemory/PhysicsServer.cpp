@@ -10,7 +10,10 @@
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointFeedback.h"
+#include "../CommonInterfaces/CommonRenderInterface.h"
+
 #include "btBulletDynamicsCommon.h"
+
 
 #include "../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointMotor.h"
@@ -42,17 +45,24 @@ struct PhysicsServerInternalData
 	btHashMap<btHashInt, btMultiBodyJointMotor*>	m_multiBodyJointMotorMap;
 	btAlignedObjectArray<std::string*> m_strings;
 
+	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
+	btBroadphaseInterface*	m_broadphase;
+	btCollisionDispatcher*	m_dispatcher;
+	btMultiBodyConstraintSolver*	m_solver;
+	btDefaultCollisionConfiguration* m_collisionConfiguration;
 	btMultiBodyDynamicsWorld* m_dynamicsWorld;
 	struct GUIHelperInterface* m_guiHelper;
-	
+	int m_sharedMemoryKey;
 
+	
 	PhysicsServerInternalData()
 		:m_sharedMemory(0),
 		m_testBlock1(0),
 		m_isConnected(false),
 		m_physicsDeltaTime(1./60.),
 		m_dynamicsWorld(0),
-		m_guiHelper(0)
+		m_guiHelper(0),
+		m_sharedMemoryKey(SHARED_MEMORY_KEY)
 	{
 	}
 
@@ -81,20 +91,115 @@ PhysicsServerSharedMemory::PhysicsServerSharedMemory()
 #else
 	m_data->m_sharedMemory = new PosixSharedMemory();
 #endif
+	
+	createEmptyDynamicsWorld();
 
 
 }
 
 PhysicsServerSharedMemory::~PhysicsServerSharedMemory()
 {
+	deleteDynamicsWorld();
 	delete m_data;
 }
 
-
-
-bool PhysicsServerSharedMemory::connectSharedMemory( class btMultiBodyDynamicsWorld* dynamicsWorld, struct GUIHelperInterface* guiHelper)
+void PhysicsServerSharedMemory::setSharedMemoryKey(int key)
 {
-	m_data->m_dynamicsWorld = dynamicsWorld;
+	m_data->m_sharedMemoryKey = key;
+}
+
+
+void PhysicsServerSharedMemory::createEmptyDynamicsWorld()
+{
+	///collision configuration contains default setup for memory, collision setup
+	m_data->m_collisionConfiguration = new btDefaultCollisionConfiguration();
+	//m_collisionConfiguration->setConvexConvexMultipointIterations();
+	
+	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+	m_data->m_dispatcher = new	btCollisionDispatcher(m_data->m_collisionConfiguration);
+	
+	m_data->m_broadphase = new btDbvtBroadphase();
+	
+	m_data->m_solver = new btMultiBodyConstraintSolver;
+	
+	m_data->m_dynamicsWorld = new btMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
+	
+	m_data->m_dynamicsWorld->setGravity(btVector3(0, -10, 0));
+}
+
+void PhysicsServerSharedMemory::deleteDynamicsWorld()
+{
+	
+	for (int i=0;i<m_data->m_multiBodyJointFeedbacks.size();i++)
+	{
+		delete m_data->m_multiBodyJointFeedbacks[i];
+	}
+	m_data->m_multiBodyJointFeedbacks.clear();
+	
+	
+	for (int i=0;i<m_data->m_worldImporters.size();i++)
+	{
+		delete m_data->m_worldImporters[i];
+	}
+	m_data->m_worldImporters.clear();
+	
+	for (int i=0;i<m_data->m_urdfLinkNameMapper.size();i++)
+	{
+		delete m_data->m_urdfLinkNameMapper[i];
+	}
+	m_data->m_urdfLinkNameMapper.clear();
+	
+	m_data->m_multiBodyJointMotorMap.clear();
+	
+	for (int i=0;i<m_data->m_strings.size();i++)
+	{
+		delete m_data->m_strings[i];
+	}
+	m_data->m_strings.clear();
+
+	
+	if (m_data->m_dynamicsWorld)
+	{
+		
+		int i;
+		for (i = m_data->m_dynamicsWorld->getNumConstraints() - 1; i >= 0; i--)
+		{
+			m_data->m_dynamicsWorld->removeConstraint(m_data->m_dynamicsWorld->getConstraint(i));
+		}
+		for (i = m_data->m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
+		{
+			btCollisionObject* obj = m_data->m_dynamicsWorld->getCollisionObjectArray()[i];
+			btRigidBody* body = btRigidBody::upcast(obj);
+			if (body && body->getMotionState())
+			{
+				delete body->getMotionState();
+			}
+			m_data->m_dynamicsWorld->removeCollisionObject(obj);
+			delete obj;
+		}
+	}
+	//delete collision shapes
+	for (int j = 0; j<m_data->m_collisionShapes.size(); j++)
+	{
+		btCollisionShape* shape = m_data->m_collisionShapes[j];
+		delete shape;
+	}
+	m_data->m_collisionShapes.clear();
+
+	delete m_data->m_dynamicsWorld;
+
+	delete m_data->m_solver;
+
+	delete m_data->m_broadphase;
+
+	delete m_data->m_dispatcher;
+
+	delete m_data->m_collisionConfiguration;
+
+}
+
+bool PhysicsServerSharedMemory::connectSharedMemory( struct GUIHelperInterface* guiHelper)
+{
 	m_data->m_guiHelper = guiHelper;
 	
 	bool allowCreation = true;
@@ -107,7 +212,7 @@ bool PhysicsServerSharedMemory::connectSharedMemory( class btMultiBodyDynamicsWo
     }
     
     
-	m_data->m_testBlock1 = (SharedMemoryBlock*)m_data->m_sharedMemory->allocateSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE,allowCreation);
+	m_data->m_testBlock1 = (SharedMemoryBlock*)m_data->m_sharedMemory->allocateSharedMemory(m_data->m_sharedMemoryKey, SHARED_MEMORY_SIZE,allowCreation);
     if (m_data->m_testBlock1)
     {
         int magicId =m_data->m_testBlock1->m_magicId;
@@ -121,7 +226,7 @@ bool PhysicsServerSharedMemory::connectSharedMemory( class btMultiBodyDynamicsWo
         } else
 		{
 			b3Error("Server cannot connect to existing shared memory, disconnecting shared memory.\n");
-            m_data->m_sharedMemory->releaseSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE);
+            m_data->m_sharedMemory->releaseSharedMemory(m_data->m_sharedMemoryKey, SHARED_MEMORY_SIZE);
             m_data->m_testBlock1 = 0;
             m_data->m_isConnected = false;
 		}
@@ -146,7 +251,7 @@ void PhysicsServerSharedMemory::disconnectSharedMemory(bool deInitializeSharedMe
 			b3Printf("De-initialized shared memory, magic id = %d\n",m_data->m_testBlock1->m_magicId);
 		}
 		btAssert(m_data->m_sharedMemory);
-		m_data->m_sharedMemory->releaseSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE);
+		m_data->m_sharedMemory->releaseSharedMemory(m_data->m_sharedMemoryKey, SHARED_MEMORY_SIZE);
 	}
 	if (m_data->m_sharedMemory)
 	{
@@ -166,7 +271,8 @@ void PhysicsServerSharedMemory::releaseSharedMemory()
         m_data->m_testBlock1->m_magicId = 0;
         b3Printf("magic id = %d\n",m_data->m_testBlock1->m_magicId);
         btAssert(m_data->m_sharedMemory);
-        m_data->m_sharedMemory->releaseSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE);
+		m_data->m_sharedMemory->releaseSharedMemory(	m_data->m_sharedMemoryKey
+, SHARED_MEMORY_SIZE);
     }
     if (m_data->m_sharedMemory)
     {
@@ -684,11 +790,15 @@ void PhysicsServerSharedMemory::processClientCommands()
 					
 
 					
-                case CMD_SHUTDOWN:
+                case CMD_RESET_SIMULATION:
                 {
-					btAssert(0);
-                    //wantsShutdown = true;
-					SharedMemoryStatus& serverCmd =m_data->createServerStatus(CMD_CLIENT_COMMAND_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
+					//clean up all data
+					
+					m_data->m_guiHelper->getRenderInterface()->removeAllInstances();
+					deleteDynamicsWorld();
+					createEmptyDynamicsWorld();
+					
+                    SharedMemoryStatus& serverCmd =m_data->createServerStatus(CMD_CLIENT_COMMAND_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
 					m_data->submitServerStatus(serverCmd);
 
                     break;
@@ -751,3 +861,28 @@ void PhysicsServerSharedMemory::processClientCommands()
         }
     }
 }
+
+void PhysicsServerSharedMemory::renderScene()
+{
+	if (m_data->m_guiHelper)
+	{
+		m_data->m_guiHelper->syncPhysicsToGraphics(m_data->m_dynamicsWorld);
+		
+		m_data->m_guiHelper->render(m_data->m_dynamicsWorld);
+	}
+	
+}
+
+void    PhysicsServerSharedMemory::physicsDebugDraw(int debugDrawFlags)
+{
+	if (m_data->m_dynamicsWorld)
+	{
+		if (m_data->m_dynamicsWorld->getDebugDrawer())
+		{
+			m_data->m_dynamicsWorld->getDebugDrawer()->setDebugMode(debugDrawFlags);
+		}
+		m_data->m_dynamicsWorld->debugDrawWorld();
+	}
+}
+
+

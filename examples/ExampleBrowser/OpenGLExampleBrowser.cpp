@@ -76,6 +76,9 @@ static bool pauseSimulation=false;
 int midiBaseIndex = 176;
 extern bool gDisableDeactivation;
 
+int gSharedMemoryKey=-1;
+
+
 ///some quick test variable for the OpenCL examples
 
 int gPreferredOpenCLDeviceIndex=-1;
@@ -739,6 +742,8 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 	}
 
 	
+	args.GetCmdLineArgument("shared_memory_key", gSharedMemoryKey);
+								
 	float red,green,blue;
 	s_app->getBackgroundColor(&red,&green,&blue);
 	args.GetCmdLineArgument("background_color_red",red);

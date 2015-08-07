@@ -188,6 +188,22 @@ void GwenParameterInterface::syncParameters()
 
 void GwenParameterInterface::removeAllParameters()
 {
+	for (int i=0;i<m_paramInternalData->m_buttons.size();i++)
+	{
+		delete m_paramInternalData->m_buttons[i];
+	}
+	m_paramInternalData->m_buttons.clear();
+	
+	for (int i=0;i<m_paramInternalData->m_buttonEventHandlers.size();i++)
+	{
+		delete m_paramInternalData->m_buttonEventHandlers[i];
+	}
+	m_paramInternalData->m_buttonEventHandlers.clear();
+	
+	
+	m_gwenInternalData->m_curYposition+=22;
+
+	
 	for (int i=0;i<m_paramInternalData->m_sliders.size();i++)
 	{
 		delete m_paramInternalData->m_sliders[i];

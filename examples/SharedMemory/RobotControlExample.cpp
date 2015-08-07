@@ -72,6 +72,20 @@ public:
     
     virtual bool wantsTermination();
     virtual bool isConnected();
+	virtual void	renderScene(){}
+	virtual void    exitPhysics(){}
+	
+	virtual void	physicsDebugDraw(int debugFlags){}
+	virtual bool	mouseMoveCallback(float x,float y){return false;};
+	virtual bool	mouseButtonCallback(int button, int state, float x, float y){return false;}
+	virtual bool	keyboardCallback(int key, int state){return false;}
+	
+	virtual void setSharedMemoryKey(int key)
+	{
+		m_physicsServer.setSharedMemoryKey(key);
+		m_physicsClient.setSharedMemoryKey(key);
+	}
+
 };
 
 bool RobotControlExample::isConnected()
@@ -253,14 +267,14 @@ void	RobotControlExample::initPhysics()
 	int upAxis = 2;
 	m_guiHelper->setUpAxis(upAxis);
 
-    createEmptyDynamicsWorld();
+  /*  createEmptyDynamicsWorld();
 	//todo: create a special debug drawer that will cache the lines, so we can send the debug info over the wire
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	btVector3 grav(0,0,0);
 	grav[upAxis] = 0;//-9.8;
 	this->m_dynamicsWorld->setGravity(grav);
-    
-	m_physicsServer.connectSharedMemory( m_dynamicsWorld,m_guiHelper);
+    */
+	m_physicsServer.connectSharedMemory( m_guiHelper);
   
 	if (m_guiHelper && m_guiHelper->getParameterInterface())
 	{
@@ -364,10 +378,16 @@ void	RobotControlExample::stepSimulation(float deltaTime)
 	}
 }
 
+extern int gSharedMemoryKey;
 
 class CommonExampleInterface*    RobotControlExampleCreateFunc(struct CommonExampleOptions& options)
 {
-    return new RobotControlExample(options.m_guiHelper);
+    RobotControlExample* example = new RobotControlExample(options.m_guiHelper);
+	if (gSharedMemoryKey>=0)
+	{
+		example->setSharedMemoryKey(gSharedMemoryKey);
+	}
+	return example;
 }
 
 

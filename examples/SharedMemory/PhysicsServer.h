@@ -9,6 +9,8 @@ protected:
 
 	void	createJointMotors(class btMultiBody* body);
 	
+	virtual void createEmptyDynamicsWorld();
+	virtual void deleteDynamicsWorld();
 	
 	void	releaseSharedMemory();
 	
@@ -19,8 +21,10 @@ public:
 	PhysicsServerSharedMemory();
 	virtual ~PhysicsServerSharedMemory();
 
+	virtual void setSharedMemoryKey(int key);
+	
 	//todo: implement option to allocated shared memory from client 
-	virtual bool connectSharedMemory(class btMultiBodyDynamicsWorld* dynamicsWorld, struct GUIHelperInterface* guiHelper);
+	virtual bool connectSharedMemory( struct GUIHelperInterface* guiHelper);
 
 	virtual void disconnectSharedMemory (bool deInitializeSharedMemory);
 
@@ -28,6 +32,12 @@ public:
 
 	bool	supportsJointMotor(class btMultiBody* body, int linkIndex);
 
+	//for physicsDebugDraw and renderScene are mainly for debugging purposes
+	//and for physics visualization. The idea is that physicsDebugDraw can also send wireframe
+	//to a physics client, over shared memory
+	void    physicsDebugDraw(int debugDrawFlags);
+	void    renderScene();
+	
 };
 
 

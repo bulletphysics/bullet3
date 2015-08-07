@@ -32,6 +32,7 @@ public:
 	
 	virtual void	getJointInfo(int index, b3JointInfo& info) const;
 	
+	virtual void setSharedMemoryKey(int key);
 };
 
 #endif //BT_PHYSICS_CLIENT_API_H
