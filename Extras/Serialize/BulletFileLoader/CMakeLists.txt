@@ -34,7 +34,7 @@ IF (INSTALL_EXTRA_LIBS)
                         IF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
                                 INSTALL(TARGETS BulletFileLoader DESTINATION .)
                         ELSE (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
-                                INSTALL(TARGETS BulletFileLoader DESTINATION lib${LIB_SUFFIX})
+                                bt_install_library (BulletFileLoader)
                                 INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 DESTINATION ${INCLUDE_INSTALL_DIR} FILES_MATCHING PATTERN "*.h"  PATTERN
 ".svn" EXCLUDE PATTERN "CMakeFiles" EXCLUDE)
