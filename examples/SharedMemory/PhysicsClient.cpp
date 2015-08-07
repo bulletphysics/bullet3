@@ -24,6 +24,8 @@ struct PhysicsClientSharedMemoryInternalData
 	btAlignedObjectArray<bParse::btBulletFile*> m_robotMultiBodyData;
 	btAlignedObjectArray<b3JointInfo> m_jointInfo;
 	
+	int m_sharedMemoryKey;
+	
 	int m_counter;
 	bool m_serverLoadUrdfOK;
 	bool m_isConnected;
@@ -37,7 +39,8 @@ struct PhysicsClientSharedMemoryInternalData
 		m_serverLoadUrdfOK(false),
 		m_isConnected(false),
 		m_waitingForServer(false),
-		m_hasLastServerStatus(false)
+		m_hasLastServerStatus(false),
+		m_sharedMemoryKey(SHARED_MEMORY_KEY)
 	{
 	}
 
@@ -66,7 +69,7 @@ PhysicsClientSharedMemory::PhysicsClientSharedMemory()
 
 {
 	m_data = new PhysicsClientSharedMemoryInternalData;	
-
+	
 #ifdef _WIN32
 	m_data->m_sharedMemory = new Win32SharedMemoryClient();
 #else
@@ -85,11 +88,16 @@ PhysicsClientSharedMemory::~PhysicsClientSharedMemory()
 	delete m_data;
 }
 
+void PhysicsClientSharedMemory::setSharedMemoryKey(int key)
+{
+	m_data->m_sharedMemoryKey = key;
+}
+
 void PhysicsClientSharedMemory::disconnectSharedMemory ()
 {
     if (m_data->m_isConnected)
     {
-        m_data->m_sharedMemory->releaseSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE);
+        m_data->m_sharedMemory->releaseSharedMemory(m_data->m_sharedMemoryKey, SHARED_MEMORY_SIZE);
         m_data->m_isConnected = false;
     }
 }
@@ -103,14 +111,14 @@ bool PhysicsClientSharedMemory::connect()
 {
     ///server always has to create and initialize shared memory
     bool allowCreation = false;
-	m_data->m_testBlock1 = (SharedMemoryBlock*)m_data->m_sharedMemory->allocateSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE, allowCreation);
+	m_data->m_testBlock1 = (SharedMemoryBlock*)m_data->m_sharedMemory->allocateSharedMemory(m_data->m_sharedMemoryKey, SHARED_MEMORY_SIZE, allowCreation);
 	
     if (m_data->m_testBlock1)
     {
         if (m_data->m_testBlock1->m_magicId !=SHARED_MEMORY_MAGIC_NUMBER)
         {
             b3Error("Error: please start server before client\n");
-            m_data->m_sharedMemory->releaseSharedMemory(SHARED_MEMORY_KEY, SHARED_MEMORY_SIZE);
+            m_data->m_sharedMemory->releaseSharedMemory(m_data->m_sharedMemoryKey, SHARED_MEMORY_SIZE);
             m_data->m_testBlock1 = 0;
             return false;
        } else
@@ -389,6 +397,18 @@ bool	PhysicsClientSharedMemory::submitClientCommand(const SharedMemoryCommand& c
 
 	if (!m_data->m_waitingForServer)
 	{
+		//a reset simulation command needs special attention, cleanup state
+		if (command.m_type==CMD_RESET_SIMULATION)
+		{
+			for (int i=0;i<m_data->m_robotMultiBodyData.size();i++)
+			{
+				delete m_data->m_robotMultiBodyData[i];
+			}
+			m_data->m_robotMultiBodyData.clear();
+			
+			m_data->m_jointInfo.clear();
+			
+		}
 		m_data->m_testBlock1->m_clientCommands[0] = command;
 		m_data->m_testBlock1->m_numClientCommands++;
 		m_data->m_waitingForServer = true;

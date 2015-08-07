@@ -9,16 +9,7 @@
 #include "PhysicsServer.h"
 
 #include "SharedMemoryCommon.h"
-//const char* blaatnaam = "basename";
-struct UrdfLinkNameMapUtil
-{
-	btMultiBody* m_mb;
-	btDefaultSerializer* m_memSerializer;
 
-	UrdfLinkNameMapUtil():m_mb(0),m_memSerializer(0)
-	{
-	}
-};
 
 class PhysicsServerExample : public SharedMemoryCommon
 {
@@ -51,6 +42,19 @@ public:
     
     virtual bool wantsTermination();
     virtual bool isConnected();
+	virtual void	renderScene();
+	virtual void    exitPhysics(){}
+
+	virtual void	physicsDebugDraw(int debugFlags);
+	virtual bool	mouseMoveCallback(float x,float y){return false;};
+	virtual bool	mouseButtonCallback(int button, int state, float x, float y){return false;}
+	virtual bool	keyboardCallback(int key, int state){return false;}
+
+	virtual void setSharedMemoryKey(int key)
+	{
+		m_physicsServer.setSharedMemoryKey(key);
+	}
+
 
 };
 
@@ -82,14 +86,18 @@ void	PhysicsServerExample::initPhysics()
 	int upAxis = 2;
 	m_guiHelper->setUpAxis(upAxis);
 
+#if 0
+	
     createEmptyDynamicsWorld();
+
 	//todo: create a special debug drawer that will cache the lines, so we can send the debug info over the wire
-	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	btVector3 grav(0,0,0);
 	grav[upAxis] = 0;//-9.8;
 	this->m_dynamicsWorld->setGravity(grav);
     
-	m_isConnected = m_physicsServer.connectSharedMemory( m_dynamicsWorld,m_guiHelper);
+#endif
+	
+	m_isConnected = m_physicsServer.connectSharedMemory( m_guiHelper);
   
 }
 
@@ -106,10 +114,30 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
     m_physicsServer.processClientCommands();
 }
 
+void PhysicsServerExample::renderScene()
+{
+	///debug rendering
+	m_physicsServer.renderScene();
+}
+
+void    PhysicsServerExample::physicsDebugDraw(int debugDrawFlags)
+{
+	///debug rendering
+	m_physicsServer.physicsDebugDraw(debugDrawFlags);
+
+}
+
+extern int gSharedMemoryKey;
 
 class CommonExampleInterface*    PhysicsServerCreateFunc(struct CommonExampleOptions& options)
 {
-    return new PhysicsServerExample(options.m_guiHelper);
+  	PhysicsServerExample* example = new PhysicsServerExample(options.m_guiHelper);
+	if (gSharedMemoryKey>=0)
+	{
+		example->setSharedMemoryKey(gSharedMemoryKey);
+	}
+	return example;
+	
 }
 
 
