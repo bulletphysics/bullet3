@@ -715,7 +715,7 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
     {
 		char title[1024];
 		sprintf(title,"%s using OpenGL3+. %s", appTitle,optMode);
-        simpleApp = new SimpleOpenGL3App(title,width,height);
+        simpleApp = new SimpleOpenGL3App(title,width,height, gAllowRetina);
         s_app = simpleApp;
     }
 #endif
