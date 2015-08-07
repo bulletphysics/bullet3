@@ -16,7 +16,7 @@ matrix:
       env: TARGET_BOX=WIN64 CMAKE_ARGS="-DBUILD_BULLET2_DEMOS=OFF -DUSE_GLUT=0 -DBUILD_OPENGL3_DEMOS=OFF -DBUILD_CPU_DEMOS=OFF -DCMAKE_TOOLCHAIN_FILE=toolchain-mingw64.cmake"
 
 before_install:
- - if [[ "$TRAVIS_OS_NAME" = "linux" -a "$TARGET_BOX" = "WIN64" ]]; then sudo apt-get install -qq g++-mingw-w64-x86-64; wget https://raw.githubusercontent.com/thp/psmoveapi/master/contrib/toolchain-mingw64.cmake; fi
+ - if test "$TRAVIS_OS_NAME" = "linux" -a "$TARGET_BOX" = "WIN64"; then sudo apt-get install -qq g++-mingw-w64-x86-64; wget https://raw.githubusercontent.com/thp/psmoveapi/master/contrib/toolchain-mingw64.cmake; fi
 
 script:
   - echo "CXX="$CXX
