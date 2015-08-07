@@ -5,15 +5,28 @@ os:
 compiler:
   - gcc
   - clang
+
+env:
+  - TARGET_BOX=UNIX CMAKE_ARGS=""
+  - TARGET_BOX=WIN64 CMAKE_ARGS="-DBUILD_BULLET2_DEMOS=OFF -DUSE_GLUT=0 -DBUILD_OPENGL3_DEMOS=OFF -DBUILD_CPU_DEMOS=OFF -DCMAKE_TOOLCHAIN_FILE=toolchain-mingw64.cmake"
+
+matrix:
+  exclude:
+    - os: osx
+    - env: TARGET_BOX=WIN64 CMAKE_ARGS="-DBUILD_BULLET2_DEMOS=OFF -DUSE_GLUT=0 -DBUILD_OPENGL3_DEMOS=OFF -DBUILD_CPU_DEMOS=OFF -DCMAKE_TOOLCHAIN_FILE=toolchain-mingw64.cmake"
+
+before_install:
+ - if [[ "$TRAVIS_OS_NAME" == "linux" -a "$TARGET_BOX" == "WIN64" ]]; then sudo apt-get install -qq g++-mingw-w64-x86-64; wget https://raw.githubusercontent.com/thp/psmoveapi/master/contrib/toolchain-mingw64.cmake; fi
+
 script:
   - echo "CXX="$CXX
   - echo "CC="$CC
-  - cmake . -G "Unix Makefiles" #-DCMAKE_CXX_FLAGS=-Werror
+  - cmake -G "Unix Makefiles" $CMAKE_ARGS .
   - make -j8
-  # Test again with double precision
-  - cmake . -G "Unix Makefiles" -DUSE_DOUBLE_PRECISION=ON #-DCMAKE_CXX_FLAGS=-Werror
+# Test again with double precision
+  - cmake -G "Unix Makefiles" $CMAKE_ARGS -DUSE_DOUBLE_PRECISION=ON .
   - make -j8
-  # Test again with shared libraries
-  - cmake . -G "Unix Makefiles" -DBUILD_SHARED_LIBS=ON
+# Test again with shared libraries
+  - cmake -G "Unix Makefiles" $CMAKE_ARGS -DBUILD_SHARED_LIBS=ON .
   - make -j8
   - sudo make install
