@@ -268,8 +268,8 @@ void TimeSeriesCanvas::shift1PixelToLeft()
 	{
 		char buf[1024];
 		float time = m_internalData->getTime();
-		sprintf(buf,"%3.2f",time);
-		grapicalPrintf(buf, sTimeSeriesFontData, m_internalData->m_width-53,m_internalData->m_zero+3,0,0,0,255);
+		sprintf(buf,"%2.0f",time);
+		grapicalPrintf(buf, sTimeSeriesFontData, m_internalData->m_width-25,m_internalData->m_zero+3,0,0,0,255);
 
 		m_internalData->m_bar=m_internalData->m_ticksPerSecond;
 		

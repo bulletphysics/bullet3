@@ -603,14 +603,18 @@ struct QuickCanvas : public Common2dCanvasInterface
 		if (m_curNumGraphWindows<MAX_GRAPH_WINDOWS)
 		{
 			//find a slot
-			int slot = 0;//hardcoded for now
+			int slot = m_curNumGraphWindows;
+			btAssert(slot<MAX_GRAPH_WINDOWS);
+			if (slot>=MAX_GRAPH_WINDOWS)
+				return 0;//don't crash
+			
 			m_curNumGraphWindows++;
 
 			MyGraphInput input(gui->getInternalData());
 			input.m_width=width;
 			input.m_height=height;
-			input.m_xPos = 300;
-			input.m_yPos = height-input.m_height;
+			input.m_xPos = 10000;//GUI will clamp it to the right//300;
+			input.m_yPos = 10000;//GUI will clamp it to bottom
 			input.m_name=canvasName;
 			input.m_texName = canvasName;
 			m_gt[slot] = new GraphingTexture;
@@ -625,22 +629,21 @@ struct QuickCanvas : public Common2dCanvasInterface
 	}
 	virtual void destroyCanvas(int canvasId)
 	{
-		btAssert(canvasId==0);//hardcoded to zero for now, only a single canvas
-		btAssert(m_curNumGraphWindows==1);
+		btAssert(canvasId>=0);
 		destroyTextureWindow(m_gw[canvasId]);
 		m_curNumGraphWindows--;
 	}
 	virtual void setPixel(int canvasId, int x, int y, unsigned char red, unsigned char green,unsigned char blue, unsigned char alpha)
 	{
-		btAssert(canvasId==0);//hardcoded
-		btAssert(m_curNumGraphWindows==1);
+		btAssert(canvasId>=0);
+		btAssert(canvasId<m_curNumGraphWindows);
 		m_gt[canvasId]->setPixel(x,y,red,green,blue,alpha);
 	}
 	
 	virtual void getPixel(int canvasId, int x, int y, unsigned char& red, unsigned char& green,unsigned char& blue, unsigned char& alpha)
 	{
-		btAssert(canvasId==0);//hardcoded
-		btAssert(m_curNumGraphWindows==1);
+		btAssert(canvasId>=0);
+		btAssert(canvasId<m_curNumGraphWindows);
 		m_gt[canvasId]->getPixel(x,y,red,green,blue,alpha);
 	}
 	
@@ -982,7 +985,7 @@ void OpenGLExampleBrowser::update(float deltaTime)
 					
 					static int skip = 0;
 					skip++;
-					if (skip>10)
+					if (skip>4)
 					{
 						skip=0;
 						//printf("gPngFileName=%s\n",gPngFileName);

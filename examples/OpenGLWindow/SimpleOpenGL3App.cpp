@@ -421,27 +421,27 @@ struct GfxVertex
 		float u,v;
 	};
 
-int	SimpleOpenGL3App::registerCubeShape(float halfExtentsX,float halfExtentsY, float halfExtentsZ, int textureIndex)
+int	SimpleOpenGL3App::registerCubeShape(float halfExtentsX,float halfExtentsY, float halfExtentsZ, int textureIndex, float textureScaling)
 {
 
 
 	int strideInBytes = 9*sizeof(float);
-	int numVertices = sizeof(cube_vertices)/strideInBytes;
+	int numVertices = sizeof(cube_vertices_textured)/strideInBytes;
 	int numIndices = sizeof(cube_indices)/sizeof(int);
 
 	b3AlignedObjectArray<GfxVertex> verts;
 	verts.resize(numVertices);
 	for (int i=0;i<numVertices;i++)
 	{
-		verts[i].x = halfExtentsX*cube_vertices[i*9];
-		verts[i].y = halfExtentsY*cube_vertices[i*9+1];
-		verts[i].z = halfExtentsZ*cube_vertices[i*9+2];
-		verts[i].w = cube_vertices[i*9+3];
-		verts[i].nx = cube_vertices[i*9+4];
-		verts[i].ny = cube_vertices[i*9+5];
-		verts[i].nz = cube_vertices[i*9+6];
-		verts[i].u = cube_vertices[i*9+7];
-		verts[i].v = cube_vertices[i*9+8];
+		verts[i].x = halfExtentsX*cube_vertices_textured[i*9];
+		verts[i].y = halfExtentsY*cube_vertices_textured[i*9+1];
+		verts[i].z = halfExtentsZ*cube_vertices_textured[i*9+2];
+		verts[i].w = cube_vertices_textured[i*9+3];
+		verts[i].nx = cube_vertices_textured[i*9+4];
+		verts[i].ny = cube_vertices_textured[i*9+5];
+		verts[i].nz = cube_vertices_textured[i*9+6];
+		verts[i].u = cube_vertices_textured[i*9+7]*textureScaling;
+		verts[i].v = cube_vertices_textured[i*9+8]*textureScaling;
 	}
 	
 	int shapeId = m_instancingRenderer->registerShape(&verts[0].x,numVertices,cube_indices,numIndices,B3_GL_TRIANGLES,textureIndex);
@@ -709,10 +709,10 @@ void SimpleOpenGL3App::swapBuffer()
                           (int) m_window->getRetinaScale()*this->m_instancingRenderer->getScreenHeight(),m_data->m_frameDumpPngFileName,
                           m_data->m_ffmpegFile);
         m_data->m_renderTexture->disable();
-        //if (m_data->m_ffmpegFile==0)
-        //{
-        m_data->m_frameDumpPngFileName = 0;
-        //}
+        if (m_data->m_ffmpegFile==0)
+        {
+			m_data->m_frameDumpPngFileName = 0;
+        }
     }
 	m_window->startRendering();
 }
