@@ -377,8 +377,8 @@ public:
 
 		 int boxId = m_app->registerCubeShape(100,1,100);
             b3Vector3 pos = b3MakeVector3(0,-3.5,0);
-            btQuaternion orn(0,0,0,1);
-            btVector4 color(1,1,1,1);
+            b3Quaternion orn(0,0,0,1);
+            b3Vector4 color = b3MakeVector4(1,1,1,1);
             b3Vector3 scaling = b3MakeVector3(1,1,1);
             m_app->m_renderer->registerGraphicsInstance(boxId,pos,orn,color,scaling);
 		}
@@ -420,7 +420,7 @@ public:
 			
 			//            int boxId = m_app->registerCubeShape(1,1,1,textureIndex);
 			int boxId = m_app->registerGraphicsUnitSphereShape(SPHERE_LOD_HIGH, textureIndex);
-			btVector4 color(1,1,1,0.8);
+			b3Vector4 color = b3MakeVector4(1,1,1,0.8);
 			b3Vector3 scaling = b3MakeVector3(SPHERE_RADIUS,SPHERE_RADIUS,SPHERE_RADIUS);
 			for (int i=0;i<m_bodies.size();i++)
 			{
