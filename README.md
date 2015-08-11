@@ -31,10 +31,12 @@ https://docs.google.com/document/d/1u9vyzPtrVoVhYqQOGNWUgjRbfwfCdIts_NzmvgiJ144/
 
 The entire collision detection and rigid body dynamics is executed on the GPU.
 
-A high-end desktop GPU, such as an AMD Radeon 7970 or NVIDIA GTX 680 or similar.
+A high-end desktop GPU, such as an AMD Radeon 7970 or NVIDIA GTX 680 or better.
 We succesfully tested the software under Windows, Linux and Mac OSX.
 The software currently doesn't work on OpenCL CPU devices. It might run
-on a laptop GPU but performance is likely not very good.
+on a laptop GPU but performance is likely not very good. Note that
+often an OpenCL drivers fails to compile a kernel. Some unit tests exist to
+track down the issue, but more work is required to cover all OpenCL kernels.
 
 ## License
 
