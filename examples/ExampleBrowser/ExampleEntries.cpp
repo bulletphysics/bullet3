@@ -109,8 +109,15 @@ static ExampleEntry gDefaultExamples[]=
  ExampleEntry(1,"Constraint Feedback", "The example shows how to receive joint reaction forces in a btMultiBody. Also the applied impulse is available for a btMultiBodyJointMotor", MultiBodyConstraintFeedbackCreateFunc),
 	ExampleEntry(1,"Inverted Pendulum PD","Keep an inverted pendulum up using open loop PD control", InvertedPendulumPDControlCreateFunc),
 
+	
 	ExampleEntry(0,"Tutorial"),
-	ExampleEntry(1,"Free Rigid Body","(Preliminary work in progress) Free moving rigid body, without external or constraint forces", TutorialCreateFunc,0),
+	ExampleEntry(1,"Constant Velocity","Free moving rigid body, without external or constraint forces", TutorialCreateFunc,TUT_VELOCITY),
+	ExampleEntry(1,"Gravity Acceleration","Motion of a free falling rigid body under constant gravitational acceleration", TutorialCreateFunc,TUT_ACCELERATION),
+	ExampleEntry(1,"Contact Computation","Discrete Collision Detection for sphere-sphere", TutorialCreateFunc,TUT_COLLISION),
+	ExampleEntry(1,"Solve Contact Constraint","Compute and apply the impulses needed to satisfy non-penetrating contact constraints", TutorialCreateFunc,TUT_SOLVE_CONTACT_CONSTRAINT),
+
+	
+	
 	ExampleEntry(1,"Spring constraint","A rigid body with a spring constraint attached", Dof6ConstraintTutorialCreateFunc,0),
 
 #ifdef INCLUDE_CLOTH_DEMOS

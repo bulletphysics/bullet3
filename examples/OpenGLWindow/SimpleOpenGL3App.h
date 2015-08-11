@@ -19,7 +19,7 @@ struct SimpleOpenGL3App : public CommonGraphicsApp
 	SimpleOpenGL3App(const char* title, int width,int height, bool allowRetina);
 	virtual ~SimpleOpenGL3App();
 
-	virtual int	registerCubeShape(float halfExtentsX=1.f,float halfExtentsY=1.f, float halfExtentsZ = 1.f, int textureIndex = -1);
+	virtual int	registerCubeShape(float halfExtentsX=1.f,float halfExtentsY=1.f, float halfExtentsZ = 1.f, int textureIndex = -1,  float textureScaling = 1);
 	virtual int	registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lod, int textureId=-1);
 	virtual void registerGrid(int xres, int yres, float color0[4], float color1[4]);
     void dumpNextFrameToPng(const char* pngFilename);
