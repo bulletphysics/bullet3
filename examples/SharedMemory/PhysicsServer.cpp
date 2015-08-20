@@ -549,6 +549,7 @@ void PhysicsServerSharedMemory::processClientCommands()
 					{
 						int curFlags =m_data->m_debugDrawer->getDebugMode();
 						int debugMode = btIDebugDraw::DBG_DrawWireframe|btIDebugDraw::DBG_DrawAabb;
+						m_data->m_debugDrawer->m_lines.resize(0);
 						//|btIDebugDraw::DBG_DrawAabb|
 						//	btIDebugDraw::DBG_DrawConstraints |btIDebugDraw::DBG_DrawConstraintLimits ;
 						m_data->m_debugDrawer->setDebugMode(debugMode);
@@ -560,16 +561,24 @@ void PhysicsServerSharedMemory::processClientCommands()
 						if (memRequirements<SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE)
 						{
 
-							btVector3* linesFrom = (btVector3*)&m_data->m_testBlock1->m_bulletStreamDataServerToClient[0];
-							btVector3* linesTo = (btVector3*)(&m_data->m_testBlock1->m_bulletStreamDataServerToClient[0]+numLines*sizeof(btVector3));
-							btVector3* linesColor = (btVector3*)(&m_data->m_testBlock1->m_bulletStreamDataServerToClient[0]+2*numLines*sizeof(btVector3));
+							btScalar* linesFrom = (btScalar*)&m_data->m_testBlock1->m_bulletStreamDataServerToClient[0];
+							btScalar* linesTo = (btScalar*)(&m_data->m_testBlock1->m_bulletStreamDataServerToClient[0]+numLines*sizeof(btVector3));
+							btScalar* linesColor = (btScalar*)(&m_data->m_testBlock1->m_bulletStreamDataServerToClient[0]+2*numLines*sizeof(btVector3));
 
 							for (int i=0;i<numLines;i++)
 							{
-								linesFrom[i] = m_data->m_debugDrawer->m_lines[i].m_from;
-								linesTo[i] = m_data->m_debugDrawer->m_lines[i].m_to;
-								linesColor[i] = m_data->m_debugDrawer->m_lines[i].m_color;
-							}
+								linesFrom[i*4] = m_data->m_debugDrawer->m_lines[i].m_from.x();
+								linesTo[i*4] = m_data->m_debugDrawer->m_lines[i].m_to.x();
+								linesColor[i*4] = m_data->m_debugDrawer->m_lines[i].m_color.x();
+
+								linesFrom[i*4+1] = m_data->m_debugDrawer->m_lines[i].m_from.y();
+								linesTo[i*4+1] = m_data->m_debugDrawer->m_lines[i].m_to.y();
+								linesColor[i*4+1] = m_data->m_debugDrawer->m_lines[i].m_color.y();
+
+								linesFrom[i*4+2] = m_data->m_debugDrawer->m_lines[i].m_from.z();
+								linesTo[i*4+2] = m_data->m_debugDrawer->m_lines[i].m_to.z();
+								linesColor[i*4+2] = m_data->m_debugDrawer->m_lines[i].m_color.z();
+}
 							SharedMemoryStatus& status = m_data->createServerStatus(CMD_DEBUG_LINES_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
 							status.m_sendDebugLinesArgs.m_numDebugLines = numLines;
 							m_data->submitServerStatus(status);

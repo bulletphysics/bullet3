@@ -107,7 +107,7 @@ void MyCallback(int buttonId, bool buttonState, void* userPtr)
 	case  CMD_LOAD_URDF:
 		{
 			command.m_type =CMD_LOAD_URDF;
-			sprintf(command.m_urdfArguments.m_urdfFileName,"r2d2.urdf");//kuka_lwr/kuka.urdf");
+			sprintf(command.m_urdfArguments.m_urdfFileName,"kuka_lwr/kuka.urdf");
             command.m_urdfArguments.m_initialPosition[0] = 0.0;
 			command.m_updateFlags = 
 				URDF_ARGS_FILE_NAME| URDF_ARGS_INITIAL_POSITION|URDF_ARGS_INITIAL_ORIENTATION|URDF_ARGS_USE_MULTIBODY|URDF_ARGS_USE_FIXED_BASE;

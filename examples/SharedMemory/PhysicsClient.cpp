@@ -434,9 +434,9 @@ bool	PhysicsClientSharedMemory::processServerStatus(SharedMemoryStatus& serverSt
 					}
 
 					int numLines = serverCmd.m_sendDebugLinesArgs.m_numDebugLines;
-					btVector3* linesFrom = (btVector3*)&m_data->m_testBlock1->m_bulletStreamDataServerToClient[0];
-					btVector3* linesTo = (btVector3*)(&m_data->m_testBlock1->m_bulletStreamDataServerToClient[0]+numLines*sizeof(btVector3));
-					btVector3* linesColor = (btVector3*)(&m_data->m_testBlock1->m_bulletStreamDataServerToClient[0]+2*numLines*sizeof(btVector3));
+					btScalar* linesFrom = (btScalar*)&m_data->m_testBlock1->m_bulletStreamDataServerToClient[0];
+					btScalar* linesTo = (btScalar*)(&m_data->m_testBlock1->m_bulletStreamDataServerToClient[0]+numLines*sizeof(btVector3));
+					btScalar* linesColor = (btScalar*)(&m_data->m_testBlock1->m_bulletStreamDataServerToClient[0]+2*numLines*sizeof(btVector3));
 
 					m_data->m_debugLinesFrom.resize(numLines);
 					m_data->m_debugLinesTo.resize(numLines);
@@ -444,9 +444,13 @@ bool	PhysicsClientSharedMemory::processServerStatus(SharedMemoryStatus& serverSt
 
 					for (int i=0;i<numLines;i++)
 					{
-						m_data->m_debugLinesFrom[i] = linesFrom[i];
-						m_data->m_debugLinesTo[i] = linesTo[i];
-						m_data->m_debugLinesColor[i] = linesColor[i];
+						btVector3 from(linesFrom[i*4],linesFrom[i*4+1],linesFrom[i*4+2]);
+                     				btVector3 to(linesTo[i*4],linesTo[i*4+1],linesTo[i*4+2]);
+						btVector3 color(linesColor[i*4],linesColor[i*4+1],linesColor[i*4+2]);
+
+						m_data->m_debugLinesFrom[i] = from;
+						m_data->m_debugLinesTo[i] = to;
+						m_data->m_debugLinesColor[i] = color;
 					}
 					break;
 				}
