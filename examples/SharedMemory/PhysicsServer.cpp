@@ -103,7 +103,7 @@ struct PhysicsServerInternalData
 		:m_sharedMemory(0),
 		m_testBlock1(0),
 		m_isConnected(false),
-		m_physicsDeltaTime(1./240.),//240.),
+		m_physicsDeltaTime(1./240.),
 		m_dynamicsWorld(0),
 		m_debugDrawer(0),
 		m_guiHelper(0),
@@ -820,30 +820,30 @@ void PhysicsServerSharedMemory::processClientCommands()
 													if (motorPtr)
 													{
 														btMultiBodyJointMotor* motor = *motorPtr;
-														motor->setMaxAppliedImpulse(0);
-													}
+													
+                                                        btScalar desiredVelocity = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[velIndex];
+                                                        btScalar desiredPosition = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[posIndex];
+                                                        
+                                                        btScalar kp = clientCmd.m_sendDesiredStateCommandArgument.m_Kp[velIndex];
+                                                        btScalar kd = clientCmd.m_sendDesiredStateCommandArgument.m_Kd[velIndex];
 
-													btScalar desiredVelocity = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[velIndex];
-													btScalar desiredPosition = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[posIndex];
+                                                        int dof1 = 0;
+                                                        btScalar currentPosition = mb->getJointPosMultiDof(link)[dof1];
+                                                        btScalar currentVelocity = mb->getJointVelMultiDof(link)[dof1];
+                                                        btScalar positionStabiliationTerm = (desiredPosition-currentPosition)/m_data->m_physicsDeltaTime;
+                                                        btScalar velocityError = (desiredVelocity - currentVelocity);
+                                                        
+                                                        desiredVelocity =   kp * positionStabiliationTerm +
+                                                                            kd * velocityError;
+                                                        
+                                                        motor->setVelocityTarget(desiredVelocity);
+                                                        
+                                                        btScalar maxImp = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[velIndex]*m_data->m_physicsDeltaTime;
+                                                        
+                                                        motor->setMaxAppliedImpulse(1000);//maxImp);
+                                                        numMotors++;
+                                                    }
 
-													btScalar maxForce = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[velIndex];
-													btScalar kp = clientCmd.m_sendDesiredStateCommandArgument.m_Kp[velIndex];
-													btScalar kd = clientCmd.m_sendDesiredStateCommandArgument.m_Kd[velIndex];
-
-													int dof1 = 0;
-													btScalar qActual = mb->getJointPosMultiDof(link)[dof1];
-													btScalar qdActual = mb->getJointVelMultiDof(link)[dof1];
-													btScalar positionError = (desiredPosition-qActual);
-													btScalar velocityError = (desiredVelocity-qdActual);
-													btScalar force = kp * positionError + kd*velocityError;
-													btClamp(force,-maxForce,maxForce);
-													if (m_data->m_verboseOutput)
-													{
-														b3Printf("Apply force %f (kp=%f, kd=%f at link %d\n", force,kp,kd,link);
-													}
-													mb->addJointTorque(link, force);//we assume we have 1-DOF motors only at the moment
-													//mb->addJointTorqueMultiDof(link,&force);
-													numMotors++;
 												}
 												velIndex += mb->getLink(link).m_dofCount;
 												posIndex += mb->getLink(link).m_posVarCount;

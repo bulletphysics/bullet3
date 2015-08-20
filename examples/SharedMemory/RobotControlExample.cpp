@@ -20,6 +20,9 @@ struct MyMotorInfo
 {
 	btScalar m_velTarget;
 	btScalar m_posTarget;
+    btScalar m_kp;
+    btScalar m_kd;
+    
 	btScalar m_maxForce;
 	int		m_uIndex;
 	int		m_posIndex;
@@ -253,9 +256,9 @@ void RobotControlExample::prepareControlCommand(SharedMemoryCommand& command)
 			
 			int uIndex = m_motorTargetState[i].m_uIndex;
 
-			command.m_sendDesiredStateCommandArgument.m_Kp[uIndex] = 10;
-			command.m_sendDesiredStateCommandArgument.m_Kd[uIndex] = 2;
-			command.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[uIndex] = 1000;//max force 
+			command.m_sendDesiredStateCommandArgument.m_Kp[uIndex] = m_motorTargetState[i].m_kp;
+			command.m_sendDesiredStateCommandArgument.m_Kd[uIndex] = m_motorTargetState[i].m_kd;
+			command.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[uIndex] = 10000;//max force
 
 			btScalar targetVel = m_motorTargetState[i].m_velTarget;
 			command.m_sendDesiredStateCommandArgument.m_desiredStateQdot[uIndex] = targetVel;
@@ -396,6 +399,7 @@ void	RobotControlExample::stepSimulation(float deltaTime)
 								MyMotorInfo* motorInfo = &m_motorTargetState[m_numMotors];
 								motorInfo->m_velTarget = 0.f;
 								motorInfo->m_posTarget = 0.f;
+
 								motorInfo->m_uIndex = info.m_uIndex;
                     
 								SliderParams slider(motorName,&motorInfo->m_velTarget);
@@ -408,18 +412,45 @@ void	RobotControlExample::stepSimulation(float deltaTime)
 						case ROBOT_PD_CONTROL:
 						{
 							char motorName[1024];
-							sprintf(motorName,"%s q", info.m_jointName);
+							
 							MyMotorInfo* motorInfo = &m_motorTargetState[m_numMotors];
 							motorInfo->m_velTarget = 0.f;
 							motorInfo->m_posTarget = 0.f;
 							motorInfo->m_uIndex = info.m_uIndex;
 							motorInfo->m_posIndex  = info.m_qIndex;
-							
-                    
+                            motorInfo->m_kp = 1;
+                            motorInfo->m_kd = 0;
+                            
+                            {
+                                sprintf(motorName,"%s kp", info.m_jointName);
+                                SliderParams slider(motorName,&motorInfo->m_kp);
+                                slider.m_minVal=0;
+                                slider.m_maxVal=1;
+                                m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+                            }
+                            
+                            {
+                                sprintf(motorName,"%s q", info.m_jointName);
 							SliderParams slider(motorName,&motorInfo->m_posTarget);
 							slider.m_minVal=-SIMD_PI;
 							slider.m_maxVal=SIMD_PI;
 							m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+                            }
+                            {
+                                sprintf(motorName,"%s kd", info.m_jointName);
+                                SliderParams slider(motorName,&motorInfo->m_kd);
+                                slider.m_minVal=0;
+                                slider.m_maxVal=1;
+                                m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+                            }
+                           
+                            {
+                                 sprintf(motorName,"%s q'", info.m_jointName);
+                            SliderParams slider(motorName,&motorInfo->m_velTarget);
+                            slider.m_minVal=-10;
+                            slider.m_maxVal=10;
+                            m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+                            }
 							m_numMotors++;
 							break;
 						}
