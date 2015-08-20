@@ -356,7 +356,7 @@ void ImportUrdfSetup::initPhysics()
 
 
 
-		bool createGround=true;
+		bool createGround=false;
 		if (createGround)
 		{
 			btVector3 groundHalfExtents(20,20,20);

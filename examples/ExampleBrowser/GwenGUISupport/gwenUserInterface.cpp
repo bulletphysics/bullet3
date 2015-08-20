@@ -286,7 +286,7 @@ void	GwenUserInterface::init(int width, int height,Gwen::Renderer::Base* rendere
 	*/
 	Gwen::Controls::ScrollControl* windowRight= new Gwen::Controls::ScrollControl(m_data->pCanvas);
 	windowRight->Dock(Gwen::Pos::Right);
-	windowRight->SetWidth(150);
+	windowRight->SetWidth(250);
 	windowRight->SetHeight(250);
 	windowRight->SetScroll(false,true);
 
@@ -296,7 +296,7 @@ void	GwenUserInterface::init(int width, int height,Gwen::Renderer::Base* rendere
 	Gwen::Controls::TabControl* tab = new Gwen::Controls::TabControl(windowRight);
 
 	//tab->SetHeight(300);
-	tab->SetWidth(140);
+	tab->SetWidth(240);
 	tab->SetHeight(1250);
 	//tab->Dock(Gwen::Pos::Left);
 	tab->Dock( Gwen::Pos::Fill );
@@ -438,7 +438,7 @@ void	GwenUserInterface::registerToggleButton(int buttonId, const char* name)
 	///some heuristic to find the button location
 	int ypos = m_data->m_curYposition;
 	but->SetPos(10, ypos );
-	but->SetWidth( 100 );
+	but->SetWidth( 200 );
 	//but->SetBounds( 200, 30, 300, 200 );
 
 	MyButtonHander* handler = new MyButtonHander(m_data, buttonId);
