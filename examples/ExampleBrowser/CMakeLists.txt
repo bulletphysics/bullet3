@@ -45,7 +45,10 @@ SET(App_ExampleBrowser_SRCS
 	../FractureDemo/btFractureDynamicsWorld.h
 	../DynamicControlDemo/MotorDemo.cpp
 	../DynamicControlDemo/MotorDemo.h
-	
+	../MultiThreading/MultiThreadingExample.cpp
+        ../MultiThreading/b3PosixThreadSupport.cpp
+	../MultiThreading/b3Win32ThreadSupport.cpp
+        ../MultiThreading/b3ThreadSupportInterface.cpp
 	../RenderingExamples/TimeSeriesCanvas.cpp
 	../RenderingExamples/TimeSeriesCanvas.h
 	../RenderingExamples/TimeSeriesFontData.cpp

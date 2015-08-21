@@ -40,7 +40,7 @@
 #include "../RenderingExamples/TimeSeriesExample.h"
 #include "../Tutorial/Tutorial.h"
 #include "../Tutorial/Dof6ConstraintTutorial.h"
-
+#include "../MultiThreading/MultiThreadingExample.h"
 #ifdef ENABLE_LUA
 #include "../LuaDemo/LuaPhysicsSetup.h"
 #endif
@@ -216,6 +216,9 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Lua Script", "Create the dynamics world, collision shapes and rigid bodies using Lua scripting",
 				 LuaDemoCreateFunc),
 #endif
+	ExampleEntry(1,"MultiThreading (submitJob)", "Simple example of executing jobs across multiple threads.",
+			MultiThreadingExampleCreateFunc,SINGLE_SIM_THREAD),
+	
 	ExampleEntry(1,"Voronoi Fracture", "Automatically create a compound rigid body using voronoi tesselation. Individual parts are modeled as rigid bodies using a btConvexHullShape.",
 				 VoronoiFractureCreateFunc),
 

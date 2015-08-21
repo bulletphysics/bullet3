@@ -103,7 +103,7 @@ public:
 	void	startThreads(ThreadConstructionInfo&	threadInfo);
 
 
-	virtual	void sendRequest(int uiCommand, void* uiArgument0, int uiArgument1);
+	virtual	void runTask(int uiCommand, void* uiArgument0, int uiArgument1);
 
 	virtual	void waitForResponse(int *puiArgument0, int *puiArgument1);
 

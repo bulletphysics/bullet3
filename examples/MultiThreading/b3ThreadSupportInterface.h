@@ -57,7 +57,7 @@ public:
 	virtual ~b3ThreadSupportInterface();
 
 
-	virtual void sendRequest(int uiCommand, void* uiArgument0, int uiArgument1) =0;
+	virtual void runTask(int uiCommand, void* uiArgument0, int uiArgument1) =0;
 
 
 	virtual	void waitForResponse(int *puiArgument0, int *puiArgument1) =0;

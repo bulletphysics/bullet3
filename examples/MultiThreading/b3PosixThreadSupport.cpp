@@ -1,3 +1,4 @@
+#ifndef _WIN32
 /*
 Bullet Continuous Collision Detection and Physics Library
 Copyright (c) 2003-2007 Erwin Coumans  http://bulletphysics.com
@@ -117,7 +118,7 @@ static void *threadFunction(void *argument)
 }
 
 ///send messages to SPUs
-void b3PosixThreadSupport::sendRequest(int uiCommand, void* uiArgument0, int taskId)
+void b3PosixThreadSupport::runTask(int uiCommand, void* uiArgument0, int taskId)
 {
 	///	gMidphaseSPU.sendRequest(CMD_GATHER_AND_PROCESS_PAIRLIST, (int) &taskDesc);
 
@@ -302,11 +303,24 @@ public:
 
 	virtual unsigned int getSharedParam(int i)
 	{
-		return mCommonBuff[i];
+	    if (i<32)
+        {
+            return mCommonBuff[i];
+        } else
+        {
+            b3Assert(0);
+        }
+        return 0;
 	}
 	virtual void setSharedParam(int i,unsigned int p)
 	{
-		mCommonBuff[i] = p;
+	    if (i<32)
+        {
+            mCommonBuff[i] = p;    
+        } else
+        {
+            b3Assert(0);
+        }
 	}
 
 	virtual void lock()
@@ -433,4 +447,4 @@ void b3PosixThreadSupport::deleteCriticalSection(b3CriticalSection* cs)
 {
 	delete cs;
 }
-
+#endif //_WIN32

@@ -140,7 +140,7 @@ int main(int argc,char** argv)
 	int i;
 	for (i=0;i<numThreads;i++)
 	{
-		threadSupport->sendRequest(B3_THREAD_SCHEDULE_TASK, (void*) &args, i);
+		threadSupport->runTask(B3_THREAD_SCHEDULE_TASK, (void*) &args, i);
 	}
 
 	bool blockingWait =false;
@@ -168,10 +168,10 @@ int main(int argc,char** argv)
 		};
 	}
 
-printf("stopping threads\n");
+    printf("stopping threads\n");
 
 	delete threadSupport;
 	printf("Press ENTER to quit\n");
-	getchar();
+	//getchar();
 	return 0;
 }

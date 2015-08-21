@@ -1,3 +1,4 @@
+#ifdef _WIN32
 /*
 Bullet Continuous Collision Detection and Physics Library
 Copyright (c) 2003-2007 Erwin Coumans  http://bulletphysics.com
@@ -451,4 +452,6 @@ void b3Win32ThreadSupport::deleteCriticalSection(b3CriticalSection* criticalSect
 
 
 
+
+#endif //_WIN32
 
