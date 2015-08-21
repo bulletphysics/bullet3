@@ -1,6 +1,16 @@
 #ifndef PHYSICS_SERVER_SHARED_MEMORY_H
 #define PHYSICS_SERVER_SHARED_MEMORY_H
 
+#include "LinearMath/btVector3.h"
+
+struct SharedMemLines
+{
+	btVector3 m_from;
+	btVector3 m_to;
+	btVector3 m_color;
+};
+
+
 class PhysicsServerSharedMemory
 {
 	struct PhysicsServerInternalData* m_data;
@@ -37,7 +47,7 @@ public:
 	//to a physics client, over shared memory
 	void    physicsDebugDraw(int debugDrawFlags);
 	void    renderScene();
-	
+
 };
 
 

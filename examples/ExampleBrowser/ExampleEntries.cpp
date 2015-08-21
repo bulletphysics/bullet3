@@ -204,8 +204,10 @@ static ExampleEntry gDefaultExamples[]=
 
 	ExampleEntry(0,"Experiments"),
 	
-	ExampleEntry(1,"Robot Control", "Perform some robot control tasks, using physics server and client that communicate over shared memory",
-			RobotControlExampleCreateFunc),
+	ExampleEntry(1,"Robot Control (Velocity)", "Perform some robot control tasks, using physics server and client that communicate over shared memory",
+			RobotControlExampleCreateFunc,ROBOT_VELOCITY_CONTROL),
+	ExampleEntry(1,"Robot Control (PD)", "Perform some robot control tasks, using physics server and client that communicate over shared memory",
+			RobotControlExampleCreateFunc,ROBOT_PD_CONTROL),
 	
 	ExampleEntry(1,"Physics Server", "Create a physics server that communicates with a physics client over shared memory",
 			PhysicsServerCreateFunc),

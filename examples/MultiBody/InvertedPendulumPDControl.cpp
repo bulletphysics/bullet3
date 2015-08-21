@@ -112,21 +112,21 @@ void InvertedPendulumPDControl::initPhysics()
 	m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 
     {
-        bool floating = false;
+        bool fixedBase = true;
         bool damping = false;
         bool gyro = false;
         int numLinks = 2;
         bool spherical = false;					//set it ot false -to use 1DoF hinges instead of 3DoF sphericals
         bool canSleep = false;
         bool selfCollide = false;
-          btVector3 linkHalfExtents(0.05, 0.37, 0.1);
+        btVector3 linkHalfExtents(0.05, 0.37, 0.1);
         btVector3 baseHalfExtents(0.04, 0.35, 0.08);
 
         btVector3 basePosition = btVector3(-0.4f, 3.f, 0.f);
         //mbC->forceMultiDof();							//if !spherical, you can comment this line to check the 1DoF algorithm
         //init the base
         btVector3 baseInertiaDiag(0.f, 0.f, 0.f);
-        float baseMass = 1.f;
+        float baseMass = 0.f;
 
         if(baseMass)
         {
@@ -137,7 +137,7 @@ void InvertedPendulumPDControl::initPhysics()
         }
 
         bool isMultiDof = true;
-        btMultiBody *pMultiBody = new btMultiBody(numLinks, baseMass, baseInertiaDiag, !floating, canSleep, isMultiDof);
+        btMultiBody *pMultiBody = new btMultiBody(numLinks, 0, baseInertiaDiag, fixedBase, canSleep, isMultiDof);
 		
         m_multiBody = pMultiBody;
         btQuaternion baseOriQuat(0.f, 0.f, 0.f, 1.f);
@@ -295,7 +295,7 @@ void InvertedPendulumPDControl::initPhysics()
                 tr.setRotation(orn);
                 col->setWorldTransform(tr);
 
-				bool isDynamic = (baseMass > 0 && floating);
+				bool isDynamic = (baseMass > 0 && !fixedBase);
 				short collisionFilterGroup = isDynamic? short(btBroadphaseProxy::DefaultFilter) : short(btBroadphaseProxy::StaticFilter);
 				short collisionFilterMask = isDynamic? 	short(btBroadphaseProxy::AllFilter) : 	short(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 
@@ -391,19 +391,12 @@ void InvertedPendulumPDControl::stepSimulation(float deltaTime)
 		int dof1 = 0;
 		btScalar qActual = m_multiBody->getJointPosMultiDof(joint)[dof1];
 		btScalar qdActual = m_multiBody->getJointVelMultiDof(joint)[dof1];
-	//	b3Printf("Joint Pos[%d]=%f, Vel = %f\n", joint, qActual, qdActual);
-	
 		btScalar positionError = (qDesiredArray[joint]-qActual);
-	
-		btScalar force = kp * positionError - kd*qdActual;
+		double desiredVelocity = 0;
+		btScalar velocityError = (desiredVelocity-qdActual);
+		btScalar force = kp * positionError + kd*velocityError;
 		btClamp(force,-maxForce,maxForce);
-		
-	//	b3Printf("force = %f positionError = %f, qDesired = %f\n", force,positionError, target);
 		m_multiBody->addJointTorque(joint, force);
-	
-		//btScalar torque = m_multiBody->getJointTorque(0);
-		//    b3Printf("t = %f,%f,%f\n",torque,torque,torque);//[0],torque[1],torque[2]);
-	
 	}
 
 	
@@ -425,7 +418,7 @@ void InvertedPendulumPDControl::stepSimulation(float deltaTime)
 			this->m_guiHelper->getAppInterface()->dumpNextFrameToPng(fileName);
         }
 	}
-    m_dynamicsWorld->stepSimulation(1./240,0);
+    m_dynamicsWorld->stepSimulation(1./60.,0);//240,0);
 
 	static int count = 0;
 	if ((count& 0x0f)==0)

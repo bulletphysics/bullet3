@@ -36,6 +36,7 @@ enum EnumSharedMemoryClientCommand
 	CMD_SEND_PHYSICS_SIMULATION_PARAMETERS,
 	CMD_SEND_DESIRED_STATE,//todo: reconsider naming, for example SET_JOINT_CONTROL_VARIABLE?
 	CMD_REQUEST_ACTUAL_STATE,
+	CMD_REQUEST_DEBUG_LINES,
     CMD_STEP_FORWARD_SIMULATION,
     CMD_RESET_SIMULATION,
     CMD_MAX_CLIENT_COMMANDS
@@ -60,6 +61,8 @@ enum EnumSharedMemoryServerStatus
 	CMD_SET_JOINT_FEEDBACK_COMPLETED,
 	CMD_ACTUAL_STATE_UPDATE_COMPLETED,
 	CMD_ACTUAL_STATE_UPDATE_FAILED,
+	CMD_DEBUG_LINES_COMPLETED,
+	CMD_DEBUG_LINES_OVERFLOW_FAILED,
 	CMD_DESIRED_STATE_RECEIVED_COMPLETED,
 	CMD_STEP_FORWARD_SIMULATION_COMPLETED,
 	CMD_MAX_SERVER_COMMANDS
@@ -69,6 +72,7 @@ enum EnumSharedMemoryServerStatus
 #define MAX_DEGREE_OF_FREEDOM 256
 #define MAX_NUM_SENSORS 256
 #define MAX_URDF_FILENAME_LENGTH 1024
+#define MAX_FILENAME_LENGTH MAX_URDF_FILENAME_LENGTH
 
 enum EnumUrdfArgsUpdateFlags
 {
@@ -92,6 +96,7 @@ struct UrdfArgs
 
 struct BulletDataStreamArgs
 {
+	char m_bulletFileName[MAX_FILENAME_LENGTH];
 	int m_streamChunkLength;
 	int m_bodyUniqueId;
 };
@@ -108,6 +113,7 @@ enum {
 //    POSITION_CONTROL=0,
     CONTROL_MODE_VELOCITY=0,
     CONTROL_MODE_TORQUE,
+	CONTROL_MODE_POSITION_VELOCITY_PD,
 };
 
 ///InitPoseArgs is mainly to initialize (teleport) the robot in a particular position
@@ -121,6 +127,17 @@ struct InitPoseArgs
 };
 
 
+struct RequestDebugLinesArgs
+{
+	int m_debugMode;
+};
+
+struct SendDebugLinesArgs
+{
+	int m_numDebugLines;
+};
+
+
 ///Controlling a robot involves sending the desired state to its joint motor controllers.
 ///The control mode determines the state variables used for motor control.
 struct SendDesiredStateArgs
@@ -128,12 +145,22 @@ struct SendDesiredStateArgs
 	int m_bodyUniqueId;
 	int m_controlMode;
 
+	//PD parameters in case m_controlMode == CONTROL_MODE_POSITION_VELOCITY_PD
+	double m_Kp[MAX_DEGREE_OF_FREEDOM];//indexed by degree of freedom, 6 for base, and then the dofs for each link
+	double m_Kd[MAX_DEGREE_OF_FREEDOM];//indexed by degree of freedom, 6 for base, and then the dofs for each link
+
 	//desired state is only written by the client, read-only access by server is expected
+
+	//m_desiredStateQ is indexed by position variables, 
+	//starting with 3 base position variables, 4 base orientation variables (quaternion), then link position variables
     double m_desiredStateQ[MAX_DEGREE_OF_FREEDOM];
+
+	//m_desiredStateQdot is index by velocity degrees of freedom, 3 linear and 3 angular variables for the base and then link velocity variables
     double m_desiredStateQdot[MAX_DEGREE_OF_FREEDOM];
 	
 	//m_desiredStateForceTorque is either the actual applied force/torque (in CONTROL_MODE_TORQUE) or
-	//or m_desiredStateForceTorque is the maximum applied force/torque for the motor/constraint to reach the desired velocity in CONTROL_MODE_VELOCITY mode
+	//or the maximum applied force/torque for the PD/motor/constraint to reach the desired velocity in CONTROL_MODE_VELOCITY and CONTROL_MODE_POSITION_VELOCITY_PD mode
+	//indexed by degree of freedom, 6 dof base, and then dofs for each link
     double m_desiredStateForceTorque[MAX_DEGREE_OF_FREEDOM];
  
 };
@@ -227,6 +254,7 @@ struct SharedMemoryCommand
 		struct RequestActualStateArgs m_requestActualStateInformationCommandArgument;
         struct CreateSensorArgs m_createSensorArguments;
         struct CreateBoxShapeArgs m_createBoxShapeArguments;
+		struct RequestDebugLinesArgs m_requestDebugLinesArguments;
     };
 };
 
@@ -242,6 +270,7 @@ struct SharedMemoryStatus
 	{
 		struct BulletDataStreamArgs	m_dataStreamArguments;
 		struct SendActualStateArgs m_sendActualStateArgs;
+		struct SendDebugLinesArgs m_sendDebugLinesArgs;
 	};
 };
 
@@ -258,6 +287,7 @@ struct b3JointInfo
         int m_jointType;
         int m_qIndex;
         int m_uIndex;
+		int m_linkIndex;
     ///
         int m_flags;
 };

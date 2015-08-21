@@ -11,6 +11,7 @@
 #include "SharedMemoryCommon.h"
 #include "../Utils/b3Clock.h"
 #include "PhysicsClientC_API.h"
+#include "../Utils/b3ResourcePath.h"
 
 //const char* blaatnaam = "basename";
 
@@ -18,8 +19,14 @@
 struct MyMotorInfo
 {
 	btScalar m_velTarget;
+	btScalar m_posTarget;
+    btScalar m_kp;
+    btScalar m_kd;
+    
 	btScalar m_maxForce;
 	int		m_uIndex;
+	int		m_posIndex;
+	
 };
 #define MAX_NUM_MOTORS 128
 
@@ -39,18 +46,21 @@ class RobotControlExample : public SharedMemoryCommon
 	
 public:
     //@todo, add accessor methods
-	MyMotorInfo m_motorTargetVelocities[MAX_NUM_MOTORS];
-	int m_numMotors;
+	MyMotorInfo m_motorTargetState[MAX_NUM_MOTORS];
 
-	
-	RobotControlExample(GUIHelperInterface* helper);
+	int m_numMotors;
+	int m_option;
+	bool m_verboseOutput;
+
+	RobotControlExample(GUIHelperInterface* helper, int option);
     
 	virtual ~RobotControlExample();
     
 	virtual void	initPhysics();
     
 	virtual void	stepSimulation(float deltaTime);
-    
+    void prepareControlCommand(SharedMemoryCommand& cmd);
+
     void enqueueCommand(const SharedMemoryCommand& orgCommand)
 	{
 		m_userCommandRequests.push_back(orgCommand);
@@ -58,7 +68,10 @@ public:
 		cmd.m_sequenceNumber = m_sequenceNumberGenerator++;
 		cmd.m_timeStamp = m_realtimeClock.getTimeMicroseconds();
 
-		b3Printf("User put command request %d on queue (queue length = %d)\n",cmd.m_type, m_userCommandRequests.size());
+		if (m_verboseOutput)
+		{
+			b3Printf("User put command request %d on queue (queue length = %d)\n",cmd.m_type, m_userCommandRequests.size());
+		}
 	}
   
 	virtual void resetCamera()
@@ -81,6 +94,7 @@ public:
 	virtual void	physicsDebugDraw(int debugFlags)
 	{
 		m_physicsServer.physicsDebugDraw(debugFlags);
+		
 	}
 	virtual bool	mouseMoveCallback(float x,float y){return false;};
 	virtual bool	mouseButtonCallback(int button, int state, float x, float y){return false;}
@@ -111,7 +125,7 @@ void MyCallback2(int buttonId, bool buttonState, void* userPtr)
 		{
 			command.m_type =CMD_LOAD_URDF;
 			command.m_updateFlags = URDF_ARGS_FILE_NAME|URDF_ARGS_INITIAL_POSITION|URDF_ARGS_INITIAL_ORIENTATION;
-			sprintf(command.m_urdfArguments.m_urdfFileName,"r2d2.urdf");
+			sprintf(command.m_urdfArguments.m_urdfFileName,"kuka_lwr/kuka.urdf");//r2d2.urdf");
 			command.m_urdfArguments.m_initialPosition[0] = 0.0;
 			command.m_urdfArguments.m_initialPosition[1] = 0.0;
 			command.m_urdfArguments.m_initialPosition[2] = 0.0;
@@ -129,7 +143,7 @@ void MyCallback2(int buttonId, bool buttonState, void* userPtr)
 		{
 		    //#ifdef USE_C_API
 		    b3InitPhysicsParamCommand(&command);
-            b3PhysicsParamSetGravity(&command, 0,0,-10);
+            b3PhysicsParamSetGravity(&command, 1,1,-10);
             
 
 //		    #else
@@ -182,54 +196,16 @@ void MyCallback2(int buttonId, bool buttonState, void* userPtr)
     case CMD_SEND_DESIRED_STATE:
 		{
 			
-				command.m_type =CMD_SEND_DESIRED_STATE;
-				int controlMode = CONTROL_MODE_VELOCITY;//CONTROL_MODE_TORQUE;
-
-				command.m_sendDesiredStateCommandArgument.m_controlMode = controlMode;
-				//todo: expose a drop box in the GUI for this
-				switch (controlMode)
-				{
-				case CONTROL_MODE_VELOCITY:
-					{
-						for (int i=0;i<MAX_DEGREE_OF_FREEDOM;i++)
-						{
-							command.m_sendDesiredStateCommandArgument.m_desiredStateQdot[i] = 0;
-							command.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[i] = 1000;
-						}
-						for (int i=0;i<cl->m_numMotors;i++)
-						{
-							btScalar targetVel = cl->m_motorTargetVelocities[i].m_velTarget;
-                            
-							int uIndex = cl->m_motorTargetVelocities[i].m_uIndex;
-							if (targetVel>1)
-                            {
-                                printf("testme");
-                            }
-                            command.m_sendDesiredStateCommandArgument.m_desiredStateQdot[uIndex] = targetVel;
-							
-						}
-						break;
-					}
-				case CONTROL_MODE_TORQUE:
-					{
-						for (int i=0;i<MAX_DEGREE_OF_FREEDOM;i++)
-						{
-							command.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[i] = 100;
-						}
-						break;
-					}
-				default:
-					{
-						b3Printf("Unknown control mode in client CMD_SEND_DESIRED_STATE");
-						btAssert(0);
-					}
-				}
+			command.m_type =CMD_SEND_DESIRED_STATE;
+			cl->prepareControlCommand(command);
 			cl->enqueueCommand(command);		
 			break;
 		}
 	case CMD_SEND_BULLET_DATA_STREAM:
 		{
 			command.m_type = buttonId;
+			sprintf(command.m_dataStreamArguments.m_bulletFileName,"slope.bullet");
+			command.m_dataStreamArguments.m_streamChunkLength = 0;
 			cl->enqueueCommand(command);
 			break;
 		}
@@ -241,6 +217,66 @@ void MyCallback2(int buttonId, bool buttonState, void* userPtr)
 		}
 	};
 }
+
+
+void RobotControlExample::prepareControlCommand(SharedMemoryCommand& command)
+{
+	for (int i=0;i<MAX_DEGREE_OF_FREEDOM;i++)
+	{
+		command.m_sendDesiredStateCommandArgument.m_desiredStateQdot[i] = 0;
+		command.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[i] = 0;
+	}
+
+	switch (m_option)
+	{
+	case ROBOT_VELOCITY_CONTROL:
+		{
+			command.m_sendDesiredStateCommandArgument.m_controlMode = CONTROL_MODE_VELOCITY;
+			for (int i=0;i<MAX_DEGREE_OF_FREEDOM;i++)
+			{
+				command.m_sendDesiredStateCommandArgument.m_desiredStateQdot[i] = 0;
+				command.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[i] = 1000;
+			}
+			for (int i=0;i<m_numMotors;i++)
+			{
+				btScalar targetVel = m_motorTargetState[i].m_velTarget;
+                            
+				int uIndex = m_motorTargetState[i].m_uIndex;
+				
+                command.m_sendDesiredStateCommandArgument.m_desiredStateQdot[uIndex] = targetVel;
+							
+			}
+			break;
+		}
+	case ROBOT_PD_CONTROL:
+	{
+		command.m_sendDesiredStateCommandArgument.m_controlMode = CONTROL_MODE_POSITION_VELOCITY_PD;
+		for (int i=0;i<m_numMotors;i++)
+		{
+			
+			int uIndex = m_motorTargetState[i].m_uIndex;
+
+			command.m_sendDesiredStateCommandArgument.m_Kp[uIndex] = m_motorTargetState[i].m_kp;
+			command.m_sendDesiredStateCommandArgument.m_Kd[uIndex] = m_motorTargetState[i].m_kd;
+			command.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[uIndex] = 10000;//max force
+
+			btScalar targetVel = m_motorTargetState[i].m_velTarget;
+			command.m_sendDesiredStateCommandArgument.m_desiredStateQdot[uIndex] = targetVel;
+
+			int posIndex = m_motorTargetState[i].m_posIndex;
+			btScalar targetPos = m_motorTargetState[i].m_posTarget;
+			command.m_sendDesiredStateCommandArgument.m_desiredStateQ[posIndex] = targetPos;
+		}
+		break;
+	}
+	default:
+		{
+
+			b3Warning("Unknown control mode in RobotControlExample::prepareControlCommand");
+		}
+	};
+	
+}
 void	RobotControlExample::createButton(const char* name, int buttonId, bool isTrigger )
 {
 	ButtonParams button(name,buttonId,  isTrigger);
@@ -249,11 +285,13 @@ void	RobotControlExample::createButton(const char* name, int buttonId, bool isTr
 	m_guiHelper->getParameterInterface()->registerButtonParameter(button);
 }
 
-RobotControlExample::RobotControlExample(GUIHelperInterface* helper)
+RobotControlExample::RobotControlExample(GUIHelperInterface* helper, int option)
 :SharedMemoryCommon(helper),
 m_wantsShutdown(false),
 m_sequenceNumberGenerator(0),
-m_numMotors(0)
+m_numMotors(0),
+m_option(option),
+m_verboseOutput(false)
 {
 	
 	bool useServer = true;
@@ -328,7 +366,8 @@ bool RobotControlExample::wantsTermination()
 
 void	RobotControlExample::stepSimulation(float deltaTime)
 {
-    m_physicsServer.processClientCommands();
+    
+	m_physicsServer.processClientCommands();
 
 	if (m_physicsClient.isConnected())
     {
@@ -341,23 +380,85 @@ void	RobotControlExample::stepSimulation(float deltaTime)
 			{
 				b3JointInfo info;
 				m_physicsClient.getJointInfo(i,info);
-				b3Printf("Joint %s at q-index %d and u-index %d\n",info.m_jointName,info.m_qIndex,info.m_uIndex);
+				if (m_verboseOutput)
+				{
+					b3Printf("Joint %s at q-index %d and u-index %d\n",info.m_jointName,info.m_qIndex,info.m_uIndex);
+				}
 				
                 if (info.m_flags & JOINT_HAS_MOTORIZED_POWER)
                 {
                     if (m_numMotors<MAX_NUM_MOTORS)
                     {
-                        char motorName[1024];
-                        sprintf(motorName,"%s q'", info.m_jointName);
-                        MyMotorInfo* motorInfo = &m_motorTargetVelocities[m_numMotors];
-                        motorInfo->m_velTarget = 0.f;
-                        motorInfo->m_uIndex = info.m_uIndex;
+
+						switch (m_option)
+						{
+						case ROBOT_VELOCITY_CONTROL:
+							{
+		                        char motorName[1024];
+								sprintf(motorName,"%s q'", info.m_jointName);
+								MyMotorInfo* motorInfo = &m_motorTargetState[m_numMotors];
+								motorInfo->m_velTarget = 0.f;
+								motorInfo->m_posTarget = 0.f;
+
+								motorInfo->m_uIndex = info.m_uIndex;
                     
-                        SliderParams slider(motorName,&motorInfo->m_velTarget);
-                        slider.m_minVal=-4;
-                        slider.m_maxVal=4;
-                        m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
-                        m_numMotors++;
+								SliderParams slider(motorName,&motorInfo->m_velTarget);
+								slider.m_minVal=-4;
+								slider.m_maxVal=4;
+								m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+								m_numMotors++;
+								break;
+							}
+						case ROBOT_PD_CONTROL:
+						{
+							char motorName[1024];
+							
+							MyMotorInfo* motorInfo = &m_motorTargetState[m_numMotors];
+							motorInfo->m_velTarget = 0.f;
+							motorInfo->m_posTarget = 0.f;
+							motorInfo->m_uIndex = info.m_uIndex;
+							motorInfo->m_posIndex  = info.m_qIndex;
+                            motorInfo->m_kp = 1;
+                            motorInfo->m_kd = 0;
+                            
+                            {
+                                sprintf(motorName,"%s kp", info.m_jointName);
+                                SliderParams slider(motorName,&motorInfo->m_kp);
+                                slider.m_minVal=0;
+                                slider.m_maxVal=1;
+                                m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+                            }
+                            
+                            {
+                                sprintf(motorName,"%s q", info.m_jointName);
+							SliderParams slider(motorName,&motorInfo->m_posTarget);
+							slider.m_minVal=-SIMD_PI;
+							slider.m_maxVal=SIMD_PI;
+							m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+                            }
+                            {
+                                sprintf(motorName,"%s kd", info.m_jointName);
+                                SliderParams slider(motorName,&motorInfo->m_kd);
+                                slider.m_minVal=0;
+                                slider.m_maxVal=1;
+                                m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+                            }
+                           
+                            {
+                                 sprintf(motorName,"%s q'", info.m_jointName);
+                            SliderParams slider(motorName,&motorInfo->m_velTarget);
+                            slider.m_minVal=-10;
+                            slider.m_maxVal=10;
+                            m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+                            }
+							m_numMotors++;
+							break;
+						}
+						default:
+							{
+								b3Warning("Unknown control mode in RobotControlExample::stepSimulation");
+							}
+						};
                     }
                 }
 				
@@ -369,8 +470,11 @@ void	RobotControlExample::stepSimulation(float deltaTime)
 		{
 			if (m_userCommandRequests.size())
 			{
-				b3Printf("Outstanding user command requests: %d\n", m_userCommandRequests.size());
-				SharedMemoryCommand& cmd = m_userCommandRequests[0];
+				if (m_verboseOutput)
+				{
+					b3Printf("Outstanding user command requests: %d\n", m_userCommandRequests.size());
+				}
+				SharedMemoryCommand cmd = m_userCommandRequests[0];
 
 				//a manual 'pop_front', we don't use 'remove' because it will re-order the commands
 				for (int i=1;i<m_userCommandRequests.size();i++)
@@ -379,7 +483,62 @@ void	RobotControlExample::stepSimulation(float deltaTime)
 				}
 
 				m_userCommandRequests.pop_back();
+				if (cmd.m_type == CMD_SEND_BULLET_DATA_STREAM)
+				{
+					char relativeFileName[1024];
+					
+					bool fileFound = b3ResourcePath::findResourcePath(cmd.m_dataStreamArguments.m_bulletFileName,relativeFileName,1024);
+					if (fileFound)
+					{
+						FILE *fp = fopen(relativeFileName, "rb");
+						if (fp)
+						{
+							fseek(fp, 0L, SEEK_END);
+							int mFileLen = ftell(fp);
+							fseek(fp, 0L, SEEK_SET);
+							if (mFileLen<SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE)
+							{
+								char* data = (char*)malloc(mFileLen);
+
+								fread(data, mFileLen, 1, fp);
+								fclose(fp);
+								cmd.m_dataStreamArguments.m_streamChunkLength = mFileLen;
+								m_physicsClient.uploadBulletFileToSharedMemory(data,mFileLen);
+								if (m_verboseOutput)
+								{
+									b3Printf("Loaded bullet data chunks into shared memory\n");
+								}
+								free(data);
+							} else
+							{
+								b3Warning("Bullet file size (%d) exceeds of streaming memory chunk size (%d)\n", mFileLen,SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+							}
+						} else
+						{
+							b3Warning("Cannot open file %s\n", relativeFileName);
+						}
+					} else
+					{
+						b3Warning("Cannot find file %s\n", cmd.m_dataStreamArguments.m_bulletFileName);
+					}
+
+				}
+				
 				m_physicsClient.submitClientCommand(cmd);
+			} else
+			{
+
+				if (m_numMotors)
+				{
+					SharedMemoryCommand command;
+					command.m_type =CMD_SEND_DESIRED_STATE;
+					prepareControlCommand(command);
+					enqueueCommand(command);		
+
+					command.m_type =CMD_STEP_FORWARD_SIMULATION;
+					enqueueCommand(command);
+				}
+
 			}
 		}
 	}
@@ -389,7 +548,7 @@ extern int gSharedMemoryKey;
 
 class CommonExampleInterface*    RobotControlExampleCreateFunc(struct CommonExampleOptions& options)
 {
-    RobotControlExample* example = new RobotControlExample(options.m_guiHelper);
+	RobotControlExample* example = new RobotControlExample(options.m_guiHelper, options.m_option);
 	if (gSharedMemoryKey>=0)
 	{
 		example->setSharedMemoryKey(gSharedMemoryKey);

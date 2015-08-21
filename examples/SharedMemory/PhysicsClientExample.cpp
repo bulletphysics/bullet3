@@ -47,11 +47,12 @@ public:
     
 	virtual void resetCamera()
 	{
-		float dist = 1;
+				float dist = 5;
 		float pitch = 50;
 		float yaw = 35;
-		float targetPos[3]={-3,2.8,-2.5};
+		float targetPos[3]={0,0,0};//-3,2.8,-2.5};
 		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+
 	}
     
     virtual bool wantsTermination()
@@ -67,7 +68,18 @@ public:
 	void enqueueCommand(const SharedMemoryCommand& orgCommand);
 	
 	virtual void    exitPhysics(){};
-	virtual void	renderScene(){}
+	virtual void	renderScene()
+	{
+		int numLines = m_physicsClient.getNumDebugLines();
+		const btVector3* fromLines = m_physicsClient.getDebugLinesFrom();
+		const btVector3* toLines = m_physicsClient.getDebugLinesTo();
+		const btVector3* colorLines = m_physicsClient.getDebugLinesColor();
+		btScalar lineWidth = 2;
+		for (int i=0;i<numLines;i++)
+		{
+			this->m_guiHelper->getRenderInterface()->drawLine(fromLines[i],toLines[i],colorLines[i],lineWidth);
+		}
+	}
 	virtual void	physicsDebugDraw(int debugFlags){}
 	virtual bool	mouseMoveCallback(float x,float y){return false;};
 	virtual bool	mouseButtonCallback(int button, int state, float x, float y){return false;}
@@ -97,6 +109,9 @@ void MyCallback(int buttonId, bool buttonState, void* userPtr)
 			command.m_type =CMD_LOAD_URDF;
 			sprintf(command.m_urdfArguments.m_urdfFileName,"kuka_lwr/kuka.urdf");
             command.m_urdfArguments.m_initialPosition[0] = 0.0;
+			command.m_updateFlags = 
+				URDF_ARGS_FILE_NAME| URDF_ARGS_INITIAL_POSITION|URDF_ARGS_INITIAL_ORIENTATION|URDF_ARGS_USE_MULTIBODY|URDF_ARGS_USE_FIXED_BASE;
+
 			command.m_urdfArguments.m_initialPosition[1] = 0.0;
 			command.m_urdfArguments.m_initialPosition[2] = 0.0;
 			command.m_urdfArguments.m_initialOrientation[0] = 0.0;
@@ -128,6 +143,8 @@ void MyCallback(int buttonId, bool buttonState, void* userPtr)
 	case CMD_STEP_FORWARD_SIMULATION:
 		{
 			command.m_type =CMD_STEP_FORWARD_SIMULATION;
+			cl->enqueueCommand(command);
+			command.m_type =CMD_REQUEST_DEBUG_LINES;
 			cl->enqueueCommand(command);
 			break;
 		}
@@ -230,6 +247,9 @@ void	PhysicsClientExample::initPhysics()
 {
 	if (m_guiHelper && m_guiHelper->getParameterInterface())
 	{
+		int upAxis = 2;
+		m_guiHelper->setUpAxis(upAxis);
+
 		createButtons();		
 		
 	} else
@@ -273,7 +293,12 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 				b3Printf("Joint %s at q-index %d and u-index %d\n",info.m_jointName,info.m_qIndex,info.m_uIndex);
 				
 			}
-            
+			if (hasStatus && status.m_type ==CMD_DEBUG_LINES_COMPLETED)
+			{
+				//store the debug lines for drawing
+				
+
+			}
             if (hasStatus && status.m_type == CMD_URDF_LOADING_COMPLETED)
             {
                 for (int i=0;i<m_physicsClient.getNumJoints();i++)

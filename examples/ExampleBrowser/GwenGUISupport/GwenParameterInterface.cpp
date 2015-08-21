@@ -139,7 +139,7 @@ void GwenParameterInterface::registerButtonParameter(ButtonParams& params)
 	m_paramInternalData->m_buttonEventHandlers.push_back(handler);
 
 	button->SetPos( 5, m_gwenInternalData->m_curYposition );
-	button->SetWidth(120);
+	button->SetWidth(220);
 	
 	m_gwenInternalData->m_curYposition+=22;
 
@@ -152,7 +152,7 @@ void GwenParameterInterface::registerSliderFloatParameter(SliderParams& params)
 	//m_data->m_myControls.push_back(label);
 	label->SetText( params.m_name);
 	label->SetPos( 10, 10 + 25 );
-	label->SetWidth(110);
+	label->SetWidth(210);
 	label->SetPos(10,m_gwenInternalData->m_curYposition);
 	m_gwenInternalData->m_curYposition+=22;
 
@@ -160,7 +160,7 @@ void GwenParameterInterface::registerSliderFloatParameter(SliderParams& params)
 	m_paramInternalData->m_sliders.push_back(pSlider);
 	//m_data->m_myControls.push_back(pSlider);
 	pSlider->SetPos( 10, m_gwenInternalData->m_curYposition );
-	pSlider->SetSize( 100, 20 );
+	pSlider->SetSize( 200, 20 );
 	pSlider->SetRange( params.m_minVal, params.m_maxVal);
 	pSlider->SetNotchCount(128);//float(params.m_maxVal-params.m_minVal)/100.f);
 	pSlider->SetClampToNotches( params.m_clampToNotches );
