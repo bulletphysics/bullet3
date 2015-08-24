@@ -208,6 +208,8 @@ static ExampleEntry gDefaultExamples[]=
 			RobotControlExampleCreateFunc,ROBOT_VELOCITY_CONTROL),
 	ExampleEntry(1,"Robot Control (PD)", "Perform some robot control tasks, using physics server and client that communicate over shared memory",
 			RobotControlExampleCreateFunc,ROBOT_PD_CONTROL),
+	ExampleEntry(1,"Robot Joint Feedback", "Apply some small ping-pong target velocity jitter, and read the joint reaction forces, using physics server and client that communicate over shared memory.",
+			RobotControlExampleCreateFunc,ROBOT_PING_PONG_JOINT_FEEDBACK),
 	
 	ExampleEntry(1,"Physics Server", "Create a physics server that communicates with a physics client over shared memory",
 			PhysicsServerCreateFunc),

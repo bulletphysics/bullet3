@@ -4,7 +4,8 @@
 enum EnumRobotControls
 {
 	ROBOT_VELOCITY_CONTROL=0,
-	ROBOT_PD_CONTROL=2,
+	ROBOT_PD_CONTROL,
+	ROBOT_PING_PONG_JOINT_FEEDBACK,
 };
 
 class CommonExampleInterface*    RobotControlExampleCreateFunc(struct CommonExampleOptions& options);
