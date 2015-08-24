@@ -79,7 +79,7 @@ DWORD WINAPI Thread_no_1( LPVOID lpParam )
 }
 
 ///send messages to SPUs
-void b3Win32ThreadSupport::sendRequest(int uiCommand, void* uiArgument0, int taskId)
+void b3Win32ThreadSupport::runTask(int uiCommand, void* uiArgument0, int taskId)
 {
 	///	gMidphaseSPU.sendRequest(CMD_GATHER_AND_PROCESS_PAIRLIST, (void*) &taskDesc);
 	

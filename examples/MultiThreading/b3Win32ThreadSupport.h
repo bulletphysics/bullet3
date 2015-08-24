@@ -98,7 +98,7 @@ public:
 
 
 ///send messages to SPUs
-	virtual	void sendRequest(int uiCommand, void* uiArgument0, int uiArgument1);
+	virtual	void runTask(int uiCommand, void* uiArgument0, int uiArgument1);
 
 ///check for messages from SPUs
 	virtual	void waitForResponse(int *puiArgument0, int *puiArgument1);
