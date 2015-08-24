@@ -931,7 +931,7 @@ void PhysicsServerSharedMemory::processClientCommands()
                                 } else
                                 {
                                     btVector3 sensedForce = mb->getLink(l).m_jointFeedback->m_reactionForces.getLinear();
-                                    btVector3 sensedTorque = mb->getLink(l).m_jointFeedback->m_reactionForces.getLinear();
+                                    btVector3 sensedTorque = mb->getLink(l).m_jointFeedback->m_reactionForces.getAngular();
                                     
                                     serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+0] = sensedForce[0];
                                     serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+1] = sensedForce[1];
