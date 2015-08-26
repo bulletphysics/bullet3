@@ -12,12 +12,14 @@
 #include "../Utils/b3Clock.h"
 #include "PhysicsClientC_API.h"
 #include "../Utils/b3ResourcePath.h"
+#include <string>
 
 //const char* blaatnaam = "basename";
 
 
 struct MyMotorInfo
 {
+	std::string m_jointName;
 	btScalar m_velTarget;
 	btScalar m_posTarget;
     btScalar m_kp;
@@ -26,6 +28,12 @@ struct MyMotorInfo
 	btScalar m_maxForce;
 	int		m_uIndex;
 	int		m_posIndex;
+
+	int		m_jointIndex;
+	btScalar m_measuredJointPosition;
+	btScalar m_measuredJointVelocity;
+	btVector3 m_measuredJointForce;
+	btVector3 m_measuredJointTorque;
 	
 };
 #define MAX_NUM_MOTORS 128
@@ -40,7 +48,7 @@ class RobotControlExample : public SharedMemoryCommon
 	bool m_wantsShutdown;
 	   
 	btAlignedObjectArray<SharedMemoryCommand> m_userCommandRequests;
-
+	
 		
 	void	createButton(const char* name, int id, bool isTrigger );
 	
@@ -269,6 +277,25 @@ void RobotControlExample::prepareControlCommand(SharedMemoryCommand& command)
 		}
 		break;
 	}
+	case ROBOT_PING_PONG_JOINT_FEEDBACK:
+	{
+
+		command.m_sendDesiredStateCommandArgument.m_controlMode = CONTROL_MODE_VELOCITY;
+		for (int i=0;i<MAX_DEGREE_OF_FREEDOM;i++)
+		{
+			command.m_sendDesiredStateCommandArgument.m_desiredStateQdot[i] = 0;
+			command.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[i] = 1000;
+		}
+		for (int i=0;i<m_numMotors;i++)
+		{
+			btScalar targetVel = m_motorTargetState[i].m_velTarget;
+                            
+			int uIndex = m_motorTargetState[i].m_uIndex;
+            command.m_sendDesiredStateCommandArgument.m_desiredStateQdot[uIndex] = m_motorTargetState[i].m_velTarget;
+							
+		}
+		break;
+	}
 	default:
 		{
 
@@ -374,12 +401,51 @@ void	RobotControlExample::stepSimulation(float deltaTime)
 		
 		SharedMemoryStatus status;
 		bool hasStatus = m_physicsClient.processServerStatus(status);
+		if (hasStatus && status.m_type == CMD_ACTUAL_STATE_UPDATE_COMPLETED)
+		{
+			//update sensor feedback: joint force/torque data and measured joint positions
+			
+			for (int i=0;i<m_numMotors;i++)
+			{
+				int jointIndex = m_motorTargetState[i].m_jointIndex;
+				int positionIndex = m_motorTargetState[i].m_posIndex;
+				int velocityIndex = m_motorTargetState[i].m_uIndex;
+
+				m_motorTargetState[i].m_measuredJointPosition = status.m_sendActualStateArgs.m_actualStateQ[positionIndex];
+				m_motorTargetState[i].m_measuredJointVelocity = status.m_sendActualStateArgs.m_actualStateQdot[velocityIndex];
+				m_motorTargetState[i].m_measuredJointForce.setValue(status.m_sendActualStateArgs.m_jointReactionForces[6*jointIndex],
+																	status.m_sendActualStateArgs.m_jointReactionForces[6*jointIndex+1],
+																	status.m_sendActualStateArgs.m_jointReactionForces[6*jointIndex+2]);
+				m_motorTargetState[i].m_measuredJointTorque.setValue(status.m_sendActualStateArgs.m_jointReactionForces[6*jointIndex+3],
+																	status.m_sendActualStateArgs.m_jointReactionForces[6*jointIndex+4],
+																	status.m_sendActualStateArgs.m_jointReactionForces[6*jointIndex+5]);
+				
+				if (m_motorTargetState[i].m_measuredJointPosition>0.1)
+				{
+					m_motorTargetState[i].m_velTarget = -1.5;
+				} else
+				{
+					m_motorTargetState[i].m_velTarget = 1.5;
+				}
+				
+				b3Printf("Joint Force (Linear) [%s]=(%f,%f,%f)\n",m_motorTargetState[i].m_jointName.c_str(),m_motorTargetState[i].m_measuredJointForce.x(),m_motorTargetState[i].m_measuredJointForce.y(),m_motorTargetState[i].m_measuredJointForce.z());
+				b3Printf("Joint Torque (Angular) [%s]=(%f,%f,%f)\n",m_motorTargetState[i].m_jointName.c_str(),m_motorTargetState[i].m_measuredJointTorque.x(),m_motorTargetState[i].m_measuredJointTorque.y(),m_motorTargetState[i].m_measuredJointTorque.z());
+
+			}
+
+			
+		}
+
 		if (hasStatus && status.m_type == CMD_URDF_LOADING_COMPLETED)
 		{
-			for (int i=0;i<m_physicsClient.getNumJoints();i++)
+			SharedMemoryCommand sensorCommand;
+			sensorCommand.m_type = CMD_CREATE_SENSOR;
+			sensorCommand.m_createSensorArguments.m_numJointSensorChanges = 0;
+
+			for (int jointIndex=0;jointIndex<m_physicsClient.getNumJoints();jointIndex++)
 			{
 				b3JointInfo info;
-				m_physicsClient.getJointInfo(i,info);
+				m_physicsClient.getJointInfo(jointIndex,info);
 				if (m_verboseOutput)
 				{
 					b3Printf("Joint %s at q-index %d and u-index %d\n",info.m_jointName,info.m_qIndex,info.m_uIndex);
@@ -397,6 +463,8 @@ void	RobotControlExample::stepSimulation(float deltaTime)
 		                        char motorName[1024];
 								sprintf(motorName,"%s q'", info.m_jointName);
 								MyMotorInfo* motorInfo = &m_motorTargetState[m_numMotors];
+								motorInfo->m_jointName = info.m_jointName;
+
 								motorInfo->m_velTarget = 0.f;
 								motorInfo->m_posTarget = 0.f;
 
@@ -414,6 +482,7 @@ void	RobotControlExample::stepSimulation(float deltaTime)
 							char motorName[1024];
 							
 							MyMotorInfo* motorInfo = &m_motorTargetState[m_numMotors];
+							motorInfo->m_jointName = info.m_jointName;
 							motorInfo->m_velTarget = 0.f;
 							motorInfo->m_posTarget = 0.f;
 							motorInfo->m_uIndex = info.m_uIndex;
@@ -454,6 +523,31 @@ void	RobotControlExample::stepSimulation(float deltaTime)
 							m_numMotors++;
 							break;
 						}
+						case ROBOT_PING_PONG_JOINT_FEEDBACK:
+						{
+								
+							if (info.m_flags & JOINT_HAS_MOTORIZED_POWER)
+							{
+								if (m_numMotors<MAX_NUM_MOTORS)
+								{
+									MyMotorInfo* motorInfo = &m_motorTargetState[m_numMotors];
+									motorInfo->m_jointName = info.m_jointName;
+									motorInfo->m_velTarget = 0.f;
+									motorInfo->m_posTarget = 0.f;
+									motorInfo->m_uIndex = info.m_uIndex;
+									motorInfo->m_posIndex  = info.m_qIndex;
+									motorInfo->m_jointIndex = jointIndex;
+									sensorCommand.m_createSensorArguments.m_jointIndex[sensorCommand.m_createSensorArguments.m_numJointSensorChanges] = jointIndex;
+									sensorCommand.m_createSensorArguments.m_enableJointForceSensor[sensorCommand.m_createSensorArguments.m_numJointSensorChanges] = true;
+									sensorCommand.m_createSensorArguments.m_numJointSensorChanges++;
+									m_numMotors++;
+								}
+							}
+						
+							
+
+							 break;
+						}
 						default:
 							{
 								b3Warning("Unknown control mode in RobotControlExample::stepSimulation");
@@ -463,8 +557,16 @@ void	RobotControlExample::stepSimulation(float deltaTime)
                 }
 				
 			}
+			
+
+			if (sensorCommand.m_createSensorArguments.m_numJointSensorChanges)
+			{
+				enqueueCommand(sensorCommand);
+			}
+
 		}
 
+		
 		
 		if (m_physicsClient.canSubmitCommand())
 		{
@@ -483,6 +585,10 @@ void	RobotControlExample::stepSimulation(float deltaTime)
 				}
 
 				m_userCommandRequests.pop_back();
+				if (cmd.m_type == CMD_CREATE_SENSOR)
+				{
+					b3Printf("CMD_CREATE_SENSOR!\n");
+				}
 				if (cmd.m_type == CMD_SEND_BULLET_DATA_STREAM)
 				{
 					char relativeFileName[1024];
@@ -536,6 +642,9 @@ void	RobotControlExample::stepSimulation(float deltaTime)
 					enqueueCommand(command);		
 
 					command.m_type =CMD_STEP_FORWARD_SIMULATION;
+					enqueueCommand(command);
+
+					command.m_type = CMD_REQUEST_ACTUAL_STATE;
 					enqueueCommand(command);
 				}
 
