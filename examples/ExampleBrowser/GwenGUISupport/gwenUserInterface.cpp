@@ -589,7 +589,6 @@ bool	GwenUserInterface::keyboardCallback(int bulletKey, int state)
 			
 		}
 		};
-		bool bDown = (state == 1);
 
 		if (gwenKey>=0)
 		{

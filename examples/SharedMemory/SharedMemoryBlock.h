@@ -30,7 +30,7 @@ struct SharedMemoryBlock
 };
 
 
-static void     InitSharedMemoryBlock(struct SharedMemoryBlock* sharedMemoryBlock)
+inline void     InitSharedMemoryBlock(struct SharedMemoryBlock* sharedMemoryBlock)
 {
     sharedMemoryBlock->m_numClientCommands = 0;
     sharedMemoryBlock->m_numServerCommands = 0;
