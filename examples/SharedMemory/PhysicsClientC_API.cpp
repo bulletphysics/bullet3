@@ -80,6 +80,16 @@ int	b3InitStepSimulationCommand(struct SharedMemoryCommand* command)
 
 }
 
+int     b3InitResetSimulationCommand(struct SharedMemoryCommand* command)
+{
+        b3Assert(command);
+        command->m_type = CMD_RESET_SIMULATION;
+        command->m_updateFlags = 0;
+
+        return 0;
+
+}
+
 
 int b3JointControlCommandInit(struct SharedMemoryCommand* command, int controlMode)
 {

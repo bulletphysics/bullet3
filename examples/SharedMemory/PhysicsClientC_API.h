@@ -33,6 +33,8 @@ int	b3PhysicsParamSetTimeStep(struct SharedMemoryCommand* command, double timeSt
 
 int	b3InitStepSimulationCommand(struct SharedMemoryCommand* command);
 
+int	b3InitResetSimulationCommand(struct SharedMemoryCommand* command);
+
 int	b3LoadUrdfCommandInit(struct SharedMemoryCommand* command, const char* urdfFileName);
 ///all those commands are optional, except for the *Init
 int	b3LoadUrdfCommandSetStartPosition(struct SharedMemoryCommand* command, double startPosX,double startPosY,double startPosZ);
