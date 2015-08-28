@@ -287,7 +287,6 @@ struct b3JointInfo
         int m_jointType;
         int m_qIndex;
         int m_uIndex;
-		int m_linkIndex;
     ///
         int m_flags;
 };

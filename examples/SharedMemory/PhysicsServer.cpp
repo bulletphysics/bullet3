@@ -975,6 +975,10 @@ void PhysicsServerSharedMemory::processClientCommands()
 					
 				case CMD_SEND_PHYSICS_SIMULATION_PARAMETERS:
 				{
+					if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_DELTA_TIME)
+					{
+						m_data->m_physicsDeltaTime = clientCmd.m_physSimParamArgs.m_deltaTime;
+					}
 					if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_GRAVITY)
 					{
 						btVector3 grav(clientCmd.m_physSimParamArgs.m_gravityAcceleration[0],
@@ -1010,7 +1014,6 @@ void PhysicsServerSharedMemory::processClientCommands()
 				}
 					
 
-					
                 case CMD_RESET_SIMULATION:
                 {
 					//clean up all data

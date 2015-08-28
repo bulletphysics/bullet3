@@ -29,7 +29,6 @@ struct PhysicsClientSharedMemoryInternalData
 	btAlignedObjectArray<btVector3> m_debugLinesTo;
 	btAlignedObjectArray<btVector3> m_debugLinesColor;
 	
-	
 	int m_counter;
 	bool m_serverLoadUrdfOK;
 	bool m_isConnected;
@@ -218,11 +217,10 @@ bool	PhysicsClientSharedMemory::processServerStatus(SharedMemoryStatus& serverSt
 								{
 									{
 										b3JointInfo info;
-                                        info.m_flags = 0;
-										info.m_qIndex = qOffset;
-										info.m_uIndex = uOffset;
-										info.m_linkIndex = link;
-
+                                        					info.m_flags = 0;
+										info.m_qIndex = (0 < mb->m_links[link].m_posVarCount) ? qOffset : -1;
+										info.m_uIndex = (0 < mb->m_links[link].m_dofCount) ? uOffset : -1;
+										
 										if (mb->m_links[link].m_linkName)
 										{
 											if (m_data->m_verboseOutput)
@@ -267,8 +265,8 @@ bool	PhysicsClientSharedMemory::processServerStatus(SharedMemoryStatus& serverSt
 									{
 										b3JointInfo info;
                                         info.m_flags = 0;
-										info.m_qIndex = qOffset;
-										info.m_uIndex = uOffset;
+										info.m_qIndex = (0 < mb->m_links[link].m_posVarCount) ? qOffset : -1;
+										info.m_uIndex = (0 < mb->m_links[link].m_dofCount) ? uOffset : -1;
 										
 										if (mb->m_links[link].m_linkName)
 										{

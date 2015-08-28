@@ -148,8 +148,15 @@ int main(int argc, char* argv[])
                      status.m_sendActualStateArgs.m_jointReactionForces[6*sensorJointIndexRight+1],
                      status.m_sendActualStateArgs.m_jointReactionForces[6*sensorJointIndexRight+2]);
         }
+
+	 ret = b3InitResetSimulationCommand(&command);
+            ret = b3SubmitClientCommand(sm, &command);
+            timeout = MAX_TIMEOUT;
+            while ((timeout-- > 0) && b3ProcessServerStatus(sm, &status)==0)    {}
         
         
 	}
+
+
 	b3DisconnectSharedMemory(sm);
 }
