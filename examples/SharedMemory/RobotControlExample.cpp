@@ -401,7 +401,7 @@ void	RobotControlExample::stepSimulation(float deltaTime)
 		
 		SharedMemoryStatus status;
 		bool hasStatus = m_physicsClient.processServerStatus(status);
-		if (hasStatus && status.m_type == CMD_ACTUAL_STATE_UPDATE_COMPLETED)
+		if ((m_option==ROBOT_PING_PONG_JOINT_FEEDBACK) && hasStatus && status.m_type == CMD_ACTUAL_STATE_UPDATE_COMPLETED)
 		{
 			//update sensor feedback: joint force/torque data and measured joint positions
 			
