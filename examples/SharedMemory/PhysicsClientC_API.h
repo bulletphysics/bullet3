@@ -63,9 +63,9 @@ int	b3CreateBoxCommandSetStartOrientation(struct SharedMemoryCommand* command, d
 int	b3CreateBoxCommandSetHalfExtents(struct SharedMemoryCommand* command, double halfExtentsX,double halfExtentsY,double halfExtentsZ);
     
 
-    int b3CreateSensorCommandInit(struct SharedMemoryCommand* command);
+int b3CreateSensorCommandInit(struct SharedMemoryCommand* command);
 int b3CreateSensorEnable6DofJointForceTorqueSensor(struct SharedMemoryCommand* command, int dofIndex, int enable);
-
+int b3CreateSensorEnableIMUForLink(struct SharedMemoryCommand* command, int linkIndex, int enable);
 
 int b3RequestActualStateCommandInit(struct SharedMemoryCommand* command);
 

@@ -18,6 +18,7 @@ class PhysicsServerExample : public SharedMemoryCommon
     bool m_wantsShutdown;
 
     bool m_isConnected;
+    btClock m_clock;
 	
 public:
     
@@ -111,6 +112,7 @@ bool PhysicsServerExample::wantsTermination()
 
 void	PhysicsServerExample::stepSimulation(float deltaTime)
 {
+    
     m_physicsServer.processClientCommands();
 }
 

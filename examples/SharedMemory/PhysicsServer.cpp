@@ -14,6 +14,7 @@
 
 #include "btBulletDynamicsCommon.h"
 
+#include "LinearMath/btTransform.h"
 
 #include "../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointMotor.h"
@@ -37,7 +38,7 @@ struct SharedMemoryDebugDrawer : public btIDebugDraw
 {
 
 	int m_debugMode;
-	btAlignedObjectArray<SharedMemLines> m_lines;
+	btAlignedObjectArray<SharedMemLines> m_lines2;
 
 	SharedMemoryDebugDrawer ()
 		:m_debugMode(0)
@@ -70,7 +71,7 @@ struct SharedMemoryDebugDrawer : public btIDebugDraw
 		line.m_from = from;
 		line.m_to = to;
 		line.m_color = color;
-		m_lines.push_back(line);
+		m_lines2.push_back(line);
 	}
 };
 struct PhysicsServerInternalData
@@ -94,6 +95,9 @@ struct PhysicsServerInternalData
 	btMultiBodyDynamicsWorld* m_dynamicsWorld;
 	SharedMemoryDebugDrawer*		m_debugDrawer;
 
+    btTransform m_rootLocalInertialFrame;
+
+    
 	struct GUIHelperInterface* m_guiHelper;
 	int m_sharedMemoryKey;
 
@@ -110,6 +114,7 @@ struct PhysicsServerInternalData
 		m_sharedMemoryKey(SHARED_MEMORY_KEY),
 		m_verboseOutput(false)
 	{
+        m_rootLocalInertialFrame.setIdentity();
 	}
 
 	SharedMemoryStatus& createServerStatus(int statusType, int sequenceNumber, int timeStamp)
@@ -415,9 +420,17 @@ bool PhysicsServerSharedMemory::loadUrdf(const char* fileName, const btVector3& 
 
     BulletURDFImporter u2b(m_data->m_guiHelper);
 
+   
     bool loadOk =  u2b.loadURDF(fileName, useFixedBase);
     if (loadOk)
     {
+        {
+            btScalar mass = 0;
+            m_data->m_rootLocalInertialFrame.setIdentity();
+            btVector3 localInertiaDiagonal(0,0,0);
+            int urdfLinkIndex = u2b.getRootLinkIndex();
+            u2b.getMassAndInertia(urdfLinkIndex, mass,localInertiaDiagonal,m_data->m_rootLocalInertialFrame);
+        }
 		if (m_data->m_verboseOutput)
 		{
 			b3Printf("loaded %s OK!", fileName);
@@ -548,45 +561,64 @@ void PhysicsServerSharedMemory::processClientCommands()
 				case CMD_REQUEST_DEBUG_LINES:
 					{
 						int curFlags =m_data->m_debugDrawer->getDebugMode();
-						int debugMode = btIDebugDraw::DBG_DrawWireframe|btIDebugDraw::DBG_DrawAabb;
-						m_data->m_debugDrawer->m_lines.resize(0);
-						//|btIDebugDraw::DBG_DrawAabb|
-						//	btIDebugDraw::DBG_DrawConstraints |btIDebugDraw::DBG_DrawConstraintLimits ;
-						m_data->m_debugDrawer->setDebugMode(debugMode);
-						m_data->m_dynamicsWorld->debugDrawWorld();
-						m_data->m_debugDrawer->setDebugMode(curFlags);
-						
-						int numLines = m_data->m_debugDrawer->m_lines.size();
-						int memRequirements = numLines*sizeof(btVector3)*3;
-						if (memRequirements<SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE)
-						{
+                        
+                        int debugMode = clientCmd.m_requestDebugLinesArguments.m_debugMode;//clientCmd.btIDebugDraw::DBG_DrawWireframe|btIDebugDraw::DBG_DrawAabb;
+                        int startingLineIndex = clientCmd.m_requestDebugLinesArguments.m_startingLineIndex;
+                        if (startingLineIndex<0)
+                        {
+                            b3Warning("startingLineIndex should be non-negative");
+                            startingLineIndex = 0;
+                        }
+                        
+                        if (clientCmd.m_requestDebugLinesArguments.m_startingLineIndex==0)
+                        {
+                            m_data->m_debugDrawer->m_lines2.resize(0);
+                            //|btIDebugDraw::DBG_DrawAabb|
+                            //	btIDebugDraw::DBG_DrawConstraints |btIDebugDraw::DBG_DrawConstraintLimits ;
+                            m_data->m_debugDrawer->setDebugMode(debugMode);
+                            m_data->m_dynamicsWorld->debugDrawWorld();
+                            m_data->m_debugDrawer->setDebugMode(curFlags);
+                        }
 
-							btScalar* linesFrom = (btScalar*)&m_data->m_testBlock1->m_bulletStreamDataServerToClient[0];
-							btScalar* linesTo = (btScalar*)(&m_data->m_testBlock1->m_bulletStreamDataServerToClient[0]+numLines*sizeof(btVector3));
-							btScalar* linesColor = (btScalar*)(&m_data->m_testBlock1->m_bulletStreamDataServerToClient[0]+2*numLines*sizeof(btVector3));
+                        //9 floats per line: 3 floats for 'from', 3 floats for 'to' and 3 floats for 'color'
+                        int maxNumLines = SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE/(sizeof(float)*9)-1;
+                        if (startingLineIndex >m_data->m_debugDrawer->m_lines2.size())
+                        {
+                            b3Warning("m_startingLineIndex exceeds total number of debug lines");
+                            startingLineIndex =m_data->m_debugDrawer->m_lines2.size();
+                        }
+                        
+                        int numLines = btMin(maxNumLines,m_data->m_debugDrawer->m_lines2.size()-startingLineIndex);
+                        
+                        if (numLines)
+                        {
+
+							float* linesFrom = (float*)&m_data->m_testBlock1->m_bulletStreamDataServerToClient[0];
+							float* linesTo = (float*)(&m_data->m_testBlock1->m_bulletStreamDataServerToClient[0]+numLines*3*sizeof(float));
+							float* linesColor = (float*)(&m_data->m_testBlock1->m_bulletStreamDataServerToClient[0]+2*numLines*3*sizeof(float));
 
 							for (int i=0;i<numLines;i++)
 							{
-								linesFrom[i*4] = m_data->m_debugDrawer->m_lines[i].m_from.x();
-								linesTo[i*4] = m_data->m_debugDrawer->m_lines[i].m_to.x();
-								linesColor[i*4] = m_data->m_debugDrawer->m_lines[i].m_color.x();
+								linesFrom[i*3] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_from.x();
+								linesTo[i*3] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_to.x();
+								linesColor[i*3] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_color.x();
 
-								linesFrom[i*4+1] = m_data->m_debugDrawer->m_lines[i].m_from.y();
-								linesTo[i*4+1] = m_data->m_debugDrawer->m_lines[i].m_to.y();
-								linesColor[i*4+1] = m_data->m_debugDrawer->m_lines[i].m_color.y();
+								linesFrom[i*3+1] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_from.y();
+								linesTo[i*3+1] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_to.y();
+								linesColor[i*3+1] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_color.y();
 
-								linesFrom[i*4+2] = m_data->m_debugDrawer->m_lines[i].m_from.z();
-								linesTo[i*4+2] = m_data->m_debugDrawer->m_lines[i].m_to.z();
-								linesColor[i*4+2] = m_data->m_debugDrawer->m_lines[i].m_color.z();
-}
-							SharedMemoryStatus& status = m_data->createServerStatus(CMD_DEBUG_LINES_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
-							status.m_sendDebugLinesArgs.m_numDebugLines = numLines;
-							m_data->submitServerStatus(status);
-						} else
-						{
-							SharedMemoryStatus& status = m_data->createServerStatus(CMD_DEBUG_LINES_OVERFLOW_FAILED,clientCmd.m_sequenceNumber,timeStamp);
-							m_data->submitServerStatus(status);
+								linesFrom[i*3+2] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_from.z();
+								linesTo[i*3+2] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_to.z();
+								linesColor[i*3+2] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_color.z();
+                            }
 						}
+                        
+                        SharedMemoryStatus& status = m_data->createServerStatus(CMD_DEBUG_LINES_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
+                        status.m_sendDebugLinesArgs.m_numDebugLines = numLines;
+                        status.m_sendDebugLinesArgs.m_startingLineIndex = startingLineIndex;
+                        status.m_sendDebugLinesArgs.m_numRemainingDebugLines = m_data->m_debugDrawer->m_lines2.size()-(startingLineIndex+numLines);
+                        m_data->submitServerStatus(status);
+                        
 						break;
 					}
                 case CMD_LOAD_URDF:
@@ -888,6 +920,24 @@ void PhysicsServerSharedMemory::processClientCommands()
 								tr.setOrigin(mb->getBasePos());
 								tr.setRotation(mb->getWorldToBaseRot().inverse());
 								
+                                serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[0] =
+                                    m_data->m_rootLocalInertialFrame.getOrigin()[0];
+                                serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[1] =
+                                    m_data->m_rootLocalInertialFrame.getOrigin()[1];
+                                serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[2] =
+                                    m_data->m_rootLocalInertialFrame.getOrigin()[2];
+
+                                serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[3] =
+                                    m_data->m_rootLocalInertialFrame.getRotation()[0];
+                                serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[4] =
+                                    m_data->m_rootLocalInertialFrame.getRotation()[1];
+                                serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[5] =
+                                    m_data->m_rootLocalInertialFrame.getRotation()[2];
+                                serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[6] =
+                                    m_data->m_rootLocalInertialFrame.getRotation()[3];
+
+
+                                
 								//base position in world space, carthesian
 								serverCmd.m_sendActualStateArgs.m_actualStateQ[0] = tr.getOrigin()[0];
 								serverCmd.m_sendActualStateArgs.m_actualStateQ[1] = tr.getOrigin()[1];
@@ -1098,13 +1148,15 @@ void PhysicsServerSharedMemory::renderScene()
 
 void    PhysicsServerSharedMemory::physicsDebugDraw(int debugDrawFlags)
 {
+#if 0
 	if (m_data->m_dynamicsWorld)
 	{
 		if (m_data->m_dynamicsWorld->getDebugDrawer())
 		{
-			m_data->m_debugDrawer->m_lines.clear();
-			m_data->m_dynamicsWorld->getDebugDrawer()->setDebugMode(debugDrawFlags);
+			//m_data->m_debugDrawer->m_lines.clear();
+			//m_data->m_dynamicsWorld->getDebugDrawer()->setDebugMode(debugDrawFlags);
 		}
 		m_data->m_dynamicsWorld->debugDrawWorld();
 	}
+#endif
 }

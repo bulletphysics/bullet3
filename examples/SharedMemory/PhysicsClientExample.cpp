@@ -74,11 +74,44 @@ public:
 		const btVector3* fromLines = m_physicsClient.getDebugLinesFrom();
 		const btVector3* toLines = m_physicsClient.getDebugLinesTo();
 		const btVector3* colorLines = m_physicsClient.getDebugLinesColor();
-		btScalar lineWidth = 2;
-		for (int i=0;i<numLines;i++)
+
+		int lineWidth = 1;
+
+		if (1)
 		{
-			this->m_guiHelper->getRenderInterface()->drawLine(fromLines[i],toLines[i],colorLines[i],lineWidth);
+			btAlignedObjectArray<btVector3FloatData> points;
+			points.resize(numLines*2);
+			btAlignedObjectArray<unsigned int> indices;
+			indices.resize(numLines*2);
+
+			for (int i=0;i<numLines;i++)
+			{
+				points[i*2].m_floats[0] = fromLines[i].x();
+				points[i*2].m_floats[1] = fromLines[i].y();
+				points[i*2].m_floats[2] = fromLines[i].z();
+				points[i*2+1].m_floats[0] = toLines[i].x();
+				points[i*2+1].m_floats[1] = toLines[i].y();
+				points[i*2+1].m_floats[2] = toLines[i].z();
+				indices[i*2] = i*2;
+				indices[i*2+1] = i*2+1;
+			}
+
+		
+			
+			float color[4] = {1,1,0,1};
+			
+			if (points.size() && indices.size())
+			{
+				m_guiHelper->getRenderInterface()->drawLines(&points[0].m_floats[0],color,points.size(),sizeof(btVector3FloatData),&indices[0],indices.size(),lineWidth);
+			}
+		} else
+		{
+			for (int i=0;i<numLines;i++)
+			{
+				m_guiHelper->getRenderInterface()->drawLine(fromLines[i],toLines[i],colorLines[i],lineWidth);
+			}
 		}
+
 	}
 	virtual void	physicsDebugDraw(int debugFlags){}
 	virtual bool	mouseMoveCallback(float x,float y){return false;};
@@ -107,7 +140,7 @@ void MyCallback(int buttonId, bool buttonState, void* userPtr)
 	case  CMD_LOAD_URDF:
 		{
 			command.m_type =CMD_LOAD_URDF;
-			sprintf(command.m_urdfArguments.m_urdfFileName,"kuka_lwr/kuka.urdf");
+            sprintf(command.m_urdfArguments.m_urdfFileName,"r2d2.urdf");//kuka_lwr/kuka.urdf");
             command.m_urdfArguments.m_initialPosition[0] = 0.0;
 			command.m_updateFlags = 
 				URDF_ARGS_FILE_NAME| URDF_ARGS_INITIAL_POSITION|URDF_ARGS_INITIAL_ORIENTATION|URDF_ARGS_USE_MULTIBODY|URDF_ARGS_USE_FIXED_BASE;
@@ -145,6 +178,8 @@ void MyCallback(int buttonId, bool buttonState, void* userPtr)
 			command.m_type =CMD_STEP_FORWARD_SIMULATION;
 			cl->enqueueCommand(command);
 			command.m_type =CMD_REQUEST_DEBUG_LINES;
+            command.m_requestDebugLinesArguments.m_debugMode = btIDebugDraw::DBG_DrawWireframe;//:DBG_DrawConstraints;
+            command.m_requestDebugLinesArguments.m_startingLineIndex = 0;
 			cl->enqueueCommand(command);
 			break;
 		}
@@ -293,12 +328,7 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 				b3Printf("Joint %s at q-index %d and u-index %d\n",info.m_jointName,info.m_qIndex,info.m_uIndex);
 				
 			}
-			if (hasStatus && status.m_type ==CMD_DEBUG_LINES_COMPLETED)
-			{
-				//store the debug lines for drawing
-				
-
-			}
+		
             if (hasStatus && status.m_type == CMD_URDF_LOADING_COMPLETED)
             {
                 for (int i=0;i<m_physicsClient.getNumJoints();i++)
@@ -330,6 +360,18 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
             }
 		}
     
+		if (hasStatus && status.m_type ==CMD_DEBUG_LINES_COMPLETED)
+		{
+            SharedMemoryCommand command;
+			if (status.m_sendDebugLinesArgs.m_numRemainingDebugLines>0)
+			{
+				//continue requesting debug lines for drawing
+				command.m_type =CMD_REQUEST_DEBUG_LINES;
+				command.m_requestDebugLinesArguments.m_debugMode = btIDebugDraw::DBG_DrawWireframe;//DBG_DrawConstraints;
+				command.m_requestDebugLinesArguments.m_startingLineIndex = status.m_sendDebugLinesArgs.m_numDebugLines+status.m_sendDebugLinesArgs.m_startingLineIndex;
+				enqueueCommand(command);
+			}
+		}
 		if (m_physicsClient.canSubmitCommand())
 		{
 			if (m_userCommandRequests.size())
