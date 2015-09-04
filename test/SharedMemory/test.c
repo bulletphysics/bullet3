@@ -22,6 +22,8 @@ int main(int argc, char* argv[])
 	double gravx=0, gravy=0, gravz=-9.8;
 	double timeStep = 1./60.;
 	double startPosX, startPosY,startPosZ;
+	int imuLinkIndex = -1;
+
 	SharedMemoryCommand_t command;
 	SharedMemoryStatus_t status;
 	b3PhysicsClientHandle sm;
@@ -54,7 +56,7 @@ int main(int argc, char* argv[])
 		timeout = MAX_TIMEOUT;
 		while ((timeout-- > 0) && b3ProcessServerStatus(sm, &status)==0)	{}
 		b3Printf("timeout = %d\n",timeout);
-        int imuLinkIndex = -1;
+        
         
 		numJoints = b3GetNumJoints(sm);
         for (i=0;i<numJoints;i++)
@@ -87,12 +89,12 @@ int main(int argc, char* argv[])
 
             if (imuLinkIndex>=0)
             {
-             ret = b3CreateSensorEnableIMUForLink(&command, imuLinkIndex, 1);
+				 ret = b3CreateSensorEnableIMUForLink(&command, imuLinkIndex, 1);
             }
             
             if (sensorJointIndexLeft>=0)
             {
-            ret = b3CreateSensorEnable6DofJointForceTorqueSensor(&command, sensorJointIndexLeft, 1);
+			  ret = b3CreateSensorEnable6DofJointForceTorqueSensor(&command, sensorJointIndexLeft, 1);
             }
             if(sensorJointIndexRight>=0)
             {
