@@ -103,6 +103,16 @@ struct PhysicsServerInternalData
 
 	bool m_verboseOutput;
 	
+	
+	//data for picking objects
+	class btRigidBody*	m_pickedBody;
+	class btTypedConstraint* m_pickedConstraint;
+	class btMultiBodyPoint2Point*		m_pickingMultiBodyPoint2Point;
+	btVector3 m_oldPickingPos;
+	btVector3 m_hitPos;
+	btScalar m_oldPickingDist;
+	bool m_prevCanSleep;
+
 	PhysicsServerInternalData()
 		:m_sharedMemory(0),
 		m_testBlock1(0),
@@ -112,7 +122,10 @@ struct PhysicsServerInternalData
 		m_debugDrawer(0),
 		m_guiHelper(0),
 		m_sharedMemoryKey(SHARED_MEMORY_KEY),
-		m_verboseOutput(false)
+		m_verboseOutput(false),
+		m_pickedBody(0),
+		m_pickedConstraint(0),
+		m_pickingMultiBodyPoint2Point(0)
 	{
         m_rootLocalInertialFrame.setIdentity();
 	}
@@ -1159,4 +1172,124 @@ void    PhysicsServerSharedMemory::physicsDebugDraw(int debugDrawFlags)
 		m_data->m_dynamicsWorld->debugDrawWorld();
 	}
 #endif
+}
+
+
+bool PhysicsServerSharedMemory::pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld)
+{
+	if (m_data->m_dynamicsWorld==0)
+		return false;
+
+	btCollisionWorld::ClosestRayResultCallback rayCallback(rayFromWorld, rayToWorld);
+
+	m_data->m_dynamicsWorld->rayTest(rayFromWorld, rayToWorld, rayCallback);
+	if (rayCallback.hasHit())
+	{
+
+		btVector3 pickPos = rayCallback.m_hitPointWorld;
+		btRigidBody* body = (btRigidBody*)btRigidBody::upcast(rayCallback.m_collisionObject);
+		if (body)
+		{
+			//other exclusions?
+			if (!(body->isStaticObject() || body->isKinematicObject()))
+			{
+				m_data->m_pickedBody = body;
+				m_data->m_pickedBody->setActivationState(DISABLE_DEACTIVATION);
+				//printf("pickPos=%f,%f,%f\n",pickPos.getX(),pickPos.getY(),pickPos.getZ());
+				btVector3 localPivot = body->getCenterOfMassTransform().inverse() * pickPos;
+				btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body, localPivot);
+				m_data->m_dynamicsWorld->addConstraint(p2p, true);
+				m_data->m_pickedConstraint = p2p;
+				btScalar mousePickClamping = 30.f;
+				p2p->m_setting.m_impulseClamp = mousePickClamping;
+				//very weak constraint for picking
+				p2p->m_setting.m_tau = 0.001f;
+			}
+		} else
+		{
+			btMultiBodyLinkCollider* multiCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(rayCallback.m_collisionObject);
+			if (multiCol && multiCol->m_multiBody)
+			{
+						
+				m_data->m_prevCanSleep = multiCol->m_multiBody->getCanSleep();
+				multiCol->m_multiBody->setCanSleep(false);
+
+				btVector3 pivotInA = multiCol->m_multiBody->worldPosToLocal(multiCol->m_link, pickPos);
+
+				btMultiBodyPoint2Point* p2p = new btMultiBodyPoint2Point(multiCol->m_multiBody,multiCol->m_link,0,pivotInA,pickPos);
+				//if you add too much energy to the system, causing high angular velocities, simulation 'explodes'
+				//see also http://www.bulletphysics.org/Bullet/phpBB3/viewtopic.php?f=4&t=949
+				//so we try to avoid it by clamping the maximum impulse (force) that the mouse pick can apply
+				//it is not satisfying, hopefully we find a better solution (higher order integrator, using joint friction using a zero-velocity target motor with limited force etc?)
+				btScalar scaling=1;
+				p2p->setMaxAppliedImpulse(2*scaling);
+		
+				btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_data->m_dynamicsWorld;
+				world->addMultiBodyConstraint(p2p);
+				m_data->m_pickingMultiBodyPoint2Point =p2p; 
+			}
+		}
+
+
+
+		//					pickObject(pickPos, rayCallback.m_collisionObject);
+		m_data->m_oldPickingPos = rayToWorld;
+		m_data->m_hitPos = pickPos;
+		m_data->m_oldPickingDist = (pickPos - rayFromWorld).length();
+		//					printf("hit !\n");
+		//add p2p
+	}
+	return false;
+}
+bool PhysicsServerSharedMemory::movePickedBody(const btVector3& rayFromWorld, const btVector3& rayToWorld)
+{
+	if (m_data->m_pickedBody  && m_data->m_pickedConstraint)
+	{
+		btPoint2PointConstraint* pickCon = static_cast<btPoint2PointConstraint*>(m_data->m_pickedConstraint);
+		if (pickCon)
+		{
+			//keep it at the same picking distance
+		
+			btVector3 dir = rayToWorld-rayFromWorld;
+			dir.normalize();
+			dir *= m_data->m_oldPickingDist;
+
+			btVector3 newPivotB = rayFromWorld + dir;
+			pickCon->setPivotB(newPivotB);
+		}
+	}
+		
+	if (m_data->m_pickingMultiBodyPoint2Point)
+	{
+		//keep it at the same picking distance
+
+		
+		btVector3 dir = rayToWorld-rayFromWorld;
+		dir.normalize();
+		dir *= m_data->m_oldPickingDist;
+
+		btVector3 newPivotB = rayFromWorld + dir;
+			
+		m_data->m_pickingMultiBodyPoint2Point->setPivotInB(newPivotB);
+	}
+		
+	return false;
+}
+void PhysicsServerSharedMemory::removePickingConstraint()
+{
+	if (m_data->m_pickedConstraint)
+	{
+		m_data->m_dynamicsWorld->removeConstraint(m_data->m_pickedConstraint);
+		delete m_data->m_pickedConstraint;
+		m_data->m_pickedConstraint = 0;
+		m_data->m_pickedBody = 0;
+	}
+	if (m_data->m_pickingMultiBodyPoint2Point)
+	{
+		m_data->m_pickingMultiBodyPoint2Point->getMultiBodyA()->setCanSleep(m_data->m_prevCanSleep);
+		btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_data->m_dynamicsWorld;
+		world->removeMultiBodyConstraint(m_data->m_pickingMultiBodyPoint2Point);
+		delete m_data->m_pickingMultiBodyPoint2Point;
+		m_data->m_pickingMultiBodyPoint2Point = 0;
+	}
 }
