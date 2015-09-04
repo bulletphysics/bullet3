@@ -432,23 +432,23 @@ bool	PhysicsClientSharedMemory::processServerStatus(SharedMemoryStatus& serverSt
 					}
 
 					int numLines = serverCmd.m_sendDebugLinesArgs.m_numDebugLines;
-					btScalar* linesFrom = (btScalar*)&m_data->m_testBlock1->m_bulletStreamDataServerToClient[0];
-					btScalar* linesTo = (btScalar*)(&m_data->m_testBlock1->m_bulletStreamDataServerToClient[0]+numLines*sizeof(btVector3));
-					btScalar* linesColor = (btScalar*)(&m_data->m_testBlock1->m_bulletStreamDataServerToClient[0]+2*numLines*sizeof(btVector3));
+					float* linesFrom = (float*)&m_data->m_testBlock1->m_bulletStreamDataServerToClient[0];
+					float* linesTo = (float*)(&m_data->m_testBlock1->m_bulletStreamDataServerToClient[0]+numLines*3*sizeof(float));
+					float* linesColor = (float*)(&m_data->m_testBlock1->m_bulletStreamDataServerToClient[0]+2*numLines*3*sizeof(float));
 
-					m_data->m_debugLinesFrom.resize(numLines);
-					m_data->m_debugLinesTo.resize(numLines);
-					m_data->m_debugLinesColor.resize(numLines);
+					m_data->m_debugLinesFrom.resize(serverCmd.m_sendDebugLinesArgs.m_startingLineIndex+numLines);
+					m_data->m_debugLinesTo.resize(serverCmd.m_sendDebugLinesArgs.m_startingLineIndex+numLines);
+					m_data->m_debugLinesColor.resize(serverCmd.m_sendDebugLinesArgs.m_startingLineIndex+numLines);
 
 					for (int i=0;i<numLines;i++)
 					{
-						btVector3 from(linesFrom[i*4],linesFrom[i*4+1],linesFrom[i*4+2]);
-                     				btVector3 to(linesTo[i*4],linesTo[i*4+1],linesTo[i*4+2]);
-						btVector3 color(linesColor[i*4],linesColor[i*4+1],linesColor[i*4+2]);
+						btVector3 from(linesFrom[i*3],linesFrom[i*3+1],linesFrom[i*3+2]);
+                        btVector3 to(linesTo[i*3],linesTo[i*3+1],linesTo[i*3+2]);
+						btVector3 color(linesColor[i*3],linesColor[i*3+1],linesColor[i*3+2]);
 
-						m_data->m_debugLinesFrom[i] = from;
-						m_data->m_debugLinesTo[i] = to;
-						m_data->m_debugLinesColor[i] = color;
+						m_data->m_debugLinesFrom[serverCmd.m_sendDebugLinesArgs.m_startingLineIndex+i] = from;
+						m_data->m_debugLinesTo[serverCmd.m_sendDebugLinesArgs.m_startingLineIndex+i] = to;
+						m_data->m_debugLinesColor[serverCmd.m_sendDebugLinesArgs.m_startingLineIndex+i] = color;
 					}
 					break;
 				}

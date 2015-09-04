@@ -193,11 +193,24 @@ int b3CreateSensorEnable6DofJointForceTorqueSensor(struct SharedMemoryCommand* c
     b3Assert(command);
     b3Assert(command->m_type == CMD_CREATE_SENSOR);
     int curIndex = command->m_createSensorArguments.m_numJointSensorChanges;
+    command->m_createSensorArguments.m_sensorType[curIndex] = SENSOR_FORCE_TORQUE;
     
     command->m_createSensorArguments.m_jointIndex[curIndex] = jointIndex;
     command->m_createSensorArguments.m_enableJointForceSensor[curIndex] = enable;
     command->m_createSensorArguments.m_numJointSensorChanges++;
     return 0;
+}
+
+int b3CreateSensorEnableIMUForLink(struct SharedMemoryCommand* command, int linkIndex, int enable)
+{
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CREATE_SENSOR);
+    int curIndex = command->m_createSensorArguments.m_numJointSensorChanges;
+    command->m_createSensorArguments.m_sensorType[curIndex] = SENSOR_IMU;
+    command->m_createSensorArguments.m_linkIndex[curIndex] = linkIndex;
+    command->m_createSensorArguments.m_enableSensor[curIndex] = enable;
+    command->m_createSensorArguments.m_numJointSensorChanges++;
+	return 0;    
 }
 
 

@@ -133,7 +133,7 @@ void MyCallback2(int buttonId, bool buttonState, void* userPtr)
 		{
 			command.m_type =CMD_LOAD_URDF;
 			command.m_updateFlags = URDF_ARGS_FILE_NAME|URDF_ARGS_INITIAL_POSITION|URDF_ARGS_INITIAL_ORIENTATION;
-			sprintf(command.m_urdfArguments.m_urdfFileName,"kuka_lwr/kuka.urdf");//r2d2.urdf");
+            sprintf(command.m_urdfArguments.m_urdfFileName,"r2d2.urdf");//kuka_lwr/kuka.urdf");//r2d2.urdf");
 			command.m_urdfArguments.m_initialPosition[0] = 0.0;
 			command.m_urdfArguments.m_initialPosition[1] = 0.0;
 			command.m_urdfArguments.m_initialPosition[2] = 0.0;
@@ -401,7 +401,7 @@ void	RobotControlExample::stepSimulation(float deltaTime)
 		
 		SharedMemoryStatus status;
 		bool hasStatus = m_physicsClient.processServerStatus(status);
-		if (hasStatus && status.m_type == CMD_ACTUAL_STATE_UPDATE_COMPLETED)
+		if ((m_option==ROBOT_PING_PONG_JOINT_FEEDBACK) && hasStatus && status.m_type == CMD_ACTUAL_STATE_UPDATE_COMPLETED)
 		{
 			//update sensor feedback: joint force/torque data and measured joint positions
 			
@@ -537,6 +537,7 @@ void	RobotControlExample::stepSimulation(float deltaTime)
 									motorInfo->m_uIndex = info.m_uIndex;
 									motorInfo->m_posIndex  = info.m_qIndex;
 									motorInfo->m_jointIndex = jointIndex;
+                                    sensorCommand.m_createSensorArguments.m_sensorType[sensorCommand.m_createSensorArguments.m_numJointSensorChanges] = SENSOR_FORCE_TORQUE;
 									sensorCommand.m_createSensorArguments.m_jointIndex[sensorCommand.m_createSensorArguments.m_numJointSensorChanges] = jointIndex;
 									sensorCommand.m_createSensorArguments.m_enableJointForceSensor[sensorCommand.m_createSensorArguments.m_numJointSensorChanges] = true;
 									sensorCommand.m_createSensorArguments.m_numJointSensorChanges++;

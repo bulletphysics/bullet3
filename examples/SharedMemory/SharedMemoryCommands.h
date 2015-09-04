@@ -130,11 +130,14 @@ struct InitPoseArgs
 struct RequestDebugLinesArgs
 {
 	int m_debugMode;
+    int m_startingLineIndex;
 };
 
 struct SendDebugLinesArgs
 {
+    int m_startingLineIndex;
 	int m_numDebugLines;
+    int m_numRemainingDebugLines;
 };
 
 
@@ -198,6 +201,8 @@ struct SendActualStateArgs
 	int m_numDegreeOfFreedomQ;
 	int m_numDegreeOfFreedomU;
 
+    double m_rootLocalInertialFrame[7];
+    
 	  //actual state is only written by the server, read-only access by client is expected
     double m_actualStateQ[MAX_DEGREE_OF_FREEDOM];
     double m_actualStateQdot[MAX_DEGREE_OF_FREEDOM];
@@ -207,12 +212,25 @@ struct SendActualStateArgs
   
 };
 
+enum EnumSensorTypes
+{
+    SENSOR_FORCE_TORQUE=1,
+    SENSOR_IMU=1,
+};
+
 struct CreateSensorArgs
 {
     int m_bodyUniqueId;
     int m_numJointSensorChanges;
+    int m_sensorType[MAX_DEGREE_OF_FREEDOM];
+    
+///todo: clean up the duplication, make sure no-one else is using those members directly (use C-API header instead)
     int m_jointIndex[MAX_DEGREE_OF_FREEDOM];
     int m_enableJointForceSensor[MAX_DEGREE_OF_FREEDOM];
+
+    int m_linkIndex[MAX_DEGREE_OF_FREEDOM];
+    int m_enableSensor[MAX_DEGREE_OF_FREEDOM];
+    
 };
 
 typedef  struct SharedMemoryCommand SharedMemoryCommand_t;

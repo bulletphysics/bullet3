@@ -22,6 +22,8 @@ int main(int argc, char* argv[])
 	double gravx=0, gravy=0, gravz=-9.8;
 	double timeStep = 1./60.;
 	double startPosX, startPosY,startPosZ;
+	int imuLinkIndex = -1;
+
 	SharedMemoryCommand_t command;
 	SharedMemoryStatus_t status;
 	b3PhysicsClientHandle sm;
@@ -55,12 +57,20 @@ int main(int argc, char* argv[])
 		while ((timeout-- > 0) && b3ProcessServerStatus(sm, &status)==0)	{}
 		b3Printf("timeout = %d\n",timeout);
         
+        
 		numJoints = b3GetNumJoints(sm);
         for (i=0;i<numJoints;i++)
         {
             struct b3JointInfo jointInfo;
             b3GetJointInfo(sm,i,&jointInfo);
+            
             printf("jointInfo[%d].m_jointName=%s\n",i,jointInfo.m_jointName);
+            //pick the IMU link index based on torso name
+            if (strstr(jointInfo.m_linkName,"base_link"))
+            {
+                imuLinkIndex = i;
+            }
+            
             //pick the joint index based on joint name
             if (strstr(jointInfo.m_jointName,"base_to_left_leg"))
             {
@@ -76,9 +86,15 @@ int main(int argc, char* argv[])
         if ((sensorJointIndexLeft>=0) || (sensorJointIndexRight>=0))
         {
             ret = b3CreateSensorCommandInit(&command);
+
+            if (imuLinkIndex>=0)
+            {
+				 ret = b3CreateSensorEnableIMUForLink(&command, imuLinkIndex, 1);
+            }
+            
             if (sensorJointIndexLeft>=0)
             {
-            ret = b3CreateSensorEnable6DofJointForceTorqueSensor(&command, sensorJointIndexLeft, 1);
+			  ret = b3CreateSensorEnable6DofJointForceTorqueSensor(&command, sensorJointIndexLeft, 1);
             }
             if(sensorJointIndexRight>=0)
             {
