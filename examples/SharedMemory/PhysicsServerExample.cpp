@@ -47,8 +47,65 @@ public:
 	virtual void    exitPhysics(){}
 
 	virtual void	physicsDebugDraw(int debugFlags);
-	virtual bool	mouseMoveCallback(float x,float y){return false;};
-	virtual bool	mouseButtonCallback(int button, int state, float x, float y){return false;}
+	
+	btVector3	getRayTo(int x,int y);
+	
+	virtual bool	mouseMoveCallback(float x,float y)
+	{
+		CommonRenderInterface* renderer = m_guiHelper->getRenderInterface();
+		
+		if (!renderer)
+		{
+			btAssert(0);
+			return false;
+		}
+
+		btVector3 rayTo = getRayTo(int(x), int(y));
+		btVector3 rayFrom;
+		renderer->getActiveCamera()->getCameraPosition(rayFrom);
+		m_physicsServer.movePickedBody(rayFrom,rayTo);
+		return false;
+	};
+
+	virtual bool	mouseButtonCallback(int button, int state, float x, float y)
+	{
+		CommonRenderInterface* renderer = m_guiHelper->getRenderInterface();
+		
+		if (!renderer)
+		{
+			btAssert(0);
+			return false;
+		}
+		
+		CommonWindowInterface* window = m_guiHelper->getAppInterface()->m_window;
+
+	
+		if (state==1)
+		{
+			if(button==0 && (!window->isModifierKeyPressed(B3G_ALT) && !window->isModifierKeyPressed(B3G_CONTROL) ))
+			{
+				btVector3 camPos;
+				renderer->getActiveCamera()->getCameraPosition(camPos);
+
+				btVector3 rayFrom = camPos;
+				btVector3 rayTo = getRayTo(int(x),int(y));
+
+				m_physicsServer.pickBody(rayFrom, rayTo);
+
+
+			}
+		} else
+		{
+			if (button==0)
+			{
+				m_physicsServer.removePickingConstraint();
+				//remove p2p
+			}
+		}
+
+		//printf("button=%d, state=%d\n",button,state);
+		return false;
+	}
 	virtual bool	keyboardCallback(int key, int state){return false;}
 
 	virtual void setSharedMemoryKey(int key)
@@ -142,4 +199,67 @@ class CommonExampleInterface*    PhysicsServerCreateFunc(struct CommonExampleOpt
 	
 }
 
+btVector3	PhysicsServerExample::getRayTo(int x,int y)
+{
+	CommonRenderInterface* renderer = m_guiHelper->getRenderInterface();
+		
+	if (!renderer)
+	{
+		btAssert(0);
+		return btVector3(0,0,0);
+	}
+
+	float top = 1.f;
+	float bottom = -1.f;
+	float nearPlane = 1.f;
+	float tanFov = (top-bottom)*0.5f / nearPlane;
+	float fov = btScalar(2.0) * btAtan(tanFov);
+
+	btVector3 camPos,camTarget;
+	renderer->getActiveCamera()->getCameraPosition(camPos);
+	renderer->getActiveCamera()->getCameraTargetPosition(camTarget);
+
+	btVector3	rayFrom = camPos;
+	btVector3 rayForward = (camTarget-camPos);
+	rayForward.normalize();
+	float farPlane = 10000.f;
+	rayForward*= farPlane;
+
+	btVector3 rightOffset;
+	btVector3 cameraUp=btVector3(0,0,0);
+	cameraUp[m_guiHelper->getAppInterface()->getUpAxis()]=1;
+
+	btVector3 vertical = cameraUp;
+
+	btVector3 hor;
+	hor = rayForward.cross(vertical);
+	hor.normalize();
+	vertical = hor.cross(rayForward);
+	vertical.normalize();
+
+	float tanfov = tanf(0.5f*fov);
+
+
+	hor *= 2.f * farPlane * tanfov;
+	vertical *= 2.f * farPlane * tanfov;
+
+	btScalar aspect;
+	float width = float(renderer->getScreenWidth());
+	float height = float (renderer->getScreenHeight());
+
+	aspect =  width / height;
+
+	hor*=aspect;
+
+
+	btVector3 rayToCenter = rayFrom + rayForward;
+	btVector3 dHor = hor * 1.f/width;
+	btVector3 dVert = vertical * 1.f/height;
+
+
+	btVector3 rayTo = rayToCenter - 0.5f * hor + 0.5f * vertical;
+	rayTo += btScalar(x) * dHor;
+	rayTo -= btScalar(y) * dVert;
+	return rayTo;
+}
 

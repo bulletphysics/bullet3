@@ -113,6 +113,28 @@ public:
 		}
 
 	}
+
+	void prepareControlCommand(SharedMemoryCommand& command)
+	{
+		int controlMode = CONTROL_MODE_VELOCITY;//CONTROL_MODE_TORQUE;
+
+        command.m_sendDesiredStateCommandArgument.m_controlMode = controlMode;
+            
+        for (int i=0;i<MAX_DEGREE_OF_FREEDOM;i++)
+        {
+            command.m_sendDesiredStateCommandArgument.m_desiredStateQdot[i] = 0;
+            command.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[i] = 1000;
+        }
+        for (int i=0;i<m_numMotors;i++)
+        {
+            btScalar targetVel = m_motorTargetVelocities[i].m_velTarget;
+                
+            int uIndex = m_motorTargetVelocities[i].m_uIndex;
+            command.m_sendDesiredStateCommandArgument.m_desiredStateQdot[uIndex] = targetVel;
+                
+        }
+            
+	}
 	virtual void	physicsDebugDraw(int debugFlags){}
 	virtual bool	mouseMoveCallback(float x,float y){return false;};
 	virtual bool	mouseButtonCallback(int button, int state, float x, float y){return false;}
@@ -188,28 +210,9 @@ void MyCallback(int buttonId, bool buttonState, void* userPtr)
 		{
 			
             command.m_type =CMD_SEND_DESIRED_STATE;
-            int controlMode = CONTROL_MODE_VELOCITY;//CONTROL_MODE_TORQUE;
+            
+			cl->prepareControlCommand(command);
 
-            command.m_sendDesiredStateCommandArgument.m_controlMode = controlMode;
-            
-            for (int i=0;i<MAX_DEGREE_OF_FREEDOM;i++)
-            {
-                command.m_sendDesiredStateCommandArgument.m_desiredStateQdot[i] = 0;
-                command.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[i] = 1000;
-            }
-            for (int i=0;i<cl->m_numMotors;i++)
-            {
-                btScalar targetVel = cl->m_motorTargetVelocities[i].m_velTarget;
-                
-                int uIndex = cl->m_motorTargetVelocities[i].m_uIndex;
-                if (targetVel>1)
-                {
-                    printf("testme");
-                }
-                command.m_sendDesiredStateCommandArgument.m_desiredStateQdot[uIndex] = targetVel;
-                
-            }
-            
 			cl->enqueueCommand(command);		
 			break;
 		}
@@ -239,7 +242,7 @@ void MyCallback(int buttonId, bool buttonState, void* userPtr)
 		m_userCommandRequests.push_back(orgCommand);
 		SharedMemoryCommand& cmd = m_userCommandRequests[m_userCommandRequests.size()-1];
 
-		b3Printf("User put command request %d on queue (queue length = %d)\n",cmd.m_type, m_userCommandRequests.size());
+		//b3Printf("User put command request %d on queue (queue length = %d)\n",cmd.m_type, m_userCommandRequests.size());
 	}
 
 
@@ -376,7 +379,7 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 		{
 			if (m_userCommandRequests.size())
 			{
-				b3Printf("Outstanding user command requests: %d\n", m_userCommandRequests.size());
+				//b3Printf("Outstanding user command requests: %d\n", m_userCommandRequests.size());
 				SharedMemoryCommand command = m_userCommandRequests[0];
 
 				//a manual 'pop_front', we don't use 'remove' because it will re-order the commands
@@ -396,6 +399,21 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 				}
 				
 				m_physicsClient.submitClientCommand(command);
+			}  else
+			{
+				if (m_numMotors)
+				{
+					SharedMemoryCommand command;
+					command.m_type =CMD_SEND_DESIRED_STATE;
+					prepareControlCommand(command);
+					enqueueCommand(command);		
+
+					command.m_type =CMD_STEP_FORWARD_SIMULATION;
+					enqueueCommand(command);
+
+					command.m_type = CMD_REQUEST_ACTUAL_STATE;
+					enqueueCommand(command);
+				}
 			}
 		}
 	}
