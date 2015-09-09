@@ -203,6 +203,7 @@ void MyCallback(int buttonId, bool buttonState, void* userPtr)
             command.m_requestDebugLinesArguments.m_debugMode = btIDebugDraw::DBG_DrawWireframe;//:DBG_DrawConstraints;
             command.m_requestDebugLinesArguments.m_startingLineIndex = 0;
 			cl->enqueueCommand(command);
+             
 			break;
 		}
 	
@@ -271,14 +272,16 @@ void	PhysicsClientExample::createButtons()
 {
 	bool isTrigger = false;
 	
-	createButton("Load URDF",CMD_LOAD_URDF,  isTrigger);
-	createButton("Step Sim",CMD_STEP_FORWARD_SIMULATION,  isTrigger);
-	createButton("Send Bullet Stream",CMD_SEND_BULLET_DATA_STREAM,  isTrigger);
-	createButton("Get State",CMD_REQUEST_ACTUAL_STATE,  isTrigger);
-	createButton("Send Desired State",CMD_SEND_DESIRED_STATE,  isTrigger);
-	createButton("Create Box Collider",CMD_CREATE_BOX_COLLISION_SHAPE,isTrigger);
-	createButton("Reset Simulation",CMD_RESET_SIMULATION,isTrigger);
-
+    if (m_guiHelper && m_guiHelper->getParameterInterface())
+    {
+        createButton("Load URDF",CMD_LOAD_URDF,  isTrigger);
+        createButton("Step Sim",CMD_STEP_FORWARD_SIMULATION,  isTrigger);
+        createButton("Send Bullet Stream",CMD_SEND_BULLET_DATA_STREAM,  isTrigger);
+        createButton("Get State",CMD_REQUEST_ACTUAL_STATE,  isTrigger);
+        createButton("Send Desired State",CMD_SEND_DESIRED_STATE,  isTrigger);
+        createButton("Create Box Collider",CMD_CREATE_BOX_COLLISION_SHAPE,isTrigger);
+        createButton("Reset Simulation",CMD_RESET_SIMULATION,isTrigger);
+    }
 }
 
 void	PhysicsClientExample::initPhysics()
@@ -292,7 +295,15 @@ void	PhysicsClientExample::initPhysics()
 		
 	} else
 	{
-		/*
+        MyCallback(CMD_LOAD_URDF, true, this);
+        MyCallback(CMD_STEP_FORWARD_SIMULATION,true,this);
+        MyCallback(CMD_STEP_FORWARD_SIMULATION,true,this);
+        MyCallback(CMD_RESET_SIMULATION,true,this);
+    //    MyCallback(CMD_LOAD_URDF, true, this);
+     //   MyCallback(CMD_STEP_FORWARD_SIMULATION,true,this);
+     //   MyCallback(CMD_RESET_SIMULATION,true,this);
+        
+        /*
 		m_userCommandRequests.push_back(CMD_LOAD_URDF);
 		m_userCommandRequests.push_back(CMD_REQUEST_ACTUAL_STATE);
 		m_userCommandRequests.push_back(CMD_SEND_DESIRED_STATE);
@@ -353,7 +364,10 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
                             SliderParams slider(motorName,&motorInfo->m_velTarget);
                             slider.m_minVal=-4;
                             slider.m_maxVal=4;
+                            if (m_guiHelper && m_guiHelper->getParameterInterface())
+                            {
                             m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+                            }
                             m_numMotors++;
                         }
                     }
@@ -393,8 +407,11 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 				//for the CMD_RESET_SIMULATION we need to do something special: clear the GUI sliders
 				if (command.m_type==CMD_RESET_SIMULATION)
 				{
-					m_guiHelper->getParameterInterface()->removeAllParameters();
-					m_numMotors=0;
+                    if (m_guiHelper->getParameterInterface())
+                    {
+                        m_guiHelper->getParameterInterface()->removeAllParameters();
+                    }
+                    m_numMotors=0;
 					createButtons();
 				}
 				
