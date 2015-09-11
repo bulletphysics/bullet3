@@ -185,7 +185,7 @@ void ImportUrdfSetup::initPhysics()
 {
 
 	int upAxis = 2;
-	m_guiHelper->setUpAxis(2);
+	m_guiHelper->setUpAxis(upAxis);
 
 	this->createEmptyDynamicsWorld();
 	//m_dynamicsWorld->getSolverInfo().m_numIterations = 100;
@@ -356,7 +356,7 @@ void ImportUrdfSetup::initPhysics()
 
 
 
-		bool createGround=false;
+		bool createGround=true;
 		if (createGround)
 		{
 			btVector3 groundHalfExtents(20,20,20);

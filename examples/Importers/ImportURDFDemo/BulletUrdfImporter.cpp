@@ -742,7 +742,8 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 			
 									//compensate upAxisTrans and unitMeterScaling here
 									btMatrix4x4 upAxisMat;
-									upAxisMat.setPureRotation(upAxisTrans.getRotation());
+                                    upAxisMat.setIdentity();
+									//upAxisMat.setPureRotation(upAxisTrans.getRotation());
 									btMatrix4x4 unitMeterScalingMat;
 									unitMeterScalingMat.setPureScaling(btVector3(unitMeterScaling,unitMeterScaling,unitMeterScaling));
 									btMatrix4x4 worldMat = unitMeterScalingMat*instance->m_worldTransform*upAxisMat;
@@ -851,10 +852,8 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 		for (int v = 0; v < link->m_visualArray.size();v++)
 		{
 			const UrdfVisual& vis = link->m_visualArray[v];
-			btTransform childTrans = vis.m_linkLocalFrame;
-		
+            		btTransform childTrans = vis.m_linkLocalFrame;
 			convertURDFToVisualShape(&vis, pathPrefix, inertialFrame.inverse()*childTrans, vertices, indices);
-			
 		}
 	}
 #endif
@@ -909,8 +908,7 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 				btTransform childTrans = col.m_linkLocalFrame;
 				
 				compoundShape->addChildShape(localInertiaFrame.inverse()*childTrans,childShape);
-				
-			}
+           		}
 		}
 	}
 
