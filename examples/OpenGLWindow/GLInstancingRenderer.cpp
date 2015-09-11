@@ -1409,10 +1409,10 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 	b3Matrix4x4Mul(depthProjectionMatrix,depthModelViewMatrix,depthMVP);
 
 	GLfloat biasMatrix[4][4]={
-			0.5, 0.0, 0.0, 0.0,
-			0.0, 0.5, 0.0, 0.0,
-			0.0, 0.0, 0.5, 0.0,
-			0.5, 0.5, 0.5, 1.0
+			{ 0.5, 0.0, 0.0, 0.0 },
+			{ 0.0, 0.5, 0.0, 0.0 },
+			{ 0.0, 0.0, 0.5, 0.0 },
+			{ 0.5, 0.5, 0.5, 1.0 }
 	};
 
 	GLfloat depthBiasMVP[4][4];
