@@ -33,6 +33,8 @@ SET(App_ExampleBrowser_SRCS
 	../Tutorial/Dof6ConstraintTutorial.h
 	../GyroscopicDemo/GyroscopicSetup.cpp
 	../GyroscopicDemo/GyroscopicSetup.h
+	../VHACDDemo/VHACDDemo.cpp
+	../VHACDDemo/VHACDDemo.h
 	../Planar2D/Planar2D.cpp
 	../Planar2D/Planar2D.h
 	../RollingFrictionDemo/RollingFrictionDemo.cpp
@@ -171,7 +173,7 @@ SET(App_ExampleBrowser_SRCS
 )
 
 LINK_LIBRARIES(
-        Bullet3Common BulletSoftBody BulletDynamics BulletCollision LinearMath OpenGLWindow gwen ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+        Bullet3Common BulletSoftBody BulletDynamics BulletCollision LinearMath VHACD OpenGLWindow gwen ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
 IF (WIN32)

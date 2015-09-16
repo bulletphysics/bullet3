@@ -41,6 +41,7 @@
 #include "../Tutorial/Tutorial.h"
 #include "../Tutorial/Dof6ConstraintTutorial.h"
 #include "../MultiThreading/MultiThreadingExample.h"
+#include "../VHACDDemo/VHACDDemo.h"
 #ifdef ENABLE_LUA
 #include "../LuaDemo/LuaPhysicsSetup.h"
 #endif
@@ -100,6 +101,7 @@ static ExampleEntry gDefaultExamples[]=
 	
 	ExampleEntry(1,"Gyroscopic", "Show the Dzhanibekov effect using various settings of the gyroscopic term. You can select the gyroscopic term computation using btRigidBody::setFlags, with arguments BT_ENABLE_GYROSCOPIC_FORCE_EXPLICIT (using explicit integration, which adds energy and can lead to explosions), BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_WORLD, BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY. If you don't set any of these flags, there is no gyroscopic term used.", GyroscopicCreateFunc),
 
+	ExampleEntry(1,"V-HACD", "Show the use of Volumetric Hierarchical Approximate Convex Decomposition. A concave shape is decomposed into convex shapes and recombined into a btCompoundShape.", VHACDCreateFunc),
 
 	
 
