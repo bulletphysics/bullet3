@@ -34,7 +34,6 @@
 #include "../DynamicControlDemo/MotorDemo.h"
 #include "../RollingFrictionDemo/RollingFrictionDemo.h"
 #include "../SharedMemory/PhysicsServerExample.h"
-#include "../SharedMemory/RobotControlExample.h"
 #include "../SharedMemory/PhysicsClientExample.h"
 #include "../Constraints/TestHingeTorque.h"
 #include "../RenderingExamples/TimeSeriesExample.h"
@@ -204,12 +203,12 @@ static ExampleEntry gDefaultExamples[]=
 
 	ExampleEntry(0,"Experiments"),
 	
-	ExampleEntry(1,"Robot Control (Velocity)", "Perform some robot control tasks, using physics server and client that communicate over shared memory",
-			RobotControlExampleCreateFunc,ROBOT_VELOCITY_CONTROL),
-	ExampleEntry(1,"Robot Control (PD)", "Perform some robot control tasks, using physics server and client that communicate over shared memory",
-			RobotControlExampleCreateFunc,ROBOT_PD_CONTROL),
-	ExampleEntry(1,"Robot Joint Feedback", "Apply some small ping-pong target velocity jitter, and read the joint reaction forces, using physics server and client that communicate over shared memory.",
-			RobotControlExampleCreateFunc,ROBOT_PING_PONG_JOINT_FEEDBACK),
+//	ExampleEntry(1,"Robot Control (Velocity)", "Perform some robot control tasks, using physics server and client that communicate over shared memory",
+//			RobotControlExampleCreateFunc,ROBOT_VELOCITY_CONTROL),
+//	ExampleEntry(1,"Robot Control (PD)", "Perform some robot control tasks, using physics server and client that communicate over shared memory",
+//			RobotControlExampleCreateFunc,ROBOT_PD_CONTROL),
+//	ExampleEntry(1,"Robot Joint Feedback", "Apply some small ping-pong target velocity jitter, and read the joint reaction forces, using physics server and client that communicate over shared memory.",
+		//	RobotControlExampleCreateFunc,ROBOT_PING_PONG_JOINT_FEEDBACK),
 	
 	ExampleEntry(1,"Physics Server", "Create a physics server that communicates with a physics client over shared memory",
 			PhysicsServerCreateFunc),

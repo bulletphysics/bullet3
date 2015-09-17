@@ -18,6 +18,19 @@ enum JointType
 	ePrismaticType = 1,
 };
 
+struct TmpFloat3
+{
+    float m_x;
+    float m_y;
+    float m_z;
+    
+};
+
+TmpFloat3 CreateTmpFloat3(float x,float y, float z)
+{
+    TmpFloat3 tmp; tmp.m_x = x;tmp.m_y = y;tmp.m_z = z; return tmp;
+}
+
 struct PhysicsClientSharedMemoryInternalData
 {
 	SharedMemoryInterface* m_sharedMemory;
@@ -25,10 +38,12 @@ struct PhysicsClientSharedMemoryInternalData
 
 	btAlignedObjectArray<bParse::btBulletFile*> m_robotMultiBodyData;
 	btAlignedObjectArray<b3JointInfo> m_jointInfo;
-	btAlignedObjectArray<btVector3> m_debugLinesFrom;
-	btAlignedObjectArray<btVector3> m_debugLinesTo;
-	btAlignedObjectArray<btVector3> m_debugLinesColor;
+	btAlignedObjectArray<TmpFloat3> m_debugLinesFrom;
+	btAlignedObjectArray<TmpFloat3> m_debugLinesTo;
+	btAlignedObjectArray<TmpFloat3> m_debugLinesColor;
 	
+    SharedMemoryStatus  m_lastServerStatus;
+    
 	int m_counter;
 	bool m_serverLoadUrdfOK;
 	bool m_isConnected;
@@ -146,20 +161,18 @@ bool PhysicsClientSharedMemory::connect()
 
 
 
-bool	PhysicsClientSharedMemory::processServerStatus(SharedMemoryStatus& serverStatus)
+const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 {
-	bool hasStatus = false;
-	
+    SharedMemoryStatus* stat = 0;
+    
 	if (!m_data->m_testBlock1)
 	{
-		serverStatus.m_type = CMD_SHARED_MEMORY_NOT_INITIALIZED;
-		return true;
+        return 0;
 	}
 
 	if (!m_data->m_waitingForServer)
 	{
-		serverStatus.m_type = CMD_WAITING_FOR_CLIENT_COMMAND;
-		return true;
+        return 0;
 	}
 
 	if (m_data->m_testBlock1->m_numServerCommands> m_data->m_testBlock1->m_numProcessedServerCommands)
@@ -167,8 +180,8 @@ bool	PhysicsClientSharedMemory::processServerStatus(SharedMemoryStatus& serverSt
 		btAssert(m_data->m_testBlock1->m_numServerCommands==m_data->m_testBlock1->m_numProcessedServerCommands+1);
         
 		const SharedMemoryStatus& serverCmd =m_data->m_testBlock1->m_serverCommands[0];
-		hasStatus = true;
-		serverStatus = serverCmd;
+        m_data->m_lastServerStatus = serverCmd;
+        
 		EnumSharedMemoryServerStatus s = (EnumSharedMemoryServerStatus)serverCmd.m_type;
 		//consume the command
 		switch (serverCmd.m_type)
@@ -424,6 +437,21 @@ bool	PhysicsClientSharedMemory::processServerStatus(SharedMemoryStatus& serverSt
 					}
 					break;
 				}
+                case CMD_RESET_SIMULATION_COMPLETED:
+                {
+                    if (m_data->m_verboseOutput)
+                    {
+                        b3Printf("CMD_RESET_SIMULATION_COMPLETED clean data\n");
+                    }
+                    for (int i=0;i<m_data->m_robotMultiBodyData.size();i++)
+                    {
+                        delete m_data->m_robotMultiBodyData[i];
+                    }
+                    m_data->m_robotMultiBodyData.clear();
+                    
+                    m_data->m_jointInfo.clear();
+                    break;
+                }
 				case 	CMD_DEBUG_LINES_COMPLETED:
 				{
 					if (m_data->m_verboseOutput)
@@ -442,14 +470,15 @@ bool	PhysicsClientSharedMemory::processServerStatus(SharedMemoryStatus& serverSt
 
 					for (int i=0;i<numLines;i++)
 					{
-						btVector3 from(linesFrom[i*3],linesFrom[i*3+1],linesFrom[i*3+2]);
-                        btVector3 to(linesTo[i*3],linesTo[i*3+1],linesTo[i*3+2]);
-						btVector3 color(linesColor[i*3],linesColor[i*3+1],linesColor[i*3+2]);
+                        TmpFloat3 from = CreateTmpFloat3(linesFrom[i*3],linesFrom[i*3+1],linesFrom[i*3+2]);
+                        TmpFloat3 to = CreateTmpFloat3(linesTo[i*3],linesTo[i*3+1],linesTo[i*3+2]);
+						TmpFloat3 color = CreateTmpFloat3(linesColor[i*3],linesColor[i*3+1],linesColor[i*3+2]);
 
 						m_data->m_debugLinesFrom[serverCmd.m_sendDebugLinesArgs.m_startingLineIndex+i] = from;
 						m_data->m_debugLinesTo[serverCmd.m_sendDebugLinesArgs.m_startingLineIndex+i] = to;
 						m_data->m_debugLinesColor[serverCmd.m_sendDebugLinesArgs.m_startingLineIndex+i] = color;
 					}
+                    
 					break;
 				}
 				case CMD_DEBUG_LINES_OVERFLOW_FAILED:
@@ -481,6 +510,20 @@ bool	PhysicsClientSharedMemory::processServerStatus(SharedMemoryStatus& serverSt
 		{
 			m_data->m_waitingForServer = true;
 		}
+        
+        if ((serverCmd.m_type == CMD_DEBUG_LINES_COMPLETED) && (serverCmd.m_sendDebugLinesArgs.m_numRemainingDebugLines>0))
+        {
+            SharedMemoryCommand& command = m_data->m_testBlock1->m_clientCommands[0];
+            
+            //continue requesting debug lines for drawing
+            command.m_type =CMD_REQUEST_DEBUG_LINES;
+            command.m_requestDebugLinesArguments.m_startingLineIndex = serverCmd.m_sendDebugLinesArgs.m_numDebugLines+serverCmd.m_sendDebugLinesArgs.m_startingLineIndex;
+            submitClientCommand(command);
+            return 0;
+        }
+        
+        return &m_data->m_lastServerStatus;
+
 	} else
     {
 		if (m_data->m_verboseOutput)
@@ -489,12 +532,17 @@ bool	PhysicsClientSharedMemory::processServerStatus(SharedMemoryStatus& serverSt
                  m_data->m_testBlock1->m_numProcessedServerCommands);
 		}
     }
-	return hasStatus;
+	return 0;
 }
 
 bool PhysicsClientSharedMemory::canSubmitCommand() const
 {
 	return (m_data->m_isConnected && !m_data->m_waitingForServer);
+}
+
+struct SharedMemoryCommand* PhysicsClientSharedMemory::getAvailableSharedMemoryCommand()
+{
+    return &m_data->m_testBlock1->m_clientCommands[0];
 }
 
 bool	PhysicsClientSharedMemory::submitClientCommand(const SharedMemoryCommand& command)
@@ -505,19 +553,10 @@ bool	PhysicsClientSharedMemory::submitClientCommand(const SharedMemoryCommand& c
 
 	if (!m_data->m_waitingForServer)
 	{
-		//a reset simulation command needs special attention, cleanup state
-		if (command.m_type==CMD_RESET_SIMULATION)
-		{
-			for (int i=0;i<m_data->m_robotMultiBodyData.size();i++)
-			{
-				delete m_data->m_robotMultiBodyData[i];
-			}
-			m_data->m_robotMultiBodyData.clear();
-			
-			m_data->m_jointInfo.clear();
-		}
-		
-		m_data->m_testBlock1->m_clientCommands[0] = command;
+        if (&m_data->m_testBlock1->m_clientCommands[0] != &command)
+        {
+            m_data->m_testBlock1->m_clientCommands[0] = command;
+        }
 		m_data->m_testBlock1->m_numClientCommands++;
 		m_data->m_waitingForServer = true;
 		return true;
@@ -541,27 +580,27 @@ void	PhysicsClientSharedMemory::uploadBulletFileToSharedMemory(const char* data,
 }
 
 
-const btVector3* PhysicsClientSharedMemory::getDebugLinesFrom() const
+const float* PhysicsClientSharedMemory::getDebugLinesFrom() const
 {
 	if (m_data->m_debugLinesFrom.size())
 	{
-		return &m_data->m_debugLinesFrom[0];
+		return &m_data->m_debugLinesFrom[0].m_x;
 	} 
 	return 0;
 }
-const btVector3* PhysicsClientSharedMemory::getDebugLinesTo() const
+const float* PhysicsClientSharedMemory::getDebugLinesTo() const
 {
 	if (m_data->m_debugLinesTo.size())
 	{
-		return &m_data->m_debugLinesTo[0];
+		return &m_data->m_debugLinesTo[0].m_x;
 	} 
 	return 0;
 }
-const btVector3* PhysicsClientSharedMemory::getDebugLinesColor() const
+const float* PhysicsClientSharedMemory::getDebugLinesColor() const
 {
 	if (m_data->m_debugLinesColor.size())
 	{
-		return &m_data->m_debugLinesColor[0];
+		return &m_data->m_debugLinesColor[0].m_x;
 	} 
 	return 0;
 }

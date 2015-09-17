@@ -1087,7 +1087,7 @@ void PhysicsServerSharedMemory::processClientCommands()
                     deleteDynamicsWorld();
 					createEmptyDynamicsWorld();
 					
-                    SharedMemoryStatus& serverCmd =m_data->createServerStatus(CMD_CLIENT_COMMAND_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
+                    SharedMemoryStatus& serverCmd =m_data->createServerStatus(CMD_RESET_SIMULATION_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
 					m_data->submitServerStatus(serverCmd);
 
                     break;

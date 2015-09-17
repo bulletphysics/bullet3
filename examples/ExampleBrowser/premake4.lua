@@ -56,7 +56,6 @@
 		"../SharedMemory/PhysicsClientC_API.h",
 		"../SharedMemory/PhysicsServerExample.cpp",
 		"../SharedMemory/PhysicsClientExample.cpp",
-		"../SharedMemory/RobotControlExample.cpp",
 		"../SharedMemory/PhysicsServer.cpp",
 		"../SharedMemory/PhysicsClient.cpp",
 		"../SharedMemory/PosixSharedMemory.cpp",

@@ -1,7 +1,7 @@
 #ifndef BT_PHYSICS_CLIENT_API_H
 #define BT_PHYSICS_CLIENT_API_H
 
-#include "SharedMemoryCommands.h"
+//#include "SharedMemoryCommands.h"
 #include "LinearMath/btVector3.h"
 
 class PhysicsClientSharedMemory 
@@ -22,15 +22,17 @@ public:
 	virtual bool	isConnected() const;
 
 	// return true if there is a status, and fill in 'serverStatus'
-	virtual bool	processServerStatus(SharedMemoryStatus& serverStatus);
+	virtual const struct SharedMemoryStatus* processServerStatus();
 	
+    virtual struct SharedMemoryCommand* getAvailableSharedMemoryCommand();
+    
 	virtual bool	canSubmitCommand() const;
 	
-	virtual bool	submitClientCommand(const SharedMemoryCommand& command);
+	virtual bool	submitClientCommand(const struct SharedMemoryCommand& command);
 
 	virtual int		getNumJoints() const;
 	
-	virtual void	getJointInfo(int index, b3JointInfo& info) const;
+	virtual void	getJointInfo(int index, struct b3JointInfo& info) const;
 	
 	virtual void setSharedMemoryKey(int key);
 
@@ -38,9 +40,9 @@ public:
 
 	virtual int	getNumDebugLines() const;
 
-	virtual const btVector3* getDebugLinesFrom() const;
-	virtual const btVector3* getDebugLinesTo() const;
-	virtual const btVector3* getDebugLinesColor() const;
+	virtual const float* getDebugLinesFrom() const;
+	virtual const float* getDebugLinesTo() const;
+	virtual const float* getDebugLinesColor() const;
 
 };
 
