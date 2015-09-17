@@ -15,18 +15,26 @@ B3_DECLARE_HANDLE(b3SharedMemoryStatusHandle);
 extern "C" { 
 #endif
 
-///make sure to start the server first!
+///make sure to start the server first, before connecting client to physics server
 b3PhysicsClientHandle b3ConnectSharedMemory(int key);
 
 void	b3DisconnectSharedMemory(b3PhysicsClientHandle physClient);
 
-b3SharedMemoryStatusHandle	b3ProcessServerStatus(b3PhysicsClientHandle physClient);
-int b3GetStatusType(b3SharedMemoryStatusHandle statusHandle);
-    
+///check if a command can be send
 int	b3CanSubmitCommand(b3PhysicsClientHandle physClient);
 
+//blocking submit command and wait for status
+b3SharedMemoryStatusHandle b3SubmitClientCommandAndWaitStatus(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle);
+
+///non-blocking submit command
 int	b3SubmitClientCommand(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle);
 
+///non-blocking check status
+b3SharedMemoryStatusHandle	b3ProcessServerStatus(b3PhysicsClientHandle physClient);
+
+int b3GetStatusType(b3SharedMemoryStatusHandle statusHandle);
+
+    
 int	b3GetNumJoints(b3PhysicsClientHandle physClient);
 
 void	b3GetJointInfo(b3PhysicsClientHandle physClient, int linkIndex, struct b3JointInfo* info);

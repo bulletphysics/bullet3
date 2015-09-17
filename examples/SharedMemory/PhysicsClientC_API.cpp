@@ -322,6 +322,9 @@ b3SharedMemoryStatusHandle b3ProcessServerStatus(b3PhysicsClientHandle physClien
     
 }
 
+
+
+
 int b3GetStatusType(b3SharedMemoryStatusHandle statusHandle)
 {
     const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
@@ -347,6 +350,20 @@ int	b3SubmitClientCommand(b3PhysicsClientHandle physClient, const b3SharedMemory
     return (int)cl->submitClientCommand(*command);
 }
 
+b3SharedMemoryStatusHandle b3SubmitClientCommandAndWaitStatus(b3PhysicsClientHandle physClient, const b3SharedMemoryCommandHandle commandHandle)
+{
+    int timeout = 1024*1024*1024;
+    b3SharedMemoryStatusHandle statusHandle=0;
+    
+    b3SubmitClientCommand(physClient,commandHandle);
+    
+    while ((statusHandle==0) && (timeout-- > 0))
+    {
+        statusHandle =b3ProcessServerStatus(physClient);
+    }
+    return (b3SharedMemoryStatusHandle) statusHandle;
+    
+}
 
 
 int	b3GetNumJoints(b3PhysicsClientHandle physClient)

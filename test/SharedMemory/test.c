@@ -9,14 +9,13 @@ struct test
 };
 
 #include <stdio.h>
-#define MAX_TIMEOUT 1024*1024*1024
 
 int main(int argc, char* argv[])
 {
 	int i, dofCount , posVarCount, dofIndex, ret ,numJoints, allowSharedMemoryInitialization=0;
-	int timeout = MAX_TIMEOUT;
     int sensorJointIndexLeft=-1;
     int sensorJointIndexRight=-1;
+    int statusType = -1;
 	const char* urdfFileName = "r2d2.urdf";
 	double gravx=0, gravy=0, gravz=-9.8;
 	double timeStep = 1./60.;
@@ -26,8 +25,6 @@ int main(int argc, char* argv[])
 	
 	b3PhysicsClientHandle sm;
 	
-	b3Printf("timeout = %d\n",timeout);
-    
 	printf("hello world\n");
 
 	sm = b3ConnectSharedMemory(SHARED_MEMORY_KEY);
@@ -37,10 +34,7 @@ int main(int argc, char* argv[])
         b3SharedMemoryCommandHandle command = b3InitPhysicsParamCommand(sm);
 		ret = b3PhysicsParamSetGravity(command,  gravx,gravy, gravz);
 		ret = b3PhysicsParamSetTimeStep(command,  timeStep);
-		ret = b3SubmitClientCommand(sm, command);
-		timeout = MAX_TIMEOUT;
-		while ((timeout-- > 0) && b3ProcessServerStatus(sm)==0)	{}
-        b3Printf("timeout = %d\n",timeout);
+		b3SubmitClientCommandAndWaitStatus(sm, command);
         }
 
         {
@@ -50,11 +44,7 @@ int main(int argc, char* argv[])
             startPosY =3;
             startPosZ = 1;
             ret = b3LoadUrdfCommandSetStartPosition(command, startPosX,startPosY,startPosZ);
-            
-            ret = b3SubmitClientCommand(sm, command);
-            timeout = MAX_TIMEOUT;
-            while ((timeout-- > 0) && b3ProcessServerStatus(sm)==0)	{}
-            b3Printf("timeout = %d\n",timeout);
+            b3SubmitClientCommandAndWaitStatus(sm, command);
         }
         
 		numJoints = b3GetNumJoints(sm);
@@ -84,8 +74,8 @@ int main(int argc, char* argv[])
         
         if ((sensorJointIndexLeft>=0) || (sensorJointIndexRight>=0))
         {
-             b3SharedMemoryCommandHandle command = b3CreateSensorCommandInit(sm);
-
+            b3SharedMemoryCommandHandle command = b3CreateSensorCommandInit(sm);
+            b3SharedMemoryStatusHandle statusHandle;
             if (imuLinkIndex>=0)
             {
 				 ret = b3CreateSensorEnableIMUForLink(command, imuLinkIndex, 1);
@@ -99,64 +89,61 @@ int main(int argc, char* argv[])
             {
                 ret = b3CreateSensorEnable6DofJointForceTorqueSensor(command, sensorJointIndexRight, 1);
             }
-            ret = b3SubmitClientCommand(sm, command);
-            timeout = MAX_TIMEOUT;
-            while ((timeout-- > 0) && b3ProcessServerStatus(sm)==0)	{}
+            statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+            
         }
         
         
         {
+            b3SharedMemoryStatusHandle statusHandle;
              b3SharedMemoryCommandHandle command = b3CreateBoxShapeCommandInit(sm);
             ret = b3CreateBoxCommandSetStartPosition(command, 0,0,-1);
             ret = b3CreateBoxCommandSetStartOrientation(command,0,0,0,1);
             ret = b3CreateBoxCommandSetHalfExtents(command, 10,10,1);
-            ret = b3SubmitClientCommand(sm, command);
-            timeout = MAX_TIMEOUT;
-            while ((timeout-- > 0) && b3ProcessServerStatus(sm)==0)	{}
+            statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+
         }
 
         {
             b3SharedMemoryCommandHandle command = b3RequestActualStateCommandInit(sm);
-            ret = b3SubmitClientCommand(sm, command);
-            timeout = MAX_TIMEOUT;
-            while ((timeout-- > 0) && b3ProcessServerStatus(sm)==0)	{}
+            b3SharedMemoryStatusHandle statusHandle;
+            statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+            int statusType = b3GetStatusType(statusHandle);
+            
+            if (statusType == CMD_ACTUAL_STATE_UPDATE_COMPLETED)
+            {
+#if 0
+                posVarCount =status.m_sendActualStateArgs.m_numDegreeOfFreedomQ;
+                dofCount =status.m_sendActualStateArgs.m_numDegreeOfFreedomU;
+                
+                b3Printf("posVarCount = %d\n",posVarCount);
+                printf("dofCount = %d\n",dofCount);
+#endif
+            }
         }
         
-#if 0
-        posVarCount =status.m_sendActualStateArgs.m_numDegreeOfFreedomQ;
-        dofCount =status.m_sendActualStateArgs.m_numDegreeOfFreedomU;
-        
-        b3Printf("posVarCount = %d\n",posVarCount);
-        printf("dofCount = %d\n",dofCount);
-#endif
-        
         {
+            b3SharedMemoryStatusHandle statusHandle;
              b3SharedMemoryCommandHandle command = b3JointControlCommandInit( sm, CONTROL_MODE_VELOCITY);
             for ( dofIndex=0;dofIndex<dofCount;dofIndex++)
             {
                 b3JointControlSetDesiredVelocity(command,dofIndex,1);
                 b3JointControlSetMaximumForce(command,dofIndex,100);
             }
-            ret = b3SubmitClientCommand(sm, command);
-            timeout = MAX_TIMEOUT;
-            while ((timeout-- > 0) && b3ProcessServerStatus(sm)==0)	{}
+             statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+
         }
         ///perform some simulation steps for testing
         for ( i=0;i<100;i++)
         {
-            
-            b3SharedMemoryCommandHandle command = b3InitStepSimulationCommand(sm);
-            ret = b3SubmitClientCommand(sm, command);
-            timeout = MAX_TIMEOUT;
-            while ((timeout-- > 0) && b3ProcessServerStatus(sm)==0)	{}
+            b3SubmitClientCommandAndWaitStatus(sm, b3InitStepSimulationCommand(sm));
         }
         
         {
-             b3SharedMemoryCommandHandle command = b3RequestActualStateCommandInit(sm);
-            ret = b3SubmitClientCommand(sm, command);
-            timeout = MAX_TIMEOUT;
-            while ((timeout-- > 0) && b3ProcessServerStatus(sm)==0)	{}
+            b3SubmitClientCommandAndWaitStatus(sm, b3RequestActualStateCommandInit(sm));
         }
+        
+        
 #if 0
         if (sensorJointIndexLeft>=0)
         {
@@ -175,10 +162,7 @@ int main(int argc, char* argv[])
         }
 #endif
         {
-             b3SharedMemoryCommandHandle command = b3InitResetSimulationCommand(sm);
-            ret = b3SubmitClientCommand(sm, command);
-            timeout = MAX_TIMEOUT;
-            while ((timeout-- > 0) && b3ProcessServerStatus(sm)==0)    {}
+            b3SubmitClientCommandAndWaitStatus(sm, b3InitResetSimulationCommand(sm));
         }
         
 	}
