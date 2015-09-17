@@ -16,8 +16,14 @@ links {
 language "C++"
 
 files {
-	"**.cpp",
-	"**.h",
+	"PhysicsClient.cpp",
+	"PhysicsClientExample.cpp",
+	"PhysicsServerExample.cpp",
+	"main.cpp",
+	"PhysicsClientC_API.cpp",
+	"PhysicsServer.cpp",
+	"PosixSharedMemory.cpp",
+	"Win32SharedMemory.cpp",
 	"../Importers/ImportURDFDemo/ConvertRigidBodies2MultiBody.h",
 	"../Importers/ImportURDFDemo/MultiBodyCreationInterface.h",
 	"../Importers/ImportURDFDemo/MyMultiBodyCreator.cpp",

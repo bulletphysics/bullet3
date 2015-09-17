@@ -4,6 +4,8 @@
 
 //this is a very experimental draft of commands. We will iterate on this API (commands, arguments etc)
 
+#include "SharedMemoryPublic.h"
+
 #ifdef __GNUC__
 	#include <stdint.h>
 	typedef int32_t smInt32_t;
@@ -22,51 +24,7 @@
 	typedef unsigned long long int smUint64_t;
 #endif
 
-enum EnumSharedMemoryClientCommand
-{
-    CMD_LOAD_URDF,
-	CMD_SEND_BULLET_DATA_STREAM,
-	CMD_CREATE_BOX_COLLISION_SHAPE,
-//	CMD_DELETE_BOX_COLLISION_SHAPE,
-//	CMD_CREATE_RIGID_BODY,
-//	CMD_DELETE_RIGID_BODY,
-    CMD_CREATE_SENSOR,///enable or disable joint feedback for force/torque sensors
-//    CMD_REQUEST_SENSOR_MEASUREMENTS,//see CMD_REQUEST_ACTUAL_STATE/CMD_ACTUAL_STATE_UPDATE_COMPLETED
-	CMD_INIT_POSE,
-	CMD_SEND_PHYSICS_SIMULATION_PARAMETERS,
-	CMD_SEND_DESIRED_STATE,//todo: reconsider naming, for example SET_JOINT_CONTROL_VARIABLE?
-	CMD_REQUEST_ACTUAL_STATE,
-	CMD_REQUEST_DEBUG_LINES,
-    CMD_STEP_FORWARD_SIMULATION,
-    CMD_RESET_SIMULATION,
-    CMD_MAX_CLIENT_COMMANDS
-};
 
-enum EnumSharedMemoryServerStatus
-{
-	CMD_SHARED_MEMORY_NOT_INITIALIZED=0,
-	CMD_WAITING_FOR_CLIENT_COMMAND,
-	
-	//CMD_CLIENT_COMMAND_COMPLETED is a generic 'completed' status that doesn't need special handling on the client
-	CMD_CLIENT_COMMAND_COMPLETED,
-	//the server will skip unknown command and report a status 'CMD_UNKNOWN_COMMAND_FLUSHED'
-	CMD_UNKNOWN_COMMAND_FLUSHED,
-
-	CMD_URDF_LOADING_COMPLETED,
-	CMD_URDF_LOADING_FAILED,
-	CMD_BULLET_DATA_STREAM_RECEIVED_COMPLETED,
-	CMD_BULLET_DATA_STREAM_RECEIVED_FAILED,
-	CMD_BOX_COLLISION_SHAPE_CREATION_COMPLETED,
-	CMD_RIGID_BODY_CREATION_COMPLETED,
-	CMD_SET_JOINT_FEEDBACK_COMPLETED,
-	CMD_ACTUAL_STATE_UPDATE_COMPLETED,
-	CMD_ACTUAL_STATE_UPDATE_FAILED,
-	CMD_DEBUG_LINES_COMPLETED,
-	CMD_DEBUG_LINES_OVERFLOW_FAILED,
-	CMD_DESIRED_STATE_RECEIVED_COMPLETED,
-	CMD_STEP_FORWARD_SIMULATION_COMPLETED,
-	CMD_MAX_SERVER_COMMANDS
-};
 
 #define SHARED_MEMORY_SERVER_TEST_C
 #define MAX_DEGREE_OF_FREEDOM 256
@@ -108,13 +66,7 @@ struct SetJointFeedbackArgs
 	int m_isEnabled;
 };
 
-//todo: discuss and decide about control mode and combinations
-enum {
-//    POSITION_CONTROL=0,
-    CONTROL_MODE_VELOCITY=0,
-    CONTROL_MODE_TORQUE,
-	CONTROL_MODE_POSITION_VELOCITY_PD,
-};
+
 
 ///InitPoseArgs is mainly to initialize (teleport) the robot in a particular position
 ///No motors or controls are needed to initialize the pose. It is similar to
@@ -293,22 +245,6 @@ struct SharedMemoryStatus
 };
 
 typedef  struct SharedMemoryStatus SharedMemoryStatus_t;
-
-enum JointInfoFlags
-{
-    JOINT_HAS_MOTORIZED_POWER=1,
-};
-struct b3JointInfo
-{
-        char* m_linkName;
-        char* m_jointName;
-        int m_jointType;
-        int m_qIndex;
-        int m_uIndex;
-    ///
-        int m_flags;
-};
-
 
 
 

@@ -20,7 +20,6 @@ SET(App_ExampleBrowser_SRCS
 	../SharedMemory/PhysicsClientC_API.cpp
 	../SharedMemory/PhysicsServerExample.cpp
 	../SharedMemory/PhysicsClientExample.cpp
-	../SharedMemory/RobotControlExample.cpp
 	../SharedMemory/PosixSharedMemory.cpp
 	../SharedMemory/Win32SharedMemory.cpp
 	../BasicDemo/BasicExample.cpp
