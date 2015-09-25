@@ -16,6 +16,7 @@ SET(App_ExampleBrowser_SRCS
 	ExampleEntries.cpp
 	ExampleEntries.h
 	../SharedMemory/PhysicsServer.cpp
+	../SharedMemory/PhysicsClientSharedMemory.cpp
 	../SharedMemory/PhysicsClient.cpp
 	../SharedMemory/PhysicsClientC_API.cpp
 	../SharedMemory/PhysicsServerExample.cpp

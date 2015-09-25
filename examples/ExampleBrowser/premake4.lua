@@ -57,6 +57,7 @@
 		"../SharedMemory/PhysicsServerExample.cpp",
 		"../SharedMemory/PhysicsClientExample.cpp",
 		"../SharedMemory/PhysicsServer.cpp",
+		"../SharedMemory/PhysicsClientSharedMemory.cpp",
 		"../SharedMemory/PhysicsClient.cpp",
 		"../SharedMemory/PosixSharedMemory.cpp",
 		"../SharedMemory/Win32SharedMemory.cpp",

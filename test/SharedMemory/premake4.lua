@@ -14,6 +14,8 @@
 			"test.c",
 			"../../examples/SharedMemory/PhysicsClient.cpp",
 			"../../examples/SharedMemory/PhysicsClient.h",
+			"../../examples/SharedMemory/PhysicsClientSharedMemory.cpp",
+			"../../examples/SharedMemory/PhysicsClientSharedMemory.h",
 			"../../examples/SharedMemory/PhysicsClientC_API.cpp",
 			"../../examples/SharedMemory/PhysicsClientC_API.h",
 			"../../examples/SharedMemory/Win32SharedMemory.cpp",

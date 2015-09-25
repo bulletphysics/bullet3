@@ -89,7 +89,7 @@ int b3CreateSensorEnable6DofJointForceTorqueSensor(b3SharedMemoryCommandHandle c
 int b3CreateSensorEnableIMUForLink(b3SharedMemoryCommandHandle commandHandle, int linkIndex, int enable);
 
 b3SharedMemoryCommandHandle b3RequestActualStateCommandInit(b3PhysicsClientHandle physClient);
-void b3GetJointState(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle statusHandle, int jointIndex, b3JointSensorState *state);
+void b3GetJointState(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle statusHandle, int jointIndex, struct b3JointSensorState *state);
 
 int b3PickBody(struct SharedMemoryCommand *command,
                double rayFromWorldX, double rayFromWorldY, double rayFromWorldZ,

@@ -17,6 +17,7 @@ language "C++"
 
 files {
 	"PhysicsClient.cpp",
+	"PhysicsClientSharedMemory.cpp",
 	"PhysicsClientExample.cpp",
 	"PhysicsServerExample.cpp",
 	"main.cpp",
