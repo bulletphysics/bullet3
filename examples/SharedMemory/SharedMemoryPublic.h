@@ -20,6 +20,9 @@ enum EnumSharedMemoryClientCommand
         CMD_REQUEST_DEBUG_LINES,
     CMD_STEP_FORWARD_SIMULATION,
     CMD_RESET_SIMULATION,
+    CMD_PICK_BODY,
+    CMD_MOVE_PICKED_BODY,
+    CMD_REMOVE_PICKING_CONSTRAINT_BODY,
     CMD_MAX_CLIENT_COMMANDS
 };
 
@@ -61,8 +64,15 @@ struct b3JointInfo
         int m_jointType;
         int m_qIndex;
         int m_uIndex;
-    ///
+        int m_jointIndex;
         int m_flags;
+};
+
+struct b3JointSensorState
+{
+  double m_jointPosition;
+  double m_jointVelocity;
+  double m_jointForceTorque[6];  /* note to roboticists: this is NOT the motor torque/force, but the spatial reaction force vector at joint */
 };
 
 struct b3DebugLines
