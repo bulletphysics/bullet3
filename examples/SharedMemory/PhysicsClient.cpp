@@ -231,6 +231,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 									{
 										b3JointInfo info;
                                         					info.m_flags = 0;
+                                                            info.m_jointIndex = link;
 										info.m_qIndex = (0 < mb->m_links[link].m_posVarCount) ? qOffset : -1;
 										info.m_uIndex = (0 < mb->m_links[link].m_dofCount) ? uOffset : -1;
 										
@@ -278,6 +279,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus()
 									{
 										b3JointInfo info;
                                         info.m_flags = 0;
+                                        info.m_jointIndex = link;
 										info.m_qIndex = (0 < mb->m_links[link].m_posVarCount) ? qOffset : -1;
 										info.m_uIndex = (0 < mb->m_links[link].m_dofCount) ? uOffset : -1;
 										

@@ -5,7 +5,7 @@
 
 #include "SharedMemoryCommon.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
-
+#include "PhysicsClientC_API.h"
 #include "PhysicsClient.h"
 //#include "SharedMemoryCommands.h"
 
@@ -154,8 +154,6 @@ void MyCallback(int buttonId, bool buttonState, void* userPtr)
     {
         cl->enqueueCommand(buttonId);
     }
-    
-
 }
 
 void PhysicsClientExample::enqueueCommand(int commandId)
@@ -177,9 +175,9 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
             double startPosX = 0;
             double startPosY = 0;
             double startPosZ = 0;
-            int ret = b3LoadUrdfCommandSetStartPosition(commandHandle, startPosX,startPosY,startPosZ);
+            b3LoadUrdfCommandSetStartPosition(commandHandle, startPosX,startPosY,startPosZ);
 //            ret = b3LoadUrdfCommandSetUseFixedBase(commandHandle, 1);
-            ret = b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+            b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
 
             break;
         }

@@ -1067,8 +1067,20 @@ void PhysicsServerSharedMemory::processClientCommands()
 					{
 						b3Printf("Server Init Pose not implemented yet");
 					}
-					///@todo: implement this
-					m_data->m_dynamicsWorld->setGravity(btVector3(0,0,0));
+					int body_unique_id = clientCmd.m_sendDesiredStateCommandArgument.m_bodyUniqueId;
+					if (m_data->m_dynamicsWorld->getNumMultibodies()>body_unique_id)
+					{
+						btMultiBody* mb = m_data->m_dynamicsWorld->getMultiBody(body_unique_id);
+						mb->setBasePos(btVector3(
+								clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[0],
+								clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[1],
+								clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[2]));
+						mb->setWorldToBaseRot(btQuaternion(
+								clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[3],
+								clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[4],
+								clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[5],
+								clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[6]));
+					}
 					
 					SharedMemoryStatus& serverCmd =m_data->createServerStatus(CMD_CLIENT_COMMAND_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
 					m_data->submitServerStatus(serverCmd);
@@ -1136,6 +1148,46 @@ void PhysicsServerSharedMemory::processClientCommands()
 
 						break;
 					}
+                case CMD_PICK_BODY:
+                    {
+                        pickBody(btVector3(clientCmd.m_pickBodyArguments.m_rayFromWorld[0],
+                                           clientCmd.m_pickBodyArguments.m_rayFromWorld[1],
+                                           clientCmd.m_pickBodyArguments.m_rayFromWorld[2]),
+                                 btVector3(clientCmd.m_pickBodyArguments.m_rayToWorld[0],
+                                           clientCmd.m_pickBodyArguments.m_rayToWorld[1],
+                                           clientCmd.m_pickBodyArguments.m_rayToWorld[2]));
+
+                        SharedMemoryStatus &serverCmd =
+                                m_data->createServerStatus(CMD_CLIENT_COMMAND_COMPLETED,
+                                                           clientCmd.m_sequenceNumber, timeStamp);
+                        m_data->submitServerStatus(serverCmd);
+                        break;
+                    }
+                case CMD_MOVE_PICKED_BODY:
+                    {
+                        movePickedBody(btVector3(clientCmd.m_pickBodyArguments.m_rayFromWorld[0],
+                                                 clientCmd.m_pickBodyArguments.m_rayFromWorld[1],
+                                                 clientCmd.m_pickBodyArguments.m_rayFromWorld[2]),
+                                       btVector3(clientCmd.m_pickBodyArguments.m_rayToWorld[0],
+                                                 clientCmd.m_pickBodyArguments.m_rayToWorld[1],
+                                                 clientCmd.m_pickBodyArguments.m_rayToWorld[2]));
+
+                        SharedMemoryStatus &serverCmd =
+                                m_data->createServerStatus(CMD_CLIENT_COMMAND_COMPLETED,
+                                                           clientCmd.m_sequenceNumber, timeStamp);
+                        m_data->submitServerStatus(serverCmd);
+                        break;
+                    }
+                case CMD_REMOVE_PICKING_CONSTRAINT_BODY:
+                    {
+                        removePickingConstraint();
+
+                        SharedMemoryStatus &serverCmd =
+                                m_data->createServerStatus(CMD_CLIENT_COMMAND_COMPLETED,
+                                                           clientCmd.m_sequenceNumber, timeStamp);
+                        m_data->submitServerStatus(serverCmd);
+                        break;
+                    }
                 default:
                 {
                     b3Error("Unknown command encountered");

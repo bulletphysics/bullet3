@@ -21,7 +21,7 @@ public:
 
 	virtual bool	isConnected() const;
 
-	// return true if there is a status, and fill in 'serverStatus'
+	// return non-null if there is a status, nullptr otherwise
 	virtual const struct SharedMemoryStatus* processServerStatus();
 	
     virtual struct SharedMemoryCommand* getAvailableSharedMemoryCommand();

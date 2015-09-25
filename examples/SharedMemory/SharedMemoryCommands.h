@@ -25,7 +25,6 @@
 #endif
 
 
-
 #define SHARED_MEMORY_SERVER_TEST_C
 #define MAX_DEGREE_OF_FREEDOM 256
 #define MAX_NUM_SENSORS 256
@@ -90,6 +89,12 @@ struct SendDebugLinesArgs
     int m_startingLineIndex;
 	int m_numDebugLines;
     int m_numRemainingDebugLines;
+};
+
+struct PickBodyArgs
+{
+    double m_rayFromWorld[3];
+    double m_rayToWorld[3];
 };
 
 
@@ -225,6 +230,7 @@ struct SharedMemoryCommand
         struct CreateSensorArgs m_createSensorArguments;
         struct CreateBoxShapeArgs m_createBoxShapeArguments;
 		struct RequestDebugLinesArgs m_requestDebugLinesArguments;
+		struct PickBodyArgs m_pickBodyArguments;
     };
 };
 
