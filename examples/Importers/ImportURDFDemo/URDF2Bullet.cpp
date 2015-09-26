@@ -349,7 +349,7 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
 
         if (createMultiBody)
         {
-            if (compoundShape->getNumChildShapes()>0)
+            //if (compoundShape->getNumChildShapes()>0)
             {
                 btMultiBodyLinkCollider* col= creation.allocateMultiBodyLinkCollider(urdfLinkIndex, mbLinkIndex, cache.m_bulletMultiBody);
 
