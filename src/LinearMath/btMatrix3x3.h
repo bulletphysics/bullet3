@@ -242,7 +242,7 @@ public:
 		Y = btCastiTo128f(_mm_shuffle_epi32 (NQi, BT_SHUFFLE(3,2,0,3)));	// -W -Z -X -W
 		Z = btCastiTo128f(_mm_shuffle_epi32 (Qi, BT_SHUFFLE(1,0,1,3)));	//  Y  X  Y  W
 
-		vs = _mm_load_ss(&s);
+		vs = _mm_set_ss(s);
 		V21 = V21 * Y;
 		V31 = V31 * Z;
 
