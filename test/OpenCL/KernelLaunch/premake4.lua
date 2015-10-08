@@ -12,7 +12,7 @@ function createProject(vendor)
 				
 		
 		kind "ConsoleApp"
-		targetdir "../../../bin"
+		
 
 		includedirs {"../../../src"}
 		

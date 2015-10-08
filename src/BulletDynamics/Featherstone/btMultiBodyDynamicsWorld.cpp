@@ -759,9 +759,7 @@ void	btMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 				int nLinks = bod->getNumLinks();
 
 				///base + num m_links
-				world_to_local.resize(nLinks+1);
-				local_origin.resize(nLinks+1);
-
+			
 				if(bod->isMultiDof())
 				{
 					if(!bod->isPosUpdated())
@@ -776,54 +774,14 @@ void	btMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 					}
 				}
 				else
+				{
 					bod->stepPositions(timeStep);			
-
-				world_to_local[0] = bod->getWorldToBaseRot();
-				local_origin[0] = bod->getBasePos();
-
-				if (bod->getBaseCollider())
-				{
-					btVector3 posr = local_origin[0];
-				//	float pos[4]={posr.x(),posr.y(),posr.z(),1};
-					btScalar quat[4]={-world_to_local[0].x(),-world_to_local[0].y(),-world_to_local[0].z(),world_to_local[0].w()};
-					btTransform tr;
-					tr.setIdentity();
-					tr.setOrigin(posr);
-					tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
-
-					bod->getBaseCollider()->setWorldTransform(tr);
-
 				}
-      
-				for (int k=0;k<bod->getNumLinks();k++)
-				{
-					const int parent = bod->getParent(k);
-					world_to_local[k+1] = bod->getParentToLocalRot(k) * world_to_local[parent+1];
-					local_origin[k+1] = local_origin[parent+1] + (quatRotate(world_to_local[k+1].inverse() , bod->getRVector(k)));
-				}
+				world_to_local.resize(nLinks+1);
+				local_origin.resize(nLinks+1);
 
-
-				for (int m=0;m<bod->getNumLinks();m++)
-				{
-					btMultiBodyLinkCollider* col = bod->getLink(m).m_collider;
-					if (col)
-					{
-						int link = col->m_link;
-						btAssert(link == m);
-
-						int index = link+1;
-
-						btVector3 posr = local_origin[index];
-			//			float pos[4]={posr.x(),posr.y(),posr.z(),1};
-						btScalar quat[4]={-world_to_local[index].x(),-world_to_local[index].y(),-world_to_local[index].z(),world_to_local[index].w()};
-						btTransform tr;
-						tr.setIdentity();
-						tr.setOrigin(posr);
-						tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
-
-						col->setWorldTransform(tr);
-					}
-				}
+				bod->updateCollisionObjectWorldTransforms(world_to_local,local_origin);
+				
 			} else
 			{
 				bod->clearVelocities();

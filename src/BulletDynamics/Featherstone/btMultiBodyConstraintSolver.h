@@ -19,7 +19,7 @@ subject to the following restrictions:
 #include "BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.h"
 #include "btMultiBodySolverConstraint.h"
 
-//#define DIRECTLY_UPDATE_VELOCITY_DURING_SOLVER_ITERATIONS
+#define DIRECTLY_UPDATE_VELOCITY_DURING_SOLVER_ITERATIONS
 
 class btMultiBody;
 

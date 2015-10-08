@@ -214,6 +214,8 @@ static GLint	createShadow_depthMVP=0;
 
 static GLint	ModelViewMatrix=0;
 static GLint	ProjectionMatrix=0;
+static GLint	regularLightDirIn=0;
+
 
 static GLint                uniform_texture_diffuse = 0;
 
@@ -688,6 +690,8 @@ void GLInstancingRenderer::InitShaders()
 	ModelViewMatrix = glGetUniformLocation(instancingShader, "ModelViewMatrix");
 	ProjectionMatrix = glGetUniformLocation(instancingShader, "ProjectionMatrix");
 	uniform_texture_diffuse = glGetUniformLocation(instancingShader, "Diffuse");
+	regularLightDirIn  = glGetUniformLocation(instancingShader,"lightDirIn");
+
 	glUseProgram(0);
 
 		instancingShaderPointSprite = gltLoadShaderPair(pointSpriteVertexShader,pointSpriteFragmentShader);
@@ -1170,7 +1174,7 @@ struct PointerCaster
 
 
 
-
+#if 0
 static void    b3CreateFrustum(
                         float left,
                         float right,
@@ -1202,7 +1206,7 @@ static void    b3CreateFrustum(
     frustum[3*4+3] = float(0);
 
 }
-
+#endif
 
 static void b3Matrix4x4Mul(GLfloat aIn[4][4], GLfloat bIn[4][4], GLfloat result[4][4])
 {
@@ -1293,7 +1297,7 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 	//glDepthFunc(GL_LESS);
 
 	// Cull triangles which normal is not towards the camera
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 
 
 
@@ -1325,7 +1329,33 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 			glBindTexture(GL_TEXTURE_2D,m_data->m_shadowTexture);
 			//glTexImage2D(GL_TEXTURE_2D,0,GL_DEPTH_COMPONENT16,m_screenWidth,m_screenHeight,0,GL_DEPTH_COMPONENT,GL_FLOAT,0);
 			//glTexImage2D(GL_TEXTURE_2D,0,GL_DEPTH_COMPONENT32,m_screenWidth,m_screenHeight,0,GL_DEPTH_COMPONENT,GL_FLOAT,0);
+
+#ifdef OLD_SHADOWMAP_INIT
 			glTexImage2D(GL_TEXTURE_2D, 0,GL_DEPTH_COMPONENT16, shadowMapWidth, shadowMapHeight, 0,GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+#else//OLD_SHADOWMAP_INIT
+			//Reduce size of shadowMap if glTexImage2D call fails as may happen in some cases
+			//https://github.com/bulletphysics/bullet3/issues/40
+			
+			int size;
+			glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
+			if (size < shadowMapWidth){
+				shadowMapWidth = size;
+			}
+			if (size < shadowMapHeight){
+				shadowMapHeight = size;
+			}
+			GLuint err;
+			do {
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 
+					shadowMapWidth, shadowMapHeight, 
+					0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+				err = glGetError();
+				if (err!=GL_NO_ERROR){
+					shadowMapHeight >>= 1;
+					shadowMapWidth >>= 1;
+				}
+			} while (err != GL_NO_ERROR && shadowMapWidth > 0);
+#endif//OLD_SHADOWMAP_INIT
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -1379,10 +1409,10 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 	b3Matrix4x4Mul(depthProjectionMatrix,depthModelViewMatrix,depthMVP);
 
 	GLfloat biasMatrix[4][4]={
-			0.5, 0.0, 0.0, 0.0,
-			0.0, 0.5, 0.0, 0.0,
-			0.0, 0.0, 0.5, 0.0,
-			0.5, 0.5, 0.5, 1.0
+			{ 0.5, 0.0, 0.0, 0.0 },
+			{ 0.0, 0.5, 0.0, 0.0 },
+			{ 0.0, 0.0, 0.5, 0.0 },
+			{ 0.5, 0.5, 0.5, 1.0 }
 	};
 
 	GLfloat depthBiasMVP[4][4];
@@ -1533,6 +1563,11 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 							glUseProgram(instancingShader);
 							glUniformMatrix4fv(ProjectionMatrix, 1, false, &m_data->m_projectionMatrix[0]);
 							glUniformMatrix4fv(ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
+							
+							b3Vector3 gLightDir = gLightPos;
+							gLightDir.normalize();
+							glUniform3f(regularLightDirIn,gLightDir[0],gLightDir[1],gLightDir[2]);
+
 							glUniform1i(uniform_texture_diffuse, 0);
 							glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexOffset, gfxObj->m_numGraphicsInstances);
 							break;

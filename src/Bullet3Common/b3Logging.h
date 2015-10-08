@@ -2,6 +2,10 @@
 #ifndef B3_LOGGING_H
 #define B3_LOGGING_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+    
 ///We add the do/while so that the statement "if (condition) b3Printf("test"); else {...}" would fail
 ///You can also customize the message by uncommenting out a different line below
 #define b3Printf(...) b3OutputPrintfVarArgsInternal(__VA_ARGS__)
@@ -18,6 +22,7 @@
 
 void b3EnterProfileZone(const char* name);
 void b3LeaveProfileZone();
+#ifdef __cplusplus
 
 class	b3ProfileZone
 {
@@ -34,6 +39,7 @@ public:
 };
 
 #define	B3_PROFILE( name )			b3ProfileZone __profile( name )
+#endif
 
 #else //B3_NO_PROFILE
 
@@ -64,6 +70,8 @@ void b3OutputPrintfVarArgsInternal(const char *str, ...);
 void b3OutputWarningMessageVarArgsInternal(const char *str, ...);
 void b3OutputErrorMessageVarArgsInternal(const char *str, ...);
 
-
+#ifdef __cplusplus
+    }
+#endif
 
 #endif//B3_LOGGING_H

@@ -12,7 +12,7 @@ function createProject(vendor)
 	end
 	
 	
-	targetdir "../../bin"
+	
 	
 	initOpenCL(vendor)
 	

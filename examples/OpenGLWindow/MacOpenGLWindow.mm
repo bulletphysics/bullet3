@@ -40,7 +40,6 @@ void dumpInfo(void)
 
 
 
-
 // -------------------- View ------------------------
 
 @interface TestView : NSView
@@ -233,7 +232,8 @@ m_mouseMoveCallback(0),
 m_mouseButtonCallback(0),
 m_wheelCallback(0),
 m_keyboardCallback(0),
-m_retinaScaleFactor(1)
+m_retinaScaleFactor(1),
+m_allowRetina(true)
 {
 }
 
@@ -398,7 +398,10 @@ void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
     //support HighResolutionOSX for Retina Macbook
     if (ci.m_openglVersion>=3)
     {
-        [m_internalData->m_myview  setWantsBestResolutionOpenGLSurface:YES];
+		if (m_allowRetina)
+		{
+			[m_internalData->m_myview  setWantsBestResolutionOpenGLSurface:YES];
+		}
     }
     NSSize sz;
     sz.width = 1;

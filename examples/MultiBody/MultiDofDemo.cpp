@@ -320,7 +320,7 @@ void MultiDofDemo::addColliders_testMultiDof(btMultiBody *pMultiBody, btMultiBod
 	{
 			
 	//	float pos[4]={local_origin[0].x(),local_origin[0].y(),local_origin[0].z(),1};
-		float quat[4]={-world_to_local[0].x(),-world_to_local[0].y(),-world_to_local[0].z(),world_to_local[0].w()};
+		btScalar quat[4]={-world_to_local[0].x(),-world_to_local[0].y(),-world_to_local[0].z(),world_to_local[0].w()};
 
 			
 		if (1)
@@ -360,7 +360,7 @@ void MultiDofDemo::addColliders_testMultiDof(btMultiBody *pMultiBody, btMultiBod
 		btVector3 posr = local_origin[i+1];
 	//	float pos[4]={posr.x(),posr.y(),posr.z(),1};
 			
-		float quat[4]={-world_to_local[i+1].x(),-world_to_local[i+1].y(),-world_to_local[i+1].z(),world_to_local[i+1].w()};
+		btScalar quat[4]={-world_to_local[i+1].x(),-world_to_local[i+1].y(),-world_to_local[i+1].z(),world_to_local[i+1].w()};
 
 		btCollisionShape* box = new btBoxShape(linkHalfExtents);
 		btMultiBodyLinkCollider* col = new btMultiBodyLinkCollider(pMultiBody, i);

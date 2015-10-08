@@ -96,7 +96,6 @@ void TestJointTorqueSetup::initPhysics()
             m_guiHelper->createCollisionShapeGraphicsObject(box);
             btTransform start; start.setIdentity();
             btVector3 groundOrigin(-0.4f, 3.f, 0.f);
-			btVector3 basePosition = btVector3(-0.4f, 3.f, 0.f);
             groundOrigin[upAxis] -=.5;
 			groundOrigin[2]-=0.6;
             start.setOrigin(groundOrigin);
@@ -269,11 +268,11 @@ void TestJointTorqueSetup::initPhysics()
         local_origin.resize(pMultiBody->getNumLinks() + 1);
         world_to_local[0] = pMultiBody->getWorldToBaseRot();
         local_origin[0] = pMultiBody->getBasePos();
-        double friction = 1;
+      //  double friction = 1;
         {
 
         //	float pos[4]={local_origin[0].x(),local_origin[0].y(),local_origin[0].z(),1};
-            float quat[4]={-world_to_local[0].x(),-world_to_local[0].y(),-world_to_local[0].z(),world_to_local[0].w()};
+//            btScalar quat[4]={-world_to_local[0].x(),-world_to_local[0].y(),-world_to_local[0].z(),world_to_local[0].w()};
 
 
             if (1)
@@ -326,7 +325,7 @@ void TestJointTorqueSetup::initPhysics()
             btVector3 posr = local_origin[i+1];
         //	float pos[4]={posr.x(),posr.y(),posr.z(),1};
 
-            float quat[4]={-world_to_local[i+1].x(),-world_to_local[i+1].y(),-world_to_local[i+1].z(),world_to_local[i+1].w()};
+            btScalar quat[4]={-world_to_local[i+1].x(),-world_to_local[i+1].y(),-world_to_local[i+1].z(),world_to_local[i+1].w()};
 			btCollisionShape* shape =0;
 
 			if (i==0)
@@ -422,7 +421,7 @@ void TestJointTorqueSetup::stepSimulation(float deltaTime)
              m_multiBody->getBaseOmega()[2]
              );
     */
-    btScalar jointVel =m_multiBody->getJointVel(0);
+   // btScalar jointVel =m_multiBody->getJointVel(0);
     
 //    b3Printf("child angvel = %f",jointVel);
     

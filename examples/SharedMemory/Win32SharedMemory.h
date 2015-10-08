@@ -14,9 +14,9 @@ public:
     Win32SharedMemory();
     virtual ~Win32SharedMemory();
 
-    virtual void*   allocateSharedMemory(int key, int size);
+    virtual void*   allocateSharedMemory(int key, int size, bool allowCreation);
     virtual void releaseSharedMemory(int key, int size);
-	virtual bool isServer() const = 0;
+	
 };
 
 class Win32SharedMemoryServer : public Win32SharedMemory
@@ -24,10 +24,7 @@ class Win32SharedMemoryServer : public Win32SharedMemory
 public:
 	Win32SharedMemoryServer();
 	virtual ~Win32SharedMemoryServer();
-	virtual bool isServer() const
-	{
-		return true;
-	}
+	
 };
 
 class Win32SharedMemoryClient : public Win32SharedMemory
@@ -35,10 +32,7 @@ class Win32SharedMemoryClient : public Win32SharedMemory
 public:
 	Win32SharedMemoryClient();
 	virtual ~Win32SharedMemoryClient();
-	virtual bool isServer() const
-	{
-		return false;
-	}
+	
 };
 
 

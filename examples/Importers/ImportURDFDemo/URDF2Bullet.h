@@ -13,7 +13,6 @@ class URDFImporterInterface;
 class MultiBodyCreationInterface;
 
 
-void printTree(const URDFImporterInterface& u2b, int linkIndex, int identationLevel=0);
 
 
 void ConvertURDF2Bullet(const URDFImporterInterface& u2b, 

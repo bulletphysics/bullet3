@@ -24,7 +24,6 @@ subject to the following restrictions:
 
 int main(int argc, char* argv[])
 {
-	struct PhysicsInterface* pint = 0;
 	
 	DummyGUIHelper noGfx;
 

@@ -16,8 +16,15 @@ links {
 language "C++"
 
 files {
-	"**.cpp",
-	"**.h",
+	"PhysicsClient.cpp",
+	"PhysicsClientSharedMemory.cpp",
+	"PhysicsClientExample.cpp",
+	"PhysicsServerExample.cpp",
+	"main.cpp",
+	"PhysicsClientC_API.cpp",
+	"PhysicsServer.cpp",
+	"PosixSharedMemory.cpp",
+	"Win32SharedMemory.cpp",
 	"../Importers/ImportURDFDemo/ConvertRigidBodies2MultiBody.h",
 	"../Importers/ImportURDFDemo/MultiBodyCreationInterface.h",
 	"../Importers/ImportURDFDemo/MyMultiBodyCreator.cpp",
@@ -33,6 +40,7 @@ files {
 	"../Importers/ImportURDFDemo/URDF2Bullet.cpp",
 	"../Importers/ImportURDFDemo/URDF2Bullet.h",
 	"../Utils/b3ResourcePath.cpp",
+	"../Utils/b3Clock.cpp",	
 	"../../Extras/Serialize/BulletWorldImporter/*",
 	"../../Extras/Serialize/BulletFileLoader/*",	
 	"../Importers/ImportURDFDemo/URDFImporterInterface.h",

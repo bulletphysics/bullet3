@@ -182,7 +182,7 @@ void btMultiBody::setupPrismatic(int i,
                                int parent,
                                const btQuaternion &rotParentToThis,
                                const btVector3 &jointAxis,
-                               const btVector3 &parentComToThisComOffset,
+                               const btVector3 &parentComToThisPivotOffset,
 							   const btVector3 &thisPivotToThisComOffset,
 							   bool disableParentCollision)
 {
@@ -198,7 +198,7 @@ void btMultiBody::setupPrismatic(int i,
     m_links[i].m_zeroRotParentToThis = rotParentToThis;
     m_links[i].setAxisTop(0, 0., 0., 0.);
     m_links[i].setAxisBottom(0, jointAxis);
-    m_links[i].m_eVector = parentComToThisComOffset;
+    m_links[i].m_eVector = parentComToThisPivotOffset;
 	m_links[i].m_dVector = thisPivotToThisComOffset;
     m_links[i].m_cachedRotParentToThis = rotParentToThis;
 
@@ -846,8 +846,8 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 		btVector3 linkAppliedTorque =isConstraintPass ? m_links[i].m_appliedConstraintTorque : m_links[i].m_appliedTorque;
  
 		zeroAccSpatFrc[i+1].setVector(-(rot_from_world[i+1] * linkAppliedTorque), -(rot_from_world[i+1] * linkAppliedForce ));
-		
-		if (0)
+	
+#if 0	
 		{
 
 			b3Printf("stepVelocitiesMultiDof zeroAccSpatFrc[%d] linear:%f,%f,%f, angular:%f,%f,%f",
@@ -860,6 +860,7 @@ void btMultiBody::stepVelocitiesMultiDof(btScalar dt,
 			zeroAccSpatFrc[i+1].m_bottomVec[1],
 			zeroAccSpatFrc[i+1].m_bottomVec[2]);
 		}
+#endif
 		//
 		//adding damping terms (only)
 		btScalar linDampMult = 1., angDampMult = 1.;
@@ -2424,6 +2425,58 @@ void	btMultiBody::forwardKinematics(btAlignedObjectArray<btQuaternion>& world_to
 
 }
 
+void	btMultiBody::updateCollisionObjectWorldTransforms(btAlignedObjectArray<btQuaternion>& world_to_local,btAlignedObjectArray<btVector3>& local_origin)
+{
+	world_to_local.resize(getNumLinks()+1);
+	local_origin.resize(getNumLinks()+1);
+	
+	world_to_local[0] = getWorldToBaseRot();
+	local_origin[0] = getBasePos();
+	
+	if (getBaseCollider())
+	{
+		btVector3 posr = local_origin[0];
+		//	float pos[4]={posr.x(),posr.y(),posr.z(),1};
+		btScalar quat[4]={-world_to_local[0].x(),-world_to_local[0].y(),-world_to_local[0].z(),world_to_local[0].w()};
+		btTransform tr;
+		tr.setIdentity();
+		tr.setOrigin(posr);
+		tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
+		
+		getBaseCollider()->setWorldTransform(tr);
+		
+	}
+	
+	for (int k=0;k<getNumLinks();k++)
+	{
+		const int parent = getParent(k);
+		world_to_local[k+1] = getParentToLocalRot(k) * world_to_local[parent+1];
+		local_origin[k+1] = local_origin[parent+1] + (quatRotate(world_to_local[k+1].inverse() , getRVector(k)));
+	}
+	
+	
+	for (int m=0;m<getNumLinks();m++)
+	{
+		btMultiBodyLinkCollider* col = getLink(m).m_collider;
+		if (col)
+		{
+			int link = col->m_link;
+			btAssert(link == m);
+			
+			int index = link+1;
+			
+			btVector3 posr = local_origin[index];
+			//			float pos[4]={posr.x(),posr.y(),posr.z(),1};
+			btScalar quat[4]={-world_to_local[index].x(),-world_to_local[index].y(),-world_to_local[index].z(),world_to_local[index].w()};
+			btTransform tr;
+			tr.setIdentity();
+			tr.setOrigin(posr);
+			tr.setRotation(btQuaternion(quat[0],quat[1],quat[2],quat[3]));
+			
+			col->setWorldTransform(tr);
+		}
+	}
+}
 
 int	btMultiBody::calculateSerializeBufferSize()	const
 {
@@ -2447,8 +2500,7 @@ const char*	btMultiBody::serialize(void* dataBuffer, class btSerializer* seriali
 			}
 		}
 		mbd->m_numLinks = this->getNumLinks();
-		mbd->m_links = mbd->m_numLinks? (btMultiBodyLinkData*) serializer->getUniquePointer((void*)&m_links[0]):0;
-		if (mbd->m_links)
+		if (mbd->m_numLinks)
 		{
 			int sz = sizeof(btMultiBodyLinkData);
 			int numElem = mbd->m_numLinks;
@@ -2459,6 +2511,8 @@ const char*	btMultiBody::serialize(void* dataBuffer, class btSerializer* seriali
 
 				memPtr->m_jointType = getLink(i).m_jointType;
 				memPtr->m_dofCount = getLink(i).m_dofCount;
+				memPtr->m_posVarCount = getLink(i).m_posVarCount;
+				
 				getLink(i).m_inertiaLocal.serialize(memPtr->m_linkInertia);
 				memPtr->m_linkMass = getLink(i).m_mass;
 				memPtr->m_parentIndex = getLink(i).m_parent;
@@ -2503,6 +2557,7 @@ const char*	btMultiBody::serialize(void* dataBuffer, class btSerializer* seriali
 			}
 			serializer->finalizeChunk(chunk,btMultiBodyLinkDataName,BT_ARRAY_CODE,(void*) &m_links[0]);
 		}
-		
+		mbd->m_links = mbd->m_numLinks? (btMultiBodyLinkData*) serializer->getUniquePointer((void*)&m_links[0]):0;
+
 		return btMultiBodyDataName;
 }
