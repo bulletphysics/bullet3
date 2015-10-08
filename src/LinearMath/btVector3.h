@@ -729,7 +729,7 @@ public:
         __m128 r = _mm_movelh_ps( b0, b2 );
         r = _mm_add_ps( r, _mm_movehl_ps( b2, b0 ));
         a2 = _mm_and_ps( a2, btvxyzMaskf);
-        r = _mm_add_ps( r, btCastdTo128f (_mm_move_sd( btCastfTo128d(a2), btCastfTo128d(b1) )));
+        r = _mm_add_ps( r, _mm_shuffle_ps(b1, a2, BT_SHUFFLE(0, 1, 2, 3)));
         return btVector3(r);
         
 #elif defined(BT_USE_NEON)
