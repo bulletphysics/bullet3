@@ -126,7 +126,7 @@ void RaytestDemo::castRays()
 			btCollisionWorld::ClosestRayResultCallback	closestResults(from,to);
 			closestResults.m_flags |= btTriangleRaycastCallback::kF_FilterBackfaces;
 			
-
+			m_dynamicsWorld->rayTest(from,to,closestResults);
 
 			if (closestResults.hasHit())
 			{
