@@ -183,14 +183,14 @@ void writeTemplate(short *structData)
 	while (vars!= dataTypes.end())
 	{
 		fprintf(dump, "%s.dataTypes.append('%s %s')\n", fileName.c_str(), vars->dataType.c_str(), vars->variableName.c_str());
-		vars++;
+		++vars;
 	}
 
 	bStringMap::iterator inc = includeFiles.begin();
 	while (inc != includeFiles.end())
 	{
 		fprintf(dump, "%s.includes.append('%s.h')\n", fileName.c_str(), inc->second.c_str());
-		inc++;
+		++inc;
 	}
 	fprintf(dump, "DataTypeList.append(%s)\n", fileName.c_str());
 }
@@ -342,6 +342,7 @@ int main(int argc,char** argv)
 	}
 
 	delete mDNA;
+        fclose(fp);
 	fclose(dump);
 	return 0;
 }

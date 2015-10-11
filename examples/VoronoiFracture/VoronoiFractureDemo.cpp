@@ -339,7 +339,7 @@ void VoronoiFractureDemo::voronoiBBShatter(const btAlignedObjectArray<btVector3>
 				for (k=0; k < numplaneIndices; k++) {
 					if (k != *planeIndicesIter)
 						planes[k] = planes[*planeIndicesIter];
-					planeIndicesIter++;
+					++planeIndicesIter;
 				}
 				planes.resize(numplaneIndices);
 			}
@@ -484,7 +484,7 @@ void VoronoiFractureDemo::voronoiConvexHullShatter(const btAlignedObjectArray<bt
 				for (k=0; k < numplaneIndices; k++) {
 					if (k != *planeIndicesIter)
 						planes[k] = planes[*planeIndicesIter];
-					planeIndicesIter++;
+					++planeIndicesIter;
 				}
 				planes.resize(numplaneIndices);
 			}
