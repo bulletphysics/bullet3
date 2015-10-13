@@ -213,10 +213,6 @@ struct btConnectivityProcessor : public btTriangleCallback
 					isConvex = (dotA<0.);
 
 					correctedAngle = isConvex ? ang4 : -ang4;
-					btQuaternion orn2(calculatedEdge,-correctedAngle);
-					calculatedNormalB = btMatrix3x3(orn2)*normalA;
-
-
 				}
 
 				

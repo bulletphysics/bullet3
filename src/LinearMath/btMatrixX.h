@@ -19,6 +19,7 @@ subject to the following restrictions:
 
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btAlignedObjectArray.h"
+#include <stdio.h>
 
 //#define BT_DEBUG_OSTREAM
 #ifdef BT_DEBUG_OSTREAM
