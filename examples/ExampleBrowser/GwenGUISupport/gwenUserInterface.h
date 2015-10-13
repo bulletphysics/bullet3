@@ -41,11 +41,11 @@ class GwenUserInterface
 		void	setToggleButtonCallback(b3ToggleButtonCallback callback);
 		b3ToggleButtonCallback getToggleButtonCallback();
 
-		void	registerToggleButton(int buttonId, const char* name);
+		void	registerToggleButton2(int buttonId, const char* name);
 
 		void	setComboBoxCallback(b3ComboBoxCallback callback);
 		b3ComboBoxCallback getComboBoxCallback();
-		void	registerComboBox(int buttonId, int numItems, const char** items, int startItem = 0);
+		void	registerComboBox2(int buttonId, int numItems, const char** items, int startItem = 0);
 		
 		void	setStatusBarMessage(const char* message, bool isLeft=true);
 

@@ -33,6 +33,7 @@ struct SliderParams
 };
 
 typedef void (*ButtonParamChangedCallback) (int buttonId, bool buttonState, void* userPointer);
+typedef void (*ComboBoxCallback) (int combobox, const char* item, void* userPointer);
 
 struct ButtonParams
 {
@@ -50,6 +51,26 @@ struct ButtonParams
 	}
 };
 
+struct ComboBoxParams
+{
+	int m_comboboxId;
+	int m_numItems;
+	const char** m_items;
+	int m_startItem;
+	ComboBoxCallback m_callback;
+	void*	m_userPointer;
+
+	ComboBoxParams()
+		:m_comboboxId(-1),
+		m_numItems(0),
+		m_items(0),
+		m_startItem(0),
+		m_callback(0),
+		m_userPointer(0)
+	{
+	}
+};
+
 
 struct CommonParameterInterface
 {
@@ -57,6 +78,7 @@ struct CommonParameterInterface
 	virtual ~CommonParameterInterface() {}
 	virtual void registerSliderFloatParameter(SliderParams& params)=0;
 	virtual void registerButtonParameter(ButtonParams& params)=0;
+	virtual void registerComboBox(ComboBoxParams& params)=0;
 
 	virtual void syncParameters()=0;
 	virtual void removeAllParameters()=0;
