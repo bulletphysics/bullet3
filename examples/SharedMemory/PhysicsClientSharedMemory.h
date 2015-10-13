@@ -30,9 +30,9 @@ public:
 
     virtual bool submitClientCommand(const struct SharedMemoryCommand& command);
 
-    virtual int getNumJoints() const;
+    virtual int getNumJoints(int bodyIndex) const;
 
-    virtual void getJointInfo(int index, struct b3JointInfo& info) const;
+    virtual void getJointInfo(int bodyIndex, int jointIndex, struct b3JointInfo& info) const;
 
     virtual void setSharedMemoryKey(int key);
 

@@ -34,10 +34,12 @@ b3SharedMemoryStatusHandle	b3ProcessServerStatus(b3PhysicsClientHandle physClien
 
 int b3GetStatusType(b3SharedMemoryStatusHandle statusHandle);
 
-    
-int	b3GetNumJoints(b3PhysicsClientHandle physClient);
+int b3GetStatusBodyIndex(b3SharedMemoryStatusHandle statusHandle);
 
-void	b3GetJointInfo(b3PhysicsClientHandle physClient, int linkIndex, struct b3JointInfo* info);
+    
+int	b3GetNumJoints(b3PhysicsClientHandle physClient, int bodyIndex);
+
+void	b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyIndex, int linkIndex, struct b3JointInfo* info);
 
 b3SharedMemoryCommandHandle b3InitRequestDebugLinesCommand(b3PhysicsClientHandle physClient, int debugMode);
     

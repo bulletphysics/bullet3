@@ -83,7 +83,7 @@ struct  GwenParameters
 {
 	b3AlignedObjectArray<MySliderEventHandler<btScalar>*> m_sliderEventHandlers;
 	b3AlignedObjectArray<Gwen::Controls::HorizontalSlider*> m_sliders;
-
+	b3AlignedObjectArray<Gwen::Controls::ComboBox*> m_comboBoxes;
 	b3AlignedObjectArray<Gwen::Controls::Button*> m_buttons;
 	b3AlignedObjectArray<MyButtonEventHandler*> m_buttonEventHandlers;
 	b3AlignedObjectArray<Gwen::Controls::TextBox*> m_textLabels;
@@ -145,6 +145,58 @@ void GwenParameterInterface::registerButtonParameter(ButtonParams& params)
 
 }
 
+struct MyComboBoxHander2   :public Gwen::Event::Handler
+{
+	GwenInternalData*	m_data;
+	int					m_buttonId;
+	ComboBoxCallback	m_callback;
+	void*				m_userPointer;
+
+	MyComboBoxHander2  (GwenInternalData* data, int buttonId,ComboBoxCallback callback, void* userPointer)
+		:m_data(data),
+		m_buttonId(buttonId),
+		m_callback(callback),
+		m_userPointer(userPointer)
+	{
+	}
+
+	void onSelect( Gwen::Controls::Base* pControl )
+	{
+		Gwen::Controls::ComboBox* but = (Gwen::Controls::ComboBox*) pControl;
+
+		Gwen::String str = Gwen::Utility::UnicodeToString(	but->GetSelectedItem()->GetText());
+
+		if (m_callback)
+			(*m_callback)(m_buttonId,str.c_str(),m_userPointer);
+	}
+
+};
+
+
+void GwenParameterInterface::registerComboBox(ComboBoxParams& params)
+{
+	Gwen::Controls::ComboBox* combobox = new Gwen::Controls::ComboBox(m_gwenInternalData->m_demoPage->GetPage());
+	m_paramInternalData->m_comboBoxes.push_back(combobox);
+	MyComboBoxHander2* handler = new MyComboBoxHander2(m_gwenInternalData, params.m_comboboxId,params.m_callback, params.m_userPointer);
+	m_gwenInternalData->m_handlers.push_back(handler);
+
+	combobox->onSelection.Add(handler,&MyComboBoxHander2::onSelect);
+	int ypos = m_gwenInternalData->m_curYposition;
+	m_gwenInternalData->m_curYposition+=22;
+	combobox->SetPos(10, ypos );
+	combobox->SetWidth( 100 );
+	//box->SetPos(120,130);
+	for (int i=0;i<params.m_numItems;i++)
+	{
+		Gwen::Controls::MenuItem* item = combobox->AddItem(Gwen::Utility::StringToUnicode(params.m_items[i]));
+		if (i==params.m_startItem)
+			combobox->OnItemSelected(item);
+	}
+
+	
+
+}
+
 void GwenParameterInterface::registerSliderFloatParameter(SliderParams& params)
 {
 	Gwen::Controls::TextBox* label = new Gwen::Controls::TextBox(m_gwenInternalData->m_demoPage->GetPage());
@@ -188,6 +240,7 @@ void GwenParameterInterface::syncParameters()
 
 void GwenParameterInterface::removeAllParameters()
 {
+
 	for (int i=0;i<m_paramInternalData->m_buttons.size();i++)
 	{
 		delete m_paramInternalData->m_buttons[i];
@@ -222,5 +275,18 @@ void GwenParameterInterface::removeAllParameters()
 	}
 	m_paramInternalData->m_textLabels.clear();
 	
+	for (int i=0;i<m_paramInternalData->m_comboBoxes.size();i++)
+	{
+		delete m_paramInternalData->m_comboBoxes[i];
+	}
+	m_paramInternalData->m_comboBoxes.clear();
+
 	m_gwenInternalData->m_curYposition = this->m_paramInternalData->m_savedYposition;
+	for (int i=0;i<m_gwenInternalData->m_handlers.size();i++)
+	{
+		delete m_gwenInternalData->m_handlers[i];
+	}
+	m_gwenInternalData->m_handlers.clear();
+
+	
 }

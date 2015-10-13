@@ -428,7 +428,7 @@ void	GwenUserInterface::setToggleButtonCallback(b3ToggleButtonCallback callback)
 {
 	m_data->m_toggleButtonCallback = callback;
 }
-void	GwenUserInterface::registerToggleButton(int buttonId, const char* name)
+void	GwenUserInterface::registerToggleButton2(int buttonId, const char* name)
 {
 	assert(m_data);
 	assert(m_data->m_demoPage);
@@ -460,7 +460,7 @@ b3ComboBoxCallback GwenUserInterface::getComboBoxCallback()
 {
 	return m_data->m_comboBoxCallback;
 }
-void	GwenUserInterface::registerComboBox(int comboboxId, int numItems, const char** items, int startItem)
+void	GwenUserInterface::registerComboBox2(int comboboxId, int numItems, const char** items, int startItem)
 {
 	Gwen::Controls::ComboBox* combobox = new Gwen::Controls::ComboBox(m_data->m_demoPage->GetPage());
 	MyComboBoxHander* handler = new MyComboBoxHander(m_data, comboboxId);
