@@ -259,6 +259,70 @@ int	b3CreateBoxCommandSetStartOrientation(b3SharedMemoryCommandHandle commandHan
     return 0;
 }
 
+b3SharedMemoryCommandHandle b3CreatePoseCommandInit(b3PhysicsClientHandle physClient, int bodyIndex)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type = CMD_INIT_POSE;
+    command->m_updateFlags =0;
+	command->m_initPoseArgs.m_bodyUniqueId = bodyIndex;
+    return (b3SharedMemoryCommandHandle) command;
+}
+
+int	b3CreatePoseCommandSetBasePosition(b3SharedMemoryCommandHandle commandHandle, double startPosX,double startPosY,double startPosZ)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_INIT_POSE);
+    command->m_updateFlags |=INIT_POSE_HAS_INITIAL_POSITION;
+	command->m_initPoseArgs.m_initialStateQ[0] = startPosX;
+	command->m_initPoseArgs.m_initialStateQ[1] = startPosY;
+	command->m_initPoseArgs.m_initialStateQ[2] = startPosZ;
+	return 0;
+}
+
+int	b3CreatePoseCommandSetBaseOrientation(b3SharedMemoryCommandHandle commandHandle, double startOrnX,double startOrnY,double startOrnZ, double startOrnW)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_INIT_POSE);
+    command->m_updateFlags |=INIT_POSE_HAS_INITIAL_ORIENTATION;
+	command->m_initPoseArgs.m_initialStateQ[3] = startOrnX;
+	command->m_initPoseArgs.m_initialStateQ[4] = startOrnY;
+	command->m_initPoseArgs.m_initialStateQ[5] = startOrnZ;
+	command->m_initPoseArgs.m_initialStateQ[6] = startOrnW;
+	return 0;
+}
+
+int	b3CreatePoseCommandSetJointPositions(b3SharedMemoryCommandHandle commandHandle, int numJointPositions, double* jointPositions)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_INIT_POSE);
+    command->m_updateFlags |=INIT_POSE_HAS_JOINT_STATE;
+	for (int i=0;i<numJointPositions;i++)
+	{
+		command->m_initPoseArgs.m_initialStateQ[i+7] = jointPositions[i];
+	}
+	return 0;
+}
+
+int	b3CreatePoseCommandSetJointPosition(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle, int jointIndex, double jointPosition)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_INIT_POSE);
+    command->m_updateFlags |=INIT_POSE_HAS_JOINT_STATE;
+	b3JointInfo info;
+	b3GetJointInfo(physClient, command->m_initPoseArgs.m_bodyUniqueId,jointIndex, &info);
+	command->m_initPoseArgs.m_initialStateQ[info.m_qIndex] = jointPosition;
+	return 0;
+}
+
+
 int	b3CreateBoxCommandSetHalfExtents(b3SharedMemoryCommandHandle commandHandle, double halfExtentsX,double halfExtentsY,double halfExtentsZ)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;

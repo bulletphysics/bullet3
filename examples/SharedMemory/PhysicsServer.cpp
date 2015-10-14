@@ -1252,15 +1252,38 @@ void PhysicsServerSharedMemory::processClientCommands()
 					if (body && body->m_multiBody)
 					{
 						btMultiBody* mb = body->m_multiBody;
-						mb->setBasePos(btVector3(
-								clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[0],
-								clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[1],
-								clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[2]));
-						mb->setWorldToBaseRot(btQuaternion(
-								clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[3],
-								clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[4],
-								clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[5],
-								clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[6]));
+						if (clientCmd.m_updateFlags & INIT_POSE_HAS_INITIAL_POSITION)
+						{
+							btVector3 zero(0,0,0);
+							mb->setBaseVel(zero);
+							mb->setBasePos(btVector3(
+									clientCmd.m_initPoseArgs.m_initialStateQ[0],
+									clientCmd.m_initPoseArgs.m_initialStateQ[1],
+									clientCmd.m_initPoseArgs.m_initialStateQ[2]));
+						}
+						if (clientCmd.m_updateFlags & INIT_POSE_HAS_INITIAL_ORIENTATION)
+						{
+							mb->setBaseOmega(btVector3(0,0,0));
+							mb->setWorldToBaseRot(btQuaternion(
+									clientCmd.m_initPoseArgs.m_initialStateQ[3],
+									clientCmd.m_initPoseArgs.m_initialStateQ[4],
+									clientCmd.m_initPoseArgs.m_initialStateQ[5],
+									clientCmd.m_initPoseArgs.m_initialStateQ[6]));
+						}
+						if (clientCmd.m_updateFlags & INIT_POSE_HAS_JOINT_STATE)
+						{
+							int dofIndex = 7;
+							for (int i=0;i<mb->getNumLinks();i++)
+							{
+								if (mb->getLink(i).m_dofCount==1)
+								{
+									
+									mb->setJointPos(i,clientCmd.m_initPoseArgs.m_initialStateQ[dofIndex]);
+									mb->setJointVel(i,0);
+								}
+								dofIndex += mb->getLink(i).m_dofCount;
+							}
+						}
 					}
 					
 					SharedMemoryStatus& serverCmd =m_data->createServerStatus(CMD_CLIENT_COMMAND_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
