@@ -235,8 +235,10 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                                                      mb->m_links[link].m_jointName);
                                         }
                                         info.m_jointName = mb->m_links[link].m_jointName;
-                                        info.m_jointType = mb->m_links[link].m_jointType;
                                     }
+
+									info.m_jointType = mb->m_links[link].m_jointType;
+
                                     if ((mb->m_links[link].m_jointType == eRevoluteType) ||
                                         (mb->m_links[link].m_jointType == ePrismaticType)) {
                                         info.m_flags |= JOINT_HAS_MOTORIZED_POWER;
@@ -278,8 +280,8 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                                                      mb->m_links[link].m_jointName);
                                         }
                                         info.m_jointName = mb->m_links[link].m_jointName;
-                                        info.m_jointType = mb->m_links[link].m_jointType;
                                     }
+									info.m_jointType = mb->m_links[link].m_jointType;
                                     if ((mb->m_links[link].m_jointType == eRevoluteType) ||
                                         (mb->m_links[link].m_jointType == ePrismaticType)) {
                                         info.m_flags |= JOINT_HAS_MOTORIZED_POWER;
