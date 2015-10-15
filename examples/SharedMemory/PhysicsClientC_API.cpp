@@ -297,7 +297,7 @@ int	b3CreatePoseCommandSetBaseOrientation(b3SharedMemoryCommandHandle commandHan
 	return 0;
 }
 
-int	b3CreatePoseCommandSetJointPositions(b3SharedMemoryCommandHandle commandHandle, int numJointPositions, double* jointPositions)
+int	b3CreatePoseCommandSetJointPositions(b3SharedMemoryCommandHandle commandHandle, int numJointPositions, const double* jointPositions)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
