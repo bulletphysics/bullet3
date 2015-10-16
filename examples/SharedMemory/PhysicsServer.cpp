@@ -1099,7 +1099,7 @@ void PhysicsServerSharedMemory::processClientCommands()
 							
 							SharedMemoryStatus& serverCmd = m_data->createServerStatus(CMD_ACTUAL_STATE_UPDATE_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
 
-							serverCmd.m_sendActualStateArgs.m_bodyUniqueId = 0;
+							serverCmd.m_sendActualStateArgs.m_bodyUniqueId = bodyUniqueId;
 							int totalDegreeOfFreedomQ = 0;
 							int totalDegreeOfFreedomU = 0; 
 							
