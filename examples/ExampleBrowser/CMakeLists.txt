@@ -31,6 +31,13 @@ SET(App_ExampleBrowser_SRCS
 	../Tutorial/Tutorial.h
 	../Tutorial/Dof6ConstraintTutorial.cpp
 	../Tutorial/Dof6ConstraintTutorial.h
+	../Collision/CollisionSdkC_Api.cpp
+	../Collision/CollisionSdkC_Api.h
+	../Collision/CollisionTutorialBullet2.cpp
+	../Collision/CollisionTutorialBullet2.h
+	../Collision/Internal/Bullet2CollisionSdk.cpp
+	../Collision/Internal/Bullet2CollisionSdk.h
+	../Collision/Internal/CollisionSdkInterface.h
 	../GyroscopicDemo/GyroscopicSetup.cpp
 	../GyroscopicDemo/GyroscopicSetup.h
 	../Planar2D/Planar2D.cpp
