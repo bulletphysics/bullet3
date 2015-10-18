@@ -76,6 +76,8 @@ struct SimpleOpenGL2Renderer : public CommonRenderInterface
     
     virtual void enableBlend(bool blend);
 
+	virtual void clearZBuffer();
+
 	virtual struct	GLInstanceRendererInternalData* getInternalData()
 	{
 		return 0;

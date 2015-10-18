@@ -1,24 +1,23 @@
-#ifndef BULLET2_COLLISION_SDK_H
-#define BULLET2_COLLISION_SDK_H
+#ifndef REAL_TIME_COLLISION_SDK_H
+#define REAL_TIME_COLLISION_SDK_H
 
 #include "CollisionSdkInterface.h"
 
-class Bullet2CollisionSdk : public CollisionSdkInterface
+class RealTimeBullet3CollisionSdk : public CollisionSdkInterface
 {
-	struct Bullet2CollisionSdkInternalData* m_internalData;
+	struct RealTimeBullet3CollisionSdkInternalData* m_internalData;
 	
 public:
 	
-	Bullet2CollisionSdk();
+	RealTimeBullet3CollisionSdk();
 	
-	virtual ~Bullet2CollisionSdk();
+	virtual ~RealTimeBullet3CollisionSdk();
 	
 	virtual plCollisionWorldHandle createCollisionWorld(int maxNumObjsCapacity, int maxNumShapesCapacity, int maxNumPairsCapacity);
 	
 	virtual void deleteCollisionWorld(plCollisionWorldHandle worldHandle);
 
 	virtual plCollisionShapeHandle createSphereShape(plCollisionWorldHandle worldHandle, plReal radius);
-	
 	virtual void deleteShape(plCollisionWorldHandle worldHandle, plCollisionShapeHandle shape);
 	
 	virtual void addCollisionObject(plCollisionWorldHandle world, plCollisionObjectHandle object);
@@ -36,7 +35,8 @@ public:
     virtual void collideWorld( plCollisionWorldHandle world,
                               plNearCallback filter, void* userData);
 
-	static plCollisionSdkHandle createBullet2SdkHandle();
+	static plCollisionSdkHandle createRealTimeBullet3CollisionSdkHandle();
 };
 
-#endif //BULLET2_COLLISION_SDK_H
+
+#endif //REAL_TIME_COLLISION_SDK_H

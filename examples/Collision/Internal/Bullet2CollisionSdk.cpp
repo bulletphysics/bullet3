@@ -29,9 +29,10 @@ Bullet2CollisionSdk::~Bullet2CollisionSdk()
 	m_internalData = 0;
 }
 	
-plCollisionWorldHandle Bullet2CollisionSdk::createCollisionWorld()
+plCollisionWorldHandle Bullet2CollisionSdk::createCollisionWorld(int /*maxNumObjsCapacity*/, int /*maxNumShapesCapacity*/, int /*maxNumPairsCapacity*/)
 {
 	m_internalData->m_collisionConfig = new btDefaultCollisionConfiguration;
+	
 	m_internalData->m_dispatcher = new btCollisionDispatcher(m_internalData->m_collisionConfig);
 	m_internalData->m_aabbBroadphase = new btDbvtBroadphase();
 	m_internalData->m_collisionWorld = new btCollisionWorld(m_internalData->m_dispatcher,
@@ -58,13 +59,13 @@ void Bullet2CollisionSdk::deleteCollisionWorld(plCollisionWorldHandle worldHandl
 	} 
 }
 
-plCollisionShapeHandle Bullet2CollisionSdk::createSphereShape(plReal radius)
+plCollisionShapeHandle Bullet2CollisionSdk::createSphereShape(plCollisionWorldHandle /*worldHandle*/, plReal radius)
 {
 	btSphereShape* sphereShape = new btSphereShape(radius);
 	return (plCollisionShapeHandle) sphereShape;
 }
 
-void Bullet2CollisionSdk::deleteShape(plCollisionShapeHandle shapeHandle)
+void Bullet2CollisionSdk::deleteShape(plCollisionWorldHandle /*worldHandle*/, plCollisionShapeHandle shapeHandle)
 {
 	btCollisionShape* shape = (btCollisionShape*) shapeHandle;
 	delete shape;
@@ -91,7 +92,7 @@ void Bullet2CollisionSdk::removeCollisionObject(plCollisionWorldHandle worldHand
 	} 
 }
 
-plCollisionObjectHandle Bullet2CollisionSdk::createCollisionObject(  void* user_data,  plCollisionShapeHandle shapeHandle ,
+plCollisionObjectHandle Bullet2CollisionSdk::createCollisionObject(  void* userPointer, int userIndex,  plCollisionShapeHandle shapeHandle ,
                                                        plVector3 startPosition,plQuaternion startOrientation )
 
 {
@@ -100,6 +101,8 @@ plCollisionObjectHandle Bullet2CollisionSdk::createCollisionObject(  void* user_
 	if (colShape)
 	{
 		btCollisionObject* colObj= new btCollisionObject;
+		colObj->setUserIndex(userIndex);
+		colObj->setUserPointer(userPointer);
 		colObj->setCollisionShape(colShape);
         btTransform tr;
         tr.setOrigin(btVector3(startPosition[0],startPosition[1],startPosition[2]));
@@ -115,6 +118,16 @@ void Bullet2CollisionSdk::deleteCollisionObject(plCollisionObjectHandle bodyHand
 	btCollisionObject* colObj = (btCollisionObject*) bodyHandle;
 	delete colObj;
 }
+void Bullet2CollisionSdk::setCollisionObjectTransform(plCollisionObjectHandle bodyHandle,
+												plVector3 position,plQuaternion orientation )
+{
+	btCollisionObject* colObj = (btCollisionObject*) bodyHandle;
+	 btTransform tr;
+    tr.setOrigin(btVector3(position[0],position[1],position[2]));
+    tr.setRotation(btQuaternion(orientation[0],orientation[1],orientation[2],orientation[3]));
+	colObj->setWorldTransform(tr);
+}
+
 
 struct   Bullet2ContactResultCallback : public btCollisionWorld::ContactResultCallback
 {
@@ -122,7 +135,10 @@ struct   Bullet2ContactResultCallback : public btCollisionWorld::ContactResultCa
     lwContactPoint* m_pointsOut;
     int m_pointCapacity;
     
-    Bullet2ContactResultCallback() :m_numContacts(0)
+    Bullet2ContactResultCallback(lwContactPoint* pointsOut, int pointCapacity) :
+	m_numContacts(0),
+		m_pointsOut(pointsOut),
+		m_pointCapacity(pointCapacity)
     {
     }
     virtual   btScalar   addSingleResult(btManifoldPoint& cp,   const btCollisionObjectWrapper* colObj0Wrap,int partId0,int index0,const btCollisionObjectWrapper* colObj1Wrap,int partId1,int index1)
@@ -134,6 +150,12 @@ struct   Bullet2ContactResultCallback : public btCollisionWorld::ContactResultCa
             ptOut.m_normalOnB[0] = cp.m_normalWorldOnB.getX();
             ptOut.m_normalOnB[1] = cp.m_normalWorldOnB.getY();
             ptOut.m_normalOnB[2] = cp.m_normalWorldOnB.getZ();
+            ptOut.m_ptOnAWorld[0] = cp.m_positionWorldOnA[0];
+            ptOut.m_ptOnAWorld[1] = cp.m_positionWorldOnA[1];
+            ptOut.m_ptOnAWorld[2] = cp.m_positionWorldOnA[2];
+            ptOut.m_ptOnBWorld[0] = cp.m_positionWorldOnB[0];
+            ptOut.m_ptOnBWorld[1] = cp.m_positionWorldOnB[1];
+            ptOut.m_ptOnBWorld[2] = cp.m_positionWorldOnB[2];
             m_numContacts++;
         }
         
@@ -150,7 +172,7 @@ int Bullet2CollisionSdk::collide(plCollisionWorldHandle worldHandle,plCollisionO
     btAssert(world && colObjA && colObjB);
     if (world == m_internalData->m_collisionWorld && colObjA && colObjB)
     {
-        Bullet2ContactResultCallback cb;
+        Bullet2ContactResultCallback cb(pointsOut,pointCapacity);
         world->contactPairTest(colObjA,colObjB,cb);
         return cb.m_numContacts;
     }
@@ -158,13 +180,22 @@ int Bullet2CollisionSdk::collide(plCollisionWorldHandle worldHandle,plCollisionO
 }
 
 static plNearCallback gTmpFilter;
-static int gContactCount = 0;
+static int gNearCallbackCount = 0;
+static plCollisionSdkHandle gCollisionSdk = 0;
+static plCollisionWorldHandle gCollisionWorldHandle = 0;
+
+static void* gUserData = 0;
 
 void Bullet2NearCallback(btBroadphasePair& collisionPair, btCollisionDispatcher& dispatcher, const btDispatcherInfo& dispatchInfo)
 {
-    if (gTmpFilter)
+    btCollisionObject* colObj0 = (btCollisionObject*)collisionPair.m_pProxy0->m_clientObject;
+    btCollisionObject* colObj1 = (btCollisionObject*)collisionPair.m_pProxy1->m_clientObject;
+    plCollisionObjectHandle obA =(plCollisionObjectHandle) colObj0;
+    plCollisionObjectHandle obB =(plCollisionObjectHandle) colObj1;
+    if(gTmpFilter)
     {
-        gContactCount++;
+        gTmpFilter(gCollisionSdk,gCollisionWorldHandle, gUserData,obA,obB);
+        gNearCallbackCount++;
     }
 }
 
@@ -174,8 +205,10 @@ void Bullet2CollisionSdk::collideWorld( plCollisionWorldHandle worldHandle,
     btCollisionWorld* world = (btCollisionWorld*) worldHandle;
     //chain the near-callback
     gTmpFilter = filter;
-    gContactCount = 0;
-    
+    gNearCallbackCount = 0;
+    gUserData = userData;
+    gCollisionSdk = (plCollisionSdkHandle)this;
+    gCollisionWorldHandle = worldHandle;
     m_internalData->m_dispatcher->setNearCallback(Bullet2NearCallback);
     world->performDiscreteCollisionDetection();
     gTmpFilter = 0;

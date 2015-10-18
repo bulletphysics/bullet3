@@ -34,14 +34,18 @@ extern "C" {
 	/* Collision SDK */
 	
 	extern plCollisionSdkHandle plCreateBullet2CollisionSdk();
-//	extern plCollisionSdkHandle plCreateRealTimeBullet3CollisionSdk();
+	
+	extern plCollisionSdkHandle plCreateRealTimeBullet3CollisionSdk();
 //	extern plCollisionSdkHandle plCreateCustomCollisionSdk();
 	
 	extern void plDeleteCollisionSdk(plCollisionSdkHandle collisionSdkHandle);
-	
+
+	//extern int plGetSdkWorldCreationIntParameter();
+	//extern int plSetSdkWorldCreationIntParameter(int newValue);
+
 	/* Collision World */
 	
-	extern  plCollisionWorldHandle plCreateCollisionWorld(plCollisionSdkHandle collisionSdkHandle);
+	extern  plCollisionWorldHandle plCreateCollisionWorld(plCollisionSdkHandle collisionSdkHandle, int maxNumObjsCapacity, int maxNumShapesCapacity, int maxNumPairsCapacity);
 	extern  void           plDeleteCollisionWorld(plCollisionSdkHandle sdkHandle, plCollisionWorldHandle world);
 	
 	
@@ -51,22 +55,23 @@ extern "C" {
 	
 	/* Collision Object  */
 	
-	extern  plCollisionObjectHandle plCreateCollisionObject(  plCollisionSdkHandle sdkHandle,  void* user_data,  plCollisionShapeHandle cshape , plVector3 startPosition,plQuaternion startOrientation);
-	extern  void plDeleteCollisionObject(plCollisionSdkHandle sdkHandle, plCollisionObjectHandle body);
-	
+	extern  plCollisionObjectHandle plCreateCollisionObject(  plCollisionSdkHandle sdkHandle,  plCollisionWorldHandle worldHandle, void* userPointer, int userIndex,  plCollisionShapeHandle cshape , plVector3 startPosition,plQuaternion startOrientation);
+	extern  void plDeleteCollisionObject(plCollisionSdkHandle sdkHandle, plCollisionWorldHandle worldHandle, plCollisionObjectHandle body);
+	extern  void plSetCollisionObjectTransform(  plCollisionSdkHandle sdkHandle,  plCollisionWorldHandle worldHandle, plCollisionObjectHandle objHandle, plVector3 startPosition,plQuaternion startOrientation);
 	
 	/* Collision Shape definition */
 	
-	extern  plCollisionShapeHandle plCreateSphereShape(plCollisionSdkHandle sdk, plReal radius);
-	extern  plCollisionShapeHandle plNewCapsuleShape(plCollisionSdkHandle sdk, plReal radius, plReal height);
-	extern  plCollisionShapeHandle plNewPlaneShape(plCollisionSdkHandle sdk, plReal planeNormalX, 
-												   plReal planeNormalY, 
-												   plReal planeNormalZ, 
-												   plReal planeConstant);
-	extern  plCollisionShapeHandle plNewCompoundShape(plCollisionSdkHandle sdk);
-	extern  void    plAddChildShape(plCollisionSdkHandle sdk, plCollisionShapeHandle compoundShape,plCollisionShapeHandle childShape, plVector3 childPos,plQuaternion childOrn);
+	extern  plCollisionShapeHandle plCreateSphereShape(plCollisionSdkHandle sdk, plCollisionWorldHandle worldHandle, plReal radius);
+	extern  plCollisionShapeHandle plNewCapsuleShape(plCollisionSdkHandle sdk,  plCollisionWorldHandle worldHandle, plReal radius, plReal height);
+	extern  plCollisionShapeHandle plNewPlaneShape(plCollisionSdkHandle sdk,  plCollisionWorldHandle worldHandle, 
+													plReal planeNormalX, 
+													plReal planeNormalY, 
+													plReal planeNormalZ, 
+													plReal planeConstant);
+	extern  plCollisionShapeHandle plNewCompoundShape(plCollisionSdkHandle sdk,plCollisionWorldHandle worldHandle);
+	extern  void plAddChildShape(plCollisionSdkHandle sdk, plCollisionShapeHandle compoundShape,plCollisionShapeHandle childShape, plVector3 childPos,plQuaternion childOrn);
 	
-	extern  void plDeleteShape(plCollisionSdkHandle collisionSdkHandle, plCollisionShapeHandle shape);
+	extern  void plDeleteShape(plCollisionSdkHandle collisionSdkHandle, plCollisionWorldHandle worldHandle, plCollisionShapeHandle shape);
 	
 	
 	
@@ -81,7 +86,8 @@ extern "C" {
 	};
 	
 	/* Collision Filtering */
-	typedef void(*plNearCallback)(plCollisionSdkHandle sdk, void* userData, plCollisionObjectHandle objA, plCollisionObjectHandle objB);
+	typedef void(*plNearCallback)(plCollisionSdkHandle sdkHandle, plCollisionWorldHandle worldHandle, void* userData,
+                                    plCollisionObjectHandle objA, plCollisionObjectHandle objB);
 	
 	
 	/* Collision Queries */
