@@ -51,7 +51,7 @@ extern "C" {
 	
 	/* Collision Object  */
 	
-	extern  plCollisionObjectHandle plCreateCollisionObject(  plCollisionSdkHandle sdkHandle,  void* user_data,  plCollisionShapeHandle cshape );
+	extern  plCollisionObjectHandle plCreateCollisionObject(  plCollisionSdkHandle sdkHandle,  void* user_data,  plCollisionShapeHandle cshape , plVector3 startPosition,plQuaternion startOrientation);
 	extern  void plDeleteCollisionObject(plCollisionSdkHandle sdkHandle, plCollisionObjectHandle body);
 	
 	
@@ -85,10 +85,10 @@ extern "C" {
 	
 	
 	/* Collision Queries */
-	extern int plCollide(plCollisionSdkHandle sdk, plCollisionObjectHandle colA, plCollisionObjectHandle colB, 
+	extern int plCollide(plCollisionSdkHandle sdkHandle, plCollisionWorldHandle worldHandle, plCollisionObjectHandle colA, plCollisionObjectHandle colB,
 						 lwContactPoint* pointsOut, int pointCapacity);
 	
-	extern void plWorldCollide(plCollisionWorldHandle world,
+	extern void plWorldCollide(plCollisionSdkHandle sdkHandle, plCollisionWorldHandle world,
 							   plNearCallback filter, void* userData);
 	
 	

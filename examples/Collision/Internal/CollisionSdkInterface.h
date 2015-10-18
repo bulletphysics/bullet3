@@ -22,8 +22,15 @@ public:
 	virtual void addCollisionObject(plCollisionWorldHandle world, plCollisionObjectHandle object)=0;
 	virtual  void removeCollisionObject(plCollisionWorldHandle world, plCollisionObjectHandle object)=0;
 	
-	virtual  plCollisionObjectHandle createCollisionObject(  void* user_data,  plCollisionShapeHandle cshape )=0;
+	virtual  plCollisionObjectHandle createCollisionObject(  void* user_data,  plCollisionShapeHandle cshape ,
+                                                        plVector3 startPosition,plQuaternion startOrientation )=0;
 	virtual  void deleteCollisionObject(plCollisionObjectHandle body)=0;
+    
+    virtual int collide(plCollisionWorldHandle world,plCollisionObjectHandle colA, plCollisionObjectHandle colB,
+                        lwContactPoint* pointsOut, int pointCapacity)=0;
+    
+    virtual void collideWorld( plCollisionWorldHandle world,
+                                plNearCallback filter, void* userData)=0;
 	
 
 };

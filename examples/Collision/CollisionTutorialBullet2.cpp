@@ -17,6 +17,13 @@
 #include "CollisionSdkC_Api.h"
 
 
+static int myCounter=0;
+
+void myNearCallback(plCollisionSdkHandle sdk, void* userData, plCollisionObjectHandle objA, plCollisionObjectHandle objB)
+{
+    myCounter++;
+}
+
 class CollisionTutorialBullet2 : public CommonExampleInterface
 {
     CommonGraphicsApp* m_app;
@@ -59,11 +66,29 @@ public:
 					float radius = 1.f;
 					plCollisionShapeHandle colShape = plCreateSphereShape(m_collisionSdkHandle, radius);
 					void* userData = 0;
-					plCollisionObjectHandle colObj = plCreateCollisionObject(m_collisionSdkHandle,userData,colShape);
-					plAddCollisionObject(m_collisionSdkHandle, m_collisionWorldHandle,colObj);
-					plRemoveCollisionObject(m_collisionSdkHandle,m_collisionWorldHandle,colObj);
-					plDeleteCollisionObject(m_collisionSdkHandle,colObj);
-					plDeleteShape(m_collisionSdkHandle,colShape);
+                    btAlignedObjectArray<plCollisionObjectHandle> colliders;
+                    
+                    for (int i=0;i<3;i++)
+                    {
+                        btVector3 pos(0,i*1,0);
+                        btQuaternion orn(0,0,0,1);
+                        plCollisionObjectHandle colObj = plCreateCollisionObject(m_collisionSdkHandle,userData,colShape,pos,orn);
+                        colliders.push_back(colObj);
+                        plAddCollisionObject(m_collisionSdkHandle, m_collisionWorldHandle,colObj);
+                    }
+                    lwContactPoint pointsOut[10];
+                    int pointCapacity=10;
+                    
+                    int numContacts = plCollide(m_collisionSdkHandle,m_collisionWorldHandle,colliders[0],colliders[1],pointsOut,pointCapacity);
+                    printf("numContacts = %d\n", numContacts);
+                    void* myUserPtr = 0;
+                    myCounter = 0;
+                    plWorldCollide(m_collisionSdkHandle,m_collisionWorldHandle,myNearCallback, myUserPtr);
+                    printf("myCounter=%d\n",myCounter);
+                    
+                    //plRemoveCollisionObject(m_collisionSdkHandle,m_collisionWorldHandle,colObj);
+					//plDeleteCollisionObject(m_collisionSdkHandle,colObj);
+					//plDeleteShape(m_collisionSdkHandle,colShape);
 				}
 				
 				/*

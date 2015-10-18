@@ -178,7 +178,7 @@ struct SendActualStateArgs
 enum EnumSensorTypes
 {
     SENSOR_FORCE_TORQUE=1,
-    SENSOR_IMU=1,
+    SENSOR_IMU=2,
 };
 
 struct CreateSensorArgs
