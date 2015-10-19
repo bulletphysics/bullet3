@@ -15,9 +15,6 @@ enum b3ShapeTypes
 	SHAPE_CONCAVE_TRIMESH=5,
 	SHAPE_COMPOUND_OF_CONVEX_HULLS=6,
 	SHAPE_SPHERE=7,
-	SHAPE_CAPSULE=8,
-	SHAPE_COMPOUND_OF_SPHERES=9,
-	SHAPE_COMPOUND_OF_CAPSULES=10,
 	MAX_NUM_SHAPE_TYPES,
 };
 
@@ -37,7 +34,11 @@ struct b3Collidable
 	};
 
 	int m_shapeType;
-	int m_shapeIndex;
+	union
+	{
+		int m_shapeIndex;
+		float m_height;
+	};
 };
 
 typedef struct b3GpuChildShape b3GpuChildShape_t;
@@ -46,9 +47,17 @@ struct b3GpuChildShape
 	b3Float4	m_childPosition;
 	b3Quat		m_childOrientation;
 	int			m_shapeIndex;//used for SHAPE_COMPOUND_OF_CONVEX_HULLS
-	float		m_radius;//used for SHAPE_COMPOUND_OF_SPHERES or SHAPE_COMPOUND_OF_CAPSULES
-	float		m_height;//used for SHAPE_COMPOUND_OF_CAPSULES
-	int			m_unused2;
+	union 
+	{
+		float		m_radius;//used for childshape of SHAPE_COMPOUND_OF_SPHERES or SHAPE_COMPOUND_OF_CAPSULES
+		int			m_numChildShapes;//used for compound shape
+	};
+	union 
+	{
+		float		m_height;//used for childshape of SHAPE_COMPOUND_OF_CAPSULES
+		int	m_collidableShapeIndex;
+	};
+	int			m_shapeType;
 };
 
 struct b3CompoundOverlappingPair

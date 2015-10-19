@@ -92,7 +92,7 @@ void Bullet2CollisionSdk::removeCollisionObject(plCollisionWorldHandle worldHand
 	} 
 }
 
-plCollisionObjectHandle Bullet2CollisionSdk::createCollisionObject(  void* userPointer, int userIndex,  plCollisionShapeHandle shapeHandle ,
+plCollisionObjectHandle Bullet2CollisionSdk::createCollisionObject(  plCollisionWorldHandle worldHandle, void* userPointer, int userIndex,  plCollisionShapeHandle shapeHandle ,
                                                        plVector3 startPosition,plQuaternion startOrientation )
 
 {
@@ -118,7 +118,7 @@ void Bullet2CollisionSdk::deleteCollisionObject(plCollisionObjectHandle bodyHand
 	btCollisionObject* colObj = (btCollisionObject*) bodyHandle;
 	delete colObj;
 }
-void Bullet2CollisionSdk::setCollisionObjectTransform(plCollisionObjectHandle bodyHandle,
+void Bullet2CollisionSdk::setCollisionObjectTransform(plCollisionWorldHandle /*worldHandle*/, plCollisionObjectHandle bodyHandle,
 												plVector3 position,plQuaternion orientation )
 {
 	btCollisionObject* colObj = (btCollisionObject*) bodyHandle;

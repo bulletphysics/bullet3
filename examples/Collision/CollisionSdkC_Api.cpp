@@ -60,7 +60,7 @@ void plDeleteShape(plCollisionSdkHandle collisionSdkHandle, plCollisionWorldHand
 plCollisionObjectHandle plCreateCollisionObject(  plCollisionSdkHandle collisionSdkHandle,  plCollisionWorldHandle worldHandle, void* userData, int userIndex,  plCollisionShapeHandle cshape ,plVector3 childPos,plQuaternion childOrn)
 {
 	CollisionSdkInterface* sdk = (CollisionSdkInterface*) collisionSdkHandle;
-	return sdk->createCollisionObject(userData, userIndex, cshape, childPos, childOrn);
+	return sdk->createCollisionObject(worldHandle, userData, userIndex, cshape, childPos, childOrn);
 	
 }
 
@@ -73,7 +73,7 @@ void plDeleteCollisionObject(plCollisionSdkHandle collisionSdkHandle, plCollisio
 void plSetCollisionObjectTransform(  plCollisionSdkHandle collisionSdkHandle,  plCollisionWorldHandle worldHandle, plCollisionObjectHandle objHandle, plVector3 position,plQuaternion orientation)
 {
 	CollisionSdkInterface* sdk = (CollisionSdkInterface*) collisionSdkHandle;
-	sdk->setCollisionObjectTransform(objHandle,position,orientation);
+	sdk->setCollisionObjectTransform(worldHandle,objHandle,position,orientation);
 }
 
 void plAddCollisionObject(plCollisionSdkHandle collisionSdkHandle, plCollisionWorldHandle world, plCollisionObjectHandle object)

@@ -22,10 +22,10 @@ public:
 	virtual void addCollisionObject(plCollisionWorldHandle world, plCollisionObjectHandle object)=0;
 	virtual  void removeCollisionObject(plCollisionWorldHandle world, plCollisionObjectHandle object)=0;
 	
-	virtual  plCollisionObjectHandle createCollisionObject(  void* userPointer, int userIndex,  plCollisionShapeHandle cshape ,
+	virtual  plCollisionObjectHandle createCollisionObject(  plCollisionWorldHandle worldHandle, void* userPointer, int userIndex,  plCollisionShapeHandle cshape ,
                                                         plVector3 startPosition,plQuaternion startOrientation )=0;
 	virtual  void deleteCollisionObject(plCollisionObjectHandle body)=0;
-	virtual void setCollisionObjectTransform(plCollisionObjectHandle body,
+	virtual void setCollisionObjectTransform(plCollisionWorldHandle world, plCollisionObjectHandle body,
 												plVector3 position,plQuaternion orientation )=0;
     
     virtual int collide(plCollisionWorldHandle world,plCollisionObjectHandle colA, plCollisionObjectHandle colB,
