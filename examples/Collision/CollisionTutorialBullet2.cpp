@@ -95,8 +95,8 @@ public:
                         btVector3 pos(0,btScalar(i*1.5),0);
                         btQuaternion orn(0,0,0,1);
                         
-						b3Vector4 color = b3MakeVector4(0,1,0,0.8);
-						b3Vector3 scaling = b3MakeVector3(radius,radius,radius);
+						btVector4 color(0,1,0,0.8);
+						btVector3 scaling(radius,radius,radius);
 						
 						int gfxIndex =  m_app->m_renderer->registerGraphicsInstance(sphereGfxShapeId,pos, orn,color,scaling);
 						
@@ -258,8 +258,8 @@ public:
 			for (int i=0;i<gTotalPoints;i++)
 			{
 				const lwContactPoint& contact = pointsOut[i];
-				b3Vector3 color=b3MakeVector3(1,1,0);
-				float lineWidth=3;
+				btVector3 color(1,1,0);
+				btScalar lineWidth=3;
 				if (contact.m_distance<0)
 				{
 					color.setValue(1,0,0);

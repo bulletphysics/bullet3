@@ -4,6 +4,7 @@
 
 #define PL_DECLARE_HANDLE(name) typedef struct name##__ { int unused; } *name
 
+
 #ifdef BT_USE_DOUBLE_PRECISION
 typedef double  plReal;
 #else

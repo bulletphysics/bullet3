@@ -4,6 +4,24 @@
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3Collidable.h"
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3ConvexPolyhedronData.h"
 
+//convert the opaque pointer to int
+struct RTB3_ColliderOpaque2Int
+{
+    union
+    {
+        plCollisionObjectHandle m_ptrValue;
+        int m_intValue;
+    };
+};
+struct RTB3_ShapeOpaque2Int
+{
+    union
+    {
+        plCollisionShapeHandle m_ptrValue;
+        int m_intValue;
+    };
+};
+
 enum RTB3ShapeTypes
 {
 	RTB3_SHAPE_SPHERE=0,
@@ -45,9 +63,9 @@ struct RealTimeBullet3CollisionSdkInternalData
 
 RealTimeBullet3CollisionSdk::RealTimeBullet3CollisionSdk()
 {
-	int szCol = sizeof(b3Collidable);
-	int szShap = sizeof(b3GpuChildShape);
-	int szComPair = sizeof(b3CompoundOverlappingPair);
+//	int szCol = sizeof(b3Collidable);
+//	int szShap = sizeof(b3GpuChildShape);
+//	int szComPair = sizeof(b3CompoundOverlappingPair);
 	m_internalData = new RealTimeBullet3CollisionSdkInternalData;
 }
 	
@@ -129,8 +147,10 @@ plCollisionObjectHandle RealTimeBullet3CollisionSdk::createCollisionObject(  plC
 		world->m_collidableOrientations[world->m_nextFreeCollidableIndex].setValue(startOrientation[0],startOrientation[1],startOrientation[2],startOrientation[3]);
 		world->m_collidableUserPointers[world->m_nextFreeCollidableIndex] = userPointer;
 		world->m_collidableUserIndices[world->m_nextFreeCollidableIndex] = userIndex;
-		int shapeIndex = (int)shapeHandle;
-		collidable.m_shapeIndex = shapeIndex;
+        RTB3_ShapeOpaque2Int caster;
+        caster.m_ptrValue = shapeHandle;
+        int shapeIndex = caster.m_intValue;
+        collidable.m_shapeIndex = shapeIndex;
 		b3GpuChildShape& shape = world->m_childShapes[shapeIndex];
 		collidable.m_shapeType = shape.m_shapeType;
 		collidable.m_numChildShapes = 1;
@@ -198,11 +218,17 @@ void detectCollisionDummy(RTB3CollisionWorld* world,int colA, int shapeIndexA, i
 	(void)contactCache;
 }
 
-void plVecCopy(b3Scalar* dst,const b3Vector3& src)
+void plVecCopy(float* dst,const b3Vector3& src)
 {
 	dst[0] = src.x;
 	dst[1] = src.y;
 	dst[2] = src.z;
+}
+void plVecCopy(double* dst,const b3Vector3& src)
+{
+    dst[0] = src.x;
+    dst[1] = src.y;
+    dst[2] = src.z;
 }
 
 void ComputeClosestPointsPlaneSphere(const b3Vector3& planeNormalWorld, b3Scalar planeConstant, const b3Vector3& spherePosWorld,b3Scalar sphereRadius,  plContactCache* contactCache) 
@@ -257,7 +283,7 @@ void detectCollisionSphereSphere(RTB3CollisionWorld* world,int colA, int shapeIn
 	b3Vector3 spherePosAWorld = trA(sphereALocalPos);
 	b3Transform trB(world->m_collidableOrientations[colB],world->m_collidablePositions[colB]);
 	const b3Vector3& sphereBLocalPos = world->m_childShapes[shapeIndexB].m_childPosition;
-	b3Vector3 spherePosBWorld = trB(sphereALocalPos);
+	b3Vector3 spherePosBWorld = trB(sphereBLocalPos);
 	ComputeClosestPointsSphereSphere(radiusA,spherePosAWorld,radiusB,spherePosBWorld,contactCache);
 }
 
@@ -297,24 +323,25 @@ int RealTimeBullet3CollisionSdk::collide(plCollisionWorldHandle worldHandle,plCo
                     lwContactPoint* pointsOutOrg, int pointCapacity)
 {
 	RTB3CollisionWorld* world = (RTB3CollisionWorld*) worldHandle;
-	int colAIndex = (int) colAHandle;
-	int colBIndex = (int) colBHandle;
-	const b3Collidable& colA = world->m_collidables[colAIndex];
+    RTB3_ColliderOpaque2Int caster;
+    caster.m_ptrValue =colAHandle;
+    int colAIndex = caster.m_intValue;
+    caster.m_ptrValue = colBHandle;
+    int colBIndex = caster.m_intValue;
+    const b3Collidable& colA = world->m_collidables[colAIndex];
 	const b3Collidable& colB = world->m_collidables[colBIndex];
 
 	plContactCache contactCache;
 	contactCache.pointCapacity = pointCapacity;
 	contactCache.pointsOut = pointsOutOrg;
 	contactCache.numAddedPoints = 0;
-	int remainingCapacity = pointCapacity;
-
+	
 	for (int i=0;i<colA.m_numChildShapes;i++)
 	{
 		for (int j=0;j<colB.m_numChildShapes;j++)
 		{
 			if (contactCache.numAddedPoints<pointCapacity)
 			{
-				lwContactPoint* curPointsOut = &pointsOutOrg[contactCache.numAddedPoints];
 				funcTbl_detectCollision[world->m_childShapes[colA.m_shapeIndex+i].m_shapeType]
 									   [world->m_childShapes[colB.m_shapeIndex+j].m_shapeType](world,colAIndex,colA.m_shapeIndex+i,colBIndex,colB.m_shapeIndex+j,&contactCache);
 			}
@@ -324,7 +351,7 @@ int RealTimeBullet3CollisionSdk::collide(plCollisionWorldHandle worldHandle,plCo
 
 	return 0;
 }
-	
+
 void RealTimeBullet3CollisionSdk::collideWorld( plCollisionWorldHandle worldHandle,
                             plNearCallback filter, void* userData)
 {
@@ -335,9 +362,11 @@ void RealTimeBullet3CollisionSdk::collideWorld( plCollisionWorldHandle worldHand
 		{
 			for (int j=i+1;j<world->m_nextFreeCollidableIndex;j++)
 			{
-				plCollisionObjectHandle colA = (plCollisionObjectHandle)i;
-				plCollisionObjectHandle colB = (plCollisionObjectHandle)j;
-				filter((plCollisionSdkHandle)this,worldHandle,userData,colA,colB);
+                RTB3_ColliderOpaque2Int caster; caster.m_intValue = i;
+                plCollisionObjectHandle colA = caster.m_ptrValue;
+                caster.m_intValue = j;
+                plCollisionObjectHandle colB = caster.m_ptrValue;
+                filter((plCollisionSdkHandle)this,worldHandle,userData,colA,colB);
 			}
 		}
 	}

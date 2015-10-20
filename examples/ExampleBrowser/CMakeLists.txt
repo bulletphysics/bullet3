@@ -38,6 +38,8 @@ SET(App_ExampleBrowser_SRCS
 	../Collision/Internal/Bullet2CollisionSdk.cpp
 	../Collision/Internal/Bullet2CollisionSdk.h
 	../Collision/Internal/CollisionSdkInterface.h
+	../Collision/Internal/RealTimeBullet3CollisionSdk.cpp
+	../Collision/Internal/RealTimeBullet3CollisionSdk.h
 	../GyroscopicDemo/GyroscopicSetup.cpp
 	../GyroscopicDemo/GyroscopicSetup.h
 	../Planar2D/Planar2D.cpp
