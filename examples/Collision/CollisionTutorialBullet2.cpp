@@ -17,6 +17,28 @@
 #include "CollisionSdkC_Api.h"
 
 
+///Not Invented Here link reminder http://www.joelonsoftware.com/articles/fog0000000007.html
+
+///todo: use the 'userData' to prevent this use of global variables
+static int gTotalPoints = 0;
+lwContactPoint pointsOut[10];
+int pointCapacity=2;
+
+
+void myNearCallback(plCollisionSdkHandle sdkHandle, plCollisionWorldHandle worldHandle, void* userData, plCollisionObjectHandle objA, plCollisionObjectHandle objB)
+{
+	int remainingCapacity = pointCapacity-gTotalPoints;
+	btAssert(remainingCapacity>=0);
+
+	if (remainingCapacity>0)
+	{
+		lwContactPoint* pointPtr = &pointsOut[gTotalPoints];
+		int numNewPoints = plCollide(sdkHandle, worldHandle, objA,objB,pointPtr,remainingCapacity);
+		btAssert(numNewPoints <= remainingCapacity);
+		gTotalPoints+=numNewPoints;
+	}
+}
+
 class CollisionTutorialBullet2 : public CommonExampleInterface
 {
     CommonGraphicsApp* m_app;
@@ -37,6 +59,7 @@ public:
 	m_guiHelper(guiHelper),
 	m_tutorialIndex(tutorialIndex),
 	m_collisionSdkHandle(0),
+	m_collisionWorldHandle(0),
 	m_stage(0),
 	m_counter(0),
 	m_timeSeriesCanvas0(0)
@@ -51,19 +74,47 @@ public:
 			case TUT_SPHERE_SPHERE:
 			{
 				numBodies=10;
-				m_collisionSdkHandle = plCreateBullet2CollisionSdk();
+				//m_collisionSdkHandle = plCreateBullet2CollisionSdk();
+				m_collisionSdkHandle = plCreateRealTimeBullet3CollisionSdk();
 				if (m_collisionSdkHandle)
 				{
-					m_collisionWorldHandle = plCreateCollisionWorld(m_collisionSdkHandle);
+					int maxNumObjsCapacity=32;
+					int maxNumShapesCapacity=1024;
+					int maxNumPairsCapacity=16384;
+
+					m_collisionWorldHandle = plCreateCollisionWorld(m_collisionSdkHandle,maxNumObjsCapacity,maxNumShapesCapacity,maxNumPairsCapacity);
 					//create objects, do query etc
 					float radius = 1.f;
-					plCollisionShapeHandle colShape = plCreateSphereShape(m_collisionSdkHandle, radius);
-					void* userData = 0;
-					plCollisionObjectHandle colObj = plCreateCollisionObject(m_collisionSdkHandle,userData,colShape);
-					plAddCollisionObject(m_collisionSdkHandle, m_collisionWorldHandle,colObj);
-					plRemoveCollisionObject(m_collisionSdkHandle,m_collisionWorldHandle,colObj);
-					plDeleteCollisionObject(m_collisionSdkHandle,colObj);
-					plDeleteShape(m_collisionSdkHandle,colShape);
+					plCollisionShapeHandle colShape = plCreateSphereShape(m_collisionSdkHandle, m_collisionWorldHandle,radius);
+					void* userPointer = 0;
+                    btAlignedObjectArray<plCollisionObjectHandle> colliders;
+                    int sphereGfxShapeId = m_app->registerGraphicsUnitSphereShape(SPHERE_LOD_HIGH);//, textureIndex);
+
+                    for (int i=0;i<3;i++)
+                    {
+                        btVector3 pos(0,btScalar(i*1.5),0);
+                        btQuaternion orn(0,0,0,1);
+                        
+						btVector4 color(0,1,0,0.8);
+						btVector3 scaling(radius,radius,radius);
+						
+						int gfxIndex =  m_app->m_renderer->registerGraphicsInstance(sphereGfxShapeId,pos, orn,color,scaling);
+						
+						plCollisionObjectHandle colObj = plCreateCollisionObject(m_collisionSdkHandle,m_collisionWorldHandle,userPointer, gfxIndex,colShape,pos,orn);
+                        colliders.push_back(colObj);
+                        plAddCollisionObject(m_collisionSdkHandle, m_collisionWorldHandle,colObj);
+                    }
+
+                    int numContacts = plCollide(m_collisionSdkHandle,m_collisionWorldHandle,colliders[0],colliders[1],pointsOut,pointCapacity);
+                    printf("numContacts = %d\n", numContacts);
+                    void* myUserPtr = 0;
+                    gTotalPoints = 0;
+                    plWorldCollide(m_collisionSdkHandle,m_collisionWorldHandle,myNearCallback, myUserPtr);
+                    printf("total points=%d\n",gTotalPoints);
+                    
+                    //plRemoveCollisionObject(m_collisionSdkHandle,m_collisionWorldHandle,colObj);
+					//plDeleteCollisionObject(m_collisionSdkHandle,colObj);
+					//plDeleteShape(m_collisionSdkHandle,colShape);
 				}
 				
 				/*
@@ -130,20 +181,6 @@ public:
 				}
 			}
 			
-			//            int boxId = m_app->registerCubeShape(1,1,1,textureIndex);
-			int boxId = m_app->registerGraphicsUnitSphereShape(SPHERE_LOD_HIGH);//, textureIndex);
-			b3Vector4 color = b3MakeVector4(0,1,0,0.8);
-			b3Vector3 scaling = b3MakeVector3(1,1,1);
-			float pos[3] = {1,0,0};
-			float orn[4] = {0,0,0,1};
-			int gfxIndex =  m_app->m_renderer->registerGraphicsInstance(boxId,pos, orn,color,scaling);
-			
-			
-			//	m_bodies[i]->m_graphicsIndex = m_app->m_renderer->registerGraphicsInstance(boxId,m_bodies[i]->m_worldPose.m_position, m_bodies[i]->m_worldPose.m_orientation,color,scaling);
-			
-				
-				//m_app->m_renderer->writeSingleInstanceTransformToCPU(m_bodies[i]->m_worldPose.m_position, m_bodies[i]->m_worldPose.m_orientation, m_bodies[i]->m_graphicsIndex);
-		
 		}
 		
 		m_app->m_renderer->writeTransforms();
@@ -207,23 +244,30 @@ public:
     }
     virtual void	renderScene()
     {
-		m_app->m_renderer->renderScene();
-		m_app->drawText3D("X",1,0,0,1);
-		m_app->drawText3D("Y",0,1,0,1);
-		m_app->drawText3D("Z",0,0,1,1);
-
-		/*for (int i=0;i<m_contactPoints.size();i++)
+		if (m_app && m_app->m_renderer)
 		{
-			const LWContactPoint& contact = m_contactPoints[i];
-			b3Vector3 color=b3MakeVector3(1,1,0);
-			float lineWidth=3;
-			if (contact.m_distance<0)
+			m_app->m_renderer->renderScene();
+
+			m_app->m_renderer->clearZBuffer();
+
+			m_app->drawText3D("X",1,0,0,1);
+			m_app->drawText3D("Y",0,1,0,1);
+			m_app->drawText3D("Z",0,0,1,1);
+
+
+			for (int i=0;i<gTotalPoints;i++)
 			{
-				color.setValue(1,0,0);
+				const lwContactPoint& contact = pointsOut[i];
+				btVector3 color(1,1,0);
+				btScalar lineWidth=3;
+				if (contact.m_distance<0)
+				{
+					color.setValue(1,0,0);
+				}
+				m_app->m_renderer->drawLine(contact.m_ptOnAWorld,contact.m_ptOnBWorld,color,lineWidth);
 			}
-			m_app->m_renderer->drawLine(contact.m_ptOnAWorld,contact.m_ptOnBWorld,color,lineWidth);
 		}
-		 */
+		
     }
 
 	

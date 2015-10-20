@@ -1,24 +1,41 @@
 #include "CollisionSdkC_Api.h"
 #include "Internal/CollisionSdkInterface.h"
 #include "Internal/Bullet2CollisionSdk.h"
+#include "Internal/RealTimeBullet3CollisionSdk.h"
 
 	/* Collision World */
 	
-plCollisionWorldHandle plCreateCollisionWorld(plCollisionSdkHandle collisionSdkHandle)
+plCollisionWorldHandle plCreateCollisionWorld(plCollisionSdkHandle collisionSdkHandle, int maxNumObjsCapacity, int maxNumShapesCapacity, int maxNumPairsCapacity)
 {
 	CollisionSdkInterface* sdk = (CollisionSdkInterface*) collisionSdkHandle;
-	return sdk->createCollisionWorld();
+	return sdk->createCollisionWorld( maxNumObjsCapacity, maxNumShapesCapacity, maxNumPairsCapacity);
 }
 
 void           plDeleteCollisionWorld(plCollisionSdkHandle collisionSdkHandle, plCollisionWorldHandle worldHandle)
 {
 	CollisionSdkInterface* sdk = (CollisionSdkInterface*) collisionSdkHandle;
-	sdk->deleteCollisionWorld(worldHandle);
+	if (sdk && worldHandle)
+	{
+		sdk->deleteCollisionWorld(worldHandle);
+	}
 }
 
 plCollisionSdkHandle plCreateBullet2CollisionSdk()
 {
+#ifndef DISABLE_BULLET2_COLLISION_SDK
 	return Bullet2CollisionSdk::createBullet2SdkHandle();
+#else
+	return 0;
+#endif //DISABLE_BULLET2_COLLISION_SDK
+}
+
+plCollisionSdkHandle plCreateRealTimeBullet3CollisionSdk()
+{
+#ifndef DISABLE_REAL_TIME_BULLET3_COLLISION_SDK
+	return RealTimeBullet3CollisionSdk::createRealTimeBullet3CollisionSdkHandle();
+#else
+	return 0;
+#endif
 }
 
 void plDeleteCollisionSdk(plCollisionSdkHandle collisionSdkHandle)
@@ -27,30 +44,36 @@ void plDeleteCollisionSdk(plCollisionSdkHandle collisionSdkHandle)
 	delete sdk;
 }
 
-plCollisionShapeHandle plCreateSphereShape(plCollisionSdkHandle collisionSdkHandle, plReal radius)
+plCollisionShapeHandle plCreateSphereShape(plCollisionSdkHandle collisionSdkHandle, plCollisionWorldHandle worldHandle, plReal radius)
 {
 	CollisionSdkInterface* sdk = (CollisionSdkInterface*) collisionSdkHandle;
-	return sdk->createSphereShape(radius);
+	return sdk->createSphereShape(worldHandle,radius);
 	
 }
 
-void plDeleteShape(plCollisionSdkHandle collisionSdkHandle, plCollisionShapeHandle shapeHandle)
+void plDeleteShape(plCollisionSdkHandle collisionSdkHandle, plCollisionWorldHandle worldHandle, plCollisionShapeHandle shapeHandle)
 {
 	CollisionSdkInterface* sdk = (CollisionSdkInterface*) collisionSdkHandle;
-	sdk->deleteShape(shapeHandle);
+	sdk->deleteShape(worldHandle,shapeHandle);
 }
 
-plCollisionObjectHandle plCreateCollisionObject(  plCollisionSdkHandle collisionSdkHandle,  void* user_data,  plCollisionShapeHandle cshape )
+plCollisionObjectHandle plCreateCollisionObject(  plCollisionSdkHandle collisionSdkHandle,  plCollisionWorldHandle worldHandle, void* userData, int userIndex,  plCollisionShapeHandle cshape ,plVector3 childPos,plQuaternion childOrn)
 {
 	CollisionSdkInterface* sdk = (CollisionSdkInterface*) collisionSdkHandle;
-	return sdk->createCollisionObject(user_data, cshape);
+	return sdk->createCollisionObject(worldHandle, userData, userIndex, cshape, childPos, childOrn);
 	
 }
 
-void plDeleteCollisionObject(plCollisionSdkHandle collisionSdkHandle, plCollisionObjectHandle body)
+void plDeleteCollisionObject(plCollisionSdkHandle collisionSdkHandle, plCollisionWorldHandle worldHandle, plCollisionObjectHandle body)
 {
 	CollisionSdkInterface* sdk = (CollisionSdkInterface*) collisionSdkHandle;
 	sdk->deleteCollisionObject(body);
+}
+
+void plSetCollisionObjectTransform(  plCollisionSdkHandle collisionSdkHandle,  plCollisionWorldHandle worldHandle, plCollisionObjectHandle objHandle, plVector3 position,plQuaternion orientation)
+{
+	CollisionSdkInterface* sdk = (CollisionSdkInterface*) collisionSdkHandle;
+	sdk->setCollisionObjectTransform(worldHandle,objHandle,position,orientation);
 }
 
 void plAddCollisionObject(plCollisionSdkHandle collisionSdkHandle, plCollisionWorldHandle world, plCollisionObjectHandle object)
@@ -64,63 +87,17 @@ void plRemoveCollisionObject(plCollisionSdkHandle collisionSdkHandle, plCollisio
 	sdk->removeCollisionObject(world,object);
 }
 
+/* Collision Queries */
+int plCollide(plCollisionSdkHandle collisionSdkHandle, plCollisionWorldHandle worldHandle, plCollisionObjectHandle colA, plCollisionObjectHandle colB,
+                     lwContactPoint* pointsOut, int pointCapacity)
+{
+    CollisionSdkInterface* sdk = (CollisionSdkInterface*) collisionSdkHandle;
+    return sdk->collide(worldHandle, colA,colB,pointsOut,pointCapacity);
+}
 
-//plCollisionSdkHandle plCreateRealTimeBullet3CollisionSdk();
-//plCollisionSdkHandle plCreateCustomCollisionSdk();
-
-
-#if 0
-	extern  void           plDeleteCollisionWorld(plCollisionWorldHandle world);
-	
-	
-	extern  void plAddCollisionObject(plCollisionWorldHandle world, plCollisionObjectHandle object);
-	extern  void plRemoveCollisionObject(plCollisionWorldHandle world, plCollisionObjectHandle object);
-	
-	
-	/* Collision Object  */
-	
-	extern  plCollisionObjectHandle plCreateCollisionObject(  plCollisionSdkHandle sdk,  void* user_data,  plCollisionShapeHandle cshape );
-	extern  void plDeleteCollisionObject(plCollisionSdkHandle sdk, plCollisionObjectHandle body);
-	
-	
-	/* Collision Shape definition */
-	
-	extern  plCollisionShapeHandle plNewSphereShape(plCollisionSdkHandle sdk, plReal radius);
-	extern  plCollisionShapeHandle plNewCapsuleShape(plCollisionSdkHandle sdk, plReal radius, plReal height);
-	extern  plCollisionShapeHandle plNewPlaneShape(plCollisionSdkHandle sdk, plReal planeNormalX, 
-												   plReal planeNormalY, 
-												   plReal planeNormalZ, 
-												   plReal planeConstant);
-	extern  plCollisionShapeHandle plNewCompoundShape(plCollisionSdkHandle sdk);
-	extern  void    plAddChildShape(plCollisionShapeHandle compoundShape,plCollisionShapeHandle childShape, plVector3 childPos,plQuaternion childOrn);
-	
-	extern  void plDeleteShape(plCollisionShapeHandle shape);
-	
-	
-	
-	/* Contact Results */
-	
-	struct lwContactPoint
-	{
-		plVector3 m_ptOnAWorld;
-		plVector3 m_ptOnBWorld;
-		plVector3 m_normalOnB;
-		plReal  m_distance;
-	};
-	
-	/* Collision Filtering */
-	typedef void(*plNearCallback)(plCollisionSdkHandle sdk, void* userData, plCollisionObjectHandle objA, plCollisionObjectHandle objB);
-	
-	
-	/* Collision Queries */
-	extern int plCollide(plCollisionSdkHandle sdk, plCollisionObjectHandle colA, plCollisionObjectHandle colB, 
-						 lwContactPoint* pointsOut, int pointCapacity);
-	
-	extern void plWorldCollide(plCollisionWorldHandle world,
-							   plNearCallback filter, void* userData);
-	
-	
-
-
-#endif
-
+void plWorldCollide(plCollisionSdkHandle collisionSdkHandle, plCollisionWorldHandle world,
+                           plNearCallback filter, void* userData)
+{
+    CollisionSdkInterface* sdk = (CollisionSdkInterface*) collisionSdkHandle;
+    sdk->collideWorld(world,filter,userData);
+}

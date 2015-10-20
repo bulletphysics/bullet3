@@ -127,6 +127,7 @@ public:
     {
         m_enableBlend = blend;
     }
+	virtual void clearZBuffer();
 
 };
 
