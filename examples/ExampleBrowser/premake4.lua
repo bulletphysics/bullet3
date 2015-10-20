@@ -67,6 +67,8 @@
 		"../MultiThreading/b3ThreadSupportInterface.cpp",
 		"../BasicDemo/BasicExample.*",
 		"../Tutorial/*",
+		"../Collision/*",
+		"../Collision/Internal/*",
 		"../Benchmarks/*",
 		"../CommonInterfaces/*",
 		"../ForkLift/ForkLiftDemo.*",

@@ -65,6 +65,12 @@ struct SetJointFeedbackArgs
 	int m_isEnabled;
 };
 
+enum EnumInitPoseFlags
+{
+    INIT_POSE_HAS_INITIAL_POSITION=1,
+    INIT_POSE_HAS_INITIAL_ORIENTATION=2,
+    INIT_POSE_HAS_JOINT_STATE=4
+};
 
 
 ///InitPoseArgs is mainly to initialize (teleport) the robot in a particular position
@@ -172,7 +178,7 @@ struct SendActualStateArgs
 enum EnumSensorTypes
 {
     SENSOR_FORCE_TORQUE=1,
-    SENSOR_IMU=1,
+    SENSOR_IMU=2,
 };
 
 struct CreateSensorArgs

@@ -34,19 +34,30 @@ struct b3Collidable
 	};
 
 	int m_shapeType;
-	int m_shapeIndex;
+	union
+	{
+		int m_shapeIndex;
+		float m_height;
+	};
 };
-
 
 typedef struct b3GpuChildShape b3GpuChildShape_t;
 struct b3GpuChildShape
 {
 	b3Float4	m_childPosition;
 	b3Quat		m_childOrientation;
-	int m_shapeIndex;
-	int m_unused0;
-	int m_unused1;
-	int m_unused2;
+	int			m_shapeIndex;//used for SHAPE_COMPOUND_OF_CONVEX_HULLS
+	union 
+	{
+		float		m_radius;//used for childshape of SHAPE_COMPOUND_OF_SPHERES or SHAPE_COMPOUND_OF_CAPSULES
+		int			m_numChildShapes;//used for compound shape
+	};
+	union 
+	{
+		float		m_height;//used for childshape of SHAPE_COMPOUND_OF_CAPSULES
+		int	m_collidableShapeIndex;
+	};
+	int			m_shapeType;
 };
 
 struct b3CompoundOverlappingPair
@@ -57,4 +68,5 @@ struct b3CompoundOverlappingPair
 	int m_childShapeIndexA;
 	int m_childShapeIndexB;
 };
+
 #endif //B3_COLLIDABLE_H

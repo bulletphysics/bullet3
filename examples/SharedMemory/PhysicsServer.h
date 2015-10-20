@@ -25,7 +25,7 @@ protected:
 	void	releaseSharedMemory();
 	
 	bool loadUrdf(const char* fileName, const class btVector3& pos, const class btQuaternion& orn,
-                             bool useMultiBody, bool useFixedBase);
+                             bool useMultiBody, bool useFixedBase, int* bodyUniqueId);
 
 public:
 	PhysicsServerSharedMemory();

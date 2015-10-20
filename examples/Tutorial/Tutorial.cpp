@@ -30,6 +30,8 @@ enum LWEnumCollisionTypes
 
 struct LWPlane
 {
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+
 	b3Vector3   m_normal;
 	btScalar    m_planeConstant;
 };
@@ -47,6 +49,7 @@ struct LWSphere
 
 struct LWBox
 {
+	BT_DECLARE_ALIGNED_ALLOCATOR();
 	b3Vector3 m_halfExtents;
 };
 
@@ -64,6 +67,8 @@ struct LWCollisionShape
 
 struct LWPose
 {
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+
 	b3Vector3		m_position;
 	b3Quaternion	m_orientation;
 	LWPose()
@@ -119,6 +124,8 @@ enum LWRIGIDBODY_FLAGS
 };
 struct LWRigidBody
 {
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+
 	LWPose	m_worldPose;
 	b3Vector3 m_linearVelocity;
 	b3Vector3 m_angularVelocity;

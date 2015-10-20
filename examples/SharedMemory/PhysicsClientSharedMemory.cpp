@@ -30,12 +30,17 @@ TmpFloat3 CreateTmpFloat3(float x, float y, float z) {
     return tmp;
 }
 
+struct BodyJointInfoCache
+{
+	btAlignedObjectArray<b3JointInfo> m_jointInfo;
+};
+
 struct PhysicsClientSharedMemoryInternalData {
     SharedMemoryInterface* m_sharedMemory;
     SharedMemoryBlock* m_testBlock1;
+   
+	btHashMap<btHashInt,BodyJointInfoCache*> m_bodyJointMap;
 
-    btAlignedObjectArray<bParse::btBulletFile*> m_robotMultiBodyData;
-    btAlignedObjectArray<b3JointInfo> m_jointInfo;
     btAlignedObjectArray<TmpFloat3> m_debugLinesFrom;
     btAlignedObjectArray<TmpFloat3> m_debugLinesTo;
     btAlignedObjectArray<TmpFloat3> m_debugLinesColor;
@@ -66,10 +71,29 @@ struct PhysicsClientSharedMemoryInternalData {
     bool canSubmitCommand() const;
 };
 
-int PhysicsClientSharedMemory::getNumJoints() const { return m_data->m_jointInfo.size(); }
+int PhysicsClientSharedMemory::getNumJoints(int bodyIndex) const 
+{
+	BodyJointInfoCache** bodyJointsPtr = m_data->m_bodyJointMap[bodyIndex];
+	if (bodyJointsPtr && *bodyJointsPtr)
+	{
+		BodyJointInfoCache* bodyJoints = *bodyJointsPtr;
 
-void PhysicsClientSharedMemory::getJointInfo(int index, b3JointInfo& info) const {
-    info = m_data->m_jointInfo[index];
+		return bodyJoints->m_jointInfo.size(); 
+	}
+	btAssert(0);
+	return 0;
+	
+}
+
+void PhysicsClientSharedMemory::getJointInfo(int bodyIndex, int jointIndex, b3JointInfo& info) const 
+{
+	BodyJointInfoCache** bodyJointsPtr = m_data->m_bodyJointMap[bodyIndex];
+	if (bodyJointsPtr && *bodyJointsPtr)
+	{
+		BodyJointInfoCache* bodyJoints = *bodyJointsPtr;
+		info = bodyJoints->m_jointInfo[jointIndex];
+	}
+    
 }
 
 PhysicsClientSharedMemory::PhysicsClientSharedMemory()
@@ -169,7 +193,10 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                         serverCmd.m_dataStreamArguments.m_streamChunkLength);
                     bf->setFileDNAisMemoryDNA();
                     bf->parse(false);
-                    m_data->m_robotMultiBodyData.push_back(bf);
+					int bodyIndex = serverCmd.m_dataStreamArguments.m_bodyUniqueId;
+
+					BodyJointInfoCache* bodyJoints = new BodyJointInfoCache;
+                    m_data->m_bodyJointMap.insert(bodyIndex,bodyJoints);
 
                     for (int i = 0; i < bf->m_multiBodies.size(); i++) {
                         int flag = bf->getFlags();
@@ -208,13 +235,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                                                      mb->m_links[link].m_jointName);
                                         }
                                         info.m_jointName = mb->m_links[link].m_jointName;
-                                        info.m_jointType = mb->m_links[link].m_jointType;
                                     }
+
+									info.m_jointType = mb->m_links[link].m_jointType;
+
                                     if ((mb->m_links[link].m_jointType == eRevoluteType) ||
                                         (mb->m_links[link].m_jointType == ePrismaticType)) {
                                         info.m_flags |= JOINT_HAS_MOTORIZED_POWER;
                                     }
-                                    m_data->m_jointInfo.push_back(info);
+                                    bodyJoints->m_jointInfo.push_back(info);
                                 }
                                 qOffset += mb->m_links[link].m_posVarCount;
                                 uOffset += mb->m_links[link].m_dofCount;
@@ -251,13 +280,13 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                                                      mb->m_links[link].m_jointName);
                                         }
                                         info.m_jointName = mb->m_links[link].m_jointName;
-                                        info.m_jointType = mb->m_links[link].m_jointType;
                                     }
+									info.m_jointType = mb->m_links[link].m_jointType;
                                     if ((mb->m_links[link].m_jointType == eRevoluteType) ||
                                         (mb->m_links[link].m_jointType == ePrismaticType)) {
                                         info.m_flags |= JOINT_HAS_MOTORIZED_POWER;
                                     }
-                                    m_data->m_jointInfo.push_back(info);
+                                    bodyJoints->m_jointInfo.push_back(info);
                                 }
                                 qOffset += mb->m_links[link].m_posVarCount;
                                 uOffset += mb->m_links[link].m_dofCount;
@@ -367,12 +396,16 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 if (m_data->m_verboseOutput) {
                     b3Printf("CMD_RESET_SIMULATION_COMPLETED clean data\n");
                 }
-                for (int i = 0; i < m_data->m_robotMultiBodyData.size(); i++) {
-                    delete m_data->m_robotMultiBodyData[i];
-                }
-                m_data->m_robotMultiBodyData.clear();
-
-                m_data->m_jointInfo.clear();
+                for (int i=0;i<m_data->m_bodyJointMap.size();i++)
+				{
+					BodyJointInfoCache** bodyJointsPtr = m_data->m_bodyJointMap.getAtIndex(i);
+					if (bodyJointsPtr && *bodyJointsPtr)
+					{
+						delete (*bodyJointsPtr);
+					}
+				}
+				m_data->m_bodyJointMap.clear();
+                
                 break;
             }
             case CMD_DEBUG_LINES_COMPLETED: {

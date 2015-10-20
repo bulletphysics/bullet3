@@ -193,7 +193,7 @@ struct btConnectivityProcessor : public btTriangleCallback
 				btScalar len2 = calculatedEdge.length2();
 
 				btScalar correctedAngle(0);
-				btVector3 calculatedNormalB = normalA;
+				//btVector3 calculatedNormalB = normalA;
 				bool isConvex = false;
 
 				if (len2<m_triangleInfoMap->m_planarEpsilon)

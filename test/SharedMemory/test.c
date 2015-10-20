@@ -1,5 +1,6 @@
 //#include "SharedMemoryCommands.h"
 #include "PhysicsClientC_API.h"
+#include "SharedMemoryPublic.h"
 #include "Bullet3Common/b3Logging.h"
 #include <string.h>
 
@@ -24,7 +25,8 @@ int main(int argc, char* argv[])
 
 	
 	b3PhysicsClientHandle sm;
-	
+	int bodyIndex = -1;
+
 	printf("hello world\n");
 
 	sm = b3ConnectSharedMemory(SHARED_MEMORY_KEY);
@@ -37,62 +39,68 @@ int main(int argc, char* argv[])
 		b3SubmitClientCommandAndWaitStatus(sm, command);
         }
 
+		
         {
-            b3SharedMemoryCommandHandle command = b3LoadUrdfCommandInit(sm, urdfFileName);
+            b3SharedMemoryStatusHandle statusHandle;
+			b3SharedMemoryCommandHandle command = b3LoadUrdfCommandInit(sm, urdfFileName);
+			
             //setting the initial position, orientation and other arguments are optional
             startPosX =2;
             startPosY =3;
             startPosZ = 1;
             ret = b3LoadUrdfCommandSetStartPosition(command, startPosX,startPosY,startPosZ);
-            b3SubmitClientCommandAndWaitStatus(sm, command);
-        }
-        
-		numJoints = b3GetNumJoints(sm);
-        for (i=0;i<numJoints;i++)
-        {
-            struct b3JointInfo jointInfo;
-            b3GetJointInfo(sm,i,&jointInfo);
-            
-            printf("jointInfo[%d].m_jointName=%s\n",i,jointInfo.m_jointName);
-            //pick the IMU link index based on torso name
-            if (strstr(jointInfo.m_linkName,"base_link"))
-            {
-                imuLinkIndex = i;
-            }
-            
-            //pick the joint index based on joint name
-            if (strstr(jointInfo.m_jointName,"base_to_left_leg"))
-            {
-                sensorJointIndexLeft = i;
-            }
-            if (strstr(jointInfo.m_jointName,"base_to_right_leg"))
-            {
-                sensorJointIndexRight = i;
-            }
-            
-        }
-        
-        if ((sensorJointIndexLeft>=0) || (sensorJointIndexRight>=0))
-        {
-            b3SharedMemoryCommandHandle command = b3CreateSensorCommandInit(sm);
-            b3SharedMemoryStatusHandle statusHandle;
-            if (imuLinkIndex>=0)
-            {
-				 ret = b3CreateSensorEnableIMUForLink(command, imuLinkIndex, 1);
-            }
-            
-            if (sensorJointIndexLeft>=0)
-            {
-			  ret = b3CreateSensorEnable6DofJointForceTorqueSensor(command, sensorJointIndexLeft, 1);
-            }
-            if(sensorJointIndexRight>=0)
-            {
-                ret = b3CreateSensorEnable6DofJointForceTorqueSensor(command, sensorJointIndexRight, 1);
-            }
             statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
-            
+			bodyIndex = b3GetStatusBodyIndex(statusHandle);
         }
         
+		if (bodyIndex>=0)
+		{
+			numJoints = b3GetNumJoints(sm,bodyIndex);
+			for (i=0;i<numJoints;i++)
+			{
+				struct b3JointInfo jointInfo;
+				b3GetJointInfo(sm,bodyIndex, i,&jointInfo);
+            
+				printf("jointInfo[%d].m_jointName=%s\n",i,jointInfo.m_jointName);
+				//pick the IMU link index based on torso name
+				if (strstr(jointInfo.m_linkName,"base_link"))
+				{
+					imuLinkIndex = i;
+				}
+            
+				//pick the joint index based on joint name
+				if (strstr(jointInfo.m_jointName,"base_to_left_leg"))
+				{
+					sensorJointIndexLeft = i;
+				}
+				if (strstr(jointInfo.m_jointName,"base_to_right_leg"))
+				{
+					sensorJointIndexRight = i;
+				}
+            
+			}
+        
+			if ((sensorJointIndexLeft>=0) || (sensorJointIndexRight>=0))
+			{
+				b3SharedMemoryCommandHandle command = b3CreateSensorCommandInit(sm);
+				b3SharedMemoryStatusHandle statusHandle;
+				if (imuLinkIndex>=0)
+				{
+					 ret = b3CreateSensorEnableIMUForLink(command, imuLinkIndex, 1);
+				}
+            
+				if (sensorJointIndexLeft>=0)
+				{
+				  ret = b3CreateSensorEnable6DofJointForceTorqueSensor(command, sensorJointIndexLeft, 1);
+				}
+				if(sensorJointIndexRight>=0)
+				{
+					ret = b3CreateSensorEnable6DofJointForceTorqueSensor(command, sensorJointIndexRight, 1);
+				}
+				statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+            
+			}
+		}
         
         {
             b3SharedMemoryStatusHandle statusHandle;
@@ -124,6 +132,7 @@ int main(int argc, char* argv[])
         }
         
         {
+#if 0
             b3SharedMemoryStatusHandle statusHandle;
              b3SharedMemoryCommandHandle command = b3JointControlCommandInit( sm, CONTROL_MODE_VELOCITY);
             for ( dofIndex=0;dofIndex<dofCount;dofIndex++)
@@ -132,7 +141,7 @@ int main(int argc, char* argv[])
                 b3JointControlSetMaximumForce(command,dofIndex,100);
             }
              statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
-
+#endif
         }
         ///perform some simulation steps for testing
         for ( i=0;i<100;i++)
@@ -145,23 +154,32 @@ int main(int argc, char* argv[])
         }
         
         
-#if 0
+
         if (sensorJointIndexLeft>=0)
         {
+
+			struct  b3JointSensorState info;
+			
+			b3GetJointInfo(sm,bodyIndex,sensorJointIndexLeft,&info);
             b3Printf("Sensor for joint [%d] = %f,%f,%f\n", sensorJointIndexLeft,
-                status.m_sendActualStateArgs.m_jointReactionForces[6*sensorJointIndexLeft+0],
-                status.m_sendActualStateArgs.m_jointReactionForces[6*sensorJointIndexLeft+1],
-                status.m_sendActualStateArgs.m_jointReactionForces[6*sensorJointIndexLeft+2]);
+                info.m_jointForceTorque[0],
+                info.m_jointForceTorque[1],
+                info.m_jointForceTorque[2]);
+
         }
         
         if (sensorJointIndexRight>=0)
         {
+			struct  b3JointSensorState info;
+			
+			b3GetJointInfo(sm,bodyIndex,sensorJointIndexRight,&info);
             b3Printf("Sensor for joint [%d] = %f,%f,%f\n", sensorJointIndexRight,
-                     status.m_sendActualStateArgs.m_jointReactionForces[6*sensorJointIndexRight+0],
-                     status.m_sendActualStateArgs.m_jointReactionForces[6*sensorJointIndexRight+1],
-                     status.m_sendActualStateArgs.m_jointReactionForces[6*sensorJointIndexRight+2]);
+                     info.m_jointForceTorque[0],
+                     info.m_jointForceTorque[1],
+                     info.m_jointForceTorque[2]);
+
         }
-#endif
+
         {
             b3SubmitClientCommandAndWaitStatus(sm, b3InitResetSimulationCommand(sm));
         }

@@ -140,7 +140,7 @@ ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option, 
 		{
 			count=0;
 		}
-		sprintf(m_fileName,gFileNameArray[count++].c_str());
+		sprintf(m_fileName,"%s",gFileNameArray[count++].c_str());
 	}
 }
 

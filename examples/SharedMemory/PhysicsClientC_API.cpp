@@ -135,6 +135,7 @@ b3SharedMemoryCommandHandle b3JointControlCommandInit( b3PhysicsClientHandle phy
     b3Assert(command);
 	command->m_type = CMD_SEND_DESIRED_STATE;
     command->m_sendDesiredStateCommandArgument.m_controlMode = controlMode;
+	command->m_sendDesiredStateCommandArgument.m_bodyUniqueId = 0;
 	command->m_updateFlags = 0;
     return (b3SharedMemoryCommandHandle) command;
 }
@@ -197,6 +198,7 @@ b3SharedMemoryCommandHandle b3RequestActualStateCommandInit(b3PhysicsClientHandl
     struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
     b3Assert(command);
     command->m_type =CMD_REQUEST_ACTUAL_STATE;
+	command->m_requestActualStateInformationCommandArgument.m_bodyUniqueId = 0;
     return (b3SharedMemoryCommandHandle) command;
 }
 
@@ -204,12 +206,17 @@ void b3GetJointState(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandl
 {
   const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
   b3Assert(status);
-  b3JointInfo info;
-  b3GetJointInfo(physClient, jointIndex, &info);
-  state->m_jointPosition = status->m_sendActualStateArgs.m_actualStateQ[info.m_qIndex];
-  state->m_jointVelocity = status->m_sendActualStateArgs.m_actualStateQdot[info.m_uIndex];
-  for (int ii(0); ii < 6; ++ii) {
-    state->m_jointForceTorque[ii] = status->m_sendActualStateArgs.m_jointReactionForces[6 * jointIndex + ii];
+  int bodyIndex = status->m_sendActualStateArgs.m_bodyUniqueId;
+  b3Assert(bodyIndex>=0);
+  if (bodyIndex>=0)
+  {
+	  b3JointInfo info;
+	  b3GetJointInfo(physClient, bodyIndex,jointIndex, &info);
+	  state->m_jointPosition = status->m_sendActualStateArgs.m_actualStateQ[info.m_qIndex];
+	  state->m_jointVelocity = status->m_sendActualStateArgs.m_actualStateQdot[info.m_uIndex];
+	  for (int ii(0); ii < 6; ++ii) {
+		state->m_jointForceTorque[ii] = status->m_sendActualStateArgs.m_jointReactionForces[6 * jointIndex + ii];
+	  }
   }
 }
 
@@ -252,6 +259,70 @@ int	b3CreateBoxCommandSetStartOrientation(b3SharedMemoryCommandHandle commandHan
     return 0;
 }
 
+b3SharedMemoryCommandHandle b3CreatePoseCommandInit(b3PhysicsClientHandle physClient, int bodyIndex)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type = CMD_INIT_POSE;
+    command->m_updateFlags =0;
+	command->m_initPoseArgs.m_bodyUniqueId = bodyIndex;
+    return (b3SharedMemoryCommandHandle) command;
+}
+
+int	b3CreatePoseCommandSetBasePosition(b3SharedMemoryCommandHandle commandHandle, double startPosX,double startPosY,double startPosZ)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_INIT_POSE);
+    command->m_updateFlags |=INIT_POSE_HAS_INITIAL_POSITION;
+	command->m_initPoseArgs.m_initialStateQ[0] = startPosX;
+	command->m_initPoseArgs.m_initialStateQ[1] = startPosY;
+	command->m_initPoseArgs.m_initialStateQ[2] = startPosZ;
+	return 0;
+}
+
+int	b3CreatePoseCommandSetBaseOrientation(b3SharedMemoryCommandHandle commandHandle, double startOrnX,double startOrnY,double startOrnZ, double startOrnW)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_INIT_POSE);
+    command->m_updateFlags |=INIT_POSE_HAS_INITIAL_ORIENTATION;
+	command->m_initPoseArgs.m_initialStateQ[3] = startOrnX;
+	command->m_initPoseArgs.m_initialStateQ[4] = startOrnY;
+	command->m_initPoseArgs.m_initialStateQ[5] = startOrnZ;
+	command->m_initPoseArgs.m_initialStateQ[6] = startOrnW;
+	return 0;
+}
+
+int	b3CreatePoseCommandSetJointPositions(b3SharedMemoryCommandHandle commandHandle, int numJointPositions, const double* jointPositions)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_INIT_POSE);
+    command->m_updateFlags |=INIT_POSE_HAS_JOINT_STATE;
+	for (int i=0;i<numJointPositions;i++)
+	{
+		command->m_initPoseArgs.m_initialStateQ[i+7] = jointPositions[i];
+	}
+	return 0;
+}
+
+int	b3CreatePoseCommandSetJointPosition(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle, int jointIndex, double jointPosition)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_INIT_POSE);
+    command->m_updateFlags |=INIT_POSE_HAS_JOINT_STATE;
+	b3JointInfo info;
+	b3GetJointInfo(physClient, command->m_initPoseArgs.m_bodyUniqueId,jointIndex, &info);
+	command->m_initPoseArgs.m_initialStateQ[info.m_qIndex] = jointPosition;
+	return 0;
+}
+
+
 int	b3CreateBoxCommandSetHalfExtents(b3SharedMemoryCommandHandle commandHandle, double halfExtentsX,double halfExtentsY,double halfExtentsZ)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
@@ -279,6 +350,7 @@ b3SharedMemoryCommandHandle b3CreateSensorCommandInit(b3PhysicsClientHandle phys
     command->m_type = CMD_CREATE_SENSOR;
     command->m_updateFlags = 0;
     command->m_createSensorArguments.m_numJointSensorChanges = 0;
+	command->m_createSensorArguments.m_bodyUniqueId = 0;
     return (b3SharedMemoryCommandHandle) command;
     
 }
@@ -349,7 +421,29 @@ int b3GetStatusType(b3SharedMemoryStatusHandle statusHandle)
     return 0;
 }
 
+int b3GetStatusBodyIndex(b3SharedMemoryStatusHandle statusHandle)
+{
+	const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
+    b3Assert(status);
+	int bodyId = -1;
 
+	if (status)
+	{
+			switch (status->m_type)
+			{
+				case CMD_URDF_LOADING_COMPLETED:
+				{
+					bodyId = status->m_dataStreamArguments.m_bodyUniqueId;
+					break;
+				}
+				default:
+				{
+					b3Assert(0);
+				}
+			};
+	}
+	return bodyId;
+}
 int	b3CanSubmitCommand(b3PhysicsClientHandle physClient)
 {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
@@ -379,17 +473,17 @@ b3SharedMemoryStatusHandle b3SubmitClientCommandAndWaitStatus(b3PhysicsClientHan
 }
 
 
-int	b3GetNumJoints(b3PhysicsClientHandle physClient)
+int	b3GetNumJoints(b3PhysicsClientHandle physClient, int bodyId)
 {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
-	return cl->getNumJoints();
+	return cl->getNumJoints(bodyId);
 }
 
 
-void	b3GetJointInfo(b3PhysicsClientHandle physClient, int linkIndex, struct b3JointInfo* info)
+void	b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyIndex, int linkIndex, struct b3JointInfo* info)
 {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
-	cl->getJointInfo(linkIndex,*info);
+	cl->getJointInfo(bodyIndex, linkIndex,*info);
 }
 
 int b3PickBody(struct SharedMemoryCommand *command,
