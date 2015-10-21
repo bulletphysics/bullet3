@@ -15,20 +15,24 @@
 
 #include "LinearMath/btAlignedObjectArray.h"
 #include "CollisionSdkC_Api.h"
-
+#include "LinearMath/btQuickprof.h"
 
 ///Not Invented Here link reminder http://www.joelonsoftware.com/articles/fog0000000007.html
 
 ///todo: use the 'userData' to prevent this use of global variables
 static int gTotalPoints = 0;
-lwContactPoint pointsOut[10];
-int pointCapacity=2;
+const int sPointCapacity = 10000;
+const int sNumSpheres = 128;
+
+lwContactPoint pointsOut[sPointCapacity];
+int numNearCallbacks = 0;
 
 
 void myNearCallback(plCollisionSdkHandle sdkHandle, plCollisionWorldHandle worldHandle, void* userData, plCollisionObjectHandle objA, plCollisionObjectHandle objB)
 {
-	int remainingCapacity = pointCapacity-gTotalPoints;
-	btAssert(remainingCapacity>=0);
+	numNearCallbacks++;
+	int remainingCapacity = sPointCapacity-gTotalPoints;
+	btAssert(remainingCapacity>0);
 
 	if (remainingCapacity>0)
 	{
@@ -52,6 +56,7 @@ class CollisionTutorialBullet2 : public CommonExampleInterface
 	
 	int m_stage;
 	int m_counter;
+	
 public:
     
     CollisionTutorialBullet2(GUIHelperInterface* guiHelper, int tutorialIndex)
@@ -65,50 +70,68 @@ public:
 	m_timeSeriesCanvas0(0)
     {
 		int numBodies = 1;
-		
+		gTotalPoints = 0;
 		m_app->setUpAxis(1);
 		m_app->m_renderer->enableBlend(true);
 		
 		switch (m_tutorialIndex)
 		{
-			case TUT_SPHERE_SPHERE:
+			case TUT_SPHERE_SPHERE_RTB3:
+			case TUT_SPHERE_SPHERE_BULLET2:
 			{
 				numBodies=10;
-				//m_collisionSdkHandle = plCreateBullet2CollisionSdk();
-				m_collisionSdkHandle = plCreateRealTimeBullet3CollisionSdk();
+				if (m_tutorialIndex==TUT_SPHERE_SPHERE_BULLET2)
+				{
+					m_collisionSdkHandle = plCreateBullet2CollisionSdk();
+				} else
+				{
+					m_collisionSdkHandle = plCreateRealTimeBullet3CollisionSdk();
+				}
 				if (m_collisionSdkHandle)
 				{
-					int maxNumObjsCapacity=32;
+					int maxNumObjsCapacity=1024;
 					int maxNumShapesCapacity=1024;
 					int maxNumPairsCapacity=16384;
-
+					btAlignedObjectArray<plCollisionObjectHandle> colliders;
 					m_collisionWorldHandle = plCreateCollisionWorld(m_collisionSdkHandle,maxNumObjsCapacity,maxNumShapesCapacity,maxNumPairsCapacity);
 					//create objects, do query etc
-					float radius = 1.f;
-					plCollisionShapeHandle colShape = plCreateSphereShape(m_collisionSdkHandle, m_collisionWorldHandle,radius);
-					void* userPointer = 0;
-                    btAlignedObjectArray<plCollisionObjectHandle> colliders;
-                    int sphereGfxShapeId = m_app->registerGraphicsUnitSphereShape(SPHERE_LOD_HIGH);//, textureIndex);
+					{
+						float radius = 1.f;
+						plCollisionShapeHandle colShape = plCreateSphereShape(m_collisionSdkHandle, m_collisionWorldHandle,radius);
+						void* userPointer = 0;
+						
+						int sphereGfxShapeId = m_app->registerGraphicsUnitSphereShape(SPHERE_LOD_HIGH);//, textureIndex);
 
-                    for (int i=0;i<3;i++)
-                    {
-                        btVector3 pos(0,btScalar(i*1.5),0);
-                        btQuaternion orn(0,0,0,1);
+						for (int i=0;i<sNumSpheres;i++)
+						{
+							btVector3 pos(i*1.5,btScalar(0.8),0);
+							btQuaternion orn(0,0,0,1);
                         
-						btVector4 color(0,1,0,0.8);
-						btVector3 scaling(radius,radius,radius);
+							btVector4 color(0,1,0,0.8);
+							btVector3 scaling(radius,radius,radius);
 						
-						int gfxIndex =  m_app->m_renderer->registerGraphicsInstance(sphereGfxShapeId,pos, orn,color,scaling);
+							int gfxIndex =  m_app->m_renderer->registerGraphicsInstance(sphereGfxShapeId,pos, orn,color,scaling);
 						
-						plCollisionObjectHandle colObj = plCreateCollisionObject(m_collisionSdkHandle,m_collisionWorldHandle,userPointer, gfxIndex,colShape,pos,orn);
-                        colliders.push_back(colObj);
-                        plAddCollisionObject(m_collisionSdkHandle, m_collisionWorldHandle,colObj);
-                    }
+							plCollisionObjectHandle colObj = plCreateCollisionObject(m_collisionSdkHandle,m_collisionWorldHandle,userPointer, gfxIndex,colShape,pos,orn);
+							colliders.push_back(colObj);
+							plAddCollisionObject(m_collisionSdkHandle, m_collisionWorldHandle,colObj);
+						}
+					}
 
-                    int numContacts = plCollide(m_collisionSdkHandle,m_collisionWorldHandle,colliders[0],colliders[1],pointsOut,pointCapacity);
+					{
+						plCollisionShapeHandle colShape = plCreatePlaneShape(m_collisionSdkHandle, m_collisionWorldHandle,0,1,0,0);
+						btVector3 pos(0,0,0);
+						btQuaternion orn(0,0,0,1);
+						void* userPointer = 0;
+						plCollisionObjectHandle colObj = plCreateCollisionObject(m_collisionSdkHandle,m_collisionWorldHandle,userPointer, 0,colShape,pos,orn);
+						colliders.push_back(colObj);
+						plAddCollisionObject(m_collisionSdkHandle, m_collisionWorldHandle,colObj);
+					}
+
+                    int numContacts = plCollide(m_collisionSdkHandle,m_collisionWorldHandle,colliders[0],colliders[1],pointsOut,sPointCapacity);
                     printf("numContacts = %d\n", numContacts);
                     void* myUserPtr = 0;
-                    gTotalPoints = 0;
+                    
                     plWorldCollide(m_collisionSdkHandle,m_collisionWorldHandle,myNearCallback, myUserPtr);
                     printf("total points=%d\n",gTotalPoints);
                     
@@ -127,7 +150,9 @@ public:
 				 */
 				break;
 			}
-			case TUT_SPHERE_PLANE:
+			
+			case TUT_SPHERE_PLANE_RTB3:
+			case TUT_SPHERE_PLANE_BULLET2:
 			{
 				break;
 			}
@@ -142,7 +167,6 @@ public:
 
 		
 		
-		if (m_tutorialIndex==TUT_SPHERE_SPHERE)
 		{
 
 		 int boxId = m_app->registerCubeShape(100,1,100);
@@ -210,6 +234,21 @@ public:
 	
     virtual void	stepSimulation(float deltaTime)
     {
+		CProfileManager::Reset();
+		
+		
+		
+		
+		void* myUserPtr = 0;
+                    
+		gTotalPoints = 0;
+		numNearCallbacks = 0;
+		{
+			BT_PROFILE("plWorldCollide");
+			plWorldCollide(m_collisionSdkHandle,m_collisionWorldHandle,myNearCallback, myUserPtr);
+		}
+
+#if 0
 		switch (m_tutorialIndex)
 		{
 			case TUT_SPHERE_SPHERE:
@@ -230,7 +269,7 @@ public:
 			}
 			
 		};
-		
+#endif
 		
 		if (m_timeSeriesCanvas0)
 			m_timeSeriesCanvas0->nextTick();
@@ -241,6 +280,7 @@ public:
 	
 	
 		 m_app->m_renderer->writeTransforms();
+		 CProfileManager::Increment_Frame_Counter();
     }
     virtual void	renderScene()
     {

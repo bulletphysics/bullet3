@@ -51,6 +51,17 @@ plCollisionShapeHandle plCreateSphereShape(plCollisionSdkHandle collisionSdkHand
 	
 }
 
+plCollisionShapeHandle plCreatePlaneShape(plCollisionSdkHandle collisionSdkHandle,  plCollisionWorldHandle worldHandle, 
+													plReal planeNormalX, 
+													plReal planeNormalY, 
+													plReal planeNormalZ, 
+													plReal planeConstant)
+{
+	CollisionSdkInterface* sdk = (CollisionSdkInterface*) collisionSdkHandle;
+	return sdk->createPlaneShape(worldHandle,planeNormalX,planeNormalY,planeNormalZ,planeConstant);
+}
+	
+
 void plDeleteShape(plCollisionSdkHandle collisionSdkHandle, plCollisionWorldHandle worldHandle, plCollisionShapeHandle shapeHandle)
 {
 	CollisionSdkInterface* sdk = (CollisionSdkInterface*) collisionSdkHandle;

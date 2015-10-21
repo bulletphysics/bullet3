@@ -117,8 +117,10 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Spring constraint","A rigid body with a spring constraint attached", Dof6ConstraintTutorialCreateFunc,0),
 
 	ExampleEntry(0,"Collision"),
-	ExampleEntry(1, "Sphere-Sphere C-API", "Collision C-API using Bullet 2.x backend", CollisionTutorialBullet2CreateFunc,TUT_SPHERE_SPHERE),
-	ExampleEntry(1, "Sphere-Plane C-API", "Collision C-API using Bullet 2.x backend", CollisionTutorialBullet2CreateFunc,TUT_SPHERE_PLANE),
+	ExampleEntry(1, "Sphere-Sphere C-API (Bullet2)", "Collision C-API using Bullet 2.x backend", CollisionTutorialBullet2CreateFunc,TUT_SPHERE_SPHERE_BULLET2),
+	ExampleEntry(1, "Sphere-Plane C-API (Bullet2)", "Collision C-API using Bullet 2.x backend", CollisionTutorialBullet2CreateFunc,TUT_SPHERE_PLANE_BULLET2),
+	ExampleEntry(1, "Sphere-Sphere C-API (Bullet3)", "Collision C-API using Bullet 3.x backend", CollisionTutorialBullet2CreateFunc,TUT_SPHERE_SPHERE_RTB3),
+	ExampleEntry(1, "Sphere-Plane C-API (Bullet3)", "Collision C-API using Bullet 3.x backend", CollisionTutorialBullet2CreateFunc,TUT_SPHERE_PLANE_RTB3),
 	
 	
 
