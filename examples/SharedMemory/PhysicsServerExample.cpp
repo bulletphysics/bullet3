@@ -170,9 +170,8 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
 {
 	btClock rtc;
 	btScalar endTime = rtc.getTimeMilliseconds() + deltaTime*btScalar(800);
-	int maxSteps = 10;
 
-	while (maxSteps-- && rtc.getTimeMilliseconds()<endTime)
+	while (rtc.getTimeMilliseconds()<endTime)
 	{
 		m_physicsServer.processClientCommands();
 	}
