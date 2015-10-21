@@ -64,7 +64,7 @@ extern "C" {
 	
 	extern  plCollisionShapeHandle plCreateSphereShape(plCollisionSdkHandle sdk, plCollisionWorldHandle worldHandle, plReal radius);
 	extern  plCollisionShapeHandle plNewCapsuleShape(plCollisionSdkHandle sdk,  plCollisionWorldHandle worldHandle, plReal radius, plReal height);
-	extern  plCollisionShapeHandle plNewPlaneShape(plCollisionSdkHandle sdk,  plCollisionWorldHandle worldHandle, 
+	extern  plCollisionShapeHandle plCreatePlaneShape(plCollisionSdkHandle sdk,  plCollisionWorldHandle worldHandle, 
 													plReal planeNormalX, 
 													plReal planeNormalY, 
 													plReal planeNormalZ, 

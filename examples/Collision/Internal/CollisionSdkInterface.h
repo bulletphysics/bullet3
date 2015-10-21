@@ -16,6 +16,12 @@ public:
 	virtual void deleteCollisionWorld(plCollisionWorldHandle worldHandle) = 0;
 	
 	virtual plCollisionShapeHandle createSphereShape(plCollisionWorldHandle worldHandle, plReal radius) = 0;
+
+	virtual plCollisionShapeHandle createPlaneShape(plCollisionWorldHandle worldHandle, 
+													plReal planeNormalX, 
+													plReal planeNormalY, 
+													plReal planeNormalZ, 
+													plReal planeConstant) = 0;
 	
 	virtual void deleteShape(plCollisionWorldHandle worldHandle, plCollisionShapeHandle shape) = 0;
 	
