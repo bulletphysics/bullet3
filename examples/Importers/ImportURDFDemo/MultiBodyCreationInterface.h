@@ -21,6 +21,13 @@ public:
     
     virtual class btGeneric6DofSpring2Constraint* allocateGeneric6DofSpring2Constraint(int urdfLinkIndex, btRigidBody& rbA /*parent*/, btRigidBody& rbB, const btTransform& offsetInA, const btTransform& offsetInB, int rotateOrder=0) = 0;
     
+	virtual class btGeneric6DofSpring2Constraint* createPrismaticJoint(int urdfLinkIndex, btRigidBody& rbA /*parent*/, btRigidBody& rbB, const btTransform& offsetInA, const btTransform& offsetInB,
+														const btVector3&	jointAxisInJointSpace,btScalar jointLowerLimit,btScalar jointUpperLimit) = 0;
+    virtual class btGeneric6DofSpring2Constraint* createRevoluteJoint(int urdfLinkIndex, btRigidBody& rbA /*parent*/, btRigidBody& rbB, const btTransform& offsetInA, const btTransform& offsetInB,
+														const btVector3&	jointAxisInJointSpace,btScalar jointLowerLimit,btScalar jointUpperLimit) = 0;
+
+    virtual class btGeneric6DofSpring2Constraint* createFixedJoint(int urdfLinkIndex, btRigidBody& rbA /*parent*/, btRigidBody& rbB, const btTransform& offsetInA, const btTransform& offsetInB) = 0;
+   
     virtual class btMultiBodyLinkCollider* allocateMultiBodyLinkCollider(int urdfLinkIndex, int mbLinkIndex, btMultiBody* body) = 0;
     
     virtual void addLinkMapping(int urdfLinkIndex, int mbLinkIndex) = 0;

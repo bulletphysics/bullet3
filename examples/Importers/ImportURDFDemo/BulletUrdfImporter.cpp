@@ -12,7 +12,7 @@ subject to the following restrictions:
 */
 
 
-#include "MyURDFImporter.h"
+#include "BulletUrdfImporter.h"
 
 
 #include "URDFImporterInterface.h"
@@ -24,56 +24,27 @@ subject to the following restrictions:
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "Bullet3Common/b3FileUtils.h"
 #include <string>
+#include "../../Utils/b3ResourcePath.h"
 
-#include "urdf/urdfdom/urdf_parser/include/urdf_parser/urdf_parser.h"
+
+
 #include <iostream>
 #include <fstream>
-using namespace urdf;
+#include "UrdfParser.h"
 
-void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut);
-btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const char* pathPrefix);
-
-
-
-
-static void printTreeInternal(my_shared_ptr<const Link> link,int level = 0)
+struct BulletURDFInternalData
 {
-    level+=2;
-    int count = 0;
-    for (std::vector<my_shared_ptr<Link> >::const_iterator child = link->child_links.begin(); child != link->child_links.end(); child++)
-    {
-        if (*child)
-        {
-            for(int j=0;j<level;j++) std::cout << "  "; //indent
-            std::cout << "child(" << (count++)+1 << "):  " << (*child)->name  << std::endl;
-            // first grandchild
-            printTreeInternal(*child,level);
-        }
-        else
-        {
-            for(int j=0;j<level;j++) std::cout << " "; //indent
-            std::cout << "root link: " << link->name << " has a null child!" << *child << std::endl;
-        }
-    }
-
-}
-
-
-
-
-struct MyURDFInternalData
-{
-	my_shared_ptr<ModelInterface> m_robot;
-    std::vector<my_shared_ptr<Link> > m_links;
+	UrdfParser m_urdfParser;
 	struct GUIHelperInterface* m_guiHelper;
-	const char* m_pathPrefix;
+	char m_pathPrefix[1024];
 	
 };
 
-void MyURDFImporter::printTree()
+void BulletURDFImporter::printTree()
 {
-	printTreeInternal(m_data->m_robot->getRoot(),0);
+//	btAssert(0);
 }
+
 
 enum MyFileType
 {
@@ -84,18 +55,45 @@ enum MyFileType
 
 
     
-MyURDFImporter::MyURDFImporter(struct GUIHelperInterface* helper)
+BulletURDFImporter::BulletURDFImporter(struct GUIHelperInterface* helper)
 {
-	m_data = new MyURDFInternalData;
-	m_data->m_robot = 0;
+	m_data = new BulletURDFInternalData;
+	
 	m_data->m_guiHelper = helper;
-	m_data->m_pathPrefix=0;
+	m_data->m_pathPrefix[0]=0;
 
 
   
 }
 
-bool MyURDFImporter::loadURDF(const char* fileName)
+struct BulletErrorLogger : public ErrorLogger
+{
+	int m_numErrors;
+	int m_numWarnings;
+	
+	BulletErrorLogger()
+	:m_numErrors(0),
+	m_numWarnings(0)
+	{
+	}
+	virtual void reportError(const char* error)
+	{
+		m_numErrors++;
+		b3Error(error);
+	}
+	virtual void reportWarning(const char* warning)
+	{
+		m_numWarnings++;
+		b3Warning(warning);
+	}
+	
+	virtual void printMessage(const char* msg)
+	{
+		b3Printf(msg);
+	}
+};	
+
+bool BulletURDFImporter::loadURDF(const char* fileName, bool forceFixedBase)
 {
 
 
@@ -104,12 +102,12 @@ bool MyURDFImporter::loadURDF(const char* fileName)
 	
 	b3FileUtils fu;
 	
-	bool fileFound = fu.findFile(fileName, relativeFileName, 1024);
+	//bool fileFound = fu.findFile(fileName, relativeFileName, 1024);
+  	bool fileFound = b3ResourcePath::findResourcePath(fileName,relativeFileName,1024);
 	
 	std::string xml_string;
-	char pathPrefix[1024];
-	pathPrefix[0] = 0;
-	
+	m_data->m_pathPrefix[0] = 0;
+    
     if (!fileFound){
         std::cerr << "URDF file not found" << std::endl;
 		return false;
@@ -117,7 +115,7 @@ bool MyURDFImporter::loadURDF(const char* fileName)
     {
 		
 		int maxPathLen = 1024;
-		fu.extractPath(relativeFileName,pathPrefix,maxPathLen);
+		fu.extractPath(relativeFileName,m_data->m_pathPrefix,maxPathLen);
 
 
         std::fstream xml_file(relativeFileName, std::fstream::in);
@@ -130,93 +128,94 @@ bool MyURDFImporter::loadURDF(const char* fileName)
         xml_file.close();
     }
 
-    my_shared_ptr<ModelInterface> robot = parseURDF(xml_string);
-    if (!robot){
-        std::cerr << "ERROR: Model Parsing the xml failed" << std::endl;
-        return false;
-    }
-    std::cout << "robot name is: " << robot->getName() << std::endl;
+	BulletErrorLogger loggie;
+	bool result = m_data->m_urdfParser.loadUrdf(xml_string.c_str(), &loggie, forceFixedBase);
 
-    // get info from parser
-    std::cout << "Successfully Parsed URDF" << std::endl;
-    // get root link
-    my_shared_ptr<const Link> root_link=robot->getRoot();
-    if (!root_link) 
-	{
-		std::cout << "Failed to find root link in URDF" << std::endl;
-		return false;
-	}
-
-
-	m_data->m_robot = robot;
-
-    m_data->m_robot->getLinks(m_data->m_links);
-        
-    //initialize the 'index' of each link
-    for (int i=0;i<m_data->m_links.size();i++)
-    {
-        m_data->m_links[i]->m_link_index = i;
-    }
-
-	return true;
+	return result;
 }
 
-const char* MyURDFImporter::getPathPrefix()
+const char* BulletURDFImporter::getPathPrefix()
 {
 	return m_data->m_pathPrefix;
 }
 
 
-MyURDFImporter::~MyURDFImporter()
+BulletURDFImporter::~BulletURDFImporter()
 {
 	delete m_data;
 }
 
     
-int MyURDFImporter::getRootLinkIndex() const
+int BulletURDFImporter::getRootLinkIndex() const
 {
-    if (m_data->m_links.size())
-    {
-        int rootLinkIndex = m_data->m_robot->getRoot()->m_link_index;
-        // btAssert(m_links[0]->m_link_index == rootLinkIndex);
-        return rootLinkIndex;
-    }
+	if (m_data->m_urdfParser.getModel().m_rootLinks.size()==1)
+	{
+		return m_data->m_urdfParser.getModel().m_rootLinks[0]->m_linkIndex;
+	}
     return -1;
 };
     
-void MyURDFImporter::getLinkChildIndices(int linkIndex, btAlignedObjectArray<int>& childLinkIndices) const
+void BulletURDFImporter::getLinkChildIndices(int linkIndex, btAlignedObjectArray<int>& childLinkIndices) const
 {
-    childLinkIndices.resize(0);
-    int numChildren = m_data->m_links[linkIndex]->child_links.size();
-        
-    for (int i=0;i<numChildren;i++)
-    {
-        int childIndex =m_data->m_links[linkIndex]->child_links[i]->m_link_index;
-        childLinkIndices.push_back(childIndex);
-    }
+	childLinkIndices.resize(0);
+	UrdfLink* const* linkPtr = m_data->m_urdfParser.getModel().m_links.getAtIndex(linkIndex);
+	if (linkPtr)
+	{
+		const UrdfLink* link = *linkPtr;
+		//int numChildren = m_data->m_urdfParser->getModel().m_links.getAtIndex(linkIndex)->
+		
+		for (int i=0;i<link->m_childLinks.size();i++)
+		{
+			int childIndex =link->m_childLinks[i]->m_linkIndex;
+			childLinkIndices.push_back(childIndex);
+		}
+	}
 }
 
-std::string MyURDFImporter::getLinkName(int linkIndex) const
+std::string BulletURDFImporter::getLinkName(int linkIndex) const
 {
-    std::string n = m_data->m_links[linkIndex]->name;
-    return n;
+	UrdfLink* const* linkPtr = m_data->m_urdfParser.getModel().m_links.getAtIndex(linkIndex);
+	btAssert(linkPtr);
+	if (linkPtr)
+	{
+		UrdfLink* link = *linkPtr;
+		return link->m_name;
+	}
+	return "";
 }
     
-std::string MyURDFImporter::getJointName(int linkIndex) const
+std::string BulletURDFImporter::getJointName(int linkIndex) const
 {
-    return m_data->m_links[linkIndex]->parent_joint->name;
+	UrdfLink* const* linkPtr = m_data->m_urdfParser.getModel().m_links.getAtIndex(linkIndex);
+	btAssert(linkPtr);
+	if (linkPtr)
+	{
+		UrdfLink* link = *linkPtr;
+		if (link->m_parentJoint)
+		{
+			return link->m_parentJoint->m_name;
+		}
+	}
+	return "";
 }
     
 
-void  MyURDFImporter::getMassAndInertia(int linkIndex, btScalar& mass,btVector3& localInertiaDiagonal, btTransform& inertialFrame) const
+void  BulletURDFImporter::getMassAndInertia(int linkIndex, btScalar& mass,btVector3& localInertiaDiagonal, btTransform& inertialFrame) const
 {
-    if ((*m_data->m_links[linkIndex]).inertial)
-    {
-        mass = (*m_data->m_links[linkIndex]).inertial->mass;
-        localInertiaDiagonal.setValue((*m_data->m_links[linkIndex]).inertial->ixx,(*m_data->m_links[linkIndex]).inertial->iyy,(*m_data->m_links[linkIndex]).inertial->izz);
-        inertialFrame.setOrigin(btVector3((*m_data->m_links[linkIndex]).inertial->origin.position.x,(*m_data->m_links[linkIndex]).inertial->origin.position.y,(*m_data->m_links[linkIndex]).inertial->origin.position.z));
-        inertialFrame.setRotation(btQuaternion((*m_data->m_links[linkIndex]).inertial->origin.rotation.x,(*m_data->m_links[linkIndex]).inertial->origin.rotation.y,(*m_data->m_links[linkIndex]).inertial->origin.rotation.z,(*m_data->m_links[linkIndex]).inertial->origin.rotation.w));
-    } else
+	//todo(erwincoumans)
+	//the link->m_inertia is NOT necessarily aligned with the inertial frame
+	//so an additional transform might need to be computed
+	UrdfLink* const* linkPtr = m_data->m_urdfParser.getModel().m_links.getAtIndex(linkIndex);
+	btAssert(linkPtr);
+	if (linkPtr)
+	{
+		UrdfLink* link = *linkPtr;
+		mass = link->m_inertia.m_mass;
+		inertialFrame = link->m_inertia.m_linkLocalFrame;
+		localInertiaDiagonal.setValue(link->m_inertia.m_ixx,link->m_inertia.m_iyy,
+									  link->m_inertia.m_izz);
+	}
+	else
     {
         mass = 1.f;
         localInertiaDiagonal.setValue(1,1,1);
@@ -224,63 +223,41 @@ void  MyURDFImporter::getMassAndInertia(int linkIndex, btScalar& mass,btVector3&
     }
 }
     
-bool MyURDFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit) const
+bool BulletURDFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit) const
 {
     jointLowerLimit = 0.f;
     jointUpperLimit = 0.f;
-        
-    if ((*m_data->m_links[urdfLinkIndex]).parent_joint)
-    {
-        my_shared_ptr<Joint> pj =(*m_data->m_links[urdfLinkIndex]).parent_joint;
-            
-        const urdf::Vector3 pos = pj->parent_to_joint_origin_transform.position;
-        const urdf::Rotation orn = pj->parent_to_joint_origin_transform.rotation;
-            
-        jointAxisInJointSpace.setValue(pj->axis.x,pj->axis.y,pj->axis.z);
-        parent2joint.setOrigin(btVector3(pos.x,pos.y,pos.z));
-        parent2joint.setRotation(btQuaternion(orn.x,orn.y,orn.z,orn.w));
-
-        switch (pj->type)
-        {
-            case Joint::REVOLUTE:
-                jointType = URDFRevoluteJoint;
-                break;
-            case Joint::FIXED:
-                jointType = URDFFixedJoint;
-                break;
-            case Joint::PRISMATIC:
-                jointType = URDFPrismaticJoint;
-                break;
-            case Joint::PLANAR:
-                jointType = URDFPlanarJoint;
-                break;
-            case Joint::CONTINUOUS:
-				jointType = URDFContinuousJoint;
-                break;
-            default:
-            {
-                printf("Error: unknown joint type %d\n", pj->type);
-                btAssert(0);
-            }
-                    
-        };
-            
-        if (pj->limits)
-        {
-            jointLowerLimit = pj->limits.get()->lower;
-            jointUpperLimit = pj->limits.get()->upper;
-        }
-        return true;
-    } else
-    {
-        parent2joint.setIdentity();
-        return false;
-    }
+	
+	UrdfLink* const* linkPtr = m_data->m_urdfParser.getModel().m_links.getAtIndex(urdfLinkIndex);
+	btAssert(linkPtr);
+	if (linkPtr)
+	{
+		UrdfLink* link = *linkPtr;
+		
+		
+		if (link->m_parentJoint)
+		{
+			UrdfJoint* pj = link->m_parentJoint;
+			parent2joint = pj->m_parentLinkToJointTransform;
+			jointType = pj->m_type;
+			jointAxisInJointSpace = pj->m_localJointAxis;
+			jointLowerLimit = pj->m_lowerLimit;
+			jointUpperLimit = pj->m_upperLimit;
+			return true;
+		} else
+		{
+			parent2joint.setIdentity();
+			return false;
+		}
+	}
+	
+	return false;
+	
 }
 
 
 
-void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut)
+void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut)
 {
 
 	
@@ -288,12 +265,11 @@ void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, cons
 
 	btConvexShape* convexColShape = 0;
 
-	switch (visual->geometry->type)
+	switch (visual->m_geometry.m_type)
 	{
-		case Geometry::CYLINDER:
+		case URDF_GEOM_CYLINDER:
 		{
 			printf("processing a cylinder\n");
-			urdf::Cylinder* cyl = (urdf::Cylinder*)visual->geometry.get();
 			btAlignedObjectArray<btVector3> vertices;
 		
 			//int numVerts = sizeof(barrel_vertices)/(9*sizeof(float));
@@ -301,9 +277,12 @@ void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, cons
 			for (int i = 0; i<numSteps; i++)
 			{
 
-				btVector3 vert(cyl->radius*btSin(SIMD_2_PI*(float(i) / numSteps)), cyl->radius*btCos(SIMD_2_PI*(float(i) / numSteps)), cyl->length / 2.);
+				btScalar cylRadius = visual->m_geometry.m_cylinderRadius;
+				btScalar cylLength = visual->m_geometry.m_cylinderLength;
+				
+				btVector3 vert(cylRadius*btSin(SIMD_2_PI*(float(i) / numSteps)), cylRadius*btCos(SIMD_2_PI*(float(i) / numSteps)), cylLength / 2.);
 				vertices.push_back(vert);
-				vert[2] = -cyl->length / 2.;
+				vert[2] = -cylLength / 2.;
 				vertices.push_back(vert);
 			}
 
@@ -312,22 +291,22 @@ void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, cons
 			convexColShape = cylZShape;
 			break;
 		}
-		case Geometry::BOX:
+		case URDF_GEOM_BOX:
 		{
 			printf("processing a box\n");
-			urdf::Box* box = (urdf::Box*)visual->geometry.get();
-			btVector3 extents(box->dim.x, box->dim.y, box->dim.z);
+			
+			btVector3 extents = visual->m_geometry.m_boxSize;
+			
 			btBoxShape* boxShape = new btBoxShape(extents*0.5f);
 			//btConvexShape* boxShape = new btConeShapeX(extents[2]*0.5,extents[0]*0.5);
 			convexColShape = boxShape;
 			convexColShape->setMargin(0.001);
 			break;
 		}
-		case Geometry::SPHERE:
+		case URDF_GEOM_SPHERE:
 		{
 			printf("processing a sphere\n");
-			urdf::Sphere* sphere = (urdf::Sphere*)visual->geometry.get();
-			btScalar radius = sphere->radius;
+			btScalar radius = visual->m_geometry.m_sphereRadius;
 			btSphereShape* sphereShape = new btSphereShape(radius);
 			convexColShape = sphereShape;
 			convexColShape->setMargin(0.001);
@@ -335,22 +314,31 @@ void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, cons
 
 			break;
 		}
-		case Geometry::MESH:
+		case URDF_GEOM_MESH:
 		{
-			if (visual->name.length())
+			if (visual->m_name.length())
 			{
-				printf("visual->name=%s\n", visual->name.c_str());
+				printf("visual->name=%s\n", visual->m_name.c_str());
 			}
-			if (visual->geometry)
+			if (1)//visual->m_geometry)
 			{
-				const urdf::Mesh* mesh = (const urdf::Mesh*) visual->geometry.get();
-				if (mesh->filename.length())
+				if (visual->m_geometry.m_meshFileName.length())
 				{
-					const char* filename = mesh->filename.c_str();
+					const char* filename = visual->m_geometry.m_meshFileName.c_str();
 					printf("mesh->filename=%s\n", filename);
 					char fullPath[1024];
 					int fileType = 0;
-					sprintf(fullPath, "%s%s", pathPrefix, filename);
+                    
+                    char tmpPathPrefix[1024];
+                    std::string xml_string;
+                    int maxPathLen = 1024;
+                    b3FileUtils::extractPath(filename,tmpPathPrefix,maxPathLen);
+                   
+                    char visualPathPrefix[1024];
+                    sprintf(visualPathPrefix,"%s%s",urdfPathPrefix,tmpPathPrefix);
+                    
+                    
+					sprintf(fullPath, "%s%s", urdfPathPrefix, filename);
 					b3FileUtils::toLower(fullPath);
 					if (strstr(fullPath, ".dae"))
 					{
@@ -366,7 +354,7 @@ void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, cons
                     }
 
 
-					sprintf(fullPath, "%s%s", pathPrefix, filename);
+					sprintf(fullPath, "%s%s", urdfPathPrefix, filename);
 					FILE* f = fopen(fullPath, "rb");
 					if (f)
 					{
@@ -378,7 +366,7 @@ void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, cons
 						{
                             case FILE_OBJ:
                             {
-                                glmesh = LoadMeshFromObj(fullPath,pathPrefix);
+                                glmesh = LoadMeshFromObj(fullPath,visualPathPrefix);
                                 break;
                             }
                            
@@ -404,7 +392,7 @@ void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, cons
 												upAxis);
 
 							glmesh = new GLInstanceGraphicsShape;
-							int index = 0;
+					//		int index = 0;
 							glmesh->m_indices = new b3AlignedObjectArray<int>();
 							glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
 
@@ -515,7 +503,7 @@ void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, cons
 
 			
 			glmesh = new GLInstanceGraphicsShape;
-			int index = 0;
+		//	int index = 0;
 			glmesh->m_indices = new b3AlignedObjectArray<int>();
 			glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
 
@@ -584,26 +572,27 @@ void convertURDFToVisualShape(const Visual* visual, const char* pathPrefix, cons
 
 
 
-btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const char* pathPrefix)
+btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, const char* urdfPathPrefix)
 {
 	btCollisionShape* shape = 0;
 
-    switch (visual->geometry->type)
+    switch (collision->m_geometry.m_type)
     {
-        case Geometry::CYLINDER:
+        case URDF_GEOM_CYLINDER:
         {
             printf("processing a cylinder\n");
-            urdf::Cylinder* cyl = (urdf::Cylinder*)visual->geometry.get();
-
+			btScalar cylRadius = collision->m_geometry.m_cylinderRadius;
+			btScalar cylLength = collision->m_geometry.m_cylinderLength;
+			
             btAlignedObjectArray<btVector3> vertices;
             //int numVerts = sizeof(barrel_vertices)/(9*sizeof(float));
             int numSteps = 32;
             for (int i=0;i<numSteps;i++)
             {
 
-                btVector3 vert(cyl->radius*btSin(SIMD_2_PI*(float(i)/numSteps)),cyl->radius*btCos(SIMD_2_PI*(float(i)/numSteps)),cyl->length/2.);
+                btVector3 vert(cylRadius*btSin(SIMD_2_PI*(float(i)/numSteps)),cylRadius*btCos(SIMD_2_PI*(float(i)/numSteps)),cylLength/2.);
                 vertices.push_back(vert);
-                vert[2] = -cyl->length/2.;
+                vert[2] = -cylLength/2.;
                 vertices.push_back(vert);
 
             }
@@ -619,22 +608,21 @@ btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const cha
             shape = cylZShape;
             break;
         }
-        case Geometry::BOX:
+        case URDF_GEOM_BOX:
         {
             printf("processing a box\n");
-            urdf::Box* box = (urdf::Box*)visual->geometry.get();
-            btVector3 extents(box->dim.x,box->dim.y,box->dim.z);
-            btBoxShape* boxShape = new btBoxShape(extents*0.5f);
+			btVector3 extents = collision->m_geometry.m_boxSize;
+			btBoxShape* boxShape = new btBoxShape(extents*0.5f);
 			//btConvexShape* boxShape = new btConeShapeX(extents[2]*0.5,extents[0]*0.5);
             shape = boxShape;
 			shape ->setMargin(0.001);
             break;
         }
-        case Geometry::SPHERE:
+        case URDF_GEOM_SPHERE:
         {
 			printf("processing a sphere\n");
-            urdf::Sphere* sphere = (urdf::Sphere*)visual->geometry.get();
-            btScalar radius = sphere->radius;
+            
+			btScalar radius = collision->m_geometry.m_sphereRadius;
 			btSphereShape* sphereShape = new btSphereShape(radius);
             shape = sphereShape;
 			shape ->setMargin(0.001);
@@ -642,23 +630,31 @@ btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const cha
 
             break;
         }
-        case Geometry::MESH:
+        case URDF_GEOM_MESH:
         {
-			if (visual->name.length())
+			if (collision->m_name.length())
 			{
-				printf("visual->name=%s\n",visual->name.c_str());
+				printf("collision->name=%s\n",collision->m_name.c_str());
 			}
-			if (visual->geometry)
+			if (1)
 			{
-				const urdf::Mesh* mesh = (const urdf::Mesh*) visual->geometry.get();
-				if (mesh->filename.length())
+				if (collision->m_geometry.m_meshFileName.length())
 				{
-					const char* filename = mesh->filename.c_str();
+					const char* filename = collision->m_geometry.m_meshFileName.c_str();
 					printf("mesh->filename=%s\n",filename);
 					char fullPath[1024];
 					int fileType = 0;
-					sprintf(fullPath,"%s%s",pathPrefix,filename);
+					sprintf(fullPath,"%s%s",urdfPathPrefix,filename);
 					b3FileUtils::toLower(fullPath);
+                    char tmpPathPrefix[1024];
+                    int maxPathLen = 1024;
+                    b3FileUtils::extractPath(filename,tmpPathPrefix,maxPathLen);
+                    
+                    char collisionPathPrefix[1024];
+                    sprintf(collisionPathPrefix,"%s%s",urdfPathPrefix,tmpPathPrefix);
+                    
+                    
+                    
 					if (strstr(fullPath,".dae"))
 					{
 						fileType = FILE_COLLADA;
@@ -672,7 +668,7 @@ btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const cha
                        fileType = FILE_OBJ;
                    }
 
-					sprintf(fullPath,"%s%s",pathPrefix,filename);
+					sprintf(fullPath,"%s%s",urdfPathPrefix,filename);
 					FILE* f = fopen(fullPath,"rb");
 					if (f)
 					{
@@ -684,7 +680,7 @@ btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const cha
 						{
                             case FILE_OBJ:
                             {
-                                glmesh = LoadMeshFromObj(fullPath,pathPrefix);
+                                glmesh = LoadMeshFromObj(fullPath,collisionPathPrefix);
                                 break;
                             }
 						case FILE_STL:
@@ -708,7 +704,7 @@ btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const cha
 													upAxis );
 								
 								glmesh = new GLInstanceGraphicsShape;
-								int index = 0;
+						//		int index = 0;
 								glmesh->m_indices = new b3AlignedObjectArray<int>();
 								glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
 
@@ -746,7 +742,8 @@ btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const cha
 			
 									//compensate upAxisTrans and unitMeterScaling here
 									btMatrix4x4 upAxisMat;
-									upAxisMat.setPureRotation(upAxisTrans.getRotation());
+                                    upAxisMat.setIdentity();
+									//upAxisMat.setPureRotation(upAxisTrans.getRotation());
 									btMatrix4x4 unitMeterScalingMat;
 									unitMeterScalingMat.setPureScaling(btVector3(unitMeterScaling,unitMeterScaling,unitMeterScaling));
 									btMatrix4x4 worldMat = unitMeterScalingMat*instance->m_worldTransform*upAxisMat;
@@ -825,13 +822,13 @@ btCollisionShape* convertURDFToCollisionShape(const Collision* visual, const cha
 
 
 
-int MyURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame) const
+int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame) const
 {
     btAlignedObjectArray<GLInstanceVertex> vertices;
     btAlignedObjectArray<int> indices;
     btTransform startTrans; startTrans.setIdentity();
     int graphicsIndex = -1;
-        
+#if USE_ROS_URDF_PARSER
     for (int v = 0; v < (int)m_data->m_links[linkIndex]->visual_array.size(); v++)
     {
         const Visual* vis = m_data->m_links[linkIndex]->visual_array[v].get();
@@ -844,7 +841,22 @@ int MyURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathPrefi
         convertURDFToVisualShape(vis, pathPrefix, inertialFrame.inverse()*childTrans, vertices, indices);
             
     }
-        
+#else
+	const UrdfModel& model = m_data->m_urdfParser.getModel();
+	UrdfLink* const* linkPtr = model.m_links.getAtIndex(linkIndex);
+	if (linkPtr)
+	{
+
+		const UrdfLink* link = *linkPtr;
+		
+		for (int v = 0; v < link->m_visualArray.size();v++)
+		{
+			const UrdfVisual& vis = link->m_visualArray[v];
+            		btTransform childTrans = vis.m_linkLocalFrame;
+			convertURDFToVisualShape(&vis, pathPrefix, inertialFrame.inverse()*childTrans, vertices, indices);
+		}
+	}
+#endif
     if (vertices.size() && indices.size())
     {
         graphicsIndex  = m_data->m_guiHelper->registerGraphicsShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size());
@@ -854,12 +866,12 @@ int MyURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathPrefi
         
 }
 
- class btCompoundShape* MyURDFImporter::convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const
+ class btCompoundShape* BulletURDFImporter::convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const
 {
         
     btCompoundShape* compoundShape = new btCompoundShape();
     compoundShape->setMargin(0.001);
-        
+#if USE_ROS_URDF_PARSER
     for (int v=0;v<(int)m_data->m_links[linkIndex]->collision_array.size();v++)
     {
         const Collision* col = m_data->m_links[linkIndex]->collision_array[v].get();
@@ -876,6 +888,31 @@ int MyURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathPrefi
                 
         }
     }
-        
+#else
+	
+	UrdfLink* const* linkPtr = m_data->m_urdfParser.getModel().m_links.getAtIndex(linkIndex);
+	btAssert(linkPtr);
+	if (linkPtr)
+	{
+		
+		UrdfLink* link = *linkPtr;
+		
+			
+		for (int v=0;v<link->m_collisionArray.size();v++)
+		{
+			const UrdfCollision& col = link->m_collisionArray[v];
+			btCollisionShape* childShape = convertURDFToCollisionShape(&col ,pathPrefix);
+			
+			if (childShape)
+			{
+				btTransform childTrans = col.m_linkLocalFrame;
+				
+				compoundShape->addChildShape(localInertiaFrame.inverse()*childTrans,childShape);
+           		}
+		}
+	}
+
+#endif
+	
     return compoundShape;
 }

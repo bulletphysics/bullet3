@@ -15,10 +15,31 @@ SET(App_ExampleBrowser_SRCS
 	main.cpp
 	ExampleEntries.cpp
 	ExampleEntries.h
+	../SharedMemory/PhysicsServer.cpp
+	../SharedMemory/PhysicsClientSharedMemory.cpp
+	../SharedMemory/PhysicsClient.cpp
+	../SharedMemory/PhysicsClientC_API.cpp
+	../SharedMemory/PhysicsServerExample.cpp
+	../SharedMemory/PhysicsClientExample.cpp
+	../SharedMemory/PosixSharedMemory.cpp
+	../SharedMemory/Win32SharedMemory.cpp
 	../BasicDemo/BasicExample.cpp
 	../BasicDemo/BasicExample.h
 	../ForkLift/ForkLiftDemo.cpp
 	../ForkLift/ForkLiftDemo.h
+	../Tutorial/Tutorial.cpp
+	../Tutorial/Tutorial.h
+	../Tutorial/Dof6ConstraintTutorial.cpp
+	../Tutorial/Dof6ConstraintTutorial.h
+	../Collision/CollisionSdkC_Api.cpp
+	../Collision/CollisionSdkC_Api.h
+	../Collision/CollisionTutorialBullet2.cpp
+	../Collision/CollisionTutorialBullet2.h
+	../Collision/Internal/Bullet2CollisionSdk.cpp
+	../Collision/Internal/Bullet2CollisionSdk.h
+	../Collision/Internal/CollisionSdkInterface.h
+	../Collision/Internal/RealTimeBullet3CollisionSdk.cpp
+	../Collision/Internal/RealTimeBullet3CollisionSdk.h
 	../GyroscopicDemo/GyroscopicSetup.cpp
 	../GyroscopicDemo/GyroscopicSetup.h
 	../Planar2D/Planar2D.cpp
@@ -33,12 +54,22 @@ SET(App_ExampleBrowser_SRCS
 	../FractureDemo/btFractureDynamicsWorld.h
 	../DynamicControlDemo/MotorDemo.cpp
 	../DynamicControlDemo/MotorDemo.h
-		../RenderingExamples/CoordinateSystemDemo.cpp
+	../MultiThreading/MultiThreadingExample.cpp
+        ../MultiThreading/b3PosixThreadSupport.cpp
+	../MultiThreading/b3Win32ThreadSupport.cpp
+        ../MultiThreading/b3ThreadSupportInterface.cpp
+	../RenderingExamples/TimeSeriesCanvas.cpp
+	../RenderingExamples/TimeSeriesCanvas.h
+	../RenderingExamples/TimeSeriesFontData.cpp
+	../RenderingExamples/TimeSeriesFontData.h
+	
+	../RenderingExamples/CoordinateSystemDemo.cpp
 	../RenderingExamples/CoordinateSystemDemo.h
 	../RenderingExamples/RaytracerSetup.cpp
 	../RenderingExamples/RaytracerSetup.h
 	../RenderingExamples/RenderInstancingDemo.cpp
 	../RenderingExamples/RenderInstancingDemo.h
+	../RenderingExamples/TimeSeriesExample.cpp
 	../Benchmarks/BenchmarkDemo.cpp
 	../Benchmarks/BenchmarkDemo.h
 	../Benchmarks/landscapeData.h
@@ -81,8 +112,11 @@ SET(App_ExampleBrowser_SRCS
   ../Importers/ImportURDFDemo/URDF2Bullet.cpp
   ../Importers/ImportURDFDemo/MyMultiBodyCreator.cpp
   ../Importers/ImportURDFDemo/MyMultiBodyCreator.h
-  ../Importers/ImportURDFDemo/MyURDFImporter.cpp
-  ../Importers/ImportURDFDemo/MyURDFImporter.h
+  ../Importers/ImportURDFDemo/UrdfParser.cpp
+  ../Importers/ImportURDFDemo/urdfStringSplit.cpp
+ ../Importers/ImportURDFDemo/urdfStringSplit.h
+  ../Importers/ImportURDFDemo/BulletUrdfImporter.cpp
+  ../Importers/ImportURDFDemo/BulletUrdfImporter.h
   ../VoronoiFracture/VoronoiFractureDemo.cpp
   ../VoronoiFracture/VoronoiFractureDemo.h
   ../VoronoiFracture/btConvexConvexMprAlgorithm.cpp
@@ -91,21 +125,24 @@ SET(App_ExampleBrowser_SRCS
   ../Vehicles/Hinge2Vehicle.h
   ../MultiBody/TestJointTorqueSetup.cpp
   ../MultiBody/TestJointTorqueSetup.h
+  ../MultiBody/InvertedPendulumPDControl.cpp
+  ../MultiBody/InvertedPendulumPDControl.h
+ ../MultiBody/MultiBodyConstraintFeedback.cpp
   ../MultiBody/MultiDofDemo.cpp
   ../MultiBody/MultiDofDemo.h
+  ../Constraints/TestHingeTorque.cpp
+  ../Constraints/TestHingeTorque.h
   ../Constraints/ConstraintDemo.cpp
   ../Constraints/ConstraintDemo.h
   ../Constraints/Dof6Spring2Setup.cpp
   ../Constraints/Dof6Spring2Setup.h
   ../Constraints/ConstraintPhysicsSetup.cpp
   ../Constraints/ConstraintPhysicsSetup.h
-  ../Experiments/ImplicitCloth/ImplicitClothExample.cpp
-  ../Experiments/ImplicitCloth/stan/Cloth.cpp
-  ../Experiments/ImplicitCloth/stan/SpringNetwork.cpp
-  ../Experiments/ImplicitCloth/stan/vec3n.cpp
-  ../Experiments/ImplicitCloth/stan/vecmath.cpp
   
 	
+	../ThirdPartyLibs/stb_image/stb_image.cpp
+	../ThirdPartyLibs/stb_image/stb_image.h
+
     ../ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
     ../ThirdPartyLibs/tinyxml/tinystr.cpp
     ../ThirdPartyLibs/tinyxml/tinyxml.cpp
@@ -135,6 +172,8 @@ SET(App_ExampleBrowser_SRCS
     ../ThirdPartyLibs/urdf/boost_replacement/string_split.h
 	../Utils/b3Clock.cpp
 	../Utils/b3Clock.h
+	../Utils/b3ResourcePath.cpp
+	../Utils/b3ResourcePath.h
 	${ExampleBrowser_SRCS}
 	${ExampleBrowser_HDRS}
 	${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc

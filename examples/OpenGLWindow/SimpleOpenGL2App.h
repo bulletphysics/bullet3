@@ -18,12 +18,12 @@ public:
 	
 	virtual void swapBuffer();
 	virtual void drawText( const char* txt, int posX, int posY);
-
-	virtual int	registerCubeShape(float halfExtentsX,float halfExtentsY, float halfExtentsZ)
+	virtual void setBackgroundColor(float red, float green, float blue);
+	virtual int	registerCubeShape(float halfExtentsX,float halfExtentsY, float halfExtentsZ, int textureIndex = -1,  float textureScaling = 1)
 	{
 		return 0;
 	}
-	virtual int	registerGraphicsSphereShape(float radius, bool usePointSprites, int largeSphereThreshold, int mediumSphereThreshold)
+	virtual int	registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lod, int textureId=-1)
 	{
 		return 0;
 	}

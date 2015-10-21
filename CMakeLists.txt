@@ -180,20 +180,11 @@ ELSE (OPENGL_FOUND)
 	SET(OPENGL_glu_LIBRARY glu32)
 ENDIF (OPENGL_FOUND)
 
-# ADD_DEFINITIONS(-DBT_USE_FREEGLUT)
 
 #FIND_PACKAGE(GLU)
 
 
 
-OPTION(BUILD_BULLET2_DEMOS "Set when you want to build the Bullet 2 demos" ON)
-IF(BUILD_BULLET2_DEMOS)
-
-
-	IF(EXISTS ${BULLET_PHYSICS_SOURCE_DIR}/examples AND IS_DIRECTORY ${BULLET_PHYSICS_SOURCE_DIR}/examples)
-		SUBDIRS(examples)
-	ENDIF()
-ENDIF(BUILD_BULLET2_DEMOS)
 
 IF (APPLE)
   FIND_LIBRARY(COCOA_LIBRARY Cocoa)
@@ -207,6 +198,7 @@ IF(BUILD_BULLET3)
                 IF(_CURRENT_OSX_VERSION  VERSION_LESS 10.9)
                         MESSAGE("Mac OSX below 10.9 has no OpenGL 3 support so please disable the BUILD_OPENGL3_DEMOS option")
                         #unset(BUILD_OPENGL3_DEMOS CACHE)
+
                         OPTION(BUILD_OPENGL3_DEMOS "Set when you want to build the OpenGL3+ demos" OFF)
                 ELSE()
                         OPTION(BUILD_OPENGL3_DEMOS "Set when you want to build the OpenGL3+ demos" ON)
@@ -222,7 +214,19 @@ IF(BUILD_OPENGL3_DEMOS)
 	IF(EXISTS ${BULLET_PHYSICS_SOURCE_DIR}/Demos3 AND IS_DIRECTORY ${BULLET_PHYSICS_SOURCE_DIR}/Demos3)
 		SUBDIRS(Demos3)
 	ENDIF()
+ELSE()
+	ADD_DEFINITIONS(-DNO_OPENGL3)
 ENDIF(BUILD_OPENGL3_DEMOS)
+
+OPTION(BUILD_BULLET2_DEMOS "Set when you want to build the Bullet 2 demos" ON)
+IF(BUILD_BULLET2_DEMOS)
+
+        IF(EXISTS ${BULLET_PHYSICS_SOURCE_DIR}/examples AND IS_DIRECTORY ${BULLET_PHYSICS_SOURCE_DIR}/examples)
+                SUBDIRS(examples)
+        ENDIF()
+ENDIF(BUILD_BULLET2_DEMOS)
+
+
 
 OPTION(BUILD_EXTRAS "Set when you want to build the extras" ON)
 IF(BUILD_EXTRAS)

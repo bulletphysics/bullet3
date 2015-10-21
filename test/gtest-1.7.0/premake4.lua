@@ -11,7 +11,7 @@
 		defines {"_VARIADIC_MAX=10"}
 	end
 	
-	--targetdir "../../lib"	
+	
 
 	includedirs {
 		".","include"

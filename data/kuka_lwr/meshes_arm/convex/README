@@ -1,0 +1,4 @@
+convex collision hulls, created using
+
+rosrun convex_decomposition convex_decomposition <mesh.obj> -v24 -p10 -s0.01
+rosrun ivcon ivcon <mesh_convex.obj> <mesh_convex.stlb>

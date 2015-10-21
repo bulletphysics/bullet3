@@ -2,6 +2,8 @@
 #include "gwenUserInterface.h"
 #include "gwenInternalData.h"
 #include "Gwen/Controls/ImagePanel.h"
+#include "Gwen/Controls/ColorPicker.h"
+//#include "Gwen/Controls/HSVColorPicker.h"
 
 class MyGraphWindow* graphWindow = 0;
 
@@ -42,13 +44,17 @@ class MyMenuItems :  public Gwen::Controls::Base
 public:
 
     b3FileOpenCallback m_fileOpenCallback;
+    b3QuitCallback m_quitCallback;
     
     MyMenuItems() :Gwen::Controls::Base(0),m_fileOpenCallback(0)
     {
     }
     void myQuitApp( Gwen::Controls::Base* pControl )
     {
-        exit(0);
+        if (m_quitCallback)
+        {
+            (*m_quitCallback)();
+        }
     }
     void fileOpen( Gwen::Controls::Base* pControl )
     {
@@ -74,7 +80,8 @@ struct MyTestMenuBar : public Gwen::Controls::MenuStrip
 		{
 			m_menuItems = new MyMenuItems();
             m_menuItems->m_fileOpenCallback = 0;
-
+            m_menuItems->m_quitCallback = 0;
+            
 			m_fileMenu = AddItem( L"File" );
 			
             m_fileMenu->GetMenu()->AddItem(L"Open",m_menuItems,(Gwen::Event::Handler::Function)&MyMenuItems::fileOpen);
@@ -162,8 +169,8 @@ void	GwenUserInterface::setExampleDescription(const char* message)
 
 	m_data->m_exampleInfoTextOutput->Clear();
 	int fixedWidth = m_data->m_exampleInfoTextOutput->GetBounds().w-25;
-
-	for (int endPos=0;endPos<=wrapmessage.length();endPos++)
+	int wrapLen = int(wrapmessage.length());
+	for (int endPos=0;endPos<=wrapLen;endPos++)
 	{
 		std::string sub = wrapmessage.substr(startPos,(endPos-startPos));	
 		Gwen::Point pt = m_data->pRenderer->MeasureText(m_data->pCanvas->GetSkin()->GetDefaultFont(),sub);
@@ -230,6 +237,11 @@ void GwenUserInterface::registerFileOpenCallback(b3FileOpenCallback callback)
     m_data->m_menuItems->m_fileOpenCallback = callback;
 }
 
+void GwenUserInterface::registerQuitCallback(b3QuitCallback callback)
+{
+    m_data->m_menuItems->m_quitCallback = callback;
+}
+
 void	GwenUserInterface::init(int width, int height,Gwen::Renderer::Base* renderer,float retinaScale)
 {
 	m_data->m_curYposition = 20;
@@ -274,7 +286,7 @@ void	GwenUserInterface::init(int width, int height,Gwen::Renderer::Base* rendere
 	*/
 	Gwen::Controls::ScrollControl* windowRight= new Gwen::Controls::ScrollControl(m_data->pCanvas);
 	windowRight->Dock(Gwen::Pos::Right);
-	windowRight->SetWidth(150);
+	windowRight->SetWidth(250);
 	windowRight->SetHeight(250);
 	windowRight->SetScroll(false,true);
 
@@ -284,8 +296,8 @@ void	GwenUserInterface::init(int width, int height,Gwen::Renderer::Base* rendere
 	Gwen::Controls::TabControl* tab = new Gwen::Controls::TabControl(windowRight);
 
 	//tab->SetHeight(300);
-	tab->SetWidth(140);
-	tab->SetHeight(250);
+	tab->SetWidth(240);
+	tab->SetHeight(1250);
 	//tab->Dock(Gwen::Pos::Left);
 	tab->Dock( Gwen::Pos::Fill );
 	//tab->SetMargin( Gwen::Margin( 2, 2, 2, 2 ) );
@@ -355,19 +367,22 @@ void	GwenUserInterface::init(int width, int height,Gwen::Renderer::Base* rendere
 
 	Gwen::UnicodeString explorerStr1(L"Explorer");
 	m_data->m_explorerPage = explorerTab->AddPage(explorerStr1);
-	Gwen::UnicodeString shapesStr1(L"Shapes");
-	explorerTab->AddPage(shapesStr1);
-	Gwen::UnicodeString testStr1(L"Test");
-	explorerTab->AddPage(testStr1);
+	Gwen::UnicodeString shapesStr1(L"Test");
+	Gwen::Controls::TabButton* shapes = explorerTab->AddPage(shapesStr1);
 
+	///todo(erwincoumans) figure out why the HSV color picker is extremely slow
+	//Gwen::Controls::HSVColorPicker* color = new Gwen::Controls::HSVColorPicker(shapes->GetPage());
+	Gwen::Controls::ColorPicker* color = new Gwen::Controls::ColorPicker(shapes->GetPage());
+	color->SetKeyboardInputEnabled(true);
+	
 	Gwen::Controls::TreeControl* ctrl = new Gwen::Controls::TreeControl(m_data->m_explorerPage->GetPage());
 	m_data->m_explorerTreeCtrl = ctrl;
 	ctrl->SetKeyboardInputEnabled(true);
 	ctrl->Focus();
-	ctrl->SetBounds(2, 10, 236, 400);
+	ctrl->SetBounds(2, 10, 236, 300);
 
-		m_data->m_exampleInfoGroupBox = new Gwen::Controls::Label( m_data->m_explorerPage->GetPage() );
-	m_data->m_exampleInfoGroupBox->SetPos(2, 414);
+	m_data->m_exampleInfoGroupBox = new Gwen::Controls::Label( m_data->m_explorerPage->GetPage() );
+	m_data->m_exampleInfoGroupBox->SetPos(2, 314);
 	m_data->m_exampleInfoGroupBox->SetHeight( 15 );
 	m_data->m_exampleInfoGroupBox->SetWidth(234);
 	m_data->m_exampleInfoGroupBox->SetText("Example Description");
@@ -376,7 +391,7 @@ void	GwenUserInterface::init(int width, int height,Gwen::Renderer::Base* rendere
 	
 
 	//m_data->m_exampleInfoTextOutput->Dock( Gwen::Pos::Bottom );
-	m_data->m_exampleInfoTextOutput->SetPos(2, 432);
+	m_data->m_exampleInfoTextOutput->SetPos(2, 332);
 	m_data->m_exampleInfoTextOutput->SetHeight( 150 );
 	m_data->m_exampleInfoTextOutput->SetWidth(233);
 	
@@ -413,7 +428,7 @@ void	GwenUserInterface::setToggleButtonCallback(b3ToggleButtonCallback callback)
 {
 	m_data->m_toggleButtonCallback = callback;
 }
-void	GwenUserInterface::registerToggleButton(int buttonId, const char* name)
+void	GwenUserInterface::registerToggleButton2(int buttonId, const char* name)
 {
 	assert(m_data);
 	assert(m_data->m_demoPage);
@@ -423,7 +438,7 @@ void	GwenUserInterface::registerToggleButton(int buttonId, const char* name)
 	///some heuristic to find the button location
 	int ypos = m_data->m_curYposition;
 	but->SetPos(10, ypos );
-	but->SetWidth( 100 );
+	but->SetWidth( 200 );
 	//but->SetBounds( 200, 30, 300, 200 );
 
 	MyButtonHander* handler = new MyButtonHander(m_data, buttonId);
@@ -445,7 +460,7 @@ b3ComboBoxCallback GwenUserInterface::getComboBoxCallback()
 {
 	return m_data->m_comboBoxCallback;
 }
-void	GwenUserInterface::registerComboBox(int comboboxId, int numItems, const char** items, int startItem)
+void	GwenUserInterface::registerComboBox2(int comboboxId, int numItems, const char** items, int startItem)
 {
 	Gwen::Controls::ComboBox* combobox = new Gwen::Controls::ComboBox(m_data->m_demoPage->GetPage());
 	MyComboBoxHander* handler = new MyComboBoxHander(m_data, comboboxId);
@@ -507,7 +522,7 @@ bool	GwenUserInterface::mouseMoveCallback( float x, float y)
 
 bool	GwenUserInterface::keyboardCallback(int bulletKey, int state)
 {
-	int key = -1;
+	int gwenKey = -1;
 	if (m_data->pCanvas)
 	{
 		//convert 'Bullet' keys into 'Gwen' keys
@@ -515,30 +530,79 @@ bool	GwenUserInterface::keyboardCallback(int bulletKey, int state)
 		{
 		case B3G_RETURN:
 		{
-				   key = Gwen::Key::Return;
-				   break;
+			gwenKey = Gwen::Key::Return;
+			break;
 		}
-		case 	B3G_LEFT_ARROW:
-			key = Gwen::Key::Left;
+		case B3G_LEFT_ARROW:
+		{
+			gwenKey = Gwen::Key::Left;
 			break;
-		case B3G_RIGHT_ARROW:
-			key = Gwen::Key::Right;
+		}
+	case B3G_RIGHT_ARROW:
+		{
+			gwenKey = Gwen::Key::Right;
 			break;
+		}
+	case B3G_UP_ARROW:
+		{
+			gwenKey = Gwen::Key::Up;
+			break;
+		}
+	case B3G_DOWN_ARROW:
+		{
+			gwenKey = Gwen::Key::Down;
+			break;
+		}
+	case B3G_BACKSPACE:
+		{
+			gwenKey = Gwen::Key::Backspace;
+			break;
+		}
+	case B3G_DELETE:
+		{
+			gwenKey = Gwen::Key::Delete;
+			break;
+		}
+	case B3G_HOME:
+		{
+			gwenKey = Gwen::Key::Home;
+			break;
+		}
+	case B3G_END:
+		{
+			gwenKey = Gwen::Key::End;
+			break;
+		}
+	case B3G_SHIFT:
+		{
+			gwenKey = Gwen::Key::Shift;
+			break;
+		}
+	case B3G_CONTROL:
+		{
+			gwenKey = Gwen::Key::Control;
+			break;
+		}
 
-		case	B3G_UP_ARROW:
-			key = Gwen::Key::Up;
-			break;
-		case B3G_DOWN_ARROW:
-			key = Gwen::Key::Down;
-			break;
 		default:
 		{
-
+			
 		}
 		};
-		bool bDown = (state == 1);
 
-		return m_data->pCanvas->InputKey(key, bDown);
+		if (gwenKey>=0)
+		{
+				return m_data->pCanvas->InputKey(gwenKey,state==1);
+		} else
+		{
+			if (bulletKey<256 && state)
+			{
+				Gwen::UnicodeChar c = ( Gwen::UnicodeChar ) bulletKey;
+				return m_data->pCanvas->InputCharacter(c);
+			}
+		}
+
+	
 	}
 	return false;
 }

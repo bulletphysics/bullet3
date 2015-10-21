@@ -2,8 +2,7 @@
 
 #define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
 #import <Cocoa/Cocoa.h>
-#include <OpenGL/gl3.h>
-#include <OpenGL/gl3ext.h>
+#include "OpenGLInclude.h"
 
 
 #include <stdlib.h>
@@ -41,7 +40,6 @@ void dumpInfo(void)
 
 
 
-
 // -------------------- View ------------------------
 
 @interface TestView : NSView
@@ -49,6 +47,7 @@ void dumpInfo(void)
     NSOpenGLContext* m_context;
     int m_lastWidth;
     int m_lastHeight;
+    bool m_requestClose;
     b3ResizeCallback    m_resizeCallback;
 
 }
@@ -57,8 +56,11 @@ void dumpInfo(void)
 -(void) MakeCurrent;
 -(float) GetWindowWidth;
 -(float) GetWindowHeight;
+-(BOOL) GetRequestClose;
+- (BOOL)windowShouldClose:(id)sender;
 -(void) setResizeCallback:(b3ResizeCallback) callback;
 -(b3ResizeCallback) getResizeCallback;
+-(NSOpenGLContext*) getContext;
 @end
 
 float loop;
@@ -67,6 +69,15 @@ float loop;
 
 @implementation TestView
 
+- (BOOL)windowShouldClose:(id)sender
+{
+    m_requestClose = true;
+    return false;
+}
+-(BOOL) GetRequestClose
+{
+    return m_requestClose;
+}
 -(float) GetWindowWidth
 {
     return m_lastWidth;
@@ -81,6 +92,10 @@ float loop;
 	return m_resizeCallback;
 }
 
+-(NSOpenGLContext*) getContext
+{
+	return m_context;
+}
 -(void)setResizeCallback:(b3ResizeCallback)callback
 {
     m_resizeCallback = callback;
@@ -107,16 +122,16 @@ float loop;
         {
             (*m_resizeCallback)(width,height);
         }
-     
+    #ifndef NO_OPENGL3 
 		NSRect backingBounds = [self convertRectToBacking:[self bounds]];
         GLsizei backingPixelWidth  = (GLsizei)(backingBounds.size.width),
         backingPixelHeight = (GLsizei)(backingBounds.size.height);
         
         // Set viewport
         glViewport(0, 0, backingPixelWidth, backingPixelHeight);
-		
-     //   glViewport(0,0,(GLsizei)width,(GLsizei)height);
-
+	#else	
+       glViewport(0,0,(GLsizei)width,(GLsizei)height);
+#endif
 	}
 	
 	[m_context setView: self];
@@ -136,11 +151,11 @@ float loop;
     //	NSWindow *w;
 	NSOpenGLPixelFormat *fmt;
     
-	
+	m_requestClose = false;
 
 	
 	
-	
+#ifndef NO_OPENGL3	
 	if (openglVersion==3)
 	{
 		NSOpenGLPixelFormatAttribute attrs[] =
@@ -156,6 +171,7 @@ float loop;
 		// Init GL context
 		fmt = [[NSOpenGLPixelFormat alloc] initWithAttributes: (NSOpenGLPixelFormatAttribute*)attrs];
 	} else
+#endif
 	{
 		NSOpenGLPixelFormatAttribute attrs[] =
 		{
@@ -216,7 +232,8 @@ m_mouseMoveCallback(0),
 m_mouseButtonCallback(0),
 m_wheelCallback(0),
 m_keyboardCallback(0),
-m_retinaScaleFactor(1)
+m_retinaScaleFactor(1),
+m_allowRetina(true)
 {
 }
 
@@ -381,7 +398,10 @@ void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
     //support HighResolutionOSX for Retina Macbook
     if (ci.m_openglVersion>=3)
     {
-        [m_internalData->m_myview  setWantsBestResolutionOpenGLSurface:YES];
+		if (m_allowRetina)
+		{
+			[m_internalData->m_myview  setWantsBestResolutionOpenGLSurface:YES];
+		}
     }
     NSSize sz;
     sz.width = 1;
@@ -437,8 +457,11 @@ void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
      TransformProcessType(&psn, kProcessTransformToForegroundApplication);
      SetFrontProcess(&psn);
     */
- 
+#ifndef NO_OPENGL3 
     m_retinaScaleFactor = [m_internalData->m_myview convertSizeToBacking:sz].width;
+#else
+	m_retinaScaleFactor=1.f;
+#endif
 
      [m_internalData->m_myApp finishLaunching];
     [pool release];
@@ -767,7 +790,6 @@ void MacOpenGLWindow::startRendering()
         
 		//NSShiftKeyMask              = 1 << 17,
 		//NSControlKeyMask
-		
 	
 		if ([event type] == NSFlagsChanged)
 		{
@@ -1032,12 +1054,18 @@ void MacOpenGLWindow::startRendering()
 void MacOpenGLWindow::endRendering()
 {
     [m_internalData->m_myview MakeCurrent];
-    glSwapAPPLE();
+//#ifndef NO_OPENGL3
+//	glSwapAPPLE();
+//#else
+ [[m_internalData->m_myview getContext] flushBuffer];
+//  #endif 
+
 }
 
 bool MacOpenGLWindow::requestedExit() const
 {
-    return m_internalData->m_exitRequested;   
+    bool closeme = m_internalData->m_myview.GetRequestClose;
+    return m_internalData->m_exitRequested || closeme;
 }
 
 void MacOpenGLWindow::setRequestExit()
@@ -1117,3 +1145,4 @@ b3ResizeCallback MacOpenGLWindow::getResizeCallback()
 {
 	return [m_internalData->m_myview getResizeCallback];
 }
+

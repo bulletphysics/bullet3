@@ -19,6 +19,8 @@ class MacOpenGLWindow : public CommonWindowInterface
 	b3RenderCallback m_renderCallback;
 	
     float m_retinaScaleFactor;
+	bool m_allowRetina;
+	
 public:
     
     MacOpenGLWindow();
@@ -69,6 +71,7 @@ public:
 		return m_mouseButtonCallback;
 	}
 	virtual b3ResizeCallback getResizeCallback();
+
 	virtual b3WheelCallback getWheelCallback()
 	{
 		return m_wheelCallback;
@@ -88,6 +91,10 @@ public:
     {
         return m_retinaScaleFactor;
     }
+	virtual	void	setAllowRetina(bool allow)
+	{
+		m_allowRetina = allow;
+	}
 	
 	virtual	void	createWindow(const b3gWindowConstructionInfo& ci);
 	

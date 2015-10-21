@@ -10,13 +10,13 @@ struct SimpleCameraInternalData
 		:m_cameraTargetPosition(b3MakeVector3(0,0,0)),
 		m_cameraDistance(20),
 		m_cameraUp(b3MakeVector3(0,1,0)),
-		m_cameraUpAxis(1),
 		m_cameraForward(b3MakeVector3(1,0,0)),
-		m_frustumZNear(1),
-		m_frustumZFar(10000),
+	 	m_cameraUpAxis(1),	
 		m_yaw(20),
 		m_pitch(0),
-		m_aspect(1)
+		m_aspect(1),
+ 		m_frustumZNear(0.01),
+                m_frustumZFar(1000)
 	{
 	}
 	b3Vector3 m_cameraTargetPosition;
@@ -83,7 +83,7 @@ static void    b3CreateFrustum(
 
 
 
-
+#if 0
 static void b3CreateDiagonalMatrix(float value, float result[4][4])
 {
 	for (int i=0;i<4;i++)
@@ -100,7 +100,6 @@ static void b3CreateDiagonalMatrix(float value, float result[4][4])
 		}
 	}
 }
-
 static void b3CreateOrtho(float left, float right, float bottom, float top, float zNear, float zFar, float result[4][4])
 {
 	b3CreateDiagonalMatrix(1.f,result);
@@ -112,7 +111,7 @@ static void b3CreateOrtho(float left, float right, float bottom, float top, floa
 	result[3][1] = - (top + bottom) / (top - bottom);
 	result[3][2] = - (zFar + zNear) / (zFar - zNear);
 }
-
+#endif
 static void    b3CreateLookAt(const b3Vector3& eye, const b3Vector3& center,const b3Vector3& up, float result[16])
 {
     b3Vector3 f = (center - eye).normalized();

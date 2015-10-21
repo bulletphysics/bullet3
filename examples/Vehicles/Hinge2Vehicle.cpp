@@ -301,13 +301,11 @@ Hinge2Vehicle::~Hinge2Vehicle()
 }
 
 
-extern float shadowMapWorldSize;
 
 void Hinge2Vehicle::initPhysics()
 {
 	m_guiHelper->setUpAxis(1);
 
-	shadowMapWorldSize = 10;
 
 	btCollisionShape* groundShape = new btBoxShape(btVector3(50,3,50));
 	m_collisionShapes.push_back(groundShape);

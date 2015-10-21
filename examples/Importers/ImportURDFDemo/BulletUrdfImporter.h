@@ -1,22 +1,22 @@
-#ifndef MY_URDF_IMPORTER_H
-#define MY_URDF_IMPORTER_H 
+#ifndef BULLET_URDF_IMPORTER_H
+#define BULLET_URDF_IMPORTER_H 
 
 #include "URDFImporterInterface.h"
 
 
-class MyURDFImporter : public URDFImporterInterface
+class BulletURDFImporter : public URDFImporterInterface
 {
     
-	struct MyURDFInternalData* m_data;
+	struct BulletURDFInternalData* m_data;
     
 
 public:
 
-	MyURDFImporter(struct GUIHelperInterface* guiHelper);
+	BulletURDFImporter(struct GUIHelperInterface* guiHelper);
 
-	virtual ~MyURDFImporter();
+	virtual ~BulletURDFImporter();
 
-	virtual bool loadURDF(const char* fileName);
+	virtual bool loadURDF(const char* fileName, bool forceFixedBase = false);
 
 	const char* getPathPrefix();
 
@@ -41,4 +41,4 @@ public:
 };
 
 
-#endif //MY_URDF_IMPORTER_H
+#endif //BULLET_URDF_IMPORTER_H

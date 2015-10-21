@@ -26,7 +26,7 @@ void main(void)
 	vec3 ct,cf;
 	float intensity,at,af;
 	intensity = max(dot(lightDir,normalize(normal)),0);
-	cf = intensity*vec3(1.0,1.0,1.0)+ambient;
+	cf = intensity*(vec3(1.0,1.0,1.0)-ambient)+ambient;
 	af = 1.0;
 		
 	ct = texel.rgb;

@@ -1,3 +1,4 @@
+#ifndef NO_OPENGL3
 #include "GLPrimitiveRenderer.h"
 #include "GLPrimInternalData.h"
 
@@ -320,3 +321,4 @@ void GLPrimitiveRenderer::setScreenSize(int width, int height)
 	m_screenHeight = height;
     
 }
+#endif

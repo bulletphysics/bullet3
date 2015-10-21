@@ -73,7 +73,8 @@ bool Gwen::Platform::SetClipboardText( const Gwen::UnicodeString& str )
 
 	// Copy the string into the buffer
 	wchar_t* buffer = (wchar_t*) GlobalLock( clipbuffer );
-		wcscpy_s( buffer, iDataSize, str.c_str() );
+		//wcscpy_s( buffer, iDataSize, str.c_str() );
+		memcpy( buffer, str.c_str() ,iDataSize);
 	GlobalUnlock(clipbuffer);
 
 	// Place it on the clipboard

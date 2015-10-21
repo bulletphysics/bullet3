@@ -171,7 +171,7 @@ updateVertex(
     return it->second;
   }
 
-  assert(in_positions.size() > (3*i.v_idx+2));
+  assert(static_cast<int>(in_positions.size()) > (3*i.v_idx+2));
 
   positions.push_back(in_positions[3*i.v_idx+0]);
   positions.push_back(in_positions[3*i.v_idx+1]);
@@ -606,8 +606,8 @@ LoadObj(
 
       std::string err_mtl = LoadMtl(material_map, namebuf, mtl_basepath);
       if (!err_mtl.empty()) {
-        faceGroup.resize(0);  // for safety
-        return err_mtl;
+        //faceGroup.resize(0);  // for safety
+        //return err_mtl;
       }
       continue;
     }

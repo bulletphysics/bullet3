@@ -65,7 +65,7 @@ out vec3 lightDir,normal,ambient;
 void main(void)
 {
 	vec4 q = instance_quaternion;
-	ambient = vec3(0.3,.3,0.3);
+	ambient = vec3(0.6,.6,0.6);
 			
 	vec4 worldNormal = (quatRotate3( vertexnormal,q));
 	
@@ -73,7 +73,7 @@ void main(void)
 
 	lightDir = lightDirIn;
 		
-	vec4 axis = vec4(1,1,1,0);
+	
 	vec4 localcoord = quatRotate3( position.xyz*instance_scale,q);
 	vec4 vertexPos = MVP* vec4((instance_position+localcoord).xyz,1);
 

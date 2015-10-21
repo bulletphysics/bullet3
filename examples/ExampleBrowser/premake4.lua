@@ -21,6 +21,13 @@
                 "../ThirdPartyLibs",
                 }
 
+	if _OPTIONS["lua"] then
+		includedirs{"../ThirdPartyLibs/lua-5.2.3/src"}
+		links {"lua-5.2.3"}
+		defines {"ENABLE_LUA"}
+		files {"../LuaDemo/LuaPhysicsSetup.cpp"}
+	end
+
 			
 		links{"gwen", "OpenGL_Window","BulletSoftBody", "BulletDynamics","BulletCollision","LinearMath","Bullet3Common"}
 		initOpenGL()
@@ -41,9 +48,27 @@
 
 
 		files {
-		"**.cpp",
-		"**.h",
+		"*.cpp",
+		"*.h",
+		"GwenGUISupport/*.cpp",
+		"GwenGUISupport/*.h",
+		"../SharedMemory/PhysicsClientC_API.cpp",
+		"../SharedMemory/PhysicsClientC_API.h",
+		"../SharedMemory/PhysicsServerExample.cpp",
+		"../SharedMemory/PhysicsClientExample.cpp",
+		"../SharedMemory/PhysicsServer.cpp",
+		"../SharedMemory/PhysicsClientSharedMemory.cpp",
+		"../SharedMemory/PhysicsClient.cpp",
+		"../SharedMemory/PosixSharedMemory.cpp",
+		"../SharedMemory/Win32SharedMemory.cpp",
+		"../MultiThreading/MultiThreadingExample.cpp",
+		"../MultiThreading/b3PosixThreadSupport.cpp",
+		"../MultiThreading/b3Win32ThreadSupport.cpp",
+		"../MultiThreading/b3ThreadSupportInterface.cpp",
 		"../BasicDemo/BasicExample.*",
+		"../Tutorial/*",
+		"../Collision/*",
+		"../Collision/Internal/*",
 		"../Benchmarks/*",
 		"../CommonInterfaces/*",
 		"../ForkLift/ForkLiftDemo.*",
@@ -62,14 +87,15 @@
 		"../Raycast/*",
 		"../MultiBody/MultiDofDemo.cpp",
 		"../MultiBody/TestJointTorqueSetup.cpp",
+		"../MultiBody/MultiBodyConstraintFeedback.cpp",
+		"../MultiBody/InvertedPendulumPDControl.cpp",
 		"../ThirdPartyLibs/stb_image/*",
 		"../ThirdPartyLibs/Wavefront/tiny_obj_loader.*",
 		"../ThirdPartyLibs/tinyxml/*",
 		"../Utils/b3Clock.*",
+		"../Utils/b3ResourcePath.*",
 		"../GyroscopicDemo/GyroscopicSetup.cpp",
 		"../GyroscopicDemo/GyroscopicSetup.h",
-		"../Experiments/ImplicitCloth/**.cpp",
-		"../Experiments/ImplicitCloth/**.h",
 		"../ThirdPartyLibs/urdf/urdfdom/urdf_parser/src/pose.cpp",
 		"../ThirdPartyLibs/urdf/urdfdom/urdf_parser/src/model.cpp",
     "../ThirdPartyLibs/urdf/urdfdom/urdf_parser/src/link.cpp",
@@ -93,7 +119,7 @@
 
 		}
 		
-		if (hasCL) then
+		if (hasCL and findOpenGL3()) then
 			files {
 				"../OpenCL/broadphase/*",
 				"../OpenCL/CommonOpenCL/*",

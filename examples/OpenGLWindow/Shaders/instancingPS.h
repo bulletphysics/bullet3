@@ -23,7 +23,7 @@ static const char* instancingFragmentShader= \
 "	vec3 ct,cf;\n"
 "	float intensity,at,af;\n"
 "	intensity = max(dot(lightDir,normalize(normal)),0);\n"
-"	cf = intensity*vec3(1.0,1.0,1.0)+ambient;\n"
+"	cf = intensity*(vec3(1.0,1.0,1.0)-ambient)+ambient;\n"
 "	af = 1.0;\n"
 "		\n"
 "	ct = texel.rgb;\n"

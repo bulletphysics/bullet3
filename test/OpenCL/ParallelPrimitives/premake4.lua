@@ -10,7 +10,7 @@ function createProject(vendor)
 		language "C++"
 				
 		kind "ConsoleApp"
-		targetdir "../../../bin"
+		
 		includedirs {".","../../../src"}
 		
 		

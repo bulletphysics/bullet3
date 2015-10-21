@@ -1,11 +1,11 @@
 
-	project "test_bullet_collision"
+	project "Test_BulletCollision"
 		
 	kind "ConsoleApp"
 	
 --	defines {  }
 	
---	targetdir "../../bin"
+
 	
 	includedirs 
 	{

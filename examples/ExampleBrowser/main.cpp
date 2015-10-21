@@ -12,22 +12,28 @@
 #include "../Utils/b3Clock.h"
 
 #include "ExampleEntries.h"
+#include "Bullet3Common/b3Logging.h"
+
+
 
 int main(int argc, char* argv[])
 {
 	b3CommandLineArgs args(argc,argv);
-    b3Clock clock;
-
+	b3Clock clock;
+	
+	
 	ExampleEntries examples;
 	examples.initExampleEntries();
 
 	ExampleBrowserInterface* exampleBrowser = new DefaultBrowser(&examples);
 	bool init = exampleBrowser->init(argc,argv);
+	clock.reset();
 	if (init)
 	{
 		do 
 		{
-			float deltaTimeInSeconds = 1./120.f;
+			float deltaTimeInSeconds = clock.getTimeMicroseconds()/1000000.f;
+			clock.reset();
 			exampleBrowser->update(deltaTimeInSeconds);
 
 		} while (!exampleBrowser->requestedExit());

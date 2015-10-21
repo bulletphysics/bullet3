@@ -1,0 +1,12 @@
+The meshes of the lightweight robot are based on a blender model
+which was re-designed from scratch. (It can be downloaded at
+http://toychest.in.tum.de/wiki/_media/projects:lwr-arm.blend)
+
+This blender model, as well as the meshes found in this folder
+are licensed under CC-BY-3.0:
+
+Copyright (c) 2010 by Ingo Kresse <kresse@in.tum.de>.
+This work is made available under the terms of the
+Creative Commons Attribution 3.0 license,
+http://creativecommons.org/licenses/by/3.0/. 
+

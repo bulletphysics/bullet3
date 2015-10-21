@@ -7,7 +7,7 @@
 	includedirs {
 		".."
 	}		
-	targetdir "../../bin"
+	
 
 	files {
 		"**.cpp",

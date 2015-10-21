@@ -1,3 +1,4 @@
+#ifndef NO_OPENGL3
 
 ///See http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
 
@@ -132,4 +133,5 @@ GLRenderToTexture::~GLRenderToTexture()
 		glDeleteFramebuffers(1, &m_framebufferName);
 	}
 }
+#endif
 

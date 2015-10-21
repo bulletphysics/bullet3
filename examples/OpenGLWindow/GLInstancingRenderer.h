@@ -55,7 +55,7 @@ public:
 
 	void InitShaders();
 	void CleanupShaders();
-	void removeAllInstances();
+	virtual void removeAllInstances();
 
 	virtual void updateShape(int shapeIndex, const float* vertices);
 
@@ -127,6 +127,7 @@ public:
     {
         m_enableBlend = blend;
     }
+	virtual void clearZBuffer();
 
 };
 

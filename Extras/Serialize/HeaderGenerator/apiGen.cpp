@@ -220,7 +220,7 @@ int main(int argc,char** argv)
 	fprintf(dump, "%s\n", data);
 
 	
-	char* filename = "../../../Demos/SerializeDemo/testFile.bullet";
+	char* filename = "../../../../data/slope.bullet";
 	
 	if (argc==2)
 		filename = argv[1];

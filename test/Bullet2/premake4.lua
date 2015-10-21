@@ -1,14 +1,15 @@
 
-project "AppUnitTest"
+project "Test_LinearMath"
 
 if _OPTIONS["ios"] then
 	kind "WindowedApp"
 else	
 	kind "ConsoleApp"
 end
-targetdir "bin"
 
-includedirs {"../src","Source", "Source/Tests"}
+
+
+includedirs {"../../src","Source", "Source/Tests"}
 
 links {
 	"BulletDynamics","BulletCollision", "LinearMath"
