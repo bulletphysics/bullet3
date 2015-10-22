@@ -423,8 +423,8 @@ void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
     [m_internalData->m_window makeKeyAndOrderFront: nil];
     
     [m_internalData->m_myview MakeCurrent];
-    m_internalData->m_width = m_internalData->m_myview.GetWindowWidth;
-    m_internalData->m_height = m_internalData->m_myview.GetWindowHeight;
+    //m_internalData->m_width = m_internalData->m_myview.GetWindowWidth;
+    //m_internalData->m_height = m_internalData->m_myview.GetWindowHeight;
     
     
     [NSApp activateIgnoringOtherApps:YES];
