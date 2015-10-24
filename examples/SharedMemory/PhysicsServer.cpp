@@ -1246,7 +1246,7 @@ void PhysicsServerSharedMemory::processClientCommands()
 					{
 						b3Printf("Server Init Pose not implemented yet");
 					}
-					int bodyUniqueId = clientCmd.m_sendDesiredStateCommandArgument.m_bodyUniqueId;
+					int bodyUniqueId = clientCmd.m_initPoseArgs.m_bodyUniqueId;
 					InteralBodyData* body = m_data->getHandle(bodyUniqueId);
 
 					if (body && body->m_multiBody)
