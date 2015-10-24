@@ -1246,7 +1246,7 @@ void PhysicsServerSharedMemory::processClientCommands()
 					{
 						b3Printf("Server Init Pose not implemented yet");
 					}
-					int bodyUniqueId = clientCmd.m_sendDesiredStateCommandArgument.m_bodyUniqueId;
+					int bodyUniqueId = clientCmd.m_initPoseArgs.m_bodyUniqueId;
 					InteralBodyData* body = m_data->getHandle(bodyUniqueId);
 
 					if (body && body->m_multiBody)
@@ -1301,8 +1301,9 @@ void PhysicsServerSharedMemory::processClientCommands()
                         m_data->m_guiHelper->getRenderInterface()->removeAllInstances();
                     }
                     deleteDynamicsWorld();
-					createEmptyDynamicsWorld();
-					
+		    createEmptyDynamicsWorld();
+		    m_data->exitHandles();
+		    m_data->initHandles();
                     SharedMemoryStatus& serverCmd =m_data->createServerStatus(CMD_RESET_SIMULATION_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
 					m_data->submitServerStatus(serverCmd);
 
