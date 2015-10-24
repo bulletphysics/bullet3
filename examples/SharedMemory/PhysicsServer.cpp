@@ -1301,8 +1301,9 @@ void PhysicsServerSharedMemory::processClientCommands()
                         m_data->m_guiHelper->getRenderInterface()->removeAllInstances();
                     }
                     deleteDynamicsWorld();
-					createEmptyDynamicsWorld();
-					
+		    createEmptyDynamicsWorld();
+		    m_data->exitHandles();
+		    m_data->initHandles();
                     SharedMemoryStatus& serverCmd =m_data->createServerStatus(CMD_RESET_SIMULATION_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
 					m_data->submitServerStatus(serverCmd);
 
