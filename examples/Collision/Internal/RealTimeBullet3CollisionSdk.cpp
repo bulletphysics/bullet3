@@ -3,6 +3,7 @@
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3Collidable.h"
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3ConvexPolyhedronData.h"
+#include "Bullet3Collision/BroadPhaseCollision/shared/b3Aabb.h"
 
 //convert the opaque pointer to int
 struct RTB3_ColliderOpaque2Int
@@ -48,6 +49,8 @@ struct RTB3CollisionWorld
 	b3AlignedObjectArray<b3Collidable> m_collidables;
 	
 	b3AlignedObjectArray<b3GpuChildShape> m_childShapes;
+	b3AlignedObjectArray<b3Aabb>	m_localSpaceAabbs;
+	b3AlignedObjectArray<b3Aabb>	m_worldSpaceAabbs;
 	b3AlignedObjectArray<b3GpuFace> m_planeFaces;
 	b3AlignedObjectArray<b3CompoundOverlappingPair> m_compoundOverlappingPairs;
 	int m_nextFreeShapeIndex;

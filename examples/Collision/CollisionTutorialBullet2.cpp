@@ -245,7 +245,10 @@ public:
 		numNearCallbacks = 0;
 		{
 			BT_PROFILE("plWorldCollide");
-			plWorldCollide(m_collisionSdkHandle,m_collisionWorldHandle,myNearCallback, myUserPtr);
+			if (m_collisionSdkHandle && m_collisionWorldHandle)
+			{
+				plWorldCollide(m_collisionSdkHandle,m_collisionWorldHandle,myNearCallback, myUserPtr);
+			}
 		}
 
 #if 0
