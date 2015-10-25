@@ -95,6 +95,7 @@ int	b3PhysicsParamSetTimeStep(b3SharedMemoryCommandHandle commandHandle, double 
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
 	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+	command->m_updateFlags |= SIM_PARAM_UPDATE_DELTA_TIME;	
 	command->m_physSimParamArgs.m_deltaTime = timeStep;
 	return 0;
 }
@@ -313,12 +314,16 @@ int	b3CreatePoseCommandSetJointPositions(b3SharedMemoryCommandHandle commandHand
 int	b3CreatePoseCommandSetJointPosition(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle, int jointIndex, double jointPosition)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
-    b3Assert(command);
-    b3Assert(command->m_type == CMD_INIT_POSE);
-    command->m_updateFlags |=INIT_POSE_HAS_JOINT_STATE;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_INIT_POSE);
+	command->m_updateFlags |=INIT_POSE_HAS_JOINT_STATE;
 	b3JointInfo info;
 	b3GetJointInfo(physClient, command->m_initPoseArgs.m_bodyUniqueId,jointIndex, &info);
-	command->m_initPoseArgs.m_initialStateQ[info.m_qIndex] = jointPosition;
+	btAssert((info.m_flags & JOINT_HAS_MOTORIZED_POWER) && info.m_qIndex >=0);
+	if ((info.m_flags & JOINT_HAS_MOTORIZED_POWER) && info.m_qIndex >=0)
+	{  
+		command->m_initPoseArgs.m_initialStateQ[info.m_qIndex] = jointPosition;
+	}
 	return 0;
 }
 
