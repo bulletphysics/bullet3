@@ -59,7 +59,7 @@ void ImportObjSetup::initPhysics()
 	m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
 
 
-   const char* fileName = "sphere8.obj";//sponza_closed.obj";//sphere8.obj";
+   const char* fileName = "cube.obj";//sphere8.obj";//sponza_closed.obj";//sphere8.obj";
         char relativeFileName[1024];
         if (b3ResourcePath::findResourcePath(fileName, relativeFileName, 1024))
         {
@@ -70,7 +70,7 @@ void ImportObjSetup::initPhysics()
 
 	
 	btVector3 shift(0,0,0);
-	btVector3 scaling(10,10,10);
+	btVector3 scaling(1,1,1);
 //	int index=10;
 	
 	{
