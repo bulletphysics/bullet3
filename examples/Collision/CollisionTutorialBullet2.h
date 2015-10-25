@@ -3,8 +3,10 @@
 
 enum EnumCollisionTutorialTypes
 {
-	TUT_SPHERE_SPHERE=0,
-	TUT_SPHERE_PLANE,
+	TUT_SPHERE_SPHERE_BULLET2=0,
+	TUT_SPHERE_PLANE_BULLET2,
+	TUT_SPHERE_SPHERE_RTB3,
+	TUT_SPHERE_PLANE_RTB3,
 };
 
 class	CommonExampleInterface*    CollisionTutorialBullet2CreateFunc(struct CommonExampleOptions& options);

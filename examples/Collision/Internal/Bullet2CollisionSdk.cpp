@@ -65,6 +65,17 @@ plCollisionShapeHandle Bullet2CollisionSdk::createSphereShape(plCollisionWorldHa
 	return (plCollisionShapeHandle) sphereShape;
 }
 
+plCollisionShapeHandle Bullet2CollisionSdk::createPlaneShape(plCollisionWorldHandle worldHandle, 
+													plReal planeNormalX, 
+													plReal planeNormalY, 
+													plReal planeNormalZ, 
+													plReal planeConstant)
+{
+	btStaticPlaneShape* planeShape = new btStaticPlaneShape(btVector3(planeNormalX,planeNormalY,planeNormalZ),planeConstant);
+	return (plCollisionShapeHandle) planeShape;
+}
+
+
 void Bullet2CollisionSdk::deleteShape(plCollisionWorldHandle /*worldHandle*/, plCollisionShapeHandle shapeHandle)
 {
 	btCollisionShape* shape = (btCollisionShape*) shapeHandle;
@@ -166,6 +177,7 @@ struct   Bullet2ContactResultCallback : public btCollisionWorld::ContactResultCa
 int Bullet2CollisionSdk::collide(plCollisionWorldHandle worldHandle,plCollisionObjectHandle colA, plCollisionObjectHandle colB,
                     lwContactPoint* pointsOut, int pointCapacity)
 {
+	
     btCollisionWorld* world = (btCollisionWorld*) worldHandle;
     btCollisionObject* colObjA = (btCollisionObject*) colA;
     btCollisionObject* colObjB = (btCollisionObject*) colB;
