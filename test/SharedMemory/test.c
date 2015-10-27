@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
 
         {
         		int statusType;
-            b3SharedMemoryCommandHandle command = b3RequestActualStateCommandInit(sm);
+            b3SharedMemoryCommandHandle command = b3RequestActualStateCommandInit(sm,bodyIndex);
             b3SharedMemoryStatusHandle statusHandle;
             statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
             statusType = b3GetStatusType(statusHandle);
@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
         }
         
         {
-            b3SharedMemoryStatusHandle state = b3SubmitClientCommandAndWaitStatus(sm, b3RequestActualStateCommandInit(sm));
+            b3SharedMemoryStatusHandle state = b3SubmitClientCommandAndWaitStatus(sm, b3RequestActualStateCommandInit(sm,bodyIndex));
         
 			if (sensorJointIndexLeft>=0)
 			{

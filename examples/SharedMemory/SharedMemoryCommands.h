@@ -202,7 +202,9 @@ enum EnumBoxShapeFlags
 {
     BOX_SHAPE_HAS_INITIAL_POSITION=1,
     BOX_SHAPE_HAS_INITIAL_ORIENTATION=2,
-    BOX_SHAPE_HAS_HALF_EXTENTS=4
+    BOX_SHAPE_HAS_HALF_EXTENTS=4,
+	BOX_SHAPE_HAS_MASS=8,
+	BOX_SHAPE_HAS_COLLISION_SHAPE_TYPE=16,
 };
 ///This command will be replaced to allow arbitrary collision shape types
 struct CreateBoxShapeArgs
@@ -210,6 +212,9 @@ struct CreateBoxShapeArgs
     double m_halfExtentsX;
     double m_halfExtentsY;
     double m_halfExtentsZ;
+
+	double m_mass;
+	int m_collisionShapeType;//see SharedMemoryPublic.h
 
     double m_initialPosition[3];
 	double m_initialOrientation[4];
@@ -240,6 +245,10 @@ struct SharedMemoryCommand
     };
 };
 
+struct RigidBodyCreateArgs
+{
+	int m_bodyUniqueId; 
+};
 
 struct SharedMemoryStatus
 {
@@ -253,6 +262,7 @@ struct SharedMemoryStatus
 		struct BulletDataStreamArgs	m_dataStreamArguments;
 		struct SendActualStateArgs m_sendActualStateArgs;
 		struct SendDebugLinesArgs m_sendDebugLinesArgs;
+		struct RigidBodyCreateArgs m_rigidBodyCreateArgs;
 	};
 };
 
