@@ -191,7 +191,7 @@ int b3JointControlSetDesiredForceTorque(b3SharedMemoryCommandHandle commandHandl
 }
 
 
-b3SharedMemoryCommandHandle b3RequestActualStateCommandInit(b3PhysicsClientHandle physClient)
+b3SharedMemoryCommandHandle b3RequestActualStateCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;
     b3Assert(cl);
@@ -199,7 +199,7 @@ b3SharedMemoryCommandHandle b3RequestActualStateCommandInit(b3PhysicsClientHandl
     struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
     b3Assert(command);
     command->m_type =CMD_REQUEST_ACTUAL_STATE;
-	command->m_requestActualStateInformationCommandArgument.m_bodyUniqueId = 0;
+	command->m_requestActualStateInformationCommandArgument.m_bodyUniqueId = bodyUniqueId;
     return (b3SharedMemoryCommandHandle) command;
 }
 
@@ -465,6 +465,11 @@ int b3GetStatusBodyIndex(b3SharedMemoryStatusHandle statusHandle)
 				case CMD_URDF_LOADING_COMPLETED:
 				{
 					bodyId = status->m_dataStreamArguments.m_bodyUniqueId;
+					break;
+				}
+				case CMD_RIGID_BODY_CREATION_COMPLETED:
+				{
+					bodyId = status->m_rigidBodyCreateArgs.m_bodyUniqueId;
 					break;
 				}
 				default:

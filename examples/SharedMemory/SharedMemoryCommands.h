@@ -245,6 +245,10 @@ struct SharedMemoryCommand
     };
 };
 
+struct RigidBodyCreateArgs
+{
+	int m_bodyUniqueId; 
+};
 
 struct SharedMemoryStatus
 {
@@ -258,6 +262,7 @@ struct SharedMemoryStatus
 		struct BulletDataStreamArgs	m_dataStreamArguments;
 		struct SendActualStateArgs m_sendActualStateArgs;
 		struct SendDebugLinesArgs m_sendDebugLinesArgs;
+		struct RigidBodyCreateArgs m_rigidBodyCreateArgs;
 	};
 };
 

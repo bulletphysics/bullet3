@@ -229,8 +229,11 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 
         case CMD_REQUEST_ACTUAL_STATE:
         {
-            b3SharedMemoryCommandHandle commandHandle = b3RequestActualStateCommandInit(m_physicsClientHandle);
-            b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+			if (m_selectedBody>=0)
+			{
+				b3SharedMemoryCommandHandle commandHandle = b3RequestActualStateCommandInit(m_physicsClientHandle,m_selectedBody);
+				b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+			}
             break;
         };
 

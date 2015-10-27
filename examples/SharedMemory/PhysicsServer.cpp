@@ -79,12 +79,14 @@ struct SharedMemoryDebugDrawer : public btIDebugDraw
 struct InteralBodyData
 {
 	btMultiBody* m_multiBody;
+	btRigidBody* m_rigidBody;
 	int m_testData;
 
 	btTransform m_rootLocalInertialFrame;
 
 	InteralBodyData()
 		:m_multiBody(0),
+		m_rigidBody(0),
 		m_testData(0)
 	{
 		m_rootLocalInertialFrame.setIdentity();
@@ -1089,14 +1091,10 @@ void PhysicsServerSharedMemory::processClientCommands()
 						}
 						int bodyUniqueId = clientCmd.m_requestActualStateInformationCommandArgument.m_bodyUniqueId;
 						InteralBodyData* body = m_data->getHandle(bodyUniqueId);
-						btMultiBody* mb = 0;
-						if (body)
+						
+						if (body && body->m_multiBody)
 						{
-							mb = body->m_multiBody;
-						}
-						if (mb)
-						{
-							
+							btMultiBody* mb = body->m_multiBody;
 							SharedMemoryStatus& serverCmd = m_data->createServerStatus(CMD_ACTUAL_STATE_UPDATE_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
 
 							serverCmd.m_sendActualStateArgs.m_bodyUniqueId = bodyUniqueId;
@@ -1192,10 +1190,48 @@ void PhysicsServerSharedMemory::processClientCommands()
 							
 						} else
 						{
+							if (body && body->m_rigidBody)
+							{
+								btRigidBody* rb = body->m_rigidBody;
+								SharedMemoryStatus& serverCmd = m_data->createServerStatus(CMD_ACTUAL_STATE_UPDATE_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
+								serverCmd.m_sendActualStateArgs.m_bodyUniqueId = bodyUniqueId;
+								int totalDegreeOfFreedomQ = 0;
+								int totalDegreeOfFreedomU = 0;
 
-							b3Warning("Request state but no multibody available");
-							SharedMemoryStatus& serverCmd = m_data->createServerStatus(CMD_ACTUAL_STATE_UPDATE_FAILED,clientCmd.m_sequenceNumber,timeStamp);
-							m_data->submitServerStatus(serverCmd);
+								btTransform tr = rb->getWorldTransform();
+								//base position in world space, carthesian
+								serverCmd.m_sendActualStateArgs.m_actualStateQ[0] = tr.getOrigin()[0];
+								serverCmd.m_sendActualStateArgs.m_actualStateQ[1] = tr.getOrigin()[1];
+								serverCmd.m_sendActualStateArgs.m_actualStateQ[2] = tr.getOrigin()[2];
+
+								//base orientation, quaternion x,y,z,w, in world space, carthesian
+								serverCmd.m_sendActualStateArgs.m_actualStateQ[3] = tr.getRotation()[0]; 
+								serverCmd.m_sendActualStateArgs.m_actualStateQ[4] = tr.getRotation()[1];
+								serverCmd.m_sendActualStateArgs.m_actualStateQ[5] = tr.getRotation()[2];
+								serverCmd.m_sendActualStateArgs.m_actualStateQ[6] = tr.getRotation()[3];
+								totalDegreeOfFreedomQ +=7;//pos + quaternion
+
+								//base linear velocity (in world space, carthesian)
+								serverCmd.m_sendActualStateArgs.m_actualStateQdot[0] = rb->getLinearVelocity()[0];
+								serverCmd.m_sendActualStateArgs.m_actualStateQdot[1] = rb->getLinearVelocity()[1];
+								serverCmd.m_sendActualStateArgs.m_actualStateQdot[2] = rb->getLinearVelocity()[2];
+	
+								//base angular velocity (in world space, carthesian)
+								serverCmd.m_sendActualStateArgs.m_actualStateQdot[3] = rb->getAngularVelocity()[0];
+								serverCmd.m_sendActualStateArgs.m_actualStateQdot[4] = rb->getAngularVelocity()[1];
+								serverCmd.m_sendActualStateArgs.m_actualStateQdot[5] = rb->getAngularVelocity()[2];
+								totalDegreeOfFreedomU += 6;//3 linear and 3 angular DOF
+
+								serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomQ = totalDegreeOfFreedomQ;
+								serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomU = totalDegreeOfFreedomU;
+
+								m_data->submitServerStatus(serverCmd);
+							} else
+							{
+								b3Warning("Request state but no multibody or rigid body available");
+								SharedMemoryStatus& serverCmd = m_data->createServerStatus(CMD_ACTUAL_STATE_UPDATE_FAILED,clientCmd.m_sequenceNumber,timeStamp);
+								m_data->submitServerStatus(serverCmd);
+							}
 						}
 
 						break;
@@ -1417,10 +1453,15 @@ void PhysicsServerSharedMemory::processClientCommands()
 						
 						
 						bool isDynamic = (mass>0);
-						worldImporter->createRigidBody(isDynamic,mass,startTrans,shape,0);
+						btRigidBody* rb = worldImporter->createRigidBody(isDynamic,mass,startTrans,shape,0);
 						m_data->m_guiHelper->autogenerateGraphicsObjects(this->m_data->m_dynamicsWorld);
 						
-						SharedMemoryStatus& serverCmd =m_data->createServerStatus(CMD_CLIENT_COMMAND_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
+						SharedMemoryStatus& serverCmd =m_data->createServerStatus(CMD_RIGID_BODY_CREATION_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
+						int bodyUniqueId = m_data->allocHandle();
+						InternalBodyHandle* bodyHandle = m_data->getHandle(bodyUniqueId);
+						serverCmd.m_rigidBodyCreateArgs.m_bodyUniqueId = bodyUniqueId;
+						bodyHandle->m_rootLocalInertialFrame.setIdentity();
+						bodyHandle->m_rigidBody = rb;
 						m_data->submitServerStatus(serverCmd);
 
 						break;
