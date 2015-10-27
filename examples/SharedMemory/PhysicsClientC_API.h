@@ -84,6 +84,9 @@ b3SharedMemoryCommandHandle b3CreateBoxShapeCommandInit(b3PhysicsClientHandle ph
 int	b3CreateBoxCommandSetStartPosition(b3SharedMemoryCommandHandle commandHandle, double startPosX,double startPosY,double startPosZ);
 int	b3CreateBoxCommandSetStartOrientation(b3SharedMemoryCommandHandle commandHandle, double startOrnX,double startOrnY,double startOrnZ, double startOrnW);
 int	b3CreateBoxCommandSetHalfExtents(b3SharedMemoryCommandHandle commandHandle, double halfExtentsX,double halfExtentsY,double halfExtentsZ);
+int	b3CreateBoxCommandSetMass(b3SharedMemoryCommandHandle commandHandle, double mass);
+int	b3CreateBoxCommandSetCollisionShapeType(b3SharedMemoryCommandHandle commandHandle, int collisionShapeType);
+
 
 ///Initialize (teleport) the pose of a body/robot. You can individually set the base position, base orientation and joint angles.
 ///This will set all velocities of base and joints to zero.

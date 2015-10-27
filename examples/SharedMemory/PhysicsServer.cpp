@@ -1309,6 +1309,7 @@ void PhysicsServerSharedMemory::processClientCommands()
 
                     break;
                 }
+				case CMD_CREATE_RIGID_BODY:
 				case CMD_CREATE_BOX_COLLISION_SHAPE:
 					{
                         btVector3 halfExtents(1,1,1);
@@ -1339,11 +1340,82 @@ void PhysicsServerSharedMemory::processClientCommands()
                                                                  clientCmd.m_createBoxShapeArguments.m_initialOrientation[3]));
                         }
 
+						btScalar mass = 0.f;
+						if (clientCmd.m_updateFlags & BOX_SHAPE_HAS_MASS)
+						{
+							mass = clientCmd.m_createBoxShapeArguments.m_mass;
+						}
+
+						int shapeType = COLLISION_SHAPE_TYPE_BOX;
+
+						if (clientCmd.m_updateFlags & BOX_SHAPE_HAS_COLLISION_SHAPE_TYPE)
+						{
+							shapeType = clientCmd.m_createBoxShapeArguments.m_collisionShapeType;
+						}
+
 						btBulletWorldImporter* worldImporter = new btBulletWorldImporter(m_data->m_dynamicsWorld);
 						m_data->m_worldImporters.push_back(worldImporter);
 
-						btCollisionShape* shape = worldImporter->createBoxShape(halfExtents);
-						btScalar mass = 0.f;
+						btCollisionShape* shape = 0;
+						
+						switch (shapeType)
+						{
+							case COLLISION_SHAPE_TYPE_CYLINDER_X:
+							{
+								btScalar radius = halfExtents[1];
+								btScalar height = halfExtents[0];
+								shape = worldImporter->createCylinderShapeX(radius,height);
+								break;
+							}
+							case COLLISION_SHAPE_TYPE_CYLINDER_Y:
+							{
+								btScalar radius = halfExtents[0];
+								btScalar height = halfExtents[1];
+								shape = worldImporter->createCylinderShapeY(radius,height);
+								break;
+							}
+							case COLLISION_SHAPE_TYPE_CYLINDER_Z:
+							{
+								btScalar radius = halfExtents[1];
+								btScalar height = halfExtents[2];
+								shape = worldImporter->createCylinderShapeZ(radius,height);
+								break;
+							}
+							case COLLISION_SHAPE_TYPE_CAPSULE_X:
+							{
+								btScalar radius = halfExtents[1];
+								btScalar height = halfExtents[0];
+								shape = worldImporter->createCapsuleShapeX(radius,height);
+								break;
+							}
+							case COLLISION_SHAPE_TYPE_CAPSULE_Y:
+							{
+								btScalar radius = halfExtents[0];
+								btScalar height = halfExtents[1];
+								shape = worldImporter->createCapsuleShapeY(radius,height);
+								break;
+							}
+							case COLLISION_SHAPE_TYPE_CAPSULE_Z:
+							{
+								btScalar radius = halfExtents[1];
+								btScalar height = halfExtents[2];
+								shape = worldImporter->createCapsuleShapeZ(radius,height);
+								break;
+							}
+							case COLLISION_SHAPE_TYPE_SPHERE:
+							{
+								btScalar radius = halfExtents[0];
+								shape = worldImporter->createSphereShape(radius);
+								break;
+							}
+							case COLLISION_SHAPE_TYPE_BOX:
+							default:
+							{
+								shape = worldImporter->createBoxShape(halfExtents);
+							}
+						}
+						
+						
 						bool isDynamic = (mass>0);
 						worldImporter->createRigidBody(isDynamic,mass,startTrans,shape,0);
 						m_data->m_guiHelper->autogenerateGraphicsObjects(this->m_data->m_dynamicsWorld);

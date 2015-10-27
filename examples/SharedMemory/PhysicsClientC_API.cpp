@@ -246,6 +246,45 @@ int	b3CreateBoxCommandSetStartPosition(b3SharedMemoryCommandHandle commandHandle
     return 0;
 }
 
+
+int	b3CreateBoxCommandSetHalfExtents(b3SharedMemoryCommandHandle commandHandle, double halfExtentsX,double halfExtentsY,double halfExtentsZ)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CREATE_BOX_COLLISION_SHAPE);
+    command->m_updateFlags |=BOX_SHAPE_HAS_HALF_EXTENTS;
+    
+    command->m_createBoxShapeArguments.m_halfExtentsX = halfExtentsX;
+    command->m_createBoxShapeArguments.m_halfExtentsY = halfExtentsY;
+    command->m_createBoxShapeArguments.m_halfExtentsZ = halfExtentsZ;
+
+    return 0;
+}
+
+
+int	b3CreateBoxCommandSetMass(b3SharedMemoryCommandHandle commandHandle, double mass)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CREATE_BOX_COLLISION_SHAPE);
+	command->m_updateFlags |=BOX_SHAPE_HAS_MASS;
+	command->m_createBoxShapeArguments.m_mass = mass;
+	return 0;
+}
+
+
+int	b3CreateBoxCommandSetCollisionShapeType(b3SharedMemoryCommandHandle commandHandle, int collisionShapeType)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CREATE_BOX_COLLISION_SHAPE);
+	command->m_updateFlags |=BOX_SHAPE_HAS_COLLISION_SHAPE_TYPE;
+	command->m_createBoxShapeArguments.m_collisionShapeType = collisionShapeType;
+
+	return 0;
+}
+
+
 int	b3CreateBoxCommandSetStartOrientation(b3SharedMemoryCommandHandle commandHandle, double startOrnX,double startOrnY,double startOrnZ, double startOrnW)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
@@ -327,20 +366,6 @@ int	b3CreatePoseCommandSetJointPosition(b3PhysicsClientHandle physClient, b3Shar
 	return 0;
 }
 
-
-int	b3CreateBoxCommandSetHalfExtents(b3SharedMemoryCommandHandle commandHandle, double halfExtentsX,double halfExtentsY,double halfExtentsZ)
-{
-    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
-    b3Assert(command);
-    b3Assert(command->m_type == CMD_CREATE_BOX_COLLISION_SHAPE);
-    command->m_updateFlags |=BOX_SHAPE_HAS_HALF_EXTENTS;
-    
-    command->m_createBoxShapeArguments.m_halfExtentsX = halfExtentsX;
-    command->m_createBoxShapeArguments.m_halfExtentsY = halfExtentsY;
-    command->m_createBoxShapeArguments.m_halfExtentsZ = halfExtentsZ;
-
-    return 0;
-}
 
 
 
