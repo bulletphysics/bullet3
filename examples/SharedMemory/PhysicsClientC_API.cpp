@@ -398,6 +398,7 @@ b3PhysicsClientHandle b3ConnectSharedMemory(int key)
 	return (b3PhysicsClientHandle ) cl;
 }
 
+
 void	b3DisconnectSharedMemory(b3PhysicsClientHandle physClient)
 {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
@@ -452,7 +453,11 @@ int b3GetStatusBodyIndex(b3SharedMemoryStatusHandle statusHandle)
 int	b3CanSubmitCommand(b3PhysicsClientHandle physClient)
 {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
-	return (int)cl->canSubmitCommand();
+	if (cl)
+	{
+		return (int)cl->canSubmitCommand();
+	}
+	return false;
 }
 
 int	b3SubmitClientCommand(b3PhysicsClientHandle physClient, const b3SharedMemoryCommandHandle commandHandle)

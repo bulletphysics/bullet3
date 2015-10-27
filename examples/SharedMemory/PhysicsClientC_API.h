@@ -15,7 +15,7 @@ B3_DECLARE_HANDLE(b3SharedMemoryStatusHandle);
 extern "C" { 
 #endif
 
-///make sure to start the server first, before connecting client to physics server
+///make sure to start the server first, before connecting client to a physics server over shared memory or UDP
 b3PhysicsClientHandle b3ConnectSharedMemory(int key);
 
 void	b3DisconnectSharedMemory(b3PhysicsClientHandle physClient);
