@@ -46,7 +46,11 @@ struct b3GpuChildShape
 {
 	b3Float4	m_childPosition;
 	b3Quat		m_childOrientation;
-	int			m_shapeIndex;//used for SHAPE_COMPOUND_OF_CONVEX_HULLS
+	union
+	{
+		int			m_shapeIndex;//used for SHAPE_COMPOUND_OF_CONVEX_HULLS
+		int			m_capsuleAxis;
+	};
 	union 
 	{
 		float		m_radius;//used for childshape of SHAPE_COMPOUND_OF_SPHERES or SHAPE_COMPOUND_OF_CAPSULES
