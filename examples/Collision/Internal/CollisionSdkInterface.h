@@ -23,6 +23,14 @@ public:
 													plReal planeNormalZ, 
 													plReal planeConstant) = 0;
 	
+	virtual plCollisionShapeHandle createCapsuleShape(plCollisionWorldHandle worldHandle, 
+													plReal radius,
+													plReal height,
+													int capsuleAxis) = 0;
+
+	virtual plCollisionShapeHandle createCompoundShape(plCollisionWorldHandle worldHandle) = 0;
+	virtual void addChildShape(plCollisionWorldHandle worldHandle,plCollisionShapeHandle compoundShape, plCollisionShapeHandle childShape,plVector3 childPos,plQuaternion childOrn)=0;
+
 	virtual void deleteShape(plCollisionWorldHandle worldHandle, plCollisionShapeHandle shape) = 0;
 	
 	virtual void addCollisionObject(plCollisionWorldHandle world, plCollisionObjectHandle object)=0;

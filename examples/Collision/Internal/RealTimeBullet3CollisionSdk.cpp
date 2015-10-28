@@ -3,6 +3,7 @@
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3Collidable.h"
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3ConvexPolyhedronData.h"
+#include "Bullet3Collision/BroadPhaseCollision/shared/b3Aabb.h"
 
 //convert the opaque pointer to int
 struct RTB3_ColliderOpaque2Int
@@ -26,9 +27,9 @@ enum RTB3ShapeTypes
 {
 	RTB3_SHAPE_SPHERE=0,
 	RTB3_SHAPE_PLANE,
-//	RTB3_SHAPE_CAPSULE,
+	RTB3_SHAPE_CAPSULE,
 	MAX_NUM_SINGLE_SHAPE_TYPES,
-	RTB3_SHAPE_COMPOUND_INTERNAL
+	RTB3_SHAPE_COMPOUND_INTERNAL,
 
 	
 };
@@ -48,6 +49,8 @@ struct RTB3CollisionWorld
 	b3AlignedObjectArray<b3Collidable> m_collidables;
 	
 	b3AlignedObjectArray<b3GpuChildShape> m_childShapes;
+	b3AlignedObjectArray<b3Aabb>	m_localSpaceAabbs;
+	b3AlignedObjectArray<b3Aabb>	m_worldSpaceAabbs;
 	b3AlignedObjectArray<b3GpuFace> m_planeFaces;
 	b3AlignedObjectArray<b3CompoundOverlappingPair> m_compoundOverlappingPairs;
 	int m_nextFreeShapeIndex;
@@ -149,7 +152,49 @@ plCollisionShapeHandle RealTimeBullet3CollisionSdk::createPlaneShape(plCollision
 	return 0;
 }
 
+plCollisionShapeHandle RealTimeBullet3CollisionSdk::createCapsuleShape(plCollisionWorldHandle worldHandle, 
+													plReal radius,
+													plReal height,
+													int capsuleAxis)
+{
+	RTB3CollisionWorld* world = (RTB3CollisionWorld*) worldHandle;
+	b3Assert(world->m_nextFreeShapeIndex < world->m_childShapes.size() && world->m_nextFreePlaneFaceIndex < world->m_planeFaces.size());
 
+	if (world->m_nextFreeShapeIndex < world->m_childShapes.size() && world->m_nextFreePlaneFaceIndex < world->m_planeFaces.size())
+	{
+		b3GpuChildShape& shape = world->m_childShapes[world->m_nextFreeShapeIndex];
+		shape.m_childPosition.setZero();
+		shape.m_childOrientation.setValue(0,0,0,1);
+		shape.m_radius = radius;
+		shape.m_height = height;
+		shape.m_shapeIndex = capsuleAxis;
+		shape.m_shapeType = RTB3_SHAPE_CAPSULE;
+		return (plCollisionShapeHandle) world->m_nextFreeShapeIndex++;
+	}
+	return 0;
+}
+
+plCollisionShapeHandle RealTimeBullet3CollisionSdk::createCompoundShape(plCollisionWorldHandle worldHandle)
+{
+	RTB3CollisionWorld* world = (RTB3CollisionWorld*) worldHandle;
+	b3Assert(world->m_nextFreeShapeIndex < world->m_childShapes.size() && world->m_nextFreePlaneFaceIndex < world->m_planeFaces.size());
+
+	if (world->m_nextFreeShapeIndex < world->m_childShapes.size() && world->m_nextFreePlaneFaceIndex < world->m_planeFaces.size())
+	{
+		b3GpuChildShape& shape = world->m_childShapes[world->m_nextFreeShapeIndex];
+		shape.m_childPosition.setZero();
+		shape.m_childOrientation.setValue(0,0,0,1);
+		shape.m_numChildShapes = 0;
+		shape.m_shapeType = RTB3_SHAPE_COMPOUND_INTERNAL;
+		return (plCollisionShapeHandle) world->m_nextFreeShapeIndex++;
+	}
+	return 0;
+}
+
+void RealTimeBullet3CollisionSdk::addChildShape(plCollisionWorldHandle worldHandle,plCollisionShapeHandle compoundShape, plCollisionShapeHandle childShape,plVector3 childPos,plQuaternion childOrn)
+{
+
+}
 void RealTimeBullet3CollisionSdk::deleteShape(plCollisionWorldHandle worldHandle, plCollisionShapeHandle shape)
 {
 	///todo
@@ -203,7 +248,7 @@ plCollisionObjectHandle RealTimeBullet3CollisionSdk::createCollisionObject(  plC
 			}
 		case RTB3_SHAPE_COMPOUND_INTERNAL:
 			{
-				b3Assert(0);
+				
 				break;
 			}
 		default:
@@ -396,8 +441,8 @@ int RealTimeBullet3CollisionSdk::collide(plCollisionWorldHandle worldHandle,plCo
 		{
 			if (contactCache.numAddedPoints<pointCapacity)
 			{
-				funcTbl_detectCollision[world->m_childShapes[colA.m_shapeIndex+i].m_shapeType]
-									   [world->m_childShapes[colB.m_shapeIndex+j].m_shapeType](world,colAIndex,colA.m_shapeIndex+i,colBIndex,colB.m_shapeIndex+j,&contactCache);
+				//funcTbl_detectCollision[world->m_childShapes[colA.m_shapeIndex+i].m_shapeType]
+				//					   [world->m_childShapes[colB.m_shapeIndex+j].m_shapeType](world,colAIndex,colA.m_shapeIndex+i,colBIndex,colB.m_shapeIndex+j,&contactCache);
 			}
 		}
 		return contactCache.numAddedPoints;

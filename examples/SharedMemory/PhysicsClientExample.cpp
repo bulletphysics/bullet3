@@ -194,7 +194,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
         case  CMD_LOAD_URDF:
         {
             
-            b3SharedMemoryCommandHandle commandHandle = b3LoadUrdfCommandInit(m_physicsClientHandle, "r2d2.urdf");//kuka_lwr/kuka.urdf");
+            b3SharedMemoryCommandHandle commandHandle = b3LoadUrdfCommandInit(m_physicsClientHandle, "kuka_lwr/kuka.urdf");
             
             //setting the initial position, orientation and other arguments are optional
             double startPosX = 0;
@@ -214,10 +214,26 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
             b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
             break;
         }
+		case CMD_CREATE_RIGID_BODY:
+		{
+			b3SharedMemoryCommandHandle commandHandle = b3CreateBoxShapeCommandInit(m_physicsClientHandle);
+            b3CreateBoxCommandSetStartPosition(commandHandle,0,0,0);
+			b3CreateBoxCommandSetMass(commandHandle,1);
+			b3CreateBoxCommandSetCollisionShapeType(commandHandle,COLLISION_SHAPE_TYPE_CYLINDER_Y);
+			double radius = 0.2;
+			double halfHeight = 0.5;
+			b3CreateBoxCommandSetHalfExtents(commandHandle,radius,halfHeight,radius);
+            b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+			break;
+		}
+
         case CMD_REQUEST_ACTUAL_STATE:
         {
-            b3SharedMemoryCommandHandle commandHandle = b3RequestActualStateCommandInit(m_physicsClientHandle);
-            b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+			if (m_selectedBody>=0)
+			{
+				b3SharedMemoryCommandHandle commandHandle = b3RequestActualStateCommandInit(m_physicsClientHandle,m_selectedBody);
+				b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+			}
             break;
         };
 
@@ -360,6 +376,7 @@ void	PhysicsClientExample::createButtons()
         createButton("Get State",CMD_REQUEST_ACTUAL_STATE,  isTrigger);
         createButton("Send Desired State",CMD_SEND_DESIRED_STATE,  isTrigger);
         createButton("Create Box Collider",CMD_CREATE_BOX_COLLISION_SHAPE,isTrigger);
+		createButton("Create Cylinder Body",CMD_CREATE_RIGID_BODY,isTrigger);
         createButton("Reset Simulation",CMD_RESET_SIMULATION,isTrigger);
 		createButton("Initialize Pose",CMD_INIT_POSE,  isTrigger);
 
@@ -515,8 +532,8 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
             {
                 enqueueCommand(CMD_SEND_DESIRED_STATE);
                 enqueueCommand(CMD_STEP_FORWARD_SIMULATION);
-                enqueueCommand(CMD_REQUEST_DEBUG_LINES);
-                enqueueCommand(CMD_REQUEST_ACTUAL_STATE);
+                //enqueueCommand(CMD_REQUEST_DEBUG_LINES);
+                //enqueueCommand(CMD_REQUEST_ACTUAL_STATE);
             }
         }
     }
