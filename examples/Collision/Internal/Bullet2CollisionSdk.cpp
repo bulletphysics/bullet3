@@ -75,6 +75,52 @@ plCollisionShapeHandle Bullet2CollisionSdk::createPlaneShape(plCollisionWorldHan
 	return (plCollisionShapeHandle) planeShape;
 }
 
+plCollisionShapeHandle Bullet2CollisionSdk::createCapsuleShape(plCollisionWorldHandle worldHandle, 
+													plReal radius,
+													plReal height,
+													int capsuleAxis)
+{
+	btCapsuleShape* capsule = 0;
+
+	switch (capsuleAxis)
+	{
+	case 0:
+	{
+		capsule = new btCapsuleShapeX(radius,height);
+		break;
+	}
+	case 1:
+	{
+		capsule = new btCapsuleShape(radius,height);
+		break;
+	}
+	case 2:
+	{
+		capsule = new btCapsuleShapeZ(radius,height);
+		break;
+	}
+	default:
+	{
+		btAssert(0);
+	}
+	}
+	return (plCollisionShapeHandle)capsule;
+}
+
+plCollisionShapeHandle Bullet2CollisionSdk::createCompoundShape(plCollisionWorldHandle worldHandle)
+{
+	return (plCollisionShapeHandle) new btCompoundShape();
+}
+void Bullet2CollisionSdk::addChildShape(plCollisionWorldHandle worldHandle,plCollisionShapeHandle compoundShapeHandle, plCollisionShapeHandle childShapeHandle,plVector3 childPos,plQuaternion childOrn)
+{
+	btCompoundShape* compound = (btCompoundShape*) compoundShapeHandle;
+	btCollisionShape* childShape = (btCollisionShape*) childShapeHandle;
+	btTransform localTrans;
+	localTrans.setOrigin(btVector3(childPos[0],childPos[1],childPos[2]));
+	localTrans.setRotation(btQuaternion(childOrn[0],childOrn[1],childOrn[2],childOrn[3]));
+	compound->addChildShape(localTrans,childShape);
+	
+}
 
 void Bullet2CollisionSdk::deleteShape(plCollisionWorldHandle /*worldHandle*/, plCollisionShapeHandle shapeHandle)
 {

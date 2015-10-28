@@ -61,6 +61,22 @@ plCollisionShapeHandle plCreatePlaneShape(plCollisionSdkHandle collisionSdkHandl
 	return sdk->createPlaneShape(worldHandle,planeNormalX,planeNormalY,planeNormalZ,planeConstant);
 }
 	
+plCollisionShapeHandle plCreateCapsuleShape(plCollisionSdkHandle collisionSdkHandle,  plCollisionWorldHandle worldHandle, plReal radius, plReal height, int capsuleAxis)
+{
+	CollisionSdkInterface* sdk = (CollisionSdkInterface*) collisionSdkHandle;
+	return sdk->createCapsuleShape(worldHandle,radius,height,capsuleAxis);
+}
+
+plCollisionShapeHandle plCreateCompoundShape(plCollisionSdkHandle collisionSdkHandle,plCollisionWorldHandle worldHandle)
+{
+	CollisionSdkInterface* sdk = (CollisionSdkInterface*) collisionSdkHandle;
+	return sdk->createCompoundShape(worldHandle);
+}
+void plAddChildShape(plCollisionSdkHandle collisionSdkHandle, plCollisionWorldHandle worldHandle, plCollisionShapeHandle compoundShape,plCollisionShapeHandle childShape, plVector3 childPos,plQuaternion childOrn)
+{
+	CollisionSdkInterface* sdk = (CollisionSdkInterface*) collisionSdkHandle;
+	sdk->addChildShape(worldHandle,compoundShape,childShape,childPos,childOrn);
+}
 
 void plDeleteShape(plCollisionSdkHandle collisionSdkHandle, plCollisionWorldHandle worldHandle, plCollisionShapeHandle shapeHandle)
 {

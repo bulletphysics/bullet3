@@ -22,11 +22,18 @@
 ///todo: use the 'userData' to prevent this use of global variables
 static int gTotalPoints = 0;
 const int sPointCapacity = 10000;
-const int sNumSpheres = 128;
+const int sNumCompounds = 10;
+const int sNumSpheres = 10;
 
 lwContactPoint pointsOut[sPointCapacity];
 int numNearCallbacks = 0;
-
+static btVector4 sColors[4] = 
+{
+	btVector4(1,0.7,0.7,1),
+	btVector4(1,1,0.7,1),
+	btVector4(0.7,1,0.7,1),
+	btVector4(0.7,1,1,1),
+};
 
 void myNearCallback(plCollisionSdkHandle sdkHandle, plCollisionWorldHandle worldHandle, void* userData, plCollisionObjectHandle objA, plCollisionObjectHandle objB)
 {
@@ -69,23 +76,25 @@ public:
 	m_counter(0),
 	m_timeSeriesCanvas0(0)
     {
-		int numBodies = 1;
+		
 		gTotalPoints = 0;
 		m_app->setUpAxis(1);
 		m_app->m_renderer->enableBlend(true);
 		
 		switch (m_tutorialIndex)
 		{
-			case TUT_SPHERE_SPHERE_RTB3:
-			case TUT_SPHERE_SPHERE_BULLET2:
+			case TUT_SPHERE_PLANE_RTB3:
+			case TUT_SPHERE_PLANE_BULLET2:
 			{
-				numBodies=10;
-				if (m_tutorialIndex==TUT_SPHERE_SPHERE_BULLET2)
+				
+				if (m_tutorialIndex==TUT_SPHERE_PLANE_BULLET2)
 				{
 					m_collisionSdkHandle = plCreateBullet2CollisionSdk();
 				} else
 				{
+#ifndef DISABLE_REAL_TIME_BULLET3_COLLISION_SDK
 					m_collisionSdkHandle = plCreateRealTimeBullet3CollisionSdk();
+#endif //DISABLE_REAL_TIME_BULLET3_COLLISION_SDK
 				}
 				if (m_collisionSdkHandle)
 				{
@@ -97,29 +106,54 @@ public:
 					//create objects, do query etc
 					{
 						float radius = 1.f;
-						plCollisionShapeHandle colShape = plCreateSphereShape(m_collisionSdkHandle, m_collisionWorldHandle,radius);
-						void* userPointer = 0;
-						
-						int sphereGfxShapeId = m_app->registerGraphicsUnitSphereShape(SPHERE_LOD_HIGH);//, textureIndex);
 
-						for (int i=0;i<sNumSpheres;i++)
+						void* userPointer = 0;
 						{
-							btVector3 pos(i*1.5,btScalar(0.8),0);
-							btQuaternion orn(0,0,0,1);
-                        
-							btVector4 color(0,1,0,0.8);
-							btVector3 scaling(radius,radius,radius);
+							for (int j=0;j<sNumCompounds;j++)
+							{
+								plCollisionShapeHandle compoundShape =  plCreateCompoundShape(m_collisionSdkHandle,m_collisionWorldHandle);
+
+								for (int i=0;i<sNumSpheres;i++)
+								{
+									btVector3 childPos(i*1.5,0,0);
+									btQuaternion childOrn(0,0,0,1);
+								
+									btVector3 scaling(radius,radius,radius);
 						
-							int gfxIndex =  m_app->m_renderer->registerGraphicsInstance(sphereGfxShapeId,pos, orn,color,scaling);
+									plCollisionShapeHandle childShape = plCreateSphereShape(m_collisionSdkHandle, m_collisionWorldHandle,radius);
+									plAddChildShape(m_collisionSdkHandle,m_collisionWorldHandle,compoundShape, childShape,childPos,childOrn);
 						
-							plCollisionObjectHandle colObj = plCreateCollisionObject(m_collisionSdkHandle,m_collisionWorldHandle,userPointer, gfxIndex,colShape,pos,orn);
-							colliders.push_back(colObj);
-							plAddCollisionObject(m_collisionSdkHandle, m_collisionWorldHandle,colObj);
+								
+									//m_guiHelper->createCollisionObjectGraphicsObject(colObj,color);
+								
+								}
+								if (m_tutorialIndex==TUT_SPHERE_PLANE_BULLET2)
+								{
+									btCollisionShape* colShape = (btCollisionShape*) compoundShape;
+									m_guiHelper->createCollisionShapeGraphicsObject(colShape);
+								} else
+								{
+								}
+							
+								{
+									btVector3 pos(j*sNumSpheres*1.5,-2.4,0);
+									btQuaternion orn(0,0,0,1);
+									plCollisionObjectHandle colObjHandle = plCreateCollisionObject(m_collisionSdkHandle,m_collisionWorldHandle,userPointer, -1,compoundShape,pos,orn);
+									if (m_tutorialIndex==TUT_SPHERE_PLANE_BULLET2)
+									{
+										btCollisionObject* colObj = (btCollisionObject*) colObjHandle;
+										btVector4 color=sColors[j&3];
+										m_guiHelper->createCollisionObjectGraphicsObject(colObj,color);
+										colliders.push_back(colObjHandle);
+										plAddCollisionObject(m_collisionSdkHandle, m_collisionWorldHandle,colObjHandle);
+									}
+								}
+							}
 						}
 					}
 
 					{
-						plCollisionShapeHandle colShape = plCreatePlaneShape(m_collisionSdkHandle, m_collisionWorldHandle,0,1,0,0);
+						plCollisionShapeHandle colShape = plCreatePlaneShape(m_collisionSdkHandle, m_collisionWorldHandle,0,1,0,-3.5);
 						btVector3 pos(0,0,0);
 						btQuaternion orn(0,0,0,1);
 						void* userPointer = 0;
@@ -140,6 +174,7 @@ public:
 					//plDeleteShape(m_collisionSdkHandle,colShape);
 				}
 				
+
 				/*
 				m_timeSeriesCanvas0 = new TimeSeriesCanvas(m_app->m_2dCanvasInterface,512,256,"Constant Velocity");
 				
@@ -151,11 +186,7 @@ public:
 				break;
 			}
 			
-			case TUT_SPHERE_PLANE_RTB3:
-			case TUT_SPHERE_PLANE_BULLET2:
-			{
-				break;
-			}
+			
 			default:
 			{
 				
@@ -169,7 +200,7 @@ public:
 		
 		{
 
-		 int boxId = m_app->registerCubeShape(100,1,100);
+		 int boxId = m_app->registerCubeShape(100,0.01,100);
             b3Vector3 pos = b3MakeVector3(0,-3.5,0);
             b3Quaternion orn(0,0,0,1);
             b3Vector4 color = b3MakeVector4(1,1,1,1);
