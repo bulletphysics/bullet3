@@ -217,8 +217,8 @@ struct PhysicsServerInternalData
 	btMultiBodyConstraintSolver*	m_solver;
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 	btMultiBodyDynamicsWorld* m_dynamicsWorld;
-	SharedMemoryDebugDrawer*		m_debugDrawer;
-
+	SharedMemoryDebugDrawer*		m_remoteDebugDrawer;
+	
     
 
     
@@ -243,7 +243,7 @@ struct PhysicsServerInternalData
 		m_isConnected(false),
 		m_physicsDeltaTime(1./240.),
 		m_dynamicsWorld(0),
-		m_debugDrawer(0),
+		m_remoteDebugDrawer(0),
 		m_guiHelper(0),
 		m_sharedMemoryKey(SHARED_MEMORY_KEY),
 		m_verboseOutput(false),
@@ -356,8 +356,8 @@ void PhysicsServerSharedMemory::createEmptyDynamicsWorld()
 	
 	m_data->m_dynamicsWorld = new btMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
 
-	m_data->m_debugDrawer = new SharedMemoryDebugDrawer();
-	m_data->m_dynamicsWorld->setDebugDrawer(m_data->m_debugDrawer);
+	m_data->m_remoteDebugDrawer = new SharedMemoryDebugDrawer();
+	
 	
 	m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
 }
@@ -424,8 +424,8 @@ void PhysicsServerSharedMemory::deleteDynamicsWorld()
 	delete m_data->m_dynamicsWorld;
 	m_data->m_dynamicsWorld=0;
 
-	delete m_data->m_debugDrawer;
-	m_data->m_debugDrawer=0;
+	delete m_data->m_remoteDebugDrawer;
+	m_data->m_remoteDebugDrawer =0;
 
 	delete m_data->m_solver;
 	m_data->m_solver=0;
@@ -444,6 +444,11 @@ void PhysicsServerSharedMemory::deleteDynamicsWorld()
 bool PhysicsServerSharedMemory::connectSharedMemory( struct GUIHelperInterface* guiHelper)
 {
 	m_data->m_guiHelper = guiHelper;
+	
+	if (m_data->m_guiHelper)
+	{
+		m_data->m_guiHelper->createPhysicsDebugDrawer(m_data->m_dynamicsWorld);
+	}
 	
 	bool allowCreation = true;
 	bool allowConnectToExistingSharedMemory = false;
@@ -490,6 +495,13 @@ bool PhysicsServerSharedMemory::connectSharedMemory( struct GUIHelperInterface* 
 
 void PhysicsServerSharedMemory::disconnectSharedMemory(bool deInitializeSharedMemory)
 {
+	if (m_data->m_guiHelper)
+	{
+		if (m_data->m_guiHelper && m_data->m_dynamicsWorld && m_data->m_dynamicsWorld->getDebugDrawer())
+		{
+			m_data->m_dynamicsWorld->setDebugDrawer(0);
+		}
+	}
 	if (m_data->m_verboseOutput)
 	{
 		b3Printf("releaseSharedMemory1\n");
@@ -717,6 +729,7 @@ void PhysicsServerSharedMemory::processClientCommands()
             
 			const SharedMemoryCommand& clientCmd =m_data->m_testBlock1->m_clientCommands[0];
 			m_data->m_testBlock1->m_numProcessedClientCommands++;
+			
 			//no timestamp yet
             int timeStamp = 0;
 
@@ -749,7 +762,7 @@ void PhysicsServerSharedMemory::processClientCommands()
 				}
 				case CMD_REQUEST_DEBUG_LINES:
 					{
-						int curFlags =m_data->m_debugDrawer->getDebugMode();
+						int curFlags =m_data->m_remoteDebugDrawer->getDebugMode();
                         
                         int debugMode = clientCmd.m_requestDebugLinesArguments.m_debugMode;//clientCmd.btIDebugDraw::DBG_DrawWireframe|btIDebugDraw::DBG_DrawAabb;
                         int startingLineIndex = clientCmd.m_requestDebugLinesArguments.m_startingLineIndex;
@@ -761,23 +774,26 @@ void PhysicsServerSharedMemory::processClientCommands()
                         
                         if (clientCmd.m_requestDebugLinesArguments.m_startingLineIndex==0)
                         {
-                            m_data->m_debugDrawer->m_lines2.resize(0);
+                            m_data->m_remoteDebugDrawer->m_lines2.resize(0);
                             //|btIDebugDraw::DBG_DrawAabb|
                             //	btIDebugDraw::DBG_DrawConstraints |btIDebugDraw::DBG_DrawConstraintLimits ;
-                            m_data->m_debugDrawer->setDebugMode(debugMode);
+                            m_data->m_remoteDebugDrawer->setDebugMode(debugMode);
+							btIDebugDraw* oldDebugDrawer = m_data->m_dynamicsWorld->getDebugDrawer();
+							m_data->m_dynamicsWorld->setDebugDrawer(m_data->m_remoteDebugDrawer);
                             m_data->m_dynamicsWorld->debugDrawWorld();
-                            m_data->m_debugDrawer->setDebugMode(curFlags);
+							m_data->m_dynamicsWorld->setDebugDrawer(oldDebugDrawer);
+                            m_data->m_remoteDebugDrawer->setDebugMode(curFlags);
                         }
 
                         //9 floats per line: 3 floats for 'from', 3 floats for 'to' and 3 floats for 'color'
                         int maxNumLines = SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE/(sizeof(float)*9)-1;
-                        if (startingLineIndex >m_data->m_debugDrawer->m_lines2.size())
+                        if (startingLineIndex >m_data->m_remoteDebugDrawer->m_lines2.size())
                         {
                             b3Warning("m_startingLineIndex exceeds total number of debug lines");
-                            startingLineIndex =m_data->m_debugDrawer->m_lines2.size();
+                            startingLineIndex =m_data->m_remoteDebugDrawer->m_lines2.size();
                         }
                         
-                        int numLines = btMin(maxNumLines,m_data->m_debugDrawer->m_lines2.size()-startingLineIndex);
+                        int numLines = btMin(maxNumLines,m_data->m_remoteDebugDrawer->m_lines2.size()-startingLineIndex);
                         
                         if (numLines)
                         {
@@ -788,24 +804,24 @@ void PhysicsServerSharedMemory::processClientCommands()
 
 							for (int i=0;i<numLines;i++)
 							{
-								linesFrom[i*3] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_from.x();
-								linesTo[i*3] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_to.x();
-								linesColor[i*3] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_color.x();
+								linesFrom[i*3] = m_data->m_remoteDebugDrawer->m_lines2[i+startingLineIndex].m_from.x();
+								linesTo[i*3] = m_data->m_remoteDebugDrawer->m_lines2[i+startingLineIndex].m_to.x();
+								linesColor[i*3] = m_data->m_remoteDebugDrawer->m_lines2[i+startingLineIndex].m_color.x();
 
-								linesFrom[i*3+1] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_from.y();
-								linesTo[i*3+1] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_to.y();
-								linesColor[i*3+1] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_color.y();
+								linesFrom[i*3+1] = m_data->m_remoteDebugDrawer->m_lines2[i+startingLineIndex].m_from.y();
+								linesTo[i*3+1] = m_data->m_remoteDebugDrawer->m_lines2[i+startingLineIndex].m_to.y();
+								linesColor[i*3+1] = m_data->m_remoteDebugDrawer->m_lines2[i+startingLineIndex].m_color.y();
 
-								linesFrom[i*3+2] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_from.z();
-								linesTo[i*3+2] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_to.z();
-								linesColor[i*3+2] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_color.z();
+								linesFrom[i*3+2] = m_data->m_remoteDebugDrawer->m_lines2[i+startingLineIndex].m_from.z();
+								linesTo[i*3+2] = m_data->m_remoteDebugDrawer->m_lines2[i+startingLineIndex].m_to.z();
+								linesColor[i*3+2] = m_data->m_remoteDebugDrawer->m_lines2[i+startingLineIndex].m_color.z();
                             }
 						}
                         
                         SharedMemoryStatus& status = m_data->createServerStatus(CMD_DEBUG_LINES_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
                         status.m_sendDebugLinesArgs.m_numDebugLines = numLines;
                         status.m_sendDebugLinesArgs.m_startingLineIndex = startingLineIndex;
-                        status.m_sendDebugLinesArgs.m_numRemainingDebugLines = m_data->m_debugDrawer->m_lines2.size()-(startingLineIndex+numLines);
+                        status.m_sendDebugLinesArgs.m_numRemainingDebugLines = m_data->m_remoteDebugDrawer->m_lines2.size()-(startingLineIndex+numLines);
                         m_data->submitServerStatus(status);
                         
 						break;
@@ -1533,17 +1549,14 @@ void PhysicsServerSharedMemory::renderScene()
 
 void    PhysicsServerSharedMemory::physicsDebugDraw(int debugDrawFlags)
 {
-#if 0
 	if (m_data->m_dynamicsWorld)
 	{
 		if (m_data->m_dynamicsWorld->getDebugDrawer())
 		{
-			//m_data->m_debugDrawer->m_lines.clear();
-			//m_data->m_dynamicsWorld->getDebugDrawer()->setDebugMode(debugDrawFlags);
+			m_data->m_dynamicsWorld->getDebugDrawer()->setDebugMode(debugDrawFlags);
+			m_data->m_dynamicsWorld->debugDrawWorld();
 		}
-		m_data->m_dynamicsWorld->debugDrawWorld();
 	}
-#endif
 }
 
 
