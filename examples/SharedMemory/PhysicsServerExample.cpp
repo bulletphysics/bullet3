@@ -29,7 +29,10 @@ public:
     
 	virtual void	stepSimulation(float deltaTime);
     
-    
+    void enableCommandLogging()
+	{
+		m_physicsServer.enableCommandLogging(true,"BulletPhysicsCommandLog.bin");
+	}
     
 	virtual void resetCamera()
 	{
@@ -190,18 +193,7 @@ void    PhysicsServerExample::physicsDebugDraw(int debugDrawFlags)
 
 }
 
-extern int gSharedMemoryKey;
 
-class CommonExampleInterface*    PhysicsServerCreateFunc(struct CommonExampleOptions& options)
-{
-  	PhysicsServerExample* example = new PhysicsServerExample(options.m_guiHelper);
-	if (gSharedMemoryKey>=0)
-	{
-		example->setSharedMemoryKey(gSharedMemoryKey);
-	}
-	return example;
-	
-}
 
 btVector3	PhysicsServerExample::getRayTo(int x,int y)
 {
@@ -267,3 +259,20 @@ btVector3	PhysicsServerExample::getRayTo(int x,int y)
 	return rayTo;
 }
 
+
+extern int gSharedMemoryKey;
+
+class CommonExampleInterface*    PhysicsServerCreateFunc(struct CommonExampleOptions& options)
+{
+  	PhysicsServerExample* example = new PhysicsServerExample(options.m_guiHelper);
+	if (gSharedMemoryKey>=0)
+	{
+		example->setSharedMemoryKey(gSharedMemoryKey);
+	}
+	if (options.m_option & PHYSICS_SERVER_ENABLE_COMMAND_LOGGING)
+	{
+		example->enableCommandLogging();
+	}
+	return example;
+	
+}

@@ -108,6 +108,24 @@ struct InternalBodyHandle : public InteralBodyData
 		return m_nextFreeHandle;
 	}
 };
+struct CommandLogger
+{
+	FILE* m_file;
+
+	void logCommand(SharedMemoryBlock* testBlock1)
+	{
+		//fwrite(buf,buffSize+sizeof(int),1,m_file);
+	}
+
+	CommandLogger(const char* fileName)
+	{
+		m_file = fopen(fileName,"wb");
+	}
+	virtual ~CommandLogger()
+	{
+		fclose(m_file);
+	}
+};
 
 struct PhysicsServerInternalData
 {
@@ -200,6 +218,7 @@ struct PhysicsServerInternalData
 	
 	SharedMemoryInterface* m_sharedMemory;
     SharedMemoryBlock* m_testBlock1;
+	CommandLogger* m_commandLogger;
 	bool m_isConnected;
 	btScalar m_physicsDeltaTime;
 	btAlignedObjectArray<btMultiBodyJointFeedback*> m_multiBodyJointFeedbacks;
@@ -240,6 +259,7 @@ struct PhysicsServerInternalData
 	PhysicsServerInternalData()
 		:m_sharedMemory(0),
 		m_testBlock1(0),
+		m_commandLogger(0),
 		m_isConnected(false),
 		m_physicsDeltaTime(1./240.),
 		m_dynamicsWorld(0),
@@ -332,6 +352,12 @@ PhysicsServerSharedMemory::PhysicsServerSharedMemory()
 PhysicsServerSharedMemory::~PhysicsServerSharedMemory()
 {
 	deleteDynamicsWorld();
+	if (m_data->m_commandLogger)
+	{
+		delete m_data->m_commandLogger;
+		m_data->m_commandLogger = 0;
+	}
+
 	delete m_data;
 }
 
@@ -451,7 +477,7 @@ bool PhysicsServerSharedMemory::connectSharedMemory( struct GUIHelperInterface* 
 	}
 	
 	bool allowCreation = true;
-	bool allowConnectToExistingSharedMemory = false;
+	
 
     if (m_data->m_isConnected)
     {
@@ -489,6 +515,7 @@ bool PhysicsServerSharedMemory::connectSharedMemory( struct GUIHelperInterface* 
 		b3Error("Cannot connect to shared memory");
 		m_data->m_isConnected = false;
 	}
+	
 	return m_data->m_isConnected;
 }
 
@@ -723,11 +750,17 @@ void PhysicsServerSharedMemory::processClientCommands()
         ///we ignore overflow of integer for now
         if (m_data->m_testBlock1->m_numClientCommands> m_data->m_testBlock1->m_numProcessedClientCommands)
         {
-            
+           
+
             //until we implement a proper ring buffer, we assume always maximum of 1 outstanding commands
             btAssert(m_data->m_testBlock1->m_numClientCommands==m_data->m_testBlock1->m_numProcessedClientCommands+1);
             
 			const SharedMemoryCommand& clientCmd =m_data->m_testBlock1->m_clientCommands[0];
+			if (m_data->m_commandLogger)
+			{
+				m_data->m_commandLogger->logCommand(m_data->m_testBlock1);
+			}
+
 			m_data->m_testBlock1->m_numProcessedClientCommands++;
 			
 			//no timestamp yet
@@ -1676,5 +1709,23 @@ void PhysicsServerSharedMemory::removePickingConstraint()
 		world->removeMultiBodyConstraint(m_data->m_pickingMultiBodyPoint2Point);
 		delete m_data->m_pickingMultiBodyPoint2Point;
 		m_data->m_pickingMultiBodyPoint2Point = 0;
+	}
+}
+
+void PhysicsServerSharedMemory::enableCommandLogging(bool enable, const char* fileName)
+{
+	if (enable)
+	{
+		if (0==m_data->m_commandLogger)
+		{
+			m_data->m_commandLogger = new CommandLogger(fileName);
+		}
+	} else
+	{
+		if (0!=m_data->m_commandLogger)
+		{
+			delete m_data->m_commandLogger;
+			m_data->m_commandLogger = 0;
+		}
 	}
 }

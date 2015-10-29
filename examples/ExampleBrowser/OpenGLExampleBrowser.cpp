@@ -1041,7 +1041,7 @@ void OpenGLExampleBrowser::update(float deltaTime)
 		}
 
 		static int toggle = 1;
-		if (1)
+		if (renderGrid)
 		{
             if (!pauseSimulation)
                 processProfileData(s_profWindow,false);
