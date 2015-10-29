@@ -486,34 +486,43 @@ bool PhysicsServerSharedMemory::connectSharedMemory( struct GUIHelperInterface* 
     }
     
     
-	m_data->m_testBlock1 = (SharedMemoryBlock*)m_data->m_sharedMemory->allocateSharedMemory(m_data->m_sharedMemoryKey, SHARED_MEMORY_SIZE,allowCreation);
-    if (m_data->m_testBlock1)
-    {
-        int magicId =m_data->m_testBlock1->m_magicId;
-        if (m_data->m_verboseOutput)
+	int counter = 0;
+	do 
+	{
+
+		m_data->m_testBlock1 = (SharedMemoryBlock*)m_data->m_sharedMemory->allocateSharedMemory(m_data->m_sharedMemoryKey, SHARED_MEMORY_SIZE,allowCreation);
+		if (m_data->m_testBlock1)
 		{
-			b3Printf("magicId = %d\n", magicId);
-		}
-        
-        if (m_data->m_testBlock1->m_magicId !=SHARED_MEMORY_MAGIC_NUMBER)
-        {
-            InitSharedMemoryBlock(m_data->m_testBlock1);
+			int magicId =m_data->m_testBlock1->m_magicId;
 			if (m_data->m_verboseOutput)
 			{
-				b3Printf("Created and initialized shared memory block\n");
+				b3Printf("magicId = %d\n", magicId);
 			}
-            m_data->m_isConnected = true;
-        } else
+        
+			if (m_data->m_testBlock1->m_magicId !=SHARED_MEMORY_MAGIC_NUMBER)
+			{
+				InitSharedMemoryBlock(m_data->m_testBlock1);
+				if (m_data->m_verboseOutput)
+				{
+					b3Printf("Created and initialized shared memory block\n");
+				}
+				m_data->m_isConnected = true;
+			} else
+			{
+				m_data->m_sharedMemory->releaseSharedMemory(m_data->m_sharedMemoryKey, SHARED_MEMORY_SIZE);
+				m_data->m_testBlock1 = 0;
+				m_data->m_isConnected = false;
+			}
+		} else
 		{
-			b3Error("Server cannot connect to existing shared memory, disconnecting shared memory.\n");
-            m_data->m_sharedMemory->releaseSharedMemory(m_data->m_sharedMemoryKey, SHARED_MEMORY_SIZE);
-            m_data->m_testBlock1 = 0;
-            m_data->m_isConnected = false;
+			b3Error("Cannot connect to shared memory");
+			m_data->m_isConnected = false;
 		}
-    } else
+	} while (counter++ < 10 && !m_data->m_isConnected);
+
+	if (!m_data->m_isConnected)
 	{
-		b3Error("Cannot connect to shared memory");
-		m_data->m_isConnected = false;
+		b3Error("Server cannot connect to shared memory.\n");
 	}
 	
 	return m_data->m_isConnected;
