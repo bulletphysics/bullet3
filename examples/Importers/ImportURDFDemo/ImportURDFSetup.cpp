@@ -367,7 +367,7 @@ void ImportUrdfSetup::initPhysics()
 			m_guiHelper->createCollisionShapeGraphicsObject(box);
 			btTransform start; start.setIdentity();
 			btVector3 groundOrigin(0,0,0);
-			groundOrigin[upAxis]=-2;//.5;
+			groundOrigin[upAxis]=-2.5;
 			start.setOrigin(groundOrigin);
 			btRigidBody* body =  createRigidBody(0,start,box);
 			//m_dynamicsWorld->removeRigidBody(body);

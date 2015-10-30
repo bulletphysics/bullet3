@@ -71,6 +71,7 @@ extern bool useShadowMap;
 static bool visualWireframe=false;
 static bool renderVisualGeometry=true;
 static bool renderGrid = true;
+static bool renderGui = true;
 static bool enable_experimental_opencl = false;
 
 int gDebugDrawFlags = 0;
@@ -170,6 +171,7 @@ void MyKeyboardCallback(int key, int state)
 	if (key=='g' && state)
 	{
 		renderGrid = !renderGrid;
+		renderGui = !renderGui;
 	}
 
 
@@ -1041,7 +1043,7 @@ void OpenGLExampleBrowser::update(float deltaTime)
 		}
 
 		static int toggle = 1;
-		if (1)
+		if (renderGui)
 		{
             if (!pauseSimulation)
                 processProfileData(s_profWindow,false);

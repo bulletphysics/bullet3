@@ -2,7 +2,7 @@
 #include "PhysicsClientC_API.h"
 
 #ifdef PHYSICS_LOOP_BACK
-#include "PhysicsLoopbackC_API.h"
+#include "PhysicsLoopBackC_API.h"
 #endif //PHYSICS_LOOP_BACK
 
 #include "SharedMemoryPublic.h"
