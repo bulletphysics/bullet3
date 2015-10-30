@@ -108,22 +108,121 @@ struct InternalBodyHandle : public InteralBodyData
 		return m_nextFreeHandle;
 	}
 };
+
+class btCommandChunk
+{
+public:
+	int		m_chunkCode;
+	int		m_length;
+	void	*m_oldPtr;
+	int		m_dna_nr;
+	int		m_number;
+};
+
 struct CommandLogger
 {
 	FILE* m_file;
+	
+	void	writeHeader(unsigned char* buffer) const
+	{
 
+#ifdef  BT_USE_DOUBLE_PRECISION
+		memcpy(buffer, "BT3CMDd", 7);
+#else
+		memcpy(buffer, "BT3CMDf", 7);
+#endif //BT_USE_DOUBLE_PRECISION
+
+		int littleEndian= 1;
+		littleEndian= ((char*)&littleEndian)[0];
+
+		if (sizeof(void*)==8)
+		{
+			buffer[7] = '-';
+		} else
+		{
+			buffer[7] = '_';
+		}
+
+		if (littleEndian)
+		{
+			buffer[8]='v';
+		} else
+		{
+			buffer[8]='V';
+		}
+
+		buffer[9] = 0;
+		buffer[10] = 0;
+		buffer[11] = 0;
+		
+		int ver = btGetVersion();
+		if (ver>=0 && ver<999)
+		{
+			sprintf((char*)&buffer[9],"%d",ver);
+		}
+		
+	}
+	
 	void logCommand(SharedMemoryBlock* testBlock1)
 	{
-		//fwrite(buf,buffSize+sizeof(int),1,m_file);
+		btCommandChunk chunk;
+		chunk.m_chunkCode = testBlock1->m_clientCommands[0].m_type;
+		chunk.m_oldPtr = 0;
+		chunk.m_dna_nr = 0;
+		chunk.m_length = sizeof(SharedMemoryCommand);
+		chunk.m_number = 1;
+		fwrite((const char*)&chunk,sizeof(btCommandChunk), 1,m_file);
+		fwrite((const char*)&testBlock1->m_clientCommands[0],sizeof(SharedMemoryCommand),1,m_file);
 	}
 
 	CommandLogger(const char* fileName)
 	{
 		m_file = fopen(fileName,"wb");
+		unsigned char buf[15];
+		buf[12] = 12;
+		buf[13] = 13;
+		buf[14] = 14;
+		writeHeader(buf);
+		fwrite(buf,12,1,m_file);
 	}
 	virtual ~CommandLogger()
 	{
 		fclose(m_file);
+	}
+};
+
+
+struct CommandLogPlayback
+{
+	unsigned char* m_header[12];
+	FILE* m_file;
+
+	CommandLogPlayback(const char* fileName)
+	{
+		m_file = fopen(fileName,"rb");
+		if (m_file)
+		{
+			fread(m_header,12,1,m_file);
+		}
+	}
+	virtual ~CommandLogPlayback()
+	{
+		if (m_file)
+		{
+			fclose(m_file);
+			m_file=0;
+		}
+	}
+	bool processNextCommand(SharedMemoryCommand* cmd)
+	{
+		btCommandChunk chunk;
+		size_t s = fread((void*)&chunk,sizeof(btCommandChunk),1,m_file);
+		if (s==1)
+		{
+			s = fread(cmd,sizeof(SharedMemoryCommand),1,m_file);
+			return (s==1);
+		}
+		return false;
 	}
 };
 
@@ -219,6 +318,8 @@ struct PhysicsServerInternalData
 	SharedMemoryInterface* m_sharedMemory;
     SharedMemoryBlock* m_testBlock1;
 	CommandLogger* m_commandLogger;
+	CommandLogPlayback* m_logPlayback;
+
 	bool m_isConnected;
 	btScalar m_physicsDeltaTime;
 	btAlignedObjectArray<btMultiBodyJointFeedback*> m_multiBodyJointFeedbacks;
@@ -260,6 +361,7 @@ struct PhysicsServerInternalData
 		:m_sharedMemory(0),
 		m_testBlock1(0),
 		m_commandLogger(0),
+		m_logPlayback(0),
 		m_isConnected(false),
 		m_physicsDeltaTime(1./240.),
 		m_dynamicsWorld(0),
@@ -756,6 +858,19 @@ void PhysicsServerSharedMemory::processClientCommands()
 {
 	if (m_data->m_isConnected && m_data->m_testBlock1)
     {
+		if (m_data->m_logPlayback)
+		{
+			if (m_data->m_testBlock1->m_numServerCommands>m_data->m_testBlock1->m_numProcessedServerCommands)
+			{
+				m_data->m_testBlock1->m_numProcessedServerCommands++;
+			}
+			//push a command from log file
+			bool hasCommand = m_data->m_logPlayback->processNextCommand(&m_data->m_testBlock1->m_clientCommands[0]);
+			if (hasCommand)
+			{
+				m_data->m_testBlock1->m_numClientCommands++;
+			}
+		}
         ///we ignore overflow of integer for now
         if (m_data->m_testBlock1->m_numClientCommands> m_data->m_testBlock1->m_numProcessedClientCommands)
         {
@@ -1737,4 +1852,10 @@ void PhysicsServerSharedMemory::enableCommandLogging(bool enable, const char* fi
 			m_data->m_commandLogger = 0;
 		}
 	}
+}
+
+void PhysicsServerSharedMemory::replayFromLogFile(const char* fileName)
+{
+	CommandLogPlayback* pb = new CommandLogPlayback(fileName);
+	m_data->m_logPlayback = pb;
 }

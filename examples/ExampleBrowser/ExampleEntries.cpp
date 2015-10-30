@@ -215,6 +215,11 @@ static ExampleEntry gDefaultExamples[]=
 	
 	ExampleEntry(1,"Physics Server", "Create a physics server that communicates with a physics client over shared memory",
 			PhysicsServerCreateFunc),
+	ExampleEntry(1,"Physics Server (Logging)", "Create a physics server that communicates with a physics client over shared memory. It will log all commands to a file.",
+			PhysicsServerCreateFunc,PHYSICS_SERVER_ENABLE_COMMAND_LOGGING),
+	ExampleEntry(1,"Physics Server (Replay Log)", "Create a physics server that replay a command log from disk.",
+			PhysicsServerCreateFunc,PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG),
+
 	ExampleEntry(1, "Physics Client", "Create a physics client that can communicate with a physics server over shared memory", PhysicsClientCreateFunc),
 #ifdef ENABLE_LUA
 	ExampleEntry(1,"Lua Script", "Create the dynamics world, collision shapes and rigid bodies using Lua scripting",

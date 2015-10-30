@@ -55,6 +55,8 @@ public:
 	void    renderScene();
 
 	void enableCommandLogging(bool enable, const char* fileName);
+	void replayFromLogFile(const char* fileName);
+	
 
 };
 

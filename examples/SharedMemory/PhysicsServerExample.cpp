@@ -33,6 +33,13 @@ public:
 	{
 		m_physicsServer.enableCommandLogging(true,"BulletPhysicsCommandLog.bin");
 	}
+
+	void replayFromLogFile()
+	{
+		m_physicsServer.replayFromLogFile("BulletPhysicsCommandLog.bin");
+	}
+	
+
     
 	virtual void resetCamera()
 	{
@@ -272,6 +279,10 @@ class CommonExampleInterface*    PhysicsServerCreateFunc(struct CommonExampleOpt
 	if (options.m_option & PHYSICS_SERVER_ENABLE_COMMAND_LOGGING)
 	{
 		example->enableCommandLogging();
+	}
+	if (options.m_option & PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG)
+	{
+		example->replayFromLogFile();
 	}
 	return example;
 	
