@@ -337,6 +337,9 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 
 PhysicsClientExample::PhysicsClientExample(GUIHelperInterface* helper)
 :SharedMemoryCommon(helper),
+m_physicsClientHandle(0),
+m_selectedBody(-1),
+m_prevSelectedBody(-1),
 m_wantsTermination(false),
 m_sharedMemoryKey(SHARED_MEMORY_KEY),
 m_numMotors(0)
@@ -381,7 +384,7 @@ void	PhysicsClientExample::createButtons()
 		createButton("Initialize Pose",CMD_INIT_POSE,  isTrigger);
 
 
-		if (m_selectedBody>=0)
+		if (m_physicsClientHandle && m_selectedBody>=0)
 		{
 			int numJoints = b3GetNumJoints(m_physicsClientHandle,m_selectedBody);
 			for (int i=0;i<numJoints;i++)
@@ -532,7 +535,7 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
             {
                 enqueueCommand(CMD_SEND_DESIRED_STATE);
                 enqueueCommand(CMD_STEP_FORWARD_SIMULATION);
-                //enqueueCommand(CMD_REQUEST_DEBUG_LINES);
+                enqueueCommand(CMD_REQUEST_DEBUG_LINES);
                 //enqueueCommand(CMD_REQUEST_ACTUAL_STATE);
             }
         }
