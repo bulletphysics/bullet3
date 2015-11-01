@@ -119,6 +119,36 @@ public:
 	int		m_number;
 };
 
+
+class bCommandChunkPtr4
+{
+public:
+	bCommandChunkPtr4(){}
+	int code;
+	int len;
+	union
+	{
+		int m_uniqueInt;
+	};
+	int dna_nr;
+	int nr;
+};
+
+// ----------------------------------------------------- //
+class bCommandChunkPtr8
+{
+public:
+	bCommandChunkPtr8(){}
+	int code,  len;
+	union
+	{
+		int	m_uniqueInts[2];
+	};
+	int dna_nr, nr;
+};
+
+
+
 struct CommandLogger
 {
 	FILE* m_file;
@@ -194,8 +224,11 @@ struct CommandLogger
 
 struct CommandLogPlayback
 {
-	unsigned char* m_header[12];
+	unsigned char m_header[12];
 	FILE* m_file;
+	bool m_bitsVary;
+	bool m_fileIs64bit;
+
 
 	CommandLogPlayback(const char* fileName)
 	{
@@ -204,6 +237,14 @@ struct CommandLogPlayback
 		{
 			fread(m_header,12,1,m_file);
 		}
+		unsigned char c = m_header[7];
+		m_fileIs64bit =  (c=='-');
+		
+		const bool VOID_IS_8 = ((sizeof(void*)==8));
+		m_bitsVary = (VOID_IS_8 != m_fileIs64bit);
+		
+
+
 	}
 	virtual ~CommandLogPlayback()
 	{
@@ -215,14 +256,29 @@ struct CommandLogPlayback
 	}
 	bool processNextCommand(SharedMemoryCommand* cmd)
 	{
-		btCommandChunk chunk;
-		size_t s = fread((void*)&chunk,sizeof(btCommandChunk),1,m_file);
-		if (s==1)
+		if (m_file)
 		{
-			s = fread(cmd,sizeof(SharedMemoryCommand),1,m_file);
-			return (s==1);
+			size_t s = 0;
+		
+
+			if (m_fileIs64bit)
+			{
+				bCommandChunkPtr8 chunk8;
+				s = fread((void*)&chunk8,sizeof(bCommandChunkPtr8),1,m_file);
+			} else
+			{
+				bCommandChunkPtr4 chunk4;
+				s = fread((void*)&chunk4,sizeof(bCommandChunkPtr4),1,m_file);
+			}
+		
+			if (s==1)
+			{
+				s = fread(cmd,sizeof(SharedMemoryCommand),1,m_file);
+				return (s==1);
+			}
 		}
 		return false;
+
 	}
 };
 
@@ -1627,6 +1683,7 @@ void PhysicsServerSharedMemory::processClientCommands()
 						
 						bool isDynamic = (mass>0);
 						btRigidBody* rb = worldImporter->createRigidBody(isDynamic,mass,startTrans,shape,0);
+						rb->setRollingFriction(0.2);
 						m_data->m_guiHelper->autogenerateGraphicsObjects(this->m_data->m_dynamicsWorld);
 						
 						SharedMemoryStatus& serverCmd =m_data->createServerStatus(CMD_RIGID_BODY_CREATION_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
