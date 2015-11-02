@@ -21,8 +21,14 @@
 
 
 #include "btVector3.h"
+#include "btQuaternion.h"
 
-
+const btVector3 btVector3::One = { 1.0, 1, 1 };
+const btVector3 btVector3::Zero = { 0, 0, 0 };
+const btVector3 btVector3::xAxis = { 1.0, 0, 0 };
+const btVector3 btVector3::yAxis = { 0, 1.0, 0 };
+const btVector3 btVector3::zAxis = { 0, 0, 1.0 };
+const btQuaternion btQuaternion::Identity = { 0,0,0,1 };
 
 #if defined BT_USE_SIMD_VECTOR3
 

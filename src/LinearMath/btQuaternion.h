@@ -56,7 +56,7 @@ class btQuaternion : public btQuadWord {
 public:
   /**@brief No initialization constructor */
 	btQuaternion() {}
-
+	const static btQuaternion Identity;
 #if (defined(BT_USE_SSE_IN_API) && defined(BT_USE_SSE))|| defined(BT_USE_NEON) 
 	// Set Vector 
 	SIMD_FORCE_INLINE btQuaternion(const btSimdFloat4 vec)

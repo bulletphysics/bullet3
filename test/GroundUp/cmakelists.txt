@@ -1,0 +1,14 @@
+
+macro( ADD_TEST src )
+
+	add_executable(${src} ${src}.cpp )
+	target_link_libraries( ${src} BulletDynamics BulletCollision LinearMath  )
+	SET_TARGET_PROPERTIES(${src} PROPERTIES FOLDER "Tests" )
+	install( TARGETS ${src} RUNTIME DESTINATION . )
+
+endmacro( ADD_TEST )
+
+include_directories( ../../src )
+
+ADD_TEST( test-001 )
+ADD_TEST( test-002 )

@@ -34,6 +34,7 @@ public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	btStaticPlaneShape(const btVector3& planeNormal,btScalar planeConstant);
+	btStaticPlaneShape(const btVector3& planeOrigin, const btVector3& planeNormal);
 
 	virtual ~btStaticPlaneShape();
 
