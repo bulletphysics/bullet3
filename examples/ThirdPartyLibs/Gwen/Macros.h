@@ -23,11 +23,6 @@
         #endif
 	#include <windows.h>
 
-	/* _TRUNCATE */
-	#if !defined(_TRUNCATE)
-		#define _TRUNCATE ((size_t)-1)
-	#endif
-
 	#define GwenUtil_VSNPrintFSafe( _DstBuf, _DstSize, _MaxCount, _Format, _ArgList ) vsnprintf_s( _DstBuf, _DstSize, _MaxCount, _Format, _ArgList )
 	#define GwenUtil_VSWPrintFSafe( _DstBuf, _SizeInWords, _Format, _ArgList ) vswprintf_s( _DstBuf, _SizeInWords, _Format, _ArgList )
 	#define GwenUtil_OutputDebugCharString( lpOutputString ) OutputDebugStringA( lpOutputString )
