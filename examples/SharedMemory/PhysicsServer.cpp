@@ -79,12 +79,14 @@ struct SharedMemoryDebugDrawer : public btIDebugDraw
 struct InteralBodyData
 {
 	btMultiBody* m_multiBody;
+	btRigidBody* m_rigidBody;
 	int m_testData;
 
 	btTransform m_rootLocalInertialFrame;
 
 	InteralBodyData()
 		:m_multiBody(0),
+		m_rigidBody(0),
 		m_testData(0)
 	{
 		m_rootLocalInertialFrame.setIdentity();
@@ -104,6 +106,179 @@ struct InternalBodyHandle : public InteralBodyData
 	int	GetNextFree() const 
 	{
 		return m_nextFreeHandle;
+	}
+};
+
+class btCommandChunk
+{
+public:
+	int		m_chunkCode;
+	int		m_length;
+	void	*m_oldPtr;
+	int		m_dna_nr;
+	int		m_number;
+};
+
+
+class bCommandChunkPtr4
+{
+public:
+	bCommandChunkPtr4(){}
+	int code;
+	int len;
+	union
+	{
+		int m_uniqueInt;
+	};
+	int dna_nr;
+	int nr;
+};
+
+// ----------------------------------------------------- //
+class bCommandChunkPtr8
+{
+public:
+	bCommandChunkPtr8(){}
+	int code,  len;
+	union
+	{
+		int	m_uniqueInts[2];
+	};
+	int dna_nr, nr;
+};
+
+
+
+struct CommandLogger
+{
+	FILE* m_file;
+	
+	void	writeHeader(unsigned char* buffer) const
+	{
+
+#ifdef  BT_USE_DOUBLE_PRECISION
+		memcpy(buffer, "BT3CMDd", 7);
+#else
+		memcpy(buffer, "BT3CMDf", 7);
+#endif //BT_USE_DOUBLE_PRECISION
+
+		int littleEndian= 1;
+		littleEndian= ((char*)&littleEndian)[0];
+
+		if (sizeof(void*)==8)
+		{
+			buffer[7] = '-';
+		} else
+		{
+			buffer[7] = '_';
+		}
+
+		if (littleEndian)
+		{
+			buffer[8]='v';
+		} else
+		{
+			buffer[8]='V';
+		}
+
+		buffer[9] = 0;
+		buffer[10] = 0;
+		buffer[11] = 0;
+		
+		int ver = btGetVersion();
+		if (ver>=0 && ver<999)
+		{
+			sprintf((char*)&buffer[9],"%d",ver);
+		}
+		
+	}
+	
+	void logCommand(SharedMemoryBlock* testBlock1)
+	{
+		btCommandChunk chunk;
+		chunk.m_chunkCode = testBlock1->m_clientCommands[0].m_type;
+		chunk.m_oldPtr = 0;
+		chunk.m_dna_nr = 0;
+		chunk.m_length = sizeof(SharedMemoryCommand);
+		chunk.m_number = 1;
+		fwrite((const char*)&chunk,sizeof(btCommandChunk), 1,m_file);
+		fwrite((const char*)&testBlock1->m_clientCommands[0],sizeof(SharedMemoryCommand),1,m_file);
+	}
+
+	CommandLogger(const char* fileName)
+	{
+		m_file = fopen(fileName,"wb");
+		unsigned char buf[15];
+		buf[12] = 12;
+		buf[13] = 13;
+		buf[14] = 14;
+		writeHeader(buf);
+		fwrite(buf,12,1,m_file);
+	}
+	virtual ~CommandLogger()
+	{
+		fclose(m_file);
+	}
+};
+
+
+struct CommandLogPlayback
+{
+	unsigned char m_header[12];
+	FILE* m_file;
+	bool m_bitsVary;
+	bool m_fileIs64bit;
+
+
+	CommandLogPlayback(const char* fileName)
+	{
+		m_file = fopen(fileName,"rb");
+		if (m_file)
+		{
+			fread(m_header,12,1,m_file);
+		}
+		unsigned char c = m_header[7];
+		m_fileIs64bit =  (c=='-');
+		
+		const bool VOID_IS_8 = ((sizeof(void*)==8));
+		m_bitsVary = (VOID_IS_8 != m_fileIs64bit);
+		
+
+
+	}
+	virtual ~CommandLogPlayback()
+	{
+		if (m_file)
+		{
+			fclose(m_file);
+			m_file=0;
+		}
+	}
+	bool processNextCommand(SharedMemoryCommand* cmd)
+	{
+		if (m_file)
+		{
+			size_t s = 0;
+		
+
+			if (m_fileIs64bit)
+			{
+				bCommandChunkPtr8 chunk8;
+				s = fread((void*)&chunk8,sizeof(bCommandChunkPtr8),1,m_file);
+			} else
+			{
+				bCommandChunkPtr4 chunk4;
+				s = fread((void*)&chunk4,sizeof(bCommandChunkPtr4),1,m_file);
+			}
+		
+			if (s==1)
+			{
+				s = fread(cmd,sizeof(SharedMemoryCommand),1,m_file);
+				return (s==1);
+			}
+		}
+		return false;
+
 	}
 };
 
@@ -198,6 +373,9 @@ struct PhysicsServerInternalData
 	
 	SharedMemoryInterface* m_sharedMemory;
     SharedMemoryBlock* m_testBlock1;
+	CommandLogger* m_commandLogger;
+	CommandLogPlayback* m_logPlayback;
+
 	bool m_isConnected;
 	btScalar m_physicsDeltaTime;
 	btAlignedObjectArray<btMultiBodyJointFeedback*> m_multiBodyJointFeedbacks;
@@ -215,8 +393,8 @@ struct PhysicsServerInternalData
 	btMultiBodyConstraintSolver*	m_solver;
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 	btMultiBodyDynamicsWorld* m_dynamicsWorld;
-	SharedMemoryDebugDrawer*		m_debugDrawer;
-
+	SharedMemoryDebugDrawer*		m_remoteDebugDrawer;
+	
     
 
     
@@ -238,10 +416,12 @@ struct PhysicsServerInternalData
 	PhysicsServerInternalData()
 		:m_sharedMemory(0),
 		m_testBlock1(0),
+		m_commandLogger(0),
+		m_logPlayback(0),
 		m_isConnected(false),
 		m_physicsDeltaTime(1./240.),
 		m_dynamicsWorld(0),
-		m_debugDrawer(0),
+		m_remoteDebugDrawer(0),
 		m_guiHelper(0),
 		m_sharedMemoryKey(SHARED_MEMORY_KEY),
 		m_verboseOutput(false),
@@ -330,6 +510,12 @@ PhysicsServerSharedMemory::PhysicsServerSharedMemory()
 PhysicsServerSharedMemory::~PhysicsServerSharedMemory()
 {
 	deleteDynamicsWorld();
+	if (m_data->m_commandLogger)
+	{
+		delete m_data->m_commandLogger;
+		m_data->m_commandLogger = 0;
+	}
+
 	delete m_data;
 }
 
@@ -354,8 +540,8 @@ void PhysicsServerSharedMemory::createEmptyDynamicsWorld()
 	
 	m_data->m_dynamicsWorld = new btMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
 
-	m_data->m_debugDrawer = new SharedMemoryDebugDrawer();
-	m_data->m_dynamicsWorld->setDebugDrawer(m_data->m_debugDrawer);
+	m_data->m_remoteDebugDrawer = new SharedMemoryDebugDrawer();
+	
 	
 	m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
 }
@@ -422,8 +608,8 @@ void PhysicsServerSharedMemory::deleteDynamicsWorld()
 	delete m_data->m_dynamicsWorld;
 	m_data->m_dynamicsWorld=0;
 
-	delete m_data->m_debugDrawer;
-	m_data->m_debugDrawer=0;
+	delete m_data->m_remoteDebugDrawer;
+	m_data->m_remoteDebugDrawer =0;
 
 	delete m_data->m_solver;
 	m_data->m_solver=0;
@@ -443,8 +629,13 @@ bool PhysicsServerSharedMemory::connectSharedMemory( struct GUIHelperInterface* 
 {
 	m_data->m_guiHelper = guiHelper;
 	
+	if (m_data->m_guiHelper)
+	{
+		m_data->m_guiHelper->createPhysicsDebugDrawer(m_data->m_dynamicsWorld);
+	}
+	
 	bool allowCreation = true;
-	bool allowConnectToExistingSharedMemory = false;
+	
 
     if (m_data->m_isConnected)
     {
@@ -453,41 +644,58 @@ bool PhysicsServerSharedMemory::connectSharedMemory( struct GUIHelperInterface* 
     }
     
     
-	m_data->m_testBlock1 = (SharedMemoryBlock*)m_data->m_sharedMemory->allocateSharedMemory(m_data->m_sharedMemoryKey, SHARED_MEMORY_SIZE,allowCreation);
-    if (m_data->m_testBlock1)
-    {
-        int magicId =m_data->m_testBlock1->m_magicId;
-        if (m_data->m_verboseOutput)
+	int counter = 0;
+	do 
+	{
+
+		m_data->m_testBlock1 = (SharedMemoryBlock*)m_data->m_sharedMemory->allocateSharedMemory(m_data->m_sharedMemoryKey, SHARED_MEMORY_SIZE,allowCreation);
+		if (m_data->m_testBlock1)
 		{
-			b3Printf("magicId = %d\n", magicId);
-		}
-        
-        if (m_data->m_testBlock1->m_magicId !=SHARED_MEMORY_MAGIC_NUMBER)
-        {
-            InitSharedMemoryBlock(m_data->m_testBlock1);
+			int magicId =m_data->m_testBlock1->m_magicId;
 			if (m_data->m_verboseOutput)
 			{
-				b3Printf("Created and initialized shared memory block\n");
+				b3Printf("magicId = %d\n", magicId);
 			}
-            m_data->m_isConnected = true;
-        } else
+        
+			if (m_data->m_testBlock1->m_magicId !=SHARED_MEMORY_MAGIC_NUMBER)
+			{
+				InitSharedMemoryBlock(m_data->m_testBlock1);
+				if (m_data->m_verboseOutput)
+				{
+					b3Printf("Created and initialized shared memory block\n");
+				}
+				m_data->m_isConnected = true;
+			} else
+			{
+				m_data->m_sharedMemory->releaseSharedMemory(m_data->m_sharedMemoryKey, SHARED_MEMORY_SIZE);
+				m_data->m_testBlock1 = 0;
+				m_data->m_isConnected = false;
+			}
+		} else
 		{
-			b3Error("Server cannot connect to existing shared memory, disconnecting shared memory.\n");
-            m_data->m_sharedMemory->releaseSharedMemory(m_data->m_sharedMemoryKey, SHARED_MEMORY_SIZE);
-            m_data->m_testBlock1 = 0;
-            m_data->m_isConnected = false;
+			b3Error("Cannot connect to shared memory");
+			m_data->m_isConnected = false;
 		}
-    } else
+	} while (counter++ < 10 && !m_data->m_isConnected);
+
+	if (!m_data->m_isConnected)
 	{
-		b3Error("Cannot connect to shared memory");
-		m_data->m_isConnected = false;
+		b3Error("Server cannot connect to shared memory.\n");
 	}
+	
 	return m_data->m_isConnected;
 }
 
 
 void PhysicsServerSharedMemory::disconnectSharedMemory(bool deInitializeSharedMemory)
 {
+	if (m_data->m_guiHelper)
+	{
+		if (m_data->m_guiHelper && m_data->m_dynamicsWorld && m_data->m_dynamicsWorld->getDebugDrawer())
+		{
+			m_data->m_dynamicsWorld->setDebugDrawer(0);
+		}
+	}
 	if (m_data->m_verboseOutput)
 	{
 		b3Printf("releaseSharedMemory1\n");
@@ -706,15 +914,35 @@ void PhysicsServerSharedMemory::processClientCommands()
 {
 	if (m_data->m_isConnected && m_data->m_testBlock1)
     {
+		if (m_data->m_logPlayback)
+		{
+			if (m_data->m_testBlock1->m_numServerCommands>m_data->m_testBlock1->m_numProcessedServerCommands)
+			{
+				m_data->m_testBlock1->m_numProcessedServerCommands++;
+			}
+			//push a command from log file
+			bool hasCommand = m_data->m_logPlayback->processNextCommand(&m_data->m_testBlock1->m_clientCommands[0]);
+			if (hasCommand)
+			{
+				m_data->m_testBlock1->m_numClientCommands++;
+			}
+		}
         ///we ignore overflow of integer for now
         if (m_data->m_testBlock1->m_numClientCommands> m_data->m_testBlock1->m_numProcessedClientCommands)
         {
-            
+           
+
             //until we implement a proper ring buffer, we assume always maximum of 1 outstanding commands
             btAssert(m_data->m_testBlock1->m_numClientCommands==m_data->m_testBlock1->m_numProcessedClientCommands+1);
             
 			const SharedMemoryCommand& clientCmd =m_data->m_testBlock1->m_clientCommands[0];
+			if (m_data->m_commandLogger)
+			{
+				m_data->m_commandLogger->logCommand(m_data->m_testBlock1);
+			}
+
 			m_data->m_testBlock1->m_numProcessedClientCommands++;
+			
 			//no timestamp yet
             int timeStamp = 0;
 
@@ -747,7 +975,7 @@ void PhysicsServerSharedMemory::processClientCommands()
 				}
 				case CMD_REQUEST_DEBUG_LINES:
 					{
-						int curFlags =m_data->m_debugDrawer->getDebugMode();
+						int curFlags =m_data->m_remoteDebugDrawer->getDebugMode();
                         
                         int debugMode = clientCmd.m_requestDebugLinesArguments.m_debugMode;//clientCmd.btIDebugDraw::DBG_DrawWireframe|btIDebugDraw::DBG_DrawAabb;
                         int startingLineIndex = clientCmd.m_requestDebugLinesArguments.m_startingLineIndex;
@@ -759,23 +987,26 @@ void PhysicsServerSharedMemory::processClientCommands()
                         
                         if (clientCmd.m_requestDebugLinesArguments.m_startingLineIndex==0)
                         {
-                            m_data->m_debugDrawer->m_lines2.resize(0);
+                            m_data->m_remoteDebugDrawer->m_lines2.resize(0);
                             //|btIDebugDraw::DBG_DrawAabb|
                             //	btIDebugDraw::DBG_DrawConstraints |btIDebugDraw::DBG_DrawConstraintLimits ;
-                            m_data->m_debugDrawer->setDebugMode(debugMode);
+                            m_data->m_remoteDebugDrawer->setDebugMode(debugMode);
+							btIDebugDraw* oldDebugDrawer = m_data->m_dynamicsWorld->getDebugDrawer();
+							m_data->m_dynamicsWorld->setDebugDrawer(m_data->m_remoteDebugDrawer);
                             m_data->m_dynamicsWorld->debugDrawWorld();
-                            m_data->m_debugDrawer->setDebugMode(curFlags);
+							m_data->m_dynamicsWorld->setDebugDrawer(oldDebugDrawer);
+                            m_data->m_remoteDebugDrawer->setDebugMode(curFlags);
                         }
 
                         //9 floats per line: 3 floats for 'from', 3 floats for 'to' and 3 floats for 'color'
                         int maxNumLines = SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE/(sizeof(float)*9)-1;
-                        if (startingLineIndex >m_data->m_debugDrawer->m_lines2.size())
+                        if (startingLineIndex >m_data->m_remoteDebugDrawer->m_lines2.size())
                         {
                             b3Warning("m_startingLineIndex exceeds total number of debug lines");
-                            startingLineIndex =m_data->m_debugDrawer->m_lines2.size();
+                            startingLineIndex =m_data->m_remoteDebugDrawer->m_lines2.size();
                         }
                         
-                        int numLines = btMin(maxNumLines,m_data->m_debugDrawer->m_lines2.size()-startingLineIndex);
+                        int numLines = btMin(maxNumLines,m_data->m_remoteDebugDrawer->m_lines2.size()-startingLineIndex);
                         
                         if (numLines)
                         {
@@ -786,24 +1017,24 @@ void PhysicsServerSharedMemory::processClientCommands()
 
 							for (int i=0;i<numLines;i++)
 							{
-								linesFrom[i*3] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_from.x();
-								linesTo[i*3] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_to.x();
-								linesColor[i*3] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_color.x();
+								linesFrom[i*3] = m_data->m_remoteDebugDrawer->m_lines2[i+startingLineIndex].m_from.x();
+								linesTo[i*3] = m_data->m_remoteDebugDrawer->m_lines2[i+startingLineIndex].m_to.x();
+								linesColor[i*3] = m_data->m_remoteDebugDrawer->m_lines2[i+startingLineIndex].m_color.x();
 
-								linesFrom[i*3+1] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_from.y();
-								linesTo[i*3+1] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_to.y();
-								linesColor[i*3+1] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_color.y();
+								linesFrom[i*3+1] = m_data->m_remoteDebugDrawer->m_lines2[i+startingLineIndex].m_from.y();
+								linesTo[i*3+1] = m_data->m_remoteDebugDrawer->m_lines2[i+startingLineIndex].m_to.y();
+								linesColor[i*3+1] = m_data->m_remoteDebugDrawer->m_lines2[i+startingLineIndex].m_color.y();
 
-								linesFrom[i*3+2] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_from.z();
-								linesTo[i*3+2] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_to.z();
-								linesColor[i*3+2] = m_data->m_debugDrawer->m_lines2[i+startingLineIndex].m_color.z();
+								linesFrom[i*3+2] = m_data->m_remoteDebugDrawer->m_lines2[i+startingLineIndex].m_from.z();
+								linesTo[i*3+2] = m_data->m_remoteDebugDrawer->m_lines2[i+startingLineIndex].m_to.z();
+								linesColor[i*3+2] = m_data->m_remoteDebugDrawer->m_lines2[i+startingLineIndex].m_color.z();
                             }
 						}
                         
                         SharedMemoryStatus& status = m_data->createServerStatus(CMD_DEBUG_LINES_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
                         status.m_sendDebugLinesArgs.m_numDebugLines = numLines;
                         status.m_sendDebugLinesArgs.m_startingLineIndex = startingLineIndex;
-                        status.m_sendDebugLinesArgs.m_numRemainingDebugLines = m_data->m_debugDrawer->m_lines2.size()-(startingLineIndex+numLines);
+                        status.m_sendDebugLinesArgs.m_numRemainingDebugLines = m_data->m_remoteDebugDrawer->m_lines2.size()-(startingLineIndex+numLines);
                         m_data->submitServerStatus(status);
                         
 						break;
@@ -1089,14 +1320,10 @@ void PhysicsServerSharedMemory::processClientCommands()
 						}
 						int bodyUniqueId = clientCmd.m_requestActualStateInformationCommandArgument.m_bodyUniqueId;
 						InteralBodyData* body = m_data->getHandle(bodyUniqueId);
-						btMultiBody* mb = 0;
-						if (body)
+						
+						if (body && body->m_multiBody)
 						{
-							mb = body->m_multiBody;
-						}
-						if (mb)
-						{
-							
+							btMultiBody* mb = body->m_multiBody;
 							SharedMemoryStatus& serverCmd = m_data->createServerStatus(CMD_ACTUAL_STATE_UPDATE_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
 
 							serverCmd.m_sendActualStateArgs.m_bodyUniqueId = bodyUniqueId;
@@ -1192,10 +1419,48 @@ void PhysicsServerSharedMemory::processClientCommands()
 							
 						} else
 						{
+							if (body && body->m_rigidBody)
+							{
+								btRigidBody* rb = body->m_rigidBody;
+								SharedMemoryStatus& serverCmd = m_data->createServerStatus(CMD_ACTUAL_STATE_UPDATE_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
+								serverCmd.m_sendActualStateArgs.m_bodyUniqueId = bodyUniqueId;
+								int totalDegreeOfFreedomQ = 0;
+								int totalDegreeOfFreedomU = 0;
 
-							b3Warning("Request state but no multibody available");
-							SharedMemoryStatus& serverCmd = m_data->createServerStatus(CMD_ACTUAL_STATE_UPDATE_FAILED,clientCmd.m_sequenceNumber,timeStamp);
-							m_data->submitServerStatus(serverCmd);
+								btTransform tr = rb->getWorldTransform();
+								//base position in world space, carthesian
+								serverCmd.m_sendActualStateArgs.m_actualStateQ[0] = tr.getOrigin()[0];
+								serverCmd.m_sendActualStateArgs.m_actualStateQ[1] = tr.getOrigin()[1];
+								serverCmd.m_sendActualStateArgs.m_actualStateQ[2] = tr.getOrigin()[2];
+
+								//base orientation, quaternion x,y,z,w, in world space, carthesian
+								serverCmd.m_sendActualStateArgs.m_actualStateQ[3] = tr.getRotation()[0]; 
+								serverCmd.m_sendActualStateArgs.m_actualStateQ[4] = tr.getRotation()[1];
+								serverCmd.m_sendActualStateArgs.m_actualStateQ[5] = tr.getRotation()[2];
+								serverCmd.m_sendActualStateArgs.m_actualStateQ[6] = tr.getRotation()[3];
+								totalDegreeOfFreedomQ +=7;//pos + quaternion
+
+								//base linear velocity (in world space, carthesian)
+								serverCmd.m_sendActualStateArgs.m_actualStateQdot[0] = rb->getLinearVelocity()[0];
+								serverCmd.m_sendActualStateArgs.m_actualStateQdot[1] = rb->getLinearVelocity()[1];
+								serverCmd.m_sendActualStateArgs.m_actualStateQdot[2] = rb->getLinearVelocity()[2];
+	
+								//base angular velocity (in world space, carthesian)
+								serverCmd.m_sendActualStateArgs.m_actualStateQdot[3] = rb->getAngularVelocity()[0];
+								serverCmd.m_sendActualStateArgs.m_actualStateQdot[4] = rb->getAngularVelocity()[1];
+								serverCmd.m_sendActualStateArgs.m_actualStateQdot[5] = rb->getAngularVelocity()[2];
+								totalDegreeOfFreedomU += 6;//3 linear and 3 angular DOF
+
+								serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomQ = totalDegreeOfFreedomQ;
+								serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomU = totalDegreeOfFreedomU;
+
+								m_data->submitServerStatus(serverCmd);
+							} else
+							{
+								b3Warning("Request state but no multibody or rigid body available");
+								SharedMemoryStatus& serverCmd = m_data->createServerStatus(CMD_ACTUAL_STATE_UPDATE_FAILED,clientCmd.m_sequenceNumber,timeStamp);
+								m_data->submitServerStatus(serverCmd);
+							}
 						}
 
 						break;
@@ -1309,6 +1574,7 @@ void PhysicsServerSharedMemory::processClientCommands()
 
                     break;
                 }
+				case CMD_CREATE_RIGID_BODY:
 				case CMD_CREATE_BOX_COLLISION_SHAPE:
 					{
                         btVector3 halfExtents(1,1,1);
@@ -1339,16 +1605,93 @@ void PhysicsServerSharedMemory::processClientCommands()
                                                                  clientCmd.m_createBoxShapeArguments.m_initialOrientation[3]));
                         }
 
+						btScalar mass = 0.f;
+						if (clientCmd.m_updateFlags & BOX_SHAPE_HAS_MASS)
+						{
+							mass = clientCmd.m_createBoxShapeArguments.m_mass;
+						}
+
+						int shapeType = COLLISION_SHAPE_TYPE_BOX;
+
+						if (clientCmd.m_updateFlags & BOX_SHAPE_HAS_COLLISION_SHAPE_TYPE)
+						{
+							shapeType = clientCmd.m_createBoxShapeArguments.m_collisionShapeType;
+						}
+
 						btBulletWorldImporter* worldImporter = new btBulletWorldImporter(m_data->m_dynamicsWorld);
 						m_data->m_worldImporters.push_back(worldImporter);
 
-						btCollisionShape* shape = worldImporter->createBoxShape(halfExtents);
-						btScalar mass = 0.f;
+						btCollisionShape* shape = 0;
+						
+						switch (shapeType)
+						{
+							case COLLISION_SHAPE_TYPE_CYLINDER_X:
+							{
+								btScalar radius = halfExtents[1];
+								btScalar height = halfExtents[0];
+								shape = worldImporter->createCylinderShapeX(radius,height);
+								break;
+							}
+							case COLLISION_SHAPE_TYPE_CYLINDER_Y:
+							{
+								btScalar radius = halfExtents[0];
+								btScalar height = halfExtents[1];
+								shape = worldImporter->createCylinderShapeY(radius,height);
+								break;
+							}
+							case COLLISION_SHAPE_TYPE_CYLINDER_Z:
+							{
+								btScalar radius = halfExtents[1];
+								btScalar height = halfExtents[2];
+								shape = worldImporter->createCylinderShapeZ(radius,height);
+								break;
+							}
+							case COLLISION_SHAPE_TYPE_CAPSULE_X:
+							{
+								btScalar radius = halfExtents[1];
+								btScalar height = halfExtents[0];
+								shape = worldImporter->createCapsuleShapeX(radius,height);
+								break;
+							}
+							case COLLISION_SHAPE_TYPE_CAPSULE_Y:
+							{
+								btScalar radius = halfExtents[0];
+								btScalar height = halfExtents[1];
+								shape = worldImporter->createCapsuleShapeY(radius,height);
+								break;
+							}
+							case COLLISION_SHAPE_TYPE_CAPSULE_Z:
+							{
+								btScalar radius = halfExtents[1];
+								btScalar height = halfExtents[2];
+								shape = worldImporter->createCapsuleShapeZ(radius,height);
+								break;
+							}
+							case COLLISION_SHAPE_TYPE_SPHERE:
+							{
+								btScalar radius = halfExtents[0];
+								shape = worldImporter->createSphereShape(radius);
+								break;
+							}
+							case COLLISION_SHAPE_TYPE_BOX:
+							default:
+							{
+								shape = worldImporter->createBoxShape(halfExtents);
+							}
+						}
+						
+						
 						bool isDynamic = (mass>0);
-						worldImporter->createRigidBody(isDynamic,mass,startTrans,shape,0);
+						btRigidBody* rb = worldImporter->createRigidBody(isDynamic,mass,startTrans,shape,0);
+						rb->setRollingFriction(0.2);
 						m_data->m_guiHelper->autogenerateGraphicsObjects(this->m_data->m_dynamicsWorld);
 						
-						SharedMemoryStatus& serverCmd =m_data->createServerStatus(CMD_CLIENT_COMMAND_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
+						SharedMemoryStatus& serverCmd =m_data->createServerStatus(CMD_RIGID_BODY_CREATION_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
+						int bodyUniqueId = m_data->allocHandle();
+						InternalBodyHandle* bodyHandle = m_data->getHandle(bodyUniqueId);
+						serverCmd.m_rigidBodyCreateArgs.m_bodyUniqueId = bodyUniqueId;
+						bodyHandle->m_rootLocalInertialFrame.setIdentity();
+						bodyHandle->m_rigidBody = rb;
 						m_data->submitServerStatus(serverCmd);
 
 						break;
@@ -1420,17 +1763,14 @@ void PhysicsServerSharedMemory::renderScene()
 
 void    PhysicsServerSharedMemory::physicsDebugDraw(int debugDrawFlags)
 {
-#if 0
 	if (m_data->m_dynamicsWorld)
 	{
 		if (m_data->m_dynamicsWorld->getDebugDrawer())
 		{
-			//m_data->m_debugDrawer->m_lines.clear();
-			//m_data->m_dynamicsWorld->getDebugDrawer()->setDebugMode(debugDrawFlags);
+			m_data->m_dynamicsWorld->getDebugDrawer()->setDebugMode(debugDrawFlags);
+			m_data->m_dynamicsWorld->debugDrawWorld();
 		}
-		m_data->m_dynamicsWorld->debugDrawWorld();
 	}
-#endif
 }
 
 
@@ -1551,4 +1891,28 @@ void PhysicsServerSharedMemory::removePickingConstraint()
 		delete m_data->m_pickingMultiBodyPoint2Point;
 		m_data->m_pickingMultiBodyPoint2Point = 0;
 	}
+}
+
+void PhysicsServerSharedMemory::enableCommandLogging(bool enable, const char* fileName)
+{
+	if (enable)
+	{
+		if (0==m_data->m_commandLogger)
+		{
+			m_data->m_commandLogger = new CommandLogger(fileName);
+		}
+	} else
+	{
+		if (0!=m_data->m_commandLogger)
+		{
+			delete m_data->m_commandLogger;
+			m_data->m_commandLogger = 0;
+		}
+	}
+}
+
+void PhysicsServerSharedMemory::replayFromLogFile(const char* fileName)
+{
+	CommandLogPlayback* pb = new CommandLogPlayback(fileName);
+	m_data->m_logPlayback = pb;
 }

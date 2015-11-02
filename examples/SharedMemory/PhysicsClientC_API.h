@@ -15,7 +15,7 @@ B3_DECLARE_HANDLE(b3SharedMemoryStatusHandle);
 extern "C" { 
 #endif
 
-///make sure to start the server first, before connecting client to physics server
+///make sure to start the server first, before connecting client to a physics server over shared memory or UDP
 b3PhysicsClientHandle b3ConnectSharedMemory(int key);
 
 void	b3DisconnectSharedMemory(b3PhysicsClientHandle physClient);
@@ -84,6 +84,9 @@ b3SharedMemoryCommandHandle b3CreateBoxShapeCommandInit(b3PhysicsClientHandle ph
 int	b3CreateBoxCommandSetStartPosition(b3SharedMemoryCommandHandle commandHandle, double startPosX,double startPosY,double startPosZ);
 int	b3CreateBoxCommandSetStartOrientation(b3SharedMemoryCommandHandle commandHandle, double startOrnX,double startOrnY,double startOrnZ, double startOrnW);
 int	b3CreateBoxCommandSetHalfExtents(b3SharedMemoryCommandHandle commandHandle, double halfExtentsX,double halfExtentsY,double halfExtentsZ);
+int	b3CreateBoxCommandSetMass(b3SharedMemoryCommandHandle commandHandle, double mass);
+int	b3CreateBoxCommandSetCollisionShapeType(b3SharedMemoryCommandHandle commandHandle, int collisionShapeType);
+
 
 ///Initialize (teleport) the pose of a body/robot. You can individually set the base position, base orientation and joint angles.
 ///This will set all velocities of base and joints to zero.
@@ -97,7 +100,7 @@ b3SharedMemoryCommandHandle b3CreateSensorCommandInit(b3PhysicsClientHandle phys
 int b3CreateSensorEnable6DofJointForceTorqueSensor(b3SharedMemoryCommandHandle commandHandle, int jointIndex, int enable);
 int b3CreateSensorEnableIMUForLink(b3SharedMemoryCommandHandle commandHandle, int linkIndex, int enable);
 
-b3SharedMemoryCommandHandle b3RequestActualStateCommandInit(b3PhysicsClientHandle physClient);
+b3SharedMemoryCommandHandle b3RequestActualStateCommandInit(b3PhysicsClientHandle physClient,int bodyUniqueId);
 void b3GetJointState(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle statusHandle, int jointIndex, struct b3JointSensorState *state);
 
 int b3PickBody(struct SharedMemoryCommand *command,

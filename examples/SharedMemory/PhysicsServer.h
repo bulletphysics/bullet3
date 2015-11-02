@@ -54,6 +54,10 @@ public:
 	void    physicsDebugDraw(int debugDrawFlags);
 	void    renderScene();
 
+	void enableCommandLogging(bool enable, const char* fileName);
+	void replayFromLogFile(const char* fileName);
+	
+
 };
 
 

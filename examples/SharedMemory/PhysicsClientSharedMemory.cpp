@@ -450,6 +450,11 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 
                 break;
             }
+			case CMD_RIGID_BODY_CREATION_COMPLETED:
+			{
+
+				break;
+			}
             case CMD_DEBUG_LINES_OVERFLOW_FAILED: {
                 b3Warning("Error receiving debug lines");
                 m_data->m_debugLinesFrom.resize(0);

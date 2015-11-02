@@ -117,11 +117,9 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Spring constraint","A rigid body with a spring constraint attached", Dof6ConstraintTutorialCreateFunc,0),
 
 	ExampleEntry(0,"Collision"),
-	ExampleEntry(1, "Sphere-Sphere C-API (Bullet2)", "Collision C-API using Bullet 2.x backend", CollisionTutorialBullet2CreateFunc,TUT_SPHERE_SPHERE_BULLET2),
-	ExampleEntry(1, "Sphere-Plane C-API (Bullet2)", "Collision C-API using Bullet 2.x backend", CollisionTutorialBullet2CreateFunc,TUT_SPHERE_PLANE_BULLET2),
-	ExampleEntry(1, "Sphere-Sphere C-API (Bullet3)", "Collision C-API using Bullet 3.x backend", CollisionTutorialBullet2CreateFunc,TUT_SPHERE_SPHERE_RTB3),
-	ExampleEntry(1, "Sphere-Plane C-API (Bullet3)", "Collision C-API using Bullet 3.x backend", CollisionTutorialBullet2CreateFunc,TUT_SPHERE_PLANE_RTB3),
-	
+	ExampleEntry(1, "Spheres & Plane C-API (Bullet2)", "Collision C-API using Bullet 2.x backend", CollisionTutorialBullet2CreateFunc,TUT_SPHERE_PLANE_BULLET2),
+	//ExampleEntry(1, "Spheres & Plane C-API (Bullet3)", "Collision C-API using Bullet 3.x backend", CollisionTutorialBullet2CreateFunc,TUT_SPHERE_PLANE_RTB3),
+		
 	
 
 #ifdef INCLUDE_CLOTH_DEMOS
@@ -217,6 +215,11 @@ static ExampleEntry gDefaultExamples[]=
 	
 	ExampleEntry(1,"Physics Server", "Create a physics server that communicates with a physics client over shared memory",
 			PhysicsServerCreateFunc),
+	ExampleEntry(1,"Physics Server (Logging)", "Create a physics server that communicates with a physics client over shared memory. It will log all commands to a file.",
+			PhysicsServerCreateFunc,PHYSICS_SERVER_ENABLE_COMMAND_LOGGING),
+	ExampleEntry(1,"Physics Server (Replay Log)", "Create a physics server that replay a command log from disk.",
+			PhysicsServerCreateFunc,PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG),
+
 	ExampleEntry(1, "Physics Client", "Create a physics client that can communicate with a physics server over shared memory", PhysicsClientCreateFunc),
 #ifdef ENABLE_LUA
 	ExampleEntry(1,"Lua Script", "Create the dynamics world, collision shapes and rigid bodies using Lua scripting",

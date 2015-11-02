@@ -18,6 +18,7 @@ class PhysicsServerExample : public SharedMemoryCommon
 
     bool m_isConnected;
     btClock m_clock;
+	bool m_replay;
 	
 public:
     
@@ -29,7 +30,18 @@ public:
     
 	virtual void	stepSimulation(float deltaTime);
     
-    
+    void enableCommandLogging()
+	{
+		m_physicsServer.enableCommandLogging(true,"BulletPhysicsCommandLog.bin");
+	}
+
+	void replayFromLogFile()
+	{
+		m_replay = true;
+		m_physicsServer.replayFromLogFile("BulletPhysicsCommandLog.bin");
+	}
+	
+
     
 	virtual void resetCamera()
 	{
@@ -51,6 +63,9 @@ public:
 	
 	virtual bool	mouseMoveCallback(float x,float y)
 	{
+		if (m_replay)
+			return false;
+
 		CommonRenderInterface* renderer = m_guiHelper->getRenderInterface();
 		
 		if (!renderer)
@@ -68,6 +83,9 @@ public:
 
 	virtual bool	mouseButtonCallback(int button, int state, float x, float y)
 	{
+		if (m_replay)
+			return false;
+
 		CommonRenderInterface* renderer = m_guiHelper->getRenderInterface();
 		
 		if (!renderer)
@@ -118,7 +136,8 @@ public:
 PhysicsServerExample::PhysicsServerExample(GUIHelperInterface* helper)
 :SharedMemoryCommon(helper),
 m_wantsShutdown(false),
-m_isConnected(false)
+m_isConnected(false),
+m_replay(false)
 {
 	b3Printf("Started PhysicsServer\n");
 }
@@ -168,12 +187,19 @@ bool PhysicsServerExample::wantsTermination()
 
 void	PhysicsServerExample::stepSimulation(float deltaTime)
 {
-	btClock rtc;
-	btScalar endTime = rtc.getTimeMilliseconds() + deltaTime*btScalar(800);
-
-	while (rtc.getTimeMilliseconds()<endTime)
+	if (m_replay)
 	{
-		m_physicsServer.processClientCommands();
+		for (int i=0;i<100;i++)
+			m_physicsServer.processClientCommands();
+	} else
+	{
+		btClock rtc;
+		btScalar endTime = rtc.getTimeMilliseconds() + deltaTime*btScalar(800);
+
+		while (rtc.getTimeMilliseconds()<endTime)
+		{
+			m_physicsServer.processClientCommands();
+		}
 	}
 }
 
@@ -190,18 +216,7 @@ void    PhysicsServerExample::physicsDebugDraw(int debugDrawFlags)
 
 }
 
-extern int gSharedMemoryKey;
 
-class CommonExampleInterface*    PhysicsServerCreateFunc(struct CommonExampleOptions& options)
-{
-  	PhysicsServerExample* example = new PhysicsServerExample(options.m_guiHelper);
-	if (gSharedMemoryKey>=0)
-	{
-		example->setSharedMemoryKey(gSharedMemoryKey);
-	}
-	return example;
-	
-}
 
 btVector3	PhysicsServerExample::getRayTo(int x,int y)
 {
@@ -267,3 +282,24 @@ btVector3	PhysicsServerExample::getRayTo(int x,int y)
 	return rayTo;
 }
 
+
+extern int gSharedMemoryKey;
+
+class CommonExampleInterface*    PhysicsServerCreateFunc(struct CommonExampleOptions& options)
+{
+  	PhysicsServerExample* example = new PhysicsServerExample(options.m_guiHelper);
+	if (gSharedMemoryKey>=0)
+	{
+		example->setSharedMemoryKey(gSharedMemoryKey);
+	}
+	if (options.m_option & PHYSICS_SERVER_ENABLE_COMMAND_LOGGING)
+	{
+		example->enableCommandLogging();
+	}
+	if (options.m_option & PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG)
+	{
+		example->replayFromLogFile();
+	}
+	return example;
+	
+}

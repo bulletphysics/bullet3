@@ -35,8 +35,11 @@ extern "C" {
 	/* Collision SDK */
 	
 	extern plCollisionSdkHandle plCreateBullet2CollisionSdk();
-	
+
+#ifndef DISABLE_REAL_TIME_BULLET3_COLLISION_SDK
 	extern plCollisionSdkHandle plCreateRealTimeBullet3CollisionSdk();
+#endif //DISABLE_REAL_TIME_BULLET3_COLLISION_SDK
+
 //	extern plCollisionSdkHandle plCreateCustomCollisionSdk();
 	
 	extern void plDeleteCollisionSdk(plCollisionSdkHandle collisionSdkHandle);
@@ -63,14 +66,14 @@ extern "C" {
 	/* Collision Shape definition */
 	
 	extern  plCollisionShapeHandle plCreateSphereShape(plCollisionSdkHandle sdk, plCollisionWorldHandle worldHandle, plReal radius);
-	extern  plCollisionShapeHandle plNewCapsuleShape(plCollisionSdkHandle sdk,  plCollisionWorldHandle worldHandle, plReal radius, plReal height);
+	extern  plCollisionShapeHandle plCreateCapsuleShape(plCollisionSdkHandle sdk,  plCollisionWorldHandle worldHandle, plReal radius, plReal height, int capsuleAxis);
 	extern  plCollisionShapeHandle plCreatePlaneShape(plCollisionSdkHandle sdk,  plCollisionWorldHandle worldHandle, 
 													plReal planeNormalX, 
 													plReal planeNormalY, 
 													plReal planeNormalZ, 
 													plReal planeConstant);
-	extern  plCollisionShapeHandle plNewCompoundShape(plCollisionSdkHandle sdk,plCollisionWorldHandle worldHandle);
-	extern  void plAddChildShape(plCollisionSdkHandle sdk, plCollisionShapeHandle compoundShape,plCollisionShapeHandle childShape, plVector3 childPos,plQuaternion childOrn);
+	extern  plCollisionShapeHandle plCreateCompoundShape(plCollisionSdkHandle sdk,plCollisionWorldHandle worldHandle);
+	extern  void plAddChildShape(plCollisionSdkHandle collisionSdkHandle, plCollisionWorldHandle worldHandle, plCollisionShapeHandle compoundShape,plCollisionShapeHandle childShape, plVector3 childPos,plQuaternion childOrn);
 	
 	extern  void plDeleteShape(plCollisionSdkHandle collisionSdkHandle, plCollisionWorldHandle worldHandle, plCollisionShapeHandle shape);
 	

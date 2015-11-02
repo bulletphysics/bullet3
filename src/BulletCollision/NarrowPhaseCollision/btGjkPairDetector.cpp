@@ -339,6 +339,7 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput& inpu
 					{
 						tmpNormalInB /= btSqrt(lenSqr);
 						btScalar distance2 = -(tmpPointOnA-tmpPointOnB).length();
+						m_lastUsedMethod = 3;
 						//only replace valid penetrations when the result is deeper (check)
 						if (!isValid || (distance2 < distance))
 						{
@@ -346,9 +347,48 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput& inpu
 							pointOnA = tmpPointOnA;
 							pointOnB = tmpPointOnB;
 							normalInB = tmpNormalInB;
+							///todo: need to track down this EPA penetration solver degeneracy
+							///the penetration solver reports penetration but the contact normal
+							///connecting the contact points is pointing in the opposite direction
+							///until then, detect the issue and revert the normal
+							{
+								btScalar d1=0;
+								{
+									btVector3 seperatingAxisInA = (normalInB)* input.m_transformA.getBasis();
+									btVector3 seperatingAxisInB = -normalInB* input.m_transformB.getBasis();
+								
 
+									btVector3 pInA = m_minkowskiA->localGetSupportVertexWithoutMarginNonVirtual(seperatingAxisInA);
+									btVector3 qInB = m_minkowskiB->localGetSupportVertexWithoutMarginNonVirtual(seperatingAxisInB);
+
+									btVector3  pWorld = localTransA(pInA);	
+									btVector3  qWorld = localTransB(qInB);
+									btVector3 w	= pWorld - qWorld;
+									d1 = (-normalInB).dot(w);
+								}
+								btScalar d0 = 0.f;
+								{
+									btVector3 seperatingAxisInA = (-normalInB)* input.m_transformA.getBasis();
+									btVector3 seperatingAxisInB = normalInB* input.m_transformB.getBasis();
+								
+
+									btVector3 pInA = m_minkowskiA->localGetSupportVertexWithoutMarginNonVirtual(seperatingAxisInA);
+									btVector3 qInB = m_minkowskiB->localGetSupportVertexWithoutMarginNonVirtual(seperatingAxisInB);
+
+									btVector3  pWorld = localTransA(pInA);	
+									btVector3  qWorld = localTransB(qInB);
+									btVector3 w	= pWorld - qWorld;
+									d0 = normalInB.dot(w);
+								}
+								if (d1>d0)
+								{
+									m_lastUsedMethod = 10;
+									normalInB*=-1;
+								} 
+
+							}
 							isValid = true;
-							m_lastUsedMethod = 3;
+							
 						} else
 						{
 							m_lastUsedMethod = 8;
