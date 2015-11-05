@@ -128,13 +128,12 @@ int main(int argc, char* argv[])
             
             if (statusType == CMD_ACTUAL_STATE_UPDATE_COMPLETED)
             {
-#if 0
-                posVarCount =status.m_sendActualStateArgs.m_numDegreeOfFreedomQ;
-                dofCount =status.m_sendActualStateArgs.m_numDegreeOfFreedomU;
-                
+                b3GetStatusActualState(statusHandle,
+                                       0, &posVarCount, &dofCount,
+                                       0, 0, 0, 0);
+
                 b3Printf("posVarCount = %d\n",posVarCount);
                 printf("dofCount = %d\n",dofCount);
-#endif
             }
         }
         
@@ -177,7 +176,6 @@ int main(int argc, char* argv[])
 				struct  b3JointSensorState sensorState;
 				b3GetJointState(sm,state,sensorJointIndexRight,&sensorState);
 				
-				b3GetJointInfo(sm,bodyIndex,sensorJointIndexRight,&sensorState);
 				b3Printf("Sensor for joint [%d] = %f,%f,%f\n", sensorJointIndexRight,
 						 sensorState.m_jointForceTorque[0],
 						 sensorState.m_jointForceTorque[1],

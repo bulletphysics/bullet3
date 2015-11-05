@@ -795,9 +795,11 @@ void	PhysicsServerSharedMemory::createJointMotors(btMultiBody* mb)
 
 
 
-bool PhysicsServerSharedMemory::loadUrdf(const char* fileName, const btVector3& pos, const btQuaternion& orn,
+bool PhysicsServerSharedMemory::loadUrdf(const char* fileName2, const btVector3& pos, const btQuaternion& orn,
                              bool useMultiBody, bool useFixedBase, int* bodyUniqueIdPtr)
 {
+    const char* fileName="tmp/model/simulation/model_s_one_s15p1.urdf";
+    
 	btAssert(m_data->m_dynamicsWorld);
 	if (!m_data->m_dynamicsWorld)
 	{
