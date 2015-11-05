@@ -93,6 +93,7 @@ static btSimdScalar gResolveSingleConstraintRowLowerLimit_scalar_reference(btSol
 	{
 		c.m_appliedImpulse = sum;
 	}
+
 	body1.internalApplyImpulse(c.m_contactNormal1*body1.internalGetInvMass(), c.m_angularComponentA, deltaImpulse);
 	body2.internalApplyImpulse(c.m_contactNormal2*body2.internalGetInvMass(), c.m_angularComponentB, deltaImpulse);
 
@@ -775,7 +776,7 @@ void btSequentialImpulseConstraintSolver::setupContactConstraint(btSolverConstra
 			//rel_pos1 = pos1 - bodyA->getWorldTransform().getOrigin();
 			//rel_pos2 = pos2 - bodyB->getWorldTransform().getOrigin();
 
-			relaxation = 1.f;
+			relaxation = 1;
 
 			btVector3 torqueAxis0 = rel_pos1.cross(cp.m_normalWorldOnB);
 			solverConstraint.m_angularComponentA = rb0 ? rb0->getInvInertiaTensorWorld()*torqueAxis0*rb0->getAngularFactor() : btVector3(0,0,0);
@@ -788,8 +789,8 @@ void btSequentialImpulseConstraintSolver::setupContactConstraint(btSolverConstra
 					btScalar denom1 = rb1->computeImpulseDenominator(pos2,cp.m_normalWorldOnB);
 #else
 					btVector3 vec;
-					btScalar denom0 = 0.f;
-					btScalar denom1 = 0.f;
+					btScalar denom0 = 0;
+					btScalar denom1 = 0;
 					if (rb0)
 					{
 						vec = ( solverConstraint.m_angularComponentA).cross(rel_pos1);

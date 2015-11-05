@@ -64,12 +64,12 @@ void btConvexPlaneCollisionAlgorithm::collideSingleContact (const btQuaternion& 
 	const btScalar& planeConstant = planeShape->getPlaneConstant();
 	
 	btTransform convexWorldTransform = convexObjWrap->getWorldTransform();
+	btTransform planeInConvex;
+	planeInConvex = convexWorldTransform.inverse() * planeObjWrap->getWorldTransform();
 	btTransform convexInPlaneTrans;
 	convexInPlaneTrans= planeObjWrap->getWorldTransform().inverse() * convexWorldTransform;
 	//now perturbe the convex-world transform
 	convexWorldTransform.getBasis()*=btMatrix3x3(perturbeRot);
-	btTransform planeInConvex;
-	planeInConvex= convexWorldTransform.inverse() * planeObjWrap->getWorldTransform();
 	
 	btVector3 vtx = convexShape->localGetSupportingVertex(planeInConvex.getBasis()*-planeNormal);
 

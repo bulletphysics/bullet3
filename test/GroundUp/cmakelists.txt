@@ -12,3 +12,5 @@ include_directories( ../../src )
 
 ADD_TEST( test-001 )
 ADD_TEST( test-002 )
+ADD_TEST( MathTest-001 )
+

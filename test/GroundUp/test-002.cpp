@@ -1,4 +1,3 @@
-#include <stdio.H>
 #include <iostream>
 #include <btBulletDynamicsCommon.h>
 

@@ -1,4 +1,3 @@
-#include <stdio.H>
 #include <iostream>
 #include <btBulletDynamicsCommon.h>
 
@@ -65,7 +64,19 @@ int main( void )
 		btTransform trans;
 		fallingRigidBody->getMotionState()->getWorldTransform( trans );
 
-		std::cout << "cube height: " << trans.getOrigin().getY() << std::endl;
+		if( i == 188 )
+		{
+			int a = 3;
+		}
+		std::cout << "Iteration " << i << std::endl;
+		std::cout << "cube height: (" << trans.getOrigin().getX() << "," << trans.getOrigin().getY() << "," << trans.getOrigin().getZ() << ")" << std::endl;
+		std::cout << "cube orient:\t(" << trans.getBasis()[0].getX() << "," << trans.getBasis()[0].getY() << "," << trans.getBasis()[0].getZ() << ")" << std::endl;
+		std::cout << "\t\t(" << trans.getBasis()[1].getX() << "," << trans.getBasis()[1].getY() << "," << trans.getBasis()[1].getZ() << ")"<< std::endl;
+		std::cout << "\t\t(" << trans.getBasis()[2].getX() << "," << trans.getBasis()[2].getY() << "," << trans.getBasis()[2].getZ() << ")" << std::endl;
+		btVector3 v = fallingRigidBody->getAngularVelocity();
+		std::cout << "cube Ang Vel: (" << v.x() << "," << v.y() << "," << v.z() << ")" << std::endl;
+		v = fallingRigidBody->getLinearVelocity();
+		std::cout << "cube Lin Vel: (" << v.x() << "," << v.y() << "," << v.z() << ")" << std::endl;
 	}
 	int pause;
 	std::cin >> pause;
