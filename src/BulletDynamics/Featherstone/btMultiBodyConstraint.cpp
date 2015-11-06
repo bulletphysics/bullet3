@@ -23,18 +23,12 @@ void btMultiBodyConstraint::updateJacobianSizes()
 {
     if(m_bodyA)
 	{
-		if(m_bodyA->isMultiDof())
-			m_jacSizeA = (6 + m_bodyA->getNumDofs());
-		else
-			m_jacSizeA = (6 + m_bodyA->getNumLinks());
+		m_jacSizeA = (6 + m_bodyA->getNumDofs());
 	}
 
 	if(m_bodyB)
 	{
-		if(m_bodyB->isMultiDof())
-			m_jacSizeBoth = m_jacSizeA + 6 + m_bodyB->getNumDofs();
-		else
-			m_jacSizeBoth = m_jacSizeA + 6 + m_bodyB->getNumLinks();
+		m_jacSizeBoth = m_jacSizeA + 6 + m_bodyB->getNumDofs();
 	}
 	else
 		m_jacSizeBoth = m_jacSizeA;
@@ -101,7 +95,7 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(	btMultiBodySolverConstr
 			rel_pos1 = posAworld - multiBodyA->getLink(solverConstraint.m_linkA).m_cachedWorldTransform.getOrigin();
 		}
 
-		const int ndofA  = (multiBodyA->isMultiDof() ? multiBodyA->getNumDofs() : multiBodyA->getNumLinks()) + 6;
+		const int ndofA  = multiBodyA->getNumDofs() + 6;
 
 		solverConstraint.m_deltaVelAindex = multiBodyA->getCompanionId();
 
@@ -128,10 +122,7 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(	btMultiBodySolverConstr
 		else
 		{
 			btScalar* jac1=&data.m_jacobians[solverConstraint.m_jacAindex];
-			if(multiBodyA->isMultiDof())
-				multiBodyA->fillContactJacobianMultiDof(solverConstraint.m_linkA, posAworld, contactNormalOnB, jac1, data.scratch_r, data.scratch_v, data.scratch_m);
-			else
-				multiBodyA->fillContactJacobian(solverConstraint.m_linkA, posAworld, contactNormalOnB, jac1, data.scratch_r, data.scratch_v, data.scratch_m);
+			multiBodyA->fillContactJacobianMultiDof(solverConstraint.m_linkA, posAworld, contactNormalOnB, jac1, data.scratch_r, data.scratch_v, data.scratch_m);
 		}
 
 		//determine the velocity response of multibodyA to reaction impulses of this constraint (i.e. A[i,i] for i=1,...n_con: multibody's inverse inertia with respect to this 1D constraint)
@@ -140,10 +131,7 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(	btMultiBodySolverConstr
 		btAssert(data.m_jacobians.size() == data.m_deltaVelocitiesUnitImpulse.size());
 		btScalar* delta = &data.m_deltaVelocitiesUnitImpulse[solverConstraint.m_jacAindex];
 		//determine..
-		if(multiBodyA->isMultiDof())
-			multiBodyA->calcAccelerationDeltasMultiDof(&data.m_jacobians[solverConstraint.m_jacAindex],delta,data.scratch_r, data.scratch_v);
-		else
-			multiBodyA->calcAccelerationDeltas(&data.m_jacobians[solverConstraint.m_jacAindex],delta,data.scratch_r, data.scratch_v);
+		multiBodyA->calcAccelerationDeltasMultiDof(&data.m_jacobians[solverConstraint.m_jacAindex],delta,data.scratch_r, data.scratch_v);
 
 		btVector3 torqueAxis0 = rel_pos1.cross(contactNormalOnB);
 		solverConstraint.m_relpos1CrossNormal = torqueAxis0;
@@ -167,7 +155,7 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(	btMultiBodySolverConstr
 			rel_pos2 = posBworld - multiBodyB->getLink(solverConstraint.m_linkB).m_cachedWorldTransform.getOrigin();
 		}
 
-		const int ndofB  = (multiBodyB->isMultiDof() ? multiBodyB->getNumDofs() : multiBodyB->getNumLinks()) + 6;
+		const int ndofB  = multiBodyB->getNumDofs() + 6;
 
 		solverConstraint.m_deltaVelBindex = multiBodyB->getCompanionId();
 		if (solverConstraint.m_deltaVelBindex <0)
@@ -189,10 +177,7 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(	btMultiBodySolverConstr
 		}
 		else
 		{
-			if(multiBodyB->isMultiDof())
-				multiBodyB->fillContactJacobianMultiDof(solverConstraint.m_linkB, posBworld, -contactNormalOnB, &data.m_jacobians[solverConstraint.m_jacBindex], data.scratch_r, data.scratch_v, data.scratch_m);
-			else
-				multiBodyB->fillContactJacobian(solverConstraint.m_linkB, posBworld, -contactNormalOnB, &data.m_jacobians[solverConstraint.m_jacBindex], data.scratch_r, data.scratch_v, data.scratch_m);
+			multiBodyB->fillContactJacobianMultiDof(solverConstraint.m_linkB, posBworld, -contactNormalOnB, &data.m_jacobians[solverConstraint.m_jacBindex], data.scratch_r, data.scratch_v, data.scratch_m);
 		}
 
 		//determine velocity response of multibodyB to reaction impulses of this constraint (i.e. A[i,i] for i=1,...n_con: multibody's inverse inertia with respect to this 1D constraint)
@@ -201,10 +186,7 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(	btMultiBodySolverConstr
 		btAssert(data.m_jacobians.size() == data.m_deltaVelocitiesUnitImpulse.size());
 		btScalar* delta = &data.m_deltaVelocitiesUnitImpulse[solverConstraint.m_jacBindex];
 		//determine..
-		if(multiBodyB->isMultiDof())
-			multiBodyB->calcAccelerationDeltasMultiDof(&data.m_jacobians[solverConstraint.m_jacBindex],delta,data.scratch_r, data.scratch_v);
-		else
-			multiBodyB->calcAccelerationDeltas(&data.m_jacobians[solverConstraint.m_jacBindex],delta,data.scratch_r, data.scratch_v);
+		multiBodyB->calcAccelerationDeltasMultiDof(&data.m_jacobians[solverConstraint.m_jacBindex],delta,data.scratch_r, data.scratch_v);
 
 		btVector3 torqueAxis1 = rel_pos2.cross(contactNormalOnB);
 		solverConstraint.m_relpos2CrossNormal = -torqueAxis1;
@@ -231,7 +213,7 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(	btMultiBodySolverConstr
 		//determine the "effective mass" of the constrained multibodyA with respect to this 1D constraint (i.e. 1/A[i,i])
 		if (multiBodyA)
 		{
-			ndofA = (multiBodyA->isMultiDof() ? multiBodyA->getNumDofs() : multiBodyA->getNumLinks()) + 6;
+			ndofA = multiBodyA->getNumDofs() + 6;
 			jacA = &data.m_jacobians[solverConstraint.m_jacAindex];
 			deltaVelA = &data.m_deltaVelocitiesUnitImpulse[solverConstraint.m_jacAindex];
 			for (int i = 0; i < ndofA; ++i)
@@ -249,7 +231,7 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(	btMultiBodySolverConstr
 		//
 		if (multiBodyB)
 		{
-			const int ndofB = (multiBodyB->isMultiDof() ? multiBodyB->getNumDofs() : multiBodyB->getNumLinks()) + 6;
+			const int ndofB = multiBodyB->getNumDofs() + 6;
 			jacB = &data.m_jacobians[solverConstraint.m_jacBindex];
 			deltaVelB = &data.m_deltaVelocitiesUnitImpulse[solverConstraint.m_jacBindex];
 			for (int i = 0; i < ndofB; ++i)
@@ -290,7 +272,7 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(	btMultiBodySolverConstr
 		btVector3 vel1,vel2;
 		if (multiBodyA)
 		{
-			ndofA = (multiBodyA->isMultiDof() ? multiBodyA->getNumDofs() : multiBodyA->getNumLinks()) + 6;
+			ndofA = multiBodyA->getNumDofs() + 6;
 			btScalar* jacA = &data.m_jacobians[solverConstraint.m_jacAindex];
 			for (int i = 0; i < ndofA ; ++i)
 				rel_vel += multiBodyA->getVelocityVector()[i] * jacA[i];
@@ -301,7 +283,7 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(	btMultiBodySolverConstr
 		}
 		if (multiBodyB)
 		{
-			ndofB = (multiBodyB->isMultiDof() ? multiBodyB->getNumDofs() : multiBodyB->getNumLinks()) + 6;
+			ndofB = multiBodyB->getNumDofs() + 6;
 			btScalar* jacB = &data.m_jacobians[solverConstraint.m_jacBindex];
 			for (int i = 0; i < ndofB ; ++i)
 				rel_vel += multiBodyB->getVelocityVector()[i] * jacB[i];

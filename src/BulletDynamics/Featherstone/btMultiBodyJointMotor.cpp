@@ -39,7 +39,7 @@ void btMultiBodyJointMotor::finalizeMultiDof()
 	// note: we rely on the fact that data.m_jacobians are
 	// always initialized to zero by the Constraint ctor
 	int linkDoF = 0;
-	unsigned int offset = 6 + (m_bodyA->isMultiDof() ? m_bodyA->getLink(m_linkA).m_dofOffset + linkDoF : m_linkA);
+	unsigned int offset = 6 + (m_bodyA->getLink(m_linkA).m_dofOffset + linkDoF);
 
 	// row 0: the lower bound
 	// row 0: the lower bound
@@ -118,7 +118,6 @@ void btMultiBodyJointMotor::createConstraintRows(btMultiBodyConstraintArray& con
 		fillMultiBodyConstraint(constraintRow,data,jacobianA(row),jacobianB(row),dummy,dummy,dummy,posError,infoGlobal,-m_maxAppliedImpulse,m_maxAppliedImpulse,1,false,m_desiredVelocity);
 		constraintRow.m_orgConstraint = this;
 		constraintRow.m_orgDofIndex = row;
-		if (m_bodyA->isMultiDof())
 		{
 			//expect either prismatic or revolute joint type for now
 			btAssert((m_bodyA->getLink(m_linkA).m_jointType == btMultibodyLink::eRevolute)||(m_bodyA->getLink(m_linkA).m_jointType == btMultibodyLink::ePrismatic));

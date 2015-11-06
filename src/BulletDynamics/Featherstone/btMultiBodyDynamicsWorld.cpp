@@ -505,7 +505,6 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 				scratch_m.resize(bod->getNumLinks()+1);
 				bool doNotUpdatePos = false;
 
-				if(bod->isMultiDof())
 				{
 					if(!bod->isUsingRK4Integration())
 					{
@@ -667,10 +666,7 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 						
 					}
 				}
-				else//if(bod->isMultiDof())
-				{
-					bod->stepVelocities(solverInfo.m_timeStep, scratch_r, scratch_v, scratch_m);
-				}
+				
 #ifndef BT_USE_VIRTUAL_CLEARFORCES_AND_GRAVITY
 				bod->clearForcesAndTorques();
 #endif //BT_USE_VIRTUAL_CLEARFORCES_AND_GRAVITY
@@ -709,13 +705,13 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
                                 scratch_v.resize(bod->getNumLinks()+1);
                                 scratch_m.resize(bod->getNumLinks()+1);
 
-                                if(bod->isMultiDof())
+                                
+                            {
+                                if(!bod->isUsingRK4Integration())
                                 {
-                                        if(!bod->isUsingRK4Integration())
-                                        {
-						bool isConstraintPass = true;
-                                                bod->stepVelocitiesMultiDof(solverInfo.m_timeStep, scratch_r, scratch_v, scratch_m, isConstraintPass);
-                                        }
+									bool isConstraintPass = true;
+                                    bod->stepVelocitiesMultiDof(solverInfo.m_timeStep, scratch_r, scratch_v, scratch_m, isConstraintPass);
+                                }
 				}
 			}
 		}
@@ -760,7 +756,7 @@ void	btMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 
 				///base + num m_links
 			
-				if(bod->isMultiDof())
+				
 				{
 					if(!bod->isPosUpdated())
 						bod->stepPositionsMultiDof(timeStep);
@@ -773,10 +769,7 @@ void	btMultiBodyDynamicsWorld::integrateTransforms(btScalar timeStep)
 						bod->setPosUpdated(false);
 					}
 				}
-				else
-				{
-					bod->stepPositions(timeStep);			
-				}
+				
 				world_to_local.resize(nLinks+1);
 				local_origin.resize(nLinks+1);
 

@@ -45,7 +45,7 @@
 #include "btMultiBodyLink.h"
 class btMultiBodyLinkCollider;
 
-class btMultiBody 
+ATTRIBUTE_ALIGNED16(class) btMultiBody 
 {
 public:
 
@@ -60,21 +60,19 @@ public:
 		btScalar mass,                // mass of base
 		const btVector3 &inertia,    // inertia of base, in base frame; assumed diagonal
 		bool fixedBase,           // whether the base is fixed (true) or can move (false)
-		bool canSleep,
-		bool multiDof = false
-			  );
+		bool canSleep);
 
 
 	virtual ~btMultiBody();
     
+	//note: fixed link collision with parent is always disabled
 	void setupFixed(int linkIndex,
 						   btScalar mass,
 						   const btVector3 &inertia,
 						   int parent,
 						   const btQuaternion &rotParentToThis,
 						   const btVector3 &parentComToThisPivotOffset,
-                           const btVector3 &thisPivotToThisComOffset,
-						   bool disableParentCollision);
+                           const btVector3 &thisPivotToThisComOffset);
 
 						
 	void setupPrismatic(int i,
@@ -447,7 +445,6 @@ void addJointTorque(int i, btScalar Q);
 	
 	
     // timestep the positions (given current velocities).
-    void stepPositions(btScalar dt);
 	void stepPositionsMultiDof(btScalar dt, btScalar *pq = 0, btScalar *pqd = 0);
 
 
@@ -458,15 +455,7 @@ void addJointTorque(int i, btScalar Q);
     // This routine fills out a contact constraint jacobian for this body.
     // the 'normal' supplied must be -n for body1 or +n for body2 of the contact.
     // 'normal' & 'contact_point' are both given in world coordinates.
-    void fillContactJacobian(int link,
-                             const btVector3 &contact_point,
-                             const btVector3 &normal,
-                             btScalar *jac,
-                             btAlignedObjectArray<btScalar> &scratch_r,
-                             btAlignedObjectArray<btVector3> &scratch_v,
-                             btAlignedObjectArray<btMatrix3x3> &scratch_m) const;
-
-	//multidof version of fillContactJacobian
+	
 	void fillContactJacobianMultiDof(int link,
                              const btVector3 &contact_point,
                              const btVector3 &normal,
@@ -576,7 +565,7 @@ void addJointTorque(int i, btScalar Q);
 		return m_hasSelfCollision;
 	}
 
-	bool isMultiDof() { return m_isMultiDof; }
+	
 	void finalizeMultiDof();
 
 	void useRK4Integration(bool use) { m_useRK4 = use; }
@@ -700,7 +689,7 @@ private:
 	btScalar	m_maxAppliedImpulse;
 	btScalar	m_maxCoordinateVelocity;
 	bool		m_hasSelfCollision;
-	bool		m_isMultiDof;
+	
 		bool __posUpdated;
 		int m_dofCount, m_posVarCnt;
 	bool m_useRK4, m_useGlobalVelocities;
