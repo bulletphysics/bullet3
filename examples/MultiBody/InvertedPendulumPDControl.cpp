@@ -136,8 +136,8 @@ void InvertedPendulumPDControl::initPhysics()
             delete shape;
         }
 
-        bool isMultiDof = true;
-        btMultiBody *pMultiBody = new btMultiBody(numLinks, 0, baseInertiaDiag, fixedBase, canSleep, isMultiDof);
+        
+        btMultiBody *pMultiBody = new btMultiBody(numLinks, 0, baseInertiaDiag, fixedBase, canSleep);
 		
         m_multiBody = pMultiBody;
         btQuaternion baseOriQuat(0.f, 0.f, 0.f, 1.f);
@@ -201,7 +201,7 @@ void InvertedPendulumPDControl::initPhysics()
 					pMultiBody->setupFixed(i, linkMass, linkInertiaDiag, i - 1, 
 					btQuaternion(0.f, 0.f, 0.f, 1.f), 
 					parentComToCurrentPivot, 
-					currentPivotToCurrentCom, false);
+					currentPivotToCurrentCom);
 				}
 					
 				//pMultiBody->setupFixed(i,linkMass,linkInertiaDiag,i-1,btQuaternion(0,0,0,1),parentComToCurrentPivot,currentPivotToCurrentCom,false);
@@ -249,10 +249,9 @@ void InvertedPendulumPDControl::initPhysics()
         {
             btScalar q0 = 180.f * SIMD_PI/ 180.f;
             if(!spherical)
-                if(mbC->isMultiDof())
-                    mbC->setJointPosMultiDof(0, &q0);
-                else
-                    mbC->setJointPos(0, q0);
+			{
+				mbC->setJointPosMultiDof(0, &q0);
+			}
             else
             {
                 btQuaternion quat0(btVector3(1, 1, 0).normalized(), q0);

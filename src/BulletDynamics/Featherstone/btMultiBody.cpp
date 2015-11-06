@@ -91,8 +91,7 @@ btMultiBody::btMultiBody(int n_links,
                      btScalar mass,
                      const btVector3 &inertia,
                      bool fixedBase,
-                     bool canSleep,
-					 bool multiDof)
+                     bool canSleep)
     : 
     	m_baseCollider(0),
 		m_baseName(0),
@@ -112,7 +111,6 @@ btMultiBody::btMultiBody(int n_links,
 			m_maxAppliedImpulse(1000.f),
 		m_maxCoordinateVelocity(100.f),
 			m_hasSelfCollision(true),		
-		m_isMultiDof(multiDof),
 		__posUpdated(false),
 			m_dofCount(0),
 		m_posVarCnt(0),
@@ -120,14 +118,6 @@ btMultiBody::btMultiBody(int n_links,
 		m_useGlobalVelocities(false),
 		m_internalNeedsJointFeedback(false)
 {
-	
-	if(!m_isMultiDof)
-	{
-		m_vectorBuf.resize(2*n_links);	
-		m_realBuf.resize(6 + 2*n_links);
-		m_posVarCnt = n_links;
-	}
-   
 	m_links.resize(n_links);
 	m_matrixBuf.resize(n_links + 1);
 
@@ -146,11 +136,9 @@ void btMultiBody::setupFixed(int i,
 						   int parent,
 						   const btQuaternion &rotParentToThis,
 						   const btVector3 &parentComToThisPivotOffset,
-                           const btVector3 &thisPivotToThisComOffset,
-						   bool disableParentCollision)
+                           const btVector3 &thisPivotToThisComOffset)
 {
-	btAssert(m_isMultiDof);
-
+	
 	m_links[i].m_mass = mass;
     m_links[i].m_inertiaLocal = inertia;
     m_links[i].m_parent = parent;
@@ -162,15 +150,10 @@ void btMultiBody::setupFixed(int i,
 	m_links[i].m_dofCount = 0;
 	m_links[i].m_posVarCount = 0;
 
-	if (disableParentCollision)
-		m_links[i].m_flags |=BT_MULTIBODYLINKFLAGS_DISABLE_PARENT_COLLISION;    
-	//
+	m_links[i].m_flags |=BT_MULTIBODYLINKFLAGS_DISABLE_PARENT_COLLISION;    
+	
 	m_links[i].updateCacheMultiDof();
 
-	//
-	//if(m_isMultiDof)
-	//	resizeInternalMultiDofBuffers();
-	//
 	updateLinksDofOffsets();
 
 }
@@ -186,12 +169,9 @@ void btMultiBody::setupPrismatic(int i,
 							   const btVector3 &thisPivotToThisComOffset,
 							   bool disableParentCollision)
 {
-	if(m_isMultiDof)
-	{
-		m_dofCount += 1;
-		m_posVarCnt += 1;
-	}
-
+	m_dofCount += 1;
+	m_posVarCnt += 1;
+	
     m_links[i].m_mass = mass;
     m_links[i].m_inertiaLocal = inertia;
     m_links[i].m_parent = parent;
@@ -211,13 +191,10 @@ void btMultiBody::setupPrismatic(int i,
 	if (disableParentCollision)
 		m_links[i].m_flags |=BT_MULTIBODYLINKFLAGS_DISABLE_PARENT_COLLISION;
 	//
-	if(m_isMultiDof)
-		m_links[i].updateCacheMultiDof();
-	else
-		m_links[i].updateCache();	
-	//
-	if(m_isMultiDof)
-		updateLinksDofOffsets();
+	
+	m_links[i].updateCacheMultiDof();
+	
+	updateLinksDofOffsets();
 }
 
 void btMultiBody::setupRevolute(int i,
@@ -230,12 +207,9 @@ void btMultiBody::setupRevolute(int i,
                               const btVector3 &thisPivotToThisComOffset,
 							  bool disableParentCollision)
 {
-	if(m_isMultiDof)
-	{
-		m_dofCount += 1;
-		m_posVarCnt += 1;
-	}
-
+	m_dofCount += 1;
+	m_posVarCnt += 1;
+	
     m_links[i].m_mass = mass;
     m_links[i].m_inertiaLocal = inertia;
     m_links[i].m_parent = parent;
@@ -254,13 +228,9 @@ void btMultiBody::setupRevolute(int i,
 	if (disableParentCollision)
 		m_links[i].m_flags |=BT_MULTIBODYLINKFLAGS_DISABLE_PARENT_COLLISION;
     //
-	if(m_isMultiDof)
-		m_links[i].updateCacheMultiDof();
-	else
-		m_links[i].updateCache();	
+	m_links[i].updateCacheMultiDof();
 	//
-	if(m_isMultiDof)
-		updateLinksDofOffsets();
+	updateLinksDofOffsets();
 }
 
 
@@ -274,7 +244,7 @@ void btMultiBody::setupSpherical(int i,
 						   const btVector3 &thisPivotToThisComOffset,
 						   bool disableParentCollision)
 {
-	btAssert(m_isMultiDof);
+	
 	m_dofCount += 3;
 	m_posVarCnt += 4;
 
@@ -315,7 +285,7 @@ void btMultiBody::setupPlanar(int i,
 						   const btVector3 &parentComToThisComOffset,						   
 						   bool disableParentCollision)
 {
-	btAssert(m_isMultiDof);
+	
 	m_dofCount += 3;
 	m_posVarCnt += 3;
 
@@ -357,7 +327,6 @@ void btMultiBody::setupPlanar(int i,
 
 void btMultiBody::finalizeMultiDof()
 {
-	btAssert(m_isMultiDof);
 	m_deltaV.resize(0);
 	m_deltaV.resize(6 + m_dofCount);
 	m_realBuf.resize(6 + m_dofCount + m_dofCount*m_dofCount + 6 + m_dofCount);			//m_dofCount for joint-space vels + m_dofCount^2 for "D" matrices + delta-pos vector (6 base "vels" + joint "vels")
@@ -388,7 +357,7 @@ btScalar btMultiBody::getJointPos(int i) const
 
 btScalar btMultiBody::getJointVel(int i) const
 {
-    return m_realBuf[6 + i];
+    return m_realBuf[6 + m_links[i].m_dofOffset];
 }
 
 btScalar * btMultiBody::getJointPosMultiDof(int i)
@@ -415,7 +384,7 @@ const btScalar * btMultiBody::getJointVelMultiDof(int i) const
 void btMultiBody::setJointPos(int i, btScalar q)
 {
     m_links[i].m_jointPos[0] = q;
-    m_links[i].updateCache();
+    m_links[i].updateCacheMultiDof();
 }
 
 void btMultiBody::setJointPosMultiDof(int i, btScalar *q)
@@ -428,7 +397,7 @@ void btMultiBody::setJointPosMultiDof(int i, btScalar *q)
 
 void btMultiBody::setJointVel(int i, btScalar qdot)
 {
-    m_realBuf[6 + i] = qdot;
+    m_realBuf[6 + m_links[i].m_dofOffset] = qdot;
 }
 
 void btMultiBody::setJointVelMultiDof(int i, btScalar *qdot)
@@ -1939,41 +1908,6 @@ void btMultiBody::calcAccelerationDeltas(const btScalar *force, btScalar *output
 	//int dummy = 0;
 }
 
-void btMultiBody::stepPositions(btScalar dt)
-{
-	int num_links = getNumLinks();
-    // step position by adding dt * velocity
-	btVector3 v = getBaseVel();
-    m_basePos += dt * v;
-
-    // "exponential map" method for the rotation
-    btVector3 base_omega = getBaseOmega();
-    const btScalar omega_norm = base_omega.norm();
-    const btScalar omega_times_dt = omega_norm * dt;
-    const btScalar SMALL_ROTATION_ANGLE = 0.02f; // Theoretically this should be ~ pow(FLT_EPSILON,0.25) which is ~ 0.0156
-    if (fabs(omega_times_dt) < SMALL_ROTATION_ANGLE) 
-	{
-        const btScalar xsq = omega_times_dt * omega_times_dt;     // |omega|^2 * dt^2
-        const btScalar sin_term = dt * (xsq / 48.0f - 0.5f);      // -sin(0.5*dt*|omega|) / |omega|
-        const btScalar cos_term = 1.0f - xsq / 8.0f;              // cos(0.5*dt*|omega|)
-        m_baseQuat = m_baseQuat * btQuaternion(sin_term * base_omega[0],sin_term * base_omega[1],sin_term * base_omega[2],cos_term);
-    } else 
-	{
-        m_baseQuat = m_baseQuat * btQuaternion(base_omega / omega_norm,-omega_times_dt);
-    }
-
-    // Make sure the quaternion represents a valid rotation.
-    // (Not strictly necessary, but helps prevent any round-off errors from building up.)
-    m_baseQuat.normalize();
-
-    // Finally we can update m_jointPos for each of the m_links
-    for (int i = 0; i < num_links; ++i) 
-	{
-		float jointVel = getJointVel(i);
-        m_links[i].m_jointPos[0] += dt * jointVel;
-        m_links[i].updateCache();
-    }
-}
 
 void btMultiBody::stepPositionsMultiDof(btScalar dt, btScalar *pq, btScalar *pqd)
 {	
@@ -2238,98 +2172,6 @@ void btMultiBody::filConstraintJacobianMultiDof(int link,
     }
 }
 
-void btMultiBody::fillContactJacobian(int link,
-                                    const btVector3 &contact_point,
-                                    const btVector3 &normal,
-                                    btScalar *jac,
-                                    btAlignedObjectArray<btScalar> &scratch_r,
-                                    btAlignedObjectArray<btVector3> &scratch_v,
-                                    btAlignedObjectArray<btMatrix3x3> &scratch_m) const
-{
-    // temporary space
-	int num_links = getNumLinks();
-    scratch_v.resize(2*num_links + 2);
-    scratch_m.resize(num_links + 1);
-
-    btVector3 * v_ptr = &scratch_v[0];
-    btVector3 * p_minus_com = v_ptr; v_ptr += num_links + 1;
-    btVector3 * n_local = v_ptr; v_ptr += num_links + 1;
-    btAssert(v_ptr - &scratch_v[0] == scratch_v.size());
-
-    scratch_r.resize(num_links);
-    btScalar * results = num_links > 0 ? &scratch_r[0] : 0;
-
-    btMatrix3x3 * rot_from_world = &scratch_m[0];
-
-    const btVector3 p_minus_com_world = contact_point - m_basePos;
-
-    rot_from_world[0] = btMatrix3x3(m_baseQuat);
-
-    p_minus_com[0] = rot_from_world[0] * p_minus_com_world;
-    n_local[0] = rot_from_world[0] * normal;
-    
-    // omega coeffients first.
-	if (this->m_fixedBase)
-	{
-		for (int i=0;i<6;i++)
-		{
-			jac[i]=0;
-		}
-	} else
-	{
-		    btVector3 omega_coeffs;
-
-		omega_coeffs = p_minus_com_world.cross(normal);
-		jac[0] = omega_coeffs[0];
-		jac[1] = omega_coeffs[1];
-		jac[2] = omega_coeffs[2];
-		// then v coefficients
-		jac[3] = normal[0];
-		jac[4] = normal[1];
-		jac[5] = normal[2];
-	}
-    // Set remaining jac values to zero for now.
-    for (int i = 6; i < 6 + num_links; ++i) {
-        jac[i] = 0;
-    }
-
-    // Qdot coefficients, if necessary.
-    if (num_links > 0 && link > -1) {
-
-        // TODO: speed this up -- don't calculate for m_links we don't need.
-        // (Also, we are making 3 separate calls to this function, for the normal & the 2 friction directions,
-        // which is resulting in repeated work being done...)
-
-        // calculate required normals & positions in the local frames.
-        for (int i = 0; i < num_links; ++i) {
-
-            // transform to local frame
-            const int parent = m_links[i].m_parent;
-            const btMatrix3x3 mtx(m_links[i].m_cachedRotParentToThis);
-            rot_from_world[i+1] = mtx * rot_from_world[parent+1];
-
-            n_local[i+1] = mtx * n_local[parent+1];
-            p_minus_com[i+1] = mtx * p_minus_com[parent+1] - m_links[i].m_cachedRVector;
-
-            // calculate the jacobian entry
-			if (m_links[i].m_jointType == btMultibodyLink::eRevolute) {
-                results[i] = n_local[i+1].dot( m_links[i].getAxisTop(0).cross(p_minus_com[i+1]) + m_links[i].getAxisBottom(0) );
-            } else {
-                results[i] = n_local[i+1].dot( m_links[i].getAxisBottom(0) );
-            }
-        }
-
-        // Now copy through to output.
-		//printf("jac[%d] = ", link);
-        while (link != -1) 
-		{
-            jac[6 + link] = results[link];
-			//printf("%.2f\t", jac[6 + link]);
-            link = m_links[link].m_parent;
-        }
-		//printf("]\n");
-    }
-}
 
 void btMultiBody::wakeUp()
 {
@@ -2354,17 +2196,11 @@ void btMultiBody::checkMotionAndSleepIfRequired(btScalar timestep)
 
     // motion is computed as omega^2 + v^2 + (sum of squares of joint velocities)
     btScalar motion = 0;
-	if(m_isMultiDof)
 	{
 		for (int i = 0; i < 6 + m_dofCount; ++i) 		
 			motion += m_realBuf[i] * m_realBuf[i];
 	}
-	else
-	{
-		for (int i = 0; i < 6 + num_links; ++i) 		
-			motion += m_realBuf[i] * m_realBuf[i];		
-	}  
-    
+	
 
     if (motion < SLEEP_EPSILON) {
         m_sleepTimer += timestep;

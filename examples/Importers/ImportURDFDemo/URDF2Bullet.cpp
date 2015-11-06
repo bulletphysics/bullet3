@@ -241,11 +241,11 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
         {
             if (cache.m_bulletMultiBody==0)
             {
-                bool multiDof = true;
+                
                 bool canSleep = false;
                 bool isFixedBase = (mass==0);//todo: figure out when base is fixed
                 int totalNumJoints = cache.m_totalNumJoints1;
-                cache.m_bulletMultiBody = creation.allocateMultiBody(urdfLinkIndex, totalNumJoints,mass, localInertiaDiagonal, isFixedBase, canSleep, multiDof);
+                cache.m_bulletMultiBody = creation.allocateMultiBody(urdfLinkIndex, totalNumJoints,mass, localInertiaDiagonal, isFixedBase, canSleep);
 
                 cache.registerMultiBody(urdfLinkIndex, cache.m_bulletMultiBody, inertialFrameInWorldSpace, mass, localInertiaDiagonal, compoundShape, localInertialFrame);
             }
@@ -271,7 +271,7 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
                         //b3Printf("Fixed joint (btMultiBody)\n");
                         btQuaternion rot = offsetInA.inverse().getRotation();//parent2joint.inverse().getRotation();
                         cache.m_bulletMultiBody->setupFixed(mbLinkIndex, mass, localInertiaDiagonal, mbParentIndex,
-                                                               rot*offsetInB.getRotation(), offsetInA.getOrigin(),-offsetInB.getOrigin(),disableParentCollision);
+                                                               rot*offsetInB.getRotation(), offsetInA.getOrigin(),-offsetInB.getOrigin());
                         creation.addLinkMapping(urdfLinkIndex,mbLinkIndex);
 
 
