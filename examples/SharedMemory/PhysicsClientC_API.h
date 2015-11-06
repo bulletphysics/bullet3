@@ -36,7 +36,15 @@ int b3GetStatusType(b3SharedMemoryStatusHandle statusHandle);
 
 int b3GetStatusBodyIndex(b3SharedMemoryStatusHandle statusHandle);
 
-    
+int b3GetStatusActualState(b3SharedMemoryStatusHandle statusHandle,
+                           int* bodyUniqueId,
+                           int* numDegreeOfFreedomQ,
+                           int* numDegreeOfFreedomU,
+                           const double* rootLocalInertialFrame[],
+                           const double* actualStateQ[],
+                           const double* actualStateQdot[],
+                           const double* jointReactionForces[]);
+
 int	b3GetNumJoints(b3PhysicsClientHandle physClient, int bodyIndex);
 
 void	b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyIndex, int linkIndex, struct b3JointInfo* info);
@@ -103,15 +111,15 @@ int b3CreateSensorEnableIMUForLink(b3SharedMemoryCommandHandle commandHandle, in
 b3SharedMemoryCommandHandle b3RequestActualStateCommandInit(b3PhysicsClientHandle physClient,int bodyUniqueId);
 void b3GetJointState(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle statusHandle, int jointIndex, struct b3JointSensorState *state);
 
-int b3PickBody(struct SharedMemoryCommand *command,
-               double rayFromWorldX, double rayFromWorldY, double rayFromWorldZ,
-               double rayToWorldX, double rayToWorldY, double rayToWorldZ);
-int b3MovePickedBody(struct SharedMemoryCommand *command,
-                     double rayFromWorldX, double rayFromWorldY, double rayFromWorldZ,
-                     double rayToWorldX, double rayToWorldY, double rayToWorldZ);
-int b3RemovePickingConstraint(struct SharedMemoryCommand *command);
+b3SharedMemoryCommandHandle b3PickBody(b3PhysicsClientHandle physClient, double rayFromWorldX,
+                                       double rayFromWorldY, double rayFromWorldZ,
+                                       double rayToWorldX, double rayToWorldY, double rayToWorldZ);
+b3SharedMemoryCommandHandle b3MovePickedBody(b3PhysicsClientHandle physClient, double rayFromWorldX,
+                                             double rayFromWorldY, double rayFromWorldZ,
+                                             double rayToWorldX, double rayToWorldY,
+                                             double rayToWorldZ);
+b3SharedMemoryCommandHandle b3RemovePickingConstraint(b3PhysicsClientHandle physClient);
 
-    
 #ifdef __cplusplus
 }
 #endif
