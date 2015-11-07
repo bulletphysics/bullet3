@@ -346,6 +346,8 @@ bool UrdfParser::parseVisual(UrdfVisual& visual, TiXmlElement* config, ErrorLogg
 	  {
 		  if (parseMaterial(visual.m_localMaterial, mat,logger))
 		  {
+			  UrdfMaterial* matPtr = new UrdfMaterial(visual.m_localMaterial);
+			  m_model.m_materials.insert(matPtr->m_name.c_str(),matPtr);
 			  visual.m_hasLocalMaterial = true;
 		  }
 	  }
@@ -786,7 +788,7 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 				for (int i=0;i<link->m_visualArray.size();i++)
 				{
 					UrdfVisual& vis = link->m_visualArray.at(i);
-					if (!vis.m_hasLocalMaterial)
+					if (!vis.m_hasLocalMaterial && vis.m_materialName.c_str())
 					{
 						UrdfMaterial** mat = m_model.m_materials.find(vis.m_materialName.c_str());
 						if (mat && *mat)

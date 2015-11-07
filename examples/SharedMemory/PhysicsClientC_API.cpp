@@ -284,6 +284,18 @@ int	b3CreateBoxCommandSetCollisionShapeType(b3SharedMemoryCommandHandle commandH
 	return 0;
 }
 
+int	b3CreateBoxCommandSetColorRGBA(b3SharedMemoryCommandHandle commandHandle, double red,double green,double blue, double alpha)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CREATE_BOX_COLLISION_SHAPE);
+	command->m_updateFlags |=BOX_SHAPE_HAS_COLOR;
+	command->m_createBoxShapeArguments.m_colorRGBA[0] = red;
+	command->m_createBoxShapeArguments.m_colorRGBA[1] = green;
+	command->m_createBoxShapeArguments.m_colorRGBA[2] = blue;
+	command->m_createBoxShapeArguments.m_colorRGBA[3] = alpha;
+	return 0;
+}
 
 int	b3CreateBoxCommandSetStartOrientation(b3SharedMemoryCommandHandle commandHandle, double startOrnX,double startOrnY,double startOrnZ, double startOrnW)
 {

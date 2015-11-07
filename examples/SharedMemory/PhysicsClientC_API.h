@@ -94,6 +94,7 @@ int	b3CreateBoxCommandSetStartOrientation(b3SharedMemoryCommandHandle commandHan
 int	b3CreateBoxCommandSetHalfExtents(b3SharedMemoryCommandHandle commandHandle, double halfExtentsX,double halfExtentsY,double halfExtentsZ);
 int	b3CreateBoxCommandSetMass(b3SharedMemoryCommandHandle commandHandle, double mass);
 int	b3CreateBoxCommandSetCollisionShapeType(b3SharedMemoryCommandHandle commandHandle, int collisionShapeType);
+int	b3CreateBoxCommandSetColorRGBA(b3SharedMemoryCommandHandle commandHandle, double red,double green,double blue, double alpha);
 
 
 ///Initialize (teleport) the pose of a body/robot. You can individually set the base position, base orientation and joint angles.

@@ -24,7 +24,7 @@ static btVector4 colors[4] =
 };
 
 
-static btVector3 selectColor2()
+static btVector4 selectColor2()
 {
 
     static int curColor = 0;
@@ -371,8 +371,8 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
 
                 world1->addCollisionObject(col,collisionFilterGroup,collisionFilterMask);
 
-                btVector3 color = selectColor2();//(0.0,0.0,0.5);
-
+                btVector4 color = selectColor2();//(0.0,0.0,0.5);
+				u2b.getLinkColor(urdfLinkIndex,color);
                 creation.createCollisionObjectGraphicsInstance(urdfLinkIndex,col,color);
 
                 btScalar friction = 0.5f;

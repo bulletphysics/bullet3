@@ -508,7 +508,7 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 				{
 					if(!bod->isUsingRK4Integration())
 					{
-						bod->stepVelocitiesMultiDof(solverInfo.m_timeStep, scratch_r, scratch_v, scratch_m);
+						bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(solverInfo.m_timeStep, scratch_r, scratch_v, scratch_m);
 					}
 					else
 					{						
@@ -596,7 +596,7 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 						btScalar h = solverInfo.m_timeStep;
 						#define output &scratch_r[bod->getNumDofs()]
 						//calc qdd0 from: q0 & qd0	
-						bod->stepVelocitiesMultiDof(0., scratch_r, scratch_v, scratch_m);
+						bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(0., scratch_r, scratch_v, scratch_m);
 						pCopy(output, scratch_qdd0, 0, numDofs);
 						//calc q1 = q0 + h/2 * qd0
 						pResetQx();
@@ -606,7 +606,7 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 						//
 						//calc qdd1 from: q1 & qd1
 						pCopyToVelocityVector(bod, scratch_qd1);
-						bod->stepVelocitiesMultiDof(0., scratch_r, scratch_v, scratch_m);
+						bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(0., scratch_r, scratch_v, scratch_m);
 						pCopy(output, scratch_qdd1, 0, numDofs);
 						//calc q2 = q0 + h/2 * qd1
 						pResetQx();
@@ -616,7 +616,7 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 						//
 						//calc qdd2 from: q2 & qd2
 						pCopyToVelocityVector(bod, scratch_qd2);
-						bod->stepVelocitiesMultiDof(0., scratch_r, scratch_v, scratch_m);
+						bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(0., scratch_r, scratch_v, scratch_m);
 						pCopy(output, scratch_qdd2, 0, numDofs);
 						//calc q3 = q0 + h * qd2
 						pResetQx();
@@ -626,7 +626,7 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 						//
 						//calc qdd3 from: q3 & qd3
 						pCopyToVelocityVector(bod, scratch_qd3);
-						bod->stepVelocitiesMultiDof(0., scratch_r, scratch_v, scratch_m);
+						bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(0., scratch_r, scratch_v, scratch_m);
 						pCopy(output, scratch_qdd3, 0, numDofs);
 
 						//
@@ -661,7 +661,7 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 						{
 							for(int link = 0; link < bod->getNumLinks(); ++link)
 								bod->getLink(link).updateCacheMultiDof();
-							bod->stepVelocitiesMultiDof(0, scratch_r, scratch_v, scratch_m);
+							bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(0, scratch_r, scratch_v, scratch_m);
 						}
 						
 					}
@@ -710,7 +710,7 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
                                 if(!bod->isUsingRK4Integration())
                                 {
 									bool isConstraintPass = true;
-                                    bod->stepVelocitiesMultiDof(solverInfo.m_timeStep, scratch_r, scratch_v, scratch_m, isConstraintPass);
+                                    bod->computeAccelerationsArticulatedBodyAlgorithmMultiDof(solverInfo.m_timeStep, scratch_r, scratch_v, scratch_m, isConstraintPass);
                                 }
 				}
 			}
@@ -718,8 +718,8 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 	}
 
 	for (int i=0;i<this->m_multiBodies.size();i++)
-       {
-                btMultiBody* bod = m_multiBodies[i];
+	{
+		btMultiBody* bod = m_multiBodies[i];
 		bod->processDeltaVeeMultiDof2();
 	}
 
