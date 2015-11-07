@@ -211,6 +211,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
         {
             b3SharedMemoryCommandHandle commandHandle = b3CreateBoxShapeCommandInit(m_physicsClientHandle);
             b3CreateBoxCommandSetStartPosition(commandHandle,0,0,-3);
+			b3CreateBoxCommandSetColorRGBA(commandHandle,0,0,1,1);
             b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
             break;
         }
@@ -220,6 +221,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
             b3CreateBoxCommandSetStartPosition(commandHandle,0,0,0);
 			b3CreateBoxCommandSetMass(commandHandle,1);
 			b3CreateBoxCommandSetCollisionShapeType(commandHandle,COLLISION_SHAPE_TYPE_CYLINDER_Y);
+			b3CreateBoxCommandSetColorRGBA(commandHandle,1,1,0,1);
 			double radius = 0.2;
 			double halfHeight = 0.5;
 			b3CreateBoxCommandSetHalfExtents(commandHandle,radius,halfHeight,radius);

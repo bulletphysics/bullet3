@@ -205,6 +205,7 @@ enum EnumBoxShapeFlags
     BOX_SHAPE_HAS_HALF_EXTENTS=4,
 	BOX_SHAPE_HAS_MASS=8,
 	BOX_SHAPE_HAS_COLLISION_SHAPE_TYPE=16,
+	BOX_SHAPE_HAS_COLOR=32,
 };
 ///This command will be replaced to allow arbitrary collision shape types
 struct CreateBoxShapeArgs
@@ -218,6 +219,7 @@ struct CreateBoxShapeArgs
 
     double m_initialPosition[3];
 	double m_initialOrientation[4];
+	double m_colorRGBA[4];
 };
 
 struct SharedMemoryCommand

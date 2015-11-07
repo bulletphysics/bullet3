@@ -1684,7 +1684,17 @@ void PhysicsServerSharedMemory::processClientCommands()
 						bool isDynamic = (mass>0);
 						btRigidBody* rb = worldImporter->createRigidBody(isDynamic,mass,startTrans,shape,0);
 						rb->setRollingFriction(0.2);
-						m_data->m_guiHelper->autogenerateGraphicsObjects(this->m_data->m_dynamicsWorld);
+						//m_data->m_guiHelper->autogenerateGraphicsObjects(this->m_data->m_dynamicsWorld);
+						btVector4 colorRGBA(1,0,0,1);
+						if (clientCmd.m_updateFlags & BOX_SHAPE_HAS_COLOR)
+						{
+							colorRGBA[0] = clientCmd.m_createBoxShapeArguments.m_colorRGBA[0];
+							colorRGBA[1] = clientCmd.m_createBoxShapeArguments.m_colorRGBA[1];
+							colorRGBA[2] = clientCmd.m_createBoxShapeArguments.m_colorRGBA[2];
+							colorRGBA[3] = clientCmd.m_createBoxShapeArguments.m_colorRGBA[3];
+						}
+						m_data->m_guiHelper->createCollisionShapeGraphicsObject(rb->getCollisionShape());
+						m_data->m_guiHelper->createCollisionObjectGraphicsObject(rb,colorRGBA);
 						
 						SharedMemoryStatus& serverCmd =m_data->createServerStatus(CMD_RIGID_BODY_CREATION_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
 						int bodyUniqueId = m_data->allocHandle();

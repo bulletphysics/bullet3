@@ -34,8 +34,7 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 	for (int j=0;j<m_multiBodyNonContactConstraints.size();j++)
 	{
 		btMultiBodySolverConstraint& constraint = m_multiBodyNonContactConstraints[j];
-		//if (iteration < constraint.m_overrideNumSolverIterations)
-			//resolveSingleConstraintRowGenericMultiBody(constraint);
+		
 		resolveSingleConstraintRowGeneric(constraint);
 		if(constraint.m_multiBodyA) 
 			constraint.m_multiBodyA->setPosUpdated(false);
@@ -192,60 +191,6 @@ void btMultiBodyConstraintSolver::resolveSingleConstraintRowGeneric(const btMult
 }
 
 
-void btMultiBodyConstraintSolver::resolveSingleConstraintRowGenericMultiBody(const btMultiBodySolverConstraint& c)
-{
-
-	btScalar deltaImpulse = c.m_rhs-btScalar(c.m_appliedImpulse)*c.m_cfm;
-	btScalar deltaVelADotn=0;
-	btScalar deltaVelBDotn=0;
-	int ndofA=0;
-	int ndofB=0;
-
-	if (c.m_multiBodyA)
-	{
-		ndofA  = c.m_multiBodyA->getNumDofs() + 6;
-		for (int i = 0; i < ndofA; ++i) 
-			deltaVelADotn += m_data.m_jacobians[c.m_jacAindex+i] * m_data.m_deltaVelocities[c.m_deltaVelAindex+i];
-	}
-
-	if (c.m_multiBodyB)
-	{
-		ndofB  = c.m_multiBodyB->getNumDofs() + 6;
-		for (int i = 0; i < ndofB; ++i) 
-			deltaVelBDotn += m_data.m_jacobians[c.m_jacBindex+i] * m_data.m_deltaVelocities[c.m_deltaVelBindex+i];
-	}
-
-	
-	deltaImpulse	-=	deltaVelADotn*c.m_jacDiagABInv;//m_jacDiagABInv = 1./denom
-	deltaImpulse	-=	deltaVelBDotn*c.m_jacDiagABInv;
-	const btScalar sum = btScalar(c.m_appliedImpulse) + deltaImpulse;
-	
-	if (sum < c.m_lowerLimit)
-	{
-		deltaImpulse = c.m_lowerLimit-c.m_appliedImpulse;
-		c.m_appliedImpulse = c.m_lowerLimit;
-	}
-	else if (sum > c.m_upperLimit) 
-	{
-		deltaImpulse = c.m_upperLimit-c.m_appliedImpulse;
-		c.m_appliedImpulse = c.m_upperLimit;
-	}
-	else
-	{
-		c.m_appliedImpulse = sum;
-	}
-
-	if (c.m_multiBodyA)
-	{
-		applyDeltaVee(&m_data.m_deltaVelocitiesUnitImpulse[c.m_jacAindex],deltaImpulse,c.m_deltaVelAindex,ndofA);
-		c.m_multiBodyA->applyDeltaVee(&m_data.m_deltaVelocitiesUnitImpulse[c.m_jacAindex],deltaImpulse);
-	}
-	if (c.m_multiBodyB)
-	{
-		applyDeltaVee(&m_data.m_deltaVelocitiesUnitImpulse[c.m_jacBindex],deltaImpulse,c.m_deltaVelBindex,ndofB);
-		c.m_multiBodyB->applyDeltaVee(&m_data.m_deltaVelocitiesUnitImpulse[c.m_jacBindex],deltaImpulse);
-	}
-}
 
 
 void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySolverConstraint& solverConstraint, 
