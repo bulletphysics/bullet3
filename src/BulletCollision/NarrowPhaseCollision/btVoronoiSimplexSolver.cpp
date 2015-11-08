@@ -296,7 +296,7 @@ bool btVoronoiSimplexSolver::inSimplex(const btVector3& w)
 #endif
 		{
 			found = true;
-         break;
+			break;
 		}
 	}
 
