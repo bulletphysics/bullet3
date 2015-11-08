@@ -27,7 +27,7 @@ GJK-EPA collision solver by Nathanael Presson, 2008
 
 #include "b3SupportMappings.h"
 
-namespace gjkepa2_impl
+namespace gjkepa2_impl2
 {
 
 	// Config
@@ -832,7 +832,7 @@ namespace gjkepa2_impl
 // Api
 //
 
-using namespace	gjkepa2_impl;
+using namespace	gjkepa2_impl2;
 
 //
 int			b3GjkEpaSolver2::StackSizeRequirement()
