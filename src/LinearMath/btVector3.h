@@ -121,12 +121,8 @@ public:
 
 	}
 
-	const static btVector3 One ;
-	const static btVector3 Zero;
-	const static btVector3 xAxis;
-	const static btVector3 yAxis;
-	const static btVector3 zAxis;
-
+ 
+	
   /**@brief Constructor from scalars 
    * @param x X value
    * @param y Y value 
@@ -1353,6 +1349,5 @@ SIMD_FORCE_INLINE void	btVector3::deSerialize(const struct	btVector3Data& dataIn
 	for (int i=0;i<4;i++)
 		m_floats[i] = dataIn.m_floats[i];
 }
-
 
 #endif //BT_VECTOR3_H
