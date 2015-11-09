@@ -27,7 +27,7 @@ GJK-EPA collision solver by Nathanael Presson, 2008
 
 #include "b3SupportMappings.h"
 
-namespace gjkepa2_impl
+namespace gjkepa2_impl2
 {
 
 	// Config
@@ -55,7 +55,7 @@ namespace gjkepa2_impl
 	
 
 	// MinkowskiDiff
-	struct	MinkowskiDiff
+	struct	b3MinkowskiDiff
 	{
 		
 
@@ -106,11 +106,11 @@ namespace gjkepa2_impl
 		}
 	};
 
-	typedef	MinkowskiDiff	tShape;
+	typedef	b3MinkowskiDiff	tShape;
 
 
 	// GJK
-	struct	GJK
+	struct	b3GJK
 	{
 		/* Types		*/ 
 		struct	sSV
@@ -141,7 +141,7 @@ namespace gjkepa2_impl
 			sSimplex*		m_simplex;
 			eStatus::_		m_status;
 			/* Methods		*/ 
-			GJK(const b3AlignedObjectArray<b3Vector3>& verticesA,const b3AlignedObjectArray<b3Vector3>& verticesB)
+			b3GJK(const b3AlignedObjectArray<b3Vector3>& verticesA,const b3AlignedObjectArray<b3Vector3>& verticesB)
 				:m_verticesA(verticesA),m_verticesB(verticesB)
 			{
 				Initialize();
@@ -477,10 +477,10 @@ namespace gjkepa2_impl
 	};
 
 	// EPA
-	struct	EPA
+	struct	b3EPA
 	{
 		/* Types		*/ 
-		typedef	GJK::sSV	sSV;
+		typedef	b3GJK::sSV	sSV;
 		struct	sFace
 		{
 			b3Vector3	n;
@@ -517,7 +517,7 @@ namespace gjkepa2_impl
 			Failed		};};
 			/* Fields		*/ 
 			eStatus::_		m_status;
-			GJK::sSimplex	m_result;
+			b3GJK::sSimplex	m_result;
 			b3Vector3		m_normal;
 			b3Scalar		m_depth;
 			sSV				m_sv_store[EPA_MAX_VERTICES];
@@ -526,7 +526,7 @@ namespace gjkepa2_impl
 			sList			m_hull;
 			sList			m_stock;
 			/* Methods		*/ 
-			EPA()
+			b3EPA()
 			{
 				Initialize();	
 			}
@@ -565,9 +565,9 @@ namespace gjkepa2_impl
 					append(m_stock,&m_fc_store[EPA_MAX_FACES-i-1]);
 				}
 			}
-			eStatus::_			Evaluate(GJK& gjk,const b3Vector3& guess)
+			eStatus::_			Evaluate(b3GJK& gjk,const b3Vector3& guess)
 			{
-				GJK::sSimplex&	simplex=*gjk.m_simplex;
+				b3GJK::sSimplex&	simplex=*gjk.m_simplex;
 				if((simplex.rank>1)&&gjk.EncloseOrigin())
 				{
 
@@ -832,12 +832,12 @@ namespace gjkepa2_impl
 // Api
 //
 
-using namespace	gjkepa2_impl;
+using namespace	gjkepa2_impl2;
 
 //
 int			b3GjkEpaSolver2::StackSizeRequirement()
 {
-	return(sizeof(GJK)+sizeof(EPA));
+	return(sizeof(b3GJK)+sizeof(b3EPA));
 }
 
 //
@@ -850,9 +850,9 @@ bool		b3GjkEpaSolver2::Distance(	const b3Transform&	transA, const b3Transform&	t
 {
 	tShape			shape;
 	Initialize(transA,transB,hullA,hullB,verticesA,verticesB,results,shape,false);
-	GJK				gjk(verticesA,verticesB);
-	GJK::eStatus::_	gjk_status=gjk.Evaluate(shape,guess);
-	if(gjk_status==GJK::eStatus::Valid)
+	b3GJK				gjk(verticesA,verticesB);
+	b3GJK::eStatus::_	gjk_status=gjk.Evaluate(shape,guess);
+	if(gjk_status==b3GJK::eStatus::Valid)
 	{
 		b3Vector3	w0=b3MakeVector3(0,0,0);
 		b3Vector3	w1=b3MakeVector3(0,0,0);
@@ -871,7 +871,7 @@ bool		b3GjkEpaSolver2::Distance(	const b3Transform&	transA, const b3Transform&	t
 	}
 	else
 	{
-		results.status	=	gjk_status==GJK::eStatus::Inside?
+		results.status	=	gjk_status==b3GJK::eStatus::Inside?
 			sResults::Penetrating	:
 		sResults::GJK_Failed	;
 		return(false);
@@ -890,15 +890,15 @@ bool	b3GjkEpaSolver2::Penetration(	const b3Transform&	transA, const b3Transform&
 
 	tShape			shape;
 	Initialize(transA,transB,hullA,hullB,verticesA,verticesB,results,shape,usemargins);
-	GJK				gjk(verticesA,verticesB);
-	GJK::eStatus::_	gjk_status=gjk.Evaluate(shape,guess);
+	b3GJK				gjk(verticesA,verticesB);
+	b3GJK::eStatus::_	gjk_status=gjk.Evaluate(shape,guess);
 	switch(gjk_status)
 	{
-	case	GJK::eStatus::Inside:
+	case	b3GJK::eStatus::Inside:
 		{
-			EPA				epa;
-			EPA::eStatus::_	epa_status=epa.Evaluate(gjk,-guess);
-			if(epa_status!=EPA::eStatus::Failed)
+			b3EPA				epa;
+			b3EPA::eStatus::_	epa_status=epa.Evaluate(gjk,-guess);
+			if(epa_status!=b3EPA::eStatus::Failed)
 			{
 				b3Vector3	w0=b3MakeVector3(0,0,0);
 				for(unsigned int i=0;i<epa.m_result.rank;++i)
@@ -914,7 +914,7 @@ bool	b3GjkEpaSolver2::Penetration(	const b3Transform&	transA, const b3Transform&
 			} else results.status=sResults::EPA_Failed;
 		}
 		break;
-	case	GJK::eStatus::Failed:
+	case	b3GJK::eStatus::Failed:
 		results.status=sResults::GJK_Failed;
 		break;
 		default:
