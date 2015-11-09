@@ -29,7 +29,7 @@
 	end
 
 			
-		links{"gwen", "OpenGL_Window","BulletSoftBody", "BulletDynamics","BulletCollision","LinearMath","Bullet3Common"}
+		links{"gwen", "OpenGL_Window","BulletSoftBody", "BulletDynamics","BulletCollision","LinearMath","Bullet3Common", "VHACD"}
 		initOpenGL()
 		initGlew()
 
@@ -96,6 +96,8 @@
 		"../Utils/b3ResourcePath.*",
 		"../GyroscopicDemo/GyroscopicSetup.cpp",
 		"../GyroscopicDemo/GyroscopicSetup.h",
+		"../VHACDDemo/VHACDDemo.cpp",
+		"../VHACDDemo/VHACDDemo.h",
 		"../ThirdPartyLibs/urdf/urdfdom/urdf_parser/src/pose.cpp",
 		"../ThirdPartyLibs/urdf/urdfdom/urdf_parser/src/model.cpp",
     "../ThirdPartyLibs/urdf/urdfdom/urdf_parser/src/link.cpp",
