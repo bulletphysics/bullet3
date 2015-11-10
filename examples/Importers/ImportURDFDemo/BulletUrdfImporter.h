@@ -27,6 +27,8 @@ public:
     virtual void getLinkChildIndices(int linkIndex, btAlignedObjectArray<int>& childLinkIndices) const;
 
     virtual std::string getLinkName(int linkIndex) const;
+
+	virtual bool getLinkColor(int linkIndex, btVector4& colorRGBA) const;
     
     virtual std::string getJointName(int linkIndex) const;
     

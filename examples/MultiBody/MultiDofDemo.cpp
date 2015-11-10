@@ -161,10 +161,9 @@ void	MultiDofDemo::initPhysics()
 	{			
 		btScalar q0 = 45.f * SIMD_PI/ 180.f;
 		if(!spherical)
-			if(mbC->isMultiDof())
-				mbC->setJointPosMultiDof(0, &q0);
-			else
-				mbC->setJointPos(0, q0);
+		{
+			mbC->setJointPosMultiDof(0, &q0);
+		}
 		else
 		{
 			btQuaternion quat0(btVector3(1, 1, 0).normalized(), q0);
@@ -260,8 +259,8 @@ btMultiBody* MultiDofDemo::createFeatherstoneMultiBody_testMultiDof(btMultiBodyD
 	}
 
 	bool canSleep = false;
-	bool isMultiDof = true;
-	btMultiBody *pMultiBody = new btMultiBody(numLinks, baseMass, baseInertiaDiag, !floating, canSleep, isMultiDof);
+	
+	btMultiBody *pMultiBody = new btMultiBody(numLinks, baseMass, baseInertiaDiag, !floating, canSleep);
 
 	btQuaternion baseOriQuat(0.f, 0.f, 0.f, 1.f);
 	pMultiBody->setBasePos(basePosition);

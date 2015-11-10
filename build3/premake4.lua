@@ -128,6 +128,7 @@
 			{
         		'ARCHS = "$(ARCHS_STANDARD_32_BIT) $(ARCHS_STANDARD_64_BIT)"',
         		'VALID_ARCHS = "x86_64 i386"',
+--			'SDKROOT = "macosx10.9"',
 			}
 			end
 	end

@@ -18,12 +18,12 @@ m_guiHelper(guiHelper)
 }
 
     
- class btMultiBody* MyMultiBodyCreator::allocateMultiBody(int /* urdfLinkIndex */, int totalNumJoints,btScalar mass, const btVector3& localInertiaDiagonal, bool isFixedBase, bool canSleep, bool multiDof)
+ class btMultiBody* MyMultiBodyCreator::allocateMultiBody(int /* urdfLinkIndex */, int totalNumJoints,btScalar mass, const btVector3& localInertiaDiagonal, bool isFixedBase, bool canSleep)
 {
 //	m_urdf2mbLink.resize(totalNumJoints+1,-2);
     m_mb2urdfLink.resize(totalNumJoints+1,-2);
 
-    m_bulletMultiBody = new btMultiBody(totalNumJoints,mass,localInertiaDiagonal,isFixedBase,canSleep,multiDof);
+    m_bulletMultiBody = new btMultiBody(totalNumJoints,mass,localInertiaDiagonal,isFixedBase,canSleep);
     return m_bulletMultiBody;
 }
 

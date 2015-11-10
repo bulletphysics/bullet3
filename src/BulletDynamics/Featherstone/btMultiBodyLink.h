@@ -165,20 +165,6 @@ btVector3 m_appliedConstraintForce;    // In WORLD frame
 	}
 
     // routine to update m_cachedRotParentToThis and m_cachedRVector
-    void updateCache()
-	{
-		//multidof
-		if (m_jointType == eRevolute) 
-		{
-			m_cachedRotParentToThis = btQuaternion(getAxisTop(0),-m_jointPos[0]) * m_zeroRotParentToThis;
-			m_cachedRVector = m_dVector + quatRotate(m_cachedRotParentToThis,m_eVector);
-		} else 
-		{
-			// m_cachedRotParentToThis never changes, so no need to update
-			m_cachedRVector = m_eVector + m_jointPos[0] * getAxisBottom(0);
-		}
-	}
-
 	void updateCacheMultiDof(btScalar *pq = 0)
 	{
 		btScalar *pJointPos = (pq ? pq : &m_jointPos[0]);
