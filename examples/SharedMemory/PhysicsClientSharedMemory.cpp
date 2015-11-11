@@ -3,6 +3,7 @@
 #include "Win32SharedMemory.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btVector3.h"
+#include <string.h>
 
 #include "Bullet3Common/b3Logging.h"
 #include "../Utils/b3ResourcePath.h"
@@ -70,6 +71,15 @@ struct PhysicsClientSharedMemoryInternalData {
 
     bool canSubmitCommand() const;
 };
+
+static char* strDup(const char* const str)
+{
+#ifdef _WIN32
+	return _strdup(str);
+#else
+	return strdup(str);
+#endif
+}
 
 int PhysicsClientSharedMemory::getNumJoints(int bodyIndex) const 
 {
@@ -188,24 +198,24 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 }
 
                 if (serverCmd.m_dataStreamArguments.m_streamChunkLength > 0) {
-                    bParse::btBulletFile* bf = new bParse::btBulletFile(
+                    bParse::btBulletFile bf(
                         this->m_data->m_testBlock1->m_bulletStreamDataServerToClient,
                         serverCmd.m_dataStreamArguments.m_streamChunkLength);
-                    bf->setFileDNAisMemoryDNA();
-                    bf->parse(false);
+                    bf.setFileDNAisMemoryDNA();
+                    bf.parse(false);
 					int bodyIndex = serverCmd.m_dataStreamArguments.m_bodyUniqueId;
 
 					BodyJointInfoCache* bodyJoints = new BodyJointInfoCache;
                     m_data->m_bodyJointMap.insert(bodyIndex,bodyJoints);
 
-                    for (int i = 0; i < bf->m_multiBodies.size(); i++) {
-                        int flag = bf->getFlags();
+                    for (int i = 0; i < bf.m_multiBodies.size(); i++) {
+                        int flag = bf.getFlags();
                         int qOffset = 7;
                         int uOffset = 6;
 
                         if ((flag & bParse::FD_DOUBLE_PRECISION) != 0) {
                             Bullet::btMultiBodyDoubleData* mb =
-                                (Bullet::btMultiBodyDoubleData*)bf->m_multiBodies[i];
+                                (Bullet::btMultiBodyDoubleData*)bf.m_multiBodies[i];
                             if (mb->m_baseName) {
                                 if (m_data->m_verboseOutput) {
                                     b3Printf("mb->m_baseName = %s\n", mb->m_baseName);
@@ -227,14 +237,14 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                                             b3Printf("mb->m_links[%d].m_linkName = %s\n", link,
                                                      mb->m_links[link].m_linkName);
                                         }
-                                        info.m_linkName = mb->m_links[link].m_linkName;
+                                        info.m_linkName = strDup(mb->m_links[link].m_linkName);
                                     }
                                     if (mb->m_links[link].m_jointName) {
                                         if (m_data->m_verboseOutput) {
                                             b3Printf("mb->m_links[%d].m_jointName = %s\n", link,
                                                      mb->m_links[link].m_jointName);
                                         }
-                                        info.m_jointName = mb->m_links[link].m_jointName;
+                                        info.m_jointName = strDup(mb->m_links[link].m_jointName);
                                     }
 
 									info.m_jointType = mb->m_links[link].m_jointType;
@@ -251,7 +261,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 
                         } else {
                             Bullet::btMultiBodyFloatData* mb =
-                                (Bullet::btMultiBodyFloatData*)bf->m_multiBodies[i];
+                                (Bullet::btMultiBodyFloatData*)bf.m_multiBodies[i];
                             if (mb->m_baseName) {
                                 if (m_data->m_verboseOutput) {
                                     b3Printf("mb->m_baseName = %s\n", mb->m_baseName);
@@ -272,14 +282,14 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                                             b3Printf("mb->m_links[%d].m_linkName = %s\n", link,
                                                      mb->m_links[link].m_linkName);
                                         }
-                                        info.m_linkName = mb->m_links[link].m_linkName;
+                                        info.m_linkName = strDup(mb->m_links[link].m_linkName);
                                     }
                                     if (mb->m_links[link].m_jointName) {
                                         if (m_data->m_verboseOutput) {
                                             b3Printf("mb->m_links[%d].m_jointName = %s\n", link,
                                                      mb->m_links[link].m_jointName);
                                         }
-                                        info.m_jointName = mb->m_links[link].m_jointName;
+                                        info.m_jointName = strDup(mb->m_links[link].m_jointName);
                                     }
 									info.m_jointType = mb->m_links[link].m_jointType;
                                     if ((mb->m_links[link].m_jointType == eRevoluteType) ||
@@ -293,7 +303,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                             }
                         }
                     }
-                    if (bf->ok()) {
+                    if (bf.ok()) {
                         if (m_data->m_verboseOutput) {
                             b3Printf("Received robot description ok!\n");
                         }
@@ -401,6 +411,17 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 					BodyJointInfoCache** bodyJointsPtr = m_data->m_bodyJointMap.getAtIndex(i);
 					if (bodyJointsPtr && *bodyJointsPtr)
 					{
+						BodyJointInfoCache* bodyJoints = *bodyJointsPtr;
+						for (int j=0;j<bodyJoints->m_jointInfo.size();j++) {
+							if (bodyJoints->m_jointInfo[j].m_jointName)
+							{
+								free(bodyJoints->m_jointInfo[j].m_jointName);
+							}
+							if (bodyJoints->m_jointInfo[j].m_linkName)
+							{
+								free(bodyJoints->m_jointInfo[j].m_linkName);
+							}
+						}
 						delete (*bodyJointsPtr);
 					}
 				}
