@@ -21,6 +21,7 @@ struct GenericConstraintUserInfo
 
 class MyMultiBodyCreator : public MultiBodyCreationInterface
 {
+protected:
 
 	btMultiBody* m_bulletMultiBody;
     

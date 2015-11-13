@@ -65,6 +65,8 @@
 		"../MultiThreading/b3PosixThreadSupport.cpp",
 		"../MultiThreading/b3Win32ThreadSupport.cpp",
 		"../MultiThreading/b3ThreadSupportInterface.cpp",
+		"../InverseDynamics/InverseDynamicsExample.cpp",
+		"../InverseDynamics/InverseDynamicsExample.h",
 		"../BasicDemo/BasicExample.*",
 		"../Tutorial/*",
 		"../Collision/*",

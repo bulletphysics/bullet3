@@ -40,6 +40,8 @@
 #include "../Tutorial/Tutorial.h"
 #include "../Tutorial/Dof6ConstraintTutorial.h"
 #include "../MultiThreading/MultiThreadingExample.h"
+//#include "../InverseDynamics/InverseDynamicsExample.h"
+
 #ifdef ENABLE_LUA
 #include "../LuaDemo/LuaPhysicsSetup.h"
 #endif
@@ -108,6 +110,9 @@ static ExampleEntry gDefaultExamples[]=
  ExampleEntry(1,"Constraint Feedback", "The example shows how to receive joint reaction forces in a btMultiBody. Also the applied impulse is available for a btMultiBodyJointMotor", MultiBodyConstraintFeedbackCreateFunc),
 	ExampleEntry(1,"Inverted Pendulum PD","Keep an inverted pendulum up using open loop PD control", InvertedPendulumPDControlCreateFunc),
 
+//	ExampleEntry(0,"Inverse Dynamics"),
+//	ExampleEntry(1,"Inverse Dynamics URDF", "write some explanation", InverseDynamicsExampleCreateFunc,BT_ID_LOAD_URDF),
+//	ExampleEntry(1,"Inverse Dynamics Prog", "write some explanation2", InverseDynamicsExampleCreateFunc,BT_ID_PROGRAMMATICALLY),
 	
 	ExampleEntry(0,"Tutorial"),
 	ExampleEntry(1,"Constant Velocity","Free moving rigid body, without external or constraint forces", TutorialCreateFunc,TUT_VELOCITY),
