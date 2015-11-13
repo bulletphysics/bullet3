@@ -118,14 +118,19 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 		m_collisionShapes.clear();
 
 		delete m_dynamicsWorld;
+		m_dynamicsWorld = 0;
 
 		delete m_solver;
+		m_solver=0;
 
 		delete m_broadphase;
+		m_broadphase=0;
 
 		delete m_dispatcher;
+		m_dispatcher=0;
 
 		delete m_collisionConfiguration;
+		m_collisionConfiguration=0;
 	}
 
 	virtual void syncPhysicsToGraphics()
