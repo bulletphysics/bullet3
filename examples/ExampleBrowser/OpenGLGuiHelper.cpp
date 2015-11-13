@@ -6,12 +6,14 @@
 #include "../CommonInterfaces/CommonRenderInterface.h"
 #include "Bullet3Common/b3Scalar.h"
 
+#include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"//to create a tesselation of a generic btConvexShape
 
 #include "../OpenGLWindow/GLInstanceGraphicsShape.h"
 //backwards compatibility
 #include "GL_ShapeDrawer.h"
 
+#include <limits>
 
 #define BT_LINE_BATCH_SIZE 512
 
@@ -206,11 +208,58 @@ int OpenGLGuiHelper::registerGraphicsInstance(int shapeIndex, const float* posit
 	return m_data->m_glApp->m_renderer->registerGraphicsInstance(shapeIndex,position,quaternion,color,scaling);
 }
 
+class TriangleCollector : public btTriangleCallback
+{
+public:
+	btAlignedObjectArray<GLInstanceVertex>* m_pVerticesOut;
+	btAlignedObjectArray<int>* m_pIndicesOut;
+
+	TriangleCollector()
+	{
+		m_pVerticesOut = 0;
+		m_pIndicesOut = 0;
+	}
+
+	virtual void processTriangle(btVector3* tris, int partId, int triangleIndex)
+	{
+		for(int k=0; k < 3; k++)
+		{
+			GLInstanceVertex v;
+			v.xyzw[3] = 0;
+			v.uv[0] = v.uv[1] = 0.5f;
+			btVector3 normal = (tris[0]-tris[1]).cross(tris[0]-tris[2]);
+			normal.normalize();
+			for(int l=0; l < 3; l++)
+			{
+				v.xyzw[l] = tris[k][l];
+				v.normal[l] = normal[l];
+			}
+			m_pIndicesOut->push_back(m_pVerticesOut->size());
+			m_pVerticesOut->push_back(v);
+		}
+	}
+};
+
 static void createCollisionShapeGraphicsObjectInternal(btCollisionShape* collisionShape, const btTransform& parentTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut)
 {
 //todo: support all collision shape types
 	switch (collisionShape->getShapeType())
 	{
+		case TERRAIN_SHAPE_PROXYTYPE:
+		{
+			const btHeightfieldTerrainShape* heightField = static_cast<const btHeightfieldTerrainShape*>(collisionShape);
+			TriangleCollector  col;
+			col.m_pVerticesOut = &verticesOut;
+			col.m_pIndicesOut = &indicesOut;
+			btVector3 aabbMin, aabbMax;
+			for(int k=0; k < 3; k++)
+			{
+				aabbMin[k] = -std::numeric_limits<float>::max();
+				aabbMax[k] = std::numeric_limits<float>::max();
+			}
+			heightField->processAllTriangles(&col, aabbMin, aabbMax);
+			break;
+		}
 		case SOFTBODY_SHAPE_PROXYTYPE:
 		{
 			//skip the soft body collision shape for now
