@@ -63,7 +63,7 @@ public:
 		btScalar mass,                // mass of base
 		const btVector3 &inertia,    // inertia of base, in base frame; assumed diagonal
 		bool fixedBase,           // whether the base is fixed (true) or can move (false)
-		bool canSleep);
+		bool canSleep, bool deprecatedMultiDof=true);
 
 
 	virtual ~btMultiBody();
@@ -75,7 +75,7 @@ public:
 						   int parent,
 						   const btQuaternion &rotParentToThis,
 						   const btVector3 &parentComToThisPivotOffset,
-                           const btVector3 &thisPivotToThisComOffset);
+                           const btVector3 &thisPivotToThisComOffset, bool deprecatedDisableParentCollision=true);
 
 						
 	void setupPrismatic(int i,
@@ -337,7 +337,8 @@ void addJointTorque(int i, btScalar Q);
     // improvement, at least on Windows (where dynamic memory
     // allocation appears to be fairly slow).
     //
-    
+   
+ 
 	void computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar dt,
                         btAlignedObjectArray<btScalar> &scratch_r,
                         btAlignedObjectArray<btVector3> &scratch_v,
@@ -345,17 +346,26 @@ void addJointTorque(int i, btScalar Q);
 			bool isConstraintPass=false
 		);
 
+///stepVelocitiesMultiDof is deprecated, use computeAccelerationsArticulatedBodyAlgorithmMultiDof instead
+        void stepVelocitiesMultiDof(btScalar dt,
+                        btAlignedObjectArray<btScalar> &scratch_r,
+                        btAlignedObjectArray<btVector3> &scratch_v,
+                        btAlignedObjectArray<btMatrix3x3> &scratch_m,
+                        bool isConstraintPass=false)
+	{
+		computeAccelerationsArticulatedBodyAlgorithmMultiDof(dt,scratch_r,scratch_v,scratch_m,isConstraintPass);
+        }
+
     // calcAccelerationDeltasMultiDof
     // input: force vector (in same format as jacobian, i.e.:
     //                      3 torque values, 3 force values, num_links joint torque values)
     // output: 3 omegadot values, 3 vdot values, num_links q_double_dot values
     // (existing contents of output array are replaced)
-    // stepVelocities must have been called first.
-
+    // calcAccelerationDeltasMultiDof must have been called first.
 	void calcAccelerationDeltasMultiDof(const btScalar *force, btScalar *output,
                                 btAlignedObjectArray<btScalar> &scratch_r,
                                 btAlignedObjectArray<btVector3> &scratch_v) const;
-
+	
   
 	void applyDeltaVeeMultiDof2(const btScalar * delta_vee, btScalar multiplier)
 	{

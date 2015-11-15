@@ -92,7 +92,8 @@ btMultiBody::btMultiBody(int n_links,
                      btScalar mass,
                      const btVector3 &inertia,
                      bool fixedBase,
-                     bool canSleep)
+                     bool canSleep,
+		     bool /*deprecatedUseMultiDof*/)
     : 
     	m_baseCollider(0),
 		m_baseName(0),
@@ -137,7 +138,7 @@ void btMultiBody::setupFixed(int i,
 						   int parent,
 						   const btQuaternion &rotParentToThis,
 						   const btVector3 &parentComToThisPivotOffset,
-                           const btVector3 &thisPivotToThisComOffset)
+                           const btVector3 &thisPivotToThisComOffset, bool /*deprecatedDisableParentCollision*/)
 {
 	
 	m_links[i].m_mass = mass;

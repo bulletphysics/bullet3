@@ -337,13 +337,15 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
     };
 }
 
+
+
 PhysicsClientExample::PhysicsClientExample(GUIHelperInterface* helper)
 :SharedMemoryCommon(helper),
 m_physicsClientHandle(0),
-m_selectedBody(-1),
-m_prevSelectedBody(-1),
 m_wantsTermination(false),
 m_sharedMemoryKey(SHARED_MEMORY_KEY),
+m_selectedBody(-1),
+m_prevSelectedBody(-1),
 m_numMotors(0)
 {
 	b3Printf("Started PhysicsClientExample\n");
