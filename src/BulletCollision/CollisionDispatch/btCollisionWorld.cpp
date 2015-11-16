@@ -796,14 +796,16 @@ void	btCollisionWorld::objectQuerySingleInternal(const btConvexShape* castShape,
                 struct	btCompoundLeafCallback : btDbvt::ICollide
                 {
                     btCompoundLeafCallback(
-                        const btConvexShape* castShape,
-                        const btTransform& convexFromTrans,
-                        const btTransform& convexToTrans,
-                        btScalar allowedPenetration,
-                        const btCompoundShape* compoundShape,
-                        const btTransform& colObjWorldTransform,
-                        ConvexResultCallback& resultCallback)
-                        : 
+                                           const btCollisionObjectWrapper* colObjWrap,
+                                           const btConvexShape* castShape,
+                                           const btTransform& convexFromTrans,
+                                           const btTransform& convexToTrans,
+                                           btScalar allowedPenetration,
+                                           const btCompoundShape* compoundShape,
+                                           const btTransform& colObjWorldTransform,
+                                           ConvexResultCallback& resultCallback)
+                    : 
+                      m_colObjWrap(colObjWrap),
                         m_castShape(castShape),
                         m_convexFromTrans(convexFromTrans),
                         m_convexToTrans(convexToTrans),
@@ -813,6 +815,7 @@ void	btCollisionWorld::objectQuerySingleInternal(const btConvexShape* castShape,
                         m_resultCallback(resultCallback) {
                     }
 
+                  const btCollisionObjectWrapper* m_colObjWrap;
                     const btConvexShape* m_castShape;
                     const btTransform& m_convexFromTrans;
                     const btTransform& m_convexToTrans;
@@ -820,7 +823,6 @@ void	btCollisionWorld::objectQuerySingleInternal(const btConvexShape* castShape,
                     const btCompoundShape* m_compoundShape;
                     const btTransform& m_colObjWorldTransform;
                     ConvexResultCallback& m_resultCallback;
-                    const btCollisionObjectWrapper* m_colObjWrap;
 
                 public:
 
@@ -885,7 +887,7 @@ void	btCollisionWorld::objectQuerySingleInternal(const btConvexShape* castShape,
                 const btDbvt* tree = compoundShape->getDynamicAabbTree();
 
                 if (tree) {
-                    btCompoundLeafCallback callback { castShape, convexFromTrans, convexToTrans,
+                  btCompoundLeafCallback callback { colObjWrap, castShape, convexFromTrans, convexToTrans,
                         allowedPenetration, compoundShape, colObjWorldTransform, resultCallback };
                     const ATTRIBUTE_ALIGNED16(btDbvtVolume)	bounds = btDbvtVolume::FromMM(fromLocalAabbMin, fromLocalAabbMax);
                     tree->collideTV(tree->m_root, bounds, callback);
