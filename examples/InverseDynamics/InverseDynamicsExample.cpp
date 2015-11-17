@@ -19,7 +19,7 @@ subject to the following restrictions:
 #include "BulletDynamics/Featherstone/btMultiBodyJointMotor.h"
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
-#include "../../Utils/b3ResourcePath.h"
+#include "../Utils/b3ResourcePath.h"
 #include "../Importers/ImportURDFDemo/BulletUrdfImporter.h"
 #include "../Importers/ImportURDFDemo/URDF2Bullet.h"
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
@@ -129,7 +129,7 @@ void InverseDynamicsExample::initPhysics()
 						//temporarily set some extreme damping factors until we have some joint control or constraints
 						m_multiBody->setAngularDamping(0.99);
 						m_multiBody->setLinearDamping(0.99);
-						b3Printf("Root link name = %s",u2b.getLinkName(u2b.getRootLinkIndex()));
+						b3Printf("Root link name = %s",u2b.getLinkName(u2b.getRootLinkIndex()).c_str());
 					}
 			}
 			break;
