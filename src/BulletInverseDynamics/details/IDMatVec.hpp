@@ -4,6 +4,8 @@
 
 #include <cstdlib>
 
+#include "../IDConfig.hpp"
+
 namespace btInverseDynamics {
 class vec3;
 class vecx;

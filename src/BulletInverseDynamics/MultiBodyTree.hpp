@@ -1,6 +1,7 @@
 #ifndef MULTIBODYTREE_HPP_
 #define MULTIBODYTREE_HPP_
 
+#include "IDConfig.hpp"
 #include "IDMath.hpp"
 
 namespace btInverseDynamics {
@@ -304,5 +305,4 @@ private:
     InitCache* m_init_cache;
 };
 }  // namespace btInverseDynamics
-
 #endif  // MULTIBODYTREE_HPP_

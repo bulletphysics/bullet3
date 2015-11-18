@@ -1,6 +1,7 @@
 ///@file Configuration for Inverse Dynamics Library without external dependencies
 #ifndef INVDYNCONFIG_BUILTIN_HPP_
 #define INVDYNCONFIG_BUILTIN_HPP_
+#define btInverseDynamics btInverseDynamicsBuiltin
 #ifdef BT_USE_DOUBLE_PRECISION
 // choose double/single precision version
 typedef double idScalar;

@@ -24,7 +24,11 @@
 #define INVDYN_INCLUDE_HELPER_2(x) #x
 #define INVDYN_INCLUDE_HELPER(x) INVDYN_INCLUDE_HELPER_2(x)
 #include INVDYN_INCLUDE_HELPER(BT_CUSTOM_INVERSE_DYNAMICS_CONFIG_H)
+#ifndef btInverseDynamics 
+#error "custom inverse dynamics config, but no custom namespace defined"
+#endif
 #else
+#define btInverseDynamics btInverseDynamicsBullet3
 // Use default configuration with bullet's types
 // Use the same scalar type as rest of bullet library
 #include "LinearMath/btScalar.h"
