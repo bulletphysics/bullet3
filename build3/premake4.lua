@@ -189,12 +189,14 @@ if not _OPTIONS["ios"] then
                 include "../test/gtest-1.7.0"
 --              include "../test/hello_gtest"
                 include "../test/collision"
+		include "../test/InverseDynamics"
                 include "../test/TestBullet3OpenCL"
                 include "../test/GwenOpenGLTest"
         end
 end
 
-	include "../test/Bullet2"	
+	include "../test/Bullet2"
+	include "../src/BulletInverseDynamics"
  	include "../src/BulletSoftBody"
         include "../src/BulletDynamics"
         include "../src/BulletCollision"
