@@ -12,7 +12,7 @@ CoilCreator::CoilCreator(int n) : m_num_bodies(n), m_parent(n) {
     const idScalar theta_DH = 0;
     const idScalar d_DH = 0.0;
     const idScalar a_DH = 1.0 / m_num_bodies;
-    const idScalar alpha_DH = 5.0 * M_PI / m_num_bodies;
+    const idScalar alpha_DH = 5.0 * BT_ID_PI / m_num_bodies;
     getVecMatFromDH(theta_DH, d_DH, a_DH, alpha_DH, &m_parent_r_parent_body_ref,
                     &m_body_T_parent_ref);
     // always z-axis
@@ -29,7 +29,7 @@ CoilCreator::CoilCreator(int n) : m_num_bodies(n), m_parent(n) {
     m_body_I_body(0, 1) = 0.0;
     m_body_I_body(0, 2) = 0.0;
     m_body_I_body(1, 0) = 0.0;
-    m_body_I_body(1, 1) = (3e-4 + 4.0 / pow(m_num_bodies, 2)) / (12.0 * m_num_bodies);
+    m_body_I_body(1, 1) = (3e-4 + 4.0 / BT_ID_POW(m_num_bodies, 2)) / (12.0 * m_num_bodies);
     m_body_I_body(1, 2) = 0.0;
     m_body_I_body(2, 0) = 0.0;
     m_body_I_body(2, 1) = 0.0;

@@ -298,11 +298,11 @@ int MultiBodyTree::setBodyMass(const int body_index, idScalar mass) {
     return m_impl->setBodyMass(body_index, mass);
 }
 
-int MultiBodyTree::setBodyFirstMassMoment(const int body_index, vec3 first_mass_moment) {
+int MultiBodyTree::setBodyFirstMassMoment(const int body_index, const vec3& first_mass_moment) {
     return m_impl->setBodyFirstMassMoment(body_index, first_mass_moment);
 }
 
-int MultiBodyTree::setBodySecondMassMoment(const int body_index, mat33 second_mass_moment) {
+int MultiBodyTree::setBodySecondMassMoment(const int body_index, const mat33& second_mass_moment) {
     return m_impl->setBodySecondMassMoment(body_index, second_mass_moment);
 }
 

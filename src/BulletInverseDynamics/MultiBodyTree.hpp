@@ -250,13 +250,13 @@ public:
     /// @param body_index index of the body
     /// @param first_mass_moment the vector to set
     /// @return 0 on success, -1 on failure
-    int setBodyFirstMassMoment(const int body_index, const vec3 first_mass_moment);
+    int setBodyFirstMassMoment(const int body_index, const vec3& first_mass_moment);
     /// set second moment of mass for a body
     /// (moment of inertia, in body fixed frame, relative to joint)
     /// @param body_index index of the body
     /// @param second_mass_moment the inertia matrix
     /// @return 0 on success, -1 on failure
-    int setBodySecondMassMoment(const int body_index, const mat33 second_mass_moment);
+    int setBodySecondMassMoment(const int body_index, const mat33& second_mass_moment);
     /// get mass for a body
     /// @param body_index index of the body
     /// @param mass the mass

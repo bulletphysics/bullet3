@@ -39,8 +39,8 @@ mat33 randomInertiaMatrix() {
     // generate random valid inertia matrix by first getting valid components
     // along major axes and then rotating by random amount
     vec3 principal = randomInertiaPrincipal();
-    mat33 rot(transformX(randomFloat(-M_PI, M_PI)) * transformY(randomFloat(-M_PI, M_PI)) *
-              transformZ(randomFloat(-M_PI, M_PI)));
+    mat33 rot(transformX(randomFloat(-BT_ID_PI, BT_ID_PI)) * transformY(randomFloat(-BT_ID_PI, BT_ID_PI)) *
+              transformZ(randomFloat(-BT_ID_PI, BT_ID_PI)));
     mat33 inertia;
     inertia(0, 0) = principal(0);
     inertia(0, 1) = 0;

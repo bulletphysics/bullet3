@@ -42,7 +42,7 @@ private:
         vec3 body_r_body_com;
         mat33 body_I_body;
     };
-    std::vector<LinkData> m_data;
+    idArray<LinkData>::type m_data;
     bool m_initialized;
 };
 }

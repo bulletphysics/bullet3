@@ -4,14 +4,16 @@ namespace btInverseDynamics {
 
 DillCreator::DillCreator(int level)
     : m_level(level),
-      m_num_bodies(std::pow(2, level)),
-      m_parent(m_num_bodies),
-      m_parent_r_parent_body_ref(m_num_bodies),
-      m_body_T_parent_ref(m_num_bodies),
-      m_body_axis_of_motion(m_num_bodies),
-      m_mass(m_num_bodies),
-      m_body_r_body_com(m_num_bodies),
-      m_body_I_body(m_num_bodies) {
+      m_num_bodies(BT_ID_POW(2, level))
+     {
+		  m_parent.resize(m_num_bodies);
+		m_parent_r_parent_body_ref.resize(m_num_bodies);
+		m_body_T_parent_ref.resize(m_num_bodies);
+		m_body_axis_of_motion.resize(m_num_bodies);
+		m_mass.resize(m_num_bodies);
+		m_body_r_body_com.resize(m_num_bodies);
+		m_body_I_body.resize(m_num_bodies);
+
     // generate names (for debugging)
     for (int i = 0; i < m_num_bodies; i++) {
         m_parent[i] = i - 1;
@@ -85,7 +87,7 @@ int DillCreator::recurseDill(const int level, const int parent, const idScalar d
     /// these parameters are from the paper ...
     /// TODO: add proper citation
     m_parent[body] = parent;
-    m_mass[body] = 0.1 * std::pow(size, 3);
+    m_mass[body] = 0.1 * BT_ID_POW(size, 3);
     m_body_r_body_com[body](0) = 0.05 * size;
     m_body_r_body_com[body](1) = 0;
     m_body_r_body_com[body](2) = 0;
@@ -112,7 +114,7 @@ int DillCreator::recurseDill(const int level, const int parent, const idScalar d
             d_DH = 0.0;
         }
         const idScalar a_DH = i * 0.1;
-        const idScalar alpha_DH = i * M_PI / 3.0;
+        const idScalar alpha_DH = i * BT_ID_PI / 3.0;
         m_current_body++;
         recurseDill(i - 1, body, d_DH, a_DH, alpha_DH);
     }

@@ -792,13 +792,13 @@ int MultiBodyTree::MultiBodyImpl::setBodyMass(const int body_index, const idScal
 }
 
 int MultiBodyTree::MultiBodyImpl::setBodyFirstMassMoment(const int body_index,
-                                                         const vec3 first_mass_moment) {
+                                                         const vec3& first_mass_moment) {
     CHECK_IF_BODY_INDEX_IS_VALID(body_index);
     m_body_list[body_index].m_body_mass_com = first_mass_moment;
     return 0;
 }
 int MultiBodyTree::MultiBodyImpl::setBodySecondMassMoment(const int body_index,
-                                                          const mat33 second_mass_moment) {
+                                                          const mat33& second_mass_moment) {
     CHECK_IF_BODY_INDEX_IS_VALID(body_index);
     m_body_list[body_index].m_body_I_body = second_mass_moment;
     return 0;

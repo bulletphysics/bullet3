@@ -16,7 +16,7 @@
 using namespace btInverseDynamics;
 
 const int kLevel = 5;
-const int kNumBodies = std::pow(2, kLevel);
+const int kNumBodies = BT_ID_POW(2, kLevel);
 
 // template function for calculating the norm
 template <typename T>
@@ -24,7 +24,7 @@ idScalar calculateNorm(T&);
 // only implemented for vec3
 template <>
 idScalar calculateNorm(vec3& v) {
-    return std::sqrt(std::pow(v(0), 2) + std::pow(v(1), 2) + std::pow(v(2), 2));
+    return std::sqrt(BT_ID_POW(v(0), 2) + BT_ID_POW(v(1), 2) + BT_ID_POW(v(2), 2));
 }
 
 // template function to convert a DiffType (finite differences)
@@ -136,7 +136,7 @@ public:
     VecDiffFD(std::string name, int dim, idScalar dt) : m_name(name), m_fd(dim), m_dt(dt) {
         for (int i = 0; i < m_fd.size(); i++) {
             char buf[256];
-            snprintf(buf, 256, "%s-%.2d", name.c_str(), i);
+			BT_ID_SNPRINTF(buf, 256, "%s-%.2d", name.c_str(), i);
             m_fd[i].init(buf, dt);
         }
     }
@@ -202,10 +202,10 @@ int calculateDifferentiationError(const MultiBodyTreeCreator& creator, idScalar 
 
     for (idScalar t = 0.0; t < endTime; t += deltaT) {
         for (int body = 0; body < tree->numBodies(); body++) {
-            q(body) = kAmplitude * sin(t * 2.0 * M_PI * kFrequency);
-            dot_q(body) = kAmplitude * 2.0 * M_PI * kFrequency * cos(t * 2.0 * M_PI * kFrequency);
+            q(body) = kAmplitude * sin(t * 2.0 * BT_ID_PI * kFrequency);
+            dot_q(body) = kAmplitude * 2.0 * BT_ID_PI * kFrequency * cos(t * 2.0 * BT_ID_PI * kFrequency);
             ddot_q(body) =
-                -kAmplitude * pow(2.0 * M_PI * kFrequency, 2) * sin(t * 2.0 * M_PI * kFrequency);
+                -kAmplitude * pow(2.0 * BT_ID_PI * kFrequency, 2) * sin(t * 2.0 * BT_ID_PI * kFrequency);
         }
 
         if (-1 == tree->calculateInverseDynamics(q, dot_q, ddot_q, &joint_forces)) {

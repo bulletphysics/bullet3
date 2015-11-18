@@ -34,13 +34,13 @@ private:
                     const idScalar a_DH_in, const idScalar alpha_DH_in);
     int m_level;
     int m_num_bodies;
-    std::vector<int> m_parent;
-    std::vector<vec3> m_parent_r_parent_body_ref;
-    std::vector<mat33> m_body_T_parent_ref;
-    std::vector<vec3> m_body_axis_of_motion;
-    std::vector<idScalar> m_mass;
-    std::vector<vec3> m_body_r_body_com;
-    std::vector<mat33> m_body_I_body;
+    idArray<int>::type m_parent;
+    idArray<vec3>::type m_parent_r_parent_body_ref;
+    idArray<mat33>::type m_body_T_parent_ref;
+    idArray<vec3>::type m_body_axis_of_motion;
+    idArray<idScalar>::type m_mass;
+    idArray<vec3>::type m_body_r_body_com;
+    idArray<mat33>::type m_body_I_body;
     int m_current_body;
 };
 }

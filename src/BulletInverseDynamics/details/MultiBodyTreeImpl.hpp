@@ -181,9 +181,9 @@ public:
     ///\copydoc MultiBodytTree::setBodyMass
     int setBodyMass(const int body_index, const idScalar mass);
     ///\copydoc MultiBodytTree::setBodyFirstMassMoment
-    int setBodyFirstMassMoment(const int body_index, const vec3 first_mass_moment);
+    int setBodyFirstMassMoment(const int body_index, const vec3& first_mass_moment);
     ///\copydoc MultiBodytTree::setBodySecondMassMoment
-    int setBodySecondMassMoment(const int body_index, const mat33 second_mass_moment);
+    int setBodySecondMassMoment(const int body_index, const mat33& second_mass_moment);
     ///\copydoc MultiBodytTree::getBodyMass
     int getBodyMass(const int body_index, idScalar* mass) const;
     ///\copydoc MultiBodytTree::getBodyFirstMassMoment
