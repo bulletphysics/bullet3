@@ -1,5 +1,5 @@
 ///@file Configuration for Inverse Dynamics Library,
-///      such as choice of linear algebra library and underlying scalar type
+///	  such as choice of linear algebra library and underlying scalar type
 #ifndef IDCONFIG_HPP_
 #define IDCONFIG_HPP_
 // If we have a custom configuration, compile without using other parts of bullet.
@@ -8,6 +8,7 @@
 #define BT_ID_POW(a,b) std::pow(a,b)
 #define BT_ID_SNPRINTF snprintf
 #define BT_ID_PI M_PI
+#define BT_ID_USE_DOUBLE_PRECISION
 #else
 #define BT_ID_POW(a,b) btPow(a,b)
 #define BT_ID_PI SIMD_PI
@@ -33,6 +34,9 @@
 // Use the same scalar type as rest of bullet library
 #include "LinearMath/btScalar.h"
 typedef btScalar idScalar;
+#ifdef BT_USE_DOUBLE_PRECISION
+#define BT_ID_USE_DOUBLE_PRECISION
+#endif
 // use bullet types for arrays and array indices
 #include "Bullet3Common/b3AlignedObjectArray.h"
 // this is to make it work with C++2003, otherwise we could do this:
@@ -40,7 +44,7 @@ typedef btScalar idScalar;
 // using idArray = b3AlignedObjectArray<T>;
 template <typename T>
 struct idArray {
-    typedef b3AlignedObjectArray<T> type;
+	typedef b3AlignedObjectArray<T> type;
 };
 typedef int idArrayIdx;
 #define ID_DECLARE_ALIGNED_ALLOCATOR B3_DECLARE_ALIGNED_ALLOCATOR
