@@ -136,7 +136,7 @@ public:
     VecDiffFD(std::string name, int dim, idScalar dt) : m_name(name), m_fd(dim), m_dt(dt) {
         for (int i = 0; i < m_fd.size(); i++) {
             char buf[256];
-			BT_ID_SNPRINTF(buf, 256, "%s-%.2d", name.c_str(), i);
+            BT_ID_SNPRINTF(buf, 256, "%s-%.2d", name.c_str(), i);
             m_fd[i].init(buf, dt);
         }
     }
@@ -151,7 +151,16 @@ public:
         }
         return max_error;
     }
-
+    idScalar getMaxValue() const {
+        idScalar max_value = 0;
+        for (int i = 0; i < m_fd.size(); i++) {
+            const idScalar value = m_fd[i].getMaxValue();
+            if (value > max_value) {
+                max_value= value;
+            }
+        }
+        return max_value;
+    }
     void printMaxError() {
         printf("%s: total  dt= %e max_error= %e\n", m_name.c_str(), m_dt, getMaxError());
     }
@@ -233,13 +242,19 @@ int calculateDifferentiationError(const MultiBodyTreeCreator& creator, idScalar 
             fd_omg.update(body, world_T_body, omega);
             fd_acc.update(body, vel, acc);
             fd_omgd.update(body, omega, dot_omega);
+
+
+//        fd_vel.printCurrent();
+//fd_acc.printCurrent();
+//fd_omg.printCurrent();
+//fd_omgd.printCurrent();
         }
     }
 
-    *max_linear_velocity_error = fd_vel.getMaxError();
-    *max_angular_velocity_error = fd_omg.getMaxError();
-    *max_linear_acceleration_error = fd_acc.getMaxError();
-    *max_angular_acceleration_error = fd_omgd.getMaxError();
+    *max_linear_velocity_error = fd_vel.getMaxError()/fd_vel.getMaxValue();
+    *max_angular_velocity_error = fd_omg.getMaxError()/fd_omg.getMaxValue();
+    *max_linear_acceleration_error = fd_acc.getMaxError()/fd_acc.getMaxValue();
+    *max_angular_acceleration_error = fd_omgd.getMaxError()/fd_omgd.getMaxValue();
 
     delete tree;
     return 0;
@@ -248,13 +263,16 @@ int calculateDifferentiationError(const MultiBodyTreeCreator& creator, idScalar 
 // first test: absolute difference between numerical and numerial
 // differentiation should be small
 TEST(InvDynKinematicsDifferentiation, errorAbsolute) {
+    //CAVEAT:these values are hand-tuned to work for the specific trajectory defined above.
 #ifdef BT_ID_USE_DOUBLE_PRECISION
     const idScalar kDeltaT = 1e-7;
+	const idScalar kAcceptableError = 1e-4;
 #else
-	const idScalar kDeltaT = 1e-2;
+    const idScalar kDeltaT = 1e-4;
+	const idScalar kAcceptableError = 5e-3;
 #endif
-    const idScalar kDuration = 1e-2;
-    const idScalar kAcceptableError = 1e-4;
+    const idScalar kDuration = 0.01;
+    
 
     CoilCreator coil_creator(kNumBodies);
     DillCreator dill_creator(kLevel);
@@ -276,7 +294,7 @@ TEST(InvDynKinematicsDifferentiation, errorAbsolute) {
     EXPECT_LT(max_angular_acceleration_error, kAcceptableError);
 
     // test branched tree
-    calculateDifferentiationError(coil_creator, kDeltaT, kDuration, &max_linear_velocity_error,
+    calculateDifferentiationError(dill_creator, kDeltaT, kDuration, &max_linear_velocity_error,
                                   &max_angular_velocity_error, &max_linear_acceleration_error,
                                   &max_angular_acceleration_error);
 
