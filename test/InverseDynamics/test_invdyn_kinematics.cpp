@@ -248,7 +248,11 @@ int calculateDifferentiationError(const MultiBodyTreeCreator& creator, idScalar 
 // first test: absolute difference between numerical and numerial
 // differentiation should be small
 TEST(InvDynKinematicsDifferentiation, errorAbsolute) {
+#ifdef BT_ID_USE_DOUBLE_PRECISION
     const idScalar kDeltaT = 1e-7;
+#else
+	const idScalar kDeltaT = 1e-2;
+#endif
     const idScalar kDuration = 1e-2;
     const idScalar kAcceptableError = 1e-4;
 

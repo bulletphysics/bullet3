@@ -1,5 +1,5 @@
 /// @file Math utility functions used in inverse dynamics library.
-///       Defined here as they may not be provided by the math library.
+///	   Defined here as they may not be provided by the math library.
 
 #ifndef IDMATH_HPP_
 #define IDMATH_HPP_
@@ -39,7 +39,7 @@ bool isPositiveSemiDefiniteFuzzy(const mat33& m);
 
 /// Determinant of 3x3 matrix
 /// NOTE: implemented here for portability, as determinant operation
-///       will be implemented differently for various matrix/vector libraries
+///	   will be implemented differently for various matrix/vector libraries
 /// @param m a 3x3 matrix
 /// @return det(m)
 idScalar determinant(const mat33& m);
