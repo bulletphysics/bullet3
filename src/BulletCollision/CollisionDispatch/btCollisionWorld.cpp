@@ -891,8 +891,8 @@ void	btCollisionWorld::objectQuerySingleInternal(const btConvexShape* castShape,
 
 				const btDbvt* tree = compoundShape->getDynamicAabbTree();
 
-				btCompoundLeafCallback callback { colObjWrap, castShape, convexFromTrans, convexToTrans,
-					  allowedPenetration, compoundShape, colObjWorldTransform, resultCallback };
+				btCompoundLeafCallback callback(colObjWrap, castShape, convexFromTrans, convexToTrans,
+					  allowedPenetration, compoundShape, colObjWorldTransform, resultCallback);
 
 				if (tree) {
 					const ATTRIBUTE_ALIGNED16(btDbvtVolume)	bounds = btDbvtVolume::FromMM(fromLocalAabbMin, fromLocalAabbMax);
