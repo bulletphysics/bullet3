@@ -23,6 +23,17 @@ SET(App_ExampleBrowser_SRCS
 	../SharedMemory/PhysicsClientExample.cpp
 	../SharedMemory/PosixSharedMemory.cpp
 	../SharedMemory/Win32SharedMemory.cpp
+	../SharedMemory/PhysicsServerSharedMemory.cpp
+	../SharedMemory/PhysicsDirect.cpp
+	../SharedMemory/PhysicsDirect.h
+	../SharedMemory/PhysicsDirectC_API.cpp
+	../SharedMemory/PhysicsDirectC_API.h
+	../SharedMemory/PhysicsLoopBack.cpp
+	../SharedMemory/PhysicsLoopBack.h
+	../SharedMemory/PhysicsLoopBackC_Api.cpp
+	../SharedMemory/PhysicsLoopBackC_Api.h
+	../SharedMemory/PhysicsServerCommandProcessor.cpp
+	../SharedMemory/PhysicsServerCommandProcessor.h
 	../BasicDemo/BasicExample.cpp
 	../BasicDemo/BasicExample.h
 	../ForkLift/ForkLiftDemo.cpp

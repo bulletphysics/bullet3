@@ -70,6 +70,12 @@ enum
 	COLLISION_SHAPE_TYPE_SPHERE
 };
 
+// copied from btMultiBodyLink.h
+enum JointType {
+    eRevoluteType = 0,
+    ePrismaticType = 1,
+};
+
 struct b3JointInfo
 {
         char* m_linkName;

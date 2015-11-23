@@ -1,66 +1,46 @@
-#ifndef PHYSICS_SERVER_SHARED_MEMORY_H
-#define PHYSICS_SERVER_SHARED_MEMORY_H
+#ifndef PHYSICS_SERVER_H
+#define PHYSICS_SERVER_H
 
 #include "LinearMath/btVector3.h"
 
-struct SharedMemLines
+
+
+class PhysicsServer
 {
-	btVector3 m_from;
-	btVector3 m_to;
-	btVector3 m_color;
-};
-
-
-class PhysicsServerSharedMemory
-{
-	struct PhysicsServerInternalData* m_data;
-
-protected:
-
-	void	createJointMotors(class btMultiBody* body);
 	
-	virtual void createEmptyDynamicsWorld();
-	virtual void deleteDynamicsWorld();
-	
-	void	releaseSharedMemory();
-	
-	bool loadUrdf(const char* fileName, const class btVector3& pos, const class btQuaternion& orn,
-                             bool useMultiBody, bool useFixedBase, int* bodyUniqueId);
 
 public:
-	PhysicsServerSharedMemory();
-	virtual ~PhysicsServerSharedMemory();
-
-	virtual void setSharedMemoryKey(int key);
 	
-	//todo: implement option to allocated shared memory from client 
-	virtual bool connectSharedMemory( struct GUIHelperInterface* guiHelper);
+	virtual ~PhysicsServer();
+	
+	virtual void setSharedMemoryKey(int key)=0;
+	
+	virtual bool connectSharedMemory( struct GUIHelperInterface* guiHelper)=0;
 
-	virtual void disconnectSharedMemory (bool deInitializeSharedMemory);
+	virtual void disconnectSharedMemory (bool deInitializeSharedMemory)=0;
 
-	virtual void processClientCommands();
+	virtual void processClientCommands()=0;
 
-	bool	supportsJointMotor(class btMultiBody* body, int linkIndex);
+//	virtual bool	supportsJointMotor(class btMultiBody* body, int linkIndex)=0;
 
 	//@todo(erwincoumans) Should we have shared memory commands for picking objects?
 	///The pickBody method will try to pick the first body along a ray, return true if succeeds, false otherwise
-	virtual bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld);
-	virtual bool movePickedBody(const btVector3& rayFromWorld, const btVector3& rayToWorld);
-	virtual void removePickingConstraint();
+	virtual bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld)=0;
+	virtual bool movePickedBody(const btVector3& rayFromWorld, const btVector3& rayToWorld)=0;
+	virtual void removePickingConstraint()=0;
 
 	//for physicsDebugDraw and renderScene are mainly for debugging purposes
 	//and for physics visualization. The idea is that physicsDebugDraw can also send wireframe
 	//to a physics client, over shared memory
-	void    physicsDebugDraw(int debugDrawFlags);
-	void    renderScene();
+	virtual void    physicsDebugDraw(int debugDrawFlags)=0;
+	virtual void    renderScene()=0;
 
-	void enableCommandLogging(bool enable, const char* fileName);
-	void replayFromLogFile(const char* fileName);
+	virtual void enableCommandLogging(bool enable, const char* fileName)=0;
+	virtual void replayFromLogFile(const char* fileName)=0;
 	
-
 };
 
 
-#endif //PHYSICS_SERVER_EXAMPLESHARED_MEMORY_H
+#endif //PHYSICS_SERVER_H
 
 
