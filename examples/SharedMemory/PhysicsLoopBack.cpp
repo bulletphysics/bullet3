@@ -1,5 +1,5 @@
 #include "PhysicsLoopBack.h"
-#include "PhysicsServer.h"
+#include "PhysicsServerSharedMemory.h"
 #include "PhysicsClientSharedMemory.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 

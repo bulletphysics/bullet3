@@ -8,7 +8,8 @@
 #include "PhysicsClientC_API.h"
 #include "PhysicsClient.h"
 //#include "SharedMemoryCommands.h"
-
+#include "PhysicsLoopBackC_API.h"
+#include "PhysicsDirectC_API.h"
 #include "PhysicsClientC_API.h"
 
 struct MyMotorInfo2
@@ -444,7 +445,10 @@ void	PhysicsClientExample::initPhysics()
 	m_selectedBody = -1;
 	m_prevSelectedBody = -1;
 
-    m_physicsClientHandle  = b3ConnectSharedMemory(m_sharedMemoryKey);
+    //m_physicsClientHandle  = b3ConnectSharedMemory(m_sharedMemoryKey);
+	m_physicsClientHandle  = b3ConnectPhysicsLoopback(SHARED_MEMORY_KEY);
+	//m_physicsClientHandle = b3ConnectPhysicsDirect();
+
     if (!b3CanSubmitCommand(m_physicsClientHandle))
     {
 		b3Warning("Cannot connect to physics client");

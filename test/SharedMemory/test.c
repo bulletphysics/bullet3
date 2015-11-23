@@ -5,6 +5,11 @@
 #include "PhysicsLoopBackC_API.h"
 #endif //PHYSICS_LOOP_BACK
 
+#ifdef PHYSICS_SERVER_DIRECT
+#include "PhysicsDirectC_API.h"
+#endif //PHYSICS_SERVER_DIRECT
+
+
 #include "SharedMemoryPublic.h"
 #include "Bullet3Common/b3Logging.h"
 #include <string.h>
@@ -28,12 +33,17 @@ int main(int argc, char* argv[])
 	b3PhysicsClientHandle sm=0;
 	int bodyIndex = -1;
 
+
 	printf("hello world\n");
 #ifdef PHYSICS_LOOP_BACK
 	sm = b3ConnectPhysicsLoopback(SHARED_MEMORY_KEY);
-#else
-	sm = b3ConnectSharedMemory(SHARED_MEMORY_KEY);
 #endif
+
+#ifdef PHYSICS_SERVER_DIRECT
+	sm = b3ConnectPhysicsDirect();
+#else//PHYSICS_SERVER_DIRECT
+	sm = b3ConnectSharedMemory(SHARED_MEMORY_KEY);
+#endif //PHYSICS_SERVER_DIRECT
 	
 	
 

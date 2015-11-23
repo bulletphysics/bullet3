@@ -5,7 +5,7 @@
 
 
 
-#include "PhysicsServer.h"
+#include "PhysicsServerSharedMemory.h"
 
 #include "SharedMemoryCommon.h"
 
