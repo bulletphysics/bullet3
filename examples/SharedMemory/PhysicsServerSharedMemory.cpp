@@ -240,7 +240,7 @@ void PhysicsServerSharedMemory::processClientCommands()
 				m_data->m_testBlock1->m_numClientCommands++;
 			}
 		}
-#endif 0
+#endif
         ///we ignore overflow of integer for now
         if (m_data->m_testBlock1->m_numClientCommands> m_data->m_testBlock1->m_numProcessedClientCommands)
         {

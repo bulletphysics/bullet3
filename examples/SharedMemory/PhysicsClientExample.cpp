@@ -10,7 +10,6 @@
 //#include "SharedMemoryCommands.h"
 #include "PhysicsLoopBackC_API.h"
 #include "PhysicsDirectC_API.h"
-
 #include "PhysicsClientC_API.h"
 
 struct MyMotorInfo2
