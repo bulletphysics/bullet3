@@ -25,7 +25,7 @@ struct SliderParams
 	m_callback(0),
 	m_paramValuePointer(targetValuePointer),
 	m_userPointer(0),
-	m_clampToNotches(false),
+	m_clampToNotches(true),
     m_showValues(true)
 	{
 	}
