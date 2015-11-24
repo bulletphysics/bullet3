@@ -1,4 +1,4 @@
-SUBDIRS( Serialize ConvexDecomposition HACD GIMPACTUtils )
+SUBDIRS( Serialize InverseDynamics ConvexDecomposition HACD GIMPACTUtils )
 
 #Maya Dynamica plugin is moved to http://dynamica.googlecode.com
 
