@@ -20,7 +20,7 @@ SET_TARGET_PROPERTIES(BulletInverseDynamicsUtils PROPERTIES VERSION ${BULLET_VER
 SET_TARGET_PROPERTIES(BulletInverseDynamicsUtils PROPERTIES SOVERSION ${BULLET_VERSION})
 
 IF (BUILD_SHARED_LIBS)
-        TARGET_LINK_LIBRARIES(BulletInverseDynamicsUtils LinearMath)
+        TARGET_LINK_LIBRARIES(BulletInverseDynamicsUtils BulletInverseDynamics Bullet3Common LinearMath)
 ENDIF (BUILD_SHARED_LIBS)
 
 IF (INSTALL_EXTRA_LIBS)
