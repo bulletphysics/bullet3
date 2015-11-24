@@ -37,7 +37,6 @@ subject to the following restrictions:
 
 #include "../RenderingExamples/TimeSeriesCanvas.h"
 
-#include <unistd.h>
 #include <vector>
 
 // the UI interface makes it easier to use static variables & free functions
@@ -195,12 +194,12 @@ void InverseDynamicsExample::initPhysics()
 	for(std::size_t dof=0;dof<qd.size();dof++) {
             qd[dof] = 0;
             char tmp[25];
-            snprintf(tmp,25,"q_desired[%zu]",dof);
+            sprintf(tmp,"q_desired[%zu]",dof);
             qd_name[dof] = tmp;
             SliderParams slider(qd_name[dof].c_str(),&qd[dof]);
             slider.m_minVal=-3.14;
             slider.m_maxVal=3.14;
-         snprintf(tmp,25,"q[%zu]",dof); 
+         sprintf(tmp,"q[%zu]",dof); 
 		q_name[dof] = tmp;   
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 		m_timeSeriesCanvas->addDataSource(q_name[dof].c_str(), 255,0,0);
@@ -216,8 +215,6 @@ void InverseDynamicsExample::initPhysics()
 
 void InverseDynamicsExample::stepSimulation(float deltaTime)
 {
-    static uint64_t call=0;
-    call++;
     if(m_multiBody) {
         const int num_dofs=m_multiBody->getNumDofs();
         btInverseDynamics::vecx nu(num_dofs), qdot(num_dofs), q(num_dofs),joint_force(num_dofs);
