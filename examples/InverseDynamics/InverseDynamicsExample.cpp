@@ -215,8 +215,6 @@ void InverseDynamicsExample::initPhysics()
 
 void InverseDynamicsExample::stepSimulation(float deltaTime)
 {
-    static uint64_t call=0;
-    call++;
     if(m_multiBody) {
         const int num_dofs=m_multiBody->getNumDofs();
         btInverseDynamics::vecx nu(num_dofs), qdot(num_dofs), q(num_dofs),joint_force(num_dofs);
