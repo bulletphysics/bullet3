@@ -79,7 +79,7 @@ int DillCreator::recurseDill(const int level, const int parent, const idScalar d
         return -1;
     }
 
-    idScalar size = std::max(level, 1);
+    idScalar size = BT_ID_MAX(level, 1);
     const int body = m_current_body;
     //  length = 0.1 * size;
     //  with = 2 * 0.01 * size;
