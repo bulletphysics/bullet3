@@ -13,6 +13,9 @@ LINK_LIBRARIES(
  LinearMath gtest
 )
 
+IF (NOT WIN32)	
+	LINK_LIBRARIES(		pthread	) 
+ENDIF()
 
 	ADD_EXECUTABLE(Test_Collision
 		main.cpp

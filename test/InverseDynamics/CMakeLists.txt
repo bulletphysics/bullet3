@@ -15,6 +15,9 @@ ADD_DEFINITIONS(-D_VARIADIC_MAX=10)
 LINK_LIBRARIES(
  BulletInverseDynamicsUtils BulletInverseDynamics Bullet3Common LinearMath gtest
 )
+IF (NOT WIN32)	
+	LINK_LIBRARIES(		pthread	) 
+ENDIF()
 
 
 	ADD_EXECUTABLE(Test_BulletInverseDynamics
