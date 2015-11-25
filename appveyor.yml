@@ -6,7 +6,7 @@ build_script:
   - cd cmake
   - cmake .. -G"Visual Studio 14 2015 Win64"
   - cmake --build . --target ALL_BUILD --config Release -- /maxcpucount:4 /verbosity:quiet
-	
+
 test_script:
   - ctest --parallel 4 --build-config Release --output-on-failure
 
