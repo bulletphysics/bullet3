@@ -28,12 +28,20 @@
 #ifndef btInverseDynamics 
 #error "custom inverse dynamics config, but no custom namespace defined"
 #endif
+
+#define BT_ID_MAX(a,b) std::max(a,b)
+#define BT_ID_MIN(a,b) std::min(a,b)
+
 #else
 #define btInverseDynamics btInverseDynamicsBullet3
 // Use default configuration with bullet's types
 // Use the same scalar type as rest of bullet library
 #include "LinearMath/btScalar.h"
 typedef btScalar idScalar;
+#include "LinearMath/btMinMax.h"
+#define BT_ID_MAX(a,b) btMax(a,b)
+#define BT_ID_MIN(a,b) btMin(a,b)
+
 #ifdef BT_USE_DOUBLE_PRECISION
 #define BT_ID_USE_DOUBLE_PRECISION
 #endif

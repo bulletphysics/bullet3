@@ -179,12 +179,12 @@ void testSphereSphereDistance(SphereSphereTestMethod method, btScalar abs_error)
         ASSERT_EQ(btScalar(0), distInfo.m_distance);
     }
     
-    for (int rb=1;rb<10;rb++)
-        for (int z=-20;z<20;z++)
+    for (int rb=1;rb<5;rb++)
+        for (int z=-5;z<5;z++)
         {
-            for (int j=1;j<10;j++)
+            for (int j=1;j<5;j++)
             {
-                for (int i=-20;i<20;i++)
+                for (int i=-5;i<5;i++)
                 {
                     if (i!=z)//skip co-centric spheres for now (todo(erwincoumans) fix this)
                     {
