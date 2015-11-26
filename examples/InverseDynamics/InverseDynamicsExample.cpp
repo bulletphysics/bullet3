@@ -48,6 +48,20 @@ static std::vector<btScalar> qd;
 static std::vector<std::string> qd_name;
 static std::vector<std::string> q_name;
 
+static btVector4 sJointCurveColors[8] = 
+{
+	btVector4(1,0.3,0.3,1),
+	btVector4(0.3,1,0.3,1),
+	btVector4(0.3,0.3,1,1),
+	btVector4(0.3,1,1,1),
+	btVector4(1,0.3,1,1),
+	btVector4(1,1,0.3,1),
+	btVector4(1,0.7,0.7,1),
+	btVector4(0.7,1,1,1),
+
+};
+
+
 void toggleUseInverseModel(int buttonId, bool buttonState, void* userPointer){
     useInverseModel=!useInverseModel;
     // todo(thomas) is there a way to get a toggle button with changing text?
@@ -175,7 +189,7 @@ void InverseDynamicsExample::initPhysics()
 
     if(m_multiBody) {
         {
-            m_timeSeriesCanvas = new TimeSeriesCanvas(m_guiHelper->getAppInterface()->m_2dCanvasInterface,512,230, "q time series");
+            m_timeSeriesCanvas = new TimeSeriesCanvas(m_guiHelper->getAppInterface()->m_2dCanvasInterface,512,230, "Joint Space Trajectory");
             m_timeSeriesCanvas ->setupTimeSeries(3,100, 0);
            
         }
@@ -202,7 +216,8 @@ void InverseDynamicsExample::initPhysics()
          sprintf(tmp,"q[%zu]",dof); 
 		q_name[dof] = tmp;   
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
-		m_timeSeriesCanvas->addDataSource(q_name[dof].c_str(), 255,0,0);
+		btVector4 color = sJointCurveColors[dof&7];
+		m_timeSeriesCanvas->addDataSource(q_name[dof].c_str(), color[0]*255,color[1]*255,color[2]*255);
          }
         
         
