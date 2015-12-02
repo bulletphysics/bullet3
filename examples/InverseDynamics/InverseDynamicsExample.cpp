@@ -43,7 +43,7 @@ subject to the following restrictions:
 // as parameters and callbacks
 static btScalar kp =10*10;
 static btScalar kd = 2*10;
-static bool useInverseModel = true;
+static bool useInverseModel = false;
 static std::vector<btScalar> qd;
 static std::vector<std::string> qd_name;
 static std::vector<std::string> q_name;
@@ -110,7 +110,7 @@ InverseDynamicsExample::~InverseDynamicsExample()
 }
 
 //todo(erwincoumans) Quick hack, reference to InvertedPendulumPDControl implementation. Will create a separate header/source file for this.
-btMultiBody* createInvertedPendulumMultiBody(btMultiBodyDynamicsWorld* world, GUIHelperInterface* guiHelper, const btTransform& baseWorldTrans);
+btMultiBody* createInvertedPendulumMultiBody(btMultiBodyDynamicsWorld* world, GUIHelperInterface* guiHelper, const btTransform& baseWorldTrans, bool fixedBase);
 
 void InverseDynamicsExample::initPhysics()
 {
@@ -120,7 +120,7 @@ void InverseDynamicsExample::initPhysics()
 
     createEmptyDynamicsWorld();
     btVector3 gravity(0,0,0);
-    gravity[upAxis]=-9.8;
+   // gravity[upAxis]=-9.8;
     m_dynamicsWorld->setGravity(gravity);
 
     m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
@@ -176,7 +176,7 @@ void InverseDynamicsExample::initPhysics()
         {
             btTransform baseWorldTrans;
             baseWorldTrans.setIdentity();
-            m_multiBody = createInvertedPendulumMultiBody(m_dynamicsWorld, m_guiHelper, baseWorldTrans);
+            m_multiBody = createInvertedPendulumMultiBody(m_dynamicsWorld, m_guiHelper, baseWorldTrans, false);
             break;
         }
     default:
@@ -255,19 +255,57 @@ void InverseDynamicsExample::stepSimulation(float deltaTime)
             nu(dof) = qd_ddot + pd_control(dof);
 
         }
-        // calculate joint forces corresponding to desired accelerations nu
-        if(-1 != m_inverseModel->calculateInverseDynamics(q,qdot,nu,&joint_force)) {
-            for(int dof=0;dof<num_dofs;dof++) {
-                if(useInverseModel) {
-                    //joint_force(dof) += damping*dot_q(dof);
-                    // use inverse model: apply joint force corresponding to
-                    // desired acceleration nu
-                    m_multiBody->addJointTorque(dof,joint_force(dof));
-                } else {
-                    // no model: just apply PD control law
-                    m_multiBody->addJointTorque(dof,pd_control(dof));
-                }
-            }
+         if(useInverseModel)
+         {
+             // calculate joint forces corresponding to desired accelerations nu
+            if (m_multiBody->hasFixedBase())
+             {
+                 if(-1 != m_inverseModel->calculateInverseDynamics(q,qdot,nu,&joint_force))
+                 {
+                     //joint_force(dof) += damping*dot_q(dof);
+                     // use inverse model: apply joint force corresponding to
+                     // desired acceleration nu
+                     
+                     for(int dof=0;dof<num_dofs;dof++)
+                     {
+                         m_multiBody->addJointTorque(dof,joint_force(dof));
+                     }
+                 }
+                 
+             } else
+             {
+                 //the inverse dynamics model represents the 6 DOFs of the base, unlike btMultiBody.
+                 //append some dummy values to represent the 6 DOFs of the base
+                 btInverseDynamics::vecx nu6(num_dofs+6), qdot6(num_dofs+6), q6(num_dofs+6),joint_force6(num_dofs+6);
+                 for (int i=0;i<num_dofs;i++)
+                 {
+                     nu6[6+i] = nu[i];
+                     qdot6[6+i] = qdot6[i];
+                     q6[6+i] = q6[i];
+                     joint_force6[6+i] = joint_force6[i];
+                 }
+                 if(-1 != m_inverseModel->calculateInverseDynamics(q6,qdot6,nu6,&joint_force6))
+                 {
+                     //joint_force(dof) += damping*dot_q(dof);
+                     // use inverse model: apply joint force corresponding to
+                     // desired acceleration nu
+                     
+                     for(int dof=0;dof<num_dofs;dof++)
+                     {
+                         m_multiBody->addJointTorque(dof,joint_force6(dof+6));
+                     }
+                 }
+
+             }
+            
+             
+         } else
+         {
+             for(int dof=0;dof<num_dofs;dof++)
+             {
+                 // no model: just apply PD control law
+                 m_multiBody->addJointTorque(dof,pd_control(dof));
+             }
         }
     }
 
