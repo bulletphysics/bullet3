@@ -43,7 +43,7 @@ subject to the following restrictions:
 // as parameters and callbacks
 static btScalar kp =10*10;
 static btScalar kd = 2*10;
-static bool useInverseModel = false;
+static bool useInverseModel = true;
 static std::vector<btScalar> qd;
 static std::vector<std::string> qd_name;
 static std::vector<std::string> q_name;
