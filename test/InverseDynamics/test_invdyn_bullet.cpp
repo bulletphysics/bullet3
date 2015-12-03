@@ -18,7 +18,6 @@
 #include <BulletDynamics/Featherstone/btMultiBodyPoint2Point.h>
 #include <BulletDynamics/Featherstone/btMultiBodyLinkCollider.h>
 #include <../CommonInterfaces/CommonGUIHelperInterface.h>
-#include <gflags/gflags.h>
 #include <gtest/gtest.h>
 #include <../Importers/ImportURDFDemo/BulletUrdfImporter.h>
 #include <../Importers/ImportURDFDemo/URDF2Bullet.h>
@@ -29,10 +28,12 @@
 #include <btMultiBodyFromURDF.hpp>
 #include <MultiBodyTreeCreator.hpp>
 #include <MultiBodyTreeDebugGraph.hpp>
+#include "Bullet3Common/b3CommandLineArgs.h"
+#include "Bullet3Common/b3Random.h"
 
 using namespace btInverseDynamics;
 
-DEFINE_bool(verbose, false, "print extra info");
+bool FLAGS_verbose=false;
 
 static btVector3 gravity(0, 0, -10);
 static const bool kBaseFixed = false;
@@ -67,15 +68,13 @@ TEST(InvDynCompare, bulletUrdfR2D2) {
     double max_pos_error = 0;
     double max_acc_error = 0;
 
-    std::default_random_engine generator;
-    std::uniform_real_distribution<double> distribution(-M_PI, M_PI);
-    auto rnd = std::bind(distribution, generator);
+    b3Srand(0);
 
     for (int loop = 0; loop < kNLoops; loop++) {
         for (int i = 0; i < q.size(); i++) {
-            q(i) = rnd();
-            u(i) = rnd();
-            dot_u(i) = rnd();
+            q(i) = b3RandRange(-B3_PI, B3_PI);
+            u(i) = b3RandRange(-B3_PI, B3_PI);
+            dot_u(i) = b3RandRange(-B3_PI, B3_PI);
         }
 
         double pos_error;
@@ -108,8 +107,8 @@ TEST(InvDynCompare, bulletUrdfR2D2) {
 }
 
 int main(int argc, char **argv) {
-    gflags::SetUsageMessage("Usage: invdyn_from_btmultibody -verbose = true/false");
-    gflags::ParseCommandLineFlags(&argc, &argv, false);
+    b3CommandLineArgs myArgs(argc,argv);
+    FLAGS_verbose = myArgs.CheckCmdLineFlag("verbose");
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
