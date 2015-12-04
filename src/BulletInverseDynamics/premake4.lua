@@ -18,6 +18,8 @@
 
 		kind "SharedLib"
 
+        targetname "BulletInverseDynamics"
+
 		includedirs {
 			"..",
 		}

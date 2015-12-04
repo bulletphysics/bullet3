@@ -16,6 +16,8 @@
 
 		kind "SharedLib"
 
+        targetname "BulletSoftBody"
+
 		includedirs {
 			"..",
 		}

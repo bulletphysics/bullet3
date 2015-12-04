@@ -26,6 +26,8 @@
 
 		kind "SharedLib"
 
+        targetname "BulletCollision"
+
 		includedirs {
 			"..",
 		}
