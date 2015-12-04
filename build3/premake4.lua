@@ -55,6 +55,12 @@
         description = "Don't build demos"
     }
 
+    newoption
+    {
+        trigger = "no-extras",
+        description = "Don't build Extras"
+    }
+
 	newoption
 	{
 		trigger = "enet",
@@ -171,6 +177,7 @@
 	language "C++"
 
     if _OPTIONS["no-bullet3"] then
+        print "--no-bullet3 implies --no-demos"
         _OPTIONS["no-demos"] = "1"
     else 
         include "../src/Bullet3Common"
@@ -182,6 +189,7 @@
     end
 
     if _OPTIONS["no-extras"] then
+        print "--no-extras implies --no-demos"
         _OPTIONS["no-demos"] = "1"
     else
         include "../Extras"
