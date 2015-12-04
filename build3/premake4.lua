@@ -125,6 +125,9 @@
 
 	if _ACTION == "xcode4" then
         if _OPTIONS["ios"] then
+            _OPTIONS["no-bullet3"] = "1"
+            _OPTIONS["no-gtest"] = "1"
+
             postfix = "ios";
             xcodebuildsettings
             {
@@ -166,11 +169,6 @@
 	end
 
 	language "C++"
-
-    if _OPTIONS["ios"] then
-        _OPTIONS["no-bullet3"] = "1"
-        _OPTIONS["no-gtest"] = "1"
-    end
 
     if _OPTIONS["no-bullet3"] then
         _OPTIONS["no-demos"] = "1"
