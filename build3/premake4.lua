@@ -228,7 +228,7 @@
 --            include "../test/hello_gtest"
             include "../test/collision"
             if not _OPTIONS["no-bullet3"] then
-                if _OPTIONS["no-extras"] then
+                if not _OPTIONS["no-extras"] then
                     include "../test/InverseDynamics"
                 end
                 include "../test/TestBullet3OpenCL"
