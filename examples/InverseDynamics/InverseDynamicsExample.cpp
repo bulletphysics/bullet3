@@ -280,9 +280,9 @@ void InverseDynamicsExample::stepSimulation(float deltaTime)
                  for (int i=0;i<num_dofs;i++)
                  {
                      nu6[6+i] = nu[i];
-                     qdot6[6+i] = qdot6[i];
-                     q6[6+i] = q6[i];
-                     joint_force6[6+i] = joint_force6[i];
+                     qdot6[6+i] = qdot[i];
+                     q6[6+i] = q[i];
+                     joint_force6[6+i] = joint_force[i];
                  }
                  if(-1 != m_inverseModel->calculateInverseDynamics(q6,qdot6,nu6,&joint_force6))
                  {
