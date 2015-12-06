@@ -18,7 +18,8 @@
 		act = _ACTION
 	end
 
-	newoption {
+	newoption 
+    {
 		trigger     = "ios",
 		description = "Enable iOS target (requires xcode4)"
 	}
@@ -94,15 +95,24 @@
 	newoption
 	{
 		trigger = "no-bullet3",
-		description = "Do not build bullet3 libs"
+		description = "Don't build bullet3 libs"
 	}
 
-	configurations {"Release", "Debug"}
-	configuration "Release"
+	newoption 
+    {
+		trigger = "target-suffix",
+		value = "string",
+		description = "Use custom target suffix string"
+	}
+
+	configurations {"Release", "Debug", "ReleaseDLL", "DebugDLL" }
+
+	configuration { "Release", "ReleaseDLL" }
 		flags { "Optimize", "EnableSSE2","StaticRuntime", "NoMinimalRebuild", "FloatFast"}
-	configuration "Debug"
-		defines {"_DEBUG=1"}
+	configuration { "Debug", "DebugDLL" }
 		flags { "Symbols", "StaticRuntime" , "NoMinimalRebuild", "NoEditAndContinue" ,"FloatFast"}
+		defines {"_DEBUG=1"}
+	configuration{}
 
 	if os.is("Linux") or os.is("macosx") then
 		if os.is64bit() then
@@ -114,18 +124,22 @@
 		platforms {"x32", "x64"}
 	end
 
-	configuration {"x32"}
-		targetsuffix ("_" .. act)
-	configuration "x64"
-		targetsuffix ("_" .. act .. "_64" )
-	configuration {"x64", "debug"}
-		targetsuffix ("_" .. act .. "_x64_debug")
-	configuration {"x64", "release"}
-		targetsuffix ("_" .. act .. "_x64_release" )
-	configuration {"x32", "debug"}
-		targetsuffix ("_" .. act .. "_debug" )
+	if not _OPTIONS["target-suffix"] then
+		configuration {"x32"}
+			targetsuffix ("_" .. act)
+		configuration "x64"
+			targetsuffix ("_" .. act .. "_64" )
+		configuration {"x64", "debug"}
+			targetsuffix ("_" .. act .. "_x64_debug")
+		configuration {"x64", "release"}
+			targetsuffix ("_" .. act .. "_x64_release" )
+		configuration {"x32", "debug"}
+			targetsuffix ("_" .. act .. "_debug" )
+		configuration{}
+	else
+		targetsuffix( _OPTIONS["target-suffix"] )
+	end
 
-	configuration{}
 
 	postfix=""
 

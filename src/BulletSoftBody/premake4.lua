@@ -1,28 +1,17 @@
 	project "BulletSoftBody"
 
+	configuration { "*" }
 		kind "StaticLib"
-
-		includedirs {
-			"..",
-		}
-
-		files {
-			"**.cpp",
-			"**.h"
-		}
-
-
-	project "BulletSoftBodyDLL"
-
+	configuration { "*DLL" }
 		kind "SharedLib"
+	configuration {}
 
-        targetname "BulletSoftBody"
+	includedirs {
+		"..",
+	}
 
-		includedirs {
-			"..",
-		}
+	files {
+		"**.cpp",
+		"**.h"
+	}
 
-		files {
-			"**.cpp",
-			"**.h"
-		}

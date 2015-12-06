@@ -1,11 +1,15 @@
 	project "Bullet2FileLoader"
-		
-	kind "StaticLib"
-	
+
+	configuration { "*" }
+		kind "StaticLib"
+	configuration { "*DLL" }
+		kind "SharedLib"
+	configuration {}
+
 	includedirs {
 		"../../../src"
 	}
-	 
+
 	files {
 		"**.cpp",
 		"**.h"

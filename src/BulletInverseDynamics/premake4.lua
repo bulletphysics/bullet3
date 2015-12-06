@@ -1,32 +1,19 @@
 	project "BulletInverseDynamics"
 
+	configuration { "*" }
 		kind "StaticLib"
-
-		includedirs {
-			"..",
-		}
-
-		files {
-			"IDMath.cpp",
-			"MultiBodyTree.cpp",
-			"details/MultiBodyTreeInitCache.cpp",
-			"details/MultiBodyTreeImpl.cpp",
-		}
-
-
-	project "BulletInverseDynamicsDLL"
-
+	configuration { "*DLL" }
 		kind "SharedLib"
+	configuration {}
 
-        targetname "BulletInverseDynamics"
+	includedirs {
+		"..",
+	}
 
-		includedirs {
-			"..",
-		}
+	files {
+		"IDMath.cpp",
+		"MultiBodyTree.cpp",
+		"details/MultiBodyTreeInitCache.cpp",
+		"details/MultiBodyTreeImpl.cpp",
+	}
 
-		files {
-			"IDMath.cpp",
-			"MultiBodyTree.cpp",
-			"details/MultiBodyTreeInitCache.cpp",
-			"details/MultiBodyTreeImpl.cpp",
-		}

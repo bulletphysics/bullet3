@@ -1,24 +1,27 @@
 function createProject(vendor)
 	hasCL = findOpenCL(vendor)
-	
+
 	if (hasCL) then
-		
+
 		project ("Bullet3OpenCL_" .. vendor)
-	
+
 		initOpenCL(vendor)
-			
-		kind "StaticLib"
-		
-		
+
+		configuration { "*" }
+			kind "StaticLib"
+		configuration { "*DLL" }
+			kind "SharedLib"
+		configuration {}
+
 		includedirs {
 			".",".."
 		}
-		
+
 		files {
 			"**.cpp",
 			"**.h"
 		}
-		
+
 	end
 end
 

@@ -1,48 +1,27 @@
 	project "BulletDynamics"
 
+	configuration { "*" }
 		kind "StaticLib"
-
-		includedirs {
-			"..",
-		}
-
-		files {
-			"Dynamics/*.cpp",
-			"Dynamics/*.h",
-			"ConstraintSolver/*.cpp",
-			"ConstraintSolver/*.h",
-			"Featherstone/*.cpp",
-			"Featherstone/*.h",
-			"MLCPSolvers/*.cpp",
-			"MLCPSolvers/*.h",
-			"Vehicle/*.cpp",
-			"Vehicle/*.h",
-			"Character/*.cpp",
-			"Character/*.h"
-		}
-
-
-	project "BulletDynamicsDLL"
-
+	configuration { "*DLL" }
 		kind "SharedLib"
+	configuration {}
 
-        targetname "BulletDynamics"
+	includedirs {
+		"..",
+	}
 
-		includedirs {
-			"..",
-		}
+	files {
+		"Dynamics/*.cpp",
+		"Dynamics/*.h",
+		"ConstraintSolver/*.cpp",
+		"ConstraintSolver/*.h",
+		"Featherstone/*.cpp",
+		"Featherstone/*.h",
+		"MLCPSolvers/*.cpp",
+		"MLCPSolvers/*.h",
+		"Vehicle/*.cpp",
+		"Vehicle/*.h",
+		"Character/*.cpp",
+		"Character/*.h"
+	}
 
-		files {
-			"Dynamics/*.cpp",
-			"Dynamics/*.h",
-			"ConstraintSolver/*.cpp",
-			"ConstraintSolver/*.h",
-			"Featherstone/*.cpp",
-			"Featherstone/*.h",
-			"MLCPSolvers/*.cpp",
-			"MLCPSolvers/*.h",
-			"Vehicle/*.cpp",
-			"Vehicle/*.h",
-			"Character/*.cpp",
-			"Character/*.h"
-		}

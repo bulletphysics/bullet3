@@ -1,28 +1,17 @@
 	project "LinearMath"
 
+	configuration { "*" }
 		kind "StaticLib"
-
-		includedirs {
-			"..",
-		}
-
-		files {
-			"*.cpp",
-			"*.h"
-		}
-
-
-	project "LinearMathDLL"
-
+	configuration { "*DLL" }
 		kind "SharedLib"
+	configuration {}
 
-        targetname "LinearMath"
+	includedirs {
+		"..",
+	}
 
-		includedirs {
-			"..",
-		}
+	files {
+		"*.cpp",
+		"*.h"
+	}
 
-		files {
-			"*.cpp",
-			"*.h"
-		}

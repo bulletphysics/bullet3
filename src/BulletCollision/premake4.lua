@@ -1,48 +1,26 @@
 	project "BulletCollision"
 
+	configuration { "*" }
 		kind "StaticLib"
-
-		includedirs {
-			"..",
-		}
-
-		files {
-			"*.cpp",
-			"*.h",
-			"BroadphaseCollision/*.cpp",
-			"BroadphaseCollision/*.h",
-			"CollisionDispatch/*.cpp",
-			"CollisionDispatch/*.h",
-			"CollisionShapes/*.cpp",
-			"CollisionShapes/*.h",
-			"Gimpact/*.cpp",
-			"Gimpact/*.h",
-			"NarrowPhaseCollision/*.cpp",
-			"NarrowPhaseCollision/*.h",
-		}
-
-
-	project "BulletCollisionDLL"
-
+	configuration { "*DLL" }
 		kind "SharedLib"
+	configuration {}
 
-        targetname "BulletCollision"
+	includedirs {
+		"..",
+	}
 
-		includedirs {
-			"..",
-		}
-
-		files {
-			"*.cpp",
-			"*.h",
-			"BroadphaseCollision/*.cpp",
-			"BroadphaseCollision/*.h",
-			"CollisionDispatch/*.cpp",
-			"CollisionDispatch/*.h",
-			"CollisionShapes/*.cpp",
-			"CollisionShapes/*.h",
-			"Gimpact/*.cpp",
-			"Gimpact/*.h",
-			"NarrowPhaseCollision/*.cpp",
-			"NarrowPhaseCollision/*.h",
-		}
+	files {
+		"*.cpp",
+		"*.h",
+		"BroadphaseCollision/*.cpp",
+		"BroadphaseCollision/*.h",
+		"CollisionDispatch/*.cpp",
+		"CollisionDispatch/*.h",
+		"CollisionShapes/*.cpp",
+		"CollisionShapes/*.h",
+		"Gimpact/*.cpp",
+		"Gimpact/*.h",
+		"NarrowPhaseCollision/*.cpp",
+		"NarrowPhaseCollision/*.h",
+	}

@@ -1,13 +1,14 @@
 	project "Bullet3Geometry"
 
-	language "C++"
-				
-	kind "StaticLib"
-		
-	includedirs {".."}
-	
+	configuration { "*" }
+		kind "StaticLib"
+	configuration { "*DLL" }
+		kind "SharedLib"
+	configuration {}
 
-	files {
-		"**.cpp",
-		"**.h"
-	}
+    includedirs {".."}
+
+    files {
+	    "**.cpp",
+	    "**.h"
+    }

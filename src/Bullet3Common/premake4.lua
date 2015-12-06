@@ -1,9 +1,11 @@
 	project "Bullet3Common"
 
-	language "C++"
-				
-	kind "StaticLib"
-		
+	configuration { "*" }
+		kind "StaticLib"
+	configuration { "*DLL" }
+		kind "SharedLib"
+	configuration {}
+
 	includedirs {".."}
 
 	files {
