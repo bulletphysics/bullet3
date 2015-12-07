@@ -1,9 +1,10 @@
 
 IF(BUILD_BULLET3)
 	SUBDIRS(  Bullet3OpenCL Bullet3Serialize/Bullet2FileLoader Bullet3Dynamics Bullet3Collision Bullet3Geometry Bullet3Common )
+	SUBDIRS(  BulletInverseDynamics  )
 ENDIF(BUILD_BULLET3)
 
-SUBDIRS(  BulletSoftBody BulletInverseDynamics BulletCollision BulletDynamics LinearMath )
+SUBDIRS(  BulletSoftBody BulletCollision BulletDynamics LinearMath )
 
 
 IF(INSTALL_LIBS)
