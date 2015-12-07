@@ -19,7 +19,7 @@ LIST(REMOVE_ITEM OpenGLWindowCommon_CPP X11OpenGLWindow.cpp )
 #MESSAGE (${OpenGLWindowCommon_CPP})
 
 IF (WIN32)
-	SET(OpenGLWindow_SRCS ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew/glew.c ${OpenGLWindowWin32_CPP} ${OpenGLWindowCommon_CPP})	
+	SET(OpenGLWindow_SRCS ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew/glew.c ${OpenGLWindowWin32_CPP} ${OpenGLWindowCommon_CPP})
 	INCLUDE_DIRECTORIES(
 				${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew
 	)
@@ -34,10 +34,10 @@ ENDIF(APPLE)
 IF(NOT WIN32 AND NOT APPLE)
 	INCLUDE_DIRECTORIES(
 					${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew
-        )
-        ADD_DEFINITIONS(-DGLEW_STATIC)
+	)
+	ADD_DEFINITIONS(-DGLEW_STATIC)
 	ADD_DEFINITIONS("-DGLEW_INIT_OPENGL11_FUNCTIONS=1")
-        ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
+	ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
 
 	SET(OpenGLWindow_SRCS ${OpenGLWindowLinux_CPP} ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew/glew.c ${OpenGLWindowCommon_CPP} )
 ENDIF()
@@ -57,7 +57,7 @@ if (BUILD_SHARED_LIBS)
    target_link_libraries(OpenGLWindow ${OPENGL_gl_LIBRARY})
   else()
 	set (CMAKE_THREAD_PREFER_PTHREAD TRUE)
-        FIND_PACKAGE(Threads)
+	FIND_PACKAGE(Threads)
    	target_link_libraries(OpenGLWindow ${CMAKE_THREAD_LIBS_INIT})
   endif()
 endif()
