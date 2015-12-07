@@ -18,7 +18,7 @@ SET(HACD_HDRS
 	hacdVector.h
 	hacdVersion.h
 	hacdCircularList.inl
-	hacdVector.inl	
+	hacdVector.inl
 )
 
 ADD_LIBRARY(HACD ${HACD_SRCS} ${HACD_HDRS})

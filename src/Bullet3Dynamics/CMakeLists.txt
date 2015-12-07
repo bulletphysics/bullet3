@@ -14,19 +14,19 @@ SET(Bullet3Dynamics_SRCS
 
 SET(Bullet3Dynamics_HDRS
 	  b3CpuRigidBodyPipeline.h
-    ConstraintSolver/b3ContactSolverInfo.h
-    ConstraintSolver/b3FixedConstraint.h
-    ConstraintSolver/b3Generic6DofConstraint.h
-    ConstraintSolver/b3JacobianEntry.h
-    ConstraintSolver/b3PgsJacobiSolver.h
-    ConstraintSolver/b3Point2PointConstraint.h
-    ConstraintSolver/b3SolverBody.h
-    ConstraintSolver/b3SolverConstraint.h
-    ConstraintSolver/b3TypedConstraint.h
-    shared/b3ContactConstraint4.h
-    shared/b3ConvertConstraint4.h
-    shared/b3Inertia.h
-    shared/b3IntegrateTransforms.h
+	ConstraintSolver/b3ContactSolverInfo.h
+	ConstraintSolver/b3FixedConstraint.h
+	ConstraintSolver/b3Generic6DofConstraint.h
+	ConstraintSolver/b3JacobianEntry.h
+	ConstraintSolver/b3PgsJacobiSolver.h
+	ConstraintSolver/b3Point2PointConstraint.h
+	ConstraintSolver/b3SolverBody.h
+	ConstraintSolver/b3SolverConstraint.h
+	ConstraintSolver/b3TypedConstraint.h
+	shared/b3ContactConstraint4.h
+	shared/b3ConvertConstraint4.h
+	shared/b3Inertia.h
+	shared/b3IntegrateTransforms.h
 )
 
 ADD_LIBRARY(Bullet3Dynamics ${Bullet3Dynamics_SRCS} ${Bullet3Dynamics_HDRS})
@@ -43,7 +43,7 @@ IF (INSTALL_LIBS)
 			IF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
 				INSTALL(TARGETS Bullet3Dynamics DESTINATION .)
 			ELSE (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
-				INSTALL(TARGETS Bullet3Dynamics 
+				INSTALL(TARGETS Bullet3Dynamics
 					RUNTIME DESTINATION bin
 					LIBRARY DESTINATION lib${LIB_SUFFIX}
 					ARCHIVE DESTINATION lib${LIB_SUFFIX})
