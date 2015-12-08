@@ -193,7 +193,7 @@ SET(App_ExampleBrowser_SRCS
 )
 
 LINK_LIBRARIES(
-        Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+        Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen
 )
 
 IF (WIN32)
@@ -201,12 +201,15 @@ IF (WIN32)
 	INCLUDE_DIRECTORIES(
 				${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew
 	)
+	LINK_LIBRARIES(
+		${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+	)
 	ADD_DEFINITIONS(-DGLEW_STATIC)
 ELSE(WIN32)
 	IF(APPLE)
                 find_library(COCOA NAMES Cocoa)
                 MESSAGE(${COCOA})
-                link_libraries(${COCOA})
+                link_libraries(${COCOA} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
   ELSE(APPLE)
 		ADD_DEFINITIONS("-DGLEW_INIT_OPENGL11_FUNCTIONS=1")
 		ADD_DEFINITIONS("-DGLEW_STATIC")
