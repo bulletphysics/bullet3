@@ -4,11 +4,11 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(Bullet3Collision_SRCS
-    BroadPhaseCollision/b3DynamicBvh.cpp
-    BroadPhaseCollision/b3DynamicBvhBroadphase.cpp
-    BroadPhaseCollision/b3OverlappingPairCache.cpp
-    NarrowPhaseCollision/b3ConvexUtility.cpp
-    NarrowPhaseCollision/b3CpuNarrowPhase.cpp
+	BroadPhaseCollision/b3DynamicBvh.cpp
+	BroadPhaseCollision/b3DynamicBvhBroadphase.cpp
+	BroadPhaseCollision/b3OverlappingPairCache.cpp
+	NarrowPhaseCollision/b3ConvexUtility.cpp
+	NarrowPhaseCollision/b3CpuNarrowPhase.cpp
 )
 
 SET(Bullet3CollisionBroadPhase_HDRS
@@ -71,7 +71,7 @@ IF (INSTALL_LIBS)
 			IF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
 				INSTALL(TARGETS Bullet3Collision DESTINATION .)
 			ELSE (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
-				INSTALL(TARGETS Bullet3Collision 
+				INSTALL(TARGETS Bullet3Collision
 					RUNTIME DESTINATION bin
 					LIBRARY DESTINATION lib${LIB_SUFFIX}
 					ARCHIVE DESTINATION lib${LIB_SUFFIX})

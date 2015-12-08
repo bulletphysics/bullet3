@@ -1,4 +1,4 @@
- 
+
 INCLUDE_DIRECTORIES(
 	.
 	../../src
@@ -13,8 +13,8 @@ LINK_LIBRARIES(
  LinearMath gtest
 )
 
-IF (NOT WIN32)	
-	LINK_LIBRARIES(		pthread	) 
+IF (NOT WIN32)
+	LINK_LIBRARIES(		pthread	)
 ENDIF()
 
 	ADD_EXECUTABLE(Test_Collision

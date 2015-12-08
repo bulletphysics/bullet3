@@ -2,7 +2,7 @@
 
 INCLUDE_DIRECTORIES(
 	.
-	${BULLET_PHYSICS_SOURCE_DIR}/src 
+	${BULLET_PHYSICS_SOURCE_DIR}/src
 	${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs
 )
 
@@ -68,14 +68,14 @@ SET(App_ExampleBrowser_SRCS
 	../DynamicControlDemo/MotorDemo.cpp
 	../DynamicControlDemo/MotorDemo.h
 	../MultiThreading/MultiThreadingExample.cpp
-        ../MultiThreading/b3PosixThreadSupport.cpp
+	../MultiThreading/b3PosixThreadSupport.cpp
 	../MultiThreading/b3Win32ThreadSupport.cpp
-        ../MultiThreading/b3ThreadSupportInterface.cpp
+	../MultiThreading/b3ThreadSupportInterface.cpp
 	../RenderingExamples/TimeSeriesCanvas.cpp
 	../RenderingExamples/TimeSeriesCanvas.h
 	../RenderingExamples/TimeSeriesFontData.cpp
 	../RenderingExamples/TimeSeriesFontData.h
-	
+
 	../RenderingExamples/CoordinateSystemDemo.cpp
 	../RenderingExamples/CoordinateSystemDemo.h
 	../RenderingExamples/RaytracerSetup.cpp
@@ -90,7 +90,7 @@ SET(App_ExampleBrowser_SRCS
 	../Raycast/RaytestDemo.cpp
 		../Importers/ImportBsp/BspConverter.h
  	../Importers/ImportBullet/SerializeSetup.cpp
-	../Importers/ImportBullet/SerializeSetup.h 
+	../Importers/ImportBullet/SerializeSetup.h
 
 	../../Extras/Serialize/BulletWorldImporter/btWorldImporter.cpp
 	../../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.cpp
@@ -151,38 +151,38 @@ SET(App_ExampleBrowser_SRCS
   ../Constraints/Dof6Spring2Setup.h
   ../Constraints/ConstraintPhysicsSetup.cpp
   ../Constraints/ConstraintPhysicsSetup.h
-  
-	
+
+
 	../ThirdPartyLibs/stb_image/stb_image.cpp
 	../ThirdPartyLibs/stb_image/stb_image.h
 
-    ../ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
-    ../ThirdPartyLibs/tinyxml/tinystr.cpp
-    ../ThirdPartyLibs/tinyxml/tinyxml.cpp
-    ../ThirdPartyLibs/tinyxml/tinyxmlerror.cpp
-    ../ThirdPartyLibs/tinyxml/tinyxmlparser.cpp
+	../ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
+	../ThirdPartyLibs/tinyxml/tinystr.cpp
+	../ThirdPartyLibs/tinyxml/tinyxml.cpp
+	../ThirdPartyLibs/tinyxml/tinyxmlerror.cpp
+	../ThirdPartyLibs/tinyxml/tinyxmlparser.cpp
 
-	
+
 	../ThirdPartyLibs/urdf/urdfdom/urdf_parser/src/pose.cpp
 		../ThirdPartyLibs/urdf/urdfdom/urdf_parser/src/model.cpp
-    ../ThirdPartyLibs/urdf/urdfdom/urdf_parser/src/link.cpp
-    ../ThirdPartyLibs/urdf/urdfdom/urdf_parser/src/joint.cpp
-    ../ThirdPartyLibs/urdf/urdfdom/urdf_parser/include/urdf_parser/urdf_parser.h
-    ../ThirdPartyLibs/urdf/urdfdom_headers/urdf_exception/include/urdf_exception/exception.h
-    ../ThirdPartyLibs/urdf/urdfdom_headers/urdf_model/include/urdf_model/pose.h
-    ../ThirdPartyLibs/urdf/urdfdom_headers/urdf_model/include/urdf_model/model.h
-    ../ThirdPartyLibs/urdf/urdfdom_headers/urdf_model/include/urdf_model/link.h
-    ../ThirdPartyLibs/urdf/urdfdom_headers/urdf_model/include/urdf_model/joint.h
-    ../ThirdPartyLibs/tinyxml/tinystr.cpp
-    ../ThirdPartyLibs/tinyxml/tinyxml.cpp
-    ../ThirdPartyLibs/tinyxml/tinyxmlerror.cpp
-    ../ThirdPartyLibs/tinyxml/tinyxmlparser.cpp
-    ../ThirdPartyLibs/urdf/boost_replacement/lexical_cast.h
-    ../ThirdPartyLibs/urdf/boost_replacement/shared_ptr.h
-    ../ThirdPartyLibs/urdf/boost_replacement/printf_console.cpp
-    ../ThirdPartyLibs/urdf/boost_replacement/printf_console.h
-    ../ThirdPartyLibs/urdf/boost_replacement/string_split.cpp
-    ../ThirdPartyLibs/urdf/boost_replacement/string_split.h
+	../ThirdPartyLibs/urdf/urdfdom/urdf_parser/src/link.cpp
+	../ThirdPartyLibs/urdf/urdfdom/urdf_parser/src/joint.cpp
+	../ThirdPartyLibs/urdf/urdfdom/urdf_parser/include/urdf_parser/urdf_parser.h
+	../ThirdPartyLibs/urdf/urdfdom_headers/urdf_exception/include/urdf_exception/exception.h
+	../ThirdPartyLibs/urdf/urdfdom_headers/urdf_model/include/urdf_model/pose.h
+	../ThirdPartyLibs/urdf/urdfdom_headers/urdf_model/include/urdf_model/model.h
+	../ThirdPartyLibs/urdf/urdfdom_headers/urdf_model/include/urdf_model/link.h
+	../ThirdPartyLibs/urdf/urdfdom_headers/urdf_model/include/urdf_model/joint.h
+	../ThirdPartyLibs/tinyxml/tinystr.cpp
+	../ThirdPartyLibs/tinyxml/tinyxml.cpp
+	../ThirdPartyLibs/tinyxml/tinyxmlerror.cpp
+	../ThirdPartyLibs/tinyxml/tinyxmlparser.cpp
+	../ThirdPartyLibs/urdf/boost_replacement/lexical_cast.h
+	../ThirdPartyLibs/urdf/boost_replacement/shared_ptr.h
+	../ThirdPartyLibs/urdf/boost_replacement/printf_console.cpp
+	../ThirdPartyLibs/urdf/boost_replacement/printf_console.h
+	../ThirdPartyLibs/urdf/boost_replacement/string_split.cpp
+	../ThirdPartyLibs/urdf/boost_replacement/string_split.h
 	../Utils/b3Clock.cpp
 	../Utils/b3Clock.h
 	../Utils/b3ResourcePath.cpp
@@ -213,21 +213,19 @@ ELSE(WIN32)
   ELSE(APPLE)
 		ADD_DEFINITIONS("-DGLEW_INIT_OPENGL11_FUNCTIONS=1")
 		ADD_DEFINITIONS("-DGLEW_STATIC")
-	        ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
-		INCLUDE_DIRECTORIES(
-                                ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew
-	        )
+		ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
+		INCLUDE_DIRECTORIES( ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew )
 		LINK_LIBRARIES( pthread dl)
 	ENDIF(APPLE)
 ENDIF(WIN32)
- 
-	
+
+
 
 
 ADD_EXECUTABLE(App_ExampleBrowser
 		${App_ExampleBrowser_SRCS}
 )
-	
+
 
 IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
 			SET_TARGET_PROPERTIES(App_ExampleBrowser PROPERTIES  DEBUG_POSTFIX "_Debug")
