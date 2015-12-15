@@ -3,7 +3,7 @@ project ("Test_SharedMemoryPhysicsClient")
 		language "C++"
 		kind "ConsoleApp"
 
-		includedirs {"../../src", "../../examples/SharedMemory"}
+		includedirs {"../../src", "../../examples"}
 		links {
 			"BulletFileLoader",
 			"Bullet3Common", 
@@ -31,7 +31,7 @@ project ("Test_PhysicsServerLoopBack")
 		language "C++"
 		kind "ConsoleApp"
 
-		includedirs {"../../src", "../../examples/SharedMemory",
+		includedirs {"../../src", "../../examples",
 		"../../examples/ThirdPartyLibs"}
 		defines {"PHYSICS_LOOP_BACK"}
 		links {
@@ -88,7 +88,7 @@ project ("Test_PhysicsServerLoopBack")
 		language "C++"
 		kind "ConsoleApp"
 
-		includedirs {"../../src", "../../examples/SharedMemory",
+		includedirs {"../../src", "../../examples",
 		"../../examples/ThirdPartyLibs"}
 		defines {"PHYSICS_SERVER_DIRECT"}
 		links {

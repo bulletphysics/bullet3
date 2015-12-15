@@ -1,16 +1,16 @@
 //#include "SharedMemoryCommands.h"
-#include "PhysicsClientC_API.h"
+#include "SharedMemory/PhysicsClientC_API.h"
 
 #ifdef PHYSICS_LOOP_BACK
-#include "PhysicsLoopBackC_API.h"
+#include "SharedMemory/PhysicsLoopBackC_API.h"
 #endif //PHYSICS_LOOP_BACK
 
 #ifdef PHYSICS_SERVER_DIRECT
-#include "PhysicsDirectC_API.h"
+#include "SharedMemory/PhysicsDirectC_API.h"
 #endif //PHYSICS_SERVER_DIRECT
 
 
-#include "SharedMemoryPublic.h"
+#include "SharedMemory/SharedMemoryPublic.h"
 #include "Bullet3Common/b3Logging.h"
 #include <string.h>
 
@@ -19,10 +19,9 @@
 
 int main(int argc, char* argv[])
 {
-	int i, dofCount , posVarCount, dofIndex, ret ,numJoints, allowSharedMemoryInitialization=0;
+	int i, dofCount , posVarCount, ret ,numJoints ;
     int sensorJointIndexLeft=-1;
     int sensorJointIndexRight=-1;
-    int statusType = -1;
 	const char* urdfFileName = "r2d2.urdf";
 	double gravx=0, gravy=0, gravz=-9.8;
 	double timeStep = 1./60.;
