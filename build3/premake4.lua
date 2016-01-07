@@ -227,6 +227,7 @@
 			include "../test/gtest-1.7.0"
 --			include "../test/hello_gtest"
 			include "../test/collision"
+			include "../test/BulletDynamics/pendulum"
 			if not _OPTIONS["no-bullet3"] then
 				if not _OPTIONS["no-extras"] then
 					include "../test/InverseDynamics"

@@ -100,6 +100,7 @@
 		"../Raycast/*",
 		"../MultiBody/MultiDofDemo.cpp",
 		"../MultiBody/TestJointTorqueSetup.cpp",
+		"../MultiBody/Pendulum.cpp",
 		"../MultiBody/MultiBodyConstraintFeedback.cpp",
 		"../MultiBody/InvertedPendulumPDControl.cpp",
 		"../ThirdPartyLibs/stb_image/*",

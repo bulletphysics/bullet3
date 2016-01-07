@@ -21,6 +21,8 @@
 #include "../Constraints/Dof6Spring2Setup.h"
 #include "../Constraints/ConstraintPhysicsSetup.h"
 #include "../MultiBody/TestJointTorqueSetup.h"
+#include "../MultiBody/Pendulum.h"
+
 #include "../MultiBody/MultiBodyConstraintFeedback.h"
 #include "../MultiBody/MultiDofDemo.h"
 #include "../MultiBody/InvertedPendulumPDControl.h"
@@ -107,6 +109,8 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(0,"MultiBody"),
 	ExampleEntry(1,"MultiDofCreateFunc","Create a basic btMultiBody with 3-DOF spherical joints (mobilizers). The demo uses a fixed base or a floating base at restart.", MultiDofCreateFunc),
 	ExampleEntry(1,"TestJointTorque","Apply a torque to a btMultiBody with 1-DOF joints (mobilizers). This setup is similar to API/TestHingeTorque.", TestJointTorqueCreateFunc),
+	ExampleEntry(1,"TestPendulum","Simulate a pendulum using btMultiBody with a constant joint torque applied. The same code is also used as a unit test comparing Bullet with the numerical solution of second-order non-linear differential equation stored in pendulum_gold.h", TestPendulumCreateFunc),
+	
  ExampleEntry(1,"Constraint Feedback", "The example shows how to receive joint reaction forces in a btMultiBody. Also the applied impulse is available for a btMultiBodyJointMotor", MultiBodyConstraintFeedbackCreateFunc),
 	ExampleEntry(1,"Inverted Pendulum PD","Keep an inverted pendulum up using open loop PD control", InvertedPendulumPDControlCreateFunc),
 

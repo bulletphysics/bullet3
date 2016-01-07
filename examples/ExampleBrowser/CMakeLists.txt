@@ -136,6 +136,7 @@ SET(App_ExampleBrowser_SRCS
   ../VoronoiFracture/btConvexConvexMprAlgorithm.h
   ../Vehicles/Hinge2Vehicle.cpp
   ../Vehicles/Hinge2Vehicle.h
+  ../MultiBody/Pendulum.cpp
   ../MultiBody/TestJointTorqueSetup.cpp
   ../MultiBody/TestJointTorqueSetup.h
   ../MultiBody/InvertedPendulumPDControl.cpp
