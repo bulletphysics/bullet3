@@ -3,5 +3,5 @@ IF(BUILD_BULLET3)
 	SUBDIRS(  InverseDynamics )
 ENDIF(BUILD_BULLET3)
 
-SUBDIRS(  gtest-1.7.0  collision )
+SUBDIRS(  gtest-1.7.0  collision BulletDynamics/pendulum )
 
