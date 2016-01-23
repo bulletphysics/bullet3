@@ -1300,7 +1300,7 @@ public:
 
 #if (defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE) )|| defined (BT_USE_NEON)
 #define btVector3_fromSimd(v) btVector_fromSimd(v)
-#endif // #if defined (BT_USE_SSE_IN_API) || defined (BT_USE_NEON)
+#endif // #if (defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE) )|| defined (BT_USE_NEON)
 
 #define btVector3_cmp(v1, v2) btVector_cmp(v1, v2)
 
@@ -1918,7 +1918,7 @@ public:
 
 #if (defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE) )|| defined (BT_USE_NEON)
 #define btVector4_fromSimd(v) btVector_fromSimd(v)
-#endif // #if defined (BT_USE_SSE_IN_API) || defined (BT_USE_NEON)
+#endif // #if (defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE) )|| defined (BT_USE_NEON)
 
 #define btVector4_cmp(v1, v2) btVector_cmp(v1, v2)
 

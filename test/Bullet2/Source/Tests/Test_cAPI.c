@@ -9,6 +9,8 @@
 #include "LinearMath/btScalar.h"
 #include "LinearMath/btVector3.h"
 
+#include "LinearMath/btQuaternion.h"
+
 #include "vector.h"
 #include "Utils.h"
 
@@ -42,6 +44,9 @@ int Test_cAPI(void)
 		// output error here
 		return 1;
 	}
+	
+	// Check Quaternion
+	btQuaternion q = btQuaternion(0, 0, 1, 0);
 
     return 0;
 }
