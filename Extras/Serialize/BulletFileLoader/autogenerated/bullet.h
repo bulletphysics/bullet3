@@ -600,23 +600,6 @@ typedef struct bInvalidHandle {
     };
 
 
-// -------------------------------------------------- //
-    class btDynamicsWorldDoubleData
-    {
-    public:
-        btContactSolverInfoDoubleData m_solverInfo;
-        btVector3DoubleData m_gravity;
-    };
-
-
-// -------------------------------------------------- //
-    class btDynamicsWorldFloatData
-    {
-    public:
-        btContactSolverInfoFloatData m_solverInfo;
-        btVector3FloatData m_gravity;
-    };
-
 
 // -------------------------------------------------- //
     class btRigidBodyFloatData
@@ -1134,6 +1117,24 @@ typedef struct bInvalidHandle {
         int m_splitImpulse;
         char m_padding[4];
     };
+
+	// -------------------------------------------------- //
+    class btDynamicsWorldDoubleData
+    {
+    public:
+        btContactSolverInfoDoubleData m_solverInfo;
+        btVector3DoubleData m_gravity;
+    };
+
+
+// -------------------------------------------------- //
+    class btDynamicsWorldFloatData
+    {
+    public:
+        btContactSolverInfoFloatData m_solverInfo;
+        btVector3FloatData m_gravity;
+    };
+
 
 
 // -------------------------------------------------- //

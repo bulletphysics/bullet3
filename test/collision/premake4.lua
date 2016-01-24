@@ -5,7 +5,7 @@
 	
 --	defines {  }
 	
---	targetdir "../../bin"
+
 	
 	includedirs 
 	{

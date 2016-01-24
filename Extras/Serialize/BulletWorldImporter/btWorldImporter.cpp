@@ -15,8 +15,9 @@ subject to the following restrictions:
 
 #include "btWorldImporter.h"
 #include "btBulletDynamicsCommon.h"
+#ifdef USE_GIMPACT
 #include "BulletCollision/Gimpact/btGImpactShape.h"
-
+#endif
 btWorldImporter::btWorldImporter(btDynamicsWorld* world)
 :m_dynamicsWorld(world),
 m_verboseMode(0)
@@ -177,6 +178,7 @@ btCollisionShape* btWorldImporter::convertCollisionShape(  btCollisionShapeData*
 		}
 	case GIMPACT_SHAPE_PROXYTYPE:
 		{
+#ifdef USE_GIMPACT
 			btGImpactMeshShapeData* gimpactData = (btGImpactMeshShapeData*) shapeData;
 			if (gimpactData->m_gimpactSubType == CONST_GIMPACT_TRIMESH_SHAPE)
 			{
@@ -195,6 +197,7 @@ btCollisionShape* btWorldImporter::convertCollisionShape(  btCollisionShapeData*
 			{
 				printf("unsupported gimpact sub type\n");
 			}
+#endif//USE_GIMPACT
 			break;
 		}
 	//The btCapsuleShape* API has issue passing the margin/scaling/halfextents unmodified through the API
@@ -1792,9 +1795,13 @@ btCollisionShape* btWorldImporter::createConvexTriangleMeshShape(btStridingMeshI
 }
 btGImpactMeshShape* btWorldImporter::createGimpactShape(btStridingMeshInterface* trimesh)
 {
+#ifdef USE_GIMPACT
 	btGImpactMeshShape* shape = new btGImpactMeshShape(trimesh);
 	m_allocatedCollisionShapes.push_back(shape);
 	return shape;
+#else
+	return 0;
+#endif
 	
 }
 btConvexHullShape* btWorldImporter::createConvexHullShape()

@@ -56,11 +56,14 @@ struct btMultibodyLink
 
     btQuaternion m_zeroRotParentToThis;    // rotates vectors in parent-frame to vectors in local-frame (when q=0). constant.
 
-    btVector3 m_dVector;   // vector from the inboard joint pos to this link's COM. (local frame.) constant. set for revolute joints only.
-
-    // m_eVector is constant, but depends on the joint type
-    // prismatic: vector from COM of parent to COM of this link, WHEN Q = 0. (local frame.)
-    // revolute: vector from parent's COM to the pivot point, in PARENT's frame.
+    btVector3 m_dVector;   // vector from the inboard joint pos to this link's COM. (local frame.) constant.
+	//this is set to zero for planar joint (see also m_eVector comment)
+	
+    // m_eVector is constant, but depends on the joint type:
+    // revolute, fixed, prismatic, spherical: vector from parent's COM to the pivot point, in PARENT's frame.
+	// planar: vector from COM of parent to COM of this link, WHEN Q = 0. (local frame.)
+	// todo: fix the planar so it is consistent with the other joints
+	
     btVector3 m_eVector;
 
 	btSpatialMotionVector m_absFrameTotVelocity, m_absFrameLocVelocity;
@@ -162,20 +165,6 @@ btVector3 m_appliedConstraintForce;    // In WORLD frame
 	}
 
     // routine to update m_cachedRotParentToThis and m_cachedRVector
-    void updateCache()
-	{
-		//multidof
-		if (m_jointType == eRevolute) 
-		{
-			m_cachedRotParentToThis = btQuaternion(getAxisTop(0),-m_jointPos[0]) * m_zeroRotParentToThis;
-			m_cachedRVector = m_dVector + quatRotate(m_cachedRotParentToThis,m_eVector);
-		} else 
-		{
-			// m_cachedRotParentToThis never changes, so no need to update
-			m_cachedRVector = m_eVector + m_jointPos[0] * getAxisBottom(0);
-		}
-	}
-
 	void updateCacheMultiDof(btScalar *pq = 0)
 	{
 		btScalar *pJointPos = (pq ? pq : &m_jointPos[0]);

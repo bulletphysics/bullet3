@@ -9,7 +9,7 @@ function createProject(vendor)
 			
 		kind "StaticLib"
 		
-		targetdir "../../lib"
+		
 		includedirs {
 			".",".."
 		}

@@ -18,7 +18,7 @@ using namespace Gwen::ControlsInternal;
 GWEN_CONTROL_CONSTRUCTOR( ColorPicker )
 {
 	SetMouseInputEnabled( true );
-
+	SetKeyboardInputEnabled(true);
 	SetSize( 256, 150 );
 	CreateControls();
 	SetColor( Gwen::Color( 50, 60, 70, 255 ) );

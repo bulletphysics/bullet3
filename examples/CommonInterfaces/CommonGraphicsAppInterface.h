@@ -27,6 +27,14 @@ struct DrawGridData
     }
 };
 
+enum EnumSphereLevelOfDetail
+{
+	SPHERE_LOD_POINT_SPRITE=0,
+	SPHERE_LOD_LOW,
+	SPHERE_LOD_MEDIUM,
+	SPHERE_LOD_HIGH,
+
+};
 struct CommonGraphicsApp
 {
 	class CommonWindowInterface*	m_window;
@@ -42,6 +50,7 @@ struct CommonGraphicsApp
 	float	m_mouseXpos;
 	float	m_mouseYpos;
 	bool	m_mouseInitialized;
+	float	m_backgroundColorRGB[3];
 
 	CommonGraphicsApp()
 		:m_window(0),
@@ -57,10 +66,51 @@ struct CommonGraphicsApp
 		m_mouseYpos(0.f),
 		m_mouseInitialized(false)
 	{
+		m_backgroundColorRGB[0] = 0.9;
+		m_backgroundColorRGB[1] = 0.9;
+		m_backgroundColorRGB[2] = 1;
 	}
 	virtual ~CommonGraphicsApp()
 	{
 	}
+
+	virtual void dumpNextFrameToPng(const char* pngFilename){}
+    virtual void dumpFramesToVideo(const char* mp4Filename){}
+	virtual void getBackgroundColor(float* red, float* green, float* blue) const
+	{
+		if (red)
+			*red = m_backgroundColorRGB[0];
+		if (green)
+			*green = m_backgroundColorRGB[1];
+		if (blue)
+			*blue = m_backgroundColorRGB[2];
+	}
+	virtual void setBackgroundColor(float red, float green, float blue)
+	{
+		m_backgroundColorRGB[0] = red;
+		m_backgroundColorRGB[1] = green;
+		m_backgroundColorRGB[2] = blue;
+	}
+	virtual void setMouseWheelMultiplier(float mult)
+	{
+		m_wheelMultiplier = mult;
+	}
+	virtual float getMouseWheelMultiplier() const
+	{
+		return m_wheelMultiplier;
+	}
+
+	virtual void setMouseMoveMultiplier(float mult)
+	{
+		m_mouseMoveMultiplier = mult;
+	}
+	
+	virtual float getMouseMoveMultiplier() const
+	{
+		return m_mouseMoveMultiplier;
+	}
+
+	
 
 	virtual void drawGrid(DrawGridData data=DrawGridData()) = 0;
 	virtual void setUpAxis(int axis) = 0;
@@ -69,8 +119,9 @@ struct CommonGraphicsApp
 	virtual void swapBuffer() = 0;
 	virtual void drawText( const char* txt, int posX, int posY) = 0;
 	virtual void drawText3D( const char* txt, float posX, float posZY, float posZ, float size)=0;
-	virtual int	registerCubeShape(float halfExtentsX,float halfExtentsY, float halfExtentsZ)=0;
-	virtual int	registerGraphicsSphereShape(float radius, bool usePointSprites=true, int largeSphereThreshold=100, int mediumSphereThreshold=10)=0;
+	virtual int	registerCubeShape(float halfExtentsX,float halfExtentsY, float halfExtentsZ, int textureIndex = -1,  float textureScaling = 1)=0;
+	virtual int	registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lod, int textureId=-1) = 0;
+
 	virtual void registerGrid(int xres, int yres, float color0[4], float color1[4])=0;
 
 	void defaultMouseButtonCallback( int button, int state, float x, float y)
@@ -187,7 +238,7 @@ struct CommonGraphicsApp
 				float cameraDistance = 	camera->getCameraDistance();
 				if (deltay<0 || cameraDistance>1)
 				{
-					cameraDistance -= deltay*0.1f;
+					cameraDistance -= deltay*0.01f;
 					if (cameraDistance<1)
 						cameraDistance=1;
 					camera->setCameraDistance(cameraDistance);

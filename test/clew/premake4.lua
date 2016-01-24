@@ -5,7 +5,7 @@ project ("Test_clew")
 	language "C++"
 			
 	kind "ConsoleApp"
-	targetdir "../../bin"
+	
 	includedirs {"../../src/clew"}
 	
 	if os.is("Windows") then 

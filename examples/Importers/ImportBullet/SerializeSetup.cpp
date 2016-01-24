@@ -59,8 +59,6 @@ void SerializeSetup::initPhysics()
         int numPrefixes = sizeof(prefix)/sizeof(const char*);
         char relativeFileName[1024];
         FILE* f=0;
-        bool fileFound = false;
-        int result = 0;
 
         for (int i=0;!f && i<numPrefixes;i++)
         {
@@ -68,7 +66,6 @@ void SerializeSetup::initPhysics()
                 f = fopen(relativeFileName,"rb");
                 if (f)
                 {
-                    fileFound = true;
                     break;
                 }
         }

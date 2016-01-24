@@ -18,8 +18,18 @@
 
 struct PosixSharedMemoryInteralData
 {
-
+	bool m_createdSharedMemory;
+	int m_sharedMemoryId;
+	void* m_sharedMemoryPtr;
+	
+	PosixSharedMemoryInteralData()
+	:m_createdSharedMemory(false),
+	m_sharedMemoryId(-1),
+	m_sharedMemoryPtr(0)
+	{
+	}
 };
+
 PosixSharedMemory::PosixSharedMemory()
 {
     
@@ -40,10 +50,10 @@ struct btPointerCaster
     };
 };
 
-void*   PosixSharedMemory::allocateSharedMemory(int key, int size)
+void*   PosixSharedMemory::allocateSharedMemory(int key, int size,  bool allowCreation)
 {
 #ifdef TEST_SHARED_MEMORY
-    int flags = IPC_CREAT | 0666;
+    int flags = (allowCreation ? IPC_CREAT : 0) | 0666;
     int id = shmget((key_t) key, (size_t) size,flags);
     if (id < 0)
     {
@@ -57,6 +67,9 @@ void*   PosixSharedMemory::allocateSharedMemory(int key, int size)
             b3Error("shmat returned -1");
         } else
         {
+			m_internalData->m_createdSharedMemory = allowCreation;
+			m_internalData->m_sharedMemoryId = id;
+			m_internalData->m_sharedMemoryPtr = result.ptr;
             return result.ptr;
         }
     }
@@ -69,18 +82,30 @@ void*   PosixSharedMemory::allocateSharedMemory(int key, int size)
 void PosixSharedMemory::releaseSharedMemory(int key, int size)
 {
 #ifdef TEST_SHARED_MEMORY
-    int flags = 0666;
-    int id = shmget((key_t) key, (size_t) size,flags);
-    if (id < 0)
+    if (m_internalData->m_sharedMemoryId < 0)
     {
-        b3Error("PosixSharedMemory::releaseSharedMemory: shmget error");
+        b3Error("PosixSharedMemory::releaseSharedMemory: shared memory id is not set");
     } else
     {
-        int result = shmctl(id,IPC_RMID,0);
-        if (result == -1)
-        {
-            b3Error("PosixSharedMemory::releaseSharedMemory: shmat returned -1");
-        }
+		if (m_internalData->m_createdSharedMemory)
+		{
+			int result = shmctl(m_internalData->m_sharedMemoryId,IPC_RMID,0);
+			if (result == -1)
+			{
+				b3Error("PosixSharedMemory::releaseSharedMemory: shmat returned -1");
+			} else
+			{
+				b3Printf("PosixSharedMemory::releaseSharedMemory removed shared memory");
+			}
+			m_internalData->m_createdSharedMemory = false;
+			m_internalData->m_sharedMemoryId = -1;
+		}
+		if (m_internalData->m_sharedMemoryPtr)
+		{
+			shmdt(m_internalData->m_sharedMemoryPtr);
+			m_internalData->m_sharedMemoryPtr  = 0;
+			b3Printf("PosixSharedMemory::releaseSharedMemory detached shared memory\n");
+		}
     }
 #endif
 }

@@ -130,7 +130,7 @@ ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option, 
 		
 		if (gFileNameArray.size()==0)
 		{
-			gFileNameArray.push_back("r2d2.urdf");//husky/husky.urdf");
+			gFileNameArray.push_back("r2d2.urdf");
 
 		}
 
@@ -140,7 +140,7 @@ ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option, 
 		{
 			count=0;
 		}
-		sprintf(m_fileName,gFileNameArray[count++].c_str());
+		sprintf(m_fileName,"%s",gFileNameArray[count++].c_str());
 	}
 }
 
@@ -185,7 +185,7 @@ void ImportUrdfSetup::initPhysics()
 {
 
 	int upAxis = 2;
-	m_guiHelper->setUpAxis(2);
+	m_guiHelper->setUpAxis(upAxis);
 
 	this->createEmptyDynamicsWorld();
 	//m_dynamicsWorld->getSolverInfo().m_numIterations = 100;
@@ -223,13 +223,15 @@ void ImportUrdfSetup::initPhysics()
 #endif//USE_ROS_URDF
 	URDFImporterInterface& u2b = *bla;
 	bool loadOk =  u2b.loadURDF(m_fileName);
-	
+
+#ifdef TEST_MULTIBODY_SERIALIZATION	
 	//test to serialize a multibody to disk or shared memory, with base, link and joint names
 	btSerializer* s = new btDefaultSerializer;
+#endif //TEST_MULTIBODY_SERIALIZATION
 
 	if (loadOk)
 	{
-		printTree(u2b,u2b.getRootLinkIndex());
+		//printTree(u2b,u2b.getRootLinkIndex());
 
 		//u2b.printTree();
 
@@ -255,8 +257,9 @@ void ImportUrdfSetup::initPhysics()
 			{
 				std::string*   name = new std::string(u2b.getLinkName(u2b.getRootLinkIndex()));
 				m_nameMemory.push_back(name);
+#ifdef TEST_MULTIBODY_SERIALIZATION
 				s->registerNameForPointer(name->c_str(),name->c_str());
-
+#endif//TEST_MULTIBODY_SERIALIZATION
 				mb->setBaseName(name->c_str());
 				//create motors for each btMultiBody joint
 				int numLinks = mb->getNumLinks();
@@ -267,9 +270,10 @@ void ImportUrdfSetup::initPhysics()
 
 					std::string* jointName = new std::string(u2b.getJointName(urdfLinkIndex));
 					std::string* linkName = new std::string(u2b.getLinkName(urdfLinkIndex).c_str());
+#ifdef TEST_MULTIBODY_SERIALIZATION					
 					s->registerNameForPointer(jointName->c_str(),jointName->c_str());
 					s->registerNameForPointer(linkName->c_str(),linkName->c_str());
-
+#endif//TEST_MULTIBODY_SERIALIZATION
 					m_nameMemory.push_back(jointName);
 					m_nameMemory.push_back(linkName);
 
@@ -291,7 +295,7 @@ void ImportUrdfSetup::initPhysics()
 							slider.m_minVal=-4;
 							slider.m_maxVal=4;
 							m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
-							float maxMotorImpulse = 0.1f;
+							float maxMotorImpulse = 10.1f;
 							btMultiBodyJointMotor* motor = new btMultiBodyJointMotor(mb,mbLinkIndex,0,0,maxMotorImpulse);
 							//motor->setMaxAppliedImpulse(0);
 							m_data->m_jointMotors[m_data->m_numMotors]=motor;
@@ -363,7 +367,7 @@ void ImportUrdfSetup::initPhysics()
 			m_guiHelper->createCollisionShapeGraphicsObject(box);
 			btTransform start; start.setIdentity();
 			btVector3 groundOrigin(0,0,0);
-			groundOrigin[upAxis]=-2;//.5;
+			groundOrigin[upAxis]=-2.5;
 			start.setOrigin(groundOrigin);
 			btRigidBody* body =  createRigidBody(0,start,box);
 			//m_dynamicsWorld->removeRigidBody(body);
@@ -376,7 +380,7 @@ void ImportUrdfSetup::initPhysics()
 		m_dynamicsWorld->stepSimulation(1. / 240., 0);// 1., 10, 1. / 240.);
 	}
 
-	
+#ifdef TEST_MULTIBODY_SERIALIZATION
 	m_dynamicsWorld->serialize(s);
 	b3ResourcePath p;
 	char resourcePath[1024];
@@ -386,6 +390,8 @@ void ImportUrdfSetup::initPhysics()
 		fwrite(s->getBufferPointer(),s->getCurrentBufferSize(),1,f);
 		fclose(f);
 	}
+#endif//TEST_MULTIBODY_SERIALIZATION
+
 }
 
 void ImportUrdfSetup::stepSimulation(float deltaTime)

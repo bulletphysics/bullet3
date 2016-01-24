@@ -1,16 +1,16 @@
 # App_BasicExample is a minimal sample creating, stepping and deleting a Bullet dynamics world
 
 INCLUDE_DIRECTORIES(
-${BULLET_PHYSICS_SOURCE_DIR}/src 
+${BULLET_PHYSICS_SOURCE_DIR}/src
 )
 
 LINK_LIBRARIES(
- BulletDynamics BulletCollision LinearMath 
+ BulletDynamics BulletCollision LinearMath
 )
 
 IF (WIN32)
 	ADD_EXECUTABLE(App_BasicExample
-		BasicExample.cpp 
+		BasicExample.cpp
 		main.cpp
 		${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc
 	)

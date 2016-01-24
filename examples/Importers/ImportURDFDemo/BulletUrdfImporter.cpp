@@ -37,7 +37,7 @@ struct BulletURDFInternalData
 	UrdfParser m_urdfParser;
 	struct GUIHelperInterface* m_guiHelper;
 	char m_pathPrefix[1024];
-	
+	btHashMap<btHashInt,btVector4> m_linkColors;
 };
 
 void BulletURDFImporter::printTree()
@@ -96,6 +96,8 @@ struct BulletErrorLogger : public ErrorLogger
 bool BulletURDFImporter::loadURDF(const char* fileName, bool forceFixedBase)
 {
 
+	m_data->m_linkColors.clear();
+	
 
 //int argc=0;
 	char relativeFileName[1024];
@@ -170,6 +172,17 @@ void BulletURDFImporter::getLinkChildIndices(int linkIndex, btAlignedObjectArray
 			childLinkIndices.push_back(childIndex);
 		}
 	}
+}
+
+bool BulletURDFImporter::getLinkColor(int linkIndex, btVector4& colorRGBA) const
+{
+	btVector4* rgbaPtr = m_data->m_linkColors[linkIndex];
+	if (rgbaPtr)
+	{
+		colorRGBA = *rgbaPtr;
+		return true;
+	}
+	return false;
 }
 
 std::string BulletURDFImporter::getLinkName(int linkIndex) const
@@ -742,7 +755,8 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 			
 									//compensate upAxisTrans and unitMeterScaling here
 									btMatrix4x4 upAxisMat;
-									upAxisMat.setPureRotation(upAxisTrans.getRotation());
+                                    upAxisMat.setIdentity();
+									//upAxisMat.setPureRotation(upAxisTrans.getRotation());
 									btMatrix4x4 unitMeterScalingMat;
 									unitMeterScalingMat.setPureScaling(btVector3(unitMeterScaling,unitMeterScaling,unitMeterScaling));
 									btMatrix4x4 worldMat = unitMeterScalingMat*instance->m_worldTransform*upAxisMat;
@@ -851,9 +865,17 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 		for (int v = 0; v < link->m_visualArray.size();v++)
 		{
 			const UrdfVisual& vis = link->m_visualArray[v];
-			btTransform childTrans = vis.m_linkLocalFrame;
-		
+            btTransform childTrans = vis.m_linkLocalFrame;
+			btHashString matName(vis.m_materialName.c_str());
+			UrdfMaterial *const * matPtr = model.m_materials[matName];
+			if (matPtr)
+			{
+				UrdfMaterial *const  mat = *matPtr;
+				//printf("UrdfMaterial %s, rgba = %f,%f,%f,%f\n",mat->m_name.c_str(),mat->m_rgbaColor[0],mat->m_rgbaColor[1],mat->m_rgbaColor[2],mat->m_rgbaColor[3]);
+				m_data->m_linkColors.insert(linkIndex,mat->m_rgbaColor);
+			}
 			convertURDFToVisualShape(&vis, pathPrefix, inertialFrame.inverse()*childTrans, vertices, indices);
+			
 			
 		}
 	}
@@ -909,8 +931,7 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 				btTransform childTrans = col.m_linkLocalFrame;
 				
 				compoundShape->addChildShape(localInertiaFrame.inverse()*childTrans,childShape);
-				
-			}
+           		}
 		}
 	}
 

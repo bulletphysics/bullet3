@@ -1,0 +1,346 @@
+<?xml version="1.0"?>
+<robot name="kuka_lwr">
+
+ <property name="M_PI" value="3.1415926535897931" />
+ <property name="name" value="kuka" />
+  <!--
+     Little helper macro to define the inertia matrix needed
+     for links.
+     -->
+  <!-- width is along x axis
+       length is along y axis
+       height is along z axis
+  -->
+  <macro name="cuboid_inertia_def" params="width height length mass">
+    <inertia ixx="${mass * (height * height + length * length) / 12}"
+             iyy="${mass * (width * width + height * height) / 12}"
+             izz="${mass * (width * width + length * length) / 12}"
+             ixy="0" iyz="0" ixz="0"/>
+  </macro>
+
+  <!-- length is along the y-axis! -->
+  <macro name="cylinder_inertia_def" params="radius length mass">
+    <inertia ixx="${mass * (3 * radius * radius + length * length) / 12}"
+             iyy="${mass * radius* radius / 2}"
+             izz="${mass * (3 * radius * radius + length * length) / 12}"
+             ixy="0" iyz="0" ixz="0"/>
+  </macro>
+
+  <property name="arm_elem_link_mass" value="2.0"/>
+  <property name="arm_elem_ball_link_mass" value="2.0"/>
+  <property name="arm_elem_end_link_mass" value="2.0"/>
+  <property name="safety_controller_k_pos" value="100" />
+  <property name="safety_controller_k_vel" value="2" />
+  <property name="joint_damping" value="0.1" />
+
+  <property name="arm_velocity_scale_factor" value="1"/>
+  <property name="right" value="0" />
+  <!-- right is either 1 (for right arm) or -1 (for left arm) -->
+
+    <link name="calib_${name}_arm_base_link">
+      <inertial>
+        <mass value="0"/> <!-- static base, disable dynamics for this link -->
+        <origin xyz="0 0 0.055" rpy="0 0 0"/>
+        <cylinder_inertia_def radius="0.06" length="0.11"
+                              mass="2"/>
+      </inertial>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="meshes_arm/arm_base.stl"/>
+        </geometry>
+        <material name="Orange"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="meshes_arm/convex/arm_base_convex.stl"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${name}_arm_0_joint" type="revolute">
+      <origin xyz="0 0 0.11" rpy="0 0 0"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="${-170 * M_PI / 180}" upper="${170 * M_PI / 180}"
+             effort="204" velocity="${arm_velocity_scale_factor * 110 * M_PI / 180}" />
+      <dynamics damping="${joint_damping}"/>
+      <parent link="calib_${name}_arm_base_link"/>
+      <child link="${name}_arm_1_link"/>
+    </joint>
+
+    <link name="${name}_arm_1_link">
+      <inertial>
+        <mass value="${arm_elem_link_mass}"/>
+        <origin rpy="0 0 0" xyz="0 0.04 0.130"/>
+        <cuboid_inertia_def length="0.12" width="0.06" height="0.260"
+                            mass="${arm_elem_link_mass}"/>
+      </inertial>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 ${M_PI}"/>
+        <geometry>
+          <mesh filename="meshes_arm/arm_segment_a.stl"/>
+        </geometry>
+        <material name="Orange"/>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 ${M_PI}"/>
+        <geometry>
+          <mesh filename="meshes_arm/convex/arm_segment_a_convex.stl"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <transmission name="${name}_arm_0_trans" type="pr2_mechanism_model/SimpleTransmission">
+      <actuator name="${name}_arm_0_motor"/>
+      <joint name="${name}_arm_0_joint"/>
+      <mechanicalReduction>1.0</mechanicalReduction>
+    </transmission>
+
+    <joint name="${name}_arm_1_joint" type="revolute">
+      <origin xyz="0 0 0.20" rpy="0 0 0"/>
+      <axis xyz="0 -1 0"/>
+      <!--limit lower="${-120 * M_PI / 180}" upper="${120 * M_PI / 180}"
+             effort="306" velocity="${arm_velocity_scale_factor * 110 * M_PI / 180}" /-->
+                 <!-- nalt: Reduced limits to avoid contact with table - kinda hacky, should not be done here -->
+      <limit lower="${-90 * M_PI / 180}" upper="${90 * M_PI / 180}"
+             effort="306" velocity="${arm_velocity_scale_factor * 110 * M_PI / 180}" />       
+      <dynamics damping="${joint_damping}"/>
+      <parent link="${name}_arm_1_link"/>
+      <child link="${name}_arm_2_link"/>
+    </joint>
+
+    <link name="${name}_arm_2_link">
+      <inertial>
+        <mass value="${arm_elem_link_mass}"/>
+        <origin rpy="0 0 0" xyz="0 -0.04 ${0.130 - 0.06}"/>
+        <cuboid_inertia_def length="0.12" width="0.06" height="0.260"
+                            mass="${arm_elem_link_mass}"/>
+      </inertial>
+
+      <visual>
+        <origin xyz="0 0 0.2" rpy="${M_PI} 0 ${M_PI}"/>
+        <geometry>
+          <mesh filename="meshes_arm/arm_segment_b.stl"/>
+        </geometry>
+        <material name="Orange"/>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0.2" rpy="${M_PI} 0 ${M_PI}"/>
+        <geometry>
+          <mesh filename="meshes_arm/convex/arm_segment_b_convex.stl"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <transmission name="${name}_arm_1_trans" type="pr2_mechanism_model/SimpleTransmission">
+      <actuator name="${name}_arm_1_motor"/>
+      <joint name="${name}_arm_1_joint"/>
+      <mechanicalReduction>1.0</mechanicalReduction>
+    </transmission>
+
+    <joint name="${name}_arm_2_joint" type="revolute">
+      <origin xyz="0 0 0.20" rpy="0 0 0"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="${-170 * M_PI / 180}" upper="${170 * M_PI / 180}"
+             effort="204" velocity="${arm_velocity_scale_factor * 130 * M_PI / 180}" />
+      <dynamics damping="${joint_damping}"/>
+      <parent link="${name}_arm_2_link"/>
+      <child link="${name}_arm_3_link"/>
+    </joint>
+
+    <link name="${name}_arm_3_link">
+      <inertial>
+        <mass value="${arm_elem_link_mass}"/>
+        <origin rpy="0 0 0" xyz="0 -0.04 0.130"/>
+        <cuboid_inertia_def length="0.12" width="0.06" height="0.260"
+                            mass="${arm_elem_link_mass}"/>
+      </inertial>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="meshes_arm/arm_segment_a.stl"/>
+        </geometry>
+        <material name="Orange"/>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="meshes_arm/convex/arm_segment_a_convex.stl"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <transmission name="${name}_arm_2_trans" type="pr2_mechanism_model/SimpleTransmission">
+      <actuator name="${name}_arm_2_motor"/>
+      <joint name="${name}_arm_2_joint"/>
+      <mechanicalReduction>1.0</mechanicalReduction>
+    </transmission>
+
+    <joint name="${name}_arm_3_joint" type="revolute">
+      <origin xyz="0 0 0.20" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="${-120 * M_PI / 180}" upper="${120 * M_PI / 180}"
+             effort="306" velocity="${arm_velocity_scale_factor * 130 * M_PI / 180}" />
+      <dynamics damping="${joint_damping}"/>
+      <parent link="${name}_arm_3_link"/>
+      <child link="${name}_arm_4_link"/>
+    </joint>
+
+    <link name="${name}_arm_4_link">
+      <inertial>
+        <mass value="${arm_elem_link_mass}"/>
+        <origin rpy="0 0 0" xyz="0 0.04 ${0.130 - 0.06}"/>
+        <cuboid_inertia_def length="0.12" width="0.06" height="0.2600"
+                            mass="${arm_elem_link_mass}"/>
+      </inertial>
+
+      <visual>
+        <origin xyz="0 0 0.2" rpy="0 ${M_PI} ${M_PI}"/>
+        <geometry>
+          <mesh filename="meshes_arm/arm_segment_b.stl"/>
+        </geometry>
+        <material name="Orange"/>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0.2" rpy="0 ${M_PI} ${M_PI}"/>
+        <geometry>
+          <mesh filename="meshes_arm/convex/arm_segment_b_convex.stl"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <transmission name="${name}_arm_3_trans" type="pr2_mechanism_model/SimpleTransmission">
+      <actuator name="${name}_arm_3_motor"/>
+      <joint name="${name}_arm_3_joint"/>
+      <mechanicalReduction>1.0</mechanicalReduction>
+    </transmission>
+
+    <joint name="${name}_arm_4_joint" type="revolute">
+      <origin xyz="0 0 0.20" rpy="0 0 0"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="${-170 * M_PI / 180}" upper="${170 * M_PI / 180}"
+             effort="204" velocity="${arm_velocity_scale_factor * 130 * M_PI / 180}" />
+      <dynamics damping="${joint_damping}"/>
+      <parent link="${name}_arm_4_link"/>
+      <child link="${name}_arm_5_link"/>
+    </joint>
+
+    <link name="${name}_arm_5_link">
+      <inertial>
+        <mass value="${arm_elem_link_mass}"/>
+        <origin rpy="0 0 0" xyz="0 0.02 0.124"/>
+        <cuboid_inertia_def length="0.12" width="0.06" height="0.248"
+                            mass="${arm_elem_link_mass}"/>
+      </inertial>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 ${M_PI}"/>
+        <geometry name="${name}_arm_5_geom">
+          <mesh filename="meshes_arm/arm_segment_last.stl"/>
+        </geometry>
+        <material name="Orange"/>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 ${M_PI}"/>
+        <geometry>
+          <mesh filename="meshes_arm/convex/arm_segment_last_convex.stl"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <transmission name="${name}_arm_4_trans" type="pr2_mechanism_model/SimpleTransmission">
+      <actuator name="${name}_arm_4_motor"/>
+      <joint name="${name}_arm_4_joint"/>
+      <mechanicalReduction>1.0</mechanicalReduction>
+    </transmission>
+
+    <joint name="${name}_arm_5_joint" type="revolute">
+      <origin xyz="0 0 0.19" rpy="0 0 0"/>
+      <axis xyz="0 -1 0"/>
+      <limit lower="${-120 * M_PI / 180}" upper="${120 * M_PI / 180}"
+             effort="306" velocity="${arm_velocity_scale_factor * 180 * M_PI / 180}" />
+      <dynamics damping="${joint_damping}"/>
+      <parent link="${name}_arm_5_link"/>
+      <child link="${name}_arm_6_link"/>
+    </joint>
+
+    <link name="${name}_arm_6_link">
+      <inertial>
+        <mass value="${arm_elem_ball_link_mass}"/>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <cuboid_inertia_def length="0.125" width="0.125" height="0.125"
+                            mass="${arm_elem_ball_link_mass}"/>
+      </inertial>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 ${M_PI}"/>
+        <geometry>
+          <mesh filename="meshes_arm/arm_wrist.stl"/>
+        </geometry>
+        <material name="Grey"/>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 ${M_PI}"/>
+        <geometry>
+          <mesh filename="meshes_arm/convex/arm_wrist_convex.stl"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <transmission name="${name}_arm_5_trans" type="pr2_mechanism_model/SimpleTransmission">
+      <actuator name="${name}_arm_5_motor"/>
+      <joint name="${name}_arm_5_joint"/>
+      <mechanicalReduction>1.0</mechanicalReduction>
+    </transmission>
+
+    <joint name="${name}_arm_6_joint" type="revolute">
+      <origin xyz="0 0 0.078" rpy="0 0 0"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="${-170 * M_PI / 180}" upper="${170 * M_PI / 180}"
+             effort="204" velocity="${arm_velocity_scale_factor * 180 * M_PI / 180}" />
+      <dynamics damping="${joint_damping}"/>
+      <parent link="${name}_arm_6_link"/>
+      <child link="${name}_arm_7_link"/>
+    </joint>
+
+    <link name="${name}_arm_7_link">
+      <inertial>
+        <mass value="${arm_elem_end_link_mass}"/>
+        <origin xyz="0 0 0"/>
+        <cuboid_inertia_def length="0.05" width="0.05" height="0.05"
+                            mass="${arm_elem_end_link_mass}"/>
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 ${right * -1/4 * M_PI  +  M_PI}"/>
+        <geometry>
+          <mesh filename="meshes_arm/arm_flanche.stl"/>
+        </geometry>
+        <material name="Grey"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 ${right * -1/4 * M_PI  +  M_PI}"/>
+        <geometry>
+          <mesh filename="meshes_arm/convex/arm_flanche_convex.stl"/>
+        </geometry>
+      </collision>
+    </link>
+    
+    <transmission name="${name}_arm_6_trans" type="pr2_mechanism_model/SimpleTransmission">
+      <actuator name="${name}_arm_6_motor"/>
+      <joint name="${name}_arm_6_joint"/>
+      <mechanicalReduction>1.0</mechanicalReduction>
+    </transmission>
+
+
+
+</robot>

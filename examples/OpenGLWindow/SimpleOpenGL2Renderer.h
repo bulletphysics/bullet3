@@ -46,6 +46,10 @@ struct SimpleOpenGL2Renderer : public CommonRenderInterface
     {
         return m_height;
     }
+	virtual int	registerTexture(const unsigned char* texels, int width, int height)
+	{
+		return -1;
+	}
     virtual int registerGraphicsInstance(int shapeIndex, const double* position, const double* quaternion, const double* color, const double* scaling);
     
     virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling);
@@ -71,6 +75,8 @@ struct SimpleOpenGL2Renderer : public CommonRenderInterface
     virtual void updateShape(int shapeIndex, const float* vertices);
     
     virtual void enableBlend(bool blend);
+
+	virtual void clearZBuffer();
 
 	virtual struct	GLInstanceRendererInternalData* getInternalData()
 	{

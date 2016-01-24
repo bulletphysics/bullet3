@@ -18,12 +18,12 @@ m_guiHelper(guiHelper)
 }
 
     
- class btMultiBody* MyMultiBodyCreator::allocateMultiBody(int /* urdfLinkIndex */, int totalNumJoints,btScalar mass, const btVector3& localInertiaDiagonal, bool isFixedBase, bool canSleep, bool multiDof)
+ class btMultiBody* MyMultiBodyCreator::allocateMultiBody(int /* urdfLinkIndex */, int totalNumJoints,btScalar mass, const btVector3& localInertiaDiagonal, bool isFixedBase, bool canSleep)
 {
 //	m_urdf2mbLink.resize(totalNumJoints+1,-2);
     m_mb2urdfLink.resize(totalNumJoints+1,-2);
 
-    m_bulletMultiBody = new btMultiBody(totalNumJoints,mass,localInertiaDiagonal,isFixedBase,canSleep,multiDof);
+    m_bulletMultiBody = new btMultiBody(totalNumJoints,mass,localInertiaDiagonal,isFixedBase,canSleep);
     return m_bulletMultiBody;
 }
 
@@ -32,6 +32,8 @@ class btRigidBody* MyMultiBodyCreator::allocateRigidBody(int urdfLinkIndex, btSc
     btRigidBody::btRigidBodyConstructionInfo rbci(mass, 0, colShape, localInertiaDiagonal);
     rbci.m_startWorldTransform = initialWorldTrans;
     btRigidBody* body = new btRigidBody(rbci);
+	body->forceActivationState(DISABLE_DEACTIVATION);
+	
     return body;
 }
     
@@ -154,8 +156,8 @@ class btGeneric6DofSpring2Constraint* MyMultiBodyCreator::createRevoluteJoint(in
 		userInfo->m_urdfJointType = URDFRevoluteJoint;
 		userInfo->m_lowerJointLimit = jointLowerLimit;
 		userInfo->m_upperJointLimit = jointUpperLimit;
-		userInfo->m_urdfIndex = urdfLinkIndex;
 	}
+	userInfo->m_urdfIndex = urdfLinkIndex;
 	dof6->setUserConstraintPtr(userInfo);
 	m_6DofConstraints.push_back(dof6);
 	return dof6;
