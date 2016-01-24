@@ -679,7 +679,7 @@ static SIMD_FORCE_INLINE void btVector_safeNormalize(btVector* self, btVectorMod
 
 /**@brief Return the angle between this and another vector
  * @param v The other vector */
-SIMD_FORCE_INLINE btScalar btVector_angle(const btVector* v1, const btVector* v2, btVectorMode mode)
+static SIMD_FORCE_INLINE btScalar btVector_angle(const btVector* v1, const btVector* v2, btVectorMode mode)
 {
 	btScalar s = btSqrt(btVector_length2(v1, mode) * btVector_length2(v2, mode));
 	btFullAssert(s != btScalar(0.0));
@@ -1572,7 +1572,7 @@ static void btVector3_getSkewSymmetricMatrix(const btVector3* BT_RESTRICT self, 
   * @param array The other vectors
   * @param array_count The number of other vectors
   * @param dotOut The maximum dot product, mustn't be NULL */
-static SIMD_FORCE_INLINE   long    btVector3_maxDot(const btVector3* BT_RESTRICT self, const btVector3* BT_RESTRICT array, long array_count, btScalar* BT_RESTRICT dotOut)
+static SIMD_FORCE_INLINE long btVector3_maxDot(const btVector3* BT_RESTRICT self, const btVector3* BT_RESTRICT array, long array_count, btScalar* BT_RESTRICT dotOut)
 {
 #if (defined BT_USE_SSE && defined BT_USE_SIMD_VECTOR3 && defined BT_USE_SSE_IN_API) || defined (BT_USE_NEON)
     #if defined _WIN32 || defined (BT_USE_SSE)
@@ -1610,7 +1610,7 @@ static SIMD_FORCE_INLINE   long    btVector3_maxDot(const btVector3* BT_RESTRICT
   * @param array The other vectors
   * @param array_count The number of other vectors
   * @param dotOut The minimum dot product, mustn't be NULL */
-SIMD_FORCE_INLINE   long    btVector3_minDot(const btVector3* BT_RESTRICT self, const btVector3* BT_RESTRICT array, long array_count, btScalar* BT_RESTRICT dotOut)
+static SIMD_FORCE_INLINE long btVector3_minDot(const btVector3* BT_RESTRICT self, const btVector3* BT_RESTRICT array, long array_count, btScalar* BT_RESTRICT dotOut)
 {
 #if (defined BT_USE_SSE && defined BT_USE_SIMD_VECTOR3 && defined BT_USE_SSE_IN_API) || defined (BT_USE_NEON)
     #if defined BT_USE_SSE

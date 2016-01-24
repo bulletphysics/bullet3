@@ -447,7 +447,7 @@ shortestArcQuatNormalize2(btVector3& v0,btVector3& v1)
 }
 
 #else //__cplusplus
-typedef btQuaternion btVector;
+typedef btVector btQuaternion;
 
 // Fake constructor for non-C++
 #define btQuaternion(x, y, z, w) btVector(x, y, z, w)
