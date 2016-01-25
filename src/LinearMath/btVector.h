@@ -87,10 +87,10 @@ const int32x4_t ATTRIBUTE_ALIGNED16(btv3AbsMask) = (int32x4_t){0x7FFFFFFF, 0x7FF
 
 #endif
 
-// A mini-version of btVector for non-C++ language.
 #ifdef __cplusplus
 ATTRIBUTE_ALIGNED16(struct) btVector
 #else
+// A mini-version of btVector for non-C++ language.
 typedef ATTRIBUTE_ALIGNED16(struct)
 #endif
 {
@@ -244,7 +244,6 @@ typedef ATTRIBUTE_ALIGNED16(struct)
 
 #ifdef __cplusplus
 };
-
 #else
 } btVector;
 
@@ -850,10 +849,10 @@ static SIMD_FORCE_INLINE void btVector_setMin(btVector* BT_RESTRICT self, const 
 }
 
 #define btVector_setValue(self, x, y, z, w) \
-	self->m_floats[0] = x; \
-	self->m_floats[1] = y; \
-	self->m_floats[2] = z; \
-	self->m_floats[3] = w
+	(self)->m_floats[0] = x; \
+	(self)->m_floats[1] = y; \
+	(self)->m_floats[2] = z; \
+	(self)->m_floats[3] = w
 
 // btVector_setZero
 #if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)

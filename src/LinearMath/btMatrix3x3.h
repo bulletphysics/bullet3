@@ -45,11 +45,17 @@ const btSimdFloat4 ATTRIBUTE_ALIGNED16(v0010) = {0.0f, 0.0f, 1.0f, 0.0f};
 
 /**@brief The btMatrix3x3 class implements a 3x3 rotation matrix, to perform linear algebra in combination with btQuaternion, btTransform and btVector3.
 * Make sure to only include a pure orthogonal matrix without scaling. */
-ATTRIBUTE_ALIGNED16(class) btMatrix3x3 {
-
+#ifdef __cplusplus
+ATTRIBUTE_ALIGNED16(struct) btMatrix3x3
+#else// __cplusplus
+// A mini-version of btVector for non-C++ language.
+typedef ATTRIBUTE_ALIGNED16(struct)
+#endif// __cplusplus
+{
 	///Data storage for the matrix, each vector is a row of the matrix
 	btVector3 m_el[3];
 
+#ifdef __cplusplus
 public:
 	/** @brief No initializaion constructor */
 	btMatrix3x3 () {}
@@ -206,75 +212,7 @@ public:
 
 	/** @brief Set the matrix from a quaternion
 	*  @param q The Quaternion to match */  
-	void setRotation(const btQuaternion& q) 
-	{
-		btScalar d = q.length2();
-		btFullAssert(d != btScalar(0.0));
-		btScalar s = btScalar(2.0) / d;
-    
-    #if defined BT_USE_SIMD_VECTOR3 && defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
-        __m128	vs, Q = q.get128();
-		__m128i Qi = btCastfTo128i(Q);
-        __m128	Y, Z;
-        __m128	V1, V2, V3;
-        __m128	V11, V21, V31;
-        __m128	NQ = _mm_xor_ps(Q, btvMzeroMask);
-		__m128i NQi = btCastfTo128i(NQ);
-        
-        V1 = btCastiTo128f(_mm_shuffle_epi32 (Qi, BT_SHUFFLE(1,0,2,3)));	// Y X Z W
-		V2 = _mm_shuffle_ps(NQ, Q, BT_SHUFFLE(0,0,1,3));     // -X -X  Y  W
-        V3 = btCastiTo128f(_mm_shuffle_epi32 (Qi, BT_SHUFFLE(2,1,0,3)));	// Z Y X W
-        V1 = _mm_xor_ps(V1, vMPPP);	//	change the sign of the first element
-			
-        V11	= btCastiTo128f(_mm_shuffle_epi32 (Qi, BT_SHUFFLE(1,1,0,3)));	// Y Y X W
-		V21 = _mm_unpackhi_ps(Q, Q);                    //  Z  Z  W  W
-		V31 = _mm_shuffle_ps(Q, NQ, BT_SHUFFLE(0,2,0,3));	//  X  Z -X -W
-
-		V2 = V2 * V1;	//
-		V1 = V1 * V11;	//
-		V3 = V3 * V31;	//
-
-        V11 = _mm_shuffle_ps(NQ, Q, BT_SHUFFLE(2,3,1,3));	//	-Z -W  Y  W
-		V11 = V11 * V21;	//
-        V21 = _mm_xor_ps(V21, vMPPP);	//	change the sign of the first element
-		V31 = _mm_shuffle_ps(Q, NQ, BT_SHUFFLE(3,3,1,3));	//	 W  W -Y -W
-        V31 = _mm_xor_ps(V31, vMPPP);	//	change the sign of the first element
-		Y = btCastiTo128f(_mm_shuffle_epi32 (NQi, BT_SHUFFLE(3,2,0,3)));	// -W -Z -X -W
-		Z = btCastiTo128f(_mm_shuffle_epi32 (Qi, BT_SHUFFLE(1,0,1,3)));	//  Y  X  Y  W
-
-		vs = _mm_load_ss(&s);
-		V21 = V21 * Y;
-		V31 = V31 * Z;
-
-		V1 = V1 + V11;
-        V2 = V2 + V21;
-        V3 = V3 + V31;
-
-        vs = bt_splat3_ps(vs, 0);
-            //	s ready
-        V1 = V1 * vs;
-        V2 = V2 * vs;
-        V3 = V3 * vs;
-        
-        V1 = V1 + v1000;
-        V2 = V2 + v0100;
-        V3 = V3 + v0010;
-        
-        m_el[0] = V1; 
-        m_el[1] = V2;
-        m_el[2] = V3;
-    #else    
-		btScalar xs = q.x() * s,   ys = q.y() * s,   zs = q.z() * s;
-		btScalar wx = q.w() * xs,  wy = q.w() * ys,  wz = q.w() * zs;
-		btScalar xx = q.x() * xs,  xy = q.x() * ys,  xz = q.x() * zs;
-		btScalar yy = q.y() * ys,  yz = q.y() * zs,  zz = q.z() * zs;
-		setValue(
-            btScalar(1.0) - (yy + zz), xy - wz, xz + wy,
-			xy + wz, btScalar(1.0) - (xx + zz), yz - wx,
-			xz - wy, yz + wx, btScalar(1.0) - (xx + yy));
-	#endif
-    }
-
+	SIMD_FORCE_INLINE void setRotation(const btQuaternion& q);
 
 	/** @brief Set the matrix from euler angles using YPR around YXZ respectively
 	*  @param yaw Yaw about Y axis
@@ -761,7 +699,130 @@ public:
 	void	deSerializeDouble(const struct	btMatrix3x3DoubleData& dataIn);
 
 };
+#else// __cplusplus
+} btMatrix3x3;
+#endif// __cplusplus
 
+#define btMatrix3x3_setValue(self, xx, xy, xz, yx, yy, yz, zx, zy, zz) \
+	btVector3_setValue(&(self)->m_el[0], xx, xy, xz); \
+	btVector3_setValue(&(self)->m_el[1], yx, yy, yz); \
+	btVector3_setValue(&(self)->m_el[2], zx, zy, zz);
+
+/** @brief Constructor with row major formatting */
+static SIMD_FORCE_INLINE btMatrix3x3 btMatrix3x3_create(btScalar xx, btScalar xy, btScalar xz,
+	btScalar yx, btScalar yy, btScalar yz,
+	btScalar zx, btScalar zy, btScalar zz)
+{
+	btMatrix3x3 result;
+	
+	btMatrix3x3_setValue(&result,
+		xx, xy, xz,
+		yx, yy, yz,
+		zx, zy, zz);
+	
+	return result;
+}
+
+#ifndef __cplusplus
+// Fake constructor for non-C++
+#define btMatrix3x3(xx, xy, xz, yx, yy, yz, zx, zy, zz) btMatrix3x3_create(xx, xy, xz, yx, yy, yz, zx, zy, zz)
+#endif
+
+static SIMD_FORCE_INLINE void btMatrix3x3_setRotation(btMatrix3x3* BT_RESTRICT self, const btQuaternion* BT_RESTRICT q) 
+{
+	btScalar d = btQuaternion_length2(q);
+	btFullAssert(d != (btScalar)0.0);
+	btScalar s = ((btScalar)2.0) / d;
+
+#if defined BT_USE_SIMD_VECTOR3 && defined (BT_USE_SSE_IN_API) && defined (BT_USE_SSE)
+    __m128	vs, Q = q->mVec128;
+	__m128i Qi = btCastfTo128i(Q);
+    __m128	Y, Z;
+    __m128	V1, V2, V3;
+    __m128	V11, V21, V31;
+    __m128	NQ = _mm_xor_ps(Q, btvMzeroMask);
+	__m128i NQi = btCastfTo128i(NQ);
+    
+    V1 = btCastiTo128f(_mm_shuffle_epi32 (Qi, BT_SHUFFLE(1,0,2,3)));	// Y X Z W
+	V2 = _mm_shuffle_ps(NQ, Q, BT_SHUFFLE(0,0,1,3));     // -X -X  Y  W
+    V3 = btCastiTo128f(_mm_shuffle_epi32 (Qi, BT_SHUFFLE(2,1,0,3)));	// Z Y X W
+    V1 = _mm_xor_ps(V1, vMPPP);	//	change the sign of the first element
+		
+    V11	= btCastiTo128f(_mm_shuffle_epi32 (Qi, BT_SHUFFLE(1,1,0,3)));	// Y Y X W
+	V21 = _mm_unpackhi_ps(Q, Q);                    //  Z  Z  W  W
+	V31 = _mm_shuffle_ps(Q, NQ, BT_SHUFFLE(0,2,0,3));	//  X  Z -X -W
+
+	V2 = V2 * V1;	//
+	V1 = V1 * V11;	//
+	V3 = V3 * V31;	//
+
+    V11 = _mm_shuffle_ps(NQ, Q, BT_SHUFFLE(2,3,1,3));	//	-Z -W  Y  W
+	V11 = V11 * V21;	//
+    V21 = _mm_xor_ps(V21, vMPPP);	//	change the sign of the first element
+	V31 = _mm_shuffle_ps(Q, NQ, BT_SHUFFLE(3,3,1,3));	//	 W  W -Y -W
+    V31 = _mm_xor_ps(V31, vMPPP);	//	change the sign of the first element
+	Y = btCastiTo128f(_mm_shuffle_epi32 (NQi, BT_SHUFFLE(3,2,0,3)));	// -W -Z -X -W
+	Z = btCastiTo128f(_mm_shuffle_epi32 (Qi, BT_SHUFFLE(1,0,1,3)));	//  Y  X  Y  W
+
+	vs = _mm_load_ss(&s);
+	V21 = V21 * Y;
+	V31 = V31 * Z;
+
+	V1 = V1 + V11;
+    V2 = V2 + V21;
+    V3 = V3 + V31;
+
+    vs = bt_splat3_ps(vs, 0);
+        //	s ready
+    V1 = V1 * vs;
+    V2 = V2 * vs;
+    V3 = V3 * vs;
+    
+    V1 = V1 + v1000;
+    V2 = V2 + v0100;
+    V3 = V3 + v0010;
+    
+    self->m_el[0].mVec128 = V1; 
+    self->m_el[1].mVec128 = V2;
+    self->m_el[2].mVec128 = V3;
+#else
+	const btScalar qx = q->m_floats[0];
+	const btScalar qy = q->m_floats[1];
+	const btScalar qz = q->m_floats[2];
+	const btScalar qw = q->m_floats[3];
+	
+	const btScalar xs = qx * s,   ys = qy * s,   zs = qz * s;
+	const btScalar wx = qw * xs,  wy = qw * ys,  wz = qw * zs;
+	const btScalar xx = qx * xs,  xy = qx * ys,  xz = qx * zs;
+	const btScalar yy = qy * ys,  yz = qy * zs,  zz = qz * zs;
+	
+	self->m_el[0].m_floats[0] = btScalar(1.0) - (yy + zz);
+	self->m_el[0].m_floats[1] = xy - wz;
+	self->m_el[0].m_floats[2] = xz + wy;
+	
+	self->m_el[1].m_floats[0] = xy + wz;
+	self->m_el[1].m_floats[1] = btScalar(1.0) - (xx + zz);
+	self->m_el[1].m_floats[2] = yz - wx;
+	
+	self->m_el[2].m_floats[0] = xz - wy;
+	self->m_el[2].m_floats[1] = yz + wx;
+	self->m_el[2].m_floats[2] = btScalar(1.0) - (xx + yy);
+	
+	/*btMatrix3x3_setValue(self,
+        btScalar(1.0) - (yy + zz), xy - wz, xz + wy,
+		xy + wz, btScalar(1.0) - (xx + zz), yz - wx,
+		xz - wy, yz + wx, btScalar(1.0) - (xx + yy));*/
+#endif
+}
+
+
+#ifdef __cplusplus
+/** @brief Set the matrix from a quaternion
+*  @param q The Quaternion to match */
+SIMD_FORCE_INLINE void btMatrix3x3::setRotation(const btQuaternion& q) 
+{
+	btMatrix3x3_setRotation(this, &q);
+}
 
 SIMD_FORCE_INLINE btMatrix3x3& 
 btMatrix3x3::operator*=(const btMatrix3x3& m)
@@ -1383,6 +1444,7 @@ SIMD_FORCE_INLINE	void	btMatrix3x3::deSerializeDouble(const struct	btMatrix3x3Do
 	for (int i=0;i<3;i++)
 		m_el[i].deSerializeDouble(dataIn.m_el[i]);
 }
+#endif// __cplusplus
 
 #endif //BT_MATRIX3x3_H
 

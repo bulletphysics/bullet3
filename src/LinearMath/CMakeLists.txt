@@ -4,6 +4,7 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(LinearMath_SRCS
+	btScalar.cpp
 	btAlignedAllocator.cpp
 	btConvexHull.cpp
 	btConvexHullComputer.cpp

@@ -7,7 +7,7 @@
 #define BulletTest_cAPI_h
 
 #ifdef __cplusplus
-extern "C" { 
+extern "C" {
 #endif
 
 int Test_cAPI(void);

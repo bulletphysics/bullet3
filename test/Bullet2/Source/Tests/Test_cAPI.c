@@ -11,6 +11,8 @@
 
 #include "LinearMath/btQuaternion.h"
 
+#include "LinearMath/btMatrix3x3.h"
+
 #include "vector.h"
 #include "Utils.h"
 
@@ -53,6 +55,24 @@ int Test_cAPI(void)
 		// output error here
 		return 1;
 	}
+	
+	// Check btMatrix3x3
+	/*const btMatrix3x3 identityMatrix = btMatrix3x3(
+		1, 0, 0,
+		0, 1, 0,
+		0, 0, 1);*/
+	
+	const btMatrix3x3 m1 = btMatrix3x3(
+		1, 2, 3,
+		4, 5, 6,
+		7, 8, 9);
+	
+	for (int i = 0; i < 3; ++i)
+		for (int j = 0; j < 3; ++j)
+			if (m1.m_el[i].m_floats[j] != (i * 3 + j + 1)) {
+				// output error here
+				return 1;
+			}
 	
     return 0;
 }
