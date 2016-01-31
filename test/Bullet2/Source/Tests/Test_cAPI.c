@@ -8,12 +8,11 @@
 
 #include "LinearMath/btScalar.h"
 #include "LinearMath/btVector3.h"
-
 #include "LinearMath/btQuaternion.h"
-
 #include "LinearMath/btMatrix3x3.h"
-
 #include "LinearMath/btTransform.h"
+
+#include "LinearMath/btAlignedAllocator.h"
 
 #include "vector.h"
 #include "Utils.h"
@@ -75,6 +74,12 @@ int Test_cAPI(void)
 				// output error here
 				return 1;
 			}
+	
+	// Check Aligned Allocator
+	typedef btVector3 AligningTestType;
+	AligningTestType* aligned = btAlignedAlloc(sizeof(AligningTestType), 16);
+	memset(aligned, 0, sizeof(AligningTestType));
+	btAlignedFree(aligned);
 	
     return 0;
 }

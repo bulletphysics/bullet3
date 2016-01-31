@@ -28,6 +28,18 @@ subject to the following restrictions:
 #include <string.h>//for memset()
 #include <float.h>
 
+// Definision of BT_LINEAR_MATH_API macros.
+#if defined(_WINDLL) && defined(BT_LINEAR_MATH_SHARED)
+#ifdef BT_LINEAR_MATH_EXPORT
+#define BT_LINEAR_MATH_API extern __declspec( dllexport )
+#else
+#define BT_LINEAR_MATH_API extern __declspec( dllimport )
+#endif
+// If not in Windows
+#else
+#define BT_LINEAR_MATH_API extern
+#endif
+
 /// This definition determinate if function macro inlining would be done.
 /// This value should be 1, for obvious performance reasons,
 ///  except from this cases:
@@ -64,7 +76,7 @@ BT_COMMON_BEGIN
 
 /// Returns the version, same as BT_BULLET_VERSION.
 /// This function is macro-inlined.
-int btGetVersion();
+BT_LINEAR_MATH_API int btGetVersion();
 
 #if defined(DEBUG) || defined (_DEBUG)
 #define BT_DEBUG
