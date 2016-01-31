@@ -849,10 +849,12 @@ static SIMD_FORCE_INLINE void btVector_setMin(btVector* BT_RESTRICT self, const 
 }
 
 #define btVector_setValue(self, x, y, z, w) \
-	(self)->m_floats[0] = x; \
-	(self)->m_floats[1] = y; \
-	(self)->m_floats[2] = z; \
-	(self)->m_floats[3] = w
+	do { \
+	(self)->m_floats[0] = (x); \
+	(self)->m_floats[1] = (y); \
+	(self)->m_floats[2] = (z); \
+	(self)->m_floats[3] = (w); \
+	} while(0)
 
 // btVector_setZero
 #if defined(BT_USE_SSE_IN_API) && defined (BT_USE_SSE)

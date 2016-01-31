@@ -16,7 +16,7 @@ subject to the following restrictions:
 #ifndef	BT_MATRIX3x3_H
 #define BT_MATRIX3x3_H
 
-#include "btVector3.h"
+#include "btVector.h"
 #include "btQuaternion.h"
 #include <stdio.h>
 
@@ -48,7 +48,7 @@ const btSimdFloat4 ATTRIBUTE_ALIGNED16(v0010) = {0.0f, 0.0f, 1.0f, 0.0f};
 #ifdef __cplusplus
 ATTRIBUTE_ALIGNED16(struct) btMatrix3x3
 #else// __cplusplus
-// A mini-version of btVector for non-C++ language.
+// A mini-version of btMatrix3x3 for non-C++ language.
 typedef ATTRIBUTE_ALIGNED16(struct)
 #endif// __cplusplus
 {
@@ -703,10 +703,15 @@ public:
 } btMatrix3x3;
 #endif// __cplusplus
 
-#define btMatrix3x3_setValue(self, xx, xy, xz, yx, yy, yz, zx, zy, zz) \
-	btVector3_setValue(&(self)->m_el[0], xx, xy, xz); \
-	btVector3_setValue(&(self)->m_el[1], yx, yy, yz); \
-	btVector3_setValue(&(self)->m_el[2], zx, zy, zz);
+static SIMD_FORCE_INLINE btMatrix3x3 btMatrix3x3_setValue(btMatrix3x3* self,
+	btScalar xx, btScalar xy, btScalar xz,
+	btScalar yx, btScalar yy, btScalar yz,
+	btScalar zx, btScalar zy, btScalar zz)
+{
+	btVector3_setValue(&self->m_el[0], xx, xy, xz);
+	btVector3_setValue(&self->m_el[1], yx, yy, yz);
+	btVector3_setValue(&self->m_el[2], zx, zy, zz);
+}
 
 /** @brief Constructor with row major formatting */
 static SIMD_FORCE_INLINE btMatrix3x3 btMatrix3x3_create(btScalar xx, btScalar xy, btScalar xz,
@@ -796,7 +801,7 @@ static SIMD_FORCE_INLINE void btMatrix3x3_setRotation(btMatrix3x3* BT_RESTRICT s
 	const btScalar xx = qx * xs,  xy = qx * ys,  xz = qx * zs;
 	const btScalar yy = qy * ys,  yz = qy * zs,  zz = qz * zs;
 	
-	self->m_el[0].m_floats[0] = btScalar(1.0) - (yy + zz);
+	/*self->m_el[0].m_floats[0] = btScalar(1.0) - (yy + zz);
 	self->m_el[0].m_floats[1] = xy - wz;
 	self->m_el[0].m_floats[2] = xz + wy;
 	
@@ -806,12 +811,12 @@ static SIMD_FORCE_INLINE void btMatrix3x3_setRotation(btMatrix3x3* BT_RESTRICT s
 	
 	self->m_el[2].m_floats[0] = xz - wy;
 	self->m_el[2].m_floats[1] = yz + wx;
-	self->m_el[2].m_floats[2] = btScalar(1.0) - (xx + yy);
+	self->m_el[2].m_floats[2] = btScalar(1.0) - (xx + yy);*/
 	
-	/*btMatrix3x3_setValue(self,
+	btMatrix3x3_setValue(self,
         btScalar(1.0) - (yy + zz), xy - wz, xz + wy,
 		xy + wz, btScalar(1.0) - (xx + zz), yz - wx,
-		xz - wy, yz + wx, btScalar(1.0) - (xx + yy));*/
+		xz - wy, yz + wx, btScalar(1.0) - (xx + yy));
 #endif
 }
 

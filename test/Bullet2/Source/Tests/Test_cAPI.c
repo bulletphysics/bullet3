@@ -13,6 +13,8 @@
 
 #include "LinearMath/btMatrix3x3.h"
 
+#include "LinearMath/btTransform.h"
+
 #include "vector.h"
 #include "Utils.h"
 

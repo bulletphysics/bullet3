@@ -31,13 +31,19 @@ subject to the following restrictions:
 
 /**@brief The btTransform class supports rigid transforms with only translation and rotation and no scaling/shear.
  *It can be used in combination with btVector3, btQuaternion and btMatrix3x3 linear algebra classes. */
-ATTRIBUTE_ALIGNED16(class) btTransform {
-	
+#ifdef __cplusplus
+ATTRIBUTE_ALIGNED16(struct) btTransform
+#else// __cplusplus
+// A mini-version of btTransform for non-C++ language.
+typedef ATTRIBUTE_ALIGNED16(struct)
+#endif// __cplusplus
+{
   ///Storage for the rotation
 	btMatrix3x3 m_basis;
   ///Storage for the translation
 	btVector3   m_origin;
 
+#ifdef __cplusplus
 public:
 	
   /**@brief No initialization constructor */
@@ -217,8 +223,11 @@ public:
 	void	deSerializeFloat(const struct	btTransformFloatData& dataIn);
 
 };
+#else// __cplusplus
+} btTransform;
+#endif// __cplusplus
 
-
+#ifdef __cplusplus
 SIMD_FORCE_INLINE btVector3
 btTransform::invXform(const btVector3& inVec) const
 {
@@ -294,12 +303,6 @@ SIMD_FORCE_INLINE	void	btTransform::deSerializeDouble(const btTransformDoubleDat
 	m_basis.deSerializeDouble(dataIn.m_basis);
 	m_origin.deSerializeDouble(dataIn.m_origin);
 }
-
+#endif// __cplusplus
 
 #endif //BT_TRANSFORM_H
-
-
-
-
-
-
