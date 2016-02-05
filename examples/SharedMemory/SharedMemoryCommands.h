@@ -24,12 +24,34 @@
 	typedef unsigned long long int smUint64_t;
 #endif
 
+#define SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE (256*1024)
 
 #define SHARED_MEMORY_SERVER_TEST_C
 #define MAX_DEGREE_OF_FREEDOM 64
 #define MAX_NUM_SENSORS 256
 #define MAX_URDF_FILENAME_LENGTH 1024
 #define MAX_FILENAME_LENGTH MAX_URDF_FILENAME_LENGTH
+
+struct TmpFloat3 
+{
+    float m_x;
+    float m_y;
+    float m_z;
+};
+
+#ifdef _WIN32
+__inline
+#else
+inline
+#endif
+TmpFloat3 CreateTmpFloat3(float x, float y, float z) 
+{
+    TmpFloat3 tmp;
+    tmp.m_x = x;
+    tmp.m_y = y;
+    tmp.m_z = z;
+    return tmp;
+}
 
 enum EnumUrdfArgsUpdateFlags
 {

@@ -1,6 +1,6 @@
 
 INCLUDE_DIRECTORIES(
-	.	
+	.
 	src
 )
 

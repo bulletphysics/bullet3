@@ -29,7 +29,7 @@
 	end
 
 			
-		links{"gwen", "OpenGL_Window","BulletSoftBody", "BulletDynamics","BulletCollision","LinearMath","Bullet3Common"}
+		links{"gwen", "OpenGL_Window","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","Bullet3Common"}
 		initOpenGL()
 		initGlew()
 
@@ -57,10 +57,21 @@
 		"../SharedMemory/PhysicsServerExample.cpp",
 		"../SharedMemory/PhysicsClientExample.cpp",
 		"../SharedMemory/PhysicsServer.cpp",
+		"../SharedMemory/PhysicsServerSharedMemory.cpp",
 		"../SharedMemory/PhysicsClientSharedMemory.cpp",
 		"../SharedMemory/PhysicsClient.cpp",
 		"../SharedMemory/PosixSharedMemory.cpp",
 		"../SharedMemory/Win32SharedMemory.cpp",
+		"../SharedMemory/PhysicsDirect.cpp",
+		"../SharedMemory/PhysicsDirect.h",
+		"../SharedMemory/PhysicsDirectC_API.cpp",
+		"../SharedMemory/PhysicsDirectC_API.h",
+		"../SharedMemory/PhysicsLoopBack.cpp",
+		"../SharedMemory/PhysicsLoopBack.h",
+		"../SharedMemory/PhysicsLoopBackC_API.cpp",
+		"../SharedMemory/PhysicsLoopBackC_API.h",
+		"../SharedMemory/PhysicsServerCommandProcessor.cpp",
+		"../SharedMemory/PhysicsServerCommandProcessor.h",
 		"../MultiThreading/MultiThreadingExample.cpp",
 		"../MultiThreading/b3PosixThreadSupport.cpp",
 		"../MultiThreading/b3Win32ThreadSupport.cpp",
@@ -89,6 +100,7 @@
 		"../Raycast/*",
 		"../MultiBody/MultiDofDemo.cpp",
 		"../MultiBody/TestJointTorqueSetup.cpp",
+		"../MultiBody/Pendulum.cpp",
 		"../MultiBody/MultiBodyConstraintFeedback.cpp",
 		"../MultiBody/InvertedPendulumPDControl.cpp",
 		"../ThirdPartyLibs/stb_image/*",

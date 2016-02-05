@@ -10,10 +10,13 @@ script:
   - echo "CC="$CC
   - cmake . -G "Unix Makefiles" #-DCMAKE_CXX_FLAGS=-Werror
   - make -j8
-  # Test again with double precision
+  - ctest -j8 --output-on-failure
+  # Build again with double precision
   - cmake . -G "Unix Makefiles" -DUSE_DOUBLE_PRECISION=ON #-DCMAKE_CXX_FLAGS=-Werror
   - make -j8
-  # Test again with shared libraries
+  - ctest -j8 --output-on-failure
+  # Build again with shared libraries
   - cmake . -G "Unix Makefiles" -DBUILD_SHARED_LIBS=ON
   - make -j8
+  - ctest -j8 --output-on-failure
   - sudo make install

@@ -214,7 +214,7 @@ void GwenParameterInterface::registerSliderFloatParameter(SliderParams& params)
 	pSlider->SetPos( 10, m_gwenInternalData->m_curYposition );
 	pSlider->SetSize( 200, 20 );
 	pSlider->SetRange( params.m_minVal, params.m_maxVal);
-	pSlider->SetNotchCount(128);//float(params.m_maxVal-params.m_minVal)/100.f);
+	pSlider->SetNotchCount(16);//float(params.m_maxVal-params.m_minVal)/100.f);
 	pSlider->SetClampToNotches( params.m_clampToNotches );
 	pSlider->SetValue( *params.m_paramValuePointer);//dimensions[i] );
 	char labelName[1024];

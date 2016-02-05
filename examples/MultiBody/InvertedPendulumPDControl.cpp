@@ -32,7 +32,7 @@ public:
 		float dist = 5;
 		float pitch = 270;
 		float yaw = 21;
-		float targetPos[3]={-1.34,3.4,-0.44};
+		float targetPos[3]={-1.34,1.4,3.44};
 		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
 	}
 
@@ -55,7 +55,7 @@ InvertedPendulumPDControl::~InvertedPendulumPDControl()
 extern  bool gJointFeedbackInWorldSpace;
 extern bool gJointFeedbackInJointFrame;
 
-btMultiBody* createInvertedPendulumMultiBody(btMultiBodyDynamicsWorld* world, GUIHelperInterface* guiHelper, const btTransform& baseWorldTrans)
+btMultiBody* createInvertedPendulumMultiBody(btMultiBodyDynamicsWorld* world, GUIHelperInterface* guiHelper, const btTransform& baseWorldTrans, bool fixedBase)
 {
 	btVector4 colors[4] =
     {
@@ -66,7 +66,6 @@ btMultiBody* createInvertedPendulumMultiBody(btMultiBodyDynamicsWorld* world, GU
     };
     int curColor = 0;
 
-	bool fixedBase = true;
     bool damping = false;
     bool gyro = false;
     int numLinks = 2;
@@ -80,7 +79,7 @@ btMultiBody* createInvertedPendulumMultiBody(btMultiBodyDynamicsWorld* world, GU
     //mbC->forceMultiDof();							//if !spherical, you can comment this line to check the 1DoF algorithm
     //init the base
     btVector3 baseInertiaDiag(0.f, 0.f, 0.f);
-    float baseMass = 0.f;
+    float baseMass = fixedBase ? 0.f : 10.f;
 
     if(baseMass)
     {
@@ -356,7 +355,7 @@ void InvertedPendulumPDControl::initPhysics()
 	btTransform baseWorldTrans;
 	baseWorldTrans.setIdentity();
 	baseWorldTrans.setOrigin(btVector3(1,2,3));
-	m_multiBody = createInvertedPendulumMultiBody(m_dynamicsWorld, m_guiHelper, baseWorldTrans);
+	m_multiBody = createInvertedPendulumMultiBody(m_dynamicsWorld, m_guiHelper, baseWorldTrans, true);
 
 	//for (int i=pMultiBody->getNumLinks()-1;i>=0;i--)//
 	for (int i=0;i<m_multiBody->getNumLinks();i++)
