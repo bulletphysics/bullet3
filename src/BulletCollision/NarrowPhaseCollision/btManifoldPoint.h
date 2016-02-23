@@ -39,6 +39,7 @@ enum btContactPointFlags
 {
 	BT_CONTACT_FLAG_LATERAL_FRICTION_INITIALIZED=1,
 	BT_CONTACT_FLAG_HAS_CONTACT_CFM=2,
+	BT_CONTACT_FLAG_HAS_CONTACT_ERP=4,
 };
 
 /// ManifoldContactPoint collects and maintains persistent contactpoints.
@@ -55,6 +56,7 @@ class btManifoldPoint
 				m_contactMotion1(0.f),
 				m_contactMotion2(0.f),
 				m_contactCFM(0.f),
+				m_contactERP(0.f),
 				m_frictionCFM(0.f),
 				m_lifeTime(0)
 			{
@@ -78,6 +80,7 @@ class btManifoldPoint
 					m_contactMotion1(0.f),
 					m_contactMotion2(0.f),
 					m_contactCFM(0.f),
+					m_contactERP(0.f),
 					m_frictionCFM(0.f),
 					m_lifeTime(0)
 			{
@@ -114,6 +117,8 @@ class btManifoldPoint
 			btScalar		m_contactMotion1;
 			btScalar		m_contactMotion2;
 			btScalar		m_contactCFM;
+			btScalar		m_contactERP;
+
 			btScalar		m_frictionCFM;
 
 			int				m_lifeTime;//lifetime of the contactpoint in frames

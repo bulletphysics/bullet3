@@ -780,6 +780,7 @@ void btSequentialImpulseConstraintSolver::setupContactConstraint(btSolverConstra
 			btScalar cfm = (cp.m_contactPointFlags&BT_CONTACT_FLAG_HAS_CONTACT_CFM)?cp.m_contactCFM:infoGlobal.m_globalCfm;
 			cfm *= invTimeStep;
 
+			btScalar erp = (cp.m_contactPointFlags&BT_CONTACT_FLAG_HAS_CONTACT_ERP)?cp.m_contactERP:infoGlobal.m_erp2;
 
 			btVector3 torqueAxis0 = rel_pos1.cross(cp.m_normalWorldOnB);
 			solverConstraint.m_angularComponentA = rb0 ? rb0->getInvInertiaTensorWorld()*torqueAxis0*rb0->getAngularFactor() : btVector3(0,0,0);
@@ -888,12 +889,7 @@ void btSequentialImpulseConstraintSolver::setupContactConstraint(btSolverConstra
 					btScalar	velocityError = restitution - rel_vel;// * damping;
 
 
-					btScalar erp = infoGlobal.m_erp2;
-					if (!infoGlobal.m_splitImpulse || (penetration > infoGlobal.m_splitImpulsePenetrationThreshold))
-					{
-						erp = infoGlobal.m_erp;
-					}
-
+				
 					if (penetration>0)
 					{
 						positionalError = 0;

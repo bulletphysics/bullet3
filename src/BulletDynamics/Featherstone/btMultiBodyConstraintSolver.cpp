@@ -221,9 +221,15 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 	if (bodyB)
 		rel_pos2 = pos2 - bodyB->getWorldTransform().getOrigin();
 
-	relaxation = 1.f;
-
+	relaxation = infoGlobal.m_sor;
 	
+	btScalar invTimeStep = btScalar(1)/infoGlobal.m_timeStep;
+	btScalar cfm = (cp.m_contactPointFlags&BT_CONTACT_FLAG_HAS_CONTACT_CFM)?cp.m_contactCFM:infoGlobal.m_globalCfm;
+	cfm *= invTimeStep;
+
+	btScalar erp = (cp.m_contactPointFlags&BT_CONTACT_FLAG_HAS_CONTACT_ERP)?cp.m_contactERP:infoGlobal.m_erp2;
+
+
 
 
 	if (multiBodyA)
@@ -366,7 +372,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 
 		 
 
-		 btScalar d = denom0+denom1;
+		 btScalar d = denom0+denom1+cfm;
 		 if (d>SIMD_EPSILON)
 		 {
 			solverConstraint.m_jacDiagABInv = relaxation/(d);
@@ -477,12 +483,6 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 		btScalar positionalError = 0.f;
 		btScalar velocityError = restitution - rel_vel;// * damping;	//note for friction restitution is always set to 0 (check above) so it is acutally velocityError = -rel_vel for friction
 
-		btScalar erp = infoGlobal.m_erp2;
-		if (!infoGlobal.m_splitImpulse || (penetration > infoGlobal.m_splitImpulsePenetrationThreshold))
-		{
-			erp = infoGlobal.m_erp;
-		}
-
 		if (penetration>0)
 		{
 			positionalError = 0;
@@ -522,7 +522,10 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 			solverConstraint.m_upperLimit = solverConstraint.m_friction;
 		}
 
-		solverConstraint.m_cfm = 0.f;			//why not use cfmSlip?
+		solverConstraint.m_cfm = cfm*solverConstraint.m_jacDiagABInv;
+		
+
+
 	}
 
 }
