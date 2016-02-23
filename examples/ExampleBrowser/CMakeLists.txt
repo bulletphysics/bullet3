@@ -137,6 +137,7 @@ SET(App_ExampleBrowser_SRCS
   ../Vehicles/Hinge2Vehicle.cpp
   ../Vehicles/Hinge2Vehicle.h
   ../MultiBody/Pendulum.cpp
+  ../MultiBody/MultiBodySoftContact.cpp
   ../MultiBody/TestJointTorqueSetup.cpp
   ../MultiBody/TestJointTorqueSetup.h
   ../MultiBody/InvertedPendulumPDControl.cpp
@@ -144,6 +145,7 @@ SET(App_ExampleBrowser_SRCS
  ../MultiBody/MultiBodyConstraintFeedback.cpp
   ../MultiBody/MultiDofDemo.cpp
   ../MultiBody/MultiDofDemo.h
+  ../RigidBody/RigidBodySoftContact.cpp
   ../Constraints/TestHingeTorque.cpp
   ../Constraints/TestHingeTorque.h
   ../Constraints/ConstraintDemo.cpp

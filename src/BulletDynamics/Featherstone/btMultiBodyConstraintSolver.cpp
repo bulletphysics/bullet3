@@ -221,9 +221,15 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 	if (bodyB)
 		rel_pos2 = pos2 - bodyB->getWorldTransform().getOrigin();
 
-	relaxation = 1.f;
-
+	relaxation = infoGlobal.m_sor;
 	
+	btScalar invTimeStep = btScalar(1)/infoGlobal.m_timeStep;
+	btScalar cfm = (cp.m_contactPointFlags&BT_CONTACT_FLAG_HAS_CONTACT_CFM)?cp.m_contactCFM:infoGlobal.m_globalCfm;
+	cfm *= invTimeStep;
+
+	btScalar erp = (cp.m_contactPointFlags&BT_CONTACT_FLAG_HAS_CONTACT_ERP)?cp.m_contactERP:infoGlobal.m_erp2;
+
+
 
 
 	if (multiBodyA)
@@ -366,7 +372,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 
 		 
 
-		 btScalar d = denom0+denom1;
+		 btScalar d = denom0+denom1+cfm;
 		 if (d>SIMD_EPSILON)
 		 {
 			solverConstraint.m_jacDiagABInv = relaxation/(d);
@@ -477,12 +483,6 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 		btScalar positionalError = 0.f;
 		btScalar velocityError = restitution - rel_vel;// * damping;	//note for friction restitution is always set to 0 (check above) so it is acutally velocityError = -rel_vel for friction
 
-		btScalar erp = infoGlobal.m_erp2;
-		if (!infoGlobal.m_splitImpulse || (penetration > infoGlobal.m_splitImpulsePenetrationThreshold))
-		{
-			erp = infoGlobal.m_erp;
-		}
-
 		if (penetration>0)
 		{
 			positionalError = 0;
@@ -522,7 +522,10 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 			solverConstraint.m_upperLimit = solverConstraint.m_friction;
 		}
 
-		solverConstraint.m_cfm = 0.f;			//why not use cfmSlip?
+		solverConstraint.m_cfm = cfm*solverConstraint.m_jacDiagABInv;
+		
+
+
 	}
 
 }
@@ -685,7 +688,7 @@ void	btMultiBodyConstraintSolver::convertMultiBodyContact(btPersistentManifold* 
 			///In that case, you can set the target relative motion in each friction direction (cp.m_contactMotion1 and cp.m_contactMotion2)
 			///this will give a conveyor belt effect
 			///
-			if (!(infoGlobal.m_solverMode & SOLVER_ENABLE_FRICTION_DIRECTION_CACHING) || !cp.m_lateralFrictionInitialized)
+			if (!(infoGlobal.m_solverMode & SOLVER_ENABLE_FRICTION_DIRECTION_CACHING) || !(cp.m_contactPointFlags&BT_CONTACT_FLAG_LATERAL_FRICTION_INITIALIZED))
 			{/*
 				cp.m_lateralFrictionDir1 = vel - cp.m_normalWorldOnB * rel_vel;
 				btScalar lat_rel_vel = cp.m_lateralFrictionDir1.length2();
@@ -724,16 +727,16 @@ void	btMultiBodyConstraintSolver::convertMultiBodyContact(btPersistentManifold* 
 
 					if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS) && (infoGlobal.m_solverMode & SOLVER_DISABLE_VELOCITY_DEPENDENT_FRICTION_DIRECTION))
 					{
-						cp.m_lateralFrictionInitialized = true;
+						cp.m_contactPointFlags|=BT_CONTACT_FLAG_LATERAL_FRICTION_INITIALIZED;
 					}
 				}
 
 			} else
 			{
-				addMultiBodyFrictionConstraint(cp.m_lateralFrictionDir1,manifold,frictionIndex,cp,colObj0,colObj1, relaxation,infoGlobal,cp.m_contactMotion1, cp.m_contactCFM1);
+				addMultiBodyFrictionConstraint(cp.m_lateralFrictionDir1,manifold,frictionIndex,cp,colObj0,colObj1, relaxation,infoGlobal,cp.m_contactMotion1, cp.m_frictionCFM);
 
 				if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
-					addMultiBodyFrictionConstraint(cp.m_lateralFrictionDir2,manifold,frictionIndex,cp,colObj0,colObj1, relaxation, infoGlobal,cp.m_contactMotion2, cp.m_contactCFM2);
+					addMultiBodyFrictionConstraint(cp.m_lateralFrictionDir2,manifold,frictionIndex,cp,colObj0,colObj1, relaxation, infoGlobal,cp.m_contactMotion2, cp.m_frictionCFM);
 
 				//setMultiBodyFrictionConstraintImpulse( solverConstraint, solverBodyIdA, solverBodyIdB, cp, infoGlobal);
 				//todo:

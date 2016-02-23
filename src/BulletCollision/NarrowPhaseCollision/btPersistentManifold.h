@@ -163,7 +163,7 @@ public:
 			//get rid of duplicated userPersistentData pointer
 			m_pointCache[lastUsedIndex].m_userPersistentData = 0;
 			m_pointCache[lastUsedIndex].m_appliedImpulse = 0.f;
-			m_pointCache[lastUsedIndex].m_lateralFrictionInitialized = false;
+			m_pointCache[lastUsedIndex].m_contactPointFlags = 0;
 			m_pointCache[lastUsedIndex].m_appliedImpulseLateral1 = 0.f;
 			m_pointCache[lastUsedIndex].m_appliedImpulseLateral2 = 0.f;
 			m_pointCache[lastUsedIndex].m_lifeTime = 0;
@@ -190,7 +190,6 @@ public:
 		void* cache = m_pointCache[insertIndex].m_userPersistentData;
 		
 		m_pointCache[insertIndex] = newPoint;
-
 		m_pointCache[insertIndex].m_userPersistentData = cache;
 		m_pointCache[insertIndex].m_appliedImpulse = appliedImpulse;
 		m_pointCache[insertIndex].m_appliedImpulseLateral1 = appliedLateralImpulse1;
