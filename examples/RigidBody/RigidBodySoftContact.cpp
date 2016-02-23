@@ -15,7 +15,7 @@ subject to the following restrictions:
 
 
 
-#include "RigidBodySoftContact.h"f
+#include "RigidBodySoftContact.h"
 
 #include "btBulletDynamicsCommon.h"
 #define ARRAY_SIZE_Y 1
