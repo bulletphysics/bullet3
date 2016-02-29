@@ -29,20 +29,20 @@ public:
 
 	    for (int i = 1; i < argc; i++)
 	    {
-	        string arg = argv[i];
+	        std::string arg = argv[i];
 
 	        if ((arg[0] != '-') || (arg[1] != '-')) {
 	        	continue;
 	        }
 
-        	string::size_type pos;
-		    string key, val;
-	        if ((pos = arg.find( '=')) == string::npos) {
-	        	key = string(arg, 2, arg.length() - 2);
+        	std::string::size_type pos;
+		    std::string key, val;
+	        if ((pos = arg.find( '=')) == std::string::npos) {
+	        	key = std::string(arg, 2, arg.length() - 2);
 	        	val = "";
 	        } else {
-	        	key = string(arg, 2, pos - 2);
-	        	val = string(arg, pos + 1, arg.length() - 1);
+	        	key = std::string(arg, 2, pos - 2);
+	        	val = std::string(arg, pos + 1, arg.length() - 1);
 	        }
 			
 			//only add new keys, don't replace existing
@@ -56,7 +56,7 @@ public:
 	bool CheckCmdLineFlag(const char* arg_name)
 	{
 		using namespace std;
-		map<string, string>::iterator itr;
+		map<std::string, std::string>::iterator itr;
 		if ((itr = pairs.find(arg_name)) != pairs.end()) {
 			return true;
 	    }
@@ -76,7 +76,7 @@ template <typename T>
 inline bool b3CommandLineArgs::GetCmdLineArgument(const char *arg_name, T &val)
 {
 	using namespace std;
-	map<string, string>::iterator itr;
+	map<std::string, std::string>::iterator itr;
 	if ((itr = pairs.find(arg_name)) != pairs.end()) {
 		istringstream strstream(itr->second);
 		strstream >> val;
@@ -89,10 +89,10 @@ template <>
 inline bool b3CommandLineArgs::GetCmdLineArgument<char*>(const char* arg_name, char* &val)
 {
 	using namespace std;
-	map<string, string>::iterator itr;
+	map<std::string, std::string>::iterator itr;
 	if ((itr = pairs.find(arg_name)) != pairs.end()) {
 
-		string s = itr->second;
+		std::string s = itr->second;
 		val = (char*) malloc(sizeof(char) * (s.length() + 1));
 		std::strcpy(val, s.c_str());
 		return true;
