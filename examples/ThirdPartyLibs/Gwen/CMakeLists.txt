@@ -17,7 +17,7 @@ ENDIF()
 
 ADD_DEFINITIONS( -DGLEW_STATIC -DGWEN_COMPILE_STATIC -D_HAS_EXCEPTIONS=0 )
 if( MSVC_VERSION LESS 1900 )
-ADD_DEFINITIONS( -D_STATIC_CPPLIB )
+   ADD_DEFINITIONS( -D_STATIC_CPPLIB )
 endif( MSVC_VERSION LESS 1900 )
 
 FILE(GLOB gwen_SRCS "*.cpp" "Controls/*.cpp" "Controls/Dialog/*.cpp" "Controls/Dialogs/*.cpp" "Controls/Layout/*.cpp" "Controls/Property/*.cpp" "Input/*.cpp" "Platforms/*.cpp" "Renderers/*.cpp" "Skins/*.cpp")
