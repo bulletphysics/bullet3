@@ -1,3 +1,4 @@
+#ifdef _WIN32
 /*
 Copyright (c) 2012 Advanced Micro Devices, Inc.  
 
@@ -805,5 +806,5 @@ b3WheelCallback Win32Window::getWheelCallback()
 {
 	return m_data->m_wheelCallback;
 }
-
+#endif
 	

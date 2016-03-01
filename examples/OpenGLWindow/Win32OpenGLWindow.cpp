@@ -1,3 +1,4 @@
+#ifdef _WIN32
 /*
 Copyright (c) 2012 Advanced Micro Devices, Inc.  
 
@@ -178,5 +179,7 @@ int Win32OpenGLWindow::fileOpenDialog(char* fileName, int maxFileNameLength)
 
 	//return 0;
 }
+
+#endif
 
 	
