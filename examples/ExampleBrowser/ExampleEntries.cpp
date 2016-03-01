@@ -1,5 +1,3 @@
-
-
 #include "ExampleEntries.h"
 
 #include "LinearMath/btAlignedObjectArray.h"
@@ -11,7 +9,9 @@
 #include "../BasicDemo/BasicExample.h"
 #include "../Planar2D/Planar2D.h"
 #include "../Benchmarks/BenchmarkDemo.h"
+#ifdef ENABLE_URDF_OBJ
 #include "../Importers/ImportObjDemo/ImportObjExample.h"
+#endif
 #include "../Importers/ImportBsp/ImportBspExample.h"
 #include "../Importers/ImportColladaDemo/ImportColladaSetup.h"
 #include "../Importers/ImportSTLDemo/ImportSTLSetup.h"
@@ -194,9 +194,9 @@ static ExampleEntry gDefaultExamples[]=
 
 	ExampleEntry(0,"Importers"),
 	ExampleEntry(1,"Import .bullet", "Load a binary .bullet file. The serialization mechanism can deal with versioning, differences in endianess, 32 and 64bit, double/single precision. It is easy to save a .bullet file, see the examples/Importers/ImportBullet/SerializeDemo.cpp for a code example how to export a .bullet file.", SerializeBulletCreateFunc),
-	
+#ifdef ENABLE_URDF_OBJ	
 	ExampleEntry(1,"Wavefront Obj", "Import a Wavefront .obj file", ImportObjCreateFunc, 0),
-
+#endif
 	ExampleEntry(1,"Quake BSP", "Import a Quake .bsp file", ImportBspCreateFunc, 0),
 	ExampleEntry(1,"COLLADA dae", "Import the geometric mesh data from a COLLADA file. This is used as part of the URDF importer. This loader can also be used to import collision geometry in general. ", 
 					ImportColladaCreateFunc, 0),

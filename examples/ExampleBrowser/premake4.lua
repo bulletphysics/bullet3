@@ -20,6 +20,7 @@
                 "../../src",
                 "../ThirdPartyLibs",
                 }
+	defines {"ENABLE_URDF_OBJ"}
 
 	if _OPTIONS["lua"] then
 		includedirs{"../ThirdPartyLibs/lua-5.2.3/src"}
