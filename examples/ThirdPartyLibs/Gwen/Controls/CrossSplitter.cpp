@@ -1,4 +1,3 @@
-#ifdef _WIN32
 #include "Gwen/Gwen.h"
 #include "Gwen/Controls/CrossSplitter.h"
 #include "Gwen/Controls/Button.h"
@@ -181,4 +180,3 @@ void CrossSplitter::UnZoom()
 	Invalidate();
 	ZoomChanged();
 }
-#endif
