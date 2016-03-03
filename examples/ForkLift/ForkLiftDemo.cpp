@@ -365,6 +365,7 @@ void ForkLiftDemo::initPhysics()
 	{
 		m_dynamicsWorld ->getSolverInfo().m_minimumSolverBatchSize = 128;//for direct solver, it is better to solve multiple objects together, small batches have high overhead
 	}
+	m_dynamicsWorld->getSolverInfo().m_globalCfm = 0.00001;
 
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	
