@@ -21,6 +21,7 @@
 #ifndef B3_MPR_PENETRATION_H
 #define B3_MPR_PENETRATION_H
 
+#include "Bullet3Common/shared/b3PlatformDefinitions.h"
 #include "Bullet3Common/shared/b3Float4.h"
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3RigidBodyData.h"
 #include "Bullet3Collision/NarrowPhaseCollision/shared/b3ConvexPolyhedronData.h"
@@ -151,7 +152,7 @@ inline b3Float4 b3LocalGetSupportVertex(b3Float4ConstArg supportVec,__global con
 }
 
 
-static void b3MprConvexSupport(int pairIndex,int bodyIndex,  b3ConstArray(b3RigidBodyData_t) cpuBodyBuf, 
+B3_STATIC void b3MprConvexSupport(int pairIndex,int bodyIndex,  b3ConstArray(b3RigidBodyData_t) cpuBodyBuf, 
 													b3ConstArray(b3ConvexPolyhedronData_t) cpuConvexData, 
 													b3ConstArray(b3Collidable_t)				cpuCollidables,
 													b3ConstArray(b3Float4)					cpuVertices,
@@ -370,7 +371,7 @@ inline void b3ExpandPortal(b3MprSimplex_t *portal,
 
 
 
-static int b3DiscoverPortal(int pairIndex, int bodyIndexA, int bodyIndexB,  b3ConstArray(b3RigidBodyData_t) cpuBodyBuf, 
+B3_STATIC int b3DiscoverPortal(int pairIndex, int bodyIndexA, int bodyIndexB,  b3ConstArray(b3RigidBodyData_t) cpuBodyBuf, 
 													b3ConstArray(b3ConvexPolyhedronData_t) cpuConvexData, 
 													b3ConstArray(b3Collidable_t)				cpuCollidables,
 													b3ConstArray(b3Float4)					cpuVertices,
@@ -505,7 +506,7 @@ static int b3DiscoverPortal(int pairIndex, int bodyIndexA, int bodyIndexB,  b3Co
 }
 
 
-static int b3RefinePortal(int pairIndex,int bodyIndexA, int bodyIndexB,  b3ConstArray(b3RigidBodyData_t) cpuBodyBuf, 
+B3_STATIC int b3RefinePortal(int pairIndex,int bodyIndexA, int bodyIndexB,  b3ConstArray(b3RigidBodyData_t) cpuBodyBuf, 
 													b3ConstArray(b3ConvexPolyhedronData_t) cpuConvexData, 
 													b3ConstArray(b3Collidable_t)				cpuCollidables,
 													b3ConstArray(b3Float4)					cpuVertices,
@@ -547,7 +548,7 @@ static int b3RefinePortal(int pairIndex,int bodyIndexA, int bodyIndexB,  b3Const
     return -1;
 }
 
-static void b3FindPos(const b3MprSimplex_t *portal, b3Float4 *pos)
+B3_STATIC void b3FindPos(const b3MprSimplex_t *portal, b3Float4 *pos)
 {
 
 	b3Float4 zero = b3MakeFloat4(0,0,0,0);
@@ -758,7 +759,7 @@ inline float b3MprVec3PointTriDist2(const b3Float4 *P,
 }
 
 
-static void b3FindPenetr(int pairIndex,int bodyIndexA, int bodyIndexB,  b3ConstArray(b3RigidBodyData_t) cpuBodyBuf, 
+B3_STATIC void b3FindPenetr(int pairIndex,int bodyIndexA, int bodyIndexB,  b3ConstArray(b3RigidBodyData_t) cpuBodyBuf, 
 													b3ConstArray(b3ConvexPolyhedronData_t) cpuConvexData, 
 													b3ConstArray(b3Collidable_t)				cpuCollidables,
 													b3ConstArray(b3Float4)					cpuVertices,
@@ -811,7 +812,7 @@ static void b3FindPenetr(int pairIndex,int bodyIndexA, int bodyIndexB,  b3ConstA
     }
 }
 
-static void b3FindPenetrTouch(b3MprSimplex_t *portal,float *depth, b3Float4 *dir, b3Float4 *pos)
+B3_STATIC void b3FindPenetrTouch(b3MprSimplex_t *portal,float *depth, b3Float4 *dir, b3Float4 *pos)
 {
     // Touching contact on portal's v1 - so depth is zero and direction
     // is unimportant and pos can be guessed
@@ -827,7 +828,7 @@ static void b3FindPenetrTouch(b3MprSimplex_t *portal,float *depth, b3Float4 *dir
     b3MprVec3Scale(pos, 0.5);
 }
 
-static void b3FindPenetrSegment(b3MprSimplex_t *portal,
+B3_STATIC void b3FindPenetrSegment(b3MprSimplex_t *portal,
                               float *depth, b3Float4 *dir, b3Float4 *pos)
 {
     
