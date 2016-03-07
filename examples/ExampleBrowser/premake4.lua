@@ -1,5 +1,5 @@
 	
-		project "App_ExampleBrowser"
+		project "BulletExampleBrowserLib"
 
 		hasCL = findOpenCL("clew")
 	
@@ -13,7 +13,7 @@
 
 		language "C++"
 				
-		kind "ConsoleApp"
+		kind "StaticLib"
 
   	includedirs {
                 ".",
@@ -30,26 +30,20 @@
 	end
 
 			
-		links{"gwen", "OpenGL_Window","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","Bullet3Common"}
 		initOpenGL()
 		initGlew()
 
-		if (hasCL) then
-			links {
-				"Bullet3OpenCL_clew",
-				"Bullet3Dynamics",
-				"Bullet3Collision",
-				"Bullet3Geometry",
-				"Bullet3Common",
-			}
-		end
-		
 		defines {"INCLUDE_CLOTH_DEMOS"}
 			
 
 
 		files {
-		"*.cpp",
+		"OpenGLExampleBrowser.cpp",
+		"OpenGLGuiHelper.cpp",
+		"InProcessExampleBrowser.cpp",
+		"GL_ShapeDrawer.cpp",
+		"OpenGLExampleBrowser.cpp",
+		"../Utils/b3Clock.cpp",
 		"*.h",
 		"GwenGUISupport/*.cpp",
 		"GwenGUISupport/*.h",
@@ -60,6 +54,7 @@
 		"../SharedMemory/PhysicsServer.cpp",
 		"../SharedMemory/PhysicsServerSharedMemory.cpp",
 		"../SharedMemory/PhysicsClientSharedMemory.cpp",
+		"../SharedMemory/SharedMemoryInProcessPhysicsC_API.cpp",
 		"../SharedMemory/PhysicsClient.cpp",
 		"../SharedMemory/PosixSharedMemory.cpp",
 		"../SharedMemory/Win32SharedMemory.cpp",
@@ -109,7 +104,6 @@
 		"../ThirdPartyLibs/stb_image/*",
 		"../ThirdPartyLibs/Wavefront/tiny_obj_loader.*",
 		"../ThirdPartyLibs/tinyxml/*",
-		"../Utils/b3Clock.*",
 		"../Utils/b3ResourcePath.*",
 		"../GyroscopicDemo/GyroscopicSetup.cpp",
 		"../GyroscopicDemo/GyroscopicSetup.h",
@@ -149,8 +143,41 @@ if os.is("Linux") then
 	initX11()
 end
 
-if os.is("MacOSX") then
-	links{"Cocoa.framework"}
-end
-
 			
+project "App_BulletExampleBrowser"
+
+	language "C++"
+
+	kind "ConsoleApp"
+
+	hasCL = findOpenCL("clew")
+
+	links{"BulletExampleBrowserLib","gwen", "OpenGL_Window","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","Bullet3Common"}
+	initOpenGL()
+	initGlew()
+
+  	includedirs {
+                ".",
+                "../../src",
+                "../ThirdPartyLibs",
+                }
+
+
+	if os.is("MacOSX") then
+		links{"Cocoa.framework"}
+	end
+
+		if (hasCL) then
+			links {
+				"Bullet3OpenCL_clew",
+				"Bullet3Dynamics",
+				"Bullet3Collision",
+				"Bullet3Geometry",
+				"Bullet3Common",
+			}
+		end
+
+	files {
+	"main.cpp",
+	"ExampleEntries.cpp",
+	}

@@ -29,6 +29,7 @@ SET(App_ExampleBrowser_SRCS
 	../SharedMemory/PhysicsDirect.h
 	../SharedMemory/PhysicsDirectC_API.cpp
 	../SharedMemory/PhysicsDirectC_API.h
+	../SharedMemory/SharedMemoryInProcessPhysicsC_API.cpp
 	../SharedMemory/PhysicsLoopBack.cpp
 	../SharedMemory/PhysicsLoopBack.h
 	../SharedMemory/PhysicsLoopBackC_API.cpp

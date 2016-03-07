@@ -71,6 +71,9 @@ struct ExampleBrowserThreadLocalStorage
 enum TestExampleBrowserCommunicationEnums
 {
 	eRequestTerminateExampleBrowser = 13,
+	eExampleBrowserIsUnInitialized,
+	eExampleBrowserIsInitialized,
+	eExampleBrowserInitializationFailed,
 	eExampleBrowserHasTerminated
 };
 
@@ -94,6 +97,11 @@ void	ExampleBrowserThreadFunc(void* userPtr,void* lsMemory)
 	clock.reset();
 	if (init)
 	{
+		
+		args->m_cs->lock();
+		args->m_cs->setSharedParam(0,eExampleBrowserIsInitialized);
+		args->m_cs->unlock();
+
 		do 
 		{
 			float deltaTimeInSeconds = clock.getTimeMicroseconds()/1000000.f;
@@ -101,7 +109,13 @@ void	ExampleBrowserThreadFunc(void* userPtr,void* lsMemory)
 			exampleBrowser->update(deltaTimeInSeconds);
 
 		} while (!exampleBrowser->requestedExit() && (args->m_cs->getSharedParam(0)!=eRequestTerminateExampleBrowser));
+	} else
+	{
+		args->m_cs->lock();
+		args->m_cs->setSharedParam(0,eExampleBrowserInitializationFailed);
+		args->m_cs->unlock();
 	}
+
 	delete exampleBrowser;
 	args->m_cs->lock();
 	args->m_cs->setSharedParam(0,eExampleBrowserHasTerminated);
@@ -153,7 +167,7 @@ btInProcessExampleBrowserInternalData* btCreateInProcessExampleBrowser(int argc,
 
 
 	data->m_args.m_cs = data->m_threadSupport->createCriticalSection();
-	data->m_args.m_cs->setSharedParam(0,100);
+	data->m_args.m_cs->setSharedParam(0,eExampleBrowserIsUnInitialized);
  	data->m_args.m_argc = argc;
  	data->m_args.m_argv = argv2;
 
@@ -161,6 +175,10 @@ btInProcessExampleBrowserInternalData* btCreateInProcessExampleBrowser(int argc,
 	for (i=0;i<numThreads;i++)
 	{
 		data->m_threadSupport->runTask(B3_THREAD_SCHEDULE_TASK, (void*) &data->m_args, i);
+	}
+
+	while (data->m_args.m_cs->getSharedParam(0)==eExampleBrowserIsUnInitialized)
+	{
 	}
 
 	return data;
