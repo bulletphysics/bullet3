@@ -1,7 +1,7 @@
 
 #include "SharedMemoryInProcessPhysicsC_API.h"
 #include "PhysicsClientSharedMemory.h"
-#include"ExampleBrowser/InProcessExampleBrowser.h"
+#include"../ExampleBrowser/InProcessExampleBrowser.h"
 
 
 class InProcessPhysicsClientSharedMemory : public PhysicsClientSharedMemory
