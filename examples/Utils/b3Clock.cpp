@@ -68,6 +68,7 @@ b3Clock::b3Clock()
 	reset();
 }
 
+
 b3Clock::~b3Clock()
 {
 	delete m_data;
