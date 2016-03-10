@@ -24,6 +24,7 @@ SET(App_ExampleBrowser_SRCS
 	../SharedMemory/PhysicsClientExample.cpp
 	../SharedMemory/PosixSharedMemory.cpp
 	../SharedMemory/Win32SharedMemory.cpp
+	../SharedMemory/InProcessMemory.cpp
 	../SharedMemory/PhysicsServerSharedMemory.cpp
 	../SharedMemory/PhysicsDirect.cpp
 	../SharedMemory/PhysicsDirect.h

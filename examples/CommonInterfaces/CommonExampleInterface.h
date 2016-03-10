@@ -10,12 +10,14 @@ struct CommonExampleOptions
 	//Those are optional, some examples will use them others don't. Each example should work with them being 0.
 	int			m_option;
 	const char* m_fileName;
+	class SharedMemoryInterface* m_sharedMem;
 
 	
 	CommonExampleOptions(struct GUIHelperInterface*	helper, int option=0)
 		:m_guiHelper(helper),
 		m_option(option),
-		m_fileName(0)
+		m_fileName(0),
+		m_sharedMem(0)
 	{
 	}
 

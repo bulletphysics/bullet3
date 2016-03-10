@@ -66,6 +66,7 @@ int main(int argc, char* argv[])
 		
         {
             b3SharedMemoryStatusHandle statusHandle;
+			int statusType;
 			b3SharedMemoryCommandHandle command = b3LoadUrdfCommandInit(sm, urdfFileName);
 			
             //setting the initial position, orientation and other arguments are optional
@@ -74,6 +75,11 @@ int main(int argc, char* argv[])
             startPosZ = 1;
             ret = b3LoadUrdfCommandSetStartPosition(command, startPosX,startPosY,startPosZ);
             statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+			statusType = b3GetStatusType(statusHandle);
+			if (statusType != CMD_URDF_LOADING_COMPLETED)
+			{
+				printf("Loading URDF failed, status type = %d\n",statusType);
+			}
 			bodyIndex = b3GetStatusBodyIndex(statusHandle);
         }
         
@@ -169,7 +175,16 @@ int main(int argc, char* argv[])
         ///perform some simulation steps for testing
         for ( i=0;i<100;i++)
         {
-            b3SubmitClientCommandAndWaitStatus(sm, b3InitStepSimulationCommand(sm));
+			b3SharedMemoryStatusHandle statusHandle;
+			int statusType;
+
+			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, b3InitStepSimulationCommand(sm));
+			statusType = b3GetStatusType(statusHandle);
+			if (statusType != CMD_STEP_FORWARD_SIMULATION_COMPLETED)
+			{
+				printf("Step Simulation failed, Unexpected status type = %d\n",statusType);
+				break;
+			}
         }
         
         {

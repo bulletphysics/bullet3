@@ -30,7 +30,6 @@ enum EnumSharedMemoryServerStatus
 {
         CMD_SHARED_MEMORY_NOT_INITIALIZED=0,
         CMD_WAITING_FOR_CLIENT_COMMAND,
-
         //CMD_CLIENT_COMMAND_COMPLETED is a generic 'completed' status that doesn't need special handling on the client
         CMD_CLIENT_COMMAND_COMPLETED,
         //the server will skip unknown command and report a status 'CMD_UNKNOWN_COMMAND_FLUSHED'
@@ -50,6 +49,7 @@ enum EnumSharedMemoryServerStatus
         CMD_DESIRED_STATE_RECEIVED_COMPLETED,
         CMD_STEP_FORWARD_SIMULATION_COMPLETED,
 	CMD_RESET_SIMULATION_COMPLETED,
+		CMD_INVALID_STATUS,
         CMD_MAX_SERVER_COMMANDS
 };
 

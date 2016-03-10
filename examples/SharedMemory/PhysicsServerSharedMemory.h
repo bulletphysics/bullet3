@@ -14,7 +14,7 @@ protected:
 	
 	
 public:
-	PhysicsServerSharedMemory();
+	PhysicsServerSharedMemory(class SharedMemoryInterface* sharedMem=0);
 	virtual ~PhysicsServerSharedMemory();
 
 	virtual void setSharedMemoryKey(int key);

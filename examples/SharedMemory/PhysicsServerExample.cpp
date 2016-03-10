@@ -22,7 +22,7 @@ class PhysicsServerExample : public SharedMemoryCommon
 	
 public:
     
-	PhysicsServerExample(GUIHelperInterface* helper);
+	PhysicsServerExample(GUIHelperInterface* helper, SharedMemoryInterface* sharedMem=0);
     
 	virtual ~PhysicsServerExample();
     
@@ -133,8 +133,9 @@ public:
 
 };
 
-PhysicsServerExample::PhysicsServerExample(GUIHelperInterface* helper)
+PhysicsServerExample::PhysicsServerExample(GUIHelperInterface* helper, SharedMemoryInterface* sharedMem)
 :SharedMemoryCommon(helper),
+m_physicsServer(sharedMem),
 m_wantsShutdown(false),
 m_isConnected(false),
 m_replay(false)
@@ -287,7 +288,7 @@ extern int gSharedMemoryKey;
 
 class CommonExampleInterface*    PhysicsServerCreateFunc(struct CommonExampleOptions& options)
 {
-  	PhysicsServerExample* example = new PhysicsServerExample(options.m_guiHelper);
+  	PhysicsServerExample* example = new PhysicsServerExample(options.m_guiHelper, options.m_sharedMem);
 	if (gSharedMemoryKey>=0)
 	{
 		example->setSharedMemoryKey(gSharedMemoryKey);

@@ -58,6 +58,7 @@
 		"../SharedMemory/PhysicsClient.cpp",
 		"../SharedMemory/PosixSharedMemory.cpp",
 		"../SharedMemory/Win32SharedMemory.cpp",
+		"../SharedMemory/InProcessMemory.cpp",
 		"../SharedMemory/PhysicsDirect.cpp",
 		"../SharedMemory/PhysicsDirect.h",
 		"../SharedMemory/PhysicsDirectC_API.cpp",
