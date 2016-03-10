@@ -510,7 +510,7 @@ typedef struct
 } ConstBufferSSD;
 
 
-static __constant const int gridTable4x4[] = 
+__constant const int gridTable4x4[] = 
 {
     0,1,17,16,
 	1,2,18,19,
@@ -518,7 +518,7 @@ static __constant const int gridTable4x4[] =
 	16,19,3,34
 };
 
-static __constant const int gridTable8x8[] = 
+__constant const int gridTable8x8[] = 
 {
 	  0,  2,  3, 16, 17, 18, 19,  1,
 	 66, 64, 80, 67, 82, 81, 65, 83,
