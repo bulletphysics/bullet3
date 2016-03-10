@@ -72,7 +72,7 @@ b3SharedMemoryCommandHandle     b3InitPhysicsParamCommand(b3PhysicsClientHandle 
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;
     b3Assert(cl);
-    b3Assert(cl->canSubmitCommand());
+	b3Assert(cl->canSubmitCommand());
     struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
     b3Assert(command);
 	command->m_type = CMD_SEND_PHYSICS_SIMULATION_PARAMETERS;
@@ -445,9 +445,12 @@ void	b3DisconnectSharedMemory(b3PhysicsClientHandle physClient)
 b3SharedMemoryStatusHandle b3ProcessServerStatus(b3PhysicsClientHandle physClient)
 {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
-	const SharedMemoryStatus* stat = cl->processServerStatus();
-    return (b3SharedMemoryStatusHandle) stat;
-    
+	if (cl && cl->isConnected())
+	{
+		const SharedMemoryStatus* stat = cl->processServerStatus();
+		return (b3SharedMemoryStatusHandle) stat;
+	}
+	return 0;
 }
 
 
@@ -461,7 +464,7 @@ int b3GetStatusType(b3SharedMemoryStatusHandle statusHandle)
     {
         return status->m_type;
     }
-    return 0;
+    return CMD_INVALID_STATUS;
 }
 
 int b3GetStatusBodyIndex(b3SharedMemoryStatusHandle statusHandle)

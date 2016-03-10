@@ -21,10 +21,14 @@ public:
 		newargv[argc] = t0;
 		newargv[argc+1] = t1;
 		m_data = btCreateInProcessExampleBrowser(newargc,newargv);
+		SharedMemoryInterface* shMem = btGetSharedMemoryInterface(m_data);
+
+		setSharedMemoryInterface(shMem);
 	}
 
 	virtual ~InProcessPhysicsClientSharedMemory()
 	{
+		setSharedMemoryInterface(0);
 		btShutDownExampleBrowser(m_data);
 	}
 

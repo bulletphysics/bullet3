@@ -9,5 +9,7 @@ bool btIsExampleBrowserTerminated(btInProcessExampleBrowserInternalData* data);
 
 void btShutDownExampleBrowser(btInProcessExampleBrowserInternalData* data);
 
+class SharedMemoryInterface* btGetSharedMemoryInterface(btInProcessExampleBrowserInternalData* data);
+
 
 #endif //IN_PROCESS_EXAMPLE_BROWSER_H

@@ -23,6 +23,7 @@ struct BodyJointInfoCache
 
 struct PhysicsClientSharedMemoryInternalData {
     SharedMemoryInterface* m_sharedMemory;
+	bool	m_ownsSharedMemory;
     SharedMemoryBlock* m_testBlock1;
    
 	btHashMap<btHashInt,BodyJointInfoCache*> m_bodyJointMap;
@@ -43,6 +44,7 @@ struct PhysicsClientSharedMemoryInternalData {
 
     PhysicsClientSharedMemoryInternalData()
         : m_sharedMemory(0),
+		  m_ownsSharedMemory(false),
           m_testBlock1(0),
           m_counter(0),
           m_serverLoadUrdfOK(false),
@@ -95,23 +97,40 @@ PhysicsClientSharedMemory::PhysicsClientSharedMemory()
 #else
     m_data->m_sharedMemory = new PosixSharedMemory();
 #endif
+	m_data->m_ownsSharedMemory = true;
+
 }
 
 PhysicsClientSharedMemory::~PhysicsClientSharedMemory() {
     if (m_data->m_isConnected) {
         disconnectSharedMemory();
     }
-    delete m_data->m_sharedMemory;
+	if (m_data->m_ownsSharedMemory)
+	{
+	    delete m_data->m_sharedMemory;
+	}
     delete m_data;
 }
 
 void PhysicsClientSharedMemory::setSharedMemoryKey(int key) { m_data->m_sharedMemoryKey = key; }
 
+
+void PhysicsClientSharedMemory::setSharedMemoryInterface(class SharedMemoryInterface* sharedMem)
+{
+	if (m_data->m_sharedMemory && m_data->m_ownsSharedMemory)
+	{
+		delete m_data->m_sharedMemory;
+	}
+	m_data->m_ownsSharedMemory = false;
+	m_data->m_sharedMemory = sharedMem;
+}
+
 void PhysicsClientSharedMemory::disconnectSharedMemory() {
-    if (m_data->m_isConnected) {
+    if (m_data->m_isConnected && m_data->m_sharedMemory) {
         m_data->m_sharedMemory->releaseSharedMemory(m_data->m_sharedMemoryKey, SHARED_MEMORY_SIZE);
-        m_data->m_isConnected = false;
     }
+	m_data->m_isConnected = false;
+
 }
 
 bool PhysicsClientSharedMemory::isConnected() const { return m_data->m_isConnected; }
@@ -146,12 +165,19 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
     SharedMemoryStatus* stat = 0;
 
     if (!m_data->m_testBlock1) {
-        return 0;
+		m_data->m_lastServerStatus.m_type = CMD_SHARED_MEMORY_NOT_INITIALIZED;
+		return &m_data->m_lastServerStatus;
     }
 
     if (!m_data->m_waitingForServer) {
         return 0;
     }
+
+	 if (m_data->m_testBlock1->m_magicId != SHARED_MEMORY_MAGIC_NUMBER) 
+	 {
+		 m_data->m_lastServerStatus.m_type = CMD_SHARED_MEMORY_NOT_INITIALIZED;
+		 return &m_data->m_lastServerStatus;
+	 }
 
     if (m_data->m_testBlock1->m_numServerCommands >
         m_data->m_testBlock1->m_numProcessedServerCommands) {
@@ -446,7 +472,6 @@ bool PhysicsClientSharedMemory::submitClientCommand(const SharedMemoryCommand& c
     /// at the moment we allow a maximum of 1 outstanding command, so we check for this
     // once the server processed the command and returns a status, we clear the flag
     // "m_data->m_waitingForServer" and allow submitting the next command
-    btAssert(!m_data->m_waitingForServer);
 
     if (!m_data->m_waitingForServer) {
         if (&m_data->m_testBlock1->m_clientCommands[0] != &command) {

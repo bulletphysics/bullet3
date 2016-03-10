@@ -10,6 +10,8 @@ class PhysicsClientSharedMemory : public PhysicsClient {
     struct PhysicsClientSharedMemoryInternalData* m_data;
 
 protected:
+	virtual void setSharedMemoryInterface(class SharedMemoryInterface* sharedMem);
+
 public:
     PhysicsClientSharedMemory();
     virtual ~PhysicsClientSharedMemory();

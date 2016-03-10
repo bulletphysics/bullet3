@@ -29,6 +29,7 @@ files {
 	"PhysicsServer.cpp",
 	"PosixSharedMemory.cpp",
 	"Win32SharedMemory.cpp",
+	"InProcessMemory.cpp",
 	"PhysicsDirect.cpp",
 	"PhysicsDirect.h",
 	"PhysicsDirectC_API.cpp",

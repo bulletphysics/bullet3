@@ -14,6 +14,7 @@
 
 #include "ExampleEntries.h"
 #include "Bullet3Common/b3Logging.h"
+#include "../SharedMemory/InProcessMemory.h"
 
 void	ExampleBrowserThreadFunc(void* userPtr,void* lsMemory);
 void*	ExampleBrowserMemoryFunc();
@@ -65,6 +66,7 @@ struct	ExampleBrowserArgs
 
 struct ExampleBrowserThreadLocalStorage
 {
+	SharedMemoryInterface* m_sharedMem;
 	int threadId;
 };
 
@@ -92,7 +94,9 @@ void	ExampleBrowserThreadFunc(void* userPtr,void* lsMemory)
 	ExampleEntries examples;
 	examples.initExampleEntries();
 
-	ExampleBrowserInterface* exampleBrowser = new DefaultBrowser(&examples);
+	DefaultBrowser* exampleBrowser = new DefaultBrowser(&examples);
+	exampleBrowser->setSharedMemoryInterface(localStorage->m_sharedMem);
+
 	bool init = exampleBrowser->init(args->m_argc,args->m_argv);
 	clock.reset();
 	if (init)
@@ -139,6 +143,7 @@ struct btInProcessExampleBrowserInternalData
 {
 	ExampleBrowserArgs m_args;
 	b3ThreadSupportInterface* m_threadSupport;
+	SharedMemoryInterface* m_sharedMem;
 };
 
 
@@ -146,6 +151,7 @@ btInProcessExampleBrowserInternalData* btCreateInProcessExampleBrowser(int argc,
 {
 
 	btInProcessExampleBrowserInternalData* data = new btInProcessExampleBrowserInternalData;
+	data->m_sharedMem = new InProcessMemory;
 
 	int numThreads = 1;
 	int i;
@@ -163,6 +169,7 @@ btInProcessExampleBrowserInternalData* btCreateInProcessExampleBrowser(int argc,
 		ExampleBrowserThreadLocalStorage* storage = (ExampleBrowserThreadLocalStorage*) data->m_threadSupport->getThreadLocalMemory(i);
 		b3Assert(storage);
 		storage->threadId = i;
+		storage->m_sharedMem = data->m_sharedMem;
 	}
 
 
@@ -189,6 +196,11 @@ bool btIsExampleBrowserTerminated(btInProcessExampleBrowserInternalData* data)
 	return (data->m_args.m_cs->getSharedParam(0)==eExampleBrowserHasTerminated);
 }
 
+SharedMemoryInterface* btGetSharedMemoryInterface(btInProcessExampleBrowserInternalData* data)
+{
+	return data->m_sharedMem;
+}
+
 void btShutDownExampleBrowser(btInProcessExampleBrowserInternalData* data)
 {
 	int numActiveThreads = 1;
@@ -213,6 +225,7 @@ void btShutDownExampleBrowser(btInProcessExampleBrowserInternalData* data)
 
 	printf("stopping threads\n");
 	delete data->m_threadSupport;
+	delete data->m_sharedMem;
 	delete data;
 }
 
