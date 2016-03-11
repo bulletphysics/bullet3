@@ -63,7 +63,6 @@ namespace gjkepa2_impl
 
 #ifdef BT_USE_DOUBLE_PRECISION
 	#define EPA_ACCURACY		((btScalar)1e-12)
-	#define EPA_FALLBACK		(10*EPA_ACCURACY)
 	#define EPA_PLANE_EPS		((btScalar)1e-14)
 	#define EPA_INSIDE_EPS		((btScalar)1e-9)
 #else
@@ -72,6 +71,7 @@ namespace gjkepa2_impl
 	#define EPA_INSIDE_EPS		((btScalar)0.01)
 #endif
 
+#define EPA_FALLBACK            (10*EPA_ACCURACY)
 #define EPA_MAX_FACES           (EPA_MAX_VERTICES*2)
 
 
