@@ -410,8 +410,8 @@ __kernel void initBatchConstraintsKernel(__global unsigned int* numConstraintRow
 	int rbA = constraints[i].m_rbA;
 	int rbB = constraints[i].m_rbB;
 
-	batchConstraints[i].m_bodyAPtrAndSignBit = bodies[rbA].m_invMass? rbA : -rbA;
-	batchConstraints[i].m_bodyBPtrAndSignBit = bodies[rbB].m_invMass? rbB : -rbB;
+	batchConstraints[i].m_bodyAPtrAndSignBit = bodies[rbA].m_invMass != 0.f ? rbA : -rbA;
+	batchConstraints[i].m_bodyBPtrAndSignBit = bodies[rbB].m_invMass != 0.f ? rbB : -rbB;
 	batchConstraints[i].m_batchId = -1;
 	batchConstraints[i].m_originalConstraintIndex = i;
 
