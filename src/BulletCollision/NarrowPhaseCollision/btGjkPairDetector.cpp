@@ -30,7 +30,11 @@ subject to the following restrictions:
 #endif
 
 //must be above the machine epsilon
-#define REL_ERROR2 btScalar(1.0e-6)
+#ifdef  BT_USE_DOUBLE_PRECISION
+	#define REL_ERROR2 btScalar(1.0e-12)
+#else
+	#define REL_ERROR2 btScalar(1.0e-6)
+#endif
 
 //temp globals, to improve GJK/EPA/penetration calculations
 int gNumDeepPenetrationChecks = 0;
