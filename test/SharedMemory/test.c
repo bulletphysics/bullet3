@@ -22,8 +22,14 @@
 
 #include <stdio.h>
 
+#ifndef ENABLE_GTEST
+#include <assert.h>
+#define ASSERT_EQ(a,b) assert((a)==(b));
+#else
+#define printf
+#endif
 
-int main(int argc, char* argv[])
+void testSharedMemory(b3PhysicsClientHandle sm)
 {
 	int i, dofCount , posVarCount, ret ,numJoints ;
     int sensorJointIndexLeft=-1;
@@ -34,21 +40,6 @@ int main(int argc, char* argv[])
 	double startPosX, startPosY,startPosZ;
 	int imuLinkIndex = -1;
 	int bodyIndex = -1;
-#ifdef PHYSICS_LOOP_BACK
-	b3PhysicsClientHandle sm = b3ConnectPhysicsLoopback(SHARED_MEMORY_KEY);
-#endif
-
-#ifdef PHYSICS_SERVER_DIRECT
-	b3PhysicsClientHandle sm = b3ConnectPhysicsDirect();
-#endif
-
-#ifdef PHYSICS_IN_PROCESS_EXAMPLE_BROWSER
-	b3PhysicsClientHandle sm = b3CreateInProcessPhysicsServerAndConnect(argc,argv);
-#endif
-#ifdef PHYSICS_SHARED_MEMORY
-	b3PhysicsClientHandle sm = b3ConnectSharedMemory(SHARED_MEMORY_KEY);
-#endif //PHYSICS_SHARED_MEMORY
-	
 
 	if (b3CanSubmitCommand(sm))
 	{
@@ -72,10 +63,7 @@ int main(int argc, char* argv[])
             ret = b3LoadUrdfCommandSetStartPosition(command, startPosX,startPosY,startPosZ);
             statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 			statusType = b3GetStatusType(statusHandle);
-			if (statusType != CMD_URDF_LOADING_COMPLETED)
-			{
-				printf("Loading URDF failed, status type = %d\n",statusType);
-			}
+			ASSERT_EQ(statusType, CMD_URDF_LOADING_COMPLETED);
 			bodyIndex = b3GetStatusBodyIndex(statusHandle);
         }
         
@@ -87,7 +75,7 @@ int main(int argc, char* argv[])
 				struct b3JointInfo jointInfo;
 				b3GetJointInfo(sm,bodyIndex, i,&jointInfo);
             
-				printf("jointInfo[%d].m_jointName=%s\n",i,jointInfo.m_jointName);
+			//	printf("jointInfo[%d].m_jointName=%s\n",i,jointInfo.m_jointName);
 				//pick the IMU link index based on torso name
 				if (strstr(jointInfo.m_linkName,"base_link"))
 				{
@@ -144,15 +132,16 @@ int main(int argc, char* argv[])
             b3SharedMemoryStatusHandle statusHandle;
             statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
             statusType = b3GetStatusType(statusHandle);
-            
+           ASSERT_EQ(statusType, CMD_ACTUAL_STATE_UPDATE_COMPLETED);
+ 
             if (statusType == CMD_ACTUAL_STATE_UPDATE_COMPLETED)
             {
                 b3GetStatusActualState(statusHandle,
                                        0, &posVarCount, &dofCount,
                                        0, 0, 0, 0);
+		ASSERT_EQ(posVarCount,15);
+		ASSERT_EQ(dofCount,14);
 
-                b3Printf("posVarCount = %d\n",posVarCount);
-                printf("dofCount = %d\n",dofCount);
             }
         }
         
@@ -176,11 +165,7 @@ int main(int argc, char* argv[])
 
 			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, b3InitStepSimulationCommand(sm));
 			statusType = b3GetStatusType(statusHandle);
-			if (statusType != CMD_STEP_FORWARD_SIMULATION_COMPLETED)
-			{
-				printf("Step Simulation failed, Unexpected status type = %d\n",statusType);
-				break;
-			}
+			ASSERT_EQ(statusType, CMD_STEP_FORWARD_SIMULATION_COMPLETED);
         }
         
         {
@@ -222,3 +207,43 @@ int main(int argc, char* argv[])
 
 	b3DisconnectSharedMemory(sm);
 }
+
+
+
+#ifdef ENABLE_GTEST
+
+
+TEST(BulletPhysicsClientServerTest, DirectConnection) {
+        b3PhysicsClientHandle sm = b3ConnectPhysicsDirect();
+        testSharedMemory(sm);
+}
+
+TEST(BulletPhysicsClientServerTest, LoopBackSharedMemory) {
+        b3PhysicsClientHandle sm = b3ConnectPhysicsLoopback(SHARED_MEMORY_KEY);
+        testSharedMemory(sm);
+}
+
+
+#else
+
+int main(int argc, char* argv[])
+{
+#ifdef PHYSICS_LOOP_BACK
+        b3PhysicsClientHandle sm = b3ConnectPhysicsLoopback(SHARED_MEMORY_KEY);
+#endif
+
+#ifdef PHYSICS_SERVER_DIRECT
+        b3PhysicsClientHandle sm = b3ConnectPhysicsDirect();
+#endif
+
+#ifdef PHYSICS_IN_PROCESS_EXAMPLE_BROWSER
+        b3PhysicsClientHandle sm = b3CreateInProcessPhysicsServerAndConnect(argc,argv);
+#endif
+#ifdef PHYSICS_SHARED_MEMORY
+        b3PhysicsClientHandle sm = b3ConnectSharedMemory(SHARED_MEMORY_KEY);
+#endif //PHYSICS_SHARED_MEMORY
+
+	testSharedMemory(sm);
+}
+#endif
+

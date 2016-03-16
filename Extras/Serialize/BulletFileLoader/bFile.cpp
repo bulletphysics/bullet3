@@ -644,7 +644,7 @@ void bFile::preSwap()
 				swap(dataPtrHead, dataChunk,ignoreEndianFlag);
 			} else
 			{
-				printf("unknown chunk\n");
+				//printf("unknown chunk\n");
 			}
 		}
 

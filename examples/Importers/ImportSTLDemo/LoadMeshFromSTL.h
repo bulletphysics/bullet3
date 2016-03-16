@@ -24,17 +24,17 @@ static GLInstanceGraphicsShape* LoadMeshFromSTL(const char* relativeFileName)
 		int size=0;
 		if (fseek(file, 0, SEEK_END) || (size = ftell(file)) == EOF || fseek(file, 0, SEEK_SET))
 		{
-			printf("Error: Cannot access file to determine size of %s\n", relativeFileName);
+			b3Warning("Error: Cannot access file to determine size of %s\n", relativeFileName);
 		} else
 		{
 			if (size)
 			{
-				printf("Open STL file of %d bytes\n",size);
+				//b3Warning("Open STL file of %d bytes\n",size);
 				char* memoryBuffer = new char[size+1];
 				int actualBytesRead = fread(memoryBuffer,1,size,file);
 				if (actualBytesRead!=size)
 				{
-					printf("Error reading from file %s",relativeFileName);
+					b3Warning("Error reading from file %s",relativeFileName);
 				} else
 				{
 					int numTriangles = *(int*)&memoryBuffer[80];
@@ -69,10 +69,6 @@ static GLInstanceGraphicsShape* LoadMeshFromSTL(const char* relativeFileName)
 							MySTLTriangle* tri = (MySTLTriangle*) curPtr;
 							
 							GLInstanceVertex v0,v1,v2;
-							if (i==numTriangles-2)
-							{
-								printf("!\n");
-							}
 							v0.uv[0] = v1.uv[0] = v2.uv[0] = 0.5;
 							v0.uv[1] = v1.uv[1] = v2.uv[1] = 0.5;
 							for (int v=0;v<3;v++)
