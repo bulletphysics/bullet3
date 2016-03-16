@@ -282,7 +282,6 @@ void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPref
 	{
 		case URDF_GEOM_CYLINDER:
 		{
-			printf("processing a cylinder\n");
 			btAlignedObjectArray<btVector3> vertices;
 		
 			//int numVerts = sizeof(barrel_vertices)/(9*sizeof(float));
@@ -306,7 +305,6 @@ void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPref
 		}
 		case URDF_GEOM_BOX:
 		{
-			printf("processing a box\n");
 			
 			btVector3 extents = visual->m_geometry.m_boxSize;
 			
@@ -318,7 +316,6 @@ void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPref
 		}
 		case URDF_GEOM_SPHERE:
 		{
-			printf("processing a sphere\n");
 			btScalar radius = visual->m_geometry.m_sphereRadius;
 			btSphereShape* sphereShape = new btSphereShape(radius);
 			convexColShape = sphereShape;
@@ -331,14 +328,14 @@ void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPref
 		{
 			if (visual->m_name.length())
 			{
-				printf("visual->name=%s\n", visual->m_name.c_str());
+				//b3Printf("visual->name=%s\n", visual->m_name.c_str());
 			}
 			if (1)//visual->m_geometry)
 			{
 				if (visual->m_geometry.m_meshFileName.length())
 				{
 					const char* filename = visual->m_geometry.m_meshFileName.c_str();
-					printf("mesh->filename=%s\n", filename);
+					//b3Printf("mesh->filename=%s\n", filename);
 					char fullPath[1024];
 					int fileType = 0;
                     
@@ -471,7 +468,7 @@ void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPref
 						}
 						default:
 						{
-                            printf("Error: unsupported file type for Visual mesh: %s\n", fullPath);
+                            b3Warning("Error: unsupported file type for Visual mesh: %s\n", fullPath);
                             btAssert(0);
 						}
 						}
@@ -482,13 +479,13 @@ void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPref
 						}
 						else
 						{
-							printf("issue extracting mesh from COLLADA/STL file %s\n", fullPath);
+							b3Warning("issue extracting mesh from COLLADA/STL file %s\n", fullPath);
 						}
 
 					}
 					else
 					{
-						printf("mesh geometry not found %s\n", fullPath);
+						b3Warning("mesh geometry not found %s\n", fullPath);
 					}
 
 
@@ -500,7 +497,7 @@ void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPref
 		}
 		default:
 		{
-			printf("Error: unknown visual geometry type\n");
+			b3Warning("Error: unknown visual geometry type\n");
 		}
 	}
 
@@ -593,7 +590,6 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
     {
         case URDF_GEOM_CYLINDER:
         {
-            printf("processing a cylinder\n");
 			btScalar cylRadius = collision->m_geometry.m_cylinderRadius;
 			btScalar cylLength = collision->m_geometry.m_cylinderLength;
 			
@@ -623,7 +619,6 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
         }
         case URDF_GEOM_BOX:
         {
-            printf("processing a box\n");
 			btVector3 extents = collision->m_geometry.m_boxSize;
 			btBoxShape* boxShape = new btBoxShape(extents*0.5f);
 			//btConvexShape* boxShape = new btConeShapeX(extents[2]*0.5,extents[0]*0.5);
@@ -633,7 +628,6 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
         }
         case URDF_GEOM_SPHERE:
         {
-			printf("processing a sphere\n");
             
 			btScalar radius = collision->m_geometry.m_sphereRadius;
 			btSphereShape* sphereShape = new btSphereShape(radius);
@@ -647,14 +641,14 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
         {
 			if (collision->m_name.length())
 			{
-				printf("collision->name=%s\n",collision->m_name.c_str());
+				//b3Printf("collision->name=%s\n",collision->m_name.c_str());
 			}
 			if (1)
 			{
 				if (collision->m_geometry.m_meshFileName.length())
 				{
 					const char* filename = collision->m_geometry.m_meshFileName.c_str();
-					printf("mesh->filename=%s\n",filename);
+					//b3Printf("mesh->filename=%s\n",filename);
 					char fullPath[1024];
 					int fileType = 0;
 					sprintf(fullPath,"%s%s",urdfPathPrefix,filename);
@@ -783,7 +777,7 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 							}
 						default:
 							{
-                                printf("Unsupported file type in Collision: %s\n",fullPath);
+                                b3Warning("Unsupported file type in Collision: %s\n",fullPath);
                                 btAssert(0);
 							}
 						}
@@ -791,7 +785,7 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 
 						if (glmesh && (glmesh->m_numvertices>0))
 						{
-							printf("extracted %d verticed from STL file %s\n", glmesh->m_numvertices,fullPath);
+							//b3Printf("extracted %d verticed from STL file %s\n", glmesh->m_numvertices,fullPath);
 							//int shapeId = m_glApp->m_instancingRenderer->registerShape(&gvertices[0].pos[0],gvertices.size(),&indices[0],indices.size());
 							//convex->setUserIndex(shapeId);
 							btAlignedObjectArray<btVector3> convertedVerts;
@@ -809,12 +803,12 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 							shape = cylZShape;
 						} else
 						{
-							printf("issue extracting mesh from STL file %s\n", fullPath);
+							b3Warning("issue extracting mesh from STL file %s\n", fullPath);
 						}
 
 					} else
 					{
-						printf("mesh geometry not found %s\n",fullPath);
+						b3Warning("mesh geometry not found %s\n",fullPath);
 					}
 							
 							
@@ -826,7 +820,7 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
         }
         default:
         {
-            printf("Error: unknown visual geometry type\n");
+            b3Warning("Error: unknown visual geometry type\n");
         }
     }
 	return shape;

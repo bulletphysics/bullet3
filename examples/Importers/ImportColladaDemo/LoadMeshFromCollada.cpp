@@ -316,12 +316,12 @@ void readLibraryGeometries(TiXmlDocument& doc, btAlignedObjectArray<GLInstanceGr
 			}
 			
 			
-			printf(" index_count =%dand vertexPositions.size=%d\n",indices.size(), vertexPositions.size());
+			//b3Printf(" index_count =%dand vertexPositions.size=%d\n",indices.size(), vertexPositions.size());
 			indexBase=visualShape.m_vertices->size();
 			visualShape.m_numIndices = visualShape.m_indices->size();
 			visualShape.m_numvertices = visualShape.m_vertices->size();
 		}
-		printf("geometry name=%s\n",geometryName);
+		//b3Printf("geometry name=%s\n",geometryName);
 		name2Shape.insert(geometryName,shapeIndex);
 		
 
@@ -331,7 +331,7 @@ void readLibraryGeometries(TiXmlDocument& doc, btAlignedObjectArray<GLInstanceGr
 void readNodeHierarchy(TiXmlElement* node,btHashMap<btHashString,int>& name2Shape, btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances,  const btMatrix4x4& parentTransMat)
 {
 	const char* nodeName = node->Attribute("id");
-	printf("processing node %s\n", nodeName);
+	//printf("processing node %s\n", nodeName);
 
 	
 	btMatrix4x4 nodeTrans;
@@ -356,7 +356,7 @@ void readNodeHierarchy(TiXmlElement* node,btHashMap<btHashString,int>& name2Shap
 					nodeTrans = nodeTrans*t;
 				} else
 				{
-					printf("Error: expected 16 elements in a <matrix> element, skipping\n");
+					b3Warning("Error: expected 16 elements in a <matrix> element, skipping\n");
 				}
 			}
 		}
@@ -412,19 +412,19 @@ void readNodeHierarchy(TiXmlElement* node,btHashMap<btHashString,int>& name2Shap
 				instanceGeom=instanceGeom->NextSiblingElement("instance_geometry"))
 	{
 		const char* geomUrl = instanceGeom->Attribute("url");
-		printf("node referring to geom %s\n", geomUrl);
+		//printf("node referring to geom %s\n", geomUrl);
 		geomUrl++;
 		int* shapeIndexPtr = name2Shape[geomUrl];
 		if (shapeIndexPtr)
 		{
 		//	int index = *shapeIndexPtr;
-			printf("found geom with index %d\n", *shapeIndexPtr);
+			//printf("found geom with index %d\n", *shapeIndexPtr);
 			ColladaGraphicsInstance& instance = visualShapeInstances.expand();
 			instance.m_shapeIndex = *shapeIndexPtr;
 			instance.m_worldTransform = nodeTrans;
 		} else
 		{
-			printf("geom not found\n");
+			b3Warning("geom not found\n");
 		}
 	}
 
@@ -492,7 +492,7 @@ void getUnitMeterScalingAndUpAxisTransform(TiXmlDocument& doc, btTransform& tr, 
 	if (unitMeter)
 	{
 		const char* meterText = unitMeter->Attribute("meter");
-		printf("meterText=%s\n", meterText);
+	//printf("meterText=%s\n", meterText);
 		unitMeterScaling = atof(meterText);
 	}
 
@@ -565,7 +565,7 @@ void LoadMeshFromCollada(const char* relativeFileName, btAlignedObjectArray<GLIn
 	char filename[1024];
 	if (!f.findFile(relativeFileName,filename,1024))
 	{
-		printf("File not found: %s\n", filename);
+		b3Warning("File not found: %s\n", filename);
 		return;
 	}
 	 
@@ -703,12 +703,12 @@ void LoadMeshFromColladaAssimp(const char* relativeFileName, btAlignedObjectArra
 		int size=0;
 		if (fseek(file, 0, SEEK_END) || (size = ftell(file)) == EOF || fseek(file, 0, SEEK_SET))
 		{
-			printf("Error: Cannot access file to determine size of %s\n", relativeFileName);
+			b3Warning("Error: Cannot access file to determine size of %s\n", relativeFileName);
 		} else
 		{
 			if (size)
 			{
-				printf("Open DAE file of %d bytes\n",size);
+				//printf("Open DAE file of %d bytes\n",size);
 				
 				Assimp::Importer importer;
 				//importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_NORMALS | aiComponent_COLORS);

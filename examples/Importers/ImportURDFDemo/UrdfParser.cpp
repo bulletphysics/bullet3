@@ -766,9 +766,10 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 		}
 	}
 
-	char msg[1024];
-	sprintf(msg,"Num materials=%d", m_model.m_materials.size());
-	logger->printMessage(msg);
+
+//	char msg[1024];
+//	sprintf(msg,"Num materials=%d", m_model.m_materials.size());
+//	logger->printMessage(msg);
 
 	
 	for (TiXmlElement* link_xml = robot_xml->FirstChildElement("link"); link_xml; link_xml = link_xml->NextSiblingElement("link"))
