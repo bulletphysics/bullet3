@@ -153,6 +153,14 @@ project "App_BulletExampleBrowser"
 
 	hasCL = findOpenCL("clew")
 
+ if (hasCL) then
+
+                                -- project ("App_Bullet3_OpenCL_Demos_" .. vendor)
+
+                                initOpenCL("clew")
+
+                end
+
 	links{"BulletExampleBrowserLib","gwen", "OpenGL_Window","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","Bullet3Common"}
 	initOpenGL()
 	initGlew()
