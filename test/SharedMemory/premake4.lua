@@ -9,6 +9,7 @@ project ("Test_SharedMemoryPhysicsClient")
 			"Bullet3Common", 
 			"LinearMath"
 		}
+		defines {"PHYSICS_SHARED_MEMORY"}
 			
 		files {
 			"test.c",
@@ -189,4 +190,8 @@ project ("Test_PhysicsServerInProcessExampleBrowser")
 			"test.c",
 			"../../examples/ExampleBrowser/ExampleEntries.cpp",
 			}
-			
+	if os.is("Linux") then
+       		initX11()
+	end
+
+	

@@ -1,5 +1,7 @@
 //#include "SharedMemoryCommands.h"
+#ifdef PHYSICS_SHARED_MEMORY
 #include "SharedMemory/PhysicsClientC_API.h"
+#endif //PHYSICS_SHARED_MEMORY
 
 #ifdef PHYSICS_LOOP_BACK
 #include "SharedMemory/PhysicsLoopBackC_API.h"
@@ -31,27 +33,21 @@ int main(int argc, char* argv[])
 	double timeStep = 1./60.;
 	double startPosX, startPosY,startPosZ;
 	int imuLinkIndex = -1;
-
-	
-	b3PhysicsClientHandle sm=0;
 	int bodyIndex = -1;
-
-
-	printf("hello world\n");
 #ifdef PHYSICS_LOOP_BACK
-	sm = b3ConnectPhysicsLoopback(SHARED_MEMORY_KEY);
+	b3PhysicsClientHandle sm = b3ConnectPhysicsLoopback(SHARED_MEMORY_KEY);
 #endif
 
 #ifdef PHYSICS_SERVER_DIRECT
-	sm = b3ConnectPhysicsDirect();
+	b3PhysicsClientHandle sm = b3ConnectPhysicsDirect();
 #endif
 
 #ifdef PHYSICS_IN_PROCESS_EXAMPLE_BROWSER
-	sm = b3CreateInProcessPhysicsServerAndConnect(argc,argv);
-#else
-	sm = b3ConnectSharedMemory(SHARED_MEMORY_KEY);
-#endif //PHYSICS_SERVER_DIRECT
-	
+	b3PhysicsClientHandle sm = b3CreateInProcessPhysicsServerAndConnect(argc,argv);
+#endif
+#ifdef PHYSICS_SHARED_MEMORY
+	b3PhysicsClientHandle sm = b3ConnectSharedMemory(SHARED_MEMORY_KEY);
+#endif //PHYSICS_SHARED_MEMORY
 	
 
 	if (b3CanSubmitCommand(sm))

@@ -189,3 +189,9 @@ project "App_BulletExampleBrowser"
 	"main.cpp",
 	"ExampleEntries.cpp",
 	}
+
+if os.is("Linux") then
+        initX11()
+end
+
+
