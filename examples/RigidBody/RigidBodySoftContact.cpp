@@ -29,6 +29,8 @@ subject to the following restrictions:
 #include "BulletDynamics/MLCPSolvers/btMLCPSolver.h"
 #include "BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h"
 
+extern ContactAddedCallback		gContactAddedCallback;
+
 
 struct RigidBodySoftContact : public CommonRigidBodyBase
 {
@@ -36,7 +38,10 @@ struct RigidBodySoftContact : public CommonRigidBodyBase
 		:CommonRigidBodyBase(helper)
 	{
 	}
-	virtual ~RigidBodySoftContact(){}
+	virtual ~RigidBodySoftContact()
+    {
+        gContactAddedCallback = 0;
+    }
 	virtual void initPhysics();
 	virtual void renderScene();
 	void resetCamera()
@@ -49,7 +54,7 @@ struct RigidBodySoftContact : public CommonRigidBodyBase
 	}
 };
 
-extern ContactAddedCallback		gContactAddedCallback;
+
 static bool btRigidBodySoftContactCallback(btManifoldPoint& cp,	const btCollisionObjectWrapper* colObj0Wrap,int partId0,int index0,const btCollisionObjectWrapper* colObj1Wrap,int partId1,int index1)
 {
     cp.m_contactCFM = 0.3;

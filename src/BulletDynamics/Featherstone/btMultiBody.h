@@ -691,8 +691,9 @@ struct btMultiBodyLinkDoubleData
 	double					m_jointPos[7];
 	double					m_jointVel[6];
 	double					m_jointTorque[6];
-	
-	
+
+	double					m_jointDamping;
+	double					m_jointFriction;
 	
 };
 
@@ -721,7 +722,8 @@ struct btMultiBodyLinkFloatData
 	float					m_jointVel[6];
 	float					m_jointTorque[6];
 	int						m_posVarCount;
-	
+	float					m_jointDamping;
+	float					m_jointFriction;
 
 };
 

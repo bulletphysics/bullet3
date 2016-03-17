@@ -85,6 +85,8 @@ struct b3JointInfo
         int m_uIndex;
         int m_jointIndex;
         int m_flags;
+		double m_jointDamping;
+		double m_jointFriction;
 };
 
 struct b3JointSensorState

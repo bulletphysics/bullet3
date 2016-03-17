@@ -67,6 +67,8 @@ typedef struct bInvalidHandle {
     class btConvexHullShapeData;
     class btCollisionObjectDoubleData;
     class btCollisionObjectFloatData;
+    class btContactSolverInfoDoubleData;
+    class btContactSolverInfoFloatData;
     class btDynamicsWorldDoubleData;
     class btDynamicsWorldFloatData;
     class btRigidBodyFloatData;
@@ -93,8 +95,6 @@ typedef struct bInvalidHandle {
     class btSliderConstraintDoubleData;
     class btGearConstraintFloatData;
     class btGearConstraintDoubleData;
-    class btContactSolverInfoDoubleData;
-    class btContactSolverInfoFloatData;
     class SoftBodyMaterialData;
     class SoftBodyNodeData;
     class SoftBodyLinkData;
@@ -600,6 +600,81 @@ typedef struct bInvalidHandle {
     };
 
 
+// -------------------------------------------------- //
+    class btContactSolverInfoDoubleData
+    {
+    public:
+        double m_tau;
+        double m_damping;
+        double m_friction;
+        double m_timeStep;
+        double m_restitution;
+        double m_maxErrorReduction;
+        double m_sor;
+        double m_erp;
+        double m_erp2;
+        double m_globalCfm;
+        double m_splitImpulsePenetrationThreshold;
+        double m_splitImpulseTurnErp;
+        double m_linearSlop;
+        double m_warmstartingFactor;
+        double m_maxGyroscopicForce;
+        double m_singleAxisRollingFrictionThreshold;
+        int m_numIterations;
+        int m_solverMode;
+        int m_restingContactRestitutionThreshold;
+        int m_minimumSolverBatchSize;
+        int m_splitImpulse;
+        char m_padding[4];
+    };
+
+
+// -------------------------------------------------- //
+    class btContactSolverInfoFloatData
+    {
+    public:
+        float m_tau;
+        float m_damping;
+        float m_friction;
+        float m_timeStep;
+        float m_restitution;
+        float m_maxErrorReduction;
+        float m_sor;
+        float m_erp;
+        float m_erp2;
+        float m_globalCfm;
+        float m_splitImpulsePenetrationThreshold;
+        float m_splitImpulseTurnErp;
+        float m_linearSlop;
+        float m_warmstartingFactor;
+        float m_maxGyroscopicForce;
+        float m_singleAxisRollingFrictionThreshold;
+        int m_numIterations;
+        int m_solverMode;
+        int m_restingContactRestitutionThreshold;
+        int m_minimumSolverBatchSize;
+        int m_splitImpulse;
+        char m_padding[4];
+    };
+
+
+// -------------------------------------------------- //
+    class btDynamicsWorldDoubleData
+    {
+    public:
+        btContactSolverInfoDoubleData m_solverInfo;
+        btVector3DoubleData m_gravity;
+    };
+
+
+// -------------------------------------------------- //
+    class btDynamicsWorldFloatData
+    {
+    public:
+        btContactSolverInfoFloatData m_solverInfo;
+        btVector3FloatData m_gravity;
+    };
+
 
 // -------------------------------------------------- //
     class btRigidBodyFloatData
@@ -1062,82 +1137,6 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btContactSolverInfoDoubleData
-    {
-    public:
-        double m_tau;
-        double m_damping;
-        double m_friction;
-        double m_timeStep;
-        double m_restitution;
-        double m_maxErrorReduction;
-        double m_sor;
-        double m_erp;
-        double m_erp2;
-        double m_globalCfm;
-        double m_splitImpulsePenetrationThreshold;
-        double m_splitImpulseTurnErp;
-        double m_linearSlop;
-        double m_warmstartingFactor;
-        double m_maxGyroscopicForce;
-        double m_singleAxisRollingFrictionThreshold;
-        int m_numIterations;
-        int m_solverMode;
-        int m_restingContactRestitutionThreshold;
-        int m_minimumSolverBatchSize;
-        int m_splitImpulse;
-        char m_padding[4];
-    };
-
-
-// -------------------------------------------------- //
-    class btContactSolverInfoFloatData
-    {
-    public:
-        float m_tau;
-        float m_damping;
-        float m_friction;
-        float m_timeStep;
-        float m_restitution;
-        float m_maxErrorReduction;
-        float m_sor;
-        float m_erp;
-        float m_erp2;
-        float m_globalCfm;
-        float m_splitImpulsePenetrationThreshold;
-        float m_splitImpulseTurnErp;
-        float m_linearSlop;
-        float m_warmstartingFactor;
-        float m_maxGyroscopicForce;
-        float m_singleAxisRollingFrictionThreshold;
-        int m_numIterations;
-        int m_solverMode;
-        int m_restingContactRestitutionThreshold;
-        int m_minimumSolverBatchSize;
-        int m_splitImpulse;
-        char m_padding[4];
-    };
-
-	// -------------------------------------------------- //
-    class btDynamicsWorldDoubleData
-    {
-    public:
-        btContactSolverInfoDoubleData m_solverInfo;
-        btVector3DoubleData m_gravity;
-    };
-
-
-// -------------------------------------------------- //
-    class btDynamicsWorldFloatData
-    {
-    public:
-        btContactSolverInfoFloatData m_solverInfo;
-        btVector3FloatData m_gravity;
-    };
-
-
-
-// -------------------------------------------------- //
     class SoftBodyMaterialData
     {
     public:
@@ -1366,6 +1365,8 @@ typedef struct bInvalidHandle {
         double m_jointPos[7];
         double m_jointVel[6];
         double m_jointTorque[6];
+        double m_jointDamping;
+        double m_jointFriction;
     };
 
 
@@ -1390,6 +1391,8 @@ typedef struct bInvalidHandle {
         float m_jointVel[6];
         float m_jointTorque[6];
         int m_posVarCount;
+        float m_jointDamping;
+        float m_jointFriction;
     };
 
 
