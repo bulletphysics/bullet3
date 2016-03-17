@@ -36,6 +36,9 @@ public:
 
 };
 
+extern ContactAddedCallback		gContactAddedCallback;
+
+
 MultiBodySoftContact::MultiBodySoftContact(struct GUIHelperInterface* helper)
 :CommonMultiBodyBase(helper),
 m_once(true)
@@ -44,11 +47,10 @@ m_once(true)
 
 MultiBodySoftContact::~MultiBodySoftContact()
 {
-
+    gContactAddedCallback = 0;
 }
 
 
-extern ContactAddedCallback		gContactAddedCallback;
 static bool btMultiBodySoftContactCallback(btManifoldPoint& cp,	const btCollisionObjectWrapper* colObj0Wrap,int partId0,int index0,const btCollisionObjectWrapper* colObj1Wrap,int partId1,int index1)
 {
     cp.m_contactCFM = 0.3;

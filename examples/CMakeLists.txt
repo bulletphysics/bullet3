@@ -1,5 +1,5 @@
 SUBDIRS( HelloWorld BasicDemo )
 IF(BUILD_BULLET3)
-	SUBDIRS( ExampleBrowser SimpleOpenGL3 ThirdPartyLibs/Gwen OpenGLWindow)
+	SUBDIRS( ExampleBrowser ThirdPartyLibs/Gwen OpenGLWindow)
 ENDIF()
 

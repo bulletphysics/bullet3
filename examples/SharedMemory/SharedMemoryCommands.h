@@ -150,7 +150,7 @@ struct SendDesiredStateArgs
 	//or the maximum applied force/torque for the PD/motor/constraint to reach the desired velocity in CONTROL_MODE_VELOCITY and CONTROL_MODE_POSITION_VELOCITY_PD mode
 	//indexed by degree of freedom, 6 dof base, and then dofs for each link
     double m_desiredStateForceTorque[MAX_DEGREE_OF_FREEDOM];
- 
+    
 };
 
 
