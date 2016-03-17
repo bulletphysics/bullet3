@@ -223,18 +223,22 @@ void  ROSURDFImporter::getMassAndInertia(int linkIndex, btScalar& mass,btVector3
     }
 }
     
-bool ROSURDFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit) const
+bool ROSURDFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction) const
 {
     jointLowerLimit = 0.f;
     jointUpperLimit = 0.f;
-        
+    jointDamping = 0.f;
+	jointFriction = 0.f;
+
     if ((*m_data->m_links[urdfLinkIndex]).parent_joint)
     {
         my_shared_ptr<Joint> pj =(*m_data->m_links[urdfLinkIndex]).parent_joint;
             
         const urdf::Vector3 pos = pj->parent_to_joint_origin_transform.position;
         const urdf::Rotation orn = pj->parent_to_joint_origin_transform.rotation;
-            
+		jointDamping = pj->dynamics->damping;
+		jointFriction = pj->dynamics->friction;
+
         jointAxisInJointSpace.setValue(pj->axis.x,pj->axis.y,pj->axis.z);
         parent2joint.setOrigin(btVector3(pos.x,pos.y,pos.z));
         parent2joint.setRotation(btQuaternion(orn.x,orn.y,orn.z,orn.w));

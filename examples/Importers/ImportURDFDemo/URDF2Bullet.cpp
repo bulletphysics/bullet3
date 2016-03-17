@@ -195,9 +195,11 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
     btVector3 jointAxisInJointSpace;
     btScalar jointLowerLimit;
     btScalar jointUpperLimit;
+    btScalar jointDamping;
+    btScalar jointFriction;
 
 
-    bool hasParentJoint = u2b.getJointInfo(urdfLinkIndex, parent2joint, jointAxisInJointSpace, jointType,jointLowerLimit,jointUpperLimit);
+    bool hasParentJoint = u2b.getJointInfo(urdfLinkIndex, parent2joint, jointAxisInJointSpace, jointType,jointLowerLimit,jointUpperLimit, jointDamping, jointFriction);
 
 
     linkTransformInWorldSpace =parentTransformInWorldSpace*parent2joint;
@@ -297,6 +299,8 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
                                                                   offsetInA.inverse().getRotation()*offsetInB.getRotation(), quatRotate(offsetInB.inverse().getRotation(),jointAxisInJointSpace), offsetInA.getOrigin(),//parent2joint.getOrigin(),
                                                                   -offsetInB.getOrigin(),
                                                                   disableParentCollision);
+						cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointDamping = jointDamping;
+						cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointFriction= jointFriction;
                         creation.addLinkMapping(urdfLinkIndex,mbLinkIndex);
 
                     } else
