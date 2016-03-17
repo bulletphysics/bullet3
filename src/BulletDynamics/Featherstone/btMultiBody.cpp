@@ -1899,6 +1899,9 @@ const char*	btMultiBody::serialize(void* dataBuffer, class btSerializer* seriali
 				getLink(i).m_inertiaLocal.serialize(memPtr->m_linkInertia);
 				memPtr->m_linkMass = getLink(i).m_mass;
 				memPtr->m_parentIndex = getLink(i).m_parent;
+				memPtr->m_jointDamping = getLink(i).m_jointDamping;
+				memPtr->m_jointFriction = getLink(i).m_jointFriction;
+
 				getLink(i).m_eVector.serialize(memPtr->m_parentComToThisComOffset);
 				getLink(i).m_dVector.serialize(memPtr->m_thisPivotToThisComOffset);
 				getLink(i).m_zeroRotParentToThis.serialize(memPtr->m_zeroRotParentToThis);
