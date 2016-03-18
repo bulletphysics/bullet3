@@ -1,16 +1,22 @@
 	project "BulletCollision"
 
-	kind "StaticLib"
+	configuration { "*" }
+		kind "StaticLib"
+	configuration { "*DLL" }
+		kind "SharedLib"
+	configuration {}
+
 	includedirs {
 		"..",
 	}
+
 	files {
 		"*.cpp",
 		"*.h",
 		"BroadphaseCollision/*.cpp",
 		"BroadphaseCollision/*.h",
 		"CollisionDispatch/*.cpp",
-                "CollisionDispatch/*.h",
+		"CollisionDispatch/*.h",
 		"CollisionShapes/*.cpp",
 		"CollisionShapes/*.h",
 		"Gimpact/*.cpp",

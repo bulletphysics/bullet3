@@ -1,11 +1,12 @@
 	project "Bullet3Collision"
 
-	language "C++"
-				
-	kind "StaticLib"
-		
-	includedirs {".."}
+	configuration { "*" }
+		kind "StaticLib"
+	configuration { "*DLL" }
+		kind "SharedLib"
+	configuration {}
 
+	includedirs {".."}
 
 	files {
 		"**.cpp",
