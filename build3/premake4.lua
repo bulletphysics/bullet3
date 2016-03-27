@@ -199,6 +199,7 @@
 		include "../examples/ExampleBrowser"
 		include "../examples/OpenGLWindow"
 		include "../examples/ThirdPartyLibs/Gwen"
+		include "../examples/SimpleOpenGL3"
 
 		include "../examples/HelloWorld"
 		include "../examples/BasicDemo"
