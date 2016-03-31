@@ -25,14 +25,14 @@
 
 	newoption
 	{
-		trigger = "force_dlopen_opengl",
-		description = "Dynamically load OpenGL (instead of static/dynamic linking)"
+		trigger = "enable_system_opengl",
+		description = "Try to link and use the system OpenGL headers version instead of dynamically loading OpenGL (dlopen is default)"
 	}
 
 	newoption
 	{
-		trigger = "force_dlopen_x11",
-		description = "Dynamically load OpenGL (instead of static/dynamic linking)"
+		trigger = "enable_system_x11",
+		description = "Try to link and use system X11 headers instead of dynamically loading X11 (dlopen is default)"
 	}
 
 	newoption
@@ -199,6 +199,7 @@
 		include "../examples/ExampleBrowser"
 		include "../examples/OpenGLWindow"
 		include "../examples/ThirdPartyLibs/Gwen"
+		include "../examples/SimpleOpenGL3"
 
 		include "../examples/HelloWorld"
 		include "../examples/BasicDemo"
