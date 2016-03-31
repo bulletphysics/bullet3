@@ -52,7 +52,7 @@ namespace Gwen
 				float	m_fVVal;
 				int		m_fBarSize;
 
-				char		m_iZoomedSection;
+				int 		m_iZoomedSection;
 
 				Gwen::Event::Caller	onZoomed;
 				Gwen::Event::Caller	onUnZoomed;

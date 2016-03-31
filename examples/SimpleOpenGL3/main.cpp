@@ -14,7 +14,7 @@ static b3ResizeCallback sOldResizeCB = 0;
 static b3MouseMoveCallback sOldMouseMoveCB = 0;
 static b3MouseButtonCallback sOldMouseButtonCB = 0;
 static b3KeyboardCallback sOldKeyboardCB = 0;
-static b3RenderCallback sOldRenderCB = 0;
+//static b3RenderCallback sOldRenderCB = 0;
 
 
 void MyWheelCallback(float deltax, float deltay)
