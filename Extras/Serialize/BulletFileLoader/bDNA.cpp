@@ -97,7 +97,7 @@ int bDNA::getReverseType(const char *type)
 	int* valuePtr = mTypeLookup.find(key);
 	if (valuePtr)
 		return *valuePtr;
-	
+
 	return -1;
 }
 
@@ -211,9 +211,9 @@ void bDNA::initCmpFlags(bDNA *memDNA)
 		if (oldLookup < memDNA->mStructs.size())
 		{
 			short *curStruct = memDNA->mStructs[oldLookup];
-#endif	
-	
-		
+#endif
+
+
 
 			// rebuild...
 			mCMPFlags[i] = FDF_STRUCT_NEQU;
@@ -369,7 +369,7 @@ void bDNA::init(char *data, int len, bool swap)
 
 
 	// Parse names
-	if (swap) 
+	if (swap)
 	{
 		*intPtr = ChunkUtils::swapInt(*intPtr);
 	}
@@ -389,9 +389,9 @@ void bDNA::init(char *data, int len, bool swap)
 		cp++;
 	}
 
-	
+
 	{
-		nr= (long)cp;
+		nr= atoi(cp);
 	//long mask=3;
 		nr= ((nr+3)&~3)-nr;
 		while (nr--)
@@ -411,7 +411,7 @@ void bDNA::init(char *data, int len, bool swap)
 	intPtr = (int*)cp;
 	assert(strncmp(cp, "TYPE", 4)==0); intPtr++;
 
-	if (swap) 
+	if (swap)
 	{
 		*intPtr = ChunkUtils::swapInt(*intPtr);
 	}
@@ -427,7 +427,7 @@ void bDNA::init(char *data, int len, bool swap)
 	}
 
 {
-		nr= (long)cp;
+		nr= atoi(cp);
 	//	long mask=3;
 		nr= ((nr+3)&~3)-nr;
 		while (nr--)
@@ -474,7 +474,7 @@ void bDNA::init(char *data, int len, bool swap)
 	cp = (char*)intPtr;
 	assert(strncmp(cp, "STRC", 4)==0); intPtr++;
 
-	if (swap) 
+	if (swap)
 	{
 		*intPtr = ChunkUtils::swapInt(*intPtr);
 	}
@@ -526,7 +526,7 @@ int bDNA::getArraySize(char* string)
 	int ret = 1;
 	int len = strlen(string);
 
-	
+
 	char* next = 0;
 	for (int i=0; i<len; i++)
 	{
@@ -549,7 +549,7 @@ void bDNA::dumpTypeDefinitions()
 	int i;
 
 	int numTypes = mTypes.size();
-	
+
 	for (i=0;i<numTypes;i++)
 	{
 
@@ -570,7 +570,7 @@ void bDNA::dumpTypeDefinitions()
 		short* newStruct = mStructs[oldLookup];
 		char* typeName = mTypes[newStruct[0]];
 		printf("%3d: %s ",i,typeName);
-		
+
 		//char *name = mNames[oldStruct[1]];
 		int len = oldStruct[1];
 		printf(" (%d fields) ",len);
@@ -592,7 +592,7 @@ void bDNA::dumpTypeDefinitions()
 				elemNumBytes = getLength(oldStruct[0]);
 			}
 			printf(" /* %d bytes */",elemNumBytes*arrayDimensions);
-			
+
 			if (j == len-1) {
 				printf(";}");
 			} else {
@@ -603,7 +603,7 @@ void bDNA::dumpTypeDefinitions()
 		printf("\ntotalBytes=%d\n\n",totalBytes);
 
 	}
-	
+
 
 
 #if 0
@@ -641,5 +641,3 @@ void bDNA::dumpTypeDefinitions()
 
 
 //eof
-
-
