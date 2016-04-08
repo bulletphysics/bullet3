@@ -27,16 +27,16 @@ struct b3FileUtils
 			return true;
 		}
 
-		//printf("Trying various directories, relative to current working directory\n");	
+		//printf("Trying various directories, relative to current working directory\n");
 			const char* prefix[]={"./","./data/","../data/","../../data/","../../../data/","../../../../data/"};
 			int numPrefixes = sizeof(prefix)/sizeof(const char*);
-	
+
 			f=0;
 			bool fileFound = false;
 
 			for (int i=0;!f && i<numPrefixes;i++)
 			{
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__MINGW32__) || !defined(__MINGW64__)
 				sprintf_s(relativeFileName,maxRelativeFileNameMaxLen,"%s%s",prefix[i],orgFileName);
 #else
 				sprintf(relativeFileName,"%s%s",prefix[i],orgFileName);
@@ -52,7 +52,7 @@ struct b3FileUtils
 			{
 				fclose(f);
 			}
-	
+
 		return fileFound;
 	}
 
@@ -70,7 +70,7 @@ struct b3FileUtils
 		return oriptr;
 	}
 
-	
+
 
 	static int extractPath(const char* fileName, char* path, int maxPathLength)
 	{
