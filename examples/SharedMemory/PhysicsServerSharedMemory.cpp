@@ -240,23 +240,8 @@ void PhysicsServerSharedMemory::processClientCommands()
 {
 	if (m_data->m_isConnected && m_data->m_testBlock1)
     {
-#if 0
-		m_data->m_commandProcessor->processLogCommand();
-
-		if (m_data->m_logPlayback)
-		{
-			if (m_data->m_testBlock1->m_numServerCommands>m_data->m_testBlock1->m_numProcessedServerCommands)
-			{
-				m_data->m_testBlock1->m_numProcessedServerCommands++;
-			}
-			//push a command from log file
-			bool hasCommand = m_data->m_logPlayback->processNextCommand(&m_data->m_testBlock1->m_clientCommands[0]);
-			if (hasCommand)
-			{
-				m_data->m_testBlock1->m_numClientCommands++;
-			}
-		}
-#endif
+        m_data->m_commandProcessor->replayLogCommand(&m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor[0],SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+        
         ///we ignore overflow of integer for now
         if (m_data->m_testBlock1->m_numClientCommands> m_data->m_testBlock1->m_numProcessedClientCommands)
         {

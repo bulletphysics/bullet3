@@ -642,6 +642,8 @@ void	PhysicsServerCommandProcessor::createJointMotors(btMultiBody* mb)
 			//motor->setMaxAppliedImpulse(0);
 			m_data->m_multiBodyJointMotorMap.insert(mbLinkIndex,motor);
 			m_data->m_dynamicsWorld->addMultiBodyConstraint(motor);
+            motor->finalizeMultiDof();
+            
 		}
 
 	}
@@ -759,7 +761,21 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
     return false;
 }
 
-
+void PhysicsServerCommandProcessor::replayLogCommand(char* bufferServerToClient, int bufferSizeInBytes)
+{
+        if (m_data->m_logPlayback)
+        {
+            
+            SharedMemoryCommand clientCmd;
+            SharedMemoryStatus serverStatus;
+            
+            bool hasCommand = m_data->m_logPlayback->processNextCommand(&clientCmd);
+            if (hasCommand)
+            {
+                processCommand(clientCmd,serverStatus,bufferServerToClient,bufferSizeInBytes);
+            }
+        }
+}
 
 
 
@@ -769,22 +785,6 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 	bool hasStatus = false;
 
     {
-#if 0
-		if (m_data->m_logPlayback)
-		{
-			if (m_data->m_testBlock1->m_numServerCommands>m_data->m_testBlock1->m_numProcessedServerCommands)
-			{
-				m_data->m_testBlock1->m_numProcessedServerCommands++;
-			}
-			//push a command from log file
-			bool hasCommand = m_data->m_logPlayback->processNextCommand(&m_data->m_testBlock1->m_clientCommands[0]);
-			if (hasCommand)
-			{
-				m_data->m_testBlock1->m_numClientCommands++;
-			}
-		}
-#endif
-
         ///we ignore overflow of integer for now
         
         {
@@ -793,10 +793,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
             
             
 			//const SharedMemoryCommand& clientCmd =m_data->m_testBlock1->m_clientCommands[0];
-#if 0
+#if 1
 			if (m_data->m_commandLogger)
 			{
-				m_data->m_commandLogger->logCommand(m_data->m_testBlock1);
+                m_data->m_commandLogger->logCommand(clientCmd);
 			}
 #endif
 
@@ -1277,8 +1277,28 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                     serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+4] = sensedTorque[1];
                                     serverCmd.m_sendActualStateArgs.m_jointReactionForces[l*6+5] = sensedTorque[2];
                                 }
-							}
+                                
+                                serverCmd.m_sendActualStateArgs.m_jointMotorForce[l] = 0;
+                                
+                                if (supportsJointMotor(mb,l))
+                                {
+                                    
+                                    btMultiBodyJointMotor** motorPtr  = m_data->m_multiBodyJointMotorMap[l];
+                                    if (motorPtr && m_data->m_physicsDeltaTime>btScalar(0))
+                                    {
+                                        btMultiBodyJointMotor* motor = *motorPtr;
+                                        btScalar force =motor->getAppliedImpulse(0)/m_data->m_physicsDeltaTime;
+                                        serverCmd.m_sendActualStateArgs.m_jointMotorForce[l] =
+                                        force;
+                                        //if (force>0)
+                                        //{
+                                        //   b3Printf("force = %f\n", force);
+                                        //}
+                                    }
+                                }
+                            }
 
+                            
 							serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomQ = totalDegreeOfFreedomQ;
 							serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomU = totalDegreeOfFreedomU;
 							
