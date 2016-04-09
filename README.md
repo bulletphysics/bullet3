@@ -47,7 +47,7 @@ All source code files are licensed under the permissive zlib license
 
 **Windows**
 
-Click on build3/vs2010.bat and open build3/vs2010/0MySolution.sln
+Click on build3/vs2010.bat and open build3/vs2010/0_Bullet3Solution.sln
 
 **Linux and Mac OSX gnu make**
 
