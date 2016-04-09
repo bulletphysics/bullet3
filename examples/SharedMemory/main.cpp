@@ -78,6 +78,9 @@ int main(int argc, char* argv[])
         example = (SharedMemoryCommon*)PhysicsClientCreateFunc(options);
     }else
     {
+//        options.m_option |= PHYSICS_SERVER_ENABLE_COMMAND_LOGGING;
+       // options.m_option |= PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG;
+        
         example = (SharedMemoryCommon*)PhysicsServerCreateFunc(options);
     }
 	

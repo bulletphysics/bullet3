@@ -194,7 +194,8 @@ struct SendActualStateArgs
 
     //measured 6DOF force/torque sensors: force[x,y,z] and torque[x,y,z]
     double m_jointReactionForces[6*MAX_DEGREE_OF_FREEDOM];
-  
+
+    double m_jointMotorForce[MAX_DEGREE_OF_FREEDOM];
 };
 
 enum EnumSensorTypes
