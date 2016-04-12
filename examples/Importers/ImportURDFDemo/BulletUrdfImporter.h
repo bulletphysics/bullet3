@@ -38,7 +38,12 @@ public:
 
 	virtual int convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const;
 
+    ///todo(erwincoumans) refactor this convertLinkCollisionShapes/memory allocation
+    
 	virtual class btCompoundShape* convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const;
+    
+    virtual int getNumAllocatedCollisionShapes() const;
+    virtual class btCollisionShape* getAllocatedCollisionShape(int index);
 
 };
 

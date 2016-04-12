@@ -9,7 +9,37 @@ UrdfParser::UrdfParser()
 }
 UrdfParser::~UrdfParser()
 {
-	//todo(erwincoumans) delete memory
+    
+    for (int i=0;i<m_model.m_materials.size();i++)
+    {
+        UrdfMaterial** matPtr = m_model.m_materials.getAtIndex(i);
+        if (matPtr)
+        {
+            UrdfMaterial* mat = *matPtr;
+            delete mat;
+        }
+    }
+    
+    for (int i=0;i<m_model.m_links.size();i++)
+    {
+        UrdfLink** linkPtr = m_model.m_links.getAtIndex(i);
+        if (linkPtr)
+        {
+            UrdfLink* link = *linkPtr;
+            delete link;
+        }
+    }
+
+    for (int i=0;i<m_model.m_joints.size();i++)
+    {
+        UrdfJoint** jointPtr = m_model.m_joints.getAtIndex(i);
+        if (jointPtr)
+        {
+            UrdfJoint* joint = *jointPtr;
+            delete joint;
+        }
+    }
+    
 }
 
 static bool parseVector4(btVector4& vec4, const std::string& vector_str)

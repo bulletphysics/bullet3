@@ -38,7 +38,9 @@ struct BulletURDFInternalData
 	struct GUIHelperInterface* m_guiHelper;
 	char m_pathPrefix[1024];
 	btHashMap<btHashInt,btVector4> m_linkColors;
+    btAlignedObjectArray<btCollisionShape*> m_allocatedCollisionShapes;
 };
+
 
 void BulletURDFImporter::printTree()
 {
@@ -507,7 +509,7 @@ void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPref
 	}
 
 	//if we have a convex, tesselate into localVertices/localIndices
-	if (convexColShape)
+	if ((glmesh==0) && convexColShape)
 	{
 		btShapeHull* hull = new btShapeHull(convexColShape);
 		hull->buildHull(0.0);
@@ -549,6 +551,7 @@ void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPref
 			glmesh->m_numvertices = glmesh->m_vertices->size();
 			glmesh->m_numIndices = glmesh->m_indices->size();
 		}
+        delete hull;
 		delete convexColShape;
 		convexColShape = 0;
 
@@ -582,6 +585,8 @@ void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPref
 			verticesOut.push_back(v);
 		}
 	}
+    delete glmesh;
+    
 }
 
 
@@ -811,11 +816,12 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 							b3Warning("issue extracting mesh from STL file %s\n", fullPath);
 						}
 
+                        delete glmesh;
+                       
 					} else
 					{
 						b3Warning("mesh geometry not found %s\n",fullPath);
 					}
-							
 							
 				}
 			}
@@ -888,10 +894,23 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
         
 }
 
+int BulletURDFImporter::getNumAllocatedCollisionShapes() const
+{
+    return m_data->m_allocatedCollisionShapes.size();
+}
+
+
+btCollisionShape* BulletURDFImporter::getAllocatedCollisionShape(int index)
+{
+    return m_data->m_allocatedCollisionShapes[index];
+}
+
  class btCompoundShape* BulletURDFImporter::convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const
 {
         
     btCompoundShape* compoundShape = new btCompoundShape();
+    m_data->m_allocatedCollisionShapes.push_back(compoundShape);
+    
     compoundShape->setMargin(0.001);
 #if USE_ROS_URDF_PARSER
     for (int v=0;v<(int)m_data->m_links[linkIndex]->collision_array.size();v++)

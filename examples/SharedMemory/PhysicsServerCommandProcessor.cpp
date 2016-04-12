@@ -565,6 +565,9 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 	}
 	m_data->m_strings.clear();
 
+    btAlignedObjectArray<btTypedConstraint*> constraints;
+    btAlignedObjectArray<btMultiBodyConstraint*> mbconstraints;
+    
 	
 	if (m_data->m_dynamicsWorld)
 	{
@@ -572,8 +575,17 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 		int i;
 		for (i = m_data->m_dynamicsWorld->getNumConstraints() - 1; i >= 0; i--)
 		{
-			m_data->m_dynamicsWorld->removeConstraint(m_data->m_dynamicsWorld->getConstraint(i));
+            btTypedConstraint* constraint =m_data->m_dynamicsWorld->getConstraint(i);
+            constraints.push_back(constraint);
+			m_data->m_dynamicsWorld->removeConstraint(constraint);
 		}
+        for (i=m_data->m_dynamicsWorld->getNumMultiBodyConstraints()-1;i>=0;i--)
+        {
+            btMultiBodyConstraint* mbconstraint = m_data->m_dynamicsWorld->getMultiBodyConstraint(i);
+            mbconstraints.push_back(mbconstraint);
+            m_data->m_dynamicsWorld->removeMultiBodyConstraint(mbconstraint);
+        }
+        
 		for (i = m_data->m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
 		{
 			btCollisionObject* obj = m_data->m_dynamicsWorld->getCollisionObjectArray()[i];
@@ -585,8 +597,25 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 			m_data->m_dynamicsWorld->removeCollisionObject(obj);
 			delete obj;
 		}
+        for (i=m_data->m_dynamicsWorld->getNumMultibodies()-1;i>=0;i--)
+        {
+            btMultiBody* mb = m_data->m_dynamicsWorld->getMultiBody(i);
+            m_data->m_dynamicsWorld->removeMultiBody(mb);
+            delete mb;
+        }
 	}
-	//delete collision shapes
+
+    for (int i=0;i<constraints.size();i++)
+    {
+        delete constraints[i];
+    }
+    constraints.clear();
+    for (int i=0;i<mbconstraints.size();i++)
+    {
+        delete mbconstraints[i];
+    }
+    mbconstraints.clear();
+    //delete collision shapes
 	for (int j = 0; j<m_data->m_collisionShapes.size(); j++)
 	{
 		btCollisionShape* shape = m_data->m_collisionShapes[j];
@@ -665,6 +694,8 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 
    
     bool loadOk =  u2b.loadURDF(fileName, useFixedBase);
+   
+    
     if (loadOk)
     {
 		//get a body index
@@ -695,9 +726,29 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 		MyMultiBodyCreator creation(m_data->m_guiHelper);
         
         ConvertURDF2Bullet(u2b,creation, tr,m_data->m_dynamicsWorld,useMultiBody,u2b.getPathPrefix());
+        
+        
+        ///todo(erwincoumans) refactor this memory allocation issue
+        for (int i=0;i<u2b.getNumAllocatedCollisionShapes();i++)
+        {
+            btCollisionShape* shape =u2b.getAllocatedCollisionShape(i);
+            m_data->m_collisionShapes.push_back(shape);
+            if (shape->isCompound())
+            {
+                btCompoundShape* compound = (btCompoundShape*) shape;
+                for (int childIndex=0;childIndex<compound->getNumChildShapes();childIndex++)
+                {
+                    m_data->m_collisionShapes.push_back(compound->getChildShape(childIndex));
+                }
+            }
+            
+        }
+        
         btMultiBody* mb = creation.getBulletMultiBody();
 		if (useMultiBody)
 		{
+            
+            
 			if (mb)
 			{
 				bodyHandle->m_multiBody = mb;
@@ -743,7 +794,7 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
                 const char* structType = mb->serialize(chunk->m_oldPtr, util->m_memSerializer);
                 util->m_memSerializer->finalizeChunk(chunk,structType,BT_MULTIBODY_CODE,mb);
 
-				return true;
+                               return true;
 			} else
 			{
 				b3Warning("No multibody loaded from URDF. Could add btRigidBody+btTypedConstraint solution later.");
@@ -943,6 +994,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						m_data->m_guiHelper->autogenerateGraphicsObjects(this->m_data->m_dynamicsWorld);
 						
 						serverStatusOut.m_type = CMD_URDF_LOADING_COMPLETED;
+                        serverStatusOut.m_dataStreamArguments.m_streamChunkLength = 0;
+                        
 						if (m_data->m_urdfLinkNameMapper.size())
 						{
 							serverStatusOut.m_dataStreamArguments.m_streamChunkLength = m_data->m_urdfLinkNameMapper.at(m_data->m_urdfLinkNameMapper.size()-1)->m_memSerializer->getCurrentBufferSize();
