@@ -15,23 +15,29 @@ B3_DECLARE_HANDLE(b3SharedMemoryStatusHandle);
 extern "C" { 
 #endif
 
-///make sure to start the server first, before connecting client to a physics server over shared memory or UDP
+///b3ConnectSharedMemory will connect to a physics server over shared memory, so
+///make sure to start the server first.
+///and a way to spawn an OpenGL 3D GUI physics server and connect (b3CreateInProcessPhysicsServerAndConnect)
 b3PhysicsClientHandle b3ConnectSharedMemory(int key);
 
+///b3DisconnectSharedMemory will disconnect the client from the server and cleanup memory.
 void	b3DisconnectSharedMemory(b3PhysicsClientHandle physClient);
 
-///check if a command can be send
+///There can only be 1 outstanding command. Check if a command can be send.
 int	b3CanSubmitCommand(b3PhysicsClientHandle physClient);
 
-//blocking submit command and wait for status
+///blocking submit command and wait for status
 b3SharedMemoryStatusHandle b3SubmitClientCommandAndWaitStatus(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle);
 
-///non-blocking submit command
+///In general it is better to use b3SubmitClientCommandAndWaitStatus. b3SubmitClientCommand is a non-blocking submit
+///command, which requires checking for the status manually, using b3ProcessServerStatus. Also, before sending the
+///next command, make sure to check if you can send a command using 'b3CanSubmitCommand'.
 int	b3SubmitClientCommand(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle);
 
 ///non-blocking check status
 b3SharedMemoryStatusHandle	b3ProcessServerStatus(b3PhysicsClientHandle physClient);
 
+/// Get the physics server return status type. See EnumSharedMemoryServerStatus in SharedMemoryPublic.h for error codes.
 int b3GetStatusType(b3SharedMemoryStatusHandle statusHandle);
 
 int b3GetStatusBodyIndex(b3SharedMemoryStatusHandle statusHandle);
@@ -45,12 +51,18 @@ int b3GetStatusActualState(b3SharedMemoryStatusHandle statusHandle,
                            const double* actualStateQdot[],
                            const double* jointReactionForces[]);
 
+///give a unique body index (after loading the body) return the number of joints.
 int	b3GetNumJoints(b3PhysicsClientHandle physClient, int bodyIndex);
 
+///given a body and link index, return the joint information. See b3JointInfo in SharedMemoryPublic.h
 void	b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyIndex, int linkIndex, struct b3JointInfo* info);
 
+///Request debug lines for debug visualization. The flags in debugMode are the same as used in Bullet
+///See btIDebugDraw::DebugDrawModes in Bullet/src/LinearMath/btIDebugDraw.h
 b3SharedMemoryCommandHandle b3InitRequestDebugLinesCommand(b3PhysicsClientHandle physClient, int debugMode);
-    
+
+///Get the pointers to the debug line information, after b3InitRequestDebugLinesCommand returns
+///status CMD_DEBUG_LINES_COMPLETED
 void    b3GetDebugLines(b3PhysicsClientHandle physClient, struct b3DebugLines* lines);
     
 
@@ -86,8 +98,8 @@ int b3JointControlSetDesiredForceTorque(b3SharedMemoryCommandHandle commandHandl
 ///the creation of collision shapes and rigid bodies etc is likely going to change,
 ///but good to have a b3CreateBoxShapeCommandInit for now
 
-//create a box of size (1,1,1) at world origin (0,0,0) at orientation quat (0,0,0,1)
-//after that, you can optionally adjust the initial position, orientation and size
+///create a box of size (1,1,1) at world origin (0,0,0) at orientation quat (0,0,0,1)
+///after that, you can optionally adjust the initial position, orientation and size
 b3SharedMemoryCommandHandle b3CreateBoxShapeCommandInit(b3PhysicsClientHandle physClient);
 int	b3CreateBoxCommandSetStartPosition(b3SharedMemoryCommandHandle commandHandle, double startPosX,double startPosY,double startPosZ);
 int	b3CreateBoxCommandSetStartOrientation(b3SharedMemoryCommandHandle commandHandle, double startOrnX,double startOrnY,double startOrnZ, double startOrnW);

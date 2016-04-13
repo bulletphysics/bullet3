@@ -45,9 +45,11 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 	{
         {
         b3SharedMemoryCommandHandle command = b3InitPhysicsParamCommand(sm);
+        b3SharedMemoryStatusHandle statusHandle;
 		ret = b3PhysicsParamSetGravity(command,  gravx,gravy, gravz);
 		ret = b3PhysicsParamSetTimeStep(command,  timeStep);
-		b3SubmitClientCommandAndWaitStatus(sm, command);
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+        ASSERT_EQ(b3GetStatusType(statusHandle), CMD_CLIENT_COMMAND_COMPLETED);
         }
 
 		
@@ -112,7 +114,7 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 					ret = b3CreateSensorEnable6DofJointForceTorqueSensor(command, sensorJointIndexRight, 1);
 				}
 				statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
-            
+                ASSERT_EQ(b3GetStatusType(statusHandle), CMD_CLIENT_COMMAND_COMPLETED);
 			}
 		}
         
@@ -123,6 +125,7 @@ void testSharedMemory(b3PhysicsClientHandle sm)
             ret = b3CreateBoxCommandSetStartOrientation(command,0,0,0,1);
             ret = b3CreateBoxCommandSetHalfExtents(command, 10,10,1);
             statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+            ASSERT_EQ(b3GetStatusType(statusHandle), CMD_RIGID_BODY_CREATION_COMPLETED);
 
         }
 
@@ -139,9 +142,8 @@ void testSharedMemory(b3PhysicsClientHandle sm)
                 b3GetStatusActualState(statusHandle,
                                        0, &posVarCount, &dofCount,
                                        0, 0, 0, 0);
-		ASSERT_EQ(posVarCount,15);
-		ASSERT_EQ(dofCount,14);
-
+                ASSERT_EQ(posVarCount,15);
+                ASSERT_EQ(dofCount,14);
             }
         }
         
@@ -199,7 +201,9 @@ void testSharedMemory(b3PhysicsClientHandle sm)
         
 
         {
-            b3SubmitClientCommandAndWaitStatus(sm, b3InitResetSimulationCommand(sm));
+            b3SharedMemoryStatusHandle statusHandle;
+            statusHandle = b3SubmitClientCommandAndWaitStatus(sm, b3InitResetSimulationCommand(sm));
+            ASSERT_EQ(b3GetStatusType(statusHandle), CMD_RESET_SIMULATION_COMPLETED);
         }
         
 	}
