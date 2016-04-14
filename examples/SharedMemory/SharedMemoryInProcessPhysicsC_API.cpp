@@ -3,7 +3,6 @@
 
 #include "PhysicsClientSharedMemory.h"
 #include"../ExampleBrowser/InProcessExampleBrowser.h"
-#include"../ExampleBrowser/InProcessExampleBrowserMainThread.h"
 
 
 

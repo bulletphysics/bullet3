@@ -1,24 +1,4 @@
 
-
-#include "InProcessExampleBrowserMainThread.h"
-
-int main(int argc, char* argv[])
-{
-    
-    btInProcessExampleBrowserMainThreadInternalData* data = btCreateInProcessExampleBrowserMainThread(argc,argv);
-    
-    while (!btIsExampleBrowserMainThreadTerminated(data))
-    {
-        btUpdateInProcessExampleBrowserMainThread(data, 1./60.);
-    }
-    btShutDownExampleBrowserMainThread(data);
-
-    
-    return 0;
-}
-
-
-#if 0
 //#define EXAMPLE_CONSOLE_ONLY
 #ifdef EXAMPLE_CONSOLE_ONLY
 	#include "EmptyBrowser.h"
@@ -63,4 +43,3 @@ int main(int argc, char* argv[])
 	
 	return 0;
 }
-#endif
