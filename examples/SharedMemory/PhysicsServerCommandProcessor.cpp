@@ -1415,6 +1415,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					{
 						b3Printf("Step simulation request");
 					}
+                    ///todo(erwincoumans) move this damping inside Bullet
+                    for (int i=0;i<m_data->m_bodyHandles.size();i++)
+                    {
+                        applyJointDamping(i);
+                    }
                     m_data->m_dynamicsWorld->stepSimulation(m_data->m_physicsDeltaTime,0);
                     
 					SharedMemoryStatus& serverCmd =serverStatusOut;
@@ -1881,5 +1886,22 @@ void PhysicsServerCommandProcessor::replayFromLogFile(const char* fileName)
 {
 	CommandLogPlayback* pb = new CommandLogPlayback(fileName);
 	m_data->m_logPlayback = pb;
+}
+
+void PhysicsServerCommandProcessor::applyJointDamping(int bodyUniqueId)
+{
+    InteralBodyData* body = m_data->getHandle(bodyUniqueId);
+    if (body) {
+        btMultiBody* mb = body->m_multiBody;
+        if (mb) {
+            for (int l=0;l<mb->getNumLinks();l++) {
+                for (int d=0;d<mb->getLink(l).m_dofCount;d++) {
+                    double damping_coefficient = mb->getLink(l).m_jointDamping;
+                    double damping = -damping_coefficient*mb->getJointVelMultiDof(l)[d];
+                    mb->addJointTorqueMultiDof(l, d, damping);
+                }
+            }
+        }
+    }
 }
 
