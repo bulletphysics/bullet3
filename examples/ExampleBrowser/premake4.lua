@@ -1,5 +1,63 @@
+project "App_BulletExampleBrowser"
+
+        language "C++"
+
+        kind "ConsoleApp"
+
+        hasCL = findOpenCL("clew")
+
+ if (hasCL) then
+
+                                -- project ("App_Bullet3_OpenCL_Demos_" .. vendor)
+
+                                initOpenCL("clew")
+
+                end
+
+        links{"BulletExampleBrowserLib","gwen", "OpenGL_Window","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","Bullet3Common"}
+        initOpenGL()
+        initGlew()
+
+        includedirs {
+                ".",
+                "../../src",
+                "../ThirdPartyLibs",
+                }
+
+
+        if os.is("MacOSX") then
+                links{"Cocoa.framework"}
+        end
+
+                if (hasCL) then
+                        links {
+                                "Bullet3OpenCL_clew",
+                                "Bullet3Dynamics",
+                                "Bullet3Collision",
+                                "Bullet3Geometry",
+                                "Bullet3Common",
+                        }
+                end
+
+ if _OPTIONS["lua"] then
+                includedirs{"../ThirdPartyLibs/lua-5.2.3/src"}
+                links {"lua-5.2.3"}
+                defines {"ENABLE_LUA"}
+                files {"../LuaDemo/LuaPhysicsSetup.cpp"}
+        end
+
+        files {
+        "main.cpp",
+        "ExampleEntries.cpp",
+        }
+
+if os.is("Linux") then
+        initX11()
+end
+
+
 	
-		project "BulletExampleBrowserLib"
+project "BulletExampleBrowserLib"
 
 		hasCL = findOpenCL("clew")
 	
@@ -145,61 +203,4 @@ if os.is("Linux") then
 end
 
 			
-project "App_BulletExampleBrowser"
-
-	language "C++"
-
-	kind "ConsoleApp"
-
-	hasCL = findOpenCL("clew")
-
- if (hasCL) then
-
-                                -- project ("App_Bullet3_OpenCL_Demos_" .. vendor)
-
-                                initOpenCL("clew")
-
-                end
-
-	links{"BulletExampleBrowserLib","gwen", "OpenGL_Window","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","Bullet3Common"}
-	initOpenGL()
-	initGlew()
-
-  	includedirs {
-                ".",
-                "../../src",
-                "../ThirdPartyLibs",
-                }
-
-
-	if os.is("MacOSX") then
-		links{"Cocoa.framework"}
-	end
-
-		if (hasCL) then
-			links {
-				"Bullet3OpenCL_clew",
-				"Bullet3Dynamics",
-				"Bullet3Collision",
-				"Bullet3Geometry",
-				"Bullet3Common",
-			}
-		end
-
- if _OPTIONS["lua"] then
-                includedirs{"../ThirdPartyLibs/lua-5.2.3/src"}
-                links {"lua-5.2.3"}
-                defines {"ENABLE_LUA"}
-                files {"../LuaDemo/LuaPhysicsSetup.cpp"}
-        end
-
-	files {
-	"main.cpp",
-	"ExampleEntries.cpp",
-	}
-
-if os.is("Linux") then
-        initX11()
-end
-
 

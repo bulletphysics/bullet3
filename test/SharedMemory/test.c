@@ -241,7 +241,12 @@ int main(int argc, char* argv[])
 #endif
 
 #ifdef PHYSICS_IN_PROCESS_EXAMPLE_BROWSER
-        b3PhysicsClientHandle sm = b3CreateInProcessPhysicsServerAndConnect(argc,argv);
+
+#ifdef __APPLE__
+    b3PhysicsClientHandle sm = b3CreateInProcessPhysicsServerAndConnectMainThread(argc,argv);
+#else
+    b3PhysicsClientHandle sm = b3CreateInProcessPhysicsServerAndConnect(argc,argv);
+#endif //__APPLE__
 #endif
 #ifdef PHYSICS_SHARED_MEMORY
         b3PhysicsClientHandle sm = b3ConnectSharedMemory(SHARED_MEMORY_KEY);
