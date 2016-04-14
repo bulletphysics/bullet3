@@ -229,3 +229,46 @@ void btShutDownExampleBrowser(btInProcessExampleBrowserInternalData* data)
 	delete data;
 }
 
+struct btInProcessExampleBrowserMainThreadInternalData
+{
+    ExampleEntries m_examples;
+    DefaultBrowser*    m_exampleBrowser;
+    SharedMemoryInterface* m_sharedMem;
+    b3Clock m_clock;
+};
+
+btInProcessExampleBrowserMainThreadInternalData* btCreateInProcessExampleBrowserMainThread(int argc,char** argv)
+{
+    btInProcessExampleBrowserMainThreadInternalData* data = new btInProcessExampleBrowserMainThreadInternalData;
+    data->m_examples.initExampleEntries();
+    data->m_exampleBrowser = new DefaultBrowser(&data->m_examples);
+    data->m_sharedMem = new InProcessMemory;
+    data->m_exampleBrowser->setSharedMemoryInterface(data->m_sharedMem );
+    bool init = data->m_exampleBrowser->init(argc,argv);
+    data->m_clock.reset();
+    return data;
+}
+
+bool btIsExampleBrowserMainThreadTerminated(btInProcessExampleBrowserMainThreadInternalData* data)
+{
+    return data->m_exampleBrowser->requestedExit();
+}
+
+void btUpdateInProcessExampleBrowserMainThread(btInProcessExampleBrowserMainThreadInternalData* data)
+{
+    float deltaTimeInSeconds = data->m_clock.getTimeMicroseconds()/1000000.f;
+    data->m_clock.reset();
+    data->m_exampleBrowser->update(deltaTimeInSeconds);
+}
+void btShutDownExampleBrowserMainThread(btInProcessExampleBrowserMainThreadInternalData* data)
+{
+    
+    data->m_exampleBrowser->setSharedMemoryInterface(0);
+    delete data->m_exampleBrowser;
+    delete data;
+}
+
+class SharedMemoryInterface* btGetSharedMemoryInterfaceMainThread(btInProcessExampleBrowserMainThreadInternalData* data)
+{
+    return data->m_sharedMem;
+}

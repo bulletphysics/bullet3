@@ -176,25 +176,6 @@
 
 	language "C++"
 
-	if _OPTIONS["no-bullet3"] then
-		print "--no-bullet3 implies --no-demos"
-		_OPTIONS["no-demos"] = "1"
-	else
-		include "../src/Bullet3Common"
-		include "../src/Bullet3Geometry"
-		include "../src/Bullet3Collision"
-		include "../src/Bullet3Dynamics"
-		include "../src/Bullet3OpenCL"
-		include "../src/Bullet3Serialize/Bullet2FileLoader"
-	end
-
-	if _OPTIONS["no-extras"] then
-		print "--no-extras implies --no-demos"
-		_OPTIONS["no-demos"] = "1"
-	else
-		include "../Extras"
-	end
-
 	if not _OPTIONS["no-demos"] then
 		include "../examples/ExampleBrowser"
 		include "../examples/OpenGLWindow"
@@ -220,6 +201,25 @@
 			end
 		end
 	end
+
+	 if _OPTIONS["no-bullet3"] then
+                print "--no-bullet3 implies --no-demos"
+                _OPTIONS["no-demos"] = "1"
+        else
+                include "../src/Bullet3Common"
+                include "../src/Bullet3Geometry"
+                include "../src/Bullet3Collision"
+                include "../src/Bullet3Dynamics"
+                include "../src/Bullet3OpenCL"
+                include "../src/Bullet3Serialize/Bullet2FileLoader"
+        end
+
+        if _OPTIONS["no-extras"] then
+                print "--no-extras implies --no-demos"
+                _OPTIONS["no-demos"] = "1"
+        else
+                include "../Extras"
+        end
 
 	if not _OPTIONS["no-test"] then
 		include "../test/Bullet2"
