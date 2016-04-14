@@ -74,8 +74,10 @@ b3SharedMemoryCommandHandle	b3InitStepSimulationCommand(b3PhysicsClientHandle ph
 
 b3SharedMemoryCommandHandle	b3InitResetSimulationCommand(b3PhysicsClientHandle physClient);
 
+///Load a robot from a URDF file. Status type will CMD_URDF_LOADING_COMPLETED.
+///Access the robot from the unique body index, through b3GetStatusBodyIndex(statusHandle);
 b3SharedMemoryCommandHandle	b3LoadUrdfCommandInit(b3PhysicsClientHandle physClient, const char* urdfFileName);
-///all those commands are optional, except for the *Init
+
 int	b3LoadUrdfCommandSetStartPosition(b3SharedMemoryCommandHandle commandHandle, double startPosX,double startPosY,double startPosZ);
 int	b3LoadUrdfCommandSetStartOrientation(b3SharedMemoryCommandHandle commandHandle, double startOrnX,double startOrnY,double startOrnZ, double startOrnW);
 int	b3LoadUrdfCommandSetUseMultiBody(b3SharedMemoryCommandHandle commandHandle, int useMultiBody);
@@ -109,16 +111,21 @@ int	b3CreateBoxCommandSetCollisionShapeType(b3SharedMemoryCommandHandle commandH
 int	b3CreateBoxCommandSetColorRGBA(b3SharedMemoryCommandHandle commandHandle, double red,double green,double blue, double alpha);
 
 
-///Initialize (teleport) the pose of a body/robot. You can individually set the base position, base orientation and joint angles.
-///This will set all velocities of base and joints to zero.
+///b3CreatePoseCommandInit will initialize (teleport) the pose of a body/robot. You can individually set the base position,
+///base orientation and joint angles. This will set all velocities of base and joints to zero.
+///This is not a robot control command using actuators/joint motors, but manual repositioning the robot.
 b3SharedMemoryCommandHandle b3CreatePoseCommandInit(b3PhysicsClientHandle physClient, int bodyIndex);
 int	b3CreatePoseCommandSetBasePosition(b3SharedMemoryCommandHandle commandHandle, double startPosX,double startPosY,double startPosZ);
 int	b3CreatePoseCommandSetBaseOrientation(b3SharedMemoryCommandHandle commandHandle, double startOrnX,double startOrnY,double startOrnZ, double startOrnW);
 int	b3CreatePoseCommandSetJointPositions(b3SharedMemoryCommandHandle commandHandle, int numJointPositions, const double* jointPositions);
 int	b3CreatePoseCommandSetJointPosition(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle,  int jointIndex, double jointPosition);
 
+///We are currently not reading the sensor information from the URDF file, and programmatically assign sensors.
+///This is rather inconsistent, to mix programmatical creation with loading from file.
 b3SharedMemoryCommandHandle b3CreateSensorCommandInit(b3PhysicsClientHandle physClient);
 int b3CreateSensorEnable6DofJointForceTorqueSensor(b3SharedMemoryCommandHandle commandHandle, int jointIndex, int enable);
+///b3CreateSensorEnableIMUForLink is not implemented yet.
+///For now, if the IMU is located in the root link, use the root world transform to mimic an IMU.
 int b3CreateSensorEnableIMUForLink(b3SharedMemoryCommandHandle commandHandle, int linkIndex, int enable);
 
 b3SharedMemoryCommandHandle b3RequestActualStateCommandInit(b3PhysicsClientHandle physClient,int bodyUniqueId);
