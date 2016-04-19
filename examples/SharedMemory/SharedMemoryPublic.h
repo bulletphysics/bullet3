@@ -94,7 +94,7 @@ struct b3JointSensorState
   double m_jointPosition;
   double m_jointVelocity;
   double m_jointForceTorque[6];  /* note to roboticists: this is NOT the motor torque/force, but the spatial reaction force vector at joint */
-  double m_jointTorque;
+  double m_jointMotorTorque;
 };
 
 struct b3DebugLines
