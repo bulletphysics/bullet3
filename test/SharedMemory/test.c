@@ -165,11 +165,18 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 			b3SharedMemoryStatusHandle statusHandle;
 			int statusType;
 
-			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, b3InitStepSimulationCommand(sm));
-			statusType = b3GetStatusType(statusHandle);
-			ASSERT_EQ(statusType, CMD_STEP_FORWARD_SIMULATION_COMPLETED);
+            if (b3CanSubmitCommand(sm))
+            {
+                statusHandle = b3SubmitClientCommandAndWaitStatus(sm, b3InitStepSimulationCommand(sm));
+                statusType = b3GetStatusType(statusHandle);
+                ASSERT_EQ(statusType, CMD_STEP_FORWARD_SIMULATION_COMPLETED);
+            } else
+            {
+                break;
+            }
         }
         
+        if (b3CanSubmitCommand(sm))
         {
             b3SharedMemoryStatusHandle state = b3SubmitClientCommandAndWaitStatus(sm, b3RequestActualStateCommandInit(sm,bodyIndex));
         
@@ -197,13 +204,13 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 						 sensorState.m_jointForceTorque[2]);
 
 			}
-		}
         
 
-        {
-            b3SharedMemoryStatusHandle statusHandle;
-            statusHandle = b3SubmitClientCommandAndWaitStatus(sm, b3InitResetSimulationCommand(sm));
-            ASSERT_EQ(b3GetStatusType(statusHandle), CMD_RESET_SIMULATION_COMPLETED);
+            {
+                b3SharedMemoryStatusHandle statusHandle;
+                statusHandle = b3SubmitClientCommandAndWaitStatus(sm, b3InitResetSimulationCommand(sm));
+                ASSERT_EQ(b3GetStatusType(statusHandle), CMD_RESET_SIMULATION_COMPLETED);
+            }
         }
         
 	}

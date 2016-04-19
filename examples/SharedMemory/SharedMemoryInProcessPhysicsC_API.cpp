@@ -5,10 +5,10 @@
 #include"../ExampleBrowser/InProcessExampleBrowser.h"
 
 
-
 class InProcessPhysicsClientSharedMemoryMainThread : public PhysicsClientSharedMemory
 {
     btInProcessExampleBrowserMainThreadInternalData* m_data;
+    
 public:
     
     InProcessPhysicsClientSharedMemoryMainThread(int argc, char* argv[])
@@ -37,8 +37,15 @@ public:
     // return non-null if there is a status, nullptr otherwise
     virtual const struct SharedMemoryStatus* processServerStatus()
     {
+        if (btIsExampleBrowserMainThreadTerminated(m_data))
+        {
+            PhysicsClientSharedMemory::disconnectSharedMemory();
+        }
+        
         btUpdateInProcessExampleBrowserMainThread(m_data);
         return PhysicsClientSharedMemory::processServerStatus();
+        
+        
     }
     
     virtual bool submitClientCommand(const struct SharedMemoryCommand& command)
