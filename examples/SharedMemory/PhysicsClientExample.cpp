@@ -16,7 +16,9 @@ struct MyMotorInfo2
 {
 	btScalar m_velTarget;
 	btScalar m_maxForce;
+    btScalar m_posTarget;
 	int		m_uIndex;
+    int     m_qIndex;
 };
 
 
@@ -40,6 +42,7 @@ public:
     
     //@todo, add accessor methods
 	MyMotorInfo2 m_motorTargetVelocities[MAX_NUM_MOTORS];
+    MyMotorInfo2 m_motorTargetPositions[MAX_NUM_MOTORS];
 	int m_numMotors;
 
     
@@ -136,10 +139,14 @@ public:
 	{
         for (int i=0;i<m_numMotors;i++)
         {
-            btScalar targetVel = m_motorTargetVelocities[i].m_velTarget;
-                
+            // btScalar targetVel = m_motorTargetVelocities[i].m_velTarget;
             int uIndex = m_motorTargetVelocities[i].m_uIndex;
-            b3JointControlSetDesiredVelocity(commandHandle, uIndex,targetVel);
+            // b3JointControlSetDesiredVelocity(commandHandle, uIndex,targetVel);
+            
+            btScalar targetPos = m_motorTargetPositions[i].m_posTarget;
+            int qIndex = m_motorTargetPositions[i].m_qIndex;
+            b3JointControlSetDesiredPosition(commandHandle, qIndex, targetPos);
+            
             b3JointControlSetMaximumForce(commandHandle,uIndex,1000);
         }
 	}
@@ -407,6 +414,7 @@ void	PhysicsClientExample::createButtons()
 						MyMotorInfo2* motorInfo = &m_motorTargetVelocities[m_numMotors];
 						motorInfo->m_velTarget = 0.f;
 						motorInfo->m_uIndex = info.m_uIndex;
+                        motorInfo->m_qIndex = info.m_qIndex;
                         
 						SliderParams slider(motorName,&motorInfo->m_velTarget);
 						slider.m_minVal=-4;
