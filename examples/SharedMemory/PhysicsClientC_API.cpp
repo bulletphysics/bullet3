@@ -218,6 +218,7 @@ void b3GetJointState(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandl
 	  for (int ii(0); ii < 6; ++ii) {
 		state->m_jointForceTorque[ii] = status->m_sendActualStateArgs.m_jointReactionForces[6 * jointIndex + ii];
 	  }
+      state->m_jointTorque = status->m_sendActualStateArgs.m_jointMotorForce[jointIndex];
   }
 }
 
