@@ -41,7 +41,7 @@ protected:
 public:
     
     //@todo, add accessor methods
-	MyMotorInfo2 m_motorTargetVelocities[MAX_NUM_MOTORS];
+	// MyMotorInfo2 m_motorTargetVelocities[MAX_NUM_MOTORS];
     MyMotorInfo2 m_motorTargetPositions[MAX_NUM_MOTORS];
 	int m_numMotors;
 
@@ -140,12 +140,15 @@ public:
         for (int i=0;i<m_numMotors;i++)
         {
             // btScalar targetVel = m_motorTargetVelocities[i].m_velTarget;
-            int uIndex = m_motorTargetVelocities[i].m_uIndex;
+            // int uIndex = m_motorTargetVelocities[i].m_uIndex;
             // b3JointControlSetDesiredVelocity(commandHandle, uIndex,targetVel);
             
             btScalar targetPos = m_motorTargetPositions[i].m_posTarget;
             int qIndex = m_motorTargetPositions[i].m_qIndex;
+            int uIndex = m_motorTargetPositions[i].m_uIndex;
             b3JointControlSetDesiredPosition(commandHandle, qIndex, targetPos);
+            b3JointControlSetKp(commandHandle, uIndex, 0.1);
+            b3JointControlSetKd(commandHandle, uIndex, 0.0);
             
             b3JointControlSetMaximumForce(commandHandle,uIndex,1000);
         }
@@ -202,7 +205,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
         case  CMD_LOAD_URDF:
         {
             
-            b3SharedMemoryCommandHandle commandHandle = b3LoadUrdfCommandInit(m_physicsClientHandle, "kuka_lwr/kuka.urdf");
+            b3SharedMemoryCommandHandle commandHandle = b3LoadUrdfCommandInit(m_physicsClientHandle, "kuka_iiwa/model.urdf");
             
             //setting the initial position, orientation and other arguments are optional
             double startPosX = 0;
@@ -242,7 +245,15 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 			if (m_selectedBody>=0)
 			{
 				b3SharedMemoryCommandHandle commandHandle = b3RequestActualStateCommandInit(m_physicsClientHandle,m_selectedBody);
+                b3SharedMemoryStatusHandle statusHandle = b3SubmitClientCommandAndWaitStatus(m_physicsClientHandle, commandHandle);
 				b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+                
+                int numJoints = b3GetNumJoints(m_physicsClientHandle, m_selectedBody);
+                for (int i = 0; i < numJoints; ++i) {
+                    struct b3JointSensorState sensorState;
+                    b3GetJointState(m_physicsClientHandle, statusHandle, i, &sensorState);
+                    b3Printf("Joint %d: %f", i, sensorState.m_jointMotorTorque);
+                }
 			}
             break;
         };
@@ -315,7 +326,8 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
         }
         case CMD_SEND_DESIRED_STATE:
         {
-            b3SharedMemoryCommandHandle command = b3JointControlCommandInit( m_physicsClientHandle, CONTROL_MODE_VELOCITY);
+            // b3SharedMemoryCommandHandle command = b3JointControlCommandInit( m_physicsClientHandle, CONTROL_MODE_VELOCITY);
+            b3SharedMemoryCommandHandle command = b3JointControlCommandInit( m_physicsClientHandle, CONTROL_MODE_POSITION_VELOCITY_PD);
             prepareControlCommand(command);
             b3SubmitClientCommand(m_physicsClientHandle, command);
             break;
@@ -335,6 +347,12 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
             cl->enqueueCommand(command);
 #endif
 
+            break;
+        }
+        case CMD_SEND_PHYSICS_SIMULATION_PARAMETERS: {
+            b3SharedMemoryCommandHandle commandHandle = b3InitPhysicsParamCommand(m_physicsClientHandle);
+            b3PhysicsParamSetGravity(commandHandle, 0.0, 0.0, -9.8);
+            b3SubmitClientCommandAndWaitStatus(m_physicsClientHandle, commandHandle);
             break;
         }
         default:
@@ -394,6 +412,7 @@ void	PhysicsClientExample::createButtons()
 		createButton("Create Cylinder Body",CMD_CREATE_RIGID_BODY,isTrigger);
         createButton("Reset Simulation",CMD_RESET_SIMULATION,isTrigger);
 		createButton("Initialize Pose",CMD_INIT_POSE,  isTrigger);
+        createButton("Set gravity", CMD_SEND_PHYSICS_SIMULATION_PARAMETERS, isTrigger);
 
 
 		if (m_physicsClientHandle && m_selectedBody>=0)
@@ -410,15 +429,20 @@ void	PhysicsClientExample::createButtons()
 					if (m_numMotors<MAX_NUM_MOTORS)
 					{
 						char motorName[1024];
-						sprintf(motorName,"%s q'", info.m_jointName);
-						MyMotorInfo2* motorInfo = &m_motorTargetVelocities[m_numMotors];
+						sprintf(motorName,"%s q", info.m_jointName);
+						// MyMotorInfo2* motorInfo = &m_motorTargetVelocities[m_numMotors];
+                        MyMotorInfo2* motorInfo = &m_motorTargetPositions[m_numMotors];
 						motorInfo->m_velTarget = 0.f;
+                        motorInfo->m_posTarget = 0.f;
 						motorInfo->m_uIndex = info.m_uIndex;
                         motorInfo->m_qIndex = info.m_qIndex;
                         
-						SliderParams slider(motorName,&motorInfo->m_velTarget);
-						slider.m_minVal=-4;
-						slider.m_maxVal=4;
+						// SliderParams slider(motorName,&motorInfo->m_velTarget);
+						// slider.m_minVal=-4;
+						// slider.m_maxVal=4;
+                        SliderParams slider(motorName,&motorInfo->m_posTarget);
+                        slider.m_minVal=-4;
+                        slider.m_maxVal=4;
 						if (m_guiHelper && m_guiHelper->getParameterInterface())
 						{
 							m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);

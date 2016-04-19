@@ -219,11 +219,10 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
             color.setValue(visual->material->color.r,visual->material->color.g,visual->material->color.b);//,visual->material->color.a);
          }
          */
-        //btVector3 localInertiaDiagonal(0, 0, 0);
-        //if (mass)
-        //{
-        //	shape->calculateLocalInertia(mass, localInertiaDiagonal);
-        //}
+        if (mass)
+        {
+        	compoundShape->calculateLocalInertia(mass, localInertiaDiagonal);
+        }
 
         btRigidBody* linkRigidBody = 0;
         btTransform inertialFrameInWorldSpace = linkTransformInWorldSpace*localInertialFrame;
