@@ -481,8 +481,16 @@ void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPref
 						}
 
 
-						if (glmesh && (glmesh->m_numvertices>0))
+						if (glmesh && glmesh->m_vertices && (glmesh->m_numvertices>0))
 						{
+						    //apply the geometry scaling
+						    for (int i=0;i<glmesh->m_vertices->size();i++)
+                            {
+                                glmesh->m_vertices->at(i).xyzw[0] *= visual->m_geometry.m_meshScale[0];
+                                glmesh->m_vertices->at(i).xyzw[1] *= visual->m_geometry.m_meshScale[1];
+                                glmesh->m_vertices->at(i).xyzw[2] *= visual->m_geometry.m_meshScale[2];
+                            }
+						    
 						}
 						else
 						{
@@ -802,7 +810,10 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 							convertedVerts.reserve(glmesh->m_numvertices);
 							for (int i=0;i<glmesh->m_numvertices;i++)
 							{
-								convertedVerts.push_back(btVector3(glmesh->m_vertices->at(i).xyzw[0],glmesh->m_vertices->at(i).xyzw[1],glmesh->m_vertices->at(i).xyzw[2]));
+								convertedVerts.push_back(btVector3(
+                                           glmesh->m_vertices->at(i).xyzw[0]*collision->m_geometry.m_meshScale[0],
+                                           glmesh->m_vertices->at(i).xyzw[1]*collision->m_geometry.m_meshScale[1],
+                                           glmesh->m_vertices->at(i).xyzw[2]*collision->m_geometry.m_meshScale[2]));
 							}
 							//btConvexHullShape* cylZShape = new btConvexHullShape(&glmesh->m_vertices->at(0).xyzw[0], glmesh->m_numvertices, sizeof(GLInstanceVertex));
 							btConvexHullShape* cylZShape = new btConvexHullShape(&convertedVerts[0].getX(), convertedVerts.size(), sizeof(btVector3));
