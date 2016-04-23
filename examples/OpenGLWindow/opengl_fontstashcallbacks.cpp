@@ -44,17 +44,7 @@ void InternalOpenGL2RenderCallbacks::display2()
 	PrimInternalData* data = getData();
 
     glUseProgram(data->m_shaderProg);
-    
-    float identity[16]={1,0,0,0,
-						0,1,0,0,
-						0,0,1,0,
-						0,0,0,1};
-    glUniformMatrix4fv(data->m_viewmatUniform, 1, false, identity);
-	glUniformMatrix4fv(data->m_projMatUniform, 1, false, identity);
-	
-	
     glBindBuffer(GL_ARRAY_BUFFER, s_vertexBuffer);
-    
     glBindVertexArray(s_vertexArrayObject);
     
       assert(glGetError()==GL_NO_ERROR);
