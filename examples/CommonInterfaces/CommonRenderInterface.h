@@ -43,7 +43,11 @@ struct CommonRenderInterface
 	virtual void drawPoint(const double* position, const double color[4], double pointDrawSize)=0;
 	virtual int registerShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType=B3_GL_TRIANGLES, int textureIndex=-1)=0;
     virtual void updateShape(int shapeIndex, const float* vertices)=0;
-    virtual int	registerTexture(const unsigned char* texels, int width, int height)=0;
+    
+    virtual int registerTexture(const unsigned char* texels, int width, int height)=0;
+    virtual void updateTexture(int textureIndex, const unsigned char* texels)=0;
+    virtual void activateTexture(int textureIndex)=0;
+    
 	virtual void writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int srcIndex)=0;
 	virtual void writeSingleInstanceTransformToCPU(const double* position, const double* orientation, int srcIndex)=0;
 	virtual void writeSingleInstanceColorToCPU(float* color, int srcIndex)=0;
