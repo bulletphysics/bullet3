@@ -105,6 +105,14 @@ struct b3DebugLines
     const float*  m_linesColor;//float red,green,blue times 'm_numDebugLines'.
 };
 
+///b3LinkState provides extra information such as the Cartesian world coordinates of the link
+///relative to the world reference frame. Orientation is a quaternion x,y,z,w
+struct b3LinkState
+{
+    double m_worldPosition[3];
+    double m_worldOrientation[4];
+};
+
 //todo: discuss and decide about control mode and combinations
 enum {
     //    POSITION_CONTROL=0,

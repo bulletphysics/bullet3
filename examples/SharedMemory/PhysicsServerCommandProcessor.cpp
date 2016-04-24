@@ -1349,9 +1349,18 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                         //}
                                     }
                                 }
+                btVector3 linkOrigin =  mb->getLink(l).m_cachedWorldTransform.getOrigin();
+                btQuaternion linkRotation =  mb->getLink(l).m_cachedWorldTransform.getRotation();
+                serverCmd.m_sendActualStateArgs.m_linkState[l*7+0] = linkOrigin.getX();
+                serverCmd.m_sendActualStateArgs.m_linkState[l*7+1] = linkOrigin.getY();
+                serverCmd.m_sendActualStateArgs.m_linkState[l*7+2] = linkOrigin.getZ();
+                serverCmd.m_sendActualStateArgs.m_linkState[l*7+3] = linkRotation.x();
+                serverCmd.m_sendActualStateArgs.m_linkState[l*7+4] = linkRotation.y();
+                serverCmd.m_sendActualStateArgs.m_linkState[l*7+5] = linkRotation.z();
+                serverCmd.m_sendActualStateArgs.m_linkState[l*7+6] = linkRotation.w();
                             }
 
-                            
+ 
 							serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomQ = totalDegreeOfFreedomQ;
 							serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomU = totalDegreeOfFreedomU;
 							
