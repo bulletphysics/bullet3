@@ -85,7 +85,6 @@ int main(int argc, char* argv[])
     myArgs.GetCmdLineArgument("png_file",gPngFileName);
     char fileName[1024];
     
-    int textureIndex = -1;
     int textureWidth = 128;
     int textureHeight = 128;
     
