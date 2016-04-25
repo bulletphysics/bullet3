@@ -1,5 +1,5 @@
 #include "OpenGLWindow/SimpleOpenGL3App.h"
-#include "Bullet3Common/b3Vector3.h"
+#include "Bullet3Common/b3Quaternion.h"
 #include "Bullet3Common/b3CommandLineArgs.h"
 #include "assert.h"
 #include <stdio.h>
@@ -93,6 +93,15 @@ int main(int argc, char* argv[])
         
     
     int textureHandle = app->m_renderer->registerTexture(image,textureWidth,textureHeight);
+
+    int cubeIndex = app->registerCubeShape(1,1,1);
+    
+    b3Vector3 pos = b3MakeVector3(0,0,0);
+    b3Quaternion orn(0,0,0,1);
+    b3Vector3 color=b3MakeVector3(1,0,0);
+    b3Vector3 scaling=b3MakeVector3 (1,1,1);
+    app->m_renderer->registerGraphicsInstance(cubeIndex,pos,orn,color,scaling);
+    app->m_renderer->writeTransforms();
     
 	do
 	{
@@ -132,6 +141,7 @@ int main(int argc, char* argv[])
 		app->m_instancingRenderer->init();
 		app->m_instancingRenderer->updateCamera();
 
+        app->m_renderer->renderScene();
 		app->drawGrid();
 		char bla[1024];
 		sprintf(bla,"Simple test frame %d", frameCount);
