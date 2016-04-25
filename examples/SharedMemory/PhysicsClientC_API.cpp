@@ -230,7 +230,7 @@ void b3GetLinkState(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle
   b3Assert(bodyIndex>=0);
   if (bodyIndex>=0)
   {
-    for (int i = 0; i < 7; ++i) 
+    for (int i = 0; i < 3; ++i) 
     {
       state->m_worldPosition[i] = status->m_sendActualStateArgs.m_linkState[7 * linkIndex + i];
     }
