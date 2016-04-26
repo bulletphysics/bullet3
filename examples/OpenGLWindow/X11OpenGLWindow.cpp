@@ -461,6 +461,7 @@ void X11OpenGLWindow::enableOpenGL()
 
   printf( "Making context current\n" );
   glXMakeCurrent( m_data->m_dpy, m_data->m_win, ctx );
+  m_data->m_glc = ctx;
 
     } else
     {
@@ -1090,7 +1091,7 @@ int X11OpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)
 			{
 				filename[len-1]=0;
 				printf("file open (length=%d) = %s\n", len,filename);
-			}	
+			}
 		}
 		pclose(output);
 	} else
@@ -1099,5 +1100,5 @@ int X11OpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)
 	}
 	MyXRaiseWindow(m_data->m_dpy, m_data->m_win);
 	return len;
-	
+
 }
