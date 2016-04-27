@@ -20,7 +20,40 @@ subject to the following restrictions:
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 
 
+#ifdef USE_GUI
+#include "../OpenGLWindow/SimpleOpenGL3App.h"
+#include <stdio.h>
+#include "../ExampleBrowser/OpenGLGuiHelper.h"
 
+int main(int argc, char* argv[])
+{
+
+	SimpleOpenGL3App* app = new SimpleOpenGL3App("BasicDemoGui",1024,768,true);
+	OpenGLGuiHelper gui(app,false);
+        CommonExampleOptions options(&gui);
+        CommonExampleInterface*    example = BasicExampleCreateFunc(options);
+        
+	example->initPhysics();
+
+	int frameCount = 0;
+	do
+	{
+		app->m_instancingRenderer->init();
+                app->m_instancingRenderer->updateCamera();
+		example->stepSimulation(1./60.);
+        	example->renderScene();
+                app->drawGrid();
+                app->swapBuffer();
+        } while (!app->m_window->requestedExit());
+
+        example->exitPhysics();
+        delete example;
+	delete app;
+        return 0;
+}
+
+
+#else
 
 int main(int argc, char* argv[])
 {
@@ -38,4 +71,5 @@ int main(int argc, char* argv[])
 
 	return 0;
 }
+#endif
 
