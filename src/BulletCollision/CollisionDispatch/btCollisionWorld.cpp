@@ -860,8 +860,7 @@ void	btCollisionWorld::objectQuerySingleInternal(const btConvexShape* castShape,
 
 						btCollisionObjectWrapper tmpObj(m_colObjWrap, childCollisionShape, m_colObjWrap->getCollisionObject(), childWorldTrans, -1, index);
 
-						objectQuerySingleInternal(m_castShape, m_convexFromTrans, m_convexToTrans,
-							&tmpObj, my_cb, m_allowedPenetration);
+						objectQuerySingleInternal(m_castShape, m_convexFromTrans, m_convexToTrans, &tmpObj, my_cb, m_allowedPenetration);
 					}
 
 					void		Process(const btDbvtNode* leaf)
@@ -869,7 +868,6 @@ void	btCollisionWorld::objectQuerySingleInternal(const btConvexShape* castShape,
 						// Processing leaf node
 						int index = leaf->dataAsInt;
 
-						//const btCompoundShape* compoundShape = static_cast<const btCompoundShape*>(m_compoundColObjWrap->getCollisionShape());
 						btTransform childTrans = m_compoundShape->getChildTransform(index);
 						const btCollisionShape* childCollisionShape = m_compoundShape->getChildShape(index);
 
@@ -889,11 +887,10 @@ void	btCollisionWorld::objectQuerySingleInternal(const btConvexShape* castShape,
 				fromLocalAabbMin.setMin(toLocalAabbMin);
 				fromLocalAabbMax.setMax(toLocalAabbMax);
 
-				const btDbvt* tree = compoundShape->getDynamicAabbTree();
-
 				btCompoundLeafCallback callback(colObjWrap, castShape, convexFromTrans, convexToTrans,
 					  allowedPenetration, compoundShape, colObjWorldTransform, resultCallback);
 
+				const btDbvt* tree = compoundShape->getDynamicAabbTree();
 				if (tree) {
 					const ATTRIBUTE_ALIGNED16(btDbvtVolume)	bounds = btDbvtVolume::FromMM(fromLocalAabbMin, fromLocalAabbMax);
 					tree->collideTV(tree->m_root, bounds, callback);
