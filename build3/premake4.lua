@@ -181,6 +181,7 @@
 		include "../examples/OpenGLWindow"
 		include "../examples/ThirdPartyLibs/Gwen"
 		include "../examples/SimpleOpenGL3"
+		include "../examples/TinyRenderer"
 
 		include "../examples/HelloWorld"
 		include "../examples/BasicDemo"

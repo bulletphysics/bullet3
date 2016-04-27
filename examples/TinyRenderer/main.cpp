@@ -1,94 +1,209 @@
-#include <vector>
-#include <limits>
-#include <iostream>
-#include "tgaimage.h"
-#include "model.h"
-#include "geometry.h"
-#include "our_gl.h"
+#include "OpenGLWindow/SimpleOpenGL3App.h"
+#include "Bullet3Common/b3Quaternion.h"
+#include "Bullet3Common/b3CommandLineArgs.h"
+#include "assert.h"
+#include <stdio.h>
 
-Model *model        = NULL;
+char* gVideoFileName = 0;
+char* gPngFileName = 0;
 
-const int width  = 800;
-const int height = 800;
+static b3WheelCallback sOldWheelCB = 0;
+static b3ResizeCallback sOldResizeCB = 0;
+static b3MouseMoveCallback sOldMouseMoveCB = 0;
+static b3MouseButtonCallback sOldMouseButtonCB = 0;
+static b3KeyboardCallback sOldKeyboardCB = 0;
+//static b3RenderCallback sOldRenderCB = 0;
 
-Vec3f light_dir(1,1,1);
-Vec3f       eye(1,1,3);
-Vec3f    center(0,0,0);
-Vec3f        up(0,1,0);
+float gWidth = 0 ;
+float gHeight = 0;
 
-struct Shader : public IShader {
-    mat<2,3,float> varying_uv;  // triangle uv coordinates, written by the vertex shader, read by the fragment shader
-    mat<4,3,float> varying_tri; // triangle coordinates (clip coordinates), written by VS, read by FS
-    mat<3,3,float> varying_nrm; // normal per vertex to be interpolated by FS
-    mat<3,3,float> ndc_tri;     // triangle in normalized device coordinates
+void MyWheelCallback(float deltax, float deltay)
+{
+	if (sOldWheelCB)
+		sOldWheelCB(deltax,deltay);
+}
+void MyResizeCallback( float width, float height)
+{
+    gWidth = width;
+    gHeight = height;
+    
+	if (sOldResizeCB)
+		sOldResizeCB(width,height);
+}
+void MyMouseMoveCallback( float x, float y)
+{
+	printf("Mouse Move: %f, %f\n", x,y);
 
-    virtual Vec4f vertex(int iface, int nthvert) {
-        varying_uv.set_col(nthvert, model->uv(iface, nthvert));
-        varying_nrm.set_col(nthvert, proj<3>((Projection*ModelView).invert_transpose()*embed<4>(model->normal(iface, nthvert), 0.f)));
-        Vec4f gl_Vertex = Projection*ModelView*embed<4>(model->vert(iface, nthvert));
-        varying_tri.set_col(nthvert, gl_Vertex);
-        ndc_tri.set_col(nthvert, proj<3>(gl_Vertex/gl_Vertex[3]));
-        return gl_Vertex;
-    }
-
-    virtual bool fragment(Vec3f bar, TGAColor &color) {
-        Vec3f bn = (varying_nrm*bar).normalize();
-        Vec2f uv = varying_uv*bar;
-
-        mat<3,3,float> A;
-        A[0] = ndc_tri.col(1) - ndc_tri.col(0);
-        A[1] = ndc_tri.col(2) - ndc_tri.col(0);
-        A[2] = bn;
-
-        mat<3,3,float> AI = A.invert();
-
-        Vec3f i = AI * Vec3f(varying_uv[0][1] - varying_uv[0][0], varying_uv[0][2] - varying_uv[0][0], 0);
-        Vec3f j = AI * Vec3f(varying_uv[1][1] - varying_uv[1][0], varying_uv[1][2] - varying_uv[1][0], 0);
-
-        mat<3,3,float> B;
-        B.set_col(0, i.normalize());
-        B.set_col(1, j.normalize());
-        B.set_col(2, bn);
-
-        Vec3f n = (B*model->normal(uv)).normalize();
-
-        float diff = std::max(0.f, n*light_dir);
-        color = model->diffuse(uv)*diff;
-
-        return false;
-    }
-};
-
-int main(int argc, char** argv) {
-    if (2>argc) {
-        std::cerr << "Usage: " << argv[0] << " obj/model.obj" << std::endl;
-        return 1;
-    }
-
-    float *zbuffer = new float[width*height];
-    for (int i=width*height; i--; zbuffer[i] = -std::numeric_limits<float>::max());
-
-    TGAImage frame(width, height, TGAImage::RGB);
-    lookat(eye, center, up);
-    viewport(width/8, height/8, width*3/4, height*3/4);
-    projection(-1.f/(eye-center).norm());
-    light_dir = proj<3>((Projection*ModelView*embed<4>(light_dir, 0.f))).normalize();
-
-    for (int m=1; m<argc; m++) {
-        model = new Model(argv[m]);
-        Shader shader;
-        for (int i=0; i<model->nfaces(); i++) {
-            for (int j=0; j<3; j++) {
-                shader.vertex(i, j);
-            }
-            triangle(shader.varying_tri, shader, frame, zbuffer);
-        }
-        delete model;
-    }
-    frame.flip_vertically(); // to place the origin in the bottom left corner of the image
-    frame.write_tga_file("framebuffer.tga");
-
-    delete [] zbuffer;
-    return 0;
+	if (sOldMouseMoveCB)
+		sOldMouseMoveCB(x,y);
+}
+void MyMouseButtonCallback(int button, int state, float x, float y)
+{
+	if (sOldMouseButtonCB)
+		sOldMouseButtonCB(button,state,x,y);
 }
 
+
+void MyKeyboardCallback(int keycode, int state)
+{
+	//keycodes are in examples/CommonInterfaces/CommonWindowInterface.h
+	//for example B3G_ESCAPE for escape key
+	//state == 1 for pressed, state == 0 for released.
+	// use app->m_window->isModifiedPressed(...) to check for shift, escape and alt keys
+	printf("MyKeyboardCallback received key:%c in state %d\n",keycode,state);
+	if (sOldKeyboardCB)
+		sOldKeyboardCB(keycode,state);
+}
+#include "TinyRenderer.h"
+
+int main(int argc, char* argv[])
+{
+    b3CommandLineArgs myArgs(argc,argv);
+
+  
+    
+	SimpleOpenGL3App* app = new SimpleOpenGL3App("SimpleOpenGL3App",640,480,true);
+	
+	app->m_instancingRenderer->getActiveCamera()->setCameraDistance(13);
+	app->m_instancingRenderer->getActiveCamera()->setCameraPitch(0);
+	app->m_instancingRenderer->getActiveCamera()->setCameraTargetPosition(0,0,0);
+	sOldKeyboardCB = app->m_window->getKeyboardCallback();	
+	app->m_window->setKeyboardCallback(MyKeyboardCallback);
+	sOldMouseMoveCB = app->m_window->getMouseMoveCallback();
+	app->m_window->setMouseMoveCallback(MyMouseMoveCallback);
+	sOldMouseButtonCB = app->m_window->getMouseButtonCallback();
+	app->m_window->setMouseButtonCallback(MyMouseButtonCallback);
+	sOldWheelCB = app->m_window->getWheelCallback();
+	app->m_window->setWheelCallback(MyWheelCallback);
+	sOldResizeCB = app->m_window->getResizeCallback();
+	app->m_window->setResizeCallback(MyResizeCallback);
+  
+    int textureWidth = gWidth;
+    int textureHeight = gHeight;
+    
+	TinyRenderObjectData renderData(textureWidth, textureHeight, "african_head/african_head.obj");//floor.obj");
+  
+    
+    
+    myArgs.GetCmdLineArgument("mp4_file",gVideoFileName);
+    if (gVideoFileName)
+        app->dumpFramesToVideo(gVideoFileName);
+
+    myArgs.GetCmdLineArgument("png_file",gPngFileName);
+    char fileName[1024];
+    
+ 
+    
+    unsigned char*	image=new unsigned char[textureWidth*textureHeight*4];
+        
+    
+    int textureHandle = app->m_renderer->registerTexture(image,textureWidth,textureHeight);
+
+    int cubeIndex = app->registerCubeShape(1,1,1);
+    
+    b3Vector3 pos = b3MakeVector3(0,0,0);
+    b3Quaternion orn(0,0,0,1);
+    b3Vector3 color=b3MakeVector3(1,0,0);
+    b3Vector3 scaling=b3MakeVector3 (1,1,1);
+    app->m_renderer->registerGraphicsInstance(cubeIndex,pos,orn,color,scaling);
+    app->m_renderer->writeTransforms();
+    
+	do
+	{
+	    static int frameCount = 0;
+		frameCount++;
+		if (gPngFileName)
+        {
+            printf("gPngFileName=%s\n",gPngFileName);
+
+            sprintf(fileName,"%s%d.png",gPngFileName,frameCount++);
+            app->dumpNextFrameToPng(fileName);
+        }
+        
+       	app->m_instancingRenderer->init();
+		app->m_instancingRenderer->updateCamera();
+
+        float projMat[16];
+        app->m_instancingRenderer->getActiveCamera()->getCameraProjectionMatrix(projMat);
+        float viewMat[16];
+        app->m_instancingRenderer->getActiveCamera()->getCameraViewMatrix(viewMat);
+        for (int i=0;i<4;i++)
+        {
+            for (int j=0;j<4;j++)
+            {
+                renderData.m_viewMatrix[i][j] = viewMat[i+4*j];
+                //renderData.m_projectionMatrix[i][j] = projMat[i+4*j];
+            }
+        }
+        
+        for(int y=0;y<textureHeight;++y)
+        {
+            unsigned char*	pi=image+(y)*textureWidth*3;
+            for(int x=0;x<textureWidth;++x)
+            {
+                
+                TGAColor color;
+                color.bgra[0] = 255;
+                color.bgra[1] = 255;
+                color.bgra[2] = 255;
+                color.bgra[3] = 255;
+                
+                renderData.m_rgbColorBuffer.set(x,y,color);
+            }
+        }
+        TinyRenderer::renderObject(renderData);
+  
+        #if 1
+         //update the texels of the texture using a simple pattern, animated using frame index
+        for(int y=0;y<textureHeight;++y)
+        {
+            unsigned char*	pi=image+(y)*textureWidth*3;
+            for(int x=0;x<textureWidth;++x)
+            {
+                
+                TGAColor color = renderData.m_rgbColorBuffer.get(x,y);
+                pi[0] = color.bgra[2];
+                pi[1] = color.bgra[1];
+                pi[2] = color.bgra[0];
+                pi+=3;
+            }
+        }
+        #else
+        
+        //update the texels of the texture using a simple pattern, animated using frame index
+        for(int y=0;y<textureHeight;++y)
+        {
+            const int	t=(y+frameCount)>>4;
+            unsigned char*	pi=image+y*textureWidth*3;
+            for(int x=0;x<textureWidth;++x)
+            {
+                const int		s=x>>4;
+                const unsigned char	b=180;					
+                unsigned char			c=b+((s+(t&1))&1)*(255-b);
+                pi[0]=pi[1]=pi[2]=pi[3]=c;pi+=3;
+            }
+        }
+        #endif 
+        
+    
+        app->m_renderer->activateTexture(textureHandle);
+        app->m_renderer->updateTexture(textureHandle,image);
+        
+        float color[4] = {1,1,1,1};
+        app->m_primRenderer->drawTexturedRect(0,0,gWidth/3,gHeight/3,color,0,0,1,1,true);
+        
+		
+	
+        app->m_renderer->renderScene();
+		app->drawGrid();
+		char bla[1024];
+		sprintf(bla,"Simple test frame %d", frameCount);
+
+		app->drawText(bla,10,10);
+		app->swapBuffer();
+	} while (!app->m_window->requestedExit());
+
+
+	delete app;
+	return 0;
+}

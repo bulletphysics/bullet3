@@ -532,18 +532,13 @@ int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width
 
 	b3Assert(glGetError() ==GL_NO_ERROR);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width,height,0,GL_RGB,GL_UNSIGNED_BYTE,image);
-	b3Assert(glGetError() ==GL_NO_ERROR);
-
-	glGenerateMipmap(GL_TEXTURE_2D);
-	b3Assert(glGetError() ==GL_NO_ERROR);
-
-    InternalTextureHandle h;
+	InternalTextureHandle h;
     h.m_glTexture = textureHandle;
     h.m_width = width;
     h.m_height = height;
 
 	m_data->m_textureHandles.push_back(h);
+	updateTexture(textureIndex, texels);
 	return textureIndex;
 }
 
@@ -552,13 +547,31 @@ void    GLInstancingRenderer::updateTexture(int textureIndex, const unsigned cha
 {
     if (textureIndex>=0)
     {
+		
+		
+
         glActiveTexture(GL_TEXTURE0);
         b3Assert(glGetError() ==GL_NO_ERROR);
         InternalTextureHandle& h = m_data->m_textureHandles[textureIndex];
+
+		//textures need to be flipped for OpenGL...
+		b3AlignedObjectArray<unsigned char> flippedTexels;
+		flippedTexels.resize(h.m_width* h.m_height * 3);
+		for (int i = 0; i < h.m_width; i++)
+		{
+			for (int j = 0; j < h.m_height; j++)
+			{
+				flippedTexels[(i + j*h.m_width) * 3] = texels[(i + (h.m_height-1-j)*h.m_width) * 3];
+				flippedTexels[(i + j*h.m_width) * 3+1] = texels[(i + (h.m_height - 1 - j)*h.m_width) * 3+1];
+				flippedTexels[(i + j*h.m_width) * 3+2] = texels[(i + (h.m_height - 1 - j)*h.m_width) * 3+1];
+			}
+		}
+
+
         glBindTexture(GL_TEXTURE_2D,h.m_glTexture);
         b3Assert(glGetError() ==GL_NO_ERROR);
         const GLubyte*	image= (const GLubyte*)texels;	
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, h.m_width,h.m_height,0,GL_RGB,GL_UNSIGNED_BYTE,image);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, h.m_width,h.m_height,0,GL_RGB,GL_UNSIGNED_BYTE,&flippedTexels[0]);
         b3Assert(glGetError() ==GL_NO_ERROR);
         glGenerateMipmap(GL_TEXTURE_2D);
         b3Assert(glGetError() ==GL_NO_ERROR);

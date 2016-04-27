@@ -2,14 +2,16 @@
 #include <limits>
 #include <cstdlib>
 #include "our_gl.h"
+#include "Bullet3Common/b3MinMax.h"
 
-Matrix ModelView;
-Matrix Viewport;
-Matrix Projection;
+
+
 
 IShader::~IShader() {}
 
-void viewport(int x, int y, int w, int h) {
+Matrix viewport(int x, int y, int w, int h) 
+{
+    Matrix Viewport;
     Viewport = Matrix::identity();
     Viewport[0][3] = x+w/2.f;
     Viewport[1][3] = y+h/2.f;
@@ -17,14 +19,17 @@ void viewport(int x, int y, int w, int h) {
     Viewport[0][0] = w/2.f;
     Viewport[1][1] = h/2.f;
     Viewport[2][2] = 0;
+    return Viewport;
 }
 
-void projection(float coeff) {
+Matrix projection(float coeff) {
+    Matrix Projection;
     Projection = Matrix::identity();
     Projection[3][2] = coeff;
+    return Projection;
 }
 
-void lookat(Vec3f eye, Vec3f center, Vec3f up) {
+Matrix lookat(Vec3f eye, Vec3f center, Vec3f up) {
     Vec3f z = (eye-center).normalize();
     Vec3f x = cross(up,z).normalize();
     Vec3f y = cross(z,x).normalize();
@@ -36,7 +41,9 @@ void lookat(Vec3f eye, Vec3f center, Vec3f up) {
         Minv[2][i] = z[i];
         Tr[i][3] = -center[i];
     }
+    Matrix ModelView;
     ModelView = Minv*Tr;
+    return ModelView;
 }
 
 Vec3f barycentric(Vec2f A, Vec2f B, Vec2f C, Vec2f P) {
@@ -52,8 +59,8 @@ Vec3f barycentric(Vec2f A, Vec2f B, Vec2f C, Vec2f P) {
     return Vec3f(-1,1,1); // in this case generate negative coordinates, it will be thrown away by the rasterizator
 }
 
-void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zbuffer) {
-    mat<3,4,float> pts  = (Viewport*clipc).transpose(); // transposed to ease access to each of the points
+void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zbuffer, const Matrix& viewPortMatrix) {
+    mat<3,4,float> pts  = (viewPortMatrix*clipc).transpose(); // transposed to ease access to each of the points
     mat<3,2,float> pts2;
     for (int i=0; i<3; i++) pts2[i] = proj<2>(pts[i]/pts[i][3]);
 
@@ -62,8 +69,8 @@ void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zb
     Vec2f clamp(image.get_width()-1, image.get_height()-1);
     for (int i=0; i<3; i++) {
         for (int j=0; j<2; j++) {
-            bboxmin[j] = std::max(0.f,      std::min(bboxmin[j], pts2[i][j]));
-            bboxmax[j] = std::min(clamp[j], std::max(bboxmax[j], pts2[i][j]));
+            bboxmin[j] = b3Max(0.f,      b3Min(bboxmin[j], pts2[i][j]));
+            bboxmax[j] = b3Min(clamp[j], b3Max(bboxmax[j], pts2[i][j]));
         }
     }
     Vec2i P;
