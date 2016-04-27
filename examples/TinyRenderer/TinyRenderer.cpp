@@ -7,7 +7,7 @@
 #include "TinyRenderer/model.h"
 #include "TinyRenderer/geometry.h"
 #include "TinyRenderer/our_gl.h"
-#include "../../Utils/b3ResourcePath.h"
+#include "../Utils/b3ResourcePath.h"
 #include "Bullet3Common/b3MinMax.h"
 
 Vec3f light_dir_world(1,1,1);
