@@ -6,9 +6,9 @@ v  1 -1  1
 v -1 -1  1
 
 vt 0 0
-vt .25 0
-vt .25 .25
-vt 0 .25
+vt 1 0
+vt 1 1
+vt 0 1
 
 vn 0 1 0
 usemtl floor

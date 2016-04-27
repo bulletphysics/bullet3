@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
     int textureWidth = gWidth;
     int textureHeight = gHeight;
     
-	TinyRenderObjectData renderData(textureWidth, textureHeight, "african_head/african_head.obj");//floor.obj");
+	TinyRenderObjectData renderData(textureWidth, textureHeight, "floor.obj");
   
     
     
