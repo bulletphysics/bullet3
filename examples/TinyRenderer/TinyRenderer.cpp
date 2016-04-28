@@ -9,7 +9,7 @@
 #include "TinyRenderer/our_gl.h"
 #include "../Utils/b3ResourcePath.h"
 #include "Bullet3Common/b3MinMax.h"
-
+#include "../OpenGLWindow/ShapeData.h"
 Vec3f light_dir_world(1,1,1);
 
 
@@ -64,7 +64,8 @@ struct Shader : public IShader {
 
         Vec3f n = (B*m_model->normal(uv)).normalize();
 
-        float diff = b3Min(b3Max(0.f, n*m_light_dir_local+0.6f),1.f);
+        //float diff = b3Min(b3Max(0.f, n*m_light_dir_local+0.3f),1.f);
+        float diff = b3Max(0.f, n*m_light_dir_local);
         color = m_model->diffuse(uv)*diff;
 
         return false;
@@ -91,7 +92,7 @@ struct TinyRenderObjectData
 };
 */
 
-TinyRenderObjectData::TinyRenderObjectData(int width, int height, const char* fileName)
+TinyRenderObjectData::TinyRenderObjectData(int width, int height)
 :m_width(width),
 m_height(height),
 m_rgbColorBuffer(width,height,TGAImage::RGB),
@@ -101,12 +102,17 @@ m_model(0)
     Vec3f    center(0,0,0);
     Vec3f        up(0,1,0);
     
+    m_modelMatrix = Matrix::identity();
     m_viewMatrix = lookat(eye, center, up);
     m_viewportMatrix = viewport(width/8, height/8, width*3/4, height*3/4);
     m_projectionMatrix = projection(-1.f/(eye-center).norm());
 
-
     m_depthBuffer.resize(width*height);
+ 
+}
+
+void TinyRenderObjectData::loadModel(const char* fileName)
+{
  //todo(erwincoumans) move the file loading out of here
    char relativeFileName[1024];
     if (!b3ResourcePath::findResourcePath(fileName, relativeFileName, 1024))
@@ -115,8 +121,47 @@ m_model(0)
     } else
     {
         m_model = new Model(relativeFileName);
+    }   
+}
+
+void TinyRenderObjectData::createCube(float halfExtentsX,float halfExtentsY,float halfExtentsZ)
+{
+    m_model = new Model();
+    
+    char relativeFileName[1024];
+    if (b3ResourcePath::findResourcePath("floor_diffuse.tga", relativeFileName, 1024))
+    {
+        m_model->loadDiffuseTexture(relativeFileName);
     }
     
+
+	int strideInBytes = 9*sizeof(float);
+	int numVertices = sizeof(cube_vertices_textured)/strideInBytes;
+	int numIndices = sizeof(cube_indices)/sizeof(int);
+
+	for (int i=0;i<numVertices;i++)
+	{
+		float x = halfExtentsX*cube_vertices_textured[i*9];
+		float y = halfExtentsY*cube_vertices_textured[i*9+1];
+		float z = halfExtentsZ*cube_vertices_textured[i*9+2];
+		m_model->addVertex(halfExtentsX*cube_vertices_textured[i*9],
+                     halfExtentsY*cube_vertices_textured[i*9+1],
+                     halfExtentsY*cube_vertices_textured[i*9+2],
+                     cube_vertices_textured[i*9+4],
+                     cube_vertices_textured[i*9+5],
+                     cube_vertices_textured[i*9+6],
+                     cube_vertices_textured[i*9+7],
+                     cube_vertices_textured[i*9+8]);
+	}
+	for (int i=0;i<numIndices;i+=3)
+    {
+        m_model->addTriangle(cube_indices[i],cube_indices[i],cube_indices[i],
+                             cube_indices[i+1],cube_indices[i+1],cube_indices[i+1],
+                             cube_indices[i+2],cube_indices[i+2],cube_indices[i+2]);
+    }
+	
+	//int shapeId = m_instancingRenderer->registerShape(&verts[0].x,numVertices,cube_indices,numIndices,B3_GL_TRIANGLES,textureIndex);
+	
     
 }
 
@@ -149,12 +194,13 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
     //viewport(width/8, height/8, width*3/4, height*3/4);
     //projection(-1.f/(eye-center).norm());
     
-    Vec3f light_dir_local = proj<3>((renderData.m_projectionMatrix*renderData.m_viewMatrix*embed<4>(light_dir_world, 0.f))).normalize();
+    Vec3f light_dir_local = proj<3>((renderData.m_projectionMatrix*renderData.m_viewMatrix*renderData.m_modelMatrix*embed<4>(light_dir_world, 0.f))).normalize();
 
     {
     //for (int m=1; m<argc; m++) {
+        Matrix modelViewMatrix = renderData.m_viewMatrix*renderData.m_modelMatrix;
         
-        Shader shader(model, light_dir_local, renderData.m_viewMatrix, renderData.m_projectionMatrix);
+        Shader shader(model, light_dir_local, modelViewMatrix, renderData.m_projectionMatrix);
         for (int i=0; i<model->nfaces(); i++) {
             for (int j=0; j<3; j++) {
                 shader.vertex(i, j);

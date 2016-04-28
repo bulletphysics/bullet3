@@ -246,7 +246,7 @@ bool TGAImage::unload_rle_data(std::ofstream &out) {
 
 TGAColor TGAImage::get(int x, int y) {
     if (!data || x<0 || y<0 || x>=width || y>=height) {
-        return TGAColor();
+        return TGAColor(128.f,128.f,128.f,255.f);
     }
     return TGAColor(data+(x+y*width)*bytespp, bytespp);
 }

@@ -44,6 +44,34 @@ Model::Model(const char *filename) : verts_(), faces_(), norms_(), uv_(), diffus
     load_texture(filename, "_spec.tga",    specularmap_);
 }
 
+Model::Model():verts_(), faces_(), norms_(), uv_(), diffusemap_(), normalmap_(), specularmap_()
+{
+}
+
+void Model::loadDiffuseTexture(const char* relativeFileName)
+{
+    diffusemap_.read_tga_file(relativeFileName);
+}
+
+void Model::addVertex(float x,float y,float z, float normalX, float normalY, float normalZ, float u, float v)
+{
+    verts_.push_back(Vec3f(x,y,z));
+    norms_.push_back(Vec3f(normalX,normalY,normalZ));
+    uv_.push_back(Vec2f(u,v));
+    
+}
+void Model::addTriangle(int vertexposIndex0, int normalIndex0, int uvIndex0,
+                        int vertexposIndex1, int normalIndex1, int uvIndex1,
+                        int vertexposIndex2, int normalIndex2, int uvIndex2)
+{
+    std::vector<Vec3i> f;
+    f.push_back(Vec3i(vertexposIndex0, normalIndex0, uvIndex0));
+    f.push_back(Vec3i(vertexposIndex1, normalIndex1, uvIndex1));
+    f.push_back(Vec3i(vertexposIndex2, normalIndex2, uvIndex2));
+    faces_.push_back(f);
+}
+
+
 Model::~Model() {}
 
 int Model::nverts() {

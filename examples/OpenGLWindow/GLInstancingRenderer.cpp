@@ -561,9 +561,9 @@ void    GLInstancingRenderer::updateTexture(int textureIndex, const unsigned cha
 		{
 			for (int j = 0; j < h.m_height; j++)
 			{
-				flippedTexels[(i + j*h.m_width) * 3] = texels[(i + (h.m_height-1-j)*h.m_width) * 3];
-				flippedTexels[(i + j*h.m_width) * 3+1] = texels[(i + (h.m_height - 1 - j)*h.m_width) * 3+1];
-				flippedTexels[(i + j*h.m_width) * 3+2] = texels[(i + (h.m_height - 1 - j)*h.m_width) * 3+1];
+				flippedTexels[(i + j*h.m_width) * 3] =      texels[(i + (h.m_height - 1 -j )*h.m_width) * 3];
+				flippedTexels[(i + j*h.m_width) * 3+1] =    texels[(i + (h.m_height - 1 - j)*h.m_width) * 3+1];
+				flippedTexels[(i + j*h.m_width) * 3+2] =    texels[(i + (h.m_height - 1 - j)*h.m_width) * 3+2];
 			}
 		}
 

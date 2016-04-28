@@ -14,7 +14,7 @@ struct TinyRenderObjectData
     Matrix m_viewportMatrix;
 
     //Model (vertices, indices, textures, shader)
-    Matrix m_modelMatrix;    
+    Matrix m_modelMatrix;
     class Model*  m_model;
     //class IShader* m_shader; todo(erwincoumans) expose the shader, for now we use a default shader
             
@@ -24,8 +24,11 @@ struct TinyRenderObjectData
     TGAImage m_rgbColorBuffer;
     b3AlignedObjectArray<float> m_depthBuffer;
     
-    TinyRenderObjectData(int width, int height, const char* objFileName);
+    TinyRenderObjectData(int width, int height);
     virtual ~TinyRenderObjectData();
+    
+    void loadModel(const char* fileName);
+    void createCube(float HalfExtentsX,float HalfExtentsY,float HalfExtentsZ);
     
 };
 
