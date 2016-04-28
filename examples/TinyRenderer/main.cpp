@@ -1,6 +1,8 @@
 #include "OpenGLWindow/SimpleOpenGL3App.h"
 #include "Bullet3Common/b3Quaternion.h"
 #include "Bullet3Common/b3CommandLineArgs.h"
+#include "Bullet3Common/b3Transform.h"
+
 #include "assert.h"
 #include <stdio.h>
 
@@ -81,8 +83,16 @@ int main(int argc, char* argv[])
     int textureWidth = gWidth;
     int textureHeight = gHeight;
     
-	TinyRenderObjectData renderData(textureWidth, textureHeight, "floor.obj");
-  
+	TGAImage rgbColorBuffer(textureWidth,textureHeight,TGAImage::RGB);
+	b3AlignedObjectArray<float> depthBuffer;
+	depthBuffer.resize(textureWidth*textureHeight);
+	
+	TinyRenderObjectData renderData(textureWidth, textureHeight,rgbColorBuffer,depthBuffer);//, "african_head/african_head.obj");//floor.obj");
+	
+	//renderData.loadModel("african_head/african_head.obj");
+	renderData.loadModel("floor.obj");
+	
+	//renderData.createCube(1,1,1);
     
     
     myArgs.GetCmdLineArgument("mp4_file",gVideoFileName);
@@ -123,19 +133,7 @@ int main(int argc, char* argv[])
        	app->m_instancingRenderer->init();
 		app->m_instancingRenderer->updateCamera();
 
-        float projMat[16];
-        app->m_instancingRenderer->getActiveCamera()->getCameraProjectionMatrix(projMat);
-        float viewMat[16];
-        app->m_instancingRenderer->getActiveCamera()->getCameraViewMatrix(viewMat);
-        for (int i=0;i<4;i++)
-        {
-            for (int j=0;j<4;j++)
-            {
-                renderData.m_viewMatrix[i][j] = viewMat[i+4*j];
-                //renderData.m_projectionMatrix[i][j] = projMat[i+4*j];
-            }
-        }
-        
+   ///clear the color and z (depth) buffer
         for(int y=0;y<textureHeight;++y)
         {
             unsigned char*	pi=image+(y)*textureWidth*3;
@@ -149,8 +147,35 @@ int main(int argc, char* argv[])
                 color.bgra[3] = 255;
                 
                 renderData.m_rgbColorBuffer.set(x,y,color);
+				renderData.m_depthBuffer[x+y*textureWidth] = -1e30f;
             }
         }
+        
+        float projMat[16];
+        app->m_instancingRenderer->getActiveCamera()->getCameraProjectionMatrix(projMat);
+        float viewMat[16];
+        app->m_instancingRenderer->getActiveCamera()->getCameraViewMatrix(viewMat);
+        B3_ATTRIBUTE_ALIGNED16(float modelMat[16]);
+        
+        //sync the object transform
+        b3Transform tr;
+        tr.setIdentity();
+        static float posUp = 0.f;
+       // posUp += 0.001;
+        b3Vector3 org = b3MakeVector3(0,posUp,0);
+        tr.setOrigin(org);
+        tr.getOpenGLMatrix(modelMat);
+        
+        for (int i=0;i<4;i++)
+        {
+            for (int j=0;j<4;j++)
+            {
+                renderData.m_viewMatrix[i][j] = viewMat[i+4*j];
+                renderData.m_modelMatrix[i][j] = modelMat[i+4*j];
+            }
+        }
+        
+        //render the object
         TinyRenderer::renderObject(renderData);
   
         #if 1
@@ -162,9 +187,10 @@ int main(int argc, char* argv[])
             {
                 
                 TGAColor color = renderData.m_rgbColorBuffer.get(x,y);
-                pi[0] = color.bgra[2];
-                pi[1] = color.bgra[1];
-                pi[2] = color.bgra[0];
+				pi[0] = color.bgra[2];
+				pi[1] = color.bgra[1];
+				pi[2] = color.bgra[0];
+				pi[3] = 255;
                 pi+=3;
             }
         }
@@ -177,10 +203,13 @@ int main(int argc, char* argv[])
             unsigned char*	pi=image+y*textureWidth*3;
             for(int x=0;x<textureWidth;++x)
             {
+				TGAColor color = renderData.m_rgbColorBuffer.get(x,y);
+
                 const int		s=x>>4;
                 const unsigned char	b=180;					
                 unsigned char			c=b+((s+(t&1))&1)*(255-b);
-                pi[0]=pi[1]=pi[2]=pi[3]=c;pi+=3;
+				pi[0]=pi[1]=pi[2]=pi[3]=c;
+				pi+=3;
             }
         }
         #endif 

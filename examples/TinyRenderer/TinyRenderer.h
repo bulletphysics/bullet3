@@ -1,10 +1,9 @@
 #ifndef TINY_RENDERER_H
 #define TINY_RENDERER_H
 
-//#include "TinyRenderer/our_gl.h"
-#include "TinyRenderer/geometry.h"
+#include "geometry.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
-#include "TinyRenderer/tgaimage.h"
+#include "tgaimage.h"
 
 struct TinyRenderObjectData
 {
@@ -14,19 +13,25 @@ struct TinyRenderObjectData
     Matrix m_viewportMatrix;
 
     //Model (vertices, indices, textures, shader)
-    Matrix m_modelMatrix;    
+    Matrix m_modelMatrix;
     class Model*  m_model;
     //class IShader* m_shader; todo(erwincoumans) expose the shader, for now we use a default shader
             
     //Output
     int m_width;
     int m_height;
-    TGAImage m_rgbColorBuffer;
-    b3AlignedObjectArray<float> m_depthBuffer;
+    TGAImage& m_rgbColorBuffer;
+    b3AlignedObjectArray<float>& m_depthBuffer;
     
-    TinyRenderObjectData(int width, int height, const char* objFileName);
+    TinyRenderObjectData(int width, int height,TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>& depthBuffer);
     virtual ~TinyRenderObjectData();
     
+    void loadModel(const char* fileName);
+    void createCube(float HalfExtentsX,float HalfExtentsY,float HalfExtentsZ);
+    void registerMeshShape(const float* vertices, int numVertices,const int* indices, int numIndices);
+    
+    void* m_userData;
+    int m_userIndex;
 };
 
 
