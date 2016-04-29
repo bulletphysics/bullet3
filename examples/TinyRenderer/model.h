@@ -17,6 +17,13 @@ private:
     void load_texture(std::string filename, const char *suffix, TGAImage &img);
 public:
     Model(const char *filename);
+    Model();
+    void loadDiffuseTexture(const char* relativeFileName);
+    void addVertex(float x,float y,float z, float normalX, float normalY, float normalZ, float u, float v);
+    void addTriangle(int vertexposIndex0, int normalIndex0, int uvIndex0,
+                        int vertexposIndex1, int normalIndex1, int uvIndex1,
+                        int vertexposIndex2, int normalIndex2, int uvIndex2);
+    
     ~Model();
     int nverts();
     int nfaces();

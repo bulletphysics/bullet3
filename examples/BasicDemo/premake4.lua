@@ -46,7 +46,13 @@ files {
         "**.cpp",
         "**.h",
 	"../ExampleBrowser/OpenGLGuiHelper.cpp",
-	"../ExampleBrowser/GL_ShapeDrawer.cpp"
+	"../ExampleBrowser/GL_ShapeDrawer.cpp",
+	"../TinyRenderer/geometry.cpp",
+	"../TinyRenderer/model.cpp",
+	"../TinyRenderer/tgaimage.cpp",
+	"../TinyRenderer/our_gl.cpp",
+	"../TinyRenderer/TinyRenderer.cpp",
+	"../Utils/b3ResourcePath.cpp"
 }
 
 if os.is("Linux") then initX11() end

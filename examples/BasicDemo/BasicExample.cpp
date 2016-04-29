@@ -52,7 +52,7 @@ void BasicExample::initPhysics()
 	m_guiHelper->setUpAxis(1);
 
 	createEmptyDynamicsWorld();
-	
+	//m_dynamicsWorld->setGravity(btVector3(0,0,0));
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 
 	if (m_dynamicsWorld->getDebugDrawer())
@@ -63,7 +63,7 @@ void BasicExample::initPhysics()
 	
 
 	//groundShape->initializePolyhedralFeatures();
-//	btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
+	//btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
 	
 	m_collisionShapes.push_back(groundShape);
 

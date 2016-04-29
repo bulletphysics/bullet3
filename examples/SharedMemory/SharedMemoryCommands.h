@@ -197,7 +197,9 @@ struct SendActualStateArgs
     double m_jointReactionForces[6*MAX_DEGREE_OF_FREEDOM];
 
     double m_jointMotorForce[MAX_DEGREE_OF_FREEDOM];
+    
     double m_linkState[7*MAX_NUM_LINKS];
+    double m_linkLocalInertialFrames[7*MAX_NUM_LINKS];
 };
 
 enum EnumSensorTypes

@@ -46,6 +46,8 @@ project "App_BulletExampleBrowser"
                 files {"../LuaDemo/LuaPhysicsSetup.cpp"}
         end
 
+	defines {"INCLUDE_CLOTH_DEMOS"}
+
         files {
         "main.cpp",
         "ExampleEntries.cpp",
