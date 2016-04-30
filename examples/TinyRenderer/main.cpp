@@ -82,8 +82,11 @@ int main(int argc, char* argv[])
   
     int textureWidth = gWidth;
     int textureHeight = gHeight;
-    
-	TinyRenderObjectData renderData(textureWidth, textureHeight);//, "african_head/african_head.obj");//floor.obj");
+   TGAImage rgbColorBuffer(gWidth,gHeight,TGAImage::RGB);
+        b3AlignedObjectArray<float> depthBuffer;
+	depthBuffer.resize(gWidth*gHeight);
+ 
+	TinyRenderObjectData renderData(textureWidth, textureHeight,rgbColorBuffer,depthBuffer);//, "african_head/african_head.obj");//floor.obj");
 	
 	//renderData.loadModel("african_head/african_head.obj");
 	//renderData.loadModel("floor.obj");
