@@ -14,7 +14,6 @@ subject to the following restrictions:
 */
 
 
-#include "BasicExample.h"
 
 #include "../CommonInterfaces/CommonExampleInterface.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
@@ -33,7 +32,7 @@ int main(int argc, char* argv[])
 	DummyGUIHelper noGfx;
 
 	CommonExampleOptions options(&noGfx);
-	CommonExampleInterface*    example = BasicExampleCreateFunc(options);
+	CommonExampleInterface*    example = StandaloneExampleCreateFunc(options);
 	
 	example->initPhysics();
 	example->stepSimulation(1.f/60.f);

@@ -28,7 +28,44 @@ if _OPTIONS["ios"] then
 else
         kind "ConsoleApp"
 end
-defines {"USE_GUI"}
+defines {"B3_USE_STANDALONE_EXAMPLE"}
+
+includedirs {"../../src"}
+
+links {
+        "BulletDynamics","BulletCollision", "LinearMath", "OpenGL_Window","Bullet3Common"
+}
+
+	initOpenGL()
+  initGlew()
+
+
+language "C++"
+
+files {
+        "BasicExample.cpp",
+        "*.h",
+        "../StandaloneMain/main_opengl_single_example.cpp",
+	"../ExampleBrowser/OpenGLGuiHelper.cpp",
+	"../ExampleBrowser/GL_ShapeDrawer.cpp",
+}
+
+if os.is("Linux") then initX11() end
+
+if os.is("MacOSX") then
+        links{"Cocoa.framework"}
+end
+                          
+
+
+project "App_BasicExampleGuiWithSoftwareRenderer"
+
+if _OPTIONS["ios"] then
+        kind "WindowedApp"
+else
+        kind "ConsoleApp"
+end
+defines {"B3_USE_STANDALONE_EXAMPLE"}
 
 includedirs {"../../src"}
 
@@ -43,8 +80,9 @@ links {
 language "C++"
 
 files {
-        "**.cpp",
-        "**.h",
+        "BasicExample.cpp",
+        "*.h",
+        "../StandaloneMain/main_sw_tinyrenderer_single_example.cpp",
 	"../ExampleBrowser/OpenGLGuiHelper.cpp",
 	"../ExampleBrowser/GL_ShapeDrawer.cpp",
 	"../TinyRenderer/geometry.cpp",

@@ -140,7 +140,11 @@ void BasicExample::renderScene()
 CommonExampleInterface*    BasicExampleCreateFunc(CommonExampleOptions& options)
 {
 	return new BasicExample(options.m_guiHelper);
+
 }
+
+
+B3_STANDALONE_EXAMPLE(BasicExampleCreateFunc)
 
 
 
