@@ -14,7 +14,6 @@ subject to the following restrictions:
 */
 
 
-#include "BasicExample.h"
 
 #include "../CommonInterfaces/CommonExampleInterface.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
@@ -27,21 +26,40 @@ subject to the following restrictions:
 #include "LinearMath/btHashMap.h"
 
 
+
+#include "../OpenGLWindow/SimpleOpenGL3App.h"
+#include <stdio.h>
+#include "../ExampleBrowser/OpenGLGuiHelper.h"
+
+
 int main(int argc, char* argv[])
 {
-	
-	DummyGUIHelper noGfx;
 
-	CommonExampleOptions options(&noGfx);
-	CommonExampleInterface*    example = BasicExampleCreateFunc(options);
+	SimpleOpenGL3App* app = new SimpleOpenGL3App("Bullet Standalone Example",1024,768,true);
 	
+	OpenGLGuiHelper gui(app,false);
+    
+	CommonExampleOptions options(&gui);
+	CommonExampleInterface*    example = StandaloneExampleCreateFunc(options);
+        
 	example->initPhysics();
-	example->stepSimulation(1.f/60.f);
+
+	do
+	{
+		app->m_instancingRenderer->init();
+        app->m_instancingRenderer->updateCamera();
+
+		example->stepSimulation(1./60.);
+	  	
+		example->renderScene();
+ 	
+		app->drawGrid();
+		app->swapBuffer();
+	} while (!app->m_window->requestedExit());
+
 	example->exitPhysics();
-
 	delete example;
-
+	delete app;
 	return 0;
 }
-
 

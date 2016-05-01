@@ -48,6 +48,17 @@ public:
 
 };
 
+CommonExampleInterface* StandaloneExampleCreateFunc(CommonExampleOptions& options);
+
+#ifdef B3_USE_STANDALONE_EXAMPLE
+	#define B3_STANDALONE_EXAMPLE(ExampleFunc) CommonExampleInterface*    StandaloneExampleCreateFunc(CommonExampleOptions& options)\
+	{\
+		return ExampleFunc(options);\
+	}
+#else//B3_USE_STANDALONE_EXAMPLE
+	#define B3_STANDALONE_EXAMPLE(ExampleFunc)
+#endif //B3_USE_STANDALONE_EXAMPLE
+
 
 
 #endif //COMMON_EXAMPLE_INTERFACE_H
