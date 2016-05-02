@@ -445,8 +445,8 @@ void	PhysicsClientExample::initPhysics()
 	m_selectedBody = -1;
 	m_prevSelectedBody = -1;
 
-    //m_physicsClientHandle  = b3ConnectSharedMemory(m_sharedMemoryKey);
-	m_physicsClientHandle  = b3ConnectPhysicsLoopback(SHARED_MEMORY_KEY);
+    m_physicsClientHandle  = b3ConnectSharedMemory(m_sharedMemoryKey);
+	//m_physicsClientHandle  = b3ConnectPhysicsLoopback(SHARED_MEMORY_KEY);
 	//m_physicsClientHandle = b3ConnectPhysicsDirect();
 
     if (!b3CanSubmitCommand(m_physicsClientHandle))

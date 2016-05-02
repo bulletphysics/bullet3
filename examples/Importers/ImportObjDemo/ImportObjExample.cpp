@@ -101,7 +101,7 @@ void ImportObjSetup::initPhysics()
 				const char* filename = shape.material.diffuse_texname.c_str();
 				const unsigned char* image=0;
 		
-				const char* prefix[]={"./","./data/","../data/","../../data/","../../../data/","../../../../data/"};
+				const char* prefix[]={ pathPrefix,"./","./data/","../data/","../../data/","../../../data/","../../../../data/"};
 				int numprefix = sizeof(prefix)/sizeof(const char*);
 		
 				for (int i=0;!image && i<numprefix;i++)

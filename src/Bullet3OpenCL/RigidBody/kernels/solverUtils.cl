@@ -954,8 +954,8 @@ float positionConstraintCoeff
 
 		Constraint4 cs;
 
-		float countA = invMassA ? (float)bodyCount[aIdx] : 1;
-		float countB = invMassB ? (float)bodyCount[bIdx] : 1;
+		float countA = invMassA != 0.f ? (float)bodyCount[aIdx] : 1;
+		float countB = invMassB != 0.f ? (float)bodyCount[bIdx] : 1;
 
     	setConstraint4( posA, linVelA, angVelA, invMassA, invInertiaA, posB, linVelB, angVelB, invMassB, invInertiaB,
 			&gContact[gIdx], dt, positionDrift, positionConstraintCoeff,countA,countB,

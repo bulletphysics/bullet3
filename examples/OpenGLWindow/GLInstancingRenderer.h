@@ -63,6 +63,9 @@ public:
 	virtual int registerShape(const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType=B3_GL_TRIANGLES, int textureIndex=-1);
 	
 	virtual int	registerTexture(const unsigned char* texels, int width, int height);
+	virtual void    updateTexture(int textureIndex, const unsigned char* texels);
+    virtual void activateTexture(int textureIndex);
+
 
 	///position x,y,z, quaternion x,y,z,w, color r,g,b,a, scaling x,y,z
 	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling);

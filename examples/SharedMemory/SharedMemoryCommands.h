@@ -31,6 +31,7 @@
 #define MAX_NUM_SENSORS 256
 #define MAX_URDF_FILENAME_LENGTH 1024
 #define MAX_FILENAME_LENGTH MAX_URDF_FILENAME_LENGTH
+#define MAX_NUM_LINKS MAX_DEGREE_OF_FREEDOM
 
 struct TmpFloat3 
 {
@@ -150,7 +151,7 @@ struct SendDesiredStateArgs
 	//or the maximum applied force/torque for the PD/motor/constraint to reach the desired velocity in CONTROL_MODE_VELOCITY and CONTROL_MODE_POSITION_VELOCITY_PD mode
 	//indexed by degree of freedom, 6 dof base, and then dofs for each link
     double m_desiredStateForceTorque[MAX_DEGREE_OF_FREEDOM];
- 
+    
 };
 
 
@@ -194,7 +195,11 @@ struct SendActualStateArgs
 
     //measured 6DOF force/torque sensors: force[x,y,z] and torque[x,y,z]
     double m_jointReactionForces[6*MAX_DEGREE_OF_FREEDOM];
-  
+
+    double m_jointMotorForce[MAX_DEGREE_OF_FREEDOM];
+    
+    double m_linkState[7*MAX_NUM_LINKS];
+    double m_linkLocalInertialFrames[7*MAX_NUM_LINKS];
 };
 
 enum EnumSensorTypes

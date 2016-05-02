@@ -418,22 +418,21 @@ public:
 			return btAcos(dot(q) / s) * btScalar(2.0);
 	}
 
-  /**@brief Return the angle of rotation represented by this quaternion */
+	/**@brief Return the angle [0, 2Pi] of rotation represented by this quaternion */
 	btScalar getAngle() const 
 	{
 		btScalar s = btScalar(2.) * btAcos(m_floats[3]);
 		return s;
 	}
 
-	/**@brief Return the angle of rotation represented by this quaternion along the shortest path*/
+	/**@brief Return the angle [0, Pi] of rotation represented by this quaternion along the shortest path */
 	btScalar getAngleShortestPath() const 
 	{
 		btScalar s;
-		if (dot(*this) < 0)
+		if (m_floats[3] >= 0)
 			s = btScalar(2.) * btAcos(m_floats[3]);
 		else
 			s = btScalar(2.) * btAcos(-m_floats[3]);
-
 		return s;
 	}
 

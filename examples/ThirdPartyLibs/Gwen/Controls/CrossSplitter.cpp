@@ -1,4 +1,3 @@
-
 #include "Gwen/Gwen.h"
 #include "Gwen/Controls/CrossSplitter.h"
 #include "Gwen/Controls/Button.h"

@@ -1,5 +1,65 @@
+project "App_BulletExampleBrowser"
+
+        language "C++"
+
+        kind "ConsoleApp"
+
+        hasCL = findOpenCL("clew")
+
+ if (hasCL) then
+
+                                -- project ("App_Bullet3_OpenCL_Demos_" .. vendor)
+
+                                initOpenCL("clew")
+
+                end
+
+        links{"BulletExampleBrowserLib","gwen", "OpenGL_Window","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","Bullet3Common"}
+        initOpenGL()
+        initGlew()
+
+        includedirs {
+                ".",
+                "../../src",
+                "../ThirdPartyLibs",
+                }
+
+
+        if os.is("MacOSX") then
+                links{"Cocoa.framework"}
+        end
+
+                if (hasCL) then
+                        links {
+                                "Bullet3OpenCL_clew",
+                                "Bullet3Dynamics",
+                                "Bullet3Collision",
+                                "Bullet3Geometry",
+                                "Bullet3Common",
+                        }
+                end
+
+ if _OPTIONS["lua"] then
+                includedirs{"../ThirdPartyLibs/lua-5.2.3/src"}
+                links {"lua-5.2.3"}
+                defines {"ENABLE_LUA"}
+                files {"../LuaDemo/LuaPhysicsSetup.cpp"}
+        end
+
+	defines {"INCLUDE_CLOTH_DEMOS"}
+
+        files {
+        "main.cpp",
+        "ExampleEntries.cpp",
+        }
+
+if os.is("Linux") then
+        initX11()
+end
+
+
 	
-		project "App_ExampleBrowser"
+project "BulletExampleBrowserLib"
 
 		hasCL = findOpenCL("clew")
 	
@@ -13,7 +73,7 @@
 
 		language "C++"
 				
-		kind "ConsoleApp"
+		kind "StaticLib"
 
   	includedirs {
                 ".",
@@ -29,26 +89,20 @@
 	end
 
 			
-		links{"gwen", "OpenGL_Window","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","Bullet3Common"}
 		initOpenGL()
 		initGlew()
 
-		if (hasCL) then
-			links {
-				"Bullet3OpenCL_clew",
-				"Bullet3Dynamics",
-				"Bullet3Collision",
-				"Bullet3Geometry",
-				"Bullet3Common",
-			}
-		end
-		
 		defines {"INCLUDE_CLOTH_DEMOS"}
 			
 
 
 		files {
-		"*.cpp",
+		"OpenGLExampleBrowser.cpp",
+		"OpenGLGuiHelper.cpp",
+		"InProcessExampleBrowser.cpp",
+		"GL_ShapeDrawer.cpp",
+		"OpenGLExampleBrowser.cpp",
+		"../Utils/b3Clock.cpp",
 		"*.h",
 		"GwenGUISupport/*.cpp",
 		"GwenGUISupport/*.h",
@@ -59,9 +113,11 @@
 		"../SharedMemory/PhysicsServer.cpp",
 		"../SharedMemory/PhysicsServerSharedMemory.cpp",
 		"../SharedMemory/PhysicsClientSharedMemory.cpp",
+		"../SharedMemory/SharedMemoryInProcessPhysicsC_API.cpp",
 		"../SharedMemory/PhysicsClient.cpp",
 		"../SharedMemory/PosixSharedMemory.cpp",
 		"../SharedMemory/Win32SharedMemory.cpp",
+		"../SharedMemory/InProcessMemory.cpp",
 		"../SharedMemory/PhysicsDirect.cpp",
 		"../SharedMemory/PhysicsDirect.h",
 		"../SharedMemory/PhysicsDirectC_API.cpp",
@@ -101,12 +157,13 @@
 		"../MultiBody/MultiDofDemo.cpp",
 		"../MultiBody/TestJointTorqueSetup.cpp",
 		"../MultiBody/Pendulum.cpp",
+		"../MultiBody/MultiBodySoftContact.cpp",
 		"../MultiBody/MultiBodyConstraintFeedback.cpp",
 		"../MultiBody/InvertedPendulumPDControl.cpp",
+		"../RigidBody/RigidBodySoftContact.cpp",
 		"../ThirdPartyLibs/stb_image/*",
 		"../ThirdPartyLibs/Wavefront/tiny_obj_loader.*",
 		"../ThirdPartyLibs/tinyxml/*",
-		"../Utils/b3Clock.*",
 		"../Utils/b3ResourcePath.*",
 		"../GyroscopicDemo/GyroscopicSetup.cpp",
 		"../GyroscopicDemo/GyroscopicSetup.h",
@@ -146,8 +203,5 @@ if os.is("Linux") then
 	initX11()
 end
 
-if os.is("MacOSX") then
-	links{"Cocoa.framework"}
-end
-
 			
+

@@ -114,6 +114,7 @@ public:
 		btAssert(dof>=0);
 		btAssert(dof < getNumRows());
 		m_data[dof] = appliedImpulse;
+        
 	}
 	
 	btScalar	getAppliedImpulse(int dof)

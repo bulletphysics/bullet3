@@ -234,6 +234,7 @@
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
   <joint name="gripper_extension" type="prismatic">
+    <axis xyz="1 0 0"/>
     <parent link="base_link"/>
     <child link="gripper_pole"/>
     <limit effort="1000.0" lower="-0.38" upper="0" velocity="0.5"/>

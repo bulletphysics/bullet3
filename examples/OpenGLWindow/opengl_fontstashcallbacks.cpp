@@ -37,7 +37,6 @@ InternalOpenGL2RenderCallbacks::~InternalOpenGL2RenderCallbacks()
 
 void InternalOpenGL2RenderCallbacks::display2() 
 {
-    
     assert(glGetError()==GL_NO_ERROR);
    // glViewport(0,0,10,10);
     

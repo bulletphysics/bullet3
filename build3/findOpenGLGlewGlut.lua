@@ -32,7 +32,7 @@
  			links { "OpenGL.framework"} 
 		configuration {"not Windows", "not MacOSX"}
 		if os.is("Linux") then	
-			if not  _OPTIONS["force_dlopen_opengl"] and (os.isdir("/usr/include") and os.isfile("/usr/include/GL/gl.h")) then
+			if  _OPTIONS["enable_system_opengl"] and (os.isdir("/usr/include") and os.isfile("/usr/include/GL/gl.h")) then
 				links {"GL"}
 			else
 				print("No GL/gl.h found, using dynamic loading of GL using glew")
@@ -56,7 +56,7 @@
 		end
 		if os.is("Linux") then
 			configuration{"Linux"}
-			if not _OPTIONS["force_dlopen_opengl"] and (os.isdir("/usr/include") and os.isfile("/usr/include/GL/gl.h") and os.isfile("/usr/include/GL/glew.h"))  then
+			if  _OPTIONS["enable_system_opengl"] and (os.isdir("/usr/include") and os.isfile("/usr/include/GL/gl.h") and os.isfile("/usr/include/GL/glew.h"))  then
 				links {"GLEW"}
 				print ("linking against system GLEW")
 			else
@@ -75,7 +75,7 @@
 
 	function initX11()
 		if os.is("Linux") then
-			if not _OPTIONS["force_dlopen_x11"] and (os.isdir("/usr/include") and os.isfile("/usr/include/X11/X.h")) then
+			if _OPTIONS["enable_system_x11"] and (os.isdir("/usr/include") and os.isfile("/usr/include/X11/X.h")) then
 				links{"X11","pthread"}
 			else
 				print("No X11/X.h found, using dynamic loading of X11")

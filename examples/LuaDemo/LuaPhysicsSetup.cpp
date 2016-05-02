@@ -2,7 +2,7 @@
 
 
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
-#include "../Importers/ImportURDFDemo/MyURDFImporter.h"
+#include "../Importers/ImportURDFDemo/BulletURDFImporter.h"
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
 #include "../Importers/ImportURDFDemo/URDF2Bullet.h"
 
@@ -39,7 +39,12 @@ extern "C" {
 }
 
 
-const char* sLuaFileName = "init_urdf.lua";//init_physics.lua";
+const char* sLuaFileName = "init_physics.lua";
+static int upaxis = 1;
+
+//const char* sLuaFileName = "init_urdf.lua";
+//static int upaxis = 2;
+
 
 static const float scaling=0.35f;
 static LuaPhysicsSetup* sLuaDemo = 0;
@@ -69,7 +74,10 @@ LuaPhysicsSetup::~LuaPhysicsSetup()
 static int gCreateDefaultDynamicsWorld(lua_State *L)
 {
 	sLuaDemo->createEmptyDynamicsWorld();
-	sLuaDemo->m_dynamicsWorld->setGravity(btVector3(0,0,-10));
+    btVector3 grav(0,0,0);
+    grav[upaxis] = -10;
+    
+	sLuaDemo->m_dynamicsWorld->setGravity(grav);
 	sLuaDemo->m_guiHelper->createPhysicsDebugDrawer(sLuaDemo->m_dynamicsWorld);
 	lua_pushlightuserdata (L, sLuaDemo->m_dynamicsWorld);
 	return 1;
@@ -211,8 +219,8 @@ static int gLoadMultiBodyFromUrdf(lua_State *L)
 			return 0;
 		}
 		const char* fileName = lua_tostring(L,2);
-
-		MyURDFImporter u2b(sLuaDemo->m_guiHelper);
+#if 1
+		BulletURDFImporter u2b(sLuaDemo->m_guiHelper);
 		bool loadOk =  u2b.loadURDF(fileName);
 		if (loadOk)
 		{
@@ -240,6 +248,7 @@ static int gLoadMultiBodyFromUrdf(lua_State *L)
 		{
 			b3Printf("can't find %s",fileName);
 		}
+#endif
 	}
 
 	return 0;
@@ -377,7 +386,7 @@ static void report_errors(lua_State *L, int status)
 
 void LuaPhysicsSetup::initPhysics()
 {
-	m_guiHelper->setUpAxis(2);
+	m_guiHelper->setUpAxis(upaxis);
 	const char* prefix[]={"./","./data/","../data/","../../data/","../../../data/","../../../../data/"};
 	int numPrefixes = sizeof(prefix)/sizeof(const char*);
 	char relativeFileName[1024];

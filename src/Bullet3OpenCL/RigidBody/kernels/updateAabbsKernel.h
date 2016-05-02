@@ -25,6 +25,7 @@ static const char* updateAabbsKernelCL= \
 "#define b3Sqrt native_sqrt\n"
 "#define b3Sin native_sin\n"
 "#define b3Cos native_cos\n"
+"#define B3_STATIC\n"
 "#endif\n"
 "#endif\n"
 "#ifdef __cplusplus\n"

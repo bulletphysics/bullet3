@@ -437,7 +437,7 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 
 	if (vertices.size() && indices.size())
 	{
-		int shapeId = m_data->m_glApp->m_renderer->registerShape(&vertices[0].xyzw[0],vertices.size(),&indices[0],indices.size());
+		int shapeId = registerGraphicsShape(&vertices[0].xyzw[0],vertices.size(),&indices[0],indices.size());
 		collisionShape->setUserIndex(shapeId);
 	}
 		

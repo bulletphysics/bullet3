@@ -9,6 +9,7 @@ project ("Test_SharedMemoryPhysicsClient")
 			"Bullet3Common", 
 			"LinearMath"
 		}
+		defines {"PHYSICS_SHARED_MEMORY"}
 			
 		files {
 			"test.c",
@@ -140,5 +141,57 @@ project ("Test_PhysicsServerLoopBack")
 			"../../examples/Importers/ImportURDFDemo/urdfStringSplit.cpp",
 		}
 		
+
+project ("Test_PhysicsServerInProcessExampleBrowser")
+
+		language "C++"
+		kind "ConsoleApp"
+
+		includedirs {"../../src", "../../examples",
+		"../../examples/ThirdPartyLibs"}
+		defines {"PHYSICS_IN_PROCESS_EXAMPLE_BROWSER"}
+--		links {
+--			"BulletExampleBrowserLib",
+--			"BulletFileLoader",
+--			"BulletWorldImporter",
+--			"Bullet3Common",
+--			"BulletDynamics", 
+--			"BulletCollision", 
+--			"LinearMath"
+--		}
+	hasCL = findOpenCL("clew")
+
+	links{"BulletExampleBrowserLib","gwen", "OpenGL_Window","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","Bullet3Common"}
+	initOpenGL()
+	initGlew()
+
+  	includedirs {
+                ".",
+                "../../src",
+                "../ThirdPartyLibs",
+                }
+
+
+	if os.is("MacOSX") then
+		links{"Cocoa.framework"}
+	end
+
+		if (hasCL) then
+			links {
+				"Bullet3OpenCL_clew",
+				"Bullet3Dynamics",
+				"Bullet3Collision",
+				"Bullet3Geometry",
+				"Bullet3Common",
+			}
+		end
+
+		files {
+			"test.c",
+			"../../examples/ExampleBrowser/ExampleEntries.cpp",
+			}
+	if os.is("Linux") then
+       		initX11()
+	end
 
 	

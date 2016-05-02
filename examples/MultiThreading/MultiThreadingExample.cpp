@@ -68,6 +68,8 @@ struct SampleJob1 : public  SampleJobInterface
     m_jobId(jobId)
     {
     }
+    virtual ~SampleJob1() {}
+
     virtual void executeJob(int threadIndex)
     {
         printf("start SampleJob1 %d using threadIndex %d\n",m_jobId,threadIndex);

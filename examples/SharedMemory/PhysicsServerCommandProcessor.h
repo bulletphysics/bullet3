@@ -47,7 +47,8 @@ public:
 	
 	void enableCommandLogging(bool enable, const char* fileName);
 	void replayFromLogFile(const char* fileName);
-
+    void replayLogCommand(char* bufferServerToClient, int bufferSizeInBytes );
+	void applyJointDamping(int bodyUniqueId);
 };
 
 #endif //PHYSICS_SERVER_COMMAND_PROCESSOR_H

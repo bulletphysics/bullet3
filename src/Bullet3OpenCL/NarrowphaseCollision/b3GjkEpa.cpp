@@ -34,7 +34,7 @@ namespace gjkepa2_impl2
 
 	/* GJK	*/ 
 #define GJK_MAX_ITERATIONS	128
-#define GJK_ACCURARY		((b3Scalar)0.0001)
+#define GJK_ACCURACY		((b3Scalar)0.0001)
 #define GJK_MIN_DISTANCE	((b3Scalar)0.0001)
 #define GJK_DUPLICATED_EPS	((b3Scalar)0.0001)
 #define GJK_SIMPLEX2_EPS	((b3Scalar)0.0)
@@ -216,7 +216,7 @@ namespace gjkepa2_impl2
 					/* Check for termination				*/ 
 					const b3Scalar	omega=b3Dot(m_ray,w)/rl;
 					alpha=b3Max(omega,alpha);
-					if(((rl-alpha)-(GJK_ACCURARY*rl))<=0)
+					if(((rl-alpha)-(GJK_ACCURACY*rl))<=0)
 					{/* Return old simplex				*/ 
 						removevertice(m_simplices[m_current]);
 						break;
@@ -998,7 +998,7 @@ bool	b3GjkEpaSolver2::SignedDistance(const btConvexShape*	shape0,
 /* Symbols cleanup		*/ 
 
 #undef GJK_MAX_ITERATIONS
-#undef GJK_ACCURARY
+#undef GJK_ACCURACY
 #undef GJK_MIN_DISTANCE
 #undef GJK_DUPLICATED_EPS
 #undef GJK_SIMPLEX2_EPS

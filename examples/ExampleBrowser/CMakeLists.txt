@@ -15,6 +15,7 @@ SET(App_ExampleBrowser_SRCS
 	main.cpp
 	ExampleEntries.cpp
 	ExampleEntries.h
+	InProcessExampleBrowser.cpp
 	../SharedMemory/PhysicsServer.cpp
 	../SharedMemory/PhysicsClientSharedMemory.cpp
 	../SharedMemory/PhysicsClient.cpp
@@ -23,11 +24,13 @@ SET(App_ExampleBrowser_SRCS
 	../SharedMemory/PhysicsClientExample.cpp
 	../SharedMemory/PosixSharedMemory.cpp
 	../SharedMemory/Win32SharedMemory.cpp
+	../SharedMemory/InProcessMemory.cpp
 	../SharedMemory/PhysicsServerSharedMemory.cpp
 	../SharedMemory/PhysicsDirect.cpp
 	../SharedMemory/PhysicsDirect.h
 	../SharedMemory/PhysicsDirectC_API.cpp
 	../SharedMemory/PhysicsDirectC_API.h
+	../SharedMemory/SharedMemoryInProcessPhysicsC_API.cpp
 	../SharedMemory/PhysicsLoopBack.cpp
 	../SharedMemory/PhysicsLoopBack.h
 	../SharedMemory/PhysicsLoopBackC_API.cpp
@@ -137,6 +140,7 @@ SET(App_ExampleBrowser_SRCS
   ../Vehicles/Hinge2Vehicle.cpp
   ../Vehicles/Hinge2Vehicle.h
   ../MultiBody/Pendulum.cpp
+  ../MultiBody/MultiBodySoftContact.cpp
   ../MultiBody/TestJointTorqueSetup.cpp
   ../MultiBody/TestJointTorqueSetup.h
   ../MultiBody/InvertedPendulumPDControl.cpp
@@ -144,6 +148,7 @@ SET(App_ExampleBrowser_SRCS
  ../MultiBody/MultiBodyConstraintFeedback.cpp
   ../MultiBody/MultiDofDemo.cpp
   ../MultiBody/MultiDofDemo.h
+  ../RigidBody/RigidBodySoftContact.cpp
   ../Constraints/TestHingeTorque.cpp
   ../Constraints/TestHingeTorque.h
   ../Constraints/ConstraintDemo.cpp

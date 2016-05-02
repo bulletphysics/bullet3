@@ -93,7 +93,9 @@ public:
 		float accumulated_time=0,parent_time = profileIterator->Is_Root() ? CProfileManager::Get_Time_Since_Reset() : profileIterator->Get_Current_Parent_Total_Time();
 		int i;
 		int frames_since_reset = CProfileManager::Get_Frame_Count_Since_Reset();
-		
+		if (0==frames_since_reset)
+			return 0.f;
+	
 		//printf("Profiling: %s (total running time: %.3f ms) ---\n",	profileIterator->Get_Current_Parent_Name(), parent_time );
 		float totalTime = 0.f;
 		

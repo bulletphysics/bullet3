@@ -23,6 +23,8 @@ struct PhysicsServerSharedMemoryInternalData
 	
 	
 	SharedMemoryInterface* m_sharedMemory;
+	bool m_ownsSharedMemory;
+
     SharedMemoryBlock* m_testBlock1;
 	int m_sharedMemoryKey;
 	bool m_isConnected;
@@ -31,6 +33,7 @@ struct PhysicsServerSharedMemoryInternalData
 	
 	PhysicsServerSharedMemoryInternalData()
 		:m_sharedMemory(0),
+		m_ownsSharedMemory(false),
 		m_testBlock1(0),
 		m_sharedMemoryKey(SHARED_MEMORY_KEY),
 		m_isConnected(false),
@@ -57,16 +60,23 @@ struct PhysicsServerSharedMemoryInternalData
 };
 
 
-PhysicsServerSharedMemory::PhysicsServerSharedMemory()
+PhysicsServerSharedMemory::PhysicsServerSharedMemory(SharedMemoryInterface* sharedMem)
 {
 	m_data = new PhysicsServerSharedMemoryInternalData();
-
+	if (sharedMem)
+	{
+		m_data->m_sharedMemory = sharedMem;
+		m_data->m_ownsSharedMemory = false;
+	} else
+	{
 #ifdef _WIN32
 	m_data->m_sharedMemory = new Win32SharedMemoryServer();
 #else
 	m_data->m_sharedMemory = new PosixSharedMemory();
 #endif
-	
+	m_data->m_ownsSharedMemory = true;
+	}
+
 	m_data->m_commandProcessor = new PhysicsServerCommandProcessor;
 	m_data->m_commandProcessor ->createEmptyDynamicsWorld();
 
@@ -176,7 +186,10 @@ void PhysicsServerSharedMemory::disconnectSharedMemory(bool deInitializeSharedMe
 		{
 			b3Printf("m_sharedMemory\n");
 		}
-		delete m_data->m_sharedMemory;
+		if (m_data->m_ownsSharedMemory)
+		{
+			delete m_data->m_sharedMemory;
+		}
 		m_data->m_sharedMemory = 0;
 		m_data->m_testBlock1 = 0;
 	}
@@ -209,7 +222,10 @@ void PhysicsServerSharedMemory::releaseSharedMemory()
 		{
 			b3Printf("m_sharedMemory\n");
 		}
-        delete m_data->m_sharedMemory;
+		if (m_data->m_ownsSharedMemory)
+		{
+	        delete m_data->m_sharedMemory;
+		}
         m_data->m_sharedMemory = 0;
         m_data->m_testBlock1 = 0;
     }
@@ -224,23 +240,8 @@ void PhysicsServerSharedMemory::processClientCommands()
 {
 	if (m_data->m_isConnected && m_data->m_testBlock1)
     {
-#if 0
-		m_data->m_commandProcessor->processLogCommand();
-
-		if (m_data->m_logPlayback)
-		{
-			if (m_data->m_testBlock1->m_numServerCommands>m_data->m_testBlock1->m_numProcessedServerCommands)
-			{
-				m_data->m_testBlock1->m_numProcessedServerCommands++;
-			}
-			//push a command from log file
-			bool hasCommand = m_data->m_logPlayback->processNextCommand(&m_data->m_testBlock1->m_clientCommands[0]);
-			if (hasCommand)
-			{
-				m_data->m_testBlock1->m_numClientCommands++;
-			}
-		}
-#endif
+        m_data->m_commandProcessor->replayLogCommand(&m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor[0],SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+        
         ///we ignore overflow of integer for now
         if (m_data->m_testBlock1->m_numClientCommands> m_data->m_testBlock1->m_numProcessedClientCommands)
         {

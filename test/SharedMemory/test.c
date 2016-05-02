@@ -1,5 +1,7 @@
 //#include "SharedMemoryCommands.h"
+#ifdef PHYSICS_SHARED_MEMORY
 #include "SharedMemory/PhysicsClientC_API.h"
+#endif //PHYSICS_SHARED_MEMORY
 
 #ifdef PHYSICS_LOOP_BACK
 #include "SharedMemory/PhysicsLoopBackC_API.h"
@@ -9,6 +11,9 @@
 #include "SharedMemory/PhysicsDirectC_API.h"
 #endif //PHYSICS_SERVER_DIRECT
 
+#ifdef PHYSICS_IN_PROCESS_EXAMPLE_BROWSER
+#include "SharedMemory/SharedMemoryInProcessPhysicsC_API.h"
+#endif//PHYSICS_IN_PROCESS_EXAMPLE_BROWSER
 
 #include "SharedMemory/SharedMemoryPublic.h"
 #include "Bullet3Common/b3Logging.h"
@@ -17,7 +22,14 @@
 
 #include <stdio.h>
 
-int main(int argc, char* argv[])
+#ifndef ENABLE_GTEST
+#include <assert.h>
+#define ASSERT_EQ(a,b) assert((a)==(b));
+#else
+#define printf
+#endif
+
+void testSharedMemory(b3PhysicsClientHandle sm)
 {
 	int i, dofCount , posVarCount, ret ,numJoints ;
     int sensorJointIndexLeft=-1;
@@ -27,45 +39,33 @@ int main(int argc, char* argv[])
 	double timeStep = 1./60.;
 	double startPosX, startPosY,startPosZ;
 	int imuLinkIndex = -1;
-
-	
-	b3PhysicsClientHandle sm=0;
 	int bodyIndex = -1;
-
-
-	printf("hello world\n");
-#ifdef PHYSICS_LOOP_BACK
-	sm = b3ConnectPhysicsLoopback(SHARED_MEMORY_KEY);
-#endif
-
-#ifdef PHYSICS_SERVER_DIRECT
-	sm = b3ConnectPhysicsDirect();
-#else//PHYSICS_SERVER_DIRECT
-	sm = b3ConnectSharedMemory(SHARED_MEMORY_KEY);
-#endif //PHYSICS_SERVER_DIRECT
-	
-	
 
 	if (b3CanSubmitCommand(sm))
 	{
         {
         b3SharedMemoryCommandHandle command = b3InitPhysicsParamCommand(sm);
+        b3SharedMemoryStatusHandle statusHandle;
 		ret = b3PhysicsParamSetGravity(command,  gravx,gravy, gravz);
 		ret = b3PhysicsParamSetTimeStep(command,  timeStep);
-		b3SubmitClientCommandAndWaitStatus(sm, command);
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+        ASSERT_EQ(b3GetStatusType(statusHandle), CMD_CLIENT_COMMAND_COMPLETED);
         }
 
 		
         {
             b3SharedMemoryStatusHandle statusHandle;
+			int statusType;
 			b3SharedMemoryCommandHandle command = b3LoadUrdfCommandInit(sm, urdfFileName);
 			
             //setting the initial position, orientation and other arguments are optional
-            startPosX =2;
-            startPosY =3;
+            startPosX =0;
+            startPosY =0;
             startPosZ = 1;
             ret = b3LoadUrdfCommandSetStartPosition(command, startPosX,startPosY,startPosZ);
             statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+			statusType = b3GetStatusType(statusHandle);
+			ASSERT_EQ(statusType, CMD_URDF_LOADING_COMPLETED);
 			bodyIndex = b3GetStatusBodyIndex(statusHandle);
         }
         
@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 				struct b3JointInfo jointInfo;
 				b3GetJointInfo(sm,bodyIndex, i,&jointInfo);
             
-				printf("jointInfo[%d].m_jointName=%s\n",i,jointInfo.m_jointName);
+			//	printf("jointInfo[%d].m_jointName=%s\n",i,jointInfo.m_jointName);
 				//pick the IMU link index based on torso name
 				if (strstr(jointInfo.m_linkName,"base_link"))
 				{
@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
 					ret = b3CreateSensorEnable6DofJointForceTorqueSensor(command, sensorJointIndexRight, 1);
 				}
 				statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
-            
+                ASSERT_EQ(b3GetStatusType(statusHandle), CMD_CLIENT_COMMAND_COMPLETED);
 			}
 		}
         
@@ -125,6 +125,7 @@ int main(int argc, char* argv[])
             ret = b3CreateBoxCommandSetStartOrientation(command,0,0,0,1);
             ret = b3CreateBoxCommandSetHalfExtents(command, 10,10,1);
             statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+            ASSERT_EQ(b3GetStatusType(statusHandle), CMD_RIGID_BODY_CREATION_COMPLETED);
 
         }
 
@@ -134,15 +135,15 @@ int main(int argc, char* argv[])
             b3SharedMemoryStatusHandle statusHandle;
             statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
             statusType = b3GetStatusType(statusHandle);
-            
+           ASSERT_EQ(statusType, CMD_ACTUAL_STATE_UPDATE_COMPLETED);
+ 
             if (statusType == CMD_ACTUAL_STATE_UPDATE_COMPLETED)
             {
                 b3GetStatusActualState(statusHandle,
                                        0, &posVarCount, &dofCount,
                                        0, 0, 0, 0);
-
-                b3Printf("posVarCount = %d\n",posVarCount);
-                printf("dofCount = %d\n",dofCount);
+                ASSERT_EQ(posVarCount,15);
+                ASSERT_EQ(dofCount,14);
             }
         }
         
@@ -161,9 +162,21 @@ int main(int argc, char* argv[])
         ///perform some simulation steps for testing
         for ( i=0;i<100;i++)
         {
-            b3SubmitClientCommandAndWaitStatus(sm, b3InitStepSimulationCommand(sm));
+			b3SharedMemoryStatusHandle statusHandle;
+			int statusType;
+
+            if (b3CanSubmitCommand(sm))
+            {
+                statusHandle = b3SubmitClientCommandAndWaitStatus(sm, b3InitStepSimulationCommand(sm));
+                statusType = b3GetStatusType(statusHandle);
+                ASSERT_EQ(statusType, CMD_STEP_FORWARD_SIMULATION_COMPLETED);
+            } else
+            {
+                break;
+            }
         }
         
+        if (b3CanSubmitCommand(sm))
         {
             b3SharedMemoryStatusHandle state = b3SubmitClientCommandAndWaitStatus(sm, b3RequestActualStateCommandInit(sm,bodyIndex));
         
@@ -191,11 +204,13 @@ int main(int argc, char* argv[])
 						 sensorState.m_jointForceTorque[2]);
 
 			}
-		}
         
 
-        {
-            b3SubmitClientCommandAndWaitStatus(sm, b3InitResetSimulationCommand(sm));
+            {
+                b3SharedMemoryStatusHandle statusHandle;
+                statusHandle = b3SubmitClientCommandAndWaitStatus(sm, b3InitResetSimulationCommand(sm));
+                ASSERT_EQ(b3GetStatusType(statusHandle), CMD_RESET_SIMULATION_COMPLETED);
+            }
         }
         
 	}
@@ -203,3 +218,48 @@ int main(int argc, char* argv[])
 
 	b3DisconnectSharedMemory(sm);
 }
+
+
+
+#ifdef ENABLE_GTEST
+
+
+TEST(BulletPhysicsClientServerTest, DirectConnection) {
+        b3PhysicsClientHandle sm = b3ConnectPhysicsDirect();
+        testSharedMemory(sm);
+}
+
+TEST(BulletPhysicsClientServerTest, LoopBackSharedMemory) {
+        b3PhysicsClientHandle sm = b3ConnectPhysicsLoopback(SHARED_MEMORY_KEY);
+        testSharedMemory(sm);
+}
+
+
+#else
+
+int main(int argc, char* argv[])
+{
+#ifdef PHYSICS_LOOP_BACK
+        b3PhysicsClientHandle sm = b3ConnectPhysicsLoopback(SHARED_MEMORY_KEY);
+#endif
+
+#ifdef PHYSICS_SERVER_DIRECT
+        b3PhysicsClientHandle sm = b3ConnectPhysicsDirect();
+#endif
+
+#ifdef PHYSICS_IN_PROCESS_EXAMPLE_BROWSER
+
+#ifdef __APPLE__
+    b3PhysicsClientHandle sm = b3CreateInProcessPhysicsServerAndConnectMainThread(argc,argv);
+#else
+    b3PhysicsClientHandle sm = b3CreateInProcessPhysicsServerAndConnect(argc,argv);
+#endif //__APPLE__
+#endif
+#ifdef PHYSICS_SHARED_MEMORY
+        b3PhysicsClientHandle sm = b3ConnectSharedMemory(SHARED_MEMORY_KEY);
+#endif //PHYSICS_SHARED_MEMORY
+
+	testSharedMemory(sm);
+}
+#endif
+

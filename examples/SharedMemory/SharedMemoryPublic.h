@@ -30,7 +30,6 @@ enum EnumSharedMemoryServerStatus
 {
         CMD_SHARED_MEMORY_NOT_INITIALIZED=0,
         CMD_WAITING_FOR_CLIENT_COMMAND,
-
         //CMD_CLIENT_COMMAND_COMPLETED is a generic 'completed' status that doesn't need special handling on the client
         CMD_CLIENT_COMMAND_COMPLETED,
         //the server will skip unknown command and report a status 'CMD_UNKNOWN_COMMAND_FLUSHED'
@@ -50,6 +49,7 @@ enum EnumSharedMemoryServerStatus
         CMD_DESIRED_STATE_RECEIVED_COMPLETED,
         CMD_STEP_FORWARD_SIMULATION_COMPLETED,
 	CMD_RESET_SIMULATION_COMPLETED,
+		CMD_INVALID_STATUS,
         CMD_MAX_SERVER_COMMANDS
 };
 
@@ -85,6 +85,8 @@ struct b3JointInfo
         int m_uIndex;
         int m_jointIndex;
         int m_flags;
+		double m_jointDamping;
+		double m_jointFriction;
 };
 
 struct b3JointSensorState
@@ -92,6 +94,7 @@ struct b3JointSensorState
   double m_jointPosition;
   double m_jointVelocity;
   double m_jointForceTorque[6];  /* note to roboticists: this is NOT the motor torque/force, but the spatial reaction force vector at joint */
+  double m_jointMotorTorque;
 };
 
 struct b3DebugLines
@@ -100,6 +103,20 @@ struct b3DebugLines
     const float*  m_linesFrom;//float x,y,z times 'm_numDebugLines'.
     const float*  m_linesTo;//float x,y,z times 'm_numDebugLines'.
     const float*  m_linesColor;//float red,green,blue times 'm_numDebugLines'.
+};
+
+///b3LinkState provides extra information such as the Cartesian world coordinates
+///center of mass (COM) of the link, relative to the world reference frame.
+///Orientation is a quaternion x,y,z,w
+///Note: to compute the URDF link frame (which equals the joint frame at joint position 0)
+///use URDF link frame = link COM frame * inertiaFrame.inverse()
+struct b3LinkState
+{
+    double m_worldPosition[3];
+    double m_worldOrientation[4];
+
+    double m_localInertialPosition[3];
+    double m_localInertialOrientation[4];
 };
 
 //todo: discuss and decide about control mode and combinations

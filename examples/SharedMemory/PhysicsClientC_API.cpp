@@ -72,7 +72,7 @@ b3SharedMemoryCommandHandle     b3InitPhysicsParamCommand(b3PhysicsClientHandle 
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;
     b3Assert(cl);
-    b3Assert(cl->canSubmitCommand());
+	b3Assert(cl->canSubmitCommand());
     struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
     b3Assert(command);
 	command->m_type = CMD_SEND_PHYSICS_SIMULATION_PARAMETERS;
@@ -218,6 +218,28 @@ void b3GetJointState(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandl
 	  for (int ii(0); ii < 6; ++ii) {
 		state->m_jointForceTorque[ii] = status->m_sendActualStateArgs.m_jointReactionForces[6 * jointIndex + ii];
 	  }
+      state->m_jointMotorTorque = status->m_sendActualStateArgs.m_jointMotorForce[jointIndex];
+  }
+}
+
+void b3GetLinkState(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle statusHandle, int linkIndex, b3LinkState *state)
+{
+  const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
+  b3Assert(status);
+  int bodyIndex = status->m_sendActualStateArgs.m_bodyUniqueId;
+  b3Assert(bodyIndex>=0);
+  if (bodyIndex>=0)
+  {
+    for (int i = 0; i < 3; ++i) 
+    {
+      state->m_worldPosition[i] = status->m_sendActualStateArgs.m_linkState[7 * linkIndex + i];
+      state->m_localInertialPosition[i] = status->m_sendActualStateArgs.m_linkLocalInertialFrames[7 * linkIndex + i];
+    }
+    for (int i = 0; i < 4; ++i) 
+    {
+      state->m_worldOrientation[i] = status->m_sendActualStateArgs.m_linkState[7 * linkIndex + 3 + i];
+      state->m_localInertialOrientation[i] = status->m_sendActualStateArgs.m_linkLocalInertialFrames[7 * linkIndex + 3 + i];
+    }
   }
 }
 
@@ -445,9 +467,12 @@ void	b3DisconnectSharedMemory(b3PhysicsClientHandle physClient)
 b3SharedMemoryStatusHandle b3ProcessServerStatus(b3PhysicsClientHandle physClient)
 {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
-	const SharedMemoryStatus* stat = cl->processServerStatus();
-    return (b3SharedMemoryStatusHandle) stat;
-    
+	if (cl && cl->isConnected())
+	{
+		const SharedMemoryStatus* stat = cl->processServerStatus();
+		return (b3SharedMemoryStatusHandle) stat;
+	}
+	return 0;
 }
 
 
@@ -461,7 +486,7 @@ int b3GetStatusType(b3SharedMemoryStatusHandle statusHandle)
     {
         return status->m_type;
     }
-    return 0;
+    return CMD_INVALID_STATUS;
 }
 
 int b3GetStatusBodyIndex(b3SharedMemoryStatusHandle statusHandle)
