@@ -1,21 +1,19 @@
 
-
 INCLUDE_DIRECTORIES(
 	.
 	${BULLET_PHYSICS_SOURCE_DIR}/src
 	${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs
 )
 
-FILE(GLOB ExampleBrowser_SRCS "*" "GwenGUISupport/*" )
-FILE(GLOB ExampleBrowser_HDRS "*" "GwenGUISupport/*" )
+FILE(GLOB GwenGUISupport_SRCS  "GwenGUISupport/*" )
+FILE(GLOB GwenGUISupport_HDRS  "GwenGUISupport/*" )
 
 
-
-SET(App_ExampleBrowser_SRCS
-	main.cpp
-	ExampleEntries.cpp
-	ExampleEntries.h
+SET(BulletExampleBrowser_SRCS
+	OpenGLExampleBrowser.cpp
+	OpenGLGuiHelper.cpp
 	InProcessExampleBrowser.cpp
+	GL_ShapeDrawer.cpp
 	../SharedMemory/PhysicsServer.cpp
 	../SharedMemory/PhysicsClientSharedMemory.cpp
 	../SharedMemory/PhysicsClient.cpp
@@ -97,8 +95,10 @@ SET(App_ExampleBrowser_SRCS
 
 	../../Extras/Serialize/BulletWorldImporter/btWorldImporter.cpp
 	../../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.cpp
-../../Extras/Serialize/BulletFileLoader/bChunk.cpp		../../Extras/Serialize/BulletFileLoader/bFile.cpp
-../../Extras/Serialize/BulletFileLoader/bDNA.cpp		../../Extras/Serialize/BulletFileLoader/btBulletFile.cpp
+	../../Extras/Serialize/BulletFileLoader/bChunk.cpp		
+	../../Extras/Serialize/BulletFileLoader/bFile.cpp
+	../../Extras/Serialize/BulletFileLoader/bDNA.cpp		
+	../../Extras/Serialize/BulletFileLoader/btBulletFile.cpp
 
 	../Importers/ImportBsp/BspLoader.h
   ../Importers/ImportBsp/ImportBspExample.h
@@ -168,44 +168,76 @@ SET(App_ExampleBrowser_SRCS
 	../ThirdPartyLibs/tinyxml/tinyxmlerror.cpp
 	../ThirdPartyLibs/tinyxml/tinyxmlparser.cpp
 
-
-	../ThirdPartyLibs/urdf/urdfdom/urdf_parser/src/pose.cpp
-		../ThirdPartyLibs/urdf/urdfdom/urdf_parser/src/model.cpp
-	../ThirdPartyLibs/urdf/urdfdom/urdf_parser/src/link.cpp
-	../ThirdPartyLibs/urdf/urdfdom/urdf_parser/src/joint.cpp
-	../ThirdPartyLibs/urdf/urdfdom/urdf_parser/include/urdf_parser/urdf_parser.h
-	../ThirdPartyLibs/urdf/urdfdom_headers/urdf_exception/include/urdf_exception/exception.h
-	../ThirdPartyLibs/urdf/urdfdom_headers/urdf_model/include/urdf_model/pose.h
-	../ThirdPartyLibs/urdf/urdfdom_headers/urdf_model/include/urdf_model/model.h
-	../ThirdPartyLibs/urdf/urdfdom_headers/urdf_model/include/urdf_model/link.h
-	../ThirdPartyLibs/urdf/urdfdom_headers/urdf_model/include/urdf_model/joint.h
 	../ThirdPartyLibs/tinyxml/tinystr.cpp
 	../ThirdPartyLibs/tinyxml/tinyxml.cpp
 	../ThirdPartyLibs/tinyxml/tinyxmlerror.cpp
 	../ThirdPartyLibs/tinyxml/tinyxmlparser.cpp
-	../ThirdPartyLibs/urdf/boost_replacement/lexical_cast.h
-	../ThirdPartyLibs/urdf/boost_replacement/shared_ptr.h
-	../ThirdPartyLibs/urdf/boost_replacement/printf_console.cpp
-	../ThirdPartyLibs/urdf/boost_replacement/printf_console.h
-	../ThirdPartyLibs/urdf/boost_replacement/string_split.cpp
-	../ThirdPartyLibs/urdf/boost_replacement/string_split.h
 	../Utils/b3Clock.cpp
 	../Utils/b3Clock.h
 	../Utils/b3ResourcePath.cpp
 	../Utils/b3ResourcePath.h
-	${ExampleBrowser_SRCS}
-	${ExampleBrowser_HDRS}
+	${GwenGUISupport_SRCS}
+	${GwenGUISupport_HDRS}
 	${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc
 )
 
+IF (WIN32)
+        INCLUDE_DIRECTORIES(
+                ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew
+        )
+	IF (BUILD_SHARED_LIBS)
+		TARGET_LINK_LIBRARIES(
+			Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils 
+			BulletInverseDynamics LinearMath OpenGLWindow gwen
+                	${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+		)
+	ENDIF (BUILD_SHARED_LIBS)
+	ADD_DEFINITIONS(-DGLEW_STATIC)
+ELSE(WIN32)
+        IF(APPLE)
+                find_library(COCOA NAMES Cocoa)
+                MESSAGE(${COCOA})
+		IF (BUILD_SHARED_LIBS)
+                	TARGET_LINK_LIBRARIES(
+				Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
+                		BulletInverseDynamics LinearMath OpenGLWindow gwen
+				${COCOA} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+			)
+  ELSE(APPLE)
+		ENDIF (BUILD_SHARED_LIBS)
+                ADD_DEFINITIONS("-DGLEW_INIT_OPENGL11_FUNCTIONS=1")
+                ADD_DEFINITIONS("-DGLEW_STATIC")
+                ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
+                INCLUDE_DIRECTORIES( ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew )
+	 	IF (BUILD_SHARED_LIBS)	
+			TARGET_LINK_LIBRARIES(
+				Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
+               	 		BulletInverseDynamics LinearMath OpenGLWindow gwen
+          			pthread dl
+			)
+		ENDIF(BUILD_SHARED_LIBS)
+        ENDIF(APPLE)
+ENDIF(WIN32)
+
+
+ADD_LIBRARY(BulletExampleBrowserLib ${BulletExampleBrowser_SRCS} )
+SET_TARGET_PROPERTIES(BulletExampleBrowserLib PROPERTIES VERSION ${BULLET_VERSION})
+SET_TARGET_PROPERTIES(BulletExampleBrowserLib PROPERTIES SOVERSION ${BULLET_VERSION})
+
+INCLUDE_DIRECTORIES(
+        .
+        ${BULLET_PHYSICS_SOURCE_DIR}/src
+        ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs
+)
+
+
 LINK_LIBRARIES(
-        Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen
+        BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen
 )
 
 IF (WIN32)
-	SET(App_ExampleBrowser_SRCS ${App_ExampleBrowser_SRCS} )
 	INCLUDE_DIRECTORIES(
-				${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew
+		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew
 	)
 	LINK_LIBRARIES(
 		${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
@@ -229,7 +261,9 @@ ENDIF(WIN32)
 
 
 ADD_EXECUTABLE(App_ExampleBrowser
-		${App_ExampleBrowser_SRCS}
+		main.cpp
+		ExampleEntries.cpp
+		ExampleEntries.h
 )
 
 

@@ -20,6 +20,7 @@ project ("pybullet")
                 ".",
                 "../../src",
                 "../ThirdPartyLibs",
+		"/usr/include/python2.7",
                 }
 
 
