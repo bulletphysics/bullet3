@@ -56,8 +56,11 @@ static void SimpleResizeCallback( float widthf, float heightf)
 {
 	int width = (int)widthf;
 	int height = (int)heightf;
-	gApp->m_instancingRenderer->resize(width,height);
-	gApp->m_primRenderer->setScreenSize(width,height);
+    if (gApp && gApp->m_instancingRenderer)
+        gApp->m_instancingRenderer->resize(width,height);
+
+    if (gApp && gApp->m_primRenderer)
+        gApp->m_primRenderer->setScreenSize(width,height);
 
 }
 
@@ -115,6 +118,7 @@ extern unsigned char OpenSansData[];
 SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height, bool allowRetina)
 {
 	gApp = this;
+
 	m_data = new SimpleInternalData;
 	m_data->m_frameDumpPngFileName = 0;
 	m_data->m_renderTexture = 0;
@@ -123,6 +127,7 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height, boo
 	m_data->m_upAxis = 1;
 
 	m_window = new b3gDefaultOpenGLWindow();
+   
 	m_window->setAllowRetina(allowRetina);
 	
 	b3gWindowConstructionInfo ci;
@@ -141,6 +146,9 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height, boo
 					1.f);
 	
 	m_window->startRendering();
+    width = m_window->getWidth();
+    height = m_window->getHeight();
+    
 	b3Assert(glGetError() ==GL_NO_ERROR);
 
 #ifndef __APPLE__
@@ -160,17 +168,21 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height, boo
 
     b3Assert(glGetError() ==GL_NO_ERROR);
 
-	m_primRenderer = new GLPrimitiveRenderer(width,height);
 	m_parameterInterface = 0;
-
+    
     b3Assert(glGetError() ==GL_NO_ERROR);
 
 	m_instancingRenderer = new GLInstancingRenderer(128*1024,64*1024*1024);
-	m_renderer = m_instancingRenderer ;
-	m_instancingRenderer->init();
+    m_primRenderer = new GLPrimitiveRenderer(width,height);
+    
+    m_renderer = m_instancingRenderer ;
+    m_window->setResizeCallback(SimpleResizeCallback);
+    
+    
+    m_instancingRenderer->init();
 	m_instancingRenderer->resize(width,height);
-
-	b3Assert(glGetError() ==GL_NO_ERROR);
+    m_primRenderer->setScreenSize(width,height);
+    b3Assert(glGetError() ==GL_NO_ERROR);
 
 	m_instancingRenderer->InitShaders();
 
@@ -178,8 +190,7 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height, boo
 	m_window->setMouseButtonCallback(SimpleMouseButtonCallback);
     m_window->setKeyboardCallback(SimpleKeyboardCallback);
     m_window->setWheelCallback(SimpleWheelCallback);
-	m_window->setResizeCallback(SimpleResizeCallback);
-
+	
 	TwGenerateDefaultFonts();
 	m_data->m_fontTextureId = BindFont(g_DefaultNormalFont);
 	m_data->m_largeFontTextureId = BindFont(g_DefaultLargeFont);
