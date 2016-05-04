@@ -192,6 +192,9 @@ ENDIF()
 
 OPTION(BUILD_BULLET3 "Set when you want to build Bullet 3" ON)
 OPTION(BUILD_PYBULLET "Set when you want to build pybullet (experimental Python bindings for Bullet)" OFF)
+IF(BUILD_PYBULLET)
+	FIND_PACKAGE(PythonLibs 2.7 REQUIRED)
+ENDIF(BUILD_PYBULLET)
 
 IF(BUILD_BULLET3)
 	 IF(APPLE)
