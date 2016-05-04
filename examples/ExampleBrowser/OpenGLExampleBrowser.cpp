@@ -695,8 +695,8 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 	}
 		
 	
-	int width = 1920;
-    int height=1080;
+	int width = 1024;
+    int height=768;
 #ifndef NO_OPENGL3
     SimpleOpenGL3App* simpleApp=0;
 	sUseOpenGL2 =args.CheckCmdLineFlag("opengl2");
