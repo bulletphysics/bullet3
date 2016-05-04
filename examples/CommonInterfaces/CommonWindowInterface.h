@@ -119,7 +119,9 @@ class CommonWindowInterface
 
 		virtual	float	getRetinaScale() const =0;
 		virtual	void	setAllowRetina(bool allow) =0;
-	
+
+        virtual int   getWidth() const = 0;
+        virtual int   getHeight() const = 0;
 
         virtual int fileOpenDialog(char* fileName, int maxFileNameLength) = 0;
     

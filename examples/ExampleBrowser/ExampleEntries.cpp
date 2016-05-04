@@ -274,17 +274,17 @@ struct ExampleEntriesInternalData
 	btAlignedObjectArray<ExampleEntry> m_allExamples;
 };
 
-ExampleEntries::ExampleEntries()
+ExampleEntriesAll::ExampleEntriesAll()
 {
 	m_data = new ExampleEntriesInternalData;
 }
 
-ExampleEntries::~ExampleEntries()
+ExampleEntriesAll::~ExampleEntriesAll()
 {
 	delete m_data;
 }
 
-void ExampleEntries::initOpenCLExampleEntries()
+void ExampleEntriesAll::initOpenCLExampleEntries()
 {
 #ifdef B3_USE_CLEW
 #ifndef NO_OPENGL3
@@ -297,7 +297,7 @@ void ExampleEntries::initOpenCLExampleEntries()
 #endif //B3_USE_CLEW
 }
 
-void ExampleEntries::initExampleEntries()
+void ExampleEntriesAll::initExampleEntries()
 {
 	m_data->m_allExamples.clear();
 
@@ -330,33 +330,33 @@ void ExampleEntries::initExampleEntries()
 
 }
 
-void ExampleEntries::registerExampleEntry(int menuLevel, const char* name,const char* description, CommonExampleInterface::CreateFunc* createFunc, int option)
+void ExampleEntriesAll::registerExampleEntry(int menuLevel, const char* name,const char* description, CommonExampleInterface::CreateFunc* createFunc, int option)
 {
 	ExampleEntry e( menuLevel,name,description, createFunc, option);
 	gAdditionalRegisteredExamples.push_back(e);
 }
 
-int ExampleEntries::getNumRegisteredExamples()
+int ExampleEntriesAll::getNumRegisteredExamples()
 {
 	return m_data->m_allExamples.size();
 }
 
-CommonExampleInterface::CreateFunc* ExampleEntries::getExampleCreateFunc(int index)
+CommonExampleInterface::CreateFunc* ExampleEntriesAll::getExampleCreateFunc(int index)
 {
 	return m_data->m_allExamples[index].m_createFunc;
 }
 
-int ExampleEntries::getExampleOption(int index)
+int ExampleEntriesAll::getExampleOption(int index)
 {
 	return m_data->m_allExamples[index].m_option;
 }
 
-const char* ExampleEntries::getExampleName(int index)
+const char* ExampleEntriesAll::getExampleName(int index)
 {
 	return m_data->m_allExamples[index].m_name;
 }
 
-const char* ExampleEntries::getExampleDescription(int index)
+const char* ExampleEntriesAll::getExampleDescription(int index)
 {
 	return m_data->m_allExamples[index].m_description;
 }

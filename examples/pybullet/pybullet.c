@@ -8,15 +8,21 @@
 #endif
 
 static PyObject *SpamError;
-static  b3PhysicsClientHandle sm;
+static  b3PhysicsClientHandle sm=0;
+
 
 static PyObject *
-spam_step(PyObject *self, PyObject *args)
+pybullet_stepSimulation(PyObject *self, PyObject *args)
 {
+    if (0==sm)
+    {
+        PyErr_SetString(SpamError, "Not connected to physics server.");
+        return NULL;
+    }
 
         {
-                        b3SharedMemoryStatusHandle statusHandle;
-                        int statusType;
+            b3SharedMemoryStatusHandle statusHandle;
+            int statusType;
 
             if (b3CanSubmitCommand(sm))
             {
@@ -29,15 +35,53 @@ return PyLong_FromLong(1);
 }
 
 static PyObject *
-spam_loadURDF(PyObject* self, PyObject* args)
+pybullet_connectPhysicsServer(PyObject *self, PyObject *args)
 {
+    if (0!=sm)
+    {
+        PyErr_SetString(SpamError, "Already connected to physics server, disconnect first.");
+        return NULL;
+    }
+    
+    {
+        sm = b3ConnectSharedMemory(SHARED_MEMORY_KEY);
+    }
+    
+    return PyLong_FromLong(1);
+}
+
+static PyObject *
+pybullet_disconnectPhysicsServer(PyObject *self, PyObject *args)
+{
+    if (0==sm)
+    {
+        PyErr_SetString(SpamError, "Not connected to physics server.");
+        return NULL;
+    }
+    {
+        b3DisconnectSharedMemory(sm);
+        sm = 0;
+    }
+    
+    return PyLong_FromLong(1);
+}
+
+
+static PyObject *
+pybullet_loadURDF(PyObject* self, PyObject* args)
+{
+    if (0==sm)
+    {
+        PyErr_SetString(SpamError, "Not connected to physics server.");
+        return NULL;
+    }
 	int size= PySequence_Size(args);
 	
 	int bodyIndex = -1;
 	const char* urdfFileName=0;
 	float startPosX =0;
-        float startPosY =0;
-        float startPosZ = 1;
+    float startPosY =0;
+    float startPosZ = 1;
 	float startOrnX = 0;
 	float startOrnY = 0;
 	float startOrnZ = 0;
@@ -61,29 +105,58 @@ spam_loadURDF(PyObject* self, PyObject* args)
 		&startOrnX,&startOrnY,&startOrnZ, &startOwnW))
                 return NULL;
 	}
-	printf("urdf filename = %s\n", urdfFileName);
-	b3SharedMemoryStatusHandle statusHandle;
-            int statusType;
-             b3SharedMemoryCommandHandle command = b3LoadUrdfCommandInit(sm, urdfFileName);
+    {
+        printf("urdf filename = %s\n", urdfFileName);
+        b3SharedMemoryStatusHandle statusHandle;
+        int statusType;
+        b3SharedMemoryCommandHandle command = b3LoadUrdfCommandInit(sm, urdfFileName);
 
-            //setting the initial position, orientation and other arguments are optional
-            int ret = b3LoadUrdfCommandSetStartPosition(command, startPosX,startPosY,startPosZ);
-            statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
-                        statusType = b3GetStatusType(statusHandle);
-                        if (statusType!=CMD_URDF_LOADING_COMPLETED)
-			{
-				PyErr_SetString(SpamError, "Cannot load URDF file.");
-				return NULL;				
-			}
-                        bodyIndex = b3GetStatusBodyIndex(statusHandle);
+        //setting the initial position, orientation and other arguments are optional
+        b3LoadUrdfCommandSetStartPosition(command, startPosX,startPosY,startPosZ);
+        statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+        statusType = b3GetStatusType(statusHandle);
+        if (statusType!=CMD_URDF_LOADING_COMPLETED)
+		{
+			PyErr_SetString(SpamError, "Cannot load URDF file.");
+			return NULL;
+		}
+        bodyIndex = b3GetStatusBodyIndex(statusHandle);
+    }
 	return PyLong_FromLong(bodyIndex);
+}
+static PyObject *
+pybullet_resetSimulation(PyObject* self, PyObject* args)
+{
+    if (0==sm)
+    {
+        PyErr_SetString(SpamError, "Not connected to physics server.");
+        return NULL;
+    }
+
+    {
+        b3SharedMemoryStatusHandle statusHandle;
+        statusHandle = b3SubmitClientCommandAndWaitStatus(sm, b3InitResetSimulationCommand(sm));
+//        ASSERT_EQ(b3GetStatusType(statusHandle), CMD_RESET_SIMULATION_COMPLETED);
+    }
+	return PyLong_FromLong(1);
+
 }
 
 static PyMethodDef SpamMethods[] = {
-    {"step",  spam_step, METH_VARARGS,
-     "Step the simulation forward."},
-{"loadURDF",  spam_loadURDF, METH_VARARGS,
-     "Create a multibody by loading a URDF file."},
+    {"loadURDF",  pybullet_loadURDF, METH_VARARGS,
+        "Create a multibody by loading a URDF file."},
+    
+    {"connect",  pybullet_connectPhysicsServer, METH_VARARGS,
+        "Connect to an existing physics server (using shared memory by default)."},
+    {"disconnect",  pybullet_disconnectPhysicsServer, METH_VARARGS,
+        "Disconnect from the physics server."},
+
+    {"resetSimulation",  pybullet_resetSimulation, METH_VARARGS,
+        "Reset the simulation: remove all objects and start from an empty world."},
+
+    {"stepSimulation",  pybullet_stepSimulation, METH_VARARGS,
+        "Step the simulation using forward dynamics."},
+    
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
@@ -92,16 +165,7 @@ PyMODINIT_FUNC
 initpybullet(void)
 {
 
-	b3PhysicsClientHandle h;
-
     PyObject *m;
-sm = b3ConnectSharedMemory(SHARED_MEMORY_KEY);
-
-//#ifdef __APPLE__
-//sm = b3CreateInProcessPhysicsServerAndConnectMainThread(0,0);
-//#else
-//sm = b3CreateInProcessPhysicsServerAndConnect(0,0);
-//#endif
     m = Py_InitModule("pybullet", SpamMethods);
     if (m == NULL)
         return;
