@@ -138,6 +138,8 @@ pybullet_resetSimulation(PyObject* self, PyObject* args)
         statusHandle = b3SubmitClientCommandAndWaitStatus(sm, b3InitResetSimulationCommand(sm));
 //        ASSERT_EQ(b3GetStatusType(statusHandle), CMD_RESET_SIMULATION_COMPLETED);
     }
+	return PyLong_FromLong(1);
+
 }
 
 static PyMethodDef SpamMethods[] = {

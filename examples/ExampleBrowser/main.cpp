@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 	b3Clock clock;
 	
 	
-	ExampleEntries examples;
+	ExampleEntriesAll examples;
 	examples.initExampleEntries();
 
 	ExampleBrowserInterface* exampleBrowser = new DefaultBrowser(&examples);

@@ -18,7 +18,7 @@ ADD_LIBRARY(pybullet ${pybullet_SRCS})
 SET_TARGET_PROPERTIES(pybullet PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(pybullet PROPERTIES SOVERSION ${BULLET_VERSION})
 
-  TARGET_LINK_LIBRARIES(pybullet BulletExampleBrowserLib BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen Bullet3Common)
+  TARGET_LINK_LIBRARIES(pybullet BulletExampleBrowserLib BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen Bullet3Common Python)
 ENDIF (BUILD_SHARED_LIBS)
 
 

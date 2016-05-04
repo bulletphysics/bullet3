@@ -185,44 +185,51 @@ IF (WIN32)
         INCLUDE_DIRECTORIES(
                 ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew
         )
-	IF (BUILD_SHARED_LIBS)
-		TARGET_LINK_LIBRARIES(
-			BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils 
-			BulletInverseDynamics LinearMath OpenGLWindow gwen
-                	${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
-		)
-	ENDIF (BUILD_SHARED_LIBS)
-	ADD_DEFINITIONS(-DGLEW_STATIC)
+				ADD_DEFINITIONS(-DGLEW_STATIC)
 ELSE(WIN32)
         IF(APPLE)
                 find_library(COCOA NAMES Cocoa)
-                MESSAGE(${COCOA})
-		IF (BUILD_SHARED_LIBS)
-                	TARGET_LINK_LIBRARIES(
-				BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
-                		BulletInverseDynamics LinearMath OpenGLWindow gwen
-				${COCOA} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
-			)
-  ELSE(APPLE)
-		ENDIF (BUILD_SHARED_LIBS)
+  			ELSE(APPLE)
                 ADD_DEFINITIONS("-DGLEW_INIT_OPENGL11_FUNCTIONS=1")
                 ADD_DEFINITIONS("-DGLEW_STATIC")
                 ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
                 INCLUDE_DIRECTORIES( ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew )
-	 	IF (BUILD_SHARED_LIBS)	
-			TARGET_LINK_LIBRARIES(
-				BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
-               	 		BulletInverseDynamics LinearMath OpenGLWindow gwen
-          			pthread dl
-			)
-		ENDIF(BUILD_SHARED_LIBS)
-        ENDIF(APPLE)
+     		ENDIF(APPLE)
 ENDIF(WIN32)
 
 
 ADD_LIBRARY(BulletExampleBrowserLib ${BulletExampleBrowser_SRCS} )
 SET_TARGET_PROPERTIES(BulletExampleBrowserLib PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(BulletExampleBrowserLib PROPERTIES SOVERSION ${BULLET_VERSION})
+IF (BUILD_SHARED_LIBS)
+		IF (WIN32)
+                TARGET_LINK_LIBRARIES(
+                        BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
+                        BulletInverseDynamics LinearMath OpenGLWindow gwen
+                        ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+                )
+		ELSE(WIN32)
+        IF(APPLE)
+                 TARGET_LINK_LIBRARIES(
+                                BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
+                                BulletInverseDynamics LinearMath OpenGLWindow gwen
+                                ${COCOA} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+                 )
+  			ELSE(APPLE)
+                 TARGET_LINK_LIBRARIES(
+                                BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
+                                BulletInverseDynamics LinearMath OpenGLWindow gwen
+                                pthread dl
+                        )
+        ENDIF(APPLE)
+	ENDIF(WIN32)
+ENDIF(BUILD_SHARED_LIBS)
+
+####################
+#
+# Bullet Example Browser main app
+#
+####################
 
 INCLUDE_DIRECTORIES(
         .
