@@ -187,7 +187,7 @@ IF (WIN32)
         )
 	IF (BUILD_SHARED_LIBS)
 		TARGET_LINK_LIBRARIES(
-			Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils 
+			BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils 
 			BulletInverseDynamics LinearMath OpenGLWindow gwen
                 	${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 		)
@@ -199,7 +199,7 @@ ELSE(WIN32)
                 MESSAGE(${COCOA})
 		IF (BUILD_SHARED_LIBS)
                 	TARGET_LINK_LIBRARIES(
-				Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
+				BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
                 		BulletInverseDynamics LinearMath OpenGLWindow gwen
 				${COCOA} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 			)
@@ -211,7 +211,7 @@ ELSE(WIN32)
                 INCLUDE_DIRECTORIES( ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew )
 	 	IF (BUILD_SHARED_LIBS)	
 			TARGET_LINK_LIBRARIES(
-				Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
+				BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
                	 		BulletInverseDynamics LinearMath OpenGLWindow gwen
           			pthread dl
 			)
