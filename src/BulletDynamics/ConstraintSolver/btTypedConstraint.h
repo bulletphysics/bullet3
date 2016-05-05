@@ -66,6 +66,7 @@ enum btConstraintParams
 
 ATTRIBUTE_ALIGNED16(struct)	btJointFeedback
 {
+	BT_DECLARE_ALIGNED_ALLOCATOR();
 	btVector3	m_appliedForceBodyA;
 	btVector3	m_appliedTorqueBodyA;
 	btVector3	m_appliedForceBodyB;

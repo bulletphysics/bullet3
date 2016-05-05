@@ -1,0 +1,105 @@
+<?xml version="0.0" ?>
+<robot name="urdf_door">
+ <link name="world"/>
+  <joint name="fixed" type="fixed">
+    <parent link="world"/>
+    <child link="baseLink"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+
+  <link name="baseLink">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0.35"/>
+       <mass value="1.0"/>
+       <inertia ixx="0.1" ixy="0" ixz="0" iyy="0.1" iyz="0" izz="0.1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.05 0 0.5"/>
+      <geometry>
+      <box size="0.1 0.1 1"/>
+      </geometry>
+	   <material name="framemat0">
+      <color
+                    rgba="0.9 0.4 0. 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.95 0 0.5"/>
+      <geometry>
+        <box size="0.1 0.1 1"/>
+      </geometry>
+	  <material name="framemat0"/>	 
+    </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.5 0 0.95"/>
+      <geometry>
+        <box size="1 0.1 0.1"/>
+      </geometry>
+	  <material name="framemat0"/>
+	  </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.5 0 0.05"/>
+      <geometry>
+        <box size="1 0.1 0.1"/>
+      </geometry>
+	  <material name="framemat0"/>
+	  </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0.05 0 0.5"/>
+      <geometry>
+        <box size="0.1 0.1 1"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 0" xyz="0.95 0 0.5"/>
+      <geometry>
+        <box size="0.1 0.1 1"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 0" xyz="0.5 0 0.95"/>
+      <geometry>
+        <box size="1 0.1 0.1"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 0" xyz="0.5 0 0.05"/>
+      <geometry>
+        <box size="1 0.1 0.1"/>
+      </geometry>
+    </collision>
+    
+  </link>
+   <link name="childA">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 -0.36"/>
+      <mass value="1.0"/>
+      <inertia ixx="0.048966669" ixy="0" ixz="0" iyy="0.046466667" iyz="0" izz="0.0041666669"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.4 0 0.4"/>
+      <geometry>
+        <box size="0.9  0.05 0.8"/>
+      </geometry>
+	   <material name="doormat0">
+      <color rgba="0.8 0.8 0.3 1" />
+      </material>
+
+	  </visual>
+     <collision>
+       <origin rpy="0 0 0" xyz="0.4 0 0.4"/>
+       <geometry>
+         <box size="0.9  0.05 0.8"/>
+       </geometry>
+     </collision>
+
+   </link>
+   <joint name="joint_baseLink_childA" type="continuous">
+    <parent link="baseLink"/>
+    <child link="childA"/>
+	<dynamics damping="1.0" friction="0.0001"/>
+    <origin xyz="0.05 0 0.1"/>
+		<axis xyz="0 0 1"/>
+  </joint>
+</robot>
+

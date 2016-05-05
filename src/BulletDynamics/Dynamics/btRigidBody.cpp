@@ -303,13 +303,6 @@ btVector3 btRigidBody::computeGyroscopicForceExplicit(btScalar maxGyroscopicForc
 	return gf;
 }
 
-void btSetCrossMatrixMinus(btMatrix3x3& res, const btVector3& a)
-{
-	const btScalar a_0 = a[0], a_1 = a[1], a_2 = a[2];
-	res.setValue(0, +a_2, -a_1,
-		-a_2, 0, +a_0,
-		+a_1, -a_0, 0);
-}
 
 btVector3 btRigidBody::computeGyroscopicImpulseImplicit_Body(btScalar step) const
 {	

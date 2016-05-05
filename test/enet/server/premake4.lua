@@ -5,8 +5,8 @@ project ("Test_enet_server")
 	language "C++"
 			
 	kind "ConsoleApp"
-	targetdir "../../../bin"
-	includedirs {"../../../btgui/enet/include"}
+	
+	includedirs {"../../../examples/ThirdPartyLibs/enet/include"}
 	
 	if os.is("Windows") then 
 			defines { "WIN32" }

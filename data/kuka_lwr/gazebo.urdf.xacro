@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface">
+
+  <gazebo>
+    <controller:gazebo_ros_controller_manager name="gazebo_controller_manager" plugin="libgazebo_ros_controller_manager.so">
+      <alwaysOn>true</alwaysOn>
+      <robotParam>robot_description</robotParam>
+      <updateRate>1000.0</updateRate>
+      <interface:audio name="gazebo_mechanism_control_dummy_iface" />
+    </controller:gazebo_ros_controller_manager>
+  </gazebo>
+
+</robot>

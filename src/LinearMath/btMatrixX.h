@@ -19,6 +19,7 @@ subject to the following restrictions:
 
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btAlignedObjectArray.h"
+#include <stdio.h>
 
 //#define BT_DEBUG_OSTREAM
 #ifdef BT_DEBUG_OSTREAM
@@ -94,7 +95,7 @@ struct btVectorX
 						{
 							T temp;
 							temp = scale / absxi;
-							ssq = ssq * (temp * temp) + 1.0;
+							ssq = ssq * (temp * temp) + BT_ONE;
 							scale = absxi;
 						}
 						else

@@ -214,7 +214,7 @@ void btConeTwistConstraint::getInfo2NonVirtual (btConstraintInfo2* info,const bt
 			}
 			// m_swingCorrection is always positive or 0
 			info->m_lowerLimit[srow] = 0;
-			info->m_upperLimit[srow] = SIMD_INFINITY;
+			info->m_upperLimit[srow] = (m_bMotorEnabled && m_maxMotorImpulse >= 0.0f) ? m_maxMotorImpulse : SIMD_INFINITY;
 			srow += info->rowskip;
 		}
 	}
@@ -778,8 +778,10 @@ void btConeTwistConstraint::calcAngleInfo2(const btTransform& transA, const btTr
 				target[2] = x * ivA[2] + y * jvA[2] + z * kvA[2];
 				target.normalize();
 				m_swingAxis = -ivB.cross(target);
-				m_swingCorrection = m_swingAxis.length();
-				m_swingAxis.normalize();
+                                m_swingCorrection = m_swingAxis.length();
+
+                                if (!btFuzzyZero(m_swingCorrection))
+                                    m_swingAxis.normalize();
 			}
 		}
 

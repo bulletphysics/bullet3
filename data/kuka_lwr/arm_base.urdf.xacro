@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<robot name="LWR">
+
+  <include filename="$(find lmtlwr)/model/kuka_lwr_arm.urdf.xacro"/>
+  <include filename="$(find lmtlwr)/model/gazebo.urdf.xacro"/>
+  <include filename="$(find lmtlwr)/model/materials.xml"/>
+-
+
+  <kuka_lwr_arm parent="base_link" name="lwr" right="1" tool_name="">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </kuka_lwr_arm>
+  
+  <link name="base_link" />
+
+  <link name="table">
+      <visual>
+      <origin xyz="0 0 -0.02"/>
+      <geometry>
+          <box size="2 2 0.04"/>
+      </geometry>
+      <material name="wood">
+          <texture filename="package://lmtlwr/model/wood.jpg"/>
+          <color rgba="0.65 0.5 0.4 0.8"/>
+      </material>
+    </visual>  
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="2 2 0.03"/>
+      </geometry>
+    </collision>
+  </link>
+
+- <link name="aluplate">
+    <visual>
+      <origin xyz="0 0 -0.0075" />
+      <geometry>
+          <box size="0.275 0.275 0.015" xyz="0.2 0.2 0.0"/>
+      </geometry>
+      <material name="Silver" />
+    </visual>  
+  </link>
+  
+  <link name="lwr_tool">
+    <visual>
+        <origin xyz="0 0 0" />
+        <geometry>
+        <mesh filename="package://lmtlwr/model/tools/jr3-stabilo.dae" scale="0.0254 0.0254 0.0254"/>
+        </geometry>
+    </visual>
+  </link>
+  
+  <link name="lwr_tool_tcp" />
+
+  <joint name="arm7_to_tcp" type="fixed">
+      <parent link="lwr_arm_7_link" />
+      <child link="lwr_tool_tcp"/>
+      <origin xyz="-0.028 0.010 0.203" />
+  </joint>
+  
+  <joint name="arm7_to_tool" type="fixed">
+      <parent link="lwr_arm_7_link" />
+      <child link="lwr_tool"/>
+      <origin xyz="0 0 0" />
+  </joint>
+  
+  <joint name="table_to_base" type="fixed">
+      <parent link="table" />
+      <child link="aluplate"/>
+      <origin xyz="0 0 0.015" />
+  </joint>
+  
+  <joint name="aluplate_to_base" type="fixed">
+      <parent link="aluplate" />
+      <child link="base_link"/>
+      <origin xyz="0 0 0" rpy="0 0 45" />
+  </joint>
+  
+  
+</robot>

@@ -1,0 +1,13 @@
+
+INCLUDE_DIRECTORIES(
+	.
+	src
+)
+
+FILE(GLOB_RECURSE lua-5.2.3_SRCS "src/*.c")
+
+ADD_DEFINITIONS(-DLUA_COMPAT_ALL)
+
+FILE(GLOB_RECURSE lua-5.2.3_HDRS "src/*.h")
+
+ADD_LIBRARY(lua-5.2.3 ${lua-5.2.3_SRCS} ${lua-5.2.3_HDRS})

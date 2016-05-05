@@ -20,6 +20,8 @@ inline int b3AtomicAdd (volatile int *p, int val)
 }
 
 #define __global 
+
+#define B3_STATIC static
 #else
 //keep B3_LARGE_FLOAT*B3_LARGE_FLOAT < FLT_MAX
 #define B3_LARGE_FLOAT 1e18f
@@ -32,6 +34,8 @@ inline int b3AtomicAdd (volatile int *p, int val)
 #define b3Sqrt native_sqrt
 #define b3Sin native_sin
 #define b3Cos native_cos
+
+#define B3_STATIC
 #endif
 
 #endif

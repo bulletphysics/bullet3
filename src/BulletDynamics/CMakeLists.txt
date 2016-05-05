@@ -98,7 +98,7 @@ SET(MLCPSolvers_HDRS
 	MLCPSolvers/btMLCPSolver.h
 	MLCPSolvers/btMLCPSolverInterface.h
 	MLCPSolvers/btPATHSolver.h
-	MLCPSolvers/btSolveProjectedGaussSeidel.h	
+	MLCPSolvers/btSolveProjectedGaussSeidel.h
 	MLCPSolvers/btLemkeSolver.h
 	MLCPSolvers/btLemkeAlgorithm.h
 )

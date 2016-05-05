@@ -17,8 +17,8 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 // Auto generated from Bullet/Extras/HeaderGenerator/bulletGenerate.py
-#ifndef __BULLET_H__
-#define __BULLET_H__
+#ifndef __BULLET2_H__
+#define __BULLET2_H__
 namespace Bullet3SerializeBullet2 {
 
 // put an empty struct in the case
@@ -1050,4 +1050,4 @@ typedef struct bInvalidHandle {
 
 
 }
-#endif//__BULLET_H__
+#endif//__BULLET2_H__

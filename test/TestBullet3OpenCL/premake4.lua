@@ -12,7 +12,7 @@ function createProject(vendor)
 	end
 	
 	
-	targetdir "../../bin"
+	
 	
 	initOpenCL(vendor)
 	
@@ -20,6 +20,7 @@ function createProject(vendor)
 	{
 		".","../gtest-1.7.0/include",
 		"../../src",
+		"../../examples/ThirdPartyLibs", --for unzip
 	}
 
 	links {"gtest",
@@ -34,8 +35,8 @@ function createProject(vendor)
 	--you can comment out the following few lines, then you need to unzip the untest_data.zip manually
 	defines {"B3_USE_ZLIB"}		
 	files {
-		"../../btgui/minizip/*.c",
-		"../../btgui/zlib/*.c",
+		"../../examples/ThirdPartyLibs/minizip/*.c",
+		"../../examples/ThirdPartyLibs/zlib/*.c",
 	}
 	
 	files {
