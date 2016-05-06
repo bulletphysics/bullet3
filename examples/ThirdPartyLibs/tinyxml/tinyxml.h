@@ -348,7 +348,7 @@ protected:
 		{
 			//strncpy( _value, p, *length );	// lots of compilers don't like this function (unsafe),
 												// and the null terminator isn't needed
-			for( int i=0; p[i] && i<*length; ++i ) {
+			for( int i=0; i<*length && p[i] ; ++i ) {
 				_value[i] = p[i];
 			}
 			return p + (*length);

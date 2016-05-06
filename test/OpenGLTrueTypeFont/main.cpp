@@ -396,13 +396,13 @@ int main(int argc, char* argv[])
     const char* fontPath = "./";
 #endif
     
+#ifdef LOAD_FONT_FROM_FILE
     char fullFontFileName[1024];
     sprintf(fullFontFileName,"%s%s",fontPath,"DroidSerif-Regular.ttf");//cour.ttf");//times.ttf");//DroidSerif-Regular.ttf");
 	//sprintf(fullFontFileName,"%s%s",fontPath,"arial.ttf");//cour.ttf");//times.ttf");//DroidSerif-Regular.ttf");
     
 	fp = fopen(fullFontFileName, "rb");
-#ifdef LOAD_FONT_FROM_FILE
-		unsigned char* data;
+	unsigned char* data;
     err = glGetError();
     b3Assert(err==GL_NO_ERROR);
     

@@ -739,7 +739,7 @@ void LoadMeshFromColladaAssimp(const char* relativeFileName, btAlignedObjectArra
 				}
 			}
 		}
-		
+		fclose(file);
 	}
 	
 }
