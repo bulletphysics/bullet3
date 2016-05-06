@@ -22,7 +22,7 @@ subject to the following restrictions:
 #include "LinearMath/btAlignedObjectArray.h" 
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 
-#include "../../Utils/b3ResourcePath.h"
+#include "../Utils/b3ResourcePath.h"
 #include "Bullet3Common/b3FileUtils.h"
 #include "../Importers/ImportObjDemo/LoadMeshFromObj.h"
 #include "../OpenGLWindow/GLInstanceGraphicsShape.h"
