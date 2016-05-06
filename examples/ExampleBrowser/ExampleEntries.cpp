@@ -54,7 +54,14 @@
 #endif
 #endif //B3_USE_CLEW
 
-
+//Extended Tutorial Includes Added by Mobeen
+#include "../ExtendedTutorials/SimpleBox.h"
+#include "../ExtendedTutorials/MultipleBoxes.h"
+#include "../ExtendedTutorials/SimpleJoint.h"
+#include "../ExtendedTutorials/SimpleCloth.h"
+#include "../ExtendedTutorials/Chain.h"
+#include "../ExtendedTutorials/Bridge.h"
+#include "../ExtendedTutorials/RigidBodyFromObj.h" 
 
 struct ExampleEntry
 {
@@ -78,11 +85,12 @@ struct ExampleEntry
 
 static ExampleEntry gDefaultExamples[]=
 {
-	
-	
-	
-	
+	 
 	ExampleEntry(0,"API"),
+	ExampleEntry(1,"Obj2RigidBody (Show Obj)", "Load a triangle mesh from Wavefront .obj and turn it in a convex hull collision shape, connected to a rigid body. We can use the original .obj mesh data to visualize the rigid body. In 'debug' wireframe mode (press 'w' to toggle) we still see the convex hull data.", ET_RigidBodyFromObjCreateFunc,ObjUseConvexHullForRendering),
+	ExampleEntry(1,"Obj2RigidBody (Show Hull)", "Load a triangle mesh from Wavefront .obj and turn it in a convex hull collision shape, connected to a rigid body", ET_RigidBodyFromObjCreateFunc),
+	ExampleEntry(1,"Obj2RigidBody Optimize", "Load a triangle mesh from Wavefront .obj, remove the vertices that are not on the convex hull", ET_RigidBodyFromObjCreateFunc,OptimizeConvexObj),
+	ExampleEntry(1,"Obj2RigidBody Add Features", "Load a triangle mesh from Wavefront .obj and create polyhedral features to perform the separating axis test (instead of GJK/MPR). It is best to combine optimization and polyhedral feature generation.", ET_RigidBodyFromObjCreateFunc,OptimizeConvexObj+ComputePolyhedralFeatures),
 
 	ExampleEntry(1,"Basic Example","Create some rigid bodies using box collision shapes. This is a good example to familiarize with the basic initialization of Bullet. The Basic Example can also be compiled without graphical user interface, as a console application. Press W for wireframe, A to show AABBs, I to suspend/restart physics simulation. Press D to toggle auto-deactivation of the simulation. ", BasicExampleCreateFunc),
 
@@ -252,8 +260,18 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(0,"Rendering"),
 	ExampleEntry(1,"Instanced Rendering", "Simple example of fast instanced rendering, only active when using OpenGL3+.",RenderInstancingCreateFunc),
 	ExampleEntry(1,"CoordinateSystemDemo","Show the axis and positive rotation direction around the axis.", CoordinateSystemCreateFunc),
-	ExampleEntry(1,"Time Series", "Render some value(s) in a 2D graph window, shifting to the left", TimeSeriesCreateFunc)
+	ExampleEntry(1,"Time Series", "Render some value(s) in a 2D graph window, shifting to the left", TimeSeriesCreateFunc),
 	
+	//Extended Tutorials Added by Mobeen
+	ExampleEntry(0,"Extended Tutorials"),
+	ExampleEntry(1,"Simple Box", "Simplest possible demo creating a single box rigid body that falls under gravity", ET_SimpleBoxCreateFunc),
+	ExampleEntry(1,"Multiple Boxes", "Adding multiple box rigid bodies that fall under gravity", ET_MultipleBoxesCreateFunc),
+	ExampleEntry(1,"Simple Joint", "Creating a single distance constraint between two box rigid bodies", ET_SimpleJointCreateFunc),
+	ExampleEntry(1,"Simple Cloth", "Creating a simple piece of cloth", ET_SimpleClothCreateFunc),
+	ExampleEntry(1,"Simple Chain", "Creating a simple chain using a pair of point2point/distance constraints. You may click and drag any box to see the chain respond.", ET_ChainCreateFunc),
+	ExampleEntry(1,"Simple Bridge", "Creating a simple bridge using a pair of point2point/distance constraints. You may click and drag any plank to see the bridge respond.", ET_BridgeCreateFunc),
+	
+
 };
 
 #ifdef B3_USE_CLEW

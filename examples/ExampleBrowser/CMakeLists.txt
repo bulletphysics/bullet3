@@ -7,7 +7,15 @@ INCLUDE_DIRECTORIES(
 
 FILE(GLOB GwenGUISupport_SRCS  "GwenGUISupport/*" )
 FILE(GLOB GwenGUISupport_HDRS  "GwenGUISupport/*" )
-
+SET(ExtendedTutorialsSources 	
+	../ExtendedTutorials/SimpleBox.cpp
+	../ExtendedTutorials/MultipleBoxes.cpp
+	../ExtendedTutorials/SimpleJoint.cpp
+	../ExtendedTutorials/SimpleCloth.cpp
+	../ExtendedTutorials/Chain.cpp 
+	../ExtendedTutorials/Bridge.cpp 
+	../ExtendedTutorials/RigidBodyFromObj.cpp 
+)
 
 SET(BulletExampleBrowser_SRCS
 	OpenGLExampleBrowser.cpp
@@ -178,6 +186,7 @@ SET(BulletExampleBrowser_SRCS
 	../Utils/b3ResourcePath.h
 	${GwenGUISupport_SRCS}
 	${GwenGUISupport_HDRS}
+	${ExtendedTutorialsSources}
 	${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc
 )
 
