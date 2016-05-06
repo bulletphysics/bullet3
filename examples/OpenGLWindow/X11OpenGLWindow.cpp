@@ -1076,6 +1076,20 @@ b3KeyboardCallback      X11OpenGLWindow::getKeyboardCallback()
 	return m_data->m_keyboardCallback;
 }
 
+int   X11OpenGLWindow::getWidth() const
+{
+    if (m_data)
+        return m_data->m_glWidth;
+    return 0;
+}
+int   X11OpenGLWindow::getHeight() const
+{
+    if (m_data)
+        return m_data->m_glHeight;
+    return 0;
+}
+
+
 #include <stdio.h>
 
 int X11OpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)
