@@ -35,7 +35,11 @@ int main(int argc, char* argv[])
 	CommonExampleInterface*    example = StandaloneExampleCreateFunc(options);
 	
 	example->initPhysics();
-	example->stepSimulation(1.f/60.f);
+	for (int i=0;i<1000;i++)
+	{
+		printf("Simulating step %d\n",i);
+		example->stepSimulation(1.f/60.f);
+	}
 	example->exitPhysics();
 
 	delete example;

@@ -501,6 +501,7 @@ CommonParameterInterface* OpenGLGuiHelper::getParameterInterface()
 void OpenGLGuiHelper::setUpAxis(int axis)
 {
 	m_data->m_glApp->setUpAxis(axis);
+
 }
 
 void OpenGLGuiHelper::resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ)

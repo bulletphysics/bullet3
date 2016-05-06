@@ -1,6 +1,6 @@
 #include "MyMultiBodyCreator.h"
 
-#include "../CommonInterfaces/CommonGUIHelperInterface.h"
+#include "../../CommonInterfaces/CommonGUIHelperInterface.h"
 
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
