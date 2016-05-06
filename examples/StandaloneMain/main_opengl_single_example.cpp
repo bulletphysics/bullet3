@@ -41,19 +41,22 @@ int main(int argc, char* argv[])
     
 	CommonExampleOptions options(&gui);
 	CommonExampleInterface*    example = StandaloneExampleCreateFunc(options);
-        
-	example->initPhysics();
-
+    example->initPhysics();
+	example->resetCamera();
+	
 	do
 	{
 		app->m_instancingRenderer->init();
-        app->m_instancingRenderer->updateCamera();
+        app->m_instancingRenderer->updateCamera(app->getUpAxis());
 
 		example->stepSimulation(1./60.);
 	  	
 		example->renderScene();
  	
-		app->drawGrid();
+		DrawGridData dg;
+        dg.upAxis = app->getUpAxis();
+		app->drawGrid(dg);
+		
 		app->swapBuffer();
 	} while (!app->m_window->requestedExit());
 

@@ -1,6 +1,6 @@
 #include "UrdfParser.h"
 
-#include "tinyxml/tinyxml.h"
+#include "../../ThirdPartyLibs/tinyxml/tinyxml.h"
 #include "urdfStringSplit.h"
 #include "urdfLexicalCast.h"
 

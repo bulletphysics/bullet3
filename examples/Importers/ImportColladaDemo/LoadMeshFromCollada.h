@@ -21,7 +21,7 @@ subject to the following restrictions:
 
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btTransform.h"
-#include "../OpenGLWindow/GLInstanceGraphicsShape.h"
+#include "../../OpenGLWindow/GLInstanceGraphicsShape.h"
 #include "ColladaGraphicsInstance.h"
 
 

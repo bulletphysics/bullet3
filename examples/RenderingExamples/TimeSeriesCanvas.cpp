@@ -72,13 +72,14 @@ struct TimeSeriesInternalData
 
 TimeSeriesCanvas::TimeSeriesCanvas(struct Common2dCanvasInterface* canvasInterface, int width, int height, const char* windowTitle)
 {
-	btAssert(canvasInterface);
-
 	m_internalData = new TimeSeriesInternalData(width,height);
 	
 	m_internalData->m_canvasInterface = canvasInterface;
-	
-	m_internalData->m_canvasIndex = m_internalData->m_canvasInterface->createCanvas(windowTitle,m_internalData->m_width,m_internalData->m_height);
+
+	if (canvasInterface)
+	{
+		m_internalData->m_canvasIndex = m_internalData->m_canvasInterface->createCanvas(windowTitle,m_internalData->m_width,m_internalData->m_height);
+	}
 }
 
 void TimeSeriesCanvas::addDataSource(const char* dataSourceLabel, unsigned char red,unsigned char green,unsigned char blue)
@@ -105,6 +106,9 @@ void TimeSeriesCanvas::addDataSource(const char* dataSourceLabel, unsigned char 
 }
 void TimeSeriesCanvas::setupTimeSeries(float yScale, int ticksPerSecond, int startTime)
 {
+	if (0==m_internalData->m_canvasInterface)
+		return;
+
 	m_internalData->m_pixelsPerUnit = -(m_internalData->m_height/3.f)/yScale;
 	m_internalData->m_ticksPerSecond = ticksPerSecond;
 	m_internalData->m_yScale = yScale;
@@ -282,6 +286,9 @@ void TimeSeriesCanvas::shift1PixelToLeft()
 
 void TimeSeriesCanvas::insertDataAtCurrentTime(float orgV, int dataSourceIndex, bool connectToPrevious)
 {
+	if (0==m_internalData->m_canvasInterface)
+		return;
+
 	btAssert(dataSourceIndex < m_internalData->m_dataSources.size());
 
 	float zero = m_internalData->m_zero;

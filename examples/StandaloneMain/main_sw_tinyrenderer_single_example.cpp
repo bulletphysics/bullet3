@@ -111,8 +111,8 @@ public:
    	    if (shapeIndex>=0)
         {
             TinyRenderObjectData* swObj = new TinyRenderObjectData(m_swWidth,m_swHeight,m_rgbColorBuffer,m_depthBuffer);
-            //swObj->registerMeshShape(vertices,numvertices,indices,numIndices);
-						swObj->createCube(1,1,1);//MeshShape(vertices,numvertices,indices,numIndices);
+            swObj->registerMeshShape(vertices,numvertices,indices,numIndices);
+			//swObj->createCube(1,1,1);//MeshShape(vertices,numvertices,indices,numIndices);
             m_swRenderObjects.insert(shapeIndex,swObj);
         }
    	    return shapeIndex;
@@ -242,18 +242,20 @@ int main(int argc, char* argv[])
 	CommonExampleInterface*    example = StandaloneExampleCreateFunc(options);
         
 	example->initPhysics();
-
+	example->resetCamera();
 	do
 	{
 		app->m_instancingRenderer->init();
-        app->m_instancingRenderer->updateCamera();
+        app->m_instancingRenderer->updateCamera(app->getUpAxis());
 
 		example->stepSimulation(1./60.);
 		
 	  	
 		example->renderScene();
  	
-		app->drawGrid();
+		DrawGridData dg;
+        dg.upAxis = app->getUpAxis();
+		app->drawGrid(dg);
 		app->swapBuffer();
 	} while (!app->m_window->requestedExit());
 
