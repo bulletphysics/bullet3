@@ -86,7 +86,7 @@ void RigidBodyFromObjExample::initPhysics()
 	printf("[INFO] Obj loaded: Extracted %d verticed from obj file [%s]\n", glmesh->m_numvertices, fileName);
 
 	const GLInstanceVertex& v = glmesh->m_vertices->at(0);
-	btConvexHullShape* shape = new btConvexHullShape(&v.xyzw[0], glmesh->m_numvertices, sizeof(GLInstanceVertex));
+	btConvexHullShape* shape = new btConvexHullShape(&(v.xyzw[0]), glmesh->m_numvertices, sizeof(GLInstanceVertex));
 	
 	shape->setLocalScaling(btVector3(0.1,0.1,0.1));
 	    
