@@ -2,7 +2,7 @@
 #ifndef LOAD_MESH_FROM_STL_H
 #define LOAD_MESH_FROM_STL_H
 
-#include "../OpenGLWindow/GLInstanceGraphicsShape.h"
+#include "../../OpenGLWindow/GLInstanceGraphicsShape.h"
 #include <stdio.h> //fopen
 #include "Bullet3Common/b3AlignedObjectArray.h"
 

@@ -193,7 +193,7 @@
 
 		include "../examples/HelloWorld"
 		include "../examples/BasicDemo"
-
+		include "../examples/InverseDynamics"
 		include "../examples/SharedMemory"
 		include "../examples/MultiThreading"
 

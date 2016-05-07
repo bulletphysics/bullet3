@@ -69,8 +69,8 @@ struct Shader : public IShader {
 
         Vec3f n = (B*m_model->normal(uv)).normalize();
 
-        //float diff = b3Min(b3Max(0.f, n*m_light_dir_local+0.3f),1.f);
-		float diff = b3Max(0.f, n*m_light_dir_local);
+        float diff = b3Min(b3Max(0.f, n*m_light_dir_local+0.3f),1.f);
+		//float diff = b3Max(0.f, n*m_light_dir_local);
         color = m_model->diffuse(uv)*diff;
 
         return false;

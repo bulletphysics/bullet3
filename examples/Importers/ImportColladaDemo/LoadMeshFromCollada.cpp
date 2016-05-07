@@ -20,7 +20,7 @@ subject to the following restrictions:
 #include <stdio.h> //fopen
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include <string>
-#include "tinyxml/tinyxml.h"
+#include "../../ThirdPartyLibs/tinyxml/tinyxml.h"
 
 #include "Bullet3Common/b3FileUtils.h"
 #include "LinearMath/btHashMap.h"
