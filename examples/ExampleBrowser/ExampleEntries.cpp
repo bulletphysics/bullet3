@@ -87,10 +87,6 @@ static ExampleEntry gDefaultExamples[]=
 {
 	 
 	ExampleEntry(0,"API"),
-	ExampleEntry(1,"Obj2RigidBody (Show Obj)", "Load a triangle mesh from Wavefront .obj and turn it in a convex hull collision shape, connected to a rigid body. We can use the original .obj mesh data to visualize the rigid body. In 'debug' wireframe mode (press 'w' to toggle) we still see the convex hull data.", ET_RigidBodyFromObjCreateFunc,ObjUseConvexHullForRendering),
-	ExampleEntry(1,"Obj2RigidBody (Show Hull)", "Load a triangle mesh from Wavefront .obj and turn it in a convex hull collision shape, connected to a rigid body", ET_RigidBodyFromObjCreateFunc),
-	ExampleEntry(1,"Obj2RigidBody Optimize", "Load a triangle mesh from Wavefront .obj, remove the vertices that are not on the convex hull", ET_RigidBodyFromObjCreateFunc,OptimizeConvexObj),
-	ExampleEntry(1,"Obj2RigidBody Add Features", "Load a triangle mesh from Wavefront .obj and create polyhedral features to perform the separating axis test (instead of GJK/MPR). It is best to combine optimization and polyhedral feature generation.", ET_RigidBodyFromObjCreateFunc,OptimizeConvexObj+ComputePolyhedralFeatures),
 
 	ExampleEntry(1,"Basic Example","Create some rigid bodies using box collision shapes. This is a good example to familiarize with the basic initialization of Bullet. The Basic Example can also be compiled without graphical user interface, as a console application. Press W for wireframe, A to show AABBs, I to suspend/restart physics simulation. Press D to toggle auto-deactivation of the simulation. ", BasicExampleCreateFunc),
 
@@ -203,6 +199,10 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(0,"Importers"),
 	ExampleEntry(1,"Import .bullet", "Load a binary .bullet file. The serialization mechanism can deal with versioning, differences in endianess, 32 and 64bit, double/single precision. It is easy to save a .bullet file, see the examples/Importers/ImportBullet/SerializeDemo.cpp for a code example how to export a .bullet file.", SerializeBulletCreateFunc),
 	ExampleEntry(1,"Wavefront Obj", "Import a Wavefront .obj file", ImportObjCreateFunc, 0),
+	ExampleEntry(1,"Obj2RigidBody (Show Obj)", "Load a triangle mesh from Wavefront .obj and turn it in a convex hull collision shape, connected to a rigid body. We can use the original .obj mesh data to visualize the rigid body. In 'debug' wireframe mode (press 'w' to toggle) we still see the convex hull data.", ET_RigidBodyFromObjCreateFunc),
+	ExampleEntry(1,"Obj2RigidBody (Show Hull)", "Load a triangle mesh from Wavefront .obj and turn it in a convex hull collision shape, connected to a rigid body", ET_RigidBodyFromObjCreateFunc,ObjUseConvexHullForRendering),
+	ExampleEntry(1,"Obj2RigidBody Optimize", "Load a triangle mesh from Wavefront .obj, remove the vertices that are not on the convex hull", ET_RigidBodyFromObjCreateFunc,OptimizeConvexObj),
+
 	ExampleEntry(1,"Quake BSP", "Import a Quake .bsp file", ImportBspCreateFunc, 0),
 	ExampleEntry(1,"COLLADA dae", "Import the geometric mesh data from a COLLADA file. This is used as part of the URDF importer. This loader can also be used to import collision geometry in general. ", 
 					ImportColladaCreateFunc, 0),
@@ -211,6 +211,7 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"URDF (MultiBody)", "Import a URDF file and create a single multibody (btMultiBody) with tree hierarchy of links (mobilizers).", 
 					ImportURDFCreateFunc, 1),
 
+	
 	ExampleEntry(0,"Vehicles"),
 	ExampleEntry(1,"Hinge2 Vehicle", "A rigid body chassis with 4 rigid body wheels attached by a btHinge2Constraint",Hinge2VehicleCreateFunc),
 	ExampleEntry(1,"ForkLift","Simulate a fork lift vehicle with a working fork lift that can be moved using the cursor keys. The wheels collision is simplified using ray tests."
@@ -225,13 +226,6 @@ static ExampleEntry gDefaultExamples[]=
 	
 
 	ExampleEntry(0,"Experiments"),
-	
-//	ExampleEntry(1,"Robot Control (Velocity)", "Perform some robot control tasks, using physics server and client that communicate over shared memory",
-//			RobotControlExampleCreateFunc,ROBOT_VELOCITY_CONTROL),
-//	ExampleEntry(1,"Robot Control (PD)", "Perform some robot control tasks, using physics server and client that communicate over shared memory",
-//			RobotControlExampleCreateFunc,ROBOT_PD_CONTROL),
-//	ExampleEntry(1,"Robot Joint Feedback", "Apply some small ping-pong target velocity jitter, and read the joint reaction forces, using physics server and client that communicate over shared memory.",
-		//	RobotControlExampleCreateFunc,ROBOT_PING_PONG_JOINT_FEEDBACK),
 	
 	ExampleEntry(1,"Physics Server", "Create a physics server that communicates with a physics client over shared memory",
 			PhysicsServerCreateFunc),
@@ -271,6 +265,10 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Simple Chain", "Creating a simple chain using a pair of point2point/distance constraints. You may click and drag any box to see the chain respond.", ET_ChainCreateFunc),
 	ExampleEntry(1,"Simple Bridge", "Creating a simple bridge using a pair of point2point/distance constraints. You may click and drag any plank to see the bridge respond.", ET_BridgeCreateFunc),
 	
+	//todo: create a category/tutorial about advanced topics, such as optimizations, using different collision detection algorithm, different constraint solvers etc.
+	//ExampleEntry(0,"Advanced"),
+	//ExampleEntry(1,"Obj2RigidBody Add Features", "Load a triangle mesh from Wavefront .obj and create polyhedral features to perform the separating axis test (instead of GJK/MPR). It is best to combine optimization and polyhedral feature generation.", ET_RigidBodyFromObjCreateFunc,OptimizeConvexObj+ComputePolyhedralFeatures),
+
 
 };
 

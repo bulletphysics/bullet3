@@ -120,10 +120,10 @@ void RigidBodyFromObjExample::initPhysics()
 	 
 	btVector3 color(1,1,1);
 	btVector3 scaling(0.1,0.1,0.1);
-	bool useObjForRendering = ((m_options & ObjUseConvexHullForRendering)!=0);
+	bool useConvexHullForRendering = ((m_options & ObjUseConvexHullForRendering)!=0);
     
 	    
-	if (useObjForRendering)
+	if (!useConvexHullForRendering)
     {
         int shapeId = m_guiHelper->getRenderInterface()->registerShape(&glmesh->m_vertices->at(0).xyzw[0], 
                                                                         glmesh->m_numvertices, 
