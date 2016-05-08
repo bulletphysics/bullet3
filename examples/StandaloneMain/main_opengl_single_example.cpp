@@ -31,17 +31,49 @@ subject to the following restrictions:
 #include <stdio.h>
 #include "../ExampleBrowser/OpenGLGuiHelper.h"
 
+CommonExampleInterface*    example;
+
+b3MouseMoveCallback prevMouseMoveCallback = 0;
+static void OnMouseMove( float x, float y)
+{
+	bool handled = false; 
+	handled = example->mouseMoveCallback(x,y); 	 
+	if (!handled)
+	{
+		if (prevMouseMoveCallback)
+			prevMouseMoveCallback (x,y);
+	}
+}
+
+b3MouseButtonCallback prevMouseButtonCallback  = 0;
+static void OnMouseDown(int button, int state, float x, float y) {
+	bool handled = false;
+
+	handled = example->mouseButtonCallback(button, state, x,y); 
+	if (!handled)
+	{
+		if (prevMouseButtonCallback )
+			prevMouseButtonCallback (button,state,x,y);
+	}
+}
 
 int main(int argc, char* argv[])
 {
 
 	SimpleOpenGL3App* app = new SimpleOpenGL3App("Bullet Standalone Example",1024,768,true);
 	
+	prevMouseButtonCallback = app->m_window->getMouseButtonCallback();
+	prevMouseMoveCallback = app->m_window->getMouseMoveCallback();
+
+	app->m_window->setMouseButtonCallback((b3MouseButtonCallback)OnMouseDown);
+	app->m_window->setMouseMoveCallback((b3MouseMoveCallback)OnMouseMove);
+	
 	OpenGLGuiHelper gui(app,false);
     
 	CommonExampleOptions options(&gui);
-	CommonExampleInterface*    example = StandaloneExampleCreateFunc(options);
-    example->initPhysics();
+
+	example = StandaloneExampleCreateFunc(options);
+  example->initPhysics();
 	example->resetCamera();
 	
 	do

@@ -136,6 +136,7 @@ project "BulletExampleBrowserLib"
 		"../InverseDynamics/InverseDynamicsExample.h",
 		"../BasicDemo/BasicExample.*",
 		"../Tutorial/*",
+		"../ExtendedTutorials/*",
 		"../Collision/*",
 		"../Collision/Internal/*",
 		"../Benchmarks/*",
