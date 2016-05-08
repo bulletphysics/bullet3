@@ -27,17 +27,19 @@ struct MyButtonEventHandler : public Gwen::Event::Handler
 template<typename T>
 struct MySliderEventHandler : public Gwen::Event::Handler
 {
+	SliderParamChangedCallback m_callback;
 	Gwen::Controls::TextBox* m_label;
 	Gwen::Controls::Slider* m_pSlider;
 	char m_variableName[1024];
 	T* m_targetValue;
     bool m_showValue;
 
-	MySliderEventHandler(const char* varName, Gwen::Controls::TextBox* label, Gwen::Controls::Slider* pSlider,T* target)
+	MySliderEventHandler(const char* varName, Gwen::Controls::TextBox* label, Gwen::Controls::Slider* pSlider,T* target,SliderParamChangedCallback callback)
 		:m_label(label),
 		m_pSlider(pSlider),
 		m_targetValue(target),
-        m_showValue(true)
+        m_showValue(true),
+		m_callback(callback)
 	{
 		memcpy(m_variableName,varName,strlen(varName)+1);
 	}
@@ -50,6 +52,11 @@ struct MySliderEventHandler : public Gwen::Event::Handler
 		float bla = pSlider->GetValue();
 		T v = T(bla);
 		SetValue(v);
+
+		if (m_callback)
+		{
+			(*m_callback)(v);
+		}
 
 	}
 
@@ -219,7 +226,7 @@ void GwenParameterInterface::registerSliderFloatParameter(SliderParams& params)
 	pSlider->SetValue( *params.m_paramValuePointer);//dimensions[i] );
 	char labelName[1024];
 	sprintf(labelName,"%s",params.m_name);//axisNames[0]);
-	MySliderEventHandler<btScalar>* handler = new MySliderEventHandler<btScalar>(labelName,label,pSlider,params.m_paramValuePointer);
+	MySliderEventHandler<btScalar>* handler = new MySliderEventHandler<btScalar>(labelName,label,pSlider,params.m_paramValuePointer,params.m_callback);
     handler->m_showValue = params.m_showValues;
 	m_paramInternalData->m_sliderEventHandlers.push_back(handler);
 
