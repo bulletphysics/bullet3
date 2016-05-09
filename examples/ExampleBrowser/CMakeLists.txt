@@ -282,6 +282,14 @@ ADD_EXECUTABLE(App_ExampleBrowser
 		ExampleEntries.h
 )
 
+FILE( MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/data" )
+
+ADD_CUSTOM_COMMAND(
+                TARGET App_ExampleBrowser
+                POST_BUILD
+                COMMAND ${CMAKE_COMMAND} ARGS -E copy_directory ${BULLET_PHYSICS_SOURCE_DIR}/data ${PROJECT_BINARY_DIR}/data
+        )
+
 
 IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
 			SET_TARGET_PROPERTIES(App_ExampleBrowser PROPERTIES  DEBUG_POSTFIX "_Debug")
