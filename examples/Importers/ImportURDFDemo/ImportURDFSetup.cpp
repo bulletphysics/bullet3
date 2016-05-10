@@ -163,7 +163,7 @@ static btVector4 colors[4] =
 };
 
 
-btVector3 selectColor()
+static btVector3 selectColor()
 {
 
 	static int curColor = 0;

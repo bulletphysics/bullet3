@@ -133,10 +133,68 @@ bool BulletURDFImporter::loadURDF(const char* fileName, bool forceFixedBase)
     }
 
 	BulletErrorLogger loggie;
+    m_data->m_urdfParser.setParseSDF(false);
 	bool result = m_data->m_urdfParser.loadUrdf(xml_string.c_str(), &loggie, forceFixedBase);
 
 	return result;
 }
+
+int BulletURDFImporter::getNumModels() const
+{
+    return m_data->m_urdfParser.getNumModels();
+}
+
+void BulletURDFImporter::activateModel(int modelIndex)
+{
+    m_data->m_urdfParser.activateModel(modelIndex);
+}
+
+
+bool BulletURDFImporter::loadSDF(const char* fileName, bool forceFixedBase)
+{
+    
+    m_data->m_linkColors.clear();
+    
+    
+    //int argc=0;
+    char relativeFileName[1024];
+    
+    b3FileUtils fu;
+    
+    //bool fileFound = fu.findFile(fileName, relativeFileName, 1024);
+    bool fileFound = b3ResourcePath::findResourcePath(fileName,relativeFileName,1024);
+    
+    std::string xml_string;
+    m_data->m_pathPrefix[0] = 0;
+    
+    if (!fileFound){
+        std::cerr << "URDF file not found" << std::endl;
+        return false;
+    } else
+    {
+        
+        int maxPathLen = 1024;
+        fu.extractPath(relativeFileName,m_data->m_pathPrefix,maxPathLen);
+        
+        
+        std::fstream xml_file(relativeFileName, std::fstream::in);
+        while ( xml_file.good() )
+        {
+            std::string line;
+            std::getline( xml_file, line);
+            xml_string += (line + "\n");
+        }
+        xml_file.close();
+    }
+    
+    BulletErrorLogger loggie;
+    //todo: quick test to see if we can re-use the URDF parser for SDF or not
+    m_data->m_urdfParser.setParseSDF(true);
+    bool result = m_data->m_urdfParser.loadSDF(xml_string.c_str(), &loggie);
+    
+    return result;
+}
+
 
 const char* BulletURDFImporter::getPathPrefix()
 {

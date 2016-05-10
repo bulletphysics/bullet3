@@ -17,6 +17,8 @@ public:
  
     virtual bool loadURDF(const char* fileName, bool forceFixedBase = false)=0;
 
+    virtual bool loadSDF(const char* fileName, bool forceFixedBase = false) { return false;}
+
     virtual const char* getPathPrefix()=0;
     
     ///return >=0 for the root link index, -1 if there is no root link
