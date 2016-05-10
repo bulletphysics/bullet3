@@ -132,6 +132,7 @@ SET(BulletExampleBrowser_SRCS
   ../Importers/ImportObjDemo/LoadMeshFromObj.cpp
   ../Importers/ImportObjDemo/Wavefront2GLInstanceGraphicsShape.cpp
   ../Importers/ImportSTLDemo/ImportSTLSetup.cpp
+ ../Importers/ImportSDFDemo/ImportSDFSetup.cpp
   ../Importers/ImportURDFDemo/ImportURDFSetup.cpp
   ../Importers/ImportURDFDemo/URDF2Bullet.cpp
   ../Importers/ImportURDFDemo/MyMultiBodyCreator.cpp
