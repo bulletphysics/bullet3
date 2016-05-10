@@ -461,6 +461,7 @@ void X11OpenGLWindow::enableOpenGL()
 
   printf( "Making context current\n" );
   glXMakeCurrent( m_data->m_dpy, m_data->m_win, ctx );
+  m_data->m_glc = ctx;
 
     } else
     {
@@ -1075,6 +1076,20 @@ b3KeyboardCallback      X11OpenGLWindow::getKeyboardCallback()
 	return m_data->m_keyboardCallback;
 }
 
+int   X11OpenGLWindow::getWidth() const
+{
+    if (m_data)
+        return m_data->m_glWidth;
+    return 0;
+}
+int   X11OpenGLWindow::getHeight() const
+{
+    if (m_data)
+        return m_data->m_glHeight;
+    return 0;
+}
+
+
 #include <stdio.h>
 
 int X11OpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)
@@ -1090,7 +1105,7 @@ int X11OpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)
 			{
 				filename[len-1]=0;
 				printf("file open (length=%d) = %s\n", len,filename);
-			}	
+			}
 		}
 		pclose(output);
 	} else
@@ -1099,5 +1114,5 @@ int X11OpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)
 	}
 	MyXRaiseWindow(m_data->m_dpy, m_data->m_win);
 	return len;
-	
+
 }

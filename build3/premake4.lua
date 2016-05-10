@@ -73,6 +73,14 @@
 		description = "Enable Lua scipting support in Example Browser"
 	}
 
+	newoption
+        {
+                trigger = "python",
+                description = "Enable Python scripting (experimental, use Physics Server in Example Browser). "
+        }
+
+
+
 	newoption {
 		trigger     = "targetdir",
 		value       = "path such as ../bin",
@@ -181,15 +189,19 @@
 		include "../examples/OpenGLWindow"
 		include "../examples/ThirdPartyLibs/Gwen"
 		include "../examples/SimpleOpenGL3"
+		include "../examples/TinyRenderer"
 
 		include "../examples/HelloWorld"
 		include "../examples/BasicDemo"
-
+		include "../examples/InverseDynamics"
 		include "../examples/SharedMemory"
 		include "../examples/MultiThreading"
 
 		if _OPTIONS["lua"] then
 		   include "../examples/ThirdPartyLibs/lua-5.2.3"
+		end
+		if _OPTIONS["python"] then
+		  include "../examples/pybullet"
 		end
 
 		if not _OPTIONS["no-test"] then

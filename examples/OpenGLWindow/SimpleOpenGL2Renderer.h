@@ -50,6 +50,10 @@ struct SimpleOpenGL2Renderer : public CommonRenderInterface
 	{
 		return -1;
 	}
+	virtual void    updateTexture(int textureIndex, const unsigned char* texels) {}
+    virtual void activateTexture(int textureIndex) {}
+
+
     virtual int registerGraphicsInstance(int shapeIndex, const double* position, const double* quaternion, const double* color, const double* scaling);
     
     virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling);

@@ -1,10 +1,8 @@
 #include "OpenGLWindow/SimpleOpenGL3App.h"
-
-#include "Bullet3Common/b3Vector3.h"
+#include "Bullet3Common/b3Quaternion.h"
 #include "Bullet3Common/b3CommandLineArgs.h"
 #include "assert.h"
 #include <stdio.h>
-#include "OpenGLWindow/OpenGLInclude.h"
 
 char* gVideoFileName = 0;
 char* gPngFileName = 0;
@@ -16,6 +14,8 @@ static b3MouseButtonCallback sOldMouseButtonCB = 0;
 static b3KeyboardCallback sOldKeyboardCB = 0;
 //static b3RenderCallback sOldRenderCB = 0;
 
+float gWidth = 0 ;
+float gHeight = 0;
 
 void MyWheelCallback(float deltax, float deltay)
 {
@@ -24,6 +24,9 @@ void MyWheelCallback(float deltax, float deltay)
 }
 void MyResizeCallback( float width, float height)
 {
+    gWidth = width;
+    gHeight = height;
+    
 	if (sOldResizeCB)
 		sOldResizeCB(width,height);
 }
@@ -59,6 +62,7 @@ int main(int argc, char* argv[])
 
 
 	SimpleOpenGL3App* app = new SimpleOpenGL3App("SimpleOpenGL3App",1024,768,true);
+	
 	app->m_instancingRenderer->getActiveCamera()->setCameraDistance(13);
 	app->m_instancingRenderer->getActiveCamera()->setCameraPitch(0);
 	app->m_instancingRenderer->getActiveCamera()->setCameraTargetPosition(0,0,0);
@@ -74,16 +78,30 @@ int main(int argc, char* argv[])
 	app->m_window->setResizeCallback(MyResizeCallback);
   
 
-
-  assert(glGetError()==GL_NO_ERROR);
-
     myArgs.GetCmdLineArgument("mp4_file",gVideoFileName);
     if (gVideoFileName)
         app->dumpFramesToVideo(gVideoFileName);
 
     myArgs.GetCmdLineArgument("png_file",gPngFileName);
     char fileName[1024];
+    
+    int textureWidth = 128;
+    int textureHeight = 128;
+    
+    unsigned char*	image=new unsigned char[textureWidth*textureHeight*4];
+        
+    
+    int textureHandle = app->m_renderer->registerTexture(image,textureWidth,textureHeight);
 
+    int cubeIndex = app->registerCubeShape(1,1,1);
+    
+    b3Vector3 pos = b3MakeVector3(0,0,0);
+    b3Quaternion orn(0,0,0,1);
+    b3Vector3 color=b3MakeVector3(1,0,0);
+    b3Vector3 scaling=b3MakeVector3 (1,1,1);
+    app->m_renderer->registerGraphicsInstance(cubeIndex,pos,orn,color,scaling);
+    app->m_renderer->writeTransforms();
+    
 	do
 	{
 	    static int frameCount = 0;
@@ -96,10 +114,33 @@ int main(int argc, char* argv[])
             app->dumpNextFrameToPng(fileName);
         }
 
-		assert(glGetError()==GL_NO_ERROR);
+        
+        
+        //update the texels of the texture using a simple pattern, animated using frame index
+        for(int y=0;y<textureHeight;++y)
+        {
+            const int	t=(y+frameCount)>>4;
+            unsigned char*	pi=image+y*textureWidth*3;
+            for(int x=0;x<textureWidth;++x)
+            {
+                const int		s=x>>4;
+                const unsigned char	b=180;					
+                unsigned char			c=b+((s+(t&1))&1)*(255-b);
+                pi[0]=pi[1]=pi[2]=pi[3]=c;pi+=3;
+            }
+        }
+    
+        app->m_renderer->activateTexture(textureHandle);
+        app->m_renderer->updateTexture(textureHandle,image);
+        
+        float color[4] = {255,1,1,1};
+        app->m_primRenderer->drawTexturedRect(100,200,gWidth/2-50,gHeight/2-50,color,0,0,1,1,true);
+        
+		
 		app->m_instancingRenderer->init();
 		app->m_instancingRenderer->updateCamera();
 
+        app->m_renderer->renderScene();
 		app->drawGrid();
 		char bla[1024];
 		sprintf(bla,"Simple test frame %d", frameCount);

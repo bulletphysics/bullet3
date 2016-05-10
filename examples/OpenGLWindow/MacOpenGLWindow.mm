@@ -423,8 +423,8 @@ void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
     [m_internalData->m_window makeKeyAndOrderFront: nil];
     
     [m_internalData->m_myview MakeCurrent];
-    //m_internalData->m_width = m_internalData->m_myview.GetWindowWidth;
-    //m_internalData->m_height = m_internalData->m_myview.GetWindowHeight;
+    m_internalData->m_width = m_internalData->m_myview.GetWindowWidth;
+    m_internalData->m_height = m_internalData->m_myview.GetWindowHeight;
     
     
     [NSApp activateIgnoringOtherApps:YES];
@@ -1131,6 +1131,21 @@ void MacOpenGLWindow::getMouseCoordinates(int& x, int& y)
 
     
 }
+
+int   MacOpenGLWindow::getWidth() const
+{
+    if (m_internalData && m_internalData->m_myview && m_internalData->m_myview.GetWindowWidth)
+        return m_internalData->m_myview.GetWindowWidth;
+    return 0;
+}
+
+int   MacOpenGLWindow::getHeight() const
+{
+    if (m_internalData && m_internalData->m_myview && m_internalData->m_myview.GetWindowHeight)
+        return m_internalData->m_myview.GetWindowHeight;
+    return 0;
+}
+
 
 void MacOpenGLWindow::setResizeCallback(b3ResizeCallback resizeCallback)
 {

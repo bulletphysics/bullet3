@@ -82,6 +82,7 @@ struct InteralBodyData
 	int m_testData;
 
 	btTransform m_rootLocalInertialFrame;
+	btAlignedObjectArray<btTransform> m_linkLocalInertialFrames;
 
 	InteralBodyData()
 		:m_multiBody(0),
@@ -763,11 +764,18 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 			    //disable serialization of the collision objects (they are too big, and the client likely doesn't need them);
 				util->m_memSerializer->m_skipPointers.insert(mb->getBaseCollider(),0);
 
+                bodyHandle->m_linkLocalInertialFrames.reserve(mb->getNumLinks());
 			    for (int i=0;i<mb->getNumLinks();i++)
                 {
 					//disable serialization of the collision objects
                    util->m_memSerializer->m_skipPointers.insert(mb->getLink(i).m_collider,0);
 				   int urdfLinkIndex = creation.m_mb2urdfLink[i];
+				   btScalar mass;
+                   btVector3 localInertiaDiagonal(0,0,0);
+                   btTransform localInertialFrame;
+				   u2b.getMassAndInertia(urdfLinkIndex, mass,localInertiaDiagonal,localInertialFrame);
+				   bodyHandle->m_linkLocalInertialFrames.push_back(localInertialFrame);
+
 				   std::string* linkName = new std::string(u2b.getLinkName(urdfLinkIndex).c_str());
 				   m_data->m_strings.push_back(linkName);
 				   util->m_memSerializer->registerNameForPointer(linkName->c_str(),linkName->c_str());
@@ -1349,9 +1357,32 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                         //}
                                     }
                                 }
+                btVector3 linkLocalInertialOrigin = body->m_linkLocalInertialFrames[l].getOrigin();
+                btQuaternion linkLocalInertialRotation = body->m_linkLocalInertialFrames[l].getRotation();
+                
+                btVector3 linkOrigin =  mb->getLink(l).m_cachedWorldTransform.getOrigin();
+                btQuaternion linkRotation =  mb->getLink(l).m_cachedWorldTransform.getRotation();
+                
+                serverCmd.m_sendActualStateArgs.m_linkState[l*7+0] = linkOrigin.getX();
+                serverCmd.m_sendActualStateArgs.m_linkState[l*7+1] = linkOrigin.getY();
+                serverCmd.m_sendActualStateArgs.m_linkState[l*7+2] = linkOrigin.getZ();
+                serverCmd.m_sendActualStateArgs.m_linkState[l*7+3] = linkRotation.x();
+                serverCmd.m_sendActualStateArgs.m_linkState[l*7+4] = linkRotation.y();
+                serverCmd.m_sendActualStateArgs.m_linkState[l*7+5] = linkRotation.z();
+                serverCmd.m_sendActualStateArgs.m_linkState[l*7+6] = linkRotation.w();
+                
+                serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+0] = linkLocalInertialOrigin.getX();
+                serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+1] = linkLocalInertialOrigin.getY();
+                serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+2] = linkLocalInertialOrigin.getZ();
+                
+                serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+3] = linkLocalInertialRotation.x();
+                serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+4] = linkLocalInertialRotation.y();
+                serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+5] = linkLocalInertialRotation.z();
+                serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+6] = linkLocalInertialRotation.w();
+                
                             }
 
-                            
+ 
 							serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomQ = totalDegreeOfFreedomQ;
 							serverCmd.m_sendActualStateArgs.m_numDegreeOfFreedomU = totalDegreeOfFreedomU;
 							

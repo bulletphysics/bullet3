@@ -9,13 +9,12 @@
 #include "../BasicDemo/BasicExample.h"
 #include "../Planar2D/Planar2D.h"
 #include "../Benchmarks/BenchmarkDemo.h"
-#ifdef ENABLE_URDF_OBJ
 #include "../Importers/ImportObjDemo/ImportObjExample.h"
-#endif
 #include "../Importers/ImportBsp/ImportBspExample.h"
 #include "../Importers/ImportColladaDemo/ImportColladaSetup.h"
 #include "../Importers/ImportSTLDemo/ImportSTLSetup.h"
 #include "../Importers/ImportURDFDemo/ImportURDFSetup.h"
+#include "../Importers/ImportSDFDemo/ImportSDFSetup.h"
 #include "../Collision/CollisionTutorialBullet2.h"
 #include "../GyroscopicDemo/GyroscopicSetup.h"
 #include "../Constraints/Dof6Spring2Setup.h"
@@ -56,7 +55,14 @@
 #endif
 #endif //B3_USE_CLEW
 
-
+//Extended Tutorial Includes Added by Mobeen
+#include "../ExtendedTutorials/SimpleBox.h"
+#include "../ExtendedTutorials/MultipleBoxes.h"
+#include "../ExtendedTutorials/SimpleJoint.h"
+#include "../ExtendedTutorials/SimpleCloth.h"
+#include "../ExtendedTutorials/Chain.h"
+#include "../ExtendedTutorials/Bridge.h"
+#include "../ExtendedTutorials/RigidBodyFromObj.h" 
 
 struct ExampleEntry
 {
@@ -80,12 +86,11 @@ struct ExampleEntry
 
 static ExampleEntry gDefaultExamples[]=
 {
-	
-	
-	
-	
+	 
 	ExampleEntry(0,"API"),
+
 	ExampleEntry(1,"Basic Example","Create some rigid bodies using box collision shapes. This is a good example to familiarize with the basic initialization of Bullet. The Basic Example can also be compiled without graphical user interface, as a console application. Press W for wireframe, A to show AABBs, I to suspend/restart physics simulation. Press D to toggle auto-deactivation of the simulation. ", BasicExampleCreateFunc),
+
 
 	ExampleEntry(1,"Rolling Friction", "Damping is often not good enough to keep rounded objects from rolling down a sloped surface. Instead, you can set the rolling friction of a rigid body. Generally it is best to leave the rolling friction to zero, to avoid artifacts.", RollingFrictionCreateFunc),
 	
@@ -121,7 +126,6 @@ static ExampleEntry gDefaultExamples[]=
 	 ExampleEntry(0,"Inverse Dynamics"),
       ExampleEntry(1,"Inverse Dynamics URDF", "Create a btMultiBody from URDF. Create an inverse MultiBodyTree model from that. Use either decoupled PD control or computed torque control using the inverse model to track joint position targets", InverseDynamicsExampleCreateFunc,BT_ID_LOAD_URDF),
       ExampleEntry(1,"Inverse Dynamics Prog", "Create a btMultiBody programatically. Create an inverse MultiBodyTree model from that. Use either decoupled PD control or computed torque control using the inverse model to track joint position targets", InverseDynamicsExampleCreateFunc,BT_ID_PROGRAMMATICALLY),
-	
 	
 	ExampleEntry(0,"Tutorial"),
 	ExampleEntry(1,"Constant Velocity","Free moving rigid body, without external or constraint forces", TutorialCreateFunc,TUT_VELOCITY),
@@ -194,9 +198,11 @@ static ExampleEntry gDefaultExamples[]=
 
 	ExampleEntry(0,"Importers"),
 	ExampleEntry(1,"Import .bullet", "Load a binary .bullet file. The serialization mechanism can deal with versioning, differences in endianess, 32 and 64bit, double/single precision. It is easy to save a .bullet file, see the examples/Importers/ImportBullet/SerializeDemo.cpp for a code example how to export a .bullet file.", SerializeBulletCreateFunc),
-#ifdef ENABLE_URDF_OBJ	
 	ExampleEntry(1,"Wavefront Obj", "Import a Wavefront .obj file", ImportObjCreateFunc, 0),
-#endif
+	ExampleEntry(1,"Obj2RigidBody (Show Obj)", "Load a triangle mesh from Wavefront .obj and turn it in a convex hull collision shape, connected to a rigid body. We can use the original .obj mesh data to visualize the rigid body. In 'debug' wireframe mode (press 'w' to toggle) we still see the convex hull data.", ET_RigidBodyFromObjCreateFunc),
+	ExampleEntry(1,"Obj2RigidBody (Show Hull)", "Load a triangle mesh from Wavefront .obj and turn it in a convex hull collision shape, connected to a rigid body", ET_RigidBodyFromObjCreateFunc,ObjUseConvexHullForRendering),
+	ExampleEntry(1,"Obj2RigidBody Optimize", "Load a triangle mesh from Wavefront .obj, remove the vertices that are not on the convex hull", ET_RigidBodyFromObjCreateFunc,OptimizeConvexObj),
+
 	ExampleEntry(1,"Quake BSP", "Import a Quake .bsp file", ImportBspCreateFunc, 0),
 	ExampleEntry(1,"COLLADA dae", "Import the geometric mesh data from a COLLADA file. This is used as part of the URDF importer. This loader can also be used to import collision geometry in general. ", 
 					ImportColladaCreateFunc, 0),
@@ -204,7 +210,8 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"URDF (RigidBody)", "Import a URDF file, and create rigid bodies (btRigidBody) connected by constraints.", ImportURDFCreateFunc, 0),
 	ExampleEntry(1,"URDF (MultiBody)", "Import a URDF file and create a single multibody (btMultiBody) with tree hierarchy of links (mobilizers).", 
 					ImportURDFCreateFunc, 1),
-
+	ExampleEntry(1,"SDF (MultiBody)", "Import an SDF file, create multiple multibodies etc", ImportSDFCreateFunc),
+	
 	ExampleEntry(0,"Vehicles"),
 	ExampleEntry(1,"Hinge2 Vehicle", "A rigid body chassis with 4 rigid body wheels attached by a btHinge2Constraint",Hinge2VehicleCreateFunc),
 	ExampleEntry(1,"ForkLift","Simulate a fork lift vehicle with a working fork lift that can be moved using the cursor keys. The wheels collision is simplified using ray tests."
@@ -219,13 +226,6 @@ static ExampleEntry gDefaultExamples[]=
 	
 
 	ExampleEntry(0,"Experiments"),
-	
-//	ExampleEntry(1,"Robot Control (Velocity)", "Perform some robot control tasks, using physics server and client that communicate over shared memory",
-//			RobotControlExampleCreateFunc,ROBOT_VELOCITY_CONTROL),
-//	ExampleEntry(1,"Robot Control (PD)", "Perform some robot control tasks, using physics server and client that communicate over shared memory",
-//			RobotControlExampleCreateFunc,ROBOT_PD_CONTROL),
-//	ExampleEntry(1,"Robot Joint Feedback", "Apply some small ping-pong target velocity jitter, and read the joint reaction forces, using physics server and client that communicate over shared memory.",
-		//	RobotControlExampleCreateFunc,ROBOT_PING_PONG_JOINT_FEEDBACK),
 	
 	ExampleEntry(1,"Physics Server", "Create a physics server that communicates with a physics client over shared memory",
 			PhysicsServerCreateFunc),
@@ -254,8 +254,22 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(0,"Rendering"),
 	ExampleEntry(1,"Instanced Rendering", "Simple example of fast instanced rendering, only active when using OpenGL3+.",RenderInstancingCreateFunc),
 	ExampleEntry(1,"CoordinateSystemDemo","Show the axis and positive rotation direction around the axis.", CoordinateSystemCreateFunc),
-	ExampleEntry(1,"Time Series", "Render some value(s) in a 2D graph window, shifting to the left", TimeSeriesCreateFunc)
+	ExampleEntry(1,"Time Series", "Render some value(s) in a 2D graph window, shifting to the left", TimeSeriesCreateFunc),
 	
+	//Extended Tutorials Added by Mobeen
+	ExampleEntry(0,"Extended Tutorials"),
+	ExampleEntry(1,"Simple Box", "Simplest possible demo creating a single box rigid body that falls under gravity", ET_SimpleBoxCreateFunc),
+	ExampleEntry(1,"Multiple Boxes", "Adding multiple box rigid bodies that fall under gravity", ET_MultipleBoxesCreateFunc),
+	ExampleEntry(1,"Simple Joint", "Creating a single distance constraint between two box rigid bodies", ET_SimpleJointCreateFunc),
+	ExampleEntry(1,"Simple Cloth", "Creating a simple piece of cloth", ET_SimpleClothCreateFunc),
+	ExampleEntry(1,"Simple Chain", "Creating a simple chain using a pair of point2point/distance constraints. You may click and drag any box to see the chain respond.", ET_ChainCreateFunc),
+	ExampleEntry(1,"Simple Bridge", "Creating a simple bridge using a pair of point2point/distance constraints. You may click and drag any plank to see the bridge respond.", ET_BridgeCreateFunc),
+	
+	//todo: create a category/tutorial about advanced topics, such as optimizations, using different collision detection algorithm, different constraint solvers etc.
+	//ExampleEntry(0,"Advanced"),
+	//ExampleEntry(1,"Obj2RigidBody Add Features", "Load a triangle mesh from Wavefront .obj and create polyhedral features to perform the separating axis test (instead of GJK/MPR). It is best to combine optimization and polyhedral feature generation.", ET_RigidBodyFromObjCreateFunc,OptimizeConvexObj+ComputePolyhedralFeatures),
+
+
 };
 
 #ifdef B3_USE_CLEW
@@ -278,17 +292,17 @@ struct ExampleEntriesInternalData
 	btAlignedObjectArray<ExampleEntry> m_allExamples;
 };
 
-ExampleEntries::ExampleEntries()
+ExampleEntriesAll::ExampleEntriesAll()
 {
 	m_data = new ExampleEntriesInternalData;
 }
 
-ExampleEntries::~ExampleEntries()
+ExampleEntriesAll::~ExampleEntriesAll()
 {
 	delete m_data;
 }
 
-void ExampleEntries::initOpenCLExampleEntries()
+void ExampleEntriesAll::initOpenCLExampleEntries()
 {
 #ifdef B3_USE_CLEW
 #ifndef NO_OPENGL3
@@ -301,7 +315,7 @@ void ExampleEntries::initOpenCLExampleEntries()
 #endif //B3_USE_CLEW
 }
 
-void ExampleEntries::initExampleEntries()
+void ExampleEntriesAll::initExampleEntries()
 {
 	m_data->m_allExamples.clear();
 
@@ -334,33 +348,33 @@ void ExampleEntries::initExampleEntries()
 
 }
 
-void ExampleEntries::registerExampleEntry(int menuLevel, const char* name,const char* description, CommonExampleInterface::CreateFunc* createFunc, int option)
+void ExampleEntriesAll::registerExampleEntry(int menuLevel, const char* name,const char* description, CommonExampleInterface::CreateFunc* createFunc, int option)
 {
 	ExampleEntry e( menuLevel,name,description, createFunc, option);
 	gAdditionalRegisteredExamples.push_back(e);
 }
 
-int ExampleEntries::getNumRegisteredExamples()
+int ExampleEntriesAll::getNumRegisteredExamples()
 {
 	return m_data->m_allExamples.size();
 }
 
-CommonExampleInterface::CreateFunc* ExampleEntries::getExampleCreateFunc(int index)
+CommonExampleInterface::CreateFunc* ExampleEntriesAll::getExampleCreateFunc(int index)
 {
 	return m_data->m_allExamples[index].m_createFunc;
 }
 
-int ExampleEntries::getExampleOption(int index)
+int ExampleEntriesAll::getExampleOption(int index)
 {
 	return m_data->m_allExamples[index].m_option;
 }
 
-const char* ExampleEntries::getExampleName(int index)
+const char* ExampleEntriesAll::getExampleName(int index)
 {
 	return m_data->m_allExamples[index].m_name;
 }
 
-const char* ExampleEntries::getExampleDescription(int index)
+const char* ExampleEntriesAll::getExampleDescription(int index)
 {
 	return m_data->m_allExamples[index].m_description;
 }

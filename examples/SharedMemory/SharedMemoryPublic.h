@@ -105,6 +105,20 @@ struct b3DebugLines
     const float*  m_linesColor;//float red,green,blue times 'm_numDebugLines'.
 };
 
+///b3LinkState provides extra information such as the Cartesian world coordinates
+///center of mass (COM) of the link, relative to the world reference frame.
+///Orientation is a quaternion x,y,z,w
+///Note: to compute the URDF link frame (which equals the joint frame at joint position 0)
+///use URDF link frame = link COM frame * inertiaFrame.inverse()
+struct b3LinkState
+{
+    double m_worldPosition[3];
+    double m_worldOrientation[4];
+
+    double m_localInertialPosition[3];
+    double m_localInertialOrientation[4];
+};
+
 //todo: discuss and decide about control mode and combinations
 enum {
     //    POSITION_CONTROL=0,
