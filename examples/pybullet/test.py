@@ -2,10 +2,10 @@ import pybullet
 import time
 
 #choose connection method: GUI, DIRECT, SHARED_MEMORY
-pybullet.connect(pybullet.GUI)
+pybullet.connect(pybullet.SHARED_MEMORY)
 
 #load URDF, given a relative or absolute file+path
-obj = pybullet.loadURDF("r2d2.urdf",posX,posY,posZ)
+obj = pybullet.loadURDF("r2d2.urdf")
 
 posX=0
 posY=3
@@ -31,5 +31,4 @@ pybullet.resetSimulation()
 
 #disconnect from the physics server
 pybullet.disconnect()
-
 
