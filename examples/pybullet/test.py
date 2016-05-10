@@ -13,7 +13,7 @@ numJoints = pybullet.getNumJoints(obj)
 print (numJoints)
 
 #set the gravity acceleration
-pybullet.setGravity(0,0,-0.01)
+pybullet.setGravity(0,0,-9.8)
 
 #step the simulation for 5 seconds
 t_end = time.time() + 5
