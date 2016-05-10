@@ -5,7 +5,12 @@ import time
 pybullet.connect(pybullet.GUI)
 
 #load URDF, given a relative or absolute file+path
-obj = pybullet.loadURDF("r2d2.urdf")
+obj = pybullet.loadURDF("r2d2.urdf",posX,posY,posZ)
+
+posX=0
+posY=3
+posZ=2
+obj2 = pybullet.loadURDF("kuka_lwr/kuka.urdf",posX,posY,posZ)
 
 #query the number of joints of the object
 numJoints = pybullet.getNumJoints(obj)
