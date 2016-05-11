@@ -88,7 +88,7 @@ struct UrdfLink
 {
 	std::string	m_name;
 	UrdfInertia	m_inertia;
-    btTransform m_parentLinktoLinkTransform;
+    btTransform m_linkTransformInWorld;
 	btArray<UrdfVisual> m_visualArray;
 	btArray<UrdfCollision> m_collisionArray;
 	UrdfLink* m_parentLink;
@@ -128,6 +128,7 @@ struct UrdfJoint
 struct UrdfModel
 {
 	std::string m_name;
+    btTransform m_rootTransformInWorld;
 	btHashMap<btHashString, UrdfMaterial*> m_materials;
 	btHashMap<btHashString, UrdfLink*> m_links;
 	btHashMap<btHashString, UrdfJoint*> m_joints;

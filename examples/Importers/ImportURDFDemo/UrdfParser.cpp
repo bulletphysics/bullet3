@@ -532,11 +532,11 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
         TiXmlElement* pose = config->FirstChildElement("pose");
         if (0==pose)
         {
-            link.m_parentLinktoLinkTransform.setIdentity();
+            link.m_linkTransformInWorld.setIdentity();
         }
         else
         {
-            parseTransform(link.m_parentLinktoLinkTransform, pose,logger,m_parseSDF);
+            parseTransform(link.m_linkTransformInWorld, pose,logger,m_parseSDF);
         }
     }
 
@@ -1017,11 +1017,6 @@ bool UrdfParser::initTreeAndRoot(UrdfModel& model, ErrorLogger* logger)
 			parentLink->m_childJoints.push_back(joint);
 			parentLink->m_childLinks.push_back(childLink);
 			parentLinkTree.insert(childLink->m_name.c_str(),parentLink->m_name.c_str());
-            
-            if (m_parseSDF) {
-                joint->m_parentLinkToJointTransform = childLink->m_parentLinktoLinkTransform;
-            }
-			
 		}
 	}
 
@@ -1255,8 +1250,16 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
         }
         localModel->m_name = name;
         
-        
-        
+        TiXmlElement* pose_xml = robot_xml->FirstChildElement("pose");
+        if (0==pose_xml)
+        {
+            localModel->m_rootTransformInWorld.setIdentity();
+        }
+        else
+        {
+            parseTransform(localModel->m_rootTransformInWorld,pose_xml,logger,m_parseSDF);
+        }
+
         // Get all Material elements
         for (TiXmlElement* material_xml = robot_xml->FirstChildElement("material"); material_xml; material_xml = material_xml->NextSiblingElement("material"))
         {

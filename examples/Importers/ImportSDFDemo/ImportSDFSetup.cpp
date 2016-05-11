@@ -131,7 +131,7 @@ ImportSDFSetup::ImportSDFSetup(struct GUIHelperInterface* helper, int option, co
 		
 		if (gFileNameArray.size()==0)
 		{
-			gFileNameArray.push_back("kuka_iiwa/model.sdf");
+			gFileNameArray.push_back("two_cubes.sdf");
 
 		}
 
@@ -214,10 +214,8 @@ void ImportSDFSetup::initPhysics()
 
 		//u2b.printTree();
 
-		btTransform identityTrans;
-		identityTrans.setIdentity();
-
-
+        btTransform rootTrans;
+        rootTrans.setIdentity();
         
         for (int m =0; m<u2b.getNumModels();m++)
 		{
@@ -232,7 +230,8 @@ void ImportSDFSetup::initPhysics()
 			b3Printf("urdf root link index = %d\n",rootLinkIndex);
 			MyMultiBodyCreator creation(m_guiHelper);
 
-			ConvertURDF2Bullet(u2b,creation, identityTrans,m_dynamicsWorld,m_useMultiBody,u2b.getPathPrefix());
+            u2b.getRootTransformInWorld(rootTrans);
+			ConvertURDF2Bullet(u2b,creation, rootTrans,m_dynamicsWorld,m_useMultiBody,u2b.getPathPrefix(),true);
 			mb = creation.getBulletMultiBody();
 			
 		}
@@ -291,7 +290,7 @@ void ImportSDFSetup::stepSimulation(float deltaTime)
         }
 
 		//the maximal coordinates/iterative MLCP solver requires a smallish timestep to converge
-		//m_dynamicsWorld->stepSimulation(deltaTime,10,1./240.);
+		m_dynamicsWorld->stepSimulation(deltaTime,10,1./240.);
 	}
 }
 

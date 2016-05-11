@@ -223,7 +223,7 @@ void  ROSURDFImporter::getMassAndInertia(int linkIndex, btScalar& mass,btVector3
     }
 }
     
-bool ROSURDFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction) const
+bool ROSURDFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction) const
 {
     jointLowerLimit = 0.f;
     jointUpperLimit = 0.f;
@@ -281,7 +281,9 @@ bool ROSURDFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joint,
     }
 }
 
-
+bool ROSURDFImporter::getRootTransformInWorld(btTransform& rootTransformInWorld) const
+{
+}
 
 void ROSconvertURDFToVisualShape(const Visual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut)
 {
