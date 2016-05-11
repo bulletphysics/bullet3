@@ -131,7 +131,7 @@ ImportSDFSetup::ImportSDFSetup(struct GUIHelperInterface* helper, int option, co
 		
 		if (gFileNameArray.size()==0)
 		{
-			gFileNameArray.push_back("two_cubes.sdf");
+			gFileNameArray.push_back("kuka_iiwa/model.sdf");
 
 		}
 
@@ -291,7 +291,7 @@ void ImportSDFSetup::stepSimulation(float deltaTime)
         }
 
 		//the maximal coordinates/iterative MLCP solver requires a smallish timestep to converge
-		m_dynamicsWorld->stepSimulation(deltaTime,10,1./240.);
+		//m_dynamicsWorld->stepSimulation(deltaTime,10,1./240.);
 	}
 }
 

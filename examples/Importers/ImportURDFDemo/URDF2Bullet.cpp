@@ -200,10 +200,7 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
 
 
     bool hasParentJoint = u2b.getJointInfo(urdfLinkIndex, parent2joint, jointAxisInJointSpace, jointType,jointLowerLimit,jointUpperLimit, jointDamping, jointFriction);
-
-
-    linkTransformInWorldSpace =parentTransformInWorldSpace*parent2joint;
-
+    
     int graphicsIndex = u2b.convertLinkVisualShapes(urdfLinkIndex,pathPrefix,localInertialFrame);
 
     btCompoundShape* compoundShape = u2b.convertLinkCollisionShapes(urdfLinkIndex,pathPrefix,localInertialFrame);

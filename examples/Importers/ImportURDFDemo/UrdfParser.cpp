@@ -77,7 +77,7 @@ static bool parseVector4(btVector4& vec4, const std::string& vector_str)
 	return true;
 }
 
-static bool parseVector3(btVector3& vec3, const std::string& vector_str, ErrorLogger* logger)
+static bool parseVector3(btVector3& vec3, const std::string& vector_str, ErrorLogger* logger, bool lastThree = false)
 {
 	vec3.setZero();
 	btArray<std::string> pieces;
@@ -90,15 +90,21 @@ static bool parseVector3(btVector3& vec3, const std::string& vector_str, ErrorLo
 			rgba.push_back(urdfLexicalCast<double>(pieces[i].c_str()));
 		}
 	}
-	if (rgba.size() != 3)
+	if (rgba.size() < 3)
 	{
 		logger->reportWarning("Couldn't parse vector3");
 		return false;
 	}
-	vec3.setValue(rgba[0],rgba[1],rgba[2]);
+    if (lastThree) {
+        vec3.setValue(rgba[rgba.size()-3], rgba[rgba.size()-2], rgba[rgba.size()-1]);
+    }
+    else
+    {
+        vec3.setValue(rgba[0],rgba[1],rgba[2]);
+
+    }
 	return true;
 }
-
 
 bool UrdfParser::parseMaterial(UrdfMaterial& material, TiXmlElement *config, ErrorLogger* logger)
 {
@@ -143,47 +149,78 @@ bool UrdfParser::parseMaterial(UrdfMaterial& material, TiXmlElement *config, Err
 
 }
 
-bool parseTransform(btTransform& tr, TiXmlElement* xml, ErrorLogger* logger)
+bool parseTransform(btTransform& tr, TiXmlElement* xml, ErrorLogger* logger, bool parseSDF = false)
 {
-	tr.setIdentity();
-	
-	{
-		const char* xyz_str = xml->Attribute("xyz");
-		if (xyz_str)
-		{
-			parseVector3(tr.getOrigin(),std::string(xyz_str),logger);
-		}
-	}
-	
-	{
-		const char* rpy_str = xml->Attribute("rpy");
-		if (rpy_str != NULL)
-		{
-			btVector3 rpy;
-			if (parseVector3(rpy,std::string(rpy_str),logger))
-			{
-				double phi, the, psi;
-				double roll = rpy[0];
-				double pitch = rpy[1];
-				double yaw = rpy[2];
-				
-				phi = roll / 2.0;
-				the = pitch / 2.0;
-				psi = yaw / 2.0;
-			  
-				btQuaternion orn(
-								sin(phi) * cos(the) * cos(psi) - cos(phi) * sin(the) * sin(psi),
-								cos(phi) * sin(the) * cos(psi) + sin(phi) * cos(the) * sin(psi),
-								cos(phi) * cos(the) * sin(psi) - sin(phi) * sin(the) * cos(psi),
-								 cos(phi) * cos(the) * cos(psi) + sin(phi) * sin(the) * sin(psi));
-			  
-				orn.normalize();
-				tr.setRotation(orn);
-			}
-		}
-	}
-	return true;
+    tr.setIdentity();
+    
+    if (parseSDF)
+    {
+        parseVector3(tr.getOrigin(),std::string(xml->GetText()),logger);
+    }
+    else
+    {
+        const char* xyz_str = xml->Attribute("xyz");
+        if (xyz_str)
+        {
+            parseVector3(tr.getOrigin(),std::string(xyz_str),logger);
+        }
+    }
+    
+    if (parseSDF)
+    {
+        btVector3 rpy;
+        if (parseVector3(rpy,std::string(xml->GetText()),logger,true))
+        {
+            double phi, the, psi;
+            double roll = rpy[0];
+            double pitch = rpy[1];
+            double yaw = rpy[2];
+            
+            phi = roll / 2.0;
+            the = pitch / 2.0;
+            psi = yaw / 2.0;
+            
+            btQuaternion orn(
+                             sin(phi) * cos(the) * cos(psi) - cos(phi) * sin(the) * sin(psi),
+                             cos(phi) * sin(the) * cos(psi) + sin(phi) * cos(the) * sin(psi),
+                             cos(phi) * cos(the) * sin(psi) - sin(phi) * sin(the) * cos(psi),
+                             cos(phi) * cos(the) * cos(psi) + sin(phi) * sin(the) * sin(psi));
+            
+            orn.normalize();
+            tr.setRotation(orn);
+        }
+    }
+    else
+    {
+        const char* rpy_str = xml->Attribute("rpy");
+        if (rpy_str != NULL)
+        {
+            btVector3 rpy;
+            if (parseVector3(rpy,std::string(rpy_str),logger))
+            {
+                double phi, the, psi;
+                double roll = rpy[0];
+                double pitch = rpy[1];
+                double yaw = rpy[2];
+                
+                phi = roll / 2.0;
+                the = pitch / 2.0;
+                psi = yaw / 2.0;
+                
+                btQuaternion orn(
+                                 sin(phi) * cos(the) * cos(psi) - cos(phi) * sin(the) * sin(psi),
+                                 cos(phi) * sin(the) * cos(psi) + sin(phi) * cos(the) * sin(psi),
+                                 cos(phi) * cos(the) * sin(psi) - sin(phi) * sin(the) * cos(psi),
+                                 cos(phi) * cos(the) * cos(psi) + sin(phi) * sin(the) * sin(psi));
+                
+                orn.normalize();
+                tr.setRotation(orn);
+            }
+        }
+    }
+    return true;
 }
+
 bool UrdfParser::parseInertia(UrdfInertia& inertia, TiXmlElement* config, ErrorLogger* logger)
 {
 	inertia.m_linkLocalFrame.setIdentity();
@@ -333,21 +370,38 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
   else if (type_name == "mesh")
   {
 	  geom.m_type = URDF_GEOM_MESH;
-	  if (!shape->Attribute("filename")) {
-		logger->reportError("Mesh must contain a filename attribute");
-		return false;
-	  }
-	  
-	  geom.m_meshFileName = shape->Attribute("filename");
-	  
-	  if (shape->Attribute("scale")) 
-	  {
-		  parseVector3(geom.m_meshScale,shape->Attribute("scale"),logger);
-	  } else
-	  {
-		  geom.m_meshScale.setValue(1,1,1);
-	  }
-
+      if (m_parseSDF)
+      {
+          TiXmlElement* scale = shape->FirstChildElement("scale");
+          if (0==scale)
+          {
+              geom.m_meshScale.setValue(1,1,1);
+          }
+          else
+          {
+              parseVector3(geom.m_meshScale,scale->GetText(),logger);
+          }
+          
+          TiXmlElement* filename = shape->FirstChildElement("uri");
+          geom.m_meshFileName = filename->GetText();
+      }
+      else
+      {
+          if (!shape->Attribute("filename")) {
+              logger->reportError("Mesh must contain a filename attribute");
+              return false;
+          }
+          
+          geom.m_meshFileName = shape->Attribute("filename");
+          
+          if (shape->Attribute("scale"))
+          {
+              parseVector3(geom.m_meshScale,shape->Attribute("scale"),logger);
+          } else
+          {
+              geom.m_meshScale.setValue(1,1,1);
+          }
+      }
   }
   else
   {
@@ -473,7 +527,18 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
 		return false;
 	}
 	link.m_name = linkName;
-
+    
+    if (m_parseSDF) {
+        TiXmlElement* pose = config->FirstChildElement("pose");
+        if (0==pose)
+        {
+            link.m_parentLinktoLinkTransform.setIdentity();
+        }
+        else
+        {
+            parseTransform(link.m_parentLinktoLinkTransform, pose,logger,m_parseSDF);
+        }
+    }
 
   // Inertial (optional)
   TiXmlElement *i = config->FirstChildElement("inertial");
@@ -552,35 +617,109 @@ bool UrdfParser::parseJointLimits(UrdfJoint& joint, TiXmlElement* config, ErrorL
 	joint.m_effortLimit = 0.f;
 	joint.m_velocityLimit = 0.f;
 	
-	const char* lower_str = config->Attribute("lower");
-	if (lower_str)
-	{
-	joint.m_lowerLimit = urdfLexicalCast<double>(lower_str);
-	}
-
-	const char* upper_str = config->Attribute("upper");
-	if (upper_str)
-	{
-	  joint.m_upperLimit = urdfLexicalCast<double>(upper_str);
-	}
-	
-		
-  // Get joint effort limit
-  const char* effort_str = config->Attribute("effort");
-  if (effort_str)
-  {
-	  joint.m_effortLimit = urdfLexicalCast<double>(effort_str);
-  }
-		
-  // Get joint velocity limit
-  const char* velocity_str = config->Attribute("velocity");
-  if (velocity_str)
-  {
-	  joint.m_velocityLimit = urdfLexicalCast<double>(velocity_str);
-  }
+    if (m_parseSDF)
+    {
+        TiXmlElement *lower_xml = config->FirstChildElement("lower");
+        if (lower_xml) {
+            joint.m_lowerLimit = urdfLexicalCast<double>(lower_xml->GetText());
+        }
+        
+        TiXmlElement *upper_xml = config->FirstChildElement("upper");
+        if (upper_xml) {
+            joint.m_upperLimit = urdfLexicalCast<double>(upper_xml->GetText());
+        }
+        
+        TiXmlElement *effort_xml = config->FirstChildElement("effort");
+        if (effort_xml) {
+            joint.m_effortLimit = urdfLexicalCast<double>(effort_xml->GetText());
+        }
+        
+        TiXmlElement *velocity_xml = config->FirstChildElement("velocity");
+        if (velocity_xml) {
+            joint.m_velocityLimit = urdfLexicalCast<double>(velocity_xml->GetText());
+        }
+    }
+    else
+    {
+        const char* lower_str = config->Attribute("lower");
+        if (lower_str)
+        {
+            joint.m_lowerLimit = urdfLexicalCast<double>(lower_str);
+        }
+        
+        const char* upper_str = config->Attribute("upper");
+        if (upper_str)
+        {
+            joint.m_upperLimit = urdfLexicalCast<double>(upper_str);
+        }
+        
+        
+        // Get joint effort limit
+        const char* effort_str = config->Attribute("effort");
+        if (effort_str)
+        {
+            joint.m_effortLimit = urdfLexicalCast<double>(effort_str);
+        }
+        
+        // Get joint velocity limit
+        const char* velocity_str = config->Attribute("velocity");
+        if (velocity_str)
+        {
+            joint.m_velocityLimit = urdfLexicalCast<double>(velocity_str);
+        }
+    }
 		
 	return true;
 }
+
+bool UrdfParser::parseJointDynamics(UrdfJoint& joint, TiXmlElement* config, ErrorLogger* logger)
+{
+    joint.m_jointDamping = 0;
+    joint.m_jointFriction = 0;
+    
+    if (m_parseSDF) {
+        TiXmlElement *damping_xml = config->FirstChildElement("damping");
+        if (damping_xml) {
+            joint.m_jointDamping = urdfLexicalCast<double>(damping_xml->GetText());
+        }
+        
+        TiXmlElement *friction_xml = config->FirstChildElement("friction");
+        if (friction_xml) {
+            joint.m_jointFriction = urdfLexicalCast<double>(friction_xml->GetText());
+        }
+        
+        if (damping_xml == NULL && friction_xml == NULL)
+        {
+            logger->reportError("joint dynamics element specified with no damping and no friction");
+            return false;
+        }
+    }
+    else
+    {
+        // Get joint damping
+        const char* damping_str = config->Attribute("damping");
+        if (damping_str)
+        {
+            joint.m_jointDamping = urdfLexicalCast<double>(damping_str);
+        }
+        
+        // Get joint friction
+        const char* friction_str = config->Attribute("friction");
+        if (friction_str)
+        {
+            joint.m_jointFriction = urdfLexicalCast<double>(friction_str);
+        }
+        
+        if (damping_str == NULL && friction_str == NULL)
+        {
+            logger->reportError("joint dynamics element specified with no damping and no friction");
+            return false;
+        }
+    }
+    
+    return true;
+}
+
 bool UrdfParser::parseJoint(UrdfJoint& joint, TiXmlElement *config, ErrorLogger* logger)
 {
 	
@@ -611,34 +750,48 @@ bool UrdfParser::parseJoint(UrdfJoint& joint, TiXmlElement *config, ErrorLogger*
   TiXmlElement *parent_xml = config->FirstChildElement("parent");
   if (parent_xml)
   {
-	  const char *pname = parent_xml->Attribute("link");
-	  if (!pname)
-	  {
-		  logger->reportError("no parent link name specified for Joint link. this might be the root?");
-		  logger->reportError(joint.m_name.c_str());
-		  return false;
-	  }
-	  else
-	  {
-		  joint.m_parentLinkName = std::string(pname);
-	  }
+      if (m_parseSDF)
+      {
+          joint.m_parentLinkName = std::string(parent_xml->GetText());
+      }
+      else
+      {
+          const char *pname = parent_xml->Attribute("link");
+          if (!pname)
+          {
+              logger->reportError("no parent link name specified for Joint link. this might be the root?");
+              logger->reportError(joint.m_name.c_str());
+              return false;
+          }
+          else
+          {
+              joint.m_parentLinkName = std::string(pname);
+          }
+      }
   }
-		
+ 		
   // Get Child Link
   TiXmlElement *child_xml = config->FirstChildElement("child");
   if (child_xml)
   {
-	  const char *pname = child_xml->Attribute("link");
-	  if (!pname)
-	  {
-		  logger->reportError("no child link name specified for Joint link [%s].");
-		  logger->reportError(joint.m_name.c_str());
-		  return false;
-	  }
-	  else
-	  {
-		  joint.m_childLinkName = std::string(pname);
-	  }
+      if (m_parseSDF)
+      {
+          joint.m_childLinkName = std::string(child_xml->GetText());
+      }
+      else
+      {
+          const char *pname = child_xml->Attribute("link");
+          if (!pname)
+          {
+              logger->reportError("no child link name specified for Joint link [%s].");
+              logger->reportError(joint.m_name.c_str());
+              return false;
+          }
+          else
+          {
+              joint.m_childLinkName = std::string(pname);
+          }
+      }
   }
 		
   // Get Joint type
@@ -672,83 +825,146 @@ bool UrdfParser::parseJoint(UrdfJoint& joint, TiXmlElement *config, ErrorLogger*
 	  return false;
   }
 		
-  // Get Joint Axis
-  if (joint.m_type != URDFFloatingJoint && joint.m_type != URDFFixedJoint)
-  {
-	  // axis
-	  TiXmlElement *axis_xml = config->FirstChildElement("axis");
-	  if (!axis_xml){
-		  logger->reportWarning("urdfdom: no axis elemement for Joint, defaulting to (1,0,0) axis");
-		  logger->reportWarning(joint.m_name.c_str());
-		  joint.m_localJointAxis.setValue(1,0,0);
-	  }
-	  else{
-		  if (axis_xml->Attribute("xyz"))
-		  {
-			  if (!parseVector3(joint.m_localJointAxis,axis_xml->Attribute("xyz"),logger))
-			  {
-				  logger->reportError("Malformed axis element:");
-				  logger->reportError(joint.m_name.c_str());
-				  logger->reportError(" for joint:");
-				  logger->reportError(axis_xml->Attribute("xyz"));
-				  return false;
-			  }
-		  }
-	  }
-  }
-		
-  // Get limit
-  TiXmlElement *limit_xml = config->FirstChildElement("limit");
-  if (limit_xml)
-  {
-	  if (!parseJointLimits(joint, limit_xml,logger))
-	  {
-		  logger->reportError("Could not parse limit element for joint:");
-		  logger->reportError(joint.m_name.c_str());
-		  return false;
-	  }
-  }
-  else if (joint.m_type == URDFRevoluteJoint)
-  {
-	  logger->reportError("Joint is of type REVOLUTE but it does not specify limits");
-	  logger->reportError(joint.m_name.c_str());
-	  return false;
-  }
-  else if (joint.m_type == URDFPrismaticJoint)
-  {
-	  logger->reportError("Joint is of type PRISMATIC without limits");
-	  logger->reportError( joint.m_name.c_str()); 
-	  return false;
-  }
-	
-	joint.m_jointDamping = 0;
-	joint.m_jointFriction = 0;
-	
-	// Get Dynamics
-	TiXmlElement *prop_xml = config->FirstChildElement("dynamics");
-	if (prop_xml)
-	{
-	
-		// Get joint damping
-		const char* damping_str = prop_xml->Attribute("damping");
-		if (damping_str)
-		{
-			joint.m_jointDamping = urdfLexicalCast<double>(damping_str);
-		}
-			
-		// Get joint friction
-		const char* friction_str = prop_xml->Attribute("friction");
-		if (friction_str)
-		{
-		  joint.m_jointFriction = urdfLexicalCast<double>(friction_str);
-		}
-			
-		if (damping_str == NULL && friction_str == NULL)
-		{
-		  logger->reportError("joint dynamics element specified with no damping and no friction");
-		  return false;
-		}
-	}
+    if (m_parseSDF)
+    {
+        if (joint.m_type != URDFFloatingJoint && joint.m_type != URDFFixedJoint)
+        {
+            // axis
+            TiXmlElement *axis_xml = config->FirstChildElement("axis");
+            if (!axis_xml){
+                logger->reportWarning("urdfdom: no axis elemement for Joint, defaulting to (1,0,0) axis");
+                logger->reportWarning(joint.m_name.c_str());
+                joint.m_localJointAxis.setValue(1,0,0);
+            }
+            else{
+                TiXmlElement *xyz_xml = axis_xml->FirstChildElement("xyz");
+                if (xyz_xml) {
+                    if (!parseVector3(joint.m_localJointAxis,std::string(xyz_xml->GetText()),logger))
+                    {
+                        logger->reportError("Malformed axis element:");
+                        logger->reportError(joint.m_name.c_str());
+                        logger->reportError(" for joint:");
+                        logger->reportError(xyz_xml->GetText());
+                        return false;
+                    }
+                }
+                
+                TiXmlElement *limit_xml = axis_xml->FirstChildElement("limit");
+                if (limit_xml)
+                {
+                    if (!parseJointLimits(joint, limit_xml,logger))
+                    {
+                        logger->reportError("Could not parse limit element for joint:");
+                        logger->reportError(joint.m_name.c_str());
+                        return false;
+                    }
+                }
+                else if (joint.m_type == URDFRevoluteJoint)
+                {
+                    logger->reportError("Joint is of type REVOLUTE but it does not specify limits");
+                    logger->reportError(joint.m_name.c_str());
+                    return false;
+                }
+                else if (joint.m_type == URDFPrismaticJoint)
+                {
+                    logger->reportError("Joint is of type PRISMATIC without limits");
+                    logger->reportError( joint.m_name.c_str());
+                    return false;
+                }
+                
+                TiXmlElement *prop_xml = config->FirstChildElement("dynamics");
+                if (prop_xml)
+                {
+                    if (!parseJointDynamics(joint, prop_xml,logger))
+                    {
+                        logger->reportError("Could not parse dynamics element for joint:");
+                        logger->reportError(joint.m_name.c_str());
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        // Get Joint Axis
+        if (joint.m_type != URDFFloatingJoint && joint.m_type != URDFFixedJoint)
+        {
+            // axis
+            TiXmlElement *axis_xml = config->FirstChildElement("axis");
+            if (!axis_xml){
+                logger->reportWarning("urdfdom: no axis elemement for Joint, defaulting to (1,0,0) axis");
+                logger->reportWarning(joint.m_name.c_str());
+                joint.m_localJointAxis.setValue(1,0,0);
+            }
+            else{
+                if (axis_xml->Attribute("xyz"))
+                {
+                    if (!parseVector3(joint.m_localJointAxis,axis_xml->Attribute("xyz"),logger))
+                    {
+                        logger->reportError("Malformed axis element:");
+                        logger->reportError(joint.m_name.c_str());
+                        logger->reportError(" for joint:");
+                        logger->reportError(axis_xml->Attribute("xyz"));
+                        return false;
+                    }
+                }
+            }
+        }
+        
+        // Get limit
+        TiXmlElement *limit_xml = config->FirstChildElement("limit");
+        if (limit_xml)
+        {
+            if (!parseJointLimits(joint, limit_xml,logger))
+            {
+                logger->reportError("Could not parse limit element for joint:");
+                logger->reportError(joint.m_name.c_str());
+                return false;
+            }
+        }
+        else if (joint.m_type == URDFRevoluteJoint)
+        {
+            logger->reportError("Joint is of type REVOLUTE but it does not specify limits");
+            logger->reportError(joint.m_name.c_str());
+            return false;
+        }
+        else if (joint.m_type == URDFPrismaticJoint)
+        {
+            logger->reportError("Joint is of type PRISMATIC without limits");
+            logger->reportError( joint.m_name.c_str());
+            return false;
+        }
+        
+        joint.m_jointDamping = 0;
+        joint.m_jointFriction = 0;
+        
+        // Get Dynamics
+        TiXmlElement *prop_xml = config->FirstChildElement("dynamics");
+        if (prop_xml)
+        {
+            
+            // Get joint damping
+            const char* damping_str = prop_xml->Attribute("damping");
+            if (damping_str)
+            {
+                joint.m_jointDamping = urdfLexicalCast<double>(damping_str);
+            }
+            
+            // Get joint friction
+            const char* friction_str = prop_xml->Attribute("friction");
+            if (friction_str)
+            {
+                joint.m_jointFriction = urdfLexicalCast<double>(friction_str);
+            }
+            
+            if (damping_str == NULL && friction_str == NULL)
+            {
+                logger->reportError("joint dynamics element specified with no damping and no friction");
+                return false;
+            }
+        }
+    }
 	
 	return true;
 }
@@ -801,6 +1017,10 @@ bool UrdfParser::initTreeAndRoot(UrdfModel& model, ErrorLogger* logger)
 			parentLink->m_childJoints.push_back(joint);
 			parentLink->m_childLinks.push_back(childLink);
 			parentLinkTree.insert(childLink->m_name.c_str(),parentLink->m_name.c_str());
+            
+            if (m_parseSDF) {
+                joint->m_parentLinkToJointTransform = childLink->m_parentLinktoLinkTransform;
+            }
 			
 		}
 	}

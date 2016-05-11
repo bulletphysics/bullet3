@@ -88,6 +88,7 @@ struct UrdfLink
 {
 	std::string	m_name;
 	UrdfInertia	m_inertia;
+    btTransform m_parentLinktoLinkTransform;
 	btArray<UrdfVisual> m_visualArray;
 	btArray<UrdfCollision> m_collisionArray;
 	UrdfLink* m_parentLink;
@@ -155,6 +156,7 @@ protected:
 	bool initTreeAndRoot(UrdfModel& model, ErrorLogger* logger);
 	bool parseMaterial(UrdfMaterial& material, class TiXmlElement *config, ErrorLogger* logger);
 	bool parseJointLimits(UrdfJoint& joint, TiXmlElement* config, ErrorLogger* logger);
+    bool parseJointDynamics(UrdfJoint& joint, TiXmlElement* config, ErrorLogger* logger);
 	bool parseJoint(UrdfJoint& link, TiXmlElement *config, ErrorLogger* logger);
 	bool parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *config, ErrorLogger* logger);
 	
