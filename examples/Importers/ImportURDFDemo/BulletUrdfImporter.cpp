@@ -296,7 +296,7 @@ void  BulletURDFImporter::getMassAndInertia(int linkIndex, btScalar& mass,btVect
     }
 }
     
-bool BulletURDFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction) const
+bool BulletURDFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction) const
 {
     jointLowerLimit = 0.f;
     jointUpperLimit = 0.f;
@@ -308,7 +308,7 @@ bool BulletURDFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joi
 	if (linkPtr)
 	{
 		UrdfLink* link = *linkPtr;
-		
+		linkTransformInWorld = link->m_linkTransformInWorld;
 		
 		if (link->m_parentJoint)
 		{
@@ -333,7 +333,11 @@ bool BulletURDFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joi
 	
 }
 
-
+bool BulletURDFImporter::getRootTransformInWorld(btTransform& rootTransformInWorld) const
+{
+    rootTransformInWorld = m_data->m_urdfParser.getModel().m_rootTransformInWorld;
+    return true;
+}
 
 void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut)
 {

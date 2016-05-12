@@ -214,10 +214,8 @@ void ImportSDFSetup::initPhysics()
 
 		//u2b.printTree();
 
-		btTransform identityTrans;
-		identityTrans.setIdentity();
-
-
+        btTransform rootTrans;
+        rootTrans.setIdentity();
         
         for (int m =0; m<u2b.getNumModels();m++)
 		{
@@ -232,7 +230,8 @@ void ImportSDFSetup::initPhysics()
 			b3Printf("urdf root link index = %d\n",rootLinkIndex);
 			MyMultiBodyCreator creation(m_guiHelper);
 
-			ConvertURDF2Bullet(u2b,creation, identityTrans,m_dynamicsWorld,m_useMultiBody,u2b.getPathPrefix());
+            u2b.getRootTransformInWorld(rootTrans);
+			ConvertURDF2Bullet(u2b,creation, rootTrans,m_dynamicsWorld,m_useMultiBody,u2b.getPathPrefix(),true);
 			mb = creation.getBulletMultiBody();
 			
 		}

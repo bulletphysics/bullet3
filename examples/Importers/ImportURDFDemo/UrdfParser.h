@@ -88,6 +88,7 @@ struct UrdfLink
 {
 	std::string	m_name;
 	UrdfInertia	m_inertia;
+    btTransform m_linkTransformInWorld;
 	btArray<UrdfVisual> m_visualArray;
 	btArray<UrdfCollision> m_collisionArray;
 	UrdfLink* m_parentLink;
@@ -127,6 +128,7 @@ struct UrdfJoint
 struct UrdfModel
 {
 	std::string m_name;
+    btTransform m_rootTransformInWorld;
 	btHashMap<btHashString, UrdfMaterial*> m_materials;
 	btHashMap<btHashString, UrdfLink*> m_links;
 	btHashMap<btHashString, UrdfJoint*> m_joints;
@@ -155,6 +157,7 @@ protected:
 	bool initTreeAndRoot(UrdfModel& model, ErrorLogger* logger);
 	bool parseMaterial(UrdfMaterial& material, class TiXmlElement *config, ErrorLogger* logger);
 	bool parseJointLimits(UrdfJoint& joint, TiXmlElement* config, ErrorLogger* logger);
+    bool parseJointDynamics(UrdfJoint& joint, TiXmlElement* config, ErrorLogger* logger);
 	bool parseJoint(UrdfJoint& link, TiXmlElement *config, ErrorLogger* logger);
 	bool parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *config, ErrorLogger* logger);
 	
