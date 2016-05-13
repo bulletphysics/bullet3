@@ -5,6 +5,8 @@
 #include "../RenderingExamples/RenderInstancingDemo.h"
 #include "../RenderingExamples/CoordinateSystemDemo.h"
 #include "../RenderingExamples/RaytracerSetup.h"
+#include "../RenderingExamples/TinyRendererSetup.h"
+
 #include "../ForkLift/ForkLiftDemo.h"
 #include "../BasicDemo/BasicExample.h"
 #include "../Planar2D/Planar2D.h"
@@ -82,6 +84,7 @@ struct ExampleEntry
 	{
 	}
 };
+
 
 
 static ExampleEntry gDefaultExamples[]=
@@ -223,6 +226,7 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Raytest", "Cast rays using the btCollisionWorld::rayTest method. The example shows how to receive the hit position and normal along the ray against the first object. Also it shows how to receive all the hits along a ray.", RaytestCreateFunc),
 	ExampleEntry(1,"Raytracer","Implement an extremely simple ray tracer using the ray trace functionality in btCollisionWorld.", 
 					RayTracerCreateFunc),
+					
 	
 
 	ExampleEntry(0,"Experiments"),
@@ -255,6 +259,7 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Instanced Rendering", "Simple example of fast instanced rendering, only active when using OpenGL3+.",RenderInstancingCreateFunc),
 	ExampleEntry(1,"CoordinateSystemDemo","Show the axis and positive rotation direction around the axis.", CoordinateSystemCreateFunc),
 	ExampleEntry(1,"Time Series", "Render some value(s) in a 2D graph window, shifting to the left", TimeSeriesCreateFunc),
+	ExampleEntry(1,"TinyRenderer", "Very small software renderer.", TinyRendererCreateFunc),
 	
 	//Extended Tutorials Added by Mobeen
 	ExampleEntry(0,"Extended Tutorials"),

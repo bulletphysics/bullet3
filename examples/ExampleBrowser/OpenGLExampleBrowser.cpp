@@ -256,6 +256,21 @@ static void MyMouseButtonCallback(int button, int state, float x, float y)
 }
 
 #include <string.h>
+struct FileImporterByExtension
+{
+    std::string m_extension;
+    CommonExampleInterface::CreateFunc*		m_createFunc;
+};
+
+static btAlignedObjectArray<FileImporterByExtension> gFileImporterByExtension;
+
+void OpenGLExampleBrowser::registerFileImporter(const char* extension, CommonExampleInterface::CreateFunc*		createFunc)
+{
+    FileImporterByExtension fi;
+    fi.m_extension = extension;
+    fi.m_createFunc = createFunc;
+    gFileImporterByExtension.push_back(fi);
+}
 
 void openFileDemo(const char* filename)
 {
@@ -279,20 +294,15 @@ void openFileDemo(const char* filename)
 	char fullPath[1024];
 	sprintf(fullPath, "%s", filename);
 	b3FileUtils::toLower(fullPath);
-	if (strstr(fullPath, ".urdf"))
-	{
-		sCurrentDemo = ImportURDFCreateFunc(options);
-	} else
-	{
-		if (strstr(fullPath, ".bullet"))
-		{
-			sCurrentDemo = SerializeBulletCreateFunc(options);
-		}
-	}
+	
+	for (int i=0;i<gFileImporterByExtension.size();i++)
+    {
+        if (strstr(fullPath, gFileImporterByExtension[i].m_extension.c_str()))
+        {
+            sCurrentDemo = gFileImporterByExtension[i].m_createFunc(options);
+        }   
+    }
     
-
-	//physicsSetup->setFileName(filename);
-
 	
     if (sCurrentDemo)
     {

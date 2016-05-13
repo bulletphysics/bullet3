@@ -48,6 +48,7 @@ files {
         "../StandaloneMain/main_opengl_single_example.cpp",
 	"../ExampleBrowser/OpenGLGuiHelper.cpp",
 	"../ExampleBrowser/GL_ShapeDrawer.cpp",
+	"../ExampleBrowser/CollisionShape2TriangleMesh.cpp",
 }
 
 if os.is("Linux") then initX11() end
@@ -85,6 +86,7 @@ files {
         "../StandaloneMain/main_sw_tinyrenderer_single_example.cpp",
 	"../ExampleBrowser/OpenGLGuiHelper.cpp",
 	"../ExampleBrowser/GL_ShapeDrawer.cpp",
+	"../ExampleBrowser/CollisionShape2TriangleMesh.cpp",
 	"../TinyRenderer/geometry.cpp",
 	"../TinyRenderer/model.cpp",
 	"../TinyRenderer/tgaimage.cpp",

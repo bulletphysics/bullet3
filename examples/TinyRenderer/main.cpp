@@ -89,9 +89,9 @@ int main(int argc, char* argv[])
 	TinyRenderObjectData renderData(textureWidth, textureHeight,rgbColorBuffer,depthBuffer);//, "african_head/african_head.obj");//floor.obj");
 	
 	//renderData.loadModel("african_head/african_head.obj");
-	//renderData.loadModel("floor.obj");
+	renderData.loadModel("floor.obj");
 	
-	renderData.createCube(1,1,1);
+	//renderData.createCube(1,1,1);
     
     
     myArgs.GetCmdLineArgument("mp4_file",gVideoFileName);
