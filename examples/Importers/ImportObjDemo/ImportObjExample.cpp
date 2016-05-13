@@ -17,8 +17,11 @@
 class ImportObjSetup : public CommonRigidBodyBase
 {
 
+    std::string m_fileName;
+   
+   
 public:
-    ImportObjSetup(struct GUIHelperInterface* helper);
+    ImportObjSetup(struct GUIHelperInterface* helper, const char* fileName);
     virtual ~ImportObjSetup();
     
 	virtual void initPhysics();
@@ -34,10 +37,16 @@ public:
 
 };
 
-ImportObjSetup::ImportObjSetup(struct GUIHelperInterface* helper)
+ImportObjSetup::ImportObjSetup(struct GUIHelperInterface* helper, const char* fileName)
 :CommonRigidBodyBase(helper)
 {
-    
+    if (fileName)
+    {
+        m_fileName = fileName;
+    } else
+    {
+        m_fileName = "cube.obj";//sphere8.obj";//sponza_closed.obj";//sphere8.obj";
+    }
 }
 
 ImportObjSetup::~ImportObjSetup()
@@ -59,9 +68,9 @@ void ImportObjSetup::initPhysics()
 	m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
 
 
-   const char* fileName = "cube.obj";//sphere8.obj";//sponza_closed.obj";//sphere8.obj";
+   
         char relativeFileName[1024];
-        if (b3ResourcePath::findResourcePath(fileName, relativeFileName, 1024))
+        if (b3ResourcePath::findResourcePath(m_fileName.c_str(), relativeFileName, 1024))
         {
                 char pathPrefix[1024];
 
@@ -124,11 +133,6 @@ void ImportObjSetup::initPhysics()
 
 		}
 		
-		if (1)
-		{
-			
-		}
-
 		int shapeId = m_guiHelper->getRenderInterface()->registerShape(&gfxShape->m_vertices->at(0).xyzw[0], gfxShape->m_numvertices, &gfxShape->m_indices->at(0), gfxShape->m_numIndices,B3_GL_TRIANGLES,textureIndex);
 		
 		//int id = 
@@ -138,12 +142,12 @@ void ImportObjSetup::initPhysics()
 	}}
         else
         {
-                b3Warning("Cannot find %s\n", fileName);
+                b3Warning("Cannot find %s\n", m_fileName.c_str());
         }
 
 }
 
  CommonExampleInterface*    ImportObjCreateFunc(struct CommonExampleOptions& options)
  {
-	 return new ImportObjSetup(options.m_guiHelper);
+	 return new ImportObjSetup(options.m_guiHelper, options.m_fileName);
  }

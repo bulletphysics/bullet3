@@ -130,7 +130,6 @@ static ExampleEntryPhysicsServer gDefaultExamplesPhysicsServer[]=
 	ExampleEntryPhysicsServer(1,"Physics Server (Replay Log)", "Create a physics server that replay a command log from disk.",
 			PhysicsServerCreateFunc,PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG),
 
-	ExampleEntryPhysicsServer(1, "Physics Client", "Create a physics client that can communicate with a physics server over shared memory", PhysicsClientCreateFunc),
 
 };
 

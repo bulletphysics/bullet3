@@ -48,6 +48,31 @@ public:
 
 };
 
+class ExampleEntries
+{
+
+public:
+
+        virtual ~ExampleEntries() {}
+
+
+        virtual void initExampleEntries()=0;
+
+        virtual void initOpenCLExampleEntries()=0;
+
+        virtual int getNumRegisteredExamples()=0;
+
+        virtual CommonExampleInterface::CreateFunc* getExampleCreateFunc(int index)=0;
+
+        virtual const char* getExampleName(int index)=0;
+
+        virtual const char* getExampleDescription(int index)=0;
+
+        virtual int     getExampleOption(int index)=0;
+
+};
+
+
 CommonExampleInterface* StandaloneExampleCreateFunc(CommonExampleOptions& options);
 
 #ifdef B3_USE_STANDALONE_EXAMPLE

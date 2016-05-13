@@ -1095,7 +1095,7 @@ int   X11OpenGLWindow::getHeight() const
 int X11OpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)
 {
 	int len = 0;
-	FILE * output = popen("zenity --file-selection --file-filter=\"*.urdf\" --file-filter=\"*.*\"","r");
+	FILE * output = popen("zenity --file-selection --file-filter=\"*.urdf\" --file-filter=\"*.sdf\"  --file-filter=\"*.obj\"  --file-filter=\"*.*\"","r");
 	if (output)
 	{
 		while( fgets(filename, maxNameLength-1, output) != NULL )
