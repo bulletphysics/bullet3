@@ -119,7 +119,6 @@ SET(ExtendedTutorialsSources
 
 SET(BulletExampleBrowser_SRCS
 	
-	../TinyRenderer/Bullet2TinyRenderer.cpp
 	../TinyRenderer/geometry.cpp
 	../TinyRenderer/model.cpp
 	../TinyRenderer/tgaimage.cpp

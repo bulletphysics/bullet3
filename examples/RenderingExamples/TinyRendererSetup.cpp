@@ -207,7 +207,7 @@ void TinyRendererSetup::stepSimulation(float deltaTime)
 	}
 
 
-	ATTRIBUTE_ALIGNED16(float modelMat[16]);
+	ATTRIBUTE_ALIGNED16(btScalar modelMat2[16]);
 	ATTRIBUTE_ALIGNED16(float viewMat[16]);
 	CommonRenderInterface* render = this->m_app->m_renderer;
 	render->getActiveCamera()->getCameraViewMatrix(viewMat);
@@ -216,15 +216,16 @@ void TinyRendererSetup::stepSimulation(float deltaTime)
 	
 	for (int o=0;o<this->m_internalData->m_renderObjects.size();o++)
 	{
-		
+			
 		const btTransform& tr = m_internalData->m_transforms[o];
-		tr.getOpenGLMatrix(modelMat);
+		tr.getOpenGLMatrix(modelMat2);
+		
 				
 		for (int i=0;i<4;i++)
 		{
 			for (int j=0;j<4;j++)
 			{
-				m_internalData->m_renderObjects[o]->m_modelMatrix[i][j] = modelMat[i+4*j];
+				m_internalData->m_renderObjects[o]->m_modelMatrix[i][j] = float(modelMat2[i+4*j]);
 				m_internalData->m_renderObjects[o]->m_viewMatrix[i][j] = viewMat[i+4*j];
 			}
 		}
