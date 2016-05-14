@@ -3,6 +3,11 @@
 
 #include "geometry.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
+#include "Bullet3Common/b3Vector3.h"
+#include "LinearMath/btAlignedObjectArray.h"
+#include "LinearMath/btVector3.h"
+
+
 #include "tgaimage.h"
 
 struct TinyRenderObjectData
@@ -29,6 +34,8 @@ struct TinyRenderObjectData
     void loadModel(const char* fileName);
     void createCube(float HalfExtentsX,float HalfExtentsY,float HalfExtentsZ);
     void registerMeshShape(const float* vertices, int numVertices,const int* indices, int numIndices);
+	
+	void registerMesh2(btAlignedObjectArray<btVector3>& vertices, btAlignedObjectArray<btVector3>& normals,btAlignedObjectArray<int>& indices);
     
     void* m_userData;
     int m_userIndex;

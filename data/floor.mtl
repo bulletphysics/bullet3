@@ -10,4 +10,4 @@ newmtl floor
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
   map_Ka floor_diffuse.jpg
-  map_Kd floor_diffuse.jpg
+  map_Kd checker_huge.gif

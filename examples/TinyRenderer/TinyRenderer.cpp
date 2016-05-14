@@ -10,7 +10,8 @@
 #include "../Utils/b3ResourcePath.h"
 #include "Bullet3Common/b3MinMax.h"
 #include "../OpenGLWindow/ShapeData.h"
-
+#include "LinearMath/btAlignedObjectArray.h"
+#include "LinearMath/btVector3.h"
 Vec3f light_dir_world(1,1,1);
 
 
@@ -142,6 +143,40 @@ void TinyRenderObjectData::registerMeshShape(const float* vertices, int numVerti
         }
     }
 }
+
+void TinyRenderObjectData::registerMesh2(btAlignedObjectArray<btVector3>& vertices, btAlignedObjectArray<btVector3>& normals,btAlignedObjectArray<int>& indices)
+{
+	if (0==m_model)
+    {
+		int numVertices = vertices.size();
+		int numIndices = indices.size();
+
+        m_model = new Model();
+		char relativeFileName[1024];
+		if (b3ResourcePath::findResourcePath("floor_diffuse.tga", relativeFileName, 1024))
+		{
+			m_model->loadDiffuseTexture(relativeFileName);
+		}
+		
+        for (int i=0;i<numVertices;i++)
+        {
+            m_model->addVertex(vertices[i].x(),
+                         vertices[i].y(),
+                         vertices[i].z(),
+                         normals[i].x(),
+                         normals[i].y(),
+                         normals[i].z(),
+                         0.5,0.5);
+        }
+        for (int i=0;i<numIndices;i+=3)
+        {
+            m_model->addTriangle(indices[i],indices[i],indices[i],
+                                 indices[i+1],indices[i+1],indices[i+1],
+                                 indices[i+2],indices[i+2],indices[i+2]);
+        }
+    }
+}
+
 void TinyRenderObjectData::createCube(float halfExtentsX,float halfExtentsY,float halfExtentsZ)
 {
     m_model = new Model();

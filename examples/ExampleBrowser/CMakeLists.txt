@@ -7,7 +7,107 @@ INCLUDE_DIRECTORIES(
 
 FILE(GLOB GwenGUISupport_SRCS  "GwenGUISupport/*" )
 FILE(GLOB GwenGUISupport_HDRS  "GwenGUISupport/*" )
-SET(ExtendedTutorialsSources 	
+
+
+IF (WIN32)
+        INCLUDE_DIRECTORIES(
+                ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew
+        )
+				ADD_DEFINITIONS(-DGLEW_STATIC)
+ELSE(WIN32)
+        IF(APPLE)
+                find_library(COCOA NAMES Cocoa)
+  			ELSE(APPLE)
+                ADD_DEFINITIONS("-DGLEW_INIT_OPENGL11_FUNCTIONS=1")
+                ADD_DEFINITIONS("-DGLEW_STATIC")
+                ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
+                INCLUDE_DIRECTORIES( ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew )
+     		ENDIF(APPLE)
+ENDIF(WIN32)
+
+
+ADD_LIBRARY(BulletExampleBrowserLib
+	OpenGLExampleBrowser.cpp
+	OpenGLGuiHelper.cpp
+	GL_ShapeDrawer.cpp
+	CollisionShape2TriangleMesh.cpp
+	CollisionShape2TriangleMesh.h
+	../Utils/b3Clock.cpp
+	../Utils/b3Clock.h
+	../Utils/b3ResourcePath.cpp
+	../Utils/b3ResourcePath.h
+	${GwenGUISupport_SRCS}
+	${GwenGUISupport_HDRS}
+	
+)
+
+SET_TARGET_PROPERTIES(BulletExampleBrowserLib PROPERTIES VERSION ${BULLET_VERSION})
+SET_TARGET_PROPERTIES(BulletExampleBrowserLib PROPERTIES SOVERSION ${BULLET_VERSION})
+IF (BUILD_SHARED_LIBS)
+		IF (WIN32)
+                TARGET_LINK_LIBRARIES(
+                        BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
+                        BulletInverseDynamics LinearMath OpenGLWindow gwen
+                        ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+                )
+		ELSE(WIN32)
+        IF(APPLE)
+                 TARGET_LINK_LIBRARIES(
+                                BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
+                                BulletInverseDynamics LinearMath OpenGLWindow gwen
+                                ${COCOA} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+                 )
+  			ELSE(APPLE)
+                 TARGET_LINK_LIBRARIES(
+                                BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
+                                BulletInverseDynamics LinearMath OpenGLWindow gwen
+                                pthread dl
+                        )
+        ENDIF(APPLE)
+	ENDIF(WIN32)
+ENDIF(BUILD_SHARED_LIBS)
+
+####################
+#
+# Bullet Example Browser main app
+#
+####################
+
+INCLUDE_DIRECTORIES(
+        .
+        ${BULLET_PHYSICS_SOURCE_DIR}/src
+        ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs
+)
+
+
+LINK_LIBRARIES(
+        BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen
+)
+
+IF (WIN32)
+	INCLUDE_DIRECTORIES(
+		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew
+	)
+	LINK_LIBRARIES(
+		${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+	)
+	ADD_DEFINITIONS(-DGLEW_STATIC)
+ELSE(WIN32)
+	IF(APPLE)
+                find_library(COCOA NAMES Cocoa)
+                MESSAGE(${COCOA})
+                link_libraries(${COCOA} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
+  ELSE(APPLE)
+		ADD_DEFINITIONS("-DGLEW_INIT_OPENGL11_FUNCTIONS=1")
+		ADD_DEFINITIONS("-DGLEW_STATIC")
+		ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
+		INCLUDE_DIRECTORIES( ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew )
+		LINK_LIBRARIES( pthread dl)
+	ENDIF(APPLE)
+ENDIF(WIN32)
+
+
+SET(ExtendedTutorialsSources
 	../ExtendedTutorials/SimpleBox.cpp
 	../ExtendedTutorials/MultipleBoxes.cpp
 	../ExtendedTutorials/SimpleJoint.cpp
@@ -18,10 +118,13 @@ SET(ExtendedTutorialsSources
 )
 
 SET(BulletExampleBrowser_SRCS
-	OpenGLExampleBrowser.cpp
-	OpenGLGuiHelper.cpp
-	InProcessExampleBrowser.cpp
-	GL_ShapeDrawer.cpp
+	
+	../TinyRenderer/geometry.cpp
+	../TinyRenderer/model.cpp
+	../TinyRenderer/tgaimage.cpp
+	../TinyRenderer/our_gl.cpp
+	../TinyRenderer/TinyRenderer.cpp
+	../RenderingExamples/TinyRendererSetup.cpp
 	../SharedMemory/PhysicsServer.cpp
 	../SharedMemory/PhysicsClientSharedMemory.cpp
 	../SharedMemory/PhysicsClient.cpp
@@ -100,7 +203,8 @@ SET(BulletExampleBrowser_SRCS
 		../Importers/ImportBsp/BspConverter.h
  	../Importers/ImportBullet/SerializeSetup.cpp
 	../Importers/ImportBullet/SerializeSetup.h
-
+	../Importers/ImportMeshUtility/b3ImportMeshUtility.cpp
+../Importers/ImportMeshUtility/b3ImportMeshUtility.h
 	../../Extras/Serialize/BulletWorldImporter/btWorldImporter.cpp
 	../../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.cpp
 	../../Extras/Serialize/BulletFileLoader/bChunk.cpp		
@@ -181,99 +285,9 @@ SET(BulletExampleBrowser_SRCS
 	../ThirdPartyLibs/tinyxml/tinyxml.cpp
 	../ThirdPartyLibs/tinyxml/tinyxmlerror.cpp
 	../ThirdPartyLibs/tinyxml/tinyxmlparser.cpp
-	../Utils/b3Clock.cpp
-	../Utils/b3Clock.h
-	../Utils/b3ResourcePath.cpp
-	../Utils/b3ResourcePath.h
-	${GwenGUISupport_SRCS}
-	${GwenGUISupport_HDRS}
-	${ExtendedTutorialsSources}
+	InProcessExampleBrowser.cpp
 	${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc
 )
-
-IF (WIN32)
-        INCLUDE_DIRECTORIES(
-                ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew
-        )
-				ADD_DEFINITIONS(-DGLEW_STATIC)
-ELSE(WIN32)
-        IF(APPLE)
-                find_library(COCOA NAMES Cocoa)
-  			ELSE(APPLE)
-                ADD_DEFINITIONS("-DGLEW_INIT_OPENGL11_FUNCTIONS=1")
-                ADD_DEFINITIONS("-DGLEW_STATIC")
-                ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
-                INCLUDE_DIRECTORIES( ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew )
-     		ENDIF(APPLE)
-ENDIF(WIN32)
-
-
-ADD_LIBRARY(BulletExampleBrowserLib ${BulletExampleBrowser_SRCS} )
-SET_TARGET_PROPERTIES(BulletExampleBrowserLib PROPERTIES VERSION ${BULLET_VERSION})
-SET_TARGET_PROPERTIES(BulletExampleBrowserLib PROPERTIES SOVERSION ${BULLET_VERSION})
-IF (BUILD_SHARED_LIBS)
-		IF (WIN32)
-                TARGET_LINK_LIBRARIES(
-                        BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
-                        BulletInverseDynamics LinearMath OpenGLWindow gwen
-                        ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
-                )
-		ELSE(WIN32)
-        IF(APPLE)
-                 TARGET_LINK_LIBRARIES(
-                                BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
-                                BulletInverseDynamics LinearMath OpenGLWindow gwen
-                                ${COCOA} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
-                 )
-  			ELSE(APPLE)
-                 TARGET_LINK_LIBRARIES(
-                                BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
-                                BulletInverseDynamics LinearMath OpenGLWindow gwen
-                                pthread dl
-                        )
-        ENDIF(APPLE)
-	ENDIF(WIN32)
-ENDIF(BUILD_SHARED_LIBS)
-
-####################
-#
-# Bullet Example Browser main app
-#
-####################
-
-INCLUDE_DIRECTORIES(
-        .
-        ${BULLET_PHYSICS_SOURCE_DIR}/src
-        ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs
-)
-
-
-LINK_LIBRARIES(
-        BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen
-)
-
-IF (WIN32)
-	INCLUDE_DIRECTORIES(
-		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew
-	)
-	LINK_LIBRARIES(
-		${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
-	)
-	ADD_DEFINITIONS(-DGLEW_STATIC)
-ELSE(WIN32)
-	IF(APPLE)
-                find_library(COCOA NAMES Cocoa)
-                MESSAGE(${COCOA})
-                link_libraries(${COCOA} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
-  ELSE(APPLE)
-		ADD_DEFINITIONS("-DGLEW_INIT_OPENGL11_FUNCTIONS=1")
-		ADD_DEFINITIONS("-DGLEW_STATIC")
-		ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
-		INCLUDE_DIRECTORIES( ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew )
-		LINK_LIBRARIES( pthread dl)
-	ENDIF(APPLE)
-ENDIF(WIN32)
-
 
 
 
@@ -281,6 +295,8 @@ ADD_EXECUTABLE(App_ExampleBrowser
 		main.cpp
 		ExampleEntries.cpp
 		ExampleEntries.h
+		${ExtendedTutorialsSources}
+		${BulletExampleBrowser_SRCS} 
 )
 
 FILE( MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/data" )

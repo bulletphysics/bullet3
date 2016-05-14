@@ -208,7 +208,7 @@ void InverseDynamicsExample::initPhysics()
         }
         // add joint target controls
         qd.resize(m_multiBody->getNumDofs());
-		qd[3]=B3_HALF_PI;
+		
         qd_name.resize(m_multiBody->getNumDofs());
        	q_name.resize(m_multiBody->getNumDofs()); 
 

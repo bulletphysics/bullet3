@@ -110,7 +110,7 @@ ImportSDFSetup::ImportSDFSetup(struct GUIHelperInterface* helper, int option, co
 
 		//load additional urdf file names from file
 
-		FILE* f = fopen("urdf_files.txt","r");
+		FILE* f = fopen("sdf_files.txt","r");
 		if (f)
 		{
 			int result;

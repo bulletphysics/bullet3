@@ -52,6 +52,7 @@ SET(AppBasicExampleGui_SRCS
 	../StandaloneMain/main_opengl_single_example.cpp
         ../ExampleBrowser/OpenGLGuiHelper.cpp
         ../ExampleBrowser/GL_ShapeDrawer.cpp
+        ../ExampleBrowser/CollisionShape2TriangleMesh.cpp
 )
 
 #this define maps StandaloneExampleCreateFunc to the right 'CreateFunc'
