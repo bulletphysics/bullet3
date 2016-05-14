@@ -356,7 +356,7 @@ b3Vector3	GpuRigidBodyDemo::getRayTo(int x,int y)
 
 unsigned char* GpuRigidBodyDemo::loadImage(const char* fileName, int& width, int& height, int& n)
 {
-		unsigned char *data = stbi_load(fileName, &width, &height, &n, 0);
+		unsigned char *data = stbi_load(fileName, &width, &height, &n, 3);
 		return data;
 }
 

@@ -114,7 +114,7 @@ struct TinyRendererSetupInternalData
 		for (int i=0;i<numObjects;i++)
 		{
 			m_transforms[i].setIdentity();
-			btVector3	pos(0.f,0.f,-(2.5* numObjects * 0.5)+i*2.5f);
+			btVector3	pos(0.f,-(2.5* numObjects * 0.5)+i*2.5f, 0.f);
 			m_transforms[i].setIdentity();
 			m_transforms[i].setOrigin( pos );
 			btQuaternion orn;
@@ -146,7 +146,8 @@ void TinyRendererSetup::initPhysics()
 	//request a visual bitma/texture we can render to
 	
 	
-
+    m_app->setUpAxis(2);
+    
 	m_internalData->m_canvas = m_app->m_2dCanvasInterface;
 	
 
