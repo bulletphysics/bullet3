@@ -121,6 +121,7 @@ struct CommonGraphicsApp
 	virtual void drawText3D( const char* txt, float posX, float posZY, float posZ, float size)=0;
 	virtual int	registerCubeShape(float halfExtentsX,float halfExtentsY, float halfExtentsZ, int textureIndex = -1,  float textureScaling = 1)=0;
 	virtual int	registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lod, int textureId=-1) = 0;
+	
 
 	virtual void registerGrid(int xres, int yres, float color0[4], float color1[4])=0;
 
