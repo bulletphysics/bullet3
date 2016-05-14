@@ -48,7 +48,6 @@ project "App_BulletExampleBrowser"
         "main.cpp",
         "ExampleEntries.cpp",
         
-		"../TinyRenderer/Bullet2TinyRenderer.cpp",
 		"../TinyRenderer/geometry.cpp",
 		"../TinyRenderer/model.cpp",
 		"../TinyRenderer/tgaimage.cpp",
