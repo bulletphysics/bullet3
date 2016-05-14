@@ -29,7 +29,6 @@ ENDIF(WIN32)
 ADD_LIBRARY(BulletExampleBrowserLib
 	OpenGLExampleBrowser.cpp
 	OpenGLGuiHelper.cpp
-	InProcessExampleBrowser.cpp
 	GL_ShapeDrawer.cpp
 	CollisionShape2TriangleMesh.cpp
 	CollisionShape2TriangleMesh.h
@@ -287,6 +286,7 @@ SET(BulletExampleBrowser_SRCS
 	../ThirdPartyLibs/tinyxml/tinyxml.cpp
 	../ThirdPartyLibs/tinyxml/tinyxmlerror.cpp
 	../ThirdPartyLibs/tinyxml/tinyxmlparser.cpp
+	InProcessExampleBrowser.cpp
 	${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc
 )
 
