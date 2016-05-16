@@ -65,6 +65,7 @@ Then
 
 	cd gmake
 	make
+	sudo make install
 
 **Mac OSX Xcode**
 	
