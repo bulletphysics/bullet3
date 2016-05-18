@@ -11,7 +11,7 @@
 #include "PhysicsLoopBackC_API.h"
 #include "PhysicsDirectC_API.h"
 #include "PhysicsClientC_API.h"
-
+#include "PhysicsServerSharedMemory.h"
 struct MyMotorInfo2
 {
 	btScalar m_velTarget;
@@ -28,6 +28,9 @@ class PhysicsClientExample : public SharedMemoryCommon
 {
 protected:
     b3PhysicsClientHandle m_physicsClientHandle;
+
+	//this m_physicsServer is only used when option eCLIENTEXAMPLE_SERVER is enabled
+	PhysicsServerSharedMemory	m_physicsServer;
 	
 	bool m_wantsTermination;
     btAlignedObjectArray<int> m_userCommandRequests;
@@ -38,15 +41,18 @@ protected:
 
 	void createButtons();
 	
-public:
+
     
     //@todo, add accessor methods
 	// MyMotorInfo2 m_motorTargetVelocities[MAX_NUM_MOTORS];
     MyMotorInfo2 m_motorTargetPositions[MAX_NUM_MOTORS];
 	int m_numMotors;
+	int m_options;
+	bool m_isOptionalServerConnected;
 
-    
-	PhysicsClientExample(GUIHelperInterface* helper);
+	public:
+
+	PhysicsClientExample(GUIHelperInterface* helper, int options);
 	virtual ~PhysicsClientExample();
     
 	virtual void	initPhysics();
@@ -93,6 +99,11 @@ public:
 	virtual void    exitPhysics(){};
 	virtual void	renderScene()
 	{
+		if (m_options == eCLIENTEXAMPLE_SERVER)
+		{
+			m_physicsServer.renderScene();
+		}
+
         b3DebugLines debugLines;
         b3GetDebugLines(m_physicsClientHandle,&debugLines);
         int numLines = debugLines.m_numDebugLines;
@@ -153,7 +164,13 @@ public:
             b3JointControlSetMaximumForce(commandHandle,uIndex,1000);
         }
 	}
-	virtual void	physicsDebugDraw(int debugFlags){}
+	virtual void	physicsDebugDraw(int debugFlags)
+	{
+		if (m_options==eCLIENTEXAMPLE_SERVER)
+		{
+			m_physicsServer.physicsDebugDraw(debugFlags);
+		}
+	}
 	virtual bool	mouseMoveCallback(float x,float y){return false;};
 	virtual bool	mouseButtonCallback(int button, int state, float x, float y){return false;}
 	virtual bool	keyboardCallback(int key, int state){return false;}
@@ -352,7 +369,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
         case CMD_SEND_PHYSICS_SIMULATION_PARAMETERS: {
             b3SharedMemoryCommandHandle commandHandle = b3InitPhysicsParamCommand(m_physicsClientHandle);
             b3PhysicsParamSetGravity(commandHandle, 0.0, 0.0, -9.8);
-            b3SubmitClientCommandAndWaitStatus(m_physicsClientHandle, commandHandle);
+            b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
             break;
         }
         default:
@@ -365,14 +382,16 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 
 
 
-PhysicsClientExample::PhysicsClientExample(GUIHelperInterface* helper)
+PhysicsClientExample::PhysicsClientExample(GUIHelperInterface* helper, int options)
 :SharedMemoryCommon(helper),
 m_physicsClientHandle(0),
 m_wantsTermination(false),
 m_sharedMemoryKey(SHARED_MEMORY_KEY),
 m_selectedBody(-1),
 m_prevSelectedBody(-1),
-m_numMotors(0)
+m_numMotors(0),
+m_options(options),
+m_isOptionalServerConnected(false)
 {
 	b3Printf("Started PhysicsClientExample\n");
 }
@@ -383,6 +402,12 @@ PhysicsClientExample::~PhysicsClientExample()
 	{
 		b3ProcessServerStatus(m_physicsClientHandle);
 		b3DisconnectSharedMemory(m_physicsClientHandle);
+	}
+
+	if (m_options == eCLIENTEXAMPLE_SERVER)
+	{
+		bool deInitializeSharedMemory = true;
+		m_physicsServer.disconnectSharedMemory(deInitializeSharedMemory);
 	}
     b3Printf("~PhysicsClientExample\n");
 }
@@ -406,7 +431,10 @@ void	PhysicsClientExample::createButtons()
         createButton("Load URDF",CMD_LOAD_URDF,  isTrigger);
         createButton("Step Sim",CMD_STEP_FORWARD_SIMULATION,  isTrigger);
         createButton("Send Bullet Stream",CMD_SEND_BULLET_DATA_STREAM,  isTrigger);
-        createButton("Get State",CMD_REQUEST_ACTUAL_STATE,  isTrigger);
+		if (m_options!=eCLIENTEXAMPLE_SERVER)
+		{
+			createButton("Get State",CMD_REQUEST_ACTUAL_STATE,  isTrigger);
+		}
         createButton("Send Desired State",CMD_SEND_DESIRED_STATE,  isTrigger);
         createButton("Create Box Collider",CMD_CREATE_BOX_COLLISION_SHAPE,isTrigger);
 		createButton("Create Cylinder Body",CMD_CREATE_RIGID_BODY,isTrigger);
@@ -477,6 +505,11 @@ void	PhysicsClientExample::initPhysics()
 	m_selectedBody = -1;
 	m_prevSelectedBody = -1;
 
+	if (m_options == eCLIENTEXAMPLE_SERVER)
+	{
+		m_isOptionalServerConnected = m_physicsServer.connectSharedMemory( m_guiHelper);
+	}
+
     m_physicsClientHandle  = b3ConnectSharedMemory(m_sharedMemoryKey);
 	//m_physicsClientHandle  = b3ConnectPhysicsLoopback(SHARED_MEMORY_KEY);
 	//m_physicsClientHandle = b3ConnectPhysicsDirect();
@@ -491,6 +524,15 @@ void	PhysicsClientExample::initPhysics()
 
 void	PhysicsClientExample::stepSimulation(float deltaTime)
 {
+
+	if (m_options == eCLIENTEXAMPLE_SERVER)
+	{
+		for (int i=0;i<100;i++)
+		{
+			m_physicsServer.processClientCommands();
+		}
+	}
+
 	if (m_prevSelectedBody != m_selectedBody)
 	{
 		createButtons();
@@ -564,10 +606,29 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 				m_selectedBody = -1;
                 m_numMotors=0;
                 createButtons();
-            }
-			
-            
-            prepareAndSubmitCommand(commandId);
+				b3SharedMemoryCommandHandle commandHandle = b3InitResetSimulationCommand(m_physicsClientHandle);
+				if (m_options == eCLIENTEXAMPLE_SERVER)
+				{
+					b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+					while (!b3CanSubmitCommand(m_physicsClientHandle))
+					{
+						m_physicsServer.processClientCommands();
+						b3SharedMemoryStatusHandle status = b3ProcessServerStatus(m_physicsClientHandle);
+						bool hasStatus = (status != 0);
+						if (hasStatus)
+						{
+							int statusType = b3GetStatusType(status);
+							b3Printf("Status after reset: %d",statusType);
+						}
+					}
+				} else
+				{
+					prepareAndSubmitCommand(commandId);
+				}
+            } else
+			{
+	            prepareAndSubmitCommand(commandId);
+			}
             
         }  else
         {
@@ -575,7 +636,10 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
             {
                 enqueueCommand(CMD_SEND_DESIRED_STATE);
                 enqueueCommand(CMD_STEP_FORWARD_SIMULATION);
-                enqueueCommand(CMD_REQUEST_DEBUG_LINES);
+				if (m_options != eCLIENTEXAMPLE_SERVER)
+				{
+					enqueueCommand(CMD_REQUEST_DEBUG_LINES);
+				}
                 //enqueueCommand(CMD_REQUEST_ACTUAL_STATE);
             }
         }
@@ -589,7 +653,7 @@ extern int gSharedMemoryKey;
 
 class CommonExampleInterface*    PhysicsClientCreateFunc(struct CommonExampleOptions& options)
 {
-    PhysicsClientExample* example = new PhysicsClientExample(options.m_guiHelper);
+    PhysicsClientExample* example = new PhysicsClientExample(options.m_guiHelper, options.m_option);
 	if (gSharedMemoryKey>=0)
 	{
 		example->setSharedMemoryKey(gSharedMemoryKey);
