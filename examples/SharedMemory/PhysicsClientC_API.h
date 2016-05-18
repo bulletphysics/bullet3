@@ -64,7 +64,13 @@ b3SharedMemoryCommandHandle b3InitRequestDebugLinesCommand(b3PhysicsClientHandle
 ///Get the pointers to the debug line information, after b3InitRequestDebugLinesCommand returns
 ///status CMD_DEBUG_LINES_COMPLETED
 void    b3GetDebugLines(b3PhysicsClientHandle physClient, struct b3DebugLines* lines);
-    
+
+///request an image from a simulated camera, using a software renderer.
+b3SharedMemoryCommandHandle b3InitRequestCameraImage(b3PhysicsClientHandle physClient);
+void b3RequestCameraImageSetResolution(b3SharedMemoryCommandHandle command, int pixelWidth, int pixelHeight);
+void b3RequestCameraImageSetCameraMatrices(b3SharedMemoryCommandHandle command, float viewMatrix[16], float projectionMatrix[16]);
+void b3GetCameraImageData(b3PhysicsClientHandle physClient, struct b3CameraImageData* imageData);
+
 
 b3SharedMemoryCommandHandle	b3InitPhysicsParamCommand(b3PhysicsClientHandle physClient);
 int	b3PhysicsParamSetGravity(b3SharedMemoryCommandHandle commandHandle, double gravx,double gravy, double gravz);

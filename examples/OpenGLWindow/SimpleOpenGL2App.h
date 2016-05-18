@@ -18,6 +18,7 @@ public:
 	
 	virtual void swapBuffer();
 	virtual void drawText( const char* txt, int posX, int posY);
+	virtual void drawTexturedRect(float x0, float y0, float x1, float y1, float color[4], float u0,float v0, float u1, float v1, int useRGBA){};
 	virtual void setBackgroundColor(float red, float green, float blue);
 	virtual int	registerCubeShape(float halfExtentsX,float halfExtentsY, float halfExtentsZ, int textureIndex = -1,  float textureScaling = 1)
 	{

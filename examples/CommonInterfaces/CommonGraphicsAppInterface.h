@@ -15,10 +15,10 @@ struct DrawGridData
     int upAxis;
     float gridColor[4];
 
-    DrawGridData()
+    DrawGridData(int upAxis=1)
     :gridSize(10),
     upOffset(0.001f),
-    upAxis(1)
+    upAxis(upAxis)
     {
         gridColor[0] = 0.6f;
         gridColor[1] = 0.6f;
@@ -119,6 +119,7 @@ struct CommonGraphicsApp
 	virtual void swapBuffer() = 0;
 	virtual void drawText( const char* txt, int posX, int posY) = 0;
 	virtual void drawText3D( const char* txt, float posX, float posZY, float posZ, float size)=0;
+	virtual void drawTexturedRect(float x0, float y0, float x1, float y1, float color[4], float u0,float v0, float u1, float v1, int useRGBA)=0;
 	virtual int	registerCubeShape(float halfExtentsX,float halfExtentsY, float halfExtentsZ, int textureIndex = -1,  float textureScaling = 1)=0;
 	virtual int	registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lod, int textureId=-1) = 0;
 	
