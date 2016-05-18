@@ -14,7 +14,7 @@
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "../ExampleBrowser/CollisionShape2TriangleMesh.h"
 #include "../Importers/ImportMeshUtility/b3ImportMeshUtility.h"
-#include "../../OpenGLWindow/GLInstanceGraphicsShape.h"
+#include "../OpenGLWindow/GLInstanceGraphicsShape.h"
 
 struct TinyRendererSetup : public CommonExampleInterface
 {
