@@ -89,39 +89,7 @@ struct TinyRendererSetupInternalData
 	{
 		m_depthBuffer.resize(m_width*m_height);
 
-		#if 0
-		btConeShape* cone = new btConeShape(1,1);
-		btSphereShape* sphere = new btSphereShape(1);
-		btBoxShape* box = new btBoxShape (btVector3(0.5,0.5,0.5));
-		m_shapePtr.push_back(box);
-		m_shapePtr.push_back(box);
-		//m_shapePtr.push_back(sphere);
-		//m_shapePtr.push_back(box);
-		
-
-
-		for (int i=0;i<m_shapePtr.size();i++)
-		{
-			TinyRenderObjectData* ob = new TinyRenderObjectData(m_width,m_height,m_rgbColorBuffer,m_depthBuffer);
-			btAlignedObjectArray<btVector3> vertexPositions;
-			btAlignedObjectArray<btVector3> vertexNormals;
-			btAlignedObjectArray<int> indicesOut;
-			btTransform ident;
-			ident.setIdentity();
-			CollisionShape2TriangleMesh(m_shapePtr[i],ident,vertexPositions,vertexNormals,indicesOut);
-
-			
-			//ob->createCube(0.5,0.5,0.5);//createCube
-            ob->loadModel("textured_sphere_smooth.obj");//cube.obj");
-			m_renderObjects.push_back(ob);
-			//ob->registerMesh2(vertexPositions,vertexNormals,indicesOut);
-		}
-		//ob->registerMeshShape(
-
-		
-		updateTransforms();
-		#endif
-	}
+    }
 	void updateTransforms()
 	{
 		int numObjects = m_shapePtr.size();
@@ -140,15 +108,15 @@ struct TinyRendererSetupInternalData
 				m_transforms[i].setRotation(orn);
 			}
 		}
-		//m_pitch += 0.005f;
-		//m_yaw += 0.01f;
+		m_pitch += 0.005f;
+		m_yaw += 0.01f;
 	}
 
 };
 
 TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 {
-    m_useSoftware = true;
+    m_useSoftware = false;
 	m_guiHelper = gui;
 	m_app = gui->getAppInterface();
 	m_internalData = new TinyRendererSetupInternalData(gui->getAppInterface()->m_window->getWidth(),gui->getAppInterface()->m_window->getHeight());
@@ -180,7 +148,7 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 
 				float position[4]={0,0,0,1};
 				float orn[4]={0,0,0,1};
-				float color[4]={1,1,1,0.4};
+				float color[4]={1,1,1,1};
 				float scaling[4]={1,1,1,1};
 
 				m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId,position,orn,color,scaling);
@@ -250,7 +218,7 @@ void TinyRendererSetup::initPhysics()
     ComboBoxParams comboParams;
     comboParams.m_userPointer = this;
     comboParams.m_numItems=sizeof(items)/sizeof(char*);
-    comboParams.m_startItem = 0;
+    comboParams.m_startItem = 1;
     comboParams.m_items=items;
     comboParams.m_callback =TinyRendererComboCallback;
     m_guiHelper->getParameterInterface()->registerComboBox( comboParams);
@@ -267,12 +235,19 @@ void TinyRendererSetup::exitPhysics()
 
 void TinyRendererSetup::stepSimulation(float deltaTime)
 {
+    m_internalData->updateTransforms();
+    
     if (!m_useSoftware)
     {
+        
+        for (int i=0;i<m_internalData->m_transforms.size();i++)
+        {
+            m_guiHelper->getRenderInterface()->writeSingleInstanceTransformToCPU(m_internalData->m_transforms[i].getOrigin(),m_internalData->m_transforms[i].getRotation(),i);
+        }
+        m_guiHelper->getRenderInterface()->writeTransforms();
         m_guiHelper->getRenderInterface()->renderScene();
     } else
     {
-        m_internalData->updateTransforms();
         
         TGAColor clearColor;
         clearColor.bgra[0] = 200;
@@ -327,7 +302,7 @@ void TinyRendererSetup::stepSimulation(float deltaTime)
         //m_app->drawText("hello",500,500);
         render->activateTexture(m_internalData->m_textureHandle);
         render->updateTexture(m_internalData->m_textureHandle,m_internalData->m_rgbColorBuffer.buffer());
-        float color[4] = {1,1,1,0.5};
+        float color[4] = {1,1,1,1};
         m_app->drawTexturedRect(0,0,m_app->m_window->getWidth(), m_app->m_window->getHeight(),color,0,0,1,1,true);
     }
 }
