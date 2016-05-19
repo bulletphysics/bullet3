@@ -962,6 +962,13 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						break;
 					}
 
+				case CMD_REQUEST_CAMERA_IMAGE_DATA:
+				{
+					serverStatusOut.m_type = CMD_CLIENT_COMMAND_COMPLETED;
+					hasStatus = true;
+					break;
+				}
+
                 case CMD_LOAD_URDF:
                 {
 					

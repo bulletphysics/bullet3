@@ -60,8 +60,8 @@ Vec3f barycentric(Vec2f A, Vec2f B, Vec2f C, Vec2f P) {
 }
 
 void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zbuffer, const Matrix& viewPortMatrix) {
-    mat<3,4,float> pts  = (viewPortMatrix*clipc).transpose(); // transposed to ease access to each of the points
-
+	mat<3,4,float> pts  = (viewPortMatrix*clipc).transpose(); // transposed to ease access to each of the points
+	
 	
 	//we don't clip triangles that cross the near plane, just discard them instead of showing artifacts
 	if (pts[0][3]<0 || pts[1][3] <0 || pts[2][3] <0)
@@ -93,8 +93,10 @@ void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zb
 			
             Vec3f bc_clip    = Vec3f(bc_screen.x/pts[0][3], bc_screen.y/pts[1][3], bc_screen.z/pts[2][3]);
             bc_clip = bc_clip/(bc_clip.x+bc_clip.y+bc_clip.z);
-            float frag_depth = clipc[2]*bc_clip;
-            if (bc_screen.x<0 || bc_screen.y<0 || bc_screen.z<0 || zbuffer[P.x+P.y*image.get_width()]>frag_depth) continue;
+            float frag_depth = -1*(clipc[2]*bc_clip);
+            if (bc_screen.x<0 || bc_screen.y<0 || bc_screen.z<0 || 
+				zbuffer[P.x+P.y*image.get_width()]>frag_depth) 
+				continue;
             bool discard = shader.fragment(bc_clip, color);
             if (!discard) {
                 zbuffer[P.x+P.y*image.get_width()] = frag_depth;

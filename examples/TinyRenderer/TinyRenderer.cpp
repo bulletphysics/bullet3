@@ -70,7 +70,8 @@ struct Shader : public IShader {
 
         Vec3f n = (B*m_model->normal(uv)).normalize();
 
-        float diff = b3Min(b3Max(0.f, n*m_light_dir_local+0.3f),1.f);
+        float diff = 1;//b3Min(b3Max(0.f, n*0.3f),1.f);
+		//float diff = b3Min(b3Max(0.f, n*m_light_dir_local+0.3f),1.f);
 		//float diff = b3Max(0.f, n*m_light_dir_local);
         color = m_model->diffuse(uv)*diff;
 
@@ -90,11 +91,13 @@ m_userIndex(-1)
 {
     Vec3f       eye(1,1,3);
     Vec3f    center(0,0,0);
-    Vec3f        up(0,1,0);
+    Vec3f        up(0,0,1);
     
     m_modelMatrix = Matrix::identity();
     m_viewMatrix = lookat(eye, center, up);
-    m_viewportMatrix = viewport(width/8, height/8, width*3/4, height*3/4);
+    //m_viewportMatrix = viewport(width/8, height/8, width*3/4, height*3/4);
+	//m_viewportMatrix = viewport(width/8, height/8, width*3/4, height*3/4);
+	m_viewportMatrix = viewport(0,0,width,height);
     m_projectionMatrix = projection(-1.f/(eye-center).norm());
  
 }
@@ -113,15 +116,22 @@ void TinyRenderObjectData::loadModel(const char* fileName)
 }
 
 
-void TinyRenderObjectData::registerMeshShape(const float* vertices, int numVertices,const int* indices, int numIndices)
+void TinyRenderObjectData::registerMeshShape(const float* vertices, int numVertices,const int* indices, int numIndices,
+	unsigned char* textureImage, int textureWidth, int textureHeight)
 {
 	if (0==m_model)
     {
         m_model = new Model();
-		char relativeFileName[1024];
-		if (b3ResourcePath::findResourcePath("floor_diffuse.tga", relativeFileName, 1024))
+		if (textureImage)
 		{
-			m_model->loadDiffuseTexture(relativeFileName);
+			m_model->setDiffuseTextureFromData(textureImage,textureWidth,textureHeight);
+		} else
+		{
+			char relativeFileName[1024];
+			if (b3ResourcePath::findResourcePath("floor_diffuse.tga", relativeFileName, 1024))
+			{
+				m_model->loadDiffuseTexture(relativeFileName);
+			}
 		}
 		
         for (int i=0;i<numVertices;i++)
@@ -223,6 +233,20 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
     if (0==model)
         return;
     
+	Vec3f       eye(renderData.m_eye[0],renderData.m_eye[1],renderData.m_eye[2]);
+    Vec3f       center(renderData.m_center[0],renderData.m_center[1],renderData.m_center[2]);
+    Vec3f        up(0,0,1);
+    
+
+	//renderData.m_viewMatrix = lookat(eye, center, up);
+	int width = renderData.m_width;
+	int height = renderData.m_height;
+	//renderData.m_viewportMatrix = viewport(width/8, height/8, width*3/4, height*3/4);
+	renderData.m_viewportMatrix = viewport(0,0,renderData.m_width,renderData.m_height);
+    //renderData.m_projectionMatrix = projection(-1.f/(eye-center).norm());
+ 
+
+
     b3AlignedObjectArray<float>& zbuffer = renderData.m_depthBuffer;
     
     TGAImage& frame = renderData.m_rgbColorBuffer;
@@ -233,7 +257,10 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
         Matrix modelViewMatrix = renderData.m_viewMatrix*renderData.m_modelMatrix;
         
         Shader shader(model, light_dir_local, modelViewMatrix, renderData.m_projectionMatrix);
-        for (int i=0; i<model->nfaces(); i++) {
+        
+		
+		for (int i=0; i<model->nfaces(); i++) {
+			 
             for (int j=0; j<3; j++) {
                 shader.vertex(i, j);
             }

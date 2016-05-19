@@ -49,6 +49,28 @@ Model::Model():verts_(), faces_(), norms_(), uv_(), diffusemap_(), normalmap_(),
 {
 }
 
+void Model::setDiffuseTextureFromData(unsigned char* textureImage,int textureWidth,int textureHeight)
+{
+	diffusemap_ = TGAImage(textureWidth, textureHeight, TGAImage::RGB);
+	for (int i=0;i<textureWidth;i++)
+	{
+		for (int j=0;j<textureHeight;j++)
+		{
+			TGAColor color;
+			color.bgra[0] = textureImage[(i+j*textureWidth)*3+0];
+			color.bgra[1] = textureImage[(i+j*textureWidth)*3+1];
+			color.bgra[2] = textureImage[(i+j*textureWidth)*3+2];
+			color.bgra[3] = 255;
+
+			color.bytespp = 3;
+			diffusemap_.set(i,j,color);
+			
+		}
+	}
+	
+	diffusemap_.flip_vertically();
+}
+
 void Model::loadDiffuseTexture(const char* relativeFileName)
 {
     diffusemap_.read_tga_file(relativeFileName);

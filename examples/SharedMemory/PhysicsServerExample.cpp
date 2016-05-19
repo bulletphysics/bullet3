@@ -19,17 +19,18 @@ class PhysicsServerExample : public SharedMemoryCommon
     bool m_isConnected;
     btClock m_clock;
 	bool m_replay;
-	
+	int m_options;
+
 public:
-    
-	PhysicsServerExample(GUIHelperInterface* helper, SharedMemoryInterface* sharedMem=0);
-    
+
+	PhysicsServerExample(GUIHelperInterface* helper, SharedMemoryInterface* sharedMem=0, int options=0);
+
 	virtual ~PhysicsServerExample();
-    
+
 	virtual void	initPhysics();
-    
+
 	virtual void	stepSimulation(float deltaTime);
-    
+
     void enableCommandLogging()
 	{
 		m_physicsServer.enableCommandLogging(true,"BulletPhysicsCommandLog.bin");
@@ -40,9 +41,9 @@ public:
 		m_replay = true;
 		m_physicsServer.replayFromLogFile("BulletPhysicsCommandLog.bin");
 	}
-	
 
-    
+
+
 	virtual void resetCamera()
 	{
 		float dist = 5;
@@ -51,23 +52,23 @@ public:
 		float targetPos[3]={0,0,0};//-3,2.8,-2.5};
 		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
 	}
-    
+
     virtual bool wantsTermination();
     virtual bool isConnected();
 	virtual void	renderScene();
 	virtual void    exitPhysics(){}
 
 	virtual void	physicsDebugDraw(int debugFlags);
-	
+
 	btVector3	getRayTo(int x,int y);
-	
+
 	virtual bool	mouseMoveCallback(float x,float y)
 	{
 		if (m_replay)
 			return false;
 
 		CommonRenderInterface* renderer = m_guiHelper->getRenderInterface();
-		
+
 		if (!renderer)
 		{
 			btAssert(0);
@@ -87,16 +88,16 @@ public:
 			return false;
 
 		CommonRenderInterface* renderer = m_guiHelper->getRenderInterface();
-		
+
 		if (!renderer)
 		{
 			btAssert(0);
 			return false;
 		}
-		
+
 		CommonWindowInterface* window = m_guiHelper->getAppInterface()->m_window;
 
-	
+
 		if (state==1)
 		{
 			if(button==0 && (!window->isModifierKeyPressed(B3G_ALT) && !window->isModifierKeyPressed(B3G_CONTROL) ))
@@ -133,12 +134,13 @@ public:
 
 };
 
-PhysicsServerExample::PhysicsServerExample(GUIHelperInterface* helper, SharedMemoryInterface* sharedMem)
+PhysicsServerExample::PhysicsServerExample(GUIHelperInterface* helper, SharedMemoryInterface* sharedMem, int options)
 :SharedMemoryCommon(helper),
 m_physicsServer(sharedMem),
 m_wantsShutdown(false),
 m_isConnected(false),
-m_replay(false)
+m_replay(false),
+m_options(options)
 {
 	b3Printf("Started PhysicsServer\n");
 }
@@ -164,18 +166,18 @@ void	PhysicsServerExample::initPhysics()
 	m_guiHelper->setUpAxis(upAxis);
 
 #if 0
-	
+
     createEmptyDynamicsWorld();
 
 	//todo: create a special debug drawer that will cache the lines, so we can send the debug info over the wire
 	btVector3 grav(0,0,0);
 	grav[upAxis] = 0;//-9.8;
 	this->m_dynamicsWorld->setGravity(grav);
-    
+
 #endif
-	
+
 	m_isConnected = m_physicsServer.connectSharedMemory( m_guiHelper);
-  
+
 }
 
 
@@ -188,11 +190,7 @@ bool PhysicsServerExample::wantsTermination()
 
 void	PhysicsServerExample::stepSimulation(float deltaTime)
 {
-	if (m_replay)
-	{
-		for (int i=0;i<100;i++)
-			m_physicsServer.processClientCommands();
-	} else
+	if (m_options == PHYSICS_SERVER_USE_RTC_CLOCK)
 	{
 		btClock rtc;
 		btScalar endTime = rtc.getTimeMilliseconds() + deltaTime*btScalar(800);
@@ -201,6 +199,10 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
 		{
 			m_physicsServer.processClientCommands();
 		}
+	} else
+	{
+        for (int i=0;i<10;i++)
+			m_physicsServer.processClientCommands();
 	}
 }
 
@@ -222,7 +224,7 @@ void    PhysicsServerExample::physicsDebugDraw(int debugDrawFlags)
 btVector3	PhysicsServerExample::getRayTo(int x,int y)
 {
 	CommonRenderInterface* renderer = m_guiHelper->getRenderInterface();
-		
+
 	if (!renderer)
 	{
 		btAssert(0);
@@ -288,7 +290,7 @@ extern int gSharedMemoryKey;
 
 class CommonExampleInterface*    PhysicsServerCreateFunc(struct CommonExampleOptions& options)
 {
-  	PhysicsServerExample* example = new PhysicsServerExample(options.m_guiHelper, options.m_sharedMem);
+  	PhysicsServerExample* example = new PhysicsServerExample(options.m_guiHelper, options.m_sharedMem, options.m_option);
 	if (gSharedMemoryKey>=0)
 	{
 		example->setSharedMemoryKey(gSharedMemoryKey);
@@ -302,5 +304,5 @@ class CommonExampleInterface*    PhysicsServerCreateFunc(struct CommonExampleOpt
 		example->replayFromLogFile();
 	}
 	return example;
-	
+
 }
