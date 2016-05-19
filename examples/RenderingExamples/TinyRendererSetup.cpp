@@ -15,6 +15,7 @@
 #include "../ExampleBrowser/CollisionShape2TriangleMesh.h"
 #include "../Importers/ImportMeshUtility/b3ImportMeshUtility.h"
 #include "../OpenGLWindow/GLInstanceGraphicsShape.h"
+#include "../CommonInterfaces/CommonParameterInterface.h"
 
 struct TinyRendererSetup : public CommonExampleInterface
 {
@@ -22,6 +23,7 @@ struct TinyRendererSetup : public CommonExampleInterface
 	struct GUIHelperInterface* m_guiHelper;
 	struct CommonGraphicsApp* m_app;
 	struct TinyRendererSetupInternalData* m_internalData;
+    bool m_useSoftware;
 
 	TinyRendererSetup(struct GUIHelperInterface* guiHelper);
 
@@ -47,6 +49,11 @@ struct TinyRendererSetup : public CommonExampleInterface
 	virtual void	renderScene()
 	{
 	}
+   
+    void selectRenderer(int rendererIndex)
+    {
+        m_useSoftware = (rendererIndex==0);
+    }
 };
 
 struct TinyRendererSetupInternalData
@@ -105,7 +112,7 @@ struct TinyRendererSetupInternalData
 
 			
 			//ob->createCube(0.5,0.5,0.5);//createCube
-			ob->loadModel("cube.obj");
+            ob->loadModel("textured_sphere_smooth.obj");//cube.obj");
 			m_renderObjects.push_back(ob);
 			//ob->registerMesh2(vertexPositions,vertexNormals,indicesOut);
 		}
@@ -141,11 +148,12 @@ struct TinyRendererSetupInternalData
 
 TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 {
+    m_useSoftware = true;
 	m_guiHelper = gui;
 	m_app = gui->getAppInterface();
 	m_internalData = new TinyRendererSetupInternalData(gui->getAppInterface()->m_window->getWidth(),gui->getAppInterface()->m_window->getHeight());
 	m_app->m_renderer->enableBlend(true);
-	const char* fileName = "cube.obj";
+	const char* fileName = "textured_sphere_smooth.obj";//cube.obj";
 	
 
 	{
@@ -156,7 +164,7 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 			b3ImportMeshData meshData;
 			if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(fileName, meshData))
 			{
-				int textureIndex = 0;
+				int textureIndex = -1;
 
 				if (meshData.m_textureImage)
 				{
@@ -209,6 +217,26 @@ TinyRendererSetup::~TinyRendererSetup()
 	delete m_internalData;
 }
 
+const char* items[] = {"Software", "OpenGL"};
+
+void TinyRendererComboCallback(int combobox, const char* item, void* userPointer)
+{
+    TinyRendererSetup* cl = (TinyRendererSetup*) userPointer;
+    b3Assert(cl);
+    int index=-1;
+    int numItems = sizeof(items)/sizeof(char*);
+    for (int i=0;i<numItems;i++)
+    {
+        if (!strcmp(item,items[i]))
+        {
+            index = i;
+        }
+    }
+    cl->selectRenderer(index);
+}
+
+
+
 void TinyRendererSetup::initPhysics()
 {
 	//request a visual bitma/texture we can render to
@@ -218,6 +246,16 @@ void TinyRendererSetup::initPhysics()
 	CommonRenderInterface* render = m_app->m_renderer;
 	
 	m_internalData->m_textureHandle = render->registerTexture(m_internalData->m_rgbColorBuffer.buffer(),m_internalData->m_width,m_internalData->m_height);
+    
+    ComboBoxParams comboParams;
+    comboParams.m_userPointer = this;
+    comboParams.m_numItems=sizeof(items)/sizeof(char*);
+    comboParams.m_startItem = 0;
+    comboParams.m_items=items;
+    comboParams.m_callback =TinyRendererComboCallback;
+    m_guiHelper->getParameterInterface()->registerComboBox( comboParams);
+    
+    
 }
 
 
@@ -229,66 +267,69 @@ void TinyRendererSetup::exitPhysics()
 
 void TinyRendererSetup::stepSimulation(float deltaTime)
 {
-	m_guiHelper->getRenderInterface()->renderScene();
-	
-	m_internalData->updateTransforms();
-	
-	TGAColor clearColor;
-	clearColor.bgra[0] = 255;
-	clearColor.bgra[1] = 255;
-	clearColor.bgra[2] = 255;
-	clearColor.bgra[3] = 255;
-	for(int y=0;y<m_internalData->m_height;++y)
-	{
-		for(int x=0;x<m_internalData->m_width;++x)
-		{
-			m_internalData->m_rgbColorBuffer.set(x,y,clearColor);
-			m_internalData->m_depthBuffer[x+y*m_internalData->m_width] = -1e30f;
-		}
-	}
+    if (!m_useSoftware)
+    {
+        m_guiHelper->getRenderInterface()->renderScene();
+    } else
+    {
+        m_internalData->updateTransforms();
+        
+        TGAColor clearColor;
+        clearColor.bgra[0] = 200;
+        clearColor.bgra[1] = 200;
+        clearColor.bgra[2] = 200;
+        clearColor.bgra[3] = 255;
+        for(int y=0;y<m_internalData->m_height;++y)
+        {
+            for(int x=0;x<m_internalData->m_width;++x)
+            {
+                m_internalData->m_rgbColorBuffer.set(x,y,clearColor);
+                m_internalData->m_depthBuffer[x+y*m_internalData->m_width] = -1e30f;
+            }
+        }
 
 
-	ATTRIBUTE_ALIGNED16(btScalar modelMat2[16]);
-	ATTRIBUTE_ALIGNED16(float viewMat[16]);
-	ATTRIBUTE_ALIGNED16(float projMat[16]);
-	CommonRenderInterface* render = this->m_app->m_renderer;
-	render->getActiveCamera()->getCameraViewMatrix(viewMat);
-	render->getActiveCamera()->getCameraProjectionMatrix(projMat);
-		
+        ATTRIBUTE_ALIGNED16(btScalar modelMat2[16]);
+        ATTRIBUTE_ALIGNED16(float viewMat[16]);
+        ATTRIBUTE_ALIGNED16(float projMat[16]);
+        CommonRenderInterface* render = this->m_app->m_renderer;
+        render->getActiveCamera()->getCameraViewMatrix(viewMat);
+        render->getActiveCamera()->getCameraProjectionMatrix(projMat);
+            
 
-	
-	for (int o=0;o<this->m_internalData->m_renderObjects.size();o++)
-	{
-			
-		const btTransform& tr = m_internalData->m_transforms[o];
-		tr.getOpenGLMatrix(modelMat2);
-		
-				
-		for (int i=0;i<4;i++)
-		{
-			for (int j=0;j<4;j++)
-			{
-				m_internalData->m_renderObjects[o]->m_modelMatrix[i][j] = float(modelMat2[i+4*j]);
-				m_internalData->m_renderObjects[o]->m_viewMatrix[i][j] = viewMat[i+4*j];
-				m_internalData->m_renderObjects[o]->m_projectionMatrix[i][j] = projMat[i+4*j];
-				
-				float eye[4];
-				float center[4];
-				render->getActiveCamera()->getCameraPosition(eye);
-				render->getActiveCamera()->getCameraTargetPosition(center);
+        
+        for (int o=0;o<this->m_internalData->m_renderObjects.size();o++)
+        {
+                
+            const btTransform& tr = m_internalData->m_transforms[o];
+            tr.getOpenGLMatrix(modelMat2);
+            
+                    
+            for (int i=0;i<4;i++)
+            {
+                for (int j=0;j<4;j++)
+                {
+                    m_internalData->m_renderObjects[o]->m_modelMatrix[i][j] = float(modelMat2[i+4*j]);
+                    m_internalData->m_renderObjects[o]->m_viewMatrix[i][j] = viewMat[i+4*j];
+                    m_internalData->m_renderObjects[o]->m_projectionMatrix[i][j] = projMat[i+4*j];
+                    
+                    float eye[4];
+                    float center[4];
+                    render->getActiveCamera()->getCameraPosition(eye);
+                    render->getActiveCamera()->getCameraTargetPosition(center);
 
-				m_internalData->m_renderObjects[o]->m_eye.setValue(eye[0],eye[1],eye[2]);
-				m_internalData->m_renderObjects[o]->m_center.setValue(center[0],center[1],center[2]);
-			}
-		}
-		TinyRenderer::renderObject(*m_internalData->m_renderObjects[o]);
-	}
-	//m_app->drawText("hello",500,500);
-	render->activateTexture(m_internalData->m_textureHandle);
-	render->updateTexture(m_internalData->m_textureHandle,m_internalData->m_rgbColorBuffer.buffer());
-	float color[4] = {1,1,1,0.5};
-	m_app->drawTexturedRect(0,0,m_app->m_window->getWidth(), m_app->m_window->getHeight(),color,0,0,1,1,true);
-	
+                    m_internalData->m_renderObjects[o]->m_eye.setValue(eye[0],eye[1],eye[2]);
+                    m_internalData->m_renderObjects[o]->m_center.setValue(center[0],center[1],center[2]);
+                }
+            }
+            TinyRenderer::renderObject(*m_internalData->m_renderObjects[o]);
+        }
+        //m_app->drawText("hello",500,500);
+        render->activateTexture(m_internalData->m_textureHandle);
+        render->updateTexture(m_internalData->m_textureHandle,m_internalData->m_rgbColorBuffer.buffer());
+        float color[4] = {1,1,1,0.5};
+        m_app->drawTexturedRect(0,0,m_app->m_window->getWidth(), m_app->m_window->getHeight(),color,0,0,1,1,true);
+    }
 }
 
 

@@ -201,7 +201,7 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
 		}
 	} else
 	{
-        for (int i=0;i<100;i++)
+        for (int i=0;i<10;i++)
 			m_physicsServer.processClientCommands();
 	}
 }
