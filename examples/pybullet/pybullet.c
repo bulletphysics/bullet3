@@ -329,10 +329,16 @@ initpybullet(void)
         SpamMethods, "Python bindings for Bullet");
 #endif
 
+#if PY_MAJOR_VERSION >= 3
     if (m == NULL)
         return m;
+#else
+    if (m == NULL)
+        return;
+#endif
+    
 	
-	PyModule_AddIntConstant (m, "SHARED_MEMORY", eCONNECT_SHARED_MEMORY); // user read 
+	PyModule_AddIntConstant (m, "SHARED_MEMORY", eCONNECT_SHARED_MEMORY); // user read
 	PyModule_AddIntConstant (m, "DIRECT", eCONNECT_DIRECT); // user read 
 	PyModule_AddIntConstant (m, "GUI", eCONNECT_GUI); // user read 
 

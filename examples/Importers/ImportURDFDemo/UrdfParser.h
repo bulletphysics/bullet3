@@ -186,6 +186,7 @@ public:
         {
             return m_sdfModels.size();
         }
+		return 0;
     }
     
     void activateModel(int modelIndex);

@@ -76,17 +76,17 @@ public:
 	virtual ~ExampleEntriesPhysicsServer();
 
 	static void registerExampleEntry(int menuLevel, const char* name,const char* description, CommonExampleInterface::CreateFunc* createFunc, int option=0);
-	
+
 	virtual void initExampleEntries();
 
 	virtual void initOpenCLExampleEntries();
-	
+
 	virtual int getNumRegisteredExamples();
 
 	virtual CommonExampleInterface::CreateFunc* getExampleCreateFunc(int index);
 
 	virtual const char* getExampleName(int index);
-	
+
 	virtual const char* getExampleDescription(int index);
 
 	virtual int	getExampleOption(int index);
@@ -120,11 +120,14 @@ struct ExampleEntriesInternalData2
 
 static ExampleEntryPhysicsServer gDefaultExamplesPhysicsServer[]=
 {
-	
+
 	ExampleEntryPhysicsServer(0,"Robotics Control"),
-	
+
 	ExampleEntryPhysicsServer(1,"Physics Server", "Create a physics server that communicates with a physics client over shared memory",
 			PhysicsServerCreateFunc),
+    ExampleEntryPhysicsServer(1,"Physics Server (RTC)", "Create a physics server that communicates with a physics client over shared memory. At each update, the Physics Server will continue calling 'stepSimulation' based on the real-time clock (RTC).",
+			PhysicsServerCreateFunc,PHYSICS_SERVER_USE_RTC_CLOCK),
+
 	ExampleEntryPhysicsServer(1,"Physics Server (Logging)", "Create a physics server that communicates with a physics client over shared memory. It will log all commands to a file.",
 			PhysicsServerCreateFunc,PHYSICS_SERVER_ENABLE_COMMAND_LOGGING),
 	ExampleEntryPhysicsServer(1,"Physics Server (Replay Log)", "Create a physics server that replay a command log from disk.",
@@ -152,7 +155,7 @@ void ExampleEntriesPhysicsServer::initExampleEntries()
 {
 	m_data->m_allExamples.clear();
 
-	
+
 
 	int numDefaultEntries = sizeof(gDefaultExamplesPhysicsServer)/sizeof(ExampleEntryPhysicsServer);
 	for (int i=0;i<numDefaultEntries;i++)
@@ -231,8 +234,8 @@ void	ExampleBrowserThreadFunc(void* userPtr,void* lsMemory)
 	int workLeft = true;
   b3CommandLineArgs args2(args->m_argc,args->m_argv);
 	b3Clock clock;
-	
-	
+
+
 	ExampleEntriesPhysicsServer examples;
 	examples.initExampleEntries();
 
@@ -243,12 +246,12 @@ void	ExampleBrowserThreadFunc(void* userPtr,void* lsMemory)
 	clock.reset();
 	if (init)
 	{
-		
+
 		args->m_cs->lock();
 		args->m_cs->setSharedParam(0,eExampleBrowserIsInitialized);
 		args->m_cs->unlock();
 
-		do 
+		do
 		{
 			float deltaTimeInSeconds = clock.getTimeMicroseconds()/1000000.f;
 			clock.reset();
@@ -405,7 +408,7 @@ void btUpdateInProcessExampleBrowserMainThread(btInProcessExampleBrowserMainThre
 }
 void btShutDownExampleBrowserMainThread(btInProcessExampleBrowserMainThreadInternalData* data)
 {
-    
+
     data->m_exampleBrowser->setSharedMemoryInterface(0);
     delete data->m_exampleBrowser;
     delete data;
