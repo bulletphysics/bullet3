@@ -416,6 +416,18 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 
                 break;
             }
+            
+            case CMD_CAMERA_IMAGE_COMPLETED:
+            {
+                b3Printf("Camera image OK\n");
+                break;
+            } 
+            
+            case CMD_CAMERA_IMAGE_FAILED:
+            {
+                b3Printf("Camera image FAILED\n");
+                break;
+            }
 
             default: {
                 b3Error("Unknown server status\n");

@@ -23,6 +23,8 @@ subject to the following restrictions:
 #include "../Importers/ImportURDFDemo/BulletUrdfImporter.h"
 #include "../Importers/ImportURDFDemo/URDF2Bullet.h"
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
+#include "../Importers/ImportURDFDemo/DefaultVisualShapeConverter.h"
+
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
 
 #include "btBulletDynamicsCommon.h"
@@ -153,7 +155,10 @@ void InverseDynamicsExample::initPhysics()
     case 0:
     case BT_ID_LOAD_URDF:
         {
-            BulletURDFImporter u2b(m_guiHelper);
+
+
+			DefaultVisualShapeConverter visualConverter(m_guiHelper);
+            BulletURDFImporter u2b(m_guiHelper, &visualConverter);
             bool loadOk =  u2b.loadURDF("kuka_lwr/kuka.urdf");
             if (loadOk)
             {

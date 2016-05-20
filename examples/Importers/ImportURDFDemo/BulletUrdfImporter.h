@@ -3,6 +3,8 @@
 
 #include "URDFImporterInterface.h"
 
+#include "LinkVisualShapesConverter.h"
+
 
 ///BulletURDFImporter can deal with URDF and (soon) SDF files
 class BulletURDFImporter : public URDFImporterInterface
@@ -13,7 +15,7 @@ class BulletURDFImporter : public URDFImporterInterface
 
 public:
 
-	BulletURDFImporter(struct GUIHelperInterface* guiHelper);
+	BulletURDFImporter(struct GUIHelperInterface* guiHelper, LinkVisualShapesConverter* customConverter);
 
 	virtual ~BulletURDFImporter();
 
@@ -44,7 +46,7 @@ public:
     
     virtual bool getRootTransformInWorld(btTransform& rootTransformInWorld) const;
 
-	virtual int convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const;
+	virtual int convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, class btCollisionShape* colShape) const;
 
     ///todo(erwincoumans) refactor this convertLinkCollisionShapes/memory allocation
     

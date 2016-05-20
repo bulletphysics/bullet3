@@ -246,6 +246,8 @@ SET(BulletExampleBrowser_SRCS
  ../Importers/ImportURDFDemo/urdfStringSplit.h
   ../Importers/ImportURDFDemo/BulletUrdfImporter.cpp
   ../Importers/ImportURDFDemo/BulletUrdfImporter.h
+  ../Importers/ImportURDFDemo/DefaultVisualShapeConverter.cpp
+  ../Importers/ImportURDFDemo/DefaultVisualShapeConverter.h
   ../VoronoiFracture/VoronoiFractureDemo.cpp
   ../VoronoiFracture/VoronoiFractureDemo.h
   ../VoronoiFracture/btConvexConvexMprAlgorithm.cpp

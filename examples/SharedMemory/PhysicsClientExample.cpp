@@ -235,6 +235,16 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 
             break;
         }
+        case CMD_REQUEST_CAMERA_IMAGE_DATA:
+        {
+            ///request an image from a simulated camera, using a software renderer.
+            
+            b3SharedMemoryCommandHandle commandHandle = b3InitRequestCameraImage(m_physicsClientHandle);
+            //void b3RequestCameraImageSetResolution(b3SharedMemoryCommandHandle command, int pixelWidth, int pixelHeight);
+            //void b3RequestCameraImageSetCameraMatrices(b3SharedMemoryCommandHandle command, float viewMatrix[16], float projectionMatrix[16]);
+            b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+            break;
+        }
         case CMD_CREATE_BOX_COLLISION_SHAPE:
         {
             b3SharedMemoryCommandHandle commandHandle = b3CreateBoxShapeCommandInit(m_physicsClientHandle);
@@ -429,6 +439,7 @@ void	PhysicsClientExample::createButtons()
 		m_guiHelper->getParameterInterface()->removeAllParameters();
 
         createButton("Load URDF",CMD_LOAD_URDF,  isTrigger);
+        createButton("Get Camera Image",CMD_REQUEST_CAMERA_IMAGE_DATA,isTrigger);
         createButton("Step Sim",CMD_STEP_FORWARD_SIMULATION,  isTrigger);
         createButton("Send Bullet Stream",CMD_SEND_BULLET_DATA_STREAM,  isTrigger);
 		if (m_options!=eCLIENTEXAMPLE_SERVER)
@@ -551,6 +562,16 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 			{
 				//b3Printf("bla\n");
 			}
+			if (statusType ==CMD_CAMERA_IMAGE_COMPLETED)
+            {
+                b3Printf("Camera image OK\n");
+            } 
+            if (statusType == CMD_CAMERA_IMAGE_FAILED)
+            {
+                b3Printf("Camera image FAILED\n");
+            }
+       
+        
       		if (statusType == CMD_URDF_LOADING_COMPLETED)
 			{
 				int bodyIndex = b3GetStatusBodyIndex(status);

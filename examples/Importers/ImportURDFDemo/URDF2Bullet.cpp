@@ -209,9 +209,12 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
         linkTransformInWorldSpace =parentTransformInWorldSpace*parent2joint;
     }
     
-    int graphicsIndex = u2b.convertLinkVisualShapes(urdfLinkIndex,pathPrefix,localInertialFrame);
+    
 
     btCompoundShape* compoundShape = u2b.convertLinkCollisionShapes(urdfLinkIndex,pathPrefix,localInertialFrame);
+	
+	int graphicsIndex = u2b.convertLinkVisualShapes(urdfLinkIndex,pathPrefix,localInertialFrame,compoundShape);
+
 
     if (compoundShape)
     {

@@ -62,6 +62,8 @@ ENDIF()
                         ../../examples/Importers/ImportURDFDemo/URDF2Bullet.cpp
                         ../../examples/Importers/ImportURDFDemo/UrdfParser.cpp
                         ../../examples/Importers/ImportURDFDemo/urdfStringSplit.cpp
+                        ../../examples/Importers/ImportURDFDemo/DefaultVisualShapeConverter.cpp
+                        
 	)
 
 ADD_TEST(Test_PhysicsClientServer_PASS Test_PhysicsClientServer)
