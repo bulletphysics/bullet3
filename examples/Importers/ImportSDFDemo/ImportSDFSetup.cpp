@@ -12,7 +12,7 @@
 #include "../../Utils/b3ResourcePath.h"
 
 #include "../ImportURDFDemo/BulletUrdfImporter.h"
-
+#include "../Importers/ImportURDFDemo/DefaultVisualShapeConverter.h"
 
 #include "../ImportURDFDemo/URDF2Bullet.h"
 
@@ -203,7 +203,8 @@ void ImportSDFSetup::initPhysics()
 
 	m_dynamicsWorld->setGravity(gravity);
 
-    BulletURDFImporter u2b(m_guiHelper);
+	DefaultVisualShapeConverter visualConverter(m_guiHelper);
+    BulletURDFImporter u2b(m_guiHelper, &visualConverter);
     
     bool loadOk =  u2b.loadSDF(m_fileName);
 

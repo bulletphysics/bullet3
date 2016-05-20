@@ -4,6 +4,7 @@
 #include "../Importers/ImportURDFDemo/BulletUrdfImporter.h"
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
 #include "../Importers/ImportURDFDemo/URDF2Bullet.h"
+#include "../Importers/ImportURDFDemo/DefaultVisualShapeConverter.h"
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
@@ -691,7 +692,9 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 		return false;
 	}
 
-    BulletURDFImporter u2b(m_data->m_guiHelper);
+
+	DefaultVisualShapeConverter  visualConverter(m_data->m_guiHelper);
+    BulletURDFImporter u2b(m_data->m_guiHelper, &visualConverter);
 
    
     bool loadOk =  u2b.loadURDF(fileName, useFixedBase);
@@ -964,7 +967,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 				case CMD_REQUEST_CAMERA_IMAGE_DATA:
 				{
-					serverStatusOut.m_type = CMD_CLIENT_COMMAND_COMPLETED;
+					serverStatusOut.m_type = CMD_CAMERA_IMAGE_COMPLETED;
 					hasStatus = true;
 					break;
 				}

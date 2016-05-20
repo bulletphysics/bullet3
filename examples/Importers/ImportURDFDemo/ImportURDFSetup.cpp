@@ -10,6 +10,7 @@
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 #include "../../Utils/b3ResourcePath.h"
+#include "DefaultVisualShapeConverter.h"
 
 #include "BulletUrdfImporter.h"
 
@@ -200,17 +201,10 @@ void ImportUrdfSetup::initPhysics()
 	m_dynamicsWorld->setGravity(gravity);
 
 	
-
-    //now print the tree using the new interface
-    URDFImporterInterface* bla=0;
+	DefaultVisualShapeConverter visualConverter(m_guiHelper);
+    BulletURDFImporter u2b(m_guiHelper, &visualConverter);
 	
-    static bool newURDF = true;
-	if (newURDF)
-	{
-		b3Printf("using new URDF\n");
-		bla = new  BulletURDFImporter(m_guiHelper);
-	}
-	URDFImporterInterface& u2b = *bla;
+	
 	bool loadOk =  u2b.loadURDF(m_fileName);
 
 #ifdef TEST_MULTIBODY_SERIALIZATION	

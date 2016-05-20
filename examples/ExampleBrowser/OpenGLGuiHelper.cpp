@@ -238,8 +238,6 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
             {
                 gfxVertices[i].uv[j] = 0.5;//we don't have UV info...
             }
-            
-            
         }
     }
     
