@@ -42,7 +42,9 @@ public:
     virtual bool getRootTransformInWorld(btTransform& rootTransformInWorld) const =0;
     
 	///quick hack: need to rethink the API/dependencies of this
-	virtual int convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame, class btCollisionShape* colShape) const = 0;
+    virtual int convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame) const { return -1;}
+    
+    virtual int convertLinkVisualShapes2(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame, class btCollisionShape* colShape) const = 0;
 
 	virtual class btCompoundShape* convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const  = 0;
 };

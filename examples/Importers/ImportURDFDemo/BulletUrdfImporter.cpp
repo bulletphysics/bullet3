@@ -585,7 +585,7 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 	return shape;
 }
 
-int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, class btCollisionShape* colShape) const
+int BulletURDFImporter::convertLinkVisualShapes2(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, class btCollisionShape* colShape) const
 {
 	int graphicsIndex = -1;
 
