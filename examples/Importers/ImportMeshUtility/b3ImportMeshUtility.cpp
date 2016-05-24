@@ -95,7 +95,7 @@ int b3ImportMeshUtility::loadAndRegisterMeshFromFile(const std::string& fileName
 	b3ImportMeshData meshData;
 	if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(fileName, meshData))
 	{
-		int textureIndex = 0;
+		int textureIndex = -1;
 
 		if (meshData.m_textureImage)
 		{

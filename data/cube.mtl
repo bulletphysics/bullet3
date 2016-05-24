@@ -10,5 +10,5 @@ newmtl cube
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
   map_Ka cube.tga
-  map_Kd cube_diffuse.tga
+  map_Kd floor_diffuse.tga
 

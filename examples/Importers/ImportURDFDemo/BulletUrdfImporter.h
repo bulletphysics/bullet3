@@ -46,7 +46,7 @@ public:
     
     virtual bool getRootTransformInWorld(btTransform& rootTransformInWorld) const;
 
-	virtual int convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, class btCollisionShape* colShape) const;
+    virtual int convertLinkVisualShapes2(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame, class btCollisionShape* colShape) const;
 
     ///todo(erwincoumans) refactor this convertLinkCollisionShapes/memory allocation
     
