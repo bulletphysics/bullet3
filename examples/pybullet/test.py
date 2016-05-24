@@ -2,7 +2,7 @@ import pybullet
 import time
 
 #choose connection method: GUI, DIRECT, SHARED_MEMORY
-pybullet.connect(pybullet.SHARED_MEMORY)
+pybullet.connect(pybullet.GUI)
 
 #load URDF, given a relative or absolute file+path
 obj = pybullet.loadURDF("r2d2.urdf")
@@ -24,6 +24,8 @@ pybullet.setGravity(0,0,-9.8)
 t_end = time.time() + 5
 while time.time() < t_end:
 	pybullet.stepSimulation()
+	posAndOrn = pybullet.getBasePositionAndOrientation(obj)
+	print (posAndOrn)
 
 print ("finished")
 #remove all objects

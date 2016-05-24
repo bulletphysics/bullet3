@@ -48,6 +48,7 @@ SET(pybullet_SRCS
                         ../../examples/Importers/ImportURDFDemo/URDF2Bullet.cpp
                         ../../examples/Importers/ImportURDFDemo/UrdfParser.cpp
                         ../../examples/Importers/ImportURDFDemo/urdfStringSplit.cpp
+			../../examples/Importers/ImportURDFDemo/DefaultVisualShapeConverter.cpp
                         ../../examples/MultiThreading/b3PosixThreadSupport.cpp
                         ../../examples/MultiThreading/b3Win32ThreadSupport.cpp
 			../../examples/MultiThreading/b3ThreadSupportInterface.cpp
