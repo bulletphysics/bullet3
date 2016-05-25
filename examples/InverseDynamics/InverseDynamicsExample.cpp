@@ -152,7 +152,6 @@ void InverseDynamicsExample::initPhysics()
    
     switch (m_option)
     {
-    case 0:
     case BT_ID_LOAD_URDF:
         {
 

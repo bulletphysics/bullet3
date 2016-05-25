@@ -51,18 +51,18 @@ eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/
 
 eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../src/Bullet3OpenCL/Raycast/kernels/rayCastKernels.cl" --headerfile="../src/Bullet3OpenCL/Raycast/kernels/rayCastKernels.h" --stringname="rayCastKernelCL" stringify'
 
-eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../btgui/OpenGLWindow/Shaders/instancingVS.glsl" --headerfile="../btgui/OpenGLWindow/Shaders/instancingVS.h" --stringname="instancingVertexShader" stringify'
-eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../btgui/OpenGLWindow/Shaders/instancingPS.glsl" --headerfile="../btgui/OpenGLWindow/Shaders/instancingPS.h" --stringname="instancingFragmentShader" stringify'
-eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../btgui/OpenGLWindow/Shaders/pointSpriteVS.glsl" --headerfile="../btgui/OpenGLWindow/Shaders/pointSpriteVS.h" --stringname="pointSpriteVertexShader" stringify'
-eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../btgui/OpenGLWindow/Shaders/pointSpritePS.glsl" --headerfile="../btgui/OpenGLWindow/Shaders/pointSpritePS.h" --stringname="pointSpriteFragmentShader" stringify'
+eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/instancingVS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/instancingVS.h" --stringname="instancingVertexShader" stringify'
+eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/instancingPS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/instancingPS.h" --stringname="instancingFragmentShader" stringify'
+eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/pointSpriteVS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/pointSpriteVS.h" --stringname="pointSpriteVertexShader" stringify'
+eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/pointSpritePS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/pointSpritePS.h" --stringname="pointSpriteFragmentShader" stringify'
 
 
-eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../btgui/OpenGLWindow/Shaders/createShadowMapInstancingPS.glsl" --headerfile="../btgui/OpenGLWindow/Shaders/createShadowMapInstancingPS.h" --stringname="createShadowMapInstancingFragmentShader" stringify'
-eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../btgui/OpenGLWindow/Shaders/createShadowMapInstancingVS.glsl" --headerfile="../btgui/OpenGLWindow/Shaders/createShadowMapInstancingVS.h" --stringname="createShadowMapInstancingVertexShader" stringify'
+eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/createShadowMapInstancingPS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/createShadowMapInstancingPS.h" --stringname="createShadowMapInstancingFragmentShader" stringify'
+eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/createShadowMapInstancingVS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/createShadowMapInstancingVS.h" --stringname="createShadowMapInstancingVertexShader" stringify'
 
-eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../btgui/OpenGLWindow/Shaders/useShadowMapInstancingPS.glsl" --headerfile="../btgui/OpenGLWindow/Shaders/useShadowMapInstancingPS.h" --stringname="useShadowMapInstancingFragmentShader" stringify'
-eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../btgui/OpenGLWindow/Shaders/useShadowMapInstancingVS.glsl" --headerfile="../btgui/OpenGLWindow/Shaders/useShadowMapInstancingVS.h" --stringname="useShadowMapInstancingVertexShader" stringify'
-eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../Demos3/GpuDemos/broadphase/pairsKernel.cl" --headerfile="../Demos3/GpuDemos/broadphase/pairsKernel.h" --stringname="pairsKernelsCL" stringify'
+eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/useShadowMapInstancingPS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/useShadowMapInstancingPS.h" --stringname="useShadowMapInstancingFragmentShader" stringify'
+eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../examples/OpenGLWindow/Shaders/useShadowMapInstancingVS.glsl" --headerfile="../examples/OpenGLWindow/Shaders/useShadowMapInstancingVS.h" --stringname="useShadowMapInstancingVertexShader" stringify'
+eval '$mypremake  --file=stringifyKernel.lua --kernelfile="../examples/OpenCL/broadphase/pairsKernel.cl" --headerfile="../examples/OpenCL/broadphase/pairsKernel.h" --stringname="pairsKernelsCL" stringify'
 
 
 

@@ -1,7 +1,6 @@
 #include "../SharedMemory/SharedMemoryInProcessPhysicsC_API.h"
 #include "../SharedMemory/PhysicsClientC_API.h"
 #include "../SharedMemory/PhysicsDirectC_API.h"
-#include "../SharedMemory/SharedMemoryInProcessPhysicsC_API.h"
 
 
 #ifdef __APPLE__
