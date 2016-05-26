@@ -1,5 +1,5 @@
 #ifndef B3_IMPORT_MESH_UTILITY_H
-#define B3_IMPORT_MESH_UTILIY_H
+#define B3_IMPORT_MESH_UTILITY_H
 
 #include <string>
 

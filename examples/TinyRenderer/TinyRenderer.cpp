@@ -19,7 +19,8 @@ struct Shader : public IShader {
     
     Model* m_model;
     Vec3f m_light_dir_local;
-    Matrix& m_modelView;
+    Matrix& m_modelMat;
+    Matrix& m_modelView1;
     Matrix& m_projectionMatrix;
     
     mat<2,3,float> varying_uv;  // triangle uv coordinates, written by the vertex shader, read by the fragment shader
@@ -27,11 +28,12 @@ struct Shader : public IShader {
     mat<3,3,float> varying_nrm; // normal per vertex to be interpolated by FS
     mat<3,3,float> ndc_tri;     // triangle in normalized device coordinates
 
-    Shader(Model* model, Vec3f light_dir_local, Matrix& modelView, Matrix& projectionMatrix)
+    Shader(Model* model, Vec3f light_dir_local, Matrix& modelView, Matrix& projectionMatrix, Matrix& modelMat)
     :m_model(model),
     m_light_dir_local(light_dir_local),
-    m_modelView(modelView),
-    m_projectionMatrix(projectionMatrix)
+    m_modelView1(modelView),
+    m_projectionMatrix(projectionMatrix),
+    m_modelMat(modelMat)
     {
         
     }
@@ -42,8 +44,9 @@ struct Shader : public IShader {
 		//printf("uv = %f,%f\n", uv.x,uv.y);
         varying_uv.set_col(nthvert, uv);
 		
-        varying_nrm.set_col(nthvert, proj<3>((m_projectionMatrix*m_modelView).invert_transpose()*embed<4>(m_model->normal(iface, nthvert), 0.f)));
-        Vec4f gl_Vertex = m_projectionMatrix*m_modelView*embed<4>(m_model->vert(iface, nthvert));
+        //varying_nrm.set_col(nthvert, proj<3>((m_projectionMatrix*m_modelView).invert_transpose()*embed<4>(m_model->normal(iface, nthvert), 0.f)));
+        varying_nrm.set_col(nthvert, proj<3>((m_modelMat).invert_transpose()*embed<4>(m_model->normal(iface, nthvert), 0.f)));
+        Vec4f gl_Vertex = m_projectionMatrix*m_modelView1*embed<4>(m_model->vert(iface, nthvert));
         varying_tri.set_col(nthvert, gl_Vertex);
         ndc_tri.set_col(nthvert, proj<3>(gl_Vertex/gl_Vertex[3]));
         return gl_Vertex;
@@ -69,9 +72,9 @@ struct Shader : public IShader {
         B.set_col(2, bn);
 
         Vec3f n = (B*m_model->normal(uv)).normalize();
-
-        float diff = 1;//b3Min(b3Max(0.f, n*0.3f),1.f);
-		//float diff = b3Min(b3Max(0.f, n*m_light_dir_local+0.3f),1.f);
+    
+        //float diff = 1;//b3Min(b3Max(0.f, n*0.3f),1.f);
+		float diff = b3Min(b3Max(0.f, bn*light_dir_world+0.3f),1.f);
 		//float diff = b3Max(0.f, n*m_light_dir_local);
         color = m_model->diffuse(uv)*diff;
 
@@ -256,7 +259,7 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
     {
         Matrix modelViewMatrix = renderData.m_viewMatrix*renderData.m_modelMatrix;
         
-        Shader shader(model, light_dir_local, modelViewMatrix, renderData.m_projectionMatrix);
+        Shader shader(model, light_dir_local, modelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix);
         
 		
 		for (int i=0; i<model->nfaces(); i++) {

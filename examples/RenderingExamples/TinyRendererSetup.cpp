@@ -17,6 +17,70 @@
 #include "../OpenGLWindow/GLInstanceGraphicsShape.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 
+
+struct TinyRendererSetupInternalData
+{
+	
+	TGAImage m_rgbColorBuffer;
+	b3AlignedObjectArray<float> m_depthBuffer;
+
+
+	int m_width;
+	int m_height;
+
+	btAlignedObjectArray<btConvexShape*> m_shapePtr;
+	btAlignedObjectArray<btTransform> m_transforms;
+	btAlignedObjectArray<TinyRenderObjectData*> m_renderObjects;
+
+	btVoronoiSimplexSolver	m_simplexSolver;
+	btScalar m_pitch;
+	btScalar m_roll;
+	btScalar m_yaw;
+	
+	int m_textureHandle;
+	int m_animateRenderer;
+
+	TinyRendererSetupInternalData(int width, int height)
+		:m_roll(0),
+		m_pitch(0),
+		m_yaw(0),
+
+		m_width(width),
+		m_height(height),
+		m_rgbColorBuffer(width,height,TGAImage::RGB),
+		m_textureHandle(0),
+		m_animateRenderer(0)
+	{
+		m_depthBuffer.resize(m_width*m_height);
+
+    }
+	void updateTransforms()
+	{
+		int numObjects = m_shapePtr.size();
+		m_transforms.resize(numObjects);
+		for (int i=0;i<numObjects;i++)
+		{
+			m_transforms[i].setIdentity();
+			//btVector3	pos(0.f,-(2.5* numObjects * 0.5)+i*2.5f, 0.f);
+			btVector3	pos(0.f,+i*2.5f, 0.f);
+			m_transforms[i].setIdentity();
+			m_transforms[i].setOrigin( pos );
+			btQuaternion orn;
+			if (i < 2)
+			{
+				orn.setEuler(m_yaw,m_pitch,m_roll);
+				m_transforms[i].setRotation(orn);
+			}
+		}
+		if (m_animateRenderer)
+        {
+            m_pitch += 0.005f;
+            m_yaw += 0.01f;
+		}
+	}
+
+};
+
 struct TinyRendererSetup : public CommonExampleInterface
 {
 	
@@ -24,6 +88,7 @@ struct TinyRendererSetup : public CommonExampleInterface
 	struct CommonGraphicsApp* m_app;
 	struct TinyRendererSetupInternalData* m_internalData;
     bool m_useSoftware;
+    
 
 	TinyRendererSetup(struct GUIHelperInterface* guiHelper);
 
@@ -50,78 +115,29 @@ struct TinyRendererSetup : public CommonExampleInterface
 	{
 	}
    
+    void animateRenderer(int animateRendererIndex)
+    {
+        m_internalData->m_animateRenderer = animateRendererIndex;
+    }
+   
+   
     void selectRenderer(int rendererIndex)
     {
         m_useSoftware = (rendererIndex==0);
     }
 };
 
-struct TinyRendererSetupInternalData
-{
-	
-	TGAImage m_rgbColorBuffer;
-	b3AlignedObjectArray<float> m_depthBuffer;
-
-
-	int m_width;
-	int m_height;
-
-	btAlignedObjectArray<btConvexShape*> m_shapePtr;
-	btAlignedObjectArray<btTransform> m_transforms;
-	btAlignedObjectArray<TinyRenderObjectData*> m_renderObjects;
-
-	btVoronoiSimplexSolver	m_simplexSolver;
-	btScalar m_pitch;
-	btScalar m_roll;
-	btScalar m_yaw;
-	
-	int m_textureHandle;
-
-	TinyRendererSetupInternalData(int width, int height)
-		:m_roll(0),
-		m_pitch(0),
-		m_yaw(0),
-
-		m_width(width),
-		m_height(height),
-		m_rgbColorBuffer(width,height,TGAImage::RGB),
-		m_textureHandle(0)
-	{
-		m_depthBuffer.resize(m_width*m_height);
-
-    }
-	void updateTransforms()
-	{
-		int numObjects = m_shapePtr.size();
-		m_transforms.resize(numObjects);
-		for (int i=0;i<numObjects;i++)
-		{
-			m_transforms[i].setIdentity();
-			//btVector3	pos(0.f,-(2.5* numObjects * 0.5)+i*2.5f, 0.f);
-			btVector3	pos(0.f,+i*2.5f, 0.f);
-			m_transforms[i].setIdentity();
-			m_transforms[i].setOrigin( pos );
-			btQuaternion orn;
-			if (i < 2)
-			{
-				orn.setEuler(m_yaw,m_pitch,m_roll);
-				m_transforms[i].setRotation(orn);
-			}
-		}
-		m_pitch += 0.005f;
-		m_yaw += 0.01f;
-	}
-
-};
 
 TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 {
     m_useSoftware = false;
+    
 	m_guiHelper = gui;
 	m_app = gui->getAppInterface();
 	m_internalData = new TinyRendererSetupInternalData(gui->getAppInterface()->m_window->getWidth(),gui->getAppInterface()->m_window->getHeight());
+	
 	m_app->m_renderer->enableBlend(true);
-	const char* fileName = "textured_sphere_smooth.obj";//cube.obj";
+	const char* fileName = "teddy.obj";//cube.obj";//textured_sphere_smooth.obj";//cube.obj";
 	
 
 	{
@@ -185,7 +201,27 @@ TinyRendererSetup::~TinyRendererSetup()
 	delete m_internalData;
 }
 
+
+const char* itemsanimate[] = {"Fixed", "Rotate"};
+void TinyRendererComboCallbackAnimate(int combobox, const char* item, void* userPointer)
+{
+    TinyRendererSetup* cl = (TinyRendererSetup*) userPointer;
+    b3Assert(cl);
+    int index=-1;
+    int numItems = sizeof(itemsanimate)/sizeof(char*);
+    for (int i=0;i<numItems;i++)
+    {
+        if (!strcmp(item,itemsanimate[i]))
+        {
+            index = i;
+        }
+    }
+    cl->animateRenderer(index);
+}
+
+
 const char* items[] = {"Software", "OpenGL"};
+
 
 void TinyRendererComboCallback(int combobox, const char* item, void* userPointer)
 {
@@ -204,7 +240,6 @@ void TinyRendererComboCallback(int combobox, const char* item, void* userPointer
 }
 
 
-
 void TinyRendererSetup::initPhysics()
 {
 	//request a visual bitma/texture we can render to
@@ -215,6 +250,7 @@ void TinyRendererSetup::initPhysics()
 	
 	m_internalData->m_textureHandle = render->registerTexture(m_internalData->m_rgbColorBuffer.buffer(),m_internalData->m_width,m_internalData->m_height);
     
+    {
     ComboBoxParams comboParams;
     comboParams.m_userPointer = this;
     comboParams.m_numItems=sizeof(items)/sizeof(char*);
@@ -222,7 +258,18 @@ void TinyRendererSetup::initPhysics()
     comboParams.m_items=items;
     comboParams.m_callback =TinyRendererComboCallback;
     m_guiHelper->getParameterInterface()->registerComboBox( comboParams);
+    }
+
+    {
     
+    ComboBoxParams comboParams;
+    comboParams.m_userPointer = this;
+    comboParams.m_numItems=sizeof(itemsanimate)/sizeof(char*);
+    comboParams.m_startItem = 0;
+    comboParams.m_items=itemsanimate;
+    comboParams.m_callback =TinyRendererComboCallbackAnimate;
+    m_guiHelper->getParameterInterface()->registerComboBox( comboParams);
+    }
     
 }
 
