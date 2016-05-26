@@ -126,14 +126,14 @@ pybullet_loadURDF(PyObject* self, PyObject* args)
 	int size= PySequence_Size(args);
 	
 	int bodyIndex = -1;
-	const char* urdfFileName=0;
+	const char* urdfFileName="";
 	float startPosX =0;
     float startPosY =0;
     float startPosZ = 1;
 	float startOrnX = 0;
 	float startOrnY = 0;
 	float startOrnZ = 0;
-	float startOwnW = 1;
+	float startOrnW = 1;
 	printf("size=%d\n", size);
 	if (0==sm)
     {
@@ -151,12 +151,13 @@ pybullet_loadURDF(PyObject* self, PyObject* args)
 		&startPosX,&startPosY,&startPosZ))
                 return NULL;
         }
-	if (size==7)
+	if (size==8)
 	{
 		if (!PyArg_ParseTuple(args, "sfffffff", &urdfFileName,
-                &startPosX,startPosY,&startPosZ,
-		&startOrnX,&startOrnY,&startOrnZ, &startOwnW))
+		&startPosX,&startPosY,&startPosZ,
+			&startOrnX,&startOrnY,&startOrnZ, &startOrnW))
                 return NULL;
+		
 	}
     {
         
