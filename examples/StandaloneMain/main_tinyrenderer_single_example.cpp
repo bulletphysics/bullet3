@@ -170,7 +170,7 @@ struct TinyRendererGUIHelper : public GUIHelperInterface
 		clearBuffers(clearColor);
 	
 		
-		ATTRIBUTE_ALIGNED16(float modelMat[16]);
+		ATTRIBUTE_ALIGNED16(btScalar modelMat[16]);
 		ATTRIBUTE_ALIGNED16(float viewMat[16]);
 		ATTRIBUTE_ALIGNED16(float projMat[16]);
 
@@ -178,7 +178,7 @@ struct TinyRendererGUIHelper : public GUIHelperInterface
 		m_camera.getCameraViewMatrix(viewMat);
 		
 		btVector3 lightDirWorld(-5,200,-40);
-		switch (1)//app->getUpAxis())
+		switch (m_upAxis)
 		{
 		case 1:
     			lightDirWorld = btVector3(-50.f,100,30);
