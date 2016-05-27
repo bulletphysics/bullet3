@@ -194,6 +194,7 @@
 		include "../examples/HelloWorld"
 		include "../examples/BasicDemo"
 		include "../examples/InverseDynamics"
+		include "../examples/ExtendedTutorials"
 		include "../examples/SharedMemory"
 		include "../examples/MultiThreading"
 

@@ -125,6 +125,16 @@ struct TinyRendererSetup : public CommonExampleInterface
     {
         m_useSoftware = (rendererIndex==0);
     }
+
+	void resetCamera()
+	{
+		float dist = 11;
+		float pitch = 52;
+		float yaw = 35;
+		float targetPos[3]={0,0.46,0};
+		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	}
+
 };
 
 
@@ -335,13 +345,20 @@ void TinyRendererSetup::stepSimulation(float deltaTime)
                     m_internalData->m_renderObjects[o]->m_viewMatrix[i][j] = viewMat[i+4*j];
                     m_internalData->m_renderObjects[o]->m_projectionMatrix[i][j] = projMat[i+4*j];
                     
-                    float eye[4];
-                    float center[4];
-                    render->getActiveCamera()->getCameraPosition(eye);
-                    render->getActiveCamera()->getCameraTargetPosition(center);
-
-                    m_internalData->m_renderObjects[o]->m_eye.setValue(eye[0],eye[1],eye[2]);
-                    m_internalData->m_renderObjects[o]->m_center.setValue(center[0],center[1],center[2]);
+					btVector3 lightDirWorld;
+					switch (m_app->getUpAxis())
+					{
+					case 1:
+    						lightDirWorld = btVector3(-50.f,100,30);
+    					break;
+					case 2:
+							lightDirWorld = btVector3(-50.f,30,100);
+							break;
+					default:{}
+					};
+					
+					m_internalData->m_renderObjects[o]->m_lightDirWorld = lightDirWorld.normalized();
+					
                 }
             }
             TinyRenderer::renderObject(*m_internalData->m_renderObjects[o]);
