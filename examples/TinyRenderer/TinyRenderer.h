@@ -16,9 +16,8 @@ struct TinyRenderObjectData
     Matrix m_viewMatrix;
     Matrix m_projectionMatrix;
     Matrix m_viewportMatrix;
-
-	btVector3 m_eye;
-	btVector3 m_center;
+	btVector3 m_localScaling;
+	btVector3 m_lightDirWorld;
 	
     //Model (vertices, indices, textures, shader)
     Matrix m_modelMatrix;

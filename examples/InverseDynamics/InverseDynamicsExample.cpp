@@ -87,10 +87,10 @@ public:
 
     virtual void resetCamera()
     {
-        float dist = 3.5;
-        float pitch = -136;
-        float yaw = 28;
-        float targetPos[3]={0.47,0,-0.64};
+        float dist = 1.5;
+        float pitch = -80;
+        float yaw = 10;
+        float targetPos[3]={0,0,0};
         m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
     }
 };
@@ -239,7 +239,7 @@ void InverseDynamicsExample::initPhysics()
         
     }
     
-    
+    m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 
 }
 
