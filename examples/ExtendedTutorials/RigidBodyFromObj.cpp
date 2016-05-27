@@ -74,7 +74,7 @@ void RigidBodyFromObjExample::initPhysics()
 	}
 
 	//load our obj mesh
-	const char* fileName = "textured_sphere_smooth.obj";//teddy.obj";//sphere8.obj";//sponza_closed.obj";//sphere8.obj";
+	const char* fileName = "teddy.obj";//sphere8.obj";//sponza_closed.obj";//sphere8.obj";
     char relativeFileName[1024];
     if (b3ResourcePath::findResourcePath(fileName, relativeFileName, 1024))
     {
@@ -87,8 +87,10 @@ void RigidBodyFromObjExample::initPhysics()
 
 	const GLInstanceVertex& v = glmesh->m_vertices->at(0);
 	btConvexHullShape* shape = new btConvexHullShape((const btScalar*)(&(v.xyzw[0])), glmesh->m_numvertices, sizeof(GLInstanceVertex));
+
+	float scaling[4] = {0.1,0.1,0.1,1};
 	
-	btVector3 localScaling(2,2,2);//0.1,0.1,0.1);
+	btVector3 localScaling(scaling[0],scaling[1],scaling[2]);
 	shape->setLocalScaling(localScaling);
 	    
     if (m_options & OptimizeConvexObj)
@@ -115,11 +117,14 @@ void RigidBodyFromObjExample::initPhysics()
 	if (isDynamic)
 		shape->calculateLocalInertia(mass,localInertia);
 
-	btVector3 position(0,3,0);
+	float color[4] = {1,1,1,1};
+	float orn[4] = {0,0,0,1};
+	float pos[4] = {0,3,0,0};
+	btVector3 position(pos[0],pos[1],pos[2]);
 	startTransform.setOrigin(position);
-	btRigidBody* body = createRigidBody(mass,startTransform,shape);	
-	 
-	btVector3 color(1,1,1);
+        btRigidBody* body = createRigidBody(mass,startTransform,shape);
+
+
 	
 	bool useConvexHullForRendering = ((m_options & ObjUseConvexHullForRendering)!=0);
     
@@ -131,7 +136,7 @@ void RigidBodyFromObjExample::initPhysics()
 																		&glmesh->m_indices->at(0), 
 																		glmesh->m_numIndices);
 		shape->setUserIndex(shapeId);
-		int renderInstance = m_guiHelper->registerGraphicsInstance(shapeId,position,startTransform.getRotation(),color,localScaling);
+		int renderInstance = m_guiHelper->registerGraphicsInstance(shapeId,pos,orn,color,scaling);
 		body->setUserIndex(renderInstance);
     }
     

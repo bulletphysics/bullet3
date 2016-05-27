@@ -148,7 +148,7 @@ public:
 		clearBuffers(clearColor);
 	
 		
-		ATTRIBUTE_ALIGNED16(float modelMat[16]);
+		ATTRIBUTE_ALIGNED16(btScalar  modelMat[16]);
 		ATTRIBUTE_ALIGNED16(float viewMat[16]);
 		ATTRIBUTE_ALIGNED16(float projMat[16]);
 

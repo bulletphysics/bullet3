@@ -176,7 +176,7 @@ else
 end
 defines {"B3_USE_STANDALONE_EXAMPLE"}
 
-includedirs {"../../bsrc"}
+includedirs {"../../src"}
 
 links {
         "BulletInverseDynamicsUtils", "BulletInverseDynamics","BulletDynamics","BulletCollision", "LinearMath", "Bullet3Common"

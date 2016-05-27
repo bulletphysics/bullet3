@@ -105,6 +105,17 @@
 		description = "Do not build bullet3 libs"
 	}
 
+	newoption
+	{
+		trigger = "double",
+		description = "Double precision version of Bullet"
+	}
+	
+	if _OPTIONS["double"] then
+		defines {"BT_USE_DOUBLE_PRECISION"}
+	end
+
+	
 	configurations {"Release", "Debug"}
 	configuration "Release"
 		flags { "Optimize", "EnableSSE2","StaticRuntime", "NoMinimalRebuild", "FloatFast"}
