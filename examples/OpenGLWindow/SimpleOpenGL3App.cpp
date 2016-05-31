@@ -657,6 +657,19 @@ SimpleOpenGL3App::~SimpleOpenGL3App()
 	delete m_data ;
 }
 
+void SimpleOpenGL3App::getScreenPixels(unsigned char* rgbaBuffer, int bufferSizeInBytes)
+{
+    int width = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenWidth();
+    int height = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenHeight();
+    if ((width*height*4) == bufferSizeInBytes)
+    {
+        glReadPixels(0,0,width, height, GL_RGBA, GL_UNSIGNED_BYTE, rgbaBuffer);
+		int glstat = glGetError();
+		b3Assert(glstat==GL_NO_ERROR);
+    }
+    
+}
+
 //#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 static void writeTextureToFile(int textureWidth, int textureHeight, const char* fileName, FILE* ffmpegVideo)

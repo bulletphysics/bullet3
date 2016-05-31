@@ -686,13 +686,10 @@ b3SharedMemoryCommandHandle b3InitRequestCameraImage(b3PhysicsClientHandle physC
     struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
     b3Assert(command);
     command->m_type =CMD_REQUEST_CAMERA_IMAGE_DATA;
+	command->m_requestPixelDataArguments.m_startPixelIndex = 0;
     return (b3SharedMemoryCommandHandle) command;
 }
 
-void b3RequestCameraImageSetResolution(b3SharedMemoryCommandHandle command, int pixelWidth, int pixelHeight)
-{
-	
-}
 
 void b3RequestCameraImageSetCameraMatrices(b3SharedMemoryCommandHandle command, float viewMatrix[16], float projectionMatrix[16])
 {
@@ -704,6 +701,7 @@ void b3GetCameraImageData(b3PhysicsClientHandle physClient, struct b3CameraImage
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
 	if (cl)
 	{
+		cl->getCachedCameraImage(imageData);
 	}
 }
 

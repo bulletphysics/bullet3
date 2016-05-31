@@ -328,3 +328,14 @@ const float* PhysicsDirect::getDebugLinesColor() const
 	}
 	return 0;
 }
+
+void PhysicsDirect::getCachedCameraImage(b3CameraImageData* cameraData)
+{
+	if (cameraData)
+	{
+		cameraData->m_pixelHeight = 0;
+		cameraData->m_pixelWidth = 0;
+		cameraData->m_depthValues = 0;
+		cameraData->m_rgbColorData = 0;
+	}
+}

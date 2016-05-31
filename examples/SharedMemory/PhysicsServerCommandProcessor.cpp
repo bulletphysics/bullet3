@@ -967,8 +967,44 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 				case CMD_REQUEST_CAMERA_IMAGE_DATA:
 				{
-					serverStatusOut.m_type = CMD_CAMERA_IMAGE_COMPLETED;
+					
+					int startPixelIndex = clientCmd.m_requestPixelDataArguments.m_startPixelIndex;
+                    int width, height;
+                    int numPixelsCopied = 0;
+                                        
+                   
+                    
+                    m_data->m_guiHelper->copyCameraImageData(0,0,0,0,0,&width,&height,0);
+					
+                    int numTotalPixels = width*height;
+                    int numRemainingPixels = numTotalPixels - startPixelIndex;
+                    
+                    
+                    if (numRemainingPixels>0)
+                    {
+                        int maxNumPixels = bufferSizeInBytes/8-1;
+                        unsigned char* pixelRGBA = (unsigned char*)bufferServerToClient;
+                        int numRequestedPixels = btMin(maxNumPixels,numRemainingPixels);
+                        
+                        float* depthBuffer = (float*)(bufferServerToClient+numRequestedPixels*4);
+                        
+                        
+                        m_data->m_guiHelper->copyCameraImageData(pixelRGBA,numRequestedPixels,depthBuffer,numRequestedPixels,startPixelIndex,&width,&height,&numPixelsCopied);
+                        //each pixel takes 4 RGBA values and 1 float = 8 bytes
+                        
+                    } else
+                    {
+                        
+                    }
+                    
+                    serverStatusOut.m_type = CMD_CAMERA_IMAGE_COMPLETED;
+                    serverStatusOut.m_sendPixelDataArguments.m_numPixelsCopied = numPixelsCopied;
+					serverStatusOut.m_sendPixelDataArguments.m_numRemainingPixels = numRemainingPixels - numPixelsCopied;
+					serverStatusOut.m_sendPixelDataArguments.m_startingPixelIndex = startPixelIndex;
+					serverStatusOut.m_sendPixelDataArguments.m_imageWidth = width;
+					serverStatusOut.m_sendPixelDataArguments.m_imageHeight= height;
 					hasStatus = true;
+					
 					break;
 				}
 

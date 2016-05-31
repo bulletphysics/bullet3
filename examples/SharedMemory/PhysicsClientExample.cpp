@@ -2,7 +2,7 @@
 #include "PhysicsClientExample.h"
 
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
-
+#include "../CommonInterfaces/Common2dCanvasInterface.h"
 #include "SharedMemoryCommon.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 #include "PhysicsClientC_API.h"
@@ -21,6 +21,9 @@ struct MyMotorInfo2
     int     m_qIndex;
 };
 
+int camVisualizerWidth = 1024/3;
+int camVisualizerHeight = 768/3;
+
 
 #define MAX_NUM_MOTORS 128
 
@@ -37,6 +40,9 @@ protected:
     int m_sharedMemoryKey;
     int m_selectedBody;
 	int m_prevSelectedBody;
+	struct Common2dCanvasInterface* m_canvas;
+	int m_canvasIndex;
+	
 	void	createButton(const char* name, int id, bool isTrigger );
 
 	void createButtons();
@@ -401,7 +407,8 @@ m_selectedBody(-1),
 m_prevSelectedBody(-1),
 m_numMotors(0),
 m_options(options),
-m_isOptionalServerConnected(false)
+m_isOptionalServerConnected(false),
+m_canvas(0)
 {
 	b3Printf("Started PhysicsClientExample\n");
 }
@@ -518,6 +525,34 @@ void	PhysicsClientExample::initPhysics()
 
 	if (m_options == eCLIENTEXAMPLE_SERVER)
 	{
+		m_canvas = m_guiHelper->get2dCanvasInterface();
+		if (m_canvas)
+		{
+			
+
+			m_canvasIndex = m_canvas->createCanvas("Synthetic Camera",camVisualizerWidth, camVisualizerHeight);
+
+			for (int i=0;i<camVisualizerWidth;i++)
+			{
+				for (int j=0;j<camVisualizerHeight;j++)
+				{
+					unsigned char red=255;
+					unsigned char green=255;
+					unsigned char blue=255;
+					unsigned char alpha=255;
+					if (i==j)
+					{
+						red = 0;
+						green=0;
+						blue=0;
+					}
+					m_canvas->setPixel(m_canvasIndex,i,j,red,green,blue,alpha);
+				}
+			}
+			m_canvas->refreshImageData(m_canvasIndex);
+			
+		}
+
 		m_isOptionalServerConnected = m_physicsServer.connectSharedMemory( m_guiHelper);
 	}
 
@@ -564,7 +599,35 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 			}
 			if (statusType ==CMD_CAMERA_IMAGE_COMPLETED)
             {
-                b3Printf("Camera image OK\n");
+				static int counter=0;
+				char msg[1024];
+				sprintf(msg,"Camera image %d OK\n",counter++);
+				b3CameraImageData imageData;
+				b3GetCameraImageData(m_physicsClientHandle,&imageData);
+				if (m_canvas && m_canvasIndex >=0)
+				{
+					for (int i=0;i<imageData.m_pixelWidth;i++)
+					{
+						for (int j=0;j<imageData.m_pixelHeight;j++)
+						{
+							int xIndex = int(float(i)*(float(camVisualizerWidth)/float(imageData.m_pixelWidth)));
+							int yIndex = int(float(j)*(float(camVisualizerHeight)/float(imageData.m_pixelHeight)));
+							btClamp(yIndex,0,imageData.m_pixelHeight);
+							btClamp(xIndex,0,imageData.m_pixelWidth);
+							int bytesPerPixel = 4;
+							
+							int pixelIndex = (i+j*imageData.m_pixelWidth)*bytesPerPixel;
+							m_canvas->setPixel(m_canvasIndex,xIndex,camVisualizerHeight-1-yIndex,
+									imageData.m_rgbColorData[pixelIndex],
+									imageData.m_rgbColorData[pixelIndex+1],
+									imageData.m_rgbColorData[pixelIndex+2],
+									imageData.m_rgbColorData[pixelIndex+3]);
+						}
+					}
+					m_canvas->refreshImageData(m_canvasIndex);
+				}
+
+                b3Printf(msg);
             } 
             if (statusType == CMD_CAMERA_IMAGE_FAILED)
             {

@@ -113,3 +113,8 @@ const float* PhysicsLoopBack::getDebugLinesColor() const
 {
 	return m_data->m_physicsClient->getDebugLinesColor();
 }
+
+void PhysicsLoopBack::getCachedCameraImage(struct b3CameraImageData* cameraData)
+{
+	return m_data->m_physicsClient->getCachedCameraImage(cameraData);
+}

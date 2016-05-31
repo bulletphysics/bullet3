@@ -718,15 +718,6 @@ void Win32Window::runMainLoop()
 void	Win32Window::startRendering()
 {
 		pumpMessage();
-
-//		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);	//clear buffers
-		
-		//glCullFace(GL_BACK);
-		//glFrontFace(GL_CCW);
-	//	glEnable(GL_DEPTH_TEST);
-
-
-
 }
 
 

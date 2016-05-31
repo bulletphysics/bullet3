@@ -316,6 +316,17 @@ struct TinyRendererGUIHelper : public GUIHelperInterface
 
 	}
 
+	virtual void copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int* width, int* height, int* numPixelsCopied)
+	{
+		if (width)
+			*width = 0;
+		if (height)
+			*height = 0;
+		if (numPixelsCopied)
+			*numPixelsCopied = 0;
+	}
+
+
 	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld) 
 	{
 		
