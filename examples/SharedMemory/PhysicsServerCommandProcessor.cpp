@@ -971,12 +971,32 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					int startPixelIndex = clientCmd.m_requestPixelDataArguments.m_startPixelIndex;
                     int width, height;
                     int numPixelsCopied = 0;
-                                        
-					if (clientCmd.m_requestPixelDataArguments.m_startPixelIndex==0)
+                                      
+					if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_USE_HARDWARE_OPENGL)!=0)
 					{
-						m_data->m_visualConverter.render();
+						m_data->m_guiHelper->copyCameraImageData(0,0,0,0,0,&width,&height,0);
+					} 
+					//else
+					{
+						if (clientCmd.m_requestPixelDataArguments.m_startPixelIndex==0)
+						{
+							printf("-------------------------------\nRendering\n");
+
+						
+							if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES)!=0)
+							{
+								m_data->m_visualConverter.render(
+									clientCmd.m_requestPixelDataArguments.m_viewMatrix,
+									clientCmd.m_requestPixelDataArguments.m_projectionMatrix);
+							} else
+							{
+								m_data->m_visualConverter.render();
+							}
+						
+						}
 					}
-                    m_data->m_guiHelper->copyCameraImageData(0,0,0,0,0,&width,&height,0);
+                    
+					
 					
                     int numTotalPixels = width*height;
                     int numRemainingPixels = numTotalPixels - startPixelIndex;
@@ -990,8 +1010,14 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                         
                         float* depthBuffer = (float*)(bufferServerToClient+numRequestedPixels*4);
                         
+                        if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_USE_HARDWARE_OPENGL)!=0)
+						{
+							m_data->m_guiHelper->copyCameraImageData(pixelRGBA,numRequestedPixels,depthBuffer,numRequestedPixels,startPixelIndex,&width,&height,&numPixelsCopied);
+						} else
+						{
+							
+						}
                         
-                        m_data->m_guiHelper->copyCameraImageData(pixelRGBA,numRequestedPixels,depthBuffer,numRequestedPixels,startPixelIndex,&width,&height,&numPixelsCopied);
                         //each pixel takes 4 RGBA values and 1 float = 8 bytes
                         
                     } else

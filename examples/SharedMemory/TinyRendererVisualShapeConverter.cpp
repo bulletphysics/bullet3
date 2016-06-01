@@ -494,10 +494,20 @@ void TinyRendererVisualShapeConverter::clearBuffers(TGAColor& clearColor)
     }
     
 }
-    
-    
 
 void TinyRendererVisualShapeConverter::render() 
+{
+
+    ATTRIBUTE_ALIGNED16(float viewMat[16]);
+    ATTRIBUTE_ALIGNED16(float projMat[16]);
+
+    m_data->m_camera.getCameraProjectionMatrix(projMat);
+    m_data->m_camera.getCameraViewMatrix(viewMat);
+
+	render(viewMat,projMat);
+}    
+
+void TinyRendererVisualShapeConverter::render(const float viewMat[16], const float projMat[16]) 
 {
     //clear the color buffer
     TGAColor clearColor;
@@ -510,11 +520,7 @@ void TinyRendererVisualShapeConverter::render()
 
     
     ATTRIBUTE_ALIGNED16(btScalar modelMat[16]);
-    ATTRIBUTE_ALIGNED16(float viewMat[16]);
-    ATTRIBUTE_ALIGNED16(float projMat[16]);
-
-    m_data->m_camera.getCameraProjectionMatrix(projMat);
-    m_data->m_camera.getCameraViewMatrix(viewMat);
+    
     
     btVector3 lightDirWorld(-5,200,-40);
     switch (m_data->m_upAxis)
@@ -530,7 +536,7 @@ void TinyRendererVisualShapeConverter::render()
     
     lightDirWorld.normalize();
     
-    
+    printf("num m_swRenderInstances = %d\n", m_data->m_swRenderInstances.size());
     for (int i=0;i<m_data->m_swRenderInstances.size();i++)
     {
         TinyRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(i);
@@ -568,6 +574,7 @@ void TinyRendererVisualShapeConverter::render()
             TinyRenderer::renderObject(*renderObj);
         }
     }
+	//printf("write tga \n");
 	m_data->m_rgbColorBuffer.write_tga_file("camera.tga");
 
 }

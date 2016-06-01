@@ -246,8 +246,12 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
             ///request an image from a simulated camera, using a software renderer.
             
             b3SharedMemoryCommandHandle commandHandle = b3InitRequestCameraImage(m_physicsClientHandle);
-            //void b3RequestCameraImageSetResolution(b3SharedMemoryCommandHandle command, int pixelWidth, int pixelHeight);
-            //void b3RequestCameraImageSetCameraMatrices(b3SharedMemoryCommandHandle command, float viewMatrix[16], float projectionMatrix[16]);
+            
+			float viewMatrix[16];
+			float projectionMatrix[16];
+			this->m_guiHelper->getRenderInterface()->getActiveCamera()->getCameraProjectionMatrix(projectionMatrix);
+			this->m_guiHelper->getRenderInterface()->getActiveCamera()->getCameraViewMatrix(viewMatrix);
+            b3RequestCameraImageSetCameraMatrices(commandHandle, viewMatrix,projectionMatrix);
             b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
             break;
         }

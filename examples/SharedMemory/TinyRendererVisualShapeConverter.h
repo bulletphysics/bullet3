@@ -24,6 +24,7 @@ struct TinyRendererVisualShapeConverter : public LinkVisualShapesConverter
 	void resetAll();
 
 	void render();
+	void render(const float viewMat[16], const float projMat[16]);
 	
 };
 

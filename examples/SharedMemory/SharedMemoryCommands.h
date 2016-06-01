@@ -115,8 +115,18 @@ struct RequestDebugLinesArgs
 
 struct RequestPixelDataArgs
 {
-    int m_startPixelIndex;
+	float m_viewMatrix[16];
+	float m_projectionMatrix[16];
+	int m_startPixelIndex;
 };
+
+enum EnumRequestPixelDataUpdateFlags
+{
+	REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES=1,
+	REQUEST_PIXEL_ARGS_USE_HARDWARE_OPENGL=2,
+};
+
+
 
 struct SendDebugLinesArgs
 {
