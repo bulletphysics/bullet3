@@ -213,7 +213,9 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
 
     btCompoundShape* compoundShape = u2b.convertLinkCollisionShapes(urdfLinkIndex,pathPrefix,localInertialFrame);
 	
-	int graphicsIndex = u2b.convertLinkVisualShapes2(urdfLinkIndex,pathPrefix,localInertialFrame,compoundShape);
+	int graphicsIndex = u2b.convertLinkVisualShapes(urdfLinkIndex,pathPrefix,localInertialFrame);
+	
+	
 
 
     if (compoundShape)
@@ -246,6 +248,8 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
 
             creation.createRigidBodyGraphicsInstance(urdfLinkIndex, body, color, graphicsIndex);
             cache.registerRigidBody(urdfLinkIndex, body, inertialFrameInWorldSpace, mass, localInertiaDiagonal, compoundShape, localInertialFrame);
+            
+            //untested: u2b.convertLinkVisualShapes2(urdfLinkIndex,pathPrefix,localInertialFrame,body);
         } else
         {
             if (cache.m_bulletMultiBody==0)
@@ -385,6 +389,8 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
                 btVector4 color = selectColor2();//(0.0,0.0,0.5);
 				u2b.getLinkColor(urdfLinkIndex,color);
                 creation.createCollisionObjectGraphicsInstance(urdfLinkIndex,col,color);
+                
+                u2b.convertLinkVisualShapes2(urdfLinkIndex,pathPrefix,localInertialFrame,col);
 
                 btScalar friction = 0.5f;
 
@@ -398,6 +404,9 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
                     cache.m_bulletMultiBody->setBaseCollider(col);
                 }
             }
+        } else
+        {
+            //u2b.convertLinkVisualShapes2(urdfLinkIndex,pathPrefix,localInertialFrame,compoundShape);
         }
     }
 

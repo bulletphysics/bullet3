@@ -57,6 +57,8 @@ public:
     virtual const float* getDebugLinesTo() const;
     virtual const float* getDebugLinesColor() const;
 
+	virtual void getCachedCameraImage(b3CameraImageData* cameraData);
+	
 };
 
 #endif //PHYSICS_DIRECT_H

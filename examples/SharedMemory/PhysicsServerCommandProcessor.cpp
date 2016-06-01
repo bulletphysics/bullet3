@@ -4,7 +4,7 @@
 #include "../Importers/ImportURDFDemo/BulletUrdfImporter.h"
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
 #include "../Importers/ImportURDFDemo/URDF2Bullet.h"
-#include "../Importers/ImportURDFDemo/DefaultVisualShapeConverter.h"
+#include "TinyRendererVisualShapeConverter.h"
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
@@ -288,7 +288,6 @@ struct PhysicsServerCommandProcessorInternalData
 	///handle management
 	btAlignedObjectArray<InternalBodyHandle>	m_bodyHandles;
 	int m_numUsedHandles;						// number of active handles
-	
 	int	m_firstFreeHandle;		// free handles list
 	InternalBodyHandle* getHandle(int handle)
 	{
@@ -411,6 +410,7 @@ struct PhysicsServerCommandProcessorInternalData
 	btVector3 m_hitPos;
 	btScalar m_oldPickingDist;
 	bool m_prevCanSleep;
+	TinyRendererVisualShapeConverter  m_visualConverter;
 
 	PhysicsServerCommandProcessorInternalData()
 		:
@@ -693,8 +693,8 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 	}
 
 
-	DefaultVisualShapeConverter  visualConverter(m_data->m_guiHelper);
-    BulletURDFImporter u2b(m_data->m_guiHelper, &visualConverter);
+	
+    BulletURDFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter);
 
    
     bool loadOk =  u2b.loadURDF(fileName, useFixedBase);
@@ -967,8 +967,72 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 				case CMD_REQUEST_CAMERA_IMAGE_DATA:
 				{
-					serverStatusOut.m_type = CMD_CAMERA_IMAGE_COMPLETED;
+					
+					int startPixelIndex = clientCmd.m_requestPixelDataArguments.m_startPixelIndex;
+                    int width, height;
+                    int numPixelsCopied = 0;
+                                      
+					if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_USE_HARDWARE_OPENGL)!=0)
+					{
+						m_data->m_guiHelper->copyCameraImageData(0,0,0,0,0,&width,&height,0);
+					} 
+					//else
+					{
+						if (clientCmd.m_requestPixelDataArguments.m_startPixelIndex==0)
+						{
+							printf("-------------------------------\nRendering\n");
+
+						
+							if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES)!=0)
+							{
+								m_data->m_visualConverter.render(
+									clientCmd.m_requestPixelDataArguments.m_viewMatrix,
+									clientCmd.m_requestPixelDataArguments.m_projectionMatrix);
+							} else
+							{
+								m_data->m_visualConverter.render();
+							}
+						
+						}
+					}
+                    
+					
+					
+                    int numTotalPixels = width*height;
+                    int numRemainingPixels = numTotalPixels - startPixelIndex;
+                    
+                    
+                    if (numRemainingPixels>0)
+                    {
+                        int maxNumPixels = bufferSizeInBytes/8-1;
+                        unsigned char* pixelRGBA = (unsigned char*)bufferServerToClient;
+                        int numRequestedPixels = btMin(maxNumPixels,numRemainingPixels);
+                        
+                        float* depthBuffer = (float*)(bufferServerToClient+numRequestedPixels*4);
+                        
+                        if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_USE_HARDWARE_OPENGL)!=0)
+						{
+							m_data->m_guiHelper->copyCameraImageData(pixelRGBA,numRequestedPixels,depthBuffer,numRequestedPixels,startPixelIndex,&width,&height,&numPixelsCopied);
+						} else
+						{
+							
+						}
+                        
+                        //each pixel takes 4 RGBA values and 1 float = 8 bytes
+                        
+                    } else
+                    {
+                        
+                    }
+                    
+                    serverStatusOut.m_type = CMD_CAMERA_IMAGE_COMPLETED;
+                    serverStatusOut.m_sendPixelDataArguments.m_numPixelsCopied = numPixelsCopied;
+					serverStatusOut.m_sendPixelDataArguments.m_numRemainingPixels = numRemainingPixels - numPixelsCopied;
+					serverStatusOut.m_sendPixelDataArguments.m_startingPixelIndex = startPixelIndex;
+					serverStatusOut.m_sendPixelDataArguments.m_imageWidth = width;
+					serverStatusOut.m_sendPixelDataArguments.m_imageHeight= height;
 					hasStatus = true;
+					
 					break;
 				}
 
@@ -1555,6 +1619,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     {
                         m_data->m_guiHelper->getRenderInterface()->removeAllInstances();
                     }
+					if (m_data)
+					{
+						m_data->m_visualConverter.resetAll();
+					}
 					deleteDynamicsWorld();
 					createEmptyDynamicsWorld();
 					m_data->exitHandles();
