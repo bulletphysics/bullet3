@@ -73,8 +73,6 @@
         "../../examples/Importers/ImportURDFDemo/MyMultiBodyCreator.h",
         "../../examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp",
         "../../examples/Importers/ImportURDFDemo/BulletUrdfImporter.h",
-		"../../examples/Importers/ImportURDFDemo/DefaultVisualShapeConverter.cpp",
-        "../../examples/Importers/ImportURDFDemo/DefaultVisualShapeConverter.h",
         "../../examples/Importers/ImportURDFDemo/urdfStringSplit.cpp",
         "../../examples/Importers/ImportURDFDemo/UrdfParser.cpp",
         "../../examples/Importers/ImportURDFDemo/UrdfParser.h",

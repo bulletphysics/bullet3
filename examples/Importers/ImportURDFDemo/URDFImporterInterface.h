@@ -44,7 +44,7 @@ public:
 	///quick hack: need to rethink the API/dependencies of this
     virtual int convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame) const { return -1;}
     
-    virtual int convertLinkVisualShapes2(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame, class btCollisionShape* colShape) const  { return -1;}
+    virtual void convertLinkVisualShapes2(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame, class btCollisionObject* colObj) const  { }
 
 	virtual class btCompoundShape* convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const  = 0;
 };

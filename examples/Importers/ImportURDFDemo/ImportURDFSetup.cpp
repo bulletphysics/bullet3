@@ -10,7 +10,7 @@
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 #include "../../Utils/b3ResourcePath.h"
-#include "DefaultVisualShapeConverter.h"
+
 
 #include "BulletUrdfImporter.h"
 
@@ -200,9 +200,7 @@ void ImportUrdfSetup::initPhysics()
 
 	m_dynamicsWorld->setGravity(gravity);
 
-	
-	DefaultVisualShapeConverter visualConverter(m_guiHelper);
-    BulletURDFImporter u2b(m_guiHelper, &visualConverter);
+	BulletURDFImporter u2b(m_guiHelper, 0);
 	
 	
 	bool loadOk =  u2b.loadURDF(m_fileName);

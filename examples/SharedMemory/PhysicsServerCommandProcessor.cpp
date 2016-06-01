@@ -4,7 +4,7 @@
 #include "../Importers/ImportURDFDemo/BulletUrdfImporter.h"
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
 #include "../Importers/ImportURDFDemo/URDF2Bullet.h"
-#include "../Importers/ImportURDFDemo/DefaultVisualShapeConverter.h"
+#include "TinyRendererVisualShapeConverter.h"
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
@@ -288,7 +288,6 @@ struct PhysicsServerCommandProcessorInternalData
 	///handle management
 	btAlignedObjectArray<InternalBodyHandle>	m_bodyHandles;
 	int m_numUsedHandles;						// number of active handles
-	
 	int	m_firstFreeHandle;		// free handles list
 	InternalBodyHandle* getHandle(int handle)
 	{
@@ -411,6 +410,7 @@ struct PhysicsServerCommandProcessorInternalData
 	btVector3 m_hitPos;
 	btScalar m_oldPickingDist;
 	bool m_prevCanSleep;
+	TinyRendererVisualShapeConverter  m_visualConverter;
 
 	PhysicsServerCommandProcessorInternalData()
 		:
@@ -693,8 +693,8 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 	}
 
 
-	DefaultVisualShapeConverter  visualConverter(m_data->m_guiHelper);
-    BulletURDFImporter u2b(m_data->m_guiHelper, &visualConverter);
+	
+    BulletURDFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter);
 
    
     bool loadOk =  u2b.loadURDF(fileName, useFixedBase);
@@ -972,8 +972,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     int width, height;
                     int numPixelsCopied = 0;
                                         
-                   
-                    
+					if (clientCmd.m_requestPixelDataArguments.m_startPixelIndex==0)
+					{
+						m_data->m_visualConverter.render();
+					}
                     m_data->m_guiHelper->copyCameraImageData(0,0,0,0,0,&width,&height,0);
 					
                     int numTotalPixels = width*height;
@@ -1591,6 +1593,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     {
                         m_data->m_guiHelper->getRenderInterface()->removeAllInstances();
                     }
+					if (m_data)
+					{
+						m_data->m_visualConverter.resetAll();
+					}
 					deleteDynamicsWorld();
 					createEmptyDynamicsWorld();
 					m_data->exitHandles();

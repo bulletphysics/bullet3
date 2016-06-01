@@ -37,7 +37,7 @@ public:
     virtual std::string getLinkName(int linkIndex) const;
 
 	virtual bool getLinkColor(int linkIndex, btVector4& colorRGBA) const;
-    
+	
     virtual std::string getJointName(int linkIndex) const;
     
     virtual void  getMassAndInertia(int linkIndex, btScalar& mass,btVector3& localInertiaDiagonal, btTransform& inertialFrame) const;
@@ -46,7 +46,9 @@ public:
     
     virtual bool getRootTransformInWorld(btTransform& rootTransformInWorld) const;
 
-    virtual int convertLinkVisualShapes2(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame, class btCollisionShape* colShape) const;
+    virtual int convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame) const;
+
+    virtual void convertLinkVisualShapes2(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame, class btCollisionObject* colObj) const;
 
     ///todo(erwincoumans) refactor this convertLinkCollisionShapes/memory allocation
     
@@ -55,6 +57,7 @@ public:
     virtual int getNumAllocatedCollisionShapes() const;
     virtual class btCollisionShape* getAllocatedCollisionShape(int index);
 
+    
 };
 
 
