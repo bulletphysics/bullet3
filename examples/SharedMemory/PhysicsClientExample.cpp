@@ -21,8 +21,8 @@ struct MyMotorInfo2
     int     m_qIndex;
 };
 
-int camVisualizerWidth = 1024/3;
-int camVisualizerHeight = 768/3;
+int camVisualizerWidth = 640;//1024/3;
+int camVisualizerHeight = 480;//768/3;
 
 
 #define MAX_NUM_MOTORS 128
@@ -614,18 +614,20 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 					{
 						for (int j=0;j<imageData.m_pixelHeight;j++)
 						{
-							int xIndex = int(float(i)*(float(camVisualizerWidth)/float(imageData.m_pixelWidth)));
-							int yIndex = int(float(j)*(float(camVisualizerHeight)/float(imageData.m_pixelHeight)));
+                            int xIndex = int(float(i)*(float(camVisualizerWidth)/float(imageData.m_pixelWidth)));
+                            int yIndex = int(float(j)*(float(camVisualizerHeight)/float(imageData.m_pixelHeight)));
 							btClamp(yIndex,0,imageData.m_pixelHeight);
 							btClamp(xIndex,0,imageData.m_pixelWidth);
 							int bytesPerPixel = 4;
 							
 							int pixelIndex = (i+j*imageData.m_pixelWidth)*bytesPerPixel;
 							m_canvas->setPixel(m_canvasIndex,xIndex,camVisualizerHeight-1-yIndex,
+                                               
 									imageData.m_rgbColorData[pixelIndex],
 									imageData.m_rgbColorData[pixelIndex+1],
 									imageData.m_rgbColorData[pixelIndex+2],
-									imageData.m_rgbColorData[pixelIndex+3]);
+                                               255);
+//									imageData.m_rgbColorData[pixelIndex+3]);
 						}
 					}
 					m_canvas->refreshImageData(m_canvasIndex);

@@ -25,20 +25,21 @@ struct Shader : public IShader {
     Matrix& m_modelView1;
     Matrix& m_projectionMatrix;
     Vec3f m_localScaling;
-	//Vec3f m_localNormal;
+    Vec4f m_colorRGBA;
 
     mat<2,3,float> varying_uv;  // triangle uv coordinates, written by the vertex shader, read by the fragment shader
     mat<4,3,float> varying_tri; // triangle coordinates (clip coordinates), written by VS, read by FS
     mat<3,3,float> varying_nrm; // normal per vertex to be interpolated by FS
     //mat<3,3,float> ndc_tri;     // triangle in normalized device coordinates
 
-    Shader(Model* model, Vec3f light_dir_local, Matrix& modelView, Matrix& projectionMatrix, Matrix& modelMat, Vec3f localScaling)
+    Shader(Model* model, Vec3f light_dir_local, Matrix& modelView, Matrix& projectionMatrix, Matrix& modelMat, Vec3f localScaling, const Vec4f& colorRGBA)
     :m_model(model),
     m_light_dir_local(light_dir_local),
     m_modelView1(modelView),
     m_projectionMatrix(projectionMatrix),
     m_modelMat(modelMat),
-	m_localScaling(localScaling)
+	m_localScaling(localScaling),
+    m_colorRGBA(colorRGBA)
     {
         m_invModelMat = m_modelMat.invert_transpose();
     }
@@ -75,6 +76,11 @@ struct Shader : public IShader {
 		float diff = ambient+b3Min(b3Max(0.f, bn*m_light_dir_local),(1-ambient));
 		//float diff = b3Max(0.f, n*m_light_dir_local);
         color = m_model->diffuse(uv)*diff;
+        //colors are store in BGRA?
+        color = TGAColor(color[0]*m_colorRGBA[2],
+                            color[1]*m_colorRGBA[1],
+                            color[2]*m_colorRGBA[0],
+                            color[3]*m_colorRGBA[3]);
 
         return false;
     }
@@ -118,22 +124,24 @@ void TinyRenderObjectData::loadModel(const char* fileName)
 }
 
 
-void TinyRenderObjectData::registerMeshShape(const float* vertices, int numVertices,const int* indices, int numIndices,
+void TinyRenderObjectData::registerMeshShape(const float* vertices, int numVertices,const int* indices, int numIndices, const float rgbaColor[4],
 	unsigned char* textureImage, int textureWidth, int textureHeight)
 {
 	if (0==m_model)
     {
         m_model = new Model();
+        m_model->setColorRGBA(rgbaColor);
 		if (textureImage)
 		{
 			m_model->setDiffuseTextureFromData(textureImage,textureWidth,textureHeight);
 		} else
 		{
-			char relativeFileName[1024];
+			/*char relativeFileName[1024];
 			if (b3ResourcePath::findResourcePath("floor_diffuse.tga", relativeFileName, 1024))
 			{
 				m_model->loadDiffuseTexture(relativeFileName);
 			}
+             */
 		}
 		
         for (int i=0;i<numVertices;i++)
@@ -254,7 +262,7 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
     {
         Matrix modelViewMatrix = renderData.m_viewMatrix*renderData.m_modelMatrix;
         Vec3f localScaling(renderData.m_localScaling[0],renderData.m_localScaling[1],renderData.m_localScaling[2]);
-        Shader shader(model, light_dir_local, modelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, localScaling);
+        Shader shader(model, light_dir_local, modelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, localScaling, model->getColorRGBA());
         		
 		printf("Render %d triangles.\n",model->nfaces());
 		for (int i=0; i<model->nfaces(); i++) 

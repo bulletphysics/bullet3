@@ -687,7 +687,7 @@ b3SharedMemoryCommandHandle b3InitRequestCameraImage(b3PhysicsClientHandle physC
     b3Assert(command);
     command->m_type =CMD_REQUEST_CAMERA_IMAGE_DATA;
 	command->m_requestPixelDataArguments.m_startPixelIndex = 0;
-	command->m_updateFlags = REQUEST_PIXEL_ARGS_USE_HARDWARE_OPENGL;
+    command->m_updateFlags = 0;//REQUEST_PIXEL_ARGS_USE_HARDWARE_OPENGL;
     return (b3SharedMemoryCommandHandle) command;
 }
 

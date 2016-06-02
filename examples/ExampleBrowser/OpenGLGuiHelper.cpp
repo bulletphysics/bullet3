@@ -328,8 +328,8 @@ void OpenGLGuiHelper::resetCamera(float camDist, float pitch, float yaw, float c
 
 void OpenGLGuiHelper::copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied)
 {
-    int w = m_data->m_glApp->m_window->getWidth();
-    int h = m_data->m_glApp->m_window->getHeight();
+    int w = m_data->m_glApp->m_window->getWidth()*m_data->m_glApp->m_window->getRetinaScale();
+    int h = m_data->m_glApp->m_window->getHeight()*m_data->m_glApp->m_window->getRetinaScale();
     
     if (widthPtr)
         *widthPtr = w;

@@ -176,7 +176,7 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 				float orn[4]={0,0,0,1};
 				float color[4]={1,1,1,1};
 				float scaling[4]={1,1,1,1};
-
+                
 				m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 				m_guiHelper->getRenderInterface()->writeTransforms();
 
@@ -189,7 +189,7 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 					ob->registerMeshShape(&meshData.m_gfxShape->m_vertices->at(0).xyzw[0],
 						meshData.m_gfxShape->m_numvertices,
 						indices,
-						meshData.m_gfxShape->m_numIndices, meshData.m_textureImage,meshData.m_textureWidth,meshData.m_textureHeight);
+						meshData.m_gfxShape->m_numIndices,color, meshData.m_textureImage,meshData.m_textureWidth,meshData.m_textureHeight);
 						
 						
 					m_internalData->m_renderObjects.push_back(ob);

@@ -130,8 +130,12 @@ void Model::load_texture(std::string filename, const char *suffix, TGAImage &img
 }
 
 TGAColor Model::diffuse(Vec2f uvf) {
-    Vec2i uv(uvf[0]*diffusemap_.get_width(), uvf[1]*diffusemap_.get_height());
-    return diffusemap_.get(uv[0], uv[1]);
+    if (diffusemap_.get_width() && diffusemap_.get_height())
+    {
+        Vec2i uv(uvf[0]*diffusemap_.get_width(), uvf[1]*diffusemap_.get_height());
+        return diffusemap_.get(uv[0], uv[1]);
+    }
+    return TGAColor(255,255,255,255);
 }
 
 Vec3f Model::normal(Vec2f uvf) {

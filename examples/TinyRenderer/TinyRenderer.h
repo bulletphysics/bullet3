@@ -35,7 +35,7 @@ struct TinyRenderObjectData
     
     void loadModel(const char* fileName);
     void createCube(float HalfExtentsX,float HalfExtentsY,float HalfExtentsZ);
-    void registerMeshShape(const float* vertices, int numVertices,const int* indices, int numIndices,
+    void registerMeshShape(const float* vertices, int numVertices,const int* indices, int numIndices, const float rgbaColor[4],
 		unsigned char* textureImage=0, int textureWidth=0, int textureHeight=0);
 	
 	void registerMesh2(btAlignedObjectArray<btVector3>& vertices, btAlignedObjectArray<btVector3>& normals,btAlignedObjectArray<int>& indices);
