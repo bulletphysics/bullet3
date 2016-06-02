@@ -527,7 +527,6 @@ void	PhysicsClientExample::initPhysics()
 	m_selectedBody = -1;
 	m_prevSelectedBody = -1;
 
-	if (m_options == eCLIENTEXAMPLE_SERVER)
 	{
 		m_canvas = m_guiHelper->get2dCanvasInterface();
 		if (m_canvas)
@@ -557,9 +556,13 @@ void	PhysicsClientExample::initPhysics()
 			
 		}
 
-		m_isOptionalServerConnected = m_physicsServer.connectSharedMemory( m_guiHelper);
 	}
 
+    if (m_options == eCLIENTEXAMPLE_SERVER)
+    {
+        m_isOptionalServerConnected = m_physicsServer.connectSharedMemory( m_guiHelper);
+    }
+    
     m_physicsClientHandle  = b3ConnectSharedMemory(m_sharedMemoryKey);
 	//m_physicsClientHandle  = b3ConnectPhysicsLoopback(SHARED_MEMORY_KEY);
 	//m_physicsClientHandle = b3ConnectPhysicsDirect();
