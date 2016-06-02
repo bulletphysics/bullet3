@@ -659,6 +659,7 @@ SimpleOpenGL3App::~SimpleOpenGL3App()
 
 void SimpleOpenGL3App::getScreenPixels(unsigned char* rgbaBuffer, int bufferSizeInBytes)
 {
+    
     int width = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenWidth();
     int height = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenHeight();
     if ((width*height*4) == bufferSizeInBytes)

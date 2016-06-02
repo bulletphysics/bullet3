@@ -438,12 +438,18 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 
 				m_data->m_cachedCameraPixelsWidth = 0;
 				m_data->m_cachedCameraPixelsHeight = 0;
-				
+
+                int numPixels = serverCmd.m_sendPixelDataArguments.m_imageWidth*serverCmd.m_sendPixelDataArguments.m_imageHeight;
+
+                m_data->m_cachedCameraPixelsRGBA.reserve(numPixels*numBytesPerPixel);
 				m_data->m_cachedCameraDepthBuffer.resize(numTotalPixels);
 				m_data->m_cachedCameraPixelsRGBA.resize(numTotalPixels*numBytesPerPixel);
+                
+                
 				unsigned char* rgbaPixelsReceived =
                     (unsigned char*)&m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor[0];
-
+                printf("pixel = %d\n", rgbaPixelsReceived[0]);
+                
 				for (int i=0;i<serverCmd.m_sendPixelDataArguments.m_numPixelsCopied*numBytesPerPixel;i++)
 				{
 					m_data->m_cachedCameraPixelsRGBA[i + serverCmd.m_sendPixelDataArguments.m_startingPixelIndex*numBytesPerPixel] 

@@ -14,10 +14,22 @@ private:
     TGAImage diffusemap_;
     TGAImage normalmap_;
     TGAImage specularmap_;
+    Vec4f m_colorRGBA;
+    
     void load_texture(std::string filename, const char *suffix, TGAImage &img);
 public:
     Model(const char *filename);
     Model();
+    void setColorRGBA(const float rgba[4])
+    {
+        for (int i=0;i<4;i++)
+            m_colorRGBA[i] = rgba[i];
+    }
+    
+    const Vec4f& getColorRGBA() const
+    {
+        return m_colorRGBA;
+    }
     void loadDiffuseTexture(const char* relativeFileName);
 	void setDiffuseTextureFromData(unsigned char* textureImage,int textureWidth,int textureHeight);
     void addVertex(float x,float y,float z, float normalX, float normalY, float normalZ, float u, float v);

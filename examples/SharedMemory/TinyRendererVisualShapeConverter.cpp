@@ -437,9 +437,14 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(int linkIndex, const 
 			btTransform childTrans = vis.m_linkLocalFrame;
 			btHashString matName(vis.m_materialName.c_str());
 			UrdfMaterial *const * matPtr = model.m_materials[matName];
+            
+            float rgbaColor[4] = {1,1,1,1};
+            
 			if (matPtr)
 			{
 				UrdfMaterial *const  mat = *matPtr;
+                for (int i=0;i<4;i++)
+                    rgbaColor[i] = mat->m_rgbaColor[i];
 				//printf("UrdfMaterial %s, rgba = %f,%f,%f,%f\n",mat->m_name.c_str(),mat->m_rgbaColor[0],mat->m_rgbaColor[1],mat->m_rgbaColor[2],mat->m_rgbaColor[3]);
 				//m_data->m_linkColors.insert(linkIndex,mat->m_rgbaColor);
 			}
@@ -458,7 +463,7 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(int linkIndex, const 
             if (vertices.size() && indices.size())
             {
                 TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_swWidth,m_data->m_swHeight,m_data->m_rgbColorBuffer,m_data->m_depthBuffer);
-                tinyObj->registerMeshShape(&vertices[0].xyzw[0],vertices.size(),&indices[0],indices.size());
+                tinyObj->registerMeshShape(&vertices[0].xyzw[0],vertices.size(),&indices[0],indices.size(),rgbaColor);
                 visuals->m_renderObjects.push_back(tinyObj);
             }
 		}
@@ -578,6 +583,51 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
 	m_data->m_rgbColorBuffer.write_tga_file("camera.tga");
 
 }
+
+void TinyRendererVisualShapeConverter::getWidthAndHeight(int& width, int& height)
+{
+    width = m_data->m_swWidth;
+    height = m_data->m_swHeight;
+}
+
+void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied)
+{
+    int w = m_data->m_rgbColorBuffer.get_width();
+    int h = m_data->m_rgbColorBuffer.get_height();
+    
+    if (numPixelsCopied)
+        *numPixelsCopied = 0;
+    
+    if (widthPtr)
+        *widthPtr = w;
+    
+    if (heightPtr)
+        *heightPtr = h;
+    
+    int numTotalPixels = w*h;
+    int numRemainingPixels = numTotalPixels - startPixelIndex;
+    int numBytesPerPixel = 4;//RGBA
+    int numRequestedPixels  = btMin(rgbaBufferSizeInPixels,numRemainingPixels);
+    if (numRequestedPixels)
+    {
+        for (int i=0;i<numRequestedPixels;i++)
+        {
+            if (pixelsRGBA)
+            {
+                pixelsRGBA[i*numBytesPerPixel] =   m_data->m_rgbColorBuffer.buffer()[(i+startPixelIndex)*3+0];
+                pixelsRGBA[i*numBytesPerPixel+1] = m_data->m_rgbColorBuffer.buffer()[(i+startPixelIndex)*3+1];
+                pixelsRGBA[i*numBytesPerPixel+2] = m_data->m_rgbColorBuffer.buffer()[(i+startPixelIndex)*3+2];
+                pixelsRGBA[i*numBytesPerPixel+3] = 255;
+                
+            }
+        }
+        
+        if (numPixelsCopied)
+            *numPixelsCopied = numRequestedPixels;
+        
+    }    
+}
+
 
 void TinyRendererVisualShapeConverter::resetAll()
 {

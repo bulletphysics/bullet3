@@ -976,24 +976,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					{
 						m_data->m_guiHelper->copyCameraImageData(0,0,0,0,0,&width,&height,0);
 					} 
-					//else
+					else
 					{
-						if (clientCmd.m_requestPixelDataArguments.m_startPixelIndex==0)
-						{
-							printf("-------------------------------\nRendering\n");
-
-						
-							if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES)!=0)
-							{
-								m_data->m_visualConverter.render(
-									clientCmd.m_requestPixelDataArguments.m_viewMatrix,
-									clientCmd.m_requestPixelDataArguments.m_projectionMatrix);
-							} else
-							{
-								m_data->m_visualConverter.render();
-							}
-						
-						}
+                        m_data->m_visualConverter.getWidthAndHeight(width,height);
 					}
                     
 					
@@ -1015,7 +1000,24 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							m_data->m_guiHelper->copyCameraImageData(pixelRGBA,numRequestedPixels,depthBuffer,numRequestedPixels,startPixelIndex,&width,&height,&numPixelsCopied);
 						} else
 						{
-							
+                            
+                            if (clientCmd.m_requestPixelDataArguments.m_startPixelIndex==0)
+                            {
+                                printf("-------------------------------\nRendering\n");
+                                
+                                if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES)!=0)
+                                {
+                                    m_data->m_visualConverter.render(
+                                                                     clientCmd.m_requestPixelDataArguments.m_viewMatrix,
+                                                                     clientCmd.m_requestPixelDataArguments.m_projectionMatrix);
+                                } else
+                                {
+                                    m_data->m_visualConverter.render();
+                                }
+                                
+                            }
+                            
+							m_data->m_visualConverter.copyCameraImageData(pixelRGBA,numRequestedPixels,depthBuffer,numRequestedPixels,startPixelIndex,&width,&height,&numPixelsCopied);
 						}
                         
                         //each pixel takes 4 RGBA values and 1 float = 8 bytes
