@@ -19,6 +19,8 @@ protected:
 
 	bool processDebugLines(const struct SharedMemoryCommand& orgCommand);
 
+	bool processCamera(const struct SharedMemoryCommand& orgCommand);
+
 public:
 
     PhysicsDirect();

@@ -156,16 +156,12 @@ protected:
 	{
         for (int i=0;i<m_numMotors;i++)
         {
-            // btScalar targetVel = m_motorTargetVelocities[i].m_velTarget;
-            // int uIndex = m_motorTargetVelocities[i].m_uIndex;
-            // b3JointControlSetDesiredVelocity(commandHandle, uIndex,targetVel);
             
             btScalar targetPos = m_motorTargetPositions[i].m_posTarget;
             int qIndex = m_motorTargetPositions[i].m_qIndex;
             int uIndex = m_motorTargetPositions[i].m_uIndex;
             b3JointControlSetDesiredPosition(commandHandle, qIndex, targetPos);
             b3JointControlSetKp(commandHandle, uIndex, 0.1);
-            b3JointControlSetKd(commandHandle, uIndex, 0.0);
             
             b3JointControlSetMaximumForce(commandHandle,uIndex,1000);
         }
@@ -430,6 +426,11 @@ PhysicsClientExample::~PhysicsClientExample()
 		bool deInitializeSharedMemory = true;
 		m_physicsServer.disconnectSharedMemory(deInitializeSharedMemory);
 	}
+	
+	if (m_canvas && (m_canvasIndex>=0))
+	{
+		m_canvas->destroyCanvas(m_canvasIndex);
+	}
     b3Printf("~PhysicsClientExample\n");
 }
 
@@ -563,10 +564,15 @@ void	PhysicsClientExample::initPhysics()
         m_isOptionalServerConnected = m_physicsServer.connectSharedMemory( m_guiHelper);
     }
     
-    m_physicsClientHandle  = b3ConnectSharedMemory(m_sharedMemoryKey);
-	//m_physicsClientHandle  = b3ConnectPhysicsLoopback(SHARED_MEMORY_KEY);
-	//m_physicsClientHandle = b3ConnectPhysicsDirect();
-
+	if (m_options == eCLIENTEXAMPLE_DIRECT)
+	{
+		m_physicsClientHandle = b3ConnectPhysicsDirect();
+	} else
+	{
+	    m_physicsClientHandle  = b3ConnectSharedMemory(m_sharedMemoryKey);
+		//m_physicsClientHandle  = b3ConnectPhysicsLoopback(SHARED_MEMORY_KEY);
+	}
+	
     if (!b3CanSubmitCommand(m_physicsClientHandle))
     {
 		b3Warning("Cannot connect to physics client");
