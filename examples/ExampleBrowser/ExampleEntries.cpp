@@ -56,7 +56,7 @@
 #endif
 #endif //B3_USE_CLEW
 
-//Extended Tutorial Includes Added by Mobeen
+//Extended Tutorial Includes Added by Mobeen and Benelot
 #include "../ExtendedTutorials/SimpleBox.h"
 #include "../ExtendedTutorials/MultipleBoxes.h"
 #include "../ExtendedTutorials/SimpleJoint.h"
@@ -64,6 +64,9 @@
 #include "../ExtendedTutorials/Chain.h"
 #include "../ExtendedTutorials/Bridge.h"
 #include "../ExtendedTutorials/RigidBodyFromObj.h"
+#include "../ExtendedTutorials/InclinedPlane.h"
+#include "../ExtendedTutorials/NewtonsCradle.h"
+#include "../ExtendedTutorials/MultiPendulum.h"
 
 struct ExampleEntry
 {
@@ -269,11 +272,15 @@ static ExampleEntry gDefaultExamples[]=
 	//Extended Tutorials Added by Mobeen
 	ExampleEntry(0,"Extended Tutorials"),
 	ExampleEntry(1,"Simple Box", "Simplest possible demo creating a single box rigid body that falls under gravity", ET_SimpleBoxCreateFunc),
-	ExampleEntry(1,"Multiple Boxes", "Adding multiple box rigid bodies that fall under gravity", ET_MultipleBoxesCreateFunc),
-	ExampleEntry(1,"Simple Joint", "Creating a single distance constraint between two box rigid bodies", ET_SimpleJointCreateFunc),
-	ExampleEntry(1,"Simple Cloth", "Creating a simple piece of cloth", ET_SimpleClothCreateFunc),
-	ExampleEntry(1,"Simple Chain", "Creating a simple chain using a pair of point2point/distance constraints. You may click and drag any box to see the chain respond.", ET_ChainCreateFunc),
-	ExampleEntry(1,"Simple Bridge", "Creating a simple bridge using a pair of point2point/distance constraints. You may click and drag any plank to see the bridge respond.", ET_BridgeCreateFunc),
+	ExampleEntry(1,"Multiple Boxes", "Add multiple box rigid bodies that fall under gravity", ET_MultipleBoxesCreateFunc),
+	ExampleEntry(1,"Simple Joint", "Create a single distance constraint between two box rigid bodies", ET_SimpleJointCreateFunc),
+	ExampleEntry(1,"Simple Cloth", "Create a simple piece of cloth", ET_SimpleClothCreateFunc),
+	ExampleEntry(1,"Simple Chain", "Create a simple chain using a pair of point2point/distance constraints. You may click and drag any box to see the chain respond.", ET_ChainCreateFunc),
+	ExampleEntry(1,"Simple Bridge", "Create a simple bridge using a pair of point2point/distance constraints. You may click and drag any plank to see the bridge respond.", ET_BridgeCreateFunc),
+	ExampleEntry(1,"Inclined Plane", "Create an inclined plane to show restitution and different types of friction. Use the sliders to vary restitution and friction and press space to reset the scene.", ET_InclinedPlaneCreateFunc),
+	ExampleEntry(1,"Newton's Cradle", "Create a Newton's Cradle using a pair of point2point/slider constraints. Press 1/2 to lengthen/shorten the pendula, press 3 to displace pendula. Use the sliders to select the number of pendula in total (reset simulation), the number of displaced pendula and other options.", ET_NewtonsCradleCreateFunc),
+	ExampleEntry(1,"Multi-Pendulum", "Create a Multi-Pendulum using point2point/slider constraints. Press 1/2 to lengthen/shorten the pendula, press 3 to displace pendula. Use the sliders to select the number of pendula in total (reset simulation), the number of displaced pendula and other options.",ET_MultiPendulumCreateFunc),
+
 
 	//todo: create a category/tutorial about advanced topics, such as optimizations, using different collision detection algorithm, different constraint solvers etc.
 	//ExampleEntry(0,"Advanced"),

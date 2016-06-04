@@ -114,7 +114,10 @@ SET(ExtendedTutorialsSources
 	../ExtendedTutorials/SimpleCloth.cpp
 	../ExtendedTutorials/Chain.cpp 
 	../ExtendedTutorials/Bridge.cpp 
-	../ExtendedTutorials/RigidBodyFromObj.cpp 
+	../ExtendedTutorials/RigidBodyFromObj.cpp
+	../ExtendedTutorials/InclinedPlane.cpp
+	../ExtendedTutorials/InclinedPlane.h
+	../ExtendedTutorials/NewtonsCradle.cpp
 )
 
 SET(BulletExampleBrowser_SRCS
@@ -166,8 +169,8 @@ SET(BulletExampleBrowser_SRCS
 	../ExtendedTutorials/SimpleCloth.h
 	../ExtendedTutorials/SimpleJoint.cpp
 	../ExtendedTutorials/SimpleJoint.h
-	../ExtendedTutorials/NewtonianPendulum.cpp
-	../ExtendedTutorials/NewtonianPendulum.h
+	../ExtendedTutorials/NewtonsCradle.cpp
+	../ExtendedTutorials/NewtonsCradle.h
 	../ExtendedTutorials/InclinedPlane.cpp
 	../ExtendedTutorials/InclinedPlane.h
 	../ExtendedTutorials/MultiPendulum.cpp
