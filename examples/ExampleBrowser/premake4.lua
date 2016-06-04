@@ -76,6 +76,8 @@ project "App_BulletExampleBrowser"
 		"../SharedMemory/PhysicsLoopBackC_API.h",
 		"../SharedMemory/PhysicsServerCommandProcessor.cpp",
 		"../SharedMemory/PhysicsServerCommandProcessor.h",
+		"../SharedMemory/TinyRendererVisualShapeConverter.cpp",
+		"../SharedMemory/TinyRendererVisualShapeConverter.h",
 		"../MultiThreading/MultiThreadingExample.cpp",
 		"../MultiThreading/b3PosixThreadSupport.cpp",
 		"../MultiThreading/b3Win32ThreadSupport.cpp",

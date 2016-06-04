@@ -23,6 +23,7 @@ subject to the following restrictions:
 #include "../Importers/ImportURDFDemo/BulletUrdfImporter.h"
 #include "../Importers/ImportURDFDemo/URDF2Bullet.h"
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
+
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
 
 #include "btBulletDynamicsCommon.h"
@@ -85,10 +86,10 @@ public:
 
     virtual void resetCamera()
     {
-        float dist = 3.5;
-        float pitch = -136;
-        float yaw = 28;
-        float targetPos[3]={0.47,0,-0.64};
+        float dist = 1.5;
+        float pitch = -80;
+        float yaw = 10;
+        float targetPos[3]={0,0,0};
         m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
     }
 };
@@ -150,10 +151,12 @@ void InverseDynamicsExample::initPhysics()
    
     switch (m_option)
     {
-    case 0:
     case BT_ID_LOAD_URDF:
         {
-            BulletURDFImporter u2b(m_guiHelper);
+
+
+			
+            BulletURDFImporter u2b(m_guiHelper,0);
             bool loadOk =  u2b.loadURDF("kuka_lwr/kuka.urdf");
             if (loadOk)
             {
@@ -235,7 +238,7 @@ void InverseDynamicsExample::initPhysics()
         
     }
     
-    
+    m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 
 }
 

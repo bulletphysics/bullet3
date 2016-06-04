@@ -113,11 +113,36 @@ struct RequestDebugLinesArgs
     int m_startingLineIndex;
 };
 
+struct RequestPixelDataArgs
+{
+	float m_viewMatrix[16];
+	float m_projectionMatrix[16];
+	int m_startPixelIndex;
+};
+
+enum EnumRequestPixelDataUpdateFlags
+{
+	REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES=1,
+	REQUEST_PIXEL_ARGS_USE_HARDWARE_OPENGL=2,
+};
+
+
+
 struct SendDebugLinesArgs
 {
     int m_startingLineIndex;
 	int m_numDebugLines;
     int m_numRemainingDebugLines;
+};
+
+struct SendPixelDataArgs
+{
+	int m_imageWidth;
+	int m_imageHeight;
+
+    int m_startingPixelIndex;
+    int m_numPixelsCopied;
+    int m_numRemainingPixels;
 };
 
 struct PickBodyArgs
@@ -270,6 +295,7 @@ struct SharedMemoryCommand
         struct CreateSensorArgs m_createSensorArguments;
         struct CreateBoxShapeArgs m_createBoxShapeArguments;
 		struct RequestDebugLinesArgs m_requestDebugLinesArguments;
+		struct RequestPixelDataArgs m_requestPixelDataArguments;
 		struct PickBodyArgs m_pickBodyArguments;
     };
 };
@@ -291,6 +317,7 @@ struct SharedMemoryStatus
 		struct BulletDataStreamArgs	m_dataStreamArguments;
 		struct SendActualStateArgs m_sendActualStateArgs;
 		struct SendDebugLinesArgs m_sendDebugLinesArgs;
+		struct SendPixelDataArgs m_sendPixelDataArguments;
 		struct RigidBodyCreateArgs m_rigidBodyCreateArgs;
 	};
 };

@@ -1,5 +1,5 @@
 
-project "App_InverseDynamicsExample"
+project "App_RigidBodyFromObjExample"
 
 if _OPTIONS["ios"] then
 	kind "WindowedApp"
@@ -16,7 +16,7 @@ links {
 language "C++"
 
 files {
-	"**.cpp",
+	"RigidBodyFromObj.cpp",
 	"**.h",
 	"../StandaloneMain/main_console_single_example.cpp",
 		"../Utils/b3ResourcePath.cpp",
@@ -42,7 +42,7 @@ files {
 }
 
 
-project "App_InverseDynamicsExampleGui"
+project "App_RigidBodyFromObjExampleGui"
 
 if _OPTIONS["ios"] then
         kind "WindowedApp"
@@ -64,7 +64,7 @@ links {
 language "C++"
 
 files {
-        "InverseDynamicsExample.cpp",
+        "RigidBodyFromObj.cpp",
         "*.h",
         "../StandaloneMain/main_opengl_single_example.cpp",
 	"../ExampleBrowser/OpenGLGuiHelper.cpp",
@@ -100,7 +100,7 @@ end
                           
 
 
-project "App_InverseDynamicsExampleGuiWithSoftwareRenderer"
+project "App_RigidBodyFromObjExampleGuiWithSoftwareRenderer"
 
 if _OPTIONS["ios"] then
         kind "WindowedApp"
@@ -122,7 +122,7 @@ links {
 language "C++"
 
 files {
-        "InverseDynamicsExample.cpp",
+        "RigidBodyFromObj.cpp",
         "*.h",
         "../StandaloneMain/main_sw_tinyrenderer_single_example.cpp",
 	"../ExampleBrowser/OpenGLGuiHelper.cpp",
@@ -163,7 +163,8 @@ if os.is("MacOSX") then
 end
                           
 
-project "App_InverseDynamicsExampleTinyRenderer"
+
+project "App_RigidBodyFromObjExampleTinyRenderer"
 
 if _OPTIONS["ios"] then
         kind "WindowedApp"
@@ -178,10 +179,11 @@ links {
         "BulletInverseDynamicsUtils", "BulletInverseDynamics","BulletDynamics","BulletCollision", "LinearMath", "Bullet3Common"
 }
 
+
 language "C++"
 
 files {
-        "InverseDynamicsExample.cpp",
+        "RigidBodyFromObj.cpp",
         "*.h",
         "../StandaloneMain/main_tinyrenderer_single_example.cpp",
 	"../OpenGLWindow/SimpleCamera.cpp",
@@ -213,4 +215,4 @@ files {
 			"../Importers/ImportURDFDemo/urdfStringSplit.cpp",
 
 }
-               
+

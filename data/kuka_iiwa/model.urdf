@@ -47,6 +47,10 @@
   <material name="Orange">
     <color rgba="1.0 0.423529411765 0.0392156862745 1.0"/>
   </material>
+  <material name="Blue">
+  <color rgba="0.5 0.7 1.0 1.0"/>      
+</material>
+
   <!--Import the lbr iiwa macro -->
   <!--Import Transmissions -->
   <!--Include Utilities -->
@@ -97,7 +101,7 @@
       <geometry>
         <mesh filename="meshes/link_1.stl"/>
       </geometry>
-      <material name="Orange"/>
+      <material name="Blue"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -126,7 +130,7 @@
       <geometry>
         <mesh filename="meshes/link_2.stl"/>
       </geometry>
-      <material name="Orange"/>
+      <material name="Blue"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -184,7 +188,7 @@
       <geometry>
         <mesh filename="meshes/link_4.stl"/>
       </geometry>
-      <material name="Orange"/>
+      <material name="Blue"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -213,7 +217,7 @@
       <geometry>
         <mesh filename="meshes/link_5.stl"/>
       </geometry>
-      <material name="Orange"/>
+      <material name="Blue"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>

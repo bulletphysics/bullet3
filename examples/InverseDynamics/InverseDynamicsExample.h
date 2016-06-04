@@ -18,8 +18,8 @@ subject to the following restrictions:
 
 enum btInverseDynamicsExampleOptions
 {
-	BT_ID_LOAD_URDF=1,
-	BT_ID_PROGRAMMATICALLY=2
+	BT_ID_LOAD_URDF=0,
+	BT_ID_PROGRAMMATICALLY=1
 };
 
 class CommonExampleInterface*    InverseDynamicsExampleCreateFunc(struct CommonExampleOptions& options);

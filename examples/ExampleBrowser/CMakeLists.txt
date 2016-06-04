@@ -124,6 +124,8 @@ SET(BulletExampleBrowser_SRCS
 	../TinyRenderer/tgaimage.cpp
 	../TinyRenderer/our_gl.cpp
 	../TinyRenderer/TinyRenderer.cpp
+	../SharedMemory/TinyRendererVisualShapeConverter.cpp
+	../SharedMemory/TinyRendererVisualShapeConverter.h
 	../RenderingExamples/TinyRendererSetup.cpp
 	../SharedMemory/PhysicsServer.cpp
 	../SharedMemory/PhysicsClientSharedMemory.cpp

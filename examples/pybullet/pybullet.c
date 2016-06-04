@@ -1,7 +1,6 @@
 #include "../SharedMemory/SharedMemoryInProcessPhysicsC_API.h"
 #include "../SharedMemory/PhysicsClientC_API.h"
 #include "../SharedMemory/PhysicsDirectC_API.h"
-#include "../SharedMemory/SharedMemoryInProcessPhysicsC_API.h"
 
 
 #ifdef __APPLE__
@@ -127,14 +126,14 @@ pybullet_loadURDF(PyObject* self, PyObject* args)
 	int size= PySequence_Size(args);
 	
 	int bodyIndex = -1;
-	const char* urdfFileName=0;
+	const char* urdfFileName="";
 	float startPosX =0;
     float startPosY =0;
     float startPosZ = 1;
 	float startOrnX = 0;
 	float startOrnY = 0;
 	float startOrnZ = 0;
-	float startOwnW = 1;
+	float startOrnW = 1;
 	printf("size=%d\n", size);
 	if (0==sm)
     {
@@ -152,12 +151,13 @@ pybullet_loadURDF(PyObject* self, PyObject* args)
 		&startPosX,&startPosY,&startPosZ))
                 return NULL;
         }
-	if (size==7)
+	if (size==8)
 	{
 		if (!PyArg_ParseTuple(args, "sfffffff", &urdfFileName,
-                &startPosX,startPosY,&startPosZ,
-		&startOrnX,&startOrnY,&startOrnZ, &startOwnW))
+		&startPosX,&startPosY,&startPosZ,
+			&startOrnX,&startOrnY,&startOrnZ, &startOrnW))
                 return NULL;
+		
 	}
     {
         
@@ -224,24 +224,113 @@ pybullet_setGravity(PyObject* self, PyObject* args)
 		//ASSERT_EQ(b3GetStatusType(statusHandle), CMD_CLIENT_COMMAND_COMPLETED);
 	}
 
-	if (1)
-	{
-		PyObject *pylist; 
-		PyObject *item; 
-		int i;
-		int num=3;
-		pylist = PyTuple_New(num);
-		for (i = 0; i < num; i++) 
-		{
-			item = PyFloat_FromDouble(i);
-			PyTuple_SetItem(pylist, i, item);
-		}
-		return pylist;
-	}
-
 	Py_INCREF(Py_None);
 	return Py_None;
 }
+
+
+static void pybullet_internalGetBasePositionAndOrientation(int bodyIndex, double basePosition[3],double baseOrientation[3])
+{
+    basePosition[0] = 0.;
+    basePosition[1] = 0.;
+    basePosition[2] = 0.;
+    
+    baseOrientation[0] = 0.;
+    baseOrientation[1] = 0.;
+    baseOrientation[2] = 0.;
+    baseOrientation[3] = 1.;
+
+	{
+		
+		
+		{
+	      b3SharedMemoryCommandHandle cmd_handle =
+                b3RequestActualStateCommandInit(sm, bodyIndex);
+            b3SharedMemoryStatusHandle status_handle =
+                    b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
+
+            const int status_type = b3GetStatusType(status_handle);
+            
+            const double* actualStateQ;
+            b3GetStatusActualState(status_handle, 0/* body_unique_id */,
+                               0/* num_degree_of_freedom_q */,
+                               0/* num_degree_of_freedom_u */, 0 /*root_local_inertial_frame*/,
+                               &actualStateQ , 0 /* actual_state_q_dot */,
+                               0 /* joint_reaction_forces */);
+
+            //now, position x,y,z = actualStateQ[0],actualStateQ[1],actualStateQ[2]
+            //and orientation x,y,z,w = actualStateQ[3],actualStateQ[4],actualStateQ[5],actualStateQ[6]
+            basePosition[0] = actualStateQ[0];
+            basePosition[1] = actualStateQ[1];
+            basePosition[2] = actualStateQ[2];
+            
+            baseOrientation[0] = actualStateQ[3];
+            baseOrientation[1] = actualStateQ[4];
+            baseOrientation[2] = actualStateQ[5];
+            baseOrientation[3] = actualStateQ[6];
+		}
+	}
+}
+
+static PyObject *
+pybullet_getBasePositionAndOrientation(PyObject* self, PyObject* args)
+{
+    if (0==sm)
+    {
+        PyErr_SetString(SpamError, "Not connected to physics server.");
+        return NULL;
+    }
+    
+    int bodyIndex = -1;
+    if (!PyArg_ParseTuple(args, "i", &bodyIndex ))
+    {
+        PyErr_SetString(SpamError, "Expected a body index (integer).");
+        return NULL;
+    }
+    
+    double basePosition[3];
+    double baseOrientation[4];
+    
+    pybullet_internalGetBasePositionAndOrientation(bodyIndex,basePosition,baseOrientation);
+    PyObject *pylistPos; 
+    {
+    
+        PyObject *item; 
+        int i;
+        int num=3;
+        pylistPos = PyTuple_New(num);
+        for (i = 0; i < num; i++) 
+        {
+            item = PyFloat_FromDouble(basePosition[i]);
+            PyTuple_SetItem(pylistPos, i, item);
+        }
+    
+    }
+    PyObject *pylistOrientation; 
+    {
+        
+        PyObject *item; 
+        int i;
+        int num=4;
+        pylistOrientation = PyTuple_New(num);
+        for (i = 0; i < num; i++) 
+        {
+            item = PyFloat_FromDouble(baseOrientation[i]);
+            PyTuple_SetItem(pylistOrientation, i, item);
+        }
+        
+    }
+    
+    {
+        PyObject *pylist; 
+        pylist = PyTuple_New(2);
+        PyTuple_SetItem(pylist,0,pylistPos);
+        PyTuple_SetItem(pylist,1,pylistOrientation);
+        return pylist;
+    }
+    
+}
+
 
 static PyObject *
 pybullet_getNumJoints(PyObject* self, PyObject* args)
@@ -290,6 +379,9 @@ static PyMethodDef SpamMethods[] = {
 	{"setGravity",  pybullet_setGravity, METH_VARARGS,
         "Set the gravity acceleration (x,y,z)."},
 	
+	{"getBasePositionAndOrientation",  pybullet_getBasePositionAndOrientation, METH_VARARGS,
+        "Get the world position and orientation of the base of the object. (x,y,z) position vector and (x,y,z,w) quaternion orientation."},
+	
 	{"getNumsetGravity",  pybullet_setGravity, METH_VARARGS,
         "Set the gravity acceleration (x,y,z)."},
 	{
@@ -329,10 +421,16 @@ initpybullet(void)
         SpamMethods, "Python bindings for Bullet");
 #endif
 
+#if PY_MAJOR_VERSION >= 3
     if (m == NULL)
         return m;
+#else
+    if (m == NULL)
+        return;
+#endif
+    
 	
-	PyModule_AddIntConstant (m, "SHARED_MEMORY", eCONNECT_SHARED_MEMORY); // user read 
+	PyModule_AddIntConstant (m, "SHARED_MEMORY", eCONNECT_SHARED_MEMORY); // user read
 	PyModule_AddIntConstant (m, "DIRECT", eCONNECT_DIRECT); // user read 
 	PyModule_AddIntConstant (m, "GUI", eCONNECT_GUI); // user read 
 

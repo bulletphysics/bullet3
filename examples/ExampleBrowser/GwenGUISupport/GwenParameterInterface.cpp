@@ -141,7 +141,8 @@ void GwenParameterInterface::registerButtonParameter(ButtonParams& params)
 	MyButtonEventHandler* handler = new MyButtonEventHandler(params.m_callback,params.m_buttonId,params.m_userPointer);
 	button->SetText(params.m_name);
 	button->onPress.Add( handler, &MyButtonEventHandler::onButtonPress );
-
+    button->SetIsToggle(params.m_isTrigger);
+    
 	m_paramInternalData->m_buttons.push_back(button);
 	m_paramInternalData->m_buttonEventHandlers.push_back(handler);
 
@@ -190,8 +191,8 @@ void GwenParameterInterface::registerComboBox(ComboBoxParams& params)
 	combobox->onSelection.Add(handler,&MyComboBoxHander2::onSelect);
 	int ypos = m_gwenInternalData->m_curYposition;
 	m_gwenInternalData->m_curYposition+=22;
-	combobox->SetPos(10, ypos );
-	combobox->SetWidth( 100 );
+	combobox->SetPos(5, ypos );
+	combobox->SetWidth( 220 );
 	//box->SetPos(120,130);
 	for (int i=0;i<params.m_numItems;i++)
 	{
@@ -200,6 +201,7 @@ void GwenParameterInterface::registerComboBox(ComboBoxParams& params)
 			combobox->OnItemSelected(item);
 	}
 
+    
 	
 
 }

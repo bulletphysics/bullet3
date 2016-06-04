@@ -40,12 +40,14 @@ struct ButtonParams
 	const char* m_name;
 	int m_buttonId;
 	void* m_userPointer;
+    bool m_isTrigger;
 
 	ButtonParamChangedCallback m_callback;
 	ButtonParams(const char* name, int buttonId, bool isTrigger)
 		:m_name(name),
 		m_buttonId(buttonId),
 		m_userPointer(0),
+    m_isTrigger(isTrigger),
 	m_callback(0)
 	{
 	}
