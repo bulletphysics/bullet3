@@ -89,7 +89,7 @@ void InclinedPlaneExample::initPhysics()
 	{ // create slider to change the ramp tilt
     SliderParams slider("Ramp Tilt",&gTilt);
     slider.m_minVal=0;
-    slider.m_maxVal=M_PI/2.0f;
+    slider.m_maxVal=SIMD_PI/2.0f;
     slider.m_clampToNotches = false;
     slider.m_callback = onRampInclinationChanged;
     m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);

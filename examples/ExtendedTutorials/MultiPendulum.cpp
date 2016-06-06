@@ -355,7 +355,7 @@ bool MultiPendulumExample::keyboardCallback(int key, int state) {
 	case 49 /*ASCII for 1*/: {
 
 		//assumption: Sphere are aligned in Z axis
-		btScalar newLimit = gCurrentPendulumLength + 0.1;
+		btScalar newLimit = btScalar(gCurrentPendulumLength + 0.1);
 
 		changePendulaLength(newLimit);
 		gCurrentPendulumLength = newLimit;
@@ -366,7 +366,7 @@ bool MultiPendulumExample::keyboardCallback(int key, int state) {
 	case 50 /*ASCII for 2*/: {
 
 		//assumption: Sphere are aligned in Z axis
-		btScalar newLimit = gCurrentPendulumLength - 0.1;
+		btScalar newLimit = btScalar(gCurrentPendulumLength - 0.1);
 
 		//is being shortened beyond it's own length, we don't let the lower sphere to go over the upper one
 		if (0 <= newLimit) {
@@ -378,7 +378,7 @@ bool MultiPendulumExample::keyboardCallback(int key, int state) {
 		return true;
 	}
 	case 51 /*ASCII for 3*/: {
-		for (int i = gPendulaQty-1; i >= gPendulaQty-gDisplacedPendula; i--) {
+		for (int i = floor(gPendulaQty)-1; i >= gPendulaQty-gDisplacedPendula; i--) {
 			if (gDisplacedPendula >= 0 && gDisplacedPendula < gPendulaQty)
 				pendula[i]->applyCentralForce(btVector3(gDisplacementForce, 0, 0));
 		}

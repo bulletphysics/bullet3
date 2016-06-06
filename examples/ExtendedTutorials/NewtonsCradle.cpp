@@ -153,7 +153,7 @@ void NewtonsCradleExample::initPhysics() {
 		for (int i = 0; i < floor(gPendulaQty); i++) {
 
 			// create pendulum
-			createPendulum(pendulumShape, xPosition, yPosition,zPosition,
+			createPendulum(pendulumShape, xPosition, yPosition, zPosition,
 				gInitialPendulumLength, pendulumMass);
 
 			// displace the pendula 1.05 sphere size, so that they all nearly touch (small spacings in between
@@ -289,7 +289,7 @@ bool NewtonsCradleExample::keyboardCallback(int key, int state) {
 	case 49 /*ASCII for 1*/: {
 
 		//assumption: Sphere are aligned in Z axis
-		btScalar newLimit = gCurrentPendulumLength + 0.1;
+		btScalar newLimit = btScalar(gCurrentPendulumLength + 0.1);
 
 		changePendulaLength(newLimit);
 		gCurrentPendulumLength = newLimit;
@@ -300,7 +300,7 @@ bool NewtonsCradleExample::keyboardCallback(int key, int state) {
 	case 50 /*ASCII for 2*/: {
 
 		//assumption: Sphere are aligned in Z axis
-		btScalar newLimit = gCurrentPendulumLength - 0.1;
+		btScalar newLimit = btScalar(gCurrentPendulumLength - 0.1);
 
 		//is being shortened beyond it's own length, we don't let the lower sphere to go over the upper one
 		if (0 <= newLimit) {
