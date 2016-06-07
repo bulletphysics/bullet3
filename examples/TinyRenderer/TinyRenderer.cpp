@@ -265,7 +265,7 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
         Vec3f localScaling(renderData.m_localScaling[0],renderData.m_localScaling[1],renderData.m_localScaling[2]);
         Shader shader(model, light_dir_local, modelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, localScaling, model->getColorRGBA());
         		
-		printf("Render %d triangles.\n",model->nfaces());
+		//printf("Render %d triangles.\n",model->nfaces());
 		for (int i=0; i<model->nfaces(); i++) 
 		{
 			 

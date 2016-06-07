@@ -612,9 +612,9 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 			}
 			if (statusType ==CMD_CAMERA_IMAGE_COMPLETED)
             {
-				static int counter=0;
-				char msg[1024];
-				sprintf(msg,"Camera image %d OK\n",counter++);
+			//	static int counter=0;
+			//	char msg[1024];
+			//	sprintf(msg,"Camera image %d OK\n",counter++);
 				b3CameraImageData imageData;
 				b3GetCameraImageData(m_physicsClientHandle,&imageData);
 				if (m_canvas && m_canvasIndex >=0)
@@ -642,11 +642,11 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 					m_canvas->refreshImageData(m_canvasIndex);
 				}
 
-                b3Printf(msg);
+               // b3Printf(msg);
             } 
             if (statusType == CMD_CAMERA_IMAGE_FAILED)
             {
-                b3Printf("Camera image FAILED\n");
+                b3Warning("Camera image FAILED\n");
             }
        
         
@@ -716,8 +716,8 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 						bool hasStatus = (status != 0);
 						if (hasStatus)
 						{
-							int statusType = b3GetStatusType(status);
-							b3Printf("Status after reset: %d",statusType);
+							//int statusType = b3GetStatusType(status);
+							//b3Printf("Status after reset: %d",statusType);
 						}
 					}
 				} else

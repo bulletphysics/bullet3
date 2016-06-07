@@ -1003,7 +1003,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                             
                             if (clientCmd.m_requestPixelDataArguments.m_startPixelIndex==0)
                             {
-                                printf("-------------------------------\nRendering\n");
+                             //   printf("-------------------------------\nRendering\n");
                                 
                                 if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES)!=0)
                                 {

@@ -9,6 +9,15 @@ INCLUDE_DIRECTORIES(
 SET(pybullet_SRCS
 	pybullet.c
 	../../examples/ExampleBrowser/InProcessExampleBrowser.cpp
+      ../../examples/SharedMemory/TinyRendererVisualShapeConverter.cpp
+                                                                                                ../../examples/SharedMemory/TinyRendererVisualShapeConverter.h
+                                                                                                ../../examples/OpenGLWindow/SimpleCamera.cpp
+                                                                                                ../../examples/OpenGLWindow/SimpleCamera.h
+                                                                                                ../../examples/TinyRenderer/geometry.cpp
+                                                                                                ../../examples/TinyRenderer/model.cpp
+                                                                                                ../../examples/TinyRenderer/tgaimage.cpp
+                                                                                                ../../examples/TinyRenderer/our_gl.cpp
+                                                                                                ../../examples/TinyRenderer/TinyRenderer.cpp
                         ../../examples/SharedMemory/InProcessMemory.cpp
                         ../../examples/SharedMemory/PhysicsClient.cpp
                         ../../examples/SharedMemory/PhysicsClient.h
@@ -48,7 +57,6 @@ SET(pybullet_SRCS
                         ../../examples/Importers/ImportURDFDemo/URDF2Bullet.cpp
                         ../../examples/Importers/ImportURDFDemo/UrdfParser.cpp
                         ../../examples/Importers/ImportURDFDemo/urdfStringSplit.cpp
-			../../examples/Importers/ImportURDFDemo/DefaultVisualShapeConverter.cpp
                         ../../examples/MultiThreading/b3PosixThreadSupport.cpp
                         ../../examples/MultiThreading/b3Win32ThreadSupport.cpp
 			../../examples/MultiThreading/b3ThreadSupportInterface.cpp
