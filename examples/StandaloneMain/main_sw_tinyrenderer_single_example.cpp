@@ -111,7 +111,8 @@ public:
    	    if (shapeIndex>=0)
         {
             TinyRenderObjectData* swObj = new TinyRenderObjectData(m_swWidth,m_swHeight,m_rgbColorBuffer,m_depthBuffer);
-            swObj->registerMeshShape(vertices,numvertices,indices,numIndices);
+        float rgbaColor[4] = {1,1,1,1};    
+	swObj->registerMeshShape(vertices,numvertices,indices,numIndices,rgbaColor);
 			//swObj->createCube(1,1,1);//MeshShape(vertices,numvertices,indices,numIndices);
             m_swRenderObjects.insert(shapeIndex,swObj);
         }

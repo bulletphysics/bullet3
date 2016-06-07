@@ -76,12 +76,13 @@ struct Shader : public IShader {
 		float diff = ambient+b3Min(b3Max(0.f, bn*m_light_dir_local),(1-ambient));
 		//float diff = b3Max(0.f, n*m_light_dir_local);
         color = m_model->diffuse(uv)*diff;
-        //colors are store in BGRA?
-        color = TGAColor(color[0]*m_colorRGBA[2],
-                            color[1]*m_colorRGBA[1],
-                            color[2]*m_colorRGBA[0],
-                            color[3]*m_colorRGBA[3]);
-
+        
+        //warning: bgra color is swapped to rgba to upload texture
+        color.bgra[0] *= m_colorRGBA[0];
+        color.bgra[1] *= m_colorRGBA[1];
+        color.bgra[2] *= m_colorRGBA[2];
+        color.bgra[3] *= m_colorRGBA[3];
+        
         return false;
     }
 };
@@ -264,7 +265,7 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
         Vec3f localScaling(renderData.m_localScaling[0],renderData.m_localScaling[1],renderData.m_localScaling[2]);
         Shader shader(model, light_dir_local, modelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, localScaling, model->getColorRGBA());
         		
-		printf("Render %d triangles.\n",model->nfaces());
+		//printf("Render %d triangles.\n",model->nfaces());
 		for (int i=0; i<model->nfaces(); i++) 
 		{
 			 

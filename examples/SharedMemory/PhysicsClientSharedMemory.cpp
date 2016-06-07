@@ -448,7 +448,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 
 				unsigned char* rgbaPixelsReceived =
                     (unsigned char*)&m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor[0];
-                printf("pixel = %d\n", rgbaPixelsReceived[0]);
+              //  printf("pixel = %d\n", rgbaPixelsReceived[0]);
                 
 				for (int i=0;i<serverCmd.m_sendPixelDataArguments.m_numPixelsCopied*numBytesPerPixel;i++)
 				{
@@ -461,7 +461,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
             
             case CMD_CAMERA_IMAGE_FAILED:
             {
-                b3Printf("Camera image FAILED\n");
+                b3Warning("Camera image FAILED\n");
                 break;
             }
 

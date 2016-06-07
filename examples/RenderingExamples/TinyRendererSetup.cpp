@@ -147,7 +147,9 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 	m_internalData = new TinyRendererSetupInternalData(gui->getAppInterface()->m_window->getWidth(),gui->getAppInterface()->m_window->getHeight());
 	
 	m_app->m_renderer->enableBlend(true);
-	const char* fileName = "teddy.obj";//cube.obj";//textured_sphere_smooth.obj";//cube.obj";
+    
+	const char* fileName = "textured_sphere_smooth.obj";
+    fileName = "cube.obj";
 	
 
 	{

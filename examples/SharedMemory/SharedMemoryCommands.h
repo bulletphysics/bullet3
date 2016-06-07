@@ -30,6 +30,7 @@
 #define MAX_DEGREE_OF_FREEDOM 64
 #define MAX_NUM_SENSORS 256
 #define MAX_URDF_FILENAME_LENGTH 1024
+#define MAX_SDF_FILENAME_LENGTH 1024
 #define MAX_FILENAME_LENGTH MAX_URDF_FILENAME_LENGTH
 #define MAX_NUM_LINKS MAX_DEGREE_OF_FREEDOM
 
@@ -53,6 +54,16 @@ TmpFloat3 CreateTmpFloat3(float x, float y, float z)
     tmp.m_z = z;
     return tmp;
 }
+
+enum EnumSdfArgsUpdateFlags
+{
+	SDF_ARGS_FILE_NAME=1,
+};
+
+struct SdfArgs
+{
+	char m_sdfFileName[MAX_URDF_FILENAME_LENGTH];
+};
 
 enum EnumUrdfArgsUpdateFlags
 {
@@ -179,6 +190,15 @@ struct SendDesiredStateArgs
     
 };
 
+enum EnumSimDesiredStateUpdateFlags
+{
+	SIM_DESIRED_STATE_HAS_Q=1,
+	SIM_DESIRED_STATE_HAS_QDOT=2,
+	SIM_DESIRED_STATE_HAS_KD=4,
+	SIM_DESIRED_STATE_HAS_KP=8,
+	SIM_DESIRED_STATE_HAS_MAX_FORCE=16,
+};
+
 
 enum EnumSimParamUpdateFlags
 {
@@ -287,6 +307,7 @@ struct SharedMemoryCommand
     union
     {
         struct UrdfArgs m_urdfArguments;
+		struct SdfArgs m_sdfArguments;
 		struct InitPoseArgs m_initPoseArgs;
 		struct SendPhysicsSimulationParameters m_physSimParamArgs;
 		struct BulletDataStreamArgs	m_dataStreamArguments;

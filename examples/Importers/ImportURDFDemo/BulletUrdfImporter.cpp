@@ -267,14 +267,25 @@ void  BulletURDFImporter::getMassAndInertia(int linkIndex, btScalar& mass,btVect
 	//the link->m_inertia is NOT necessarily aligned with the inertial frame
 	//so an additional transform might need to be computed
 	UrdfLink* const* linkPtr = m_data->m_urdfParser.getModel().m_links.getAtIndex(linkIndex);
+	
+	
 	btAssert(linkPtr);
 	if (linkPtr)
 	{
 		UrdfLink* link = *linkPtr;
-		mass = link->m_inertia.m_mass;
+		if (link->m_parentJoint==0 && m_data->m_urdfParser.getModel().m_overrideFixedBase)
+		{
+			mass = 0.f;
+			localInertiaDiagonal.setValue(0,0,0);
+		}
+		else
+		{
+			mass = link->m_inertia.m_mass;
+			localInertiaDiagonal.setValue(link->m_inertia.m_ixx,link->m_inertia.m_iyy,
+										  link->m_inertia.m_izz);
+		}
 		inertialFrame = link->m_inertia.m_linkLocalFrame;
-		localInertiaDiagonal.setValue(link->m_inertia.m_ixx,link->m_inertia.m_iyy,
-									  link->m_inertia.m_izz);
+		
 	}
 	else
     {

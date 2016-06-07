@@ -541,7 +541,7 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
     
     lightDirWorld.normalize();
     
-    printf("num m_swRenderInstances = %d\n", m_data->m_swRenderInstances.size());
+  //  printf("num m_swRenderInstances = %d\n", m_data->m_swRenderInstances.size());
     for (int i=0;i<m_data->m_swRenderInstances.size();i++)
     {
         TinyRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(i);

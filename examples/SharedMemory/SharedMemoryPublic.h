@@ -5,7 +5,8 @@
 
 enum EnumSharedMemoryClientCommand
 {
-    CMD_LOAD_URDF,
+    CMD_LOAD_SDF,
+	CMD_LOAD_URDF,
         CMD_SEND_BULLET_DATA_STREAM,
         CMD_CREATE_BOX_COLLISION_SHAPE,
 //      CMD_DELETE_BOX_COLLISION_SHAPE,
@@ -35,7 +36,8 @@ enum EnumSharedMemoryServerStatus
         CMD_CLIENT_COMMAND_COMPLETED,
         //the server will skip unknown command and report a status 'CMD_UNKNOWN_COMMAND_FLUSHED'
         CMD_UNKNOWN_COMMAND_FLUSHED,
-
+		CMD_SDF_LOADING_COMPLETED,
+        CMD_SDF_LOADING_FAILED,
         CMD_URDF_LOADING_COMPLETED,
         CMD_URDF_LOADING_FAILED,
         CMD_BULLET_DATA_STREAM_RECEIVED_COMPLETED,
