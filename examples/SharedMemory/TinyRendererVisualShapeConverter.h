@@ -24,6 +24,7 @@ struct TinyRendererVisualShapeConverter : public LinkVisualShapesConverter
 	void resetAll();
 
     void getWidthAndHeight(int& width, int& height);
+	void setWidthAndHeight(int width, int height);
     
     void copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied);
     

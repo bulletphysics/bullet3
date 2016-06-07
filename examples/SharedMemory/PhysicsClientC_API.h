@@ -68,6 +68,7 @@ void    b3GetDebugLines(b3PhysicsClientHandle physClient, struct b3DebugLines* l
 ///request an image from a simulated camera, using a software renderer.
 b3SharedMemoryCommandHandle b3InitRequestCameraImage(b3PhysicsClientHandle physClient);
 void b3RequestCameraImageSetCameraMatrices(b3SharedMemoryCommandHandle command, float viewMatrix[16], float projectionMatrix[16]);
+void b3RequestCameraImageSetPixelResolution(b3SharedMemoryCommandHandle command, int width, int height );
 void b3GetCameraImageData(b3PhysicsClientHandle physClient, struct b3CameraImageData* imageData);
 
 

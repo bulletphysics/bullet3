@@ -210,8 +210,15 @@ bool PhysicsDirect::processCamera(const struct SharedMemoryCommand& orgCommand)
                 
 			unsigned char* rgbaPixelsReceived =
                 (unsigned char*)&m_data->m_bulletStreamDataServerToClient[0];
-            printf("pixel = %d\n", rgbaPixelsReceived[0]);
+			
+			float* depthBuffer = (float*)&(m_data->m_bulletStreamDataServerToClient[serverCmd.m_sendPixelDataArguments.m_numPixelsCopied*4]);
+			
+          //  printf("pixel = %d\n", rgbaPixelsReceived[0]);
                 
+			for (int i=0;i<serverCmd.m_sendPixelDataArguments.m_numPixelsCopied;i++)
+			{
+				m_data->m_cachedCameraDepthBuffer[i + serverCmd.m_sendPixelDataArguments.m_startingPixelIndex] = depthBuffer[i];
+			}
 			for (int i=0;i<serverCmd.m_sendPixelDataArguments.m_numPixelsCopied*numBytesPerPixel;i++)
 			{
 				m_data->m_cachedCameraPixelsRGBA[i + serverCmd.m_sendPixelDataArguments.m_startingPixelIndex*numBytesPerPixel] 
@@ -227,6 +234,7 @@ bool PhysicsDirect::processCamera(const struct SharedMemoryCommand& orgCommand)
 				command.m_requestPixelDataArguments.m_startPixelIndex = 
 					serverCmd.m_sendPixelDataArguments.m_startingPixelIndex + 
 					serverCmd.m_sendPixelDataArguments.m_numPixelsCopied;
+				
 			} else
 			{
 				m_data->m_cachedCameraPixelsWidth = serverCmd.m_sendPixelDataArguments.m_imageWidth;

@@ -25,12 +25,11 @@ struct TinyRenderObjectData
     //class IShader* m_shader; todo(erwincoumans) expose the shader, for now we use a default shader
             
     //Output
-    int m_width;
-    int m_height;
+    
     TGAImage& m_rgbColorBuffer;
     b3AlignedObjectArray<float>& m_depthBuffer;
     
-    TinyRenderObjectData(int width, int height,TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>& depthBuffer);
+    TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>& depthBuffer);
     virtual ~TinyRenderObjectData();
     
     void loadModel(const char* fileName);
@@ -48,7 +47,7 @@ struct TinyRenderObjectData
 class TinyRenderer
 {
     public:
-        static void renderObject(TinyRenderObjectData& renderData);
+        static void renderObject(TinyRenderObjectData& renderData, int width, int height);
 };
 
 #endif // TINY_RENDERER_Hbla

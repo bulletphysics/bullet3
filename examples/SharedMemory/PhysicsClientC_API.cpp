@@ -735,6 +735,16 @@ void b3RequestCameraImageSetCameraMatrices(b3SharedMemoryCommandHandle commandHa
 	command->m_updateFlags |= REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES;
 }
 
+void b3RequestCameraImageSetPixelResolution(b3SharedMemoryCommandHandle commandHandle, int width, int height )
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
+	command->m_requestPixelDataArguments.m_pixelWidth = width;
+	command->m_requestPixelDataArguments.m_pixelHeight = height;
+	command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_PIXEL_WIDTH_HEIGHT;	
+}
+
 void b3GetCameraImageData(b3PhysicsClientHandle physClient, struct b3CameraImageData* imageData)
 {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;

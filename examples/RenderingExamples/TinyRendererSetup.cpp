@@ -183,7 +183,7 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 				m_guiHelper->getRenderInterface()->writeTransforms();
 
 				m_internalData->m_shapePtr.push_back(0);
-				TinyRenderObjectData* ob = new TinyRenderObjectData(m_internalData->m_width,m_internalData->m_height,
+				TinyRenderObjectData* ob = new TinyRenderObjectData(
 					m_internalData->m_rgbColorBuffer,
 					m_internalData->m_depthBuffer);
 					//ob->loadModel("cube.obj");
@@ -363,7 +363,7 @@ void TinyRendererSetup::stepSimulation(float deltaTime)
 					
                 }
             }
-            TinyRenderer::renderObject(*m_internalData->m_renderObjects[o]);
+            TinyRenderer::renderObject(*m_internalData->m_renderObjects[o], m_internalData->m_width,m_internalData->m_height);
         }
         //m_app->drawText("hello",500,500);
         render->activateTexture(m_internalData->m_textureHandle);

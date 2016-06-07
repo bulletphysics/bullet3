@@ -362,6 +362,11 @@ pybullet_getNumJoints(PyObject* self, PyObject* args)
 static PyObject*
 pybullet_setJointPositions(PyObject* self, PyObject* args)
 {
+	if (0==sm)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
 	
 	Py_INCREF(Py_None);
         return Py_None;
@@ -372,17 +377,22 @@ pybullet_setJointPositions(PyObject* self, PyObject* args)
 
 static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 {
-					
+	if (0==sm)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+	
 	///request an image from a simulated camera, using a software renderer.
 	struct b3CameraImageData imageData;
 	PyObject* objViewMat,* objProjMat;
+	int width,  height;
 	
-	b3SharedMemoryCommandHandle command = b3InitRequestCameraImage(sm);
-	
-	if (PyArg_ParseTuple(args, "OO", &objViewMat, &objProjMat))
+	if (PyArg_ParseTuple(args, "iiOO", &width, &height, &objViewMat, &objProjMat))
 	{
-    		PyObject* seq;
-    		int i, len;
+	
+		PyObject* seq;
+		int i, len;
 		PyObject* item;
 		float viewMatrix[16];
 		float projectionMatrix[16];
@@ -391,124 +401,133 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
     		seq = PySequence_Fast(objViewMat, "expected a sequence");
     		len = PySequence_Size(objViewMat);
 		//printf("objViewMat size = %d\n", len);
-		if (len==16)
-		{
-				
-		if (PyList_Check(seq))
-		{
-			for (i = 0; i < len; i++) 
+			if (len==16)
 			{
+				
+				if (PyList_Check(seq))
+				{
+					for (i = 0; i < len; i++) 
+					{
             			item = PyList_GET_ITEM(seq, i);
-				viewMatrix[i] = PyFloat_AsDouble(item);
-      				float v = viewMatrix[i]; 
+						viewMatrix[i] = PyFloat_AsDouble(item);
+						float v = viewMatrix[i]; 
 	 			//printf("view %d to %f\n", i,v);
 	
+					}
+				}
+				else
+				{
+					for (i = 0; i < len; i++)
+					{
+        			item = PyTuple_GET_ITEM(seq,i);
+						viewMatrix[i] = PyFloat_AsDouble(item);
+					}
+				}
+			} else
+			{
+				valid = 0;
 			}
 		}
-		else
-		{
-    			for (i = 0; i < len; i++)
-			{
-        			item = PyTuple_GET_ITEM(seq,i);
-				viewMatrix[i] = PyFloat_AsDouble(item);
-    			}
-		}
-		} else
-		{
-			valid = 0;
-		}
-		}
+		
 		
 		{
-                seq = PySequence_Fast(objProjMat, "expected a sequence");
-                len = PySequence_Size(objProjMat);
-		//printf("projMat len = %d\n", len);
-                if (len==16)
-                {
-                if (PyList_Check(seq))
-                {
-                        for (i = 0; i < len; i++)
-                        {
-                                item = PyList_GET_ITEM(seq, i);
-                                projectionMatrix[i] = PyFloat_AsDouble(item);
-                        }
-                }
-                else
-                {
-                        for (i = 0; i < len; i++)
-                        {
-                                item = PyTuple_GET_ITEM(seq,i);
-                                projectionMatrix[i] = PyFloat_AsDouble(item);
-                        }
-                }
-                } else
-                {
-                        valid = 0;
-                }
-                }
-
+			seq = PySequence_Fast(objProjMat, "expected a sequence");
+			len = PySequence_Size(objProjMat);
+	//printf("projMat len = %d\n", len);
+			if (len==16)
+			{
+				if (PyList_Check(seq))
+				{
+					for (i = 0; i < len; i++)
+					{
+							item = PyList_GET_ITEM(seq, i);
+							projectionMatrix[i] = PyFloat_AsDouble(item);
+					}
+				}
+				else
+				{
+					for (i = 0; i < len; i++)
+					{
+							item = PyTuple_GET_ITEM(seq,i);
+							projectionMatrix[i] = PyFloat_AsDouble(item);
+					}
+				}
+			} else
+			{
+					valid = 0;
+			}
+		}
 
     		Py_DECREF(seq);	
 		if (valid)
 		{
+			b3SharedMemoryCommandHandle command;
+			
+			command = b3InitRequestCameraImage(sm);
+
 			//printf("set b3RequestCameraImageSetCameraMatrices\n");
 			b3RequestCameraImageSetCameraMatrices(command, viewMatrix, projectionMatrix);
-		}
-	}
-
-	if (b3CanSubmitCommand(sm))
-        {
-	    b3SharedMemoryStatusHandle statusHandle;
-	    int statusType;
-            statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
-            statusType = b3GetStatusType(statusHandle);
-	    if (statusType==CMD_CAMERA_IMAGE_COMPLETED)
-		{
-			PyObject *item2;
-			PyObject* pyResultList;//store 4 elements in this result: width, height, rgbData, depth
-
-			b3GetCameraImageData(sm, &imageData);
-			//todo: error handling if image size is 0
-			pyResultList =  PyTuple_New(4);
-			PyTuple_SetItem(pyResultList, 0, PyInt_FromLong(imageData.m_pixelWidth));
-			PyTuple_SetItem(pyResultList, 1, PyInt_FromLong(imageData.m_pixelHeight));	
-	
-			PyObject *pylistPos;
-			PyObject* pylistDep;
-
-        		//printf("image width = %d, height = %d\n", imageData.m_pixelWidth, imageData.m_pixelHeight);
-    			{
-
-        			PyObject *item;
-				int bytesPerPixel = 3;//Red, Green, Blue, each 8 bit values
-        			int num=bytesPerPixel*imageData.m_pixelWidth*imageData.m_pixelHeight;
-        			pylistPos = PyTuple_New(num);
-				pylistDep = PyTuple_New(imageData.m_pixelWidth*imageData.m_pixelHeight);
-	
-				for (int i=0;i<imageData.m_pixelWidth;i++)
+			
+			b3RequestCameraImageSetPixelResolution(command,width,height);
+		
+			if (b3CanSubmitCommand(sm))
+			{
+				b3SharedMemoryStatusHandle statusHandle;
+				int statusType;
+				statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+				statusType = b3GetStatusType(statusHandle);
+				if (statusType==CMD_CAMERA_IMAGE_COMPLETED)
 				{
-					for (int j=0;j<imageData.m_pixelHeight;j++)
-					{
-						int depIndex = i+j*imageData.m_pixelWidth;
-						item = PyFloat_FromDouble(imageData.m_depthValues[depIndex]);
-						PyTuple_SetItem(pylistDep, depIndex, item);
-						for (int p=0;p<bytesPerPixel;p++)
+					PyObject *item2;
+					PyObject* pyResultList;//store 4 elements in this result: width, height, rgbData, depth
+
+					b3GetCameraImageData(sm, &imageData);
+					//todo: error handling if image size is 0
+					pyResultList =  PyTuple_New(4);
+					PyTuple_SetItem(pyResultList, 0, PyInt_FromLong(imageData.m_pixelWidth));
+					PyTuple_SetItem(pyResultList, 1, PyInt_FromLong(imageData.m_pixelHeight));	
+			
+					PyObject *pylistPos;
+					PyObject* pylistDep;
+
+						//printf("image width = %d, height = %d\n", imageData.m_pixelWidth, imageData.m_pixelHeight);
 						{
-							int pixelIndex = bytesPerPixel*(i+j*imageData.m_pixelWidth)+p;
-							item = PyInt_FromLong(imageData.m_rgbColorData[pixelIndex]);
-            						PyTuple_SetItem(pylistPos, pixelIndex, item);
-						}
+
+							PyObject *item;
+						int bytesPerPixel = 3;//Red, Green, Blue, each 8 bit values
+							int num=bytesPerPixel*imageData.m_pixelWidth*imageData.m_pixelHeight;
+							pylistPos = PyTuple_New(num);
+						pylistDep = PyTuple_New(imageData.m_pixelWidth*imageData.m_pixelHeight);
+			
+						for (int i=0;i<imageData.m_pixelWidth;i++)
+						{
+							for (int j=0;j<imageData.m_pixelHeight;j++)
+							{
+								int depIndex = i+j*imageData.m_pixelWidth;
+								item = PyFloat_FromDouble(imageData.m_depthValues[depIndex]);
+								PyTuple_SetItem(pylistDep, depIndex, item);
+								for (int p=0;p<bytesPerPixel;p++)
+								{
+									int pixelIndex = bytesPerPixel*(i+j*imageData.m_pixelWidth)+p;
+									item = PyInt_FromLong(imageData.m_rgbColorData[pixelIndex]);
+											PyTuple_SetItem(pylistPos, pixelIndex, item);
+								}
+							}
+						}	
 					}
+
+					PyTuple_SetItem(pyResultList, 2,pylistPos);
+					PyTuple_SetItem(pyResultList, 3,pylistDep);
+					return pyResultList;	
 				}	
 			}
-			PyTuple_SetItem(pyResultList, 2,pylistPos);
-			PyTuple_SetItem(pyResultList, 3,pylistDep);
-			return pyResultList;	
-		}	
-        }
+			
+		}
+
+	}
 
 	Py_INCREF(Py_None);
-        return Py_None;
+	return Py_None;
 }
 
 static PyMethodDef SpamMethods[] = {
@@ -534,7 +553,7 @@ static PyMethodDef SpamMethods[] = {
 	"Initialize the joint positions for all joints. This method skips any physics simulation and teleports all joints to the new positions."},
 	
 	{"renderImage", pybullet_renderImage, METH_VARARGS,
-	"Render an image (given the camera view & projection matrices and resolution), and return the 8-8-8bit RGB pixel data and floating point depth values"},	
+	"Render an image (given the pixel resolution width & height and camera view & projection matrices), and return the 8-8-8bit RGB pixel data and floating point depth values"},	
 	
 	{"getBasePositionAndOrientation",  pybullet_getBasePositionAndOrientation, METH_VARARGS,
         "Get the world position and orientation of the base of the object. (x,y,z) position vector and (x,y,z,w) quaternion orientation."},
