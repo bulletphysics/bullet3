@@ -1071,7 +1071,7 @@ int MacOpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)
     NSOpenGLContext *foo = [NSOpenGLContext currentContext];
     // get the url of a .txt file
     NSOpenPanel * zOpenPanel = [NSOpenPanel openPanel];
-	NSArray * zAryOfExtensions = [NSArray arrayWithObjects:@"urdf",@"bullet",@"obj",@"sdf",nil];
+	NSArray * zAryOfExtensions = [NSArray arrayWithObjects:@"urdf",@"bullet",@"obj",@"sdf",@"stl",nil];
     [zOpenPanel setAllowedFileTypes:zAryOfExtensions];
     NSInteger zIntResult = [zOpenPanel runModal];
     
