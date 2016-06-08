@@ -253,7 +253,7 @@ struct TinyRendererGUIHelper : public GUIHelperInterface
 	{
 		int shapeIndex = m_swRenderObjects.size();
 
-		TinyRenderObjectData* swObj = new TinyRenderObjectData(m_swWidth,m_swHeight,m_rgbColorBuffer,m_depthBuffer);
+		TinyRenderObjectData* swObj = new TinyRenderObjectData(m_rgbColorBuffer,m_depthBuffer);
         float rgbaColor[4] = {1,1,1,1};
 	swObj->registerMeshShape(vertices,numvertices,indices,numIndices,rgbaColor);
 		//swObj->createCube(1,1,1);//MeshShape(vertices,numvertices,indices,numIndices);

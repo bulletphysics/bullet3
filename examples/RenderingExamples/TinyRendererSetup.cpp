@@ -363,7 +363,7 @@ void TinyRendererSetup::stepSimulation(float deltaTime)
 					
                 }
             }
-            TinyRenderer::renderObject(*m_internalData->m_renderObjects[o], m_internalData->m_width,m_internalData->m_height);
+            TinyRenderer::renderObject(*m_internalData->m_renderObjects[o]);
         }
         //m_app->drawText("hello",500,500);
         render->activateTexture(m_internalData->m_textureHandle);

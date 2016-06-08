@@ -47,7 +47,7 @@ struct TinyRenderObjectData
 class TinyRenderer
 {
     public:
-        static void renderObject(TinyRenderObjectData& renderData, int width, int height);
+        static void renderObject(TinyRenderObjectData& renderData);
 };
 
 #endif // TINY_RENDERER_Hbla

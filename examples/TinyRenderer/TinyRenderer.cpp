@@ -231,8 +231,11 @@ TinyRenderObjectData::~TinyRenderObjectData()
     delete m_model;
 }
 
-void TinyRenderer::renderObject(TinyRenderObjectData& renderData, int width, int height)
+void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
 {
+	int width = renderData.m_rgbColorBuffer.get_width();
+	int height = renderData.m_rgbColorBuffer.get_height();
+
 	Vec3f light_dir_local = Vec3f(renderData.m_lightDirWorld[0],renderData.m_lightDirWorld[1],renderData.m_lightDirWorld[2]);
     Model* model = renderData.m_model;
     if (0==model)
