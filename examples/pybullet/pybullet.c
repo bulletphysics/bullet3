@@ -428,8 +428,6 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
         struct b3CameraImageData imageData;
         PyObject* objViewMat,* objProjMat;
         int width,  height;
-        int setPixelResolution =0;
-        int setCameraMatrices =0;
         int size= PySequence_Size(args);
         float viewMatrix[16];
         float projectionMatrix[16];
@@ -450,6 +448,8 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
         {
                 if (PyArg_ParseTuple(args, "iiOO", &width, &height, &objViewMat, &objProjMat))
                 {
+                        b3RequestCameraImageSetPixelResolution(command,width,height);
+
                         if (pybullet_internalSetMatrix(objViewMat, viewMatrix) &&
                             (pybullet_internalSetMatrix(objProjMat, projectionMatrix)))
                                 b3RequestCameraImageSetCameraMatrices(command, viewMatrix, projectionMatrix);
