@@ -454,6 +454,8 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
                         PyObject *item2;
                         PyObject* pyResultList;//store 4 elements in this result: width, height, rgbData, depth
 
+
+
                         b3GetCameraImageData(sm, &imageData);
                         //TODO(hellojas): error handling if image size is 0
                         pyResultList =  PyTuple_New(4);
@@ -465,8 +467,16 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 
                         {
 
+                                // struct b3CameraImageData
+                                // {
+                                //  int m_pixelWidth;
+                                //  int m_pixelHeight;
+                                //  const unsigned char* m_rgbColorData;//3*m_pixelWidth*m_pixelHeight bytes
+                                //  const float* m_depthValues;//m_pixelWidth*m_pixelHeight floats
+                                // };
+
                                 PyObject *item;
-                                int bytesPerPixel = 3;//Red, Green, Blue, each 8 bit values
+                                int bytesPerPixel = 4;//Red, Green, Blue, each 8 bit values
                                 int num=bytesPerPixel*imageData.m_pixelWidth*imageData.m_pixelHeight;
                                 pylistPos = PyTuple_New(num);
                                 pylistDep = PyTuple_New(imageData.m_pixelWidth*imageData.m_pixelHeight);
@@ -475,12 +485,13 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
                                 {
                                         for (int j=0; j<imageData.m_pixelHeight; j++)
                                         {
-                                                int depIndex = i+j*imageData.m_pixelWidth;
+                                                int depIndex = i+j*imageData.m_pixelHeight;
                                                 item = PyFloat_FromDouble(imageData.m_depthValues[depIndex]);
                                                 PyTuple_SetItem(pylistDep, depIndex, item);
                                                 for (int p=0; p<bytesPerPixel; p++)
                                                 {
-                                                        int pixelIndex = bytesPerPixel*(i+j*imageData.m_pixelWidth)+p;
+                                                        int pixelIndex = ((i+j*imageData.m_pixelWidth)*bytesPerPixel)+p;
+                                                        // int pixelIndex = bytesPerPixel*(i+j*imageData.m_pixelHeight)+p;
                                                         item = PyInt_FromLong(imageData.m_rgbColorData[pixelIndex]);
                                                         PyTuple_SetItem(pylistPos, pixelIndex, item);
                                                 }
