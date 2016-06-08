@@ -21,8 +21,8 @@ struct MyMotorInfo2
     int     m_qIndex;
 };
 
-int camVisualizerWidth = 640;//1024/3;
-int camVisualizerHeight = 480;//768/3;
+int camVisualizerWidth = 320;//1024/3;
+int camVisualizerHeight = 240;//768/3;
 
 
 #define MAX_NUM_MOTORS 128
@@ -77,10 +77,10 @@ protected:
 
 	virtual void resetCamera()
 	{
-		float dist = 5;
+		float dist = 1.1;
 		float pitch = 50;
 		float yaw = 35;
-		float targetPos[3]={0,0,0};//-3,2.8,-2.5};
+		float targetPos[3]={0,0,0.5};//-3,2.8,-2.5};
 		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
 
 	}
@@ -248,7 +248,8 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 			this->m_guiHelper->getRenderInterface()->getActiveCamera()->getCameraProjectionMatrix(projectionMatrix);
 			this->m_guiHelper->getRenderInterface()->getActiveCamera()->getCameraViewMatrix(viewMatrix);
             b3RequestCameraImageSetCameraMatrices(commandHandle, viewMatrix,projectionMatrix);
-            b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+			b3RequestCameraImageSetPixelResolution(commandHandle, camVisualizerWidth,camVisualizerHeight);
+			b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
             break;
         }
         case CMD_CREATE_BOX_COLLISION_SHAPE:
@@ -619,18 +620,25 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 				b3GetCameraImageData(m_physicsClientHandle,&imageData);
 				if (m_canvas && m_canvasIndex >=0)
 				{
-					for (int i=0;i<imageData.m_pixelWidth;i++)
+					for (int i=0;i<camVisualizerWidth;i++)
 					{
-						for (int j=0;j<imageData.m_pixelHeight;j++)
+						for (int j=0;j<camVisualizerHeight;j++)
 						{
-                            int xIndex = int(float(i)*(float(camVisualizerWidth)/float(imageData.m_pixelWidth)));
-                            int yIndex = int(float(j)*(float(camVisualizerHeight)/float(imageData.m_pixelHeight)));
+                            int xIndex = int(float(i)*(float(imageData.m_pixelWidth)/float(camVisualizerWidth)));
+                            int yIndex = int(float(j)*(float(imageData.m_pixelHeight)/float(camVisualizerHeight)));
 							btClamp(yIndex,0,imageData.m_pixelHeight);
 							btClamp(xIndex,0,imageData.m_pixelWidth);
 							int bytesPerPixel = 4;
+<<<<<<< HEAD
 
 							int pixelIndex = (i+j*imageData.m_pixelWidth)*bytesPerPixel;
 							m_canvas->setPixel(m_canvasIndex,xIndex,camVisualizerHeight-1-yIndex,
+=======
+							
+							int pixelIndex = (xIndex+yIndex*imageData.m_pixelWidth)*bytesPerPixel;
+							m_canvas->setPixel(m_canvasIndex,i,camVisualizerHeight-1-j,
+                                               
+>>>>>>> master
 									imageData.m_rgbColorData[pixelIndex],
 									imageData.m_rgbColorData[pixelIndex+1],
                   // imageData.m_rgbColorData[pixelIndex+2]);

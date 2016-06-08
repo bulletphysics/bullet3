@@ -364,6 +364,11 @@ pybullet_setJointPositions(PyObject* self, PyObject* args)
 //TODO(hellojas): set the joint positions
 
 {
+        if (0==sm)
+        {
+                PyErr_SetString(SpamError, "Not connected to physics server.");
+                return NULL;
+        }
 
         Py_INCREF(Py_None);
         return Py_None;
@@ -409,39 +414,52 @@ static int pybullet_internalSetMatrix(PyObject* objMat, float matrix[16])
         }
 
 }
-
 static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 {
+
+
         if (0==sm)
         {
                 PyErr_SetString(SpamError, "Not connected to physics server.");
                 return NULL;
         }
 
-        ///request an image from a simulated camera, using a software renderer.
+///request an image from a simulated camera, using a software renderer.
         struct b3CameraImageData imageData;
         PyObject* objViewMat,* objProjMat;
-
-        b3SharedMemoryCommandHandle command = b3InitRequestCameraImage(sm);
-
+        int width,  height;
+        int setPixelResolution =0;
+        int setCameraMatrices =0;
         int size= PySequence_Size(args);
+        float viewMatrix[16];
+        float projectionMatrix[16];
 
-        if (size==2)
+// inialize cmd
+        b3SharedMemoryCommandHandle command;
+        command = b3InitRequestCameraImage(sm);
+
+
+        if (size==2) // only set camera resolution
         {
-                if (PyArg_ParseTuple(args, "OO", &objViewMat, &objProjMat))
-                {
-                        float viewMatrix[16];
-                        float projectionMatrix[16];
+                if (PyArg_ParseTuple(args, "ii", &width, &height)) {
+                        b3RequestCameraImageSetPixelResolution(command,width,height);
 
-                        // TODO(hellojas): testing for correct depth values
+                }
+        }
+        if (size==4) // set camera resoluation and view and projection matrix
+        {
+                if (PyArg_ParseTuple(args, "iiOO", &width, &height, &objViewMat, &objProjMat))
+                {
                         if (pybullet_internalSetMatrix(objViewMat, viewMatrix) &&
                             (pybullet_internalSetMatrix(objProjMat, projectionMatrix)))
-                        {
                                 b3RequestCameraImageSetCameraMatrices(command, viewMatrix, projectionMatrix);
+
+                        {
 
                         }
                 }
         }
+
 
         if (b3CanSubmitCommand(sm))
         {
@@ -452,12 +470,10 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
                 if (statusType==CMD_CAMERA_IMAGE_COMPLETED)
                 {
                         PyObject *item2;
-                        PyObject* pyResultList;//store 4 elements in this result: width, height, rgbData, depth
-
-
+                        PyObject* pyResultList;                          //store 4 elements in this result: width, height, rgbData, depth
 
                         b3GetCameraImageData(sm, &imageData);
-                        //TODO(hellojas): error handling if image size is 0
+                        //todo: error handling if image size is 0
                         pyResultList =  PyTuple_New(4);
                         PyTuple_SetItem(pyResultList, 0, PyInt_FromLong(imageData.m_pixelWidth));
                         PyTuple_SetItem(pyResultList, 1, PyInt_FromLong(imageData.m_pixelHeight));
@@ -465,18 +481,11 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
                         PyObject *pylistPos;
                         PyObject* pylistDep;
 
+                        //printf("image width = %d, height = %d\n", imageData.m_pixelWidth, imageData.m_pixelHeight);
                         {
 
-                                // struct b3CameraImageData
-                                // {
-                                //  int m_pixelWidth;
-                                //  int m_pixelHeight;
-                                //  const unsigned char* m_rgbColorData;//3*m_pixelWidth*m_pixelHeight bytes
-                                //  const float* m_depthValues;//m_pixelWidth*m_pixelHeight floats
-                                // };
-
                                 PyObject *item;
-                                int bytesPerPixel = 4;//Red, Green, Blue, each 8 bit values
+                                int bytesPerPixel = 4;                          //Red, Green, Blue, each 8 bit values
                                 int num=bytesPerPixel*imageData.m_pixelWidth*imageData.m_pixelHeight;
                                 pylistPos = PyTuple_New(num);
                                 pylistDep = PyTuple_New(imageData.m_pixelWidth*imageData.m_pixelHeight);
@@ -485,24 +494,25 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
                                 {
                                         for (int j=0; j<imageData.m_pixelHeight; j++)
                                         {
-                                                int depIndex = i+j*imageData.m_pixelHeight;
+                                                int depIndex = i+j*imageData.m_pixelWidth;
                                                 item = PyFloat_FromDouble(imageData.m_depthValues[depIndex]);
                                                 PyTuple_SetItem(pylistDep, depIndex, item);
                                                 for (int p=0; p<bytesPerPixel; p++)
                                                 {
-                                                        int pixelIndex = ((i+j*imageData.m_pixelWidth)*bytesPerPixel)+p;
-                                                        // int pixelIndex = bytesPerPixel*(i+j*imageData.m_pixelHeight)+p;
+                                                        int pixelIndex = bytesPerPixel*(i+j*imageData.m_pixelWidth)+p;
                                                         item = PyInt_FromLong(imageData.m_rgbColorData[pixelIndex]);
                                                         PyTuple_SetItem(pylistPos, pixelIndex, item);
                                                 }
                                         }
                                 }
                         }
+
                         PyTuple_SetItem(pyResultList, 2,pylistPos);
                         PyTuple_SetItem(pyResultList, 3,pylistDep);
                         return pyResultList;
                 }
         }
+
 
         Py_INCREF(Py_None);
         return Py_None;
@@ -531,16 +541,17 @@ static PyMethodDef SpamMethods[] = {
          "Initialize the joint positions for all joints. This method skips any physics simulation and teleports all joints to the new positions."},
 
         {"renderImage", pybullet_renderImage, METH_VARARGS,
-         "Render an image (given the camera view & projection matrices and resolution), and return the 8-8-8bit RGB pixel data and floating point depth values"},
+         "Render an image (given the pixel resolution width & height and camera view & projection matrices), and return the 8-8-8bit RGB pixel data and floating point depth values"},
 
         {"getBasePositionAndOrientation",  pybullet_getBasePositionAndOrientation, METH_VARARGS,
          "Get the world position and orientation of the base of the object. (x,y,z) position vector and (x,y,z,w) quaternion orientation."},
 
         {"getNumsetGravity",  pybullet_setGravity, METH_VARARGS,
          "Set the gravity acceleration (x,y,z)."},
-
-        {"getNumJoints", pybullet_getNumJoints, METH_VARARGS,
-         "Get the number of joints for an object."},
+        {
+                "getNumJoints", pybullet_getNumJoints, METH_VARARGS,
+                "Get the number of joints for an object."
+        },
 
         {NULL, NULL, 0, NULL}    /* Sentinel */
 };

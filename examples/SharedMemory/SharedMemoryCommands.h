@@ -129,12 +129,16 @@ struct RequestPixelDataArgs
 	float m_viewMatrix[16];
 	float m_projectionMatrix[16];
 	int m_startPixelIndex;
+	int m_pixelWidth;
+	int m_pixelHeight;
 };
 
 enum EnumRequestPixelDataUpdateFlags
 {
 	REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES=1,
 	REQUEST_PIXEL_ARGS_USE_HARDWARE_OPENGL=2,
+	REQUEST_PIXEL_ARGS_SET_PIXEL_WIDTH_HEIGHT=4,
+	
 };
 
 

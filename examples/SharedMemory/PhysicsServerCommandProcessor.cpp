@@ -972,6 +972,14 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     int width, height;
                     int numPixelsCopied = 0;
                                       
+					if (
+						(clientCmd.m_requestPixelDataArguments.m_startPixelIndex==0) && 
+						(clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_PIXEL_WIDTH_HEIGHT)!=0)
+					{
+						m_data->m_visualConverter.setWidthAndHeight(clientCmd.m_requestPixelDataArguments.m_pixelWidth,
+																	clientCmd.m_requestPixelDataArguments.m_pixelHeight);
+					}		
+					
 					if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_USE_HARDWARE_OPENGL)!=0)
 					{
 						m_data->m_guiHelper->copyCameraImageData(0,0,0,0,0,&width,&height,0);
@@ -1005,6 +1013,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                             {
                              //   printf("-------------------------------\nRendering\n");
                                 
+																	
                                 if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES)!=0)
                                 {
                                     m_data->m_visualConverter.render(

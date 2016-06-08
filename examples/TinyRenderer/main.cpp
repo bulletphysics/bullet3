@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
         b3AlignedObjectArray<float> depthBuffer;
 	depthBuffer.resize(gWidth*gHeight);
  
-	TinyRenderObjectData renderData(textureWidth, textureHeight,rgbColorBuffer,depthBuffer);//, "african_head/african_head.obj");//floor.obj");
+	TinyRenderObjectData renderData(rgbColorBuffer,depthBuffer);//, "african_head/african_head.obj");//floor.obj");
 	
 	//renderData.loadModel("african_head/african_head.obj");
 	renderData.loadModel("floor.obj");

@@ -88,10 +88,8 @@ struct Shader : public IShader {
 };
 
 
-TinyRenderObjectData::TinyRenderObjectData(int width, int height,TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer)
-:m_width(width),
-m_height(height),
-m_rgbColorBuffer(rgbColorBuffer),
+TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer)
+:m_rgbColorBuffer(rgbColorBuffer),
 m_depthBuffer(depthBuffer),
 m_model(0),
 m_userData(0),
@@ -103,11 +101,6 @@ m_userIndex(-1)
     m_lightDirWorld.setValue(0,0,0);
 	m_localScaling.setValue(1,1,1);
     m_modelMatrix = Matrix::identity();
-    m_viewMatrix = lookat(eye, center, up);
-    //m_viewportMatrix = viewport(width/8, height/8, width*3/4, height*3/4);
-	//m_viewportMatrix = viewport(width/8, height/8, width*3/4, height*3/4);
-	m_viewportMatrix = viewport(0,0,width,height);
-    m_projectionMatrix = projection(-1.f/(eye-center).norm());
  
 }
 
@@ -240,6 +233,9 @@ TinyRenderObjectData::~TinyRenderObjectData()
 
 void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
 {
+	int width = renderData.m_rgbColorBuffer.get_width();
+	int height = renderData.m_rgbColorBuffer.get_height();
+
 	Vec3f light_dir_local = Vec3f(renderData.m_lightDirWorld[0],renderData.m_lightDirWorld[1],renderData.m_lightDirWorld[2]);
     Model* model = renderData.m_model;
     if (0==model)
@@ -247,13 +243,8 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
     
 	
 
-	//renderData.m_viewMatrix = lookat(eye, center, up);
-	int width = renderData.m_width;
-	int height = renderData.m_height;
-	//renderData.m_viewportMatrix = viewport(width/8, height/8, width*3/4, height*3/4);
-	renderData.m_viewportMatrix = viewport(0,0,renderData.m_width,renderData.m_height);
-    //renderData.m_projectionMatrix = projection(-1.f/(eye-center).norm());
-
+	renderData.m_viewportMatrix = viewport(0,0,width, height);
+	
     b3AlignedObjectArray<float>& zbuffer = renderData.m_depthBuffer;
     
     TGAImage& frame = renderData.m_rgbColorBuffer;

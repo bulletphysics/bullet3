@@ -183,7 +183,7 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 				m_guiHelper->getRenderInterface()->writeTransforms();
 
 				m_internalData->m_shapePtr.push_back(0);
-				TinyRenderObjectData* ob = new TinyRenderObjectData(m_internalData->m_width,m_internalData->m_height,
+				TinyRenderObjectData* ob = new TinyRenderObjectData(
 					m_internalData->m_rgbColorBuffer,
 					m_internalData->m_depthBuffer);
 					//ob->loadModel("cube.obj");
