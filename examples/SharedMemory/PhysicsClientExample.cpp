@@ -21,8 +21,8 @@ struct MyMotorInfo2
     int     m_qIndex;
 };
 
-int camVisualizerWidth = 640;//1024/3;
-int camVisualizerHeight = 480;//768/3;
+int camVisualizerWidth = 320;//1024/3;
+int camVisualizerHeight = 240;//768/3;
 
 
 #define MAX_NUM_MOTORS 128
@@ -77,10 +77,10 @@ protected:
     
 	virtual void resetCamera()
 	{
-		float dist = 5;
+		float dist = 1.1;
 		float pitch = 50;
 		float yaw = 35;
-		float targetPos[3]={0,0,0};//-3,2.8,-2.5};
+		float targetPos[3]={0,0,0.5};//-3,2.8,-2.5};
 		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
 
 	}
@@ -156,16 +156,12 @@ protected:
 	{
         for (int i=0;i<m_numMotors;i++)
         {
-            // btScalar targetVel = m_motorTargetVelocities[i].m_velTarget;
-            // int uIndex = m_motorTargetVelocities[i].m_uIndex;
-            // b3JointControlSetDesiredVelocity(commandHandle, uIndex,targetVel);
             
             btScalar targetPos = m_motorTargetPositions[i].m_posTarget;
             int qIndex = m_motorTargetPositions[i].m_qIndex;
             int uIndex = m_motorTargetPositions[i].m_uIndex;
             b3JointControlSetDesiredPosition(commandHandle, qIndex, targetPos);
             b3JointControlSetKp(commandHandle, uIndex, 0.1);
-            b3JointControlSetKd(commandHandle, uIndex, 0.0);
             
             b3JointControlSetMaximumForce(commandHandle,uIndex,1000);
         }
@@ -252,7 +248,8 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 			this->m_guiHelper->getRenderInterface()->getActiveCamera()->getCameraProjectionMatrix(projectionMatrix);
 			this->m_guiHelper->getRenderInterface()->getActiveCamera()->getCameraViewMatrix(viewMatrix);
             b3RequestCameraImageSetCameraMatrices(commandHandle, viewMatrix,projectionMatrix);
-            b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+			b3RequestCameraImageSetPixelResolution(commandHandle, camVisualizerWidth,camVisualizerHeight);
+			b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
             break;
         }
         case CMD_CREATE_BOX_COLLISION_SHAPE:
@@ -430,6 +427,11 @@ PhysicsClientExample::~PhysicsClientExample()
 		bool deInitializeSharedMemory = true;
 		m_physicsServer.disconnectSharedMemory(deInitializeSharedMemory);
 	}
+	
+	if (m_canvas && (m_canvasIndex>=0))
+	{
+		m_canvas->destroyCanvas(m_canvasIndex);
+	}
     b3Printf("~PhysicsClientExample\n");
 }
 
@@ -527,7 +529,6 @@ void	PhysicsClientExample::initPhysics()
 	m_selectedBody = -1;
 	m_prevSelectedBody = -1;
 
-	if (m_options == eCLIENTEXAMPLE_SERVER)
 	{
 		m_canvas = m_guiHelper->get2dCanvasInterface();
 		if (m_canvas)
@@ -557,13 +558,22 @@ void	PhysicsClientExample::initPhysics()
 			
 		}
 
-		m_isOptionalServerConnected = m_physicsServer.connectSharedMemory( m_guiHelper);
 	}
 
-    m_physicsClientHandle  = b3ConnectSharedMemory(m_sharedMemoryKey);
-	//m_physicsClientHandle  = b3ConnectPhysicsLoopback(SHARED_MEMORY_KEY);
-	//m_physicsClientHandle = b3ConnectPhysicsDirect();
-
+    if (m_options == eCLIENTEXAMPLE_SERVER)
+    {
+        m_isOptionalServerConnected = m_physicsServer.connectSharedMemory( m_guiHelper);
+    }
+    
+	if (m_options == eCLIENTEXAMPLE_DIRECT)
+	{
+		m_physicsClientHandle = b3ConnectPhysicsDirect();
+	} else
+	{
+	    m_physicsClientHandle  = b3ConnectSharedMemory(m_sharedMemoryKey);
+		//m_physicsClientHandle  = b3ConnectPhysicsLoopback(SHARED_MEMORY_KEY);
+	}
+	
     if (!b3CanSubmitCommand(m_physicsClientHandle))
     {
 		b3Warning("Cannot connect to physics client");
@@ -603,25 +613,25 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 			}
 			if (statusType ==CMD_CAMERA_IMAGE_COMPLETED)
             {
-				static int counter=0;
-				char msg[1024];
-				sprintf(msg,"Camera image %d OK\n",counter++);
+			//	static int counter=0;
+			//	char msg[1024];
+			//	sprintf(msg,"Camera image %d OK\n",counter++);
 				b3CameraImageData imageData;
 				b3GetCameraImageData(m_physicsClientHandle,&imageData);
 				if (m_canvas && m_canvasIndex >=0)
 				{
-					for (int i=0;i<imageData.m_pixelWidth;i++)
+					for (int i=0;i<camVisualizerWidth;i++)
 					{
-						for (int j=0;j<imageData.m_pixelHeight;j++)
+						for (int j=0;j<camVisualizerHeight;j++)
 						{
-                            int xIndex = int(float(i)*(float(camVisualizerWidth)/float(imageData.m_pixelWidth)));
-                            int yIndex = int(float(j)*(float(camVisualizerHeight)/float(imageData.m_pixelHeight)));
+                            int xIndex = int(float(i)*(float(imageData.m_pixelWidth)/float(camVisualizerWidth)));
+                            int yIndex = int(float(j)*(float(imageData.m_pixelHeight)/float(camVisualizerHeight)));
 							btClamp(yIndex,0,imageData.m_pixelHeight);
 							btClamp(xIndex,0,imageData.m_pixelWidth);
 							int bytesPerPixel = 4;
 							
-							int pixelIndex = (i+j*imageData.m_pixelWidth)*bytesPerPixel;
-							m_canvas->setPixel(m_canvasIndex,xIndex,camVisualizerHeight-1-yIndex,
+							int pixelIndex = (xIndex+yIndex*imageData.m_pixelWidth)*bytesPerPixel;
+							m_canvas->setPixel(m_canvasIndex,i,camVisualizerHeight-1-j,
                                                
 									imageData.m_rgbColorData[pixelIndex],
 									imageData.m_rgbColorData[pixelIndex+1],
@@ -633,11 +643,11 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 					m_canvas->refreshImageData(m_canvasIndex);
 				}
 
-                b3Printf(msg);
+               // b3Printf(msg);
             } 
             if (statusType == CMD_CAMERA_IMAGE_FAILED)
             {
-                b3Printf("Camera image FAILED\n");
+                b3Warning("Camera image FAILED\n");
             }
        
         
@@ -707,8 +717,8 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 						bool hasStatus = (status != 0);
 						if (hasStatus)
 						{
-							int statusType = b3GetStatusType(status);
-							b3Printf("Status after reset: %d",statusType);
+							//int statusType = b3GetStatusType(status);
+							//b3Printf("Status after reset: %d",statusType);
 						}
 					}
 				} else

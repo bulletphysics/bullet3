@@ -448,8 +448,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 
 				unsigned char* rgbaPixelsReceived =
                     (unsigned char*)&m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor[0];
-                printf("pixel = %d\n", rgbaPixelsReceived[0]);
+              //  printf("pixel = %d\n", rgbaPixelsReceived[0]);
                 
+				float* depthBuffer = (float*)&(m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor[serverCmd.m_sendPixelDataArguments.m_numPixelsCopied*4]);
+			
+				for (int i=0;i<serverCmd.m_sendPixelDataArguments.m_numPixelsCopied;i++)
+				{
+					m_data->m_cachedCameraDepthBuffer[i + serverCmd.m_sendPixelDataArguments.m_startingPixelIndex] = depthBuffer[i];
+				}
+				
 				for (int i=0;i<serverCmd.m_sendPixelDataArguments.m_numPixelsCopied*numBytesPerPixel;i++)
 				{
 					m_data->m_cachedCameraPixelsRGBA[i + serverCmd.m_sendPixelDataArguments.m_startingPixelIndex*numBytesPerPixel] 
@@ -461,7 +468,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
             
             case CMD_CAMERA_IMAGE_FAILED:
             {
-                b3Printf("Camera image FAILED\n");
+                b3Warning("Camera image FAILED\n");
                 break;
             }
 

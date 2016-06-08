@@ -5,6 +5,29 @@
 #include "SharedMemoryCommands.h"
 
 
+b3SharedMemoryCommandHandle	b3LoadSdfCommandInit(b3PhysicsClientHandle physClient, const char* sdfFileName)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+	command->m_type = CMD_LOAD_SDF;
+	int len = strlen(sdfFileName);
+	if (len<MAX_SDF_FILENAME_LENGTH)
+	{
+		strcpy(command->m_sdfArguments.m_sdfFileName,sdfFileName);
+	} else
+	{
+		command->m_sdfArguments.m_sdfFileName[0] = 0;
+	}
+	command->m_updateFlags = SDF_ARGS_FILE_NAME;
+	
+	return (b3SharedMemoryCommandHandle) command;
+}
+
+
 
 b3SharedMemoryCommandHandle	b3LoadUrdfCommandInit(b3PhysicsClientHandle physClient, const char* urdfFileName)
 {
@@ -146,6 +169,8 @@ int b3JointControlSetDesiredPosition(b3SharedMemoryCommandHandle commandHandle, 
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
     command->m_sendDesiredStateCommandArgument.m_desiredStateQ[qIndex] = value;
+	command->m_updateFlags |= SIM_DESIRED_STATE_HAS_Q;
+
     return 0;
 }
 
@@ -154,6 +179,7 @@ int b3JointControlSetKp(b3SharedMemoryCommandHandle commandHandle, int dofIndex,
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
     command->m_sendDesiredStateCommandArgument.m_Kp[dofIndex] = value;
+	command->m_updateFlags |= SIM_DESIRED_STATE_HAS_KP;
     return 0;
 }
 
@@ -162,6 +188,8 @@ int b3JointControlSetKd(b3SharedMemoryCommandHandle commandHandle, int dofIndex,
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
     command->m_sendDesiredStateCommandArgument.m_Kd[dofIndex] = value;
+	command->m_updateFlags |= SIM_DESIRED_STATE_HAS_KD;
+
     return 0;
 }
 
@@ -170,6 +198,7 @@ int b3JointControlSetDesiredVelocity(b3SharedMemoryCommandHandle commandHandle, 
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
     command->m_sendDesiredStateCommandArgument.m_desiredStateQdot[dofIndex] = value;
+	command->m_updateFlags |= SIM_DESIRED_STATE_HAS_QDOT;
     return 0;
 }
 
@@ -179,6 +208,7 @@ int b3JointControlSetMaximumForce(b3SharedMemoryCommandHandle commandHandle, int
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
     command->m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex] = value;
+	command->m_updateFlags |= SIM_DESIRED_STATE_HAS_MAX_FORCE;
     return 0;
 }
 
@@ -703,6 +733,16 @@ void b3RequestCameraImageSetCameraMatrices(b3SharedMemoryCommandHandle commandHa
 		command->m_requestPixelDataArguments.m_viewMatrix[i] = viewMatrix[i];
 	}
 	command->m_updateFlags |= REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES;
+}
+
+void b3RequestCameraImageSetPixelResolution(b3SharedMemoryCommandHandle commandHandle, int width, int height )
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
+	command->m_requestPixelDataArguments.m_pixelWidth = width;
+	command->m_requestPixelDataArguments.m_pixelHeight = height;
+	command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_PIXEL_WIDTH_HEIGHT;	
 }
 
 void b3GetCameraImageData(b3PhysicsClientHandle physClient, struct b3CameraImageData* imageData)

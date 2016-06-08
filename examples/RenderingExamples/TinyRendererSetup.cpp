@@ -147,7 +147,9 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 	m_internalData = new TinyRendererSetupInternalData(gui->getAppInterface()->m_window->getWidth(),gui->getAppInterface()->m_window->getHeight());
 	
 	m_app->m_renderer->enableBlend(true);
-	const char* fileName = "teddy.obj";//cube.obj";//textured_sphere_smooth.obj";//cube.obj";
+    
+	const char* fileName = "textured_sphere_smooth.obj";
+    fileName = "cube.obj";
 	
 
 	{
@@ -181,7 +183,7 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 				m_guiHelper->getRenderInterface()->writeTransforms();
 
 				m_internalData->m_shapePtr.push_back(0);
-				TinyRenderObjectData* ob = new TinyRenderObjectData(m_internalData->m_width,m_internalData->m_height,
+				TinyRenderObjectData* ob = new TinyRenderObjectData(
 					m_internalData->m_rgbColorBuffer,
 					m_internalData->m_depthBuffer);
 					//ob->loadModel("cube.obj");

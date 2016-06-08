@@ -529,6 +529,8 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
 	link.m_name = linkName;
     
     if (m_parseSDF) {
+
+
         TiXmlElement* pose = config->FirstChildElement("pose");
         if (0==pose)
         {
@@ -572,7 +574,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
           logger->reportWarning(link.m_name.c_str());
       }
   }
-		
+
   // Multiple Visuals (optional)
   for (TiXmlElement* vis_xml = config->FirstChildElement("visual"); vis_xml; vis_xml = vis_xml->NextSiblingElement("visual"))
   {
@@ -1240,6 +1242,16 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
         UrdfModel* localModel = new UrdfModel;
         m_tmpModels.push_back(localModel);
         
+		TiXmlElement* stat = robot_xml->FirstChildElement("static");
+        if (0!=stat)
+        {
+			int val = int(atof(stat->GetText()));
+			if (val==1)
+			{
+				localModel->m_overrideFixedBase = true;
+			}
+		}
+
         
         // Get robot name
         const char *name = robot_xml->Attribute("name");

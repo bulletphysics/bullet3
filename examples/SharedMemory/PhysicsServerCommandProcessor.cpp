@@ -972,6 +972,14 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     int width, height;
                     int numPixelsCopied = 0;
                                       
+					if (
+						(clientCmd.m_requestPixelDataArguments.m_startPixelIndex==0) && 
+						(clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_PIXEL_WIDTH_HEIGHT)!=0)
+					{
+						m_data->m_visualConverter.setWidthAndHeight(clientCmd.m_requestPixelDataArguments.m_pixelWidth,
+																	clientCmd.m_requestPixelDataArguments.m_pixelHeight);
+					}		
+					
 					if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_USE_HARDWARE_OPENGL)!=0)
 					{
 						m_data->m_guiHelper->copyCameraImageData(0,0,0,0,0,&width,&height,0);
@@ -1003,8 +1011,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                             
                             if (clientCmd.m_requestPixelDataArguments.m_startPixelIndex==0)
                             {
-                                printf("-------------------------------\nRendering\n");
+                             //   printf("-------------------------------\nRendering\n");
                                 
+																	
                                 if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES)!=0)
                                 {
                                     m_data->m_visualConverter.render(
@@ -1192,12 +1201,18 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                         mb->clearForcesAndTorques();
                                         
                                         int torqueIndex = 0;
-										btVector3 f(clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[0],
-                                                    clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[1],
-                                                    clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[2]);
-                                        btVector3 t(clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[3],
-                                                    clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[4],
-                                                    clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[5]);
+										btVector3 f(0,0,0);
+										btVector3 t(0,0,0);
+
+										if ((clientCmd.m_updateFlags&SIM_DESIRED_STATE_HAS_MAX_FORCE)!=0)
+										{
+											f = btVector3 (clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[0],
+														clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[1],
+														clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[2]);
+											t = btVector3 (clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[3],
+														clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[4],
+														clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[5]);
+										}
                                         torqueIndex+=6;
                                         mb->addBaseForce(f);
                                         mb->addBaseTorque(t);
@@ -1206,7 +1221,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                             
                                             for (int dof=0;dof<mb->getLink(link).m_dofCount;dof++)
                                             {               
-                                                double torque = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[torqueIndex];
+                                                double torque = 0.f;
+												if ((clientCmd.m_updateFlags&SIM_DESIRED_STATE_HAS_MAX_FORCE)!=0)
+													torque = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[torqueIndex];
                                                 mb->addJointTorqueMultiDof(link,dof,torque);
                                                 torqueIndex++;
                                             }
@@ -1233,10 +1250,15 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 													if (motorPtr)
 													{
 														btMultiBodyJointMotor* motor = *motorPtr;
-														btScalar desiredVelocity = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[dofIndex];
+														btScalar desiredVelocity = 0.f;
+														if ((clientCmd.m_updateFlags&SIM_DESIRED_STATE_HAS_QDOT)!=0)
+															desiredVelocity = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[dofIndex];
 														motor->setVelocityTarget(desiredVelocity);
 
-														btScalar maxImp = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex]*m_data->m_physicsDeltaTime;
+														btScalar maxImp = 1000000.f*m_data->m_physicsDeltaTime;
+														if ((clientCmd.m_updateFlags&SIM_DESIRED_STATE_HAS_MAX_FORCE)!=0)
+															maxImp = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex]*m_data->m_physicsDeltaTime;
+														
 														motor->setMaxAppliedImpulse(maxImp);
 														numMotors++;
 
@@ -1247,6 +1269,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 										}
 										break;
 									}
+
 								case CONTROL_MODE_POSITION_VELOCITY_PD:
 									{
 										if (m_data->m_verboseOutput)
@@ -1271,11 +1294,19 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 													{
 														btMultiBodyJointMotor* motor = *motorPtr;
 													
-                                                        btScalar desiredVelocity = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[velIndex];
-                                                        btScalar desiredPosition = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[posIndex];
-                                                        
-                                                        btScalar kp = clientCmd.m_sendDesiredStateCommandArgument.m_Kp[velIndex];
-                                                        btScalar kd = clientCmd.m_sendDesiredStateCommandArgument.m_Kd[velIndex];
+                                                        btScalar desiredVelocity = 0.f;
+														if ((clientCmd.m_updateFlags & SIM_DESIRED_STATE_HAS_QDOT)!=0)
+															desiredVelocity = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[velIndex];
+														btScalar desiredPosition = 0.f;
+														if ((clientCmd.m_updateFlags & SIM_DESIRED_STATE_HAS_Q)!=0)
+															desiredPosition = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[posIndex];
+
+                                                        btScalar kp = 0.f;
+														if ((clientCmd.m_updateFlags & SIM_DESIRED_STATE_HAS_KP)!=0)
+															kp = clientCmd.m_sendDesiredStateCommandArgument.m_Kp[velIndex];
+														btScalar kd = 0.f;
+														if ((clientCmd.m_updateFlags & SIM_DESIRED_STATE_HAS_KD)!=0)
+															kd = clientCmd.m_sendDesiredStateCommandArgument.m_Kd[velIndex];
 
                                                         int dof1 = 0;
                                                         btScalar currentPosition = mb->getJointPosMultiDof(link)[dof1];
@@ -1288,9 +1319,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                                         
                                                         motor->setVelocityTarget(desiredVelocity);
                                                         
-                                                        btScalar maxImp = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[velIndex]*m_data->m_physicsDeltaTime;
+                                                        btScalar maxImp = 1000000.f*m_data->m_physicsDeltaTime;
+
+														if ((clientCmd.m_updateFlags & SIM_DESIRED_STATE_HAS_MAX_FORCE)!=0)
+															maxImp = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[velIndex]*m_data->m_physicsDeltaTime;
                                                         
-                                                        motor->setMaxAppliedImpulse(1000);//maxImp);
+                                                        motor->setMaxAppliedImpulse(maxImp);
                                                         numMotors++;
                                                     }
 
