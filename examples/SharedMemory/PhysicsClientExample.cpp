@@ -631,7 +631,7 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 							int bytesPerPixel = 4;
 							
 							int pixelIndex = (xIndex+yIndex*imageData.m_pixelWidth)*bytesPerPixel;
-							m_canvas->setPixel(m_canvasIndex,i,camVisualizerHeight-1-j,
+							m_canvas->setPixel(m_canvasIndex,i,j,
                                                
 									imageData.m_rgbColorData[pixelIndex],
 									imageData.m_rgbColorData[pixelIndex+1],

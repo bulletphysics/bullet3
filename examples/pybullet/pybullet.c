@@ -459,15 +459,16 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 		}
 
     		Py_DECREF(seq);	
-		if (valid)
 		{
 			b3SharedMemoryCommandHandle command;
 			
 			command = b3InitRequestCameraImage(sm);
-
+			if (valid)
+			{
 			//printf("set b3RequestCameraImageSetCameraMatrices\n");
 			b3RequestCameraImageSetCameraMatrices(command, viewMatrix, projectionMatrix);
-			
+			}
+
 			b3RequestCameraImageSetPixelResolution(command,width,height);
 		
 			if (b3CanSubmitCommand(sm))
@@ -489,24 +490,25 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 			
 					PyObject *pylistPos;
 					PyObject* pylistDep;
+					int i,j,p;
 
 						//printf("image width = %d, height = %d\n", imageData.m_pixelWidth, imageData.m_pixelHeight);
 						{
 
 							PyObject *item;
-						int bytesPerPixel = 3;//Red, Green, Blue, each 8 bit values
+						int bytesPerPixel = 4;//Red, Green, Blue, each 8 bit values
 							int num=bytesPerPixel*imageData.m_pixelWidth*imageData.m_pixelHeight;
 							pylistPos = PyTuple_New(num);
 						pylistDep = PyTuple_New(imageData.m_pixelWidth*imageData.m_pixelHeight);
 			
-						for (int i=0;i<imageData.m_pixelWidth;i++)
+						for (i=0;i<imageData.m_pixelWidth;i++)
 						{
-							for (int j=0;j<imageData.m_pixelHeight;j++)
+							for (j=0;j<imageData.m_pixelHeight;j++)
 							{
 								int depIndex = i+j*imageData.m_pixelWidth;
 								item = PyFloat_FromDouble(imageData.m_depthValues[depIndex]);
 								PyTuple_SetItem(pylistDep, depIndex, item);
-								for (int p=0;p<bytesPerPixel;p++)
+								for (p=0;p<bytesPerPixel;p++)
 								{
 									int pixelIndex = bytesPerPixel*(i+j*imageData.m_pixelWidth)+p;
 									item = PyInt_FromLong(imageData.m_rgbColorData[pixelIndex]);

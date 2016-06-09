@@ -580,7 +580,9 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
         }
     }
 	//printf("write tga \n");
-	m_data->m_rgbColorBuffer.write_tga_file("camera.tga");
+	//m_data->m_rgbColorBuffer.write_tga_file("camera.tga");
+//	printf("flipped!\n");
+	m_data->m_rgbColorBuffer.flip_vertically();
 
 }
 
