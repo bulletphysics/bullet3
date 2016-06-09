@@ -537,7 +537,7 @@ int btGeneric6DofSpring2Constraint::setLinearLimits(btConstraintInfo2* info, int
 			{
 				rotAllowed = 0;
 			}
-			row += get_limit_motor_info2(&limot, transA,transB,linVelA,linVelB,angVelA,angVelB, info, row, axis, 0, rotAllowed);
+			row += get_limit_motor_info2(&limot, transA,transB,linVelA,linVelB,angVelA,angVelB, info, row, axis, i, rotAllowed);
 
 		}
 	}
@@ -586,7 +586,7 @@ int btGeneric6DofSpring2Constraint::setAngularLimits(btConstraintInfo2 *info, in
 			{
 				m_angularLimits[i].m_motorERP = info->erp;
 			}
-			row += get_limit_motor_info2(&m_angularLimits[i],transA,transB,linVelA,linVelB,angVelA,angVelB, info,row,axis,1);
+			row += get_limit_motor_info2(&m_angularLimits[i],transA,transB,linVelA,linVelB,angVelA,angVelB, info,row,axis,3+i);
 		}
 	}
 
@@ -651,10 +651,11 @@ void btGeneric6DofSpring2Constraint::calculateJacobi(btRotationalLimitMotor2 * l
 int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 	btRotationalLimitMotor2 * limot,
 	const btTransform& transA,const btTransform& transB,const btVector3& linVelA,const btVector3& linVelB,const btVector3& angVelA,const btVector3& angVelB,
-	btConstraintInfo2 *info, int row, btVector3& ax1, int rotational,int rotAllowed)
+	btConstraintInfo2 *info, int row, btVector3& ax1, int findex,int rotAllowed)
 {
 	int count = 0;
 	int srow = row * info->rowskip;
+	int rotational = findex >= 3;
 
 	if (limot->m_currentLimit==4) 
 	{
@@ -676,6 +677,7 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		info->m_lowerLimit[srow] = rotational ? 0 : -SIMD_INFINITY;
 		info->m_upperLimit[srow] = rotational ? SIMD_INFINITY : 0;
 		info->cfm[srow] = limot->m_stopCFM;
+		info->findex[srow] = findex;
 		srow += info->rowskip;
 		++count;
 
@@ -695,6 +697,7 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		info->m_lowerLimit[srow] = rotational ? -SIMD_INFINITY : 0;
 		info->m_upperLimit[srow] = rotational ? 0 : SIMD_INFINITY;
 		info->cfm[srow] = limot->m_stopCFM;
+		info->findex[srow] = findex;
 		srow += info->rowskip;
 		++count;
 	} else
@@ -705,6 +708,7 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		info->m_lowerLimit[srow] = -SIMD_INFINITY;
 		info->m_upperLimit[srow] = SIMD_INFINITY;
 		info->cfm[srow] = limot->m_stopCFM;
+		info->findex[srow] = findex;
 		srow += info->rowskip;
 		++count;
 	}
@@ -722,6 +726,7 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		info->m_lowerLimit[srow] = -limot->m_maxMotorForce;
 		info->m_upperLimit[srow] = limot->m_maxMotorForce;
 		info->cfm[srow] = limot->m_motorCFM;
+		info->findex[srow] = findex;
 		srow += info->rowskip;
 		++count;
 	}
@@ -757,6 +762,7 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		info->m_lowerLimit[srow] = -limot->m_maxMotorForce;
 		info->m_upperLimit[srow] = limot->m_maxMotorForce;
 		info->cfm[srow] = limot->m_motorCFM;
+		info->findex[srow] = findex;
 		srow += info->rowskip;
 		++count;
 	}
@@ -816,6 +822,7 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 		}
 
 		info->cfm[srow] = cfm;
+		info->findex[srow] = findex;
 		srow += info->rowskip;
 		++count;
 	}
