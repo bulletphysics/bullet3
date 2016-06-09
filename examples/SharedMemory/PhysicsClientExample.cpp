@@ -629,21 +629,12 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 							btClamp(yIndex,0,imageData.m_pixelHeight);
 							btClamp(xIndex,0,imageData.m_pixelWidth);
 							int bytesPerPixel = 4;
-<<<<<<< HEAD
 
-							int pixelIndex = (i+j*imageData.m_pixelWidth)*bytesPerPixel;
-							m_canvas->setPixel(m_canvasIndex,xIndex,camVisualizerHeight-1-yIndex,
-=======
-							
 							int pixelIndex = (xIndex+yIndex*imageData.m_pixelWidth)*bytesPerPixel;
 							m_canvas->setPixel(m_canvasIndex,i,camVisualizerHeight-1-j,
-                                               
->>>>>>> master
+
 									imageData.m_rgbColorData[pixelIndex],
 									imageData.m_rgbColorData[pixelIndex+1],
-                  // imageData.m_rgbColorData[pixelIndex+2]);
-
-									// imageData.m_rgbColorData[pixelIndex+2],255);
                   imageData.m_rgbColorData[pixelIndex+2],
 									imageData.m_rgbColorData[pixelIndex+3]);
 						}
