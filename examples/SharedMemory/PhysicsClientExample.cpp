@@ -628,7 +628,7 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
                             int yIndex = int(float(j)*(float(imageData.m_pixelHeight)/float(camVisualizerHeight)));
 							btClamp(yIndex,0,imageData.m_pixelHeight);
 							btClamp(xIndex,0,imageData.m_pixelWidth);
-							int bytesPerPixel = 4;
+							int bytesPerPixel = 4; //RGBA
 							
 							int pixelIndex = (xIndex+yIndex*imageData.m_pixelWidth)*bytesPerPixel;
 							m_canvas->setPixel(m_canvasIndex,i,j,
@@ -636,8 +636,7 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 									imageData.m_rgbColorData[pixelIndex],
 									imageData.m_rgbColorData[pixelIndex+1],
 									imageData.m_rgbColorData[pixelIndex+2],
-                                               255);
-//									imageData.m_rgbColorData[pixelIndex+3]);
+                                               255); //alpha set to 255
 						}
 					}
 					m_canvas->refreshImageData(m_canvasIndex);
