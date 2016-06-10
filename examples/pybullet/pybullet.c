@@ -390,6 +390,45 @@ pybullet_setJointPositions(PyObject* self, PyObject* args)
 // const unsigned char* m_rgbColorData;//3*m_pixelWidth*m_pixelHeight bytes
 // const float* m_depthValues;//m_pixelWidth*m_pixelHeight floats
 
+// internal function to set a float matrix[16]
+// used to initialize camera position with
+// a view and projection matrix in renderImage()
+static int pybullet_internalSetMatrix(PyObject* objMat, float matrix[16])
+{
+
+  int i, len;
+  PyObject* item;
+  PyObject* seq;
+
+  seq = PySequence_Fast(objMat, "expected a sequence");
+  len = PySequence_Size(objMat);
+  if (len==16)
+  {
+
+    if (PyList_Check(seq))
+    {
+      for (i = 0; i < len; i++)
+      {
+        item = PyList_GET_ITEM(seq, i);
+        matrix[i] = PyFloat_AsDouble(item);
+      }
+    }
+    else
+    {
+      for (i = 0; i < len; i++)
+      {
+          item = PyTuple_GET_ITEM(seq,i);
+          matrix[i] = PyFloat_AsDouble(item);
+      }
+    }
+     Py_DECREF(seq);
+     return 1;
+  } else
+  {
+    Py_DECREF(seq);
+    return 0;
+  }
+}
 
 // Render an image from the current timestep of the simulation
 //
