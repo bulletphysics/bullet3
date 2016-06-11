@@ -19,7 +19,7 @@ enum eCONNECT_METHOD
 static PyObject *SpamError;
 static  b3PhysicsClientHandle sm=0;
 
-
+// Step through one timestep of the simulation
 static PyObject *
 pybullet_stepSimulation(PyObject *self, PyObject *args)
 {
@@ -118,7 +118,11 @@ pybullet_disconnectPhysicsServer(PyObject *self, PyObject *args)
     return Py_None;
 }
 
-
+// Load a URDF file indicating the links and joints of an object
+// function can be called without arguments and will default
+// to position (0,0,1) with orientation(0,0,0,1)
+// else, loadURDF(x,y,z) or
+// loadURDF(pos_x, pos_y, pos_z, orn_x, orn_y, orn_z, orn_w)
 static PyObject *
 pybullet_loadURDF(PyObject* self, PyObject* args)
 {
@@ -128,13 +132,13 @@ pybullet_loadURDF(PyObject* self, PyObject* args)
 	int bodyIndex = -1;
 	const char* urdfFileName="";
 	float startPosX =0;
-    float startPosY =0;
-    float startPosZ = 1;
+  float startPosY =0;
+  float startPosZ = 1;
 	float startOrnX = 0;
 	float startOrnY = 0;
 	float startOrnZ = 0;
 	float startOrnW = 1;
-	//printf("size=%d\n", size);
+
 	if (0==sm)
     {
         PyErr_SetString(SpamError, "Not connected to physics server.");
@@ -157,14 +161,13 @@ pybullet_loadURDF(PyObject* self, PyObject* args)
 		&startPosX,&startPosY,&startPosZ,
 			&startOrnX,&startOrnY,&startOrnZ, &startOrnW))
                 return NULL;
-		
 	}
     {
         
         b3SharedMemoryStatusHandle statusHandle;
         int statusType;
         b3SharedMemoryCommandHandle command = b3LoadUrdfCommandInit(sm, urdfFileName);
-		//printf("urdf filename = %s\n", urdfFileName);
+
         //setting the initial position, orientation and other arguments are optional
         b3LoadUrdfCommandSetStartPosition(command, startPosX,startPosY,startPosZ);
         statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
@@ -178,6 +181,8 @@ pybullet_loadURDF(PyObject* self, PyObject* args)
     }
 	return PyLong_FromLong(bodyIndex);
 }
+
+// Reset the simulation to remove all loaded objects
 static PyObject *
 pybullet_resetSimulation(PyObject* self, PyObject* args)
 {
@@ -195,6 +200,7 @@ pybullet_resetSimulation(PyObject* self, PyObject* args)
 	return Py_None;
 }
 
+// Set the gravity of the world with (x, y, z) arguments
 static PyObject *
 pybullet_setGravity(PyObject* self, PyObject* args)
 {
@@ -229,6 +235,8 @@ pybullet_setGravity(PyObject* self, PyObject* args)
 }
 
 
+// Internal function used to get the base position and orientation
+// Orientation is returned in quaternions
 static void pybullet_internalGetBasePositionAndOrientation(int bodyIndex, double basePosition[3],double baseOrientation[3])
 {
     basePosition[0] = 0.;
@@ -272,6 +280,10 @@ static void pybullet_internalGetBasePositionAndOrientation(int bodyIndex, double
 	}
 }
 
+// Get the positions (x,y,z) and orientation (x,y,z,w) in quaternion
+// values for the base link of your object
+// Object is retrieved based on body index, which is the order
+// the object was loaded into the simulation (0-based)
 static PyObject *
 pybullet_getBasePositionAndOrientation(PyObject* self, PyObject* args)
 {
@@ -331,7 +343,9 @@ pybullet_getBasePositionAndOrientation(PyObject* self, PyObject* args)
     
 }
 
-
+// Return the number of joints in an object based on
+// body index; body index is based on order of sequence
+// the object is loaded into simulation
 static PyObject *
 pybullet_getNumJoints(PyObject* self, PyObject* args)
 {
@@ -359,6 +373,7 @@ pybullet_getNumJoints(PyObject* self, PyObject* args)
 	}
 }
 
+// TODO(hellojas): set joint positions for a body
 static PyObject*
 pybullet_setJointPositions(PyObject* self, PyObject* args)
 {
@@ -372,179 +387,178 @@ pybullet_setJointPositions(PyObject* self, PyObject* args)
         return Py_None;
 }
 
-       // const unsigned char* m_rgbColorData;//3*m_pixelWidth*m_pixelHeight bytes
-       // const float* m_depthValues;//m_pixelWidth*m_pixelHeight floats
+// const unsigned char* m_rgbColorData;//3*m_pixelWidth*m_pixelHeight bytes
+// const float* m_depthValues;//m_pixelWidth*m_pixelHeight floats
 
+// internal function to set a float matrix[16]
+// used to initialize camera position with
+// a view and projection matrix in renderImage()
+static int pybullet_internalSetMatrix(PyObject* objMat, float matrix[16])
+{
+
+  int i, len;
+  PyObject* item;
+  PyObject* seq;
+
+  seq = PySequence_Fast(objMat, "expected a sequence");
+  len = PySequence_Size(objMat);
+  if (len==16)
+  {
+
+    if (PyList_Check(seq))
+    {
+      for (i = 0; i < len; i++)
+      {
+        item = PyList_GET_ITEM(seq, i);
+        matrix[i] = PyFloat_AsDouble(item);
+      }
+    }
+    else
+    {
+      for (i = 0; i < len; i++)
+      {
+          item = PyTuple_GET_ITEM(seq,i);
+          matrix[i] = PyFloat_AsDouble(item);
+      }
+    }
+     Py_DECREF(seq);
+     return 1;
+  } else
+  {
+    Py_DECREF(seq);
+    return 0;
+  }
+}
+
+// Render an image from the current timestep of the simulation
+//
+// Examples:
+//  renderImage() - default image resolution and camera position
+//  renderImage(w, h) - image resolution of (w,h), default camera
+//  renderImage(w, h, view[16], projection[16]) - set both resolution
+//    and initialize camera to the view and projection values
+//
+// Note if the (w,h) is too small, the objects may not appear based on
+// where the camera has been set
+//
+// TODO(hellojas): fix image is cut off at head
+// TODO(hellojas): should we add check to give minimum image resolution
+//  to see object based on camera position?
 static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 {
-	if (0==sm)
+
+  if (0==sm)
+  {
+  	PyErr_SetString(SpamError, "Not connected to physics server.");
+  	return NULL;
+  }
+
+  ///request an image from a simulated camera, using a software renderer.
+  struct b3CameraImageData imageData;
+  PyObject* objViewMat,* objProjMat;
+  int width,  height;
+  int size= PySequence_Size(args);
+  float viewMatrix[16];
+  float projectionMatrix[16];
+
+  // inialize cmd
+  b3SharedMemoryCommandHandle command;
+  command = b3InitRequestCameraImage(sm);
+
+  if (size==2) // only set camera resolution
+  {
+   if (PyArg_ParseTuple(args, "ii", &width, &height))
+  	{
+     b3RequestCameraImageSetPixelResolution(command,width,height);
+   }
+  }
+
+  if (size==4) // set camera resoluation and view and projection matrix
+  {
+    if (PyArg_ParseTuple(args, "iiOO", &width, &height, &objViewMat, &objProjMat))
+    {
+      b3RequestCameraImageSetPixelResolution(command,width,height);
+
+      // set camera matrices only if set matrix function succeeds
+     if (pybullet_internalSetMatrix(objViewMat, viewMatrix) &&
+         (pybullet_internalSetMatrix(objProjMat, projectionMatrix))) 
+         {
+             b3RequestCameraImageSetCameraMatrices(command, viewMatrix, projectionMatrix);
+         }
+       }
+   }
+
+	if (b3CanSubmitCommand(sm))
 	{
-		PyErr_SetString(SpamError, "Not connected to physics server.");
-		return NULL;
-	}
-	
-	///request an image from a simulated camera, using a software renderer.
-	struct b3CameraImageData imageData;
-	PyObject* objViewMat,* objProjMat;
-	int width,  height;
-	
-	if (PyArg_ParseTuple(args, "iiOO", &width, &height, &objViewMat, &objProjMat))
-	{
-	
-		PyObject* seq;
-		int i, len;
-		PyObject* item;
-		float viewMatrix[16];
-		float projectionMatrix[16];
-		int valid = 1;
+		b3SharedMemoryStatusHandle statusHandle;
+		int statusType;
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+		statusType = b3GetStatusType(statusHandle);
+		if (statusType==CMD_CAMERA_IMAGE_COMPLETED)
 		{
-    		seq = PySequence_Fast(objViewMat, "expected a sequence");
-    		len = PySequence_Size(objViewMat);
-		//printf("objViewMat size = %d\n", len);
-			if (len==16)
-			{
-				
-				if (PyList_Check(seq))
-				{
-					for (i = 0; i < len; i++) 
-					{
-            			item = PyList_GET_ITEM(seq, i);
-						viewMatrix[i] = PyFloat_AsDouble(item);
-						float v = viewMatrix[i]; 
-	 			//printf("view %d to %f\n", i,v);
-	
-					}
-				}
-				else
-				{
-					for (i = 0; i < len; i++)
-					{
-        			item = PyTuple_GET_ITEM(seq,i);
-						viewMatrix[i] = PyFloat_AsDouble(item);
-					}
-				}
-			} else
-			{
-				valid = 0;
-			}
-		}
-		
-		
-		{
-			seq = PySequence_Fast(objProjMat, "expected a sequence");
-			len = PySequence_Size(objProjMat);
-	//printf("projMat len = %d\n", len);
-			if (len==16)
-			{
-				if (PyList_Check(seq))
-				{
-					for (i = 0; i < len; i++)
-					{
-							item = PyList_GET_ITEM(seq, i);
-							projectionMatrix[i] = PyFloat_AsDouble(item);
-					}
-				}
-				else
-				{
-					for (i = 0; i < len; i++)
-					{
-							item = PyTuple_GET_ITEM(seq,i);
-							projectionMatrix[i] = PyFloat_AsDouble(item);
-					}
-				}
-			} else
-			{
-					valid = 0;
-			}
-		}
+			PyObject *item2;
+			PyObject* pyResultList;//store 4 elements in this result: width, height, rgbData, depth
 
-    		Py_DECREF(seq);	
-		{
-			b3SharedMemoryCommandHandle command;
-			
-			command = b3InitRequestCameraImage(sm);
-			if (valid)
-			{
-			//printf("set b3RequestCameraImageSetCameraMatrices\n");
-			b3RequestCameraImageSetCameraMatrices(command, viewMatrix, projectionMatrix);
-			}
+			b3GetCameraImageData(sm, &imageData);
+			//TODO(hellojas): error handling if image size is 0
+			pyResultList =  PyTuple_New(4);
+			PyTuple_SetItem(pyResultList, 0, PyInt_FromLong(imageData.m_pixelWidth));
+			PyTuple_SetItem(pyResultList, 1, PyInt_FromLong(imageData.m_pixelHeight));
 
-			b3RequestCameraImageSetPixelResolution(command,width,height);
-		
-			if (b3CanSubmitCommand(sm))
+			PyObject *pylistRGB;
+			PyObject* pylistDep;
+			int i, j, p;
+
 			{
-				b3SharedMemoryStatusHandle statusHandle;
-				int statusType;
-				statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
-				statusType = b3GetStatusType(statusHandle);
-				if (statusType==CMD_CAMERA_IMAGE_COMPLETED)
+
+				PyObject *item;
+				int bytesPerPixel = 4;//Red, Green, Blue, and Alpha each 8 bit values
+				int num=bytesPerPixel*imageData.m_pixelWidth*imageData.m_pixelHeight;
+				pylistRGB = PyTuple_New(num);
+				pylistDep = PyTuple_New(imageData.m_pixelWidth*imageData.m_pixelHeight);
+
+				for (i=0;i<imageData.m_pixelWidth;i++)
 				{
-					PyObject *item2;
-					PyObject* pyResultList;//store 4 elements in this result: width, height, rgbData, depth
-
-					b3GetCameraImageData(sm, &imageData);
-					//todo: error handling if image size is 0
-					pyResultList =  PyTuple_New(4);
-					PyTuple_SetItem(pyResultList, 0, PyInt_FromLong(imageData.m_pixelWidth));
-					PyTuple_SetItem(pyResultList, 1, PyInt_FromLong(imageData.m_pixelHeight));	
-			
-					PyObject *pylistPos;
-					PyObject* pylistDep;
-					int i,j,p;
-
-						//printf("image width = %d, height = %d\n", imageData.m_pixelWidth, imageData.m_pixelHeight);
+					for (j=0;j<imageData.m_pixelHeight;j++)
+					{
+            // TODO(hellojas): validate depth values make sense
+						int depIndex = i+j*imageData.m_pixelWidth;
+						item = PyFloat_FromDouble(imageData.m_depthValues[depIndex]);
+						PyTuple_SetItem(pylistDep, depIndex, item);
+						for (p=0; p<bytesPerPixel; p++)
 						{
-
-							PyObject *item;
-						int bytesPerPixel = 4;//Red, Green, Blue, each 8 bit values
-							int num=bytesPerPixel*imageData.m_pixelWidth*imageData.m_pixelHeight;
-							pylistPos = PyTuple_New(num);
-						pylistDep = PyTuple_New(imageData.m_pixelWidth*imageData.m_pixelHeight);
-			
-						for (i=0;i<imageData.m_pixelWidth;i++)
-						{
-							for (j=0;j<imageData.m_pixelHeight;j++)
-							{
-								int depIndex = i+j*imageData.m_pixelWidth;
-								item = PyFloat_FromDouble(imageData.m_depthValues[depIndex]);
-								PyTuple_SetItem(pylistDep, depIndex, item);
-								for (p=0;p<bytesPerPixel;p++)
-								{
-									int pixelIndex = bytesPerPixel*(i+j*imageData.m_pixelWidth)+p;
-									item = PyInt_FromLong(imageData.m_rgbColorData[pixelIndex]);
-											PyTuple_SetItem(pylistPos, pixelIndex, item);
-								}
-							}
-						}	
+							int pixelIndex = bytesPerPixel*(i+j*imageData.m_pixelWidth)+p;
+							item = PyInt_FromLong(imageData.m_rgbColorData[pixelIndex]);
+									PyTuple_SetItem(pylistRGB, pixelIndex, item);
+						}
 					}
-
-					PyTuple_SetItem(pyResultList, 2,pylistPos);
-					PyTuple_SetItem(pyResultList, 3,pylistDep);
-					return pyResultList;	
-				}	
+				}
 			}
-			
-		}
 
+			PyTuple_SetItem(pyResultList, 2,pylistRGB);
+			PyTuple_SetItem(pyResultList, 3,pylistDep);
+			return pyResultList;
+		}
 	}
 
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
-static PyMethodDef SpamMethods[] = {
-    {"loadURDF",  pybullet_loadURDF, METH_VARARGS,
-        "Create a multibody by loading a URDF file."},
-    
-    {"connect",  pybullet_connectPhysicsServer, METH_VARARGS,
-        "Connect to an existing physics server (using shared memory by default)."},
-	
-    {"disconnect",  pybullet_disconnectPhysicsServer, METH_VARARGS,
-        "Disconnect from the physics server."},
 
-    {"resetSimulation",  pybullet_resetSimulation, METH_VARARGS,
-        "Reset the simulation: remove all objects and start from an empty world."},
-	
+static PyMethodDef SpamMethods[] = {
+  {"loadURDF",  pybullet_loadURDF, METH_VARARGS,
+      "Create a multibody by loading a URDF file."},
+  
+  {"connect",  pybullet_connectPhysicsServer, METH_VARARGS,
+      "Connect to an existing physics server (using shared memory by default)."},
+
+  {"disconnect",  pybullet_disconnectPhysicsServer, METH_VARARGS,
+      "Disconnect from the physics server."},
+
+  {"resetSimulation",  pybullet_resetSimulation, METH_VARARGS,
+      "Reset the simulation: remove all objects and start from an empty world."},
+
 	{"stepSimulation",  pybullet_stepSimulation, METH_VARARGS,
         "Step the simulation using forward dynamics."},
 
@@ -562,8 +576,8 @@ static PyMethodDef SpamMethods[] = {
 	
 	{"getNumsetGravity",  pybullet_setGravity, METH_VARARGS,
         "Set the gravity acceleration (x,y,z)."},
-	{
-		"getNumJoints", pybullet_getNumJoints, METH_VARARGS,
+        
+	{"getNumJoints", pybullet_getNumJoints, METH_VARARGS,
         "Get the number of joints for an object."},
 	
     {NULL, NULL, 0, NULL}        /* Sentinel */
