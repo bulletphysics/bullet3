@@ -19,6 +19,7 @@ enum EnumSharedMemoryClientCommand
         CMD_SEND_DESIRED_STATE,//todo: reconsider naming, for example SET_JOINT_CONTROL_VARIABLE?
         CMD_REQUEST_ACTUAL_STATE,
         CMD_REQUEST_DEBUG_LINES,
+    CMD_REQUEST_SDF_INFO,
     CMD_STEP_FORWARD_SIMULATION,
     CMD_RESET_SIMULATION,
     CMD_PICK_BODY,
