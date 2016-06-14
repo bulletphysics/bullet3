@@ -436,7 +436,7 @@ pybullet_getNumJoints(PyObject* self, PyObject* args)
 	}
 }
 
-// TODO(hellojas): set joint positions for a body
+// Initalize all joint positions given a list of values
 static PyObject*
 pybullet_initializeJointPositions(PyObject* self, PyObject* args)
 {
@@ -445,13 +445,65 @@ pybullet_initializeJointPositions(PyObject* self, PyObject* args)
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-
+  // TODO(hellojas): initialize all joint positions given a pylist of values
 
 	Py_INCREF(Py_None);
         return Py_None;
 }
 
+// Initalize a single joint position for a specific body index
+// 
+// This method skips any physics simulation and 
+// teleports all joints to the new positions.
 
+// TODO(hellojas): test accuracy of joint position values
+static PyObject*
+pybullet_initializeJointPosition(PyObject* self, PyObject* args)
+{
+	if (0==sm)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+  
+  int i;
+  int bodyIndex = -1;
+  int jointIndex = -1;
+  double jointPos = 0.0;
+  
+  int size= PySequence_Size(args);
+
+  if (size==3) // get body index, joint index, and joint position value
+  {
+   if (PyArg_ParseTuple(args, "iid", &bodyIndex, &jointIndex, &jointPos))
+    {
+      b3SharedMemoryCommandHandle cmd_handle =  b3CreatePoseCommandInit(sm, bodyIndex);
+
+      printf("initializing joint %d at %f\n", jointIndex, jointPos);
+      b3CreatePoseCommandSetJointPosition(sm, cmd_handle, jointIndex, jointPos);
+
+      b3SharedMemoryStatusHandle status_handle =
+              b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
+
+    const int status_type = b3GetStatusType(status_handle);
+
+    }
+  }
+  
+	Py_INCREF(Py_None);
+        return Py_None;
+}
+
+
+// Get the a single joint info for a specific bodyIndex
+//
+// Joint information includes:
+//  index, name, type, q-index, u-index,
+//  flags, joint damping, joint friction
+//
+// The format of the returned list is 
+// [int, str, int, int, int, int, float, float]
+//
 // TODO(hellojas): get joint positions for a body
 static PyObject*
 pybullet_getJointInfo(PyObject* self, PyObject* args)
@@ -612,60 +664,6 @@ pybullet_getJointState(PyObject* self, PyObject* args)
           return Py_None;
 }
 
-
-// TODO(hellojas): get joint positions for a body
-static PyObject*
-pybullet_getJointPositionAndVelocity(PyObject* self, PyObject* args)
-{
-	if (0==sm)
-	{
-		PyErr_SetString(SpamError, "Not connected to physics server.");
-		return NULL;
-	}
-  
-  struct b3JointInfo info;
-  int bodyIndex = 0;
-  int forceTorqueSize = 6;
-  PyObject *pylistJointPos; 
-  PyObject *item; 
-  int i, j, numJoints;
-  struct b3JointSensorState sensorState;
-
-  b3SharedMemoryCommandHandle cmd_handle =
-          b3RequestActualStateCommandInit(sm, bodyIndex);
-      b3SharedMemoryStatusHandle status_handle =
-              b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
-              
-  numJoints = b3GetNumJoints(sm,bodyIndex);
-  
-  const char *pyListJointNames[numJoints];
-  pylistJointPos = PyTuple_New(numJoints);
-
-  
-//   double m_jointPosition;
-// double m_jointVelocity;
-// double m_jointForceTorque[6];  /* note to roboticists: this is NOT the motor torque/force, but the spatial reaction force vector at joint */
-// double m_jointMotorTorque;
-  for (i = 0; i < numJoints; ++i) {
-    b3GetJointState(sm, status_handle, i, &sensorState);
-    printf("Joint%d: position=%f velocity=%f motortorque=%f\n", 
-    i, 
-    sensorState.m_jointPosition,
-    sensorState.m_jointVelocity,
-    sensorState.m_jointMotorTorque);
-    
-    // item = PyFloat_FromDouble(basePosition[i]);
-    
-    printf(" jointForceTorque = ");
-    for (j = 0; j < forceTorqueSize; j++) {
-      printf("%f ", sensorState.m_jointPosition);
-    }
-    printf("\n");
-}  
-  
-	Py_INCREF(Py_None);
-        return Py_None;
-}
 
 // const unsigned char* m_rgbColorData;//3*m_pixelWidth*m_pixelHeight bytes
 // const float* m_depthValues;//m_pixelWidth*m_pixelHeight floats
@@ -852,9 +850,9 @@ static PyMethodDef SpamMethods[] = {
 	{"initializeJointPositions", pybullet_initializeJointPositions, METH_VARARGS,
 	"Initialize the joint positions for all joints. This method skips any physics simulation and teleports all joints to the new positions."},
 	
-  // {"getJointPositions", pybullet_getJointPositions, METH_VARARGS,
-  // "Get the joint positions for all joints."},
-  // 
+  {"initializeJointPosition", pybullet_initializeJointPosition, METH_VARARGS,
+  "Initialize the joint position for one joint. This method skips any physics simulation and teleports the joint to the new position."},
+  
   {"getJointInfo", pybullet_getJointInfo, METH_VARARGS,
   "Get the joint metadata info for a joint on a body. This includes joint index, name, type, q-index and u-index."},
   
@@ -866,9 +864,6 @@ static PyMethodDef SpamMethods[] = {
 	
 	{"getBasePositionAndOrientation",  pybullet_getBasePositionAndOrientation, METH_VARARGS,
         "Get the world position and orientation of the base of the object. (x,y,z) position vector and (x,y,z,w) quaternion orientation."},
-	
-	{"getNumsetGravity",  pybullet_setGravity, METH_VARARGS,
-        "Set the gravity acceleration (x,y,z)."},
         
 	{"getNumJoints", pybullet_getNumJoints, METH_VARARGS,
         "Get the number of joints for an object."},
