@@ -585,8 +585,8 @@ int b3GetStatusActualState(b3SharedMemoryStatusHandle statusHandle,
                            const double* jointReactionForces[]) {
     const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
     const SendActualStateArgs &args = status->m_sendActualStateArgs;
-    btAssert(status->m_type == CMD_URDF_LOADING_COMPLETED);
-    if (status->m_type != CMD_URDF_LOADING_COMPLETED)
+    btAssert(status->m_type == CMD_ACTUAL_STATE_UPDATE_COMPLETED);
+    if (status->m_type != CMD_ACTUAL_STATE_UPDATE_COMPLETED)
         return false;
     
     if (bodyUniqueId) {
