@@ -479,7 +479,7 @@ pybullet_initializeJointPosition(PyObject* self, PyObject* args)
     {
       b3SharedMemoryCommandHandle cmd_handle =  b3CreatePoseCommandInit(sm, bodyIndex);
 
-      printf("initializing joint %d at %f\n", jointIndex, jointPos);
+      // printf("initializing joint %d at %f\n", jointIndex, jointPos);
       b3CreatePoseCommandSetJointPosition(sm, cmd_handle, jointIndex, jointPos);
 
       b3SharedMemoryStatusHandle status_handle =
@@ -850,9 +850,9 @@ static PyMethodDef SpamMethods[] = {
 	{"initializeJointPositions", pybullet_initializeJointPositions, METH_VARARGS,
 	"Initialize the joint positions for all joints. This method skips any physics simulation and teleports all joints to the new positions."},
 	
-  {"initializeJointPosition", pybullet_initializeJointPosition, METH_VARARGS,
-  "Initialize the joint position for one joint. This method skips any physics simulation and teleports the joint to the new position."},
-  
+  // {"initializeJointPosition", pybullet_initializeJointPosition, METH_VARARGS,
+  // "Initialize the joint position for one joint. This method skips any physics simulation and teleports the joint to the new position."},
+  // 
   {"getJointInfo", pybullet_getJointInfo, METH_VARARGS,
   "Get the joint metadata info for a joint on a body. This includes joint index, name, type, q-index and u-index."},
   
