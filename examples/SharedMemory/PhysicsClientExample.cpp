@@ -77,9 +77,9 @@ protected:
     
 	virtual void resetCamera()
 	{
-		float dist = 1.1;
-		float pitch = 50;
-		float yaw = 35;
+		float dist = 4;
+		float pitch = 193;
+		float yaw = 25;
 		float targetPos[3]={0,0,0.5};//-3,2.8,-2.5};
 		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
 
@@ -223,9 +223,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
     {
         case  CMD_LOAD_URDF:
         {
-            
             b3SharedMemoryCommandHandle commandHandle = b3LoadUrdfCommandInit(m_physicsClientHandle, "kuka_iiwa/model.urdf");
-            
             //setting the initial position, orientation and other arguments are optional
             double startPosX = 0;
             static double startPosY = 0;
@@ -234,7 +232,13 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 			startPosY += 2.f;
 //            ret = b3LoadUrdfCommandSetUseFixedBase(commandHandle, 1);
             b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
-
+            break;
+        }
+        
+        case  CMD_LOAD_SDF:
+        {
+            b3SharedMemoryCommandHandle commandHandle = b3LoadSdfCommandInit(m_physicsClientHandle, "two_cubes.sdf");
+            b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
             break;
         }
         case CMD_REQUEST_CAMERA_IMAGE_DATA:
@@ -452,6 +456,7 @@ void	PhysicsClientExample::createButtons()
 		m_guiHelper->getParameterInterface()->removeAllParameters();
 
         createButton("Load URDF",CMD_LOAD_URDF,  isTrigger);
+        createButton("Load SDF",CMD_LOAD_SDF,  isTrigger);
         createButton("Get Camera Image",CMD_REQUEST_CAMERA_IMAGE_DATA,isTrigger);
         createButton("Step Sim",CMD_STEP_FORWARD_SIMULATION,  isTrigger);
         createButton("Send Bullet Stream",CMD_SEND_BULLET_DATA_STREAM,  isTrigger);
@@ -649,11 +654,10 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
                 b3Warning("Camera image FAILED\n");
             }
        
-        
-      		if (statusType == CMD_URDF_LOADING_COMPLETED)
+            if (statusType == CMD_SDF_LOADING_COMPLETED)
 			{
-				int bodyIndex = b3GetStatusBodyIndex(status);
-				if (bodyIndex>=0)
+				//int bodyIndex = b3GetStatusBodyIndex(status);
+				/*if (bodyIndex>=0)
 				{
 					int numJoints = b3GetNumJoints(m_physicsClientHandle,bodyIndex);
             
@@ -662,7 +666,6 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 						b3JointInfo info;
 						b3GetJointInfo(m_physicsClientHandle,bodyIndex,i,&info);
 						b3Printf("Joint %s at q-index %d and u-index %d\n",info.m_jointName,info.m_qIndex,info.m_uIndex);
-				
 					}
 					ComboBoxParams comboParams;
 					comboParams.m_comboboxId = bodyIndex;
@@ -676,12 +679,38 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 				
 					comboParams.m_items=blarray;//{&bla};
 					m_guiHelper->getParameterInterface()->registerComboBox(comboParams);
-		
-
 				}
-
+				*/
 			}
-    
+			
+        
+      		if (statusType == CMD_URDF_LOADING_COMPLETED)
+			{
+				int bodyIndex = b3GetStatusBodyIndex(status);
+				if (bodyIndex>=0)
+				{
+					int numJoints = b3GetNumJoints(m_physicsClientHandle,bodyIndex);
+            
+					for (int i=0;i<numJoints;i++)
+					{
+						b3JointInfo info;
+						b3GetJointInfo(m_physicsClientHandle,bodyIndex,i,&info);
+						b3Printf("Joint %s at q-index %d and u-index %d\n",info.m_jointName,info.m_qIndex,info.m_uIndex);
+					}
+					ComboBoxParams comboParams;
+					comboParams.m_comboboxId = bodyIndex;
+					comboParams.m_numItems = 1;
+					comboParams.m_startItem = 0;
+					comboParams.m_callback = MyComboBoxCallback;
+					comboParams.m_userPointer = this;
+					const char* bla = "bla";
+					const char* blarray[1];
+					blarray[0] = bla;
+				
+					comboParams.m_items=blarray;//{&bla};
+					m_guiHelper->getParameterInterface()->registerComboBox(comboParams);
+				}
+			}
 		}
 	}
     if (b3CanSubmitCommand(m_physicsClientHandle))
@@ -734,13 +763,12 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
             if (m_numMotors)
             {
                 enqueueCommand(CMD_SEND_DESIRED_STATE);
-                enqueueCommand(CMD_STEP_FORWARD_SIMULATION);
-				if (m_options != eCLIENTEXAMPLE_SERVER)
-				{
-					enqueueCommand(CMD_REQUEST_DEBUG_LINES);
-				}
-                //enqueueCommand(CMD_REQUEST_ACTUAL_STATE);
             }
+            enqueueCommand(CMD_STEP_FORWARD_SIMULATION);
+			if (m_options != eCLIENTEXAMPLE_SERVER)
+			{
+				enqueueCommand(CMD_REQUEST_DEBUG_LINES);
+			}
         }
     }
 

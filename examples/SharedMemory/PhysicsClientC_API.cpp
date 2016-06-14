@@ -519,6 +519,33 @@ int b3GetStatusType(b3SharedMemoryStatusHandle statusHandle)
     return CMD_INVALID_STATUS;
 }
 
+int b3GetStatusBodyIndices(b3SharedMemoryStatusHandle statusHandle, int* bodyIndicesOut, int bodyIndicesCapacity)
+{
+    int numBodies = 0;
+    const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
+    b3Assert(status);
+	
+	if (status)
+	{
+			switch (status->m_type)
+			{
+				case CMD_SDF_LOADING_COMPLETED:
+				{
+				    int i,maxBodies;
+				    numBodies = status->m_sdfLoadedArgs.m_numBodies;
+				    maxBodies = btMin(bodyIndicesCapacity, numBodies);
+				    for (i=0;i<maxBodies;i++)
+				    {
+                            bodyIndicesOut[i] = status->m_sdfLoadedArgs.m_bodyUniqueIds[i];
+				    }
+					break;
+				}
+			}
+	}
+	
+	return numBodies;
+}
+
 int b3GetStatusBodyIndex(b3SharedMemoryStatusHandle statusHandle)
 {
 	const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
@@ -558,6 +585,10 @@ int b3GetStatusActualState(b3SharedMemoryStatusHandle statusHandle,
                            const double* jointReactionForces[]) {
     const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
     const SendActualStateArgs &args = status->m_sendActualStateArgs;
+    btAssert(status->m_type == CMD_ACTUAL_STATE_UPDATE_COMPLETED);
+    if (status->m_type != CMD_ACTUAL_STATE_UPDATE_COMPLETED)
+        return false;
+    
     if (bodyUniqueId) {
         *bodyUniqueId = args.m_bodyUniqueId;
     }
