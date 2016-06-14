@@ -40,6 +40,8 @@ b3SharedMemoryStatusHandle	b3ProcessServerStatus(b3PhysicsClientHandle physClien
 /// Get the physics server return status type. See EnumSharedMemoryServerStatus in SharedMemoryPublic.h for error codes.
 int b3GetStatusType(b3SharedMemoryStatusHandle statusHandle);
 
+int b3GetStatusBodyIndices(b3SharedMemoryStatusHandle statusHandle, int* bodyIndicesOut, int bodyIndicesCapacity);
+
 int b3GetStatusBodyIndex(b3SharedMemoryStatusHandle statusHandle);
 
 int b3GetStatusActualState(b3SharedMemoryStatusHandle statusHandle,

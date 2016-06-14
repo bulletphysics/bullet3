@@ -40,7 +40,7 @@ struct PhysicsClientSharedMemoryInternalData {
     SharedMemoryStatus m_lastServerStatus;
 
     int m_counter;
-    bool m_serverLoadUrdfOK;
+    
     bool m_isConnected;
     bool m_waitingForServer;
     bool m_hasLastServerStatus;
@@ -54,7 +54,6 @@ struct PhysicsClientSharedMemoryInternalData {
 		  m_counter(0),
 		  m_cachedCameraPixelsWidth(0),
 		  m_cachedCameraPixelsHeight(0),
-	      m_serverLoadUrdfOK(false),
           m_isConnected(false),
           m_waitingForServer(false),
           m_hasLastServerStatus(false),
@@ -204,8 +203,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 }
                 break;
             }
+            case CMD_SDF_LOADING_COMPLETED: {
+                
+                if (m_data->m_verboseOutput) {
+                    b3Printf("Server loading the SDF OK\n");
+                }
+                break;
+            }
             case CMD_URDF_LOADING_COMPLETED: {
-                m_data->m_serverLoadUrdfOK = true;
+                
                 if (m_data->m_verboseOutput) {
                     b3Printf("Server loading the URDF OK\n");
                 }
@@ -265,7 +271,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 if (m_data->m_verboseOutput) {
                     b3Printf("Server failed loading the URDF...\n");
                 }
-                m_data->m_serverLoadUrdfOK = false;
+                
+                break;
+            }
+            
+             case CMD_SDF_LOADING_FAILED: {
+                if (m_data->m_verboseOutput) {
+                    b3Printf("Server failed loading the SDF...\n");
+                }
+                
                 break;
             }
 
@@ -490,6 +504,22 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
             m_data->m_waitingForServer = true;
         }
 
+        /*if (serverCmd.m_type == CMD_SDF_LOADING_COMPLETED)
+        {
+            int numBodies = serverCmd.m_sdfLoadedArgs.m_numBodies;
+            if (numBodies>0)
+            {
+                SharedMemoryCommand& command = m_data->m_testBlock1->m_clientCommands[0];
+                //now transfer the information of the individual objects etc.
+                command.m_type = CMD_REQUEST_SDF_INFO;
+                command.m_updateFlags = SDF_REQUEST_INFO_BODY;
+                command.m_sdfRequestInfoArgs.m_infoIndex = 0;
+                submitClientCommand(command);
+                return 0;    
+            }
+        }
+        */
+        
 		if (serverCmd.m_type == CMD_CAMERA_IMAGE_COMPLETED)
 		{
 			SharedMemoryCommand& command = m_data->m_testBlock1->m_clientCommands[0];

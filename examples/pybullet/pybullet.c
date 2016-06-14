@@ -182,6 +182,61 @@ pybullet_loadURDF(PyObject* self, PyObject* args)
 	return PyLong_FromLong(bodyIndex);
 }
 
+#define MAX_SDF_BODIES 512
+
+static PyObject*
+pybullet_loadSDF(PyObject* self, PyObject* args)
+{
+	const char* sdfFileName="";
+	int size= PySequence_Size(args);
+	int numBodies  = 0;
+	int i;
+	int bodyIndicesOut[MAX_SDF_BODIES];
+	PyObject* pylist=0;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	b3SharedMemoryCommandHandle command;
+
+	if (0==sm)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	if (size==1)
+	{
+		if (!PyArg_ParseTuple(args, "s", &sdfFileName))
+		return NULL;
+	}
+
+	command = b3LoadSdfCommandInit(sm, sdfFileName);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	statusType = b3GetStatusType(statusHandle);
+	if (statusType!=CMD_SDF_LOADING_COMPLETED)
+	{
+		PyErr_SetString(SpamError, "Cannot load SDF file.");
+		return NULL;
+	}
+
+	numBodies = b3GetStatusBodyIndices(statusHandle, bodyIndicesOut, MAX_SDF_BODIES);
+	if (numBodies > MAX_SDF_BODIES)
+	{
+		PyErr_SetString(SpamError, "SDF exceeds body capacity");
+		return NULL;
+	}
+
+	pylist = PyTuple_New(numBodies);
+
+	if (numBodies >0 && numBodies <= MAX_SDF_BODIES)	
+	{
+		for (i=0;i<numBodies;i++)
+		{
+			PyTuple_SetItem(pylist,i,PyInt_FromLong(bodyIndicesOut[i]));
+		}
+	}
+	return pylist;
+}
+
 // Reset the simulation to remove all loaded objects
 static PyObject *
 pybullet_resetSimulation(PyObject* self, PyObject* args)
@@ -294,25 +349,26 @@ static void pybullet_internalGetBasePositionAndOrientation(int bodyIndex, double
 static PyObject *
 pybullet_getBasePositionAndOrientation(PyObject* self, PyObject* args)
 {
+	int bodyIndex = -1;
+	double basePosition[3];
+    double baseOrientation[4];
+	PyObject *pylistPos;
+    PyObject *pylistOrientation;
+
     if (0==sm)
     {
         PyErr_SetString(SpamError, "Not connected to physics server.");
         return NULL;
     }
     
-    int bodyIndex = -1;
     if (!PyArg_ParseTuple(args, "i", &bodyIndex ))
     {
         PyErr_SetString(SpamError, "Expected a body index (integer).");
         return NULL;
     }
-    
 
-    double basePosition[3];
-    double baseOrientation[4];
-    
     pybullet_internalGetBasePositionAndOrientation(bodyIndex,basePosition,baseOrientation);
-    PyObject *pylistPos; 
+    
     {
     
         PyObject *item; 
@@ -326,7 +382,7 @@ pybullet_getBasePositionAndOrientation(PyObject* self, PyObject* args)
         }
     
     }
-    PyObject *pylistOrientation; 
+
     {
         
         PyObject *item; 
@@ -613,13 +669,6 @@ static int pybullet_internalSetMatrix(PyObject* objMat, float matrix[16])
 //  to see object based on camera position?
 static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 {
-
-  if (0==sm)
-  {
-  	PyErr_SetString(SpamError, "Not connected to physics server.");
-  	return NULL;
-  }
-
   ///request an image from a simulated camera, using a software renderer.
   struct b3CameraImageData imageData;
   PyObject* objViewMat,* objProjMat;
@@ -630,6 +679,14 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 
   // inialize cmd
   b3SharedMemoryCommandHandle command;
+  
+
+  if (0==sm)
+  {
+  	PyErr_SetString(SpamError, "Not connected to physics server.");
+  	return NULL;
+  }
+
   command = b3InitRequestCameraImage(sm);
 
   if (size==2) // only set camera resolution
@@ -665,6 +722,9 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 		{
 			PyObject *item2;
 			PyObject* pyResultList;//store 4 elements in this result: width, height, rgbData, depth
+			PyObject *pylistRGB;
+			PyObject* pylistDep;
+			int i, j, p;
 
 			b3GetCameraImageData(sm, &imageData);
 			//TODO(hellojas): error handling if image size is 0
@@ -672,9 +732,6 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 			PyTuple_SetItem(pyResultList, 0, PyInt_FromLong(imageData.m_pixelWidth));
 			PyTuple_SetItem(pyResultList, 1, PyInt_FromLong(imageData.m_pixelHeight));
 
-			PyObject *pylistRGB;
-			PyObject* pylistDep;
-			int i, j, p;
 
 			{
 
@@ -716,6 +773,9 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 static PyMethodDef SpamMethods[] = {
   {"loadURDF",  pybullet_loadURDF, METH_VARARGS,
       "Create a multibody by loading a URDF file."},
+      
+	{"loadSDF", pybullet_loadSDF, METH_VARARGS,
+		"Load multibodies from an SDF file."},
   
   {"connect",  pybullet_connectPhysicsServer, METH_VARARGS,
       "Connect to an existing physics server (using shared memory by default)."},

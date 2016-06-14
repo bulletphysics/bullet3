@@ -33,6 +33,7 @@
 #define MAX_SDF_FILENAME_LENGTH 1024
 #define MAX_FILENAME_LENGTH MAX_URDF_FILENAME_LENGTH
 #define MAX_NUM_LINKS MAX_DEGREE_OF_FREEDOM
+#define MAX_SDF_BODIES 1024
 
 struct TmpFloat3 
 {
@@ -298,6 +299,28 @@ struct CreateBoxShapeArgs
 	double m_colorRGBA[4];
 };
 
+struct SdfLoadedArgs
+{
+    int m_numBodies;
+    int m_bodyUniqueIds[MAX_SDF_BODIES];
+    
+    ///@todo(erwincoumans) load cameras, lights etc
+    //int m_numCameras; 
+    //int m_numLights; 
+};
+
+
+struct SdfRequestInfoArgs
+{
+    int m_infoIndex;
+};
+
+enum EnumSdfRequestInfoFlags
+{
+    SDF_REQUEST_INFO_BODY=1,
+    //SDF_REQUEST_INFO_CAMERA=2,
+};
+
 struct SharedMemoryCommand
 {
 	int m_type;
@@ -312,6 +335,7 @@ struct SharedMemoryCommand
     {
         struct UrdfArgs m_urdfArguments;
 		struct SdfArgs m_sdfArguments;
+		struct SdfRequestInfoArgs m_sdfRequestInfoArgs;
 		struct InitPoseArgs m_initPoseArgs;
 		struct SendPhysicsSimulationParameters m_physSimParamArgs;
 		struct BulletDataStreamArgs	m_dataStreamArguments;
@@ -340,6 +364,7 @@ struct SharedMemoryStatus
 	union
 	{
 		struct BulletDataStreamArgs	m_dataStreamArguments;
+		struct SdfLoadedArgs m_sdfLoadedArgs;
 		struct SendActualStateArgs m_sendActualStateArgs;
 		struct SendDebugLinesArgs m_sendDebugLinesArgs;
 		struct SendPixelDataArgs m_sendPixelDataArguments;

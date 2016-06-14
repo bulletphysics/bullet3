@@ -393,6 +393,7 @@ struct PhysicsServerCommandProcessorInternalData
 	btMultiBodyDynamicsWorld* m_dynamicsWorld;
 	SharedMemoryDebugDrawer*		m_remoteDebugDrawer;
 	
+	btAlignedObjectArray<int> m_sdfRecentLoadedBodies;
     
 
     
@@ -681,6 +682,128 @@ void	PhysicsServerCommandProcessor::createJointMotors(btMultiBody* mb)
 }
 
 
+bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferServerToClient, int bufferSizeInBytes)
+{
+    btAssert(m_data->m_dynamicsWorld);
+	if (!m_data->m_dynamicsWorld)
+	{
+		b3Error("loadSdf: No valid m_dynamicsWorld");
+		return false;
+	}
+	
+	m_data->m_sdfRecentLoadedBodies.clear();
+	
+    BulletURDFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter);
+   
+    bool useFixedBase = false;
+    bool loadOk =  u2b.loadSDF(fileName, useFixedBase);
+    if (loadOk)
+    {
+        for (int i=0;i<u2b.getNumAllocatedCollisionShapes();i++)
+        {
+            btCollisionShape* shape =u2b.getAllocatedCollisionShape(i);
+            m_data->m_collisionShapes.push_back(shape);
+            if (shape->isCompound())
+            {
+                btCompoundShape* compound = (btCompoundShape*) shape;
+                for (int childIndex=0;childIndex<compound->getNumChildShapes();childIndex++)
+                {
+                    m_data->m_collisionShapes.push_back(compound->getChildShape(childIndex));
+                }
+            }
+            
+        }
+        
+        btTransform rootTrans;
+        rootTrans.setIdentity();
+        if (m_data->m_verboseOutput)
+        {
+            b3Printf("loaded %s OK!", fileName);
+        }
+        
+        for (int m =0; m<u2b.getNumModels();m++)
+        {
+
+            u2b.activateModel(m);
+            btMultiBody* mb = 0;
+
+            //get a body index
+            int bodyUniqueId = m_data->allocHandle();
+            
+            InternalBodyHandle* bodyHandle = m_data->getHandle(bodyUniqueId);
+
+            {
+                btScalar mass = 0;
+                bodyHandle->m_rootLocalInertialFrame.setIdentity();
+                btVector3 localInertiaDiagonal(0,0,0);
+                int urdfLinkIndex = u2b.getRootLinkIndex();
+                u2b.getMassAndInertia(urdfLinkIndex, mass,localInertiaDiagonal,bodyHandle->m_rootLocalInertialFrame);
+            }
+            
+            
+
+            //todo: move these internal API called inside the 'ConvertURDF2Bullet' call, hidden from the user
+            int rootLinkIndex = u2b.getRootLinkIndex();
+            b3Printf("urdf root link index = %d\n",rootLinkIndex);
+            MyMultiBodyCreator creation(m_data->m_guiHelper);
+
+            u2b.getRootTransformInWorld(rootTrans);
+            bool useMultiBody = true;
+            ConvertURDF2Bullet(u2b,creation, rootTrans,m_data->m_dynamicsWorld,useMultiBody,u2b.getPathPrefix(),true);
+            
+           
+            
+            mb = creation.getBulletMultiBody();
+            if (mb)
+            {
+                bodyHandle->m_multiBody = mb;
+				
+				m_data->m_sdfRecentLoadedBodies.push_back(bodyUniqueId);
+				
+				createJointMotors(mb);
+
+				//serialize the btMultiBody and send the data to the client. This is one way to get the link/joint names across the (shared memory) wire
+				
+			    UrdfLinkNameMapUtil* util2 = new UrdfLinkNameMapUtil;
+			    m_data->m_urdfLinkNameMapper.push_back(util2);
+			    util2->m_mb = mb;
+			    util2->m_memSerializer = 0;
+			    //disable serialization of the collision objects (they are too big, and the client likely doesn't need them);
+
+                bodyHandle->m_linkLocalInertialFrames.reserve(mb->getNumLinks());
+			    for (int i=0;i<mb->getNumLinks();i++)
+                {
+					//disable serialization of the collision objects
+                   
+				   int urdfLinkIndex = creation.m_mb2urdfLink[i];
+				   btScalar mass;
+                   btVector3 localInertiaDiagonal(0,0,0);
+                   btTransform localInertialFrame;
+				   u2b.getMassAndInertia(urdfLinkIndex, mass,localInertiaDiagonal,localInertialFrame);
+				   bodyHandle->m_linkLocalInertialFrames.push_back(localInertialFrame);
+
+				   std::string* linkName = new std::string(u2b.getLinkName(urdfLinkIndex).c_str());
+				   m_data->m_strings.push_back(linkName);
+				   
+				   mb->getLink(i).m_linkName = linkName->c_str();
+
+				   std::string* jointName = new std::string(u2b.getJointName(urdfLinkIndex).c_str());
+				   m_data->m_strings.push_back(jointName);
+				   
+				   mb->getLink(i).m_jointName = jointName->c_str();
+                }
+				std::string* baseName = new std::string(u2b.getLinkName(u2b.getRootLinkIndex()));
+				m_data->m_strings.push_back(baseName);
+				mb->setBaseName(baseName->c_str());
+			} else
+			{
+				b3Warning("No multibody loaded from URDF. Could add btRigidBody+btTypedConstraint solution later.");
+			}
+            
+        }
+    }
+    return loadOk;    
+}
 
 bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVector3& pos, const btQuaternion& orn,
                              bool useMultiBody, bool useFixedBase, int* bodyUniqueIdPtr, char* bufferServerToClient, int bufferSizeInBytes)
@@ -731,8 +854,6 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
         
         ConvertURDF2Bullet(u2b,creation, tr,m_data->m_dynamicsWorld,useMultiBody,u2b.getPathPrefix());
         
-        
-        ///todo(erwincoumans) refactor this memory allocation issue
         for (int i=0;i<u2b.getNumAllocatedCollisionShapes();i++)
         {
             btCollisionShape* shape =u2b.getAllocatedCollisionShape(i);
@@ -751,11 +872,13 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
         btMultiBody* mb = creation.getBulletMultiBody();
 		if (useMultiBody)
 		{
-            
-            
+			
+			
 			if (mb)
 			{
+			    
 				bodyHandle->m_multiBody = mb;
+				
 				createJointMotors(mb);
 
 
@@ -805,12 +928,13 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
                 const char* structType = mb->serialize(chunk->m_oldPtr, util->m_memSerializer);
                 util->m_memSerializer->finalizeChunk(chunk,structType,BT_MULTIBODY_CODE,mb);
 
-                               return true;
+                return true;
 			} else
 			{
 				b3Warning("No multibody loaded from URDF. Could add btRigidBody+btTypedConstraint solution later.");
 				return false;
 			}
+			
 		} else
 		{
 			btAssert(0);
@@ -1047,6 +1171,28 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					break;
 				}
 
+                case CMD_LOAD_SDF:
+                    {
+                        const SdfArgs& sdfArgs = clientCmd.m_sdfArguments;
+                        if (m_data->m_verboseOutput)
+                        {
+                            b3Printf("Processed CMD_LOAD_SDF:%s", sdfArgs.m_sdfFileName);
+                        }
+                        
+                        bool completedOk = loadSdf(sdfArgs.m_sdfFileName,bufferServerToClient, bufferSizeInBytes);
+                         
+                        //serverStatusOut.m_type = CMD_SDF_LOADING_FAILED;
+                        serverStatusOut.m_sdfLoadedArgs.m_numBodies = m_data->m_sdfRecentLoadedBodies.size();
+                        int maxBodies = btMin(MAX_SDF_BODIES, serverStatusOut.m_sdfLoadedArgs.m_numBodies);
+                        for (int i=0;i<maxBodies;i++)
+                        {
+                            serverStatusOut.m_sdfLoadedArgs.m_bodyUniqueIds[i] = m_data->m_sdfRecentLoadedBodies[i];
+                        }
+                        
+                        serverStatusOut.m_type = CMD_SDF_LOADING_COMPLETED;
+						hasStatus = true;
+                        break;
+                    }
                 case CMD_LOAD_URDF:
                 {
 					
