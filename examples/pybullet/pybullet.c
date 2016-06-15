@@ -121,7 +121,7 @@ pybullet_disconnectPhysicsServer(PyObject *self, PyObject *args)
 // Load a URDF file indicating the links and joints of an object
 // function can be called without arguments and will default
 // to position (0,0,1) with orientation(0,0,0,1)
-// else, loadURDF(x,y,z) or
+// els(x,y,z) or
 // loadURDF(pos_x, pos_y, pos_z, orn_x, orn_y, orn_z, orn_w)
 static PyObject *
 pybullet_loadURDF(PyObject* self, PyObject* args)
@@ -337,6 +337,7 @@ static void pybullet_internalGetBasePositionAndOrientation(int bodyIndex, double
             baseOrientation[1] = actualStateQ[4];
             baseOrientation[2] = actualStateQ[5];
             baseOrientation[3] = actualStateQ[6];
+            
 		}
 	}
 }
@@ -451,51 +452,145 @@ pybullet_initializeJointPositions(PyObject* self, PyObject* args)
         return Py_None;
 }
 
+
+// CURRENTLY NOT SUPPORTED 
 // Initalize a single joint position for a specific body index
 // 
 // This method skips any physics simulation and 
 // teleports all joints to the new positions.
 
-// TODO(hellojas): test accuracy of joint position values
-static PyObject*
-pybullet_initializeJointPosition(PyObject* self, PyObject* args)
-{
-	if (0==sm)
-	{
-		PyErr_SetString(SpamError, "Not connected to physics server.");
-		return NULL;
-	}
+// TODO(hellojas): initializing one joint currently not supported
+// static PyObject*
+// pybullet_initializeJointPosition(PyObject* self, PyObject* args)
+// {
+// 	if (0==sm)
+// 	{
+// 		PyErr_SetString(SpamError, "Not connected to physics server.");
+// 		return NULL;
+// 	}
+//   
+//   int i;
+//   int bodyIndex = -1;
+//   int jointIndex = -1;
+//   double jointPos = 0.0;
+//   
+//   int size= PySequence_Size(args);
+// 
+//   if (size==3) // get body index, joint index, and joint position value
+//   {
+//    if (PyArg_ParseTuple(args, "iid", &bodyIndex, &jointIndex, &jointPos))
+//     {
+//       b3SharedMemoryCommandHandle cmd_handle =  b3CreatePoseCommandInit(sm, bodyIndex);
+// 
+//       // printf("initializing joint %d at %f\n", jointIndex, jointPos);
+//       b3CreatePoseCommandSetJointPosition(sm, cmd_handle, jointIndex, jointPos);
+// 
+//       b3SharedMemoryStatusHandle status_handle =
+//               b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
+// 
+//     const int status_type = b3GetStatusType(status_handle);
+// 
+//     }
+//   }
+//   
+// 	Py_INCREF(Py_None);
+//         return Py_None;
+// }
+
+static void pybullet_internalGetJointPositions(int bodyIndex, int numJoints, double jointPositions[]) {
+  int i, j;
+  int numDegreeQ;
+  int numDegreeU;
+  int arrSizeOfPosAndOrn = 7;
   
-  int i;
-  int bodyIndex = -1;
-  int jointIndex = -1;
-  double jointPos = 0.0;
-  
-  int size= PySequence_Size(args);
-
-  if (size==3) // get body index, joint index, and joint position value
-  {
-   if (PyArg_ParseTuple(args, "iid", &bodyIndex, &jointIndex, &jointPos))
-    {
-      b3SharedMemoryCommandHandle cmd_handle =  b3CreatePoseCommandInit(sm, bodyIndex);
-
-      // printf("initializing joint %d at %f\n", jointIndex, jointPos);
-      b3CreatePoseCommandSetJointPosition(sm, cmd_handle, jointIndex, jointPos);
-
-      b3SharedMemoryStatusHandle status_handle =
-              b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
-
-    const int status_type = b3GetStatusType(status_handle);
-
-    }
+  for (i =0;i <numJoints; i++){
+    jointPositions[i] = .5;
   }
   
-	Py_INCREF(Py_None);
-        return Py_None;
+  {
+  b3SharedMemoryCommandHandle cmd_handle =
+          b3RequestActualStateCommandInit(sm, bodyIndex);
+      b3SharedMemoryStatusHandle status_handle =
+              b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
+              
+      const int status_type = b3GetStatusType(status_handle);            
+      const double* actualStateQ;
+
+      b3GetStatusActualState(status_handle, 0/* body_unique_id */,
+                         &numDegreeQ ,
+                         &numDegreeU/* num_degree_of_freedom_u */, 0 /*root_local_inertial_frame*/,
+                         &actualStateQ , 0 /* actual_state_q_dot */,
+                         0 /* joint_reaction_forces */);
+
+      
+      // printf("actual state Q, size = %lu\n", sizeof(actualStateQ.));
+      // printf("numjoints = %d\n", numJoints);
+      // printf("numDegreeQ = %d\n", numDegreeQ);
+      // printf("numDegreeU = %d\n", numDegreeU);
+      // printf("actualStateQ[0] = %f\n",actualStateQ[0]);
+      for (j = arrSizeOfPosAndOrn; j < numJoints + arrSizeOfPosAndOrn; j++) {
+        jointPositions[j - arrSizeOfPosAndOrn] = actualStateQ[j];
+        // printf("%d=%f\n", j, jointPositions[j - arrSizeOfPosAndOrn]);
+
+      }     
+    }
+}
+
+// Get a list of all joint positions for a given body index
+//
+// Args:
+//  bodyIndex - integer indicating body in simulation
+// Returns:
+//  pyListJointPos - list of positions for each joint index
+//
+static PyObject *
+pybullet_getJointPositions(PyObject* self, PyObject* args)
+{
+    if (0==sm)
+    {
+        PyErr_SetString(SpamError, "Not connected to physics server.");
+        return NULL;
+    }
+    
+    int bodyIndex = -1;
+    
+    if (!PyArg_ParseTuple(args, "i", &bodyIndex ))
+    {
+        PyErr_SetString(SpamError, "Expected a body index (integer).");
+        return NULL;
+    }
+    
+    {
+      PyObject *item;   
+      PyObject *pyListJointPos; 
+      
+      int i;
+      int numJoints = b3GetNumJoints(sm,bodyIndex);
+      double jointPositions[numJoints];
+      pyListJointPos = PyTuple_New(numJoints);
+
+
+      // printf("joint positions size = %lu\n", sizeof(jointPositions)/sizeof(double));
+      pybullet_internalGetJointPositions(bodyIndex, numJoints,jointPositions);
+      
+      for (i =0;i <numJoints; i++){
+        item = PyFloat_FromDouble(jointPositions[i]);
+        PyTuple_SetItem(pyListJointPos, i, item);
+      }
+      
+      return pyListJointPos;
+    }
+    
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 
 // Get the a single joint info for a specific bodyIndex
+//
+// Args:
+//  bodyIndex - integer indicating body in simulation
+//  jointIndex - integer indicating joint for a specific body
 //
 // Joint information includes:
 //  index, name, type, q-index, u-index,
@@ -578,6 +673,11 @@ pybullet_getJointInfo(PyObject* self, PyObject* args)
 
 
 // Returns the state of a specific joint in a given bodyIndex
+//
+// Args:
+//  bodyIndex - integer indicating body in simulation
+//  jointIndex - integer indicating joint for a specific body
+//
 // The state of a joint includes the following:
 //  position, velocity, force torque (6 values), and motor torque
 // The returned pylist is an array of [float, float, float[6], float]
@@ -665,12 +765,12 @@ pybullet_getJointState(PyObject* self, PyObject* args)
 }
 
 
-// const unsigned char* m_rgbColorData;//3*m_pixelWidth*m_pixelHeight bytes
-// const float* m_depthValues;//m_pixelWidth*m_pixelHeight floats
-
 // internal function to set a float matrix[16]
 // used to initialize camera position with
 // a view and projection matrix in renderImage()
+//
+// // Args:
+//  matrix - float[16] which will be set by values from objMat
 static int pybullet_internalSetMatrix(PyObject* objMat, float matrix[16])
 {
 
@@ -850,9 +950,10 @@ static PyMethodDef SpamMethods[] = {
 	{"initializeJointPositions", pybullet_initializeJointPositions, METH_VARARGS,
 	"Initialize the joint positions for all joints. This method skips any physics simulation and teleports all joints to the new positions."},
 	
+  // CURRENTLY NOT SUPPORTED
   // {"initializeJointPosition", pybullet_initializeJointPosition, METH_VARARGS,
   // "Initialize the joint position for one joint. This method skips any physics simulation and teleports the joint to the new position."},
-  // 
+  
   {"getJointInfo", pybullet_getJointInfo, METH_VARARGS,
   "Get the joint metadata info for a joint on a body. This includes joint index, name, type, q-index and u-index."},
   
@@ -864,6 +965,9 @@ static PyMethodDef SpamMethods[] = {
 	
 	{"getBasePositionAndOrientation",  pybullet_getBasePositionAndOrientation, METH_VARARGS,
         "Get the world position and orientation of the base of the object. (x,y,z) position vector and (x,y,z,w) quaternion orientation."},
+
+  {"getJointPositions", pybullet_getJointPositions, METH_VARARGS,
+  "Get the all the joint positions for a given body index."},
         
 	{"getNumJoints", pybullet_getNumJoints, METH_VARARGS,
         "Get the number of joints for an object."},
