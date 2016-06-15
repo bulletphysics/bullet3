@@ -192,6 +192,18 @@ ENDIF()
 
 OPTION(BUILD_BULLET3 "Set when you want to build Bullet 3" ON)
 
+FIND_PACKAGE(PythonLibs)
+OPTION(BUILD_PYBULLET "Set when you want to build pybullet (experimental Python bindings for Bullet)" OFF)
+
+
+IF(BUILD_PYBULLET)
+	IF(WIN32)
+		SET(BUILD_SHARED_LIBS OFF CACHE BOOL "Shared Libs" FORCE)
+	ELSE(WIN32)
+		SET(BUILD_SHARED_LIBS ON CACHE BOOL "Shared Libs" FORCE)
+	ENDIF(WIN32)
+ENDIF(BUILD_PYBULLET)
+
 IF(BUILD_BULLET3)
 	 IF(APPLE)
 		MESSAGE("Mac OSX Version is ${_CURRENT_OSX_VERSION}")

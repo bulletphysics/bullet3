@@ -44,20 +44,24 @@ int main(int argc, char** argv)
 
 	///-----initialization_end-----
 
-	///create a few basic rigid bodies
-	btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
-
 	//keep track of the shapes, we release memory at exit.
 	//make sure to re-use collision shapes among rigid bodies whenever possible!
 	btAlignedObjectArray<btCollisionShape*> collisionShapes;
 
-	collisionShapes.push_back(groundShape);
 
-	btTransform groundTransform;
-	groundTransform.setIdentity();
-	groundTransform.setOrigin(btVector3(0,-56,0));
+	///create a few basic rigid bodies
 
+	//the ground is a cube of side 100 at position y = -56.
+	//the sphere will hit it at y = -6, with center at -5
 	{
+		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
+
+		collisionShapes.push_back(groundShape);
+
+		btTransform groundTransform;
+		groundTransform.setIdentity();
+		groundTransform.setOrigin(btVector3(0,-56,0));
+
 		btScalar mass(0.);
 
 		//rigidbody is dynamic if and only if mass is non zero, otherwise static
@@ -113,7 +117,7 @@ int main(int argc, char** argv)
 
 
 	///-----stepsimulation_start-----
-	for (i=0;i<100;i++)
+	for (i=0;i<150;i++)
 	{
 		dynamicsWorld->stepSimulation(1.f/60.f,10);
 		
@@ -178,9 +182,5 @@ int main(int argc, char** argv)
 
 	//next line is optional: it will be cleared by the destructor when the array goes out of scope
 	collisionShapes.clear();
-
-	///-----cleanup_end-----
-	printf("Press a key to exit\n");
-	getchar();
 }
 

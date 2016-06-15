@@ -27,17 +27,19 @@ struct MyButtonEventHandler : public Gwen::Event::Handler
 template<typename T>
 struct MySliderEventHandler : public Gwen::Event::Handler
 {
+	SliderParamChangedCallback m_callback;
 	Gwen::Controls::TextBox* m_label;
 	Gwen::Controls::Slider* m_pSlider;
 	char m_variableName[1024];
 	T* m_targetValue;
     bool m_showValue;
 
-	MySliderEventHandler(const char* varName, Gwen::Controls::TextBox* label, Gwen::Controls::Slider* pSlider,T* target)
+	MySliderEventHandler(const char* varName, Gwen::Controls::TextBox* label, Gwen::Controls::Slider* pSlider,T* target,SliderParamChangedCallback callback)
 		:m_label(label),
 		m_pSlider(pSlider),
 		m_targetValue(target),
-        m_showValue(true)
+        m_showValue(true),
+		m_callback(callback)
 	{
 		memcpy(m_variableName,varName,strlen(varName)+1);
 	}
@@ -50,6 +52,11 @@ struct MySliderEventHandler : public Gwen::Event::Handler
 		float bla = pSlider->GetValue();
 		T v = T(bla);
 		SetValue(v);
+
+		if (m_callback)
+		{
+			(*m_callback)(v);
+		}
 
 	}
 
@@ -134,7 +141,8 @@ void GwenParameterInterface::registerButtonParameter(ButtonParams& params)
 	MyButtonEventHandler* handler = new MyButtonEventHandler(params.m_callback,params.m_buttonId,params.m_userPointer);
 	button->SetText(params.m_name);
 	button->onPress.Add( handler, &MyButtonEventHandler::onButtonPress );
-
+    button->SetIsToggle(params.m_isTrigger);
+    
 	m_paramInternalData->m_buttons.push_back(button);
 	m_paramInternalData->m_buttonEventHandlers.push_back(handler);
 
@@ -183,8 +191,8 @@ void GwenParameterInterface::registerComboBox(ComboBoxParams& params)
 	combobox->onSelection.Add(handler,&MyComboBoxHander2::onSelect);
 	int ypos = m_gwenInternalData->m_curYposition;
 	m_gwenInternalData->m_curYposition+=22;
-	combobox->SetPos(10, ypos );
-	combobox->SetWidth( 100 );
+	combobox->SetPos(5, ypos );
+	combobox->SetWidth( 220 );
 	//box->SetPos(120,130);
 	for (int i=0;i<params.m_numItems;i++)
 	{
@@ -193,6 +201,7 @@ void GwenParameterInterface::registerComboBox(ComboBoxParams& params)
 			combobox->OnItemSelected(item);
 	}
 
+    
 	
 
 }
@@ -219,7 +228,7 @@ void GwenParameterInterface::registerSliderFloatParameter(SliderParams& params)
 	pSlider->SetValue( *params.m_paramValuePointer);//dimensions[i] );
 	char labelName[1024];
 	sprintf(labelName,"%s",params.m_name);//axisNames[0]);
-	MySliderEventHandler<btScalar>* handler = new MySliderEventHandler<btScalar>(labelName,label,pSlider,params.m_paramValuePointer);
+	MySliderEventHandler<btScalar>* handler = new MySliderEventHandler<btScalar>(labelName,label,pSlider,params.m_paramValuePointer,params.m_callback);
     handler->m_showValue = params.m_showValues;
 	m_paramInternalData->m_sliderEventHandlers.push_back(handler);
 

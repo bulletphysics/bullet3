@@ -20,7 +20,8 @@ void ConvertURDF2Bullet(const URDFImporterInterface& u2b,
 			const btTransform& rootTransformInWorldSpace, 
 			btMultiBodyDynamicsWorld* world,
 			bool createMultiBody, 
-			const char* pathPrefix);
+			const char* pathPrefix,
+            bool useSDF = false);
 
 
 #endif //_URDF2BULLET_H

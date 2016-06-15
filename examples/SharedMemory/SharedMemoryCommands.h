@@ -30,8 +30,10 @@
 #define MAX_DEGREE_OF_FREEDOM 64
 #define MAX_NUM_SENSORS 256
 #define MAX_URDF_FILENAME_LENGTH 1024
+#define MAX_SDF_FILENAME_LENGTH 1024
 #define MAX_FILENAME_LENGTH MAX_URDF_FILENAME_LENGTH
 #define MAX_NUM_LINKS MAX_DEGREE_OF_FREEDOM
+#define MAX_SDF_BODIES 1024
 
 struct TmpFloat3 
 {
@@ -53,6 +55,16 @@ TmpFloat3 CreateTmpFloat3(float x, float y, float z)
     tmp.m_z = z;
     return tmp;
 }
+
+enum EnumSdfArgsUpdateFlags
+{
+	SDF_ARGS_FILE_NAME=1,
+};
+
+struct SdfArgs
+{
+	char m_sdfFileName[MAX_URDF_FILENAME_LENGTH];
+};
 
 enum EnumUrdfArgsUpdateFlags
 {
@@ -113,11 +125,40 @@ struct RequestDebugLinesArgs
     int m_startingLineIndex;
 };
 
+struct RequestPixelDataArgs
+{
+	float m_viewMatrix[16];
+	float m_projectionMatrix[16];
+	int m_startPixelIndex;
+	int m_pixelWidth;
+	int m_pixelHeight;
+};
+
+enum EnumRequestPixelDataUpdateFlags
+{
+	REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES=1,
+	REQUEST_PIXEL_ARGS_USE_HARDWARE_OPENGL=2,
+	REQUEST_PIXEL_ARGS_SET_PIXEL_WIDTH_HEIGHT=4,
+	
+};
+
+
+
 struct SendDebugLinesArgs
 {
     int m_startingLineIndex;
 	int m_numDebugLines;
     int m_numRemainingDebugLines;
+};
+
+struct SendPixelDataArgs
+{
+	int m_imageWidth;
+	int m_imageHeight;
+
+    int m_startingPixelIndex;
+    int m_numPixelsCopied;
+    int m_numRemainingPixels;
 };
 
 struct PickBodyArgs
@@ -152,6 +193,15 @@ struct SendDesiredStateArgs
 	//indexed by degree of freedom, 6 dof base, and then dofs for each link
     double m_desiredStateForceTorque[MAX_DEGREE_OF_FREEDOM];
     
+};
+
+enum EnumSimDesiredStateUpdateFlags
+{
+	SIM_DESIRED_STATE_HAS_Q=1,
+	SIM_DESIRED_STATE_HAS_QDOT=2,
+	SIM_DESIRED_STATE_HAS_KD=4,
+	SIM_DESIRED_STATE_HAS_KP=8,
+	SIM_DESIRED_STATE_HAS_MAX_FORCE=16,
 };
 
 
@@ -249,6 +299,28 @@ struct CreateBoxShapeArgs
 	double m_colorRGBA[4];
 };
 
+struct SdfLoadedArgs
+{
+    int m_numBodies;
+    int m_bodyUniqueIds[MAX_SDF_BODIES];
+    
+    ///@todo(erwincoumans) load cameras, lights etc
+    //int m_numCameras; 
+    //int m_numLights; 
+};
+
+
+struct SdfRequestInfoArgs
+{
+    int m_infoIndex;
+};
+
+enum EnumSdfRequestInfoFlags
+{
+    SDF_REQUEST_INFO_BODY=1,
+    //SDF_REQUEST_INFO_CAMERA=2,
+};
+
 struct SharedMemoryCommand
 {
 	int m_type;
@@ -262,6 +334,8 @@ struct SharedMemoryCommand
     union
     {
         struct UrdfArgs m_urdfArguments;
+		struct SdfArgs m_sdfArguments;
+		struct SdfRequestInfoArgs m_sdfRequestInfoArgs;
 		struct InitPoseArgs m_initPoseArgs;
 		struct SendPhysicsSimulationParameters m_physSimParamArgs;
 		struct BulletDataStreamArgs	m_dataStreamArguments;
@@ -270,6 +344,7 @@ struct SharedMemoryCommand
         struct CreateSensorArgs m_createSensorArguments;
         struct CreateBoxShapeArgs m_createBoxShapeArguments;
 		struct RequestDebugLinesArgs m_requestDebugLinesArguments;
+		struct RequestPixelDataArgs m_requestPixelDataArguments;
 		struct PickBodyArgs m_pickBodyArguments;
     };
 };
@@ -289,8 +364,10 @@ struct SharedMemoryStatus
 	union
 	{
 		struct BulletDataStreamArgs	m_dataStreamArguments;
+		struct SdfLoadedArgs m_sdfLoadedArgs;
 		struct SendActualStateArgs m_sendActualStateArgs;
 		struct SendDebugLinesArgs m_sendDebugLinesArgs;
+		struct SendPixelDataArgs m_sendPixelDataArguments;
 		struct RigidBodyCreateArgs m_rigidBodyCreateArgs;
 	};
 };

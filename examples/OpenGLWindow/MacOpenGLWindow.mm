@@ -102,18 +102,17 @@ float loop;
 }
 -(void)drawRect:(NSRect)rect
 {
+	
 	if (([self frame].size.width != m_lastWidth) || ([self frame].size.height != m_lastHeight))
 	{
 		m_lastWidth = [self frame].size.width;
 		m_lastHeight = [self frame].size.height;
-		
 		// Only needed on resize:
 		[m_context clearDrawable];
 		
 //		reshape([self frame].size.width, [self frame].size.height);
         float width = [self frame].size.width;
         float height = [self frame].size.height;
-        
         
         // Get view dimensions in pixels
      //   glViewport(0,0,10,10);
@@ -209,16 +208,12 @@ struct MacOpenGLWindowInternalData
         m_myview = 0;
         m_pool = 0;
         m_window = 0;
-        m_width = -1;
-        m_height = -1;
         m_exitRequested = false;
     }
     NSApplication*      m_myApp;
     TestView*             m_myview;
     NSAutoreleasePool*  m_pool;
     NSWindow*           m_window;
-    int m_width;
-    int m_height;
     bool m_exitRequested;
     
 };
@@ -294,8 +289,6 @@ void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
     if (m_internalData)
         closeWindow();
 
-    int width = ci.m_width;
-	int height = ci.m_height;
 	const char* windowTitle = ci.m_title;
 	
 
@@ -303,9 +296,7 @@ void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     
     m_internalData = new MacOpenGLWindowInternalData;
-    m_internalData->m_width = width;
-    m_internalData->m_height = height;
-    
+  
     m_internalData->m_pool = [NSAutoreleasePool new];
 	m_internalData->m_myApp = [NSApplication sharedApplication];
 	//myApp = [MyApp sharedApplication];
@@ -373,7 +364,7 @@ void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
     [newItem release];
     */
     
-	NSRect frame = NSMakeRect(0., 0., width, height);
+	NSRect frame = NSMakeRect(0., 0., ci.m_width, ci.m_height);
 	
 	m_internalData->m_window = [NSWindow alloc];
 	[m_internalData->m_window initWithContentRect:frame
@@ -423,9 +414,7 @@ void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
     [m_internalData->m_window makeKeyAndOrderFront: nil];
     
     [m_internalData->m_myview MakeCurrent];
-    //m_internalData->m_width = m_internalData->m_myview.GetWindowWidth;
-    //m_internalData->m_height = m_internalData->m_myview.GetWindowHeight;
-    
+	
     
     [NSApp activateIgnoringOtherApps:YES];
     
@@ -1035,13 +1024,13 @@ void MacOpenGLWindow::startRendering()
     float aspect;
     //b3Vector3 extents;
     
-    if (m_internalData->m_width > m_internalData->m_height)
+    if (getWidth()  > getHeight())
     {
-        aspect = (float)m_internalData->m_width / (float)m_internalData->m_height;
+        aspect = (float)getWidth() / (float)getHeight();
         //extents.setValue(aspect * 1.0f, 1.0f,0);
     } else
     {
-        aspect = (float)m_internalData->m_height / (float)m_internalData->m_width;
+        aspect = (float)getHeight() / (float)getWidth();
         //extents.setValue(1.0f, aspect*1.f,0);
     }
     
@@ -1082,7 +1071,7 @@ int MacOpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)
     NSOpenGLContext *foo = [NSOpenGLContext currentContext];
     // get the url of a .txt file
     NSOpenPanel * zOpenPanel = [NSOpenPanel openPanel];
-	NSArray * zAryOfExtensions = [NSArray arrayWithObjects:@"urdf",@"bullet",nil];
+	NSArray * zAryOfExtensions = [NSArray arrayWithObjects:@"urdf",@"bullet",@"obj",@"sdf",@"stl",nil];
     [zOpenPanel setAllowedFileTypes:zAryOfExtensions];
     NSInteger zIntResult = [zOpenPanel runModal];
     
@@ -1132,12 +1121,28 @@ void MacOpenGLWindow::getMouseCoordinates(int& x, int& y)
     
 }
 
+int   MacOpenGLWindow::getWidth() const
+{
+    if (m_internalData && m_internalData->m_myview && m_internalData->m_myview.GetWindowWidth)
+        return m_internalData->m_myview.GetWindowWidth;
+
+    return 0;
+}
+
+int   MacOpenGLWindow::getHeight() const
+{
+    if (m_internalData && m_internalData->m_myview && m_internalData->m_myview.GetWindowHeight)
+        return m_internalData->m_myview.GetWindowHeight;
+    return 0;
+}
+
+
 void MacOpenGLWindow::setResizeCallback(b3ResizeCallback resizeCallback)
 {
     [m_internalData->m_myview setResizeCallback:resizeCallback];
     if (resizeCallback)
     {
-        (resizeCallback)(m_internalData->m_width,m_internalData->m_height);
+		(resizeCallback)(getWidth(), getHeight());
     }
 }
 

@@ -6,32 +6,31 @@
 
 
 
-
-class ExampleEntries
+class ExampleEntriesAll : public ExampleEntries
 {
 
 	struct ExampleEntriesInternalData* m_data;
 
 public:
 
-	ExampleEntries();
-	virtual ~ExampleEntries();
+	ExampleEntriesAll();
+	virtual ~ExampleEntriesAll();
 
 	static void registerExampleEntry(int menuLevel, const char* name,const char* description, CommonExampleInterface::CreateFunc* createFunc, int option=0);
 	
-	void initExampleEntries();
+	virtual void initExampleEntries();
 
-	void initOpenCLExampleEntries();
+	virtual void initOpenCLExampleEntries();
 	
-	int getNumRegisteredExamples();
+	virtual int getNumRegisteredExamples();
 
-	CommonExampleInterface::CreateFunc* getExampleCreateFunc(int index);
+	virtual CommonExampleInterface::CreateFunc* getExampleCreateFunc(int index);
 
-	const char* getExampleName(int index);
+	virtual const char* getExampleName(int index);
 	
-	const char* getExampleDescription(int index);
+	virtual const char* getExampleDescription(int index);
 
-	int	getExampleOption(int index);
+	virtual int	getExampleOption(int index);
 
 };
 

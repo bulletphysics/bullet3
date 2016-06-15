@@ -14,8 +14,8 @@ static b3MouseButtonCallback sOldMouseButtonCB = 0;
 static b3KeyboardCallback sOldKeyboardCB = 0;
 //static b3RenderCallback sOldRenderCB = 0;
 
-float gWidth = 0 ;
-float gHeight = 0;
+float gWidth = 1024;
+float gHeight = 768;
 
 void MyWheelCallback(float deltax, float deltay)
 {
@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
     b3CommandLineArgs myArgs(argc,argv);
 
 
-	SimpleOpenGL3App* app = new SimpleOpenGL3App("SimpleOpenGL3App",1024,768,true);
+	SimpleOpenGL3App* app = new SimpleOpenGL3App("SimpleOpenGL3App",gWidth,gHeight,true);
 	
 	app->m_instancingRenderer->getActiveCamera()->setCameraDistance(13);
 	app->m_instancingRenderer->getActiveCamera()->setCameraPitch(0);

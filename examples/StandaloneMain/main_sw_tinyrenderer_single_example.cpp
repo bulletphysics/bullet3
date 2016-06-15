@@ -110,9 +110,10 @@ public:
    	    int shapeIndex = OpenGLGuiHelper::registerGraphicsShape(vertices,numvertices,indices,numIndices);
    	    if (shapeIndex>=0)
         {
-            TinyRenderObjectData* swObj = new TinyRenderObjectData(m_swWidth,m_swHeight,m_rgbColorBuffer,m_depthBuffer);
-            //swObj->registerMeshShape(vertices,numvertices,indices,numIndices);
-						swObj->createCube(1,1,1);//MeshShape(vertices,numvertices,indices,numIndices);
+            TinyRenderObjectData* swObj = new TinyRenderObjectData(m_rgbColorBuffer,m_depthBuffer);
+        float rgbaColor[4] = {1,1,1,1};    
+	swObj->registerMeshShape(vertices,numvertices,indices,numIndices,rgbaColor);
+			//swObj->createCube(1,1,1);//MeshShape(vertices,numvertices,indices,numIndices);
             m_swRenderObjects.insert(shapeIndex,swObj);
         }
    	    return shapeIndex;
@@ -148,11 +149,28 @@ public:
 		clearBuffers(clearColor);
 	
 		
-		ATTRIBUTE_ALIGNED16(float modelMat[16]);
+		ATTRIBUTE_ALIGNED16(btScalar  modelMat[16]);
 		ATTRIBUTE_ALIGNED16(float viewMat[16]);
+		ATTRIBUTE_ALIGNED16(float projMat[16]);
+
 		CommonRenderInterface* render = getRenderInterface();
-		
+
+		render->getActiveCamera()->getCameraProjectionMatrix(projMat);
 		render->getActiveCamera()->getCameraViewMatrix(viewMat);
+		
+		btVector3 lightDirWorld(-5,200,-40);
+		switch (1)//app->getUpAxis())
+		{
+		case 1:
+    			lightDirWorld = btVector3(-50.f,100,30);
+    		break;
+		case 2:
+				lightDirWorld = btVector3(-50.f,30,100);
+				break;
+		default:{}
+		};
+		
+		lightDirWorld.normalize();
 		
 		
 		for (int i=0;i<rbWorld->getNumCollisionObjects();i++)
@@ -173,21 +191,25 @@ public:
 					if (sptr)
 					{
 						renderObj = *sptr;
-					}
-				}
-				//sync the object transform
-				const btTransform& tr = colObj->getWorldTransform();
-				tr.getOpenGLMatrix(modelMat);
+						//sync the object transform
+						const btTransform& tr = colObj->getWorldTransform();
+						tr.getOpenGLMatrix(modelMat);
 				
-				for (int i=0;i<4;i++)
-				{
-					for (int j=0;j<4;j++)
-					{
-						renderObj->m_modelMatrix[i][j] = modelMat[i+4*j];
-						renderObj->m_viewMatrix[i][j] = viewMat[i+4*j];
+						for (int i=0;i<4;i++)
+						{
+							for (int j=0;j<4;j++)
+							{
+								
+								renderObj->m_projectionMatrix[i][j] = projMat[i+4*j];
+								renderObj->m_modelMatrix[i][j] = modelMat[i+4*j];
+								renderObj->m_viewMatrix[i][j] = viewMat[i+4*j];
+								renderObj->m_localScaling = colObj->getCollisionShape()->getLocalScaling();
+								renderObj->m_lightDirWorld = lightDirWorld;
+							}
+						}
+						TinyRenderer::renderObject(*renderObj);
 					}
 				}
-				TinyRenderer::renderObject(*renderObj);
 			}
 		}
 		
@@ -210,10 +232,12 @@ public:
 		
 		static int counter=0;
 		counter++;
-		if (counter>10)
+		if ((counter&7)==0)
 		{
-			counter=0;
-			getFrameBuffer().write_tga_file("/Users/erwincoumans/develop/bullet3/framebuf.tga",true);
+			
+			char filename[1024];
+			sprintf(filename,"framebuf%d.tga",counter);
+			getFrameBuffer().write_tga_file(filename,true);
 		}
 		float color[4] = {1,1,1,1};
 		m_primRenderer->drawTexturedRect(0,0,m_swWidth, m_swHeight,color,0,0,1,1,true);
@@ -242,18 +266,20 @@ int main(int argc, char* argv[])
 	CommonExampleInterface*    example = StandaloneExampleCreateFunc(options);
         
 	example->initPhysics();
-
+	example->resetCamera();
 	do
 	{
 		app->m_instancingRenderer->init();
-        app->m_instancingRenderer->updateCamera();
+        app->m_instancingRenderer->updateCamera(app->getUpAxis());
 
 		example->stepSimulation(1./60.);
 		
 	  	
 		example->renderScene();
  	
-		app->drawGrid();
+		DrawGridData dg;
+        dg.upAxis = app->getUpAxis();
+		app->drawGrid(dg);
 		app->swapBuffer();
 	} while (!app->m_window->requestedExit());
 

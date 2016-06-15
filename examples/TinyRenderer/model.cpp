@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -46,6 +47,28 @@ Model::Model(const char *filename) : verts_(), faces_(), norms_(), uv_(), diffus
 
 Model::Model():verts_(), faces_(), norms_(), uv_(), diffusemap_(), normalmap_(), specularmap_()
 {
+}
+
+void Model::setDiffuseTextureFromData(unsigned char* textureImage,int textureWidth,int textureHeight)
+{
+	diffusemap_ = TGAImage(textureWidth, textureHeight, TGAImage::RGB);
+	for (int i=0;i<textureWidth;i++)
+	{
+		for (int j=0;j<textureHeight;j++)
+		{
+			TGAColor color;
+            color.bgra[0] = textureImage[(i+j*textureWidth)*3+0];
+            color.bgra[1] = textureImage[(i+j*textureWidth)*3+1];
+            color.bgra[2] = textureImage[(i+j*textureWidth)*3+2];
+			color.bgra[3] = 255;
+
+			color.bytespp = 3;
+			diffusemap_.set(i,j,color);
+			
+		}
+	}
+	
+	diffusemap_.flip_vertically();
 }
 
 void Model::loadDiffuseTexture(const char* relativeFileName)
@@ -107,8 +130,12 @@ void Model::load_texture(std::string filename, const char *suffix, TGAImage &img
 }
 
 TGAColor Model::diffuse(Vec2f uvf) {
-    Vec2i uv(uvf[0]*diffusemap_.get_width(), uvf[1]*diffusemap_.get_height());
-    return diffusemap_.get(uv[0], uv[1]);
+    if (diffusemap_.get_width() && diffusemap_.get_height())
+    {
+        Vec2i uv(uvf[0]*diffusemap_.get_width(), uvf[1]*diffusemap_.get_height());
+        return diffusemap_.get(uv[0], uv[1]);
+    }
+    return TGAColor(255,255,255,255);
 }
 
 Vec3f Model::normal(Vec2f uvf) {

@@ -13,7 +13,7 @@
 #include "../Utils/b3Clock.h"
 
 #include "ExampleEntries.h"
-#include "Bullet3Common/b3Logging.h"
+#include "Bullet3Common/b3Scalar.h"
 #include "../SharedMemory/InProcessMemory.h"
 
 void	ExampleBrowserThreadFunc(void* userPtr,void* lsMemory);
@@ -22,8 +22,18 @@ void*	ExampleBrowserMemoryFunc();
 #include <stdio.h>
 //#include "BulletMultiThreaded/PlatformDefinitions.h"
 
+#include "Bullet3Common/b3Logging.h"
+#include "ExampleEntries.h"
+#include "LinearMath/btAlignedObjectArray.h"
+#include "EmptyExample.h"
+
+#include "../SharedMemory/PhysicsServerExample.h"
+#include "../SharedMemory/PhysicsClientExample.h"
+
 #ifndef _WIN32
 #include "../MultiThreading/b3PosixThreadSupport.h"
+
+
 
 static b3ThreadSupportInterface* createExampleBrowserThreadSupport(int numThreads)
 {
@@ -38,6 +48,7 @@ static b3ThreadSupportInterface* createExampleBrowserThreadSupport(int numThread
 }
 
 
+
 #elif defined( _WIN32)
 #include "../MultiThreading/b3Win32ThreadSupport.h"
 
@@ -49,6 +60,140 @@ b3ThreadSupportInterface* createExampleBrowserThreadSupport(int numThreads)
 
 }
 #endif
+
+
+
+
+
+class ExampleEntriesPhysicsServer : public ExampleEntries
+{
+
+	struct ExampleEntriesInternalData2* m_data;
+
+public:
+
+	ExampleEntriesPhysicsServer();
+	virtual ~ExampleEntriesPhysicsServer();
+
+	static void registerExampleEntry(int menuLevel, const char* name,const char* description, CommonExampleInterface::CreateFunc* createFunc, int option=0);
+
+	virtual void initExampleEntries();
+
+	virtual void initOpenCLExampleEntries();
+
+	virtual int getNumRegisteredExamples();
+
+	virtual CommonExampleInterface::CreateFunc* getExampleCreateFunc(int index);
+
+	virtual const char* getExampleName(int index);
+
+	virtual const char* getExampleDescription(int index);
+
+	virtual int	getExampleOption(int index);
+
+};
+
+
+struct ExampleEntryPhysicsServer
+{
+	int									m_menuLevel;
+	const char*							m_name;
+	const char*							m_description;
+	CommonExampleInterface::CreateFunc*		m_createFunc;
+	int									m_option;
+
+	ExampleEntryPhysicsServer(int menuLevel, const char* name)
+		:m_menuLevel(menuLevel), m_name(name), m_description(0), m_createFunc(0), m_option(0)
+	{
+	}
+
+	ExampleEntryPhysicsServer(int menuLevel, const char* name,const char* description, CommonExampleInterface::CreateFunc* createFunc, int option=0)
+		:m_menuLevel(menuLevel), m_name(name), m_description(description), m_createFunc(createFunc), m_option(option)
+	{
+	}
+};
+
+struct ExampleEntriesInternalData2
+{
+        btAlignedObjectArray<ExampleEntryPhysicsServer> m_allExamples;
+};
+
+static ExampleEntryPhysicsServer gDefaultExamplesPhysicsServer[]=
+{
+
+	ExampleEntryPhysicsServer(0,"Robotics Control"),
+
+	ExampleEntryPhysicsServer(1,"Physics Server", "Create a physics server that communicates with a physics client over shared memory",
+			PhysicsServerCreateFunc),
+    ExampleEntryPhysicsServer(1,"Physics Server (RTC)", "Create a physics server that communicates with a physics client over shared memory. At each update, the Physics Server will continue calling 'stepSimulation' based on the real-time clock (RTC).",
+			PhysicsServerCreateFunc,PHYSICS_SERVER_USE_RTC_CLOCK),
+
+	ExampleEntryPhysicsServer(1,"Physics Server (Logging)", "Create a physics server that communicates with a physics client over shared memory. It will log all commands to a file.",
+			PhysicsServerCreateFunc,PHYSICS_SERVER_ENABLE_COMMAND_LOGGING),
+	ExampleEntryPhysicsServer(1,"Physics Server (Replay Log)", "Create a physics server that replay a command log from disk.",
+			PhysicsServerCreateFunc,PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG),
+
+
+};
+
+
+ExampleEntriesPhysicsServer::ExampleEntriesPhysicsServer()
+{
+	m_data = new ExampleEntriesInternalData2;
+}
+
+ExampleEntriesPhysicsServer::~ExampleEntriesPhysicsServer()
+{
+	delete m_data;
+}
+
+void ExampleEntriesPhysicsServer::initOpenCLExampleEntries()
+{
+}
+
+void ExampleEntriesPhysicsServer::initExampleEntries()
+{
+	m_data->m_allExamples.clear();
+
+
+
+	int numDefaultEntries = sizeof(gDefaultExamplesPhysicsServer)/sizeof(ExampleEntryPhysicsServer);
+	for (int i=0;i<numDefaultEntries;i++)
+	{
+		m_data->m_allExamples.push_back(gDefaultExamplesPhysicsServer[i]);
+	}
+
+}
+
+void ExampleEntriesPhysicsServer::registerExampleEntry(int menuLevel, const char* name,const char* description, CommonExampleInterface::CreateFunc* createFunc, int option)
+{
+}
+
+int ExampleEntriesPhysicsServer::getNumRegisteredExamples()
+{
+	return m_data->m_allExamples.size();
+}
+
+CommonExampleInterface::CreateFunc* ExampleEntriesPhysicsServer::getExampleCreateFunc(int index)
+{
+	return m_data->m_allExamples[index].m_createFunc;
+}
+
+int ExampleEntriesPhysicsServer::getExampleOption(int index)
+{
+	return m_data->m_allExamples[index].m_option;
+}
+
+const char* ExampleEntriesPhysicsServer::getExampleName(int index)
+{
+	return m_data->m_allExamples[index].m_name;
+}
+
+const char* ExampleEntriesPhysicsServer::getExampleDescription(int index)
+{
+	return m_data->m_allExamples[index].m_description;
+}
+
 
 
 
@@ -89,9 +234,9 @@ void	ExampleBrowserThreadFunc(void* userPtr,void* lsMemory)
 	int workLeft = true;
   b3CommandLineArgs args2(args->m_argc,args->m_argv);
 	b3Clock clock;
-	
-	
-	ExampleEntries examples;
+
+
+	ExampleEntriesPhysicsServer examples;
 	examples.initExampleEntries();
 
 	DefaultBrowser* exampleBrowser = new DefaultBrowser(&examples);
@@ -101,12 +246,12 @@ void	ExampleBrowserThreadFunc(void* userPtr,void* lsMemory)
 	clock.reset();
 	if (init)
 	{
-		
+
 		args->m_cs->lock();
 		args->m_cs->setSharedParam(0,eExampleBrowserIsInitialized);
 		args->m_cs->unlock();
 
-		do 
+		do
 		{
 			float deltaTimeInSeconds = clock.getTimeMicroseconds()/1000000.f;
 			clock.reset();
@@ -145,6 +290,7 @@ struct btInProcessExampleBrowserInternalData
 	b3ThreadSupportInterface* m_threadSupport;
 	SharedMemoryInterface* m_sharedMem;
 };
+
 
 
 btInProcessExampleBrowserInternalData* btCreateInProcessExampleBrowser(int argc,char** argv2)
@@ -231,7 +377,7 @@ void btShutDownExampleBrowser(btInProcessExampleBrowserInternalData* data)
 
 struct btInProcessExampleBrowserMainThreadInternalData
 {
-    ExampleEntries m_examples;
+    ExampleEntriesPhysicsServer m_examples;
     DefaultBrowser*    m_exampleBrowser;
     SharedMemoryInterface* m_sharedMem;
     b3Clock m_clock;
@@ -262,7 +408,7 @@ void btUpdateInProcessExampleBrowserMainThread(btInProcessExampleBrowserMainThre
 }
 void btShutDownExampleBrowserMainThread(btInProcessExampleBrowserMainThreadInternalData* data)
 {
-    
+
     data->m_exampleBrowser->setSharedMemoryInterface(0);
     delete data->m_exampleBrowser;
     delete data;

@@ -226,7 +226,7 @@ public:
 				{
 					char relativeFileName[1024];
 					sprintf(relativeFileName,"%s%s",prefix[i],filename);
-					image = stbi_load(relativeFileName, &width, &height, &n, 0);
+					image = stbi_load(relativeFileName, &width, &height, &n, 3);
 				}
 				
 				b3Assert(image);

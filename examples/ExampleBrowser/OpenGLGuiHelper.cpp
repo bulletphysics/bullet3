@@ -5,8 +5,9 @@
 #include "../CommonInterfaces/CommonGraphicsAppInterface.h"
 #include "../CommonInterfaces/CommonRenderInterface.h"
 #include "Bullet3Common/b3Scalar.h"
+#include "CollisionShape2TriangleMesh.h"
 
-#include "BulletCollision/CollisionShapes/btShapeHull.h"//to create a tesselation of a generic btConvexShape
+
 
 #include "../OpenGLWindow/GLInstanceGraphicsShape.h"
 //backwards compatibility
@@ -142,6 +143,9 @@ struct OpenGLGuiHelperInternalData
 	struct CommonGraphicsApp* m_glApp;
 	class MyDebugDrawer* m_debugDraw;
 	GL_ShapeDrawer* m_gl2ShapeDrawer;
+	
+	btAlignedObjectArray<unsigned char> m_rgbaPixelBuffer;
+	btAlignedObjectArray<float> m_depthBuffer;
 };
 
 
@@ -206,222 +210,6 @@ int OpenGLGuiHelper::registerGraphicsInstance(int shapeIndex, const float* posit
 	return m_data->m_glApp->m_renderer->registerGraphicsInstance(shapeIndex,position,quaternion,color,scaling);
 }
 
-static void createCollisionShapeGraphicsObjectInternal(btCollisionShape* collisionShape, const btTransform& parentTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut)
-{
-//todo: support all collision shape types
-	switch (collisionShape->getShapeType())
-	{
-		case SOFTBODY_SHAPE_PROXYTYPE:
-		{
-			//skip the soft body collision shape for now
-			break;
-		}
-		case STATIC_PLANE_PROXYTYPE:
-		{
-			//draw a box, oriented along the plane normal
-			const btStaticPlaneShape* staticPlaneShape = static_cast<const btStaticPlaneShape*>(collisionShape);
-			btScalar planeConst = staticPlaneShape->getPlaneConstant();
-			const btVector3& planeNormal = staticPlaneShape->getPlaneNormal();
-			btVector3 planeOrigin = planeNormal * planeConst;
-			btVector3 vec0,vec1;
-			btPlaneSpace1(planeNormal,vec0,vec1);
-			btScalar vecLen = 100.f;
-			btVector3 verts[4];
-
-			verts[0] = planeOrigin + vec0*vecLen + vec1*vecLen;
-			verts[1] = planeOrigin - vec0*vecLen + vec1*vecLen;
-			verts[2] = planeOrigin - vec0*vecLen - vec1*vecLen;
-			verts[3] = planeOrigin + vec0*vecLen - vec1*vecLen;
-				
-			int startIndex = verticesOut.size();
-			indicesOut.push_back(startIndex+0);
-			indicesOut.push_back(startIndex+1);
-			indicesOut.push_back(startIndex+2);
-			indicesOut.push_back(startIndex+0);
-			indicesOut.push_back(startIndex+2);
-			indicesOut.push_back(startIndex+3);
-
-			btVector3 triNormal = parentTransform.getBasis()*planeNormal;
-				
-
-			for (int i=0;i<4;i++)
-			{
-				GLInstanceVertex vtx;
-				btVector3 pos =parentTransform*verts[i];
-				vtx.xyzw[0] = pos.x();
-				vtx.xyzw[1] = pos.y();
-				vtx.xyzw[2] = pos.z();
-				vtx.xyzw[3] = 0.f;
-
-				vtx.normal[0] =triNormal.x();
-				vtx.normal[1] =triNormal.y();
-				vtx.normal[2] =triNormal.z();
-
-				vtx.uv[0] = 0.5f;
-				vtx.uv[1] = 0.5f;
-				verticesOut.push_back(vtx);
-			}
-			break;
-		}
-		case TRIANGLE_MESH_SHAPE_PROXYTYPE:
-		{
-			
-
-			btBvhTriangleMeshShape* trimesh = (btBvhTriangleMeshShape*) collisionShape;
-			btVector3 trimeshScaling = trimesh->getLocalScaling();
-			btStridingMeshInterface* meshInterface = trimesh->getMeshInterface();
-			btAlignedObjectArray<btVector3> vertices;
-			btAlignedObjectArray<int> indices;
-				
-			for (int partId=0;partId<meshInterface->getNumSubParts();partId++)
-			{
-					
-				const unsigned char *vertexbase = 0;
-				int numverts = 0;
-				PHY_ScalarType type = PHY_INTEGER;
-				int stride = 0;
-				const unsigned char *indexbase = 0;
-				int indexstride = 0;
-				int numfaces = 0;
-				PHY_ScalarType indicestype = PHY_INTEGER;
-				//PHY_ScalarType indexType=0;
-					
-				btVector3 triangleVerts[3];
-				meshInterface->getLockedReadOnlyVertexIndexBase(&vertexbase,numverts,	type,stride,&indexbase,indexstride,numfaces,indicestype,partId);
-				btVector3 aabbMin,aabbMax;
-					
-				for (int triangleIndex = 0 ; triangleIndex < numfaces;triangleIndex++)
-				{
-					unsigned int* gfxbase = (unsigned int*)(indexbase+triangleIndex*indexstride);
-						
-					for (int j=2;j>=0;j--)
-					{
-							
-						int graphicsindex = indicestype==PHY_SHORT?((unsigned short*)gfxbase)[j]:gfxbase[j];
-						if (type == PHY_FLOAT)
-						{
-							float* graphicsbase = (float*)(vertexbase+graphicsindex*stride);
-							triangleVerts[j] = btVector3(
-															graphicsbase[0]*trimeshScaling.getX(),
-															graphicsbase[1]*trimeshScaling.getY(),
-															graphicsbase[2]*trimeshScaling.getZ());
-						}
-						else
-						{
-							double* graphicsbase = (double*)(vertexbase+graphicsindex*stride);
-							triangleVerts[j] = btVector3( btScalar(graphicsbase[0]*trimeshScaling.getX()),
-															btScalar(graphicsbase[1]*trimeshScaling.getY()),
-															btScalar(graphicsbase[2]*trimeshScaling.getZ()));
-						}
-					}
-					indices.push_back(vertices.size());
-					vertices.push_back(triangleVerts[0]);
-					indices.push_back(vertices.size());
-					vertices.push_back(triangleVerts[1]);
-					indices.push_back(vertices.size());
-					vertices.push_back(triangleVerts[2]);
-
-					btVector3 triNormal = (triangleVerts[1]-triangleVerts[0]).cross(triangleVerts[2]-triangleVerts[0]);
-					triNormal.normalize();
-
-					for (int v=0;v<3;v++)
-					{
-						GLInstanceVertex vtx;
-						btVector3 pos =parentTransform*triangleVerts[v];
-						vtx.xyzw[0] = pos.x();
-						vtx.xyzw[1] = pos.y();
-						vtx.xyzw[2] = pos.z();
-						vtx.xyzw[3] = 0.f;
-
-
-						vtx.normal[0] =triNormal.x();
-						vtx.normal[1] =triNormal.y();
-						vtx.normal[2] =triNormal.z();
-
-						vtx.uv[0] = 0.5f;
-						vtx.uv[1] = 0.5f;
-
-						indicesOut.push_back(verticesOut.size());
-						verticesOut.push_back(vtx);
-					}
-
-					
-				}
-			}
-			
-			break;
-		}
-		default:
-		{
-			if (collisionShape->isConvex())
-			{
-				btConvexShape* convex = (btConvexShape*)collisionShape;
-				{
-					btShapeHull* hull = new btShapeHull(convex);
-					hull->buildHull(0.0);
-
-					{
-						//int strideInBytes = 9*sizeof(float);
-						//int numVertices = hull->numVertices();
-						//int numIndices =hull->numIndices();
-
-						for (int t=0;t<hull->numTriangles();t++)
-						{
-
-							btVector3 triNormal;
-
-							int index0 = hull->getIndexPointer()[t*3+0];
-							int index1 = hull->getIndexPointer()[t*3+1];
-							int index2 = hull->getIndexPointer()[t*3+2];
-							btVector3 pos0 =parentTransform*hull->getVertexPointer()[index0];
-							btVector3 pos1 =parentTransform*hull->getVertexPointer()[index1];
-							btVector3 pos2 =parentTransform*hull->getVertexPointer()[index2];
-							triNormal = (pos1-pos0).cross(pos2-pos0);
-							triNormal.normalize();
-
-							for (int v=0;v<3;v++)
-							{
-								int index = hull->getIndexPointer()[t*3+v];
-								GLInstanceVertex vtx;
-								btVector3 pos =parentTransform*hull->getVertexPointer()[index];
-								vtx.xyzw[0] = pos.x();
-								vtx.xyzw[1] = pos.y();
-								vtx.xyzw[2] = pos.z();
-								vtx.xyzw[3] = 0.f;
-
-								vtx.normal[0] =triNormal.x();
-								vtx.normal[1] =triNormal.y();
-								vtx.normal[2] =triNormal.z();
-
-								vtx.uv[0] = 0.5f;
-								vtx.uv[1] = 0.5f;
-
-								indicesOut.push_back(verticesOut.size());
-								verticesOut.push_back(vtx);
-							}
-						}
-					}
-				}
-			} else
-			{
-				if (collisionShape->isCompound())
-				{
-					btCompoundShape* compound = (btCompoundShape*) collisionShape;
-					for (int i=0;i<compound->getNumChildShapes();i++)
-					{
-
-						btTransform childWorldTrans = parentTransform * compound->getChildTransform(i);
-						createCollisionShapeGraphicsObjectInternal(compound->getChildShape(i),childWorldTrans,verticesOut,indicesOut);
-					}
-				} else
-				{
-					btAssert(0);
-				}
-					
-			}
-		}
-	};
-}
 
 void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* collisionShape)
 {
@@ -429,15 +217,37 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 	if (collisionShape->getUserIndex()>=0)
 		return;
 
-	btAlignedObjectArray<GLInstanceVertex> vertices;
+	btAlignedObjectArray<GLInstanceVertex> gfxVertices;
+	
 	btAlignedObjectArray<int> indices;
 	btTransform startTrans;startTrans.setIdentity();
 
-	createCollisionShapeGraphicsObjectInternal(collisionShape,startTrans,vertices,indices);
+    {
+        btAlignedObjectArray<btVector3> vertexPositions;
+        btAlignedObjectArray<btVector3> vertexNormals;
+        CollisionShape2TriangleMesh(collisionShape,startTrans,vertexPositions,vertexNormals,indices);
+        gfxVertices.resize(vertexPositions.size());
+        for (int i=0;i<vertexPositions.size();i++)
+        {
+            for (int j=0;j<4;j++)
+            {
+                gfxVertices[i].xyzw[j] = vertexPositions[i][j];
+            }
+            for (int j=0;j<3;j++)
+            {
+                gfxVertices[i].normal[j] = vertexNormals[i][j];
+            }
+            for (int j=0;j<2;j++)
+            {
+                gfxVertices[i].uv[j] = 0.5;//we don't have UV info...
+            }
+        }
+    }
+    
 
-	if (vertices.size() && indices.size())
+	if (gfxVertices.size() && indices.size())
 	{
-		int shapeId = registerGraphicsShape(&vertices[0].xyzw[0],vertices.size(),&indices[0],indices.size());
+		int shapeId = registerGraphicsShape(&gfxVertices[0].xyzw[0],gfxVertices.size(),&indices[0],indices.size());
 		collisionShape->setUserIndex(shapeId);
 	}
 		
@@ -501,6 +311,7 @@ CommonParameterInterface* OpenGLGuiHelper::getParameterInterface()
 void OpenGLGuiHelper::setUpAxis(int axis)
 {
 	m_data->m_glApp->setUpAxis(axis);
+
 }
 
 void OpenGLGuiHelper::resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ)
@@ -514,6 +325,51 @@ void OpenGLGuiHelper::resetCamera(float camDist, float pitch, float yaw, float c
 	}
 }
 
+
+void OpenGLGuiHelper::copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied)
+{
+    int w = m_data->m_glApp->m_window->getWidth()*m_data->m_glApp->m_window->getRetinaScale();
+    int h = m_data->m_glApp->m_window->getHeight()*m_data->m_glApp->m_window->getRetinaScale();
+    
+    if (widthPtr)
+        *widthPtr = w;
+    if (heightPtr)
+        *heightPtr = h;
+	if (numPixelsCopied)
+        *numPixelsCopied = 0;
+
+    int numTotalPixels = w*h;
+    int numRemainingPixels = numTotalPixels - startPixelIndex;
+    int numBytesPerPixel = 4;//RGBA
+    int numRequestedPixels  = btMin(rgbaBufferSizeInPixels,numRemainingPixels);
+    if (numRequestedPixels)
+    {
+        if (startPixelIndex==0)
+        {
+			
+			//quick test: render the scene
+			getRenderInterface()->renderScene();
+            //copy the image into our local cache
+            m_data->m_rgbaPixelBuffer.resize(w*h*numBytesPerPixel);
+            m_data->m_depthBuffer.resize(w*h);
+            m_data->m_glApp->getScreenPixels(&(m_data->m_rgbaPixelBuffer[0]),m_data->m_rgbaPixelBuffer.size());
+        }
+        for (int i=0;i<numRequestedPixels*numBytesPerPixel;i++)
+        {
+            if (pixelsRGBA)
+            {
+                pixelsRGBA[i] = m_data->m_rgbaPixelBuffer[i+startPixelIndex*numBytesPerPixel];
+            }
+        }
+
+		if (numPixelsCopied)
+	        *numPixelsCopied = numRequestedPixels;
+
+
+    }
+    
+   
+}
 
 
 

@@ -20,6 +20,7 @@ public:
 
 	virtual void setSharedMemoryInterface(class SharedMemoryInterface* sharedMem);
 	
+	static void registerFileImporter(const char* extension, CommonExampleInterface::CreateFunc*		createFunc);
 };
 
 #endif //OPENGL_BROWSER_GUI_H

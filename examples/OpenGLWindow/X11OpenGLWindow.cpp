@@ -1076,12 +1076,26 @@ b3KeyboardCallback      X11OpenGLWindow::getKeyboardCallback()
 	return m_data->m_keyboardCallback;
 }
 
+int   X11OpenGLWindow::getWidth() const
+{
+    if (m_data)
+        return m_data->m_glWidth;
+    return 0;
+}
+int   X11OpenGLWindow::getHeight() const
+{
+    if (m_data)
+        return m_data->m_glHeight;
+    return 0;
+}
+
+
 #include <stdio.h>
 
 int X11OpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)
 {
 	int len = 0;
-	FILE * output = popen("zenity --file-selection --file-filter=\"*.urdf\" --file-filter=\"*.*\"","r");
+	FILE * output = popen("zenity --file-selection --file-filter=\"*.urdf\" --file-filter=\"*.sdf\"  --file-filter=\"*.obj\"  --file-filter=\"*.*\"","r");
 	if (output)
 	{
 		while( fgets(filename, maxNameLength-1, output) != NULL )

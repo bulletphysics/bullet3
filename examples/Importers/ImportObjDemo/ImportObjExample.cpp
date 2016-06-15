@@ -12,13 +12,16 @@
 #include "stb_image/stb_image.h"
 
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
-
+#include "../ImportMeshUtility/b3ImportMeshUtility.h"
 
 class ImportObjSetup : public CommonRigidBodyBase
 {
 
+    std::string m_fileName;
+   
+   
 public:
-    ImportObjSetup(struct GUIHelperInterface* helper);
+    ImportObjSetup(struct GUIHelperInterface* helper, const char* fileName);
     virtual ~ImportObjSetup();
     
 	virtual void initPhysics();
@@ -34,10 +37,16 @@ public:
 
 };
 
-ImportObjSetup::ImportObjSetup(struct GUIHelperInterface* helper)
+ImportObjSetup::ImportObjSetup(struct GUIHelperInterface* helper, const char* fileName)
 :CommonRigidBodyBase(helper)
 {
-    
+    if (fileName)
+    {
+        m_fileName = fileName;
+    } else
+    {
+        m_fileName = "cube.obj";//"sponza_closed.obj";//sphere8.obj";
+    }
 }
 
 ImportObjSetup::~ImportObjSetup()
@@ -59,91 +68,25 @@ void ImportObjSetup::initPhysics()
 	m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
 
 
-   const char* fileName = "cube.obj";//sphere8.obj";//sponza_closed.obj";//sphere8.obj";
-        char relativeFileName[1024];
-        if (b3ResourcePath::findResourcePath(fileName, relativeFileName, 1024))
-        {
-                char pathPrefix[1024];
-
-                b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
-
-
-	
-	btVector3 shift(0,0,0);
-	btVector3 scaling(1,1,1);
-//	int index=10;
-	
-	{
+	btTransform trans;
+    trans.setIdentity();
+	trans.setRotation(btQuaternion(btVector3(1,0,0),SIMD_HALF_PI));
+	btVector3 position = trans.getOrigin();
+	btQuaternion orn = trans.getRotation();
 		
-		std::vector<tinyobj::shape_t> shapes;
-		std::string err = tinyobj::LoadObj(shapes, relativeFileName, pathPrefix);
+    btVector3 scaling(1,1,1);
+	btVector3 color(1,1,1);
 		
-		GLInstanceGraphicsShape* gfxShape = btgCreateGraphicsShapeFromWavefrontObj(shapes);
-		
-		btTransform trans;
-		trans.setIdentity();
-		trans.setRotation(btQuaternion(btVector3(1,0,0),SIMD_HALF_PI));
-		
-		btVector3 position = trans.getOrigin();
-		btQuaternion orn = trans.getRotation();
-		
-		btVector3 color(1,1,1);
-		
-		int textureIndex = -1;
-		//try to load some texture
-		for (int i=0;i<shapes.size();i++)
-		{
-			const tinyobj::shape_t& shape = shapes[i];
-			if (shape.material.diffuse_texname.length()>0)
-			{
-
-				int width,height,n;
-				const char* filename = shape.material.diffuse_texname.c_str();
-				const unsigned char* image=0;
-		
-				const char* prefix[]={ pathPrefix,"./","./data/","../data/","../../data/","../../../data/","../../../../data/"};
-				int numprefix = sizeof(prefix)/sizeof(const char*);
-		
-				for (int i=0;!image && i<numprefix;i++)
-				{
-					char relativeFileName[1024];
-					sprintf(relativeFileName,"%s%s",prefix[i],filename);
-					image = stbi_load(relativeFileName, &width, &height, &n, 0);
-				}
-		
-				if (image)
-				{
-					textureIndex = m_guiHelper->getRenderInterface()->registerTexture(image,width,height);
-					if (textureIndex>=0)
-					{
-						break;
-					}
-				}
-
-			}
-
-		}
-		
-		if (1)
-		{
-			
-		}
-
-		int shapeId = m_guiHelper->getRenderInterface()->registerShape(&gfxShape->m_vertices->at(0).xyzw[0], gfxShape->m_numvertices, &gfxShape->m_indices->at(0), gfxShape->m_numIndices,B3_GL_TRIANGLES,textureIndex);
-		
-		//int id = 
-		m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId,position,orn,color,scaling);
-
-	
-	}}
-        else
-        {
-                b3Warning("Cannot find %s\n", fileName);
-        }
+   int shapeId = b3ImportMeshUtility::loadAndRegisterMeshFromFile(m_fileName, m_guiHelper->getRenderInterface());    
+   if (shapeId>=0)
+   {
+        //int id = 
+        m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+   } 
 
 }
 
  CommonExampleInterface*    ImportObjCreateFunc(struct CommonExampleOptions& options)
  {
-	 return new ImportObjSetup(options.m_guiHelper);
+	 return new ImportObjSetup(options.m_guiHelper, options.m_fileName);
  }

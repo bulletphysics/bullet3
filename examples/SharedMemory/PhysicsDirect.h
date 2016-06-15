@@ -19,6 +19,8 @@ protected:
 
 	bool processDebugLines(const struct SharedMemoryCommand& orgCommand);
 
+	bool processCamera(const struct SharedMemoryCommand& orgCommand);
+
 public:
 
     PhysicsDirect();
@@ -57,6 +59,8 @@ public:
     virtual const float* getDebugLinesTo() const;
     virtual const float* getDebugLinesColor() const;
 
+	virtual void getCachedCameraImage(b3CameraImageData* cameraData);
+	
 };
 
 #endif //PHYSICS_DIRECT_H

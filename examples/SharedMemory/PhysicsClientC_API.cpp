@@ -5,6 +5,29 @@
 #include "SharedMemoryCommands.h"
 
 
+b3SharedMemoryCommandHandle	b3LoadSdfCommandInit(b3PhysicsClientHandle physClient, const char* sdfFileName)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+	command->m_type = CMD_LOAD_SDF;
+	int len = strlen(sdfFileName);
+	if (len<MAX_SDF_FILENAME_LENGTH)
+	{
+		strcpy(command->m_sdfArguments.m_sdfFileName,sdfFileName);
+	} else
+	{
+		command->m_sdfArguments.m_sdfFileName[0] = 0;
+	}
+	command->m_updateFlags = SDF_ARGS_FILE_NAME;
+	
+	return (b3SharedMemoryCommandHandle) command;
+}
+
+
 
 b3SharedMemoryCommandHandle	b3LoadUrdfCommandInit(b3PhysicsClientHandle physClient, const char* urdfFileName)
 {
@@ -146,6 +169,8 @@ int b3JointControlSetDesiredPosition(b3SharedMemoryCommandHandle commandHandle, 
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
     command->m_sendDesiredStateCommandArgument.m_desiredStateQ[qIndex] = value;
+	command->m_updateFlags |= SIM_DESIRED_STATE_HAS_Q;
+
     return 0;
 }
 
@@ -154,6 +179,7 @@ int b3JointControlSetKp(b3SharedMemoryCommandHandle commandHandle, int dofIndex,
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
     command->m_sendDesiredStateCommandArgument.m_Kp[dofIndex] = value;
+	command->m_updateFlags |= SIM_DESIRED_STATE_HAS_KP;
     return 0;
 }
 
@@ -162,6 +188,8 @@ int b3JointControlSetKd(b3SharedMemoryCommandHandle commandHandle, int dofIndex,
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
     command->m_sendDesiredStateCommandArgument.m_Kd[dofIndex] = value;
+	command->m_updateFlags |= SIM_DESIRED_STATE_HAS_KD;
+
     return 0;
 }
 
@@ -170,6 +198,7 @@ int b3JointControlSetDesiredVelocity(b3SharedMemoryCommandHandle commandHandle, 
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
     command->m_sendDesiredStateCommandArgument.m_desiredStateQdot[dofIndex] = value;
+	command->m_updateFlags |= SIM_DESIRED_STATE_HAS_QDOT;
     return 0;
 }
 
@@ -179,6 +208,7 @@ int b3JointControlSetMaximumForce(b3SharedMemoryCommandHandle commandHandle, int
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
     command->m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex] = value;
+	command->m_updateFlags |= SIM_DESIRED_STATE_HAS_MAX_FORCE;
     return 0;
 }
 
@@ -489,6 +519,33 @@ int b3GetStatusType(b3SharedMemoryStatusHandle statusHandle)
     return CMD_INVALID_STATUS;
 }
 
+int b3GetStatusBodyIndices(b3SharedMemoryStatusHandle statusHandle, int* bodyIndicesOut, int bodyIndicesCapacity)
+{
+    int numBodies = 0;
+    const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
+    b3Assert(status);
+	
+	if (status)
+	{
+			switch (status->m_type)
+			{
+				case CMD_SDF_LOADING_COMPLETED:
+				{
+				    int i,maxBodies;
+				    numBodies = status->m_sdfLoadedArgs.m_numBodies;
+				    maxBodies = btMin(bodyIndicesCapacity, numBodies);
+				    for (i=0;i<maxBodies;i++)
+				    {
+                            bodyIndicesOut[i] = status->m_sdfLoadedArgs.m_bodyUniqueIds[i];
+				    }
+					break;
+				}
+			}
+	}
+	
+	return numBodies;
+}
+
 int b3GetStatusBodyIndex(b3SharedMemoryStatusHandle statusHandle)
 {
 	const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
@@ -528,6 +585,10 @@ int b3GetStatusActualState(b3SharedMemoryStatusHandle statusHandle,
                            const double* jointReactionForces[]) {
     const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
     const SendActualStateArgs &args = status->m_sendActualStateArgs;
+    btAssert(status->m_type == CMD_ACTUAL_STATE_UPDATE_COMPLETED);
+    if (status->m_type != CMD_ACTUAL_STATE_UPDATE_COMPLETED)
+        return false;
+    
     if (bodyUniqueId) {
         *bodyUniqueId = args.m_bodyUniqueId;
     }
@@ -676,3 +737,51 @@ void    b3GetDebugLines(b3PhysicsClientHandle physClient, struct b3DebugLines* l
     }
     
 }
+
+///request an image from a simulated camera, using a software renderer.
+b3SharedMemoryCommandHandle b3InitRequestCameraImage(b3PhysicsClientHandle physClient)
+{
+    PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type =CMD_REQUEST_CAMERA_IMAGE_DATA;
+	command->m_requestPixelDataArguments.m_startPixelIndex = 0;
+    command->m_updateFlags = 0;//REQUEST_PIXEL_ARGS_USE_HARDWARE_OPENGL;
+    return (b3SharedMemoryCommandHandle) command;
+}
+
+
+void b3RequestCameraImageSetCameraMatrices(b3SharedMemoryCommandHandle commandHandle, float viewMatrix[16], float projectionMatrix[16])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
+	for (int i=0;i<16;i++)
+	{
+		command->m_requestPixelDataArguments.m_projectionMatrix[i] = projectionMatrix[i];
+		command->m_requestPixelDataArguments.m_viewMatrix[i] = viewMatrix[i];
+	}
+	command->m_updateFlags |= REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES;
+}
+
+void b3RequestCameraImageSetPixelResolution(b3SharedMemoryCommandHandle commandHandle, int width, int height )
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
+	command->m_requestPixelDataArguments.m_pixelWidth = width;
+	command->m_requestPixelDataArguments.m_pixelHeight = height;
+	command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_PIXEL_WIDTH_HEIGHT;	
+}
+
+void b3GetCameraImageData(b3PhysicsClientHandle physClient, struct b3CameraImageData* imageData)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+	if (cl)
+	{
+		cl->getCachedCameraImage(imageData);
+	}
+}
+

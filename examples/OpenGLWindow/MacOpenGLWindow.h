@@ -101,6 +101,9 @@ public:
 	virtual	float	getTimeInSeconds();
 	
 
+    virtual int   getWidth() const;
+    virtual int   getHeight() const;
+
 	
 	virtual void setRenderCallback( b3RenderCallback renderCallback);
 	

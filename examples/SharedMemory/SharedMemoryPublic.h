@@ -5,7 +5,8 @@
 
 enum EnumSharedMemoryClientCommand
 {
-    CMD_LOAD_URDF,
+    CMD_LOAD_SDF,
+	CMD_LOAD_URDF,
         CMD_SEND_BULLET_DATA_STREAM,
         CMD_CREATE_BOX_COLLISION_SHAPE,
 //      CMD_DELETE_BOX_COLLISION_SHAPE,
@@ -18,11 +19,13 @@ enum EnumSharedMemoryClientCommand
         CMD_SEND_DESIRED_STATE,//todo: reconsider naming, for example SET_JOINT_CONTROL_VARIABLE?
         CMD_REQUEST_ACTUAL_STATE,
         CMD_REQUEST_DEBUG_LINES,
+    CMD_REQUEST_SDF_INFO,
     CMD_STEP_FORWARD_SIMULATION,
     CMD_RESET_SIMULATION,
     CMD_PICK_BODY,
     CMD_MOVE_PICKED_BODY,
     CMD_REMOVE_PICKING_CONSTRAINT_BODY,
+    CMD_REQUEST_CAMERA_IMAGE_DATA,
     CMD_MAX_CLIENT_COMMANDS
 };
 
@@ -34,7 +37,8 @@ enum EnumSharedMemoryServerStatus
         CMD_CLIENT_COMMAND_COMPLETED,
         //the server will skip unknown command and report a status 'CMD_UNKNOWN_COMMAND_FLUSHED'
         CMD_UNKNOWN_COMMAND_FLUSHED,
-
+		CMD_SDF_LOADING_COMPLETED,
+        CMD_SDF_LOADING_FAILED,
         CMD_URDF_LOADING_COMPLETED,
         CMD_URDF_LOADING_FAILED,
         CMD_BULLET_DATA_STREAM_RECEIVED_COMPLETED,
@@ -48,7 +52,9 @@ enum EnumSharedMemoryServerStatus
         CMD_DEBUG_LINES_OVERFLOW_FAILED,
         CMD_DESIRED_STATE_RECEIVED_COMPLETED,
         CMD_STEP_FORWARD_SIMULATION_COMPLETED,
-	CMD_RESET_SIMULATION_COMPLETED,
+        CMD_RESET_SIMULATION_COMPLETED,
+        CMD_CAMERA_IMAGE_COMPLETED,
+        CMD_CAMERA_IMAGE_FAILED,
 		CMD_INVALID_STATUS,
         CMD_MAX_SERVER_COMMANDS
 };
@@ -105,6 +111,14 @@ struct b3DebugLines
     const float*  m_linesColor;//float red,green,blue times 'm_numDebugLines'.
 };
 
+struct b3CameraImageData
+{
+	int m_pixelWidth;
+	int m_pixelHeight;
+	const unsigned char* m_rgbColorData;//3*m_pixelWidth*m_pixelHeight bytes
+	const float* m_depthValues;//m_pixelWidth*m_pixelHeight floats
+};
+
 ///b3LinkState provides extra information such as the Cartesian world coordinates
 ///center of mass (COM) of the link, relative to the world reference frame.
 ///Orientation is a quaternion x,y,z,w
@@ -126,5 +140,6 @@ enum {
     CONTROL_MODE_TORQUE,
     CONTROL_MODE_POSITION_VELOCITY_PD,
 };
+
 
 #endif//SHARED_MEMORY_PUBLIC_H

@@ -4,6 +4,7 @@
 #include "../Importers/ImportURDFDemo/BulletUrdfImporter.h"
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
 #include "../Importers/ImportURDFDemo/URDF2Bullet.h"
+#include "TinyRendererVisualShapeConverter.h"
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
@@ -287,7 +288,6 @@ struct PhysicsServerCommandProcessorInternalData
 	///handle management
 	btAlignedObjectArray<InternalBodyHandle>	m_bodyHandles;
 	int m_numUsedHandles;						// number of active handles
-	
 	int	m_firstFreeHandle;		// free handles list
 	InternalBodyHandle* getHandle(int handle)
 	{
@@ -393,6 +393,7 @@ struct PhysicsServerCommandProcessorInternalData
 	btMultiBodyDynamicsWorld* m_dynamicsWorld;
 	SharedMemoryDebugDrawer*		m_remoteDebugDrawer;
 	
+	btAlignedObjectArray<int> m_sdfRecentLoadedBodies;
     
 
     
@@ -410,6 +411,7 @@ struct PhysicsServerCommandProcessorInternalData
 	btVector3 m_hitPos;
 	btScalar m_oldPickingDist;
 	bool m_prevCanSleep;
+	TinyRendererVisualShapeConverter  m_visualConverter;
 
 	PhysicsServerCommandProcessorInternalData()
 		:
@@ -680,6 +682,128 @@ void	PhysicsServerCommandProcessor::createJointMotors(btMultiBody* mb)
 }
 
 
+bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferServerToClient, int bufferSizeInBytes)
+{
+    btAssert(m_data->m_dynamicsWorld);
+	if (!m_data->m_dynamicsWorld)
+	{
+		b3Error("loadSdf: No valid m_dynamicsWorld");
+		return false;
+	}
+	
+	m_data->m_sdfRecentLoadedBodies.clear();
+	
+    BulletURDFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter);
+   
+    bool useFixedBase = false;
+    bool loadOk =  u2b.loadSDF(fileName, useFixedBase);
+    if (loadOk)
+    {
+        for (int i=0;i<u2b.getNumAllocatedCollisionShapes();i++)
+        {
+            btCollisionShape* shape =u2b.getAllocatedCollisionShape(i);
+            m_data->m_collisionShapes.push_back(shape);
+            if (shape->isCompound())
+            {
+                btCompoundShape* compound = (btCompoundShape*) shape;
+                for (int childIndex=0;childIndex<compound->getNumChildShapes();childIndex++)
+                {
+                    m_data->m_collisionShapes.push_back(compound->getChildShape(childIndex));
+                }
+            }
+            
+        }
+        
+        btTransform rootTrans;
+        rootTrans.setIdentity();
+        if (m_data->m_verboseOutput)
+        {
+            b3Printf("loaded %s OK!", fileName);
+        }
+        
+        for (int m =0; m<u2b.getNumModels();m++)
+        {
+
+            u2b.activateModel(m);
+            btMultiBody* mb = 0;
+
+            //get a body index
+            int bodyUniqueId = m_data->allocHandle();
+            
+            InternalBodyHandle* bodyHandle = m_data->getHandle(bodyUniqueId);
+
+            {
+                btScalar mass = 0;
+                bodyHandle->m_rootLocalInertialFrame.setIdentity();
+                btVector3 localInertiaDiagonal(0,0,0);
+                int urdfLinkIndex = u2b.getRootLinkIndex();
+                u2b.getMassAndInertia(urdfLinkIndex, mass,localInertiaDiagonal,bodyHandle->m_rootLocalInertialFrame);
+            }
+            
+            
+
+            //todo: move these internal API called inside the 'ConvertURDF2Bullet' call, hidden from the user
+            int rootLinkIndex = u2b.getRootLinkIndex();
+            b3Printf("urdf root link index = %d\n",rootLinkIndex);
+            MyMultiBodyCreator creation(m_data->m_guiHelper);
+
+            u2b.getRootTransformInWorld(rootTrans);
+            bool useMultiBody = true;
+            ConvertURDF2Bullet(u2b,creation, rootTrans,m_data->m_dynamicsWorld,useMultiBody,u2b.getPathPrefix(),true);
+            
+           
+            
+            mb = creation.getBulletMultiBody();
+            if (mb)
+            {
+                bodyHandle->m_multiBody = mb;
+				
+				m_data->m_sdfRecentLoadedBodies.push_back(bodyUniqueId);
+				
+				createJointMotors(mb);
+
+				//serialize the btMultiBody and send the data to the client. This is one way to get the link/joint names across the (shared memory) wire
+				
+			    UrdfLinkNameMapUtil* util2 = new UrdfLinkNameMapUtil;
+			    m_data->m_urdfLinkNameMapper.push_back(util2);
+			    util2->m_mb = mb;
+			    util2->m_memSerializer = 0;
+			    //disable serialization of the collision objects (they are too big, and the client likely doesn't need them);
+
+                bodyHandle->m_linkLocalInertialFrames.reserve(mb->getNumLinks());
+			    for (int i=0;i<mb->getNumLinks();i++)
+                {
+					//disable serialization of the collision objects
+                   
+				   int urdfLinkIndex = creation.m_mb2urdfLink[i];
+				   btScalar mass;
+                   btVector3 localInertiaDiagonal(0,0,0);
+                   btTransform localInertialFrame;
+				   u2b.getMassAndInertia(urdfLinkIndex, mass,localInertiaDiagonal,localInertialFrame);
+				   bodyHandle->m_linkLocalInertialFrames.push_back(localInertialFrame);
+
+				   std::string* linkName = new std::string(u2b.getLinkName(urdfLinkIndex).c_str());
+				   m_data->m_strings.push_back(linkName);
+				   
+				   mb->getLink(i).m_linkName = linkName->c_str();
+
+				   std::string* jointName = new std::string(u2b.getJointName(urdfLinkIndex).c_str());
+				   m_data->m_strings.push_back(jointName);
+				   
+				   mb->getLink(i).m_jointName = jointName->c_str();
+                }
+				std::string* baseName = new std::string(u2b.getLinkName(u2b.getRootLinkIndex()));
+				m_data->m_strings.push_back(baseName);
+				mb->setBaseName(baseName->c_str());
+			} else
+			{
+				b3Warning("No multibody loaded from URDF. Could add btRigidBody+btTypedConstraint solution later.");
+			}
+            
+        }
+    }
+    return loadOk;    
+}
 
 bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVector3& pos, const btQuaternion& orn,
                              bool useMultiBody, bool useFixedBase, int* bodyUniqueIdPtr, char* bufferServerToClient, int bufferSizeInBytes)
@@ -691,7 +815,9 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 		return false;
 	}
 
-    BulletURDFImporter u2b(m_data->m_guiHelper);
+
+	
+    BulletURDFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter);
 
    
     bool loadOk =  u2b.loadURDF(fileName, useFixedBase);
@@ -728,8 +854,6 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
         
         ConvertURDF2Bullet(u2b,creation, tr,m_data->m_dynamicsWorld,useMultiBody,u2b.getPathPrefix());
         
-        
-        ///todo(erwincoumans) refactor this memory allocation issue
         for (int i=0;i<u2b.getNumAllocatedCollisionShapes();i++)
         {
             btCollisionShape* shape =u2b.getAllocatedCollisionShape(i);
@@ -748,11 +872,13 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
         btMultiBody* mb = creation.getBulletMultiBody();
 		if (useMultiBody)
 		{
-            
-            
+			
+			
 			if (mb)
 			{
+			    
 				bodyHandle->m_multiBody = mb;
+				
 				createJointMotors(mb);
 
 
@@ -802,12 +928,13 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
                 const char* structType = mb->serialize(chunk->m_oldPtr, util->m_memSerializer);
                 util->m_memSerializer->finalizeChunk(chunk,structType,BT_MULTIBODY_CODE,mb);
 
-                               return true;
+                return true;
 			} else
 			{
 				b3Warning("No multibody loaded from URDF. Could add btRigidBody+btTypedConstraint solution later.");
 				return false;
 			}
+			
 		} else
 		{
 			btAssert(0);
@@ -962,6 +1089,110 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						break;
 					}
 
+				case CMD_REQUEST_CAMERA_IMAGE_DATA:
+				{
+					
+					int startPixelIndex = clientCmd.m_requestPixelDataArguments.m_startPixelIndex;
+                    int width, height;
+                    int numPixelsCopied = 0;
+                                      
+					if (
+						(clientCmd.m_requestPixelDataArguments.m_startPixelIndex==0) && 
+						(clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_PIXEL_WIDTH_HEIGHT)!=0)
+					{
+						m_data->m_visualConverter.setWidthAndHeight(clientCmd.m_requestPixelDataArguments.m_pixelWidth,
+																	clientCmd.m_requestPixelDataArguments.m_pixelHeight);
+					}		
+					
+					if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_USE_HARDWARE_OPENGL)!=0)
+					{
+						m_data->m_guiHelper->copyCameraImageData(0,0,0,0,0,&width,&height,0);
+					} 
+					else
+					{
+                        m_data->m_visualConverter.getWidthAndHeight(width,height);
+					}
+                    
+					
+					
+                    int numTotalPixels = width*height;
+                    int numRemainingPixels = numTotalPixels - startPixelIndex;
+                    
+                    
+                    if (numRemainingPixels>0)
+                    {
+                        int maxNumPixels = bufferSizeInBytes/8-1;
+                        unsigned char* pixelRGBA = (unsigned char*)bufferServerToClient;
+                        int numRequestedPixels = btMin(maxNumPixels,numRemainingPixels);
+                        
+                        float* depthBuffer = (float*)(bufferServerToClient+numRequestedPixels*4);
+                        
+                        if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_USE_HARDWARE_OPENGL)!=0)
+						{
+							m_data->m_guiHelper->copyCameraImageData(pixelRGBA,numRequestedPixels,depthBuffer,numRequestedPixels,startPixelIndex,&width,&height,&numPixelsCopied);
+						} else
+						{
+                            
+                            if (clientCmd.m_requestPixelDataArguments.m_startPixelIndex==0)
+                            {
+                             //   printf("-------------------------------\nRendering\n");
+                                
+																	
+                                if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES)!=0)
+                                {
+                                    m_data->m_visualConverter.render(
+                                                                     clientCmd.m_requestPixelDataArguments.m_viewMatrix,
+                                                                     clientCmd.m_requestPixelDataArguments.m_projectionMatrix);
+                                } else
+                                {
+                                    m_data->m_visualConverter.render();
+                                }
+                                
+                            }
+                            
+							m_data->m_visualConverter.copyCameraImageData(pixelRGBA,numRequestedPixels,depthBuffer,numRequestedPixels,startPixelIndex,&width,&height,&numPixelsCopied);
+						}
+                        
+                        //each pixel takes 4 RGBA values and 1 float = 8 bytes
+                        
+                    } else
+                    {
+                        
+                    }
+                    
+                    serverStatusOut.m_type = CMD_CAMERA_IMAGE_COMPLETED;
+                    serverStatusOut.m_sendPixelDataArguments.m_numPixelsCopied = numPixelsCopied;
+					serverStatusOut.m_sendPixelDataArguments.m_numRemainingPixels = numRemainingPixels - numPixelsCopied;
+					serverStatusOut.m_sendPixelDataArguments.m_startingPixelIndex = startPixelIndex;
+					serverStatusOut.m_sendPixelDataArguments.m_imageWidth = width;
+					serverStatusOut.m_sendPixelDataArguments.m_imageHeight= height;
+					hasStatus = true;
+					
+					break;
+				}
+
+                case CMD_LOAD_SDF:
+                    {
+                        const SdfArgs& sdfArgs = clientCmd.m_sdfArguments;
+                        if (m_data->m_verboseOutput)
+                        {
+                            b3Printf("Processed CMD_LOAD_SDF:%s", sdfArgs.m_sdfFileName);
+                        }
+                        
+                        bool completedOk = loadSdf(sdfArgs.m_sdfFileName,bufferServerToClient, bufferSizeInBytes);
+                         
+                        //serverStatusOut.m_type = CMD_SDF_LOADING_FAILED;
+                        serverStatusOut.m_sdfLoadedArgs.m_numBodies = m_data->m_sdfRecentLoadedBodies.size();
+                        int maxBodies = btMin(MAX_SDF_BODIES, serverStatusOut.m_sdfLoadedArgs.m_numBodies);
+                        for (int i=0;i<maxBodies;i++)
+                        {
+                            serverStatusOut.m_sdfLoadedArgs.m_bodyUniqueIds[i] = m_data->m_sdfRecentLoadedBodies[i];
+                        }
+                        
+                        serverStatusOut.m_type = CMD_SDF_LOADING_COMPLETED;
+						hasStatus = true;
+                        break;
+                    }
                 case CMD_LOAD_URDF:
                 {
 					
@@ -1116,12 +1347,18 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                         mb->clearForcesAndTorques();
                                         
                                         int torqueIndex = 0;
-										btVector3 f(clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[0],
-                                                    clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[1],
-                                                    clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[2]);
-                                        btVector3 t(clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[3],
-                                                    clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[4],
-                                                    clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[5]);
+										btVector3 f(0,0,0);
+										btVector3 t(0,0,0);
+
+										if ((clientCmd.m_updateFlags&SIM_DESIRED_STATE_HAS_MAX_FORCE)!=0)
+										{
+											f = btVector3 (clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[0],
+														clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[1],
+														clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[2]);
+											t = btVector3 (clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[3],
+														clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[4],
+														clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[5]);
+										}
                                         torqueIndex+=6;
                                         mb->addBaseForce(f);
                                         mb->addBaseTorque(t);
@@ -1130,7 +1367,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                             
                                             for (int dof=0;dof<mb->getLink(link).m_dofCount;dof++)
                                             {               
-                                                double torque = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[torqueIndex];
+                                                double torque = 0.f;
+												if ((clientCmd.m_updateFlags&SIM_DESIRED_STATE_HAS_MAX_FORCE)!=0)
+													torque = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[torqueIndex];
                                                 mb->addJointTorqueMultiDof(link,dof,torque);
                                                 torqueIndex++;
                                             }
@@ -1157,10 +1396,15 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 													if (motorPtr)
 													{
 														btMultiBodyJointMotor* motor = *motorPtr;
-														btScalar desiredVelocity = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[dofIndex];
+														btScalar desiredVelocity = 0.f;
+														if ((clientCmd.m_updateFlags&SIM_DESIRED_STATE_HAS_QDOT)!=0)
+															desiredVelocity = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[dofIndex];
 														motor->setVelocityTarget(desiredVelocity);
 
-														btScalar maxImp = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex]*m_data->m_physicsDeltaTime;
+														btScalar maxImp = 1000000.f*m_data->m_physicsDeltaTime;
+														if ((clientCmd.m_updateFlags&SIM_DESIRED_STATE_HAS_MAX_FORCE)!=0)
+															maxImp = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex]*m_data->m_physicsDeltaTime;
+														
 														motor->setMaxAppliedImpulse(maxImp);
 														numMotors++;
 
@@ -1171,6 +1415,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 										}
 										break;
 									}
+
 								case CONTROL_MODE_POSITION_VELOCITY_PD:
 									{
 										if (m_data->m_verboseOutput)
@@ -1195,11 +1440,19 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 													{
 														btMultiBodyJointMotor* motor = *motorPtr;
 													
-                                                        btScalar desiredVelocity = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[velIndex];
-                                                        btScalar desiredPosition = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[posIndex];
-                                                        
-                                                        btScalar kp = clientCmd.m_sendDesiredStateCommandArgument.m_Kp[velIndex];
-                                                        btScalar kd = clientCmd.m_sendDesiredStateCommandArgument.m_Kd[velIndex];
+                                                        btScalar desiredVelocity = 0.f;
+														if ((clientCmd.m_updateFlags & SIM_DESIRED_STATE_HAS_QDOT)!=0)
+															desiredVelocity = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[velIndex];
+														btScalar desiredPosition = 0.f;
+														if ((clientCmd.m_updateFlags & SIM_DESIRED_STATE_HAS_Q)!=0)
+															desiredPosition = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[posIndex];
+
+                                                        btScalar kp = 0.f;
+														if ((clientCmd.m_updateFlags & SIM_DESIRED_STATE_HAS_KP)!=0)
+															kp = clientCmd.m_sendDesiredStateCommandArgument.m_Kp[velIndex];
+														btScalar kd = 0.f;
+														if ((clientCmd.m_updateFlags & SIM_DESIRED_STATE_HAS_KD)!=0)
+															kd = clientCmd.m_sendDesiredStateCommandArgument.m_Kd[velIndex];
 
                                                         int dof1 = 0;
                                                         btScalar currentPosition = mb->getJointPosMultiDof(link)[dof1];
@@ -1212,9 +1465,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                                         
                                                         motor->setVelocityTarget(desiredVelocity);
                                                         
-                                                        btScalar maxImp = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[velIndex]*m_data->m_physicsDeltaTime;
+                                                        btScalar maxImp = 1000000.f*m_data->m_physicsDeltaTime;
+
+														if ((clientCmd.m_updateFlags & SIM_DESIRED_STATE_HAS_MAX_FORCE)!=0)
+															maxImp = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[velIndex]*m_data->m_physicsDeltaTime;
                                                         
-                                                        motor->setMaxAppliedImpulse(1000);//maxImp);
+                                                        motor->setMaxAppliedImpulse(maxImp);
                                                         numMotors++;
                                                     }
 
@@ -1545,6 +1801,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     {
                         m_data->m_guiHelper->getRenderInterface()->removeAllInstances();
                     }
+					if (m_data)
+					{
+						m_data->m_visualConverter.resetAll();
+					}
 					deleteDynamicsWorld();
 					createEmptyDynamicsWorld();
 					m_data->exitHandles();
