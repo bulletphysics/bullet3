@@ -27,6 +27,8 @@ protected:
                              bool useMultiBody, bool useFixedBase, int* bodyUniqueIdPtr, char* bufferServerToClient, int bufferSizeInBytes);
 
 	bool	supportsJointMotor(class btMultiBody* body, int linkIndex);
+	
+	int createBodyInfoStream(int bodyUniqueId, char* bufferServerToClient, int bufferSizeInBytes);
 
 public:
 	PhysicsServerCommandProcessor();

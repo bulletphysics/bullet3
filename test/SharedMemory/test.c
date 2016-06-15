@@ -35,6 +35,7 @@ void testSharedMemory(b3PhysicsClientHandle sm)
     int sensorJointIndexLeft=-1;
     int sensorJointIndexRight=-1;
 	const char* urdfFileName = "r2d2.urdf";
+	const char* sdfFileName = "kuka_iiwa/model.sdf";
 	double gravx=0, gravy=0, gravz=-9.8;
 	double timeStep = 1./60.;
 	double startPosX, startPosY,startPosZ;
@@ -52,7 +53,23 @@ void testSharedMemory(b3PhysicsClientHandle sm)
         ASSERT_EQ(b3GetStatusType(statusHandle), CMD_CLIENT_COMMAND_COMPLETED);
         }
 
-		
+        {
+            b3SharedMemoryStatusHandle statusHandle;
+            int statusType;
+            int bodyIndicesOut[10];//MAX_SDF_BODIES = 10
+            int numJoints, numBodies;
+            b3SharedMemoryCommandHandle command = b3LoadSdfCommandInit(sm, sdfFileName);
+            statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+			statusType = b3GetStatusType(statusHandle);
+			ASSERT_EQ(statusType, CMD_SDF_LOADING_COMPLETED);
+			
+			numBodies = b3GetStatusBodyIndices(statusHandle, bodyIndicesOut, 10);
+            ASSERT_EQ(numBodies,1);
+            numJoints = b3GetNumJoints(sm,bodyIndicesOut[0]);
+            printf("numJoints: %d\n", numJoints);
+            //ASSERT_EQ(numBodies ==1);
+        }
+        
         {
             b3SharedMemoryStatusHandle statusHandle;
 			int statusType;

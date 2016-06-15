@@ -237,7 +237,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
         
         case  CMD_LOAD_SDF:
         {
-            b3SharedMemoryCommandHandle commandHandle = b3LoadSdfCommandInit(m_physicsClientHandle, "two_cubes.sdf");
+            b3SharedMemoryCommandHandle commandHandle = b3LoadSdfCommandInit(m_physicsClientHandle, "kuka_iiwa/model.sdf");
             b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
             break;
         }
@@ -656,6 +656,32 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
        
             if (statusType == CMD_SDF_LOADING_COMPLETED)
 			{
+                int bodyIndicesOut[1024];
+                int bodyCapacity = 1024;
+			    int numBodies = b3GetStatusBodyIndices(status, bodyIndicesOut, bodyCapacity);
+			    if (numBodies > bodyCapacity)
+                {
+                    b3Warning("loadSDF number of bodies (%d) exceeds the internal body capacity (%d)",numBodies, bodyCapacity);
+                } else
+                {
+                    /*
+                    for (int i=0;i<numBodies;i++)
+                    {
+                        int bodyUniqueId = bodyIndicesOut[i];
+                        int numJoints =  b3GetNumJoints(m_physicsClientHandle,bodyUniqueId);
+                        b3Printf("numJoints = %d", numJoints);
+                        for (int i=0;i<numJoints;i++)
+                        {
+                            b3JointInfo info;
+                            b3GetJointInfo(m_physicsClientHandle,bodyUniqueId,i,&info);
+                            b3Printf("Joint %s at q-index %d and u-index %d\n",info.m_jointName,info.m_qIndex,info.m_uIndex);
+                        }
+                    }
+                    */
+                }
+			    
+			    //int numJoints = b3GetNumJoints(m_physicsClientHandle,bodyIndex);
+			    
 				//int bodyIndex = b3GetStatusBodyIndex(status);
 				/*if (bodyIndex>=0)
 				{
