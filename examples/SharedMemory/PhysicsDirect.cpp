@@ -393,14 +393,19 @@ int PhysicsDirect::getNumJoints(int bodyIndex) const
 	return 0;
 }
 
-void PhysicsDirect::getJointInfo(int bodyIndex, int jointIndex, struct b3JointInfo& info) const
+bool PhysicsDirect::getJointInfo(int bodyIndex, int jointIndex, struct b3JointInfo& info) const
 {
 	BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap[bodyIndex];
 	if (bodyJointsPtr && *bodyJointsPtr)
 	{
 		BodyJointInfoCache2* bodyJoints = *bodyJointsPtr;
-		info = bodyJoints->m_jointInfo[jointIndex];
+        if (jointIndex < bodyJoints->m_jointInfo.size())
+        {
+            info = bodyJoints->m_jointInfo[jointIndex];
+            return true;
+        }
 	}
+    return false;
 }
 
 ///todo: move this out of the

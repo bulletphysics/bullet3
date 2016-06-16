@@ -65,8 +65,18 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 			
 			numBodies = b3GetStatusBodyIndices(statusHandle, bodyIndicesOut, 10);
             ASSERT_EQ(numBodies,1);
-            numJoints = b3GetNumJoints(sm,bodyIndicesOut[0]);
-            printf("numJoints: %d\n", numJoints);
+            int bodyUniqueId = bodyIndicesOut[0];
+            
+            numJoints = b3GetNumJoints(sm,bodyUniqueId);
+            b3Printf("numJoints: %d\n", numJoints);
+            for (i=0;i<numJoints;i++)
+            {
+                struct b3JointInfo jointInfo;
+                if (b3GetJointInfo(sm,bodyUniqueId, i,&jointInfo))
+                {
+                    b3Printf("jointInfo[%d].m_jointName=%s\n",i,jointInfo.m_jointName);
+                }
+            }
             //ASSERT_EQ(numBodies ==1);
         }
         
