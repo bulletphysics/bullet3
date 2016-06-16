@@ -762,12 +762,7 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
 				
 				createJointMotors(mb);
 
-				//serialize the btMultiBody and send the data to the client. This is one way to get the link/joint names across the (shared memory) wire
-				
-			    UrdfLinkNameMapUtil* util2 = new UrdfLinkNameMapUtil;
-			    m_data->m_urdfLinkNameMapper.push_back(util2);
-			    util2->m_mb = mb;
-			    util2->m_memSerializer = 0;
+		
 			    //disable serialization of the collision objects (they are too big, and the client likely doesn't need them);
 
                 bodyHandle->m_linkLocalInertialFrames.reserve(mb->getNumLinks());
@@ -963,7 +958,44 @@ void PhysicsServerCommandProcessor::replayLogCommand(char* bufferServerToClient,
         }
 }
 
+int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* bufferServerToClient, int bufferSizeInBytes)
+{
+    int streamSizeInBytes = 0;
+    //serialize the btMultiBody and send the data to the client. This is one way to get the link/joint names across the (shared memory) wire
 
+    InternalBodyHandle* bodyHandle = m_data->getHandle(bodyUniqueId);
+    btMultiBody* mb = bodyHandle->m_multiBody;
+    if (mb)
+    {
+        UrdfLinkNameMapUtil* util = new UrdfLinkNameMapUtil;
+        m_data->m_urdfLinkNameMapper.push_back(util);
+        util->m_mb = mb;
+        util->m_memSerializer = new btDefaultSerializer(bufferSizeInBytes ,(unsigned char*)bufferServerToClient);
+        //disable serialization of the collision objects (they are too big, and the client likely doesn't need them);
+        util->m_memSerializer->m_skipPointers.insert(mb->getBaseCollider(),0);
+
+        bodyHandle->m_linkLocalInertialFrames.reserve(mb->getNumLinks());
+        for (int i=0;i<mb->getNumLinks();i++)
+        {
+            //disable serialization of the collision objects
+           util->m_memSerializer->m_skipPointers.insert(mb->getLink(i).m_collider,0);
+           util->m_memSerializer->registerNameForPointer(mb->getLink(i).m_linkName,mb->getLink(i).m_linkName);
+           util->m_memSerializer->registerNameForPointer(mb->getLink(i).m_jointName,mb->getLink(i).m_jointName);
+        }
+
+        util->m_memSerializer->registerNameForPointer(mb->getBaseName(),mb->getBaseName());
+        
+        util->m_memSerializer->insertHeader();
+
+        int len = mb->calculateSerializeBufferSize();
+        btChunk* chunk = util->m_memSerializer->allocate(len,1);
+        const char* structType = mb->serialize(chunk->m_oldPtr, util->m_memSerializer);
+        util->m_memSerializer->finalizeChunk(chunk,structType,BT_MULTIBODY_CODE,mb);
+        streamSizeInBytes = util->m_memSerializer->getCurrentBufferSize();
+
+    }
+    return streamSizeInBytes;
+}
 
 bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes )
 {
@@ -1171,6 +1203,18 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					break;
 				}
 
+                case CMD_REQUEST_BODY_INFO:
+                    {
+                        const SdfRequestInfoArgs& sdfInfoArgs = clientCmd.m_sdfRequestInfoArgs;
+                        //stream info into memory
+                        int streamSizeInBytes = createBodyInfoStream(sdfInfoArgs.m_bodyUniqueId, bufferServerToClient, bufferSizeInBytes);
+                        
+                        serverStatusOut.m_type = CMD_BODY_INFO_COMPLETED;
+                        serverStatusOut.m_dataStreamArguments.m_bodyUniqueId = sdfInfoArgs.m_bodyUniqueId;
+                        serverStatusOut.m_dataStreamArguments.m_streamChunkLength = streamSizeInBytes;
+                        hasStatus = true;
+                        break;
+                    }
                 case CMD_LOAD_SDF:
                     {
                         const SdfArgs& sdfArgs = clientCmd.m_sdfArguments;

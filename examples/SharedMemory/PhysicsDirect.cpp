@@ -248,6 +248,47 @@ bool PhysicsDirect::processCamera(const struct SharedMemoryCommand& orgCommand)
 
 }
 
+
+void PhysicsDirect::processBodyJointInfo(int bodyUniqueId, const SharedMemoryStatus& serverCmd)
+{
+    bParse::btBulletFile bf(
+        &m_data->m_bulletStreamDataServerToClient[0],
+        serverCmd.m_dataStreamArguments.m_streamChunkLength);
+    bf.setFileDNAisMemoryDNA();
+    bf.parse(false);
+
+
+    BodyJointInfoCache2* bodyJoints = new BodyJointInfoCache2;
+    m_data->m_bodyJointMap.insert(bodyUniqueId,bodyJoints);
+
+    for (int i = 0; i < bf.m_multiBodies.size(); i++) 
+    {
+        int flag = bf.getFlags();
+        if ((flag & bParse::FD_DOUBLE_PRECISION) != 0) 
+        {
+            Bullet::btMultiBodyDoubleData* mb =
+                (Bullet::btMultiBodyDoubleData*)bf.m_multiBodies[i];
+
+            addJointInfoFromMultiBodyData(mb,bodyJoints, m_data->m_verboseOutput);
+        } else 
+        {
+            Bullet::btMultiBodyFloatData* mb =
+                (Bullet::btMultiBodyFloatData*)bf.m_multiBodies[i];
+
+            addJointInfoFromMultiBodyData(mb,bodyJoints, m_data->m_verboseOutput);
+        }
+    }
+    if (bf.ok()) {
+        if (m_data->m_verboseOutput) 
+        {
+            b3Printf("Received robot description ok!\n");
+        }
+    } else 
+    {
+        b3Warning("Robot description not received");
+    }
+}
+
 bool PhysicsDirect::submitClientCommand(const struct SharedMemoryCommand& command)
 {
 	if (command.m_type==CMD_REQUEST_DEBUG_LINES)
@@ -296,46 +337,35 @@ bool PhysicsDirect::submitClientCommand(const struct SharedMemoryCommand& comman
                 
 				break;
 			}
+			case CMD_SDF_LOADING_COMPLETED:
+            {
+                //we'll stream further info from the physics server
+                //so serverCmd will be invalid, make a copy
+                
+                
+                int numBodies = serverCmd.m_sdfLoadedArgs.m_numBodies;
+                for (int i=0;i<numBodies;i++)
+                {
+                    int bodyUniqueId = serverCmd.m_sdfLoadedArgs.m_bodyUniqueIds[i];
+                    SharedMemoryCommand infoRequestCommand;
+                    infoRequestCommand.m_type = CMD_REQUEST_BODY_INFO;
+                    infoRequestCommand.m_sdfRequestInfoArgs.m_bodyUniqueId = bodyUniqueId;
+                    SharedMemoryStatus infoStatus;
+                    bool hasStatus = m_data->m_commandProcessor->processCommand(infoRequestCommand,infoStatus,&m_data->m_bulletStreamDataServerToClient[0],SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+                    if (hasStatus)
+                    {
+                        processBodyJointInfo(bodyUniqueId, infoStatus);
+                    }
+                }
+                break;
+            }
 			case CMD_URDF_LOADING_COMPLETED:
 			{
+				
 				if (serverCmd.m_dataStreamArguments.m_streamChunkLength > 0) 
 				{
-					bParse::btBulletFile bf(
-						&m_data->m_bulletStreamDataServerToClient[0],
-						serverCmd.m_dataStreamArguments.m_streamChunkLength);
-					bf.setFileDNAisMemoryDNA();
-					bf.parse(false);
-					int bodyIndex = serverCmd.m_dataStreamArguments.m_bodyUniqueId;
-
-					BodyJointInfoCache2* bodyJoints = new BodyJointInfoCache2;
-					m_data->m_bodyJointMap.insert(bodyIndex,bodyJoints);
-
-					for (int i = 0; i < bf.m_multiBodies.size(); i++) 
-					{
-						int flag = bf.getFlags();
-						if ((flag & bParse::FD_DOUBLE_PRECISION) != 0) 
-						{
-							Bullet::btMultiBodyDoubleData* mb =
-								(Bullet::btMultiBodyDoubleData*)bf.m_multiBodies[i];
-
-							addJointInfoFromMultiBodyData(mb,bodyJoints, m_data->m_verboseOutput);
-						} else 
-						{
-							Bullet::btMultiBodyFloatData* mb =
-								(Bullet::btMultiBodyFloatData*)bf.m_multiBodies[i];
-
-							addJointInfoFromMultiBodyData(mb,bodyJoints, m_data->m_verboseOutput);
-						}
-					}
-					if (bf.ok()) {
-						if (m_data->m_verboseOutput) 
-						{
-							b3Printf("Received robot description ok!\n");
-						}
-					} else 
-					{
-						b3Warning("Robot description not received");
-					}
+				    int bodyIndex = serverCmd.m_dataStreamArguments.m_bodyUniqueId;
+                    processBodyJointInfo(bodyIndex,serverCmd);
 				}
                 break;
             }
@@ -363,14 +393,19 @@ int PhysicsDirect::getNumJoints(int bodyIndex) const
 	return 0;
 }
 
-void PhysicsDirect::getJointInfo(int bodyIndex, int jointIndex, struct b3JointInfo& info) const
+bool PhysicsDirect::getJointInfo(int bodyIndex, int jointIndex, struct b3JointInfo& info) const
 {
 	BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap[bodyIndex];
 	if (bodyJointsPtr && *bodyJointsPtr)
 	{
 		BodyJointInfoCache2* bodyJoints = *bodyJointsPtr;
-		info = bodyJoints->m_jointInfo[jointIndex];
+        if (jointIndex < bodyJoints->m_jointInfo.size())
+        {
+            info = bodyJoints->m_jointInfo[jointIndex];
+            return true;
+        }
 	}
+    return false;
 }
 
 ///todo: move this out of the

@@ -312,7 +312,7 @@ struct SdfLoadedArgs
 
 struct SdfRequestInfoArgs
 {
-    int m_infoIndex;
+    int m_bodyUniqueId;
 };
 
 enum EnumSdfRequestInfoFlags

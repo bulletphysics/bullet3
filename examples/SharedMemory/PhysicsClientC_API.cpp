@@ -653,10 +653,10 @@ int	b3GetNumJoints(b3PhysicsClientHandle physClient, int bodyId)
 }
 
 
-void	b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyIndex, int linkIndex, struct b3JointInfo* info)
+int	b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyIndex, int linkIndex, struct b3JointInfo* info)
 {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
-	cl->getJointInfo(bodyIndex, linkIndex,*info);
+	return cl->getJointInfo(bodyIndex, linkIndex,*info);
 }
 
 b3SharedMemoryCommandHandle b3PickBody(b3PhysicsClientHandle physClient, double rayFromWorldX,
