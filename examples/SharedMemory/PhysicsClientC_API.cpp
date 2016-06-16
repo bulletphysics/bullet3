@@ -1,6 +1,7 @@
 #include "PhysicsClientC_API.h"
 #include "PhysicsClientSharedMemory.h"
 #include "Bullet3Common/b3Scalar.h"
+#include "Bullet3Common/b3Vector3.h"
 #include <string.h>
 #include "SharedMemoryCommands.h"
 
@@ -764,6 +765,84 @@ void b3RequestCameraImageSetCameraMatrices(b3SharedMemoryCommandHandle commandHa
 		command->m_requestPixelDataArguments.m_viewMatrix[i] = viewMatrix[i];
 	}
 	command->m_updateFlags |= REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES;
+}
+
+void b3RequestCameraImageSetViewMatrix(b3SharedMemoryCommandHandle commandHandle, const float cameraPosition[3], const float cameraTargetPosition[3], const float cameraUp[3])
+{
+    b3Vector3 eye = b3MakeVector3(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
+    b3Vector3 center = b3MakeVector3(cameraTargetPosition[0], cameraTargetPosition[1], cameraTargetPosition[2]);
+    b3Vector3 up = b3MakeVector3(cameraUp[0], cameraUp[1], cameraUp[2]);
+    b3Vector3 f = (center - eye).normalized();
+    b3Vector3 u = up.normalized();
+    b3Vector3 s = (f.cross(u)).normalized();
+    u = s.cross(f);
+    
+    float viewMatrix[16];
+    
+    viewMatrix[0*4+0] = s.x;
+    viewMatrix[1*4+0] = s.y;
+    viewMatrix[2*4+0] = s.z;
+    
+    viewMatrix[0*4+1] = u.x;
+    viewMatrix[1*4+1] = u.y;
+    viewMatrix[2*4+1] = u.z;
+    
+    viewMatrix[0*4+2] =-f.x;
+    viewMatrix[1*4+2] =-f.y;
+    viewMatrix[2*4+2] =-f.z;
+    
+    viewMatrix[0*4+3] = 0.f;
+    viewMatrix[1*4+3] = 0.f;
+    viewMatrix[2*4+3] = 0.f;
+    
+    viewMatrix[3*4+0] = -s.dot(eye);
+    viewMatrix[3*4+1] = -u.dot(eye);
+    viewMatrix[3*4+2] = f.dot(eye);
+    viewMatrix[3*4+3] = 1.f;
+    
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
+    for (int i=0;i<16;i++)
+    {
+        command->m_requestPixelDataArguments.m_viewMatrix[i] = viewMatrix[i];
+    }
+    command->m_updateFlags |= REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES;
+
+}
+
+void b3RequestCameraImageSetProjectionMatrix(b3SharedMemoryCommandHandle commandHandle, float left, float  right, float bottom, float top, float nearVal, float farVal)
+{
+    float frustum[16];
+    
+    frustum[0*4+0] = (float(2) * nearVal) / (right - left);
+    frustum[0*4+1] = float(0);
+    frustum[0*4+2] = float(0);
+    frustum[0*4+3] = float(0);
+    
+    frustum[1*4+0] = float(0);
+    frustum[1*4+1] = (float(2) * nearVal) / (top - bottom);
+    frustum[1*4+2] = float(0);
+    frustum[1*4+3] = float(0);
+    
+    frustum[2*4+0] = (right + left) / (right - left);
+    frustum[2*4+1] = (top + bottom) / (top - bottom);
+    frustum[2*4+2] = -(farVal + nearVal) / (farVal - nearVal);
+    frustum[2*4+3] = float(-1);
+    
+    frustum[3*4+0] = float(0);
+    frustum[3*4+1] = float(0);
+    frustum[3*4+2] = -(float(2) * farVal * nearVal) / (farVal - nearVal);
+    frustum[3*4+3] = float(0);
+    
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
+    for (int i=0;i<16;i++)
+    {
+        command->m_requestPixelDataArguments.m_projectionMatrix[i] = frustum[i];
+    }
+    command->m_updateFlags |= REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES;
 }
 
 void b3RequestCameraImageSetPixelResolution(b3SharedMemoryCommandHandle commandHandle, int width, int height )
