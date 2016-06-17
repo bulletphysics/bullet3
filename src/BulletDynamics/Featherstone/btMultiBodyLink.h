@@ -132,6 +132,8 @@ btVector3 m_appliedConstraintForce;    // In WORLD frame
 
 	const char* m_linkName;//m_linkName memory needs to be managed by the developer/user!
 	const char* m_jointName;//m_jointName memory needs to be managed by the developer/user!
+    const void* m_userPtr;//m_userPtr ptr needs to be managed by the developer/user!
+    
 	btScalar m_jointDamping; //todo: implement this internally. It is unused for now, it is set by a URDF loader. User can apply manual damping.
 	btScalar m_jointFriction; //todo: implement this internally. It is unused for now, it is set by a URDF loader. User can apply manual friction using a velocity motor.
 
@@ -149,6 +151,7 @@ btVector3 m_appliedConstraintForce;    // In WORLD frame
 			m_jointFeedback(0),
 			m_linkName(0),
 			m_jointName(0),
+            m_userPtr(0),
 			m_jointDamping(0),
 			m_jointFriction(0)
 	{

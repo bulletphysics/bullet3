@@ -382,7 +382,6 @@ struct PhysicsServerCommandProcessorInternalData
 
 	btAlignedObjectArray<btBulletWorldImporter*> m_worldImporters;
 	btAlignedObjectArray<UrdfLinkNameMapUtil*> m_urdfLinkNameMapper;
-	btHashMap<btHashInt, btMultiBodyJointMotor*>	m_multiBodyJointMotorMap;
 	btAlignedObjectArray<std::string*> m_strings;
 
 	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
@@ -560,7 +559,6 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 	}
 	m_data->m_urdfLinkNameMapper.clear();
 	
-	m_data->m_multiBodyJointMotorMap.clear();
 	
 	for (int i=0;i<m_data->m_strings.size();i++)
 	{
@@ -672,7 +670,7 @@ void	PhysicsServerCommandProcessor::createJointMotors(btMultiBody* mb)
 			btScalar desiredVelocity = 0.f;
 			btMultiBodyJointMotor* motor = new btMultiBodyJointMotor(mb,mbLinkIndex,dof,desiredVelocity,maxMotorImpulse);
 			//motor->setMaxAppliedImpulse(0);
-			m_data->m_multiBodyJointMotorMap.insert(mbLinkIndex,motor);
+            mb->getLink(mbLinkIndex).m_userPtr = motor;
 			m_data->m_dynamicsWorld->addMultiBodyConstraint(motor);
             motor->finalizeMultiDof();
             
@@ -1436,10 +1434,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 												if (supportsJointMotor(mb,link))
 												{
 													
-													btMultiBodyJointMotor** motorPtr  = m_data->m_multiBodyJointMotorMap[link];
-													if (motorPtr)
+                                                    btMultiBodyJointMotor* motor = (btMultiBodyJointMotor*)mb->getLink(link).m_userPtr;
+                                                    
+													
+                                                    if (motor)
 													{
-														btMultiBodyJointMotor* motor = *motorPtr;
 														btScalar desiredVelocity = 0.f;
 														if ((clientCmd.m_updateFlags&SIM_DESIRED_STATE_HAS_QDOT)!=0)
 															desiredVelocity = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[dofIndex];
@@ -1479,10 +1478,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 												if (supportsJointMotor(mb,link))
 												{
 													
-													btMultiBodyJointMotor** motorPtr  = m_data->m_multiBodyJointMotorMap[link];
-													if (motorPtr)
+
+                                                    btMultiBodyJointMotor* motor = (btMultiBodyJointMotor*)mb->getLink(link).m_userPtr;
+                                                    
+                                                	if (motor)
 													{
-														btMultiBodyJointMotor* motor = *motorPtr;
 													
                                                         btScalar desiredVelocity = 0.f;
 														if ((clientCmd.m_updateFlags & SIM_DESIRED_STATE_HAS_QDOT)!=0)
@@ -1644,10 +1644,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                 if (supportsJointMotor(mb,l))
                                 {
                                     
-                                    btMultiBodyJointMotor** motorPtr  = m_data->m_multiBodyJointMotorMap[l];
-                                    if (motorPtr && m_data->m_physicsDeltaTime>btScalar(0))
+                                    btMultiBodyJointMotor* motor = (btMultiBodyJointMotor*)body->m_multiBody->getLink(l).m_userPtr;
+                                    
+                                    if (motor && m_data->m_physicsDeltaTime>btScalar(0))
                                     {
-                                        btMultiBodyJointMotor* motor = *motorPtr;
                                         btScalar force =motor->getAppliedImpulse(0)/m_data->m_physicsDeltaTime;
                                         serverCmd.m_sendActualStateArgs.m_jointMotorForce[l] =
                                         force;
