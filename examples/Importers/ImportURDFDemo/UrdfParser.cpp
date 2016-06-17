@@ -490,29 +490,45 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement*
   // Material
   TiXmlElement *mat = config->FirstChildElement("material");
 //todo(erwincoumans) skip materials in SDF for now (due to complexity)
-  if (mat && !m_parseSDF)
+  if (mat)
   {
-	  // get material name
-	  if (!mat->Attribute("name")) 
-	  {
-		  logger->reportError("Visual material must contain a name attribute");
-		  return false;
-	  }
-	  visual.m_materialName = mat->Attribute("name");
-	  
-	  // try to parse material element in place
-	  
-	  TiXmlElement *t = mat->FirstChildElement("texture");
-	  TiXmlElement *c = mat->FirstChildElement("color");
-	  if (t||c)
-	  {
-		  if (parseMaterial(visual.m_localMaterial, mat,logger))
-		  {
-			  UrdfMaterial* matPtr = new UrdfMaterial(visual.m_localMaterial);
-			  model.m_materials.insert(matPtr->m_name.c_str(),matPtr);
-			  visual.m_hasLocalMaterial = true;
-		  }
-	  }
+    if (m_parseSDF)
+    {
+        UrdfMaterial* matPtr = new UrdfMaterial;
+        matPtr->m_name = "mat";
+        std::string diffuseText = mat->FirstChildElement("diffuse")->GetText();
+        btVector4 rgba(1,0,0,1);
+        parseVector4(rgba,diffuseText);
+        matPtr->m_rgbaColor = rgba;
+        matPtr->m_textureFilename = "textureTest.png";
+        model.m_materials.insert(matPtr->m_name.c_str(),matPtr);
+        visual.m_materialName = "mat";
+        visual.m_hasLocalMaterial = true;
+    } 
+    else
+      {
+          // get material name
+          if (!mat->Attribute("name")) 
+          {
+              logger->reportError("Visual material must contain a name attribute");
+              return false;
+          }
+          visual.m_materialName = mat->Attribute("name");
+          
+          // try to parse material element in place
+          
+          TiXmlElement *t = mat->FirstChildElement("texture");
+          TiXmlElement *c = mat->FirstChildElement("color");
+          if (t||c)
+          {
+              if (parseMaterial(visual.m_localMaterial, mat,logger))
+              {
+                  UrdfMaterial* matPtr = new UrdfMaterial(visual.m_localMaterial);
+                  model.m_materials.insert(matPtr->m_name.c_str(),matPtr);
+                  visual.m_hasLocalMaterial = true;
+              }
+          }
+      }
   }
   
   return true;
