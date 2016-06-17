@@ -125,7 +125,7 @@ void testSharedMemory(b3PhysicsClientHandle sm)
         
 			if ((sensorJointIndexLeft>=0) || (sensorJointIndexRight>=0))
 			{
-				b3SharedMemoryCommandHandle command = b3CreateSensorCommandInit(sm);
+				b3SharedMemoryCommandHandle command = b3CreateSensorCommandInit(sm, bodyIndex);
 				b3SharedMemoryStatusHandle statusHandle;
 				if (imuLinkIndex>=0)
 				{

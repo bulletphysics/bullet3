@@ -37,6 +37,9 @@ protected:
 	
 	bool m_wantsTermination;
     btAlignedObjectArray<int> m_userCommandRequests;
+    btAlignedObjectArray<int> m_bodyUniqueIds;
+    
+    
     int m_sharedMemoryKey;
     int m_selectedBody;
 	int m_prevSelectedBody;
@@ -66,7 +69,8 @@ protected:
 	{
 		if (m_guiHelper && m_guiHelper->getParameterInterface())
 		{
-			int bodyIndex = comboIndex;
+            int itemIndex = int(atoi(name));
+			int bodyIndex = m_bodyUniqueIds[itemIndex];
 			if (m_selectedBody != bodyIndex)
 			{
 				m_selectedBody = bodyIndex;
@@ -154,14 +158,20 @@ protected:
 
 	void prepareControlCommand(b3SharedMemoryCommandHandle commandHandle)
 	{
+        
         for (int i=0;i<m_numMotors;i++)
         {
             
             btScalar targetPos = m_motorTargetPositions[i].m_posTarget;
             int qIndex = m_motorTargetPositions[i].m_qIndex;
             int uIndex = m_motorTargetPositions[i].m_uIndex;
+            static int serial=0;
+            serial++;
+          //  b3Printf("# motors = %d, cmd[%d] qIndex = %d, uIndex = %d, targetPos = %f", m_numMotors, serial, qIndex,uIndex,targetPos);
+            
             b3JointControlSetDesiredPosition(commandHandle, qIndex, targetPos);
-            b3JointControlSetKp(commandHandle, uIndex, 0.1);
+            b3JointControlSetKp(commandHandle, qIndex, 0.1);
+            b3JointControlSetKd(commandHandle, uIndex, 0);
             
             b3JointControlSetMaximumForce(commandHandle,uIndex,1000);
         }
@@ -187,7 +197,7 @@ protected:
 
 void MyComboBoxCallback (int combobox, const char* item, void* userPointer)
 {
-	b3Printf("Item selected %s", item);
+	//b3Printf("Item selected %s", item);
 
 	PhysicsClientExample* cl = (PhysicsClientExample*) userPointer;
 	b3Assert(cl);
@@ -364,11 +374,18 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
         }
         case CMD_SEND_DESIRED_STATE:
         {
-            // b3SharedMemoryCommandHandle command = b3JointControlCommandInit( m_physicsClientHandle, CONTROL_MODE_VELOCITY);
-            b3SharedMemoryCommandHandle command = b3JointControlCommandInit( m_physicsClientHandle, CONTROL_MODE_POSITION_VELOCITY_PD);
+	   if (m_selectedBody>=0)
+           {
+            // b3SharedMemoryCommandHandle command = b3JointControlCommandInit( m_physicsClientHandle, m_selectedBody, CONTROL_MODE_VELOCITY);
+            b3SharedMemoryCommandHandle command = b3JointControlCommandInit( m_physicsClientHandle, m_selectedBody, CONTROL_MODE_POSITION_VELOCITY_PD);
+          //  b3Printf("prepare control command for body %d", m_selectedBody);
+               
             prepareControlCommand(command);
+            
+               
             b3SubmitClientCommand(m_physicsClientHandle, command);
-            break;
+        }   
+	 break;
         }
         case CMD_RESET_SIMULATION:
         {
@@ -471,9 +488,36 @@ void	PhysicsClientExample::createButtons()
 		createButton("Initialize Pose",CMD_INIT_POSE,  isTrigger);
         createButton("Set gravity", CMD_SEND_PHYSICS_SIMULATION_PARAMETERS, isTrigger);
 
+        if (m_bodyUniqueIds.size())
+        {
+            if (m_selectedBody<0)
+                m_selectedBody = 0;
+            
+            ComboBoxParams comboParams;
+            comboParams.m_comboboxId = 0;
+            comboParams.m_numItems = m_bodyUniqueIds.size();
+            comboParams.m_startItem = m_selectedBody;
+            comboParams.m_callback = MyComboBoxCallback;
+            comboParams.m_userPointer = this;
+            //todo: get the real object name
+
+            const char** blarray = new const char*[m_bodyUniqueIds.size()];
+            
+            for (int i=0;i<m_bodyUniqueIds.size();i++)
+            {
+                char* bla = new char[16];
+                sprintf(bla,"%d", i);
+                blarray[i] = bla;
+                comboParams.m_items=blarray;//{&bla};
+            }
+            m_guiHelper->getParameterInterface()->registerComboBox(comboParams);
+        }
+        
 
 		if (m_physicsClientHandle && m_selectedBody>=0)
 		{
+            m_numMotors = 0;
+            
 			int numJoints = b3GetNumJoints(m_physicsClientHandle,m_selectedBody);
 			for (int i=0;i<numJoints;i++)
 			{
@@ -664,11 +708,16 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
                     b3Warning("loadSDF number of bodies (%d) exceeds the internal body capacity (%d)",numBodies, bodyCapacity);
                 } else
                 {
-                    /*
                     for (int i=0;i<numBodies;i++)
                     {
                         int bodyUniqueId = bodyIndicesOut[i];
+                        m_bodyUniqueIds.push_back(bodyUniqueId);
                         int numJoints =  b3GetNumJoints(m_physicsClientHandle,bodyUniqueId);
+                        if (numJoints>0)
+                        {
+                            m_selectedBody = bodyUniqueId;
+                        }
+/*                        int numJoints =  b3GetNumJoints(m_physicsClientHandle,bodyUniqueId);
                         b3Printf("numJoints = %d", numJoints);
                         for (int i=0;i<numJoints;i++)
                         {
@@ -676,8 +725,9 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
                             b3GetJointInfo(m_physicsClientHandle,bodyUniqueId,i,&info);
                             b3Printf("Joint %s at q-index %d and u-index %d\n",info.m_jointName,info.m_qIndex,info.m_uIndex);
                         }
+ 
+ */
                     }
-                    */
                 }
 			    
 			    //int numJoints = b3GetNumJoints(m_physicsClientHandle,bodyIndex);
@@ -715,6 +765,8 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 				int bodyIndex = b3GetStatusBodyIndex(status);
 				if (bodyIndex>=0)
 				{
+                    m_bodyUniqueIds.push_back(bodyIndex);
+                    m_selectedBody = bodyIndex;
 					int numJoints = b3GetNumJoints(m_physicsClientHandle,bodyIndex);
             
 					for (int i=0;i<numJoints;i++)
@@ -723,18 +775,7 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 						b3GetJointInfo(m_physicsClientHandle,bodyIndex,i,&info);
 						b3Printf("Joint %s at q-index %d and u-index %d\n",info.m_jointName,info.m_qIndex,info.m_uIndex);
 					}
-					ComboBoxParams comboParams;
-					comboParams.m_comboboxId = bodyIndex;
-					comboParams.m_numItems = 1;
-					comboParams.m_startItem = 0;
-					comboParams.m_callback = MyComboBoxCallback;
-					comboParams.m_userPointer = this;
-					const char* bla = "bla";
-					const char* blarray[1];
-					blarray[0] = bla;
-				
-					comboParams.m_items=blarray;//{&bla};
-					m_guiHelper->getParameterInterface()->registerComboBox(comboParams);
+					
 				}
 			}
 		}
@@ -759,6 +800,7 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
             {
 				m_selectedBody = -1;
                 m_numMotors=0;
+                m_bodyUniqueIds.clear();
                 createButtons();
 				b3SharedMemoryCommandHandle commandHandle = b3InitResetSimulationCommand(m_physicsClientHandle);
 				if (m_options == eCLIENTEXAMPLE_SERVER)

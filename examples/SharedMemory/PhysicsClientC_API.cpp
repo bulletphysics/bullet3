@@ -151,7 +151,7 @@ b3SharedMemoryCommandHandle     b3InitResetSimulationCommand(b3PhysicsClientHand
 }
 
 
-b3SharedMemoryCommandHandle b3JointControlCommandInit( b3PhysicsClientHandle physClient, int controlMode)
+b3SharedMemoryCommandHandle b3JointControlCommandInit( b3PhysicsClientHandle physClient, int bodyUniqueId, int controlMode)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;
     b3Assert(cl);
@@ -160,7 +160,7 @@ b3SharedMemoryCommandHandle b3JointControlCommandInit( b3PhysicsClientHandle phy
     b3Assert(command);
 	command->m_type = CMD_SEND_DESIRED_STATE;
     command->m_sendDesiredStateCommandArgument.m_controlMode = controlMode;
-	command->m_sendDesiredStateCommandArgument.m_bodyUniqueId = 0;
+	command->m_sendDesiredStateCommandArgument.m_bodyUniqueId = bodyUniqueId;
 	command->m_updateFlags = 0;
     return (b3SharedMemoryCommandHandle) command;
 }
@@ -434,7 +434,7 @@ int	b3CreatePoseCommandSetJointPosition(b3PhysicsClientHandle physClient, b3Shar
 
 
 
-b3SharedMemoryCommandHandle b3CreateSensorCommandInit(b3PhysicsClientHandle physClient)
+b3SharedMemoryCommandHandle b3CreateSensorCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;
     b3Assert(cl);
@@ -445,7 +445,7 @@ b3SharedMemoryCommandHandle b3CreateSensorCommandInit(b3PhysicsClientHandle phys
     command->m_type = CMD_CREATE_SENSOR;
     command->m_updateFlags = 0;
     command->m_createSensorArguments.m_numJointSensorChanges = 0;
-	command->m_createSensorArguments.m_bodyUniqueId = 0;
+	command->m_createSensorArguments.m_bodyUniqueId = bodyUniqueId;
     return (b3SharedMemoryCommandHandle) command;
     
 }
