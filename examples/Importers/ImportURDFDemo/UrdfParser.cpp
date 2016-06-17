@@ -496,14 +496,16 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement*
     {
         UrdfMaterial* matPtr = new UrdfMaterial;
         matPtr->m_name = "mat";
-        std::string diffuseText = mat->FirstChildElement("diffuse")->GetText();
-        btVector4 rgba(1,0,0,1);
-        parseVector4(rgba,diffuseText);
-        matPtr->m_rgbaColor = rgba;
-        matPtr->m_textureFilename = "textureTest.png";
-        model.m_materials.insert(matPtr->m_name.c_str(),matPtr);
-        visual.m_materialName = "mat";
-        visual.m_hasLocalMaterial = true;
+        TiXmlElement *diffuse = mat->FirstChildElement("diffuse");
+        if (diffuse) {
+            std::string diffuseText = diffuse->GetText();
+            btVector4 rgba(1,0,0,1);
+            parseVector4(rgba,diffuseText);
+            matPtr->m_rgbaColor = rgba;
+            model.m_materials.insert(matPtr->m_name.c_str(),matPtr);
+            visual.m_materialName = "mat";
+            visual.m_hasLocalMaterial = true;
+        }
     } 
     else
       {
