@@ -122,11 +122,13 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <box>
-              <size>1 1 1</size>
-            </box>
-          </geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>cube.obj</uri>
+          </mesh>
+        </geometry>
           <material>
+            <diffuse>1 1 1 1</diffuse>
             <script>
               <name>Gazebo/Grey</name>
               <uri>file://media/materials/scripts/gazebo.material</uri>
@@ -172,17 +174,15 @@
             </friction>
           </surface>
         </collision>
-        <visual name='visual'>
+         <visual name='visual'>
           <geometry>
-            <box>
-              <size>1 1 1</size>
-            </box>
-          </geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>cube.obj</uri>
+          </mesh>
+        </geometry>
           <material>
-            <script>
-              <name>Gazebo/Grey</name>
-              <uri>file://media/materials/scripts/gazebo.material</uri>
-            </script>
+            <diffuse>1 1 1 1</diffuse>
           </material>
         </visual>
         <self_collide>0</self_collide>

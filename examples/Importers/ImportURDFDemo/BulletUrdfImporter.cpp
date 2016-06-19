@@ -13,7 +13,7 @@ subject to the following restrictions:
 
 
 #include "BulletUrdfImporter.h"
-
+#include "../../CommonInterfaces/CommonRenderInterface.h"
 
 #include "URDFImporterInterface.h"
 #include "btBulletCollisionCommon.h"
@@ -26,11 +26,19 @@ subject to the following restrictions:
 #include <string>
 #include "../../Utils/b3ResourcePath.h"
 
+#include "../ImportMeshUtility/b3ImportMeshUtility.h"
 
 
 #include <iostream>
 #include <fstream>
 #include "UrdfParser.h"
+
+struct MyTexture
+{
+	int m_width;
+	int m_height;
+	unsigned char* textureData;
+};
 
 struct BulletURDFInternalData
 {
@@ -589,7 +597,7 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 }
 
 
-static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut)
+static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture>& texturesOut)
 {
 
 	
@@ -693,7 +701,23 @@ static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const cha
 						{
                             case FILE_OBJ:
                             {
-                                glmesh = LoadMeshFromObj(fullPath,visualPathPrefix);
+//                                glmesh = LoadMeshFromObj(fullPath,visualPathPrefix);
+						
+								b3ImportMeshData meshData;
+								if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(fullPath, meshData))
+								{
+									
+									if (meshData.m_textureImage)
+									{
+										MyTexture texData;
+										texData.m_width = meshData.m_textureWidth;
+										texData.m_height = meshData.m_textureHeight;
+										texData.textureData = meshData.m_textureImage;
+										texturesOut.push_back(texData);
+									}
+									glmesh = meshData.m_gfxShape;
+								}
+								
                                 break;
                             }
                            
@@ -914,7 +938,8 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
     btAlignedObjectArray<GLInstanceVertex> vertices;
 	btAlignedObjectArray<int> indices;
 	btTransform startTrans; startTrans.setIdentity();
-
+	btAlignedObjectArray<MyTexture> textures;
+	
     const UrdfModel& model = m_data->m_urdfParser.getModel();
 	UrdfLink* const* linkPtr = model.m_links.getAtIndex(linkIndex);
 	if (linkPtr)
@@ -934,14 +959,34 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 				//printf("UrdfMaterial %s, rgba = %f,%f,%f,%f\n",mat->m_name.c_str(),mat->m_rgbaColor[0],mat->m_rgbaColor[1],mat->m_rgbaColor[2],mat->m_rgbaColor[3]);
 				m_data->m_linkColors.insert(linkIndex,mat->m_rgbaColor);
 			}
-			convertURDFToVisualShapeInternal(&vis, pathPrefix, localInertiaFrame.inverse()*childTrans, vertices, indices);
+			convertURDFToVisualShapeInternal(&vis, pathPrefix, localInertiaFrame.inverse()*childTrans, vertices, indices,textures);
 		
 		
 		}
 	}
 	if (vertices.size() && indices.size())
 	{
-		graphicsIndex  = m_data->m_guiHelper->registerGraphicsShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size());
+//		graphicsIndex  = m_data->m_guiHelper->registerGraphicsShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size());
+		//graphicsIndex  = m_data->m_guiHelper->registerGraphicsShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size());
+		
+		CommonRenderInterface* renderer = m_data->m_guiHelper->getRenderInterface();
+		
+		if (renderer)
+		{
+			int textureIndex = -1;
+			if (textures.size())
+			{
+				textureIndex = renderer->registerTexture(textures[0].textureData,textures[0].m_width,textures[0].m_height);
+			}
+			graphicsIndex = renderer->registerShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size(),B3_GL_TRIANGLES,textureIndex);
+			
+		}
+	}
+	
+	//delete textures
+	for (int i=0;i<textures.size();i++)
+	{
+		delete textures[i].textureData;
 	}
 	return graphicsIndex;
 }
