@@ -276,7 +276,7 @@ pybullet_resetSimulation(PyObject* self, PyObject* args)
 	return Py_None;
 }
 
-static int pybullet_setJointControl(PyObject* self, PyObject* args)
+static PyObject* pybullet_setJointControl(PyObject* self, PyObject* args)
 {
     //todo(erwincoumans): set max forces, kp, kd
 
