@@ -78,6 +78,7 @@ files {
     "../ThirdPartyLibs/tinyxml/tinyxml.cpp",
     "../ThirdPartyLibs/tinyxml/tinyxmlerror.cpp",
     "../ThirdPartyLibs/tinyxml/tinyxmlparser.cpp",
-
+"../Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
+                        "../ThirdPartyLibs/stb_image/stb_image.cpp",     
 }
 

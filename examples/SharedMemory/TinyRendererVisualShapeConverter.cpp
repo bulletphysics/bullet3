@@ -28,7 +28,7 @@ subject to the following restrictions:
 #include "../Utils/b3ResourcePath.h"
 #include "../TinyRenderer/TinyRenderer.h"
 #include "../OpenGLWindow/SimpleCamera.h"
-
+#include "../Importers/ImportMeshUtility/b3ImportMeshUtility.h"
 #include <iostream>
 #include <fstream>
 #include "../Importers/ImportURDFDemo/UrdfParser.h"
@@ -39,6 +39,13 @@ enum MyFileType
 	MY_FILE_STL=1,
 	MY_FILE_COLLADA=2,
     MY_FILE_OBJ=3,
+};
+
+struct MyTexture2
+{
+	unsigned char* textureData;
+	int m_width;
+	int m_height;
 };
 
 struct TinyRendererObjectArray
@@ -95,7 +102,7 @@ TinyRendererVisualShapeConverter::~TinyRendererVisualShapeConverter()
 
 
 
-void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut)
+void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut)
 {
 
 	
@@ -201,7 +208,23 @@ void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPref
 						{
                             case MY_FILE_OBJ:
                             {
-                                glmesh = LoadMeshFromObj(fullPath,visualPathPrefix);
+                                //glmesh = LoadMeshFromObj(fullPath,visualPathPrefix);
+								b3ImportMeshData meshData;
+								if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(fullPath, meshData))
+								{
+									
+									if (meshData.m_textureImage)
+									{
+										MyTexture2 texData;
+										texData.m_width = meshData.m_textureWidth;
+										texData.m_height = meshData.m_textureHeight;
+										texData.textureData = meshData.m_textureImage;
+										texturesOut.push_back(texData);
+									}
+									glmesh = meshData.m_gfxShape;
+								}
+
+								
                                 break;
                             }
                            
@@ -420,11 +443,7 @@ void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPref
 void TinyRendererVisualShapeConverter::convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfModel& model, class btCollisionObject* colObj)
 {
     
-	btAlignedObjectArray<GLInstanceVertex> vertices;
-	btAlignedObjectArray<int> indices;
-	btTransform startTrans; startTrans.setIdentity();
-	int graphicsIndex = -1;
-
+	
 	UrdfLink* const* linkPtr = model.m_links.getAtIndex(linkIndex);
 	if (linkPtr)
 	{
@@ -433,6 +452,12 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(int linkIndex, const 
 	
 		for (int v = 0; v < link->m_visualArray.size();v++)
 		{
+			btAlignedObjectArray<MyTexture2> textures;
+			btAlignedObjectArray<GLInstanceVertex> vertices;
+			btAlignedObjectArray<int> indices;
+			btTransform startTrans; startTrans.setIdentity();
+			int graphicsIndex = -1;
+
 			const UrdfVisual& vis = link->m_visualArray[v];
 			btTransform childTrans = vis.m_linkLocalFrame;
 			btHashString matName(vis.m_materialName.c_str());
@@ -458,14 +483,29 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(int linkIndex, const 
             btAssert(visualsPtr);
             TinyRendererObjectArray* visuals = *visualsPtr;
             
-			convertURDFToVisualShape(&vis, pathPrefix, localInertiaFrame.inverse()*childTrans, vertices, indices);
+			convertURDFToVisualShape(&vis, pathPrefix, localInertiaFrame.inverse()*childTrans, vertices, indices,textures);
 
             if (vertices.size() && indices.size())
             {
                 TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_rgbColorBuffer,m_data->m_depthBuffer);
-                tinyObj->registerMeshShape(&vertices[0].xyzw[0],vertices.size(),&indices[0],indices.size(),rgbaColor);
+				unsigned char* textureImage=0;
+				int textureWidth=0;
+				int textureHeight=0;
+				if (textures.size())
+				{
+					textureImage = textures[0].textureData;
+					textureWidth = textures[0].m_width;
+					textureHeight = textures[0].m_height;
+				}
+				
+                tinyObj->registerMeshShape(&vertices[0].xyzw[0],vertices.size(),&indices[0],indices.size(),rgbaColor,
+										   textureImage,textureWidth,textureHeight);
                 visuals->m_renderObjects.push_back(tinyObj);
             }
+			for (int i=0;i<textures.size();i++)
+			{
+				delete textures[i].textureData;
+			}
 		}
 	}
 }

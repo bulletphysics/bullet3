@@ -49,6 +49,7 @@ SET(pybullet_SRCS
                         ../../examples/ThirdPartyLibs/tinyxml/tinyxmlparser.cpp
                         ../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
                         ../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.h
+			../../examples/ThirdPartyLibs/stb_image/stb_image.cpp
                         ../../examples/Importers/ImportColladaDemo/LoadMeshFromCollada.cpp
                         ../../examples/Importers/ImportObjDemo/LoadMeshFromObj.cpp
                         ../../examples/Importers/ImportObjDemo/Wavefront2GLInstanceGraphicsShape.cpp
@@ -57,7 +58,8 @@ SET(pybullet_SRCS
                         ../../examples/Importers/ImportURDFDemo/URDF2Bullet.cpp
                         ../../examples/Importers/ImportURDFDemo/UrdfParser.cpp
                         ../../examples/Importers/ImportURDFDemo/urdfStringSplit.cpp
-                        ../../examples/MultiThreading/b3PosixThreadSupport.cpp
+			../../examples/Importers/ImportMeshUtility/b3ImportMeshUtility.cpp 
+			../../examples/MultiThreading/b3PosixThreadSupport.cpp
                         ../../examples/MultiThreading/b3Win32ThreadSupport.cpp
 			../../examples/MultiThreading/b3ThreadSupportInterface.cpp
 
