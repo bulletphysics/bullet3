@@ -8,7 +8,7 @@ compiler:
 script:
   - echo "CXX="$CXX
   - echo "CC="$CC
-  - cmake . -G "Unix Makefiles" #-DCMAKE_CXX_FLAGS=-Werror
+  - cmake . -G -DBUILD_PYBULLET=ON "Unix Makefiles" #-DCMAKE_CXX_FLAGS=-Werror
   - make -j8
   - ctest -j8 --output-on-failure
   # Build again with double precision
