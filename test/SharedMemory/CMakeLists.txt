@@ -71,7 +71,8 @@ ENDIF()
                         ../../examples/Importers/ImportURDFDemo/URDF2Bullet.cpp
                         ../../examples/Importers/ImportURDFDemo/UrdfParser.cpp
                         ../../examples/Importers/ImportURDFDemo/urdfStringSplit.cpp
-
+			../../examples/Importers/ImportMeshUtility/b3ImportMeshUtility.cpp
+			../../examples/ThirdPartyLibs/stb_image/stb_image.cpp
                         
 	)
 

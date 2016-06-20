@@ -78,6 +78,8 @@
         "../../examples/Importers/ImportURDFDemo/UrdfParser.h",
         "../../examples/Importers/ImportURDFDemo/URDF2Bullet.cpp",
         "../../examples/Importers/ImportURDFDemo/URDF2Bullet.h",
+	"../../examples/Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
+        "../../examples/ThirdPartyLibs/stb_image/stb_image.cpp",
         "../../examples/Utils/b3Clock.cpp",
         "../../Extras/Serialize/BulletWorldImporter/*",
         "../../Extras/Serialize/BulletFileLoader/*",

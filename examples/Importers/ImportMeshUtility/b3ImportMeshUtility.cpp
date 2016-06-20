@@ -1,12 +1,12 @@
 #include "b3ImportMeshUtility.h"
 
 #include <vector>
-#include"Wavefront/tiny_obj_loader.h"
+#include"../../ThirdPartyLibs/Wavefront/tiny_obj_loader.h"
 #include "LinearMath/btVector3.h"
 #include "../ImportObjDemo/Wavefront2GLInstanceGraphicsShape.h"
 #include "../../Utils/b3ResourcePath.h"
 #include "Bullet3Common/b3FileUtils.h"
-#include "stb_image/stb_image.h"
+#include "../../ThirdPartyLibs/stb_image/stb_image.h"
 
 
 bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string& fileName, b3ImportMeshData& meshData)
