@@ -707,7 +707,7 @@ pybullet_getJointPositions(PyObject* self, PyObject* args)
       
       int i;
       int numJoints = b3GetNumJoints(sm,bodyIndex);
-      double jointPositions[numJoints];
+      double* jointPositions = malloc(numJoints*sizeof(double));
       pyListJointPos = PyTuple_New(numJoints);
 
 
@@ -718,7 +718,7 @@ pybullet_getJointPositions(PyObject* self, PyObject* args)
         item = PyFloat_FromDouble(jointPositions[i]);
         PyTuple_SetItem(pyListJointPos, i, item);
       }
-      
+      free(jointPositions);
       return pyListJointPos;
     }
     
