@@ -5,6 +5,9 @@ os:
 compiler:
   - gcc
   - clang
+python:
+    - "2.7"
+    - "3.4"
 script:
   - echo "CXX="$CXX
   - echo "CC="$CC
