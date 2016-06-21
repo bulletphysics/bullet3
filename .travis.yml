@@ -5,13 +5,14 @@ os:
 compiler:
   - gcc
   - clang
-python:
-    - "2.7"
-    - "3.4"
+addons:
+  apt:
+    packages:
+      - python3
 script:
   - echo "CXX="$CXX
   - echo "CC="$CC
-  - cmake . -G -DBUILD_PYBULLET=ON "Unix Makefiles" #-DCMAKE_CXX_FLAGS=-Werror
+  - cmake . -DBUILD_PYBULLET=ON -G"Unix Makefiles" #-DCMAKE_CXX_FLAGS=-Werror
   - make -j8
   - ctest -j8 --output-on-failure
   # Build again with double precision
