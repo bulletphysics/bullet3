@@ -276,7 +276,7 @@ pybullet_resetSimulation(PyObject* self, PyObject* args)
 	return Py_None;
 }
 
-static int pybullet_setJointControl(PyObject* self, PyObject* args)
+static PyObject* pybullet_setJointControl(PyObject* self, PyObject* args)
 {
     //todo(erwincoumans): set max forces, kp, kd
 
@@ -302,6 +302,7 @@ static int pybullet_setJointControl(PyObject* self, PyObject* args)
             len = PySequence_Size(targetValues);
             numJoints = b3GetNumJoints(sm,bodyIndex);
             b3SharedMemoryCommandHandle commandHandle;
+            int qIndex;
             
             if (len!=numJoints)
             {
@@ -321,7 +322,7 @@ static int pybullet_setJointControl(PyObject* self, PyObject* args)
             
             commandHandle = b3JointControlCommandInit(sm, bodyIndex,controlMode);
             
-            for (int qIndex=0;qIndex<numJoints;qIndex++)
+            for (qIndex=0;qIndex<numJoints;qIndex++)
             {
                 float value = pybullet_internalGetFloatFromSequence(seq,qIndex);
             
@@ -359,24 +360,6 @@ static int pybullet_setJointControl(PyObject* self, PyObject* args)
     PyErr_SetString(SpamError, "error in setJointControl.");
     return NULL;
 }
-
-                /*
-                 ///Set joint control variables such as desired position/angle, desired velocity,
-                 ///applied joint forces, dependent on the control mode (CONTROL_MODE_VELOCITY or CONTROL_MODE_TORQUE)
-                 b3SharedMemoryCommandHandle  b3JointControlCommandInit(b3PhysicsClientHandle physClient, int controlMode);
-                 ///Only use when controlMode is CONTROL_MODE_POSITION_VELOCITY_PD
-                 int b3JointControlSetDesiredPosition(b3SharedMemoryCommandHandle commandHandle, int qIndex, double value);
-                 int b3JointControlSetKp(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double value);
-                 int b3JointControlSetKd(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double value);
-                 //Only use when controlMode is CONTROL_MODE_VELOCITY
-                 int b3JointControlSetDesiredVelocity(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double value); 
-                 // find a better name for dof/q/u indices, point to b3JointInfo
-                int b3JointControlSetMaximumForce(b3SharedMemoryCommandHandle commandHandle, int dofIndex,  double value);
-                ///Only use if when controlMode is CONTROL_MODE_TORQUE,
-                int b3JointControlSetDesiredForceTorque(b3SharedMemoryCommandHandle commandHandle, int  dofIndex, double value);
-                
-                 */
-         
 
 
 // Set the gravity of the world with (x, y, z) arguments
@@ -707,7 +690,7 @@ pybullet_getJointPositions(PyObject* self, PyObject* args)
       
       int i;
       int numJoints = b3GetNumJoints(sm,bodyIndex);
-      double jointPositions[numJoints];
+      double* jointPositions = malloc(numJoints*sizeof(double));
       pyListJointPos = PyTuple_New(numJoints);
 
 
@@ -718,7 +701,7 @@ pybullet_getJointPositions(PyObject* self, PyObject* args)
         item = PyFloat_FromDouble(jointPositions[i]);
         PyTuple_SetItem(pyListJointPos, i, item);
       }
-      
+      free(jointPositions);
       return pyListJointPos;
     }
     

@@ -77,6 +77,12 @@ int b3ResourcePath::findResourcePath(const char* resourceName, char* resourcePat
 				{
 					return strlen(resourcePath);
 				}
+         sprintf(resourcePath,"%s.runfiles/google3/third_party/bullet/data/%s",exePath,resourceName);
+				//printf("try resource at %s\n", resourcePath);	
+				if (b3FileUtils::findFile(resourcePath, resourcePath, resourcePathMaxNumBytes))
+				{
+					return strlen(resourcePath);
+				}  
         	}
 	}
 
