@@ -377,7 +377,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 	   if (m_selectedBody>=0)
            {
             // b3SharedMemoryCommandHandle command = b3JointControlCommandInit( m_physicsClientHandle, m_selectedBody, CONTROL_MODE_VELOCITY);
-            b3SharedMemoryCommandHandle command = b3JointControlCommandInit( m_physicsClientHandle, m_selectedBody, CONTROL_MODE_POSITION_VELOCITY_PD);
+            b3SharedMemoryCommandHandle command = b3JointControlCommandInit2( m_physicsClientHandle, m_selectedBody, CONTROL_MODE_POSITION_VELOCITY_PD);
           //  b3Printf("prepare control command for body %d", m_selectedBody);
                
             prepareControlCommand(command);

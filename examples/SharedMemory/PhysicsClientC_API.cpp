@@ -151,7 +151,12 @@ b3SharedMemoryCommandHandle     b3InitResetSimulationCommand(b3PhysicsClientHand
 }
 
 
-b3SharedMemoryCommandHandle b3JointControlCommandInit( b3PhysicsClientHandle physClient, int bodyUniqueId, int controlMode)
+b3SharedMemoryCommandHandle  b3JointControlCommandInit(b3PhysicsClientHandle physClient, int controlMode)
+{
+    return b3JointControlCommandInit2(physClient,0,controlMode);
+}
+
+b3SharedMemoryCommandHandle b3JointControlCommandInit2( b3PhysicsClientHandle physClient, int bodyUniqueId, int controlMode)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;
     b3Assert(cl);

@@ -95,10 +95,15 @@ int	b3LoadUrdfCommandSetUseFixedBase(b3SharedMemoryCommandHandle commandHandle, 
 
 b3SharedMemoryCommandHandle	b3LoadSdfCommandInit(b3PhysicsClientHandle physClient, const char* sdfFileName);
 
+///The b3JointControlCommandInit method is obsolete, use b3JointControlCommandInit2 instead
+b3SharedMemoryCommandHandle  b3JointControlCommandInit(b3PhysicsClientHandle physClient, int controlMode);
+
+    
 ///Set joint control variables such as desired position/angle, desired velocity,
 ///applied joint forces, dependent on the control mode (CONTROL_MODE_VELOCITY or CONTROL_MODE_TORQUE)
-b3SharedMemoryCommandHandle  b3JointControlCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId, int controlMode);
-///Only use when controlMode is CONTROL_MODE_POSITION_VELOCITY_PD
+b3SharedMemoryCommandHandle  b3JointControlCommandInit2(b3PhysicsClientHandle physClient, int bodyUniqueId, int controlMode);
+
+    ///Only use when controlMode is CONTROL_MODE_POSITION_VELOCITY_PD
 int b3JointControlSetDesiredPosition(b3SharedMemoryCommandHandle commandHandle, int qIndex, double value);
 int b3JointControlSetKp(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double value);
 int b3JointControlSetKd(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double value);

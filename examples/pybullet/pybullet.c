@@ -327,7 +327,7 @@ static PyObject* pybullet_setJointControl(PyObject* self, PyObject* args)
                 return NULL;
             }
             
-            commandHandle = b3JointControlCommandInit(sm, bodyIndex,controlMode);
+            commandHandle = b3JointControlCommandInit2(sm, bodyIndex,controlMode);
             
             for (qIndex=0;qIndex<numJoints;qIndex++)
             {
