@@ -165,7 +165,7 @@ pybullet_loadURDF(PyObject* self, PyObject* args)
                 return NULL;
 	}
     {
-      printf("(%f, %f, %f) (%f, %f, %f, %f)\n", startPosX,startPosY,startPosZ,startOrnX, startOrnY,startOrnZ, startOrnW);
+      // printf("(%f, %f, %f) (%f, %f, %f, %f)\n", startPosX,startPosY,startPosZ,startOrnX, startOrnY,startOrnZ, startOrnW);
         
         b3SharedMemoryStatusHandle statusHandle;
         int statusType;
