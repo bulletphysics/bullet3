@@ -9,6 +9,12 @@
 #include <Python.h>
 #endif
 
+
+#if PY_MAJOR_VERSION >= 3
+#define PyInt_FromLong PyLong_FromLong
+#define PyString_FromString PyBytes_FromString
+#endif 
+
 enum eCONNECT_METHOD
 {
 	eCONNECT_GUI=1,
@@ -769,7 +775,6 @@ pybullet_getJointInfo(PyObject* self, PyObject* args)
     //          info.m_flags,
     //          info.m_jointDamping,
     //          info.m_jointFriction);
-
       PyTuple_SetItem(pyListJointInfo, 0, 
         PyInt_FromLong(info.m_jointIndex));
       PyTuple_SetItem(pyListJointInfo, 1, 
@@ -786,7 +791,6 @@ pybullet_getJointInfo(PyObject* self, PyObject* args)
         PyFloat_FromDouble(info.m_jointDamping));
       PyTuple_SetItem(pyListJointInfo, 7, 
         PyFloat_FromDouble(info.m_jointFriction));    
-           
       return pyListJointInfo;
     }
   }

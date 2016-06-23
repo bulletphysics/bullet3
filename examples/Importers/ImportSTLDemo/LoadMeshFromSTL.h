@@ -66,17 +66,18 @@ static GLInstanceGraphicsShape* LoadMeshFromSTL(const char* relativeFileName)
 						for (int i=0;i<numTriangles;i++)
 						{
 							char* curPtr = &memoryBuffer[84+i*50];
-							MySTLTriangle* tri = (MySTLTriangle*) curPtr;
+							MySTLTriangle tmp;
+							memcpy(&tmp,curPtr,sizeof(MySTLTriangle));
 							
 							GLInstanceVertex v0,v1,v2;
 							v0.uv[0] = v1.uv[0] = v2.uv[0] = 0.5;
 							v0.uv[1] = v1.uv[1] = v2.uv[1] = 0.5;
 							for (int v=0;v<3;v++)
 							{
-								v0.xyzw[v] = tri->vertex0[v];
-								v1.xyzw[v] = tri->vertex1[v];
-								v2.xyzw[v] = tri->vertex2[v];
-								v0.normal[v] = v1.normal[v] = v2.normal[v] = tri->normal[v];
+								v0.xyzw[v] = tmp.vertex0[v];
+								v1.xyzw[v] = tmp.vertex1[v];
+								v2.xyzw[v] = tmp.vertex2[v];
+								v0.normal[v] = v1.normal[v] = v2.normal[v] = tmp.normal[v];
 							}
 							v0.xyzw[3] = v1.xyzw[3] = v2.xyzw[3] = 0.f;
 							
