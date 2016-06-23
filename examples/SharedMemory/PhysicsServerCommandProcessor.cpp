@@ -1389,6 +1389,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                         mb->clearForcesAndTorques();
                                         
                                         int torqueIndex = 0;
+		#if 0
+		//it is inconsistent to allow application of base force/torque, there is no 'joint' motor. Use a separate API for this.
+
 										btVector3 f(0,0,0);
 										btVector3 t(0,0,0);
 
@@ -1404,7 +1407,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                         torqueIndex+=6;
                                         mb->addBaseForce(f);
                                         mb->addBaseTorque(t);
-                                        for (int link=0;link<mb->getNumLinks();link++)
+                    #endif 
+			                   for (int link=0;link<mb->getNumLinks();link++)
                                         {
                                             
                                             for (int dof=0;dof<mb->getLink(link).m_dofCount;dof++)

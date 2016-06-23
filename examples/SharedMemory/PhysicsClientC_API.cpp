@@ -218,6 +218,7 @@ int b3JointControlSetDesiredForceTorque(b3SharedMemoryCommandHandle commandHandl
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
     command->m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex] = value;
+    command->m_updateFlags |= SIM_DESIRED_STATE_HAS_MAX_FORCE;
     return 0;
 }
 

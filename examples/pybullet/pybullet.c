@@ -222,7 +222,7 @@ pybullet_loadSDF(PyObject* self, PyObject* args)
 	PyObject* pylist=0;
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType;
-	b3SharedMemoryCommandHandle command;
+	b3SharedMemoryCommandHandle commandHandle;
 
 	if (0==sm)
 	{
@@ -236,8 +236,8 @@ pybullet_loadSDF(PyObject* self, PyObject* args)
 		return NULL;
 	}
 
-	command = b3LoadSdfCommandInit(sm, sdfFileName);
-	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	commandHandle = b3LoadSdfCommandInit(sm, sdfFileName);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 	statusType = b3GetStatusType(statusHandle);
 	if (statusType!=CMD_SDF_LOADING_COMPLETED)
 	{
@@ -308,10 +308,11 @@ static PyObject* pybullet_setJointControl(PyObject* self, PyObject* args)
             len = PySequence_Size(targetValues);
             numJoints = b3GetNumJoints(sm,bodyIndex);
             b3SharedMemoryCommandHandle commandHandle;
-            int qIndex;
+            b3SharedMemoryStatusHandle statusHandle;
+		int qIndex;
             
             if (len!=numJoints)
-            {
+           { 
                 PyErr_SetString(SpamError, "Number of control target values doesn't match the number of joints.");
                 Py_DECREF(seq);
                 return NULL;
@@ -336,20 +337,24 @@ static PyObject* pybullet_setJointControl(PyObject* self, PyObject* args)
                 {
                     case CONTROL_MODE_VELOCITY:
                     {
-                        b3JointControlSetDesiredVelocity(commandHandle, qIndex, value);
-                        break;
+                        b3JointControlSetDesiredVelocity(commandHandle, 6+qIndex, value);
+                      	b3JointControlSetKd(commandHandle,6+qIndex,1);
+			b3JointControlSetMaximumForce(commandHandle,6+qIndex,10000);
+			break;
                     }
 
                     case CONTROL_MODE_TORQUE:
                     {
-                        b3JointControlSetDesiredForceTorque(commandHandle, qIndex, value);
+                        b3JointControlSetDesiredForceTorque(commandHandle, 6+qIndex, value);
                         break;
                     }
                         
                     case CONTROL_MODE_POSITION_VELOCITY_PD:
                     {
-                        b3JointControlSetDesiredPosition( commandHandle, qIndex, value);
-                        break;
+                        b3JointControlSetDesiredPosition( commandHandle, 7+qIndex, value);
+                        b3JointControlSetKp(commandHandle,6+qIndex,1);
+                        b3JointControlSetMaximumForce(commandHandle,6+qIndex,10000);                        
+			break;
                     }
                     default:
                     {
@@ -357,6 +362,9 @@ static PyObject* pybullet_setJointControl(PyObject* self, PyObject* args)
                     }
                 };
             }
+
+	  statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+             
             Py_DECREF(seq);
             Py_INCREF(Py_None);
             return Py_None;
@@ -554,33 +562,57 @@ pybullet_getNumJoints(PyObject* self, PyObject* args)
 static PyObject*
 pybullet_initializeJointPositions(PyObject* self, PyObject* args)
 {
+	int size;
 	if (0==sm)
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-  // TODO(hellojas): initialize all joint positions given a pylist of values
 
-    //
-    //
-    /*
-     ///b3CreatePoseCommandInit will initialize (teleport) the pose of a body/robot. You can individually set the base position,
-     ///base orientation and joint angles. This will set all velocities of base and joints to zero.
-     ///This is not a robot control command using actuators/joint motors, but manual repositioning the robot.
-     b3SharedMemoryCommandHandle b3CreatePoseCommandInit(b3PhysicsClientHandle physClient, int bodyIndex);
-     int     b3CreatePoseCommandSetBasePosition(b3SharedMemoryCommandHandle commandHandle, double startPosX,double startPosY,double startPosZ);
-     int     b3CreatePoseCommandSetBaseOrientation(b3SharedMemoryCommandHandle commandHandle, double startOrnX,double startOrnY,double startOrnZ, double startOrnW);
-     int     b3CreatePoseCommandSetJointPositions(b3SharedMemoryCommandHandle commandHandle, int numJointPositions, const double* jointPositions);
-     int     b3CreatePoseCommandSetJointPosition(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle,  int jointIndex, double jointPosition);
-     
 
-     */
-    //
-    //
-    
-	Py_INCREF(Py_None);
-        return Py_None;
+	size= PySequence_Size(args);
+   
+	if (size==2)
+	{
+        int bodyIndex;
+        PyObject* targetValues;
+        if (PyArg_ParseTuple(args, "iO", &bodyIndex,  &targetValues))
+        {
+            PyObject* seq;
+            int numJoints, len;
+            seq = PySequence_Fast(targetValues, "expected a sequence");
+            len = PySequence_Size(targetValues);
+            numJoints = b3GetNumJoints(sm,bodyIndex);
+            b3SharedMemoryCommandHandle commandHandle;
+            b3SharedMemoryStatusHandle statusHandle;
+                int qIndex;
+
+            if (len!=numJoints)
+           {
+                PyErr_SetString(SpamError, "Number of joint position values doesn't match the number of joints.");
+                Py_DECREF(seq);
+                return NULL;
+            }
+
+	commandHandle = b3CreatePoseCommandInit(sm, bodyIndex);
+
+            for (qIndex=0;qIndex<numJoints;qIndex++)
+            {
+                float value = pybullet_internalGetFloatFromSequence(seq,qIndex);
+		b3CreatePoseCommandSetJointPosition(sm, commandHandle, qIndex, value);
+	}
+          statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+
+            Py_DECREF(seq);
+            Py_INCREF(Py_None);
+            return Py_None;
+        }
+
+    }
+    PyErr_SetString(SpamError, "error in initializeJointPositions.");
+    return NULL;
 }
+
 
 
 // CURRENTLY NOT SUPPORTED 
