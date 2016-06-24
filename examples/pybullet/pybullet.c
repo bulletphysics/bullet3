@@ -290,7 +290,13 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
     //todo(erwincoumans): set max forces, kp, kd
 
     int size;
-    
+    int bodyIndex, jointIndex, controlMode;
+    double targetValue=0;
+    double maxForce=100000;
+    double gains=0.1;
+    int valid = 0;
+     
+     
     if (0==sm)
     {
         PyErr_SetString(SpamError, "Not connected to physics server.");
@@ -301,69 +307,96 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
     
     if (size==4)
     {
-        int bodyIndex, jointIndex, controlMode;
-        double targetValue;
         
-        if (PyArg_ParseTuple(args, "iiid", &bodyIndex, &jointIndex, &controlMode, &targetValue))
+        if (!PyArg_ParseTuple(args, "iiid", &bodyIndex, &jointIndex, &controlMode, &targetValue))
         {
-            int numJoints;
-            b3SharedMemoryCommandHandle commandHandle;
-            b3SharedMemoryStatusHandle statusHandle;
-            struct b3JointInfo info;
+            PyErr_SetString(SpamError, "Error parsing arguments");
+            return NULL;
+        }
+        valid = 1;
+    }
+    if (size==5)
+    {
+        
+        if (!PyArg_ParseTuple(args, "iiidd", &bodyIndex, &jointIndex, &controlMode, &targetValue, &maxForce))
+        {
+            PyErr_SetString(SpamError, "Error parsing arguments");
+            return NULL;
+        }
+        valid = 1;
+    }
+    if (size==6)
+    {
+        
+        if (!PyArg_ParseTuple(args, "iiiddd", &bodyIndex, &jointIndex, &controlMode, &targetValue, &maxForce, &gains))
+        {
+            PyErr_SetString(SpamError, "Error parsing arguments");
+            return NULL;
+        }
+        valid = 1;
+    }
+    
+    
+    if (valid)
+    {
+        int numJoints;
+        b3SharedMemoryCommandHandle commandHandle;
+        b3SharedMemoryStatusHandle statusHandle;
+        struct b3JointInfo info;
 
-			numJoints = b3GetNumJoints(sm,bodyIndex);
-            if ((jointIndex >= numJoints) || (jointIndex < 0))
-            {
-                PyErr_SetString(SpamError, "Joint index out-of-range.");
-                return NULL;
-            }
-            
-            if ((controlMode != CONTROL_MODE_VELOCITY) &&
-                (controlMode != CONTROL_MODE_TORQUE) &&
-                (controlMode != CONTROL_MODE_POSITION_VELOCITY_PD))
-            {
-                PyErr_SetString(SpamError, "Illegral control mode.");
-                return NULL;
-            }
-            
-            commandHandle = b3JointControlCommandInit2(sm, bodyIndex,controlMode);
-             
-            b3GetJointInfo(sm, bodyIndex, jointIndex, &info);
-            
-            switch (controlMode)
-            {
-                case CONTROL_MODE_VELOCITY:
-                {
-                    b3JointControlSetDesiredVelocity(commandHandle, info.m_uIndex, targetValue);
-                    b3JointControlSetKd(commandHandle,info.m_uIndex,1);
-                    b3JointControlSetMaximumForce(commandHandle,info.m_uIndex,10000);
-                    break;
-                }
-
-                case CONTROL_MODE_TORQUE:
-                {
-                    b3JointControlSetDesiredForceTorque(commandHandle, info.m_uIndex, targetValue);
-                    break;
-                }
-                        
-                case CONTROL_MODE_POSITION_VELOCITY_PD:
-                {
-                    b3JointControlSetDesiredPosition( commandHandle, info.m_qIndex, targetValue);
-                    b3JointControlSetKp(commandHandle,info.m_uIndex,1);
-                    b3JointControlSetMaximumForce(commandHandle,info.m_uIndex,10000);
-                    break;
-                }
-                default:
-                {
-                }
-            };
-            
-            statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
-            
-            Py_INCREF(Py_None);
-            return Py_None;
+        numJoints = b3GetNumJoints(sm,bodyIndex);
+        if ((jointIndex >= numJoints) || (jointIndex < 0))
+        {
+            PyErr_SetString(SpamError, "Joint index out-of-range.");
+            return NULL;
         }
         
+        if ((controlMode != CONTROL_MODE_VELOCITY) &&
+            (controlMode != CONTROL_MODE_TORQUE) &&
+            (controlMode != CONTROL_MODE_POSITION_VELOCITY_PD))
+        {
+            PyErr_SetString(SpamError, "Illegral control mode.");
+            return NULL;
+        }
+        
+        commandHandle = b3JointControlCommandInit2(sm, bodyIndex,controlMode);
+         
+        b3GetJointInfo(sm, bodyIndex, jointIndex, &info);
+        
+        switch (controlMode)
+        {
+            case CONTROL_MODE_VELOCITY:
+            {
+                b3JointControlSetDesiredVelocity(commandHandle, info.m_uIndex, targetValue);
+                double kd = gains;
+                b3JointControlSetKd(commandHandle,info.m_uIndex,kd);
+                b3JointControlSetMaximumForce(commandHandle,info.m_uIndex,maxForce);
+                break;
+            }
+
+            case CONTROL_MODE_TORQUE:
+            {
+                b3JointControlSetDesiredForceTorque(commandHandle, info.m_uIndex, targetValue);
+                break;
+            }
+                    
+            case CONTROL_MODE_POSITION_VELOCITY_PD:
+            {
+                b3JointControlSetDesiredPosition( commandHandle, info.m_qIndex, targetValue);
+                double kp = gains;
+                b3JointControlSetKp(commandHandle,info.m_uIndex,kp);
+                b3JointControlSetMaximumForce(commandHandle,info.m_uIndex,maxForce);
+                break;
+            }
+            default:
+            {
+            }
+        };
+        
+        statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+        
+        Py_INCREF(Py_None);
+        return Py_None;
     }
     PyErr_SetString(SpamError, "error in setJointControl.");
     return NULL;

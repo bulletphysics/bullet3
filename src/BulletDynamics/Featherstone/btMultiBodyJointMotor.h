@@ -25,8 +25,11 @@ class btMultiBodyJointMotor : public btMultiBodyConstraint
 {
 protected:
 
-
 	btScalar	m_desiredVelocity;
+	btScalar	m_desiredPosition;
+	btScalar    m_kd;
+	btScalar    m_kp;
+	
 
 public:
 
@@ -42,10 +45,18 @@ public:
 		btMultiBodyJacobianData& data,
 		const btContactSolverInfo& infoGlobal);
 
-    virtual void setVelocityTarget(btScalar velTarget)
+    virtual void setVelocityTarget(btScalar velTarget, btScalar kd = 1.f)
     {
         m_desiredVelocity = velTarget;
+        m_kd = kd;
     }
+
+    virtual void setPositionTarget(btScalar posTarget, btScalar kp = 1.f)
+    {
+        m_desiredPosition = posTarget;
+        m_kp = kp;
+    }
+    
 
 	virtual void debugDraw(class btIDebugDraw* drawer)
 	{
