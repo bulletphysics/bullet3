@@ -85,9 +85,9 @@ void testSharedMemory(b3PhysicsClientHandle sm)
                 b3SharedMemoryStatusHandle statusHandle;
                 b3SharedMemoryCommandHandle commandHandle;
                 double jointAngle = 0.f;
-                
+               	int jointIndex; 
                 commandHandle = b3CreatePoseCommandInit(sm, bodyUniqueId);
-                for (int jointIndex=0;jointIndex<numJoints;jointIndex++)
+                for (jointIndex=0;jointIndex<numJoints;jointIndex++)
                 {
                     b3CreatePoseCommandSetJointPosition(sm, commandHandle, jointIndex, jointAngle);
                 }

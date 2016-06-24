@@ -115,6 +115,7 @@ enum EnumInitPoseFlags
 struct InitPoseArgs
 {
 	int m_bodyUniqueId;
+	int m_hasInitialStateQ[MAX_DEGREE_OF_FREEDOM];
 	double m_initialStateQ[MAX_DEGREE_OF_FREEDOM];
 };
 
@@ -179,11 +180,14 @@ struct SendDesiredStateArgs
 	double m_Kp[MAX_DEGREE_OF_FREEDOM];//indexed by degree of freedom, 6 for base, and then the dofs for each link
 	double m_Kd[MAX_DEGREE_OF_FREEDOM];//indexed by degree of freedom, 6 for base, and then the dofs for each link
 
+    int m_hasDesiredStateFlags[MAX_DEGREE_OF_FREEDOM];
+    
 	//desired state is only written by the client, read-only access by server is expected
 
 	//m_desiredStateQ is indexed by position variables, 
 	//starting with 3 base position variables, 4 base orientation variables (quaternion), then link position variables
     double m_desiredStateQ[MAX_DEGREE_OF_FREEDOM];
+    
 
 	//m_desiredStateQdot is index by velocity degrees of freedom, 3 linear and 3 angular variables for the base and then link velocity variables
     double m_desiredStateQdot[MAX_DEGREE_OF_FREEDOM];
