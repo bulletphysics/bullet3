@@ -976,6 +976,32 @@ static int pybullet_internalSetMatrix(PyObject* objMat, float matrix[16])
     return 0;
 }
 
+// internal function to set a float vector[3]
+// used to initialize camera position with
+// a view and projection matrix in renderImage()
+//
+// // Args:
+//  matrix - float[16] which will be set by values from objMat
+static int pybullet_internalSetVector(PyObject* objMat, float vector[3])
+{
+    int i, len;
+    PyObject* seq;
+
+    seq = PySequence_Fast(objMat, "expected a sequence");
+    len = PySequence_Size(objMat);
+    if (len==3)
+    {
+        for (i = 0; i < len; i++)
+        {
+            vector[i] = pybullet_internalGetFloatFromSequence(seq,i);
+        }
+        Py_DECREF(seq);
+        return 1;
+    }
+    Py_DECREF(seq);
+    return 0;
+}
+
 // Render an image from the current timestep of the simulation
 //
 // Examples:
@@ -995,10 +1021,20 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
   ///request an image from a simulated camera, using a software renderer.
   struct b3CameraImageData imageData;
   PyObject* objViewMat,* objProjMat;
-  int width,  height;
+  PyObject* objCameraPos,*objTargetPos,* objCameraUp;
+
+  int width, height;
   int size= PySequence_Size(args);
   float viewMatrix[16];
   float projectionMatrix[16];
+  
+  float cameraPos[3];
+  float targetPos[3];
+  float cameraUp[3];
+
+  float left, right, bottom, top, aspect;
+  float nearVal = .001;
+  float farVal = 1000;
 
   // inialize cmd
   b3SharedMemoryCommandHandle command;
@@ -1035,6 +1071,46 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
        }
    }
 
+   if (size==5) // set camera resoluation and view and projection matrix
+   {
+     if (PyArg_ParseTuple(args, "iiOOO", &width, &height, &objCameraPos, &objTargetPos, &objCameraUp))
+     {
+       b3RequestCameraImageSetPixelResolution(command,width,height);
+       if (pybullet_internalSetVector(objCameraPos, cameraPos) &&
+           pybullet_internalSetVector(objTargetPos, targetPos) &&
+           pybullet_internalSetVector(objCameraUp, cameraUp))
+           {
+              printf("\ncamera pos:\n");
+                for(int i =0;i<3; i++) {
+                  printf(" %f", cameraPos[i]);
+                }
+  
+                printf("\ntargetPos pos:\n");
+                  for(int i =0;i<3; i++) {
+                    printf(" %f", targetPos[i]);
+                  }
+
+                printf("\ncameraUp pos:\n");
+                  for(int i =0;i<3; i++) {
+                    printf(" %f", cameraUp[i]);
+                  }
+                  printf("\n");
+                b3RequestCameraImageSetViewMatrix(command, cameraPos, targetPos, cameraUp);
+                printf("\n");
+
+           }
+           aspect = width/height;
+           left = -aspect * nearVal;
+           right = aspect * nearVal;
+           bottom = -nearVal;
+           top = nearVal;
+           
+           b3RequestCameraImageSetProjectionMatrix(command, left, right, bottom, top, nearVal, farVal);
+           printf("\n");
+
+      }
+    }
+    
 	if (b3CanSubmitCommand(sm))
 	{
 		b3SharedMemoryStatusHandle statusHandle;
