@@ -1434,7 +1434,16 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 														if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex]&SIM_DESIRED_STATE_HAS_QDOT)!=0)
                                                         {
 															desiredVelocity = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[dofIndex];
-                                                            motor->setVelocityTarget(desiredVelocity);
+                                                            btScalar kd = 0.1f;
+                                                            if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] & SIM_DESIRED_STATE_HAS_KD)!=0)
+                                                            {
+                                                                kd = clientCmd.m_sendDesiredStateCommandArgument.m_Kd[dofIndex];
+                                                            }    
+                                                        
+                                                            motor->setVelocityTarget(desiredVelocity,kd);
+                                                            
+                                                            btScalar kp = 0.f;
+                                                            motor->setPositionTarget(0,kp);
                                                             hasDesiredVelocity = true;
                                                         }
                                                         if (hasDesiredVelocity)
@@ -1511,16 +1520,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                                                 kd = clientCmd.m_sendDesiredStateCommandArgument.m_Kd[velIndex];
                                                             }
 
-                                                            int dof1 = 0;
-                                                            btScalar currentPosition = mb->getJointPosMultiDof(link)[dof1];
-                                                            btScalar currentVelocity = mb->getJointVelMultiDof(link)[dof1];
-                                                            btScalar positionStabiliationTerm = (desiredPosition-currentPosition)/m_data->m_physicsDeltaTime;
-                                                            btScalar velocityError = (desiredVelocity - currentVelocity);
-
-                                                            desiredVelocity =   kp * positionStabiliationTerm +
-                                                                                kd * velocityError;
-
-                                                            motor->setVelocityTarget(desiredVelocity);
+                                                            motor->setVelocityTarget(desiredVelocity,kd);
+                                                            motor->setPositionTarget(desiredPosition,kp);
+                                                            
                                                             btScalar maxImp = 1000000.f*m_data->m_physicsDeltaTime;
 
                                                             if ((clientCmd.m_updateFlags & SIM_DESIRED_STATE_HAS_MAX_FORCE)!=0)
