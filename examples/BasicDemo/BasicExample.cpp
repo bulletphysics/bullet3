@@ -42,7 +42,7 @@ struct BasicExample : public CommonRigidBodyBase
 		float dist = 41;
 		float pitch = 52;
 		float yaw = 35;
-		float targetPos[3]={0,0.46,0};
+		float targetPos[3]={0,0,0};
 		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
 	}
 };

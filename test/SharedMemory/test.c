@@ -68,6 +68,9 @@ void testSharedMemory(b3PhysicsClientHandle sm)
             int bodyUniqueId = bodyIndicesOut[0];
             
             numJoints = b3GetNumJoints(sm,bodyUniqueId);
+            ASSERT_EQ(numJoints,7);
+
+#if 0
             b3Printf("numJoints: %d\n", numJoints);
             for (i=0;i<numJoints;i++)
             {
@@ -77,8 +80,25 @@ void testSharedMemory(b3PhysicsClientHandle sm)
                     b3Printf("jointInfo[%d].m_jointName=%s\n",i,jointInfo.m_jointName);
                 }
             }
-            //ASSERT_EQ(numBodies ==1);
+#endif
+            {
+                b3SharedMemoryStatusHandle statusHandle;
+                b3SharedMemoryCommandHandle commandHandle;
+                double jointAngle = 0.f;
+               	int jointIndex; 
+                commandHandle = b3CreatePoseCommandInit(sm, bodyUniqueId);
+                for (jointIndex=0;jointIndex<numJoints;jointIndex++)
+                {
+                    b3CreatePoseCommandSetJointPosition(sm, commandHandle, jointIndex, jointAngle);
+                }
+                
+                statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+
+                ASSERT_EQ(b3GetStatusType(statusHandle), CMD_CLIENT_COMMAND_COMPLETED);
+            }
+            
         }
+        
         
         {
             b3SharedMemoryStatusHandle statusHandle;

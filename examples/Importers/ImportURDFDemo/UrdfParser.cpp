@@ -393,13 +393,22 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
           }
           
           geom.m_meshFileName = shape->Attribute("filename");
-          
-          if (shape->Attribute("scale"))
+		  geom.m_meshScale.setValue(1,1,1);
+
+		  if (shape->Attribute("scale"))
           {
-              parseVector3(geom.m_meshScale,shape->Attribute("scale"),logger);
+              if (!parseVector3(geom.m_meshScale,shape->Attribute("scale"),logger))
+			  {
+				  logger->reportWarning("scale should be a vector3, not single scalar. Workaround activated.\n");
+				  std::string scalar_str = shape->Attribute("scale");
+				  double scaleFactor = urdfLexicalCast<double>(scalar_str.c_str());
+				  if (scaleFactor)
+				  {
+					  geom.m_meshScale.setValue(scaleFactor,scaleFactor,scaleFactor);
+				  }
+			  }
           } else
           {
-              geom.m_meshScale.setValue(1,1,1);
           }
       }
   }
