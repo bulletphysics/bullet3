@@ -151,7 +151,12 @@ b3SharedMemoryCommandHandle     b3InitResetSimulationCommand(b3PhysicsClientHand
 }
 
 
-b3SharedMemoryCommandHandle b3JointControlCommandInit( b3PhysicsClientHandle physClient, int bodyUniqueId, int controlMode)
+b3SharedMemoryCommandHandle  b3JointControlCommandInit(b3PhysicsClientHandle physClient, int controlMode)
+{
+    return b3JointControlCommandInit2(physClient,0,controlMode);
+}
+
+b3SharedMemoryCommandHandle b3JointControlCommandInit2( b3PhysicsClientHandle physClient, int bodyUniqueId, int controlMode)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;
     b3Assert(cl);
@@ -162,6 +167,10 @@ b3SharedMemoryCommandHandle b3JointControlCommandInit( b3PhysicsClientHandle phy
     command->m_sendDesiredStateCommandArgument.m_controlMode = controlMode;
 	command->m_sendDesiredStateCommandArgument.m_bodyUniqueId = bodyUniqueId;
 	command->m_updateFlags = 0;
+    for (int i=0;i<MAX_DEGREE_OF_FREEDOM;i++)
+    {
+        command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[i] = 0;
+    }
     return (b3SharedMemoryCommandHandle) command;
 }
 
@@ -171,6 +180,7 @@ int b3JointControlSetDesiredPosition(b3SharedMemoryCommandHandle commandHandle, 
     b3Assert(command);
     command->m_sendDesiredStateCommandArgument.m_desiredStateQ[qIndex] = value;
 	command->m_updateFlags |= SIM_DESIRED_STATE_HAS_Q;
+    command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[qIndex] |= SIM_DESIRED_STATE_HAS_Q;
 
     return 0;
 }
@@ -181,6 +191,8 @@ int b3JointControlSetKp(b3SharedMemoryCommandHandle commandHandle, int dofIndex,
     b3Assert(command);
     command->m_sendDesiredStateCommandArgument.m_Kp[dofIndex] = value;
 	command->m_updateFlags |= SIM_DESIRED_STATE_HAS_KP;
+    command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] |= SIM_DESIRED_STATE_HAS_KP;
+
     return 0;
 }
 
@@ -190,6 +202,7 @@ int b3JointControlSetKd(b3SharedMemoryCommandHandle commandHandle, int dofIndex,
     b3Assert(command);
     command->m_sendDesiredStateCommandArgument.m_Kd[dofIndex] = value;
 	command->m_updateFlags |= SIM_DESIRED_STATE_HAS_KD;
+    command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] |= SIM_DESIRED_STATE_HAS_KD;
 
     return 0;
 }
@@ -200,6 +213,8 @@ int b3JointControlSetDesiredVelocity(b3SharedMemoryCommandHandle commandHandle, 
     b3Assert(command);
     command->m_sendDesiredStateCommandArgument.m_desiredStateQdot[dofIndex] = value;
 	command->m_updateFlags |= SIM_DESIRED_STATE_HAS_QDOT;
+    command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] |= SIM_DESIRED_STATE_HAS_QDOT;
+
     return 0;
 }
 
@@ -210,6 +225,8 @@ int b3JointControlSetMaximumForce(b3SharedMemoryCommandHandle commandHandle, int
     b3Assert(command);
     command->m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex] = value;
 	command->m_updateFlags |= SIM_DESIRED_STATE_HAS_MAX_FORCE;
+    command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] |= SIM_DESIRED_STATE_HAS_MAX_FORCE;
+
     return 0;
 }
 
@@ -218,6 +235,9 @@ int b3JointControlSetDesiredForceTorque(b3SharedMemoryCommandHandle commandHandl
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
     command->m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex] = value;
+    command->m_updateFlags |= SIM_DESIRED_STATE_HAS_MAX_FORCE;
+    command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] |= SIM_DESIRED_STATE_HAS_MAX_FORCE;
+
     return 0;
 }
 
@@ -366,6 +386,7 @@ int	b3CreateBoxCommandSetStartOrientation(b3SharedMemoryCommandHandle commandHan
 
 b3SharedMemoryCommandHandle b3CreatePoseCommandInit(b3PhysicsClientHandle physClient, int bodyIndex)
 {
+    
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
     b3Assert(cl);
     b3Assert(cl->canSubmitCommand());
@@ -374,6 +395,11 @@ b3SharedMemoryCommandHandle b3CreatePoseCommandInit(b3PhysicsClientHandle physCl
     command->m_type = CMD_INIT_POSE;
     command->m_updateFlags =0;
 	command->m_initPoseArgs.m_bodyUniqueId = bodyIndex;
+	//a bit slow, initialing the full range to zero...
+	for (int i=0;i<MAX_DEGREE_OF_FREEDOM;i++)
+    {
+        command->m_initPoseArgs.m_hasInitialStateQ[i] = 0;
+    }
     return (b3SharedMemoryCommandHandle) command;
 }
 
@@ -386,6 +412,11 @@ int	b3CreatePoseCommandSetBasePosition(b3SharedMemoryCommandHandle commandHandle
 	command->m_initPoseArgs.m_initialStateQ[0] = startPosX;
 	command->m_initPoseArgs.m_initialStateQ[1] = startPosY;
 	command->m_initPoseArgs.m_initialStateQ[2] = startPosZ;
+	
+	command->m_initPoseArgs.m_hasInitialStateQ[0] = 1;
+	command->m_initPoseArgs.m_hasInitialStateQ[1] = 1;
+	command->m_initPoseArgs.m_hasInitialStateQ[2] = 1;
+	
 	return 0;
 }
 
@@ -399,6 +430,12 @@ int	b3CreatePoseCommandSetBaseOrientation(b3SharedMemoryCommandHandle commandHan
 	command->m_initPoseArgs.m_initialStateQ[4] = startOrnY;
 	command->m_initPoseArgs.m_initialStateQ[5] = startOrnZ;
 	command->m_initPoseArgs.m_initialStateQ[6] = startOrnW;
+	
+	command->m_initPoseArgs.m_hasInitialStateQ[3] = 1;
+	command->m_initPoseArgs.m_hasInitialStateQ[4] = 1;
+	command->m_initPoseArgs.m_hasInitialStateQ[5] = 1;
+	command->m_initPoseArgs.m_hasInitialStateQ[6] = 1;
+	
 	return 0;
 }
 
@@ -411,6 +448,7 @@ int	b3CreatePoseCommandSetJointPositions(b3SharedMemoryCommandHandle commandHand
 	for (int i=0;i<numJointPositions;i++)
 	{
 		command->m_initPoseArgs.m_initialStateQ[i+7] = jointPositions[i];
+		command->m_initPoseArgs.m_hasInitialStateQ[i+7] = 1;
 	}
 	return 0;
 }
@@ -427,6 +465,7 @@ int	b3CreatePoseCommandSetJointPosition(b3PhysicsClientHandle physClient, b3Shar
 	if ((info.m_flags & JOINT_HAS_MOTORIZED_POWER) && info.m_qIndex >=0)
 	{  
 		command->m_initPoseArgs.m_initialStateQ[info.m_qIndex] = jointPosition;
+		command->m_initPoseArgs.m_hasInitialStateQ[info.m_qIndex] = 1;
 	}
 	return 0;
 }

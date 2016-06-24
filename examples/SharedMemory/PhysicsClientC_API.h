@@ -95,14 +95,20 @@ int	b3LoadUrdfCommandSetUseFixedBase(b3SharedMemoryCommandHandle commandHandle, 
 
 b3SharedMemoryCommandHandle	b3LoadSdfCommandInit(b3PhysicsClientHandle physClient, const char* sdfFileName);
 
-///Set joint control variables such as desired position/angle, desired velocity,
+///The b3JointControlCommandInit method is obsolete, use b3JointControlCommandInit2 instead
+b3SharedMemoryCommandHandle  b3JointControlCommandInit(b3PhysicsClientHandle physClient, int controlMode);
+
+    
+///Set joint motor control variables such as desired position/angle, desired velocity,
 ///applied joint forces, dependent on the control mode (CONTROL_MODE_VELOCITY or CONTROL_MODE_TORQUE)
-b3SharedMemoryCommandHandle  b3JointControlCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId, int controlMode);
+b3SharedMemoryCommandHandle  b3JointControlCommandInit2(b3PhysicsClientHandle physClient, int bodyUniqueId, int controlMode);
+
 ///Only use when controlMode is CONTROL_MODE_POSITION_VELOCITY_PD
 int b3JointControlSetDesiredPosition(b3SharedMemoryCommandHandle commandHandle, int qIndex, double value);
 int b3JointControlSetKp(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double value);
 int b3JointControlSetKd(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double value);
-//Only use when controlMode is CONTROL_MODE_VELOCITY
+
+///Only use when controlMode is CONTROL_MODE_VELOCITY
 int b3JointControlSetDesiredVelocity(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double value); /* find a better name for dof/q/u indices, point to b3JointInfo */
 int b3JointControlSetMaximumForce(b3SharedMemoryCommandHandle commandHandle, int dofIndex,  double value);
 ///Only use if when controlMode is CONTROL_MODE_TORQUE,

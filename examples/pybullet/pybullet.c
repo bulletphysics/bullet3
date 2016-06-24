@@ -3,11 +3,18 @@
 #include "../SharedMemory/SharedMemoryInProcessPhysicsC_API.h"
 
 
+
 #ifdef __APPLE__
 #include <Python/Python.h>
 #else
 #include <Python.h>
 #endif
+
+
+#if PY_MAJOR_VERSION >= 3
+#define PyInt_FromLong PyLong_FromLong
+#define PyString_FromString PyBytes_FromString
+#endif 
 
 enum eCONNECT_METHOD
 {
@@ -133,9 +140,11 @@ pybullet_loadURDF(PyObject* self, PyObject* args)
 	
 	int bodyIndex = -1;
 	const char* urdfFileName="";
+	
 	float startPosX =0;
-  float startPosY =0;
-  float startPosZ = 1;
+    float startPosY =0;
+    float startPosZ = 0;
+  
 	float startOrnX = 0;
 	float startOrnY = 0;
 	float startOrnZ = 0;
@@ -216,7 +225,7 @@ pybullet_loadSDF(PyObject* self, PyObject* args)
 	PyObject* pylist=0;
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType;
-	b3SharedMemoryCommandHandle command;
+	b3SharedMemoryCommandHandle commandHandle;
 
 	if (0==sm)
 	{
@@ -230,8 +239,8 @@ pybullet_loadSDF(PyObject* self, PyObject* args)
 		return NULL;
 	}
 
-	command = b3LoadSdfCommandInit(sm, sdfFileName);
-	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	commandHandle = b3LoadSdfCommandInit(sm, sdfFileName);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 	statusType = b3GetStatusType(statusHandle);
 	if (statusType!=CMD_SDF_LOADING_COMPLETED)
 	{
@@ -276,7 +285,7 @@ pybullet_resetSimulation(PyObject* self, PyObject* args)
 	return Py_None;
 }
 
-static PyObject* pybullet_setJointControl(PyObject* self, PyObject* args)
+static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
 {
     //todo(erwincoumans): set max forces, kp, kd
 
@@ -290,24 +299,22 @@ static PyObject* pybullet_setJointControl(PyObject* self, PyObject* args)
     
     size= PySequence_Size(args);
     
-    if (size==3)
+    if (size==4)
     {
-        int bodyIndex, controlMode;
-        PyObject* targetValues;
-        if (PyArg_ParseTuple(args, "iiO", &bodyIndex, &controlMode, &targetValues))
+        int bodyIndex, jointIndex, controlMode;
+        double targetValue;
+        
+        if (PyArg_ParseTuple(args, "iiid", &bodyIndex, &jointIndex, &controlMode, &targetValue))
         {
-            PyObject* seq;
-            int numJoints, len;
-            seq = PySequence_Fast(targetValues, "expected a sequence");
-            len = PySequence_Size(targetValues);
-            numJoints = b3GetNumJoints(sm,bodyIndex);
+            int numJoints;
             b3SharedMemoryCommandHandle commandHandle;
-            int qIndex;
-            
-            if (len!=numJoints)
+            b3SharedMemoryStatusHandle statusHandle;
+            struct b3JointInfo info;
+
+			numJoints = b3GetNumJoints(sm,bodyIndex);
+            if ((jointIndex >= numJoints) || (jointIndex < 0))
             {
-                PyErr_SetString(SpamError, "Number of control target values doesn't match the number of joints.");
-                Py_DECREF(seq);
+                PyErr_SetString(SpamError, "Joint index out-of-range.");
                 return NULL;
             }
             
@@ -316,42 +323,43 @@ static PyObject* pybullet_setJointControl(PyObject* self, PyObject* args)
                 (controlMode != CONTROL_MODE_POSITION_VELOCITY_PD))
             {
                 PyErr_SetString(SpamError, "Illegral control mode.");
-                Py_DECREF(seq);
                 return NULL;
             }
             
-            commandHandle = b3JointControlCommandInit(sm, bodyIndex,controlMode);
+            commandHandle = b3JointControlCommandInit2(sm, bodyIndex,controlMode);
+             
+            b3GetJointInfo(sm, bodyIndex, jointIndex, &info);
             
-            for (qIndex=0;qIndex<numJoints;qIndex++)
+            switch (controlMode)
             {
-                float value = pybullet_internalGetFloatFromSequence(seq,qIndex);
-            
-                switch (controlMode)
+                case CONTROL_MODE_VELOCITY:
                 {
-                    case CONTROL_MODE_VELOCITY:
-                    {
-                        b3JointControlSetDesiredVelocity(commandHandle, qIndex, value);
-                        break;
-                    }
+                    b3JointControlSetDesiredVelocity(commandHandle, info.m_uIndex, targetValue);
+                    b3JointControlSetKd(commandHandle,info.m_uIndex,1);
+                    b3JointControlSetMaximumForce(commandHandle,info.m_uIndex,10000);
+                    break;
+                }
 
-                    case CONTROL_MODE_TORQUE:
-                    {
-                        b3JointControlSetDesiredForceTorque(commandHandle, qIndex, value);
-                        break;
-                    }
+                case CONTROL_MODE_TORQUE:
+                {
+                    b3JointControlSetDesiredForceTorque(commandHandle, info.m_uIndex, targetValue);
+                    break;
+                }
                         
-                    case CONTROL_MODE_POSITION_VELOCITY_PD:
-                    {
-                        b3JointControlSetDesiredPosition( commandHandle, qIndex, value);
-                        break;
-                    }
-                    default:
-                    {
-                    
-                    }
-                };
-            }
-            Py_DECREF(seq);
+                case CONTROL_MODE_POSITION_VELOCITY_PD:
+                {
+                    b3JointControlSetDesiredPosition( commandHandle, info.m_qIndex, targetValue);
+                    b3JointControlSetKp(commandHandle,info.m_uIndex,1);
+                    b3JointControlSetMaximumForce(commandHandle,info.m_uIndex,10000);
+                    break;
+                }
+                default:
+                {
+                }
+            };
+            
+            statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+            
             Py_INCREF(Py_None);
             return Py_None;
         }
@@ -546,35 +554,51 @@ pybullet_getNumJoints(PyObject* self, PyObject* args)
 
 // Initalize all joint positions given a list of values
 static PyObject*
-pybullet_initializeJointPositions(PyObject* self, PyObject* args)
+pybullet_resetJointState(PyObject* self, PyObject* args)
 {
+	int size;
 	if (0==sm)
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-  // TODO(hellojas): initialize all joint positions given a pylist of values
 
-    //
-    //
-    /*
-     ///b3CreatePoseCommandInit will initialize (teleport) the pose of a body/robot. You can individually set the base position,
-     ///base orientation and joint angles. This will set all velocities of base and joints to zero.
-     ///This is not a robot control command using actuators/joint motors, but manual repositioning the robot.
-     b3SharedMemoryCommandHandle b3CreatePoseCommandInit(b3PhysicsClientHandle physClient, int bodyIndex);
-     int     b3CreatePoseCommandSetBasePosition(b3SharedMemoryCommandHandle commandHandle, double startPosX,double startPosY,double startPosZ);
-     int     b3CreatePoseCommandSetBaseOrientation(b3SharedMemoryCommandHandle commandHandle, double startOrnX,double startOrnY,double startOrnZ, double startOrnW);
-     int     b3CreatePoseCommandSetJointPositions(b3SharedMemoryCommandHandle commandHandle, int numJointPositions, const double* jointPositions);
-     int     b3CreatePoseCommandSetJointPosition(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle,  int jointIndex, double jointPosition);
-     
 
-     */
-    //
-    //
-    
-	Py_INCREF(Py_None);
-        return Py_None;
+	size= PySequence_Size(args);
+   
+	if (size==3)
+	{
+        int bodyIndex;
+        int jointIndex;
+        double targetValue;
+        
+        if (PyArg_ParseTuple(args, "iid", &bodyIndex, &jointIndex, &targetValue))
+        {
+            b3SharedMemoryCommandHandle commandHandle;
+            b3SharedMemoryStatusHandle statusHandle;
+            int numJoints;
+            
+            numJoints = b3GetNumJoints(sm,bodyIndex);
+            if ((jointIndex >= numJoints) || (jointIndex < 0))
+            {
+                PyErr_SetString(SpamError, "Joint index out-of-range.");
+                return NULL;
+            }
+            
+            commandHandle = b3CreatePoseCommandInit(sm, bodyIndex);
+
+            b3CreatePoseCommandSetJointPosition(sm, commandHandle,  jointIndex, targetValue);
+
+            statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+            Py_INCREF(Py_None);
+            return Py_None;
+        }
+
+    }
+    PyErr_SetString(SpamError, "error in resetJointState.");
+    return NULL;
 }
+
 
 
 // CURRENTLY NOT SUPPORTED 
@@ -620,7 +644,7 @@ pybullet_initializeJointPositions(PyObject* self, PyObject* args)
 // 	Py_INCREF(Py_None);
 //         return Py_None;
 // }
-
+#if 0
 static void pybullet_internalGetJointPositions(int bodyIndex, int numJoints, double jointPositions[]) {
   int i, j;
   int numDegreeQ;
@@ -708,7 +732,7 @@ pybullet_getJointPositions(PyObject* self, PyObject* args)
     Py_INCREF(Py_None);
     return Py_None;
 }
-
+#endif 
 
 // Get the a single joint info for a specific bodyIndex
 //
@@ -727,13 +751,7 @@ pybullet_getJointPositions(PyObject* self, PyObject* args)
 static PyObject*
 pybullet_getJointInfo(PyObject* self, PyObject* args)
 {
-	if (0==sm)
-	{
-		PyErr_SetString(SpamError, "Not connected to physics server.");
-		return NULL;
-	}
-
-  PyObject *pyListJointInfo; 
+	  PyObject *pyListJointInfo; 
   
   struct b3JointInfo info;
   
@@ -742,6 +760,14 @@ pybullet_getJointInfo(PyObject* self, PyObject* args)
   int jointInfoSize = 8; //size of struct b3JointInfo
     
   int size= PySequence_Size(args);
+
+	if (0==sm)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+
 
   if (size==2) // get body index and joint index
   {
@@ -769,9 +795,8 @@ pybullet_getJointInfo(PyObject* self, PyObject* args)
     //          info.m_flags,
     //          info.m_jointDamping,
     //          info.m_jointFriction);
-
       PyTuple_SetItem(pyListJointInfo, 0, 
-        PyInt_FromLong(info.m_jointIndex));
+      PyInt_FromLong(info.m_jointIndex));
       PyTuple_SetItem(pyListJointInfo, 1, 
         PyString_FromString(info.m_jointName));
       PyTuple_SetItem(pyListJointInfo, 2, 
@@ -786,7 +811,6 @@ pybullet_getJointInfo(PyObject* self, PyObject* args)
         PyFloat_FromDouble(info.m_jointDamping));
       PyTuple_SetItem(pyListJointInfo, 7, 
         PyFloat_FromDouble(info.m_jointFriction));    
-           
       return pyListJointInfo;
     }
   }
@@ -812,14 +836,7 @@ pybullet_getJointInfo(PyObject* self, PyObject* args)
 static PyObject*
 pybullet_getJointState(PyObject* self, PyObject* args)
 {
-	if (0==sm)
-	{
-		PyErr_SetString(SpamError, "Not connected to physics server.");
-		return NULL;
-	}
-  
-    
-  PyObject *pyListJointForceTorque; 
+	  PyObject *pyListJointForceTorque; 
   PyObject *pyListJointState; 
   PyObject *item;   
   
@@ -834,6 +851,15 @@ pybullet_getJointState(PyObject* self, PyObject* args)
     
     
   int size= PySequence_Size(args);
+
+	if (0==sm)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+  
+    
+
 
   if (size==2) // get body index and joint index
   {
@@ -1034,11 +1060,6 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 
 
 static PyMethodDef SpamMethods[] = {
-  {"loadURDF",  pybullet_loadURDF, METH_VARARGS,
-      "Create a multibody by loading a URDF file."},
-      
-	{"loadSDF", pybullet_loadSDF, METH_VARARGS,
-		"Load multibodies from an SDF file."},
   
   {"connect",  pybullet_connectPhysicsServer, METH_VARARGS,
       "Connect to an existing physics server (using shared memory by default)."},
@@ -1055,34 +1076,44 @@ static PyMethodDef SpamMethods[] = {
 	{"setGravity",  pybullet_setGravity, METH_VARARGS,
         "Set the gravity acceleration (x,y,z)."},
 
-	{"initializeJointPositions", pybullet_initializeJointPositions, METH_VARARGS,
-	"Initialize the joint positions for all joints. This method skips any physics simulation and teleports all joints to the new positions."},
-	
-  // CURRENTLY NOT SUPPORTED
-  // {"initializeJointPosition", pybullet_initializeJointPosition, METH_VARARGS,
-  // "Initialize the joint position for one joint. This method skips any physics simulation and teleports the joint to the new position."},
-  
-  {"getJointInfo", pybullet_getJointInfo, METH_VARARGS,
-  "Get the joint metadata info for a joint on a body. This includes joint index, name, type, q-index and u-index."},
-  
-  {"getJointState", pybullet_getJointState, METH_VARARGS,
-  "Get the joint metadata info for a joint on a body."},
-
-    {"setJointControl", pybullet_setJointControl, METH_VARARGS,
-        "Set the joint control mode and desired target values."},
-
+    {"loadURDF",  pybullet_loadURDF, METH_VARARGS,
+      "Create a multibody by loading a URDF file."},
+      
+	{"loadSDF", pybullet_loadSDF, METH_VARARGS,
+		"Load multibodies from an SDF file."},
     
-	{"renderImage", pybullet_renderImage, METH_VARARGS,
-	"Render an image (given the pixel resolution width & height and camera view & projection matrices), and return the 8-8-8bit RGB pixel data and floating point depth values"},	
-	
 	{"getBasePositionAndOrientation",  pybullet_getBasePositionAndOrientation, METH_VARARGS,
         "Get the world position and orientation of the base of the object. (x,y,z) position vector and (x,y,z,w) quaternion orientation."},
 
-  {"getJointPositions", pybullet_getJointPositions, METH_VARARGS,
-  "Get the all the joint positions for a given body index."},
-        
+//    {"resetBasePositionAndOrientation",  pybullet_getBasePositionAndOrientation, METH_VARARGS,
+//        "Reset the world position and orientation of the base of the object instantaneously, not through physics simulation. (x,y,z) position vector and (x,y,z,w) quaternion orientation."},
+
 	{"getNumJoints", pybullet_getNumJoints, METH_VARARGS,
         "Get the number of joints for an object."},
+
+    {"getJointInfo", pybullet_getJointInfo, METH_VARARGS,
+    "Get the name and type info for a joint on a body."},
+
+    {"getJointState", pybullet_getJointState, METH_VARARGS,
+    "Get the state (position, velocity etc) for a joint on a body."},
+	  
+	{"resetJointState", pybullet_resetJointState, METH_VARARGS,
+    "Reset the state (position, velocity etc) for a joint on a body instantaneously, not through physics simulation."},
+		
+    {"setJointMotorControl", pybullet_setJointMotorControl, METH_VARARGS,
+        "Set a single joint motor control mode and desired target value. There is no immediate state change, stepSimulation will process the motors."},
+    
+    //saveSnapshot
+    //loadSnapshot
+    
+    //collision info
+    //raycast info
+        
+    //applyBaseForce
+    //applyLinkForce
+     
+	{"renderImage", pybullet_renderImage, METH_VARARGS,
+	"Render an image (given the pixel resolution width & height and camera view & projection matrices), and return the 8-8-8bit RGB pixel data and floating point depth values"},	
 	
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
