@@ -37,6 +37,9 @@ public:
     virtual const float* getDebugLinesFrom() const = 0;
     virtual const float* getDebugLinesTo() const = 0;
     virtual const float* getDebugLinesColor() const = 0;
+
+	virtual void getCachedCameraImage(struct b3CameraImageData* cameraData)=0;
+	
 };
 
 #endif  // BT_PHYSICS_CLIENT_API_H

@@ -101,3 +101,35 @@ if os.is("MacOSX") then
         links{"Cocoa.framework"}
 end
                           
+
+project "App_BasicExampleTinyRenderer"
+
+if _OPTIONS["ios"] then
+        kind "WindowedApp"
+else
+        kind "ConsoleApp"
+end
+defines {"B3_USE_STANDALONE_EXAMPLE"}
+
+includedirs {"../../src"}
+
+links {
+        "BulletDynamics","BulletCollision", "LinearMath", "Bullet3Common"
+}
+
+
+language "C++"
+
+files {
+        "BasicExample.cpp",
+        "*.h",
+        "../StandaloneMain/main_tinyrenderer_single_example.cpp",
+	"../ExampleBrowser/CollisionShape2TriangleMesh.cpp",
+	"../OpenGLWindow/SimpleCamera.cpp",
+	"../TinyRenderer/geometry.cpp",
+	"../TinyRenderer/model.cpp",
+	"../TinyRenderer/tgaimage.cpp",
+	"../TinyRenderer/our_gl.cpp",
+	"../TinyRenderer/TinyRenderer.cpp",
+	"../Utils/b3ResourcePath.cpp"
+}

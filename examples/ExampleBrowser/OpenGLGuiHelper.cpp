@@ -143,6 +143,9 @@ struct OpenGLGuiHelperInternalData
 	struct CommonGraphicsApp* m_glApp;
 	class MyDebugDrawer* m_debugDraw;
 	GL_ShapeDrawer* m_gl2ShapeDrawer;
+	
+	btAlignedObjectArray<unsigned char> m_rgbaPixelBuffer;
+	btAlignedObjectArray<float> m_depthBuffer;
 };
 
 
@@ -238,8 +241,6 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
             {
                 gfxVertices[i].uv[j] = 0.5;//we don't have UV info...
             }
-            
-            
         }
     }
     
@@ -324,6 +325,51 @@ void OpenGLGuiHelper::resetCamera(float camDist, float pitch, float yaw, float c
 	}
 }
 
+
+void OpenGLGuiHelper::copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied)
+{
+    int w = m_data->m_glApp->m_window->getWidth()*m_data->m_glApp->m_window->getRetinaScale();
+    int h = m_data->m_glApp->m_window->getHeight()*m_data->m_glApp->m_window->getRetinaScale();
+    
+    if (widthPtr)
+        *widthPtr = w;
+    if (heightPtr)
+        *heightPtr = h;
+	if (numPixelsCopied)
+        *numPixelsCopied = 0;
+
+    int numTotalPixels = w*h;
+    int numRemainingPixels = numTotalPixels - startPixelIndex;
+    int numBytesPerPixel = 4;//RGBA
+    int numRequestedPixels  = btMin(rgbaBufferSizeInPixels,numRemainingPixels);
+    if (numRequestedPixels)
+    {
+        if (startPixelIndex==0)
+        {
+			
+			//quick test: render the scene
+			getRenderInterface()->renderScene();
+            //copy the image into our local cache
+            m_data->m_rgbaPixelBuffer.resize(w*h*numBytesPerPixel);
+            m_data->m_depthBuffer.resize(w*h);
+            m_data->m_glApp->getScreenPixels(&(m_data->m_rgbaPixelBuffer[0]),m_data->m_rgbaPixelBuffer.size());
+        }
+        for (int i=0;i<numRequestedPixels*numBytesPerPixel;i++)
+        {
+            if (pixelsRGBA)
+            {
+                pixelsRGBA[i] = m_data->m_rgbaPixelBuffer[i+startPixelIndex*numBytesPerPixel];
+            }
+        }
+
+		if (numPixelsCopied)
+	        *numPixelsCopied = numRequestedPixels;
+
+
+    }
+    
+   
+}
 
 
 

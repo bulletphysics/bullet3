@@ -11,6 +11,7 @@
 #include "../CommonInterfaces/CommonParameterInterface.h"
 #include "../../Utils/b3ResourcePath.h"
 
+
 #include "BulletUrdfImporter.h"
 
 
@@ -199,18 +200,9 @@ void ImportUrdfSetup::initPhysics()
 
 	m_dynamicsWorld->setGravity(gravity);
 
+	BulletURDFImporter u2b(m_guiHelper, 0);
 	
-
-    //now print the tree using the new interface
-    URDFImporterInterface* bla=0;
 	
-    static bool newURDF = true;
-	if (newURDF)
-	{
-		b3Printf("using new URDF\n");
-		bla = new  BulletURDFImporter(m_guiHelper);
-	}
-	URDFImporterInterface& u2b = *bla;
 	bool loadOk =  u2b.loadURDF(m_fileName);
 
 #ifdef TEST_MULTIBODY_SERIALIZATION	

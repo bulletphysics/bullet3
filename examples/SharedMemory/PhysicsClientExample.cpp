@@ -2,7 +2,7 @@
 #include "PhysicsClientExample.h"
 
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
-
+#include "../CommonInterfaces/Common2dCanvasInterface.h"
 #include "SharedMemoryCommon.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 #include "PhysicsClientC_API.h"
@@ -11,7 +11,7 @@
 #include "PhysicsLoopBackC_API.h"
 #include "PhysicsDirectC_API.h"
 #include "PhysicsClientC_API.h"
-
+#include "PhysicsServerSharedMemory.h"
 struct MyMotorInfo2
 {
 	btScalar m_velTarget;
@@ -21,6 +21,9 @@ struct MyMotorInfo2
     int     m_qIndex;
 };
 
+int camVisualizerWidth = 640;//1024/3;
+int camVisualizerHeight = 480;//768/3;
+
 
 #define MAX_NUM_MOTORS 128
 
@@ -28,25 +31,34 @@ class PhysicsClientExample : public SharedMemoryCommon
 {
 protected:
     b3PhysicsClientHandle m_physicsClientHandle;
+
+	//this m_physicsServer is only used when option eCLIENTEXAMPLE_SERVER is enabled
+	PhysicsServerSharedMemory	m_physicsServer;
 	
 	bool m_wantsTermination;
     btAlignedObjectArray<int> m_userCommandRequests;
     int m_sharedMemoryKey;
     int m_selectedBody;
 	int m_prevSelectedBody;
+	struct Common2dCanvasInterface* m_canvas;
+	int m_canvasIndex;
+	
 	void	createButton(const char* name, int id, bool isTrigger );
 
 	void createButtons();
 	
-public:
+
     
     //@todo, add accessor methods
 	// MyMotorInfo2 m_motorTargetVelocities[MAX_NUM_MOTORS];
     MyMotorInfo2 m_motorTargetPositions[MAX_NUM_MOTORS];
 	int m_numMotors;
+	int m_options;
+	bool m_isOptionalServerConnected;
 
-    
-	PhysicsClientExample(GUIHelperInterface* helper);
+	public:
+
+	PhysicsClientExample(GUIHelperInterface* helper, int options);
 	virtual ~PhysicsClientExample();
     
 	virtual void	initPhysics();
@@ -93,6 +105,11 @@ public:
 	virtual void    exitPhysics(){};
 	virtual void	renderScene()
 	{
+		if (m_options == eCLIENTEXAMPLE_SERVER)
+		{
+			m_physicsServer.renderScene();
+		}
+
         b3DebugLines debugLines;
         b3GetDebugLines(m_physicsClientHandle,&debugLines);
         int numLines = debugLines.m_numDebugLines;
@@ -153,7 +170,13 @@ public:
             b3JointControlSetMaximumForce(commandHandle,uIndex,1000);
         }
 	}
-	virtual void	physicsDebugDraw(int debugFlags){}
+	virtual void	physicsDebugDraw(int debugFlags)
+	{
+		if (m_options==eCLIENTEXAMPLE_SERVER)
+		{
+			m_physicsServer.physicsDebugDraw(debugFlags);
+		}
+	}
 	virtual bool	mouseMoveCallback(float x,float y){return false;};
 	virtual bool	mouseButtonCallback(int button, int state, float x, float y){return false;}
 	virtual bool	keyboardCallback(int key, int state){return false;}
@@ -216,6 +239,20 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 //            ret = b3LoadUrdfCommandSetUseFixedBase(commandHandle, 1);
             b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
 
+            break;
+        }
+        case CMD_REQUEST_CAMERA_IMAGE_DATA:
+        {
+            ///request an image from a simulated camera, using a software renderer.
+            
+            b3SharedMemoryCommandHandle commandHandle = b3InitRequestCameraImage(m_physicsClientHandle);
+            
+			float viewMatrix[16];
+			float projectionMatrix[16];
+			this->m_guiHelper->getRenderInterface()->getActiveCamera()->getCameraProjectionMatrix(projectionMatrix);
+			this->m_guiHelper->getRenderInterface()->getActiveCamera()->getCameraViewMatrix(viewMatrix);
+            b3RequestCameraImageSetCameraMatrices(commandHandle, viewMatrix,projectionMatrix);
+            b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
             break;
         }
         case CMD_CREATE_BOX_COLLISION_SHAPE:
@@ -352,7 +389,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
         case CMD_SEND_PHYSICS_SIMULATION_PARAMETERS: {
             b3SharedMemoryCommandHandle commandHandle = b3InitPhysicsParamCommand(m_physicsClientHandle);
             b3PhysicsParamSetGravity(commandHandle, 0.0, 0.0, -9.8);
-            b3SubmitClientCommandAndWaitStatus(m_physicsClientHandle, commandHandle);
+            b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
             break;
         }
         default:
@@ -365,14 +402,17 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 
 
 
-PhysicsClientExample::PhysicsClientExample(GUIHelperInterface* helper)
+PhysicsClientExample::PhysicsClientExample(GUIHelperInterface* helper, int options)
 :SharedMemoryCommon(helper),
 m_physicsClientHandle(0),
 m_wantsTermination(false),
 m_sharedMemoryKey(SHARED_MEMORY_KEY),
 m_selectedBody(-1),
 m_prevSelectedBody(-1),
-m_numMotors(0)
+m_numMotors(0),
+m_options(options),
+m_isOptionalServerConnected(false),
+m_canvas(0)
 {
 	b3Printf("Started PhysicsClientExample\n");
 }
@@ -383,6 +423,12 @@ PhysicsClientExample::~PhysicsClientExample()
 	{
 		b3ProcessServerStatus(m_physicsClientHandle);
 		b3DisconnectSharedMemory(m_physicsClientHandle);
+	}
+
+	if (m_options == eCLIENTEXAMPLE_SERVER)
+	{
+		bool deInitializeSharedMemory = true;
+		m_physicsServer.disconnectSharedMemory(deInitializeSharedMemory);
 	}
     b3Printf("~PhysicsClientExample\n");
 }
@@ -404,9 +450,13 @@ void	PhysicsClientExample::createButtons()
 		m_guiHelper->getParameterInterface()->removeAllParameters();
 
         createButton("Load URDF",CMD_LOAD_URDF,  isTrigger);
+        createButton("Get Camera Image",CMD_REQUEST_CAMERA_IMAGE_DATA,isTrigger);
         createButton("Step Sim",CMD_STEP_FORWARD_SIMULATION,  isTrigger);
         createButton("Send Bullet Stream",CMD_SEND_BULLET_DATA_STREAM,  isTrigger);
-        createButton("Get State",CMD_REQUEST_ACTUAL_STATE,  isTrigger);
+		if (m_options!=eCLIENTEXAMPLE_SERVER)
+		{
+			createButton("Get State",CMD_REQUEST_ACTUAL_STATE,  isTrigger);
+		}
         createButton("Send Desired State",CMD_SEND_DESIRED_STATE,  isTrigger);
         createButton("Create Box Collider",CMD_CREATE_BOX_COLLISION_SHAPE,isTrigger);
 		createButton("Create Cylinder Body",CMD_CREATE_RIGID_BODY,isTrigger);
@@ -477,6 +527,39 @@ void	PhysicsClientExample::initPhysics()
 	m_selectedBody = -1;
 	m_prevSelectedBody = -1;
 
+	if (m_options == eCLIENTEXAMPLE_SERVER)
+	{
+		m_canvas = m_guiHelper->get2dCanvasInterface();
+		if (m_canvas)
+		{
+			
+
+			m_canvasIndex = m_canvas->createCanvas("Synthetic Camera",camVisualizerWidth, camVisualizerHeight);
+
+			for (int i=0;i<camVisualizerWidth;i++)
+			{
+				for (int j=0;j<camVisualizerHeight;j++)
+				{
+					unsigned char red=255;
+					unsigned char green=255;
+					unsigned char blue=255;
+					unsigned char alpha=255;
+					if (i==j)
+					{
+						red = 0;
+						green=0;
+						blue=0;
+					}
+					m_canvas->setPixel(m_canvasIndex,i,j,red,green,blue,alpha);
+				}
+			}
+			m_canvas->refreshImageData(m_canvasIndex);
+			
+		}
+
+		m_isOptionalServerConnected = m_physicsServer.connectSharedMemory( m_guiHelper);
+	}
+
     m_physicsClientHandle  = b3ConnectSharedMemory(m_sharedMemoryKey);
 	//m_physicsClientHandle  = b3ConnectPhysicsLoopback(SHARED_MEMORY_KEY);
 	//m_physicsClientHandle = b3ConnectPhysicsDirect();
@@ -491,6 +574,15 @@ void	PhysicsClientExample::initPhysics()
 
 void	PhysicsClientExample::stepSimulation(float deltaTime)
 {
+
+	if (m_options == eCLIENTEXAMPLE_SERVER)
+	{
+		for (int i=0;i<100;i++)
+		{
+			m_physicsServer.processClientCommands();
+		}
+	}
+
 	if (m_prevSelectedBody != m_selectedBody)
 	{
 		createButtons();
@@ -509,6 +601,46 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 			{
 				//b3Printf("bla\n");
 			}
+			if (statusType ==CMD_CAMERA_IMAGE_COMPLETED)
+            {
+				static int counter=0;
+				char msg[1024];
+				sprintf(msg,"Camera image %d OK\n",counter++);
+				b3CameraImageData imageData;
+				b3GetCameraImageData(m_physicsClientHandle,&imageData);
+				if (m_canvas && m_canvasIndex >=0)
+				{
+					for (int i=0;i<imageData.m_pixelWidth;i++)
+					{
+						for (int j=0;j<imageData.m_pixelHeight;j++)
+						{
+                            int xIndex = int(float(i)*(float(camVisualizerWidth)/float(imageData.m_pixelWidth)));
+                            int yIndex = int(float(j)*(float(camVisualizerHeight)/float(imageData.m_pixelHeight)));
+							btClamp(yIndex,0,imageData.m_pixelHeight);
+							btClamp(xIndex,0,imageData.m_pixelWidth);
+							int bytesPerPixel = 4;
+							
+							int pixelIndex = (i+j*imageData.m_pixelWidth)*bytesPerPixel;
+							m_canvas->setPixel(m_canvasIndex,xIndex,camVisualizerHeight-1-yIndex,
+                                               
+									imageData.m_rgbColorData[pixelIndex],
+									imageData.m_rgbColorData[pixelIndex+1],
+									imageData.m_rgbColorData[pixelIndex+2],
+                                               255);
+//									imageData.m_rgbColorData[pixelIndex+3]);
+						}
+					}
+					m_canvas->refreshImageData(m_canvasIndex);
+				}
+
+                b3Printf(msg);
+            } 
+            if (statusType == CMD_CAMERA_IMAGE_FAILED)
+            {
+                b3Printf("Camera image FAILED\n");
+            }
+       
+        
       		if (statusType == CMD_URDF_LOADING_COMPLETED)
 			{
 				int bodyIndex = b3GetStatusBodyIndex(status);
@@ -564,10 +696,29 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 				m_selectedBody = -1;
                 m_numMotors=0;
                 createButtons();
-            }
-			
-            
-            prepareAndSubmitCommand(commandId);
+				b3SharedMemoryCommandHandle commandHandle = b3InitResetSimulationCommand(m_physicsClientHandle);
+				if (m_options == eCLIENTEXAMPLE_SERVER)
+				{
+					b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+					while (!b3CanSubmitCommand(m_physicsClientHandle))
+					{
+						m_physicsServer.processClientCommands();
+						b3SharedMemoryStatusHandle status = b3ProcessServerStatus(m_physicsClientHandle);
+						bool hasStatus = (status != 0);
+						if (hasStatus)
+						{
+							int statusType = b3GetStatusType(status);
+							b3Printf("Status after reset: %d",statusType);
+						}
+					}
+				} else
+				{
+					prepareAndSubmitCommand(commandId);
+				}
+            } else
+			{
+	            prepareAndSubmitCommand(commandId);
+			}
             
         }  else
         {
@@ -575,7 +726,10 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
             {
                 enqueueCommand(CMD_SEND_DESIRED_STATE);
                 enqueueCommand(CMD_STEP_FORWARD_SIMULATION);
-                enqueueCommand(CMD_REQUEST_DEBUG_LINES);
+				if (m_options != eCLIENTEXAMPLE_SERVER)
+				{
+					enqueueCommand(CMD_REQUEST_DEBUG_LINES);
+				}
                 //enqueueCommand(CMD_REQUEST_ACTUAL_STATE);
             }
         }
@@ -589,7 +743,7 @@ extern int gSharedMemoryKey;
 
 class CommonExampleInterface*    PhysicsClientCreateFunc(struct CommonExampleOptions& options)
 {
-    PhysicsClientExample* example = new PhysicsClientExample(options.m_guiHelper);
+    PhysicsClientExample* example = new PhysicsClientExample(options.m_guiHelper, options.m_option);
 	if (gSharedMemoryKey>=0)
 	{
 		example->setSharedMemoryKey(gSharedMemoryKey);

@@ -425,6 +425,18 @@ void SimpleOpenGL3App::drawText( const char* txt, int posXi, int posYi)
 	glDisable(GL_BLEND);
 }
 
+
+void SimpleOpenGL3App::drawTexturedRect(float x0, float y0, float x1, float y1, float color[4], float u0,float v0, float u1, float v1, int useRGBA)
+{
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	m_primRenderer->drawTexturedRect(x0,y0,x1,y1,color,u0,v0,u1,v1,useRGBA);
+	glDisable(GL_BLEND);
+}
+
+
+
 struct GfxVertex
 	{
 		float x,y,z,w;
@@ -643,6 +655,20 @@ SimpleOpenGL3App::~SimpleOpenGL3App()
 	m_window->closeWindow();
 	delete m_window;
 	delete m_data ;
+}
+
+void SimpleOpenGL3App::getScreenPixels(unsigned char* rgbaBuffer, int bufferSizeInBytes)
+{
+    
+    int width = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenWidth();
+    int height = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenHeight();
+    if ((width*height*4) == bufferSizeInBytes)
+    {
+        glReadPixels(0,0,width, height, GL_RGBA, GL_UNSIGNED_BYTE, rgbaBuffer);
+		int glstat = glGetError();
+		b3Assert(glstat==GL_NO_ERROR);
+    }
+    
 }
 
 //#define STB_IMAGE_WRITE_IMPLEMENTATION

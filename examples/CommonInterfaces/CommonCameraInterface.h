@@ -6,6 +6,8 @@ struct CommonCameraInterface
 	virtual void getCameraProjectionMatrix(float m[16])const = 0;
 	virtual void getCameraViewMatrix(float m[16]) const = 0;
 		
+	virtual void	setVRCamera(const float viewMat[16], const float projectionMatrix[16])=0;
+
 	virtual void getCameraTargetPosition(float pos[3]) const = 0;
 	virtual void getCameraPosition(float pos[3]) const = 0;
 

@@ -676,3 +676,41 @@ void    b3GetDebugLines(b3PhysicsClientHandle physClient, struct b3DebugLines* l
     }
     
 }
+
+///request an image from a simulated camera, using a software renderer.
+b3SharedMemoryCommandHandle b3InitRequestCameraImage(b3PhysicsClientHandle physClient)
+{
+    PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type =CMD_REQUEST_CAMERA_IMAGE_DATA;
+	command->m_requestPixelDataArguments.m_startPixelIndex = 0;
+    command->m_updateFlags = 0;//REQUEST_PIXEL_ARGS_USE_HARDWARE_OPENGL;
+    return (b3SharedMemoryCommandHandle) command;
+}
+
+
+void b3RequestCameraImageSetCameraMatrices(b3SharedMemoryCommandHandle commandHandle, float viewMatrix[16], float projectionMatrix[16])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
+	for (int i=0;i<16;i++)
+	{
+		command->m_requestPixelDataArguments.m_projectionMatrix[i] = projectionMatrix[i];
+		command->m_requestPixelDataArguments.m_viewMatrix[i] = viewMatrix[i];
+	}
+	command->m_updateFlags |= REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES;
+}
+
+void b3GetCameraImageData(b3PhysicsClientHandle physClient, struct b3CameraImageData* imageData)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+	if (cl)
+	{
+		cl->getCachedCameraImage(imageData);
+	}
+}
+

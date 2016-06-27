@@ -42,7 +42,7 @@ struct RigidBodyFromObjExample : public CommonRigidBodyBase
 	virtual void renderScene();
 	void resetCamera()
 	{
-		float dist = 41;
+		float dist = 11;
 		float pitch = 52;
 		float yaw = 35;
 		float targetPos[3]={0,0.46,0};
@@ -87,8 +87,11 @@ void RigidBodyFromObjExample::initPhysics()
 
 	const GLInstanceVertex& v = glmesh->m_vertices->at(0);
 	btConvexHullShape* shape = new btConvexHullShape((const btScalar*)(&(v.xyzw[0])), glmesh->m_numvertices, sizeof(GLInstanceVertex));
+
+	float scaling[4] = {0.1,0.1,0.1,1};
 	
-	shape->setLocalScaling(btVector3(0.1,0.1,0.1));
+	btVector3 localScaling(scaling[0],scaling[1],scaling[2]);
+	shape->setLocalScaling(localScaling);
 	    
     if (m_options & OptimizeConvexObj)
     {
@@ -114,25 +117,27 @@ void RigidBodyFromObjExample::initPhysics()
 	if (isDynamic)
 		shape->calculateLocalInertia(mass,localInertia);
 
-	btVector3 position(0,20,0);
+	float color[4] = {1,1,1,1};
+	float orn[4] = {0,0,0,1};
+	float pos[4] = {0,3,0,0};
+	btVector3 position(pos[0],pos[1],pos[2]);
 	startTransform.setOrigin(position);
-	btRigidBody* body = createRigidBody(mass,startTransform,shape);	
-	 
-	btVector3 color(1,1,1);
-	btVector3 scaling(0.1,0.1,0.1);
+        btRigidBody* body = createRigidBody(mass,startTransform,shape);
+
+
+	
 	bool useConvexHullForRendering = ((m_options & ObjUseConvexHullForRendering)!=0);
     
 	    
 	if (!useConvexHullForRendering)
     {
-        int shapeId = m_guiHelper->getRenderInterface()->registerShape(&glmesh->m_vertices->at(0).xyzw[0], 
-                                                                        glmesh->m_numvertices, 
-                                                                        &glmesh->m_indices->at(0), 
-                                                                        glmesh->m_numIndices,
-                                                                    B3_GL_TRIANGLES,-1);
-        shape->setUserIndex(shapeId);
-        int renderInstance = m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId,position,startTransform.getRotation(),color,scaling);
-        body->setUserIndex(renderInstance);
+		int shapeId = m_guiHelper->registerGraphicsShape(&glmesh->m_vertices->at(0).xyzw[0], 
+																		glmesh->m_numvertices, 
+																		&glmesh->m_indices->at(0), 
+																		glmesh->m_numIndices);
+		shape->setUserIndex(shapeId);
+		int renderInstance = m_guiHelper->registerGraphicsInstance(shapeId,pos,orn,color,scaling);
+		body->setUserIndex(renderInstance);
     }
     
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
@@ -155,5 +160,5 @@ CommonExampleInterface*    ET_RigidBodyFromObjCreateFunc(CommonExampleOptions& o
 	return new RigidBodyFromObjExample(options.m_guiHelper,options.m_option);
 }
 
-
+B3_STANDALONE_EXAMPLE(ET_RigidBodyFromObjCreateFunc)
 
