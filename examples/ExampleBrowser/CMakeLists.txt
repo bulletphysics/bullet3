@@ -171,6 +171,8 @@ SET(BulletExampleBrowser_SRCS
 	../ExtendedTutorials/SimpleJoint.h
 	../ExtendedTutorials/NewtonsCradle.cpp
 	../ExtendedTutorials/NewtonsCradle.h
+	../ExtendedTutorials/NewtonsRopeCradle.cpp
+	../ExtendedTutorials/NewtonsRopeCradle.h
 	../ExtendedTutorials/InclinedPlane.cpp
 	../ExtendedTutorials/InclinedPlane.h
 	../ExtendedTutorials/MultiPendulum.cpp

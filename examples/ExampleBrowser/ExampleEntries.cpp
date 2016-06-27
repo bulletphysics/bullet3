@@ -66,6 +66,7 @@
 #include "../ExtendedTutorials/RigidBodyFromObj.h"
 #include "../ExtendedTutorials/InclinedPlane.h"
 #include "../ExtendedTutorials/NewtonsCradle.h"
+#include "../ExtendedTutorials/NewtonsRopeCradle.h"
 #include "../ExtendedTutorials/MultiPendulum.h"
 
 struct ExampleEntry
@@ -279,6 +280,7 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Simple Bridge", "Create a simple bridge using a pair of point2point/distance constraints. You may click and drag any plank to see the bridge respond.", ET_BridgeCreateFunc),
 	ExampleEntry(1,"Inclined Plane", "Create an inclined plane to show restitution and different types of friction. Use the sliders to vary restitution and friction and press space to reset the scene.", ET_InclinedPlaneCreateFunc),
 	ExampleEntry(1,"Newton's Cradle", "Create a Newton's Cradle using a pair of point2point/slider constraints. Press 1/2 to lengthen/shorten the pendula, press 3 to displace pendula. Use the sliders to select the number of pendula in total (reset simulation), the number of displaced pendula and other options.", ET_NewtonsCradleCreateFunc),
+	ExampleEntry(1,"Newton's Rope Cradle", "Create a Newton's Cradle using ropes. Press 3 to displace pendula. Use the sliders to select the number of pendula in total (reset simulation) and the number of displaced pendula.",ET_NewtonsRopeCradleCreateFunc),
 	ExampleEntry(1,"Multi-Pendulum", "Create a Multi-Pendulum using point2point/slider constraints. Press 1/2 to lengthen/shorten the pendula, press 3 to displace pendula. Use the sliders to select the number of pendula in total (reset simulation), the number of displaced pendula and other options.",ET_MultiPendulumCreateFunc),
 
 

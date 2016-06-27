@@ -30,7 +30,7 @@ static btScalar gPendulaQty = 5; // Number of pendula in newton's cradle
 static btScalar gDisplacedPendula = 1; // number of displaced pendula
 //TODO: This is an int as well
 
-static btScalar gPendulaRestitution = 1; // pendula restition when hitting against each other
+static btScalar gPendulaRestitution = 1; // pendula restitution when hitting against each other
 
 static btScalar gSphereRadius = 1; // pendula radius
 
@@ -48,8 +48,7 @@ struct NewtonsCradleExample: public CommonRigidBodyBase {
 	}
 	virtual void initPhysics();
 	virtual void renderScene();
-	virtual void createPendulum(btSphereShape* colShape, btScalar xPosition,
-		btScalar yPosition, btScalar zPosition, btScalar length, btScalar mass);
+	virtual void createPendulum(btSphereShape* colShape, btVector3 position, btScalar length, btScalar mass);
 	virtual void changePendulaLength(btScalar length);
 	virtual void changePendulaRestitution(btScalar restitution);
 	virtual void stepSimulation(float deltaTime);
@@ -139,12 +138,11 @@ void NewtonsCradleExample::initPhysics() {
 				+ btIDebugDraw::DBG_DrawConstraints
 				+ btIDebugDraw::DBG_DrawConstraintLimits);
 
-	{ // create the pendulum starting at the indicated position below and where each pendulum has the following mass
+	{ // create the pendula starting at the indicated position below and where each pendulum has the following mass
 		btScalar pendulumMass(1.f);
 
-		btScalar xPosition(0.0f); // initial left-most pendulum position
-		btScalar yPosition(15.0f);
-		btScalar zPosition(0.0f);
+		btVector3 position(0.0f,15.0f,0.0f); // initial left-most pendulum position
+		btQuaternion orientation(0,0,0,1); // orientation of the pendula
 
 		// Re-using the same collision is better for memory usage and performance
 		btSphereShape* pendulumShape = new btSphereShape(gSphereRadius);
@@ -153,11 +151,10 @@ void NewtonsCradleExample::initPhysics() {
 		for (int i = 0; i < floor(gPendulaQty); i++) {
 
 			// create pendulum
-			createPendulum(pendulumShape, xPosition, yPosition, zPosition,
-				gInitialPendulumLength, pendulumMass);
+			createPendulum(pendulumShape, position, gInitialPendulumLength, pendulumMass);
 
 			// displace the pendula 1.05 sphere size, so that they all nearly touch (small spacings in between
-			xPosition -= 2.1f * gSphereRadius;
+			position.setX(position.x()-2.1f * gSphereRadius);
 		}
 	}
 
@@ -171,8 +168,7 @@ void NewtonsCradleExample::stepSimulation(float deltaTime) {
 
 }
 
-void NewtonsCradleExample::createPendulum(btSphereShape* colShape,
-	btScalar xPosition, btScalar yPosition, btScalar zPosition, btScalar length, btScalar mass) {
+void NewtonsCradleExample::createPendulum(btSphereShape* colShape,btVector3 position, btScalar length, btScalar mass) {
 
 	// The pendulum looks like this (names when built):
 	// O   topSphere
@@ -184,15 +180,14 @@ void NewtonsCradleExample::createPendulum(btSphereShape* colShape,
 	startTransform.setIdentity();
 
 	// position the top sphere above ground with a moving x position
-	startTransform.setOrigin(
-		btVector3(btScalar(xPosition), btScalar(yPosition), btScalar(zPosition)));
+	startTransform.setOrigin(position);
 	startTransform.setRotation(btQuaternion(0, 0, 0, 1)); // zero rotation
 	btRigidBody* topSphere = createRigidBody(mass, startTransform, colShape);
 
 	// position the bottom sphere below the top sphere
 	startTransform.setOrigin(
-		btVector3(btScalar(xPosition), btScalar(yPosition - length),
-			btScalar(zPosition)));
+		btVector3(position.x(), btScalar(position.y() - length),
+			position.z()));
 
 	startTransform.setRotation(btQuaternion(0, 0, 0, 1)); // zero rotation
 	btRigidBody* bottomSphere = createRigidBody(mass, startTransform, colShape);
