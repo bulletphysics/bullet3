@@ -319,6 +319,27 @@ struct SdfRequestInfoArgs
     int m_bodyUniqueId;
 };
 
+///flags for b3ApplyExternalTorque and b3ApplyExternalForce
+enum EnumExternalForcePrivateFlags
+{
+//    EF_LINK_FRAME=1,
+//    EF_WORLD_FRAME=2,
+    EF_TORQUE=4,
+    EF_FORCE=8,
+};
+
+
+
+struct ExternalForceArgs
+{
+    int m_numForcesAndTorques;
+    int m_bodyUniqueIds[MAX_SDF_BODIES];
+    int m_linkIds[MAX_SDF_BODIES];
+    double m_forcesAndTorques[3*MAX_SDF_BODIES];
+    double m_positions[3*MAX_SDF_BODIES];
+    int m_forceFlags[MAX_SDF_BODIES];
+};
+
 enum EnumSdfRequestInfoFlags
 {
     SDF_REQUEST_INFO_BODY=1,
@@ -350,6 +371,7 @@ struct SharedMemoryCommand
 		struct RequestDebugLinesArgs m_requestDebugLinesArguments;
 		struct RequestPixelDataArgs m_requestPixelDataArguments;
 		struct PickBodyArgs m_pickBodyArguments;
+        struct ExternalForceArgs m_externalForceArguments;
     };
 };
 
