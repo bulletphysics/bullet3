@@ -1074,7 +1074,7 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 
    if (size==5) // set camera resoluation and view and projection matrix
    {
-     if (PyArg_ParseTuple(args, "iiOOOii", &width, &height, &objCameraPos, &objTargetPos, &objCameraUp, &nearVal, %farVal))
+     if (PyArg_ParseTuple(args, "iiOOOii", &width, &height, &objCameraPos, &objTargetPos, &objCameraUp, &nearVal, &farVal))
      {
        b3RequestCameraImageSetPixelResolution(command,width,height);
        if (pybullet_internalSetVector(objCameraPos, cameraPos) &&
