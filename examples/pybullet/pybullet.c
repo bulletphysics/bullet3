@@ -1033,8 +1033,9 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
   float cameraUp[3];
 
   float left, right, bottom, top, aspect;
-  float nearVal = .001;
-  float farVal = 1000;
+  float nearVal, farVal;
+  // float nearVal = .001;
+  // float farVal = 1000;
 
   // inialize cmd
   b3SharedMemoryCommandHandle command;
@@ -1073,32 +1074,33 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 
    if (size==5) // set camera resoluation and view and projection matrix
    {
-     if (PyArg_ParseTuple(args, "iiOOO", &width, &height, &objCameraPos, &objTargetPos, &objCameraUp))
+     if (PyArg_ParseTuple(args, "iiOOOii", &width, &height, &objCameraPos, &objTargetPos, &objCameraUp, &nearVal, %farVal))
      {
        b3RequestCameraImageSetPixelResolution(command,width,height);
        if (pybullet_internalSetVector(objCameraPos, cameraPos) &&
            pybullet_internalSetVector(objTargetPos, targetPos) &&
            pybullet_internalSetVector(objCameraUp, cameraUp))
            {
-              printf("\ncamera pos:\n");
-                for(int i =0;i<3; i++) {
-                  printf(" %f", cameraPos[i]);
-                }
-  
-                printf("\ntargetPos pos:\n");
-                  for(int i =0;i<3; i++) {
-                    printf(" %f", targetPos[i]);
-                  }
-
-                printf("\ncameraUp pos:\n");
-                  for(int i =0;i<3; i++) {
-                    printf(" %f", cameraUp[i]);
-                  }
-                  printf("\n");
+              // printf("\ncamera pos:\n");
+              //   for(int i =0;i<3; i++) {
+              //     printf(" %f", cameraPos[i]);
+              //   }
+              // 
+              //   printf("\ntargetPos pos:\n");
+              //     for(int i =0;i<3; i++) {
+              //       printf(" %f", targetPos[i]);
+              //     }
+              // 
+              //   printf("\ncameraUp pos:\n");
+              //     for(int i =0;i<3; i++) {
+              //       printf(" %f", cameraUp[i]);
+              //     }
+              //     printf("\n");
                 b3RequestCameraImageSetViewMatrix(command, cameraPos, targetPos, cameraUp);
-                printf("\n");
+                // printf("\n");
 
            }
+           
            aspect = width/height;
            left = -aspect * nearVal;
            right = aspect * nearVal;
@@ -1106,7 +1108,7 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
            top = nearVal;
            
            b3RequestCameraImageSetProjectionMatrix(command, left, right, bottom, top, nearVal, farVal);
-           printf("\n");
+          //  printf("\n");
 
       }
     }
