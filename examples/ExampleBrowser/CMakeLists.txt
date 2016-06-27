@@ -164,12 +164,9 @@ SET(BulletExampleBrowser_SRCS
 	../ExtendedTutorials/SimpleCloth.h
 	../ExtendedTutorials/SimpleJoint.cpp
 	../ExtendedTutorials/SimpleJoint.h
-	../ExtendedTutorials/NewtonianPendulum.cpp
-	../ExtendedTutorials/NewtonianPendulum.h
-	../ExtendedTutorials/InclinedPlane.cpp
-	../ExtendedTutorials/InclinedPlane.h
-	../ExtendedTutorials/MultiPendulum.cpp
-	../ExtendedTutorials/MultiPendulum.h
+	../ExtendedTutorials/TimeWarp.cpp
+	../ExtendedTutorials/TimeWarp.h
+	../ExtendedTutorials/BulletUtils.hpp
 	../Collision/CollisionSdkC_Api.cpp
 	../Collision/CollisionSdkC_Api.h
 	../Collision/CollisionTutorialBullet2.cpp

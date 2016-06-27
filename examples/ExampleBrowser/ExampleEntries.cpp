@@ -64,6 +64,7 @@
 #include "../ExtendedTutorials/Chain.h"
 #include "../ExtendedTutorials/Bridge.h"
 #include "../ExtendedTutorials/RigidBodyFromObj.h" 
+#include "../ExtendedTutorials/TimeWarp.h"
 
 struct ExampleEntry
 {
@@ -268,9 +269,7 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Simple Cloth", "Creating a simple piece of cloth", ET_SimpleClothCreateFunc),
 	ExampleEntry(1,"Simple Chain", "Creating a simple chain using a pair of point2point/distance constraints. You may click and drag any box to see the chain respond.", ET_ChainCreateFunc),
 	ExampleEntry(1,"Simple Bridge", "Creating a simple bridge using a pair of point2point/distance constraints. You may click and drag any plank to see the bridge respond.", ET_BridgeCreateFunc),
-	ExampleEntry(1,"Inclined Plane","Drop some boxes on an inclined plane",ET_InclinedPlaneCreateFunc),
-	ExampleEntry(1,"Multi Pendulum","Create a multi pendulum",ET_MultiPendulumCreateFunc),
-	ExampleEntry(1,"Newtonian Pendulum","Create a newtonian pendulum",ET_NewtonianPendulumCreateFunc),
+	ExampleEntry(1,"Time Warp", "Implement the canonical game loop to run a simulation fully deterministic. Control the simulation speed, internal Application Ticks, Physics steps per second, FPS, and learn about ERP/CFM. Use the buttons to trigger problematic settings and see how it influences the simulation. Press space to reset the simulation, hit 'Back to normal' to reset the settings.",ET_TimeWarpCreateFunc),
 
 	//todo: create a category/tutorial about advanced topics, such as optimizations, using different collision detection algorithm, different constraint solvers etc.
 	//ExampleEntry(0,"Advanced"),
