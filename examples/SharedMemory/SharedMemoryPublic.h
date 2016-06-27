@@ -26,6 +26,7 @@ enum EnumSharedMemoryClientCommand
     CMD_MOVE_PICKED_BODY,
     CMD_REMOVE_PICKING_CONSTRAINT_BODY,
     CMD_REQUEST_CAMERA_IMAGE_DATA,
+    CMD_APPLY_EXTERNAL_FORCE,
     CMD_MAX_CLIENT_COMMANDS
 };
 
@@ -143,5 +144,11 @@ enum {
     CONTROL_MODE_POSITION_VELOCITY_PD,
 };
 
+///flags for b3ApplyExternalTorque and b3ApplyExternalForce
+enum EnumExternalForceFlags
+{
+    EF_LINK_FRAME=1,
+    EF_WORLD_FRAME=2,
+};
 
 #endif//SHARED_MEMORY_PUBLIC_H

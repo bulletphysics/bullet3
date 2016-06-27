@@ -903,3 +903,50 @@ void b3GetCameraImageData(b3PhysicsClientHandle physClient, struct b3CameraImage
 	}
 }
 
+b3SharedMemoryCommandHandle b3ApplyExternalForceCommandInit(b3PhysicsClientHandle physClient)
+{
+    PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    
+    command->m_type = CMD_APPLY_EXTERNAL_FORCE;
+    command->m_updateFlags = 0;
+    command->m_externalForceArguments.m_numForcesAndTorques = 0;
+    return (b3SharedMemoryCommandHandle) command;
+}
+
+void b3ApplyExternalForce(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkId, const double force[3], const double position[3], int flag)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_APPLY_EXTERNAL_FORCE);
+    int index = command->m_externalForceArguments.m_numForcesAndTorques;
+    command->m_externalForceArguments.m_bodyUniqueIds[index] = bodyUniqueId;
+    command->m_externalForceArguments.m_linkIds[index] = linkId;
+    command->m_externalForceArguments.m_forceFlags[index] = EF_FORCE+flag;
+    for (int i = 0; i < 3; ++i) {
+        command->m_externalForceArguments.m_forcesAndTorques[index+i] = force[i];
+        command->m_externalForceArguments.m_positions[index+i] = position[i];
+    }
+    
+    command->m_externalForceArguments.m_numForcesAndTorques++;
+}
+
+void b3ApplyExternalTorque(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkId, const double torque[3], int flag)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_APPLY_EXTERNAL_FORCE);
+    int index = command->m_externalForceArguments.m_numForcesAndTorques;
+    command->m_externalForceArguments.m_bodyUniqueIds[index] = bodyUniqueId;
+    command->m_externalForceArguments.m_linkIds[index] = linkId;
+    command->m_externalForceArguments.m_forceFlags[index] = EF_TORQUE+flag;
+
+    for (int i = 0; i < 3; ++i) {
+        command->m_externalForceArguments.m_forcesAndTorques[index+i] = torque[i];
+    }
+    command->m_externalForceArguments.m_numForcesAndTorques++;
+}
+
