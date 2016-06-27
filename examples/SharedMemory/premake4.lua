@@ -26,6 +26,8 @@ files {
 	"PhysicsServer.h",
 	"main.cpp",
 	"PhysicsClientC_API.cpp",
+	"SharedMemoryCommands.h",
+	"SharedMemoryPublic.h",
 	"PhysicsServer.cpp",
 	"PosixSharedMemory.cpp",
 	"Win32SharedMemory.cpp",

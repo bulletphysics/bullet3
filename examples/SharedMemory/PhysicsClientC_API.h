@@ -159,6 +159,11 @@ b3SharedMemoryCommandHandle b3MovePickedBody(b3PhysicsClientHandle physClient, d
                                              double rayToWorldZ);
 b3SharedMemoryCommandHandle b3RemovePickingConstraint(b3PhysicsClientHandle physClient);
 
+/// Apply external force at the body (or link) center of mass, in world space/Cartesian coordinates.
+b3SharedMemoryCommandHandle b3ApplyExternalForceCommandInit(b3PhysicsClientHandle physClient);
+void b3ApplyExternalForce(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkId, const double force[3], const double position[3], int flags);
+void b3ApplyExternalTorque(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkId, const double torque[3], int flags);
+
 #ifdef __cplusplus
 }
 #endif
