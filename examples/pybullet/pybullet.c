@@ -142,9 +142,8 @@ pybullet_loadURDF(PyObject* self, PyObject* args)
 	const char* urdfFileName="";
 	
 	float startPosX =0;
-    float startPosY =0;
-    float startPosZ = 0;
-  
+  float startPosY =0;
+  float startPosZ = 0;
 	float startOrnX = 0;
 	float startOrnY = 0;
 	float startOrnZ = 0;
@@ -174,6 +173,7 @@ pybullet_loadURDF(PyObject* self, PyObject* args)
                 return NULL;
 	}
     {
+      // printf("(%f, %f, %f) (%f, %f, %f, %f)\n", startPosX,startPosY,startPosZ,startOrnX, startOrnY,startOrnZ, startOrnW);
         
         b3SharedMemoryStatusHandle statusHandle;
         int statusType;
@@ -181,6 +181,7 @@ pybullet_loadURDF(PyObject* self, PyObject* args)
 
         //setting the initial position, orientation and other arguments are optional
         b3LoadUrdfCommandSetStartPosition(command, startPosX,startPosY,startPosZ);
+        b3LoadUrdfCommandSetStartOrientation(command, startOrnX, startOrnY,startOrnZ, startOrnW );
         statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
         statusType = b3GetStatusType(statusHandle);
         if (statusType!=CMD_URDF_LOADING_COMPLETED)
