@@ -134,6 +134,13 @@ struct UrdfModel
 	btHashMap<btHashString, UrdfJoint*> m_joints;
 	
 	btArray<UrdfLink*> m_rootLinks;
+	bool m_overrideFixedBase;
+
+	UrdfModel()
+		:m_overrideFixedBase(false)
+	{
+		m_rootTransformInWorld.setIdentity();
+	}
 	
 };
 

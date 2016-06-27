@@ -19,6 +19,10 @@ protected:
 
 	bool processDebugLines(const struct SharedMemoryCommand& orgCommand);
 
+	bool processCamera(const struct SharedMemoryCommand& orgCommand);
+
+    void processBodyJointInfo(int bodyUniqueId, const struct SharedMemoryStatus& serverCmd);
+    
 public:
 
     PhysicsDirect();
@@ -44,7 +48,7 @@ public:
 
     virtual int getNumJoints(int bodyIndex) const;
 
-    virtual void getJointInfo(int bodyIndex, int jointIndex, struct b3JointInfo& info) const;
+    virtual bool getJointInfo(int bodyIndex, int jointIndex, struct b3JointInfo& info) const;
 
 	///todo: move this out of the
     virtual void setSharedMemoryKey(int key);

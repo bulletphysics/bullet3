@@ -26,6 +26,8 @@ files {
 	"PhysicsServer.h",
 	"main.cpp",
 	"PhysicsClientC_API.cpp",
+	"SharedMemoryCommands.h",
+	"SharedMemoryPublic.h",
 	"PhysicsServer.cpp",
 	"PosixSharedMemory.cpp",
 	"Win32SharedMemory.cpp",
@@ -78,6 +80,7 @@ files {
     "../ThirdPartyLibs/tinyxml/tinyxml.cpp",
     "../ThirdPartyLibs/tinyxml/tinyxmlerror.cpp",
     "../ThirdPartyLibs/tinyxml/tinyxmlparser.cpp",
-
+"../Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
+                        "../ThirdPartyLibs/stb_image/stb_image.cpp",     
 }
 

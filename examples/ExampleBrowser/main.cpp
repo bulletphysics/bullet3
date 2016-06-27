@@ -13,6 +13,8 @@
 #include "../Importers/ImportSTLDemo/ImportSTLSetup.h"
 #include "../Importers/ImportURDFDemo/ImportURDFSetup.h"
 #include "../Importers/ImportSDFDemo/ImportSDFSetup.h"
+#include "../Importers/ImportSTLDemo/ImportSTLSetup.h"
+
 
 
 int main(int argc, char* argv[])
@@ -29,6 +31,7 @@ int main(int argc, char* argv[])
 	exampleBrowser->registerFileImporter(".urdf",ImportURDFCreateFunc);
 	exampleBrowser->registerFileImporter(".sdf",ImportSDFCreateFunc);
 	exampleBrowser->registerFileImporter(".obj",ImportObjCreateFunc);
+	exampleBrowser->registerFileImporter(".stl",ImportSTLCreateFunc);
 	
 	clock.reset();
 	if (init)

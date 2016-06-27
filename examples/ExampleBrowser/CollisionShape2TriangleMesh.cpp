@@ -167,6 +167,7 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 							}
 						}
 					}
+					delete hull;
 				}
 			} else
 			{

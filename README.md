@@ -34,7 +34,7 @@ The entire collision detection and rigid body dynamics is executed on the GPU.
 A high-end desktop GPU, such as an AMD Radeon 7970 or NVIDIA GTX 680 or better.
 We succesfully tested the software under Windows, Linux and Mac OSX.
 The software currently doesn't work on OpenCL CPU devices. It might run
-on a laptop GPU but performance is likely not very good. Note that
+on a laptop GPU but performance will not likely be very good. Note that
 often an OpenCL drivers fails to compile a kernel. Some unit tests exist to
 track down the issue, but more work is required to cover all OpenCL kernels.
 
@@ -88,7 +88,7 @@ You can just run it though a terminal/command prompt, or by clicking it.
 [--fixed_timestep= 0.0]             Use either a real-time delta time (0.0) or a fixed step size (0.016666)
 ```
 
-You can use mouse picking to grab objects. When holding the ALT of CONTROL key, you have Maya style camera mouse controls.
-Press F1 to create series of screenshot. Hit ESCAPE to exit the demo app.
+You can use mouse picking to grab objects. When holding the ALT or CONTROL key, you have Maya style camera mouse controls.
+Press F1 to create a series of screenshots. Hit ESCAPE to exit the demo app.
 
 See docs folder for further information.

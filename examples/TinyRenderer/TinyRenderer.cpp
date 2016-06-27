@@ -76,21 +76,20 @@ struct Shader : public IShader {
 		float diff = ambient+b3Min(b3Max(0.f, bn*m_light_dir_local),(1-ambient));
 		//float diff = b3Max(0.f, n*m_light_dir_local);
         color = m_model->diffuse(uv)*diff;
-        //colors are store in BGRA?
-        color = TGAColor(color[0]*m_colorRGBA[2],
-                            color[1]*m_colorRGBA[1],
-                            color[2]*m_colorRGBA[0],
-                            color[3]*m_colorRGBA[3]);
-
+        
+        //warning: bgra color is swapped to rgba to upload texture
+        color.bgra[0] *= m_colorRGBA[0];
+        color.bgra[1] *= m_colorRGBA[1];
+        color.bgra[2] *= m_colorRGBA[2];
+        color.bgra[3] *= m_colorRGBA[3];
+        
         return false;
     }
 };
 
 
-TinyRenderObjectData::TinyRenderObjectData(int width, int height,TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer)
-:m_width(width),
-m_height(height),
-m_rgbColorBuffer(rgbColorBuffer),
+TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer)
+:m_rgbColorBuffer(rgbColorBuffer),
 m_depthBuffer(depthBuffer),
 m_model(0),
 m_userData(0),
@@ -102,11 +101,6 @@ m_userIndex(-1)
     m_lightDirWorld.setValue(0,0,0);
 	m_localScaling.setValue(1,1,1);
     m_modelMatrix = Matrix::identity();
-    m_viewMatrix = lookat(eye, center, up);
-    //m_viewportMatrix = viewport(width/8, height/8, width*3/4, height*3/4);
-	//m_viewportMatrix = viewport(width/8, height/8, width*3/4, height*3/4);
-	m_viewportMatrix = viewport(0,0,width,height);
-    m_projectionMatrix = projection(-1.f/(eye-center).norm());
  
 }
 
@@ -239,6 +233,9 @@ TinyRenderObjectData::~TinyRenderObjectData()
 
 void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
 {
+	int width = renderData.m_rgbColorBuffer.get_width();
+	int height = renderData.m_rgbColorBuffer.get_height();
+
 	Vec3f light_dir_local = Vec3f(renderData.m_lightDirWorld[0],renderData.m_lightDirWorld[1],renderData.m_lightDirWorld[2]);
     Model* model = renderData.m_model;
     if (0==model)
@@ -246,13 +243,8 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
     
 	
 
-	//renderData.m_viewMatrix = lookat(eye, center, up);
-	int width = renderData.m_width;
-	int height = renderData.m_height;
-	//renderData.m_viewportMatrix = viewport(width/8, height/8, width*3/4, height*3/4);
-	renderData.m_viewportMatrix = viewport(0,0,renderData.m_width,renderData.m_height);
-    //renderData.m_projectionMatrix = projection(-1.f/(eye-center).norm());
-
+	renderData.m_viewportMatrix = viewport(0,0,width, height);
+	
     b3AlignedObjectArray<float>& zbuffer = renderData.m_depthBuffer;
     
     TGAImage& frame = renderData.m_rgbColorBuffer;
@@ -264,7 +256,7 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
         Vec3f localScaling(renderData.m_localScaling[0],renderData.m_localScaling[1],renderData.m_localScaling[2]);
         Shader shader(model, light_dir_local, modelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, localScaling, model->getColorRGBA());
         		
-		printf("Render %d triangles.\n",model->nfaces());
+		//printf("Render %d triangles.\n",model->nfaces());
 		for (int i=0; i<model->nfaces(); i++) 
 		{
 			 

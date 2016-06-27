@@ -57,9 +57,9 @@ void Model::setDiffuseTextureFromData(unsigned char* textureImage,int textureWid
 		for (int j=0;j<textureHeight;j++)
 		{
 			TGAColor color;
-			color.bgra[0] = textureImage[(i+j*textureWidth)*3+0];
-			color.bgra[1] = textureImage[(i+j*textureWidth)*3+1];
-			color.bgra[2] = textureImage[(i+j*textureWidth)*3+2];
+            color.bgra[0] = textureImage[(i+j*textureWidth)*3+0];
+            color.bgra[1] = textureImage[(i+j*textureWidth)*3+1];
+            color.bgra[2] = textureImage[(i+j*textureWidth)*3+2];
 			color.bgra[3] = 255;
 
 			color.bytespp = 3;

@@ -32,6 +32,12 @@
             <uri>meshes/link_0.stl</uri>
           </mesh>
         </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0 0 1 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
       </visual>
     </link>
     <link name='lbr_iiwa_link_1'>

@@ -23,7 +23,10 @@ subject to the following restrictions:
 
 btMultiBodyJointMotor::btMultiBodyJointMotor(btMultiBody* body, int link, btScalar desiredVelocity, btScalar maxMotorImpulse)
 	:btMultiBodyConstraint(body,body,link,body->getLink(link).m_parent,1,true),
-	m_desiredVelocity(desiredVelocity)
+	m_desiredVelocity(desiredVelocity),
+	m_desiredPosition(0),
+	m_kd(0.1),
+	m_kp(0)
 {
 
 	m_maxAppliedImpulse = maxMotorImpulse;
@@ -51,7 +54,10 @@ void btMultiBodyJointMotor::finalizeMultiDof()
 btMultiBodyJointMotor::btMultiBodyJointMotor(btMultiBody* body, int link, int linkDoF, btScalar desiredVelocity, btScalar maxMotorImpulse)
 	//:btMultiBodyConstraint(body,0,link,-1,1,true),
 	:btMultiBodyConstraint(body,body,link,body->getLink(link).m_parent,1,true),
-	m_desiredVelocity(desiredVelocity)
+	m_desiredVelocity(desiredVelocity),
+	m_desiredPosition(0),
+	m_kd(0.1),
+	m_kp(0)
 {
 	btAssert(linkDoF < body->getLink(link).m_dofCount);
 
@@ -114,8 +120,21 @@ void btMultiBodyJointMotor::createConstraintRows(btMultiBodyConstraintArray& con
 	{
 		btMultiBodySolverConstraint& constraintRow = constraintRows.expandNonInitializing();
 
-
-		fillMultiBodyConstraint(constraintRow,data,jacobianA(row),jacobianB(row),dummy,dummy,dummy,posError,infoGlobal,-m_maxAppliedImpulse,m_maxAppliedImpulse,1,false,m_desiredVelocity);
+        int dof = 0;
+        btScalar currentPosition = m_bodyA->getJointPosMultiDof(m_linkA)[dof];
+        btScalar currentVelocity = m_bodyA->getJointVelMultiDof(m_linkA)[dof];
+        btScalar positionStabiliationTerm = (m_desiredPosition-currentPosition)/infoGlobal.m_timeStep;
+        btScalar velocityError = (m_desiredVelocity - currentVelocity);
+        btScalar rhs =   m_kp * positionStabiliationTerm + m_kd * velocityError;
+        printf("m_kd = %f\n", m_kd);
+        printf("m_kp = %f\n", m_kp);
+        printf("m_desiredVelocity = %f\n", m_desiredVelocity);
+        printf("m_desiredPosition = %f\n", m_desiredPosition);
+        printf("m_maxAppliedImpulse = %f\n", m_maxAppliedImpulse);
+        printf("rhs = %f\n", rhs);
+        
+        
+		fillMultiBodyConstraint(constraintRow,data,jacobianA(row),jacobianB(row),dummy,dummy,dummy,posError,infoGlobal,-m_maxAppliedImpulse,m_maxAppliedImpulse,1,false,rhs);
 		constraintRow.m_orgConstraint = this;
 		constraintRow.m_orgDofIndex = row;
 		{

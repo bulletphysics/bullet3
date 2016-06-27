@@ -235,6 +235,60 @@ void ImportSDFSetup::initPhysics()
 			ConvertURDF2Bullet(u2b,creation, rootTrans,m_dynamicsWorld,m_useMultiBody,u2b.getPathPrefix(),true);
 			mb = creation.getBulletMultiBody();
 			
+			
+			if (m_useMultiBody && mb )
+			{
+				std::string*   name = new std::string(u2b.getLinkName(u2b.getRootLinkIndex()));
+				m_nameMemory.push_back(name);
+#ifdef TEST_MULTIBODY_SERIALIZATION
+				s->registerNameForPointer(name->c_str(),name->c_str());
+#endif//TEST_MULTIBODY_SERIALIZATION
+				mb->setBaseName(name->c_str());
+				//create motors for each btMultiBody joint
+				int numLinks = mb->getNumLinks();
+				for (int i=0;i<numLinks;i++)
+				{
+					int mbLinkIndex = i;
+					int urdfLinkIndex = creation.m_mb2urdfLink[mbLinkIndex];
+
+					std::string* jointName = new std::string(u2b.getJointName(urdfLinkIndex));
+					std::string* linkName = new std::string(u2b.getLinkName(urdfLinkIndex).c_str());
+#ifdef TEST_MULTIBODY_SERIALIZATION					
+					s->registerNameForPointer(jointName->c_str(),jointName->c_str());
+					s->registerNameForPointer(linkName->c_str(),linkName->c_str());
+#endif//TEST_MULTIBODY_SERIALIZATION
+					m_nameMemory.push_back(jointName);
+					m_nameMemory.push_back(linkName);
+
+					mb->getLink(i).m_linkName = linkName->c_str();
+					mb->getLink(i).m_jointName = jointName->c_str();
+							
+					if (mb->getLink(mbLinkIndex).m_jointType==btMultibodyLink::eRevolute
+					    ||mb->getLink(mbLinkIndex).m_jointType==btMultibodyLink::ePrismatic
+					)
+					{
+						if (m_data->m_numMotors<MAX_NUM_MOTORS)
+						{
+							
+							char motorName[1024];
+							sprintf(motorName,"%s q'", jointName->c_str());
+							btScalar* motorVel = &m_data->m_motorTargetVelocities[m_data->m_numMotors];
+							*motorVel = 0.f;
+							SliderParams slider(motorName,motorVel);
+							slider.m_minVal=-4;
+							slider.m_maxVal=4;
+							m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+							float maxMotorImpulse = 10.1f;
+							btMultiBodyJointMotor* motor = new btMultiBodyJointMotor(mb,mbLinkIndex,0,0,maxMotorImpulse);
+							//motor->setMaxAppliedImpulse(0);
+							m_data->m_jointMotors[m_data->m_numMotors]=motor;
+							m_dynamicsWorld->addMultiBodyConstraint(motor);
+							m_data->m_numMotors++;
+						}
+					}
+
+				}
+			} 
 		}
 
 	

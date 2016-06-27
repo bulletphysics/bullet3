@@ -393,13 +393,22 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
           }
           
           geom.m_meshFileName = shape->Attribute("filename");
-          
-          if (shape->Attribute("scale"))
+		  geom.m_meshScale.setValue(1,1,1);
+
+		  if (shape->Attribute("scale"))
           {
-              parseVector3(geom.m_meshScale,shape->Attribute("scale"),logger);
+              if (!parseVector3(geom.m_meshScale,shape->Attribute("scale"),logger))
+			  {
+				  logger->reportWarning("scale should be a vector3, not single scalar. Workaround activated.\n");
+				  std::string scalar_str = shape->Attribute("scale");
+				  double scaleFactor = urdfLexicalCast<double>(scalar_str.c_str());
+				  if (scaleFactor)
+				  {
+					  geom.m_meshScale.setValue(scaleFactor,scaleFactor,scaleFactor);
+				  }
+			  }
           } else
           {
-              geom.m_meshScale.setValue(1,1,1);
           }
       }
   }
@@ -490,29 +499,47 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement*
   // Material
   TiXmlElement *mat = config->FirstChildElement("material");
 //todo(erwincoumans) skip materials in SDF for now (due to complexity)
-  if (mat && !m_parseSDF)
+  if (mat)
   {
-	  // get material name
-	  if (!mat->Attribute("name")) 
-	  {
-		  logger->reportError("Visual material must contain a name attribute");
-		  return false;
-	  }
-	  visual.m_materialName = mat->Attribute("name");
-	  
-	  // try to parse material element in place
-	  
-	  TiXmlElement *t = mat->FirstChildElement("texture");
-	  TiXmlElement *c = mat->FirstChildElement("color");
-	  if (t||c)
-	  {
-		  if (parseMaterial(visual.m_localMaterial, mat,logger))
-		  {
-			  UrdfMaterial* matPtr = new UrdfMaterial(visual.m_localMaterial);
-			  model.m_materials.insert(matPtr->m_name.c_str(),matPtr);
-			  visual.m_hasLocalMaterial = true;
-		  }
-	  }
+    if (m_parseSDF)
+    {
+        UrdfMaterial* matPtr = new UrdfMaterial;
+        matPtr->m_name = "mat";
+        TiXmlElement *diffuse = mat->FirstChildElement("diffuse");
+        if (diffuse) {
+            std::string diffuseText = diffuse->GetText();
+            btVector4 rgba(1,0,0,1);
+            parseVector4(rgba,diffuseText);
+            matPtr->m_rgbaColor = rgba;
+            model.m_materials.insert(matPtr->m_name.c_str(),matPtr);
+            visual.m_materialName = "mat";
+            visual.m_hasLocalMaterial = true;
+        }
+    } 
+    else
+      {
+          // get material name
+          if (!mat->Attribute("name")) 
+          {
+              logger->reportError("Visual material must contain a name attribute");
+              return false;
+          }
+          visual.m_materialName = mat->Attribute("name");
+          
+          // try to parse material element in place
+          
+          TiXmlElement *t = mat->FirstChildElement("texture");
+          TiXmlElement *c = mat->FirstChildElement("color");
+          if (t||c)
+          {
+              if (parseMaterial(visual.m_localMaterial, mat,logger))
+              {
+                  UrdfMaterial* matPtr = new UrdfMaterial(visual.m_localMaterial);
+                  model.m_materials.insert(matPtr->m_name.c_str(),matPtr);
+                  visual.m_hasLocalMaterial = true;
+              }
+          }
+      }
   }
   
   return true;
@@ -529,6 +556,8 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
 	link.m_name = linkName;
     
     if (m_parseSDF) {
+
+
         TiXmlElement* pose = config->FirstChildElement("pose");
         if (0==pose)
         {
@@ -572,7 +601,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
           logger->reportWarning(link.m_name.c_str());
       }
   }
-		
+
   // Multiple Visuals (optional)
   for (TiXmlElement* vis_xml = config->FirstChildElement("visual"); vis_xml; vis_xml = vis_xml->NextSiblingElement("visual"))
   {
@@ -1240,6 +1269,16 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
         UrdfModel* localModel = new UrdfModel;
         m_tmpModels.push_back(localModel);
         
+		TiXmlElement* stat = robot_xml->FirstChildElement("static");
+        if (0!=stat)
+        {
+			int val = int(atof(stat->GetText()));
+			if (val==1)
+			{
+				localModel->m_overrideFixedBase = true;
+			}
+		}
+
         
         // Get robot name
         const char *name = robot_xml->Attribute("name");
