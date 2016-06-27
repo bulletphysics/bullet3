@@ -1225,7 +1225,7 @@ static PyMethodDef SpamMethods[] = {
     //applyLinkForce
      
 	{"renderImage", pybullet_renderImage, METH_VARARGS,
-	"Render an image (given the pixel resolution width & height and camera view & projection matrices), and return the 8-8-8bit RGB pixel data and floating point depth values"},	
+	"Render an image (given the pixel resolution width, height, view matrix, projection matrix, near and far vlues), and return the 8-8-8bit RGB pixel data and floating point depth values"},	
 	
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
