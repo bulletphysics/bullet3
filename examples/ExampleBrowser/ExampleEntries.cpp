@@ -63,12 +63,8 @@
 #include "../ExtendedTutorials/SimpleCloth.h"
 #include "../ExtendedTutorials/Chain.h"
 #include "../ExtendedTutorials/Bridge.h"
-<<<<<<< HEAD
 #include "../ExtendedTutorials/RigidBodyFromObj.h" 
 #include "../ExtendedTutorials/TimeWarp.h"
-=======
-#include "../ExtendedTutorials/RigidBodyFromObj.h"
->>>>>>> upstream/master
 
 struct ExampleEntry
 {
