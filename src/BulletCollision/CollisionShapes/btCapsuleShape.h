@@ -73,7 +73,7 @@ public:
 
 	virtual const char*	getName()const 
 	{
-		return "CapsuleShape";
+		return "Capsule";
 	}
 
 	int	getUpAxis() const
