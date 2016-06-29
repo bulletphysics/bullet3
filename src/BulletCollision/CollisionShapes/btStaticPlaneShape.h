@@ -58,7 +58,7 @@ public:
 	}
 
 	//debugging
-	virtual const char*	getName()const {return "STATICPLANE";}
+	virtual const char*	getName()const {return "StaticPlane";}
 
 	virtual	int	calculateSerializeBufferSize() const;
 
