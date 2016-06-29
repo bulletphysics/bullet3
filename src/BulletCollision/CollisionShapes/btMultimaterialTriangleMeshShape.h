@@ -108,7 +108,7 @@ public:
 */
     }
 	//debugging
-	virtual const char*	getName()const {return "MULTIMATERIALTRIANGLEMESH";}
+	virtual const char*	getName()const {return "MultiMaterialTriangleMesh";}
 
     ///Obtains the material for a specific triangle
     const btMaterial * getMaterialProperties(int partID, int triIndex);
