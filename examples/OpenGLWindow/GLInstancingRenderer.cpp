@@ -158,10 +158,13 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 	GLRenderToTexture*	m_shadowMap;
 	GLuint				m_shadowTexture;
 	
+	GLuint				m_renderFrameBuffer;
+	
 	
 	InternalDataRenderer() :
 		m_shadowMap(0),
-		m_shadowTexture(0)
+		m_shadowTexture(0),
+		m_renderFrameBuffer(0)
 	{
 		//clear to zero to make it obvious if the matrix is used uninitialized
 		for (int i=0;i<16;i++)
@@ -1663,7 +1666,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
                             {
                                 glDisable (GL_BLEND);
                             }
-                            
+                            glActiveTexture(GL_TEXTURE0);
                             break;
 						}
 					default:
@@ -1688,6 +1691,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 	{
 	//	writeTextureToPng(shadowMapWidth,shadowMapHeight,"shadowmap.png",4);
 		m_data->m_shadowMap->disable();
+		glBindFramebuffer( GL_FRAMEBUFFER, m_data->m_renderFrameBuffer);
 		glViewport(dims[0],dims[1],dims[2],dims[3]);
 
 	}
@@ -1733,4 +1737,10 @@ int GLInstancingRenderer::getInstanceCapacity() const
 {
 	return m_data->m_maxNumObjectCapacity;
 }
+
+void GLInstancingRenderer::setRenderFrameBuffer(unsigned int renderFrameBuffer)
+{
+	m_data->m_renderFrameBuffer = (GLuint) renderFrameBuffer;
+}
+
 #endif //NO_OPENGL3

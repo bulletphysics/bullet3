@@ -31,6 +31,11 @@
 
 	newoption
 	{
+		trigger = "enable_openvr",
+		description = "Enable experimental Virtual Reality examples, using OpenVR for HTC Vive and Oculus Rift"
+	}
+	newoption
+	{
 		trigger = "enable_system_x11",
 		description = "Try to link and use system X11 headers instead of dynamically loading X11 (dlopen is default)"
 	}

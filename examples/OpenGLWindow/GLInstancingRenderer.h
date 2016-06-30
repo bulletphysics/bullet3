@@ -132,6 +132,7 @@ public:
     }
 	virtual void clearZBuffer();
 
+	virtual void setRenderFrameBuffer(unsigned int renderFrameBuffer);
 };
 
 #endif //GL_INSTANCING_RENDERER_H
