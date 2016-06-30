@@ -93,6 +93,7 @@ project "App_BulletExampleBrowser"
 		"../ExtendedTutorials/Chain.cpp",
 		"../ExtendedTutorials/Bridge.cpp",
 		"../ExtendedTutorials/RigidBodyFromObj.cpp",
+		"../ExtendedTutorials/Breakout/*",
 		"../Collision/*",
 		"../Collision/Internal/*",
 		"../Benchmarks/*",

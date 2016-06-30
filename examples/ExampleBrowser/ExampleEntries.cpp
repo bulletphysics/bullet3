@@ -68,6 +68,7 @@
 #include "../ExtendedTutorials/NewtonsCradle.h"
 #include "../ExtendedTutorials/NewtonsRopeCradle.h"
 #include "../ExtendedTutorials/MultiPendulum.h"
+#include "../ExtendedTutorials/Breakout/Breakout.h"
 
 struct ExampleEntry
 {
@@ -285,7 +286,7 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Newton's Cradle", "Create a Newton's Cradle using a pair of point2point/slider constraints. Press 1/2 to lengthen/shorten the pendula, press 3 to displace pendula. Use the sliders to select the number of pendula in total (reset simulation), the number of displaced pendula and other options.", ET_NewtonsCradleCreateFunc),
 	ExampleEntry(1,"Newton's Rope Cradle", "Create a Newton's Cradle using ropes. Press 3 to displace pendula. Use the sliders to select the number of pendula in total (reset simulation) and the number of displaced pendula.",ET_NewtonsRopeCradleCreateFunc),
 	ExampleEntry(1,"Multi-Pendulum", "Create a Multi-Pendulum using point2point/slider constraints. Press 1/2 to lengthen/shorten the pendula, press 3 to displace pendula. Use the sliders to select the number of pendula in total (reset simulation), the number of displaced pendula and other options.",ET_MultiPendulumCreateFunc),
-
+	ExampleEntry(1,"Breakout","Create a Breakout game using different types of objects. Press n to move the paddle left, press m to move the paddle right, press space to shoot the ball.",ET_BreakoutCreateFunc),
 
 	//todo: create a category/tutorial about advanced topics, such as optimizations, using different collision detection algorithm, different constraint solvers etc.
 	//ExampleEntry(0,"Advanced"),
