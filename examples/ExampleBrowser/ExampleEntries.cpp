@@ -67,6 +67,7 @@
 #include "../ExtendedTutorials/InclinedPlane.h"
 #include "../ExtendedTutorials/NewtonsCradle.h"
 #include "../ExtendedTutorials/MultiPendulum.h"
+#include "../ExtendedTutorials/NN3DWalkers.h"
 
 struct ExampleEntry
 {
@@ -280,7 +281,7 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Inclined Plane", "Create an inclined plane to show restitution and different types of friction. Use the sliders to vary restitution and friction and press space to reset the scene.", ET_InclinedPlaneCreateFunc),
 	ExampleEntry(1,"Newton's Cradle", "Create a Newton's Cradle using a pair of point2point/slider constraints. Press 1/2 to lengthen/shorten the pendula, press 3 to displace pendula. Use the sliders to select the number of pendula in total (reset simulation), the number of displaced pendula and other options.", ET_NewtonsCradleCreateFunc),
 	ExampleEntry(1,"Multi-Pendulum", "Create a Multi-Pendulum using point2point/slider constraints. Press 1/2 to lengthen/shorten the pendula, press 3 to displace pendula. Use the sliders to select the number of pendula in total (reset simulation), the number of displaced pendula and other options.",ET_MultiPendulumCreateFunc),
-
+	ExampleEntry(1,"Neural Network 3D Walkers","A simple example of using evolution to make a creature walk.",NN3DWalkersCreateFunc)
 
 	//todo: create a category/tutorial about advanced topics, such as optimizations, using different collision detection algorithm, different constraint solvers etc.
 	//ExampleEntry(0,"Advanced"),

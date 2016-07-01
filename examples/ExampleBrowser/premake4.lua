@@ -93,6 +93,8 @@ project "App_BulletExampleBrowser"
 		"../ExtendedTutorials/Chain.cpp",
 		"../ExtendedTutorials/Bridge.cpp",
 		"../ExtendedTutorials/RigidBodyFromObj.cpp",
+		"../ExtendedTutorials/NN3DWalkers.cpp",
+		"../ExtendedTutorials/NN3DWalkers.h",
 		"../Collision/*",
 		"../Collision/Internal/*",
 		"../Benchmarks/*",
