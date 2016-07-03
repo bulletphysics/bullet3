@@ -31,9 +31,20 @@ class btDefaultCollisionConfiguration;
 
 //TODO: Maybe add pointworldToLocal and AxisWorldToLocal etc. to a helper class
 
+btVector3 getPointWorldToLocal(btTransform localObjectCenterOfMassTransform, btVector3 point);
+btVector3 getAxisWorldToLocal(btTransform localObjectCenterOfMassTransform, btVector3 axis);
+
+btVector3 getPointLocalToWorld(btTransform localObjectCenterOfMassTransform, btVector3 point);
+btVector3 getAxisLocalToWorld(btTransform localObjectCenterOfMassTransform, btVector3 axis);
+
+btTransform getTransformLocalToWorld(btTransform localObjectCenterOfMassTransform, btTransform transform);
+btTransform getTransformWorldToLocal(btTransform localObjectCenterOfMassTransform, btTransform transform);
+
 class NN3DWalkers : public CommonRigidBodyBase
 {
 	float m_Time;
+	float m_targetAccumulator;
+	float m_targetFrequency;
 	float m_fCyclePeriod; // in milliseconds
 	float m_fMuscleStrength;
 	
@@ -42,13 +53,13 @@ class NN3DWalkers : public CommonRigidBodyBase
 	
 public:
 	NN3DWalkers(struct GUIHelperInterface* helper)
-	:CommonRigidBodyBase(helper),m_fCyclePeriod(0),m_Time(0),m_fMuscleStrength(0)
+	:CommonRigidBodyBase(helper),m_fCyclePeriod(0),m_Time(0),m_fMuscleStrength(0),m_targetFrequency(1),m_targetAccumulator(0)
 	{
-	}
 
+	}
 	void initPhysics();
 	
-	void exitPhysics();
+	virtual void exitPhysics();
 
 	virtual ~NN3DWalkers()
 	{
@@ -69,34 +80,21 @@ public:
 		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
 	}
 
-	btVector3 getPointWorldToLocal(btTransform localObjectCenterOfMassTransform, btVector3 &point);
-	btVector3 getAxisWorldToLocal(btTransform localObjectCenterOfMassTransform, btVector3 &axis);
-
-	btVector3 getPointLocalToWorld(btTransform localObjectCenterOfMassTransform, btVector3 &point);
-	btVector3 getAxisLocalToWorld(btTransform localObjectCenterOfMassTransform, btVector3 &axis);
+	virtual void renderScene();
 };
 
+static NN3DWalkers* nn3DWalkers = NULL;
 
-#ifndef M_PI
-#define M_PI       3.14159265358979323846
+#ifndef SIMD_PI_4
+#define SIMD_PI_4     0.5 * SIMD_HALF_PI
 #endif
 
-#ifndef M_PI_2
-#define M_PI_2     1.57079632679489661923
+#ifndef SIMD_PI_8
+#define SIMD_PI_8     0.25 * SIMD_HALF_PI
 #endif
 
-#ifndef M_PI_4
-#define M_PI_4     0.785398163397448309616
-#endif
-
-#ifndef M_PI_8
-#define M_PI_8     0.5 * M_PI_4
-#endif
-
-
-// /LOCAL FUNCTIONS
-
-
+void* WALKER_ID = (void*)1;
+void* GROUND_ID = (void*)2;
 
 #define NUM_LEGS 6
 #define BODYPART_COUNT 2 * NUM_LEGS + 1
@@ -117,8 +115,8 @@ class NNWalker
 		if (isDynamic)
 			shape->calculateLocalInertia(mass,localInertia);
 
-		btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,shape,localInertia);
+		btDefaultMotionState* motionState = new btDefaultMotionState(startTransform);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,motionState,shape,localInertia);
 		btRigidBody* body = new btRigidBody(rbInfo);
 
 		m_ownerWorld->addRigidBody(body);
@@ -131,7 +129,7 @@ public:
 	NNWalker(btDynamicsWorld* ownerWorld, const btVector3& positionOffset, bool bFixed)
 		: m_ownerWorld (ownerWorld)
 	{
-		btVector3 vUp(0, 1, 0);
+		btVector3 vUp(0, 1, 0); // up in local reference frame
 
 		//
 		// Setup geometry
@@ -178,7 +176,7 @@ public:
 		// legs
 		for ( i=0; i<NUM_LEGS; i++)
 		{
-			float footAngle = 2 * M_PI * i / NUM_LEGS; // legs are uniformly distributed around the root body
+			float footAngle = 2 * SIMD_PI * i / NUM_LEGS; // legs are uniformly distributed around the root body
 			float footYUnitPosition = sin(footAngle); // y position of the leg on the unit circle
 			float footXUnitPosition = cos(footAngle); // x position of the leg on the unit circle
 
@@ -189,7 +187,7 @@ public:
 			// thigh
 			btVector3 legDirection = (legCOM - localRootBodyPosition).normalize();
 			btVector3 kneeAxis = legDirection.cross(vUp);			
-			transform.setRotation(btQuaternion(kneeAxis, M_PI_2));
+			transform.setRotation(btQuaternion(kneeAxis, SIMD_HALF_PI));
 			m_bodies[1+2*i] = localCreateRigidBody(btScalar(1.), bodyOffset*transform, m_shapes[1+2*i]);
 
 			// shin
@@ -204,9 +202,9 @@ public:
 			// hip joints
 			localA.setIdentity(); localB.setIdentity();
 			localA.getBasis().setEulerZYX(0,-footAngle,0);	localA.setOrigin(btVector3(btScalar(footXUnitPosition*rootBodyRadius), btScalar(0.), btScalar(footYUnitPosition*rootBodyRadius)));
-			localB = m_bodies[1+2*i]->getWorldTransform().inverse() * m_bodies[0]->getWorldTransform() * localA;
+			localB = getTransformWorldToLocal(m_bodies[1+2*i]->getWorldTransform(), getTransformLocalToWorld(m_bodies[0]->getWorldTransform(),localA));
 			hingeC = new btHingeConstraint(*m_bodies[0], *m_bodies[1+2*i], localA, localB);
-			hingeC->setLimit(btScalar(-0.75 * M_PI_4), btScalar(M_PI_8));
+			hingeC->setLimit(btScalar(-0.75 * SIMD_PI_4), btScalar(SIMD_PI_8));
 			//hingeC->setLimit(btScalar(-0.1), btScalar(0.1));
 			m_joints[2*i] = hingeC;
 			m_ownerWorld->addConstraint(m_joints[2*i], true);
@@ -214,11 +212,11 @@ public:
 			// knee joints
 			localA.setIdentity(); localB.setIdentity(); localC.setIdentity();
 			localA.getBasis().setEulerZYX(0,-footAngle,0);	localA.setOrigin(btVector3(btScalar(footXUnitPosition*(rootBodyRadius+legLength)), btScalar(0.), btScalar(footYUnitPosition*(rootBodyRadius+legLength))));
-			localB = m_bodies[1+2*i]->getWorldTransform().inverse() * m_bodies[0]->getWorldTransform() * localA;
-			localC = m_bodies[2+2*i]->getWorldTransform().inverse() * m_bodies[0]->getWorldTransform() * localA;
+			localB = getTransformWorldToLocal(m_bodies[1+2*i]->getWorldTransform(), getTransformLocalToWorld(m_bodies[0]->getWorldTransform(),localA));
+			localC = getTransformWorldToLocal(m_bodies[2+2*i]->getWorldTransform(), getTransformLocalToWorld(m_bodies[0]->getWorldTransform(),localA));
 			hingeC = new btHingeConstraint(*m_bodies[1+2*i], *m_bodies[2+2*i], localB, localC);
 			//hingeC->setLimit(btScalar(-0.01), btScalar(0.01));
-			hingeC->setLimit(btScalar(-M_PI_8), btScalar(0.2));
+			hingeC->setLimit(btScalar(-SIMD_PI_8), btScalar(0.2));
 			m_joints[1+2*i] = hingeC;
 			m_ownerWorld->addConstraint(m_joints[1+2*i], true);
 		}
@@ -230,6 +228,7 @@ public:
 			m_bodies[i]->setDeactivationTime(0.8);
 			//m_bodies[i]->setSleepingThresholds(1.6, 2.5);
 			m_bodies[i]->setSleepingThresholds(0.5f, 0.5f);
+			m_bodies[i]->setUserPointer(WALKER_ID);
 		}
 	}
 
@@ -262,7 +261,7 @@ public:
 
 
 
-void motorNNPreTickCallback (btDynamicsWorld *world, btScalar timeStep)
+void legMotorPreTickCallback (btDynamicsWorld *world, btScalar timeStep)
 {
 	NN3DWalkers* motorDemo = (NN3DWalkers*)world->getWorldUserInfo();
 
@@ -270,10 +269,34 @@ void motorNNPreTickCallback (btDynamicsWorld *world, btScalar timeStep)
 	
 }
 
+bool legContactProcessedCallback(btManifoldPoint& cp,
+                                void* body0, void* body1)
+{
+    void* ID1;
+	void* ID2;
+    btCollisionObject* o1 = static_cast<btCollisionObject*>(body0);
+    btCollisionObject* o2 = static_cast<btCollisionObject*>(body1);
+
+    ID1 = o1->getUserPointer();
+    ID2 = o2->getUserPointer();
+
+	if ((ID1 == GROUND_ID && ID2 == WALKER_ID) || (ID1 == WALKER_ID && ID2 == GROUND_ID)) {
+	    // Make a circle with a 0.9 radius at (0,0,0)
+	    // with RGB color (1,0,0).
+		if(nn3DWalkers->m_dynamicsWorld->getDebugDrawer() != NULL)
+			nn3DWalkers->m_dynamicsWorld->getDebugDrawer()->drawSphere(cp.getPositionWorldOnA(), 0.1, btVector3(1., 0., 0.));
+	}
+    return false;
+}
+
 
 
 void NN3DWalkers::initPhysics()
 {
+	m_targetFrequency = 5;
+
+	gContactProcessedCallback = legContactProcessedCallback;
+
 	m_guiHelper->setUpAxis(1);
 
 	// Setup the basic world
@@ -289,7 +312,7 @@ void NN3DWalkers::initPhysics()
 
 	createEmptyDynamicsWorld();
 
-	m_dynamicsWorld->setInternalTickCallback(motorNNPreTickCallback,this,true);
+	m_dynamicsWorld->setInternalTickCallback(legMotorPreTickCallback,this,true);
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	
 
@@ -300,14 +323,16 @@ void NN3DWalkers::initPhysics()
 		btTransform groundTransform;
 		groundTransform.setIdentity();
 		groundTransform.setOrigin(btVector3(0,-10,0));
-		createRigidBody(btScalar(0.),groundTransform,groundShape);
+		btRigidBody* ground = createRigidBody(btScalar(0.),groundTransform,groundShape);
+		ground->setFriction(5);
+		ground->setUserPointer(GROUND_ID);
 	}
 
-	// Spawn one ragdoll
-	btVector3 startOffset(1,0.5,0);
-	spawnWalker(startOffset, false);
-	startOffset.setValue(-2,0.5,0);
-	spawnWalker(startOffset, true);
+	for(int i = 0; i <20 ; i++){
+		// Spawn one walker
+		btVector3 startOffset(10*((double) rand() / (RAND_MAX)),0.5,10*((double) rand() / (RAND_MAX)));
+		spawnWalker(startOffset, false);
+	}
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
@@ -319,14 +344,6 @@ void NN3DWalkers::spawnWalker(const btVector3& startOffset, bool bFixed)
 	m_walkers.push_back(walker);
 }
 
-//void	PreStep()
-//{
-//
-//}
-
-
-
-
 void NN3DWalkers::setMotorTargets(btScalar deltaTime)
 {
 
@@ -337,26 +354,30 @@ void NN3DWalkers::setMotorTargets(btScalar deltaTime)
 
 	m_Time += ms;
 
-	//
-	// set per-frame sinusoidal position targets using angular motor (hacky?)
-	//	
-	for (int r=0; r<m_walkers.size(); r++)
+	m_targetAccumulator +=ms;
+
+	if(m_targetAccumulator >= 1000000.0f /((double)m_targetFrequency))
 	{
-		for (int i=0; i<2*NUM_LEGS; i++)
+		m_targetAccumulator = 0;
+		//
+		// set per-frame sinusoidal position targets using angular motor (hacky?)
+		//
+		for (int r=0; r<m_walkers.size(); r++)
 		{
-			btHingeConstraint* hingeC = static_cast<btHingeConstraint*>(m_walkers[r]->GetJoints()[i]);
-			btScalar fCurAngle      = hingeC->getHingeAngle();
-			
-			btScalar fTargetPercent = (int(m_Time / 1000) % int(m_fCyclePeriod)) / m_fCyclePeriod;
-			btScalar fTargetAngle   = 0.5 * (1 + sin(2 * M_PI * fTargetPercent));
-			btScalar fTargetLimitAngle = hingeC->getLowerLimit() + fTargetAngle * (hingeC->getUpperLimit() - hingeC->getLowerLimit());
-			btScalar fAngleError  = fTargetLimitAngle - fCurAngle;
-			btScalar fDesiredAngularVel = 1000000.f * fAngleError/ms;
-			hingeC->enableAngularMotor(true, fDesiredAngularVel, m_fMuscleStrength);
+			for (int i=0; i<2*NUM_LEGS; i++)
+			{
+				btHingeConstraint* hingeC = static_cast<btHingeConstraint*>(m_walkers[r]->GetJoints()[i]);
+				btScalar fCurAngle      = hingeC->getHingeAngle();
+
+				btScalar fTargetPercent = (int(m_Time / 1000) % int(m_fCyclePeriod)) / m_fCyclePeriod;
+				btScalar fTargetAngle   = ((double) rand() / (RAND_MAX));//0.5 * (1 + sin(2 * SIMD_PI * fTargetPercent+ i* SIMD_PI/NUM_LEGS));
+				btScalar fTargetLimitAngle = hingeC->getLowerLimit() + fTargetAngle * (hingeC->getUpperLimit() - hingeC->getLowerLimit());
+				btScalar fAngleError  = fTargetLimitAngle - fCurAngle;
+				btScalar fDesiredAngularVel = 1000000.f * fAngleError/ms;
+				hingeC->enableAngularMotor(true, fDesiredAngularVel, m_fMuscleStrength);
+			}
 		}
 	}
-
-	
 }
 
 bool NN3DWalkers::keyboardCallback(int key, int state)
@@ -404,31 +425,48 @@ void NN3DWalkers::exitPhysics()
 	CommonRigidBodyBase::exitPhysics();
 }
 
+void NN3DWalkers::renderScene()
+	{
+		m_guiHelper->syncPhysicsToGraphics(m_dynamicsWorld);
+
+		m_guiHelper->render(m_dynamicsWorld);
+
+		debugDraw(m_dynamicsWorld->getDebugDrawer()->getDebugMode());
+	}
 
 class CommonExampleInterface*    NN3DWalkersCreateFunc(struct CommonExampleOptions& options)
 {
-	return new NN3DWalkers(options.m_guiHelper);
+	nn3DWalkers = new NN3DWalkers(options.m_guiHelper);
+	return nn3DWalkers;
 }
 
 
-btVector3 NN3DWalkers::getPointWorldToLocal( btTransform localObjectCenterOfMassTransform, btVector3 &point) {
+btVector3 getPointWorldToLocal( btTransform localObjectCenterOfMassTransform, btVector3 point) {
 	  return localObjectCenterOfMassTransform.inverse() * point; // transforms the point from the world frame into the local frame
 }
 
-btVector3 NN3DWalkers::getPointLocalToWorld( btTransform localObjectCenterOfMassTransform, btVector3 &point) {
+btVector3 getPointLocalToWorld( btTransform localObjectCenterOfMassTransform, btVector3 point) {
 	  return localObjectCenterOfMassTransform * point; // transforms the point from the world frame into the local frame
 }
 
-btVector3 NN3DWalkers::getAxisWorldToLocal(btTransform localObjectCenterOfMassTransform, btVector3 &axis) {
+btVector3 getAxisWorldToLocal(btTransform localObjectCenterOfMassTransform, btVector3 axis) {
   btTransform local1 = localObjectCenterOfMassTransform.inverse(); // transforms the axis from the local frame into the world frame
   btVector3 zero(0,0,0);
   local1.setOrigin(zero);
   return local1 * axis;
 }
 
-btVector3 NN3DWalkers::getAxisLocalToWorld(btTransform localObjectCenterOfMassTransform, btVector3 &axis) {
+btVector3 getAxisLocalToWorld(btTransform localObjectCenterOfMassTransform, btVector3 axis) {
   btTransform local1 = localObjectCenterOfMassTransform; // transforms the axis from the local frame into the world frame
   btVector3 zero(0,0,0);
   local1.setOrigin(zero);
   return local1 * axis;
+}
+
+btTransform getTransformWorldToLocal(btTransform localObjectCenterOfMassTransform, btTransform transform) {
+  return localObjectCenterOfMassTransform.inverse() * transform; // transforms the axis from the local frame into the world frame
+}
+
+btTransform getTransformLocalToWorld(btTransform localObjectCenterOfMassTransform, btTransform transform) {
+  return localObjectCenterOfMassTransform * transform; // transforms the axis from the local frame into the world frame
 }
