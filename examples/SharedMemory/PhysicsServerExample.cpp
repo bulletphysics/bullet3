@@ -306,3 +306,5 @@ class CommonExampleInterface*    PhysicsServerCreateFunc(struct CommonExampleOpt
 	return example;
 
 }
+
+B3_STANDALONE_EXAMPLE(PhysicsServerCreateFunc)

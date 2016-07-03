@@ -11,6 +11,7 @@
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"
 
+int gSharedMemoryKey = -1;
 
 //how can you try typing on a keyboard, without seeing it?
 //it is pretty funny, to see the desktop in VR!
@@ -139,7 +140,7 @@ private:
 	SimpleOpenGL3App* m_app;
 	uint32_t m_nWindowWidth;
 	uint32_t m_nWindowHeight;
-
+	bool m_hasContext;
 
 private: // OpenGL bookkeeping
 	int m_iTrackedControllerCount;
@@ -234,6 +235,7 @@ private: // OpenGL bookkeeping
 //-----------------------------------------------------------------------------
 CMainApplication::CMainApplication( int argc, char *argv[] )
 	: m_app(NULL)
+	, m_hasContext(false)
 	, m_nWindowWidth( 1280 )
 	, m_nWindowHeight( 720 )
 	, m_unSceneProgramID( 0 )
@@ -556,13 +558,16 @@ void CMainApplication::Shutdown()
 	}
 	m_vecRenderModels.clear();
 	
-	if( 1)//m_pContext )
+	if( m_hasContext)
 	{
-		glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_FALSE );
-		glDebugMessageCallback(nullptr, nullptr);
-		glDeleteBuffers(1, &m_glSceneVertBuffer);
-		glDeleteBuffers(1, &m_glIDVertBuffer);
-		glDeleteBuffers(1, &m_glIDIndexBuffer);
+		if (m_glSceneVertBuffer)
+		{
+			glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_FALSE );
+			glDebugMessageCallback(nullptr, nullptr);
+			glDeleteBuffers(1, &m_glSceneVertBuffer);
+			glDeleteBuffers(1, &m_glIDVertBuffer);
+			glDeleteBuffers(1, &m_glIDIndexBuffer);
+		}
 
 		if ( m_unSceneProgramID )
 		{
@@ -1067,6 +1072,7 @@ void CMainApplication::SetupScene()
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 
+	m_hasContext = true;
 }
 
 
@@ -1462,10 +1468,19 @@ void CMainApplication::RenderStereoTargets()
 	m_app->m_instancingRenderer->init();
 	
 	
+	Matrix4 rotYtoZ = rotYtoZ.identity();
+	
+	//some Bullet apps (especially robotics related) require Z as up-axis)
+	if (m_app->getUpAxis()==2)
+	{
+		rotYtoZ.rotateX(-90);
+	}
 	
 	// Left Eye
 	{
-		Matrix4 viewMatLeft = m_mat4eyePosLeft * m_mat4HMDPose;
+		
+		Matrix4 viewMatLeft = m_mat4eyePosLeft * m_mat4HMDPose * rotYtoZ;
+		
 		m_app->m_instancingRenderer->getActiveCamera()->setVRCamera(viewMatLeft.get(),m_mat4ProjectionLeft.get());
 		m_app->m_instancingRenderer->updateCamera();
 	}
@@ -1477,8 +1492,9 @@ void CMainApplication::RenderStereoTargets()
 
 	m_app->m_window->startRendering();
 	RenderScene( vr::Eye_Left );
-	
-	m_app->drawGrid();
+	DrawGridData gridUp;
+	gridUp.upAxis = m_app->getUpAxis();
+	m_app->drawGrid(gridUp);
 	sExample->stepSimulation(1./60.);
 	sExample->renderScene();
 	
@@ -1507,7 +1523,7 @@ void CMainApplication::RenderStereoTargets()
 	// Right Eye
 	
 	{
-		Matrix4 viewMatRight = m_mat4eyePosRight * m_mat4HMDPose;
+		Matrix4 viewMatRight = m_mat4eyePosRight * m_mat4HMDPose * rotYtoZ;
 		m_app->m_instancingRenderer->getActiveCamera()->setVRCamera(viewMatRight.get(),m_mat4ProjectionRight.get());
 		m_app->m_instancingRenderer->updateCamera();
 	}
@@ -1518,7 +1534,7 @@ void CMainApplication::RenderStereoTargets()
 	m_app->m_window->startRendering();
 	RenderScene( vr::Eye_Right );
 	
-	m_app->drawGrid();
+	m_app->drawGrid(gridUp);
 	m_app->m_instancingRenderer->setRenderFrameBuffer((unsigned int)rightEyeDesc.m_nRenderFramebufferId);
 
 	m_app->m_renderer->renderScene();
