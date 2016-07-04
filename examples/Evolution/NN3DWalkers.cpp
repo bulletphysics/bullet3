@@ -15,6 +15,8 @@ subject to the following restrictions:
 
 
 #include "NN3DWalkers.h"
+#include <map>
+
 #include "btBulletDynamicsCommon.h"
 
 #include "LinearMath/btIDebugDraw.h"
@@ -28,6 +30,7 @@ struct btCollisionAlgorithmCreateFunc;
 class btDefaultCollisionConfiguration;
 
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
+#include "../CommonInterfaces/CommonParameterInterface.h"
 
 //TODO: Maybe add pointworldToLocal and AxisWorldToLocal etc. to a helper class
 
@@ -42,18 +45,17 @@ btTransform getTransformWorldToLocal(btTransform localObjectCenterOfMassTransfor
 
 class NN3DWalkers : public CommonRigidBodyBase
 {
-	float m_Time;
-	float m_targetAccumulator;
-	float m_targetFrequency;
-	float m_fCyclePeriod; // in milliseconds
-	float m_fMuscleStrength;
+	btScalar m_Time;
+	btScalar m_targetAccumulator;
+	btScalar m_targetFrequency;
+	btScalar m_motorStrength;
 	
 	btAlignedObjectArray<class NNWalker*> m_walkers;
 	
 	
 public:
 	NN3DWalkers(struct GUIHelperInterface* helper)
-	:CommonRigidBodyBase(helper),m_fCyclePeriod(0),m_Time(0),m_fMuscleStrength(0),m_targetFrequency(1),m_targetAccumulator(0)
+	:CommonRigidBodyBase(helper), m_Time(0),m_motorStrength(0.5f),m_targetFrequency(3),m_targetAccumulator(0)
 	{
 
 	}
@@ -93,12 +95,12 @@ static NN3DWalkers* nn3DWalkers = NULL;
 #define SIMD_PI_8     0.25 * SIMD_HALF_PI
 #endif
 
-void* WALKER_ID = (void*)1;
-void* GROUND_ID = (void*)2;
+void* GROUND_ID = (void*)1;
+bool RANDOM_MOVEMENT = false;
 
 #define NUM_LEGS 6
-#define BODYPART_COUNT 2 * NUM_LEGS + 1
-#define JOINT_COUNT BODYPART_COUNT - 1
+#define BODYPART_COUNT (2 * NUM_LEGS + 1)
+#define JOINT_COUNT (BODYPART_COUNT - 1)
 
 class NNWalker
 {
@@ -106,6 +108,9 @@ class NNWalker
 	btCollisionShape*	m_shapes[BODYPART_COUNT];
 	btRigidBody*		m_bodies[BODYPART_COUNT];
 	btTypedConstraint*	m_joints[JOINT_COUNT];
+	std::map<void*,int>			m_body_index_map;
+	bool 				m_touch_sensors[BODYPART_COUNT];
+	float 				m_sensory_motor_weights[BODYPART_COUNT*JOINT_COUNT];
 
 	btRigidBody* localCreateRigidBody (btScalar mass, const btTransform& startTransform, btCollisionShape* shape)
 	{
@@ -130,6 +135,13 @@ public:
 		: m_ownerWorld (ownerWorld)
 	{
 		btVector3 vUp(0, 1, 0); // up in local reference frame
+
+		//initialize random weights
+		for(int i = 0;i < BODYPART_COUNT;i++){
+			for(int j = 0;j < JOINT_COUNT;j++){
+				m_sensory_motor_weights[i+j*BODYPART_COUNT] = ((double) rand() / (RAND_MAX))*2.0f-1.0f;
+			}
+		}
 
 		//
 		// Setup geometry
@@ -228,7 +240,9 @@ public:
 			m_bodies[i]->setDeactivationTime(0.8);
 			//m_bodies[i]->setSleepingThresholds(1.6, 2.5);
 			m_bodies[i]->setSleepingThresholds(0.5f, 0.5f);
-			m_bodies[i]->setUserPointer(WALKER_ID);
+			m_bodies[i]->setUserPointer(this);
+			m_body_index_map.insert(std::pair<void*,int>(m_bodies[i],i));
+
 		}
 	}
 
@@ -255,8 +269,23 @@ public:
 		}
 	}
 
-	btTypedConstraint** GetJoints() {return &m_joints[0];}
+	btTypedConstraint** getJoints() {return &m_joints[0];}
 
+	void setTouchSensor(void* bodyPointer){
+		m_touch_sensors[m_body_index_map.at(bodyPointer)] = true;
+	}
+
+	void clearTouchSensors(){
+		for(int i = 0 ; i < BODYPART_COUNT;i++){
+			m_touch_sensors[i] = false;
+		}
+	}
+
+	bool getTouchSensor(int i){ return m_touch_sensors[i];}
+
+	const float* getSensoryMotorWeights() const {
+		return m_sensory_motor_weights;
+	}
 };
 
 
@@ -272,19 +301,25 @@ void legMotorPreTickCallback (btDynamicsWorld *world, btScalar timeStep)
 bool legContactProcessedCallback(btManifoldPoint& cp,
                                 void* body0, void* body1)
 {
-    void* ID1;
-	void* ID2;
     btCollisionObject* o1 = static_cast<btCollisionObject*>(body0);
     btCollisionObject* o2 = static_cast<btCollisionObject*>(body1);
 
-    ID1 = o1->getUserPointer();
-    ID2 = o2->getUserPointer();
+    void* ID1 = o1->getUserPointer();
+    void* ID2 = o2->getUserPointer();
 
-	if ((ID1 == GROUND_ID && ID2 == WALKER_ID) || (ID1 == WALKER_ID && ID2 == GROUND_ID)) {
+	if (ID2 != GROUND_ID || ID1 != GROUND_ID) {
 	    // Make a circle with a 0.9 radius at (0,0,0)
 	    // with RGB color (1,0,0).
 		if(nn3DWalkers->m_dynamicsWorld->getDebugDrawer() != NULL)
 			nn3DWalkers->m_dynamicsWorld->getDebugDrawer()->drawSphere(cp.getPositionWorldOnA(), 0.1, btVector3(1., 0., 0.));
+
+		if(ID1 != GROUND_ID){
+			((NNWalker*)ID1)->setTouchSensor(o1);
+		}
+
+		if(ID2 != GROUND_ID){
+			((NNWalker*)ID2)->setTouchSensor(o2);
+		}
 	}
     return false;
 }
@@ -293,8 +328,6 @@ bool legContactProcessedCallback(btManifoldPoint& cp,
 
 void NN3DWalkers::initPhysics()
 {
-	m_targetFrequency = 5;
-
 	gContactProcessedCallback = legContactProcessedCallback;
 
 	m_guiHelper->setUpAxis(1);
@@ -302,18 +335,36 @@ void NN3DWalkers::initPhysics()
 	// Setup the basic world
 
 	m_Time = 0;
-	m_fCyclePeriod = 2000.f; // in milliseconds
-
-//	m_fMuscleStrength = 0.05f;
-	// new SIMD solver for joints clips accumulated impulse, so the new limits for the motor
-	// should be (numberOfsolverIterations * oldLimits)
-	// currently solver uses 10 iterations, so:
-	m_fMuscleStrength = 0.5f;
 
 	createEmptyDynamicsWorld();
 
 	m_dynamicsWorld->setInternalTickCallback(legMotorPreTickCallback,this,true);
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
+
+	m_targetFrequency = 3;
+
+	// new SIMD solver for joints clips accumulated impulse, so the new limits for the motor
+	// should be (numberOfsolverIterations * oldLimits)
+	m_motorStrength = 0.05f * m_dynamicsWorld->getSolverInfo().m_numIterations;
+
+
+	{ // create a slider to change the motor update frequency
+		SliderParams slider("Motor update frequency", &m_targetFrequency);
+		slider.m_minVal = 0;
+		slider.m_maxVal = 10;
+		slider.m_clampToNotches = false;
+		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
+			slider);
+	}
+
+	{ // create a slider to change the motor torque
+		SliderParams slider("Motor force", &m_motorStrength);
+		slider.m_minVal = 1;
+		slider.m_maxVal = 50;
+		slider.m_clampToNotches = false;
+		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
+			slider);
+	}
 	
 
 	// Setup a big ground box
@@ -328,10 +379,13 @@ void NN3DWalkers::initPhysics()
 		ground->setUserPointer(GROUND_ID);
 	}
 
-	for(int i = 0; i <20 ; i++){
-		// Spawn one walker
-		btVector3 startOffset(10*((double) rand() / (RAND_MAX)),0.5,10*((double) rand() / (RAND_MAX)));
-		spawnWalker(startOffset, false);
+	for(int i = 0; i < 5 ; i++){
+		for(int j = 0; j < 5; j++){
+			// Spawn one walker
+			btVector3 spacing(10.0f,0.8f,10.0f);
+			btVector3 startOffset(spacing * btVector3(i,0,j));
+			spawnWalker(startOffset, false);
+		}
 	}
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
@@ -366,16 +420,31 @@ void NN3DWalkers::setMotorTargets(btScalar deltaTime)
 		{
 			for (int i=0; i<2*NUM_LEGS; i++)
 			{
-				btHingeConstraint* hingeC = static_cast<btHingeConstraint*>(m_walkers[r]->GetJoints()[i]);
-				btScalar fCurAngle      = hingeC->getHingeAngle();
+				btScalar targetAngle = 0;
+				btHingeConstraint* hingeC = static_cast<btHingeConstraint*>(m_walkers[r]->getJoints()[i]);
 
-				btScalar fTargetPercent = (int(m_Time / 1000) % int(m_fCyclePeriod)) / m_fCyclePeriod;
-				btScalar fTargetAngle   = ((double) rand() / (RAND_MAX));//0.5 * (1 + sin(2 * SIMD_PI * fTargetPercent+ i* SIMD_PI/NUM_LEGS));
-				btScalar fTargetLimitAngle = hingeC->getLowerLimit() + fTargetAngle * (hingeC->getUpperLimit() - hingeC->getLowerLimit());
-				btScalar fAngleError  = fTargetLimitAngle - fCurAngle;
-				btScalar fDesiredAngularVel = 1000000.f * fAngleError/ms;
-				hingeC->enableAngularMotor(true, fDesiredAngularVel, m_fMuscleStrength);
+				if(RANDOM_MOVEMENT){
+					targetAngle   = ((double) rand() / (RAND_MAX));//0.5 * (1 + sin(2 * SIMD_PI * fTargetPercent+ i* SIMD_PI/NUM_LEGS));
+				}
+				else{
+
+					// accumulate sensor inputs with weights
+					for(int j = 0; j < JOINT_COUNT;j++){
+						targetAngle += m_walkers[r]->getSensoryMotorWeights()[i+j*BODYPART_COUNT] * m_walkers[r]->getTouchSensor(i);
+					}
+
+					// apply the activation function
+					targetAngle = (tanh(targetAngle)+1.0f)*0.5f;
+				}
+				btScalar targetLimitAngle = hingeC->getLowerLimit() + targetAngle * (hingeC->getUpperLimit() - hingeC->getLowerLimit());
+				btScalar currentAngle      = hingeC->getHingeAngle();
+				btScalar angleError  = targetLimitAngle - currentAngle;
+				btScalar desiredAngularVel = 1000000.f * angleError/ms;
+				hingeC->enableAngularMotor(true, desiredAngularVel, m_motorStrength);
 			}
+
+			// clear sensor signals after usage
+			m_walkers[r]->clearTouchSensors();
 		}
 	}
 }
@@ -384,22 +453,12 @@ bool NN3DWalkers::keyboardCallback(int key, int state)
 {
 	switch (key)
 	{
-	case '+': case '=':
-		m_fCyclePeriod /= 1.1f;
-		if (m_fCyclePeriod < 1.f)
-			m_fCyclePeriod = 1.f;
-		return true;
-		break;
-	case '-': case '_':
-		m_fCyclePeriod *= 1.1f;
-		return true;
-		break;
 	case '[':
-		m_fMuscleStrength /= 1.1f;
+		m_motorStrength /= 1.1f;
 		return true;
 		break;
 	case ']':
-		m_fMuscleStrength *= 1.1f;
+		m_motorStrength *= 1.1f;
 		return true;
 		break;
 	default:
@@ -434,7 +493,7 @@ void NN3DWalkers::renderScene()
 		debugDraw(m_dynamicsWorld->getDebugDrawer()->getDebugMode());
 	}
 
-class CommonExampleInterface*    NN3DWalkersCreateFunc(struct CommonExampleOptions& options)
+class CommonExampleInterface*    ET_NN3DWalkersCreateFunc(struct CommonExampleOptions& options)
 {
 	nn3DWalkers = new NN3DWalkers(options.m_guiHelper);
 	return nn3DWalkers;
