@@ -35,13 +35,20 @@ class btDefaultCollisionConfiguration;
 //TODO: Maybe add pointworldToLocal and AxisWorldToLocal etc. to a helper class
 
 btVector3 getPointWorldToLocal(btTransform localObjectCenterOfMassTransform, btVector3 point);
-btVector3 getAxisWorldToLocal(btTransform localObjectCenterOfMassTransform, btVector3 axis);
-
 btVector3 getPointLocalToWorld(btTransform localObjectCenterOfMassTransform, btVector3 point);
+
 btVector3 getAxisLocalToWorld(btTransform localObjectCenterOfMassTransform, btVector3 axis);
+btVector3 getAxisWorldToLocal(btTransform localObjectCenterOfMassTransform, btVector3 axis);
 
 btTransform getTransformLocalToWorld(btTransform localObjectCenterOfMassTransform, btTransform transform);
 btTransform getTransformWorldToLocal(btTransform localObjectCenterOfMassTransform, btTransform transform);
+
+static btScalar gRootBodyRadius  = 0.25f;
+static btScalar gRootBodyHeight = 0.1f;
+static btScalar gLegRadius = 0.1f;
+static btScalar gLegLength = 0.45f;
+static btScalar gForeLegLength = 0.75f;
+static btScalar gForeLegRadius = 0.08f;
 
 class NN3DWalkers : public CommonRigidBodyBase
 {
@@ -108,9 +115,9 @@ class NNWalker
 	btCollisionShape*	m_shapes[BODYPART_COUNT];
 	btRigidBody*		m_bodies[BODYPART_COUNT];
 	btTypedConstraint*	m_joints[JOINT_COUNT];
-	std::map<void*,int>			m_body_index_map;
-	bool 				m_touch_sensors[BODYPART_COUNT];
-	float 				m_sensory_motor_weights[BODYPART_COUNT*JOINT_COUNT];
+	std::map<void*,int>			m_bodyIndexMap;
+	bool 				m_touchSensors[BODYPART_COUNT];
+	float 				m_sensoryMotorWeights[BODYPART_COUNT*JOINT_COUNT];
 
 	btRigidBody* localCreateRigidBody (btScalar mass, const btTransform& startTransform, btCollisionShape* shape)
 	{
@@ -139,36 +146,30 @@ public:
 		//initialize random weights
 		for(int i = 0;i < BODYPART_COUNT;i++){
 			for(int j = 0;j < JOINT_COUNT;j++){
-				m_sensory_motor_weights[i+j*BODYPART_COUNT] = ((double) rand() / (RAND_MAX))*2.0f-1.0f;
+				m_sensoryMotorWeights[i+j*BODYPART_COUNT] = ((double) rand() / (RAND_MAX))*2.0f-1.0f;
 			}
 		}
 
 		//
 		// Setup geometry
 		//
-		float rootBodyRadius  = 0.25f;
-		float rootBodyHeight = 0.1f;
-		float legRadius = 0.1f;
-		float legLength = 0.45f;
-		float foreLegLength = 0.75f;
-		float foreLegRadius = 0.08f;
-		m_shapes[0] = new btCapsuleShape(btScalar(rootBodyRadius), btScalar(rootBodyHeight));
+		m_shapes[0] = new btCapsuleShape(gRootBodyRadius, gRootBodyHeight); // root body capsule
 		int i;
 		for ( i=0; i<NUM_LEGS; i++)
 		{
-			m_shapes[1 + 2*i] = new btCapsuleShape(btScalar(legRadius), btScalar(legLength)); // leg  capsule
-			m_shapes[2 + 2*i] = new btCapsuleShape(btScalar(foreLegRadius), btScalar(foreLegLength)); // fore leg capsule
+			m_shapes[1 + 2*i] = new btCapsuleShape(gLegRadius, gLegLength); // leg  capsule
+			m_shapes[2 + 2*i] = new btCapsuleShape(gForeLegRadius, gForeLegLength); // fore leg capsule
 		}
 
 		//
 		// Setup rigid bodies
 		//
-		float footHeight = 0.5;
+		float rootAboveGroundHeight = gForeLegLength;
 		btTransform bodyOffset; bodyOffset.setIdentity();
 		bodyOffset.setOrigin(positionOffset);		
 
 		// root body
-		btVector3 localRootBodyPosition = btVector3(btScalar(0.), btScalar(footHeight), btScalar(0.)); // root body position in local reference frame
+		btVector3 localRootBodyPosition = btVector3(btScalar(0.), btScalar(rootAboveGroundHeight), btScalar(0.)); // root body position in local reference frame
 		btTransform transform;
 		transform.setIdentity();
 		transform.setOrigin(localRootBodyPosition);
@@ -193,7 +194,7 @@ public:
 			float footXUnitPosition = cos(footAngle); // x position of the leg on the unit circle
 
 			transform.setIdentity();
-			btVector3 legCOM = btVector3(btScalar(footXUnitPosition*(rootBodyRadius+0.5*legLength)), btScalar(footHeight), btScalar(footYUnitPosition*(rootBodyRadius+0.5*legLength)));
+			btVector3 legCOM = btVector3(btScalar(footXUnitPosition*(gRootBodyRadius+0.5*gLegLength)), btScalar(rootAboveGroundHeight), btScalar(footYUnitPosition*(gRootBodyRadius+0.5*gLegLength)));
 			transform.setOrigin(legCOM);
 
 			// thigh
@@ -204,7 +205,7 @@ public:
 
 			// shin
 			transform.setIdentity();
-			transform.setOrigin(btVector3(btScalar(footXUnitPosition*(rootBodyRadius+legLength)), btScalar(footHeight-0.5*foreLegLength), btScalar(footYUnitPosition*(rootBodyRadius+legLength))));
+			transform.setOrigin(btVector3(btScalar(footXUnitPosition*(gRootBodyRadius+gLegLength)), btScalar(rootAboveGroundHeight-0.5*gForeLegLength), btScalar(footYUnitPosition*(gRootBodyRadius+gLegLength))));
 			m_bodies[2+2*i] = localCreateRigidBody(btScalar(1.), bodyOffset*transform, m_shapes[2+2*i]);
 
 			//
@@ -213,7 +214,7 @@ public:
 
 			// hip joints
 			localA.setIdentity(); localB.setIdentity();
-			localA.getBasis().setEulerZYX(0,-footAngle,0);	localA.setOrigin(btVector3(btScalar(footXUnitPosition*rootBodyRadius), btScalar(0.), btScalar(footYUnitPosition*rootBodyRadius)));
+			localA.getBasis().setEulerZYX(0,-footAngle,0);	localA.setOrigin(btVector3(btScalar(footXUnitPosition*gRootBodyRadius), btScalar(0.), btScalar(footYUnitPosition*gRootBodyRadius)));
 			localB = getTransformWorldToLocal(m_bodies[1+2*i]->getWorldTransform(), getTransformLocalToWorld(m_bodies[0]->getWorldTransform(),localA));
 			hingeC = new btHingeConstraint(*m_bodies[0], *m_bodies[1+2*i], localA, localB);
 			hingeC->setLimit(btScalar(-0.75 * SIMD_PI_4), btScalar(SIMD_PI_8));
@@ -223,7 +224,7 @@ public:
 
 			// knee joints
 			localA.setIdentity(); localB.setIdentity(); localC.setIdentity();
-			localA.getBasis().setEulerZYX(0,-footAngle,0);	localA.setOrigin(btVector3(btScalar(footXUnitPosition*(rootBodyRadius+legLength)), btScalar(0.), btScalar(footYUnitPosition*(rootBodyRadius+legLength))));
+			localA.getBasis().setEulerZYX(0,-footAngle,0);	localA.setOrigin(btVector3(btScalar(footXUnitPosition*(gRootBodyRadius+gLegLength)), btScalar(0.), btScalar(footYUnitPosition*(gRootBodyRadius+gLegLength))));
 			localB = getTransformWorldToLocal(m_bodies[1+2*i]->getWorldTransform(), getTransformLocalToWorld(m_bodies[0]->getWorldTransform(),localA));
 			localC = getTransformWorldToLocal(m_bodies[2+2*i]->getWorldTransform(), getTransformLocalToWorld(m_bodies[0]->getWorldTransform(),localA));
 			hingeC = new btHingeConstraint(*m_bodies[1+2*i], *m_bodies[2+2*i], localB, localC);
@@ -241,7 +242,7 @@ public:
 			//m_bodies[i]->setSleepingThresholds(1.6, 2.5);
 			m_bodies[i]->setSleepingThresholds(0.5f, 0.5f);
 			m_bodies[i]->setUserPointer(this);
-			m_body_index_map.insert(std::pair<void*,int>(m_bodies[i],i));
+			m_bodyIndexMap.insert(std::pair<void*,int>(m_bodies[i],i));
 
 		}
 	}
@@ -272,19 +273,19 @@ public:
 	btTypedConstraint** getJoints() {return &m_joints[0];}
 
 	void setTouchSensor(void* bodyPointer){
-		m_touch_sensors[m_body_index_map.at(bodyPointer)] = true;
+		m_touchSensors[m_bodyIndexMap.at(bodyPointer)] = true;
 	}
 
 	void clearTouchSensors(){
 		for(int i = 0 ; i < BODYPART_COUNT;i++){
-			m_touch_sensors[i] = false;
+			m_touchSensors[i] = false;
 		}
 	}
 
-	bool getTouchSensor(int i){ return m_touch_sensors[i];}
+	bool getTouchSensor(int i){ return m_touchSensors[i];}
 
 	const float* getSensoryMotorWeights() const {
-		return m_sensory_motor_weights;
+		return m_sensoryMotorWeights;
 	}
 };
 
@@ -366,6 +367,60 @@ void NN3DWalkers::initPhysics()
 			slider);
 	}
 	
+	{ // create a slider to change the root body radius
+		SliderParams slider("Root body radius", &gRootBodyRadius);
+		slider.m_minVal = 0.01f;
+		slider.m_maxVal = 10;
+		slider.m_clampToNotches = false;
+		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
+			slider);
+	}
+
+	{ // create a slider to change the root body height
+		SliderParams slider("Root body height", &gRootBodyHeight);
+		slider.m_minVal = 0.01f;
+		slider.m_maxVal = 10;
+		slider.m_clampToNotches = false;
+		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
+			slider);
+	}
+
+	{ // create a slider to change the leg radius
+		SliderParams slider("Leg radius", &gLegRadius);
+		slider.m_minVal = 0.01f;
+		slider.m_maxVal = 10;
+		slider.m_clampToNotches = false;
+		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
+			slider);
+	}
+
+	{ // create a slider to change the leg length
+		SliderParams slider("Leg length", &gLegLength);
+		slider.m_minVal = 0.01f;
+		slider.m_maxVal = 10;
+		slider.m_clampToNotches = false;
+		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
+			slider);
+	}
+
+	{ // create a slider to change the fore leg radius
+			SliderParams slider("Fore Leg radius", &gForeLegRadius);
+			slider.m_minVal = 0.01f;
+			slider.m_maxVal = 10;
+			slider.m_clampToNotches = false;
+			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
+				slider);
+		}
+
+		{ // create a slider to change the fore leg length
+			SliderParams slider("Fore Leg length", &gForeLegLength);
+			slider.m_minVal = 0.01f;
+			slider.m_maxVal = 10;
+			slider.m_clampToNotches = false;
+			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
+				slider);
+		}
+
 
 	// Setup a big ground box
 	{
