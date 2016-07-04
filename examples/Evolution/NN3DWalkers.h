@@ -13,11 +13,10 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-
-#ifndef NN_3D_WALKERS_H
-#define NN_3D_WALKERS_H
+#ifndef ET_NN_3D_WALKERS_EXAMPLE_H
+#define ET_NN_3D_WALKERS_EXAMPLE_H
 
 class CommonExampleInterface*    ET_NN3DWalkersCreateFunc(struct CommonExampleOptions& options);
 
 
-#endif
+#endif //ET_NN_3D_WALKERS_EXAMPLE_H
