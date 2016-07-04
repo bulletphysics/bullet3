@@ -107,18 +107,28 @@ ELSE(WIN32)
 ENDIF(WIN32)
 
 
-#SET(ExtendedTutorialsSources
-#	../ExtendedTutorials/SimpleBox.cpp
-#	../ExtendedTutorials/MultipleBoxes.cpp
-#	../ExtendedTutorials/SimpleJoint.cpp
-#	../ExtendedTutorials/SimpleCloth.cpp
-#	../ExtendedTutorials/Chain.cpp 
-#	../ExtendedTutorials/Bridge.cpp 
-#	../ExtendedTutorials/RigidBodyFromObj.cpp
-#	../ExtendedTutorials/InclinedPlane.cpp
-#	../ExtendedTutorials/InclinedPlane.h
-#	../ExtendedTutorials/NewtonsCradle.cpp
-#)
+SET(ExtendedTutorialsSources
+	../ExtendedTutorials/Chain.cpp 
+	../ExtendedTutorials/Chain.h
+	../ExtendedTutorials/Bridge.cpp
+	../ExtendedTutorials/Bridge.h
+	../ExtendedTutorials/RigidBodyFromObj.cpp
+	../ExtendedTutorials/RigidBodyFromObj.h
+    ../ExtendedTutorials/SimpleBox.cpp
+	../ExtendedTutorials/SimpleBox.h
+	../ExtendedTutorials/MultipleBoxes.cpp
+	../ExtendedTutorials/MultipleBoxes.h
+	../ExtendedTutorials/SimpleCloth.cpp
+	../ExtendedTutorials/SimpleCloth.h
+	../ExtendedTutorials/SimpleJoint.cpp
+	../ExtendedTutorials/SimpleJoint.h
+	../ExtendedTutorials/NewtonsCradle.cpp
+	../ExtendedTutorials/NewtonsCradle.h
+	../ExtendedTutorials/InclinedPlane.cpp
+	../ExtendedTutorials/InclinedPlane.h
+	../ExtendedTutorials/MultiPendulum.cpp
+	../ExtendedTutorials/MultiPendulum.h
+)
 
 SET(BulletExampleBrowser_SRCS
 	
@@ -161,20 +171,6 @@ SET(BulletExampleBrowser_SRCS
 	../Tutorial/Tutorial.h
 	../Tutorial/Dof6ConstraintTutorial.cpp
 	../Tutorial/Dof6ConstraintTutorial.h
-	../ExtendedTutorials/SimpleBox.cpp
-	../ExtendedTutorials/SimpleBox.h
-	../ExtendedTutorials/MultipleBoxes.cpp
-	../ExtendedTutorials/MultipleBoxes.h
-	../ExtendedTutorials/SimpleCloth.cpp
-	../ExtendedTutorials/SimpleCloth.h
-	../ExtendedTutorials/SimpleJoint.cpp
-	../ExtendedTutorials/SimpleJoint.h
-	../ExtendedTutorials/NewtonsCradle.cpp
-	../ExtendedTutorials/NewtonsCradle.h
-	../ExtendedTutorials/InclinedPlane.cpp
-	../ExtendedTutorials/InclinedPlane.h
-	../ExtendedTutorials/MultiPendulum.cpp
-	../ExtendedTutorials/MultiPendulum.h
 	../Evolution/NN3DWalkers.cpp
 	../Evolution/NN3DWalkers.h
 	../Collision/CollisionSdkC_Api.cpp
