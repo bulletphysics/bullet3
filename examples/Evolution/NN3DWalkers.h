@@ -17,7 +17,7 @@ subject to the following restrictions:
 #ifndef NN_3D_WALKERS_H
 #define NN_3D_WALKERS_H
 
-class CommonExampleInterface*    NN3DWalkersCreateFunc(struct CommonExampleOptions& options);
+class CommonExampleInterface*    ET_NN3DWalkersCreateFunc(struct CommonExampleOptions& options);
 
 
 #endif

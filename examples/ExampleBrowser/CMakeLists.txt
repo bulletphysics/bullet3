@@ -107,18 +107,18 @@ ELSE(WIN32)
 ENDIF(WIN32)
 
 
-SET(ExtendedTutorialsSources
-	../ExtendedTutorials/SimpleBox.cpp
-	../ExtendedTutorials/MultipleBoxes.cpp
-	../ExtendedTutorials/SimpleJoint.cpp
-	../ExtendedTutorials/SimpleCloth.cpp
-	../ExtendedTutorials/Chain.cpp 
-	../ExtendedTutorials/Bridge.cpp 
-	../ExtendedTutorials/RigidBodyFromObj.cpp
-	../ExtendedTutorials/InclinedPlane.cpp
-	../ExtendedTutorials/InclinedPlane.h
-	../ExtendedTutorials/NewtonsCradle.cpp
-)
+#SET(ExtendedTutorialsSources
+#	../ExtendedTutorials/SimpleBox.cpp
+#	../ExtendedTutorials/MultipleBoxes.cpp
+#	../ExtendedTutorials/SimpleJoint.cpp
+#	../ExtendedTutorials/SimpleCloth.cpp
+#	../ExtendedTutorials/Chain.cpp 
+#	../ExtendedTutorials/Bridge.cpp 
+#	../ExtendedTutorials/RigidBodyFromObj.cpp
+#	../ExtendedTutorials/InclinedPlane.cpp
+#	../ExtendedTutorials/InclinedPlane.h
+#	../ExtendedTutorials/NewtonsCradle.cpp
+#)
 
 SET(BulletExampleBrowser_SRCS
 	
@@ -175,8 +175,8 @@ SET(BulletExampleBrowser_SRCS
 	../ExtendedTutorials/InclinedPlane.h
 	../ExtendedTutorials/MultiPendulum.cpp
 	../ExtendedTutorials/MultiPendulum.h
-	../ExtendedTutorials/NN3DWalkers.cpp
-	../ExtendedTutorials/NN3DWalkers.h
+	../Evolution/NN3DWalkers.cpp
+	../Evolution/NN3DWalkers.h
 	../Collision/CollisionSdkC_Api.cpp
 	../Collision/CollisionSdkC_Api.h
 	../Collision/CollisionTutorialBullet2.cpp
