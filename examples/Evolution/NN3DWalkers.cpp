@@ -105,6 +105,8 @@ static NN3DWalkers* nn3DWalkers = NULL;
 void* GROUND_ID = (void*)1;
 bool RANDOM_MOVEMENT = false;
 
+bool RANDOM_DIMENSIONS = true;
+
 #define NUM_LEGS 6
 #define BODYPART_COUNT (2 * NUM_LEGS + 1)
 #define JOINT_COUNT (BODYPART_COUNT - 1)
@@ -436,6 +438,19 @@ void NN3DWalkers::initPhysics()
 
 	for(int i = 0; i < 5 ; i++){
 		for(int j = 0; j < 5; j++){
+
+			float maxDimension = 0.3f;
+
+			if(RANDOM_DIMENSIONS){
+				// randomize the dimensions
+				gRootBodyRadius  = ((double) rand() / (RAND_MAX)) * (maxDimension-0.01f) + 0.01f;
+				gRootBodyHeight = ((double) rand() / (RAND_MAX)) * (maxDimension-0.01f) + 0.01f;
+				gLegRadius = ((double) rand() / (RAND_MAX)) * (maxDimension-0.01f) + 0.01f;
+				gLegLength = ((double) rand() / (RAND_MAX)) * (maxDimension-0.01f) + 0.01f;
+				gForeLegLength = ((double) rand() / (RAND_MAX)) * (maxDimension-0.01f) + 0.01f;
+				gForeLegRadius = ((double) rand() / (RAND_MAX)) * (maxDimension-0.01f) + 0.01f;
+			}
+
 			// Spawn one walker
 			btVector3 spacing(10.0f,0.8f,10.0f);
 			btVector3 startOffset(spacing * btVector3(i,0,j));
