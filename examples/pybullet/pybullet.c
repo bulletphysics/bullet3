@@ -1038,7 +1038,7 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
        }
    }
 
-   if (size==5) // set camera resoluation and view and projection matrix
+   if (size==7) // set camera resoluation and view and projection matrix
    {
      if (PyArg_ParseTuple(args, "iiOOOii", &width, &height, &objCameraPos, &objTargetPos, &objCameraUp, &nearVal, &farVal))
      {
@@ -1459,7 +1459,7 @@ static PyMethodDef SpamMethods[] = {
         "for objectUniqueId, linkIndex (-1 for base/root link) apply a torque [x,y,z] in Cartesian coordinates, flag to select TORQUE_IN_LINK_FRAME or TORQUE_IN_WORLD_FRAME coordinates"},
     
 	{"renderImage", pybullet_renderImage, METH_VARARGS,
-	"Render an image (given the pixel resolution width & height and camera view & projection matrices), and return the 8-8-8bit RGB pixel data and floating point depth values"},	
+	"Render an image (given the pixel resolution width, height, camera view matrix, projection matrix, near, and far values), and return the 8-8-8bit RGB pixel data and floating point depth values"},	
 
     {"getQuaternionFromEuler", pybullet_getQuaternionFromEuler, METH_VARARGS,
         "Convert Euler [roll, pitch, yaw] as in URDF/SDF convention, to quaternion [x,y,z,w]"},
@@ -1478,9 +1478,6 @@ static PyMethodDef SpamMethods[] = {
     //applyBaseForce
     //applyLinkForce
      
-	{"renderImage", pybullet_renderImage, METH_VARARGS,
-	"Render an image (given the pixel resolution width, height, view matrix, projection matrix, near and far vlues), and return the 8-8-8bit RGB pixel data and floating point depth values"},	
-	
 
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
