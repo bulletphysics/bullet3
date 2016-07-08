@@ -72,6 +72,7 @@ b3SharedMemoryCommandHandle b3InitRequestCameraImage(b3PhysicsClientHandle physC
 void b3RequestCameraImageSetCameraMatrices(b3SharedMemoryCommandHandle command, float viewMatrix[16], float projectionMatrix[16]);
 void b3RequestCameraImageSetViewMatrix(b3SharedMemoryCommandHandle command, const float cameraPosition[3], const float cameraTargetPosition[3], const float cameraUp[3]);
 void b3RequestCameraImageSetProjectionMatrix(b3SharedMemoryCommandHandle command, float left, float right, float bottom, float top, float nearVal, float farVal);
+void b3RequestCameraImageSetFOVProjectionMatrix(b3SharedMemoryCommandHandle command, float fov, float aspect, float nearVal, float farVal);
 void b3RequestCameraImageSetPixelResolution(b3SharedMemoryCommandHandle command, int width, int height );
 void b3GetCameraImageData(b3PhysicsClientHandle physClient, struct b3CameraImageData* imageData);
 

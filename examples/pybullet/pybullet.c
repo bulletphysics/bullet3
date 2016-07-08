@@ -975,6 +975,12 @@ static int pybullet_internalSetVector(PyObject* objMat, float vector[3])
 //  renderImage(w, h) - image resolution of (w,h), default camera
 //  renderImage(w, h, view[16], projection[16]) - set both resolution
 //    and initialize camera to the view and projection values
+//  renderImage(w, h, cameraPos, targetPos, cameraUp, nearVal, farVal) - set
+//    resolution and initialize camera based on camera position, target
+//    position, camera up and fulstrum near/far values.
+//  renderImage(w, h, cameraPos, targetPos, cameraUp, nearVal, farVal, fov) -
+//    set resolution and initialize camera based on camera position, target
+//    position, camera up, fulstrum near/far values and camera field of view.
 //
 // Note if the (w,h) is too small, the objects may not appear based on
 // where the camera has been set
@@ -1000,8 +1006,7 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 
   float left, right, bottom, top, aspect;
   float nearVal, farVal;
-  // float nearVal = .001;
-  // float farVal = 1000;
+  float fov;
 
   // inialize cmd
   b3SharedMemoryCommandHandle command;
@@ -1009,76 +1014,90 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 
   if (0==sm)
   {
-  	PyErr_SetString(SpamError, "Not connected to physics server.");
-  	return NULL;
+    PyErr_SetString(SpamError, "Not connected to physics server.");
+    return NULL;
   }
 
   command = b3InitRequestCameraImage(sm);
 
   if (size==2) // only set camera resolution
   {
-   if (PyArg_ParseTuple(args, "ii", &width, &height))
-  	{
-     b3RequestCameraImageSetPixelResolution(command,width,height);
-   }
+    if (PyArg_ParseTuple(args, "ii", &width, &height))
+    {
+      b3RequestCameraImageSetPixelResolution(command,width,height);
+    }
   }
-
-  if (size==4) // set camera resoluation and view and projection matrix
+  else if (size==4) // set camera resolution and view and projection matrix
   {
     if (PyArg_ParseTuple(args, "iiOO", &width, &height, &objViewMat, &objProjMat))
     {
       b3RequestCameraImageSetPixelResolution(command,width,height);
 
       // set camera matrices only if set matrix function succeeds
-     if (pybullet_internalSetMatrix(objViewMat, viewMatrix) &&
-         (pybullet_internalSetMatrix(objProjMat, projectionMatrix))) 
-         {
-             b3RequestCameraImageSetCameraMatrices(command, viewMatrix, projectionMatrix);
-         }
-       }
-   }
-
-   if (size==7) // set camera resoluation and view and projection matrix
-   {
-     if (PyArg_ParseTuple(args, "iiOOOii", &width, &height, &objCameraPos, &objTargetPos, &objCameraUp, &nearVal, &farVal))
-     {
-       b3RequestCameraImageSetPixelResolution(command,width,height);
-       if (pybullet_internalSetVector(objCameraPos, cameraPos) &&
-           pybullet_internalSetVector(objTargetPos, targetPos) &&
-           pybullet_internalSetVector(objCameraUp, cameraUp))
-           {
-              // printf("\ncamera pos:\n");
-              //   for(int i =0;i<3; i++) {
-              //     printf(" %f", cameraPos[i]);
-              //   }
-              // 
-              //   printf("\ntargetPos pos:\n");
-              //     for(int i =0;i<3; i++) {
-              //       printf(" %f", targetPos[i]);
-              //     }
-              // 
-              //   printf("\ncameraUp pos:\n");
-              //     for(int i =0;i<3; i++) {
-              //       printf(" %f", cameraUp[i]);
-              //     }
-              //     printf("\n");
-                b3RequestCameraImageSetViewMatrix(command, cameraPos, targetPos, cameraUp);
-                // printf("\n");
-
-           }
-           
-           aspect = width/height;
-           left = -aspect * nearVal;
-           right = aspect * nearVal;
-           bottom = -nearVal;
-           top = nearVal;
-           
-           b3RequestCameraImageSetProjectionMatrix(command, left, right, bottom, top, nearVal, farVal);
-          //  printf("\n");
-
+      if (pybullet_internalSetMatrix(objViewMat, viewMatrix) &&
+         (pybullet_internalSetMatrix(objProjMat, projectionMatrix)))
+      {
+        b3RequestCameraImageSetCameraMatrices(command, viewMatrix, projectionMatrix);
+      }
+      else
+      {
+        PyErr_SetString(SpamError, "Error parsing view or projection matrix.");
+        return NULL;
       }
     }
-    
+  }
+  else if (size==7) // set camera resolution, camera positions and calculate projection using near/far values.
+  {
+    if (PyArg_ParseTuple(args, "iiOOOff", &width, &height, &objCameraPos, &objTargetPos, &objCameraUp, &nearVal, &farVal))
+    {
+      b3RequestCameraImageSetPixelResolution(command,width,height);
+      if (pybullet_internalSetVector(objCameraPos, cameraPos) &&
+          pybullet_internalSetVector(objTargetPos, targetPos) &&
+          pybullet_internalSetVector(objCameraUp, cameraUp))
+      {
+        b3RequestCameraImageSetViewMatrix(command, cameraPos, targetPos, cameraUp);
+      }
+      else
+      {
+        PyErr_SetString(SpamError, "Error parsing camera position, target or up.");
+        return NULL;
+      }
+
+      aspect = width/height;
+      left = -aspect * nearVal;
+      right = aspect * nearVal;
+      bottom = -nearVal;
+      top = nearVal;
+      b3RequestCameraImageSetProjectionMatrix(command, left, right, bottom, top, nearVal, farVal);
+    }
+  }
+  else if (size==8) // set camera resolution, camera positions and calculate projection using near/far values & field of view
+  {
+    if (PyArg_ParseTuple(args, "iiOOOfff", &width, &height, &objCameraPos, &objTargetPos, &objCameraUp, &nearVal, &farVal, &fov))
+    {
+      b3RequestCameraImageSetPixelResolution(command,width,height);
+      if (pybullet_internalSetVector(objCameraPos, cameraPos) &&
+          pybullet_internalSetVector(objTargetPos, targetPos) &&
+          pybullet_internalSetVector(objCameraUp, cameraUp))
+      {
+        b3RequestCameraImageSetViewMatrix(command, cameraPos, targetPos, cameraUp);
+      }
+      else
+      {
+        PyErr_SetString(SpamError, "Error parsing camera position, target or up.");
+        return NULL;
+      }
+
+      aspect = width/height;
+      b3RequestCameraImageSetFOVProjectionMatrix(command, fov, aspect, nearVal, farVal);
+    }
+  }
+  else
+  {
+    PyErr_SetString(SpamError, "Invalid number of args passed to renderImage.");
+    return NULL;
+  }
+
 	if (b3CanSubmitCommand(sm))
 	{
 		b3SharedMemoryStatusHandle statusHandle;
