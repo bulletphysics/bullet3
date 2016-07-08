@@ -28,7 +28,7 @@ int gSharedMemoryKey = -1;
 #include "pathtools.h"
 
 CommonExampleInterface*    sExample;
-OpenGLGuiHelper* sGuiPtr = 0;
+GUIHelperInterface* sGuiPtr = 0;
 
 
 #if defined(POSIX)
@@ -375,7 +375,9 @@ bool CMainApplication::BInit()
 	*/
 	m_app = new SimpleOpenGL3App("SimpleOpenGL3App",m_nWindowWidth,m_nWindowHeight,true);
 
+	
 	sGuiPtr = new OpenGLGuiHelper(m_app,false);
+	//sGuiPtr = new DummyGUIHelper;
 
     
 	CommonExampleOptions options(sGuiPtr);
@@ -1461,6 +1463,8 @@ void CMainApplication::SetupDistortion()
 //-----------------------------------------------------------------------------
 void CMainApplication::RenderStereoTargets()
 {
+	sExample->stepSimulation(1./60.);
+
 	glClearColor( 0.15f, 0.15f, 0.18f, 1.0f ); // nice background color, but not black
 	glEnable( GL_MULTISAMPLE );
 
@@ -1476,33 +1480,40 @@ void CMainApplication::RenderStereoTargets()
 		rotYtoZ.rotateX(-90);
 	}
 	
+	RenderScene( vr::Eye_Left );
+
 	// Left Eye
 	{
 		
 		Matrix4 viewMatLeft = m_mat4eyePosLeft * m_mat4HMDPose * rotYtoZ;
 		
 		m_app->m_instancingRenderer->getActiveCamera()->setVRCamera(viewMatLeft.get(),m_mat4ProjectionLeft.get());
-		m_app->m_instancingRenderer->updateCamera();
+		m_app->m_instancingRenderer->updateCamera(m_app->getUpAxis());
 	}
 
 	glBindFramebuffer( GL_FRAMEBUFFER, leftEyeDesc.m_nRenderFramebufferId );
  	glViewport(0, 0, m_nRenderWidth, m_nRenderHeight );
  	
 	
+	
 
 	m_app->m_window->startRendering();
-	RenderScene( vr::Eye_Left );
-	DrawGridData gridUp;
-	gridUp.upAxis = m_app->getUpAxis();
-	m_app->drawGrid(gridUp);
-	sExample->stepSimulation(1./60.);
-	sExample->renderScene();
+	
+
+	
+
+	
 	
 
 	
 	m_app->m_instancingRenderer->setRenderFrameBuffer((unsigned int)leftEyeDesc.m_nRenderFramebufferId);
 
-	m_app->m_instancingRenderer->renderScene();
+	sExample->renderScene();
+	//m_app->m_instancingRenderer->renderScene();
+	DrawGridData gridUp;
+	gridUp.upAxis = m_app->getUpAxis();
+	m_app->drawGrid(gridUp);
+
 	
  	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	
@@ -1522,22 +1533,25 @@ void CMainApplication::RenderStereoTargets()
 
 	// Right Eye
 	
+	RenderScene( vr::Eye_Right );
+
 	{
 		Matrix4 viewMatRight = m_mat4eyePosRight * m_mat4HMDPose * rotYtoZ;
 		m_app->m_instancingRenderer->getActiveCamera()->setVRCamera(viewMatRight.get(),m_mat4ProjectionRight.get());
-		m_app->m_instancingRenderer->updateCamera();
+		m_app->m_instancingRenderer->updateCamera(m_app->getUpAxis());
 	}
-
+	
 	glBindFramebuffer( GL_FRAMEBUFFER, rightEyeDesc.m_nRenderFramebufferId );
  	glViewport(0, 0, m_nRenderWidth, m_nRenderHeight );
  	
 	m_app->m_window->startRendering();
-	RenderScene( vr::Eye_Right );
 	
-	m_app->drawGrid(gridUp);
+	
+	
 	m_app->m_instancingRenderer->setRenderFrameBuffer((unsigned int)rightEyeDesc.m_nRenderFramebufferId);
-
-	m_app->m_renderer->renderScene();
+	//m_app->m_renderer->renderScene();
+	sExample->renderScene();
+	m_app->drawGrid(gridUp);
 	
  	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
  	

@@ -105,14 +105,20 @@ public:
 		
 	}
 	
-   	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices)
+
+	virtual int	registerTexture(const unsigned char* texels, int width, int height)
+	{
+		return -1;
+	}
+	
+	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType, int textureId)
    	{
-   	    int shapeIndex = OpenGLGuiHelper::registerGraphicsShape(vertices,numvertices,indices,numIndices);
+   	    int shapeIndex = OpenGLGuiHelper::registerGraphicsShape(vertices,numvertices,indices,numIndices,primitiveType, textureId);
    	    if (shapeIndex>=0)
         {
             TinyRenderObjectData* swObj = new TinyRenderObjectData(m_rgbColorBuffer,m_depthBuffer);
-        float rgbaColor[4] = {1,1,1,1};    
-	swObj->registerMeshShape(vertices,numvertices,indices,numIndices,rgbaColor);
+			float rgbaColor[4] = {1,1,1,1};    
+			swObj->registerMeshShape(vertices,numvertices,indices,numIndices,rgbaColor);
 			//swObj->createCube(1,1,1);//MeshShape(vertices,numvertices,indices,numIndices);
             m_swRenderObjects.insert(shapeIndex,swObj);
         }

@@ -20,11 +20,10 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 
 	virtual void createCollisionObjectGraphicsObject(btCollisionObject* body, const btVector3& color);
 
-	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices);
-
+	virtual int	registerTexture(const unsigned char* texels, int width, int height);
+	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType, int textureId);
 	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling);
-
-	
+	virtual void removeAllGraphicsInstances();
 
 	virtual void createCollisionShapeGraphicsObject(btCollisionShape* collisionShape);
 

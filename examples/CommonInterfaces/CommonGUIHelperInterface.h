@@ -29,9 +29,10 @@ struct GUIHelperInterface
 
 	virtual void createPhysicsDebugDrawer( btDiscreteDynamicsWorld* rbWorld)=0;
 
-	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices) =0;
-
+	virtual int	registerTexture(const unsigned char* texels, int width, int height)=0;
+	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType, int textureId) = 0;
 	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling) =0;
+    virtual void removeAllGraphicsInstances()=0;
 
 	virtual Common2dCanvasInterface* get2dCanvasInterface()=0;
 	
@@ -73,9 +74,10 @@ struct DummyGUIHelper : public GUIHelperInterface
 
 	virtual void createPhysicsDebugDrawer( btDiscreteDynamicsWorld* rbWorld){}
 
-	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices) { return -1; }
-
-	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling) { return -1;}
+	virtual int	registerTexture(const unsigned char* texels, int width, int height){return -1;}
+	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType, int textureId){return -1;}
+	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling) {return -1;}
+    virtual void removeAllGraphicsInstances(){}
 
 	virtual Common2dCanvasInterface* get2dCanvasInterface()
 	{

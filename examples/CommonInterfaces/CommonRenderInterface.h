@@ -53,6 +53,8 @@ struct CommonRenderInterface
 	virtual void writeSingleInstanceColorToCPU(float* color, int srcIndex)=0;
 	virtual void writeSingleInstanceColorToCPU(double* color, int srcIndex)=0;
     
+    virtual int getTotalNumInstances() const = 0;
+    
 	virtual void writeTransforms()=0;
     virtual void enableBlend(bool blend)=0;
 	virtual void clearZBuffer()=0;

@@ -125,6 +125,8 @@ public:
 	
 	virtual int getInstanceCapacity() const;
 	
+	virtual int getTotalNumInstances() const;
+	
 	virtual void enableShadowMap();
     virtual void enableBlend(bool blend)
     {

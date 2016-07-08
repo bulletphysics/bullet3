@@ -32,6 +32,7 @@ subject to the following restrictions:
 #include "../ExampleBrowser/OpenGLGuiHelper.h"
 
 CommonExampleInterface*    example;
+int gSharedMemoryKey=-1;
 
 b3MouseMoveCallback prevMouseMoveCallback = 0;
 static void OnMouseMove( float x, float y)
@@ -57,6 +58,20 @@ static void OnMouseDown(int button, int state, float x, float y) {
 	}
 }
 
+class LessDummyGuiHelper : public DummyGUIHelper
+{
+	CommonGraphicsApp* m_app;
+public:
+	virtual CommonGraphicsApp* getAppInterface()
+	{
+		return m_app;
+	}
+
+	LessDummyGuiHelper(CommonGraphicsApp* app)
+		:m_app(app)
+	{
+	}
+};
 int main(int argc, char* argv[])
 {
 
@@ -69,11 +84,13 @@ int main(int argc, char* argv[])
 	app->m_window->setMouseMoveCallback((b3MouseMoveCallback)OnMouseMove);
 	
 	OpenGLGuiHelper gui(app,false);
-    
+	//LessDummyGuiHelper gui(app);
+	//DummyGUIHelper gui;
+
 	CommonExampleOptions options(&gui);
 
 	example = StandaloneExampleCreateFunc(options);
-  example->initPhysics();
+	example->initPhysics();
 	example->resetCamera();
 	
 	do

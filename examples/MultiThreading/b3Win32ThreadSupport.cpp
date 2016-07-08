@@ -244,10 +244,10 @@ void b3Win32ThreadSupport::startThreads(const Win32ThreadConstructionInfo& threa
 
 		threadStatus.m_userPtr=0;
 
-		sprintf(threadStatus.m_eventStartHandleName,"eventStart%s%d",threadConstructionInfo.m_uniqueName,i);
+		sprintf(threadStatus.m_eventStartHandleName,"eventStart%8.s%d",threadConstructionInfo.m_uniqueName,i);
 		threadStatus.m_eventStartHandle = CreateEventA (0,false,false,threadStatus.m_eventStartHandleName);
 
-		sprintf(threadStatus.m_eventCompletetHandleName,"eventComplete%s%d",threadConstructionInfo.m_uniqueName,i);
+		sprintf(threadStatus.m_eventCompletetHandleName,"eventComplete%8.s%d",threadConstructionInfo.m_uniqueName,i);
 		threadStatus.m_eventCompletetHandle = CreateEventA (0,false,false,threadStatus.m_eventCompletetHandleName);
 
 		m_completeHandles[i] = threadStatus.m_eventCompletetHandle;

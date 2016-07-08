@@ -64,6 +64,12 @@ void SimpleOpenGL2Renderer::writeSingleInstanceColorToCPU(double* color, int src
 {
     
 }
+
+int SimpleOpenGL2Renderer::getTotalNumInstances() const
+{
+    return 0;
+}
+
 void	SimpleOpenGL2Renderer::getCameraViewMatrix(float viewMat[16]) const
 {
     b3Assert(0);

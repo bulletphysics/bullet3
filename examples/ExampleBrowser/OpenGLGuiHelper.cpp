@@ -199,9 +199,16 @@ void OpenGLGuiHelper::createCollisionObjectGraphicsObject(btCollisionObject* bod
 	}
 }
 
-int OpenGLGuiHelper::registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices)
+int	OpenGLGuiHelper::registerTexture(const unsigned char* texels, int width, int height)
 {
-	int shapeId = m_data->m_glApp->m_renderer->registerShape(vertices, numvertices,indices,numIndices);
+	int textureId = m_data->m_glApp->m_renderer->registerTexture(texels,width,height);
+	return textureId;
+}
+
+
+int OpenGLGuiHelper::registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType, int textureId)
+{
+	int shapeId = m_data->m_glApp->m_renderer->registerShape(vertices, numvertices,indices,numIndices,primitiveType, textureId);
 	return shapeId;
 }
 
@@ -210,6 +217,10 @@ int OpenGLGuiHelper::registerGraphicsInstance(int shapeIndex, const float* posit
 	return m_data->m_glApp->m_renderer->registerGraphicsInstance(shapeIndex,position,quaternion,color,scaling);
 }
 
+void OpenGLGuiHelper::removeAllGraphicsInstances()
+{
+    m_data->m_glApp->m_renderer->removeAllInstances();
+}
 
 void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* collisionShape)
 {
@@ -247,7 +258,7 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 
 	if (gfxVertices.size() && indices.size())
 	{
-		int shapeId = registerGraphicsShape(&gfxVertices[0].xyzw[0],gfxVertices.size(),&indices[0],indices.size());
+		int shapeId = registerGraphicsShape(&gfxVertices[0].xyzw[0],gfxVertices.size(),&indices[0],indices.size(),B3_GL_TRIANGLES,-1);
 		collisionShape->setUserIndex(shapeId);
 	}
 		

@@ -172,6 +172,8 @@ pybullet_loadURDF(PyObject* self, PyObject* args)
 			&startOrnX,&startOrnY,&startOrnZ, &startOrnW))
                 return NULL;
 	}
+	
+		if (strlen(urdfFileName))
     {
       // printf("(%f, %f, %f) (%f, %f, %f, %f)\n", startPosX,startPosY,startPosZ,startOrnX, startOrnY,startOrnZ, startOrnW);
         
@@ -185,12 +187,16 @@ pybullet_loadURDF(PyObject* self, PyObject* args)
         statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
         statusType = b3GetStatusType(statusHandle);
         if (statusType!=CMD_URDF_LOADING_COMPLETED)
-		{
-			PyErr_SetString(SpamError, "Cannot load URDF file.");
-			return NULL;
-		}
+				{
+					PyErr_SetString(SpamError, "Cannot load URDF file.");
+					return NULL;
+				}
         bodyIndex = b3GetStatusBodyIndex(statusHandle);
-    }
+    } else
+    	{
+    		PyErr_SetString(SpamError, "Empty filename, method expects 1, 4 or 8 arguments.");
+				return NULL;
+    	}
 	return PyLong_FromLong(bodyIndex);
 }
 
