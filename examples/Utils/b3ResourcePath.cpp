@@ -4,7 +4,7 @@
 #include <mach-o/dyld.h>	/* _NSGetExecutablePath */
 #else
 #ifdef _WIN32
-#include <Windows.h>
+#include <windows.h>
 #else
 //not Mac, not Windows, let's cross the fingers it is Linux :-)
 #include <unistd.h>
