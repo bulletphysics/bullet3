@@ -65,6 +65,14 @@ void SimpleOpenGL2Renderer::writeSingleInstanceColorToCPU(double* color, int src
     
 }
 
+void SimpleOpenGL2Renderer::writeSingleInstanceScaleToCPU(float* scale, int srcIndex)
+{
+}
+void SimpleOpenGL2Renderer::writeSingleInstanceScaleToCPU(double* scale, int srcIndex)
+{
+}
+
+
 int SimpleOpenGL2Renderer::getTotalNumInstances() const
 {
     return 0;

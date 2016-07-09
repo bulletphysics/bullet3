@@ -374,8 +374,8 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
         {
             case CONTROL_MODE_VELOCITY:
             {
+				double kd = gains;
                 b3JointControlSetDesiredVelocity(commandHandle, info.m_uIndex, targetValue);
-                double kd = gains;
                 b3JointControlSetKd(commandHandle,info.m_uIndex,kd);
                 b3JointControlSetMaximumForce(commandHandle,info.m_uIndex,maxForce);
                 break;
@@ -389,8 +389,8 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
                     
             case CONTROL_MODE_POSITION_VELOCITY_PD:
             {
+				double kp = gains;
                 b3JointControlSetDesiredPosition( commandHandle, info.m_qIndex, targetValue);
-                double kp = gains;
                 b3JointControlSetKp(commandHandle,info.m_uIndex,kp);
                 b3JointControlSetMaximumForce(commandHandle,info.m_uIndex,maxForce);
                 break;
@@ -1270,10 +1270,12 @@ static PyObject* pybullet_applyExternalTorque(PyObject* self, PyObject* args)
                 PyErr_SetString(SpamError, "flag has to be either WORLD_FRAME or LINK_FRAME");
                 return NULL;
             }
-            b3SharedMemoryStatusHandle statusHandle;
-            b3SharedMemoryCommandHandle command = b3ApplyExternalForceCommandInit(sm);
-            b3ApplyExternalTorque(command,objectUniqueId,-1,torque, flags);
-            statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+			{
+				b3SharedMemoryStatusHandle statusHandle;
+				b3SharedMemoryCommandHandle command = b3ApplyExternalForceCommandInit(sm);
+				b3ApplyExternalTorque(command,objectUniqueId,-1,torque, flags);
+				statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+			}
 
         }
     }
@@ -1389,12 +1391,13 @@ static PyObject* pybullet_getEulerFromQuaternion(PyObject* self, PyObject* args)
 
     {
         double rpy[3];
-        sqx = quat[0] * quat[0];
+        double sarg;
+		sqx = quat[0] * quat[0];
         sqy = quat[1] * quat[1];
         sqz = quat[2] * quat[2];
         squ = quat[3] * quat[3];
         rpy[0] = atan2(2 * (quat[1]*quat[2] + quat[3]*quat[0]), squ - sqx - sqy + sqz);
-        double sarg = -2 * (quat[0]*quat[2] - quat[3] * quat[1]);
+        sarg = -2 * (quat[0]*quat[2] - quat[3] * quat[1]);
         rpy[1] = sarg <= -1.0 ? -0.5*3.141592538 : (sarg >= 1.0 ? 0.5*3.141592538 : asin(sarg));
         rpy[2] = atan2(2 * (quat[0]*quat[1] + quat[3]*quat[2]), squ + sqx - sqy - sqz);
         {

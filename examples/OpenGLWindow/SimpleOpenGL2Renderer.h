@@ -32,6 +32,8 @@ struct SimpleOpenGL2Renderer : public CommonRenderInterface
     
     virtual void writeSingleInstanceColorToCPU(float* color, int srcIndex);
     virtual void writeSingleInstanceColorToCPU(double* color, int srcIndex);
+	virtual void writeSingleInstanceScaleToCPU(float* scale, int srcIndex);
+    virtual void writeSingleInstanceScaleToCPU(double* scale, int srcIndex);
     virtual void	getCameraViewMatrix(float viewMat[16]) const;
     virtual void	getCameraProjectionMatrix(float projMat[16]) const;
 

@@ -1486,7 +1486,34 @@ void CMainApplication::RenderStereoTargets()
 	{
 		
 		Matrix4 viewMatLeft = m_mat4eyePosLeft * m_mat4HMDPose * rotYtoZ;
+		Matrix4 viewMatCenter = m_mat4HMDPose * rotYtoZ;
+		//0,1,2,3
+		//4,5,6,7,
+		//8,9,10,11
+		//12,13,14,15
 		
+		//m_mat4eyePosLeft.get()[10]
+		//m_app->m_instancingRenderer->getActiveCamera()->setCameraTargetPosition(
+		//	m_mat4eyePosLeft.get()[3],
+		//	m_mat4eyePosLeft.get()[7],
+		//	m_mat4eyePosLeft.get()[11]);
+		Matrix4 m;
+		m = viewMatCenter;
+		const float* mat = m.invertAffine().get();
+		
+		/*printf("camera:\n,%f,%f,%f,%f\n%f,%f,%f,%f\n%f,%f,%f,%f\n%f,%f,%f,%f",
+			mat[0],mat[1],mat[2],mat[3],
+			mat[4],mat[5],mat[6],mat[7],
+			mat[8],mat[9],mat[10],mat[11],
+			mat[12],mat[13],mat[14],mat[15]);
+			*/
+		float dist=1;
+		m_app->m_instancingRenderer->getActiveCamera()->setCameraTargetPosition(
+			mat[12]-dist*mat[8],
+			mat[13]-dist*mat[9],
+			mat[14]-dist*mat[10]
+			);
+		m_app->m_instancingRenderer->getActiveCamera()->setCameraUpVector(mat[0],mat[1],mat[2]);
 		m_app->m_instancingRenderer->getActiveCamera()->setVRCamera(viewMatLeft.get(),m_mat4ProjectionLeft.get());
 		m_app->m_instancingRenderer->updateCamera(m_app->getUpAxis());
 	}

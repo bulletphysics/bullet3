@@ -39,7 +39,7 @@ struct BasicExample : public CommonRigidBodyBase
 	virtual void renderScene();
 	void resetCamera()
 	{
-		float dist = 41;
+		float dist = 4;
 		float pitch = 52;
 		float yaw = 35;
 		float targetPos[3]={0,0,0};
@@ -81,7 +81,7 @@ void BasicExample::initPhysics()
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
 
-		btBoxShape* colShape = createBoxShape(btVector3(1,1,1));
+		btBoxShape* colShape = createBoxShape(btVector3(.1,.1,.1));
 		
 
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
@@ -108,9 +108,9 @@ void BasicExample::initPhysics()
 				for(int j = 0;j<ARRAY_SIZE_Z;j++)
 				{
 					startTransform.setOrigin(btVector3(
-										btScalar(2.0*i),
-										btScalar(20+2.0*k),
-										btScalar(2.0*j)));
+										btScalar(0.2*i),
+										btScalar(2+.2*k),
+										btScalar(0.2*j)));
 
 			
 					createRigidBody(mass,startTransform,colShape);
@@ -121,7 +121,9 @@ void BasicExample::initPhysics()
 		}
 	}
 
+	
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+	
 }
 
 

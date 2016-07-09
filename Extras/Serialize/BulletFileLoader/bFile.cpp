@@ -460,15 +460,7 @@ void bFile::swapDNA(char* ptr)
 	}
 
 	
-	{
-		nr= (long)cp;
-	//long mask=3;
-		nr= ((nr+3)&~3)-nr;
-		while (nr--)
-		{
-			cp++;
-		}
-	}
+	cp = btAlignPointer(cp,4);
 
 
 	/*
@@ -497,16 +489,7 @@ void bFile::swapDNA(char* ptr)
 		cp++;
 	}
 
-{
-		nr= (long)cp;
-	//	long mask=3;
-		nr= ((nr+3)&~3)-nr;
-		while (nr--)
-		{
-			cp++;
-		}
-	}
-
+	cp = btAlignPointer(cp,4);
 
 	/*
 		TLEN (4 bytes)

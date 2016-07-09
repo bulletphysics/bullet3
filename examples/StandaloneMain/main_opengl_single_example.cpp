@@ -17,13 +17,8 @@ subject to the following restrictions:
 
 #include "../CommonInterfaces/CommonExampleInterface.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
-#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
-#include "BulletCollision/CollisionShapes/btCollisionShape.h"
-#include "BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"
+#include "../Utils/b3Clock.h"
 
-
-#include "LinearMath/btTransform.h"
-#include "LinearMath/btHashMap.h"
 
 
 
@@ -74,7 +69,7 @@ public:
 };
 int main(int argc, char* argv[])
 {
-
+	
 	SimpleOpenGL3App* app = new SimpleOpenGL3App("Bullet Standalone Example",1024,768,true);
 	
 	prevMouseButtonCallback = app->m_window->getMouseButtonCallback();
@@ -93,13 +88,17 @@ int main(int argc, char* argv[])
 	example->initPhysics();
 	example->resetCamera();
 	
+	b3Clock clock;
+
 	do
 	{
 		app->m_instancingRenderer->init();
         app->m_instancingRenderer->updateCamera(app->getUpAxis());
 
-		example->stepSimulation(1./60.);
-	  	
+		btScalar dtSec = btScalar(clock.getTimeInSeconds());
+		example->stepSimulation(dtSec);
+	  	clock.reset();
+
 		example->renderScene();
  	
 		DrawGridData dg;

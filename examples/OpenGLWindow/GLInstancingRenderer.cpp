@@ -261,6 +261,8 @@ GLInstancingRenderer::GLInstancingRenderer(int maxNumObjectCapacity, int maxShap
 
 void GLInstancingRenderer::removeAllInstances()
 {
+	m_data->m_totalNumInstances = 0;
+
 	for (int i=0;i<m_graphicsInstances.size();i++)
 	{
 		if (m_graphicsInstances[i]->m_index_vbo)
@@ -275,6 +277,7 @@ void GLInstancingRenderer::removeAllInstances()
 	}
 	m_graphicsInstances.clear();
 }
+
 
 GLInstancingRenderer::~GLInstancingRenderer()
 {
@@ -323,6 +326,7 @@ void GLInstancingRenderer::writeSingleInstanceTransformToCPU(const float* positi
 	*/
 }
 
+
 void GLInstancingRenderer::writeSingleInstanceColorToCPU(double* color, int srcIndex)
 {
 	m_data->m_instance_colors_ptr[srcIndex*4+0]=float(color[0]);
@@ -340,7 +344,19 @@ void GLInstancingRenderer::writeSingleInstanceColorToCPU(float* color, int srcIn
 	m_data->m_instance_colors_ptr[srcIndex*4+3]=color[3];
 }
 
+void GLInstancingRenderer::writeSingleInstanceScaleToCPU(float* scale, int srcIndex)
+{
+	m_data->m_instance_scale_ptr[srcIndex*3+0]=scale[0];
+	m_data->m_instance_scale_ptr[srcIndex*3+1]=scale[1];
+	m_data->m_instance_scale_ptr[srcIndex*3+2]=scale[2];
+}
 
+void GLInstancingRenderer::writeSingleInstanceScaleToCPU(double* scale, int srcIndex)
+{
+	m_data->m_instance_scale_ptr[srcIndex*3+0]=scale[0];
+	m_data->m_instance_scale_ptr[srcIndex*3+1]=scale[1];
+	m_data->m_instance_scale_ptr[srcIndex*3+2]=scale[2];
+}
 
 void GLInstancingRenderer::writeSingleInstanceTransformToGPU(float* position, float* orientation, int objectIndex)
 {
@@ -389,27 +405,33 @@ void GLInstancingRenderer::writeTransforms()
 	//glFlush();
 
 	b3Assert(glGetError() ==GL_NO_ERROR);
-	int totalNumInstances= 0;
+	
 
-	for (int k=0;k<m_graphicsInstances.size();k++)
+#ifdef B3_DEBUG
 	{
-		b3GraphicsInstance* gfxObj = m_graphicsInstances[k];
-		totalNumInstances+=gfxObj->m_numGraphicsInstances;
+		int totalNumInstances= 0;
+		for (int k=0;k<m_graphicsInstances.size();k++)
+		{
+			b3GraphicsInstance* gfxObj = m_graphicsInstances[k];
+			totalNumInstances+=gfxObj->m_numGraphicsInstances;
+		}
+		b3Assert(m_data->m_totalNumInstances == totalNumInstances);
 	}
+#endif//B3_DEBUG
 
-	int POSITION_BUFFER_SIZE = (totalNumInstances*sizeof(float)*4);
-	int ORIENTATION_BUFFER_SIZE = (totalNumInstances*sizeof(float)*4);
-	int COLOR_BUFFER_SIZE = (totalNumInstances*sizeof(float)*4);
+	int POSITION_BUFFER_SIZE = (m_data->m_totalNumInstances*sizeof(float)*4);
+	int ORIENTATION_BUFFER_SIZE = (m_data->m_totalNumInstances*sizeof(float)*4);
+	int COLOR_BUFFER_SIZE = (m_data->m_totalNumInstances*sizeof(float)*4);
 //	int SCALE_BUFFER_SIZE = (totalNumInstances*sizeof(float)*3);
 
 #if 1
-	glBufferSubData(	GL_ARRAY_BUFFER,m_data->m_maxShapeCapacityInBytes,totalNumInstances*sizeof(float)*4,
+	glBufferSubData(	GL_ARRAY_BUFFER,m_data->m_maxShapeCapacityInBytes,m_data->m_totalNumInstances*sizeof(float)*4,
  						&m_data->m_instance_positions_ptr[0]);
-	glBufferSubData(	GL_ARRAY_BUFFER,m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE,totalNumInstances*sizeof(float)*4,
+	glBufferSubData(	GL_ARRAY_BUFFER,m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE,m_data->m_totalNumInstances*sizeof(float)*4,
  						&m_data->m_instance_quaternion_ptr[0]);
-	glBufferSubData(	GL_ARRAY_BUFFER,m_data->m_maxShapeCapacityInBytes+ POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE, totalNumInstances*sizeof(float)*4,
+	glBufferSubData(	GL_ARRAY_BUFFER,m_data->m_maxShapeCapacityInBytes+ POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE, m_data->m_totalNumInstances*sizeof(float)*4,
  						&m_data->m_instance_colors_ptr[0]);
-	glBufferSubData(	GL_ARRAY_BUFFER, m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE+COLOR_BUFFER_SIZE,totalNumInstances*sizeof(float)*3,
+	glBufferSubData(	GL_ARRAY_BUFFER, m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE+COLOR_BUFFER_SIZE,m_data->m_totalNumInstances*sizeof(float)*3,
 					 	&m_data->m_instance_scale_ptr[0]);
 #else
 
@@ -419,7 +441,7 @@ void GLInstancingRenderer::writeTransforms()
 
 
 		
-		m_data->m_totalNumInstances = totalNumInstances;
+		
 
 		for (int k=0;k<m_graphicsInstances.size();k++)
 		{

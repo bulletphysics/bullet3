@@ -97,11 +97,9 @@ struct MotionThreadLocalStorage
 
 int skip = 0;
 
-
 void	MotionThreadFunc(void* userPtr,void* lsMemory)
 {
-	printf("thread started\n");
-
+	printf("MotionThreadFunc thread started\n");
 	MotionThreadLocalStorage* localStorage = (MotionThreadLocalStorage*) lsMemory;
 
 	MotionArgs* args = (MotionArgs*) userPtr;
@@ -116,41 +114,23 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 		args->m_cs->setSharedParam(0,eMotionIsInitialized);
 		args->m_cs->unlock();
 
-		double m_x=0;
-		double m_y=0;
-		double m_z=0;
-
 		do
 		{
-
 			double deltaTimeInSeconds = double(clock.getTimeMicroseconds())/1000000.;
-			//if (deltaTimeInSeconds<.3)
-			//if (deltaTimeInSeconds<(1./15.))
 			if (deltaTimeInSeconds<(1./260.))
 			{
 				skip++;
-			//if (deltaTimeInSeconds<.001)
-				continue;
+				if (deltaTimeInSeconds<.001)
+					continue;
 			}
-
-			m_x+=deltaTimeInSeconds;
-			m_y+=deltaTimeInSeconds;
-			m_z+=deltaTimeInSeconds;
 
 			clock.reset();
 			
-			
-			int index = 0;
-			index++;
-			
 			if (!blockme)
 			{
-			args->m_physicsServerPtr->processClientCommands();
+				args->m_physicsServerPtr->processClientCommands();
 			}
 			
-
-			
-
 		} while (args->m_cs->getSharedParam(0)!=eRequestTerminateMotion);
 	} else
 	{
@@ -160,9 +140,6 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 	}
 
 
-	args->m_cs->lock();
-	args->m_cs->setSharedParam(0,eMotionHasTerminated);
-	args->m_cs->unlock();
 	printf("finished, #skip = %d\n",skip);
 	skip=0;
 	//do nothing
@@ -358,7 +335,7 @@ public:
 	
 	virtual CommonGraphicsApp* getAppInterface()
 	{
-		return 0;
+		return m_childGuiHelper->getAppInterface();
 	}
 
 
@@ -615,7 +592,7 @@ void    PhysicsServerExample::exitPhysics()
 		delete m_threadSupport;   
 		m_threadSupport = 0;
 
-		m_physicsServer.resetDynamicsWorld();
+		//m_physicsServer.resetDynamicsWorld();
 		
 }
 
@@ -698,6 +675,9 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
 	case eGUIHelperRemoveAllGraphicsInstances:
         {
             m_multiThreadedHelper->m_childGuiHelper->removeAllGraphicsInstances();
+			int numRenderInstances = m_multiThreadedHelper->m_childGuiHelper->getRenderInterface()->getTotalNumInstances();
+			b3Assert(numRenderInstances==0);
+
             m_multiThreadedHelper->getCriticalSection()->lock();
             m_multiThreadedHelper->getCriticalSection()->setSharedParam(1,eGUIHelperIdle);
             m_multiThreadedHelper->getCriticalSection()->unlock();
@@ -739,12 +719,45 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
 	}
 }
 
+
 void PhysicsServerExample::renderScene()
 {
 	///debug rendering
 	//m_args[0].m_cs->lock();
 	
 	m_physicsServer.renderScene();
+
+	if (m_guiHelper->getAppInterface()->m_renderer->getActiveCamera()->isVRCamera())
+	{
+		//some little experiment to add text/HUD to a VR camera (HTC Vive/Oculus Rift)
+
+		static int frameCount=0;
+		frameCount++;
+		char bla[1024];
+		sprintf(bla,"VR sub-title text test, frame %d", frameCount/2);
+		float pos[4];
+		m_guiHelper->getAppInterface()->m_renderer->getActiveCamera()->getCameraTargetPosition(pos);
+		btTransform viewTr;
+		btScalar m[16];
+		float mf[16];
+		m_guiHelper->getAppInterface()->m_renderer->getActiveCamera()->getCameraViewMatrix(mf);
+		for (int i=0;i<16;i++)
+		{
+			m[i] = mf[i];
+		}
+		viewTr.setFromOpenGLMatrix(m);
+		btTransform viewTrInv = viewTr.inverse();
+		float upMag = -.6;
+		btVector3 side = viewTrInv.getBasis().getColumn(0);
+		btVector3 up = viewTrInv.getBasis().getColumn(1);
+		up+=0.35*side;
+		m_guiHelper->getAppInterface()->drawText3D(bla,pos[0]+upMag*up[0],pos[1]+upMag*up[1],pos[2]+upMag*up[2],1);
+		//btVector3 fwd = viewTrInv.getBasis().getColumn(2);
+		sprintf(bla,"VR line 2 sub-title text test, frame %d", frameCount/2);
+		upMag = -0.7;
+		m_guiHelper->getAppInterface()->drawText3D(bla,pos[0]+upMag*up[0],pos[1]+upMag*up[1],pos[2]+upMag*up[2],1);
+	}
+
 	//m_args[0].m_cs->unlock();
 }
 
