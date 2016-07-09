@@ -11,6 +11,7 @@
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"
 
+int gSharedMemoryKey = -1;
 
 //how can you try typing on a keyboard, without seeing it?
 //it is pretty funny, to see the desktop in VR!
@@ -27,7 +28,7 @@
 #include "pathtools.h"
 
 CommonExampleInterface*    sExample;
-OpenGLGuiHelper* sGuiPtr = 0;
+GUIHelperInterface* sGuiPtr = 0;
 
 
 #if defined(POSIX)
@@ -139,7 +140,7 @@ private:
 	SimpleOpenGL3App* m_app;
 	uint32_t m_nWindowWidth;
 	uint32_t m_nWindowHeight;
-
+	bool m_hasContext;
 
 private: // OpenGL bookkeeping
 	int m_iTrackedControllerCount;
@@ -234,6 +235,7 @@ private: // OpenGL bookkeeping
 //-----------------------------------------------------------------------------
 CMainApplication::CMainApplication( int argc, char *argv[] )
 	: m_app(NULL)
+	, m_hasContext(false)
 	, m_nWindowWidth( 1280 )
 	, m_nWindowHeight( 720 )
 	, m_unSceneProgramID( 0 )
@@ -373,7 +375,9 @@ bool CMainApplication::BInit()
 	*/
 	m_app = new SimpleOpenGL3App("SimpleOpenGL3App",m_nWindowWidth,m_nWindowHeight,true);
 
+	
 	sGuiPtr = new OpenGLGuiHelper(m_app,false);
+	//sGuiPtr = new DummyGUIHelper;
 
     
 	CommonExampleOptions options(sGuiPtr);
@@ -556,13 +560,16 @@ void CMainApplication::Shutdown()
 	}
 	m_vecRenderModels.clear();
 	
-	if( 1)//m_pContext )
+	if( m_hasContext)
 	{
-		glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_FALSE );
-		glDebugMessageCallback(nullptr, nullptr);
-		glDeleteBuffers(1, &m_glSceneVertBuffer);
-		glDeleteBuffers(1, &m_glIDVertBuffer);
-		glDeleteBuffers(1, &m_glIDIndexBuffer);
+		if (m_glSceneVertBuffer)
+		{
+			glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_FALSE );
+			glDebugMessageCallback(nullptr, nullptr);
+			glDeleteBuffers(1, &m_glSceneVertBuffer);
+			glDeleteBuffers(1, &m_glIDVertBuffer);
+			glDeleteBuffers(1, &m_glIDIndexBuffer);
+		}
 
 		if ( m_unSceneProgramID )
 		{
@@ -1067,6 +1074,7 @@ void CMainApplication::SetupScene()
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 
+	m_hasContext = true;
 }
 
 
@@ -1455,6 +1463,8 @@ void CMainApplication::SetupDistortion()
 //-----------------------------------------------------------------------------
 void CMainApplication::RenderStereoTargets()
 {
+	sExample->stepSimulation(1./60.);
+
 	glClearColor( 0.15f, 0.15f, 0.18f, 1.0f ); // nice background color, but not black
 	glEnable( GL_MULTISAMPLE );
 
@@ -1462,31 +1472,75 @@ void CMainApplication::RenderStereoTargets()
 	m_app->m_instancingRenderer->init();
 	
 	
+	Matrix4 rotYtoZ = rotYtoZ.identity();
 	
+	//some Bullet apps (especially robotics related) require Z as up-axis)
+	if (m_app->getUpAxis()==2)
+	{
+		rotYtoZ.rotateX(-90);
+	}
+	
+	RenderScene( vr::Eye_Left );
+
 	// Left Eye
 	{
-		Matrix4 viewMatLeft = m_mat4eyePosLeft * m_mat4HMDPose;
+		
+		Matrix4 viewMatLeft = m_mat4eyePosLeft * m_mat4HMDPose * rotYtoZ;
+		Matrix4 viewMatCenter = m_mat4HMDPose * rotYtoZ;
+		//0,1,2,3
+		//4,5,6,7,
+		//8,9,10,11
+		//12,13,14,15
+		
+		//m_mat4eyePosLeft.get()[10]
+		//m_app->m_instancingRenderer->getActiveCamera()->setCameraTargetPosition(
+		//	m_mat4eyePosLeft.get()[3],
+		//	m_mat4eyePosLeft.get()[7],
+		//	m_mat4eyePosLeft.get()[11]);
+		Matrix4 m;
+		m = viewMatCenter;
+		const float* mat = m.invertAffine().get();
+		
+		/*printf("camera:\n,%f,%f,%f,%f\n%f,%f,%f,%f\n%f,%f,%f,%f\n%f,%f,%f,%f",
+			mat[0],mat[1],mat[2],mat[3],
+			mat[4],mat[5],mat[6],mat[7],
+			mat[8],mat[9],mat[10],mat[11],
+			mat[12],mat[13],mat[14],mat[15]);
+			*/
+		float dist=1;
+		m_app->m_instancingRenderer->getActiveCamera()->setCameraTargetPosition(
+			mat[12]-dist*mat[8],
+			mat[13]-dist*mat[9],
+			mat[14]-dist*mat[10]
+			);
+		m_app->m_instancingRenderer->getActiveCamera()->setCameraUpVector(mat[0],mat[1],mat[2]);
 		m_app->m_instancingRenderer->getActiveCamera()->setVRCamera(viewMatLeft.get(),m_mat4ProjectionLeft.get());
-		m_app->m_instancingRenderer->updateCamera();
+		m_app->m_instancingRenderer->updateCamera(m_app->getUpAxis());
 	}
 
 	glBindFramebuffer( GL_FRAMEBUFFER, leftEyeDesc.m_nRenderFramebufferId );
  	glViewport(0, 0, m_nRenderWidth, m_nRenderHeight );
  	
 	
+	
 
 	m_app->m_window->startRendering();
-	RenderScene( vr::Eye_Left );
 	
-	m_app->drawGrid();
-	sExample->stepSimulation(1./60.);
-	sExample->renderScene();
+
+	
+
+	
 	
 
 	
 	m_app->m_instancingRenderer->setRenderFrameBuffer((unsigned int)leftEyeDesc.m_nRenderFramebufferId);
 
-	m_app->m_instancingRenderer->renderScene();
+	sExample->renderScene();
+	//m_app->m_instancingRenderer->renderScene();
+	DrawGridData gridUp;
+	gridUp.upAxis = m_app->getUpAxis();
+	m_app->drawGrid(gridUp);
+
 	
  	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	
@@ -1506,22 +1560,25 @@ void CMainApplication::RenderStereoTargets()
 
 	// Right Eye
 	
-	{
-		Matrix4 viewMatRight = m_mat4eyePosRight * m_mat4HMDPose;
-		m_app->m_instancingRenderer->getActiveCamera()->setVRCamera(viewMatRight.get(),m_mat4ProjectionRight.get());
-		m_app->m_instancingRenderer->updateCamera();
-	}
+	RenderScene( vr::Eye_Right );
 
+	{
+		Matrix4 viewMatRight = m_mat4eyePosRight * m_mat4HMDPose * rotYtoZ;
+		m_app->m_instancingRenderer->getActiveCamera()->setVRCamera(viewMatRight.get(),m_mat4ProjectionRight.get());
+		m_app->m_instancingRenderer->updateCamera(m_app->getUpAxis());
+	}
+	
 	glBindFramebuffer( GL_FRAMEBUFFER, rightEyeDesc.m_nRenderFramebufferId );
  	glViewport(0, 0, m_nRenderWidth, m_nRenderHeight );
  	
 	m_app->m_window->startRendering();
-	RenderScene( vr::Eye_Right );
 	
-	m_app->drawGrid();
+	
+	
 	m_app->m_instancingRenderer->setRenderFrameBuffer((unsigned int)rightEyeDesc.m_nRenderFramebufferId);
-
-	m_app->m_renderer->renderScene();
+	//m_app->m_renderer->renderScene();
+	sExample->renderScene();
+	m_app->drawGrid(gridUp);
 	
  	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
  	

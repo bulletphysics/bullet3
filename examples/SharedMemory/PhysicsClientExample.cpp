@@ -835,7 +835,7 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
             enqueueCommand(CMD_STEP_FORWARD_SIMULATION);
 			if (m_options != eCLIENTEXAMPLE_SERVER)
 			{
-				enqueueCommand(CMD_REQUEST_DEBUG_LINES);
+				//enqueueCommand(CMD_REQUEST_DEBUG_LINES);
 			}
         }
     }
@@ -855,3 +855,4 @@ class CommonExampleInterface*    PhysicsClientCreateFunc(struct CommonExampleOpt
 	}
 	return example;
 }
+

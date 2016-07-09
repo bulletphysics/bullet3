@@ -49,6 +49,8 @@ files {
 	"../ExampleBrowser/OpenGLGuiHelper.cpp",
 	"../ExampleBrowser/GL_ShapeDrawer.cpp",
 	"../ExampleBrowser/CollisionShape2TriangleMesh.cpp",
+	"../Utils/b3Clock.cpp",
+	"../Utils/b3Clock.h",
 }
 
 if os.is("Linux") then initX11() end
@@ -93,7 +95,9 @@ files {
 	"../TinyRenderer/tgaimage.cpp",
 	"../TinyRenderer/our_gl.cpp",
 	"../TinyRenderer/TinyRenderer.cpp",
-	"../Utils/b3ResourcePath.cpp"
+	"../Utils/b3ResourcePath.cpp",
+	"../Utils/b3Clock.cpp",
+	"../Utils/b3Clock.h",
 }
 
 if os.is("Linux") then initX11() end
@@ -132,7 +136,9 @@ files {
 	"../TinyRenderer/tgaimage.cpp",
 	"../TinyRenderer/our_gl.cpp",
 	"../TinyRenderer/TinyRenderer.cpp",
-	"../Utils/b3ResourcePath.cpp"
+	"../Utils/b3ResourcePath.cpp",
+	"../Utils/b3Clock.cpp",
+	"../Utils/b3Clock.h",
 }
 
 
@@ -179,6 +185,8 @@ files {
 				"../ThirdPartyLibs/openvr/samples/shared/pathtools.cpp",
 				"../ThirdPartyLibs/openvr/samples/shared/pathtools.h",
 				"../ThirdPartyLibs/openvr/samples/shared/Vectors.h",
+				"../Utils/b3Clock.cpp",
+				"../Utils/b3Clock.h",
 				
 }
 

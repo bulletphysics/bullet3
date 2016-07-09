@@ -90,6 +90,11 @@ PhysicsServerSharedMemory::~PhysicsServerSharedMemory()
 	delete m_data;
 }
 
+void PhysicsServerSharedMemory::resetDynamicsWorld()
+{
+	m_data->m_commandProcessor->deleteDynamicsWorld();
+	m_data->m_commandProcessor ->createEmptyDynamicsWorld();
+}
 void PhysicsServerSharedMemory::setSharedMemoryKey(int key)
 {
 	m_data->m_sharedMemoryKey = key;

@@ -65,7 +65,8 @@ btAlignedObjectArray<std::string> gFileNameArray;
 struct ImportUrdfInternalData
 {
     ImportUrdfInternalData()
-    :m_numMotors(0)
+    :m_numMotors(0),
+    m_mb(0)
     {
 		for (int i=0;i<MAX_NUM_MOTORS;i++)
 		{
@@ -74,10 +75,13 @@ struct ImportUrdfInternalData
 		}
     }
 
+    
     btScalar m_motorTargetVelocities[MAX_NUM_MOTORS];
     btMultiBodyJointMotor* m_jointMotors [MAX_NUM_MOTORS];
 	btGeneric6DofSpring2Constraint* m_generic6DofJointMotors [MAX_NUM_MOTORS];
     int m_numMotors;
+    btMultiBody* m_mb;
+    btRigidBody* m_rb;
 
 };
 
@@ -223,7 +227,6 @@ void ImportUrdfSetup::initPhysics()
 		{
 
 
-			btMultiBody* mb = 0;
 
 
 			//todo: move these internal API called inside the 'ConvertURDF2Bullet' call, hidden from the user
@@ -232,8 +235,10 @@ void ImportUrdfSetup::initPhysics()
 			MyMultiBodyCreator creation(m_guiHelper);
 
 			ConvertURDF2Bullet(u2b,creation, identityTrans,m_dynamicsWorld,m_useMultiBody,u2b.getPathPrefix());
-			mb = creation.getBulletMultiBody();
-
+			m_data->m_rb = creation.getRigidBody();
+			m_data->m_mb = creation.getBulletMultiBody();
+			btMultiBody* mb = m_data->m_mb;
+            
 			if (m_useMultiBody && mb )
 			{
 				std::string*   name = new std::string(u2b.getLinkName(u2b.getRootLinkIndex()));
@@ -337,7 +342,7 @@ void ImportUrdfSetup::initPhysics()
 
 
 
-		bool createGround=true;
+		bool createGround=false;
 		if (createGround)
 		{
 			btVector3 groundHalfExtents(20,20,20);
@@ -357,8 +362,7 @@ void ImportUrdfSetup::initPhysics()
 			m_guiHelper->createRigidBodyGraphicsObject(body,color);
 		}
 
-		///this extra stepSimulation call makes sure that all the btMultibody transforms are properly propagates.
-		m_dynamicsWorld->stepSimulation(1. / 240., 0);// 1., 10, 1. / 240.);
+		
 	}
 
 #ifdef TEST_MULTIBODY_SERIALIZATION

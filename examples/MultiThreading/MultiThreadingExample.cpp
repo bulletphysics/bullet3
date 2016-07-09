@@ -119,7 +119,7 @@ struct SampleThreadLocalStorage
 
 void	SampleThreadFunc(void* userPtr,void* lsMemory)
 {
-	printf("thread started\n");
+	printf("SampleThreadFunc thread started\n");
 
 	SampleThreadLocalStorage* localStorage = (SampleThreadLocalStorage*) lsMemory;
 

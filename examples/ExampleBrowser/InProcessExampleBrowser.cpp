@@ -226,7 +226,7 @@ enum TestExampleBrowserCommunicationEnums
 
 void	ExampleBrowserThreadFunc(void* userPtr,void* lsMemory)
 {
-	printf("thread started\n");
+	printf("ExampleBrowserThreadFunc started\n");
 
 	ExampleBrowserThreadLocalStorage* localStorage = (ExampleBrowserThreadLocalStorage*) lsMemory;
 
@@ -369,7 +369,7 @@ void btShutDownExampleBrowser(btInProcessExampleBrowserInternalData* data)
                         }
                 };
 
-	printf("stopping threads\n");
+	printf("btShutDownExampleBrowser stopping threads\n");
 	delete data->m_threadSupport;
 	delete data->m_sharedMem;
 	delete data;
