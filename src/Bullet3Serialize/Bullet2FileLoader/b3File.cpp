@@ -429,7 +429,7 @@ void bFile::swapDNA(char* ptr)
 
 
 	{
-		nr= (long)cp;
+	        nr= atol(cp);
 	//long mask=3;
 		nr= ((nr+3)&~3)-nr;
 		while (nr--)
@@ -466,7 +466,7 @@ void bFile::swapDNA(char* ptr)
 	}
 
 {
-		nr= (long)cp;
+                nr= atol(cp);
 	//	long mask=3;
 		nr= ((nr+3)&~3)-nr;
 		while (nr--)
