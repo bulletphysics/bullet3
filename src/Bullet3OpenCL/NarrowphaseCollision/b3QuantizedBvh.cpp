@@ -619,8 +619,8 @@ void	b3QuantizedBvh::walkStacklessQuantizedTreeAgainstRay(b3NodeOverlapCallback*
 			/* Add box cast extents */
 			bounds[0] -= aabbMax;
 			bounds[1] -= aabbMin;
-			b3Vector3 normal;
 #if 0
+			b3Vector3 normal;
 			bool ra2 = b3RayAabb2 (raySource, rayDirection, sign, bounds, param, 0.0, lambda_max);
 			bool ra = b3RayAabb (raySource, rayTarget, bounds[0], bounds[1], param, normal);
 			if (ra2 != ra)
