@@ -692,8 +692,6 @@ static bool findSeparatingAxis(	const b3ConvexPolyhedronData& hullA, const b3Con
 		}
 	}
 
-	b3Vector3 edgeAstart,edgeAend,edgeBstart,edgeBend;
-
 	int curEdgeEdge = 0;
 	// Test edges
 	for(int e0=0;e0<hullA.m_numUniqueEdges;e0++)
@@ -1292,7 +1290,6 @@ int clipHullHullSingle(
 			B3_PROFILE("overlap");
 
 			float4 normalOnSurfaceB = (float4&)hostNormal;
-			float4 centerOut;
 			
 			b3Int4 contactIdx;
 			contactIdx.x = 0;
@@ -2776,9 +2773,7 @@ int computeContactConvexConvex2(
     b3Collidable colB = collidables[collidableIndexB];
     hullB = convexShapes[colB.m_shapeIndex];
     //printf("numvertsB = %d\n",hullB.m_numVertices);
-    
-	
-	float4 contactsOut[MAX_VERTS];
+
 	int contactCapacity = MAX_VERTS;
 	int numContactsOut=0;
 

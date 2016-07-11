@@ -295,7 +295,7 @@ void RaytracerPhysicsSetup::stepSimulation(float deltaTime)
 
 	for (x=0;x<m_internalData->m_width;x++)
 	{
-		for (int y=0;y<m_internalData->m_height;y++)
+		for (y=0;y<m_internalData->m_height;y++)
 		{
 			btVector4 rgba(0,0,0,0);
 			btVector3 rayTo = rayToCenter - 0.5f * hor + 0.5f * vertical;

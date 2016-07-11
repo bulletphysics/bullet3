@@ -569,6 +569,31 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
         }
     }
 
+	{
+		//optional 'contact' parameters
+	 TiXmlElement* ci = config->FirstChildElement("contact");
+	  if (ci)
+	  {
+		TiXmlElement *friction_xml = ci->FirstChildElement("lateral_friction");
+		if (friction_xml)
+		{
+			if (m_parseSDF)
+			{
+				link.m_contactInfo.m_lateralFriction = urdfLexicalCast<double>(friction_xml->GetText());
+			} else
+			{
+				if (!friction_xml->Attribute("value"))
+				{
+				  logger->reportError("Link/contact: lateral_friction element must have value attribute");
+				  return false;
+				}
+
+				link.m_contactInfo.m_lateralFriction = urdfLexicalCast<double>(friction_xml->Attribute("value"));
+			}
+		}
+	  }
+	}
+
   // Inertial (optional)
   TiXmlElement *i = config->FirstChildElement("inertial");
   if (i)

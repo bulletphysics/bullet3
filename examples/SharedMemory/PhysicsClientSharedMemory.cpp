@@ -659,6 +659,8 @@ bool PhysicsClientSharedMemory::canSubmitCommand() const {
 }
 
 struct SharedMemoryCommand* PhysicsClientSharedMemory::getAvailableSharedMemoryCommand() {
+    static int sequence = 0;
+    m_data->m_testBlock1->m_clientCommands[0].m_sequenceNumber = sequence++;
     return &m_data->m_testBlock1->m_clientCommands[0];
 }
 

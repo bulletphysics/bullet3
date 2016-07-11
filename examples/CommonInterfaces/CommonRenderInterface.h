@@ -22,7 +22,7 @@ struct CommonRenderInterface
 	virtual void init()=0;
 	virtual void updateCamera(int upAxis)=0;
 	virtual void removeAllInstances() = 0;
-
+	
 	virtual const CommonCameraInterface* getActiveCamera() const =0;
 	virtual CommonCameraInterface* getActiveCamera()=0;
 	virtual void setActiveCamera(CommonCameraInterface* cam)=0;
@@ -52,6 +52,10 @@ struct CommonRenderInterface
 	virtual void writeSingleInstanceTransformToCPU(const double* position, const double* orientation, int srcIndex)=0;
 	virtual void writeSingleInstanceColorToCPU(float* color, int srcIndex)=0;
 	virtual void writeSingleInstanceColorToCPU(double* color, int srcIndex)=0;
+	virtual void writeSingleInstanceScaleToCPU(float* scale, int srcIndex)=0;
+	virtual void writeSingleInstanceScaleToCPU(double* scale, int srcIndex)=0;
+    
+    virtual int getTotalNumInstances() const = 0;
     
 	virtual void writeTransforms()=0;
     virtual void enableBlend(bool blend)=0;

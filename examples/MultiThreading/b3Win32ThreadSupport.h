@@ -74,7 +74,8 @@ public:
 									m_userThreadFunc(userThreadFunc),
 									m_lsMemoryFunc(lsMemoryFunc),
 									m_numThreads(numThreads),
-									m_threadStackSize(threadStackSize)
+									m_threadStackSize(threadStackSize),
+									m_priority(0)
 		{
 
 		}
@@ -84,6 +85,7 @@ public:
 		b3Win32lsMemorySetupFunc	m_lsMemoryFunc;
 		int						m_numThreads;
 		int						m_threadStackSize;
+		int						m_priority;
 
 	};
 

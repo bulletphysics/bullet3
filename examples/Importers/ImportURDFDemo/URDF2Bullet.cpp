@@ -392,9 +392,18 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
                 
                 u2b.convertLinkVisualShapes2(urdfLinkIndex,pathPrefix,localInertialFrame,col);
 
-                btScalar friction = 0.5f;
+				URDFLinkContactInfo contactInfo;
+				u2b.getLinkContactInfo(urdfLinkIndex,contactInfo);
 
-                col->setFriction(friction);
+				if ((contactInfo.m_flags & URDF_CONTACT_HAS_LATERAL_FRICTION)!=0)
+				{
+					col->setFriction(contactInfo.m_lateralFriction);
+				}
+				if ((contactInfo.m_flags & URDF_CONTACT_HAS_ROLLING_FRICTION)!=0)
+				{
+					col->setRollingFriction(contactInfo.m_rollingFriction);
+				}
+				
 
                 if (mbLinkIndex>=0) //???? double-check +/- 1
                 {

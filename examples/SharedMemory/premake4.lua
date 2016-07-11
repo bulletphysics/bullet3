@@ -15,7 +15,8 @@ links {
 
 language "C++"
 
-files {
+myfiles = 
+{
 	"PhysicsClient.cpp",
 	"PhysicsClientSharedMemory.cpp",
 	"PhysicsClientExample.cpp",
@@ -24,7 +25,6 @@ files {
 	"PhysicsServerSharedMemory.h",
 	"PhysicsServer.cpp",
 	"PhysicsServer.h",
-	"main.cpp",
 	"PhysicsClientC_API.cpp",
 	"SharedMemoryCommands.h",
 	"SharedMemoryPublic.h",
@@ -76,11 +76,211 @@ files {
 	"../Importers/ImportColladaDemo/LoadMeshFromCollada.cpp",
 	"../Importers/ImportColladaDemo/ColladaGraphicsInstance.h",
 	"../ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp",	
-    "../ThirdPartyLibs/tinyxml/tinystr.cpp",
-    "../ThirdPartyLibs/tinyxml/tinyxml.cpp",
-    "../ThirdPartyLibs/tinyxml/tinyxmlerror.cpp",
-    "../ThirdPartyLibs/tinyxml/tinyxmlparser.cpp",
-"../Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
-                        "../ThirdPartyLibs/stb_image/stb_image.cpp",     
+	"../ThirdPartyLibs/tinyxml/tinystr.cpp",
+	"../ThirdPartyLibs/tinyxml/tinyxml.cpp",
+	"../ThirdPartyLibs/tinyxml/tinyxmlerror.cpp",
+	"../ThirdPartyLibs/tinyxml/tinyxmlparser.cpp",
+	"../Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
+	"../ThirdPartyLibs/stb_image/stb_image.cpp",     
 }
 
+files {
+	myfiles,
+	"main.cpp",
+}
+
+
+files {
+		"../MultiThreading/b3ThreadSupportInterface.cpp",
+		"../MultiThreading/b3ThreadSupportInterface.h"
+	}
+	if os.is("Windows") then
+
+		files {
+                "../MultiThreading/b3Win32ThreadSupport.cpp",  
+                "../MultiThreading/b3Win32ThreadSupport.h" 
+		}
+		--links {"winmm"}
+		--defines {"__WINDOWS_MM__", "WIN32"}
+	end
+
+	if os.is("Linux") then 
+		files {
+                "../MultiThreading/b3PosixThreadSupport.cpp",  
+                "../MultiThreading/b3PosixThreadSupport.h"    
+        	}
+
+		links {"pthread"}
+	end
+
+	if os.is("MacOSX") then
+		files {
+                "../MultiThreading/b3PosixThreadSupport.cpp",
+                "../MultiThreading/b3PosixThreadSupport.h"    
+                }
+
+		links {"pthread"}
+		--links{"CoreAudio.framework", "coreMIDI.framework", "Cocoa.framework"}
+		--defines {"__MACOSX_CORE__"}
+	end
+
+
+project "App_SharedMemoryPhysics_GUI"
+
+if _OPTIONS["ios"] then
+        kind "WindowedApp"
+else
+        kind "ConsoleApp"
+end
+defines {"B3_USE_STANDALONE_EXAMPLE"}
+
+includedirs {"../../src"}
+
+links {
+        "BulletDynamics","BulletCollision", "LinearMath", "OpenGL_Window","Bullet3Common"
+}
+	initOpenGL()
+  initGlew()
+
+language "C++"
+
+files {
+        myfiles,
+        "../StandaloneMain/main_opengl_single_example.cpp",
+				"../ExampleBrowser/OpenGLGuiHelper.cpp",
+				"../ExampleBrowser/GL_ShapeDrawer.cpp",
+				"../ExampleBrowser/CollisionShape2TriangleMesh.cpp",
+}
+
+if os.is("Linux") then initX11() end
+
+if os.is("MacOSX") then
+        links{"Cocoa.framework"}
+end
+
+
+files {
+		"../MultiThreading/b3ThreadSupportInterface.cpp",
+		"../MultiThreading/b3ThreadSupportInterface.h"
+	}
+if os.is("Windows") then
+
+	files {
+              "../MultiThreading/b3Win32ThreadSupport.cpp",  
+              "../MultiThreading/b3Win32ThreadSupport.h" 
+	}
+	--links {"winmm"}
+	--defines {"__WINDOWS_MM__", "WIN32"}
+end
+
+if os.is("Linux") then 
+	files {
+              "../MultiThreading/b3PosixThreadSupport.cpp",  
+              "../MultiThreading/b3PosixThreadSupport.h"    
+      	}
+
+	links {"pthread"}
+end
+
+if os.is("MacOSX") then
+	files {
+              "../MultiThreading/b3PosixThreadSupport.cpp",
+              "../MultiThreading/b3PosixThreadSupport.h"    
+              }
+
+	links {"pthread"}
+	--links{"CoreAudio.framework", "coreMIDI.framework", "Cocoa.framework"}
+	--defines {"__MACOSX_CORE__"}
+end
+
+if os.is("Windows") then 
+	project "App_SharedMemoryPhysics_VR"
+	--for now, only enable VR under Windows, until compilation issues are resolved on Mac/Linux
+	defines {"B3_USE_STANDALONE_EXAMPLE","BT_ENABLE_VR"}
+	
+	if _OPTIONS["ios"] then
+		kind "WindowedApp"
+	else	
+		kind "ConsoleApp"
+	end
+	
+	includedirs {
+			".","../../src", "../ThirdPartyLibs",
+			"../ThirdPartyLibs/openvr/headers",
+			"../ThirdPartyLibs/openvr/samples/shared"
+		}
+						
+	links {
+		"Bullet3Common",	"BulletDynamics","BulletCollision", "LinearMath","OpenGL_Window","openvr_api"
+	}
+	
+	
+	language "C++"
+	
+	
+		initOpenGL()
+	  initGlew()
+	
+	
+	files
+	{
+		myfiles,
+		 "../StandaloneMain/hellovr_opengl_main.cpp",
+					"../ExampleBrowser/OpenGLGuiHelper.cpp",
+					"../ExampleBrowser/GL_ShapeDrawer.cpp",
+					"../ExampleBrowser/CollisionShape2TriangleMesh.cpp",
+					"../ThirdPartyLibs/openvr/samples/shared/lodepng.cpp",
+					"../ThirdPartyLibs/openvr/samples/shared/lodepng.h",
+					"../ThirdPartyLibs/openvr/samples/shared/Matrices.cpp",
+					"../ThirdPartyLibs/openvr/samples/shared/Matrices.h",
+					"../ThirdPartyLibs/openvr/samples/shared/pathtools.cpp",
+					"../ThirdPartyLibs/openvr/samples/shared/pathtools.h",
+					"../ThirdPartyLibs/openvr/samples/shared/Vectors.h",
+	}
+	if os.is("Windows") then 
+		libdirs {"../ThirdPartyLibs/openvr/lib/win32"}
+	end
+	
+	if os.is("Linux") then initX11() end
+	
+	if os.is("MacOSX") then
+	        links{"Cocoa.framework"}
+	end
+	
+	
+	files {
+			"../MultiThreading/b3ThreadSupportInterface.cpp",
+			"../MultiThreading/b3ThreadSupportInterface.h"
+		}
+		if os.is("Windows") then
+	
+			files {
+	                "../MultiThreading/b3Win32ThreadSupport.cpp",  
+	                "../MultiThreading/b3Win32ThreadSupport.h" 
+			}
+			--links {"winmm"}
+			--defines {"__WINDOWS_MM__", "WIN32"}
+		end
+	
+		if os.is("Linux") then 
+			files {
+	                "../MultiThreading/b3PosixThreadSupport.cpp",  
+	                "../MultiThreading/b3PosixThreadSupport.h"    
+	        	}
+	
+			links {"pthread"}
+		end
+	
+		if os.is("MacOSX") then
+			files {
+	                "../MultiThreading/b3PosixThreadSupport.cpp",
+	                "../MultiThreading/b3PosixThreadSupport.h"    
+	                }
+	
+			links {"pthread"}
+			--links{"CoreAudio.framework", "coreMIDI.framework", "Cocoa.framework"}
+			--defines {"__MACOSX_CORE__"}
+		end
+
+
+end

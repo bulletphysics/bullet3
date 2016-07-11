@@ -172,6 +172,8 @@ pybullet_loadURDF(PyObject* self, PyObject* args)
 			&startOrnX,&startOrnY,&startOrnZ, &startOrnW))
                 return NULL;
 	}
+	
+		if (strlen(urdfFileName))
     {
       // printf("(%f, %f, %f) (%f, %f, %f, %f)\n", startPosX,startPosY,startPosZ,startOrnX, startOrnY,startOrnZ, startOrnW);
         
@@ -185,12 +187,16 @@ pybullet_loadURDF(PyObject* self, PyObject* args)
         statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
         statusType = b3GetStatusType(statusHandle);
         if (statusType!=CMD_URDF_LOADING_COMPLETED)
-		{
-			PyErr_SetString(SpamError, "Cannot load URDF file.");
-			return NULL;
-		}
+				{
+					PyErr_SetString(SpamError, "Cannot load URDF file.");
+					return NULL;
+				}
         bodyIndex = b3GetStatusBodyIndex(statusHandle);
-    }
+    } else
+    	{
+    		PyErr_SetString(SpamError, "Empty filename, method expects 1, 4 or 8 arguments.");
+				return NULL;
+    	}
 	return PyLong_FromLong(bodyIndex);
 }
 
@@ -368,8 +374,8 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
         {
             case CONTROL_MODE_VELOCITY:
             {
+				double kd = gains;
                 b3JointControlSetDesiredVelocity(commandHandle, info.m_uIndex, targetValue);
-                double kd = gains;
                 b3JointControlSetKd(commandHandle,info.m_uIndex,kd);
                 b3JointControlSetMaximumForce(commandHandle,info.m_uIndex,maxForce);
                 break;
@@ -383,8 +389,8 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
                     
             case CONTROL_MODE_POSITION_VELOCITY_PD:
             {
+				double kp = gains;
                 b3JointControlSetDesiredPosition( commandHandle, info.m_qIndex, targetValue);
-                double kp = gains;
                 b3JointControlSetKp(commandHandle,info.m_uIndex,kp);
                 b3JointControlSetMaximumForce(commandHandle,info.m_uIndex,maxForce);
                 break;
@@ -942,6 +948,32 @@ static int pybullet_internalSetMatrix(PyObject* objMat, float matrix[16])
     return 0;
 }
 
+// internal function to set a float vector[3]
+// used to initialize camera position with
+// a view and projection matrix in renderImage()
+//
+// // Args:
+//  matrix - float[16] which will be set by values from objMat
+static int pybullet_internalSetVector(PyObject* objMat, float vector[3])
+{
+    int i, len;
+    PyObject* seq;
+
+    seq = PySequence_Fast(objMat, "expected a sequence");
+    len = PySequence_Size(objMat);
+    if (len==3)
+    {
+        for (i = 0; i < len; i++)
+        {
+            vector[i] = pybullet_internalGetFloatFromSequence(seq,i);
+        }
+        Py_DECREF(seq);
+        return 1;
+    }
+    Py_DECREF(seq);
+    return 0;
+}
+
 // Render an image from the current timestep of the simulation
 //
 // Examples:
@@ -961,10 +993,21 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
   ///request an image from a simulated camera, using a software renderer.
   struct b3CameraImageData imageData;
   PyObject* objViewMat,* objProjMat;
-  int width,  height;
+  PyObject* objCameraPos,*objTargetPos,* objCameraUp;
+
+  int width, height;
   int size= PySequence_Size(args);
   float viewMatrix[16];
   float projectionMatrix[16];
+  
+  float cameraPos[3];
+  float targetPos[3];
+  float cameraUp[3];
+
+  float left, right, bottom, top, aspect;
+  float nearVal, farVal;
+  // float nearVal = .001;
+  // float farVal = 1000;
 
   // inialize cmd
   b3SharedMemoryCommandHandle command;
@@ -1001,6 +1044,47 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
        }
    }
 
+   if (size==7) // set camera resoluation and view and projection matrix
+   {
+     if (PyArg_ParseTuple(args, "iiOOOii", &width, &height, &objCameraPos, &objTargetPos, &objCameraUp, &nearVal, &farVal))
+     {
+       b3RequestCameraImageSetPixelResolution(command,width,height);
+       if (pybullet_internalSetVector(objCameraPos, cameraPos) &&
+           pybullet_internalSetVector(objTargetPos, targetPos) &&
+           pybullet_internalSetVector(objCameraUp, cameraUp))
+           {
+              // printf("\ncamera pos:\n");
+              //   for(int i =0;i<3; i++) {
+              //     printf(" %f", cameraPos[i]);
+              //   }
+              // 
+              //   printf("\ntargetPos pos:\n");
+              //     for(int i =0;i<3; i++) {
+              //       printf(" %f", targetPos[i]);
+              //     }
+              // 
+              //   printf("\ncameraUp pos:\n");
+              //     for(int i =0;i<3; i++) {
+              //       printf(" %f", cameraUp[i]);
+              //     }
+              //     printf("\n");
+                b3RequestCameraImageSetViewMatrix(command, cameraPos, targetPos, cameraUp);
+                // printf("\n");
+
+           }
+           
+           aspect = width/height;
+           left = -aspect * nearVal;
+           right = aspect * nearVal;
+           bottom = -nearVal;
+           top = nearVal;
+           
+           b3RequestCameraImageSetProjectionMatrix(command, left, right, bottom, top, nearVal, farVal);
+          //  printf("\n");
+
+      }
+    }
+    
 	if (b3CanSubmitCommand(sm))
 	{
 		b3SharedMemoryStatusHandle statusHandle;
@@ -1186,10 +1270,12 @@ static PyObject* pybullet_applyExternalTorque(PyObject* self, PyObject* args)
                 PyErr_SetString(SpamError, "flag has to be either WORLD_FRAME or LINK_FRAME");
                 return NULL;
             }
-            b3SharedMemoryStatusHandle statusHandle;
-            b3SharedMemoryCommandHandle command = b3ApplyExternalForceCommandInit(sm);
-            b3ApplyExternalTorque(command,objectUniqueId,-1,torque, flags);
-            statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+			{
+				b3SharedMemoryStatusHandle statusHandle;
+				b3SharedMemoryCommandHandle command = b3ApplyExternalForceCommandInit(sm);
+				b3ApplyExternalTorque(command,objectUniqueId,-1,torque, flags);
+				statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+			}
 
         }
     }
@@ -1305,12 +1391,13 @@ static PyObject* pybullet_getEulerFromQuaternion(PyObject* self, PyObject* args)
 
     {
         double rpy[3];
-        sqx = quat[0] * quat[0];
+        double sarg;
+		sqx = quat[0] * quat[0];
         sqy = quat[1] * quat[1];
         sqz = quat[2] * quat[2];
         squ = quat[3] * quat[3];
         rpy[0] = atan2(2 * (quat[1]*quat[2] + quat[3]*quat[0]), squ - sqx - sqy + sqz);
-        double sarg = -2 * (quat[0]*quat[2] - quat[3] * quat[1]);
+        sarg = -2 * (quat[0]*quat[2] - quat[3] * quat[1]);
         rpy[1] = sarg <= -1.0 ? -0.5*3.141592538 : (sarg >= 1.0 ? 0.5*3.141592538 : asin(sarg));
         rpy[2] = atan2(2 * (quat[0]*quat[1] + quat[3]*quat[2]), squ + sqx - sqy - sqz);
         {
@@ -1381,7 +1468,7 @@ static PyMethodDef SpamMethods[] = {
         "for objectUniqueId, linkIndex (-1 for base/root link) apply a torque [x,y,z] in Cartesian coordinates, flag to select TORQUE_IN_LINK_FRAME or TORQUE_IN_WORLD_FRAME coordinates"},
     
 	{"renderImage", pybullet_renderImage, METH_VARARGS,
-	"Render an image (given the pixel resolution width & height and camera view & projection matrices), and return the 8-8-8bit RGB pixel data and floating point depth values"},	
+	"Render an image (given the pixel resolution width, height, camera view matrix, projection matrix, near, and far values), and return the 8-8-8bit RGB pixel data and floating point depth values"},	
 
     {"getQuaternionFromEuler", pybullet_getQuaternionFromEuler, METH_VARARGS,
         "Convert Euler [roll, pitch, yaw] as in URDF/SDF convention, to quaternion [x,y,z,w]"},
@@ -1396,6 +1483,10 @@ static PyMethodDef SpamMethods[] = {
     ////todo(erwincoumans)
     //collision info
     //raycast info
+        
+    //applyBaseForce
+    //applyLinkForce
+     
 
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
