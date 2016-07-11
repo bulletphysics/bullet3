@@ -132,7 +132,7 @@ ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option, 
 		
 		if (gFileNameArray.size()==0)
 		{
-			gFileNameArray.push_back("sphere2.urdf");
+			gFileNameArray.push_back("r2d2.urdf");
 
 		}
 
@@ -200,7 +200,7 @@ void ImportUrdfSetup::initPhysics()
 
 
 	btVector3 gravity(0,0,0);
-	gravity[upAxis]=-9.8;
+	//gravity[upAxis]=-9.8;
 
 	m_dynamicsWorld->setGravity(gravity);
 

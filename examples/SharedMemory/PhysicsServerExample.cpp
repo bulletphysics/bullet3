@@ -1,5 +1,6 @@
 
 
+//todo(erwincoumans): re-use the upcoming b3RobotSimAPI here
 
 #include "PhysicsServerExample.h"
 
@@ -12,8 +13,6 @@
 #include "../Utils/b3Clock.h"
 #include "../MultiThreading/b3ThreadSupportInterface.h"
 
-int blockme = false;
-int blockme2 = false;
 
 void	MotionThreadFunc(void* userPtr,void* lsMemory);
 void*	MotionlsMemoryFunc();
@@ -116,6 +115,8 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 
 		do
 		{
+//todo(erwincoumans): do we want some sleep to reduce CPU resources in this thread?
+#if 0
 			double deltaTimeInSeconds = double(clock.getTimeMicroseconds())/1000000.;
 			if (deltaTimeInSeconds<(1./260.))
 			{
@@ -125,11 +126,9 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 			}
 
 			clock.reset();
+#endif
+			args->m_physicsServerPtr->processClientCommands();
 			
-			if (!blockme)
-			{
-				args->m_physicsServerPtr->processClientCommands();
-			}
 			
 		} while (args->m_cs->getSharedParam(0)!=eRequestTerminateMotion);
 	} else
@@ -710,7 +709,6 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
 	}
 	#endif
 
-	if (!blockme2)
 	{
 		if (m_multiThreadedHelper->m_childGuiHelper->getRenderInterface())
 		{

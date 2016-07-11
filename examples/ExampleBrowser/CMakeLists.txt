@@ -189,7 +189,10 @@ SET(BulletExampleBrowser_SRCS
 	../RenderingExamples/TimeSeriesCanvas.h
 	../RenderingExamples/TimeSeriesFontData.cpp
 	../RenderingExamples/TimeSeriesFontData.h
-
+	../RoboticsLearning/b3RobotSimAPI.cpp
+	../RoboticsLearning/b3RobotSimAPI.h
+	../RoboticsLearning/R2D2GraspExample.cpp
+	../RoboticsLearning/R2D2GraspExample.h
 	../RenderingExamples/CoordinateSystemDemo.cpp
 	../RenderingExamples/CoordinateSystemDemo.h
 	../RenderingExamples/RaytracerSetup.cpp
