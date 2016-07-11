@@ -50,7 +50,7 @@ struct MultiPendulumExample: public CommonRigidBodyBase {
 
 	virtual void initPhysics(); // build a multi pendulum
 	virtual void renderScene(); // render the scene to screen
-	virtual void createMultiPendulum(btSphereShape* colShape, btScalar pendulaQty, btScalar xPosition, btScalar yPosition,btScalar zPosition, btScalar length, btScalar mass); // create a multi pendulum at the indicated x and y position, the specified number of pendula formed into a chain, each with indicated length and mass
+	virtual void createMultiPendulum(btSphereShape* colShape, btScalar pendulaQty, const btVector3& position, btScalar length, btScalar mass); // create a multi pendulum at the indicated x and y position, the specified number of pendula formed into a chain, each with indicated length and mass
 	virtual void changePendulaLength(btScalar length); // change the pendulum length
 	virtual void changePendulaRestitution(btScalar restitution); // change the pendula restitution
 	virtual void stepSimulation(float deltaTime); // step the simulation
@@ -155,16 +155,14 @@ void MultiPendulumExample::initPhysics() { // Setup your physics scene
 	{ // create the multipendulum starting at the indicated position below and where each pendulum has the following mass
 		btScalar pendulumMass(1.f);
 
-		btScalar xPosition(0.0f); // initial top-most pendulum position
-		btScalar yPosition(15.0f);
-		btScalar zPosition(0.0f);
+		btVector3 position(0.0f,15.0f,0.0f); // initial top-most pendulum position
 
 		// Re-using the same collision is better for memory usage and performance
 		btSphereShape* pendulumShape = new btSphereShape(gSphereRadius);
 		m_collisionShapes.push_back(pendulumShape);
 
 		// create multi-pendulum
-		createMultiPendulum(pendulumShape, floor(gPendulaQty), xPosition, yPosition,zPosition,
+		createMultiPendulum(pendulumShape, floor(gPendulaQty), position,
 			gInitialPendulumLength, pendulumMass);
 	}
 
@@ -181,7 +179,7 @@ void MultiPendulumExample::stepSimulation(float deltaTime) {
 }
 
 void MultiPendulumExample::createMultiPendulum(btSphereShape* colShape,
-	btScalar pendulaQty, btScalar xPosition, btScalar yPosition, btScalar zPosition,
+	btScalar pendulaQty, const btVector3& position,
 	btScalar length, btScalar mass) {
 
 	// The multi-pendulum looks like this (names when built):
@@ -200,8 +198,7 @@ void MultiPendulumExample::createMultiPendulum(btSphereShape* colShape,
 	startTransform.setIdentity();
 
 	// position the top sphere
-	startTransform.setOrigin(
-		btVector3(btScalar(xPosition), btScalar(yPosition), btScalar(zPosition)));
+	startTransform.setOrigin(position);
 
 	startTransform.setRotation(btQuaternion(0, 0, 0, 1)); // zero rotation
 
@@ -228,9 +225,7 @@ void MultiPendulumExample::createMultiPendulum(btSphereShape* colShape,
 		// create joint element to make the pendulum rotate it
 
 		// position the joint sphere at the same position as the top sphere
-		startTransform.setOrigin(
-			btVector3(btScalar(xPosition), btScalar(yPosition - length*(i)),
-				btScalar(0)));
+		startTransform.setOrigin(position - btVector3(0,length*(i),0));
 
 		startTransform.setRotation(btQuaternion(0, 0, 0, 1)); // zero rotation
 
@@ -269,9 +264,7 @@ void MultiPendulumExample::createMultiPendulum(btSphereShape* colShape,
 		startTransform.setIdentity(); // reset start transform
 
 		// position the child sphere below the joint sphere
-		startTransform.setOrigin(
-			btVector3(btScalar(xPosition), btScalar(yPosition - length*(i+1)),
-				btScalar(0)));
+		startTransform.setOrigin(position - btVector3(0,length*(i+1),0));
 
 		startTransform.setRotation(btQuaternion(0, 0, 0, 1)); // zero rotation
 

@@ -76,7 +76,7 @@ struct NewtonsRopeCradleExample : public CommonRigidBodyBase {
 	}
 
 	virtual void createRopePendulum(btSphereShape* colShape,
-		btVector3 position, btQuaternion pendulumOrientation, btScalar width, btScalar height, btScalar mass);
+		const btVector3& position, const btQuaternion& pendulumOrientation, btScalar width, btScalar height, btScalar mass);
 	virtual void changePendulaRestitution(btScalar restitution);
 	virtual void connectWithRope(btRigidBody* body1, btRigidBody* body2);
 	virtual bool keyboardCallback(int key, int state);
@@ -254,7 +254,7 @@ void NewtonsRopeCradleExample::stepSimulation(float deltaTime) {
 }
 
 void NewtonsRopeCradleExample::createRopePendulum(btSphereShape* colShape,
-	btVector3 position, btQuaternion pendulumOrientation, btScalar width, btScalar height, btScalar mass) {
+	const btVector3& position, const btQuaternion& pendulumOrientation, btScalar width, btScalar height, btScalar mass) {
 
 	// The pendulum looks like this (names when built):
 	// O   O  topSphere1 topSphere2

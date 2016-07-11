@@ -50,7 +50,7 @@ struct NewtonsCradleExample: public CommonRigidBodyBase {
 	}
 	virtual void initPhysics();
 	virtual void renderScene();
-	virtual void createPendulum(btSphereShape* colShape, btVector3 position, btScalar length, btScalar mass);
+	virtual void createPendulum(btSphereShape* colShape, const btVector3& position, btScalar length, btScalar mass);
 	virtual void changePendulaLength(btScalar length);
 	virtual void changePendulaRestitution(btScalar restitution);
 	virtual void stepSimulation(float deltaTime);
@@ -184,7 +184,7 @@ void NewtonsCradleExample::stepSimulation(float deltaTime) {
 	}
 }
 
-void NewtonsCradleExample::createPendulum(btSphereShape* colShape,btVector3 position, btScalar length, btScalar mass) {
+void NewtonsCradleExample::createPendulum(btSphereShape* colShape, const btVector3& position, btScalar length, btScalar mass) {
 
 	// The pendulum looks like this (names when built):
 	// O   topSphere
