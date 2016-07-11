@@ -94,6 +94,7 @@ project "App_BulletExampleBrowser"
 		"../ExtendedTutorials/Bridge.cpp",
 		"../ExtendedTutorials/RigidBodyFromObj.cpp",
 		"../Collision/*",
+		"../RoboticsLearning/*",
 		"../Collision/Internal/*",
 		"../Benchmarks/*",
 		"../CommonInterfaces/*",
