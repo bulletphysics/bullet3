@@ -435,11 +435,10 @@ void Win32Window::setWindowTitle(const char* titleChar)
 	wchar_t  windowTitle[1024];
 	swprintf(windowTitle, 1024, L"%hs", titleChar);
 
-	DWORD dwResult;
-
 #ifdef _WIN64
 		SetWindowTextW(m_data->m_hWnd, windowTitle);
 #else
+		DWORD dwResult;
 		SendMessageTimeoutW(m_data->m_hWnd, WM_SETTEXT, 0,
 				reinterpret_cast<LPARAM>(windowTitle),
 				SMTO_ABORTIFHUNG, 2000, &dwResult);
