@@ -38,6 +38,8 @@ static btScalar gInitialPendulumLength = 8; // Default pendulum length (distance
 
 static btScalar gDisplacementForce = 30; // The default force with which we move the pendulum
 
+static btScalar gForceScalar = 0; // default force scalar to apply a displacement
+
 struct MultiPendulumExample: public CommonRigidBodyBase {
 	MultiPendulumExample(struct GUIHelperInterface* helper) :
 		CommonRigidBodyBase(helper) {
@@ -47,21 +49,13 @@ struct MultiPendulumExample: public CommonRigidBodyBase {
 	}
 
 	virtual void initPhysics(); // build a multi pendulum
-
 	virtual void renderScene(); // render the scene to screen
-
-	virtual void createMultiPendulum(btSphereShape* colShape,
-		btScalar pendulaQty, btScalar xPosition, btScalar yPosition,btScalar zPosition,
-		btScalar length, btScalar mass); // create a multi pendulum at the indicated x and y position, the specified number of pendula formed into a chain, each with indicated length and mass
-
+	virtual void createMultiPendulum(btSphereShape* colShape, btScalar pendulaQty, btScalar xPosition, btScalar yPosition,btScalar zPosition, btScalar length, btScalar mass); // create a multi pendulum at the indicated x and y position, the specified number of pendula formed into a chain, each with indicated length and mass
 	virtual void changePendulaLength(btScalar length); // change the pendulum length
-
 	virtual void changePendulaRestitution(btScalar restitution); // change the pendula restitution
-
 	virtual void stepSimulation(float deltaTime); // step the simulation
-
 	virtual bool keyboardCallback(int key, int state); // handle keyboard callbacks
-
+	virtual void applyPendulumForce(btScalar pendulumForce);
 	void resetCamera() {
 		float dist = 41;
 		float pitch = 52;
@@ -72,7 +66,6 @@ struct MultiPendulumExample: public CommonRigidBodyBase {
 	}
 
 	std::vector<btSliderConstraint*> constraints; // keep a handle to the slider constraints
-
 	std::vector<btRigidBody*> pendula; // keep a handle to the pendula
 };
 
@@ -83,6 +76,8 @@ void onMultiPendulaLengthChanged(float pendulaLength); // Change the pendula len
 void onMultiPendulaRestitutionChanged(float pendulaRestitution); // change the pendula restitution
 
 void floorMSliderValue(float notUsed); // floor the slider values which should be integers
+
+void applyMForceWithForceScalar(float forceScalar);
 
 void MultiPendulumExample::initPhysics() { // Setup your physics scene
 
@@ -135,6 +130,15 @@ void MultiPendulumExample::initPhysics() { // Setup your physics scene
 			slider);
 	}
 
+	{ // create a slider to apply the force by slider
+		SliderParams slider("Apply displacement force", &gForceScalar);
+		slider.m_minVal = -1;
+		slider.m_maxVal = 1;
+		slider.m_clampToNotches = false;
+		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
+			slider);
+	}
+
 	m_guiHelper->setUpAxis(1);
 
 	createEmptyDynamicsWorld();
@@ -168,10 +172,12 @@ void MultiPendulumExample::initPhysics() { // Setup your physics scene
 }
 
 void MultiPendulumExample::stepSimulation(float deltaTime) {
+
+	applyMForceWithForceScalar(gForceScalar); // apply force defined by apply force slider
+
 	if (m_dynamicsWorld) {
 		m_dynamicsWorld->stepSimulation(deltaTime);
 	}
-
 }
 
 void MultiPendulumExample::createMultiPendulum(btSphereShape* colShape,
@@ -352,7 +358,7 @@ bool MultiPendulumExample::keyboardCallback(int key, int state) {
 
 	//key 1, key 2, key 3
 	switch (key) {
-	case 49 /*ASCII for 1*/: {
+	case '1' /*ASCII for 1*/: {
 
 		//assumption: Sphere are aligned in Z axis
 		btScalar newLimit = btScalar(gCurrentPendulumLength + 0.1);
@@ -363,7 +369,7 @@ bool MultiPendulumExample::keyboardCallback(int key, int state) {
 		b3Printf("Increase pendulum length to %f", gCurrentPendulumLength);
 		return true;
 	}
-	case 50 /*ASCII for 2*/: {
+	case '2' /*ASCII for 2*/: {
 
 		//assumption: Sphere are aligned in Z axis
 		btScalar newLimit = btScalar(gCurrentPendulumLength - 0.1);
@@ -377,16 +383,23 @@ bool MultiPendulumExample::keyboardCallback(int key, int state) {
 		b3Printf("Decrease pendulum length to %f", gCurrentPendulumLength);
 		return true;
 	}
-	case 51 /*ASCII for 3*/: {
-		for (int i = floor(gPendulaQty)-1; i >= gPendulaQty-gDisplacedPendula; i--) {
-			if (gDisplacedPendula >= 0 && gDisplacedPendula < gPendulaQty)
-				pendula[i]->applyCentralForce(btVector3(gDisplacementForce, 0, 0));
-		}
+	case '3' /*ASCII for 3*/: {
+		applyPendulumForce(gDisplacementForce);
 		return true;
 	}
 	}
 
 	return false;
+}
+
+void MultiPendulumExample::applyPendulumForce(btScalar pendulumForce){
+	if(pendulumForce != 0){
+		b3Printf("Apply %f to pendulum",pendulumForce);
+		for (int i = 0; i < gDisplacedPendula; i++) {
+			if (gDisplacedPendula >= 0 && gDisplacedPendula <= gPendulaQty)
+				pendula[i]->applyCentralForce(btVector3(pendulumForce, 0, 0));
+		}
+	}
 }
 
 // GUI parameter modifiers
@@ -409,6 +422,17 @@ void onMultiPendulaRestitutionChanged(float pendulaRestitution) { // change the 
 void floorMSliderValue(float notUsed) { // floor the slider values which should be integers
 	gPendulaQty = floor(gPendulaQty);
 	gDisplacedPendula = floor(gDisplacedPendula);
+}
+
+void applyMForceWithForceScalar(float forceScalar) {
+	if(mex){
+		btScalar appliedForce = forceScalar * gDisplacementForce;
+
+		if(fabs(gForceScalar) < 0.2f)
+			gForceScalar = 0;
+
+		mex->applyPendulumForce(appliedForce);
+	}
 }
 
 CommonExampleInterface* ET_MultiPendulumCreateFunc(
