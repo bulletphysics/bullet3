@@ -53,6 +53,7 @@ SET(AppBasicExampleGui_SRCS
         ../ExampleBrowser/OpenGLGuiHelper.cpp
         ../ExampleBrowser/GL_ShapeDrawer.cpp
         ../ExampleBrowser/CollisionShape2TriangleMesh.cpp
+		../Utils/b3Clock.cpp
 )
 
 #this define maps StandaloneExampleCreateFunc to the right 'CreateFunc'

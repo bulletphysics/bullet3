@@ -45,6 +45,7 @@
 #include "../Tutorial/Dof6ConstraintTutorial.h"
 #include "../MultiThreading/MultiThreadingExample.h"
 #include "../InverseDynamics/InverseDynamicsExample.h"
+#include "../RoboticsLearning/R2D2GraspExample.h"
 
 #ifdef ENABLE_LUA
 #include "../LuaDemo/LuaPhysicsSetup.h"
@@ -57,7 +58,7 @@
 #endif
 #endif //B3_USE_CLEW
 
-//Extended Tutorial Includes Added by Mobeen
+//Extended Tutorial Includes Added by Mobeen and Benelot
 #include "../ExtendedTutorials/SimpleBox.h"
 #include "../ExtendedTutorials/MultipleBoxes.h"
 #include "../ExtendedTutorials/SimpleJoint.h"
@@ -65,6 +66,10 @@
 #include "../ExtendedTutorials/Chain.h"
 #include "../ExtendedTutorials/Bridge.h"
 #include "../ExtendedTutorials/RigidBodyFromObj.h"
+#include "../ExtendedTutorials/InclinedPlane.h"
+#include "../ExtendedTutorials/NewtonsCradle.h"
+#include "../ExtendedTutorials/NewtonsRopeCradle.h"
+#include "../ExtendedTutorials/MultiPendulum.h"
 
 struct ExampleEntry
 {
@@ -90,10 +95,10 @@ struct ExampleEntry
 static ExampleEntry gDefaultExamples[]=
 {
 
+
 	ExampleEntry(0,"API"),
 
 	ExampleEntry(1,"Basic Example","Create some rigid bodies using box collision shapes. This is a good example to familiarize with the basic initialization of Bullet. The Basic Example can also be compiled without graphical user interface, as a console application. Press W for wireframe, A to show AABBs, I to suspend/restart physics simulation. Press D to toggle auto-deactivation of the simulation. ", BasicExampleCreateFunc),
-
 
 	ExampleEntry(1,"Rolling Friction", "Damping is often not good enough to keep rounded objects from rolling down a sloped surface. Instead, you can set the rolling friction of a rigid body. Generally it is best to leave the rolling friction to zero, to avoid artifacts.", RollingFrictionCreateFunc),
 
@@ -113,8 +118,6 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Gyroscopic", "Show the Dzhanibekov effect using various settings of the gyroscopic term. You can select the gyroscopic term computation using btRigidBody::setFlags, with arguments BT_ENABLE_GYROSCOPIC_FORCE_EXPLICIT (using explicit integration, which adds energy and can lead to explosions), BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_WORLD, BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY. If you don't set any of these flags, there is no gyroscopic term used.", GyroscopicCreateFunc),
 
 	ExampleEntry(1,"Soft Contact", "Using the error correction parameter (ERP) and constraint force mixing (CFM) values for contacts to simulate compliant contact.",RigidBodySoftContactCreateFunc),
-
-
 
 	ExampleEntry(0,"MultiBody"),
 	ExampleEntry(1,"MultiDofCreateFunc","Create a basic btMultiBody with 3-DOF spherical joints (mobilizers). The demo uses a fixed base or a floating base at restart.", MultiDofCreateFunc),
@@ -241,11 +244,12 @@ static ExampleEntry gDefaultExamples[]=
 			PhysicsServerCreateFunc,PHYSICS_SERVER_ENABLE_COMMAND_LOGGING),
 	ExampleEntry(1,"Physics Server (Replay Log)", "Create a physics server that replay a command log from disk.",
 			PhysicsServerCreateFunc,PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG),
-
 	ExampleEntry(1, "Physics Client (Shared Mem)", "Create a physics client that can communicate with a physics server over shared memory.", PhysicsClientCreateFunc),
 	ExampleEntry(1, "Physics Client (Direct)", "Create a physics client that can communicate with a physics server directly in-process.", PhysicsClientCreateFunc,eCLIENTEXAMPLE_DIRECT),
 
-		
+	ExampleEntry(1,"R2D2 Grasp","Load the R2D2 robot from URDF file and control it to grasp objects", R2D2GraspExampleCreateFunc, eROBOTIC_LEARN_GRASP),
+	ExampleEntry(1,"URDF Compliant Contact","Experiment/improve compliant rigid contact using parameters from URDF file (contact_cfm, contact_erp, lateral_friction, rolling_friction)", R2D2GraspExampleCreateFunc,eROBOTIC_LEARN_COMPLIANT_CONTACT),
+	
 
 
 #ifdef ENABLE_LUA
@@ -273,11 +277,16 @@ static ExampleEntry gDefaultExamples[]=
 	//Extended Tutorials Added by Mobeen
 	ExampleEntry(0,"Extended Tutorials"),
 	ExampleEntry(1,"Simple Box", "Simplest possible demo creating a single box rigid body that falls under gravity", ET_SimpleBoxCreateFunc),
-	ExampleEntry(1,"Multiple Boxes", "Adding multiple box rigid bodies that fall under gravity", ET_MultipleBoxesCreateFunc),
-	ExampleEntry(1,"Simple Joint", "Creating a single distance constraint between two box rigid bodies", ET_SimpleJointCreateFunc),
-	ExampleEntry(1,"Simple Cloth", "Creating a simple piece of cloth", ET_SimpleClothCreateFunc),
-	ExampleEntry(1,"Simple Chain", "Creating a simple chain using a pair of point2point/distance constraints. You may click and drag any box to see the chain respond.", ET_ChainCreateFunc),
-	ExampleEntry(1,"Simple Bridge", "Creating a simple bridge using a pair of point2point/distance constraints. You may click and drag any plank to see the bridge respond.", ET_BridgeCreateFunc),
+	ExampleEntry(1,"Multiple Boxes", "Add multiple box rigid bodies that fall under gravity", ET_MultipleBoxesCreateFunc),
+	ExampleEntry(1,"Simple Joint", "Create a single distance constraint between two box rigid bodies", ET_SimpleJointCreateFunc),
+	ExampleEntry(1,"Simple Cloth", "Create a simple piece of cloth", ET_SimpleClothCreateFunc),
+	ExampleEntry(1,"Simple Chain", "Create a simple chain using a pair of point2point/distance constraints. You may click and drag any box to see the chain respond.", ET_ChainCreateFunc),
+	ExampleEntry(1,"Simple Bridge", "Create a simple bridge using a pair of point2point/distance constraints. You may click and drag any plank to see the bridge respond.", ET_BridgeCreateFunc),
+	ExampleEntry(1,"Inclined Plane", "Create an inclined plane to show restitution and different types of friction. Use the sliders to vary restitution and friction and press space to reset the scene.", ET_InclinedPlaneCreateFunc),
+	ExampleEntry(1,"Newton's Cradle", "Create a Newton's Cradle using a pair of point2point/slider constraints. Press 1/2 to lengthen/shorten the pendula, press 3 to displace pendula. Use the sliders to select the number (reset simulation), length and restitution of pendula, the number of displaced pendula and apply the displacement force.", ET_NewtonsCradleCreateFunc),
+	ExampleEntry(1,"Newton's Rope Cradle", "Create a Newton's Cradle using ropes. Press 3 to displace pendula. Use the sliders to select the number (reset simulation), length and restitution of pendula and the number of displaced pendula and apply the displacement force.",ET_NewtonsRopeCradleCreateFunc),
+	ExampleEntry(1,"Multi-Pendulum", "Create a Multi-Pendulum using point2point/slider constraints. Press 1/2 to lengthen/shorten the pendula, press 3 to displace pendula. Use the sliders to select the number (reset simulation), length and restitution of pendula, the number of displaced pendula and apply the displacement force.",ET_MultiPendulumCreateFunc),
+
 
 	//todo: create a category/tutorial about advanced topics, such as optimizations, using different collision detection algorithm, different constraint solvers etc.
 	//ExampleEntry(0,"Advanced"),

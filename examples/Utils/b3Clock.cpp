@@ -166,7 +166,7 @@ unsigned long int b3Clock::getTimeMilliseconds()
 
 	/// Returns the time in us since the last call to reset or since 
 	/// the Clock was created.
-unsigned long int b3Clock::getTimeMicroseconds()
+unsigned long long int b3Clock::getTimeMicroseconds()
 {
 #ifdef B3_USE_WINDOWS_TIMERS
 		LARGE_INTEGER currentTime;
@@ -175,14 +175,14 @@ unsigned long int b3Clock::getTimeMicroseconds()
 			m_data->mStartTime.QuadPart;
 
 		// Compute the number of millisecond ticks elapsed.
-		unsigned long msecTicks = (unsigned long)(1000 * elapsedTime / 
+		unsigned long long msecTicks = (unsigned long long)(1000 * elapsedTime / 
 			m_data->mClockFrequency.QuadPart);
 
 		// Check for unexpected leaps in the Win32 performance counter.  
 		// (This is caused by unexpected data across the PCI to ISA 
 		// bridge, aka south bridge.  See Microsoft KB274323.)
-		unsigned long elapsedTicks = GetTickCount() - m_data->mStartTick;
-		signed long msecOff = (signed long)(msecTicks - elapsedTicks);
+		unsigned long long elapsedTicks = GetTickCount() - m_data->mStartTick;
+		signed long long msecOff = (signed long)(msecTicks - elapsedTicks);
 		if (msecOff < -100 || msecOff > 100)
 		{
 			// Adjust the starting time forwards.
@@ -197,7 +197,7 @@ unsigned long int b3Clock::getTimeMicroseconds()
 		m_data->mPrevElapsedTime = elapsedTime;
 
 		// Convert to microseconds.
-		unsigned long usecTicks = (unsigned long)(1000000 * elapsedTime / 
+		unsigned long long usecTicks = (unsigned long)(1000000 * elapsedTime / 
 			m_data->mClockFrequency.QuadPart);
 
 		return usecTicks;
@@ -220,5 +220,10 @@ unsigned long int b3Clock::getTimeMicroseconds()
 			(currentTime.tv_usec - m_data->mStartTime.tv_usec);
 #endif//__CELLOS_LV2__
 #endif 
+}
+
+double b3Clock::getTimeInSeconds()
+{
+	return double(getTimeMicroseconds()/1.e6);
 }
 

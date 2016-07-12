@@ -399,7 +399,6 @@ static void loadCurrentSettings(const char* startFileName, b3CommandLineArgs& ar
 	FILE* f = fopen(startFileName,"r");
 	if (f)
 	{
-		int result;
 		char oneline[1024];
 		char* argv[] = {0,&oneline[0]};
 		

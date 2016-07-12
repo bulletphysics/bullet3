@@ -39,7 +39,7 @@ files {
 			"../Importers/ImportURDFDemo/UrdfParser.cpp",
 			"../Importers/ImportURDFDemo/urdfStringSplit.cpp",
 			"../Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
-                        "../ThirdPartyLibs/stb_image/stb_image.cpp",
+  		"../ThirdPartyLibs/stb_image/stb_image.cpp",
 }
 
 
@@ -91,7 +91,9 @@ files {
 			"../Importers/ImportURDFDemo/UrdfParser.cpp",
 			"../Importers/ImportURDFDemo/urdfStringSplit.cpp",
 			"../Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
-                        "../ThirdPartyLibs/stb_image/stb_image.cpp",
+      "../ThirdPartyLibs/stb_image/stb_image.cpp",
+      "../Utils/b3Clock.cpp",
+			"../Utils/b3Clock.h",
 }
 
 if os.is("Linux") then initX11() end
@@ -156,7 +158,7 @@ files {
 			"../Importers/ImportURDFDemo/UrdfParser.cpp",
 			"../Importers/ImportURDFDemo/urdfStringSplit.cpp",
 			"../Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
-                        "../ThirdPartyLibs/stb_image/stb_image.cpp",     
+			"../ThirdPartyLibs/stb_image/stb_image.cpp",     
 }
 
 if os.is("Linux") then initX11() end
