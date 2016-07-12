@@ -285,7 +285,7 @@ char* makeExeToBspFilename(const char* lpCmdLine)
 }
 
 
-struct CommonExampleInterface*    ImportBspCreateFunc(struct CommonExampleOptions& options)
+CommonExampleInterface*    ImportBspCreateFunc(struct CommonExampleOptions& options)
 {
 	BspDemo* demo = new BspDemo(options.m_guiHelper);
 		

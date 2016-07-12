@@ -10,7 +10,7 @@
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointFeedback.h"
-#include "../CommonInterfaces/CommonRenderInterface.h"
+
 
 #include "btBulletDynamicsCommon.h"
 
@@ -1756,10 +1756,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					}
                 case CMD_STEP_FORWARD_SIMULATION:
                 {
-
+                    
 					if (m_data->m_verboseOutput)
 					{
 						b3Printf("Step simulation request");
+						b3Printf("CMD_STEP_FORWARD_SIMULATION clientCmd = %d\n", clientCmd.m_sequenceNumber);
 					}
                     ///todo(erwincoumans) move this damping inside Bullet
                     for (int i=0;i<m_data->m_bodyHandles.size();i++)
@@ -1864,16 +1865,21 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                 case CMD_RESET_SIMULATION:
                 {
 					//clean up all data
-					if (m_data && m_data->m_guiHelper && m_data->m_guiHelper->getRenderInterface())
-                    {
-                        m_data->m_guiHelper->getRenderInterface()->removeAllInstances();
-                    }
+					
+					
+					
+					if (m_data && m_data->m_guiHelper)
+					{
+						m_data->m_guiHelper->removeAllGraphicsInstances();
+					}
 					if (m_data)
 					{
 						m_data->m_visualConverter.resetAll();
 					}
+					
 					deleteDynamicsWorld();
 					createEmptyDynamicsWorld();
+					
 					m_data->exitHandles();
 					m_data->initHandles();
 
@@ -2058,6 +2064,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     }
                 case CMD_APPLY_EXTERNAL_FORCE:
                 {
+                	if (m_data->m_verboseOutput)
+									{
+                    b3Printf("CMD_APPLY_EXTERNAL_FORCE clientCmd = %d\n", clientCmd.m_sequenceNumber);
+                  }
                     for (int i = 0; i < clientCmd.m_externalForceArguments.m_numForcesAndTorques; ++i)
                     {
                         InteralBodyData* body = m_data->getHandle(clientCmd.m_externalForceArguments.m_bodyUniqueIds[i]);

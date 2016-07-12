@@ -53,7 +53,7 @@ static sem_t* createSem(const char* baseName)
 #ifdef NAMED_SEMAPHORES
         /// Named semaphore begin
         char name[32];
-        snprintf(name, 32, "/%s-%d-%4.4d", baseName, getpid(), semCount++);
+        snprintf(name, 32, "/%8.s-%4.d-%4.4d", baseName, getpid(), semCount++);
         sem_t* tempSem = sem_open(name, O_CREAT, 0600, 0);
 
         if (tempSem != reinterpret_cast<sem_t *>(SEM_FAILED))

@@ -62,6 +62,16 @@ void	SimpleCamera::setVRCamera(const float viewMat[16], const float projectionMa
 	}
 }
 
+void SimpleCamera::disableVRCamera()
+{
+	m_data->m_enableVR = false;
+}
+
+bool SimpleCamera::isVRCamera() const
+{
+	return m_data->m_enableVR ;
+}
+
 
 static void    b3CreateFrustum(
                         float left,
