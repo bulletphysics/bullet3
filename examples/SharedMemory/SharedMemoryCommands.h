@@ -138,8 +138,8 @@ struct RequestPixelDataArgs
 enum EnumRequestPixelDataUpdateFlags
 {
 	REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES=1,
-	REQUEST_PIXEL_ARGS_USE_HARDWARE_OPENGL=2,
 	REQUEST_PIXEL_ARGS_SET_PIXEL_WIDTH_HEIGHT=4,
+	//don't exceed (1<<15), because this enum is shared with EnumRenderer in SharedMemoryPublic.h
 	
 };
 

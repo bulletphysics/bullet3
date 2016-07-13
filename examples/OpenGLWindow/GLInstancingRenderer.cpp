@@ -146,8 +146,9 @@ struct InternalTextureHandle
 struct InternalDataRenderer : public GLInstanceRendererInternalData
 {
 
-	SimpleCamera	m_defaultCamera;
-
+	SimpleCamera	m_defaultCamera1;
+    CommonCameraInterface* m_activeCamera;
+    
 	GLfloat m_projectionMatrix[16];
 	GLfloat m_viewMatrix[16];
 
@@ -164,7 +165,8 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 	InternalDataRenderer() :
 		m_shadowMap(0),
 		m_shadowTexture(0),
-		m_renderFrameBuffer(0)
+		m_renderFrameBuffer(0),
+		m_activeCamera(&m_defaultCamera1)
 	{
 		//clear to zero to make it obvious if the matrix is used uninitialized
 		for (int i=0;i<16;i++)
@@ -919,18 +921,18 @@ void	GLInstancingRenderer::resize(int width, int height)
 
 const CommonCameraInterface* GLInstancingRenderer::getActiveCamera() const
 {
-	return &m_data->m_defaultCamera;
+	return m_data->m_activeCamera;
 }
 
 CommonCameraInterface* GLInstancingRenderer::getActiveCamera()
 {
-	return &m_data->m_defaultCamera;
+	return m_data->m_activeCamera;
 }
 
 
 void GLInstancingRenderer::setActiveCamera(CommonCameraInterface* cam)
 {
-	b3Assert(0);//not supported yet
+	m_data->m_activeCamera = cam;
 }
 
 
@@ -951,14 +953,10 @@ void GLInstancingRenderer::updateCamera(int upAxis)
     b3Assert(0);
 	};
 
-	m_data->m_defaultCamera.setCameraUpAxis(upAxis);
-	m_data->m_defaultCamera.setAspectRatio((float)m_screenWidth/(float)m_screenHeight);
-	m_data->m_defaultCamera.update();
+	m_data->m_activeCamera->setCameraUpAxis(upAxis);
+	m_data->m_activeCamera->setAspectRatio((float)m_screenWidth/(float)m_screenHeight);
+	m_data->m_defaultCamera1.update();
 
-	m_data->m_defaultCamera.getCameraProjectionMatrix(m_data->m_projectionMatrix);
-	m_data->m_defaultCamera.getCameraViewMatrix(m_data->m_viewMatrix);
-	
-	
 
 }
 
@@ -1489,7 +1487,7 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 	float depthViewMatrix[4][4];
 	b3Vector3 center = b3MakeVector3(0,0,0);
 	float upf[3];
-	m_data->m_defaultCamera.getCameraUpVector(upf);
+	m_data->m_activeCamera->getCameraUpVector(upf);
 	b3Vector3 up = b3MakeVector3(upf[0],upf[1],upf[2]);
 	b3CreateLookAt(gLightPos,center,up,&depthViewMatrix[0][0]);
 	//b3CreateLookAt(lightPos,m_data->m_cameraTargetPosition,b3Vector3(0,1,0),(float*)depthModelViewMatrix2);
@@ -1526,6 +1524,9 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 	{
 		B3_PROFILE("updateCamera");
 	//	updateCamera();
+		m_data->m_activeCamera->getCameraProjectionMatrix(m_data->m_projectionMatrix);
+        m_data->m_activeCamera->getCameraViewMatrix(m_data->m_viewMatrix);
+
 	}
 
 b3Assert(glGetError() ==GL_NO_ERROR);

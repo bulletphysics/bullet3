@@ -345,12 +345,8 @@ public:
 	{
 	}
 
-	virtual void copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int* width, int* height, int* numPixelsCopied)
+	virtual void copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16], unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int destinationWidth, int destinationHeight, int* numPixelsCopied)
 	{
-	     if (width)
-            *width = 0;
-        if (height)
-            *height = 0;
         if (numPixelsCopied)
             *numPixelsCopied = 0;
 	}

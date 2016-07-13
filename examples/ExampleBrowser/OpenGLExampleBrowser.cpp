@@ -970,14 +970,7 @@ void OpenGLExampleBrowser::update(float deltaTime)
             s_instancingRenderer->updateCamera(dg.upAxis);
         }
 
-		if (renderGrid)
-        {
-            BT_PROFILE("Draw Grid");
-			glPolygonOffset(3.0, 3);
-			glEnable(GL_POLYGON_OFFSET_FILL);
-            s_app->drawGrid(dg);
-			
-        }
+		
 		static int frameCount = 0;
 		frameCount++;
 
@@ -1025,6 +1018,14 @@ void OpenGLExampleBrowser::update(float deltaTime)
 				}
 			}
 			
+			if (renderGrid)
+            {
+                BT_PROFILE("Draw Grid");
+                glPolygonOffset(3.0, 3);
+                glEnable(GL_POLYGON_OFFSET_FILL);
+                s_app->drawGrid(dg);
+                
+            }
 			if (renderVisualGeometry && ((gDebugDrawFlags&btIDebugDraw::DBG_DrawWireframe)==0))
             {
 				if (visualWireframe)
