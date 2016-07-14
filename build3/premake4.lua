@@ -6,10 +6,15 @@
    		osversion.majorversion, osversion.minorversion, osversion.revision,
    		osversion.description))
 
-
-	-- Multithreaded compiling
 	if _ACTION == "vs2010" or _ACTION=="vs2008" then
-		buildoptions { "/MP"  }
+		buildoptions
+		{
+			-- Multithreaded compiling
+			"/MP",
+			-- Disable a few useless warnings
+			"/wd4244",
+			"/wd4267"
+		}
 	end
 
 	act = ""
