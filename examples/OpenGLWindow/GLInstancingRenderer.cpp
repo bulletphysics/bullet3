@@ -956,6 +956,8 @@ void GLInstancingRenderer::updateCamera(int upAxis)
 	m_data->m_activeCamera->setCameraUpAxis(upAxis);
 	m_data->m_activeCamera->setAspectRatio((float)m_screenWidth/(float)m_screenHeight);
 	m_data->m_defaultCamera1.update();
+    m_data->m_activeCamera->getCameraProjectionMatrix(m_data->m_projectionMatrix);
+    m_data->m_activeCamera->getCameraViewMatrix(m_data->m_viewMatrix);
 
 
 }

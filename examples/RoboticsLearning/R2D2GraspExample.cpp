@@ -99,7 +99,8 @@ public:
 				args.m_forceOverrideFixedBase = true;
 				args.m_fileType = B3_SDF_FILE;
 				//args.m_startOrientation = b3Quaternion()
-				m_robotSim.loadFile(args);
+                b3RobotSimLoadFileResults results;
+                m_robotSim.loadFile(args,results);
 			}
 			{
 				b3RobotSimLoadFileArgs args("");

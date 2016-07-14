@@ -81,7 +81,7 @@ public:
 	bool connect(struct GUIHelperInterface* guiHelper);
 	void disconnect();
 
-	bool loadFile(const struct b3RobotSimLoadFileArgs& args, b3RobotSimLoadFileResults& results=b3RobotSimLoadFileResults());
+	bool loadFile(const struct b3RobotSimLoadFileArgs& args, b3RobotSimLoadFileResults& results);
 
 	int getNumJoints(int bodyUniqueId) const;
 

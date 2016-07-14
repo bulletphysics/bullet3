@@ -223,7 +223,7 @@ void MyKeyboardCallback(int key, int state)
 b3MouseMoveCallback prevMouseMoveCallback = 0;
 static void MyMouseMoveCallback( float x, float y)
 {
-	bool handled = false;
+  	bool handled = false;
 	if (sCurrentDemo)
 		handled = sCurrentDemo->mouseMoveCallback(x,y);
 	if (!handled && gui)
