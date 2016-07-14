@@ -19,7 +19,7 @@ subject to the following restrictions:
 bool useShadowMap=true;//false;//true;
 int shadowMapWidth=4096;//8192;
 int shadowMapHeight=4096;
-float shadowMapWorldSize=50;
+float shadowMapWorldSize=25;
 
 #define MAX_POINTS_IN_BATCH 1024
 #define MAX_LINES_IN_BATCH 1024
@@ -75,7 +75,7 @@ float shadowMapWorldSize=50;
 static InternalDataRenderer* sData2;
 
 GLint lineWidthRange[2]={1,1};
-static b3Vector3 gLightPos=b3MakeVector3(-5,200,-40);
+static b3Vector3 gLightPos=b3MakeVector3(-5,12,-4);
 
 struct b3GraphicsInstance
 {
@@ -956,6 +956,8 @@ void GLInstancingRenderer::updateCamera(int upAxis)
 	m_data->m_activeCamera->setCameraUpAxis(upAxis);
 	m_data->m_activeCamera->setAspectRatio((float)m_screenWidth/(float)m_screenHeight);
 	m_data->m_defaultCamera1.update();
+    m_data->m_activeCamera->getCameraProjectionMatrix(m_data->m_projectionMatrix);
+    m_data->m_activeCamera->getCameraViewMatrix(m_data->m_viewMatrix);
 
 
 }

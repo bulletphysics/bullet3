@@ -1,0 +1,55 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+  <model name="Amazon Pod">
+  	<static>1</static>
+  	<pose>0 2 1.21 0 0 0</pose>
+    <link name="pod_link">
+      <inertial>
+        <pose>0.0 0.0 1.2045 0 0 0</pose>
+        <mass>76.26</mass>
+        <inertia>
+          <ixx>47</ixx>
+          <ixy>-0.003456</ixy>
+          <ixz>0.001474</ixz>
+          <izz>13.075</izz>
+          <iyz>-0.014439</iyz>
+          <iyy>47</iyy>
+        </inertia>
+      </inertial>
+
+      <visual name="pod_visual">
+        <pose>0 0 0 1.5707 0 0 </pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/pod_lowres.stl</uri>
+          </mesh>
+        </geometry>
+         <material>
+            <diffuse>0.9 0.8 0.5 1</diffuse>
+          </material>
+      </visual>
+
+
+      <collision name="pod_collision">
+        <pose>0 0 0 1.5707 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/pod_lowres.stl</uri>
+          </mesh>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>0.8</mu>
+              <mu2>0.8</mu2>
+              <fdir1>0.0 0.0 0.0</fdir1>
+              <slip1>1.0</slip1>
+              <slip2>1.0</slip2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+
+    </link>
+  </model>
+</sdf>

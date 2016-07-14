@@ -138,6 +138,7 @@ void TinyRenderObjectData::registerMeshShape(const float* vertices, int numVerti
              */
 		}
 		
+		m_model->reserveMemory(numVertices,numIndices);
         for (int i=0;i<numVertices;i++)
         {
             m_model->addVertex(vertices[i*9],

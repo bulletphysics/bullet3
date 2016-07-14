@@ -225,6 +225,15 @@ bool UrdfParser::parseInertia(UrdfInertia& inertia, TiXmlElement* config, ErrorL
 {
 	inertia.m_linkLocalFrame.setIdentity();
 	inertia.m_mass = 0.f;
+	if(m_parseSDF)
+	{
+		TiXmlElement* pose = config->FirstChildElement("pose");
+		if (pose)
+		{
+			parseTransform(inertia.m_linkLocalFrame, pose,logger,m_parseSDF);
+		}
+	}
+
 	
 		
 	// Origin
@@ -448,6 +457,15 @@ bool UrdfParser::parseCollision(UrdfCollision& collision, TiXmlElement* config, 
 
 	collision.m_linkLocalFrame.setIdentity();
 	
+	if(m_parseSDF)
+	{
+		TiXmlElement* pose = config->FirstChildElement("pose");
+		if (pose)
+		{
+			parseTransform(collision.m_linkLocalFrame, pose,logger,m_parseSDF);
+		}
+	}
+
 	// Origin
 	TiXmlElement *o = config->FirstChildElement("origin");
 	if (o) 
@@ -474,7 +492,15 @@ bool UrdfParser::parseCollision(UrdfCollision& collision, TiXmlElement* config, 
 bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement* config, ErrorLogger* logger)
 {
 	visual.m_linkLocalFrame.setIdentity();
-		
+	if(m_parseSDF)
+	{
+		TiXmlElement* pose = config->FirstChildElement("pose");
+		if (pose)
+		{
+			parseTransform(visual.m_linkLocalFrame, pose,logger,m_parseSDF);
+		}
+	}
+
   // Origin
   TiXmlElement *o = config->FirstChildElement("origin");
   if (o) 
@@ -505,6 +531,8 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement*
     {
         UrdfMaterial* matPtr = new UrdfMaterial;
         matPtr->m_name = "mat";
+		if (name_char)
+			matPtr->m_name = name_char;
         TiXmlElement *diffuse = mat->FirstChildElement("diffuse");
         if (diffuse) {
             std::string diffuseText = diffuse->GetText();
@@ -512,7 +540,7 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement*
             parseVector4(rgba,diffuseText);
             matPtr->m_rgbaColor = rgba;
             model.m_materials.insert(matPtr->m_name.c_str(),matPtr);
-            visual.m_materialName = "mat";
+            visual.m_materialName = matPtr->m_name;
             visual.m_hasLocalMaterial = true;
         }
     } 
@@ -670,6 +698,8 @@ bool UrdfParser::parseJointLimits(UrdfJoint& joint, TiXmlElement* config, ErrorL
 	joint.m_upperLimit = 0.f;
 	joint.m_effortLimit = 0.f;
 	joint.m_velocityLimit = 0.f;
+	joint.m_jointDamping = 0.f;
+	joint.m_jointFriction = 0.f;
 	
     if (m_parseSDF)
     {
@@ -1281,15 +1311,22 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
         return false;
     }
     
-    TiXmlElement *world_xml = sdf_xml->FirstChildElement("world");
-    if (!world_xml)
-    {
-        logger->reportError("expected a world element");
-        return false;
-    }
-    
+	//apparently, SDF doesn't require a "world" element, optional? URDF does.
+	TiXmlElement *world_xml = sdf_xml->FirstChildElement("world");
+	
+	TiXmlElement* robot_xml = 0;
+
+	if (!world_xml)
+	{
+		logger->reportWarning("expected a world element, continuing without it.");
+		robot_xml = sdf_xml->FirstChildElement("model");
+	} else
+	{
+		robot_xml = world_xml->FirstChildElement("model");
+	}
+
     // Get all model (robot) elements
-    for (TiXmlElement* robot_xml = world_xml->FirstChildElement("model"); robot_xml; robot_xml = robot_xml->NextSiblingElement("model"))
+    for (; robot_xml; robot_xml = robot_xml->NextSiblingElement("model"))
     {
         UrdfModel* localModel = new UrdfModel;
         m_tmpModels.push_back(localModel);
