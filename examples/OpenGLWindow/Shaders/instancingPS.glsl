@@ -25,7 +25,8 @@ void main(void)
     vec4 texel = fragment.color*texture(Diffuse,vert.texcoord);//fragment.color;
 	vec3 ct,cf;
 	float intensity,at,af;
-	intensity = max(dot(lightDir,normalize(normal)),0);
+	
+	intensity = 0.5+0.5*clamp( dot( normalize(normal),lightDir ), -1,1 );
 	cf = intensity*(vec3(1.0,1.0,1.0)-ambient)+ambient;
 	af = 1.0;
 		

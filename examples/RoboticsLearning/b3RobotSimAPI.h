@@ -6,22 +6,40 @@
 #include "../SharedMemory/SharedMemoryPublic.h"
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Common/b3Quaternion.h"
+#include "Bullet3Common/b3AlignedObjectArray.h"
+
 #include <string>
 
-
-struct b3RobotSimLoadURDFArgs
+enum b3RigidSimFileType
 {
-	std::string m_urdfFileName;
+	B3_URDF_FILE=1,
+	B3_SDF_FILE,
+	B3_AUTO_DETECT_FILE//todo based on extension
+};
+
+struct b3RobotSimLoadFileArgs
+{
+	std::string m_fileName;
 	b3Vector3 m_startPosition;
 	b3Quaternion m_startOrientation;
 	bool m_forceOverrideFixedBase;
+	int m_fileType;
 
 
-	b3RobotSimLoadURDFArgs(const std::string& urdfFileName)
-		:m_urdfFileName(urdfFileName),
+	b3RobotSimLoadFileArgs(const std::string& fileName)
+		:m_fileName(fileName),
 		m_startPosition(b3MakeVector3(0,0,0)),
 		m_startOrientation(b3Quaternion(0,0,0,1)),
-		m_forceOverrideFixedBase(false)
+		m_forceOverrideFixedBase(false),
+		m_fileType(B3_URDF_FILE)
+	{
+	}
+};
+
+struct b3RobotSimLoadFileResults
+{
+	b3AlignedObjectArray<int> m_uniqueObjectIds;
+	b3RobotSimLoadFileResults()
 	{
 	}
 };
@@ -63,7 +81,7 @@ public:
 	bool connect(struct GUIHelperInterface* guiHelper);
 	void disconnect();
 
-	int loadURDF(const struct b3RobotSimLoadURDFArgs& args);
+	bool loadFile(const struct b3RobotSimLoadFileArgs& args, b3RobotSimLoadFileResults& results=b3RobotSimLoadFileResults());
 
 	int getNumJoints(int bodyUniqueId) const;
 

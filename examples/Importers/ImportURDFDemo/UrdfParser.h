@@ -125,6 +125,15 @@ struct UrdfJoint
 
 	double m_jointDamping;
 	double m_jointFriction;
+	UrdfJoint()
+		:m_lowerLimit(0),
+		m_upperLimit(0),
+		m_effortLimit(0),
+		m_velocityLimit(0),
+		m_jointDamping(0),
+		m_jointFriction(0)
+	{
+	}
 };
 
 struct UrdfModel

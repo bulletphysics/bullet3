@@ -598,36 +598,71 @@ void b3RobotSimAPI::setJointMotorControl(int bodyUniqueId, int jointIndex, const
 	}
 }
 
-int b3RobotSimAPI::loadURDF(const b3RobotSimLoadURDFArgs& args)
+bool b3RobotSimAPI::loadFile(const struct b3RobotSimLoadFileArgs& args, b3RobotSimLoadFileResults& results)
 {
+	bool statusOk = false;
+
 	int robotUniqueId = -1;
 	b3Assert(m_data->m_connected);
-
+	switch (args.m_fileType)
 	 {
-            b3SharedMemoryStatusHandle statusHandle;
-			int statusType;
-			b3SharedMemoryCommandHandle command = b3LoadUrdfCommandInit(m_data->m_physicsClient, args.m_urdfFileName.c_str());
+		case B3_URDF_FILE:
+		{
+				b3SharedMemoryStatusHandle statusHandle;
+				int statusType;
+				b3SharedMemoryCommandHandle command = b3LoadUrdfCommandInit(m_data->m_physicsClient, args.m_fileName.c_str());
 			
-            //setting the initial position, orientation and other arguments are optional
+				//setting the initial position, orientation and other arguments are optional
             
-            b3LoadUrdfCommandSetStartPosition(command, args.m_startPosition[0],
-															args.m_startPosition[1],
-															args.m_startPosition[2]);
-			b3LoadUrdfCommandSetStartOrientation(command,args.m_startOrientation[0]
-													,args.m_startOrientation[1]
-													,args.m_startOrientation[2]
-													,args.m_startOrientation[3]);
-			if (args.m_forceOverrideFixedBase)
-			{
-				b3LoadUrdfCommandSetUseFixedBase(command,true);
-			}
-            statusHandle = submitClientCommandAndWaitStatusMultiThreaded(m_data->m_physicsClient, command);
+				b3LoadUrdfCommandSetStartPosition(command, args.m_startPosition[0],
+																args.m_startPosition[1],
+																args.m_startPosition[2]);
+				b3LoadUrdfCommandSetStartOrientation(command,args.m_startOrientation[0]
+														,args.m_startOrientation[1]
+														,args.m_startOrientation[2]
+														,args.m_startOrientation[3]);
+				if (args.m_forceOverrideFixedBase)
+				{
+					b3LoadUrdfCommandSetUseFixedBase(command,true);
+				}
+				statusHandle = submitClientCommandAndWaitStatusMultiThreaded(m_data->m_physicsClient, command);
+				statusType = b3GetStatusType(statusHandle);
+				b3Assert(statusType==CMD_URDF_LOADING_COMPLETED);
+				robotUniqueId = b3GetStatusBodyIndex(statusHandle);
+				results.m_uniqueObjectIds.push_back(robotUniqueId);
+				statusOk = true;
+			break;
+		}
+		case B3_SDF_FILE:
+		{
+			b3SharedMemoryStatusHandle statusHandle;
+			int statusType;
+			b3SharedMemoryCommandHandle command = b3LoadSdfCommandInit(m_data->m_physicsClient, args.m_fileName.c_str());
+			statusHandle = submitClientCommandAndWaitStatusMultiThreaded(m_data->m_physicsClient, command);
 			statusType = b3GetStatusType(statusHandle);
-			b3Assert(statusType==CMD_URDF_LOADING_COMPLETED);
-			robotUniqueId = b3GetStatusBodyIndex(statusHandle);
-        }
+			b3Assert(statusType == CMD_SDF_LOADING_COMPLETED);
+			if (statusType == CMD_SDF_LOADING_COMPLETED)
+			{
+				int numBodies = b3GetStatusBodyIndices(statusHandle, 0,0);
+				if (numBodies)
+				{
+					results.m_uniqueObjectIds.resize(numBodies);
+					int numBodies = b3GetStatusBodyIndices(statusHandle, &results.m_uniqueObjectIds[0],results.m_uniqueObjectIds.size());
 
-	return robotUniqueId;
+				}
+				statusOk = true;
+			}
+
+			break;
+		}
+		default:
+		{
+			b3Warning("Unknown file type in b3RobotSimAPI::loadFile");
+		}
+
+	}
+
+	return statusOk;
 }
 
 bool b3RobotSimAPI::connect(GUIHelperInterface* guiHelper)

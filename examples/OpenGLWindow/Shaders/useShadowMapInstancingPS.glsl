@@ -27,8 +27,7 @@ void main(void)
 	vec3 ct,cf;
 	float intensity,at,af;
 	
-	intensity = clamp( dot( normalize(normal),lightDir ), 0,1 );
-	
+	intensity = 0.5+0.5*clamp( dot( normalize(normal),lightDir ), -1,1 );
 	
 	af = 1.0;
 		

@@ -248,7 +248,7 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1, "Physics Client (Direct)", "Create a physics client that can communicate with a physics server directly in-process.", PhysicsClientCreateFunc,eCLIENTEXAMPLE_DIRECT),
 
 	ExampleEntry(1,"R2D2 Grasp","Load the R2D2 robot from URDF file and control it to grasp objects", R2D2GraspExampleCreateFunc, eROBOTIC_LEARN_GRASP),
-	ExampleEntry(1,"URDF Compliant Contact","Experiment/improve compliant rigid contact using parameters from URDF file (contact_cfm, contact_erp, lateral_friction, rolling_friction)", R2D2GraspExampleCreateFunc,eROBOTIC_LEARN_COMPLIANT_CONTACT),
+	ExampleEntry(1,"URDF Compliant Contact","Work-in-progress, experiment/improve compliant rigid contact using parameters from URDF file (contact_cfm, contact_erp, lateral_friction, rolling_friction)", R2D2GraspExampleCreateFunc,eROBOTIC_LEARN_COMPLIANT_CONTACT),
 	
 
 

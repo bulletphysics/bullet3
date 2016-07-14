@@ -59,50 +59,89 @@ public:
     {
 		bool connected = m_robotSim.connect(m_guiHelper);
 		b3Printf("robotSim connected = %d",connected);
-		b3RobotSimLoadURDFArgs args("");
+		
 		
 		if ((m_options & eROBOTIC_LEARN_GRASP)!=0)
 		{
-			args.m_urdfFileName = "r2d2.urdf";
-			args.m_startPosition.setValue(0,0,.5);
-			m_r2d2Index = m_robotSim.loadURDF(args);
-			int numJoints = m_robotSim.getNumJoints(m_r2d2Index);
-			b3Printf("numJoints = %d",numJoints);
+			{
+				b3RobotSimLoadFileArgs args("");
+				args.m_fileName = "r2d2.urdf";
+				args.m_startPosition.setValue(0,0,.5);
+				b3RobotSimLoadFileResults results;
+				if (m_robotSim.loadFile(args, results) && results.m_uniqueObjectIds.size()==1)
+				{
+					int m_r2d2Index = results.m_uniqueObjectIds[0];
+					int numJoints = m_robotSim.getNumJoints(m_r2d2Index);
+					b3Printf("numJoints = %d",numJoints);
 
-			for (int i=0;i<numJoints;i++)
-			{
-				b3JointInfo jointInfo;
-				m_robotSim.getJointInfo(m_r2d2Index,i,&jointInfo);
-				b3Printf("joint[%d].m_jointName=%s",i,jointInfo.m_jointName);
+					for (int i=0;i<numJoints;i++)
+					{
+						b3JointInfo jointInfo;
+						m_robotSim.getJointInfo(m_r2d2Index,i,&jointInfo);
+						b3Printf("joint[%d].m_jointName=%s",i,jointInfo.m_jointName);
+					}
+					int wheelJointIndices[4]={2,3,6,7};
+					int wheelTargetVelocities[4]={-10,-10,-10,-10};
+					for (int i=0;i<4;i++)
+					{
+						b3JointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
+						controlArgs.m_targetVelocity = wheelTargetVelocities[i];
+						controlArgs.m_maxTorqueValue = 1e30;
+						m_robotSim.setJointMotorControl(m_r2d2Index,wheelJointIndices[i],controlArgs);
+					}
+				}
 			}
-			int wheelJointIndices[4]={2,3,6,7};
-			int wheelTargetVelocities[4]={30,30,30,30};
-			for (int i=0;i<4;i++)
 			{
-				b3JointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
-				controlArgs.m_targetVelocity = wheelTargetVelocities[i];
-				controlArgs.m_maxTorqueValue = 1e30;
-				m_robotSim.setJointMotorControl(m_r2d2Index,wheelJointIndices[i],controlArgs);
+				b3RobotSimLoadFileArgs args("");
+				args.m_fileName = "kiva_shelf/model.sdf";
+				args.m_startPosition.setValue(0,0,.5);
+				args.m_startOrientation = b3Quaternion(0,B3_HALF_PI,0);
+				args.m_forceOverrideFixedBase = true;
+				args.m_fileType = B3_SDF_FILE;
+				//args.m_startOrientation = b3Quaternion()
+				m_robotSim.loadFile(args);
 			}
+			{
+				b3RobotSimLoadFileArgs args("");
+				args.m_fileName = "plane.urdf";
+				args.m_startPosition.setValue(0,0,0);
+				args.m_forceOverrideFixedBase = true;
+				b3RobotSimLoadFileResults results;
+				m_robotSim.loadFile(args,results);
+				m_robotSim.setGravity(b3MakeVector3(0,0,-10));
+			}
+	
 		}
 
 		if ((m_options & eROBOTIC_LEARN_COMPLIANT_CONTACT)!=0)
 		{
-		
-		
-			args.m_urdfFileName = "cube.urdf";
-			args.m_startPosition.setValue(0,0,2.5);
-			m_robotSim.loadURDF(args);
-			args.m_startOrientation.setEulerZYX(0,0.2,0);
+			b3RobotSimLoadFileArgs args("");
+			b3RobotSimLoadFileResults results;
+			{
+				args.m_fileName = "cube.urdf";
+				args.m_startPosition.setValue(0,0,2.5);
+				args.m_startOrientation.setEulerZYX(0,0.2,0);
+				m_robotSim.loadFile(args,results);
+			}
+			{
+				args.m_fileName = "cube_no_friction.urdf";
+				args.m_startPosition.setValue(0,2,2.5);
+				args.m_startOrientation.setEulerZYX(0,0.2,0);
+				m_robotSim.loadFile(args,results);
+			}
+			{
+				b3RobotSimLoadFileArgs args("");
+				args.m_fileName = "plane.urdf";
+				args.m_startPosition.setValue(0,0,0);
+				args.m_startOrientation.setEulerZYX(0,0.2,0);
+				args.m_forceOverrideFixedBase = true;
+				b3RobotSimLoadFileResults results;
+				m_robotSim.loadFile(args,results);
+				m_robotSim.setGravity(b3MakeVector3(0,0,-10));
+			}
 		}
 	
-		args.m_urdfFileName = "plane.urdf";
-		args.m_startPosition.setValue(0,0,0);
 		
-		args.m_forceOverrideFixedBase = true;
-		m_robotSim.loadURDF(args);
-		m_robotSim.setGravity(b3MakeVector3(0,0,-10));
-
     }
     virtual void    exitPhysics()
     {
@@ -139,10 +178,10 @@ public:
     
 	virtual void resetCamera()
 	{
-		float dist = 10;
-		float pitch = 50;
-		float yaw = 13;
-		float targetPos[3]={-1,0,-0.3};
+		float dist = 3;
+		float pitch = -75;
+		float yaw = 30;
+		float targetPos[3]={-0.2,0.8,0.3};
 		if (m_app->m_renderer  && m_app->m_renderer->getActiveCamera())
 		{
 			m_app->m_renderer->getActiveCamera()->setCameraDistance(dist);
