@@ -1238,7 +1238,7 @@ static PyObject* pybullet_applyExternalForce(PyObject* self, PyObject* args)
             return NULL;
         }
         command = b3ApplyExternalForceCommandInit(sm);
-        b3ApplyExternalForce(command,objectUniqueId,-1,force,position, flags);
+        b3ApplyExternalForce(command, objectUniqueId, linkIndex, force, position, flags);
         statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
     }
     Py_INCREF(Py_None);
