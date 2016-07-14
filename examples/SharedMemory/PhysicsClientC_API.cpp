@@ -892,6 +892,43 @@ void b3RequestCameraImageSetProjectionMatrix(b3SharedMemoryCommandHandle command
     command->m_updateFlags |= REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES;
 }
 
+void b3RequestCameraImageSetFOVProjectionMatrix(b3SharedMemoryCommandHandle commandHandle, float fov, float aspect, float nearVal, float farVal)
+{
+  float yScale = 1.0 / tan((3.141592538 / 180.0) * fov / 2);
+  float xScale = yScale / aspect;
+
+  float frustum[16];
+
+  frustum[0*4+0] = xScale;
+  frustum[0*4+1] = float(0);
+  frustum[0*4+2] = float(0);
+  frustum[0*4+3] = float(0);
+
+  frustum[1*4+0] = float(0);
+  frustum[1*4+1] = yScale;
+  frustum[1*4+2] = float(0);
+  frustum[1*4+3] = float(0);
+
+  frustum[2*4+0] = 0;
+  frustum[2*4+1] = 0;
+  frustum[2*4+2] = (nearVal + farVal) / (nearVal - farVal);
+  frustum[2*4+3] = float(-1);
+
+  frustum[3*4+0] = float(0);
+  frustum[3*4+1] = float(0);
+  frustum[3*4+2] = (float(2) * farVal * nearVal) / (nearVal - farVal);
+  frustum[3*4+3] = float(0);
+
+  struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+  b3Assert(command);
+  b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
+  for (int i=0;i<16;i++)
+  {
+    command->m_requestPixelDataArguments.m_projectionMatrix[i] = frustum[i];
+  }
+  command->m_updateFlags |= REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES;
+}
+
 void b3RequestCameraImageSetPixelResolution(b3SharedMemoryCommandHandle commandHandle, int width, int height )
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
