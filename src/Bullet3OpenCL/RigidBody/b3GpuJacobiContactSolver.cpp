@@ -562,7 +562,7 @@ void b3GpuJacobiContactSolver::solveGroupHost(b3RigidBodyData* bodies,b3InertiaD
 	b3AlignedObjectArray<b3Vector3> deltaAngularVelocities;
 	deltaLinearVelocities.resize(totalNumSplitBodies);
 	deltaAngularVelocities.resize(totalNumSplitBodies);
-	for (int i=0;i<totalNumSplitBodies;i++)
+	for (unsigned int i=0;i<totalNumSplitBodies;i++)
 	{
 		deltaLinearVelocities[i].setZero();
 		deltaAngularVelocities[i].setZero();
