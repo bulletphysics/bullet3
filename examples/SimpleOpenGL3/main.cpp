@@ -1,3 +1,4 @@
+
 #include "OpenGLWindow/SimpleOpenGL3App.h"
 #include "Bullet3Common/b3Quaternion.h"
 #include "Bullet3Common/b3CommandLineArgs.h"
@@ -78,7 +79,7 @@ int main(int argc, char* argv[])
 	app->m_window->setResizeCallback(MyResizeCallback);
   
 
-    myArgs.GetCmdLineArgument("mp4_file",gVideoFileName);
+	myArgs.GetCmdLineArgument("mp4_file",gVideoFileName);
     if (gVideoFileName)
         app->dumpFramesToVideo(gVideoFileName);
 
@@ -150,6 +151,9 @@ int main(int argc, char* argv[])
 	} while (!app->m_window->requestedExit());
 
 
+	
 	delete app;
+
+	delete[] image;
 	return 0;
 }
