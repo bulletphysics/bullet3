@@ -207,7 +207,7 @@ void ImportUrdfSetup::initPhysics()
 	BulletURDFImporter u2b(m_guiHelper, 0);
 	
 	
-	bool loadOk =  u2b.loadURDF(m_fileName);
+	bool loadOk = u2b.loadURDF(m_fileName);
 
 #ifdef TEST_MULTIBODY_SERIALIZATION	
 	//test to serialize a multibody to disk or shared memory, with base, link and joint names
@@ -238,7 +238,11 @@ void ImportUrdfSetup::initPhysics()
 			m_data->m_rb = creation.getRigidBody();
 			m_data->m_mb = creation.getBulletMultiBody();
 			btMultiBody* mb = m_data->m_mb;
-            
+			for (int i = 0; i < u2b.getNumAllocatedCollisionShapes(); i++)
+			{
+				m_collisionShapes.push_back(u2b.getAllocatedCollisionShape(i));
+			}
+
 			if (m_useMultiBody && mb )
 			{
 				std::string*   name = new std::string(u2b.getLinkName(u2b.getRootLinkIndex()));

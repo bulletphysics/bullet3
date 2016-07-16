@@ -108,6 +108,18 @@ void btAlignedAllocSetCustom(btAllocFunc *allocFunc, btFreeFunc *freeFunc)
 //this generic allocator provides the total allocated number of bytes
 #include <stdio.h>
 
+struct btDebugPtrMagic
+{
+	union
+	{
+		void** vptrptr;
+		void* vptr;
+		int* iptr;
+		char* cptr;
+	};
+};
+
+
 void*   btAlignedAllocInternal  (size_t size, int alignment,int line,char* filename)
 {
  void *ret;
@@ -117,17 +129,24 @@ void*   btAlignedAllocInternal  (size_t size, int alignment,int line,char* filen
  gNumAlignedAllocs++;
 
  
- real = (char *)sAllocFunc(size + 2*sizeof(void *) + (alignment-1));
+int sz2prt = 2*sizeof(void *);
+	
+ real = (char *)sAllocFunc(size + sz2prt + (alignment-1));
  if (real) {
-   ret = (void*) btAlignPointer(real + 2*sizeof(void *), alignment);
-   *((void **)(ret)-1) = (void *)(real);
-       *((int*)(ret)-2) = size;
+	 
+   ret = (void*) btAlignPointer(real + sz2prt, alignment);
+	 btDebugPtrMagic p;
+	 p.vptr = ret;
+	 p.cptr-=sizeof(void*);
+	 *p.vptrptr = (void*)real;
+	 p.cptr-=sizeof(void*);
+	 *p.iptr = size;
 
  } else {
    ret = (void *)(real);//??
  }
 
- printf("allocation#%d at address %x, from %s,line %d, size %d\n",gNumAlignedAllocs,real, filename,line,size);
+ printf("allocation#%d at address %x, from %s,line %d, size %d (total allocated = %d)\n",gNumAlignedAllocs,real, filename,line,size,gTotalBytesAlignedAllocs);
 
  int* ptr = (int*)ret;
  *ptr = 12;
@@ -141,16 +160,21 @@ void    btAlignedFreeInternal   (void* ptr,int line,char* filename)
  gNumAlignedFree++;
 
  if (ptr) {
-   real = *((void **)(ptr)-1);
-       int size = *((int*)(ptr)-2);
-       gTotalBytesAlignedAllocs -= size;
+	 btDebugPtrMagic p;
+	 p.vptr = ptr;
+	 p.cptr-=sizeof(void*);
+	 real = *p.vptrptr;
+	 p.cptr-=sizeof(void*);
+	 int size = *p.iptr;
+	 
+	gTotalBytesAlignedAllocs -= size;
 
-	   printf("free #%d at address %x, from %s,line %d, size %d\n",gNumAlignedFree,real, filename,line,size);
+	printf("free #%d at address %x, from %s,line %d, size %d (total remain = %d\n",gNumAlignedFree,real, filename,line,size, gTotalBytesAlignedAllocs);
 
    sFreeFunc(real);
  } else
  {
-	 printf("NULL ptr\n");
+	 //printf("deleting a NULL ptr, no effect\n");
  }
 }
 
