@@ -1,4 +1,4 @@
-#include "C:\develop\visual_leak_detector\vld-2.5\vld-2.5\src\vld.h"
+
 
 #include "OpenGLExampleBrowser.h"
 
