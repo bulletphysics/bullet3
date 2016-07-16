@@ -29,6 +29,9 @@ class	btPersistentManifold;
 
 typedef btAlignedObjectArray<btPersistentManifold*>	btManifoldArray;
 
+// [jt] How big in items should the default manifolds that we create on the stack be?
+#define BT_DEFAULT_MANIFOLD_STACK_SIZE (1024*16)
+
 struct btCollisionAlgorithmConstructionInfo
 {
 	btCollisionAlgorithmConstructionInfo()

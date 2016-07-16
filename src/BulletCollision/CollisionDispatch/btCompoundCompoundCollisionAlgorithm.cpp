@@ -313,6 +313,8 @@ void btCompoundCompoundCollisionAlgorithm::processCollision (const btCollisionOb
 	{
 		int i;
 		btManifoldArray manifoldArray;
+		char tempArrayMemory__[BT_DEFAULT_MANIFOLD_STACK_SIZE * sizeof(btPersistentManifold*)];
+		manifoldArray.initializeFromBuffer(tempArrayMemory__,0, BT_DEFAULT_MANIFOLD_STACK_SIZE);
 		btSimplePairArray& pairs = m_childCollisionAlgorithmCache->getOverlappingPairArray();
 		for (i=0;i<pairs.size();i++)
 		{
@@ -355,13 +357,11 @@ void btCompoundCompoundCollisionAlgorithm::processCollision (const btCollisionOb
 		
 		int i;
 		btManifoldArray	manifoldArray;
-        
-		
+		char tempArrayMemory__[BT_DEFAULT_MANIFOLD_STACK_SIZE * sizeof(btPersistentManifold*)];
+		manifoldArray.initializeFromBuffer(tempArrayMemory__,0, BT_DEFAULT_MANIFOLD_STACK_SIZE);
 
-        
-        
-        btVector3 aabbMin0,aabbMax0,aabbMin1,aabbMax1;        
-        
+		btVector3 aabbMin0,aabbMax0,aabbMin1,aabbMax1;        
+
 		for (i=0;i<pairs.size();i++)
 		{
 			if (pairs[i].m_userPointer)
