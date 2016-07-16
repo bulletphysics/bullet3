@@ -655,8 +655,9 @@ SimpleOpenGL3App::~SimpleOpenGL3App()
 	delete m_primRenderer ;
 	sth_delete(m_data->m_fontStash);
 	delete m_data->m_renderCallbacks;
-	m_window->closeWindow();
 	TwDeleteDefaultFonts();
+	m_window->closeWindow();
+	
 	delete m_window;
 	delete m_data ;
 }

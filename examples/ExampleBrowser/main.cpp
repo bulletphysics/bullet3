@@ -1,3 +1,4 @@
+#include "C:\develop\visual_leak_detector\vld-2.5\vld-2.5\src\vld.h"
 
 #include "OpenGLExampleBrowser.h"
 
@@ -19,33 +20,34 @@
 
 int main(int argc, char* argv[])
 {
-	b3CommandLineArgs args(argc,argv);
-	b3Clock clock;
-	
-	
-	ExampleEntriesAll examples;
-	examples.initExampleEntries();
-
-	OpenGLExampleBrowser* exampleBrowser = new OpenGLExampleBrowser(&examples);
-	bool init = exampleBrowser->init(argc,argv);
-	exampleBrowser->registerFileImporter(".urdf",ImportURDFCreateFunc);
-	exampleBrowser->registerFileImporter(".sdf",ImportSDFCreateFunc);
-	exampleBrowser->registerFileImporter(".obj",ImportObjCreateFunc);
-	exampleBrowser->registerFileImporter(".stl",ImportSTLCreateFunc);
-	
-	clock.reset();
-	if (init)
 	{
-		do 
-		{
-			float deltaTimeInSeconds = clock.getTimeMicroseconds()/1000000.f;
-			clock.reset();
-			exampleBrowser->update(deltaTimeInSeconds);
+		b3CommandLineArgs args(argc, argv);
+		b3Clock clock;
 
-		} while (!exampleBrowser->requestedExit());
+
+		ExampleEntriesAll examples;
+		examples.initExampleEntries();
+
+		OpenGLExampleBrowser* exampleBrowser = new OpenGLExampleBrowser(&examples);
+		bool init = exampleBrowser->init(argc, argv);
+		exampleBrowser->registerFileImporter(".urdf", ImportURDFCreateFunc);
+		exampleBrowser->registerFileImporter(".sdf", ImportSDFCreateFunc);
+		exampleBrowser->registerFileImporter(".obj", ImportObjCreateFunc);
+		exampleBrowser->registerFileImporter(".stl", ImportSTLCreateFunc);
+
+		clock.reset();
+		if (init)
+		{
+			do
+			{
+				float deltaTimeInSeconds = clock.getTimeMicroseconds() / 1000000.f;
+				clock.reset();
+				exampleBrowser->update(deltaTimeInSeconds);
+
+			} while (!exampleBrowser->requestedExit());
+		}
+		delete exampleBrowser;
+
 	}
-	delete exampleBrowser;
-	
-	
 	return 0;
 }

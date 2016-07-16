@@ -61,7 +61,9 @@ static bool parseVector4(btVector4& vec4, const std::string& vector_str)
 	vec4.setZero();
 	btArray<std::string> pieces;
 	btArray<float> rgba;
-	urdfStringSplit(pieces, vector_str, urdfIsAnyOf(" "));
+	btAlignedObjectArray<std::string> strArray;
+	urdfIsAnyOf(" ", strArray);
+	urdfStringSplit(pieces, vector_str, strArray);
 	for (int i = 0; i < pieces.size(); ++i)
 	{
 		if (!pieces[i].empty())
@@ -82,7 +84,9 @@ static bool parseVector3(btVector3& vec3, const std::string& vector_str, ErrorLo
 	vec3.setZero();
 	btArray<std::string> pieces;
 	btArray<float> rgba;
-	urdfStringSplit(pieces, vector_str, urdfIsAnyOf(" "));
+	btAlignedObjectArray<std::string> strArray;
+	urdfIsAnyOf(" ", strArray);
+	urdfStringSplit(pieces, vector_str, strArray);
 	for (int i = 0; i < pieces.size(); ++i)
 	{
 		if (!pieces[i].empty())

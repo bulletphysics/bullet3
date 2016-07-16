@@ -167,6 +167,7 @@ OpenGLGuiHelper::OpenGLGuiHelper(CommonGraphicsApp* glApp, bool useOpenGL2)
 
 OpenGLGuiHelper::~OpenGLGuiHelper()
 {
+	delete m_data->m_debugDraw;
 	delete m_data->m_gl2ShapeDrawer;
 	delete m_data;
 }
