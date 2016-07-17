@@ -1065,7 +1065,7 @@ btCollisionShape* BulletURDFImporter::getAllocatedCollisionShape(int index)
 				btTransform childTrans = col.m_linkLocalFrame;
 				
 				compoundShape->addChildShape(localInertiaFrame.inverse()*childTrans,childShape);
-           		}
+			}
 		}
 	}
 	
