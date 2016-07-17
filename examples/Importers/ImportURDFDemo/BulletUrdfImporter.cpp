@@ -1058,13 +1058,14 @@ btCollisionShape* BulletURDFImporter::getAllocatedCollisionShape(int index)
 		{
 			const UrdfCollision& col = link->m_collisionArray[v];
 			btCollisionShape* childShape = convertURDFToCollisionShape(&col ,pathPrefix);
+			m_data->m_allocatedCollisionShapes.push_back(childShape);
 			
 			if (childShape)
 			{
 				btTransform childTrans = col.m_linkLocalFrame;
 				
 				compoundShape->addChildShape(localInertiaFrame.inverse()*childTrans,childShape);
-           		}
+			}
 		}
 	}
 	

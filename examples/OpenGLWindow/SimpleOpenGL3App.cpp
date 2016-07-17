@@ -650,9 +650,14 @@ void SimpleOpenGL3App::setBackgroundColor(float red, float green, float blue)
 
 SimpleOpenGL3App::~SimpleOpenGL3App()
 {
+	
+	delete m_instancingRenderer;
 	delete m_primRenderer ;
-
+	sth_delete(m_data->m_fontStash);
+	delete m_data->m_renderCallbacks;
+	TwDeleteDefaultFonts();
 	m_window->closeWindow();
+	
 	delete m_window;
 	delete m_data ;
 }

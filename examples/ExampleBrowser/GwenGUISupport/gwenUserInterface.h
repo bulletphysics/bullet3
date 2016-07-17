@@ -26,6 +26,7 @@ class GwenUserInterface
 		virtual ~GwenUserInterface();
 		
 		void	init(int width, int height,Gwen::Renderer::Base* gwenRenderer,float retinaScale);
+		void	exit();
 		void	setFocus();
 		void	forceUpdateScrollBars();
 		

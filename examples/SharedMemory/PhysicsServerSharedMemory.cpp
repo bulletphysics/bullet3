@@ -78,7 +78,6 @@ PhysicsServerSharedMemory::PhysicsServerSharedMemory(SharedMemoryInterface* shar
 	}
 
 	m_data->m_commandProcessor = new PhysicsServerCommandProcessor;
-	m_data->m_commandProcessor ->createEmptyDynamicsWorld();
 
 
 }

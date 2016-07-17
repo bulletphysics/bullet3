@@ -31,6 +31,10 @@ struct UrdfLinkNameMapUtil
 	UrdfLinkNameMapUtil():m_mb(0),m_memSerializer(0)
 	{
 	}
+	virtual ~UrdfLinkNameMapUtil()
+	{
+		delete m_memSerializer;
+	}
 };
 
 
@@ -701,15 +705,6 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
         {
             btCollisionShape* shape =u2b.getAllocatedCollisionShape(i);
             m_data->m_collisionShapes.push_back(shape);
-            if (shape->isCompound())
-            {
-                btCompoundShape* compound = (btCompoundShape*) shape;
-                for (int childIndex=0;childIndex<compound->getNumChildShapes();childIndex++)
-                {
-                    m_data->m_collisionShapes.push_back(compound->getChildShape(childIndex));
-                }
-            }
-
         }
 
         btTransform rootTrans;
@@ -851,15 +846,6 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
         {
             btCollisionShape* shape =u2b.getAllocatedCollisionShape(i);
             m_data->m_collisionShapes.push_back(shape);
-            if (shape->isCompound())
-            {
-                btCompoundShape* compound = (btCompoundShape*) shape;
-                for (int childIndex=0;childIndex<compound->getNumChildShapes();childIndex++)
-                {
-                    m_data->m_collisionShapes.push_back(compound->getChildShape(childIndex));
-                }
-            }
-
         }
 
         btMultiBody* mb = creation.getBulletMultiBody();

@@ -105,7 +105,7 @@ InverseDynamicsExample::InverseDynamicsExample(struct GUIHelperInterface* helper
 
 InverseDynamicsExample::~InverseDynamicsExample()
 {
-    delete m_multiBody;
+	
     delete m_inverseModel;
     delete m_timeSeriesCanvas;
 }
@@ -166,6 +166,10 @@ void InverseDynamicsExample::initPhysics()
                     btTransform identityTrans;
                     identityTrans.setIdentity();
                     ConvertURDF2Bullet(u2b,creation, identityTrans,m_dynamicsWorld,true,u2b.getPathPrefix());
+					for (int i = 0; i < u2b.getNumAllocatedCollisionShapes(); i++)
+					{
+						m_collisionShapes.push_back(u2b.getAllocatedCollisionShape(i));
+					}
                     m_multiBody = creation.getBulletMultiBody();
                     if (m_multiBody)
                     {

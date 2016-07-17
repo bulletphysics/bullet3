@@ -122,6 +122,7 @@ subject to the following restrictions:
 #error "DBVT_INT0_IMPL undefined"
 #endif
 
+
 //
 // Defaults volumes
 //
@@ -187,6 +188,9 @@ struct	btDbvtNode
 		int		dataAsInt;
 	};
 };
+
+typedef btAlignedObjectArray<const btDbvtNode*> btNodeStack;
+
 
 ///The btDbvt class implements a fast dynamic bounding volume tree based on axis aligned bounding boxes (aabb tree).
 ///This btDbvt is used for soft body collision detection and for the btDbvtBroadphase. It has a fast insert, remove and update of nodes.
@@ -325,6 +329,16 @@ struct	btDbvt
 		void		collideTV(	const btDbvtNode* root,
 		const btDbvtVolume& volume,
 		DBVT_IPOLICY) const;
+	
+	DBVT_PREFIX
+	void		collideTVNoStackAlloc(	const btDbvtNode* root,
+						  const btDbvtVolume& volume,
+						  btNodeStack& stack,
+						  DBVT_IPOLICY) const;
+	
+	
+	
+	
 	///rayTest is a re-entrant ray test, and can be called in parallel as long as the btAlignedAlloc is thread-safe (uses locking etc)
 	///rayTest is slower than rayTestInternal, because it builds a local stack, using memory allocations, and it recomputes signs/rayDirectionInverses each time
 	DBVT_PREFIX
@@ -917,38 +931,71 @@ inline void		btDbvt::collideTT(	const btDbvtNode* root0,
 }
 #endif 
 
-//
 DBVT_PREFIX
 inline void		btDbvt::collideTV(	const btDbvtNode* root,
 								  const btDbvtVolume& vol,
 								  DBVT_IPOLICY) const
 {
 	DBVT_CHECKTYPE
-		if(root)
-		{
-			ATTRIBUTE_ALIGNED16(btDbvtVolume)		volume(vol);
-			btAlignedObjectArray<const btDbvtNode*>	stack;
-			stack.resize(0);
-			stack.reserve(SIMPLE_STACKSIZE);
-			stack.push_back(root);
-			do	{
-				const btDbvtNode*	n=stack[stack.size()-1];
-				stack.pop_back();
-				if(Intersect(n->volume,volume))
+	if(root)
+	{
+		ATTRIBUTE_ALIGNED16(btDbvtVolume)		volume(vol);
+		btAlignedObjectArray<const btDbvtNode*>	stack;
+		stack.resize(0);
+		stack.reserve(SIMPLE_STACKSIZE);
+		stack.push_back(root);
+		do	{
+			const btDbvtNode*	n=stack[stack.size()-1];
+			stack.pop_back();
+			if(Intersect(n->volume,volume))
+			{
+				if(n->isinternal())
 				{
-					if(n->isinternal())
-					{
-						stack.push_back(n->childs[0]);
-						stack.push_back(n->childs[1]);
-					}
-					else
-					{
-						policy.Process(n);
-					}
+					stack.push_back(n->childs[0]);
+					stack.push_back(n->childs[1]);
 				}
-			} while(stack.size()>0);
-		}
+				else
+				{
+					policy.Process(n);
+				}
+			}
+		} while(stack.size()>0);
+	}
 }
+
+//
+DBVT_PREFIX
+inline void		btDbvt::collideTVNoStackAlloc(	const btDbvtNode* root,
+											 const btDbvtVolume& vol,
+											 btNodeStack& stack,
+											 DBVT_IPOLICY) const
+{
+	DBVT_CHECKTYPE
+	if(root)
+	{
+		ATTRIBUTE_ALIGNED16(btDbvtVolume)		volume(vol);
+		stack.resize(0);
+		stack.reserve(SIMPLE_STACKSIZE);
+		stack.push_back(root);
+		do	{
+			const btDbvtNode*	n=stack[stack.size()-1];
+			stack.pop_back();
+			if(Intersect(n->volume,volume))
+			{
+				if(n->isinternal())
+				{
+					stack.push_back(n->childs[0]);
+					stack.push_back(n->childs[1]);
+				}
+				else
+				{
+					policy.Process(n);
+				}
+			}
+		} while(stack.size()>0);
+	}
+}
+
 
 DBVT_PREFIX
 inline void		btDbvt::rayTestInternal(	const btDbvtNode* root,

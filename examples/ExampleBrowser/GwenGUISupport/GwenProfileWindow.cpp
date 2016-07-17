@@ -44,7 +44,7 @@ public:
 	
   
 	CProfileIterator* profIter;
-	
+	class MyMenuItems* m_menuItems;
 	MyProfileWindow (	Gwen::Controls::Base* pParent)
     : Gwen::Controls::WindowControl( pParent ),
 	profIter(0)
@@ -83,6 +83,12 @@ public:
 		
 	}
 	
+	virtual ~MyProfileWindow()
+	{
+		
+		delete m_node;
+		delete m_ctrl;
+	}
 	
 	float	dumpRecursive(CProfileIterator* profileIterator, Gwen::Controls::TreeNode* parentNode)
 	{
@@ -266,11 +272,16 @@ public:
 MyProfileWindow* setupProfileWindow(GwenInternalData* data)
 {
 	MyMenuItems* menuItems = new MyMenuItems;
+	
 	MyProfileWindow* profWindow = new MyProfileWindow(data->pCanvas);
 	//profWindow->SetHidden(true);	
-	profWindow->profIter = CProfileManager::Get_Iterator();
+	
+	profWindow->m_menuItems = menuItems;
+	//profWindow->profIter = CProfileManager::Get_Iterator();
 	data->m_viewMenu->GetMenu()->AddItem( L"Profiler", menuItems,(Gwen::Event::Handler::Function)&MyMenuItems::MenuItemSelect);
+	
 	menuItems->m_profWindow = profWindow;
+	
 	return profWindow;
 }
 
@@ -290,5 +301,6 @@ void profileWindowSetVisible(MyProfileWindow* window, bool visible)
 }
 void destroyProfileWindow(MyProfileWindow* window)
 {
+	CProfileManager::Release_Iterator(window->profIter);
 	delete window;
 }
