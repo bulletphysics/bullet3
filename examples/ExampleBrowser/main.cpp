@@ -50,10 +50,10 @@ int main(int argc, char* argv[])
 
 	}
 	
-//#ifdef BT_DEBUG_MEMORY_ALLOCATIONS
+#ifdef BT_DEBUG_MEMORY_ALLOCATIONS
 	int numBytesLeaked = btDumpMemoryLeaks();
 	btAssert(numBytesLeaked==0);
-//#endif//BT_DEBUG_MEMORY_ALLOCATIONS
+#endif//BT_DEBUG_MEMORY_ALLOCATIONS
 	
 	return 0;
 }
