@@ -31,6 +31,10 @@ struct UrdfLinkNameMapUtil
 	UrdfLinkNameMapUtil():m_mb(0),m_memSerializer(0)
 	{
 	}
+	virtual ~UrdfLinkNameMapUtil()
+	{
+		delete m_memSerializer;
+	}
 };
 
 

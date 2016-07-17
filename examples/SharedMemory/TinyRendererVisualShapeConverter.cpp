@@ -701,7 +701,16 @@ void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixels
 
 void TinyRendererVisualShapeConverter::resetAll()
 {
-	//todo: free memory
+	for (int i=0;i<m_data->m_swRenderInstances.size();i++)
+	{
+		TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(i);
+		if (ptrptr && *ptrptr)
+		{
+			TinyRendererObjectArray* ptr = *ptrptr;
+			delete ptr;
+		}
+	}
+	
 	m_data->m_swRenderInstances.clear();
 }
 

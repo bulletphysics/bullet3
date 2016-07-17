@@ -675,7 +675,10 @@ struct QuickCanvas : public Common2dCanvasInterface
 	virtual void destroyCanvas(int canvasId)
 	{
 		btAssert(canvasId>=0);
+		delete m_gt[canvasId];
+		m_gt[canvasId] = 0;
 		destroyTextureWindow(m_gw[canvasId]);
+		m_gw[canvasId] = 0;
 		m_curNumGraphWindows--;
 	}
 	virtual void setPixel(int canvasId, int x, int y, unsigned char red, unsigned char green,unsigned char blue, unsigned char alpha)
@@ -745,6 +748,7 @@ OpenGLExampleBrowser::~OpenGLExampleBrowser()
 	
 	delete m_internalData;
     
+	gFileImporterByExtension.clear();
 	gAllExamples = 0;
 }
 

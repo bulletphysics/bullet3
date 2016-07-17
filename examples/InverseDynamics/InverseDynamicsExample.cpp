@@ -73,7 +73,6 @@ class InverseDynamicsExample : public CommonMultiBodyBase
 {
     btInverseDynamicsExampleOptions m_option;
     btMultiBody* m_multiBody;
-	btAlignedObjectArray<btCollisionShape*> m_allocatedShapes;
     btInverseDynamics::MultiBodyTree *m_inverseModel;
     TimeSeriesCanvas* m_timeSeriesCanvas;
 public:
@@ -107,12 +106,6 @@ InverseDynamicsExample::InverseDynamicsExample(struct GUIHelperInterface* helper
 InverseDynamicsExample::~InverseDynamicsExample()
 {
 	
-    delete m_multiBody;
-	for (int i = 0; i < m_allocatedShapes.size(); i++)
-	{
-		delete m_allocatedShapes[i];
-	}
-	m_allocatedShapes.resize(0);
     delete m_inverseModel;
     delete m_timeSeriesCanvas;
 }
@@ -175,7 +168,7 @@ void InverseDynamicsExample::initPhysics()
                     ConvertURDF2Bullet(u2b,creation, identityTrans,m_dynamicsWorld,true,u2b.getPathPrefix());
 					for (int i = 0; i < u2b.getNumAllocatedCollisionShapes(); i++)
 					{
-						m_allocatedShapes.push_back(u2b.getAllocatedCollisionShape(i));
+						m_collisionShapes.push_back(u2b.getAllocatedCollisionShape(i));
 					}
                     m_multiBody = creation.getBulletMultiBody();
                     if (m_multiBody)

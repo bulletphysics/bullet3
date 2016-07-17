@@ -15,7 +15,7 @@
 #include "../Importers/ImportURDFDemo/ImportURDFSetup.h"
 #include "../Importers/ImportSDFDemo/ImportSDFSetup.h"
 #include "../Importers/ImportSTLDemo/ImportSTLSetup.h"
-
+#include "LinearMath/btAlignedAllocator.h"
 
 
 int main(int argc, char* argv[])
@@ -49,5 +49,11 @@ int main(int argc, char* argv[])
 		delete exampleBrowser;
 
 	}
+	
+//#ifdef BT_DEBUG_MEMORY_ALLOCATIONS
+	int numBytesLeaked = btDumpMemoryLeaks();
+	btAssert(numBytesLeaked==0);
+//#endif//BT_DEBUG_MEMORY_ALLOCATIONS
+	
 	return 0;
 }
