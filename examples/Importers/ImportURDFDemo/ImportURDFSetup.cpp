@@ -352,6 +352,7 @@ void ImportUrdfSetup::initPhysics()
 			btVector3 groundHalfExtents(20,20,20);
 			groundHalfExtents[upAxis]=1.f;
 			btBoxShape* box = new btBoxShape(groundHalfExtents);
+			m_collisionShapes.push_back(box);
 			box->initializePolyhedralFeatures();
 
 			m_guiHelper->createCollisionShapeGraphicsObject(box);
