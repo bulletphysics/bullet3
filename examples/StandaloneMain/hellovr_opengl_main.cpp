@@ -4,6 +4,8 @@
 #include "../OpenGLWindow/SimpleOpenGL3App.h"
 #include "../OpenGLWindow/OpenGLInclude.h"
 #include "Bullet3Common/b3Quaternion.h"
+#include "Bullet3Common/b3Transform.h"
+
 #include "../ExampleBrowser/OpenGLGuiHelper.h"
 #include "../CommonInterfaces/CommonExampleInterface.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
@@ -28,6 +30,8 @@ int gSharedMemoryKey = -1;
 #include "pathtools.h"
 
 CommonExampleInterface*    sExample;
+int sIsPressed=-1;
+int sPrevPacketNum=0;
 GUIHelperInterface* sGuiPtr = 0;
 
 
@@ -82,7 +86,7 @@ public:
 	bool BInit();
 	bool BInitGL();
 	bool BInitCompositor();
-
+	void getControllerTransform(int unDevice, b3Transform& tr);
 	void SetupRenderModels();
 
 	void Shutdown();
@@ -619,6 +623,26 @@ void CMainApplication::Shutdown()
 	
 }
 
+
+void CMainApplication::getControllerTransform(int unDevice, b3Transform& tr)
+{
+		const Matrix4 & matOrg = m_rmat4DevicePose[unDevice];
+		tr.setIdentity();
+		tr.setOrigin(b3MakeVector3(matOrg[12],matOrg[13],matOrg[14]));//pos[1]));
+		b3Matrix3x3 bmat;
+		for (int i=0;i<3;i++)
+		{
+			for (int j=0;j<3;j++)
+			{
+				bmat[i][j] = matOrg[i+4*j];
+			}
+		}
+		tr.setBasis(bmat);
+		b3Transform y2z;
+		y2z.setIdentity();
+		y2z.setRotation(b3Quaternion(0,B3_HALF_PI,0));
+		tr = y2z*tr;
+}
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -639,14 +663,61 @@ bool CMainApplication::HandleInput()
 		vr::VRControllerState_t state;
 		if( m_pHMD->GetControllerState( unDevice, &state ) )
 		{
-			if (state.ulButtonPressed)
+			uint64_t trigger = vr::ButtonMaskFromId(vr::k_EButton_SteamVR_Trigger);
+			
+			if (sPrevPacketNum != state.unPacketNum)
 			{
-				b3Printf("state.ulButtonPressed=%d\n",state.ulButtonPressed);
-				sExample->exitPhysics();
-				m_app->m_instancingRenderer->removeAllInstances();
-				sExample->initPhysics();
+				
+				static int counter=0;
+				sPrevPacketNum = state.unPacketNum;
+				//b3Printf(".");
+				bool isTrigger = (state.ulButtonPressed&trigger)!=0;
+				if (isTrigger)
+				{
+					//printf("unDevice=%d\n",unDevice);
+					b3Transform tr;
+					getControllerTransform(unDevice,tr);
+					float pos[3] = {tr.getOrigin()[0],tr.getOrigin()[1],tr.getOrigin()[2]};
+					b3Quaternion born = tr.getRotation();
+					float orn[4] = {born[0],born[1],born[2],born[3]};
+					
 
-			}
+					if (sIsPressed!=unDevice)
+					{
+						b3Printf("trigger pressed %d, %d\n",counter++, unDevice);
+						sIsPressed=unDevice;
+
+						sExample->vrControllerButtonCallback(unDevice,1,1,pos, orn);
+
+						//
+						//virtual void	vrControllerMoveCallback(int controllerId, float pos[4], float orientation[4]) {}
+						//virtual void	vrControllerButtonCallback(int controllerId, int button, int state, float pos[4], float orientation[4]){}
+
+						//sExample->start
+					} else
+					{
+						sExample->vrControllerMoveCallback(unDevice,pos,orn);
+					}
+					//sExample->exitPhysics();
+					//m_app->m_instancingRenderer->removeAllInstances();
+					///sExample->initPhysics();
+				} else
+				{
+					if (unDevice==sIsPressed)
+					{
+						b3Transform tr;
+						getControllerTransform(unDevice,tr);
+						float pos[3] = {tr.getOrigin()[0],tr.getOrigin()[1],tr.getOrigin()[2]};
+						b3Quaternion born = tr.getRotation();
+						float orn[4] = {born[0],born[1],born[2],born[3]};
+
+						sIsPressed=-1;
+						printf("device released: %d",unDevice);
+						sExample->vrControllerButtonCallback(unDevice,1,0,pos, orn);
+					}
+				}
+			} 
+
 			m_rbShowTrackedDevice[ unDevice ] = state.ulButtonPressed == 0;
 		}
 	}
@@ -1480,7 +1551,7 @@ void CMainApplication::RenderStereoTargets()
 		rotYtoZ.rotateX(-90);
 	}
 	
-	RenderScene( vr::Eye_Left );
+	
 
 	// Left Eye
 	{
@@ -1527,7 +1598,7 @@ void CMainApplication::RenderStereoTargets()
 	m_app->m_window->startRendering();
 	
 
-	
+	RenderScene( vr::Eye_Left );
 
 	
 	
@@ -1560,7 +1631,7 @@ void CMainApplication::RenderStereoTargets()
 
 	// Right Eye
 	
-	RenderScene( vr::Eye_Right );
+	
 
 	{
 		Matrix4 viewMatRight = m_mat4eyePosRight * m_mat4HMDPose * rotYtoZ;
@@ -1573,7 +1644,7 @@ void CMainApplication::RenderStereoTargets()
  	
 	m_app->m_window->startRendering();
 	
-	
+	RenderScene( vr::Eye_Right );
 	
 	m_app->m_instancingRenderer->setRenderFrameBuffer((unsigned int)rightEyeDesc.m_nRenderFramebufferId);
 	//m_app->m_renderer->renderScene();

@@ -215,6 +215,7 @@ enum EnumSimParamUpdateFlags
 	SIM_PARAM_UPDATE_GRAVITY=2,
 	SIM_PARAM_UPDATE_NUM_SOLVER_ITERATIONS=4,	
 	SIM_PARAM_UPDATE_NUM_SIMULATION_SUB_STEPS=8,
+	SIM_PARAM_UPDATE_REAL_TIME_SIMULATION = 16,
 };
 
 ///Controlling a robot involves sending the desired state to its joint motor controllers.
@@ -225,6 +226,7 @@ struct SendPhysicsSimulationParameters
 	double m_gravityAcceleration[3];
 	int m_numSimulationSubSteps;
 	int m_numSolverIterations;
+	bool m_allowRealTimeSimulation;
 };
 
 struct RequestActualStateArgs

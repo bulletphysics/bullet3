@@ -16,9 +16,9 @@ subject to the following restrictions:
 
 
 ///todo: make this configurable in the gui
-bool useShadowMap=true;//false;//true;
+bool useShadowMap = true;// true;//false;//true;
 int shadowMapWidth=4096;//8192;
-int shadowMapHeight=4096;
+int shadowMapHeight= 4096;
 float shadowMapWorldSize=25;
 
 #define MAX_POINTS_IN_BATCH 1024
@@ -363,7 +363,7 @@ void GLInstancingRenderer::writeSingleInstanceScaleToCPU(double* scale, int srcI
 void GLInstancingRenderer::writeSingleInstanceTransformToGPU(float* position, float* orientation, int objectIndex)
 {
 	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
-	glFlush();
+	//glFlush();
 
 	char* orgBase =  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_READ_WRITE);
 	//b3GraphicsInstance* gfxObj = m_graphicsInstances[k];
@@ -393,7 +393,7 @@ void GLInstancingRenderer::writeSingleInstanceTransformToGPU(float* position, fl
 	orientations [objectIndex*4+3] = orientation[3];
 
 	glUnmapBuffer( GL_ARRAY_BUFFER);
-	glFlush();
+	//glFlush();
 }
 
 
@@ -500,7 +500,7 @@ void GLInstancingRenderer::writeTransforms()
 	glUnmapBuffer( GL_ARRAY_BUFFER);
 	//if this glFinish is removed, the animation is not always working/blocks
 	//@todo: figure out why
-	glFlush();
+	//glFlush();
 
 #endif
 
@@ -1037,7 +1037,7 @@ void GLInstancingRenderer::renderScene()
 	//avoid some Intel driver on a Macbook Pro to lock-up
 	//todo: figure out what is going on on that machine
 
-	glFlush();
+	//glFlush();
 
 	if (useShadowMap)
 	{
@@ -1539,7 +1539,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 		B3_PROFILE("glFlush2");
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
-		glFlush();
+		//glFlush();
 	}
 b3Assert(glGetError() ==GL_NO_ERROR);
 
@@ -1730,7 +1730,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 
 	{
 			B3_PROFILE("glFlush");
-			glFlush();
+			//glFlush();
 		}
 	if (renderMode==B3_CREATE_SHADOWMAP_RENDERMODE)
 	{
