@@ -14,6 +14,6 @@ rem cd vs2010
 rem rename 0_Bullet3Solution.sln 0_client.sln
 rem cd ..
 rem rename vs2010 vs2010_client
-start vs2010/0_Bullet3Solution.sln
+rem start vs2010/0_Bullet3Solution.sln
 
 pause

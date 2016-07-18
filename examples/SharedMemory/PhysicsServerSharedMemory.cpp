@@ -236,8 +236,10 @@ void PhysicsServerSharedMemory::releaseSharedMemory()
 }
 
 
-
-
+void PhysicsServerSharedMemory::stepSimulationRealTime(double dtInSec)
+{
+	m_data->m_commandProcessor->stepSimulationRealTime(dtInSec);
+}
 
 
 void PhysicsServerSharedMemory::processClientCommands()

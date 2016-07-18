@@ -374,6 +374,8 @@ struct PhysicsServerCommandProcessorInternalData
 
 	///end handle management
 
+	bool m_allowRealTimeSimulation;
+	bool m_hasGround;
 
 	CommandLogger* m_commandLogger;
 	CommandLogPlayback* m_logPlayback;
@@ -417,7 +419,8 @@ struct PhysicsServerCommandProcessorInternalData
 	TinyRendererVisualShapeConverter  m_visualConverter;
 
 	PhysicsServerCommandProcessorInternalData()
-		:
+		:m_hasGround(false),
+		m_allowRealTimeSimulation(false),
 		m_commandLogger(0),
 		m_logPlayback(0),
 		m_physicsDeltaTime(1./240.),
@@ -496,6 +499,9 @@ void PhysicsServerCommandProcessor::setGuiHelper(struct GUIHelperInterface* guiH
 		}
 	}
 	m_data->m_guiHelper = guiHelper;
+
+	
+
 }
 
 
@@ -504,6 +510,7 @@ PhysicsServerCommandProcessor::PhysicsServerCommandProcessor()
 	m_data = new PhysicsServerCommandProcessorInternalData();
 
 	createEmptyDynamicsWorld();
+	
 }
 
 PhysicsServerCommandProcessor::~PhysicsServerCommandProcessor()
@@ -983,7 +990,7 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
 
 bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes )
 {
-
+	
 	bool hasStatus = false;
 
     {
@@ -1768,6 +1775,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					{
 						m_data->m_physicsDeltaTime = clientCmd.m_physSimParamArgs.m_deltaTime;
 					}
+					if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_REAL_TIME_SIMULATION)
+					{
+						m_data->m_allowRealTimeSimulation = clientCmd.m_physSimParamArgs.m_allowRealTimeSimulation;
+					}
 					if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_GRAVITY)
 					{
 						btVector3 grav(clientCmd.m_physSimParamArgs.m_gravityAcceleration[0],
@@ -1873,7 +1884,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					SharedMemoryStatus& serverCmd =serverStatusOut;
 					serverCmd.m_type = CMD_RESET_SIMULATION_COMPLETED;
 					hasStatus = true;
-
+					m_data->m_hasGround = false;
                     break;
                 }
 				case CMD_CREATE_RIGID_BODY:
@@ -2305,6 +2316,26 @@ void PhysicsServerCommandProcessor::replayFromLogFile(const char* fileName)
 {
 	CommandLogPlayback* pb = new CommandLogPlayback(fileName);
 	m_data->m_logPlayback = pb;
+}
+
+void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
+{
+	if (m_data->m_allowRealTimeSimulation)
+	{
+		if (!m_data->m_hasGround)
+		{
+			m_data->m_hasGround = true;
+
+			int bodyId = 0;
+			btAlignedObjectArray<char> bufferServerToClient;
+			bufferServerToClient.resize(32768);
+
+
+			loadUrdf("plane.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, true, &bodyId, &bufferServerToClient[0], bufferServerToClient.size());
+		}
+
+		m_data->m_dynamicsWorld->stepSimulation(dtInSec);
+	}
 }
 
 void PhysicsServerCommandProcessor::applyJointDamping(int bodyUniqueId)

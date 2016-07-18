@@ -9,9 +9,10 @@
 #include "PhysicsServerSharedMemory.h"
 
 #include "SharedMemoryCommon.h"
-
+#include "Bullet3Common/b3Matrix3x3.h"
 #include "../Utils/b3Clock.h"
 #include "../MultiThreading/b3ThreadSupportInterface.h"
+
 
 
 void	MotionThreadFunc(void* userPtr,void* lsMemory);
@@ -80,13 +81,23 @@ b3ThreadSupportInterface* createMotionThreadSupport(int numThreads)
 struct	MotionArgs
 {
 	MotionArgs()
-		:m_physicsServerPtr(0)
+		:m_physicsServerPtr(0),
+		m_isPicking(false),
+		m_isDragging(false),
+		m_isReleasing(false)
 	{
 	}
 	b3CriticalSection* m_cs;
 	
 	PhysicsServerSharedMemory*	m_physicsServerPtr;
 	b3AlignedObjectArray<b3Vector3> m_positions;
+
+	btVector3 m_pos;
+	btQuaternion m_orn;
+	bool m_isPicking;
+	bool m_isDragging;
+	bool m_isReleasing;
+	
 };
 
 struct MotionThreadLocalStorage
@@ -113,22 +124,57 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 		args->m_cs->setSharedParam(0,eMotionIsInitialized);
 		args->m_cs->unlock();
 
+
 		do
 		{
 //todo(erwincoumans): do we want some sleep to reduce CPU resources in this thread?
-#if 0
+
 			double deltaTimeInSeconds = double(clock.getTimeMicroseconds())/1000000.;
-			if (deltaTimeInSeconds<(1./260.))
+			if (deltaTimeInSeconds<(1./5000.))
 			{
 				skip++;
-				if (deltaTimeInSeconds<.001)
-					continue;
+			} else
+			{
+				//process special controller commands, such as
+				//VR controller button press/release and controller motion
+
+				btVector3 from = args->m_pos;
+				btMatrix3x3 mat(args->m_orn);
+	
+				btVector3 toX = args->m_pos+mat.getColumn(0);
+				btVector3 toY = args->m_pos+mat.getColumn(1);
+				btVector3 toZ = args->m_pos+mat.getColumn(2)*50.;
+						
+
+				if (args->m_isPicking)
+				{
+					args->m_isPicking  = false;
+					args->m_isDragging = true;
+					args->m_physicsServerPtr->pickBody(from,-toZ);
+					//printf("PICK!\n");
+				}
+
+				 if (args->m_isDragging)
+				 {
+					 args->m_physicsServerPtr->movePickedBody(from,-toZ);
+					// printf(".");
+				 }
+				
+				if (args->m_isReleasing)
+				{
+					args->m_isDragging = false;
+					args->m_isReleasing = false;
+					args->m_physicsServerPtr->removePickingConstraint();
+					//printf("Release pick\n");
+				}
+
+				//don't simulate over a huge timestep if we had some interruption (debugger breakpoint etc)
+				btClamp(deltaTimeInSeconds,0.,0.1);
+				args->m_physicsServerPtr->stepSimulationRealTime(deltaTimeInSeconds);
+				clock.reset();
 			}
 
-			clock.reset();
-#endif
 			args->m_physicsServerPtr->processClientCommands();
-			
 			
 		} while (args->m_cs->getSharedParam(0)!=eRequestTerminateMotion);
 	} else
@@ -375,7 +421,7 @@ class PhysicsServerExample : public SharedMemoryCommon
     btClock m_clock;
 	bool m_replay;
 	int m_options;
-
+	
 public:
 
 	PhysicsServerExample(MultiThreadedOpenGLGuiHelper* helper, SharedMemoryInterface* sharedMem=0, int options=0);
@@ -416,6 +462,9 @@ public:
 	virtual void	physicsDebugDraw(int debugFlags);
 
 	btVector3	getRayTo(int x,int y);
+
+	virtual void	vrControllerButtonCallback(int controllerId, int button, int state, float pos[4], float orientation[4]);
+	virtual void	vrControllerMoveCallback(int controllerId, float pos[4], float orientation[4]);
 
 	virtual bool	mouseMoveCallback(float x,float y)
 	{
@@ -720,6 +769,28 @@ void PhysicsServerExample::renderScene()
 	//m_args[0].m_cs->lock();
 	
 	m_physicsServer.renderScene();
+	
+	if (m_args[0].m_isPicking || m_args[0].m_isDragging)
+	{
+		btVector3 from = m_args[0].m_pos;
+		btMatrix3x3 mat(m_args[0].m_orn);
+	
+		btVector3 toX = m_args[0].m_pos+mat.getColumn(0);
+		btVector3 toY = m_args[0].m_pos+mat.getColumn(1);
+		btVector3 toZ = m_args[0].m_pos+mat.getColumn(2);
+	
+		int width = 2;
+
+	
+		btVector4 color;
+		color=btVector4(1,0,0,1);
+		m_guiHelper->getAppInterface()->m_renderer->drawLine(from,toX,color,width);
+		color=btVector4(0,1,0,1);
+		m_guiHelper->getAppInterface()->m_renderer->drawLine(from,toY,color,width);
+		color=btVector4(0,0,1,1);
+		m_guiHelper->getAppInterface()->m_renderer->drawLine(from,toZ,color,width);
+	
+	}
 
 	if (m_guiHelper->getAppInterface()->m_renderer->getActiveCamera()->isVRCamera())
 	{
@@ -856,4 +927,17 @@ class CommonExampleInterface*    PhysicsServerCreateFunc(struct CommonExampleOpt
 
 }
 
+void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int button, int state, float pos[4], float orn[4])
+{
+	m_args[0].m_isPicking = (state!=0);
+	m_args[0].m_isReleasing = (state==0);
+	m_args[0].m_pos.setValue(pos[0],pos[1],pos[2]);
+	m_args[0].m_orn.setValue(orn[0],orn[1],orn[2],orn[3]);
+}
+
+void	PhysicsServerExample::vrControllerMoveCallback(int controllerId, float pos[4], float orn[4])
+{
+	m_args[0].m_pos.setValue(pos[0],pos[1],pos[2]);
+	m_args[0].m_orn.setValue(orn[0],orn[1],orn[2],orn[3]);
+}
 B3_STANDALONE_EXAMPLE(PhysicsServerCreateFunc)

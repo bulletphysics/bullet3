@@ -115,6 +115,15 @@ int     b3PhysicsParamSetGravity(b3SharedMemoryCommandHandle commandHandle, doub
 	return 0;
 }
 
+int     b3PhysicsParamSetRealTimeSimulation(b3SharedMemoryCommandHandle commandHandle, int enableRealTimeSimulation)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+	command->m_physSimParamArgs.m_allowRealTimeSimulation = enableRealTimeSimulation;
+	command->m_updateFlags |= SIM_PARAM_UPDATE_REAL_TIME_SIMULATION;
+	return 0;
+}
+
 int	b3PhysicsParamSetTimeStep(b3SharedMemoryCommandHandle commandHandle, double timeStep)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;

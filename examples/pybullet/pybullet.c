@@ -410,6 +410,41 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
 }
 
 
+
+static PyObject *
+pybullet_setRealTimeSimulation(PyObject* self, PyObject* args)
+{
+	if (0 == sm)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	{
+		int enableRealTimeSimulation = 0;
+		int ret;
+
+		b3SharedMemoryCommandHandle command = b3InitPhysicsParamCommand(sm);
+		b3SharedMemoryStatusHandle statusHandle;
+
+		if (!PyArg_ParseTuple(args, "i", &enableRealTimeSimulation))
+		{
+			PyErr_SetString(SpamError, "setRealTimeSimulation expected a single value (integer).");
+			return NULL;
+		}
+		ret = b3PhysicsParamSetRealTimeSimulation(command, enableRealTimeSimulation);
+
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+		//ASSERT_EQ(b3GetStatusType(statusHandle), CMD_CLIENT_COMMAND_COMPLETED);
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
+
+
 // Set the gravity of the world with (x, y, z) arguments
 static PyObject *
 pybullet_setGravity(PyObject* self, PyObject* args)
@@ -1453,6 +1488,9 @@ static PyMethodDef SpamMethods[] = {
     {"setTimeStep",  pybullet_setTimeStep, METH_VARARGS,
         "Set the amount of time to proceed at each call to stepSimulation. (unit is seconds, typically range is 0.01 or 0.001)"},
     
+	{ "setRealTimeSimulation", pybullet_setRealTimeSimulation, METH_VARARGS,
+	"Enable or disable real time simulation (using the real time clock, RTC) in the physics server. Expects one integer argument, 0 or 1" },
+
     {"loadURDF",  pybullet_loadURDF, METH_VARARGS,
       "Create a multibody by loading a URDF file."},
       

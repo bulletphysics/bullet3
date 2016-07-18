@@ -187,7 +187,7 @@ static ExampleEntry gDefaultExamples[]=
 #endif //INCLUDE_CLOTH_DEMOS
 
 	///we disable the benchmarks in debug mode, they are way too slow and benchmarking in debug mode is not recommended
-#ifndef _DEBUG
+//#ifndef _DEBUG
 	ExampleEntry(0,"Benchmarks"),
 	ExampleEntry(1,"3000 boxes", "Benchmark a stack of 3000 boxes. It will stress the collision detection, a specialized box-box implementation based on the separating axis test, and the constraint solver. ", BenchmarkCreateFunc, 1),
 	ExampleEntry(1,"1000 stack", "Benchmark a stack of 3000 boxes. It will stress the collision detection, a specialized box-box implementation based on the separating axis test, and the constraint solver. ",
@@ -197,7 +197,7 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Prim vs Mesh", "Benchmark the performance and stability of rigid bodies using primitive collision shapes (btSphereShape, btBoxShape), resting on a triangle mesh, btBvhTriangleMeshShape.", BenchmarkCreateFunc, 5),
 	ExampleEntry(1,"Convex vs Mesh", "Benchmark the performance and stability of rigid bodies using convex hull collision shapes (btConvexHullShape), resting on a triangle mesh, btBvhTriangleMeshShape.", BenchmarkCreateFunc, 6),
 	ExampleEntry(1,"Raycast", "Benchmark the performance of the btCollisionWorld::rayTest. Note that currently the rays are not rendered.", BenchmarkCreateFunc, 7),
-#endif
+//#endif
 
 
 
