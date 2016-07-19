@@ -140,11 +140,11 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 
 				btVector3 from = args->m_pos;
 				btMatrix3x3 mat(args->m_orn);
-	
+				btScalar pickDistance = 100.;
 				btVector3 toX = args->m_pos+mat.getColumn(0);
 				btVector3 toY = args->m_pos+mat.getColumn(1);
-				btVector3 toZ = args->m_pos+mat.getColumn(2)*50.;
-						
+				btVector3 toZ = args->m_pos+mat.getColumn(2)*pickDistance;
+
 
 				if (args->m_isPicking)
 				{
