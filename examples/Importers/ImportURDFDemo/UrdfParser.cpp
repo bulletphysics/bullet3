@@ -960,7 +960,7 @@ bool UrdfParser::parseJoint(UrdfJoint& joint, TiXmlElement *config, ErrorLogger*
                     return false;
                 }
                 
-                TiXmlElement *prop_xml = config->FirstChildElement("dynamics");
+                TiXmlElement *prop_xml = axis_xml->FirstChildElement("dynamics");
                 if (prop_xml)
                 {
                     if (!parseJointDynamics(joint, prop_xml,logger))
