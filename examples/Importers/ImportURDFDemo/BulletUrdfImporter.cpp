@@ -175,7 +175,7 @@ bool BulletURDFImporter::loadSDF(const char* fileName, bool forceFixedBase)
     m_data->m_pathPrefix[0] = 0;
     
     if (!fileFound){
-        std::cerr << "URDF file not found" << std::endl;
+        std::cerr << "SDF file not found" << std::endl;
         return false;
     } else
     {
