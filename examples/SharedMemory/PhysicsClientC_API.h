@@ -56,8 +56,8 @@ int b3GetStatusActualState(b3SharedMemoryStatusHandle statusHandle,
 ///give a unique body index (after loading the body) return the number of joints.
 int	b3GetNumJoints(b3PhysicsClientHandle physClient, int bodyIndex);
 
-///given a body and link index, return the joint information. See b3JointInfo in SharedMemoryPublic.h
-int	b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyIndex, int linkIndex, struct b3JointInfo* info);
+///given a body and joint index, return the joint information. See b3JointInfo in SharedMemoryPublic.h
+int	b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyIndex, int jointIndex, struct b3JointInfo* info);
 
 ///Request debug lines for debug visualization. The flags in debugMode are the same as used in Bullet
 ///See btIDebugDraw::DebugDrawModes in Bullet/src/LinearMath/btIDebugDraw.h
