@@ -30,9 +30,12 @@ int gSharedMemoryKey = -1;
 #include "pathtools.h"
 
 CommonExampleInterface*    sExample;
-int sIsPressed=-1;
+
 int sPrevPacketNum=0;
 GUIHelperInterface* sGuiPtr = 0;
+
+
+static vr::VRControllerState_t sPrevStates[vr::k_unMaxTrackedDeviceCount] = { 0 };
 
 
 #if defined(POSIX)
@@ -663,63 +666,57 @@ bool CMainApplication::HandleInput()
 		vr::VRControllerState_t state;
 		if( m_pHMD->GetControllerState( unDevice, &state ) )
 		{
-			uint64_t trigger = vr::ButtonMaskFromId(vr::k_EButton_SteamVR_Trigger);
-			
-			if (sPrevPacketNum != state.unPacketNum)
+			//we need to have the 'move' events, so no early out here
+			//if (sPrevStates[unDevice].unPacketNum != state.unPacketNum)
 			{
-				
-				static int counter=0;
-				sPrevPacketNum = state.unPacketNum;
-				//b3Printf(".");
-				bool isTrigger = (state.ulButtonPressed&trigger)!=0;
-				if (isTrigger)
+				sPrevStates[unDevice].unPacketNum = state.unPacketNum;
+
+				for (int button = 0; button < vr::k_EButton_Max; button++)
 				{
-					//printf("unDevice=%d\n",unDevice);
-					b3Transform tr;
-					getControllerTransform(unDevice,tr);
-					float pos[3] = {tr.getOrigin()[0],tr.getOrigin()[1],tr.getOrigin()[2]};
-					b3Quaternion born = tr.getRotation();
-					float orn[4] = {born[0],born[1],born[2],born[3]};
-					
+					uint64_t trigger = vr::ButtonMaskFromId((vr::EVRButtonId)button);
 
-					if (sIsPressed!=unDevice)
+					bool isTrigger = (state.ulButtonPressed&trigger) != 0;
+					if (isTrigger)
 					{
-						b3Printf("trigger pressed %d, %d\n",counter++, unDevice);
-						sIsPressed=unDevice;
 
-						sExample->vrControllerButtonCallback(unDevice,1,1,pos, orn);
-
-						//
-						//virtual void	vrControllerMoveCallback(int controllerId, float pos[4], float orientation[4]) {}
-						//virtual void	vrControllerButtonCallback(int controllerId, int button, int state, float pos[4], float orientation[4]){}
-
-						//sExample->start
-					} else
-					{
-						sExample->vrControllerMoveCallback(unDevice,pos,orn);
-					}
-					//sExample->exitPhysics();
-					//m_app->m_instancingRenderer->removeAllInstances();
-					///sExample->initPhysics();
-				} else
-				{
-					if (unDevice==sIsPressed)
-					{
 						b3Transform tr;
-						getControllerTransform(unDevice,tr);
-						float pos[3] = {tr.getOrigin()[0],tr.getOrigin()[1],tr.getOrigin()[2]};
+						getControllerTransform(unDevice, tr);
+						float pos[3] = { tr.getOrigin()[0], tr.getOrigin()[1], tr.getOrigin()[2] };
 						b3Quaternion born = tr.getRotation();
-						float orn[4] = {born[0],born[1],born[2],born[3]};
+						float orn[4] = { born[0], born[1], born[2], born[3] };
 
-						sIsPressed=-1;
-						printf("device released: %d",unDevice);
-						sExample->vrControllerButtonCallback(unDevice,1,0,pos, orn);
+						//pressed now, not pressed before -> raise a button down event
+						if ((sPrevStates[unDevice].ulButtonPressed&trigger)==0)
+						{
+//							printf("Device PRESSED: %d, button %d\n", unDevice, button);
+							sExample->vrControllerButtonCallback(unDevice, button, 1, pos, orn);
+						}
+						else
+						{
+//							printf("Device MOVED: %d\n", unDevice);
+							sExample->vrControllerMoveCallback(unDevice, pos, orn);
+						}
+					}
+					else
+					{
+						//not pressed now, but pressed before -> raise a button up event
+						if ((sPrevStates[unDevice].ulButtonPressed&trigger) != 0)
+						{
+							b3Transform tr;
+							getControllerTransform(unDevice, tr);
+							float pos[3] = { tr.getOrigin()[0], tr.getOrigin()[1], tr.getOrigin()[2] };
+							b3Quaternion born = tr.getRotation();
+							float orn[4] = { born[0], born[1], born[2], born[3] };
+//							printf("Device RELEASED: %d, button %d\n", unDevice,button);
+							sExample->vrControllerButtonCallback(unDevice, button, 0, pos, orn);
+						}
 					}
 				}
 			} 
 
 			m_rbShowTrackedDevice[ unDevice ] = state.ulButtonPressed == 0;
 		}
+		sPrevStates[unDevice] = state;
 	}
 
 	return bRet;

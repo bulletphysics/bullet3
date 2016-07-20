@@ -4,7 +4,7 @@
 #include "LinearMath/btQuickprof.h"
 
 
-
+#ifndef BT_NO_PROFILE  
 
 
 class MyProfileWindow : public Gwen::Controls::WindowControl
@@ -42,8 +42,9 @@ protected:
 	}
 public:
 	
-  
+	
 	CProfileIterator* profIter;
+	
 	class MyMenuItems* m_menuItems;
 	MyProfileWindow (	Gwen::Controls::Base* pParent)
     : Gwen::Controls::WindowControl( pParent ),
@@ -304,3 +305,5 @@ void destroyProfileWindow(MyProfileWindow* window)
 	CProfileManager::Release_Iterator(window->profIter);
 	delete window;
 }
+
+#endif //BT_NO_PROFILE

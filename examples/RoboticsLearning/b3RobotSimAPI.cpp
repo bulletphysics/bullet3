@@ -556,7 +556,7 @@ void b3RobotSimAPI::setJointMotorControl(int bodyUniqueId, int jointIndex, const
 	{
 		case CONTROL_MODE_VELOCITY:
 		{
-			b3SharedMemoryCommandHandle command = b3JointControlCommandInit( m_data->m_physicsClient, CONTROL_MODE_VELOCITY);
+			b3SharedMemoryCommandHandle command = b3JointControlCommandInit2( m_data->m_physicsClient, bodyUniqueId, CONTROL_MODE_VELOCITY);
 			b3JointInfo jointInfo;
 			b3GetJointInfo(m_data->m_physicsClient, bodyUniqueId, jointIndex, &jointInfo);
 			int uIndex = jointInfo.m_uIndex;
@@ -567,7 +567,7 @@ void b3RobotSimAPI::setJointMotorControl(int bodyUniqueId, int jointIndex, const
 		}
 		case CONTROL_MODE_POSITION_VELOCITY_PD:
 		{
-			b3SharedMemoryCommandHandle command = b3JointControlCommandInit( m_data->m_physicsClient, CONTROL_MODE_POSITION_VELOCITY_PD);
+			b3SharedMemoryCommandHandle command = b3JointControlCommandInit2( m_data->m_physicsClient, bodyUniqueId, CONTROL_MODE_POSITION_VELOCITY_PD);
 			b3JointInfo jointInfo;
 			b3GetJointInfo(m_data->m_physicsClient, bodyUniqueId, jointIndex, &jointInfo);
 			int uIndex = jointInfo.m_uIndex;
@@ -583,7 +583,7 @@ void b3RobotSimAPI::setJointMotorControl(int bodyUniqueId, int jointIndex, const
 		}
 		case CONTROL_MODE_TORQUE:
 		{
-			b3SharedMemoryCommandHandle command = b3JointControlCommandInit( m_data->m_physicsClient, CONTROL_MODE_TORQUE);
+			b3SharedMemoryCommandHandle command = b3JointControlCommandInit2( m_data->m_physicsClient, bodyUniqueId, CONTROL_MODE_TORQUE);
 			b3JointInfo jointInfo;
 			b3GetJointInfo(m_data->m_physicsClient, bodyUniqueId, jointIndex, &jointInfo);
 			int uIndex = jointInfo.m_uIndex;
