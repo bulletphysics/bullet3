@@ -311,7 +311,7 @@ void b3GpuRaycast::castRays(const b3AlignedObjectArray<b3RayInfo>& rays,	b3Align
 		
 		int numRayRigidPairs = -1;
 		m_data->m_gpuNumRayRigidPairs->copyToHostPointer(&numRayRigidPairs, 1);
-		if( numRayRigidPairs > m_data->m_gpuRayRigidPairs->size() )
+		if( numRayRigidPairs > int(m_data->m_gpuRayRigidPairs->size()) )
 		{
 			numRayRigidPairs = m_data->m_gpuRayRigidPairs->size();
 			m_data->m_gpuNumRayRigidPairs->copyFromHostPointer(&numRayRigidPairs, 1);

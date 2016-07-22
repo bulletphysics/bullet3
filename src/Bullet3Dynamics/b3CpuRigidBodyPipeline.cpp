@@ -182,8 +182,11 @@ static inline void b3SolveFriction(b3ContactConstraint4& cs,
 		const b3Vector3& posB, b3Vector3& linVelB, b3Vector3& angVelB, float invMassB, const b3Matrix3x3& invInertiaB, 
 		float maxRambdaDt[4], float minRambdaDt[4])
 {
+    // DEAD CODE: identical expressions!
+    //  vvvvvvvvvvvvvvvvvvvvvvvvv    vvvvvvvvvvvvvvvvvvvvvvvvv
+	if( cs.m_fJacCoeffInv[0] == 0 && cs.m_fJacCoeffInv[0] == 0 )
+        return;
 
-	if( cs.m_fJacCoeffInv[0] == 0 && cs.m_fJacCoeffInv[0] == 0 ) return;
 	const b3Vector3& center = (const b3Vector3&)cs.m_center;
 
 	b3Vector3 n = -(const b3Vector3&)cs.m_linear;
