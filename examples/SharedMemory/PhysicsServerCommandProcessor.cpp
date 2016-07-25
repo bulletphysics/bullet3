@@ -1216,16 +1216,21 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                         }
 
                         bool completedOk = loadSdf(sdfArgs.m_sdfFileName,bufferServerToClient, bufferSizeInBytes);
-
-                        //serverStatusOut.m_type = CMD_SDF_LOADING_FAILED;
-                        serverStatusOut.m_sdfLoadedArgs.m_numBodies = m_data->m_sdfRecentLoadedBodies.size();
-                        int maxBodies = btMin(MAX_SDF_BODIES, serverStatusOut.m_sdfLoadedArgs.m_numBodies);
-                        for (int i=0;i<maxBodies;i++)
+                        if (completedOk)
                         {
-                            serverStatusOut.m_sdfLoadedArgs.m_bodyUniqueIds[i] = m_data->m_sdfRecentLoadedBodies[i];
-                        }
+                            //serverStatusOut.m_type = CMD_SDF_LOADING_FAILED;
+                            serverStatusOut.m_sdfLoadedArgs.m_numBodies = m_data->m_sdfRecentLoadedBodies.size();
+                            int maxBodies = btMin(MAX_SDF_BODIES, serverStatusOut.m_sdfLoadedArgs.m_numBodies);
+                            for (int i=0;i<maxBodies;i++)
+                            {
+                                serverStatusOut.m_sdfLoadedArgs.m_bodyUniqueIds[i] = m_data->m_sdfRecentLoadedBodies[i];
+                            }
 
-                        serverStatusOut.m_type = CMD_SDF_LOADING_COMPLETED;
+                            serverStatusOut.m_type = CMD_SDF_LOADING_COMPLETED;
+                        } else
+                        {
+                            serverStatusOut.m_type = CMD_SDF_LOADING_FAILED;
+                        }
 						hasStatus = true;
                         break;
                     }

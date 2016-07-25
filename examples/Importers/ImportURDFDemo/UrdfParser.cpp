@@ -606,6 +606,28 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
 	 TiXmlElement* ci = config->FirstChildElement("contact");
 	  if (ci)
 	  {
+        
+          TiXmlElement *damping_xml = ci->FirstChildElement("inertia_scaling");
+          if (damping_xml)
+          {
+              if (m_parseSDF)
+              {
+                  link.m_contactInfo.m_inertiaScaling = urdfLexicalCast<double>(damping_xml->GetText());
+                  link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_INERTIA_SCALING;
+              } else
+              {
+                  if (!damping_xml->Attribute("value"))
+                  {
+                      logger->reportError("Link/contact: damping element must have value attribute");
+                      return false;
+                  }
+                  
+                  link.m_contactInfo.m_inertiaScaling = urdfLexicalCast<double>(damping_xml->Attribute("value"));
+                  link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_INERTIA_SCALING;
+
+              }
+          }
+          {
 		TiXmlElement *friction_xml = ci->FirstChildElement("lateral_friction");
 		if (friction_xml)
 		{
@@ -623,6 +645,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
 				link.m_contactInfo.m_lateralFriction = urdfLexicalCast<double>(friction_xml->Attribute("value"));
 			}
 		}
+          }
 	  }
 	}
 

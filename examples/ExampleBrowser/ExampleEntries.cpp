@@ -46,6 +46,7 @@
 #include "../MultiThreading/MultiThreadingExample.h"
 #include "../InverseDynamics/InverseDynamicsExample.h"
 #include "../RoboticsLearning/R2D2GraspExample.h"
+#include "../RoboticsLearning/GripperGraspExample.h"
 #include "../InverseKinematics/InverseKinematicsExample.h"
 
 #ifdef ENABLE_LUA
@@ -260,6 +261,7 @@ static ExampleEntry gDefaultExamples[]=
 
 	ExampleEntry(1,"R2D2 Grasp","Load the R2D2 robot from URDF file and control it to grasp objects", R2D2GraspExampleCreateFunc, eROBOTIC_LEARN_GRASP),
 	ExampleEntry(1,"URDF Compliant Contact","Work-in-progress, experiment/improve compliant rigid contact using parameters from URDF file (contact_cfm, contact_erp, lateral_friction, rolling_friction)", R2D2GraspExampleCreateFunc,eROBOTIC_LEARN_COMPLIANT_CONTACT),
+    ExampleEntry(1,"Contact for Grasp","Grasp experiment to improve contact model", GripperGraspExampleCreateFunc),
 	
 
 

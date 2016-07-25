@@ -210,6 +210,8 @@ SET(BulletExampleBrowser_SRCS
 	../RenderingExamples/TimeSeriesCanvas.h
 	../RenderingExamples/TimeSeriesFontData.cpp
 	../RenderingExamples/TimeSeriesFontData.h
+	../RoboticsLearning/GripperGraspExample.cpp
+	../RoboticsLearning/GripperGraspExample.h
 	../RoboticsLearning/b3RobotSimAPI.cpp
 	../RoboticsLearning/b3RobotSimAPI.h
 	../RoboticsLearning/R2D2GraspExample.cpp
