@@ -155,6 +155,8 @@ SET(BulletExampleBrowser_SRCS
 	../BasicDemo/BasicExample.h
 	../InverseDynamics/InverseDynamicsExample.cpp
 	../InverseDynamics/InverseDynamicsExample.h
+	../InverseKinematics/InverseKinematicsExample.cpp
+	../InverseKinematics/InverseKinematicsExample.h
 	../ForkLift/ForkLiftDemo.cpp
 	../ForkLift/ForkLiftDemo.h
 	../Tutorial/Tutorial.cpp
@@ -298,6 +300,17 @@ SET(BulletExampleBrowser_SRCS
 
 	../ThirdPartyLibs/stb_image/stb_image.cpp
 	../ThirdPartyLibs/stb_image/stb_image.h
+	
+	../ThirdPartyLibs/BussIK/Jacobian.cpp
+	../ThirdPartyLibs/BussIK/Tree.cpp
+	../ThirdPartyLibs/BussIK/Node.cpp
+	../ThirdPartyLibs/BussIK/LinearR2.cpp
+	../ThirdPartyLibs/BussIK/LinearR3.cpp
+	../ThirdPartyLibs/BussIK/LinearR4.cpp
+	../ThirdPartyLibs/BussIK/MatrixRmn.cpp
+	../ThirdPartyLibs/BussIK/VectorRn.cpp
+	../ThirdPartyLibs/BussIK/Misc.cpp
+	
 
 	../ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
 	../ThirdPartyLibs/tinyxml/tinystr.cpp
