@@ -195,7 +195,7 @@ public:
 	inline double Diagonal( int );
 
 	inline void MakeTranspose();					// Transposes it.
-	void Matrix4x4::operator*= (const Matrix4x4& B); // Matrix product	
+	void operator*= (const Matrix4x4& B); // Matrix product	
 
 	Matrix4x4& ReNormalize();
 };

@@ -8,7 +8,7 @@
 *
 *
 * Author: Samuel R. Buss, sbuss@ucsd.edu.
-* Web page: http://math.ucsd.edu/~sbuss/MathCG
+* Web page: http://www.math.ucsd.edu/~sbuss/ResearchWeb/ikmethods/index.html
 *
 *
 This software is provided 'as-is', without any express or implied warranty.

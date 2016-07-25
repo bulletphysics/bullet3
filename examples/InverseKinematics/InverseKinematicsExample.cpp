@@ -113,6 +113,9 @@ void DoUpdateStep(double Tstep, Tree & treeY, Jacobian *jacob, int ikMethod) {
 		case IK_DLS:
 			jacob->CalcDeltaThetasDLS();			// Damped least squares method
 			break;
+        case IK_DLS_SVD:
+            jacob->CalcDeltaThetasDLSwithSVD();
+            break;
 		case IK_PURE_PSEUDO:
 			jacob->CalcDeltaThetasPseudoinverse();	// Pure pseudoinverse method
 			break;

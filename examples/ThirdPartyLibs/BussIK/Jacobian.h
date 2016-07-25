@@ -9,7 +9,7 @@
 *
 *
 * Author: Samuel R. Buss, sbuss@ucsd.edu.
-* Web page: http://math.ucsd.edu/~sbuss/MathCG
+* Web page: http://www.math.ucsd.edu/~sbuss/ResearchWeb/ikmethods/index.html
 *
 *
 This software is provided 'as-is', without any express or implied warranty.
@@ -72,7 +72,6 @@ public:
 	double UpdateErrorArray();		// Returns sum of errors
 	const VectorRn& GetErrorArray() const { return errorArray; }
 	void UpdatedSClampValue();
-	void DrawEigenVectors() const;
 
 	void SetCurrentMode( UpdateMode mode ) { CurrentUpdateMode = mode; }
 	UpdateMode GetCurrentMode() const { return CurrentUpdateMode; }

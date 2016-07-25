@@ -136,6 +136,10 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(0, "Inverse Kinematics"),
 	ExampleEntry(1, "SDLS", "Selectively Damped Least Squares by Sam Buss. Example configures the IK tree of a Kuka IIWA", InverseKinematicsExampleCreateFunc, IK_SDLS),
 	ExampleEntry(1, "DLS", "Damped Least Squares by Sam Buss. Example configures the IK tree of a Kuka IIWA", InverseKinematicsExampleCreateFunc, IK_DLS),
+    ExampleEntry(1, "DLS-SVD", "Damped Least Squares with Singular Value Decomposition by Sam Buss. Example configures the IK tree of a Kuka IIWA", InverseKinematicsExampleCreateFunc, IK_DLS_SVD),
+
+    
+    
 	ExampleEntry(1, "Jacobi Transpose", "Jacobi Transpose by Sam Buss. Example configures the IK tree of a Kuka IIWA", InverseKinematicsExampleCreateFunc, IK_JACOB_TRANS),
 	ExampleEntry(1, "Jacobi Pseudo Inv", "Jacobi Pseudo Inverse Method by Sam Buss. Example configures the IK tree of a Kuka IIWA", InverseKinematicsExampleCreateFunc, IK_PURE_PSEUDO),
 

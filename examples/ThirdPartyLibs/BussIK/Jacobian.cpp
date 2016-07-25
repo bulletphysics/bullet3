@@ -8,7 +8,7 @@
 *
 *
 * Author: Samuel R. Buss, sbuss@ucsd.edu.
-* Web page: http://math.ucsd.edu/~sbuss/MathCG
+* Web page: http://www.math.ucsd.edu/~sbuss/ResearchWeb/ikmethods/index.html
 *
 *
 This software is provided 'as-is', without any express or implied warranty.
@@ -30,7 +30,6 @@ subject to the following restrictions:
 #include <iostream>
 using namespace std;
 
-#include "../OpenGLWindow/OpenGLInclude.h"
 
 #include "Jacobian.h"
 
@@ -468,35 +467,7 @@ void Jacobian::UpdatedSClampValue()
 	}
 }
 
-void Jacobian::DrawEigenVectors() const
-{
-	int i, j;
-	VectorR3 tail;
-	VectorR3 head;
-	Node *node;
 
-	for (i=0; i<w.GetLength(); i++) {
-		if ( NearZero( w[i], 1.0e-10 ) ) {
-			continue;
-		}
-		for (j=0; j<nEffector; j++) {
-			node = tree->GetEffector(j);
-			tail = node->GetS();
-			U.GetTriple( j, i, &head );
-			head += tail;
-			glDisable(GL_LIGHTING);
-			glColor3f(1.0f, 0.2f, 0.0f);
-			glLineWidth(2.0);
-			glBegin(GL_LINES);
-			glVertex3f(tail.x, tail.y, tail.z);
-			glVertex3f(head.x, head.y, tail.z);
-			glEnd();
-			Arrow(tail, head);
-			glLineWidth(1.0);
-			glEnable(GL_LIGHTING);
-		}
-	}
-}
 
 void Jacobian::CompareErrors( const Jacobian& j1, const Jacobian& j2, double* weightedDist1, double* weightedDist2 )
 {
