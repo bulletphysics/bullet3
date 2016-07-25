@@ -13,16 +13,11 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef R2D2_GRASP_EXAMPLE_H
-#define R2D2_GRASP_EXAMPLE_H
-
-enum RobotLearningExampleOptions
-{
-	eROBOTIC_LEARN_GRASP=1,
-	eROBOTIC_LEARN_COMPLIANT_CONTACT=2,
-};
-
-class CommonExampleInterface*    R2D2GraspExampleCreateFunc(struct CommonExampleOptions& options);
+#ifndef GRIPPER_GRASP_EXAMPLE_H
+#define GRIPPER_GRASP_EXAMPLE_H
 
 
-#endif //R2D2_GRASP_EXAMPLE_H
+class CommonExampleInterface*    GripperGraspExampleCreateFunc(struct CommonExampleOptions& options);
+
+
+#endif //GRIPPER_GRASP_EXAMPLE_H
