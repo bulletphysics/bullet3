@@ -171,10 +171,10 @@ protected:
             
             b3JointControlSetDesiredPosition(commandHandle, qIndex, targetPos);
             b3JointControlSetDesiredVelocity(commandHandle,uIndex,0);
-            b3JointControlSetKp(commandHandle, qIndex, 0.01);
-            b3JointControlSetKd(commandHandle, uIndex, 0.1);
+            b3JointControlSetKp(commandHandle, qIndex, 0.2);
+            b3JointControlSetKd(commandHandle, uIndex, 1.);
             
-            b3JointControlSetMaximumForce(commandHandle,uIndex,1000);
+            b3JointControlSetMaximumForce(commandHandle,uIndex,5000);
         }
 	}
 	virtual void	physicsDebugDraw(int debugFlags)
