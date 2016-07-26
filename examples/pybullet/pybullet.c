@@ -294,27 +294,29 @@ pybullet_resetSimulation(PyObject* self, PyObject* args)
 
 static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
 {
-    //todo(erwincoumans): set max forces, kp, kd
+    //TODO(matkelcey): should this just be three methods?
 
     int size;
     int bodyIndex, jointIndex, controlMode;
     double targetValue=0;
+    double targetPosition=0;
+    double targetVelocity=0;
     double maxForce=100000;
-    double gains=0.1;
+    double kp=0.1;
+    double kd=0.1;
     int valid = 0;
-     
-     
+
     if (0==sm)
     {
         PyErr_SetString(SpamError, "Not connected to physics server.");
         return NULL;
     }
-    
+
     size= PySequence_Size(args);
-    
     if (size==4)
     {
-        
+        // for CONTROL_MODE_VELOCITY targetValue -> velocity
+        // for CONTROL_MODE_TORQUE targetValue -> force torque
         if (!PyArg_ParseTuple(args, "iiid", &bodyIndex, &jointIndex, &controlMode, &targetValue))
         {
             PyErr_SetString(SpamError, "Error parsing arguments");
@@ -324,7 +326,8 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
     }
     if (size==5)
     {
-        
+        // for CONTROL_MODE_VELOCITY targetValue -> velocity
+        // for CONTROL_MODE_TORQUE targetValue -> force torque
         if (!PyArg_ParseTuple(args, "iiidd", &bodyIndex, &jointIndex, &controlMode, &targetValue, &maxForce))
         {
             PyErr_SetString(SpamError, "Error parsing arguments");
@@ -332,20 +335,31 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
         }
         valid = 1;
     }
-    if (size==6)
+    if (size==8)
     {
-        
-        if (!PyArg_ParseTuple(args, "iiiddd", &bodyIndex, &jointIndex, &controlMode, &targetValue, &maxForce, &gains))
+        // only applicable for CONTROL_MODE_POSITION_VELOCITY_PD.
+        if (!PyArg_ParseTuple(args, "iiiddddd", &bodyIndex, &jointIndex, &controlMode, &targetPosition, &targetVelocity, &maxForce, &kp, &kd))
         {
             PyErr_SetString(SpamError, "Error parsing arguments");
             return NULL;
         }
         valid = 1;
     }
-    
-    
+
+    if (size==8 && controlMode!=CONTROL_MODE_POSITION_VELOCITY_PD)
+    {
+        PyErr_SetString(SpamError, "8 argument call only applicable for control mode CONTROL_MODE_POSITION_VELOCITY_PD");
+        return NULL;
+    }
+    if (controlMode==CONTROL_MODE_POSITION_VELOCITY_PD && size!=8)
+    {
+        PyErr_SetString(SpamError, "For CONTROL_MODE_POSITION_VELOCITY_PD please call with explicit targetPosition & targetVelocity");
+        return NULL;
+    }
+
     if (valid)
     {
+
         int numJoints;
         b3SharedMemoryCommandHandle commandHandle;
         b3SharedMemoryStatusHandle statusHandle;
@@ -357,7 +371,7 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
             PyErr_SetString(SpamError, "Joint index out-of-range.");
             return NULL;
         }
-        
+
         if ((controlMode != CONTROL_MODE_VELOCITY) &&
             (controlMode != CONTROL_MODE_TORQUE) &&
             (controlMode != CONTROL_MODE_POSITION_VELOCITY_PD))
@@ -365,19 +379,18 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
             PyErr_SetString(SpamError, "Illegral control mode.");
             return NULL;
         }
-        
+
         commandHandle = b3JointControlCommandInit2(sm, bodyIndex,controlMode);
-         
+
         b3GetJointInfo(sm, bodyIndex, jointIndex, &info);
-        
+
         switch (controlMode)
         {
             case CONTROL_MODE_VELOCITY:
             {
-				double kd = gains;
                 b3JointControlSetDesiredVelocity(commandHandle, info.m_uIndex, targetValue);
-                b3JointControlSetKd(commandHandle,info.m_uIndex,kd);
-                b3JointControlSetMaximumForce(commandHandle,info.m_uIndex,maxForce);
+                b3JointControlSetKd(commandHandle, info.m_uIndex, kd);
+                b3JointControlSetMaximumForce(commandHandle, info.m_uIndex, maxForce);
                 break;
             }
 
@@ -386,30 +399,29 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
                 b3JointControlSetDesiredForceTorque(commandHandle, info.m_uIndex, targetValue);
                 break;
             }
-                    
+
             case CONTROL_MODE_POSITION_VELOCITY_PD:
             {
-				double kp = gains;
-                b3JointControlSetDesiredPosition( commandHandle, info.m_qIndex, targetValue);
-                b3JointControlSetKp(commandHandle,info.m_uIndex,kp);
-                b3JointControlSetMaximumForce(commandHandle,info.m_uIndex,maxForce);
+                b3JointControlSetDesiredPosition(commandHandle, info.m_qIndex, targetPosition);
+                b3JointControlSetKp(commandHandle, info.m_uIndex, kp);
+                b3JointControlSetDesiredVelocity(commandHandle, info.m_uIndex, targetVelocity);
+                b3JointControlSetKd(commandHandle, info.m_uIndex, kd);
+                b3JointControlSetMaximumForce(commandHandle, info.m_uIndex, maxForce);
                 break;
             }
             default:
             {
             }
         };
-        
+
         statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
-        
+
         Py_INCREF(Py_None);
         return Py_None;
     }
-    PyErr_SetString(SpamError, "error in setJointControl.");
+    PyErr_SetString(SpamError, "Invalid number of args passed to setJointControl.");
     return NULL;
 }
-
-
 
 static PyObject *
 pybullet_setRealTimeSimulation(PyObject* self, PyObject* args)
