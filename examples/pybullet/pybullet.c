@@ -335,6 +335,15 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
         }
         valid = 1;
     }
+    if (size==6)
+    {
+        if (!PyArg_ParseTuple(args, "iiiddd", &bodyIndex, &jointIndex, &controlMode, &targetValue, &maxForce, &kd))
+        {
+            PyErr_SetString(SpamError, "Error parsing arguments");
+            return NULL;
+        }
+        valid = 1;
+    }
     if (size==8)
     {
         // only applicable for CONTROL_MODE_POSITION_VELOCITY_PD.
