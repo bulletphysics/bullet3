@@ -294,8 +294,6 @@ pybullet_resetSimulation(PyObject* self, PyObject* args)
 
 static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
 {
-    //TODO(matkelcey): should this just be three methods?
-
     int size;
     int bodyIndex, jointIndex, controlMode;
     double targetValue=0;
@@ -303,7 +301,7 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
     double targetVelocity=0;
     double maxForce=100000;
     double kp=0.1;
-    double kd=0.1;
+    double kd=1.0;
     int valid = 0;
 
     if (0==sm)
