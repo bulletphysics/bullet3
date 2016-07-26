@@ -232,6 +232,13 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
         if (mass)
         {
         	compoundShape->calculateLocalInertia(mass, localInertiaDiagonal);
+            URDFLinkContactInfo contactInfo;
+            u2b.getLinkContactInfo(urdfLinkIndex,contactInfo);
+            //temporary inertia scaling until we load inertia from URDF
+            if (contactInfo.m_flags & URDF_CONTACT_HAS_INERTIA_SCALING)
+            {
+                localInertiaDiagonal*=contactInfo.m_inertiaScaling;
+            }
         }
 
         btRigidBody* linkRigidBody = 0;

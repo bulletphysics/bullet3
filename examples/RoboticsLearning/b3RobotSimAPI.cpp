@@ -560,6 +560,7 @@ void b3RobotSimAPI::setJointMotorControl(int bodyUniqueId, int jointIndex, const
 			b3JointInfo jointInfo;
 			b3GetJointInfo(m_data->m_physicsClient, bodyUniqueId, jointIndex, &jointInfo);
 			int uIndex = jointInfo.m_uIndex;
+            b3JointControlSetKd(command,uIndex,args.m_kd);
 			b3JointControlSetDesiredVelocity(command,uIndex,args.m_targetVelocity);
 			b3JointControlSetMaximumForce(command,uIndex,args.m_maxTorqueValue);
 			statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClient, command);
@@ -627,6 +628,7 @@ bool b3RobotSimAPI::loadFile(const struct b3RobotSimLoadFileArgs& args, b3RobotS
 				}
 				statusHandle = submitClientCommandAndWaitStatusMultiThreaded(m_data->m_physicsClient, command);
 				statusType = b3GetStatusType(statusHandle);
+
 				b3Assert(statusType==CMD_URDF_LOADING_COMPLETED);
 				robotUniqueId = b3GetStatusBodyIndex(statusHandle);
 				results.m_uniqueObjectIds.push_back(robotUniqueId);

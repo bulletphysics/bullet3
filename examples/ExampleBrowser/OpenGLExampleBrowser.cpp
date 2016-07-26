@@ -519,6 +519,8 @@ void MyStatusBarError(const char* msg)
 		gui2->textOutput(msg);
 		gui2->forceUpdateScrollBars();
 	}
+    btAssert(0);
+
 }
 
 struct MyMenuItemHander :public Gwen::Event::Handler
@@ -800,6 +802,7 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
         s_app = new SimpleOpenGL2App(title,width,height);
         s_app->m_renderer = new SimpleOpenGL2Renderer(width,height);
     } 
+
 #ifndef NO_OPENGL3
 	else
     {
