@@ -753,8 +753,10 @@ void SimpleOpenGL3App::swapBuffer()
 	m_window->endRendering();
 	if (m_data->m_frameDumpPngFileName)
     {
-        writeTextureToFile((int)m_window->getRetinaScale()*m_instancingRenderer->getScreenWidth(),
-                          (int) m_window->getRetinaScale()*this->m_instancingRenderer->getScreenHeight(),m_data->m_frameDumpPngFileName,
+        int width = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenWidth();
+        int height = (int) m_window->getRetinaScale()*this->m_instancingRenderer->getScreenHeight();
+        writeTextureToFile(width,
+                          height,m_data->m_frameDumpPngFileName,
                           m_data->m_ffmpegFile);
         m_data->m_renderTexture->disable();
         if (m_data->m_ffmpegFile==0)

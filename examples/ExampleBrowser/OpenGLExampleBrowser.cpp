@@ -157,6 +157,7 @@ void deleteDemo()
 }
 
 const char* gPngFileName = 0;
+int gPngSkipFrames = 0;
 
 
 
@@ -763,7 +764,7 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 	loadCurrentSettings(startFileName, args);
 
 	args.GetCmdLineArgument("fixed_timestep",gFixedTimeStep);
-	
+	args.GetCmdLineArgument("png_skip_frames", gPngSkipFrames);	
 	///The OpenCL rigid body pipeline is experimental and 
 	///most OpenCL drivers and OpenCL compilers have issues with our kernels.
 	///If you have a high-end desktop GPU such as AMD 7970 or better, or NVIDIA GTX 680 with up-to-date drivers
@@ -1101,24 +1102,6 @@ void OpenGLExampleBrowser::update(float deltaTime)
 				//printf("---------------------------------------------------\n");
 				//printf("Framecount = %d\n",frameCount);
 
-				if (gPngFileName)
-				{
-					
-					static int skip = 0;
-					skip++;
-					if (skip>4)
-					{
-						skip=0;
-						//printf("gPngFileName=%s\n",gPngFileName);
-						static int s_frameCount = 100;
-						
-						sprintf(staticPngFileName,"%s%d.png",gPngFileName,s_frameCount++);
-						//b3Printf("Made screenshot %s",staticPngFileName);
-						s_app->dumpNextFrameToPng(staticPngFileName);
-						 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
-					}
-				}
-				
 
 				if (gFixedTimeStep>0)
 				{
@@ -1152,6 +1135,25 @@ void OpenGLExampleBrowser::update(float deltaTime)
                 sCurrentDemo->physicsDebugDraw(gDebugDrawFlags);
             }
 		}
+
+				if (gPngFileName)
+				{
+
+					static int skip = 0;
+					skip--;
+					if (skip<0)
+					{
+						skip=gPngSkipFrames;
+						//printf("gPngFileName=%s\n",gPngFileName);
+						static int s_frameCount = 100;
+
+						sprintf(staticPngFileName,"%s%d.png",gPngFileName,s_frameCount++);
+						//b3Printf("Made screenshot %s",staticPngFileName);
+						s_app->dumpNextFrameToPng(staticPngFileName);
+						 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+					}
+				}
+
 
 		{
 			

@@ -84,7 +84,7 @@ void Reset(Tree &tree, Jacobian* m_ikJacobian)
 // Update target positions
 
 void UpdateTargets( double T2, Tree & treeY) {
-	double T = T2 / 20.;
+	double T = T2 / 5.;
 	target1[0].Set(0.6*b3Sin(0), 0.6*b3Cos(0), 0.5+0.4*b3Sin(3 * T));
 }
 
