@@ -399,4 +399,4 @@ inline void MatrixRmn::AddArrayScale( long length, const double* from, long from
 
 
 
-#endif MATRIX_RMN_H
+#endif //MATRIX_RMN_H
