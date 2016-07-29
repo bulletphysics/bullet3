@@ -750,7 +750,7 @@ static void writeTextureToFile(int textureWidth, int textureHeight, const char* 
 
 void SimpleOpenGL3App::swapBuffer()
 {
-	m_window->endRendering();
+
 	if (m_data->m_frameDumpPngFileName)
     {
         int width = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenWidth();
@@ -764,7 +764,8 @@ void SimpleOpenGL3App::swapBuffer()
 			m_data->m_frameDumpPngFileName = 0;
         }
     }
-	m_window->startRendering();
+ m_window->endRendering();
+        m_window->startRendering();
 }
 
 // see also http://blog.mmacklin.com/2013/06/11/real-time-video-capture-with-ffmpeg/
@@ -775,12 +776,15 @@ void SimpleOpenGL3App::dumpFramesToVideo(const char* mp4FileName)
     char cmd[8192];
 
 #ifdef _WIN32
-    sprintf(cmd, "ffmpeg -r 60 -f rawvideo -pix_fmt rgba   -s %dx%d -i - "
-    		"-y -crf 0  -b:v 1500000 -an -vcodec h264 -vf vflip  %s", width, height, mp4FileName);
+	sprintf(cmd, "ffmpeg -r 60 -f rawvideo -pix_fmt rgba -s %dx%d -i - "
+		"-threads 0 -y -b 50000k  -t 20 -c:v libx264 -preset slow -crf 22 -an   -pix_fmt yuv420p -vf vflip %s", width, height, mp4FileName);
+
+    //sprintf(cmd, "ffmpeg -r 60 -f rawvideo -pix_fmt rgba   -s %dx%d -i - "
+    //		"-y -crf 0  -b:v 1500000 -an -vcodec h264 -vf vflip  %s", width, height, mp4FileName);
 #else
    
    sprintf(cmd, "ffmpeg -r 60 -f rawvideo -pix_fmt rgba -s %dx%d -i - "
-    		"-threads 0 -y -crf 0 -b 50000k -vf vflip %s", width, height, mp4FileName);
+    		"-threads 0 -y -b 50000k  -t 20 -c:v libx264 -preset slow -crf 22 -an   -pix_fmt yuv420p -vf vflip %s", width, height, mp4FileName);
 #endif
     
     //sprintf(cmd,"ffmpeg -r 60 -f rawvideo -pix_fmt rgba -s %dx%d -i - "
