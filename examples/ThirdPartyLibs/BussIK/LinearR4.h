@@ -580,8 +580,11 @@ inline Matrix4x4::Matrix4x4 ( const Matrix4x4& A)
 
 inline void Matrix4x4::SetIdentity ( )
 {
-	m11 = m22 = m33 = m44 = 1.0;
-	m12 = m13 = m14 = m21 = m23 = m24 = m13 = m23 = m41= m42 = m43 = 0.0;
+          m12 =  m13 = m14 = 
+    m21 =        m23 = m24 = 
+    m31 = m32 =        m34 =
+    m41 = m42 = m43 =        0.0;
+    m11 = m22 = m33 =  m44 = 1.0;
 }
 
 inline void Matrix4x4::Set( const VectorR4& u, const VectorR4& v, 
