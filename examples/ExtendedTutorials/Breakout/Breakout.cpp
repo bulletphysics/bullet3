@@ -28,6 +28,8 @@ subject to the following restrictions:
 #define BRICKS_PER_COL 8
 #define BRICKS_PER_ROW 9
 
+//TODO: Cleanup objects in exitPhysics
+
 struct BreakoutExample : public CommonRigidBodyBase
 {
 	BreakoutExample(struct GUIHelperInterface* helper)
@@ -58,8 +60,37 @@ struct BreakoutExample : public CommonRigidBodyBase
 	btVector3 m_last_ball_direction;
 };
 
+bool objectContactProcessedCallback(btManifoldPoint& cp,
+                                void* body0, void* body1)
+{
+    btCollisionObject* obA = static_cast<btCollisionObject*>(body0);
+    btCollisionObject* obB = static_cast<btCollisionObject*>(body1);
+
+	//6
+	GameObject* pnA = (GameObject*)obA->getUserPointer();
+	GameObject* pnB = (GameObject*)obB->getUserPointer();
+
+	//
+	btTransform removePosition = btTransform(btQuaternion(),btVector3(100,100,100));
+	if (pnA && pnA->m_tag == GameObject::BRICK) {
+		pnA->m_body->setWorldTransform(removePosition); //TODO: Fix this with correct graphical removal
+//	                	m_dynamicsWorld->removeRigidBody(pnA->m_body);
+	}
+
+	//8
+	if (pnB && pnB->m_tag == GameObject::BRICK){
+		pnB->m_body->setWorldTransform(removePosition); //TODO: Fix this with correct graphical removal
+//	                    m_dynamicsWorld->removeRigidBody(pnB->m_body);
+	}
+
+
+    return false;
+}
+
 void BreakoutExample::initPhysics()
 {
+
+//	gContactProcessedCallback = objectContactProcessedCallback;
 
 	m_guiHelper->setUpAxis(1);
 
@@ -163,6 +194,7 @@ void BreakoutExample::stepSimulation(float deltaTime){
 	m_last_ball_direction = m_ball->m_body->getLinearVelocity();
 	m_ball->m_body->setLinearVelocity(newVelocity);
 
+	m_ball->m_body->setAngularVelocity(btVector3(0,0,0)); // cancel rotation
 }
 
 bool BreakoutExample::keyboardCallback(int key, int state) {
