@@ -34,6 +34,8 @@ class btDefaultCollisionConfiguration;
 
 //TODO: Maybe add pointworldToLocal and AxisWorldToLocal etc. to a helper class
 
+//TODO: How to detect perpetually interpenetrating btRigidBodies? (Maybe contactpoints can tell us something)
+
 btVector3 getPointWorldToLocal(btTransform localObjectCenterOfMassTransform, btVector3 point);
 btVector3 getPointLocalToWorld(btTransform localObjectCenterOfMassTransform, btVector3 point);
 
@@ -105,7 +107,7 @@ static NN3DWalkers* nn3DWalkers = NULL;
 void* GROUND_ID = (void*)1;
 bool RANDOM_MOVEMENT = false;
 
-bool RANDOM_DIMENSIONS = true;
+bool RANDOM_DIMENSIONS = false;
 
 #define NUM_LEGS 6
 #define BODYPART_COUNT (2 * NUM_LEGS + 1)
@@ -117,7 +119,7 @@ class NNWalker
 	btCollisionShape*	m_shapes[BODYPART_COUNT];
 	btRigidBody*		m_bodies[BODYPART_COUNT];
 	btTypedConstraint*	m_joints[JOINT_COUNT];
-	std::map<void*,int>			m_bodyIndexMap;
+	std::map<void*,int>	m_bodyTouchSensorIndexMap;
 	bool 				m_touchSensors[BODYPART_COUNT];
 	float 				m_sensoryMotorWeights[BODYPART_COUNT*JOINT_COUNT];
 
@@ -244,7 +246,7 @@ public:
 			//m_bodies[i]->setSleepingThresholds(1.6, 2.5);
 			m_bodies[i]->setSleepingThresholds(0.5f, 0.5f);
 			m_bodies[i]->setUserPointer(this);
-			m_bodyIndexMap.insert(std::pair<void*,int>(m_bodies[i],i));
+			m_bodyTouchSensorIndexMap.insert(std::pair<void*,int>(m_bodies[i],i));
 
 		}
 	}
@@ -275,7 +277,7 @@ public:
 	btTypedConstraint** getJoints() {return &m_joints[0];}
 
 	void setTouchSensor(void* bodyPointer){
-		m_touchSensors[m_bodyIndexMap.at(bodyPointer)] = true;
+		m_touchSensors[m_bodyTouchSensorIndexMap.at(bodyPointer)] = true;
 	}
 
 	void clearTouchSensors(){
@@ -439,7 +441,7 @@ void NN3DWalkers::initPhysics()
 	for(int i = 0; i < 5 ; i++){
 		for(int j = 0; j < 5; j++){
 
-			float maxDimension = 0.3f;
+			float maxDimension = 0.2f;
 
 			if(RANDOM_DIMENSIONS){
 				// randomize the dimensions
