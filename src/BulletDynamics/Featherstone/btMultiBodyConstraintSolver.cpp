@@ -634,13 +634,14 @@ void	btMultiBodyConstraintSolver::convertMultiBodyContact(btPersistentManifold* 
 #define ENABLE_FRICTION
 #ifdef ENABLE_FRICTION
 			solverConstraint.m_frictionIndex = frictionIndex;
-#if ROLLING_FRICTION
+//#define ROLLING_FRICTION
+#ifdef ROLLING_FRICTION
 	int rollingFriction=1;
 			btVector3 angVelA(0,0,0),angVelB(0,0,0);
-			if (rb0)
-				angVelA = rb0->getAngularVelocity();
-			if (rb1)
-				angVelB = rb1->getAngularVelocity();
+			if (mbA)
+				angVelA = mbA->getVelocityVector()>getLink(fcA->m_link).l>getAngularVelocity();
+			if (mbB)
+				angVelB = mbB->getAngularVelocity();
 			btVector3 relAngVel = angVelB-angVelA;
 
 			if ((cp.m_combinedRollingFriction>0.f) && (rollingFriction>0))

@@ -4,7 +4,7 @@
 #include <mach-o/dyld.h>	/* _NSGetExecutablePath */
 #else
 #ifdef _WIN32
-#include <Windows.h>
+#include <windows.h>
 #else
 //not Mac, not Windows, let's cross the fingers it is Linux :-)
 #include <unistd.h>
@@ -33,8 +33,10 @@ int b3ResourcePath::getExePath(char* path, int maxPathLenInBytes)
 #else
 #ifdef _WIN32
 	//https://msdn.microsoft.com/en-us/library/windows/desktop/ms683197(v=vs.85).aspx
+
 	HMODULE hModule = GetModuleHandle(NULL);
-	numBytes = GetModuleFileName(hModule, path, maxPathLenInBytes);
+	numBytes = GetModuleFileNameA(hModule, path, maxPathLenInBytes);
+
 #else
 	///http://stackoverflow.com/questions/933850/how-to-find-the-location-of-the-executable-in-c
 	numBytes = (int)readlink("/proc/self/exe", path, maxPathLenInBytes-1);
@@ -77,6 +79,12 @@ int b3ResourcePath::findResourcePath(const char* resourceName, char* resourcePat
 				{
 					return strlen(resourcePath);
 				}
+         sprintf(resourcePath,"%s.runfiles/google3/third_party/bullet/data/%s",exePath,resourceName);
+				//printf("try resource at %s\n", resourcePath);	
+				if (b3FileUtils::findFile(resourcePath, resourcePath, resourcePathMaxNumBytes))
+				{
+					return strlen(resourcePath);
+				}  
         	}
 	}
 

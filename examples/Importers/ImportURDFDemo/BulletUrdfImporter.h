@@ -37,6 +37,8 @@ public:
     virtual std::string getLinkName(int linkIndex) const;
 
 	virtual bool getLinkColor(int linkIndex, btVector4& colorRGBA) const;
+
+	virtual bool getLinkContactInfo(int linkIndex, URDFLinkContactInfo& contactInfo ) const;
 	
     virtual std::string getJointName(int linkIndex) const;
     

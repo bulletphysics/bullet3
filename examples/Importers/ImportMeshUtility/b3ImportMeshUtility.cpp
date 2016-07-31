@@ -1,15 +1,12 @@
 #include "b3ImportMeshUtility.h"
 
 #include <vector>
-#include "../../OpenGLWindow/GLInstancingRenderer.h"
-#include"Wavefront/tiny_obj_loader.h"
-#include "../../OpenGLWindow/GLInstanceGraphicsShape.h"
-#include "btBulletDynamicsCommon.h"
-#include "../../OpenGLWindow/SimpleOpenGL3App.h"
+#include"../../ThirdPartyLibs/Wavefront/tiny_obj_loader.h"
+#include "LinearMath/btVector3.h"
 #include "../ImportObjDemo/Wavefront2GLInstanceGraphicsShape.h"
 #include "../../Utils/b3ResourcePath.h"
 #include "Bullet3Common/b3FileUtils.h"
-#include "stb_image/stb_image.h"
+#include "../../ThirdPartyLibs/stb_image/stb_image.h"
 
 
 bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string& fileName, b3ImportMeshData& meshData)
@@ -88,28 +85,4 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 	return false;
 }
 
-int b3ImportMeshUtility::loadAndRegisterMeshFromFile(const std::string& fileName, CommonRenderInterface* renderer)
-{
-	int shapeId = -1;
 
-	b3ImportMeshData meshData;
-	if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(fileName, meshData))
-	{
-		int textureIndex = -1;
-
-		if (meshData.m_textureImage)
-		{
-			textureIndex = renderer->registerTexture(meshData.m_textureImage,meshData.m_textureWidth,meshData.m_textureHeight);
-		}
-
-		shapeId = renderer->registerShape(&meshData.m_gfxShape->m_vertices->at(0).xyzw[0], 
-									meshData.m_gfxShape->m_numvertices, 
-									&meshData.m_gfxShape->m_indices->at(0), 
-									meshData.m_gfxShape->m_numIndices,
-									B3_GL_TRIANGLES,
-									textureIndex);
-		delete meshData.m_gfxShape;
-		delete meshData.m_textureImage;
-	}
-	return shapeId;
-}

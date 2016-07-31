@@ -8,7 +8,7 @@
 
 #include "urdfStringSplit.h"
 
-void urdfStringSplit( btAlignedObjectArray<std::string>&pieces, const std::string& vector_str, btAlignedObjectArray<std::string> separators)
+void urdfStringSplit( btAlignedObjectArray<std::string>&pieces, const std::string& vector_str, const btAlignedObjectArray<std::string>& separators)
 	{
 		assert(separators.size()==1);
 		if (separators.size()==1)
@@ -20,10 +20,9 @@ void urdfStringSplit( btAlignedObjectArray<std::string>&pieces, const std::strin
 			urdfStrArrayFree(strArray);
 		}
 	}
-	btAlignedObjectArray<std::string> urdfIsAnyOf(const char* seps)
+	void urdfIsAnyOf(const char* seps, btAlignedObjectArray<std::string>& strArray)
 	{
-		btAlignedObjectArray<std::string> strArray;
-
+	
 		int numSeps = strlen(seps);
 		for (int i=0;i<numSeps;i++)
 		{
@@ -32,8 +31,6 @@ void urdfStringSplit( btAlignedObjectArray<std::string>&pieces, const std::strin
 			sep2[0] = seps[i];
 			strArray.push_back(sep2);
 		}
-		return strArray;
-		
 	}
 
 

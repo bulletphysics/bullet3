@@ -26,6 +26,8 @@ public:
 
 	virtual void processClientCommands();
 
+	virtual void stepSimulationRealTime(double dtInSec);
+
 	//bool	supportsJointMotor(class btMultiBody* body, int linkIndex);
 
 	//@todo(erwincoumans) Should we have shared memory commands for picking objects?
@@ -43,6 +45,7 @@ public:
 	void enableCommandLogging(bool enable, const char* fileName);
 	void replayFromLogFile(const char* fileName);
 	
+	void resetDynamicsWorld();
 
 };
 

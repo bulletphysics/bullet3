@@ -6,10 +6,15 @@
    		osversion.majorversion, osversion.minorversion, osversion.revision,
    		osversion.description))
 
-
-	-- Multithreaded compiling
 	if _ACTION == "vs2010" or _ACTION=="vs2008" then
-		buildoptions { "/MP"  }
+		buildoptions
+		{
+			-- Multithreaded compiling
+			"/MP",
+			-- Disable a few useless warnings
+			"/wd4244",
+			"/wd4267"
+		}
 	end
 
 	act = ""
@@ -29,6 +34,11 @@
 		description = "Try to link and use the system OpenGL headers version instead of dynamically loading OpenGL (dlopen is default)"
 	}
 
+	newoption
+	{
+		trigger = "enable_openvr",
+		description = "Enable experimental Virtual Reality examples, using OpenVR for HTC Vive and Oculus Rift"
+	}
 	newoption
 	{
 		trigger = "enable_system_x11",

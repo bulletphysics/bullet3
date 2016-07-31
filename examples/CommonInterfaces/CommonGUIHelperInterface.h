@@ -29,10 +29,11 @@ struct GUIHelperInterface
 
 	virtual void createPhysicsDebugDrawer( btDiscreteDynamicsWorld* rbWorld)=0;
 
-	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices) =0;
-
+	virtual int	registerTexture(const unsigned char* texels, int width, int height)=0;
+	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType, int textureId) = 0;
 	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling) =0;
-
+    virtual void removeAllGraphicsInstances()=0;
+	
 	virtual Common2dCanvasInterface* get2dCanvasInterface()=0;
 	
 	virtual CommonParameterInterface* getParameterInterface()=0;
@@ -45,7 +46,7 @@ struct GUIHelperInterface
 
 	virtual void resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ)=0;
 	
-	virtual void copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int* width, int* height, int* numPixelsCopied)=0;
+	virtual void copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16], unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int destinationWidth, int destinationHeight, int* numPixelsCopied)=0;
 
 	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld) =0;
 	
@@ -73,10 +74,11 @@ struct DummyGUIHelper : public GUIHelperInterface
 
 	virtual void createPhysicsDebugDrawer( btDiscreteDynamicsWorld* rbWorld){}
 
-	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices) { return -1; }
-
-	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling) { return -1;}
-
+	virtual int	registerTexture(const unsigned char* texels, int width, int height){return -1;}
+	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType, int textureId){return -1;}
+	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling) {return -1;}
+    virtual void removeAllGraphicsInstances(){}
+	
 	virtual Common2dCanvasInterface* get2dCanvasInterface()
 	{
 		return 0;
@@ -105,12 +107,8 @@ struct DummyGUIHelper : public GUIHelperInterface
 	{
 	}
 
-	virtual void copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int* width, int* height, int* numPixelsCopied)
+	virtual void copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16], unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int width, int height, int* numPixelsCopied)
 	{
-	     if (width)
-            *width = 0;
-        if (height)
-            *height = 0;
         if (numPixelsCopied)
             *numPixelsCopied = 0;
 	}

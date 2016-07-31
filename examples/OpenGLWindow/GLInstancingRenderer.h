@@ -56,7 +56,7 @@ public:
 	void InitShaders();
 	void CleanupShaders();
 	virtual void removeAllInstances();
-
+	
 	virtual void updateShape(int shapeIndex, const float* vertices);
 
 	///vertices must be in the format x,y,z, nx,ny,nz, u,v
@@ -95,6 +95,9 @@ public:
 	virtual void writeSingleInstanceColorToCPU(float* color, int srcIndex);
 	virtual void writeSingleInstanceColorToCPU(double* color, int srcIndex);
 
+	virtual void writeSingleInstanceScaleToCPU(float* scale, int srcIndex);
+	virtual void writeSingleInstanceScaleToCPU(double* scale, int srcIndex);
+
 	
 	virtual struct	GLInstanceRendererInternalData* getInternalData();
 
@@ -125,6 +128,8 @@ public:
 	
 	virtual int getInstanceCapacity() const;
 	
+	virtual int getTotalNumInstances() const;
+	
 	virtual void enableShadowMap();
     virtual void enableBlend(bool blend)
     {
@@ -132,6 +137,7 @@ public:
     }
 	virtual void clearZBuffer();
 
+	virtual void setRenderFrameBuffer(unsigned int renderFrameBuffer);
 };
 
 #endif //GL_INSTANCING_RENDERER_H

@@ -4883,18 +4883,33 @@ static const unsigned char s_FontFixed1[] = {
 
 void TwGenerateDefaultFonts()
 {
-    g_DefaultSmallFont = TwGenerateFont(s_Font0, FONT0_BM_W, FONT0_BM_H);
-    assert(g_DefaultSmallFont && g_DefaultSmallFont->m_NbCharRead==224);
+	if (g_DefaultSmallFont == 0)
+	{
+		g_DefaultSmallFont = TwGenerateFont(s_Font0, FONT0_BM_W, FONT0_BM_H);
+		assert(g_DefaultSmallFont && g_DefaultSmallFont->m_NbCharRead == 224);
+	}
 
-	g_DefaultNormalFont = TwGenerateFont(s_Font1, FONT1_BM_W, FONT1_BM_H);
-    assert(g_DefaultNormalFont && g_DefaultNormalFont->m_NbCharRead==224);
+	if (g_DefaultNormalFont == 0)
+	{
+		g_DefaultNormalFont = TwGenerateFont(s_Font1, FONT1_BM_W, FONT1_BM_H);
+		assert(g_DefaultNormalFont && g_DefaultNormalFont->m_NbCharRead == 224);
+	}
 
-    g_DefaultNormalFontAA = TwGenerateFont(s_Font1AA, FONT1AA_BM_W, FONT1AA_BM_H);
-    assert(g_DefaultNormalFontAA && g_DefaultNormalFontAA->m_NbCharRead==224);
-    g_DefaultLargeFont = TwGenerateFont(s_Font2AA, FONT2AA_BM_W, FONT2AA_BM_H);
-    assert(g_DefaultLargeFont && g_DefaultLargeFont->m_NbCharRead==224);
-    g_DefaultFixed1Font = TwGenerateFont(s_FontFixed1, FONTFIXED1_BM_W, FONTFIXED1_BM_H);
-    assert(g_DefaultFixed1Font && g_DefaultFixed1Font->m_NbCharRead==224);
+	if (g_DefaultNormalFontAA == 0)
+	{
+		g_DefaultNormalFontAA = TwGenerateFont(s_Font1AA, FONT1AA_BM_W, FONT1AA_BM_H);
+		assert(g_DefaultNormalFontAA && g_DefaultNormalFontAA->m_NbCharRead == 224);
+	}
+	if (g_DefaultLargeFont == 0)
+	{
+		g_DefaultLargeFont = TwGenerateFont(s_Font2AA, FONT2AA_BM_W, FONT2AA_BM_H);
+		assert(g_DefaultLargeFont && g_DefaultLargeFont->m_NbCharRead == 224);
+	}
+	if (g_DefaultFixed1Font == 0)
+	{
+		g_DefaultFixed1Font = TwGenerateFont(s_FontFixed1, FONTFIXED1_BM_W, FONTFIXED1_BM_H);
+		assert(g_DefaultFixed1Font && g_DefaultFixed1Font->m_NbCharRead == 224);
+	}
 }
 
 //  ---------------------------------------------------------------------------

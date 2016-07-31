@@ -99,6 +99,8 @@ struct UrdfLink
 	
 	int m_linkIndex;
 	
+	URDFLinkContactInfo m_contactInfo;
+
 	UrdfLink()
 		:m_parentLink(0),
 		m_parentJoint(0)
@@ -123,6 +125,15 @@ struct UrdfJoint
 
 	double m_jointDamping;
 	double m_jointFriction;
+	UrdfJoint()
+		:m_lowerLimit(0),
+		m_upperLimit(0),
+		m_effortLimit(0),
+		m_velocityLimit(0),
+		m_jointDamping(0),
+		m_jointFriction(0)
+	{
+	}
 };
 
 struct UrdfModel
@@ -134,6 +145,13 @@ struct UrdfModel
 	btHashMap<btHashString, UrdfJoint*> m_joints;
 	
 	btArray<UrdfLink*> m_rootLinks;
+	bool m_overrideFixedBase;
+
+	UrdfModel()
+		:m_overrideFixedBase(false)
+	{
+		m_rootTransformInWorld.setIdentity();
+	}
 	
 };
 

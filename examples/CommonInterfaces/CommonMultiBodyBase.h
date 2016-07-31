@@ -63,7 +63,7 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 		///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
 		m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 
-		m_broadphase = new btDbvtBroadphase();
+		m_broadphase = new btDbvtBroadphase();//btSimpleBroadphase();
 
 		m_solver = new btMultiBodyConstraintSolver;
 
@@ -97,6 +97,20 @@ struct CommonMultiBodyBase : public CommonExampleInterface
             {
                 m_dynamicsWorld->removeConstraint(m_dynamicsWorld->getConstraint(i));
             }
+			
+			for (i = m_dynamicsWorld->getNumMultiBodyConstraints() - 1; i >= 0; i--)
+			{
+				btMultiBodyConstraint* mbc = m_dynamicsWorld->getMultiBodyConstraint(i);
+				m_dynamicsWorld->removeMultiBodyConstraint(mbc);
+				delete mbc;
+			}
+
+			for (i = m_dynamicsWorld->getNumMultibodies() - 1; i >= 0; i--)
+			{
+				btMultiBody* mb = m_dynamicsWorld->getMultiBody(i);
+				m_dynamicsWorld->removeMultiBody(mb);
+				delete mb;
+			}
 			for (i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
 			{
 				btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];

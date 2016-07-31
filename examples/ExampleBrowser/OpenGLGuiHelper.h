@@ -20,12 +20,11 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 
 	virtual void createCollisionObjectGraphicsObject(btCollisionObject* body, const btVector3& color);
 
-	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices);
-
+	virtual int	registerTexture(const unsigned char* texels, int width, int height);
+	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType, int textureId);
 	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling);
-
+	virtual void removeAllGraphicsInstances();
 	
-
 	virtual void createCollisionShapeGraphicsObject(btCollisionShape* collisionShape);
 
 	virtual void syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWorld);
@@ -45,7 +44,7 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 	
 	virtual void resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ);
 	
-	virtual void copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int* width, int* height, int* numPixelsCopied);
+	virtual void copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16], unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int destinationWidth, int destinationHeight, int* numPixelsCopied);
 
 	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld) ;
     

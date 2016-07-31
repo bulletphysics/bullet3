@@ -91,7 +91,9 @@ project ("Test_PhysicsServerLoopBack")
 			"../../examples/Importers/ImportURDFDemo/URDF2Bullet.cpp",
 			"../../examples/Importers/ImportURDFDemo/UrdfParser.cpp",
 			"../../examples/Importers/ImportURDFDemo/urdfStringSplit.cpp",
-		}
+			"../../examples/Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
+                        "../../examples/ThirdPartyLibs/stb_image/stb_image.cpp",
+	}
 		
 		project ("Test_PhysicsServerDirect")
 
@@ -157,6 +159,8 @@ project ("Test_PhysicsServerLoopBack")
 			"../../examples/Importers/ImportURDFDemo/URDF2Bullet.cpp",
 			"../../examples/Importers/ImportURDFDemo/UrdfParser.cpp",
 			"../../examples/Importers/ImportURDFDemo/urdfStringSplit.cpp",
+			"../../examples/Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
+                        "../../examples/ThirdPartyLibs/stb_image/stb_image.cpp",     	
 		}
 		
 
@@ -255,8 +259,10 @@ project ("Test_PhysicsServerInProcessExampleBrowser")
                         "../../examples/Importers/ImportURDFDemo/urdfStringSplit.cpp",
 			"../../examples/MultiThreading/b3PosixThreadSupport.cpp",
 			"../../examples/MultiThreading/b3Win32ThreadSupport.cpp",
-                "../../examples/MultiThreading/b3ThreadSupportInterface.cpp",
-			}
+                	"../../examples/MultiThreading/b3ThreadSupportInterface.cpp",
+			"../../examples/Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
+                        "../../examples/ThirdPartyLibs/stb_image/stb_image.cpp",
+	}
 	if os.is("Linux") then
        		initX11()
 	end

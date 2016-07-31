@@ -1329,7 +1329,9 @@ SIMD_FORCE_INLINE bool operator==(const btMatrix3x3& m1, const btMatrix3x3& m2)
     c0 = _mm_and_ps(c0, c1);
     c0 = _mm_and_ps(c0, c2);
 
-    return (0x7 == _mm_movemask_ps((__m128)c0));
+	int m = _mm_movemask_ps((__m128)c0);
+	return (0x7 == (m & 0x7));
+	
 #else 
 	return 
     (   m1[0][0] == m2[0][0] && m1[1][0] == m2[1][0] && m1[2][0] == m2[2][0] &&

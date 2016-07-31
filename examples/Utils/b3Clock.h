@@ -22,7 +22,12 @@ public:
 
 	/// Returns the time in us since the last call to reset or since 
 	/// the Clock was created.
-	unsigned long int getTimeMicroseconds();
+	unsigned long long int getTimeMicroseconds();
+
+	/// Returns the time in seconds since the last call to reset or since 
+	/// the Clock was created.
+	double getTimeInSeconds();
+
 private:
 	struct b3ClockData* m_data;
 };

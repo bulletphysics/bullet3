@@ -61,7 +61,7 @@ out vec3 lightDir,normal,ambient;
 void main(void)
 {
 	vec4 q = instance_quaternion;
-	ambient = vec3(0.6,.6,0.6);
+	ambient = vec3(0.5,.5,0.5);
 	
 	vec4 worldNormal =  (quatRotate3( vertexnormal,q));
 	normal = normalize(worldNormal).xyz;

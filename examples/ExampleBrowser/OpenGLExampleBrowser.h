@@ -5,6 +5,9 @@
 
 class OpenGLExampleBrowser : public ExampleBrowserInterface
 {
+	
+	struct OpenGLExampleBrowserInternalData* m_internalData;
+
 public:
 
 	OpenGLExampleBrowser(class ExampleEntries* examples);

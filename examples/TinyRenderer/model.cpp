@@ -57,9 +57,9 @@ void Model::setDiffuseTextureFromData(unsigned char* textureImage,int textureWid
 		for (int j=0;j<textureHeight;j++)
 		{
 			TGAColor color;
-			color.bgra[0] = textureImage[(i+j*textureWidth)*3+0];
-			color.bgra[1] = textureImage[(i+j*textureWidth)*3+1];
-			color.bgra[2] = textureImage[(i+j*textureWidth)*3+2];
+            color.bgra[0] = textureImage[(i+j*textureWidth)*3+0];
+            color.bgra[1] = textureImage[(i+j*textureWidth)*3+1];
+            color.bgra[2] = textureImage[(i+j*textureWidth)*3+2];
 			color.bgra[3] = 255;
 
 			color.bytespp = 3;
@@ -74,6 +74,14 @@ void Model::setDiffuseTextureFromData(unsigned char* textureImage,int textureWid
 void Model::loadDiffuseTexture(const char* relativeFileName)
 {
     diffusemap_.read_tga_file(relativeFileName);
+}
+
+void Model::reserveMemory(int numVertices, int numIndices)
+{
+	verts_.reserve(numVertices);
+	norms_.reserve(numVertices);
+	uv_.reserve(numVertices);
+	faces_.reserve(numIndices);
 }
 
 void Model::addVertex(float x,float y,float z, float normalX, float normalY, float normalZ, float u, float v)

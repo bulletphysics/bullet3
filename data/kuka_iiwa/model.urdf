@@ -77,7 +77,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/coarse/link_0.stl"/>
+        <mesh filename="meshes/link_0.stl"/>
       </geometry>
     </collision>
   </link>
@@ -106,7 +106,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/coarse/link_1.stl"/>
+        <mesh filename="meshes/link_1.stl"/>
       </geometry>
     </collision>
   </link>
@@ -135,7 +135,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/coarse/link_2.stl"/>
+        <mesh filename="meshes/link_2.stl"/>
       </geometry>
     </collision>
   </link>
@@ -164,7 +164,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/coarse/link_3.stl"/>
+        <mesh filename="meshes/link_3.stl"/>
       </geometry>
     </collision>
   </link>
@@ -193,7 +193,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/coarse/link_4.stl"/>
+        <mesh filename="meshes/link_4.stl"/>
       </geometry>
     </collision>
   </link>
@@ -222,7 +222,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/coarse/link_5.stl"/>
+        <mesh filename="meshes/link_5.stl"/>
       </geometry>
     </collision>
   </link>
@@ -251,7 +251,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/coarse/link_6.stl"/>
+        <mesh filename="meshes/link_6.stl"/>
       </geometry>
     </collision>
   </link>
@@ -280,7 +280,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/coarse/link_7.stl"/>
+        <mesh filename="meshes/link_7.stl"/>
       </geometry>
     </collision>
   </link>

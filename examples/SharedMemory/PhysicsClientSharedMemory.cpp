@@ -37,10 +37,13 @@ struct PhysicsClientSharedMemoryInternalData {
 	btAlignedObjectArray<unsigned char> m_cachedCameraPixelsRGBA;
 	btAlignedObjectArray<float> m_cachedCameraDepthBuffer;
 
+    btAlignedObjectArray<int> m_bodyIdsRequestInfo;
+    SharedMemoryStatus m_tempBackupServerStatus;
+    
     SharedMemoryStatus m_lastServerStatus;
 
     int m_counter;
-    bool m_serverLoadUrdfOK;
+    
     bool m_isConnected;
     bool m_waitingForServer;
     bool m_hasLastServerStatus;
@@ -54,7 +57,6 @@ struct PhysicsClientSharedMemoryInternalData {
 		  m_counter(0),
 		  m_cachedCameraPixelsWidth(0),
 		  m_cachedCameraPixelsHeight(0),
-	      m_serverLoadUrdfOK(false),
           m_isConnected(false),
           m_waitingForServer(false),
           m_hasLastServerStatus(false),
@@ -83,15 +85,16 @@ int PhysicsClientSharedMemory::getNumJoints(int bodyIndex) const
 	
 }
 
-void PhysicsClientSharedMemory::getJointInfo(int bodyIndex, int jointIndex, b3JointInfo& info) const 
+bool PhysicsClientSharedMemory::getJointInfo(int bodyIndex, int jointIndex, b3JointInfo& info) const
 {
 	BodyJointInfoCache** bodyJointsPtr = m_data->m_bodyJointMap[bodyIndex];
 	if (bodyJointsPtr && *bodyJointsPtr)
 	{
 		BodyJointInfoCache* bodyJoints = *bodyJointsPtr;
 		info = bodyJoints->m_jointInfo[jointIndex];
+        return true;
 	}
-    
+    return false;
 }
 
 PhysicsClientSharedMemory::PhysicsClientSharedMemory()
@@ -168,6 +171,48 @@ bool PhysicsClientSharedMemory::connect() {
     return true;
 }
 
+
+///todo(erwincoumans) refactor this: merge with PhysicsDirect::processBodyJointInfo
+void PhysicsClientSharedMemory::processBodyJointInfo(int bodyUniqueId, const SharedMemoryStatus& serverCmd)
+{
+    bParse::btBulletFile bf(
+                            &this->m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor[0],
+                            serverCmd.m_dataStreamArguments.m_streamChunkLength);
+    bf.setFileDNAisMemoryDNA();
+    bf.parse(false);
+    
+    
+    BodyJointInfoCache* bodyJoints = new BodyJointInfoCache;
+    m_data->m_bodyJointMap.insert(bodyUniqueId,bodyJoints);
+    
+    for (int i = 0; i < bf.m_multiBodies.size(); i++)
+    {
+        int flag = bf.getFlags();
+        if ((flag & bParse::FD_DOUBLE_PRECISION) != 0)
+        {
+            Bullet::btMultiBodyDoubleData* mb =
+            (Bullet::btMultiBodyDoubleData*)bf.m_multiBodies[i];
+            
+            addJointInfoFromMultiBodyData(mb,bodyJoints, m_data->m_verboseOutput);
+        } else
+        {
+            Bullet::btMultiBodyFloatData* mb =
+            (Bullet::btMultiBodyFloatData*)bf.m_multiBodies[i];
+            
+            addJointInfoFromMultiBodyData(mb,bodyJoints, m_data->m_verboseOutput);
+        }
+    }
+    if (bf.ok()) {
+        if (m_data->m_verboseOutput)
+        {
+            b3Printf("Received robot description ok!\n");
+        }
+    } else
+    {
+        b3Warning("Robot description not received");
+    }
+}
+
 const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
     SharedMemoryStatus* stat = 0;
 
@@ -204,8 +249,16 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 }
                 break;
             }
+            case CMD_SDF_LOADING_COMPLETED: {
+                
+                if (m_data->m_verboseOutput) {
+                    b3Printf("Server loading the SDF OK\n");
+                }
+
+                break;
+            }
             case CMD_URDF_LOADING_COMPLETED: {
-                m_data->m_serverLoadUrdfOK = true;
+                
                 if (m_data->m_verboseOutput) {
                     b3Printf("Server loading the URDF OK\n");
                 }
@@ -265,7 +318,25 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 if (m_data->m_verboseOutput) {
                     b3Printf("Server failed loading the URDF...\n");
                 }
-                m_data->m_serverLoadUrdfOK = false;
+                
+                break;
+            }
+            
+            case CMD_BODY_INFO_COMPLETED:
+            {
+                if (m_data->m_verboseOutput) {
+                    b3Printf("Received body info\n");
+                }
+                int bodyUniqueId = serverCmd.m_dataStreamArguments.m_bodyUniqueId;
+                processBodyJointInfo(bodyUniqueId, serverCmd);
+
+                break;
+            }
+             case CMD_SDF_LOADING_FAILED: {
+                if (m_data->m_verboseOutput) {
+                    b3Printf("Server failed loading the SDF...\n");
+                }
+                
                 break;
             }
 
@@ -448,8 +519,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 
 				unsigned char* rgbaPixelsReceived =
                     (unsigned char*)&m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor[0];
-                printf("pixel = %d\n", rgbaPixelsReceived[0]);
+              //  printf("pixel = %d\n", rgbaPixelsReceived[0]);
                 
+				float* depthBuffer = (float*)&(m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor[serverCmd.m_sendPixelDataArguments.m_numPixelsCopied*4]);
+			
+				for (int i=0;i<serverCmd.m_sendPixelDataArguments.m_numPixelsCopied;i++)
+				{
+					m_data->m_cachedCameraDepthBuffer[i + serverCmd.m_sendPixelDataArguments.m_startingPixelIndex] = depthBuffer[i];
+				}
+				
 				for (int i=0;i<serverCmd.m_sendPixelDataArguments.m_numPixelsCopied*numBytesPerPixel;i++)
 				{
 					m_data->m_cachedCameraPixelsRGBA[i + serverCmd.m_sendPixelDataArguments.m_startingPixelIndex*numBytesPerPixel] 
@@ -461,7 +539,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
             
             case CMD_CAMERA_IMAGE_FAILED:
             {
-                b3Printf("Camera image FAILED\n");
+                b3Warning("Camera image FAILED\n");
                 break;
             }
 
@@ -483,6 +561,50 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
             m_data->m_waitingForServer = true;
         }
 
+        if (serverCmd.m_type == CMD_SDF_LOADING_COMPLETED)
+        {
+            int numBodies = serverCmd.m_sdfLoadedArgs.m_numBodies;
+            if (numBodies>0)
+            {
+                m_data->m_tempBackupServerStatus = m_data->m_lastServerStatus;
+                
+                for (int i=0;i<numBodies;i++)
+                {
+                    m_data->m_bodyIdsRequestInfo.push_back(serverCmd.m_sdfLoadedArgs.m_bodyUniqueIds[i]);
+                }
+                
+                int bodyId = m_data->m_bodyIdsRequestInfo[m_data->m_bodyIdsRequestInfo.size()-1];
+                m_data->m_bodyIdsRequestInfo.pop_back();
+                
+                SharedMemoryCommand& command = m_data->m_testBlock1->m_clientCommands[0];
+                //now transfer the information of the individual objects etc.
+                command.m_type = CMD_REQUEST_BODY_INFO;
+                command.m_sdfRequestInfoArgs.m_bodyUniqueId = bodyId;
+                submitClientCommand(command);
+                return 0;    
+            }
+        }
+        
+        if (serverCmd.m_type == CMD_BODY_INFO_COMPLETED)
+        {
+            //are there any bodies left to be processed?
+            if (m_data->m_bodyIdsRequestInfo.size())
+            {
+                int bodyId = m_data->m_bodyIdsRequestInfo[m_data->m_bodyIdsRequestInfo.size()-1];
+                m_data->m_bodyIdsRequestInfo.pop_back();
+                
+                SharedMemoryCommand& command = m_data->m_testBlock1->m_clientCommands[0];
+                //now transfer the information of the individual objects etc.
+                command.m_type = CMD_REQUEST_BODY_INFO;
+                command.m_sdfRequestInfoArgs.m_bodyUniqueId = bodyId;
+                submitClientCommand(command);
+                return 0;
+            } else
+            {
+                m_data->m_lastServerStatus = m_data->m_tempBackupServerStatus;
+            }
+        }
+        
 		if (serverCmd.m_type == CMD_CAMERA_IMAGE_COMPLETED)
 		{
 			SharedMemoryCommand& command = m_data->m_testBlock1->m_clientCommands[0];
@@ -537,6 +659,8 @@ bool PhysicsClientSharedMemory::canSubmitCommand() const {
 }
 
 struct SharedMemoryCommand* PhysicsClientSharedMemory::getAvailableSharedMemoryCommand() {
+    static int sequence = 0;
+    m_data->m_testBlock1->m_clientCommands[0].m_sequenceNumber = sequence++;
     return &m_data->m_testBlock1->m_clientCommands[0];
 }
 

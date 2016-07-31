@@ -61,7 +61,9 @@ static bool parseVector4(btVector4& vec4, const std::string& vector_str)
 	vec4.setZero();
 	btArray<std::string> pieces;
 	btArray<float> rgba;
-	urdfStringSplit(pieces, vector_str, urdfIsAnyOf(" "));
+	btAlignedObjectArray<std::string> strArray;
+	urdfIsAnyOf(" ", strArray);
+	urdfStringSplit(pieces, vector_str, strArray);
 	for (int i = 0; i < pieces.size(); ++i)
 	{
 		if (!pieces[i].empty())
@@ -82,7 +84,9 @@ static bool parseVector3(btVector3& vec3, const std::string& vector_str, ErrorLo
 	vec3.setZero();
 	btArray<std::string> pieces;
 	btArray<float> rgba;
-	urdfStringSplit(pieces, vector_str, urdfIsAnyOf(" "));
+	btAlignedObjectArray<std::string> strArray;
+	urdfIsAnyOf(" ", strArray);
+	urdfStringSplit(pieces, vector_str, strArray);
 	for (int i = 0; i < pieces.size(); ++i)
 	{
 		if (!pieces[i].empty())
@@ -225,6 +229,15 @@ bool UrdfParser::parseInertia(UrdfInertia& inertia, TiXmlElement* config, ErrorL
 {
 	inertia.m_linkLocalFrame.setIdentity();
 	inertia.m_mass = 0.f;
+	if(m_parseSDF)
+	{
+		TiXmlElement* pose = config->FirstChildElement("pose");
+		if (pose)
+		{
+			parseTransform(inertia.m_linkLocalFrame, pose,logger,m_parseSDF);
+		}
+	}
+
 	
 		
 	// Origin
@@ -393,13 +406,22 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
           }
           
           geom.m_meshFileName = shape->Attribute("filename");
-          
-          if (shape->Attribute("scale"))
+		  geom.m_meshScale.setValue(1,1,1);
+
+		  if (shape->Attribute("scale"))
           {
-              parseVector3(geom.m_meshScale,shape->Attribute("scale"),logger);
+              if (!parseVector3(geom.m_meshScale,shape->Attribute("scale"),logger))
+			  {
+				  logger->reportWarning("scale should be a vector3, not single scalar. Workaround activated.\n");
+				  std::string scalar_str = shape->Attribute("scale");
+				  double scaleFactor = urdfLexicalCast<double>(scalar_str.c_str());
+				  if (scaleFactor)
+				  {
+					  geom.m_meshScale.setValue(scaleFactor,scaleFactor,scaleFactor);
+				  }
+			  }
           } else
           {
-              geom.m_meshScale.setValue(1,1,1);
           }
       }
   }
@@ -439,6 +461,15 @@ bool UrdfParser::parseCollision(UrdfCollision& collision, TiXmlElement* config, 
 
 	collision.m_linkLocalFrame.setIdentity();
 	
+	if(m_parseSDF)
+	{
+		TiXmlElement* pose = config->FirstChildElement("pose");
+		if (pose)
+		{
+			parseTransform(collision.m_linkLocalFrame, pose,logger,m_parseSDF);
+		}
+	}
+
 	// Origin
 	TiXmlElement *o = config->FirstChildElement("origin");
 	if (o) 
@@ -465,7 +496,15 @@ bool UrdfParser::parseCollision(UrdfCollision& collision, TiXmlElement* config, 
 bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement* config, ErrorLogger* logger)
 {
 	visual.m_linkLocalFrame.setIdentity();
-		
+	if(m_parseSDF)
+	{
+		TiXmlElement* pose = config->FirstChildElement("pose");
+		if (pose)
+		{
+			parseTransform(visual.m_linkLocalFrame, pose,logger,m_parseSDF);
+		}
+	}
+
   // Origin
   TiXmlElement *o = config->FirstChildElement("origin");
   if (o) 
@@ -490,29 +529,49 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement*
   // Material
   TiXmlElement *mat = config->FirstChildElement("material");
 //todo(erwincoumans) skip materials in SDF for now (due to complexity)
-  if (mat && !m_parseSDF)
+  if (mat)
   {
-	  // get material name
-	  if (!mat->Attribute("name")) 
-	  {
-		  logger->reportError("Visual material must contain a name attribute");
-		  return false;
-	  }
-	  visual.m_materialName = mat->Attribute("name");
-	  
-	  // try to parse material element in place
-	  
-	  TiXmlElement *t = mat->FirstChildElement("texture");
-	  TiXmlElement *c = mat->FirstChildElement("color");
-	  if (t||c)
-	  {
-		  if (parseMaterial(visual.m_localMaterial, mat,logger))
-		  {
-			  UrdfMaterial* matPtr = new UrdfMaterial(visual.m_localMaterial);
-			  model.m_materials.insert(matPtr->m_name.c_str(),matPtr);
-			  visual.m_hasLocalMaterial = true;
-		  }
-	  }
+    if (m_parseSDF)
+    {
+        UrdfMaterial* matPtr = new UrdfMaterial;
+        matPtr->m_name = "mat";
+		if (name_char)
+			matPtr->m_name = name_char;
+        TiXmlElement *diffuse = mat->FirstChildElement("diffuse");
+        if (diffuse) {
+            std::string diffuseText = diffuse->GetText();
+            btVector4 rgba(1,0,0,1);
+            parseVector4(rgba,diffuseText);
+            matPtr->m_rgbaColor = rgba;
+            model.m_materials.insert(matPtr->m_name.c_str(),matPtr);
+            visual.m_materialName = matPtr->m_name;
+            visual.m_hasLocalMaterial = true;
+        }
+    } 
+    else
+      {
+          // get material name
+          if (!mat->Attribute("name")) 
+          {
+              logger->reportError("Visual material must contain a name attribute");
+              return false;
+          }
+          visual.m_materialName = mat->Attribute("name");
+          
+          // try to parse material element in place
+          
+          TiXmlElement *t = mat->FirstChildElement("texture");
+          TiXmlElement *c = mat->FirstChildElement("color");
+          if (t||c)
+          {
+              if (parseMaterial(visual.m_localMaterial, mat,logger))
+              {
+                  UrdfMaterial* matPtr = new UrdfMaterial(visual.m_localMaterial);
+                  model.m_materials.insert(matPtr->m_name.c_str(),matPtr);
+                  visual.m_hasLocalMaterial = true;
+              }
+          }
+      }
   }
   
   return true;
@@ -529,6 +588,8 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
 	link.m_name = linkName;
     
     if (m_parseSDF) {
+
+
         TiXmlElement* pose = config->FirstChildElement("pose");
         if (0==pose)
         {
@@ -539,6 +600,54 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
             parseTransform(link.m_linkTransformInWorld, pose,logger,m_parseSDF);
         }
     }
+
+	{
+		//optional 'contact' parameters
+	 TiXmlElement* ci = config->FirstChildElement("contact");
+	  if (ci)
+	  {
+        
+          TiXmlElement *damping_xml = ci->FirstChildElement("inertia_scaling");
+          if (damping_xml)
+          {
+              if (m_parseSDF)
+              {
+                  link.m_contactInfo.m_inertiaScaling = urdfLexicalCast<double>(damping_xml->GetText());
+                  link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_INERTIA_SCALING;
+              } else
+              {
+                  if (!damping_xml->Attribute("value"))
+                  {
+                      logger->reportError("Link/contact: damping element must have value attribute");
+                      return false;
+                  }
+                  
+                  link.m_contactInfo.m_inertiaScaling = urdfLexicalCast<double>(damping_xml->Attribute("value"));
+                  link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_INERTIA_SCALING;
+
+              }
+          }
+          {
+		TiXmlElement *friction_xml = ci->FirstChildElement("lateral_friction");
+		if (friction_xml)
+		{
+			if (m_parseSDF)
+			{
+				link.m_contactInfo.m_lateralFriction = urdfLexicalCast<double>(friction_xml->GetText());
+			} else
+			{
+				if (!friction_xml->Attribute("value"))
+				{
+				  logger->reportError("Link/contact: lateral_friction element must have value attribute");
+				  return false;
+				}
+
+				link.m_contactInfo.m_lateralFriction = urdfLexicalCast<double>(friction_xml->Attribute("value"));
+			}
+		}
+          }
+	  }
+	}
 
   // Inertial (optional)
   TiXmlElement *i = config->FirstChildElement("inertial");
@@ -572,7 +681,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
           logger->reportWarning(link.m_name.c_str());
       }
   }
-		
+
   // Multiple Visuals (optional)
   for (TiXmlElement* vis_xml = config->FirstChildElement("visual"); vis_xml; vis_xml = vis_xml->NextSiblingElement("visual"))
   {
@@ -616,6 +725,8 @@ bool UrdfParser::parseJointLimits(UrdfJoint& joint, TiXmlElement* config, ErrorL
 	joint.m_upperLimit = 0.f;
 	joint.m_effortLimit = 0.f;
 	joint.m_velocityLimit = 0.f;
+	joint.m_jointDamping = 0.f;
+	joint.m_jointFriction = 0.f;
 	
     if (m_parseSDF)
     {
@@ -872,7 +983,7 @@ bool UrdfParser::parseJoint(UrdfJoint& joint, TiXmlElement *config, ErrorLogger*
                     return false;
                 }
                 
-                TiXmlElement *prop_xml = config->FirstChildElement("dynamics");
+                TiXmlElement *prop_xml = axis_xml->FirstChildElement("dynamics");
                 if (prop_xml)
                 {
                     if (!parseJointDynamics(joint, prop_xml,logger))
@@ -1227,19 +1338,36 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
         return false;
     }
     
-    TiXmlElement *world_xml = sdf_xml->FirstChildElement("world");
-    if (!world_xml)
-    {
-        logger->reportError("expected a world element");
-        return false;
-    }
-    
+	//apparently, SDF doesn't require a "world" element, optional? URDF does.
+	TiXmlElement *world_xml = sdf_xml->FirstChildElement("world");
+	
+	TiXmlElement* robot_xml = 0;
+
+	if (!world_xml)
+	{
+		logger->reportWarning("expected a world element, continuing without it.");
+		robot_xml = sdf_xml->FirstChildElement("model");
+	} else
+	{
+		robot_xml = world_xml->FirstChildElement("model");
+	}
+
     // Get all model (robot) elements
-    for (TiXmlElement* robot_xml = world_xml->FirstChildElement("model"); robot_xml; robot_xml = robot_xml->NextSiblingElement("model"))
+    for (; robot_xml; robot_xml = robot_xml->NextSiblingElement("model"))
     {
         UrdfModel* localModel = new UrdfModel;
         m_tmpModels.push_back(localModel);
         
+		TiXmlElement* stat = robot_xml->FirstChildElement("static");
+        if (0!=stat)
+        {
+			int val = int(atof(stat->GetText()));
+			if (val==1)
+			{
+				localModel->m_overrideFixedBase = true;
+			}
+		}
+
         
         // Get robot name
         const char *name = robot_xml->Attribute("name");

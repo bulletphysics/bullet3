@@ -56,7 +56,31 @@ ImportObjSetup::~ImportObjSetup()
 
 
 
-
+int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterface* renderer)
+{
+	int shapeId = -1;
+	
+	b3ImportMeshData meshData;
+	if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(fileName, meshData))
+	{
+		int textureIndex = -1;
+		
+		if (meshData.m_textureImage)
+		{
+			textureIndex = renderer->registerTexture(meshData.m_textureImage,meshData.m_textureWidth,meshData.m_textureHeight);
+		}
+		
+		shapeId = renderer->registerShape(&meshData.m_gfxShape->m_vertices->at(0).xyzw[0], 
+										  meshData.m_gfxShape->m_numvertices, 
+										  &meshData.m_gfxShape->m_indices->at(0), 
+										  meshData.m_gfxShape->m_numIndices,
+										  B3_GL_TRIANGLES,
+										  textureIndex);
+		delete meshData.m_gfxShape;
+		delete meshData.m_textureImage;
+	}
+	return shapeId;
+}
 
 
 
@@ -77,7 +101,7 @@ void ImportObjSetup::initPhysics()
     btVector3 scaling(1,1,1);
 	btVector3 color(1,1,1);
 		
-   int shapeId = b3ImportMeshUtility::loadAndRegisterMeshFromFile(m_fileName, m_guiHelper->getRenderInterface());    
+   int shapeId = loadAndRegisterMeshFromFile2(m_fileName, m_guiHelper->getRenderInterface());    
    if (shapeId>=0)
    {
         //int id = 

@@ -13,10 +13,10 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef ET_NEWTONIAN_PENDULUM_EXAMPLE_H
-#define ET_NEWTONIAN_PENDULUM_EXAMPLE_H
+#ifndef ET_NEWTONS_CRADLE_EXAMPLE_H
+#define ET_NEWTONS_CRADLE_EXAMPLE_H
 
 class CommonExampleInterface*    ET_NewtonsCradleCreateFunc(struct CommonExampleOptions& options);
 
 
-#endif //ET_NEWTONIAN_PENDULUM_EXAMPLE_H
+#endif //ET_NEWTONS_CRADLE_EXAMPLE_H

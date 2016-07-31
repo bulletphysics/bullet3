@@ -26,7 +26,7 @@ public:
 
     virtual int getNumJoints(int bodyIndex) const = 0;
 
-    virtual void getJointInfo(int bodyIndex, int jointIndex, struct b3JointInfo& info) const = 0;
+    virtual bool getJointInfo(int bodyIndex, int jointIndex, struct b3JointInfo& info) const = 0;
 
     virtual void setSharedMemoryKey(int key) = 0;
 
