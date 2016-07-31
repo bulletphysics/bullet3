@@ -151,4 +151,12 @@ enum EnumExternalForceFlags
     EF_WORLD_FRAME=2,
 };
 
+///flags to pick the renderer for synthetic camera
+enum EnumRenderer
+{
+    ER_TINY_RENDERER=(1<<16),
+    ER_BULLET_HARDWARE_OPENGL=(1<<17),
+    //ER_FIRE_RAYS=(1<<18),
+};
+
 #endif//SHARED_MEMORY_PUBLIC_H

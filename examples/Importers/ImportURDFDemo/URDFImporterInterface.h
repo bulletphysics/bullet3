@@ -6,6 +6,7 @@
 #include "LinearMath/btTransform.h"
 #include "URDFJointTypes.h"
 
+
 class URDFImporterInterface
 {
 
@@ -28,6 +29,9 @@ public:
     virtual std::string getLinkName(int linkIndex) const =0;
 	/// optional method to provide the link color. return true if the color is available and copied into colorRGBA, return false otherwise
 	virtual bool getLinkColor(int linkIndex, btVector4& colorRGBA) const { return false;}
+
+	///this API will likely change, don't override it!
+	virtual bool getLinkContactInfo(int linkIndex, URDFLinkContactInfo& contactInfo ) const  { return false;}
     
     virtual std::string getJointName(int linkIndex) const = 0;
 

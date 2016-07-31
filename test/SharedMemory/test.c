@@ -58,6 +58,7 @@ void testSharedMemory(b3PhysicsClientHandle sm)
             int statusType;
             int bodyIndicesOut[10];//MAX_SDF_BODIES = 10
             int numJoints, numBodies;
+			int bodyUniqueId;
             b3SharedMemoryCommandHandle command = b3LoadSdfCommandInit(sm, sdfFileName);
             statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 			statusType = b3GetStatusType(statusHandle);
@@ -65,7 +66,7 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 			
 			numBodies = b3GetStatusBodyIndices(statusHandle, bodyIndicesOut, 10);
             ASSERT_EQ(numBodies,1);
-            int bodyUniqueId = bodyIndicesOut[0];
+            bodyUniqueId = bodyIndicesOut[0];
             
             numJoints = b3GetNumJoints(sm,bodyUniqueId);
             ASSERT_EQ(numJoints,7);
@@ -106,7 +107,7 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 			b3SharedMemoryCommandHandle command = b3LoadUrdfCommandInit(sm, urdfFileName);
 			
             //setting the initial position, orientation and other arguments are optional
-            startPosX =0;
+            startPosX =2;
             startPosY =0;
             startPosZ = 1;
             ret = b3LoadUrdfCommandSetStartPosition(command, startPosX,startPosY,startPosZ);

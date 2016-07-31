@@ -57,14 +57,22 @@ public:
 		void*	m_userPtr; //for taskDesc etc
 		void*	m_lsMemory; //initialized using PosixLocalStoreMemorySetupFunc
 
-                pthread_t thread;
-                sem_t* startSemaphore;
+        pthread_t thread;
+        //each tread will wait until this signal to start its work
+        sem_t* startSemaphore;
 
+        // this is a copy of m_mainSemaphore, 
+        //each tread will signal once it is finished with its work
+        sem_t* m_mainSemaphore;
         unsigned long threadUsed;
 	};
 private:
 
 	b3AlignedObjectArray<b3ThreadStatus>	m_activeThreadStatus;
+
+	// m_mainSemaphoresemaphore will signal, if and how many threads are finished with their work
+	sem_t* m_mainSemaphore;
+	
 public:
 	///Setup and initialize SPU/CELL/Libspe2
 

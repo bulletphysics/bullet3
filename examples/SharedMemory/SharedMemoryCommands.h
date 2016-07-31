@@ -33,7 +33,7 @@
 #define MAX_SDF_FILENAME_LENGTH 1024
 #define MAX_FILENAME_LENGTH MAX_URDF_FILENAME_LENGTH
 #define MAX_NUM_LINKS MAX_DEGREE_OF_FREEDOM
-#define MAX_SDF_BODIES 1024
+#define MAX_SDF_BODIES 500
 
 struct TmpFloat3 
 {
@@ -138,8 +138,8 @@ struct RequestPixelDataArgs
 enum EnumRequestPixelDataUpdateFlags
 {
 	REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES=1,
-	REQUEST_PIXEL_ARGS_USE_HARDWARE_OPENGL=2,
 	REQUEST_PIXEL_ARGS_SET_PIXEL_WIDTH_HEIGHT=4,
+	//don't exceed (1<<15), because this enum is shared with EnumRenderer in SharedMemoryPublic.h
 	
 };
 
@@ -215,6 +215,7 @@ enum EnumSimParamUpdateFlags
 	SIM_PARAM_UPDATE_GRAVITY=2,
 	SIM_PARAM_UPDATE_NUM_SOLVER_ITERATIONS=4,	
 	SIM_PARAM_UPDATE_NUM_SIMULATION_SUB_STEPS=8,
+	SIM_PARAM_UPDATE_REAL_TIME_SIMULATION = 16,
 };
 
 ///Controlling a robot involves sending the desired state to its joint motor controllers.
@@ -225,6 +226,7 @@ struct SendPhysicsSimulationParameters
 	double m_gravityAcceleration[3];
 	int m_numSimulationSubSteps;
 	int m_numSolverIterations;
+	bool m_allowRealTimeSimulation;
 };
 
 struct RequestActualStateArgs

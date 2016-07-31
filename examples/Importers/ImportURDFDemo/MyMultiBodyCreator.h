@@ -24,6 +24,7 @@ class MyMultiBodyCreator : public MultiBodyCreationInterface
 protected:
 
 	btMultiBody* m_bulletMultiBody;
+	btRigidBody* m_rigidBody;
     
 	struct GUIHelperInterface* m_guiHelper;
 
@@ -62,6 +63,10 @@ public:
     virtual void addLinkMapping(int urdfLinkIndex, int mbLinkIndex);
 
 	btMultiBody* getBulletMultiBody();
+	btRigidBody* getRigidBody()
+	{
+	    return m_rigidBody;
+    }
 	
 	int	getNum6DofConstraints() const
 	{

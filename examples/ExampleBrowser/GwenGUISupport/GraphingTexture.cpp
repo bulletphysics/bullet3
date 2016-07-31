@@ -21,6 +21,7 @@ void GraphingTexture::destroy()
 	m_height=0;
 	glDeleteTextures(1,(GLuint*)&m_textureId);
 	m_textureId=0;
+	
 }
 
 bool GraphingTexture::create(int texWidth, int texHeight)

@@ -624,6 +624,19 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
 //	printf("flipped!\n");
 	m_data->m_rgbColorBuffer.flip_vertically();
 
+	//flip z-buffer
+	{
+		int half = m_data->m_swHeight>>1;
+		for (int j=0; j<half; j++)
+		{
+			unsigned long l1 = j*m_data->m_swWidth;
+			unsigned long l2 = (m_data->m_swHeight-1-j)*m_data->m_swWidth;
+			for (int i=0;i<m_data->m_swWidth;i++)
+			{
+				btSwap(m_data->m_depthBuffer[l1+i],m_data->m_depthBuffer[l2+i]);
+			}
+		}
+	}
 }
 
 void TinyRendererVisualShapeConverter::getWidthAndHeight(int& width, int& height)
@@ -688,7 +701,16 @@ void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixels
 
 void TinyRendererVisualShapeConverter::resetAll()
 {
-	//todo: free memory
+	for (int i=0;i<m_data->m_swRenderInstances.size();i++)
+	{
+		TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(i);
+		if (ptrptr && *ptrptr)
+		{
+			TinyRendererObjectArray* ptr = *ptrptr;
+			delete ptr;
+		}
+	}
+	
 	m_data->m_swRenderInstances.clear();
 }
 

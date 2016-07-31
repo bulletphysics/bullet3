@@ -37,6 +37,12 @@ static btVector4 sMyColors[4] =
 	//btVector4(1,1,0,1),
 };
 
+struct TinyRendererTexture
+{
+	const unsigned char* m_texels;
+	int m_width;
+	int m_height;
+};
 
 struct TinyRendererGUIHelper : public GUIHelperInterface
 {
@@ -45,6 +51,7 @@ struct TinyRendererGUIHelper : public GUIHelperInterface
 
 	btHashMap<btHashInt,TinyRenderObjectData*> m_swRenderObjects;
 	btHashMap<btHashInt,int> m_swInstances;
+	btHashMap<btHashInt,TinyRendererTexture> m_textures;
 	
 	int m_swWidth;
 	int m_swHeight;
@@ -151,7 +158,8 @@ struct TinyRendererGUIHelper : public GUIHelperInterface
 
 	if (gfxVertices.size() && indices.size())
 	{
-		int shapeId = registerGraphicsShape(&gfxVertices[0].xyzw[0],gfxVertices.size(),&indices[0],indices.size());
+		int shapeId = registerGraphicsShape(&gfxVertices[0].xyzw[0],gfxVertices.size(),&indices[0],indices.size(),
+			1,-1);
 		collisionShape->setUserIndex(shapeId);
 	}
 	}
@@ -249,17 +257,40 @@ struct TinyRendererGUIHelper : public GUIHelperInterface
 
 	virtual void createPhysicsDebugDrawer( btDiscreteDynamicsWorld* rbWorld){}
 
-	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices) 
+	virtual int	registerTexture(const unsigned char* texels, int width, int height)
+	{
+		//do we need to make a copy?
+		int textureId = m_textures.size();
+		TinyRendererTexture t;
+		t.m_texels = texels;
+		t.m_width = width;
+		t.m_height = height;
+		this->m_textures.insert(textureId,t);
+		return textureId;
+	}
+
+	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType, int textureId)
 	{
 		int shapeIndex = m_swRenderObjects.size();
 
 		TinyRenderObjectData* swObj = new TinyRenderObjectData(m_rgbColorBuffer,m_depthBuffer);
         float rgbaColor[4] = {1,1,1,1};
-	swObj->registerMeshShape(vertices,numvertices,indices,numIndices,rgbaColor);
+
+		//if (textureId>=0)
+		//{
+		//	swObj->registerMeshShape(vertices,numvertices,indices,numIndices,rgbaColor);
+		//} else
+		{
+			swObj->registerMeshShape(vertices,numvertices,indices,numIndices,rgbaColor);
+		}
 		//swObj->createCube(1,1,1);//MeshShape(vertices,numvertices,indices,numIndices);
         m_swRenderObjects.insert(shapeIndex,swObj);
 		return shapeIndex;
 	}
+
+	 virtual void removeAllGraphicsInstances()
+	 {
+	 }
 
 	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling) 
 	{
@@ -317,12 +348,8 @@ struct TinyRendererGUIHelper : public GUIHelperInterface
 
 	}
 
-	virtual void copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int* width, int* height, int* numPixelsCopied)
+	virtual void copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16],unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int width, int height, int* numPixelsCopied)
 	{
-		if (width)
-			*width = 0;
-		if (height)
-			*height = 0;
 		if (numPixelsCopied)
 			*numPixelsCopied = 0;
 	}

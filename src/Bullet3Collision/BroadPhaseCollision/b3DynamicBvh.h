@@ -965,8 +965,6 @@ inline void		b3DynamicBvh::rayTestInternal(	const b3DbvtNode* root,
 	B3_DBVT_CHECKTYPE
 	if(root)
 	{
-		b3Vector3 resultNormal;
-
 		int								depth=1;
 		int								treshold=B3_DOUBLE_STACKSIZE-2;
 		b3AlignedObjectArray<const b3DbvtNode*>&	stack = m_rayTestStack;

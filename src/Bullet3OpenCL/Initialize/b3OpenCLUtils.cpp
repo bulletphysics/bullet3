@@ -636,10 +636,10 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 
 
 		FILETIME modtimeBinary;
-		CreateDirectory(sCachedBinaryPath,0);
+		CreateDirectoryA(sCachedBinaryPath,0);
 		{
 
-			HANDLE binaryFileHandle = CreateFile(binaryFileName,GENERIC_READ,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);
+			HANDLE binaryFileHandle = CreateFileA(binaryFileName,GENERIC_READ,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);
 			if (binaryFileHandle ==INVALID_HANDLE_VALUE)
 			{
 				DWORD errorCode;
@@ -677,7 +677,7 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 
 			if (binaryFileValid)
 			{
-				HANDLE srcFileHandle = CreateFile(clFileNameForCaching,GENERIC_READ,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);
+				HANDLE srcFileHandle = CreateFileA(clFileNameForCaching,GENERIC_READ,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);
 
 				if (srcFileHandle==INVALID_HANDLE_VALUE)
 				{
@@ -686,7 +686,7 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 					{
 						char relativeFileName[1024];
 						sprintf(relativeFileName,"%s%s",prefix[i],clFileNameForCaching);
-						srcFileHandle = CreateFile(relativeFileName,GENERIC_READ,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);
+						srcFileHandle = CreateFileA(relativeFileName,GENERIC_READ,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);
 					}
 
 				}

@@ -53,7 +53,8 @@ public:
 	
 	void enableCommandLogging(bool enable, const char* fileName);
 	void replayFromLogFile(const char* fileName);
-    void replayLogCommand(char* bufferServerToClient, int bufferSizeInBytes );
+	void replayLogCommand(char* bufferServerToClient, int bufferSizeInBytes );
+	void stepSimulationRealTime(double dtInSec);
 	void applyJointDamping(int bodyUniqueId);
 };
 

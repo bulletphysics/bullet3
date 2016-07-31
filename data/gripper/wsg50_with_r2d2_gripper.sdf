@@ -1,0 +1,298 @@
+<?xml version="1.0" ?>
+<sdf version='1.6'>
+  <world name='default'>
+  <model name='wsg50_with_gripper'>
+    <pose frame=''>0 0 0.27 3.14 0 0</pose>
+	
+    <link name='world'>
+	</link>
+  
+    <joint name='base_joint' type='prismatic'>
+      <parent>world</parent>
+      <child>base_link</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-0.5</lower>
+          <upper>10</upper>
+          <effort>1</effort>
+          <velocity>1</velocity>
+        </limit>
+        <dynamics>
+          <damping>100</damping>
+          <friction>100</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <link name='base_link'>
+      <pose frame=''>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <mass>1.2</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='base_link_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+		<box>
+              <size>0.2 0.05 0.05 </size>
+            </box>
+        </geometry>
+      </collision>
+      <visual name='base_link_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes/WSG50_110.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+
+        </material>
+      </visual>
+      <gravity>1</gravity>
+      <velocity_decay/>
+      <self_collide>0</self_collide>
+    </link>
+
+    <link name='gripper_left'>
+      <pose frame=''>-0.055 0 0 0 -0 0</pose>
+      <inertial>
+        <pose frame=''>0 0 0.0115 0 -0 0</pose>
+        <mass>0.2</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+	  
+      <collision name='gripper_left_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>meshes/GUIDE_WSG50_110.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='gripper_left_fixed_joint_lump__finger_left_collision_1'>
+        <pose frame=''>0 0 0.023 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>meshes/WSG-FMF.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+	  
+      <visual name='gripper_left_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>meshes/GUIDE_WSG50_110.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name='gripper_left_fixed_joint_lump__finger_left_visual_1'>
+        <pose frame=''>0 0 0.023 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>meshes/WSG-FMF.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+
+    </link>
+    <joint name='base_joint_gripper_left' type='prismatic'>
+      <child>gripper_left</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>-0.001</lower>
+          <upper>0.055</upper>
+          <effort>1</effort>
+          <velocity>1</velocity>
+        </limit>
+        <dynamics>
+          <damping>100</damping>
+          <friction>100</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+	
+    <link name='gripper_right'>
+      <pose frame=''>0.055 0 0 0 -0 3.14159</pose>
+      <inertial>
+        <pose frame=''>0 0 0.0115 0 -0 0</pose>
+        <mass>0.2</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+	  
+      <collision name='gripper_right_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>meshes/GUIDE_WSG50_110.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='gripper_right_fixed_joint_lump__finger_right_collision_1'>
+        <pose frame=''>0 0 0.023 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>meshes/WSG-FMF.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+	  
+      <visual name='gripper_right_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>meshes/GUIDE_WSG50_110.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name='gripper_right_fixed_joint_lump__finger_right_visual_1'>
+        <pose frame=''>0 0 0.023 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>meshes/WSG-FMF.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+	
+    <joint name='base_joint_gripper_right' type='prismatic'>
+      <child>gripper_right</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>-1 0 0</xyz>
+        <limit>
+          <lower>-0.055</lower>
+          <upper>0.001</upper>
+          <effort>1</effort>
+          <velocity>1</velocity>
+        </limit>
+        <dynamics>
+          <damping>100</damping>
+          <friction>100</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    
+    <link name='finger_right'>
+      <pose frame=''>0.062 0 0.145 0 0 1.5708</pose>
+      <inertial>
+        <mass>0.2</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+	  
+      <collision name='finger_right_collision'>
+	<pose frame=''>0 0 0.042 0 0 0 </pose>
+	<geometry>        
+       <box>
+              <size>0.02 0.02 0.15 </size>
+            </box>
+
+        </geometry>
+      </collision>
+	  
+      <visual name='finger_right_visual'>
+        <pose frame=''>0 0 0 0 0 0 </pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1 </scale>
+            <uri>meshes/l_gripper_tip_scaled.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+	
+    <joint name='gripper_finger_right' type='fixed'>
+      <parent>gripper_right</parent>
+      <child>finger_right</child>
+    </joint>
+    
+    <link name='finger_left'>
+      <pose frame=''>-0.062 0 0.145 0 0 4.71239</pose>
+      <inertial>
+        <mass>0.2</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+	  
+      <collision name='finger_left_collision'>
+        <pose frame=''>0 0 0.042 0 0 0 </pose>
+        <geometry>
+               <box>
+              <size>0.02 0.02 0.15 </size>
+            </box>
+
+        </geometry>
+      </collision>
+	  
+      <visual name='finger_left_visual'>
+        <pose frame=''>0 0 0 0 0 0 </pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1 </scale>
+            <uri>meshes/l_gripper_tip_scaled.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+	
+    <joint name='gripper_finger_left' type='fixed'>
+      <parent>gripper_left</parent>
+      <child>finger_left</child>
+    </joint>
+  </model>
+</world>
+</sdf>

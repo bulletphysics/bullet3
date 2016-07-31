@@ -44,7 +44,7 @@ int DillCreator::getNumBodies(int* num_bodies) const {
     return 0;
 }
 
-int DillCreator::getBody(int body_index, int* parent_index, JointType* joint_type,
+int DillCreator::getBody(const int body_index, int* parent_index, JointType* joint_type,
                          vec3* parent_r_parent_body_ref, mat33* body_T_parent_ref,
                          vec3* body_axis_of_motion, idScalar* mass, vec3* body_r_body_com,
                          mat33* body_I_body, int* user_int, void** user_ptr) const {

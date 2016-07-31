@@ -65,7 +65,8 @@ btAlignedObjectArray<std::string> gFileNameArray;
 struct ImportUrdfInternalData
 {
     ImportUrdfInternalData()
-    :m_numMotors(0)
+    :m_numMotors(0),
+    m_mb(0)
     {
 		for (int i=0;i<MAX_NUM_MOTORS;i++)
 		{
@@ -74,10 +75,13 @@ struct ImportUrdfInternalData
 		}
     }
 
+    
     btScalar m_motorTargetVelocities[MAX_NUM_MOTORS];
     btMultiBodyJointMotor* m_jointMotors [MAX_NUM_MOTORS];
 	btGeneric6DofSpring2Constraint* m_generic6DofJointMotors [MAX_NUM_MOTORS];
     int m_numMotors;
+    btMultiBody* m_mb;
+    btRigidBody* m_rb;
 
 };
 
@@ -128,7 +132,7 @@ ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option, 
 		
 		if (gFileNameArray.size()==0)
 		{
-			gFileNameArray.push_back("sphere2.urdf");
+			gFileNameArray.push_back("r2d2.urdf");
 
 		}
 
@@ -203,7 +207,7 @@ void ImportUrdfSetup::initPhysics()
 	BulletURDFImporter u2b(m_guiHelper, 0);
 	
 	
-	bool loadOk =  u2b.loadURDF(m_fileName);
+	bool loadOk = u2b.loadURDF(m_fileName);
 
 #ifdef TEST_MULTIBODY_SERIALIZATION	
 	//test to serialize a multibody to disk or shared memory, with base, link and joint names
@@ -223,7 +227,6 @@ void ImportUrdfSetup::initPhysics()
 		{
 
 
-			btMultiBody* mb = 0;
 
 
 			//todo: move these internal API called inside the 'ConvertURDF2Bullet' call, hidden from the user
@@ -232,7 +235,13 @@ void ImportUrdfSetup::initPhysics()
 			MyMultiBodyCreator creation(m_guiHelper);
 
 			ConvertURDF2Bullet(u2b,creation, identityTrans,m_dynamicsWorld,m_useMultiBody,u2b.getPathPrefix());
-			mb = creation.getBulletMultiBody();
+			m_data->m_rb = creation.getRigidBody();
+			m_data->m_mb = creation.getBulletMultiBody();
+			btMultiBody* mb = m_data->m_mb;
+			for (int i = 0; i < u2b.getNumAllocatedCollisionShapes(); i++)
+			{
+				m_collisionShapes.push_back(u2b.getAllocatedCollisionShape(i));
+			}
 
 			if (m_useMultiBody && mb )
 			{
@@ -343,6 +352,7 @@ void ImportUrdfSetup::initPhysics()
 			btVector3 groundHalfExtents(20,20,20);
 			groundHalfExtents[upAxis]=1.f;
 			btBoxShape* box = new btBoxShape(groundHalfExtents);
+			m_collisionShapes.push_back(box);
 			box->initializePolyhedralFeatures();
 
 			m_guiHelper->createCollisionShapeGraphicsObject(box);
@@ -357,8 +367,7 @@ void ImportUrdfSetup::initPhysics()
 			m_guiHelper->createRigidBodyGraphicsObject(body,color);
 		}
 
-		///this extra stepSimulation call makes sure that all the btMultibody transforms are properly propagates.
-		m_dynamicsWorld->stepSimulation(1. / 240., 0);// 1., 10, 1. / 240.);
+		
 	}
 
 #ifdef TEST_MULTIBODY_SERIALIZATION

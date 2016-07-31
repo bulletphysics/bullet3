@@ -7,9 +7,9 @@
 #include "LinearMath/btAlignedObjectArray.h"
 
 
-void urdfStringSplit( btAlignedObjectArray<std::string>&pieces, const std::string& vector_str, btAlignedObjectArray<std::string> separators);
+void urdfStringSplit( btAlignedObjectArray<std::string>&pieces, const std::string& vector_str, const btAlignedObjectArray<std::string>& separators);
 
-btAlignedObjectArray<std::string> urdfIsAnyOf(const char* seps);
+void urdfIsAnyOf(const char* seps, btAlignedObjectArray<std::string>& strArray);
 
 ///The string split C code is by Lars Wirzenius
 ///See http://stackoverflow.com/questions/2531605/how-to-split-a-string-with-a-delimiter-larger-than-one-single-char

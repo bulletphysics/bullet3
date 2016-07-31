@@ -38,7 +38,9 @@ static btScalar gCurrentPendulumLength = 8; // current pendula length
 
 static btScalar gInitialPendulumLength = 8; // default pendula length
 
-static btScalar gForcingForce = 30; // default force to displace the pendula
+static btScalar gDisplacementForce = 30; // default force to displace the pendula
+
+static btScalar gForceScalar = 0; // default force scalar to apply a displacement
 
 struct NewtonsCradleExample: public CommonRigidBodyBase {
 	NewtonsCradleExample(struct GUIHelperInterface* helper) :
@@ -48,11 +50,12 @@ struct NewtonsCradleExample: public CommonRigidBodyBase {
 	}
 	virtual void initPhysics();
 	virtual void renderScene();
-	virtual void createPendulum(btSphereShape* colShape, btVector3 position, btScalar length, btScalar mass);
+	virtual void createPendulum(btSphereShape* colShape, const btVector3& position, btScalar length, btScalar mass);
 	virtual void changePendulaLength(btScalar length);
 	virtual void changePendulaRestitution(btScalar restitution);
 	virtual void stepSimulation(float deltaTime);
 	virtual bool keyboardCallback(int key, int state);
+	virtual void applyPendulumForce(btScalar pendulumForce);
 	void resetCamera() {
 		float dist = 41;
 		float pitch = 52;
@@ -62,17 +65,19 @@ struct NewtonsCradleExample: public CommonRigidBodyBase {
 			targetPos[2]);
 	}
 
-	std::vector<btSliderConstraint*> constraints;
-	std::vector<btRigidBody*> pendula;
+	std::vector<btSliderConstraint*> constraints; // keep a handle to the slider constraints
+	std::vector<btRigidBody*> pendula; // keep a handle to the pendula
 };
 
 static NewtonsCradleExample* nex = NULL;
 
-void onPendulaLengthChanged(float pendulaLength);
+void onPendulaLengthChanged(float pendulaLength); // Change the pendula length
 
-void onPendulaRestitutionChanged(float pendulaRestitution);
+void onPendulaRestitutionChanged(float pendulaRestitution); // change the pendula restitution
 
-void floorSliderValue(float notUsed);
+void floorSliderValue(float notUsed); // floor the slider values which should be integers
+
+void applyForceWithForceScalar(float forceScalar);
 
 void NewtonsCradleExample::initPhysics() {
 
@@ -117,9 +122,18 @@ void NewtonsCradleExample::initPhysics() {
 	}
 
 	{ // create a slider to change the force to displace the lowest pendulum
-		SliderParams slider("Displacement force", &gForcingForce);
+		SliderParams slider("Displacement force", &gDisplacementForce);
 		slider.m_minVal = 0.1;
 		slider.m_maxVal = 200;
+		slider.m_clampToNotches = false;
+		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
+			slider);
+	}
+
+	{ // create a slider to apply the force by slider
+		SliderParams slider("Apply displacement force", &gForceScalar);
+		slider.m_minVal = -1;
+		slider.m_maxVal = 1;
 		slider.m_clampToNotches = false;
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
 			slider);
@@ -162,13 +176,15 @@ void NewtonsCradleExample::initPhysics() {
 }
 
 void NewtonsCradleExample::stepSimulation(float deltaTime) {
+
+	applyForceWithForceScalar(gForceScalar); // apply force defined by apply force slider
+
 	if (m_dynamicsWorld) {
 		m_dynamicsWorld->stepSimulation(deltaTime);
 	}
-
 }
 
-void NewtonsCradleExample::createPendulum(btSphereShape* colShape,btVector3 position, btScalar length, btScalar mass) {
+void NewtonsCradleExample::createPendulum(btSphereShape* colShape, const btVector3& position, btScalar length, btScalar mass) {
 
 	// The pendulum looks like this (names when built):
 	// O   topSphere
@@ -281,7 +297,7 @@ bool NewtonsCradleExample::keyboardCallback(int key, int state) {
 
 	//key 1, key 2, key 3
 	switch (key) {
-	case 49 /*ASCII for 1*/: {
+	case '1' /*ASCII for 1*/: {
 
 		//assumption: Sphere are aligned in Z axis
 		btScalar newLimit = btScalar(gCurrentPendulumLength + 0.1);
@@ -292,7 +308,7 @@ bool NewtonsCradleExample::keyboardCallback(int key, int state) {
 		b3Printf("Increase pendulum length to %f", gCurrentPendulumLength);
 		return true;
 	}
-	case 50 /*ASCII for 2*/: {
+	case '2' /*ASCII for 2*/: {
 
 		//assumption: Sphere are aligned in Z axis
 		btScalar newLimit = btScalar(gCurrentPendulumLength - 0.1);
@@ -306,16 +322,23 @@ bool NewtonsCradleExample::keyboardCallback(int key, int state) {
 		b3Printf("Decrease pendulum length to %f", gCurrentPendulumLength);
 		return true;
 	}
-	case 51 /*ASCII for 3*/: {
-		for (int i = 0; i < gDisplacedPendula; i++) {
-			if (gDisplacedPendula >= 0 && gDisplacedPendula <= gPendulaQty)
-				pendula[i]->applyCentralForce(btVector3(gForcingForce, 0, 0));
-		}
+	case '3' /*ASCII for 3*/: {
+		applyPendulumForce(gDisplacementForce);
 		return true;
 	}
 	}
 
 	return false;
+}
+
+void NewtonsCradleExample::applyPendulumForce(btScalar pendulumForce){
+	if(pendulumForce != 0){
+		b3Printf("Apply %f to pendulum",pendulumForce);
+		for (int i = 0; i < gDisplacedPendula; i++) {
+			if (gDisplacedPendula >= 0 && gDisplacedPendula <= gPendulaQty)
+				pendula[i]->applyCentralForce(btVector3(pendulumForce, 0, 0));
+		}
+	}
 }
 
 // GUI parameter modifiers
@@ -336,6 +359,18 @@ void onPendulaRestitutionChanged(float pendulaRestitution) {
 void floorSliderValue(float notUsed) {
 	gPendulaQty = floor(gPendulaQty);
 	gDisplacedPendula = floor(gDisplacedPendula);
+
+}
+
+void applyForceWithForceScalar(float forceScalar) {
+	if(nex){
+		btScalar appliedForce = forceScalar * gDisplacementForce;
+
+		if(fabs(gForceScalar) < 0.2f)
+			gForceScalar = 0;
+
+		nex->applyPendulumForce(appliedForce);
+	}
 }
 
 CommonExampleInterface* ET_NewtonsCradleCreateFunc(

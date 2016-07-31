@@ -32,6 +32,7 @@ public:
     }
     void loadDiffuseTexture(const char* relativeFileName);
 	void setDiffuseTextureFromData(unsigned char* textureImage,int textureWidth,int textureHeight);
+	void reserveMemory(int numVertices, int numIndices);
     void addVertex(float x,float y,float z, float normalX, float normalY, float normalZ, float u, float v);
     void addTriangle(int vertexposIndex0, int normalIndex0, int uvIndex0,
                         int vertexposIndex1, int normalIndex1, int uvIndex1,

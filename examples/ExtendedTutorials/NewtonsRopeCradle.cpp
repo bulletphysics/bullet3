@@ -44,7 +44,9 @@ static btScalar gInitialPendulumHeight = 8; // default pendula height
 
 static btScalar gRopeResolution = 1; // default rope resolution (number of links as in a chain)
 
-static btScalar gForcingForce = 30; // default force to displace the pendula
+static btScalar gDisplacementForce = 30; // default force to displace the pendula
+
+static btScalar gForceScalar = 0; // default force scalar to apply a displacement
 
 struct NewtonsRopeCradleExample : public CommonRigidBodyBase { 
 	NewtonsRopeCradleExample(struct GUIHelperInterface* helper) :
@@ -52,7 +54,9 @@ struct NewtonsRopeCradleExample : public CommonRigidBodyBase {
 	}
 	virtual ~NewtonsRopeCradleExample(){}
 	virtual void initPhysics();
+	virtual void stepSimulation(float deltaTime);
 	virtual void renderScene();
+	virtual void applyPendulumForce(btScalar pendulumForce);
 	void createEmptyDynamicsWorld()
 	{
 		m_collisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
@@ -72,7 +76,7 @@ struct NewtonsRopeCradleExample : public CommonRigidBodyBase {
 	}
 
 	virtual void createRopePendulum(btSphereShape* colShape,
-		btVector3 position, btQuaternion pendulumOrientation, btScalar width, btScalar height, btScalar mass);
+		const btVector3& position, const btQuaternion& pendulumOrientation, btScalar width, btScalar height, btScalar mass);
 	virtual void changePendulaRestitution(btScalar restitution);
 	virtual void connectWithRope(btRigidBody* body1, btRigidBody* body2);
 	virtual bool keyboardCallback(int key, int state);
@@ -104,6 +108,8 @@ static NewtonsRopeCradleExample* nex = NULL;
 void onRopePendulaRestitutionChanged(float pendulaRestitution);
 
 void floorRSliderValue(float notUsed);
+
+void applyRForceWithForceScalar(float forceScalar);
 
 void NewtonsRopeCradleExample::initPhysics()
 {
@@ -167,9 +173,18 @@ void NewtonsRopeCradleExample::initPhysics()
 	}
 
 	{ // create a slider to change the force to displace the lowest pendulum
-		SliderParams slider("Displacement force", &gForcingForce);
+		SliderParams slider("Displacement force", &gDisplacementForce);
 		slider.m_minVal = 0.1;
 		slider.m_maxVal = 200;
+		slider.m_clampToNotches = false;
+		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
+			slider);
+	}
+	
+	{ // create a slider to apply the force by slider
+		SliderParams slider("Apply displacement force", &gForceScalar);
+		slider.m_minVal = -1;
+		slider.m_maxVal = 1;
 		slider.m_clampToNotches = false;
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
 			slider);
@@ -180,34 +195,34 @@ void NewtonsRopeCradleExample::initPhysics()
 	createEmptyDynamicsWorld();
 
 	// create a debug drawer
-		m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
-		if (m_dynamicsWorld->getDebugDrawer())
-			m_dynamicsWorld->getDebugDrawer()->setDebugMode(
-				btIDebugDraw::DBG_DrawWireframe
-					+ btIDebugDraw::DBG_DrawContactPoints
-					+ btIDebugDraw::DBG_DrawConstraints
-					+ btIDebugDraw::DBG_DrawConstraintLimits);
+	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
+	if (m_dynamicsWorld->getDebugDrawer())
+		m_dynamicsWorld->getDebugDrawer()->setDebugMode(
+			btIDebugDraw::DBG_DrawWireframe
+				+ btIDebugDraw::DBG_DrawContactPoints
+				+ btIDebugDraw::DBG_DrawConstraints
+				+ btIDebugDraw::DBG_DrawConstraintLimits);
 
-		{ // create the pendula starting at the indicated position below and where each pendulum has the following mass
-			btScalar pendulumMass(1.0f);
+	{ // create the pendula starting at the indicated position below and where each pendulum has the following mass
+		btScalar pendulumMass(1.0f);
 
-			btVector3 position(0.0f,15.0f,0.0f); // initial left-most pendulum position
-			btQuaternion orientation(0,0,0,1); // orientation of the pendula
+		btVector3 position(0.0f,15.0f,0.0f); // initial left-most pendulum position
+		btQuaternion orientation(0,0,0,1); // orientation of the pendula
 
-			// Re-using the same collision is better for memory usage and performance
-			btSphereShape* pendulumShape = new btSphereShape(gSphereRadius);
-			m_collisionShapes.push_back(pendulumShape);
+		// Re-using the same collision is better for memory usage and performance
+		btSphereShape* pendulumShape = new btSphereShape(gSphereRadius);
+		m_collisionShapes.push_back(pendulumShape);
 
-			for (int i = 0; i < floor(gPendulaQty); i++) {
+		for (int i = 0; i < floor(gPendulaQty); i++) {
 
-				// create pendulum
-				createRopePendulum(pendulumShape, position, orientation,gInitialPendulumWidth,
-					gInitialPendulumHeight, pendulumMass);
+			// create pendulum
+			createRopePendulum(pendulumShape, position, orientation,gInitialPendulumWidth,
+				gInitialPendulumHeight, pendulumMass);
 
-				// displace the pendula 1.05 sphere size, so that they all nearly touch (small spacings in between)
-				position.setX(position.x()-2.1f * gSphereRadius);
-			}
+			// displace the pendula 1.05 sphere size, so that they all nearly touch (small spacings in between)
+			position.setX(position.x()-2.1f * gSphereRadius);
 		}
+	}
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
@@ -229,8 +244,17 @@ void NewtonsRopeCradleExample::connectWithRope(btRigidBody* body1, btRigidBody* 
 	getSoftDynamicsWorld()->addSoftBody(softBodyRope0);
 }
 
+void NewtonsRopeCradleExample::stepSimulation(float deltaTime) {
+
+	applyRForceWithForceScalar(gForceScalar); // apply force defined by apply force slider
+
+	if (m_dynamicsWorld) {
+		m_dynamicsWorld->stepSimulation(deltaTime);
+	}
+}
+
 void NewtonsRopeCradleExample::createRopePendulum(btSphereShape* colShape,
-	btVector3 position, btQuaternion pendulumOrientation, btScalar width, btScalar height, btScalar mass) {
+	const btVector3& position, const btQuaternion& pendulumOrientation, btScalar width, btScalar height, btScalar mass) {
 
 	// The pendulum looks like this (names when built):
 	// O   O  topSphere1 topSphere2
@@ -312,16 +336,23 @@ bool NewtonsRopeCradleExample::keyboardCallback(int key, int state) {
 
 	// key 3
 	switch (key) {
-	case 51 /*ASCII for 3*/: {
-		for (int i = 0; i < gDisplacedPendula; i++) {
-			if (gDisplacedPendula >= 0 && gDisplacedPendula <= gPendulaQty)
-				pendula[i]->applyCentralForce(btVector3(gForcingForce, 0, 0));
-		}
+	case '3' /*ASCII for 3*/: {
+		applyPendulumForce(gDisplacementForce);
 		return true;
 	}
 	}
 
 	return false;
+}
+
+void NewtonsRopeCradleExample::applyPendulumForce(btScalar pendulumForce){
+	if(pendulumForce != 0){
+		b3Printf("Apply %f to pendulum",pendulumForce);
+		for (int i = 0; i < gDisplacedPendula; i++) {
+			if (gDisplacedPendula >= 0 && gDisplacedPendula <= gPendulaQty)
+				pendula[i]->applyCentralForce(btVector3(pendulumForce, 0, 0));
+		}
+	}
 }
 
 // GUI parameter modifiers
@@ -336,6 +367,17 @@ void floorRSliderValue(float notUsed) {
 	gPendulaQty = floor(gPendulaQty);
 	gDisplacedPendula = floor(gDisplacedPendula);
 	gRopeResolution = floor(gRopeResolution);
+}
+
+void applyRForceWithForceScalar(float forceScalar) {
+	if(nex){
+		btScalar appliedForce = forceScalar * gDisplacementForce;
+
+		if(fabs(gForceScalar) < 0.2f)
+			gForceScalar = 0;
+
+		nex->applyPendulumForce(appliedForce);
+	}
 }
 
 CommonExampleInterface* ET_NewtonsRopeCradleCreateFunc(

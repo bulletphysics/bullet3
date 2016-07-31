@@ -170,10 +170,11 @@ protected:
           //  b3Printf("# motors = %d, cmd[%d] qIndex = %d, uIndex = %d, targetPos = %f", m_numMotors, serial, qIndex,uIndex,targetPos);
             
             b3JointControlSetDesiredPosition(commandHandle, qIndex, targetPos);
-            b3JointControlSetKp(commandHandle, qIndex, 0.1);
-            b3JointControlSetKd(commandHandle, uIndex, 0);
+            b3JointControlSetDesiredVelocity(commandHandle,uIndex,0);
+            b3JointControlSetKp(commandHandle, qIndex, 0.2);
+            b3JointControlSetKd(commandHandle, uIndex, 1.);
             
-            b3JointControlSetMaximumForce(commandHandle,uIndex,1000);
+            b3JointControlSetMaximumForce(commandHandle,uIndex,5000);
         }
 	}
 	virtual void	physicsDebugDraw(int debugFlags)
@@ -236,7 +237,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
             b3SharedMemoryCommandHandle commandHandle = b3LoadUrdfCommandInit(m_physicsClientHandle, "kuka_iiwa/model.urdf");
             //setting the initial position, orientation and other arguments are optional
             double startPosX = 0;
-            static double startPosY = 0;
+            static double startPosY = 1;
             double startPosZ = 0;
             b3LoadUrdfCommandSetStartPosition(commandHandle, startPosX,startPosY,startPosZ);
 			startPosY += 2.f;
@@ -256,11 +257,13 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
             ///request an image from a simulated camera, using a software renderer.
             
             b3SharedMemoryCommandHandle commandHandle = b3InitRequestCameraImage(m_physicsClientHandle);
+            //b3RequestCameraImageSelectRenderer(commandHandle,ER_BULLET_HARDWARE_OPENGL);
             
 			float viewMatrix[16];
 			float projectionMatrix[16];
-			this->m_guiHelper->getRenderInterface()->getActiveCamera()->getCameraProjectionMatrix(projectionMatrix);
-			this->m_guiHelper->getRenderInterface()->getActiveCamera()->getCameraViewMatrix(viewMatrix);
+			m_guiHelper->getRenderInterface()->getActiveCamera()->getCameraProjectionMatrix(projectionMatrix);
+            m_guiHelper->getRenderInterface()->getActiveCamera()->getCameraViewMatrix(viewMatrix);
+            
             b3RequestCameraImageSetCameraMatrices(commandHandle, viewMatrix,projectionMatrix);
 			b3RequestCameraImageSetPixelResolution(commandHandle, camVisualizerWidth,camVisualizerHeight);
 			b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
@@ -483,9 +486,9 @@ void	PhysicsClientExample::createButtons()
 		}
         createButton("Send Desired State",CMD_SEND_DESIRED_STATE,  isTrigger);
         createButton("Create Box Collider",CMD_CREATE_BOX_COLLISION_SHAPE,isTrigger);
-		createButton("Create Cylinder Body",CMD_CREATE_RIGID_BODY,isTrigger);
+				createButton("Create Cylinder Body",CMD_CREATE_RIGID_BODY,isTrigger);
         createButton("Reset Simulation",CMD_RESET_SIMULATION,isTrigger);
-		createButton("Initialize Pose",CMD_INIT_POSE,  isTrigger);
+				createButton("Initialize Pose",CMD_INIT_POSE,  isTrigger);
         createButton("Set gravity", CMD_SEND_PHYSICS_SIMULATION_PARAMETERS, isTrigger);
 
         if (m_bodyUniqueIds.size())
@@ -681,7 +684,6 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 							
 							int pixelIndex = (xIndex+yIndex*imageData.m_pixelWidth)*bytesPerPixel;
 							m_canvas->setPixel(m_canvasIndex,i,j,
-                                               
 									imageData.m_rgbColorData[pixelIndex],
 									imageData.m_rgbColorData[pixelIndex+1],
 									imageData.m_rgbColorData[pixelIndex+2],
@@ -835,7 +837,7 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
             enqueueCommand(CMD_STEP_FORWARD_SIMULATION);
 			if (m_options != eCLIENTEXAMPLE_SERVER)
 			{
-				enqueueCommand(CMD_REQUEST_DEBUG_LINES);
+				//enqueueCommand(CMD_REQUEST_DEBUG_LINES);
 			}
         }
     }
@@ -855,3 +857,4 @@ class CommonExampleInterface*    PhysicsClientCreateFunc(struct CommonExampleOpt
 	}
 	return example;
 }
+

@@ -16,10 +16,10 @@ subject to the following restrictions:
 
 
 ///todo: make this configurable in the gui
-bool useShadowMap=true;//false;//true;
-int shadowMapWidth=8192;
-int shadowMapHeight=8192;
-float shadowMapWorldSize=50;
+bool useShadowMap = true;// true;//false;//true;
+int shadowMapWidth=4096;//8192;
+int shadowMapHeight= 4096;
+float shadowMapWorldSize=25;
 
 #define MAX_POINTS_IN_BATCH 1024
 #define MAX_LINES_IN_BATCH 1024
@@ -75,7 +75,7 @@ float shadowMapWorldSize=50;
 static InternalDataRenderer* sData2;
 
 GLint lineWidthRange[2]={1,1};
-static b3Vector3 gLightPos=b3MakeVector3(-5,200,-40);
+static b3Vector3 gLightPos=b3MakeVector3(-5,12,-4);
 
 struct b3GraphicsInstance
 {
@@ -146,8 +146,9 @@ struct InternalTextureHandle
 struct InternalDataRenderer : public GLInstanceRendererInternalData
 {
 
-	SimpleCamera	m_defaultCamera;
-
+	SimpleCamera	m_defaultCamera1;
+    CommonCameraInterface* m_activeCamera;
+    
 	GLfloat m_projectionMatrix[16];
 	GLfloat m_viewMatrix[16];
 
@@ -158,10 +159,14 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 	GLRenderToTexture*	m_shadowMap;
 	GLuint				m_shadowTexture;
 	
+	GLuint				m_renderFrameBuffer;
+	
 	
 	InternalDataRenderer() :
 		m_shadowMap(0),
-		m_shadowTexture(0)
+		m_shadowTexture(0),
+		m_renderFrameBuffer(0),
+		m_activeCamera(&m_defaultCamera1)
 	{
 		//clear to zero to make it obvious if the matrix is used uninitialized
 		for (int i=0;i<16;i++)
@@ -258,6 +263,8 @@ GLInstancingRenderer::GLInstancingRenderer(int maxNumObjectCapacity, int maxShap
 
 void GLInstancingRenderer::removeAllInstances()
 {
+	m_data->m_totalNumInstances = 0;
+
 	for (int i=0;i<m_graphicsInstances.size();i++)
 	{
 		if (m_graphicsInstances[i]->m_index_vbo)
@@ -272,6 +279,7 @@ void GLInstancingRenderer::removeAllInstances()
 	}
 	m_graphicsInstances.clear();
 }
+
 
 GLInstancingRenderer::~GLInstancingRenderer()
 {
@@ -320,6 +328,7 @@ void GLInstancingRenderer::writeSingleInstanceTransformToCPU(const float* positi
 	*/
 }
 
+
 void GLInstancingRenderer::writeSingleInstanceColorToCPU(double* color, int srcIndex)
 {
 	m_data->m_instance_colors_ptr[srcIndex*4+0]=float(color[0]);
@@ -337,12 +346,24 @@ void GLInstancingRenderer::writeSingleInstanceColorToCPU(float* color, int srcIn
 	m_data->m_instance_colors_ptr[srcIndex*4+3]=color[3];
 }
 
+void GLInstancingRenderer::writeSingleInstanceScaleToCPU(float* scale, int srcIndex)
+{
+	m_data->m_instance_scale_ptr[srcIndex*3+0]=scale[0];
+	m_data->m_instance_scale_ptr[srcIndex*3+1]=scale[1];
+	m_data->m_instance_scale_ptr[srcIndex*3+2]=scale[2];
+}
 
+void GLInstancingRenderer::writeSingleInstanceScaleToCPU(double* scale, int srcIndex)
+{
+	m_data->m_instance_scale_ptr[srcIndex*3+0]=scale[0];
+	m_data->m_instance_scale_ptr[srcIndex*3+1]=scale[1];
+	m_data->m_instance_scale_ptr[srcIndex*3+2]=scale[2];
+}
 
 void GLInstancingRenderer::writeSingleInstanceTransformToGPU(float* position, float* orientation, int objectIndex)
 {
 	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
-	glFlush();
+	//glFlush();
 
 	char* orgBase =  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_READ_WRITE);
 	//b3GraphicsInstance* gfxObj = m_graphicsInstances[k];
@@ -372,7 +393,7 @@ void GLInstancingRenderer::writeSingleInstanceTransformToGPU(float* position, fl
 	orientations [objectIndex*4+3] = orientation[3];
 
 	glUnmapBuffer( GL_ARRAY_BUFFER);
-	glFlush();
+	//glFlush();
 }
 
 
@@ -383,25 +404,46 @@ void GLInstancingRenderer::writeTransforms()
 
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
-	glFlush();
+	//glFlush();
 
 	b3Assert(glGetError() ==GL_NO_ERROR);
+	
 
+#ifdef B3_DEBUG
+	{
+		int totalNumInstances= 0;
+		for (int k=0;k<m_graphicsInstances.size();k++)
+		{
+			b3GraphicsInstance* gfxObj = m_graphicsInstances[k];
+			totalNumInstances+=gfxObj->m_numGraphicsInstances;
+		}
+		b3Assert(m_data->m_totalNumInstances == totalNumInstances);
+	}
+#endif//B3_DEBUG
+
+	int POSITION_BUFFER_SIZE = (m_data->m_totalNumInstances*sizeof(float)*4);
+	int ORIENTATION_BUFFER_SIZE = (m_data->m_totalNumInstances*sizeof(float)*4);
+	int COLOR_BUFFER_SIZE = (m_data->m_totalNumInstances*sizeof(float)*4);
+//	int SCALE_BUFFER_SIZE = (totalNumInstances*sizeof(float)*3);
+
+#if 1
+	glBufferSubData(	GL_ARRAY_BUFFER,m_data->m_maxShapeCapacityInBytes,m_data->m_totalNumInstances*sizeof(float)*4,
+ 						&m_data->m_instance_positions_ptr[0]);
+	glBufferSubData(	GL_ARRAY_BUFFER,m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE,m_data->m_totalNumInstances*sizeof(float)*4,
+ 						&m_data->m_instance_quaternion_ptr[0]);
+	glBufferSubData(	GL_ARRAY_BUFFER,m_data->m_maxShapeCapacityInBytes+ POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE, m_data->m_totalNumInstances*sizeof(float)*4,
+ 						&m_data->m_instance_colors_ptr[0]);
+	glBufferSubData(	GL_ARRAY_BUFFER, m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE+COLOR_BUFFER_SIZE,m_data->m_totalNumInstances*sizeof(float)*3,
+					 	&m_data->m_instance_scale_ptr[0]);
+#else
 
 	char* orgBase =  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_READ_WRITE);
 	if (orgBase)
 	{
 
 
-		int totalNumInstances= 0;
-
-		for (int k=0;k<m_graphicsInstances.size();k++)
-		{
-			b3GraphicsInstance* gfxObj = m_graphicsInstances[k];
-			totalNumInstances+=gfxObj->m_numGraphicsInstances;
-		}
-
-		m_data->m_totalNumInstances = totalNumInstances;
+		
+		
 
 		for (int k=0;k<m_graphicsInstances.size();k++)
 		{
@@ -410,10 +452,7 @@ void GLInstancingRenderer::writeTransforms()
 
 
 
-			int POSITION_BUFFER_SIZE = (totalNumInstances*sizeof(float)*4);
-			int ORIENTATION_BUFFER_SIZE = (totalNumInstances*sizeof(float)*4);
-			int COLOR_BUFFER_SIZE = (totalNumInstances*sizeof(float)*4);
-		//	int SCALE_BUFFER_SIZE = (totalNumInstances*sizeof(float)*3);
+			
 
 			char* base = orgBase;
 
@@ -461,7 +500,10 @@ void GLInstancingRenderer::writeTransforms()
 	glUnmapBuffer( GL_ARRAY_BUFFER);
 	//if this glFinish is removed, the animation is not always working/blocks
 	//@todo: figure out why
-	glFlush();
+	//glFlush();
+
+#endif
+
 	glBindBuffer(GL_ARRAY_BUFFER, 0);//m_data->m_vbo);
 
     b3Assert(glGetError() ==GL_NO_ERROR);
@@ -879,18 +921,18 @@ void	GLInstancingRenderer::resize(int width, int height)
 
 const CommonCameraInterface* GLInstancingRenderer::getActiveCamera() const
 {
-	return &m_data->m_defaultCamera;
+	return m_data->m_activeCamera;
 }
 
 CommonCameraInterface* GLInstancingRenderer::getActiveCamera()
 {
-	return &m_data->m_defaultCamera;
+	return m_data->m_activeCamera;
 }
 
 
 void GLInstancingRenderer::setActiveCamera(CommonCameraInterface* cam)
 {
-	b3Assert(0);//not supported yet
+	m_data->m_activeCamera = cam;
 }
 
 
@@ -911,14 +953,12 @@ void GLInstancingRenderer::updateCamera(int upAxis)
     b3Assert(0);
 	};
 
-	m_data->m_defaultCamera.setCameraUpAxis(upAxis);
-	m_data->m_defaultCamera.setAspectRatio((float)m_screenWidth/(float)m_screenHeight);
-	m_data->m_defaultCamera.update();
+	m_data->m_activeCamera->setCameraUpAxis(upAxis);
+	m_data->m_activeCamera->setAspectRatio((float)m_screenWidth/(float)m_screenHeight);
+	m_data->m_defaultCamera1.update();
+    m_data->m_activeCamera->getCameraProjectionMatrix(m_data->m_projectionMatrix);
+    m_data->m_activeCamera->getCameraViewMatrix(m_data->m_viewMatrix);
 
-	m_data->m_defaultCamera.getCameraProjectionMatrix(m_data->m_projectionMatrix);
-	m_data->m_defaultCamera.getCameraViewMatrix(m_data->m_viewMatrix);
-	
-	
 
 }
 
@@ -997,13 +1037,13 @@ void GLInstancingRenderer::renderScene()
 	//avoid some Intel driver on a Macbook Pro to lock-up
 	//todo: figure out what is going on on that machine
 
-	glFlush();
+	//glFlush();
 
 	if (useShadowMap)
 	{
 
 		renderSceneInternal(B3_CREATE_SHADOWMAP_RENDERMODE);
-	//	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+		//glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 		renderSceneInternal(B3_USE_SHADOWMAP_RENDERMODE);
 
 	} else
@@ -1072,6 +1112,9 @@ void GLInstancingRenderer::drawPoints(const float* positions, const float color[
 
 void GLInstancingRenderer::drawLines(const float* positions, const float color[4], int numPoints, int pointStrideInBytes, const unsigned int* indices, int numIndices, float lineWidthIn)
 {
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D,0);
+
 	float lineWidth = lineWidthIn;
 	b3Clamp(lineWidth,(float)lineWidthRange[0],(float)lineWidthRange[1]);
 	glLineWidth(lineWidth);
@@ -1446,7 +1489,7 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 	float depthViewMatrix[4][4];
 	b3Vector3 center = b3MakeVector3(0,0,0);
 	float upf[3];
-	m_data->m_defaultCamera.getCameraUpVector(upf);
+	m_data->m_activeCamera->getCameraUpVector(upf);
 	b3Vector3 up = b3MakeVector3(upf[0],upf[1],upf[2]);
 	b3CreateLookAt(gLightPos,center,up,&depthViewMatrix[0][0]);
 	//b3CreateLookAt(lightPos,m_data->m_cameraTargetPosition,b3Vector3(0,1,0),(float*)depthModelViewMatrix2);
@@ -1483,6 +1526,9 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 	{
 		B3_PROFILE("updateCamera");
 	//	updateCamera();
+		m_data->m_activeCamera->getCameraProjectionMatrix(m_data->m_projectionMatrix);
+        m_data->m_activeCamera->getCameraViewMatrix(m_data->m_viewMatrix);
+
 	}
 
 b3Assert(glGetError() ==GL_NO_ERROR);
@@ -1493,7 +1539,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 		B3_PROFILE("glFlush2");
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
-		glFlush();
+		//glFlush();
 	}
 b3Assert(glGetError() ==GL_NO_ERROR);
 
@@ -1507,7 +1553,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 	int curOffset = 0;
 	//GLuint lastBindTexture = 0;
 
-
+	
 	for (int i=0;i<m_graphicsInstances.size();i++)
 	{
 
@@ -1631,6 +1677,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
                             printf("gfxObj->m_numGraphicsInstances=%d\n",gfxObj->m_numGraphicsInstances);
                             printf("indexCount=%d\n",indexCount);
 				*/
+
 							glUseProgram(createShadowMapInstancingShader);
 							glUniformMatrix4fv(createShadow_depthMVP, 1, false, &depthMVP[0][0]);
 							glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexOffset, gfxObj->m_numGraphicsInstances);
@@ -1663,7 +1710,8 @@ b3Assert(glGetError() ==GL_NO_ERROR);
                             {
                                 glDisable (GL_BLEND);
                             }
-                            
+                            glActiveTexture(GL_TEXTURE0);
+							glBindTexture(GL_TEXTURE_2D,0);
                             break;
 						}
 					default:
@@ -1682,12 +1730,13 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 
 	{
 			B3_PROFILE("glFlush");
-			glFlush();
+			//glFlush();
 		}
 	if (renderMode==B3_CREATE_SHADOWMAP_RENDERMODE)
 	{
 	//	writeTextureToPng(shadowMapWidth,shadowMapHeight,"shadowmap.png",4);
 		m_data->m_shadowMap->disable();
+		glBindFramebuffer( GL_FRAMEBUFFER, m_data->m_renderFrameBuffer);
 		glViewport(dims[0],dims[1],dims[2],dims[3]);
 
 	}
@@ -1733,4 +1782,16 @@ int GLInstancingRenderer::getInstanceCapacity() const
 {
 	return m_data->m_maxNumObjectCapacity;
 }
+
+void GLInstancingRenderer::setRenderFrameBuffer(unsigned int renderFrameBuffer)
+{
+	m_data->m_renderFrameBuffer = (GLuint) renderFrameBuffer;
+}
+
+int GLInstancingRenderer::getTotalNumInstances() const
+{
+    return m_data->m_totalNumInstances;
+}
+
+
 #endif //NO_OPENGL3
