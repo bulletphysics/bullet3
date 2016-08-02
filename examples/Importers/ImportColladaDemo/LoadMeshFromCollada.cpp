@@ -28,6 +28,7 @@ subject to the following restrictions:
 #include "btMatrix4x4.h"
 
 
+#define MAX_VISUAL_SHAPES 512
 
 
 struct VertexSource
@@ -288,42 +289,47 @@ void readLibraryGeometries(TiXmlDocument& doc, btAlignedObjectArray<GLInstanceGr
 		}//for each mesh
 		
 		int shapeIndex = visualShapes.size();
-		GLInstanceGraphicsShape& visualShape = visualShapes.expand();
-		{
-			visualShape.m_vertices = new b3AlignedObjectArray<GLInstanceVertex>;
-			visualShape.m_indices = new b3AlignedObjectArray<int>;
-			int indexBase = 0;
+        if (shapeIndex<MAX_VISUAL_SHAPES)
+        {
+            GLInstanceGraphicsShape& visualShape = visualShapes.expand();
+            {
+                visualShape.m_vertices = new b3AlignedObjectArray<GLInstanceVertex>;
+                visualShape.m_indices = new b3AlignedObjectArray<int>;
+                int indexBase = 0;
 
-			btAssert(vertexNormals.size()==vertexPositions.size());
-			for (int v=0;v<vertexPositions.size();v++)
-			{
-				GLInstanceVertex vtx;
-				vtx.xyzw[0] = vertexPositions[v].x();
-				vtx.xyzw[1] = vertexPositions[v].y();
-				vtx.xyzw[2] = vertexPositions[v].z();
-				vtx.xyzw[3] = 1.f;
-				vtx.normal[0] = vertexNormals[v].x();
-				vtx.normal[1] = vertexNormals[v].y();
-				vtx.normal[2] = vertexNormals[v].z();
-				vtx.uv[0] = 0.5f;
-				vtx.uv[1] = 0.5f;
-				visualShape.m_vertices->push_back(vtx);
-			}
+                btAssert(vertexNormals.size()==vertexPositions.size());
+                for (int v=0;v<vertexPositions.size();v++)
+                {
+                    GLInstanceVertex vtx;
+                    vtx.xyzw[0] = vertexPositions[v].x();
+                    vtx.xyzw[1] = vertexPositions[v].y();
+                    vtx.xyzw[2] = vertexPositions[v].z();
+                    vtx.xyzw[3] = 1.f;
+                    vtx.normal[0] = vertexNormals[v].x();
+                    vtx.normal[1] = vertexNormals[v].y();
+                    vtx.normal[2] = vertexNormals[v].z();
+                    vtx.uv[0] = 0.5f;
+                    vtx.uv[1] = 0.5f;
+                    visualShape.m_vertices->push_back(vtx);
+                }
 
-			for (int index=0;index<indices.size();index++)
-			{
-				visualShape.m_indices->push_back(indices[index]+indexBase);
-			}
-			
-			
-			//b3Printf(" index_count =%dand vertexPositions.size=%d\n",indices.size(), vertexPositions.size());
-			indexBase=visualShape.m_vertices->size();
-			visualShape.m_numIndices = visualShape.m_indices->size();
-			visualShape.m_numvertices = visualShape.m_vertices->size();
-		}
-		//b3Printf("geometry name=%s\n",geometryName);
-		name2Shape.insert(geometryName,shapeIndex);
-		
+                for (int index=0;index<indices.size();index++)
+                {
+                    visualShape.m_indices->push_back(indices[index]+indexBase);
+                }
+                
+                
+                //b3Printf(" index_count =%dand vertexPositions.size=%d\n",indices.size(), vertexPositions.size());
+                indexBase=visualShape.m_vertices->size();
+                visualShape.m_numIndices = visualShape.m_indices->size();
+                visualShape.m_numvertices = visualShape.m_vertices->size();
+            }
+            //b3Printf("geometry name=%s\n",geometryName);
+            name2Shape.insert(geometryName,shapeIndex);
+        } else
+        {
+            b3Warning("DAE exceeds number of visual shapes (%d/%d)",shapeIndex, MAX_VISUAL_SHAPES);
+        }
 
 	}//for each geometry
 }
@@ -557,7 +563,7 @@ void LoadMeshFromCollada(const char* relativeFileName, btAlignedObjectArray<GLIn
 //	GLInstanceGraphicsShape* instance = 0;
 	
 	//usually COLLADA files don't have that many visual geometries/shapes
-	visualShapes.reserve(32);
+	visualShapes.reserve(MAX_VISUAL_SHAPES);
 
 	float extraScaling = 1;//0.01;
 	btHashMap<btHashString, int> name2ShapeIndex;
