@@ -1836,11 +1836,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                     clientCmd.m_initPoseArgs.m_hasInitialStateQ[6]);
 
 							mb->setBaseOmega(btVector3(0,0,0));
-							mb->setWorldToBaseRot(btQuaternion(
-									clientCmd.m_initPoseArgs.m_initialStateQ[3],
+							btQuaternion invOrn(clientCmd.m_initPoseArgs.m_initialStateQ[3],
 									clientCmd.m_initPoseArgs.m_initialStateQ[4],
 									clientCmd.m_initPoseArgs.m_initialStateQ[5],
-									clientCmd.m_initPoseArgs.m_initialStateQ[6]));
+									clientCmd.m_initPoseArgs.m_initialStateQ[6]);
+									
+							mb->setWorldToBaseRot(invOrn.inverse());
 						}
 						if (clientCmd.m_updateFlags & INIT_POSE_HAS_JOINT_STATE)
 						{
