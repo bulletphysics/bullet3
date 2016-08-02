@@ -1041,6 +1041,8 @@ static int pybullet_internalSetVector(PyObject* objMat, float vector[3])
 //  renderImage(w, h, cameraPos, targetPos, cameraUp, nearVal, farVal, fov) -
 //    set resolution and initialize camera based on camera position, target
 //    position, camera up, fulstrum near/far values and camera field of view.
+//  renderImage(w, h, targetPos, distance, yaw, pitch, upAxisIndex, nearVal, farVal, fov)
+
 //
 // Note if the (w,h) is too small, the objects may not appear based on
 // where the camera has been set
@@ -1151,6 +1153,35 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
       aspect = width/height;
       b3RequestCameraImageSetFOVProjectionMatrix(command, fov, aspect, nearVal, farVal);
     }
+  }
+  else if (size==10)
+  {
+      int upAxisIndex=1;
+      float camDistance,yaw,pitch;
+      
+      //sometimes more arguments are better :-)
+       if (PyArg_ParseTuple(args, "iiOfffifff", &width, &height, &objTargetPos, &camDistance, &yaw, &pitch, &upAxisIndex, &nearVal, &farVal, &fov))
+       {
+       		
+            if (pybullet_internalSetVector(objTargetPos, targetPos))
+            {
+            		printf("width = %d, height = %d, targetPos = %f,%f,%f, distance = %f, yaw = %f, pitch = %f,	upAxisIndex = %d, near=%f, far=%f, fov=%f\n",width,height,targetPos[0],targetPos[1],targetPos[2],camDistance,yaw,pitch,upAxisIndex,nearVal,farVal,fov);
+            	
+                b3RequestCameraImageSetViewMatrix2(command,targetPos,camDistance,yaw,pitch,upAxisIndex);
+                aspect = width/height;
+                b3RequestCameraImageSetFOVProjectionMatrix(command, fov, aspect, nearVal, farVal);
+            } else
+            {
+                PyErr_SetString(SpamError, "Error parsing camera target pos");
+            }
+       } else
+       {
+            PyErr_SetString(SpamError, "Error parsing arguments");
+       }
+      
+      
+      
+      
   }
   else
   {

@@ -2,6 +2,8 @@
 #include "PhysicsClientSharedMemory.h"
 #include "Bullet3Common/b3Scalar.h"
 #include "Bullet3Common/b3Vector3.h"
+#include "Bullet3Common/b3Matrix3x3.h"
+
 #include <string.h>
 #include "SharedMemoryCommands.h"
 
@@ -823,6 +825,66 @@ void b3RequestCameraImageSetCameraMatrices(b3SharedMemoryCommandHandle commandHa
 	command->m_updateFlags |= REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES;
 }
 
+void b3RequestCameraImageSetViewMatrix2(b3SharedMemoryCommandHandle commandHandle, const float cameraTargetPosition[3], float distance, float yaw, float pitch, int upAxis)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
+    b3Vector3 camUpVector;
+    b3Vector3 camForward;
+    b3Vector3 camPos;
+    b3Vector3 camTargetPos = b3MakeVector3(cameraTargetPosition[0],cameraTargetPosition[1],cameraTargetPosition[2]);
+    
+	int forwardAxis(-1);
+	switch (upAxis)
+	{
+    case 1:
+    	forwardAxis = 2;
+    	camUpVector = b3MakeVector3(0,1,0);
+    	//gLightPos = b3MakeVector3(-50.f,100,30);
+    	break;
+    case 2:
+		forwardAxis = 1;
+		camUpVector = b3MakeVector3(0,0,1);
+		//gLightPos = b3MakeVector3(-50.f,30,100);
+		break;
+    default:
+		{
+			//b3Assert(0);
+			return;
+		}
+	};
+
+	b3Vector3 eyePos = b3MakeVector3(0,0,0);
+	eyePos[forwardAxis] = -distance;
+
+	camForward = b3MakeVector3(eyePos[0],eyePos[1],eyePos[2]);
+	if (camForward.length2() < B3_EPSILON)
+	{
+		camForward.setValue(1.f,0.f,0.f);
+	} else
+	{
+		camForward.normalize();
+	}
+
+	b3Scalar rele = yaw * b3Scalar(0.01745329251994329547);// rads per deg
+	b3Scalar razi = pitch * b3Scalar(0.01745329251994329547);// rads per deg
+	b3Quaternion rot(camUpVector,razi);
+	
+	b3Vector3 right = camUpVector.cross(camForward);
+	b3Quaternion roll(right,-rele);
+
+	eyePos = b3Matrix3x3(rot) * b3Matrix3x3(roll) * eyePos;
+	camPos = eyePos;
+	camPos += camTargetPos;
+	
+    float camPosf[4] = {camPos[0],camPos[1],camPos[2],0};
+    float camPosTargetf[4] = {camTargetPos[0],camTargetPos[1],camTargetPos[2],0};
+    float camUpf[4] = {camUpVector[0],camUpVector[1],camUpVector[2],0};
+    
+    b3RequestCameraImageSetViewMatrix(commandHandle,camPosf,camPosTargetf,camUpf);
+    
+}
 void b3RequestCameraImageSetViewMatrix(b3SharedMemoryCommandHandle commandHandle, const float cameraPosition[3], const float cameraTargetPosition[3], const float cameraUp[3])
 {
     b3Vector3 eye = b3MakeVector3(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
