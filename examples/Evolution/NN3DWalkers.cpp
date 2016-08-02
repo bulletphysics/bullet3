@@ -545,6 +545,8 @@ bool NN3DWalkers::keyboardCallback(int key, int state)
 void NN3DWalkers::exitPhysics()
 {
 
+	gContactProcessedCallback = NULL; // clear contact processed callback on exiting
+
 	int i;
 
 	for (i=0;i<m_walkers.size();i++)
