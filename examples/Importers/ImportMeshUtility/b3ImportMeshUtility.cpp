@@ -67,7 +67,7 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 
                     } else
                     {
-                        b3Warning("not found %s\n",relativeFileName);
+                        b3Warning("not found [%s]\n",relativeFileName);
                     }
 				}
 			}

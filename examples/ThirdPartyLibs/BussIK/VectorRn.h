@@ -235,4 +235,4 @@ inline double Dot( const VectorRn& u, const VectorRn& v )
 	return res;
 }
 
-#endif VECTOR_RN_H
+#endif //VECTOR_RN_H
