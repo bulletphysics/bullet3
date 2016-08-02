@@ -1165,7 +1165,7 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
        		
             if (pybullet_internalSetVector(objTargetPos, targetPos))
             {
-            		printf("width = %d, height = %d, targetPos = %f,%f,%f, distance = %f, yaw = %f, pitch = %f,	upAxisIndex = %d, near=%f, far=%f, fov=%f\n",width,height,targetPos[0],targetPos[1],targetPos[2],camDistance,yaw,pitch,upAxisIndex,nearVal,farVal,fov);
+                //printf("width = %d, height = %d, targetPos = %f,%f,%f, distance = %f, yaw = %f, pitch = %f,	upAxisIndex = %d, near=%f, far=%f, fov=%f\n",width,height,targetPos[0],targetPos[1],targetPos[2],camDistance,yaw,pitch,upAxisIndex,nearVal,farVal,fov);
             	
                 b3RequestCameraImageSetViewMatrix2(command,targetPos,camDistance,yaw,pitch,upAxisIndex);
                 aspect = width/height;
