@@ -1154,20 +1154,21 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
       b3RequestCameraImageSetFOVProjectionMatrix(command, fov, aspect, nearVal, farVal);
     }
   }
-  else if (size==10)
+  else if (size==11)
   {
       int upAxisIndex=1;
-      float camDistance,yaw,pitch;
+      float camDistance,yaw,pitch,roll;
       
       //sometimes more arguments are better :-)
-       if (PyArg_ParseTuple(args, "iiOfffifff", &width, &height, &objTargetPos, &camDistance, &yaw, &pitch, &upAxisIndex, &nearVal, &farVal, &fov))
+       if (PyArg_ParseTuple(args, "iiOffffifff", &width, &height, &objTargetPos, &camDistance, &yaw, &pitch, &roll, &upAxisIndex, &nearVal, &farVal, &fov))
        {
        		
+       			b3RequestCameraImageSetPixelResolution(command,width,height);
             if (pybullet_internalSetVector(objTargetPos, targetPos))
             {
                 //printf("width = %d, height = %d, targetPos = %f,%f,%f, distance = %f, yaw = %f, pitch = %f,	upAxisIndex = %d, near=%f, far=%f, fov=%f\n",width,height,targetPos[0],targetPos[1],targetPos[2],camDistance,yaw,pitch,upAxisIndex,nearVal,farVal,fov);
             	
-                b3RequestCameraImageSetViewMatrix2(command,targetPos,camDistance,yaw,pitch,upAxisIndex);
+                b3RequestCameraImageSetViewMatrix2(command,targetPos,camDistance,yaw,pitch,roll,upAxisIndex);
                 aspect = width/height;
                 b3RequestCameraImageSetFOVProjectionMatrix(command, fov, aspect, nearVal, farVal);
             } else
@@ -1193,6 +1194,9 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 	{
 		b3SharedMemoryStatusHandle statusHandle;
 		int statusType;
+		
+		//b3RequestCameraImageSelectRenderer(command,ER_BULLET_HARDWARE_OPENGL);
+		
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 		statusType = b3GetStatusType(statusHandle);
 		if (statusType==CMD_CAMERA_IMAGE_COMPLETED)

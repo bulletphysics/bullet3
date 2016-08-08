@@ -47,6 +47,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eRobotSimGUIHelperCreateCollisionShapeGraphicsObject,
 	eRobotSimGUIHelperCreateCollisionObjectGraphicsObject,
 	eRobotSimGUIHelperRemoveAllGraphicsInstances,
+	eRobotSimGUIHelperCopyCameraImageData,
 };
 
 #include <stdio.h>
@@ -152,7 +153,7 @@ void*	RobotlsMemoryFunc()
 
 
 
-ATTRIBUTE_ALIGNED16(class) MultiThreadedOpenGLGuiHelper : public GUIHelperInterface
+ATTRIBUTE_ALIGNED16(class) MultiThreadedOpenGLGuiHelper2 : public GUIHelperInterface
 {
 	CommonGraphicsApp* m_app;
 	
@@ -185,7 +186,7 @@ public:
 	int m_instanceId;
 	
 
-	MultiThreadedOpenGLGuiHelper(CommonGraphicsApp* app, GUIHelperInterface* guiHelper)
+	MultiThreadedOpenGLGuiHelper2(CommonGraphicsApp* app, GUIHelperInterface* guiHelper)
 		:m_app(app)
 		,m_cs(0),
 		m_texels(0),
@@ -195,7 +196,7 @@ public:
 
 	}
 
-	virtual ~MultiThreadedOpenGLGuiHelper()
+	virtual ~MultiThreadedOpenGLGuiHelper2()
 	{
 		delete m_childGuiHelper;
 	}
@@ -345,10 +346,39 @@ public:
 	{
 	}
 
+    float m_viewMatrix[16];
+    float m_projectionMatrix[16];
+    unsigned char* m_pixelsRGBA;
+    int m_rgbaBufferSizeInPixels;
+    float* m_depthBuffer;
+    int m_depthBufferSizeInPixels;
+    int m_startPixelIndex;
+    int m_destinationWidth;
+    int m_destinationHeight;
+    int* m_numPixelsCopied;
+
 	virtual void copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16], unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int destinationWidth, int destinationHeight, int* numPixelsCopied)
 	{
-        if (numPixelsCopied)
-            *numPixelsCopied = 0;
+	    m_cs->lock();
+	    for (int i=0;i<16;i++)
+        {
+            m_viewMatrix[i] = viewMatrix[i];
+            m_projectionMatrix[i] = projectionMatrix[i];
+        }
+	    m_pixelsRGBA = pixelsRGBA;
+        m_rgbaBufferSizeInPixels = rgbaBufferSizeInPixels;
+        m_depthBuffer = depthBuffer;
+        m_depthBufferSizeInPixels = depthBufferSizeInPixels;
+        m_startPixelIndex = startPixelIndex;
+        m_destinationWidth = destinationWidth;
+        m_destinationHeight = destinationHeight;
+        m_numPixelsCopied = numPixelsCopied;
+	    
+		m_cs->setSharedParam(1,eRobotSimGUIHelperCopyCameraImageData);
+		m_cs->unlock();
+		while (m_cs->getSharedParam(1)!=eRobotSimGUIHelperIdle)
+		{
+		}
 	}
 
 	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld) 
@@ -375,7 +405,7 @@ struct b3RobotSimAPI_InternalData
 
 	b3ThreadSupportInterface* m_threadSupport;
 	RobotSimArgs m_args[MAX_ROBOT_NUM_THREADS];
-	MultiThreadedOpenGLGuiHelper* m_multiThreadedHelper;
+	MultiThreadedOpenGLGuiHelper2* m_multiThreadedHelper;
 
 	bool m_connected;
 
@@ -492,6 +522,24 @@ void b3RobotSimAPI::processMultiThreadedGraphicsRequests()
             m_data->m_multiThreadedHelper->getCriticalSection()->lock();
             m_data->m_multiThreadedHelper->getCriticalSection()->setSharedParam(1,eRobotSimGUIHelperIdle);
             m_data->m_multiThreadedHelper->getCriticalSection()->unlock();
+            break;
+        }
+    case eRobotSimGUIHelperCopyCameraImageData:
+        {
+            m_data->m_multiThreadedHelper->m_childGuiHelper->copyCameraImageData(m_data->m_multiThreadedHelper->m_viewMatrix,
+                                                                                 m_data->m_multiThreadedHelper->m_projectionMatrix,
+                                                                                 m_data->m_multiThreadedHelper->m_pixelsRGBA,
+                                                                                 m_data->m_multiThreadedHelper->m_rgbaBufferSizeInPixels,
+                                                                                 m_data->m_multiThreadedHelper->m_depthBuffer,
+                                                                                 m_data->m_multiThreadedHelper->m_depthBufferSizeInPixels,
+                                                                                 m_data->m_multiThreadedHelper->m_startPixelIndex, 
+                                                                                 m_data->m_multiThreadedHelper->m_destinationWidth, 
+                                                                                 m_data->m_multiThreadedHelper->m_destinationHeight, 
+                                                                                 m_data->m_multiThreadedHelper->m_numPixelsCopied);
+            m_data->m_multiThreadedHelper->getCriticalSection()->lock();
+            m_data->m_multiThreadedHelper->getCriticalSection()->setSharedParam(1,eRobotSimGUIHelperIdle);
+            m_data->m_multiThreadedHelper->getCriticalSection()->unlock();
+
             break;
         }
 	case eRobotSimGUIHelperIdle:
@@ -669,9 +717,9 @@ bool b3RobotSimAPI::loadFile(const struct b3RobotSimLoadFileArgs& args, b3RobotS
 
 bool b3RobotSimAPI::connect(GUIHelperInterface* guiHelper)
 {
-	m_data->m_multiThreadedHelper  = new MultiThreadedOpenGLGuiHelper(guiHelper->getAppInterface(),guiHelper);
+	m_data->m_multiThreadedHelper  = new MultiThreadedOpenGLGuiHelper2(guiHelper->getAppInterface(),guiHelper);
 	
-	MultiThreadedOpenGLGuiHelper* guiHelperWrapper = new MultiThreadedOpenGLGuiHelper(guiHelper->getAppInterface(),guiHelper);
+	MultiThreadedOpenGLGuiHelper2* guiHelperWrapper = new MultiThreadedOpenGLGuiHelper2(guiHelper->getAppInterface(),guiHelper);
 
 	
 	

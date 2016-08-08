@@ -609,7 +609,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 		{
 			SharedMemoryCommand& command = m_data->m_testBlock1->m_clientCommands[0];
 
-			if (serverCmd.m_sendPixelDataArguments.m_numRemainingPixels > 0)
+			if (serverCmd.m_sendPixelDataArguments.m_numRemainingPixels > 0 && serverCmd.m_sendPixelDataArguments.m_numPixelsCopied)
 			{
 				
 

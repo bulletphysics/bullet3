@@ -43,6 +43,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIHelperCreateCollisionShapeGraphicsObject,
 	eGUIHelperCreateCollisionObjectGraphicsObject,
 	eGUIHelperRemoveAllGraphicsInstances,
+	eGUIHelperCopyCameraImageData,
 };
 
 #include <stdio.h>
@@ -392,11 +393,41 @@ public:
 	{
 	}
 
-	virtual void copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16], unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int width, int height, int* numPixelsCopied)
+	float m_viewMatrix[16];
+    float m_projectionMatrix[16];
+    unsigned char* m_pixelsRGBA;
+    int m_rgbaBufferSizeInPixels;
+    float* m_depthBuffer;
+    int m_depthBufferSizeInPixels;
+    int m_startPixelIndex;
+    int m_destinationWidth;
+    int m_destinationHeight;
+    int* m_numPixelsCopied;
+
+	virtual void copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16], unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int destinationWidth, int destinationHeight, int* numPixelsCopied)
 	{
-        if (numPixelsCopied)
-            *numPixelsCopied = 0;
+	    m_cs->lock();
+	    for (int i=0;i<16;i++)
+        {
+            m_viewMatrix[i] = viewMatrix[i];
+            m_projectionMatrix[i] = projectionMatrix[i];
+        }
+	    m_pixelsRGBA = pixelsRGBA;
+        m_rgbaBufferSizeInPixels = rgbaBufferSizeInPixels;
+        m_depthBuffer = depthBuffer;
+        m_depthBufferSizeInPixels = depthBufferSizeInPixels;
+        m_startPixelIndex = startPixelIndex;
+        m_destinationWidth = destinationWidth;
+        m_destinationHeight = destinationHeight;
+        m_numPixelsCopied = numPixelsCopied;
+	    
+		m_cs->setSharedParam(1,eGUIHelperCopyCameraImageData);
+		m_cs->unlock();
+		while (m_cs->getSharedParam(1)!=eGUIHelperIdle)
+		{
+		}
 	}
+	
 
 	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld) 
 	{
@@ -722,6 +753,24 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
 			int numRenderInstances = m_multiThreadedHelper->m_childGuiHelper->getRenderInterface()->getTotalNumInstances();
 			b3Assert(numRenderInstances==0);
 
+            m_multiThreadedHelper->getCriticalSection()->lock();
+            m_multiThreadedHelper->getCriticalSection()->setSharedParam(1,eGUIHelperIdle);
+            m_multiThreadedHelper->getCriticalSection()->unlock();
+            break;
+        }
+        
+    case eGUIHelperCopyCameraImageData:
+        {
+             m_multiThreadedHelper->m_childGuiHelper->copyCameraImageData(m_multiThreadedHelper->m_viewMatrix,
+                                                                                 m_multiThreadedHelper->m_projectionMatrix,
+                                                                                 m_multiThreadedHelper->m_pixelsRGBA,
+                                                                                 m_multiThreadedHelper->m_rgbaBufferSizeInPixels,
+                                                                                 m_multiThreadedHelper->m_depthBuffer,
+                                                                                 m_multiThreadedHelper->m_depthBufferSizeInPixels,
+                                                                                 m_multiThreadedHelper->m_startPixelIndex, 
+                                                                                 m_multiThreadedHelper->m_destinationWidth, 
+                                                                                 m_multiThreadedHelper->m_destinationHeight, 
+                                                                                 m_multiThreadedHelper->m_numPixelsCopied);
             m_multiThreadedHelper->getCriticalSection()->lock();
             m_multiThreadedHelper->getCriticalSection()->setSharedParam(1,eGUIHelperIdle);
             m_multiThreadedHelper->getCriticalSection()->unlock();

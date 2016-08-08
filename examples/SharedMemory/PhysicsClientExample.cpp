@@ -259,15 +259,15 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
             b3SharedMemoryCommandHandle commandHandle = b3InitRequestCameraImage(m_physicsClientHandle);
             //b3RequestCameraImageSelectRenderer(commandHandle,ER_BULLET_HARDWARE_OPENGL);
             
-			float viewMatrix[16];
-			float projectionMatrix[16];
-			m_guiHelper->getRenderInterface()->getActiveCamera()->getCameraProjectionMatrix(projectionMatrix);
+						float viewMatrix[16];
+						float projectionMatrix[16];
+						m_guiHelper->getRenderInterface()->getActiveCamera()->getCameraProjectionMatrix(projectionMatrix);
             m_guiHelper->getRenderInterface()->getActiveCamera()->getCameraViewMatrix(viewMatrix);
             
             b3RequestCameraImageSetCameraMatrices(commandHandle, viewMatrix,projectionMatrix);
-			b3RequestCameraImageSetPixelResolution(commandHandle, camVisualizerWidth,camVisualizerHeight);
-			b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
-            break;
+						b3RequestCameraImageSetPixelResolution(commandHandle, camVisualizerWidth,camVisualizerHeight);
+						b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+		        break;
         }
         case CMD_CREATE_BOX_COLLISION_SHAPE:
         {
