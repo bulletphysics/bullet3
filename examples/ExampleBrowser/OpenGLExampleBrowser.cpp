@@ -845,11 +845,11 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 	s_window->setKeyboardCallback(MyKeyboardCallback);
 
 	args.GetCmdLineArgument("camera_distance", initialCameraDistance);
-        s_app->m_renderer->getActiveCamera()->setCameraDistance(initialCameraDistance);
-        args.GetCmdLineArgument("camera_pitch", initialCameraPitch);
+	s_app->m_renderer->getActiveCamera()->setCameraDistance(initialCameraDistance);
+	args.GetCmdLineArgument("camera_pitch", initialCameraPitch);
 	s_app->m_renderer->getActiveCamera()->setCameraPitch(initialCameraPitch);
-        args.GetCmdLineArgument("camera_yaw", initialCameraYaw);
-        s_app->m_renderer->getActiveCamera()->setCameraYaw(initialCameraYaw);
+	args.GetCmdLineArgument("camera_yaw", initialCameraYaw);
+	s_app->m_renderer->getActiveCamera()->setCameraYaw(initialCameraYaw);
 	s_app->m_renderer->getActiveCamera()->setCameraTargetPosition(0,0,0);
 
 	float mouseMoveMult= s_app->getMouseMoveMultiplier();
