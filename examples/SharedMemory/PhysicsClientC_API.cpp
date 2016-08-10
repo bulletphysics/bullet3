@@ -626,6 +626,7 @@ int b3GetStatusBodyIndex(b3SharedMemoryStatusHandle statusHandle)
 	return bodyId;
 }
 
+
 int b3GetStatusActualState(b3SharedMemoryStatusHandle statusHandle,
                            int* bodyUniqueId,
                            int* numDegreeOfFreedomQ,
@@ -1097,3 +1098,60 @@ void b3ApplyExternalTorque(b3SharedMemoryCommandHandle commandHandle, int bodyUn
     command->m_externalForceArguments.m_numForcesAndTorques++;
 }
 
+
+
+
+///compute the forces to achieve an acceleration, given a state q and qdot using inverse dynamics
+b3SharedMemoryCommandHandle	b3CalculateInverseDynamicsCommandInit(b3PhysicsClientHandle physClient, int bodyIndex,
+	const double* jointPositionsQ, const double* jointVelocitiesQdot, const double* jointAccelerations)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+
+	command->m_type = CMD_CALCULATE_INVERSE_DYNAMICS;
+	command->m_updateFlags = 0;
+	command->m_calculateInverseDynamicsArguments.m_bodyUniqueId = bodyIndex;
+	int numJoints = cl->getNumJoints(bodyIndex);
+	for (int i = 0; i < numJoints;i++)
+	{
+		command->m_calculateInverseDynamicsArguments.m_jointPositionsQ[i] = jointPositionsQ[i];
+		command->m_calculateInverseDynamicsArguments.m_jointVelocitiesQdot[i] = jointVelocitiesQdot[i];
+		command->m_calculateInverseDynamicsArguments.m_jointAccelerations[i] = jointAccelerations[i];
+	}
+
+	return (b3SharedMemoryCommandHandle)command;
+}
+
+int b3GetStatusInverseDynamicsJointForces(b3SharedMemoryStatusHandle statusHandle,
+	int* bodyUniqueId,
+	int* dofCount,
+	double* jointForces)
+{
+	const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
+	btAssert(status->m_type == CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED);
+	if (status->m_type != CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED)
+		return false;
+
+
+	if (dofCount)
+	{
+		*dofCount = status->m_inverseDynamicsResultArgs.m_dofCount;
+	}
+	if (bodyUniqueId)
+	{
+		*bodyUniqueId = status->m_inverseDynamicsResultArgs.m_bodyUniqueId;
+	}
+	if (jointForces)
+	{
+		for (int i = 0; i < status->m_inverseDynamicsResultArgs.m_dofCount; i++)
+		{
+			jointForces[i] = status->m_inverseDynamicsResultArgs.m_jointForces[i];
+		}
+	}
+
+	
+	return true;
+}

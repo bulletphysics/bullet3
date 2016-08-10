@@ -413,6 +413,33 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
             b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
             break;
         }
+		case CMD_CALCULATE_INVERSE_DYNAMICS:
+		{
+			if (m_selectedBody >= 0)
+			{
+				btAlignedObjectArray<double> jointPositionsQ;
+				btAlignedObjectArray<double> jointVelocitiesQdot;
+				btAlignedObjectArray<double> jointAccelerations;
+				int numJoints = b3GetNumJoints(m_physicsClientHandle, m_selectedBody);
+				if (numJoints)
+				{
+					b3Printf("Compute inverse dynamics for joint accelerations:");
+					jointPositionsQ.resize(numJoints);
+					jointVelocitiesQdot.resize(numJoints);
+					jointAccelerations.resize(numJoints);
+					for (int i = 0; i < numJoints; i++)
+					{
+						jointAccelerations[i] = 100;
+						b3Printf("Desired joint acceleration[%d]=%f", i, jointAccelerations[i]);
+					}
+					b3SharedMemoryCommandHandle commandHandle = b3CalculateInverseDynamicsCommandInit(m_physicsClientHandle,
+						m_selectedBody, &jointPositionsQ[0], &jointVelocitiesQdot[0], &jointAccelerations[0]);
+					b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+
+				}
+			}
+			break;
+		}
         default:
         {
             b3Error("Unknown buttonId");
@@ -490,6 +517,7 @@ void	PhysicsClientExample::createButtons()
         createButton("Reset Simulation",CMD_RESET_SIMULATION,isTrigger);
 				createButton("Initialize Pose",CMD_INIT_POSE,  isTrigger);
         createButton("Set gravity", CMD_SEND_PHYSICS_SIMULATION_PARAMETERS, isTrigger);
+		createButton("Compute Inverse Dynamics", CMD_CALCULATE_INVERSE_DYNAMICS, isTrigger);
 
         if (m_bodyUniqueIds.size())
         {
@@ -695,6 +723,36 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 
                // b3Printf(msg);
             } 
+			if (statusType == CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED)
+			{
+				int bodyUniqueId;
+				int dofCount;
+
+				b3GetStatusInverseDynamicsJointForces(status,
+					&bodyUniqueId,
+					&dofCount,
+					0);
+
+				btAlignedObjectArray<double> jointForces;
+				if (dofCount)
+				{
+					jointForces.resize(dofCount);
+					b3GetStatusInverseDynamicsJointForces(status,
+						0,
+						0,
+						&jointForces[0]);
+					for (int i = 0; i < dofCount; i++)
+					{
+						b3Printf("jointForces[%d]=%f", i, jointForces[i]);
+					}
+				}
+
+			}
+			if (statusType == CMD_CALCULATED_INVERSE_DYNAMICS_FAILED)
+			{
+				b3Warning("Inverse Dynamics computations failed");
+			}
+
             if (statusType == CMD_CAMERA_IMAGE_FAILED)
             {
                 b3Warning("Camera image FAILED\n");

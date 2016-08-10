@@ -542,7 +542,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 b3Warning("Camera image FAILED\n");
                 break;
             }
-
+			case CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED:
+			{
+				break;
+			}
+			case CMD_CALCULATED_INVERSE_DYNAMICS_FAILED:
+			{
+				b3Warning("Inverse Dynamics computations failed");
+				break;
+			}
             default: {
                 b3Error("Unknown server status\n");
                 btAssert(0);

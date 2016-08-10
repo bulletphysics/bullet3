@@ -97,6 +97,16 @@ int	b3LoadUrdfCommandSetStartOrientation(b3SharedMemoryCommandHandle commandHand
 int	b3LoadUrdfCommandSetUseMultiBody(b3SharedMemoryCommandHandle commandHandle, int useMultiBody);
 int	b3LoadUrdfCommandSetUseFixedBase(b3SharedMemoryCommandHandle commandHandle, int useFixedBase);
 
+///compute the forces to achieve an acceleration, given a state q and qdot using inverse dynamics
+b3SharedMemoryCommandHandle	b3CalculateInverseDynamicsCommandInit(b3PhysicsClientHandle physClient, int bodyIndex,
+	const double* jointPositionsQ, const double* jointVelocitiesQdot, const double* jointAccelerations);
+
+int b3GetStatusInverseDynamicsJointForces(b3SharedMemoryStatusHandle statusHandle,
+	int* bodyUniqueId,
+	int* dofCount,
+	double* jointForces);
+
+
 b3SharedMemoryCommandHandle	b3LoadSdfCommandInit(b3PhysicsClientHandle physClient, const char* sdfFileName);
 
 ///The b3JointControlCommandInit method is obsolete, use b3JointControlCommandInit2 instead

@@ -29,6 +29,7 @@ protected:
 	bool	supportsJointMotor(class btMultiBody* body, int linkIndex);
 	
 	int createBodyInfoStream(int bodyUniqueId, char* bufferServerToClient, int bufferSizeInBytes);
+	void deleteCachedInverseDynamicsBodies();
 
 public:
 	PhysicsServerCommandProcessor();
@@ -38,6 +39,7 @@ public:
 	
 	virtual void createEmptyDynamicsWorld();
 	virtual void deleteDynamicsWorld();
+	
 
 	virtual bool processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes );
 

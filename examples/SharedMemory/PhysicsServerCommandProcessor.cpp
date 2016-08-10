@@ -4,13 +4,15 @@
 #include "../Importers/ImportURDFDemo/BulletUrdfImporter.h"
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
 #include "../Importers/ImportURDFDemo/URDF2Bullet.h"
+#include "../Extras/InverseDynamics/btMultiBodyTreeCreator.hpp"
 #include "TinyRendererVisualShapeConverter.h"
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointFeedback.h"
-
+#include "LinearMath/btHashMap.h"
+#include "BulletInverseDynamics/MultiBodyTree.hpp"
 
 #include "btBulletDynamicsCommon.h"
 
@@ -383,6 +385,7 @@ struct PhysicsServerCommandProcessorInternalData
 
 	btScalar m_physicsDeltaTime;
 	btAlignedObjectArray<btMultiBodyJointFeedback*> m_multiBodyJointFeedbacks;
+	btHashMap<btHashPtr, btInverseDynamics::MultiBodyTree*> m_inverseDynamicsBodies;
 
 
 
@@ -548,8 +551,25 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 	m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
 }
 
+void PhysicsServerCommandProcessor::deleteCachedInverseDynamicsBodies()
+{
+	for (int i = 0; i < m_data->m_inverseDynamicsBodies.size(); i++)
+	{
+		btInverseDynamics::MultiBodyTree** treePtrPtr = m_data->m_inverseDynamicsBodies.getAtIndex(i);
+		if (treePtrPtr)
+		{
+			btInverseDynamics::MultiBodyTree* tree = *treePtrPtr;
+			delete tree;
+		}
+
+	}
+	m_data->m_inverseDynamicsBodies.clear();
+}
+
 void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 {
+	deleteCachedInverseDynamicsBodies();
+
 
 	for (int i=0;i<m_data->m_multiBodyJointFeedbacks.size();i++)
 	{
@@ -1869,9 +1889,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                 case CMD_RESET_SIMULATION:
                 {
 					//clean up all data
-					
-					
-					
+					deleteCachedInverseDynamicsBodies();
+
 					if (m_data && m_data->m_guiHelper)
 					{
 						m_data->m_guiHelper->removeAllGraphicsInstances();
@@ -2066,6 +2085,74 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						hasStatus = true;
                         break;
                     }
+				case CMD_CALCULATE_INVERSE_DYNAMICS:
+				{
+					SharedMemoryStatus& serverCmd = serverStatusOut;
+					InternalBodyHandle* bodyHandle = m_data->getHandle(clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId);
+					if (bodyHandle && bodyHandle->m_multiBody)
+					{
+						btInverseDynamics::MultiBodyTree** treePtrPtr = 
+							m_data->m_inverseDynamicsBodies.find(bodyHandle->m_multiBody);
+						btInverseDynamics::MultiBodyTree* tree = 0;
+						serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_FAILED;
+
+						if (treePtrPtr)
+						{
+							tree = *treePtrPtr;
+						}
+						else
+						{
+							btInverseDynamics::btMultiBodyTreeCreator id_creator;
+							if (-1 == id_creator.createFromBtMultiBody(bodyHandle->m_multiBody, false)) 
+							{
+								b3Error("error creating tree\n");
+								serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_FAILED;
+							}
+							else 
+							{
+								tree = btInverseDynamics::CreateMultiBodyTree(id_creator);
+								m_data->m_inverseDynamicsBodies.insert(bodyHandle->m_multiBody, tree);
+							}
+						}
+
+						if (tree)
+						{
+							int baseDofs = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 6;
+							const int num_dofs = bodyHandle->m_multiBody->getNumDofs();
+							btInverseDynamics::vecx nu(num_dofs+baseDofs), qdot(num_dofs + baseDofs), q(num_dofs + baseDofs), joint_force(num_dofs + baseDofs);
+							for (int i = 0; i < num_dofs; i++)
+							{
+								q[i + baseDofs] = clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[i];
+								qdot[i + baseDofs] = clientCmd.m_calculateInverseDynamicsArguments.m_jointVelocitiesQdot[i];
+								nu[i+baseDofs] = clientCmd.m_calculateInverseDynamicsArguments.m_jointAccelerations[i];
+							}
+
+							if (-1 != tree->calculateInverseDynamics(q, qdot, nu, &joint_force))
+							{
+								serverCmd.m_inverseDynamicsResultArgs.m_bodyUniqueId = clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId;
+								serverCmd.m_inverseDynamicsResultArgs.m_dofCount = num_dofs;
+								for (int i = 0; i < num_dofs; i++)
+								{
+									serverCmd.m_inverseDynamicsResultArgs.m_jointForces[i] = joint_force[i+baseDofs];
+								}
+								serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED;
+							}
+							else
+							{
+								serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_FAILED;
+							}
+						}
+						
+					}
+					else
+					{
+						serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_FAILED;
+					}
+
+					hasStatus = true;
+					break;
+				}
+
                 case CMD_APPLY_EXTERNAL_FORCE:
                 {
                 	if (m_data->m_verboseOutput)
