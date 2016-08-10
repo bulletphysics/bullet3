@@ -225,7 +225,7 @@ bool PhysicsDirect::processCamera(const struct SharedMemoryCommand& orgCommand)
 					= rgbaPixelsReceived[i];
 			}
 
-			if (serverCmd.m_sendPixelDataArguments.m_numRemainingPixels > 0)
+			if (serverCmd.m_sendPixelDataArguments.m_numRemainingPixels > 0 && serverCmd.m_sendPixelDataArguments.m_numPixelsCopied)
 			{
 				
 
@@ -241,7 +241,7 @@ bool PhysicsDirect::processCamera(const struct SharedMemoryCommand& orgCommand)
 				m_data->m_cachedCameraPixelsHeight = serverCmd.m_sendPixelDataArguments.m_imageHeight;
 			}	
 		}
-	}  while (serverCmd.m_sendPixelDataArguments.m_numRemainingPixels > 0);
+	}  while (serverCmd.m_sendPixelDataArguments.m_numRemainingPixels > 0 && serverCmd.m_sendPixelDataArguments.m_numPixelsCopied);
 	
 	return m_data->m_hasStatus;
 

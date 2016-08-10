@@ -1154,20 +1154,21 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
       b3RequestCameraImageSetFOVProjectionMatrix(command, fov, aspect, nearVal, farVal);
     }
   }
-  else if (size==10)
+  else if (size==11)
   {
       int upAxisIndex=1;
-      float camDistance,yaw,pitch;
+      float camDistance,yaw,pitch,roll;
       
       //sometimes more arguments are better :-)
-       if (PyArg_ParseTuple(args, "iiOfffifff", &width, &height, &objTargetPos, &camDistance, &yaw, &pitch, &upAxisIndex, &nearVal, &farVal, &fov))
+       if (PyArg_ParseTuple(args, "iiOffffifff", &width, &height, &objTargetPos, &camDistance, &yaw, &pitch, &roll, &upAxisIndex, &nearVal, &farVal, &fov))
        {
        		
+       		b3RequestCameraImageSetPixelResolution(command,width,height);
             if (pybullet_internalSetVector(objTargetPos, targetPos))
             {
                 //printf("width = %d, height = %d, targetPos = %f,%f,%f, distance = %f, yaw = %f, pitch = %f,	upAxisIndex = %d, near=%f, far=%f, fov=%f\n",width,height,targetPos[0],targetPos[1],targetPos[2],camDistance,yaw,pitch,upAxisIndex,nearVal,farVal,fov);
             	
-                b3RequestCameraImageSetViewMatrix2(command,targetPos,camDistance,yaw,pitch,upAxisIndex);
+                b3RequestCameraImageSetViewMatrix2(command,targetPos,camDistance,yaw,pitch,roll,upAxisIndex);
                 aspect = width/height;
                 b3RequestCameraImageSetFOVProjectionMatrix(command, fov, aspect, nearVal, farVal);
             } else
@@ -1193,6 +1194,9 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 	{
 		b3SharedMemoryStatusHandle statusHandle;
 		int statusType;
+		
+		//b3RequestCameraImageSelectRenderer(command,ER_BULLET_HARDWARE_OPENGL);
+		
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 		statusType = b3GetStatusType(statusHandle);
 		if (statusType==CMD_CAMERA_IMAGE_COMPLETED)
@@ -1517,6 +1521,123 @@ static PyObject* pybullet_getEulerFromQuaternion(PyObject* self, PyObject* args)
     return Py_None;
 }
 
+///Given an object id, joint positions, joint velocities and joint accelerations, 
+///compute the joint forces using Inverse Dynamics
+static PyObject* pybullet_calculateInverseDynamics(PyObject* self, PyObject* args)
+{
+	int size;
+	if (0 == sm)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	size = PySequence_Size(args);
+	if (size==4)
+	{
+
+		int bodyIndex;
+		PyObject* objPositionsQ;
+		PyObject* objVelocitiesQdot;
+		PyObject* objAccelerations;
+
+		if (PyArg_ParseTuple(args, "iOOO", &bodyIndex, &objPositionsQ, &objVelocitiesQdot, &objAccelerations))
+		{
+			int szObPos = PySequence_Size(objPositionsQ);
+			int szObVel = PySequence_Size(objVelocitiesQdot);
+			int szObAcc = PySequence_Size(objAccelerations);
+			int numJoints = b3GetNumJoints(sm, bodyIndex);
+			if (numJoints && (szObPos == numJoints) && (szObVel == numJoints) && (szObAcc == numJoints))
+			{
+				int szInBytes = sizeof(double)*numJoints;
+				int i;
+				PyObject* pylist = 0;
+				double* jointPositionsQ = (double*)malloc(szInBytes);
+				double* jointVelocitiesQdot = (double*)malloc(szInBytes);
+				double* jointAccelerations = (double*)malloc(szInBytes);
+				double* jointForcesOutput = (double*)malloc(szInBytes);
+
+				for (i = 0; i < numJoints; i++)
+				{
+					jointPositionsQ[i] = pybullet_internalGetFloatFromSequence(objPositionsQ, i);
+					jointVelocitiesQdot[i] = pybullet_internalGetFloatFromSequence(objVelocitiesQdot, i);
+					jointAccelerations[i] = pybullet_internalGetFloatFromSequence(objAccelerations, i);
+				}
+
+				{
+					b3SharedMemoryStatusHandle statusHandle;
+					int statusType;
+					b3SharedMemoryCommandHandle commandHandle = b3CalculateInverseDynamicsCommandInit(sm,
+						bodyIndex, jointPositionsQ, jointVelocitiesQdot, jointAccelerations);
+					statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+
+					statusType = b3GetStatusType(statusHandle);
+
+					if (statusType == CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED)
+					{
+						int bodyUniqueId;
+						int dofCount;
+
+						b3GetStatusInverseDynamicsJointForces(statusHandle,
+							&bodyUniqueId,
+							&dofCount,
+							0);
+
+						if (dofCount)
+						{
+							b3GetStatusInverseDynamicsJointForces(statusHandle,
+								0,
+								0,
+								jointForcesOutput);
+							{
+								{
+									
+									int i;
+									pylist = PyTuple_New(dofCount);
+									for (i = 0; i<dofCount; i++)
+										PyTuple_SetItem(pylist, i, PyFloat_FromDouble(jointForcesOutput[i]));
+
+								}
+							}
+						}
+
+					}
+					else
+					{
+						PyErr_SetString(SpamError, "Internal error in calculateInverseDynamics");
+					}
+				}
+				free(jointPositionsQ);
+				free(jointVelocitiesQdot);
+				free(jointAccelerations);
+				free(jointForcesOutput);
+				if (pylist)
+					return pylist;
+			}
+			else
+			{
+				PyErr_SetString(SpamError, "calculateInverseDynamics numJoints needs to be positive and [joint positions], [joint velocities], [joint accelerations] need to match the number of joints.");
+				return NULL;
+			}
+
+		}
+		else
+		{
+			PyErr_SetString(SpamError, "calculateInverseDynamics expects 4 arguments, body index, [joint positions], [joint velocities], [joint accelerations].");
+			return NULL;
+		}
+	}
+	else
+	{
+		PyErr_SetString(SpamError, "calculateInverseDynamics expects 4 arguments, body index, [joint positions], [joint velocities], [joint accelerations].");
+		return NULL;
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
+
 
 static PyMethodDef SpamMethods[] = {
   
@@ -1583,6 +1704,8 @@ static PyMethodDef SpamMethods[] = {
     {"getEulerFromQuaternion", pybullet_getEulerFromQuaternion, METH_VARARGS,
         "Convert quaternion [x,y,z,w] to Euler [roll, pitch, yaw] as in URDF/SDF convention"},
     
+	{ "calculateInverseDynamics", pybullet_calculateInverseDynamics, METH_VARARGS,
+	"Given an object id, joint positions, joint velocities and joint accelerations, compute the joint forces using Inverse Dynamics" },
     //todo(erwincoumans)
     //saveSnapshot
     //loadSnapshot

@@ -626,6 +626,7 @@ int b3GetStatusBodyIndex(b3SharedMemoryStatusHandle statusHandle)
 	return bodyId;
 }
 
+
 int b3GetStatusActualState(b3SharedMemoryStatusHandle statusHandle,
                            int* bodyUniqueId,
                            int* numDegreeOfFreedomQ,
@@ -825,7 +826,7 @@ void b3RequestCameraImageSetCameraMatrices(b3SharedMemoryCommandHandle commandHa
 	command->m_updateFlags |= REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES;
 }
 
-void b3RequestCameraImageSetViewMatrix2(b3SharedMemoryCommandHandle commandHandle, const float cameraTargetPosition[3], float distance, float yaw, float pitch, int upAxis)
+void b3RequestCameraImageSetViewMatrix2(b3SharedMemoryCommandHandle commandHandle, const float cameraTargetPosition[3], float distance, float yaw, float pitch, float roll, int upAxis)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
@@ -834,47 +835,78 @@ void b3RequestCameraImageSetViewMatrix2(b3SharedMemoryCommandHandle commandHandl
     b3Vector3 camForward;
     b3Vector3 camPos;
     b3Vector3 camTargetPos = b3MakeVector3(cameraTargetPosition[0],cameraTargetPosition[1],cameraTargetPosition[2]);
-    
+    b3Vector3 eyePos = b3MakeVector3(0,0,0);
+        
 	int forwardAxis(-1);
+	
+	{
+	
 	switch (upAxis)
 	{
-    case 1:
-    	forwardAxis = 2;
-    	camUpVector = b3MakeVector3(0,1,0);
-    	//gLightPos = b3MakeVector3(-50.f,100,30);
-    	break;
-    case 2:
-		forwardAxis = 1;
-		camUpVector = b3MakeVector3(0,0,1);
-		//gLightPos = b3MakeVector3(-50.f,30,100);
-		break;
-    default:
-		{
-			//b3Assert(0);
-			return;
-		}
-	};
-
-	b3Vector3 eyePos = b3MakeVector3(0,0,0);
-	eyePos[forwardAxis] = -distance;
-
-	camForward = b3MakeVector3(eyePos[0],eyePos[1],eyePos[2]);
-	if (camForward.length2() < B3_EPSILON)
-	{
-		camForward.setValue(1.f,0.f,0.f);
-	} else
-	{
-		camForward.normalize();
+	    
+        case 1:
+            {
+                
+            
+            forwardAxis = 0;
+            eyePos[forwardAxis] = -distance;
+            camForward = b3MakeVector3(eyePos[0],eyePos[1],eyePos[2]);
+            if (camForward.length2() < B3_EPSILON)
+            {
+                camForward.setValue(1.f,0.f,0.f);
+            } else
+            {
+                camForward.normalize();
+            }
+              b3Scalar rollRad = roll * b3Scalar(0.01745329251994329547);
+            b3Quaternion rollRot(camForward,rollRad);
+            
+            camUpVector = b3QuatRotate(rollRot,b3MakeVector3(0,1,0));
+            //gLightPos = b3MakeVector3(-50.f,100,30);
+            break;
+            }
+        case 2:
+            {
+                
+            
+            forwardAxis = 1;
+            eyePos[forwardAxis] = -distance;
+            camForward = b3MakeVector3(eyePos[0],eyePos[1],eyePos[2]);
+            if (camForward.length2() < B3_EPSILON)
+            {
+                camForward.setValue(1.f,0.f,0.f);
+            } else
+            {
+                camForward.normalize();
+            }
+            
+            b3Scalar rollRad = roll * b3Scalar(0.01745329251994329547);
+            b3Quaternion rollRot(camForward,rollRad);
+            
+            camUpVector = b3QuatRotate(rollRot,b3MakeVector3(0,0,1));
+            //gLightPos = b3MakeVector3(-50.f,30,100);
+            break;
+            }
+        default:
+            {
+                //b3Assert(0);
+                return;
+            }
+        };
 	}
+	
 
-	b3Scalar rele = yaw * b3Scalar(0.01745329251994329547);// rads per deg
-	b3Scalar razi = pitch * b3Scalar(0.01745329251994329547);// rads per deg
-	b3Quaternion rot(camUpVector,razi);
+	b3Scalar yawRad = yaw * b3Scalar(0.01745329251994329547);// rads per deg
+	b3Scalar pitchRad = pitch * b3Scalar(0.01745329251994329547);// rads per deg
+
+	b3Quaternion pitchRot(camUpVector,pitchRad);
 	
 	b3Vector3 right = camUpVector.cross(camForward);
-	b3Quaternion roll(right,-rele);
+	b3Quaternion yawRot(right,-yawRad);
+	
+	
 
-	eyePos = b3Matrix3x3(rot) * b3Matrix3x3(roll) * eyePos;
+	eyePos = b3Matrix3x3(pitchRot) * b3Matrix3x3(yawRot) * eyePos;
 	camPos = eyePos;
 	camPos += camTargetPos;
 	
@@ -1066,3 +1098,60 @@ void b3ApplyExternalTorque(b3SharedMemoryCommandHandle commandHandle, int bodyUn
     command->m_externalForceArguments.m_numForcesAndTorques++;
 }
 
+
+
+
+///compute the forces to achieve an acceleration, given a state q and qdot using inverse dynamics
+b3SharedMemoryCommandHandle	b3CalculateInverseDynamicsCommandInit(b3PhysicsClientHandle physClient, int bodyIndex,
+	const double* jointPositionsQ, const double* jointVelocitiesQdot, const double* jointAccelerations)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+
+	command->m_type = CMD_CALCULATE_INVERSE_DYNAMICS;
+	command->m_updateFlags = 0;
+	command->m_calculateInverseDynamicsArguments.m_bodyUniqueId = bodyIndex;
+	int numJoints = cl->getNumJoints(bodyIndex);
+	for (int i = 0; i < numJoints;i++)
+	{
+		command->m_calculateInverseDynamicsArguments.m_jointPositionsQ[i] = jointPositionsQ[i];
+		command->m_calculateInverseDynamicsArguments.m_jointVelocitiesQdot[i] = jointVelocitiesQdot[i];
+		command->m_calculateInverseDynamicsArguments.m_jointAccelerations[i] = jointAccelerations[i];
+	}
+
+	return (b3SharedMemoryCommandHandle)command;
+}
+
+int b3GetStatusInverseDynamicsJointForces(b3SharedMemoryStatusHandle statusHandle,
+	int* bodyUniqueId,
+	int* dofCount,
+	double* jointForces)
+{
+	const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
+	btAssert(status->m_type == CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED);
+	if (status->m_type != CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED)
+		return false;
+
+
+	if (dofCount)
+	{
+		*dofCount = status->m_inverseDynamicsResultArgs.m_dofCount;
+	}
+	if (bodyUniqueId)
+	{
+		*bodyUniqueId = status->m_inverseDynamicsResultArgs.m_bodyUniqueId;
+	}
+	if (jointForces)
+	{
+		for (int i = 0; i < status->m_inverseDynamicsResultArgs.m_dofCount; i++)
+		{
+			jointForces[i] = status->m_inverseDynamicsResultArgs.m_jointForces[i];
+		}
+	}
+
+	
+	return true;
+}
