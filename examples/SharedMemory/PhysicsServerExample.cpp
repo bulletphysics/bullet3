@@ -400,12 +400,19 @@ public:
     int m_rgbaBufferSizeInPixels;
     float* m_depthBuffer;
     int m_depthBufferSizeInPixels;
+     int* m_segmentationMaskBuffer;
+    int m_segmentationMaskBufferSizeInPixels;
     int m_startPixelIndex;
     int m_destinationWidth;
     int m_destinationHeight;
     int* m_numPixelsCopied;
 
-	virtual void copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16], unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int destinationWidth, int destinationHeight, int* numPixelsCopied)
+	virtual void copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16], 
+                                  unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, 
+                                  float* depthBuffer, int depthBufferSizeInPixels,
+                                  int* segmentationMaskBuffer, int segmentationMaskBufferSizeInPixels,
+                                  int startPixelIndex, int destinationWidth, 
+                                  int destinationHeight, int* numPixelsCopied)
 	{
 	    m_cs->lock();
 	    for (int i=0;i<16;i++)
@@ -417,6 +424,8 @@ public:
         m_rgbaBufferSizeInPixels = rgbaBufferSizeInPixels;
         m_depthBuffer = depthBuffer;
         m_depthBufferSizeInPixels = depthBufferSizeInPixels;
+        m_segmentationMaskBuffer = segmentationMaskBuffer;
+        m_segmentationMaskBufferSizeInPixels = segmentationMaskBufferSizeInPixels;
         m_startPixelIndex = startPixelIndex;
         m_destinationWidth = destinationWidth;
         m_destinationHeight = destinationHeight;
@@ -768,6 +777,8 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
                                                                                  m_multiThreadedHelper->m_rgbaBufferSizeInPixels,
                                                                                  m_multiThreadedHelper->m_depthBuffer,
                                                                                  m_multiThreadedHelper->m_depthBufferSizeInPixels,
+                                                                                 m_multiThreadedHelper->m_segmentationMaskBuffer,
+                                                                                 m_multiThreadedHelper->m_segmentationMaskBufferSizeInPixels,
                                                                                  m_multiThreadedHelper->m_startPixelIndex, 
                                                                                  m_multiThreadedHelper->m_destinationWidth, 
                                                                                  m_multiThreadedHelper->m_destinationHeight, 

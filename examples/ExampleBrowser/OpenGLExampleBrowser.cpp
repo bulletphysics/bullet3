@@ -634,10 +634,12 @@ struct QuickCanvas : public Common2dCanvasInterface
 	MyGraphWindow* m_gw[MAX_GRAPH_WINDOWS];
 	GraphingTexture* m_gt[MAX_GRAPH_WINDOWS];
 	int m_curNumGraphWindows;
+	int m_curXpos;
 
 	QuickCanvas(GL3TexLoader* myTexLoader)
 		:m_myTexLoader(myTexLoader),
-		m_curNumGraphWindows(0)
+		m_curNumGraphWindows(0),
+		m_curXpos(0)
 	{
 		for (int i=0;i<MAX_GRAPH_WINDOWS;i++)
 		{
@@ -661,7 +663,8 @@ struct QuickCanvas : public Common2dCanvasInterface
 			MyGraphInput input(gui2->getInternalData());
 			input.m_width=width;
 			input.m_height=height;
-			input.m_xPos = 10000;//GUI will clamp it to the right//300;
+			input.m_xPos = m_curXpos;//GUI will clamp it to the right//300;
+			m_curXpos+=width+20;
 			input.m_yPos = 10000;//GUI will clamp it to bottom
 			input.m_name=canvasName;
 			input.m_texName = canvasName;

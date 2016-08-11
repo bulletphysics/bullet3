@@ -37,6 +37,8 @@ struct PhysicsDirectInternalData
 	int m_cachedCameraPixelsHeight;
 	btAlignedObjectArray<unsigned char> m_cachedCameraPixelsRGBA;
 	btAlignedObjectArray<float> m_cachedCameraDepthBuffer;
+	btAlignedObjectArray<int> m_cachedSegmentationMask;
+	
 
 
 	PhysicsServerCommandProcessor* m_commandProcessor;
@@ -205,6 +207,7 @@ bool PhysicsDirect::processCamera(const struct SharedMemoryCommand& orgCommand)
 
             m_data->m_cachedCameraPixelsRGBA.reserve(numPixels*numBytesPerPixel);
 			m_data->m_cachedCameraDepthBuffer.resize(numTotalPixels);
+			m_data->m_cachedSegmentationMask.resize(numTotalPixels);
 			m_data->m_cachedCameraPixelsRGBA.resize(numTotalPixels*numBytesPerPixel);
                 
                 
@@ -212,12 +215,17 @@ bool PhysicsDirect::processCamera(const struct SharedMemoryCommand& orgCommand)
                 (unsigned char*)&m_data->m_bulletStreamDataServerToClient[0];
 			
 			float* depthBuffer = (float*)&(m_data->m_bulletStreamDataServerToClient[serverCmd.m_sendPixelDataArguments.m_numPixelsCopied*4]);
+			int* segmentationMaskBuffer = (int*)&(m_data->m_bulletStreamDataServerToClient[serverCmd.m_sendPixelDataArguments.m_numPixelsCopied*8]);
 			
           //  printf("pixel = %d\n", rgbaPixelsReceived[0]);
                 
 			for (int i=0;i<serverCmd.m_sendPixelDataArguments.m_numPixelsCopied;i++)
 			{
 				m_data->m_cachedCameraDepthBuffer[i + serverCmd.m_sendPixelDataArguments.m_startingPixelIndex] = depthBuffer[i];
+			}
+			for (int i=0;i<serverCmd.m_sendPixelDataArguments.m_numPixelsCopied;i++)
+			{
+				m_data->m_cachedSegmentationMask[i + serverCmd.m_sendPixelDataArguments.m_startingPixelIndex] = segmentationMaskBuffer[i];
 			}
 			for (int i=0;i<serverCmd.m_sendPixelDataArguments.m_numPixelsCopied*numBytesPerPixel;i++)
 			{
@@ -456,7 +464,8 @@ void PhysicsDirect::getCachedCameraImage(b3CameraImageData* cameraData)
 	{
 		cameraData->m_pixelWidth = m_data->m_cachedCameraPixelsWidth;
 		cameraData->m_pixelHeight = m_data->m_cachedCameraPixelsHeight;
-		cameraData->m_depthValues = m_data->m_cachedCameraDepthBuffer.size() ? &m_data->m_cachedCameraDepthBuffer[0] : 0;
+		cameraData->m_depthValues4 = m_data->m_cachedCameraDepthBuffer.size() ? &m_data->m_cachedCameraDepthBuffer[0] : 0;
 		cameraData->m_rgbColorData = m_data->m_cachedCameraPixelsRGBA.size() ? &m_data->m_cachedCameraPixelsRGBA[0] : 0;
+		cameraData->m_segmentationMaskValues = m_data->m_cachedSegmentationMask.size()? &m_data->m_cachedSegmentationMask[0] : 0;
 	}
 }

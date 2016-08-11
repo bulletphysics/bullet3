@@ -28,8 +28,9 @@ struct TinyRenderObjectData
     
     TGAImage& m_rgbColorBuffer;
     b3AlignedObjectArray<float>& m_depthBuffer;
-    
-    TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>& depthBuffer);
+    b3AlignedObjectArray<int>& m_segmentationMaskBuffer;
+        
+    TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer, b3AlignedObjectArray<int>& segmentationMaskBuffer,int objectIndex,int objectIndex2);
     virtual ~TinyRenderObjectData();
     
     void loadModel(const char* fileName);
@@ -41,6 +42,7 @@ struct TinyRenderObjectData
     
     void* m_userData;
     int m_userIndex;
+    int m_objectIndex;
 };
 
 

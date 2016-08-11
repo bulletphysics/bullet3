@@ -751,7 +751,7 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
             int bodyUniqueId = m_data->allocHandle();
 
             InternalBodyHandle* bodyHandle = m_data->getHandle(bodyUniqueId);
-
+            u2b.setBodyUniqueId(bodyUniqueId);
             {
                 btScalar mass = 0;
                 bodyHandle->m_rootLocalInertialFrame.setIdentity();
@@ -845,6 +845,7 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 		if (bodyUniqueIdPtr)
 			*bodyUniqueIdPtr= bodyUniqueId;
 
+        u2b.setBodyUniqueId(bodyUniqueId);
 		InternalBodyHandle* bodyHandle = m_data->getHandle(bodyUniqueId);
 
         {
@@ -1165,15 +1166,21 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
                     if (numRemainingPixels>0)
                     {
-                        int maxNumPixels = bufferSizeInBytes/8-1;
+                        int totalBytesPerPixel = 4+4+4;//4 for rgb, 4 for depth, 4 for segmentation mask
+                        int maxNumPixels = bufferSizeInBytes/totalBytesPerPixel-1;
                         unsigned char* pixelRGBA = (unsigned char*)bufferServerToClient;
                         int numRequestedPixels = btMin(maxNumPixels,numRemainingPixels);
 
                         float* depthBuffer = (float*)(bufferServerToClient+numRequestedPixels*4);
+                        int* segmentationMaskBuffer = (int*)(bufferServerToClient+numRequestedPixels*8);
 
                         if ((clientCmd.m_updateFlags & ER_BULLET_HARDWARE_OPENGL)!=0)
 						{
-							m_data->m_guiHelper->copyCameraImageData(clientCmd.m_requestPixelDataArguments.m_viewMatrix,clientCmd.m_requestPixelDataArguments.m_projectionMatrix,pixelRGBA,numRequestedPixels,depthBuffer,numRequestedPixels,startPixelIndex,width,height,&numPixelsCopied);
+							m_data->m_guiHelper->copyCameraImageData(clientCmd.m_requestPixelDataArguments.m_viewMatrix,
+                                                clientCmd.m_requestPixelDataArguments.m_projectionMatrix,pixelRGBA,numRequestedPixels,
+                                                depthBuffer,numRequestedPixels,
+                                                segmentationMaskBuffer, numRequestedPixels,
+                                                startPixelIndex,width,height,&numPixelsCopied);
 						} else
 						{
 
@@ -1194,7 +1201,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
                             }
 
-							m_data->m_visualConverter.copyCameraImageData(pixelRGBA,numRequestedPixels,depthBuffer,numRequestedPixels,startPixelIndex,&width,&height,&numPixelsCopied);
+							m_data->m_visualConverter.copyCameraImageData(pixelRGBA,numRequestedPixels,
+                                                     depthBuffer,numRequestedPixels,
+                                                     segmentationMaskBuffer, numRequestedPixels,
+                                                     startPixelIndex,&width,&height,&numPixelsCopied);
 						}
 
                         //each pixel takes 4 RGBA values and 1 float = 8 bytes
