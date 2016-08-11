@@ -680,6 +680,7 @@ struct QuickCanvas : public Common2dCanvasInterface
 	}
 	virtual void destroyCanvas(int canvasId)
 	{
+	    m_curXpos = 0;
 		btAssert(canvasId>=0);
 		delete m_gt[canvasId];
 		m_gt[canvasId] = 0;
