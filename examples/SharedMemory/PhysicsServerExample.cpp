@@ -391,6 +391,7 @@ public:
 	}
 	virtual void resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ)
 	{
+	    m_childGuiHelper->resetCamera(camDist,pitch,yaw,camPosX,camPosY,camPosZ);
 	}
 
 	float m_viewMatrix[16];
