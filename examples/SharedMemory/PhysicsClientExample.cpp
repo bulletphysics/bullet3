@@ -736,7 +736,7 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
                             if (m_canvasDepthIndex >=0)
                             {
                                 int depthPixelIndex = (xIndex+yIndex*imageData.m_pixelWidth);
-                                float depthValue = imageData.m_depthValues4[depthPixelIndex];
+                                float depthValue = imageData.m_depthValues[depthPixelIndex];
                                 //todo: rescale the depthValue to [0..255]
                                 if (depthValue>-1e20)
                                 {
@@ -770,7 +770,7 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
                             if (m_canvasDepthIndex >=0)
                             {
                                 int depthPixelIndex = (xIndex+yIndex*imageData.m_pixelWidth);
-                                float depthValue = imageData.m_depthValues4[depthPixelIndex];
+                                float depthValue = imageData.m_depthValues[depthPixelIndex];
                                 //todo: rescale the depthValue to [0..255]
                                 if (depthValue>-1e20)
                                 {

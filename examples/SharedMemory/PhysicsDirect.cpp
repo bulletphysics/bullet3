@@ -464,7 +464,7 @@ void PhysicsDirect::getCachedCameraImage(b3CameraImageData* cameraData)
 	{
 		cameraData->m_pixelWidth = m_data->m_cachedCameraPixelsWidth;
 		cameraData->m_pixelHeight = m_data->m_cachedCameraPixelsHeight;
-		cameraData->m_depthValues4 = m_data->m_cachedCameraDepthBuffer.size() ? &m_data->m_cachedCameraDepthBuffer[0] : 0;
+		cameraData->m_depthValues = m_data->m_cachedCameraDepthBuffer.size() ? &m_data->m_cachedCameraDepthBuffer[0] : 0;
 		cameraData->m_rgbColorData = m_data->m_cachedCameraPixelsRGBA.size() ? &m_data->m_cachedCameraPixelsRGBA[0] : 0;
 		cameraData->m_segmentationMaskValues = m_data->m_cachedSegmentationMask.size()? &m_data->m_cachedSegmentationMask[0] : 0;
 	}
