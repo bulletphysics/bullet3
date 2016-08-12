@@ -59,7 +59,7 @@ Vec3f barycentric(Vec2f A, Vec2f B, Vec2f C, Vec2f P) {
     return Vec3f(-1,1,1); // in this case generate negative coordinates, it will be thrown away by the rasterizator
 }
 
-void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zbuffer, const Matrix& viewPortMatrix) {
+void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zbuffer, int* segmentationMaskBuffer, const Matrix& viewPortMatrix, int objectIndex) {
 	mat<3,4,float> pts  = (viewPortMatrix*clipc).transpose(); // transposed to ease access to each of the points
 	
 	
@@ -100,6 +100,7 @@ void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zb
             bool discard = shader.fragment(bc_clip, color);
             if (!discard) {
                 zbuffer[P.x+P.y*image.get_width()] = frag_depth;
+                segmentationMaskBuffer[P.x+P.y*image.get_width()] = objectIndex;
                 image.set(P.x, P.y, color);
             }
         }

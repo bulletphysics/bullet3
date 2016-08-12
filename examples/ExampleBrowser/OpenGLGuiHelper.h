@@ -44,7 +44,12 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 	
 	virtual void resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ);
 	
-	virtual void copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16], unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int destinationWidth, int destinationHeight, int* numPixelsCopied);
+	virtual void copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16], 
+                                  unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, 
+                                  float* depthBuffer, int depthBufferSizeInPixels, 
+                                  int* segmentationMaskBuffer, int segmentationMaskBufferSizeInPixels,
+                                  int startPixelIndex, int destinationWidth, 
+                                  int destinationHeight, int* numPixelsCopied);
 
 	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld) ;
     

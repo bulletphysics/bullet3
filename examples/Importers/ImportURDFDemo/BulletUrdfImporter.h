@@ -25,7 +25,8 @@ public:
     virtual bool loadSDF(const char* fileName, bool forceFixedBase = false);
     virtual int getNumModels() const;
     virtual void activateModel(int modelIndex);
-    
+    virtual void setBodyUniqueId(int bodyId);
+    virtual int getBodyUniqueId() const;
 	const char* getPathPrefix();
 
 	void printTree(); //for debugging
@@ -50,7 +51,7 @@ public:
 
     virtual int convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame) const;
 
-    virtual void convertLinkVisualShapes2(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame, class btCollisionObject* colObj) const;
+    virtual void convertLinkVisualShapes2(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame, class btCollisionObject* colObj, int objectIndex) const;
 
     ///todo(erwincoumans) refactor this convertLinkCollisionShapes/memory allocation
     

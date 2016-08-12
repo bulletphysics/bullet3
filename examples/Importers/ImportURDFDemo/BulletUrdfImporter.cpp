@@ -45,6 +45,7 @@ struct BulletURDFInternalData
 	UrdfParser m_urdfParser;
 	struct GUIHelperInterface* m_guiHelper;
 	char m_pathPrefix[1024];
+	int m_bodyId;
 	btHashMap<btHashInt,btVector4> m_linkColors;
     btAlignedObjectArray<btCollisionShape*> m_allocatedCollisionShapes;
 	
@@ -206,6 +207,18 @@ bool BulletURDFImporter::loadSDF(const char* fileName, bool forceFixedBase)
 const char* BulletURDFImporter::getPathPrefix()
 {
 	return m_data->m_pathPrefix;
+}
+
+    
+void BulletURDFImporter::setBodyUniqueId(int bodyId)
+{
+    m_data->m_bodyId =bodyId;
+}
+
+
+int BulletURDFImporter::getBodyUniqueId() const
+{
+    return  m_data->m_bodyId;
 }
 
 
@@ -1017,13 +1030,13 @@ bool BulletURDFImporter::getLinkContactInfo(int linkIndex, URDFLinkContactInfo& 
 	return false;
 }
 
-void BulletURDFImporter::convertLinkVisualShapes2(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, class btCollisionObject* colObj) const
+void BulletURDFImporter::convertLinkVisualShapes2(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, class btCollisionObject* colObj, int objectIndex) const
 {
 
   	if (m_data->m_customVisualShapesConverter)
 	{
 		const UrdfModel& model = m_data->m_urdfParser.getModel();
-		m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex,pathPrefix,localInertiaFrame, model, colObj);
+		m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex,pathPrefix,localInertiaFrame, model, colObj, objectIndex);
 	}
 
 }

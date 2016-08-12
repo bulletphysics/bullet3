@@ -88,12 +88,14 @@ struct Shader : public IShader {
 };
 
 
-TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer)
+TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer, b3AlignedObjectArray<int>& segmentationMaskBuffer, int objectIndex,int objectIndex2)
 :m_rgbColorBuffer(rgbColorBuffer),
 m_depthBuffer(depthBuffer),
+m_segmentationMaskBuffer(segmentationMaskBuffer),
 m_model(0),
 m_userData(0),
-m_userIndex(-1)
+m_userIndex(-1),
+m_objectIndex(objectIndex)
 {
     Vec3f       eye(1,1,3);
     Vec3f    center(0,0,0);
@@ -247,6 +249,7 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
 	renderData.m_viewportMatrix = viewport(0,0,width, height);
 	
     b3AlignedObjectArray<float>& zbuffer = renderData.m_depthBuffer;
+    b3AlignedObjectArray<int>& segmentationMaskBuffer = renderData.m_segmentationMaskBuffer;
     
     TGAImage& frame = renderData.m_rgbColorBuffer;
 
@@ -264,7 +267,7 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
             for (int j=0; j<3; j++) {
                 shader.vertex(i, j);
             }
-            triangle(shader.varying_tri, shader, frame, &zbuffer[0], renderData.m_viewportMatrix);
+            triangle(shader.varying_tri, shader, frame, &zbuffer[0], &segmentationMaskBuffer[0], renderData.m_viewportMatrix, renderData.m_objectIndex);
         }
         
     }

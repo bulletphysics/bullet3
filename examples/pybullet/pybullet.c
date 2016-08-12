@@ -1205,11 +1205,13 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 			PyObject* pyResultList;//store 4 elements in this result: width, height, rgbData, depth
 			PyObject *pylistRGB;
 			PyObject* pylistDep;
+			PyObject* pylistSeg;
+			
 			int i, j, p;
 
 			b3GetCameraImageData(sm, &imageData);
 			//TODO(hellojas): error handling if image size is 0
-			pyResultList =  PyTuple_New(4);
+			pyResultList =  PyTuple_New(5);
 			PyTuple_SetItem(pyResultList, 0, PyInt_FromLong(imageData.m_pixelWidth));
 			PyTuple_SetItem(pyResultList, 1, PyInt_FromLong(imageData.m_pixelHeight));
 
@@ -1221,15 +1223,23 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 				int num=bytesPerPixel*imageData.m_pixelWidth*imageData.m_pixelHeight;
 				pylistRGB = PyTuple_New(num);
 				pylistDep = PyTuple_New(imageData.m_pixelWidth*imageData.m_pixelHeight);
-
+                pylistSeg = PyTuple_New(imageData.m_pixelWidth*imageData.m_pixelHeight);
 				for (i=0;i<imageData.m_pixelWidth;i++)
 				{
 					for (j=0;j<imageData.m_pixelHeight;j++)
 					{
             // TODO(hellojas): validate depth values make sense
 						int depIndex = i+j*imageData.m_pixelWidth;
-						item = PyFloat_FromDouble(imageData.m_depthValues[depIndex]);
-						PyTuple_SetItem(pylistDep, depIndex, item);
+						{
+						    item = PyFloat_FromDouble(imageData.m_depthValues4[depIndex]);
+						    PyTuple_SetItem(pylistDep, depIndex, item);
+						}
+						{
+                            item2 = PyLong_FromLong(imageData.m_segmentationMaskValues[depIndex]);
+                            PyTuple_SetItem(pylistSeg, depIndex, item2);
+						}
+						
+						
 						for (p=0; p<bytesPerPixel; p++)
 						{
 							int pixelIndex = bytesPerPixel*(i+j*imageData.m_pixelWidth)+p;
@@ -1242,6 +1252,7 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 
 			PyTuple_SetItem(pyResultList, 2,pylistRGB);
 			PyTuple_SetItem(pyResultList, 3,pylistDep);
+			PyTuple_SetItem(pyResultList, 4,pylistSeg);
 			return pyResultList;
 		}
 	}

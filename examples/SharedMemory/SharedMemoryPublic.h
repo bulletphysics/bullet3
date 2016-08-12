@@ -122,7 +122,8 @@ struct b3CameraImageData
 	int m_pixelWidth;
 	int m_pixelHeight;
 	const unsigned char* m_rgbColorData;//3*m_pixelWidth*m_pixelHeight bytes
-	const float* m_depthValues;//m_pixelWidth*m_pixelHeight floats
+	const float* m_depthValues4;//m_pixelWidth*m_pixelHeight floats
+	const int* m_segmentationMaskValues;//m_pixelWidth*m_pixelHeight ints
 };
 
 ///b3LinkState provides extra information such as the Cartesian world coordinates

@@ -44,7 +44,9 @@ protected:
     int m_selectedBody;
 	int m_prevSelectedBody;
 	struct Common2dCanvasInterface* m_canvas;
-	int m_canvasIndex;
+	int m_canvasRGBIndex;
+	int m_canvasDepthIndex;
+	int m_canvasSegMaskIndex;
 	
 	void	createButton(const char* name, int id, bool isTrigger );
 
@@ -248,7 +250,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
         
         case  CMD_LOAD_SDF:
         {
-            b3SharedMemoryCommandHandle commandHandle = b3LoadSdfCommandInit(m_physicsClientHandle, "kuka_iiwa/model.sdf");
+            b3SharedMemoryCommandHandle commandHandle = b3LoadSdfCommandInit(m_physicsClientHandle, "two_cubes.sdf");//kuka_iiwa/model.sdf");
             b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
             break;
         }
@@ -460,7 +462,11 @@ m_prevSelectedBody(-1),
 m_numMotors(0),
 m_options(options),
 m_isOptionalServerConnected(false),
-m_canvas(0)
+m_canvas(0),
+m_canvasRGBIndex(-1),
+m_canvasDepthIndex(-1),
+m_canvasSegMaskIndex(-1)
+	
 {
 	b3Printf("Started PhysicsClientExample\n");
 }
@@ -479,9 +485,15 @@ PhysicsClientExample::~PhysicsClientExample()
 		m_physicsServer.disconnectSharedMemory(deInitializeSharedMemory);
 	}
 	
-	if (m_canvas && (m_canvasIndex>=0))
+	if (m_canvas)
 	{
-		m_canvas->destroyCanvas(m_canvasIndex);
+	    if (m_canvasRGBIndex>=0)
+            m_canvas->destroyCanvas(m_canvasRGBIndex);
+	    if (m_canvasDepthIndex>=0)
+            m_canvas->destroyCanvas(m_canvasDepthIndex);
+        if (m_canvasSegMaskIndex>=0)
+            m_canvas->destroyCanvas(m_canvasSegMaskIndex);
+		
 	}
     b3Printf("~PhysicsClientExample\n");
 }
@@ -613,9 +625,10 @@ void	PhysicsClientExample::initPhysics()
 		m_canvas = m_guiHelper->get2dCanvasInterface();
 		if (m_canvas)
 		{
-			
-
-			m_canvasIndex = m_canvas->createCanvas("Synthetic Camera",camVisualizerWidth, camVisualizerHeight);
+		    
+			m_canvasRGBIndex = m_canvas->createCanvas("Synthetic Camera RGB data",camVisualizerWidth, camVisualizerHeight);
+			m_canvasDepthIndex = m_canvas->createCanvas("Synthetic Camera Depth data",camVisualizerWidth, camVisualizerHeight);
+			m_canvasSegMaskIndex = m_canvas->createCanvas("Synthetic Camera Segmentation Mask",camVisualizerWidth, camVisualizerHeight);
 
 			for (int i=0;i<camVisualizerWidth;i++)
 			{
@@ -631,10 +644,16 @@ void	PhysicsClientExample::initPhysics()
 						green=0;
 						blue=0;
 					}
-					m_canvas->setPixel(m_canvasIndex,i,j,red,green,blue,alpha);
+					m_canvas->setPixel(m_canvasRGBIndex,i,j,red,green,blue,alpha);
+					m_canvas->setPixel(m_canvasDepthIndex,i,j,red,green,blue,alpha);
+					m_canvas->setPixel(m_canvasSegMaskIndex,i,j,red,green,blue,alpha);
+					
 				}
 			}
-			m_canvas->refreshImageData(m_canvasIndex);
+			m_canvas->refreshImageData(m_canvasRGBIndex);
+			m_canvas->refreshImageData(m_canvasDepthIndex);
+			m_canvas->refreshImageData(m_canvasSegMaskIndex);
+			
 			
 		}
 
@@ -698,8 +717,36 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 			//	sprintf(msg,"Camera image %d OK\n",counter++);
 				b3CameraImageData imageData;
 				b3GetCameraImageData(m_physicsClientHandle,&imageData);
-				if (m_canvas && m_canvasIndex >=0)
+				if (m_canvas)
 				{
+				 
+				 //compute depth image range
+                 float minDepthValue = 1e20f;
+                 float maxDepthValue = -1e20f;
+                 
+                    for (int i=0;i<camVisualizerWidth;i++)
+					{
+						for (int j=0;j<camVisualizerHeight;j++)
+						{
+                            int xIndex = int(float(i)*(float(imageData.m_pixelWidth)/float(camVisualizerWidth)));
+                            int yIndex = int(float(j)*(float(imageData.m_pixelHeight)/float(camVisualizerHeight)));
+							btClamp(yIndex,0,imageData.m_pixelHeight);
+							btClamp(xIndex,0,imageData.m_pixelWidth);
+							
+                            if (m_canvasDepthIndex >=0)
+                            {
+                                int depthPixelIndex = (xIndex+yIndex*imageData.m_pixelWidth);
+                                float depthValue = imageData.m_depthValues4[depthPixelIndex];
+                                //todo: rescale the depthValue to [0..255]
+                                if (depthValue>-1e20)
+                                {
+                                    maxDepthValue = btMax(maxDepthValue,depthValue);
+                                    minDepthValue = btMin(minDepthValue,depthValue);
+                                }
+                            }
+						}
+					}
+					
 					for (int i=0;i<camVisualizerWidth;i++)
 					{
 						for (int j=0;j<camVisualizerHeight;j++)
@@ -710,15 +757,76 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 							btClamp(xIndex,0,imageData.m_pixelWidth);
 							int bytesPerPixel = 4; //RGBA
 							
-							int pixelIndex = (xIndex+yIndex*imageData.m_pixelWidth)*bytesPerPixel;
-							m_canvas->setPixel(m_canvasIndex,i,j,
-									imageData.m_rgbColorData[pixelIndex],
-									imageData.m_rgbColorData[pixelIndex+1],
-									imageData.m_rgbColorData[pixelIndex+2],
-                                               255); //alpha set to 255
+							if (m_canvasRGBIndex >=0)
+                            {
+                                int rgbPixelIndex = (xIndex+yIndex*imageData.m_pixelWidth)*bytesPerPixel;
+                                m_canvas->setPixel(m_canvasRGBIndex,i,j,
+                                        imageData.m_rgbColorData[rgbPixelIndex],
+                                        imageData.m_rgbColorData[rgbPixelIndex+1],
+                                        imageData.m_rgbColorData[rgbPixelIndex+2],
+                                                   255); //alpha set to 255
+                            }
+                            
+                            if (m_canvasDepthIndex >=0)
+                            {
+                                int depthPixelIndex = (xIndex+yIndex*imageData.m_pixelWidth);
+                                float depthValue = imageData.m_depthValues4[depthPixelIndex];
+                                //todo: rescale the depthValue to [0..255]
+                                if (depthValue>-1e20)
+                                {
+                                    int rgb =  (depthValue-minDepthValue)*(255. / (btFabs(maxDepthValue-minDepthValue)));
+                                    if (rgb<0 || rgb>255)
+                                    {
+                                        
+                                        printf("rgb=%d\n",rgb);
+                                    }
+                 
+                                    m_canvas->setPixel(m_canvasDepthIndex,i,j,
+                                        rgb,
+                                        rgb,
+                                        255, 255); //alpha set to 255
+                                } else
+                                {
+                                    m_canvas->setPixel(m_canvasDepthIndex,i,j,
+                                        0,
+                                        0,
+                                        0, 255); //alpha set to 255
+                                }
+                            }
+                            if (m_canvasSegMaskIndex>=0 && (0!=imageData.m_segmentationMaskValues))
+                            {
+                                int segmentationMaskPixelIndex = (xIndex+yIndex*imageData.m_pixelWidth);
+                                int segmentationMask = imageData.m_segmentationMaskValues[segmentationMaskPixelIndex];
+                                btVector4 palette[4] = {btVector4(32,255,32,255),
+                                                        btVector4(32,32,255,255),
+                                                        btVector4(255,255,32,255),
+                                                        btVector4(32,255,255,255)};
+                                if (segmentationMask>=0)
+                                {
+                                    btVector4 rgb = palette[segmentationMask&3];
+                                     m_canvas->setPixel(m_canvasSegMaskIndex,i,j,
+                                        rgb.x(),
+                                        rgb.y(),
+                                        rgb.z(), 255); //alpha set to 255
+                                } else
+                                {
+                                     m_canvas->setPixel(m_canvasSegMaskIndex,i,j,
+                                        0,
+                                        0,
+                                        0, 255); //alpha set to 255
+                                }
+                            }
 						}
 					}
-					m_canvas->refreshImageData(m_canvasIndex);
+					if (m_canvasRGBIndex >=0)
+                        m_canvas->refreshImageData(m_canvasRGBIndex);
+                    if (m_canvasDepthIndex >=0)
+                        m_canvas->refreshImageData(m_canvasDepthIndex);
+                    if (m_canvasSegMaskIndex >=0)
+                        m_canvas->refreshImageData(m_canvasSegMaskIndex);
+                        
+                        
+                        
 				}
 
                // b3Printf(msg);
