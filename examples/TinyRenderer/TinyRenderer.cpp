@@ -87,11 +87,17 @@ struct Shader : public IShader {
     }
 };
 
+TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer)
+:TinyRenderObjectData(rgbColorBuffer,depthBuffer,0,0)
+{
+    
+}
 
-TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer, b3AlignedObjectArray<int>& segmentationMaskBuffer, int objectIndex,int objectIndex2)
+
+TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer, b3AlignedObjectArray<int>* segmentationMaskBuffer, int objectIndex)
 :m_rgbColorBuffer(rgbColorBuffer),
 m_depthBuffer(depthBuffer),
-m_segmentationMaskBuffer(segmentationMaskBuffer),
+m_segmentationMaskBufferPtr(segmentationMaskBuffer),
 m_model(0),
 m_userData(0),
 m_userIndex(-1),
@@ -249,7 +255,7 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
 	renderData.m_viewportMatrix = viewport(0,0,width, height);
 	
     b3AlignedObjectArray<float>& zbuffer = renderData.m_depthBuffer;
-    b3AlignedObjectArray<int>& segmentationMaskBuffer = renderData.m_segmentationMaskBuffer;
+    int* segmentationMaskBufferPtr = &renderData.m_segmentationMaskBufferPtr->at(0);
     
     TGAImage& frame = renderData.m_rgbColorBuffer;
 
@@ -267,7 +273,7 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
             for (int j=0; j<3; j++) {
                 shader.vertex(i, j);
             }
-            triangle(shader.varying_tri, shader, frame, &zbuffer[0], &segmentationMaskBuffer[0], renderData.m_viewportMatrix, renderData.m_objectIndex);
+            triangle(shader.varying_tri, shader, frame, &zbuffer[0], segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex);
         }
         
     }

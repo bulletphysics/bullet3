@@ -187,9 +187,9 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 				TinyRenderObjectData* ob = new TinyRenderObjectData(
 					m_internalData->m_rgbColorBuffer,
 					m_internalData->m_depthBuffer,
-					m_internalData->m_segmentationMaskBuffer,
-					m_internalData->m_renderObjects.size(),0);
-					//ob->loadModel("cube.obj");
+					&m_internalData->m_segmentationMaskBuffer,
+					m_internalData->m_renderObjects.size());
+					
 				const int* indices = &meshData.m_gfxShape->m_indices->at(0);
 					ob->registerMeshShape(&meshData.m_gfxShape->m_vertices->at(0).xyzw[0],
 						meshData.m_gfxShape->m_numvertices,
