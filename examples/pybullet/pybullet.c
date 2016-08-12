@@ -1231,7 +1231,7 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
             // TODO(hellojas): validate depth values make sense
 						int depIndex = i+j*imageData.m_pixelWidth;
 						{
-						    item = PyFloat_FromDouble(imageData.m_depthValues4[depIndex]);
+						    item = PyFloat_FromDouble(imageData.m_depthValues[depIndex]);
 						    PyTuple_SetItem(pylistDep, depIndex, item);
 						}
 						{
