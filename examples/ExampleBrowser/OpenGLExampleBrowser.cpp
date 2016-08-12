@@ -108,6 +108,10 @@ static b3AlignedObjectArray<const char*> allNames;
 static float gFixedTimeStep = 0;
 bool gAllowRetina = true;
 
+static float initialCameraDistance = 13;
+static float initialCameraPitch = 0;
+static float initialCameraYaw = 20;
+
 static class ExampleEntries* gAllExamples=0;
 bool sUseOpenGL2 = false;
 bool drawGUI=true;
@@ -441,6 +445,11 @@ static void saveCurrentSettings(int currentEntry,const char* startFileName)
 		{
 			fprintf(f,"--opengl2\n");
 		}
+
+                CommonCameraInterface* camera = s_guiHelper->getRenderInterface()->getActiveCamera();
+                fprintf(f, "--camera_distance=%f\n", camera->getCameraDistance());
+                fprintf(f, "--camera_pitch=%f\n", camera->getCameraPitch());
+                fprintf(f, "--camera_yaw=%f\n", camera->getCameraYaw());
 
 		fclose(f);
 	}
@@ -839,8 +848,12 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 	prevKeyboardCallback = s_window->getKeyboardCallback();
 	s_window->setKeyboardCallback(MyKeyboardCallback);
 
-	s_app->m_renderer->getActiveCamera()->setCameraDistance(13);
-	s_app->m_renderer->getActiveCamera()->setCameraPitch(0);
+	args.GetCmdLineArgument("camera_distance", initialCameraDistance);
+	s_app->m_renderer->getActiveCamera()->setCameraDistance(initialCameraDistance);
+	args.GetCmdLineArgument("camera_pitch", initialCameraPitch);
+	s_app->m_renderer->getActiveCamera()->setCameraPitch(initialCameraPitch);
+	args.GetCmdLineArgument("camera_yaw", initialCameraYaw);
+	s_app->m_renderer->getActiveCamera()->setCameraYaw(initialCameraYaw);
 	s_app->m_renderer->getActiveCamera()->setCameraTargetPosition(0,0,0);
 
 	float mouseMoveMult= s_app->getMouseMoveMultiplier();
