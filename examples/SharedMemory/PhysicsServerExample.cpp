@@ -107,6 +107,7 @@ struct MotionThreadLocalStorage
 };
 
 int skip = 0;
+int skip1 = 0;
 
 void	MotionThreadFunc(void* userPtr,void* lsMemory)
 {
@@ -134,8 +135,15 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 			if (deltaTimeInSeconds<(1./5000.))
 			{
 				skip++;
+				skip1++;
+				if (0==(skip1&0x3))
+				{
+					b3Clock::usleep(250);
+				}
 			} else
 			{
+				skip1=0;
+				
 				//process special controller commands, such as
 				//VR controller button press/release and controller motion
 
@@ -186,8 +194,9 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 	}
 
 
-	printf("finished, #skip = %d\n",skip);
+	printf("finished, #skip = %d, skip1 = %d\n",skip,skip1);
 	skip=0;
+	skip1=0;
 	//do nothing
 
 }
@@ -638,8 +647,10 @@ void	PhysicsServerExample::initPhysics()
 			int index = 0;
 			
 			m_threadSupport->runTask(B3_THREAD_SCHEDULE_TASK, (void*) &this->m_args[w], w);
+			
 			while (m_args[w].m_cs->getSharedParam(0)==eMotionIsUnInitialized)
 			{
+				b3Clock::usleep(1000);
 			}
 		}
 
@@ -669,6 +680,7 @@ void    PhysicsServerExample::exitPhysics()
 
                         } else
                         {
+							b3Clock::usleep(1000);
                         }
                 };
 

@@ -332,6 +332,7 @@ btInProcessExampleBrowserInternalData* btCreateInProcessExampleBrowser(int argc,
 
 	while (data->m_args.m_cs->getSharedParam(0)==eExampleBrowserIsUnInitialized)
 	{
+		b3Clock::usleep(1000);
 	}
 
 	return data;
@@ -366,6 +367,7 @@ void btShutDownExampleBrowser(btInProcessExampleBrowserInternalData* data)
                         } else
                         {
 //                              printf("polling..");
+							b3Clock::usleep(1000);
                         }
                 };
 

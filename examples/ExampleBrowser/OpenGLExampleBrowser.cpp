@@ -107,7 +107,7 @@ static CommonExampleInterface* sCurrentDemo = 0;
 static b3AlignedObjectArray<const char*> allNames;
 static float gFixedTimeStep = 0;
 bool gAllowRetina = true;
-
+bool gDisableDemoSelection = false;
 static class ExampleEntries* gAllExamples=0;
 bool sUseOpenGL2 = false;
 bool drawGUI=true;
@@ -556,9 +556,11 @@ struct MyMenuItemHander :public Gwen::Event::Handler
 		Gwen::String laa = Gwen::Utility::UnicodeToString(la);
 		//const char* ha = laa.c_str();
 
-		
-		selectDemo(sCurrentHightlighted);
-		saveCurrentSettings(sCurrentDemoIndex, startFileName);
+		if (!gDisableDemoSelection )
+		{
+			selectDemo(sCurrentHightlighted);
+			saveCurrentSettings(sCurrentDemoIndex, startFileName);
+		}
 	}
 	void onButtonC(Gwen::Controls::Base* pControl)
 	{
@@ -580,8 +582,11 @@ struct MyMenuItemHander :public Gwen::Event::Handler
 		*/
 
 	//	printf("onKeyReturn ! \n");
-		selectDemo(sCurrentHightlighted);
-		saveCurrentSettings(sCurrentDemoIndex, startFileName);
+		if (!gDisableDemoSelection )
+		{
+			selectDemo(sCurrentHightlighted);
+			saveCurrentSettings(sCurrentDemoIndex, startFileName);
+		}
 
 	}
 
@@ -1228,5 +1233,6 @@ void OpenGLExampleBrowser::update(float deltaTime)
 
 void OpenGLExampleBrowser::setSharedMemoryInterface(class SharedMemoryInterface* sharedMem)
 {
+	gDisableDemoSelection = true;
 	sSharedMem = sharedMem;
 }
