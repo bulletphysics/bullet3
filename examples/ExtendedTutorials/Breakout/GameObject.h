@@ -33,12 +33,15 @@ struct vec3
 	float p[4];
 };
 
-typedef struct
+struct Vertex
 {
+	Vertex(vec3 p):position(p), uv(0,0), color(0,0,0) {
+	}
+
     vec3 position;
-    vec2 uv;
-	vec3 color;
-} Vertex;
+    vec2 uv; // bullet physics browser does not take any textures
+	vec3 color; // bullet physics browser does not take any colors
+};
 
 /*
  *
