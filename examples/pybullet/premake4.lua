@@ -5,7 +5,6 @@ project ("pybullet")
 		kind "SharedLib"
 		targetsuffix ("")
 		targetprefix ("")
-		targetextension (".so")
 		includedirs {"../../src", "../../examples",
 		"../../examples/ThirdPartyLibs"}
 		defines {"PHYSICS_IN_PROCESS_EXAMPLE_BROWSER"}

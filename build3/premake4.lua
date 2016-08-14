@@ -96,8 +96,8 @@ end
 
 		
 if os.is("Windows") then
- 		default_python_include_dir = "C:/Python34/include"
- 		default_python_lib_dir = "C:/Python34/libs"
+ 		default_python_include_dir = "C:\Python-3.5.2/include"
+ 		default_python_lib_dir = "C:/Python-3.5.2/libs"
 end
 
 		newoption
@@ -164,7 +164,7 @@ end
 			platforms {"x32"}
 		end
 	else
-		platforms {"x64"}
+		platforms {"x32","x64"}
 	end
 
 	configuration {"x32"}
