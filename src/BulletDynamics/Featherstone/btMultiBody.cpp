@@ -466,6 +466,16 @@ btVector3 btMultiBody::worldDirToLocal(int i, const btVector3 &world_dir) const
     }
 }
 
+btMatrix3x3 btMultiBody::localFrameToWorld(int i, const btMatrix3x3 &local_frame) const
+{
+    btMatrix3x3 result = local_frame;
+    btVector3 frameInWorld0 = localDirToWorld(i, local_frame.getColumn(0));
+    btVector3 frameInWorld1 = localDirToWorld(i, local_frame.getColumn(1));
+    btVector3 frameInWorld2 = localDirToWorld(i, local_frame.getColumn(2));
+    result.setValue(frameInWorld0[0], frameInWorld1[0], frameInWorld2[0], frameInWorld0[1], frameInWorld1[1], frameInWorld2[1], frameInWorld0[2], frameInWorld1[2], frameInWorld2[2]);
+    return result;
+}
+
 void btMultiBody::compTreeLinkVelocities(btVector3 *omega, btVector3 *vel) const
 {
 	int num_links = getNumLinks();
