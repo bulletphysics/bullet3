@@ -877,6 +877,7 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
         }
 
         btMultiBody* mb = creation.getBulletMultiBody();
+        
 		if (useMultiBody)
 		{
 
@@ -944,7 +945,6 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 
 		} else
 		{
-			btAssert(0);
 
 			return true;
 		}

@@ -82,7 +82,6 @@ public:
                 m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
             }
             
-            
             {
                 b3RobotSimLoadFileArgs args("");
                 args.m_fileName = "gripper/wsg50_with_r2d2_gripper.sdf";
@@ -132,9 +131,11 @@ public:
             {
                 b3RobotSimLoadFileArgs args("");
                 b3RobotSimLoadFileResults results;
-                args.m_fileName = "cube_small.urdf";
+                args.m_fileName = "cube_small.sdf";
                 args.m_startPosition.setValue(0,0,.107);
                 args.m_startOrientation.setEulerZYX(0,0,0);
+                args.m_useMultiBody = false;
+                args.m_fileType = 2;
                 m_robotSim.loadFile(args,results);
             }
             if (1)
@@ -144,6 +145,7 @@ public:
                 args.m_startPosition.setValue(0,0,0);
                 args.m_startOrientation.setEulerZYX(0,0,0);
                 args.m_forceOverrideFixedBase = true;
+                args.m_useMultiBody = true;
                 b3RobotSimLoadFileResults results;
                 m_robotSim.loadFile(args,results);
                 
