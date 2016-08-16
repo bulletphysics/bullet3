@@ -247,6 +247,11 @@ B3_FORCE_INLINE bool operator==(const b3Transform& t1, const b3Transform& t2)
             t1.getOrigin() == t2.getOrigin() );
 }
 
+B3_FORCE_INLINE bool operator!=(const b3Transform& t1, const b3Transform& t2)
+{
+   return !(t1 == t2);
+}
+
 
 ///for serialization
 struct	b3TransformFloatData
