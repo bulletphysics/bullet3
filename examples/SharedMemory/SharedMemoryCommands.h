@@ -64,6 +64,7 @@ enum EnumSdfArgsUpdateFlags
 struct SdfArgs
 {
 	char m_sdfFileName[MAX_URDF_FILENAME_LENGTH];
+    int m_useMultiBody;
 };
 
 enum EnumUrdfArgsUpdateFlags

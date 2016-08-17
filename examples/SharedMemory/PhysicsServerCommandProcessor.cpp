@@ -711,7 +711,7 @@ void	PhysicsServerCommandProcessor::createJointMotors(btMultiBody* mb)
 }
 
 
-bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferServerToClient, int bufferSizeInBytes)
+bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferServerToClient, int bufferSizeInBytes, bool useMultiBody)
 {
     btAssert(m_data->m_dynamicsWorld);
 	if (!m_data->m_dynamicsWorld)
@@ -768,7 +768,6 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
             MyMultiBodyCreator creation(m_data->m_guiHelper);
 
             u2b.getRootTransformInWorld(rootTrans);
-            bool useMultiBody = true;
             ConvertURDF2Bullet(u2b,creation, rootTrans,m_data->m_dynamicsWorld,useMultiBody,u2b.getPathPrefix(),true);
 
 
@@ -1244,8 +1243,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                         {
                             b3Printf("Processed CMD_LOAD_SDF:%s", sdfArgs.m_sdfFileName);
                         }
+                        bool useMultiBody=(clientCmd.m_updateFlags & URDF_ARGS_USE_MULTIBODY) ? sdfArgs.m_useMultiBody : true;
 
-                        bool completedOk = loadSdf(sdfArgs.m_sdfFileName,bufferServerToClient, bufferSizeInBytes);
+                        bool completedOk = loadSdf(sdfArgs.m_sdfFileName,bufferServerToClient, bufferSizeInBytes, useMultiBody);
                         if (completedOk)
                         {
                             //serverStatusOut.m_type = CMD_SDF_LOADING_FAILED;

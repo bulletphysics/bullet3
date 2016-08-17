@@ -86,6 +86,7 @@ public:
                 b3RobotSimLoadFileArgs args("");
                 args.m_fileName = "gripper/wsg50_with_r2d2_gripper.sdf";
                 args.m_fileType = B3_SDF_FILE;
+                args.m_useMultiBody = true;
                 b3RobotSimLoadFileResults results;
                 
                 if (m_robotSim.loadFile(args, results) && results.m_uniqueObjectIds.size()==1)
@@ -131,11 +132,10 @@ public:
             {
                 b3RobotSimLoadFileArgs args("");
                 b3RobotSimLoadFileResults results;
-                args.m_fileName = "cube_small.sdf";
+                args.m_fileName = "cube_small.urdf";
                 args.m_startPosition.setValue(0,0,.107);
                 args.m_startOrientation.setEulerZYX(0,0,0);
                 args.m_useMultiBody = false;
-                args.m_fileType = 2;
                 m_robotSim.loadFile(args,results);
             }
             if (1)

@@ -703,6 +703,7 @@ bool b3RobotSimAPI::loadFile(const struct b3RobotSimLoadFileArgs& args, b3RobotS
 			b3SharedMemoryStatusHandle statusHandle;
 			int statusType;
 			b3SharedMemoryCommandHandle command = b3LoadSdfCommandInit(m_data->m_physicsClient, args.m_fileName.c_str());
+            b3LoadSdfCommandSetUseMultiBody(command, args.m_useMultiBody);
 			statusHandle = submitClientCommandAndWaitStatusMultiThreaded(m_data->m_physicsClient, command);
 			statusType = b3GetStatusType(statusHandle);
 			b3Assert(statusType == CMD_SDF_LOADING_COMPLETED);
