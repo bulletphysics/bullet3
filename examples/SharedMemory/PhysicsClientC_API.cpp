@@ -55,6 +55,27 @@ b3SharedMemoryCommandHandle	b3LoadUrdfCommandInit(b3PhysicsClientHandle physClie
 	return (b3SharedMemoryCommandHandle) command;
 }
 
+int	b3LoadUrdfCommandSetUseMultiBody(b3SharedMemoryCommandHandle commandHandle, int useMultiBody)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_LOAD_URDF);
+    command->m_updateFlags |=URDF_ARGS_USE_MULTIBODY;
+    command->m_urdfArguments.m_useMultiBody = useMultiBody;
+    
+    return 0;
+}
+
+int	b3LoadSdfCommandSetUseMultiBody(b3SharedMemoryCommandHandle commandHandle, int useMultiBody)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_LOAD_SDF);
+    command->m_updateFlags |=URDF_ARGS_USE_MULTIBODY;
+    command->m_sdfArguments.m_useMultiBody = useMultiBody;
+    
+    return 0;
+}
 
 int	b3LoadUrdfCommandSetUseFixedBase(b3SharedMemoryCommandHandle commandHandle, int useFixedBase)
 {
@@ -66,8 +87,6 @@ int	b3LoadUrdfCommandSetUseFixedBase(b3SharedMemoryCommandHandle commandHandle, 
     
     return 0;
 }
-
-
 
 int	b3LoadUrdfCommandSetStartPosition(b3SharedMemoryCommandHandle commandHandle, double startPosX,double startPosY,double startPosZ)
 {

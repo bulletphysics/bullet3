@@ -211,7 +211,10 @@ public:
 		return m_cs;
 	}
 
-	virtual void createRigidBodyGraphicsObject(btRigidBody* body,const btVector3& color){}
+	virtual void createRigidBodyGraphicsObject(btRigidBody* body,const btVector3& color)
+    {
+        createCollisionObjectGraphicsObject((btCollisionObject*)body, color);
+    }
 
 	btCollisionObject* m_obj;
 	btVector3 m_color2;
@@ -685,6 +688,7 @@ bool b3RobotSimAPI::loadFile(const struct b3RobotSimLoadFileArgs& args, b3RobotS
 				{
 					b3LoadUrdfCommandSetUseFixedBase(command,true);
 				}
+                b3LoadUrdfCommandSetUseMultiBody(command, args.m_useMultiBody);
 				statusHandle = submitClientCommandAndWaitStatusMultiThreaded(m_data->m_physicsClient, command);
 				statusType = b3GetStatusType(statusHandle);
 
@@ -699,6 +703,7 @@ bool b3RobotSimAPI::loadFile(const struct b3RobotSimLoadFileArgs& args, b3RobotS
 			b3SharedMemoryStatusHandle statusHandle;
 			int statusType;
 			b3SharedMemoryCommandHandle command = b3LoadSdfCommandInit(m_data->m_physicsClient, args.m_fileName.c_str());
+            b3LoadSdfCommandSetUseMultiBody(command, args.m_useMultiBody);
 			statusHandle = submitClientCommandAndWaitStatusMultiThreaded(m_data->m_physicsClient, command);
 			statusType = b3GetStatusType(statusHandle);
 			b3Assert(statusType == CMD_SDF_LOADING_COMPLETED);

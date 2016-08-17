@@ -272,7 +272,11 @@ public:
     btVector3 localDirToWorld(int i, const btVector3 &vec) const;
     btVector3 worldPosToLocal(int i, const btVector3 &vec) const;
     btVector3 worldDirToLocal(int i, const btVector3 &vec) const;
-    
+
+    //
+    // transform a frame in local coordinate to a frame in world coordinate
+    //
+    btMatrix3x3 localFrameToWorld(int i, const btMatrix3x3 &mat) const;
 
     //
     // calculate kinetic energy and angular momentum

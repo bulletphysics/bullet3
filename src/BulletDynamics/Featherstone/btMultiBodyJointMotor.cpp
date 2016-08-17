@@ -128,7 +128,7 @@ void btMultiBodyJointMotor::createConstraintRows(btMultiBodyConstraintArray& con
         btScalar rhs =   m_kp * positionStabiliationTerm + currentVelocity+m_kd * velocityError;
         
         
-		fillMultiBodyConstraint(constraintRow,data,jacobianA(row),jacobianB(row),dummy,dummy,dummy,posError,infoGlobal,-m_maxAppliedImpulse,m_maxAppliedImpulse,1,false,rhs);
+		fillMultiBodyConstraint(constraintRow,data,jacobianA(row),jacobianB(row),dummy,dummy,dummy,dummy,posError,infoGlobal,-m_maxAppliedImpulse,m_maxAppliedImpulse,false,1,false,rhs);
 		constraintRow.m_orgConstraint = this;
 		constraintRow.m_orgDofIndex = row;
 		{
