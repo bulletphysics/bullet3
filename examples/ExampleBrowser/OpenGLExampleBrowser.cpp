@@ -1103,6 +1103,24 @@ void OpenGLExampleBrowser::update(float deltaTime)
             s_app->drawText(bla,10,10);
 		}
 
+    if (gPngFileName)
+    {
+        
+        static int skip = 0;
+        skip--;
+        if (skip<0)
+        {
+            skip=gPngSkipFrames;
+            //printf("gPngFileName=%s\n",gPngFileName);
+            static int s_frameCount = 100;
+            
+            sprintf(staticPngFileName,"%s%d.png",gPngFileName,s_frameCount++);
+            //b3Printf("Made screenshot %s",staticPngFileName);
+            s_app->dumpNextFrameToPng(staticPngFileName);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        }
+    }
+
 		
 		if (sCurrentDemo)
 		{
@@ -1145,24 +1163,7 @@ void OpenGLExampleBrowser::update(float deltaTime)
             }
 		}
 
-				if (gPngFileName)
-				{
-
-					static int skip = 0;
-					skip--;
-					if (skip<0)
-					{
-						skip=gPngSkipFrames;
-						//printf("gPngFileName=%s\n",gPngFileName);
-						static int s_frameCount = 100;
-
-						sprintf(staticPngFileName,"%s%d.png",gPngFileName,s_frameCount++);
-						//b3Printf("Made screenshot %s",staticPngFileName);
-						s_app->dumpNextFrameToPng(staticPngFileName);
-						 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-					}
-				}
-
+    
 
 		{
 			
