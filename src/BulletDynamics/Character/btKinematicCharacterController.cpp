@@ -134,6 +134,7 @@ btVector3 btKinematicCharacterController::perpindicularComponent (const btVector
 
 btKinematicCharacterController::btKinematicCharacterController (btPairCachingGhostObject* ghostObject,btConvexShape* convexShape,btScalar stepHeight, const btVector3& up)
 {
+	m_ghostObject = ghostObject;
 	m_up.setValue(0.0f, 0.0f, 1.0f);
 	m_jumpAxis.setValue(0.0f, 0.0f, 1.0f);
 	setUp(up);
@@ -141,8 +142,7 @@ btKinematicCharacterController::btKinematicCharacterController (btPairCachingGho
 	m_addedMargin = 0.02;
 	m_walkDirection.setValue(0.0,0.0,0.0);
 	m_AngVel.setValue(0.0, 0.0, 0.0);
-	m_useGhostObjectSweepTest = true;
-	m_ghostObject = ghostObject;
+	m_useGhostObjectSweepTest = true;	
 	m_turnAngle = btScalar(0.0);
 	m_convexShape=convexShape;	
 	m_useWalkDirection = true;	// use walk direction by default, legacy behavior
@@ -520,7 +520,7 @@ void btKinematicCharacterController::stepDown ( btCollisionWorld* collisionWorld
 		{
 			m_ghostObject->convexSweepTest (m_convexShape, start, end, callback, collisionWorld->getDispatchInfo().m_allowedCcdPenetration);
 
-			if (!callback.hasHit() && m_ghostObject->hasContactResponse() && needsCollision(m_ghostObject, callback.m_hitCollisionObject))
+			if (!callback.hasHit() && m_ghostObject->hasContactResponse())
 			{
 				//test a double fall height, to see if the character should interpolate it's fall (full) or not (partial)
 				m_ghostObject->convexSweepTest (m_convexShape, start, end_double, callback2, collisionWorld->getDispatchInfo().m_allowedCcdPenetration);
@@ -529,7 +529,7 @@ void btKinematicCharacterController::stepDown ( btCollisionWorld* collisionWorld
 		{
 			collisionWorld->convexSweepTest (m_convexShape, start, end, callback, collisionWorld->getDispatchInfo().m_allowedCcdPenetration);
 
-			if (!callback.hasHit() && m_ghostObject->hasContactResponse() && needsCollision(m_ghostObject, callback.m_hitCollisionObject))
+			if (!callback.hasHit() && m_ghostObject->hasContactResponse())
 			{
 				//test a double fall height, to see if the character should interpolate it's fall (large) or not (small)
 				collisionWorld->convexSweepTest (m_convexShape, start, end_double, callback2, collisionWorld->getDispatchInfo().m_allowedCcdPenetration);
@@ -537,11 +537,11 @@ void btKinematicCharacterController::stepDown ( btCollisionWorld* collisionWorld
 		}
 	
 		btScalar downVelocity2 = (m_verticalVelocity<0.f?-m_verticalVelocity:0.f) * dt;
-		bool has_hit = false;
+		bool has_hit;
 		if (bounce_fix == true)
 			has_hit = (callback.hasHit() || callback2.hasHit()) && m_ghostObject->hasContactResponse() && needsCollision(m_ghostObject, callback.m_hitCollisionObject);
 		else
-			has_hit = callback2.hasHit() && m_ghostObject->hasContactResponse() && needsCollision(m_ghostObject, callback.m_hitCollisionObject);
+			has_hit = callback2.hasHit() && m_ghostObject->hasContactResponse() && needsCollision(m_ghostObject, callback2.m_hitCollisionObject);
 
 		btScalar stepHeight = 0.0f;
 		if (m_verticalVelocity < 0.0)
@@ -556,7 +556,7 @@ void btKinematicCharacterController::stepDown ( btCollisionWorld* collisionWorld
 			m_targetPosition = orig_position;
 			downVelocity = stepHeight;
 
-			btVector3 step_drop = m_up * (m_currentStepOffset + downVelocity);
+			step_drop = m_up * (m_currentStepOffset + downVelocity);
 			m_targetPosition -= step_drop;
 			runonce = true;
 			continue; //re-run previous tests
@@ -564,7 +564,7 @@ void btKinematicCharacterController::stepDown ( btCollisionWorld* collisionWorld
 		break;
 	}
 
-	if ((callback.hasHit() || runonce == true) && m_ghostObject->hasContactResponse() && needsCollision(m_ghostObject, callback.m_hitCollisionObject))
+	if (m_ghostObject->hasContactResponse() && (callback.hasHit() && needsCollision(m_ghostObject, callback.m_hitCollisionObject)) || runonce == true)
 	{
 		// we dropped a fraction of the height -> hit floor
 		btScalar fraction = (m_currentPosition.getY() - callback.m_hitPointWorld.getY()) / 2;
