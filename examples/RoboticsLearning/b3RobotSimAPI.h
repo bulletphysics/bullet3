@@ -23,6 +23,7 @@ struct b3RobotSimLoadFileArgs
 	b3Vector3 m_startPosition;
 	b3Quaternion m_startOrientation;
 	bool m_forceOverrideFixedBase;
+    bool m_useMultiBody;
 	int m_fileType;
 
 
