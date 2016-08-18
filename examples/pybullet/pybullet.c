@@ -532,7 +532,7 @@ pybullet_setTimeStep(PyObject* self, PyObject* args)
 
 // Internal function used to get the base position and orientation
 // Orientation is returned in quaternions
-static void pybullet_internalGetBasePositionAndOrientation(int bodyIndex, double basePosition[3],double baseOrientation[3])
+static int pybullet_internalGetBasePositionAndOrientation(int bodyIndex, double basePosition[3],double baseOrientation[3])
 {
     basePosition[0] = 0.;
     basePosition[1] = 0.;
@@ -555,7 +555,7 @@ static void pybullet_internalGetBasePositionAndOrientation(int bodyIndex, double
 			if (status_type != CMD_ACTUAL_STATE_UPDATE_COMPLETED)
 			{
 				PyErr_SetString(SpamError, "getBasePositionAndOrientation failed.");
-				return NULL;
+				return 0;
 			}
             const double* actualStateQ;
             // const double* jointReactionForces[];
@@ -583,6 +583,7 @@ static void pybullet_internalGetBasePositionAndOrientation(int bodyIndex, double
             
 		}
 	}
+	return 1;
 }
 
 // Get the positions (x,y,z) and orientation (x,y,z,w) in quaternion
@@ -610,7 +611,11 @@ pybullet_getBasePositionAndOrientation(PyObject* self, PyObject* args)
         return NULL;
     }
 
-    pybullet_internalGetBasePositionAndOrientation(bodyIndex,basePosition,baseOrientation);
+	if (0==pybullet_internalGetBasePositionAndOrientation(bodyIndex, basePosition, baseOrientation))
+	{
+		PyErr_SetString(SpamError, "GetBasePositionAndOrientation failed (#joints/links exceeds maximum?).");
+		return NULL;
+	}
     
     {
     
