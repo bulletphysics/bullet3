@@ -696,7 +696,7 @@ void	PhysicsServerCommandProcessor::createJointMotors(btMultiBody* mb)
 
 		if (supportsJointMotor(mb,mbLinkIndex))
 		{
-			float maxMotorImpulse = 0.f;
+			float maxMotorImpulse = 10000.f;
 			int dof = 0;
 			btScalar desiredVelocity = 0.f;
 			btMultiBodyJointMotor* motor = new btMultiBodyJointMotor(mb,mbLinkIndex,dof,desiredVelocity,maxMotorImpulse);
@@ -1602,6 +1602,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							int totalDegreeOfFreedomQ = 0;
 							int totalDegreeOfFreedomU = 0;
 
+							if (mb->getNumLinks()>= MAX_DEGREE_OF_FREEDOM)
+							{
+								serverStatusOut.m_type = CMD_ACTUAL_STATE_UPDATE_FAILED;
+								hasStatus = true;
+								break;
+							}
 
 							//always add the base, even for static (non-moving objects)
 							//so that we can easily move the 'fixed' base when needed

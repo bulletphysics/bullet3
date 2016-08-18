@@ -532,7 +532,7 @@ pybullet_setTimeStep(PyObject* self, PyObject* args)
 
 // Internal function used to get the base position and orientation
 // Orientation is returned in quaternions
-static void pybullet_internalGetBasePositionAndOrientation(int bodyIndex, double basePosition[3],double baseOrientation[3])
+static int pybullet_internalGetBasePositionAndOrientation(int bodyIndex, double basePosition[3],double baseOrientation[3])
 {
     basePosition[0] = 0.;
     basePosition[1] = 0.;
@@ -552,7 +552,11 @@ static void pybullet_internalGetBasePositionAndOrientation(int bodyIndex, double
                     b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
 
             const int status_type = b3GetStatusType(status_handle);
-            
+			if (status_type != CMD_ACTUAL_STATE_UPDATE_COMPLETED)
+			{
+				PyErr_SetString(SpamError, "getBasePositionAndOrientation failed.");
+				return 0;
+			}
             const double* actualStateQ;
             // const double* jointReactionForces[];
             int i;
@@ -579,6 +583,7 @@ static void pybullet_internalGetBasePositionAndOrientation(int bodyIndex, double
             
 		}
 	}
+	return 1;
 }
 
 // Get the positions (x,y,z) and orientation (x,y,z,w) in quaternion
@@ -606,7 +611,11 @@ pybullet_getBasePositionAndOrientation(PyObject* self, PyObject* args)
         return NULL;
     }
 
-    pybullet_internalGetBasePositionAndOrientation(bodyIndex,basePosition,baseOrientation);
+	if (0==pybullet_internalGetBasePositionAndOrientation(bodyIndex, basePosition, baseOrientation))
+	{
+		PyErr_SetString(SpamError, "GetBasePositionAndOrientation failed (#joints/links exceeds maximum?).");
+		return NULL;
+	}
     
     {
     
@@ -848,42 +857,44 @@ pybullet_getJointInfo(PyObject* self, PyObject* args)
       
       // printf("body index = %d, joint index =%d\n", bodyIndex, jointIndex);
 
-    b3SharedMemoryCommandHandle cmd_handle =
-            b3RequestActualStateCommandInit(sm, bodyIndex);
-        b3SharedMemoryStatusHandle status_handle =
-                b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
-                  
      pyListJointInfo = PyTuple_New(jointInfoSize);
 
-     b3GetJointInfo(sm, bodyIndex, jointIndex, &info);
-     
-    //  printf("Joint%d %s, type %d, at q-index %d and u-index %d\n",
-    //          info.m_jointIndex,
-    //          info.m_jointName, 
-    //          info.m_jointType, 
-    //          info.m_qIndex,
-    //          info.m_uIndex);
-    //  printf("  flags=%d jointDamping=%f jointFriction=%f\n",
-    //          info.m_flags,
-    //          info.m_jointDamping,
-    //          info.m_jointFriction);
-      PyTuple_SetItem(pyListJointInfo, 0, 
-      PyInt_FromLong(info.m_jointIndex));
-      PyTuple_SetItem(pyListJointInfo, 1, 
-        PyString_FromString(info.m_jointName));
-      PyTuple_SetItem(pyListJointInfo, 2, 
-        PyInt_FromLong(info.m_jointType));    
-      PyTuple_SetItem(pyListJointInfo, 3, 
-        PyInt_FromLong(info.m_qIndex));
-      PyTuple_SetItem(pyListJointInfo, 4, 
-        PyInt_FromLong(info.m_uIndex));
-      PyTuple_SetItem(pyListJointInfo, 5, 
-        PyInt_FromLong(info.m_flags));   
-      PyTuple_SetItem(pyListJointInfo, 6, 
-        PyFloat_FromDouble(info.m_jointDamping));
-      PyTuple_SetItem(pyListJointInfo, 7, 
-        PyFloat_FromDouble(info.m_jointFriction));    
-      return pyListJointInfo;
+	 if (b3GetJointInfo(sm, bodyIndex, jointIndex, &info))
+	 {
+
+		 //  printf("Joint%d %s, type %d, at q-index %d and u-index %d\n",
+		 //          info.m_jointIndex,
+		 //          info.m_jointName, 
+		 //          info.m_jointType, 
+		 //          info.m_qIndex,
+		 //          info.m_uIndex);
+		 //  printf("  flags=%d jointDamping=%f jointFriction=%f\n",
+		 //          info.m_flags,
+		 //          info.m_jointDamping,
+		 //          info.m_jointFriction);
+		 PyTuple_SetItem(pyListJointInfo, 0,
+			 PyInt_FromLong(info.m_jointIndex));
+		 PyTuple_SetItem(pyListJointInfo, 1,
+			 PyString_FromString(info.m_jointName));
+		 PyTuple_SetItem(pyListJointInfo, 2,
+			 PyInt_FromLong(info.m_jointType));
+		 PyTuple_SetItem(pyListJointInfo, 3,
+			 PyInt_FromLong(info.m_qIndex));
+		 PyTuple_SetItem(pyListJointInfo, 4,
+			 PyInt_FromLong(info.m_uIndex));
+		 PyTuple_SetItem(pyListJointInfo, 5,
+			 PyInt_FromLong(info.m_flags));
+		 PyTuple_SetItem(pyListJointInfo, 6,
+			 PyFloat_FromDouble(info.m_jointDamping));
+		 PyTuple_SetItem(pyListJointInfo, 7,
+			 PyFloat_FromDouble(info.m_jointFriction));
+		 return pyListJointInfo;
+	 }
+	 else
+	 {
+		 PyErr_SetString(SpamError, "GetJointInfo failed.");
+		 return NULL;
+	 }
     }
   }
   
@@ -934,12 +945,19 @@ pybullet_getJointState(PyObject* self, PyObject* args)
   {
    if (PyArg_ParseTuple(args, "ii", &bodyIndex, &jointIndex))
   	{
-
+		int status_type = 0;
   b3SharedMemoryCommandHandle cmd_handle =
           b3RequestActualStateCommandInit(sm, bodyIndex);
       b3SharedMemoryStatusHandle status_handle =
               b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
-                
+              
+	  status_type = b3GetStatusType(status_handle);
+	  if (status_type != CMD_ACTUAL_STATE_UPDATE_COMPLETED)
+	  {
+		  PyErr_SetString(SpamError, "getBasePositionAndOrientation failed.");
+		  return NULL;
+	  }
+
    pyListJointState = PyTuple_New(sensorStateSize);
    pyListJointForceTorque = PyTuple_New(forceTorqueSize);
 
