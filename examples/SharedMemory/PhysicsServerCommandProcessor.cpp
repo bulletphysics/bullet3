@@ -700,7 +700,7 @@ void	PhysicsServerCommandProcessor::createJointMotors(btMultiBody* mb)
 			int dof = 0;
 			btScalar desiredVelocity = 0.f;
 			btMultiBodyJointMotor* motor = new btMultiBodyJointMotor(mb,mbLinkIndex,dof,desiredVelocity,maxMotorImpulse);
-			motor->setPositionTarget(0, 0.1);
+			motor->setPositionTarget(0, 0);
 			motor->setVelocityTarget(0, 1);
 			//motor->setMaxAppliedImpulse(0);
             mb->getLink(mbLinkIndex).m_userPtr = motor;
