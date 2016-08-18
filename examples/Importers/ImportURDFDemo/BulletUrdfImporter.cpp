@@ -45,6 +45,7 @@ struct BulletURDFInternalData
 	UrdfParser m_urdfParser;
 	struct GUIHelperInterface* m_guiHelper;
 	char m_pathPrefix[1024];
+	int m_bodyId;
 	btHashMap<btHashInt,btVector4> m_linkColors;
     btAlignedObjectArray<btCollisionShape*> m_allocatedCollisionShapes;
 	
@@ -108,7 +109,8 @@ struct BulletErrorLogger : public ErrorLogger
 bool BulletURDFImporter::loadURDF(const char* fileName, bool forceFixedBase)
 {
 
-	
+	if (strlen(fileName)==0)
+        return false;
 
 //int argc=0;
 	char relativeFileName[1024];
@@ -132,7 +134,7 @@ bool BulletURDFImporter::loadURDF(const char* fileName, bool forceFixedBase)
 
 
         std::fstream xml_file(relativeFileName, std::fstream::in);
-        while ( xml_file.good() )
+        while ( xml_file.good())
         {
             std::string line;
             std::getline( xml_file, line);
@@ -174,7 +176,7 @@ bool BulletURDFImporter::loadSDF(const char* fileName, bool forceFixedBase)
     m_data->m_pathPrefix[0] = 0;
     
     if (!fileFound){
-        std::cerr << "URDF file not found" << std::endl;
+        std::cerr << "SDF file not found" << std::endl;
         return false;
     } else
     {
@@ -205,6 +207,18 @@ bool BulletURDFImporter::loadSDF(const char* fileName, bool forceFixedBase)
 const char* BulletURDFImporter::getPathPrefix()
 {
 	return m_data->m_pathPrefix;
+}
+
+    
+void BulletURDFImporter::setBodyUniqueId(int bodyId)
+{
+    m_data->m_bodyId =bodyId;
+}
+
+
+int BulletURDFImporter::getBodyUniqueId() const
+{
+    return  m_data->m_bodyId;
 }
 
 
@@ -969,16 +983,17 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 //		graphicsIndex  = m_data->m_guiHelper->registerGraphicsShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size());
 		//graphicsIndex  = m_data->m_guiHelper->registerGraphicsShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size());
 		
-		CommonRenderInterface* renderer = m_data->m_guiHelper->getRenderInterface();
+		//CommonRenderInterface* renderer = m_data->m_guiHelper->getRenderInterface();
 		
-		if (renderer)
+		if (1)
 		{
 			int textureIndex = -1;
 			if (textures.size())
 			{
-				textureIndex = renderer->registerTexture(textures[0].textureData,textures[0].m_width,textures[0].m_height);
+				
+				textureIndex = m_data->m_guiHelper->registerTexture(textures[0].textureData,textures[0].m_width,textures[0].m_height);
 			}
-			graphicsIndex = renderer->registerShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size(),B3_GL_TRIANGLES,textureIndex);
+			graphicsIndex = m_data->m_guiHelper->registerGraphicsShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size(),B3_GL_TRIANGLES,textureIndex);
 			
 		}
 	}
@@ -1003,14 +1018,25 @@ bool BulletURDFImporter::getLinkColor(int linkIndex, btVector4& colorRGBA) const
 	return false;
 }
 
+bool BulletURDFImporter::getLinkContactInfo(int linkIndex, URDFLinkContactInfo& contactInfo ) const
+{
+	UrdfLink* const* linkPtr = m_data->m_urdfParser.getModel().m_links.getAtIndex(linkIndex);
+	if (linkPtr)
+	{
+		const UrdfLink* link = *linkPtr;
+		contactInfo = link->m_contactInfo;
+		return true;
+	}
+	return false;
+}
 
-void BulletURDFImporter::convertLinkVisualShapes2(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, class btCollisionObject* colObj) const
+void BulletURDFImporter::convertLinkVisualShapes2(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, class btCollisionObject* colObj, int objectIndex) const
 {
 
   	if (m_data->m_customVisualShapesConverter)
 	{
 		const UrdfModel& model = m_data->m_urdfParser.getModel();
-		m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex,pathPrefix,localInertiaFrame, model, colObj);
+		m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex,pathPrefix,localInertiaFrame, model, colObj, objectIndex);
 	}
 
 }
@@ -1045,13 +1071,14 @@ btCollisionShape* BulletURDFImporter::getAllocatedCollisionShape(int index)
 		{
 			const UrdfCollision& col = link->m_collisionArray[v];
 			btCollisionShape* childShape = convertURDFToCollisionShape(&col ,pathPrefix);
+			m_data->m_allocatedCollisionShapes.push_back(childShape);
 			
 			if (childShape)
 			{
 				btTransform childTrans = col.m_linkLocalFrame;
 				
 				compoundShape->addChildShape(localInertiaFrame.inverse()*childTrans,childShape);
-           		}
+			}
 		}
 	}
 	

@@ -114,7 +114,10 @@ SET(ExtendedTutorialsSources
 	../ExtendedTutorials/SimpleCloth.cpp
 	../ExtendedTutorials/Chain.cpp 
 	../ExtendedTutorials/Bridge.cpp 
-	../ExtendedTutorials/RigidBodyFromObj.cpp 
+	../ExtendedTutorials/RigidBodyFromObj.cpp
+	../ExtendedTutorials/InclinedPlane.cpp
+	../ExtendedTutorials/InclinedPlane.h
+	../ExtendedTutorials/NewtonsCradle.cpp
 )
 
 SET(BulletExampleBrowser_SRCS
@@ -152,12 +155,30 @@ SET(BulletExampleBrowser_SRCS
 	../BasicDemo/BasicExample.h
 	../InverseDynamics/InverseDynamicsExample.cpp
 	../InverseDynamics/InverseDynamicsExample.h
+	../InverseKinematics/InverseKinematicsExample.cpp
+	../InverseKinematics/InverseKinematicsExample.h
 	../ForkLift/ForkLiftDemo.cpp
 	../ForkLift/ForkLiftDemo.h
 	../Tutorial/Tutorial.cpp
 	../Tutorial/Tutorial.h
 	../Tutorial/Dof6ConstraintTutorial.cpp
 	../Tutorial/Dof6ConstraintTutorial.h
+	../ExtendedTutorials/SimpleBox.cpp
+	../ExtendedTutorials/SimpleBox.h
+	../ExtendedTutorials/MultipleBoxes.cpp
+	../ExtendedTutorials/MultipleBoxes.h
+	../ExtendedTutorials/SimpleCloth.cpp
+	../ExtendedTutorials/SimpleCloth.h
+	../ExtendedTutorials/SimpleJoint.cpp
+	../ExtendedTutorials/SimpleJoint.h
+	../ExtendedTutorials/NewtonsCradle.cpp
+	../ExtendedTutorials/NewtonsCradle.h
+	../ExtendedTutorials/NewtonsRopeCradle.cpp
+	../ExtendedTutorials/NewtonsRopeCradle.h
+	../ExtendedTutorials/InclinedPlane.cpp
+	../ExtendedTutorials/InclinedPlane.h
+	../ExtendedTutorials/MultiPendulum.cpp
+	../ExtendedTutorials/MultiPendulum.h
 	../Collision/CollisionSdkC_Api.cpp
 	../Collision/CollisionSdkC_Api.h
 	../Collision/CollisionTutorialBullet2.cpp
@@ -189,7 +210,12 @@ SET(BulletExampleBrowser_SRCS
 	../RenderingExamples/TimeSeriesCanvas.h
 	../RenderingExamples/TimeSeriesFontData.cpp
 	../RenderingExamples/TimeSeriesFontData.h
-
+	../RoboticsLearning/GripperGraspExample.cpp
+	../RoboticsLearning/GripperGraspExample.h
+	../RoboticsLearning/b3RobotSimAPI.cpp
+	../RoboticsLearning/b3RobotSimAPI.h
+	../RoboticsLearning/R2D2GraspExample.cpp
+	../RoboticsLearning/R2D2GraspExample.h
 	../RenderingExamples/CoordinateSystemDemo.cpp
 	../RenderingExamples/CoordinateSystemDemo.h
 	../RenderingExamples/RaytracerSetup.cpp
@@ -276,6 +302,17 @@ SET(BulletExampleBrowser_SRCS
 
 	../ThirdPartyLibs/stb_image/stb_image.cpp
 	../ThirdPartyLibs/stb_image/stb_image.h
+	
+	../ThirdPartyLibs/BussIK/Jacobian.cpp
+	../ThirdPartyLibs/BussIK/Tree.cpp
+	../ThirdPartyLibs/BussIK/Node.cpp
+	../ThirdPartyLibs/BussIK/LinearR2.cpp
+	../ThirdPartyLibs/BussIK/LinearR3.cpp
+	../ThirdPartyLibs/BussIK/LinearR4.cpp
+	../ThirdPartyLibs/BussIK/MatrixRmn.cpp
+	../ThirdPartyLibs/BussIK/VectorRn.cpp
+	../ThirdPartyLibs/BussIK/Misc.cpp
+	
 
 	../ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
 	../ThirdPartyLibs/tinyxml/tinystr.cpp

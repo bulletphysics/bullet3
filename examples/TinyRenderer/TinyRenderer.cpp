@@ -87,13 +87,34 @@ struct Shader : public IShader {
     }
 };
 
-
 TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer)
 :m_rgbColorBuffer(rgbColorBuffer),
 m_depthBuffer(depthBuffer),
+m_segmentationMaskBufferPtr(0),
 m_model(0),
 m_userData(0),
-m_userIndex(-1)
+m_userIndex(-1),
+m_objectIndex(-1)
+{
+    Vec3f       eye(1,1,3);
+    Vec3f    center(0,0,0);
+    Vec3f        up(0,0,1);
+    m_lightDirWorld.setValue(0,0,0);
+	m_localScaling.setValue(1,1,1);
+    m_modelMatrix = Matrix::identity();
+ 
+}
+
+
+
+TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer, b3AlignedObjectArray<int>* segmentationMaskBuffer, int objectIndex)
+:m_rgbColorBuffer(rgbColorBuffer),
+m_depthBuffer(depthBuffer),
+m_segmentationMaskBufferPtr(segmentationMaskBuffer),
+m_model(0),
+m_userData(0),
+m_userIndex(-1),
+m_objectIndex(objectIndex)
 {
     Vec3f       eye(1,1,3);
     Vec3f    center(0,0,0);
@@ -138,6 +159,7 @@ void TinyRenderObjectData::registerMeshShape(const float* vertices, int numVerti
              */
 		}
 		
+		m_model->reserveMemory(numVertices,numIndices);
         for (int i=0;i<numVertices;i++)
         {
             m_model->addVertex(vertices[i*9],
@@ -246,6 +268,7 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
 	renderData.m_viewportMatrix = viewport(0,0,width, height);
 	
     b3AlignedObjectArray<float>& zbuffer = renderData.m_depthBuffer;
+    int* segmentationMaskBufferPtr = renderData.m_segmentationMaskBufferPtr?&renderData.m_segmentationMaskBufferPtr->at(0):0;
     
     TGAImage& frame = renderData.m_rgbColorBuffer;
 
@@ -263,7 +286,7 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
             for (int j=0; j<3; j++) {
                 shader.vertex(i, j);
             }
-            triangle(shader.varying_tri, shader, frame, &zbuffer[0], renderData.m_viewportMatrix);
+            triangle(shader.varying_tri, shader, frame, &zbuffer[0], segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex);
         }
         
     }

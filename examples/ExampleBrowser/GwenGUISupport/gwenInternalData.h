@@ -45,7 +45,10 @@ struct GwenInternalData
 	Gwen::Controls::ListBox*		m_TextOutput;
 	Gwen::Controls::Label*		m_exampleInfoGroupBox;
 	Gwen::Controls::ListBox*			m_exampleInfoTextOutput;
-	
+	struct MyTestMenuBar*		m_menubar;
+	Gwen::Controls::StatusBar* m_bar;
+	Gwen::Controls::ScrollControl* m_windowRight;
+	Gwen::Controls::TabControl* m_tab;
 
 	int		m_curYposition;
 

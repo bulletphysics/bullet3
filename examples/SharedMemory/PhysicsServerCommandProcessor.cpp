@@ -4,13 +4,15 @@
 #include "../Importers/ImportURDFDemo/BulletUrdfImporter.h"
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
 #include "../Importers/ImportURDFDemo/URDF2Bullet.h"
+#include "../Extras/InverseDynamics/btMultiBodyTreeCreator.hpp"
 #include "TinyRendererVisualShapeConverter.h"
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointFeedback.h"
-#include "../CommonInterfaces/CommonRenderInterface.h"
+#include "LinearMath/btHashMap.h"
+#include "BulletInverseDynamics/MultiBodyTree.hpp"
 
 #include "btBulletDynamicsCommon.h"
 
@@ -30,6 +32,10 @@ struct UrdfLinkNameMapUtil
 
 	UrdfLinkNameMapUtil():m_mb(0),m_memSerializer(0)
 	{
+	}
+	virtual ~UrdfLinkNameMapUtil()
+	{
+		delete m_memSerializer;
 	}
 };
 
@@ -370,6 +376,8 @@ struct PhysicsServerCommandProcessorInternalData
 
 	///end handle management
 
+	bool m_allowRealTimeSimulation;
+	bool m_hasGround;
 
 	CommandLogger* m_commandLogger;
 	CommandLogPlayback* m_logPlayback;
@@ -377,6 +385,7 @@ struct PhysicsServerCommandProcessorInternalData
 
 	btScalar m_physicsDeltaTime;
 	btAlignedObjectArray<btMultiBodyJointFeedback*> m_multiBodyJointFeedbacks;
+	btHashMap<btHashPtr, btInverseDynamics::MultiBodyTree*> m_inverseDynamicsBodies;
 
 
 
@@ -413,7 +422,8 @@ struct PhysicsServerCommandProcessorInternalData
 	TinyRendererVisualShapeConverter  m_visualConverter;
 
 	PhysicsServerCommandProcessorInternalData()
-		:
+		:m_hasGround(false),
+		m_allowRealTimeSimulation(false),
 		m_commandLogger(0),
 		m_logPlayback(0),
 		m_physicsDeltaTime(1./240.),
@@ -492,6 +502,9 @@ void PhysicsServerCommandProcessor::setGuiHelper(struct GUIHelperInterface* guiH
 		}
 	}
 	m_data->m_guiHelper = guiHelper;
+
+	
+
 }
 
 
@@ -500,6 +513,7 @@ PhysicsServerCommandProcessor::PhysicsServerCommandProcessor()
 	m_data = new PhysicsServerCommandProcessorInternalData();
 
 	createEmptyDynamicsWorld();
+	
 }
 
 PhysicsServerCommandProcessor::~PhysicsServerCommandProcessor()
@@ -537,8 +551,25 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 	m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
 }
 
+void PhysicsServerCommandProcessor::deleteCachedInverseDynamicsBodies()
+{
+	for (int i = 0; i < m_data->m_inverseDynamicsBodies.size(); i++)
+	{
+		btInverseDynamics::MultiBodyTree** treePtrPtr = m_data->m_inverseDynamicsBodies.getAtIndex(i);
+		if (treePtrPtr)
+		{
+			btInverseDynamics::MultiBodyTree* tree = *treePtrPtr;
+			delete tree;
+		}
+
+	}
+	m_data->m_inverseDynamicsBodies.clear();
+}
+
 void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 {
+	deleteCachedInverseDynamicsBodies();
+
 
 	for (int i=0;i<m_data->m_multiBodyJointFeedbacks.size();i++)
 	{
@@ -665,10 +696,12 @@ void	PhysicsServerCommandProcessor::createJointMotors(btMultiBody* mb)
 
 		if (supportsJointMotor(mb,mbLinkIndex))
 		{
-			float maxMotorImpulse = 0.f;
+			float maxMotorImpulse = 10000.f;
 			int dof = 0;
 			btScalar desiredVelocity = 0.f;
 			btMultiBodyJointMotor* motor = new btMultiBodyJointMotor(mb,mbLinkIndex,dof,desiredVelocity,maxMotorImpulse);
+			motor->setPositionTarget(0, 0.1);
+			motor->setVelocityTarget(0, 1);
 			//motor->setMaxAppliedImpulse(0);
             mb->getLink(mbLinkIndex).m_userPtr = motor;
 			m_data->m_dynamicsWorld->addMultiBodyConstraint(motor);
@@ -680,7 +713,7 @@ void	PhysicsServerCommandProcessor::createJointMotors(btMultiBody* mb)
 }
 
 
-bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferServerToClient, int bufferSizeInBytes)
+bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferServerToClient, int bufferSizeInBytes, bool useMultiBody)
 {
     btAssert(m_data->m_dynamicsWorld);
 	if (!m_data->m_dynamicsWorld)
@@ -701,15 +734,6 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
         {
             btCollisionShape* shape =u2b.getAllocatedCollisionShape(i);
             m_data->m_collisionShapes.push_back(shape);
-            if (shape->isCompound())
-            {
-                btCompoundShape* compound = (btCompoundShape*) shape;
-                for (int childIndex=0;childIndex<compound->getNumChildShapes();childIndex++)
-                {
-                    m_data->m_collisionShapes.push_back(compound->getChildShape(childIndex));
-                }
-            }
-
         }
 
         btTransform rootTrans;
@@ -729,7 +753,7 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
             int bodyUniqueId = m_data->allocHandle();
 
             InternalBodyHandle* bodyHandle = m_data->getHandle(bodyUniqueId);
-
+            u2b.setBodyUniqueId(bodyUniqueId);
             {
                 btScalar mass = 0;
                 bodyHandle->m_rootLocalInertialFrame.setIdentity();
@@ -746,7 +770,6 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
             MyMultiBodyCreator creation(m_data->m_guiHelper);
 
             u2b.getRootTransformInWorld(rootTrans);
-            bool useMultiBody = true;
             ConvertURDF2Bullet(u2b,creation, rootTrans,m_data->m_dynamicsWorld,useMultiBody,u2b.getPathPrefix(),true);
 
 
@@ -823,6 +846,7 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 		if (bodyUniqueIdPtr)
 			*bodyUniqueIdPtr= bodyUniqueId;
 
+        u2b.setBodyUniqueId(bodyUniqueId);
 		InternalBodyHandle* bodyHandle = m_data->getHandle(bodyUniqueId);
 
         {
@@ -851,18 +875,10 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
         {
             btCollisionShape* shape =u2b.getAllocatedCollisionShape(i);
             m_data->m_collisionShapes.push_back(shape);
-            if (shape->isCompound())
-            {
-                btCompoundShape* compound = (btCompoundShape*) shape;
-                for (int childIndex=0;childIndex<compound->getNumChildShapes();childIndex++)
-                {
-                    m_data->m_collisionShapes.push_back(compound->getChildShape(childIndex));
-                }
-            }
-
         }
 
         btMultiBody* mb = creation.getBulletMultiBody();
+        
 		if (useMultiBody)
 		{
 
@@ -930,7 +946,6 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 
 		} else
 		{
-			btAssert(0);
 
 			return true;
 		}
@@ -997,7 +1012,7 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
 
 bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes )
 {
-
+	
 	bool hasStatus = false;
 
     {
@@ -1123,23 +1138,24 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 				{
 
 					int startPixelIndex = clientCmd.m_requestPixelDataArguments.m_startPixelIndex;
-                    int width, height;
+                    int width = clientCmd.m_requestPixelDataArguments.m_pixelWidth;
+                    int height = clientCmd.m_requestPixelDataArguments.m_pixelHeight;
                     int numPixelsCopied = 0;
 
-					if (
-						(clientCmd.m_requestPixelDataArguments.m_startPixelIndex==0) &&
-						(clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_PIXEL_WIDTH_HEIGHT)!=0)
-					{
-						m_data->m_visualConverter.setWidthAndHeight(clientCmd.m_requestPixelDataArguments.m_pixelWidth,
-																	clientCmd.m_requestPixelDataArguments.m_pixelHeight);
-					}
+					
 
-					if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_USE_HARDWARE_OPENGL)!=0)
+					if ((clientCmd.m_updateFlags & ER_BULLET_HARDWARE_OPENGL)!=0)
 					{
-						m_data->m_guiHelper->copyCameraImageData(0,0,0,0,0,&width,&height,0);
+						//m_data->m_guiHelper->copyCameraImageData(clientCmd.m_requestPixelDataArguments.m_viewMatrix,clientCmd.m_requestPixelDataArguments.m_projectionMatrix,0,0,0,0,0,width,height,0);
 					}
 					else
 					{
+					    if ((clientCmd.m_requestPixelDataArguments.m_startPixelIndex==0) &&
+                            (clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_PIXEL_WIDTH_HEIGHT)!=0)
+                        {
+                            m_data->m_visualConverter.setWidthAndHeight(clientCmd.m_requestPixelDataArguments.m_pixelWidth,
+                                                                        clientCmd.m_requestPixelDataArguments.m_pixelHeight);
+                        }
                         m_data->m_visualConverter.getWidthAndHeight(width,height);
 					}
 
@@ -1151,15 +1167,21 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
                     if (numRemainingPixels>0)
                     {
-                        int maxNumPixels = bufferSizeInBytes/8-1;
+                        int totalBytesPerPixel = 4+4+4;//4 for rgb, 4 for depth, 4 for segmentation mask
+                        int maxNumPixels = bufferSizeInBytes/totalBytesPerPixel-1;
                         unsigned char* pixelRGBA = (unsigned char*)bufferServerToClient;
                         int numRequestedPixels = btMin(maxNumPixels,numRemainingPixels);
 
                         float* depthBuffer = (float*)(bufferServerToClient+numRequestedPixels*4);
+                        int* segmentationMaskBuffer = (int*)(bufferServerToClient+numRequestedPixels*8);
 
-                        if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_USE_HARDWARE_OPENGL)!=0)
+                        if ((clientCmd.m_updateFlags & ER_BULLET_HARDWARE_OPENGL)!=0)
 						{
-							m_data->m_guiHelper->copyCameraImageData(pixelRGBA,numRequestedPixels,depthBuffer,numRequestedPixels,startPixelIndex,&width,&height,&numPixelsCopied);
+							m_data->m_guiHelper->copyCameraImageData(clientCmd.m_requestPixelDataArguments.m_viewMatrix,
+                                                clientCmd.m_requestPixelDataArguments.m_projectionMatrix,pixelRGBA,numRequestedPixels,
+                                                depthBuffer,numRequestedPixels,
+                                                segmentationMaskBuffer, numRequestedPixels,
+                                                startPixelIndex,width,height,&numPixelsCopied);
 						} else
 						{
 
@@ -1180,7 +1202,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
                             }
 
-							m_data->m_visualConverter.copyCameraImageData(pixelRGBA,numRequestedPixels,depthBuffer,numRequestedPixels,startPixelIndex,&width,&height,&numPixelsCopied);
+							m_data->m_visualConverter.copyCameraImageData(pixelRGBA,numRequestedPixels,
+                                                     depthBuffer,numRequestedPixels,
+                                                     segmentationMaskBuffer, numRequestedPixels,
+                                                     startPixelIndex,&width,&height,&numPixelsCopied);
 						}
 
                         //each pixel takes 4 RGBA values and 1 float = 8 bytes
@@ -1220,18 +1245,24 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                         {
                             b3Printf("Processed CMD_LOAD_SDF:%s", sdfArgs.m_sdfFileName);
                         }
+                        bool useMultiBody=(clientCmd.m_updateFlags & URDF_ARGS_USE_MULTIBODY) ? sdfArgs.m_useMultiBody : true;
 
-                        bool completedOk = loadSdf(sdfArgs.m_sdfFileName,bufferServerToClient, bufferSizeInBytes);
-
-                        //serverStatusOut.m_type = CMD_SDF_LOADING_FAILED;
-                        serverStatusOut.m_sdfLoadedArgs.m_numBodies = m_data->m_sdfRecentLoadedBodies.size();
-                        int maxBodies = btMin(MAX_SDF_BODIES, serverStatusOut.m_sdfLoadedArgs.m_numBodies);
-                        for (int i=0;i<maxBodies;i++)
+                        bool completedOk = loadSdf(sdfArgs.m_sdfFileName,bufferServerToClient, bufferSizeInBytes, useMultiBody);
+                        if (completedOk)
                         {
-                            serverStatusOut.m_sdfLoadedArgs.m_bodyUniqueIds[i] = m_data->m_sdfRecentLoadedBodies[i];
-                        }
+                            //serverStatusOut.m_type = CMD_SDF_LOADING_FAILED;
+                            serverStatusOut.m_sdfLoadedArgs.m_numBodies = m_data->m_sdfRecentLoadedBodies.size();
+                            int maxBodies = btMin(MAX_SDF_BODIES, serverStatusOut.m_sdfLoadedArgs.m_numBodies);
+                            for (int i=0;i<maxBodies;i++)
+                            {
+                                serverStatusOut.m_sdfLoadedArgs.m_bodyUniqueIds[i] = m_data->m_sdfRecentLoadedBodies[i];
+                            }
 
-                        serverStatusOut.m_type = CMD_SDF_LOADING_COMPLETED;
+                            serverStatusOut.m_type = CMD_SDF_LOADING_COMPLETED;
+                        } else
+                        {
+                            serverStatusOut.m_type = CMD_SDF_LOADING_FAILED;
+                        }
 						hasStatus = true;
                         break;
                     }
@@ -1573,6 +1604,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							int totalDegreeOfFreedomQ = 0;
 							int totalDegreeOfFreedomU = 0;
 
+							if (mb->getNumLinks()>= MAX_DEGREE_OF_FREEDOM)
+							{
+								serverStatusOut.m_type = CMD_ACTUAL_STATE_UPDATE_FAILED;
+								hasStatus = true;
+								break;
+							}
 
 							//always add the base, even for static (non-moving objects)
 							//so that we can easily move the 'fixed' base when needed
@@ -1756,10 +1793,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					}
                 case CMD_STEP_FORWARD_SIMULATION:
                 {
-
+                    
 					if (m_data->m_verboseOutput)
 					{
 						b3Printf("Step simulation request");
+						b3Printf("CMD_STEP_FORWARD_SIMULATION clientCmd = %d\n", clientCmd.m_sequenceNumber);
 					}
                     ///todo(erwincoumans) move this damping inside Bullet
                     for (int i=0;i<m_data->m_bodyHandles.size();i++)
@@ -1779,6 +1817,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_DELTA_TIME)
 					{
 						m_data->m_physicsDeltaTime = clientCmd.m_physSimParamArgs.m_deltaTime;
+					}
+					if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_REAL_TIME_SIMULATION)
+					{
+						m_data->m_allowRealTimeSimulation = clientCmd.m_physSimParamArgs.m_allowRealTimeSimulation;
 					}
 					if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_GRAVITY)
 					{
@@ -1832,11 +1874,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                     clientCmd.m_initPoseArgs.m_hasInitialStateQ[6]);
 
 							mb->setBaseOmega(btVector3(0,0,0));
-							mb->setWorldToBaseRot(btQuaternion(
-									clientCmd.m_initPoseArgs.m_initialStateQ[3],
+							btQuaternion invOrn(clientCmd.m_initPoseArgs.m_initialStateQ[3],
 									clientCmd.m_initPoseArgs.m_initialStateQ[4],
 									clientCmd.m_initPoseArgs.m_initialStateQ[5],
-									clientCmd.m_initPoseArgs.m_initialStateQ[6]));
+									clientCmd.m_initPoseArgs.m_initialStateQ[6]);
+									
+							mb->setWorldToBaseRot(invOrn.inverse());
 						}
 						if (clientCmd.m_updateFlags & INIT_POSE_HAS_JOINT_STATE)
 						{
@@ -1864,23 +1907,27 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                 case CMD_RESET_SIMULATION:
                 {
 					//clean up all data
-					if (m_data && m_data->m_guiHelper && m_data->m_guiHelper->getRenderInterface())
-                    {
-                        m_data->m_guiHelper->getRenderInterface()->removeAllInstances();
-                    }
+					deleteCachedInverseDynamicsBodies();
+
+					if (m_data && m_data->m_guiHelper)
+					{
+						m_data->m_guiHelper->removeAllGraphicsInstances();
+					}
 					if (m_data)
 					{
 						m_data->m_visualConverter.resetAll();
 					}
+					
 					deleteDynamicsWorld();
 					createEmptyDynamicsWorld();
+					
 					m_data->exitHandles();
 					m_data->initHandles();
 
 					SharedMemoryStatus& serverCmd =serverStatusOut;
 					serverCmd.m_type = CMD_RESET_SIMULATION_COMPLETED;
 					hasStatus = true;
-
+					m_data->m_hasGround = false;
                     break;
                 }
 				case CMD_CREATE_RIGID_BODY:
@@ -2056,8 +2103,80 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						hasStatus = true;
                         break;
                     }
+				case CMD_CALCULATE_INVERSE_DYNAMICS:
+				{
+					SharedMemoryStatus& serverCmd = serverStatusOut;
+					InternalBodyHandle* bodyHandle = m_data->getHandle(clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId);
+					if (bodyHandle && bodyHandle->m_multiBody)
+					{
+						btInverseDynamics::MultiBodyTree** treePtrPtr = 
+							m_data->m_inverseDynamicsBodies.find(bodyHandle->m_multiBody);
+						btInverseDynamics::MultiBodyTree* tree = 0;
+						serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_FAILED;
+
+						if (treePtrPtr)
+						{
+							tree = *treePtrPtr;
+						}
+						else
+						{
+							btInverseDynamics::btMultiBodyTreeCreator id_creator;
+							if (-1 == id_creator.createFromBtMultiBody(bodyHandle->m_multiBody, false)) 
+							{
+								b3Error("error creating tree\n");
+								serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_FAILED;
+							}
+							else 
+							{
+								tree = btInverseDynamics::CreateMultiBodyTree(id_creator);
+								m_data->m_inverseDynamicsBodies.insert(bodyHandle->m_multiBody, tree);
+							}
+						}
+
+						if (tree)
+						{
+							int baseDofs = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 6;
+							const int num_dofs = bodyHandle->m_multiBody->getNumDofs();
+							btInverseDynamics::vecx nu(num_dofs+baseDofs), qdot(num_dofs + baseDofs), q(num_dofs + baseDofs), joint_force(num_dofs + baseDofs);
+							for (int i = 0; i < num_dofs; i++)
+							{
+								q[i + baseDofs] = clientCmd.m_calculateInverseDynamicsArguments.m_jointPositionsQ[i];
+								qdot[i + baseDofs] = clientCmd.m_calculateInverseDynamicsArguments.m_jointVelocitiesQdot[i];
+								nu[i+baseDofs] = clientCmd.m_calculateInverseDynamicsArguments.m_jointAccelerations[i];
+							}
+
+							if (-1 != tree->calculateInverseDynamics(q, qdot, nu, &joint_force))
+							{
+								serverCmd.m_inverseDynamicsResultArgs.m_bodyUniqueId = clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId;
+								serverCmd.m_inverseDynamicsResultArgs.m_dofCount = num_dofs;
+								for (int i = 0; i < num_dofs; i++)
+								{
+									serverCmd.m_inverseDynamicsResultArgs.m_jointForces[i] = joint_force[i+baseDofs];
+								}
+								serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED;
+							}
+							else
+							{
+								serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_FAILED;
+							}
+						}
+						
+					}
+					else
+					{
+						serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_FAILED;
+					}
+
+					hasStatus = true;
+					break;
+				}
+
                 case CMD_APPLY_EXTERNAL_FORCE:
                 {
+                	if (m_data->m_verboseOutput)
+									{
+                    b3Printf("CMD_APPLY_EXTERNAL_FORCE clientCmd = %d\n", clientCmd.m_sequenceNumber);
+                  }
                     for (int i = 0; i < clientCmd.m_externalForceArguments.m_numForcesAndTorques; ++i)
                     {
                         InteralBodyData* body = m_data->getHandle(clientCmd.m_externalForceArguments.m_bodyUniqueIds[i]);
@@ -2308,6 +2427,26 @@ void PhysicsServerCommandProcessor::replayFromLogFile(const char* fileName)
 {
 	CommandLogPlayback* pb = new CommandLogPlayback(fileName);
 	m_data->m_logPlayback = pb;
+}
+
+void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
+{
+	if (m_data->m_allowRealTimeSimulation)
+	{
+		if (!m_data->m_hasGround)
+		{
+			m_data->m_hasGround = true;
+
+			int bodyId = 0;
+			btAlignedObjectArray<char> bufferServerToClient;
+			bufferServerToClient.resize(32768);
+
+
+			loadUrdf("plane.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, true, &bodyId, &bufferServerToClient[0], bufferServerToClient.size());
+		}
+
+		m_data->m_dynamicsWorld->stepSimulation(dtInSec);
+	}
 }
 
 void PhysicsServerCommandProcessor::applyJointDamping(int bodyUniqueId)

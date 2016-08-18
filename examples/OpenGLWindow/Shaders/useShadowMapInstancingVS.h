@@ -55,7 +55,7 @@ static const char* useShadowMapInstancingVertexShader= \
 "void main(void)\n"
 "{\n"
 "	vec4 q = instance_quaternion;\n"
-"	ambient = vec3(0.6,.6,0.6);\n"
+"	ambient = vec3(0.5,.5,0.5);\n"
 "			\n"
 "	vec4 worldNormal = (quatRotate3( vertexnormal,q));\n"
 "	\n"

@@ -265,8 +265,9 @@ public:
 	
     virtual void	stepSimulation(float deltaTime)
     {
+#ifndef BT_NO_PROFILE
 		CProfileManager::Reset();
-		
+#endif
 		
 		
 		
@@ -314,7 +315,9 @@ public:
 	
 	
 		 m_app->m_renderer->writeTransforms();
+#ifndef BT_NO_PROFILE
 		 CProfileManager::Increment_Frame_Counter();
+#endif
     }
     virtual void	renderScene()
     {

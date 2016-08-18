@@ -232,6 +232,13 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
         if (mass)
         {
         	compoundShape->calculateLocalInertia(mass, localInertiaDiagonal);
+            URDFLinkContactInfo contactInfo;
+            u2b.getLinkContactInfo(urdfLinkIndex,contactInfo);
+            //temporary inertia scaling until we load inertia from URDF
+            if (contactInfo.m_flags & URDF_CONTACT_HAS_INERTIA_SCALING)
+            {
+                localInertiaDiagonal*=contactInfo.m_inertiaScaling;
+            }
         }
 
         btRigidBody* linkRigidBody = 0;
@@ -292,7 +299,7 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
                     {
                         //b3Printf("Fixed joint\n");
 						
-						btGeneric6DofSpring2Constraint* dof6 = creation.createFixedJoint(urdfLinkIndex,*parentRigidBody, *linkRigidBody, offsetInA, offsetInB);
+						btGeneric6DofSpring2Constraint* dof6 = creation.createFixedJoint(urdfLinkIndex,*linkRigidBody, *parentRigidBody,  offsetInB, offsetInA);
                        
                         if (enableConstraints)
                             world1->addConstraint(dof6,true);
@@ -317,7 +324,7 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
                     } else
                     {
 
-						btGeneric6DofSpring2Constraint* dof6 = creation.createRevoluteJoint(urdfLinkIndex,*parentRigidBody, *linkRigidBody, offsetInA, offsetInB,jointAxisInJointSpace,jointLowerLimit, jointUpperLimit);
+						btGeneric6DofSpring2Constraint* dof6 = creation.createRevoluteJoint(urdfLinkIndex,*linkRigidBody, *parentRigidBody, offsetInB, offsetInA,jointAxisInJointSpace,jointLowerLimit, jointUpperLimit);
 
 						if (enableConstraints)
                                     world1->addConstraint(dof6,true);
@@ -343,7 +350,7 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
                     } else
                     {
                         
-						btGeneric6DofSpring2Constraint* dof6 = creation.createPrismaticJoint(urdfLinkIndex,*parentRigidBody, *linkRigidBody, offsetInA, offsetInB,jointAxisInJointSpace,jointLowerLimit,jointUpperLimit);
+						btGeneric6DofSpring2Constraint* dof6 = creation.createPrismaticJoint(urdfLinkIndex,*linkRigidBody, *parentRigidBody, offsetInB, offsetInA,jointAxisInJointSpace,jointLowerLimit,jointUpperLimit);
 						
                        
                         if (enableConstraints)
@@ -390,11 +397,20 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
 				u2b.getLinkColor(urdfLinkIndex,color);
                 creation.createCollisionObjectGraphicsInstance(urdfLinkIndex,col,color);
                 
-                u2b.convertLinkVisualShapes2(urdfLinkIndex,pathPrefix,localInertialFrame,col);
+                u2b.convertLinkVisualShapes2(urdfLinkIndex,pathPrefix,localInertialFrame,col, u2b.getBodyUniqueId());
 
-                btScalar friction = 0.5f;
+				URDFLinkContactInfo contactInfo;
+				u2b.getLinkContactInfo(urdfLinkIndex,contactInfo);
 
-                col->setFriction(friction);
+				if ((contactInfo.m_flags & URDF_CONTACT_HAS_LATERAL_FRICTION)!=0)
+				{
+					col->setFriction(contactInfo.m_lateralFriction);
+				}
+				if ((contactInfo.m_flags & URDF_CONTACT_HAS_ROLLING_FRICTION)!=0)
+				{
+					col->setRollingFriction(contactInfo.m_rollingFriction);
+				}
+				
 
                 if (mbLinkIndex>=0) //???? double-check +/- 1
                 {
@@ -439,7 +455,9 @@ void ConvertURDF2Bullet(const URDFImporterInterface& u2b, MultiBodyCreationInter
 		mb->setHasSelfCollision(false);
 		mb->finalizeMultiDof();
 
-		mb->setBaseWorldTransform(rootTransformInWorldSpace);
+		btTransform localInertialFrameRoot = cache.m_urdfLinkLocalInertialFrames[urdfLinkIndex];
+
+		mb->setBaseWorldTransform(rootTransformInWorldSpace*localInertialFrameRoot);
 		btAlignedObjectArray<btQuaternion> scratch_q;
 		btAlignedObjectArray<btVector3> scratch_m;
 		mb->forwardKinematics(scratch_q,scratch_m);

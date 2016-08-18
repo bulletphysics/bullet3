@@ -76,6 +76,14 @@ void Model::loadDiffuseTexture(const char* relativeFileName)
     diffusemap_.read_tga_file(relativeFileName);
 }
 
+void Model::reserveMemory(int numVertices, int numIndices)
+{
+	verts_.reserve(numVertices);
+	norms_.reserve(numVertices);
+	uv_.reserve(numVertices);
+	faces_.reserve(numIndices);
+}
+
 void Model::addVertex(float x,float y,float z, float normalX, float normalY, float normalZ, float u, float v)
 {
     verts_.push_back(Vec3f(x,y,z));

@@ -36,6 +36,7 @@ struct PhysicsClientSharedMemoryInternalData {
 	int m_cachedCameraPixelsHeight;
 	btAlignedObjectArray<unsigned char> m_cachedCameraPixelsRGBA;
 	btAlignedObjectArray<float> m_cachedCameraDepthBuffer;
+	btAlignedObjectArray<int> m_cachedSegmentationMaskBuffer;
 
     btAlignedObjectArray<int> m_bodyIdsRequestInfo;
     SharedMemoryStatus m_tempBackupServerStatus;
@@ -80,7 +81,6 @@ int PhysicsClientSharedMemory::getNumJoints(int bodyIndex) const
 
 		return bodyJoints->m_jointInfo.size(); 
 	}
-	btAssert(0);
 	return 0;
 	
 }
@@ -514,6 +514,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 
                 m_data->m_cachedCameraPixelsRGBA.reserve(numPixels*numBytesPerPixel);
 				m_data->m_cachedCameraDepthBuffer.resize(numTotalPixels);
+				m_data->m_cachedSegmentationMaskBuffer.resize(numTotalPixels);
 				m_data->m_cachedCameraPixelsRGBA.resize(numTotalPixels*numBytesPerPixel);
                 
                 
@@ -522,12 +523,18 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
               //  printf("pixel = %d\n", rgbaPixelsReceived[0]);
                 
 				float* depthBuffer = (float*)&(m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor[serverCmd.m_sendPixelDataArguments.m_numPixelsCopied*4]);
+				int* segmentationMaskBuffer = (int*)&(m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor[serverCmd.m_sendPixelDataArguments.m_numPixelsCopied*8]);
 			
 				for (int i=0;i<serverCmd.m_sendPixelDataArguments.m_numPixelsCopied;i++)
 				{
 					m_data->m_cachedCameraDepthBuffer[i + serverCmd.m_sendPixelDataArguments.m_startingPixelIndex] = depthBuffer[i];
 				}
 				
+				for (int i=0;i<serverCmd.m_sendPixelDataArguments.m_numPixelsCopied;i++)
+				{
+					m_data->m_cachedSegmentationMaskBuffer[i + serverCmd.m_sendPixelDataArguments.m_startingPixelIndex] = segmentationMaskBuffer[i];
+				}
+
 				for (int i=0;i<serverCmd.m_sendPixelDataArguments.m_numPixelsCopied*numBytesPerPixel;i++)
 				{
 					m_data->m_cachedCameraPixelsRGBA[i + serverCmd.m_sendPixelDataArguments.m_startingPixelIndex*numBytesPerPixel] 
@@ -542,7 +549,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 b3Warning("Camera image FAILED\n");
                 break;
             }
-
+			case CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED:
+			{
+				break;
+			}
+			case CMD_CALCULATED_INVERSE_DYNAMICS_FAILED:
+			{
+				b3Warning("Inverse Dynamics computations failed");
+				break;
+			}
             default: {
                 b3Error("Unknown server status\n");
                 btAssert(0);
@@ -609,7 +624,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 		{
 			SharedMemoryCommand& command = m_data->m_testBlock1->m_clientCommands[0];
 
-			if (serverCmd.m_sendPixelDataArguments.m_numRemainingPixels > 0)
+			if (serverCmd.m_sendPixelDataArguments.m_numRemainingPixels > 0 && serverCmd.m_sendPixelDataArguments.m_numPixelsCopied)
 			{
 				
 
@@ -659,6 +674,8 @@ bool PhysicsClientSharedMemory::canSubmitCommand() const {
 }
 
 struct SharedMemoryCommand* PhysicsClientSharedMemory::getAvailableSharedMemoryCommand() {
+    static int sequence = 0;
+    m_data->m_testBlock1->m_clientCommands[0].m_sequenceNumber = sequence++;
     return &m_data->m_testBlock1->m_clientCommands[0];
 }
 
@@ -696,6 +713,7 @@ void PhysicsClientSharedMemory::getCachedCameraImage(struct b3CameraImageData* c
 	cameraData->m_pixelHeight = m_data->m_cachedCameraPixelsHeight;
 	cameraData->m_depthValues = m_data->m_cachedCameraDepthBuffer.size() ? &m_data->m_cachedCameraDepthBuffer[0] : 0;
 	cameraData->m_rgbColorData = m_data->m_cachedCameraPixelsRGBA.size() ? &m_data->m_cachedCameraPixelsRGBA[0] : 0;
+	cameraData->m_segmentationMaskValues = m_data->m_cachedSegmentationMaskBuffer.size()?&m_data->m_cachedSegmentationMaskBuffer[0] : 0;
 }
 
 const float* PhysicsClientSharedMemory::getDebugLinesFrom() const {

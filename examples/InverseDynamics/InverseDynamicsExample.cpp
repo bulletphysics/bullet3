@@ -105,7 +105,7 @@ InverseDynamicsExample::InverseDynamicsExample(struct GUIHelperInterface* helper
 
 InverseDynamicsExample::~InverseDynamicsExample()
 {
-    delete m_multiBody;
+	
     delete m_inverseModel;
     delete m_timeSeriesCanvas;
 }
@@ -157,7 +157,7 @@ void InverseDynamicsExample::initPhysics()
 
 			
             BulletURDFImporter u2b(m_guiHelper,0);
-            bool loadOk =  u2b.loadURDF("kuka_lwr/kuka.urdf");
+			bool loadOk = u2b.loadURDF("kuka_iiwa/model.urdf");// lwr / kuka.urdf");
             if (loadOk)
             {
                     int rootLinkIndex = u2b.getRootLinkIndex();
@@ -166,6 +166,10 @@ void InverseDynamicsExample::initPhysics()
                     btTransform identityTrans;
                     identityTrans.setIdentity();
                     ConvertURDF2Bullet(u2b,creation, identityTrans,m_dynamicsWorld,true,u2b.getPathPrefix());
+					for (int i = 0; i < u2b.getNumAllocatedCollisionShapes(); i++)
+					{
+						m_collisionShapes.push_back(u2b.getAllocatedCollisionShape(i));
+					}
                     m_multiBody = creation.getBulletMultiBody();
                     if (m_multiBody)
                     {
@@ -221,13 +225,13 @@ void InverseDynamicsExample::initPhysics()
 			{
 				qd[dof] = 0;
 				char tmp[25];
-				sprintf(tmp,"q_desired[%zu]",dof);
+				sprintf(tmp,"q_desired[%u]",dof);
 				qd_name[dof] = tmp;
 				SliderParams slider(qd_name[dof].c_str(),&qd[dof]);
 				slider.m_minVal=-3.14;
 				slider.m_maxVal=3.14;
 				
-				sprintf(tmp,"q[%zu]",dof); 
+				sprintf(tmp,"q[%u]",dof); 
 				q_name[dof] = tmp;   
 				m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 				btVector4 color = sJointCurveColors[dof&7];
@@ -336,6 +340,21 @@ void InverseDynamicsExample::stepSimulation(float deltaTime)
         // todo(thomas) check that this is correct:
         // want to advance by 10ms, with 1ms timesteps
         m_dynamicsWorld->stepSimulation(1e-3,0);//,1e-3);
+		btAlignedObjectArray<btQuaternion> scratch_q;
+		btAlignedObjectArray<btVector3> scratch_m;
+		m_multiBody->forwardKinematics(scratch_q, scratch_m);
+		for (int i = 0; i < m_multiBody->getNumLinks(); i++)
+		{
+			//btVector3 pos = m_multiBody->getLink(i).m_cachedWorldTransform.getOrigin();
+			btTransform tr = m_multiBody->getLink(i).m_cachedWorldTransform;
+			btVector3 pos = tr.getOrigin() - quatRotate(tr.getRotation(), m_multiBody->getLink(i).m_dVector);
+			btVector3 localAxis = m_multiBody->getLink(i).m_axes[0].m_topVec;
+			//printf("link %d: %f,%f,%f, local axis:%f,%f,%f\n", i, pos.x(), pos.y(), pos.z(), localAxis.x(), localAxis.y(), localAxis.z());
+
+			
+
+
+		}
     }
 }
 

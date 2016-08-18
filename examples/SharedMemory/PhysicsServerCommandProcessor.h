@@ -21,7 +21,7 @@ protected:
 
     
 
-    bool loadSdf(const char* fileName, char* bufferServerToClient, int bufferSizeInBytes);
+    bool loadSdf(const char* fileName, char* bufferServerToClient, int bufferSizeInBytes, bool useMultiBody);
 
 	bool loadUrdf(const char* fileName, const class btVector3& pos, const class btQuaternion& orn,
                              bool useMultiBody, bool useFixedBase, int* bodyUniqueIdPtr, char* bufferServerToClient, int bufferSizeInBytes);
@@ -29,6 +29,7 @@ protected:
 	bool	supportsJointMotor(class btMultiBody* body, int linkIndex);
 	
 	int createBodyInfoStream(int bodyUniqueId, char* bufferServerToClient, int bufferSizeInBytes);
+	void deleteCachedInverseDynamicsBodies();
 
 public:
 	PhysicsServerCommandProcessor();
@@ -38,6 +39,7 @@ public:
 	
 	virtual void createEmptyDynamicsWorld();
 	virtual void deleteDynamicsWorld();
+	
 
 	virtual bool processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes );
 
@@ -53,7 +55,8 @@ public:
 	
 	void enableCommandLogging(bool enable, const char* fileName);
 	void replayFromLogFile(const char* fileName);
-    void replayLogCommand(char* bufferServerToClient, int bufferSizeInBytes );
+	void replayLogCommand(char* bufferServerToClient, int bufferSizeInBytes );
+	void stepSimulationRealTime(double dtInSec);
 	void applyJointDamping(int bodyUniqueId);
 };
 

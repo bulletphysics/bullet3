@@ -28,22 +28,22 @@ subject to the following restrictions:
 
 int main(int argc, char* argv[])
 {
-	
-	DummyGUIHelper noGfx;
-
-	CommonExampleOptions options(&noGfx);
-	CommonExampleInterface*    example = StandaloneExampleCreateFunc(options);
-	
-	example->initPhysics();
-	for (int i=0;i<1000;i++)
 	{
-		printf("Simulating step %d\n",i);
-		example->stepSimulation(1.f/60.f);
+		DummyGUIHelper noGfx;
+
+		CommonExampleOptions options(&noGfx);
+		CommonExampleInterface*    example = StandaloneExampleCreateFunc(options);
+
+		example->initPhysics();
+		for (int i = 0; i < 1000; i++)
+		{
+			printf("Simulating step %d\n", i);
+			example->stepSimulation(1.f / 60.f);
+		}
+		example->exitPhysics();
+
+		delete example;
 	}
-	example->exitPhysics();
-
-	delete example;
-
 	return 0;
 }
 

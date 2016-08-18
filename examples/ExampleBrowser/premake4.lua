@@ -45,9 +45,10 @@ project "App_BulletExampleBrowser"
 	defines {"INCLUDE_CLOTH_DEMOS"}
 
         files {
+        	
         "main.cpp",
         "ExampleEntries.cpp",
-        
+        "../InverseKinematics/*",
 		"../TinyRenderer/geometry.cpp",
 		"../TinyRenderer/model.cpp",
 		"../TinyRenderer/tgaimage.cpp",
@@ -86,14 +87,9 @@ project "App_BulletExampleBrowser"
 		"../InverseDynamics/InverseDynamicsExample.h",
 		"../BasicDemo/BasicExample.*",
 		"../Tutorial/*",
-		"../ExtendedTutorials/SimpleBox.cpp",
-		"../ExtendedTutorials/MultipleBoxes.cpp",
-		"../ExtendedTutorials/SimpleJoint.cpp",
-		"../ExtendedTutorials/SimpleCloth.cpp",
-		"../ExtendedTutorials/Chain.cpp",
-		"../ExtendedTutorials/Bridge.cpp",
-		"../ExtendedTutorials/RigidBodyFromObj.cpp",
+		"../ExtendedTutorials/*",
 		"../Collision/*",
+		"../RoboticsLearning/*",
 		"../Collision/Internal/*",
 		"../Benchmarks/*",
 		"../CommonInterfaces/*",
@@ -121,6 +117,7 @@ project "App_BulletExampleBrowser"
 		"../ThirdPartyLibs/stb_image/*",
 		"../ThirdPartyLibs/Wavefront/tiny_obj_loader.*",
 		"../ThirdPartyLibs/tinyxml/*",
+		"../ThirdPartyLibs/BussIK/*",
 		"../GyroscopicDemo/GyroscopicSetup.cpp",
 		"../GyroscopicDemo/GyroscopicSetup.h",
         "../ThirdPartyLibs/tinyxml/tinystr.cpp",

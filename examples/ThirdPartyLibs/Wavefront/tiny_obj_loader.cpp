@@ -366,6 +366,8 @@ std::string LoadMtl (
       continue;
     }
 
+    linebuf = linebuf.substr(0, linebuf.find_last_not_of(" \t") + 1);
+
     // Skip leading space.
     const char* token = linebuf.c_str();
     token += strspn(token, " \t");

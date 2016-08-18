@@ -223,7 +223,8 @@ bool b3Win32ThreadSupport::isTaskCompleted(int *puiArgument0, int *puiArgument1,
 
 void b3Win32ThreadSupport::startThreads(const Win32ThreadConstructionInfo& threadConstructionInfo)
 {
-
+	static int uniqueId = 0;
+	uniqueId++;
 	m_activeThreadStatus.resize(threadConstructionInfo.m_numThreads);
 	m_completeHandles.resize(threadConstructionInfo.m_numThreads);
 
@@ -244,18 +245,40 @@ void b3Win32ThreadSupport::startThreads(const Win32ThreadConstructionInfo& threa
 
 		threadStatus.m_userPtr=0;
 
-		sprintf(threadStatus.m_eventStartHandleName,"eventStart%s%d",threadConstructionInfo.m_uniqueName,i);
+		sprintf(threadStatus.m_eventStartHandleName,"es%.8s%d%d",threadConstructionInfo.m_uniqueName,uniqueId,i);
 		threadStatus.m_eventStartHandle = CreateEventA (0,false,false,threadStatus.m_eventStartHandleName);
 
-		sprintf(threadStatus.m_eventCompletetHandleName,"eventComplete%s%d",threadConstructionInfo.m_uniqueName,i);
+		sprintf(threadStatus.m_eventCompletetHandleName,"ec%.8s%d%d",threadConstructionInfo.m_uniqueName,uniqueId,i);
 		threadStatus.m_eventCompletetHandle = CreateEventA (0,false,false,threadStatus.m_eventCompletetHandleName);
 
 		m_completeHandles[i] = threadStatus.m_eventCompletetHandle;
 
 		HANDLE handle = CreateThread(lpThreadAttributes,dwStackSize,lpStartAddress,lpParameter,	dwCreationFlags,lpThreadId);
-		//SetThreadPriority(handle,THREAD_PRIORITY_HIGHEST);
-		SetThreadPriority(handle,THREAD_PRIORITY_TIME_CRITICAL);
+		switch(threadConstructionInfo.m_priority)
+		{
+		case 0:
+		{
+			SetThreadPriority(handle,THREAD_PRIORITY_HIGHEST);
+			break;
+		}
+		case 1:
+		{
+			SetThreadPriority(handle,THREAD_PRIORITY_TIME_CRITICAL);
+			break;
+		}
+		case 2:
+		{
+			SetThreadPriority(handle,THREAD_PRIORITY_BELOW_NORMAL);
+			break;
+		}
+		
+		default:
+		{
+			
+		}
 
+		}
+		
 		SetThreadAffinityMask(handle, 1<<i);
 
 		threadStatus.m_taskId = i;
@@ -265,7 +288,7 @@ void b3Win32ThreadSupport::startThreads(const Win32ThreadConstructionInfo& threa
 		threadStatus.m_lsMemory = threadConstructionInfo.m_lsMemoryFunc();
 		threadStatus.m_userThreadFunc = threadConstructionInfo.m_userThreadFunc;
 
-		printf("started thread %d with threadHandle %p\n",i,handle);
+		printf("started %s thread %d with threadHandle %p\n",threadConstructionInfo.m_uniqueName,i,handle);
 		
 	}
 

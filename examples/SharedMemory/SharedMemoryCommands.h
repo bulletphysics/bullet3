@@ -27,13 +27,13 @@
 #define SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE (256*1024)
 
 #define SHARED_MEMORY_SERVER_TEST_C
-#define MAX_DEGREE_OF_FREEDOM 64
+#define MAX_DEGREE_OF_FREEDOM 128
 #define MAX_NUM_SENSORS 256
 #define MAX_URDF_FILENAME_LENGTH 1024
 #define MAX_SDF_FILENAME_LENGTH 1024
 #define MAX_FILENAME_LENGTH MAX_URDF_FILENAME_LENGTH
 #define MAX_NUM_LINKS MAX_DEGREE_OF_FREEDOM
-#define MAX_SDF_BODIES 1024
+#define MAX_SDF_BODIES 500
 
 struct TmpFloat3 
 {
@@ -64,6 +64,7 @@ enum EnumSdfArgsUpdateFlags
 struct SdfArgs
 {
 	char m_sdfFileName[MAX_URDF_FILENAME_LENGTH];
+    int m_useMultiBody;
 };
 
 enum EnumUrdfArgsUpdateFlags
@@ -138,8 +139,8 @@ struct RequestPixelDataArgs
 enum EnumRequestPixelDataUpdateFlags
 {
 	REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES=1,
-	REQUEST_PIXEL_ARGS_USE_HARDWARE_OPENGL=2,
 	REQUEST_PIXEL_ARGS_SET_PIXEL_WIDTH_HEIGHT=4,
+	//don't exceed (1<<15), because this enum is shared with EnumRenderer in SharedMemoryPublic.h
 	
 };
 
@@ -215,6 +216,7 @@ enum EnumSimParamUpdateFlags
 	SIM_PARAM_UPDATE_GRAVITY=2,
 	SIM_PARAM_UPDATE_NUM_SOLVER_ITERATIONS=4,	
 	SIM_PARAM_UPDATE_NUM_SIMULATION_SUB_STEPS=8,
+	SIM_PARAM_UPDATE_REAL_TIME_SIMULATION = 16,
 };
 
 ///Controlling a robot involves sending the desired state to its joint motor controllers.
@@ -225,6 +227,7 @@ struct SendPhysicsSimulationParameters
 	double m_gravityAcceleration[3];
 	int m_numSimulationSubSteps;
 	int m_numSolverIterations;
+	bool m_allowRealTimeSimulation;
 };
 
 struct RequestActualStateArgs
@@ -346,6 +349,23 @@ enum EnumSdfRequestInfoFlags
     //SDF_REQUEST_INFO_CAMERA=2,
 };
 
+
+struct CalculateInverseDynamicsArgs
+{
+	int m_bodyUniqueId;
+
+	double m_jointPositionsQ[MAX_DEGREE_OF_FREEDOM];
+	double m_jointVelocitiesQdot[MAX_DEGREE_OF_FREEDOM];
+	double m_jointAccelerations[MAX_DEGREE_OF_FREEDOM];
+};
+
+struct CalculateInverseDynamicsResultArgs
+{
+	int m_bodyUniqueId;
+	int m_dofCount;
+	double m_jointForces[MAX_DEGREE_OF_FREEDOM];
+};
+
 struct SharedMemoryCommand
 {
 	int m_type;
@@ -372,6 +392,7 @@ struct SharedMemoryCommand
 		struct RequestPixelDataArgs m_requestPixelDataArguments;
 		struct PickBodyArgs m_pickBodyArguments;
         struct ExternalForceArgs m_externalForceArguments;
+		struct CalculateInverseDynamicsArgs m_calculateInverseDynamicsArguments;
     };
 };
 
@@ -395,6 +416,7 @@ struct SharedMemoryStatus
 		struct SendDebugLinesArgs m_sendDebugLinesArgs;
 		struct SendPixelDataArgs m_sendPixelDataArguments;
 		struct RigidBodyCreateArgs m_rigidBodyCreateArgs;
+		struct CalculateInverseDynamicsResultArgs m_inverseDynamicsResultArgs;
 	};
 };
 
