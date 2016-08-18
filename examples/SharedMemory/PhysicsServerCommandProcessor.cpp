@@ -1418,7 +1418,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 											b3Printf("Using CONTROL_MODE_TORQUE");
 										}
                                       //  mb->clearForcesAndTorques();
-                                        int torqueIndex = 0;
+                                        int torqueIndex = 6;
                                         if ((clientCmd.m_updateFlags&SIM_DESIRED_STATE_HAS_MAX_FORCE)!=0)
                                         {
                                             for (int link=0;link<mb->getNumLinks();link++)
