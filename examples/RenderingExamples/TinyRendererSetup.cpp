@@ -23,6 +23,7 @@ struct TinyRendererSetupInternalData
 	
 	TGAImage m_rgbColorBuffer;
 	b3AlignedObjectArray<float> m_depthBuffer;
+	b3AlignedObjectArray<int> m_segmentationMaskBuffer;
 
 
 	int m_width;
@@ -185,8 +186,10 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 				m_internalData->m_shapePtr.push_back(0);
 				TinyRenderObjectData* ob = new TinyRenderObjectData(
 					m_internalData->m_rgbColorBuffer,
-					m_internalData->m_depthBuffer);
-					//ob->loadModel("cube.obj");
+					m_internalData->m_depthBuffer,
+					&m_internalData->m_segmentationMaskBuffer,
+					m_internalData->m_renderObjects.size());
+					
 				const int* indices = &meshData.m_gfxShape->m_indices->at(0);
 					ob->registerMeshShape(&meshData.m_gfxShape->m_vertices->at(0).xyzw[0],
 						meshData.m_gfxShape->m_numvertices,

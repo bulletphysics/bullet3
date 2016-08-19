@@ -14,6 +14,7 @@ class vec3;
 class vecx;
 class mat33;
 typedef btMatrixX<idScalar> matxx;
+typedef btVectorX<idScalar> vecxx;
 
 class vec3 : public btVector3 {
 public:
@@ -46,11 +47,11 @@ inline mat33 operator/(const mat33& a, const idScalar& s) { return a * (1.0 / s)
 
 inline mat33 operator*(const idScalar& s, const mat33& a) { return a * s; }
 
-class vecx : public btVectorX<idScalar> {
+class vecx : public vecxx {
 public:
-	vecx(int size) : btVectorX<idScalar>(size) {}
-	const vecx& operator=(const btVectorX<idScalar>& rhs) {
-		*static_cast<btVectorX<idScalar>*>(this) = rhs;
+	vecx(int size) : vecxx(size) {}
+	const vecx& operator=(const vecxx& rhs) {
+		*static_cast<vecxx*>(this) = rhs;
 		return *this;
 	}
 

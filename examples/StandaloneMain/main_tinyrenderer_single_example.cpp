@@ -348,7 +348,12 @@ struct TinyRendererGUIHelper : public GUIHelperInterface
 
 	}
 
-	virtual void copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16],unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int width, int height, int* numPixelsCopied)
+	
+	virtual void copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16], 
+		unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, 
+		float* depthBuffer, int depthBufferSizeInPixels, 
+		int* segmentationMaskBuffer, int segmentationMaskBufferSizeInPixels,
+		int startPixelIndex, int destinationWidth, int destinationHeight, int* numPixelsCopied)
 	{
 		if (numPixelsCopied)
 			*numPixelsCopied = 0;

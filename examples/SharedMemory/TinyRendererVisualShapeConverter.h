@@ -13,7 +13,7 @@ struct TinyRendererVisualShapeConverter : public LinkVisualShapesConverter
 	
 	virtual ~TinyRendererVisualShapeConverter();
 	
-	virtual void convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfModel& model, class btCollisionObject* colShape);
+	virtual void convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfModel& model, class btCollisionObject* colShape, int objectIndex);
 	
 	void setUpAxis(int axis);
 	
@@ -26,7 +26,7 @@ struct TinyRendererVisualShapeConverter : public LinkVisualShapesConverter
     void getWidthAndHeight(int& width, int& height);
 	void setWidthAndHeight(int width, int height);
     
-    void copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied);
+    void copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels,int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,  int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied);
     
 	void render();
 	void render(const float viewMat[16], const float projMat[16]);

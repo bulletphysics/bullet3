@@ -36,6 +36,7 @@ const T& b3ClockMin(const T& a, const T& b)
 
 #else //_WIN32
 #include <sys/time.h>
+#include <unistd.h>
 #endif //_WIN32
 
 
@@ -227,3 +228,21 @@ double b3Clock::getTimeInSeconds()
 	return double(getTimeMicroseconds()/1.e6);
 }
 
+void b3Clock::usleep(int microSeconds)
+{
+#ifdef _WIN32
+	int millis = microSeconds/1000;
+	if (millis < 1)
+	{
+		millis = 1;
+	}
+	Sleep(millis);
+#else
+
+    usleep(microSeconds); 
+	//struct timeval tv;
+	//tv.tv_sec = microSeconds/1000000L;
+	//tv.tv_usec = microSeconds%1000000L;
+	//return select(0, 0, 0, 0, &tv);
+#endif
+}

@@ -27,6 +27,7 @@ enum EnumSharedMemoryClientCommand
     CMD_REMOVE_PICKING_CONSTRAINT_BODY,
     CMD_REQUEST_CAMERA_IMAGE_DATA,
     CMD_APPLY_EXTERNAL_FORCE,
+	CMD_CALCULATE_INVERSE_DYNAMICS,
     CMD_MAX_CLIENT_COMMANDS
 };
 
@@ -59,6 +60,8 @@ enum EnumSharedMemoryServerStatus
         CMD_BODY_INFO_COMPLETED,
         CMD_BODY_INFO_FAILED,
 		CMD_INVALID_STATUS,
+		CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED,
+		CMD_CALCULATED_INVERSE_DYNAMICS_FAILED,
         CMD_MAX_SERVER_COMMANDS
 };
 
@@ -120,6 +123,7 @@ struct b3CameraImageData
 	int m_pixelHeight;
 	const unsigned char* m_rgbColorData;//3*m_pixelWidth*m_pixelHeight bytes
 	const float* m_depthValues;//m_pixelWidth*m_pixelHeight floats
+	const int* m_segmentationMaskValues;//m_pixelWidth*m_pixelHeight ints
 };
 
 ///b3LinkState provides extra information such as the Cartesian world coordinates

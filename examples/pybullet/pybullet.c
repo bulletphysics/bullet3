@@ -294,27 +294,27 @@ pybullet_resetSimulation(PyObject* self, PyObject* args)
 
 static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
 {
-    //todo(erwincoumans): set max forces, kp, kd
-
     int size;
     int bodyIndex, jointIndex, controlMode;
     double targetValue=0;
+    double targetPosition=0;
+    double targetVelocity=0;
     double maxForce=100000;
-    double gains=0.1;
+    double kp=0.1;
+    double kd=1.0;
     int valid = 0;
-     
-     
+
     if (0==sm)
     {
         PyErr_SetString(SpamError, "Not connected to physics server.");
         return NULL;
     }
-    
+
     size= PySequence_Size(args);
-    
     if (size==4)
     {
-        
+        // for CONTROL_MODE_VELOCITY targetValue -> velocity
+        // for CONTROL_MODE_TORQUE targetValue -> force torque
         if (!PyArg_ParseTuple(args, "iiid", &bodyIndex, &jointIndex, &controlMode, &targetValue))
         {
             PyErr_SetString(SpamError, "Error parsing arguments");
@@ -324,7 +324,8 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
     }
     if (size==5)
     {
-        
+        // for CONTROL_MODE_VELOCITY targetValue -> velocity
+        // for CONTROL_MODE_TORQUE targetValue -> force torque
         if (!PyArg_ParseTuple(args, "iiidd", &bodyIndex, &jointIndex, &controlMode, &targetValue, &maxForce))
         {
             PyErr_SetString(SpamError, "Error parsing arguments");
@@ -334,18 +335,38 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
     }
     if (size==6)
     {
-        
-        if (!PyArg_ParseTuple(args, "iiiddd", &bodyIndex, &jointIndex, &controlMode, &targetValue, &maxForce, &gains))
+        if (!PyArg_ParseTuple(args, "iiiddd", &bodyIndex, &jointIndex, &controlMode, &targetValue, &maxForce, &kd))
         {
             PyErr_SetString(SpamError, "Error parsing arguments");
             return NULL;
         }
         valid = 1;
     }
-    
-    
+    if (size==8)
+    {
+        // only applicable for CONTROL_MODE_POSITION_VELOCITY_PD.
+        if (!PyArg_ParseTuple(args, "iiiddddd", &bodyIndex, &jointIndex, &controlMode, &targetPosition, &targetVelocity, &maxForce, &kp, &kd))
+        {
+            PyErr_SetString(SpamError, "Error parsing arguments");
+            return NULL;
+        }
+        valid = 1;
+    }
+
+    if (size==8 && controlMode!=CONTROL_MODE_POSITION_VELOCITY_PD)
+    {
+        PyErr_SetString(SpamError, "8 argument call only applicable for control mode CONTROL_MODE_POSITION_VELOCITY_PD");
+        return NULL;
+    }
+    if (controlMode==CONTROL_MODE_POSITION_VELOCITY_PD && size!=8)
+    {
+        PyErr_SetString(SpamError, "For CONTROL_MODE_POSITION_VELOCITY_PD please call with explicit targetPosition & targetVelocity");
+        return NULL;
+    }
+
     if (valid)
     {
+
         int numJoints;
         b3SharedMemoryCommandHandle commandHandle;
         b3SharedMemoryStatusHandle statusHandle;
@@ -357,7 +378,7 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
             PyErr_SetString(SpamError, "Joint index out-of-range.");
             return NULL;
         }
-        
+
         if ((controlMode != CONTROL_MODE_VELOCITY) &&
             (controlMode != CONTROL_MODE_TORQUE) &&
             (controlMode != CONTROL_MODE_POSITION_VELOCITY_PD))
@@ -365,19 +386,18 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
             PyErr_SetString(SpamError, "Illegral control mode.");
             return NULL;
         }
-        
+
         commandHandle = b3JointControlCommandInit2(sm, bodyIndex,controlMode);
-         
+
         b3GetJointInfo(sm, bodyIndex, jointIndex, &info);
-        
+
         switch (controlMode)
         {
             case CONTROL_MODE_VELOCITY:
             {
-				double kd = gains;
                 b3JointControlSetDesiredVelocity(commandHandle, info.m_uIndex, targetValue);
-                b3JointControlSetKd(commandHandle,info.m_uIndex,kd);
-                b3JointControlSetMaximumForce(commandHandle,info.m_uIndex,maxForce);
+                b3JointControlSetKd(commandHandle, info.m_uIndex, kd);
+                b3JointControlSetMaximumForce(commandHandle, info.m_uIndex, maxForce);
                 break;
             }
 
@@ -386,30 +406,29 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
                 b3JointControlSetDesiredForceTorque(commandHandle, info.m_uIndex, targetValue);
                 break;
             }
-                    
+
             case CONTROL_MODE_POSITION_VELOCITY_PD:
             {
-				double kp = gains;
-                b3JointControlSetDesiredPosition( commandHandle, info.m_qIndex, targetValue);
-                b3JointControlSetKp(commandHandle,info.m_uIndex,kp);
-                b3JointControlSetMaximumForce(commandHandle,info.m_uIndex,maxForce);
+                b3JointControlSetDesiredPosition(commandHandle, info.m_qIndex, targetPosition);
+                b3JointControlSetKp(commandHandle, info.m_uIndex, kp);
+                b3JointControlSetDesiredVelocity(commandHandle, info.m_uIndex, targetVelocity);
+                b3JointControlSetKd(commandHandle, info.m_uIndex, kd);
+                b3JointControlSetMaximumForce(commandHandle, info.m_uIndex, maxForce);
                 break;
             }
             default:
             {
             }
         };
-        
+
         statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
-        
+
         Py_INCREF(Py_None);
         return Py_None;
     }
-    PyErr_SetString(SpamError, "error in setJointControl.");
+    PyErr_SetString(SpamError, "Invalid number of args passed to setJointControl.");
     return NULL;
 }
-
-
 
 static PyObject *
 pybullet_setRealTimeSimulation(PyObject* self, PyObject* args)
@@ -1022,6 +1041,8 @@ static int pybullet_internalSetVector(PyObject* objMat, float vector[3])
 //  renderImage(w, h, cameraPos, targetPos, cameraUp, nearVal, farVal, fov) -
 //    set resolution and initialize camera based on camera position, target
 //    position, camera up, fulstrum near/far values and camera field of view.
+//  renderImage(w, h, targetPos, distance, yaw, pitch, upAxisIndex, nearVal, farVal, fov)
+
 //
 // Note if the (w,h) is too small, the objects may not appear based on
 // where the camera has been set
@@ -1133,6 +1154,36 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
       b3RequestCameraImageSetFOVProjectionMatrix(command, fov, aspect, nearVal, farVal);
     }
   }
+  else if (size==11)
+  {
+      int upAxisIndex=1;
+      float camDistance,yaw,pitch,roll;
+      
+      //sometimes more arguments are better :-)
+       if (PyArg_ParseTuple(args, "iiOffffifff", &width, &height, &objTargetPos, &camDistance, &yaw, &pitch, &roll, &upAxisIndex, &nearVal, &farVal, &fov))
+       {
+       		
+       		b3RequestCameraImageSetPixelResolution(command,width,height);
+            if (pybullet_internalSetVector(objTargetPos, targetPos))
+            {
+                //printf("width = %d, height = %d, targetPos = %f,%f,%f, distance = %f, yaw = %f, pitch = %f,	upAxisIndex = %d, near=%f, far=%f, fov=%f\n",width,height,targetPos[0],targetPos[1],targetPos[2],camDistance,yaw,pitch,upAxisIndex,nearVal,farVal,fov);
+            	
+                b3RequestCameraImageSetViewMatrix2(command,targetPos,camDistance,yaw,pitch,roll,upAxisIndex);
+                aspect = width/height;
+                b3RequestCameraImageSetFOVProjectionMatrix(command, fov, aspect, nearVal, farVal);
+            } else
+            {
+                PyErr_SetString(SpamError, "Error parsing camera target pos");
+            }
+       } else
+       {
+            PyErr_SetString(SpamError, "Error parsing arguments");
+       }
+      
+      
+      
+      
+  }
   else
   {
     PyErr_SetString(SpamError, "Invalid number of args passed to renderImage.");
@@ -1143,6 +1194,9 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 	{
 		b3SharedMemoryStatusHandle statusHandle;
 		int statusType;
+		
+		//b3RequestCameraImageSelectRenderer(command,ER_BULLET_HARDWARE_OPENGL);
+		
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 		statusType = b3GetStatusType(statusHandle);
 		if (statusType==CMD_CAMERA_IMAGE_COMPLETED)
@@ -1151,11 +1205,13 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 			PyObject* pyResultList;//store 4 elements in this result: width, height, rgbData, depth
 			PyObject *pylistRGB;
 			PyObject* pylistDep;
+			PyObject* pylistSeg;
+			
 			int i, j, p;
 
 			b3GetCameraImageData(sm, &imageData);
 			//TODO(hellojas): error handling if image size is 0
-			pyResultList =  PyTuple_New(4);
+			pyResultList =  PyTuple_New(5);
 			PyTuple_SetItem(pyResultList, 0, PyInt_FromLong(imageData.m_pixelWidth));
 			PyTuple_SetItem(pyResultList, 1, PyInt_FromLong(imageData.m_pixelHeight));
 
@@ -1167,15 +1223,23 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 				int num=bytesPerPixel*imageData.m_pixelWidth*imageData.m_pixelHeight;
 				pylistRGB = PyTuple_New(num);
 				pylistDep = PyTuple_New(imageData.m_pixelWidth*imageData.m_pixelHeight);
-
+                pylistSeg = PyTuple_New(imageData.m_pixelWidth*imageData.m_pixelHeight);
 				for (i=0;i<imageData.m_pixelWidth;i++)
 				{
 					for (j=0;j<imageData.m_pixelHeight;j++)
 					{
             // TODO(hellojas): validate depth values make sense
 						int depIndex = i+j*imageData.m_pixelWidth;
-						item = PyFloat_FromDouble(imageData.m_depthValues[depIndex]);
-						PyTuple_SetItem(pylistDep, depIndex, item);
+						{
+						    item = PyFloat_FromDouble(imageData.m_depthValues[depIndex]);
+						    PyTuple_SetItem(pylistDep, depIndex, item);
+						}
+						{
+                            item2 = PyLong_FromLong(imageData.m_segmentationMaskValues[depIndex]);
+                            PyTuple_SetItem(pylistSeg, depIndex, item2);
+						}
+						
+						
 						for (p=0; p<bytesPerPixel; p++)
 						{
 							int pixelIndex = bytesPerPixel*(i+j*imageData.m_pixelWidth)+p;
@@ -1188,6 +1252,7 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args)
 
 			PyTuple_SetItem(pyResultList, 2,pylistRGB);
 			PyTuple_SetItem(pyResultList, 3,pylistDep);
+			PyTuple_SetItem(pyResultList, 4,pylistSeg);
 			return pyResultList;
 		}
 	}
@@ -1467,6 +1532,123 @@ static PyObject* pybullet_getEulerFromQuaternion(PyObject* self, PyObject* args)
     return Py_None;
 }
 
+///Given an object id, joint positions, joint velocities and joint accelerations, 
+///compute the joint forces using Inverse Dynamics
+static PyObject* pybullet_calculateInverseDynamics(PyObject* self, PyObject* args)
+{
+	int size;
+	if (0 == sm)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	size = PySequence_Size(args);
+	if (size==4)
+	{
+
+		int bodyIndex;
+		PyObject* objPositionsQ;
+		PyObject* objVelocitiesQdot;
+		PyObject* objAccelerations;
+
+		if (PyArg_ParseTuple(args, "iOOO", &bodyIndex, &objPositionsQ, &objVelocitiesQdot, &objAccelerations))
+		{
+			int szObPos = PySequence_Size(objPositionsQ);
+			int szObVel = PySequence_Size(objVelocitiesQdot);
+			int szObAcc = PySequence_Size(objAccelerations);
+			int numJoints = b3GetNumJoints(sm, bodyIndex);
+			if (numJoints && (szObPos == numJoints) && (szObVel == numJoints) && (szObAcc == numJoints))
+			{
+				int szInBytes = sizeof(double)*numJoints;
+				int i;
+				PyObject* pylist = 0;
+				double* jointPositionsQ = (double*)malloc(szInBytes);
+				double* jointVelocitiesQdot = (double*)malloc(szInBytes);
+				double* jointAccelerations = (double*)malloc(szInBytes);
+				double* jointForcesOutput = (double*)malloc(szInBytes);
+
+				for (i = 0; i < numJoints; i++)
+				{
+					jointPositionsQ[i] = pybullet_internalGetFloatFromSequence(objPositionsQ, i);
+					jointVelocitiesQdot[i] = pybullet_internalGetFloatFromSequence(objVelocitiesQdot, i);
+					jointAccelerations[i] = pybullet_internalGetFloatFromSequence(objAccelerations, i);
+				}
+
+				{
+					b3SharedMemoryStatusHandle statusHandle;
+					int statusType;
+					b3SharedMemoryCommandHandle commandHandle = b3CalculateInverseDynamicsCommandInit(sm,
+						bodyIndex, jointPositionsQ, jointVelocitiesQdot, jointAccelerations);
+					statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+
+					statusType = b3GetStatusType(statusHandle);
+
+					if (statusType == CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED)
+					{
+						int bodyUniqueId;
+						int dofCount;
+
+						b3GetStatusInverseDynamicsJointForces(statusHandle,
+							&bodyUniqueId,
+							&dofCount,
+							0);
+
+						if (dofCount)
+						{
+							b3GetStatusInverseDynamicsJointForces(statusHandle,
+								0,
+								0,
+								jointForcesOutput);
+							{
+								{
+									
+									int i;
+									pylist = PyTuple_New(dofCount);
+									for (i = 0; i<dofCount; i++)
+										PyTuple_SetItem(pylist, i, PyFloat_FromDouble(jointForcesOutput[i]));
+
+								}
+							}
+						}
+
+					}
+					else
+					{
+						PyErr_SetString(SpamError, "Internal error in calculateInverseDynamics");
+					}
+				}
+				free(jointPositionsQ);
+				free(jointVelocitiesQdot);
+				free(jointAccelerations);
+				free(jointForcesOutput);
+				if (pylist)
+					return pylist;
+			}
+			else
+			{
+				PyErr_SetString(SpamError, "calculateInverseDynamics numJoints needs to be positive and [joint positions], [joint velocities], [joint accelerations] need to match the number of joints.");
+				return NULL;
+			}
+
+		}
+		else
+		{
+			PyErr_SetString(SpamError, "calculateInverseDynamics expects 4 arguments, body index, [joint positions], [joint velocities], [joint accelerations].");
+			return NULL;
+		}
+	}
+	else
+	{
+		PyErr_SetString(SpamError, "calculateInverseDynamics expects 4 arguments, body index, [joint positions], [joint velocities], [joint accelerations].");
+		return NULL;
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
+
 
 static PyMethodDef SpamMethods[] = {
   
@@ -1533,6 +1715,8 @@ static PyMethodDef SpamMethods[] = {
     {"getEulerFromQuaternion", pybullet_getEulerFromQuaternion, METH_VARARGS,
         "Convert quaternion [x,y,z,w] to Euler [roll, pitch, yaw] as in URDF/SDF convention"},
     
+	{ "calculateInverseDynamics", pybullet_calculateInverseDynamics, METH_VARARGS,
+	"Given an object id, joint positions, joint velocities and joint accelerations, compute the joint forces using Inverse Dynamics" },
     //todo(erwincoumans)
     //saveSnapshot
     //loadSnapshot

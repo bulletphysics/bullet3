@@ -66,6 +66,8 @@ struct TinyRendererVisualShapeConverterInternalData
 	int m_swHeight;
 	TGAImage m_rgbColorBuffer;
 	b3AlignedObjectArray<float> m_depthBuffer;
+	b3AlignedObjectArray<int> m_segmentationMaskBuffer;
+	
 	SimpleCamera m_camera;
 	
 	TinyRendererVisualShapeConverterInternalData()
@@ -75,6 +77,7 @@ struct TinyRendererVisualShapeConverterInternalData
 	m_rgbColorBuffer(START_WIDTH,START_HEIGHT,TGAImage::RGB)
 	{
 	    m_depthBuffer.resize(m_swWidth*m_swHeight);
+	    m_segmentationMaskBuffer.resize(m_swWidth*m_swHeight,-1);
 	}
 	
 };
@@ -440,7 +443,7 @@ void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPref
 
 
 
-void TinyRendererVisualShapeConverter::convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfModel& model, class btCollisionObject* colObj)
+void TinyRendererVisualShapeConverter::convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfModel& model, class btCollisionObject* colObj, int objectIndex)
 {
     
 	
@@ -487,7 +490,7 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(int linkIndex, const 
 
             if (vertices.size() && indices.size())
             {
-                TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_rgbColorBuffer,m_data->m_depthBuffer);
+                TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_rgbColorBuffer,m_data->m_depthBuffer, &m_data->m_segmentationMaskBuffer, objectIndex);
 				unsigned char* textureImage=0;
 				int textureWidth=0;
 				int textureHeight=0;
@@ -535,6 +538,7 @@ void TinyRendererVisualShapeConverter::clearBuffers(TGAColor& clearColor)
         {
             m_data->m_rgbColorBuffer.set(x,y,clearColor);
             m_data->m_depthBuffer[x+y*m_data->m_swWidth] = -1e30f;
+            m_data->m_segmentationMaskBuffer[x+y*m_data->m_swWidth] = -1;
         }
     }
     
@@ -624,7 +628,7 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
 //	printf("flipped!\n");
 	m_data->m_rgbColorBuffer.flip_vertically();
 
-	//flip z-buffer
+	//flip z-buffer and segmentation Buffer
 	{
 		int half = m_data->m_swHeight>>1;
 		for (int j=0; j<half; j++)
@@ -634,6 +638,7 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
 			for (int i=0;i<m_data->m_swWidth;i++)
 			{
 				btSwap(m_data->m_depthBuffer[l1+i],m_data->m_depthBuffer[l2+i]);
+				btSwap(m_data->m_segmentationMaskBuffer[l1+i],m_data->m_segmentationMaskBuffer[l2+i]);
 			}
 		}
 	}
@@ -652,11 +657,16 @@ void TinyRendererVisualShapeConverter::setWidthAndHeight(int width, int height)
 	m_data->m_swHeight = height;
 
 	m_data->m_depthBuffer.resize(m_data->m_swWidth*m_data->m_swHeight);
+	m_data->m_segmentationMaskBuffer.resize(m_data->m_swWidth*m_data->m_swHeight);
 	m_data->m_rgbColorBuffer = TGAImage(width, height, TGAImage::RGB);
+	
 		
 }
 
-void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied)
+void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, 
+                                                            float* depthBuffer, int depthBufferSizeInPixels,
+                                                            int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,
+                                                            int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied)
 {
     int w = m_data->m_rgbColorBuffer.get_width();
     int h = m_data->m_rgbColorBuffer.get_height();
@@ -682,6 +692,11 @@ void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixels
 			{
 				depthBuffer[i] = m_data->m_depthBuffer[i+startPixelIndex];
 			}
+			if (segmentationMaskBuffer)
+            {
+                segmentationMaskBuffer[i] = m_data->m_segmentationMaskBuffer[i+startPixelIndex];
+            }
+			
             if (pixelsRGBA)
             {
                 pixelsRGBA[i*numBytesPerPixel] =   m_data->m_rgbColorBuffer.buffer()[(i+startPixelIndex)*3+0];

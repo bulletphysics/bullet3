@@ -23,6 +23,7 @@ struct b3RobotSimLoadFileArgs
 	b3Vector3 m_startPosition;
 	b3Quaternion m_startOrientation;
 	bool m_forceOverrideFixedBase;
+    bool m_useMultiBody;
 	int m_fileType;
 
 
@@ -61,7 +62,7 @@ struct b3JointMotorArgs
 		m_targetPosition(0),
 		m_kp(0.1),
 		m_targetVelocity(0),
-		m_kd(0.1),
+		m_kd(0.9),
 		m_maxTorqueValue(1000)
 	{
 	}

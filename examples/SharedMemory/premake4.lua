@@ -10,7 +10,7 @@ end
 includedirs {".","../../src", "../ThirdPartyLibs",}
 
 links {
-	"Bullet3Common",	"BulletDynamics","BulletCollision", "LinearMath"
+	"Bullet3Common","BulletInverseDynamicsUtils", "BulletInverseDynamics",	"BulletDynamics","BulletCollision", "LinearMath"
 }
 
 language "C++"
@@ -137,7 +137,7 @@ defines {"B3_USE_STANDALONE_EXAMPLE"}
 includedirs {"../../src"}
 
 links {
-        "BulletDynamics","BulletCollision", "LinearMath", "OpenGL_Window","Bullet3Common"
+        "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision", "LinearMath", "OpenGL_Window","Bullet3Common"
 }
 	initOpenGL()
   initGlew()
@@ -211,7 +211,7 @@ if os.is("Windows") then
 		}
 						
 	links {
-		"Bullet3Common",	"BulletDynamics","BulletCollision", "LinearMath","OpenGL_Window","openvr_api"
+		"BulletInverseDynamicsUtils", "BulletInverseDynamics","Bullet3Common",	"BulletDynamics","BulletCollision", "LinearMath","OpenGL_Window","openvr_api"
 	}
 	
 	

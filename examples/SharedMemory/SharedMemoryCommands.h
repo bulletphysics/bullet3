@@ -64,6 +64,7 @@ enum EnumSdfArgsUpdateFlags
 struct SdfArgs
 {
 	char m_sdfFileName[MAX_URDF_FILENAME_LENGTH];
+    int m_useMultiBody;
 };
 
 enum EnumUrdfArgsUpdateFlags
@@ -348,6 +349,23 @@ enum EnumSdfRequestInfoFlags
     //SDF_REQUEST_INFO_CAMERA=2,
 };
 
+
+struct CalculateInverseDynamicsArgs
+{
+	int m_bodyUniqueId;
+
+	double m_jointPositionsQ[MAX_DEGREE_OF_FREEDOM];
+	double m_jointVelocitiesQdot[MAX_DEGREE_OF_FREEDOM];
+	double m_jointAccelerations[MAX_DEGREE_OF_FREEDOM];
+};
+
+struct CalculateInverseDynamicsResultArgs
+{
+	int m_bodyUniqueId;
+	int m_dofCount;
+	double m_jointForces[MAX_DEGREE_OF_FREEDOM];
+};
+
 struct SharedMemoryCommand
 {
 	int m_type;
@@ -374,6 +392,7 @@ struct SharedMemoryCommand
 		struct RequestPixelDataArgs m_requestPixelDataArguments;
 		struct PickBodyArgs m_pickBodyArguments;
         struct ExternalForceArgs m_externalForceArguments;
+		struct CalculateInverseDynamicsArgs m_calculateInverseDynamicsArguments;
     };
 };
 
@@ -397,6 +416,7 @@ struct SharedMemoryStatus
 		struct SendDebugLinesArgs m_sendDebugLinesArgs;
 		struct SendPixelDataArgs m_sendPixelDataArguments;
 		struct RigidBodyCreateArgs m_rigidBodyCreateArgs;
+		struct CalculateInverseDynamicsResultArgs m_inverseDynamicsResultArgs;
 	};
 };
 
