@@ -2445,7 +2445,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			loadUrdf("plane.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, true, &bodyId, &bufferServerToClient[0], bufferServerToClient.size());
 		}
 
-		m_data->m_dynamicsWorld->stepSimulation(dtInSec);
+		m_data->m_dynamicsWorld->stepSimulation(dtInSec,10,1./240.);
 	}
 }
 

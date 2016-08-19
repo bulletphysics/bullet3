@@ -123,6 +123,7 @@ static bool enable_experimental_opencl = false;
 
 int gDebugDrawFlags = 0;
 static bool pauseSimulation=false;
+static bool singleStepSimulation = false;
 int midiBaseIndex = 176;
 extern bool gDisableDeactivation;
 
@@ -227,6 +228,12 @@ void MyKeyboardCallback(int key, int state)
 	{
 		pauseSimulation = !pauseSimulation;
 	}
+	if (key == 'o' && state)
+	{
+		singleStepSimulation = true;
+	}
+
+
 #ifndef NO_OPENGL3
 	if (key=='s' && state)
 	{
@@ -490,7 +497,7 @@ void	MyComboBoxCallback(int comboId, const char* item)
 void MyGuiPrintf(const char* msg)
 {
 	printf("b3Printf: %s\n",msg);
-	if (gui2)
+	if (!gDisableDemoSelection)
 	{
 		gui2->textOutput(msg);
 		gui2->forceUpdateScrollBars();
@@ -502,7 +509,7 @@ void MyGuiPrintf(const char* msg)
 void MyStatusBarPrintf(const char* msg)
 {
 	printf("b3Printf: %s\n", msg);
-	if (gui2)
+	if (!gDisableDemoSelection)
 	{
 		bool isLeft = true;
 		gui2->setStatusBarMessage(msg,isLeft);
@@ -513,7 +520,7 @@ void MyStatusBarPrintf(const char* msg)
 void MyStatusBarError(const char* msg)
 {
 	printf("Warning: %s\n", msg);
-	if (gui2)
+	if (!gDisableDemoSelection)
 	{
 		bool isLeft = false;
 		gui2->setStatusBarMessage(msg,isLeft);
@@ -1124,12 +1131,12 @@ void OpenGLExampleBrowser::update(float deltaTime)
 		
 		if (sCurrentDemo)
 		{
-			if (!pauseSimulation)
+			if (!pauseSimulation || singleStepSimulation)
 			{
+				singleStepSimulation = false;
 				//printf("---------------------------------------------------\n");
 				//printf("Framecount = %d\n",frameCount);
-
-
+				
 				if (gFixedTimeStep>0)
 				{
 					sCurrentDemo->stepSimulation(gFixedTimeStep);

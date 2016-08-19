@@ -66,9 +66,9 @@ struct CommonGraphicsApp
 		m_mouseYpos(0.f),
 		m_mouseInitialized(false)
 	{
-		m_backgroundColorRGB[0] = 0.9;
-		m_backgroundColorRGB[1] = 0.9;
-		m_backgroundColorRGB[2] = 1;
+		m_backgroundColorRGB[0] = 0.7;
+		m_backgroundColorRGB[1] = 0.7;
+		m_backgroundColorRGB[2] = 0.8;
 	}
 	virtual ~CommonGraphicsApp()
 	{
