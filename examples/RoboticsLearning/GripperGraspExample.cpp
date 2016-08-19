@@ -58,7 +58,7 @@ public:
     
     virtual void physicsDebugDraw(int debugDrawMode)
     {
-        
+		m_robotSim.debugDraw(debugDrawMode);
     }
     virtual void    initPhysics()
     {
@@ -81,7 +81,16 @@ public:
                 slider.m_maxVal=1;
                 m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
             }
-            
+			{
+				b3RobotSimLoadFileArgs args("");
+				b3RobotSimLoadFileResults results;
+				args.m_fileName = "cube_small.urdf";
+				args.m_startPosition.setValue(0, 0, .107);
+				args.m_startOrientation.setEulerZYX(0, 0, 0);
+				args.m_useMultiBody = true;
+				m_robotSim.loadFile(args, results);
+			}
+
             {
                 b3RobotSimLoadFileArgs args("");
                 args.m_fileName = "gripper/wsg50_with_r2d2_gripper.sdf";
@@ -129,15 +138,7 @@ public:
                     }
                 }
             }
-            {
-                b3RobotSimLoadFileArgs args("");
-                b3RobotSimLoadFileResults results;
-                args.m_fileName = "cube_small.urdf";
-                args.m_startPosition.setValue(0,0,.107);
-                args.m_startOrientation.setEulerZYX(0,0,0);
-                args.m_useMultiBody = false;
-                m_robotSim.loadFile(args,results);
-            }
+           
             if (1)
             {
                 b3RobotSimLoadFileArgs args("");
@@ -179,19 +180,20 @@ public:
                 m_robotSim.setJointMotorControl(m_gripperIndex,fingerJointIndices[i],controlArgs);
             }
         }
-	m_robotSim.stepSimulation();
+		m_robotSim.stepSimulation();
     }
     virtual void	renderScene()
     {
 		m_robotSim.renderScene();
 
 		//m_app->m_renderer->renderScene();
+		
     }
 
 	
     virtual void	physicsDebugDraw()
     {
-      	
+		
     }
     virtual bool	mouseMoveCallback(float x,float y)
     {

@@ -7,15 +7,15 @@
 //#include "../CommonInterfaces/CommonExampleInterface.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "../SharedMemory/PhysicsServerSharedMemory.h"
+#include "../SharedMemory/PhysicsServerSharedMemory.h"
 #include "../SharedMemory/PhysicsClientC_API.h"
+#include "../SharedMemory/PhysicsDirectC_API.h"
+#include "../SharedMemory/PhysicsDirect.h"
+
 #include <string>
-
-
-
-
-
-
 #include "../Utils/b3Clock.h"
+
+
 #include "../MultiThreading/b3ThreadSupportInterface.h"
 
 
@@ -406,24 +406,27 @@ public:
 
 
 
-
-
-
 struct b3RobotSimAPI_InternalData
 {
 	//GUIHelperInterface* m_guiHelper;
 	PhysicsServerSharedMemory	m_physicsServer;
 	b3PhysicsClientHandle m_physicsClient;
 
+
 	b3ThreadSupportInterface* m_threadSupport;
 	RobotSimArgs m_args[MAX_ROBOT_NUM_THREADS];
 	MultiThreadedOpenGLGuiHelper2* m_multiThreadedHelper;
+	PhysicsDirect* m_clientServerDirect;
 
+	bool m_useMultiThreading;
 	bool m_connected;
 
 	b3RobotSimAPI_InternalData()
-		:m_multiThreadedHelper(0),
+		:m_threadSupport(0),
+		m_multiThreadedHelper(0),
+		m_clientServerDirect(0),
 		m_physicsClient(0),
+		m_useMultiThreading(false),
 		m_connected(false)
 	{
 	}
@@ -464,6 +467,9 @@ b3RobotSimAPI::~b3RobotSimAPI()
 
 void b3RobotSimAPI::processMultiThreadedGraphicsRequests()
 {
+	if (0==m_data->m_multiThreadedHelper)
+		return;
+
 	switch (m_data->m_multiThreadedHelper->getCriticalSection()->getSharedParam(1))
 	{
 	case eRobotSimGUIHelperCreateCollisionShapeGraphicsObject:
@@ -562,27 +568,6 @@ void b3RobotSimAPI::processMultiThreadedGraphicsRequests()
 			
 		}
 	}
-	
-
-
-
-	#if 0
-	if (m_options == PHYSICS_SERVER_USE_RTC_CLOCK)
-	{
-		btClock rtc;
-		btScalar endTime = rtc.getTimeMilliseconds() + deltaTime*btScalar(800);
-
-		while (rtc.getTimeMilliseconds()<endTime)
-		{
-			m_physicsServer.processClientCommands();
-		}
-	} else
-	{
-        //for (int i=0;i<10;i++)
-			m_physicsServer.processClientCommands();
-	}
-	#endif
-
 	
 }
 
@@ -733,94 +718,124 @@ bool b3RobotSimAPI::loadFile(const struct b3RobotSimLoadFileArgs& args, b3RobotS
 
 bool b3RobotSimAPI::connect(GUIHelperInterface* guiHelper)
 {
-	m_data->m_multiThreadedHelper  = new MultiThreadedOpenGLGuiHelper2(guiHelper->getAppInterface(),guiHelper);
-	
-	MultiThreadedOpenGLGuiHelper2* guiHelperWrapper = new MultiThreadedOpenGLGuiHelper2(guiHelper->getAppInterface(),guiHelper);
-
-	
-	
-
-	m_data->m_threadSupport = createRobotSimThreadSupport(MAX_ROBOT_NUM_THREADS);
-
-	for (int i=0;i<m_data->m_threadSupport->getNumTasks();i++)
+	if (m_data->m_useMultiThreading)
 	{
-		RobotSimThreadLocalStorage* storage = (RobotSimThreadLocalStorage*) m_data->m_threadSupport->getThreadLocalMemory(i);
-		b3Assert(storage);
-		storage->threadId = i;
-		//storage->m_sharedMem = data->m_sharedMem;
-	}
+		m_data->m_multiThreadedHelper = new MultiThreadedOpenGLGuiHelper2(guiHelper->getAppInterface(), guiHelper);
+
+		MultiThreadedOpenGLGuiHelper2* guiHelperWrapper = new MultiThreadedOpenGLGuiHelper2(guiHelper->getAppInterface(), guiHelper);
 
 
-		
 
-	for (int w=0;w<MAX_ROBOT_NUM_THREADS;w++)
-	{
-		m_data->m_args[w].m_cs = m_data->m_threadSupport->createCriticalSection();
-		m_data->m_args[w].m_cs->setSharedParam(0,eRobotSimIsUnInitialized);
-		int numMoving = 0;
- 		m_data->m_args[w].m_positions.resize(numMoving);
-		m_data->m_args[w].m_physicsServerPtr = &m_data->m_physicsServer;
-		int index = 0;
-			
-		m_data->m_threadSupport->runTask(B3_THREAD_SCHEDULE_TASK, (void*) &m_data->m_args[w], w);
-		while (m_data->m_args[w].m_cs->getSharedParam(0)==eRobotSimIsUnInitialized)
+
+		m_data->m_threadSupport = createRobotSimThreadSupport(MAX_ROBOT_NUM_THREADS);
+
+		for (int i = 0; i < m_data->m_threadSupport->getNumTasks(); i++)
 		{
+			RobotSimThreadLocalStorage* storage = (RobotSimThreadLocalStorage*)m_data->m_threadSupport->getThreadLocalMemory(i);
+			b3Assert(storage);
+			storage->threadId = i;
+			//storage->m_sharedMem = data->m_sharedMem;
 		}
+
+
+
+
+		for (int w = 0; w < MAX_ROBOT_NUM_THREADS; w++)
+		{
+			m_data->m_args[w].m_cs = m_data->m_threadSupport->createCriticalSection();
+			m_data->m_args[w].m_cs->setSharedParam(0, eRobotSimIsUnInitialized);
+			int numMoving = 0;
+			m_data->m_args[w].m_positions.resize(numMoving);
+			m_data->m_args[w].m_physicsServerPtr = &m_data->m_physicsServer;
+			int index = 0;
+
+			m_data->m_threadSupport->runTask(B3_THREAD_SCHEDULE_TASK, (void*)&m_data->m_args[w], w);
+			while (m_data->m_args[w].m_cs->getSharedParam(0) == eRobotSimIsUnInitialized)
+			{
+			}
+		}
+
+		m_data->m_args[0].m_cs->setSharedParam(1, eRobotSimGUIHelperIdle);
+		m_data->m_multiThreadedHelper->setCriticalSection(m_data->m_args[0].m_cs);
+
+		bool serverConnected = m_data->m_physicsServer.connectSharedMemory(m_data->m_multiThreadedHelper);
+		b3Assert(serverConnected);
+
+		m_data->m_physicsClient = b3ConnectSharedMemory(SHARED_MEMORY_KEY);
+	}
+	else
+	{
+		m_data->m_clientServerDirect = new PhysicsDirect();
+		bool connected = m_data->m_clientServerDirect->connect(guiHelper);
+		m_data->m_physicsClient = (b3PhysicsClientHandle)m_data->m_clientServerDirect;
+
 	}
 
-	m_data->m_args[0].m_cs->setSharedParam(1,eRobotSimGUIHelperIdle);
-	m_data->m_multiThreadedHelper->setCriticalSection(m_data->m_args[0].m_cs);
-
-	m_data->m_connected = m_data->m_physicsServer.connectSharedMemory( m_data->m_multiThreadedHelper);
-
-		b3Assert(m_data->m_connected);
-
-	m_data->m_physicsClient = b3ConnectSharedMemory(SHARED_MEMORY_KEY);
-	int canSubmit = b3CanSubmitCommand(m_data->m_physicsClient);
-	b3Assert(canSubmit);
-	return m_data->m_connected && canSubmit;
+	//client connected
+	m_data->m_connected = b3CanSubmitCommand(m_data->m_physicsClient);
+	
+	b3Assert(m_data->m_connected);
+	return m_data->m_connected && m_data->m_connected;
 }
 
 void b3RobotSimAPI::disconnect()
 {
-
-	for (int i=0;i<MAX_ROBOT_NUM_THREADS;i++)
+	if (m_data->m_useMultiThreading)
 	{
-		m_data->m_args[i].m_cs->lock();
-		m_data->m_args[i].m_cs->setSharedParam(0,eRequestTerminateRobotSim);
-		m_data->m_args[i].m_cs->unlock();
+		for (int i = 0; i < MAX_ROBOT_NUM_THREADS; i++)
+		{
+			m_data->m_args[i].m_cs->lock();
+			m_data->m_args[i].m_cs->setSharedParam(0, eRequestTerminateRobotSim);
+			m_data->m_args[i].m_cs->unlock();
+		}
+		int numActiveThreads = MAX_ROBOT_NUM_THREADS;
+
+		while (numActiveThreads)
+		{
+			int arg0, arg1;
+			if (m_data->m_threadSupport->isTaskCompleted(&arg0, &arg1, 0))
+			{
+				numActiveThreads--;
+				printf("numActiveThreads = %d\n", numActiveThreads);
+
+			}
+			else
+			{
+			}
+		};
+
+		printf("stopping threads\n");
+
+		delete m_data->m_threadSupport;
+		m_data->m_threadSupport = 0;
 	}
-	int numActiveThreads = MAX_ROBOT_NUM_THREADS;
-
-	while (numActiveThreads)
-            {
-		int arg0,arg1;
-                    if (m_data->m_threadSupport->isTaskCompleted(&arg0,&arg1,0))
-                    {
-                            numActiveThreads--;
-                            printf("numActiveThreads = %d\n",numActiveThreads);
-
-                    } else
-                    {
-                    }
-            };
-
-	printf("stopping threads\n");
-
-	delete m_data->m_threadSupport;   
-	m_data->m_threadSupport = 0;
-
 	b3DisconnectSharedMemory(m_data->m_physicsClient);
 	m_data->m_physicsServer.disconnectSharedMemory(true);
+	
 	m_data->m_connected = false;
 }
 
+
+void b3RobotSimAPI::debugDraw(int debugDrawMode)
+{
+	if (m_data->m_clientServerDirect)
+	{
+		m_data->m_clientServerDirect->debugDraw(debugDrawMode);
+	}
+}
 void b3RobotSimAPI::renderScene()
 {
-	if (m_data->m_multiThreadedHelper->m_childGuiHelper->getRenderInterface())
+	if (m_data->m_useMultiThreading)
 	{
-		m_data->m_multiThreadedHelper->m_childGuiHelper->getRenderInterface()->writeTransforms();
+		if (m_data->m_multiThreadedHelper->m_childGuiHelper->getRenderInterface())
+		{
+			m_data->m_multiThreadedHelper->m_childGuiHelper->getRenderInterface()->writeTransforms();
+		}
 	}
 
+	if (m_data->m_clientServerDirect)
+	{
+		m_data->m_clientServerDirect->renderScene();
+	}
 	m_data->m_physicsServer.renderScene();
 }

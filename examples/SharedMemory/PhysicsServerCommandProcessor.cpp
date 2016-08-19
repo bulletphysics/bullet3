@@ -696,10 +696,12 @@ void	PhysicsServerCommandProcessor::createJointMotors(btMultiBody* mb)
 
 		if (supportsJointMotor(mb,mbLinkIndex))
 		{
-			float maxMotorImpulse = 0.f;
+			float maxMotorImpulse = 10000.f;
 			int dof = 0;
 			btScalar desiredVelocity = 0.f;
 			btMultiBodyJointMotor* motor = new btMultiBodyJointMotor(mb,mbLinkIndex,dof,desiredVelocity,maxMotorImpulse);
+			motor->setPositionTarget(0, 0);
+			motor->setVelocityTarget(0, 1);
 			//motor->setMaxAppliedImpulse(0);
             mb->getLink(mbLinkIndex).m_userPtr = motor;
 			m_data->m_dynamicsWorld->addMultiBodyConstraint(motor);
@@ -1416,7 +1418,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 											b3Printf("Using CONTROL_MODE_TORQUE");
 										}
                                       //  mb->clearForcesAndTorques();
-                                        int torqueIndex = 0;
+                                        int torqueIndex = 6;
                                         if ((clientCmd.m_updateFlags&SIM_DESIRED_STATE_HAS_MAX_FORCE)!=0)
                                         {
                                             for (int link=0;link<mb->getNumLinks();link++)
@@ -1602,6 +1604,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							int totalDegreeOfFreedomQ = 0;
 							int totalDegreeOfFreedomU = 0;
 
+							if (mb->getNumLinks()>= MAX_DEGREE_OF_FREEDOM)
+							{
+								serverStatusOut.m_type = CMD_ACTUAL_STATE_UPDATE_FAILED;
+								hasStatus = true;
+								break;
+							}
 
 							//always add the base, even for static (non-moving objects)
 							//so that we can easily move the 'fixed' base when needed
@@ -2437,7 +2445,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			loadUrdf("plane.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, true, &bodyId, &bufferServerToClient[0], bufferServerToClient.size());
 		}
 
-		m_data->m_dynamicsWorld->stepSimulation(dtInSec);
+		m_data->m_dynamicsWorld->stepSimulation(dtInSec,10,1./240.);
 	}
 }
 

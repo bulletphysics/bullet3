@@ -36,7 +36,8 @@ class ImportUrdfSetup : public CommonMultiBodyBase
     struct ImportUrdfInternalData* m_data;
 	bool m_useMultiBody;
 	btAlignedObjectArray<std::string* > m_nameMemory;
-
+	btScalar m_grav;
+	int m_upAxis;
 public:
     ImportUrdfSetup(struct GUIHelperInterface* helper, int option, const char* fileName);
     virtual ~ImportUrdfSetup();
@@ -87,7 +88,9 @@ struct ImportUrdfInternalData
 
 
 ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option, const char* fileName)
-	:CommonMultiBodyBase(helper)
+	:CommonMultiBodyBase(helper),
+	m_grav(0),
+	m_upAxis(2)
 {
 	m_data = new ImportUrdfInternalData;
 
@@ -186,9 +189,9 @@ void ImportUrdfSetup::setFileName(const char* urdfFileName)
 void ImportUrdfSetup::initPhysics()
 {
 
-	int upAxis = 2;
-	m_guiHelper->setUpAxis(upAxis);
-
+	
+	m_guiHelper->setUpAxis(m_upAxis);
+	
 	this->createEmptyDynamicsWorld();
 	//m_dynamicsWorld->getSolverInfo().m_numIterations = 100;
     m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
@@ -199,10 +202,14 @@ void ImportUrdfSetup::initPhysics()
         );//+btIDebugDraw::DBG_DrawConstraintLimits);
 
 
-	btVector3 gravity(0,0,0);
-	gravity[upAxis]=-9.8;
-
-	m_dynamicsWorld->setGravity(gravity);
+	if (m_guiHelper->getParameterInterface())
+	{
+		SliderParams slider("Gravity", &m_grav);
+		slider.m_minVal = -10;
+		slider.m_maxVal = 10;
+		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+	}
+	
 
 	BulletURDFImporter u2b(m_guiHelper, 0);
 	
@@ -350,7 +357,7 @@ void ImportUrdfSetup::initPhysics()
 		if (createGround)
 		{
 			btVector3 groundHalfExtents(20,20,20);
-			groundHalfExtents[upAxis]=1.f;
+			groundHalfExtents[m_upAxis]=1.f;
 			btBoxShape* box = new btBoxShape(groundHalfExtents);
 			m_collisionShapes.push_back(box);
 			box->initializePolyhedralFeatures();
@@ -358,7 +365,7 @@ void ImportUrdfSetup::initPhysics()
 			m_guiHelper->createCollisionShapeGraphicsObject(box);
 			btTransform start; start.setIdentity();
 			btVector3 groundOrigin(0,0,0);
-			groundOrigin[upAxis]=-2.5;
+			groundOrigin[m_upAxis]=-2.5;
 			start.setOrigin(groundOrigin);
 			btRigidBody* body =  createRigidBody(0,start,box);
 			//m_dynamicsWorld->removeRigidBody(body);
@@ -388,6 +395,10 @@ void ImportUrdfSetup::stepSimulation(float deltaTime)
 {
 	if (m_dynamicsWorld)
 	{
+		btVector3 gravity(0, 0, 0);
+		gravity[m_upAxis] = m_grav;
+		m_dynamicsWorld->setGravity(gravity);
+
         for (int i=0;i<m_data->m_numMotors;i++)
         {
 			if (m_data->m_jointMotors[i])

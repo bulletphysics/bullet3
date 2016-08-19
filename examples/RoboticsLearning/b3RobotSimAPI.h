@@ -95,6 +95,7 @@ public:
 	void setGravity(const b3Vector3& gravityAcceleration);
 
 	void renderScene();
+	void debugDraw(int debugDrawMode);
 };
 
 #endif //B3_ROBOT_SIM_API_H

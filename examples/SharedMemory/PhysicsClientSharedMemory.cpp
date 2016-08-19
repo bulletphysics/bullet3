@@ -81,7 +81,6 @@ int PhysicsClientSharedMemory::getNumJoints(int bodyIndex) const
 
 		return bodyJoints->m_jointInfo.size(); 
 	}
-	btAssert(0);
 	return 0;
 	
 }

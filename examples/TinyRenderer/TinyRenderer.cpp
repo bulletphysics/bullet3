@@ -268,7 +268,7 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
 	renderData.m_viewportMatrix = viewport(0,0,width, height);
 	
     b3AlignedObjectArray<float>& zbuffer = renderData.m_depthBuffer;
-    int* segmentationMaskBufferPtr = &renderData.m_segmentationMaskBufferPtr->at(0);
+    int* segmentationMaskBufferPtr = renderData.m_segmentationMaskBufferPtr?&renderData.m_segmentationMaskBufferPtr->at(0):0;
     
     TGAImage& frame = renderData.m_rgbColorBuffer;
 

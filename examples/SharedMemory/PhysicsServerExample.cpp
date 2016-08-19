@@ -872,7 +872,22 @@ void PhysicsServerExample::renderScene()
 		static int frameCount=0;
 		frameCount++;
 		char bla[1024];
-		sprintf(bla,"VR sub-title text test, frame %d", frameCount/2);
+
+		static btScalar prevTime = m_clock.getTimeSeconds();
+		btScalar curTime = m_clock.getTimeSeconds();
+		static btScalar deltaTime = 0.f;
+		static int count = 10;
+		if (count-- < 0)
+		{
+			count = 10;
+			deltaTime = curTime - prevTime;
+		}
+		if (deltaTime == 0)
+			deltaTime = 1000;
+
+		prevTime = curTime;
+		
+		sprintf(bla,"VR sub-title text test,fps = %f, frame %d", 1./deltaTime, frameCount/2);
 		float pos[4];
 		m_guiHelper->getAppInterface()->m_renderer->getActiveCamera()->getCameraTargetPosition(pos);
 		btTransform viewTr;
