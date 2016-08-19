@@ -490,7 +490,7 @@ void	MyComboBoxCallback(int comboId, const char* item)
 void MyGuiPrintf(const char* msg)
 {
 	printf("b3Printf: %s\n",msg);
-	if (gui2)
+	if (!gDisableDemoSelection)
 	{
 		gui2->textOutput(msg);
 		gui2->forceUpdateScrollBars();
@@ -502,7 +502,7 @@ void MyGuiPrintf(const char* msg)
 void MyStatusBarPrintf(const char* msg)
 {
 	printf("b3Printf: %s\n", msg);
-	if (gui2)
+	if (!gDisableDemoSelection)
 	{
 		bool isLeft = true;
 		gui2->setStatusBarMessage(msg,isLeft);
@@ -513,7 +513,7 @@ void MyStatusBarPrintf(const char* msg)
 void MyStatusBarError(const char* msg)
 {
 	printf("Warning: %s\n", msg);
-	if (gui2)
+	if (!gDisableDemoSelection)
 	{
 		bool isLeft = false;
 		gui2->setStatusBarMessage(msg,isLeft);
