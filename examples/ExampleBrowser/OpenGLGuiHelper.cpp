@@ -85,8 +85,8 @@ public:
 	virtual void	drawContactPoint(const btVector3& PointOnB,const btVector3& normalOnB,btScalar distance,int lifeTime,const btVector3& color)
 	{
         drawLine(PointOnB,PointOnB+normalOnB*distance,color);
-		btVector3 red(0.3, 1., 0.3);
-		drawLine(PointOnB, PointOnB + normalOnB*0.01, red);
+		btVector3 ncolor(0, 0, 0);
+		drawLine(PointOnB, PointOnB + normalOnB*0.01, ncolor);
 		
 	}
      
