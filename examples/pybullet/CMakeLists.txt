@@ -74,9 +74,6 @@ ENDIF(WIN32)
 
 ADD_LIBRARY(pybullet SHARED ${pybullet_SRCS})
 
-SET_TARGET_PROPERTIES(pybullet PROPERTIES VERSION ${BULLET_VERSION})
-SET_TARGET_PROPERTIES(pybullet PROPERTIES SOVERSION ${BULLET_VERSION})
-
 TARGET_LINK_LIBRARIES(pybullet BulletExampleBrowserLib BulletFileLoader BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen Bullet3Common ${PYTHON_LIBRARIES})
 
 
