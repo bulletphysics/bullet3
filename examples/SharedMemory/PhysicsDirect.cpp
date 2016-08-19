@@ -69,7 +69,25 @@ PhysicsDirect::~PhysicsDirect()
 bool PhysicsDirect::connect()
 {
 	m_data->m_commandProcessor->setGuiHelper(&m_data->m_noGfx);
+
 	return true;
+}
+
+// return true if connection succesfull, can also check 'isConnected'
+bool PhysicsDirect::connect(struct GUIHelperInterface* guiHelper)
+{
+	m_data->m_commandProcessor->setGuiHelper(guiHelper);
+	
+	return true;
+}
+
+void PhysicsDirect::renderScene()
+{
+	m_data->m_commandProcessor->renderScene();
+}
+void PhysicsDirect::debugDraw(int debugDrawMode)
+{
+	m_data->m_commandProcessor->physicsDebugDraw(debugDrawMode);
 }
 
 ////todo: rename to 'disconnect'
