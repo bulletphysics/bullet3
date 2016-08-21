@@ -161,14 +161,14 @@ public:
 	///Various implementations of solving a single constraint row using a generic equality constraint, using scalar reference, SSE2 or SSE4
 	btSingleConstraintRowSolver	getScalarConstraintRowSolverGeneric();
 	btSingleConstraintRowSolver	getSSE2ConstraintRowSolverGeneric();
-	#if BT_ALLOW_SSE4
+	#ifdef BT_ALLOW_SSE4
 	  btSingleConstraintRowSolver	getSSE4_1ConstraintRowSolverGeneric();
 	#endif
 
 	///Various implementations of solving a single constraint row using an inequality (lower limit) constraint, using scalar reference, SSE2 or SSE4
 	btSingleConstraintRowSolver	getScalarConstraintRowSolverLowerLimit();
 	btSingleConstraintRowSolver	getSSE2ConstraintRowSolverLowerLimit();
-	#if BT_ALLOW_SSE4
+	#ifdef BT_ALLOW_SSE4
 	  btSingleConstraintRowSolver	getSSE4_1ConstraintRowSolverLowerLimit();
 	#endif
 };
