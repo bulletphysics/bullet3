@@ -194,7 +194,6 @@ void MyKeyboardCallback(int key, int state)
 	}
 	if (key=='c' && state)
 	{
-		gDebugDrawFlags ^= btIDebugDraw::DBG_DrawConstraints;
 		gDebugDrawFlags ^= btIDebugDraw::DBG_DrawContactPoints;
 	}
 	if (key == 'd' && state)
@@ -202,6 +201,11 @@ void MyKeyboardCallback(int key, int state)
 		gDebugDrawFlags ^= btIDebugDraw::DBG_NoDeactivation;
 		gDisableDeactivation = ((gDebugDrawFlags & btIDebugDraw::DBG_NoDeactivation) != 0);
 	}
+	if (key == 'k' && state)
+	{
+		gDebugDrawFlags ^= btIDebugDraw::DBG_DrawConstraints;
+	}
+
 	if (key=='l' && state)
 	{
 		gDebugDrawFlags ^= btIDebugDraw::DBG_DrawConstraintLimits;

@@ -130,13 +130,15 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 		do
 		{
 //todo(erwincoumans): do we want some sleep to reduce CPU resources in this thread?
+			
 
 			double deltaTimeInSeconds = double(clock.getTimeMicroseconds())/1000000.;
+
 			if (deltaTimeInSeconds<(1./5000.))
 			{
+
 				skip++;
 				skip1++;
-				if (0==(skip1&0x3))
 				{
 					b3Clock::usleep(250);
 				}
@@ -281,6 +283,7 @@ public:
 		m_cs->unlock();
 		while (m_cs->getSharedParam(1)!=eGUIHelperIdle)
 		{
+			b3Clock::usleep(1000);
 		}
 
 	}
@@ -294,6 +297,7 @@ public:
 		m_cs->unlock();
 		while (m_cs->getSharedParam(1)!=eGUIHelperIdle)
 		{
+			b3Clock::usleep(1000);
 		}
 
 	}
@@ -326,6 +330,7 @@ public:
 		m_cs->unlock();
 		while (m_cs->getSharedParam(1)!=eGUIHelperIdle)
 		{
+			b3Clock::usleep(1000);
 		}
 		return m_textureId;
 	}
@@ -343,6 +348,7 @@ public:
 		m_cs->unlock();
 		while (m_cs->getSharedParam(1)!=eGUIHelperIdle)
 		{
+			b3Clock::usleep(1000);
 		}
 		return m_shapeIndex;
 	}
@@ -359,6 +365,7 @@ public:
 		m_cs->unlock();
 		while (m_cs->getSharedParam(1)!=eGUIHelperIdle)
 		{
+			b3Clock::usleep(1000);
 		}
 		return m_instanceId;
 	}
@@ -370,6 +377,7 @@ public:
 		m_cs->unlock();
 		while (m_cs->getSharedParam(1)!=eGUIHelperIdle)
 		{
+			b3Clock::usleep(1000);
 		}
     }
 
@@ -444,6 +452,7 @@ public:
 		m_cs->unlock();
 		while (m_cs->getSharedParam(1)!=eGUIHelperIdle)
 		{
+			b3Clock::usleep(1000);
 		}
 	}
 	
