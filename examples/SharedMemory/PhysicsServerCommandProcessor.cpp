@@ -11,6 +11,7 @@
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointFeedback.h"
+#include "BulletDynamics/Featherstone/btMultiBodyFixedConstraint.h"
 #include "LinearMath/btHashMap.h"
 #include "BulletInverseDynamics/MultiBodyTree.hpp"
 
@@ -748,6 +749,7 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
 
             u2b.activateModel(m);
             btMultiBody* mb = 0;
+            btRigidBody* rb = 0;
 
             //get a body index
             int bodyUniqueId = m_data->allocHandle();
@@ -775,6 +777,7 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
 
 
             mb = creation.getBulletMultiBody();
+            rb = creation.getRigidBody();
             if (mb)
             {
                 bodyHandle->m_multiBody = mb;
@@ -814,6 +817,7 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
 			} else
 			{
 				b3Warning("No multibody loaded from URDF. Could add btRigidBody+btTypedConstraint solution later.");
+                bodyHandle->m_rigidBody = rb;
 			}
 
         }
@@ -878,6 +882,7 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
         }
 
         btMultiBody* mb = creation.getBulletMultiBody();
+        btRigidBody* rb = creation.getRigidBody();
         
 		if (useMultiBody)
 		{
@@ -946,8 +951,11 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 
 		} else
 		{
-
-			return true;
+            if (rb)
+            {
+                bodyHandle->m_rigidBody = rb;
+                return true;
+            }
 		}
 
     }
@@ -2236,6 +2244,36 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     
                     SharedMemoryStatus& serverCmd =serverStatusOut;
                     serverCmd.m_type = CMD_CLIENT_COMMAND_COMPLETED;
+                    hasStatus = true;
+                    break;
+                }
+                case CMD_CREATE_JOINT:
+                {
+                    InteralBodyData* parentBody = m_data->getHandle(clientCmd.m_createJointArguments.m_parentBodyIndex);
+                    if (parentBody && parentBody->m_multiBody)
+                    {
+                        InteralBodyData* childBody = m_data->getHandle(clientCmd.m_createJointArguments.m_childBodyIndex);
+                        if (childBody)
+                        {
+                            btVector3 pivotInParent(clientCmd.m_createJointArguments.m_parentFrame[0], clientCmd.m_createJointArguments.m_parentFrame[1], clientCmd.m_createJointArguments.m_parentFrame[2]);
+                            btVector3 pivotInChild(clientCmd.m_createJointArguments.m_childFrame[0], clientCmd.m_createJointArguments.m_childFrame[1], clientCmd.m_createJointArguments.m_childFrame[2]);
+                            btMatrix3x3 frameInParent(btQuaternion(clientCmd.m_createJointArguments.m_parentFrame[3], clientCmd.m_createJointArguments.m_parentFrame[4], clientCmd.m_createJointArguments.m_parentFrame[5], clientCmd.m_createJointArguments.m_parentFrame[6]));
+                            btMatrix3x3 frameInChild(btQuaternion(clientCmd.m_createJointArguments.m_childFrame[3], clientCmd.m_createJointArguments.m_childFrame[4], clientCmd.m_createJointArguments.m_childFrame[5], clientCmd.m_createJointArguments.m_childFrame[6]));
+                            if (childBody->m_multiBody)
+                            {
+                                btMultiBodyFixedConstraint* multibodyFixed = new btMultiBodyFixedConstraint(parentBody->m_multiBody,clientCmd.m_createJointArguments.m_parentJointIndex,childBody->m_multiBody,clientCmd.m_createJointArguments.m_childJointIndex,pivotInParent,pivotInChild,frameInParent,frameInChild);
+                                multibodyFixed->setMaxAppliedImpulse(2.0);
+                                m_data->m_dynamicsWorld->addMultiBodyConstraint(multibodyFixed);
+                            }
+                            else
+                            {
+                                btMultiBodyFixedConstraint* rigidbodyFixed = new btMultiBodyFixedConstraint(parentBody->m_multiBody,clientCmd.m_createJointArguments.m_parentJointIndex,childBody->m_rigidBody,pivotInParent,pivotInChild,frameInParent,frameInChild);
+                                rigidbodyFixed->setMaxAppliedImpulse(2.0);
+                                btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_data->m_dynamicsWorld;
+                                world->addMultiBodyConstraint(rigidbodyFixed);
+                            }
+                        }
+                    }
                     hasStatus = true;
                     break;
                 }

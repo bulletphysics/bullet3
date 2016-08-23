@@ -28,7 +28,8 @@ enum EnumSharedMemoryClientCommand
     CMD_REQUEST_CAMERA_IMAGE_DATA,
     CMD_APPLY_EXTERNAL_FORCE,
 	CMD_CALCULATE_INVERSE_DYNAMICS,
-    CMD_MAX_CLIENT_COMMANDS
+    CMD_MAX_CLIENT_COMMANDS,
+    CMD_CREATE_JOINT
 };
 
 enum EnumSharedMemoryServerStatus
@@ -99,6 +100,9 @@ struct b3JointInfo
         int m_flags;
 		double m_jointDamping;
 		double m_jointFriction;
+    double m_parentFrame[7]; // position and orientation (quaternion)
+    double m_childFrame[7]; // ^^^
+    double m_jointAxis[3]; // joint axis in parent local frame
 };
 
 struct b3JointSensorState

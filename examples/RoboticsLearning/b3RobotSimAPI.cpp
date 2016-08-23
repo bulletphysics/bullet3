@@ -596,6 +596,16 @@ bool b3RobotSimAPI::getJointInfo(int bodyUniqueId, int jointIndex, b3JointInfo* 
 	return (b3GetJointInfo(m_data->m_physicsClient,bodyUniqueId, jointIndex,jointInfo)!=0);
 }
 
+void b3RobotSimAPI::createJoint(int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, const b3JointInfo* jointInfo)
+{
+    b3SharedMemoryStatusHandle statusHandle;
+    b3Assert(b3CanSubmitCommand(m_data->m_physicsClient));
+    if (b3CanSubmitCommand(m_data->m_physicsClient))
+    {
+        statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClient, b3CreateJoint(m_data->m_physicsClient, parentBodyIndex, parentJointIndex, childBodyIndex, childJointIndex, jointInfo));
+    }
+}
+
 void b3RobotSimAPI::setJointMotorControl(int bodyUniqueId, int jointIndex, const b3JointMotorArgs& args)
 {
 	b3SharedMemoryStatusHandle statusHandle;

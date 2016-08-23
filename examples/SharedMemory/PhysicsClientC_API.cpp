@@ -730,6 +730,29 @@ int	b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyIndex, int jointInd
 	return cl->getJointInfo(bodyIndex, jointIndex, *info);
 }
 
+b3SharedMemoryCommandHandle b3CreateJoint(b3PhysicsClientHandle physClient, int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, const b3JointInfo* info)
+{
+    PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    
+    command->m_type = CMD_CREATE_JOINT;
+    command->m_createJointArguments.m_parentBodyIndex = parentBodyIndex;
+    command->m_createJointArguments.m_parentJointIndex = parentJointIndex;
+    command->m_createJointArguments.m_childBodyIndex = childBodyIndex;
+    command->m_createJointArguments.m_childJointIndex = childJointIndex;
+    for (int i = 0; i < 7; ++i) {
+        command->m_createJointArguments.m_parentFrame[i] = info->m_parentFrame[i];
+        command->m_createJointArguments.m_childFrame[i] = info->m_childFrame[i];
+    }
+    for (int i = 0; i < 3; ++i) {
+        command->m_createJointArguments.m_jointAxis[i] = info->m_jointAxis[i];
+    }
+    return (b3SharedMemoryCommandHandle)command;
+}
+
 b3SharedMemoryCommandHandle b3PickBody(b3PhysicsClientHandle physClient, double rayFromWorldX,
                                        double rayFromWorldY, double rayFromWorldZ,
                                        double rayToWorldX, double rayToWorldY, double rayToWorldZ)
