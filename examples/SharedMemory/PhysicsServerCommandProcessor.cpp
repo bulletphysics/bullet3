@@ -385,6 +385,7 @@ struct PhysicsServerCommandProcessorInternalData
 
 
 	btScalar m_physicsDeltaTime;
+    btScalar m_numSimulationSubSteps;
 	btAlignedObjectArray<btMultiBodyJointFeedback*> m_multiBodyJointFeedbacks;
 	btHashMap<btHashPtr, btInverseDynamics::MultiBodyTree*> m_inverseDynamicsBodies;
 
@@ -428,6 +429,7 @@ struct PhysicsServerCommandProcessorInternalData
 		m_commandLogger(0),
 		m_logPlayback(0),
 		m_physicsDeltaTime(1./240.),
+        m_numSimulationSubSteps(0),
 		m_dynamicsWorld(0),
 		m_remoteDebugDrawer(0),
 		m_guiHelper(0),
@@ -1812,7 +1814,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     {
                         applyJointDamping(i);
                     }
-                    m_data->m_dynamicsWorld->stepSimulation(m_data->m_physicsDeltaTime,0);
+                    if (m_data->m_numSimulationSubSteps > 0)
+                        m_data->m_dynamicsWorld->stepSimulation(m_data->m_physicsDeltaTime,m_data->m_numSimulationSubSteps,m_data->m_physicsDeltaTime/m_data->m_numSimulationSubSteps);
+                    else
+                        m_data->m_dynamicsWorld->stepSimulation(m_data->m_physicsDeltaTime,0);
 
 					SharedMemoryStatus& serverCmd =serverStatusOut;
 					serverCmd.m_type = CMD_STEP_FORWARD_SIMULATION_COMPLETED;
@@ -1842,6 +1847,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						}
 
 					}
+                    if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_NUM_SIMULATION_SUB_STEPS)
+                    {
+                        m_data->m_numSimulationSubSteps = clientCmd.m_physSimParamArgs.m_numSimulationSubSteps;
+                    }
 
 					SharedMemoryStatus& serverCmd =serverStatusOut;
 					serverCmd.m_type = CMD_CLIENT_COMMAND_COMPLETED;

@@ -95,6 +95,8 @@ public:
 	void stepSimulation();
 
 	void setGravity(const b3Vector3& gravityAcceleration);
+    
+    void setNumSimulationSubSteps(int numSubSteps);
 
 	void renderScene();
 	void debugDraw(int debugDrawMode);
