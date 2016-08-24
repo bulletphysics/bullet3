@@ -88,7 +88,7 @@ public:
 
 	bool getJointInfo(int bodyUniqueId, int jointIndex, b3JointInfo* jointInfo);
     
-    void createJoint(int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, const struct b3JointInfo& jointInfo);
+    void createJoint(int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, b3JointInfo* jointInfo);
 
 	void setJointMotorControl(int bodyUniqueId, int jointIndex, const struct b3JointMotorArgs& args);
 
