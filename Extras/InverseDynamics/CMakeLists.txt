@@ -4,6 +4,7 @@ INCLUDE_DIRECTORIES(
 
 ADD_LIBRARY(
 BulletInverseDynamicsUtils
+CloneTreeCreator.cpp
 CoilCreator.cpp
 MultiBodyTreeCreator.cpp
 btMultiBodyTreeCreator.cpp
@@ -11,6 +12,7 @@ DillCreator.cpp
 MultiBodyTreeDebugGraph.cpp
 invdyn_bullet_comparison.cpp
 IDRandomUtil.cpp
+RandomTreeCreator.cpp
 SimpleTreeCreator.cpp
 MultiBodyNameMap.cpp
 User2InternalIndex.cpp

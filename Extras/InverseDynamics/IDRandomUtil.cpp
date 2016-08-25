@@ -15,6 +15,7 @@ static const float mass_min = 0.001;
 static const float mass_max = 1.0;
 
 void randomInit() { srand(time(NULL)); }
+void randomInit(unsigned seed) { srand(seed); }
 
 int randomInt(int low, int high) { return rand() % (high + 1 - low) + low; }
 
