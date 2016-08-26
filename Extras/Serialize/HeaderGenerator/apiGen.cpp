@@ -220,7 +220,7 @@ int main(int argc,char** argv)
 	fprintf(dump, "%s\n", data);
 
 	
-	char* filename = "../../../../data/slope.bullet";
+	char* filename = "../../../../data/r2d2_multibody.bullet";
 	
 	if (argc==2)
 		filename = argv[1];
