@@ -453,16 +453,11 @@ void btKinematicCharacterController::stepForwardAndStrafe ( btCollisionWorld* co
 				break;
 			}
 
-		} else {
-//			if (!m_wasJumping)
-				// we moved whole way
-				m_currentPosition = m_targetPosition;
 		}
-		m_currentPosition = m_targetPosition;
-
-	//	if (callback.m_closestHitFraction == 0.f)
-	//		break;
-
+        else
+        {
+            m_currentPosition = m_targetPosition;
+		}
 	}
 }
 
