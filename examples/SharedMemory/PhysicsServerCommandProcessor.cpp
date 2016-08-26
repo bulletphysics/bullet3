@@ -12,6 +12,7 @@
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointFeedback.h"
 #include "BulletDynamics/Featherstone/btMultiBodyFixedConstraint.h"
+#include "BulletDynamics/Featherstone/btMultiBodySliderConstraint.h"
 #include "LinearMath/btHashMap.h"
 #include "BulletInverseDynamics/MultiBodyTree.hpp"
 
@@ -2268,18 +2269,38 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                             btVector3 pivotInChild(clientCmd.m_createJointArguments.m_childFrame[0], clientCmd.m_createJointArguments.m_childFrame[1], clientCmd.m_createJointArguments.m_childFrame[2]);
                             btMatrix3x3 frameInParent(btQuaternion(clientCmd.m_createJointArguments.m_parentFrame[3], clientCmd.m_createJointArguments.m_parentFrame[4], clientCmd.m_createJointArguments.m_parentFrame[5], clientCmd.m_createJointArguments.m_parentFrame[6]));
                             btMatrix3x3 frameInChild(btQuaternion(clientCmd.m_createJointArguments.m_childFrame[3], clientCmd.m_createJointArguments.m_childFrame[4], clientCmd.m_createJointArguments.m_childFrame[5], clientCmd.m_createJointArguments.m_childFrame[6]));
-                            if (childBody->m_multiBody)
+                            btVector3 jointAxis(clientCmd.m_createJointArguments.m_jointAxis[0], clientCmd.m_createJointArguments.m_jointAxis[1], clientCmd.m_createJointArguments.m_jointAxis[2]);
+                            if (clientCmd.m_createJointArguments.m_jointType == btMultibodyLink::eFixed)
                             {
-                                btMultiBodyFixedConstraint* multibodyFixed = new btMultiBodyFixedConstraint(parentBody->m_multiBody,clientCmd.m_createJointArguments.m_parentJointIndex,childBody->m_multiBody,clientCmd.m_createJointArguments.m_childJointIndex,pivotInParent,pivotInChild,frameInParent,frameInChild);
-                                multibodyFixed->setMaxAppliedImpulse(2.0);
-                                m_data->m_dynamicsWorld->addMultiBodyConstraint(multibodyFixed);
+                                if (childBody->m_multiBody)
+                                {
+                                    btMultiBodyFixedConstraint* multibodyFixed = new btMultiBodyFixedConstraint(parentBody->m_multiBody,clientCmd.m_createJointArguments.m_parentJointIndex,childBody->m_multiBody,clientCmd.m_createJointArguments.m_childJointIndex,pivotInParent,pivotInChild,frameInParent,frameInChild);
+                                    multibodyFixed->setMaxAppliedImpulse(2.0);
+                                    m_data->m_dynamicsWorld->addMultiBodyConstraint(multibodyFixed);
+                                }
+                                else
+                                {
+                                    btMultiBodyFixedConstraint* rigidbodyFixed = new btMultiBodyFixedConstraint(parentBody->m_multiBody,clientCmd.m_createJointArguments.m_parentJointIndex,childBody->m_rigidBody,pivotInParent,pivotInChild,frameInParent,frameInChild);
+                                    rigidbodyFixed->setMaxAppliedImpulse(2.0);
+                                    btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_data->m_dynamicsWorld;
+                                    world->addMultiBodyConstraint(rigidbodyFixed);
+                                }
                             }
-                            else
+                            else if (clientCmd.m_createJointArguments.m_jointType == btMultibodyLink::ePrismatic)
                             {
-                                btMultiBodyFixedConstraint* rigidbodyFixed = new btMultiBodyFixedConstraint(parentBody->m_multiBody,clientCmd.m_createJointArguments.m_parentJointIndex,childBody->m_rigidBody,pivotInParent,pivotInChild,frameInParent,frameInChild);
-                                rigidbodyFixed->setMaxAppliedImpulse(2.0);
-                                btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_data->m_dynamicsWorld;
-                                world->addMultiBodyConstraint(rigidbodyFixed);
+                                if (childBody->m_multiBody)
+                                {
+                                    btMultiBodySliderConstraint* multibodySlider = new btMultiBodySliderConstraint(parentBody->m_multiBody,clientCmd.m_createJointArguments.m_parentJointIndex,childBody->m_multiBody,clientCmd.m_createJointArguments.m_childJointIndex,pivotInParent,pivotInChild,frameInParent,frameInChild,jointAxis);
+                                    multibodySlider->setMaxAppliedImpulse(2.0);
+                                    m_data->m_dynamicsWorld->addMultiBodyConstraint(multibodySlider);
+                                }
+                                else
+                                {
+                                    btMultiBodySliderConstraint* rigidbodySlider = new btMultiBodySliderConstraint(parentBody->m_multiBody,clientCmd.m_createJointArguments.m_parentJointIndex,childBody->m_rigidBody,pivotInParent,pivotInChild,frameInParent,frameInChild,jointAxis);
+                                    rigidbodySlider->setMaxAppliedImpulse(2.0);
+                                    btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_data->m_dynamicsWorld;
+                                    world->addMultiBodyConstraint(rigidbodySlider);
+                                }
                             }
                         }
                     }

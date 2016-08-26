@@ -375,6 +375,7 @@ struct CreateJointArgs
     double m_parentFrame[7];
     double m_childFrame[7];
     double m_jointAxis[3];
+    int m_jointType;
 };
 
 struct SharedMemoryCommand

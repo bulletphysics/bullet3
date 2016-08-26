@@ -21,7 +21,7 @@ subject to the following restrictions:
 #include "BulletDynamics/ConstraintSolver/btGeneric6DofSpring2Constraint.h"
 #include "LinearMath/btIDebugDraw.h"
 
-#define BTMBSLIDERCONSTRAINT_DIM 6
+#define BTMBSLIDERCONSTRAINT_DIM 5
 #define EPSILON 0.000001
 
 btMultiBodySliderConstraint::btMultiBodySliderConstraint(btMultiBody* body, int link, btRigidBody* bodyB, const btVector3& pivotInA, const btVector3& pivotInB, const btMatrix3x3& frameInA, const btMatrix3x3& frameInB, const btVector3& jointAxis)
