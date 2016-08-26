@@ -87,12 +87,16 @@ public:
 	int getNumJoints(int bodyUniqueId) const;
 
 	bool getJointInfo(int bodyUniqueId, int jointIndex, b3JointInfo* jointInfo);
+    
+    void createJoint(int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, b3JointInfo* jointInfo);
 
 	void setJointMotorControl(int bodyUniqueId, int jointIndex, const struct b3JointMotorArgs& args);
 
 	void stepSimulation();
 
 	void setGravity(const b3Vector3& gravityAcceleration);
+    
+    void setNumSimulationSubSteps(int numSubSteps);
 
 	void renderScene();
 	void debugDraw(int debugDrawMode);

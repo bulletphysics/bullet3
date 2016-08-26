@@ -87,7 +87,7 @@ public:
 				args.m_fileName = "cube_small.urdf";
 				args.m_startPosition.setValue(0, 0, .107);
 				args.m_startOrientation.setEulerZYX(0, 0, 0);
-				args.m_useMultiBody = true;
+				args.m_useMultiBody = false;
 				m_robotSim.loadFile(args, results);
 			}
 
@@ -152,7 +152,7 @@ public:
                 
             }
             m_robotSim.setGravity(b3MakeVector3(0,0,-10));
-            
+            m_robotSim.setNumSimulationSubSteps(4);
         }
 
 	
