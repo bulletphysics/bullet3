@@ -8,13 +8,13 @@
 #include "../../LinearMath/btMatrix3x3.h"
 #include "../../LinearMath/btVector3.h"
 #include "../../LinearMath/btMatrixX.h"
+#define BT_ID_HAVE_MAT3X
 
 namespace btInverseDynamics {
 class vec3;
 class vecx;
 class mat33;
 typedef btMatrixX<idScalar> matxx;
-typedef btVectorX<idScalar> vecxx;
 
 class vec3 : public btVector3 {
 public:
@@ -47,11 +47,11 @@ inline mat33 operator/(const mat33& a, const idScalar& s) { return a * (1.0 / s)
 
 inline mat33 operator*(const idScalar& s, const mat33& a) { return a * s; }
 
-class vecx : public vecxx {
+class vecx : public btVectorX<idScalar> {
 public:
-	vecx(int size) : vecxx(size) {}
-	const vecx& operator=(const vecxx& rhs) {
-		*static_cast<vecxx*>(this) = rhs;
+	vecx(int size) : btVectorX(size) {}
+	const vecx& operator=(const btVectorX<idScalar>& rhs) {
+		*static_cast<btVectorX*>(this) = rhs;
 		return *this;
 	}
 
@@ -108,6 +108,65 @@ inline vecx operator/(const vecx& a, const idScalar& s) {
 
 	return result;
 }
+
+// use btMatrixX to implement 3xX matrix
+class mat3x : public matxx {
+public:
+    mat3x(){}
+    mat3x(const mat3x&rhs) {
+        matxx::resize(rhs.rows(), rhs.cols());
+        *this = rhs;
+    }
+    mat3x(int rows, int cols): matxx(3,cols) {
+    }
+    void operator=(const mat3x& rhs) {
+	if (m_cols != rhs.m_cols) {
+            error_message("size missmatch, cols= %d but rhs.cols= %d\n", cols(), rhs.cols());
+            abort();
+	}
+        for(int i=0;i<rows();i++) {
+            for(int k=0;k<cols();k++) {
+                setElem(i,k,rhs(i,k));
+            }
+        }
+    }
+    void setZero() {
+        matxx::setZero();
+    }
+};
+
+
+inline vec3 operator*(const mat3x& a, const vecx& b) {
+    vec3 result;
+    if (a.cols() != b.size()) {
+        error_message("size missmatch. a.cols()= %d, b.size()= %d\n", a.cols(), b.size());
+        abort();
+    }
+    result(0)=0.0;
+    result(1)=0.0;
+    result(2)=0.0;
+    for(int i=0;i<b.size();i++) {
+        for(int k=0;k<3;k++) {
+            result(k)+=a(k,i)*b(i);
+        }
+    }
+    return result;
+}
+
+
+inline void resize(mat3x &m, idArrayIdx size) {
+    m.resize(3, size);
+    m.setZero();
+}
+
+inline void setMatxxElem(const idArrayIdx row, const idArrayIdx col, const idScalar val, matxx*m){
+    m->setElem(row, col, val);
+}
+
+inline void setMat3xElem(const idArrayIdx row, const idArrayIdx col, const idScalar val, mat3x*m){
+    m->setElem(row, col, val);
+}
+
 }
 
 #endif  // IDLINEARMATHINTERFACE_HPP_

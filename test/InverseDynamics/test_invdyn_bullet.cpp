@@ -16,12 +16,12 @@
 #include <BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h>
 #include <BulletDynamics/Featherstone/btMultiBodyPoint2Point.h>
 #include <BulletDynamics/Featherstone/btMultiBodyLinkCollider.h>
-#include <../CommonInterfaces/CommonGUIHelperInterface.h>
 #include <gtest/gtest.h>
-#include <../Importers/ImportURDFDemo/BulletUrdfImporter.h>
-#include <../Importers/ImportURDFDemo/URDF2Bullet.h>
-#include <../Importers/ImportURDFDemo/MyMultiBodyCreator.h>
-#include <../Importers/ImportURDFDemo/URDF2Bullet.h>
+#include "../../examples/CommonInterfaces/CommonGUIHelperInterface.h"
+#include "../../examples/Importers/ImportURDFDemo/BulletUrdfImporter.h"
+#include "../../examples/Importers/ImportURDFDemo/URDF2Bullet.h"
+#include "../../examples/Importers/ImportURDFDemo/MyMultiBodyCreator.h"
+#include "../../examples/Importers/ImportURDFDemo/URDF2Bullet.h"
 #include "../../examples/Utils/b3ResourcePath.h"
 #include <invdyn_bullet_comparison.hpp>
 #include <btMultiBodyFromURDF.hpp>
