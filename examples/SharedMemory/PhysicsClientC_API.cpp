@@ -759,6 +759,7 @@ b3SharedMemoryCommandHandle b3CreateJoint(b3PhysicsClientHandle physClient, int 
     for (int i = 0; i < 3; ++i) {
         command->m_createJointArguments.m_jointAxis[i] = info->m_jointAxis[i];
     }
+    command->m_createJointArguments.m_jointType = info->m_jointType;
     return (b3SharedMemoryCommandHandle)command;
 }
 
