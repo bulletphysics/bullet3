@@ -5,12 +5,14 @@
 #include <cstdlib>
 
 #include "../IDConfig.hpp"
+#define BT_ID_HAVE_MAT3X
 
 namespace btInverseDynamics {
 class vec3;
 class vecx;
 class mat33;
 class matxx;
+class mat3x;
 
 /// This is a very basic implementation to enable stand-alone use of the library.
 /// The implementation is not really optimized and misses many features that you would
@@ -85,13 +87,17 @@ private:
 
 class matxx {
 public:
+    matxx() {
+        m_data = 0x0;
+        m_cols=0;
+        m_rows=0;
+    }
 	matxx(int rows, int cols) : m_rows(rows), m_cols(cols) {
 		m_data = static_cast<idScalar*>(idMalloc(sizeof(idScalar) * rows * cols));
 	}
 	~matxx() { idFree(m_data); }
-	const matxx& operator=(const matxx& rhs);
-	idScalar& operator()(int row, int col) { return m_data[row * m_rows + col]; }
-	const idScalar& operator()(int row, int col) const { return m_data[row * m_rows + col]; }
+	idScalar& operator()(int row, int col) { return m_data[row * m_cols + col]; }
+	const idScalar& operator()(int row, int col) const { return m_data[row * m_cols + col]; }
 	const int& rows() const { return m_rows; }
 	const int& cols() const { return m_cols; }
 
@@ -101,6 +107,61 @@ private:
 	idScalar* m_data;
 };
 
+class mat3x {
+public:
+    mat3x() {
+        m_data = 0x0;
+        m_cols=0;
+    }
+    mat3x(const mat3x&rhs) {
+        m_cols=rhs.m_cols;
+        allocate();
+        *this = rhs;
+    }
+    mat3x(int rows, int cols): m_cols(cols) {
+        allocate();
+    };
+    void operator=(const mat3x& rhs) {
+	if (m_cols != rhs.m_cols) {
+            error_message("size missmatch, cols= %d but rhs.cols= %d\n", cols(), rhs.cols());
+            abort();
+	}
+        for(int i=0;i<3*m_cols;i++) {
+            m_data[i] = rhs.m_data[i];
+        }
+    }
+
+    ~mat3x() {
+        free();
+    }
+    idScalar& operator()(int row, int col) { return m_data[row * m_cols + col]; }
+    const idScalar& operator()(int row, int col) const { return m_data[row * m_cols + col]; }
+    int rows() const { return m_rows; }
+    const int& cols() const { return m_cols; }
+    void resize(int rows, int cols) {
+        m_cols=cols;
+        free();
+        allocate();
+    }
+    void setZero() {
+        memset(m_data,0x0,sizeof(idScalar)*m_rows*m_cols);
+    }
+    // avoid operators that would allocate -- use functions sub/add/mul in IDMath.hpp instead
+private:
+    void allocate(){m_data = static_cast<idScalar*>(idMalloc(sizeof(idScalar) * m_rows * m_cols));}
+    void free() { idFree(m_data);}
+    enum {m_rows=3};
+    int m_cols;
+    idScalar* m_data;
+};
+
+inline void resize(mat3x &m, idArrayIdx size) {
+    m.resize(3, size);
+    m.setZero();
+}
+
+//////////////////////////////////////////////////
+// Implementations
 inline const vec3& vec3::operator=(const vec3& rhs) {
 	if (&rhs != this) {
 		memcpy(m_data, rhs.m_data, 3 * sizeof(idScalar));
@@ -324,5 +385,31 @@ inline vecx operator/(const vecx& a, const idScalar& s) {
 
 	return result;
 }
+
+inline vec3 operator*(const mat3x& a, const vecx& b) {
+    vec3 result;
+    if (a.cols() != b.size()) {
+        error_message("size missmatch. a.cols()= %d, b.size()= %d\n", a.cols(), b.size());
+        abort();
+    }
+    result(0)=0.0;
+    result(1)=0.0;
+    result(2)=0.0;
+    for(int i=0;i<b.size();i++) {
+        for(int k=0;k<3;k++) {
+            result(k)+=a(k,i)*b(i);
+        }
+    }
+    return result;
 }
+
+inline void setMatxxElem(const idArrayIdx row, const idArrayIdx col, const idScalar val, matxx*m){
+    (*m)(row, col) = val;
+}
+
+inline void setMat3xElem(const idArrayIdx row, const idArrayIdx col, const idScalar val, mat3x*m){
+    (*m)(row, col) = val;
+}
+
+} // namespace btInverseDynamcis
 #endif
