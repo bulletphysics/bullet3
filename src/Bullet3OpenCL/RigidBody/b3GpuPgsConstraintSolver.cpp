@@ -1071,7 +1071,7 @@ b3Scalar b3GpuPgsConstraintSolver::solveGroupCacheFriendlyFinish(b3OpenCLArray<b
 						int orgConstraintIndex = m_gpuData->m_cpuConstraintRows[rowIndex].m_originalConstraintIndex;
 						float breakingThreshold = m_gpuData->m_cpuConstraints[orgConstraintIndex].m_breakingImpulseThreshold;
 					//	printf("rows[%d].m_appliedImpulse=%f\n",rowIndex,rows[rowIndex].m_appliedImpulse);
-						if (b3Fabs((m_gpuData->m_cpuConstraintRows[rowIndex].m_appliedImpulse) >= breakingThreshold))
+						if (b3Fabs(m_gpuData->m_cpuConstraintRows[rowIndex].m_appliedImpulse) >= breakingThreshold)
 						{
 
 							m_gpuData->m_cpuConstraints[orgConstraintIndex].m_flags =0;//&= ~B3_CONSTRAINT_FLAG_ENABLED;
