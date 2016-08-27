@@ -1,7 +1,7 @@
 
 #include "ImportURDFSetup.h"
 #include "BulletDynamics/ConstraintSolver/btGeneric6DofSpring2Constraint.h"
-
+//#define TEST_MULTIBODY_SERIALIZATION 1
 
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "Bullet3Common/b3FileUtils.h"
@@ -376,6 +376,7 @@ void ImportUrdfSetup::initPhysics()
 
 		
 	}
+
 
 #ifdef TEST_MULTIBODY_SERIALIZATION
 	m_dynamicsWorld->serialize(s);

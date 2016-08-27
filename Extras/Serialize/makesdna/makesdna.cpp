@@ -70,22 +70,17 @@ typedef unsigned __int32 uint32_t;
 typedef unsigned __int64 uint64_t;
 
 #ifndef _INTPTR_T_DEFINED
-#ifdef _WIN64
-typedef __int64 intptr_t;
+	#ifdef _WIN64
+	typedef __int64 btintptr_t;
+	#else
+	typedef long btintptr_t;
+	#endif
+	
 #else
-typedef long intptr_t;
-#endif
-#define _INTPTR_T_DEFINED
+	typedef intptr_t btintptr_t;
 #endif
 
-#ifndef _UINTPTR_T_DEFINED
-#ifdef _WIN64
-typedef unsigned __int64 uintptr_t;
-#else
-typedef unsigned long uintptr_t;
-#endif
-#define _UINTPTR_T_DEFINED
-#endif
+
 
 #elif defined(__linux__) || defined(__NetBSD__)
 
@@ -1070,7 +1065,7 @@ int make_structDNA(char *baseDirectory, FILE *file)
 		/* calculate size of datablock with strings */
 		cp= names[nr_names-1];
 		cp+= strlen(names[nr_names-1]) + 1;			/* +1: null-terminator */
-		len= (intptr_t) (cp - (char*) names[0]);
+		len= (btintptr_t) (cp - (char*) names[0]);
 		len= (len+3) & ~3;
 		dna_write(file, names[0], len);
 		
@@ -1083,7 +1078,7 @@ int make_structDNA(char *baseDirectory, FILE *file)
 		/* calculate datablock size */
 		cp= types[nr_types-1];
 		cp+= strlen(types[nr_types-1]) + 1;		/* +1: null-terminator */
-		len= (intptr_t) (cp - (char*) types[0]);
+		len= (btintptr_t) (cp - (char*) types[0]);
 		len= (len+3) & ~3;
 		
 		dna_write(file, types[0], len);
@@ -1105,7 +1100,7 @@ int make_structDNA(char *baseDirectory, FILE *file)
 		/* calc datablock size */
 		sp= structs[nr_structs-1];
 		sp+= 2+ 2*( sp[1] );
-		len= (intptr_t) ((char*) sp - (char*) structs[0]);
+		len= (btintptr_t) ((char*) sp - (char*) structs[0]);
 		len= (len+3) & ~3;
 		
 		dna_write(file, structs[0], len);
