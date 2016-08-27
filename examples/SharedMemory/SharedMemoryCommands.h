@@ -366,6 +366,18 @@ struct CalculateInverseDynamicsResultArgs
 	double m_jointForces[MAX_DEGREE_OF_FREEDOM];
 };
 
+struct CreateJointArgs
+{
+    int m_parentBodyIndex;
+    int m_parentJointIndex;
+    int m_childBodyIndex;
+    int m_childJointIndex;
+    double m_parentFrame[7];
+    double m_childFrame[7];
+    double m_jointAxis[3];
+    int m_jointType;
+};
+
 struct SharedMemoryCommand
 {
 	int m_type;
@@ -393,6 +405,7 @@ struct SharedMemoryCommand
 		struct PickBodyArgs m_pickBodyArguments;
         struct ExternalForceArgs m_externalForceArguments;
 		struct CalculateInverseDynamicsArgs m_calculateInverseDynamicsArguments;
+        struct CreateJointArgs m_createJointArguments;
     };
 };
 

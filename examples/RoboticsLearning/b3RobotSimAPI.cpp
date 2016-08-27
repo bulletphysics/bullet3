@@ -460,6 +460,15 @@ void b3RobotSimAPI::setGravity(const b3Vector3& gravityAcceleration)
 
 }
 
+void b3RobotSimAPI::setNumSimulationSubSteps(int numSubSteps)
+{
+    b3SharedMemoryCommandHandle command = b3InitPhysicsParamCommand(m_data->m_physicsClient);
+    b3SharedMemoryStatusHandle statusHandle;
+    b3PhysicsParamSetNumSubSteps(command, numSubSteps);
+    statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClient, command);
+    b3Assert(b3GetStatusType(statusHandle)==CMD_CLIENT_COMMAND_COMPLETED);
+}
+
 b3RobotSimAPI::~b3RobotSimAPI()
 {
 	delete m_data;
@@ -594,6 +603,16 @@ int b3RobotSimAPI::getNumJoints(int bodyUniqueId) const
 bool b3RobotSimAPI::getJointInfo(int bodyUniqueId, int jointIndex, b3JointInfo* jointInfo)
 {
 	return (b3GetJointInfo(m_data->m_physicsClient,bodyUniqueId, jointIndex,jointInfo)!=0);
+}
+
+void b3RobotSimAPI::createJoint(int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, b3JointInfo* jointInfo)
+{
+    b3SharedMemoryStatusHandle statusHandle;
+    b3Assert(b3CanSubmitCommand(m_data->m_physicsClient));
+    if (b3CanSubmitCommand(m_data->m_physicsClient))
+    {
+        statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClient, b3CreateJoint(m_data->m_physicsClient, parentBodyIndex, parentJointIndex, childBodyIndex, childJointIndex, jointInfo));
+    }
 }
 
 void b3RobotSimAPI::setJointMotorControl(int bodyUniqueId, int jointIndex, const b3JointMotorArgs& args)

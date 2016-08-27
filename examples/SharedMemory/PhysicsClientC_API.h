@@ -58,6 +58,8 @@ int	b3GetNumJoints(b3PhysicsClientHandle physClient, int bodyIndex);
 
 ///given a body and joint index, return the joint information. See b3JointInfo in SharedMemoryPublic.h
 int	b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyIndex, int jointIndex, struct b3JointInfo* info);
+    
+b3SharedMemoryCommandHandle b3CreateJoint(b3PhysicsClientHandle physClient, int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, struct b3JointInfo* info);
 
 ///Request debug lines for debug visualization. The flags in debugMode are the same as used in Bullet
 ///See btIDebugDraw::DebugDrawModes in Bullet/src/LinearMath/btIDebugDraw.h
@@ -82,6 +84,7 @@ void b3GetCameraImageData(b3PhysicsClientHandle physClient, struct b3CameraImage
 b3SharedMemoryCommandHandle	b3InitPhysicsParamCommand(b3PhysicsClientHandle physClient);
 int	b3PhysicsParamSetGravity(b3SharedMemoryCommandHandle commandHandle, double gravx,double gravy, double gravz);
 int	b3PhysicsParamSetTimeStep(b3SharedMemoryCommandHandle commandHandle, double timeStep);
+int	b3PhysicsParamSetNumSubSteps(b3SharedMemoryCommandHandle commandHandle, int numSubSteps);
 int b3PhysicsParamSetRealTimeSimulation(b3SharedMemoryCommandHandle commandHandle, int enableRealTimeSimulation);
 
 b3SharedMemoryCommandHandle	b3InitStepSimulationCommand(b3PhysicsClientHandle physClient);
