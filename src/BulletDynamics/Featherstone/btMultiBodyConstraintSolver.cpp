@@ -408,7 +408,9 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 		{
 			if (rb0)
 			{
-				rel_vel += rb0->getVelocityInLocalPoint(rel_pos1).dot(solverConstraint.m_contactNormal1);
+				rel_vel += (rb0->getVelocityInLocalPoint(rel_pos1) + 
+							(rb0->getTotalTorque()*rb0->getInvInertiaTensorWorld()*infoGlobal.m_timeStep).cross(rel_pos1)+
+							rb0->getTotalForce()*rb0->getInvMass()*infoGlobal.m_timeStep).dot(solverConstraint.m_contactNormal1);
 			}
 		}
 		if (multiBodyB)
@@ -422,7 +424,9 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 		{
 			if (rb1)
 			{
-				rel_vel += rb1->getVelocityInLocalPoint(rel_pos2).dot(solverConstraint.m_contactNormal2);
+				rel_vel += (rb1->getVelocityInLocalPoint(rel_pos2)+
+					(rb1->getTotalTorque()*rb1->getInvInertiaTensorWorld()*infoGlobal.m_timeStep).cross(rel_pos2) +
+					rb1->getTotalForce()*rb1->getInvMass()*infoGlobal.m_timeStep).dot(solverConstraint.m_contactNormal2);
 			}
 		}
 
