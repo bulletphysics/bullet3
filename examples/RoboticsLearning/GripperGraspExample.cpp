@@ -152,7 +152,7 @@ public:
                 
             }
             m_robotSim.setGravity(b3MakeVector3(0,0,-10));
-            m_robotSim.setNumSimulationSubSteps(4);
+            //m_robotSim.setNumSimulationSubSteps(4);
         }
 
 	

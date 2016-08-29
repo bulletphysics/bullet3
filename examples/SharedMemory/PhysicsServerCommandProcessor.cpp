@@ -517,6 +517,7 @@ PhysicsServerCommandProcessor::PhysicsServerCommandProcessor()
 	m_data = new PhysicsServerCommandProcessorInternalData();
 
 	createEmptyDynamicsWorld();
+	m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop = 0.0001;
 	
 }
 
