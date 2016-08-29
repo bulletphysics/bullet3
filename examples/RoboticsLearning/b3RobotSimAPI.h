@@ -32,6 +32,7 @@ struct b3RobotSimLoadFileArgs
 		m_startPosition(b3MakeVector3(0,0,0)),
 		m_startOrientation(b3Quaternion(0,0,0,1)),
 		m_forceOverrideFixedBase(false),
+        m_useMultiBody(true),
 		m_fileType(B3_URDF_FILE)
 	{
 	}
