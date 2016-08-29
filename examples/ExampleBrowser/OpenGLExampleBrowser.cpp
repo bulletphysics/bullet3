@@ -893,7 +893,6 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 		GL3TexLoader* myTexLoader = new GL3TexLoader;
 		m_internalData->m_myTexLoader = myTexLoader;
 
-		sth_stash* fontstash = simpleApp->getFontStash();
 		
 		if (sUseOpenGL2)
 		{
