@@ -496,6 +496,8 @@ public:
 
 	virtual void	removeCollisionObject(btCollisionObject* collisionObject);
 
+	// Do every collision detections for the current btCollisionWorld
+	// This is mostly called before a btCollisionDispatcher::getNumManifolds()
 	virtual void	performDiscreteCollisionDetection();
 
 	btDispatcherInfo& getDispatchInfo()
