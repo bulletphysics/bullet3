@@ -65,6 +65,7 @@ public:
 	bool connected = m_robotSim.connect(m_guiHelper);
 	b3Printf("robotSim connected = %d",connected);
 	
+        if ((m_options & eGRIPPER_GRASP)!=0)
         {
             
             {
@@ -87,7 +88,7 @@ public:
 				args.m_fileName = "cube_small.urdf";
 				args.m_startPosition.setValue(0, 0, .107);
 				args.m_startOrientation.setEulerZYX(0, 0, 0);
-				args.m_useMultiBody = false;
+				args.m_useMultiBody = true;
 				m_robotSim.loadFile(args, results);
 			}
 
@@ -152,10 +153,70 @@ public:
                 
             }
             m_robotSim.setGravity(b3MakeVector3(0,0,-10));
-            m_robotSim.setNumSimulationSubSteps(4);
+            //m_robotSim.setNumSimulationSubSteps(4);
         }
 
-	
+        if ((m_options & eTWO_POINT_GRASP)!=0)
+        {
+            {
+                b3RobotSimLoadFileArgs args("");
+                b3RobotSimLoadFileResults results;
+                args.m_fileName = "cube_small.urdf";
+                args.m_startPosition.setValue(0, 0, .107);
+                args.m_startOrientation.setEulerZYX(0, 0, 0);
+                args.m_useMultiBody = true;
+                m_robotSim.loadFile(args, results);
+            }
+            
+            {
+                b3RobotSimLoadFileArgs args("");
+                b3RobotSimLoadFileResults results;
+                args.m_fileName = "cube_gripper_left.urdf";
+                //args.m_startPosition.setValue(0.0675, 0.02, 0.13);
+                args.m_startPosition.setValue(0.068, 0.02, 0.11);
+                //args.m_startOrientation.setEulerZYX(0, 0.785398, 0.785398);
+                args.m_useMultiBody = true;
+                m_robotSim.loadFile(args, results);
+                
+                b3JointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
+                controlArgs.m_targetVelocity = -0.5;
+                controlArgs.m_maxTorqueValue = 50.0;
+                controlArgs.m_kd = 1.;
+                m_robotSim.setJointMotorControl(1,0,controlArgs);
+            }
+            
+            {
+                b3RobotSimLoadFileArgs args("");
+                b3RobotSimLoadFileResults results;
+                args.m_fileName = "cube_gripper_right.urdf";
+                //args.m_startPosition.setValue(-0.0675, 0.02, 0.13);
+                args.m_startPosition.setValue(-0.068, 0.02, 0.11);
+                //args.m_startOrientation.setEulerZYX(0, -0.785398, -0.785398);
+                args.m_useMultiBody = true;
+                m_robotSim.loadFile(args, results);
+                
+                b3JointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
+                controlArgs.m_targetVelocity = 0.5;
+                controlArgs.m_maxTorqueValue = 50.0;
+                controlArgs.m_kd = 1.;
+                m_robotSim.setJointMotorControl(2,0,controlArgs);
+            }
+            
+            if (1)
+            {
+                b3RobotSimLoadFileArgs args("");
+                args.m_fileName = "plane.urdf";
+                args.m_startPosition.setValue(0,0,0);
+                args.m_startOrientation.setEulerZYX(0,0,0);
+                args.m_forceOverrideFixedBase = true;
+                args.m_useMultiBody = true;
+                b3RobotSimLoadFileResults results;
+                m_robotSim.loadFile(args,results);
+                
+            }
+            m_robotSim.setGravity(b3MakeVector3(0,0,-10));
+            m_robotSim.setNumSimulationSubSteps(4);
+        }
 		
     }
     virtual void    exitPhysics()
@@ -164,22 +225,26 @@ public:
     }
     virtual void	stepSimulation(float deltaTime)
 	{
-        if ((m_gripperIndex>=0))
+        if ((m_options & eGRIPPER_GRASP)!=0)
         {
-            int fingerJointIndices[3]={0,1,3};
-            double fingerTargetVelocities[3]={sGripperVerticalVelocity,sGripperClosingTargetVelocity
-                ,-sGripperClosingTargetVelocity
-            };
-            double maxTorqueValues[3]={40.0,50.0,50.0};
-            for (int i=0;i<3;i++)
+            if ((m_gripperIndex>=0))
             {
-                b3JointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
-                controlArgs.m_targetVelocity = fingerTargetVelocities[i];
-                controlArgs.m_maxTorqueValue = maxTorqueValues[i];
-                controlArgs.m_kd = 1.;
-                m_robotSim.setJointMotorControl(m_gripperIndex,fingerJointIndices[i],controlArgs);
+                int fingerJointIndices[3]={0,1,3};
+                double fingerTargetVelocities[3]={sGripperVerticalVelocity,sGripperClosingTargetVelocity
+                    ,-sGripperClosingTargetVelocity
+                };
+                double maxTorqueValues[3]={40.0,50.0,50.0};
+                for (int i=0;i<3;i++)
+                {
+                    b3JointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
+                    controlArgs.m_targetVelocity = fingerTargetVelocities[i];
+                    controlArgs.m_maxTorqueValue = maxTorqueValues[i];
+                    controlArgs.m_kd = 1.;
+                    m_robotSim.setJointMotorControl(m_gripperIndex,fingerJointIndices[i],controlArgs);
+                }
             }
         }
+        
 		m_robotSim.stepSimulation();
     }
     virtual void	renderScene()

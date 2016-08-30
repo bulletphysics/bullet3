@@ -16,6 +16,11 @@ subject to the following restrictions:
 #ifndef GRIPPER_GRASP_EXAMPLE_H
 #define GRIPPER_GRASP_EXAMPLE_H
 
+enum GripperGraspExampleOptions
+{
+    eGRIPPER_GRASP=1,
+    eTWO_POINT_GRASP=2,
+};
 
 class CommonExampleInterface*    GripperGraspExampleCreateFunc(struct CommonExampleOptions& options);
 
