@@ -30,7 +30,12 @@
 
 #if defined(WIN32) || defined(_WIN32)
 
+#ifdef BT_CXX11_ENABLED
+#undef BT_USE_WINDOWS_TIMERS
+#else
 #define BT_USE_WINDOWS_TIMERS
+#endif // BT_CXX11_ENABLED
+
 #define WIN32_LEAN_AND_MEAN
 #define NOWINRES
 #define NOMCX
@@ -47,12 +52,18 @@
 
 #endif //_XBOX
 
+#ifndef BT_CXX11_ENABLED
 #include <time.h>
+#endif //BT_CXX11_ENABLED
 
 
 #else //_WIN32
 #include <sys/time.h>
 #endif //_WIN32
+
+#ifdef BT_CXX11_ENABLED
+#include <chrono>
+#endif // BT_CXX11_ENABLED
 
 #define mymin(a,b) (a > b ? a : b)
 
@@ -64,6 +75,8 @@ struct btClockData
 	LONGLONG mStartTick;
 	LONGLONG mPrevElapsedTime;
 	LARGE_INTEGER mStartTime;
+#elif defined(BT_CXX11_ENABLED)
+	std::chrono::time_point<std::chrono::steady_clock> mStartTime;
 #else
 #ifdef __CELLOS_LV2__
 	uint64_t	mStartTime;
@@ -109,6 +122,8 @@ void btClock::reset()
 	QueryPerformanceCounter(&m_data->mStartTime);
 	m_data->mStartTick = GetTickCount64();
 	m_data->mPrevElapsedTime = 0;
+#elif defined(BT_CXX11_ENABLED)
+	m_data->mStartTime = std::chrono::steady_clock::now();
 #else
 #ifdef __CELLOS_LV2__
 
@@ -122,6 +137,13 @@ void btClock::reset()
 #endif
 #endif
 }
+
+/* NOTE: C++11 allows other measures when possible and necessary:
+ * return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - m_data->mStartTime).count();
+ * Very unlikely:
+ * return std::chrono::duration_cast<std::chrono::minutes>(std::chrono::steady_clock::now() - m_data->mStartTime).count();
+ * return std::chrono::duration_cast<std::chrono::hours>(std::chrono::steady_clock::now() - m_data->mStartTime).count();
+*/
 
 /// Returns the time in ms since the last call to reset or since
 /// the btClock was created.
@@ -158,6 +180,8 @@ unsigned long int btClock::getTimeMilliseconds()
 		m_data->mPrevElapsedTime = elapsedTime;
 
 		return msecTicks;
+#elif defined(BT_CXX11_ENABLED)
+	return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - m_data->mStartTime).count();
 #else
 
 #ifdef __CELLOS_LV2__
@@ -216,6 +240,8 @@ unsigned long int btClock::getTimeMicroseconds()
 			m_data->mClockFrequency.QuadPart);
 
 		return usecTicks;
+#elif defined(BT_CXX11_ENABLED)
+	return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - m_data->mStartTime).count();
 #else
 
 #ifdef __CELLOS_LV2__
@@ -243,8 +269,12 @@ unsigned long int btClock::getTimeMicroseconds()
 /// the Clock was created.
 btScalar btClock::getTimeSeconds()
 {
+#ifdef BT_CXX11_ENABLED
+	return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - m_data->mStartTime).count();
+#else
 	static const btScalar microseconds_to_seconds = btScalar(0.000001);
 	return btScalar(getTimeMicroseconds()) * microseconds_to_seconds;
+#endif // BT_CXX11_ENABLED
 }
 
 #ifndef BT_NO_PROFILE
