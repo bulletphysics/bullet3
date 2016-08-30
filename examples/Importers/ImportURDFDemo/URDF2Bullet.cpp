@@ -1,4 +1,3 @@
-#include "URDFImporterInterface.h"
 #include <stdio.h>
 #include "LinearMath/btTransform.h"
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
@@ -7,6 +6,7 @@
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointLimitConstraint.h"
 #include "BulletDynamics/ConstraintSolver/btGeneric6DofSpring2Constraint.h"
+#include "URDF2Bullet.h"
 #include "URDFImporterInterface.h"
 #include "MultiBodyCreationInterface.h"
 #include <string>
@@ -143,7 +143,12 @@ void InitURDF2BulletCache(const URDFImporterInterface& u2b, URDF2BulletCachedDat
 
 }
 
-void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreationInterface& creation, URDF2BulletCachedData& cache, int urdfLinkIndex, const btTransform& parentTransformInWorldSpace, btMultiBodyDynamicsWorld* world1,bool createMultiBody, const char* pathPrefix, bool useSDF = false)
+void ConvertURDF2BulletInternal(
+    const URDFImporterInterface& u2b, MultiBodyCreationInterface& creation,
+    URDF2BulletCachedData& cache, int urdfLinkIndex,
+    const btTransform& parentTransformInWorldSpace, btMultiBodyDynamicsWorld* world1,
+    bool createMultiBody, const char* pathPrefix,
+    int flags = 0)
 {
     //b3Printf("start converting/extracting data from URDF interface\n");
 
@@ -200,7 +205,7 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
 
 
     bool hasParentJoint = u2b.getJointInfo(urdfLinkIndex, parent2joint, linkTransformInWorldSpace, jointAxisInJointSpace, jointType,jointLowerLimit,jointUpperLimit, jointDamping, jointFriction);
-    if (useSDF)
+    if (flags & CUF_USE_SDF)
     {
         parent2joint =parentTransformInWorldSpace.inverse()*linkTransformInWorldSpace;
     }
@@ -231,7 +236,10 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
          */
         if (mass)
         {
-        	compoundShape->calculateLocalInertia(mass, localInertiaDiagonal);
+            if (!(flags & CUF_USE_URDF_INERTIA))
+            {
+                compoundShape->calculateLocalInertia(mass, localInertiaDiagonal);
+            }
             URDFLinkContactInfo contactInfo;
             u2b.getLinkContactInfo(urdfLinkIndex,contactInfo);
             //temporary inertia scaling until we load inertia from URDF
@@ -436,18 +444,22 @@ void ConvertURDF2BulletInternal(const URDFImporterInterface& u2b, MultiBodyCreat
     {
         int urdfChildLinkIndex = urdfChildIndices[i];
 
-        ConvertURDF2BulletInternal(u2b,creation, cache,urdfChildLinkIndex,linkTransformInWorldSpace,world1,createMultiBody,pathPrefix,useSDF);
+        ConvertURDF2BulletInternal(u2b,creation, cache,urdfChildLinkIndex,linkTransformInWorldSpace,world1,createMultiBody,pathPrefix,flags);
     }
 
 }
 
-void ConvertURDF2Bullet(const URDFImporterInterface& u2b, MultiBodyCreationInterface& creation, const btTransform& rootTransformInWorldSpace, btMultiBodyDynamicsWorld* world1,bool createMultiBody, const char* pathPrefix, bool useSDF = false)
+void ConvertURDF2Bullet(
+    const URDFImporterInterface& u2b, MultiBodyCreationInterface& creation,
+    const btTransform& rootTransformInWorldSpace,
+    btMultiBodyDynamicsWorld* world1,
+    bool createMultiBody, const char* pathPrefix, int flags)
 {
     URDF2BulletCachedData cache;
 
     InitURDF2BulletCache(u2b,cache);
     int urdfLinkIndex = u2b.getRootLinkIndex();
-    ConvertURDF2BulletInternal(u2b, creation, cache, urdfLinkIndex,rootTransformInWorldSpace,world1,createMultiBody,pathPrefix,useSDF);
+    ConvertURDF2BulletInternal(u2b, creation, cache, urdfLinkIndex,rootTransformInWorldSpace,world1,createMultiBody,pathPrefix,flags);
 
 	if (world1 && cache.m_bulletMultiBody)
 	{
