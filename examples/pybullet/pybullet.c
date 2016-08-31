@@ -617,14 +617,16 @@ static int pybullet_internalGetBasePositionAndOrientation(int bodyIndex, double 
                     b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
 
             const int status_type = b3GetStatusType(status_handle);
+			const double* actualStateQ;
+            // const double* jointReactionForces[];
+            int i;
+
 			if (status_type != CMD_ACTUAL_STATE_UPDATE_COMPLETED)
 			{
 				PyErr_SetString(SpamError, "getBasePositionAndOrientation failed.");
 				return 0;
 			}
-            const double* actualStateQ;
-            // const double* jointReactionForces[];
-            int i;
+            
             b3GetStatusActualState(status_handle, 0/* body_unique_id */,
                                0/* num_degree_of_freedom_q */,
                                0/* num_degree_of_freedom_u */, 0 /*root_local_inertial_frame*/,
