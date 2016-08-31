@@ -55,7 +55,7 @@ class Jacobian {
 public:
 	Jacobian(Tree*);
 
-	void ComputeJacobian();
+	void ComputeJacobian(VectorR3* targets);
 	const MatrixRmn& ActiveJacobian() const { return *Jactive; } 
 	void SetJendActive() { Jactive = &Jend; }						// The default setting is Jend.
 	void SetJtargetActive() { Jactive = &Jtarget; }
@@ -69,9 +69,9 @@ public:
 	void CalcDeltaThetasSDLS();
 
 	void UpdateThetas();
-	double UpdateErrorArray();		// Returns sum of errors
+	double UpdateErrorArray(VectorR3* targets);		// Returns sum of errors
 	const VectorRn& GetErrorArray() const { return errorArray; }
-	void UpdatedSClampValue();
+	void UpdatedSClampValue(VectorR3* targets);
 
 	void SetCurrentMode( UpdateMode mode ) { CurrentUpdateMode = mode; }
 	UpdateMode GetCurrentMode() const { return CurrentUpdateMode; }

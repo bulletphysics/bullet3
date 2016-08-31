@@ -6,6 +6,7 @@
 #include "../SharedMemory/SharedMemoryPublic.h"
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Common/b3Quaternion.h"
+#include "Bullet3Common/b3Transform.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
 
 #include <string>
@@ -15,6 +16,17 @@ enum b3RigidSimFileType
 	B3_URDF_FILE=1,
 	B3_SDF_FILE,
 	B3_AUTO_DETECT_FILE//todo based on extension
+};
+
+struct b3JointStates
+{
+    int m_bodyUniqueId;
+    int m_numDegreeOfFreedomQ;
+    int m_numDegreeOfFreedomU;
+    b3Transform m_rootLocalInertialFrame;
+    b3AlignedObjectArray<double> m_actualStateQ;
+    b3AlignedObjectArray<double> m_actualStateQdot;
+    b3AlignedObjectArray<double> m_jointReactionForces;
 };
 
 struct b3RobotSimLoadFileArgs
@@ -32,6 +44,7 @@ struct b3RobotSimLoadFileArgs
 		m_startPosition(b3MakeVector3(0,0,0)),
 		m_startOrientation(b3Quaternion(0,0,0,1)),
 		m_forceOverrideFixedBase(false),
+        m_useMultiBody(true),
 		m_fileType(B3_URDF_FILE)
 	{
 	}
@@ -90,6 +103,8 @@ public:
     
     void createJoint(int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, b3JointInfo* jointInfo);
 
+    bool getJointStates(int bodyUniqueId, b3JointStates& state);
+    
 	void setJointMotorControl(int bodyUniqueId, int jointIndex, const struct b3JointMotorArgs& args);
 
 	void stepSimulation();

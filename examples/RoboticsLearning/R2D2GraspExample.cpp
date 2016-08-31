@@ -94,11 +94,9 @@ public:
 			{
 				b3RobotSimLoadFileArgs args("");
 				args.m_fileName = "kiva_shelf/model.sdf";
-				args.m_startPosition.setValue(0,0,.5);
-				args.m_startOrientation = b3Quaternion(0,B3_HALF_PI,0);
-				args.m_forceOverrideFixedBase = true;
+                args.m_forceOverrideFixedBase = true;
 				args.m_fileType = B3_SDF_FILE;
-				//args.m_startOrientation = b3Quaternion()
+                args.m_startOrientation = b3Quaternion(0,0,0,1);
                 b3RobotSimLoadFileResults results;
                 m_robotSim.loadFile(args,results);
 			}

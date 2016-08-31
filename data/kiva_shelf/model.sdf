@@ -2,10 +2,10 @@
 <sdf version="1.4">
   <model name="Amazon Pod">
   	<static>1</static>
-  	<pose>0 2 1.21 0 0 0</pose>
+  	<pose>0 2 0 0 0 0</pose>
     <link name="pod_link">
       <inertial>
-        <pose>0.0 0.0 1.2045 0 0 0</pose>
+        <pose>0.0 .0 1.2045 0 0 0</pose>
         <mass>76.26</mass>
         <inertia>
           <ixx>47</ixx>
