@@ -172,15 +172,13 @@ public:
                 b3RobotSimLoadFileArgs args("");
                 b3RobotSimLoadFileResults results;
                 args.m_fileName = "cube_gripper_left.urdf";
-                //args.m_startPosition.setValue(0.0675, 0.02, 0.13);
                 args.m_startPosition.setValue(0.068, 0.02, 0.11);
-                //args.m_startOrientation.setEulerZYX(0, 0.785398, 0.785398);
                 args.m_useMultiBody = true;
                 m_robotSim.loadFile(args, results);
                 
                 b3JointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
-                controlArgs.m_targetVelocity = -0.5;
-                controlArgs.m_maxTorqueValue = 50.0;
+                controlArgs.m_targetVelocity = -0.1;
+                controlArgs.m_maxTorqueValue = 10.0;
                 controlArgs.m_kd = 1.;
                 m_robotSim.setJointMotorControl(1,0,controlArgs);
             }
@@ -189,15 +187,13 @@ public:
                 b3RobotSimLoadFileArgs args("");
                 b3RobotSimLoadFileResults results;
                 args.m_fileName = "cube_gripper_right.urdf";
-                //args.m_startPosition.setValue(-0.0675, 0.02, 0.13);
                 args.m_startPosition.setValue(-0.068, 0.02, 0.11);
-                //args.m_startOrientation.setEulerZYX(0, -0.785398, -0.785398);
                 args.m_useMultiBody = true;
                 m_robotSim.loadFile(args, results);
                 
                 b3JointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
-                controlArgs.m_targetVelocity = 0.5;
-                controlArgs.m_maxTorqueValue = 50.0;
+                controlArgs.m_targetVelocity = 0.1;
+                controlArgs.m_maxTorqueValue = 10.0;
                 controlArgs.m_kd = 1.;
                 m_robotSim.setJointMotorControl(2,0,controlArgs);
             }
