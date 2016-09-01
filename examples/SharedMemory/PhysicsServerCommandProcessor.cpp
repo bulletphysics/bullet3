@@ -509,7 +509,7 @@ void PhysicsServerCommandProcessor::setGuiHelper(struct GUIHelperInterface* guiH
 	}
 	m_data->m_guiHelper = guiHelper;
 
-	
+
 
 }
 
@@ -520,7 +520,7 @@ PhysicsServerCommandProcessor::PhysicsServerCommandProcessor()
 
 	createEmptyDynamicsWorld();
 	m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop = 0.0001;
-	
+
 }
 
 PhysicsServerCommandProcessor::~PhysicsServerCommandProcessor()
@@ -901,7 +901,6 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
         btMultiBody* mb = creation.getBulletMultiBody();
         btRigidBody* rb = creation.getRigidBody();
 
-        
 		if (useMultiBody)
 		{
 
@@ -1039,7 +1038,7 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
 
 bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes )
 {
-	
+
 	bool hasStatus = false;
 
     {
@@ -1169,7 +1168,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     int height = clientCmd.m_requestPixelDataArguments.m_pixelHeight;
                     int numPixelsCopied = 0;
 
-					
+
 
 					if ((clientCmd.m_updateFlags & ER_BULLET_HARDWARE_OPENGL)!=0)
 					{
@@ -1496,10 +1495,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                                             if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] & SIM_DESIRED_STATE_HAS_KD)!=0)
                                                             {
                                                                 kd = clientCmd.m_sendDesiredStateCommandArgument.m_Kd[dofIndex];
-                                                            }    
-                                                        
+                                                            }
+
                                                             motor->setVelocityTarget(desiredVelocity,kd);
-                                                            
+
                                                             btScalar kp = 0.f;
                                                             motor->setPositionTarget(0,kp);
                                                             hasDesiredVelocity = true;
@@ -1580,7 +1579,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
                                                             motor->setVelocityTarget(desiredVelocity,kd);
                                                             motor->setPositionTarget(desiredPosition,kp);
-                                                            
+
                                                             btScalar maxImp = 1000000.f*m_data->m_physicsDeltaTime;
 
                                                             if ((clientCmd.m_updateFlags & SIM_DESIRED_STATE_HAS_MAX_FORCE)!=0)
@@ -1820,7 +1819,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					}
                 case CMD_STEP_FORWARD_SIMULATION:
                 {
-                    
+
 					if (m_data->m_verboseOutput)
 					{
 						b3Printf("Step simulation request");
@@ -1912,7 +1911,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									clientCmd.m_initPoseArgs.m_initialStateQ[4],
 									clientCmd.m_initPoseArgs.m_initialStateQ[5],
 									clientCmd.m_initPoseArgs.m_initialStateQ[6]);
-									
+
 							mb->setWorldToBaseRot(invOrn.inverse());
 						}
 						if (clientCmd.m_updateFlags & INIT_POSE_HAS_JOINT_STATE)
@@ -1951,10 +1950,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					{
 						m_data->m_visualConverter.resetAll();
 					}
-					
+
 					deleteDynamicsWorld();
 					createEmptyDynamicsWorld();
-					
+
 					m_data->exitHandles();
 					m_data->initHandles();
 
@@ -2262,7 +2261,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					InternalBodyHandle* bodyHandle = m_data->getHandle(clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId);
 					if (bodyHandle && bodyHandle->m_multiBody)
 					{
-						btInverseDynamics::MultiBodyTree** treePtrPtr = 
+						btInverseDynamics::MultiBodyTree** treePtrPtr =
 							m_data->m_inverseDynamicsBodies.find(bodyHandle->m_multiBody);
 						btInverseDynamics::MultiBodyTree* tree = 0;
 						serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_FAILED;
@@ -2274,12 +2273,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						else
 						{
 							btInverseDynamics::btMultiBodyTreeCreator id_creator;
-							if (-1 == id_creator.createFromBtMultiBody(bodyHandle->m_multiBody, false)) 
+							if (-1 == id_creator.createFromBtMultiBody(bodyHandle->m_multiBody, false))
 							{
 								b3Error("error creating tree\n");
 								serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_FAILED;
 							}
-							else 
+							else
 							{
 								tree = btInverseDynamics::CreateMultiBodyTree(id_creator);
 								m_data->m_inverseDynamicsBodies.insert(bodyHandle->m_multiBody, tree);
@@ -2297,8 +2296,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								qdot[i + baseDofs] = clientCmd.m_calculateInverseDynamicsArguments.m_jointVelocitiesQdot[i];
 								nu[i+baseDofs] = clientCmd.m_calculateInverseDynamicsArguments.m_jointAccelerations[i];
 							}
-
-							if (-1 != tree->calculateInverseDynamics(q, qdot, nu, &joint_force))
+							// Set the gravity to correspond to the world gravity
+							btInverseDynamics::vec3 id_grav(m_data->m_dynamicsWorld->getGravity());
+							if (-1 != tree->calculateInverseDynamics(q, qdot, nu, &joint_force) &&
+								-1 != tree->setGravityInWorldFrame(id_grav))
 							{
 								serverCmd.m_inverseDynamicsResultArgs.m_bodyUniqueId = clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId;
 								serverCmd.m_inverseDynamicsResultArgs.m_dofCount = num_dofs;
@@ -2313,7 +2314,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_FAILED;
 							}
 						}
-						
+
 					}
 					else
 					{
@@ -2337,7 +2338,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                         {
                             btMultiBody* mb = body->m_multiBody;
                             bool isLinkFrame = ((clientCmd.m_externalForceArguments.m_forceFlags[i] & EF_LINK_FRAME)!=0);
-                                
+
                             if ((clientCmd.m_externalForceArguments.m_forceFlags[i] & EF_FORCE)!=0)
                             {
                                 btVector3 forceLocal(clientCmd.m_externalForceArguments.m_forcesAndTorques[i*3+0],
@@ -2347,7 +2348,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                                         clientCmd.m_externalForceArguments.m_positions[i*3+0],
                                                         clientCmd.m_externalForceArguments.m_positions[i*3+1],
                                                         clientCmd.m_externalForceArguments.m_positions[i*3+2]);
-                                
+
                                 if (clientCmd.m_externalForceArguments.m_linkIds[i] == -1)
                                 {
                                     btVector3 forceWorld = isLinkFrame ? forceLocal : mb->getBaseWorldTransform().getBasis()*forceLocal;
@@ -2370,7 +2371,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                 btVector3 torqueLocal(clientCmd.m_externalForceArguments.m_forcesAndTorques[i*3+0],
                                                       clientCmd.m_externalForceArguments.m_forcesAndTorques[i*3+1],
                                                       clientCmd.m_externalForceArguments.m_forcesAndTorques[i*3+2]);
-                                
+
                                 if (clientCmd.m_externalForceArguments.m_linkIds[i] == -1)
                                 {
                                     btVector3 torqueWorld = isLinkFrame ? torqueLocal : mb->getBaseWorldTransform().getBasis()*torqueLocal;
@@ -2386,7 +2387,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                             }
                         }
                     }
-                    
+
                     SharedMemoryStatus& serverCmd =serverStatusOut;
                     serverCmd.m_type = CMD_CLIENT_COMMAND_COMPLETED;
                     hasStatus = true;
