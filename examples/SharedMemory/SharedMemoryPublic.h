@@ -29,8 +29,11 @@ enum EnumSharedMemoryClientCommand
     CMD_APPLY_EXTERNAL_FORCE,
 	CMD_CALCULATE_INVERSE_DYNAMICS,
     CMD_CALCULATE_INVERSE_KINEMATICS,
+    CMD_CREATE_JOINT,
+    CMD_REQUEST_CONTACT_POINT_INFORMATION,
+    //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
-    CMD_CREATE_JOINT
+    
 };
 
 enum EnumSharedMemoryServerStatus
@@ -64,6 +67,8 @@ enum EnumSharedMemoryServerStatus
 		CMD_INVALID_STATUS,
 		CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED,
 		CMD_CALCULATED_INVERSE_DYNAMICS_FAILED,
+		CMD_CONTACT_POINT_INFORMATION_COMPLETED,
+		CMD_CONTACT_POINT_INFORMATION_FAILED,
         CMD_MAX_SERVER_COMMANDS
 };
 
@@ -129,6 +134,37 @@ struct b3CameraImageData
 	const unsigned char* m_rgbColorData;//3*m_pixelWidth*m_pixelHeight bytes
 	const float* m_depthValues;//m_pixelWidth*m_pixelHeight floats
 	const int* m_segmentationMaskValues;//m_pixelWidth*m_pixelHeight ints
+};
+
+
+struct b3ContactPointData
+{
+    int m_contactFlags;//flag wether certain fields below are valid
+    int m_bodyUniqueIdA;
+    int m_bodyUniqueIdB;
+    int m_linkIndexA;
+    int m_linkIndexB;
+    double m_positionOnAInWS[3];//contact point location on object A, in world space coordinates
+    double m_positionOnBInWS[3];//contact point location on object A, in world space coordinates
+    double m_contactNormalOnBInWS[3];//the separating contact normal, pointing from object B towards object A
+    double m_contactDistance;//negative number is penetration, positive is distance.
+    int m_contactPointDynamicsIndex;
+};
+
+struct b3ContactPointDynamicsData
+{
+    double m_normalForce;
+    double m_linearFrictionDirection[3];
+    double m_linearFrictionForce;
+    double m_angularFrictionDirection[3];
+    double m_angularFrictionForce;    
+};
+
+struct b3ContactInformation
+{
+	int m_numContactPoints;
+	struct b3ContactPointData* m_contactPointData;
+	struct b3ContactPointDynamicsData* m_contactDynamicsData;
 };
 
 ///b3LinkState provides extra information such as the Cartesian world coordinates

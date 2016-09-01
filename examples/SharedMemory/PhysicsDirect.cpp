@@ -487,3 +487,12 @@ void PhysicsDirect::getCachedCameraImage(b3CameraImageData* cameraData)
 		cameraData->m_segmentationMaskValues = m_data->m_cachedSegmentationMask.size()? &m_data->m_cachedSegmentationMask[0] : 0;
 	}
 }
+
+void PhysicsDirect::getCachedContactPointInformation(struct b3ContactInformation* contactPointData)
+{
+    if (contactPointData)
+    {
+        contactPointData->m_numContactPoints = 0;
+    }
+}
+

@@ -577,6 +577,38 @@ void addJointTorque(int i, btScalar Q);
 		m_baseName = name;
 	}
 
+	///users can point to their objects, userPointer is not used by Bullet
+	void*	getUserPointer() const
+	{
+		return m_userObjectPointer;
+	}
+
+	int	getUserIndex() const
+	{
+		return m_userIndex;
+	}
+
+	int	getUserIndex2() const
+	{
+		return m_userIndex2;
+	}
+	///users can point to their objects, userPointer is not used by Bullet
+	void	setUserPointer(void* userPointer)
+	{
+		m_userObjectPointer = userPointer;
+	}
+
+	///users can point to their objects, userPointer is not used by Bullet
+	void	setUserIndex(int index)
+	{
+		m_userIndex = index;
+	}
+
+	void	setUserIndex2(int index)
+	{
+		m_userIndex2 = index;
+	}
+
 private:
     btMultiBody(const btMultiBody &);  // not implemented
     void operator=(const btMultiBody &);  // not implemented
@@ -652,6 +684,10 @@ private:
     bool m_awake;
     bool m_canSleep;
     btScalar m_sleepTimer;
+
+	void* m_userObjectPointer;
+	int m_userIndex2;
+	int m_userIndex;
 
 	int	m_companionId;
 	btScalar	m_linearDamping;
