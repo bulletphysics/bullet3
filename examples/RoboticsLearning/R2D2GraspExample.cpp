@@ -140,6 +140,37 @@ public:
 			}
 		}
 	
+        if ((m_options & eROBOTIC_LEARN_ROLLING_FRICTION)!=0)
+        {
+            b3RobotSimLoadFileArgs args("");
+            b3RobotSimLoadFileResults results;
+            {
+                args.m_fileName = "sphere2_rolling_friction.urdf";
+                args.m_startPosition.setValue(0,0,2.5);
+                args.m_startOrientation.setEulerZYX(0,0,0);
+                args.m_useMultiBody = true;
+                m_robotSim.loadFile(args,results);
+            }
+            {
+                args.m_fileName = "sphere2.urdf";
+                args.m_startPosition.setValue(0,2,2.5);
+                args.m_startOrientation.setEulerZYX(0,0,0);
+                args.m_useMultiBody = true;
+                m_robotSim.loadFile(args,results);
+            }
+            {
+                b3RobotSimLoadFileArgs args("");
+                args.m_fileName = "plane.urdf";
+                args.m_startPosition.setValue(0,0,0);
+                args.m_startOrientation.setEulerZYX(0,0.2,0);
+                args.m_useMultiBody = true;
+                args.m_forceOverrideFixedBase = true;
+                b3RobotSimLoadFileResults results;
+                m_robotSim.loadFile(args,results);
+                m_robotSim.setGravity(b3MakeVector3(0,0,-10));
+            }
+        }
+
 		
     }
     virtual void    exitPhysics()

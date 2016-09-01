@@ -47,8 +47,10 @@ protected:
 	
 
 	void convertContacts(btPersistentManifold** manifoldPtr,int numManifolds, const btContactSolverInfo& infoGlobal);
-	btMultiBodySolverConstraint&	addMultiBodyFrictionConstraint(const btVector3& normalAxis,btPersistentManifold* manifold,int frictionIndex,btManifoldPoint& cp,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, const btContactSolverInfo& infoGlobal, btScalar desiredVelocity=0, btScalar cfmSlip=0);
+    
+    btMultiBodySolverConstraint&	addMultiBodyFrictionConstraint(const btVector3& normalAxis,btPersistentManifold* manifold,int frictionIndex,btManifoldPoint& cp,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, const btContactSolverInfo& infoGlobal, btScalar desiredVelocity=0, btScalar cfmSlip=0);
 
+    btMultiBodySolverConstraint&	addMultiBodyRollingFrictionConstraint(const btVector3& normalAxis,btPersistentManifold* manifold,int frictionIndex,btManifoldPoint& cp,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, const btContactSolverInfo& infoGlobal, btScalar desiredVelocity=0, btScalar cfmSlip=0);
 
 	void setupMultiBodyJointLimitConstraint(btMultiBodySolverConstraint& constraintRow, 
 																 btScalar* jacA,btScalar* jacB,
@@ -60,6 +62,12 @@ protected:
 																 btManifoldPoint& cp, const btContactSolverInfo& infoGlobal,
 																 btScalar& relaxation,
 																 bool isFriction, btScalar desiredVelocity=0, btScalar cfmSlip=0);
+    
+    void setupMultiBodyRollingFrictionConstraint(btMultiBodySolverConstraint& solverConstraint,
+                                         const btVector3& contactNormal,
+                                         btManifoldPoint& cp, const btContactSolverInfo& infoGlobal,
+                                         btScalar& relaxation,
+                                         bool isFriction, btScalar desiredVelocity=0, btScalar cfmSlip=0);
 
 	void convertMultiBodyContact(btPersistentManifold* manifold,const btContactSolverInfo& infoGlobal);
 	virtual btScalar solveGroupCacheFriendlySetup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer);
