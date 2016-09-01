@@ -35,6 +35,7 @@ btCollisionObject::btCollisionObject()
 		m_rollingFriction(0.0f),
 		m_internalType(CO_COLLISION_OBJECT),
 		m_userObjectPointer(0),
+		m_userIndex2(-1),
 		m_userIndex(-1),
 		m_hitFraction(btScalar(1.)),
 		m_ccdSweptSphereRadius(btScalar(0.)),

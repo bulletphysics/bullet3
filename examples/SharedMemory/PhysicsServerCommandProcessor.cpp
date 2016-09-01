@@ -403,6 +403,8 @@ struct PhysicsServerCommandProcessorInternalData
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 	btMultiBodyDynamicsWorld* m_dynamicsWorld;
 	SharedMemoryDebugDrawer*		m_remoteDebugDrawer;
+	
+	btAlignedObjectArray<b3ContactPointData> m_cachedContactPoints;
 
 	btAlignedObjectArray<int> m_sdfRecentLoadedBodies;
 
@@ -759,6 +761,8 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
             int bodyUniqueId = m_data->allocHandle();
 
             InternalBodyHandle* bodyHandle = m_data->getHandle(bodyUniqueId);
+			
+
             u2b.setBodyUniqueId(bodyUniqueId);
             {
                 btScalar mass = 0;
@@ -782,9 +786,16 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
 
             mb = creation.getBulletMultiBody();
             rb = creation.getRigidBody();
+			if (rb)
+				rb->setUserIndex2(bodyUniqueId);
+
+			if (mb)
+				mb->setUserIndex2(bodyUniqueId);
+
             if (mb)
             {
                 bodyHandle->m_multiBody = mb;
+				
 
 				m_data->m_sdfRecentLoadedBodies.push_back(bodyUniqueId);
 
@@ -856,6 +867,8 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 
         u2b.setBodyUniqueId(bodyUniqueId);
 		InternalBodyHandle* bodyHandle = m_data->getHandle(bodyUniqueId);
+		
+
 
         {
             btScalar mass = 0;
@@ -887,6 +900,7 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 
         btMultiBody* mb = creation.getBulletMultiBody();
         btRigidBody* rb = creation.getRigidBody();
+
         
 		if (useMultiBody)
 		{
@@ -894,7 +908,7 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 
 			if (mb)
 			{
-
+				mb->setUserIndex2(bodyUniqueId);
 				bodyHandle->m_multiBody = mb;
 
 				createJointMotors(mb);
@@ -958,6 +972,7 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
             if (rb)
             {
                 bodyHandle->m_rigidBody = rb;
+				rb->setUserIndex2(bodyUniqueId);
                 return true;
             }
 		}
@@ -2079,6 +2094,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						int bodyUniqueId = m_data->allocHandle();
 						InternalBodyHandle* bodyHandle = m_data->getHandle(bodyUniqueId);
 						serverCmd.m_rigidBodyCreateArgs.m_bodyUniqueId = bodyUniqueId;
+						rb->setUserIndex2(bodyUniqueId);
 						bodyHandle->m_rootLocalInertialFrame.setIdentity();
 						bodyHandle->m_rigidBody = rb;
 						hasStatus = true;
@@ -2119,6 +2135,124 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 						SharedMemoryStatus& serverCmd =serverStatusOut;
 						serverCmd.m_type = CMD_CLIENT_COMMAND_COMPLETED;
+						hasStatus = true;
+                        break;
+                    }
+                case CMD_REQUEST_CONTACT_POINT_INFORMATION:
+                    {
+                        SharedMemoryStatus& serverCmd =serverStatusOut;
+                        serverCmd.m_sendContactPointArgs.m_numContactPointsCopied = 0;
+                        
+                        //make a snapshot of the contact manifolds into individual contact points
+                        if (clientCmd.m_requestContactPointArguments.m_startingContactPointIndex==0)
+                        {
+                            int numContactManifolds = m_data->m_dynamicsWorld->getDispatcher()->getNumManifolds();
+							m_data->m_cachedContactPoints.resize(0);
+							m_data->m_cachedContactPoints.reserve(numContactManifolds*4);
+                            for (int i=0;i<numContactManifolds;i++)
+                            {
+								const btPersistentManifold* manifold =  m_data->m_dynamicsWorld->getDispatcher()->getInternalManifoldPointer()[i];
+								
+								int objectIndexB = -1;
+
+								const btRigidBody* bodyB = btRigidBody::upcast(manifold->getBody1());
+								if (bodyB)
+								{
+									objectIndexB = bodyB->getUserIndex2();
+								}
+								const btMultiBodyLinkCollider* mblB = btMultiBodyLinkCollider::upcast(manifold->getBody1());
+								if (mblB && mblB->m_multiBody)
+								{
+									objectIndexB = mblB->m_multiBody->getUserIndex2();
+								}
+
+								int objectIndexA = -1;
+								const btRigidBody* bodyA = btRigidBody::upcast(manifold->getBody0());
+								if (bodyA)
+								{
+									objectIndexA  = bodyA->getUserIndex2();
+								}
+								const btMultiBodyLinkCollider* mblA = btMultiBodyLinkCollider::upcast(manifold->getBody0());
+								if (mblA && mblA->m_multiBody)
+								{
+									objectIndexA = mblA->m_multiBody->getUserIndex2();
+								}
+
+								btAssert(bodyA || mblA);
+
+								//apply the filter, if any
+								if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter>=0)
+								{
+									if ((clientCmd.m_requestContactPointArguments.m_objectAIndexFilter != objectIndexA) &&
+										(clientCmd.m_requestContactPointArguments.m_objectAIndexFilter != objectIndexB))
+									continue;
+								}
+
+								if (clientCmd.m_requestContactPointArguments.m_objectBIndexFilter>=0)
+								{
+									if ((clientCmd.m_requestContactPointArguments.m_objectBIndexFilter != objectIndexA) &&
+										(clientCmd.m_requestContactPointArguments.m_objectBIndexFilter != objectIndexB))
+									continue;
+								}
+
+								for (int p=0;p<manifold->getNumContacts();p++)
+								{
+									//if the point passes the optional filter, add it
+
+									if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter>=0)
+									{
+										//one of the two unique Ids has to match...
+
+									}
+
+									b3ContactPointData pt;
+									pt.m_bodyUniqueIdA = -1;
+									pt.m_bodyUniqueIdB = -1;
+									const btManifoldPoint& srcPt = manifold->getContactPoint(p);
+									pt.m_contactDistance = srcPt.getDistance();
+									pt.m_contactFlags = 0;
+									pt.m_contactPointDynamicsIndex = -1;
+									pt.m_linkIndexA = -1;
+									pt.m_linkIndexB = -1;
+									for (int j=0;j<3;j++)
+									{
+										pt.m_contactNormalOnBInWS[j] = srcPt.m_normalWorldOnB[j];
+										pt.m_positionOnAInWS[j] = srcPt.getPositionWorldOnA()[j];
+										pt.m_positionOnBInWS[j] = srcPt.getPositionWorldOnB()[j];
+									}
+									m_data->m_cachedContactPoints.push_back (pt);
+								}
+                            }
+                        }
+                        
+						int numContactPoints = m_data->m_cachedContactPoints.size();
+						
+
+						//b3ContactPoint
+						//struct b3ContactPointDynamics
+
+						int totalBytesPerContact = sizeof(b3ContactPointData);
+						int contactPointStorage = bufferSizeInBytes/totalBytesPerContact-1;
+
+						b3ContactPointData* contactData = (b3ContactPointData*)bufferServerToClient;
+
+						int startContactPointIndex = clientCmd.m_requestContactPointArguments.m_startingContactPointIndex;
+						int numContactPointBatch = btMin(numContactPoints,contactPointStorage);
+
+						int endContactPointIndex = startContactPointIndex+numContactPointBatch;
+
+						for (int i=startContactPointIndex;i<endContactPointIndex ;i++)
+						{
+							const b3ContactPointData& srcPt = m_data->m_cachedContactPoints[i];
+							b3ContactPointData& destPt = contactData[serverCmd.m_sendContactPointArgs.m_numContactPointsCopied];
+							destPt = srcPt;
+							serverCmd.m_sendContactPointArgs.m_numContactPointsCopied++;
+						}
+						
+						serverCmd.m_sendContactPointArgs.m_startingContactPointIndex = clientCmd.m_requestContactPointArguments.m_startingContactPointIndex;
+						serverCmd.m_sendContactPointArgs.m_numRemainingContactPoints = numContactPoints - clientCmd.m_requestContactPointArguments.m_startingContactPointIndex - serverCmd.m_sendContactPointArgs.m_numContactPointsCopied;
+
+						serverCmd.m_type = CMD_CONTACT_POINT_INFORMATION_COMPLETED; //CMD_CONTACT_POINT_INFORMATION_FAILED,
 						hasStatus = true;
                         break;
                     }

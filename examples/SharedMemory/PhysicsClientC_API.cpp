@@ -1103,6 +1103,51 @@ void b3GetCameraImageData(b3PhysicsClientHandle physClient, struct b3CameraImage
 	}
 }
 
+///request an contact point information
+b3SharedMemoryCommandHandle b3InitRequestContactPointInformation(b3PhysicsClientHandle physClient)
+{
+    PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type =CMD_REQUEST_CONTACT_POINT_INFORMATION;
+	command->m_requestContactPointArguments.m_startingContactPointIndex = 0;
+	command->m_requestContactPointArguments.m_objectAIndexFilter = -1;
+	command->m_requestContactPointArguments.m_objectBIndexFilter = -1;
+    command->m_updateFlags = 0;
+    return (b3SharedMemoryCommandHandle) command;
+}
+
+void b3SetContactFilterBodyA(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueIdA)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_REQUEST_CONTACT_POINT_INFORMATION);
+	command->m_requestContactPointArguments.m_objectAIndexFilter = bodyUniqueIdA;
+}
+
+void b3SetContactFilterBodyB(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueIdB)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_REQUEST_CONTACT_POINT_INFORMATION);
+	command->m_requestContactPointArguments.m_objectBIndexFilter = bodyUniqueIdB;
+}
+
+void b3SetContactFilterBodyB(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueIdB);
+
+
+void b3GetContactPointInformation(b3PhysicsClientHandle physClient, struct b3ContactInformation* contactPointData)
+{
+    PhysicsClient* cl = (PhysicsClient* ) physClient;
+	if (cl)
+	{
+	    cl->getCachedContactPointInformation(contactPointData);
+	}
+}
+
+
 b3SharedMemoryCommandHandle b3ApplyExternalForceCommandInit(b3PhysicsClientHandle physClient)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;

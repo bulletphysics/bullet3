@@ -144,6 +144,12 @@ enum EnumRequestPixelDataUpdateFlags
 	
 };
 
+struct RequestContactDataArgs
+{
+    int m_startingContactPointIndex;
+    int m_objectAIndexFilter;
+	int m_objectBIndexFilter;
+};
 
 
 struct SendDebugLinesArgs
@@ -406,12 +412,20 @@ struct SharedMemoryCommand
         struct ExternalForceArgs m_externalForceArguments;
 		struct CalculateInverseDynamicsArgs m_calculateInverseDynamicsArguments;
         struct CreateJointArgs m_createJointArguments;
+        struct RequestContactDataArgs m_requestContactPointArguments;
     };
 };
 
 struct RigidBodyCreateArgs
 {
 	int m_bodyUniqueId; 
+};
+
+struct SendContactDataArgs
+{
+    int m_startingContactPointIndex;
+    int m_numContactPointsCopied;
+    int m_numRemainingContactPoints;
 };
 
 struct SharedMemoryStatus
@@ -430,6 +444,7 @@ struct SharedMemoryStatus
 		struct SendPixelDataArgs m_sendPixelDataArguments;
 		struct RigidBodyCreateArgs m_rigidBodyCreateArgs;
 		struct CalculateInverseDynamicsResultArgs m_inverseDynamicsResultArgs;
+		struct SendContactDataArgs m_sendContactPointArgs;
 	};
 };
 

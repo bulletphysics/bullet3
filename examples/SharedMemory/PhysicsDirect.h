@@ -64,6 +64,8 @@ public:
 
 	virtual void getCachedCameraImage(b3CameraImageData* cameraData);
 
+    virtual void getCachedContactPointInformation(struct b3ContactInformation* contactPointData);
+
 	//those 2 APIs are for internal use for visualization
 	virtual bool connect(struct GUIHelperInterface* guiHelper);
 	virtual void renderScene();

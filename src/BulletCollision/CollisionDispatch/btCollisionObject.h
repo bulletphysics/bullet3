@@ -93,8 +93,10 @@ protected:
 
 	///users can point to their objects, m_userPointer is not used by Bullet, see setUserPointer/getUserPointer
 
-    void*			m_userObjectPointer;
-    
+	void*			m_userObjectPointer;
+
+	int				m_userIndex2;
+	
     int	m_userIndex;
 
 	///time of impact calculation
@@ -476,6 +478,12 @@ public:
 	{
 		return m_userIndex;
 	}
+	
+	int	getUserIndex2() const
+	{
+		return m_userIndex2;
+	}
+	
 	///users can point to their objects, userPointer is not used by Bullet
 	void	setUserPointer(void* userPointer)
 	{
@@ -486,6 +494,11 @@ public:
 	void	setUserIndex(int index)
 	{
 		m_userIndex = index;
+	}
+	
+	void	setUserIndex2(int index)
+	{
+		m_userIndex2 = index;
 	}
 
 	int	getUpdateRevisionInternal() const
