@@ -70,19 +70,16 @@ struct Shader : public IShader {
         Vec3f bn = (varying_nrm*bar).normalize();
         Vec2f uv = varying_uv*bar;
 
-		//float diff = 1;//full-bright
-		float ambient = 0.7;
-		//float diff = ambient+b3Min(b3Max(0.f, bn*light_dir_world),(1-ambient));
-		float diff = ambient+b3Min(b3Max(0.f, bn*m_light_dir_local),(1-ambient));
-		//float diff = b3Max(0.f, n*m_light_dir_local);
-        color = m_model->diffuse(uv)*diff;
-        
+	float ambient = 0.7;
+	float intensity = ambient + (1-ambient)*b3Min(b3Max(bn*m_light_dir_local, -1.f), 1.f);
+        color = m_model->diffuse(uv)*intensity;
+
         //warning: bgra color is swapped to rgba to upload texture
         color.bgra[0] *= m_colorRGBA[0];
         color.bgra[1] *= m_colorRGBA[1];
         color.bgra[2] *= m_colorRGBA[2];
         color.bgra[3] *= m_colorRGBA[3];
-        
+
         return false;
     }
 };
@@ -292,5 +289,3 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
     }
         
 }
-
-
