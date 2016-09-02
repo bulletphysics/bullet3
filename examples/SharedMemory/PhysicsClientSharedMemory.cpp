@@ -38,6 +38,8 @@ struct PhysicsClientSharedMemoryInternalData {
 	btAlignedObjectArray<float> m_cachedCameraDepthBuffer;
 	btAlignedObjectArray<int> m_cachedSegmentationMaskBuffer;
 
+    btAlignedObjectArray<b3ContactPointData> m_cachedContactPoints;
+
     btAlignedObjectArray<int> m_bodyIdsRequestInfo;
     SharedMemoryStatus m_tempBackupServerStatus;
     
@@ -58,6 +60,7 @@ struct PhysicsClientSharedMemoryInternalData {
 		  m_counter(0),
 		  m_cachedCameraPixelsWidth(0),
 		  m_cachedCameraPixelsHeight(0),
+		  
           m_isConnected(false),
           m_waitingForServer(false),
           m_hasLastServerStatus(false),
@@ -558,6 +561,32 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 				b3Warning("Inverse Dynamics computations failed");
 				break;
 			}
+            case CMD_CONTACT_POINT_INFORMATION_COMPLETED:
+                {
+                    if (m_data->m_verboseOutput) 
+                    {
+                        b3Printf("Contact Point Information Request OK\n");
+                    }
+					int startContactIndex = serverCmd.m_sendContactPointArgs.m_startingContactPointIndex;
+					int numContactsCopied = serverCmd.m_sendContactPointArgs.m_numContactPointsCopied;
+
+					m_data->m_cachedContactPoints.resize(startContactIndex+numContactsCopied);
+                    
+					b3ContactPointData* contactData = (b3ContactPointData*)m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor;
+
+					for (int i=0;i<numContactsCopied;i++)
+					{
+						m_data->m_cachedContactPoints[startContactIndex+i] = contactData[i];
+					}
+
+                    break;
+                }
+            case CMD_CONTACT_POINT_INFORMATION_FAILED:
+                {
+                    b3Warning("Contact Point Information Request failed");
+                    break;
+                }
+		
             default: {
                 b3Error("Unknown server status\n");
                 btAssert(0);
@@ -618,6 +647,20 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
             {
                 m_data->m_lastServerStatus = m_data->m_tempBackupServerStatus;
             }
+        }
+        
+        if (serverCmd.m_type == CMD_CONTACT_POINT_INFORMATION_COMPLETED)
+        {
+            SharedMemoryCommand& command = m_data->m_testBlock1->m_clientCommands[0];
+			if (serverCmd.m_sendContactPointArgs.m_numRemainingContactPoints>0 && serverCmd.m_sendContactPointArgs.m_numContactPointsCopied)
+			{
+				command.m_type = CMD_REQUEST_CONTACT_POINT_INFORMATION;
+				command.m_requestContactPointArguments.m_startingContactPointIndex = serverCmd.m_sendContactPointArgs.m_startingContactPointIndex+serverCmd.m_sendContactPointArgs.m_numContactPointsCopied;
+				command.m_requestContactPointArguments.m_objectAIndexFilter = -1;
+				command.m_requestContactPointArguments.m_objectBIndexFilter = -1;
+				submitClientCommand(command);
+				return 0;
+			}
         }
         
 		if (serverCmd.m_type == CMD_CAMERA_IMAGE_COMPLETED)
@@ -714,6 +757,13 @@ void PhysicsClientSharedMemory::getCachedCameraImage(struct b3CameraImageData* c
 	cameraData->m_depthValues = m_data->m_cachedCameraDepthBuffer.size() ? &m_data->m_cachedCameraDepthBuffer[0] : 0;
 	cameraData->m_rgbColorData = m_data->m_cachedCameraPixelsRGBA.size() ? &m_data->m_cachedCameraPixelsRGBA[0] : 0;
 	cameraData->m_segmentationMaskValues = m_data->m_cachedSegmentationMaskBuffer.size()?&m_data->m_cachedSegmentationMaskBuffer[0] : 0;
+}
+
+void PhysicsClientSharedMemory::getCachedContactPointInformation(struct b3ContactInformation* contactPointData)
+{
+	contactPointData->m_numContactPoints = m_data->m_cachedContactPoints.size();
+	contactPointData->m_contactPointData = contactPointData->m_numContactPoints? &m_data->m_cachedContactPoints[0] : 0;
+
 }
 
 const float* PhysicsClientSharedMemory::getDebugLinesFrom() const {

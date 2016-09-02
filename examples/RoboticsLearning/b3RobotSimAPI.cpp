@@ -615,6 +615,60 @@ void b3RobotSimAPI::createJoint(int parentBodyIndex, int parentJointIndex, int c
     }
 }
 
+
+bool b3RobotSimAPI::getJointStates(int bodyUniqueId, b3JointStates& state)
+{
+    b3SharedMemoryCommandHandle command = b3RequestActualStateCommandInit(m_data->m_physicsClient,bodyUniqueId);
+    b3SharedMemoryStatusHandle statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClient, command);
+    
+    if (statusHandle)
+    {
+        double rootInertialFrame[7];
+        const double* rootLocalInertialFrame;
+        const double* actualStateQ;
+        const double* actualStateQdot;
+        const double* jointReactionForces;
+        
+        int stat = b3GetStatusActualState(statusHandle,
+                        &state.m_bodyUniqueId,
+                        &state.m_numDegreeOfFreedomQ,
+                        &state.m_numDegreeOfFreedomU,
+                        &rootLocalInertialFrame,
+                        &actualStateQ,
+                        &actualStateQdot,
+                        &jointReactionForces);
+        if (stat)
+        {
+            state.m_actualStateQ.resize(state.m_numDegreeOfFreedomQ);
+            state.m_actualStateQdot.resize(state.m_numDegreeOfFreedomU);
+
+            for (int i=0;i<state.m_numDegreeOfFreedomQ;i++)
+            {
+                state.m_actualStateQ[i] = actualStateQ[i];
+            }
+            for (int i=0;i<state.m_numDegreeOfFreedomU;i++)
+            {
+                state.m_actualStateQdot[i] = actualStateQdot[i];
+            }
+            int numJoints = getNumJoints(bodyUniqueId);
+            state.m_jointReactionForces.resize(6*numJoints);
+            for (int i=0;i<numJoints*6;i++)
+            {
+                state.m_jointReactionForces[i] = jointReactionForces[i];
+            }
+            
+            return true;
+        }
+        //rootInertialFrame,
+          //              &state.m_actualStateQ[0],
+            //            &state.m_actualStateQdot[0],
+              //          &state.m_jointReactionForces[0]);
+        
+     
+    }
+    return false;
+}
+
 void b3RobotSimAPI::setJointMotorControl(int bodyUniqueId, int jointIndex, const b3JointMotorArgs& args)
 {
 	b3SharedMemoryStatusHandle statusHandle;

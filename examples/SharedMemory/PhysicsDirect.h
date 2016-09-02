@@ -21,6 +21,8 @@ protected:
 
 	bool processCamera(const struct SharedMemoryCommand& orgCommand);
 
+    bool processContactPointData(const struct SharedMemoryCommand& orgCommand);
+
     void processBodyJointInfo(int bodyUniqueId, const struct SharedMemoryStatus& serverCmd);
     
 public:
@@ -63,6 +65,8 @@ public:
     virtual const float* getDebugLinesColor() const;
 
 	virtual void getCachedCameraImage(b3CameraImageData* cameraData);
+
+    virtual void getCachedContactPointInformation(struct b3ContactInformation* contactPointData);
 
 	//those 2 APIs are for internal use for visualization
 	virtual bool connect(struct GUIHelperInterface* guiHelper);

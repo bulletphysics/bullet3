@@ -28,8 +28,12 @@ enum EnumSharedMemoryClientCommand
     CMD_REQUEST_CAMERA_IMAGE_DATA,
     CMD_APPLY_EXTERNAL_FORCE,
 	CMD_CALCULATE_INVERSE_DYNAMICS,
+    CMD_CALCULATE_INVERSE_KINEMATICS,
+    CMD_CREATE_JOINT,
+    CMD_REQUEST_CONTACT_POINT_INFORMATION,
+    //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
-    CMD_CREATE_JOINT
+    
 };
 
 enum EnumSharedMemoryServerStatus
@@ -63,6 +67,8 @@ enum EnumSharedMemoryServerStatus
 		CMD_INVALID_STATUS,
 		CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED,
 		CMD_CALCULATED_INVERSE_DYNAMICS_FAILED,
+		CMD_CONTACT_POINT_INFORMATION_COMPLETED,
+		CMD_CONTACT_POINT_INFORMATION_FAILED,
         CMD_MAX_SERVER_COMMANDS
 };
 
@@ -128,6 +134,38 @@ struct b3CameraImageData
 	const unsigned char* m_rgbColorData;//3*m_pixelWidth*m_pixelHeight bytes
 	const float* m_depthValues;//m_pixelWidth*m_pixelHeight floats
 	const int* m_segmentationMaskValues;//m_pixelWidth*m_pixelHeight ints
+};
+
+
+struct b3ContactPointData
+{
+//todo: expose some contact flags, such as telling which fields below are valid
+    int m_contactFlags;
+    int m_bodyUniqueIdA;
+    int m_bodyUniqueIdB;
+    int m_linkIndexA;
+    int m_linkIndexB;
+    double m_positionOnAInWS[3];//contact point location on object A, in world space coordinates
+    double m_positionOnBInWS[3];//contact point location on object A, in world space coordinates
+    double m_contactNormalOnBInWS[3];//the separating contact normal, pointing from object B towards object A
+    double m_contactDistance;//negative number is penetration, positive is distance.
+    
+    double m_normalForce;
+
+//todo: expose the friction forces as well
+//    double m_linearFrictionDirection0[3];
+//    double m_linearFrictionForce0;
+//    double m_linearFrictionDirection1[3];
+//    double m_linearFrictionForce1;
+//    double m_angularFrictionDirection[3];
+//    double m_angularFrictionForce;
+};
+
+
+struct b3ContactInformation
+{
+	int m_numContactPoints;
+	struct b3ContactPointData* m_contactPointData;
 };
 
 ///b3LinkState provides extra information such as the Cartesian world coordinates

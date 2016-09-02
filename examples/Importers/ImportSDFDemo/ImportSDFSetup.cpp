@@ -232,7 +232,7 @@ void ImportSDFSetup::initPhysics()
 			MyMultiBodyCreator creation(m_guiHelper);
 
             u2b.getRootTransformInWorld(rootTrans);
-			ConvertURDF2Bullet(u2b,creation, rootTrans,m_dynamicsWorld,m_useMultiBody,u2b.getPathPrefix(),true);
+			ConvertURDF2Bullet(u2b,creation, rootTrans,m_dynamicsWorld,m_useMultiBody,u2b.getPathPrefix(),CUF_USE_SDF);
 			mb = creation.getBulletMultiBody();
 			
 			

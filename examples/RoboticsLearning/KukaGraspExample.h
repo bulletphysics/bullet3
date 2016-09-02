@@ -13,17 +13,15 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef R2D2_GRASP_EXAMPLE_H
-#define R2D2_GRASP_EXAMPLE_H
+#ifndef KUKA_GRASP_EXAMPLE_H
+#define KUKA_GRASP_EXAMPLE_H
 
-enum RobotLearningExampleOptions
+enum KukaGraspExampleOptions
 {
-	eROBOTIC_LEARN_GRASP=1,
-	eROBOTIC_LEARN_COMPLIANT_CONTACT=2,
-    eROBOTIC_LEARN_ROLLING_FRICTION=4,
+	eKUKA_GRASP_DLS_IK=1,
 };
 
-class CommonExampleInterface*    R2D2GraspExampleCreateFunc(struct CommonExampleOptions& options);
+class CommonExampleInterface*    KukaGraspExampleCreateFunc(struct CommonExampleOptions& options);
 
 
-#endif //R2D2_GRASP_EXAMPLE_H
+#endif //KUKA_GRASP_EXAMPLE_H

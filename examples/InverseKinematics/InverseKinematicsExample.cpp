@@ -21,7 +21,7 @@
 #define MAX_NUM_EFFECT	100
 
 double T = 0;
-VectorR3 target1[MAX_NUM_EFFECT];
+VectorR3 targetaa[MAX_NUM_EFFECT];
 
 
 
@@ -85,7 +85,7 @@ void Reset(Tree &tree, Jacobian* m_ikJacobian)
 
 void UpdateTargets( double T2, Tree & treeY) {
 	double T = T2 / 5.;
-	target1[0].Set(0.6*b3Sin(0), 0.6*b3Cos(0), 0.5+0.4*b3Sin(3 * T));
+	targetaa[0].Set(0.6*b3Sin(0), 0.6*b3Cos(0), 0.5+0.4*b3Sin(3 * T));
 }
 
 
@@ -103,7 +103,7 @@ void DoUpdateStep(double Tstep, Tree & treeY, Jacobian *jacob, int ikMethod) {
 	else {
 		jacob->SetJendActive();
 	}
-	jacob->ComputeJacobian();						// Set up Jacobian and deltaS vectors
+	jacob->ComputeJacobian(targetaa);						// Set up Jacobian and deltaS vectors
 
 	// Calculate the change in theta values 
 	switch (ikMethod) {
@@ -129,7 +129,7 @@ void DoUpdateStep(double Tstep, Tree & treeY, Jacobian *jacob, int ikMethod) {
 
 	if ( SleepCounter==0 ) {
 		jacob->UpdateThetas();							// Apply the change in the theta values
-		jacob->UpdatedSClampValue();
+		jacob->UpdatedSClampValue(targetaa);
 		SleepCounter = SleepsPerStep;
 	}
 	else { 
@@ -290,7 +290,7 @@ public:
 		getLocalTransform(m_ikTree.GetRoot(), act);
 		MyDrawTree(m_ikTree.GetRoot(), act);
 		
-		b3Vector3 pos = b3MakeVector3(target1[0].x, target1[0].y, target1[0].z);
+		b3Vector3 pos = b3MakeVector3(targetaa[0].x, targetaa[0].y, targetaa[0].z);
 		b3Quaternion orn(0, 0, 0, 1);
 
 		m_app->m_renderer->writeSingleInstanceTransformToCPU(pos, orn, m_targetInstance);

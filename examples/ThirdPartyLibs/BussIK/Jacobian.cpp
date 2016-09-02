@@ -36,7 +36,7 @@ using namespace std;
 void Arrow(const VectorR3& tail, const VectorR3& head);
 
 //extern RestPositionOn;
-extern VectorR3 target1[];
+//extern VectorR3 target1[];
 
 // Optimal damping values have to be determined in an ad hoc manner  (Yuck!)
 const double Jacobian::DefaultDampingLambda = 0.6;		// Optimal for the "Y" shape (any lower gives jitter)
@@ -96,7 +96,7 @@ void Jacobian::Reset()
 
 // Compute the deltaS vector, dS, (the error in end effector positions
 // Compute the J and K matrices (the Jacobians)
-void Jacobian::ComputeJacobian() 
+void Jacobian::ComputeJacobian(VectorR3* targets)
 {
 	// Traverse tree to find all end effectors
 	VectorR3 temp;
@@ -104,7 +104,7 @@ void Jacobian::ComputeJacobian()
 	while ( n ) {	
 		if ( n->IsEffector() ) {
 			int i = n->GetEffectorNum();
-			const VectorR3& targetPos = target1[i];
+			const VectorR3& targetPos = targets[i];
 
 			// Compute the delta S value (differences from end effectors to target positions.
 			temp = targetPos;
@@ -418,7 +418,7 @@ void Jacobian::CalcdTClampedFromdS()
 	}
 }
 
-double Jacobian::UpdateErrorArray()
+double Jacobian::UpdateErrorArray(VectorR3* targets)
 {
 	double totalError = 0.0;
 
@@ -428,7 +428,7 @@ double Jacobian::UpdateErrorArray()
 	while ( n ) {	
 		if ( n->IsEffector() ) {
 			int i = n->GetEffectorNum();
-			const VectorR3& targetPos = target1[i];
+			const VectorR3& targetPos = targets[i];
 			temp = targetPos;
 			temp -= n->GetS();
 			double err = temp.Norm();
@@ -440,7 +440,7 @@ double Jacobian::UpdateErrorArray()
 	return totalError;
 }
 
-void Jacobian::UpdatedSClampValue()
+void Jacobian::UpdatedSClampValue(VectorR3* targets)
 {
 	// Traverse tree to find all end effectors
 	VectorR3 temp;
@@ -448,7 +448,7 @@ void Jacobian::UpdatedSClampValue()
 	while ( n ) {	
 		if ( n->IsEffector() ) {
 			int i = n->GetEffectorNum();
-			const VectorR3& targetPos = target1[i];
+			const VectorR3& targetPos = targets[i];
 
 			// Compute the delta S value (differences from end effectors to target positions.
 			// While we are at it, also update the clamping values in dSclamp;

@@ -53,6 +53,8 @@ public:
     virtual const float* getDebugLinesTo() const;
     virtual const float* getDebugLinesColor() const;
 	virtual void getCachedCameraImage(struct b3CameraImageData* cameraData);
+	
+	virtual void getCachedContactPointInformation(struct b3ContactInformation* contactPointData);
 
 };
 

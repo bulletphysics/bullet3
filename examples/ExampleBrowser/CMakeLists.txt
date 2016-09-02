@@ -216,6 +216,10 @@ SET(BulletExampleBrowser_SRCS
 	../RoboticsLearning/b3RobotSimAPI.h
 	../RoboticsLearning/R2D2GraspExample.cpp
 	../RoboticsLearning/R2D2GraspExample.h
+	../RoboticsLearning/KukaGraspExample.cpp
+	../RoboticsLearning/KukaGraspExample.h
+	../RoboticsLearning/IKTrajectoryHelper.cpp
+	../RoboticsLearning/IKTrajectoryHelper.h
 	../RenderingExamples/CoordinateSystemDemo.cpp
 	../RenderingExamples/CoordinateSystemDemo.h
 	../RenderingExamples/RaytracerSetup.cpp

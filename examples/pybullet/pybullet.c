@@ -617,14 +617,16 @@ static int pybullet_internalGetBasePositionAndOrientation(int bodyIndex, double 
                     b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
 
             const int status_type = b3GetStatusType(status_handle);
+			const double* actualStateQ;
+            // const double* jointReactionForces[];
+            int i;
+
 			if (status_type != CMD_ACTUAL_STATE_UPDATE_COMPLETED)
 			{
 				PyErr_SetString(SpamError, "getBasePositionAndOrientation failed.");
 				return 0;
 			}
-            const double* actualStateQ;
-            // const double* jointReactionForces[];
-            int i;
+            
             b3GetStatusActualState(status_handle, 0/* body_unique_id */,
                                0/* num_degree_of_freedom_q */,
                                0/* num_degree_of_freedom_u */, 0 /*root_local_inertial_frame*/,
@@ -1110,6 +1112,116 @@ static int pybullet_internalSetVector(PyObject* objMat, float vector[3])
     Py_DECREF(seq);
     return 0;
 }
+
+
+
+static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args)
+{
+    int size= PySequence_Size(args);
+    int objectUniqueIdA = -1;
+    int objectUniqueIdB = -1;
+    b3SharedMemoryCommandHandle commandHandle;
+    struct b3ContactInformation contactPointData;
+    b3SharedMemoryStatusHandle statusHandle;
+    int statusType;
+    
+    PyObject* pyResultList=0;
+    
+    if (size==1)
+    {
+        if (!PyArg_ParseTuple(args, "i", &objectUniqueIdA))
+        {
+            PyErr_SetString(SpamError, "Error parsing object unique id");
+            return NULL;
+        }
+    }
+    if (size==2)
+    {
+        if (!PyArg_ParseTuple(args, "ii", &objectUniqueIdA,&objectUniqueIdB))
+        {
+            PyErr_SetString(SpamError, "Error parsing object unique id");
+            return NULL;
+        }
+    }
+    
+    commandHandle = b3InitRequestContactPointInformation(sm);
+    b3SetContactFilterBodyA(commandHandle,objectUniqueIdA);
+    b3SetContactFilterBodyB(commandHandle,objectUniqueIdB);
+    b3SubmitClientCommand(sm, commandHandle);
+    
+    statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+    statusType = b3GetStatusType(statusHandle);
+    if (statusType==CMD_CONTACT_POINT_INFORMATION_COMPLETED)
+    {
+        
+        /*
+         0     int m_contactFlags;
+         1     int m_bodyUniqueIdA;
+         2     int m_bodyUniqueIdB;
+         3     int m_linkIndexA;
+         4     int m_linkIndexB;
+         5-6-7     double m_positionOnAInWS[3];//contact point location on object A, in world space coordinates
+         8-9-10     double m_positionOnBInWS[3];//contact point location on object A, in world space coordinates
+         11-12-13     double m_contactNormalOnBInWS[3];//the separating contact normal, pointing from object B towards object A
+         14     double m_contactDistance;//negative number is penetration, positive is distance.
+         
+         15    double m_normalForce;
+         */
+        
+        b3GetContactPointInformation(sm, &contactPointData);
+        pyResultList =  PyTuple_New(contactPointData.m_numContactPoints);
+        for (int i=0;i<contactPointData.m_numContactPoints;i++)
+        {
+            
+            PyObject* contactObList = PyTuple_New(16);//see above 16 fields
+            PyObject* item;
+            item = PyInt_FromLong(contactPointData.m_contactPointData[i].m_contactFlags);
+            PyTuple_SetItem(contactObList,0,item);
+            item = PyInt_FromLong(contactPointData.m_contactPointData[i].m_bodyUniqueIdA);
+            PyTuple_SetItem(contactObList,1,item);
+            item = PyInt_FromLong(contactPointData.m_contactPointData[i].m_bodyUniqueIdB);
+            PyTuple_SetItem(contactObList,2,item);
+            item = PyInt_FromLong(contactPointData.m_contactPointData[i].m_linkIndexA);
+            PyTuple_SetItem(contactObList,3,item);
+            item = PyInt_FromLong(contactPointData.m_contactPointData[i].m_linkIndexB);
+            PyTuple_SetItem(contactObList,4,item);
+            item = PyFloat_FromDouble(contactPointData.m_contactPointData[i].m_positionOnAInWS[0]);
+            PyTuple_SetItem(contactObList,5,item);
+            item = PyFloat_FromDouble(contactPointData.m_contactPointData[i].m_positionOnAInWS[1]);
+            PyTuple_SetItem(contactObList,6,item);
+            item = PyFloat_FromDouble(contactPointData.m_contactPointData[i].m_positionOnAInWS[2]);
+            PyTuple_SetItem(contactObList,7,item);
+            
+            item = PyFloat_FromDouble(contactPointData.m_contactPointData[i].m_positionOnBInWS[0]);
+            PyTuple_SetItem(contactObList,8,item);
+            item = PyFloat_FromDouble(contactPointData.m_contactPointData[i].m_positionOnBInWS[1]);
+            PyTuple_SetItem(contactObList,9,item);
+            item = PyFloat_FromDouble(contactPointData.m_contactPointData[i].m_positionOnBInWS[2]);
+            PyTuple_SetItem(contactObList,10,item);
+            
+            item = PyFloat_FromDouble(contactPointData.m_contactPointData[i].m_contactNormalOnBInWS[0]);
+            PyTuple_SetItem(contactObList,11,item);
+            item = PyFloat_FromDouble(contactPointData.m_contactPointData[i].m_contactNormalOnBInWS[1]);
+            PyTuple_SetItem(contactObList,12,item);
+            item = PyFloat_FromDouble(contactPointData.m_contactPointData[i].m_contactNormalOnBInWS[2]);
+            PyTuple_SetItem(contactObList,13,item);
+            
+            item = PyFloat_FromDouble(contactPointData.m_contactPointData[i].m_contactDistance);
+            PyTuple_SetItem(contactObList,14,item);
+            item = PyFloat_FromDouble(contactPointData.m_contactPointData[i].m_normalForce);
+            PyTuple_SetItem(contactObList,15,item);
+            
+            PyTuple_SetItem(pyResultList, i, contactObList);
+            
+        }
+        return pyResultList;
+    }
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+
 
 // Render an image from the current timestep of the simulation
 //
@@ -1792,6 +1904,10 @@ static PyMethodDef SpamMethods[] = {
 	{"renderImage", pybullet_renderImage, METH_VARARGS,
 	"Render an image (given the pixel resolution width, height, camera view matrix, projection matrix, near, and far values), and return the 8-8-8bit RGB pixel data and floating point depth values"},	
 
+    {"getContactPointData", pybullet_getContactPointData, METH_VARARGS,
+        "Return the contact point information for all or some of pairwise object-object collisions. Optional arguments one or two object unique ids, that need to be involved in the contact."},
+    
+ 
     {"getQuaternionFromEuler", pybullet_getQuaternionFromEuler, METH_VARARGS,
         "Convert Euler [roll, pitch, yaw] as in URDF/SDF convention, to quaternion [x,y,z,w]"},
     

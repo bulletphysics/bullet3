@@ -274,7 +274,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
         case CMD_CREATE_BOX_COLLISION_SHAPE:
         {
             b3SharedMemoryCommandHandle commandHandle = b3CreateBoxShapeCommandInit(m_physicsClientHandle);
-            b3CreateBoxCommandSetStartPosition(commandHandle,0,0,-3);
+            b3CreateBoxCommandSetStartPosition(commandHandle,0,0,-1.5);
 			b3CreateBoxCommandSetColorRGBA(commandHandle,0,0,1,1);
             b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
             break;
@@ -415,6 +415,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
             b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
             break;
         }
+        
 		case CMD_CALCULATE_INVERSE_DYNAMICS:
 		{
 			if (m_selectedBody >= 0)
@@ -442,6 +443,14 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 			}
 			break;
 		}
+		case CMD_REQUEST_CONTACT_POINT_INFORMATION:
+            {
+                b3SharedMemoryCommandHandle commandHandle = b3InitRequestContactPointInformation(m_physicsClientHandle);
+				b3SetContactFilterBodyA(commandHandle,0);
+				b3SetContactFilterBodyB(commandHandle,1);
+                b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+                break;
+            }
         default:
         {
             b3Error("Unknown buttonId");
@@ -530,6 +539,7 @@ void	PhysicsClientExample::createButtons()
 				createButton("Initialize Pose",CMD_INIT_POSE,  isTrigger);
         createButton("Set gravity", CMD_SEND_PHYSICS_SIMULATION_PARAMETERS, isTrigger);
 		createButton("Compute Inverse Dynamics", CMD_CALCULATE_INVERSE_DYNAMICS, isTrigger);
+        createButton("Get Contact Point Info", CMD_REQUEST_CONTACT_POINT_INFORMATION, isTrigger);
 
         if (m_bodyUniqueIds.size())
         {
@@ -945,6 +955,17 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 					}
 					
 				}
+			}
+			if (statusType == CMD_CONTACT_POINT_INFORMATION_FAILED)
+			{
+				b3Warning("Cannot get contact information");
+			}
+			if (statusType == CMD_CONTACT_POINT_INFORMATION_COMPLETED)
+			{
+				b3ContactInformation contactPointData;
+				b3GetContactPointInformation(m_physicsClientHandle, &contactPointData);
+				b3Printf("Num Contacts: %d\n", contactPointData.m_numContactPoints);
+
 			}
 		}
 	}
