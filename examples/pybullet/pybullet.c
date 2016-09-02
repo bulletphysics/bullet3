@@ -1148,7 +1148,7 @@ static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args)
     b3SetContactFilterBodyA(commandHandle,objectUniqueIdA);
     b3SetContactFilterBodyB(commandHandle,objectUniqueIdB);
     b3SubmitClientCommand(sm, commandHandle);
-    
+    int i; 
     statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
     statusType = b3GetStatusType(statusHandle);
     if (statusType==CMD_CONTACT_POINT_INFORMATION_COMPLETED)
@@ -1170,7 +1170,7 @@ static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args)
         
         b3GetContactPointInformation(sm, &contactPointData);
         pyResultList =  PyTuple_New(contactPointData.m_numContactPoints);
-        for (int i=0;i<contactPointData.m_numContactPoints;i++)
+        for (i=0;i<contactPointData.m_numContactPoints;i++)
         {
             
             PyObject* contactObList = PyTuple_New(16);//see above 16 fields
