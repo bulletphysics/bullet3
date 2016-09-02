@@ -224,11 +224,34 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 	relaxation = infoGlobal.m_sor;
 	
 	btScalar invTimeStep = btScalar(1)/infoGlobal.m_timeStep;
-	btScalar cfm = (cp.m_contactPointFlags&BT_CONTACT_FLAG_HAS_CONTACT_CFM)?cp.m_contactCFM:infoGlobal.m_globalCfm;
-	cfm *= invTimeStep;
+	
+	 //cfm = 1 /       ( dt * kp + kd )
+    //erp = dt * kp / ( dt * kp + kd )
+    
+    btScalar cfm = infoGlobal.m_globalCfm;
+    btScalar erp = infoGlobal.m_erp2;
 
-	btScalar erp = (cp.m_contactPointFlags&BT_CONTACT_FLAG_HAS_CONTACT_ERP)?cp.m_contactERP:infoGlobal.m_erp2;
-
+    if ((cp.m_contactPointFlags&BT_CONTACT_FLAG_HAS_CONTACT_CFM) || (cp.m_contactPointFlags&BT_CONTACT_FLAG_HAS_CONTACT_ERP))
+    {
+        if (cp.m_contactPointFlags&BT_CONTACT_FLAG_HAS_CONTACT_CFM)
+            cfm  = cp.m_contactCFM;
+        if (cp.m_contactPointFlags&BT_CONTACT_FLAG_HAS_CONTACT_ERP)
+            erp = cp.m_contactERP;                
+    } else
+    {
+        if (cp.m_contactPointFlags & BT_CONTACT_FLAG_CONTACT_STIFFNESS_DAMPING)
+        {
+            btScalar denom = ( infoGlobal.m_timeStep * cp.m_combinedContactStiffness1 + cp.m_combinedContactDamping1 );
+            if (denom < SIMD_EPSILON)
+            {
+                denom = SIMD_EPSILON;
+            }
+            cfm = btScalar(1) / denom; 
+            erp = (infoGlobal.m_timeStep * cp.m_combinedContactStiffness1) / denom;
+        }
+    }
+    
+    cfm *= invTimeStep;
 
 
 
@@ -565,12 +588,6 @@ void btMultiBodyConstraintSolver::setupMultiBodyRollingFrictionConstraint(btMult
     relaxation = infoGlobal.m_sor;
     
     btScalar invTimeStep = btScalar(1)/infoGlobal.m_timeStep;
-    btScalar cfm = (cp.m_contactPointFlags&BT_CONTACT_FLAG_HAS_CONTACT_CFM)?cp.m_contactCFM:infoGlobal.m_globalCfm;
-    cfm *= invTimeStep;
-    
-    btScalar erp = (cp.m_contactPointFlags&BT_CONTACT_FLAG_HAS_CONTACT_ERP)?cp.m_contactERP:infoGlobal.m_erp2;
-    
-    
     
     
     if (multiBodyA)
@@ -713,7 +730,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyRollingFrictionConstraint(btMult
         
         
         
-        btScalar d = denom0+denom1+cfm;
+        btScalar d = denom0+denom1+infoGlobal.m_globalCfm;
         if (d>SIMD_EPSILON)
         {
             solverConstraint.m_jacDiagABInv = relaxation/(d);
@@ -731,7 +748,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyRollingFrictionConstraint(btMult
     
     
     btScalar restitution = 0.f;
-    btScalar penetration = isFriction? 0 : cp.getDistance()+infoGlobal.m_linearSlop;
+    btScalar penetration = isFriction? 0 : cp.getDistance();
     
     btScalar rel_vel = 0.f;
     int ndofA  = 0;
@@ -790,15 +807,9 @@ void btMultiBodyConstraintSolver::setupMultiBodyRollingFrictionConstraint(btMult
         
         if (penetration>0)
         {
-            positionalError = 0;
             velocityError -= penetration / infoGlobal.m_timeStep;
-            
-        } else
-        {
-            positionalError = -penetration * erp/infoGlobal.m_timeStep;
-        }
+        } 
         
-        btScalar  penetrationImpulse = positionalError*solverConstraint.m_jacDiagABInv;
         btScalar velocityImpulse = velocityError*solverConstraint.m_jacDiagABInv;
         
         solverConstraint.m_rhs = velocityImpulse;
@@ -806,7 +817,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyRollingFrictionConstraint(btMult
         solverConstraint.m_lowerLimit = -solverConstraint.m_friction;
         solverConstraint.m_upperLimit = solverConstraint.m_friction;
         
-        solverConstraint.m_cfm = cfm*solverConstraint.m_jacDiagABInv;
+        solverConstraint.m_cfm = infoGlobal.m_globalCfm*solverConstraint.m_jacDiagABInv;
         
         
         
@@ -951,45 +962,6 @@ void	btMultiBodyConstraintSolver::convertMultiBodyContact(btPersistentManifold* 
 #define ENABLE_FRICTION
 #ifdef ENABLE_FRICTION
 			solverConstraint.m_frictionIndex = frictionIndex;
-//#define ROLLING_FRICTION
-#ifdef ROLLING_FRICTION
-	int rollingFriction=1;
-			btVector3 angVelA(0,0,0),angVelB(0,0,0);
-			if (mbA)
-				angVelA = mbA->getVelocityVector()>getLink(fcA->m_link).l>getAngularVelocity();
-			if (mbB)
-				angVelB = mbB->getAngularVelocity();
-			btVector3 relAngVel = angVelB-angVelA;
-
-			if ((cp.m_combinedRollingFriction>0.f) && (rollingFriction>0))
-			{
-//disabled: only a single rollingFriction per manifold
-//rollingFriction--;
-				if (relAngVel.length()>infoGlobal.m_singleAxisRollingFrictionThreshold)
-				{
-					relAngVel.normalize();
-					applyAnisotropicFriction(colObj0,relAngVel,btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
-					applyAnisotropicFriction(colObj1,relAngVel,btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
-					if (relAngVel.length()>0.001)
-						addRollingFrictionConstraint(relAngVel,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
-
-				} else
-				{
-					addRollingFrictionConstraint(cp.m_normalWorldOnB,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
-					btVector3 axis0,axis1;
-					btPlaneSpace1(cp.m_normalWorldOnB,axis0,axis1);
-					applyAnisotropicFriction(colObj0,axis0,btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
-					applyAnisotropicFriction(colObj1,axis0,btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
-					applyAnisotropicFriction(colObj0,axis1,btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
-					applyAnisotropicFriction(colObj1,axis1,btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
-					if (axis0.length()>0.001)
-						addRollingFrictionConstraint(axis0,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
-					if (axis1.length()>0.001)
-						addRollingFrictionConstraint(axis1,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
-		
-				}
-			}
-#endif //ROLLING_FRICTION
 
 			///Bullet has several options to set the friction directions
 			///By default, each contact has only a single friction direction that is recomputed automatically every frame

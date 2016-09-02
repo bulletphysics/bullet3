@@ -86,6 +86,10 @@ protected:
 	btScalar		m_friction;
 	btScalar		m_restitution;
 	btScalar		m_rollingFriction;
+	btScalar		m_contactDamping;
+	btScalar		m_contactStiffness;
+	
+	
 
 	///m_internalType is reserved to distinguish Bullet's btCollisionObject, btRigidBody, btSoftBody, btGhostObject etc.
 	///do not assign your own m_internalType unless you write a new dynamics object class.
@@ -129,7 +133,8 @@ public:
 		CF_CUSTOM_MATERIAL_CALLBACK = 8,//this allows per-triangle material (friction/restitution)
 		CF_CHARACTER_OBJECT = 16,
 		CF_DISABLE_VISUALIZE_OBJECT = 32, //disable debug drawing
-		CF_DISABLE_SPU_COLLISION_PROCESSING = 64//disable parallel/SPU processing
+		CF_DISABLE_SPU_COLLISION_PROCESSING = 64,//disable parallel/SPU processing
+		CF_HAS_CONTACT_STIFFNESS_DAMPING = 128
 	};
 
 	enum	CollisionObjectTypes
@@ -319,7 +324,31 @@ public:
 		return m_rollingFriction;
 	}
 
-
+    void	setContactStiffnessAndDamping(btScalar stiffness, btScalar damping)
+	{
+		m_updateRevision++;
+		m_contactStiffness = stiffness;
+		m_contactDamping = damping;
+		
+		m_collisionFlags |=CF_HAS_CONTACT_STIFFNESS_DAMPING;
+		
+        //avoid divisions by zero...
+		if (m_contactStiffness< SIMD_EPSILON)
+        {
+            m_contactStiffness = SIMD_EPSILON;
+        }
+	}
+	
+	btScalar	getContactStiffness() const
+	{
+		return m_contactStiffness;
+	}
+	
+	btScalar	getContactDamping() const
+	{
+		return m_contactDamping;
+	}
+    
 	///reserved for Bullet internal usage
 	int	getInternalType() const
 	{
@@ -541,6 +570,8 @@ struct	btCollisionObjectDoubleData
 	double					m_deactivationTime;
 	double					m_friction;
 	double					m_rollingFriction;
+	double                  m_contactDamping;
+	double                  m_contactStiffness;
 	double					m_restitution;
 	double					m_hitFraction; 
 	double					m_ccdSweptSphereRadius;
@@ -574,7 +605,8 @@ struct	btCollisionObjectFloatData
 	float					m_deactivationTime;
 	float					m_friction;
 	float					m_rollingFriction;
-
+    float                   m_contactDamping;
+    float                   m_contactStiffness;
 	float					m_restitution;
 	float					m_hitFraction; 
 	float					m_ccdSweptSphereRadius;

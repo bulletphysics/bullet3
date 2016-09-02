@@ -19,7 +19,8 @@ enum URDF_LinkContactFlags
 	URDF_CONTACT_HAS_ROLLING_FRICTION=2,
     URDF_CONTACT_HAS_INERTIA_SCALING=2,
     URDF_CONTACT_HAS_CONTACT_CFM=4,
-	URDF_CONTACT_HAS_CONTACT_ERP=8
+	URDF_CONTACT_HAS_CONTACT_ERP=8,
+	URDF_CONTACT_HAS_STIFFNESS_DAMPING=16,
 };
 
 struct URDFLinkContactInfo
@@ -29,6 +30,9 @@ struct URDFLinkContactInfo
     btScalar m_inertiaScaling;
 	btScalar m_contactCfm;
 	btScalar m_contactErp;
+	btScalar m_contactStiffness;
+	btScalar m_contactDamping;
+	
 	int m_flags;
 
 	URDFLinkContactInfo()
@@ -36,7 +40,9 @@ struct URDFLinkContactInfo
 		m_rollingFriction(0),
         m_inertiaScaling(1),
 		m_contactCfm(0),
-		m_contactErp(0)
+		m_contactErp(0),
+        m_contactStiffness(1e4),
+        m_contactDamping(1)
 	{
 		m_flags = URDF_CONTACT_HAS_LATERAL_FRICTION;
 	}
