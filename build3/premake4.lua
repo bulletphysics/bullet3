@@ -96,7 +96,7 @@ end
 
 		
 if os.is("Windows") then
- 		default_python_include_dir = "C:\Python-3.5.2/include"
+ 		default_python_include_dir = "C:/Python-3.5.2/include"
  		default_python_lib_dir = "C:/Python-3.5.2/libs"
 end
 
