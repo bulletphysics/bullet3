@@ -139,7 +139,8 @@ struct b3CameraImageData
 
 struct b3ContactPointData
 {
-    int m_contactFlags;//flag wether certain fields below are valid
+//todo: expose some contact flags, such as telling which fields below are valid
+    int m_contactFlags;
     int m_bodyUniqueIdA;
     int m_bodyUniqueIdB;
     int m_linkIndexA;
@@ -148,23 +149,23 @@ struct b3ContactPointData
     double m_positionOnBInWS[3];//contact point location on object A, in world space coordinates
     double m_contactNormalOnBInWS[3];//the separating contact normal, pointing from object B towards object A
     double m_contactDistance;//negative number is penetration, positive is distance.
-    int m_contactPointDynamicsIndex;
+    
+    double m_normalForce;
+
+//todo: expose the friction forces as well
+//    double m_linearFrictionDirection0[3];
+//    double m_linearFrictionForce0;
+//    double m_linearFrictionDirection1[3];
+//    double m_linearFrictionForce1;
+//    double m_angularFrictionDirection[3];
+//    double m_angularFrictionForce;
 };
 
-struct b3ContactPointDynamicsData
-{
-    double m_normalForce;
-    double m_linearFrictionDirection[3];
-    double m_linearFrictionForce;
-    double m_angularFrictionDirection[3];
-    double m_angularFrictionForce;    
-};
 
 struct b3ContactInformation
 {
 	int m_numContactPoints;
 	struct b3ContactPointData* m_contactPointData;
-	struct b3ContactPointDynamicsData* m_contactDynamicsData;
 };
 
 ///b3LinkState provides extra information such as the Cartesian world coordinates
