@@ -286,6 +286,7 @@ void ConvertURDF2BulletInternal(
             btTransform offsetInA,offsetInB;
             offsetInA = parentLocalInertialFrame.inverse()*parent2joint;
             offsetInB = localInertialFrame.inverse();
+            btQuaternion parentRotToThis = offsetInB.getRotation() * offsetInA.inverse().getRotation();
 
             bool disableParentCollision = true;
             switch (jointType)
@@ -295,14 +296,9 @@ void ConvertURDF2BulletInternal(
                     if (createMultiBody)
                     {
                         //todo: adjust the center of mass transform and pivot axis properly
-
-                        //b3Printf("Fixed joint (btMultiBody)\n");
-                        btQuaternion rot = offsetInA.inverse().getRotation();//parent2joint.inverse().getRotation();
                         cache.m_bulletMultiBody->setupFixed(mbLinkIndex, mass, localInertiaDiagonal, mbParentIndex,
-                                                               rot*offsetInB.getRotation(), offsetInA.getOrigin(),-offsetInB.getOrigin());
+                                                            parentRotToThis, offsetInA.getOrigin(),-offsetInB.getOrigin());
                         creation.addLinkMapping(urdfLinkIndex,mbLinkIndex);
-
-
                     } else
                     {
                         //b3Printf("Fixed joint\n");
@@ -319,14 +315,12 @@ void ConvertURDF2BulletInternal(
                 {
                     if (createMultiBody)
                     {
-
-
                         cache.m_bulletMultiBody->setupRevolute(mbLinkIndex, mass, localInertiaDiagonal, mbParentIndex,
-                                                                  offsetInA.inverse().getRotation()*offsetInB.getRotation(), quatRotate(offsetInB.inverse().getRotation(),jointAxisInJointSpace), offsetInA.getOrigin(),//parent2joint.getOrigin(),
+                                                                  parentRotToThis, quatRotate(offsetInB.getRotation(),jointAxisInJointSpace), offsetInA.getOrigin(),//parent2joint.getOrigin(),
                                                                   -offsetInB.getOrigin(),
                                                                   disableParentCollision);
-						cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointDamping = jointDamping;
-						cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointFriction= jointFriction;
+                        cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointDamping = jointDamping;
+                        cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointFriction= jointFriction;
                         creation.addLinkMapping(urdfLinkIndex,mbLinkIndex);
 
                     } else
@@ -344,12 +338,10 @@ void ConvertURDF2BulletInternal(
                 {
                     if (createMultiBody)
                     {
-
                         cache.m_bulletMultiBody->setupPrismatic(mbLinkIndex, mass, localInertiaDiagonal, mbParentIndex,
-                                                                   offsetInA.inverse().getRotation()*offsetInB.getRotation(), quatRotate(offsetInB.inverse().getRotation(),jointAxisInJointSpace), offsetInA.getOrigin(),//parent2joint.getOrigin(),
+                                                                   parentRotToThis, quatRotate(offsetInB.getRotation(),jointAxisInJointSpace), offsetInA.getOrigin(),//parent2joint.getOrigin(),
                                                                    -offsetInB.getOrigin(),
                                                                    disableParentCollision);
-
                         creation.addLinkMapping(urdfLinkIndex,mbLinkIndex);
                         btMultiBodyConstraint* con = new btMultiBodyJointLimitConstraint(cache.m_bulletMultiBody,mbLinkIndex,jointLowerLimit, jointUpperLimit);
                         world1->addMultiBodyConstraint(con);
