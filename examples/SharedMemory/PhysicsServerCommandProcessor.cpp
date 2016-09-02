@@ -2151,7 +2151,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                             for (int i=0;i<numContactManifolds;i++)
                             {
 								const btPersistentManifold* manifold =  m_data->m_dynamicsWorld->getDispatcher()->getInternalManifoldPointer()[i];
-								
+                                int linkIndexA = -1;
+                                int linkIndexB = -1;
+                                
 								int objectIndexB = -1;
 
 								const btRigidBody* bodyB = btRigidBody::upcast(manifold->getBody1());
@@ -2162,6 +2164,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								const btMultiBodyLinkCollider* mblB = btMultiBodyLinkCollider::upcast(manifold->getBody1());
 								if (mblB && mblB->m_multiBody)
 								{
+                                    linkIndexB = mblB->m_link;
 									objectIndexB = mblB->m_multiBody->getUserIndex2();
 								}
 
@@ -2174,12 +2177,14 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								const btMultiBodyLinkCollider* mblA = btMultiBodyLinkCollider::upcast(manifold->getBody0());
 								if (mblA && mblA->m_multiBody)
 								{
+                                    linkIndexA = mblA->m_link;
+
 									objectIndexA = mblA->m_multiBody->getUserIndex2();
 								}
 
 								btAssert(bodyA || mblA);
 
-								//apply the filter, if any
+								//apply the filter, if the user provides it
 								if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter>=0)
 								{
 									if ((clientCmd.m_requestContactPointArguments.m_objectAIndexFilter != objectIndexA) &&
@@ -2187,6 +2192,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									continue;
 								}
 
+                                //apply the second object filter, if the user provides it
 								if (clientCmd.m_requestContactPointArguments.m_objectBIndexFilter>=0)
 								{
 									if ((clientCmd.m_requestContactPointArguments.m_objectBIndexFilter != objectIndexA) &&
@@ -2196,29 +2202,23 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 								for (int p=0;p<manifold->getNumContacts();p++)
 								{
-									//if the point passes the optional filter, add it
-
-									if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter>=0)
-									{
-										//one of the two unique Ids has to match...
-
-									}
 
 									b3ContactPointData pt;
-									pt.m_bodyUniqueIdA = -1;
-									pt.m_bodyUniqueIdB = -1;
+									pt.m_bodyUniqueIdA = objectIndexA;
+									pt.m_bodyUniqueIdB = objectIndexB;
 									const btManifoldPoint& srcPt = manifold->getContactPoint(p);
 									pt.m_contactDistance = srcPt.getDistance();
 									pt.m_contactFlags = 0;
-									pt.m_contactPointDynamicsIndex = -1;
-									pt.m_linkIndexA = -1;
-									pt.m_linkIndexB = -1;
+									pt.m_linkIndexA = linkIndexA;
+									pt.m_linkIndexB = linkIndexB;
 									for (int j=0;j<3;j++)
 									{
 										pt.m_contactNormalOnBInWS[j] = srcPt.m_normalWorldOnB[j];
 										pt.m_positionOnAInWS[j] = srcPt.getPositionWorldOnA()[j];
 										pt.m_positionOnBInWS[j] = srcPt.getPositionWorldOnB()[j];
 									}
+                                    pt.m_normalForce = srcPt.getAppliedImpulse()/m_data->m_physicsDeltaTime;
+//                                    pt.m_linearFrictionForce = srcPt.m_appliedImpulseLateral1;
 									m_data->m_cachedContactPoints.push_back (pt);
 								}
                             }
@@ -2298,8 +2298,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							}
 							// Set the gravity to correspond to the world gravity
 							btInverseDynamics::vec3 id_grav(m_data->m_dynamicsWorld->getGravity());
-							if (-1 != tree->calculateInverseDynamics(q, qdot, nu, &joint_force) &&
-								-1 != tree->setGravityInWorldFrame(id_grav))
+                            
+							if (-1 != tree->setGravityInWorldFrame(id_grav) &&
+                                -1 != tree->calculateInverseDynamics(q, qdot, nu, &joint_force))
 							{
 								serverCmd.m_inverseDynamicsResultArgs.m_bodyUniqueId = clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId;
 								serverCmd.m_inverseDynamicsResultArgs.m_dofCount = num_dofs;
@@ -2649,7 +2650,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			loadUrdf("plane.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, true, &bodyId, &bufferServerToClient[0], bufferServerToClient.size());
 		}
 
-		m_data->m_dynamicsWorld->stepSimulation(dtInSec,10,1./240.);
+		m_data->m_dynamicsWorld->stepSimulation(dtInSec,10,m_data->m_physicsDeltaTime);
 	}
 }
 

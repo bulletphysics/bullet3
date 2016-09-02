@@ -39,7 +39,6 @@ struct PhysicsClientSharedMemoryInternalData {
 	btAlignedObjectArray<int> m_cachedSegmentationMaskBuffer;
 
     btAlignedObjectArray<b3ContactPointData> m_cachedContactPoints;
-    btAlignedObjectArray<b3ContactPointDynamicsData>m_cachedContactPointDynamics;
 
     btAlignedObjectArray<int> m_bodyIdsRequestInfo;
     SharedMemoryStatus m_tempBackupServerStatus;
@@ -572,7 +571,6 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 					int numContactsCopied = serverCmd.m_sendContactPointArgs.m_numContactPointsCopied;
 
 					m_data->m_cachedContactPoints.resize(startContactIndex+numContactsCopied);
-                    m_data->m_cachedContactPointDynamics.resize(0);
                     
 					b3ContactPointData* contactData = (b3ContactPointData*)m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor;
 
@@ -653,8 +651,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
         
         if (serverCmd.m_type == CMD_CONTACT_POINT_INFORMATION_COMPLETED)
         {
-            //todo: request remaining points, if needed
-			SharedMemoryCommand& command = m_data->m_testBlock1->m_clientCommands[0];
+            SharedMemoryCommand& command = m_data->m_testBlock1->m_clientCommands[0];
 			if (serverCmd.m_sendContactPointArgs.m_numRemainingContactPoints>0 && serverCmd.m_sendContactPointArgs.m_numContactPointsCopied)
 			{
 				command.m_type = CMD_REQUEST_CONTACT_POINT_INFORMATION;
@@ -765,7 +762,6 @@ void PhysicsClientSharedMemory::getCachedCameraImage(struct b3CameraImageData* c
 void PhysicsClientSharedMemory::getCachedContactPointInformation(struct b3ContactInformation* contactPointData)
 {
 	contactPointData->m_numContactPoints = m_data->m_cachedContactPoints.size();
-	contactPointData->m_contactDynamicsData = 0;
 	contactPointData->m_contactPointData = contactPointData->m_numContactPoints? &m_data->m_cachedContactPoints[0] : 0;
 
 }

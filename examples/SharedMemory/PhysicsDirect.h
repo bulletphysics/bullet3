@@ -21,6 +21,8 @@ protected:
 
 	bool processCamera(const struct SharedMemoryCommand& orgCommand);
 
+    bool processContactPointData(const struct SharedMemoryCommand& orgCommand);
+
     void processBodyJointInfo(int bodyUniqueId, const struct SharedMemoryStatus& serverCmd);
     
 public:

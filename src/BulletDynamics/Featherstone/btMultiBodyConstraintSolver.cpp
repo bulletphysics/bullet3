@@ -963,8 +963,8 @@ void	btMultiBodyConstraintSolver::convertMultiBodyContact(btPersistentManifold* 
 
 			if ((cp.m_combinedRollingFriction>0.f) && (rollingFriction>0))
 			{
-				//only a single rollingFriction per manifold
-				rollingFriction--;
+//disabled: only a single rollingFriction per manifold
+//rollingFriction--;
 				if (relAngVel.length()>infoGlobal.m_singleAxisRollingFrictionThreshold)
 				{
 					relAngVel.normalize();
