@@ -777,10 +777,35 @@ void btSequentialImpulseConstraintSolver::setupContactConstraint(btSolverConstra
 
 			relaxation = infoGlobal.m_sor;
 			btScalar invTimeStep = btScalar(1)/infoGlobal.m_timeStep;
-			btScalar cfm = (cp.m_contactPointFlags&BT_CONTACT_FLAG_HAS_CONTACT_CFM)?cp.m_contactCFM:infoGlobal.m_globalCfm;
-			cfm *= invTimeStep;
 
-			btScalar erp = (cp.m_contactPointFlags&BT_CONTACT_FLAG_HAS_CONTACT_ERP)?cp.m_contactERP:infoGlobal.m_erp2;
+            //cfm = 1 /       ( dt * kp + kd )
+            //erp = dt * kp / ( dt * kp + kd )
+            
+            btScalar cfm = infoGlobal.m_globalCfm;
+            btScalar erp = infoGlobal.m_erp2;
+
+            if ((cp.m_contactPointFlags&BT_CONTACT_FLAG_HAS_CONTACT_CFM) || (cp.m_contactPointFlags&BT_CONTACT_FLAG_HAS_CONTACT_ERP))
+            {
+                if (cp.m_contactPointFlags&BT_CONTACT_FLAG_HAS_CONTACT_CFM)
+                    cfm  = cp.m_contactCFM;
+                if (cp.m_contactPointFlags&BT_CONTACT_FLAG_HAS_CONTACT_ERP)
+                    erp = cp.m_contactERP;                
+            } else
+            {
+                if (cp.m_contactPointFlags & BT_CONTACT_FLAG_CONTACT_STIFFNESS_DAMPING)
+                {
+                    btScalar denom = ( infoGlobal.m_timeStep * cp.m_combinedContactStiffness1 + cp.m_combinedContactDamping1 );
+                    if (denom < SIMD_EPSILON)
+                    {
+                        denom = SIMD_EPSILON;
+                    }
+                    cfm = btScalar(1) / denom; 
+                    erp = (infoGlobal.m_timeStep * cp.m_combinedContactStiffness1) / denom;
+                }
+            }
+            
+            cfm *= invTimeStep;
+            
 
 			btVector3 torqueAxis0 = rel_pos1.cross(cp.m_normalWorldOnB);
 			solverConstraint.m_angularComponentA = rb0 ? rb0->getInvInertiaTensorWorld()*torqueAxis0*rb0->getAngularFactor() : btVector3(0,0,0);
@@ -1053,8 +1078,8 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 
 			if ((cp.m_combinedRollingFriction>0.f) && (rollingFriction>0))
 			{
-//disabled: only a single rollingFriction per manifold
-//				rollingFriction--;
+                //only a single rollingFriction per manifold
+				//rollingFriction--;
 				if (relAngVel.length()>infoGlobal.m_singleAxisRollingFrictionThreshold)
 				{
 					relAngVel.normalize();
@@ -1068,6 +1093,9 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 					addRollingFrictionConstraint(cp.m_normalWorldOnB,solverBodyIdA,solverBodyIdB,frictionIndex,cp,rel_pos1,rel_pos2,colObj0,colObj1, relaxation);
 					btVector3 axis0,axis1;
 					btPlaneSpace1(cp.m_normalWorldOnB,axis0,axis1);
+					axis0.normalize();
+					axis1.normalize();
+					
 					applyAnisotropicFriction(colObj0,axis0,btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
 					applyAnisotropicFriction(colObj1,axis0,btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
 					applyAnisotropicFriction(colObj0,axis1,btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);

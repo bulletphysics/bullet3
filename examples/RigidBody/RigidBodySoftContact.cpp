@@ -29,7 +29,7 @@ subject to the following restrictions:
 #include "BulletDynamics/MLCPSolvers/btMLCPSolver.h"
 #include "BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h"
 
-extern ContactAddedCallback		gContactAddedCallback;
+
 
 
 struct RigidBodySoftContact : public CommonRigidBodyBase
@@ -40,7 +40,7 @@ struct RigidBodySoftContact : public CommonRigidBodyBase
 	}
 	virtual ~RigidBodySoftContact()
     {
-        gContactAddedCallback = 0;
+        
     }
 	virtual void initPhysics();
 	virtual void renderScene();
@@ -55,21 +55,12 @@ struct RigidBodySoftContact : public CommonRigidBodyBase
 };
 
 
-static bool btRigidBodySoftContactCallback(btManifoldPoint& cp,	const btCollisionObjectWrapper* colObj0Wrap,int partId0,int index0,const btCollisionObjectWrapper* colObj1Wrap,int partId1,int index1)
-{
-    cp.m_contactCFM = 0.3;
-	cp.m_contactERP = 0.2;
-	cp.m_contactPointFlags |= BT_CONTACT_FLAG_HAS_CONTACT_CFM;
-    cp.m_contactPointFlags |= BT_CONTACT_FLAG_HAS_CONTACT_ERP;
-	return true; 
-
-}
 
 
 
 void RigidBodySoftContact::initPhysics()
 {
-    gContactAddedCallback = btRigidBodySoftContactCallback;
+    
     
 	m_guiHelper->setUpAxis(1);
 
@@ -120,8 +111,9 @@ void RigidBodySoftContact::initPhysics()
 	{
 		btScalar mass(0.);
 		btRigidBody* body = createRigidBody(mass,groundTransform,groundShape, btVector4(0,0,1,1));
-		int flags = body->getCollisionFlags();
-		body->setCollisionFlags(flags|btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+        
+        body->setContactStiffnessAndDamping(300,10);
+		
 	}
 
 

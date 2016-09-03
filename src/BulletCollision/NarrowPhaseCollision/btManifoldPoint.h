@@ -40,6 +40,7 @@ enum btContactPointFlags
 	BT_CONTACT_FLAG_LATERAL_FRICTION_INITIALIZED=1,
 	BT_CONTACT_FLAG_HAS_CONTACT_CFM=2,
 	BT_CONTACT_FLAG_HAS_CONTACT_ERP=4,
+    BT_CONTACT_FLAG_CONTACT_STIFFNESS_DAMPING = 8,
 };
 
 /// ManifoldContactPoint collects and maintains persistent contactpoints.
@@ -116,8 +117,18 @@ class btManifoldPoint
 			btScalar		m_appliedImpulseLateral2;
 			btScalar		m_contactMotion1;
 			btScalar		m_contactMotion2;
-			btScalar		m_contactCFM;
-			btScalar		m_contactERP;
+			
+			union
+			{
+                btScalar		m_contactCFM;
+                btScalar        m_combinedContactStiffness1;
+			};
+			
+			union
+			{
+                btScalar		m_contactERP;
+                btScalar        m_combinedContactDamping1;
+			};
 
 			btScalar		m_frictionCFM;
 
