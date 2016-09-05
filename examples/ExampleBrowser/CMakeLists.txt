@@ -179,18 +179,8 @@ SET(BulletExampleBrowser_SRCS
 	../ExtendedTutorials/InclinedPlane.h
 	../ExtendedTutorials/MultiPendulum.cpp
 	../ExtendedTutorials/MultiPendulum.h
-	../ExtendedTutorials/Breakout/GameObject.cpp
-	../ExtendedTutorials/Breakout/GameObject.h
-	../ExtendedTutorials/Breakout/Border.cpp
-	../ExtendedTutorials/Breakout/Border.h
-	../ExtendedTutorials/Breakout/Brick.cpp
-	../ExtendedTutorials/Breakout/Brick.h
-	../ExtendedTutorials/Breakout/Ball.cpp
-	../ExtendedTutorials/Breakout/Ball.h
-	../ExtendedTutorials/Breakout/Paddle.cpp
-	../ExtendedTutorials/Breakout/Paddle.h
-	../ExtendedTutorials/Breakout/Breakout.cpp
-	../ExtendedTutorials/Breakout/Breakout.h
+	../ExtendedTutorials/Breakout.cpp
+	../ExtendedTutorials/Breakout.h
 	../Collision/CollisionSdkC_Api.cpp
 	../Collision/CollisionSdkC_Api.h
 	../Collision/CollisionTutorialBullet2.cpp

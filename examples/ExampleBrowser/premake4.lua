@@ -88,7 +88,6 @@ project "App_BulletExampleBrowser"
 		"../BasicDemo/BasicExample.*",
 		"../Tutorial/*",
 		"../ExtendedTutorials/*",
-		"../ExtendedTutorials/Breakout/*",
 		"../Collision/*",
 		"../RoboticsLearning/*",
 		"../Collision/Internal/*",

@@ -72,7 +72,7 @@
 #include "../ExtendedTutorials/NewtonsCradle.h"
 #include "../ExtendedTutorials/NewtonsRopeCradle.h"
 #include "../ExtendedTutorials/MultiPendulum.h"
-#include "../ExtendedTutorials/Breakout/Breakout.h"
+#include "../ExtendedTutorials/Breakout.h"
 
 struct ExampleEntry
 {
