@@ -27,6 +27,12 @@ subject to the following restrictions:
 #define BRICKS_PER_COL 8
 #define BRICKS_PER_ROW 9
 
+#define PADDLE_WIDTH 4.0f
+
+static bool left_button_down = false;
+
+static bool right_button_down = false;
+
 /**
  * An example of a simple breakout game.
  */
@@ -59,6 +65,8 @@ struct BreakoutExample : public CommonRigidBodyBase
 	}
 
 	virtual void resetBricks();
+
+	virtual void movePaddle(float move);
 
 	Border* m_border; // game area border
 
@@ -102,35 +110,8 @@ bool processBallBrickCollisions(GameObject* a, GameObject* b){
 	return false;
 }
 
-/**
- * Contact processing callback to process the removal of bricks.
- * @param cp
- * @param body0 first collided body
- * @param body1 second collided body
- * @return
- */
-bool objectContactProcessedCallback(btManifoldPoint& cp, void* body0, void* body1)
-{
-	// cast the bodies to collision objects
-    btCollisionObject* obA = static_cast<btCollisionObject*>(body0);
-    btCollisionObject* obB = static_cast<btCollisionObject*>(body1);
-
-	// get the game objects from the collision objects
-	GameObject* goA = (GameObject*)obA->getUserPointer();
-	GameObject* goB = (GameObject*)obB->getUserPointer();
-
-
-	processBallBrickCollisions(goA, goB); // if the object A is the ball and B is the brick
-
-	processBallBrickCollisions(goB, goA); // if the object b is the ball and A is the brick
-    return false;
-}
-
 void BreakoutExample::initPhysics()
 {
-
-//	gContactProcessedCallback = objectContactProcessedCallback;
-
 	m_guiHelper->setUpAxis(1);
 
 	createEmptyDynamicsWorld();
@@ -222,9 +203,18 @@ void BreakoutExample::stepSimulation(float deltaTime){
 	m_ball->m_body->setLinearVelocity(newVelocity); // set new velocity
 
 
-	if(m_bricks.size() == m_hitBricks){
+	if(m_bricks.size() == m_hitBricks) { // if all bricks are hit, reset the bricks
 		resetBricks();
 	}
+
+	if(left_button_down){
+		movePaddle(0.5f);
+	}
+
+	if(right_button_down){
+		movePaddle(-0.5f);
+	}
+
 }
 
 void BreakoutExample::resetBricks(){
@@ -262,32 +252,30 @@ bool BreakoutExample::keyboardCallback(int key, int state) {
 		return true;
 	}
 	case 110 /*ASCII for n*/: {
-		if(m_paddle->m_body->getWorldTransform().getOrigin().x() <= GAME_AREA_WIDTH){
-			btVector3 oldPosition = m_paddle->m_position;
-			oldPosition += btVector3(0.5,0,0);
-			m_paddle->setPosition(oldPosition);
+		left_button_down = state;
 
-			if(m_ball->m_body->getLinearVelocity().isZero()){
-				m_ball->setPosition(btVector3(oldPosition.x(), btScalar(m_gameArea.y() * 0.1), btScalar(0)));
-			}
-		}
 		return true;
 	}
 	case 109 /*ASCII for m*/: {
-		if(m_paddle->m_body->getWorldTransform().getOrigin().x() >= 0.0f){
-			btVector3 oldPosition = m_paddle->m_position;
-			oldPosition += btVector3(-0.5,0,0);
-			m_paddle->setPosition(oldPosition);
-
-			if(m_ball->m_body->getLinearVelocity().isZero()){
-				m_ball->setPosition(btVector3(oldPosition.x(), btScalar(m_gameArea.y() * 0.1), btScalar(0)));
-			}
-		}
+		right_button_down = state;
 		return true;
 	}
 	}
 
 	return false;
+}
+
+void BreakoutExample::movePaddle(float i){
+	btVector3 oldPosition = m_paddle->m_position;
+	if(oldPosition.x() + i <= (GAME_AREA_WIDTH - PADDLE_WIDTH/2.0f) && oldPosition.x() + i >= (PADDLE_WIDTH/2.0f))
+	{
+		oldPosition += btVector3(i,0,0);
+	}
+	m_paddle->setPosition(oldPosition);
+
+	if(m_ball->m_body->getLinearVelocity().isZero()){
+		m_ball->setPosition(btVector3(oldPosition.x(), btScalar(m_gameArea.y() * 0.1), btScalar(0)));
+	}
 }
 
 
@@ -543,7 +531,7 @@ Border::~Border() {
 
 Paddle::Paddle() {
 	m_tag = PADDLE;
-	m_shape = new btBoxShape(btVector3(4,1,1)); // define paddle shape
+	m_shape = new btBoxShape(btVector3(PADDLE_WIDTH,1,1)); // define paddle shape
 
 	createBodyWithMass(btScalar(0.0f)); // create kinematic object for paddle
 
