@@ -52,7 +52,9 @@ static btScalar gLegLength = 0.45f;
 static btScalar gForeLegLength = 0.75f;
 static btScalar gForeLegRadius = 0.08f;
 
-class NN3DWalkers : public CommonRigidBodyBase
+void* GROUND_ID = (void*)1;
+
+class NN3DWalkersExample : public CommonRigidBodyBase
 {
 	btScalar m_Time;
 	btScalar m_targetAccumulator;
@@ -63,7 +65,7 @@ class NN3DWalkers : public CommonRigidBodyBase
 	
 	
 public:
-	NN3DWalkers(struct GUIHelperInterface* helper)
+	NN3DWalkersExample(struct GUIHelperInterface* helper)
 	:CommonRigidBodyBase(helper), m_Time(0),m_motorStrength(0.5f),m_targetFrequency(3),m_targetAccumulator(0)
 	{
 
@@ -72,7 +74,7 @@ public:
 	
 	virtual void exitPhysics();
 
-	virtual ~NN3DWalkers()
+	virtual ~NN3DWalkersExample()
 	{
 	}
 	
@@ -82,6 +84,44 @@ public:
 	
 	void setMotorTargets(btScalar deltaTime);
 	
+	bool detectCollisions(){
+		bool collisionDetected = false;
+		if(m_dynamicsWorld){
+			m_dynamicsWorld->performDiscreteCollisionDetection(); // let the collisions be calculated
+		}
+
+		int numManifolds = m_dynamicsWorld->getDispatcher()->getNumManifolds();
+		for (int i=0;i<numManifolds;i++)
+		{
+			btPersistentManifold* contactManifold =  m_dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+			const btCollisionObject* obA = contactManifold->getBody0();
+			const btCollisionObject* obB = contactManifold->getBody1();
+
+			if(obA->getUserPointer() != GROUND_ID && obB->getUserPointer() != GROUND_ID){
+
+				int numContacts = contactManifold->getNumContacts();
+				for (int j=0;j<numContacts;j++)
+				{
+					collisionDetected = true;
+					btManifoldPoint& pt = contactManifold->getContactPoint(j);
+					if (pt.getDistance()<0.f)
+					{
+						const btVector3& ptA = pt.getPositionWorldOnA();
+						const btVector3& ptB = pt.getPositionWorldOnB();
+						const btVector3& normalOnB = pt.m_normalWorldOnB;
+
+						if(m_dynamicsWorld->getDebugDrawer()){
+							m_dynamicsWorld->getDebugDrawer()->drawSphere(pt.getPositionWorldOnA(), 0.1, btVector3(0., 0., 1.));
+							m_dynamicsWorld->getDebugDrawer()->drawSphere(pt.getPositionWorldOnB(), 0.1, btVector3(0., 0., 1.));
+						}
+					}
+				}
+			}
+		}
+
+		return collisionDetected;
+	}
+
 	void resetCamera()
 	{
 		float dist = 11;
@@ -94,7 +134,7 @@ public:
 	virtual void renderScene();
 };
 
-static NN3DWalkers* nn3DWalkers = NULL;
+static NN3DWalkersExample* nn3DWalkers = NULL;
 
 #ifndef SIMD_PI_4
 #define SIMD_PI_4     0.5 * SIMD_HALF_PI
@@ -104,7 +144,6 @@ static NN3DWalkers* nn3DWalkers = NULL;
 #define SIMD_PI_8     0.25 * SIMD_HALF_PI
 #endif
 
-void* GROUND_ID = (void*)1;
 bool RANDOM_MOVEMENT = false;
 
 bool RANDOM_DIMENSIONS = false;
@@ -135,8 +174,6 @@ class NNWalker
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,motionState,shape,localInertia);
 		btRigidBody* body = new btRigidBody(rbInfo);
 
-		m_ownerWorld->addRigidBody(body);
-
 		return body;
 	}
 
@@ -156,7 +193,6 @@ public:
 
 		//
 		// Setup geometry
-		//
 		m_shapes[0] = new btCapsuleShape(gRootBodyRadius, gRootBodyHeight); // root body capsule
 		int i;
 		for ( i=0; i<NUM_LEGS; i++)
@@ -167,7 +203,6 @@ public:
 
 		//
 		// Setup rigid bodies
-		//
 		float rootAboveGroundHeight = gForeLegLength;
 		btTransform bodyOffset; bodyOffset.setIdentity();
 		bodyOffset.setOrigin(positionOffset);		
@@ -177,13 +212,11 @@ public:
 		btTransform transform;
 		transform.setIdentity();
 		transform.setOrigin(localRootBodyPosition);
-		if (bFixed) // if fixed body
-		{
-			m_bodies[0] = localCreateRigidBody(btScalar(0.), bodyOffset*transform, m_shapes[0]);
-		} else
-		{
-			m_bodies[0] = localCreateRigidBody(btScalar(1.), bodyOffset*transform, m_shapes[0]);
-		}
+
+		m_bodies[0] = localCreateRigidBody(btScalar(bFixed?0.:1.), bodyOffset*transform, m_shapes[0]);
+		m_ownerWorld->addRigidBody(m_bodies[0]);
+		m_bodies[0]->setUserPointer(this);
+		m_bodyTouchSensorIndexMap.insert(std::pair<void*,int>(m_bodies[0], 0));
 
 		btHingeConstraint* hingeC;
 		//btConeTwistConstraint* coneC;
@@ -206,15 +239,15 @@ public:
 			btVector3 kneeAxis = legDirection.cross(vUp);			
 			transform.setRotation(btQuaternion(kneeAxis, SIMD_HALF_PI));
 			m_bodies[1+2*i] = localCreateRigidBody(btScalar(1.), bodyOffset*transform, m_shapes[1+2*i]);
+			m_bodies[1+2*i]->setUserPointer(this);
+			m_bodyTouchSensorIndexMap.insert(std::pair<void*,int>(m_bodies[1+2*i],1+2*i));
 
 			// shin
 			transform.setIdentity();
 			transform.setOrigin(btVector3(btScalar(footXUnitPosition*(gRootBodyRadius+gLegLength)), btScalar(rootAboveGroundHeight-0.5*gForeLegLength), btScalar(footYUnitPosition*(gRootBodyRadius+gLegLength))));
 			m_bodies[2+2*i] = localCreateRigidBody(btScalar(1.), bodyOffset*transform, m_shapes[2+2*i]);
-
-			//
-			// Setup the constraints
-			//
+			m_bodies[2+2*i]->setUserPointer(this);
+			m_bodyTouchSensorIndexMap.insert(std::pair<void*,int>(m_bodies[2+2*i],2+2*i));
 
 			// hip joints
 			localA.setIdentity(); localB.setIdentity();
@@ -224,7 +257,6 @@ public:
 			hingeC->setLimit(btScalar(-0.75 * SIMD_PI_4), btScalar(SIMD_PI_8));
 			//hingeC->setLimit(btScalar(-0.1), btScalar(0.1));
 			m_joints[2*i] = hingeC;
-			m_ownerWorld->addConstraint(m_joints[2*i], true);
 
 			// knee joints
 			localA.setIdentity(); localB.setIdentity(); localC.setIdentity();
@@ -235,7 +267,25 @@ public:
 			//hingeC->setLimit(btScalar(-0.01), btScalar(0.01));
 			hingeC->setLimit(btScalar(-SIMD_PI_8), btScalar(0.2));
 			m_joints[1+2*i] = hingeC;
-			m_ownerWorld->addConstraint(m_joints[1+2*i], true);
+
+			m_ownerWorld->addRigidBody(m_bodies[1+2*i]); // add thigh bone
+
+			m_ownerWorld->addConstraint(m_joints[2*i], true); // connect thigh bone with root
+
+			if(nn3DWalkers->detectCollisions()){ // if thigh bone causes collision, remove it again
+				m_ownerWorld->removeRigidBody(m_bodies[1+2*i]);
+				m_ownerWorld->removeConstraint(m_joints[2*i]); // disconnect thigh bone from root
+			}
+			else{
+
+				m_ownerWorld->addRigidBody(m_bodies[2+2*i]); // add shin bone
+				m_ownerWorld->addConstraint(m_joints[1+2*i], true); // connect shin bone with thig
+
+				if(nn3DWalkers->detectCollisions()){ // if shin bone causes collision, remove it again
+					m_ownerWorld->removeRigidBody(m_bodies[2+2*i]);
+					m_ownerWorld->removeConstraint(m_joints[1+2*i]); // disconnect shin bone from thigh
+				}
+			}
 		}
 
 		// Setup some damping on the m_bodies
@@ -245,9 +295,6 @@ public:
 			m_bodies[i]->setDeactivationTime(0.8);
 			//m_bodies[i]->setSleepingThresholds(1.6, 2.5);
 			m_bodies[i]->setSleepingThresholds(0.5f, 0.5f);
-			m_bodies[i]->setUserPointer(this);
-			m_bodyTouchSensorIndexMap.insert(std::pair<void*,int>(m_bodies[i],i));
-
 		}
 	}
 
@@ -297,9 +344,10 @@ public:
 
 void legMotorPreTickCallback (btDynamicsWorld *world, btScalar timeStep)
 {
-	NN3DWalkers* motorDemo = (NN3DWalkers*)world->getWorldUserInfo();
+	NN3DWalkersExample* motorDemo = (NN3DWalkersExample*)world->getWorldUserInfo();
 
 	motorDemo->setMotorTargets(timeStep);
+	nn3DWalkers->detectCollisions();
 	
 }
 
@@ -315,8 +363,9 @@ bool legContactProcessedCallback(btManifoldPoint& cp,
 	if (ID2 != GROUND_ID || ID1 != GROUND_ID) {
 	    // Make a circle with a 0.9 radius at (0,0,0)
 	    // with RGB color (1,0,0).
-		if(nn3DWalkers->m_dynamicsWorld->getDebugDrawer() != NULL)
+		if(nn3DWalkers->m_dynamicsWorld->getDebugDrawer() != NULL){
 			nn3DWalkers->m_dynamicsWorld->getDebugDrawer()->drawSphere(cp.getPositionWorldOnA(), 0.1, btVector3(1., 0., 0.));
+		}
 
 		if(ID1 != GROUND_ID){
 			((NNWalker*)ID1)->setTouchSensor(o1);
@@ -331,7 +380,7 @@ bool legContactProcessedCallback(btManifoldPoint& cp,
 
 
 
-void NN3DWalkers::initPhysics()
+void NN3DWalkersExample::initPhysics()
 {
 	gContactProcessedCallback = legContactProcessedCallback;
 
@@ -408,22 +457,22 @@ void NN3DWalkers::initPhysics()
 	}
 
 	{ // create a slider to change the fore leg radius
-			SliderParams slider("Fore Leg radius", &gForeLegRadius);
-			slider.m_minVal = 0.01f;
-			slider.m_maxVal = 10;
-			slider.m_clampToNotches = false;
-			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
-				slider);
-		}
+		SliderParams slider("Fore Leg radius", &gForeLegRadius);
+		slider.m_minVal = 0.01f;
+		slider.m_maxVal = 10;
+		slider.m_clampToNotches = false;
+		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
+			slider);
+	}
 
-		{ // create a slider to change the fore leg length
-			SliderParams slider("Fore Leg length", &gForeLegLength);
-			slider.m_minVal = 0.01f;
-			slider.m_maxVal = 10;
-			slider.m_clampToNotches = false;
-			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
-				slider);
-		}
+	{ // create a slider to change the fore leg length
+		SliderParams slider("Fore Leg length", &gForeLegLength);
+		slider.m_minVal = 0.01f;
+		slider.m_maxVal = 10;
+		slider.m_clampToNotches = false;
+		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
+			slider);
+	}
 
 
 	// Setup a big ground box
@@ -464,13 +513,13 @@ void NN3DWalkers::initPhysics()
 }
 
 
-void NN3DWalkers::spawnWalker(const btVector3& startOffset, bool bFixed)
+void NN3DWalkersExample::spawnWalker(const btVector3& startOffset, bool bFixed)
 {
 	NNWalker* walker = new NNWalker(m_dynamicsWorld, startOffset, bFixed);
 	m_walkers.push_back(walker);
 }
 
-void NN3DWalkers::setMotorTargets(btScalar deltaTime)
+void NN3DWalkersExample::setMotorTargets(btScalar deltaTime)
 {
 
 	float ms = deltaTime*1000000.;
@@ -521,7 +570,7 @@ void NN3DWalkers::setMotorTargets(btScalar deltaTime)
 	}
 }
 
-bool NN3DWalkers::keyboardCallback(int key, int state)
+bool NN3DWalkersExample::keyboardCallback(int key, int state)
 {
 	switch (key)
 	{
@@ -542,7 +591,7 @@ bool NN3DWalkers::keyboardCallback(int key, int state)
 
 
 
-void NN3DWalkers::exitPhysics()
+void NN3DWalkersExample::exitPhysics()
 {
 
 	gContactProcessedCallback = NULL; // clear contact processed callback on exiting
@@ -558,7 +607,7 @@ void NN3DWalkers::exitPhysics()
 	CommonRigidBodyBase::exitPhysics();
 }
 
-void NN3DWalkers::renderScene()
+void NN3DWalkersExample::renderScene()
 	{
 		m_guiHelper->syncPhysicsToGraphics(m_dynamicsWorld);
 
@@ -569,7 +618,7 @@ void NN3DWalkers::renderScene()
 
 class CommonExampleInterface*    ET_NN3DWalkersCreateFunc(struct CommonExampleOptions& options)
 {
-	nn3DWalkers = new NN3DWalkers(options.m_guiHelper);
+	nn3DWalkers = new NN3DWalkersExample(options.m_guiHelper);
 	return nn3DWalkers;
 }
 
