@@ -372,6 +372,25 @@ struct CalculateInverseDynamicsResultArgs
 	double m_jointForces[MAX_DEGREE_OF_FREEDOM];
 };
 
+struct CalculateJacobianArgs
+{
+    int m_bodyUniqueId;
+    int m_linkIndex;
+    double m_localPosition[3];
+    double m_jointPositionsQ[MAX_DEGREE_OF_FREEDOM];
+    double m_jointVelocitiesQdot[MAX_DEGREE_OF_FREEDOM];
+    double m_jointAccelerations[MAX_DEGREE_OF_FREEDOM];
+};
+
+struct CalculateJacobianResultArgs
+{
+    int m_bodyUniqueId;
+    int m_linkIndex;
+    int m_dofCount;
+    double m_linearJacobian[3*MAX_DEGREE_OF_FREEDOM];
+    double m_angularJacobian[3*MAX_DEGREE_OF_FREEDOM];
+};
+
 struct CreateJointArgs
 {
     int m_parentBodyIndex;
@@ -411,6 +430,7 @@ struct SharedMemoryCommand
 		struct PickBodyArgs m_pickBodyArguments;
         struct ExternalForceArgs m_externalForceArguments;
 		struct CalculateInverseDynamicsArgs m_calculateInverseDynamicsArguments;
+        struct CalculateJacobianArgs m_calculateJacobianArguments;
         struct CreateJointArgs m_createJointArguments;
         struct RequestContactDataArgs m_requestContactPointArguments;
     };
@@ -444,6 +464,7 @@ struct SharedMemoryStatus
 		struct SendPixelDataArgs m_sendPixelDataArguments;
 		struct RigidBodyCreateArgs m_rigidBodyCreateArgs;
 		struct CalculateInverseDynamicsResultArgs m_inverseDynamicsResultArgs;
+        struct CalculateJacobianResultArgs m_jacobianResultArgs;
 		struct SendContactDataArgs m_sendContactPointArgs;
 	};
 };

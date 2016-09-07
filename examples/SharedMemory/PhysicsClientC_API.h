@@ -115,6 +115,9 @@ int b3GetStatusInverseDynamicsJointForces(b3SharedMemoryStatusHandle statusHandl
 	int* dofCount,
 	double* jointForces);
 
+b3SharedMemoryCommandHandle	b3CalculateJacobianCommandInit(b3PhysicsClientHandle physClient, int bodyIndex, int linkIndex, const double* localPosition);
+
+int b3GetStatusJacobian(b3SharedMemoryStatusHandle statusHandle, int* bodyIndex, int* linkIndex, double* linearJacobian, double* angularJacobian);
 
 b3SharedMemoryCommandHandle	b3LoadSdfCommandInit(b3PhysicsClientHandle physClient, const char* sdfFileName);
 

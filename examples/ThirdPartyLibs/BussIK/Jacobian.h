@@ -59,6 +59,7 @@ public:
 	const MatrixRmn& ActiveJacobian() const { return *Jactive; } 
 	void SetJendActive() { Jactive = &Jend; }						// The default setting is Jend.
 	void SetJtargetActive() { Jactive = &Jtarget; }
+    void SetJendTrans(MatrixRmn& J);
 
 	void CalcDeltaThetas();			// Use this only if the Current Mode has been set.
 	void ZeroDeltaThetas();

@@ -2325,7 +2325,84 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					hasStatus = true;
 					break;
 				}
-
+                case CMD_CALCULATE_JACOBIAN:
+                {
+                    SharedMemoryStatus& serverCmd = serverStatusOut;
+                    InternalBodyHandle* bodyHandle = m_data->getHandle(clientCmd.m_calculateJacobianArguments.m_bodyUniqueId);
+                    if (bodyHandle && bodyHandle->m_multiBody)
+                    {
+                        btInverseDynamics::MultiBodyTree** treePtrPtr =
+                        m_data->m_inverseDynamicsBodies.find(bodyHandle->m_multiBody);
+                        btInverseDynamics::MultiBodyTree* tree = 0;
+                        serverCmd.m_type = CMD_CALCULATED_JACOBIAN_FAILED;
+                        
+                        if (treePtrPtr)
+                        {
+                            tree = *treePtrPtr;
+                        }
+                        else
+                        {
+                            btInverseDynamics::btMultiBodyTreeCreator id_creator;
+                            if (-1 == id_creator.createFromBtMultiBody(bodyHandle->m_multiBody, false))
+                            {
+                                b3Error("error creating tree\n");
+                                serverCmd.m_type = CMD_CALCULATED_JACOBIAN_FAILED;
+                            }
+                            else
+                            {
+                                tree = btInverseDynamics::CreateMultiBodyTree(id_creator);
+                                m_data->m_inverseDynamicsBodies.insert(bodyHandle->m_multiBody, tree);
+                            }
+                        }
+                        
+                        if (tree)
+                        {
+                            int baseDofs = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 6;
+                            const int num_dofs = bodyHandle->m_multiBody->getNumDofs();
+                            btInverseDynamics::vecx nu(num_dofs+baseDofs), qdot(num_dofs + baseDofs), q(num_dofs + baseDofs), joint_force(num_dofs + baseDofs);
+                            for (int i = 0; i < num_dofs; i++)
+                            {
+                                q[i + baseDofs] = clientCmd.m_calculateJacobianArguments.m_jointPositionsQ[i];
+                                qdot[i + baseDofs] = clientCmd.m_calculateJacobianArguments.m_jointVelocitiesQdot[i];
+                                nu[i+baseDofs] = clientCmd.m_calculateJacobianArguments.m_jointAccelerations[i];
+                            }
+                            // Set the gravity to correspond to the world gravity
+                            btInverseDynamics::vec3 id_grav(m_data->m_dynamicsWorld->getGravity());
+                            
+                            if (-1 != tree->setGravityInWorldFrame(id_grav) &&
+                                -1 != tree->calculateInverseDynamics(q, qdot, nu, &joint_force))
+                            {
+                                serverCmd.m_jacobianResultArgs.m_bodyUniqueId = clientCmd.m_calculateJacobianArguments.m_bodyUniqueId;
+                                serverCmd.m_jacobianResultArgs.m_linkIndex = clientCmd.m_calculateJacobianArguments.m_linkIndex;
+                                serverCmd.m_jacobianResultArgs.m_dofCount = num_dofs;
+                                // Set jacobian value
+                                tree->calculateJacobians(q);
+                                btInverseDynamics::mat3x jac_t(3, num_dofs);
+                                tree->getBodyJacobianTrans(clientCmd.m_calculateJacobianArguments.m_linkIndex, &jac_t);
+                                for (int i = 0; i < 3; ++i)
+                                {
+                                    for (int j = 0; j < num_dofs; ++j)
+                                    {
+                                        serverCmd.m_jacobianResultArgs.m_linearJacobian[i*num_dofs+j] = jac_t(i,j);
+                                    }
+                                }
+                                serverCmd.m_type = CMD_CALCULATED_JACOBIAN_COMPLETED;
+                            }
+                            else
+                            {
+                                serverCmd.m_type = CMD_CALCULATED_JACOBIAN_FAILED;
+                            }
+                        }
+                        
+                    }
+                    else
+                    {
+                        serverCmd.m_type = CMD_CALCULATED_JACOBIAN_FAILED;
+                    }
+                    
+                    hasStatus = true;
+                    break;
+                }
                 case CMD_APPLY_EXTERNAL_FORCE:
                 {
                 	if (m_data->m_verboseOutput)
