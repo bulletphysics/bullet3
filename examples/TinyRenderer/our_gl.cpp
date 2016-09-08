@@ -59,7 +59,7 @@ Vec3f barycentric(Vec2f A, Vec2f B, Vec2f C, Vec2f P) {
     return Vec3f(-1,1,1); // in this case generate negative coordinates, it will be thrown away by the rasterizator
 }
 
-void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zbuffer, const Matrix& viewPortMatrix, int objectIndex) 
+void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zbuffer, const Matrix& viewPortMatrix) 
 {
     triangle(clipc,shader,image,zbuffer,0,viewPortMatrix,0);
 }

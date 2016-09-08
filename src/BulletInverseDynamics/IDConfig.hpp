@@ -31,6 +31,10 @@
 #include "IDErrorMessages.hpp"
 
 #ifdef BT_CUSTOM_INVERSE_DYNAMICS_CONFIG_H
+/*
+#include "IDConfigEigen.hpp"
+#include "IDConfigBuiltin.hpp"
+*/
 #define INVDYN_INCLUDE_HELPER_2(x) #x
 #define INVDYN_INCLUDE_HELPER(x) INVDYN_INCLUDE_HELPER_2(x)
 #include INVDYN_INCLUDE_HELPER(BT_CUSTOM_INVERSE_DYNAMICS_CONFIG_H)
