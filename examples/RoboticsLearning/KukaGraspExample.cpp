@@ -148,6 +148,11 @@ public:
         if (numJoints==7)
         {
             double q_current[7]={0,0,0,0,0,0,0};
+            double qdot_current[7]={0,0,0,0,0,0,0};
+            double qddot_current[7]={0,0,0,0,0,0,0};
+            double local_position[3]={0,0,0};
+            double jacobian_linear[21];
+            double jacobian_angular[21];
             b3JointStates jointStates;
             if (m_robotSim.getJointStates(m_kukaIndex,jointStates))
             {
@@ -158,6 +163,13 @@ public:
                     q_current[i] = jointStates.m_actualStateQ[i+7];
                 }
             }
+            
+            // compute body Jacobian
+            m_robotSim.getBodyJacobian(0, 6, local_position, q_current, qdot_current, qddot_current, jacobian_linear, jacobian_angular);
+            for (int i = 0; i < 21; ++i) {
+                printf("j%d: %f\n", i, jacobian_linear[i]);
+            }
+            
             // m_robotSim.getJointInfo(m_kukaIndex,jointIndex,jointInfo);
             double q_new[7];
             int ikMethod=IK2_SDLS;

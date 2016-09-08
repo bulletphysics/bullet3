@@ -1279,21 +1279,13 @@ b3SharedMemoryCommandHandle	b3CalculateJacobianCommandInit(b3PhysicsClientHandle
     return (b3SharedMemoryCommandHandle)command;
 }
 
-int b3GetStatusJacobian(b3SharedMemoryStatusHandle statusHandle, int* bodyIndex, int* linkIndex, double* linearJacobian, double* angularJacobian)
+int b3GetStatusJacobian(b3SharedMemoryStatusHandle statusHandle, double* linearJacobian, double* angularJacobian)
 {
     const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
     btAssert(status->m_type == CMD_CALCULATED_JACOBIAN_COMPLETED);
     if (status->m_type != CMD_CALCULATED_JACOBIAN_COMPLETED)
         return false;
     
-    if (bodyIndex)
-    {
-        *bodyIndex = status->m_jacobianResultArgs.m_bodyUniqueId;
-    }
-    if (linkIndex)
-    {
-        *linkIndex = status->m_jacobianResultArgs.m_linkIndex;
-    }
     if (linearJacobian)
     {
         for (int i = 0; i < status->m_jacobianResultArgs.m_dofCount*3; i++)

@@ -912,3 +912,14 @@ void b3RobotSimAPI::renderScene()
 	}
 	m_data->m_physicsServer.renderScene();
 }
+
+void b3RobotSimAPI::getBodyJacobian(int bodyUniqueId, int linkIndex, const double* localPosition, const double* jointPositions, const double* jointVelocities, const double* jointAccelerations, double* linearJacobian, double* angularJacobian)
+{
+    b3SharedMemoryCommandHandle command = b3CalculateJacobianCommandInit(m_data->m_physicsClient, bodyUniqueId, linkIndex, localPosition, jointPositions, jointVelocities, jointAccelerations);
+    b3SharedMemoryStatusHandle statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClient, command);
+    
+    if (b3GetStatusType(statusHandle) == CMD_CALCULATED_JACOBIAN_COMPLETED)
+    {
+        b3GetStatusJacobian(statusHandle, linearJacobian, angularJacobian);
+    }
+}

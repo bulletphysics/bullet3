@@ -384,8 +384,6 @@ struct CalculateJacobianArgs
 
 struct CalculateJacobianResultArgs
 {
-    int m_bodyUniqueId;
-    int m_linkIndex;
     int m_dofCount;
     double m_linearJacobian[3*MAX_DEGREE_OF_FREEDOM];
     double m_angularJacobian[3*MAX_DEGREE_OF_FREEDOM];

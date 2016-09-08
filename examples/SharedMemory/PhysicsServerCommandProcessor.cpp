@@ -2372,8 +2372,6 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                             if (-1 != tree->setGravityInWorldFrame(id_grav) &&
                                 -1 != tree->calculateInverseDynamics(q, qdot, nu, &joint_force))
                             {
-                                serverCmd.m_jacobianResultArgs.m_bodyUniqueId = clientCmd.m_calculateJacobianArguments.m_bodyUniqueId;
-                                serverCmd.m_jacobianResultArgs.m_linkIndex = clientCmd.m_calculateJacobianArguments.m_linkIndex;
                                 serverCmd.m_jacobianResultArgs.m_dofCount = num_dofs;
                                 // Set jacobian value
                                 tree->calculateJacobians(q);
