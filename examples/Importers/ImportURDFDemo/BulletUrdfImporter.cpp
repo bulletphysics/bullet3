@@ -1020,7 +1020,7 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 	//delete textures
 	for (int i=0;i<textures.size();i++)
 	{
-		delete textures[i].textureData;
+		free( textures[i].textureData);
 	}
 	return graphicsIndex;
 }
