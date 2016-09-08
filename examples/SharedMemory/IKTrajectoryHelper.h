@@ -22,6 +22,8 @@ public:
     ///todo: replace createKukaIIWA with a generic way of create an IK tree
     void createKukaIIWA();
     
+	bool createFromMultiBody(class btMultiBody* mb);
+
     bool computeIK(const double endEffectorTargetPosition[3],
                    const double* q_old, int numQ,
                    double* q_new, int ikMethod);

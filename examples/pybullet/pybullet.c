@@ -593,6 +593,36 @@ pybullet_setTimeStep(PyObject* self, PyObject* args)
     return Py_None;
 }
 
+static PyObject *
+pybullet_setDefaultContactERP(PyObject* self, PyObject* args)
+{
+    if (0==sm)
+    {
+        PyErr_SetString(SpamError, "Not connected to physics server.");
+        return NULL;
+    }
+    
+    {
+        double defaultContactERP=0.005;
+        int ret;
+        
+        b3SharedMemoryCommandHandle command = b3InitPhysicsParamCommand(sm);
+        b3SharedMemoryStatusHandle statusHandle;
+        
+        if (!PyArg_ParseTuple(args, "d", &defaultContactERP))
+        {
+            PyErr_SetString(SpamError, "default Contact ERP expected a single value (double).");
+            return NULL;
+        }
+        ret = b3PhysicsParamSetDefaultContactERP(command,  defaultContactERP);
+
+        statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+    }
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 
 
 // Internal function used to get the base position and orientation
@@ -1865,6 +1895,10 @@ static PyMethodDef SpamMethods[] = {
 
     {"setTimeStep",  pybullet_setTimeStep, METH_VARARGS,
         "Set the amount of time to proceed at each call to stepSimulation. (unit is seconds, typically range is 0.01 or 0.001)"},
+
+	{"setDefaultContactERP",  pybullet_setDefaultContactERP, METH_VARARGS,
+        "Set the amount of contact penetration Error Recovery Paramater (ERP) in each time step. \
+		This is an tuning parameter to control resting contact stability. It depends on the time step. For 1/240 timestep, 0.005 is a reasonable values."},
     
 	{ "setRealTimeSimulation", pybullet_setRealTimeSimulation, METH_VARARGS,
 	"Enable or disable real time simulation (using the real time clock, RTC) in the physics server. Expects one integer argument, 0 or 1" },

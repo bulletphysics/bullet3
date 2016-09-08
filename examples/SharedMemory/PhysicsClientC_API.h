@@ -89,6 +89,7 @@ void b3GetContactPointInformation(b3PhysicsClientHandle physClient, struct b3Con
 b3SharedMemoryCommandHandle	b3InitPhysicsParamCommand(b3PhysicsClientHandle physClient);
 int	b3PhysicsParamSetGravity(b3SharedMemoryCommandHandle commandHandle, double gravx,double gravy, double gravz);
 int	b3PhysicsParamSetTimeStep(b3SharedMemoryCommandHandle commandHandle, double timeStep);
+int	b3PhysicsParamSetDefaultContactERP(b3SharedMemoryCommandHandle commandHandle, double defaultContactERP);
 int	b3PhysicsParamSetNumSubSteps(b3SharedMemoryCommandHandle commandHandle, int numSubSteps);
 int b3PhysicsParamSetRealTimeSimulation(b3SharedMemoryCommandHandle commandHandle, int enableRealTimeSimulation);
 
@@ -114,6 +115,17 @@ int b3GetStatusInverseDynamicsJointForces(b3SharedMemoryStatusHandle statusHandl
 	int* bodyUniqueId,
 	int* dofCount,
 	double* jointForces);
+
+///compute the joint positions to move the end effector to a desired target using inverse kinematics
+b3SharedMemoryCommandHandle	b3CalculateInverseKinematicsCommandInit(b3PhysicsClientHandle physClient, int bodyIndex,
+	const double* jointPositionsQ, const double targetPosition[3]);
+
+int b3GetStatusInverseKinematicsJointPositions(b3SharedMemoryStatusHandle statusHandle,
+	int* bodyUniqueId,
+	int* dofCount,
+	double* jointPositions);
+
+
 
 
 b3SharedMemoryCommandHandle	b3LoadSdfCommandInit(b3PhysicsClientHandle physClient, const char* sdfFileName);

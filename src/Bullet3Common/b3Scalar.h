@@ -55,7 +55,7 @@ inline int	b3GetVersion()
 			//#define B3_HAS_ALIGNED_ALLOCATOR
 			#pragma warning(disable : 4324) // disable padding warning
 //			#pragma warning(disable:4530) // Disable the exception disable but used in MSCV Stl warning.
-//			#pragma warning(disable:4996) //Turn off warnings about deprecated C routines
+			#pragma warning(disable:4996) //Turn off warnings about deprecated C routines
 //			#pragma warning(disable:4786) // Disable the "debug name too long" warning
 
 			#define B3_FORCE_INLINE __forceinline

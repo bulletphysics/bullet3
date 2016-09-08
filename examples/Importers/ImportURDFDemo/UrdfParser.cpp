@@ -489,6 +489,9 @@ bool UrdfParser::parseCollision(UrdfCollision& collision, TiXmlElement* config, 
 	if (name_char)
 		collision.m_name = name_char;
 	
+	const char *concave_char = config->Attribute("concave");
+	if (concave_char)
+		collision.m_flags |= URDF_FORCE_CONCAVE_TRIMESH;
 	
 	return true;
 }

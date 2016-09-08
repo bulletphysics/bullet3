@@ -43,11 +43,14 @@ project ("Test_PhysicsServerLoopBack")
 			"Bullet3Common",
 			"BulletDynamics", 
 			"BulletCollision", 
+			"BussIK",
 			"LinearMath"
 		}
 			
 		files {
 			"test.c",
+			"../../examples/SharedMemory/IKTrajectoryHelper.cpp",
+			"../../examples/SharedMemory/IKTrajectoryHelper.h",
 			"../../examples/SharedMemory/PhysicsClient.cpp",
 			"../../examples/SharedMemory/PhysicsClient.h",
 			"../../examples/SharedMemory/PhysicsServer.cpp",
@@ -112,12 +115,15 @@ project ("Test_PhysicsServerLoopBack")
 			"BulletWorldImporter",
 			"Bullet3Common",
 			"BulletDynamics", 
-			"BulletCollision", 
+			"BulletCollision",
+			"BussIK",
 			"LinearMath"
 		}
 			
 		files {
 			"test.c",
+			"../../examples/SharedMemory/IKTrajectoryHelper.cpp",
+			"../../examples/SharedMemory/IKTrajectoryHelper.h",
 			"../../examples/SharedMemory/PhysicsClient.cpp",
 			"../../examples/SharedMemory/PhysicsClient.h",
 			"../../examples/SharedMemory/PhysicsServer.cpp",
@@ -187,7 +193,7 @@ project ("Test_PhysicsServerInProcessExampleBrowser")
 --		}
 	hasCL = findOpenCL("clew")
 
-	links{"BulletExampleBrowserLib","gwen", "OpenGL_Window","BulletFileLoader","BulletWorldImporter","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","Bullet3Common"}
+	links{"BulletExampleBrowserLib","gwen", "OpenGL_Window","BulletFileLoader","BulletWorldImporter","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","BussIK","Bullet3Common"}
 	initOpenGL()
 	initGlew()
 
@@ -214,6 +220,8 @@ project ("Test_PhysicsServerInProcessExampleBrowser")
 
 		files {
 			"test.c",
+			"../../examples/SharedMemory/IKTrajectoryHelper.cpp",
+			"../../examples/SharedMemory/IKTrajectoryHelper.h",
 			"../../examples/ExampleBrowser/InProcessExampleBrowser.cpp",
 			"../../examples/SharedMemory/InProcessMemory.cpp",
 			"../../examples/SharedMemory/PhysicsClient.cpp",

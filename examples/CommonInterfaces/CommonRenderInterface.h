@@ -27,8 +27,9 @@ struct CommonRenderInterface
 	virtual CommonCameraInterface* getActiveCamera()=0;
 	virtual void setActiveCamera(CommonCameraInterface* cam)=0;
 	
-	virtual void renderScene()=0;
 
+	virtual void renderScene()=0;
+	virtual void renderSceneInternal(int renderMode=B3_DEFAULT_RENDERMODE){};
 	virtual int getScreenWidth() = 0;
 	virtual int getScreenHeight() = 0;
 

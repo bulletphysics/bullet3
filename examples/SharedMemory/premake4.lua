@@ -10,13 +10,15 @@ end
 includedirs {".","../../src", "../ThirdPartyLibs",}
 
 links {
-	"Bullet3Common","BulletInverseDynamicsUtils", "BulletInverseDynamics",	"BulletDynamics","BulletCollision", "LinearMath"
+	"Bullet3Common","BulletInverseDynamicsUtils", "BulletInverseDynamics",	"BulletDynamics","BulletCollision", "LinearMath", "BussIK"
 }
 
 language "C++"
 
 myfiles = 
 {
+	"IKTrajectoryHelper.cpp",
+	"IKTrajectoryHelper.h",
 	"PhysicsClient.cpp",
 	"PhysicsClientSharedMemory.cpp",
 	"PhysicsClientExample.cpp",
@@ -134,10 +136,10 @@ else
 end
 defines {"B3_USE_STANDALONE_EXAMPLE"}
 
-includedirs {"../../src"}
+includedirs {"../../src", "../ThirdPartyLibs"}
 
 links {
-        "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision", "LinearMath", "OpenGL_Window","Bullet3Common"
+        "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision", "LinearMath", "OpenGL_Window","Bullet3Common","BussIK"
 }
 	initOpenGL()
   initGlew()
@@ -211,7 +213,7 @@ if os.is("Windows") then
 		}
 						
 	links {
-		"BulletInverseDynamicsUtils", "BulletInverseDynamics","Bullet3Common",	"BulletDynamics","BulletCollision", "LinearMath","OpenGL_Window","openvr_api"
+		"BulletInverseDynamicsUtils", "BulletInverseDynamics","Bullet3Common",	"BulletDynamics","BulletCollision", "LinearMath","OpenGL_Window","openvr_api","BussIK"
 	}
 	
 	

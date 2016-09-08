@@ -469,6 +469,33 @@ void b3RobotSimAPI::setNumSimulationSubSteps(int numSubSteps)
     b3Assert(b3GetStatusType(statusHandle)==CMD_CLIENT_COMMAND_COMPLETED);
 }
 
+/*
+b3SharedMemoryCommandHandle	b3CalculateInverseKinematicsCommandInit(b3PhysicsClientHandle physClient, int bodyIndex,
+	const double* jointPositionsQ, double targetPosition[3]);
+
+int b3GetStatusInverseKinematicsJointPositions(b3SharedMemoryStatusHandle statusHandle,
+	int* bodyUniqueId,
+	int* dofCount,
+	double* jointPositions);
+*/
+bool b3RobotSimAPI::calculateInverseKinematics(const struct b3RobotSimInverseKinematicArgs& args, struct b3RobotSimInverseKinematicsResults& results)
+{
+
+	b3SharedMemoryCommandHandle command = b3CalculateInverseKinematicsCommandInit(m_data->m_physicsClient,args.m_bodyUniqueId,
+		args.m_currentJointPositions,args.m_endEffectorTargetPosition);
+
+    b3SharedMemoryStatusHandle statusHandle;
+	statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClient, command);
+
+	bool result = b3GetStatusInverseKinematicsJointPositions(statusHandle,
+		&results.m_bodyUniqueId,
+		&results.m_numPositions,
+		results.m_calculatedJointPositions);
+
+	return result;
+}
+
+
 b3RobotSimAPI::~b3RobotSimAPI()
 {
 	delete m_data;

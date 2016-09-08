@@ -10,7 +10,7 @@ project ("pybullet")
 		defines {"PHYSICS_IN_PROCESS_EXAMPLE_BROWSER"}
 	hasCL = findOpenCL("clew")
 
-	links{"BulletExampleBrowserLib","gwen", "BulletFileLoader","BulletWorldImporter","OpenGL_Window","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","Bullet3Common"}
+	links{"BulletExampleBrowserLib","gwen", "BulletFileLoader","BulletWorldImporter","OpenGL_Window","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","BussIK", "Bullet3Common"}
 	initOpenGL()
 	initGlew()
 
@@ -36,6 +36,8 @@ project ("pybullet")
 
 		files {
 			"pybullet.c",
+			"../../examples/SharedMemory/IKTrajectoryHelper.cpp",
+			"../../examples/SharedMemory/IKTrajectoryHelper.h",
 			"../../examples/ExampleBrowser/InProcessExampleBrowser.cpp",
     	"../../examples/SharedMemory/TinyRendererVisualShapeConverter.cpp",
 			"../../examples/SharedMemory/TinyRendererVisualShapeConverter.h",

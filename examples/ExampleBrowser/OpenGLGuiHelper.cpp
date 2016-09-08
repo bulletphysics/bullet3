@@ -146,10 +146,25 @@ struct OpenGLGuiHelperInternalData
 	struct CommonGraphicsApp* m_glApp;
 	class MyDebugDrawer* m_debugDraw;
 	GL_ShapeDrawer* m_gl2ShapeDrawer;
-	
+	bool m_vrMode;
+	int m_vrSkipShadowPass;
+
 	btAlignedObjectArray<unsigned char> m_rgbaPixelBuffer1;
 	btAlignedObjectArray<float> m_depthBuffer1;
+	
+	OpenGLGuiHelperInternalData()
+		:m_vrMode(false),
+		m_vrSkipShadowPass(0)
+	{
+	}
+
 };
+
+void OpenGLGuiHelper::setVRMode(bool vrMode)
+{
+	m_data->m_vrMode = vrMode;
+	m_data->m_vrSkipShadowPass = 0;
+}
 
 
 
@@ -269,6 +284,10 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 }
 void OpenGLGuiHelper::syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWorld)
 {
+	//in VR mode, we skip the synchronization for the second eye
+	if (m_data->m_vrMode && m_data->m_vrSkipShadowPass==1)
+		return;
+
 	int numCollisionObjects = rbWorld->getNumCollisionObjects();
 	for (int i = 0; i<numCollisionObjects; i++)
 	{
@@ -288,8 +307,25 @@ void OpenGLGuiHelper::syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWor
 
 void OpenGLGuiHelper::render(const btDiscreteDynamicsWorld* rbWorld)
 {
-
-	m_data->m_glApp->m_renderer->renderScene();
+	if (m_data->m_vrMode)
+	{
+		//in VR, we skip the shadow generation for the second eye
+		
+		if (m_data->m_vrSkipShadowPass>=1)
+		{
+			m_data->m_glApp->m_renderer->renderSceneInternal(B3_USE_SHADOWMAP_RENDERMODE);
+			m_data->m_vrSkipShadowPass=0;
+			
+		} else
+		{
+			m_data->m_glApp->m_renderer->renderScene();	
+			m_data->m_vrSkipShadowPass++;
+		}
+	} else
+	{
+		m_data->m_glApp->m_renderer->renderScene();	
+	}
+	
 	//backwards compatible OpenGL2 rendering
 
 	if (m_data->m_gl2ShapeDrawer && rbWorld)

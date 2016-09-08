@@ -10,7 +10,7 @@ project "App_BulletExampleBrowser"
             initOpenCL("clew")
         end
 
-        links{"BulletExampleBrowserLib","gwen", "OpenGL_Window","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","Bullet3Common"}
+        links{"BulletExampleBrowserLib","gwen", "OpenGL_Window","BulletSoftBody", "BulletInverseDynamicsUtils", "BulletInverseDynamics", "BulletDynamics","BulletCollision","LinearMath","BussIK", "Bullet3Common"}
         initOpenGL()
         initGlew()
 
@@ -55,6 +55,8 @@ project "App_BulletExampleBrowser"
 		"../TinyRenderer/our_gl.cpp",
 		"../TinyRenderer/TinyRenderer.cpp",
 		"../RenderingExamples/TinyRendererSetup.cpp",
+		"../SharedMemory/IKTrajectoryHelper.cpp",
+		"../SharedMemory/IKTrajectoryHelper.h",
 		"../SharedMemory/PhysicsClientC_API.cpp",
 		"../SharedMemory/PhysicsClientC_API.h",
 		"../SharedMemory/PhysicsServerExample.cpp",
