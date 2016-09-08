@@ -83,6 +83,9 @@ public:
 	static void CompareErrors( const Jacobian& j1, const Jacobian& j2, double* weightedDist1, double* weightedDist2 );
 	static void CountErrors( const Jacobian& j1, const Jacobian& j2, int* numBetter1, int* numBetter2, int* numTies );
 
+    int GetNumRows() {return nRow;}
+    int GetNumCols() {return nCol;}
+    
 private:
 	Tree* tree;			// tree associated with this Jacobian matrix
 	int nEffector;		// Number of end effectors

@@ -24,7 +24,7 @@ public:
     
     bool computeIK(const double endEffectorTargetPosition[3],
                    const double* q_old, int numQ,
-                   double* q_new, int ikMethod);
+                   double* q_new, int ikMethod, const double* linear_jacobian, int jacobian_size);
     
 };
 #endif //IK_TRAJECTORY_HELPER_H

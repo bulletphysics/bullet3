@@ -3,6 +3,7 @@
 #include "BussIK/Tree.h"
 #include "BussIK/Jacobian.h"
 #include "BussIK/VectorRn.h"
+#include "BussIK/MatrixRmn.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
 
 
@@ -86,7 +87,7 @@ void IKTrajectoryHelper::createKukaIIWA()
 
 bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
                const double* q_current, int numQ,
-               double* q_new, int ikMethod)
+               double* q_new, int ikMethod, const double* linear_jacobian, int jacobian_size)
 {
 
     if (numQ != 7)
@@ -109,6 +110,20 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
     VectorR3 targets;
     targets.Set(endEffectorTargetPosition[0],endEffectorTargetPosition[1],endEffectorTargetPosition[2]);
     m_data->m_ikJacobian->ComputeJacobian(&targets);						// Set up Jacobian and deltaS vectors
+    
+    // Set Jacobian from Bullet body Jacobian
+    int nRow = m_data->m_ikJacobian->GetNumRows();
+    int nCol = m_data->m_ikJacobian->GetNumCols();
+    b3Assert(jacobian_size==nRow*nCol);
+    MatrixRmn linearJacobian(nRow,nCol);
+    for (int i = 0; i < nRow; ++i)
+    {
+        for (int j = 0; j < nCol; ++j)
+        {
+            linearJacobian.Set(i,j,linear_jacobian[i*nCol+j]);
+        }
+    }
+    m_data->m_ikJacobian->SetJendTrans(linearJacobian);
     
     // Calculate the change in theta values
     switch (ikMethod) {

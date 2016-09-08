@@ -166,16 +166,13 @@ public:
             
             // compute body Jacobian
             m_robotSim.getBodyJacobian(0, 6, local_position, q_current, qdot_current, qddot_current, jacobian_linear, jacobian_angular);
-            for (int i = 0; i < 21; ++i) {
-                printf("j%d: %f\n", i, jacobian_linear[i]);
-            }
             
             // m_robotSim.getJointInfo(m_kukaIndex,jointIndex,jointInfo);
             double q_new[7];
             int ikMethod=IK2_SDLS;
             b3Vector3DoubleData dataOut;
             m_targetPos.serializeDouble(dataOut);
-            m_ikHelper.computeIK(dataOut.m_floats,q_current, numJoints, q_new, ikMethod);
+            m_ikHelper.computeIK(dataOut.m_floats,q_current, numJoints, q_new, ikMethod,jacobian_linear,(sizeof(jacobian_linear)/sizeof(*jacobian_linear)));
             printf("q_new = %f,%f,%f,%f,%f,%f,%f\n", q_new[0],q_new[1],q_new[2],
                    q_new[3],q_new[4],q_new[5],q_new[6]);
         
