@@ -17,9 +17,9 @@ subject to the following restrictions:
 
 ///todo: make this configurable in the gui
 bool useShadowMap = true;// true;//false;//true;
-int shadowMapWidth=4096;//8192;
-int shadowMapHeight= 4096;
-float shadowMapWorldSize=25;
+int shadowMapWidth= 2048;//8192;
+int shadowMapHeight= 2048;
+float shadowMapWorldSize=5;
 
 #define MAX_POINTS_IN_BATCH 1024
 #define MAX_LINES_IN_BATCH 1024
@@ -1475,7 +1475,7 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 //		m_data->m_shadowMap->disable();
 	//	return;
 		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK); // Cull back-facing triangles -> draw only front-facing triangles
+		glCullFace(GL_FRONT); // Cull back-facing triangles -> draw only front-facing triangles
 
 	b3Assert(glGetError() ==GL_NO_ERROR);
 	} else

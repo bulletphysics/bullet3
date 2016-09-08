@@ -139,6 +139,7 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 
 				skip++;
 				skip1++;
+				if (skip1>5)
 				{
 					b3Clock::usleep(250);
 				}

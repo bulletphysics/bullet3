@@ -971,7 +971,7 @@ static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args) {
   struct b3ContactInformation contactPointData;
   b3SharedMemoryStatusHandle statusHandle;
   int statusType;
-
+  int i;
   PyObject* pyResultList = 0;
 
   if (size == 1) {
@@ -991,7 +991,7 @@ static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args) {
   b3SetContactFilterBodyA(commandHandle, objectUniqueIdA);
   b3SetContactFilterBodyB(commandHandle, objectUniqueIdB);
   b3SubmitClientCommand(sm, commandHandle);
-  int i;
+  
   statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
   statusType = b3GetStatusType(statusHandle);
   if (statusType == CMD_CONTACT_POINT_INFORMATION_COMPLETED) {
