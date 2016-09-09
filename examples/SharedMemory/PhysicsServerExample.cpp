@@ -13,8 +13,14 @@
 #include "../Utils/b3Clock.h"
 #include "../MultiThreading/b3ThreadSupportInterface.h"
 
+#define MAX_VR_CONTROLLERS 8
 
 
+extern btVector3 gLastPickPos;
+btVector3 gVRTeleportPos(0,0,0);
+extern bool gVRGripperClosed;
+
+bool gDebugRenderToggle  = false;
 void	MotionThreadFunc(void* userPtr,void* lsMemory);
 void*	MotionlsMemoryFunc();
 #define MAX_MOTION_NUM_THREADS 1
@@ -82,22 +88,27 @@ b3ThreadSupportInterface* createMotionThreadSupport(int numThreads)
 struct	MotionArgs
 {
 	MotionArgs()
-		:m_physicsServerPtr(0),
-		m_isPicking(false),
-		m_isDragging(false),
-		m_isReleasing(false)
+		:m_physicsServerPtr(0)
 	{
+		for (int i=0;i<MAX_VR_CONTROLLERS;i++)
+		{
+			m_isVrControllerPicking[i] = false;
+			m_isVrControllerDragging[i] = false;
+			m_isVrControllerReleasing[i] = false;
+			m_isVrControllerTeleporting[i] = false;
+		}
 	}
 	b3CriticalSection* m_cs;
 	
 	PhysicsServerSharedMemory*	m_physicsServerPtr;
 	b3AlignedObjectArray<b3Vector3> m_positions;
 
-	btVector3 m_pos;
-	btQuaternion m_orn;
-	bool m_isPicking;
-	bool m_isDragging;
-	bool m_isReleasing;
+	btVector3 m_vrControllerPos[MAX_VR_CONTROLLERS];
+	btQuaternion m_vrControllerOrn[MAX_VR_CONTROLLERS];
+	bool m_isVrControllerPicking[MAX_VR_CONTROLLERS];
+	bool m_isVrControllerDragging[MAX_VR_CONTROLLERS];
+	bool m_isVrControllerReleasing[MAX_VR_CONTROLLERS];
+	bool m_isVrControllerTeleporting[MAX_VR_CONTROLLERS];
 	
 };
 
@@ -108,6 +119,7 @@ struct MotionThreadLocalStorage
 
 int skip = 0;
 int skip1 = 0;
+float clampedDeltaTime  = 0.2;
 
 void	MotionThreadFunc(void* userPtr,void* lsMemory)
 {
@@ -127,12 +139,11 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 		args->m_cs->unlock();
 
 
+		double deltaTimeInSeconds = 0;
+
 		do
 		{
-//todo(erwincoumans): do we want some sleep to reduce CPU resources in this thread?
-			
-
-			double deltaTimeInSeconds = double(clock.getTimeMicroseconds())/1000000.;
+			deltaTimeInSeconds+= double(clock.getTimeMicroseconds())/1000000.;
 
 			if (deltaTimeInSeconds<(1./5000.))
 			{
@@ -150,40 +161,58 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 				//process special controller commands, such as
 				//VR controller button press/release and controller motion
 
-				btVector3 from = args->m_pos;
-				btMatrix3x3 mat(args->m_orn);
-				btScalar pickDistance = 100.;
-				btVector3 toX = args->m_pos+mat.getColumn(0);
-				btVector3 toY = args->m_pos+mat.getColumn(1);
-				btVector3 toZ = args->m_pos+mat.getColumn(2)*pickDistance;
-
-
-				if (args->m_isPicking)
+				for (int c=0;c<MAX_VR_CONTROLLERS;c++)
 				{
-					args->m_isPicking  = false;
-					args->m_isDragging = true;
-					args->m_physicsServerPtr->pickBody(from,-toZ);
-					//printf("PICK!\n");
-				}
-
-				 if (args->m_isDragging)
-				 {
-					 args->m_physicsServerPtr->movePickedBody(from,-toZ);
-					// printf(".");
-				 }
 				
-				if (args->m_isReleasing)
-				{
-					args->m_isDragging = false;
-					args->m_isReleasing = false;
-					args->m_physicsServerPtr->removePickingConstraint();
-					//printf("Release pick\n");
+					btVector3 from = args->m_vrControllerPos[c];
+					btMatrix3x3 mat(args->m_vrControllerOrn[c]);
+				
+					btScalar pickDistance = 1000.;
+					btVector3 toX = from+mat.getColumn(0);
+					btVector3 toY = from+mat.getColumn(1);
+					btVector3 toZ = from+mat.getColumn(2)*pickDistance;
+
+					if (args->m_isVrControllerTeleporting[c])
+					{
+						args->m_isVrControllerTeleporting[c] = false;
+						args->m_physicsServerPtr->pickBody(from,-toZ);
+						args->m_physicsServerPtr->removePickingConstraint();
+					}
+
+					if (args->m_isVrControllerPicking[c])
+					{
+						args->m_isVrControllerPicking[c]  = false;
+						args->m_isVrControllerDragging[c] = true;
+						args->m_physicsServerPtr->pickBody(from,-toZ);
+						//printf("PICK!\n");
+					}
+
+					 if (args->m_isVrControllerDragging[c])
+					 {
+						 args->m_physicsServerPtr->movePickedBody(from,-toZ);
+						// printf(".");
+					 }
+				
+					if (args->m_isVrControllerReleasing[c])
+					{
+						args->m_isVrControllerDragging[c] = false;
+						args->m_isVrControllerReleasing[c] = false;
+						args->m_physicsServerPtr->removePickingConstraint();
+						//printf("Release pick\n");
+					}
 				}
 
 				//don't simulate over a huge timestep if we had some interruption (debugger breakpoint etc)
-				btClamp(deltaTimeInSeconds,0.,0.1);
-				args->m_physicsServerPtr->stepSimulationRealTime(deltaTimeInSeconds);
+				if (deltaTimeInSeconds>clampedDeltaTime)
+				{
+					deltaTimeInSeconds = clampedDeltaTime;
+					b3Warning("Clamp deltaTime from %f to %f",deltaTimeInSeconds, clampedDeltaTime);
+				}
+				
 				clock.reset();
+				args->m_physicsServerPtr->stepSimulationRealTime(deltaTimeInSeconds);
+				deltaTimeInSeconds = 0;
+				
 			}
 
 			args->m_physicsServerPtr->processClientCommands();
@@ -318,7 +347,10 @@ public:
 		m_childGuiHelper->render(0);
 	}
 
-	virtual void createPhysicsDebugDrawer( btDiscreteDynamicsWorld* rbWorld){}
+	virtual void createPhysicsDebugDrawer( btDiscreteDynamicsWorld* rbWorld)
+	{
+		m_childGuiHelper->createPhysicsDebugDrawer(rbWorld);
+	}
 
 	virtual int	registerTexture(const unsigned char* texels, int width, int height)
 	{
@@ -845,61 +877,101 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
 	}
 }
 
+static float vrOffset[16]={1,0,0,0,
+							0,1,0,0,
+							0,0,1,0,
+							0,0,0,0};
+
+
+extern int gDroppedSimulationSteps;
+extern int gNumSteps;
+extern double gDtInSec;
+extern double gSubStep;
+
 
 void PhysicsServerExample::renderScene()
 {
 	///debug rendering
 	//m_args[0].m_cs->lock();
 	
+	vrOffset[12]=-gVRTeleportPos[0];
+	vrOffset[13]=-gVRTeleportPos[1];
+	vrOffset[14]=-gVRTeleportPos[2];
+
+	this->m_multiThreadedHelper->m_childGuiHelper->getRenderInterface()->
+		getActiveCamera()->setVRCameraOffsetTransform(vrOffset);
+
 	m_physicsServer.renderScene();
 	
-	if (m_args[0].m_isPicking || m_args[0].m_isDragging)
+	for (int i=0;i<MAX_VR_CONTROLLERS;i++)
 	{
-		btVector3 from = m_args[0].m_pos;
-		btMatrix3x3 mat(m_args[0].m_orn);
+		if (m_args[0].m_isVrControllerPicking[i] || m_args[0].m_isVrControllerDragging[i])
+		{
+			btVector3 from = m_args[0].m_vrControllerPos[i];
+			btMatrix3x3 mat(m_args[0].m_vrControllerOrn[i]);
 	
-		btVector3 toX = m_args[0].m_pos+mat.getColumn(0);
-		btVector3 toY = m_args[0].m_pos+mat.getColumn(1);
-		btVector3 toZ = m_args[0].m_pos+mat.getColumn(2);
+			btVector3 toX = from+mat.getColumn(0);
+			btVector3 toY = from+mat.getColumn(1);
+			btVector3 toZ = from+mat.getColumn(2);
 	
-		int width = 2;
+			int width = 2;
 
 	
-		btVector4 color;
-		color=btVector4(1,0,0,1);
-		m_guiHelper->getAppInterface()->m_renderer->drawLine(from,toX,color,width);
-		color=btVector4(0,1,0,1);
-		m_guiHelper->getAppInterface()->m_renderer->drawLine(from,toY,color,width);
-		color=btVector4(0,0,1,1);
-		m_guiHelper->getAppInterface()->m_renderer->drawLine(from,toZ,color,width);
+			btVector4 color;
+			color=btVector4(1,0,0,1);
+			m_guiHelper->getAppInterface()->m_renderer->drawLine(from,toX,color,width);
+			color=btVector4(0,1,0,1);
+			m_guiHelper->getAppInterface()->m_renderer->drawLine(from,toY,color,width);
+			color=btVector4(0,0,1,1);
+			m_guiHelper->getAppInterface()->m_renderer->drawLine(from,toZ,color,width);
 	
+		}
 	}
 
+	if (gDebugRenderToggle)
 	if (m_guiHelper->getAppInterface()->m_renderer->getActiveCamera()->isVRCamera())
 	{
 		//some little experiment to add text/HUD to a VR camera (HTC Vive/Oculus Rift)
 
 		static int frameCount=0;
-		frameCount++;
-		char bla[1024];
-
 		static btScalar prevTime = m_clock.getTimeSeconds();
-		btScalar curTime = m_clock.getTimeSeconds();
-		static btScalar deltaTime = 0.f;
-		static int count = 10;
-		if (count-- < 0)
-		{
-			count = 10;
-			deltaTime = curTime - prevTime;
-		}
-		if (deltaTime == 0)
-			deltaTime = 1000;
+		frameCount++;
+		static char line0[1024];
+		static char line1[1024];
 
-		prevTime = curTime;
-		
-		sprintf(bla,"VR sub-title text test,fps = %f, frame %d", 1./deltaTime, frameCount/2);
+		static btScalar worseFps = 1000000;
+		int numFrames = 200;
+		static int count = 0;
+		count++;
+
+		if (0 == (count & 1))
+		{
+			btScalar curTime = m_clock.getTimeSeconds();
+			btScalar fps = 1. / (curTime - prevTime);
+			prevTime = curTime;
+			if (fps < worseFps)
+			{
+				worseFps = fps;
+			}
+
+			if (count > numFrames)
+			{
+				count = 0;
+				sprintf(line0, "Graphics FPS (worse) = %f, frame %d", worseFps, frameCount / 2);
+
+				sprintf(line1, "Physics Steps = %d, Dropped = %d, dt %f, Substep %f)", gNumSteps, gDroppedSimulationSteps, gDtInSec, gSubStep);
+				gDroppedSimulationSteps = 0;
+
+				worseFps = 1000000;
+			}
+		}
+
 		float pos[4];
 		m_guiHelper->getAppInterface()->m_renderer->getActiveCamera()->getCameraTargetPosition(pos);
+		pos[0]+=gVRTeleportPos[0];
+		pos[1]+=gVRTeleportPos[1];
+		pos[2]+=gVRTeleportPos[2];
+
 		btTransform viewTr;
 		btScalar m[16];
 		float mf[16];
@@ -908,17 +980,20 @@ void PhysicsServerExample::renderScene()
 		{
 			m[i] = mf[i];
 		}
+		m[12]=+gVRTeleportPos[0];
+		m[13]=+gVRTeleportPos[1];
+		m[14]=+gVRTeleportPos[2];
 		viewTr.setFromOpenGLMatrix(m);
 		btTransform viewTrInv = viewTr.inverse();
 		float upMag = -.6;
 		btVector3 side = viewTrInv.getBasis().getColumn(0);
 		btVector3 up = viewTrInv.getBasis().getColumn(1);
-		up+=0.35*side;
-		m_guiHelper->getAppInterface()->drawText3D(bla,pos[0]+upMag*up[0],pos[1]+upMag*up[1],pos[2]+upMag*up[2],1);
+		up+=0.6*side;
+		m_guiHelper->getAppInterface()->drawText3D(line0,pos[0]+upMag*up[0],pos[1]+upMag*up[1],pos[2]+upMag*up[2],1);
 		//btVector3 fwd = viewTrInv.getBasis().getColumn(2);
-		sprintf(bla,"VR line 2 sub-title text test, frame %d", frameCount/2);
+		
 		upMag = -0.7;
-		m_guiHelper->getAppInterface()->drawText3D(bla,pos[0]+upMag*up[0],pos[1]+upMag*up[1],pos[2]+upMag*up[2],1);
+		m_guiHelper->getAppInterface()->drawText3D(line1,pos[0]+upMag*up[0],pos[1]+upMag*up[1],pos[2]+upMag*up[2],1);
 	}
 
 	//m_args[0].m_cs->unlock();
@@ -952,7 +1027,7 @@ btVector3	PhysicsServerExample::getRayTo(int x,int y)
 	btVector3 camPos,camTarget;
 	renderer->getActiveCamera()->getCameraPosition(camPos);
 	renderer->getActiveCamera()->getCameraTargetPosition(camTarget);
-
+	
 	btVector3	rayFrom = camPos;
 	btVector3 rayForward = (camTarget-camPos);
 	rayForward.normalize();
@@ -1025,17 +1100,72 @@ class CommonExampleInterface*    PhysicsServerCreateFunc(struct CommonExampleOpt
 
 }
 
+
+
 void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int button, int state, float pos[4], float orn[4])
 {
-	m_args[0].m_isPicking = (state!=0);
-	m_args[0].m_isReleasing = (state==0);
-	m_args[0].m_pos.setValue(pos[0],pos[1],pos[2]);
-	m_args[0].m_orn.setValue(orn[0],orn[1],orn[2],orn[3]);
+	//printf("controllerId %d, button=%d\n",controllerId, button);
+	
+	if (controllerId<0 || controllerId>=MAX_VR_CONTROLLERS)
+		return;
+
+	if (button==1 && state==0)
+	{
+		gVRTeleportPos = gLastPickPos;
+	}
+	if (button==32 && state==0)
+	{
+		gDebugRenderToggle = !gDebugRenderToggle;
+	}
+	
+
+	if (button==1)
+	{
+		m_args[0].m_isVrControllerTeleporting[controllerId] = true;
+	}
+
+	if (controllerId == 3 && (button == 33))
+	{
+		gVRGripperClosed =state;
+	}
+	else
+	{
+
+		if ((button == 33))
+		{
+			m_args[0].m_isVrControllerPicking[controllerId] = (state != 0);
+			m_args[0].m_isVrControllerReleasing[controllerId] = (state == 0);
+		}
+		if ((button == 33) || (button == 1))
+		{
+			m_args[0].m_vrControllerPos[controllerId].setValue(pos[0] + gVRTeleportPos[0], pos[1] + gVRTeleportPos[1], pos[2] + gVRTeleportPos[2]);
+			m_args[0].m_vrControllerOrn[controllerId].setValue(orn[0], orn[1], orn[2], orn[3]);
+		}
+	}
 }
+
+extern btVector3 gVRGripperPos;
+extern btQuaternion gVRGripperOrn;
 
 void	PhysicsServerExample::vrControllerMoveCallback(int controllerId, float pos[4], float orn[4])
 {
-	m_args[0].m_pos.setValue(pos[0],pos[1],pos[2]);
-	m_args[0].m_orn.setValue(orn[0],orn[1],orn[2],orn[3]);
+
+	if (controllerId <= 0 || controllerId >= MAX_VR_CONTROLLERS)
+	{
+		printf("Controller Id exceeds max: %d > %d", controllerId, MAX_VR_CONTROLLERS);
+		return;
+	}
+	if (controllerId == 3)
+	{
+		gVRGripperPos.setValue(pos[0] + gVRTeleportPos[0], pos[1] + gVRTeleportPos[1], pos[2] + gVRTeleportPos[2]);
+		btQuaternion orgOrn(orn[0], orn[1], orn[2], orn[3]);
+		gVRGripperOrn = orgOrn*btQuaternion(btVector3(0, 0, 1), SIMD_HALF_PI)*btQuaternion(btVector3(0, 1, 0), SIMD_HALF_PI);
+	}
+	else
+	{
+		m_args[0].m_vrControllerPos[controllerId].setValue(pos[0] + gVRTeleportPos[0], pos[1] + gVRTeleportPos[1], pos[2] + gVRTeleportPos[2]);
+		m_args[0].m_vrControllerOrn[controllerId].setValue(orn[0], orn[1], orn[2], orn[3]);
+	}
+
 }
 B3_STANDALONE_EXAMPLE(PhysicsServerCreateFunc)

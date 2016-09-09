@@ -577,13 +577,32 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
                                            glmesh->m_vertices->at(i).xyzw[1]*collision->m_geometry.m_meshScale[1],
                                            glmesh->m_vertices->at(i).xyzw[2]*collision->m_geometry.m_meshScale[2]));
 							}
-							//btConvexHullShape* cylZShape = new btConvexHullShape(&glmesh->m_vertices->at(0).xyzw[0], glmesh->m_numvertices, sizeof(GLInstanceVertex));
-							btConvexHullShape* cylZShape = new btConvexHullShape(&convertedVerts[0].getX(), convertedVerts.size(), sizeof(btVector3));
-							//cylZShape->initializePolyhedralFeatures();
-							//btVector3 halfExtents(cyl->radius,cyl->radius,cyl->length/2.);
-							//btCylinderShapeZ* cylZShape = new btCylinderShapeZ(halfExtents);
-							cylZShape->setMargin(0.001);
-							shape = cylZShape;
+							
+							if (collision->m_flags & URDF_FORCE_CONCAVE_TRIMESH)
+							{
+								btTriangleMesh* meshInterface = new btTriangleMesh();
+								for (int i=0;i<glmesh->m_numIndices/3;i++)
+								{
+									float* v0 = glmesh->m_vertices->at(glmesh->m_indices->at(i*3)).xyzw;
+									float* v1 = glmesh->m_vertices->at(glmesh->m_indices->at(i*3+1)).xyzw;
+									float* v2 = glmesh->m_vertices->at(glmesh->m_indices->at(i*3+2)).xyzw;
+									meshInterface->addTriangle(btVector3(v0[0],v0[1],v0[2]),
+																btVector3(v1[0],v1[1],v1[2]),
+															btVector3(v2[0],v2[1],v2[2]));
+								}
+								
+								btBvhTriangleMeshShape* trimesh = new btBvhTriangleMeshShape(meshInterface,true,true);
+								shape = trimesh;
+							} else
+							{
+								//btConvexHullShape* cylZShape = new btConvexHullShape(&glmesh->m_vertices->at(0).xyzw[0], glmesh->m_numvertices, sizeof(GLInstanceVertex));
+								btConvexHullShape* cylZShape = new btConvexHullShape(&convertedVerts[0].getX(), convertedVerts.size(), sizeof(btVector3));
+								//cylZShape->initializePolyhedralFeatures();
+								//btVector3 halfExtents(cyl->radius,cyl->radius,cyl->length/2.);
+								//btCylinderShapeZ* cylZShape = new btCylinderShapeZ(halfExtents);
+								cylZShape->setMargin(0.001);
+								shape = cylZShape;
+							}
 						} else
 						{
 							b3Warning("issue extracting mesh from STL file %s\n", fullPath);

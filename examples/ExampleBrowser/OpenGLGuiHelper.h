@@ -56,6 +56,8 @@ struct OpenGLGuiHelper : public GUIHelperInterface
     virtual void drawText3D( const char* txt, float posX, float posY, float posZ, float size);
 
 	void renderInternalGl2(int  pass, const btDiscreteDynamicsWorld* dynamicsWorld);
+
+	void setVRMode(bool vrMode);
 };
 
 #endif //OPENGL_GUI_HELPER_H

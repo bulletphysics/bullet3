@@ -13,7 +13,9 @@
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"
 
+#include "LinearMath/btIDebugDraw.h"
 int gSharedMemoryKey = -1;
+int  gDebugDrawFlags = 0;
 
 //how can you try typing on a keyboard, without seeing it?
 //it is pretty funny, to see the desktop in VR!
@@ -32,7 +34,7 @@ int gSharedMemoryKey = -1;
 CommonExampleInterface*    sExample;
 
 int sPrevPacketNum=0;
-GUIHelperInterface* sGuiPtr = 0;
+OpenGLGuiHelper* sGuiPtr = 0;
 
 
 static vr::VRControllerState_t sPrevStates[vr::k_unMaxTrackedDeviceCount] = { 0 };
@@ -384,6 +386,8 @@ bool CMainApplication::BInit()
 
 	
 	sGuiPtr = new OpenGLGuiHelper(m_app,false);
+	sGuiPtr->setVRMode(true);
+
 	//sGuiPtr = new DummyGUIHelper;
 
     
@@ -467,7 +471,7 @@ bool CMainApplication::BInit()
  	m_fScaleSpacing = 4.0f;
  
  	m_fNearClip = 0.1f;
- 	m_fFarClip = 30.0f;
+ 	m_fFarClip = 3000.0f;
  
  	m_iTexture = 0;
  	m_uiVertcount = 0;
@@ -621,6 +625,9 @@ void CMainApplication::Shutdown()
 		}
 	}
 
+	sExample->exitPhysics();
+	delete sExample;
+
 	delete m_app;
 	m_app=0;
 	
@@ -668,6 +675,7 @@ bool CMainApplication::HandleInput()
 		{
 			//we need to have the 'move' events, so no early out here
 			//if (sPrevStates[unDevice].unPacketNum != state.unPacketNum)
+			if( m_pHMD->GetTrackedDeviceClass( unDevice) == vr::TrackedDeviceClass_Controller )
 			{
 				sPrevStates[unDevice].unPacketNum = state.unPacketNum;
 
@@ -689,7 +697,19 @@ bool CMainApplication::HandleInput()
 						if ((sPrevStates[unDevice].ulButtonPressed&trigger)==0)
 						{
 //							printf("Device PRESSED: %d, button %d\n", unDevice, button);
+							if (button==2)
+							{
+								glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+								///todo(erwincoumans) can't use reguar debug drawer, because physics/graphics are not in sync
+								//add a special debug drawer that deals with this
+								//gDebugDrawFlags = btIDebugDraw::DBG_DrawContactPoints
+									//btIDebugDraw::DBG_DrawConstraintLimits+
+									//btIDebugDraw::DBG_DrawConstraints
+									;
+							}
+
 							sExample->vrControllerButtonCallback(unDevice, button, 1, pos, orn);
+
 						}
 						else
 						{
@@ -699,16 +719,30 @@ bool CMainApplication::HandleInput()
 					}
 					else
 					{
-						//not pressed now, but pressed before -> raise a button up event
-						if ((sPrevStates[unDevice].ulButtonPressed&trigger) != 0)
+						if( m_pHMD->GetTrackedDeviceClass( unDevice) == vr::TrackedDeviceClass_Controller )
 						{
 							b3Transform tr;
 							getControllerTransform(unDevice, tr);
 							float pos[3] = { tr.getOrigin()[0], tr.getOrigin()[1], tr.getOrigin()[2] };
 							b3Quaternion born = tr.getRotation();
 							float orn[4] = { born[0], born[1], born[2], born[3] };
-//							printf("Device RELEASED: %d, button %d\n", unDevice,button);
-							sExample->vrControllerButtonCallback(unDevice, button, 0, pos, orn);
+	//							printf("Device RELEASED: %d, button %d\n", unDevice,button);
+					
+							//not pressed now, but pressed before -> raise a button up event
+							if ((sPrevStates[unDevice].ulButtonPressed&trigger) != 0)
+							{
+								if (button==2)
+								{
+									gDebugDrawFlags = 0;
+									glPolygonMode( GL_FRONT_AND_BACK, GL_FILL);
+								}
+							
+								sExample->vrControllerButtonCallback(unDevice, button, 0, pos, orn);
+							} else
+							{
+
+								sExample->vrControllerMoveCallback(unDevice, pos, orn);
+							}
 						}
 					}
 				}
@@ -725,12 +759,10 @@ bool CMainApplication::HandleInput()
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
+
 void CMainApplication::RunMainLoop()
 {
 	bool bQuit = false;
-
-	//SDL_StartTextInput();
-	//SDL_ShowCursor( SDL_DISABLE );
 
 	while ( !bQuit && !m_app->m_window->requestedExit())
 	{
@@ -739,7 +771,6 @@ void CMainApplication::RunMainLoop()
 		RenderFrame();
 	}
 
-	//SDL_StopTextInput();
 }
 
 
@@ -1603,11 +1634,19 @@ void CMainApplication::RenderStereoTargets()
 	
 	m_app->m_instancingRenderer->setRenderFrameBuffer((unsigned int)leftEyeDesc.m_nRenderFramebufferId);
 
-	sExample->renderScene();
+	if (gDebugDrawFlags)
+	{
+		sExample->physicsDebugDraw(gDebugDrawFlags);
+	} 
+	
+	{
+		sExample->renderScene();
+	}
+
 	//m_app->m_instancingRenderer->renderScene();
 	DrawGridData gridUp;
 	gridUp.upAxis = m_app->getUpAxis();
-	m_app->drawGrid(gridUp);
+//	m_app->drawGrid(gridUp);
 
 	
  	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
@@ -1645,8 +1684,17 @@ void CMainApplication::RenderStereoTargets()
 	
 	m_app->m_instancingRenderer->setRenderFrameBuffer((unsigned int)rightEyeDesc.m_nRenderFramebufferId);
 	//m_app->m_renderer->renderScene();
-	sExample->renderScene();
-	m_app->drawGrid(gridUp);
+	
+	if (gDebugDrawFlags)
+	{
+		sExample->physicsDebugDraw(gDebugDrawFlags);
+	} 
+
+	{
+		sExample->renderScene();
+	}
+
+	//m_app->drawGrid(gridUp);
 	
  	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
  	

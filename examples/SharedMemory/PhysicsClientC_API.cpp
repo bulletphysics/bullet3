@@ -163,6 +163,19 @@ int	b3PhysicsParamSetNumSubSteps(b3SharedMemoryCommandHandle commandHandle, int 
     return 0;
 }
 
+
+int	b3PhysicsParamSetDefaultContactERP(b3SharedMemoryCommandHandle commandHandle, double defaultContactERP)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+    command->m_updateFlags |= SIM_PARAM_UPDATE_DEFAULT_CONTACT_ERP;
+    command->m_physSimParamArgs.m_defaultContactERP = defaultContactERP;
+    return 0;
+}
+
+
+int	b3PhysicsParamSetDefaultContactERP(b3SharedMemoryCommandHandle commandHandle, double defaultContactERP);
+
 b3SharedMemoryCommandHandle	b3InitStepSimulationCommand(b3PhysicsClientHandle physClient)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;
@@ -1251,4 +1264,62 @@ int b3GetStatusInverseDynamicsJointForces(b3SharedMemoryStatusHandle statusHandl
 
 	
 	return true;
+}
+
+
+///compute the joint positions to move the end effector to a desired target using inverse kinematics
+b3SharedMemoryCommandHandle	b3CalculateInverseKinematicsCommandInit(b3PhysicsClientHandle physClient, int bodyIndex,
+	const double* jointPositionsQ, const double targetPosition[3])
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+
+	command->m_type = CMD_CALCULATE_INVERSE_KINEMATICS;
+	command->m_updateFlags = 0;
+	command->m_calculateInverseKinematicsArguments.m_bodyUniqueId = bodyIndex;
+	int numJoints = cl->getNumJoints(bodyIndex);
+	for (int i = 0; i < numJoints;i++)
+	{
+		command->m_calculateInverseKinematicsArguments.m_jointPositionsQ[i] = jointPositionsQ[i];
+	}
+
+	command->m_calculateInverseKinematicsArguments.m_targetPosition[0] = targetPosition[0];
+	command->m_calculateInverseKinematicsArguments.m_targetPosition[1] = targetPosition[1];
+	command->m_calculateInverseKinematicsArguments.m_targetPosition[2] = targetPosition[2];
+
+	return (b3SharedMemoryCommandHandle)command;
+
+}
+
+int b3GetStatusInverseKinematicsJointPositions(b3SharedMemoryStatusHandle statusHandle,
+	int* bodyUniqueId,
+	int* dofCount,
+	double* jointPositions)
+{
+	const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
+	btAssert(status->m_type == CMD_CALCULATE_INVERSE_KINEMATICS_COMPLETED);
+	if (status->m_type != CMD_CALCULATE_INVERSE_KINEMATICS_COMPLETED)
+		return false;
+
+
+	if (dofCount)
+	{
+		*dofCount = status->m_inverseKinematicsResultArgs.m_dofCount;
+	}
+	if (bodyUniqueId)
+	{
+		*bodyUniqueId = status->m_inverseKinematicsResultArgs.m_bodyUniqueId;
+	}
+	if (jointPositions)
+	{
+		for (int i = 0; i < status->m_inverseKinematicsResultArgs.m_dofCount; i++)
+		{
+			jointPositions[i] = status->m_inverseKinematicsResultArgs.m_jointPositions[i];
+		}
+	}
+
+	return false;
 }

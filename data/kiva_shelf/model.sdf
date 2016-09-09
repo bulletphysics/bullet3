@@ -2,18 +2,18 @@
 <sdf version="1.4">
   <model name="Amazon Pod">
   	<static>1</static>
-  	<pose>0 2 0 0 0 0</pose>
+  	<pose>0 1 0 0 0 0</pose>
     <link name="pod_link">
       <inertial>
         <pose>0.0 .0 1.2045 0 0 0</pose>
-        <mass>76.26</mass>
+        <mass>0</mass>
         <inertia>
-          <ixx>47</ixx>
-          <ixy>-0.003456</ixy>
-          <ixz>0.001474</ixz>
-          <izz>13.075</izz>
-          <iyz>-0.014439</iyz>
-          <iyy>47</iyy>
+          <ixx>0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <izz>0.0</izz>
+          <iyz>0.0</iyz>
+          <iyy>0.0</iyy>
         </inertia>
       </inertial>
 
@@ -30,7 +30,7 @@
       </visual>
 
 
-      <collision name="pod_collision">
+      <collision concave="yes" name="pod_collision">
         <pose>0 0 0 1.5707 0 0</pose>
         <geometry>
           <mesh>

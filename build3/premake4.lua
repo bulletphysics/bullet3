@@ -249,6 +249,7 @@ end
 		include "../examples/InverseDynamics"
 		include "../examples/ExtendedTutorials"
 		include "../examples/SharedMemory"
+		include "../examples/ThirdPartyLibs/BussIK"
 		include "../examples/MultiThreading"
 
 		if _OPTIONS["lua"] then
