@@ -6,7 +6,7 @@
 #include "Bullet3Common/b3Transform.h"
 
 
-struct SimpleCameraInternalData
+B3_ATTRIBUTE_ALIGNED16(struct) SimpleCameraInternalData
 {
 	SimpleCameraInternalData()
 		:m_cameraTargetPosition(b3MakeVector3(0,0,0)),
@@ -25,7 +25,11 @@ struct SimpleCameraInternalData
 		tr.setIdentity();
 		tr.getOpenGLMatrix(m_offsetTransformVR);
 	}
-	b3Vector3 m_cameraTargetPosition;
+	
+    B3_DECLARE_ALIGNED_ALLOCATOR();
+    
+    B3_ATTRIBUTE_ALIGNED16(float) m_offsetTransformVR[16];
+    b3Vector3 m_cameraTargetPosition;
 	float m_cameraDistance;
 	b3Vector3 m_cameraUp;
 	b3Vector3 m_cameraForward;
@@ -42,8 +46,7 @@ struct SimpleCameraInternalData
 	bool m_enableVR;
 	float m_viewMatrixVR[16];
 	float m_projectionMatrixVR[16];
-	float m_offsetTransformVR[16];
-
+	
 };
 
 
