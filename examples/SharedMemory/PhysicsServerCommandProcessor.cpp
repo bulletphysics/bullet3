@@ -434,7 +434,7 @@ struct PhysicsServerCommandProcessorInternalData
 		:m_hasGround(false),
 		m_gripperRigidbodyFixed(0),
 		m_gripperMultiBody(0),
-		m_allowRealTimeSimulation(true),
+		m_allowRealTimeSimulation(false),
 		m_commandLogger(0),
 		m_logPlayback(0),
 		m_physicsDeltaTime(1./240.),
