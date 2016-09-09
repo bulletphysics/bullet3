@@ -556,6 +556,9 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 
 	m_data->m_dynamicsWorld = new btMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
 
+	//Workaround: in a VR application, where we avoid synchronizaing between GFX/Physics threads, we don't want to resize this array, so pre-allocate it
+	m_data->m_dynamicsWorld->getCollisionObjectArray().reserve(8192);
+
 	m_data->m_remoteDebugDrawer = new SharedMemoryDebugDrawer();
 
 
@@ -2694,13 +2697,16 @@ void PhysicsServerCommandProcessor::replayFromLogFile(const char* fileName)
 
 btVector3 gVRGripperPos(0,0,0);
 btQuaternion gVRGripperOrn(0,0,0,1);
-
+int gDroppedSimulationSteps = 0;
+int gNumSteps = 0;
+double gDtInSec = 0.f;
+double gSubStep = 0.f;
 void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 {
 	if (m_data->m_allowRealTimeSimulation && m_data->m_guiHelper)
 	{
-		btAlignedObjectArray<char> bufferServerToClient;
-		bufferServerToClient.resize(32768);
+		static btAlignedObjectArray<char> gBufferServerToClient;
+		gBufferServerToClient.resize(32768);
 
 
 		if (!m_data->m_hasGround)
@@ -2710,14 +2716,14 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			int bodyId = 0;
 			
 
-			loadUrdf("plane.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, true, &bodyId, &bufferServerToClient[0], bufferServerToClient.size());
+			loadUrdf("plane.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, true, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 		}
 
 		if (0)//m_data->m_gripperRigidbodyFixed==0)
 		{
 			int bodyId = 0;
 
-			loadUrdf("pr2_gripper.urdf",btVector3(0, 0, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &bufferServerToClient[0], bufferServerToClient.size());
+			loadUrdf("pr2_gripper.urdf",btVector3(0, 0, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 
 			InteralBodyData* parentBody = m_data->getHandle(bodyId);
 			if (parentBody->m_multiBody)
@@ -2747,13 +2753,13 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 		int maxSteps = 3;
 
 		int numSteps = m_data->m_dynamicsWorld->stepSimulation(dtInSec,maxSteps,m_data->m_physicsDeltaTime);
-		int droppedSteps = numSteps > maxSteps ? numSteps - maxSteps : 0;
-		static int skipReport = 0;
-		skipReport++;
-		if (skipReport>100)
+		gDroppedSimulationSteps += numSteps > maxSteps ? numSteps - maxSteps : 0;
+
+		if (numSteps)
 		{
-			skipReport = 0;
-			//printf("numSteps: %d (dropped %d), %f (internal step = %f)\n", numSteps, droppedSteps , dtInSec, m_data->m_physicsDeltaTime);
+			gNumSteps = numSteps;
+			gDtInSec = dtInSec;
+			gSubStep = m_data->m_physicsDeltaTime;
 		}
 	}
 }

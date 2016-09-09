@@ -625,6 +625,9 @@ void CMainApplication::Shutdown()
 		}
 	}
 
+	sExample->exitPhysics();
+	delete sExample;
+
 	delete m_app;
 	m_app=0;
 	
@@ -752,12 +755,10 @@ bool CMainApplication::HandleInput()
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
+
 void CMainApplication::RunMainLoop()
 {
 	bool bQuit = false;
-
-	//SDL_StartTextInput();
-	//SDL_ShowCursor( SDL_DISABLE );
 
 	while ( !bQuit && !m_app->m_window->requestedExit())
 	{
@@ -766,7 +767,6 @@ void CMainApplication::RunMainLoop()
 		RenderFrame();
 	}
 
-	//SDL_StopTextInput();
 }
 
 

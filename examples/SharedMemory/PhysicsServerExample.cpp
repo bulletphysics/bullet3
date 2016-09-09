@@ -13,7 +13,8 @@
 #include "../Utils/b3Clock.h"
 #include "../MultiThreading/b3ThreadSupportInterface.h"
 
-#define MAX_VR_CONTROLLERS 4
+#define MAX_VR_CONTROLLERS 8
+
 
 extern btVector3 gLastPickPos;
 btVector3 gVRTeleportPos(0,0,0);
@@ -880,6 +881,12 @@ static float vrOffset[16]={1,0,0,0,
 							0,0,0,0};
 
 
+extern int gDroppedSimulationSteps;
+extern int gNumSteps;
+extern double gDtInSec;
+extern double gSubStep;
+
+
 void PhysicsServerExample::renderScene()
 {
 	///debug rendering
@@ -925,24 +932,38 @@ void PhysicsServerExample::renderScene()
 		//some little experiment to add text/HUD to a VR camera (HTC Vive/Oculus Rift)
 
 		static int frameCount=0;
-		frameCount++;
-		char bla[1024];
-
 		static btScalar prevTime = m_clock.getTimeSeconds();
-		btScalar curTime = m_clock.getTimeSeconds();
-		static btScalar deltaTime = 0.f;
-		static int count = 10;
-		if (count-- < 0)
-		{
-			count = 10;
-			deltaTime = curTime - prevTime;
-		}
-		if (deltaTime == 0)
-			deltaTime = 1000;
+		frameCount++;
+		static char line0[1024];
+		static char line1[1024];
 
-		prevTime = curTime;
-		
-		sprintf(bla,"VR sub-title text test,fps = %f, frame %d", 1./deltaTime, frameCount/2);
+		static btScalar worseFps = 1000000;
+		int numFrames = 200;
+		static int count = 0;
+		count++;
+
+		if (0 == (count & 1))
+		{
+			btScalar curTime = m_clock.getTimeSeconds();
+			btScalar fps = 1. / (curTime - prevTime);
+			prevTime = curTime;
+			if (fps < worseFps)
+			{
+				worseFps = fps;
+			}
+
+			if (count > numFrames)
+			{
+				count = 0;
+				sprintf(line0, "Graphics FPS (worse) = %f, frame %d", worseFps, frameCount / 2);
+
+				sprintf(line1, "Physics Steps = %d, Dropped = %d, dt %f, Substep %f)", gNumSteps, gDroppedSimulationSteps, gDtInSec, gSubStep);
+				gDroppedSimulationSteps = 0;
+
+				worseFps = 1000000;
+			}
+		}
+
 		float pos[4];
 		m_guiHelper->getAppInterface()->m_renderer->getActiveCamera()->getCameraTargetPosition(pos);
 		pos[0]+=gVRTeleportPos[0];
@@ -965,12 +986,12 @@ void PhysicsServerExample::renderScene()
 		float upMag = -.6;
 		btVector3 side = viewTrInv.getBasis().getColumn(0);
 		btVector3 up = viewTrInv.getBasis().getColumn(1);
-		up+=0.35*side;
-		m_guiHelper->getAppInterface()->drawText3D(bla,pos[0]+upMag*up[0],pos[1]+upMag*up[1],pos[2]+upMag*up[2],1);
+		up+=0.6*side;
+		m_guiHelper->getAppInterface()->drawText3D(line0,pos[0]+upMag*up[0],pos[1]+upMag*up[1],pos[2]+upMag*up[2],1);
 		//btVector3 fwd = viewTrInv.getBasis().getColumn(2);
-		sprintf(bla,"VR line 2 sub-title text test, frame %d", frameCount/2);
+		
 		upMag = -0.7;
-		m_guiHelper->getAppInterface()->drawText3D(bla,pos[0]+upMag*up[0],pos[1]+upMag*up[1],pos[2]+upMag*up[2],1);
+		m_guiHelper->getAppInterface()->drawText3D(line1,pos[0]+upMag*up[0],pos[1]+upMag*up[1],pos[2]+upMag*up[2],1);
 	}
 
 	//m_args[0].m_cs->unlock();
@@ -1083,7 +1104,7 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 {
 	//printf("controllerId %d, button=%d\n",controllerId, button);
 	
-	if (controllerId<0 || controllerId>MAX_VR_CONTROLLERS)
+	if (controllerId<0 || controllerId>=MAX_VR_CONTROLLERS)
 		return;
 
 	if (button==1 && state==0)
@@ -1118,6 +1139,11 @@ extern btQuaternion gVRGripperOrn;
 void	PhysicsServerExample::vrControllerMoveCallback(int controllerId, float pos[4], float orn[4])
 {
 
+	if (controllerId <= 0 || controllerId >= MAX_VR_CONTROLLERS)
+	{
+		printf("Controller Id exceeds max: %d > %d", controllerId, MAX_VR_CONTROLLERS);
+		return;
+	}
 	m_args[0].m_vrControllerPos[controllerId].setValue(pos[0]+gVRTeleportPos[0],pos[1]+gVRTeleportPos[1],pos[2]+gVRTeleportPos[2]);
 	m_args[0].m_vrControllerOrn[controllerId].setValue(orn[0],orn[1],orn[2],orn[3]);
 	
