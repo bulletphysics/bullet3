@@ -382,6 +382,7 @@ struct PhysicsServerCommandProcessorInternalData
 	bool m_hasGround;
 
 	btMultiBodyFixedConstraint* m_gripperRigidbodyFixed;
+	btMultiBody* m_gripperMultiBody;
 
 	CommandLogger* m_commandLogger;
 	CommandLogPlayback* m_logPlayback;
@@ -432,6 +433,7 @@ struct PhysicsServerCommandProcessorInternalData
 	PhysicsServerCommandProcessorInternalData()
 		:m_hasGround(false),
 		m_gripperRigidbodyFixed(0),
+		m_gripperMultiBody(0),
 		m_allowRealTimeSimulation(true),
 		m_commandLogger(0),
 		m_logPlayback(0),
@@ -2697,6 +2699,9 @@ void PhysicsServerCommandProcessor::replayFromLogFile(const char* fileName)
 
 btVector3 gVRGripperPos(0,0,0);
 btQuaternion gVRGripperOrn(0,0,0,1);
+bool gVRGripperClosed = false;
+
+
 int gDroppedSimulationSteps = 0;
 int gNumSteps = 0;
 double gDtInSec = 0.f;
@@ -2717,37 +2722,70 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			
 
 			loadUrdf("plane.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, true, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		}
-
-		if (0)//m_data->m_gripperRigidbodyFixed==0)
-		{
-			int bodyId = 0;
-
-			loadUrdf("pr2_gripper.urdf",btVector3(0, 0, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-
-			InteralBodyData* parentBody = m_data->getHandle(bodyId);
-			if (parentBody->m_multiBody)
+	
+			if (m_data->m_gripperRigidbodyFixed == 0)
 			{
-				parentBody->m_multiBody->setHasSelfCollision(1);
-				btVector3 pivotInParent(0,0,0);
-				btMatrix3x3 frameInParent;
-				frameInParent.setRotation(btQuaternion(0,0,0,1));
-				
-				btVector3 pivotInChild(0,0,0);
-				btMatrix3x3 frameInChild;
-				frameInChild.setIdentity();
+				int bodyId = 0;
 
-				m_data->m_gripperRigidbodyFixed = new btMultiBodyFixedConstraint(parentBody->m_multiBody,-1,0,pivotInParent,pivotInChild,frameInParent,frameInChild);
-				m_data->m_gripperRigidbodyFixed->setMaxAppliedImpulse(2.);
-				btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_data->m_dynamicsWorld;
-				world->addMultiBodyConstraint(m_data->m_gripperRigidbodyFixed);
+				if (loadUrdf("pr2_gripper.urdf", btVector3(0, 0, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size()))
+				{
+					InteralBodyData* parentBody = m_data->getHandle(bodyId);
+					if (parentBody->m_multiBody)
+					{
+						parentBody->m_multiBody->setHasSelfCollision(1);
+						btVector3 pivotInParent(0, 0, 0);
+						btMatrix3x3 frameInParent;
+						frameInParent.setRotation(btQuaternion(0, 0, 0, 1));
+
+						btVector3 pivotInChild(0, 0, 0);
+						btMatrix3x3 frameInChild;
+						frameInChild.setIdentity();
+
+						m_data->m_gripperRigidbodyFixed = new btMultiBodyFixedConstraint(parentBody->m_multiBody, -1, 0, pivotInParent, pivotInChild, frameInParent, frameInChild);
+						m_data->m_gripperMultiBody = parentBody->m_multiBody;
+						if (m_data->m_gripperMultiBody->getNumLinks() > 2)
+						{
+							m_data->m_gripperMultiBody->setJointPos(0, SIMD_HALF_PI);
+							m_data->m_gripperMultiBody->setJointPos(2, SIMD_HALF_PI);
+						}
+						m_data->m_gripperRigidbodyFixed->setMaxAppliedImpulse(2.);
+						btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*)m_data->m_dynamicsWorld;
+						world->addMultiBodyConstraint(m_data->m_gripperRigidbodyFixed);
+					}
+				}
 			}
 		}
 
-		if (m_data->m_gripperRigidbodyFixed)
+		if (m_data->m_gripperRigidbodyFixed && m_data->m_gripperMultiBody)
 		{
 			m_data->m_gripperRigidbodyFixed->setFrameInB(btMatrix3x3(gVRGripperOrn));
 			m_data->m_gripperRigidbodyFixed->setPivotInB(gVRGripperPos);
+			if (m_data->m_gripperMultiBody->getNumLinks() > 2)
+			{
+				for (int i = 0; i < 2; i++)
+				{
+					if (supportsJointMotor(m_data->m_gripperMultiBody, i * 2))
+					{
+						btMultiBodyJointMotor* motor = (btMultiBodyJointMotor*)m_data->m_gripperMultiBody->getLink(i * 2).m_userPtr;
+						if (motor)
+						{
+							motor->setErp(0.005);
+
+							if (gVRGripperClosed)
+							{
+								motor->setPositionTarget(0.2, 1);
+							}
+							else
+							{
+								motor->setPositionTarget(SIMD_HALF_PI, 1);
+							}
+							motor->setVelocityTarget(0, 0.1);
+							btScalar maxImp = 550.*m_data->m_physicsDeltaTime;
+							motor->setMaxAppliedImpulse(maxImp);
+						}
+					}
+				}
+			}
 		}
 
 		int maxSteps = 3;

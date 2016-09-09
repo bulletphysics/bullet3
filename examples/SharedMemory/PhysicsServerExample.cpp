@@ -18,6 +18,8 @@
 
 extern btVector3 gLastPickPos;
 btVector3 gVRTeleportPos(0,0,0);
+extern bool gVRGripperClosed;
+
 bool gDebugRenderToggle  = false;
 void	MotionThreadFunc(void* userPtr,void* lsMemory);
 void*	MotionlsMemoryFunc();
@@ -1116,20 +1118,29 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 		gDebugRenderToggle = !gDebugRenderToggle;
 	}
 	
+
 	if (button==1)
 	{
 		m_args[0].m_isVrControllerTeleporting[controllerId] = true;
 	}
 
-	if ((button==33))
+	if (controllerId == 3 && (button == 33))
 	{
-		m_args[0].m_isVrControllerPicking[controllerId] = (state!=0);
-		m_args[0].m_isVrControllerReleasing[controllerId] = (state==0);
+		gVRGripperClosed =state;
 	}
-	if ((button==33)||(button==1))
+	else
 	{
-		m_args[0].m_vrControllerPos[controllerId].setValue(pos[0]+gVRTeleportPos[0],pos[1]+gVRTeleportPos[1],pos[2]+gVRTeleportPos[2]);
-		m_args[0].m_vrControllerOrn[controllerId].setValue(orn[0],orn[1],orn[2],orn[3]);
+
+		if ((button == 33))
+		{
+			m_args[0].m_isVrControllerPicking[controllerId] = (state != 0);
+			m_args[0].m_isVrControllerReleasing[controllerId] = (state == 0);
+		}
+		if ((button == 33) || (button == 1))
+		{
+			m_args[0].m_vrControllerPos[controllerId].setValue(pos[0] + gVRTeleportPos[0], pos[1] + gVRTeleportPos[1], pos[2] + gVRTeleportPos[2]);
+			m_args[0].m_vrControllerOrn[controllerId].setValue(orn[0], orn[1], orn[2], orn[3]);
+		}
 	}
 }
 
@@ -1144,13 +1155,17 @@ void	PhysicsServerExample::vrControllerMoveCallback(int controllerId, float pos[
 		printf("Controller Id exceeds max: %d > %d", controllerId, MAX_VR_CONTROLLERS);
 		return;
 	}
-	m_args[0].m_vrControllerPos[controllerId].setValue(pos[0]+gVRTeleportPos[0],pos[1]+gVRTeleportPos[1],pos[2]+gVRTeleportPos[2]);
-	m_args[0].m_vrControllerOrn[controllerId].setValue(orn[0],orn[1],orn[2],orn[3]);
-	
-	gVRGripperPos.setValue(pos[0]+gVRTeleportPos[0],pos[1]+gVRTeleportPos[1],pos[2]+gVRTeleportPos[2]);
-	btQuaternion orgOrn(orn[0],orn[1],orn[2],orn[3]);
-	gVRGripperOrn = orgOrn*btQuaternion(btVector3(0,0,1),SIMD_HALF_PI)*btQuaternion(btVector3(0,1,0),SIMD_HALF_PI);
-
+	if (controllerId == 3)
+	{
+		gVRGripperPos.setValue(pos[0] + gVRTeleportPos[0], pos[1] + gVRTeleportPos[1], pos[2] + gVRTeleportPos[2]);
+		btQuaternion orgOrn(orn[0], orn[1], orn[2], orn[3]);
+		gVRGripperOrn = orgOrn*btQuaternion(btVector3(0, 0, 1), SIMD_HALF_PI)*btQuaternion(btVector3(0, 1, 0), SIMD_HALF_PI);
+	}
+	else
+	{
+		m_args[0].m_vrControllerPos[controllerId].setValue(pos[0] + gVRTeleportPos[0], pos[1] + gVRTeleportPos[1], pos[2] + gVRTeleportPos[2]);
+		m_args[0].m_vrControllerOrn[controllerId].setValue(orn[0], orn[1], orn[2], orn[3]);
+	}
 
 }
 B3_STANDALONE_EXAMPLE(PhysicsServerCreateFunc)

@@ -700,12 +700,16 @@ bool CMainApplication::HandleInput()
 							if (button==2)
 							{
 								glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-								gDebugDrawFlags = btIDebugDraw::DBG_DrawContactPoints
+								///todo(erwincoumans) can't use reguar debug drawer, because physics/graphics are not in sync
+								//add a special debug drawer that deals with this
+								//gDebugDrawFlags = btIDebugDraw::DBG_DrawContactPoints
 									//btIDebugDraw::DBG_DrawConstraintLimits+
 									//btIDebugDraw::DBG_DrawConstraints
 									;
 							}
+
 							sExample->vrControllerButtonCallback(unDevice, button, 1, pos, orn);
+
 						}
 						else
 						{
