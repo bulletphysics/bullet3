@@ -2,10 +2,15 @@
 #include "../SharedMemory/PhysicsDirectC_API.h"
 #include "../SharedMemory/SharedMemoryInProcessPhysicsC_API.h"
 
+
 #ifdef __APPLE__
 #include <Python/Python.h>
 #else
 #include <Python.h>
+#endif
+
+#ifdef PYBULLET_USE_NUMPY
+#include <numpy/arrayobject.h>
 #endif
 
 #if PY_MAJOR_VERSION >= 3
@@ -1275,7 +1280,43 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args) {
       PyObject* item2;
       PyObject* pyResultList;  // store 4 elements in this result: width,
                                // height, rgbData, depth
-      PyObject* pylistRGB;
+
+#ifdef PYBULLET_USE_NUMPY
+      PyObject* pyRGB;
+      PyObject* pyDep;
+      PyObject* pySeg;
+
+      int i, j, p;
+
+      b3GetCameraImageData(sm, &imageData);
+      // TODO(hellojas): error handling if image size is 0
+      pyResultList = PyTuple_New(5);
+      PyTuple_SetItem(pyResultList, 0, PyInt_FromLong(imageData.m_pixelWidth));
+      PyTuple_SetItem(pyResultList, 1, PyInt_FromLong(imageData.m_pixelHeight));
+
+      int bytesPerPixel = 4;  // Red, Green, Blue, and Alpha each 8 bit values
+
+      npy_intp rgb_dims[3] = {imageData.m_pixelHeight, imageData.m_pixelWidth,
+        bytesPerPixel};
+      npy_intp dep_dims[2] = {imageData.m_pixelHeight, imageData.m_pixelWidth};
+      npy_intp seg_dims[2] = {imageData.m_pixelHeight, imageData.m_pixelWidth};
+
+      pyRGB = PyArray_SimpleNew(3, rgb_dims, NPY_UINT8);
+      pyDep = PyArray_SimpleNew(2, dep_dims, NPY_FLOAT32);
+      pySeg = PyArray_SimpleNew(2, seg_dims, NPY_INT32);
+
+      memcpy(PyArray_DATA(pyRGB), imageData.m_rgbColorData,
+        imageData.m_pixelHeight * imageData.m_pixelWidth * bytesPerPixel);
+      memcpy(PyArray_DATA(pyDep), imageData.m_depthValues,
+        imageData.m_pixelHeight * imageData.m_pixelWidth);
+      memcpy(PyArray_DATA(pySeg), imageData.m_segmentationMaskValues,
+        imageData.m_pixelHeight * imageData.m_pixelWidth);
+    
+      PyTuple_SetItem(pyResultList, 2, pyRGB);
+      PyTuple_SetItem(pyResultList, 3, pyDep);
+      PyTuple_SetItem(pyResultList, 4, pySeg);
+#else//PYBULLET_USE_NUMPY
+   PyObject* pylistRGB;
       PyObject* pylistDep;
       PyObject* pylistSeg;
 
@@ -1324,6 +1365,9 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args) {
       PyTuple_SetItem(pyResultList, 2, pylistRGB);
       PyTuple_SetItem(pyResultList, 3, pylistDep);
       PyTuple_SetItem(pyResultList, 4, pylistSeg);
+      return pyResultList;
+#endif//PYBULLET_USE_NUMPY
+
       return pyResultList;
     }
   }
@@ -1777,7 +1821,11 @@ static PyMethodDef SpamMethods[] = {
     {"renderImage", pybullet_renderImage, METH_VARARGS,
      "Render an image (given the pixel resolution width, height, camera view "
      "matrix, projection matrix, near, and far values), and return the "
-     "8-8-8bit RGB pixel data and floating point depth values"},
+     "8-8-8bit RGB pixel data and floating point depth values"
+#ifdef PYBULLET_USE_NUMPY
+     " as NumPy arrays"
+#endif
+     },
 
     {"getContactPointData", pybullet_getContactPointData, METH_VARARGS,
      "Return the contact point information for all or some of pairwise "
@@ -1862,6 +1910,13 @@ initpybullet(void)
   SpamError = PyErr_NewException("pybullet.error", NULL, NULL);
   Py_INCREF(SpamError);
   PyModule_AddObject(m, "error", SpamError);
+
+#ifdef PYBULLET_USE_NUMPY
+  // Initialize numpy array.
+  import_array();
+#endif //PYBULLET_USE_NUMPY
+
+
 #if PY_MAJOR_VERSION >= 3
   return m;
 #endif
