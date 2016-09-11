@@ -9,6 +9,10 @@ addons:
   apt:
     packages:
       - python3-numpy
+      
+install:
+ - pip install numpy
+ 
 script:
   - echo "CXX="$CXX
   - echo "CC="$CC
