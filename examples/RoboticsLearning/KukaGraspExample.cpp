@@ -175,7 +175,7 @@ public:
             
             // m_robotSim.getJointInfo(m_kukaIndex,jointIndex,jointInfo);
             double q_new[7];
-            int ikMethod=IK2_SDLS;
+            int ikMethod=IK2_DLS;
             b3Vector3DoubleData dataOut;
             m_targetPos.serializeDouble(dataOut);
             b3Vector3DoubleData worldPosDataOut;

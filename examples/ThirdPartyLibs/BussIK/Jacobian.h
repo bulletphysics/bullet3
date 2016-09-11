@@ -60,6 +60,7 @@ public:
 	void SetJendActive() { Jactive = &Jend; }						// The default setting is Jend.
 	void SetJtargetActive() { Jactive = &Jtarget; }
     void SetJendTrans(MatrixRmn& J);
+    void SetDeltaS(VectorRn& S);
 
 	void CalcDeltaThetas();			// Use this only if the Current Mode has been set.
 	void ZeroDeltaThetas();
@@ -86,7 +87,7 @@ public:
     int GetNumRows() {return nRow;}
     int GetNumCols() {return nCol;}
     
-private:
+public:
 	Tree* tree;			// tree associated with this Jacobian matrix
 	int nEffector;		// Number of end effectors
 	int nJoint;			// Number of joints

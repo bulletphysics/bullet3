@@ -112,8 +112,14 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
     targets.Set(endEffectorTargetPosition[0],endEffectorTargetPosition[1],endEffectorTargetPosition[2]);
     m_data->m_ikJacobian->ComputeJacobian(&targets);						// Set up Jacobian and deltaS vectors
     
-    // Set end effector world position from Bullet
-    
+    // Set one end effector world position from Bullet
+    VectorRn deltaS(3);
+    for (int i = 0; i < 3; ++i)
+    {
+        deltaS.Set(i,endEffectorTargetPosition[i]-endEffectorWorldPosition[i]);
+    }
+    m_data->m_ikJacobian->SetDeltaS(deltaS);
+
     // Set Jacobian from Bullet body Jacobian
     int nRow = m_data->m_ikJacobian->GetNumRows();
     int nCol = m_data->m_ikJacobian->GetNumCols();
