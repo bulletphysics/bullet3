@@ -23,6 +23,7 @@ public:
     void createKukaIIWA();
     
     bool computeIK(const double endEffectorTargetPosition[3],
+                   const double endEffectorWorldPosition[3],
                    const double* q_old, int numQ,
                    double* q_new, int ikMethod, const double* linear_jacobian, int jacobian_size);
     

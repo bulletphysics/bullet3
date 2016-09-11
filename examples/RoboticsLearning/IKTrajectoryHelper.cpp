@@ -86,6 +86,7 @@ void IKTrajectoryHelper::createKukaIIWA()
 }
 
 bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
+                                   const double endEffectorWorldPosition[3],
                const double* q_current, int numQ,
                double* q_new, int ikMethod, const double* linear_jacobian, int jacobian_size)
 {
@@ -110,6 +111,8 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
     VectorR3 targets;
     targets.Set(endEffectorTargetPosition[0],endEffectorTargetPosition[1],endEffectorTargetPosition[2]);
     m_data->m_ikJacobian->ComputeJacobian(&targets);						// Set up Jacobian and deltaS vectors
+    
+    // Set end effector world position from Bullet
     
     // Set Jacobian from Bullet body Jacobian
     int nRow = m_data->m_ikJacobian->GetNumRows();
