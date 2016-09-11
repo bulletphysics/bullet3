@@ -9,6 +9,7 @@ addons:
   apt:
     packages:
       - python3
+
 script:
   - echo "CXX="$CXX
   - echo "CC="$CC
