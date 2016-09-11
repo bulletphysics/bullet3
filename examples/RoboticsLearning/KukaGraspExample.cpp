@@ -192,8 +192,11 @@ public:
             int ikMethod=IK2_SDLS;
            
             m_ikHelper.computeIK(dataOut.m_floats,q_current, numJoints, q_new, ikMethod);
-            printf("q_new = %f,%f,%f,%f,%f,%f,%f\n", q_new[0],q_new[1],q_new[2],
-                   q_new[3],q_new[4],q_new[5],q_new[6]);
+        //    printf("q_current = %f,%f,%f,%f,%f,%f,%f\n", q_current[0],q_current[1],q_current[2],
+            //       q_current[3],q_current[4],q_current[5],q_current[6]);
+            
+          //  printf("q_new = %f,%f,%f,%f,%f,%f,%f\n", q_new[0],q_new[1],q_new[2],
+              //     q_new[3],q_new[4],q_new[5],q_new[6]);
         
             //set the
             for (int i=0;i<numJoints;i++)

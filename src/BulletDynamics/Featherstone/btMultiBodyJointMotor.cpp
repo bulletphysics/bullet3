@@ -58,7 +58,8 @@ btMultiBodyJointMotor::btMultiBodyJointMotor(btMultiBody* body, int link, int li
 	m_desiredVelocity(desiredVelocity),
 	m_desiredPosition(0),
 	m_kd(1.),
-	m_kp(0)
+	m_kp(0),
+    m_erp(1)
 {
 	btAssert(linkDoF < body->getLink(link).m_dofCount);
 
