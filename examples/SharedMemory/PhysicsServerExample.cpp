@@ -1131,7 +1131,7 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 	else
 	{
 
-		if ((button == 33))
+		if (button == 33)
 		{
 			m_args[0].m_isVrControllerPicking[controllerId] = (state != 0);
 			m_args[0].m_isVrControllerReleasing[controllerId] = (state == 0);

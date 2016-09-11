@@ -3,7 +3,6 @@
 
 #define SHARED_MEMORY_MAGIC_NUMBER 64738
 #define SHARED_MEMORY_MAX_COMMANDS 4
-#define SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE (256*1024)
 
 #include "SharedMemoryCommands.h"
 
