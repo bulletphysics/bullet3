@@ -5,10 +5,10 @@
 #include "BussIK/VectorRn.h"
 #include "BussIK/MatrixRmn.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
+#include "BulletDynamics/Featherstone/btMultiBody.h"
 
 
 #define RADIAN(X)	((X)*RadiansToDegrees)
-
 
 //use BussIK and Reflexxes to convert from Cartesian endeffector future target to
 //joint space positions at each real-time (simulation) step
@@ -37,6 +37,17 @@ IKTrajectoryHelper::~IKTrajectoryHelper()
     delete m_data;
 }
 
+bool IKTrajectoryHelper::createFromMultiBody(class btMultiBody* mb)
+{
+	//todo: implement proper conversion. For now, we only 'detect' a likely KUKA iiwa and hardcode its creation
+	if (mb->getNumLinks()==7)
+	{
+		createKukaIIWA();
+		return true;
+	}
+
+	return false;
+}
 
 void IKTrajectoryHelper::createKukaIIWA()
 {

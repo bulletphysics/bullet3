@@ -117,7 +117,7 @@ public:
 			b3RobotSimLoadFileArgs args("");
 			b3RobotSimLoadFileResults results;
 			{
-				args.m_fileName = "cube.urdf";
+				args.m_fileName = "cube_soft.urdf";
 				args.m_startPosition.setValue(0,0,2.5);
 				args.m_startOrientation.setEulerZYX(0,0.2,0);
 				m_robotSim.loadFile(args,results);

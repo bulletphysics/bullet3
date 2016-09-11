@@ -23,7 +23,7 @@ subject to the following restrictions:
 #include <math.h>
 #include "LinearR3.h"
 
-#include "../OpenGLWindow/OpenGLInclude.h"
+
 
 /****************************************************************
 							 Axes 

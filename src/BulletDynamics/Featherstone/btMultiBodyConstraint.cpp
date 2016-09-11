@@ -299,7 +299,7 @@ btScalar btMultiBodyConstraint::fillMultiBodyConstraint(	btMultiBodySolverConstr
     
     
     //compute rhs and remaining solverConstraint fields
-    btScalar penetration = isFriction? 0 : posError+infoGlobal.m_linearSlop;
+    btScalar penetration = isFriction? 0 : posError;
     
     btScalar rel_vel = 0.f;
     int ndofA  = 0;

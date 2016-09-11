@@ -410,7 +410,10 @@ void ConvertURDF2BulletInternal(
 				{
 					col->setRollingFriction(contactInfo.m_rollingFriction);
 				}
-				
+				if ((contactInfo.m_flags & URDF_CONTACT_HAS_STIFFNESS_DAMPING)!=0)
+				{
+				    col->setContactStiffnessAndDamping(contactInfo.m_contactStiffness,contactInfo.m_contactDamping);
+				}
 
                 if (mbLinkIndex>=0) //???? double-check +/- 1
                 {

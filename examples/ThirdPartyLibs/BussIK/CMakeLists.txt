@@ -1,0 +1,10 @@
+
+INCLUDE_DIRECTORIES(
+	.
+)
+
+
+FILE(GLOB BussIK_SRCS "*.cpp" )
+FILE(GLOB BussIK_HDRS "*.h" )
+
+ADD_LIBRARY(BussIK ${BussIK_SRCS} ${BussIK_HDRS})

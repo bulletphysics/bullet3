@@ -47,20 +47,20 @@ IF (BUILD_SHARED_LIBS)
 		IF (WIN32)
                 TARGET_LINK_LIBRARIES(
                         BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
-                        BulletInverseDynamics LinearMath OpenGLWindow gwen
+                        BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK
                         ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
                 )
 		ELSE(WIN32)
         IF(APPLE)
                  TARGET_LINK_LIBRARIES(
                                 BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
-                                BulletInverseDynamics LinearMath OpenGLWindow gwen
+                                BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK
                                 ${COCOA} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
                  )
   			ELSE(APPLE)
                  TARGET_LINK_LIBRARIES(
                                 BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
-                                BulletInverseDynamics LinearMath OpenGLWindow gwen
+                                BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK
                                 pthread dl
                         )
         ENDIF(APPLE)
@@ -81,7 +81,7 @@ INCLUDE_DIRECTORIES(
 
 
 LINK_LIBRARIES(
-        BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen
+        BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK
 )
 
 IF (WIN32)
@@ -129,6 +129,8 @@ SET(BulletExampleBrowser_SRCS
 	../TinyRenderer/TinyRenderer.cpp
 	../SharedMemory/TinyRendererVisualShapeConverter.cpp
 	../SharedMemory/TinyRendererVisualShapeConverter.h
+	../SharedMemory/IKTrajectoryHelper.cpp
+	../SharedMemory/IKTrajectoryHelper.h
 	../RenderingExamples/TinyRendererSetup.cpp
 	../SharedMemory/PhysicsServer.cpp
 	../SharedMemory/PhysicsClientSharedMemory.cpp
@@ -218,8 +220,6 @@ SET(BulletExampleBrowser_SRCS
 	../RoboticsLearning/R2D2GraspExample.h
 	../RoboticsLearning/KukaGraspExample.cpp
 	../RoboticsLearning/KukaGraspExample.h
-	../RoboticsLearning/IKTrajectoryHelper.cpp
-	../RoboticsLearning/IKTrajectoryHelper.h
 	../RenderingExamples/CoordinateSystemDemo.cpp
 	../RenderingExamples/CoordinateSystemDemo.h
 	../RenderingExamples/RaytracerSetup.cpp
@@ -307,17 +307,6 @@ SET(BulletExampleBrowser_SRCS
 	../ThirdPartyLibs/stb_image/stb_image.cpp
 	../ThirdPartyLibs/stb_image/stb_image.h
 	
-	../ThirdPartyLibs/BussIK/Jacobian.cpp
-	../ThirdPartyLibs/BussIK/Tree.cpp
-	../ThirdPartyLibs/BussIK/Node.cpp
-	../ThirdPartyLibs/BussIK/LinearR2.cpp
-	../ThirdPartyLibs/BussIK/LinearR3.cpp
-	../ThirdPartyLibs/BussIK/LinearR4.cpp
-	../ThirdPartyLibs/BussIK/MatrixRmn.cpp
-	../ThirdPartyLibs/BussIK/VectorRn.cpp
-	../ThirdPartyLibs/BussIK/Misc.cpp
-	
-
 	../ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
 	../ThirdPartyLibs/tinyxml/tinystr.cpp
 	../ThirdPartyLibs/tinyxml/tinyxml.cpp

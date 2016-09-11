@@ -50,6 +50,7 @@ struct b3RobotSimLoadFileArgs
 	}
 };
 
+
 struct b3RobotSimLoadFileResults
 {
 	b3AlignedObjectArray<int> m_uniqueObjectIds;
@@ -81,6 +82,35 @@ struct b3JointMotorArgs
 	}
 };
 
+enum b3InverseKinematicsFlags
+{
+	B3_HAS_IK_TARGET_ORIENTATION=1,
+};
+
+struct b3RobotSimInverseKinematicArgs
+{
+	int m_bodyUniqueId;
+	double* m_currentJointPositions;
+	int m_numPositions;
+	double m_endEffectorTargetPosition[3];
+	double m_endEffectorTargetOrientation[3];
+	int m_flags;
+
+	b3RobotSimInverseKinematicArgs()
+		:m_bodyUniqueId(-1),
+		m_currentJointPositions(0),
+		m_numPositions(0),
+		m_flags(0)
+	{
+	}
+};
+
+struct b3RobotSimInverseKinematicsResults
+{
+	int m_bodyUniqueId;
+	double* m_calculatedJointPositions;
+	int m_numPositions;
+};
 
 class b3RobotSimAPI
 {
@@ -112,6 +142,8 @@ public:
 	void setGravity(const b3Vector3& gravityAcceleration);
     
     void setNumSimulationSubSteps(int numSubSteps);
+
+	bool calculateInverseKinematics(const struct b3RobotSimInverseKinematicArgs& args, struct b3RobotSimInverseKinematicsResults& results);
 
 	void renderScene();
 	void debugDraw(int debugDrawMode);

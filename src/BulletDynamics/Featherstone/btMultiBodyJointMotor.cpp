@@ -26,7 +26,8 @@ btMultiBodyJointMotor::btMultiBodyJointMotor(btMultiBody* body, int link, btScal
 	m_desiredVelocity(desiredVelocity),
 	m_desiredPosition(0),
 	m_kd(1.),
-	m_kp(0)
+	m_kp(0),
+	m_erp(1)
 {
 
 	m_maxAppliedImpulse = maxMotorImpulse;
@@ -57,7 +58,8 @@ btMultiBodyJointMotor::btMultiBodyJointMotor(btMultiBody* body, int link, int li
 	m_desiredVelocity(desiredVelocity),
 	m_desiredPosition(0),
 	m_kd(1.),
-	m_kp(0)
+    m_kp(0),
+    m_erp(1)
 {
 	btAssert(linkDoF < body->getLink(link).m_dofCount);
 
@@ -123,7 +125,7 @@ void btMultiBodyJointMotor::createConstraintRows(btMultiBodyConstraintArray& con
         int dof = 0;
         btScalar currentPosition = m_bodyA->getJointPosMultiDof(m_linkA)[dof];
         btScalar currentVelocity = m_bodyA->getJointVelMultiDof(m_linkA)[dof];
-        btScalar positionStabiliationTerm = (m_desiredPosition-currentPosition)/infoGlobal.m_timeStep;
+        btScalar positionStabiliationTerm = m_erp*(m_desiredPosition-currentPosition)/infoGlobal.m_timeStep;
         btScalar velocityError = (m_desiredVelocity - currentVelocity);
         btScalar rhs =   m_kp * positionStabiliationTerm + currentVelocity+m_kd * velocityError;
         

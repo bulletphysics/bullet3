@@ -17,9 +17,9 @@ subject to the following restrictions:
 
 ///todo: make this configurable in the gui
 bool useShadowMap = true;// true;//false;//true;
-int shadowMapWidth=4096;//8192;
-int shadowMapHeight= 4096;
-float shadowMapWorldSize=25;
+int shadowMapWidth= 2048;
+int shadowMapHeight= 2048;
+float shadowMapWorldSize=5;
 
 #define MAX_POINTS_IN_BATCH 1024
 #define MAX_LINES_IN_BATCH 1024
@@ -329,6 +329,19 @@ void GLInstancingRenderer::writeSingleInstanceTransformToCPU(const float* positi
 }
 
 
+void GLInstancingRenderer::readSingleInstanceTransformFromCPU(int srcIndex, float* position, float* orientation)
+{
+	b3Assert(srcIndex<m_data->m_totalNumInstances);
+	b3Assert(srcIndex>=0);
+	position[0] = m_data->m_instance_positions_ptr[srcIndex*4+0];
+	position[1] = m_data->m_instance_positions_ptr[srcIndex*4+1];
+	position[2] = m_data->m_instance_positions_ptr[srcIndex*4+2];
+	
+	orientation[0] = m_data->m_instance_quaternion_ptr[srcIndex*4+0];
+	orientation[1] = m_data->m_instance_quaternion_ptr[srcIndex*4+1];
+	orientation[2] = m_data->m_instance_quaternion_ptr[srcIndex*4+2];
+	orientation[3] = m_data->m_instance_quaternion_ptr[srcIndex*4+3];
+}
 void GLInstancingRenderer::writeSingleInstanceColorToCPU(double* color, int srcIndex)
 {
 	m_data->m_instance_colors_ptr[srcIndex*4+0]=float(color[0]);
@@ -1475,7 +1488,7 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 //		m_data->m_shadowMap->disable();
 	//	return;
 		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK); // Cull back-facing triangles -> draw only front-facing triangles
+		glCullFace(GL_FRONT); // Cull back-facing triangles -> draw only front-facing triangles
 
 	b3Assert(glGetError() ==GL_NO_ERROR);
 	} else

@@ -15,7 +15,7 @@
 #include "BulletDynamics/Featherstone/btMultiBodySliderConstraint.h"
 #include "LinearMath/btHashMap.h"
 #include "BulletInverseDynamics/MultiBodyTree.hpp"
-
+#include "IKTrajectoryHelper.h"
 #include "btBulletDynamicsCommon.h"
 
 #include "LinearMath/btTransform.h"
@@ -381,6 +381,9 @@ struct PhysicsServerCommandProcessorInternalData
 	bool m_allowRealTimeSimulation;
 	bool m_hasGround;
 
+	btMultiBodyFixedConstraint* m_gripperRigidbodyFixed;
+	btMultiBody* m_gripperMultiBody;
+
 	CommandLogger* m_commandLogger;
 	CommandLogPlayback* m_logPlayback;
 
@@ -389,6 +392,7 @@ struct PhysicsServerCommandProcessorInternalData
     btScalar m_numSimulationSubSteps;
 	btAlignedObjectArray<btMultiBodyJointFeedback*> m_multiBodyJointFeedbacks;
 	btHashMap<btHashPtr, btInverseDynamics::MultiBodyTree*> m_inverseDynamicsBodies;
+	btHashMap<btHashPtr, IKTrajectoryHelper*> m_inverseKinematicsHelpers;
 
 
 
@@ -428,6 +432,8 @@ struct PhysicsServerCommandProcessorInternalData
 
 	PhysicsServerCommandProcessorInternalData()
 		:m_hasGround(false),
+		m_gripperRigidbodyFixed(0),
+		m_gripperMultiBody(0),
 		m_allowRealTimeSimulation(false),
 		m_commandLogger(0),
 		m_logPlayback(0),
@@ -552,10 +558,14 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 
 	m_data->m_dynamicsWorld = new btMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
 
+	//Workaround: in a VR application, where we avoid synchronizaing between GFX/Physics threads, we don't want to resize this array, so pre-allocate it
+	m_data->m_dynamicsWorld->getCollisionObjectArray().reserve(8192);
+
 	m_data->m_remoteDebugDrawer = new SharedMemoryDebugDrawer();
 
 
 	m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
+	m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = 0.005;
 }
 
 void PhysicsServerCommandProcessor::deleteCachedInverseDynamicsBodies()
@@ -1061,6 +1071,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 			//no timestamp yet
             int timeStamp = 0;
+			
+			//catch uninitialized cases
+			serverStatusOut.m_type = CMD_INVALID_STATUS;
 
             //consume the command
 			switch (clientCmd.m_type)
@@ -1868,6 +1881,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                         m_data->m_numSimulationSubSteps = clientCmd.m_physSimParamArgs.m_numSimulationSubSteps;
                     }
 
+					if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_DEFAULT_CONTACT_ERP)
+                    {
+                        m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = clientCmd.m_physSimParamArgs.m_defaultContactERP;
+                    }
+
 					SharedMemoryStatus& serverCmd =serverStatusOut;
 					serverCmd.m_type = CMD_CLIENT_COMMAND_COMPLETED;
 					hasStatus = true;
@@ -1961,6 +1979,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					serverCmd.m_type = CMD_RESET_SIMULATION_COMPLETED;
 					hasStatus = true;
 					m_data->m_hasGround = false;
+					m_data->m_gripperRigidbodyFixed = 0;
                     break;
                 }
 				case CMD_CREATE_RIGID_BODY:
@@ -2516,9 +2535,50 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                             }
                         }
                     }
+					SharedMemoryStatus& serverCmd =serverStatusOut;
+                    serverCmd.m_type = CMD_CLIENT_COMMAND_COMPLETED;
                     hasStatus = true;
                     break;
                 }
+				case CMD_CALCULATE_INVERSE_KINEMATICS:
+					{
+						SharedMemoryStatus& serverCmd = serverStatusOut;
+						serverCmd.m_type = CMD_CALCULATE_INVERSE_KINEMATICS_FAILED;
+
+						InternalBodyHandle* bodyHandle = m_data->getHandle(clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId);
+						if (bodyHandle && bodyHandle->m_multiBody)
+						{
+							IKTrajectoryHelper** ikHelperPtrPtr = m_data->m_inverseKinematicsHelpers.find(bodyHandle->m_multiBody);
+							IKTrajectoryHelper* ikHelperPtr = 0;
+							
+
+							if (ikHelperPtrPtr)
+							{
+								ikHelperPtr = *ikHelperPtrPtr;
+							}
+							else
+							{
+								IKTrajectoryHelper* tmpHelper = new IKTrajectoryHelper;
+								if (tmpHelper->createFromMultiBody(bodyHandle->m_multiBody))
+								{
+									m_data->m_inverseKinematicsHelpers.insert(bodyHandle->m_multiBody, ikHelperPtr);
+									ikHelperPtr = tmpHelper;
+								} else
+								{
+									delete tmpHelper;
+								}
+							}
+
+							if (ikHelperPtr)
+							{
+
+								serverCmd.m_type = CMD_CALCULATE_INVERSE_KINEMATICS_COMPLETED;
+							}
+						}
+						hasStatus = true;
+						break;
+					}
+			
                 default:
                 {
                     b3Error("Unknown command encountered");
@@ -2536,13 +2596,13 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 	return hasStatus;
 }
 
+static int skip=1;
 
 void PhysicsServerCommandProcessor::renderScene()
 {
 	if (m_data->m_guiHelper)
 	{
 		m_data->m_guiHelper->syncPhysicsToGraphics(m_data->m_dynamicsWorld);
-
 		m_data->m_guiHelper->render(m_data->m_dynamicsWorld);
 	}
 
@@ -2560,6 +2620,7 @@ void    PhysicsServerCommandProcessor::physicsDebugDraw(int debugDrawFlags)
 	}
 }
 
+btVector3 gLastPickPos(0,0,0);
 
 bool PhysicsServerCommandProcessor::pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld)
 {
@@ -2573,6 +2634,7 @@ bool PhysicsServerCommandProcessor::pickBody(const btVector3& rayFromWorld, cons
 	{
 
 		btVector3 pickPos = rayCallback.m_hitPointWorld;
+		gLastPickPos = pickPos;
 		btRigidBody* body = (btRigidBody*)btRigidBody::upcast(rayCallback.m_collisionObject);
 		if (body)
 		{
@@ -2591,6 +2653,7 @@ bool PhysicsServerCommandProcessor::pickBody(const btVector3& rayFromWorld, cons
 				//very weak constraint for picking
 				p2p->m_setting.m_tau = 0.001f;
 			}
+			
 		} else
 		{
 			btMultiBodyLinkCollider* multiCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(rayCallback.m_collisionObject);
@@ -2709,23 +2772,108 @@ void PhysicsServerCommandProcessor::replayFromLogFile(const char* fileName)
 	m_data->m_logPlayback = pb;
 }
 
+btVector3 gVRGripperPos(0,0,0);
+btQuaternion gVRGripperOrn(0,0,0,1);
+bool gVRGripperClosed = false;
+
+
+int gDroppedSimulationSteps = 0;
+int gNumSteps = 0;
+double gDtInSec = 0.f;
+double gSubStep = 0.f;
 void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 {
-	if (m_data->m_allowRealTimeSimulation)
+	if (m_data->m_allowRealTimeSimulation && m_data->m_guiHelper)
 	{
+		static btAlignedObjectArray<char> gBufferServerToClient;
+		gBufferServerToClient.resize(32768);
+
+
 		if (!m_data->m_hasGround)
 		{
 			m_data->m_hasGround = true;
 
 			int bodyId = 0;
-			btAlignedObjectArray<char> bufferServerToClient;
-			bufferServerToClient.resize(32768);
+			
 
+			loadUrdf("plane.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, true, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+	
+			if (m_data->m_gripperRigidbodyFixed == 0)
+			{
+				int bodyId = 0;
 
-			loadUrdf("plane.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, true, &bodyId, &bufferServerToClient[0], bufferServerToClient.size());
+				if (loadUrdf("pr2_gripper.urdf", btVector3(0, 0, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size()))
+				{
+					InteralBodyData* parentBody = m_data->getHandle(bodyId);
+					if (parentBody->m_multiBody)
+					{
+						parentBody->m_multiBody->setHasSelfCollision(1);
+						btVector3 pivotInParent(0, 0, 0);
+						btMatrix3x3 frameInParent;
+						frameInParent.setRotation(btQuaternion(0, 0, 0, 1));
+
+						btVector3 pivotInChild(0, 0, 0);
+						btMatrix3x3 frameInChild;
+						frameInChild.setIdentity();
+
+						m_data->m_gripperRigidbodyFixed = new btMultiBodyFixedConstraint(parentBody->m_multiBody, -1, 0, pivotInParent, pivotInChild, frameInParent, frameInChild);
+						m_data->m_gripperMultiBody = parentBody->m_multiBody;
+						if (m_data->m_gripperMultiBody->getNumLinks() > 2)
+						{
+							m_data->m_gripperMultiBody->setJointPos(0, SIMD_HALF_PI);
+							m_data->m_gripperMultiBody->setJointPos(2, SIMD_HALF_PI);
+						}
+						m_data->m_gripperRigidbodyFixed->setMaxAppliedImpulse(2.);
+						btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*)m_data->m_dynamicsWorld;
+						world->addMultiBodyConstraint(m_data->m_gripperRigidbodyFixed);
+					}
+				}
+			}
 		}
 
-		m_data->m_dynamicsWorld->stepSimulation(dtInSec,10,m_data->m_physicsDeltaTime);
+		if (m_data->m_gripperRigidbodyFixed && m_data->m_gripperMultiBody)
+		{
+			m_data->m_gripperRigidbodyFixed->setFrameInB(btMatrix3x3(gVRGripperOrn));
+			m_data->m_gripperRigidbodyFixed->setPivotInB(gVRGripperPos);
+			if (m_data->m_gripperMultiBody->getNumLinks() > 2)
+			{
+				for (int i = 0; i < 2; i++)
+				{
+					if (supportsJointMotor(m_data->m_gripperMultiBody, i * 2))
+					{
+						btMultiBodyJointMotor* motor = (btMultiBodyJointMotor*)m_data->m_gripperMultiBody->getLink(i * 2).m_userPtr;
+						if (motor)
+						{
+							motor->setErp(0.005);
+
+							if (gVRGripperClosed)
+							{
+								motor->setPositionTarget(0.2, 1);
+							}
+							else
+							{
+								motor->setPositionTarget(SIMD_HALF_PI, 1);
+							}
+							motor->setVelocityTarget(0, 0.1);
+							btScalar maxImp = 550.*m_data->m_physicsDeltaTime;
+							motor->setMaxAppliedImpulse(maxImp);
+						}
+					}
+				}
+			}
+		}
+
+		int maxSteps = 3;
+
+		int numSteps = m_data->m_dynamicsWorld->stepSimulation(dtInSec,maxSteps,m_data->m_physicsDeltaTime);
+		gDroppedSimulationSteps += numSteps > maxSteps ? numSteps - maxSteps : 0;
+
+		if (numSteps)
+		{
+			gNumSteps = numSteps;
+			gDtInSec = dtInSec;
+			gSubStep = m_data->m_physicsDeltaTime;
+		}
 	}
 }
 

@@ -609,6 +609,7 @@ static inline int jointNumDoFs(const JointType &type) {
 	error_message("invalid joint type\n");
 	// TODO add configurable abort/crash function
 	abort();
+	return 0;
 }
 
 int MultiBodyTree::MultiBodyImpl::calculateMassMatrix(const vecx &q, const bool update_kinematics,

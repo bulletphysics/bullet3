@@ -41,7 +41,7 @@ class GLInstancingRenderer : public CommonRenderInterface
 	int m_upAxis;
     bool m_enableBlend;
     
-	void renderSceneInternal(int renderMode=B3_DEFAULT_RENDERMODE);
+	
 
 	
 	
@@ -52,6 +52,7 @@ public:
 	virtual void init();
 
 	virtual void renderScene();
+	virtual void renderSceneInternal(int renderMode=B3_DEFAULT_RENDERMODE);
 
 	void InitShaders();
 	void CleanupShaders();
@@ -73,6 +74,7 @@ public:
 
 	void writeTransforms();
 
+	
 	virtual void writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int srcIndex);
 	virtual void writeSingleInstanceTransformToCPU(const double* position, const double* orientation, int srcIndex)
     {
@@ -89,6 +91,8 @@ public:
         writeSingleInstanceTransformToCPU(pos,orn,srcIndex);
 
     }
+
+	virtual void readSingleInstanceTransformFromCPU(int srcIndex, float* position, float* orientation);
 
 	virtual void writeSingleInstanceTransformToGPU(float* position, float* orientation, int srcIndex);
 

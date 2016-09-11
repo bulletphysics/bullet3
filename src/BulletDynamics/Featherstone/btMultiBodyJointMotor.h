@@ -29,6 +29,7 @@ protected:
 	btScalar	m_desiredPosition;
 	btScalar    m_kd;
 	btScalar    m_kp;
+	btScalar	m_erp;
 	
 
 public:
@@ -57,6 +58,14 @@ public:
         m_kp = kp;
     }
     
+	virtual void setErp(btScalar erp)
+	{
+		m_erp = erp;
+	}
+	virtual btScalar getErp() const
+	{
+		return m_erp;
+	}
 
 	virtual void debugDraw(class btIDebugDraw* drawer)
 	{

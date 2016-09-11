@@ -75,11 +75,22 @@ struct UrdfVisual
 	UrdfMaterial m_localMaterial;
 };
 
+enum UrdfCollisionFlags
+{
+	URDF_FORCE_CONCAVE_TRIMESH=1,
+};
+
+
 struct UrdfCollision
 {
 	btTransform m_linkLocalFrame;
 	UrdfGeometry m_geometry;
 	std::string m_name;
+	int m_flags;
+	UrdfCollision()
+		:m_flags(0)
+	{
+	}
 };
 
 struct UrdfJoint;

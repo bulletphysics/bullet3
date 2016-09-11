@@ -1,6 +1,6 @@
 
 #include "KukaGraspExample.h"
-#include "IKTrajectoryHelper.h"
+#include "../SharedMemory/IKTrajectoryHelper.h"
 
 #include "../CommonInterfaces/CommonGraphicsAppInterface.h"
 #include "Bullet3Common/b3Quaternion.h"
@@ -140,8 +140,11 @@ public:
     }
     virtual void	stepSimulation(float deltaTime)
 	{
-        m_time+=deltaTime;
-        m_targetPos.setValue(0.5, 0, 0.5+0.4*b3Sin(3 * m_time));
+		float dt = deltaTime;
+		btClamp(dt,0.0001f,0.01f);
+
+        m_time+=dt;
+        m_targetPos.setValue(0.4-0.4*b3Cos( m_time), 0, 0.8+0.4*b3Cos( m_time));
 
         
         
@@ -174,6 +177,28 @@ public:
             m_robotSim.getBodyJacobian(0, 6, local_position, q_current, qdot_current, qddot_current, jacobian_linear, jacobian_angular);
             
             // m_robotSim.getJointInfo(m_kukaIndex,jointIndex,jointInfo);
+/*
+			b3RobotSimInverseKinematicArgs ikargs;
+			b3RobotSimInverseKinematicsResults ikresults;
+			
+         
+			ikargs.m_bodyUniqueId = m_kukaIndex;
+			ikargs.m_currentJointPositions = q_current;
+			ikargs.m_numPositions = 7;
+			ikargs.m_endEffectorTargetPosition[0] = dataOut.m_floats[0];
+			ikargs.m_endEffectorTargetPosition[1] = dataOut.m_floats[1];
+			ikargs.m_endEffectorTargetPosition[2] = dataOut.m_floats[2];
+			
+
+			ikargs.m_endEffectorTargetOrientation[0] = 0;
+			ikargs.m_endEffectorTargetOrientation[1] = 0;
+			ikargs.m_endEffectorTargetOrientation[2] = 0;
+			ikargs.m_endEffectorTargetOrientation[3] = 1;
+
+			if (m_robotSim.calculateInverseKinematics(ikargs,ikresults))
+			{
+			}
+*/
             double q_new[7];
             int ikMethod=IK2_DLS;
             b3Vector3DoubleData dataOut;
