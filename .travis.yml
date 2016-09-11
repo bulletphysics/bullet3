@@ -8,7 +8,7 @@ compiler:
 addons:
   apt:
     packages:
-      - python3
+      - python3-numpy
 script:
   - echo "CXX="$CXX
   - echo "CC="$CC
