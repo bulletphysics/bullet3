@@ -295,26 +295,66 @@ void  BulletURDFImporter::getMassAndInertia(int linkIndex, btScalar& mass,btVect
 	if (linkPtr)
 	{
 		UrdfLink* link = *linkPtr;
+		btMatrix3x3 linkInertiaBasis;
+		btScalar linkMass, principalInertiaX, principalInertiaY, principalInertiaZ;
 		if (link->m_parentJoint==0 && m_data->m_urdfParser.getModel().m_overrideFixedBase)
 		{
-			mass = 0.f;
-			localInertiaDiagonal.setValue(0,0,0);
+			linkMass = 0.f;
+			principalInertiaX = 0.f;
+			principalInertiaY = 0.f;
+			principalInertiaZ = 0.f;
+			linkInertiaBasis.setIdentity();
 		}
 		else
 		{
-			mass = link->m_inertia.m_mass;
-			localInertiaDiagonal.setValue(link->m_inertia.m_ixx,link->m_inertia.m_iyy,
-										  link->m_inertia.m_izz);
+			linkMass = link->m_inertia.m_mass;
+			if (link->m_inertia.m_ixy == 0.0 &&
+			    link->m_inertia.m_ixz == 0.0 &&
+			    link->m_inertia.m_iyz == 0.0)
+			{
+				principalInertiaX = link->m_inertia.m_ixx;
+				principalInertiaY = link->m_inertia.m_iyy;
+				principalInertiaZ = link->m_inertia.m_izz;
+				linkInertiaBasis.setIdentity();
+			}
+			else
+			{
+				principalInertiaX = link->m_inertia.m_ixx;
+				btMatrix3x3 inertiaTensor(link->m_inertia.m_ixx, link->m_inertia.m_ixy, link->m_inertia.m_ixz,
+							  link->m_inertia.m_ixy, link->m_inertia.m_iyy, link->m_inertia.m_iyz,
+							  link->m_inertia.m_ixz, link->m_inertia.m_iyz, link->m_inertia.m_izz);
+				btScalar threshold = 1.0e-6;
+				int numIterations = 30;
+				inertiaTensor.diagonalize(linkInertiaBasis, threshold, numIterations);
+				principalInertiaX = inertiaTensor[0][0];
+				principalInertiaY = inertiaTensor[1][1];
+				principalInertiaZ = inertiaTensor[2][2];
+			}
 		}
-		inertialFrame = link->m_inertia.m_linkLocalFrame;
-		
+		mass = linkMass;
+		if (principalInertiaX < 0 ||
+		    principalInertiaX > (principalInertiaY + principalInertiaZ) ||
+		    principalInertiaY < 0 ||
+		    principalInertiaY > (principalInertiaX + principalInertiaZ) ||
+		    principalInertiaZ < 0 ||
+		    principalInertiaZ > (principalInertiaX + principalInertiaY))
+		{
+			b3Warning("Bad inertia tensor properties, setting inertia to zero for link: %s\n", link->m_name.c_str());
+			principalInertiaX = 0.f;
+			principalInertiaY = 0.f;
+			principalInertiaZ = 0.f;
+			linkInertiaBasis.setIdentity();
+		}
+		localInertiaDiagonal.setValue(principalInertiaX, principalInertiaY, principalInertiaZ);
+		inertialFrame.setOrigin(link->m_inertia.m_linkLocalFrame.getOrigin());
+		inertialFrame.setBasis(linkInertiaBasis * link->m_inertia.m_linkLocalFrame.getBasis());
 	}
 	else
-    {
-        mass = 1.f;
-        localInertiaDiagonal.setValue(1,1,1);
-        inertialFrame.setIdentity();
-    }
+	{
+		mass = 1.f;
+		localInertiaDiagonal.setValue(1,1,1);
+		inertialFrame.setIdentity();
+	}
 }
     
 bool BulletURDFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction) const
