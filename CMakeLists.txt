@@ -195,10 +195,30 @@ ENDIF()
 OPTION(BUILD_BULLET3 "Set when you want to build Bullet 3" ON)
 
 FIND_PACKAGE(PythonLibs)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
+#include(FindNumPy)
+FIND_PACKAGE(NumPy)
+if (PYTHON_NUMPY_FOUND)
+message("NumPy found")
+else()
+message("NumPy not found")
+endif()
+
 OPTION(BUILD_PYBULLET "Set when you want to build pybullet (experimental Python bindings for Bullet)" OFF)
 
 
 IF(BUILD_PYBULLET)
+	FIND_PACKAGE(PythonLibs)
+	
+	set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
+	#include(FindNumPy)
+	FIND_PACKAGE(NumPy)
+	if (NUMPY_FOUND)
+		message("NumPy found")
+	else()
+		message("NumPy not found")
+	endif()
+
 	IF(WIN32)
 		SET(BUILD_SHARED_LIBS OFF CACHE BOOL "Shared Libs" FORCE)
 	ELSE(WIN32)
