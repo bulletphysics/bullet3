@@ -1,6 +1,6 @@
 /*
-Bullet Continuous Collision Detection and Physics Library Copyright (c) 2007 Erwin Coumans
-Motor Demo
+Bullet Continuous Collision Detection and Physics Library
+Copyright (c) 2015 Google Inc. http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the authors be held liable for any damages arising from the use of this software.
