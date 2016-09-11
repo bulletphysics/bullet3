@@ -1821,7 +1821,11 @@ static PyMethodDef SpamMethods[] = {
     {"renderImage", pybullet_renderImage, METH_VARARGS,
      "Render an image (given the pixel resolution width, height, camera view "
      "matrix, projection matrix, near, and far values), and return the "
-     "8-8-8bit RGB pixel data and floating point depth values"},
+     "8-8-8bit RGB pixel data and floating point depth values"
+#ifdef PYBULLET_USE_NUMPY
+     " as NumPy arrays"
+#endif
+     },
 
     {"getContactPointData", pybullet_getContactPointData, METH_VARARGS,
      "Return the contact point information for all or some of pairwise "
