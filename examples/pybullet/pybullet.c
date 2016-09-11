@@ -8,6 +8,8 @@
 #include <Python.h>
 #endif
 
+#include <numpy/arrayobject.h>
+
 #if PY_MAJOR_VERSION >= 3
 #define PyInt_FromLong PyLong_FromLong
 #define PyString_FromString PyBytes_FromString
@@ -1275,9 +1277,9 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args) {
       PyObject* item2;
       PyObject* pyResultList;  // store 4 elements in this result: width,
                                // height, rgbData, depth
-      PyObject* pylistRGB;
-      PyObject* pylistDep;
-      PyObject* pylistSeg;
+      PyObject* pyRGB;
+      PyObject* pyDep;
+      PyObject* pySeg;
 
       int i, j, p;
 
@@ -1287,43 +1289,28 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args) {
       PyTuple_SetItem(pyResultList, 0, PyInt_FromLong(imageData.m_pixelWidth));
       PyTuple_SetItem(pyResultList, 1, PyInt_FromLong(imageData.m_pixelHeight));
 
-      {
-        PyObject* item;
-        int bytesPerPixel = 4;  // Red, Green, Blue, and Alpha each 8 bit values
-        int num =
-            bytesPerPixel * imageData.m_pixelWidth * imageData.m_pixelHeight;
-        pylistRGB = PyTuple_New(num);
-        pylistDep =
-            PyTuple_New(imageData.m_pixelWidth * imageData.m_pixelHeight);
-        pylistSeg =
-            PyTuple_New(imageData.m_pixelWidth * imageData.m_pixelHeight);
-        for (i = 0; i < imageData.m_pixelWidth; i++) {
-          for (j = 0; j < imageData.m_pixelHeight; j++) {
-            // TODO(hellojas): validate depth values make sense
-            int depIndex = i + j * imageData.m_pixelWidth;
-            {
-              item = PyFloat_FromDouble(imageData.m_depthValues[depIndex]);
-              PyTuple_SetItem(pylistDep, depIndex, item);
-            }
-            {
-              item2 =
-                  PyLong_FromLong(imageData.m_segmentationMaskValues[depIndex]);
-              PyTuple_SetItem(pylistSeg, depIndex, item2);
-            }
+      int bytesPerPixel = 4;  // Red, Green, Blue, and Alpha each 8 bit values
 
-            for (p = 0; p < bytesPerPixel; p++) {
-              int pixelIndex =
-                  bytesPerPixel * (i + j * imageData.m_pixelWidth) + p;
-              item = PyInt_FromLong(imageData.m_rgbColorData[pixelIndex]);
-              PyTuple_SetItem(pylistRGB, pixelIndex, item);
-            }
-          }
-        }
-      }
+      npy_intp rgb_dims[3] = {imageData.m_pixelHeight, imageData.m_pixelWidth,
+        bytesPerPixel};
+      npy_intp dep_dims[2] = {imageData.m_pixelHeight, imageData.m_pixelWidth};
+      npy_intp seg_dims[2] = {imageData.m_pixelHeight, imageData.m_pixelWidth};
 
-      PyTuple_SetItem(pyResultList, 2, pylistRGB);
-      PyTuple_SetItem(pyResultList, 3, pylistDep);
-      PyTuple_SetItem(pyResultList, 4, pylistSeg);
+      pyRGB = PyArray_SimpleNew(3, rgb_dims, NPY_UINT8);
+      pyDep = PyArray_SimpleNew(2, dep_dims, NPY_FLOAT32);
+      pySeg = PyArray_SimpleNew(2, seg_dims, NPY_INT32);
+
+      memcpy(PyArray_DATA(pyRGB), imageData.m_rgbColorData,
+        imageData.m_pixelHeight * imageData.m_pixelWidth * bytesPerPixel);
+      memcpy(PyArray_DATA(pyDep), imageData.m_depthValues,
+        imageData.m_pixelHeight * imageData.m_pixelWidth);
+      memcpy(PyArray_DATA(pySeg), imageData.m_segmentationMaskValues,
+        imageData.m_pixelHeight * imageData.m_pixelWidth);
+    
+      PyTuple_SetItem(pyResultList, 2, pyRGB);
+      PyTuple_SetItem(pyResultList, 3, pyDep);
+      PyTuple_SetItem(pyResultList, 4, pySeg);
+
       return pyResultList;
     }
   }
@@ -1862,6 +1849,10 @@ initpybullet(void)
   SpamError = PyErr_NewException("pybullet.error", NULL, NULL);
   Py_INCREF(SpamError);
   PyModule_AddObject(m, "error", SpamError);
+
+  // Initialize numpy array.
+  import_array();
+
 #if PY_MAJOR_VERSION >= 3
   return m;
 #endif
