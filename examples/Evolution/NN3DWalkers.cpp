@@ -42,6 +42,8 @@ static btScalar gLegLength = 0.45f;
 static btScalar gForeLegLength = 0.75f;
 static btScalar gForeLegRadius = 0.08f;
 
+static btScalar gParallelEvaluations = 10.0f;
+
 #ifndef SIMD_PI_4
 #define SIMD_PI_4     0.5 * SIMD_HALF_PI
 #endif
@@ -60,10 +62,6 @@ static btScalar gForeLegRadius = 0.08f;
 
 #ifndef NUM_WALKERS
 #define NUM_WALKERS 50
-#endif
-
-#ifndef NUM_PARALLEL_EVALUATIONS
-#define NUM_PARALLEL_EVALUATIONS 1
 #endif
 
 #ifndef EVALUATION_TIME
@@ -101,6 +99,8 @@ static btScalar gForeLegRadius = 0.08f;
 
 void* GROUND_ID = (void*)1;
 
+//TODO: Fix bug that happens randomly and lets creatures not be visible
+
 class NN3DWalkersExample : public CommonRigidBodyBase
 {
 	btScalar m_Time;
@@ -128,7 +128,7 @@ public:
 	
 	virtual void exitPhysics();
 	
-	void spawnWalker(const btVector3& startOffset, bool bFixed);
+	void spawnWalker(int index, const btVector3& startOffset, bool bFixed);
 	
 	virtual bool	keyboardCallback(int key, int state);
 	
@@ -196,6 +196,7 @@ class NNWalker
 	btScalar			m_evaluationTime;
 	bool				m_reaped;
 	btVector3			m_startPosition;
+	int					m_index;
 
 	btRigidBody* localCreateRigidBody (btScalar mass, const btTransform& startTransform, btCollisionShape* shape)
 	{
@@ -224,9 +225,10 @@ public:
 		}
 	}
 
-	NNWalker(btDynamicsWorld* ownerWorld, const btVector3& positionOffset, bool bFixed)
+	NNWalker(int index, btDynamicsWorld* ownerWorld, const btVector3& positionOffset, bool bFixed)
 		: m_ownerWorld (ownerWorld), m_inEvaluation(false), m_evaluationTime(0), m_reaped(false)
 	{
+		m_index = index;
 		btVector3 vUp(0, 1, 0); // up in local reference frame
 
 		NN3DWalkersExample* nnWalkersDemo = (NN3DWalkersExample*)m_ownerWorld->getWorldUserInfo();
@@ -492,6 +494,10 @@ public:
 	void setReaped(bool reaped) {
 		m_reaped = reaped;
 	}
+
+	int getIndex() const {
+		return m_index;
+	}
 };
 
 void evaluationUpdatePreTickCallback(btDynamicsWorld *world, btScalar timeStep);
@@ -504,22 +510,43 @@ bool legContactProcessedCallback(btManifoldPoint& cp, void* body0, void* body1)
     void* ID1 = o1->getUserPointer();
     void* ID2 = o2->getUserPointer();
 
-	if (ID2 != GROUND_ID || ID1 != GROUND_ID) {
+	if (ID1 != GROUND_ID || ID2 != GROUND_ID) {
 	    // Make a circle with a 0.9 radius at (0,0,0)
 	    // with RGB color (1,0,0).
 		if(nn3DWalkers->m_dynamicsWorld->getDebugDrawer() != NULL){
 			nn3DWalkers->m_dynamicsWorld->getDebugDrawer()->drawSphere(cp.getPositionWorldOnA(), 0.1, btVector3(1., 0., 0.));
 		}
 
-		if(ID1 != GROUND_ID){
+		if(ID1 != GROUND_ID && ID1){
 			((NNWalker*)ID1)->setTouchSensor(o1);
 		}
 
-		if(ID2 != GROUND_ID){
+		if(ID2 != GROUND_ID && ID2){
 			((NNWalker*)ID2)->setTouchSensor(o2);
 		}
 	}
     return false;
+}
+
+struct WalkerFilterCallback : public btOverlapFilterCallback
+{
+	// return true when pairs need collision
+	virtual bool	needBroadphaseCollision(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) const
+	{
+		btCollisionObject* obj0 = static_cast<btCollisionObject*>(proxy0->m_clientObject);
+		btCollisionObject* obj1 = static_cast<btCollisionObject*>(proxy1->m_clientObject);
+
+		if (obj0->getUserPointer() == GROUND_ID || obj1->getUserPointer() == GROUND_ID) { // everything collides with ground
+			return true;
+		}
+		else{
+			return ((NNWalker*)obj0->getUserPointer())->getIndex() == ((NNWalker*)obj1->getUserPointer())->getIndex();
+		}
+	}
+};
+
+void floorNNSliderValue(float notUsed) {
+	gParallelEvaluations = floor(gParallelEvaluations);
 }
 
 void NN3DWalkersExample::initPhysics()
@@ -616,6 +643,16 @@ void NN3DWalkersExample::initPhysics()
 			slider);
 	}
 
+	{ // create a slider to change the number of parallel evaluations
+		SliderParams slider("Parallel evaluations", &gParallelEvaluations);
+		slider.m_minVal = 1;
+		slider.m_maxVal = NUM_WALKERS;
+		slider.m_clampToNotches = false;
+		slider.m_callback = floorNNSliderValue; // hack to get integer values
+		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
+			slider);
+	}
+
 
 	// Setup a big ground box
 	{
@@ -644,8 +681,11 @@ void NN3DWalkersExample::initPhysics()
 
 		// Spawn one walker
 		btVector3 offset(0,0,0);
-		spawnWalker(offset, false);
+		spawnWalker(i, offset, false);
 	}
+
+	btOverlapFilterCallback * filterCallback = new WalkerFilterCallback();
+	m_dynamicsWorld->getPairCache()->setOverlapFilterCallback(filterCallback);
 
 	m_timeSeriesCanvas = new TimeSeriesCanvas(m_guiHelper->getAppInterface()->m_2dCanvasInterface,300,200, "Fitness Performance");
 	m_timeSeriesCanvas ->setupTimeSeries(40, NUM_WALKERS*EVALUATION_TIME, 0);
@@ -655,9 +695,9 @@ void NN3DWalkersExample::initPhysics()
 }
 
 
-void NN3DWalkersExample::spawnWalker(const btVector3& startOffset, bool bFixed)
+void NN3DWalkersExample::spawnWalker(int index, const btVector3& startOffset, bool bFixed)
 {
-	NNWalker* walker = new NNWalker(m_dynamicsWorld, startOffset, bFixed);
+	NNWalker* walker = new NNWalker(index, m_dynamicsWorld, startOffset, bFixed);
 	m_walkersInPopulation.push_back(walker);
 }
 
@@ -941,11 +981,15 @@ void NN3DWalkersExample::scheduleEvaluations() {
 			m_evaluationsQty--;
 		}
 
-		if(m_evaluationsQty < NUM_PARALLEL_EVALUATIONS && !m_walkersInPopulation[i]->isInEvaluation() && m_walkersInPopulation[i]->getEvaluationTime() == 0){ /**!< Setup the new evaluations */
+		if(m_evaluationsQty < gParallelEvaluations && !m_walkersInPopulation[i]->isInEvaluation() && m_walkersInPopulation[i]->getEvaluationTime() == 0){ /**!< Setup the new evaluations */
 			b3Printf("An evaluation started at %f s.",m_Time);
 			m_evaluationsQty++;
 			m_walkersInPopulation[i]->setInEvaluation(true);
-			m_walkersInPopulation[i]->resetAt(btVector3(0,0,0));
+
+			if(m_walkersInPopulation[i]->getEvaluationTime() == 0){ // reset to origin if the evaluation did not yet run
+				m_walkersInPopulation[i]->resetAt(btVector3(0,0,0));
+			}
+
 			m_walkersInPopulation[i]->addToWorld();
 			m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 		}
