@@ -1011,8 +1011,8 @@ void	btMultiBodyConstraintSolver::convertMultiBodyContact(btPersistentManifold* 
                     if (rollingFriction > 0)
                     {
                         addMultiBodyRollingFrictionConstraint(cp.m_normalWorldOnB,manifold,frictionIndex,cp,colObj0,colObj1, relaxation,infoGlobal);
-                        addMultiBodyRollingFrictionConstraint(cp.m_lateralFrictionDir1,manifold,frictionIndex,cp,colObj0,colObj1, relaxation,infoGlobal);
-                        addMultiBodyRollingFrictionConstraint(cp.m_lateralFrictionDir2,manifold,frictionIndex,cp,colObj0,colObj1, relaxation,infoGlobal);
+                        //addMultiBodyRollingFrictionConstraint(cp.m_lateralFrictionDir1,manifold,frictionIndex,cp,colObj0,colObj1, relaxation,infoGlobal);
+                        //addMultiBodyRollingFrictionConstraint(cp.m_lateralFrictionDir2,manifold,frictionIndex,cp,colObj0,colObj1, relaxation,infoGlobal);
 
                         rollingFriction--;
                     }

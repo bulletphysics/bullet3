@@ -702,7 +702,7 @@ bool CMainApplication::HandleInput()
 								glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 								///todo(erwincoumans) can't use reguar debug drawer, because physics/graphics are not in sync
 								//add a special debug drawer that deals with this
-								//gDebugDrawFlags = btIDebugDraw::DBG_DrawContactPoints
+								//gDebugDrawFlags = btIDebugDraw::DBG_DrawWireframe;// :DBG_DrawContactPoints
 									//btIDebugDraw::DBG_DrawConstraintLimits+
 									//btIDebugDraw::DBG_DrawConstraints
 									;

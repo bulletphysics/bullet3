@@ -1101,6 +1101,7 @@ class CommonExampleInterface*    PhysicsServerCreateFunc(struct CommonExampleOpt
 }
 
 
+static int gGraspingController = 2;
 
 void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int button, int state, float pos[4], float orn[4])
 {
@@ -1109,9 +1110,13 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 	if (controllerId<0 || controllerId>=MAX_VR_CONTROLLERS)
 		return;
 
-	if (button==1 && state==0)
+
+	if (controllerId != gGraspingController)
 	{
-		gVRTeleportPos = gLastPickPos;
+		if (button == 1 && state == 0)
+		{
+			gVRTeleportPos = gLastPickPos;
+		}
 	}
 	if (button==32 && state==0)
 	{
@@ -1124,7 +1129,7 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 		m_args[0].m_isVrControllerTeleporting[controllerId] = true;
 	}
 
-	if (controllerId == 3 && (button == 33))
+	if (controllerId == gGraspingController && (button == 33))
 	{
 		gVRGripperClosed =state;
 	}
@@ -1155,7 +1160,7 @@ void	PhysicsServerExample::vrControllerMoveCallback(int controllerId, float pos[
 		printf("Controller Id exceeds max: %d > %d", controllerId, MAX_VR_CONTROLLERS);
 		return;
 	}
-	if (controllerId == 3)
+	if (controllerId == gGraspingController)
 	{
 		gVRGripperPos.setValue(pos[0] + gVRTeleportPos[0], pos[1] + gVRTeleportPos[1], pos[2] + gVRTeleportPos[2]);
 		btQuaternion orgOrn(orn[0], orn[1], orn[2], orn[3]);

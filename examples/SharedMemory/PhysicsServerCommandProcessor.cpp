@@ -525,7 +525,7 @@ PhysicsServerCommandProcessor::PhysicsServerCommandProcessor()
 	m_data = new PhysicsServerCommandProcessorInternalData();
 
 	createEmptyDynamicsWorld();
-	m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop = 0.0001;
+	m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop = 0.0;
 
 }
 
@@ -2823,7 +2823,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 							m_data->m_gripperMultiBody->setJointPos(0, SIMD_HALF_PI);
 							m_data->m_gripperMultiBody->setJointPos(2, SIMD_HALF_PI);
 						}
-						m_data->m_gripperRigidbodyFixed->setMaxAppliedImpulse(2.);
+						m_data->m_gripperRigidbodyFixed->setMaxAppliedImpulse(1.);
 						btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*)m_data->m_dynamicsWorld;
 						world->addMultiBodyConstraint(m_data->m_gripperRigidbodyFixed);
 					}
@@ -2844,7 +2844,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 						btMultiBodyJointMotor* motor = (btMultiBodyJointMotor*)m_data->m_gripperMultiBody->getLink(i * 2).m_userPtr;
 						if (motor)
 						{
-							motor->setErp(0.005);
+							motor->setErp(0.01);
 
 							if (gVRGripperClosed)
 							{
@@ -2855,7 +2855,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 								motor->setPositionTarget(SIMD_HALF_PI, 1);
 							}
 							motor->setVelocityTarget(0, 0.1);
-							btScalar maxImp = 550.*m_data->m_physicsDeltaTime;
+							btScalar maxImp = 1550.*m_data->m_physicsDeltaTime;
 							motor->setMaxAppliedImpulse(maxImp);
 						}
 					}
