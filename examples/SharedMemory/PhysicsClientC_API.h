@@ -116,6 +116,10 @@ int b3GetStatusInverseDynamicsJointForces(b3SharedMemoryStatusHandle statusHandl
 	int* dofCount,
 	double* jointForces);
 
+b3SharedMemoryCommandHandle	b3CalculateJacobianCommandInit(b3PhysicsClientHandle physClient, int bodyIndex, int linkIndex, const double* localPosition, const double* jointPositionsQ, const double* jointVelocitiesQdot, const double* jointAccelerations);
+
+int b3GetStatusJacobian(b3SharedMemoryStatusHandle statusHandle, double* linearJacobian, double* angularJacobian);
+
 ///compute the joint positions to move the end effector to a desired target using inverse kinematics
 b3SharedMemoryCommandHandle	b3CalculateInverseKinematicsCommandInit(b3PhysicsClientHandle physClient, int bodyIndex,
 	const double* jointPositionsQ, const double targetPosition[3]);
@@ -124,9 +128,6 @@ int b3GetStatusInverseKinematicsJointPositions(b3SharedMemoryStatusHandle status
 	int* bodyUniqueId,
 	int* dofCount,
 	double* jointPositions);
-
-
-
 
 b3SharedMemoryCommandHandle	b3LoadSdfCommandInit(b3PhysicsClientHandle physClient, const char* sdfFileName);
 

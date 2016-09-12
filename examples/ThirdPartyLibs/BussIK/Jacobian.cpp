@@ -138,6 +138,17 @@ void Jacobian::ComputeJacobian(VectorR3* targets)
 	}
 }
 
+void Jacobian::SetJendTrans(MatrixRmn& J)
+{
+    Jend.SetSize(J.GetNumRows(), J.GetNumColumns());
+    Jend.LoadAsSubmatrix(J);
+}
+
+void Jacobian::SetDeltaS(VectorRn& S)
+{
+    dS.Set(S);
+}
+
 // The delta theta values have been computed in dTheta array
 // Apply the delta theta values to the joints
 // Nothing is done about joint limits for now.

@@ -1266,6 +1266,57 @@ int b3GetStatusInverseDynamicsJointForces(b3SharedMemoryStatusHandle statusHandl
 	return true;
 }
 
+b3SharedMemoryCommandHandle	b3CalculateJacobianCommandInit(b3PhysicsClientHandle physClient, int bodyIndex, int linkIndex, const double* localPosition, const double* jointPositionsQ, const double* jointVelocitiesQdot, const double* jointAccelerations)
+{
+    PhysicsClient* cl = (PhysicsClient*)physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    
+    command->m_type = CMD_CALCULATE_JACOBIAN;
+    command->m_updateFlags = 0;
+    command->m_calculateJacobianArguments.m_bodyUniqueId = bodyIndex;
+    command->m_calculateJacobianArguments.m_linkIndex = linkIndex;
+    command->m_calculateJacobianArguments.m_localPosition[0] = localPosition[0];
+    command->m_calculateJacobianArguments.m_localPosition[1] = localPosition[1];
+    command->m_calculateJacobianArguments.m_localPosition[2] = localPosition[2];
+    int numJoints = cl->getNumJoints(bodyIndex);
+    for (int i = 0; i < numJoints;i++)
+    {
+        command->m_calculateJacobianArguments.m_jointPositionsQ[i] = jointPositionsQ[i];
+        command->m_calculateJacobianArguments.m_jointVelocitiesQdot[i] = jointVelocitiesQdot[i];
+        command->m_calculateJacobianArguments.m_jointAccelerations[i] = jointAccelerations[i];
+    }
+    
+    return (b3SharedMemoryCommandHandle)command;
+}
+
+int b3GetStatusJacobian(b3SharedMemoryStatusHandle statusHandle, double* linearJacobian, double* angularJacobian)
+{
+    const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
+    btAssert(status->m_type == CMD_CALCULATED_JACOBIAN_COMPLETED);
+    if (status->m_type != CMD_CALCULATED_JACOBIAN_COMPLETED)
+        return false;
+    
+    if (linearJacobian)
+    {
+        for (int i = 0; i < status->m_jacobianResultArgs.m_dofCount*3; i++)
+        {
+            linearJacobian[i] = status->m_jacobianResultArgs.m_linearJacobian[i];
+        }
+    }
+    if (angularJacobian)
+    {
+        for (int i = 0; i < status->m_jacobianResultArgs.m_dofCount*3; i++)
+        {
+            angularJacobian[i] = status->m_jacobianResultArgs.m_angularJacobian[i];
+        }
+
+    }
+    
+    return true;
+}
 
 ///compute the joint positions to move the end effector to a desired target using inverse kinematics
 b3SharedMemoryCommandHandle	b3CalculateInverseKinematicsCommandInit(b3PhysicsClientHandle physClient, int bodyIndex,

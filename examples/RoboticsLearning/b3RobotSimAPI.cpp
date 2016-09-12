@@ -939,3 +939,29 @@ void b3RobotSimAPI::renderScene()
 	}
 	m_data->m_physicsServer.renderScene();
 }
+
+void b3RobotSimAPI::getBodyJacobian(int bodyUniqueId, int linkIndex, const double* localPosition, const double* jointPositions, const double* jointVelocities, const double* jointAccelerations, double* linearJacobian, double* angularJacobian)
+{
+    b3SharedMemoryCommandHandle command = b3CalculateJacobianCommandInit(m_data->m_physicsClient, bodyUniqueId, linkIndex, localPosition, jointPositions, jointVelocities, jointAccelerations);
+    b3SharedMemoryStatusHandle statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClient, command);
+    
+    if (b3GetStatusType(statusHandle) == CMD_CALCULATED_JACOBIAN_COMPLETED)
+    {
+        b3GetStatusJacobian(statusHandle, linearJacobian, angularJacobian);
+    }
+}
+
+void b3RobotSimAPI::getLinkState(int bodyUniqueId, int linkIndex, double* worldPosition)
+{
+    b3SharedMemoryCommandHandle command = b3RequestActualStateCommandInit(m_data->m_physicsClient,bodyUniqueId);
+    b3SharedMemoryStatusHandle statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClient, command);
+    
+    if (b3GetStatusType(statusHandle) == CMD_ACTUAL_STATE_UPDATE_COMPLETED)
+    {
+        b3LinkState linkState;
+        b3GetLinkState(m_data->m_physicsClient, statusHandle, linkIndex, &linkState);
+        worldPosition[0] = linkState.m_worldPosition[0];
+        worldPosition[1] = linkState.m_worldPosition[1];
+        worldPosition[2] = linkState.m_worldPosition[2];
+    }
+}

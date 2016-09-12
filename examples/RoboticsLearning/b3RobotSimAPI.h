@@ -147,6 +147,10 @@ public:
 
 	void renderScene();
 	void debugDraw(int debugDrawMode);
+    
+    void getBodyJacobian(int bodyUniqueId, int linkIndex, const double* localPosition, const double* jointPositions, const double* jointVelocities, const double* jointAccelerations, double* linearJacobian, double* angularJacobian);
+    
+    void getLinkState(int bodyUniqueId, int linkIndex, double* worldPosition);
 };
 
 #endif //B3_ROBOT_SIM_API_H

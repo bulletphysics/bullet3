@@ -59,6 +59,8 @@ public:
 	const MatrixRmn& ActiveJacobian() const { return *Jactive; } 
 	void SetJendActive() { Jactive = &Jend; }						// The default setting is Jend.
 	void SetJtargetActive() { Jactive = &Jtarget; }
+    void SetJendTrans(MatrixRmn& J);
+    void SetDeltaS(VectorRn& S);
 
 	void CalcDeltaThetas();			// Use this only if the Current Mode has been set.
 	void ZeroDeltaThetas();
@@ -82,7 +84,10 @@ public:
 	static void CompareErrors( const Jacobian& j1, const Jacobian& j2, double* weightedDist1, double* weightedDist2 );
 	static void CountErrors( const Jacobian& j1, const Jacobian& j2, int* numBetter1, int* numBetter2, int* numTies );
 
-private:
+    int GetNumRows() {return nRow;}
+    int GetNumCols() {return nCol;}
+    
+public:
 	Tree* tree;			// tree associated with this Jacobian matrix
 	int nEffector;		// Number of end effectors
 	int nJoint;			// Number of joints
