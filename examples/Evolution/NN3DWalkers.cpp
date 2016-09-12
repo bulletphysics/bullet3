@@ -33,6 +33,7 @@ class NNWalker;
 #include "../CommonInterfaces/CommonParameterInterface.h"
 
 #include "../Utils/b3ReferenceFrameHelper.hpp"
+#include "../RenderingExamples/TimeSeriesCanvas.h"
 
 static btScalar gRootBodyRadius  = 0.25f;
 static btScalar gRootBodyHeight = 0.1f;
@@ -111,9 +112,11 @@ class NN3DWalkersExample : public CommonRigidBodyBase
 	
 	btAlignedObjectArray<class NNWalker*> m_walkersInPopulation;
 	
+	TimeSeriesCanvas* m_timeSeriesCanvas;
+
 public:
 	NN3DWalkersExample(struct GUIHelperInterface* helper)
-	:CommonRigidBodyBase(helper), m_Time(0),m_motorStrength(0.5f),m_targetFrequency(3),m_targetAccumulator(0),m_evaluationsQty(0),m_nextReaped(0)
+	:CommonRigidBodyBase(helper), m_Time(0),m_motorStrength(0.5f),m_targetFrequency(3),m_targetAccumulator(0),m_evaluationsQty(0),m_nextReaped(0),m_timeSeriesCanvas(0)
 	{
 	}
 
@@ -152,6 +155,8 @@ public:
 
 	void scheduleEvaluations();
 
+	void drawMarkings();
+
 	// Reaper
 
 	void rateEvaluations();
@@ -169,6 +174,8 @@ public:
 	NNWalker* getRandomNonElite();
 
 	NNWalker* getNextReaped();
+
+	void printWalkerConfigs();
 
 };
 
@@ -639,6 +646,12 @@ void NN3DWalkersExample::initPhysics()
 		btVector3 offset(0,0,0);
 		spawnWalker(offset, false);
 	}
+
+	m_timeSeriesCanvas = new TimeSeriesCanvas(m_guiHelper->getAppInterface()->m_2dCanvasInterface,300,200, "Fitness Performance");
+	m_timeSeriesCanvas ->setupTimeSeries(40, NUM_WALKERS*EVALUATION_TIME, 0);
+	for(int i = 0; i < NUM_WALKERS ; i++){
+		m_timeSeriesCanvas->addDataSource(" ", 100*i/NUM_WALKERS,100*(NUM_WALKERS-i)/NUM_WALKERS,100*(i)/NUM_WALKERS);
+	}
 }
 
 
@@ -704,6 +717,9 @@ bool NN3DWalkersExample::keyboardCallback(int key, int state)
 		m_motorStrength *= 1.1f;
 		return true;
 		break;
+	case 'l':
+		printWalkerConfigs();
+		break;
 	default:
 		break;
 	}
@@ -744,7 +760,7 @@ class CommonExampleInterface* ET_NN3DWalkersCreateFunc(struct CommonExampleOptio
 
 bool fitnessComparator (const NNWalker* a, const NNWalker* b)
 {
-    return a->getFitness() > b->getFitness();
+    return a->getFitness() > b->getFitness(); // sort walkers descending
 }
 
 void NN3DWalkersExample::rateEvaluations(){
@@ -752,6 +768,11 @@ void NN3DWalkersExample::rateEvaluations(){
 	m_walkersInPopulation.quickSort(fitnessComparator); // Sort walkers by fitness
 
 	b3Printf("Best performing walker: %f meters", btSqrt(m_walkersInPopulation[0]->getDistanceFitness()));
+
+	for(int i = 0; i < m_walkersInPopulation.size();i++){
+		m_timeSeriesCanvas->insertDataAtCurrentTime(btSqrt(m_walkersInPopulation[i]->getDistanceFitness()),0,true);
+	}
+	m_timeSeriesCanvas->nextTick();
 
 	for(int i = 0; i < m_walkersInPopulation.size();i++){
 		m_walkersInPopulation[i]->setEvaluationTime(0);
@@ -781,12 +802,12 @@ NNWalker* NN3DWalkersExample::getNextReaped() {
 		m_nextReaped++;
 	}
 
-//	if(m_walkersInPopulation[(m_walkersInPopulation.size()-1) - m_nextReaped+1]->isReaped()){
+	if(m_walkersInPopulation[(m_walkersInPopulation.size()-1) - m_nextReaped+1]->isReaped()){
 		return m_walkersInPopulation[(m_walkersInPopulation.size()-1) - m_nextReaped+1];
-//	}
-//	else{
-//		return NULL; // we did it wrongly
-//	}
+	}
+	else{
+		return NULL; // we asked for too many
+	}
 
 }
 
@@ -805,7 +826,7 @@ void NN3DWalkersExample::sow() {
 		mutate(m_walkersInPopulation[i], MUTATION_RATE / m_walkersInPopulation.size() * SOW_MUTATION_QTY * (i-m_walkersInPopulation.size()*SOW_ELITE_QTY));
 	}
 
-	for(int i = 0; i < m_walkersInPopulation.size() * (REAP_QTY-SOW_CROSSOVER_QTY);i++){
+	for(int i = 0; i < (m_walkersInPopulation.size()-1) * (REAP_QTY-SOW_CROSSOVER_QTY);i++){
 		sow++;
 		b3Printf("%i Walker(s) sown.",sow);
 		NNWalker* reaped = getNextReaped();
@@ -848,6 +869,8 @@ void NN3DWalkersExample::update(const double timeSinceLastTick) {
 	updateEvaluations(timeSinceLastTick); /**!< We update all evaluations that are in the loop */
 
 	scheduleEvaluations(); /**!< Start new evaluations and finish the old ones. */
+
+	drawMarkings();
 }
 
 void NN3DWalkersExample::updateEvaluations(const btScalar timeSinceLastTick) {
@@ -865,10 +888,6 @@ void NN3DWalkersExample::updateEvaluations(const btScalar timeSinceLastTick) {
 	{
 		if(m_walkersInPopulation[i]->isInEvaluation()){
 			m_walkersInPopulation[i]->setEvaluationTime(m_walkersInPopulation[i]->getEvaluationTime()+delta); // increase evaluation time
-			btVector3 walkerPosition = m_walkersInPopulation[i]->getPosition();
-			char performance[10];
-			sprintf(performance, "%.2f m", btSqrt(m_walkersInPopulation[i]->getDistanceFitness()));
-			m_guiHelper->drawText3D(performance,walkerPosition.x(),walkerPosition.y()+1,walkerPosition.z(),3);
 		}
 	}
 
@@ -940,4 +959,48 @@ void NN3DWalkersExample::scheduleEvaluations() {
 		sow(); // crossover & mutate and sow new walkers
 		b3Printf("### A new generation started. ###");
 	}
+}
+
+void NN3DWalkersExample::drawMarkings() {
+	for(int i = 0; i < m_walkersInPopulation.size();i++) // draw current distance plates of moving walkers
+	{
+		if(m_walkersInPopulation[i]->isInEvaluation()){
+			btVector3 walkerPosition = m_walkersInPopulation[i]->getPosition();
+			char performance[10];
+			sprintf(performance, "%.2f m", btSqrt(m_walkersInPopulation[i]->getDistanceFitness()));
+			m_guiHelper->drawText3D(performance,walkerPosition.x(),walkerPosition.y()+1,walkerPosition.z(),3);
+		}
+	}
+
+	for(int i = 2; i < 50; i+=2){ // draw distance circles
+		if(m_dynamicsWorld->getDebugDrawer()){
+			m_dynamicsWorld->getDebugDrawer()->drawArc(btVector3(0,0,0),btVector3(0,1,0),btVector3(1,0,0),btScalar(i), btScalar(i),btScalar(0),btScalar(SIMD_2_PI),btVector3(10*i,0,0),false);
+		}
+	}
+}
+
+void NN3DWalkersExample::printWalkerConfigs(){
+	char configString[25 + NUM_WALKERS*BODYPART_COUNT*JOINT_COUNT*(15+1) + NUM_WALKERS*4 + 1]; // 15 precision + [],\n
+	char* runner = configString;
+	sprintf(runner,"Population configuration:");
+	runner +=25;
+	for(int i = 0;i < NUM_WALKERS;i++) {
+		runner[0] = '\n';
+		runner++;
+		runner[0] = '[';
+		runner++;
+		for(int j = 0; j < BODYPART_COUNT*JOINT_COUNT;j++) {
+			sprintf(runner,"%.15f", m_walkersInPopulation[i]->getSensoryMotorWeights()[j]);
+			runner +=15;
+			if(j + 1 != BODYPART_COUNT*JOINT_COUNT){
+				runner[0] = ',';
+			}
+			else{
+				runner[0] = ']';
+			}
+			runner++;
+		}
+	}
+	runner[0] = '\0';
+	b3Printf(configString);
 }
