@@ -1000,6 +1000,24 @@ static int pybullet_internalSetVector(PyObject* objMat, float vector[3]) {
   return 0;
 }
 
+//  vector - double[3] which will be set by values from obVec
+static int pybullet_internalSetVectord(PyObject* obVec, double vector[3]) {
+    int i, len;
+    PyObject* seq;
+    
+    seq = PySequence_Fast(obVec, "expected a sequence");
+    len = PySequence_Size(obVec);
+    if (len == 3) {
+        for (i = 0; i < len; i++) {
+            vector[i] = pybullet_internalGetFloatFromSequence(seq, i);
+        }
+        Py_DECREF(seq);
+        return 1;
+    }
+    Py_DECREF(seq);
+    return 0;
+}
+
 static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args) {
   int size = PySequence_Size(args);
   int objectUniqueIdA = -1;
@@ -1626,6 +1644,85 @@ static PyObject* pybullet_getEulerFromQuaternion(PyObject* self,
   return Py_None;
 }
 
+
+///Experimental Inverse Kinematics binding ,7-dof KUKA IIWA only
+static PyObject* pybullet_calculateInverseKinematicsKuka(PyObject* self,
+                                                   PyObject* args) {
+    int size;
+    if (0 == sm) {
+        PyErr_SetString(SpamError, "Not connected to physics server.");
+        return NULL;
+    }
+    
+    size = PySequence_Size(args);
+    if (size == 2)
+    {
+        int bodyIndex;
+        PyObject* targetPosObj;
+        
+        if (PyArg_ParseTuple(args, "iO", &bodyIndex, &targetPosObj))
+        {
+            double pos[3];
+            
+            if (pybullet_internalSetVectord(targetPosObj,pos))
+            {
+                b3SharedMemoryStatusHandle statusHandle;
+                int numPos=0;
+                int resultBodyIndex;
+                int result;
+                b3SharedMemoryCommandHandle command = b3CalculateInverseKinematicsCommandInit(sm,bodyIndex,
+                                                                                              pos);
+                statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+                
+                result = b3GetStatusInverseKinematicsJointPositions(statusHandle,
+                                                                         &resultBodyIndex,
+                                                                         &numPos,
+                                                                         0);
+                if (result && numPos)
+                {
+                    int i;
+                    PyObject* pylist;
+                    double* ikOutPutJointPos = (double*)malloc(numPos*sizeof(double));
+                    result = b3GetStatusInverseKinematicsJointPositions(statusHandle,
+                                                                        &resultBodyIndex,
+                                                                        &numPos,
+                                                                        ikOutPutJointPos);
+                    pylist = PyTuple_New(numPos);
+                    for (i = 0; i < numPos; i++)
+                    {
+                        PyTuple_SetItem(pylist, i,
+                                        PyFloat_FromDouble(ikOutPutJointPos[i]));
+                    }
+                    
+                    free(ikOutPutJointPos);
+                    return pylist;
+                }
+                else
+                {
+                    PyErr_SetString(SpamError,
+                                    "Error in calculateInverseKinematics");
+                    return NULL;
+                }
+            } else
+            {
+                PyErr_SetString(SpamError,
+                    "calculateInverseKinematics couldn't extract position vector3");
+                return NULL;
+            }
+        }
+    } else
+    {
+        PyErr_SetString(SpamError,
+                        "calculateInverseKinematics expects 2 arguments, body index, "
+                        "and target position for end effector");
+        return NULL;
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+
+
 /// Given an object id, joint positions, joint velocities and joint
 /// accelerations,
 /// compute the joint forces using Inverse Dynamics
@@ -1844,16 +1941,19 @@ static PyMethodDef SpamMethods[] = {
      METH_VARARGS,
      "Given an object id, joint positions, joint velocities and joint "
      "accelerations, compute the joint forces using Inverse Dynamics"},
+    
+    {"calculateInverseKinematicsKuka", pybullet_calculateInverseKinematicsKuka,
+        METH_VARARGS,
+        "Experimental, KUKA IIWA only: Given an object id, "
+        "current joint positions and target position"
+        " for the end effector,"
+        "compute the inverse kinematics and return the new joint state"},
+    
     // todo(erwincoumans)
     // saveSnapshot
     // loadSnapshot
-
-    ////todo(erwincoumans)
-    // collision info
     // raycast info
-
-    // applyBaseForce
-    // applyLinkForce
+    // object names
 
     {NULL, NULL, 0, NULL} /* Sentinel */
 };

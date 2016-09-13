@@ -482,16 +482,26 @@ bool b3RobotSimAPI::calculateInverseKinematics(const struct b3RobotSimInverseKin
 {
 
 	b3SharedMemoryCommandHandle command = b3CalculateInverseKinematicsCommandInit(m_data->m_physicsClient,args.m_bodyUniqueId,
-		args.m_currentJointPositions,args.m_endEffectorTargetPosition);
+                                                                                  args.m_endEffectorTargetPosition);
 
     b3SharedMemoryStatusHandle statusHandle;
 	statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClient, command);
 
+    int numPos=0;
+    
 	bool result = b3GetStatusInverseKinematicsJointPositions(statusHandle,
 		&results.m_bodyUniqueId,
-		&results.m_numPositions,
-		results.m_calculatedJointPositions);
-
+		&numPos,
+		0);
+    if (result && numPos)
+    {
+        results.m_calculatedJointPositions.resize(numPos);
+        result = b3GetStatusInverseKinematicsJointPositions(statusHandle,
+                                                                 &results.m_bodyUniqueId,
+                                                                 &numPos,
+                                &results.m_calculatedJointPositions[0]);
+        
+    }
 	return result;
 }
 

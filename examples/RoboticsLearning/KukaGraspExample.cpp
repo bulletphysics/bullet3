@@ -153,13 +153,10 @@ public:
         if (numJoints==7)
         {
             double q_current[7]={0,0,0,0,0,0,0};
-            double qdot_current[7]={0,0,0,0,0,0,0};
-            double qddot_current[7]={0,0,0,0,0,0,0};
-            double local_position[3]={0,0,0};
-            double jacobian_linear[21];
-            double jacobian_angular[21];
+
             double world_position[3]={0,0,0};
             b3JointStates jointStates;
+            
             if (m_robotSim.getJointStates(m_kukaIndex,jointStates))
             {
                 //skip the base positions (7 values)
@@ -169,55 +166,45 @@ public:
                     q_current[i] = jointStates.m_actualStateQ[i+7];
                 }
             }
-            
             // compute body position
             m_robotSim.getLinkState(0, 6, world_position);
             m_worldPos.setValue(world_position[0], world_position[1], world_position[2]);
-            // compute body Jacobian
-            m_robotSim.getBodyJacobian(0, 6, local_position, q_current, qdot_current, qddot_current, jacobian_linear, jacobian_angular);
             
-            // m_robotSim.getJointInfo(m_kukaIndex,jointIndex,jointInfo);
-/*
+            b3Vector3DoubleData dataOut;
+            m_targetPos.serializeDouble(dataOut);
+            b3Vector3DoubleData worldPosDataOut;
+            m_worldPos.serializeDouble(worldPosDataOut);
+
+            
 			b3RobotSimInverseKinematicArgs ikargs;
 			b3RobotSimInverseKinematicsResults ikresults;
 			
          
 			ikargs.m_bodyUniqueId = m_kukaIndex;
-			ikargs.m_currentJointPositions = q_current;
-			ikargs.m_numPositions = 7;
-			ikargs.m_endEffectorTargetPosition[0] = dataOut.m_floats[0];
-			ikargs.m_endEffectorTargetPosition[1] = dataOut.m_floats[1];
-			ikargs.m_endEffectorTargetPosition[2] = dataOut.m_floats[2];
+//			ikargs.m_currentJointPositions = q_current;
+//			ikargs.m_numPositions = 7;
+            ikargs.m_endEffectorTargetPosition[0] = dataOut.m_floats[0];
+            ikargs.m_endEffectorTargetPosition[1] = dataOut.m_floats[1];
+            ikargs.m_endEffectorTargetPosition[2] = dataOut.m_floats[2];
 			
-
-			ikargs.m_endEffectorTargetOrientation[0] = 0;
-			ikargs.m_endEffectorTargetOrientation[1] = 0;
-			ikargs.m_endEffectorTargetOrientation[2] = 0;
-			ikargs.m_endEffectorTargetOrientation[3] = 1;
+//todo: orientation IK target
+//			ikargs.m_endEffectorTargetOrientation[0] = 0;
+//			ikargs.m_endEffectorTargetOrientation[1] = 0;
+//			ikargs.m_endEffectorTargetOrientation[2] = 0;
+//			ikargs.m_endEffectorTargetOrientation[3] = 1;
 
 			if (m_robotSim.calculateInverseKinematics(ikargs,ikresults))
 			{
-			}
-*/
-            double q_new[7];
-            int ikMethod=IK2_DLS;
-            b3Vector3DoubleData dataOut;
-            m_targetPos.serializeDouble(dataOut);
-            b3Vector3DoubleData worldPosDataOut;
-            m_worldPos.serializeDouble(worldPosDataOut);
-            m_ikHelper.computeIK(dataOut.m_floats,worldPosDataOut.m_floats,q_current, numJoints, q_new, ikMethod,jacobian_linear,(sizeof(jacobian_linear)/sizeof(*jacobian_linear)));
-            printf("q_new = %f,%f,%f,%f,%f,%f,%f\n", q_new[0],q_new[1],q_new[2],
-                   q_new[3],q_new[4],q_new[5],q_new[6]);
-        
-            //set the
-            for (int i=0;i<numJoints;i++)
-            {
-                b3JointMotorArgs t(CONTROL_MODE_POSITION_VELOCITY_PD);
-                t.m_targetPosition = q_new[i];
-                t.m_maxTorqueValue = 1000;
-                t.m_kp= 1;
-                m_robotSim.setJointMotorControl(m_kukaIndex,i,t);
+                //copy the IK result to the desired state of the motor/actuator
+                for (int i=0;i<numJoints;i++)
+                {
+                    b3JointMotorArgs t(CONTROL_MODE_POSITION_VELOCITY_PD);
+                    t.m_targetPosition = ikresults.m_calculatedJointPositions[i];
+                    t.m_maxTorqueValue = 1000;
+                    t.m_kp= 1;
+                    m_robotSim.setJointMotorControl(m_kukaIndex,i,t);
 
+                }
             }
         }
         
@@ -261,7 +248,7 @@ public:
 	virtual void resetCamera()
 	{
 		float dist = 3;
-		float pitch = -75;
+		float pitch = 0;
 		float yaw = 30;
 		float targetPos[3]={-0.2,0.8,0.3};
 		if (m_app->m_renderer  && m_app->m_renderer->getActiveCamera())
