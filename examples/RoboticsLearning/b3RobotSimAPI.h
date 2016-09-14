@@ -90,16 +90,16 @@ enum b3InverseKinematicsFlags
 struct b3RobotSimInverseKinematicArgs
 {
 	int m_bodyUniqueId;
-	double* m_currentJointPositions;
-	int m_numPositions;
+//	double* m_currentJointPositions;
+//	int m_numPositions;
 	double m_endEffectorTargetPosition[3];
-	double m_endEffectorTargetOrientation[3];
+//	double m_endEffectorTargetOrientation[4];
 	int m_flags;
 
 	b3RobotSimInverseKinematicArgs()
 		:m_bodyUniqueId(-1),
-		m_currentJointPositions(0),
-		m_numPositions(0),
+//		m_currentJointPositions(0),
+//		m_numPositions(0),
 		m_flags(0)
 	{
 	}
@@ -108,8 +108,7 @@ struct b3RobotSimInverseKinematicArgs
 struct b3RobotSimInverseKinematicsResults
 {
 	int m_bodyUniqueId;
-	double* m_calculatedJointPositions;
-	int m_numPositions;
+	b3AlignedObjectArray<double> m_calculatedJointPositions;
 };
 
 class b3RobotSimAPI

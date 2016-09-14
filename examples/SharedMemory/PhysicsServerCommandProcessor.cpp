@@ -495,7 +495,35 @@ struct PhysicsServerCommandProcessorInternalData
 
 	}
 
+    btInverseDynamics::MultiBodyTree* findOrCreateTree(btMultiBody* multiBody)
+    {
+        btInverseDynamics::MultiBodyTree* tree = 0;
+        
+        btInverseDynamics::MultiBodyTree** treePtrPtr =
+        m_inverseDynamicsBodies.find(multiBody);
+        
+        if (treePtrPtr)
+        {
+            tree = *treePtrPtr;
+        }
+        else
+        {
+            btInverseDynamics::btMultiBodyTreeCreator id_creator;
+            if (-1 == id_creator.createFromBtMultiBody(multiBody, false))
+            {
+                
+            }
+            else
+            {
+                tree = btInverseDynamics::CreateMultiBodyTree(id_creator);
+                m_inverseDynamicsBodies.insert(multiBody, tree);
+            }
+        }
+        
+        return tree;
+    }
 
+    
 };
 
 void PhysicsServerCommandProcessor::setGuiHelper(struct GUIHelperInterface* guiHelper)
@@ -849,6 +877,9 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
     }
     return loadOk;
 }
+
+
+
 
 bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVector3& pos, const btQuaternion& orn,
                              bool useMultiBody, bool useFixedBase, int* bodyUniqueIdPtr, char* bufferServerToClient, int bufferSizeInBytes)
@@ -2280,29 +2311,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					InternalBodyHandle* bodyHandle = m_data->getHandle(clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId);
 					if (bodyHandle && bodyHandle->m_multiBody)
 					{
-						btInverseDynamics::MultiBodyTree** treePtrPtr =
-							m_data->m_inverseDynamicsBodies.find(bodyHandle->m_multiBody);
-						btInverseDynamics::MultiBodyTree* tree = 0;
-						serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_FAILED;
-
-						if (treePtrPtr)
-						{
-							tree = *treePtrPtr;
-						}
-						else
-						{
-							btInverseDynamics::btMultiBodyTreeCreator id_creator;
-							if (-1 == id_creator.createFromBtMultiBody(bodyHandle->m_multiBody, false))
-							{
-								b3Error("error creating tree\n");
-								serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_FAILED;
-							}
-							else
-							{
-								tree = btInverseDynamics::CreateMultiBodyTree(id_creator);
-								m_data->m_inverseDynamicsBodies.insert(bodyHandle->m_multiBody, tree);
-							}
-						}
+                        serverCmd.m_type = CMD_CALCULATED_INVERSE_DYNAMICS_FAILED;
+                        
+						btInverseDynamics::MultiBodyTree* tree = m_data->findOrCreateTree(bodyHandle->m_multiBody);
 
 						if (tree)
 						{
@@ -2350,29 +2361,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     InternalBodyHandle* bodyHandle = m_data->getHandle(clientCmd.m_calculateJacobianArguments.m_bodyUniqueId);
                     if (bodyHandle && bodyHandle->m_multiBody)
                     {
-                        btInverseDynamics::MultiBodyTree** treePtrPtr =
-                        m_data->m_inverseDynamicsBodies.find(bodyHandle->m_multiBody);
-                        btInverseDynamics::MultiBodyTree* tree = 0;
                         serverCmd.m_type = CMD_CALCULATED_JACOBIAN_FAILED;
                         
-                        if (treePtrPtr)
-                        {
-                            tree = *treePtrPtr;
-                        }
-                        else
-                        {
-                            btInverseDynamics::btMultiBodyTreeCreator id_creator;
-                            if (-1 == id_creator.createFromBtMultiBody(bodyHandle->m_multiBody, false))
-                            {
-                                b3Error("error creating tree\n");
-                                serverCmd.m_type = CMD_CALCULATED_JACOBIAN_FAILED;
-                            }
-                            else
-                            {
-                                tree = btInverseDynamics::CreateMultiBodyTree(id_creator);
-                                m_data->m_inverseDynamicsBodies.insert(bodyHandle->m_multiBody, tree);
-                            }
-                        }
+                        btInverseDynamics::MultiBodyTree* tree = m_data->findOrCreateTree(bodyHandle->m_multiBody);
                         
                         if (tree)
                         {
@@ -2423,9 +2414,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                 case CMD_APPLY_EXTERNAL_FORCE:
                 {
                 	if (m_data->m_verboseOutput)
-									{
-                    b3Printf("CMD_APPLY_EXTERNAL_FORCE clientCmd = %d\n", clientCmd.m_sequenceNumber);
-                  }
+                    {
+                        b3Printf("CMD_APPLY_EXTERNAL_FORCE clientCmd = %d\n", clientCmd.m_sequenceNumber);
+                    }
                     for (int i = 0; i < clientCmd.m_externalForceArguments.m_numForcesAndTorques; ++i)
                     {
                         InteralBodyData* body = m_data->getHandle(clientCmd.m_externalForceArguments.m_bodyUniqueIds[i]);
@@ -2561,7 +2552,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								IKTrajectoryHelper* tmpHelper = new IKTrajectoryHelper;
 								if (tmpHelper->createFromMultiBody(bodyHandle->m_multiBody))
 								{
-									m_data->m_inverseKinematicsHelpers.insert(bodyHandle->m_multiBody, ikHelperPtr);
+									m_data->m_inverseKinematicsHelpers.insert(bodyHandle->m_multiBody, tmpHelper);
 									ikHelperPtr = tmpHelper;
 								} else
 								{
@@ -2569,10 +2560,77 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								}
 							}
 
-							if (ikHelperPtr)
+                            //todo: make this generic. Right now, only support/tested KUKA iiwa
+                            int numJoints = 7;
+                            int endEffectorLinkIndex = 6;
+                            
+							if (ikHelperPtr && bodyHandle->m_multiBody->getNumLinks()==numJoints)
 							{
-
-								serverCmd.m_type = CMD_CALCULATE_INVERSE_KINEMATICS_COMPLETED;
+                                b3AlignedObjectArray<double> jacobian_linear;
+                                jacobian_linear.resize(3*7);
+                                int jacSize = 0;
+                                
+                                btInverseDynamics::MultiBodyTree* tree = m_data->findOrCreateTree(bodyHandle->m_multiBody);
+                      
+                                double q_current[7];
+                                
+                                if (tree)
+                                {
+                                    jacSize = jacobian_linear.size();
+                                    // Set jacobian value
+                                    int baseDofs = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 6;
+                                    const int num_dofs = bodyHandle->m_multiBody->getNumDofs();
+                                    
+                                    btInverseDynamics::vecx nu(num_dofs+baseDofs), qdot(num_dofs + baseDofs), q(num_dofs + baseDofs), joint_force(num_dofs + baseDofs);
+                                    for (int i = 0; i < num_dofs; i++)
+                                    {
+                                        q_current[i] = bodyHandle->m_multiBody->getJointPos(i);
+                                        q[i+baseDofs] = bodyHandle->m_multiBody->getJointPos(i);
+                                        qdot[i + baseDofs] = 0;
+                                        nu[i+baseDofs] = 0;
+                                    }
+                                    // Set the gravity to correspond to the world gravity
+                                    btInverseDynamics::vec3 id_grav(m_data->m_dynamicsWorld->getGravity());
+                                    
+                                    if (-1 != tree->setGravityInWorldFrame(id_grav) &&
+                                        -1 != tree->calculateInverseDynamics(q, qdot, nu, &joint_force))
+                                    {
+                                        tree->calculateJacobians(q);
+                                        btInverseDynamics::mat3x jac_t(3, num_dofs);
+                                        tree->getBodyJacobianTrans(endEffectorLinkIndex, &jac_t);
+                                        for (int i = 0; i < 3; ++i)
+                                        {
+                                            for (int j = 0; j < num_dofs; ++j)
+                                            {
+                                                jacobian_linear[i*num_dofs+j] = jac_t(i,j);
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                                
+                                double q_new[7];
+                                int ikMethod=IK2_DLS;
+                               
+                                btVector3DoubleData endEffectorWorldPosition;
+                               
+                                
+                                btVector3 endEffectorPosWorld =  bodyHandle->m_multiBody->getLink(endEffectorLinkIndex).m_cachedWorldTransform.getOrigin();
+                                
+                                endEffectorPosWorld.serializeDouble(endEffectorWorldPosition);
+                                
+                                ikHelperPtr->computeIK(clientCmd.m_calculateInverseKinematicsArguments.m_targetPosition,
+                                                       endEffectorWorldPosition.m_floats,
+                                                       q_current,
+                                                       numJoints, q_new, ikMethod, &jacobian_linear[0],jacSize);
+                                
+                                serverCmd.m_inverseKinematicsResultArgs.m_bodyUniqueId =clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId;
+                                for (int i=0;i<numJoints;i++)
+                                {
+                                    serverCmd.m_inverseKinematicsResultArgs.m_jointPositions[i] = q_new[i];
+                                }
+                                serverCmd.m_inverseKinematicsResultArgs.m_dofCount = numJoints;
+                                serverCmd.m_type = CMD_CALCULATE_INVERSE_KINEMATICS_COMPLETED;
 							}
 						}
 						hasStatus = true;

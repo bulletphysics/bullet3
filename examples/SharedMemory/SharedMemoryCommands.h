@@ -391,12 +391,18 @@ struct CalculateJacobianResultArgs
     double m_angularJacobian[3*MAX_DEGREE_OF_FREEDOM];
 };
 
+enum EnumCalculateInverseKinematicsFlags
+{
+    IK_HAS_TARGET_ORIENTATION=1,
+    IK_HAS_CURRENT_JOINT_POSITIONS=2,
+};
+
 struct CalculateInverseKinematicsArgs
 {
 	int m_bodyUniqueId;
-	double m_jointPositionsQ[MAX_DEGREE_OF_FREEDOM];
+//	double m_jointPositionsQ[MAX_DEGREE_OF_FREEDOM];
 	double m_targetPosition[3];
-	double m_targetOrientation[4];//orientation represented as quaternion, x,y,z,w
+//	double m_targetOrientation[4];//orientation represented as quaternion, x,y,z,w
 };
 
 struct CalculateInverseKinematicsResultArgs

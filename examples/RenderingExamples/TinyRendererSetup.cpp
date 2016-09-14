@@ -53,6 +53,7 @@ struct TinyRendererSetupInternalData
 		m_animateRenderer(0)
 	{
 		m_depthBuffer.resize(m_width*m_height);
+//        m_segmentationMaskBuffer.resize(m_width*m_height);
 
     }
 	void updateTransforms()
@@ -189,15 +190,20 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 					m_internalData->m_depthBuffer,
 					&m_internalData->m_segmentationMaskBuffer,
 					m_internalData->m_renderObjects.size());
-					
+                
+                meshData.m_gfxShape->m_scaling[0] = scaling[0];
+                meshData.m_gfxShape->m_scaling[1] = scaling[1];
+                meshData.m_gfxShape->m_scaling[2] = scaling[2];
+                
 				const int* indices = &meshData.m_gfxShape->m_indices->at(0);
 					ob->registerMeshShape(&meshData.m_gfxShape->m_vertices->at(0).xyzw[0],
 						meshData.m_gfxShape->m_numvertices,
 						indices,
 						meshData.m_gfxShape->m_numIndices,color, meshData.m_textureImage,meshData.m_textureWidth,meshData.m_textureHeight);
+                
+                ob->m_localScaling.setValue(scaling[0],scaling[1],scaling[2]);
 						
-						
-					m_internalData->m_renderObjects.push_back(ob);
+                m_internalData->m_renderObjects.push_back(ob);
 
 
 

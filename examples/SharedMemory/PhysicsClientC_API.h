@@ -122,7 +122,7 @@ int b3GetStatusJacobian(b3SharedMemoryStatusHandle statusHandle, double* linearJ
 
 ///compute the joint positions to move the end effector to a desired target using inverse kinematics
 b3SharedMemoryCommandHandle	b3CalculateInverseKinematicsCommandInit(b3PhysicsClientHandle physClient, int bodyIndex,
-	const double* jointPositionsQ, const double targetPosition[3]);
+                                                                    const double targetPosition[3]);
 
 int b3GetStatusInverseKinematicsJointPositions(b3SharedMemoryStatusHandle statusHandle,
 	int* bodyUniqueId,

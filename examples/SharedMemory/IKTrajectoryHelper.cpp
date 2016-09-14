@@ -99,7 +99,7 @@ void IKTrajectoryHelper::createKukaIIWA()
 bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
                                    const double endEffectorWorldPosition[3],
                const double* q_current, int numQ,
-               double* q_new, int ikMethod, const double* linear_jacobian, int jacobian_size)
+               double* q_new, int ikMethod, const double* linear_jacobian1, int jacobian_size1)
 {
 
     if (numQ != 7)
@@ -134,16 +134,19 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
     // Set Jacobian from Bullet body Jacobian
     int nRow = m_data->m_ikJacobian->GetNumRows();
     int nCol = m_data->m_ikJacobian->GetNumCols();
-    b3Assert(jacobian_size==nRow*nCol);
-    MatrixRmn linearJacobian(nRow,nCol);
-    for (int i = 0; i < nRow; ++i)
+    if (jacobian_size1)
     {
-        for (int j = 0; j < nCol; ++j)
+        b3Assert(jacobian_size1==nRow*nCol);
+        MatrixRmn linearJacobian(nRow,nCol);
+        for (int i = 0; i < nRow; ++i)
         {
-            linearJacobian.Set(i,j,linear_jacobian[i*nCol+j]);
+            for (int j = 0; j < nCol; ++j)
+            {
+                linearJacobian.Set(i,j,linear_jacobian1[i*nCol+j]);
+            }
         }
+        m_data->m_ikJacobian->SetJendTrans(linearJacobian);
     }
-    m_data->m_ikJacobian->SetJendTrans(linearJacobian);
     
     // Calculate the change in theta values
     switch (ikMethod) {

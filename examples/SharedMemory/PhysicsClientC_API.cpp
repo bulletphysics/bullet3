@@ -1320,7 +1320,7 @@ int b3GetStatusJacobian(b3SharedMemoryStatusHandle statusHandle, double* linearJ
 
 ///compute the joint positions to move the end effector to a desired target using inverse kinematics
 b3SharedMemoryCommandHandle	b3CalculateInverseKinematicsCommandInit(b3PhysicsClientHandle physClient, int bodyIndex,
-	const double* jointPositionsQ, const double targetPosition[3])
+                                                                    const double targetPosition[3])
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
 	b3Assert(cl);
@@ -1331,11 +1331,12 @@ b3SharedMemoryCommandHandle	b3CalculateInverseKinematicsCommandInit(b3PhysicsCli
 	command->m_type = CMD_CALCULATE_INVERSE_KINEMATICS;
 	command->m_updateFlags = 0;
 	command->m_calculateInverseKinematicsArguments.m_bodyUniqueId = bodyIndex;
-	int numJoints = cl->getNumJoints(bodyIndex);
-	for (int i = 0; i < numJoints;i++)
-	{
-		command->m_calculateInverseKinematicsArguments.m_jointPositionsQ[i] = jointPositionsQ[i];
-	}
+//todo
+//	int numJoints = cl->getNumJoints(bodyIndex);
+//	for (int i = 0; i < numJoints;i++)
+//	{
+//		command->m_calculateInverseKinematicsArguments.m_jointPositionsQ[i] = jointPositionsQ[i];
+//	}
 
 	command->m_calculateInverseKinematicsArguments.m_targetPosition[0] = targetPosition[0];
 	command->m_calculateInverseKinematicsArguments.m_targetPosition[1] = targetPosition[1];
@@ -1372,5 +1373,5 @@ int b3GetStatusInverseKinematicsJointPositions(b3SharedMemoryStatusHandle status
 		}
 	}
 
-	return false;
+	return true;
 }
