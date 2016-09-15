@@ -672,7 +672,28 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
                   }
               }
           }
-
+          {
+              TiXmlElement *spinning_xml = ci->FirstChildElement("spinning_friction");
+              if (spinning_xml)
+              {
+                  if (m_parseSDF)
+                  {
+                      link.m_contactInfo.m_spinningFriction = urdfLexicalCast<double>(spinning_xml->GetText());
+                      link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_SPINNING_FRICTION;
+                  } else
+                  {
+                      if (!spinning_xml->Attribute("value"))
+                      {
+                          logger->reportError("Link/contact: spinning friction element must have value attribute");
+                          return false;
+                      }
+                      
+                      link.m_contactInfo.m_spinningFriction = urdfLexicalCast<double>(spinning_xml->Attribute("value"));
+                      link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_SPINNING_FRICTION;
+                      
+                  }
+              }
+          }
            {
            
               TiXmlElement *stiffness_xml = ci->FirstChildElement("stiffness");

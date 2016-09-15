@@ -72,7 +72,8 @@ class btManifoldPoint
 					m_distance1( distance ),
 					m_combinedFriction(btScalar(0.)),
 					m_combinedRollingFriction(btScalar(0.)),
-					m_combinedRestitution(btScalar(0.)),
+                    m_combinedSpinningFriction(btScalar(0.)),
+                    m_combinedRestitution(btScalar(0.)),
 					m_userPersistentData(0),
 					m_contactPointFlags(0),
 					m_appliedImpulse(0.f),
@@ -99,8 +100,9 @@ class btManifoldPoint
 		
 			btScalar	m_distance1;
 			btScalar	m_combinedFriction;
-			btScalar	m_combinedRollingFriction;
-			btScalar	m_combinedRestitution;
+			btScalar	m_combinedRollingFriction;//torsional friction orthogonal to contact normal, useful to make spheres stop rolling forever
+            btScalar	m_combinedSpinningFriction;//torsional friction around contact normal, useful for grasping objects
+            btScalar	m_combinedRestitution;
 
 			//BP mod, store contact triangles.
 			int			m_partId0;

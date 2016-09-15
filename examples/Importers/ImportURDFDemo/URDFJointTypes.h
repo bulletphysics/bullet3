@@ -16,17 +16,20 @@ enum UrdfJointTypes
 enum URDF_LinkContactFlags
 {
 	URDF_CONTACT_HAS_LATERAL_FRICTION=1,
-	URDF_CONTACT_HAS_ROLLING_FRICTION=2,
     URDF_CONTACT_HAS_INERTIA_SCALING=2,
     URDF_CONTACT_HAS_CONTACT_CFM=4,
 	URDF_CONTACT_HAS_CONTACT_ERP=8,
 	URDF_CONTACT_HAS_STIFFNESS_DAMPING=16,
+    URDF_CONTACT_HAS_ROLLING_FRICTION=32,
+    URDF_CONTACT_HAS_SPINNING_FRICTION=64,
+
 };
 
 struct URDFLinkContactInfo
 {
 	btScalar m_lateralFriction;
 	btScalar m_rollingFriction;
+    btScalar m_spinningFriction;
     btScalar m_inertiaScaling;
 	btScalar m_contactCfm;
 	btScalar m_contactErp;
@@ -38,6 +41,7 @@ struct URDFLinkContactInfo
 	URDFLinkContactInfo()
 		:m_lateralFriction(0.5),
 		m_rollingFriction(0),
+        m_spinningFriction(0),
         m_inertiaScaling(1),
 		m_contactCfm(0),
 		m_contactErp(0),
