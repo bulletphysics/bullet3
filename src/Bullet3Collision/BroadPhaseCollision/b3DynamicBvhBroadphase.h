@@ -160,7 +160,7 @@ struct	b3DynamicBvhBroadphase
 #endif
 	/* Methods		*/ 
 	b3DynamicBvhBroadphase(int proxyCapacity, b3OverlappingPairCache* paircache=0);
-	~b3DynamicBvhBroadphase();
+	virtual ~b3DynamicBvhBroadphase();
 	void							collide(b3Dispatcher* dispatcher);
 	void							optimize();
 	
