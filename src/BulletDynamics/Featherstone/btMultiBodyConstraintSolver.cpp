@@ -557,9 +557,11 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 
 }
 
-void btMultiBodyConstraintSolver::setupMultiBodyRollingFrictionConstraint(btMultiBodySolverConstraint& solverConstraint,
+void btMultiBodyConstraintSolver::setupMultiBodyTorsionalFrictionConstraint(btMultiBodySolverConstraint& solverConstraint,
                                                                   const btVector3& constraintNormal,
-                                                                  btManifoldPoint& cp, const btContactSolverInfo& infoGlobal,
+                                                                  btManifoldPoint& cp,
+                                                                    btScalar combinedTorsionalFriction,
+                                                                    const btContactSolverInfo& infoGlobal,
                                                                   btScalar& relaxation,
                                                                   bool isFriction, btScalar desiredVelocity, btScalar cfmSlip)
 {
@@ -784,7 +786,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyRollingFrictionConstraint(btMult
             }
         }
 
-        solverConstraint.m_friction = cp.m_combinedRollingFriction;
+        solverConstraint.m_friction =combinedTorsionalFriction;
         
         if(!isFriction)
         {
@@ -860,7 +862,9 @@ btMultiBodySolverConstraint&	btMultiBodyConstraintSolver::addMultiBodyFrictionCo
 	return solverConstraint;
 }
 
-btMultiBodySolverConstraint&	btMultiBodyConstraintSolver::addMultiBodyRollingFrictionConstraint(const btVector3& normalAxis,btPersistentManifold* manifold,int frictionIndex,btManifoldPoint& cp,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, const btContactSolverInfo& infoGlobal, btScalar desiredVelocity, btScalar cfmSlip)
+btMultiBodySolverConstraint&	btMultiBodyConstraintSolver::addMultiBodyTorsionalFrictionConstraint(const btVector3& normalAxis,btPersistentManifold* manifold,int frictionIndex,btManifoldPoint& cp,
+                                                                btScalar combinedTorsionalFriction,
+                                                                                                     btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, const btContactSolverInfo& infoGlobal, btScalar desiredVelocity, btScalar cfmSlip)
 {
     BT_PROFILE("addMultiBodyRollingFrictionConstraint");
     btMultiBodySolverConstraint& solverConstraint = m_multiBodyFrictionContactConstraints.expandNonInitializing();
@@ -891,7 +895,7 @@ btMultiBodySolverConstraint&	btMultiBodyConstraintSolver::addMultiBodyRollingFri
     
     solverConstraint.m_originalContactPoint = &cp;
     
-    setupMultiBodyRollingFrictionConstraint(solverConstraint, normalAxis, cp, infoGlobal,relaxation,isFriction, desiredVelocity, cfmSlip);
+    setupMultiBodyTorsionalFrictionConstraint(solverConstraint, normalAxis, cp, combinedTorsionalFriction,infoGlobal,relaxation,isFriction, desiredVelocity, cfmSlip);
     return solverConstraint;
 }
 
@@ -1010,9 +1014,9 @@ void	btMultiBodyConstraintSolver::convertMultiBodyContact(btPersistentManifold* 
                     
                     if (rollingFriction > 0)
                     {
-                        addMultiBodyRollingFrictionConstraint(cp.m_normalWorldOnB,manifold,frictionIndex,cp,colObj0,colObj1, relaxation,infoGlobal);
-                        //addMultiBodyRollingFrictionConstraint(cp.m_lateralFrictionDir1,manifold,frictionIndex,cp,colObj0,colObj1, relaxation,infoGlobal);
-                        //addMultiBodyRollingFrictionConstraint(cp.m_lateralFrictionDir2,manifold,frictionIndex,cp,colObj0,colObj1, relaxation,infoGlobal);
+                        addMultiBodyTorsionalFrictionConstraint(cp.m_normalWorldOnB,manifold,frictionIndex,cp,cp.m_combinedSpinningFriction, colObj0,colObj1, relaxation,infoGlobal);
+                        addMultiBodyTorsionalFrictionConstraint(cp.m_lateralFrictionDir1,manifold,frictionIndex,cp,cp.m_combinedRollingFriction, colObj0,colObj1, relaxation,infoGlobal);
+                        addMultiBodyTorsionalFrictionConstraint(cp.m_lateralFrictionDir2,manifold,frictionIndex,cp,cp.m_combinedRollingFriction, colObj0,colObj1, relaxation,infoGlobal);
 
                         rollingFriction--;
                     }

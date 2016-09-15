@@ -135,6 +135,7 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld,const b
 	newPt.m_combinedFriction = calculateCombinedFriction(m_body0Wrap->getCollisionObject(),m_body1Wrap->getCollisionObject());
 	newPt.m_combinedRestitution = calculateCombinedRestitution(m_body0Wrap->getCollisionObject(),m_body1Wrap->getCollisionObject());
 	newPt.m_combinedRollingFriction = calculateCombinedRollingFriction(m_body0Wrap->getCollisionObject(),m_body1Wrap->getCollisionObject());
+    newPt.m_combinedSpinningFriction = calculateCombinedSpinningFriction(m_body0Wrap->getCollisionObject(),m_body1Wrap->getCollisionObject());
 	
 	if (    (m_body0Wrap->getCollisionObject()->getCollisionFlags()& btCollisionObject::CF_HAS_CONTACT_STIFFNESS_DAMPING) ||
             (m_body1Wrap->getCollisionObject()->getCollisionFlags()& btCollisionObject::CF_HAS_CONTACT_STIFFNESS_DAMPING))
