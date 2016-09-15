@@ -593,7 +593,7 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 
 
 	m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
-	m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = 0.005;
+	m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = 0.05;
 }
 
 void PhysicsServerCommandProcessor::deleteCachedInverseDynamicsBodies()
