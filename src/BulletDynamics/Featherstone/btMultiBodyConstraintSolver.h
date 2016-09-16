@@ -50,7 +50,9 @@ protected:
     
     btMultiBodySolverConstraint&	addMultiBodyFrictionConstraint(const btVector3& normalAxis,btPersistentManifold* manifold,int frictionIndex,btManifoldPoint& cp,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, const btContactSolverInfo& infoGlobal, btScalar desiredVelocity=0, btScalar cfmSlip=0);
 
-    btMultiBodySolverConstraint&	addMultiBodyRollingFrictionConstraint(const btVector3& normalAxis,btPersistentManifold* manifold,int frictionIndex,btManifoldPoint& cp,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, const btContactSolverInfo& infoGlobal, btScalar desiredVelocity=0, btScalar cfmSlip=0);
+    btMultiBodySolverConstraint&	addMultiBodyTorsionalFrictionConstraint(const btVector3& normalAxis,btPersistentManifold* manifold,int frictionIndex,btManifoldPoint& cp,
+                                                            btScalar combinedTorsionalFriction,
+                                                            btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, const btContactSolverInfo& infoGlobal, btScalar desiredVelocity=0, btScalar cfmSlip=0);
 
 	void setupMultiBodyJointLimitConstraint(btMultiBodySolverConstraint& constraintRow, 
 																 btScalar* jacA,btScalar* jacB,
@@ -63,9 +65,12 @@ protected:
 																 btScalar& relaxation,
 																 bool isFriction, btScalar desiredVelocity=0, btScalar cfmSlip=0);
     
-    void setupMultiBodyRollingFrictionConstraint(btMultiBodySolverConstraint& solverConstraint,
+    //either rolling or spinning friction
+    void setupMultiBodyTorsionalFrictionConstraint(btMultiBodySolverConstraint& solverConstraint,
                                          const btVector3& contactNormal,
-                                         btManifoldPoint& cp, const btContactSolverInfo& infoGlobal,
+                                         btManifoldPoint& cp,
+                                        btScalar combinedTorsionalFriction,
+                                        const btContactSolverInfo& infoGlobal,
                                          btScalar& relaxation,
                                          bool isFriction, btScalar desiredVelocity=0, btScalar cfmSlip=0);
 

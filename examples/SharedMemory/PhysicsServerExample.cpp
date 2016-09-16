@@ -18,6 +18,8 @@
 
 extern btVector3 gLastPickPos;
 btVector3 gVRTeleportPos(0,0,0);
+btQuaternion gVRTeleportOrn(0, 0, 0,1);
+
 extern bool gVRGripperClosed;
 
 bool gDebugRenderToggle  = false;
@@ -556,7 +558,7 @@ public:
 	btVector3	getRayTo(int x,int y);
 
 	virtual void	vrControllerButtonCallback(int controllerId, int button, int state, float pos[4], float orientation[4]);
-	virtual void	vrControllerMoveCallback(int controllerId, float pos[4], float orientation[4]);
+	virtual void	vrControllerMoveCallback(int controllerId, float pos[4], float orientation[4], float analogAxis);
 
 	virtual bool	mouseMoveCallback(float x,float y)
 	{
@@ -894,6 +896,7 @@ void PhysicsServerExample::renderScene()
 	///debug rendering
 	//m_args[0].m_cs->lock();
 	
+	//gVRTeleportPos[0] += 0.01;
 	vrOffset[12]=-gVRTeleportPos[0];
 	vrOffset[13]=-gVRTeleportPos[1];
 	vrOffset[14]=-gVRTeleportPos[2];
@@ -1101,7 +1104,7 @@ class CommonExampleInterface*    PhysicsServerCreateFunc(struct CommonExampleOpt
 }
 
 
-static int gGraspingController = 2;
+static int gGraspingController = -1;
 
 void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int button, int state, float pos[4], float orn[4])
 {
@@ -1110,6 +1113,8 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 	if (controllerId<0 || controllerId>=MAX_VR_CONTROLLERS)
 		return;
 
+	if (gGraspingController < 0)
+		gGraspingController = controllerId;
 
 	if (controllerId != gGraspingController)
 	{
@@ -1151,9 +1156,14 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 
 extern btVector3 gVRGripperPos;
 extern btQuaternion gVRGripperOrn;
+extern btScalar gVRGripperAnalog;
 
-void	PhysicsServerExample::vrControllerMoveCallback(int controllerId, float pos[4], float orn[4])
+
+
+void	PhysicsServerExample::vrControllerMoveCallback(int controllerId, float pos[4], float orn[4], float analogAxis)
 {
+
+	
 
 	if (controllerId <= 0 || controllerId >= MAX_VR_CONTROLLERS)
 	{
@@ -1162,6 +1172,7 @@ void	PhysicsServerExample::vrControllerMoveCallback(int controllerId, float pos[
 	}
 	if (controllerId == gGraspingController)
 	{
+		gVRGripperAnalog = analogAxis;
 		gVRGripperPos.setValue(pos[0] + gVRTeleportPos[0], pos[1] + gVRTeleportPos[1], pos[2] + gVRTeleportPos[2]);
 		btQuaternion orgOrn(orn[0], orn[1], orn[2], orn[3]);
 		gVRGripperOrn = orgOrn*btQuaternion(btVector3(0, 0, 1), SIMD_HALF_PI)*btQuaternion(btVector3(0, 1, 0), SIMD_HALF_PI);

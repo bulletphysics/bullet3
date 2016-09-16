@@ -27,6 +27,8 @@
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "SharedMemoryCommands.h"
 
+btVector3 gLastPickPos(0, 0, 0);
+
 struct UrdfLinkNameMapUtil
 {
 	btMultiBody* m_mb;
@@ -383,7 +385,7 @@ struct PhysicsServerCommandProcessorInternalData
 
 	btMultiBodyFixedConstraint* m_gripperRigidbodyFixed;
 	btMultiBody* m_gripperMultiBody;
-
+	int m_huskyId;
 	CommandLogger* m_commandLogger;
 	CommandLogPlayback* m_logPlayback;
 
@@ -435,6 +437,7 @@ struct PhysicsServerCommandProcessorInternalData
 		m_gripperRigidbodyFixed(0),
 		m_gripperMultiBody(0),
 		m_allowRealTimeSimulation(false),
+		m_huskyId(0),
 		m_commandLogger(0),
 		m_logPlayback(0),
 		m_physicsDeltaTime(1./240.),
@@ -593,7 +596,7 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 
 
 	m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
-	m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = 0.005;
+	m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = 0.05;
 }
 
 void PhysicsServerCommandProcessor::deleteCachedInverseDynamicsBodies()
@@ -1874,10 +1877,15 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     {
                         applyJointDamping(i);
                     }
-                    if (m_data->m_numSimulationSubSteps > 0)
-                        m_data->m_dynamicsWorld->stepSimulation(m_data->m_physicsDeltaTime,m_data->m_numSimulationSubSteps,m_data->m_physicsDeltaTime/m_data->m_numSimulationSubSteps);
-                    else
-                        m_data->m_dynamicsWorld->stepSimulation(m_data->m_physicsDeltaTime,0);
+					
+					if (m_data->m_numSimulationSubSteps > 0)
+					{
+						m_data->m_dynamicsWorld->stepSimulation(m_data->m_physicsDeltaTime, m_data->m_numSimulationSubSteps, m_data->m_physicsDeltaTime / m_data->m_numSimulationSubSteps);
+					}
+					else
+					{
+						m_data->m_dynamicsWorld->stepSimulation(m_data->m_physicsDeltaTime, 0);
+					}
 
 					SharedMemoryStatus& serverCmd =serverStatusOut;
 					serverCmd.m_type = CMD_STEP_FORWARD_SIMULATION_COMPLETED;
@@ -2678,7 +2686,7 @@ void    PhysicsServerCommandProcessor::physicsDebugDraw(int debugDrawFlags)
 	}
 }
 
-btVector3 gLastPickPos(0,0,0);
+
 
 bool PhysicsServerCommandProcessor::pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld)
 {
@@ -2832,6 +2840,7 @@ void PhysicsServerCommandProcessor::replayFromLogFile(const char* fileName)
 
 btVector3 gVRGripperPos(0,0,0);
 btQuaternion gVRGripperOrn(0,0,0,1);
+btScalar gVRGripperAnalog = 0;
 bool gVRGripperClosed = false;
 
 
@@ -2860,7 +2869,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			{
 				int bodyId = 0;
 
-				if (loadUrdf("pr2_gripper.urdf", btVector3(0, 0, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size()))
+				if (loadUrdf("pr2_gripper.urdf", btVector3(0, 0, 0.1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size()))
 				{
 					InteralBodyData* parentBody = m_data->getHandle(bodyId);
 					if (parentBody->m_multiBody)
@@ -2878,14 +2887,25 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 						m_data->m_gripperMultiBody = parentBody->m_multiBody;
 						if (m_data->m_gripperMultiBody->getNumLinks() > 2)
 						{
-							m_data->m_gripperMultiBody->setJointPos(0, SIMD_HALF_PI);
-							m_data->m_gripperMultiBody->setJointPos(2, SIMD_HALF_PI);
+							m_data->m_gripperMultiBody->setJointPos(0, 0);
+							m_data->m_gripperMultiBody->setJointPos(2, 0);
 						}
 						m_data->m_gripperRigidbodyFixed->setMaxAppliedImpulse(1.);
 						btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*)m_data->m_dynamicsWorld;
 						world->addMultiBodyConstraint(m_data->m_gripperRigidbodyFixed);
 					}
 				}
+				
+				loadUrdf("sphere2.urdf", btVector3(-2, 0, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+				loadUrdf("sphere2.urdf", btVector3(-2, 0, 2), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+				loadUrdf("sphere2.urdf", btVector3(-2, 0, 3), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+				
+				loadUrdf("samurai.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+				loadUrdf("kuka_iiwa/model.urdf", btVector3(3, 0, 0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+				loadUrdf("cube_small.urdf", btVector3(0, 0, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+				loadUrdf("husky/husky.urdf", btVector3(1, 1, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+				m_data->m_huskyId = bodyId;
+				
 			}
 		}
 
@@ -2904,14 +2924,9 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 						{
 							motor->setErp(0.01);
 
-							if (gVRGripperClosed)
-							{
-								motor->setPositionTarget(0.2, 1);
-							}
-							else
-							{
-								motor->setPositionTarget(SIMD_HALF_PI, 1);
-							}
+							motor->setPositionTarget(0.1+(1-gVRGripperAnalog)*SIMD_HALF_PI*0.5, 1);
+							
+							
 							motor->setVelocityTarget(0, 0.1);
 							btScalar maxImp = 1550.*m_data->m_physicsDeltaTime;
 							motor->setMaxAppliedImpulse(maxImp);

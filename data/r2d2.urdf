@@ -388,6 +388,7 @@
     <child link="head"/>
     <axis xyz="0 0 1"/>
     <origin xyz="0 0 0.3"/>
+<limit effort="1000.0" lower="-0.38" upper="0" velocity="0.5"/>
   </joint>
 
   <link name="box">

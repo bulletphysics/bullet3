@@ -24,7 +24,6 @@ ContactAddedCallback		gContactAddedCallback=0;
 
 
 
-///User can override this material combiner by implementing gContactAddedCallback and setting body0->m_collisionFlags |= btCollisionObject::customMaterialCallback;
 btScalar	btManifoldResult::calculateCombinedRollingFriction(const btCollisionObject* body0,const btCollisionObject* body1)
 {
 	btScalar friction = body0->getRollingFriction() * body1->getFriction() + body1->getRollingFriction() * body0->getFriction();
@@ -38,6 +37,17 @@ btScalar	btManifoldResult::calculateCombinedRollingFriction(const btCollisionObj
 
 }
 
+btScalar	btManifoldResult::calculateCombinedSpinningFriction(const btCollisionObject* body0,const btCollisionObject* body1)
+{
+    btScalar friction = body0->getSpinningFriction() * body1->getFriction() + body1->getSpinningFriction() * body0->getFriction();
+    
+    const btScalar MAX_FRICTION  = btScalar(10.);
+    if (friction < -MAX_FRICTION)
+        friction = -MAX_FRICTION;
+    if (friction > MAX_FRICTION)
+        friction = MAX_FRICTION;
+    return friction;
+}
 
 ///User can override this material combiner by implementing gContactAddedCallback and setting body0->m_collisionFlags |= btCollisionObject::customMaterialCallback;
 btScalar	btManifoldResult::calculateCombinedFriction(const btCollisionObject* body0,const btCollisionObject* body1)
@@ -125,6 +135,7 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld,const b
 	newPt.m_combinedFriction = calculateCombinedFriction(m_body0Wrap->getCollisionObject(),m_body1Wrap->getCollisionObject());
 	newPt.m_combinedRestitution = calculateCombinedRestitution(m_body0Wrap->getCollisionObject(),m_body1Wrap->getCollisionObject());
 	newPt.m_combinedRollingFriction = calculateCombinedRollingFriction(m_body0Wrap->getCollisionObject(),m_body1Wrap->getCollisionObject());
+    newPt.m_combinedSpinningFriction = calculateCombinedSpinningFriction(m_body0Wrap->getCollisionObject(),m_body1Wrap->getCollisionObject());
 	
 	if (    (m_body0Wrap->getCollisionObject()->getCollisionFlags()& btCollisionObject::CF_HAS_CONTACT_STIFFNESS_DAMPING) ||
             (m_body1Wrap->getCollisionObject()->getCollisionFlags()& btCollisionObject::CF_HAS_CONTACT_STIFFNESS_DAMPING))

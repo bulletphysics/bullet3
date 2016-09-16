@@ -33,6 +33,7 @@
   <link name="left_gripper">
     <contact>
       <lateral_friction value="50.0"/>
+      <spinning_friction value="0.1"/>
     </contact>
     <visual>
       <origin rpy="0.0 0 0" xyz="0 0 0"/>

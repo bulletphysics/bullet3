@@ -713,14 +713,17 @@ bool CMainApplication::HandleInput()
 						}
 						else
 						{
+							
 //							printf("Device MOVED: %d\n", unDevice);
-							sExample->vrControllerMoveCallback(unDevice, pos, orn);
+							sExample->vrControllerMoveCallback(unDevice, pos, orn, state.rAxis[1].x);
 						}
 					}
 					else
 					{
 						if( m_pHMD->GetTrackedDeviceClass( unDevice) == vr::TrackedDeviceClass_Controller )
 						{
+							
+
 							b3Transform tr;
 							getControllerTransform(unDevice, tr);
 							float pos[3] = { tr.getOrigin()[0], tr.getOrigin()[1], tr.getOrigin()[2] };
@@ -741,7 +744,7 @@ bool CMainApplication::HandleInput()
 							} else
 							{
 
-								sExample->vrControllerMoveCallback(unDevice, pos, orn);
+								sExample->vrControllerMoveCallback(unDevice, pos, orn, state.rAxis[1].x);
 							}
 						}
 					}
