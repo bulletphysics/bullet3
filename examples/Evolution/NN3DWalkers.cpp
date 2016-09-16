@@ -29,7 +29,7 @@ struct btCollisionAlgorithmCreateFunc;
 class btDefaultCollisionConfiguration;
 class NNWalker;
 
-#include "../CommonInterfaces/CommonRigidBodyBase.h"
+#include "../CommonInterfaces/CommonTimeWarpBase.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 
 #include "../Utils/b3ReferenceFrameHelper.hpp"
@@ -99,7 +99,7 @@ static btScalar gParallelEvaluations = 10.0f;
 
 void* GROUND_ID = (void*)1;
 
-class NN3DWalkersExample : public CommonRigidBodyBase
+class NN3DWalkersExample : public CommonTimeWarpBase
 {
 	btScalar m_Time;
 	btScalar m_targetAccumulator;
@@ -114,7 +114,7 @@ class NN3DWalkersExample : public CommonRigidBodyBase
 
 public:
 	NN3DWalkersExample(struct GUIHelperInterface* helper)
-	:CommonRigidBodyBase(helper),
+	:CommonTimeWarpBase(helper),
 	 m_Time(0),
 	 m_motorStrength(0.5f),
 	 m_targetFrequency(3),
@@ -150,7 +150,7 @@ public:
 		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
 	}
 
-	virtual void renderScene();
+//	virtual void renderScene();
 
 	// Evaluation
 
@@ -557,6 +557,9 @@ void floorNNSliderValue(float notUsed) {
 
 void NN3DWalkersExample::initPhysics()
 {
+
+	setupParameterInterface(); // parameter interface to use timewarp
+
 	gContactProcessedCallback = legContactProcessedCallback;
 
 	m_guiHelper->setUpAxis(1);
@@ -788,14 +791,14 @@ void NN3DWalkersExample::exitPhysics()
 	CommonRigidBodyBase::exitPhysics();
 }
 
-void NN3DWalkersExample::renderScene()
-	{
-		m_guiHelper->syncPhysicsToGraphics(m_dynamicsWorld);
-
-		m_guiHelper->render(m_dynamicsWorld);
-
-		debugDraw(m_dynamicsWorld->getDebugDrawer()->getDebugMode());
-	}
+//void NN3DWalkersExample::renderScene()
+//{
+//		m_guiHelper->syncPhysicsToGraphics(m_dynamicsWorld);
+//
+//		m_guiHelper->render(m_dynamicsWorld);
+//
+//		debugDraw(m_dynamicsWorld->getDebugDrawer()->getDebugMode());
+//}
 
 class CommonExampleInterface* ET_NN3DWalkersCreateFunc(struct CommonExampleOptions& options)
 {

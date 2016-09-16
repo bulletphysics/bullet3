@@ -36,6 +36,8 @@ ADD_LIBRARY(BulletExampleBrowserLib
 	../Utils/b3Clock.h
 	../Utils/b3ResourcePath.cpp
 	../Utils/b3ResourcePath.h
+	../Utils/b3ERPCFMHelper.hpp
+	../Utils/b3ReferenceFrameHelper.hpp
 	${GwenGUISupport_SRCS}
 	${GwenGUISupport_HDRS}
 	
@@ -131,7 +133,7 @@ SET(ExtendedTutorialsSources
 )
 
 SET(BulletExampleBrowser_SRCS
-	
+	../CommonInterfaces/CommonTimeWarpBase.h #TODO: This is wrong here, where should it go?
 	../TinyRenderer/geometry.cpp
 	../TinyRenderer/model.cpp
 	../TinyRenderer/tgaimage.cpp
