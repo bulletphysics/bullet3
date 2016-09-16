@@ -507,7 +507,7 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(int linkIndex, const 
             }
 			for (int i=0;i<textures.size();i++)
 			{
-				delete textures[i].textureData;
+				free(textures[i].textureData);
 			}
 		}
 	}
