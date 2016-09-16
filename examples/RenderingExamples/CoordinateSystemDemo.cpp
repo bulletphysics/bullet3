@@ -156,7 +156,7 @@ public:
 	}
 };
 
-struct CommonExampleInterface*    CoordinateSystemCreateFunc(struct CommonExampleOptions& options)
+CommonExampleInterface*    CoordinateSystemCreateFunc(struct CommonExampleOptions& options)
 {
 	return new CoordinateSystemDemo(options.m_guiHelper->getAppInterface());
 }

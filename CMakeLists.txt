@@ -5,7 +5,7 @@ set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 SET(MSVC_INCREMENTAL_DEFAULT ON)
 
 PROJECT(BULLET_PHYSICS)
-SET(BULLET_VERSION 2.83)
+SET(BULLET_VERSION 2.85)
 
 IF(COMMAND cmake_policy)
    cmake_policy(SET CMP0003 NEW)
@@ -87,6 +87,8 @@ IF(MSVC)
 	IF (USE_MSVC_FAST_FLOATINGPOINT)
 		  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fp:fast")
   ENDIF()
+
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244 /wd4267")
 ENDIF(MSVC)
 
 
@@ -191,14 +193,32 @@ IF (APPLE)
 ENDIF()
 
 OPTION(BUILD_BULLET3 "Set when you want to build Bullet 3" ON)
+
 OPTION(BUILD_PYBULLET "Set when you want to build pybullet (experimental Python bindings for Bullet)" OFF)
 
+
 IF(BUILD_PYBULLET)
+
+	FIND_PACKAGE(PythonLibs)
+
+	OPTION(BUILD_PYBULLET_NUMPY "Set when you want to build pybullet with NumPy support" OFF)
+
+	IF(BUILD_PYBULLET_NUMPY)	
+		set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/build3/cmake)
+		#include(FindNumPy)
+		FIND_PACKAGE(NumPy)
+		if (PYTHON_NUMPY_FOUND)
+			message("NumPy found")
+			add_definitions(-DPYBULLET_USE_NUMPY)
+		else()
+			message("NumPy not found")
+		endif()
+	ENDIF()
+	OPTION(BUILD_PYBULLET "Set when you want to build pybullet (experimental Python bindings for Bullet)" OFF)
+
 	IF(WIN32)
-		FIND_PACKAGE(PythonLibs 3.4 REQUIRED)
 		SET(BUILD_SHARED_LIBS OFF CACHE BOOL "Shared Libs" FORCE)
 	ELSE(WIN32)
-		FIND_PACKAGE(PythonLibs 2.7 REQUIRED)
 		SET(BUILD_SHARED_LIBS ON CACHE BOOL "Shared Libs" FORCE)
 	ENDIF(WIN32)
 ENDIF(BUILD_PYBULLET)

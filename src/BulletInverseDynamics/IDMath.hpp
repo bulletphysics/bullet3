@@ -19,6 +19,16 @@ idScalar maxAbs(const vecx& v);
 /// return maximum absolute value
 idScalar maxAbs(const vec3& v);
 #endif  //ID_LINEAR_MATH_USE_EIGEN
+
+#if (defined BT_ID_HAVE_MAT3X)
+idScalar maxAbsMat3x(const mat3x& m);
+void setZero(mat3x&m);
+// define math functions on mat3x here to avoid allocations in operators.
+void mul(const mat33&a, const mat3x&b, mat3x* result);
+void add(const mat3x&a, const mat3x&b, mat3x* result);
+void sub(const mat3x&a, const mat3x&b, mat3x* result);
+#endif
+
 /// get offset vector & transform matrix from DH parameters
 /// TODO: add documentation
 void getVecMatFromDH(idScalar theta, idScalar d, idScalar a, idScalar alpha, vec3* r, mat33* T);

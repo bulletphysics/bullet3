@@ -35,6 +35,7 @@ void testSharedMemory(b3PhysicsClientHandle sm)
     int sensorJointIndexLeft=-1;
     int sensorJointIndexRight=-1;
 	const char* urdfFileName = "r2d2.urdf";
+	const char* sdfFileName = "kuka_iiwa/model.sdf";
 	double gravx=0, gravy=0, gravz=-9.8;
 	double timeStep = 1./60.;
 	double startPosX, startPosY,startPosZ;
@@ -52,14 +53,61 @@ void testSharedMemory(b3PhysicsClientHandle sm)
         ASSERT_EQ(b3GetStatusType(statusHandle), CMD_CLIENT_COMMAND_COMPLETED);
         }
 
-		
+        {
+            b3SharedMemoryStatusHandle statusHandle;
+            int statusType;
+            int bodyIndicesOut[10];//MAX_SDF_BODIES = 10
+            int numJoints, numBodies;
+			int bodyUniqueId;
+            b3SharedMemoryCommandHandle command = b3LoadSdfCommandInit(sm, sdfFileName);
+            statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+			statusType = b3GetStatusType(statusHandle);
+			ASSERT_EQ(statusType, CMD_SDF_LOADING_COMPLETED);
+			
+			numBodies = b3GetStatusBodyIndices(statusHandle, bodyIndicesOut, 10);
+            ASSERT_EQ(numBodies,1);
+            bodyUniqueId = bodyIndicesOut[0];
+            
+            numJoints = b3GetNumJoints(sm,bodyUniqueId);
+            ASSERT_EQ(numJoints,7);
+
+#if 0
+            b3Printf("numJoints: %d\n", numJoints);
+            for (i=0;i<numJoints;i++)
+            {
+                struct b3JointInfo jointInfo;
+                if (b3GetJointInfo(sm,bodyUniqueId, i,&jointInfo))
+                {
+                    b3Printf("jointInfo[%d].m_jointName=%s\n",i,jointInfo.m_jointName);
+                }
+            }
+#endif
+            {
+                b3SharedMemoryStatusHandle statusHandle;
+                b3SharedMemoryCommandHandle commandHandle;
+                double jointAngle = 0.f;
+               	int jointIndex; 
+                commandHandle = b3CreatePoseCommandInit(sm, bodyUniqueId);
+                for (jointIndex=0;jointIndex<numJoints;jointIndex++)
+                {
+                    b3CreatePoseCommandSetJointPosition(sm, commandHandle, jointIndex, jointAngle);
+                }
+                
+                statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+
+                ASSERT_EQ(b3GetStatusType(statusHandle), CMD_CLIENT_COMMAND_COMPLETED);
+            }
+            
+        }
+        
+        
         {
             b3SharedMemoryStatusHandle statusHandle;
 			int statusType;
 			b3SharedMemoryCommandHandle command = b3LoadUrdfCommandInit(sm, urdfFileName);
 			
             //setting the initial position, orientation and other arguments are optional
-            startPosX =0;
+            startPosX =2;
             startPosY =0;
             startPosZ = 1;
             ret = b3LoadUrdfCommandSetStartPosition(command, startPosX,startPosY,startPosZ);
@@ -98,7 +146,7 @@ void testSharedMemory(b3PhysicsClientHandle sm)
         
 			if ((sensorJointIndexLeft>=0) || (sensorJointIndexRight>=0))
 			{
-				b3SharedMemoryCommandHandle command = b3CreateSensorCommandInit(sm);
+				b3SharedMemoryCommandHandle command = b3CreateSensorCommandInit(sm, bodyIndex);
 				b3SharedMemoryStatusHandle statusHandle;
 				if (imuLinkIndex>=0)
 				{

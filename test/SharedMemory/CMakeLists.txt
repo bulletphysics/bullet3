@@ -13,7 +13,7 @@ ADD_DEFINITIONS(-DPHYSICS_LOOP_BACK -DPHYSICS_SERVER_DIRECT -DENABLE_GTEST -D_VA
 
 
 LINK_LIBRARIES(
- BulletFileLoader BulletWorldImporter Bullet3Common BulletDynamics BulletCollision LinearMath gtest
+ BulletInverseDynamicsUtils BulletInverseDynamics BulletFileLoader BulletWorldImporter Bullet3Common BulletDynamics BulletCollision LinearMath gtest BussIK
 )
 
 IF (NOT WIN32)
@@ -23,6 +23,8 @@ ENDIF()
 	ADD_EXECUTABLE(Test_PhysicsClientServer
 		gtestwrap.cpp
 		../../examples/SharedMemory/PhysicsClient.cpp
+												../../examples/SharedMemory/IKTrajectoryHelper.cpp
+												../../examples/SharedMemory/IKTrajectoryHelper.h
                         ../../examples/SharedMemory/PhysicsClient.h
                         ../../examples/SharedMemory/PhysicsServer.cpp
                         ../../examples/SharedMemory/PhysicsServer.h
@@ -71,7 +73,8 @@ ENDIF()
                         ../../examples/Importers/ImportURDFDemo/URDF2Bullet.cpp
                         ../../examples/Importers/ImportURDFDemo/UrdfParser.cpp
                         ../../examples/Importers/ImportURDFDemo/urdfStringSplit.cpp
-
+			../../examples/Importers/ImportMeshUtility/b3ImportMeshUtility.cpp
+			../../examples/ThirdPartyLibs/stb_image/stb_image.cpp
                         
 	)
 

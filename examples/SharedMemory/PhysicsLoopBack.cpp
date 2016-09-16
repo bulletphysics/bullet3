@@ -79,9 +79,9 @@ int PhysicsLoopBack::getNumJoints(int bodyIndex) const
 	return m_data->m_physicsClient->getNumJoints(bodyIndex);
 }
 
-void PhysicsLoopBack::getJointInfo(int bodyIndex, int jointIndex, struct b3JointInfo& info) const
+bool PhysicsLoopBack::getJointInfo(int bodyIndex, int jointIndex, struct b3JointInfo& info) const
 {
-	m_data->m_physicsClient->getJointInfo(bodyIndex,jointIndex,info);
+	return m_data->m_physicsClient->getJointInfo(bodyIndex,jointIndex,info);
 }
 
 ///todo: move this out of the
@@ -105,10 +105,12 @@ const float* PhysicsLoopBack::getDebugLinesFrom() const
 {
 	return m_data->m_physicsClient->getDebugLinesFrom();
 }
+
 const float* PhysicsLoopBack::getDebugLinesTo() const
 {
 	return m_data->m_physicsClient->getDebugLinesTo();
 }
+
 const float* PhysicsLoopBack::getDebugLinesColor() const
 {
 	return m_data->m_physicsClient->getDebugLinesColor();
@@ -117,4 +119,9 @@ const float* PhysicsLoopBack::getDebugLinesColor() const
 void PhysicsLoopBack::getCachedCameraImage(struct b3CameraImageData* cameraData)
 {
 	return m_data->m_physicsClient->getCachedCameraImage(cameraData);
+}
+
+void PhysicsLoopBack::getCachedContactPointInformation(struct b3ContactInformation* contactPointData)
+{
+    return m_data->m_physicsClient->getCachedContactPointInformation(contactPointData);
 }

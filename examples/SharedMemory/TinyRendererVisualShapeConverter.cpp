@@ -28,7 +28,7 @@ subject to the following restrictions:
 #include "../Utils/b3ResourcePath.h"
 #include "../TinyRenderer/TinyRenderer.h"
 #include "../OpenGLWindow/SimpleCamera.h"
-
+#include "../Importers/ImportMeshUtility/b3ImportMeshUtility.h"
 #include <iostream>
 #include <fstream>
 #include "../Importers/ImportURDFDemo/UrdfParser.h"
@@ -39,6 +39,13 @@ enum MyFileType
 	MY_FILE_STL=1,
 	MY_FILE_COLLADA=2,
     MY_FILE_OBJ=3,
+};
+
+struct MyTexture2
+{
+	unsigned char* textureData;
+	int m_width;
+	int m_height;
 };
 
 struct TinyRendererObjectArray
@@ -59,6 +66,8 @@ struct TinyRendererVisualShapeConverterInternalData
 	int m_swHeight;
 	TGAImage m_rgbColorBuffer;
 	b3AlignedObjectArray<float> m_depthBuffer;
+	b3AlignedObjectArray<int> m_segmentationMaskBuffer;
+	
 	SimpleCamera m_camera;
 	
 	TinyRendererVisualShapeConverterInternalData()
@@ -68,6 +77,7 @@ struct TinyRendererVisualShapeConverterInternalData
 	m_rgbColorBuffer(START_WIDTH,START_HEIGHT,TGAImage::RGB)
 	{
 	    m_depthBuffer.resize(m_swWidth*m_swHeight);
+	    m_segmentationMaskBuffer.resize(m_swWidth*m_swHeight,-1);
 	}
 	
 };
@@ -95,7 +105,7 @@ TinyRendererVisualShapeConverter::~TinyRendererVisualShapeConverter()
 
 
 
-void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut)
+void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut)
 {
 
 	
@@ -201,7 +211,23 @@ void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPref
 						{
                             case MY_FILE_OBJ:
                             {
-                                glmesh = LoadMeshFromObj(fullPath,visualPathPrefix);
+                                //glmesh = LoadMeshFromObj(fullPath,visualPathPrefix);
+								b3ImportMeshData meshData;
+								if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(fullPath, meshData))
+								{
+									
+									if (meshData.m_textureImage)
+									{
+										MyTexture2 texData;
+										texData.m_width = meshData.m_textureWidth;
+										texData.m_height = meshData.m_textureHeight;
+										texData.textureData = meshData.m_textureImage;
+										texturesOut.push_back(texData);
+									}
+									glmesh = meshData.m_gfxShape;
+								}
+
+								
                                 break;
                             }
                            
@@ -417,14 +443,10 @@ void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPref
 
 
 
-void TinyRendererVisualShapeConverter::convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfModel& model, class btCollisionObject* colObj)
+void TinyRendererVisualShapeConverter::convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfModel& model, class btCollisionObject* colObj, int objectIndex)
 {
     
-	btAlignedObjectArray<GLInstanceVertex> vertices;
-	btAlignedObjectArray<int> indices;
-	btTransform startTrans; startTrans.setIdentity();
-	int graphicsIndex = -1;
-
+	
 	UrdfLink* const* linkPtr = model.m_links.getAtIndex(linkIndex);
 	if (linkPtr)
 	{
@@ -433,6 +455,12 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(int linkIndex, const 
 	
 		for (int v = 0; v < link->m_visualArray.size();v++)
 		{
+			btAlignedObjectArray<MyTexture2> textures;
+			btAlignedObjectArray<GLInstanceVertex> vertices;
+			btAlignedObjectArray<int> indices;
+			btTransform startTrans; startTrans.setIdentity();
+			int graphicsIndex = -1;
+
 			const UrdfVisual& vis = link->m_visualArray[v];
 			btTransform childTrans = vis.m_linkLocalFrame;
 			btHashString matName(vis.m_materialName.c_str());
@@ -458,14 +486,29 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(int linkIndex, const 
             btAssert(visualsPtr);
             TinyRendererObjectArray* visuals = *visualsPtr;
             
-			convertURDFToVisualShape(&vis, pathPrefix, localInertiaFrame.inverse()*childTrans, vertices, indices);
+			convertURDFToVisualShape(&vis, pathPrefix, localInertiaFrame.inverse()*childTrans, vertices, indices,textures);
 
             if (vertices.size() && indices.size())
             {
-                TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_swWidth,m_data->m_swHeight,m_data->m_rgbColorBuffer,m_data->m_depthBuffer);
-                tinyObj->registerMeshShape(&vertices[0].xyzw[0],vertices.size(),&indices[0],indices.size(),rgbaColor);
+                TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_rgbColorBuffer,m_data->m_depthBuffer, &m_data->m_segmentationMaskBuffer, objectIndex);
+				unsigned char* textureImage=0;
+				int textureWidth=0;
+				int textureHeight=0;
+				if (textures.size())
+				{
+					textureImage = textures[0].textureData;
+					textureWidth = textures[0].m_width;
+					textureHeight = textures[0].m_height;
+				}
+				
+                tinyObj->registerMeshShape(&vertices[0].xyzw[0],vertices.size(),&indices[0],indices.size(),rgbaColor,
+										   textureImage,textureWidth,textureHeight);
                 visuals->m_renderObjects.push_back(tinyObj);
             }
+			for (int i=0;i<textures.size();i++)
+			{
+				delete textures[i].textureData;
+			}
 		}
 	}
 }
@@ -495,6 +538,7 @@ void TinyRendererVisualShapeConverter::clearBuffers(TGAColor& clearColor)
         {
             m_data->m_rgbColorBuffer.set(x,y,clearColor);
             m_data->m_depthBuffer[x+y*m_data->m_swWidth] = -1e30f;
+            m_data->m_segmentationMaskBuffer[x+y*m_data->m_swWidth] = -1;
         }
     }
     
@@ -541,7 +585,7 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
     
     lightDirWorld.normalize();
     
-    printf("num m_swRenderInstances = %d\n", m_data->m_swRenderInstances.size());
+  //  printf("num m_swRenderInstances = %d\n", m_data->m_swRenderInstances.size());
     for (int i=0;i<m_data->m_swRenderInstances.size();i++)
     {
         TinyRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(i);
@@ -580,8 +624,24 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
         }
     }
 	//printf("write tga \n");
-	m_data->m_rgbColorBuffer.write_tga_file("camera.tga");
+	//m_data->m_rgbColorBuffer.write_tga_file("camera.tga");
+//	printf("flipped!\n");
+	m_data->m_rgbColorBuffer.flip_vertically();
 
+	//flip z-buffer and segmentation Buffer
+	{
+		int half = m_data->m_swHeight>>1;
+		for (int j=0; j<half; j++)
+		{
+			unsigned long l1 = j*m_data->m_swWidth;
+			unsigned long l2 = (m_data->m_swHeight-1-j)*m_data->m_swWidth;
+			for (int i=0;i<m_data->m_swWidth;i++)
+			{
+				btSwap(m_data->m_depthBuffer[l1+i],m_data->m_depthBuffer[l2+i]);
+				btSwap(m_data->m_segmentationMaskBuffer[l1+i],m_data->m_segmentationMaskBuffer[l2+i]);
+			}
+		}
+	}
 }
 
 void TinyRendererVisualShapeConverter::getWidthAndHeight(int& width, int& height)
@@ -590,7 +650,23 @@ void TinyRendererVisualShapeConverter::getWidthAndHeight(int& width, int& height
     height = m_data->m_swHeight;
 }
 
-void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels, int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied)
+
+void TinyRendererVisualShapeConverter::setWidthAndHeight(int width, int height)
+{
+	m_data->m_swWidth = width;
+	m_data->m_swHeight = height;
+
+	m_data->m_depthBuffer.resize(m_data->m_swWidth*m_data->m_swHeight);
+	m_data->m_segmentationMaskBuffer.resize(m_data->m_swWidth*m_data->m_swHeight);
+	m_data->m_rgbColorBuffer = TGAImage(width, height, TGAImage::RGB);
+	
+		
+}
+
+void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, 
+                                                            float* depthBuffer, int depthBufferSizeInPixels,
+                                                            int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,
+                                                            int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied)
 {
     int w = m_data->m_rgbColorBuffer.get_width();
     int h = m_data->m_rgbColorBuffer.get_height();
@@ -612,6 +688,15 @@ void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixels
     {
         for (int i=0;i<numRequestedPixels;i++)
         {
+			if (depthBuffer)
+			{
+				depthBuffer[i] = m_data->m_depthBuffer[i+startPixelIndex];
+			}
+			if (segmentationMaskBuffer)
+            {
+                segmentationMaskBuffer[i] = m_data->m_segmentationMaskBuffer[i+startPixelIndex];
+            }
+			
             if (pixelsRGBA)
             {
                 pixelsRGBA[i*numBytesPerPixel] =   m_data->m_rgbColorBuffer.buffer()[(i+startPixelIndex)*3+0];
@@ -631,7 +716,16 @@ void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixels
 
 void TinyRendererVisualShapeConverter::resetAll()
 {
-	//todo: free memory
+	for (int i=0;i<m_data->m_swRenderInstances.size();i++)
+	{
+		TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(i);
+		if (ptrptr && *ptrptr)
+		{
+			TinyRendererObjectArray* ptr = *ptrptr;
+			delete ptr;
+		}
+	}
+	
 	m_data->m_swRenderInstances.clear();
 }
 

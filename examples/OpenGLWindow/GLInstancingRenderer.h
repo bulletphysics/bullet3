@@ -41,7 +41,7 @@ class GLInstancingRenderer : public CommonRenderInterface
 	int m_upAxis;
     bool m_enableBlend;
     
-	void renderSceneInternal(int renderMode=B3_DEFAULT_RENDERMODE);
+	
 
 	
 	
@@ -52,11 +52,12 @@ public:
 	virtual void init();
 
 	virtual void renderScene();
+	virtual void renderSceneInternal(int renderMode=B3_DEFAULT_RENDERMODE);
 
 	void InitShaders();
 	void CleanupShaders();
 	virtual void removeAllInstances();
-
+	
 	virtual void updateShape(int shapeIndex, const float* vertices);
 
 	///vertices must be in the format x,y,z, nx,ny,nz, u,v
@@ -73,6 +74,7 @@ public:
 
 	void writeTransforms();
 
+	
 	virtual void writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int srcIndex);
 	virtual void writeSingleInstanceTransformToCPU(const double* position, const double* orientation, int srcIndex)
     {
@@ -90,10 +92,15 @@ public:
 
     }
 
+	virtual void readSingleInstanceTransformFromCPU(int srcIndex, float* position, float* orientation);
+
 	virtual void writeSingleInstanceTransformToGPU(float* position, float* orientation, int srcIndex);
 
 	virtual void writeSingleInstanceColorToCPU(float* color, int srcIndex);
 	virtual void writeSingleInstanceColorToCPU(double* color, int srcIndex);
+
+	virtual void writeSingleInstanceScaleToCPU(float* scale, int srcIndex);
+	virtual void writeSingleInstanceScaleToCPU(double* scale, int srcIndex);
 
 	
 	virtual struct	GLInstanceRendererInternalData* getInternalData();
@@ -125,6 +132,8 @@ public:
 	
 	virtual int getInstanceCapacity() const;
 	
+	virtual int getTotalNumInstances() const;
+	
 	virtual void enableShadowMap();
     virtual void enableBlend(bool blend)
     {
@@ -132,6 +141,7 @@ public:
     }
 	virtual void clearZBuffer();
 
+	virtual void setRenderFrameBuffer(unsigned int renderFrameBuffer);
 };
 
 #endif //GL_INSTANCING_RENDERER_H

@@ -122,7 +122,7 @@ void btMultiBodyJointLimitConstraint::createConstraintRows(btMultiBodyConstraint
 		const btScalar posError = 0;						//why assume it's zero?
 		const btVector3 dummy(0, 0, 0);
 
-		btScalar rel_vel = fillMultiBodyConstraint(constraintRow,data,jacobianA(row),jacobianB(row),dummy,dummy,dummy,posError,infoGlobal,0,m_maxAppliedImpulse);
+		btScalar rel_vel = fillMultiBodyConstraint(constraintRow,data,jacobianA(row),jacobianB(row),dummy,dummy,dummy,dummy,posError,infoGlobal,0,m_maxAppliedImpulse);
 
 		{
 			//expect either prismatic or revolute joint type for now

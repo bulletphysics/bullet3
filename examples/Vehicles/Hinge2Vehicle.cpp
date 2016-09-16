@@ -568,11 +568,6 @@ void Hinge2Vehicle::renderScene()
 	
 	m_guiHelper->render(m_dynamicsWorld);
 
-	
-
-	ATTRIBUTE_ALIGNED16(btScalar) m[16];
-	int i;
-
 	btVector3 wheelColor(1,0,0);
 
 	btVector3	worldBoundsMin,worldBoundsMax;

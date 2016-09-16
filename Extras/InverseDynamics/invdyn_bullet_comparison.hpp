@@ -1,12 +1,13 @@
 #ifndef INVDYN_BULLET_COMPARISON_HPP
 #define INVDYN_BULLET_COMPARISON_HPP
 
+#include "BulletInverseDynamics/IDConfig.hpp"
+
 class btMultiBody;
 class btVector3;
 
 namespace btInverseDynamics {
 class MultiBodyTree;
-class vecx;
 
 /// this function compares the forward dynamics computations implemented in btMultiBody to
 /// the inverse dynamics implementation in MultiBodyTree. This is done in three steps

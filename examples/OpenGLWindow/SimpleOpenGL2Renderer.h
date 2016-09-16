@@ -32,6 +32,8 @@ struct SimpleOpenGL2Renderer : public CommonRenderInterface
     
     virtual void writeSingleInstanceColorToCPU(float* color, int srcIndex);
     virtual void writeSingleInstanceColorToCPU(double* color, int srcIndex);
+	virtual void writeSingleInstanceScaleToCPU(float* scale, int srcIndex);
+    virtual void writeSingleInstanceScaleToCPU(double* scale, int srcIndex);
     virtual void	getCameraViewMatrix(float viewMat[16]) const;
     virtual void	getCameraProjectionMatrix(float projMat[16]) const;
 
@@ -68,6 +70,8 @@ struct SimpleOpenGL2Renderer : public CommonRenderInterface
     
     virtual void writeSingleInstanceTransformToCPU(const double* position, const double* orientation, int srcIndex);
     
+    virtual int getTotalNumInstances() const;
+    
     virtual void writeTransforms();
     
     virtual void drawLine(const double from[4], const double to[4], const double color[4], double lineWidth);
@@ -81,6 +85,7 @@ struct SimpleOpenGL2Renderer : public CommonRenderInterface
     virtual void enableBlend(bool blend);
 
 	virtual void clearZBuffer();
+
 
 	virtual struct	GLInstanceRendererInternalData* getInternalData()
 	{

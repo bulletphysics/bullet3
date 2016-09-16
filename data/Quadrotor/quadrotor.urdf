@@ -1,0 +1,62 @@
+<?xml version="1.0" ?>
+
+<!-- adapted from Daniel Mellinger, Nathan Michael, Vijay Kumar, "Trajectory Generation and Control for Precise Aggressive Maneuvers with Quadrotors" -->
+
+<robot xmlns="http://drake.mit.edu"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://drake.mit.edu ../../../../pods/drake/doc/drakeURDF.xsd" name="quadrotor">
+  <link name="base_link">
+    <inertial>
+      <mass value="0.5"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.0023" ixy="0.0" ixz="0.0" iyy="0.0023" iyz="0.0" izz="0.004"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="quadrotor_base.obj" scale=".1 .1 .1"/>
+      </geometry>
+    </visual>
+    <!-- note: the original hector quadrotor urdf had a (simplified, but still complex) collision mesh, too -->
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius=".3" length=".1"/>
+      </geometry>
+    </collision>      
+  </link>
+  <frame link="base_link" name="body" rpy="0 0 0" xyz="0 0 0" />
+  <force_element name="prop1">
+    <propellor lower_limit="0" upper_limit="10" scale_factor_thrust="1.0" scale_factor_moment="0.0245">
+      <parent link="base_link"/>
+      <origin xyz=".1750 0 0"/>
+      <axis xyz="0 0 1"/>
+    </propellor>
+  </force_element>
+
+  <force_element name="prop2">
+    <propellor lower_limit="0" upper_limit="10" scale_factor_thrust="1.0" scale_factor_moment="-0.0245">
+      <parent link="base_link"/>
+      <origin xyz="0 .1750 0 "/>
+      <axis xyz="0 0 1"/>
+    </propellor>
+  </force_element>
+  
+  <force_element name="prop3">
+    <propellor lower_limit="0" upper_limit="10" scale_factor_thrust="1.0" scale_factor_moment="0.0245">
+      <parent link="base_link"/>
+      <origin xyz="-.1750 0 0"/>
+      <axis xyz="0 0 1"/>
+    </propellor>
+  </force_element>
+  
+  <force_element name="prop4">
+    <propellor lower_limit="0" upper_limit="10" scale_factor_thrust="1.0" scale_factor_moment="-0.0245">
+      <parent link="base_link"/>
+      <origin xyz="0 -.1750 0"/>
+      <axis xyz="0 0 1"/>
+    </propellor>
+  </force_element>
+  
+</robot>
+

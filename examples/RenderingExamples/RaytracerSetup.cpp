@@ -260,12 +260,22 @@ void RaytracerPhysicsSetup::stepSimulation(float deltaTime)
 
 	float fov = 2.0 * atanf (tanFov);
 
+    
 	btVector3 cameraPosition(5,0,0);
 	btVector3 cameraTargetPosition(0,0,0);
 
-	btVector3	rayFrom = cameraPosition;
-	btVector3 rayForward = cameraTargetPosition-cameraPosition;
-	rayForward.normalize();
+    
+    if (m_app->m_renderer && m_app->m_renderer->getActiveCamera())
+    {
+        m_app->m_renderer->getActiveCamera()->getCameraPosition(cameraPosition);
+        m_app->m_renderer->getActiveCamera()->getCameraTargetPosition(cameraTargetPosition);
+    }
+  
+    btVector3	rayFrom = cameraPosition;
+    btVector3 rayForward = cameraTargetPosition-cameraPosition;
+
+    
+    rayForward.normalize();
 	float farPlane = 600.f;
 	rayForward*= farPlane;
 
@@ -295,7 +305,7 @@ void RaytracerPhysicsSetup::stepSimulation(float deltaTime)
 
 	for (x=0;x<m_internalData->m_width;x++)
 	{
-		for (int y=0;y<m_internalData->m_height;y++)
+		for (y=0;y<m_internalData->m_height;y++)
 		{
 			btVector4 rgba(0,0,0,0);
 			btVector3 rayTo = rayToCenter - 0.5f * hor + 0.5f * vertical;

@@ -36,6 +36,7 @@ const T& b3ClockMin(const T& a, const T& b)
 
 #else //_WIN32
 #include <sys/time.h>
+#include <unistd.h>
 #endif //_WIN32
 
 
@@ -166,7 +167,7 @@ unsigned long int b3Clock::getTimeMilliseconds()
 
 	/// Returns the time in us since the last call to reset or since 
 	/// the Clock was created.
-unsigned long int b3Clock::getTimeMicroseconds()
+unsigned long long int b3Clock::getTimeMicroseconds()
 {
 #ifdef B3_USE_WINDOWS_TIMERS
 		LARGE_INTEGER currentTime;
@@ -175,14 +176,14 @@ unsigned long int b3Clock::getTimeMicroseconds()
 			m_data->mStartTime.QuadPart;
 
 		// Compute the number of millisecond ticks elapsed.
-		unsigned long msecTicks = (unsigned long)(1000 * elapsedTime / 
+		unsigned long long msecTicks = (unsigned long long)(1000 * elapsedTime / 
 			m_data->mClockFrequency.QuadPart);
 
 		// Check for unexpected leaps in the Win32 performance counter.  
 		// (This is caused by unexpected data across the PCI to ISA 
 		// bridge, aka south bridge.  See Microsoft KB274323.)
-		unsigned long elapsedTicks = GetTickCount() - m_data->mStartTick;
-		signed long msecOff = (signed long)(msecTicks - elapsedTicks);
+		unsigned long long elapsedTicks = GetTickCount() - m_data->mStartTick;
+		signed long long msecOff = (signed long)(msecTicks - elapsedTicks);
 		if (msecOff < -100 || msecOff > 100)
 		{
 			// Adjust the starting time forwards.
@@ -197,7 +198,7 @@ unsigned long int b3Clock::getTimeMicroseconds()
 		m_data->mPrevElapsedTime = elapsedTime;
 
 		// Convert to microseconds.
-		unsigned long usecTicks = (unsigned long)(1000000 * elapsedTime / 
+		unsigned long long usecTicks = (unsigned long)(1000000 * elapsedTime / 
 			m_data->mClockFrequency.QuadPart);
 
 		return usecTicks;
@@ -222,3 +223,26 @@ unsigned long int b3Clock::getTimeMicroseconds()
 #endif 
 }
 
+double b3Clock::getTimeInSeconds()
+{
+	return double(getTimeMicroseconds()/1.e6);
+}
+
+void b3Clock::usleep(int microSeconds)
+{
+#ifdef _WIN32
+	int millis = microSeconds/1000;
+	if (millis < 1)
+	{
+		millis = 1;
+	}
+	Sleep(millis);
+#else
+
+    ::usleep(microSeconds); 
+	//struct timeval tv;
+	//tv.tv_sec = microSeconds/1000000L;
+	//tv.tv_usec = microSeconds%1000000L;
+	//return select(0, 0, 0, 0, &tv);
+#endif
+}

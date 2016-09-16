@@ -6,12 +6,11 @@
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
-#include "../CommonInterfaces/CommonGUIHelperInterface.h"
-#include "../Importers/ImportURDFDemo/BulletUrdfImporter.h"
-#include "../Importers/ImportURDFDemo/URDF2Bullet.h"
-#include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
-#include "../Importers/ImportURDFDemo/URDF2Bullet.h"
-
+#include "../../examples/CommonInterfaces/CommonGUIHelperInterface.h"
+#include "../../examples/Importers/ImportURDFDemo/BulletUrdfImporter.h"
+#include "../../examples/Importers/ImportURDFDemo/URDF2Bullet.h"
+#include "../../examples/Importers/ImportURDFDemo/MyMultiBodyCreator.h"
+#include "../../examples/Importers/ImportURDFDemo/URDF2Bullet.h"
 
 /// Create a btMultiBody model from URDF.
 /// This is adapted from Bullet URDF loader example
@@ -45,8 +44,7 @@ public:
     void init() {
         this->createEmptyDynamicsWorld();
         m_dynamicsWorld->setGravity(m_gravity);
-		
-        BulletURDFImporter urdf_importer(&m_nogfx, 0);
+        BulletURDFImporter urdf_importer(&m_nogfx,0);
         URDFImporterInterface &u2b(urdf_importer);
         bool loadOk = u2b.loadURDF(m_filename.c_str(), m_base_fixed);
 

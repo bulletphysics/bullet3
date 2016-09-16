@@ -1,0 +1,35 @@
+<sdf version='1.6'>
+  <world name='default'>
+    <model name='unit_box_0'>
+      <pose frame=''>0 0 0.107 0 0 0</pose>
+      <link name='unit_box_0::link'>
+        <inertial>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>1.0</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>1.0</iyy>
+            <iyz>0</iyz>
+            <izz>1.0</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <box>
+              <size>0.05 0.05 0.05</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+          <mesh>
+            <scale>0.05 0.05 0.05</scale>
+            <uri>cube.obj</uri>
+          </mesh>
+        </geometry>
+        </visual>
+      </link>
+    </model>
+  </world>
+</sdf>

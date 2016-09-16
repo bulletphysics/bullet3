@@ -23,6 +23,7 @@ struct TinyRendererSetupInternalData
 	
 	TGAImage m_rgbColorBuffer;
 	b3AlignedObjectArray<float> m_depthBuffer;
+	b3AlignedObjectArray<int> m_segmentationMaskBuffer;
 
 
 	int m_width;
@@ -52,6 +53,7 @@ struct TinyRendererSetupInternalData
 		m_animateRenderer(0)
 	{
 		m_depthBuffer.resize(m_width*m_height);
+//        m_segmentationMaskBuffer.resize(m_width*m_height);
 
     }
 	void updateTransforms()
@@ -147,7 +149,9 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 	m_internalData = new TinyRendererSetupInternalData(gui->getAppInterface()->m_window->getWidth(),gui->getAppInterface()->m_window->getHeight());
 	
 	m_app->m_renderer->enableBlend(true);
-	const char* fileName = "teddy.obj";//cube.obj";//textured_sphere_smooth.obj";//cube.obj";
+    
+	const char* fileName = "textured_sphere_smooth.obj";
+    fileName = "cube.obj";
 	
 
 	{
@@ -181,18 +185,25 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 				m_guiHelper->getRenderInterface()->writeTransforms();
 
 				m_internalData->m_shapePtr.push_back(0);
-				TinyRenderObjectData* ob = new TinyRenderObjectData(m_internalData->m_width,m_internalData->m_height,
+				TinyRenderObjectData* ob = new TinyRenderObjectData(
 					m_internalData->m_rgbColorBuffer,
-					m_internalData->m_depthBuffer);
-					//ob->loadModel("cube.obj");
+					m_internalData->m_depthBuffer,
+					&m_internalData->m_segmentationMaskBuffer,
+					m_internalData->m_renderObjects.size());
+                
+                meshData.m_gfxShape->m_scaling[0] = scaling[0];
+                meshData.m_gfxShape->m_scaling[1] = scaling[1];
+                meshData.m_gfxShape->m_scaling[2] = scaling[2];
+                
 				const int* indices = &meshData.m_gfxShape->m_indices->at(0);
 					ob->registerMeshShape(&meshData.m_gfxShape->m_vertices->at(0).xyzw[0],
 						meshData.m_gfxShape->m_numvertices,
 						indices,
 						meshData.m_gfxShape->m_numIndices,color, meshData.m_textureImage,meshData.m_textureWidth,meshData.m_textureHeight);
+                
+                ob->m_localScaling.setValue(scaling[0],scaling[1],scaling[2]);
 						
-						
-					m_internalData->m_renderObjects.push_back(ob);
+                m_internalData->m_renderObjects.push_back(ob);
 
 
 

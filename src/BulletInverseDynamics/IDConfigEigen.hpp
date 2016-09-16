@@ -21,20 +21,7 @@ struct idArray {
 typedef std::vector<int>::size_type idArrayIdx;
 // default to standard malloc/free
 #include <cstdlib>
-#define idMalloc ::malloc
-
-#define idFree ::free
-// currently not aligned at all...
-#define ID_DECLARE_ALIGNED_ALLOCATOR()															 \
-	inline void* operator new(std::size_t sizeInBytes) { return idMalloc(sizeInBytes); }		   \
-	inline void operator delete(void* ptr) { idFree(ptr); }										\
-	inline void* operator new(std::size_t, void* ptr) { return ptr; }							  \
-	inline void operator delete(void*, void*) {}												   \
-	inline void* operator new[](std::size_t sizeInBytes) { return idMalloc(sizeInBytes); }		 \
-	inline void operator delete[](void* ptr) { idFree(ptr); }									  \
-	inline void* operator new[](std::size_t, void* ptr) { return ptr; }							\
-	inline void operator delete[](void*, void*) {}
-
+#define ID_DECLARE_ALIGNED_ALLOCATOR() EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 // Note on interfaces:
 // Eigen::Matrix has data(), to get c-array storage
 // HOWEVER: default storage is column-major!

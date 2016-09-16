@@ -47,20 +47,20 @@ IF (BUILD_SHARED_LIBS)
 		IF (WIN32)
                 TARGET_LINK_LIBRARIES(
                         BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
-                        BulletInverseDynamics LinearMath OpenGLWindow gwen
+                        BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK
                         ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
                 )
 		ELSE(WIN32)
         IF(APPLE)
                  TARGET_LINK_LIBRARIES(
                                 BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
-                                BulletInverseDynamics LinearMath OpenGLWindow gwen
+                                BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK
                                 ${COCOA} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
                  )
   			ELSE(APPLE)
                  TARGET_LINK_LIBRARIES(
                                 BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
-                                BulletInverseDynamics LinearMath OpenGLWindow gwen
+                                BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK
                                 pthread dl
                         )
         ENDIF(APPLE)
@@ -81,7 +81,7 @@ INCLUDE_DIRECTORIES(
 
 
 LINK_LIBRARIES(
-        BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen
+        BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK
 )
 
 IF (WIN32)
@@ -114,7 +114,10 @@ SET(ExtendedTutorialsSources
 	../ExtendedTutorials/SimpleCloth.cpp
 	../ExtendedTutorials/Chain.cpp 
 	../ExtendedTutorials/Bridge.cpp 
-	../ExtendedTutorials/RigidBodyFromObj.cpp 
+	../ExtendedTutorials/RigidBodyFromObj.cpp
+	../ExtendedTutorials/InclinedPlane.cpp
+	../ExtendedTutorials/InclinedPlane.h
+	../ExtendedTutorials/NewtonsCradle.cpp
 )
 
 SET(BulletExampleBrowser_SRCS
@@ -126,6 +129,8 @@ SET(BulletExampleBrowser_SRCS
 	../TinyRenderer/TinyRenderer.cpp
 	../SharedMemory/TinyRendererVisualShapeConverter.cpp
 	../SharedMemory/TinyRendererVisualShapeConverter.h
+	../SharedMemory/IKTrajectoryHelper.cpp
+	../SharedMemory/IKTrajectoryHelper.h
 	../RenderingExamples/TinyRendererSetup.cpp
 	../SharedMemory/PhysicsServer.cpp
 	../SharedMemory/PhysicsClientSharedMemory.cpp
@@ -152,6 +157,8 @@ SET(BulletExampleBrowser_SRCS
 	../BasicDemo/BasicExample.h
 	../InverseDynamics/InverseDynamicsExample.cpp
 	../InverseDynamics/InverseDynamicsExample.h
+	../InverseKinematics/InverseKinematicsExample.cpp
+	../InverseKinematics/InverseKinematicsExample.h
 	../ForkLift/ForkLiftDemo.cpp
 	../ForkLift/ForkLiftDemo.h
 	../Tutorial/Tutorial.cpp
@@ -166,6 +173,14 @@ SET(BulletExampleBrowser_SRCS
 	../ExtendedTutorials/SimpleCloth.h
 	../ExtendedTutorials/SimpleJoint.cpp
 	../ExtendedTutorials/SimpleJoint.h
+	../ExtendedTutorials/NewtonsCradle.cpp
+	../ExtendedTutorials/NewtonsCradle.h
+	../ExtendedTutorials/NewtonsRopeCradle.cpp
+	../ExtendedTutorials/NewtonsRopeCradle.h
+	../ExtendedTutorials/InclinedPlane.cpp
+	../ExtendedTutorials/InclinedPlane.h
+	../ExtendedTutorials/MultiPendulum.cpp
+	../ExtendedTutorials/MultiPendulum.h
 	../ExtendedTutorials/TimeWarp.cpp
 	../ExtendedTutorials/TimeWarp.h
 	../ExtendedTutorials/BulletUtils.hpp
@@ -200,7 +215,14 @@ SET(BulletExampleBrowser_SRCS
 	../RenderingExamples/TimeSeriesCanvas.h
 	../RenderingExamples/TimeSeriesFontData.cpp
 	../RenderingExamples/TimeSeriesFontData.h
-
+	../RoboticsLearning/GripperGraspExample.cpp
+	../RoboticsLearning/GripperGraspExample.h
+	../RoboticsLearning/b3RobotSimAPI.cpp
+	../RoboticsLearning/b3RobotSimAPI.h
+	../RoboticsLearning/R2D2GraspExample.cpp
+	../RoboticsLearning/R2D2GraspExample.h
+	../RoboticsLearning/KukaGraspExample.cpp
+	../RoboticsLearning/KukaGraspExample.h
 	../RenderingExamples/CoordinateSystemDemo.cpp
 	../RenderingExamples/CoordinateSystemDemo.h
 	../RenderingExamples/RaytracerSetup.cpp
@@ -287,7 +309,7 @@ SET(BulletExampleBrowser_SRCS
 
 	../ThirdPartyLibs/stb_image/stb_image.cpp
 	../ThirdPartyLibs/stb_image/stb_image.h
-
+	
 	../ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
 	../ThirdPartyLibs/tinyxml/tinystr.cpp
 	../ThirdPartyLibs/tinyxml/tinyxml.cpp

@@ -13,6 +13,7 @@
 
 MyMultiBodyCreator::MyMultiBodyCreator(GUIHelperInterface* guiHelper)
 	:m_bulletMultiBody(0),
+	m_rigidBody(0),
 m_guiHelper(guiHelper)
 {
 }
@@ -31,10 +32,10 @@ class btRigidBody* MyMultiBodyCreator::allocateRigidBody(int urdfLinkIndex, btSc
 {
     btRigidBody::btRigidBodyConstructionInfo rbci(mass, 0, colShape, localInertiaDiagonal);
     rbci.m_startWorldTransform = initialWorldTrans;
-    btRigidBody* body = new btRigidBody(rbci);
-	body->forceActivationState(DISABLE_DEACTIVATION);
+    m_rigidBody = new btRigidBody(rbci);
+	m_rigidBody->forceActivationState(DISABLE_DEACTIVATION);
 	
-    return body;
+    return m_rigidBody;
 }
     
 class btMultiBodyLinkCollider* MyMultiBodyCreator::allocateMultiBodyLinkCollider(int /*urdfLinkIndex*/, int mbLinkIndex, btMultiBody* multiBody) 

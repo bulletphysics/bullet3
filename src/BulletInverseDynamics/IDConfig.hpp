@@ -2,8 +2,17 @@
 ///	  such as choice of linear algebra library and underlying scalar type
 #ifndef IDCONFIG_HPP_
 #define IDCONFIG_HPP_
+
+// If true, enable jacobian calculations.
+// This adds a 3xN matrix to every body, + 2 3-Vectors.
+// so it is not advised for large systems if it is not absolutely necessary.
+// Also, this is not required for standard inverse dynamics calculations.
+// Will only work with vector math libraries that support 3xN matrices.
+#define BT_ID_WITH_JACOBIANS
+
 // If we have a custom configuration, compile without using other parts of bullet.
 #ifdef BT_CUSTOM_INVERSE_DYNAMICS_CONFIG_H
+#include <cmath>
 #define BT_ID_WO_BULLET
 #define BT_ID_POW(a,b) std::pow(a,b)
 #define BT_ID_SNPRINTF snprintf
@@ -22,10 +31,14 @@
 #include "IDErrorMessages.hpp"
 
 #ifdef BT_CUSTOM_INVERSE_DYNAMICS_CONFIG_H
+/*
+#include "IDConfigEigen.hpp"
+#include "IDConfigBuiltin.hpp"
+*/
 #define INVDYN_INCLUDE_HELPER_2(x) #x
 #define INVDYN_INCLUDE_HELPER(x) INVDYN_INCLUDE_HELPER_2(x)
 #include INVDYN_INCLUDE_HELPER(BT_CUSTOM_INVERSE_DYNAMICS_CONFIG_H)
-#ifndef btInverseDynamics 
+#ifndef btInverseDynamics
 #error "custom inverse dynamics config, but no custom namespace defined"
 #endif
 

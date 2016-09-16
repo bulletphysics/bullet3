@@ -78,7 +78,6 @@ PhysicsServerSharedMemory::PhysicsServerSharedMemory(SharedMemoryInterface* shar
 	}
 
 	m_data->m_commandProcessor = new PhysicsServerCommandProcessor;
-	m_data->m_commandProcessor ->createEmptyDynamicsWorld();
 
 
 }
@@ -90,6 +89,11 @@ PhysicsServerSharedMemory::~PhysicsServerSharedMemory()
 	delete m_data;
 }
 
+void PhysicsServerSharedMemory::resetDynamicsWorld()
+{
+	m_data->m_commandProcessor->deleteDynamicsWorld();
+	m_data->m_commandProcessor ->createEmptyDynamicsWorld();
+}
 void PhysicsServerSharedMemory::setSharedMemoryKey(int key)
 {
 	m_data->m_sharedMemoryKey = key;
@@ -232,8 +236,10 @@ void PhysicsServerSharedMemory::releaseSharedMemory()
 }
 
 
-
-
+void PhysicsServerSharedMemory::stepSimulationRealTime(double dtInSec)
+{
+	m_data->m_commandProcessor->stepSimulationRealTime(dtInSec);
+}
 
 
 void PhysicsServerSharedMemory::processClientCommands()

@@ -45,6 +45,10 @@
 #include "../Tutorial/Dof6ConstraintTutorial.h"
 #include "../MultiThreading/MultiThreadingExample.h"
 #include "../InverseDynamics/InverseDynamicsExample.h"
+#include "../RoboticsLearning/R2D2GraspExample.h"
+#include "../RoboticsLearning/KukaGraspExample.h"
+#include "../RoboticsLearning/GripperGraspExample.h"
+#include "../InverseKinematics/InverseKinematicsExample.h"
 #ifdef ENABLE_LUA
 #include "../LuaDemo/LuaPhysicsSetup.h"
 #endif
@@ -56,19 +60,19 @@
 #endif
 #endif //B3_USE_CLEW
 
-//Extended Tutorial Includes Added by Mobeen
+//Extended Tutorial Includes Added by Mobeen and Benelot
 #include "../ExtendedTutorials/SimpleBox.h"
 #include "../ExtendedTutorials/MultipleBoxes.h"
 #include "../ExtendedTutorials/SimpleJoint.h"
 #include "../ExtendedTutorials/SimpleCloth.h"
 #include "../ExtendedTutorials/Chain.h"
 #include "../ExtendedTutorials/Bridge.h"
-<<<<<<< HEAD
-#include "../ExtendedTutorials/RigidBodyFromObj.h" 
 #include "../ExtendedTutorials/TimeWarp.h"
-=======
 #include "../ExtendedTutorials/RigidBodyFromObj.h"
->>>>>>> upstream/master
+#include "../ExtendedTutorials/InclinedPlane.h"
+#include "../ExtendedTutorials/NewtonsCradle.h"
+#include "../ExtendedTutorials/NewtonsRopeCradle.h"
+#include "../ExtendedTutorials/MultiPendulum.h"
 
 struct ExampleEntry
 {
@@ -98,7 +102,6 @@ static ExampleEntry gDefaultExamples[]=
 
 	ExampleEntry(1,"Basic Example","Create some rigid bodies using box collision shapes. This is a good example to familiarize with the basic initialization of Bullet. The Basic Example can also be compiled without graphical user interface, as a console application. Press W for wireframe, A to show AABBs, I to suspend/restart physics simulation. Press D to toggle auto-deactivation of the simulation. ", BasicExampleCreateFunc),
 
-
 	ExampleEntry(1,"Rolling Friction", "Damping is often not good enough to keep rounded objects from rolling down a sloped surface. Instead, you can set the rolling friction of a rigid body. Generally it is best to leave the rolling friction to zero, to avoid artifacts.", RollingFrictionCreateFunc),
 
 	ExampleEntry(1,"Constraints","Show the use of the various constraints in Bullet. Press the L key to visualize the constraint limits. Press the C key to visualize the constraint frames.",
@@ -118,21 +121,30 @@ static ExampleEntry gDefaultExamples[]=
 
 	ExampleEntry(1,"Soft Contact", "Using the error correction parameter (ERP) and constraint force mixing (CFM) values for contacts to simulate compliant contact.",RigidBodySoftContactCreateFunc),
 
-
-
 	ExampleEntry(0,"MultiBody"),
 	ExampleEntry(1,"MultiDofCreateFunc","Create a basic btMultiBody with 3-DOF spherical joints (mobilizers). The demo uses a fixed base or a floating base at restart.", MultiDofCreateFunc),
 	ExampleEntry(1,"TestJointTorque","Apply a torque to a btMultiBody with 1-DOF joints (mobilizers). This setup is similar to API/TestHingeTorque.", TestJointTorqueCreateFunc),
 	ExampleEntry(1,"TestPendulum","Simulate a pendulum using btMultiBody with a constant joint torque applied. The same code is also used as a unit test comparing Bullet with the numerical solution of second-order non-linear differential equation stored in pendulum_gold.h", TestPendulumCreateFunc),
 
- ExampleEntry(1,"Constraint Feedback", "The example shows how to receive joint reaction forces in a btMultiBody. Also the applied impulse is available for a btMultiBodyJointMotor", MultiBodyConstraintFeedbackCreateFunc),
+	ExampleEntry(1,"Constraint Feedback", "The example shows how to receive joint reaction forces in a btMultiBody. Also the applied impulse is available for a btMultiBodyJointMotor", MultiBodyConstraintFeedbackCreateFunc),
 	ExampleEntry(1,"Inverted Pendulum PD","Keep an inverted pendulum up using open loop PD control", InvertedPendulumPDControlCreateFunc),
-	  ExampleEntry(1,"MultiBody Soft Contact", "Using the error correction parameter (ERP) and constraint force mixing (CFM) values for contacts to simulate compliant contact.",MultiBodySoftContactCreateFunc,0),
+	ExampleEntry(1,"MultiBody Soft Contact", "Using the error correction parameter (ERP) and constraint force mixing (CFM) values for contacts to simulate compliant contact.",MultiBodySoftContactCreateFunc,0),
 
 
-	 ExampleEntry(0,"Inverse Dynamics"),
-      ExampleEntry(1,"Inverse Dynamics URDF", "Create a btMultiBody from URDF. Create an inverse MultiBodyTree model from that. Use either decoupled PD control or computed torque control using the inverse model to track joint position targets", InverseDynamicsExampleCreateFunc,BT_ID_LOAD_URDF),
-      ExampleEntry(1,"Inverse Dynamics Prog", "Create a btMultiBody programatically. Create an inverse MultiBodyTree model from that. Use either decoupled PD control or computed torque control using the inverse model to track joint position targets", InverseDynamicsExampleCreateFunc,BT_ID_PROGRAMMATICALLY),
+	ExampleEntry(0,"Inverse Dynamics"),
+    ExampleEntry(1,"Inverse Dynamics URDF", "Create a btMultiBody from URDF. Create an inverse MultiBodyTree model from that. Use either decoupled PD control or computed torque control using the inverse model to track joint position targets", InverseDynamicsExampleCreateFunc,BT_ID_LOAD_URDF),
+    ExampleEntry(1,"Inverse Dynamics Prog", "Create a btMultiBody programatically. Create an inverse MultiBodyTree model from that. Use either decoupled PD control or computed torque control using the inverse model to track joint position targets", InverseDynamicsExampleCreateFunc,BT_ID_PROGRAMMATICALLY),
+
+	ExampleEntry(0, "Inverse Kinematics"),
+	ExampleEntry(1, "SDLS", "Selectively Damped Least Squares by Sam Buss. Example configures the IK tree of a Kuka IIWA", InverseKinematicsExampleCreateFunc, IK_SDLS),
+	ExampleEntry(1, "DLS", "Damped Least Squares by Sam Buss. Example configures the IK tree of a Kuka IIWA", InverseKinematicsExampleCreateFunc, IK_DLS),
+    ExampleEntry(1, "DLS-SVD", "Damped Least Squares with Singular Value Decomposition by Sam Buss. Example configures the IK tree of a Kuka IIWA", InverseKinematicsExampleCreateFunc, IK_DLS_SVD),
+
+    
+    
+	ExampleEntry(1, "Jacobi Transpose", "Jacobi Transpose by Sam Buss. Example configures the IK tree of a Kuka IIWA", InverseKinematicsExampleCreateFunc, IK_JACOB_TRANS),
+	ExampleEntry(1, "Jacobi Pseudo Inv", "Jacobi Pseudo Inverse Method by Sam Buss. Example configures the IK tree of a Kuka IIWA", InverseKinematicsExampleCreateFunc, IK_PURE_PSEUDO),
+
 
 	ExampleEntry(0,"Tutorial"),
 	ExampleEntry(1,"Constant Velocity","Free moving rigid body, without external or constraint forces", TutorialCreateFunc,TUT_VELOCITY),
@@ -188,7 +200,7 @@ static ExampleEntry gDefaultExamples[]=
 #endif //INCLUDE_CLOTH_DEMOS
 
 	///we disable the benchmarks in debug mode, they are way too slow and benchmarking in debug mode is not recommended
-#ifndef _DEBUG
+//#ifndef _DEBUG
 	ExampleEntry(0,"Benchmarks"),
 	ExampleEntry(1,"3000 boxes", "Benchmark a stack of 3000 boxes. It will stress the collision detection, a specialized box-box implementation based on the separating axis test, and the constraint solver. ", BenchmarkCreateFunc, 1),
 	ExampleEntry(1,"1000 stack", "Benchmark a stack of 3000 boxes. It will stress the collision detection, a specialized box-box implementation based on the separating axis test, and the constraint solver. ",
@@ -198,7 +210,7 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Prim vs Mesh", "Benchmark the performance and stability of rigid bodies using primitive collision shapes (btSphereShape, btBoxShape), resting on a triangle mesh, btBvhTriangleMeshShape.", BenchmarkCreateFunc, 5),
 	ExampleEntry(1,"Convex vs Mesh", "Benchmark the performance and stability of rigid bodies using convex hull collision shapes (btConvexHullShape), resting on a triangle mesh, btBvhTriangleMeshShape.", BenchmarkCreateFunc, 6),
 	ExampleEntry(1,"Raycast", "Benchmark the performance of the btCollisionWorld::rayTest. Note that currently the rays are not rendered.", BenchmarkCreateFunc, 7),
-#endif
+//#endif
 
 
 
@@ -245,8 +257,16 @@ static ExampleEntry gDefaultExamples[]=
 			PhysicsServerCreateFunc,PHYSICS_SERVER_ENABLE_COMMAND_LOGGING),
 	ExampleEntry(1,"Physics Server (Replay Log)", "Create a physics server that replay a command log from disk.",
 			PhysicsServerCreateFunc,PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG),
+	ExampleEntry(1, "Physics Client (Shared Mem)", "Create a physics client that can communicate with a physics server over shared memory.", PhysicsClientCreateFunc),
+	ExampleEntry(1, "Physics Client (Direct)", "Create a physics client that can communicate with a physics server directly in-process.", PhysicsClientCreateFunc,eCLIENTEXAMPLE_DIRECT),
 
-	ExampleEntry(1, "Physics Client", "Create a physics client that can communicate with a physics server over shared memory", PhysicsClientCreateFunc),
+	ExampleEntry(1,"R2D2 Grasp","Load the R2D2 robot from URDF file and control it to grasp objects", R2D2GraspExampleCreateFunc, eROBOTIC_LEARN_GRASP),
+	ExampleEntry(1,"Kuka IK","Control a Kuka IIWA robot to follow a target using IK. This IK is not setup properly yet.", KukaGraspExampleCreateFunc,0),
+	ExampleEntry(1,"URDF Compliant Contact","Work-in-progress, experiment/improve compliant rigid contact using parameters from URDF file (contact_cfm, contact_erp, lateral_friction, rolling_friction)", R2D2GraspExampleCreateFunc,eROBOTIC_LEARN_COMPLIANT_CONTACT),
+    ExampleEntry(1,"Rolling friction","Experiment on multibody rolling friction", R2D2GraspExampleCreateFunc,eROBOTIC_LEARN_ROLLING_FRICTION),
+    ExampleEntry(1,"Gripper Grasp","Grasp experiment with a gripper to improve contact model", GripperGraspExampleCreateFunc,eGRIPPER_GRASP),
+    ExampleEntry(1,"Two Point Grasp","Grasp experiment with two point contact to test rolling friction", GripperGraspExampleCreateFunc, eTWO_POINT_GRASP),
+	
 
 
 #ifdef ENABLE_LUA
@@ -271,14 +291,19 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Time Series", "Render some value(s) in a 2D graph window, shifting to the left", TimeSeriesCreateFunc),
 	ExampleEntry(1,"TinyRenderer", "Very small software renderer.", TinyRendererCreateFunc),
 
-	//Extended Tutorials Added by Mobeen
+	//Extended Tutorials Added by Mobeen and Benelot
 	ExampleEntry(0,"Extended Tutorials"),
 	ExampleEntry(1,"Simple Box", "Simplest possible demo creating a single box rigid body that falls under gravity", ET_SimpleBoxCreateFunc),
-	ExampleEntry(1,"Multiple Boxes", "Adding multiple box rigid bodies that fall under gravity", ET_MultipleBoxesCreateFunc),
-	ExampleEntry(1,"Simple Joint", "Creating a single distance constraint between two box rigid bodies", ET_SimpleJointCreateFunc),
-	ExampleEntry(1,"Simple Cloth", "Creating a simple piece of cloth", ET_SimpleClothCreateFunc),
-	ExampleEntry(1,"Simple Chain", "Creating a simple chain using a pair of point2point/distance constraints. You may click and drag any box to see the chain respond.", ET_ChainCreateFunc),
-	ExampleEntry(1,"Simple Bridge", "Creating a simple bridge using a pair of point2point/distance constraints. You may click and drag any plank to see the bridge respond.", ET_BridgeCreateFunc),
+	ExampleEntry(1,"Multiple Boxes", "Add multiple box rigid bodies that fall under gravity", ET_MultipleBoxesCreateFunc),
+	ExampleEntry(1,"Simple Joint", "Create a single distance constraint between two box rigid bodies", ET_SimpleJointCreateFunc),
+	ExampleEntry(1,"Simple Cloth", "Create a simple piece of cloth", ET_SimpleClothCreateFunc),
+	ExampleEntry(1,"Simple Chain", "Create a simple chain using a pair of point2point/distance constraints. You may click and drag any box to see the chain respond.", ET_ChainCreateFunc),
+	ExampleEntry(1,"Simple Bridge", "Create a simple bridge using a pair of point2point/distance constraints. You may click and drag any plank to see the bridge respond.", ET_BridgeCreateFunc),
+	ExampleEntry(1,"Inclined Plane", "Create an inclined plane to show restitution and different types of friction. Use the sliders to vary restitution and friction and press space to reset the scene.", ET_InclinedPlaneCreateFunc),
+	ExampleEntry(1,"Newton's Cradle", "Create a Newton's Cradle using a pair of point2point/slider constraints. Press 1/2 to lengthen/shorten the pendula, press 3 to displace pendula. Use the sliders to select the number (reset simulation), length and restitution of pendula, the number of displaced pendula and apply the displacement force.", ET_NewtonsCradleCreateFunc),
+	ExampleEntry(1,"Newton's Rope Cradle", "Create a Newton's Cradle using ropes. Press 3 to displace pendula. Use the sliders to select the number (reset simulation), length and restitution of pendula and the number of displaced pendula and apply the displacement force.",ET_NewtonsRopeCradleCreateFunc),
+	ExampleEntry(1,"Multi-Pendulum", "Create a Multi-Pendulum using point2point/slider constraints. Press 1/2 to lengthen/shorten the pendula, press 3 to displace pendula. Use the sliders to select the number (reset simulation), length and restitution of pendula, the number of displaced pendula and apply the displacement force.",ET_MultiPendulumCreateFunc),
+
 	ExampleEntry(1,"Time Warp", "Implement the canonical game loop to run a simulation fully deterministic. Control the simulation speed, internal Application Ticks, Physics steps per second, FPS, and learn about ERP/CFM. Use the buttons to trigger problematic settings and see how it influences the simulation. Press space to reset the simulation, hit 'Back to normal' to reset the settings.",ET_TimeWarpCreateFunc),
 
 	//todo: create a category/tutorial about advanced topics, such as optimizations, using different collision detection algorithm, different constraint solvers etc.

@@ -66,9 +66,9 @@ struct CommonGraphicsApp
 		m_mouseYpos(0.f),
 		m_mouseInitialized(false)
 	{
-		m_backgroundColorRGB[0] = 0.9;
-		m_backgroundColorRGB[1] = 0.9;
-		m_backgroundColorRGB[2] = 1;
+		m_backgroundColorRGB[0] = 0.7;
+		m_backgroundColorRGB[1] = 0.7;
+		m_backgroundColorRGB[2] = 0.8;
 	}
 	virtual ~CommonGraphicsApp()
 	{
@@ -77,7 +77,7 @@ struct CommonGraphicsApp
 	virtual void dumpNextFrameToPng(const char* pngFilename){}
     virtual void dumpFramesToVideo(const char* mp4Filename){}
     
-    virtual void getScreenPixels(unsigned char* rgbaBuffer, int bufferSizeInBytes){};
+    virtual void getScreenPixels(unsigned char* rgbaBuffer, int bufferSizeInBytes, float* depthBuffer, int depthBufferSizeInBytes){}
     
 	virtual void getBackgroundColor(float* red, float* green, float* blue) const
 	{

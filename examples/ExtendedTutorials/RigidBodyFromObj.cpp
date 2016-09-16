@@ -134,7 +134,8 @@ void RigidBodyFromObjExample::initPhysics()
 		int shapeId = m_guiHelper->registerGraphicsShape(&glmesh->m_vertices->at(0).xyzw[0], 
 																		glmesh->m_numvertices, 
 																		&glmesh->m_indices->at(0), 
-																		glmesh->m_numIndices);
+																		glmesh->m_numIndices,
+																		B3_GL_TRIANGLES, -1);
 		shape->setUserIndex(shapeId);
 		int renderInstance = m_guiHelper->registerGraphicsInstance(shapeId,pos,orn,color,scaling);
 		body->setUserIndex(renderInstance);

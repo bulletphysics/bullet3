@@ -5,7 +5,8 @@
 
 enum EnumSharedMemoryClientCommand
 {
-    CMD_LOAD_URDF,
+    CMD_LOAD_SDF,
+	CMD_LOAD_URDF,
         CMD_SEND_BULLET_DATA_STREAM,
         CMD_CREATE_BOX_COLLISION_SHAPE,
 //      CMD_DELETE_BOX_COLLISION_SHAPE,
@@ -18,13 +19,22 @@ enum EnumSharedMemoryClientCommand
         CMD_SEND_DESIRED_STATE,//todo: reconsider naming, for example SET_JOINT_CONTROL_VARIABLE?
         CMD_REQUEST_ACTUAL_STATE,
         CMD_REQUEST_DEBUG_LINES,
+    CMD_REQUEST_BODY_INFO,
     CMD_STEP_FORWARD_SIMULATION,
     CMD_RESET_SIMULATION,
     CMD_PICK_BODY,
     CMD_MOVE_PICKED_BODY,
     CMD_REMOVE_PICKING_CONSTRAINT_BODY,
     CMD_REQUEST_CAMERA_IMAGE_DATA,
-    CMD_MAX_CLIENT_COMMANDS
+    CMD_APPLY_EXTERNAL_FORCE,
+	CMD_CALCULATE_INVERSE_DYNAMICS,
+    CMD_CALCULATE_INVERSE_KINEMATICS,
+    CMD_CALCULATE_JACOBIAN,
+    CMD_CREATE_JOINT,
+    CMD_REQUEST_CONTACT_POINT_INFORMATION,
+    //don't go beyond this command!
+    CMD_MAX_CLIENT_COMMANDS,
+    
 };
 
 enum EnumSharedMemoryServerStatus
@@ -35,7 +45,8 @@ enum EnumSharedMemoryServerStatus
         CMD_CLIENT_COMMAND_COMPLETED,
         //the server will skip unknown command and report a status 'CMD_UNKNOWN_COMMAND_FLUSHED'
         CMD_UNKNOWN_COMMAND_FLUSHED,
-
+		CMD_SDF_LOADING_COMPLETED,
+        CMD_SDF_LOADING_FAILED,
         CMD_URDF_LOADING_COMPLETED,
         CMD_URDF_LOADING_FAILED,
         CMD_BULLET_DATA_STREAM_RECEIVED_COMPLETED,
@@ -52,7 +63,17 @@ enum EnumSharedMemoryServerStatus
         CMD_RESET_SIMULATION_COMPLETED,
         CMD_CAMERA_IMAGE_COMPLETED,
         CMD_CAMERA_IMAGE_FAILED,
+        CMD_BODY_INFO_COMPLETED,
+        CMD_BODY_INFO_FAILED,
 		CMD_INVALID_STATUS,
+		CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED,
+		CMD_CALCULATED_INVERSE_DYNAMICS_FAILED,
+        CMD_CALCULATED_JACOBIAN_COMPLETED,
+        CMD_CALCULATED_JACOBIAN_FAILED,
+		CMD_CONTACT_POINT_INFORMATION_COMPLETED,
+		CMD_CONTACT_POINT_INFORMATION_FAILED,
+		CMD_CALCULATE_INVERSE_KINEMATICS_COMPLETED,
+		CMD_CALCULATE_INVERSE_KINEMATICS_FAILED,
         CMD_MAX_SERVER_COMMANDS
 };
 
@@ -90,6 +111,9 @@ struct b3JointInfo
         int m_flags;
 		double m_jointDamping;
 		double m_jointFriction;
+    double m_parentFrame[7]; // position and orientation (quaternion)
+    double m_childFrame[7]; // ^^^
+    double m_jointAxis[3]; // joint axis in parent local frame
 };
 
 struct b3JointSensorState
@@ -114,6 +138,39 @@ struct b3CameraImageData
 	int m_pixelHeight;
 	const unsigned char* m_rgbColorData;//3*m_pixelWidth*m_pixelHeight bytes
 	const float* m_depthValues;//m_pixelWidth*m_pixelHeight floats
+	const int* m_segmentationMaskValues;//m_pixelWidth*m_pixelHeight ints
+};
+
+
+struct b3ContactPointData
+{
+//todo: expose some contact flags, such as telling which fields below are valid
+    int m_contactFlags;
+    int m_bodyUniqueIdA;
+    int m_bodyUniqueIdB;
+    int m_linkIndexA;
+    int m_linkIndexB;
+    double m_positionOnAInWS[3];//contact point location on object A, in world space coordinates
+    double m_positionOnBInWS[3];//contact point location on object A, in world space coordinates
+    double m_contactNormalOnBInWS[3];//the separating contact normal, pointing from object B towards object A
+    double m_contactDistance;//negative number is penetration, positive is distance.
+    
+    double m_normalForce;
+
+//todo: expose the friction forces as well
+//    double m_linearFrictionDirection0[3];
+//    double m_linearFrictionForce0;
+//    double m_linearFrictionDirection1[3];
+//    double m_linearFrictionForce1;
+//    double m_angularFrictionDirection[3];
+//    double m_angularFrictionForce;
+};
+
+
+struct b3ContactInformation
+{
+	int m_numContactPoints;
+	struct b3ContactPointData* m_contactPointData;
 };
 
 ///b3LinkState provides extra information such as the Cartesian world coordinates
@@ -138,5 +195,19 @@ enum {
     CONTROL_MODE_POSITION_VELOCITY_PD,
 };
 
+///flags for b3ApplyExternalTorque and b3ApplyExternalForce
+enum EnumExternalForceFlags
+{
+    EF_LINK_FRAME=1,
+    EF_WORLD_FRAME=2,
+};
+
+///flags to pick the renderer for synthetic camera
+enum EnumRenderer
+{
+    ER_TINY_RENDERER=(1<<16),
+    ER_BULLET_HARDWARE_OPENGL=(1<<17),
+    //ER_FIRE_RAYS=(1<<18),
+};
 
 #endif//SHARED_MEMORY_PUBLIC_H

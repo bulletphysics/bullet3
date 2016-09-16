@@ -389,18 +389,10 @@ void bDNA::init(char *data, int len, bool swap)
 		cp++;
 	}
 
+
 	
-	{
-		nr= (long)cp;
-	//long mask=3;
-		nr= ((nr+3)&~3)-nr;
-		while (nr--)
-		{
-			cp++;
-		}
-	}
-
-
+	cp = btAlignPointer(cp,4);
+	
 	/*
 		TYPE (4 bytes)
 		<nr> amount of types (int)
@@ -426,17 +418,8 @@ void bDNA::init(char *data, int len, bool swap)
 		cp++;
 	}
 
-{
-		nr= (long)cp;
-	//	long mask=3;
-		nr= ((nr+3)&~3)-nr;
-		while (nr--)
-		{
-			cp++;
-		}
-	}
-
-
+	cp = btAlignPointer(cp,4);
+	
 	/*
 		TLEN (4 bytes)
 		<len> (short) the lengths of types

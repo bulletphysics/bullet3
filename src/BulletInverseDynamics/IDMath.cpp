@@ -55,6 +55,60 @@ idScalar maxAbs(const vec3 &v) {
 	return result;
 }
 
+#if (defined BT_ID_HAVE_MAT3X)
+idScalar maxAbsMat3x(const mat3x &m) {
+    // only used for tests -- so just loop here for portability
+    idScalar result = 0.0;
+    for (idArrayIdx col = 0; col < m.cols(); col++) {
+        for (idArrayIdx row = 0; row < 3; row++) {
+            result = BT_ID_MAX(result, std::fabs(m(row, col)));
+        }
+    }
+    return result;
+}
+
+void mul(const mat33 &a, const mat3x &b, mat3x *result) {
+    if (b.cols() != result->cols()) {
+        error_message("size missmatch. a.cols()= %d, b.cols()= %d\n",
+                      static_cast<int>(b.cols()), static_cast<int>(result->cols()));
+        abort();
+    }
+
+    for (idArrayIdx col = 0; col < b.cols(); col++) {
+        const idScalar x = a(0,0)*b(0,col)+a(0,1)*b(1,col)+a(0,2)*b(2,col);
+        const idScalar y = a(1,0)*b(0,col)+a(1,1)*b(1,col)+a(1,2)*b(2,col);
+        const idScalar z = a(2,0)*b(0,col)+a(2,1)*b(1,col)+a(2,2)*b(2,col);
+        setMat3xElem(0, col, x, result);
+        setMat3xElem(1, col, y, result);
+        setMat3xElem(2, col, z, result);
+    }
+}
+void add(const mat3x &a, const mat3x &b, mat3x *result) {
+    if (a.cols() != b.cols()) {
+        error_message("size missmatch. a.cols()= %d, b.cols()= %d\n",
+                      static_cast<int>(a.cols()), static_cast<int>(b.cols()));
+        abort();
+    }
+    for (idArrayIdx col = 0; col < b.cols(); col++) {
+        for (idArrayIdx row = 0; row < 3; row++) {
+            setMat3xElem(row, col, a(row, col) + b(row, col), result);
+        }
+    }
+}
+void sub(const mat3x &a, const mat3x &b, mat3x *result) {
+    if (a.cols() != b.cols()) {
+        error_message("size missmatch. a.cols()= %d, b.cols()= %d\n",
+                      static_cast<int>(a.cols()), static_cast<int>(b.cols()));
+        abort();
+    }
+    for (idArrayIdx col = 0; col < b.cols(); col++) {
+        for (idArrayIdx row = 0; row < 3; row++) {
+            setMat3xElem(row, col, a(row, col) - b(row, col), result);
+        }
+    }
+}
+#endif
+
 mat33 transformX(const idScalar &alpha) {
 	mat33 T;
 	const idScalar cos_alpha = std::cos(alpha);

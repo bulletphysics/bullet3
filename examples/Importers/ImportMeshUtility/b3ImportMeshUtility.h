@@ -15,7 +15,6 @@ struct b3ImportMeshData
 class b3ImportMeshUtility
 {
 public:
-static int loadAndRegisterMeshFromFile(const std::string& fileName, class CommonRenderInterface* renderer);
 
 static bool loadAndRegisterMeshFromFileInternal(const std::string& fileName, b3ImportMeshData& meshData);
 

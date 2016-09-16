@@ -61,6 +61,18 @@ int MultiBodyTree::getBodyLinearAcceleration(const int body_index, vec3 *world_a
 	return m_impl->getBodyLinearAcceleration(body_index, world_acceleration);
 }
 
+int MultiBodyTree::getParentRParentBodyRef(const int body_index, vec3* r) const {
+    return m_impl->getParentRParentBodyRef(body_index, r);
+}
+
+int MultiBodyTree::getBodyTParentRef(const int body_index, mat33* T) const {
+    return m_impl->getBodyTParentRef(body_index, T);
+}
+
+int MultiBodyTree::getBodyAxisOfMotion(const int body_index, vec3* axis) const {
+    return m_impl->getBodyAxisOfMotion(body_index, axis);
+}
+
 void MultiBodyTree::printTree() { m_impl->printTree(); }
 void MultiBodyTree::printTreeData() { m_impl->printTreeData(); }
 
@@ -96,9 +108,106 @@ int MultiBodyTree::calculateMassMatrix(const vecx &q, const bool update_kinemati
 	}
 	return 0;
 }
+
 int MultiBodyTree::calculateMassMatrix(const vecx &q, matxx *mass_matrix) {
 	return calculateMassMatrix(q, true, true, true, mass_matrix);
 }
+
+
+
+int MultiBodyTree::calculateKinematics(const vecx& q, const vecx& u, const vecx& dot_u) {
+    vec3 world_gravity(m_impl->m_world_gravity);
+    // temporarily set gravity to zero, to ensure we get the actual accelerations
+    setZero(m_impl->m_world_gravity);
+
+    if (false == m_is_finalized) {
+        error_message("system has not been initialized\n");
+        return -1;
+    }
+    if (-1 == m_impl->calculateKinematics(q, u, dot_u,
+                                          MultiBodyTree::MultiBodyImpl::POSITION_VELOCITY_ACCELERATION)) {
+        error_message("error in kinematics calculation\n");
+        return -1;
+    }
+
+    m_impl->m_world_gravity=world_gravity;
+    return 0;
+}
+
+
+int MultiBodyTree::calculatePositionKinematics(const vecx& q) {
+	if (false == m_is_finalized) {
+		error_message("system has not been initialized\n");
+		return -1;
+	}
+	if (-1 == m_impl->calculateKinematics(q, q, q,
+                                              MultiBodyTree::MultiBodyImpl::POSITION_VELOCITY)) {
+		error_message("error in kinematics calculation\n");
+		return -1;
+	}
+	return 0;
+}
+
+int MultiBodyTree::calculatePositionAndVelocityKinematics(const vecx& q, const vecx& u) {
+	if (false == m_is_finalized) {
+		error_message("system has not been initialized\n");
+		return -1;
+	}
+	if (-1 == m_impl->calculateKinematics(q, u, u,
+                                              MultiBodyTree::MultiBodyImpl::POSITION_VELOCITY)) {
+		error_message("error in kinematics calculation\n");
+		return -1;
+	}
+	return 0;
+}
+
+
+#if (defined BT_ID_HAVE_MAT3X) && (defined BT_ID_WITH_JACOBIANS)
+int MultiBodyTree::calculateJacobians(const vecx& q, const vecx& u) {
+    if (false == m_is_finalized) {
+        error_message("system has not been initialized\n");
+        return -1;
+    }
+    if (-1 == m_impl->calculateJacobians(q, u,
+                                         MultiBodyTree::MultiBodyImpl::POSITION_VELOCITY)) {
+        error_message("error in jacobian calculation\n");
+        return -1;
+    }
+    return 0;
+}
+
+int MultiBodyTree::calculateJacobians(const vecx& q){
+    if (false == m_is_finalized) {
+        error_message("system has not been initialized\n");
+        return -1;
+    }
+    if (-1 == m_impl->calculateJacobians(q, q,
+                                         MultiBodyTree::MultiBodyImpl::POSITION_ONLY)) {
+        error_message("error in jacobian calculation\n");
+        return -1;
+    }
+    return 0;
+}
+
+int MultiBodyTree::getBodyDotJacobianTransU(const int body_index, vec3* world_dot_jac_trans_u) const {
+    return m_impl->getBodyDotJacobianTransU(body_index,world_dot_jac_trans_u);
+}
+
+int MultiBodyTree::getBodyDotJacobianRotU(const int body_index, vec3* world_dot_jac_rot_u) const {
+    return m_impl->getBodyDotJacobianRotU(body_index,world_dot_jac_rot_u);
+}
+
+int MultiBodyTree::getBodyJacobianTrans(const int body_index, mat3x* world_jac_trans) const {
+    return m_impl->getBodyJacobianTrans(body_index,world_jac_trans);
+}
+
+int MultiBodyTree::getBodyJacobianRot(const int body_index, mat3x* world_jac_rot) const  {
+    return m_impl->getBodyJacobianRot(body_index,world_jac_rot);
+}
+
+
+#endif
+
 int MultiBodyTree::addBody(int body_index, int parent_index, JointType joint_type,
 						   const vec3 &parent_r_parent_body_ref, const mat33 &body_T_parent_ref,
 						   const vec3 &body_axis_of_motion_, idScalar mass,
@@ -185,6 +294,11 @@ int MultiBodyTree::setUserPtr(const int body_index, void *const user_ptr) {
 int MultiBodyTree::finalize() {
 	const int &num_bodies = m_init_cache->numBodies();
 	const int &num_dofs = m_init_cache->numDoFs();
+
+        if(num_dofs<=0) {
+            error_message("Need num_dofs>=1, but num_dofs= %d\n", num_dofs);
+            //return -1;
+        }
 
 	// 1 allocate internal MultiBody structure
 	m_impl = new MultiBodyImpl(num_bodies, num_dofs);

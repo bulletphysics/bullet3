@@ -2,8 +2,8 @@ build:
   project: build3/vs2010/0_Bullet3Solution.sln
 
 build_script:
-  - mkdir cmake
-  - cd cmake
+  - mkdir cm
+  - cd cm
   - cmake .. -G"Visual Studio 14 2015 Win64"
   - cmake --build . --target ALL_BUILD --config Release -- /maxcpucount:4 /verbosity:quiet
 

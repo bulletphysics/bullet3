@@ -1353,9 +1353,6 @@ typedef struct bInvalidHandle {
         btVector3DoubleData m_thisPivotToThisComOffset;
         btVector3DoubleData m_jointAxisTop[6];
         btVector3DoubleData m_jointAxisBottom[6];
-        char *m_linkName;
-        char *m_jointName;
-        btCollisionObjectDoubleData *m_linkCollider;
         btVector3DoubleData m_linkInertia;
         double m_linkMass;
         int m_parentIndex;
@@ -1367,6 +1364,10 @@ typedef struct bInvalidHandle {
         double m_jointTorque[6];
         double m_jointDamping;
         double m_jointFriction;
+        char *m_linkName;
+        char *m_jointName;
+        btCollisionObjectDoubleData *m_linkCollider;
+        char *m_paddingPtr;
     };
 
 
@@ -1379,9 +1380,6 @@ typedef struct bInvalidHandle {
         btVector3FloatData m_thisPivotToThisComOffset;
         btVector3FloatData m_jointAxisTop[6];
         btVector3FloatData m_jointAxisBottom[6];
-        char *m_linkName;
-        char *m_jointName;
-        btCollisionObjectFloatData *m_linkCollider;
         btVector3FloatData m_linkInertia;
         int m_dofCount;
         float m_linkMass;
@@ -1393,6 +1391,10 @@ typedef struct bInvalidHandle {
         int m_posVarCount;
         float m_jointDamping;
         float m_jointFriction;
+        char *m_linkName;
+        char *m_jointName;
+        btCollisionObjectFloatData *m_linkCollider;
+        char *m_paddingPtr;
     };
 
 
@@ -1400,13 +1402,14 @@ typedef struct bInvalidHandle {
     class btMultiBodyDoubleData
     {
     public:
+        btTransformDoubleData m_baseWorldTransform;
+        btVector3DoubleData m_baseInertia;
+        double m_baseMass;
         char *m_baseName;
         btMultiBodyLinkDoubleData *m_links;
         btCollisionObjectDoubleData *m_baseCollider;
-        btTransformDoubleData m_baseWorldTransform;
-        btVector3DoubleData m_baseInertia;
+        char *m_paddingPtr;
         int m_numLinks;
-        double m_baseMass;
         char m_padding[4];
     };
 

@@ -516,6 +516,9 @@ void    X11OpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 
     m_data->m_dpy = MyXOpenDisplay(NULL);
 
+    m_data->m_glWidth = ci.m_width;
+    m_data->m_glHeight = ci.m_height;
+
     if(m_data->m_dpy == NULL) {
         printf("\n\tcannot connect to X server\n\n");
             exit(0);

@@ -650,14 +650,19 @@ void SimpleOpenGL3App::setBackgroundColor(float red, float green, float blue)
 
 SimpleOpenGL3App::~SimpleOpenGL3App()
 {
+	
+	delete m_instancingRenderer;
 	delete m_primRenderer ;
-
+	sth_delete(m_data->m_fontStash);
+	delete m_data->m_renderCallbacks;
+	TwDeleteDefaultFonts();
 	m_window->closeWindow();
+	
 	delete m_window;
 	delete m_data ;
 }
 
-void SimpleOpenGL3App::getScreenPixels(unsigned char* rgbaBuffer, int bufferSizeInBytes)
+void SimpleOpenGL3App::getScreenPixels(unsigned char* rgbaBuffer, int bufferSizeInBytes, float* depthBuffer, int depthBufferSizeInBytes)
 {
     
     int width = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenWidth();
@@ -665,6 +670,12 @@ void SimpleOpenGL3App::getScreenPixels(unsigned char* rgbaBuffer, int bufferSize
     if ((width*height*4) == bufferSizeInBytes)
     {
         glReadPixels(0,0,width, height, GL_RGBA, GL_UNSIGNED_BYTE, rgbaBuffer);
+		int glstat = glGetError();
+		b3Assert(glstat==GL_NO_ERROR);
+    }
+    if ((width*height*sizeof(float)) == depthBufferSizeInBytes)
+    {
+        glReadPixels(0,0,width, height, GL_DEPTH_COMPONENT, GL_FLOAT, depthBuffer);
 		int glstat = glGetError();
 		b3Assert(glstat==GL_NO_ERROR);
     }
@@ -739,11 +750,13 @@ static void writeTextureToFile(int textureWidth, int textureHeight, const char* 
 
 void SimpleOpenGL3App::swapBuffer()
 {
-	m_window->endRendering();
+
 	if (m_data->m_frameDumpPngFileName)
     {
-        writeTextureToFile((int)m_window->getRetinaScale()*m_instancingRenderer->getScreenWidth(),
-                          (int) m_window->getRetinaScale()*this->m_instancingRenderer->getScreenHeight(),m_data->m_frameDumpPngFileName,
+        int width = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenWidth();
+        int height = (int) m_window->getRetinaScale()*this->m_instancingRenderer->getScreenHeight();
+        writeTextureToFile(width,
+                          height,m_data->m_frameDumpPngFileName,
                           m_data->m_ffmpegFile);
         m_data->m_renderTexture->disable();
         if (m_data->m_ffmpegFile==0)
@@ -751,7 +764,8 @@ void SimpleOpenGL3App::swapBuffer()
 			m_data->m_frameDumpPngFileName = 0;
         }
     }
-	m_window->startRendering();
+ m_window->endRendering();
+        m_window->startRendering();
 }
 
 // see also http://blog.mmacklin.com/2013/06/11/real-time-video-capture-with-ffmpeg/
@@ -762,12 +776,15 @@ void SimpleOpenGL3App::dumpFramesToVideo(const char* mp4FileName)
     char cmd[8192];
 
 #ifdef _WIN32
-    sprintf(cmd, "ffmpeg -r 60 -f rawvideo -pix_fmt rgba   -s %dx%d -i - "
-    		"-y -crf 0  -b:v 1500000 -an -vcodec h264 -vf vflip  %s", width, height, mp4FileName);
+	sprintf(cmd, "ffmpeg -r 60 -f rawvideo -pix_fmt rgba -s %dx%d -i - "
+		"-threads 0 -y -b 50000k  -t 20 -c:v libx264 -preset slow -crf 22 -an   -pix_fmt yuv420p -vf vflip %s", width, height, mp4FileName);
+
+    //sprintf(cmd, "ffmpeg -r 60 -f rawvideo -pix_fmt rgba   -s %dx%d -i - "
+    //		"-y -crf 0  -b:v 1500000 -an -vcodec h264 -vf vflip  %s", width, height, mp4FileName);
 #else
    
    sprintf(cmd, "ffmpeg -r 60 -f rawvideo -pix_fmt rgba -s %dx%d -i - "
-    		"-threads 0 -y -crf 0 -b 50000k -vf vflip %s", width, height, mp4FileName);
+    		"-threads 0 -y -b 50000k  -t 20 -c:v libx264 -preset slow -crf 22 -an   -pix_fmt yuv420p -vf vflip %s", width, height, mp4FileName);
 #endif
     
     //sprintf(cmd,"ffmpeg -r 60 -f rawvideo -pix_fmt rgba -s %dx%d -i - "

@@ -106,7 +106,9 @@ btMultiBody::btMultiBody(int n_links,
 		m_awake(true),
 		m_canSleep(canSleep),
 		m_sleepTimer(0),
-		
+		m_userObjectPointer(0),
+		m_userIndex2(-1),
+		m_userIndex(-1),
 		m_linearDamping(0.04f),
 		m_angularDamping(0.04f),
 		m_useGyroTerm(true),
@@ -299,7 +301,7 @@ void btMultiBody::setupPlanar(int i,
     m_links[i].m_eVector = parentComToThisComOffset;
 
 	//
-	static btVector3 vecNonParallelToRotAxis(1, 0, 0);
+	btVector3 vecNonParallelToRotAxis(1, 0, 0);
 	if(rotationAxis.normalized().dot(vecNonParallelToRotAxis) > 0.999)
 		vecNonParallelToRotAxis.setValue(0, 1, 0);
 	//
@@ -464,6 +466,16 @@ btVector3 btMultiBody::worldDirToLocal(int i, const btVector3 &world_dir) const
     } else {
         return quatRotate(getParentToLocalRot(i) ,worldDirToLocal(getParent(i), world_dir));
     }
+}
+
+btMatrix3x3 btMultiBody::localFrameToWorld(int i, const btMatrix3x3 &local_frame) const
+{
+    btMatrix3x3 result = local_frame;
+    btVector3 frameInWorld0 = localDirToWorld(i, local_frame.getColumn(0));
+    btVector3 frameInWorld1 = localDirToWorld(i, local_frame.getColumn(1));
+    btVector3 frameInWorld2 = localDirToWorld(i, local_frame.getColumn(2));
+    result.setValue(frameInWorld0[0], frameInWorld1[0], frameInWorld2[0], frameInWorld0[1], frameInWorld1[1], frameInWorld2[1], frameInWorld0[2], frameInWorld1[2], frameInWorld2[2]);
+    return result;
 }
 
 void btMultiBody::compTreeLinkVelocities(btVector3 *omega, btVector3 *vel) const
@@ -714,15 +726,15 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 	btScalar * Y = &scratch_r[0];
 	//
 	//aux variables	
-	static btSpatialMotionVector spatJointVel;					//spatial velocity due to the joint motion (i.e. without predecessors' influence)
-	static btScalar D[36];										//"D" matrix; it's dofxdof for each body so asingle 6x6 D matrix will do	
-	static btScalar invD_times_Y[6];							//D^{-1} * Y [dofxdof x dofx1 = dofx1] <=> D^{-1} * u; better moved to buffers since it is recalced in calcAccelerationDeltasMultiDof; num_dof of btScalar would cover all bodies	
-	static btSpatialMotionVector result;							//holds results of the SolveImatrix op; it is a spatial motion vector (accel)
-	static btScalar Y_minus_hT_a[6];							//Y - h^{T} * a; it's dofx1 for each body so a single 6x1 temp is enough	
-	static btSpatialForceVector spatForceVecTemps[6];				//6 temporary spatial force vectors
-	static btSpatialTransformationMatrix fromParent;				//spatial transform from parent to child
-	static btSymmetricSpatialDyad dyadTemp;						//inertia matrix temp
-	static btSpatialTransformationMatrix fromWorld;
+	btSpatialMotionVector spatJointVel;					//spatial velocity due to the joint motion (i.e. without predecessors' influence)
+	btScalar D[36];										//"D" matrix; it's dofxdof for each body so asingle 6x6 D matrix will do	
+	btScalar invD_times_Y[6];							//D^{-1} * Y [dofxdof x dofx1 = dofx1] <=> D^{-1} * u; better moved to buffers since it is recalced in calcAccelerationDeltasMultiDof; num_dof of btScalar would cover all bodies	
+	btSpatialMotionVector result;							//holds results of the SolveImatrix op; it is a spatial motion vector (accel)
+	btScalar Y_minus_hT_a[6];							//Y - h^{T} * a; it's dofx1 for each body so a single 6x1 temp is enough	
+	btSpatialForceVector spatForceVecTemps[6];				//6 temporary spatial force vectors
+	btSpatialTransformationMatrix fromParent;				//spatial transform from parent to child
+	btSymmetricSpatialDyad dyadTemp;						//inertia matrix temp
+	btSpatialTransformationMatrix fromWorld;
 	fromWorld.m_trnVec.setZero();
 	/////////////////
 
@@ -919,8 +931,8 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 			case btMultibodyLink::eSpherical:
 			case btMultibodyLink::ePlanar:
 			{
-				static btMatrix3x3 D3x3; D3x3.setValue(D[0], D[1], D[2], D[3], D[4], D[5], D[6], D[7], D[8]);
-				static btMatrix3x3 invD3x3; invD3x3 = D3x3.inverse();
+				btMatrix3x3 D3x3; D3x3.setValue(D[0], D[1], D[2], D[3], D[4], D[5], D[6], D[7], D[8]);
+				btMatrix3x3 invD3x3; invD3x3 = D3x3.inverse();
 
 				//unroll the loop?
 				for(int row = 0; row < 3; ++row)
@@ -1323,11 +1335,11 @@ void btMultiBody::calcAccelerationDeltasMultiDof(const btScalar *force, btScalar
 	btScalar * Y = r_ptr; 
 	////////////////
 	//aux variables
-	static btScalar invD_times_Y[6];							//D^{-1} * Y [dofxdof x dofx1 = dofx1] <=> D^{-1} * u; better moved to buffers since it is recalced in calcAccelerationDeltasMultiDof; num_dof of btScalar would cover all bodies
-	static btSpatialMotionVector result;							//holds results of the SolveImatrix op; it is a spatial motion vector (accel)
-	static btScalar Y_minus_hT_a[6];							//Y - h^{T} * a; it's dofx1 for each body so a single 6x1 temp is enough	
-	static btSpatialForceVector spatForceVecTemps[6];				//6 temporary spatial force vectors
-	static btSpatialTransformationMatrix fromParent;	
+	btScalar invD_times_Y[6];							//D^{-1} * Y [dofxdof x dofx1 = dofx1] <=> D^{-1} * u; better moved to buffers since it is recalced in calcAccelerationDeltasMultiDof; num_dof of btScalar would cover all bodies
+	btSpatialMotionVector result;							//holds results of the SolveImatrix op; it is a spatial motion vector (accel)
+	btScalar Y_minus_hT_a[6];							//Y - h^{T} * a; it's dofx1 for each body so a single 6x1 temp is enough	
+	btSpatialForceVector spatForceVecTemps[6];				//6 temporary spatial force vectors
+	btSpatialTransformationMatrix fromParent;	
 	/////////////////
 
     // First 'upward' loop.
@@ -1522,8 +1534,8 @@ void btMultiBody::stepPositionsMultiDof(btScalar dt, btScalar *pq, btScalar *pqd
 	btScalar *pBaseQuat = pq ? pq : m_baseQuat;	
 	btScalar *pBaseOmega = pqd ? pqd : &m_realBuf[0];		//note: the !pqd case assumes m_realBuf starts with base omega (should be wrapped for safety)
 	//
-	static btQuaternion baseQuat; baseQuat.setValue(pBaseQuat[0], pBaseQuat[1], pBaseQuat[2], pBaseQuat[3]);
-	static btVector3 baseOmega; baseOmega.setValue(pBaseOmega[0], pBaseOmega[1], pBaseOmega[2]);
+	btQuaternion baseQuat; baseQuat.setValue(pBaseQuat[0], pBaseQuat[1], pBaseQuat[2], pBaseQuat[3]);
+	btVector3 baseOmega; baseOmega.setValue(pBaseOmega[0], pBaseOmega[1], pBaseOmega[2]);
 	pQuatUpdateFun(baseOmega, baseQuat, true, dt);
 	pBaseQuat[0] = baseQuat.x();
 	pBaseQuat[1] = baseQuat.y();
@@ -1557,8 +1569,8 @@ void btMultiBody::stepPositionsMultiDof(btScalar dt, btScalar *pq, btScalar *pqd
 			}
 			case btMultibodyLink::eSpherical:
 			{
-				static btVector3 jointVel; jointVel.setValue(pJointVel[0], pJointVel[1], pJointVel[2]);
-				static btQuaternion jointOri; jointOri.setValue(pJointPos[0], pJointPos[1], pJointPos[2], pJointPos[3]);
+				btVector3 jointVel; jointVel.setValue(pJointVel[0], pJointVel[1], pJointVel[2]);
+				btQuaternion jointOri; jointOri.setValue(pJointPos[0], pJointPos[1], pJointPos[2], pJointPos[3]);
 				pQuatUpdateFun(jointVel, jointOri, false, dt);
 				pJointPos[0] = jointOri.x(); pJointPos[1] = jointOri.y(); pJointPos[2] = jointOri.z(); pJointPos[3] = jointOri.w();
 				break;

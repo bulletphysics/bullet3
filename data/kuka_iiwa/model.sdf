@@ -1,6 +1,7 @@
 <sdf version='1.6'>
 <world name='default'>
   <model name='lbr_iiwa'>
+  <static>1</static>
     <link name='lbr_iiwa_link_0'>
       <pose frame=''>0 0 0 0 -0 0</pose>
       <inertial>
@@ -32,6 +33,12 @@
             <uri>meshes/link_0.stl</uri>
           </mesh>
         </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
       </visual>
     </link>
     <link name='lbr_iiwa_link_1'>
@@ -65,6 +72,12 @@
             <uri>meshes/link_1.stl</uri>
           </mesh>
         </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.5 0.7 1.0 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
       </visual>
     </link>
     <joint name='lbr_iiwa_joint_1' type='revolute'>
@@ -118,6 +131,12 @@
             <uri>meshes/link_2.stl</uri>
           </mesh>
         </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.5 0.7 1.0 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
       </visual>
     </link>
     <joint name='lbr_iiwa_joint_2' type='revolute'>
@@ -171,6 +190,12 @@
             <uri>meshes/link_3.stl</uri>
           </mesh>
         </geometry>
+				<material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1.0 0.42 0.04 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
       </visual>
     </link>
     <joint name='lbr_iiwa_joint_3' type='revolute'>
@@ -224,6 +249,12 @@
             <uri>meshes/link_4.stl</uri>
           </mesh>
         </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.5 0.7 1.0 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
       </visual>
     </link>
     <joint name='lbr_iiwa_joint_4' type='revolute'>
@@ -277,6 +308,12 @@
             <uri>meshes/link_5.stl</uri>
           </mesh>
         </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.5 0.7 1.0 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
       </visual>
     </link>
     <joint name='lbr_iiwa_joint_5' type='revolute'>
@@ -330,6 +367,12 @@
             <uri>meshes/link_6.stl</uri>
           </mesh>
         </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1.0 0.42 0.04 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
       </visual>
     </link>
     <joint name='lbr_iiwa_joint_6' type='revolute'>
@@ -383,6 +426,12 @@
             <uri>meshes/link_7.stl</uri>
           </mesh>
         </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.2 0.2 0.2 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
       </visual>
     </link>
     <joint name='lbr_iiwa_joint_7' type='revolute'>
