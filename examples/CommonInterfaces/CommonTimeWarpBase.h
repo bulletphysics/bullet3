@@ -843,6 +843,7 @@ struct CommonTimeWarpBase: public CommonRigidBodyBase {
 				debugDraw(m_dynamicsWorld->getDebugDrawer()->getDebugMode());
 			}
 		}
+		mIsHeadless = gIsHeadless;
 	}
 	void resetCamera() { // reset the camera to its original position
 		float dist = 41;
@@ -895,6 +896,7 @@ struct CommonTimeWarpBase: public CommonRigidBodyBase {
 	bool mPhysicsStepsPerSecondUpdated;
 	bool mFramesPerSecondUpdated;
 	bool mSolverIterationsUpdated;
+	bool mIsHeadless;
 };
 
 #endif //COMMON_TIME_WARP_BASE_H

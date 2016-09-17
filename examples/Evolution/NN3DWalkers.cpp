@@ -520,7 +520,7 @@ bool legContactProcessedCallback(btManifoldPoint& cp, void* body0, void* body1)
 	    // Make a circle with a 0.9 radius at (0,0,0)
 	    // with RGB color (1,0,0).
 		if(nn3DWalkers->m_dynamicsWorld->getDebugDrawer() != NULL){
-			if(!gIsHeadless){
+			if(!nn3DWalkers->mIsHeadless){
 				nn3DWalkers->m_dynamicsWorld->getDebugDrawer()->drawSphere(cp.getPositionWorldOnA(), 0.1, btVector3(1., 0., 0.));
 			}
 		}
@@ -1016,7 +1016,7 @@ void NN3DWalkersExample::scheduleEvaluations() {
 }
 
 void NN3DWalkersExample::drawMarkings() {
-	if(!gIsHeadless){
+	if(!mIsHeadless){
 		for(int i = 0; i < NUM_WALKERS;i++) // draw current distance plates of moving walkers
 		{
 			if(m_walkersInPopulation[i]->isInEvaluation()){
