@@ -16,8 +16,6 @@
 #ifndef COMMON_TIME_WARP_BASE_H
 #define COMMON_TIME_WARP_BASE_H
 
-#include <string>
-
 #include "btBulletDynamicsCommon.h"
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btAlignedObjectArray.h"
@@ -25,14 +23,16 @@
 
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
-#include <BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.h>
-#include <BulletDynamics/ConstraintSolver/btNNCGConstraintSolver.h>
-#include <BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h>
-#include <BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h>
-#include <BulletDynamics/MLCPSolvers/btDantzigSolver.h>
-#include <BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h>
-#include <BulletDynamics/MLCPSolvers/btLemkeSolver.h>
-#include <BulletDynamics/MLCPSolvers/btMLCPSolver.h>
+
+//Solvers
+#include "BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.h"
+#include "BulletDynamics/ConstraintSolver/btNNCGConstraintSolver.h"
+#include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
+#include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
+#include "BulletDynamics/MLCPSolvers/btDantzigSolver.h"
+#include "BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h"
+#include "BulletDynamics/MLCPSolvers/btLemkeSolver.h"
+#include "BulletDynamics/MLCPSolvers/btMLCPSolver.h"
 
 #include "../Utils/b3ERPCFMHelper.hpp" // ERP/CFM setting utils
 
@@ -55,18 +55,19 @@ static double /**/NUM_SPEEDS = 11;
 };
 
 // add speeds from the namespace here
-static double speeds[] = { SimulationSpeeds::PAUSE,
-		SimulationSpeeds::QUARTER_SPEED, SimulationSpeeds::HALF_SPEED,
-		SimulationSpeeds::NORMAL_SPEED, SimulationSpeeds::DOUBLE_SPEED,
-		SimulationSpeeds::QUADRUPLE_SPEED, SimulationSpeeds::DECUPLE_SPEED,
-		SimulationSpeeds::CENTUPLE_SPEED,SimulationSpeeds::QUINCENTUPLE_SPEED,
-		SimulationSpeeds::MILLITUPLE_SPEED};
+static double speeds[] = {
+	SimulationSpeeds::PAUSE,
+	SimulationSpeeds::QUARTER_SPEED, 	SimulationSpeeds::HALF_SPEED,
+	SimulationSpeeds::NORMAL_SPEED, 	SimulationSpeeds::DOUBLE_SPEED,
+	SimulationSpeeds::QUADRUPLE_SPEED, 	SimulationSpeeds::DECUPLE_SPEED,
+	SimulationSpeeds::CENTUPLE_SPEED,	SimulationSpeeds::QUINCENTUPLE_SPEED,
+	SimulationSpeeds::MILLITUPLE_SPEED};
 
 static btScalar gSolverIterations = 10; // default number of solver iterations for the iterative solvers
 
-static bool gChangeErpCfm = false;
-
 static bool gIsHeadless = false; // demo runs with graphics by default
+
+static bool gChangeErpCfm = false; // flag to make recalculation of ERP/CFM
 
 static int gMinSpeed = SimulationSpeeds::PAUSE; // the minimum simulation speed
 
@@ -93,7 +94,7 @@ enum SolverEnumType {
 };
 
 
-//TODO: In case the solver should be changeable by drop down menu
+// solvers can be changed by drop down menu
 namespace SolverType {
 static char SEQUENTIALIMPULSESOLVER[] = "Sequential Impulse Solver";
 static char GAUSSSEIDELSOLVER[] = "Gauss-Seidel Solver";
@@ -157,11 +158,11 @@ inline void changeSolver(int comboboxId, const char* item, void* userPointer) { 
 	for(int i = 0; i < NUM_SOLVERS;i++){
 		if(strcmp(solverTypes[i], item) == 0){ // if the strings are equal
 			SOLVER_TYPE = ((SolverEnumType)i);
-			//b3Printf("=%s=\n Reset the simulation by double clicking it in the menu list.",item);
+			b3Printf("=%s=\n Reset the simulation by double clicking it in the menu list.",item);
 			return;
 		}
 	}
-	//b3Printf("No Change");
+	b3Printf("No Change");
 }
 
 
@@ -187,17 +188,16 @@ inline void clampToCustomSpeedNotches(float speed) { // function to clamp to cus
 
 inline void switchInterpolated(int buttonId, bool buttonState, void* userPointer){ // toggle if interpolation steps are taken
 	gInterpolate=!gInterpolate;
-	//b3Printf("Interpolate substeps %s", gInterpolate?"on":"off");
+//	b3Printf("Interpolate substeps %s", gInterpolate?"on":"off");
 }
 
 inline void switchHeadless(int buttonId, bool buttonState, void* userPointer){ // toggle if the demo should run headless
 	gIsHeadless=!gIsHeadless;
-	//b3Printf("Run headless %s", gIsHeadless?"on":"off");
+//	b3Printf("Run headless %s", gIsHeadless?"on":"off");
 }
 
 inline void switchMaximumSpeed(int buttonId, bool buttonState, void* userPointer){ // toggle it the demo should run as fast as possible
-	gMaximumSpeed=!gMaximumSpeed;
-	//b3Printf("Run maximum speed %s", gMaximumSpeed?"on":"off");
+//	b3Printf("Run maximum speed %s", gMaximumSpeed?"on":"off");
 }
 
 inline void setApplicationTick(float frequency){ // set internal application tick
@@ -257,7 +257,7 @@ struct CommonTimeWarpBase: public CommonRigidBodyBase {
 
 	void initPhysics(){ // initialize the demo
 
-		setupParameterInterface(); // setup adjustable sliders and buttons for parameters
+		setupBasicParamInterface(); // setup adjustable sliders and buttons for parameters
 
 		m_guiHelper->setUpAxis(1); // Set Y axis as Up axis
 
@@ -266,25 +266,7 @@ struct CommonTimeWarpBase: public CommonRigidBodyBase {
 		m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 	}
 
-	void setupParameterInterface(){ // setup the adjustable sliders and button for parameters
-
-		solverTypes[0] = SolverType::SEQUENTIALIMPULSESOLVER;
-		solverTypes[1] = SolverType::GAUSSSEIDELSOLVER;
-		solverTypes[2] = SolverType::NNCGSOLVER;
-		solverTypes[3] = SolverType::DANZIGSOLVER;
-		solverTypes[4] = SolverType::LEMKESOLVER;
-		solverTypes[5] = SolverType::FSSOLVER;
-
-		{
-			ComboBoxParams comboParams;
-			comboParams.m_comboboxId = 0;
-			comboParams.m_numItems = NUM_SOLVERS;
-			comboParams.m_startItem = SOLVER_TYPE;
-			comboParams.m_callback = changeSolver;
-
-			comboParams.m_items=solverTypes;
-			m_guiHelper->getParameterInterface()->registerComboBox(comboParams);
-		}
+	void setupBasicParamInterface(){ // setup the adjustable sliders and button for parameters
 
 		{ // create a slider to adjust the simulation speed
 			// Force increase the simulation speed to run the simulation with the same accuracy but a higher speed
@@ -308,6 +290,50 @@ struct CommonTimeWarpBase: public CommonRigidBodyBase {
 					button);
 		}
 
+
+
+		{ // create a button to switch to maximum speed simulation (fully deterministic)
+			// Interesting to test the maximal achievable speed on this hardware
+			ButtonParams button("Run maximum speed",0,true);
+			button.m_callback = switchMaximumSpeed;
+			if (m_guiHelper->getParameterInterface())
+				m_guiHelper->getParameterInterface()->registerButtonParameter(
+					button);
+		}
+
+
+
+		{ // create a button to switch bullet to perform interpolated substeps to speed up simulation
+			// generally, interpolated steps are a good speed-up and should only be avoided if higher accuracy is needed (research purposes etc.)
+			ButtonParams button("Perform interpolated substeps",0,true);
+			button.m_callback = switchInterpolated;
+			if (m_guiHelper->getParameterInterface())
+				m_guiHelper->getParameterInterface()->registerButtonParameter(
+					button);
+		}
+
+	}
+
+	void setupAdvancedParamInterface(){
+
+		solverTypes[0] = SolverType::SEQUENTIALIMPULSESOLVER;
+		solverTypes[1] = SolverType::GAUSSSEIDELSOLVER;
+		solverTypes[2] = SolverType::NNCGSOLVER;
+		solverTypes[3] = SolverType::DANZIGSOLVER;
+		solverTypes[4] = SolverType::LEMKESOLVER;
+		solverTypes[5] = SolverType::FSSOLVER;
+
+		{
+			ComboBoxParams comboParams;
+			comboParams.m_comboboxId = 0;
+			comboParams.m_numItems = NUM_SOLVERS;
+			comboParams.m_startItem = SOLVER_TYPE;
+			comboParams.m_callback = changeSolver;
+
+			comboParams.m_items=solverTypes;
+			m_guiHelper->getParameterInterface()->registerComboBox(comboParams);
+		}
+
 		{ // create a slider to adjust the number of internal application ticks
 			// The set application tick should contain enough time to perform a full cycle of model update (physics and input)
 			// and view update (graphics) with average application load. The graphics and input update determine the remaining time
@@ -321,15 +347,6 @@ struct CommonTimeWarpBase: public CommonRigidBodyBase {
 			if (m_guiHelper->getParameterInterface())
 				m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
 					slider);
-		}
-
-		{ // create a button to switch to maximum speed simulation (fully deterministic)
-			// Interesting to test the maximal achievable speed on this hardware
-			ButtonParams button("Run maximum speed",0,true);
-			button.m_callback = switchMaximumSpeed;
-			if (m_guiHelper->getParameterInterface())
-				m_guiHelper->getParameterInterface()->registerButtonParameter(
-					button);
 		}
 
 		{ // create a slider to adjust the number of physics steps per second
@@ -355,15 +372,6 @@ struct CommonTimeWarpBase: public CommonRigidBodyBase {
 			if (m_guiHelper->getParameterInterface())
 				m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
 					slider);
-		}
-
-		{ // create a button to switch bullet to perform interpolated substeps to speed up simulation
-			// generally, interpolated steps are a good speed-up and should only be avoided if higher accuracy is needed (research purposes etc.)
-			ButtonParams button("Perform interpolated substeps",0,true);
-			button.m_callback = switchInterpolated;
-			if (m_guiHelper->getParameterInterface())
-				m_guiHelper->getParameterInterface()->registerButtonParameter(
-					button);
 		}
 
 		{ // create a slider to adjust the number of solver iterations to converge to a solution
@@ -437,6 +445,8 @@ struct CommonTimeWarpBase: public CommonRigidBodyBase {
 				m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
 					slider);
 		}
+
+
 	}
 
 	void createEmptyDynamicsWorld(){ // create an empty dynamics worlds according to the chosen settings via statics (top section of code)
@@ -454,35 +464,35 @@ struct CommonTimeWarpBase: public CommonRigidBodyBase {
 		// different solvers require different settings
 		switch (SOLVER_TYPE) {
 		case SEQUENTIALIMPULSESOLVER: {
-			//b3Printf("=%s=",SolverType::SEQUENTIALIMPULSESOLVER);
+//			b3Printf("=%s=",SolverType::SEQUENTIALIMPULSESOLVER);
 			m_solver = new btSequentialImpulseConstraintSolver();
 			break;
 		}
 		case NNCGSOLVER: {
-			//b3Printf("=%s=",SolverType::NNCGSOLVER);
+//			b3Printf("=%s=",SolverType::NNCGSOLVER);
 			m_solver = new btNNCGConstraintSolver();
 			break;
 		}
 		case DANZIGSOLVER: {
-			//b3Printf("=%s=",SolverType::DANZIGSOLVER);
+//			b3Printf("=%s=",SolverType::DANZIGSOLVER);
 			btDantzigSolver* mlcp = new btDantzigSolver();
 			m_solver = new btMLCPSolver(mlcp);
 			break;
 		}
 		case GAUSSSEIDELSOLVER: {
-			//b3Printf("=%s=",SolverType::GAUSSSEIDELSOLVER);
+//			b3Printf("=%s=",SolverType::GAUSSSEIDELSOLVER);
 			btSolveProjectedGaussSeidel* mlcp = new btSolveProjectedGaussSeidel();
 			m_solver = new btMLCPSolver(mlcp);
 			break;
 		}
 		case LEMKESOLVER: {
-			//b3Printf("=%s=",SolverType::LEMKESOLVER);
+//			b3Printf("=%s=",SolverType::LEMKESOLVER);
 			btLemkeSolver* mlcp = new btLemkeSolver();
 			m_solver = new btMLCPSolver(mlcp);
 			break;
 		}
 		case FSSOLVER: {
-			//b3Printf("=%s=",SolverType::FSSOLVER);
+//			b3Printf("=%s=",SolverType::FSSOLVER);
 			//Use the btMultiBodyConstraintSolver for Featherstone btMultiBody support
 			m_solver = new btMultiBodyConstraintSolver;
 
@@ -524,9 +534,9 @@ struct CommonTimeWarpBase: public CommonRigidBodyBase {
 			//			fixedPhysicsStepSizeSec, 10, 1);
 			//		m_dynamicsWorld->getSolverInfo().m_splitImpulseTurnErp =
 			//			BulletUtils::getERP(fixedPhysicsStepSizeSec, 10, 1);
-			//b3Printf("Using split impulse feature with ERP/TurnERP: (%f,%f)",
-			//	m_dynamicsWorld->getSolverInfo().m_erp2,
-			//	m_dynamicsWorld->getSolverInfo().m_splitImpulseTurnErp);
+//			b3Printf("Using split impulse feature with ERP/TurnERP: (%f,%f)",
+//				m_dynamicsWorld->getSolverInfo().m_erp2,
+//				m_dynamicsWorld->getSolverInfo().m_splitImpulseTurnErp);
 		}
 
 		m_dynamicsWorld->getSolverInfo().m_numIterations = gSolverIterations; // set the number of solver iterations for iteration based solvers
@@ -538,7 +548,7 @@ struct CommonTimeWarpBase: public CommonRigidBodyBase {
 	btScalar calculatePerformedSpeedup() { // calculate performed speedup
 		// we calculate the performed speed up
 		btScalar speedUp = ((double)performedTime*1000.0)/((double)(mLoopTimer.getTimeMilliseconds()-performanceTimestamp));
-		//b3Printf("Avg Effective speedup: %f",speedUp);
+//		b3Printf("Avg Effective speedup: %f",speedUp);
 		performedTime = 0;
 		performanceTimestamp = mLoopTimer.getTimeMilliseconds();
 		return speedUp;
@@ -589,7 +599,7 @@ struct CommonTimeWarpBase: public CommonRigidBodyBase {
 			if(mLoopTimer.getTimeSeconds() - speedUpPrintTimeStamp > 1){
 				// on reset, we calculate the performed speed up
 				double speedUp = ((double)performedTime*1000.0)/((double)(mLoopTimer.getTimeMilliseconds()-performanceTimestamp));
-				//b3Printf("Avg Effective speedup: %f",speedUp);
+//				b3Printf("Avg Effective speedup: %f",speedUp);
 				performedTime = 0;
 				performanceTimestamp = mLoopTimer.getTimeMilliseconds();
 				speedUpPrintTimeStamp = mLoopTimer.getTimeSeconds();
@@ -600,7 +610,7 @@ struct CommonTimeWarpBase: public CommonRigidBodyBase {
 			mFrameTime = mThisModelIteration - mPreviousModelIteration; /**!< Calculate the frame time (in Milliseconds) */
 			mPreviousModelIteration = mThisModelIteration;
 
-			//	//b3Printf("Current Frame time: % u", mFrameTime);
+			//	b3Printf("Current Frame time: % u", mFrameTime);
 
 			mApplicationRuntime = mThisModelIteration - mApplicationStart; /**!< Update main frame timer (in Milliseconds) */
 
@@ -634,7 +644,7 @@ struct CommonTimeWarpBase: public CommonRigidBodyBase {
 			// In the example browser, there is a separate method called renderScene() for this
 
 			// Uncomment this for some detailed output about the application ticks
-			//	//b3Printf(
+			//	b3Printf(
 			//		"Physics time: %u milliseconds / Graphics time: %u milliseconds / Input time: %u milliseconds / Total time passed: %u milliseconds",
 			//		mLastModelTick, mLastGraphicsTick, mLastInputTick, mApplicationRuntime);
 
@@ -643,6 +653,64 @@ struct CommonTimeWarpBase: public CommonRigidBodyBase {
 
 		fpsTimeStamp = mLoopTimer.getTimeMilliseconds();
 
+	}
+
+	virtual bool	keyboardCallback(int key, int state)
+	{
+		switch(key)
+		{
+		case '1':{
+			gSimulationSpeed = SimulationSpeeds::QUARTER_SPEED;
+			gMaximumSpeed = false;
+			return true;
+		}
+		case '2':{
+			gSimulationSpeed = SimulationSpeeds::HALF_SPEED;
+			gMaximumSpeed = false;
+			return true;
+		}
+		case '3':{
+			gSimulationSpeed = SimulationSpeeds::NORMAL_SPEED;
+			gMaximumSpeed = false;
+			return true;
+		}
+		case '4':{
+			gSimulationSpeed = SimulationSpeeds::DOUBLE_SPEED;
+			gMaximumSpeed = false;
+			return true;
+		}
+		case '5':{
+			gSimulationSpeed = SimulationSpeeds::QUADRUPLE_SPEED;
+			gMaximumSpeed = false;
+			return true;
+		}
+		case '6':{
+			gSimulationSpeed = SimulationSpeeds::DECUPLE_SPEED;
+			gMaximumSpeed = false;
+			return true;
+		}
+		case '7':{
+			gSimulationSpeed = SimulationSpeeds::CENTUPLE_SPEED;
+			gMaximumSpeed = false;
+			return true;
+		}
+		case '8':{
+			gSimulationSpeed = SimulationSpeeds::QUINCENTUPLE_SPEED;
+			gMaximumSpeed = false;
+			return true;
+		}
+		case '9':{
+			gSimulationSpeed = SimulationSpeeds::MILLITUPLE_SPEED;
+			gMaximumSpeed = false;
+			return true;
+		}
+		case '0':{
+			gSimulationSpeed = SimulationSpeeds::MAX_SPEED;
+			gMaximumSpeed = true;
+			return true;
+		}
+		}
+		return CommonRigidBodyBase::keyboardCallback(key,state);
 	}
 
 
@@ -668,11 +736,11 @@ struct CommonTimeWarpBase: public CommonRigidBodyBase {
 				gCFMSpringK, // k of a spring in the equation F = k * x (x:position)
 				gCFMDamperC); // k of a damper in the equation F = k * v (v:velocity)
 
-			//b3Printf("Bullet DynamicsWorld ERP: %f",
-			//	m_dynamicsWorld->getSolverInfo().m_erp);
+//			b3Printf("Bullet DynamicsWorld ERP: %f",
+//				m_dynamicsWorld->getSolverInfo().m_erp);
 
-			//b3Printf("Bullet DynamicsWorld CFM: %f",
-			//	m_dynamicsWorld->getSolverInfo().m_globalCfm);
+//			b3Printf("Bullet DynamicsWorld CFM: %f",
+//				m_dynamicsWorld->getSolverInfo().m_globalCfm);
 		}
 	}
 
@@ -716,10 +784,10 @@ struct CommonTimeWarpBase: public CommonRigidBodyBase {
 			mPhysicsTick = 0; // no time for physics left / The internal application step is too high
 		}
 
-		//	//b3Printf("Application tick: %u",gApplicationTick);
-		//	//b3Printf("Graphics tick: %u",mLastGraphicsTick);
-		//	//b3Printf("Input tick: %u",mLastInputTick);
-		//	//b3Printf("Physics tick: %u",mPhysicsTick);
+		//	b3Printf("Application tick: %u",gApplicationTick);
+		//	b3Printf("Graphics tick: %u",mLastGraphicsTick);
+		//	b3Printf("Input tick: %u",mLastInputTick);
+		//	b3Printf("Physics tick: %u",mPhysicsTick);
 
 		if (mPhysicsTick > 0) { // with positive physics tick we perform as many update steps until the time for it is used up
 
@@ -727,7 +795,7 @@ struct CommonTimeWarpBase: public CommonRigidBodyBase {
 			mPhysicsStepEnd = mPhysicsStepStart;
 
 			while (mPhysicsTick > mPhysicsStepEnd - mPhysicsStepStart) { /**!< Update the physics until we run out of time (in Milliseconds) */
-				//			//b3Printf("Physics passed: %u", mPhysicsStepEnd - mPhysicsStepStart);
+				//			b3Printf("Physics passed: %u", mPhysicsStepEnd - mPhysicsStepStart);
 				double timeStep = fixedPhysicsStepSizeSec; /**!< update the world (in Seconds) */
 
 				if (gInterpolate) {
@@ -748,10 +816,10 @@ struct CommonTimeWarpBase: public CommonRigidBodyBase {
 		}				       // The simulation therefore gets slower, but still performs all requested physics steps
 
 		mModelAccumulator += mFrameTime; /**!< Accumulate the time the physics simulation has to perform in order to stay in real-time (in Milliseconds) */
-		//	//b3Printf("Model time accumulator: %u", mModelAccumulator);
+		//	b3Printf("Model time accumulator: %u", mModelAccumulator);
 
 		int steps = floor(mModelAccumulator / fixedPhysicsStepSizeMilli); /**!< Calculate the number of time steps we can take */
-		//	//b3Printf("Next steps: %i", steps);
+		//	b3Printf("Next steps: %i", steps);
 
 		if (steps > 0) { /**!< Update if we can take at least one step */
 
@@ -770,6 +838,10 @@ struct CommonTimeWarpBase: public CommonRigidBodyBase {
 	void renderScene() { // render the scene
 		if(!gIsHeadless){ // while the simulation is not running headlessly, render to screen
 			CommonRigidBodyBase::renderScene();
+
+			if(m_dynamicsWorld->getDebugDrawer()){
+				debugDraw(m_dynamicsWorld->getDebugDrawer()->getDebugMode());
+			}
 		}
 	}
 	void resetCamera() { // reset the camera to its original position

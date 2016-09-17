@@ -102,6 +102,7 @@ void* GROUND_ID = (void*)1;
 class NN3DWalkersExample : public CommonTimeWarpBase
 {
 	btScalar m_Time;
+	btScalar m_SpeedupTimestamp;
 	btScalar m_targetAccumulator;
 	btScalar m_targetFrequency;
 	btScalar m_motorStrength;
@@ -116,6 +117,7 @@ public:
 	NN3DWalkersExample(struct GUIHelperInterface* helper)
 	:CommonTimeWarpBase(helper),
 	 m_Time(0),
+	 m_SpeedupTimestamp(0),
 	 m_motorStrength(0.5f),
 	 m_targetFrequency(3),
 	 m_targetAccumulator(0),
@@ -149,8 +151,6 @@ public:
 		float targetPos[3]={0,0.46,0};
 		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
 	}
-
-//	virtual void renderScene();
 
 	// Evaluation
 
@@ -520,7 +520,9 @@ bool legContactProcessedCallback(btManifoldPoint& cp, void* body0, void* body1)
 	    // Make a circle with a 0.9 radius at (0,0,0)
 	    // with RGB color (1,0,0).
 		if(nn3DWalkers->m_dynamicsWorld->getDebugDrawer() != NULL){
-			nn3DWalkers->m_dynamicsWorld->getDebugDrawer()->drawSphere(cp.getPositionWorldOnA(), 0.1, btVector3(1., 0., 0.));
+			if(!gIsHeadless){
+				nn3DWalkers->m_dynamicsWorld->getDebugDrawer()->drawSphere(cp.getPositionWorldOnA(), 0.1, btVector3(1., 0., 0.));
+			}
 		}
 
 		if(ID1 != GROUND_ID && ID1){
@@ -558,7 +560,7 @@ void floorNNSliderValue(float notUsed) {
 void NN3DWalkersExample::initPhysics()
 {
 
-	setupParameterInterface(); // parameter interface to use timewarp
+	setupBasicParamInterface(); // parameter interface to use timewarp
 
 	gContactProcessedCallback = legContactProcessedCallback;
 
@@ -760,19 +762,17 @@ bool NN3DWalkersExample::keyboardCallback(int key, int state)
 	case '[':
 		m_motorStrength /= 1.1f;
 		return true;
-		break;
 	case ']':
 		m_motorStrength *= 1.1f;
 		return true;
-		break;
 	case 'l':
 		printWalkerConfigs();
-		break;
+		return true;
 	default:
 		break;
 	}
 
-	return false;
+	return CommonTimeWarpBase::keyboardCallback(key,state);
 }
 
 void NN3DWalkersExample::exitPhysics()
@@ -790,15 +790,6 @@ void NN3DWalkersExample::exitPhysics()
 
 	CommonRigidBodyBase::exitPhysics();
 }
-
-//void NN3DWalkersExample::renderScene()
-//{
-//		m_guiHelper->syncPhysicsToGraphics(m_dynamicsWorld);
-//
-//		m_guiHelper->render(m_dynamicsWorld);
-//
-//		debugDraw(m_dynamicsWorld->getDebugDrawer()->getDebugMode());
-//}
 
 class CommonExampleInterface* ET_NN3DWalkersCreateFunc(struct CommonExampleOptions& options)
 {
@@ -919,6 +910,11 @@ void NN3DWalkersExample::update(const btScalar timeSinceLastTick) {
 	scheduleEvaluations(); /**!< Start new evaluations and finish the old ones. */
 
 	drawMarkings(); /**!< Draw markings on the ground */
+
+//	if(m_Time > m_SpeedupTimestamp + 1.0f){ // print effective speedup
+//		b3Printf("Avg Effective speedup: %f real time",calculatePerformedSpeedup());
+//		m_SpeedupTimestamp = m_Time;
+//	}
 }
 
 void NN3DWalkersExample::updateEvaluations(const btScalar timeSinceLastTick) {
@@ -1020,19 +1016,21 @@ void NN3DWalkersExample::scheduleEvaluations() {
 }
 
 void NN3DWalkersExample::drawMarkings() {
-	for(int i = 0; i < NUM_WALKERS;i++) // draw current distance plates of moving walkers
-	{
-		if(m_walkersInPopulation[i]->isInEvaluation()){
-			btVector3 walkerPosition = m_walkersInPopulation[i]->getPosition();
-			char performance[10];
-			sprintf(performance, "%.2f m", btSqrt(m_walkersInPopulation[i]->getDistanceFitness()));
-			m_guiHelper->drawText3D(performance,walkerPosition.x(),walkerPosition.y()+1,walkerPosition.z(),3);
+	if(!gIsHeadless){
+		for(int i = 0; i < NUM_WALKERS;i++) // draw current distance plates of moving walkers
+		{
+			if(m_walkersInPopulation[i]->isInEvaluation()){
+				btVector3 walkerPosition = m_walkersInPopulation[i]->getPosition();
+				char performance[10];
+				sprintf(performance, "%.2f m", btSqrt(m_walkersInPopulation[i]->getDistanceFitness()));
+				m_guiHelper->drawText3D(performance,walkerPosition.x(),walkerPosition.y()+1,walkerPosition.z(),3);
+			}
 		}
-	}
 
-	for(int i = 2; i < 50; i+=2){ // draw distance circles
-		if(m_dynamicsWorld->getDebugDrawer()){
-			m_dynamicsWorld->getDebugDrawer()->drawArc(btVector3(0,0,0),btVector3(0,1,0),btVector3(1,0,0),btScalar(i), btScalar(i),btScalar(0),btScalar(SIMD_2_PI),btVector3(10*i,0,0),false);
+		for(int i = 2; i < 50; i+=2){ // draw distance circles
+			if(m_dynamicsWorld->getDebugDrawer()){
+				m_dynamicsWorld->getDebugDrawer()->drawArc(btVector3(0,0,0),btVector3(0,1,0),btVector3(1,0,0),btScalar(i), btScalar(i),btScalar(0),btScalar(SIMD_2_PI),btVector3(10*i,0,0),false);
+			}
 		}
 	}
 }
