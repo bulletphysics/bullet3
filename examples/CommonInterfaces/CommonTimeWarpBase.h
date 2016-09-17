@@ -124,7 +124,7 @@ static btScalar gPhysicsStepsPerSecond = 60.0f; // Default number of steps
 static double fixedPhysicsStepSizeSec = 1.0f / gPhysicsStepsPerSecond; // steps size in seconds
 static double fixedPhysicsStepSizeMilli = 1000.0f / gPhysicsStepsPerSecond; // step size in milliseconds
 
-static btScalar gApplicationFrequency = 120.0f; // number of internal application ticks per second
+static btScalar gApplicationFrequency = 60.0f; // number of internal application ticks per second
 static int gApplicationTick = 1000.0f / gApplicationFrequency; //ms
 
 static btScalar gFramesPerSecond = 30.0f; // number of frames per second

@@ -911,10 +911,10 @@ void NN3DWalkersExample::update(const btScalar timeSinceLastTick) {
 
 	drawMarkings(); /**!< Draw markings on the ground */
 
-//	if(m_Time > m_SpeedupTimestamp + 1.0f){ // print effective speedup
-//		b3Printf("Avg Effective speedup: %f real time",calculatePerformedSpeedup());
-//		m_SpeedupTimestamp = m_Time;
-//	}
+	if(m_Time > m_SpeedupTimestamp + 2.0f){ // print effective speedup
+		b3Printf("Avg Effective speedup: %f real time",calculatePerformedSpeedup());
+		m_SpeedupTimestamp = m_Time;
+	}
 }
 
 void NN3DWalkersExample::updateEvaluations(const btScalar timeSinceLastTick) {
