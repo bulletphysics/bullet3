@@ -704,10 +704,10 @@ bool CMainApplication::HandleInput()
 								///todo(erwincoumans) can't use reguar debug drawer, because physics/graphics are not in sync
 								//so it can (and likely will) cause crashes
 								//add a special debug drawer that deals with this
-								//	gDebugDrawFlags = btIDebugDraw::DBG_DrawWireframe+btIDebugDraw::DBG_DrawContactPoints+
-								//	btIDebugDraw::DBG_DrawConstraintLimits+
-								//	btIDebugDraw::DBG_DrawConstraints
-								//	;
+									//gDebugDrawFlags = btIDebugDraw::DBG_DrawWireframe+btIDebugDraw::DBG_DrawContactPoints+
+									//btIDebugDraw::DBG_DrawConstraintLimits+
+									//btIDebugDraw::DBG_DrawConstraints
+									//;
 							}
 
 							sExample->vrControllerButtonCallback(unDevice, button, 1, pos, orn);
