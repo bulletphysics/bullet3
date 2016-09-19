@@ -17,7 +17,7 @@
       <origin rpy="0 1.57075 0 " xyz="0.1 0 0"/>
     </collision>
     <inertial>
-      <mass value="0.05"/>
+      <mass value="100"/>
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
@@ -41,12 +41,6 @@
         <mesh filename="l_finger.stl"/>
       </geometry>
     </visual>
-    <collision>
-      <geometry>
-        <mesh filename="l_finger.stl"/>
-      </geometry>
-      <origin rpy="0.0 0 0" xyz="0 0 0"/>
-    </collision>
     <inertial>
       <mass value="0.05"/>
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
@@ -61,6 +55,7 @@
   <link name="left_tip">
     <contact>
       <lateral_friction value="50.0"/>
+      <spinning_friction value="0.1"/>
     </contact>
     <visual>
       <origin rpy="0.0 0 0" xyz="0.09137 0.00495 0"/>
@@ -70,9 +65,9 @@
     </visual>
     <collision>
       <geometry>
-        <box size=".03 .03 .02"/>
+        <box size=".13 .03 .02"/>
       </geometry>
-      <origin rpy="0.0 0 0" xyz="0.109137 0.00495 0"/>
+      <origin rpy="0.0 0 0" xyz="0.055 0.00495 0"/>
     </collision>
     <inertial>
       <mass value="0.05"/>
@@ -91,6 +86,7 @@
   <link name="right_gripper">
     <contact>
       <lateral_friction value="50.0"/>
+      <spinning_friction value="0.1"/>
     </contact>
     <visual>
       <origin rpy="-3.1415 0 0" xyz="0 0 0"/>
@@ -98,12 +94,6 @@
         <mesh filename="l_finger.stl"/>
       </geometry>
     </visual>
-    <collision>
-      <geometry>
-        <mesh filename="l_finger.stl"/>
-      </geometry>
-      <origin rpy="-3.1415 0 0" xyz="0 0 0"/>
-    </collision>
     <inertial>
       <mass value="0.05"/>
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
@@ -118,6 +108,7 @@
   <link name="right_tip">
     <contact>
       <lateral_friction value="50.0"/>
+      <spinning_friction value="0.1"/>
     </contact>
     <visual>
       <origin rpy="-3.1415 0 0" xyz="0.09137 0.00495 0"/>
@@ -127,9 +118,9 @@
     </visual>
     <collision>
       <geometry>
-        <box size=".03 .03 .02"/>
+        <box size=".13 .03 .02"/>
       </geometry>
-      <origin rpy="-3.1415 0 0" xyz="0.109137 0.00495 0"/>
+      <origin rpy="-3.1415 0 0" xyz="0.055 0.00495 0"/>
     </collision>
     <inertial>
       <mass value="0.05"/>
