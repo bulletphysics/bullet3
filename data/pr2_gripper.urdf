@@ -41,12 +41,7 @@
         <mesh filename="l_finger.stl"/>
       </geometry>
     </visual>
-     <collision>
-      <geometry>
-        <mesh filename="l_finger_collision.stl" scale=".9 .9 .9"/>
-      </geometry>
-      <origin rpy="0.0 0 0" xyz="0 0 0"/>
-    </collision>
+     
     <inertial>
       <mass value="0.5"/>
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
@@ -76,7 +71,7 @@
       <origin rpy="0.0 0 0" xyz="0.105 0.00495 0"/>
     </collision>
     <inertial>
-      <mass value="0.1"/>
+      <mass value="0.05"/>
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
@@ -100,12 +95,7 @@
         <mesh filename="l_finger.stl"/>
       </geometry>
     </visual>
-     <collision>
-      <geometry>
-        <mesh filename="l_finger_collision.stl" scale=".9 .9 .9"/>
-      </geometry>
-      <origin rpy="-3.1415 0 0" xyz="0 0 0"/>
-    </collision>
+     
     <inertial>
       <mass value="0.05"/>
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
