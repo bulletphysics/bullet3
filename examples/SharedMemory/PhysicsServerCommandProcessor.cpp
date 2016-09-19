@@ -2958,7 +2958,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 					if (motor)
 					{
 						motor->setErp(0.1);
-						btScalar posTarget = 0.1 + (1 - btMin(0.75,gVRGripperAnalog)*1.5)*SIMD_HALF_PI*0.29;
+						btScalar posTarget = 0.1 + (1 - btMin(btScalar(0.75),gVRGripperAnalog)*btScalar(1.5))*SIMD_HALF_PI*0.29;
 						btScalar maxPosTarget = 0.55;
 						
 						if (m_data->m_gripperMultiBody->getJointPos(i) < 0)
