@@ -170,6 +170,24 @@ void Jacobian::UpdateThetas()
 	tree->Compute();
 }
 
+void Jacobian::UpdateThetaDot()
+{
+    // Traverse the tree to find all joints
+    // Update the joint angles
+    Node* n = tree->GetRoot();
+    while ( n ) {
+        if ( n->IsJoint() ) {
+            int i = n->GetJointNum();
+            n->UpdateTheta( dTheta[i] );
+            
+        }
+        n = tree->GetSuccessor( n );
+    }
+    
+    // Update the positions and rotation axes of all joints/effectors
+    tree->Compute();
+}
+
 void Jacobian::CalcDeltaThetas() 
 {
 	switch (CurrentUpdateMode) {

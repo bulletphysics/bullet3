@@ -194,14 +194,22 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
             break;
     }
     
-    m_data->m_ikJacobian->UpdateThetas();
+    // Use for velocity IK, update theta dot
+    m_data->m_ikJacobian->UpdateThetaDot();
+    
+    // Use for position IK, incrementally update theta
+    //m_data->m_ikJacobian->UpdateThetas();
     
     // Apply the change in the theta values
     //m_data->m_ikJacobian->UpdatedSClampValue(&targets);
     
     for (int i=0;i<numQ;i++)
     {
+        // Use for velocity IK
         q_new[i] = m_data->m_ikNodes[i]->GetTheta()*dt + q_current[i];
+        
+        // Use for position IK
+        //q_new[i] = m_data->m_ikNodes[i]->GetTheta();
     }
     return true;
 }
