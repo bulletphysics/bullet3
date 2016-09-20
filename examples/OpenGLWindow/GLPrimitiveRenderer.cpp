@@ -1,7 +1,7 @@
 #ifndef NO_OPENGL3
 #include "GLPrimitiveRenderer.h"
 #include "GLPrimInternalData.h"
-
+//#include "Bullet3Common/b3Logging.h"
 #include "LoadShader.h"
 
 #include <assert.h>
@@ -205,7 +205,8 @@ void GLPrimitiveRenderer::drawRect(float x0, float y0, float x1, float y1, float
 
 void GLPrimitiveRenderer::drawTexturedRect3D(const PrimVertex& v0,const PrimVertex& v1,const PrimVertex& v2,const PrimVertex& v3,float viewMat[16],float projMat[16], bool useRGBA)
 {
-	
+	//B3_PROFILE("GLPrimitiveRenderer::drawTexturedRect3D");
+
     assert(glGetError()==GL_NO_ERROR);
    
     

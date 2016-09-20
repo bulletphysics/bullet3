@@ -816,7 +816,7 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
 bool UrdfParser::parseJointLimits(UrdfJoint& joint, TiXmlElement* config, ErrorLogger* logger)
 {
 	joint.m_lowerLimit = 0.f;
-	joint.m_upperLimit = 0.f;
+	joint.m_upperLimit = -1.f;
 	joint.m_effortLimit = 0.f;
 	joint.m_velocityLimit = 0.f;
 	joint.m_jointDamping = 0.f;

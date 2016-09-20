@@ -14,7 +14,7 @@ subject to the following restrictions:
 
 #include "BulletUrdfImporter.h"
 #include "../../CommonInterfaces/CommonRenderInterface.h"
-
+#include"../../ThirdPartyLibs/Wavefront/tiny_obj_loader.h"
 #include "URDFImporterInterface.h"
 #include "btBulletCollisionCommon.h"
 #include "../ImportObjDemo/LoadMeshFromObj.h"
@@ -360,7 +360,45 @@ bool BulletURDFImporter::getRootTransformInWorld(btTransform& rootTransformInWor
     return true;
 }
 
+static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t>& shapes)
+{
+	btCompoundShape* compound = new btCompoundShape();
+	btTransform identity;
+	identity.setIdentity();
 
+	for (int s = 0; s<(int)shapes.size(); s++)
+	{
+		btConvexHullShape* convexHull = new btConvexHullShape();
+		tinyobj::shape_t& shape = shapes[s];
+		int faceCount = shape.mesh.indices.size();
+
+		for (int f = 0; f<faceCount; f += 3)
+		{
+
+			btVector3 pt;
+			pt.setValue(shape.mesh.positions[shape.mesh.indices[f] * 3 + 0],
+				shape.mesh.positions[shape.mesh.indices[f] * 3 + 1],
+				shape.mesh.positions[shape.mesh.indices[f] * 3 + 2]);
+			convexHull->addPoint(pt,false);
+
+			pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 0],
+						shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 1],
+						shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 2]);
+			convexHull->addPoint(pt, false);
+
+			pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 0],
+						shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 1],
+						shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 2]);
+			convexHull->addPoint(pt, false);
+		}
+
+		convexHull->recalcLocalAabb();
+		convexHull->optimizeConvexHull();
+		compound->addChildShape(identity,convexHull);
+	}
+
+	return compound;
+}
 
 btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, const char* urdfPathPrefix)
 {
@@ -467,7 +505,18 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 						{
                             case FILE_OBJ:
                             {
-                                glmesh = LoadMeshFromObj(fullPath,collisionPathPrefix);
+								if (collision->m_flags & URDF_FORCE_CONCAVE_TRIMESH)
+								{
+									glmesh = LoadMeshFromObj(fullPath, collisionPathPrefix);
+								}
+								else
+								{
+									std::vector<tinyobj::shape_t> shapes;
+									std::string err = tinyobj::LoadObj(shapes, fullPath, collisionPathPrefix);
+									//create a convex hull for each shape, and store it in a btCompoundShape
+									shape = createConvexHullFromShapes(shapes);
+									return shape;
+								}
                                 break;
                             }
 						case FILE_STL:

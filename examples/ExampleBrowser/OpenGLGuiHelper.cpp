@@ -505,6 +505,8 @@ void OpenGLGuiHelper::autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWor
     
 void OpenGLGuiHelper::drawText3D( const char* txt, float posX, float posY, float posZ, float size)
 {
+	B3_PROFILE("OpenGLGuiHelper::drawText3D");
+
     btAssert(m_data->m_glApp);
     m_data->m_glApp->drawText3D(txt,posX,posY,posZ,size);
 }

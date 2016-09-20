@@ -28,6 +28,7 @@
 #include "SharedMemoryCommands.h"
 
 btVector3 gLastPickPos(0, 0, 0);
+bool gEnableRealTimeSimVR=false;
 
 struct UrdfLinkNameMapUtil
 {
@@ -556,7 +557,7 @@ PhysicsServerCommandProcessor::PhysicsServerCommandProcessor()
 	m_data = new PhysicsServerCommandProcessorInternalData();
 
 	createEmptyDynamicsWorld();
-	m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop = 0.0;
+	m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop = 0.0001;
 
 }
 
@@ -595,8 +596,8 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 	m_data->m_remoteDebugDrawer = new SharedMemoryDebugDrawer();
 
 
-	m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
-	m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = 0.05;
+	m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, -10));
+	m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = 0.04;
 }
 
 void PhysicsServerCommandProcessor::deleteCachedInverseDynamicsBodies()
@@ -2850,10 +2851,11 @@ double gDtInSec = 0.f;
 double gSubStep = 0.f;
 void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 {
-	if (m_data->m_allowRealTimeSimulation && m_data->m_guiHelper)
+	if ((gEnableRealTimeSimVR || m_data->m_allowRealTimeSimulation) && m_data->m_guiHelper)
 	{
 		static btAlignedObjectArray<char> gBufferServerToClient;
-		gBufferServerToClient.resize(32768);
+		gBufferServerToClient.resize(SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+
 
 
 		if (!m_data->m_hasGround)
@@ -2864,7 +2866,8 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			
 
 			loadUrdf("plane.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, true, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-	
+			loadUrdf("samurai.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+
 			if (m_data->m_gripperRigidbodyFixed == 0)
 			{
 				int bodyId = 0;
@@ -2874,11 +2877,11 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 					InteralBodyData* parentBody = m_data->getHandle(bodyId);
 					if (parentBody->m_multiBody)
 					{
-						parentBody->m_multiBody->setHasSelfCollision(1);
-						btVector3 pivotInParent(0, 0, 0);
+						parentBody->m_multiBody->setHasSelfCollision(0);
+						btVector3 pivotInParent(0.2, 0, 0);
 						btMatrix3x3 frameInParent;
-						frameInParent.setRotation(btQuaternion(0, 0, 0, 1));
-
+						//frameInParent.setRotation(btQuaternion(0, 0, 0, 1));
+						frameInParent.setIdentity();
 						btVector3 pivotInChild(0, 0, 0);
 						btMatrix3x3 frameInChild;
 						frameInChild.setIdentity();
@@ -2890,62 +2893,109 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 							m_data->m_gripperMultiBody->setJointPos(0, 0);
 							m_data->m_gripperMultiBody->setJointPos(2, 0);
 						}
-						m_data->m_gripperRigidbodyFixed->setMaxAppliedImpulse(1.);
+						m_data->m_gripperRigidbodyFixed->setMaxAppliedImpulse(10000);
 						btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*)m_data->m_dynamicsWorld;
 						world->addMultiBodyConstraint(m_data->m_gripperRigidbodyFixed);
 					}
 				}
-				
+#if 1
+				for (int i = 0; i < 10; i++)
+				{
+					loadUrdf("cube.urdf", btVector3(3, -2, 0.5+i), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+				}
+
 				loadUrdf("sphere2.urdf", btVector3(-2, 0, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 				loadUrdf("sphere2.urdf", btVector3(-2, 0, 2), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 				loadUrdf("sphere2.urdf", btVector3(-2, 0, 3), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+				loadUrdf("r2d2.urdf", btVector3(2, -2, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 				
-				loadUrdf("samurai.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+
 				loadUrdf("kuka_iiwa/model.urdf", btVector3(3, 0, 0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-				loadUrdf("cube_small.urdf", btVector3(0, 0, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-				loadUrdf("husky/husky.urdf", btVector3(1, 1, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+				loadUrdf("cube_small.urdf", btVector3(0.2, 0.2, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+				
+				
+				//				loadUrdf("cube_small.urdf", btVector3(0, 0, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+#endif
+//#define JENGA 1
+#ifdef JENGA
+				int jengaHeight = 17;
+				for (int j = 0; j < jengaHeight; j++)
+				{
+					for (int i = 0; i < 3; i++)
+					{
+						if (j & 1)
+						{
+							loadUrdf("jenga/jenga.urdf", btVector3(-0.5+0, 0.025*i, .0151*0.5 + .015*j), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+						}
+						else
+						{
+							btQuaternion orn(btVector3(0, 0, 1), SIMD_HALF_PI);
+							loadUrdf("jenga/jenga.urdf", btVector3(-0.5 -1 / 3.*0.075  + 0.025*i, +1 / 3.*0.075,0.0151*0.5 + .015*j), orn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+						}
+					}
+				}
+#endif
+			
+				//loadUrdf("nao/nao.urdf", btVector3(2,5, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+				loadUrdf("husky/husky.urdf", btVector3(5, 2, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 				m_data->m_huskyId = bodyId;
 				
 			}
+			loadSdf("kiva_shelf/model.sdf", &gBufferServerToClient[0], gBufferServerToClient.size(), true);
+			loadUrdf("teddy_vhacd.urdf", btVector3(1, 1, 2), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+
 		}
 
 		if (m_data->m_gripperRigidbodyFixed && m_data->m_gripperMultiBody)
 		{
 			m_data->m_gripperRigidbodyFixed->setFrameInB(btMatrix3x3(gVRGripperOrn));
 			m_data->m_gripperRigidbodyFixed->setPivotInB(gVRGripperPos);
-			if (m_data->m_gripperMultiBody->getNumLinks() > 2)
+			for (int i = 0; i < m_data->m_gripperMultiBody->getNumLinks(); i++)
 			{
-				for (int i = 0; i < 2; i++)
+				if (supportsJointMotor(m_data->m_gripperMultiBody, i))
 				{
-					if (supportsJointMotor(m_data->m_gripperMultiBody, i * 2))
+					btMultiBodyJointMotor* motor = (btMultiBodyJointMotor*)m_data->m_gripperMultiBody->getLink(i ).m_userPtr;
+					if (motor)
 					{
-						btMultiBodyJointMotor* motor = (btMultiBodyJointMotor*)m_data->m_gripperMultiBody->getLink(i * 2).m_userPtr;
-						if (motor)
+						motor->setErp(0.2);
+						btScalar posTarget = 0.1 + (1 - btMin(btScalar(0.75),gVRGripperAnalog)*btScalar(1.5))*SIMD_HALF_PI*0.29;
+						btScalar maxPosTarget = 0.55;
+						
+						if (m_data->m_gripperMultiBody->getJointPos(i) < 0)
 						{
-							motor->setErp(0.01);
-
-							motor->setPositionTarget(0.1+(1-gVRGripperAnalog)*SIMD_HALF_PI*0.5, 1);
-							
-							
-							motor->setVelocityTarget(0, 0.1);
-							btScalar maxImp = 1550.*m_data->m_physicsDeltaTime;
-							motor->setMaxAppliedImpulse(maxImp);
+							m_data->m_gripperMultiBody->setJointPos(i,0);
 						}
+						if (m_data->m_gripperMultiBody->getJointPos(i) > maxPosTarget)
+						{
+							m_data->m_gripperMultiBody->setJointPos(i, maxPosTarget);
+						}
+
+						motor->setPositionTarget(posTarget, 1);
+						motor->setVelocityTarget(0, 0.5);
+						btScalar maxImp = 1*m_data->m_physicsDeltaTime;
+						motor->setMaxAppliedImpulse(maxImp);
 					}
 				}
 			}
 		}
 
-		int maxSteps = 3;
-
-		int numSteps = m_data->m_dynamicsWorld->stepSimulation(dtInSec,maxSteps,m_data->m_physicsDeltaTime);
+		int maxSteps = m_data->m_numSimulationSubSteps+3;
+		if (m_data->m_numSimulationSubSteps)
+		{
+			gSubStep = m_data->m_physicsDeltaTime / m_data->m_numSimulationSubSteps;
+		}
+		else
+		{
+			gSubStep = m_data->m_physicsDeltaTime;
+		}
+		
+		int numSteps = m_data->m_dynamicsWorld->stepSimulation(dtInSec,maxSteps, gSubStep);
 		gDroppedSimulationSteps += numSteps > maxSteps ? numSteps - maxSteps : 0;
 
 		if (numSteps)
 		{
 			gNumSteps = numSteps;
 			gDtInSec = dtInSec;
-			gSubStep = m_data->m_physicsDeltaTime;
 		}
 	}
 }
