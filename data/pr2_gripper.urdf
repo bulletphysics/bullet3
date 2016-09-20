@@ -32,18 +32,23 @@
 
   <link name="left_gripper">
     <contact>
-      <lateral_friction value="5.0"/>
-      <spinning_friction value="0.1"/>
+      <lateral_friction value="1.0"/>
+      <spinning_friction value="1.5"/>
     </contact>
     <visual>
       <origin rpy="0.0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="l_finger.stl"/>
+        <mesh filename="l_finger_collision.stl"/>
       </geometry>
     </visual>
-     
+    <collision>
+      <origin rpy="0.0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="l_finger_collision.stl"/>
+      </geometry>
+    </collision>
     <inertial>
-      <mass value="0.5"/>
+      <mass value="0.1"/>
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
@@ -55,8 +60,8 @@
 
   <link name="left_tip">
     <contact>
-      <lateral_friction value="5.0"/>
-      <spinning_friction value="0.1"/>
+      <lateral_friction value="1.0"/>
+      <spinning_friction value="1.5"/>
     </contact>
     <visual>
       <origin rpy="0.0 0 0" xyz="0.09137 0.00495 0"/>
@@ -71,7 +76,7 @@
       <origin rpy="0.0 0 0" xyz="0.105 0.00495 0"/>
     </collision>
     <inertial>
-      <mass value="0.05"/>
+      <mass value="0.1"/>
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
@@ -86,18 +91,23 @@
 
   <link name="right_gripper">
     <contact>
-      <lateral_friction value="5.0"/>
-      <spinning_friction value="0.3"/>
+      <lateral_friction value="1.0"/>
+      <spinning_friction value="1.5"/>
     </contact>
     <visual>
       <origin rpy="-3.1415 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="l_finger.stl"/>
+        <mesh filename="l_finger_collision.stl"/>
       </geometry>
     </visual>
-     
+         <collision>
+      <origin rpy="-3.1415 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="l_finger_collision.stl"/>
+      </geometry>
+    </collision>
     <inertial>
-      <mass value="0.05"/>
+      <mass value="0.1"/>
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
@@ -109,8 +119,8 @@
 
   <link name="right_tip">
     <contact>
-      <lateral_friction value="5.0"/>
-      <spinning_friction value=".2"/>
+      <lateral_friction value="1.0"/>
+      <spinning_friction value="1.5"/>
     </contact>
     <visual>
       <origin rpy="-3.1415 0 0" xyz="0.09137 0.00495 0"/>
@@ -125,7 +135,7 @@
       <origin rpy="-3.1415 0 0" xyz="0.105 0.00495 0"/>
     </collision>
     <inertial>
-      <mass value="0.05"/>
+      <mass value="0.1"/>
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>

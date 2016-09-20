@@ -596,8 +596,9 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 	m_data->m_remoteDebugDrawer = new SharedMemoryDebugDrawer();
 
 
-	m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, -10));
-	m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = 0.04;
+	m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
+	m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = 0.05;
+
 }
 
 void PhysicsServerCommandProcessor::deleteCachedInverseDynamicsBodies()
@@ -2839,7 +2840,7 @@ void PhysicsServerCommandProcessor::replayFromLogFile(const char* fileName)
 	m_data->m_logPlayback = pb;
 }
 
-btVector3 gVRGripperPos(0,0,0);
+btVector3 gVRGripperPos(0,0,0.2);
 btQuaternion gVRGripperOrn(0,0,0,1);
 btScalar gVRGripperAnalog = 0;
 bool gVRGripperClosed = false;
@@ -2911,26 +2912,25 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 				
 
 				loadUrdf("kuka_iiwa/model.urdf", btVector3(3, 0, 0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-				loadUrdf("cube_small.urdf", btVector3(0.2, 0.2, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+				loadUrdf("cube_small.urdf", btVector3(0.3, 0.6, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 				
 				
 				//				loadUrdf("cube_small.urdf", btVector3(0, 0, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 #endif
-//#define JENGA 1
-#ifdef JENGA
-				int jengaHeight = 17;
+#if 0
+				int jengaHeight = 10;
 				for (int j = 0; j < jengaHeight; j++)
 				{
 					for (int i = 0; i < 3; i++)
 					{
 						if (j & 1)
 						{
-							loadUrdf("jenga/jenga.urdf", btVector3(-0.5+0, 0.025*i, .0151*0.5 + .015*j), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+							loadUrdf("jenga/jenga.urdf", btVector3(-0.5, 0.05*i, .03*0.5 + .03*j), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 						}
 						else
 						{
 							btQuaternion orn(btVector3(0, 0, 1), SIMD_HALF_PI);
-							loadUrdf("jenga/jenga.urdf", btVector3(-0.5 -1 / 3.*0.075  + 0.025*i, +1 / 3.*0.075,0.0151*0.5 + .015*j), orn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+							loadUrdf("jenga/jenga.urdf", btVector3(-0.5 -1 / 3.*0.15  + 0.05*i, +1 / 3.*0.15,0.03*0.5 + .03*j), orn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 						}
 					}
 				}
@@ -2943,6 +2943,8 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			}
 			loadSdf("kiva_shelf/model.sdf", &gBufferServerToClient[0], gBufferServerToClient.size(), true);
 			loadUrdf("teddy_vhacd.urdf", btVector3(1, 1, 2), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+
+			m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, -10));
 
 		}
 
