@@ -1663,6 +1663,8 @@ static PyObject* pybullet_calculateInverseKinematicsKuka(PyObject* self,
         if (PyArg_ParseTuple(args, "iO", &bodyIndex, &targetPosObj))
         {
             double pos[3];
+            double ori[4]={0,1.0,0,0};
+            double dt=0.0001;
             
             if (pybullet_internalSetVectord(targetPosObj,pos))
             {
@@ -1671,7 +1673,7 @@ static PyObject* pybullet_calculateInverseKinematicsKuka(PyObject* self,
                 int resultBodyIndex;
                 int result;
                 b3SharedMemoryCommandHandle command = b3CalculateInverseKinematicsCommandInit(sm,bodyIndex,
-                                                                                              pos);
+                                                                                              pos,ori,dt);
                 statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
                 
                 result = b3GetStatusInverseKinematicsJointPositions(statusHandle,
