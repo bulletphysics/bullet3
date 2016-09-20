@@ -69,6 +69,7 @@ public:
 	void CalcDeltaThetasDLS();
 	void CalcDeltaThetasDLSwithSVD();
 	void CalcDeltaThetasSDLS();
+    void CalcThetasDotDLS(float dt);
 
 	void UpdateThetas();
 	double UpdateErrorArray(VectorR3* targets);		// Returns sum of errors

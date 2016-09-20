@@ -402,7 +402,8 @@ struct CalculateInverseKinematicsArgs
 	int m_bodyUniqueId;
 //	double m_jointPositionsQ[MAX_DEGREE_OF_FREEDOM];
 	double m_targetPosition[3];
-//	double m_targetOrientation[4];//orientation represented as quaternion, x,y,z,w
+	double m_targetOrientation[4];//orientation represented as quaternion, x,y,z,w
+    double m_dt;
 };
 
 struct CalculateInverseKinematicsResultArgs

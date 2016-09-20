@@ -97,9 +97,11 @@ void IKTrajectoryHelper::createKukaIIWA()
 }
 
 bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
+                                   const double endEffectorTargetOrientation[4],
                                    const double endEffectorWorldPosition[3],
+                                   const double endEffectorWorldOrientation[4],
                const double* q_current, int numQ,
-               double* q_new, int ikMethod, const double* linear_jacobian1, int jacobian_size1)
+               double* q_new, int ikMethod, const double* linear_jacobian, const double* angular_jacobian, int jacobian_size, float dt)
 {
 
     if (numQ != 7)
@@ -127,26 +129,45 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
     VectorRn deltaS(3);
     for (int i = 0; i < 3; ++i)
     {
-        deltaS.Set(i,endEffectorTargetPosition[i]-endEffectorWorldPosition[i]);
+        deltaS.Set(i,(endEffectorTargetPosition[i]-endEffectorWorldPosition[i])/dt);
     }
-    m_data->m_ikJacobian->SetDeltaS(deltaS);
-
+    
+    // Set one end effector world orientation from Bullet
+    VectorRn deltaR(3);
+    btQuaternion startQ(endEffectorWorldOrientation[0],endEffectorWorldOrientation[1],endEffectorWorldOrientation[2],endEffectorWorldOrientation[3]);
+    btQuaternion endQ(endEffectorTargetOrientation[0],endEffectorTargetOrientation[1],endEffectorTargetOrientation[2],endEffectorTargetOrientation[3]);
+    btQuaternion deltaQ = endQ*startQ.inverse();
+    float angle = deltaQ.getAngle();
+    btVector3 axis = deltaQ.getAxis();
+    float angleDot = angle/dt;
+    btVector3 angularVel = angleDot*axis.normalize();
+    for (int i = 0; i < 3; ++i)
+    {
+        deltaR.Set(i,angularVel[i]);
+    }
+    
+    VectorRn deltaC(6);
+    for (int i = 0; i < 3; ++i)
+    {
+        deltaC.Set(i,deltaS[i]);
+        deltaC.Set(i+3,deltaR[i]);
+    }
+    m_data->m_ikJacobian->SetDeltaS(deltaC);
+    
     // Set Jacobian from Bullet body Jacobian
     int nRow = m_data->m_ikJacobian->GetNumRows();
     int nCol = m_data->m_ikJacobian->GetNumCols();
-    if (jacobian_size1)
+    b3Assert(jacobian_size==nRow*nCol);
+    MatrixRmn completeJacobian(nRow,nCol);
+    for (int i = 0; i < nRow/2; ++i)
     {
-        b3Assert(jacobian_size1==nRow*nCol);
-        MatrixRmn linearJacobian(nRow,nCol);
-        for (int i = 0; i < nRow; ++i)
+        for (int j = 0; j < nCol; ++j)
         {
-            for (int j = 0; j < nCol; ++j)
-            {
-                linearJacobian.Set(i,j,linear_jacobian1[i*nCol+j]);
-            }
+            completeJacobian.Set(i,j,linear_jacobian[i*nCol+j]);
+            completeJacobian.Set(i+nRow/2,j,angular_jacobian[i*nCol+j]);
         }
-        m_data->m_ikJacobian->SetJendTrans(linearJacobian);
     }
+    m_data->m_ikJacobian->SetJendTrans(completeJacobian);
     
     // Calculate the change in theta values
     switch (ikMethod) {
@@ -165,19 +186,22 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
         case IK2_SDLS:
             m_data->m_ikJacobian->CalcDeltaThetasSDLS();			// Selectively damped least squares method
             break;
+        case IK2_VEL_DLS:
+            m_data->m_ikJacobian->CalcThetasDotDLS(dt);  // Damped least square for velocity IK
+            break;
         default:
             m_data->m_ikJacobian->ZeroDeltaThetas();
             break;
     }
     
     m_data->m_ikJacobian->UpdateThetas();
-
+    
     // Apply the change in the theta values
-    m_data->m_ikJacobian->UpdatedSClampValue(&targets);
+    //m_data->m_ikJacobian->UpdatedSClampValue(&targets);
     
     for (int i=0;i<numQ;i++)
     {
-        q_new[i] = m_data->m_ikNodes[i]->GetTheta();
+        q_new[i] = m_data->m_ikNodes[i]->GetTheta()*dt + q_current[i];
     }
     return true;
 }

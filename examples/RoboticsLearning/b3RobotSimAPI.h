@@ -93,7 +93,8 @@ struct b3RobotSimInverseKinematicArgs
 //	double* m_currentJointPositions;
 //	int m_numPositions;
 	double m_endEffectorTargetPosition[3];
-//	double m_endEffectorTargetOrientation[4];
+	double m_endEffectorTargetOrientation[4];
+    double m_dt;
 	int m_flags;
 
 	b3RobotSimInverseKinematicArgs()
@@ -149,7 +150,7 @@ public:
     
     void getBodyJacobian(int bodyUniqueId, int linkIndex, const double* localPosition, const double* jointPositions, const double* jointVelocities, const double* jointAccelerations, double* linearJacobian, double* angularJacobian);
     
-    void getLinkState(int bodyUniqueId, int linkIndex, double* worldPosition);
+    void getLinkState(int bodyUniqueId, int linkIndex, double* worldPosition, double* worldOrientation);
 };
 
 #endif //B3_ROBOT_SIM_API_H

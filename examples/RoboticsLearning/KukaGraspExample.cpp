@@ -27,6 +27,8 @@ class KukaGraspExample : public CommonExampleInterface
     int m_targetSphereInstance;
     b3Vector3 m_targetPos;
     b3Vector3 m_worldPos;
+    b3Vector4 m_targetOri;
+    b3Vector4 m_worldOri;
     double m_time;
 	int m_options;
 	
@@ -145,7 +147,7 @@ public:
 
         m_time+=dt;
         m_targetPos.setValue(0.4-0.4*b3Cos( m_time), 0, 0.8+0.4*b3Cos( m_time));
-
+        m_targetOri.setValue(0, 1.0, 0, 0);
         
         
         int numJoints = m_robotSim.getNumJoints(m_kukaIndex);
@@ -155,6 +157,7 @@ public:
             double q_current[7]={0,0,0,0,0,0,0};
 
             double world_position[3]={0,0,0};
+            double world_orientation[4]={0,0,0,0};
             b3JointStates jointStates;
             
             if (m_robotSim.getJointStates(m_kukaIndex,jointStates))
@@ -166,14 +169,19 @@ public:
                     q_current[i] = jointStates.m_actualStateQ[i+7];
                 }
             }
-            // compute body position
-            m_robotSim.getLinkState(0, 6, world_position);
+            // compute body position and orientation
+            m_robotSim.getLinkState(0, 6, world_position, world_orientation);
             m_worldPos.setValue(world_position[0], world_position[1], world_position[2]);
+            m_worldOri.setValue(world_orientation[0], world_orientation[1], world_orientation[2], world_orientation[3]);
             
-            b3Vector3DoubleData dataOut;
-            m_targetPos.serializeDouble(dataOut);
+            b3Vector3DoubleData targetPosDataOut;
+            m_targetPos.serializeDouble(targetPosDataOut);
             b3Vector3DoubleData worldPosDataOut;
             m_worldPos.serializeDouble(worldPosDataOut);
+            b3Vector3DoubleData targetOriDataOut;
+            m_targetOri.serializeDouble(targetOriDataOut);
+            b3Vector3DoubleData worldOriDataOut;
+            m_worldOri.serializeDouble(worldOriDataOut);
 
             
 			b3RobotSimInverseKinematicArgs ikargs;
@@ -183,15 +191,15 @@ public:
 			ikargs.m_bodyUniqueId = m_kukaIndex;
 //			ikargs.m_currentJointPositions = q_current;
 //			ikargs.m_numPositions = 7;
-            ikargs.m_endEffectorTargetPosition[0] = dataOut.m_floats[0];
-            ikargs.m_endEffectorTargetPosition[1] = dataOut.m_floats[1];
-            ikargs.m_endEffectorTargetPosition[2] = dataOut.m_floats[2];
+            ikargs.m_endEffectorTargetPosition[0] = targetPosDataOut.m_floats[0];
+            ikargs.m_endEffectorTargetPosition[1] = targetPosDataOut.m_floats[1];
+            ikargs.m_endEffectorTargetPosition[2] = targetPosDataOut.m_floats[2];
 			
-//todo: orientation IK target
-//			ikargs.m_endEffectorTargetOrientation[0] = 0;
-//			ikargs.m_endEffectorTargetOrientation[1] = 0;
-//			ikargs.m_endEffectorTargetOrientation[2] = 0;
-//			ikargs.m_endEffectorTargetOrientation[3] = 1;
+			ikargs.m_endEffectorTargetOrientation[0] = targetOriDataOut.m_floats[0];
+			ikargs.m_endEffectorTargetOrientation[1] = targetOriDataOut.m_floats[1];
+			ikargs.m_endEffectorTargetOrientation[2] = targetOriDataOut.m_floats[2];
+			ikargs.m_endEffectorTargetOrientation[3] = targetOriDataOut.m_floats[3];
+            ikargs.m_dt = dt;
 
 			if (m_robotSim.calculateInverseKinematics(ikargs,ikresults))
 			{

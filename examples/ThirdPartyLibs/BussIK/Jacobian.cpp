@@ -55,7 +55,7 @@ Jacobian::Jacobian(Tree* tree)
 	Jacobian::tree = tree;
 	nEffector = tree->GetNumEffector();
 	nJoint = tree->GetNumJoint();
-	nRow = 3 * nEffector;
+	nRow = 2 * 3 * nEffector; // Include both linear and angular part
 	nCol = nJoint;
 
 	Jend.SetSize(nRow, nCol);				// The Jocobian matrix
@@ -274,6 +274,31 @@ void Jacobian::CalcDeltaThetasDLS()
 	if ( maxChange>MaxAngleDLS ) {
 		dTheta *= MaxAngleDLS/maxChange;
 	}
+}
+
+void Jacobian::CalcThetasDotDLS(float dt)
+{
+    const MatrixRmn& J = ActiveJacobian();
+    
+    MatrixRmn::MultiplyTranspose(J, J, U);		// U = J * (J^T)
+    U.AddToDiagonal( DampingLambdaSq );
+    
+    // Use the next four lines instead of the succeeding two lines for the DLS method with clamped error vector e.
+    // CalcdTClampedFromdS();
+    // VectorRn dTextra(3*nEffector);
+    // U.Solve( dT, &dTextra );
+    // J.MultiplyTranspose( dTextra, dTheta );
+    
+    // Use these two lines for the traditional DLS method
+    U.Solve( dS, &dT1 );
+    J.MultiplyTranspose( dT1, dTheta );
+    
+    // Scale back to not exceed maximum angle changes
+    double MaxVelDLS = MaxAngleDLS/dt;
+    double maxChange = dTheta.MaxAbs();
+    if ( maxChange>MaxVelDLS ) {
+        dTheta *= MaxVelDLS/maxChange;
+    }
 }
 
 void Jacobian::CalcDeltaThetasDLSwithSVD() 
