@@ -43,26 +43,22 @@ struct Shader : public IShader {
     {
         m_invModelMat = m_modelMat.invert_transpose();
     }
-    
+
     virtual Vec4f vertex(int iface, int nthvert) {
-		
-		Vec2f uv = m_model->uv(iface, nthvert);
-		//printf("uv = %f,%f\n", uv.x,uv.y);
+        Vec2f uv = m_model->uv(iface, nthvert);
         varying_uv.set_col(nthvert, uv);
-		
         //varying_nrm.set_col(nthvert, proj<3>((m_projectionMatrix*m_modelView).invert_transpose()*embed<4>(m_model->normal(iface, nthvert), 0.f)));
         varying_nrm.set_col(nthvert, proj<3>(m_invModelMat*embed<4>(m_model->normal(iface, nthvert), 0.f)));
-		//m_localNormal = m_model->normal(iface, nthvert);
-		//varying_nrm.set_col(nthvert, m_model->normal(iface, nthvert));
-		
-		Vec3f unScaledVert = m_model->vert(iface, nthvert);
-		
-		Vec3f scaledVert=Vec3f(unScaledVert[0]*m_localScaling[0],unScaledVert[1]*m_localScaling[1],unScaledVert[2]*m_localScaling[2]);
-        
-		Vec4f gl_Vertex = m_projectionMatrix*m_modelView1*embed<4>(scaledVert);
-		
+        //m_localNormal = m_model->normal(iface, nthvert);
+        //varying_nrm.set_col(nthvert, m_model->normal(iface, nthvert));
+        Vec3f unScaledVert = m_model->vert(iface, nthvert);
+
+        Vec3f scaledVert=Vec3f(unScaledVert[0]*m_localScaling[0],
+                               unScaledVert[1]*m_localScaling[1],
+                               unScaledVert[2]*m_localScaling[2]);
+
+        Vec4f gl_Vertex = m_projectionMatrix*m_modelView1*embed<4>(scaledVert);
         varying_tri.set_col(nthvert, gl_Vertex);
-        //ndc_tri.set_col(nthvert, proj<3>(gl_Vertex/gl_Vertex[3]));
         return gl_Vertex;
     }
 
@@ -70,19 +66,24 @@ struct Shader : public IShader {
         Vec3f bn = (varying_nrm*bar).normalize();
         Vec2f uv = varying_uv*bar;
 
-		//float diff = 1;//full-bright
-		float ambient = 0.7;
-		//float diff = ambient+b3Min(b3Max(0.f, bn*light_dir_world),(1-ambient));
-		float diff = ambient+b3Min(b3Max(0.f, bn*m_light_dir_local),(1-ambient));
-		//float diff = b3Max(0.f, n*m_light_dir_local);
-        color = m_model->diffuse(uv)*diff;
-        
+        Vec3f reflection_direction = (bn * (bn * m_light_dir_local * 2.f) - m_light_dir_local).normalize();
+        float specular = pow(b3Max(reflection_direction.z, 0.f), m_model->specular(uv));
+        float diffuse = b3Max(0.f, bn * m_light_dir_local);
+
+	float ambient_coefficient = 0.6;
+        float diffuse_coefficient = 0.35;
+        float specular_coefficient = 0.05;
+
+        float intensity = ambient_coefficient + b3Min(diffuse * diffuse_coefficient + specular * specular_coefficient, 1.0f - ambient_coefficient);
+
+        color = m_model->diffuse(uv) * intensity;
+
         //warning: bgra color is swapped to rgba to upload texture
         color.bgra[0] *= m_colorRGBA[0];
         color.bgra[1] *= m_colorRGBA[1];
         color.bgra[2] *= m_colorRGBA[2];
         color.bgra[3] *= m_colorRGBA[3];
-        
+
         return false;
     }
 };
@@ -292,5 +293,3 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
     }
         
 }
-
-
