@@ -39,7 +39,7 @@ subject to the following restrictions:
 //temp globals, to improve GJK/EPA/penetration calculations
 int gNumDeepPenetrationChecks = 0;
 int gNumGjkChecks = 0;
-
+btScalar gGjkEpaPenetrationTolerance = 0.001;
 
 btGjkPairDetector::btGjkPairDetector(const btConvexShape* objectA,const btConvexShape* objectB,btSimplexSolverInterface* simplexSolver,btConvexPenetrationDepthSolver*	penetrationDepthSolver)
 :m_cachedSeparatingAxis(btScalar(0.),btScalar(1.),btScalar(0.)),
@@ -304,7 +304,7 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput& inpu
 		}
 
 		bool catchDegeneratePenetrationCase = 
-			(m_catchDegeneracies && m_penetrationDepthSolver && m_degenerateSimplex && ((distance+margin) < 0.01));
+			(m_catchDegeneracies && m_penetrationDepthSolver && m_degenerateSimplex && ((distance+margin) < gGjkEpaPenetrationTolerance));
 
 		//if (checkPenetration && !isValid)
 		if (checkPenetration && (!isValid || catchDegeneratePenetrationCase ))

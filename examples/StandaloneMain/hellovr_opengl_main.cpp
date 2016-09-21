@@ -1,4 +1,5 @@
 #ifdef BT_ENABLE_VR
+//#define BT_USE_CUSTOM_PROFILER
 //========= Copyright Valve Corporation ============//
 
 #include "../OpenGLWindow/SimpleOpenGL3App.h"
@@ -701,11 +702,12 @@ bool CMainApplication::HandleInput()
 							{
 								glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 								///todo(erwincoumans) can't use reguar debug drawer, because physics/graphics are not in sync
+								//so it can (and likely will) cause crashes
 								//add a special debug drawer that deals with this
-								//gDebugDrawFlags = btIDebugDraw::DBG_DrawWireframe;// :DBG_DrawContactPoints
+									//gDebugDrawFlags = btIDebugDraw::DBG_DrawWireframe+btIDebugDraw::DBG_DrawContactPoints+
 									//btIDebugDraw::DBG_DrawConstraintLimits+
 									//btIDebugDraw::DBG_DrawConstraints
-									;
+									//;
 							}
 
 							sExample->vrControllerButtonCallback(unDevice, button, 1, pos, orn);
@@ -751,7 +753,7 @@ bool CMainApplication::HandleInput()
 				}
 			} 
 
-			m_rbShowTrackedDevice[ unDevice ] = state.ulButtonPressed == 0;
+//			m_rbShowTrackedDevice[ unDevice ] = state.ulButtonPressed == 0;
 		}
 		sPrevStates[unDevice] = state;
 	}
@@ -769,6 +771,8 @@ void CMainApplication::RunMainLoop()
 
 	while ( !bQuit && !m_app->m_window->requestedExit())
 	{
+		B3_PROFILE("main");
+
 		bQuit = HandleInput();
 
 		RenderFrame();
@@ -812,9 +816,15 @@ void CMainApplication::RenderFrame()
 	// for now as fast as possible
 	if ( m_pHMD )
 	{
-		DrawControllers();
+		{
+			B3_PROFILE("DrawControllers");
+			DrawControllers();
+		}
 		RenderStereoTargets();
-		RenderDistortion();
+		{
+			B3_PROFILE("RenderDistortion");
+			RenderDistortion();
+		}
 
 		vr::Texture_t leftEyeTexture = {(void*)leftEyeDesc.m_nResolveTextureId, vr::API_OpenGL, vr::ColorSpace_Gamma };
 		vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture );
@@ -824,6 +834,7 @@ void CMainApplication::RenderFrame()
 
 	if ( m_bVblank && m_bGlFinishHack )
 	{
+		B3_PROFILE("bGlFinishHack");
 		//$ HACKHACK. From gpuview profiling, it looks like there is a bug where two renders and a present
 		// happen right before and after the vsync causing all kinds of jittering issues. This glFinish()
 		// appears to clear that up. Temporary fix while I try to get nvidia to investigate this problem.
@@ -833,6 +844,7 @@ void CMainApplication::RenderFrame()
 
 	// SwapWindow
 	{
+		B3_PROFILE("m_app->swapBuffer");
 		m_app->swapBuffer();
 		//SDL_GL_SwapWindow( m_pWindow );
 		
@@ -840,6 +852,7 @@ void CMainApplication::RenderFrame()
 
 	// Clear
 	{
+		B3_PROFILE("glClearColor");
 		// We want to make sure the glFinish waits for the entire present to complete, not just the submission
 		// of the command. So, we do a clear here right here so the glFinish will wait fully for the swap.
 		glClearColor( 0, 0, 0, 1 );
@@ -849,6 +862,8 @@ void CMainApplication::RenderFrame()
 	// Flush and wait for swap.
 	if ( m_bVblank )
 	{
+		B3_PROFILE("glFlushglFinish");
+
 		glFlush();
 		glFinish();
 	}
@@ -856,13 +871,18 @@ void CMainApplication::RenderFrame()
 	// Spew out the controller and pose count whenever they change.
 	if ( m_iTrackedControllerCount != m_iTrackedControllerCount_Last || m_iValidPoseCount != m_iValidPoseCount_Last )
 	{
+		B3_PROFILE("debug pose");
+
 		m_iValidPoseCount_Last = m_iValidPoseCount;
 		m_iTrackedControllerCount_Last = m_iTrackedControllerCount;
 		
 		b3Printf( "PoseCount:%d(%s) Controllers:%d\n", m_iValidPoseCount, m_strPoseClasses.c_str(), m_iTrackedControllerCount );
 	}
 
-	UpdateHMDMatrixPose();
+	{
+		B3_PROFILE("UpdateHMDMatrixPose");
+		UpdateHMDMatrixPose();
+	}
 }
 
 
@@ -1565,6 +1585,8 @@ void CMainApplication::SetupDistortion()
 //-----------------------------------------------------------------------------
 void CMainApplication::RenderStereoTargets()
 {
+	B3_PROFILE("CMainApplication::RenderStereoTargets");
+
 	sExample->stepSimulation(1./60.);
 
 	glClearColor( 0.15f, 0.15f, 0.18f, 1.0f ); // nice background color, but not black
@@ -1641,7 +1663,7 @@ void CMainApplication::RenderStereoTargets()
 	{
 		sExample->physicsDebugDraw(gDebugDrawFlags);
 	} 
-	
+	else
 	{
 		sExample->renderScene();
 	}
@@ -1692,7 +1714,7 @@ void CMainApplication::RenderStereoTargets()
 	{
 		sExample->physicsDebugDraw(gDebugDrawFlags);
 	} 
-
+	else
 	{
 		sExample->renderScene();
 	}
@@ -1720,6 +1742,8 @@ void CMainApplication::RenderStereoTargets()
 //-----------------------------------------------------------------------------
 void CMainApplication::RenderScene( vr::Hmd_Eye nEye )
 {
+	B3_PROFILE("RenderScene");
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 
@@ -1866,38 +1890,47 @@ Matrix4 CMainApplication::GetCurrentViewProjectionMatrix( vr::Hmd_Eye nEye )
 //-----------------------------------------------------------------------------
 void CMainApplication::UpdateHMDMatrixPose()
 {
-	if ( !m_pHMD )
+	if (!m_pHMD)
 		return;
-
-	vr::VRCompositor()->WaitGetPoses(m_rTrackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0 );
+	{
+		B3_PROFILE("WaitGetPoses");
+		vr::VRCompositor()->WaitGetPoses(m_rTrackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
+	}
 
 	m_iValidPoseCount = 0;
 	m_strPoseClasses = "";
-	for ( int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice )
 	{
-		if ( m_rTrackedDevicePose[nDevice].bPoseIsValid )
+		B3_PROFILE("for loop");
+
+		for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice)
 		{
-			m_iValidPoseCount++;
-			m_rmat4DevicePose[nDevice] = ConvertSteamVRMatrixToMatrix4( m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking );
-			if (m_rDevClassChar[nDevice]==0)
+			if (m_rTrackedDevicePose[nDevice].bPoseIsValid)
 			{
-				switch (m_pHMD->GetTrackedDeviceClass(nDevice))
+				m_iValidPoseCount++;
+				m_rmat4DevicePose[nDevice] = ConvertSteamVRMatrixToMatrix4(m_rTrackedDevicePose[nDevice].mDeviceToAbsoluteTracking);
+				if (m_rDevClassChar[nDevice] == 0)
 				{
-				case vr::TrackedDeviceClass_Controller:        m_rDevClassChar[nDevice] = 'C'; break;
-				case vr::TrackedDeviceClass_HMD:               m_rDevClassChar[nDevice] = 'H'; break;
-				case vr::TrackedDeviceClass_Invalid:           m_rDevClassChar[nDevice] = 'I'; break;
-				case vr::TrackedDeviceClass_Other:             m_rDevClassChar[nDevice] = 'O'; break;
-				case vr::TrackedDeviceClass_TrackingReference: m_rDevClassChar[nDevice] = 'T'; break;
-				default:                                       m_rDevClassChar[nDevice] = '?'; break;
+					switch (m_pHMD->GetTrackedDeviceClass(nDevice))
+					{
+					case vr::TrackedDeviceClass_Controller:        m_rDevClassChar[nDevice] = 'C'; break;
+					case vr::TrackedDeviceClass_HMD:               m_rDevClassChar[nDevice] = 'H'; break;
+					case vr::TrackedDeviceClass_Invalid:           m_rDevClassChar[nDevice] = 'I'; break;
+					case vr::TrackedDeviceClass_Other:             m_rDevClassChar[nDevice] = 'O'; break;
+					case vr::TrackedDeviceClass_TrackingReference: m_rDevClassChar[nDevice] = 'T'; break;
+					default:                                       m_rDevClassChar[nDevice] = '?'; break;
+					}
 				}
+				m_strPoseClasses += m_rDevClassChar[nDevice];
 			}
-			m_strPoseClasses += m_rDevClassChar[nDevice];
 		}
 	}
-
-	if ( m_rTrackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid )
 	{
-		m_mat4HMDPose = m_rmat4DevicePose[vr::k_unTrackedDeviceIndex_Hmd].invert();
+		B3_PROFILE("m_mat4HMDPose invert");
+
+		if (m_rTrackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid)
+		{
+			m_mat4HMDPose = m_rmat4DevicePose[vr::k_unTrackedDeviceIndex_Hmd].invert();
+		}
 	}
 }
 
@@ -2145,6 +2178,11 @@ void CGLRenderModel::Draw()
 //-----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
+#ifdef BT_USE_CUSTOM_PROFILER
+	//b3SetCustomEnterProfileZoneFunc(...);
+	//b3SetCustomLeaveProfileZoneFunc(...);
+#endif
+
 	CMainApplication *pMainApplication = new CMainApplication( argc, argv );
 
 	if (!pMainApplication->BInit())
@@ -2156,6 +2194,10 @@ int main(int argc, char *argv[])
 	pMainApplication->RunMainLoop();
 
 	pMainApplication->Shutdown();
+
+#ifdef BT_USE_CUSTOM_PROFILER
+//...
+#endif
 
 	return 0;
 }

@@ -19,6 +19,10 @@
 extern btVector3 gLastPickPos;
 btVector3 gVRTeleportPos(0,0,0);
 btQuaternion gVRTeleportOrn(0, 0, 0,1);
+extern btVector3 gVRGripperPos;
+extern btQuaternion gVRGripperOrn;
+extern btScalar gVRGripperAnalog;
+extern bool gEnableRealTimeSimVR;
 
 extern bool gVRGripperClosed;
 
@@ -893,6 +897,8 @@ extern double gSubStep;
 
 void PhysicsServerExample::renderScene()
 {
+	B3_PROFILE("PhysicsServerExample::RenderScene");
+
 	///debug rendering
 	//m_args[0].m_cs->lock();
 	
@@ -934,6 +940,8 @@ void PhysicsServerExample::renderScene()
 	if (gDebugRenderToggle)
 	if (m_guiHelper->getAppInterface()->m_renderer->getActiveCamera()->isVRCamera())
 	{
+		gEnableRealTimeSimVR = true;
+		B3_PROFILE("Draw Debug HUD");
 		//some little experiment to add text/HUD to a VR camera (HTC Vive/Oculus Rift)
 
 		static int frameCount=0;
@@ -1154,16 +1162,12 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 	}
 }
 
-extern btVector3 gVRGripperPos;
-extern btQuaternion gVRGripperOrn;
-extern btScalar gVRGripperAnalog;
-
 
 
 void	PhysicsServerExample::vrControllerMoveCallback(int controllerId, float pos[4], float orn[4], float analogAxis)
 {
 
-	
+	gEnableRealTimeSimVR = true;
 
 	if (controllerId <= 0 || controllerId >= MAX_VR_CONTROLLERS)
 	{

@@ -1,6 +1,11 @@
 <?xml version="0.0" ?>
 <robot name="urdf_robot">
   <link name="baseLink">
+  	<contact>
+      <rolling_friction value="0.03"/>
+      <spinning_friction value="0.03"/>
+    </contact>
+
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
        <mass value="10.0"/>
