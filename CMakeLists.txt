@@ -9,6 +9,10 @@ SET(BULLET_VERSION 2.85)
 
 IF(COMMAND cmake_policy)
    cmake_policy(SET CMP0003 NEW)
+   if(POLICY CMP0042)
+      # Enable MACOSX_RPATH by default.
+      cmake_policy(SET CMP0042 NEW)
+   endif(POLICY CMP0042)
 ENDIF(COMMAND cmake_policy)
 
 
