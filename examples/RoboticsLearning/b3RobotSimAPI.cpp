@@ -481,8 +481,7 @@ int b3GetStatusInverseKinematicsJointPositions(b3SharedMemoryStatusHandle status
 bool b3RobotSimAPI::calculateInverseKinematics(const struct b3RobotSimInverseKinematicArgs& args, struct b3RobotSimInverseKinematicsResults& results)
 {
 
-	b3SharedMemoryCommandHandle command = b3CalculateInverseKinematicsCommandInit(m_data->m_physicsClient,args.m_bodyUniqueId,
-                                                                                  args.m_endEffectorTargetPosition);
+	b3SharedMemoryCommandHandle command = b3CalculateInverseKinematicsCommandInit(m_data->m_physicsClient,args.m_bodyUniqueId,                                                                                args.m_endEffectorTargetPosition,args.m_endEffectorTargetOrientation,args.m_dt);
 
     b3SharedMemoryStatusHandle statusHandle;
 	statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClient, command);
@@ -961,7 +960,7 @@ void b3RobotSimAPI::getBodyJacobian(int bodyUniqueId, int linkIndex, const doubl
     }
 }
 
-void b3RobotSimAPI::getLinkState(int bodyUniqueId, int linkIndex, double* worldPosition)
+void b3RobotSimAPI::getLinkState(int bodyUniqueId, int linkIndex, double* worldPosition, double* worldOrientation)
 {
     b3SharedMemoryCommandHandle command = b3RequestActualStateCommandInit(m_data->m_physicsClient,bodyUniqueId);
     b3SharedMemoryStatusHandle statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClient, command);
@@ -973,5 +972,9 @@ void b3RobotSimAPI::getLinkState(int bodyUniqueId, int linkIndex, double* worldP
         worldPosition[0] = linkState.m_worldPosition[0];
         worldPosition[1] = linkState.m_worldPosition[1];
         worldPosition[2] = linkState.m_worldPosition[2];
+        worldOrientation[0] = linkState.m_worldOrientation[0];
+        worldOrientation[1] = linkState.m_worldOrientation[1];
+        worldOrientation[2] = linkState.m_worldOrientation[2];
+        worldOrientation[3] = linkState.m_worldOrientation[3];
     }
 }

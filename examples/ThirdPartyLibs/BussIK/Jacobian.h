@@ -69,8 +69,10 @@ public:
 	void CalcDeltaThetasDLS();
 	void CalcDeltaThetasDLSwithSVD();
 	void CalcDeltaThetasSDLS();
+    void CalcThetasDotDLS(float dt);
 
 	void UpdateThetas();
+    void UpdateThetaDot();
 	double UpdateErrorArray(VectorR3* targets);		// Returns sum of errors
 	const VectorRn& GetErrorArray() const { return errorArray; }
 	void UpdatedSClampValue(VectorR3* targets);

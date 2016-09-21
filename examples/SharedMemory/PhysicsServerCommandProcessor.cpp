@@ -2577,6 +2577,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							{
                                 b3AlignedObjectArray<double> jacobian_linear;
                                 jacobian_linear.resize(3*7);
+                                b3AlignedObjectArray<double> jacobian_angular;
+                                jacobian_angular.resize(3*7);
                                 int jacSize = 0;
                                 
                                 btInverseDynamics::MultiBodyTree* tree = m_data->findOrCreateTree(bodyHandle->m_multiBody);
@@ -2606,12 +2608,15 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                     {
                                         tree->calculateJacobians(q);
                                         btInverseDynamics::mat3x jac_t(3, num_dofs);
+                                        btInverseDynamics::mat3x jac_r(3,num_dofs);
                                         tree->getBodyJacobianTrans(endEffectorLinkIndex, &jac_t);
+                                        tree->getBodyJacobianRot(endEffectorLinkIndex, &jac_r);
                                         for (int i = 0; i < 3; ++i)
                                         {
                                             for (int j = 0; j < num_dofs; ++j)
                                             {
                                                 jacobian_linear[i*num_dofs+j] = jac_t(i,j);
+                                                jacobian_angular[i*num_dofs+j] = jac_r(i,j);
                                             }
                                         }
                                     }
@@ -2619,19 +2624,22 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                 
                                 
                                 double q_new[7];
-                                int ikMethod=IK2_DLS;
+                                int ikMethod=IK2_VEL_DLS;
                                
                                 btVector3DoubleData endEffectorWorldPosition;
-                               
+                                btVector3DoubleData endEffectorWorldOrientation;
                                 
                                 btVector3 endEffectorPosWorld =  bodyHandle->m_multiBody->getLink(endEffectorLinkIndex).m_cachedWorldTransform.getOrigin();
+                                btQuaternion endEffectorOriWorld = bodyHandle->m_multiBody->getLink(endEffectorLinkIndex).m_cachedWorldTransform.getRotation();
+                                btVector4 endEffectorOri(endEffectorOriWorld.x(),endEffectorOriWorld.y(),endEffectorOriWorld.z(),endEffectorOriWorld.w());
                                 
                                 endEffectorPosWorld.serializeDouble(endEffectorWorldPosition);
+                                endEffectorOri.serializeDouble(endEffectorWorldOrientation);
                                 
-                                ikHelperPtr->computeIK(clientCmd.m_calculateInverseKinematicsArguments.m_targetPosition,
-                                                       endEffectorWorldPosition.m_floats,
+                                ikHelperPtr->computeIK(clientCmd.m_calculateInverseKinematicsArguments.m_targetPosition, clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation,
+                                                       endEffectorWorldPosition.m_floats, endEffectorWorldOrientation.m_floats,
                                                        q_current,
-                                                       numJoints, q_new, ikMethod, &jacobian_linear[0],jacSize);
+                                                       numJoints, q_new, ikMethod, &jacobian_linear[0], &jacobian_angular[0], jacSize*2,clientCmd.m_calculateInverseKinematicsArguments.m_dt);
                                 
                                 serverCmd.m_inverseKinematicsResultArgs.m_bodyUniqueId =clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId;
                                 for (int i=0;i<numJoints;i++)
