@@ -2502,34 +2502,34 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                             btMatrix3x3 frameInParent(btQuaternion(clientCmd.m_createJointArguments.m_parentFrame[3], clientCmd.m_createJointArguments.m_parentFrame[4], clientCmd.m_createJointArguments.m_parentFrame[5], clientCmd.m_createJointArguments.m_parentFrame[6]));
                             btMatrix3x3 frameInChild(btQuaternion(clientCmd.m_createJointArguments.m_childFrame[3], clientCmd.m_createJointArguments.m_childFrame[4], clientCmd.m_createJointArguments.m_childFrame[5], clientCmd.m_createJointArguments.m_childFrame[6]));
                             btVector3 jointAxis(clientCmd.m_createJointArguments.m_jointAxis[0], clientCmd.m_createJointArguments.m_jointAxis[1], clientCmd.m_createJointArguments.m_jointAxis[2]);
-                            if (clientCmd.m_createJointArguments.m_jointType == btMultibodyLink::eFixed)
+                            if (clientCmd.m_createJointArguments.m_jointType == eFixedType)
                             {
                                 if (childBody->m_multiBody)
                                 {
                                     btMultiBodyFixedConstraint* multibodyFixed = new btMultiBodyFixedConstraint(parentBody->m_multiBody,clientCmd.m_createJointArguments.m_parentJointIndex,childBody->m_multiBody,clientCmd.m_createJointArguments.m_childJointIndex,pivotInParent,pivotInChild,frameInParent,frameInChild);
-                                    multibodyFixed->setMaxAppliedImpulse(2.0);
+                                    multibodyFixed->setMaxAppliedImpulse(500.0);
                                     m_data->m_dynamicsWorld->addMultiBodyConstraint(multibodyFixed);
                                 }
                                 else
                                 {
                                     btMultiBodyFixedConstraint* rigidbodyFixed = new btMultiBodyFixedConstraint(parentBody->m_multiBody,clientCmd.m_createJointArguments.m_parentJointIndex,childBody->m_rigidBody,pivotInParent,pivotInChild,frameInParent,frameInChild);
-                                    rigidbodyFixed->setMaxAppliedImpulse(2.0);
+                                    rigidbodyFixed->setMaxAppliedImpulse(500.0);
                                     btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_data->m_dynamicsWorld;
                                     world->addMultiBodyConstraint(rigidbodyFixed);
                                 }
                             }
-                            else if (clientCmd.m_createJointArguments.m_jointType == btMultibodyLink::ePrismatic)
+                            else if (clientCmd.m_createJointArguments.m_jointType == ePrismaticType)
                             {
                                 if (childBody->m_multiBody)
                                 {
                                     btMultiBodySliderConstraint* multibodySlider = new btMultiBodySliderConstraint(parentBody->m_multiBody,clientCmd.m_createJointArguments.m_parentJointIndex,childBody->m_multiBody,clientCmd.m_createJointArguments.m_childJointIndex,pivotInParent,pivotInChild,frameInParent,frameInChild,jointAxis);
-                                    multibodySlider->setMaxAppliedImpulse(2.0);
+                                    multibodySlider->setMaxAppliedImpulse(500.0);
                                     m_data->m_dynamicsWorld->addMultiBodyConstraint(multibodySlider);
                                 }
                                 else
                                 {
                                     btMultiBodySliderConstraint* rigidbodySlider = new btMultiBodySliderConstraint(parentBody->m_multiBody,clientCmd.m_createJointArguments.m_parentJointIndex,childBody->m_rigidBody,pivotInParent,pivotInChild,frameInParent,frameInChild,jointAxis);
-                                    rigidbodySlider->setMaxAppliedImpulse(2.0);
+                                    rigidbodySlider->setMaxAppliedImpulse(500.0);
                                     btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_data->m_dynamicsWorld;
                                     world->addMultiBodyConstraint(rigidbodySlider);
                                 }

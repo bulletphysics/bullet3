@@ -266,7 +266,7 @@ static ExampleEntry gDefaultExamples[]=
     ExampleEntry(1,"Rolling friction","Experiment on multibody rolling friction", R2D2GraspExampleCreateFunc,eROBOTIC_LEARN_ROLLING_FRICTION),
     ExampleEntry(1,"Gripper Grasp","Grasp experiment with a gripper to improve contact model", GripperGraspExampleCreateFunc,eGRIPPER_GRASP),
     ExampleEntry(1,"Two Point Grasp","Grasp experiment with two point contact to test rolling friction", GripperGraspExampleCreateFunc, eTWO_POINT_GRASP),
-	
+	ExampleEntry(1,"One Motor Gripper Grasp","Grasp experiment with a gripper with one motor to test slider constraint for closed loop structure", GripperGraspExampleCreateFunc, eONE_MOTOR_GRASP),
 
 
 #ifdef ENABLE_LUA

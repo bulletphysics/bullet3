@@ -98,6 +98,7 @@ enum
 enum JointType {
     eRevoluteType = 0,
     ePrismaticType = 1,
+    eFixedType = 2,
 };
 
 struct b3JointInfo
