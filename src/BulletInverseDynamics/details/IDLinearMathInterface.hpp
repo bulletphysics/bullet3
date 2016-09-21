@@ -22,7 +22,7 @@ public:
 	vec3(const btVector3& btv) { *this = btv; }
 	idScalar& operator()(int i) { return (*this)[i]; }
 	const idScalar& operator()(int i) const { return (*this)[i]; }
-	const int size() const { return 3; }
+	int size() const { return 3; }
 	const vec3& operator=(const btVector3& rhs) {
 		*static_cast<btVector3*>(this) = rhs;
 		return *this;

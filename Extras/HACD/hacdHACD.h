@@ -81,38 +81,38 @@ namespace HACD
 
 		//! Gives the triangles partitionas an array of size m_nTriangles where the i-th element specifies the cluster to which belong the i-th triangle
 		//! @return triangles partition
-		const long * const							GetPartition() const { return m_partition;}
+		const long *							GetPartition() const { return m_partition;}
         //! Sets the scale factor
 		//! @param scale scale factor
 		void										SetScaleFactor(double  scale) { m_scale = scale;}
 		//! Gives the scale factor
 		//! @return scale factor
-		const double								GetScaleFactor() const { return m_scale;}
+		double								GetScaleFactor() const { return m_scale;}
 		//! Sets the call-back function
 		//! @param callBack pointer to the call-back function
 		void										SetCallBack(CallBackFunction  callBack) { m_callBack = callBack;}
 		//! Gives the call-back function
 		//! @return pointer to the call-back function
-		const CallBackFunction                      GetCallBack() const { return m_callBack;}
-        
+		CallBackFunction                      GetCallBack() const { return m_callBack;}
+
         //! Specifies whether faces points should be added when computing the concavity
 		//! @param addFacesPoints true = faces points should be added
 		void										SetAddFacesPoints(bool  addFacesPoints) { m_addFacesPoints = addFacesPoints;}
 		//! Specifies wheter faces points should be added when computing the concavity
 		//! @return true = faces points should be added
-		const bool									GetAddFacesPoints() const { return m_addFacesPoints;}
+		bool									GetAddFacesPoints() const { return m_addFacesPoints;}
         //! Specifies whether extra points should be added when computing the concavity
 		//! @param addExteraDistPoints true = extra points should be added
 		void										SetAddExtraDistPoints(bool  addExtraDistPoints) { m_addExtraDistPoints = addExtraDistPoints;}
 		//! Specifies wheter extra points should be added when computing the concavity
 		//! @return true = extra points should be added
-		const bool									GetAddExtraDistPoints() const { return m_addExtraDistPoints;}
+		bool									GetAddExtraDistPoints() const { return m_addExtraDistPoints;}
         //! Specifies whether extra points should be added when computing the concavity
 		//! @param addExteraDistPoints true = extra points should be added
 		void										SetAddNeighboursDistPoints(bool  addNeighboursDistPoints) { m_addNeighboursDistPoints = addNeighboursDistPoints;}
 		//! Specifies wheter extra points should be added when computing the concavity
 		//! @return true = extra points should be added
-		const bool									GetAddNeighboursDistPoints() const { return m_addNeighboursDistPoints;}
+		bool									GetAddNeighboursDistPoints() const { return m_addNeighboursDistPoints;}
         //! Sets the points of the input mesh (Remark: the input points will be scaled and shifted. Use DenormalizeData() to invert those operations)
 		//! @param points pointer to the input points
 		void										SetPoints(Vec3<Real>  * points) { m_points = points;}
@@ -130,19 +130,19 @@ namespace HACD
 		void										SetNPoints(size_t nPoints) { m_nPoints = nPoints;}
 		//! Gives the number of points in the input mesh.
 		//! @return number of points the input mesh
-		const size_t								GetNPoints() const { return m_nPoints;}
+		size_t								GetNPoints() const { return m_nPoints;}
 		//! Sets the number of triangles in the input mesh.
 		//! @param nTriangles number of triangles in the input mesh
 		void										SetNTriangles(size_t nTriangles) { m_nTriangles = nTriangles;}
 		//! Gives the number of triangles in the input mesh.
 		//! @return number of triangles the input mesh
-		const size_t								GetNTriangles() const { return m_nTriangles;}
+		size_t								GetNTriangles() const { return m_nTriangles;}
 		//! Sets the minimum number of clusters to be generated.
 		//! @param nClusters minimum number of clusters
 		void										SetNClusters(size_t nClusters) { m_nMinClusters = nClusters;}
 		//! Gives the number of generated clusters.
 		//! @return number of generated clusters
-		const size_t								GetNClusters() const { return m_nClusters;}
+		size_t								GetNClusters() const { return m_nClusters;}
 		//! Sets the maximum allowed concavity.
 		//! @param concavity maximum concavity
 		void										SetConcavity(double concavity) { m_concavity = concavity;}
@@ -172,7 +172,7 @@ namespace HACD
         void										SetNVerticesPerCH(size_t nVerticesPerCH) { m_nVerticesPerCH = nVerticesPerCH;}
 		//! Gives the maximum number of vertices for each generated convex-hull.
 		//! @return maximum # vertices per CH
-		const size_t								GetNVerticesPerCH() const { return m_nVerticesPerCH;}
+		size_t								GetNVerticesPerCH() const { return m_nVerticesPerCH;}
 		//! Gives the number of vertices for the cluster number numCH.
 		//! @return number of vertices
 		size_t                                      GetNPointsCH(size_t numCH) const;
