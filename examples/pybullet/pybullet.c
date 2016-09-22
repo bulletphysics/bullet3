@@ -1018,6 +1018,24 @@ static int pybullet_internalSetVectord(PyObject* obVec, double vector[3]) {
     return 0;
 }
 
+//  vector - double[3] which will be set by values from obVec
+static int pybullet_internalSetVector4(PyObject* obVec, double vector[4]) {
+    int i, len;
+    PyObject* seq;
+    
+    seq = PySequence_Fast(obVec, "expected a sequence");
+    len = PySequence_Size(obVec);
+    if (len == 4) {
+        for (i = 0; i < len; i++) {
+            vector[i] = pybullet_internalGetFloatFromSequence(seq, i);
+        }
+        Py_DECREF(seq);
+        return 1;
+    }
+    Py_DECREF(seq);
+    return 0;
+}
+
 static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args) {
   int size = PySequence_Size(args);
   int objectUniqueIdA = -1;
@@ -1658,22 +1676,25 @@ static PyObject* pybullet_calculateInverseKinematicsKuka(PyObject* self,
     if (size == 2)
     {
         int bodyIndex;
+		int endEffectorLinkIndex;
+		
         PyObject* targetPosObj;
-        
-        if (PyArg_ParseTuple(args, "iO", &bodyIndex, &targetPosObj))
+		PyObject* targetOrnObj;
+
+        if (PyArg_ParseTuple(args, "iiOO", &bodyIndex, &endEffectorLinkIndex, &targetPosObj,&targetOrnObj))
         {
             double pos[3];
             double ori[4]={0,1.0,0,0};
-            double dt=0.0001;
             
-            if (pybullet_internalSetVectord(targetPosObj,pos))
+            if (pybullet_internalSetVectord(targetPosObj,pos) && pybullet_internalSetVector4(targetOrnObj,ori))
             {
                 b3SharedMemoryStatusHandle statusHandle;
                 int numPos=0;
                 int resultBodyIndex;
                 int result;
-                b3SharedMemoryCommandHandle command = b3CalculateInverseKinematicsCommandInit(sm,bodyIndex,
-                                                                                              pos,ori,dt);
+
+                b3SharedMemoryCommandHandle command = b3CalculateInverseKinematicsCommandInit(sm,bodyIndex);
+				b3CalculateInverseKinematicsAddTargetPositionWithOrientation(command,6,pos,ori);
                 statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
                 
                 result = b3GetStatusInverseKinematicsJointPositions(statusHandle,

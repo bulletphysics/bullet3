@@ -2551,7 +2551,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						SharedMemoryStatus& serverCmd = serverStatusOut;
 						serverCmd.m_type = CMD_CALCULATE_INVERSE_KINEMATICS_FAILED;
 
-						InternalBodyHandle* bodyHandle = m_data->getHandle(clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId);
+						InternalBodyHandle* bodyHandle = m_data->getHandle(clientCmd.m_calculateInverseKinematicsArguments.m_bodyUniqueId);
 						if (bodyHandle && bodyHandle->m_multiBody)
 						{
 							IKTrajectoryHelper** ikHelperPtrPtr = m_data->m_inverseKinematicsHelpers.find(bodyHandle->m_multiBody);
@@ -2565,41 +2565,40 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							else
 							{
 								IKTrajectoryHelper* tmpHelper = new IKTrajectoryHelper;
-								if (tmpHelper->createFromMultiBody(bodyHandle->m_multiBody))
-								{
-									m_data->m_inverseKinematicsHelpers.insert(bodyHandle->m_multiBody, tmpHelper);
-									ikHelperPtr = tmpHelper;
-								} else
-								{
-									delete tmpHelper;
-								}
+								m_data->m_inverseKinematicsHelpers.insert(bodyHandle->m_multiBody, tmpHelper);
+								ikHelperPtr = tmpHelper;
 							}
 
-                            //todo: make this generic. Right now, only support/tested KUKA iiwa
-                            int numJoints = 7;
-                            int endEffectorLinkIndex = 6;
+                            int endEffectorLinkIndex = clientCmd.m_calculateInverseKinematicsArguments.m_endEffectorLinkIndex;
                             
-							if (ikHelperPtr && bodyHandle->m_multiBody->getNumLinks()==numJoints)
+							
+							if (ikHelperPtr && (endEffectorLinkIndex<bodyHandle->m_multiBody->getNumLinks()))
 							{
+								int numJoints1 = bodyHandle->m_multiBody->getNumLinks();
+								const int numDofs = bodyHandle->m_multiBody->getNumDofs();
+
                                 b3AlignedObjectArray<double> jacobian_linear;
-                                jacobian_linear.resize(3*7);
+                                jacobian_linear.resize(3*numDofs);
                                 b3AlignedObjectArray<double> jacobian_angular;
-                                jacobian_angular.resize(3*7);
+                                jacobian_angular.resize(3*numDofs);
                                 int jacSize = 0;
                                 
                                 btInverseDynamics::MultiBodyTree* tree = m_data->findOrCreateTree(bodyHandle->m_multiBody);
                       
-                                double q_current[7];
+							
+
+                                btAlignedObjectArray<double> q_current;
+								q_current.resize(numDofs);
                                 
                                 if (tree)
                                 {
                                     jacSize = jacobian_linear.size();
                                     // Set jacobian value
                                     int baseDofs = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 6;
-                                    const int num_dofs = bodyHandle->m_multiBody->getNumDofs();
                                     
-                                    btInverseDynamics::vecx nu(num_dofs+baseDofs), qdot(num_dofs + baseDofs), q(num_dofs + baseDofs), joint_force(num_dofs + baseDofs);
-                                    for (int i = 0; i < num_dofs; i++)
+                                    
+                                    btInverseDynamics::vecx nu(numDofs+baseDofs), qdot(numDofs + baseDofs), q(numDofs + baseDofs), joint_force(numDofs + baseDofs);
+                                    for (int i = 0; i < numDofs; i++)
                                     {
                                         q_current[i] = bodyHandle->m_multiBody->getJointPos(i);
                                         q[i+baseDofs] = bodyHandle->m_multiBody->getJointPos(i);
@@ -2613,24 +2612,25 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                         -1 != tree->calculateInverseDynamics(q, qdot, nu, &joint_force))
                                     {
                                         tree->calculateJacobians(q);
-                                        btInverseDynamics::mat3x jac_t(3, num_dofs);
-                                        btInverseDynamics::mat3x jac_r(3,num_dofs);
+                                        btInverseDynamics::mat3x jac_t(3, numDofs);
+                                        btInverseDynamics::mat3x jac_r(3,numDofs);
                                         tree->getBodyJacobianTrans(endEffectorLinkIndex, &jac_t);
                                         tree->getBodyJacobianRot(endEffectorLinkIndex, &jac_r);
                                         for (int i = 0; i < 3; ++i)
                                         {
-                                            for (int j = 0; j < num_dofs; ++j)
+                                            for (int j = 0; j < numDofs; ++j)
                                             {
-                                                jacobian_linear[i*num_dofs+j] = jac_t(i,j);
-                                                jacobian_angular[i*num_dofs+j] = jac_r(i,j);
+                                                jacobian_linear[i*numDofs+j] = jac_t(i,j);
+                                                jacobian_angular[i*numDofs+j] = jac_r(i,j);
                                             }
                                         }
                                     }
                                 }
                                 
                                 
-                                double q_new[7];
-                                int ikMethod=IK2_VEL_DLS;
+                                btAlignedObjectArray<double> q_new;
+								q_new.resize(numDofs);
+                                int ikMethod= (clientCmd.m_updateFlags& IK_HAS_TARGET_ORIENTATION)? IK2_VEL_DLS_WITH_ORIENTATION : IK2_VEL_DLS;
                                
                                 btVector3DoubleData endEffectorWorldPosition;
                                 btVector3DoubleData endEffectorWorldOrientation;
@@ -2644,15 +2644,16 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                 
                                 ikHelperPtr->computeIK(clientCmd.m_calculateInverseKinematicsArguments.m_targetPosition, clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation,
                                                        endEffectorWorldPosition.m_floats, endEffectorWorldOrientation.m_floats,
-                                                       q_current,
-                                                       numJoints, q_new, ikMethod, &jacobian_linear[0], &jacobian_angular[0], jacSize*2,clientCmd.m_calculateInverseKinematicsArguments.m_dt);
+                                                       &q_current[0],
+                                                       numDofs, clientCmd.m_calculateInverseKinematicsArguments.m_endEffectorLinkIndex,
+									&q_new[0], ikMethod, &jacobian_linear[0], &jacobian_angular[0], jacSize*2);
                                 
                                 serverCmd.m_inverseKinematicsResultArgs.m_bodyUniqueId =clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId;
-                                for (int i=0;i<numJoints;i++)
+                                for (int i=0;i<numDofs;i++)
                                 {
                                     serverCmd.m_inverseKinematicsResultArgs.m_jointPositions[i] = q_new[i];
                                 }
-                                serverCmd.m_inverseKinematicsResultArgs.m_dofCount = numJoints;
+                                serverCmd.m_inverseKinematicsResultArgs.m_dofCount = numDofs;
                                 serverCmd.m_type = CMD_CALCULATE_INVERSE_KINEMATICS_COMPLETED;
 							}
 						}

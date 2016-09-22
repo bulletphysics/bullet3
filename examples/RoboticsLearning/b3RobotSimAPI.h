@@ -94,15 +94,22 @@ struct b3RobotSimInverseKinematicArgs
 //	int m_numPositions;
 	double m_endEffectorTargetPosition[3];
 	double m_endEffectorTargetOrientation[4];
-    double m_dt;
+    int m_endEffectorLinkIndex;
 	int m_flags;
 
 	b3RobotSimInverseKinematicArgs()
 		:m_bodyUniqueId(-1),
-//		m_currentJointPositions(0),
-//		m_numPositions(0),
+		m_endEffectorLinkIndex(-1),
 		m_flags(0)
 	{
+		m_endEffectorTargetPosition[0]=0;
+		m_endEffectorTargetPosition[1]=0;
+		m_endEffectorTargetPosition[2]=0;
+
+		m_endEffectorTargetOrientation[0]=0;
+		m_endEffectorTargetOrientation[1]=0;
+		m_endEffectorTargetOrientation[2]=0;
+		m_endEffectorTargetOrientation[3]=1;
 	}
 };
 

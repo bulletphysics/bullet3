@@ -52,10 +52,11 @@ const double Jacobian::BaseMaxTargetDist = 0.4;
 
 Jacobian::Jacobian(Tree* tree)
 {
-	Jacobian::tree = tree;
-	nEffector = tree->GetNumEffector();
+	m_tree = tree;
+	m_nEffector = tree->GetNumEffector();
 	nJoint = tree->GetNumJoint();
-	nRow = 2 * 3 * nEffector; // Include both linear and angular part
+	nRow = 3 * m_nEffector; // Include only the linear part
+
 	nCol = nJoint;
 
 	Jend.SetSize(nRow, nCol);				// The Jocobian matrix
@@ -77,9 +78,52 @@ Jacobian::Jacobian(Tree* tree)
 
 	// Used by the Selectively Damped Least Squares Method
 	//dT.SetLength(nRow);
-	dSclamp.SetLength(nEffector);
-	errorArray.SetLength(nEffector);
-	Jnorms.SetSize(nEffector, nCol);		// Holds the norms of the active J matrix
+	dSclamp.SetLength(m_nEffector);
+	errorArray.SetLength(m_nEffector);
+	Jnorms.SetSize(m_nEffector, nCol);		// Holds the norms of the active J matrix
+
+	Reset();
+}
+
+
+Jacobian::Jacobian(bool useAngularJacobian,int nDof)
+{
+	
+	m_tree = 0;
+	m_nEffector = 1;
+
+	if (useAngularJacobian)
+	{
+		nRow = 2 * 3 * m_nEffector; // Include both linear and angular part
+	} else
+	{
+		nRow = 3 * m_nEffector; // Include only the linear part
+	}
+
+	nCol = nDof;
+
+	Jend.SetSize(nRow, nCol);				// The Jocobian matrix
+	Jend.SetZero();
+	Jtarget.SetSize(nRow, nCol);			// The Jacobian matrix based on target positions
+	Jtarget.SetZero();
+	SetJendActive();
+
+	U.SetSize(nRow, nRow);				// The U matrix for SVD calculations
+	w .SetLength(Min(nRow, nCol));
+	V.SetSize(nCol, nCol);				// The V matrix for SVD calculations
+
+	dS.SetLength(nRow);			// (Target positions) - (End effector positions)
+	dTheta.SetLength(nCol);		// Changes in joint angles
+	dPreTheta.SetLength(nCol);
+
+	// Used by Jacobian transpose method & DLS & SDLS
+	dT1.SetLength(nRow);			// Linearized change in end effector positions based on dTheta
+
+	// Used by the Selectively Damped Least Squares Method
+	//dT.SetLength(nRow);
+	dSclamp.SetLength(m_nEffector);
+	errorArray.SetLength(m_nEffector);
+	Jnorms.SetSize(m_nEffector, nCol);		// Holds the norms of the active J matrix
 
 	Reset();
 }
@@ -98,9 +142,12 @@ void Jacobian::Reset()
 // Compute the J and K matrices (the Jacobians)
 void Jacobian::ComputeJacobian(VectorR3* targets)
 {
+	if (m_tree==0)
+		return;
+
 	// Traverse tree to find all end effectors
 	VectorR3 temp;
-	Node* n = tree->GetRoot();
+	Node* n = m_tree->GetRoot();
 	while ( n ) {	
 		if ( n->IsEffector() ) {
 			int i = n->GetEffectorNum();
@@ -113,10 +160,10 @@ void Jacobian::ComputeJacobian(VectorR3* targets)
 
 			// Find all ancestors (they will usually all be joints)
 			// Set the corresponding entries in the Jacobians J, K.
-			Node* m = tree->GetParent(n);
+			Node* m = m_tree->GetParent(n);
 			while ( m ) {
 				int j = m->GetJointNum();
-				assert ( 0 <=i && i<nEffector && 0<=j && j<nJoint );
+				assert ( 0 <=i && i<m_nEffector && 0<=j && j<nJoint );
 				if ( m->IsFrozen() ) {
 					Jend.SetTriple(i, j, VectorR3::Zero);
 					Jtarget.SetTriple(i, j, VectorR3::Zero);
@@ -131,10 +178,10 @@ void Jacobian::ComputeJacobian(VectorR3* targets)
 					temp *= m->GetW();			// cross product with joint rotation axis
 					Jtarget.SetTriple(i, j, temp);	
 				}
-				m = tree->GetParent( m );
+				m = m_tree->GetParent( m );
 			}
 		}
-		n = tree->GetSuccessor( n );
+		n = m_tree->GetSuccessor( n );
 	}
 }
 
@@ -156,36 +203,39 @@ void Jacobian::UpdateThetas()
 {
 	// Traverse the tree to find all joints
 	// Update the joint angles
-	Node* n = tree->GetRoot();
+	Node* n = m_tree->GetRoot();
 	while ( n ) {	
 		if ( n->IsJoint() ) {
 			int i = n->GetJointNum();
 			n->AddToTheta( dTheta[i] );
 
 		}
-		n = tree->GetSuccessor( n );
+		n = m_tree->GetSuccessor( n );
 	}
 	
 	// Update the positions and rotation axes of all joints/effectors
-	tree->Compute();
+	m_tree->Compute();
 }
 
 void Jacobian::UpdateThetaDot()
 {
+	if (m_tree==0)
+		return;
+
     // Traverse the tree to find all joints
     // Update the joint angles
-    Node* n = tree->GetRoot();
+    Node* n = m_tree->GetRoot();
     while ( n ) {
         if ( n->IsJoint() ) {
             int i = n->GetJointNum();
             n->UpdateTheta( dTheta[i] );
             
         }
-        n = tree->GetSuccessor( n );
+        n = m_tree->GetSuccessor( n );
     }
     
     // Update the positions and rotation axes of all joints/effectors
-    tree->Compute();
+    m_tree->Compute();
 }
 
 void Jacobian::CalcDeltaThetas() 
@@ -279,7 +329,7 @@ void Jacobian::CalcDeltaThetasDLS()
 	
 	// Use the next four lines instead of the succeeding two lines for the DLS method with clamped error vector e.
 	// CalcdTClampedFromdS();
-	// VectorRn dTextra(3*nEffector);
+	// VectorRn dTextra(3*m_nEffector);
 	// U.Solve( dT, &dTextra );
 	// J.MultiplyTranspose( dTextra, dTheta );
 	
@@ -292,31 +342,6 @@ void Jacobian::CalcDeltaThetasDLS()
 	if ( maxChange>MaxAngleDLS ) {
 		dTheta *= MaxAngleDLS/maxChange;
 	}
-}
-
-void Jacobian::CalcThetasDotDLS(float dt)
-{
-    const MatrixRmn& J = ActiveJacobian();
-    
-    MatrixRmn::MultiplyTranspose(J, J, U);		// U = J * (J^T)
-    U.AddToDiagonal( DampingLambdaSq );
-    
-    // Use the next four lines instead of the succeeding two lines for the DLS method with clamped error vector e.
-    // CalcdTClampedFromdS();
-    // VectorRn dTextra(3*nEffector);
-    // U.Solve( dT, &dTextra );
-    // J.MultiplyTranspose( dTextra, dTheta );
-    
-    // Use these two lines for the traditional DLS method
-    U.Solve( dS, &dT1 );
-    J.MultiplyTranspose( dT1, dTheta );
-    
-    // Scale back to not exceed maximum angle changes
-    double MaxVelDLS = MaxAngleDLS/dt;
-    double maxChange = dTheta.MaxAbs();
-    if ( maxChange>MaxVelDLS ) {
-        dTheta *= MaxVelDLS/maxChange;
-    }
 }
 
 void Jacobian::CalcDeltaThetasDLSwithSVD() 
@@ -366,7 +391,7 @@ void Jacobian::CalcDeltaThetasSDLS()
 	// Calculate response vector dTheta that is the SDLS solution.
 	//	Delta target values are the dS values
 	int nRows = J.GetNumRows();
-	int numEndEffectors = tree->GetNumEffector();		// Equals the number of rows of J divided by three
+	int numEndEffectors = m_tree->GetNumEffector();		// Equals the number of rows of J divided by three
 	int nCols = J.GetNumColumns();
 	dTheta.SetZero();
 
@@ -478,7 +503,7 @@ double Jacobian::UpdateErrorArray(VectorR3* targets)
 
 	// Traverse tree to find all end effectors
 	VectorR3 temp;
-	Node* n = tree->GetRoot();
+	Node* n = m_tree->GetRoot();
 	while ( n ) {	
 		if ( n->IsEffector() ) {
 			int i = n->GetEffectorNum();
@@ -489,7 +514,7 @@ double Jacobian::UpdateErrorArray(VectorR3* targets)
 			errorArray[i] = err;
 			totalError += err;
 		}
-		n = tree->GetSuccessor( n );
+		n = m_tree->GetSuccessor( n );
 	}
 	return totalError;
 }
@@ -498,7 +523,7 @@ void Jacobian::UpdatedSClampValue(VectorR3* targets)
 {
 	// Traverse tree to find all end effectors
 	VectorR3 temp;
-	Node* n = tree->GetRoot();
+	Node* n = m_tree->GetRoot();
 	while ( n ) {	
 		if ( n->IsEffector() ) {
 			int i = n->GetEffectorNum();
@@ -517,7 +542,7 @@ void Jacobian::UpdatedSClampValue(VectorR3* targets)
 				dSclamp[i] = BaseMaxTargetDist;
 			}
 		}
-		n = tree->GetSuccessor( n );
+		n = m_tree->GetSuccessor( n );
 	}
 }
 

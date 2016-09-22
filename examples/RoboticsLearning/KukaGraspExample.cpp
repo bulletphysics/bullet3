@@ -78,7 +78,6 @@ public:
         
         
         
-        m_ikHelper.createKukaIIWA();
         
 		bool connected = m_robotSim.connect(m_guiHelper);
 		b3Printf("robotSim connected = %d",connected);
@@ -114,6 +113,7 @@ public:
                  */
             }
             
+			if (0)
         	{
 				b3RobotSimLoadFileArgs args("");
 				args.m_fileName = "kiva_shelf/model.sdf";
@@ -195,11 +195,13 @@ public:
             ikargs.m_endEffectorTargetPosition[1] = targetPosDataOut.m_floats[1];
             ikargs.m_endEffectorTargetPosition[2] = targetPosDataOut.m_floats[2];
 			
+			ikargs.m_flags |= B3_HAS_IK_TARGET_ORIENTATION;
+
 			ikargs.m_endEffectorTargetOrientation[0] = targetOriDataOut.m_floats[0];
 			ikargs.m_endEffectorTargetOrientation[1] = targetOriDataOut.m_floats[1];
 			ikargs.m_endEffectorTargetOrientation[2] = targetOriDataOut.m_floats[2];
 			ikargs.m_endEffectorTargetOrientation[3] = targetOriDataOut.m_floats[3];
-            ikargs.m_dt = dt;
+            ikargs.m_endEffectorLinkIndex = 6;
 
 			if (m_robotSim.calculateInverseKinematics(ikargs,ikresults))
 			{
