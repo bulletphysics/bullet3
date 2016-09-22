@@ -28,7 +28,9 @@
 #include "SharedMemoryCommands.h"
 
 btVector3 gLastPickPos(0, 0, 0);
-bool gEnableRealTimeSimVR=false;
+bool gEnableRealTimeSimVR=true;
+int gCreateObjectSimVR = -1;
+btScalar simTimeScalingFactor = 1;
 
 struct UrdfLinkNameMapUtil
 {
@@ -558,6 +560,7 @@ PhysicsServerCommandProcessor::PhysicsServerCommandProcessor()
 
 	createEmptyDynamicsWorld();
 	m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop = 0.0001;
+	m_data->m_dynamicsWorld->getSolverInfo().m_numIterations = 100;
 
 }
 
@@ -1880,13 +1883,15 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                         applyJointDamping(i);
                     }
 					
+					btScalar deltaTimeScaled = m_data->m_physicsDeltaTime*simTimeScalingFactor;
+
 					if (m_data->m_numSimulationSubSteps > 0)
 					{
-						m_data->m_dynamicsWorld->stepSimulation(m_data->m_physicsDeltaTime, m_data->m_numSimulationSubSteps, m_data->m_physicsDeltaTime / m_data->m_numSimulationSubSteps);
+						m_data->m_dynamicsWorld->stepSimulation(deltaTimeScaled, m_data->m_numSimulationSubSteps, m_data->m_physicsDeltaTime / m_data->m_numSimulationSubSteps);
 					}
 					else
 					{
-						m_data->m_dynamicsWorld->stepSimulation(m_data->m_physicsDeltaTime, 0);
+						m_data->m_dynamicsWorld->stepSimulation(deltaTimeScaled, 0);
 					}
 
 					SharedMemoryStatus& serverCmd =serverStatusOut;
@@ -2864,14 +2869,28 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 	{
 		static btAlignedObjectArray<char> gBufferServerToClient;
 		gBufferServerToClient.resize(SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+		int bodyId = 0;
 
-
+		if (gCreateObjectSimVR >= 0)
+		{
+			gCreateObjectSimVR = -1;
+			btMatrix3x3 mat(gVRGripperOrn);
+			btScalar spawnDistance = 0.1;
+			btVector3 spawnDir = mat.getColumn(0);
+			btVector3 shiftPos = spawnDir*spawnDistance;
+			btVector3 spawnPos = gVRGripperPos + shiftPos;
+			loadUrdf("sphere_small.urdf", spawnPos, gVRGripperOrn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			InteralBodyData* parentBody = m_data->getHandle(bodyId);
+			if (parentBody->m_multiBody)
+			{
+				parentBody->m_multiBody->setBaseVel(spawnDir * 3);
+			}
+		}
 
 		if (!m_data->m_hasGround)
 		{
 			m_data->m_hasGround = true;
 
-			int bodyId = 0;
 			
 
 			loadUrdf("plane.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, true, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
@@ -2950,7 +2969,8 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 				
 			}
 			loadSdf("kiva_shelf/model.sdf", &gBufferServerToClient[0], gBufferServerToClient.size(), true);
-			loadUrdf("teddy_vhacd.urdf", btVector3(1, 1, 2), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("teddy_vhacd.urdf", btVector3(-0.1, 0.6, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("sphere_small.urdf", btVector3(-0.1, 0.6, 1.25), gVRGripperOrn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 
 			m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, -10));
 
@@ -2999,7 +3019,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			gSubStep = m_data->m_physicsDeltaTime;
 		}
 		
-		int numSteps = m_data->m_dynamicsWorld->stepSimulation(dtInSec,maxSteps, gSubStep);
+		int numSteps = m_data->m_dynamicsWorld->stepSimulation(dtInSec*simTimeScalingFactor,maxSteps, gSubStep);
 		gDroppedSimulationSteps += numSteps > maxSteps ? numSteps - maxSteps : 0;
 
 		if (numSteps)
