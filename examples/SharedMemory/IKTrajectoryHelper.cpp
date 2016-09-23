@@ -43,7 +43,7 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
                                    const double endEffectorWorldPosition[3],
                                    const double endEffectorWorldOrientation[4],
                const double* q_current, int numQ,int endEffectorIndex,
-               double* q_new, int ikMethod, const double* linear_jacobian, const double* angular_jacobian, int jacobian_size)
+               double* q_new, int ikMethod, const double* linear_jacobian, const double* angular_jacobian, int jacobian_size, double dampIk)
 {
 	bool useAngularPart = (ikMethod==IK2_VEL_DLS_WITH_ORIENTATION) ? true : false;
 
@@ -69,7 +69,7 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
     VectorRn deltaS(3);
     for (int i = 0; i < 3; ++i)
     {
-        deltaS.Set(i,(endEffectorTargetPosition[i]-endEffectorWorldPosition[i]));
+        deltaS.Set(i,dampIk*(endEffectorTargetPosition[i]-endEffectorWorldPosition[i]));
     }
     
     // Set one end effector world orientation from Bullet
@@ -79,7 +79,7 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
     btQuaternion deltaQ = endQ*startQ.inverse();
     float angle = deltaQ.getAngle();
     btVector3 axis = deltaQ.getAxis();
-    float angleDot = angle;
+    float angleDot = angle*dampIk;
     btVector3 angularVel = angleDot*axis.normalize();
     for (int i = 0; i < 3; ++i)
     {

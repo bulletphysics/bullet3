@@ -21,6 +21,8 @@ btVector3 gVRTeleportPos(0,0,0);
 btQuaternion gVRTeleportOrn(0, 0, 0,1);
 extern btVector3 gVRGripperPos;
 extern btQuaternion gVRGripperOrn;
+extern btVector3 gVRController2Pos;
+extern btQuaternion gVRController2Orn;
 extern btScalar gVRGripperAnalog;
 extern bool gEnableRealTimeSimVR;
 extern int gCreateObjectSimVR;
@@ -1246,6 +1248,10 @@ void	PhysicsServerExample::vrControllerMoveCallback(int controllerId, float pos[
 	}
 	else
 	{
+		gVRController2Pos.setValue(pos[0] + gVRTeleportPos[0], pos[1] + gVRTeleportPos[1], pos[2] + gVRTeleportPos[2]);
+		btQuaternion orgOrn(orn[0], orn[1], orn[2], orn[3]);
+		gVRController2Orn = orgOrn*btQuaternion(btVector3(0, 0, 1), SIMD_HALF_PI)*btQuaternion(btVector3(0, 1, 0), SIMD_HALF_PI);
+		
 		m_args[0].m_vrControllerPos[controllerId].setValue(pos[0] + gVRTeleportPos[0], pos[1] + gVRTeleportPos[1], pos[2] + gVRTeleportPos[2]);
 		m_args[0].m_vrControllerOrn[controllerId].setValue(orn[0], orn[1], orn[2], orn[3]);
 	}

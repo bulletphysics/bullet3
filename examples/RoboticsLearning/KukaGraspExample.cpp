@@ -210,8 +210,10 @@ public:
                 {
                     b3JointMotorArgs t(CONTROL_MODE_POSITION_VELOCITY_PD);
                     t.m_targetPosition = ikresults.m_calculatedJointPositions[i];
-                    t.m_maxTorqueValue = 1000;
+                    t.m_maxTorqueValue = 100;
                     t.m_kp= 1;
+					t.m_targetVelocity = 0;
+					t.m_kp = 0.5;
                     m_robotSim.setJointMotorControl(m_kukaIndex,i,t);
 
                 }

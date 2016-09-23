@@ -27,7 +27,7 @@ public:
                    const double endEffectorWorldPosition[3],
                    const double endEffectorWorldOrientation[4],
                    const double* q_old, int numQ,int endEffectorIndex,
-                   double* q_new, int ikMethod, const double* linear_jacobian, const double* angular_jacobian, int jacobian_size);
+                   double* q_new, int ikMethod, const double* linear_jacobian, const double* angular_jacobian, int jacobian_size, double dampIk=1.);
     
 };
 #endif //IK_TRAJECTORY_HELPER_H
