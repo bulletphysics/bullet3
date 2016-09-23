@@ -20,6 +20,7 @@ enum GripperGraspExampleOptions
 {
     eGRIPPER_GRASP=1,
     eTWO_POINT_GRASP=2,
+    eONE_MOTOR_GRASP=4,
 };
 
 class CommonExampleInterface*    GripperGraspExampleCreateFunc(struct CommonExampleOptions& options);
