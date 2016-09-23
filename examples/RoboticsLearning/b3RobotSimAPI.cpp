@@ -480,11 +480,24 @@ int b3GetStatusInverseKinematicsJointPositions(b3SharedMemoryStatusHandle status
 */
 bool b3RobotSimAPI::calculateInverseKinematics(const struct b3RobotSimInverseKinematicArgs& args, struct b3RobotSimInverseKinematicsResults& results)
 {
+	btAssert(args.m_endEffectorLinkIndex>=0);
+	btAssert(args.m_bodyUniqueId>=0);
+	
 
-	b3SharedMemoryCommandHandle command = b3CalculateInverseKinematicsCommandInit(m_data->m_physicsClient,args.m_bodyUniqueId,                                                                                args.m_endEffectorTargetPosition,args.m_endEffectorTargetOrientation,args.m_dt);
+	b3SharedMemoryCommandHandle command = b3CalculateInverseKinematicsCommandInit(m_data->m_physicsClient,args.m_bodyUniqueId);
+	if (args.m_flags & B3_HAS_IK_TARGET_ORIENTATION)
+	{
+		b3CalculateInverseKinematicsAddTargetPositionWithOrientation(command,args.m_endEffectorLinkIndex,args.m_endEffectorTargetPosition,args.m_endEffectorTargetOrientation);
+	} else
+	{
+		b3CalculateInverseKinematicsAddTargetPurePosition(command,args.m_endEffectorLinkIndex,args.m_endEffectorTargetPosition);
+	}
+	
 
     b3SharedMemoryStatusHandle statusHandle;
 	statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClient, command);
+
+	
 
     int numPos=0;
     

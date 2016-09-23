@@ -1319,7 +1319,7 @@ int b3GetStatusJacobian(b3SharedMemoryStatusHandle statusHandle, double* linearJ
 }
 
 ///compute the joint positions to move the end effector to a desired target using inverse kinematics
-b3SharedMemoryCommandHandle	b3CalculateInverseKinematicsCommandInit(b3PhysicsClientHandle physClient, int bodyIndex, const double targetPosition[3], const double targetOrientation[4], const double dt)
+b3SharedMemoryCommandHandle	b3CalculateInverseKinematicsCommandInit(b3PhysicsClientHandle physClient, int bodyIndex)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
 	b3Assert(cl);
@@ -1330,12 +1330,32 @@ b3SharedMemoryCommandHandle	b3CalculateInverseKinematicsCommandInit(b3PhysicsCli
 	command->m_type = CMD_CALCULATE_INVERSE_KINEMATICS;
 	command->m_updateFlags = 0;
 	command->m_calculateInverseKinematicsArguments.m_bodyUniqueId = bodyIndex;
-//todo
-//	int numJoints = cl->getNumJoints(bodyIndex);
-//	for (int i = 0; i < numJoints;i++)
-//	{
-//		command->m_calculateInverseKinematicsArguments.m_jointPositionsQ[i] = jointPositionsQ[i];
-//	}
+
+	return (b3SharedMemoryCommandHandle)command;
+
+}
+
+void b3CalculateInverseKinematicsAddTargetPurePosition(b3SharedMemoryCommandHandle commandHandle, int endEffectorLinkIndex, const double targetPosition[3])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CALCULATE_INVERSE_KINEMATICS);
+    command->m_updateFlags |= IK_HAS_TARGET_POSITION;
+	command->m_calculateInverseKinematicsArguments.m_endEffectorLinkIndex = endEffectorLinkIndex;
+	
+	command->m_calculateInverseKinematicsArguments.m_targetPosition[0] = targetPosition[0];
+	command->m_calculateInverseKinematicsArguments.m_targetPosition[1] = targetPosition[1];
+	command->m_calculateInverseKinematicsArguments.m_targetPosition[2] = targetPosition[2];
+   
+
+}
+void b3CalculateInverseKinematicsAddTargetPositionWithOrientation(b3SharedMemoryCommandHandle commandHandle, int endEffectorLinkIndex, const double targetPosition[3], const double targetOrientation[4])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CALCULATE_INVERSE_KINEMATICS);
+    command->m_updateFlags |= IK_HAS_TARGET_POSITION+IK_HAS_TARGET_ORIENTATION;
+	command->m_calculateInverseKinematicsArguments.m_endEffectorLinkIndex = endEffectorLinkIndex;
 
 	command->m_calculateInverseKinematicsArguments.m_targetPosition[0] = targetPosition[0];
 	command->m_calculateInverseKinematicsArguments.m_targetPosition[1] = targetPosition[1];
@@ -1345,11 +1365,9 @@ b3SharedMemoryCommandHandle	b3CalculateInverseKinematicsCommandInit(b3PhysicsCli
     command->m_calculateInverseKinematicsArguments.m_targetOrientation[1] = targetOrientation[1];
     command->m_calculateInverseKinematicsArguments.m_targetOrientation[2] = targetOrientation[2];
     command->m_calculateInverseKinematicsArguments.m_targetOrientation[3] = targetOrientation[3];
-    command->m_calculateInverseKinematicsArguments.m_dt = dt;
-
-	return (b3SharedMemoryCommandHandle)command;
 
 }
+
 
 int b3GetStatusInverseKinematicsJointPositions(b3SharedMemoryStatusHandle statusHandle,
 	int* bodyUniqueId,

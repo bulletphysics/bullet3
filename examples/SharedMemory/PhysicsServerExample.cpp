@@ -23,6 +23,9 @@ extern btVector3 gVRGripperPos;
 extern btQuaternion gVRGripperOrn;
 extern btScalar gVRGripperAnalog;
 extern bool gEnableRealTimeSimVR;
+extern int gCreateObjectSimVR;
+static int gGraspingController = -1;
+extern btScalar simTimeScalingFactor;
 
 extern bool gVRGripperClosed;
 
@@ -54,6 +57,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIHelperRegisterGraphicsInstance,
 	eGUIHelperCreateCollisionShapeGraphicsObject,
 	eGUIHelperCreateCollisionObjectGraphicsObject,
+	eGUIHelperCreateRigidBodyGraphicsObject,
 	eGUIHelperRemoveAllGraphicsInstances,
 	eGUIHelperCopyCameraImageData,
 };
@@ -305,7 +309,20 @@ public:
 		return m_cs;
 	}
 
-	virtual void createRigidBodyGraphicsObject(btRigidBody* body,const btVector3& color){}
+	btRigidBody* m_body;
+	btVector3 m_color3;
+	virtual void createRigidBodyGraphicsObject(btRigidBody* body,const btVector3& color)
+	{
+		m_body = body;
+		m_color3 = color;
+		m_cs->lock();
+		m_cs->setSharedParam(1,eGUIHelperCreateRigidBodyGraphicsObject);
+		m_cs->unlock();
+		while (m_cs->getSharedParam(1)!=eGUIHelperIdle)
+		{
+			b3Clock::usleep(1000);
+		}
+	}
 
 	btCollisionObject* m_obj;
 	btVector3 m_color2;
@@ -776,6 +793,14 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
 		m_multiThreadedHelper->getCriticalSection()->unlock();
 		break;
 	}
+	case eGUIHelperCreateRigidBodyGraphicsObject:
+	{
+		m_multiThreadedHelper->m_childGuiHelper->createRigidBodyGraphicsObject(m_multiThreadedHelper->m_body,m_multiThreadedHelper->m_color3);
+		m_multiThreadedHelper->getCriticalSection()->lock();
+		m_multiThreadedHelper->getCriticalSection()->setSharedParam(1,eGUIHelperIdle);
+		m_multiThreadedHelper->getCriticalSection()->unlock();
+		break;
+	}
 	case eGUIHelperRegisterTexture:
 	{
 		
@@ -937,10 +962,15 @@ void PhysicsServerExample::renderScene()
 		}
 	}
 
-	if (gDebugRenderToggle)
 	if (m_guiHelper->getAppInterface()->m_renderer->getActiveCamera()->isVRCamera())
 	{
 		gEnableRealTimeSimVR = true;
+	}
+
+	if (gDebugRenderToggle)
+	if (m_guiHelper->getAppInterface()->m_renderer->getActiveCamera()->isVRCamera())
+	{
+		
 		B3_PROFILE("Draw Debug HUD");
 		//some little experiment to add text/HUD to a VR camera (HTC Vive/Oculus Rift)
 
@@ -970,7 +1000,7 @@ void PhysicsServerExample::renderScene()
 				count = 0;
 				sprintf(line0, "Graphics FPS (worse) = %f, frame %d", worseFps, frameCount / 2);
 
-				sprintf(line1, "Physics Steps = %d, Dropped = %d, dt %f, Substep %f)", gNumSteps, gDroppedSimulationSteps, gDtInSec, gSubStep);
+				sprintf(line1, "Physics Steps = %d, Drop = %d, time scale=%f, dt %f, Substep %f)", gNumSteps, gDroppedSimulationSteps, simTimeScalingFactor,gDtInSec, gSubStep);
 				gDroppedSimulationSteps = 0;
 
 				worseFps = 1000000;
@@ -996,15 +1026,25 @@ void PhysicsServerExample::renderScene()
 		m[14]=+gVRTeleportPos[2];
 		viewTr.setFromOpenGLMatrix(m);
 		btTransform viewTrInv = viewTr.inverse();
-		float upMag = -.6;
+		
 		btVector3 side = viewTrInv.getBasis().getColumn(0);
 		btVector3 up = viewTrInv.getBasis().getColumn(1);
-		up+=0.6*side;
-		m_guiHelper->getAppInterface()->drawText3D(line0,pos[0]+upMag*up[0],pos[1]+upMag*up[1],pos[2]+upMag*up[2],1);
+		btVector3 fwd = viewTrInv.getBasis().getColumn(2);
+
+		
+		float upMag = 0;
+		float sideMag = 2.2;
+		float fwdMag = -4;
+
+		m_guiHelper->getAppInterface()->drawText3D(line0,pos[0]+upMag*up[0]-sideMag*side[0]+fwdMag*fwd[0],pos[1]+upMag*up[1]-sideMag*side[1]+fwdMag*fwd[1],pos[2]+upMag*up[2]-sideMag*side[2]+fwdMag*fwd[2],1);
 		//btVector3 fwd = viewTrInv.getBasis().getColumn(2);
 		
-		upMag = -0.7;
-		m_guiHelper->getAppInterface()->drawText3D(line1,pos[0]+upMag*up[0],pos[1]+upMag*up[1],pos[2]+upMag*up[2],1);
+		up = viewTrInv.getBasis().getColumn(1);
+		upMag = -0.3;
+		
+		
+		
+		m_guiHelper->getAppInterface()->drawText3D(line1,pos[0]+upMag*up[0]-sideMag*side[0]+fwdMag*fwd[0],pos[1]+upMag*up[1]-sideMag*side[1]+fwdMag*fwd[1],pos[2]+upMag*up[2]-sideMag*side[2]+fwdMag*fwd[2],1);
 	}
 
 	//m_args[0].m_cs->unlock();
@@ -1112,7 +1152,6 @@ class CommonExampleInterface*    PhysicsServerCreateFunc(struct CommonExampleOpt
 }
 
 
-static int gGraspingController = -1;
 
 void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int button, int state, float pos[4], float orn[4])
 {
@@ -1130,10 +1169,34 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 		{
 			gVRTeleportPos = gLastPickPos;
 		}
+	} else
+	{
+		if (button == 1)
+		{
+			if (state == 1)
+			{
+				gDebugRenderToggle = 1;
+			} else
+			{
+				gDebugRenderToggle = 0;
+				simTimeScalingFactor *= 0.5;
+				if (simTimeScalingFactor==0)
+				{
+					simTimeScalingFactor = 1;
+				}
+				if (simTimeScalingFactor<0.01)
+				{
+					simTimeScalingFactor = 0;
+				}
+			}
+		} else
+		{
+			
+		}
 	}
 	if (button==32 && state==0)
 	{
-		gDebugRenderToggle = !gDebugRenderToggle;
+		gCreateObjectSimVR = 1;
 	}
 	
 
