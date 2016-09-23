@@ -401,15 +401,18 @@ bool BulletURDFImporter::getRootTransformInWorld(btTransform& rootTransformInWor
     return true;
 }
 
-static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t>& shapes)
+static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale)
 {
 	btCompoundShape* compound = new btCompoundShape();
+	compound->setMargin(gUrdfDefaultCollisionMargin);
+
 	btTransform identity;
 	identity.setIdentity();
 
 	for (int s = 0; s<(int)shapes.size(); s++)
 	{
 		btConvexHullShape* convexHull = new btConvexHullShape();
+		convexHull->setMargin(gUrdfDefaultCollisionMargin);
 		tinyobj::shape_t& shape = shapes[s];
 		int faceCount = shape.mesh.indices.size();
 
@@ -420,17 +423,18 @@ static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t
 			pt.setValue(shape.mesh.positions[shape.mesh.indices[f] * 3 + 0],
 				shape.mesh.positions[shape.mesh.indices[f] * 3 + 1],
 				shape.mesh.positions[shape.mesh.indices[f] * 3 + 2]);
-			convexHull->addPoint(pt,false);
+			
+			convexHull->addPoint(pt*geomScale,false);
 
 			pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 0],
 						shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 1],
 						shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 2]);
-			convexHull->addPoint(pt, false);
+			convexHull->addPoint(pt*geomScale, false);
 
 			pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 0],
 						shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 1],
 						shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 2]);
-			convexHull->addPoint(pt, false);
+			convexHull->addPoint(pt*geomScale, false);
 		}
 
 		convexHull->recalcLocalAabb();
@@ -464,16 +468,18 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
                 vertices.push_back(vert);
 
             }
-            btConvexHullShape* cylZShape = new btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
-            cylZShape->setMargin(gUrdfDefaultCollisionMargin);
-			cylZShape->initializePolyhedralFeatures();
+            btConvexHullShape* convexHull = new btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
+            convexHull->setMargin(gUrdfDefaultCollisionMargin);
+			convexHull->initializePolyhedralFeatures();
+			convexHull->optimizeConvexHull();
+			
 			//btConvexShape* cylZShape = new btConeShapeZ(cyl->radius,cyl->length);//(vexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
             
             //btVector3 halfExtents(cyl->radius,cyl->radius,cyl->length/2.);
             //btCylinderShapeZ* cylZShape = new btCylinderShapeZ(halfExtents);
             
 
-            shape = cylZShape;
+            shape = convexHull;
             break;
         }
         case URDF_GEOM_BOX:
@@ -555,7 +561,8 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 									std::vector<tinyobj::shape_t> shapes;
 									std::string err = tinyobj::LoadObj(shapes, fullPath, collisionPathPrefix);
 									//create a convex hull for each shape, and store it in a btCompoundShape
-									shape = createConvexHullFromShapes(shapes);
+
+									shape = createConvexHullFromShapes(shapes, collision->m_geometry.m_meshScale);
 									return shape;
 								}
                                 break;
@@ -685,13 +692,11 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 								shape = trimesh;
 							} else
 							{
-								//btConvexHullShape* cylZShape = new btConvexHullShape(&glmesh->m_vertices->at(0).xyzw[0], glmesh->m_numvertices, sizeof(GLInstanceVertex));
-								btConvexHullShape* cylZShape = new btConvexHullShape(&convertedVerts[0].getX(), convertedVerts.size(), sizeof(btVector3));
-								//cylZShape->initializePolyhedralFeatures();
-								//btVector3 halfExtents(cyl->radius,cyl->radius,cyl->length/2.);
-								//btCylinderShapeZ* cylZShape = new btCylinderShapeZ(halfExtents);
-								cylZShape->setMargin(gUrdfDefaultCollisionMargin);
-								shape = cylZShape;
+								btConvexHullShape* convexHull = new btConvexHullShape(&convertedVerts[0].getX(), convertedVerts.size(), sizeof(btVector3));
+								convexHull->optimizeConvexHull();
+								//convexHull->initializePolyhedralFeatures();
+								convexHull->setMargin(gUrdfDefaultCollisionMargin);
+								shape = convexHull;
 							}
 						} else
 						{

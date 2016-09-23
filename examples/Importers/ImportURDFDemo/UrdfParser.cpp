@@ -1057,12 +1057,15 @@ bool UrdfParser::parseJoint(UrdfJoint& joint, TiXmlElement *config, ErrorLogger*
                 TiXmlElement *limit_xml = axis_xml->FirstChildElement("limit");
                 if (limit_xml)
                 {
-                    if (!parseJointLimits(joint, limit_xml,logger))
-                    {
-                        logger->reportError("Could not parse limit element for joint:");
-                        logger->reportError(joint.m_name.c_str());
-                        return false;
-                    }
+					if (joint.m_type != URDFContinuousJoint)
+					{
+						if (!parseJointLimits(joint, limit_xml,logger))
+						{
+							logger->reportError("Could not parse limit element for joint:");
+							logger->reportError(joint.m_name.c_str());
+							return false;
+						}
+					}
                 }
                 else if (joint.m_type == URDFRevoluteJoint)
                 {
