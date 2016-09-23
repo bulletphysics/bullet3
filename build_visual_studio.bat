@@ -1,6 +1,9 @@
 
-cd build3
-rem premake4   --enable_openvr  --targetdir="../bin" vs2010 
+IF NOT EXIST bin mkdir bin
+IF NOT EXIST bin\openvr_api.dll  copy examples\ThirdPartyLibs\openvr\bin\win32\openvr_api.dll bin
 
-premake4   --double --enable_pybullet --python_include_dir="C:/Python-3.5.2/include" --python_lib_dir="C:/Python-3.5.2/libs" --enable_openvr  --targetdir="../bin" vs2010 
+cd build3
+premake4   --enable_openvr  --targetdir="../bin" vs2010 
+
+rem premake4   --double --enable_pybullet --python_include_dir="C:/Python-3.5.2/include" --python_lib_dir="C:/Python-3.5.2/libs" --enable_openvr  --targetdir="../bin" vs2010 
 pause

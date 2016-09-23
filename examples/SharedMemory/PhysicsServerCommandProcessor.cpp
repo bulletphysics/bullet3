@@ -28,7 +28,7 @@
 #include "SharedMemoryCommands.h"
 
 btVector3 gLastPickPos(0, 0, 0);
-bool gEnableRealTimeSimVR=true;
+bool gEnableRealTimeSimVR=false;
 int gCreateObjectSimVR = -1;
 btScalar simTimeScalingFactor = 1;
 
@@ -753,7 +753,7 @@ void	PhysicsServerCommandProcessor::createJointMotors(btMultiBody* mb)
 
 		if (supportsJointMotor(mb,mbLinkIndex))
 		{
-			float maxMotorImpulse = 10000.f;
+			float maxMotorImpulse = 1.f;
 			int dof = 0;
 			btScalar desiredVelocity = 0.f;
 			btMultiBodyJointMotor* motor = new btMultiBodyJointMotor(mb,mbLinkIndex,dof,desiredVelocity,maxMotorImpulse);
@@ -3080,7 +3080,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 						ikHelperPtr = tmpHelper;
 					}
 
-					int endEffectorLinkIndex = 7;
+					int endEffectorLinkIndex = 6;
 
 					if (ikHelperPtr && (endEffectorLinkIndex<bodyHandle->m_multiBody->getNumLinks()))
 					{
@@ -3138,6 +3138,8 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
                                
                         btVector3DoubleData endEffectorWorldPosition;
                         btVector3DoubleData endEffectorWorldOrientation;
+						btVector3DoubleData targetWorldPosition;
+                        btQuaternionDoubleData targetWorldOrientation;
                                 
                         btVector3 endEffectorPosWorld =  bodyHandle->m_multiBody->getLink(endEffectorLinkIndex).m_cachedWorldTransform.getOrigin();
                         btQuaternion endEffectorOriWorld = bodyHandle->m_multiBody->getLink(endEffectorLinkIndex).m_cachedWorldTransform.getRotation();
@@ -3145,24 +3147,25 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
                                 
                         endEffectorPosWorld.serializeDouble(endEffectorWorldPosition);
                         endEffectorOri.serializeDouble(endEffectorWorldOrientation);
+						gVRController2Pos.serializeDouble(targetWorldPosition);
+						gVRController2Orn.serializeDouble(targetWorldOrientation);
                                 
 						static btScalar time=0.f;
 						time+=0.01;
 						btVector3 targetPos(0.4-0.4*b3Cos( time), 0, 0.8+0.4*b3Cos( time));
 						targetPos +=mb->getBasePos();
-						btQuaternion targetOri(0, 1.0, 0, 0);
-						btQuaternion downOrn(0,1,0,0);
+						btQuaternion fwdOri(btVector3(1,0,0),-SIMD_HALF_PI);
+						(0, 1.0, 0, 0);
+						double downOrn[4] = {0,1,0,0};
+						//double downOrn[4] = {0,1,0,0};
+						
+						fwdOri.serializeDouble(targetWorldOrientation);
 
-                       ikHelperPtr->computeIK( //targetPos,targetOri,
-											gVRController2Pos, downOrn,//gVRController2Orn,
+                       ikHelperPtr->computeIK(targetWorldPosition.m_floats, targetWorldOrientation.m_floats,
                                                        endEffectorWorldPosition.m_floats, endEffectorWorldOrientation.m_floats,
                                                        &q_current[0],
                                                        numDofs, endEffectorLinkIndex,
 									&q_new[0], ikMethod, &jacobian_linear[0], &jacobian_angular[0], jacSize*2, dampIk);
-					   for (int i=0;i<numDofs;i++)
-					   {
-						   //printf("q_new[i] = %f\n", q_new[i]);
-					   }
 					}
 				}
 
