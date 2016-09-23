@@ -909,6 +909,15 @@ static PyObject* pybullet_getJointState(PyObject* self, PyObject* args) {
   if (size == 2)  // get body index and joint index
   {
     if (PyArg_ParseTuple(args, "ii", &bodyIndex, &jointIndex)) {
+      if (bodyIndex < 0) {
+        PyErr_SetString(SpamError, "getJointState failed; invalid bodyIndex");
+        return NULL;
+      }
+      if (jointIndex < 0) {
+        PyErr_SetString(SpamError, "getJointState failed; invalid jointIndex");
+        return NULL;
+      }
+
       int status_type = 0;
       b3SharedMemoryCommandHandle cmd_handle =
           b3RequestActualStateCommandInit(sm, bodyIndex);
@@ -917,7 +926,7 @@ static PyObject* pybullet_getJointState(PyObject* self, PyObject* args) {
 
       status_type = b3GetStatusType(status_handle);
       if (status_type != CMD_ACTUAL_STATE_UPDATE_COMPLETED) {
-        PyErr_SetString(SpamError, "getBasePositionAndOrientation failed.");
+        PyErr_SetString(SpamError, "getJointState failed.");
         return NULL;
       }
 
@@ -947,6 +956,93 @@ static PyObject* pybullet_getJointState(PyObject* self, PyObject* args) {
     PyErr_SetString(
         SpamError,
         "getJointState expects 2 arguments (objectUniqueId and joint index).");
+    return NULL;
+  }
+
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
+static PyObject* pybullet_getLinkState(PyObject* self, PyObject* args) {
+  PyObject* pyLinkState;
+  PyObject* pyLinkStateWorldPosition;
+  PyObject* pyLinkStateWorldOrientation;
+  PyObject* pyLinkStateLocalInertialPosition;
+  PyObject* pyLinkStateLocalInertialOrientation;
+
+  struct b3LinkState linkState;
+
+  int bodyIndex = -1;
+  int linkIndex = -1;
+  int i;
+
+  if (0 == sm) {
+    PyErr_SetString(SpamError, "Not connected to physics server.");
+    return NULL;
+  }
+
+  if (PySequence_Size(args) == 2)  // body index and link index
+  {
+    if (PyArg_ParseTuple(args, "ii", &bodyIndex, &linkIndex)) {
+      if (bodyIndex < 0) {
+        PyErr_SetString(SpamError, "getLinkState failed; invalid bodyIndex");
+        return NULL;
+      }
+      if (linkIndex < 0) {
+        PyErr_SetString(SpamError, "getLinkState failed; invalid jointIndex");
+        return NULL;
+      }
+
+      int status_type = 0;
+      b3SharedMemoryCommandHandle cmd_handle =
+          b3RequestActualStateCommandInit(sm, bodyIndex);
+      b3SharedMemoryStatusHandle status_handle =
+          b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
+
+      status_type = b3GetStatusType(status_handle);
+      if (status_type != CMD_ACTUAL_STATE_UPDATE_COMPLETED) {
+        PyErr_SetString(SpamError, "getLinkState failed.");
+        return NULL;
+      }
+
+      b3GetLinkState(sm, status_handle, linkIndex, &linkState);
+
+      pyLinkStateWorldPosition = PyTuple_New(3);
+      for (i = 0; i < 3; ++i) {
+        PyTuple_SetItem(pyLinkStateWorldPosition, i,
+                        PyFloat_FromDouble(linkState.m_worldPosition[i]));
+      }
+
+      pyLinkStateWorldOrientation = PyTuple_New(4);
+      for (i = 0; i < 4; ++i) {
+        PyTuple_SetItem(pyLinkStateWorldOrientation, i,
+                        PyFloat_FromDouble(linkState.m_worldOrientation[i]));
+      }
+
+      pyLinkStateLocalInertialPosition = PyTuple_New(3);
+      for (i = 0; i < 3; ++i) {
+        PyTuple_SetItem(pyLinkStateLocalInertialPosition, i,
+                        PyFloat_FromDouble(linkState.m_localInertialPosition[i]));
+      }
+
+      pyLinkStateLocalInertialOrientation = PyTuple_New(4);
+      for (i = 0; i < 4; ++i) {
+        PyTuple_SetItem(pyLinkStateLocalInertialOrientation, i,
+                        PyFloat_FromDouble(linkState.m_localInertialOrientation[i]));
+      }
+
+      pyLinkState = PyTuple_New(4);
+      PyTuple_SetItem(pyLinkState, 0, pyLinkStateWorldPosition);
+      PyTuple_SetItem(pyLinkState, 1, pyLinkStateWorldOrientation);
+      PyTuple_SetItem(pyLinkState, 2, pyLinkStateLocalInertialPosition);
+      PyTuple_SetItem(pyLinkState, 3, pyLinkStateLocalInertialOrientation);
+
+      return pyLinkState;
+    }
+  } else {
+    PyErr_SetString(
+        SpamError,
+        "getLinkState expects 2 arguments (objectUniqueId and link index).");
     return NULL;
   }
 
@@ -1919,6 +2015,11 @@ static PyMethodDef SpamMethods[] = {
 
     {"getJointState", pybullet_getJointState, METH_VARARGS,
      "Get the state (position, velocity etc) for a joint on a body."},
+
+    {"getLinkState", pybullet_getLinkState, METH_VARARGS,
+     "Provides extra information such as the Cartesian world coordinates"
+     " center of mass (COM) of the link, relative to the world reference"
+     " frame."},
 
     {"resetJointState", pybullet_resetJointState, METH_VARARGS,
      "Reset the state (position, velocity etc) for a joint on a body "
