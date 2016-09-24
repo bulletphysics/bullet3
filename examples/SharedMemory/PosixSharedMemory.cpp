@@ -2,7 +2,7 @@
 #include "Bullet3Common/b3Logging.h"
 #include "LinearMath/btScalar.h" //for btAssert
 
-//haven't implemented shared memory on Windows yet, just Linux and Mac
+//Windows implementation is in Win32SharedMemory.cpp
 #ifndef _WIN32
 #define TEST_SHARED_MEMORY
 #endif//_WIN32
