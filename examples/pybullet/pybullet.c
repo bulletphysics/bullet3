@@ -909,6 +909,11 @@ static PyObject* pybullet_getJointState(PyObject* self, PyObject* args) {
   if (size == 2)  // get body index and joint index
   {
     if (PyArg_ParseTuple(args, "ii", &bodyIndex, &jointIndex)) {
+	  int status_type = 0;
+	  b3SharedMemoryCommandHandle cmd_handle;
+	  b3SharedMemoryStatusHandle status_handle;
+
+
       if (bodyIndex < 0) {
         PyErr_SetString(SpamError, "getJointState failed; invalid bodyIndex");
         return NULL;
@@ -918,10 +923,10 @@ static PyObject* pybullet_getJointState(PyObject* self, PyObject* args) {
         return NULL;
       }
 
-      int status_type = 0;
-      b3SharedMemoryCommandHandle cmd_handle =
+      
+      cmd_handle =
           b3RequestActualStateCommandInit(sm, bodyIndex);
-      b3SharedMemoryStatusHandle status_handle =
+      status_handle =
           b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
 
       status_type = b3GetStatusType(status_handle);
@@ -984,6 +989,10 @@ static PyObject* pybullet_getLinkState(PyObject* self, PyObject* args) {
   if (PySequence_Size(args) == 2)  // body index and link index
   {
     if (PyArg_ParseTuple(args, "ii", &bodyIndex, &linkIndex)) {
+	int status_type = 0;
+	b3SharedMemoryCommandHandle cmd_handle;
+	b3SharedMemoryStatusHandle status_handle;
+
       if (bodyIndex < 0) {
         PyErr_SetString(SpamError, "getLinkState failed; invalid bodyIndex");
         return NULL;
@@ -993,10 +1002,10 @@ static PyObject* pybullet_getLinkState(PyObject* self, PyObject* args) {
         return NULL;
       }
 
-      int status_type = 0;
-      b3SharedMemoryCommandHandle cmd_handle =
+
+      cmd_handle =
           b3RequestActualStateCommandInit(sm, bodyIndex);
-      b3SharedMemoryStatusHandle status_handle =
+      status_handle =
           b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
 
       status_type = b3GetStatusType(status_handle);

@@ -225,7 +225,8 @@ void ConvertURDF2BulletInternal(
     {
 
 
-        btVector3 color = selectColor2();
+        btVector4 color = selectColor2();
+		u2b.getLinkColor(urdfLinkIndex,color);
         /*
          if (visual->material.get())
          {
@@ -255,7 +256,7 @@ void ConvertURDF2BulletInternal(
             btRigidBody* body = creation.allocateRigidBody(urdfLinkIndex, mass, localInertiaDiagonal, inertialFrameInWorldSpace, compoundShape);
             linkRigidBody = body;
 
-            world1->addRigidBody(body, bodyCollisionFilterGroup, bodyCollisionFilterMask);
+            world1->addRigidBody(body);
 
             compoundShape->setUserIndex(graphicsIndex);
 
