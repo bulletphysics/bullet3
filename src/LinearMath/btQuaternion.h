@@ -544,7 +544,7 @@ public:
 			// Take care of long angle case see http://en.wikipedia.org/wiki/Slerp
 			const btScalar theta = btAcos(absproduct);
 			const btScalar d = btSin(theta);
-			btAssert(d > btScalar(0))
+			btAssert(d > btScalar(0));
 			
 			const btScalar sign = (product < 0) ? btScalar(-1) : btScalar(1);
 			const btScalar s0 = btSin((btScalar(1.0) - t) * theta) / d;
