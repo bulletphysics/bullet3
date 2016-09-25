@@ -388,9 +388,12 @@ struct PhysicsServerCommandProcessorInternalData
 
 	btMultiBodyFixedConstraint* m_gripperRigidbodyFixed;
 	btMultiBody* m_gripperMultiBody;
+	btMultiBodyFixedConstraint* m_kukaGripperFixed;
+	btMultiBody* m_kukaGripperMultiBody;
 	int m_huskyId;
 	int m_KukaId;
 	int m_sphereId;
+	int m_gripperId;
 	CommandLogger* m_commandLogger;
 	CommandLogPlayback* m_logPlayback;
 
@@ -445,6 +448,7 @@ struct PhysicsServerCommandProcessorInternalData
 		m_huskyId(-1),
 		m_KukaId(-1),
 		m_sphereId(-1),
+		m_gripperId(-1),
 		m_commandLogger(0),
 		m_logPlayback(0),
 		m_physicsDeltaTime(1./240.),
@@ -2945,13 +2949,93 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 				loadUrdf("sphere2.urdf", btVector3(-5, 0, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 				loadUrdf("sphere2.urdf", btVector3(-5, 0, 2), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 				loadUrdf("sphere2.urdf", btVector3(-5, 0, 3), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-				loadUrdf("r2d2.urdf", btVector3(2, -2, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-				
+				loadUrdf("r2d2.urdf", btVector3(2, -2, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());			
 
 				loadUrdf("kuka_iiwa/model.urdf", btVector3(2.0, 0, 0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 				m_data->m_KukaId = bodyId;
-				loadUrdf("pr2_gripper.urdf", btVector3(2.2, 0.1, 0.1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-				
+
+				loadSdf("gripper/wsg50_one_motor_gripper_free.sdf", &gBufferServerToClient[0], gBufferServerToClient.size(), true);
+				m_data->m_gripperId = bodyId + 1;
+				InteralBodyData* parentBody = m_data->getHandle(m_data->m_KukaId);
+				InteralBodyData* childBody = m_data->getHandle(m_data->m_gripperId);
+
+				// Reset the default gripper motor maximum torque for damping to 0
+				for (int i = 0; i < childBody->m_multiBody->getNumLinks(); i++)
+				{
+					if (supportsJointMotor(childBody->m_multiBody, i))
+					{
+						btMultiBodyJointMotor* motor = (btMultiBodyJointMotor*)childBody->m_multiBody->getLink(i).m_userPtr;
+						if (motor)
+						{
+							motor->setMaxAppliedImpulse(0);
+						}
+					}
+				}
+
+				// Add slider joint for fingers
+				btVector3 pivotInParent1(0, 0, 0.06);
+				btVector3 pivotInChild1(0, 0, 0);
+				btMatrix3x3 frameInParent1(btQuaternion(0, 0, 0, 1.0));
+				btMatrix3x3 frameInChild1(btQuaternion(0, 0, 0, 1.0));
+				btVector3 jointAxis1(1.0, 0, 0);
+				btVector3 pivotInParent2(0, 0, 0.06);
+				btVector3 pivotInChild2(0, 0, 0);
+				btMatrix3x3 frameInParent2(btQuaternion(0, 0, 0, 1.0));
+				btMatrix3x3 frameInChild2(btQuaternion(0, 0, 1.0, 0));
+				btVector3 jointAxis2(1.0, 0, 0);
+				btMultiBodySliderConstraint* multibodySlider1 = new btMultiBodySliderConstraint(childBody->m_multiBody, 0, childBody->m_multiBody, 2, pivotInParent1, pivotInChild1, frameInParent1, frameInChild1, jointAxis1);
+				multibodySlider1->setMaxAppliedImpulse(500.0);
+				btMultiBodySliderConstraint* multibodySlider2 = new btMultiBodySliderConstraint(childBody->m_multiBody, 0, childBody->m_multiBody, 5, pivotInParent2, pivotInChild2, frameInParent2, frameInChild2, jointAxis2);
+				multibodySlider1->setMaxAppliedImpulse(500.0);
+				btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*)m_data->m_dynamicsWorld;
+				world->addMultiBodyConstraint(multibodySlider1);
+				world->addMultiBodyConstraint(multibodySlider2);
+
+				if (parentBody->m_multiBody)
+				{
+					childBody->m_multiBody->setHasSelfCollision(0);
+					btVector3 pivotInParent(0, 0, 0.02);
+					btMatrix3x3 frameInParent;
+					frameInParent.setIdentity();
+					btVector3 pivotInChild(0, 0, 0);
+					btMatrix3x3 frameInChild;
+					frameInChild.setIdentity();
+
+					m_data->m_kukaGripperFixed = new btMultiBodyFixedConstraint(parentBody->m_multiBody, 6, childBody->m_multiBody, 0, pivotInParent, pivotInChild, frameInParent, frameInChild);
+					m_data->m_kukaGripperMultiBody = childBody->m_multiBody;
+					m_data->m_kukaGripperFixed->setMaxAppliedImpulse(10000);
+					btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*)m_data->m_dynamicsWorld;
+					world->addMultiBodyConstraint(m_data->m_kukaGripperFixed);
+				}
+
+				// Load pr2 gripper for kuka
+				/*
+				loadUrdf("pr2_gripper_short.urdf", btVector3(2.2, 0.1, 0.1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+				InteralBodyData* parentBody = m_data->getHandle(m_data->m_KukaId);
+				InteralBodyData* childBody = m_data->getHandle(bodyId);
+				if (parentBody->m_multiBody)
+				{
+					btVector3 pivotInParent(0, 0, 0.04);
+					btMatrix3x3 frameInParent;
+					frameInParent.setIdentity();
+					btVector3 pivotInChild(0, 0, 0);
+					btMatrix3x3 frameInChild;
+					frameInChild.setRotation(btQuaternion(0, 0.70711, 0, 0.70711));
+
+					m_data->m_kukaGripperFixed = new btMultiBodyFixedConstraint(parentBody->m_multiBody, 6, childBody->m_multiBody, 0, pivotInParent, pivotInChild, frameInParent, frameInChild);
+					m_data->m_kukaGripperMultiBody = childBody->m_multiBody;
+					if (m_data->m_kukaGripperMultiBody->getNumLinks() > 2)
+					{
+						m_data->m_kukaGripperMultiBody->setJointPos(0, 0);
+						m_data->m_kukaGripperMultiBody->setJointPos(2, 0);
+					}
+					m_data->m_kukaGripperFixed->setMaxAppliedImpulse(10000);
+					btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*)m_data->m_dynamicsWorld;
+					world->addMultiBodyConstraint(m_data->m_kukaGripperFixed);
+				}
+				*/
+
+
 				loadUrdf("cube_small.urdf", btVector3(0.3, 0.6, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 				
 				
