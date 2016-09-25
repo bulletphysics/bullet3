@@ -2948,8 +2948,10 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 				loadUrdf("r2d2.urdf", btVector3(2, -2, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 				
 
-				loadUrdf("kuka_iiwa/model.urdf", btVector3(3, 0, 0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+				loadUrdf("kuka_iiwa/model.urdf", btVector3(2.0, 0, 0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 				m_data->m_KukaId = bodyId;
+				loadUrdf("pr2_gripper.urdf", btVector3(2.2, 0.1, 0.1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+				
 				loadUrdf("cube_small.urdf", btVector3(0.3, 0.6, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 				
 				
@@ -2981,6 +2983,8 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			}
 			loadSdf("kiva_shelf/model.sdf", &gBufferServerToClient[0], gBufferServerToClient.size(), true);
 			loadUrdf("teddy_vhacd.urdf", btVector3(-0.1, 0.6, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			//loadUrdf("cup_small.urdf", btVector3(3, 2, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			//loadUrdf("pitcher_small.urdf", btVector3(4, 2, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			loadUrdf("sphere_small.urdf", btVector3(-0.1, 0.6, 1.25), gVRGripperOrn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 
 			m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, -10));
@@ -3134,34 +3138,37 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
                         }
                        
                         //int ikMethod= IK2_VEL_DLS;//IK2_VEL_DLS_WITH_ORIENTATION;//IK2_VEL_DLS;
-						int ikMethod= IK2_VEL_DLS_WITH_ORIENTATION;//IK2_VEL_DLS;
+						int ikMethod= IK2_VEL_DLS_WITH_ORIENTATION; //IK2_VEL_DLS;
                                
                         btVector3DoubleData endEffectorWorldPosition;
                         btVector3DoubleData endEffectorWorldOrientation;
 						btVector3DoubleData targetWorldPosition;
-                        btQuaternionDoubleData targetWorldOrientation;
+						btVector3DoubleData targetWorldOrientation;
                                 
                         btVector3 endEffectorPosWorld =  bodyHandle->m_multiBody->getLink(endEffectorLinkIndex).m_cachedWorldTransform.getOrigin();
                         btQuaternion endEffectorOriWorld = bodyHandle->m_multiBody->getLink(endEffectorLinkIndex).m_cachedWorldTransform.getRotation();
                         btVector4 endEffectorOri(endEffectorOriWorld.x(),endEffectorOriWorld.y(),endEffectorOriWorld.z(),endEffectorOriWorld.w());
-                                
-                        endEffectorPosWorld.serializeDouble(endEffectorWorldPosition);
-                        endEffectorOri.serializeDouble(endEffectorWorldOrientation);
-						gVRController2Pos.serializeDouble(targetWorldPosition);
-						gVRController2Orn.serializeDouble(targetWorldOrientation);
-                                
+                        
+						// Prescribed position and orientation
 						static btScalar time=0.f;
 						time+=0.01;
 						btVector3 targetPos(0.4-0.4*b3Cos( time), 0, 0.8+0.4*b3Cos( time));
 						targetPos +=mb->getBasePos();
-						btQuaternion fwdOri(btVector3(1,0,0),-SIMD_HALF_PI);
-						(0, 1.0, 0, 0);
-						double downOrn[4] = {0,1,0,0};
-						//double downOrn[4] = {0,1,0,0};
-						
-						fwdOri.serializeDouble(targetWorldOrientation);
+						btVector4 downOrn(0,1,0,0);
 
-                       ikHelperPtr->computeIK(targetWorldPosition.m_floats, targetWorldOrientation.m_floats,
+						// Controller orientation
+						btVector4 controllerOrn(gVRController2Orn.x(), gVRController2Orn.y(), gVRController2Orn.z(), gVRController2Orn.w());
+						
+						// Set position and orientation
+						endEffectorPosWorld.serializeDouble(endEffectorWorldPosition);
+						endEffectorOri.serializeDouble(endEffectorWorldOrientation);
+						downOrn.serializeDouble(targetWorldOrientation);
+						//targetPos.serializeDouble(targetWorldPosition);
+						gVRController2Pos.serializeDouble(targetWorldPosition);
+						//controllerOrn.serializeDouble(targetWorldOrientation);
+
+
+                        ikHelperPtr->computeIK(targetWorldPosition.m_floats, targetWorldOrientation.m_floats,
                                                        endEffectorWorldPosition.m_floats, endEffectorWorldOrientation.m_floats,
                                                        &q_current[0],
                                                        numDofs, endEffectorLinkIndex,
@@ -3170,13 +3177,14 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 				}
 
 				//directly set the position of the links, only for debugging IK, don't use this method!
-				//if (0)
-				//{
-				//	for (int i=0;i<mb->getNumLinks();i++)
-				//	{
-				//		mb->setJointPosMultiDof(i,&q_new[i]);
-				//	}
-				//} else
+				if (0)
+				{
+					for (int i=0;i<mb->getNumLinks();i++)
+					{
+						btScalar desiredPosition = q_new[i];
+						mb->setJointPosMultiDof(i,&desiredPosition);
+					}
+				} else
 				{
 					int numMotors = 0;
 					//find the joint motors and apply the desired velocity and maximum force/torque

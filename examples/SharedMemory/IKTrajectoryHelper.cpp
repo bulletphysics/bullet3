@@ -128,9 +128,9 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
         case IK2_JACOB_TRANS:
             m_data->m_ikJacobian->CalcDeltaThetasTranspose();		// Jacobian transpose method
             break;
-        case IK2_DLS:
-		case IK2_VEL_DLS_WITH_ORIENTATION:
+		case IK2_DLS:
         case IK2_VEL_DLS:
+		case IK2_VEL_DLS_WITH_ORIENTATION:
             m_data->m_ikJacobian->CalcDeltaThetasDLS();			// Damped least squares method
             break;
         case IK2_DLS_SVD:
@@ -148,7 +148,7 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
     }
     
     // Use for velocity IK, update theta dot
-    m_data->m_ikJacobian->UpdateThetaDot();
+    //m_data->m_ikJacobian->UpdateThetaDot();
     
     // Use for position IK, incrementally update theta
     //m_data->m_ikJacobian->UpdateThetas();
