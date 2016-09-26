@@ -122,9 +122,14 @@ btMultiBody::btMultiBody(int n_links,
 		m_useGlobalVelocities(false),
 		m_internalNeedsJointFeedback(false)
 {
+	m_cachedInertiaTopLeft.setValue(0,0,0,0,0,0,0,0,0);
+	m_cachedInertiaTopRight.setValue(0,0,0,0,0,0,0,0,0);
+	m_cachedInertiaLowerLeft.setValue(0,0,0,0,0,0,0,0,0);
+	m_cachedInertiaLowerRight.setValue(0,0,0,0,0,0,0,0,0);
+	m_cachedInertiaValid=false;
+
 	m_links.resize(n_links);
 	m_matrixBuf.resize(n_links + 1);
-
 
     m_baseForce.setValue(0, 0, 0);
     m_baseTorque.setValue(0, 0, 0);
@@ -764,8 +769,8 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 
 		//adding damping terms (only)
 		btScalar linDampMult = 1., angDampMult = 1.;
-		zeroAccSpatFrc[0].addVector(angDampMult * m_baseInertia * spatVel[0].getAngular() * (DAMPING_K1_ANGULAR + DAMPING_K2_ANGULAR * spatVel[0].getAngular().norm()),
-								   linDampMult * m_baseMass * spatVel[0].getLinear() * (DAMPING_K1_LINEAR + DAMPING_K2_LINEAR * spatVel[0].getLinear().norm()));
+		zeroAccSpatFrc[0].addVector(angDampMult * m_baseInertia * spatVel[0].getAngular() * (DAMPING_K1_ANGULAR + DAMPING_K2_ANGULAR * spatVel[0].getAngular().safeNorm()),
+								   linDampMult * m_baseMass * spatVel[0].getLinear() * (DAMPING_K1_LINEAR + DAMPING_K2_LINEAR * spatVel[0].getLinear().safeNorm()));
 
 		//
 		//p += vhat x Ihat vhat - done in a simpler way
@@ -851,8 +856,8 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 		//
 		//adding damping terms (only)
 		btScalar linDampMult = 1., angDampMult = 1.;
-		zeroAccSpatFrc[i+1].addVector(angDampMult * m_links[i].m_inertiaLocal * spatVel[i+1].getAngular() * (DAMPING_K1_ANGULAR + DAMPING_K2_ANGULAR * spatVel[i+1].getAngular().norm()),
-									 linDampMult * m_links[i].m_mass * spatVel[i+1].getLinear() * (DAMPING_K1_LINEAR + DAMPING_K2_LINEAR * spatVel[i+1].getLinear().norm()));
+		zeroAccSpatFrc[i+1].addVector(angDampMult * m_links[i].m_inertiaLocal * spatVel[i+1].getAngular() * (DAMPING_K1_ANGULAR + DAMPING_K2_ANGULAR * spatVel[i+1].getAngular().safeNorm()),
+									 linDampMult * m_links[i].m_mass * spatVel[i+1].getLinear() * (DAMPING_K1_LINEAR + DAMPING_K2_LINEAR * spatVel[i+1].getLinear().safeNorm()));
 		
         // calculate Ihat_i^A
 		//init the spatial AB inertia (it has the simple form thanks to choosing local body frames origins at their COMs)
@@ -1012,6 +1017,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 	{
         if (num_links > 0) 
 		{
+			m_cachedInertiaValid = true;
 			m_cachedInertiaTopLeft = spatInertia[0].m_topLeftMat;
 			m_cachedInertiaTopRight = spatInertia[0].m_topRightMat;
 			m_cachedInertiaLowerLeft = spatInertia[0].m_bottomLeftMat;
@@ -1215,6 +1221,14 @@ void btMultiBody::solveImatrix(const btVector3& rhs_top, const btVector3& rhs_bo
         result[5] = rhs_top[2] / m_baseMass;
     } else 
 	{
+		if (!m_cachedInertiaValid)
+		{
+			for (int i=0;i<6;i++)
+			{
+				result[i] = 0.f;
+			}
+			return;
+		}
 		/// Special routine for calculating the inverse of a spatial inertia matrix
 		///the 6x6 matrix is stored as 4 blocks of 3x3 matrices
 		btMatrix3x3 Binv = m_cachedInertiaTopRight.inverse()*-1.f;
@@ -1261,6 +1275,13 @@ void btMultiBody::solveImatrix(const btSpatialForceVector &rhs, btSpatialMotionV
 	{
 		/// Special routine for calculating the inverse of a spatial inertia matrix
 		///the 6x6 matrix is stored as 4 blocks of 3x3 matrices
+		if (!m_cachedInertiaValid)
+		{
+			result.setLinear(btVector3(0,0,0));
+			result.setAngular(btVector3(0,0,0));
+			result.setVector(btVector3(0,0,0),btVector3(0,0,0));
+			return;
+		}
 		btMatrix3x3 Binv = m_cachedInertiaTopRight.inverse()*-1.f;
 		btMatrix3x3 tmp = m_cachedInertiaLowerRight * Binv;
 		btMatrix3x3 invIupper_right = (tmp * m_cachedInertiaTopLeft + m_cachedInertiaLowerLeft).inverse();

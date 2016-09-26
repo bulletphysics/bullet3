@@ -225,7 +225,8 @@ void ConvertURDF2BulletInternal(
     {
 
 
-        btVector3 color = selectColor2();
+        btVector4 color = selectColor2();
+		u2b.getLinkColor(urdfLinkIndex,color);
         /*
          if (visual->material.get())
          {
@@ -255,7 +256,7 @@ void ConvertURDF2BulletInternal(
             btRigidBody* body = creation.allocateRigidBody(urdfLinkIndex, mass, localInertiaDiagonal, inertialFrameInWorldSpace, compoundShape);
             linkRigidBody = body;
 
-            world1->addRigidBody(body, bodyCollisionFilterGroup, bodyCollisionFilterMask);
+            world1->addRigidBody(body);
 
             compoundShape->setUserIndex(graphicsIndex);
 
@@ -320,15 +321,12 @@ void ConvertURDF2BulletInternal(
                         cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointDamping = jointDamping;
                         cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointFriction= jointFriction;
                         creation.addLinkMapping(urdfLinkIndex,mbLinkIndex);
-						if (jointLowerLimit <= jointUpperLimit)
-						{
-							//std::string name = u2b.getLinkName(urdfLinkIndex);
-							//printf("create btMultiBodyJointLimitConstraint for revolute link name=%s urdf link index=%d (low=%f, up=%f)\n", name.c_str(), urdfLinkIndex, jointLowerLimit, jointUpperLimit);
-
-							btMultiBodyConstraint* con = new btMultiBodyJointLimitConstraint(cache.m_bulletMultiBody, mbLinkIndex, jointLowerLimit, jointUpperLimit);
-							world1->addMultiBodyConstraint(con);
-						}
-
+                        if (jointType == URDFRevoluteJoint && jointLowerLimit <= jointUpperLimit) {
+                          //std::string name = u2b.getLinkName(urdfLinkIndex);
+                          //printf("create btMultiBodyJointLimitConstraint for revolute link name=%s urdf link index=%d (low=%f, up=%f)\n", name.c_str(), urdfLinkIndex, jointLowerLimit, jointUpperLimit);
+                          btMultiBodyConstraint* con = new btMultiBodyJointLimitConstraint(cache.m_bulletMultiBody, mbLinkIndex, jointLowerLimit, jointUpperLimit);
+                          world1->addMultiBodyConstraint(con);
+                        }
                     } else
                     {
 
