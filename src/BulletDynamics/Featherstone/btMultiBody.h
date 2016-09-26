@@ -677,6 +677,7 @@ private:
 	btMatrix3x3 m_cachedInertiaTopRight;
 	btMatrix3x3 m_cachedInertiaLowerLeft;
 	btMatrix3x3 m_cachedInertiaLowerRight;
+	bool m_cachedInertiaValid;
 
     bool m_fixedBase;
 

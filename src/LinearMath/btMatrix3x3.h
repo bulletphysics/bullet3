@@ -1047,7 +1047,8 @@ btMatrix3x3::inverse() const
 {
 	btVector3 co(cofac(1, 1, 2, 2), cofac(1, 2, 2, 0), cofac(1, 0, 2, 1));
 	btScalar det = (*this)[0].dot(co);
-	btFullAssert(det != btScalar(0.0));
+	//btFullAssert(det != btScalar(0.0));
+	btAssert(det != btScalar(0.0));
 	btScalar s = btScalar(1.0) / det;
 	return btMatrix3x3(co.x() * s, cofac(0, 2, 2, 1) * s, cofac(0, 1, 1, 2) * s,
 		co.y() * s, cofac(0, 0, 2, 2) * s, cofac(0, 2, 1, 0) * s,
