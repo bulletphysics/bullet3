@@ -133,7 +133,7 @@ void btMultiBodySliderConstraint::createConstraintRows(btMultiBodyConstraintArra
     for (int i = 0; i < 3; ++i)
     {
         constraintAxis[0] = frameAworld.getColumn(i).cross(jointAxis);
-        if (constraintAxis[0].norm() > EPSILON)
+        if (constraintAxis[0].safeNorm() > EPSILON)
         {
             constraintAxis[0] = constraintAxis[0].normalized();
             constraintAxis[1] = jointAxis.cross(constraintAxis[0]);
