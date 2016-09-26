@@ -1181,14 +1181,20 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 			} else
 			{
 				gDebugRenderToggle = 0;
-				simTimeScalingFactor *= 0.5;
+				
 				if (simTimeScalingFactor==0)
 				{
 					simTimeScalingFactor = 1;
-				}
-				if (simTimeScalingFactor<0.01)
+				} else
 				{
-					simTimeScalingFactor = 0;
+					if (simTimeScalingFactor==1)
+					{
+						simTimeScalingFactor = 0.25;
+					}
+					else
+					{
+						simTimeScalingFactor = 0;
+					}
 				}
 			}
 		} else
