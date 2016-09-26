@@ -2951,7 +2951,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 				loadUrdf("sphere2.urdf", btVector3(-5, 0, 3), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 				loadUrdf("r2d2.urdf", btVector3(2, -2, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());			
 
-				loadUrdf("kuka_iiwa/model.urdf", btVector3(2.0, 0, 0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+				loadUrdf("kuka_iiwa/model.urdf", btVector3(0, -2.3, 0.6), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 				m_data->m_KukaId = bodyId;
 
 				// Load one motor gripper for kuka
@@ -3070,11 +3070,14 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			}
 			loadSdf("kiva_shelf/model.sdf", &gBufferServerToClient[0], gBufferServerToClient.size(), true);
 			loadUrdf("teddy_vhacd.urdf", btVector3(-0.1, 0.6, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			loadUrdf("teddy_vhacd.urdf", btVector3(1.6, -0.2, 0.1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			loadUrdf("cube_small.urdf", btVector3(1.5, -0.3, 0.1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			//loadUrdf("cup_small.urdf", btVector3(3, 2, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			//loadUrdf("pitcher_small.urdf", btVector3(4, 2, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			loadUrdf("sphere_small.urdf", btVector3(-0.1, 0.6, 1.25), gVRGripperOrn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("table.urdf", btVector3(0, -1.9, 0.0), gVRGripperOrn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("tray.urdf", btVector3(0, -1.7, 0.64), gVRGripperOrn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("teddy_vhacd.urdf", btVector3(-0.1, -1.9, 0.7), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("cube_small.urdf", btVector3(0.1, -1.8, 0.7), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("sphere_small.urdf", btVector3(-0.2, -1.7, 0.7), gVRGripperOrn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 
 			m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, -10));
 
@@ -3162,11 +3165,20 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 				static btScalar t=0.f;
 				t+=0.01;
 				double dampIk = 0.99;
+				/*
 				for (int i=0;i<numDofs;i++)
 				{
 					btScalar desiredPosition = btSin(t*0.1)*SIMD_HALF_PI;
 					q_new[i] = dampIk*q_current[i]+(1-dampIk)*desiredPosition;
 				}
+				*/
+				q_new[0] = 1.376;
+				q_new[1] = 1.102;
+				q_new[2] = 1.634;
+				q_new[3] = -0.406;
+				q_new[4] = 1.714;
+				q_new[5] = -2.023;
+				q_new[6] = -1.306;
 
 				if (closeToKuka)
 				{
@@ -3303,6 +3315,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 								{
 									btScalar desiredVelocity = 0.f;
 									btScalar desiredPosition = q_new[link];
+									//printf("link %d: %f", link, q_new[link]);
 									motor->setVelocityTarget(desiredVelocity,1);
 									motor->setPositionTarget(desiredPosition,0.6);
 									btScalar maxImp = 1.f;
