@@ -35,5 +35,6 @@ Marten Svanfeldt
 Pierre Terdiman
 Steven Thompson
 Tamas Umenhoffer
+Yunfei Bai
 
 If your name is missing, please send an email to erwin.coumans@gmail.com or file an issue at http://github.com/bulletphysics/bullet3
