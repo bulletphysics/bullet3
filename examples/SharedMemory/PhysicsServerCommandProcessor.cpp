@@ -2650,12 +2650,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                 
                                 endEffectorPosWorld.serializeDouble(endEffectorWorldPosition);
                                 endEffectorOri.serializeDouble(endEffectorWorldOrientation);
-                                
+								double dampIK[6] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
                                 ikHelperPtr->computeIK(clientCmd.m_calculateInverseKinematicsArguments.m_targetPosition, clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation,
                                                        endEffectorWorldPosition.m_floats, endEffectorWorldOrientation.m_floats,
                                                        &q_current[0],
                                                        numDofs, clientCmd.m_calculateInverseKinematicsArguments.m_endEffectorLinkIndex,
-									&q_new[0], ikMethod, &jacobian_linear[0], &jacobian_angular[0], jacSize*2);
+									&q_new[0], ikMethod, &jacobian_linear[0], &jacobian_angular[0], jacSize*2, dampIK);
                                 
                                 serverCmd.m_inverseKinematicsResultArgs.m_bodyUniqueId =clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId;
                                 for (int i=0;i<numDofs;i++)
@@ -2941,11 +2941,11 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 				}	
 			}
 
-			loadUrdf("kuka_iiwa/model.urdf", btVector3(0, -2.3, 0.6), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("kuka_iiwa/model.urdf", btVector3(0, -3.0, 0.0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			m_data->m_KukaId = bodyId;
 
 			// Load one motor gripper for kuka
-			loadSdf("gripper/wsg50_one_motor_gripper_new.sdf", &gBufferServerToClient[0], gBufferServerToClient.size(), true);
+			loadSdf("gripper/wsg50_one_motor_gripper_free_base.sdf", &gBufferServerToClient[0], gBufferServerToClient.size(), true);
 			m_data->m_gripperId = bodyId + 1;
 			InteralBodyData* kukaBody = m_data->getHandle(m_data->m_KukaId);
 			InteralBodyData* gripperBody = m_data->getHandle(m_data->m_gripperId);
@@ -3012,15 +3012,6 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			loadUrdf("teddy_vhacd.urdf", btVector3(-0.1, 0.6, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());			
 			loadUrdf("sphere_small.urdf", btVector3(-0.1, 0.6, 1.25), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			loadUrdf("cube_small.urdf", btVector3(0.3, 0.6, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			
-			// Table area
-			loadUrdf("table.urdf", btVector3(0, -1.9, 0.0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			loadUrdf("tray.urdf", btVector3(0, -1.7, 0.64), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			loadUrdf("cup_small.urdf", btVector3(0.5, -2.0, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			loadUrdf("pitcher_small.urdf", btVector3(0.4, -1.8, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			loadUrdf("teddy_vhacd.urdf", btVector3(-0.1, -1.9, 0.7), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			loadUrdf("cube_small.urdf", btVector3(0.1, -1.8, 0.7), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			loadUrdf("sphere_small.urdf", btVector3(-0.2, -1.7, 0.7), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			
 			loadUrdf("husky/husky.urdf", btVector3(5, 2, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			m_data->m_huskyId = bodyId;
@@ -3105,7 +3096,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 
 				if (closeToKuka)
 				{
-					int dampIk = 1;
+					double dampIk[6] = {1.0, 1.0, 1.0, 1.0, 1.0, 0.0};
 
 					IKTrajectoryHelper** ikHelperPtrPtr = m_data->m_inverseKinematicsHelpers.find(bodyHandle->m_multiBody);
 					IKTrajectoryHelper* ikHelperPtr = 0;
