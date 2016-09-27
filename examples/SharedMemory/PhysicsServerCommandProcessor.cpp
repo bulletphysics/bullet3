@@ -2951,9 +2951,9 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 
 			loadUrdf("kuka_iiwa/model.urdf", btVector3(0, -3.0, 0.0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			m_data->m_KukaId = bodyId;
-			loadUrdf("lego/lego.urdf", btVector3(0, -2.8, .1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			loadUrdf("lego/lego.urdf", btVector3(0, -2.8, .2), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			loadUrdf("lego/lego.urdf", btVector3(0, -2.8, .3), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("lego/lego.urdf", btVector3(0, -2.5, .1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("lego/lego.urdf", btVector3(0, -2.5, .2), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("lego/lego.urdf", btVector3(0, -2.5, .3), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			loadUrdf("r2d2.urdf", btVector3(2, -2, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 
 			// Load one motor gripper for kuka
@@ -3024,7 +3024,6 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			loadUrdf("sphere2.urdf", btVector3(-5, 0, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			loadUrdf("sphere2.urdf", btVector3(-5, 0, 2), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			loadUrdf("sphere2.urdf", btVector3(-5, 0, 3), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			loadUrdf("r2d2.urdf", btVector3(2, -2, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			
 			// Shelf area
 			loadSdf("kiva_shelf/model.sdf", &gBufferServerToClient[0], gBufferServerToClient.size(), true);
