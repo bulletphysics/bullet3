@@ -18,6 +18,7 @@
 
 struct BodyJointInfoCache
 {
+	std::string m_baseName;
 	btAlignedObjectArray<b3JointInfo> m_jointInfo;
 };
 
@@ -74,10 +75,37 @@ struct PhysicsClientSharedMemoryInternalData {
 
 
 
-
-int PhysicsClientSharedMemory::getNumJoints(int bodyIndex) const 
+int PhysicsClientSharedMemory::getNumBodies() const
 {
-	BodyJointInfoCache** bodyJointsPtr = m_data->m_bodyJointMap[bodyIndex];
+	return m_data->m_bodyJointMap.size();
+}
+
+int PhysicsClientSharedMemory::getBodyUniqueId(int serialIndex) const
+{
+	if ((serialIndex >= 0) && (serialIndex < getNumBodies()))
+	{
+		return m_data->m_bodyJointMap.getKeyAtIndex(serialIndex).getUid1();
+	}
+	return -1;
+}
+
+bool PhysicsClientSharedMemory::getBodyInfo(int bodyUniqueId, struct b3BodyInfo& info) const
+{
+	BodyJointInfoCache** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
+	if (bodyJointsPtr && *bodyJointsPtr)
+	{
+		BodyJointInfoCache* bodyJoints = *bodyJointsPtr;
+		info.m_baseName = bodyJoints->m_baseName.c_str();
+		return true;
+	}
+	return false;
+}
+
+
+
+int PhysicsClientSharedMemory::getNumJoints(int bodyUniqueId) const 
+{
+	BodyJointInfoCache** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
 	if (bodyJointsPtr && *bodyJointsPtr)
 	{
 		BodyJointInfoCache* bodyJoints = *bodyJointsPtr;
@@ -88,9 +116,9 @@ int PhysicsClientSharedMemory::getNumJoints(int bodyIndex) const
 	
 }
 
-bool PhysicsClientSharedMemory::getJointInfo(int bodyIndex, int jointIndex, b3JointInfo& info) const
+bool PhysicsClientSharedMemory::getJointInfo(int bodyUniqueId, int jointIndex, b3JointInfo& info) const
 {
-	BodyJointInfoCache** bodyJointsPtr = m_data->m_bodyJointMap[bodyIndex];
+	BodyJointInfoCache** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
 	if (bodyJointsPtr && *bodyJointsPtr)
 	{
 		BodyJointInfoCache* bodyJoints = *bodyJointsPtr;
@@ -196,12 +224,13 @@ void PhysicsClientSharedMemory::processBodyJointInfo(int bodyUniqueId, const Sha
             Bullet::btMultiBodyDoubleData* mb =
             (Bullet::btMultiBodyDoubleData*)bf.m_multiBodies[i];
             
+			bodyJoints->m_baseName = mb->m_baseName;
             addJointInfoFromMultiBodyData(mb,bodyJoints, m_data->m_verboseOutput);
         } else
         {
             Bullet::btMultiBodyFloatData* mb =
             (Bullet::btMultiBodyFloatData*)bf.m_multiBodies[i];
-            
+			bodyJoints->m_baseName = mb->m_baseName;
             addJointInfoFromMultiBodyData(mb,bodyJoints, m_data->m_verboseOutput);
         }
     }
@@ -272,10 +301,10 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                         serverCmd.m_dataStreamArguments.m_streamChunkLength);
                     bf.setFileDNAisMemoryDNA();
                     bf.parse(false);
-					int bodyIndex = serverCmd.m_dataStreamArguments.m_bodyUniqueId;
+					int bodyUniqueId = serverCmd.m_dataStreamArguments.m_bodyUniqueId;
 
 					BodyJointInfoCache* bodyJoints = new BodyJointInfoCache;
-                    m_data->m_bodyJointMap.insert(bodyIndex,bodyJoints);
+                    m_data->m_bodyJointMap.insert(bodyUniqueId,bodyJoints);
 
                     for (int i = 0; i < bf.m_multiBodies.size(); i++) {
 
