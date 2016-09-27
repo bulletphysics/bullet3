@@ -16,6 +16,9 @@
 #include "btQuickprof.h"
 
 
+#if BT_THREADSAFE
+#include "btThreads.h"
+#endif //#if BT_THREADSAFE
 
 
 #ifdef __CELLOS_LV2__
@@ -455,6 +458,14 @@ unsigned long int			CProfileManager::ResetTime = 0;
  *=============================================================================================*/
 void	CProfileManager::Start_Profile( const char * name )
 {
+#if BT_THREADSAFE
+    // profile system is not designed for profiling multiple threads
+    // disable collection on all but the main thread
+    if ( !btIsMainThread() )
+    {
+        return;
+    }
+#endif //#if BT_THREADSAFE
 	if (name != CurrentNode->Get_Name()) {
 		CurrentNode = CurrentNode->Get_Sub_Node( name );
 	}
@@ -468,6 +479,14 @@ void	CProfileManager::Start_Profile( const char * name )
  *=============================================================================================*/
 void	CProfileManager::Stop_Profile( void )
 {
+#if BT_THREADSAFE
+    // profile system is not designed for profiling multiple threads
+    // disable collection on all but the main thread
+    if ( !btIsMainThread() )
+    {
+        return;
+    }
+#endif //#if BT_THREADSAFE
 	// Return will indicate whether we should back up to our parent (we may
 	// be profiling a recursive function)
 	if (CurrentNode->Return()) {
