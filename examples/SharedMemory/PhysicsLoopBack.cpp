@@ -74,6 +74,21 @@ bool PhysicsLoopBack::submitClientCommand(const struct SharedMemoryCommand& comm
 	return  m_data->m_physicsClient->submitClientCommand(command);
 }
 
+int PhysicsLoopBack::getNumBodies() const
+{
+	return m_data->m_physicsClient->getNumBodies();
+}
+
+int PhysicsLoopBack::getBodyUniqueId(int serialIndex) const
+{
+	return m_data->m_physicsClient->getBodyUniqueId(serialIndex);
+}
+
+bool PhysicsLoopBack::getBodyInfo(int bodyUniqueId, struct b3BodyInfo& info) const
+{
+	return m_data->m_physicsClient->getBodyInfo(bodyUniqueId, info);
+}
+
 int PhysicsLoopBack::getNumJoints(int bodyIndex) const
 {
 	return m_data->m_physicsClient->getNumJoints(bodyIndex);

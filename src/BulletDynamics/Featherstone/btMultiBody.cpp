@@ -769,8 +769,8 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 
 		//adding damping terms (only)
 		btScalar linDampMult = 1., angDampMult = 1.;
-		zeroAccSpatFrc[0].addVector(angDampMult * m_baseInertia * spatVel[0].getAngular() * (DAMPING_K1_ANGULAR + DAMPING_K2_ANGULAR * spatVel[0].getAngular().norm()),
-								   linDampMult * m_baseMass * spatVel[0].getLinear() * (DAMPING_K1_LINEAR + DAMPING_K2_LINEAR * spatVel[0].getLinear().norm()));
+		zeroAccSpatFrc[0].addVector(angDampMult * m_baseInertia * spatVel[0].getAngular() * (DAMPING_K1_ANGULAR + DAMPING_K2_ANGULAR * spatVel[0].getAngular().safeNorm()),
+								   linDampMult * m_baseMass * spatVel[0].getLinear() * (DAMPING_K1_LINEAR + DAMPING_K2_LINEAR * spatVel[0].getLinear().safeNorm()));
 
 		//
 		//p += vhat x Ihat vhat - done in a simpler way
@@ -856,8 +856,8 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 		//
 		//adding damping terms (only)
 		btScalar linDampMult = 1., angDampMult = 1.;
-		zeroAccSpatFrc[i+1].addVector(angDampMult * m_links[i].m_inertiaLocal * spatVel[i+1].getAngular() * (DAMPING_K1_ANGULAR + DAMPING_K2_ANGULAR * spatVel[i+1].getAngular().norm()),
-									 linDampMult * m_links[i].m_mass * spatVel[i+1].getLinear() * (DAMPING_K1_LINEAR + DAMPING_K2_LINEAR * spatVel[i+1].getLinear().norm()));
+		zeroAccSpatFrc[i+1].addVector(angDampMult * m_links[i].m_inertiaLocal * spatVel[i+1].getAngular() * (DAMPING_K1_ANGULAR + DAMPING_K2_ANGULAR * spatVel[i+1].getAngular().safeNorm()),
+									 linDampMult * m_links[i].m_mass * spatVel[i+1].getLinear() * (DAMPING_K1_LINEAR + DAMPING_K2_LINEAR * spatVel[i+1].getLinear().safeNorm()));
 		
         // calculate Ihat_i^A
 		//init the spatial AB inertia (it has the simple form thanks to choosing local body frames origins at their COMs)

@@ -1,6 +1,5 @@
 #include "PhysicsServerCommandProcessor.h"
 
-
 #include "../Importers/ImportURDFDemo/BulletUrdfImporter.h"
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
 #include "../Importers/ImportURDFDemo/URDF2Bullet.h"
@@ -569,7 +568,7 @@ PhysicsServerCommandProcessor::PhysicsServerCommandProcessor()
 	m_data = new PhysicsServerCommandProcessorInternalData();
 
 	createEmptyDynamicsWorld();
-	m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop = 0.0001;
+	m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop = 0.00001;
 	m_data->m_dynamicsWorld->getSolverInfo().m_numIterations = 100;
 
 }
@@ -610,7 +609,7 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 
 
 	m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
-	m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = 0.05;
+	m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = 0.08;
 
 }
 
@@ -1071,6 +1070,10 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
         util->m_memSerializer = new btDefaultSerializer(bufferSizeInBytes ,(unsigned char*)bufferServerToClient);
         //disable serialization of the collision objects (they are too big, and the client likely doesn't need them);
         util->m_memSerializer->m_skipPointers.insert(mb->getBaseCollider(),0);
+		if (mb->getBaseName())
+		{
+			util->m_memSerializer->registerNameForPointer(mb->getBaseName(),mb->getBaseName());
+		}
 
         bodyHandle->m_linkLocalInertialFrames.reserve(mb->getNumLinks());
         for (int i=0;i<mb->getNumLinks();i++)
@@ -1893,6 +1896,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                         applyJointDamping(i);
                     }
 					
+					
+					
+
 					btScalar deltaTimeScaled = m_data->m_physicsDeltaTime*simTimeScalingFactor;
 
 					if (m_data->m_numSimulationSubSteps > 0)
@@ -2825,6 +2831,7 @@ void PhysicsServerCommandProcessor::removePickingConstraint()
 		m_data->m_dynamicsWorld->removeConstraint(m_data->m_pickedConstraint);
 		delete m_data->m_pickedConstraint;
 		m_data->m_pickedConstraint = 0;
+		m_data->m_pickedBody->forceActivationState(ACTIVE_TAG);
 		m_data->m_pickedBody = 0;
 	}
 	if (m_data->m_pickingMultiBodyPoint2Point)
@@ -2894,11 +2901,12 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			btVector3 shiftPos = spawnDir*spawnDistance;
 			btVector3 spawnPos = gVRGripperPos + shiftPos;
 			loadUrdf("sphere_small.urdf", spawnPos, gVRGripperOrn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			//loadUrdf("lego/lego.urdf", spawnPos, gVRGripperOrn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			m_data->m_sphereId = bodyId;
 			InteralBodyData* parentBody = m_data->getHandle(bodyId);
 			if (parentBody->m_multiBody)
 			{
-				parentBody->m_multiBody->setBaseVel(spawnDir * 3);
+				parentBody->m_multiBody->setBaseVel(spawnDir * 5);
 			}
 		}
 
@@ -2943,6 +2951,10 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 
 			loadUrdf("kuka_iiwa/model.urdf", btVector3(0, -3.0, 0.0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			m_data->m_KukaId = bodyId;
+			loadUrdf("lego/lego.urdf", btVector3(0, -2.8, .1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("lego/lego.urdf", btVector3(0, -2.8, .2), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("lego/lego.urdf", btVector3(0, -2.8, .3), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("r2d2.urdf", btVector3(2, -2, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 
 			// Load one motor gripper for kuka
 			loadSdf("gripper/wsg50_one_motor_gripper_free_base.sdf", &gBufferServerToClient[0], gBufferServerToClient.size(), true);
@@ -2962,6 +2974,13 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 					}
 				}
 			}
+				
+			for (int i = 0; i < 6; i++)
+			{
+				loadUrdf("jenga/jenga.urdf", btVector3(-1-0.1*i,-0.5,  .07), btQuaternion(btVector3(0,1,0),SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			}
+
+			//loadUrdf("nao/nao.urdf", btVector3(2,5, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 
 			// Add slider joint for fingers
 			btVector3 pivotInParent1(0, 0, 0.06);

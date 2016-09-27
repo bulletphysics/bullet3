@@ -624,7 +624,7 @@ void	PhysicsClientExample::initPhysics()
 	{
         MyCallback(CMD_LOAD_URDF, true, this);
         MyCallback(CMD_STEP_FORWARD_SIMULATION,true,this);
-        MyCallback(CMD_STEP_FORWARD_SIMULATION,true,this);
+        
         MyCallback(CMD_RESET_SIMULATION,true,this);
 	}
 
