@@ -739,6 +739,29 @@ b3SharedMemoryStatusHandle b3SubmitClientCommandAndWaitStatus(b3PhysicsClientHan
 }
 
 
+///return the total number of bodies in the simulation
+int	b3GetNumBodies(b3PhysicsClientHandle physClient)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+	return cl->getNumBodies();
+}
+
+/// return the body unique id, given the index in range [0 , b3GetNumBodies() )
+int b3GetBodyUniqueId(b3PhysicsClientHandle physClient, int serialIndex)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+	return cl->getBodyUniqueId(serialIndex);
+}
+
+///given a body unique id, return the body information. See b3BodyInfo in SharedMemoryPublic.h
+int b3GetBodyInfo(b3PhysicsClientHandle physClient, int bodyUniqueId, struct b3BodyInfo* info)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+	return cl->getBodyInfo(bodyUniqueId,*info);
+}
+
+
+
 int	b3GetNumJoints(b3PhysicsClientHandle physClient, int bodyId)
 {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;

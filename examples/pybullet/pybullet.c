@@ -567,7 +567,7 @@ static int pybullet_internalGetBasePositionAndOrientation(
       const int status_type = b3GetStatusType(status_handle);
       const double* actualStateQ;
       // const double* jointReactionForces[];
-      int i;
+      
 
       if (status_type != CMD_ACTUAL_STATE_UPDATE_COMPLETED) {
         PyErr_SetString(SpamError, "getBasePositionAndOrientation failed.");
@@ -661,10 +661,88 @@ static PyObject* pybullet_getBasePositionAndOrientation(PyObject* self,
   }
 }
 
+static PyObject* pybullet_getNumBodies(PyObject* self, PyObject* args)
+{
+	if (0 == sm) {
+    PyErr_SetString(SpamError, "Not connected to physics server.");
+    return NULL;
+  }
+
+ {
+    int numBodies = b3GetNumBodies(sm);
+
+#if PY_MAJOR_VERSION >= 3
+    return PyLong_FromLong(numBodies);
+#else
+    return PyInt_FromLong(numBodies);
+#endif
+  }
+}
+
+static PyObject* pybullet_getBodyUniqueId(PyObject* self, PyObject* args)
+{
+	if (0 == sm) {
+    PyErr_SetString(SpamError, "Not connected to physics server.");
+    return NULL;
+  }
+
+	{
+    int serialIndex = -1;
+    int bodyUniqueId = -1;
+    if (!PyArg_ParseTuple(args, "i", &serialIndex)) {
+      PyErr_SetString(SpamError, "Expected a serialIndex in range [0..number of bodies).");
+      return NULL;
+    }
+    bodyUniqueId = b3GetBodyUniqueId(sm, serialIndex);
+
+#if PY_MAJOR_VERSION >= 3
+    return PyLong_FromLong(bodyUniqueId);
+#else
+    return PyInt_FromLong(bodyUniqueId);
+#endif
+  }
+}
+
+static PyObject* pybullet_getBodyInfo(PyObject* self, PyObject* args)
+{
+	if (0 == sm) {
+    PyErr_SetString(SpamError, "Not connected to physics server.");
+    return NULL;
+  }
+
+	{
+    int bodyUniqueId= -1;
+    int numJoints = 0;
+    if (!PyArg_ParseTuple(args, "i", &bodyUniqueId)) 
+	{
+      PyErr_SetString(SpamError, "Expected a body unique id (integer).");
+      return NULL;
+    }
+		{
+			struct b3BodyInfo info;
+			if (b3GetBodyInfo(sm,bodyUniqueId,&info))
+			{
+				PyObject* pyListJointInfo = PyTuple_New(1);
+				PyTuple_SetItem(pyListJointInfo, 0, PyString_FromString(info.m_baseName));
+				return pyListJointInfo;
+			} else
+			{
+				PyErr_SetString(SpamError, "Couldn't get body info");
+				return NULL;
+			}
+		}
+	}
+
+  PyErr_SetString(SpamError, "error in getBodyInfo.");
+  return NULL;
+}
+
+
 // Return the number of joints in an object based on
 // body index; body index is based on order of sequence
 // the object is loaded into simulation
-static PyObject* pybullet_getNumJoints(PyObject* self, PyObject* args) {
+static PyObject* pybullet_getNumJoints(PyObject* self, PyObject* args) 
+{
   if (0 == sm) {
     PyErr_SetString(SpamError, "Not connected to physics server.");
     return NULL;
@@ -888,16 +966,15 @@ static PyObject* pybullet_getJointInfo(PyObject* self, PyObject* args) {
 static PyObject* pybullet_getJointState(PyObject* self, PyObject* args) {
   PyObject* pyListJointForceTorque;
   PyObject* pyListJointState;
-  PyObject* item;
 
-  struct b3JointInfo info;
+
   struct b3JointSensorState sensorState;
 
   int bodyIndex = -1;
   int jointIndex = -1;
   int sensorStateSize = 4;  // size of struct b3JointSensorState
   int forceTorqueSize = 6;  // size of force torque list from b3JointSensorState
-  int i, j;
+  int j;
 
   int size = PySequence_Size(args);
 
@@ -2005,6 +2082,15 @@ static PyMethodDef SpamMethods[] = {
     {"loadSDF", pybullet_loadSDF, METH_VARARGS,
      "Load multibodies from an SDF file."},
 
+	{"getNumBodies", pybullet_getNumBodies, METH_VARARGS,
+     "Get the number of bodies in the simulation."},
+
+	{"getBodyUniqueId", pybullet_getBodyUniqueId, METH_VARARGS,
+     "Get the unique id of the body, given a integer serial index in range [0.. number of bodies)."},
+
+	{"getBodyInfo", pybullet_getBodyInfo, METH_VARARGS,
+     "Get the body info, given a body unique id."},
+	
     {"getBasePositionAndOrientation", pybullet_getBasePositionAndOrientation,
      METH_VARARGS,
      "Get the world position and orientation of the base of the object. "

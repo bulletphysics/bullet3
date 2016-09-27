@@ -34,9 +34,15 @@ public:
 
     virtual bool submitClientCommand(const struct SharedMemoryCommand& command);
 
-    virtual int getNumJoints(int bodyIndex) const;
+	virtual int getNumBodies() const;
 
-    virtual bool getJointInfo(int bodyIndex, int jointIndex, struct b3JointInfo& info) const;
+	virtual int getBodyUniqueId(int serialIndex) const;
+
+	virtual bool getBodyInfo(int bodyUniqueId, struct b3BodyInfo& info) const;
+
+    virtual int getNumJoints(int bodyUniqueId) const;
+
+    virtual bool getJointInfo(int bodyUniqueId, int jointIndex, struct b3JointInfo& info) const;
 
     virtual void setSharedMemoryKey(int key);
 

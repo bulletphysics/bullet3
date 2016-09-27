@@ -117,6 +117,13 @@ struct b3JointInfo
     double m_jointAxis[3]; // joint axis in parent local frame
 };
 
+struct b3BodyInfo
+{
+	const char* m_baseName;
+};
+
+
+
 struct b3JointSensorState
 {
   double m_jointPosition;
