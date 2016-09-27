@@ -390,6 +390,8 @@ struct PhysicsServerCommandProcessorInternalData
 	btMultiBody* m_gripperMultiBody;
 	btMultiBodyFixedConstraint* m_kukaGripperFixed;
 	btMultiBody* m_kukaGripperMultiBody;
+	btMultiBodySliderConstraint* m_kukaGripperSlider1;
+	btMultiBodySliderConstraint* m_kukaGripperSlider2;
 	int m_huskyId;
 	int m_KukaId;
 	int m_sphereId;
@@ -2582,7 +2584,6 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							
 							if (ikHelperPtr && (endEffectorLinkIndex<bodyHandle->m_multiBody->getNumLinks()))
 							{
-								int numJoints1 = bodyHandle->m_multiBody->getNumLinks();
 								const int numDofs = bodyHandle->m_multiBody->getNumDofs();
 
                                 b3AlignedObjectArray<double> jacobian_linear;
@@ -2865,7 +2866,7 @@ void PhysicsServerCommandProcessor::replayFromLogFile(const char* fileName)
 
 btVector3 gVRGripperPos(0,0,0.2);
 btQuaternion gVRGripperOrn(0,0,0,1);
-btVector3 gVRController2Pos(0,0,0.2);;
+btVector3 gVRController2Pos(0,0,0.2);
 btQuaternion gVRController2Orn(0,0,0,1);
 
 btScalar gVRGripperAnalog = 0;
@@ -2905,8 +2906,6 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 		{
 			m_data->m_hasGround = true;
 
-			
-
 			loadUrdf("plane.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, true, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			loadUrdf("samurai.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 
@@ -2935,149 +2934,96 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 							m_data->m_gripperMultiBody->setJointPos(0, 0);
 							m_data->m_gripperMultiBody->setJointPos(2, 0);
 						}
-						m_data->m_gripperRigidbodyFixed->setMaxAppliedImpulse(10000);
+						m_data->m_gripperRigidbodyFixed->setMaxAppliedImpulse(500);
 						btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*)m_data->m_dynamicsWorld;
 						world->addMultiBodyConstraint(m_data->m_gripperRigidbodyFixed);
 					}
-				}
-#if 1
-				for (int i = 0; i < 10; i++)
-				{
-					loadUrdf("cube.urdf", btVector3(3, -2, 0.5+i), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-				}
-
-				loadUrdf("sphere2.urdf", btVector3(-5, 0, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-				loadUrdf("sphere2.urdf", btVector3(-5, 0, 2), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-				loadUrdf("sphere2.urdf", btVector3(-5, 0, 3), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-				loadUrdf("r2d2.urdf", btVector3(2, -2, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());			
-
-				loadUrdf("kuka_iiwa/model.urdf", btVector3(0, -2.3, 0.6), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-				m_data->m_KukaId = bodyId;
-
-				// Load one motor gripper for kuka
-				{
-					loadSdf("gripper/wsg50_one_motor_gripper_new.sdf", &gBufferServerToClient[0], gBufferServerToClient.size(), true);
-					m_data->m_gripperId = bodyId + 1;
-					InteralBodyData* parentBody = m_data->getHandle(m_data->m_KukaId);
-					InteralBodyData* childBody = m_data->getHandle(m_data->m_gripperId);
-
-					// Reset the default gripper motor maximum torque for damping to 0
-					for (int i = 0; i < childBody->m_multiBody->getNumLinks(); i++)
-					{
-						if (supportsJointMotor(childBody->m_multiBody, i))
-						{
-							btMultiBodyJointMotor* motor = (btMultiBodyJointMotor*)childBody->m_multiBody->getLink(i).m_userPtr;
-							if (motor)
-							{
-								motor->setMaxAppliedImpulse(0);
-							}
-						}
-					}
-
-					// Add slider joint for fingers
-					btVector3 pivotInParent1(0, 0, 0.06);
-					btVector3 pivotInChild1(0, 0, 0);
-					btMatrix3x3 frameInParent1(btQuaternion(0, 0, 0, 1.0));
-					btMatrix3x3 frameInChild1(btQuaternion(0, 0, 0, 1.0));
-					btVector3 jointAxis1(1.0, 0, 0);
-					btVector3 pivotInParent2(0, 0, 0.06);
-					btVector3 pivotInChild2(0, 0, 0);
-					btMatrix3x3 frameInParent2(btQuaternion(0, 0, 0, 1.0));
-					btMatrix3x3 frameInChild2(btQuaternion(0, 0, 1.0, 0));
-					btVector3 jointAxis2(1.0, 0, 0);
-					btMultiBodySliderConstraint* multibodySlider1 = new btMultiBodySliderConstraint(childBody->m_multiBody, 0, childBody->m_multiBody, 3, pivotInParent1, pivotInChild1, frameInParent1, frameInChild1, jointAxis1);
-					multibodySlider1->setMaxAppliedImpulse(500.0);
-					btMultiBodySliderConstraint* multibodySlider2 = new btMultiBodySliderConstraint(childBody->m_multiBody, 0, childBody->m_multiBody, 6, pivotInParent2, pivotInChild2, frameInParent2, frameInChild2, jointAxis2);
-					multibodySlider1->setMaxAppliedImpulse(500.0);
-					btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*)m_data->m_dynamicsWorld;
-					world->addMultiBodyConstraint(multibodySlider1);
-					world->addMultiBodyConstraint(multibodySlider2);
-
-					if (parentBody->m_multiBody)
-					{
-						childBody->m_multiBody->setHasSelfCollision(0);
-						btVector3 pivotInParent(0, 0, 0.05);
-						btMatrix3x3 frameInParent;
-						frameInParent.setIdentity();
-						btVector3 pivotInChild(0, 0, 0);
-						btMatrix3x3 frameInChild;
-						frameInChild.setIdentity();
-
-						m_data->m_kukaGripperFixed = new btMultiBodyFixedConstraint(parentBody->m_multiBody, 6, childBody->m_multiBody, 0, pivotInParent, pivotInChild, frameInParent, frameInChild);
-						m_data->m_kukaGripperMultiBody = childBody->m_multiBody;
-						m_data->m_kukaGripperFixed->setMaxAppliedImpulse(10000);
-						btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*)m_data->m_dynamicsWorld;
-						world->addMultiBodyConstraint(m_data->m_kukaGripperFixed);
-					}
-				}
-
-				// Load pr2 gripper for kuka
-				/*
-				loadUrdf("pr2_gripper_short.urdf", btVector3(2.2, 0.1, 0.1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-				InteralBodyData* parentBody = m_data->getHandle(m_data->m_KukaId);
-				InteralBodyData* childBody = m_data->getHandle(bodyId);
-				if (parentBody->m_multiBody)
-				{
-					btVector3 pivotInParent(0, 0, 0.04);
-					btMatrix3x3 frameInParent;
-					frameInParent.setIdentity();
-					btVector3 pivotInChild(0, 0, 0);
-					btMatrix3x3 frameInChild;
-					frameInChild.setRotation(btQuaternion(0, 0.70711, 0, 0.70711));
-
-					m_data->m_kukaGripperFixed = new btMultiBodyFixedConstraint(parentBody->m_multiBody, 6, childBody->m_multiBody, 0, pivotInParent, pivotInChild, frameInParent, frameInChild);
-					m_data->m_kukaGripperMultiBody = childBody->m_multiBody;
-					if (m_data->m_kukaGripperMultiBody->getNumLinks() > 2)
-					{
-						m_data->m_kukaGripperMultiBody->setJointPos(0, 0);
-						m_data->m_kukaGripperMultiBody->setJointPos(2, 0);
-					}
-					m_data->m_kukaGripperFixed->setMaxAppliedImpulse(10000);
-					btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*)m_data->m_dynamicsWorld;
-					world->addMultiBodyConstraint(m_data->m_kukaGripperFixed);
-				}
-				*/
-
-
-				loadUrdf("cube_small.urdf", btVector3(0.3, 0.6, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-				
-				
-				//				loadUrdf("cube_small.urdf", btVector3(0, 0, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-#endif
-#if 0
-				int jengaHeight = 10;
-				for (int j = 0; j < jengaHeight; j++)
-				{
-					for (int i = 0; i < 3; i++)
-					{
-						if (j & 1)
-						{
-							loadUrdf("jenga/jenga.urdf", btVector3(-0.5, 0.05*i, .03*0.5 + .03*j), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-						}
-						else
-						{
-							btQuaternion orn(btVector3(0, 0, 1), SIMD_HALF_PI);
-							loadUrdf("jenga/jenga.urdf", btVector3(-0.5 -1 / 3.*0.15  + 0.05*i, +1 / 3.*0.15,0.03*0.5 + .03*j), orn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-						}
-					}
-				}
-#endif
-			
-				//loadUrdf("nao/nao.urdf", btVector3(2,5, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-				loadUrdf("husky/husky.urdf", btVector3(5, 2, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-				m_data->m_huskyId = bodyId;
-				
+				}	
 			}
+
+			loadUrdf("kuka_iiwa/model.urdf", btVector3(0, -2.3, 0.6), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			m_data->m_KukaId = bodyId;
+
+			// Load one motor gripper for kuka
+			loadSdf("gripper/wsg50_one_motor_gripper_new.sdf", &gBufferServerToClient[0], gBufferServerToClient.size(), true);
+			m_data->m_gripperId = bodyId + 1;
+			InteralBodyData* kukaBody = m_data->getHandle(m_data->m_KukaId);
+			InteralBodyData* gripperBody = m_data->getHandle(m_data->m_gripperId);
+
+			// Reset the default gripper motor maximum torque for damping to 0
+			for (int i = 0; i < gripperBody->m_multiBody->getNumLinks(); i++)
+			{
+				if (supportsJointMotor(gripperBody->m_multiBody, i))
+				{
+					btMultiBodyJointMotor* motor = (btMultiBodyJointMotor*)gripperBody->m_multiBody->getLink(i).m_userPtr;
+					if (motor)
+					{
+						motor->setMaxAppliedImpulse(0);
+					}
+				}
+			}
+
+			// Add slider joint for fingers
+			btVector3 pivotInParent1(0, 0, 0.06);
+			btVector3 pivotInChild1(0, 0, 0);
+			btMatrix3x3 frameInParent1(btQuaternion(0, 0, 0, 1.0));
+			btMatrix3x3 frameInChild1(btQuaternion(0, 0, 0, 1.0));
+			btVector3 jointAxis1(1.0, 0, 0);
+			btVector3 pivotInParent2(0, 0, 0.06);
+			btVector3 pivotInChild2(0, 0, 0);
+			btMatrix3x3 frameInParent2(btQuaternion(0, 0, 0, 1.0));
+			btMatrix3x3 frameInChild2(btQuaternion(0, 0, 1.0, 0));
+			btVector3 jointAxis2(1.0, 0, 0);
+			m_data->m_kukaGripperSlider1 = new btMultiBodySliderConstraint(gripperBody->m_multiBody, 0, gripperBody->m_multiBody, 3, pivotInParent1, pivotInChild1, frameInParent1, frameInChild1, jointAxis1);
+			m_data->m_kukaGripperSlider1->setMaxAppliedImpulse(500.0);
+			m_data->m_kukaGripperSlider2 = new btMultiBodySliderConstraint(gripperBody->m_multiBody, 0, gripperBody->m_multiBody, 6, pivotInParent2, pivotInChild2, frameInParent2, frameInChild2, jointAxis2);
+			m_data->m_kukaGripperSlider2->setMaxAppliedImpulse(500.0);
+
+			m_data->m_dynamicsWorld->addMultiBodyConstraint(m_data->m_kukaGripperSlider1);
+			m_data->m_dynamicsWorld->addMultiBodyConstraint(m_data->m_kukaGripperSlider2);
+
+			if (kukaBody->m_multiBody)
+			{
+				gripperBody->m_multiBody->setHasSelfCollision(0);
+				btVector3 pivotInParent(0, 0, 0.05);
+				btMatrix3x3 frameInParent;
+				frameInParent.setIdentity();
+				btVector3 pivotInChild(0, 0, 0);
+				btMatrix3x3 frameInChild;
+				frameInChild.setIdentity();
+
+				m_data->m_kukaGripperFixed = new btMultiBodyFixedConstraint(kukaBody->m_multiBody, 6, gripperBody->m_multiBody, 0, pivotInParent, pivotInChild, frameInParent, frameInChild);
+				m_data->m_kukaGripperMultiBody = gripperBody->m_multiBody;
+				m_data->m_kukaGripperFixed->setMaxAppliedImpulse(500);
+				m_data->m_dynamicsWorld->addMultiBodyConstraint(m_data->m_kukaGripperFixed);
+			}
+
+			for (int i = 0; i < 10; i++)
+			{
+				loadUrdf("cube.urdf", btVector3(3, -2, 0.5 + i), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			}
+			loadUrdf("sphere2.urdf", btVector3(-5, 0, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("sphere2.urdf", btVector3(-5, 0, 2), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("sphere2.urdf", btVector3(-5, 0, 3), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("r2d2.urdf", btVector3(2, -2, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			
+			// Shelf area
 			loadSdf("kiva_shelf/model.sdf", &gBufferServerToClient[0], gBufferServerToClient.size(), true);
-			loadUrdf("teddy_vhacd.urdf", btVector3(-0.1, 0.6, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			//loadUrdf("cup_small.urdf", btVector3(3, 2, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			//loadUrdf("pitcher_small.urdf", btVector3(4, 2, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			loadUrdf("sphere_small.urdf", btVector3(-0.1, 0.6, 1.25), gVRGripperOrn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			loadUrdf("table.urdf", btVector3(0, -1.9, 0.0), gVRGripperOrn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			loadUrdf("tray.urdf", btVector3(0, -1.7, 0.64), gVRGripperOrn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("teddy_vhacd.urdf", btVector3(-0.1, 0.6, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());			
+			loadUrdf("sphere_small.urdf", btVector3(-0.1, 0.6, 1.25), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("cube_small.urdf", btVector3(0.3, 0.6, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			
+			// Table area
+			loadUrdf("table.urdf", btVector3(0, -1.9, 0.0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("tray.urdf", btVector3(0, -1.7, 0.64), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("cup_small.urdf", btVector3(0.5, -2.0, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("pitcher_small.urdf", btVector3(0.4, -1.8, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			loadUrdf("teddy_vhacd.urdf", btVector3(-0.1, -1.9, 0.7), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			loadUrdf("cube_small.urdf", btVector3(0.1, -1.8, 0.7), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			loadUrdf("sphere_small.urdf", btVector3(-0.2, -1.7, 0.7), gVRGripperOrn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("sphere_small.urdf", btVector3(-0.2, -1.7, 0.7), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			
+			loadUrdf("husky/husky.urdf", btVector3(5, 2, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			m_data->m_huskyId = bodyId;
 
 			m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, -10));
 
@@ -3129,25 +3075,12 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			}
 		}
 
-		
+		// Inverse kinematics for KUKA
 		{
-			
-
-
 			InternalBodyHandle* bodyHandle = m_data->getHandle(m_data->m_KukaId);
 			if (bodyHandle && bodyHandle->m_multiBody)
 			{
-
-				btVector3 spherePos(0,0,0);
-				InternalBodyHandle* sphereBodyHandle = m_data->getHandle(m_data->m_KukaId);
-				if (sphereBodyHandle && sphereBodyHandle->m_multiBody)
-				{
-					spherePos = sphereBodyHandle->m_multiBody->getBasePos();
-				}
-
-				btMultiBody* mb = bodyHandle->m_multiBody;
-
-				
+				btMultiBody* mb = bodyHandle->m_multiBody;				
 				btScalar sqLen = (mb->getBaseWorldTransform().getOrigin() - gVRController2Pos).length2();
 				btScalar distanceThreshold = 1.5;
 				bool closeToKuka=(sqLen<(distanceThreshold*distanceThreshold));
@@ -3162,16 +3095,6 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 				}
                        
 				q_new.resize(numDofs);
-				static btScalar t=0.f;
-				t+=0.01;
-				double dampIk = 0.99;
-				/*
-				for (int i=0;i<numDofs;i++)
-				{
-					btScalar desiredPosition = btSin(t*0.1)*SIMD_HALF_PI;
-					q_new[i] = dampIk*q_current[i]+(1-dampIk)*desiredPosition;
-				}
-				*/
 				q_new[0] = 1.376;
 				q_new[1] = 1.102;
 				q_new[2] = 1.634;
@@ -3182,7 +3105,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 
 				if (closeToKuka)
 				{
-					dampIk = 1;
+					int dampIk = 1;
 
 					IKTrajectoryHelper** ikHelperPtrPtr = m_data->m_inverseKinematicsHelpers.find(bodyHandle->m_multiBody);
 					IKTrajectoryHelper* ikHelperPtr = 0;
@@ -3201,10 +3124,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 					int endEffectorLinkIndex = 6;
 
 					if (ikHelperPtr && (endEffectorLinkIndex<bodyHandle->m_multiBody->getNumLinks()))
-					{
-						int numJoints1 = bodyHandle->m_multiBody->getNumLinks();
-						
-
+					{					
                         b3AlignedObjectArray<double> jacobian_linear;
                         jacobian_linear.resize(3*numDofs);
                         b3AlignedObjectArray<double> jacobian_angular;
@@ -3212,15 +3132,13 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
                         int jacSize = 0;
                                 
                         btInverseDynamics::MultiBodyTree* tree = m_data->findOrCreateTree(bodyHandle->m_multiBody);
-                      
                                
                         if (tree)
                         {
                             jacSize = jacobian_linear.size();
                             // Set jacobian value
                             int baseDofs = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 6;
-                                    
-                                    
+                                                                      
                             btInverseDynamics::vecx nu(numDofs+baseDofs), qdot(numDofs + baseDofs), q(numDofs + baseDofs), joint_force(numDofs + baseDofs);
                             for (int i = 0; i < numDofs; i++)
                             {
@@ -3236,7 +3154,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
                                 -1 != tree->calculateInverseDynamics(q, qdot, nu, &joint_force))
                             {
                                 tree->calculateJacobians(q);
-                                btInverseDynamics::mat3x jac_t(3, numDofs);
+                                btInverseDynamics::mat3x jac_t(3,numDofs);
                                 btInverseDynamics::mat3x jac_r(3,numDofs);
                                 tree->getBodyJacobianTrans(endEffectorLinkIndex, &jac_t);
                                 tree->getBodyJacobianRot(endEffectorLinkIndex, &jac_r);
@@ -3251,7 +3169,6 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
                             }
                         }
                        
-                        //int ikMethod= IK2_VEL_DLS;//IK2_VEL_DLS_WITH_ORIENTATION;//IK2_VEL_DLS;
 						int ikMethod= IK2_VEL_DLS_WITH_ORIENTATION; //IK2_VEL_DLS;
                                
                         btVector3DoubleData endEffectorWorldPosition;
@@ -3316,9 +3233,11 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 									btScalar desiredVelocity = 0.f;
 									btScalar desiredPosition = q_new[link];
 									//printf("link %d: %f", link, q_new[link]);
-									motor->setVelocityTarget(desiredVelocity,1);
+									motor->setVelocityTarget(desiredVelocity,1.0);
 									motor->setPositionTarget(desiredPosition,0.6);
-									btScalar maxImp = 1.f;
+									btScalar maxImp = 1.0;
+									if (link == 0)
+										maxImp = 5.0;
 									motor->setMaxAppliedImpulse(maxImp);
 									numMotors++;
 								}

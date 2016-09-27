@@ -85,8 +85,7 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
     {
         deltaR.Set(i,angularVel[i]);
     }
-    
-    
+	deltaR[2] = 0.0;
     
     {
         
