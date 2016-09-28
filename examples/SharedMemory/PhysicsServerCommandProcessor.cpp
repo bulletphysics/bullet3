@@ -3022,6 +3022,15 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			loadUrdf("cube_small.urdf", btVector3(0.1, -1.8, 0.7), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			loadUrdf("sphere_small.urdf", btVector3(-0.2, -1.7, 0.7), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			
+			// Chess area
+			loadUrdf("table_square.urdf", btVector3(2.0, 0, 0.0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("pawn.urdf", btVector3(1.8, -0.1, 0.7), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("queen.urdf", btVector3(1.9, -0.2, 0.7), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("king.urdf", btVector3(2.0, 0, 0.7), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("bishop.urdf", btVector3(2.1, 0.1, 0.7), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("rook.urdf", btVector3(2.2, 0, 0.7), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("knight.urdf", btVector3(2.2, 0.2, 0.7), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			
 			loadUrdf("husky/husky.urdf", btVector3(5, 2, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			m_data->m_huskyId = bodyId;
 
@@ -3082,7 +3091,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			{
 				btMultiBody* mb = bodyHandle->m_multiBody;				
 				btScalar sqLen = (mb->getBaseWorldTransform().getOrigin() - gVRController2Pos).length2();
-				btScalar distanceThreshold = 1.5;
+				btScalar distanceThreshold = 1.0;
 				bool closeToKuka=(sqLen<(distanceThreshold*distanceThreshold));
 
 				int numDofs = bodyHandle->m_multiBody->getNumDofs();
