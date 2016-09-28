@@ -30,6 +30,7 @@ protected:
 	btScalar    m_kd;
 	btScalar    m_kp;
 	btScalar	m_erp;
+	btScalar	m_rhsClamp;//maximum error
 	
 
 public:
@@ -66,7 +67,10 @@ public:
 	{
 		return m_erp;
 	}
-
+	virtual void setRhsClamp(btScalar rhsClamp)
+	{
+		m_rhsClamp = rhsClamp;
+	}
 	virtual void debugDraw(class btIDebugDraw* drawer)
 	{
 		//todo(erwincoumans)
