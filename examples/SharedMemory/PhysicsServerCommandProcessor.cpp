@@ -30,6 +30,7 @@ btVector3 gLastPickPos(0, 0, 0);
 bool gEnableRealTimeSimVR=false;
 int gCreateObjectSimVR = -1;
 btScalar simTimeScalingFactor = 1;
+btScalar gRhsClamp = 1.f;
 
 struct UrdfLinkNameMapUtil
 {
@@ -764,6 +765,7 @@ void	PhysicsServerCommandProcessor::createJointMotors(btMultiBody* mb)
 			btMultiBodyJointMotor* motor = new btMultiBodyJointMotor(mb,mbLinkIndex,dof,desiredVelocity,maxMotorImpulse);
 			motor->setPositionTarget(0, 0);
 			motor->setVelocityTarget(0, 1);
+			motor->setRhsClamp(gRhsClamp);
 			//motor->setMaxAppliedImpulse(0);
             mb->getLink(mbLinkIndex).m_userPtr = motor;
 			m_data->m_dynamicsWorld->addMultiBodyConstraint(motor);
@@ -1552,6 +1554,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 													{
 														btScalar desiredVelocity = 0.f;
                                                         bool hasDesiredVelocity = false;
+
 
 														if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex]&SIM_DESIRED_STATE_HAS_QDOT)!=0)
                                                         {
@@ -2554,7 +2557,23 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                     btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_data->m_dynamicsWorld;
                                     world->addMultiBodyConstraint(rigidbodySlider);
                                 }
+                            } else if (clientCmd.m_createJointArguments.m_jointType == ePoint2PointType)
+                            {
+                                if (childBody->m_multiBody)
+                                {
+									btMultiBodyPoint2Point* p2p = new btMultiBodyPoint2Point(parentBody->m_multiBody,clientCmd.m_createJointArguments.m_parentJointIndex,childBody->m_multiBody,clientCmd.m_createJointArguments.m_childJointIndex,pivotInParent,pivotInChild);
+                                    p2p->setMaxAppliedImpulse(500);
+                                    m_data->m_dynamicsWorld->addMultiBodyConstraint(p2p);
+                                }
+                                else
+                                {
+                                    btMultiBodyPoint2Point* p2p = new btMultiBodyPoint2Point(parentBody->m_multiBody,clientCmd.m_createJointArguments.m_parentJointIndex,childBody->m_rigidBody,pivotInParent,pivotInChild);
+                                    p2p->setMaxAppliedImpulse(500);
+                                    btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_data->m_dynamicsWorld;
+                                    world->addMultiBodyConstraint(p2p);
+                                }
                             }
+
                         }
                     }
 					SharedMemoryStatus& serverCmd =serverStatusOut;
@@ -2994,9 +3013,9 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			btMatrix3x3 frameInChild2(btQuaternion(0, 0, 1.0, 0));
 			btVector3 jointAxis2(1.0, 0, 0);
 			m_data->m_kukaGripperSlider1 = new btMultiBodySliderConstraint(gripperBody->m_multiBody, 0, gripperBody->m_multiBody, 3, pivotInParent1, pivotInChild1, frameInParent1, frameInChild1, jointAxis1);
-			m_data->m_kukaGripperSlider1->setMaxAppliedImpulse(500.0);
+			m_data->m_kukaGripperSlider1->setMaxAppliedImpulse(5.0);
 			m_data->m_kukaGripperSlider2 = new btMultiBodySliderConstraint(gripperBody->m_multiBody, 0, gripperBody->m_multiBody, 6, pivotInParent2, pivotInChild2, frameInParent2, frameInChild2, jointAxis2);
-			m_data->m_kukaGripperSlider2->setMaxAppliedImpulse(500.0);
+			m_data->m_kukaGripperSlider2->setMaxAppliedImpulse(5.0);
 
 			m_data->m_dynamicsWorld->addMultiBodyConstraint(m_data->m_kukaGripperSlider1);
 			m_data->m_dynamicsWorld->addMultiBodyConstraint(m_data->m_kukaGripperSlider2);
@@ -3055,8 +3074,9 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			if (motor)
 			{
 				btScalar posTarget = (-0.045)*btMin(btScalar(0.75), gVRGripperAnalog) / 0.75;
-				motor->setPositionTarget(posTarget, 1.0);
-				motor->setMaxAppliedImpulse(50.0);
+				motor->setPositionTarget(posTarget, .2);
+				motor->setVelocityTarget(0.0, .5);
+				motor->setMaxAppliedImpulse(5.0);
 			}
 		}
 
@@ -3088,6 +3108,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 						motor->setVelocityTarget(0, 0.5);
 						btScalar maxImp = 1*m_data->m_physicsDeltaTime;
 						motor->setMaxAppliedImpulse(maxImp);
+						motor->setRhsClamp(gRhsClamp);
 					}
 				}
 			}
@@ -3113,13 +3134,14 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 				}
                        
 				q_new.resize(numDofs);
-				q_new[0] = 1.376;
-				q_new[1] = 1.102;
-				q_new[2] = 1.634;
-				q_new[3] = -0.406;
-				q_new[4] = 1.714;
-				q_new[5] = -2.023;
-				q_new[6] = -1.306;
+				//sensible rest-pose
+				q_new[0] = -SIMD_HALF_PI;
+				q_new[1] = 0;
+				q_new[2] = 0;
+				q_new[3] = SIMD_HALF_PI;
+				q_new[4] = 0;
+				q_new[5] = -SIMD_HALF_PI*0.66;
+				q_new[6] = 0;
 
 				if (closeToKuka)
 				{
@@ -3250,12 +3272,12 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 								{
 									btScalar desiredVelocity = 0.f;
 									btScalar desiredPosition = q_new[link];
+									motor->setRhsClamp(gRhsClamp);
 									//printf("link %d: %f", link, q_new[link]);
 									motor->setVelocityTarget(desiredVelocity,1.0);
 									motor->setPositionTarget(desiredPosition,0.6);
 									btScalar maxImp = 1.0;
-									if (link == 0)
-										maxImp = 5.0;
+									
 									motor->setMaxAppliedImpulse(maxImp);
 									numMotors++;
 								}
