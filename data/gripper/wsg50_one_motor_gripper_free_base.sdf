@@ -302,7 +302,7 @@
     </joint>
     
     <link name='finger_right'>
-      <pose frame=''>0.062 0 0.145 0 0 1.5708</pose>
+      <pose frame=''>0.042 0 0.145 0 0 1.5708</pose>
       <inertial>
         <mass>0.2</mass>
         <inertia>
@@ -342,7 +342,7 @@
     </joint>
     
     <link name='finger_left'>
-      <pose frame=''>-0.062 0 0.145 0 0 4.71239</pose>
+      <pose frame=''>-0.042 0 0.145 0 0 4.71239</pose>
       <inertial>
         <mass>0.2</mass>
         <inertia>
