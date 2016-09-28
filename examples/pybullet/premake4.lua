@@ -3,8 +3,7 @@
 project ("pybullet")
 		language "C++"
 		kind "SharedLib"
-		targetsuffix ("")
-		targetprefix ("")
+		
 		includedirs {"../../src", "../../examples",
 		"../../examples/ThirdPartyLibs"}
 		defines {"PHYSICS_IN_PROCESS_EXAMPLE_BROWSER"}
