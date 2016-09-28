@@ -21,13 +21,12 @@ public:
     IKTrajectoryHelper();
     virtual ~IKTrajectoryHelper();
     
-  
-    bool computeIK(const double endEffectorTargetPosition[3],
-                   const double endEffectorTargetOrientation[4],
-                   const double endEffectorWorldPosition[3],
-                   const double endEffectorWorldOrientation[4],
-                   const double* q_old, int numQ,int endEffectorIndex,
-                   double* q_new, int ikMethod, const double* linear_jacobian, const double* angular_jacobian, int jacobian_size, double dampIk=1.);
+	bool computeIK(const double endEffectorTargetPosition[3],
+		const double endEffectorTargetOrientation[4],
+		const double endEffectorWorldPosition[3],
+		const double endEffectorWorldOrientation[4],
+		const double* q_old, int numQ, int endEffectorIndex,
+		double* q_new, int ikMethod, const double* linear_jacobian, const double* angular_jacobian, int jacobian_size, const double dampIk[6]);
     
 };
 #endif //IK_TRAJECTORY_HELPER_H

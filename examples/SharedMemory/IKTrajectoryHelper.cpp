@@ -43,7 +43,7 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
                                    const double endEffectorWorldPosition[3],
                                    const double endEffectorWorldOrientation[4],
                const double* q_current, int numQ,int endEffectorIndex,
-               double* q_new, int ikMethod, const double* linear_jacobian, const double* angular_jacobian, int jacobian_size, double dampIk)
+               double* q_new, int ikMethod, const double* linear_jacobian, const double* angular_jacobian, int jacobian_size, const double dampIk[6])
 {
 	bool useAngularPart = (ikMethod==IK2_VEL_DLS_WITH_ORIENTATION) ? true : false;
 
@@ -69,7 +69,7 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
     VectorRn deltaS(3);
     for (int i = 0; i < 3; ++i)
     {
-        deltaS.Set(i,dampIk*(endEffectorTargetPosition[i]-endEffectorWorldPosition[i]));
+        deltaS.Set(i,dampIk[i]*(endEffectorTargetPosition[i]-endEffectorWorldPosition[i]));
     }
     
     // Set one end effector world orientation from Bullet
@@ -79,14 +79,12 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
     btQuaternion deltaQ = endQ*startQ.inverse();
     float angle = deltaQ.getAngle();
     btVector3 axis = deltaQ.getAxis();
-    float angleDot = angle*dampIk;
+    float angleDot = angle;
     btVector3 angularVel = angleDot*axis.normalize();
     for (int i = 0; i < 3; ++i)
     {
-        deltaR.Set(i,angularVel[i]);
+        deltaR.Set(i,dampIk[i+3]*angularVel[i]);
     }
-    
-    
     
     {
         
@@ -128,9 +126,9 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
         case IK2_JACOB_TRANS:
             m_data->m_ikJacobian->CalcDeltaThetasTranspose();		// Jacobian transpose method
             break;
-        case IK2_DLS:
-		case IK2_VEL_DLS_WITH_ORIENTATION:
+		case IK2_DLS:
         case IK2_VEL_DLS:
+		case IK2_VEL_DLS_WITH_ORIENTATION:
             m_data->m_ikJacobian->CalcDeltaThetasDLS();			// Damped least squares method
             break;
         case IK2_DLS_SVD:
@@ -148,7 +146,7 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
     }
     
     // Use for velocity IK, update theta dot
-    m_data->m_ikJacobian->UpdateThetaDot();
+    //m_data->m_ikJacobian->UpdateThetaDot();
     
     // Use for position IK, incrementally update theta
     //m_data->m_ikJacobian->UpdateThetas();

@@ -2,29 +2,26 @@
 <sdf version='1.6'>
   <world name='default'>
   <model name='wsg50_with_gripper'>
-    <pose frame=''>0 0 0.26 3.14 0 0</pose>
 	
     <link name='world'>
-	</link>
+	<pose frame=''>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose frame=''>0 0 0 0 0 0</pose>
+        <mass>0.1</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
   
-    <joint name='base_joint' type='prismatic'>
+    <joint name='base_joint' type='fixed'>
       <parent>world</parent>
       <child>base_link</child>
-      <axis>
-        <xyz>0 0 1</xyz>
-        <limit>
-          <lower>-0.5</lower>
-          <upper>10</upper>
-          <effort>1</effort>
-          <velocity>1</velocity>
-        </limit>
-        <dynamics>
-          <damping>0</damping>
-          <friction>0</friction>
-          <spring_reference>0</spring_reference>
-          <spring_stiffness>0</spring_stiffness>
-        </dynamics>
-      </axis>
     </joint>
 
     <link name='base_link'>
@@ -233,8 +230,8 @@
       <axis>
         <xyz>0 1 0</xyz>
         <limit>
-          <lower>-1.0</lower>
-          <upper>1.0</upper>
+          <lower>-4.0</lower>
+          <upper>4.0</upper>
           <effort>10</effort>
           <velocity>10</velocity>
         </limit>
@@ -289,8 +286,8 @@
       <axis>
         <xyz>0 1 0</xyz>
         <limit>
-          <lower>-1.0</lower>
-          <upper>1.0</upper>
+          <lower>-4.0</lower>
+          <upper>4.0</upper>
           <effort>10</effort>
           <velocity>10</velocity>
         </limit>
