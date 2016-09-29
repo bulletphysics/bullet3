@@ -513,6 +513,36 @@ void MatrixRmn::ComputeSVD( MatrixRmn& U, VectorRn& w, MatrixRmn& V ) const
 
 }
 
+void MatrixRmn::ComputeInverse( MatrixRmn& R) const
+{
+    assert ( this->NumRows==this->NumCols );
+    MatrixRmn U(this->NumRows, this->NumCols);
+    VectorRn w(this->NumRows);
+    MatrixRmn V(this->NumRows, this->NumCols);
+    
+    this->ComputeSVD(U, w, V);
+    
+    assert(this->DebugCheckSVD(U, w , V));
+    
+    double PseudoInverseThresholdFactor = 0.01;
+    double pseudoInverseThreshold = PseudoInverseThresholdFactor*w.MaxAbs();
+    
+    MatrixRmn VD(this->NumRows, this->NumCols);
+    MatrixRmn D(this->NumRows, this->NumCols);
+    D.SetZero();
+    long diagLength = w.GetLength();
+    double* wPtr = w.GetPtr();
+    for ( long i = 0; i < diagLength; ++i ) {
+        double alpha = *(wPtr++);
+        if ( fabs(alpha)>pseudoInverseThreshold ) {
+            D.Set(i, i, 1.0/alpha);
+        }
+    }
+    
+    Multiply(V,D,VD);
+    MultiplyTranspose(VD,U,R);
+}
+
 // ************************************************ CalcBidiagonal **************************
 // Helper routine for SVD computation
 // U is a matrix to be bidiagonalized.

@@ -320,7 +320,7 @@ void Jacobian::CalcDeltaThetasPseudoinverse()
 
 }
 
-void Jacobian::CalcDeltaThetasDLS() 
+void Jacobian::CalcDeltaThetasDLSwithNullspace()
 {	
 	const MatrixRmn& J = ActiveJacobian();
 
@@ -336,12 +336,55 @@ void Jacobian::CalcDeltaThetasDLS()
 	// Use these two lines for the traditional DLS method
 	U.Solve( dS, &dT1 );
 	J.MultiplyTranspose( dT1, dTheta );
+    
+    VectorRn nullV(7);
+    nullV.SetZero();
+    nullV.Set(1, 2.0);
+    MatrixRmn I(U.GetNumRows(),U.GetNumColumns());
+    I.SetIdentity();
+    
+    MatrixRmn UInv(U.GetNumRows(),U.GetNumColumns());
+    U.ComputeInverse(UInv);
+    MatrixRmn Res(U.GetNumRows(),U.GetNumColumns());
+    MatrixRmn::Multiply(U, UInv, Res);
+    for (int i = 0; i < Res.GetNumRows(); ++i)
+    {
+        for (int j = 0; j < Res.GetNumColumns(); ++j)
+        {
+            printf("i%d j%d: %f\n", i, j, Res.Get(i, j));
+        }
+    }
+    
 
 	// Scale back to not exceed maximum angle changes
 	double maxChange = dTheta.MaxAbs();
 	if ( maxChange>MaxAngleDLS ) {
 		dTheta *= MaxAngleDLS/maxChange;
 	}
+}
+
+void Jacobian::CalcDeltaThetasDLS()
+{
+    const MatrixRmn& J = ActiveJacobian();
+    
+    MatrixRmn::MultiplyTranspose(J, J, U);		// U = J * (J^T)
+    U.AddToDiagonal( DampingLambdaSq );
+    
+    // Use the next four lines instead of the succeeding two lines for the DLS method with clamped error vector e.
+    // CalcdTClampedFromdS();
+    // VectorRn dTextra(3*m_nEffector);
+    // U.Solve( dT, &dTextra );
+    // J.MultiplyTranspose( dTextra, dTheta );
+    
+    // Use these two lines for the traditional DLS method
+    U.Solve( dS, &dT1 );
+    J.MultiplyTranspose( dT1, dTheta );
+    
+    // Scale back to not exceed maximum angle changes
+    double maxChange = dTheta.MaxAbs();
+    if ( maxChange>MaxAngleDLS ) {
+        dTheta *= MaxAngleDLS/maxChange;
+    }
 }
 
 void Jacobian::CalcDeltaThetasDLSwithSVD() 

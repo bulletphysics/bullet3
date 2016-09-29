@@ -129,7 +129,8 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
 		case IK2_DLS:
         case IK2_VEL_DLS:
 		case IK2_VEL_DLS_WITH_ORIENTATION:
-            m_data->m_ikJacobian->CalcDeltaThetasDLS();			// Damped least squares method
+            //m_data->m_ikJacobian->CalcDeltaThetasDLS();			// Damped least squares method
+            m_data->m_ikJacobian->CalcDeltaThetasDLSwithNullspace();
             break;
         case IK2_DLS_SVD:
             m_data->m_ikJacobian->CalcDeltaThetasDLSwithSVD();
