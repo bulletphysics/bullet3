@@ -765,7 +765,7 @@ void	PhysicsServerCommandProcessor::createJointMotors(btMultiBody* mb)
 			btMultiBodyJointMotor* motor = new btMultiBodyJointMotor(mb,mbLinkIndex,dof,desiredVelocity,maxMotorImpulse);
 			motor->setPositionTarget(0, 0);
 			motor->setVelocityTarget(0, 1);
-			motor->setRhsClamp(gRhsClamp);
+			//motor->setRhsClamp(gRhsClamp);
 			//motor->setMaxAppliedImpulse(0);
             mb->getLink(mbLinkIndex).m_userPtr = motor;
 			m_data->m_dynamicsWorld->addMultiBodyConstraint(motor);
@@ -2968,11 +2968,11 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 				}	
 			}
 
-			loadUrdf("kuka_iiwa/model.urdf", btVector3(0, -3.0, 0.0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("kuka_iiwa/model.urdf", btVector3(0, -2.3, 0.6), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			m_data->m_KukaId = bodyId;
-			loadUrdf("lego/lego.urdf", btVector3(0, -2.5, .1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			loadUrdf("lego/lego.urdf", btVector3(0, -2.5, .2), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			loadUrdf("lego/lego.urdf", btVector3(0, -2.5, .3), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("lego/lego.urdf", btVector3(-0.4, -2.3, .7), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("lego/lego.urdf", btVector3(-0.4, -2.3, .8), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("lego/lego.urdf", btVector3(-0.4, -2.3, .9), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			loadUrdf("r2d2.urdf", btVector3(2, -2, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 
 			// Load one motor gripper for kuka
@@ -3044,11 +3044,52 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			loadUrdf("sphere2.urdf", btVector3(-5, 0, 2), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			loadUrdf("sphere2.urdf", btVector3(-5, 0, 3), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			
+			btTransform objectLocalTr[] = {
+				btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -1.9, 0.0)),
+				btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -1.9, 0.64)),
+				btTransform(btQuaternion(0, 0, 0, 1), btVector3(0.5, -2.2, 0.85)),
+				btTransform(btQuaternion(0, 0, 0, 1), btVector3(0.4, -2.0, 0.85)),
+				btTransform(btQuaternion(0, 0, 0, 1), btVector3(-0.1, -2.1, 0.7)),
+				btTransform(btQuaternion(0, 0, 0, 1), btVector3(0.1, -2.0, 0.7)),
+				btTransform(btQuaternion(0, 0, 0, 1), btVector3(-0.2, -1.9, 0.7)),
+				btTransform(btQuaternion(0, 0, 0, 1), btVector3(-0.2, -1.9, 0.9))
+			};
+				
+
+			btAlignedObjectArray<btTransform> objectWorldTr;
+			int numOb = sizeof(objectLocalTr) / sizeof(btTransform);
+			objectWorldTr.resize(numOb);
+			btTransform tr2;
+			tr2.setIdentity();
+			tr2.setOrigin(btVector3(2.3, -2.45, 0));
+
+			btTransform tr;
+			tr.setIdentity();
+			tr.setRotation(btQuaternion(btVector3(0, 0, 1), SIMD_HALF_PI));
+
+			for (int i = 0; i < numOb; i++)
+			{
+				objectWorldTr[i] = tr*tr2.inverse()*objectLocalTr[i];
+			}
+
+			// Table area
+			loadUrdf("table.urdf", objectWorldTr[0].getOrigin(), objectWorldTr[0].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("tray.urdf", objectWorldTr[1].getOrigin(), objectWorldTr[1].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+//			loadUrdf("cup_small.urdf", objectWorldTr[2].getOrigin(), objectWorldTr[2].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+//			loadUrdf("pitcher_small.urdf", objectWorldTr[3].getOrigin(), objectWorldTr[3].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("teddy_vhacd.urdf", objectWorldTr[4].getOrigin(), objectWorldTr[4].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("cube_small.urdf", objectWorldTr[5].getOrigin(), objectWorldTr[5].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("sphere_small.urdf", objectWorldTr[6].getOrigin(), objectWorldTr[6].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("duck_vhacd.urdf", objectWorldTr[7].getOrigin(), objectWorldTr[7].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+
 			// Shelf area
 			loadSdf("kiva_shelf/model.sdf", &gBufferServerToClient[0], gBufferServerToClient.size(), true);
 			loadUrdf("teddy_vhacd.urdf", btVector3(-0.1, 0.6, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());			
 			loadUrdf("sphere_small.urdf", btVector3(-0.1, 0.6, 1.25), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			loadUrdf("cube_small.urdf", btVector3(0.3, 0.6, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			
+			// Chess area
+			loadUrdf("table_square.urdf", btVector3(2.0, 0, 0.0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			
 			loadUrdf("husky/husky.urdf", btVector3(5, 2, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			m_data->m_huskyId = bodyId;
@@ -3099,20 +3140,21 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 						motor->setVelocityTarget(0, 0.5);
 						btScalar maxImp = 1*m_data->m_physicsDeltaTime;
 						motor->setMaxAppliedImpulse(maxImp);
-						motor->setRhsClamp(gRhsClamp);
+						//motor->setRhsClamp(gRhsClamp);
 					}
 				}
 			}
 		}
 
 		// Inverse kinematics for KUKA
+		//if (0)
 		{
 			InternalBodyHandle* bodyHandle = m_data->getHandle(m_data->m_KukaId);
 			if (bodyHandle && bodyHandle->m_multiBody)
 			{
 				btMultiBody* mb = bodyHandle->m_multiBody;				
 				btScalar sqLen = (mb->getBaseWorldTransform().getOrigin() - gVRController2Pos).length2();
-				btScalar distanceThreshold = 1.5;
+				btScalar distanceThreshold = 1.0;
 				bool closeToKuka=(sqLen<(distanceThreshold*distanceThreshold));
 
 				int numDofs = bodyHandle->m_multiBody->getNumDofs();
@@ -3126,7 +3168,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
                        
 				q_new.resize(numDofs);
 				//sensible rest-pose
-				q_new[0] = -SIMD_HALF_PI;
+				q_new[0] = 0;// -SIMD_HALF_PI;
 				q_new[1] = 0;
 				q_new[2] = 0;
 				q_new[3] = SIMD_HALF_PI;
@@ -3226,7 +3268,9 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 						endEffectorOri.serializeDouble(endEffectorWorldOrientation);
 						downOrn.serializeDouble(targetWorldOrientation);
 						//targetPos.serializeDouble(targetWorldPosition);
+						
 						gVRController2Pos.serializeDouble(targetWorldPosition);
+						
 						//controllerOrn.serializeDouble(targetWorldOrientation);
 
 

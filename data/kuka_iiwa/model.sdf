@@ -1,7 +1,7 @@
 <sdf version='1.6'>
 <world name='default'>
   <model name='lbr_iiwa'>
-  <static>1</static>
+  <pose frame=''>0 -2.3 0.7 0 0 0</pose>
     <link name='lbr_iiwa_link_0'>
       <pose frame=''>0 0 0 0 -0 0</pose>
       <inertial>
