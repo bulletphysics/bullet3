@@ -104,7 +104,7 @@ inline VectorRn::VectorRn( long initLength )
 
 inline VectorRn::~VectorRn() 
 {
-	delete x;
+	delete[] x;
 }
 
 // Resize.  
@@ -113,7 +113,7 @@ inline void VectorRn::SetLength( long newLength )
 {
 	assert ( newLength>0 );
 	if ( newLength>AllocLength ) {
-		delete x;
+		delete[] x;
 		AllocLength = Max( newLength, AllocLength<<1 );
 		x = new double[AllocLength];
 	}

@@ -181,7 +181,7 @@ inline MatrixRmn::MatrixRmn( long numRows, long numCols )
 
 inline MatrixRmn::~MatrixRmn() 
 {
-	delete x;
+	delete[] x;
 }
 
 // Resize.  
@@ -191,7 +191,7 @@ inline void MatrixRmn::SetSize( long numRows, long numCols )
 	assert ( numRows>0 && numCols>0 );
 	long newLength = numRows*numCols;
 	if ( newLength>AllocSize ) {
-		delete x;
+		delete[] x;
 		AllocSize = Max(newLength, AllocSize<<1);
 		x = new double[AllocSize];
 	}
