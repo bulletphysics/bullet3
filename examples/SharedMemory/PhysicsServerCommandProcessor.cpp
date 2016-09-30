@@ -2699,8 +2699,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                         upper_limit[i] = clientCmd.m_calculateInverseKinematicsArguments.m_upperLimit[i];
                                         joint_range[i] = clientCmd.m_calculateInverseKinematicsArguments.m_jointRange[i];
                                         rest_pose[i] = clientCmd.m_calculateInverseKinematicsArguments.m_restPose[i];
-                                        ikHelperPtr->computeNullspaceVel(numDofs, &q_current[0], &lower_limit[0], &upper_limit[0], &joint_range[0], &rest_pose[0]);
                                     }
+									ikHelperPtr->computeNullspaceVel(numDofs, &q_current[0], &lower_limit[0], &upper_limit[0], &joint_range[0], &rest_pose[0]);
                                 }
                                
                                 btVector3DoubleData endEffectorWorldPosition;
@@ -3089,7 +3089,8 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 				btTransform(btQuaternion(0, 0, 0, 1), btVector3(-0.3, -0.05, 0.7)),
 				btTransform(btQuaternion(0, 0, 0, 1), btVector3(0.1, 0.05, 0.7)),
 				btTransform(btQuaternion(0, 0, 0, 1), btVector3(-0.2, 0.15, 0.7)),
-				btTransform(btQuaternion(0, 0, 0, 1), btVector3(-0.2, 0.15, 0.9))
+				btTransform(btQuaternion(0, 0, 0, 1), btVector3(-0.2, 0.15, 0.9)),
+				btTransform(btQuaternion(0, 0, 0, 1), btVector3(0.2, 0.05, 0.8))
 			};
 
 
@@ -3116,6 +3117,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			loadUrdf("cube_small.urdf", objectWorldTr[5].getOrigin(), objectWorldTr[5].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			loadUrdf("sphere_small.urdf", objectWorldTr[6].getOrigin(), objectWorldTr[6].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			loadUrdf("duck_vhacd.urdf", objectWorldTr[7].getOrigin(), objectWorldTr[7].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			//loadUrdf("Apple/apple.urdf", objectWorldTr[8].getOrigin(), objectWorldTr[8].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 
 			// Shelf area
 			loadSdf("kiva_shelf/model.sdf", &gBufferServerToClient[0], gBufferServerToClient.size(), true);
@@ -3134,6 +3136,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 
 			loadUrdf("husky/husky.urdf", btVector3(2, -5, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			m_data->m_huskyId = bodyId;
+			//loadUrdf("jz/jz.urdf", btVector3(0, -5, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 
 			m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, -10));
 
@@ -3283,7 +3286,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
                             }
                         }
                        
-						int ikMethod= IK2_VEL_DLS_WITH_ORIENTATION; //IK2_VEL_DLS;
+						int ikMethod= IK2_VEL_DLS_WITH_ORIENTATION; //IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE; //IK2_VEL_DLS;
                                
                         btVector3DoubleData endEffectorWorldPosition;
                         btVector3DoubleData endEffectorWorldOrientation;
@@ -3314,6 +3317,46 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 						
 						//controllerOrn.serializeDouble(targetWorldOrientation);
 
+						if (ikMethod == IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE)
+						{
+							btAlignedObjectArray<double> lower_limit;
+							btAlignedObjectArray<double> upper_limit;
+							btAlignedObjectArray<double> joint_range;
+							btAlignedObjectArray<double> rest_pose;
+							lower_limit.resize(numDofs);
+							upper_limit.resize(numDofs);
+							joint_range.resize(numDofs);
+							rest_pose.resize(numDofs);
+							lower_limit[0] = -2.32;
+							lower_limit[1] = -1.6;
+							lower_limit[2] = -2.32;
+							lower_limit[3] = -1.6;
+							lower_limit[4] = -2.32;
+							lower_limit[5] = -1.6;
+							lower_limit[6] = -2.4;
+							upper_limit[0] = 2.32;
+							upper_limit[1] = 1.6;
+							upper_limit[2] = 2.32;
+							upper_limit[3] = 1.6;
+							upper_limit[4] = 2.32;
+							upper_limit[5] = 1.6;
+							upper_limit[6] = 2.4;
+							joint_range[0] = 5.8;
+							joint_range[1] = 4;
+							joint_range[2] = 5.8;
+							joint_range[3] = 4;
+							joint_range[4] = 5.8;
+							joint_range[5] = 4;
+							joint_range[6] = 6;
+							rest_pose[0] = 0;
+							rest_pose[1] = 0;
+							rest_pose[2] = 0;
+							rest_pose[3] = SIMD_HALF_PI;
+							rest_pose[4] = 0;
+							rest_pose[5] = -SIMD_HALF_PI*0.66;
+							rest_pose[6] = 0;
+							ikHelperPtr->computeNullspaceVel(numDofs, &q_current[0], &lower_limit[0], &upper_limit[0], &joint_range[0], &rest_pose[0]);
+						}
 
                         ikHelperPtr->computeIK(targetWorldPosition.m_floats, targetWorldOrientation.m_floats,
                                                        endEffectorWorldPosition.m_floats, endEffectorWorldOrientation.m_floats,
