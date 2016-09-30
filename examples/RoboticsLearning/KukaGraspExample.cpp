@@ -195,14 +195,37 @@ public:
             ikargs.m_endEffectorTargetPosition[1] = targetPosDataOut.m_floats[1];
             ikargs.m_endEffectorTargetPosition[2] = targetPosDataOut.m_floats[2];
 			
-			ikargs.m_flags |= B3_HAS_IK_TARGET_ORIENTATION;
+			ikargs.m_flags |= B3_HAS_IK_TARGET_ORIENTATION + B3_HAS_NULL_SPACE_VELOCITY;
 
 			ikargs.m_endEffectorTargetOrientation[0] = targetOriDataOut.m_floats[0];
 			ikargs.m_endEffectorTargetOrientation[1] = targetOriDataOut.m_floats[1];
 			ikargs.m_endEffectorTargetOrientation[2] = targetOriDataOut.m_floats[2];
 			ikargs.m_endEffectorTargetOrientation[3] = targetOriDataOut.m_floats[3];
             ikargs.m_endEffectorLinkIndex = 6;
-
+            
+            ikargs.m_lowerLimits.push_back(-2.32);
+            ikargs.m_lowerLimits.push_back(-1.6);
+            ikargs.m_lowerLimits.push_back(-2.32);
+            ikargs.m_lowerLimits.push_back(-1.6);
+            ikargs.m_lowerLimits.push_back(-2.32);
+            ikargs.m_lowerLimits.push_back(-1.6);
+            ikargs.m_lowerLimits.push_back(-2.4);
+            ikargs.m_upperLimits.push_back(2.32);
+            ikargs.m_upperLimits.push_back(1.6);
+            ikargs.m_upperLimits.push_back(2.32);
+            ikargs.m_upperLimits.push_back(1.6);
+            ikargs.m_upperLimits.push_back(2.32);
+            ikargs.m_upperLimits.push_back(1.6);
+            ikargs.m_upperLimits.push_back(2.4);
+            ikargs.m_jointRanges.push_back(5.8);
+            ikargs.m_jointRanges.push_back(4);
+            ikargs.m_jointRanges.push_back(5.8);
+            ikargs.m_jointRanges.push_back(4);
+            ikargs.m_jointRanges.push_back(5.8);
+            ikargs.m_jointRanges.push_back(4);
+            ikargs.m_jointRanges.push_back(6);
+            ikargs.m_numDegreeOfFreedom = numJoints;
+            
 			if (m_robotSim.calculateInverseKinematics(ikargs,ikresults))
 			{
                 //copy the IK result to the desired state of the motor/actuator

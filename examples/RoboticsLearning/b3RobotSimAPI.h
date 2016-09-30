@@ -85,6 +85,7 @@ struct b3JointMotorArgs
 enum b3InverseKinematicsFlags
 {
 	B3_HAS_IK_TARGET_ORIENTATION=1,
+    B3_HAS_NULL_SPACE_VELOCITY=2,
 };
 
 struct b3RobotSimInverseKinematicArgs
@@ -96,6 +97,7 @@ struct b3RobotSimInverseKinematicArgs
 	double m_endEffectorTargetOrientation[4];
     int m_endEffectorLinkIndex;
 	int m_flags;
+    int m_numDegreeOfFreedom;
     b3AlignedObjectArray<double> m_lowerLimits;
     b3AlignedObjectArray<double> m_upperLimits;
     b3AlignedObjectArray<double> m_jointRanges;

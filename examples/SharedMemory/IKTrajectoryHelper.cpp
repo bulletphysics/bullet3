@@ -46,7 +46,7 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
                const double* q_current, int numQ,int endEffectorIndex,
                double* q_new, int ikMethod, const double* linear_jacobian, const double* angular_jacobian, int jacobian_size, const double dampIk[6])
 {
-	bool useAngularPart = (ikMethod==IK2_VEL_DLS_WITH_ORIENTATION) ? true : false;
+	bool useAngularPart = (ikMethod==IK2_VEL_DLS_WITH_ORIENTATION || ikMethod==IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE) ? true : false;
 
 	m_data->m_ikJacobian = new Jacobian(useAngularPart,numQ);
 	
@@ -133,6 +133,7 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
             m_data->m_ikJacobian->CalcDeltaThetasDLS();			// Damped least squares method
             break;
         case IK2_VEL_DLS_WITH_NULLSPACE:
+        case IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE:
             assert(m_data->m_nullSpaceVelocity.GetLength()==numQ);
             m_data->m_ikJacobian->CalcDeltaThetasDLSwithNullspace(m_data->m_nullSpaceVelocity);
             break;

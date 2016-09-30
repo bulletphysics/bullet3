@@ -2665,7 +2665,40 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                 
                                 btAlignedObjectArray<double> q_new;
 								q_new.resize(numDofs);
-                                int ikMethod= (clientCmd.m_updateFlags& IK_HAS_TARGET_ORIENTATION)? IK2_VEL_DLS_WITH_ORIENTATION : IK2_VEL_DLS;
+                                int ikMethod = 0;
+                                if (clientCmd.m_updateFlags& (IK_HAS_TARGET_ORIENTATION+IK_HAS_NULL_SPACE_VELOCITY))
+                                {
+                                    ikMethod = IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE;
+                                }
+                                else if (clientCmd.m_updateFlags& IK_HAS_TARGET_ORIENTATION)
+                                {
+                                    ikMethod = IK2_VEL_DLS_WITH_ORIENTATION;
+                                }
+                                else if (clientCmd.m_updateFlags& IK_HAS_NULL_SPACE_VELOCITY)
+                                {
+                                    ikMethod = IK2_VEL_DLS_WITH_NULLSPACE;
+                                }
+                                else
+                                {
+                                    ikMethod = IK2_VEL_DLS;
+                                }
+                                
+                                if (clientCmd.m_updateFlags& IK_HAS_TARGET_ORIENTATION)
+                                {
+                                    btAlignedObjectArray<double> lower_limit;
+                                    btAlignedObjectArray<double> upper_limit;
+                                    btAlignedObjectArray<double> joint_range;
+                                    lower_limit.resize(numDofs);
+                                    upper_limit.resize(numDofs);
+                                    joint_range.resize(numDofs);
+                                    for (int i = 0; i < numDofs; ++i)
+                                    {
+                                        lower_limit[i] = clientCmd.m_calculateInverseKinematicsArguments.m_lowerLimit[i];
+                                        upper_limit[i] = clientCmd.m_calculateInverseKinematicsArguments.m_upperLimit[i];
+                                        joint_range[i] = clientCmd.m_calculateInverseKinematicsArguments.m_jointRange[i];
+                                        ikHelperPtr->computeNullspaceVel(numDofs, &q_current[0], &lower_limit[0], &upper_limit[0], &joint_range[0]);
+                                    }
+                                }
                                
                                 btVector3DoubleData endEffectorWorldPosition;
                                 btVector3DoubleData endEffectorWorldOrientation;
