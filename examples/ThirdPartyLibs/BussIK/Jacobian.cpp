@@ -320,7 +320,7 @@ void Jacobian::CalcDeltaThetasPseudoinverse()
 
 }
 
-void Jacobian::CalcDeltaThetasDLS() 
+void Jacobian::CalcDeltaThetasDLSwithNullspace(const VectorRn& desiredV)
 {	
 	const MatrixRmn& J = ActiveJacobian();
 
@@ -336,12 +336,57 @@ void Jacobian::CalcDeltaThetasDLS()
 	// Use these two lines for the traditional DLS method
 	U.Solve( dS, &dT1 );
 	J.MultiplyTranspose( dT1, dTheta );
-
+    
+    // Compute JInv in damped least square form
+    MatrixRmn UInv(U.GetNumRows(),U.GetNumColumns());
+    U.ComputeInverse(UInv);
+    assert(U.DebugCheckInverse(UInv));
+    MatrixRmn JInv(J.GetNumColumns(), J.GetNumRows());
+    MatrixRmn::TransposeMultiply(J, UInv, JInv);
+    
+    // Compute null space projection
+    MatrixRmn JInvJ(J.GetNumColumns(), J.GetNumColumns());
+    MatrixRmn::Multiply(JInv, J, JInvJ);
+    MatrixRmn P(J.GetNumColumns(), J.GetNumColumns());
+    P.SetIdentity();
+    P -= JInvJ;
+    
+    // Compute null space velocity
+    VectorRn nullV(J.GetNumColumns());
+    P.Multiply(desiredV, nullV);
+    
+    // Add null space velocity
+    dTheta += nullV;
+    
 	// Scale back to not exceed maximum angle changes
 	double maxChange = dTheta.MaxAbs();
 	if ( maxChange>MaxAngleDLS ) {
 		dTheta *= MaxAngleDLS/maxChange;
 	}
+}
+
+void Jacobian::CalcDeltaThetasDLS()
+{
+    const MatrixRmn& J = ActiveJacobian();
+    
+    MatrixRmn::MultiplyTranspose(J, J, U);		// U = J * (J^T)
+    U.AddToDiagonal( DampingLambdaSq );
+    
+    // Use the next four lines instead of the succeeding two lines for the DLS method with clamped error vector e.
+    // CalcdTClampedFromdS();
+    // VectorRn dTextra(3*m_nEffector);
+    // U.Solve( dT, &dTextra );
+    // J.MultiplyTranspose( dTextra, dTheta );
+    
+    // Use these two lines for the traditional DLS method
+    U.Solve( dS, &dT1 );
+    J.MultiplyTranspose( dT1, dTheta );
+    
+    // Scale back to not exceed maximum angle changes
+    double maxChange = dTheta.MaxAbs();
+    if ( maxChange>MaxAngleDLS ) {
+        dTheta *= MaxAngleDLS/maxChange;
+    }
 }
 
 void Jacobian::CalcDeltaThetasDLSwithSVD() 

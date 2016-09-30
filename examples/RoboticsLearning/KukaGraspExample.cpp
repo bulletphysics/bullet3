@@ -195,14 +195,49 @@ public:
             ikargs.m_endEffectorTargetPosition[1] = targetPosDataOut.m_floats[1];
             ikargs.m_endEffectorTargetPosition[2] = targetPosDataOut.m_floats[2];
 			
-			ikargs.m_flags |= B3_HAS_IK_TARGET_ORIENTATION;
+			ikargs.m_flags |= /*B3_HAS_IK_TARGET_ORIENTATION +*/ B3_HAS_NULL_SPACE_VELOCITY;
 
 			ikargs.m_endEffectorTargetOrientation[0] = targetOriDataOut.m_floats[0];
 			ikargs.m_endEffectorTargetOrientation[1] = targetOriDataOut.m_floats[1];
 			ikargs.m_endEffectorTargetOrientation[2] = targetOriDataOut.m_floats[2];
 			ikargs.m_endEffectorTargetOrientation[3] = targetOriDataOut.m_floats[3];
             ikargs.m_endEffectorLinkIndex = 6;
-
+            
+            // Settings based on default KUKA arm setting
+            ikargs.m_lowerLimits.resize(numJoints);
+            ikargs.m_upperLimits.resize(numJoints);
+            ikargs.m_jointRanges.resize(numJoints);
+            ikargs.m_restPoses.resize(numJoints);
+            ikargs.m_lowerLimits[0] = -2.32;
+            ikargs.m_lowerLimits[1] = -1.6;
+            ikargs.m_lowerLimits[2] = -2.32;
+            ikargs.m_lowerLimits[3] = -1.6;
+            ikargs.m_lowerLimits[4] = -2.32;
+            ikargs.m_lowerLimits[5] = -1.6;
+            ikargs.m_lowerLimits[6] = -2.4;
+            ikargs.m_upperLimits[0] = 2.32;
+            ikargs.m_upperLimits[1] = 1.6;
+            ikargs.m_upperLimits[2] = 2.32;
+            ikargs.m_upperLimits[3] = 1.6;
+            ikargs.m_upperLimits[4] = 2.32;
+            ikargs.m_upperLimits[5] = 1.6;
+            ikargs.m_upperLimits[6] = 2.4;
+            ikargs.m_jointRanges[0] = 5.8;
+            ikargs.m_jointRanges[1] = 4;
+            ikargs.m_jointRanges[2] = 5.8;
+            ikargs.m_jointRanges[3] = 4;
+            ikargs.m_jointRanges[4] = 5.8;
+            ikargs.m_jointRanges[5] = 4;
+            ikargs.m_jointRanges[6] = 6;
+            ikargs.m_restPoses[0] = 0;
+            ikargs.m_restPoses[1] = 0;
+            ikargs.m_restPoses[2] = 0;
+            ikargs.m_restPoses[3] = SIMD_HALF_PI;
+            ikargs.m_restPoses[4] = 0;
+            ikargs.m_restPoses[5] = -SIMD_HALF_PI*0.66;
+            ikargs.m_restPoses[6] = 0;
+            ikargs.m_numDegreeOfFreedom = numJoints;
+            
 			if (m_robotSim.calculateInverseKinematics(ikargs,ikresults))
 			{
                 //copy the IK result to the desired state of the motor/actuator
@@ -210,10 +245,10 @@ public:
                 {
                     b3JointMotorArgs t(CONTROL_MODE_POSITION_VELOCITY_PD);
                     t.m_targetPosition = ikresults.m_calculatedJointPositions[i];
-                    t.m_maxTorqueValue = 100;
-                    t.m_kp= 1;
+                    t.m_maxTorqueValue = 100.0;
+                    t.m_kp= 1.0;
 					t.m_targetVelocity = 0;
-					t.m_kp = 0.5;
+					t.m_kd = 1.0;
                     m_robotSim.setJointMotorControl(m_kukaIndex,i,t);
 
                 }

@@ -1391,6 +1391,53 @@ void b3CalculateInverseKinematicsAddTargetPositionWithOrientation(b3SharedMemory
 
 }
 
+void b3CalculateInverseKinematicsPosWithNullSpaceVel(b3SharedMemoryCommandHandle commandHandle, int numDof, int endEffectorLinkIndex, const double targetPosition[3], const double* lowerLimit, const double* upperLimit, const double* jointRange, const double* restPose)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CALCULATE_INVERSE_KINEMATICS);
+    command->m_updateFlags |= IK_HAS_TARGET_POSITION+IK_HAS_NULL_SPACE_VELOCITY;
+    command->m_calculateInverseKinematicsArguments.m_endEffectorLinkIndex = endEffectorLinkIndex;
+    
+    command->m_calculateInverseKinematicsArguments.m_targetPosition[0] = targetPosition[0];
+    command->m_calculateInverseKinematicsArguments.m_targetPosition[1] = targetPosition[1];
+    command->m_calculateInverseKinematicsArguments.m_targetPosition[2] = targetPosition[2];
+    
+    for (int i = 0; i < numDof; ++i)
+    {
+        command->m_calculateInverseKinematicsArguments.m_lowerLimit[i] = lowerLimit[i];
+        command->m_calculateInverseKinematicsArguments.m_upperLimit[i] = upperLimit[i];
+        command->m_calculateInverseKinematicsArguments.m_jointRange[i] = jointRange[i];
+        command->m_calculateInverseKinematicsArguments.m_restPose[i] = restPose[i];
+    }
+}
+
+void b3CalculateInverseKinematicsPosOrnWithNullSpaceVel(b3SharedMemoryCommandHandle commandHandle, int numDof, int endEffectorLinkIndex, const double targetPosition[3], const double targetOrientation[4], const double* lowerLimit, const double* upperLimit, const double* jointRange, const double* restPose)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CALCULATE_INVERSE_KINEMATICS);
+    command->m_updateFlags |= IK_HAS_TARGET_POSITION+IK_HAS_TARGET_ORIENTATION+IK_HAS_NULL_SPACE_VELOCITY;
+    command->m_calculateInverseKinematicsArguments.m_endEffectorLinkIndex = endEffectorLinkIndex;
+    
+    command->m_calculateInverseKinematicsArguments.m_targetPosition[0] = targetPosition[0];
+    command->m_calculateInverseKinematicsArguments.m_targetPosition[1] = targetPosition[1];
+    command->m_calculateInverseKinematicsArguments.m_targetPosition[2] = targetPosition[2];
+    
+    command->m_calculateInverseKinematicsArguments.m_targetOrientation[0] = targetOrientation[0];
+    command->m_calculateInverseKinematicsArguments.m_targetOrientation[1] = targetOrientation[1];
+    command->m_calculateInverseKinematicsArguments.m_targetOrientation[2] = targetOrientation[2];
+    command->m_calculateInverseKinematicsArguments.m_targetOrientation[3] = targetOrientation[3];
+    
+    for (int i = 0; i < numDof; ++i)
+    {
+        command->m_calculateInverseKinematicsArguments.m_lowerLimit[i] = lowerLimit[i];
+        command->m_calculateInverseKinematicsArguments.m_upperLimit[i] = upperLimit[i];
+        command->m_calculateInverseKinematicsArguments.m_jointRange[i] = jointRange[i];
+        command->m_calculateInverseKinematicsArguments.m_restPose[i] = restPose[i];
+    }
+
+}
 
 int b3GetStatusInverseKinematicsJointPositions(b3SharedMemoryStatusHandle statusHandle,
 	int* bodyUniqueId,

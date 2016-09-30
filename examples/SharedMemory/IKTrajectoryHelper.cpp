@@ -15,7 +15,7 @@
 struct IKTrajectoryHelperInternalData
 {
     VectorR3 m_endEffectorTargetPosition;
-    
+    VectorRn m_nullSpaceVelocity;
     
     b3AlignedObjectArray<Node*> m_ikNodes;
     Jacobian* m_ikJacobian;
@@ -23,6 +23,7 @@ struct IKTrajectoryHelperInternalData
     IKTrajectoryHelperInternalData()
     {
         m_endEffectorTargetPosition.SetZero();
+        m_nullSpaceVelocity.SetZero();
     }
 };
 
@@ -45,7 +46,7 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
                const double* q_current, int numQ,int endEffectorIndex,
                double* q_new, int ikMethod, const double* linear_jacobian, const double* angular_jacobian, int jacobian_size, const double dampIk[6])
 {
-	bool useAngularPart = (ikMethod==IK2_VEL_DLS_WITH_ORIENTATION) ? true : false;
+	bool useAngularPart = (ikMethod==IK2_VEL_DLS_WITH_ORIENTATION || ikMethod==IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE) ? true : false;
 
 	m_data->m_ikJacobian = new Jacobian(useAngularPart,numQ);
 	
@@ -74,16 +75,19 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
     
     // Set one end effector world orientation from Bullet
     VectorRn deltaR(3);
-    btQuaternion startQ(endEffectorWorldOrientation[0],endEffectorWorldOrientation[1],endEffectorWorldOrientation[2],endEffectorWorldOrientation[3]);
-    btQuaternion endQ(endEffectorTargetOrientation[0],endEffectorTargetOrientation[1],endEffectorTargetOrientation[2],endEffectorTargetOrientation[3]);
-    btQuaternion deltaQ = endQ*startQ.inverse();
-    float angle = deltaQ.getAngle();
-    btVector3 axis = deltaQ.getAxis();
-    float angleDot = angle;
-    btVector3 angularVel = angleDot*axis.normalize();
-    for (int i = 0; i < 3; ++i)
+    if (useAngularPart)
     {
-        deltaR.Set(i,dampIk[i+3]*angularVel[i]);
+        btQuaternion startQ(endEffectorWorldOrientation[0],endEffectorWorldOrientation[1],endEffectorWorldOrientation[2],endEffectorWorldOrientation[3]);
+        btQuaternion endQ(endEffectorTargetOrientation[0],endEffectorTargetOrientation[1],endEffectorTargetOrientation[2],endEffectorTargetOrientation[3]);
+        btQuaternion deltaQ = endQ*startQ.inverse();
+        float angle = deltaQ.getAngle();
+        btVector3 axis = deltaQ.getAxis();
+        float angleDot = angle;
+        btVector3 angularVel = angleDot*axis.normalize();
+        for (int i = 0; i < 3; ++i)
+        {
+            deltaR.Set(i,dampIk[i+3]*angularVel[i]);
+        }
     }
     
     {
@@ -131,6 +135,11 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
 		case IK2_VEL_DLS_WITH_ORIENTATION:
             m_data->m_ikJacobian->CalcDeltaThetasDLS();			// Damped least squares method
             break;
+        case IK2_VEL_DLS_WITH_NULLSPACE:
+        case IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE:
+            assert(m_data->m_nullSpaceVelocity.GetLength()==numQ);
+            m_data->m_ikJacobian->CalcDeltaThetasDLSwithNullspace(m_data->m_nullSpaceVelocity);
+            break;
         case IK2_DLS_SVD:
             m_data->m_ikJacobian->CalcDeltaThetasDLSwithSVD();
             break;
@@ -161,6 +170,31 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
         
         // Use for position IK
         //q_new[i] = m_data->m_ikNodes[i]->GetTheta();
+    }
+    return true;
+}
+
+bool IKTrajectoryHelper::computeNullspaceVel(int numQ, const double* q_current, const double* lower_limit, const double* upper_limit, const double* joint_range, const double* rest_pose)
+{
+    m_data->m_nullSpaceVelocity.SetLength(numQ);
+    m_data->m_nullSpaceVelocity.SetZero();
+    double stayCloseToZeroGain = 0.1;
+    double stayAwayFromLimitsGain = 10.0;
+
+    // Stay close to zero
+    for (int i = 0; i < numQ; ++i)
+    {
+        m_data->m_nullSpaceVelocity[i] = stayCloseToZeroGain * (rest_pose[i]-q_current[i]);
+    }
+
+    // Stay away from joint limits
+    for (int i = 0; i < numQ; ++i) {
+        if (q_current[i] > upper_limit[i]) {
+            m_data->m_nullSpaceVelocity[i] += stayAwayFromLimitsGain * (upper_limit[i] - q_current[i]) / joint_range[i];
+        }
+        if (q_current[i] < lower_limit[i]) {
+            m_data->m_nullSpaceVelocity[i] += stayAwayFromLimitsGain * (lower_limit[i] - q_current[i]) / joint_range[i];
+        }
     }
     return true;
 }
