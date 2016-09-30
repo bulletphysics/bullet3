@@ -973,6 +973,21 @@ bool MatrixRmn::DebugCheckSVD( const MatrixRmn& U, const VectorRn& w, const Matr
 	return ret;
 }
 
+bool MatrixRmn::DebugCheckInverse( const MatrixRmn& MInv ) const
+{
+    assert ( this->NumRows==this->NumCols );
+    assert ( MInv.NumRows==MInv.NumCols );
+    MatrixRmn I(this->NumRows, this->NumCols);
+    I.SetIdentity();
+    MatrixRmn MMInv(this->NumRows, this->NumCols);
+    Multiply(*this, MInv, MMInv);
+    I -= MMInv;
+    double error = I.FrobeniusNorm();
+    bool ret = ( fabs(error)<=1.0e-13 );
+    assert ( ret );
+    return ret;
+}
+
 bool MatrixRmn::DebugCalcBidiagCheck( const MatrixRmn& U, const VectorRn& w, const VectorRn& superDiag, const MatrixRmn& V ) const
 {
 	// Special SVD test code

@@ -337,25 +337,32 @@ void Jacobian::CalcDeltaThetasDLSwithNullspace()
 	U.Solve( dS, &dT1 );
 	J.MultiplyTranspose( dT1, dTheta );
     
-    VectorRn nullV(7);
-    nullV.SetZero();
-    nullV.Set(1, 2.0);
-    MatrixRmn I(U.GetNumRows(),U.GetNumColumns());
-    I.SetIdentity();
+    // Desired velocity
+    VectorRn desiredV(J.GetNumColumns());
+    desiredV.SetZero();
+    desiredV.Set(3, -0.2);
     
+    // Compute JInv in damped least square form
     MatrixRmn UInv(U.GetNumRows(),U.GetNumColumns());
     U.ComputeInverse(UInv);
-    MatrixRmn Res(U.GetNumRows(),U.GetNumColumns());
-    MatrixRmn::Multiply(U, UInv, Res);
-    for (int i = 0; i < Res.GetNumRows(); ++i)
-    {
-        for (int j = 0; j < Res.GetNumColumns(); ++j)
-        {
-            printf("i%d j%d: %f\n", i, j, Res.Get(i, j));
-        }
-    }
+    assert(U.DebugCheckInverse(UInv));
+    MatrixRmn JInv(J.GetNumColumns(), J.GetNumRows());
+    MatrixRmn::TransposeMultiply(J, UInv, JInv);
     
-
+    // Compute null space projection
+    MatrixRmn JInvJ(J.GetNumColumns(), J.GetNumColumns());
+    MatrixRmn::Multiply(JInv, J, JInvJ);
+    MatrixRmn P(J.GetNumColumns(), J.GetNumColumns());
+    P.SetIdentity();
+    P -= JInvJ;
+    
+    // Compute null space velocity
+    VectorRn nullV(J.GetNumColumns());
+    P.Multiply(desiredV, nullV);
+    
+    // Add null space velocity
+    dTheta += nullV;
+    
 	// Scale back to not exceed maximum angle changes
 	double maxChange = dTheta.MaxAbs();
 	if ( maxChange>MaxAngleDLS ) {
