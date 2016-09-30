@@ -1391,7 +1391,7 @@ void b3CalculateInverseKinematicsAddTargetPositionWithOrientation(b3SharedMemory
 
 }
 
-void b3CalculateInverseKinematicsPosWithNullSpaceVel(b3SharedMemoryCommandHandle commandHandle, int numDof, int endEffectorLinkIndex, const double targetPosition[3], const double* lowerLimit, const double* upperLimit, const double* jointRange)
+void b3CalculateInverseKinematicsPosWithNullSpaceVel(b3SharedMemoryCommandHandle commandHandle, int numDof, int endEffectorLinkIndex, const double targetPosition[3], const double* lowerLimit, const double* upperLimit, const double* jointRange, const double* restPose)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
@@ -1408,10 +1408,11 @@ void b3CalculateInverseKinematicsPosWithNullSpaceVel(b3SharedMemoryCommandHandle
         command->m_calculateInverseKinematicsArguments.m_lowerLimit[i] = lowerLimit[i];
         command->m_calculateInverseKinematicsArguments.m_upperLimit[i] = upperLimit[i];
         command->m_calculateInverseKinematicsArguments.m_jointRange[i] = jointRange[i];
+        command->m_calculateInverseKinematicsArguments.m_restPose[i] = restPose[i];
     }
 }
 
-void b3CalculateInverseKinematicsPosOrnWithNullSpaceVel(b3SharedMemoryCommandHandle commandHandle, int numDof, int endEffectorLinkIndex, const double targetPosition[3], const double targetOrientation[4], const double* lowerLimit, const double* upperLimit, const double* jointRange)
+void b3CalculateInverseKinematicsPosOrnWithNullSpaceVel(b3SharedMemoryCommandHandle commandHandle, int numDof, int endEffectorLinkIndex, const double targetPosition[3], const double targetOrientation[4], const double* lowerLimit, const double* upperLimit, const double* jointRange, const double* restPose)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
@@ -1433,6 +1434,7 @@ void b3CalculateInverseKinematicsPosOrnWithNullSpaceVel(b3SharedMemoryCommandHan
         command->m_calculateInverseKinematicsArguments.m_lowerLimit[i] = lowerLimit[i];
         command->m_calculateInverseKinematicsArguments.m_upperLimit[i] = upperLimit[i];
         command->m_calculateInverseKinematicsArguments.m_jointRange[i] = jointRange[i];
+        command->m_calculateInverseKinematicsArguments.m_restPose[i] = restPose[i];
     }
 
 }

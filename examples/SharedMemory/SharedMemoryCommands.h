@@ -409,6 +409,7 @@ struct CalculateInverseKinematicsArgs
     double m_lowerLimit[MAX_DEGREE_OF_FREEDOM];
     double m_upperLimit[MAX_DEGREE_OF_FREEDOM];
     double m_jointRange[MAX_DEGREE_OF_FREEDOM];
+    double m_restPose[MAX_DEGREE_OF_FREEDOM];
 };
 
 struct CalculateInverseKinematicsResultArgs

@@ -174,19 +174,17 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
     return true;
 }
 
-bool IKTrajectoryHelper::computeNullspaceVel(int numQ, const double* q_current, const double* lower_limit, const double* upper_limit, const double* joint_range)
+bool IKTrajectoryHelper::computeNullspaceVel(int numQ, const double* q_current, const double* lower_limit, const double* upper_limit, const double* joint_range, const double* rest_pose)
 {
     m_data->m_nullSpaceVelocity.SetLength(numQ);
     m_data->m_nullSpaceVelocity.SetZero();
     double stayCloseToZeroGain = 0.1;
     double stayAwayFromLimitsGain = 10.0;
-    
-    double q_rest[7] = {0, 0, 0, SIMD_HALF_PI, 0, -SIMD_HALF_PI*0.66, 0};
 
     // Stay close to zero
     for (int i = 0; i < numQ; ++i)
     {
-        m_data->m_nullSpaceVelocity[i] = stayCloseToZeroGain * (q_rest[i]-q_current[i]);
+        m_data->m_nullSpaceVelocity[i] = stayCloseToZeroGain * (rest_pose[i]-q_current[i]);
     }
 
     // Stay away from joint limits

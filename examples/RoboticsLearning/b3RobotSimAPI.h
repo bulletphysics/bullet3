@@ -101,6 +101,7 @@ struct b3RobotSimInverseKinematicArgs
     b3AlignedObjectArray<double> m_lowerLimits;
     b3AlignedObjectArray<double> m_upperLimits;
     b3AlignedObjectArray<double> m_jointRanges;
+    b3AlignedObjectArray<double> m_restPoses;
 
 	b3RobotSimInverseKinematicArgs()
 		:m_bodyUniqueId(-1),
