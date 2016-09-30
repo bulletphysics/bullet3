@@ -3005,12 +3005,12 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 				}	
 			}
 
-			loadUrdf("kuka_iiwa/model.urdf", btVector3(0, -2.3, 0.6), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("kuka_iiwa/model.urdf", btVector3(1.4, -0.2, 0.6), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			m_data->m_KukaId = bodyId;
-			loadUrdf("lego/lego.urdf", btVector3(-0.4, -2.3, .7), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			loadUrdf("lego/lego.urdf", btVector3(-0.4, -2.3, .8), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			loadUrdf("lego/lego.urdf", btVector3(-0.4, -2.3, .9), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			loadUrdf("r2d2.urdf", btVector3(2, -2, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("lego/lego.urdf", btVector3(1.0, -0.2, .7), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("lego/lego.urdf", btVector3(1.0, -0.2, .8), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("lego/lego.urdf", btVector3(1.0, -0.2, .9), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("r2d2.urdf", btVector3(-2, -4, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 
 			// Load one motor gripper for kuka
 			loadSdf("gripper/wsg50_one_motor_gripper_new_free_base.sdf", &gBufferServerToClient[0], gBufferServerToClient.size(), true);
@@ -3033,7 +3033,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 				
 			for (int i = 0; i < 6; i++)
 			{
-				loadUrdf("jenga/jenga.urdf", btVector3(-.2-0.1*i,-2.,  .75), btQuaternion(btVector3(0,1,0),SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+				loadUrdf("jenga/jenga.urdf", btVector3(1.3-0.1*i,-0.7,  .75), btQuaternion(btVector3(0,1,0),SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			}
 
 			//loadUrdf("nao/nao.urdf", btVector3(2,5, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
@@ -3075,38 +3075,36 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 
 			for (int i = 0; i < 10; i++)
 			{
-				loadUrdf("cube.urdf", btVector3(3, -2, 0.5 + i), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+				loadUrdf("cube.urdf", btVector3(-4, -2, 0.5 + i), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			}
 			loadUrdf("sphere2.urdf", btVector3(-5, 0, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			loadUrdf("sphere2.urdf", btVector3(-5, 0, 2), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			loadUrdf("sphere2.urdf", btVector3(-5, 0, 3), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			
 			btTransform objectLocalTr[] = {
-				btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -1.9, 0.0)),
-				btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -1.9, 0.64)),
-				btTransform(btQuaternion(0, 0, 0, 1), btVector3(0.5, -2.2, 0.85)),
-				btTransform(btQuaternion(0, 0, 0, 1), btVector3(0.4, -2.0, 0.85)),
-				btTransform(btQuaternion(0, 0, 0, 1), btVector3(-0.1, -2.1, 0.7)),
-				btTransform(btQuaternion(0, 0, 0, 1), btVector3(0.1, -2.0, 0.7)),
-				btTransform(btQuaternion(0, 0, 0, 1), btVector3(-0.2, -1.9, 0.7)),
-				btTransform(btQuaternion(0, 0, 0, 1), btVector3(-0.2, -1.9, 0.9))
+				btTransform(btQuaternion(0, 0, 0, 1), btVector3(0.0, 0.0, 0.0)),
+				btTransform(btQuaternion(0, 0, 0, 1), btVector3(0.0, 0.15, 0.64)),
+				btTransform(btQuaternion(0, 0, 0, 1), btVector3(0.1, 0.15, 0.85)),
+				btTransform(btQuaternion(0, 0, 0, 1), btVector3(-0.4, 0.05, 0.85)),
+				btTransform(btQuaternion(0, 0, 0, 1), btVector3(-0.3, -0.05, 0.7)),
+				btTransform(btQuaternion(0, 0, 0, 1), btVector3(0.1, 0.05, 0.7)),
+				btTransform(btQuaternion(0, 0, 0, 1), btVector3(-0.2, 0.15, 0.7)),
+				btTransform(btQuaternion(0, 0, 0, 1), btVector3(-0.2, 0.15, 0.9))
 			};
-				
+
 
 			btAlignedObjectArray<btTransform> objectWorldTr;
 			int numOb = sizeof(objectLocalTr) / sizeof(btTransform);
 			objectWorldTr.resize(numOb);
-			btTransform tr2;
-			tr2.setIdentity();
-			tr2.setOrigin(btVector3(2.3, -2.45, 0));
 
 			btTransform tr;
 			tr.setIdentity();
 			tr.setRotation(btQuaternion(btVector3(0, 0, 1), SIMD_HALF_PI));
+			tr.setOrigin(btVector3(1.0, -0.2, 0));
 
 			for (int i = 0; i < numOb; i++)
 			{
-				objectWorldTr[i] = tr*tr2.inverse()*objectLocalTr[i];
+				objectWorldTr[i] = tr*objectLocalTr[i];
 			}
 
 			// Table area
@@ -3126,15 +3124,15 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			loadUrdf("cube_small.urdf", btVector3(0.3, 0.6, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			
 			// Chess area
-			loadUrdf("table_square.urdf", btVector3(2.0, 0, 0.0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			//loadUrdf("pawn.urdf", btVector3(1.8, -0.1, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			//loadUrdf("queen.urdf", btVector3(1.9, -0.2, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			//loadUrdf("king.urdf", btVector3(2.0, 0, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			//loadUrdf("bishop.urdf", btVector3(2.1, 0.1, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			//loadUrdf("rook.urdf", btVector3(2.2, 0, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			//loadUrdf("knight.urdf", btVector3(2.2, 0.2, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("table_square.urdf", btVector3(-1.0, 0, 0.0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			//loadUrdf("pawn.urdf", btVector3(-0.8, -0.1, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			//loadUrdf("queen.urdf", btVector3(-0.9, -0.2, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			//loadUrdf("king.urdf", btVector3(-1.0, 0, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			//loadUrdf("bishop.urdf", btVector3(-1.1, 0.1, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			//loadUrdf("rook.urdf", btVector3(-1.2, 0, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			//loadUrdf("knight.urdf", btVector3(-1.2, 0.2, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 
-			loadUrdf("husky/husky.urdf", btVector3(5, 2, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+			loadUrdf("husky/husky.urdf", btVector3(2, -5, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			m_data->m_huskyId = bodyId;
 
 			m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, -10));
@@ -3197,7 +3195,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			{
 				btMultiBody* mb = bodyHandle->m_multiBody;				
 				btScalar sqLen = (mb->getBaseWorldTransform().getOrigin() - gVRController2Pos).length2();
-				btScalar distanceThreshold = 1.0;
+				btScalar distanceThreshold = 1.3;
 				bool closeToKuka=(sqLen<(distanceThreshold*distanceThreshold));
 
 				int numDofs = bodyHandle->m_multiBody->getNumDofs();
