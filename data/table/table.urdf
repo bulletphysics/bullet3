@@ -1,27 +1,27 @@
 <?xml version="0.0" ?>
-<robot name="jenga.urdf">
+<robot name="table.urdf">
   <link name="baseLink">
     <contact>
-      <lateral_friction value=".5"/>
+      <lateral_friction value="1.0"/>
     </contact>
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
-       <mass value=".05"/>
+       <mass value=".0"/>
        <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
     </inertial>
     <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <origin rpy="0 0 0" xyz="0 0 0.6"/>
       <geometry>
-				<mesh filename="jenga.obj" scale="0.15 0.05 0.03"/>
+				<mesh filename="table.obj" scale="1.5 1 0.05"/>
       </geometry>
-       <material name="blue">
-        <color rgba="0.5 0.5 1 1"/>
+       <material name="white">
+        <color rgba="1 1 1 1"/>
       </material>
     </visual>
     <collision>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <origin rpy="0 0 0" xyz="0 0 0.6"/>
       <geometry>
-	 	<box size="0.15 0.05 0.03"/>
+	 	<box size="1.5 1 0.05"/>
       </geometry>
     </collision>
   </link>
