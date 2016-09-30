@@ -1,0 +1,61 @@
+<?xml version="0.0" ?>
+<robot name="urdf_table">
+ <link name="world"/>
+  <joint name="fixed" type="fixed">
+    <parent link="world"/>
+    <child link="baseLink"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+
+  <link name="baseLink">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0.6"/>
+       <mass value="0"/>
+       <inertia ixx="0.1" ixy="0" ixz="0" iyy="0.1" iyz="0" izz="0.1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0.6"/>
+      <geometry>
+	    <mesh filename="table.obj" scale="0.6 0.6 0.08"/>
+      </geometry>
+	   <material name="framemat0">
+      <color
+                    rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.25 -0.25 0.28"/>
+      <geometry>
+        <box size="0.05 0.05 0.56"/>
+      </geometry>
+	  <material name="framemat0"/>	 
+    </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.25 0.25 0.28"/>
+      <geometry>
+        <box size="0.05 0.05 0.56"/>
+      </geometry>
+	  <material name="framemat0"/>
+	  </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.25 -0.25 0.28"/>
+      <geometry>
+        <box size="0.05 0.05 0.56"/>
+      </geometry>
+	  <material name="framemat0"/>
+	  </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.25 0.25 0.28"/>
+      <geometry>
+        <box size="0.05 0.05 0.56"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0.6"/>
+      <geometry>
+      <box size="0.6 0.6 0.08"/>
+      </geometry>
+    </collision>    
+  </link>
+</robot>
+
