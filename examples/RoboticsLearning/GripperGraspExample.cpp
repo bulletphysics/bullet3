@@ -235,7 +235,7 @@ public:
             {
                 b3RobotSimLoadFileArgs args("");
                 b3RobotSimLoadFileResults results;
-                args.m_fileName = "cube_small.urdf";
+                args.m_fileName = "sphere_small.urdf";
                 args.m_startPosition.setValue(0, 0, .107);
                 args.m_startOrientation.setEulerZYX(0, 0, 0);
                 args.m_useMultiBody = true;
@@ -244,7 +244,7 @@ public:
             
             {
                 b3RobotSimLoadFileArgs args("");
-                args.m_fileName = "gripper/wsg50_one_motor_gripper.sdf";
+                args.m_fileName = "gripper/wsg50_one_motor_gripper_new.sdf";
                 args.m_fileType = B3_SDF_FILE;
                 args.m_useMultiBody = true;
                 b3RobotSimLoadFileResults results;
@@ -287,6 +287,7 @@ public:
             }
             m_robotSim.setGravity(b3MakeVector3(0,0,-10));
             
+            /*
             b3JointInfo sliderJoint1;
             sliderJoint1.m_parentFrame[0] = 0;
             sliderJoint1.m_parentFrame[1] = 0;
@@ -327,6 +328,47 @@ public:
             sliderJoint2.m_jointType = ePrismaticType;
             m_robotSim.createJoint(1, 0, 1, 3, &sliderJoint1);
             m_robotSim.createJoint(1, 0, 1, 6, &sliderJoint2);
+            */
+            b3JointInfo revoluteJoint1;
+            revoluteJoint1.m_parentFrame[0] = -0.055;
+            revoluteJoint1.m_parentFrame[1] = 0;
+            revoluteJoint1.m_parentFrame[2] = 0.02;
+            revoluteJoint1.m_parentFrame[3] = 0;
+            revoluteJoint1.m_parentFrame[4] = 0;
+            revoluteJoint1.m_parentFrame[5] = 0;
+            revoluteJoint1.m_parentFrame[6] = 1.0;
+            revoluteJoint1.m_childFrame[0] = 0;
+            revoluteJoint1.m_childFrame[1] = 0;
+            revoluteJoint1.m_childFrame[2] = 0;
+            revoluteJoint1.m_childFrame[3] = 0;
+            revoluteJoint1.m_childFrame[4] = 0;
+            revoluteJoint1.m_childFrame[5] = 0;
+            revoluteJoint1.m_childFrame[6] = 1.0;
+            revoluteJoint1.m_jointAxis[0] = 1.0;
+            revoluteJoint1.m_jointAxis[1] = 0.0;
+            revoluteJoint1.m_jointAxis[2] = 0.0;
+            revoluteJoint1.m_jointType = ePoint2PointType;
+            b3JointInfo revoluteJoint2;
+            revoluteJoint2.m_parentFrame[0] = 0.055;
+            revoluteJoint2.m_parentFrame[1] = 0;
+            revoluteJoint2.m_parentFrame[2] = 0.02;
+            revoluteJoint2.m_parentFrame[3] = 0;
+            revoluteJoint2.m_parentFrame[4] = 0;
+            revoluteJoint2.m_parentFrame[5] = 0;
+            revoluteJoint2.m_parentFrame[6] = 1.0;
+            revoluteJoint2.m_childFrame[0] = 0;
+            revoluteJoint2.m_childFrame[1] = 0;
+            revoluteJoint2.m_childFrame[2] = 0;
+            revoluteJoint2.m_childFrame[3] = 0;
+            revoluteJoint2.m_childFrame[4] = 0;
+            revoluteJoint2.m_childFrame[5] = 0;
+            revoluteJoint2.m_childFrame[6] = 1.0;
+            revoluteJoint2.m_jointAxis[0] = 1.0;
+            revoluteJoint2.m_jointAxis[1] = 0.0;
+            revoluteJoint2.m_jointAxis[2] = 0.0;
+            revoluteJoint2.m_jointType = ePoint2PointType;
+            m_robotSim.createJoint(1, 2, 1, 4, &revoluteJoint1);
+            m_robotSim.createJoint(1, 3, 1, 6, &revoluteJoint2);
         }
 		
     }
@@ -371,6 +413,7 @@ public:
                 m_robotSim.setJointMotorControl(m_gripperIndex,fingerJointIndices[i],controlArgs);
             }
         }
+        
         
 		m_robotSim.stepSimulation();
     }
