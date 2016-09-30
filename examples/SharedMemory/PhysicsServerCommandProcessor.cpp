@@ -2666,7 +2666,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                 btAlignedObjectArray<double> q_new;
 								q_new.resize(numDofs);
                                 int ikMethod = 0;
-                                if (clientCmd.m_updateFlags& (IK_HAS_TARGET_ORIENTATION+IK_HAS_NULL_SPACE_VELOCITY))
+                                if ((clientCmd.m_updateFlags& IK_HAS_TARGET_ORIENTATION)&&(clientCmd.m_updateFlags&IK_HAS_NULL_SPACE_VELOCITY))
                                 {
                                     ikMethod = IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE;
                                 }
@@ -2683,7 +2683,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                     ikMethod = IK2_VEL_DLS;
                                 }
                                 
-                                if (clientCmd.m_updateFlags& IK_HAS_TARGET_ORIENTATION)
+                                if (clientCmd.m_updateFlags& IK_HAS_NULL_SPACE_VELOCITY)
                                 {
                                     btAlignedObjectArray<double> lower_limit;
                                     btAlignedObjectArray<double> upper_limit;

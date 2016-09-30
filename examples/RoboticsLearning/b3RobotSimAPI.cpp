@@ -485,7 +485,7 @@ bool b3RobotSimAPI::calculateInverseKinematics(const struct b3RobotSimInverseKin
 	
 
 	b3SharedMemoryCommandHandle command = b3CalculateInverseKinematicsCommandInit(m_data->m_physicsClient,args.m_bodyUniqueId);
-	if (args.m_flags & (B3_HAS_IK_TARGET_ORIENTATION + B3_HAS_NULL_SPACE_VELOCITY))
+	if ((args.m_flags & B3_HAS_IK_TARGET_ORIENTATION) && (args.m_flags & B3_HAS_NULL_SPACE_VELOCITY))
     {
         b3CalculateInverseKinematicsPosOrnWithNullSpaceVel(command, args.m_numDegreeOfFreedom, args.m_endEffectorLinkIndex, args.m_endEffectorTargetPosition, args.m_endEffectorTargetOrientation, &args.m_lowerLimits[0], &args.m_upperLimits[0], &args.m_jointRanges[0]);
     } else if (args.m_flags & B3_HAS_IK_TARGET_ORIENTATION)

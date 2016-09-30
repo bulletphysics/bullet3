@@ -75,16 +75,19 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
     
     // Set one end effector world orientation from Bullet
     VectorRn deltaR(3);
-    btQuaternion startQ(endEffectorWorldOrientation[0],endEffectorWorldOrientation[1],endEffectorWorldOrientation[2],endEffectorWorldOrientation[3]);
-    btQuaternion endQ(endEffectorTargetOrientation[0],endEffectorTargetOrientation[1],endEffectorTargetOrientation[2],endEffectorTargetOrientation[3]);
-    btQuaternion deltaQ = endQ*startQ.inverse();
-    float angle = deltaQ.getAngle();
-    btVector3 axis = deltaQ.getAxis();
-    float angleDot = angle;
-    btVector3 angularVel = angleDot*axis.normalize();
-    for (int i = 0; i < 3; ++i)
+    if (useAngularPart)
     {
-        deltaR.Set(i,dampIk[i+3]*angularVel[i]);
+        btQuaternion startQ(endEffectorWorldOrientation[0],endEffectorWorldOrientation[1],endEffectorWorldOrientation[2],endEffectorWorldOrientation[3]);
+        btQuaternion endQ(endEffectorTargetOrientation[0],endEffectorTargetOrientation[1],endEffectorTargetOrientation[2],endEffectorTargetOrientation[3]);
+        btQuaternion deltaQ = endQ*startQ.inverse();
+        float angle = deltaQ.getAngle();
+        btVector3 axis = deltaQ.getAxis();
+        float angleDot = angle;
+        btVector3 angularVel = angleDot*axis.normalize();
+        for (int i = 0; i < 3; ++i)
+        {
+            deltaR.Set(i,dampIk[i+3]*angularVel[i]);
+        }
     }
     
     {
