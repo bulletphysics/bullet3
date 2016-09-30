@@ -10,6 +10,8 @@ enum IK2_Method
     IK2_DLS_SVD,
     IK2_VEL_DLS,
 	IK2_VEL_DLS_WITH_ORIENTATION,
+    IK2_VEL_DLS_WITH_NULLSPACE,
+    IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE,
 };
 
 
@@ -27,6 +29,8 @@ public:
 		const double endEffectorWorldOrientation[4],
 		const double* q_old, int numQ, int endEffectorIndex,
 		double* q_new, int ikMethod, const double* linear_jacobian, const double* angular_jacobian, int jacobian_size, const double dampIk[6]);
+    
+    bool computeNullspaceVel(int numQ, const double* q_current, const double* lower_limit, const double* upper_limit, const double* joint_range, const double* rest_pose);
     
 };
 #endif //IK_TRAJECTORY_HELPER_H
