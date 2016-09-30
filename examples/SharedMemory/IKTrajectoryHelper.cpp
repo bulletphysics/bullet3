@@ -181,10 +181,12 @@ bool IKTrajectoryHelper::computeNullspaceVel(int numQ, const double* q_current, 
     double stayCloseToZeroGain = 0.1;
     double stayAwayFromLimitsGain = 10.0;
     
+    double q_rest[7] = {0, 0, 0, SIMD_HALF_PI, 0, -SIMD_HALF_PI*0.66, 0};
+
     // Stay close to zero
     for (int i = 0; i < numQ; ++i)
     {
-        m_data->m_nullSpaceVelocity[i] = -stayCloseToZeroGain * q_current[i];
+        m_data->m_nullSpaceVelocity[i] = stayCloseToZeroGain * (q_rest[i]-q_current[i]);
     }
 
     // Stay away from joint limits
