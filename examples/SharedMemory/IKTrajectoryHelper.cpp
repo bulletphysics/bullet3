@@ -15,7 +15,7 @@
 struct IKTrajectoryHelperInternalData
 {
     VectorR3 m_endEffectorTargetPosition;
-    
+    VectorRn m_nullSpaceVelocity;
     
     b3AlignedObjectArray<Node*> m_ikNodes;
     Jacobian* m_ikJacobian;
@@ -23,6 +23,7 @@ struct IKTrajectoryHelperInternalData
     IKTrajectoryHelperInternalData()
     {
         m_endEffectorTargetPosition.SetZero();
+        m_nullSpaceVelocity.SetZero();
     }
 };
 
@@ -129,8 +130,11 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
 		case IK2_DLS:
         case IK2_VEL_DLS:
 		case IK2_VEL_DLS_WITH_ORIENTATION:
-            //m_data->m_ikJacobian->CalcDeltaThetasDLS();			// Damped least squares method
-            m_data->m_ikJacobian->CalcDeltaThetasDLSwithNullspace();
+            m_data->m_ikJacobian->CalcDeltaThetasDLS();			// Damped least squares method
+            break;
+        case IK2_VEL_DLS_WITH_NULLSPACE:
+            assert(m_data->m_nullSpaceVelocity.GetLength()==numQ);
+            m_data->m_ikJacobian->CalcDeltaThetasDLSwithNullspace(m_data->m_nullSpaceVelocity);
             break;
         case IK2_DLS_SVD:
             m_data->m_ikJacobian->CalcDeltaThetasDLSwithSVD();
@@ -162,6 +166,31 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
         
         // Use for position IK
         //q_new[i] = m_data->m_ikNodes[i]->GetTheta();
+    }
+    return true;
+}
+
+bool IKTrajectoryHelper::computeNullspaceVel(int numQ, const double* q_current, const double* lower_limit, const double* upper_limit, const double* joint_range)
+{
+    m_data->m_nullSpaceVelocity.SetLength(numQ);
+    m_data->m_nullSpaceVelocity.SetZero();
+    double stayCloseToZeroGain = 0.1;
+    double stayAwayFromLimitsGain = 10.0;
+    
+    // Stay close to zero
+    for (int i = 0; i < numQ; ++i)
+    {
+        m_data->m_nullSpaceVelocity[i] = -stayCloseToZeroGain * q_current[i];
+    }
+
+    // Stay away from joint limits
+    for (int i = 0; i < numQ; ++i) {
+        if (q_current[i] > upper_limit[i]) {
+            m_data->m_nullSpaceVelocity[i] += stayAwayFromLimitsGain * (upper_limit[i] - q_current[i]) / joint_range[i];
+        }
+        if (q_current[i] < lower_limit[i]) {
+            m_data->m_nullSpaceVelocity[i] += stayAwayFromLimitsGain * (lower_limit[i] - q_current[i]) / joint_range[i];
+        }
     }
     return true;
 }

@@ -320,7 +320,7 @@ void Jacobian::CalcDeltaThetasPseudoinverse()
 
 }
 
-void Jacobian::CalcDeltaThetasDLSwithNullspace()
+void Jacobian::CalcDeltaThetasDLSwithNullspace(const VectorRn& desiredV)
 {	
 	const MatrixRmn& J = ActiveJacobian();
 
@@ -336,11 +336,6 @@ void Jacobian::CalcDeltaThetasDLSwithNullspace()
 	// Use these two lines for the traditional DLS method
 	U.Solve( dS, &dT1 );
 	J.MultiplyTranspose( dT1, dTheta );
-    
-    // Desired velocity
-    VectorRn desiredV(J.GetNumColumns());
-    desiredV.SetZero();
-    desiredV.Set(3, -0.2);
     
     // Compute JInv in damped least square form
     MatrixRmn UInv(U.GetNumRows(),U.GetNumColumns());

@@ -70,7 +70,7 @@ public:
 	void CalcDeltaThetasDLS();
 	void CalcDeltaThetasDLSwithSVD();
 	void CalcDeltaThetasSDLS();
-    void CalcDeltaThetasDLSwithNullspace();
+    void CalcDeltaThetasDLSwithNullspace( const VectorRn& desiredV);
 
 	void UpdateThetas();
     void UpdateThetaDot();

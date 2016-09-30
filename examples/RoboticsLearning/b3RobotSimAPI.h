@@ -96,6 +96,9 @@ struct b3RobotSimInverseKinematicArgs
 	double m_endEffectorTargetOrientation[4];
     int m_endEffectorLinkIndex;
 	int m_flags;
+    b3AlignedObjectArray<double> m_lowerLimits;
+    b3AlignedObjectArray<double> m_upperLimits;
+    b3AlignedObjectArray<double> m_jointRanges;
 
 	b3RobotSimInverseKinematicArgs()
 		:m_bodyUniqueId(-1),
