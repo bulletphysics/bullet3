@@ -16,6 +16,7 @@
 #define MAX_VR_CONTROLLERS 8
 
 
+//@todo(erwincoumans) those globals are hacks for a VR demo, move this to Python/pybullet!
 extern btVector3 gLastPickPos;
 btVector3 gVRTeleportPos(0,0,0);
 btQuaternion gVRTeleportOrn(0, 0, 0,1);
@@ -24,6 +25,8 @@ extern btQuaternion gVRGripperOrn;
 extern btVector3 gVRController2Pos;
 extern btQuaternion gVRController2Orn;
 extern btScalar gVRGripperAnalog;
+extern btScalar gVRGripper2Analog;
+extern bool gCloseToKuka;
 extern bool gEnableRealTimeSimVR;
 extern int gCreateObjectSimVR;
 static int gGraspingController = -1;
@@ -191,12 +194,15 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 						args->m_physicsServerPtr->removePickingConstraint();
 					}
 
-					if (args->m_isVrControllerPicking[c])
+					if (!gCloseToKuka)
 					{
-						args->m_isVrControllerPicking[c]  = false;
-						args->m_isVrControllerDragging[c] = true;
-						args->m_physicsServerPtr->pickBody(from,-toZ);
-						//printf("PICK!\n");
+						if (args->m_isVrControllerPicking[c])
+						{
+							args->m_isVrControllerPicking[c]  = false;
+							args->m_isVrControllerDragging[c] = true;
+							args->m_physicsServerPtr->pickBody(from,-toZ);
+							//printf("PICK!\n");
+						}
 					}
 
 					 if (args->m_isVrControllerDragging[c])
@@ -1254,6 +1260,7 @@ void	PhysicsServerExample::vrControllerMoveCallback(int controllerId, float pos[
 	}
 	else
 	{
+		gVRGripper2Analog = analogAxis;
 		gVRController2Pos.setValue(pos[0] + gVRTeleportPos[0], pos[1] + gVRTeleportPos[1], pos[2] + gVRTeleportPos[2]);
 		btQuaternion orgOrn(orn[0], orn[1], orn[2], orn[3]);
 		gVRController2Orn = orgOrn*btQuaternion(btVector3(0, 0, 1), SIMD_HALF_PI)*btQuaternion(btVector3(0, 1, 0), SIMD_HALF_PI);
