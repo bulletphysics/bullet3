@@ -3136,7 +3136,6 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 
 			loadUrdf("husky/husky.urdf", btVector3(2, -5, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 			m_data->m_huskyId = bodyId;
-			//loadUrdf("jz/jz.urdf", btVector3(0, -5, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 
 			m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, -10));
 

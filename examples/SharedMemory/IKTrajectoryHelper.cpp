@@ -82,6 +82,12 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
         btQuaternion deltaQ = endQ*startQ.inverse();
         float angle = deltaQ.getAngle();
         btVector3 axis = deltaQ.getAxis();
+        if (angle > PI) {
+            angle -= 2.0*PI;
+        }
+        else if (angle < -PI) {
+            angle += 2.0*PI;
+        }
         float angleDot = angle;
         btVector3 angularVel = angleDot*axis.normalize();
         for (int i = 0; i < 3; ++i)
