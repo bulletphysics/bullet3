@@ -1490,7 +1490,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
                     break;
                 }
-                case CMD_SEND_DESIRED_STATE:
+				case CMD_SEND_DESIRED_STATE:
                     {
 						if (m_data->m_verboseOutput)
 						{
@@ -1670,18 +1670,18 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 										break;
 									}
                                 default:
-                                    {
-                                        b3Warning("m_controlMode not implemented yet");
-                                        break;
-                                    }
+						{
+							b3Warning("m_controlMode not implemented yet");
+							break;
+						}
 
-                                }
-                            }
+						}
+					}
 
-							serverStatusOut.m_type = CMD_DESIRED_STATE_RECEIVED_COMPLETED;
-							hasStatus = true;
-                        break;
-                    }
+					serverStatusOut.m_type = CMD_DESIRED_STATE_RECEIVED_COMPLETED;
+					hasStatus = true;
+					break;
+				}
 				case CMD_REQUEST_ACTUAL_STATE:
 					{
 						if (m_data->m_verboseOutput)
@@ -1943,6 +1943,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							b3Printf("Updated Gravity: %f,%f,%f",grav[0],grav[1],grav[2]);
 						}
 
+					}
+					if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_NUM_SOLVER_ITERATIONS)
+					{
+						m_data->m_dynamicsWorld->getSolverInfo().m_numIterations = clientCmd.m_physSimParamArgs.m_numSolverIterations;
 					}
                     if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_NUM_SIMULATION_SUB_STEPS)
                     {
@@ -3351,7 +3355,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 								{
 									btScalar desiredVelocity = 0.f;
 									btScalar desiredPosition = q_new[link];
-									motor->setRhsClamp(gRhsClamp);
+									//motor->setRhsClamp(gRhsClamp);
 									//printf("link %d: %f", link, q_new[link]);
 									motor->setVelocityTarget(desiredVelocity,1.0);
 									motor->setPositionTarget(desiredPosition,0.6);
