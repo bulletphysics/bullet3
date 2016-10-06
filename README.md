@@ -2,8 +2,7 @@
 [![Travis Build Status](https://api.travis-ci.org/bulletphysics/bullet3.png?branch=master)](https://travis-ci.org/bulletphysics/bullet3)
 [![Appveyor Build status](https://ci.appveyor.com/api/projects/status/6sly9uxajr6xsstq)](https://ci.appveyor.com/project/erwincoumans/bullet3)
 
-# Bullet 2.x including pybullet, Virtual Reality support and
-# experimental Bullet 3 OpenCL implementation.
+# Bullet 2.x including pybullet, Virtual Reality support
 
 This is the official repository of Bullet 2.x, moved from http://bullet.googlecode.com
 It includes the optional experimental Bullet 3 GPU pipeline.
@@ -51,10 +50,11 @@ All source code files are licensed under the permissive zlib license
 
 Click on build_visual_studio.bat and open build3/vs2010/0MySolution.sln
 
-**Windows Virtual Reality sandbox for HTC Vive and Oculus Rift **
+**Windows Virtual Reality sandbox for HTC Vive and Oculus Rift**
 
 Click on build_visual_studio_vr_pybullet_double.bat and open build3/vs2010/0MySolution.sln
 Edit this batch file to choose where Python include/lib directories are located.
+Build and run the App_SharedMemoryPhysics_VR project, preferably in Release/optimized build.
 You can connect from Python pybullet to the sandbox using:
 
 ```
