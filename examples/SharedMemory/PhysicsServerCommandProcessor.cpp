@@ -27,7 +27,9 @@
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "SharedMemoryCommands.h"
 
+//@todo(erwincoumans) those globals are hacks for a VR demo, move this to Python/pybullet!
 btVector3 gLastPickPos(0, 0, 0);
+bool gCloseToKuka=false;
 bool gEnableRealTimeSimVR=false;
 int gCreateObjectSimVR = -1;
 btScalar simTimeScalingFactor = 1;
@@ -1488,7 +1490,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
                     break;
                 }
-                case CMD_SEND_DESIRED_STATE:
+				case CMD_SEND_DESIRED_STATE:
                     {
 						if (m_data->m_verboseOutput)
 						{
@@ -1668,18 +1670,18 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 										break;
 									}
                                 default:
-                                    {
-                                        b3Warning("m_controlMode not implemented yet");
-                                        break;
-                                    }
+						{
+							b3Warning("m_controlMode not implemented yet");
+							break;
+						}
 
-                                }
-                            }
+						}
+					}
 
-							serverStatusOut.m_type = CMD_DESIRED_STATE_RECEIVED_COMPLETED;
-							hasStatus = true;
-                        break;
-                    }
+					serverStatusOut.m_type = CMD_DESIRED_STATE_RECEIVED_COMPLETED;
+					hasStatus = true;
+					break;
+				}
 				case CMD_REQUEST_ACTUAL_STATE:
 					{
 						if (m_data->m_verboseOutput)
@@ -1941,6 +1943,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							b3Printf("Updated Gravity: %f,%f,%f",grav[0],grav[1],grav[2]);
 						}
 
+					}
+					if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_NUM_SOLVER_ITERATIONS)
+					{
+						m_data->m_dynamicsWorld->getSolverInfo().m_numIterations = clientCmd.m_physSimParamArgs.m_numSolverIterations;
 					}
                     if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_NUM_SIMULATION_SUB_STEPS)
                     {
@@ -2931,8 +2937,9 @@ btVector3 gVRGripperPos(0,0,0.2);
 btQuaternion gVRGripperOrn(0,0,0,1);
 btVector3 gVRController2Pos(0,0,0.2);
 btQuaternion gVRController2Orn(0,0,0,1);
-
+btScalar gVRGripper2Analog = 0;
 btScalar gVRGripperAnalog = 0;
+
 bool gVRGripperClosed = false;
 
 
@@ -3148,7 +3155,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			btMultiBodyJointMotor* motor = (btMultiBodyJointMotor*)childBody->m_multiBody->getLink(1).m_userPtr;
 			if (motor)
 			{
-				btScalar posTarget = (-0.048)*btMin(btScalar(0.75), gVRGripperAnalog) / 0.75;
+				btScalar posTarget = (-0.048)*btMin(btScalar(0.75), gVRGripper2Analog) / 0.75;
 				motor->setPositionTarget(posTarget, .2);
 				motor->setVelocityTarget(0.0, .5);
 				motor->setMaxAppliedImpulse(5.0);
@@ -3198,7 +3205,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 				btMultiBody* mb = bodyHandle->m_multiBody;				
 				btScalar sqLen = (mb->getBaseWorldTransform().getOrigin() - gVRController2Pos).length2();
 				btScalar distanceThreshold = 1.3;
-				bool closeToKuka=(sqLen<(distanceThreshold*distanceThreshold));
+				gCloseToKuka=(sqLen<(distanceThreshold*distanceThreshold));
 
 				int numDofs = bodyHandle->m_multiBody->getNumDofs();
 				btAlignedObjectArray<double> q_new;
@@ -3219,7 +3226,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 				q_new[5] = -SIMD_HALF_PI*0.66;
 				q_new[6] = 0;
 
-				if (closeToKuka)
+				if (gCloseToKuka)
 				{
 					double dampIk[6] = {1.0, 1.0, 1.0, 1.0, 1.0, 0.0};
 
@@ -3390,7 +3397,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 								{
 									btScalar desiredVelocity = 0.f;
 									btScalar desiredPosition = q_new[link];
-									motor->setRhsClamp(gRhsClamp);
+									//motor->setRhsClamp(gRhsClamp);
 									//printf("link %d: %f", link, q_new[link]);
 									motor->setVelocityTarget(desiredVelocity,1.0);
 									motor->setPositionTarget(desiredPosition,0.6);

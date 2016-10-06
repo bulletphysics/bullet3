@@ -33,6 +33,10 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(std::vector<tiny
 					int vtxBaseIndex = vertices->size();
 					
 					
+					if (f<0 && f>=shape.mesh.indices.size())
+					{
+						continue;
+					}
 					
 					GLInstanceVertex vtx0;
 					vtx0.xyzw[0] = shape.mesh.positions[shape.mesh.indices[f]*3+0];
@@ -40,10 +44,22 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(std::vector<tiny
 					vtx0.xyzw[2] = shape.mesh.positions[shape.mesh.indices[f]*3+2];
 					vtx0.xyzw[3] = 0.f;
 					
-					if (shape.mesh.texcoords.size())
+
+					if (shape.mesh.texcoords.size() )
 					{
-						vtx0.uv[0] = shape.mesh.texcoords[shape.mesh.indices[f]*2+0];
-						vtx0.uv[1] = shape.mesh.texcoords[shape.mesh.indices[f]*2+1];
+						int uv0Index = shape.mesh.indices[f]*2+0;
+						int uv1Index = shape.mesh.indices[f]*2+1;
+						if (uv0Index>=0 && uv1Index>=0 && (uv0Index < shape.mesh.texcoords.size()) && (uv1Index < shape.mesh.texcoords.size()))
+						{
+							vtx0.uv[0] = shape.mesh.texcoords[uv0Index];
+							vtx0.uv[1] = shape.mesh.texcoords[uv1Index];
+						} else
+						{
+							b3Warning("obj texture coordinate out-of-range!");
+							vtx0.uv[0] = 0;
+							vtx0.uv[1] = 0;
+						}
+						
 					} else
 					{
 						vtx0.uv[0] = 0.5;
@@ -58,8 +74,18 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(std::vector<tiny
 
 					if (shape.mesh.texcoords.size())
 					{
-						vtx1.uv[0] = shape.mesh.texcoords[shape.mesh.indices[f+1]*2+0];
-						vtx1.uv[1] = shape.mesh.texcoords[shape.mesh.indices[f+1]*2+1];
+						int uv0Index = shape.mesh.indices[f+1]*2+0;
+						int uv1Index = shape.mesh.indices[f+1]*2+1;
+						if (uv0Index>=0 && uv1Index>=0 && (uv0Index < shape.mesh.texcoords.size()) && (uv1Index < shape.mesh.texcoords.size()))
+						{
+							vtx1.uv[0] = shape.mesh.texcoords[uv0Index];
+							vtx1.uv[1] = shape.mesh.texcoords[uv1Index];
+						} else
+						{
+							b3Warning("obj texture coordinate out-of-range!");
+							vtx1.uv[0] = 0;
+							vtx1.uv[1] = 0;
+						}
 					} else
 					{
 						vtx1.uv[0] = 0.5f;
@@ -73,8 +99,18 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(std::vector<tiny
 					vtx2.xyzw[3] = 0.f;
 					if (shape.mesh.texcoords.size())
 					{
-						vtx2.uv[0] = shape.mesh.texcoords[shape.mesh.indices[f+2]*2+0];
-						vtx2.uv[1] = shape.mesh.texcoords[shape.mesh.indices[f+2]*2+1];
+						int uv0Index = shape.mesh.indices[f+2]*2+0;
+						int uv1Index = shape.mesh.indices[f+2]*2+1;
+						if (uv0Index>=0 && uv1Index>=0 && (uv0Index < shape.mesh.texcoords.size()) && (uv1Index < shape.mesh.texcoords.size()))
+						{
+							vtx2.uv[0] = shape.mesh.texcoords[uv0Index];
+							vtx2.uv[1] = shape.mesh.texcoords[uv1Index];
+						} else
+						{
+							b3Warning("obj texture coordinate out-of-range!");
+							vtx2.uv[0] = 0;
+							vtx2.uv[1] = 0;
+						}
 					} else
 					{
 						vtx2.uv[0] = 0.5;
