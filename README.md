@@ -2,18 +2,20 @@
 [![Travis Build Status](https://api.travis-ci.org/bulletphysics/bullet3.png?branch=master)](https://travis-ci.org/bulletphysics/bullet3)
 [![Appveyor Build status](https://ci.appveyor.com/api/projects/status/6sly9uxajr6xsstq)](https://ci.appveyor.com/project/erwincoumans/bullet3)
 
-# Bullet 2.x including pybullet and experimental Bullet 3 OpenCL.
+# Bullet 2.x including pybullet, Virtual Reality support and
+# experimental Bullet 3 OpenCL implementation.
 
 This is the official repository of Bullet 2.x, moved from http://bullet.googlecode.com
 It includes the optional experimental Bullet 3 GPU pipeline.
 
-The Bullet 2 API will stay default and up-to-date while slowly moving to Bullet 3.
-The steps towards Bullet 3 are in a nutshell:
+The Bullet 2 API will stay default and up-to-date while slowly moving to a new API.
+The steps towards a new API is in a nutshell:
 
 1. The old Bullet2 demos are being merged into the examples/ExampleBrowser
-2. A new Bullet 3 API is created
-3. All Bullet2 functionality is added to Bullet 3.
-4. The OpenCL examples in the ExampleBrowser can be enabled using --enable_experimental_opencl
+2. A new physics-engine agnostic C-API is created, see examples/SharedMemory/PhysicsClientC_API.h
+3. Python bindings in pybullet are on top of this C-API, see examples/pybullet
+4. A Virtual Reality sandbox using openvr for HTC Vive and Oculus Rift is available
+5. The OpenCL examples in the ExampleBrowser can be enabled using --enable_experimental_opencl
 
 You can still use svn or svn externals using the github git repository: use svn co https://github.com/bulletphysics/bullet3/trunk
 
@@ -48,6 +50,17 @@ All source code files are licensed under the permissive zlib license
 **Windows**
 
 Click on build_visual_studio.bat and open build3/vs2010/0MySolution.sln
+
+**Windows Virtual Reality sandbox for HTC Vive and Oculus Rift **
+
+Click on build_visual_studio_vr_pybullet_double.bat and open build3/vs2010/0MySolution.sln
+Edit this batch file to choose where Python include/lib directories are located.
+You can connect from Python pybullet to the sandbox using:
+
+```
+import pybullet as p
+p.connect(p.SHARED_MEMORY)
+```
 
 **Linux and Mac OSX gnu make**
 
