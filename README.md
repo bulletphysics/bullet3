@@ -93,9 +93,6 @@ You can just run it though a terminal/command prompt, or by clicking it.
 
 ```
 [--start_demo_name="Demo Name"]     Start with a selected demo  
-[--enable_pybullet]                 Build with pybullet Python bindings. See also examples/pybullet
-[--enable_openvr]                   Build with VR support for HTC Vive and Oculus Rift using OpenVR
-[--enable_experimental_opencl]      Enable some experimental OpenCL examples
 [--mp4=moviename.mp4]               Create a mp4 movie of the window, requires ffmpeg installed
 [--mouse_move_multiplier=0.400000]  Set the mouse move sensitivity
 [--mouse_wheel_multiplier=0.01]     Set the mouse wheel sensitivity
