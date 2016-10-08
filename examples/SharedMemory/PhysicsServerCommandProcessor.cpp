@@ -2163,7 +2163,6 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 						bool isDynamic = (mass>0);
 						btRigidBody* rb = worldImporter->createRigidBody(isDynamic,mass,startTrans,shape,0);
-						rb->setRollingFriction(0.2);
 						//m_data->m_guiHelper->autogenerateGraphicsObjects(this->m_data->m_dynamicsWorld);
 						btVector4 colorRGBA(1,0,0,1);
 						if (clientCmd.m_updateFlags & BOX_SHAPE_HAS_COLOR)
