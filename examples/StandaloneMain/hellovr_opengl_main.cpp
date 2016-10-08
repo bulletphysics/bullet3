@@ -2190,7 +2190,15 @@ int main(int argc, char *argv[])
 		pMainApplication->Shutdown();
 		return 1;
 	}
-
+	
+	//request disable VSYNC
+	typedef bool (APIENTRY *PFNWGLSWAPINTERVALFARPROC)(int);
+	PFNWGLSWAPINTERVALFARPROC wglSwapIntervalEXT = 0;
+	wglSwapIntervalEXT = 
+		(PFNWGLSWAPINTERVALFARPROC)wglGetProcAddress("wglSwapIntervalEXT");
+	if (wglSwapIntervalEXT)
+		wglSwapIntervalEXT(0);
+			
 	pMainApplication->RunMainLoop();
 
 	pMainApplication->Shutdown();
