@@ -3396,7 +3396,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 								{
 									btScalar desiredVelocity = 0.f;
 									btScalar desiredPosition = q_new[link];
-									//motor->setRhsClamp(gRhsClamp);
+									motor->setRhsClamp(gRhsClamp);
 									//printf("link %d: %f", link, q_new[link]);
 									motor->setVelocityTarget(desiredVelocity,1.0);
 									motor->setPositionTarget(desiredPosition,0.6);
