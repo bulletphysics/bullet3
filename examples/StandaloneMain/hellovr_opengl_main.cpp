@@ -7,6 +7,7 @@
 #include "Bullet3Common/b3Quaternion.h"
 #include "Bullet3Common/b3Transform.h"
 
+
 #include "../ExampleBrowser/OpenGLGuiHelper.h"
 #include "../CommonInterfaces/CommonExampleInterface.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
@@ -708,6 +709,10 @@ bool CMainApplication::HandleInput()
 									//btIDebugDraw::DBG_DrawConstraintLimits+
 									//btIDebugDraw::DBG_DrawConstraints
 									//;
+								gDebugDrawFlags = btIDebugDraw::DBG_DrawConstraintLimits+ btIDebugDraw::DBG_DrawConstraints+btIDebugDraw::DBG_DrawContactPoints+btIDebugDraw::DBG_DrawFrames;
+									
+
+
 							}
 
 							sExample->vrControllerButtonCallback(unDevice, button, 1, pos, orn);
@@ -1663,7 +1668,7 @@ void CMainApplication::RenderStereoTargets()
 	{
 		sExample->physicsDebugDraw(gDebugDrawFlags);
 	} 
-	else
+	//else
 	{
 		sExample->renderScene();
 	}
@@ -1714,7 +1719,7 @@ void CMainApplication::RenderStereoTargets()
 	{
 		sExample->physicsDebugDraw(gDebugDrawFlags);
 	} 
-	else
+	//else
 	{
 		sExample->renderScene();
 	}
@@ -2183,6 +2188,7 @@ int main(int argc, char *argv[])
 	//b3SetCustomLeaveProfileZoneFunc(...);
 #endif
 
+
 	CMainApplication *pMainApplication = new CMainApplication( argc, argv );
 
 	if (!pMainApplication->BInit())
@@ -2191,6 +2197,11 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 	
+	if (sExample)
+	{
+		sExample->processCommandLineArgs(argc,argv);
+	}
+
 	//request disable VSYNC
 	typedef bool (APIENTRY *PFNWGLSWAPINTERVALFARPROC)(int);
 	PFNWGLSWAPINTERVALFARPROC wglSwapIntervalEXT = 0;
