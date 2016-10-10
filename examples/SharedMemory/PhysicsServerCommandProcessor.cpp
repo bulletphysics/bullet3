@@ -3068,7 +3068,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 				m_data->m_dynamicsWorld->addMultiBodyConstraint(m_data->m_kukaGripperRevolute1);
 				m_data->m_dynamicsWorld->addMultiBodyConstraint(m_data->m_kukaGripperRevolute2);
 
-				if (kukaBody->m_multiBody)
+				if (kukaBody->m_multiBody && kukaBody->m_multiBody->getNumDofs()==7)
 				{
 					gripperBody->m_multiBody->setHasSelfCollision(0);
 					btVector3 pivotInParent(0, 0, 0.05);
@@ -3204,7 +3204,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			//if (0)
 			{
 				InternalBodyHandle* bodyHandle = m_data->getHandle(m_data->m_KukaId);
-				if (bodyHandle && bodyHandle->m_multiBody)
+				if (bodyHandle && bodyHandle->m_multiBody && bodyHandle->m_multiBody->getNumDofs()==7)
 				{
 					btMultiBody* mb = bodyHandle->m_multiBody;				
 					btScalar sqLen = (mb->getBaseWorldTransform().getOrigin() - gVRController2Pos).length2();
