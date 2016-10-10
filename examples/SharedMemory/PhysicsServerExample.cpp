@@ -7,7 +7,7 @@
 
 
 #include "PhysicsServerSharedMemory.h"
-
+#include "Bullet3Common/b3CommandLineArgs.h"
 #include "SharedMemoryCommon.h"
 #include "Bullet3Common/b3Matrix3x3.h"
 #include "../Utils/b3Clock.h"
@@ -28,6 +28,7 @@ extern btScalar gVRGripperAnalog;
 extern btScalar gVRGripper2Analog;
 extern bool gCloseToKuka;
 extern bool gEnableRealTimeSimVR;
+extern bool gCreateSamuraiRobotAssets;
 extern int gCreateObjectSimVR;
 static int gGraspingController = -1;
 extern btScalar simTimeScalingFactor;
@@ -656,6 +657,16 @@ public:
 		m_physicsServer.setSharedMemoryKey(key);
 	}
 
+	virtual void	processCommandLineArgs(int argc, char* argv[])
+	{
+		b3CommandLineArgs args(argc,argv);
+		if (args.CheckCmdLineFlag("emptyworld"))
+		{
+			gCreateSamuraiRobotAssets = false;
+		}
+	}
+
+	
 
 };
 
