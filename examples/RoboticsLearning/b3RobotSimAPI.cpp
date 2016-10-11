@@ -961,10 +961,12 @@ void b3RobotSimAPI::renderScene()
 		}
 	}
 
+    
 	if (m_data->m_clientServerDirect)
 	{
 		m_data->m_clientServerDirect->renderScene();
 	}
+    
 	m_data->m_physicsServer.renderScene();
 }
 

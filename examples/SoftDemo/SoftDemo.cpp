@@ -1017,7 +1017,7 @@ static void	Init_Bunny(SoftDemo* pdemo)
 	psb->m_cfg.kDF			=	0.5;
 	psb->randomizeConstraints();
 	psb->scale(btVector3(6,6,6));
-	psb->setTotalMass(100,true);	
+	psb->setTotalMass(1,true);	
 	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
 	pdemo->m_cutting=true;
 
@@ -2097,6 +2097,7 @@ void	SoftDemo::initPhysics()
 	motorcontrol.maxtorque = 0;
 
 	btCollisionShape* groundShape = 0;
+    if (0)
 	{
 		int i;
 		int j;
@@ -2151,11 +2152,12 @@ void	SoftDemo::initPhysics()
 		groundShape->setMargin(0.5);
 	}
 
-	m_collisionShapes.push_back(groundShape);
+	//m_collisionShapes.push_back(groundShape);
 
 	btCollisionShape* groundBox = new btBoxShape (btVector3(100,CUBE_HALF_EXTENTS,100));
 	m_collisionShapes.push_back(groundBox);
 
+    /*
 	btCompoundShape* cylinderCompound = new btCompoundShape;
 	btCollisionShape* cylinderShape = new btCylinderShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS));
 	btTransform localTransform;
@@ -2166,7 +2168,7 @@ void	SoftDemo::initPhysics()
 	cylinderCompound->addChildShape(localTransform,cylinderShape);
 
 	m_collisionShapes.push_back(cylinderCompound);
-
+    */
 
 	m_dispatcher=0;
 
@@ -2260,7 +2262,7 @@ void	SoftDemo::initPhysics()
 		newOb->setCollisionShape(m_collisionShapes[0]);
 	} else
 	{
-		newOb->setCollisionShape(m_collisionShapes[1]);
+		newOb->setCollisionShape(m_collisionShapes[0]);
 	}
 
 	m_dynamicsWorld->addCollisionObject(newOb);
