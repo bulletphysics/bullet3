@@ -1019,7 +1019,7 @@ static void	Init_Bunny(SoftDemo* pdemo)
 	psb->scale(btVector3(6,6,6));
 	psb->setTotalMass(1,true);	
 	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
-	pdemo->m_cutting=true;
+	//pdemo->m_cutting=true;
 
 }
 
@@ -2214,7 +2214,7 @@ void	SoftDemo::initPhysics()
 	if( g_softBodyOutput )
 		delete g_softBodyOutput;
 
-	if (1)
+	if (0)
 	{
 		g_openCLSIMDSolver = new btOpenCLSoftBodySolverSIMDAware( g_cqCommandQue, g_cxMainContext);
 	//	g_openCLSIMDSolver = new btOpenCLSoftBodySolver( g_cqCommandQue, g_cxMainContext);
@@ -2223,7 +2223,7 @@ void	SoftDemo::initPhysics()
 
 
 
-	softBodySolver = g_openCLSIMDSolver;
+	//softBodySolver = g_openCLSIMDSolver;
 	g_softBodyOutput = new btSoftBodySolverOutputCLtoCPU;
 #endif //USE_AMD_OPENCL
 
@@ -2289,7 +2289,7 @@ void	SoftDemo::initPhysics()
 
 	m_autocam						=	false;
 	m_raycast						=	false;
-	m_cutting						=	false;
+	//m_cutting						=	false;
 	m_results.fraction				=	1.f;
 	
 	demofncs[current_demo](this);

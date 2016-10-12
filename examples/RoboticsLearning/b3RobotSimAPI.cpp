@@ -967,7 +967,7 @@ void b3RobotSimAPI::renderScene()
 		m_data->m_clientServerDirect->renderScene();
 	}
     
-	m_data->m_physicsServer.renderScene();
+	//m_data->m_physicsServer.renderScene();
 }
 
 void b3RobotSimAPI::getBodyJacobian(int bodyUniqueId, int linkIndex, const double* localPosition, const double* jointPositions, const double* jointVelocities, const double* jointAccelerations, double* linearJacobian, double* angularJacobian)

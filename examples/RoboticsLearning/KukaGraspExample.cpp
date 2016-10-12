@@ -256,7 +256,7 @@ public:
         }
         
         
-		m_robotSim.stepSimulation();
+		//m_robotSim.stepSimulation();
     }
     virtual void	renderScene()
     {

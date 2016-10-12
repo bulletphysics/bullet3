@@ -232,6 +232,7 @@ public:
                 slider.m_maxVal=1;
                 m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
             }
+            if (0)
             {
                 b3RobotSimLoadFileArgs args("");
                 b3RobotSimLoadFileResults results;
@@ -241,7 +242,7 @@ public:
                 args.m_useMultiBody = true;
                 m_robotSim.loadFile(args, results);
             }
-            
+            if (1)
             {
                 b3RobotSimLoadFileArgs args("");
                 args.m_fileName = "gripper/wsg50_one_motor_gripper_new.sdf";
@@ -329,6 +330,7 @@ public:
             m_robotSim.createJoint(1, 0, 1, 3, &sliderJoint1);
             m_robotSim.createJoint(1, 0, 1, 6, &sliderJoint2);
             */
+            /*
             b3JointInfo revoluteJoint1;
             revoluteJoint1.m_parentFrame[0] = -0.055;
             revoluteJoint1.m_parentFrame[1] = 0;
@@ -369,6 +371,7 @@ public:
             revoluteJoint2.m_jointType = ePoint2PointType;
             m_robotSim.createJoint(1, 2, 1, 4, &revoluteJoint1);
             m_robotSim.createJoint(1, 3, 1, 6, &revoluteJoint2);
+            */
         }
 		
     }
@@ -398,6 +401,7 @@ public:
             }
         }
         
+        /*
         if ((m_options & eONE_MOTOR_GRASP)!=0)
         {
             int fingerJointIndices[2]={0,1};
@@ -413,9 +417,9 @@ public:
                 m_robotSim.setJointMotorControl(m_gripperIndex,fingerJointIndices[i],controlArgs);
             }
         }
+        */
         
-        
-		m_robotSim.stepSimulation();
+		//m_robotSim.stepSimulation();
     }
     virtual void	renderScene()
     {

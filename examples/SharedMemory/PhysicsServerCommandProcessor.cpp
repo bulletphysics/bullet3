@@ -5,7 +5,7 @@
 #include "../Importers/ImportURDFDemo/URDF2Bullet.h"
 #include "../Extras/InverseDynamics/btMultiBodyTreeCreator.hpp"
 #include "TinyRendererVisualShapeConverter.h"
-#include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
+#include "BulletDynamics/Featherstone/btSoftMultiBodyDynamicsWorld.h"
 #include "BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h"
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
@@ -26,6 +26,10 @@
 #include "Bullet3Common/b3Logging.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "SharedMemoryCommands.h"
+#include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
+#include "BulletSoftBody/btSoftBodySolvers.h"
+#include "BulletSoftBody/btSoftBodyHelpers.h"
+#include "../SoftDemo/BunnyMesh.h"
 
 //@todo(erwincoumans) those globals are hacks for a VR demo, move this to Python/pybullet!
 btVector3 gLastPickPos(0, 0, 0);
@@ -421,8 +425,9 @@ struct PhysicsServerCommandProcessorInternalData
 	btBroadphaseInterface*	m_broadphase;
 	btCollisionDispatcher*	m_dispatcher;
 	btMultiBodyConstraintSolver*	m_solver;
+    btSoftBodySolver* m_softbodySolver;
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
-	btMultiBodyDynamicsWorld* m_dynamicsWorld;
+	btSoftMultiBodyDynamicsWorld* m_dynamicsWorld;
 	SharedMemoryDebugDrawer*		m_remoteDebugDrawer;
 	
 	btAlignedObjectArray<b3ContactPointData> m_cachedContactPoints;
@@ -596,8 +601,9 @@ PhysicsServerCommandProcessor::~PhysicsServerCommandProcessor()
 void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 {
 	///collision configuration contains default setup for memory, collision setup
-	m_data->m_collisionConfiguration = new btDefaultCollisionConfiguration();
+	//m_data->m_collisionConfiguration = new btDefaultCollisionConfiguration();
 	//m_collisionConfiguration->setConvexConvexMultipointIterations();
+    m_data->m_collisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
 
 	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
 	m_data->m_dispatcher = new	btCollisionDispatcher(m_data->m_collisionConfiguration);
@@ -605,8 +611,10 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 	m_data->m_broadphase = new btDbvtBroadphase();
 
 	m_data->m_solver = new btMultiBodyConstraintSolver;
+    
+    m_data->m_softbodySolver = 0;
 
-	m_data->m_dynamicsWorld = new btMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
+	m_data->m_dynamicsWorld = new btSoftMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration, m_data->m_softbodySolver);
 
 	//Workaround: in a VR application, where we avoid synchronizaing between GFX/Physics threads, we don't want to resize this array, so pre-allocate it
 	m_data->m_dynamicsWorld->getCollisionObjectArray().reserve(8192);
@@ -616,6 +624,29 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 
 	m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
 	m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = 0.08;
+    
+    btSoftBodyWorldInfo	softBodyWorldInfo;
+    softBodyWorldInfo.air_density		=	(btScalar)1.2;
+    softBodyWorldInfo.water_density	=	0;
+    softBodyWorldInfo.water_offset		=	0;
+    softBodyWorldInfo.water_normal		=	btVector3(0,0,0);
+    softBodyWorldInfo.m_gravity.setValue(0,0,0);
+    
+    btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(softBodyWorldInfo,gVerticesBunny,
+                                                         &gIndicesBunny[0][0],
+                                                         BUNNY_NUM_TRIANGLES);
+    btSoftBody::Material*	pm=psb->appendMaterial();
+    pm->m_kLST				=	0.5;
+    pm->m_flags				-=	btSoftBody::fMaterial::DebugDraw;
+    psb->generateBendingConstraints(2,pm);
+    psb->m_cfg.piterations	=	2;
+    psb->m_cfg.kDF			=	0.5;
+    psb->randomizeConstraints();
+    psb->rotate(btQuaternion(0.70711,0,0,0.70711));
+    psb->translate(btVector3(0,0,1.0));
+    psb->scale(btVector3(0.1,0.1,0.1));
+    psb->setTotalMass(1,true);	
+    m_data->m_dynamicsWorld->addSoftBody(psb);
 
 }
 
@@ -2766,6 +2797,15 @@ void PhysicsServerCommandProcessor::renderScene()
 		m_data->m_guiHelper->render(m_data->m_dynamicsWorld);
 	}
 
+    for (  int i=0;i<m_data->m_dynamicsWorld->getSoftBodyArray().size();i++)
+    {
+        btSoftBody*	psb=(btSoftBody*)m_data->m_dynamicsWorld->getSoftBodyArray()[i];
+        if (m_data->m_dynamicsWorld->getDebugDrawer() && !(m_data->m_dynamicsWorld->getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe)))
+        {
+            btSoftBodyHelpers::DrawFrame(psb,m_data->m_dynamicsWorld->getDebugDrawer());
+            btSoftBodyHelpers::Draw(psb,m_data->m_dynamicsWorld->getDebugDrawer(),m_data->m_dynamicsWorld->getDrawFlags());
+        }
+    }
 }
 
 void    PhysicsServerCommandProcessor::physicsDebugDraw(int debugDrawFlags)
