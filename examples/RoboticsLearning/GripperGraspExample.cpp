@@ -401,7 +401,6 @@ public:
             }
         }
         
-        /*
         if ((m_options & eONE_MOTOR_GRASP)!=0)
         {
             int fingerJointIndices[2]={0,1};
@@ -417,9 +416,8 @@ public:
                 m_robotSim.setJointMotorControl(m_gripperIndex,fingerJointIndices[i],controlArgs);
             }
         }
-        */
         
-		//m_robotSim.stepSimulation();
+		m_robotSim.stepSimulation();
     }
     virtual void	renderScene()
     {
