@@ -1981,16 +1981,16 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                 btVector3 linkLocalInertialOrigin = body->m_linkLocalInertialFrames[l].getOrigin();
                 btQuaternion linkLocalInertialRotation = body->m_linkLocalInertialFrames[l].getRotation();
 
-                btVector3 linkOrigin =  mb->getLink(l).m_cachedWorldTransform.getOrigin();
-                btQuaternion linkRotation =  mb->getLink(l).m_cachedWorldTransform.getRotation();
+                btVector3 linkCOMOrigin =  mb->getLink(l).m_cachedWorldTransform.getOrigin();
+                btQuaternion linkCOMRotation =  mb->getLink(l).m_cachedWorldTransform.getRotation();
 
-                serverCmd.m_sendActualStateArgs.m_linkState[l*7+0] = linkOrigin.getX();
-                serverCmd.m_sendActualStateArgs.m_linkState[l*7+1] = linkOrigin.getY();
-                serverCmd.m_sendActualStateArgs.m_linkState[l*7+2] = linkOrigin.getZ();
-                serverCmd.m_sendActualStateArgs.m_linkState[l*7+3] = linkRotation.x();
-                serverCmd.m_sendActualStateArgs.m_linkState[l*7+4] = linkRotation.y();
-                serverCmd.m_sendActualStateArgs.m_linkState[l*7+5] = linkRotation.z();
-                serverCmd.m_sendActualStateArgs.m_linkState[l*7+6] = linkRotation.w();
+                serverCmd.m_sendActualStateArgs.m_linkState[l*7+0] = linkCOMOrigin.getX();
+                serverCmd.m_sendActualStateArgs.m_linkState[l*7+1] = linkCOMOrigin.getY();
+                serverCmd.m_sendActualStateArgs.m_linkState[l*7+2] = linkCOMOrigin.getZ();
+                serverCmd.m_sendActualStateArgs.m_linkState[l*7+3] = linkCOMRotation.x();
+                serverCmd.m_sendActualStateArgs.m_linkState[l*7+4] = linkCOMRotation.y();
+                serverCmd.m_sendActualStateArgs.m_linkState[l*7+5] = linkCOMRotation.z();
+                serverCmd.m_sendActualStateArgs.m_linkState[l*7+6] = linkCOMRotation.w();
 
                 serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+0] = linkLocalInertialOrigin.getX();
                 serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+1] = linkLocalInertialOrigin.getY();
@@ -2879,12 +2879,14 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                     }
 									ikHelperPtr->computeNullspaceVel(numDofs, &q_current[0], &lower_limit[0], &upper_limit[0], &joint_range[0], &rest_pose[0]);
                                 }
+                                
+                                btTransform endEffectorTransformWorld = bodyHandle->m_multiBody->getLink(endEffectorLinkIndex).m_cachedWorldTransform * bodyHandle->m_linkLocalInertialFrames[endEffectorLinkIndex].inverse();
                                
                                 btVector3DoubleData endEffectorWorldPosition;
                                 btVector3DoubleData endEffectorWorldOrientation;
                                 
-                                btVector3 endEffectorPosWorld =  bodyHandle->m_multiBody->getLink(endEffectorLinkIndex).m_cachedWorldTransform.getOrigin();
-                                btQuaternion endEffectorOriWorld = bodyHandle->m_multiBody->getLink(endEffectorLinkIndex).m_cachedWorldTransform.getRotation();
+                                btVector3 endEffectorPosWorld =  endEffectorTransformWorld.getOrigin();
+                                btQuaternion endEffectorOriWorld = endEffectorTransformWorld.getRotation();
                                 btVector4 endEffectorOri(endEffectorOriWorld.x(),endEffectorOriWorld.y(),endEffectorOriWorld.z(),endEffectorOriWorld.w());
                                 
                                 endEffectorPosWorld.serializeDouble(endEffectorWorldPosition);
