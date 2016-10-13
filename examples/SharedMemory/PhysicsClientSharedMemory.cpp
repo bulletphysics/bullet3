@@ -615,8 +615,17 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                     b3Warning("Contact Point Information Request failed");
                     break;
                 }
-            case CMD_CALCULATE_INVERSE_KINEMATICS_COMPLETED:
-                {
+
+			case CMD_SAVE_WORLD_COMPLETED:
+				break;
+					
+			case CMD_SAVE_WORLD_FAILED:
+			{
+				b3Warning("Saving world  failed");
+				break;
+			}
+			case CMD_CALCULATE_INVERSE_KINEMATICS_COMPLETED:
+			{
                     break;
                 }
             case CMD_CALCULATE_INVERSE_KINEMATICS_FAILED:
@@ -624,6 +633,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                     b3Warning("Calculate Inverse Kinematics Request failed");
                     break;
                 }
+
             default: {
                 b3Error("Unknown server status %d\n", serverCmd.m_type);
                 btAssert(0);

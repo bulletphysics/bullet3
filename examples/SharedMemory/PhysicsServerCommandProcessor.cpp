@@ -301,6 +301,12 @@ struct CommandLogPlayback
 	}
 };
 
+struct SaveWorldObjectData
+{
+	b3AlignedObjectArray<int> m_bodyUniqueIds;
+	std::string	m_fileName;
+};
+
 struct PhysicsServerCommandProcessorInternalData
 {
 	///handle management
@@ -410,7 +416,7 @@ struct PhysicsServerCommandProcessorInternalData
 	btAlignedObjectArray<btMultiBodyJointFeedback*> m_multiBodyJointFeedbacks;
 	btHashMap<btHashPtr, btInverseDynamics::MultiBodyTree*> m_inverseDynamicsBodies;
 	btHashMap<btHashPtr, IKTrajectoryHelper*> m_inverseKinematicsHelpers;
-
+	b3AlignedObjectArray<SaveWorldObjectData> m_saveWorldBodyData;
 
 
 	btAlignedObjectArray<btBulletWorldImporter*> m_worldImporters;
@@ -811,6 +817,9 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
         {
             b3Printf("loaded %s OK!", fileName);
         }
+		SaveWorldObjectData sd;
+		sd.m_fileName = fileName;
+
 
         for (int m =0; m<u2b.getNumModels();m++)
         {
@@ -824,6 +833,7 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
 
             InternalBodyHandle* bodyHandle = m_data->getHandle(bodyUniqueId);
 			
+			sd.m_bodyUniqueIds.push_back(bodyUniqueId);
 
             u2b.setBodyUniqueId(bodyUniqueId);
             {
@@ -854,6 +864,7 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
 			if (mb)
 				mb->setUserIndex2(bodyUniqueId);
 
+			
             if (mb)
             {
                 bodyHandle->m_multiBody = mb;
@@ -898,6 +909,9 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
 			}
 
         }
+		
+		m_data->m_saveWorldBodyData.push_back(sd);
+
     }
     return loadOk;
 }
@@ -929,6 +943,14 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 		int bodyUniqueId = m_data->allocHandle();
 		if (bodyUniqueIdPtr)
 			*bodyUniqueIdPtr= bodyUniqueId;
+
+		//quick prototype of 'save world' for crude world editing
+		{
+			SaveWorldObjectData sd;
+			sd.m_fileName = fileName;
+			sd.m_bodyUniqueIds.push_back(bodyUniqueId);
+			m_data->m_saveWorldBodyData.push_back(sd);
+		}
 
         u2b.setBodyUniqueId(bodyUniqueId);
 		InternalBodyHandle* bodyHandle = m_data->getHandle(bodyUniqueId);
@@ -1336,6 +1358,154 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                         hasStatus = true;
                         break;
                     }
+				case CMD_SAVE_WORLD:
+				{
+					///this is a very rudimentary way to save the state of the world, for scene authoring
+					///many todo's, for example save the state of motor controllers etc.
+
+					if (clientCmd.m_sdfArguments.m_sdfFileName)
+					{
+						//saveWorld(clientCmd.m_sdfArguments.m_sdfFileName);
+
+						FILE* f = fopen(clientCmd.m_sdfArguments.m_sdfFileName,"w");
+						if (f)
+						{
+							char line[1024];
+							{
+								sprintf(line,"import pybullet as p\n");
+								int len = strlen(line);
+								fwrite(line,len,1,f);
+							}
+							{
+								sprintf(line,"p.connect(p.SHARED_MEMORY)\n");
+								int len = strlen(line);
+								fwrite(line,len,1,f);
+							}
+							//for each objects ...
+							for (int i=0;i<m_data->m_saveWorldBodyData.size();i++)
+							{
+								SaveWorldObjectData& sd = m_data->m_saveWorldBodyData[i];
+
+								for (int i=0;i<sd.m_bodyUniqueIds.size();i++)
+								{
+									{
+										int bodyUniqueId = sd.m_bodyUniqueIds[i];
+										InteralBodyData* body = m_data->getHandle(bodyUniqueId);
+										if (body)
+										{
+											 if (body->m_multiBody)
+											 {
+												btMultiBody* mb = body->m_multiBody;
+												
+												btTransform comTr = mb->getBaseWorldTransform();
+												btTransform tr = comTr * body->m_rootLocalInertialFrame.inverse();
+												
+												if (strstr(sd.m_fileName.c_str(),".urdf"))
+												{
+													sprintf(line,"objects = [p.loadURDF(\"%s\", %f,%f,%f,%f,%f,%f,%f)]\n",sd.m_fileName.c_str(),
+														tr.getOrigin()[0],tr.getOrigin()[1],tr.getOrigin()[2],
+														tr.getRotation()[0],tr.getRotation()[1],tr.getRotation()[2],tr.getRotation()[3]);
+													int len = strlen(line);
+													fwrite(line,len,1,f);
+												}
+
+												if (strstr(sd.m_fileName.c_str(),".sdf") && i==0)
+												{
+													sprintf(line,"objects = p.loadSDF(\"%s\")\n",sd.m_fileName.c_str());
+													int len = strlen(line);
+													fwrite(line,len,1,f);
+												}
+
+												if (strstr(sd.m_fileName.c_str(),".sdf") || ((strstr(sd.m_fileName.c_str(),".urdf")) && mb->getNumLinks()) )
+												{
+													sprintf(line,"ob = objects[%d]\n",i);
+													int len = strlen(line);
+													fwrite(line,len,1,f);
+												}
+
+												if (strstr(sd.m_fileName.c_str(),".sdf"))
+												{
+													sprintf(line,"p.resetBasePositionAndOrientation(ob,[%f,%f,%f],[%f,%f,%f,%f])\n",
+														comTr.getOrigin()[0],comTr.getOrigin()[1],comTr.getOrigin()[2],
+														comTr.getRotation()[0],comTr.getRotation()[1],comTr.getRotation()[2],comTr.getRotation()[3]);
+													int len = strlen(line);
+													fwrite(line,len,1,f);
+												}
+
+												if (mb->getNumLinks())
+												{
+													{
+														sprintf(line,"jointPositions=[");
+														int len = strlen(line);
+														fwrite(line,len,1,f);
+													}
+
+													for (int i=0;i<mb->getNumLinks();i++)
+													{
+														btScalar jointPos = mb->getJointPosMultiDof(i)[0];
+														if (i<mb->getNumLinks()-1)
+														{
+															sprintf(line," %f,",jointPos);
+															int len = strlen(line);
+															fwrite(line,len,1,f);
+														} else
+														{
+															sprintf(line," %f ",jointPos);
+															int len = strlen(line);
+															fwrite(line,len,1,f);
+														}
+													}
+
+													{
+														sprintf(line,"]\nfor jointIndex in range (p.getNumJoints(ob)):\n\tp.resetJointState(ob,jointIndex,jointPositions[jointIndex])\n\n");
+														int len = strlen(line);
+														fwrite(line,len,1,f);
+													}
+												}
+											 } else
+											 {
+												 //todo: btRigidBody/btSoftBody etc case
+											 }
+										}
+									}
+									
+								}
+								
+								//for URDF, load at origin, then reposition...
+								
+
+								struct SaveWorldObjectData
+								{
+									b3AlignedObjectArray<int> m_bodyUniqueIds;
+									std::string	m_fileName;
+								};
+							}
+
+							{
+								btVector3 grav=this->m_data->m_dynamicsWorld->getGravity();
+								sprintf(line,"p.setGravity(%f,%f,%f)\n",grav[0],grav[1],grav[2]);
+								int len = strlen(line);
+								fwrite(line,len,1,f);
+							}
+														
+
+							{
+									sprintf(line,"p.stepSimulation()\np.disconnect()\n");
+									int len = strlen(line);
+									fwrite(line,len,1,f);
+							}
+							fclose(f);
+						}
+
+
+						serverStatusOut.m_type = CMD_SAVE_WORLD_COMPLETED;
+						hasStatus = true;
+						break;
+					}
+					serverStatusOut.m_type = CMD_SAVE_WORLD_FAILED;
+					hasStatus = true;
+					break;
+				}
                 case CMD_LOAD_SDF:
                     {
                         const SdfArgs& sdfArgs = clientCmd.m_sdfArguments;
