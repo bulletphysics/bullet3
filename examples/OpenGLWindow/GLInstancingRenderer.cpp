@@ -1465,7 +1465,9 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 #endif//OLD_SHADOWMAP_INIT
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+
 
 			float l_ClampColor[] = {1.0, 1.0, 1.0, 1.0};
 			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, l_ClampColor);

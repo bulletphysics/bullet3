@@ -615,7 +615,14 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                     b3Warning("Contact Point Information Request failed");
                     break;
                 }
-		
+			case CMD_SAVE_WORLD_COMPLETED:
+  				break;
+
+			case CMD_SAVE_WORLD_FAILED:
+				{
+					b3Warning("Saving world  failed");
+					break;
+				}
             default: {
                 b3Error("Unknown server status\n");
                 btAssert(0);

@@ -451,6 +451,12 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
                 b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
                 break;
             }
+		case CMD_SAVE_WORLD:
+		{
+                b3SharedMemoryCommandHandle commandHandle = b3SaveWorldCommandInit(m_physicsClientHandle, "saveWorld.py");
+                b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+			break;
+		}
         default:
         {
             b3Error("Unknown buttonId");
@@ -525,6 +531,7 @@ void	PhysicsClientExample::createButtons()
 
         createButton("Load URDF",CMD_LOAD_URDF,  isTrigger);
         createButton("Load SDF",CMD_LOAD_SDF,  isTrigger);
+		createButton("Save World",CMD_SAVE_WORLD,  isTrigger);
         createButton("Get Camera Image",CMD_REQUEST_CAMERA_IMAGE_DATA,isTrigger);
         createButton("Step Sim",CMD_STEP_FORWARD_SIMULATION,  isTrigger);
         createButton("Send Bullet Stream",CMD_SEND_BULLET_DATA_STREAM,  isTrigger);

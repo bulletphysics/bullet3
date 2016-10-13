@@ -30,7 +30,27 @@ b3SharedMemoryCommandHandle	b3LoadSdfCommandInit(b3PhysicsClientHandle physClien
 	return (b3SharedMemoryCommandHandle) command;
 }
 
-
+b3SharedMemoryCommandHandle	b3SaveWorldCommandInit(b3PhysicsClientHandle physClient, const char* sdfFileName)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+	command->m_type = CMD_SAVE_WORLD;
+	int len = strlen(sdfFileName);
+	if (len<MAX_SDF_FILENAME_LENGTH)
+	{
+		strcpy(command->m_sdfArguments.m_sdfFileName,sdfFileName);
+	} else
+	{
+		command->m_sdfArguments.m_sdfFileName[0] = 0;
+	}
+	command->m_updateFlags = SDF_ARGS_FILE_NAME;
+	
+	return (b3SharedMemoryCommandHandle) command;
+}
 
 b3SharedMemoryCommandHandle	b3LoadUrdfCommandInit(b3PhysicsClientHandle physClient, const char* urdfFileName)
 {
