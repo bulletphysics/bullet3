@@ -6,7 +6,7 @@
 #include "../RenderingExamples/CoordinateSystemDemo.h"
 #include "../RenderingExamples/RaytracerSetup.h"
 #include "../RenderingExamples/TinyRendererSetup.h"
-
+#include "../RenderingExamples/DynamicTexturedCubeDemo.h"
 #include "../ForkLift/ForkLiftDemo.h"
 #include "../BasicDemo/BasicExample.h"
 #include "../Planar2D/Planar2D.h"
@@ -290,6 +290,9 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"CoordinateSystemDemo","Show the axis and positive rotation direction around the axis.", CoordinateSystemCreateFunc),
 	ExampleEntry(1,"Time Series", "Render some value(s) in a 2D graph window, shifting to the left", TimeSeriesCreateFunc),
 	ExampleEntry(1,"TinyRenderer", "Very small software renderer.", TinyRendererCreateFunc),
+	ExampleEntry(1,"Dynamic Texture", "Dynamic updated textured applied to a cube.", DynamicTexturedCubeDemoCreateFunc),
+
+		
 
 	//Extended Tutorials Added by Mobeen
 	ExampleEntry(0,"Extended Tutorials"),

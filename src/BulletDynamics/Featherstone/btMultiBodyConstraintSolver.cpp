@@ -1118,7 +1118,7 @@ static void applyJointFeedback(btMultiBodyJacobianData& data, const btMultiBodyS
 }
 #endif
 
-#include "Bullet3Common/b3Logging.h"
+
 void btMultiBodyConstraintSolver::writeBackSolverBodyToMultiBody(btMultiBodySolverConstraint& c, btScalar deltaTime)
 {
 #if 1 

@@ -289,18 +289,25 @@ void OpenGLGuiHelper::syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWor
 		return;
 
 	int numCollisionObjects = rbWorld->getNumCollisionObjects();
-	for (int i = 0; i<numCollisionObjects; i++)
 	{
-		btCollisionObject* colObj = rbWorld->getCollisionObjectArray()[i];
-		btVector3 pos = colObj->getWorldTransform().getOrigin();
-		btQuaternion orn = colObj->getWorldTransform().getRotation();
-		int index = colObj->getUserIndex();
-		if (index >= 0)
+		B3_PROFILE("write all InstanceTransformToCPU");
+		for (int i = 0; i<numCollisionObjects; i++)
 		{
-			m_data->m_glApp->m_renderer->writeSingleInstanceTransformToCPU(pos, orn, index);
+			B3_PROFILE("writeSingleInstanceTransformToCPU");
+			btCollisionObject* colObj = rbWorld->getCollisionObjectArray()[i];
+			btVector3 pos = colObj->getWorldTransform().getOrigin();
+			btQuaternion orn = colObj->getWorldTransform().getRotation();
+			int index = colObj->getUserIndex();
+			if (index >= 0)
+			{
+				m_data->m_glApp->m_renderer->writeSingleInstanceTransformToCPU(pos, orn, index);
+			}
 		}
 	}
-	m_data->m_glApp->m_renderer->writeTransforms();
+	{
+		B3_PROFILE("writeTransforms");
+		m_data->m_glApp->m_renderer->writeTransforms();
+	}
 }
 
 

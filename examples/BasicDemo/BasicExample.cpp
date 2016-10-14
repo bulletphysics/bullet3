@@ -14,7 +14,6 @@ subject to the following restrictions:
 */
 
 
-
 #include "BasicExample.h"
 
 #include "btBulletDynamicsCommon.h"
