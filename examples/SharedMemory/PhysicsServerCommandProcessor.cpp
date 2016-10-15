@@ -27,6 +27,7 @@
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "SharedMemoryCommands.h"
 
+
 //@todo(erwincoumans) those globals are hacks for a VR demo, move this to Python/pybullet!
 btVector3 gLastPickPos(0, 0, 0);
 bool gCloseToKuka=false;
@@ -403,6 +404,8 @@ struct PhysicsServerCommandProcessorInternalData
 	btMultiBody* m_kukaGripperMultiBody;
 	btMultiBodyPoint2Point* m_kukaGripperRevolute1;
 	btMultiBodyPoint2Point* m_kukaGripperRevolute2;
+	
+
 	int m_huskyId;
 	int m_KukaId;
 	int m_sphereId;
@@ -457,6 +460,10 @@ struct PhysicsServerCommandProcessorInternalData
 		:m_hasGround(false),
 		m_gripperRigidbodyFixed(0),
 		m_gripperMultiBody(0),
+		m_kukaGripperFixed(0),
+		m_kukaGripperMultiBody(0),
+		m_kukaGripperRevolute1(0),
+		m_kukaGripperRevolute2(0),
 		m_allowRealTimeSimulation(false),
 		m_huskyId(-1),
 		m_KukaId(-1),
@@ -1363,7 +1370,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					///this is a very rudimentary way to save the state of the world, for scene authoring
 					///many todo's, for example save the state of motor controllers etc.
 
-					if (clientCmd.m_sdfArguments.m_sdfFileName)
+					
 					{
 						//saveWorld(clientCmd.m_sdfArguments.m_sdfFileName);
 
@@ -3128,6 +3135,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 		gBufferServerToClient.resize(SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
 		int bodyId = 0;
 
+		
 		if (gCreateObjectSimVR >= 0)
 		{
 			gCreateObjectSimVR = -1;
@@ -3317,7 +3325,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 				//loadUrdf("rook.urdf", btVector3(-1.2, 0, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 				//loadUrdf("knight.urdf", btVector3(-1.2, 0.2, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 
-				loadUrdf("husky/husky.urdf", btVector3(2, -5, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+				//loadUrdf("husky/husky.urdf", btVector3(2, -5, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 				m_data->m_huskyId = bodyId;
 
 				m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, -10));

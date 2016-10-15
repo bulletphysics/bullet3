@@ -36,11 +36,9 @@ void main(void)
 		
 	//float bias = 0.005f;
 	
-	float bias = 0.0001*tan(acos(intensity));
-	bias = clamp(bias, 0,0.01);
+	
 
-
-	float visibility = texture(shadowMap, vec3(ShadowCoord.xy,(ShadowCoord.z-bias)/ShadowCoord.w));
+	float visibility = texture(shadowMap, vec3(ShadowCoord.xy,(ShadowCoord.z)/ShadowCoord.w));
 	
 	intensity = 0.7*intensity  + 0.3*intensity*visibility;
 	

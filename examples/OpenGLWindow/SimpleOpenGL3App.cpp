@@ -173,6 +173,7 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height, boo
     b3Assert(glGetError() ==GL_NO_ERROR);
 
 	m_instancingRenderer = new GLInstancingRenderer(128*1024,128*1024*1024);
+
     m_primRenderer = new GLPrimitiveRenderer(width,height);
     
     m_renderer = m_instancingRenderer ;
