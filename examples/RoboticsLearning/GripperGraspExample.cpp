@@ -231,7 +231,6 @@ public:
                 slider.m_maxVal=1;
                 m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
             }
-            if (1)
             {
                 b3RobotSimLoadFileArgs args("");
                 b3RobotSimLoadFileResults results;
@@ -241,7 +240,6 @@ public:
                 args.m_useMultiBody = true;
                 m_robotSim.loadFile(args, results);
             }
-            if (1)
             {
                 b3RobotSimLoadFileArgs args("");
                 args.m_fileName = "gripper/wsg50_one_motor_gripper_new.sdf";

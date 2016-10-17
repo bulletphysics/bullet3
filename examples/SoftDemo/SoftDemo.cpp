@@ -1017,9 +1017,9 @@ static void	Init_Bunny(SoftDemo* pdemo)
 	psb->m_cfg.kDF			=	0.5;
 	psb->randomizeConstraints();
 	psb->scale(btVector3(6,6,6));
-	psb->setTotalMass(1,true);	
+	psb->setTotalMass(100,true);
 	pdemo->getSoftDynamicsWorld()->addSoftBody(psb);
-	//pdemo->m_cutting=true;
+	pdemo->m_cutting=true;
 
 }
 
@@ -2097,7 +2097,6 @@ void	SoftDemo::initPhysics()
 	motorcontrol.maxtorque = 0;
 
 	btCollisionShape* groundShape = 0;
-    if (0)
 	{
 		int i;
 		int j;
@@ -2152,12 +2151,11 @@ void	SoftDemo::initPhysics()
 		groundShape->setMargin(0.5);
 	}
 
-	//m_collisionShapes.push_back(groundShape);
+	m_collisionShapes.push_back(groundShape);
 
 	btCollisionShape* groundBox = new btBoxShape (btVector3(100,CUBE_HALF_EXTENTS,100));
 	m_collisionShapes.push_back(groundBox);
 
-    /*
 	btCompoundShape* cylinderCompound = new btCompoundShape;
 	btCollisionShape* cylinderShape = new btCylinderShape (btVector3(CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS,CUBE_HALF_EXTENTS));
 	btTransform localTransform;
@@ -2168,7 +2166,6 @@ void	SoftDemo::initPhysics()
 	cylinderCompound->addChildShape(localTransform,cylinderShape);
 
 	m_collisionShapes.push_back(cylinderCompound);
-    */
 
 	m_dispatcher=0;
 
@@ -2214,7 +2211,7 @@ void	SoftDemo::initPhysics()
 	if( g_softBodyOutput )
 		delete g_softBodyOutput;
 
-	if (0)
+	if (1)
 	{
 		g_openCLSIMDSolver = new btOpenCLSoftBodySolverSIMDAware( g_cqCommandQue, g_cxMainContext);
 	//	g_openCLSIMDSolver = new btOpenCLSoftBodySolver( g_cqCommandQue, g_cxMainContext);
@@ -2223,7 +2220,7 @@ void	SoftDemo::initPhysics()
 
 
 
-	//softBodySolver = g_openCLSIMDSolver;
+	softBodySolver = g_openCLSIMDSolver;
 	g_softBodyOutput = new btSoftBodySolverOutputCLtoCPU;
 #endif //USE_AMD_OPENCL
 
@@ -2262,7 +2259,7 @@ void	SoftDemo::initPhysics()
 		newOb->setCollisionShape(m_collisionShapes[0]);
 	} else
 	{
-		newOb->setCollisionShape(m_collisionShapes[0]);
+		newOb->setCollisionShape(m_collisionShapes[1]);
 	}
 
 	m_dynamicsWorld->addCollisionObject(newOb);
@@ -2289,7 +2286,7 @@ void	SoftDemo::initPhysics()
 
 	m_autocam						=	false;
 	m_raycast						=	false;
-	//m_cutting						=	false;
+	m_cutting						=	false;
 	m_results.fraction				=	1.f;
 	
 	demofncs[current_demo](this);
