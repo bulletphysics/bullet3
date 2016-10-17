@@ -10,7 +10,7 @@ ADD_DEFINITIONS(-DUSE_GTEST)
 ADD_DEFINITIONS(-D_VARIADIC_MAX=10)
 
 LINK_LIBRARIES(
- BulletDynamics BulletCollision LinearMath gtest
+ BulletDynamics BulletCollision LinearMath gtest BulletSoftBody
 )
 
 IF (NOT WIN32)
