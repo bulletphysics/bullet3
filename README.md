@@ -2,10 +2,11 @@
 [![Travis Build Status](https://api.travis-ci.org/bulletphysics/bullet3.png?branch=master)](https://travis-ci.org/bulletphysics/bullet3)
 [![Appveyor Build status](https://ci.appveyor.com/api/projects/status/6sly9uxajr6xsstq)](https://ci.appveyor.com/project/erwincoumans/bullet3)
 
-# Bullet 2.x including pybullet, Virtual Reality support
+# Bullet Physics SDK
 
-This is the official repository of Bullet 2.x, moved from http://bullet.googlecode.com
-It includes the optional experimental Bullet 3 GPU pipeline.
+This is the official C++ source code repository of the Bullet Physics SDK: real-time collision detection and multi-physics simulation for games, visual effects, robotics etc.
+
+New in Bullet 2.85: pybullet Python bindings, improved support for robotics and VR
 
 The Bullet 2 API will stay default and up-to-date while slowly moving to a new API.
 The steps towards a new API is in a nutshell:
@@ -28,9 +29,9 @@ Some optional demos require OpenGL 2 or OpenGL 3, there are some non-graphical d
 
 https://docs.google.com/document/d/1u9vyzPtrVoVhYqQOGNWUgjRbfwfCdIts_NzmvgiJ144/edit
 
-## Requirements for Bullet 3
+## Requirements for experimental OpenCL GPGPU support
 
-The entire collision detection and rigid body dynamics is executed on the GPU.
+The entire collision detection and rigid body dynamics can be executed on the GPU.
 
 A high-end desktop GPU, such as an AMD Radeon 7970 or NVIDIA GTX 680 or better.
 We succesfully tested the software under Windows, Linux and Mac OSX.
@@ -103,4 +104,4 @@ You can just run it though a terminal/command prompt, or by clicking it.
 You can use mouse picking to grab objects. When holding the ALT or CONTROL key, you have Maya style camera mouse controls.
 Press F1 to create a series of screenshots. Hit ESCAPE to exit the demo app.
 
-See docs folder for further information.
+Check out the docs folder and the Bullet physics forums for further information.

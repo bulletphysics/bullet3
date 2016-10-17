@@ -12,6 +12,12 @@
 #include "Bullet3Common/b3Matrix3x3.h"
 #include "../Utils/b3Clock.h"
 #include "../MultiThreading/b3ThreadSupportInterface.h"
+#ifdef BT_ENABLE_VR
+#include "../RenderingExamples/TinyVRGui.h"
+#endif//BT_ENABLE_VR
+
+
+#include "../CommonInterfaces/CommonParameterInterface.h"
 
 #define MAX_VR_CONTROLLERS 8
 
@@ -546,6 +552,10 @@ class PhysicsServerExample : public SharedMemoryCommon
 	bool m_replay;
 	int m_options;
 	
+#ifdef BT_ENABLE_VR
+	TinyVRGui* m_tinyVrGui;
+#endif
+
 public:
 
 	PhysicsServerExample(MultiThreadedOpenGLGuiHelper* helper, SharedMemoryInterface* sharedMem=0, int options=0);
@@ -677,6 +687,9 @@ m_wantsShutdown(false),
 m_isConnected(false),
 m_replay(false),
 m_options(options)
+#ifdef BT_ENABLE_VR
+,m_tinyVrGui(0)
+#endif
 {
 	m_multiThreadedHelper = helper;
 	b3Printf("Started PhysicsServer\n");
@@ -686,6 +699,9 @@ m_options(options)
 
 PhysicsServerExample::~PhysicsServerExample()
 {
+#ifdef BT_ENABLE_VR
+	delete m_tinyVrGui;
+#endif
 	bool deInitializeSharedMemory = true;
 	m_physicsServer.disconnectSharedMemory(deInitializeSharedMemory);
     m_isConnected = false;
@@ -942,7 +958,73 @@ extern double gSubStep;
 void PhysicsServerExample::renderScene()
 {
 	B3_PROFILE("PhysicsServerExample::RenderScene");
+	static char line0[1024];
+		static char line1[1024];
 
+	if (gEnableRealTimeSimVR)
+	{
+		
+		static int frameCount=0;
+		static btScalar prevTime = m_clock.getTimeSeconds();
+		frameCount++;
+		
+		static btScalar worseFps = 1000000;
+		int numFrames = 200;
+		static int count = 0;
+		count++;
+
+		if (0 == (count & 1))
+		{
+			btScalar curTime = m_clock.getTimeSeconds();
+			btScalar fps = 1. / (curTime - prevTime);
+			prevTime = curTime;
+			if (fps < worseFps)
+			{
+				worseFps = fps;
+			}
+
+			if (count > numFrames)
+			{
+				count = 0;
+				sprintf(line0, "fps:%f frame:%d", worseFps, frameCount / 2);
+				sprintf(line1, "drop:%d tscale:%f dt:%f, substep %f)", gDroppedSimulationSteps, simTimeScalingFactor,gDtInSec, gSubStep);
+				gDroppedSimulationSteps = 0;
+
+				worseFps = 1000000;
+			}
+		}
+
+#ifdef BT_ENABLE_VR
+		if (m_tinyVrGui==0)
+		{
+			ComboBoxParams comboParams;
+        comboParams.m_comboboxId = 0;
+        comboParams.m_numItems = 0;
+        comboParams.m_startItem = 0;
+        comboParams.m_callback = 0;//MyComboBoxCallback;
+        comboParams.m_userPointer = 0;//this;
+        
+			m_tinyVrGui = new TinyVRGui(comboParams,this->m_multiThreadedHelper->m_childGuiHelper->getRenderInterface());
+			m_tinyVrGui->init();
+		}
+
+		if (m_tinyVrGui)
+		{
+
+			b3Transform tr;tr.setIdentity();
+			tr.setOrigin(b3MakeVector3(gVRController2Pos[0],gVRController2Pos[1],gVRController2Pos[2]));
+			tr.setRotation(b3Quaternion(gVRController2Orn[0],gVRController2Orn[1],gVRController2Orn[2],gVRController2Orn[3]));
+			tr = tr*b3Transform(b3Quaternion(0,0,-SIMD_HALF_PI),b3MakeVector3(0,0,0));
+			b3Scalar dt = 0.01;
+			m_tinyVrGui->clearTextArea();
+			
+			m_tinyVrGui->grapicalPrintf(line0,0,0,0,0,0,255);
+			m_tinyVrGui->grapicalPrintf(line1,0,16,255,255,255,255);
+
+			m_tinyVrGui->tick(dt,tr);
+		}
+#endif//BT_ENABLE_VR
+	}
 	///debug rendering
 	//m_args[0].m_cs->lock();
 	
@@ -993,38 +1075,6 @@ void PhysicsServerExample::renderScene()
 		B3_PROFILE("Draw Debug HUD");
 		//some little experiment to add text/HUD to a VR camera (HTC Vive/Oculus Rift)
 
-		static int frameCount=0;
-		static btScalar prevTime = m_clock.getTimeSeconds();
-		frameCount++;
-		static char line0[1024];
-		static char line1[1024];
-
-		static btScalar worseFps = 1000000;
-		int numFrames = 200;
-		static int count = 0;
-		count++;
-
-		if (0 == (count & 1))
-		{
-			btScalar curTime = m_clock.getTimeSeconds();
-			btScalar fps = 1. / (curTime - prevTime);
-			prevTime = curTime;
-			if (fps < worseFps)
-			{
-				worseFps = fps;
-			}
-
-			if (count > numFrames)
-			{
-				count = 0;
-				sprintf(line0, "Graphics FPS (worse) = %f, frame %d", worseFps, frameCount / 2);
-
-				sprintf(line1, "Physics Steps = %d, Drop = %d, time scale=%f, dt %f, Substep %f)", gNumSteps, gDroppedSimulationSteps, simTimeScalingFactor,gDtInSec, gSubStep);
-				gDroppedSimulationSteps = 0;
-
-				worseFps = 1000000;
-			}
-		}
 
 		float pos[4];
 		m_guiHelper->getAppInterface()->m_renderer->getActiveCamera()->getCameraTargetPosition(pos);

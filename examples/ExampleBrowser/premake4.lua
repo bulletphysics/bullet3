@@ -54,7 +54,6 @@ project "App_BulletExampleBrowser"
 		"../TinyRenderer/tgaimage.cpp",
 		"../TinyRenderer/our_gl.cpp",
 		"../TinyRenderer/TinyRenderer.cpp",
-		"../RenderingExamples/TinyRendererSetup.cpp",
 		"../SharedMemory/IKTrajectoryHelper.cpp",
 		"../SharedMemory/IKTrajectoryHelper.h",
 		"../SharedMemory/PhysicsClientC_API.cpp",

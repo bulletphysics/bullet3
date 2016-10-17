@@ -107,7 +107,7 @@ static GLuint BindFont(const CTexFont *_Font)
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
 
     return TexID;
@@ -173,6 +173,7 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height, boo
     b3Assert(glGetError() ==GL_NO_ERROR);
 
 	m_instancingRenderer = new GLInstancingRenderer(128*1024,128*1024*1024);
+
     m_primRenderer = new GLPrimitiveRenderer(width,height);
     
     m_renderer = m_instancingRenderer ;
@@ -830,7 +831,7 @@ void SimpleOpenGL3App::dumpNextFrameToPng(const char* filename)
                          , 0,GL_RGBA, GL_FLOAT, 0);
 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
             //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 

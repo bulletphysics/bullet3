@@ -112,6 +112,48 @@ static PyObject* pybullet_disconnectPhysicsServer(PyObject* self,
   return Py_None;
 }
 
+static PyObject* pybullet_saveWorld(PyObject* self, PyObject* args) {
+	int size = PySequence_Size(args);
+	const char* worldFileName = "";
+
+	if (0 == sm) {
+    PyErr_SetString(SpamError, "Not connected to physics server.");
+    return NULL;
+  }
+
+   if (size == 1) {
+    if (!PyArg_ParseTuple(args, "s", &worldFileName))
+	{
+		return NULL;
+	}
+	else
+	{
+		b3SharedMemoryCommandHandle	command;
+		b3SharedMemoryStatusHandle statusHandle;
+		int statusType;
+
+		command = b3SaveWorldCommandInit(sm, worldFileName);
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+		statusType = b3GetStatusType(statusHandle);
+		if (statusType != CMD_SAVE_WORLD_COMPLETED) {
+			PyErr_SetString(SpamError, "saveWorld command execution failed.");
+			return NULL;
+		}
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+  }
+
+
+     
+	PyErr_SetString(SpamError, "Cannot execute saveWorld command.");
+	return NULL;
+    
+    return NULL;
+}
+
+
+
 // Load a URDF file indicating the links and joints of an object
 // function can be called without arguments and will default
 // to position (0,0,1) with orientation(0,0,0,1)
@@ -2081,6 +2123,10 @@ static PyMethodDef SpamMethods[] = {
 
     {"loadSDF", pybullet_loadSDF, METH_VARARGS,
      "Load multibodies from an SDF file."},
+
+	{"saveWorld", pybullet_saveWorld, METH_VARARGS,
+     "Save an approximate Python file to reproduce the current state of the world: saveWorld"
+	"(filename). (very preliminary and approximately)"},
 
 	{"getNumBodies", pybullet_getNumBodies, METH_VARARGS,
      "Get the number of bodies in the simulation."},

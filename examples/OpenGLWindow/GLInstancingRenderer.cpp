@@ -413,17 +413,32 @@ void GLInstancingRenderer::writeSingleInstanceTransformToGPU(float* position, fl
 void GLInstancingRenderer::writeTransforms()
 {
 
-	b3Assert(glGetError() ==GL_NO_ERROR);
+	{
+		B3_PROFILE("b3Assert(glGetError() 1");
+		b3Assert(glGetError() ==GL_NO_ERROR);
+	}
+	{
+		B3_PROFILE("glBindBuffer");
+		glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
+	}
 
+	{
+		B3_PROFILE("glFlush()");
+		//without the flush, the glBufferSubData can spike to really slow (seconds slow)
+		glFlush();
+	}
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
-	//glFlush();
-
-	b3Assert(glGetError() ==GL_NO_ERROR);
+	{
+		B3_PROFILE("b3Assert(glGetError() 2");
+		b3Assert(glGetError() ==GL_NO_ERROR);
+	}
 	
 
 #ifdef B3_DEBUG
 	{
+		
+		//B3_PROFILE("m_data->m_totalNumInstances == totalNumInstances");
+
 		int totalNumInstances= 0;
 		for (int k=0;k<m_graphicsInstances.size();k++)
 		{
@@ -440,14 +455,29 @@ void GLInstancingRenderer::writeTransforms()
 //	int SCALE_BUFFER_SIZE = (totalNumInstances*sizeof(float)*3);
 
 #if 1
+	{
+	//	printf("m_data->m_totalNumInstances = %d\n", m_data->m_totalNumInstances);
+		{
+		B3_PROFILE("glBufferSubData pos");
 	glBufferSubData(	GL_ARRAY_BUFFER,m_data->m_maxShapeCapacityInBytes,m_data->m_totalNumInstances*sizeof(float)*4,
  						&m_data->m_instance_positions_ptr[0]);
+		}
+		{
+			B3_PROFILE("glBufferSubData orn");
 	glBufferSubData(	GL_ARRAY_BUFFER,m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE,m_data->m_totalNumInstances*sizeof(float)*4,
  						&m_data->m_instance_quaternion_ptr[0]);
+		}
+		{
+			B3_PROFILE("glBufferSubData color");
 	glBufferSubData(	GL_ARRAY_BUFFER,m_data->m_maxShapeCapacityInBytes+ POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE, m_data->m_totalNumInstances*sizeof(float)*4,
  						&m_data->m_instance_colors_ptr[0]);
+		}
+		{
+			B3_PROFILE("glBufferSubData scale");
 	glBufferSubData(	GL_ARRAY_BUFFER, m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE+COLOR_BUFFER_SIZE,m_data->m_totalNumInstances*sizeof(float)*3,
 					 	&m_data->m_instance_scale_ptr[0]);
+		}
+	}
 #else
 
 	char* orgBase =  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_READ_WRITE);
@@ -517,9 +547,15 @@ void GLInstancingRenderer::writeTransforms()
 
 #endif
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);//m_data->m_vbo);
+	{
+		B3_PROFILE("glBindBuffer 2");
+		glBindBuffer(GL_ARRAY_BUFFER, 0);//m_data->m_vbo);
+	}
 
-    b3Assert(glGetError() ==GL_NO_ERROR);
+	{
+			B3_PROFILE("b3Assert(glGetError() 4");
+		b3Assert(glGetError() ==GL_NO_ERROR);
+	}
 
 }
 
@@ -686,9 +722,13 @@ int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, 
 
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
-	char* dest=  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_WRITE_ONLY);//GL_WRITE_ONLY
 	int vertexStrideInBytes = 9*sizeof(float);
 	int sz = numvertices*vertexStrideInBytes;
+#if 0
+
+	char* dest=  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_WRITE_ONLY);//GL_WRITE_ONLY
+	
+	
 #ifdef B3_DEBUG
 	int totalUsed = vertexStrideInBytes*gfxObj->m_vertexArrayOffset+sz;
 	b3Assert(totalUsed<m_data->m_maxShapeCapacityInBytes);
@@ -696,6 +736,10 @@ int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, 
 
 	memcpy(dest+vertexStrideInBytes*gfxObj->m_vertexArrayOffset,vertices,sz);
 	glUnmapBuffer( GL_ARRAY_BUFFER);
+#else
+	glBufferSubData(	GL_ARRAY_BUFFER,vertexStrideInBytes*gfxObj->m_vertexArrayOffset,sz,
+ 						vertices);
+#endif
 
 	glGenBuffers(1, &gfxObj->m_index_vbo);
 
@@ -1466,6 +1510,8 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+
 
 			float l_ClampColor[] = {1.0, 1.0, 1.0, 1.0};
 			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, l_ClampColor);

@@ -131,7 +131,7 @@ SET(BulletExampleBrowser_SRCS
 	../SharedMemory/TinyRendererVisualShapeConverter.h
 	../SharedMemory/IKTrajectoryHelper.cpp
 	../SharedMemory/IKTrajectoryHelper.h
-	../RenderingExamples/TinyRendererSetup.cpp
+	
 	../SharedMemory/PhysicsServer.cpp
 	../SharedMemory/PhysicsClientSharedMemory.cpp
 	../SharedMemory/PhysicsClient.cpp
@@ -208,10 +208,16 @@ SET(BulletExampleBrowser_SRCS
 	../MultiThreading/b3PosixThreadSupport.cpp
 	../MultiThreading/b3Win32ThreadSupport.cpp
 	../MultiThreading/b3ThreadSupportInterface.cpp
+	../RenderingExamples/TinyRendererSetup.cpp
 	../RenderingExamples/TimeSeriesCanvas.cpp
 	../RenderingExamples/TimeSeriesCanvas.h
 	../RenderingExamples/TimeSeriesFontData.cpp
 	../RenderingExamples/TimeSeriesFontData.h
+	../RenderingExamples/DynamicTexturedCubeDemo.cpp
+	../RenderingExamples/DynamicTexturedCubeDemo.h
+	../RenderingExamples/TinyVRGui.cpp
+	../RenderingExamples/TinyVRGui.h
+	
 	../RoboticsLearning/GripperGraspExample.cpp
 	../RoboticsLearning/GripperGraspExample.h
 	../RoboticsLearning/b3RobotSimAPI.cpp

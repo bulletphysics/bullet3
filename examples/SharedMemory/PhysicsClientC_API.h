@@ -146,6 +146,9 @@ int b3GetStatusInverseKinematicsJointPositions(b3SharedMemoryStatusHandle status
 b3SharedMemoryCommandHandle	b3LoadSdfCommandInit(b3PhysicsClientHandle physClient, const char* sdfFileName);
 int	b3LoadSdfCommandSetUseMultiBody(b3SharedMemoryCommandHandle commandHandle, int useMultiBody);
 
+b3SharedMemoryCommandHandle	b3SaveWorldCommandInit(b3PhysicsClientHandle physClient, const char* sdfFileName);
+
+
 ///The b3JointControlCommandInit method is obsolete, use b3JointControlCommandInit2 instead
 b3SharedMemoryCommandHandle  b3JointControlCommandInit(b3PhysicsClientHandle physClient, int controlMode);
 
