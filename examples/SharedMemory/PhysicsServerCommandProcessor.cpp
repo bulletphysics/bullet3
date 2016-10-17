@@ -601,64 +601,28 @@ PhysicsServerCommandProcessor::~PhysicsServerCommandProcessor()
 
 void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 {
-	///collision configuration contains default setup for memory, collision setup
-	//m_data->m_collisionConfiguration = new btDefaultCollisionConfiguration();
-	//m_collisionConfiguration->setConvexConvexMultipointIterations();
+    ///collision configuration contains default setup for memory, collision setup
+    //m_data->m_collisionConfiguration = new btDefaultCollisionConfiguration();
+    //m_collisionConfiguration->setConvexConvexMultipointIterations();
     m_data->m_collisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
-
-	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
-	m_data->m_dispatcher = new	btCollisionDispatcher(m_data->m_collisionConfiguration);
+    ///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+    m_data->m_dispatcher = new	btCollisionDispatcher(m_data->m_collisionConfiguration);
     
-    m_data->m_softBodyWorldInfo.m_dispatcher = m_data->m_dispatcher;
-
-	//m_data->m_broadphase = new btDbvtBroadphase();
-    btVector3 worldAabbMin(-1000,-1000,-1000);
-    btVector3 worldAabbMax(1000,1000,1000);
-    int maxProxies = 32766;
-    m_data->m_broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax,maxProxies);
-
-	m_data->m_solver = new btMultiBodyConstraintSolver;
+    m_data->m_broadphase = new btDbvtBroadphase();
     
-    m_data->m_softbodySolver = 0;
-
-	m_data->m_dynamicsWorld = new btSoftMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration, m_data->m_softbodySolver);
-
-	//Workaround: in a VR application, where we avoid synchronizaing between GFX/Physics threads, we don't want to resize this array, so pre-allocate it
-	m_data->m_dynamicsWorld->getCollisionObjectArray().reserve(8192);
-
-	m_data->m_remoteDebugDrawer = new SharedMemoryDebugDrawer();
-
-
-	m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, -10));
-	m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = 0.08;
+    m_data->m_solver = new btMultiBodyConstraintSolver;
     
-    m_data->m_softBodyWorldInfo.air_density		=	(btScalar)1.2;
-    m_data->m_softBodyWorldInfo.water_density	=	0;
-    m_data->m_softBodyWorldInfo.water_offset		=	0;
-    m_data->m_softBodyWorldInfo.water_normal		=	btVector3(0,0,0);
-    m_data->m_softBodyWorldInfo.m_gravity.setValue(0,0,-10);
-
-    m_data->m_softBodyWorldInfo.m_broadphase = m_data->m_broadphase;
-    m_data->m_softBodyWorldInfo.m_sparsesdf.Initialize();
+    m_data->m_dynamicsWorld = new btSoftMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
     
-    btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(m_data->m_softBodyWorldInfo,gVerticesBunny,
-                                                         &gIndicesBunny[0][0],
-                                                         BUNNY_NUM_TRIANGLES);
-    btSoftBody::Material*	pm=psb->appendMaterial();
-    pm->m_kLST				=	1.0
-    ;
-    pm->m_flags				-=	btSoftBody::fMaterial::DebugDraw;
-    psb->generateBendingConstraints(2,pm);
-    psb->m_cfg.piterations	=	2;
-    psb->m_cfg.kDF			=	0.5;
-    psb->randomizeConstraints();
-    psb->rotate(btQuaternion(0.70711,0,0,0.70711));
-    psb->translate(btVector3(0,0,3.0));
-    psb->scale(btVector3(0.1,0.1,0.1));
-    psb->setTotalMass(1,true);
-    psb->getCollisionShape()->setMargin(0.01);
-    m_data->m_dynamicsWorld->addSoftBody(psb);
-
+    //Workaround: in a VR application, where we avoid synchronizaing between GFX/Physics threads, we don't want to resize this array, so pre-allocate it
+    m_data->m_dynamicsWorld->getCollisionObjectArray().reserve(8192);
+    
+    m_data->m_remoteDebugDrawer = new SharedMemoryDebugDrawer();
+    
+    
+    m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
+    m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = 0.08;
+    
 }
 
 void PhysicsServerCommandProcessor::deleteCachedInverseDynamicsBodies()
@@ -1463,6 +1427,35 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 
 
+
+                    break;
+                }
+                case CMD_LOAD_BUNNY:
+                {
+                    m_data->m_softBodyWorldInfo.air_density		=	(btScalar)1.2;
+                    m_data->m_softBodyWorldInfo.water_density	=	0;
+                    m_data->m_softBodyWorldInfo.water_offset	=	0;
+                    m_data->m_softBodyWorldInfo.water_normal	=	btVector3(0,0,0);
+                    m_data->m_softBodyWorldInfo.m_gravity.setValue(0,0,-10);
+                    m_data->m_softBodyWorldInfo.m_broadphase = m_data->m_broadphase;
+                    m_data->m_softBodyWorldInfo.m_sparsesdf.Initialize();
+                    
+                    btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(m_data->m_softBodyWorldInfo,gVerticesBunny,                                                       &gIndicesBunny[0][0],                                                         BUNNY_NUM_TRIANGLES);
+                    
+                    btSoftBody::Material*	pm=psb->appendMaterial();
+                    pm->m_kLST				=	1.0;
+                    pm->m_flags				-=	btSoftBody::fMaterial::DebugDraw;
+                    psb->generateBendingConstraints(2,pm);
+                    psb->m_cfg.piterations	=	2;
+                    psb->m_cfg.kDF			=	0.5;
+                    psb->randomizeConstraints();
+                    psb->rotate(btQuaternion(0.70711,0,0,0.70711));
+                    psb->translate(btVector3(0,0,3.0));
+                    psb->scale(btVector3(0.1,0.1,0.1));
+                    psb->setTotalMass(1,true);
+                    psb->getCollisionShape()->setMargin(0.01);
+                    
+                    m_data->m_dynamicsWorld->addSoftBody(psb);
 
                     break;
                 }
@@ -2813,7 +2806,7 @@ void PhysicsServerCommandProcessor::renderScene()
         btSoftBody*	psb=(btSoftBody*)m_data->m_dynamicsWorld->getSoftBodyArray()[i];
         if (m_data->m_dynamicsWorld->getDebugDrawer() && !(m_data->m_dynamicsWorld->getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe)))
         {
-            btSoftBodyHelpers::DrawFrame(psb,m_data->m_dynamicsWorld->getDebugDrawer());
+            //btSoftBodyHelpers::DrawFrame(psb,m_data->m_dynamicsWorld->getDebugDrawer());
             btSoftBodyHelpers::Draw(psb,m_data->m_dynamicsWorld->getDebugDrawer(),m_data->m_dynamicsWorld->getDrawFlags());
         }
     }

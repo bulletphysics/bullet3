@@ -164,6 +164,8 @@ public:
     void getBodyJacobian(int bodyUniqueId, int linkIndex, const double* localPosition, const double* jointPositions, const double* jointVelocities, const double* jointAccelerations, double* linearJacobian, double* angularJacobian);
     
     void getLinkState(int bodyUniqueId, int linkIndex, double* worldPosition, double* worldOrientation);
+    
+    void loadBunny();
 };
 
 #endif //B3_ROBOT_SIM_API_H

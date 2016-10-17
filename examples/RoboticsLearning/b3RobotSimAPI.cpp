@@ -999,3 +999,9 @@ void b3RobotSimAPI::getLinkState(int bodyUniqueId, int linkIndex, double* worldP
         worldOrientation[3] = linkState.m_worldOrientation[3];
     }
 }
+
+void b3RobotSimAPI::loadBunny()
+{
+    b3SharedMemoryCommandHandle command = b3LoadBunnyCommandInit(m_data->m_physicsClient);
+    b3SubmitClientCommand(m_data->m_physicsClient, command);
+}
