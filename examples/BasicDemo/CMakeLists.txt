@@ -5,7 +5,7 @@ ${BULLET_PHYSICS_SOURCE_DIR}/src
 )
 
 LINK_LIBRARIES(
- BulletDynamics BulletCollision LinearMath BulletSoftBody
+ BulletDynamics BulletCollision LinearMath
 )
 
 IF (WIN32)
@@ -60,7 +60,7 @@ SET(AppBasicExampleGui_SRCS
 ADD_DEFINITIONS(-DB3_USE_STANDALONE_EXAMPLE)
 
 LINK_LIBRARIES(
-        BulletDynamics BulletCollision BulletSoftBody LinearMath OpenGLWindow Bullet3Common ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+        BulletDynamics BulletCollision LinearMath OpenGLWindow Bullet3Common ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 )
 
 #some code to support OpenGL and Glew cross platform

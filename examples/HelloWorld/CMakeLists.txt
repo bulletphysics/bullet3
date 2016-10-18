@@ -5,7 +5,7 @@ ${BULLET_PHYSICS_SOURCE_DIR}/src
 )
 
 LINK_LIBRARIES(
- BulletDynamics BulletCollision LinearMath BulletSoftBody
+ BulletDynamics BulletCollision LinearMath
 )
 
 IF (WIN32)
