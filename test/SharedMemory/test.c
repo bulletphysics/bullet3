@@ -67,6 +67,20 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 			numBodies = b3GetStatusBodyIndices(statusHandle, bodyIndicesOut, 10);
             ASSERT_EQ(numBodies,1);
             bodyUniqueId = bodyIndicesOut[0];
+			{
+				{
+					b3SharedMemoryStatusHandle statusHandle;
+					int statusType;
+					b3SharedMemoryCommandHandle command = b3InitRequestVisualShapeInformation(sm, bodyUniqueId);
+					statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+					statusType = b3GetStatusType(statusHandle);
+					if (statusType == CMD_VISUAL_SHAPE_INFO_COMPLETED)
+					{
+						struct b3VisualShapeInformation vi;
+						b3GetVisualShapeInformation(sm, &vi);
+					}
+				}
+			}
             
             numJoints = b3GetNumJoints(sm,bodyUniqueId);
             ASSERT_EQ(numJoints,7);
@@ -119,6 +133,8 @@ void testSharedMemory(b3PhysicsClientHandle sm)
         
 		if (bodyIndex>=0)
 		{
+			
+
 			numJoints = b3GetNumJoints(sm,bodyIndex);
 			for (i=0;i<numJoints;i++)
 			{

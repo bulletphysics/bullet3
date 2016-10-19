@@ -1211,11 +1211,7 @@ void OpenGLExampleBrowser::update(float deltaTime)
 			{
 				m_internalData->m_gui->draw(s_instancingRenderer->getScreenWidth(), s_instancingRenderer->getScreenHeight());
 			}
-			if (gui2)
-			{
-				gui2->draw(s_instancingRenderer->getScreenWidth(), s_instancingRenderer->getScreenHeight());
-			}
-
+			
             if (sUseOpenGL2)
             {
                 restoreOpenGLState();

@@ -33,6 +33,7 @@ enum EnumSharedMemoryClientCommand
     CMD_CREATE_JOINT,
     CMD_REQUEST_CONTACT_POINT_INFORMATION,
 	CMD_SAVE_WORLD,
+	CMD_REQUEST_VISUAL_SHAPE_INFO,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -77,8 +78,9 @@ enum EnumSharedMemoryServerStatus
 		CMD_CALCULATE_INVERSE_KINEMATICS_FAILED,
 		CMD_SAVE_WORLD_COMPLETED,
 		CMD_SAVE_WORLD_FAILED,
-
-		//don't go beyond 'CMD_MAX_SERVER_COMMANDS!
+        CMD_VISUAL_SHAPE_INFO_COMPLETED,
+        CMD_VISUAL_SHAPE_INFO_FAILED,
+        //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
 
@@ -185,6 +187,25 @@ struct b3ContactInformation
 {
 	int m_numContactPoints;
 	struct b3ContactPointData* m_contactPointData;
+};
+
+#define VISUAL_SHAPE_MAX_PATH_LEN 128
+
+struct b3VisualShapeData
+{
+	int m_objectUniqueId;
+	int m_linkIndex;
+	int m_visualGeometryType;//box primitive, sphere primitive, triangle mesh
+	double m_dimensions[3];//meaning depends on m_visualGeometryType
+	char m_meshAssetFileName[VISUAL_SHAPE_MAX_PATH_LEN];
+	double m_localInertiaFrame[7];//pos[3], orn[4]
+	//todo: add more data if necessary (material color etc, although material can be in asset file .obj file)
+};
+
+struct b3VisualShapeInformation
+{
+	int m_numVisualShapes;
+	struct b3VisualShapeData* m_visualShapeData;
 };
 
 ///b3LinkState provides extra information such as the Cartesian world coordinates

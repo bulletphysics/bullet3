@@ -238,7 +238,7 @@ void ImportUrdfSetup::initPhysics()
 
 			//todo: move these internal API called inside the 'ConvertURDF2Bullet' call, hidden from the user
 			int rootLinkIndex = u2b.getRootLinkIndex();
-			b3Printf("urdf root link index = %d\n",rootLinkIndex);
+			//b3Printf("urdf root link index = %d\n",rootLinkIndex);
 			MyMultiBodyCreator creation(m_guiHelper);
 
 			ConvertURDF2Bullet(u2b,creation, identityTrans,m_dynamicsWorld,m_useMultiBody,u2b.getPathPrefix());

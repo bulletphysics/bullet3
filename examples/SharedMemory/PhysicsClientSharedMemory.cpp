@@ -40,6 +40,8 @@ struct PhysicsClientSharedMemoryInternalData {
 	btAlignedObjectArray<int> m_cachedSegmentationMaskBuffer;
 
     btAlignedObjectArray<b3ContactPointData> m_cachedContactPoints;
+	
+	btAlignedObjectArray<b3VisualShapeData> m_cachedVisualShapes;
 
     btAlignedObjectArray<int> m_bodyIdsRequestInfo;
     SharedMemoryStatus m_tempBackupServerStatus;
@@ -633,7 +635,28 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                     b3Warning("Calculate Inverse Kinematics Request failed");
                     break;
                 }
+			case CMD_VISUAL_SHAPE_INFO_COMPLETED:
+			{
+				if (m_data->m_verboseOutput)
+				{
+					b3Printf("Visual Shape Information Request OK\n");
+				}
+				int startVisualShapeIndex = serverCmd.m_sendVisualShapeArgs.m_startingVisualShapeIndex;
+				int numVisualShapesCopied = serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied;
+				m_data->m_cachedVisualShapes.resize(startVisualShapeIndex + numVisualShapesCopied);
+				b3VisualShapeData* shapeData = (b3VisualShapeData*)m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor;
+				for (int i = 0; i < numVisualShapesCopied; i++)
+				{
+					m_data->m_cachedVisualShapes[startVisualShapeIndex + i] = shapeData[i];
+				}
 
+				break;
+			}
+			case CMD_VISUAL_SHAPE_INFO_FAILED:
+			{
+				b3Warning("Visual Shape Info Request failed");
+				break;
+			}
             default: {
                 b3Error("Unknown server status %d\n", serverCmd.m_type);
                 btAssert(0);
@@ -710,6 +733,21 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 			}
         }
         
+		if (serverCmd.m_type == CMD_VISUAL_SHAPE_INFO_COMPLETED)
+		{
+			SharedMemoryCommand& command = m_data->m_testBlock1->m_clientCommands[0];
+			if (serverCmd.m_sendVisualShapeArgs.m_numRemainingVisualShapes >0 && serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied)
+			{
+				command.m_type = CMD_REQUEST_VISUAL_SHAPE_INFO;
+				command.m_requestVisualShapeDataArguments.m_startingVisualShapeIndex = serverCmd.m_sendVisualShapeArgs.m_startingVisualShapeIndex + serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied;
+				command.m_requestVisualShapeDataArguments.m_bodyUniqueId = serverCmd.m_sendVisualShapeArgs.m_bodyUniqueId;
+				submitClientCommand(command);
+				return 0;
+			}
+		}
+
+		
+
 		if (serverCmd.m_type == CMD_CAMERA_IMAGE_COMPLETED)
 		{
 			SharedMemoryCommand& command = m_data->m_testBlock1->m_clientCommands[0];
@@ -812,6 +850,13 @@ void PhysicsClientSharedMemory::getCachedContactPointInformation(struct b3Contac
 	contactPointData->m_contactPointData = contactPointData->m_numContactPoints? &m_data->m_cachedContactPoints[0] : 0;
 
 }
+
+void PhysicsClientSharedMemory::getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo)
+{
+	visualShapesInfo->m_numVisualShapes = m_data->m_cachedVisualShapes.size();
+	visualShapesInfo->m_visualShapeData = visualShapesInfo->m_numVisualShapes ? &m_data->m_cachedVisualShapes[0] : 0;
+}
+
 
 const float* PhysicsClientSharedMemory::getDebugLinesFrom() const {
     if (m_data->m_debugLinesFrom.size()) {

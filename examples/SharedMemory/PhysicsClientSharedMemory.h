@@ -56,6 +56,8 @@ public:
 	virtual void getCachedCameraImage(struct b3CameraImageData* cameraData);
 	
 	virtual void getCachedContactPointInformation(struct b3ContactInformation* contactPointData);
+
+	virtual void getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo);
 };
 
 #endif  // BT_PHYSICS_CLIENT_API_H

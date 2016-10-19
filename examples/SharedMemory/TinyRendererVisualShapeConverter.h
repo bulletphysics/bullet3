@@ -4,6 +4,9 @@
 
 #include "../Importers/ImportURDFDemo/LinkVisualShapesConverter.h"
 
+
+
+
 struct TinyRendererVisualShapeConverter : public LinkVisualShapesConverter
 {
 	
@@ -14,6 +17,10 @@ struct TinyRendererVisualShapeConverter : public LinkVisualShapesConverter
 	virtual ~TinyRendererVisualShapeConverter();
 	
 	virtual void convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfModel& model, class btCollisionObject* colShape, int objectIndex);
+	
+	virtual int getNumVisualShapes(int bodyUniqueId);
+
+	virtual int getVisualShapesData(int bodyUniqueId, int shapeIndex, struct b3VisualShapeData* shapeData);
 	
 	void setUpAxis(int axis);
 	
