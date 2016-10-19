@@ -138,9 +138,7 @@ public:
 	void spawnWalker(int index, const btVector3& startOffset, bool bFixed);
 	
 	virtual bool	keyboardCallback(int key, int state);
-	
-	void setMotorTargets(btScalar deltaTime);
-	
+
 	bool detectCollisions();
 
 	void resetCamera()
@@ -269,7 +267,7 @@ public:
 
 		m_bodies[0] = localCreateRigidBody(btScalar(bFixed?0.:1.), bodyOffset*transform, m_shapes[0]);
 		m_ownerWorld->addRigidBody(m_bodies[0]);
-		m_bodyRelativeTransforms[0] = btTransform();
+		m_bodyRelativeTransforms[0] = btTransform::getIdentity();
 		m_bodies[0]->setUserPointer(this);
 		m_bodyTouchSensorIndexMap.insert(std::pair<void*,int>(m_bodies[0], 0));
 
@@ -1021,7 +1019,7 @@ void NN3DWalkersExample::drawMarkings() {
 		{
 			if(m_walkersInPopulation[i]->isInEvaluation()){
 				btVector3 walkerPosition = m_walkersInPopulation[i]->getPosition();
-				char performance[10];
+				char performance[20];
 				sprintf(performance, "%.2f m", btSqrt(m_walkersInPopulation[i]->getDistanceFitness()));
 				m_guiHelper->drawText3D(performance,walkerPosition.x(),walkerPosition.y()+1,walkerPosition.z(),3);
 			}
