@@ -14,12 +14,12 @@ subject to the following restrictions:
 */
 
 #include "NN3DWalkers.h"
-#include <map>
 
 #include "btBulletDynamicsCommon.h"
 
 #include "LinearMath/btIDebugDraw.h"
 #include "LinearMath/btAlignedObjectArray.h"
+#include "LinearMath/btHashMap.h"
 class btBroadphaseInterface;
 class btCollisionShape;
 class btOverlappingPairCache;
@@ -191,7 +191,7 @@ class NNWalker
 	btRigidBody*		m_bodies[BODYPART_COUNT];
 	btTransform			m_bodyRelativeTransforms[BODYPART_COUNT];
 	btTypedConstraint*	m_joints[JOINT_COUNT];
-	std::map<void*,int>	m_bodyTouchSensorIndexMap;
+	btHashMap<btHashPtr,int>	m_bodyTouchSensorIndexMap;
 	bool 				m_touchSensors[BODYPART_COUNT];
 	btScalar			m_sensoryMotorWeights[BODYPART_COUNT*JOINT_COUNT];
 
@@ -269,7 +269,7 @@ public:
 		m_ownerWorld->addRigidBody(m_bodies[0]);
 		m_bodyRelativeTransforms[0] = btTransform::getIdentity();
 		m_bodies[0]->setUserPointer(this);
-		m_bodyTouchSensorIndexMap.insert(std::pair<void*,int>(m_bodies[0], 0));
+		m_bodyTouchSensorIndexMap.insert(btHashPtr(m_bodies[0]), 0);
 
 		btHingeConstraint* hingeC;
 		//btConeTwistConstraint* coneC;
@@ -294,7 +294,7 @@ public:
 			m_bodies[1+2*i] = localCreateRigidBody(btScalar(1.), bodyOffset*transform, m_shapes[1+2*i]);
 			m_bodyRelativeTransforms[1+2*i] = transform;
 			m_bodies[1+2*i]->setUserPointer(this);
-			m_bodyTouchSensorIndexMap.insert(std::pair<void*,int>(m_bodies[1+2*i],1+2*i));
+			m_bodyTouchSensorIndexMap.insert(btHashPtr(m_bodies[1+2*i]),1+2*i);
 
 			// shin
 			transform.setIdentity();
@@ -302,7 +302,7 @@ public:
 			m_bodies[2+2*i] = localCreateRigidBody(btScalar(1.), bodyOffset*transform, m_shapes[2+2*i]);
 			m_bodyRelativeTransforms[2+2*i] = transform;
 			m_bodies[2+2*i]->setUserPointer(this);
-			m_bodyTouchSensorIndexMap.insert(std::pair<void*,int>(m_bodies[2+2*i],2+2*i));
+			m_bodyTouchSensorIndexMap.insert(btHashPtr(m_bodies[2+2*i]),2+2*i);
 
 			// hip joints
 			localA.setIdentity(); localB.setIdentity();
@@ -383,7 +383,7 @@ public:
 	}
 
 	void setTouchSensor(void* bodyPointer){
-		m_touchSensors[m_bodyTouchSensorIndexMap.at(bodyPointer)] = true;
+		m_touchSensors[*m_bodyTouchSensorIndexMap.find(btHashPtr(bodyPointer))] = true;
 	}
 
 	void clearTouchSensors(){
