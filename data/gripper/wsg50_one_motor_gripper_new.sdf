@@ -2,7 +2,7 @@
 <sdf version='1.6'>
   <world name='default'>
   <model name='wsg50_with_gripper'>
-    <pose frame=''>0 0 0.26 3.14 0 0</pose>
+    <pose frame=''>0 0 0.7 3.14 0 0</pose>
 	
     <link name='world'>
 	</link>

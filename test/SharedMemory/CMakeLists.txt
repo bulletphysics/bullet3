@@ -15,6 +15,9 @@ ADD_DEFINITIONS(-DPHYSICS_LOOP_BACK -DPHYSICS_SERVER_DIRECT -DENABLE_GTEST -D_VA
 LINK_LIBRARIES(
  BulletInverseDynamicsUtils BulletInverseDynamics BulletFileLoader BulletWorldImporter Bullet3Common BulletDynamics BulletCollision LinearMath gtest BussIK
 )
+IF (USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD)
+	LINK_LIBRARIES(BulletSoftBody)
+ENDIF()
 
 IF (NOT WIN32)
 	LINK_LIBRARIES(		pthread	)
