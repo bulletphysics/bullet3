@@ -961,10 +961,12 @@ void b3RobotSimAPI::renderScene()
 		}
 	}
 
+    
 	if (m_data->m_clientServerDirect)
 	{
 		m_data->m_clientServerDirect->renderScene();
 	}
+    
 	m_data->m_physicsServer.renderScene();
 }
 
@@ -996,4 +998,10 @@ void b3RobotSimAPI::getLinkState(int bodyUniqueId, int linkIndex, double* worldP
         worldOrientation[2] = linkState.m_worldOrientation[2];
         worldOrientation[3] = linkState.m_worldOrientation[3];
     }
+}
+
+void b3RobotSimAPI::loadBunny()
+{
+    b3SharedMemoryCommandHandle command = b3LoadBunnyCommandInit(m_data->m_physicsClient);
+    b3SubmitClientCommand(m_data->m_physicsClient, command);
 }
