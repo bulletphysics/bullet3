@@ -460,7 +460,7 @@ public:
 		return getDistanceFitness(); // for now it is only distance
 	}
 
-	void resetAt(btVector3 position) {
+	void resetAt(const btVector3& position) {
 		btTransform resetPosition(btQuaternion::getIdentity(), position);
 		for (int i = 0; i < BODYPART_COUNT; ++i)
 		{
