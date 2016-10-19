@@ -1260,6 +1260,107 @@ static int pybullet_internalSetVector4(PyObject* obVec, double vector[4]) {
     return 0;
 }
 
+static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args) 
+{
+	int size = PySequence_Size(args);
+	int objectUniqueId = -1;
+	b3SharedMemoryCommandHandle commandHandle;
+	b3SharedMemoryStatusHandle statusHandle;
+	struct b3VisualShapeInformation visualShapeInfo;
+	int statusType;
+	int i;
+	PyObject* pyResultList = 0;
+
+	if (size == 1) 
+	{
+		if (!PyArg_ParseTuple(args, "i", &objectUniqueId)) {
+			PyErr_SetString(SpamError, "Error parsing object unique id");
+			return NULL;
+		}
+
+		commandHandle = b3InitRequestVisualShapeInformation(sm, objectUniqueId);
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+		statusType = b3GetStatusType(statusHandle);
+		if (statusType == CMD_VISUAL_SHAPE_INFO_COMPLETED)
+		{
+			b3GetVisualShapeInformation(sm, &visualShapeInfo);
+			pyResultList = PyTuple_New(visualShapeInfo.m_numVisualShapes);
+			for (i = 0; i < visualShapeInfo.m_numVisualShapes; i++)
+			{
+				PyObject* visualShapeObList = PyTuple_New(7);
+				PyObject* item;
+				item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_objectUniqueId);
+				PyTuple_SetItem(visualShapeObList, 0, item);
+				
+				item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_linkIndex);
+				PyTuple_SetItem(visualShapeObList, 1, item);
+				
+				item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_visualGeometryType);
+				PyTuple_SetItem(visualShapeObList, 2, item);
+
+				{
+					PyObject* vec = PyTuple_New(3);
+					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_dimensions[0]);
+					PyTuple_SetItem(vec, 0, item);
+					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_dimensions[1]);
+					PyTuple_SetItem(vec, 1, item);
+					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_dimensions[2]);
+					PyTuple_SetItem(vec, 2, item);
+					PyTuple_SetItem(visualShapeObList, 3, vec);
+				}
+				
+				item = PyString_FromString(visualShapeInfo.m_visualShapeData[i].m_meshAssetFileName);
+				PyTuple_SetItem(visualShapeObList, 4, item);
+
+				{
+					PyObject* vec = PyTuple_New(3);
+					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localInertiaFrame[0]);
+					PyTuple_SetItem(vec, 0, item);
+					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localInertiaFrame[1]);
+					PyTuple_SetItem(vec, 1, item);
+					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localInertiaFrame[2]);
+					PyTuple_SetItem(vec, 2, item);
+					PyTuple_SetItem(visualShapeObList, 5, vec);
+				}
+
+				{
+					PyObject* vec = PyTuple_New(4);
+					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localInertiaFrame[3]);
+					PyTuple_SetItem(vec, 0, item);
+					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localInertiaFrame[4]);
+					PyTuple_SetItem(vec, 1, item);
+					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localInertiaFrame[5]);
+					PyTuple_SetItem(vec, 2, item);
+					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localInertiaFrame[6]);
+					PyTuple_SetItem(vec, 3, item);
+					PyTuple_SetItem(visualShapeObList, 6, vec);
+				}
+
+				
+
+				PyTuple_SetItem(pyResultList, i, visualShapeObList);
+			}
+			return pyResultList;
+		}
+		else
+		{
+			PyErr_SetString(SpamError, "Error receiving visual shape info");
+			return NULL;
+		}
+	}
+	else
+	{
+		PyErr_SetString(SpamError, "getVisualShapeData requires 1 argument (object unique id)");
+		return NULL;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
+
+
 static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args) {
   int size = PySequence_Size(args);
   int objectUniqueIdA = -1;
@@ -1287,7 +1388,6 @@ static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args) {
   commandHandle = b3InitRequestContactPointInformation(sm);
   b3SetContactFilterBodyA(commandHandle, objectUniqueIdA);
   b3SetContactFilterBodyB(commandHandle, objectUniqueIdB);
-  b3SubmitClientCommand(sm, commandHandle);
   
   statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
   statusType = b3GetStatusType(statusHandle);
@@ -2194,6 +2294,9 @@ static PyMethodDef SpamMethods[] = {
      "object-object collisions. Optional arguments one or two object unique "
      "ids, that need to be involved in the contact."},
 
+	 { "getVisualShapeData", pybullet_getVisualShapeData, METH_VARARGS,
+	"Return the visual shape information for one object." },
+		 
     {"getQuaternionFromEuler", pybullet_getQuaternionFromEuler, METH_VARARGS,
      "Convert Euler [roll, pitch, yaw] as in URDF/SDF convention, to "
      "quaternion [x,y,z,w]"},

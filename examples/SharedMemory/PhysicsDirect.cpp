@@ -41,9 +41,9 @@ struct PhysicsDirectInternalData
 	btAlignedObjectArray<int> m_cachedSegmentationMask;
 	
     btAlignedObjectArray<b3ContactPointData> m_cachedContactPoints;
+	
+	btAlignedObjectArray<b3VisualShapeData> m_cachedVisualShapes;
     
-
-
 	PhysicsServerCommandProcessor* m_commandProcessor;
 
 	PhysicsDirectInternalData()
@@ -195,6 +195,44 @@ bool PhysicsDirect::processDebugLines(const struct SharedMemoryCommand& orgComma
 	
 	return m_data->m_hasStatus;
 }
+
+bool PhysicsDirect::processVisualShapeData(const struct SharedMemoryCommand& orgCommand)
+{
+	SharedMemoryCommand command = orgCommand;
+	const SharedMemoryStatus& serverCmd = m_data->m_serverStatus;
+
+	do
+	{
+		bool hasStatus = m_data->m_commandProcessor->processCommand(command, m_data->m_serverStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+		m_data->m_hasStatus = hasStatus;
+		if (hasStatus)
+		{
+			
+			if (m_data->m_verboseOutput)
+			{
+				b3Printf("Visual Shape Information Request OK\n");
+			}
+			int startVisualShapeIndex = serverCmd.m_sendVisualShapeArgs.m_startingVisualShapeIndex;
+			int numVisualShapesCopied = serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied;
+			m_data->m_cachedVisualShapes.resize(startVisualShapeIndex + numVisualShapesCopied);
+			b3VisualShapeData* shapeData = (b3VisualShapeData*)&m_data->m_bulletStreamDataServerToClient[0];
+			for (int i = 0; i < numVisualShapesCopied; i++)
+			{
+				m_data->m_cachedVisualShapes[startVisualShapeIndex + i] = shapeData[i];
+			}
+						
+			if (serverCmd.m_sendVisualShapeArgs.m_numRemainingVisualShapes >0 && serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied)
+			{
+				command.m_type = CMD_REQUEST_VISUAL_SHAPE_INFO;
+				command.m_requestVisualShapeDataArguments.m_startingVisualShapeIndex = serverCmd.m_sendVisualShapeArgs.m_startingVisualShapeIndex + serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied;
+				command.m_requestVisualShapeDataArguments.m_bodyUniqueId = serverCmd.m_sendVisualShapeArgs.m_bodyUniqueId;
+			}
+		}
+	} while (serverCmd.m_sendVisualShapeArgs.m_numRemainingVisualShapes > 0 && serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied);
+	
+	return m_data->m_hasStatus;
+}
+
 
 bool PhysicsDirect::processContactPointData(const struct SharedMemoryCommand& orgCommand)
 {
@@ -379,6 +417,11 @@ bool PhysicsDirect::submitClientCommand(const struct SharedMemoryCommand& comman
     {
         return processContactPointData(command);
     }
+
+	if (command.m_type == CMD_REQUEST_VISUAL_SHAPE_INFO)
+	{
+		return processVisualShapeData(command);
+	}
 
 	bool hasStatus = m_data->m_commandProcessor->processCommand(command,m_data->m_serverStatus,&m_data->m_bulletStreamDataServerToClient[0],SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
 	m_data->m_hasStatus = hasStatus;
@@ -576,3 +619,8 @@ void PhysicsDirect::getCachedContactPointInformation(struct b3ContactInformation
     
 }
 
+void PhysicsDirect::getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo)
+{
+	visualShapesInfo->m_numVisualShapes = m_data->m_cachedVisualShapes.size();
+	visualShapesInfo->m_visualShapeData = visualShapesInfo->m_numVisualShapes ? &m_data->m_cachedVisualShapes[0] : 0;
+}

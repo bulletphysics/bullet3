@@ -62,6 +62,7 @@ public:
 	
 	virtual void getCachedContactPointInformation(struct b3ContactInformation* contactPointData);
 
+	virtual void getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo);
 };
 
 #endif //PHYSICS_LOOP_BACK_H

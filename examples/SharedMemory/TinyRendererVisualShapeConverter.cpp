@@ -32,6 +32,7 @@ subject to the following restrictions:
 #include <iostream>
 #include <fstream>
 #include "../Importers/ImportURDFDemo/UrdfParser.h"
+#include "../SharedMemory/SharedMemoryPublic.h"//for b3VisualShapeData
 
 
 enum MyFileType
@@ -60,6 +61,8 @@ struct TinyRendererVisualShapeConverterInternalData
 {
 	
     btHashMap<btHashPtr,TinyRendererObjectArray*> m_swRenderInstances;
+
+	btAlignedObjectArray<b3VisualShapeData> m_visualShapes;
     
    	int m_upAxis;
 	int m_swWidth;
@@ -105,9 +108,14 @@ TinyRendererVisualShapeConverter::~TinyRendererVisualShapeConverter()
 
 
 
-void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut)
+void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut, b3VisualShapeData& visualShapeOut)
 {
 
+	visualShapeOut.m_visualGeometryType = visual->m_geometry.m_type;
+	visualShapeOut.m_dimensions[0] = 0;
+	visualShapeOut.m_dimensions[1] = 0;
+	visualShapeOut.m_dimensions[2] = 0;
+	visualShapeOut.m_meshAssetFileName[0] = 0;
 	
 	GLInstanceGraphicsShape* glmesh = 0;
 
@@ -119,6 +127,9 @@ void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPref
 		{
 			btAlignedObjectArray<btVector3> vertices;
 		
+			visualShapeOut.m_dimensions[0] = visual->m_geometry.m_cylinderLength;
+			visualShapeOut.m_dimensions[1] = visual->m_geometry.m_cylinderRadius;
+			
 			//int numVerts = sizeof(barrel_vertices)/(9*sizeof(float));
 			int numSteps = 32;
 			for (int i = 0; i<numSteps; i++)
@@ -140,7 +151,10 @@ void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPref
 		}
 		case URDF_GEOM_BOX:
 		{
-			
+			visualShapeOut.m_dimensions[0] = visual->m_geometry.m_boxSize[0];
+			visualShapeOut.m_dimensions[1] = visual->m_geometry.m_boxSize[1];
+			visualShapeOut.m_dimensions[2] = visual->m_geometry.m_boxSize[2];
+
 			btVector3 extents = visual->m_geometry.m_boxSize;
 			
 			btBoxShape* boxShape = new btBoxShape(extents*0.5f);
@@ -151,6 +165,8 @@ void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPref
 		}
 		case URDF_GEOM_SPHERE:
 		{
+			visualShapeOut.m_dimensions[0] = visual->m_geometry.m_sphereRadius;
+			
 			btScalar radius = visual->m_geometry.m_sphereRadius;
 			btSphereShape* sphereShape = new btSphereShape(radius);
 			convexColShape = sphereShape;
@@ -200,6 +216,18 @@ void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPref
 
 
 					sprintf(fullPath, "%s%s", urdfPathPrefix, filename);
+
+					visualShapeOut.m_dimensions[0] = visual->m_geometry.m_meshScale[0];
+					visualShapeOut.m_dimensions[1] = visual->m_geometry.m_meshScale[1];
+					visualShapeOut.m_dimensions[2] = visual->m_geometry.m_meshScale[2];
+
+					int sl = strlen(fullPath);
+					if (sl < (VISUAL_SHAPE_MAX_PATH_LEN-1))
+					{
+						memcpy(visualShapeOut.m_meshAssetFileName, fullPath, sl);
+						visualShapeOut.m_meshAssetFileName[sl] = 0;
+					}
+					
 					FILE* f = fopen(fullPath, "rb");
 					if (f)
 					{
@@ -443,7 +471,7 @@ void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPref
 
 
 
-void TinyRendererVisualShapeConverter::convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfModel& model, class btCollisionObject* colObj, int objectIndex)
+void TinyRendererVisualShapeConverter::convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfModel& model, class btCollisionObject* colObj, int bodyUniqueId)
 {
     
 	
@@ -486,11 +514,23 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(int linkIndex, const 
             btAssert(visualsPtr);
             TinyRendererObjectArray* visuals = *visualsPtr;
             
-			convertURDFToVisualShape(&vis, pathPrefix, localInertiaFrame.inverse()*childTrans, vertices, indices,textures);
+			b3VisualShapeData visualShape;
+			visualShape.m_objectUniqueId = bodyUniqueId;
+			visualShape.m_linkIndex = linkIndex;
+			visualShape.m_localInertiaFrame[0] = localInertiaFrame.getOrigin()[0];
+			visualShape.m_localInertiaFrame[1] = localInertiaFrame.getOrigin()[1];
+			visualShape.m_localInertiaFrame[2] = localInertiaFrame.getOrigin()[2];
+			visualShape.m_localInertiaFrame[3] = localInertiaFrame.getRotation()[0];
+			visualShape.m_localInertiaFrame[4] = localInertiaFrame.getRotation()[1];
+			visualShape.m_localInertiaFrame[5] = localInertiaFrame.getRotation()[2];
+			visualShape.m_localInertiaFrame[6] = localInertiaFrame.getRotation()[3];
+			
+			convertURDFToVisualShape(&vis, pathPrefix, localInertiaFrame.inverse()*childTrans, vertices, indices,textures, visualShape);
+			m_data->m_visualShapes.push_back(visualShape);
 
             if (vertices.size() && indices.size())
             {
-                TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_rgbColorBuffer,m_data->m_depthBuffer, &m_data->m_segmentationMaskBuffer, objectIndex);
+                TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_rgbColorBuffer,m_data->m_depthBuffer, &m_data->m_segmentationMaskBuffer, bodyUniqueId);
 				unsigned char* textureImage=0;
 				int textureWidth=0;
 				int textureHeight=0;
@@ -512,6 +552,64 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(int linkIndex, const 
 		}
 	}
 }
+
+int TinyRendererVisualShapeConverter::getNumVisualShapes(int bodyUniqueId)
+{
+	int start = -1;
+	//find first one, then count how many
+	for (int i = 0; i < m_data->m_visualShapes.size(); i++)
+	{
+		if (m_data->m_visualShapes[i].m_objectUniqueId == bodyUniqueId)
+		{
+			start = i;
+			break;
+		}
+	}
+	int count = 0;
+
+	if (start >= 0)
+	{
+		for (int i = start; i < m_data->m_visualShapes.size(); i++)
+		{
+			if (m_data->m_visualShapes[i].m_objectUniqueId == bodyUniqueId)
+			{
+				count++;
+			}
+			else
+			{
+				//storage of each visual shape for a given body unique id assumed to be contiguous
+				break;
+			}
+		}
+	}
+	return count;
+}
+
+int TinyRendererVisualShapeConverter::getVisualShapesData(int bodyUniqueId, int shapeIndex, struct b3VisualShapeData* shapeData)
+{
+	int start = -1;
+	//find first one, then count how many
+	for (int i = 0; i < m_data->m_visualShapes.size(); i++)
+	{
+		if (m_data->m_visualShapes[i].m_objectUniqueId == bodyUniqueId)
+		{
+			start = i;
+			break;
+		}
+	}
+	int count = 0;
+
+	if (start >= 0)
+	{
+		if (start + shapeIndex < m_data->m_visualShapes.size())
+		{
+			*shapeData = m_data->m_visualShapes[start + shapeIndex];
+			return 1;
+		}
+	}
+	return 0;
+}
+
 
 void TinyRendererVisualShapeConverter::setUpAxis(int axis)
 {

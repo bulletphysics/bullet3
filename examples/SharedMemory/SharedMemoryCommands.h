@@ -151,6 +151,21 @@ struct RequestContactDataArgs
 	int m_objectBIndexFilter;
 };
 
+struct RequestVisualShapeDataArgs
+{
+	int m_bodyUniqueId;
+	int m_startingVisualShapeIndex;
+};
+
+struct SendVisualShapeDataArgs
+{
+	int m_bodyUniqueId;
+    int m_startingVisualShapeIndex;
+    int m_numVisualShapesCopied;
+    int m_numRemainingVisualShapes;
+};
+
+
 
 struct SendDebugLinesArgs
 {
@@ -461,6 +476,7 @@ struct SharedMemoryCommand
         struct CalculateJacobianArgs m_calculateJacobianArguments;
         struct CreateJointArgs m_createJointArguments;
         struct RequestContactDataArgs m_requestContactPointArguments;
+        struct RequestVisualShapeDataArgs m_requestVisualShapeDataArguments;
 		struct CalculateInverseKinematicsArgs m_calculateInverseKinematicsArguments;
     };
 };
@@ -496,6 +512,7 @@ struct SharedMemoryStatus
         struct CalculateJacobianResultArgs m_jacobianResultArgs;
 		struct SendContactDataArgs m_sendContactPointArgs;
 		struct CalculateInverseKinematicsResultArgs m_inverseKinematicsResultArgs;
+		struct SendVisualShapeDataArgs m_sendVisualShapeArgs;
 	};
 };
 

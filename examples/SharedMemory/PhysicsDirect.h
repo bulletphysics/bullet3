@@ -23,6 +23,8 @@ protected:
 
     bool processContactPointData(const struct SharedMemoryCommand& orgCommand);
 
+	bool processVisualShapeData(const struct SharedMemoryCommand& orgCommand);
+	
     void processBodyJointInfo(int bodyUniqueId, const struct SharedMemoryStatus& serverCmd);
     
 public:
@@ -74,6 +76,8 @@ public:
 
     virtual void getCachedContactPointInformation(struct b3ContactInformation* contactPointData);
 
+	virtual void getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo);
+	
 	//those 2 APIs are for internal use for visualization
 	virtual bool connect(struct GUIHelperInterface* guiHelper);
 	virtual void renderScene();

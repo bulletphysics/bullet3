@@ -136,8 +136,8 @@ void	MultiDofDemo::initPhysics()
 	bool spherical = true;					//set it ot false -to use 1DoF hinges instead of 3DoF sphericals		
 	bool multibodyOnly = false;
 	bool canSleep = true;
-	bool selfCollide = false;
-    bool multibodyConstraint = true;
+	bool selfCollide = true;
+    bool multibodyConstraint = false;
 	btVector3 linkHalfExtents(0.05, 0.37, 0.1);
 	btVector3 baseHalfExtents(0.05, 0.37, 0.1);
 
@@ -159,6 +159,7 @@ void	MultiDofDemo::initPhysics()
 	}
 	//
 	m_dynamicsWorld->setGravity(btVector3(0, -9.81 ,0));	
+	//m_dynamicsWorld->getSolverInfo().m_numIterations = 100;
 	//////////////////////////////////////////////
 	if(numLinks > 0)
 	{			
@@ -247,8 +248,8 @@ void	MultiDofDemo::initPhysics()
             frameInA.setIdentity();
             frameInB.setIdentity();
             btVector3 jointAxis(1.0,0.0,0.0);
-            btMultiBodySliderConstraint* p2p = new btMultiBodySliderConstraint(mbC,numLinks-1,body,pointInA,pointInB,frameInA,frameInB,jointAxis);
-            //btMultiBodyFixedConstraint* p2p = new btMultiBodyFixedConstraint(mbC,numLinks-1,mbC,numLinks-4,pointInA,pointInA,frameInA,frameInB);
+            //btMultiBodySliderConstraint* p2p = new btMultiBodySliderConstraint(mbC,numLinks-1,body,pointInA,pointInB,frameInA,frameInB,jointAxis);
+            btMultiBodyFixedConstraint* p2p = new btMultiBodyFixedConstraint(mbC,numLinks-1,mbC,numLinks-4,pointInA,pointInA,frameInA,frameInB);
             p2p->setMaxAppliedImpulse(2.0);
             m_dynamicsWorld->addMultiBodyConstraint(p2p);
         }
@@ -306,10 +307,10 @@ btMultiBody* MultiDofDemo::createFeatherstoneMultiBody_testMultiDof(btMultiBodyD
 	for(int i = 0; i < numLinks; ++i)
 	{
 		if(!spherical)			
-			pMultiBody->setupRevolute(i, linkMass, linkInertiaDiag, i - 1, btQuaternion(0.f, 0.f, 0.f, 1.f), hingeJointAxis, parentComToCurrentPivot, currentPivotToCurrentCom, false);
+			pMultiBody->setupRevolute(i, linkMass, linkInertiaDiag, i - 1, btQuaternion(0.f, 0.f, 0.f, 1.f), hingeJointAxis, parentComToCurrentPivot, currentPivotToCurrentCom, true);
 		else
 			//pMultiBody->setupPlanar(i, linkMass, linkInertiaDiag, i - 1, btQuaternion(0.f, 0.f, 0.f, 1.f)/*quat0*/, btVector3(1, 0, 0), parentComToCurrentPivot*2, false);
-			pMultiBody->setupSpherical(i, linkMass, linkInertiaDiag, i - 1, btQuaternion(0.f, 0.f, 0.f, 1.f), parentComToCurrentPivot, currentPivotToCurrentCom, false);
+			pMultiBody->setupSpherical(i, linkMass, linkInertiaDiag, i - 1, btQuaternion(0.f, 0.f, 0.f, 1.f), parentComToCurrentPivot, currentPivotToCurrentCom, true);
 	}
 
 	pMultiBody->finalizeMultiDof();

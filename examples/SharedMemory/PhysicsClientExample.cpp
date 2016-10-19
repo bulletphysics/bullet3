@@ -25,6 +25,11 @@ struct MyMotorInfo2
 int camVisualizerWidth = 320;//1024/3;
 int camVisualizerHeight = 240;//768/3;
 
+enum CustomCommands
+{
+	CMD_CUSTOM_SET_REALTIME_SIMULATION = CMD_MAX_CLIENT_COMMANDS+1,
+	CMD_CUSTOM_SET_GRAVITY
+};
 
 #define MAX_NUM_MOTORS 128
 
@@ -306,7 +311,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
                 for (int i = 0; i < numJoints; ++i) {
                     struct b3JointSensorState sensorState;
                     b3GetJointState(m_physicsClientHandle, statusHandle, i, &sensorState);
-                    b3Printf("Joint %d: %f", i, sensorState.m_jointMotorTorque);
+                    //b3Printf("Joint %d: %f", i, sensorState.m_jointMotorTorque);
                 }
 			}
             break;
@@ -410,12 +415,20 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 
             break;
         }
-        case CMD_SEND_PHYSICS_SIMULATION_PARAMETERS: {
+        case CMD_CUSTOM_SET_GRAVITY: {
             b3SharedMemoryCommandHandle commandHandle = b3InitPhysicsParamCommand(m_physicsClientHandle);
             b3PhysicsParamSetGravity(commandHandle, 0.0, 0.0, -9.8);
             b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
             break;
         }
+
+		case CMD_CUSTOM_SET_REALTIME_SIMULATION:
+		{
+			b3SharedMemoryCommandHandle commandHandle = b3InitPhysicsParamCommand(m_physicsClientHandle);
+            b3PhysicsParamSetRealTimeSimulation(commandHandle,1);
+            b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+            break;
+		}
         
 		case CMD_CALCULATE_INVERSE_DYNAMICS:
 		{
@@ -456,6 +469,16 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 		{
                 b3SharedMemoryCommandHandle commandHandle = b3SaveWorldCommandInit(m_physicsClientHandle, "saveWorld.py");
                 b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+			break;
+		}
+		case CMD_REQUEST_VISUAL_SHAPE_INFO:
+		{
+			if (m_selectedBody >= 0)
+			{
+				//request visual shape information
+				b3SharedMemoryCommandHandle commandHandle = b3InitRequestVisualShapeInformation(m_physicsClientHandle, m_selectedBody);
+				b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+			}
 			break;
 		}
         default:
@@ -535,6 +558,8 @@ void	PhysicsClientExample::createButtons()
 		createButton("Save World",CMD_SAVE_WORLD,  isTrigger);
         createButton("Get Camera Image",CMD_REQUEST_CAMERA_IMAGE_DATA,isTrigger);
         createButton("Step Sim",CMD_STEP_FORWARD_SIMULATION,  isTrigger);
+		createButton("Realtime Sim",CMD_CUSTOM_SET_REALTIME_SIMULATION,  isTrigger);
+		createButton("Get Visual Shape Info",CMD_REQUEST_VISUAL_SHAPE_INFO,  isTrigger);
         createButton("Send Bullet Stream",CMD_SEND_BULLET_DATA_STREAM,  isTrigger);
 		if (m_options!=eCLIENTEXAMPLE_SERVER)
 		{
@@ -545,7 +570,7 @@ void	PhysicsClientExample::createButtons()
 				createButton("Create Cylinder Body",CMD_CREATE_RIGID_BODY,isTrigger);
         createButton("Reset Simulation",CMD_RESET_SIMULATION,isTrigger);
 				createButton("Initialize Pose",CMD_INIT_POSE,  isTrigger);
-        createButton("Set gravity", CMD_SEND_PHYSICS_SIMULATION_PARAMETERS, isTrigger);
+        createButton("Set gravity", CMD_CUSTOM_SET_GRAVITY, isTrigger);
 		createButton("Compute Inverse Dynamics", CMD_CALCULATE_INVERSE_DYNAMICS, isTrigger);
         createButton("Get Contact Point Info", CMD_REQUEST_CONTACT_POINT_INFORMATION, isTrigger);
 
@@ -584,7 +609,7 @@ void	PhysicsClientExample::createButtons()
 			{
 				b3JointInfo info;
 				b3GetJointInfo(m_physicsClientHandle,m_selectedBody,i,&info);
-				b3Printf("Joint %s at q-index %d and u-index %d\n",info.m_jointName,info.m_qIndex,info.m_uIndex);
+				//b3Printf("Joint %s at q-index %d and u-index %d\n",info.m_jointName,info.m_qIndex,info.m_uIndex);
                 
 				if (info.m_flags & JOINT_HAS_MOTORIZED_POWER)
 				{
@@ -959,7 +984,7 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 					{
 						b3JointInfo info;
 						b3GetJointInfo(m_physicsClientHandle,bodyIndex,i,&info);
-						b3Printf("Joint %s at q-index %d and u-index %d\n",info.m_jointName,info.m_qIndex,info.m_uIndex);
+						//b3Printf("Joint %s at q-index %d and u-index %d\n",info.m_jointName,info.m_qIndex,info.m_uIndex);
 					}
 					
 				}
@@ -968,6 +993,18 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 			{
 				b3Warning("Cannot get contact information");
 			}
+			if (statusType == CMD_VISUAL_SHAPE_INFO_FAILED)
+			{
+				b3Warning("Cannot get visual shape information");
+			}
+
+			if (statusType == CMD_VISUAL_SHAPE_INFO_COMPLETED)
+			{
+				b3VisualShapeInformation shapeInfo;
+				b3GetVisualShapeInformation(m_physicsClientHandle, &shapeInfo);
+				b3Printf("Num visual shapes: %d", shapeInfo.m_numVisualShapes);
+			}
+
 			if (statusType == CMD_CONTACT_POINT_INFORMATION_COMPLETED)
 			{
 				b3ContactInformation contactPointData;

@@ -48,6 +48,8 @@ public:
 	
 	virtual void getCachedContactPointInformation(struct b3ContactInformation* contactPointData)=0;
 	
+	virtual void getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo) = 0;
+
 };
 
 #endif  // BT_PHYSICS_CLIENT_API_H

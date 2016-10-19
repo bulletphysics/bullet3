@@ -1227,6 +1227,33 @@ void b3GetContactPointInformation(b3PhysicsClientHandle physClient, struct b3Con
 }
 
 
+
+//request visual shape information
+b3SharedMemoryCommandHandle b3InitRequestVisualShapeInformation(b3PhysicsClientHandle physClient, int bodyUniqueIdA)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type = CMD_REQUEST_VISUAL_SHAPE_INFO;
+	command->m_requestVisualShapeDataArguments.m_bodyUniqueId = bodyUniqueIdA;
+	command->m_requestVisualShapeDataArguments.m_startingVisualShapeIndex = 0;
+	command->m_updateFlags = 0;
+    return (b3SharedMemoryCommandHandle) command;
+}
+
+void b3GetVisualShapeInformation(b3PhysicsClientHandle physClient, struct b3VisualShapeInformation* visualShapeInfo)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	if (cl)
+	{
+		cl->getCachedVisualShapeInformation(visualShapeInfo);
+	}
+}
+
+
+
 b3SharedMemoryCommandHandle b3ApplyExternalForceCommandInit(b3PhysicsClientHandle physClient)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;
