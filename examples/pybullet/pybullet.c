@@ -1268,7 +1268,7 @@ static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args)
 	b3SharedMemoryStatusHandle statusHandle;
 	struct b3VisualShapeInformation visualShapeInfo;
 	int statusType;
-
+	int i;
 	PyObject* pyResultList = 0;
 
 	if (size == 1) 
@@ -1285,7 +1285,7 @@ static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args)
 		{
 			b3GetVisualShapeInformation(sm, &visualShapeInfo);
 			pyResultList = PyTuple_New(visualShapeInfo.m_numVisualShapes);
-			for (int i = 0; i < visualShapeInfo.m_numVisualShapes; i++)
+			for (i = 0; i < visualShapeInfo.m_numVisualShapes; i++)
 			{
 				PyObject* visualShapeObList = PyTuple_New(7);
 				PyObject* item;
