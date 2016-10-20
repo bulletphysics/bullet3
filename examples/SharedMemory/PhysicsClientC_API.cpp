@@ -1252,7 +1252,32 @@ void b3GetVisualShapeInformation(b3PhysicsClientHandle physClient, struct b3Visu
 	}
 }
 
+b3SharedMemoryCommandHandle b3InitUpdateVisualShape(b3PhysicsClientHandle physClient)
+{
+    /*
+    PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type = CMD_UPDATE_VISUAL_SHAPE;
+    command->m_updateFlags = 0;
+    
+    return (b3SharedMemoryCommandHandle) command;
+     */
+    PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type = CMD_UPDATE_VISUAL_SHAPE;
+    //command->m_requestVisualShapeDataArguments.m_bodyUniqueId = 0;
+    //command->m_requestVisualShapeDataArguments.m_startingVisualShapeIndex = 0;
+    command->m_updateFlags = 0;
+    return (b3SharedMemoryCommandHandle) command;
 
+}
 
 b3SharedMemoryCommandHandle b3ApplyExternalForceCommandInit(b3PhysicsClientHandle physClient)
 {

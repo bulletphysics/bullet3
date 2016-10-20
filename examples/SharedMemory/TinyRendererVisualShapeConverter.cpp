@@ -33,6 +33,7 @@ subject to the following restrictions:
 #include <fstream>
 #include "../Importers/ImportURDFDemo/UrdfParser.h"
 #include "../SharedMemory/SharedMemoryPublic.h"//for b3VisualShapeData
+#include "../TinyRenderer/model.h"
 
 
 enum MyFileType
@@ -68,6 +69,7 @@ struct TinyRendererVisualShapeConverterInternalData
 	int m_swWidth;
 	int m_swHeight;
 	TGAImage m_rgbColorBuffer;
+    TGAImage m_texture;
 	b3AlignedObjectArray<float> m_depthBuffer;
 	b3AlignedObjectArray<int> m_segmentationMaskBuffer;
 	
@@ -77,7 +79,8 @@ struct TinyRendererVisualShapeConverterInternalData
 	:m_upAxis(2),
 	m_swWidth(START_WIDTH),
 	m_swHeight(START_HEIGHT),
-	m_rgbColorBuffer(START_WIDTH,START_HEIGHT,TGAImage::RGB)
+	m_rgbColorBuffer(START_WIDTH,START_HEIGHT,TGAImage::RGB),
+    m_texture(START_WIDTH,START_HEIGHT,TGAImage::RGB)
 	{
 	    m_depthBuffer.resize(m_swWidth*m_swHeight);
 	    m_segmentationMaskBuffer.resize(m_swWidth*m_swHeight,-1);
@@ -827,3 +830,34 @@ void TinyRendererVisualShapeConverter::resetAll()
 	m_data->m_swRenderInstances.clear();
 }
 
+// Get shapeUniqueId from getVisualShapesData?
+void TinyRendererVisualShapeConverter::activateShapeTexture(int shapeUniqueId, int textureUniqueId)
+{
+    /*
+    // Use shapeUniqueId?
+    int objectArrayIndex = 0;
+    int objectIndex = 0;
+    TinyRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(objectArrayIndex);
+    TinyRendererObjectArray* visualArray = *visualArrayPtr;
+    unsigned char textureImage[3] = {10, 10, 255};
+    int textureWidth = 1000;
+    int textureHeight = 1000;
+    visualArray->m_renderObjects[objectIndex]->m_model->setDiffuseTextureFromData(textureImage,textureWidth,textureHeight);
+    */
+    
+    int objectArrayIndex = 0;
+    int objectIndex = 0;
+    for (int i=0;i<m_data->m_swRenderInstances.size();i++)
+    {
+        TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(i);
+        if (ptrptr && *ptrptr)
+        {
+            TinyRendererObjectArray* ptr = *ptrptr;
+            unsigned char textureImage[3] = {255, 10, 10};
+            int textureWidth = 1000;
+            int textureHeight = 1000;
+            ptr->m_renderObjects[objectIndex]->m_model->setDiffuseTextureFromData(textureImage,textureWidth,textureHeight);
+        }
+    }
+    
+}

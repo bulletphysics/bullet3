@@ -3001,6 +3001,18 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     hasStatus = true;
                     break;
                 }
+                case CMD_UPDATE_VISUAL_SHAPE:
+                {
+                    SharedMemoryStatus& serverCmd = serverStatusOut;
+                    serverCmd.m_type = CMD_VISUAL_SHAPE_UPDATE_FAILED;
+                    
+                    m_data->m_visualConverter.activateShapeTexture(0, 0);
+                    
+                    serverCmd.m_type = CMD_VISUAL_SHAPE_UPDATE_COMPLETED;
+                    hasStatus = true;
+
+                    break;
+                }
                 default:
                 {
                     b3Error("Unknown command encountered");

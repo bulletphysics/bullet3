@@ -481,6 +481,12 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 			}
 			break;
 		}
+        case CMD_UPDATE_VISUAL_SHAPE:
+        {
+            b3SharedMemoryCommandHandle commandHandle = b3InitUpdateVisualShape(m_physicsClientHandle);
+            b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+            break;
+        }
         default:
         {
             b3Error("Unknown buttonId");
@@ -560,6 +566,7 @@ void	PhysicsClientExample::createButtons()
         createButton("Step Sim",CMD_STEP_FORWARD_SIMULATION,  isTrigger);
 		createButton("Realtime Sim",CMD_CUSTOM_SET_REALTIME_SIMULATION,  isTrigger);
 		createButton("Get Visual Shape Info",CMD_REQUEST_VISUAL_SHAPE_INFO,  isTrigger);
+        createButton("Update Visual Shape",CMD_UPDATE_VISUAL_SHAPE,  isTrigger);
         createButton("Send Bullet Stream",CMD_SEND_BULLET_DATA_STREAM,  isTrigger);
 		if (m_options!=eCLIENTEXAMPLE_SERVER)
 		{
@@ -997,14 +1004,20 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 			{
 				b3Warning("Cannot get visual shape information");
 			}
-
+            if (statusType == CMD_VISUAL_SHAPE_UPDATE_FAILED)
+            {
+                b3Warning("Cannot update visual shape");
+            }
 			if (statusType == CMD_VISUAL_SHAPE_INFO_COMPLETED)
 			{
 				b3VisualShapeInformation shapeInfo;
 				b3GetVisualShapeInformation(m_physicsClientHandle, &shapeInfo);
 				b3Printf("Num visual shapes: %d", shapeInfo.m_numVisualShapes);
 			}
-
+            if (statusType == CMD_VISUAL_SHAPE_UPDATE_COMPLETED)
+            {
+                b3Printf("Visual shape update completed.");
+            }
 			if (statusType == CMD_CONTACT_POINT_INFORMATION_COMPLETED)
 			{
 				b3ContactInformation contactPointData;

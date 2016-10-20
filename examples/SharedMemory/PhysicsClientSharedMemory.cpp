@@ -657,6 +657,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 				b3Warning("Visual Shape Info Request failed");
 				break;
 			}
+            case CMD_VISUAL_SHAPE_UPDATE_COMPLETED:
+            {
+                break;
+            }
+            case CMD_VISUAL_SHAPE_UPDATE_FAILED:
+            {
+                b3Warning("Visual Shape Update failed");
+                break;
+            }
             default: {
                 b3Error("Unknown server status %d\n", serverCmd.m_type);
                 btAssert(0);
