@@ -833,20 +833,26 @@ void TinyRendererVisualShapeConverter::resetAll()
 // Get shapeUniqueId from getVisualShapesData?
 void TinyRendererVisualShapeConverter::activateShapeTexture(int shapeUniqueId, int textureUniqueId)
 {
-    /*
-    // Use shapeUniqueId?
-    int objectArrayIndex = 0;
-    int objectIndex = 0;
-    TinyRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(objectArrayIndex);
-    TinyRendererObjectArray* visualArray = *visualArrayPtr;
-    unsigned char textureImage[3] = {10, 10, 255};
-    int textureWidth = 1000;
-    int textureHeight = 1000;
-    visualArray->m_renderObjects[objectIndex]->m_model->setDiffuseTextureFromData(textureImage,textureWidth,textureHeight);
-    */
     
+    // Use shapeUniqueId?
+    int objectArrayIndex = 1;
+    int objectIndex = 0;
+    printf("num m_swRenderInstances = %d\n", m_data->m_swRenderInstances.size());
+    TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(objectArrayIndex);
+    if (ptrptr && *ptrptr)
+    {
+        TinyRendererObjectArray* ptr = *ptrptr;
+        unsigned char textureImage[3] = {255, 0, 0};
+        int textureWidth = 1;
+        int textureHeight = 1;
+        ptr->m_renderObjects[objectIndex]->m_model->setDiffuseTextureFromData(textureImage,textureWidth,textureHeight);
+    }
+
+    
+    /*
     int objectArrayIndex = 0;
     int objectIndex = 0;
+    printf("num m_swRenderInstances = %d\n", m_data->m_swRenderInstances.size());
     for (int i=0;i<m_data->m_swRenderInstances.size();i++)
     {
         TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(i);
@@ -854,10 +860,10 @@ void TinyRendererVisualShapeConverter::activateShapeTexture(int shapeUniqueId, i
         {
             TinyRendererObjectArray* ptr = *ptrptr;
             unsigned char textureImage[3] = {255, 10, 10};
-            int textureWidth = 1000;
-            int textureHeight = 1000;
+            int textureWidth = 1;
+            int textureHeight = 1;
             ptr->m_renderObjects[objectIndex]->m_model->setDiffuseTextureFromData(textureImage,textureWidth,textureHeight);
         }
     }
-    
+    */
 }

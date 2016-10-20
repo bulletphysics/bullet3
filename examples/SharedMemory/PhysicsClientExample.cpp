@@ -242,7 +242,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
     {
         case  CMD_LOAD_URDF:
         {
-            b3SharedMemoryCommandHandle commandHandle = b3LoadUrdfCommandInit(m_physicsClientHandle, "kuka_iiwa/model.urdf");
+            b3SharedMemoryCommandHandle commandHandle = b3LoadUrdfCommandInit(m_physicsClientHandle, "kuka_iiwa/model_white.urdf");
             //setting the initial position, orientation and other arguments are optional
             double startPosX = 0;
             static double startPosY = 0;
