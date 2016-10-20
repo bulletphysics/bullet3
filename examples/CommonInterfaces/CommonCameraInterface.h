@@ -3,6 +3,7 @@
 
 struct CommonCameraInterface
 {
+	virtual ~CommonCameraInterface(){}
 	virtual void getCameraProjectionMatrix(float m[16])const = 0;
 	virtual void getCameraViewMatrix(float m[16]) const = 0;
 		
