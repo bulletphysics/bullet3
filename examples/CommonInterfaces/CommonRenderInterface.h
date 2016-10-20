@@ -19,6 +19,7 @@ enum
 
 struct CommonRenderInterface
 {
+	virtual ~CommonRenderInterface() {}
 	virtual void init()=0;
 	virtual void updateCamera(int upAxis)=0;
 	virtual void removeAllInstances() = 0;

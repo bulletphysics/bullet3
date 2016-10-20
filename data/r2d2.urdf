@@ -11,7 +11,7 @@
     </visual>
     <collision>
       <geometry>
-        <cylinder length="0.6" radius="0.2"/>
+        <cylinder length="0.6" radius="0.17"/>
       </geometry>
     </collision>
     <inertial>
@@ -266,7 +266,7 @@
   <joint name="left_gripper_joint" type="revolute">
     <axis xyz="0 0 1"/>
     <limit effort="1000.0" lower="0.0" upper="0.548" velocity="0.5"/>
-    <origin rpy="0 0 0" xyz="0.2 0.01 0"/>
+    <origin rpy="0 0 0" xyz="0.2 0.02 0"/>
     <parent link="gripper_pole"/>
     <child link="left_gripper"/>
   </joint>
@@ -317,7 +317,7 @@
   <joint name="right_gripper_joint" type="revolute">
     <axis xyz="0 0 -1"/>
     <limit effort="1000.0" lower="0.0" upper="0.548" velocity="0.5"/>
-    <origin rpy="0 0 0" xyz="0.2 -0.01 0"/>
+    <origin rpy="0 0 0" xyz="0.2 -0.02 0"/>
     <parent link="gripper_pole"/>
     <child link="right_gripper"/>
   </joint>
@@ -368,13 +368,13 @@
   <link name="head">
     <visual>
       <geometry>
-        <sphere radius="0.2"/>
+        <sphere radius="0.16"/>
       </geometry>
       <material name="white"/>
     </visual>
     <collision>
       <geometry>
-        <sphere radius="0.2"/>
+        <sphere radius="0.16"/>
       </geometry>
     </collision>
     <inertial>
@@ -412,7 +412,7 @@
   <joint name="tobox" type="fixed">
     <parent link="head"/>
     <child link="box"/>
-    <origin xyz="0 0.1414 0.1414"/>
+    <origin xyz="0 0.1214 0.1214"/>
   </joint>
 
 </robot>
