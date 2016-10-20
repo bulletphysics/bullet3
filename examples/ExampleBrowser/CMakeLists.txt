@@ -181,6 +181,8 @@ SET(BulletExampleBrowser_SRCS
 	../ExtendedTutorials/InclinedPlane.h
 	../ExtendedTutorials/MultiPendulum.cpp
 	../ExtendedTutorials/MultiPendulum.h
+	../ExtendedTutorials/Breakout.cpp
+	../ExtendedTutorials/Breakout.h
 	../Collision/CollisionSdkC_Api.cpp
 	../Collision/CollisionSdkC_Api.h
 	../Collision/CollisionTutorialBullet2.cpp
