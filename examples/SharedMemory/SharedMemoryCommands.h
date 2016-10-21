@@ -157,6 +157,17 @@ struct RequestVisualShapeDataArgs
 	int m_startingVisualShapeIndex;
 };
 
+struct UpdateVisualShapeDataArgs
+{
+    int m_bodyUniqueId;
+    int m_textureUniqueId;
+};
+
+struct LoadTextureArgs
+{
+    char m_textureFileName[MAX_FILENAME_LENGTH];
+};
+
 struct SendVisualShapeDataArgs
 {
 	int m_bodyUniqueId;
@@ -477,6 +488,8 @@ struct SharedMemoryCommand
         struct CreateJointArgs m_createJointArguments;
         struct RequestContactDataArgs m_requestContactPointArguments;
         struct RequestVisualShapeDataArgs m_requestVisualShapeDataArguments;
+        struct UpdateVisualShapeDataArgs m_updateVisualShapeDataArguments;
+        struct LoadTextureArgs m_loadTextureArguments;
 		struct CalculateInverseKinematicsArgs m_calculateInverseKinematicsArguments;
     };
 };

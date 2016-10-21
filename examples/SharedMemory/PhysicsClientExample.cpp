@@ -489,7 +489,14 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 		}
         case CMD_UPDATE_VISUAL_SHAPE:
         {
-            b3SharedMemoryCommandHandle commandHandle = b3InitUpdateVisualShape(m_physicsClientHandle);
+            b3SharedMemoryCommandHandle commandHandle = b3InitUpdateVisualShape(m_physicsClientHandle,8,0);
+            b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+            break;
+        }
+        case CMD_LOAD_TEXTURE:
+        {
+            const char filename[] = "/Users/yunfeibai/Documents/dev/bullet-change-texture/bullet3/data/checker_huge.gif";
+            b3SharedMemoryCommandHandle commandHandle = b3InitLoadTexture(m_physicsClientHandle, filename);
             b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
             break;
         }
@@ -572,6 +579,7 @@ void	PhysicsClientExample::createButtons()
         createButton("Step Sim",CMD_STEP_FORWARD_SIMULATION,  isTrigger);
 		createButton("Realtime Sim",CMD_CUSTOM_SET_REALTIME_SIMULATION,  isTrigger);
 		createButton("Get Visual Shape Info",CMD_REQUEST_VISUAL_SHAPE_INFO,  isTrigger);
+        createButton("Load Texture",CMD_LOAD_TEXTURE, isTrigger);
         createButton("Update Visual Shape",CMD_UPDATE_VISUAL_SHAPE,  isTrigger);
         createButton("Send Bullet Stream",CMD_SEND_BULLET_DATA_STREAM,  isTrigger);
 		if (m_options!=eCLIENTEXAMPLE_SERVER)

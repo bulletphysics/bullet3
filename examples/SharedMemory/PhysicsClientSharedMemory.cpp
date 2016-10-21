@@ -666,6 +666,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 b3Warning("Visual Shape Update failed");
                 break;
             }
+            case CMD_LOAD_TEXTURE_COMPLETED:
+            {
+                break;
+            }
+            case CMD_LOAD_TEXTURE_FAILED:
+            {
+                b3Warning("Load texture failed");
+                break;
+            }
             default: {
                 b3Error("Unknown server status %d\n", serverCmd.m_type);
                 btAssert(0);

@@ -70,9 +70,7 @@ struct TinyRendererVisualShapeConverterInternalData
 	int m_swWidth;
 	int m_swHeight;
 	TGAImage m_rgbColorBuffer;
-    unsigned char* m_texture;
-    int m_textureWidth;
-    int m_textureHeight;
+    b3AlignedObjectArray<MyTexture2> m_textures;
 	b3AlignedObjectArray<float> m_depthBuffer;
 	b3AlignedObjectArray<int> m_segmentationMaskBuffer;
 	
@@ -832,27 +830,24 @@ void TinyRendererVisualShapeConverter::resetAll()
 	m_data->m_swRenderInstances.clear();
 }
 
-// Get shapeUniqueId from getVisualShapesData?
 void TinyRendererVisualShapeConverter::activateShapeTexture(int shapeUniqueId, int textureUniqueId)
 {
-    // Use shapeUniqueId?
-    int objectArrayIndex = 8;
-    int objectIndex = 0;
-    printf("num m_swRenderInstances = %d\n", m_data->m_swRenderInstances.size());
-    TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(objectArrayIndex);
+    TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(shapeUniqueId);
     if (ptrptr && *ptrptr)
     {
         TinyRendererObjectArray* ptr = *ptrptr;
-        ptr->m_renderObjects[objectIndex]->m_model->setDiffuseTextureFromData(m_data->m_texture,m_data->m_textureWidth,m_data->m_textureHeight);
+        ptr->m_renderObjects[0]->m_model->setDiffuseTextureFromData(m_data->m_textures[textureUniqueId].textureData,m_data->m_textures[textureUniqueId].m_width,m_data->m_textures[textureUniqueId].m_height);
     }
 }
 
 int TinyRendererVisualShapeConverter::registerTexture(unsigned char* texels, int width, int height)
 {
-    m_data->m_texture = texels;
-    m_data->m_textureWidth = width;
-    m_data->m_textureHeight = height;
-    return 0;
+    MyTexture2 texData;
+    texData.m_width = width;
+    texData.m_height = height;
+    texData.textureData = texels;
+    m_data->m_textures.push_back(texData);
+    return m_data->m_textures.size()-1;
 }
 
 void TinyRendererVisualShapeConverter::loadTextureFile(const char* filename)

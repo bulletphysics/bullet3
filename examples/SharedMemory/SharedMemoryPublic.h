@@ -36,6 +36,7 @@ enum EnumSharedMemoryClientCommand
 	CMD_SAVE_WORLD,
 	CMD_REQUEST_VISUAL_SHAPE_INFO,
     CMD_UPDATE_VISUAL_SHAPE,
+    CMD_LOAD_TEXTURE,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -84,6 +85,8 @@ enum EnumSharedMemoryServerStatus
         CMD_VISUAL_SHAPE_INFO_FAILED,
         CMD_VISUAL_SHAPE_UPDATE_COMPLETED,
         CMD_VISUAL_SHAPE_UPDATE_FAILED,
+        CMD_LOAD_TEXTURE_COMPLETED,
+        CMD_LOAD_TEXTURE_FAILED,
         //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
