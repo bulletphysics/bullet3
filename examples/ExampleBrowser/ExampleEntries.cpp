@@ -49,7 +49,6 @@
 #include "../RoboticsLearning/KukaGraspExample.h"
 #include "../RoboticsLearning/GripperGraspExample.h"
 #include "../InverseKinematics/InverseKinematicsExample.h"
-
 #ifdef ENABLE_LUA
 #include "../LuaDemo/LuaPhysicsSetup.h"
 #endif
@@ -68,6 +67,7 @@
 #include "../ExtendedTutorials/SimpleCloth.h"
 #include "../ExtendedTutorials/Chain.h"
 #include "../ExtendedTutorials/Bridge.h"
+#include "../ExtendedTutorials/TimeWarp.h"
 #include "../ExtendedTutorials/RigidBodyFromObj.h"
 #include "../ExtendedTutorials/InclinedPlane.h"
 #include "../ExtendedTutorials/NewtonsCradle.h"
@@ -295,7 +295,7 @@ static ExampleEntry gDefaultExamples[]=
 
 		
 
-	//Extended Tutorials Added by Mobeen
+	//Extended Tutorials Added by Mobeen and Benelot
 	ExampleEntry(0,"Extended Tutorials"),
 	ExampleEntry(1,"Simple Box", "Simplest possible demo creating a single box rigid body that falls under gravity", ET_SimpleBoxCreateFunc),
 	ExampleEntry(1,"Multiple Boxes", "Add multiple box rigid bodies that fall under gravity", ET_MultipleBoxesCreateFunc),
@@ -308,6 +308,7 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Newton's Rope Cradle", "Create a Newton's Cradle using ropes. Press 3 to displace pendula. Use the sliders to select the number (reset simulation), length and restitution of pendula and the number of displaced pendula and apply the displacement force.",ET_NewtonsRopeCradleCreateFunc),
 	ExampleEntry(1,"Multi-Pendulum", "Create a Multi-Pendulum using point2point/slider constraints. Press 1/2 to lengthen/shorten the pendula, press 3 to displace pendula. Use the sliders to select the number (reset simulation), length and restitution of pendula, the number of displaced pendula and apply the displacement force.",ET_MultiPendulumCreateFunc),
 
+	ExampleEntry(1,"Time Warp", "Implement the canonical game loop to run a simulation fully deterministic. Control the simulation speed, internal Application Ticks, Physics steps per second, FPS, and learn about ERP/CFM. Use the buttons to trigger problematic settings and see how it influences the simulation. Press space to reset the simulation, hit 'Back to normal' to reset the settings.",ET_TimeWarpCreateFunc),
 
 	//todo: create a category/tutorial about advanced topics, such as optimizations, using different collision detection algorithm, different constraint solvers etc.
 	//ExampleEntry(0,"Advanced"),
