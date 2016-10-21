@@ -89,6 +89,8 @@ project "App_BulletExampleBrowser"
 		"../BasicDemo/BasicExample.*",
 		"../Tutorial/*",
 		"../ExtendedTutorials/*",
+		"../Evolution/NN3DWalkers.cpp",
+		"../Evolution/NN3DWalkers.h",
 		"../Collision/*",
 		"../RoboticsLearning/*",
 		"../Collision/Internal/*",

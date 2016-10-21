@@ -36,6 +36,8 @@ ADD_LIBRARY(BulletExampleBrowserLib
 	../Utils/b3Clock.h
 	../Utils/b3ResourcePath.cpp
 	../Utils/b3ResourcePath.h
+	../Utils/b3ERPCFMHelper.hpp
+	../Utils/b3ReferenceFrameHelper.hpp
 	${GwenGUISupport_SRCS}
 	${GwenGUISupport_HDRS}
 	
@@ -108,20 +110,30 @@ ENDIF(WIN32)
 
 
 SET(ExtendedTutorialsSources
-	../ExtendedTutorials/SimpleBox.cpp
-	../ExtendedTutorials/MultipleBoxes.cpp
-	../ExtendedTutorials/SimpleJoint.cpp
-	../ExtendedTutorials/SimpleCloth.cpp
 	../ExtendedTutorials/Chain.cpp 
-	../ExtendedTutorials/Bridge.cpp 
+	../ExtendedTutorials/Chain.h
+	../ExtendedTutorials/Bridge.cpp
+	../ExtendedTutorials/Bridge.h
 	../ExtendedTutorials/RigidBodyFromObj.cpp
+	../ExtendedTutorials/RigidBodyFromObj.h
+    ../ExtendedTutorials/SimpleBox.cpp
+	../ExtendedTutorials/SimpleBox.h
+	../ExtendedTutorials/MultipleBoxes.cpp
+	../ExtendedTutorials/MultipleBoxes.h
+	../ExtendedTutorials/SimpleCloth.cpp
+	../ExtendedTutorials/SimpleCloth.h
+	../ExtendedTutorials/SimpleJoint.cpp
+	../ExtendedTutorials/SimpleJoint.h
+	../ExtendedTutorials/NewtonsCradle.cpp
+	../ExtendedTutorials/NewtonsCradle.h
 	../ExtendedTutorials/InclinedPlane.cpp
 	../ExtendedTutorials/InclinedPlane.h
-	../ExtendedTutorials/NewtonsCradle.cpp
+	../ExtendedTutorials/MultiPendulum.cpp
+	../ExtendedTutorials/MultiPendulum.h
 )
 
 SET(BulletExampleBrowser_SRCS
-	
+	../CommonInterfaces/CommonTimeWarpBase.h #TODO: This is wrong here, where should it go?
 	../TinyRenderer/geometry.cpp
 	../TinyRenderer/model.cpp
 	../TinyRenderer/tgaimage.cpp
@@ -165,22 +177,10 @@ SET(BulletExampleBrowser_SRCS
 	../Tutorial/Tutorial.h
 	../Tutorial/Dof6ConstraintTutorial.cpp
 	../Tutorial/Dof6ConstraintTutorial.h
-	../ExtendedTutorials/SimpleBox.cpp
-	../ExtendedTutorials/SimpleBox.h
-	../ExtendedTutorials/MultipleBoxes.cpp
-	../ExtendedTutorials/MultipleBoxes.h
-	../ExtendedTutorials/SimpleCloth.cpp
-	../ExtendedTutorials/SimpleCloth.h
-	../ExtendedTutorials/SimpleJoint.cpp
-	../ExtendedTutorials/SimpleJoint.h
-	../ExtendedTutorials/NewtonsCradle.cpp
-	../ExtendedTutorials/NewtonsCradle.h
+	../Evolution/NN3DWalkers.cpp
+	../Evolution/NN3DWalkers.h
 	../ExtendedTutorials/NewtonsRopeCradle.cpp
 	../ExtendedTutorials/NewtonsRopeCradle.h
-	../ExtendedTutorials/InclinedPlane.cpp
-	../ExtendedTutorials/InclinedPlane.h
-	../ExtendedTutorials/MultiPendulum.cpp
-	../ExtendedTutorials/MultiPendulum.h
 	../Collision/CollisionSdkC_Api.cpp
 	../Collision/CollisionSdkC_Api.h
 	../Collision/CollisionTutorialBullet2.cpp
