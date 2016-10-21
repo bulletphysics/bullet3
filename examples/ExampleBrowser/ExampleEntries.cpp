@@ -73,6 +73,7 @@
 #include "../ExtendedTutorials/NewtonsCradle.h"
 #include "../ExtendedTutorials/NewtonsRopeCradle.h"
 #include "../ExtendedTutorials/MultiPendulum.h"
+#include "../Evolution/NN3DWalkers.h"
 
 struct ExampleEntry
 {
@@ -308,6 +309,8 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Newton's Rope Cradle", "Create a Newton's Cradle using ropes. Press 3 to displace pendula. Use the sliders to select the number (reset simulation), length and restitution of pendula and the number of displaced pendula and apply the displacement force.",ET_NewtonsRopeCradleCreateFunc),
 	ExampleEntry(1,"Multi-Pendulum", "Create a Multi-Pendulum using point2point/slider constraints. Press 1/2 to lengthen/shorten the pendula, press 3 to displace pendula. Use the sliders to select the number (reset simulation), length and restitution of pendula, the number of displaced pendula and apply the displacement force.",ET_MultiPendulumCreateFunc),
 
+	ExampleEntry(9,"Evolution"),
+	ExampleEntry(1,"Neural Network 3D Walkers","A simple example of using evolution to make a creature walk.",ET_NN3DWalkersCreateFunc),
 
 	//todo: create a category/tutorial about advanced topics, such as optimizations, using different collision detection algorithm, different constraint solvers etc.
 	//ExampleEntry(0,"Advanced"),
