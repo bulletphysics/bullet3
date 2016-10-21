@@ -1272,7 +1272,7 @@ b3SharedMemoryCommandHandle b3InitLoadTexture(b3PhysicsClientHandle physClient, 
     return (b3SharedMemoryCommandHandle) command;
 }
 
-b3SharedMemoryCommandHandle b3InitUpdateVisualShape(b3PhysicsClientHandle physClient, int bodyUniqueId, int textureUniqueId)
+b3SharedMemoryCommandHandle b3InitUpdateVisualShape(b3PhysicsClientHandle physClient, int bodyUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;
     b3Assert(cl);
@@ -1281,6 +1281,8 @@ b3SharedMemoryCommandHandle b3InitUpdateVisualShape(b3PhysicsClientHandle physCl
     b3Assert(command);
     command->m_type = CMD_UPDATE_VISUAL_SHAPE;
     command->m_updateVisualShapeDataArguments.m_bodyUniqueId = bodyUniqueId;
+    command->m_updateVisualShapeDataArguments.m_jointIndex = jointIndex;
+    command->m_updateVisualShapeDataArguments.m_shapeIndex = shapeIndex;
     command->m_updateVisualShapeDataArguments.m_textureUniqueId = textureUniqueId;
     command->m_updateFlags = 0;
     return (b3SharedMemoryCommandHandle) command;

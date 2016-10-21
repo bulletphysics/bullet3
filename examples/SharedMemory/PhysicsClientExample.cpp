@@ -25,6 +25,9 @@ struct MyMotorInfo2
 int camVisualizerWidth = 320;//1024/3;
 int camVisualizerHeight = 240;//768/3;
 
+int loadTextureCount = 0;
+int setTextureCount = 0;
+
 enum CustomCommands
 {
 	CMD_CUSTOM_SET_REALTIME_SIMULATION = CMD_MAX_CLIENT_COMMANDS+1,
@@ -242,7 +245,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
     {
         case  CMD_LOAD_URDF:
         {
-            b3SharedMemoryCommandHandle commandHandle = b3LoadUrdfCommandInit(m_physicsClientHandle, "kuka_iiwa/model_white.urdf");
+            b3SharedMemoryCommandHandle commandHandle = b3LoadUrdfCommandInit(m_physicsClientHandle, "kuka_iiwa/model.urdf");
             //setting the initial position, orientation and other arguments are optional
             double startPosX = 0;
             static double startPosY = 0;
@@ -260,9 +263,9 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
             b3SharedMemoryCommandHandle commandHandle = b3LoadSdfCommandInit(m_physicsClientHandle, "two_cubes.sdf");//kuka_iiwa/model.sdf");
             b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
             */
-            b3SharedMemoryCommandHandle commandHandle = b3LoadUrdfCommandInit(m_physicsClientHandle, "sphere_big.urdf");
+            b3SharedMemoryCommandHandle commandHandle = b3LoadUrdfCommandInit(m_physicsClientHandle, "table/table.urdf");
             //setting the initial position, orientation and other arguments are optional
-            b3LoadUrdfCommandSetStartPosition(commandHandle,0.5,0.5,0.5);
+            b3LoadUrdfCommandSetStartPosition(commandHandle,2.0,2.0,0.5);
             b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
             break;
         }
@@ -489,15 +492,36 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 		}
         case CMD_UPDATE_VISUAL_SHAPE:
         {
-            b3SharedMemoryCommandHandle commandHandle = b3InitUpdateVisualShape(m_physicsClientHandle,8,0);
-            b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+            if (setTextureCount == 0)
+            {
+                b3SharedMemoryCommandHandle commandHandle = b3InitUpdateVisualShape(m_physicsClientHandle,1,0,0,0);
+                b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+            }
+            else if (setTextureCount == 1)
+            {
+                b3SharedMemoryCommandHandle commandHandle = b3InitUpdateVisualShape(m_physicsClientHandle,1,0,0,1);
+                b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+            }
+            setTextureCount++;
+            if (setTextureCount >=2)
+                setTextureCount = 0;
             break;
         }
         case CMD_LOAD_TEXTURE:
         {
-            const char filename[] = "/Users/yunfeibai/Documents/dev/bullet-change-texture/bullet3/data/checker_huge.gif";
-            b3SharedMemoryCommandHandle commandHandle = b3InitLoadTexture(m_physicsClientHandle, filename);
-            b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+            if (loadTextureCount == 0)
+            {
+                const char filename[] = "/Users/yunfeibai/Documents/dev/bullet-change-texture/bullet3/data/cube.png";
+                b3SharedMemoryCommandHandle commandHandle = b3InitLoadTexture(m_physicsClientHandle, filename);
+                b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+            }
+            else if (loadTextureCount ==1)
+            {
+                const char filename[] = "/Users/yunfeibai/Documents/dev/bullet-change-texture/bullet3/data/checker_huge.gif";
+                b3SharedMemoryCommandHandle commandHandle = b3InitLoadTexture(m_physicsClientHandle, filename);
+                b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+            }
+            loadTextureCount++;
             break;
         }
         default:

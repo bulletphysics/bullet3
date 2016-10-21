@@ -160,6 +160,8 @@ struct RequestVisualShapeDataArgs
 struct UpdateVisualShapeDataArgs
 {
     int m_bodyUniqueId;
+    int m_jointIndex;
+    int m_shapeIndex;
     int m_textureUniqueId;
 };
 

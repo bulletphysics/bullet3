@@ -832,11 +832,35 @@ void TinyRendererVisualShapeConverter::resetAll()
 
 void TinyRendererVisualShapeConverter::activateShapeTexture(int shapeUniqueId, int textureUniqueId)
 {
+    btAssert(textureUniqueId < m_data->m_textures.size());
     TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(shapeUniqueId);
     if (ptrptr && *ptrptr)
     {
         TinyRendererObjectArray* ptr = *ptrptr;
         ptr->m_renderObjects[0]->m_model->setDiffuseTextureFromData(m_data->m_textures[textureUniqueId].textureData,m_data->m_textures[textureUniqueId].m_width,m_data->m_textures[textureUniqueId].m_height);
+    }
+}
+
+void TinyRendererVisualShapeConverter::activateShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)
+{
+    int start = -1;
+    //find first one, then count how many
+    for (int i = 0; i < m_data->m_visualShapes.size(); i++)
+    {
+        printf("object id: %d\n", m_data->m_visualShapes[i].m_objectUniqueId);
+        if (m_data->m_visualShapes[i].m_objectUniqueId == objectUniqueId && m_data->m_visualShapes[i].m_linkIndex == jointIndex)
+        {
+            start = i;
+            break;
+        }
+    }
+    
+    if (start >= 0)
+    {
+        if (start + shapeIndex < m_data->m_visualShapes.size())
+        {
+            activateShapeTexture(start + shapeIndex, textureUniqueId);
+        }
     }
 }
 
