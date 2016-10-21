@@ -256,7 +256,13 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
         
         case  CMD_LOAD_SDF:
         {
+            /*
             b3SharedMemoryCommandHandle commandHandle = b3LoadSdfCommandInit(m_physicsClientHandle, "two_cubes.sdf");//kuka_iiwa/model.sdf");
+            b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+            */
+            b3SharedMemoryCommandHandle commandHandle = b3LoadUrdfCommandInit(m_physicsClientHandle, "sphere_big.urdf");
+            //setting the initial position, orientation and other arguments are optional
+            b3LoadUrdfCommandSetStartPosition(commandHandle,0.5,0.5,0.5);
             b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
             break;
         }

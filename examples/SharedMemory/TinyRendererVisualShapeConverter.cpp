@@ -34,6 +34,7 @@ subject to the following restrictions:
 #include "../Importers/ImportURDFDemo/UrdfParser.h"
 #include "../SharedMemory/SharedMemoryPublic.h"//for b3VisualShapeData
 #include "../TinyRenderer/model.h"
+#include "../ThirdPartyLibs/stb_image/stb_image.h"
 
 
 enum MyFileType
@@ -833,9 +834,14 @@ void TinyRendererVisualShapeConverter::resetAll()
 // Get shapeUniqueId from getVisualShapesData?
 void TinyRendererVisualShapeConverter::activateShapeTexture(int shapeUniqueId, int textureUniqueId)
 {
+    int width,height,n;
+    const char filename[] = "/Users/yunfeibai/Documents/dev/bullet-change-texture/bullet3/data/checker_huge.gif";
+    unsigned char* image=0;
+    
+	image = stbi_load(filename, &width, &height, &n, 3);
     
     // Use shapeUniqueId?
-    int objectArrayIndex = 1;
+    int objectArrayIndex = 8;
     int objectIndex = 0;
     printf("num m_swRenderInstances = %d\n", m_data->m_swRenderInstances.size());
     TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(objectArrayIndex);
@@ -845,7 +851,8 @@ void TinyRendererVisualShapeConverter::activateShapeTexture(int shapeUniqueId, i
         unsigned char textureImage[3] = {255, 0, 0};
         int textureWidth = 1;
         int textureHeight = 1;
-        ptr->m_renderObjects[objectIndex]->m_model->setDiffuseTextureFromData(textureImage,textureWidth,textureHeight);
+        //ptr->m_renderObjects[objectIndex]->m_model->setDiffuseTextureFromData(textureImage,textureWidth,textureHeight);
+        ptr->m_renderObjects[objectIndex]->m_model->setDiffuseTextureFromData(image,width,height);
     }
 
     
