@@ -60,9 +60,6 @@ void Model::setDiffuseTextureFromData(unsigned char* textureImage,int textureWid
             color.bgra[0] = textureImage[(i+j*textureWidth)*3+0];
             color.bgra[1] = textureImage[(i+j*textureWidth)*3+1];
             color.bgra[2] = textureImage[(i+j*textureWidth)*3+2];
-            //color.bgra[0] = textureImage[0];
-            //color.bgra[1] = textureImage[1];
-            //color.bgra[2] = textureImage[2];
 			color.bgra[3] = 255;
 
 			color.bytespp = 3;

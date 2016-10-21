@@ -844,10 +844,8 @@ void TinyRendererVisualShapeConverter::activateShapeTexture(int shapeUniqueId, i
 void TinyRendererVisualShapeConverter::activateShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)
 {
     int start = -1;
-    //find first one, then count how many
     for (int i = 0; i < m_data->m_visualShapes.size(); i++)
     {
-        printf("object id: %d\n", m_data->m_visualShapes[i].m_objectUniqueId);
         if (m_data->m_visualShapes[i].m_objectUniqueId == objectUniqueId && m_data->m_visualShapes[i].m_linkIndex == jointIndex)
         {
             start = i;
