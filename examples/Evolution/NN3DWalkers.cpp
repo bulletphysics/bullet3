@@ -129,6 +129,7 @@ public:
 
 	virtual ~NN3DWalkersExample()
 	{
+		delete m_timeSeriesCanvas;
 	}
 
 	void initPhysics();
@@ -1021,7 +1022,7 @@ void NN3DWalkersExample::drawMarkings() {
 				btVector3 walkerPosition = m_walkersInPopulation[i]->getPosition();
 				char performance[20];
 				sprintf(performance, "%.2f m", btSqrt(m_walkersInPopulation[i]->getDistanceFitness()));
-				m_guiHelper->drawText3D(performance,walkerPosition.x(),walkerPosition.y()+1,walkerPosition.z(),3);
+				m_guiHelper->drawText3D(performance,walkerPosition.x(),walkerPosition.y()+1,walkerPosition.z(),1);
 			}
 		}
 
