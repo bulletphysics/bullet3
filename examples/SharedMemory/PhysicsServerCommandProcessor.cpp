@@ -3006,6 +3006,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     SharedMemoryStatus& serverCmd = serverStatusOut;
                     serverCmd.m_type = CMD_VISUAL_SHAPE_UPDATE_FAILED;
                     
+                    const char filename[] = "/Users/yunfeibai/Documents/dev/bullet-change-texture/bullet3/data/checker_huge.gif";
+                    m_data->m_visualConverter.loadTextureFile(filename);
                     m_data->m_visualConverter.activateShapeTexture(0, 0);
                     
                     serverCmd.m_type = CMD_VISUAL_SHAPE_UPDATE_COMPLETED;
