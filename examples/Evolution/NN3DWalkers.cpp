@@ -29,7 +29,7 @@ struct btCollisionAlgorithmCreateFunc;
 class btDefaultCollisionConfiguration;
 class NNWalker;
 
-#include "../CommonInterfaces/CommonTimeWarpBase.h"
+#include "NN3DWalkersTimeWarpBase.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 
 #include "../Utils/b3ReferenceFrameHelper.hpp"
@@ -99,7 +99,7 @@ static btScalar gParallelEvaluations = 10.0f;
 
 void* GROUND_ID = (void*)1;
 
-class NN3DWalkersExample : public CommonTimeWarpBase
+class NN3DWalkersExample : public NN3DWalkersTimeWarpBase
 {
 	btScalar m_Time;
 	btScalar m_SpeedupTimestamp;
@@ -115,7 +115,7 @@ class NN3DWalkersExample : public CommonTimeWarpBase
 
 public:
 	NN3DWalkersExample(struct GUIHelperInterface* helper)
-	:CommonTimeWarpBase(helper),
+	:NN3DWalkersTimeWarpBase(helper),
 	 m_Time(0),
 	 m_SpeedupTimestamp(0),
 	 m_motorStrength(0.5f),
@@ -771,7 +771,7 @@ bool NN3DWalkersExample::keyboardCallback(int key, int state)
 		break;
 	}
 
-	return CommonTimeWarpBase::keyboardCallback(key,state);
+	return NN3DWalkersTimeWarpBase::keyboardCallback(key,state);
 }
 
 void NN3DWalkersExample::exitPhysics()
