@@ -997,14 +997,20 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 			{
 				b3Warning("Cannot get visual shape information");
 			}
-
+            if (statusType == CMD_VISUAL_SHAPE_UPDATE_FAILED)
+            {
+                b3Warning("Cannot update visual shape");
+            }
 			if (statusType == CMD_VISUAL_SHAPE_INFO_COMPLETED)
 			{
 				b3VisualShapeInformation shapeInfo;
 				b3GetVisualShapeInformation(m_physicsClientHandle, &shapeInfo);
 				b3Printf("Num visual shapes: %d", shapeInfo.m_numVisualShapes);
 			}
-
+            if (statusType == CMD_VISUAL_SHAPE_UPDATE_COMPLETED)
+            {
+                b3Printf("Visual shape update completed.");
+            }
 			if (statusType == CMD_CONTACT_POINT_INFORMATION_COMPLETED)
 			{
 				b3ContactInformation contactPointData;

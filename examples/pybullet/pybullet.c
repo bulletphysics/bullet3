@@ -1358,8 +1358,82 @@ static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args)
 	return Py_None;
 }
 
+static PyObject* pybullet_resetVisualShapeData(PyObject* self, PyObject* args)
+{
+    int size = PySequence_Size(args);
+    int objectUniqueId = -1;
+    int jointIndex = -1;
+    int shapeIndex = -1;
+    int textureUniqueId = -1;
+    b3SharedMemoryCommandHandle commandHandle;
+    b3SharedMemoryStatusHandle statusHandle;
+    int statusType;
+    
+    if (size == 4)
+    {
+        if (!PyArg_ParseTuple(args, "iiii", &objectUniqueId, &jointIndex, &shapeIndex, &textureUniqueId)) {
+            PyErr_SetString(SpamError, "Error parsing object unique id, or joint index, or shape index, or texture unique id");
+            return NULL;
+        }
+        
+        commandHandle = b3InitUpdateVisualShape(sm, objectUniqueId, jointIndex, shapeIndex, textureUniqueId);
+        statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+        statusType = b3GetStatusType(statusHandle);
+        if (statusType == CMD_VISUAL_SHAPE_UPDATE_COMPLETED)
+        {
+        }
+        else
+        {
+            PyErr_SetString(SpamError, "Error resetting visual shape info");
+            return NULL;
+        }
+    }
+    else
+    {
+        PyErr_SetString(SpamError, "setVisualShapeData requires 4 argument");
+        return NULL;
+    }
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
 
-
+static PyObject* pybullet_loadTexture(PyObject* self, PyObject* args)
+{
+    int size = PySequence_Size(args);
+    const char* filename = -1;
+    b3SharedMemoryCommandHandle commandHandle;
+    b3SharedMemoryStatusHandle statusHandle;
+    int statusType;
+    
+    if (size == 1)
+    {
+        if (!PyArg_ParseTuple(args, "s", &filename)) {
+            PyErr_SetString(SpamError, "Error parsing file name");
+            return NULL;
+        }
+        
+        commandHandle = b3InitLoadTexture(sm, filename);
+        statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+        statusType = b3GetStatusType(statusHandle);
+        if (statusType == CMD_LOAD_TEXTURE_COMPLETED)
+        {
+        }
+        else
+        {
+            PyErr_SetString(SpamError, "Error loading texture");
+            return NULL;
+        }
+    }
+    else
+    {
+        PyErr_SetString(SpamError, "loadTexture requires 1 argument");
+        return NULL;
+    }
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
 
 static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args) {
   int size = PySequence_Size(args);
@@ -2294,9 +2368,15 @@ static PyMethodDef SpamMethods[] = {
      "object-object collisions. Optional arguments one or two object unique "
      "ids, that need to be involved in the contact."},
 
-	 { "getVisualShapeData", pybullet_getVisualShapeData, METH_VARARGS,
+    {"getVisualShapeData", pybullet_getVisualShapeData, METH_VARARGS,
 	"Return the visual shape information for one object." },
 		 
+    {"resetVisualShapeData", pybullet_resetVisualShapeData, METH_VARARGS,
+        "Reset part of the visual shape information for one object." },
+    
+    {"loadTexture", pybullet_loadTexture, METH_VARARGS,
+        "Load texture file." },
+    
     {"getQuaternionFromEuler", pybullet_getQuaternionFromEuler, METH_VARARGS,
      "Convert Euler [roll, pitch, yaw] as in URDF/SDF convention, to "
      "quaternion [x,y,z,w]"},

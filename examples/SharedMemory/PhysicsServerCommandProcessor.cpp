@@ -3001,6 +3001,31 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     hasStatus = true;
                     break;
                 }
+                case CMD_UPDATE_VISUAL_SHAPE:
+                {
+                    SharedMemoryStatus& serverCmd = serverStatusOut;
+                    serverCmd.m_type = CMD_VISUAL_SHAPE_UPDATE_FAILED;
+                    
+                    m_data->m_visualConverter.activateShapeTexture(clientCmd.m_updateVisualShapeDataArguments.m_bodyUniqueId, clientCmd.m_updateVisualShapeDataArguments.m_jointIndex, clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex, clientCmd.m_updateVisualShapeDataArguments.m_textureUniqueId);
+                    
+                    serverCmd.m_type = CMD_VISUAL_SHAPE_UPDATE_COMPLETED;
+                    hasStatus = true;
+
+                    break;
+                }
+                case CMD_LOAD_TEXTURE:
+                {
+                    SharedMemoryStatus& serverCmd = serverStatusOut;
+                    serverCmd.m_type = CMD_LOAD_TEXTURE_FAILED;
+                    
+                    m_data->m_visualConverter.loadTextureFile(clientCmd.m_loadTextureArguments.m_textureFileName);
+                    
+                    serverCmd.m_type = CMD_LOAD_TEXTURE_COMPLETED;
+                    hasStatus = true;
+                    
+                    break;
+                }
+
                 default:
                 {
                     b3Error("Unknown command encountered");

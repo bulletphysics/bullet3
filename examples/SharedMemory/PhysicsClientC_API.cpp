@@ -1252,7 +1252,41 @@ void b3GetVisualShapeInformation(b3PhysicsClientHandle physClient, struct b3Visu
 	}
 }
 
+b3SharedMemoryCommandHandle b3InitLoadTexture(b3PhysicsClientHandle physClient, const char* filename)
+{
+    PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type = CMD_LOAD_TEXTURE;
+    int len = strlen(filename);
+    if (len<MAX_FILENAME_LENGTH)
+    {
+        strcpy(command->m_loadTextureArguments.m_textureFileName,filename);
+    } else
+    {
+        command->m_loadTextureArguments.m_textureFileName[0] = 0;
+    }
+    command->m_updateFlags = 0;
+    return (b3SharedMemoryCommandHandle) command;
+}
 
+b3SharedMemoryCommandHandle b3InitUpdateVisualShape(b3PhysicsClientHandle physClient, int bodyUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)
+{
+    PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type = CMD_UPDATE_VISUAL_SHAPE;
+    command->m_updateVisualShapeDataArguments.m_bodyUniqueId = bodyUniqueId;
+    command->m_updateVisualShapeDataArguments.m_jointIndex = jointIndex;
+    command->m_updateVisualShapeDataArguments.m_shapeIndex = shapeIndex;
+    command->m_updateVisualShapeDataArguments.m_textureUniqueId = textureUniqueId;
+    command->m_updateFlags = 0;
+    return (b3SharedMemoryCommandHandle) command;
+}
 
 b3SharedMemoryCommandHandle b3ApplyExternalForceCommandInit(b3PhysicsClientHandle physClient)
 {

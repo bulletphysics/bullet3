@@ -33,6 +33,8 @@ subject to the following restrictions:
 #include <fstream>
 #include "../Importers/ImportURDFDemo/UrdfParser.h"
 #include "../SharedMemory/SharedMemoryPublic.h"//for b3VisualShapeData
+#include "../TinyRenderer/model.h"
+#include "../ThirdPartyLibs/stb_image/stb_image.h"
 
 
 enum MyFileType
@@ -68,6 +70,7 @@ struct TinyRendererVisualShapeConverterInternalData
 	int m_swWidth;
 	int m_swHeight;
 	TGAImage m_rgbColorBuffer;
+    b3AlignedObjectArray<MyTexture2> m_textures;
 	b3AlignedObjectArray<float> m_depthBuffer;
 	b3AlignedObjectArray<int> m_segmentationMaskBuffer;
 	
@@ -827,3 +830,52 @@ void TinyRendererVisualShapeConverter::resetAll()
 	m_data->m_swRenderInstances.clear();
 }
 
+void TinyRendererVisualShapeConverter::activateShapeTexture(int shapeUniqueId, int textureUniqueId)
+{
+    btAssert(textureUniqueId < m_data->m_textures.size());
+    TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(shapeUniqueId);
+    if (ptrptr && *ptrptr)
+    {
+        TinyRendererObjectArray* ptr = *ptrptr;
+        ptr->m_renderObjects[0]->m_model->setDiffuseTextureFromData(m_data->m_textures[textureUniqueId].textureData,m_data->m_textures[textureUniqueId].m_width,m_data->m_textures[textureUniqueId].m_height);
+    }
+}
+
+void TinyRendererVisualShapeConverter::activateShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)
+{
+    int start = -1;
+    for (int i = 0; i < m_data->m_visualShapes.size(); i++)
+    {
+        if (m_data->m_visualShapes[i].m_objectUniqueId == objectUniqueId && m_data->m_visualShapes[i].m_linkIndex == jointIndex)
+        {
+            start = i;
+            break;
+        }
+    }
+    
+    if (start >= 0)
+    {
+        if (start + shapeIndex < m_data->m_visualShapes.size())
+        {
+            activateShapeTexture(start + shapeIndex, textureUniqueId);
+        }
+    }
+}
+
+int TinyRendererVisualShapeConverter::registerTexture(unsigned char* texels, int width, int height)
+{
+    MyTexture2 texData;
+    texData.m_width = width;
+    texData.m_height = height;
+    texData.textureData = texels;
+    m_data->m_textures.push_back(texData);
+    return m_data->m_textures.size()-1;
+}
+
+void TinyRendererVisualShapeConverter::loadTextureFile(const char* filename)
+{
+    int width,height,n;
+    unsigned char* image=0;
+    image = stbi_load(filename, &width, &height, &n, 3);
+    registerTexture(image, width, height);
+}
