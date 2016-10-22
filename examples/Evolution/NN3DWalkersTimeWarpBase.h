@@ -13,8 +13,8 @@
  3. This notice may not be removed or altered from any source distribution.
  */
 
-#ifndef COMMON_TIME_WARP_BASE_H
-#define COMMON_TIME_WARP_BASE_H
+#ifndef NN3D_WALKERS_TIME_WARP_BASE_H
+#define NN3D_WALKERS_TIME_WARP_BASE_H
 
 #include "btBulletDynamicsCommon.h"
 #include "LinearMath/btVector3.h"
@@ -207,9 +207,9 @@ inline void setApplicationTick(float frequency){ // set internal application tic
 /**
  * @link: Gaffer on Games - Fix your timestep: http://gafferongames.com/game-physics/fix-your-timestep/
  */
-struct CommonTimeWarpBase: public CommonRigidBodyBase {
+struct NN3DWalkersTimeWarpBase: public CommonRigidBodyBase {
 
-	CommonTimeWarpBase(struct GUIHelperInterface* helper):
+	NN3DWalkersTimeWarpBase(struct GUIHelperInterface* helper):
 		CommonRigidBodyBase(helper),
 		mPhysicsStepsPerSecondUpdated(false),
 		mFramesPerSecondUpdated(false),
@@ -250,7 +250,7 @@ struct CommonTimeWarpBase: public CommonRigidBodyBase {
 		 mLoopTimer.reset();
 	 }
 
-	~CommonTimeWarpBase(){
+	~NN3DWalkersTimeWarpBase(){
 
 	}
 
@@ -753,7 +753,7 @@ struct CommonTimeWarpBase: public CommonRigidBodyBase {
 	}
 
 	void performTrueSteps(btScalar timeStep){ // physics stepping without interpolated substeps
-		int subSteps = round(timeStep / fixedPhysicsStepSizeSec); /**!< Calculate the number of full normal time steps we can take */
+		int subSteps = floor((timeStep / fixedPhysicsStepSizeSec)+0.5); /**!< Calculate the number of full normal time steps we can take */
 
 		for (int i = 0; i < subSteps; i++) { /**!< Perform the number of substeps to reach the timestep*/
 			if (timeStep && m_dynamicsWorld) {
@@ -767,7 +767,7 @@ struct CommonTimeWarpBase: public CommonRigidBodyBase {
 	}
 
 	void performInterpolatedSteps(btScalar timeStep){ // physics stepping with interpolated substeps
-		int subSteps = 1 + round(timeStep / fixedPhysicsStepSizeSec); /**!< Calculate the number of full normal time steps we can take, plus 1 for safety of not losing time */
+		int subSteps = 1 + floor((timeStep / fixedPhysicsStepSizeSec)+0.5); /**!< Calculate the number of full normal time steps we can take, plus 1 for safety of not losing time */
 		if (timeStep && m_dynamicsWorld) {
 
 			m_dynamicsWorld->stepSimulation(btScalar(timeStep), btScalar(subSteps),
@@ -899,5 +899,5 @@ struct CommonTimeWarpBase: public CommonRigidBodyBase {
 	bool mIsHeadless;
 };
 
-#endif //COMMON_TIME_WARP_BASE_H
+#endif //NN3D_WALKERS_TIME_WARP_BASE_H
 

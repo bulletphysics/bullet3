@@ -133,7 +133,7 @@ SET(ExtendedTutorialsSources
 )
 
 SET(BulletExampleBrowser_SRCS
-	../CommonInterfaces/CommonTimeWarpBase.h #TODO: This is wrong here, where should it go?
+
 	../TinyRenderer/geometry.cpp
 	../TinyRenderer/model.cpp
 	../TinyRenderer/tgaimage.cpp
@@ -179,6 +179,7 @@ SET(BulletExampleBrowser_SRCS
 	../Tutorial/Dof6ConstraintTutorial.h
 	../Evolution/NN3DWalkers.cpp
 	../Evolution/NN3DWalkers.h
+	../Evolution/NN3DWalkersTimeWarpBase.h
 	../ExtendedTutorials/NewtonsRopeCradle.cpp
 	../ExtendedTutorials/NewtonsRopeCradle.h
 	../Collision/CollisionSdkC_Api.cpp
