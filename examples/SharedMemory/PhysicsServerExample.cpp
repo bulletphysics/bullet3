@@ -34,12 +34,14 @@ extern btScalar gVRGripperAnalog;
 extern btScalar gVRGripper2Analog;
 extern bool gCloseToKuka;
 extern bool gEnableRealTimeSimVR;
-extern bool gCreateSamuraiRobotAssets;
+extern bool gCreateDefaultRobotAssets;
+extern int gInternalSimFlags;
 extern int gCreateObjectSimVR;
 static int gGraspingController = -1;
 extern btScalar simTimeScalingFactor;
 
 extern bool gVRGripperClosed;
+
 
 bool gDebugRenderToggle  = false;
 void	MotionThreadFunc(void* userPtr,void* lsMemory);
@@ -599,6 +601,7 @@ public:
 
 	virtual void	vrControllerButtonCallback(int controllerId, int button, int state, float pos[4], float orientation[4]);
 	virtual void	vrControllerMoveCallback(int controllerId, float pos[4], float orientation[4], float analogAxis);
+	
 
 	virtual bool	mouseMoveCallback(float x,float y)
 	{
@@ -670,13 +673,18 @@ public:
 	virtual void	processCommandLineArgs(int argc, char* argv[])
 	{
 		b3CommandLineArgs args(argc,argv);
-		if (args.CheckCmdLineFlag("emptyworld"))
+		if (args.CheckCmdLineFlag("robotassets"))
 		{
-			gCreateSamuraiRobotAssets = false;
+			gCreateDefaultRobotAssets = true;
 		}
-	}
 
-	
+		if (args.CheckCmdLineFlag("norobotassets"))
+		{
+			gCreateDefaultRobotAssets = false;
+		}
+
+
+	}
 
 };
 
@@ -995,7 +1003,7 @@ void PhysicsServerExample::renderScene()
 		}
 
 #ifdef BT_ENABLE_VR
-		if (m_tinyVrGui==0)
+		if ((gInternalSimFlags&2 ) && m_tinyVrGui==0)
 		{
 			ComboBoxParams comboParams;
         comboParams.m_comboboxId = 0;

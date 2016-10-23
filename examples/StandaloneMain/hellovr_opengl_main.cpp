@@ -2199,7 +2199,15 @@ int main(int argc, char *argv[])
 	
 	if (sExample)
 	{
+		//until we have a proper VR gui, always assume we want the hard-coded default robot assets
+		char* newargv[2];
+		char* t0 = (char*)"--robotassets";
+        newargv[0] = t0;
+		newargv[1] = t0;
+		sExample->processCommandLineArgs(2,newargv);
+
 		sExample->processCommandLineArgs(argc,argv);
+
 	}
 
 	//request disable VSYNC
