@@ -108,6 +108,9 @@ int	b3PhysicsParamSetNumSubSteps(b3SharedMemoryCommandHandle commandHandle, int 
 int b3PhysicsParamSetRealTimeSimulation(b3SharedMemoryCommandHandle commandHandle, int enableRealTimeSimulation);
 int b3PhysicsParamSetNumSolverIterations(b3SharedMemoryCommandHandle commandHandle, int numSolverIterations);
 
+//b3PhysicsParamSetInternalSimFlags is for internal/temporary/easter-egg/experimental demo purposes
+//Use at own risk: magic things may or my not happen when calling this API
+int b3PhysicsParamSetInternalSimFlags(b3SharedMemoryCommandHandle commandHandle, int flags);
 
 
 b3SharedMemoryCommandHandle	b3InitStepSimulationCommand(b3PhysicsClientHandle physClient);

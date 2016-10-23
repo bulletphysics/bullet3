@@ -179,6 +179,15 @@ int     b3PhysicsParamSetRealTimeSimulation(b3SharedMemoryCommandHandle commandH
 	return 0;
 }
 
+int     b3PhysicsParamSetInternalSimFlags(b3SharedMemoryCommandHandle commandHandle, int flags)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+	command->m_physSimParamArgs.m_internalSimFlags = flags;
+	command->m_updateFlags |= SIM_PARAM_UPDATE_INTERNAL_SIMULATION_FLAGS;
+	return 0;
+}
+
 int b3PhysicsParamSetNumSolverIterations(b3SharedMemoryCommandHandle commandHandle, int numSolverIterations)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;

@@ -16,6 +16,9 @@ class PhysicsServerCommandProcessor
 
 	struct PhysicsServerCommandProcessorInternalData* m_data;
 
+	//todo: move this to physics client side / Python
+	void createDefaultRobotAssets();
+
 protected:
 
 
