@@ -173,6 +173,8 @@ SET(BulletExampleBrowser_SRCS
 	../InverseKinematics/InverseKinematicsExample.h
 	../ForkLift/ForkLiftDemo.cpp
 	../ForkLift/ForkLiftDemo.h
+	../CarHandling/CarHandlingDemo.cpp
+	../CarHandling/CarHandlingDemo.h
 	../Tutorial/Tutorial.cpp
 	../Tutorial/Tutorial.h
 	../Tutorial/Dof6ConstraintTutorial.cpp

@@ -97,6 +97,7 @@ project "App_BulletExampleBrowser"
 		"../Benchmarks/*",
 		"../CommonInterfaces/*",
 		"../ForkLift/ForkLiftDemo.*",
+		"../CarHandling/CarHandlingDemo.*",
 		"../Importers/**",
 		"../../Extras/Serialize/BulletWorldImporter/*",
 		"../../Extras/Serialize/BulletFileLoader/*",	

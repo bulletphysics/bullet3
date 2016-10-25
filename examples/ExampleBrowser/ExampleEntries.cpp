@@ -8,6 +8,7 @@
 #include "../RenderingExamples/TinyRendererSetup.h"
 #include "../RenderingExamples/DynamicTexturedCubeDemo.h"
 #include "../ForkLift/ForkLiftDemo.h"
+#include "../CarHandling/CarHandlingDemo.h"
 #include "../BasicDemo/BasicExample.h"
 #include "../Planar2D/Planar2D.h"
 #include "../Benchmarks/BenchmarkDemo.h"
@@ -234,6 +235,7 @@ static ExampleEntry gDefaultExamples[]=
 
 	ExampleEntry(0,"Vehicles"),
 	ExampleEntry(1,"Hinge2 Vehicle", "A rigid body chassis with 4 rigid body wheels attached by a btHinge2Constraint",Hinge2VehicleCreateFunc),
+	ExampleEntry(1, "Car Handling", "Simulate a sports car handling", CarHandlingCreateFunc),
 	ExampleEntry(1,"ForkLift","Simulate a fork lift vehicle with a working fork lift that can be moved using the cursor keys. The wheels collision is simplified using ray tests."
 					"There are currently some issues with the wheel rendering, the wheels rotate when picking up the object."
 					"The demo implementation allows to choose various MLCP constraint solvers.",
