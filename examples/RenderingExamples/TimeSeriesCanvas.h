@@ -13,6 +13,7 @@ public:
 	virtual ~TimeSeriesCanvas();
 
 	void setupTimeSeries(float yScale, int ticksPerSecond, int startTime, bool clearCanvas=true);
+	void setupTimeSeries(float yMin, float yMax, int ticksPerSecond, int startTime, bool clearCanvas=true);
 	void addDataSource(const char* dataSourceLabel, unsigned char red,unsigned char green,unsigned char blue);
 	void insertDataAtCurrentTime(float value, int dataSourceIndex, bool connectToPrevious);
 	float getCurrentTime() const;

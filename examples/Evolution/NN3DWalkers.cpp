@@ -49,6 +49,14 @@ class NNWalker;
 #define EVALUATION_DURATION 10 // s (duration of one single evaluation)
 #endif
 
+#ifndef TIME_SERIES_MAX_Y
+#define TIME_SERIES_MAX_Y 20.0f
+#endif
+
+#ifndef TIME_SERIES_MIN_Y
+#define TIME_SERIES_MIN_Y 0.0f
+#endif
+
 // Evaluation configurable parameters
 #ifndef REAP_QTY
 #define REAP_QTY 0.3f // number of walkers reaped based on their bad performance
@@ -889,8 +897,8 @@ void NN3DWalkersExample::initPhysics()
 
 
 	// setup data sources for walkers in time series canvas
-	m_timeSeriesCanvas = new TimeSeriesCanvas(m_guiHelper->getAppInterface()->m_2dCanvasInterface,300,200, "Fitness Performance");
-	m_timeSeriesCanvas ->setupTimeSeries(40, POPULATION_SIZE*EVALUATION_DURATION, 0);
+	m_timeSeriesCanvas = new TimeSeriesCanvas(m_guiHelper->getAppInterface()->m_2dCanvasInterface,400,300, "Fitness Performance");
+	m_timeSeriesCanvas->setupTimeSeries(TIME_SERIES_MIN_Y, TIME_SERIES_MAX_Y, 10, 0);
 	for(int i = 0; i < POPULATION_SIZE ; i++){
 		m_timeSeriesCanvas->addDataSource(" ", 100*i/POPULATION_SIZE,100*(POPULATION_SIZE-i)/POPULATION_SIZE,100*(i)/POPULATION_SIZE);
 	}
