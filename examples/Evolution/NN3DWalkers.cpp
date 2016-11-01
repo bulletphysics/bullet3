@@ -42,7 +42,7 @@ class NNWalker;
 #endif
 
 #ifndef POPULATION_SIZE
-#define POPULATION_SIZE 100 // number of walkers in the population
+#define POPULATION_SIZE 50 // number of walkers in the population
 #endif
 
 #ifndef EVALUATION_DURATION
@@ -56,6 +56,16 @@ class NNWalker;
 #ifndef TIME_SERIES_MIN_Y
 #define TIME_SERIES_MIN_Y 0.0f
 #endif
+
+static btScalar gWalkerMotorStrength = 0.5f;
+static btScalar gWalkerLegTargetFrequency =3;
+static btScalar gRootBodyRadius  = 0.25f;
+static btScalar gRootBodyHeight = 0.1f;
+static btScalar gLegRadius = 0.1f;
+static btScalar gLegLength = 0.45f;
+static btScalar gForeLegLength = 0.75f;
+static btScalar gForeLegRadius = 0.08f;
+static btScalar gParallelEvaluations = 10.0f;
 
 // Evaluation configurable parameters
 #ifndef REAP_QTY
@@ -120,17 +130,6 @@ class NN3DWalkersExample : public NN3DWalkersTimeWarpBase
 
 	btVector3 m_resetPosition; // initial position of an evaluation
 
-	// configurable via slider
-	btScalar m_walkerLegTargetFrequency;
-	btScalar m_walkerMotorStrength;
-	btScalar m_rootBodyRadius;
-	btScalar m_rootBodyHeight;
-	btScalar m_legRadius;
-	btScalar m_legLength;
-	btScalar m_foreLegLength;
-	btScalar m_foreLegRadius;
-	btScalar m_parallelEvaluations;
-
 	int 	 m_walkersInEvaluation; // number of walkers in evaluation
 	int		 m_nextReapedIndex; // index of the next reaped walker
 	
@@ -141,16 +140,6 @@ class NN3DWalkersExample : public NN3DWalkersTimeWarpBase
 public:
 	NN3DWalkersExample(struct GUIHelperInterface* helper)
 	:NN3DWalkersTimeWarpBase(helper),
-	 // configurable via sliders, defaults
-	 m_walkerMotorStrength(0.5f),
-	 m_walkerLegTargetFrequency(3),
-	 m_rootBodyRadius(0.25f),
-	 m_rootBodyHeight(0.1f),
-	 m_legRadius(0.1f),
-	 m_legLength(0.45f),
-	 m_foreLegLength(0.75f),
-	 m_foreLegRadius(0.08f),
-	 m_parallelEvaluations(10.0f),
 	 // others
 	 m_resetPosition(0,0,0),
 	 m_SimulationTime(0),
@@ -285,42 +274,6 @@ public:
 	 * Print walker configurations to console.
 	 */
 	void printWalkerConfigs();
-
-	btScalar getForeLegLength() const {
-		return m_foreLegLength;
-	}
-
-	btScalar getForeLegRadius() const {
-		return m_foreLegRadius;
-	}
-
-	btScalar getLegLength() const {
-		return m_legLength;
-	}
-
-	btScalar getLegRadius() const {
-		return m_legRadius;
-	}
-
-	btScalar getParallelEvaluations() const {
-		return m_parallelEvaluations;
-	}
-
-	btScalar getRootBodyHeight() const {
-		return m_rootBodyHeight;
-	}
-
-	btScalar getRootBodyRadius() const {
-		return m_rootBodyRadius;
-	}
-
-	btScalar getWalkerMotorStrength() const {
-		return m_walkerMotorStrength;
-	}
-
-	void setParallelEvaluations(btScalar parallelEvaluations) {
-		m_parallelEvaluations = parallelEvaluations;
-	}
 };
 
 static NN3DWalkersExample* nn3DWalkers = NULL;
@@ -697,10 +650,8 @@ bool legContactProcessedCallback(btManifoldPoint& cp, void* body0, void* body1)
 	if (ID1 != GROUND_ID || ID2 != GROUND_ID) {
 	    // Make a circle with a 0.9 radius at (0,0,0)
 	    // with RGB color (1,0,0).
-		if(nn3DWalkers->m_dynamicsWorld->getDebugDrawer() != NULL){
-			if(!nn3DWalkers->mIsHeadless){
-				nn3DWalkers->m_dynamicsWorld->getDebugDrawer()->drawSphere(cp.getPositionWorldOnA(), 0.1, btVector3(1., 0., 0.));
-			}
+		if(nn3DWalkers->m_dynamicsWorld->getDebugDrawer() != NULL && !nn3DWalkers->mIsHeadless){
+			nn3DWalkers->m_dynamicsWorld->getDebugDrawer()->drawSphere(cp.getPositionWorldOnA(), 0.1, btVector3(1., 0., 0.));
 		}
 
 		if(ID1 != GROUND_ID && ID1){
@@ -733,7 +684,7 @@ struct WalkerFilterCallback : public btOverlapFilterCallback
 };
 
 void floorNNSliderValue(float notUsed) {
-	nn3DWalkers->setParallelEvaluations(floor(nn3DWalkers->getParallelEvaluations()));
+	gParallelEvaluations = floor(gParallelEvaluations);
 }
 
 void NN3DWalkersExample::initPhysics()
@@ -754,15 +705,15 @@ void NN3DWalkersExample::initPhysics()
 	m_dynamicsWorld->setInternalTickCallback(evaluationUpdatePreTickCallback, this, true);
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 
-	m_walkerLegTargetFrequency = 3; // Hz
+	gWalkerLegTargetFrequency = 3; // Hz
 
 	// new SIMD solver for joints clips accumulated impulse, so the new limits for the motor
 	// should be (numberOfsolverIterations * oldLimits)
-	m_walkerMotorStrength = 0.05f * m_dynamicsWorld->getSolverInfo().m_numIterations;
+	gWalkerMotorStrength = 0.05f * m_dynamicsWorld->getSolverInfo().m_numIterations;
 
 
 	{ // create a slider to change the motor update frequency
-		SliderParams slider("Motor update frequency", &m_walkerLegTargetFrequency);
+		SliderParams slider("Motor update frequency", &gWalkerLegTargetFrequency);
 		slider.m_minVal = 0;
 		slider.m_maxVal = 10;
 		slider.m_clampToNotches = false;
@@ -771,7 +722,7 @@ void NN3DWalkersExample::initPhysics()
 	}
 
 	{ // create a slider to change the motor torque
-		SliderParams slider("Motor force", &m_walkerMotorStrength);
+		SliderParams slider("Motor force", &gWalkerMotorStrength);
 		slider.m_minVal = 1;
 		slider.m_maxVal = 50;
 		slider.m_clampToNotches = false;
@@ -780,7 +731,7 @@ void NN3DWalkersExample::initPhysics()
 	}
 	
 	{ // create a slider to change the root body radius
-		SliderParams slider("Root body radius", &m_rootBodyRadius);
+		SliderParams slider("Root body radius", &gRootBodyRadius);
 		slider.m_minVal = 0.01f;
 		slider.m_maxVal = 10;
 		slider.m_clampToNotches = false;
@@ -789,7 +740,7 @@ void NN3DWalkersExample::initPhysics()
 	}
 
 	{ // create a slider to change the root body height
-		SliderParams slider("Root body height", &m_rootBodyHeight);
+		SliderParams slider("Root body height", &gRootBodyHeight);
 		slider.m_minVal = 0.01f;
 		slider.m_maxVal = 10;
 		slider.m_clampToNotches = false;
@@ -798,7 +749,7 @@ void NN3DWalkersExample::initPhysics()
 	}
 
 	{ // create a slider to change the leg radius
-		SliderParams slider("Leg radius", &m_legRadius);
+		SliderParams slider("Leg radius", &gLegRadius);
 		slider.m_minVal = 0.01f;
 		slider.m_maxVal = 10;
 		slider.m_clampToNotches = false;
@@ -807,7 +758,7 @@ void NN3DWalkersExample::initPhysics()
 	}
 
 	{ // create a slider to change the leg length
-		SliderParams slider("Leg length", &m_legLength);
+		SliderParams slider("Leg length", &gLegLength);
 		slider.m_minVal = 0.01f;
 		slider.m_maxVal = 10;
 		slider.m_clampToNotches = false;
@@ -816,7 +767,7 @@ void NN3DWalkersExample::initPhysics()
 	}
 
 	{ // create a slider to change the fore leg radius
-		SliderParams slider("Fore Leg radius", &m_foreLegRadius);
+		SliderParams slider("Fore Leg radius", &gForeLegRadius);
 		slider.m_minVal = 0.01f;
 		slider.m_maxVal = 10;
 		slider.m_clampToNotches = false;
@@ -825,7 +776,7 @@ void NN3DWalkersExample::initPhysics()
 	}
 
 	{ // create a slider to change the fore leg length
-		SliderParams slider("Fore Leg length", &m_foreLegLength);
+		SliderParams slider("Fore Leg length", &gForeLegLength);
 		slider.m_minVal = 0.01f;
 		slider.m_maxVal = 10;
 		slider.m_clampToNotches = false;
@@ -835,7 +786,7 @@ void NN3DWalkersExample::initPhysics()
 
 	if(POPULATION_SIZE > 1)
 	{ // create a slider to change the number of parallel evaluations
-		SliderParams slider("Parallel evaluations", &m_parallelEvaluations);
+		SliderParams slider("Parallel evaluations", &gParallelEvaluations);
 		slider.m_minVal = 1;
 		slider.m_maxVal = POPULATION_SIZE;
 		slider.m_clampToNotches = false;
@@ -907,7 +858,7 @@ bool NN3DWalkersExample::detectCollisions()
 						return collisionDetected;
 					}
 
-					if(m_dynamicsWorld->getDebugDrawer()){ // draw self collisions
+					if(m_dynamicsWorld->getDebugDrawer() && !mIsHeadless){ // draw self collisions
 						m_dynamicsWorld->getDebugDrawer()->drawSphere(pt.getPositionWorldOnA(), 0.1, btVector3(0., 0., 1.));
 						m_dynamicsWorld->getDebugDrawer()->drawSphere(pt.getPositionWorldOnB(), 0.1, btVector3(0., 0., 1.));
 					}
@@ -924,10 +875,10 @@ bool NN3DWalkersExample::keyboardCallback(int key, int state)
 	switch (key)
 	{
 	case '[':
-		m_walkerMotorStrength /= 1.1f;
+		gWalkerMotorStrength /= 1.1f;
 		return true;
 	case ']':
-		m_walkerMotorStrength *= 1.1f;
+		gWalkerMotorStrength *= 1.1f;
 		return true;
 	case 'l':
 		printWalkerConfigs();
@@ -1139,7 +1090,7 @@ void NN3DWalkersExample::updateEvaluations(const btScalar timeSinceLastTick) {
 
 			m_walkersInPopulation[r]->setLegUpdateAccumulator(m_walkersInPopulation[r]->getLegUpdateAccumulator() + delta);
 
-			if(m_walkersInPopulation[r]->getLegUpdateAccumulator() >= btScalar(1.0f) /m_walkerLegTargetFrequency)
+			if(m_walkersInPopulation[r]->getLegUpdateAccumulator() >= btScalar(1.0f) /gWalkerLegTargetFrequency)
 			{
 				m_walkersInPopulation[r]->setLegUpdateAccumulator(0);
 
@@ -1160,7 +1111,7 @@ void NN3DWalkersExample::updateEvaluations(const btScalar timeSinceLastTick) {
 					btScalar angleError  		= targetLimitAngle - currentAngle; // target current delta
 					btScalar desiredAngularVel = angleError/((delta>0)?delta:btScalar(0.0001f)); // division by zero safety
 
-					hingeC->enableAngularMotor(true, desiredAngularVel, m_walkerMotorStrength); // set new target velocity
+					hingeC->enableAngularMotor(true, desiredAngularVel, gWalkerMotorStrength); // set new target velocity
 				}
 			}
 
@@ -1183,7 +1134,7 @@ void NN3DWalkersExample::scheduleEvaluations() {
 			m_walkersInEvaluation--;
 		}
 
-		if(m_walkersInEvaluation < m_parallelEvaluations && !m_walkersInPopulation[i]->isInEvaluation() && m_walkersInPopulation[i]->getEvaluationTime() == 0){ /**!< Setup the new evaluations */
+		if(m_walkersInEvaluation < gParallelEvaluations && !m_walkersInPopulation[i]->isInEvaluation() && m_walkersInPopulation[i]->getEvaluationTime() == 0){ /**!< Setup the new evaluations */
 			b3Printf("An evaluation started at %f s.",m_SimulationTime);
 			m_walkersInEvaluation++;
 
@@ -1196,7 +1147,9 @@ void NN3DWalkersExample::scheduleEvaluations() {
 			m_walkersInPopulation[i]->setInEvaluation(true);
 			m_walkersInPopulation[i]->addToWorld();
 
-			m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+			if(!mIsHeadless){
+				m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+			}
 		}
 	}
 
@@ -1213,12 +1166,12 @@ void NN3DWalkersExample::scheduleEvaluations() {
 void NN3DWalkersExample::resetWalkerAt(int i, const btVector3& resetPosition){
 
 	NNWalker* newWalker = new NNWalker(i, m_dynamicsWorld, resetPosition,
-		m_rootBodyRadius,
-		m_rootBodyHeight,
-		m_legRadius,
-		m_legLength,
-		m_foreLegRadius,
-		m_foreLegLength,
+		gRootBodyRadius,
+		gRootBodyHeight,
+		gLegRadius,
+		gLegLength,
+		gForeLegRadius,
+		gForeLegLength,
 		false);
 
 	if(m_walkersInPopulation[i] != NULL){
@@ -1244,8 +1197,8 @@ void NN3DWalkersExample::drawMarkings() {
 			}
 		}
 
-		for(int i = 2; i < 50; i+=2){ // draw distance circles
-			if(m_dynamicsWorld->getDebugDrawer()){
+		if(m_dynamicsWorld->getDebugDrawer() && !mIsHeadless){
+			for(int i = 2; i < 50; i+=2){ // draw distance circles
 				m_dynamicsWorld->getDebugDrawer()->drawArc(btVector3(0,0,0),btVector3(0,1,0),btVector3(1,0,0),btScalar(i), btScalar(i),btScalar(0),btScalar(SIMD_2_PI),btVector3(10*i,0,0),false);
 			}
 		}
