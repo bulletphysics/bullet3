@@ -1643,14 +1643,14 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     pm->m_kLST				=	1.0;
                     pm->m_flags				-=	btSoftBody::fMaterial::DebugDraw;
                     psb->generateBendingConstraints(2,pm);
-                    psb->m_cfg.piterations	=	2;
+                    psb->m_cfg.piterations	=	15;
                     psb->m_cfg.kDF			=	0.5;
                     psb->randomizeConstraints();
                     psb->rotate(btQuaternion(0.70711,0,0,0.70711));
-                    psb->translate(btVector3(0,0,3.0));
+                    psb->translate(btVector3(0,0,1.0));
                     psb->scale(btVector3(0.1,0.1,0.1));
-                    psb->setTotalMass(1,true);
-                    psb->getCollisionShape()->setMargin(0.01);
+                    psb->setTotalMass(0.1,true);
+                    psb->getCollisionShape()->setMargin(0.02);
                     
                     m_data->m_dynamicsWorld->addSoftBody(psb);
 #endif
