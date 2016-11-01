@@ -255,6 +255,13 @@ enum EnumSimParamUpdateFlags
 	SIM_PARAM_UPDATE_INTERNAL_SIMULATION_FLAGS=64
 };
 
+enum EnumLoadBunnyUpdateFlags
+{
+    LOAD_BUNNY_UPDATE_SCALE=1,
+    LOAD_BUNNY_UPDATE_MASS=2,
+    LOAD_BUNNY_UPDATE_COLLISION_MARGIN=4
+};
+
 enum EnumSimParamInternalSimFlags
 {
 	SIM_PARAM_INTERNAL_CREATE_ROBOT_ASSETS=1,
@@ -272,6 +279,13 @@ struct SendPhysicsSimulationParameters
 	bool m_allowRealTimeSimulation;
 	int m_internalSimFlags;
 	double m_defaultContactERP;
+};
+
+struct LoadBunnyArgs
+{
+    double m_scale;
+    double m_mass;
+    double m_collisionMargin;
 };
 
 struct RequestActualStateArgs
@@ -501,6 +515,7 @@ struct SharedMemoryCommand
         struct UpdateVisualShapeDataArgs m_updateVisualShapeDataArguments;
         struct LoadTextureArgs m_loadTextureArguments;
 		struct CalculateInverseKinematicsArgs m_calculateInverseKinematicsArguments;
+        struct LoadBunnyArgs m_loadBunnyArguments;
     };
 };
 
