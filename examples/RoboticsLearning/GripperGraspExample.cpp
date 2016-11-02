@@ -343,10 +343,9 @@ public:
                 slider.m_maxVal=1;
                 m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
             }
-            if (1)
             {
                 b3RobotSimLoadFileArgs args("");
-                args.m_fileName = "gripper/wsg50_one_motor_gripper_no_finger.sdf";
+                args.m_fileName = "gripper/wsg50_one_motor_gripper_new.sdf";
                 args.m_fileType = B3_SDF_FILE;
                 args.m_useMultiBody = true;
                 b3RobotSimLoadFileResults results;
@@ -365,7 +364,7 @@ public:
                         b3Printf("joint[%d].m_jointName=%s",i,jointInfo.m_jointName);
                     }
                     
-                    for (int i=0;i<6;i++)
+                    for (int i=0;i<8;i++)
                     {
                         b3JointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
                         controlArgs.m_maxTorqueValue = 0.0;
@@ -374,28 +373,6 @@ public:
                     
                 }
             }
-            {
-                b3RobotSimLoadFileArgs args("");
-                args.m_fileName = "gripper/wsg50_one_motor_gripper_left_finger.urdf";
-                args.m_startPosition.setValue(-0.1,0,0.5);
-                args.m_startOrientation.setEulerZYX(0,0,3.14);
-                args.m_forceOverrideFixedBase = false;
-                args.m_useMultiBody = false;
-                b3RobotSimLoadFileResults results;
-                m_robotSim.loadFile(args,results);
-                
-            }
-            {
-                b3RobotSimLoadFileArgs args("");
-                args.m_fileName = "gripper/wsg50_one_motor_gripper_right_finger.urdf";
-                args.m_startPosition.setValue(0.1,0,0.5);
-                args.m_startOrientation.setEulerZYX(0,0,3.14);
-                args.m_forceOverrideFixedBase = false;
-                args.m_useMultiBody = false;
-                b3RobotSimLoadFileResults results;
-                m_robotSim.loadFile(args,results);
-            }
-            if (1)
             {
                 b3RobotSimLoadFileArgs args("");
                 args.m_fileName = "plane.urdf";
@@ -411,16 +388,16 @@ public:
             m_robotSim.loadBunny(0.1,0.1,0.02);
             
             b3JointInfo revoluteJoint1;
-            revoluteJoint1.m_parentFrame[0] = -0.007;
+            revoluteJoint1.m_parentFrame[0] = -0.055;
             revoluteJoint1.m_parentFrame[1] = 0;
-            revoluteJoint1.m_parentFrame[2] = 0.0735;
+            revoluteJoint1.m_parentFrame[2] = 0.02;
             revoluteJoint1.m_parentFrame[3] = 0;
             revoluteJoint1.m_parentFrame[4] = 0;
             revoluteJoint1.m_parentFrame[5] = 0;
             revoluteJoint1.m_parentFrame[6] = 1.0;
             revoluteJoint1.m_childFrame[0] = 0;
             revoluteJoint1.m_childFrame[1] = 0;
-            revoluteJoint1.m_childFrame[2] = -0.05;
+            revoluteJoint1.m_childFrame[2] = 0;
             revoluteJoint1.m_childFrame[3] = 0;
             revoluteJoint1.m_childFrame[4] = 0;
             revoluteJoint1.m_childFrame[5] = 0;
@@ -430,16 +407,16 @@ public:
             revoluteJoint1.m_jointAxis[2] = 0.0;
             revoluteJoint1.m_jointType = ePoint2PointType;
             b3JointInfo revoluteJoint2;
-            revoluteJoint2.m_parentFrame[0] = 0.007;
+            revoluteJoint2.m_parentFrame[0] = 0.055;
             revoluteJoint2.m_parentFrame[1] = 0;
-            revoluteJoint2.m_parentFrame[2] = 0.0735;
+            revoluteJoint2.m_parentFrame[2] = 0.02;
             revoluteJoint2.m_parentFrame[3] = 0;
             revoluteJoint2.m_parentFrame[4] = 0;
             revoluteJoint2.m_parentFrame[5] = 0;
             revoluteJoint2.m_parentFrame[6] = 1.0;
             revoluteJoint2.m_childFrame[0] = 0;
             revoluteJoint2.m_childFrame[1] = 0;
-            revoluteJoint2.m_childFrame[2] = -0.05;
+            revoluteJoint2.m_childFrame[2] = 0;
             revoluteJoint2.m_childFrame[3] = 0;
             revoluteJoint2.m_childFrame[4] = 0;
             revoluteJoint2.m_childFrame[5] = 0;
@@ -448,128 +425,8 @@ public:
             revoluteJoint2.m_jointAxis[1] = 0.0;
             revoluteJoint2.m_jointAxis[2] = 0.0;
             revoluteJoint2.m_jointType = ePoint2PointType;
-            b3JointInfo revoluteJoint3;
-            revoluteJoint3.m_parentFrame[0] = -0.207;
-            revoluteJoint3.m_parentFrame[1] = 0;
-            revoluteJoint3.m_parentFrame[2] = 0.0735;
-            revoluteJoint3.m_parentFrame[3] = 0;
-            revoluteJoint3.m_parentFrame[4] = 0;
-            revoluteJoint3.m_parentFrame[5] = 0;
-            revoluteJoint3.m_parentFrame[6] = 1.0;
-            revoluteJoint3.m_childFrame[0] = -0.2;
-            revoluteJoint3.m_childFrame[1] = 0;
-            revoluteJoint3.m_childFrame[2] = -0.05;
-            revoluteJoint3.m_childFrame[3] = 0;
-            revoluteJoint3.m_childFrame[4] = 0;
-            revoluteJoint3.m_childFrame[5] = 0;
-            revoluteJoint3.m_childFrame[6] = 1.0;
-            revoluteJoint3.m_jointAxis[0] = 1.0;
-            revoluteJoint3.m_jointAxis[1] = 0.0;
-            revoluteJoint3.m_jointAxis[2] = 0.0;
-            revoluteJoint3.m_jointType = ePoint2PointType;
-            b3JointInfo revoluteJoint4;
-            revoluteJoint4.m_parentFrame[0] = 0.207;
-            revoluteJoint4.m_parentFrame[1] = 0;
-            revoluteJoint4.m_parentFrame[2] = 0.0735;
-            revoluteJoint4.m_parentFrame[3] = 0;
-            revoluteJoint4.m_parentFrame[4] = 0;
-            revoluteJoint4.m_parentFrame[5] = 0;
-            revoluteJoint4.m_parentFrame[6] = 1.0;
-            revoluteJoint4.m_childFrame[0] = 0.2;
-            revoluteJoint4.m_childFrame[1] = 0;
-            revoluteJoint4.m_childFrame[2] = -0.05;
-            revoluteJoint4.m_childFrame[3] = 0;
-            revoluteJoint4.m_childFrame[4] = 0;
-            revoluteJoint4.m_childFrame[5] = 0;
-            revoluteJoint4.m_childFrame[6] = 1.0;
-            revoluteJoint4.m_jointAxis[0] = 1.0;
-            revoluteJoint4.m_jointAxis[1] = 0.0;
-            revoluteJoint4.m_jointAxis[2] = 0.0;
-            revoluteJoint4.m_jointType = ePoint2PointType;
-            b3JointInfo revoluteJoint5;
-            revoluteJoint5.m_parentFrame[0] = -0.007;
-            revoluteJoint5.m_parentFrame[1] = 0;
-            revoluteJoint5.m_parentFrame[2] = 0.2735;
-            revoluteJoint5.m_parentFrame[3] = 0;
-            revoluteJoint5.m_parentFrame[4] = 0;
-            revoluteJoint5.m_parentFrame[5] = 0;
-            revoluteJoint5.m_parentFrame[6] = 1.0;
-            revoluteJoint5.m_childFrame[0] = 0;
-            revoluteJoint5.m_childFrame[1] = 0;
-            revoluteJoint5.m_childFrame[2] = 0.15;
-            revoluteJoint5.m_childFrame[3] = 0;
-            revoluteJoint5.m_childFrame[4] = 0;
-            revoluteJoint5.m_childFrame[5] = 0;
-            revoluteJoint5.m_childFrame[6] = 1.0;
-            revoluteJoint5.m_jointAxis[0] = 1.0;
-            revoluteJoint5.m_jointAxis[1] = 0.0;
-            revoluteJoint5.m_jointAxis[2] = 0.0;
-            revoluteJoint5.m_jointType = ePoint2PointType;
-            b3JointInfo revoluteJoint6;
-            revoluteJoint6.m_parentFrame[0] = 0.007;
-            revoluteJoint6.m_parentFrame[1] = 0;
-            revoluteJoint6.m_parentFrame[2] = 0.2735;
-            revoluteJoint6.m_parentFrame[3] = 0;
-            revoluteJoint6.m_parentFrame[4] = 0;
-            revoluteJoint6.m_parentFrame[5] = 0;
-            revoluteJoint6.m_parentFrame[6] = 1.0;
-            revoluteJoint6.m_childFrame[0] = 0;
-            revoluteJoint6.m_childFrame[1] = 0;
-            revoluteJoint6.m_childFrame[2] = 0.15;
-            revoluteJoint6.m_childFrame[3] = 0;
-            revoluteJoint6.m_childFrame[4] = 0;
-            revoluteJoint6.m_childFrame[5] = 0;
-            revoluteJoint6.m_childFrame[6] = 1.0;
-            revoluteJoint6.m_jointAxis[0] = 1.0;
-            revoluteJoint6.m_jointAxis[1] = 0.0;
-            revoluteJoint6.m_jointAxis[2] = 0.0;
-            revoluteJoint6.m_jointType = ePoint2PointType;
-            b3JointInfo revoluteJoint7;
-            revoluteJoint7.m_parentFrame[0] = -0.055;
-            revoluteJoint7.m_parentFrame[1] = 0;
-            revoluteJoint7.m_parentFrame[2] = 0.02;
-            revoluteJoint7.m_parentFrame[3] = 0;
-            revoluteJoint7.m_parentFrame[4] = 0;
-            revoluteJoint7.m_parentFrame[5] = 0;
-            revoluteJoint7.m_parentFrame[6] = 1.0;
-            revoluteJoint7.m_childFrame[0] = 0;
-            revoluteJoint7.m_childFrame[1] = 0;
-            revoluteJoint7.m_childFrame[2] = 0;
-            revoluteJoint7.m_childFrame[3] = 0;
-            revoluteJoint7.m_childFrame[4] = 0;
-            revoluteJoint7.m_childFrame[5] = 0;
-            revoluteJoint7.m_childFrame[6] = 1.0;
-            revoluteJoint7.m_jointAxis[0] = 1.0;
-            revoluteJoint7.m_jointAxis[1] = 0.0;
-            revoluteJoint7.m_jointAxis[2] = 0.0;
-            revoluteJoint7.m_jointType = ePoint2PointType;
-            b3JointInfo revoluteJoint8;
-            revoluteJoint8.m_parentFrame[0] = 0.055;
-            revoluteJoint8.m_parentFrame[1] = 0;
-            revoluteJoint8.m_parentFrame[2] = 0.02;
-            revoluteJoint8.m_parentFrame[3] = 0;
-            revoluteJoint8.m_parentFrame[4] = 0;
-            revoluteJoint8.m_parentFrame[5] = 0;
-            revoluteJoint8.m_parentFrame[6] = 1.0;
-            revoluteJoint8.m_childFrame[0] = 0;
-            revoluteJoint8.m_childFrame[1] = 0;
-            revoluteJoint8.m_childFrame[2] = 0;
-            revoluteJoint8.m_childFrame[3] = 0;
-            revoluteJoint8.m_childFrame[4] = 0;
-            revoluteJoint8.m_childFrame[5] = 0;
-            revoluteJoint8.m_childFrame[6] = 1.0;
-            revoluteJoint8.m_jointAxis[0] = 1.0;
-            revoluteJoint8.m_jointAxis[1] = 0.0;
-            revoluteJoint8.m_jointAxis[2] = 0.0;
-            revoluteJoint8.m_jointType = ePoint2PointType;
-            m_robotSim.createJoint(0, 4, 1, 0, &revoluteJoint1);
-            m_robotSim.createJoint(0, 5, 2, 0, &revoluteJoint2);
-            m_robotSim.createJoint(0, 4, 1, 0, &revoluteJoint3);
-            m_robotSim.createJoint(0, 5, 2, 0, &revoluteJoint4);
-            m_robotSim.createJoint(0, 4, 1, 0, &revoluteJoint5);
-            m_robotSim.createJoint(0, 5, 2, 0, &revoluteJoint6);
-            m_robotSim.createJoint(0, 2, 0, 4, &revoluteJoint7);
-            m_robotSim.createJoint(0, 3, 0, 5, &revoluteJoint8);
+            m_robotSim.createJoint(0, 2, 0, 4, &revoluteJoint1);
+            m_robotSim.createJoint(0, 3, 0, 6, &revoluteJoint2);
         }
         
         if ((m_options & eSOFTBODY_MULTIBODY_COUPLING)!=0)

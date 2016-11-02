@@ -3084,7 +3084,7 @@ void btSoftBody::PSolve_RContacts(btSoftBody* psb, btScalar kst, btScalar ti)
                 {
                     if (multibodyLinkCol)
                     {
-                        double multiplier = 0.2;
+                        double multiplier = 0.5;
                         multibodyLinkCol->m_multiBody->applyDeltaVeeMultiDof(deltaV,-impulse.length()*multiplier);
                     }
                 }
