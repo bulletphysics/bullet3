@@ -377,7 +377,7 @@ public:
             {
                 b3RobotSimLoadFileArgs args("");
                 args.m_fileName = "gripper/wsg50_one_motor_gripper_left_finger.urdf";
-                args.m_startPosition.setValue(-0.05,0,0.27);
+                args.m_startPosition.setValue(-0.1,0,0.5);
                 args.m_startOrientation.setEulerZYX(0,0,3.14);
                 args.m_forceOverrideFixedBase = false;
                 args.m_useMultiBody = false;
@@ -388,7 +388,7 @@ public:
             {
                 b3RobotSimLoadFileArgs args("");
                 args.m_fileName = "gripper/wsg50_one_motor_gripper_right_finger.urdf";
-                args.m_startPosition.setValue(0.05,0,0.27);
+                args.m_startPosition.setValue(0.1,0,0.5);
                 args.m_startOrientation.setEulerZYX(0,0,3.14);
                 args.m_forceOverrideFixedBase = false;
                 args.m_useMultiBody = false;
@@ -399,7 +399,7 @@ public:
             {
                 b3RobotSimLoadFileArgs args("");
                 args.m_fileName = "plane.urdf";
-                args.m_startPosition.setValue(0,0,0);
+                args.m_startPosition.setValue(0,0,-0.2);
                 args.m_startOrientation.setEulerZYX(0,0,0);
                 args.m_forceOverrideFixedBase = true;
                 args.m_useMultiBody = true;

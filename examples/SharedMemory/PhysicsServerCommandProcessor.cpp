@@ -1658,7 +1658,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     pm->m_kLST				=	1.0;
                     pm->m_flags				-=	btSoftBody::fMaterial::DebugDraw;
                     psb->generateBendingConstraints(2,pm);
-                    psb->m_cfg.piterations	=	15;
+                    psb->m_cfg.piterations	=	20;
                     psb->m_cfg.kDF			=	0.5;
                     psb->randomizeConstraints();
                     psb->rotate(btQuaternion(0.70711,0,0,0.70711));
