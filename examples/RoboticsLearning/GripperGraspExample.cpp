@@ -604,7 +604,7 @@ public:
                 args.m_startPosition.setValue(0,0,0);
                 args.m_startOrientation.setEulerZYX(0,0,0);
                 args.m_forceOverrideFixedBase = true;
-                args.m_useMultiBody = true;
+                args.m_useMultiBody = false;
                 b3RobotSimLoadFileResults results;
                 m_robotSim.loadFile(args,results);
             }
