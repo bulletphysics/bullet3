@@ -352,7 +352,7 @@ void SimpleOpenGL3App::drawText3D( const char* txt, float worldPosX, float world
 }
 
 
-void SimpleOpenGL3App::drawText( const char* txt, int posXi, int posYi)
+void SimpleOpenGL3App::drawText( const char* txt, int posXi, int posYi, float size)
 {
 
 	float posX = (float)posXi;
@@ -374,7 +374,7 @@ void SimpleOpenGL3App::drawText( const char* txt, int posXi, int posYi)
 	{
 		bool measureOnly = false;
 
-		float fontSize= 64;//512;//128;
+		float fontSize= 64*size;//512;//128;
 		sth_draw_text(m_data->m_fontStash,
                     m_data->m_droidRegular,fontSize,posX,posY,
 					txt,&dx, this->m_instancingRenderer->getScreenWidth(),

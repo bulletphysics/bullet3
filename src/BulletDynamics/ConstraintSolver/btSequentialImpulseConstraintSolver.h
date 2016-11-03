@@ -45,6 +45,14 @@ protected:
 	btAlignedObjectArray<btTypedConstraint::btConstraintInfo1> m_tmpConstraintSizesPool;
 	int							m_maxOverrideNumSolverIterations;
 	int m_fixedBodyId;
+    // When running solvers on multiple threads, a race condition exists for Kinematic objects that
+    // participate in more than one solver.
+    // The getOrInitSolverBody() function writes the companionId of each body (storing the index of the solver body
+    // for the current solver). For normal dynamic bodies it isn't an issue because they can only be in one island
+    // (and therefore one thread) at a time. But kinematic bodies can be in multiple islands at once.
+    // To avoid this race condition, this solver does not write the companionId, instead it stores the solver body
+    // index in this solver-local table, indexed by the uniqueId of the body.
+    btAlignedObjectArray<int>	m_kinematicBodyUniqueIdToSolverBodyTable;  // only used for multithreading
 
 	btSingleConstraintRowSolver m_resolveSingleConstraintRowGeneric;
 	btSingleConstraintRowSolver m_resolveSingleConstraintRowLowerLimit;
