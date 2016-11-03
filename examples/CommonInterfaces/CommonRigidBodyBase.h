@@ -21,6 +21,8 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 	btConstraintSolver*	m_solver;
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 	btDiscreteDynamicsWorld* m_dynamicsWorld;
+    bool m_multithreadedWorld;
+    bool m_multithreadCapable;
 
 	//data for picking objects
 	class btRigidBody*	m_pickedBody;
@@ -31,20 +33,8 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 	btScalar m_oldPickingDist;
 	struct GUIHelperInterface* m_guiHelper;
 
-	CommonRigidBodyBase(struct GUIHelperInterface* helper)
-	:m_broadphase(0),
-		m_dispatcher(0),
-		m_solver(0),
-		m_collisionConfiguration(0),
-		m_dynamicsWorld(0),
-		m_pickedBody(0),
-		m_pickedConstraint(0),
-		m_guiHelper(helper)
-	{
-	}
-	virtual ~CommonRigidBodyBase()
-	{
-	}
+	CommonRigidBodyBase(struct GUIHelperInterface* helper);
+	virtual ~CommonRigidBodyBase();
 
 
 	btDiscreteDynamicsWorld*	getDynamicsWorld()
@@ -52,26 +42,8 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 		return m_dynamicsWorld;
 	}
 
-	virtual void createEmptyDynamicsWorld()
-	{
-		///collision configuration contains default setup for memory, collision setup
-		m_collisionConfiguration = new btDefaultCollisionConfiguration();
-		//m_collisionConfiguration->setConvexConvexMultipointIterations();
-
-		///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
-		m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
-
-		m_broadphase = new btDbvtBroadphase();
-
-		///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
-		btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
-		m_solver = sol;
-
-		m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration);
-
-		m_dynamicsWorld->setGravity(btVector3(0, -10, 0));
-	}
-
+    virtual void createDefaultParameters();
+	virtual void createEmptyDynamicsWorld();
 
 	virtual void stepSimulation(float deltaTime)
 	{
@@ -81,14 +53,7 @@ struct CommonRigidBodyBase : public CommonExampleInterface
 		}
 	}
 
-	virtual void physicsDebugDraw(int debugFlags)
-	{
-		if (m_dynamicsWorld && m_dynamicsWorld->getDebugDrawer())
-		{
-			m_dynamicsWorld->getDebugDrawer()->setDebugMode(debugFlags);
-			m_dynamicsWorld->debugDrawWorld();
-		}
-	}
+	virtual void physicsDebugDraw(int debugFlags);
 
 	virtual void exitPhysics()
 	{

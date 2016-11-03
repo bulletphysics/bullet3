@@ -12,12 +12,14 @@ IF (WIN32)
 	ADD_EXECUTABLE(App_BasicExample
 		BasicExample.cpp
 		main.cpp
+		../CommonInterfaces/CommonRigidBodyBase.cpp
 		${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc
 	)
 ELSE()
 	ADD_EXECUTABLE(App_BasicExample
 		BasicExample.cpp
 		main.cpp
+		../CommonInterfaces/CommonRigidBodyBase.cpp
 	)
 ENDIF()
 
@@ -53,6 +55,7 @@ SET(AppBasicExampleGui_SRCS
         ../ExampleBrowser/OpenGLGuiHelper.cpp
         ../ExampleBrowser/GL_ShapeDrawer.cpp
         ../ExampleBrowser/CollisionShape2TriangleMesh.cpp
+		../CommonInterfaces/CommonRigidBodyBase.cpp
 		../Utils/b3Clock.cpp
 )
 

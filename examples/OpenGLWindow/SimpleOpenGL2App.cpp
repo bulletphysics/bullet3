@@ -280,7 +280,7 @@ void SimpleOpenGL2App::swapBuffer()
 	m_window->startRendering();
 
 }
-void SimpleOpenGL2App::drawText( const char* txt, int posX, int posY)
+void SimpleOpenGL2App::drawText( const char* txt, int posX, int posY, float size)
 {
 
 }

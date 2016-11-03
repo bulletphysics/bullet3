@@ -8,6 +8,7 @@
 #include "../RenderingExamples/TinyRendererSetup.h"
 #include "../RenderingExamples/DynamicTexturedCubeDemo.h"
 #include "../ForkLift/ForkLiftDemo.h"
+#include "../MultiThreadedDemo/MultiThreadedDemo.h"
 #include "../BasicDemo/BasicExample.h"
 #include "../Planar2D/Planar2D.h"
 #include "../Benchmarks/BenchmarkDemo.h"
@@ -284,7 +285,13 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Fracture demo", "Create a basic custom implementation to model fracturing objects, based on a btCompoundShape. It explicitly propagates the collision impulses and breaks the rigid body into multiple rigid bodies. Press F to toggle fracture and glue mode.", FractureDemoCreateFunc),
 
 	ExampleEntry(1,"Planar 2D","Show the use of 2D collision shapes and rigid body simulation. The collision shape is wrapped into a btConvex2dShape. The rigid bodies are restricted in a plane using the 'setAngularFactor' and 'setLinearFactor' API call.",Planar2DCreateFunc),
-
+#if BT_USE_OPENMP || BT_USE_TBB || BT_USE_PPL
+    // only enable MultiThreaded demo if a task scheduler is available
+    ExampleEntry( 1, "Multithreaded Demo",
+    "Stacks of boxes that do not sleep. Good for testing performance with large numbers of bodies and contacts. Sliders can be used to change the number of stacks (restart needed after each change)."
+    ,
+    MultiThreadedDemoCreateFunc ),
+#endif
 
 
 	ExampleEntry(0,"Rendering"),

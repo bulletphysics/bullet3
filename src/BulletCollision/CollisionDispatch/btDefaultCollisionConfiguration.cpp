@@ -44,9 +44,7 @@ btDefaultCollisionConfiguration::btDefaultCollisionConfiguration(const btDefault
 //btDefaultCollisionConfiguration::btDefaultCollisionConfiguration(btStackAlloc*	stackAlloc,btPoolAllocator*	persistentManifoldPool,btPoolAllocator*	collisionAlgorithmPool)
 {
 
-	void* mem = btAlignedAlloc(sizeof(btVoronoiSimplexSolver),16);
-	m_simplexSolver = new (mem)btVoronoiSimplexSolver();
-
+    void* mem = NULL;
 	if (constructionInfo.m_useEpaPenetrationAlgorithm)
 	{
 		mem = btAlignedAlloc(sizeof(btGjkEpaPenetrationDepthSolver),16);
@@ -59,7 +57,7 @@ btDefaultCollisionConfiguration::btDefaultCollisionConfiguration(const btDefault
 	
 	//default CreationFunctions, filling the m_doubleDispatch table
 	mem = btAlignedAlloc(sizeof(btConvexConvexAlgorithm::CreateFunc),16);
-	m_convexConvexCreateFunc = new(mem) btConvexConvexAlgorithm::CreateFunc(m_simplexSolver,m_pdSolver);
+	m_convexConvexCreateFunc = new(mem) btConvexConvexAlgorithm::CreateFunc(m_pdSolver);
 	mem = btAlignedAlloc(sizeof(btConvexConcaveCollisionAlgorithm::CreateFunc),16);
 	m_convexConcaveCreateFunc = new (mem)btConvexConcaveCollisionAlgorithm::CreateFunc;
 	mem = btAlignedAlloc(sizeof(btConvexConcaveCollisionAlgorithm::CreateFunc),16);
@@ -192,9 +190,6 @@ btDefaultCollisionConfiguration::~btDefaultCollisionConfiguration()
 	btAlignedFree( m_convexPlaneCF);
 	m_planeConvexCF->~btCollisionAlgorithmCreateFunc();
 	btAlignedFree( m_planeConvexCF);
-
-	m_simplexSolver->~btVoronoiSimplexSolver();
-	btAlignedFree(m_simplexSolver);
 
 	m_pdSolver->~btConvexPenetrationDepthSolver();
 	
