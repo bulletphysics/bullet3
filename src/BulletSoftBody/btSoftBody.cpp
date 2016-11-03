@@ -3036,6 +3036,7 @@ void btSoftBody::PSolve_RContacts(btSoftBody* psb, btScalar kst, btScalar ti)
             btRigidBody* rigidCol;
             btMultiBodyLinkCollider* multibodyLinkCol;
             btScalar* deltaV;
+            btMultiBodyJacobianData jacobianData;
             if (cti.m_colObj->getInternalType() == btCollisionObject::CO_RIGID_BODY)
             {
                 rigidCol = (btRigidBody*)btRigidBody::upcast(cti.m_colObj);
@@ -3047,7 +3048,6 @@ void btSoftBody::PSolve_RContacts(btSoftBody* psb, btScalar kst, btScalar ti)
                 if (multibodyLinkCol)
                 {
                     const int ndof  = multibodyLinkCol->m_multiBody->getNumDofs() + 6;
-                    btMultiBodyJacobianData jacobianData;
                     jacobianData.m_jacobians.resize(ndof);
                     jacobianData.m_deltaVelocitiesUnitImpulse.resize(ndof);
                     btScalar* jac=&jacobianData.m_jacobians[0];
