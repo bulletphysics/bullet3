@@ -165,7 +165,7 @@ public:
     
     void getLinkState(int bodyUniqueId, int linkIndex, double* worldPosition, double* worldOrientation);
     
-    void loadBunny();
+    void loadBunny(double scale, double mass, double collisionMargin);
 };
 
 #endif //B3_ROBOT_SIM_API_H

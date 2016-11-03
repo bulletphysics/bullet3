@@ -343,7 +343,6 @@ public:
                 slider.m_maxVal=1;
                 m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
             }
-            if (1)
             {
                 b3RobotSimLoadFileArgs args("");
                 args.m_fileName = "gripper/wsg50_one_motor_gripper_new.sdf";
@@ -374,12 +373,10 @@ public:
                     
                 }
             }
-            
-            if (1)
             {
                 b3RobotSimLoadFileArgs args("");
                 args.m_fileName = "plane.urdf";
-                args.m_startPosition.setValue(0,0,0);
+                args.m_startPosition.setValue(0,0,-0.2);
                 args.m_startOrientation.setEulerZYX(0,0,0);
                 args.m_forceOverrideFixedBase = true;
                 args.m_useMultiBody = true;
@@ -388,7 +385,7 @@ public:
                 
             }
             m_robotSim.setGravity(b3MakeVector3(0,0,-10));
-            m_robotSim.loadBunny();
+            m_robotSim.loadBunny(0.1,0.1,0.02);
             
             b3JointInfo revoluteJoint1;
             revoluteJoint1.m_parentFrame[0] = -0.055;
@@ -430,6 +427,46 @@ public:
             revoluteJoint2.m_jointType = ePoint2PointType;
             m_robotSim.createJoint(0, 2, 0, 4, &revoluteJoint1);
             m_robotSim.createJoint(0, 3, 0, 6, &revoluteJoint2);
+        }
+        
+        if ((m_options & eSOFTBODY_MULTIBODY_COUPLING)!=0)
+        {
+            {
+                b3RobotSimLoadFileArgs args("");
+                args.m_fileName = "kuka_iiwa/model_free_base.urdf";
+                args.m_startPosition.setValue(0,1.0,2.0);
+                args.m_startOrientation.setEulerZYX(0,0,1.57);
+                args.m_forceOverrideFixedBase = false;
+                args.m_useMultiBody = true;
+                b3RobotSimLoadFileResults results;
+                m_robotSim.loadFile(args,results);
+                
+                int kukaId = results.m_uniqueObjectIds[0];
+                int numJoints = m_robotSim.getNumJoints(kukaId);
+                b3Printf("numJoints = %d",numJoints);
+                
+                for (int i=0;i<numJoints;i++)
+                {
+                    b3JointInfo jointInfo;
+                    m_robotSim.getJointInfo(kukaId,i,&jointInfo);
+                    b3Printf("joint[%d].m_jointName=%s",i,jointInfo.m_jointName);
+                    b3JointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
+                    controlArgs.m_maxTorqueValue = 0.0;
+                    m_robotSim.setJointMotorControl(kukaId,i,controlArgs);
+                }
+            }
+            {
+                b3RobotSimLoadFileArgs args("");
+                args.m_fileName = "plane.urdf";
+                args.m_startPosition.setValue(0,0,0);
+                args.m_startOrientation.setEulerZYX(0,0,0);
+                args.m_forceOverrideFixedBase = true;
+                args.m_useMultiBody = false;
+                b3RobotSimLoadFileResults results;
+                m_robotSim.loadFile(args,results);
+            }
+            m_robotSim.setGravity(b3MakeVector3(0,0,-10));
+            m_robotSim.loadBunny(0.5,10.0,0.1);
         }
     }
     virtual void    exitPhysics()
@@ -479,7 +516,7 @@ public:
             int fingerJointIndices[2]={0,1};
             double fingerTargetVelocities[2]={sGripperVerticalVelocity,sGripperClosingTargetVelocity
             };
-            double maxTorqueValues[2]={50.0,50.0};
+            double maxTorqueValues[2]={50.0,10.0};
             for (int i=0;i<2;i++)
             {
                 b3JointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
