@@ -79,6 +79,7 @@ protected:
 
 	int				m_islandTag1;
 	int				m_companionId;
+    int             m_uniqueId;
 
 	mutable int				m_activationState1;
 	mutable btScalar			m_deactivationTime;
@@ -455,7 +456,17 @@ public:
 		m_companionId = id;
 	}
 
-	SIMD_FORCE_INLINE btScalar			getHitFraction() const
+    SIMD_FORCE_INLINE int getUniqueId() const
+    {
+        return	m_uniqueId;
+    }
+
+    void	setUniqueId( int id )
+    {
+        m_uniqueId = id;
+    }
+
+    SIMD_FORCE_INLINE btScalar			getHitFraction() const
 	{
 		return m_hitFraction; 
 	}

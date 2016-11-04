@@ -103,6 +103,7 @@ project "App_BulletExampleBrowser"
 		"../RoboticsLearning/*",
 		"../Collision/Internal/*",
 		"../Benchmarks/*",
+		"../MultiThreadedDemo/*",
 		"../CommonInterfaces/*",
 		"../ForkLift/ForkLiftDemo.*",
 		"../Importers/**",

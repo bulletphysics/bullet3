@@ -17,6 +17,7 @@ language "C++"
 
 files {
 	"RigidBodyFromObj.cpp",
+	"../CommonInterfaces/*",
 	"**.h",
 	"../StandaloneMain/main_console_single_example.cpp",
 		"../Utils/b3ResourcePath.cpp",
@@ -68,6 +69,7 @@ files {
         "RigidBodyFromObj.cpp",
         "*.h",
         "../StandaloneMain/main_opengl_single_example.cpp",
+	"../CommonInterfaces/*",
 	"../ExampleBrowser/OpenGLGuiHelper.cpp",
 	"../ExampleBrowser/GL_ShapeDrawer.cpp",
 	"../ExampleBrowser/CollisionShape2TriangleMesh.cpp",
@@ -132,6 +134,7 @@ files {
 	"../ExampleBrowser/OpenGLGuiHelper.cpp",
 	"../ExampleBrowser/GL_ShapeDrawer.cpp",
 	"../ExampleBrowser/CollisionShape2TriangleMesh.cpp",
+	"../CommonInterfaces/*",
 	"../TinyRenderer/geometry.cpp",
 	"../TinyRenderer/model.cpp",
 	"../TinyRenderer/tgaimage.cpp",
@@ -193,6 +196,7 @@ files {
         "../StandaloneMain/main_tinyrenderer_single_example.cpp",
 	"../OpenGLWindow/SimpleCamera.cpp",
 	"../ExampleBrowser/CollisionShape2TriangleMesh.cpp",
+	"../CommonInterfaces/*",
 	"../TinyRenderer/geometry.cpp",
 	"../TinyRenderer/model.cpp",
 	"../TinyRenderer/tgaimage.cpp",

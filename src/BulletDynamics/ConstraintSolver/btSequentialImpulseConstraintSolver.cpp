@@ -716,8 +716,64 @@ btSolverConstraint&	btSequentialImpulseConstraintSolver::addTorsionalFrictionCon
 
 int	btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& body,btScalar timeStep)
 {
+#if BT_THREADSAFE
+    int solverBodyId = -1;
+    if ( !body.isStaticOrKinematicObject() )
+    {
+        // dynamic body
+        // Dynamic bodies can only be in one island, so it's safe to write to the companionId
+        solverBodyId = body.getCompanionId();
+        if ( solverBodyId < 0 )
+        {
+            if ( btRigidBody* rb = btRigidBody::upcast( &body ) )
+            {
+                solverBodyId = m_tmpSolverBodyPool.size();
+                btSolverBody& solverBody = m_tmpSolverBodyPool.expand();
+                initSolverBody( &solverBody, &body, timeStep );
+                body.setCompanionId( solverBodyId );
+            }
+        }
+    }
+    else if ( body.isStaticObject() )
+    {
+        // all fixed bodies (inf mass) get mapped to a single solver id
+        if ( m_fixedBodyId < 0 )
+        {
+            m_fixedBodyId = m_tmpSolverBodyPool.size();
+            btSolverBody& fixedBody = m_tmpSolverBodyPool.expand();
+            initSolverBody( &fixedBody, 0, timeStep );
+        }
+        solverBodyId = m_fixedBodyId;
+    }
+    else
+    {
+        // kinematic
+        // Kinematic bodies can be in multiple islands at once, so it is a
+        // race condition to write to them, so we use an alternate method
+        // to record the solverBodyId
+        int uniqueId = body.getUniqueId();
+        const int INVALID_SOLVER_BODY_ID = -1;
+        if (uniqueId >= m_kinematicBodyUniqueIdToSolverBodyTable.size())
+        {
+            m_kinematicBodyUniqueIdToSolverBodyTable.resize(uniqueId + 1, INVALID_SOLVER_BODY_ID);
+        }
+        solverBodyId = m_kinematicBodyUniqueIdToSolverBodyTable[ uniqueId ];
+        // if no table entry yet,
+        if ( solverBodyId == INVALID_SOLVER_BODY_ID )
+        {
+            // create a table entry for this body
+            btRigidBody* rb = btRigidBody::upcast( &body );
+            solverBodyId = m_tmpSolverBodyPool.size();
+            btSolverBody& solverBody = m_tmpSolverBodyPool.expand();
+            initSolverBody( &solverBody, &body, timeStep );
+            m_kinematicBodyUniqueIdToSolverBodyTable[ uniqueId ] = solverBodyId;
+        }
+    }
+    btAssert( solverBodyId < m_tmpSolverBodyPool.size() );
+	return solverBodyId;
+#else // BT_THREADSAFE
 
-	int solverBodyIdA = -1;
+    int solverBodyIdA = -1;
 
 	if (body.getCompanionId() >= 0)
 	{
@@ -749,6 +805,7 @@ int	btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& 
 	}
 
 	return solverBodyIdA;
+#endif // BT_THREADSAFE
 
 }
 #include <stdio.h>
@@ -1263,7 +1320,9 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 	{
 		bodies[i]->setCompanionId(-1);
 	}
-
+#if BT_THREADSAFE
+    m_kinematicBodyUniqueIdToSolverBodyTable.resize( 0 );
+#endif // BT_THREADSAFE
 
 	m_tmpSolverBodyPool.reserve(numBodies+1);
 	m_tmpSolverBodyPool.resize(0);

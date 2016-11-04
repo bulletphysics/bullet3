@@ -37,6 +37,11 @@ struct TinyRendererVisualShapeConverter : public LinkVisualShapesConverter
     
 	void render();
 	void render(const float viewMat[16], const float projMat[16]);
+    
+    void loadTextureFile(const char* filename);
+    int registerTexture(unsigned char* texels, int width, int height);
+    void activateShapeTexture(int shapeUniqueId, int textureUniqueId);
+    void activateShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId);
 	
 };
 

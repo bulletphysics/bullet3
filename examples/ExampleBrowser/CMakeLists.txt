@@ -32,6 +32,7 @@ ADD_LIBRARY(BulletExampleBrowserLib
 	GL_ShapeDrawer.cpp
 	CollisionShape2TriangleMesh.cpp
 	CollisionShape2TriangleMesh.h
+	../CommonInterfaces/CommonRigidBodyBase.cpp
 	../Utils/b3Clock.cpp
 	../Utils/b3Clock.h
 	../Utils/b3ResourcePath.cpp
@@ -108,6 +109,29 @@ ELSE(WIN32)
 	ENDIF(APPLE)
 ENDIF(WIN32)
 
+IF (BULLET2_MULTITHREADED_OPEN_MP_DEMO)
+    ADD_DEFINITIONS("-DBT_USE_OPENMP=1")
+    IF (MSVC)
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /openmp")
+    ELSE (MSVC)
+        # GCC, Clang
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+    ENDIF (MSVC)
+ENDIF (BULLET2_MULTITHREADED_OPEN_MP_DEMO)
+
+IF (BULLET2_MULTITHREADED_PPL_DEMO)
+    ADD_DEFINITIONS("-DBT_USE_PPL=1")
+ENDIF (BULLET2_MULTITHREADED_PPL_DEMO)
+
+IF (BULLET2_MULTITHREADED_TBB_DEMO)
+    SET (BULLET2_TBB_INCLUDE_DIR "not found" CACHE PATH "Directory for Intel TBB includes.")
+    SET (BULLET2_TBB_LIB_DIR "not found" CACHE PATH "Directory for Intel TBB libraries.")
+    find_library(TBB_LIBRARY tbb PATHS ${BULLET2_TBB_LIB_DIR})
+    find_library(TBBMALLOC_LIBRARY tbbmalloc PATHS ${BULLET2_TBB_LIB_DIR})
+    ADD_DEFINITIONS("-DBT_USE_TBB=1")
+    INCLUDE_DIRECTORIES( ${BULLET2_TBB_INCLUDE_DIR} )
+    LINK_LIBRARIES( ${TBB_LIBRARY} ${TBBMALLOC_LIBRARY} )
+ENDIF (BULLET2_MULTITHREADED_TBB_DEMO)
 
 SET(ExtendedTutorialsSources
 	../ExtendedTutorials/Chain.cpp 
@@ -174,6 +198,8 @@ SET(BulletExampleBrowser_SRCS
 	../InverseKinematics/InverseKinematicsExample.h
 	../ForkLift/ForkLiftDemo.cpp
 	../ForkLift/ForkLiftDemo.h
+	../MultiThreadedDemo/MultiThreadedDemo.cpp
+	../MultiThreadedDemo/MultiThreadedDemo.h
 	../Tutorial/Tutorial.cpp
 	../Tutorial/Tutorial.h
 	../Tutorial/Dof6ConstraintTutorial.cpp
@@ -347,9 +373,26 @@ ADD_CUSTOM_COMMAND(
                 COMMAND ${CMAKE_COMMAND} ARGS -E copy_directory ${BULLET_PHYSICS_SOURCE_DIR}/data ${PROJECT_BINARY_DIR}/data
         )
 
+IF (BULLET2_MULTITHREADED_TBB_DEMO AND WIN32)
+    # add a post build command to copy some dlls to the executable directory
+    set(TBB_VC_VER "vc12")
+    set(TBB_VC_ARCH "ia32")
+    # assume 32-bit build in VC12 for now
+    # checks can be added here at a later time
+    ADD_CUSTOM_COMMAND(TARGET App_ExampleBrowser POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${BULLET2_TBB_INCLUDE_DIR}/../bin/${TBB_VC_ARCH}/${TBB_VC_VER}/tbb.dll"
+        $<TARGET_FILE_DIR:App_ExampleBrowser>)
+    ADD_CUSTOM_COMMAND(TARGET App_ExampleBrowser POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${BULLET2_TBB_INCLUDE_DIR}/../bin/${TBB_VC_ARCH}/${TBB_VC_VER}/tbbmalloc.dll"
+        $<TARGET_FILE_DIR:App_ExampleBrowser>)
+ENDIF (BULLET2_MULTITHREADED_TBB_DEMO AND WIN32)
+
 
 IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
 			SET_TARGET_PROPERTIES(App_ExampleBrowser PROPERTIES  DEBUG_POSTFIX "_Debug")
 			SET_TARGET_PROPERTIES(App_ExampleBrowser PROPERTIES  MINSIZEREL_POSTFIX "_MinsizeRel")
 			SET_TARGET_PROPERTIES(App_ExampleBrowser PROPERTIES  RELWITHDEBINFO_POSTFIX "_RelWithDebugInfo")
 ENDIF(INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
+

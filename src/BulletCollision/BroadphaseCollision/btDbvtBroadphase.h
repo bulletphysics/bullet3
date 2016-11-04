@@ -87,6 +87,7 @@ struct	btDbvtBroadphase : btBroadphaseInterface
 	bool					m_releasepaircache;			// Release pair cache on delete
 	bool					m_deferedcollide;			// Defere dynamic/static collision to collide call
 	bool					m_needcleanup;				// Need to run cleanup?
+    btAlignedObjectArray< btAlignedObjectArray<const btDbvtNode*> > m_rayTestStacks;
 #if DBVT_BP_PROFILE
 	btClock					m_clock;
 	struct	{
