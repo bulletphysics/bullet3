@@ -83,6 +83,10 @@ IF(WIN32)
 	IF(BUILD_PYBULLET_ENET)
 		ADD_DEFINITIONS(-DWIN32 -DBT_ENABLE_ENET)
 	ENDIF(BUILD_PYBULLET_ENET)
+ELSE(WIN32)
+	IF(BUILD_PYBULLET_ENET)
+		ADD_DEFINITIONS(-DHAS_SOCKLEN_T -DBT_ENABLE_ENET)
+	ENDIF(BUILD_PYBULLET_ENET)
 ENDIF(WIN32)
 
 
@@ -122,6 +126,6 @@ ENDIF(WIN32)
 
 
 
-TARGET_LINK_LIBRARIES(pybullet ws2_32 BulletExampleBrowserLib BulletFileLoader BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK Bullet3Common ${PYTHON_LIBRARIES})
+TARGET_LINK_LIBRARIES(pybullet BulletExampleBrowserLib BulletFileLoader BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK Bullet3Common ${PYTHON_LIBRARIES})
 
 
