@@ -1187,6 +1187,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 			
 			//catch uninitialized cases
 			serverStatusOut.m_type = CMD_INVALID_STATUS;
+			serverStatusOut.m_numDataStreamBytes = 0;
+			serverStatusOut.m_dataStream = 0;
 
             //consume the command
 			switch (clientCmd.m_type)
@@ -1244,7 +1246,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                         }
 
                         //9 floats per line: 3 floats for 'from', 3 floats for 'to' and 3 floats for 'color'
-                        int maxNumLines = bufferSizeInBytes/(sizeof(float)*9)-1;
+						int bytesPerLine = (sizeof(float) * 9);
+                        int maxNumLines = bufferSizeInBytes/bytesPerLine-1;
                         if (startingLineIndex >m_data->m_remoteDebugDrawer->m_lines2.size())
                         {
                             b3Warning("m_startingLineIndex exceeds total number of debug lines");
@@ -1277,7 +1280,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						}
 
 						serverStatusOut.m_type = CMD_DEBUG_LINES_COMPLETED;
-
+						serverStatusOut.m_numDataStreamBytes = numLines * bytesPerLine;
                         serverStatusOut.m_sendDebugLinesArgs.m_numDebugLines = numLines;
                         serverStatusOut.m_sendDebugLinesArgs.m_startingLineIndex = startingLineIndex;
                         serverStatusOut.m_sendDebugLinesArgs.m_numRemainingDebugLines = m_data->m_remoteDebugDrawer->m_lines2.size()-(startingLineIndex+numLines);
@@ -1327,6 +1330,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                         float* depthBuffer = (float*)(bufferServerToClient+numRequestedPixels*4);
                         int* segmentationMaskBuffer = (int*)(bufferServerToClient+numRequestedPixels*8);
 
+						serverStatusOut.m_numDataStreamBytes = numRequestedPixels * totalBytesPerPixel;
+
                         if ((clientCmd.m_updateFlags & ER_BULLET_HARDWARE_OPENGL)!=0)
 						{
 							m_data->m_guiHelper->copyCameraImageData(clientCmd.m_requestPixelDataArguments.m_viewMatrix,
@@ -1368,6 +1373,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     }
 
                     serverStatusOut.m_type = CMD_CAMERA_IMAGE_COMPLETED;
+					
                     serverStatusOut.m_sendPixelDataArguments.m_numPixelsCopied = numPixelsCopied;
 					serverStatusOut.m_sendPixelDataArguments.m_numRemainingPixels = numRemainingPixels - numPixelsCopied;
 					serverStatusOut.m_sendPixelDataArguments.m_startingPixelIndex = startPixelIndex;
@@ -1386,7 +1392,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
                         serverStatusOut.m_type = CMD_BODY_INFO_COMPLETED;
                         serverStatusOut.m_dataStreamArguments.m_bodyUniqueId = sdfInfoArgs.m_bodyUniqueId;
-                        serverStatusOut.m_dataStreamArguments.m_streamChunkLength = streamSizeInBytes;
+                        serverStatusOut.m_numDataStreamBytes = streamSizeInBytes;
+						
                         hasStatus = true;
                         break;
                     }
@@ -1606,11 +1613,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						m_data->m_guiHelper->autogenerateGraphicsObjects(this->m_data->m_dynamicsWorld);
 
 						serverStatusOut.m_type = CMD_URDF_LOADING_COMPLETED;
-                        serverStatusOut.m_dataStreamArguments.m_streamChunkLength = 0;
+                       
 
 						if (m_data->m_urdfLinkNameMapper.size())
 						{
-							serverStatusOut.m_dataStreamArguments.m_streamChunkLength = m_data->m_urdfLinkNameMapper.at(m_data->m_urdfLinkNameMapper.size()-1)->m_memSerializer->getCurrentBufferSize();
+							serverStatusOut.m_numDataStreamBytes = m_data->m_urdfLinkNameMapper.at(m_data->m_urdfLinkNameMapper.size()-1)->m_memSerializer->getCurrentBufferSize();
 						}
 						serverStatusOut.m_dataStreamArguments.m_bodyUniqueId = bodyUniqueId;
 						hasStatus = true;
@@ -2583,7 +2590,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						
 						serverCmd.m_sendContactPointArgs.m_startingContactPointIndex = clientCmd.m_requestContactPointArguments.m_startingContactPointIndex;
 						serverCmd.m_sendContactPointArgs.m_numRemainingContactPoints = numContactPoints - clientCmd.m_requestContactPointArguments.m_startingContactPointIndex - serverCmd.m_sendContactPointArgs.m_numContactPointsCopied;
-
+						serverCmd.m_numDataStreamBytes = totalBytesPerContact * serverCmd.m_sendContactPointArgs.m_numContactPointsCopied;
 						serverCmd.m_type = CMD_CONTACT_POINT_INFORMATION_COMPLETED; //CMD_CONTACT_POINT_INFORMATION_FAILED,
 						hasStatus = true;
                         break;
@@ -3006,7 +3013,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied = 1;
 					serverCmd.m_sendVisualShapeArgs.m_startingVisualShapeIndex = clientCmd.m_requestVisualShapeDataArguments.m_startingVisualShapeIndex;
 					serverCmd.m_sendVisualShapeArgs.m_bodyUniqueId = clientCmd.m_requestVisualShapeDataArguments.m_bodyUniqueId;
-
+					serverCmd.m_numDataStreamBytes = sizeof(b3VisualShapeData)*serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied;
                     serverCmd.m_type =CMD_VISUAL_SHAPE_INFO_COMPLETED;
                     hasStatus = true;
                     break;

@@ -90,7 +90,6 @@ struct UrdfArgs
 struct BulletDataStreamArgs
 {
 	char m_bulletFileName[MAX_FILENAME_LENGTH];
-	int m_streamChunkLength;
 	int m_bodyUniqueId;
 };
 
@@ -508,6 +507,10 @@ struct SharedMemoryStatus
 	smUint64_t	m_timeStamp;
 	int	m_sequenceNumber;
 	
+	//m_streamBytes is only for internal purposes
+	int		m_numDataStreamBytes;
+	char*	m_dataStream;
+
 	union
 	{
 		struct BulletDataStreamArgs	m_dataStreamArguments;

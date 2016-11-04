@@ -42,6 +42,14 @@ myfiles =
 	"PhysicsLoopBack.h",
 	"PhysicsLoopBackC_API.cpp",
 	"PhysicsLoopBackC_API.h",
+	"PhysicsClientSharedMemory_C_API.cpp",
+	"PhysicsClientSharedMemory_C_API.h",
+	"PhysicsClientSharedMemory2_C_API.cpp",
+	"PhysicsClientSharedMemory2_C_API.h",
+	"PhysicsClientSharedMemory2.cpp",
+	"PhysicsClientSharedMemory2.h",
+	"SharedMemoryCommandProcessor.cpp",
+	"SharedMemoryCommandProcessor.h",
 	"PhysicsServerCommandProcessor.cpp",
 	"PhysicsServerCommandProcessor.h",
 	"TinyRendererVisualShapeConverter.cpp",
@@ -289,3 +297,6 @@ if os.is("Windows") then
 
 
 end
+
+
+include "udp"

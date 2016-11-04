@@ -844,13 +844,13 @@ void CMainApplication::RenderFrame()
 		// happen right before and after the vsync causing all kinds of jittering issues. This glFinish()
 		// appears to clear that up. Temporary fix while I try to get nvidia to investigate this problem.
 		// 1/29/2014 mikesart
-		glFinish();
+		//glFinish();
 	}
 
 	// SwapWindow
 	{
 		B3_PROFILE("m_app->swapBuffer");
-		m_app->swapBuffer();
+//		m_app->swapBuffer();
 		//SDL_GL_SwapWindow( m_pWindow );
 		
 	}

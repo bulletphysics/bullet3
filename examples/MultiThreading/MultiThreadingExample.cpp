@@ -11,6 +11,7 @@
 #include "stb_image/stb_image.h"
 #include "Bullet3Common/b3Quaternion.h"
 #include "Bullet3Common/b3Matrix3x3.h"
+#include "../Utils/b3Clock.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 
 #include "LinearMath/btAlignedObjectArray.h"
@@ -134,6 +135,8 @@ void	SampleThreadFunc(void* userPtr,void* lsMemory)
             job->executeJob(localStorage->threadId);
         }
 		
+		b3Clock::usleep(250);
+
 		args->m_cs->lock();
 		int exitMagicNumber = args->m_cs->getSharedParam(1);
 		requestExit = (exitMagicNumber==MAGIC_RESET_NUMBER);

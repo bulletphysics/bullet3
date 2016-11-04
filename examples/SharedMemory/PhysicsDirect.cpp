@@ -3,7 +3,9 @@
 #include "PhysicsClientSharedMemory.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "SharedMemoryCommands.h"
-#include "PhysicsServerCommandProcessor.h"
+#include "PhysicsCommandProcessorInterface.h"
+
+
 #include "LinearMath/btHashMap.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "../../Extras/Serialize/BulletFileLoader/btBulletFile.h"
@@ -44,26 +46,34 @@ struct PhysicsDirectInternalData
 	
 	btAlignedObjectArray<b3VisualShapeData> m_cachedVisualShapes;
     
-	PhysicsServerCommandProcessor* m_commandProcessor;
+	PhysicsCommandProcessorInterface* m_commandProcessor;
+	bool m_ownsCommandProcessor;
 
 	PhysicsDirectInternalData()
 		:m_hasStatus(false),
-		m_verboseOutput(false)
+		m_verboseOutput(false),
+		m_ownsCommandProcessor(false)
 	{
 	}
 };
 
-PhysicsDirect::PhysicsDirect()
+PhysicsDirect::PhysicsDirect(PhysicsCommandProcessorInterface* physSdk)
 {
 	m_data = new PhysicsDirectInternalData;
-	m_data->m_commandProcessor = new PhysicsServerCommandProcessor;
-	
-	
+	m_data->m_commandProcessor = physSdk;
+	m_data->m_ownsCommandProcessor = false;
 }
 
 PhysicsDirect::~PhysicsDirect()
 {
-	delete m_data->m_commandProcessor;
+	if (m_data->m_commandProcessor->isConnected())
+	{
+		m_data->m_commandProcessor->disconnect();
+	}	
+	if (m_data->m_ownsCommandProcessor)
+	{
+		delete m_data->m_commandProcessor;
+	}
 	delete m_data;
 }
 
@@ -71,23 +81,26 @@ PhysicsDirect::~PhysicsDirect()
 // return true if connection succesfull, can also check 'isConnected'
 bool PhysicsDirect::connect()
 {
+	bool connected = m_data->m_commandProcessor->connect();
 	m_data->m_commandProcessor->setGuiHelper(&m_data->m_noGfx);
-
-	return true;
+	return connected;
 }
 
 // return true if connection succesfull, can also check 'isConnected'
 bool PhysicsDirect::connect(struct GUIHelperInterface* guiHelper)
 {
+	bool connected = m_data->m_commandProcessor->connect();
+
 	m_data->m_commandProcessor->setGuiHelper(guiHelper);
 	
-	return true;
+	return connected;
 }
 
 void PhysicsDirect::renderScene()
 {
 	m_data->m_commandProcessor->renderScene();
 }
+
 void PhysicsDirect::debugDraw(int debugDrawMode)
 {
 	m_data->m_commandProcessor->physicsDebugDraw(debugDrawMode);
@@ -96,21 +109,31 @@ void PhysicsDirect::debugDraw(int debugDrawMode)
 ////todo: rename to 'disconnect'
 void PhysicsDirect::disconnectSharedMemory()
 {
+	m_data->m_commandProcessor->disconnect();
 	m_data->m_commandProcessor->setGuiHelper(0);
 }
 
 bool PhysicsDirect::isConnected() const
 {
-	return true;
+	return m_data->m_commandProcessor->isConnected();
 }
 
 // return non-null if there is a status, nullptr otherwise
 const  SharedMemoryStatus* PhysicsDirect::processServerStatus()
 {
+	
+	if (!m_data->m_hasStatus)
+	{
+		m_data->m_hasStatus = m_data->m_commandProcessor->receiveStatus(m_data->m_serverStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+	}
+
 	SharedMemoryStatus* stat = 0;
 	if (m_data->m_hasStatus)
 	{
 		stat = &m_data->m_serverStatus;
+		
+		postProcessStatus(m_data->m_serverStatus);
+		
 		m_data->m_hasStatus = false;
 	}
 	return stat;
@@ -136,7 +159,19 @@ bool PhysicsDirect::processDebugLines(const struct SharedMemoryCommand& orgComma
 	{
 
 		bool hasStatus = m_data->m_commandProcessor->processCommand(command,m_data->m_serverStatus,&m_data->m_bulletStreamDataServerToClient[0],SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+
+		int timeout = 1024 * 1024 * 1024;
+		while ((!hasStatus) && (timeout-- > 0))
+		{
+			const  SharedMemoryStatus* stat = processServerStatus();
+			if (stat)
+			{
+				hasStatus = true;
+			}
+		}
+
 		m_data->m_hasStatus = hasStatus;
+
 		if (hasStatus)
 		{
 			btAssert(m_data->m_serverStatus.m_type == CMD_DEBUG_LINES_COMPLETED);
@@ -184,6 +219,8 @@ bool PhysicsDirect::processDebugLines(const struct SharedMemoryCommand& orgComma
 
 			if (serverCmd.m_sendDebugLinesArgs.m_numRemainingDebugLines > 0)
 			{
+				m_data->m_hasStatus = false;
+
 				command.m_type = CMD_REQUEST_DEBUG_LINES;
 				command.m_requestDebugLinesArguments.m_startingLineIndex =
 					serverCmd.m_sendDebugLinesArgs.m_numDebugLines +
@@ -204,6 +241,17 @@ bool PhysicsDirect::processVisualShapeData(const struct SharedMemoryCommand& org
 	do
 	{
 		bool hasStatus = m_data->m_commandProcessor->processCommand(command, m_data->m_serverStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+
+		int timeout = 1024 * 1024 * 1024;
+		while ((!hasStatus) && (timeout-- > 0))
+		{
+			const  SharedMemoryStatus* stat = processServerStatus();
+			if (stat)
+			{
+				hasStatus = true;
+			}
+		}
+
 		m_data->m_hasStatus = hasStatus;
 		if (hasStatus)
 		{
@@ -223,6 +271,8 @@ bool PhysicsDirect::processVisualShapeData(const struct SharedMemoryCommand& org
 						
 			if (serverCmd.m_sendVisualShapeArgs.m_numRemainingVisualShapes >0 && serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied)
 			{
+				m_data->m_hasStatus = false;
+
 				command.m_type = CMD_REQUEST_VISUAL_SHAPE_INFO;
 				command.m_requestVisualShapeDataArguments.m_startingVisualShapeIndex = serverCmd.m_sendVisualShapeArgs.m_startingVisualShapeIndex + serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied;
 				command.m_requestVisualShapeDataArguments.m_bodyUniqueId = serverCmd.m_sendVisualShapeArgs.m_bodyUniqueId;
@@ -243,7 +293,19 @@ bool PhysicsDirect::processContactPointData(const struct SharedMemoryCommand& or
     do
     {
         bool hasStatus = m_data->m_commandProcessor->processCommand(command,m_data->m_serverStatus,&m_data->m_bulletStreamDataServerToClient[0],SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
-        m_data->m_hasStatus = hasStatus;
+        
+		int timeout = 1024 * 1024 * 1024;
+		while ((!hasStatus) && (timeout-- > 0))
+		{
+			const  SharedMemoryStatus* stat = processServerStatus();
+			if (stat)
+			{
+				hasStatus = true;
+			}
+		}
+
+
+		m_data->m_hasStatus = hasStatus;
         if (hasStatus)
         {
             if (m_data->m_verboseOutput)
@@ -264,7 +326,10 @@ bool PhysicsDirect::processContactPointData(const struct SharedMemoryCommand& or
             
             if (serverCmd.m_sendContactPointArgs.m_numRemainingContactPoints>0 && serverCmd.m_sendContactPointArgs.m_numContactPointsCopied)
             {
-                command.m_type = CMD_REQUEST_CONTACT_POINT_INFORMATION;
+    
+				m_data->m_hasStatus = false;
+
+				command.m_type = CMD_REQUEST_CONTACT_POINT_INFORMATION;
                 command.m_requestContactPointArguments.m_startingContactPointIndex = serverCmd.m_sendContactPointArgs.m_startingContactPointIndex+serverCmd.m_sendContactPointArgs.m_numContactPointsCopied;
                 command.m_requestContactPointArguments.m_objectAIndexFilter = -1;
                 command.m_requestContactPointArguments.m_objectBIndexFilter = -1;
@@ -289,6 +354,18 @@ bool PhysicsDirect::processCamera(const struct SharedMemoryCommand& orgCommand)
 	{
 
 		bool hasStatus = m_data->m_commandProcessor->processCommand(command,m_data->m_serverStatus,&m_data->m_bulletStreamDataServerToClient[0],SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+		
+		int timeout = 1024 * 1024 * 1024;
+		while ((!hasStatus) && (timeout-- > 0))
+		{
+			const  SharedMemoryStatus* stat = processServerStatus();
+			if (stat)
+			{
+				hasStatus = true;
+			}
+		}
+
+
 		m_data->m_hasStatus = hasStatus;
 		if (hasStatus)
 		{
@@ -340,6 +417,7 @@ bool PhysicsDirect::processCamera(const struct SharedMemoryCommand& orgCommand)
 			if (serverCmd.m_sendPixelDataArguments.m_numRemainingPixels > 0 && serverCmd.m_sendPixelDataArguments.m_numPixelsCopied)
 			{
 				
+				m_data->m_hasStatus = false;
 
 				// continue requesting remaining pixels
 				command.m_type = CMD_REQUEST_CAMERA_IMAGE_DATA;
@@ -365,7 +443,7 @@ void PhysicsDirect::processBodyJointInfo(int bodyUniqueId, const SharedMemorySta
 {
     bParse::btBulletFile bf(
         &m_data->m_bulletStreamDataServerToClient[0],
-        serverCmd.m_dataStreamArguments.m_streamChunkLength);
+        serverCmd.m_numDataStreamBytes);
     bf.setFileDNAisMemoryDNA();
     bf.parse(false);
 	
@@ -402,6 +480,87 @@ void PhysicsDirect::processBodyJointInfo(int bodyUniqueId, const SharedMemorySta
     }
 }
 
+void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd)
+{
+	switch (serverCmd.m_type)
+	{
+	case CMD_RESET_SIMULATION_COMPLETED:
+	{
+		m_data->m_debugLinesFrom.clear();
+		m_data->m_debugLinesTo.clear();
+		m_data->m_debugLinesColor.clear();
+		for (int i = 0; i<m_data->m_bodyJointMap.size(); i++)
+		{
+			BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap.getAtIndex(i);
+			if (bodyJointsPtr && *bodyJointsPtr)
+			{
+				BodyJointInfoCache2* bodyJoints = *bodyJointsPtr;
+				for (int j = 0; j<bodyJoints->m_jointInfo.size(); j++) {
+					if (bodyJoints->m_jointInfo[j].m_jointName)
+					{
+						free(bodyJoints->m_jointInfo[j].m_jointName);
+					}
+					if (bodyJoints->m_jointInfo[j].m_linkName)
+					{
+						free(bodyJoints->m_jointInfo[j].m_linkName);
+					}
+				}
+				delete (*bodyJointsPtr);
+			}
+		}
+		m_data->m_bodyJointMap.clear();
+
+		break;
+	}
+	case CMD_SDF_LOADING_COMPLETED:
+	{
+		//we'll stream further info from the physics server
+		//so serverCmd will be invalid, make a copy
+
+
+		int numBodies = serverCmd.m_sdfLoadedArgs.m_numBodies;
+		for (int i = 0; i<numBodies; i++)
+		{
+			int bodyUniqueId = serverCmd.m_sdfLoadedArgs.m_bodyUniqueIds[i];
+			SharedMemoryCommand infoRequestCommand;
+			infoRequestCommand.m_type = CMD_REQUEST_BODY_INFO;
+			infoRequestCommand.m_sdfRequestInfoArgs.m_bodyUniqueId = bodyUniqueId;
+			SharedMemoryStatus infoStatus;
+			bool hasStatus = m_data->m_commandProcessor->processCommand(infoRequestCommand, infoStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+					
+
+			int timeout = 1024 * 1024 * 1024;
+			while ((!hasStatus) && (timeout-- > 0))
+			{
+				hasStatus = m_data->m_commandProcessor->receiveStatus(infoStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+			}
+
+			if (hasStatus)
+			{
+				processBodyJointInfo(bodyUniqueId, infoStatus);
+			}
+		}
+		break;
+	}
+	case CMD_URDF_LOADING_COMPLETED:
+	{
+
+		if (serverCmd.m_numDataStreamBytes > 0)
+		{
+			int bodyIndex = serverCmd.m_dataStreamArguments.m_bodyUniqueId;
+			processBodyJointInfo(bodyIndex, serverCmd);
+		}
+		break;
+	}
+
+	default:
+	{
+		// b3Error("Unknown server status type");
+	}
+	};
+
+
+}
 bool PhysicsDirect::submitClientCommand(const struct SharedMemoryCommand& command)
 {
 	if (command.m_type==CMD_REQUEST_DEBUG_LINES)
@@ -427,78 +586,7 @@ bool PhysicsDirect::submitClientCommand(const struct SharedMemoryCommand& comman
 	m_data->m_hasStatus = hasStatus;
 	if (hasStatus)
 	{
-		const SharedMemoryStatus& serverCmd = m_data->m_serverStatus;
-
-		switch (m_data->m_serverStatus.m_type)
-		{
-			case CMD_RESET_SIMULATION_COMPLETED:
-			{
-				m_data->m_debugLinesFrom.clear();
-				m_data->m_debugLinesTo.clear();
-				m_data->m_debugLinesColor.clear();
-				for (int i=0;i<m_data->m_bodyJointMap.size();i++)
-				{
-					BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap.getAtIndex(i);
-					if (bodyJointsPtr && *bodyJointsPtr)
-					{
-						BodyJointInfoCache2* bodyJoints = *bodyJointsPtr;
-						for (int j=0;j<bodyJoints->m_jointInfo.size();j++) {
-							if (bodyJoints->m_jointInfo[j].m_jointName)
-							{
-								free(bodyJoints->m_jointInfo[j].m_jointName);
-							}
-							if (bodyJoints->m_jointInfo[j].m_linkName)
-							{
-								free(bodyJoints->m_jointInfo[j].m_linkName);
-							}
-						}
-						delete (*bodyJointsPtr);
-					}
-				}
-				m_data->m_bodyJointMap.clear();
-                
-				break;
-			}
-			case CMD_SDF_LOADING_COMPLETED:
-            {
-                //we'll stream further info from the physics server
-                //so serverCmd will be invalid, make a copy
-                
-                
-                int numBodies = serverCmd.m_sdfLoadedArgs.m_numBodies;
-                for (int i=0;i<numBodies;i++)
-                {
-                    int bodyUniqueId = serverCmd.m_sdfLoadedArgs.m_bodyUniqueIds[i];
-                    SharedMemoryCommand infoRequestCommand;
-                    infoRequestCommand.m_type = CMD_REQUEST_BODY_INFO;
-                    infoRequestCommand.m_sdfRequestInfoArgs.m_bodyUniqueId = bodyUniqueId;
-                    SharedMemoryStatus infoStatus;
-                    bool hasStatus = m_data->m_commandProcessor->processCommand(infoRequestCommand,infoStatus,&m_data->m_bulletStreamDataServerToClient[0],SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
-                    if (hasStatus)
-                    {
-                        processBodyJointInfo(bodyUniqueId, infoStatus);
-                    }
-                }
-                break;
-            }
-			case CMD_URDF_LOADING_COMPLETED:
-			{
-				
-				if (serverCmd.m_dataStreamArguments.m_streamChunkLength > 0) 
-				{
-				    int bodyIndex = serverCmd.m_dataStreamArguments.m_bodyUniqueId;
-                    processBodyJointInfo(bodyIndex,serverCmd);
-				}
-                break;
-            }
-			
-		 default:
-			 {
-				// b3Error("Unknown server status type");
-			 }
-		};
-										  
-		
+		postProcessStatus(m_data->m_serverStatus);
 	}
 	return hasStatus;
 }
@@ -549,7 +637,7 @@ bool PhysicsDirect::getJointInfo(int bodyIndex, int jointIndex, struct b3JointIn
 	if (bodyJointsPtr && *bodyJointsPtr)
 	{
 		BodyJointInfoCache2* bodyJoints = *bodyJointsPtr;
-        if (jointIndex < bodyJoints->m_jointInfo.size())
+        if ((jointIndex >=0) && (jointIndex < bodyJoints->m_jointInfo.size()))
         {
             info = bodyJoints->m_jointInfo[jointIndex];
             return true;

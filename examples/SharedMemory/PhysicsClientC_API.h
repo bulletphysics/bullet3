@@ -11,14 +11,18 @@ B3_DECLARE_HANDLE(b3SharedMemoryCommandHandle);
 B3_DECLARE_HANDLE(b3SharedMemoryStatusHandle);
 
 
+///There are several connection methods, see following header files:
+#include "PhysicsClientSharedMemory_C_API.h"
+#include "PhysicsClientSharedMemory2_C_API.h"
+#include "PhysicsDirectC_API.h"
+#include "PhysicsClientUDP_C_API.h"
+#include "SharedMemoryInProcessPhysicsC_API.h"
+
 #ifdef __cplusplus
 extern "C" { 
 #endif
 
-///b3ConnectSharedMemory will connect to a physics server over shared memory, so
-///make sure to start the server first.
-///and a way to spawn an OpenGL 3D GUI physics server and connect (b3CreateInProcessPhysicsServerAndConnect)
-b3PhysicsClientHandle b3ConnectSharedMemory(int key);
+
 
 ///b3DisconnectSharedMemory will disconnect the client from the server and cleanup memory.
 void	b3DisconnectSharedMemory(b3PhysicsClientHandle physClient);

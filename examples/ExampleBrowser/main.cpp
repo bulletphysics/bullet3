@@ -15,6 +15,8 @@
 #include "../Importers/ImportURDFDemo/ImportURDFSetup.h"
 #include "../Importers/ImportSDFDemo/ImportSDFSetup.h"
 #include "../Importers/ImportSTLDemo/ImportSTLSetup.h"
+#include "../Importers/ImportBullet/SerializeSetup.h"
+
 #include "LinearMath/btAlignedAllocator.h"
 
 
@@ -34,6 +36,8 @@ int main(int argc, char* argv[])
 		exampleBrowser->registerFileImporter(".sdf", ImportSDFCreateFunc);
 		exampleBrowser->registerFileImporter(".obj", ImportObjCreateFunc);
 		exampleBrowser->registerFileImporter(".stl", ImportSTLCreateFunc);
+		exampleBrowser->registerFileImporter(".bullet", SerializeBulletCreateFunc);
+
 
 		clock.reset();
 		if (init)

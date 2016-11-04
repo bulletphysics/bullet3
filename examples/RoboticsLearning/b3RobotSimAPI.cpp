@@ -5,6 +5,8 @@
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "../CommonInterfaces/CommonRenderInterface.h"
 //#include "../CommonInterfaces/CommonExampleInterface.h"
+#include "../SharedMemory/PhysicsServerCommandProcessor.h"
+
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "../SharedMemory/PhysicsServerSharedMemory.h"
 #include "../SharedMemory/PhysicsServerSharedMemory.h"
@@ -893,7 +895,8 @@ bool b3RobotSimAPI::connect(GUIHelperInterface* guiHelper)
 	}
 	else
 	{
-		m_data->m_clientServerDirect = new PhysicsDirect();
+		PhysicsServerCommandProcessor* sdk = new PhysicsServerCommandProcessor;
+		m_data->m_clientServerDirect = new PhysicsDirect(sdk);
 		bool connected = m_data->m_clientServerDirect->connect(guiHelper);
 		m_data->m_physicsClient = (b3PhysicsClientHandle)m_data->m_clientServerDirect;
 

@@ -124,8 +124,11 @@ bool PhysicsClientSharedMemory::getJointInfo(int bodyUniqueId, int jointIndex, b
 	if (bodyJointsPtr && *bodyJointsPtr)
 	{
 		BodyJointInfoCache* bodyJoints = *bodyJointsPtr;
-		info = bodyJoints->m_jointInfo[jointIndex];
-        return true;
+		if ((jointIndex >= 0) && (jointIndex < bodyJoints->m_jointInfo.size()))
+		{
+			info = bodyJoints->m_jointInfo[jointIndex];
+			return true;
+		}
 	}
     return false;
 }
@@ -210,7 +213,7 @@ void PhysicsClientSharedMemory::processBodyJointInfo(int bodyUniqueId, const Sha
 {
     bParse::btBulletFile bf(
                             &this->m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor[0],
-                            serverCmd.m_dataStreamArguments.m_streamChunkLength);
+                            serverCmd.m_numDataStreamBytes);
     bf.setFileDNAisMemoryDNA();
     bf.parse(false);
     
@@ -291,16 +294,17 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 
                 break;
             }
+
             case CMD_URDF_LOADING_COMPLETED: {
                 
                 if (m_data->m_verboseOutput) {
                     b3Printf("Server loading the URDF OK\n");
                 }
 
-                if (serverCmd.m_dataStreamArguments.m_streamChunkLength > 0) {
+                if (serverCmd.m_numDataStreamBytes > 0) {
                     bParse::btBulletFile bf(
                         this->m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor,
-                        serverCmd.m_dataStreamArguments.m_streamChunkLength);
+                        serverCmd.m_numDataStreamBytes);
                     bf.setFileDNAisMemoryDNA();
                     bf.parse(false);
 					int bodyUniqueId = serverCmd.m_dataStreamArguments.m_bodyUniqueId;
