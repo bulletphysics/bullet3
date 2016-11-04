@@ -1636,6 +1636,21 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                 case CMD_LOAD_BUNNY:
                 {
 #ifdef USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+                    double scale = 0.1;
+                    double mass = 0.1;
+                    double collisionMargin = 0.02;
+                    if (clientCmd.m_updateFlags & LOAD_BUNNY_UPDATE_SCALE)
+                    {
+                        scale = clientCmd.m_loadBunnyArguments.m_scale;
+                    }
+                    if (clientCmd.m_updateFlags & LOAD_BUNNY_UPDATE_MASS)
+                    {
+                        mass = clientCmd.m_loadBunnyArguments.m_mass;
+                    }
+                    if (clientCmd.m_updateFlags & LOAD_BUNNY_UPDATE_COLLISION_MARGIN)
+                    {
+                        collisionMargin = clientCmd.m_loadBunnyArguments.m_collisionMargin;
+                    }
                     m_data->m_softBodyWorldInfo.air_density		=	(btScalar)1.2;
                     m_data->m_softBodyWorldInfo.water_density	=	0;
                     m_data->m_softBodyWorldInfo.water_offset	=	0;
@@ -1650,14 +1665,14 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     pm->m_kLST				=	1.0;
                     pm->m_flags				-=	btSoftBody::fMaterial::DebugDraw;
                     psb->generateBendingConstraints(2,pm);
-                    psb->m_cfg.piterations	=	2;
+                    psb->m_cfg.piterations	=	50;
                     psb->m_cfg.kDF			=	0.5;
                     psb->randomizeConstraints();
                     psb->rotate(btQuaternion(0.70711,0,0,0.70711));
-                    psb->translate(btVector3(0,0,3.0));
-                    psb->scale(btVector3(0.1,0.1,0.1));
-                    psb->setTotalMass(1,true);
-                    psb->getCollisionShape()->setMargin(0.01);
+                    psb->translate(btVector3(0,0,1.0));
+                    psb->scale(btVector3(scale,scale,scale));
+                    psb->setTotalMass(mass,true);
+                    psb->getCollisionShape()->setMargin(collisionMargin);
                     
                     m_data->m_dynamicsWorld->addSoftBody(psb);
 #endif

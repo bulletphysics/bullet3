@@ -233,6 +233,9 @@ void b3ApplyExternalForce(b3SharedMemoryCommandHandle commandHandle, int bodyUni
 void b3ApplyExternalTorque(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkId, const double torque[3], int flags);
     
 b3SharedMemoryCommandHandle	b3LoadBunnyCommandInit(b3PhysicsClientHandle physClient);
+int b3LoadBunnySetScale(b3SharedMemoryCommandHandle commandHandle, double scale);
+int b3LoadBunnySetMass(b3SharedMemoryCommandHandle commandHandle, double mass);
+int b3LoadBunnySetCollisionMargin(b3SharedMemoryCommandHandle commandHandle, double collisionMargin);
 
 #ifdef __cplusplus
 }

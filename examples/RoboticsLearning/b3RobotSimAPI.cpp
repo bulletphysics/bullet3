@@ -1003,8 +1003,11 @@ void b3RobotSimAPI::getLinkState(int bodyUniqueId, int linkIndex, double* worldP
     }
 }
 
-void b3RobotSimAPI::loadBunny()
+void b3RobotSimAPI::loadBunny(double scale, double mass, double collisionMargin)
 {
     b3SharedMemoryCommandHandle command = b3LoadBunnyCommandInit(m_data->m_physicsClient);
+    b3LoadBunnySetScale(command, scale);
+    b3LoadBunnySetMass(command, mass);
+    b3LoadBunnySetCollisionMargin(command, collisionMargin);
     b3SubmitClientCommand(m_data->m_physicsClient, command);
 }

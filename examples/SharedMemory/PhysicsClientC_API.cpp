@@ -93,6 +93,33 @@ b3SharedMemoryCommandHandle	b3LoadBunnyCommandInit(b3PhysicsClientHandle physCli
     return (b3SharedMemoryCommandHandle) command;
 }
 
+int b3LoadBunnySetScale(b3SharedMemoryCommandHandle commandHandle, double scale)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command->m_type == CMD_LOAD_BUNNY);
+    command->m_loadBunnyArguments.m_scale = scale;
+    command->m_updateFlags |= LOAD_BUNNY_UPDATE_SCALE;
+    return 0;
+}
+
+int b3LoadBunnySetMass(b3SharedMemoryCommandHandle commandHandle, double mass)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command->m_type == CMD_LOAD_BUNNY);
+    command->m_loadBunnyArguments.m_mass = mass;
+    command->m_updateFlags |= LOAD_BUNNY_UPDATE_MASS;
+    return 0;
+}
+
+int b3LoadBunnySetCollisionMargin(b3SharedMemoryCommandHandle commandHandle, double collisionMargin)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command->m_type == CMD_LOAD_BUNNY);
+    command->m_loadBunnyArguments.m_collisionMargin = collisionMargin;
+    command->m_updateFlags |= LOAD_BUNNY_UPDATE_COLLISION_MARGIN;
+    return 0;
+}
+
 int	b3LoadUrdfCommandSetUseMultiBody(b3SharedMemoryCommandHandle commandHandle, int useMultiBody)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
