@@ -391,7 +391,8 @@ public:
 
 
 		btDefaultSerializer(int totalSize=0, unsigned char*	buffer=0)
-			:m_totalSize(totalSize),
+			:m_uniqueIdGenerator(0),
+			m_totalSize(totalSize),
 			m_currentSize(0),
 			m_dna(0),
 			m_dnaLength(0),
@@ -561,6 +562,7 @@ public:
 
 		virtual	void*	getUniquePointer(void*oldPtr)
 		{
+			btAssert(m_uniqueIdGenerator >= 0);
 			if (!oldPtr)
 				return 0;
 

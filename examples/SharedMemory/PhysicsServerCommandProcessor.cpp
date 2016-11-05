@@ -1036,9 +1036,16 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 			    UrdfLinkNameMapUtil* util = new UrdfLinkNameMapUtil;
 			    m_data->m_urdfLinkNameMapper.push_back(util);
 			    util->m_mb = mb;
+				for (int i = 0; i < bufferSizeInBytes; i++)
+				{
+					bufferServerToClient[i] = 0xcc;
+				}
 			    util->m_memSerializer = new btDefaultSerializer(bufferSizeInBytes ,(unsigned char*)bufferServerToClient);
 			    //disable serialization of the collision objects (they are too big, and the client likely doesn't need them);
 				util->m_memSerializer->m_skipPointers.insert(mb->getBaseCollider(),0);
+
+				util->m_memSerializer->startSerialization();
+
 
                 bodyHandle->m_linkLocalInertialFrames.reserve(mb->getNumLinks());
 			    for (int i=0;i<mb->getNumLinks();i++)
@@ -1066,18 +1073,19 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 				std::string* baseName = new std::string(u2b.getLinkName(u2b.getRootLinkIndex()));
 				m_data->m_strings.push_back(baseName);
 
-
-				util->m_memSerializer->registerNameForPointer(baseName->c_str(),baseName->c_str());
 				mb->setBaseName(baseName->c_str());
 
+				util->m_memSerializer->registerNameForPointer(baseName->c_str(),baseName->c_str());
 
-                util->m_memSerializer->insertHeader();
+				
 
                 int len = mb->calculateSerializeBufferSize();
                 btChunk* chunk = util->m_memSerializer->allocate(len,1);
                 const char* structType = mb->serialize(chunk->m_oldPtr, util->m_memSerializer);
                 util->m_memSerializer->finalizeChunk(chunk,structType,BT_MULTIBODY_CODE,mb);
 
+				
+				
                 return true;
 			} else
 			{
@@ -1129,6 +1137,8 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
         m_data->m_urdfLinkNameMapper.push_back(util);
         util->m_mb = mb;
         util->m_memSerializer = new btDefaultSerializer(bufferSizeInBytes ,(unsigned char*)bufferServerToClient);
+		util->m_memSerializer->startSerialization();
+
         //disable serialization of the collision objects (they are too big, and the client likely doesn't need them);
         util->m_memSerializer->m_skipPointers.insert(mb->getBaseCollider(),0);
 		if (mb->getBaseName())
@@ -1147,7 +1157,6 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
 
         util->m_memSerializer->registerNameForPointer(mb->getBaseName(),mb->getBaseName());
 
-        util->m_memSerializer->insertHeader();
 
         int len = mb->calculateSerializeBufferSize();
         btChunk* chunk = util->m_memSerializer->allocate(len,1);
