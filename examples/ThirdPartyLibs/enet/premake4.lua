@@ -14,8 +14,7 @@
 			files{"unix.c"}
 		end		
 		
-	targetdir "../../../lib"	
-
+	
 	includedirs {
 		".","include"
 	}

@@ -7,9 +7,6 @@
 #include "PhysicsClient.h"
 #include "LinearMath/btVector3.h"
 
-///todo: the PhysicsClient API was designed with shared memory in mind, 
-///now it become more general we need to move out the shared memory specifics away
-///for example naming [disconnectSharedMemory -> disconnect] [ move setSharedMemoryKey to shared memory specific subclass ]
 ///PhysicsDirect executes the commands directly, without transporting them or having a separate server executing commands
 class PhysicsDirect : public PhysicsClient 
 {
@@ -27,9 +24,11 @@ protected:
 	
     void processBodyJointInfo(int bodyUniqueId, const struct SharedMemoryStatus& serverCmd);
     
+	void postProcessStatus(const struct SharedMemoryStatus& serverCmd);
+
 public:
 
-    PhysicsDirect();
+	PhysicsDirect(class PhysicsCommandProcessorInterface* physSdk);
     
     virtual ~PhysicsDirect();
 

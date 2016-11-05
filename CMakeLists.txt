@@ -217,7 +217,8 @@ IF(BUILD_PYBULLET)
 	FIND_PACKAGE(PythonLibs)
 
 	OPTION(BUILD_PYBULLET_NUMPY "Set when you want to build pybullet with NumPy support" OFF)
-
+	OPTION(BUILD_PYBULLET_ENET "Set when you want to build pybullet with enet UDP networking support" ON)
+	
 	IF(BUILD_PYBULLET_NUMPY)	
 		set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/build3/cmake)
 		#include(FindNumPy)

@@ -3,6 +3,8 @@
 
 #include "LinearMath/btVector3.h"
 
+#include "PhysicsCommandProcessorInterface.h"
+
 struct SharedMemLines
 {
 	btVector3 m_from;
@@ -10,8 +12,10 @@ struct SharedMemLines
 	btVector3 m_color;
 };
 
+
+
 ///todo: naming. Perhaps PhysicsSdkCommandprocessor?
-class PhysicsServerCommandProcessor
+class PhysicsServerCommandProcessor : public PhysicsCommandProcessorInterface
 {
 
 	struct PhysicsServerCommandProcessorInternalData* m_data;
@@ -22,15 +26,15 @@ class PhysicsServerCommandProcessor
 protected:
 
 
-    
 
-    bool loadSdf(const char* fileName, char* bufferServerToClient, int bufferSizeInBytes, bool useMultiBody);
+
+	bool loadSdf(const char* fileName, char* bufferServerToClient, int bufferSizeInBytes, bool useMultiBody);
 
 	bool loadUrdf(const char* fileName, const class btVector3& pos, const class btQuaternion& orn,
-                             bool useMultiBody, bool useFixedBase, int* bodyUniqueIdPtr, char* bufferServerToClient, int bufferSizeInBytes);
+		bool useMultiBody, bool useFixedBase, int* bodyUniqueIdPtr, char* bufferServerToClient, int bufferSizeInBytes);
 
 	bool	supportsJointMotor(class btMultiBody* body, int linkIndex);
-	
+
 	int createBodyInfoStream(int bodyUniqueId, char* bufferServerToClient, int bufferSizeInBytes);
 	void deleteCachedInverseDynamicsBodies();
 
@@ -39,12 +43,30 @@ public:
 	virtual ~PhysicsServerCommandProcessor();
 
 	void	createJointMotors(class btMultiBody* body);
-	
+
 	virtual void createEmptyDynamicsWorld();
 	virtual void deleteDynamicsWorld();
-	
 
-	virtual bool processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes );
+	virtual bool connect()
+	{
+		return true;
+	};
+
+	virtual void disconnect() {}
+
+	virtual bool isConnected() const
+	{
+		return true;
+	}
+
+
+
+	virtual bool processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes);
+
+	virtual bool receiveStatus(struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+	{
+		return false;
+	};
 
 	virtual void renderScene();
 	virtual void   physicsDebugDraw(int debugDrawFlags);

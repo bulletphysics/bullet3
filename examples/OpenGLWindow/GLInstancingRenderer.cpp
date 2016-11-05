@@ -17,9 +17,9 @@ subject to the following restrictions:
 
 ///todo: make this configurable in the gui
 bool useShadowMap = true;// true;//false;//true;
-int shadowMapWidth= 2048;
-int shadowMapHeight= 2048;
-float shadowMapWorldSize=5;
+int shadowMapWidth= 4096;
+int shadowMapHeight= 4096;
+float shadowMapWorldSize=10;
 
 #define MAX_POINTS_IN_BATCH 1024
 #define MAX_LINES_IN_BATCH 1024
@@ -1539,7 +1539,7 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 	b3Assert(glGetError() ==GL_NO_ERROR);
 	} else
 	{
-		//glDisable(GL_CULL_FACE);
+		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 
 	}

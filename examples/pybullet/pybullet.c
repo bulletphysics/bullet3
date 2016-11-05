@@ -1,7 +1,9 @@
 #include "../SharedMemory/PhysicsClientC_API.h"
 #include "../SharedMemory/PhysicsDirectC_API.h"
 #include "../SharedMemory/SharedMemoryInProcessPhysicsC_API.h"
-
+#ifdef BT_ENABLE_ENET
+#include "../SharedMemory/PhysicsClientUDP_C_API.h"
+#endif //BT_ENABLE_ENET
 
 #ifdef __APPLE__
 #include <Python/Python.h>
@@ -22,6 +24,7 @@ enum eCONNECT_METHOD {
   eCONNECT_GUI = 1,
   eCONNECT_DIRECT = 2,
   eCONNECT_SHARED_MEMORY = 3,
+  eCONNECT_UDP = 4,
 };
 
 static PyObject* SpamError;
@@ -58,12 +61,45 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args) {
 
   {
     int method = eCONNECT_GUI;
-    if (!PyArg_ParseTuple(args, "i", &method)) {
-      PyErr_SetString(SpamError,
-                      "connectPhysicsServer expected argument  eCONNECT_GUI, "
-                      "eCONNECT_DIRECT or eCONNECT_SHARED_MEMORY");
-      return NULL;
-    }
+	int key = SHARED_MEMORY_KEY;
+	int port = 1234;
+	const char* hostName = "localhost";
+
+	int size = PySequence_Size(args);
+	if (size == 1)
+	{
+		if (!PyArg_ParseTuple(args, "i", &method)) {
+			PyErr_SetString(SpamError,
+				"connectPhysicsServer expected argument  GUI, "
+				"DIRECT, SHARED_MEMORY or UDP");
+			return NULL;
+		}
+	}
+
+	if (size == 2)
+	{
+		if (!PyArg_ParseTuple(args, "ii", &method, &key)) 
+		{
+			if (!PyArg_ParseTuple(args, "is", &method, &hostName))
+			{
+				PyErr_SetString(SpamError,
+					"connectPhysicsServer cannot parse second argument (either integer or string)");
+				return NULL;
+
+			}
+		}
+	}
+
+	if (size == 3)
+	{
+		if (!PyArg_ParseTuple(args, "isi", &method, &hostName, &port))
+		{
+			PyErr_SetString(SpamError,
+				"connectPhysicsServer 3 arguments: method, hostname, port");
+			return NULL;
+		}
+	}
+
 
     switch (method) {
       case eCONNECT_GUI: {
@@ -82,9 +118,21 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args) {
         break;
       }
       case eCONNECT_SHARED_MEMORY: {
-        sm = b3ConnectSharedMemory(SHARED_MEMORY_KEY);
+        sm = b3ConnectSharedMemory(key);
         break;
       }
+	  case eCONNECT_UDP: 
+	{
+#ifdef BT_ENABLE_ENET
+
+		  sm = b3ConnectPhysicsUDP(hostName, port);
+#else
+ 		PyErr_SetString(SpamError, "UDP is not enabled in this pybullet build");
+		return NULL;
+#endif //BT_ENABLE_ENET
+
+		  break;
+	}
 
       default: {
         PyErr_SetString(SpamError, "connectPhysicsServer unexpected argument");
@@ -2481,6 +2529,8 @@ initpybullet(void)
                           eCONNECT_SHARED_MEMORY);        // user read
   PyModule_AddIntConstant(m, "DIRECT", eCONNECT_DIRECT);  // user read
   PyModule_AddIntConstant(m, "GUI", eCONNECT_GUI);        // user read
+  PyModule_AddIntConstant(m, "UDP", eCONNECT_UDP);        // user read
+
 
   PyModule_AddIntConstant(m, "TORQUE_CONTROL", CONTROL_MODE_TORQUE);
   PyModule_AddIntConstant(m, "VELOCITY_CONTROL",

@@ -24,7 +24,7 @@
 	typedef unsigned long long int smUint64_t;
 #endif
 
-#define SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE (256*1024)
+#define SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE (512*1024)
 
 #define SHARED_MEMORY_SERVER_TEST_C
 #define MAX_DEGREE_OF_FREEDOM 128
@@ -90,7 +90,6 @@ struct UrdfArgs
 struct BulletDataStreamArgs
 {
 	char m_bulletFileName[MAX_FILENAME_LENGTH];
-	int m_streamChunkLength;
 	int m_bodyUniqueId;
 };
 
@@ -538,6 +537,10 @@ struct SharedMemoryStatus
 	smUint64_t	m_timeStamp;
 	int	m_sequenceNumber;
 	
+	//m_streamBytes is only for internal purposes
+	int		m_numDataStreamBytes;
+	char*	m_dataStream;
+
 	union
 	{
 		struct BulletDataStreamArgs	m_dataStreamArguments;

@@ -58,21 +58,25 @@ b3SharedMemoryCommandHandle	b3LoadUrdfCommandInit(b3PhysicsClientHandle physClie
     b3Assert(cl);
     b3Assert(cl->canSubmitCommand());
     
-    
-    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
-    b3Assert(command);
-	command->m_type = CMD_LOAD_URDF;
-	int len = strlen(urdfFileName);
-	if (len<MAX_URDF_FILENAME_LENGTH)
+	if (cl->canSubmitCommand())
 	{
-		strcpy(command->m_urdfArguments.m_urdfFileName,urdfFileName);
-	} else
-	{
-		command->m_urdfArguments.m_urdfFileName[0] = 0;
+		struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+		b3Assert(command);
+		command->m_type = CMD_LOAD_URDF;
+		int len = strlen(urdfFileName);
+		if (len < MAX_URDF_FILENAME_LENGTH)
+		{
+			strcpy(command->m_urdfArguments.m_urdfFileName, urdfFileName);
+		}
+		else
+		{
+			command->m_urdfArguments.m_urdfFileName[0] = 0;
+		}
+		command->m_updateFlags = URDF_ARGS_FILE_NAME;
+
+		return (b3SharedMemoryCommandHandle)command;
 	}
-	command->m_updateFlags = URDF_ARGS_FILE_NAME;
-	
-	return (b3SharedMemoryCommandHandle) command;
+	return 0;
 }
 
 b3SharedMemoryCommandHandle	b3LoadBunnyCommandInit(b3PhysicsClientHandle physClient)
@@ -143,35 +147,52 @@ int	b3LoadUrdfCommandSetUseFixedBase(b3SharedMemoryCommandHandle commandHandle, 
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
     b3Assert(command->m_type == CMD_LOAD_URDF);
-    command->m_updateFlags |=URDF_ARGS_USE_FIXED_BASE;
-    command->m_urdfArguments.m_useFixedBase = useFixedBase;
-    
-    return 0;
+	if (command && (command->m_type == CMD_LOAD_URDF))
+	{
+		command->m_updateFlags |= URDF_ARGS_USE_FIXED_BASE;
+		command->m_urdfArguments.m_useFixedBase = useFixedBase;
+		return 0;
+	}
+	return -1;
 }
 
 int	b3LoadUrdfCommandSetStartPosition(b3SharedMemoryCommandHandle commandHandle, double startPosX,double startPosY,double startPosZ)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
 	b3Assert(command);
-	b3Assert(command->m_type == CMD_LOAD_URDF);
-	command->m_urdfArguments.m_initialPosition[0] = startPosX;
-	command->m_urdfArguments.m_initialPosition[1] = startPosY;
-	command->m_urdfArguments.m_initialPosition[2] = startPosZ;
-	command->m_updateFlags|=URDF_ARGS_INITIAL_POSITION;
-	return 0;
+	if (command)
+	{
+		b3Assert(command->m_type == CMD_LOAD_URDF);
+		if (command->m_type == CMD_LOAD_URDF)
+		{
+			command->m_urdfArguments.m_initialPosition[0] = startPosX;
+			command->m_urdfArguments.m_initialPosition[1] = startPosY;
+			command->m_urdfArguments.m_initialPosition[2] = startPosZ;
+			command->m_updateFlags |= URDF_ARGS_INITIAL_POSITION;
+		}
+		return 0;
+	}
+	return -1;
 }
 
 int	b3LoadUrdfCommandSetStartOrientation(b3SharedMemoryCommandHandle commandHandle, double startOrnX,double startOrnY,double startOrnZ, double startOrnW)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
 	b3Assert(command);
-	b3Assert(command->m_type == CMD_LOAD_URDF);
-	command->m_urdfArguments.m_initialOrientation[0] = startOrnX;
-	command->m_urdfArguments.m_initialOrientation[1] = startOrnY;
-	command->m_urdfArguments.m_initialOrientation[2] = startOrnZ;
-	command->m_urdfArguments.m_initialOrientation[3] = startOrnW;
-	command->m_updateFlags|=URDF_ARGS_INITIAL_ORIENTATION;
-	return 0;
+	if (command)
+	{
+		b3Assert(command->m_type == CMD_LOAD_URDF);
+		if (command->m_type == CMD_LOAD_URDF)
+		{
+			command->m_urdfArguments.m_initialOrientation[0] = startOrnX;
+			command->m_urdfArguments.m_initialOrientation[1] = startOrnY;
+			command->m_urdfArguments.m_initialOrientation[2] = startOrnZ;
+			command->m_urdfArguments.m_initialOrientation[3] = startOrnW;
+			command->m_updateFlags |= URDF_ARGS_INITIAL_ORIENTATION;
+		}
+		return 0;
+	}
+	return -1;
 }
 
 b3SharedMemoryCommandHandle     b3InitPhysicsParamCommand(b3PhysicsClientHandle physClient)
@@ -201,7 +222,7 @@ int     b3PhysicsParamSetRealTimeSimulation(b3SharedMemoryCommandHandle commandH
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
 	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
-	command->m_physSimParamArgs.m_allowRealTimeSimulation = enableRealTimeSimulation;
+	command->m_physSimParamArgs.m_allowRealTimeSimulation = (enableRealTimeSimulation!=0);
 	command->m_updateFlags |= SIM_PARAM_UPDATE_REAL_TIME_SIMULATION;
 	return 0;
 }
@@ -648,20 +669,11 @@ int b3CreateSensorEnableIMUForLink(b3SharedMemoryCommandHandle commandHandle, in
 }
 
 
-b3PhysicsClientHandle b3ConnectSharedMemory(int key)
-{
-
-	PhysicsClientSharedMemory* cl = new PhysicsClientSharedMemory();
-    ///client should never create shared memory, only the server does
-    cl->setSharedMemoryKey(key);
-    cl->connect();
-	return (b3PhysicsClientHandle ) cl;
-}
-
 
 void	b3DisconnectSharedMemory(b3PhysicsClientHandle physClient)
 {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
+	cl->disconnectSharedMemory();
 	delete cl;
 }
 
@@ -799,22 +811,34 @@ int	b3SubmitClientCommand(b3PhysicsClientHandle physClient, const b3SharedMemory
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     PhysicsClient* cl = (PhysicsClient* ) physClient;
-    return (int)cl->submitClientCommand(*command);
+	b3Assert(command);
+	b3Assert(cl);
+	if (command && cl)
+	{
+		return (int)cl->submitClientCommand(*command);
+	}
+	return -1;
+
 }
 
 b3SharedMemoryStatusHandle b3SubmitClientCommandAndWaitStatus(b3PhysicsClientHandle physClient, const b3SharedMemoryCommandHandle commandHandle)
 {
-    int timeout = 1024*1024*1024;
-    b3SharedMemoryStatusHandle statusHandle=0;
-    
-    b3SubmitClientCommand(physClient,commandHandle);
-    
-    while ((statusHandle==0) && (timeout-- > 0))
-    {
-        statusHandle =b3ProcessServerStatus(physClient);
-    }
-    return (b3SharedMemoryStatusHandle) statusHandle;
-    
+	int timeout = 1024 * 1024 * 1024;
+	b3SharedMemoryStatusHandle statusHandle = 0;
+	b3Assert(commandHandle);
+	b3Assert(physClient);
+	if (physClient && commandHandle)
+	{
+		b3SubmitClientCommand(physClient, commandHandle);
+
+		while ((statusHandle == 0) && (timeout-- > 0))
+		{
+			statusHandle = b3ProcessServerStatus(physClient);
+		}
+		return (b3SharedMemoryStatusHandle)statusHandle;
+	}
+
+	return 0;
 }
 
 

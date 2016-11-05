@@ -12,7 +12,7 @@ class PhysicsClientSharedMemory : public PhysicsClient {
 protected:
 	virtual void setSharedMemoryInterface(class SharedMemoryInterface* sharedMem);
     void processBodyJointInfo(int bodyUniqueId, const struct SharedMemoryStatus& serverCmd);
-
+    
         
 public:
     PhysicsClientSharedMemory();

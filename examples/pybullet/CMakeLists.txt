@@ -3,6 +3,7 @@ INCLUDE_DIRECTORIES(
 		${BULLET_PHYSICS_SOURCE_DIR}/src
 		${BULLET_PHYSICS_SOURCE_DIR}/examples
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs
+		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/enet/include
 		${PYTHON_INCLUDE_DIRS}
   )
 IF(BUILD_PYBULLET_NUMPY)
@@ -16,7 +17,7 @@ SET(pybullet_SRCS
 		../../examples/SharedMemory/IKTrajectoryHelper.cpp
 		../../examples/SharedMemory/IKTrajectoryHelper.h
 		../../examples/ExampleBrowser/InProcessExampleBrowser.cpp
-    ../../examples/SharedMemory/TinyRendererVisualShapeConverter.cpp
+		../../examples/SharedMemory/TinyRendererVisualShapeConverter.cpp
 		../../examples/SharedMemory/TinyRendererVisualShapeConverter.h
 		../../examples/OpenGLWindow/SimpleCamera.cpp
 		../../examples/OpenGLWindow/SimpleCamera.h
@@ -42,6 +43,9 @@ SET(pybullet_SRCS
 		../../examples/SharedMemory/PhysicsServerCommandProcessor.h
 		../../examples/SharedMemory/PhysicsClientSharedMemory.cpp
 		../../examples/SharedMemory/PhysicsClientSharedMemory.h
+		../../examples/SharedMemory/PhysicsClientSharedMemory_C_API.cpp
+		../../examples/SharedMemory/PhysicsClientSharedMemory_C_API.h
+
 		../../examples/SharedMemory/PhysicsClientC_API.cpp
 		../../examples/SharedMemory/PhysicsClientC_API.h
 		../../examples/SharedMemory/Win32SharedMemory.cpp
@@ -69,19 +73,58 @@ SET(pybullet_SRCS
 		../../examples/MultiThreading/b3PosixThreadSupport.cpp
 		../../examples/MultiThreading/b3Win32ThreadSupport.cpp
 		../../examples/MultiThreading/b3ThreadSupportInterface.cpp
+		
 )
 
 IF(WIN32)
-LINK_LIBRARIES(
+	LINK_LIBRARIES(
 		${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 	)
-
+	IF(BUILD_PYBULLET_ENET)
+		ADD_DEFINITIONS(-DWIN32 -DBT_ENABLE_ENET)
+	ENDIF(BUILD_PYBULLET_ENET)
+ELSE(WIN32)
+	IF(BUILD_PYBULLET_ENET)
+		ADD_DEFINITIONS(-DHAS_SOCKLEN_T -DBT_ENABLE_ENET)
+	ENDIF(BUILD_PYBULLET_ENET)
 ENDIF(WIN32)
 
-ADD_LIBRARY(pybullet SHARED ${pybullet_SRCS})
+
+IF(BUILD_PYBULLET_ENET)
+	ADD_LIBRARY(pybullet SHARED ${pybullet_SRCS} 
+		../../examples/SharedMemory/PhysicsClientUDP.cpp
+		../../examples/SharedMemory/PhysicsClientUDP_C_API.cpp
+		../../examples/SharedMemory/PhysicsClientUDP.h		
+		../../examples/SharedMemory/PhysicsClientUDP_C_API.h
+		../../examples/ThirdPartyLibs/enet/win32.c
+		../../examples/ThirdPartyLibs/enet/unix.c
+		../../examples/ThirdPartyLibs/enet/callbacks.c
+		../../examples/ThirdPartyLibs/enet/compress.c
+		../../examples/ThirdPartyLibs/enet/host.c
+		../../examples/ThirdPartyLibs/enet/list.c
+		../../examples/ThirdPartyLibs/enet/packet.c
+		../../examples/ThirdPartyLibs/enet/peer.c
+		../../examples/ThirdPartyLibs/enet/protocol.c
+	)
+ELSE(BUILD_PYBULLET_ENET)
+	ADD_LIBRARY(pybullet SHARED ${pybullet_SRCS})
+ENDIF(BUILD_PYBULLET_ENET)
 
 SET_TARGET_PROPERTIES(pybullet PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(pybullet PROPERTIES SOVERSION ${BULLET_VERSION})
+SET_TARGET_PROPERTIES(pybullet PROPERTIES DEBUG_POSTFIX "_d")
+
+
+IF(WIN32)
+	IF(BUILD_PYBULLET_ENET)
+		TARGET_LINK_LIBRARIES(pybullet ws2_32 )
+	ENDIF(BUILD_PYBULLET_ENET)
+
+	SET_TARGET_PROPERTIES(pybullet PROPERTIES SUFFIX ".pyd" )
+ENDIF(WIN32)
+
+
+
 
 TARGET_LINK_LIBRARIES(pybullet BulletExampleBrowserLib BulletFileLoader BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK Bullet3Common ${PYTHON_LIBRARIES})
 
