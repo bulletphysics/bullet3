@@ -490,15 +490,22 @@ void PhysicsDirect::processBodyJointInfo(int bodyUniqueId, const SharedMemorySta
         {
             Bullet::btMultiBodyDoubleData* mb =
                 (Bullet::btMultiBodyDoubleData*)bf.m_multiBodies[i];
-			bodyJoints->m_baseName = mb->m_baseName;
-			
+            
+            if (mb->m_baseName)
+            {
+                bodyJoints->m_baseName = mb->m_baseName;
+            }
             addJointInfoFromMultiBodyData(mb,bodyJoints, m_data->m_verboseOutput);
         } else 
         {
             Bullet::btMultiBodyFloatData* mb =
                 (Bullet::btMultiBodyFloatData*)bf.m_multiBodies[i];
 			
-			bodyJoints->m_baseName = mb->m_baseName;
+            
+            if (mb->m_baseName)
+            {
+                bodyJoints->m_baseName = mb->m_baseName;
+            }
             addJointInfoFromMultiBodyData(mb,bodyJoints, m_data->m_verboseOutput);
         }
     }
