@@ -228,7 +228,7 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 #endif
         }
         ///perform some simulation steps for testing
-        for ( i=0;i<10000;i++)
+        for ( i=0;i<1000;i++)
         {
 			b3SharedMemoryStatusHandle statusHandle;
 			int statusType;

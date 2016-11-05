@@ -2190,7 +2190,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					const char* memDna = btDefaultSerializer::getMemoryDna();
 					if (sz < bufferSizeInBytes)
 					{
-						for (int i = 0; i < bufferSizeInBytes; i++)
+						for (int i = 0; i < sz; i++)
 						{
 							bufferServerToClient[i] = memDna[i];
 						}
