@@ -2195,7 +2195,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							bufferServerToClient[i] = memDna[i];
 						}
 						serverCmd.m_type = CMD_REQUEST_INTERNAL_DATA_COMPLETED;
-						serverCmd.m_numDataStreamBytes = bufferSizeInBytes;
+						serverCmd.m_numDataStreamBytes = sz;
 					}
 
 					break;
