@@ -2178,6 +2178,28 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     break;
                 }
 
+				case CMD_REQUEST_INTERNAL_DATA:
+				{
+					//todo: also check version etc?
+
+					SharedMemoryStatus& serverCmd = serverStatusOut;
+					serverCmd.m_type = CMD_REQUEST_INTERNAL_DATA_FAILED;
+					hasStatus = true;
+					
+					int sz = btDefaultSerializer::getMemoryDnaSizeInBytes();
+					const char* memDna = btDefaultSerializer::getMemoryDna();
+					if (sz < bufferSizeInBytes)
+					{
+						for (int i = 0; i < bufferSizeInBytes; i++)
+						{
+							bufferServerToClient[i] = memDna[i];
+						}
+						serverCmd.m_type = CMD_REQUEST_INTERNAL_DATA_COMPLETED;
+						serverCmd.m_numDataStreamBytes = bufferSizeInBytes;
+					}
+
+					break;
+				};
 				case CMD_SEND_PHYSICS_SIMULATION_PARAMETERS:
 				{
 					if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_DELTA_TIME)

@@ -446,6 +446,26 @@ public:
 				btAlignedFree(m_dna);
 		}
 
+		static int getMemoryDnaSizeInBytes()
+		{
+			const bool VOID_IS_8 = ((sizeof(void*) == 8));
+
+			if (VOID_IS_8)
+			{
+				return sBulletDNAlen64;
+			}
+			return sBulletDNAlen;
+		}
+		static const char* getMemoryDna()
+		{
+			const bool VOID_IS_8 = ((sizeof(void*) == 8));
+			if (VOID_IS_8)
+			{
+				return (const char*)sBulletDNAstr64;
+			}
+			return (const char*)sBulletDNAstr;
+		}
+
 		void	insertHeader()
 		{
 			writeHeader(m_buffer);

@@ -23,6 +23,7 @@ struct PhysicsDirectInternalData
 {
 	DummyGUIHelper m_noGfx;
 
+	btAlignedObjectArray<char> m_serverDNA;
 	SharedMemoryCommand m_command;
 	SharedMemoryStatus m_serverStatus;
 	bool m_hasStatus;
@@ -83,6 +84,31 @@ bool PhysicsDirect::connect()
 {
 	bool connected = m_data->m_commandProcessor->connect();
 	m_data->m_commandProcessor->setGuiHelper(&m_data->m_noGfx);
+
+
+	//also request serialization data
+	{
+		SharedMemoryCommand command;
+		command.m_type = CMD_REQUEST_INTERNAL_DATA;
+		bool hasStatus = m_data->m_commandProcessor->processCommand(command, m_data->m_serverStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+		if (hasStatus)
+		{
+			postProcessStatus(m_data->m_serverStatus);
+		}
+		else
+		{
+			int timeout = 1024 * 1024 * 1024;
+			while ((!hasStatus) && (timeout-- > 0))
+			{
+				const  SharedMemoryStatus* stat = processServerStatus();
+				if (stat)
+				{
+					hasStatus = true;
+				}
+			}
+		}
+	}
+
 	return connected;
 }
 
@@ -444,7 +470,14 @@ void PhysicsDirect::processBodyJointInfo(int bodyUniqueId, const SharedMemorySta
     bParse::btBulletFile bf(
         &m_data->m_bulletStreamDataServerToClient[0],
         serverCmd.m_numDataStreamBytes);
-    bf.setFileDNAisMemoryDNA();
+	if (m_data->m_serverDNA.size())
+	{
+		bf.setFileDNA(false, &m_data->m_serverDNA[0], m_data->m_serverDNA.size());
+	}
+	else
+	{
+		bf.setFileDNAisMemoryDNA();
+	}
     bf.parse(false);
 	
     BodyJointInfoCache2* bodyJoints = new BodyJointInfoCache2;
@@ -469,7 +502,8 @@ void PhysicsDirect::processBodyJointInfo(int bodyUniqueId, const SharedMemorySta
             addJointInfoFromMultiBodyData(mb,bodyJoints, m_data->m_verboseOutput);
         }
     }
-    if (bf.ok()) {
+    if (bf.ok()) 
+	{
         if (m_data->m_verboseOutput) 
         {
             b3Printf("Received robot description ok!\n");
@@ -484,6 +518,19 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 {
 	switch (serverCmd.m_type)
 	{
+	case CMD_REQUEST_INTERNAL_DATA_COMPLETED:
+	{
+		if (serverCmd.m_numDataStreamBytes)
+		{
+			int numStreamBytes = serverCmd.m_numDataStreamBytes;
+			m_data->m_serverDNA.resize(numStreamBytes);
+			for (int i = 0; i < numStreamBytes; i++)
+			{
+				m_data->m_serverDNA[i] = m_data->m_bulletStreamDataServerToClient[i];
+			}
+		}
+		break;
+	}
 	case CMD_RESET_SIMULATION_COMPLETED:
 	{
 		m_data->m_debugLinesFrom.clear();
