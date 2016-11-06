@@ -119,8 +119,11 @@ int main(int argc, char* argv[]) {
 
 
 		printf("Say> ");
+#ifdef _WIN32
 		gets_s(message, 1024);
-
+#else
+		gets(message);
+#endif
 		if (strcmp(message, "exit") == 0 ||
 			strcmp(message, "quit") == 0) {
 			break;
