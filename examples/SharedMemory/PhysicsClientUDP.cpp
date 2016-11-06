@@ -11,6 +11,7 @@
 #include "../MultiThreading/b3ThreadSupportInterface.h"
 void	UDPThreadFunc(void* userPtr, void* lsMemory);
 void*	UDPlsMemoryFunc();
+bool gVerboseNetworkMessagesClient = false;
 
 #ifndef _WIN32
 #include "../MultiThreading/b3PosixThreadSupport.h"
@@ -101,6 +102,7 @@ struct	UdpNetworkedInternalData
 		if (enet_initialize() != 0)
 		{
 			fprintf(stderr, "Error initialising enet");
+			
 			exit(EXIT_FAILURE);
 
 		}
@@ -165,13 +167,16 @@ struct	UdpNetworkedInternalData
 				break;
 
 			case ENET_EVENT_TYPE_RECEIVE:
-				printf("A packet of length %u containing '%s' was "
-					"received from %s on channel %u.\n",
-					m_event.packet->dataLength,
-					m_event.packet->data,
-					m_event.peer->data,
-					m_event.channelID);
-
+				
+				if (gVerboseNetworkMessagesClient)
+				{
+					printf("A packet of length %u containing '%s' was "
+						"received from %s on channel %u.\n",
+						m_event.packet->dataLength,
+						m_event.packet->data,
+						m_event.peer->data,
+						m_event.channelID);
+				}
 				/* Clean up the packet now that we're done using it.
 				> */
 				enet_packet_destroy(m_event.packet);
@@ -198,7 +203,7 @@ struct	UdpNetworkedInternalData
 	{
 		bool hasStatus = false;
 
-		int serviceResult = enet_host_service(m_client, &m_event, 100);
+		int serviceResult = enet_host_service(m_client, &m_event, 0);
 
 		if (serviceResult > 0)
 		{
@@ -214,13 +219,15 @@ struct	UdpNetworkedInternalData
 
 			case ENET_EVENT_TYPE_RECEIVE:
 			{
-				printf("A packet of length %u containing '%s' was "
-					"received from %s on channel %u.\n",
-					m_event.packet->dataLength,
-					m_event.packet->data,
-					m_event.peer->data,
-					m_event.channelID);
-
+				if (gVerboseNetworkMessagesClient)
+				{
+					printf("A packet of length %u containing '%s' was "
+						"received from %s on channel %u.\n",
+						m_event.packet->dataLength,
+						m_event.packet->data,
+						m_event.peer->data,
+						m_event.channelID);
+				}
 
 				int packetSizeInBytes = b3DeserializeInt(m_event.packet->data);
 
