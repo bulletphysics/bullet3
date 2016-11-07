@@ -1,10 +1,20 @@
 /* server.cpp */
 #include <stdio.h>
 #include <enet/enet.h>
-#include "SharedMemoryCommandProcessor.h"
+#include "../../CommonInterfaces/CommonGUIHelperInterface.h"
+#ifdef NO_SHARED_MEMORY
+	#include "PhysicsServerCommandProcessor.h"
+	typedef PhysicsServerCommandProcessor MyCommandProcessor;
+#else
+	#include "SharedMemoryCommandProcessor.h"
+	typedef SharedMemoryCommandProcessor MyCommandProcessor ;
+#endif //NO_SHARED_MEMORY
 #include "SharedMemoryCommands.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "PhysicsServerCommandProcessor.h"
+	
+	
+bool gVerboseNetworkMessagesServer = false;
 
 void MySerializeInt(unsigned int sz, unsigned char* output)
 {
@@ -22,10 +32,10 @@ void MySerializeInt(unsigned int sz, unsigned char* output)
 
 int main(int argc, char *argv[])
 {
-	unsigned char buf[4];
 
-
-	SharedMemoryCommandProcessor* sm = new SharedMemoryCommandProcessor;
+	DummyGUIHelper guiHelper;
+	PhysicsCommandProcessorInterface* sm = new MyCommandProcessor;
+	sm->setGuiHelper(&guiHelper);
 	
 //	PhysicsDirect* sm = new PhysicsDirect(sdk);
 
@@ -95,13 +105,15 @@ int main(int argc, char *argv[])
 						break;
 
 					case ENET_EVENT_TYPE_RECEIVE:
-						printf("A packet of length %u containing '%s' was "
-							"received from %s on channel %u.\n",
-							event.packet->dataLength,
-							event.packet->data,
-							event.peer->data,
-							event.channelID);
-
+						if (gVerboseNetworkMessagesServer)
+						{
+							printf("A packet of length %u containing '%s' was "
+								"received from %s on channel %u.\n",
+								event.packet->dataLength,
+								event.packet->data,
+								event.peer->data,
+								event.channelID);
+						}
 						if (event.packet->dataLength == sizeof(SharedMemoryCommand))
 						{
 							SharedMemoryCommand* cmdPtr = (SharedMemoryCommand*)event.packet->data;
@@ -117,8 +129,11 @@ int main(int argc, char *argv[])
 								hasStatus = sm->receiveStatus(serverStatus, &buffer[0], buffer.size());
 
 							}
-                            printf("buffer.size = %d\n", buffer.size());
-                            printf("serverStatus.m_numDataStreamBytes = %d\n", serverStatus.m_numDataStreamBytes);
+							if (gVerboseNetworkMessagesServer)
+							{
+								printf("buffer.size = %d\n", buffer.size());
+								printf("serverStatus.m_numDataStreamBytes = %d\n", serverStatus.m_numDataStreamBytes);
+							}
 							if (hasStatus)
 							{
 								//create packetData with [int packetSizeInBytes, status, streamBytes)
@@ -138,13 +153,12 @@ int main(int argc, char *argv[])
 
 								for (int i = 0; i < serverStatus.m_numDataStreamBytes; i++)
 								{
-									packetData[i + curPos] = serverStatus.m_dataStream[i];
+									packetData[i + curPos] = buffer[i];
 								}
 
 								ENetPacket *packet = enet_packet_create(&packetData[0], packetData.size() , ENET_PACKET_FLAG_RELIABLE);
-								//enet_peer_send(peer, 0, packet);
-
-								enet_host_broadcast(server, 0, packet);
+								enet_peer_send(event.peer, 0, packet);
+								//enet_host_broadcast(server, 0, packet);
 							}
 						}
 						else

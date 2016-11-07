@@ -2313,6 +2313,18 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								dofIndex += mb->getLink(i).m_dofCount;
 							}
 						}
+                        
+                        btAlignedObjectArray<btQuaternion> scratch_q;
+                        btAlignedObjectArray<btVector3> scratch_m;
+                        
+                        mb->forwardKinematics(scratch_q,scratch_m);
+                        int nLinks = mb->getNumLinks();
+                        scratch_q.resize(nLinks+1);
+                        scratch_m.resize(nLinks+1);
+                        
+                        mb->updateCollisionObjectWorldTransforms(scratch_q,scratch_m);
+
+                        
 					}
 
 					SharedMemoryStatus& serverCmd =serverStatusOut;
