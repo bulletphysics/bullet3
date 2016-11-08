@@ -28,6 +28,9 @@ public:
 	/// the Clock was created.
 	double getTimeInSeconds();
 
+	/// Gets the system time in milliseconds
+	double getSystemTimeMilliseconds();
+
 	///Sleep for 'microSeconds', to yield to other threads and not waste 100% CPU cycles.
 	///Note that some operating systems may sleep a longer time.
 	static void usleep(int microSeconds);

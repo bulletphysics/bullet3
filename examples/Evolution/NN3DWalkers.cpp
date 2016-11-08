@@ -15,9 +15,6 @@ subject to the following restrictions:
 
 #include "NN3DWalkers.h"
 
-// not allowed declarations
-#include <time.h>
-
 class btBroadphaseInterface;
 class btCollisionShape;
 class btOverlappingPairCache;
@@ -33,6 +30,7 @@ class NNWalker;
 #include "LinearMath/btHashMap.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 #include "../Utils/b3ReferenceFrameHelper.hpp"
+#include "../Utils/b3Clock.h"
 #include "../RenderingExamples/TimeSeriesCanvas.h"
 #include "NN3DWalkersTimeWarpBase.h"
 
@@ -136,7 +134,6 @@ class NN3DWalkersExample : public NN3DWalkersTimeWarpBase
 	btAlignedObjectArray<class NNWalker*> m_walkersInPopulation;
 	
 	TimeSeriesCanvas* m_timeSeriesCanvas; // A plotting canvas for the walker fitnesses
-
 public:
 	NN3DWalkersExample(struct GUIHelperInterface* helper)
 	:NN3DWalkersTimeWarpBase(helper),
@@ -149,7 +146,8 @@ public:
 	 m_nextReapedIndex(0),
 	 m_timeSeriesCanvas(NULL)
 	{
-		srand(time(NULL));
+		b3Clock clock;
+		srand(clock.getSystemTimeMilliseconds());
 	}
 
 	virtual ~NN3DWalkersExample()

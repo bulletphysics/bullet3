@@ -47,6 +47,7 @@ struct b3ClockData
 #ifdef B3_USE_WINDOWS_TIMERS
 	LARGE_INTEGER mClockFrequency;
 	DWORD mStartTick;
+	LONGLONG mPrevMilliTime;
 	LONGLONG mPrevElapsedTime;
 	LARGE_INTEGER mStartTime;
 #else
@@ -226,6 +227,59 @@ unsigned long long int b3Clock::getTimeMicroseconds()
 double b3Clock::getTimeInSeconds()
 {
 	return double(getTimeMicroseconds()/1.e6);
+}
+
+/// Gets the system time in milliseconds
+double b3Clock::getSystemTimeMilliseconds() {
+
+#ifdef B3_USE_WINDOWS_TIMERS
+	LARGE_INTEGER currentTime;
+	QueryPerformanceCounter(&currentTime);
+	LONGLONG elapsedTime = currentTime.QuadPart;
+	// Compute the number of millisecond ticks elapsed.
+	unsigned long msecTicks = (unsigned long)(1000 * elapsedTime /
+		m_data->mClockFrequency.QuadPart);
+	// Check for unexpected leaps in the Win32 performance counter.  
+	// (This is caused by unexpected data across the PCI to ISA 
+	// bridge, aka south bridge.  See Microsoft KB274323.)
+	unsigned long elapsedTicks = GetTickCount();
+	signed long msecOff = (signed long)(msecTicks - elapsedTicks);
+	if (msecOff < -100 || msecOff > 100)
+	{
+		// Adjust the starting time forwards.
+		LONGLONG msecAdjustment = b3ClockMin(msecOff *
+			m_data->mClockFrequency.QuadPart / 1000, elapsedTime -
+			m_data->mPrevMilliTime);
+		elapsedTime -= msecAdjustment;
+
+		// Recompute the number of millisecond ticks elapsed.
+		msecTicks = (unsigned long)(1000 * elapsedTime /
+			m_data->mClockFrequency.QuadPart);
+	}
+
+	// Store the current elapsed time for adjustments next time.
+	m_data->mPrevMilliTime = elapsedTime;
+
+	return msecTicks;
+#else
+
+#ifdef __CELLOS_LV2__
+	uint64_t freq = sys_time_get_timebase_frequency();
+	double dFreq = ((double)freq) / 1000.0;
+	typedef uint64_t  ClockSize;
+	ClockSize newTime;
+	SYS_TIMEBASE_GET(newTime);
+	//__asm __volatile__( "mftb %0" : "=r" (newTime) : : "memory");
+
+	return (unsigned long int)((double(newTime)) / dFreq);
+#else
+
+	struct timeval currentTime;
+	gettimeofday(&currentTime, 0);
+	return (currentTime.tv_sec) * 1000 +
+		(currentTime.tv_usec) / 1000;
+#endif //__CELLOS_LV2__
+#endif
 }
 
 void b3Clock::usleep(int microSeconds)
