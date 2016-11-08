@@ -104,7 +104,7 @@ project "App_BulletExampleBrowser"
 		"../Collision/Internal/*",
 		"../Benchmarks/*",
 		"../MultiThreadedDemo/*",
-		"../CommonInterfaces/*",
+		"../CommonInterfaces/*.h",
 		"../ForkLift/ForkLiftDemo.*",
 		"../Importers/**",
 		"../../Extras/Serialize/BulletWorldImporter/*",

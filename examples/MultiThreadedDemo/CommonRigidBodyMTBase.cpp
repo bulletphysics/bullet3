@@ -21,13 +21,8 @@ subject to the following restrictions:
 
 class btCollisionShape;
 
-#include "CommonExampleInterface.h"
-#include "CommonRigidBodyBase.h"
-#include "CommonParameterInterface.h"
-#include "CommonGUIHelperInterface.h"
-#include "CommonRenderInterface.h"
-#include "CommonWindowInterface.h"
-#include "CommonGraphicsAppInterface.h"
+#include "CommonRigidBodyMTBase.h"
+#include "../CommonInterfaces/CommonParameterInterface.h"
 #include "ParallelFor.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btPoolAllocator.h"
@@ -597,7 +592,7 @@ static bool gDisplayProfileInfo = false;
 static btScalar gSliderNumThreads = 1.0f;  // should be int
 
 ////////////////////////////////////
-CommonRigidBodyBase::CommonRigidBodyBase( struct GUIHelperInterface* helper )
+CommonRigidBodyMTBase::CommonRigidBodyMTBase( struct GUIHelperInterface* helper )
     :m_broadphase( 0 ),
     m_dispatcher( 0 ),
     m_solver( 0 ),
@@ -612,7 +607,7 @@ CommonRigidBodyBase::CommonRigidBodyBase( struct GUIHelperInterface* helper )
     gTaskMgr.init();
 }
 
-CommonRigidBodyBase::~CommonRigidBodyBase()
+CommonRigidBodyMTBase::~CommonRigidBodyMTBase()
 {
     gTaskMgr.shutdown();
 }
@@ -651,7 +646,7 @@ void setThreadCountCallback(float val)
     }
 }
 
-void CommonRigidBodyBase::createEmptyDynamicsWorld()
+void CommonRigidBodyMTBase::createEmptyDynamicsWorld()
 {
     gNumIslands = 0;
 #if BT_THREADSAFE && (BT_USE_OPENMP || BT_USE_PPL || BT_USE_TBB)
@@ -716,7 +711,7 @@ void CommonRigidBodyBase::createEmptyDynamicsWorld()
 }
 
 
-void CommonRigidBodyBase::createDefaultParameters()
+void CommonRigidBodyMTBase::createDefaultParameters()
 {
     if (m_multithreadCapable)
     {
@@ -761,7 +756,7 @@ void CommonRigidBodyBase::createDefaultParameters()
     }
 }
 
-void CommonRigidBodyBase::physicsDebugDraw(int debugFlags)
+void CommonRigidBodyMTBase::physicsDebugDraw(int debugFlags)
 {
 	if (m_dynamicsWorld && m_dynamicsWorld->getDebugDrawer())
 	{

@@ -16,19 +16,13 @@ subject to the following restrictions:
 #include "btBulletDynamicsCommon.h"
 #include "LinearMath/btQuickprof.h"
 #include "LinearMath/btIDebugDraw.h"
-
+#include "../CommonInterfaces/CommonParameterInterface.h"
 #include <stdio.h> //printf debugging
 #include <algorithm>
 
 class btCollisionShape;
 
-#include "../CommonInterfaces/CommonExampleInterface.h"
-#include "../CommonInterfaces/CommonRigidBodyBase.h"
-#include "../CommonInterfaces/CommonParameterInterface.h"
-#include "../CommonInterfaces/CommonGUIHelperInterface.h"
-#include "../CommonInterfaces/CommonRenderInterface.h"
-#include "../CommonInterfaces/CommonWindowInterface.h"
-#include "../CommonInterfaces/CommonGraphicsAppInterface.h"
+#include "CommonRigidBodyMTBase.h"
 #include "MultiThreadedDemo.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "btBulletCollisionCommon.h"
@@ -37,7 +31,7 @@ class btCollisionShape;
 #define BT_OVERRIDE
 
 /// MultiThreadedDemo shows how to setup and use multithreading
-class MultiThreadedDemo  : public CommonRigidBodyBase
+class MultiThreadedDemo  : public CommonRigidBodyMTBase
 {
     static const int kUpAxis = 1;
 
@@ -84,7 +78,7 @@ public:
 
 
 MultiThreadedDemo::MultiThreadedDemo(struct GUIHelperInterface* helper)
-    : CommonRigidBodyBase( helper )
+    : CommonRigidBodyMTBase( helper )
 {
     m_cameraTargetPos = btVector3( 0.0f, 0.0f, 0.0f );
     m_cameraPitch = 90.0f;

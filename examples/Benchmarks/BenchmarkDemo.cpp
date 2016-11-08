@@ -32,7 +32,7 @@ subject to the following restrictions:
 
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btTransform.h"
-#include "../CommonInterfaces/ParallelFor.h"
+#include "../MultiThreadedDemo/ParallelFor.h"
 
 class btDynamicsWorld;
 
@@ -49,11 +49,11 @@ struct btCollisionAlgorithmCreateFunc;
 class btDefaultCollisionConfiguration;
 
 
-#include "../CommonInterfaces/CommonRigidBodyBase.h"
+#include "../MultiThreadedDemo/CommonRigidBodyMTBase.h"
 
 
 
-class BenchmarkDemo : public CommonRigidBodyBase
+class BenchmarkDemo : public CommonRigidBodyMTBase
 {
 
 	//keep the collision shapes, for deletion/cleanup
@@ -93,7 +93,7 @@ class BenchmarkDemo : public CommonRigidBodyBase
 	public:
 
 	BenchmarkDemo(struct GUIHelperInterface* helper, int benchmark)
-	:CommonRigidBodyBase(helper),
+	:CommonRigidBodyMTBase(helper),
 	m_benchmark(benchmark)
 	{
 	}
@@ -1296,7 +1296,7 @@ void	BenchmarkDemo::exitPhysics()
 	}
 	m_ragdolls.clear();
 
-	CommonRigidBodyBase::exitPhysics();
+	CommonRigidBodyMTBase::exitPhysics();
 
 	
 }

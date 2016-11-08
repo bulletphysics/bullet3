@@ -32,7 +32,6 @@ ADD_LIBRARY(BulletExampleBrowserLib
 	GL_ShapeDrawer.cpp
 	CollisionShape2TriangleMesh.cpp
 	CollisionShape2TriangleMesh.h
-	../CommonInterfaces/CommonRigidBodyBase.cpp
 	../Utils/b3Clock.cpp
 	../Utils/b3Clock.h
 	../Utils/b3ResourcePath.cpp
@@ -200,6 +199,9 @@ SET(BulletExampleBrowser_SRCS
 	../ForkLift/ForkLiftDemo.h
 	../MultiThreadedDemo/MultiThreadedDemo.cpp
 	../MultiThreadedDemo/MultiThreadedDemo.h
+	../MultiThreadedDemo/CommonRigidBodyMTBase.cpp
+	../MultiThreadedDemo/CommonRigidBodyMTBase.h
+	../MultiThreadedDemo/ParallelFor.h
 	../Tutorial/Tutorial.cpp
 	../Tutorial/Tutorial.h
 	../Tutorial/Dof6ConstraintTutorial.cpp
