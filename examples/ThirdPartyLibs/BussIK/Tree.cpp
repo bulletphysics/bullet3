@@ -98,10 +98,10 @@ Node* Tree::SearchJoint(Node* node, int index)
 		if (node->seqNumJoint == index) {
 			return node;
 		} else {
-			if (ret = SearchJoint(node->left, index)) {
+			if ((ret = SearchJoint(node->left, index))) {
 				return ret;
 			}
-			if (ret = SearchJoint(node->right, index)) {
+			if ((ret = SearchJoint(node->right, index))) {
 				return ret;
 			}
 			return NULL;
@@ -127,10 +127,10 @@ Node* Tree::SearchEffector(Node* node, int index)
 		if (node->seqNumEffector == index) {
 			return node;
 		} else {
-			if (ret = SearchEffector(node->left, index)) {
+			if ((ret = SearchEffector(node->left, index))) {
 				return ret;
 			}
-			if (ret = SearchEffector(node->right, index)) {
+			if ((ret = SearchEffector(node->right, index))) {
 				return ret;
 			}
 			return NULL;
