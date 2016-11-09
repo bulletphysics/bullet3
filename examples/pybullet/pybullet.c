@@ -1482,7 +1482,7 @@ static PyObject* pybullet_resetVisualShapeData(PyObject* self, PyObject* args)
 static PyObject* pybullet_loadTexture(PyObject* self, PyObject* args)
 {
     int size = PySequence_Size(args);
-    const char* filename = -1;
+    const char* filename = 0;
     b3SharedMemoryCommandHandle commandHandle;
     b3SharedMemoryStatusHandle statusHandle;
     int statusType;
