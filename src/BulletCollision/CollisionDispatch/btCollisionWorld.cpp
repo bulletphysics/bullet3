@@ -1252,6 +1252,7 @@ void	btCollisionWorld::contactPairTest(btCollisionObject* colObjA, btCollisionOb
 	if (algorithm)
 	{
 		btBridgedManifoldResult contactPointResult(&obA,&obB, resultCallback);
+		contactPointResult.m_closestPointDistanceThreshold = resultCallback.m_closestDistanceThreshold;
 		//discrete collision detection query
 		algorithm->processCollision(&obA,&obB, getDispatchInfo(),&contactPointResult);
 

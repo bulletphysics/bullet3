@@ -143,11 +143,21 @@ enum EnumRequestPixelDataUpdateFlags
 	
 };
 
+enum EnumRequestContactDataUpdateFlags
+{
+	CMD_REQUEST_CONTACT_POINT_HAS_QUERY_MODE=1,
+	CMD_REQUEST_CONTACT_POINT_HAS_CLOSEST_DISTANCE_THRESHOLD=2,
+};
+
 struct RequestContactDataArgs
 {
     int m_startingContactPointIndex;
     int m_objectAIndexFilter;
 	int m_objectBIndexFilter;
+	double m_closestDistanceThreshold;
+	double m_aabbQueryMin[3];
+	double m_aabbQueryMax[3];
+	int m_mode;
 };
 
 struct RequestVisualShapeDataArgs

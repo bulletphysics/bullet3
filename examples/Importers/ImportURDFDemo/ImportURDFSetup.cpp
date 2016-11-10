@@ -135,7 +135,7 @@ ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option, 
 		
 		if (gFileNameArray.size()==0)
 		{
-			gFileNameArray.push_back("r2d2.urdf");
+			gFileNameArray.push_back("quadruped/quadruped.urdf");
 
 		}
 

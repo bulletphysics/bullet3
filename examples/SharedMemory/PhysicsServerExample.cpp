@@ -969,6 +969,23 @@ void PhysicsServerExample::renderScene()
 	static char line0[1024];
 		static char line1[1024];
 
+	//draw all user-debug-lines
+
+	//add array of lines
+
+	//draw all user- 'text3d' messages
+		if (m_guiHelper)
+		{
+			btVector3 from(0, 0, 0);
+			btVector3 toX(1, 1, 1);
+			btVector3 color(0, 1, 0);
+			double width = 2;
+			m_guiHelper->getAppInterface()->m_renderer->drawLine(from, toX, color, width);
+
+			m_guiHelper->getAppInterface()->drawText3D("hi", 1, 1, 1, 1);
+		}
+
+
 	if (gEnableRealTimeSimVR)
 	{
 		

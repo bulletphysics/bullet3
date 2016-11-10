@@ -1274,7 +1274,66 @@ void b3SetContactFilterBodyB(b3SharedMemoryCommandHandle commandHandle, int body
 	command->m_requestContactPointArguments.m_objectBIndexFilter = bodyUniqueIdB;
 }
 
-void b3SetContactFilterBodyB(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueIdB);
+
+///compute the closest points between two bodies
+b3SharedMemoryCommandHandle b3InitClosestDistanceQuery(b3PhysicsClientHandle physClient)
+{
+	b3SharedMemoryCommandHandle commandHandle =b3InitRequestContactPointInformation(physClient);
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_CONTACT_POINT_INFORMATION);
+	command->m_updateFlags = CMD_REQUEST_CONTACT_POINT_HAS_QUERY_MODE;
+	command->m_requestContactPointArguments.m_mode = CONTACT_QUERY_MODE_COMPUTE_CLOSEST_POINTS;
+	return commandHandle;
+}
+
+void b3SetClosestDistanceFilterBodyA(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueIdA)
+{
+	b3SetContactFilterBodyA(commandHandle,bodyUniqueIdA);
+}
+
+void b3SetClosestDistanceFilterBodyB(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueIdB)
+{
+	b3SetContactFilterBodyB(commandHandle,bodyUniqueIdB);
+}
+
+void b3SetClosestDistanceThreshold(b3SharedMemoryCommandHandle commandHandle, double distance)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_CONTACT_POINT_INFORMATION);
+	command->m_updateFlags += CMD_REQUEST_CONTACT_POINT_HAS_CLOSEST_DISTANCE_THRESHOLD;
+	command->m_requestContactPointArguments.m_closestDistanceThreshold = distance;
+}
+
+
+///get all the bodies that touch a given axis aligned bounding box specified in world space (min and max coordinates)
+b3SharedMemoryCommandHandle b3InitAABBOverlapQuery(b3PhysicsClientHandle physClient, const double aabbMin[3], const double aabbMax[3])
+{
+	b3SharedMemoryCommandHandle commandHandle = b3InitRequestContactPointInformation(physClient);
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_CONTACT_POINT_INFORMATION);
+	command->m_updateFlags = CMD_REQUEST_CONTACT_POINT_HAS_QUERY_MODE;
+	command->m_requestContactPointArguments.m_mode = CONTACT_QUERY_MODE_AABB_OVERLAP;
+
+	command->m_requestContactPointArguments.m_aabbQueryMin[0] = aabbMin[0];
+	command->m_requestContactPointArguments.m_aabbQueryMin[1] = aabbMin[1];
+	command->m_requestContactPointArguments.m_aabbQueryMin[2] = aabbMin[2];
+
+	command->m_requestContactPointArguments.m_aabbQueryMax[0] = aabbMax[0];
+	command->m_requestContactPointArguments.m_aabbQueryMax[1] = aabbMax[1];
+	command->m_requestContactPointArguments.m_aabbQueryMax[2] = aabbMax[2];
+
+	return commandHandle;
+}
+
+void b3GetAABBOverlapResults(b3PhysicsClientHandle physClient, struct b3AABBOverlapData* data)
+{
+	data->m_numOverlappingObjects = 0;
+//	data->m_objectUniqueIds
+}
+
 
 
 void b3GetContactPointInformation(b3PhysicsClientHandle physClient, struct b3ContactInformation* contactPointData)
@@ -1284,6 +1343,11 @@ void b3GetContactPointInformation(b3PhysicsClientHandle physClient, struct b3Con
 	{
 	    cl->getCachedContactPointInformation(contactPointData);
 	}
+}
+
+void b3GetClosestPointInformation(b3PhysicsClientHandle physClient, struct b3ContactInformation* contactPointInfo)
+{
+	b3GetContactPointInformation(physClient,contactPointInfo);
 }
 
 

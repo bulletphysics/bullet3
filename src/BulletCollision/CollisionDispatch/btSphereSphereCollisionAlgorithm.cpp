@@ -62,7 +62,7 @@ void btSphereSphereCollisionAlgorithm::processCollision (const btCollisionObject
 #endif
 
 	///iff distance positive, don't generate a new contact
-	if ( len > (radius0+radius1))
+	if ( len > (radius0+radius1+resultOut->m_closestPointDistanceThreshold))
 	{
 #ifndef CLEAR_MANIFOLD
 		resultOut->refreshContactPoints();

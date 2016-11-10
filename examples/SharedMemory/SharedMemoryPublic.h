@@ -80,6 +80,8 @@ enum EnumSharedMemoryServerStatus
         CMD_CALCULATED_JACOBIAN_FAILED,
 		CMD_CONTACT_POINT_INFORMATION_COMPLETED,
 		CMD_CONTACT_POINT_INFORMATION_FAILED,
+		CMD_AABB_OVERLAP_COMPLETED,
+		CMD_AABB_OVERLAP_FAILED,
 		CMD_CALCULATE_INVERSE_KINEMATICS_COMPLETED,
 		CMD_CALCULATE_INVERSE_KINEMATICS_FAILED,
 		CMD_SAVE_WORLD_COMPLETED,
@@ -158,6 +160,13 @@ struct b3DebugLines
     const float*  m_linesColor;//float red,green,blue times 'm_numDebugLines'.
 };
 
+struct b3AABBOverlapData
+{
+    int m_numOverlappingObjects;
+	int* m_objectUniqueIds;
+	int* m_links;
+};
+
 struct b3CameraImageData
 {
 	int m_pixelWidth;
@@ -191,6 +200,14 @@ struct b3ContactPointData
 //    double m_angularFrictionDirection[3];
 //    double m_angularFrictionForce;
 };
+
+enum 
+{
+	CONTACT_QUERY_MODE_REPORT_EXISTING_CONTACT_POINTS = 0,
+	CONTACT_QUERY_MODE_COMPUTE_CLOSEST_POINTS = 1,
+	CONTACT_QUERY_MODE_AABB_OVERLAP = 2,
+};
+
 
 
 struct b3ContactInformation

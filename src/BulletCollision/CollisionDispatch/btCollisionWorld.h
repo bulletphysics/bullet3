@@ -412,10 +412,12 @@ public:
 	{
 		short int	m_collisionFilterGroup;
 		short int	m_collisionFilterMask;
-		
+		btScalar	m_closestDistanceThreshold;
+
 		ContactResultCallback()
 			:m_collisionFilterGroup(btBroadphaseProxy::DefaultFilter),
-			m_collisionFilterMask(btBroadphaseProxy::AllFilter)
+			m_collisionFilterMask(btBroadphaseProxy::AllFilter),
+			m_closestDistanceThreshold(0)
 		{
 		}
 
