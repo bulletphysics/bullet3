@@ -1310,28 +1310,31 @@ void b3SetClosestDistanceThreshold(b3SharedMemoryCommandHandle commandHandle, do
 ///get all the bodies that touch a given axis aligned bounding box specified in world space (min and max coordinates)
 b3SharedMemoryCommandHandle b3InitAABBOverlapQuery(b3PhysicsClientHandle physClient, const double aabbMin[3], const double aabbMax[3])
 {
-	b3SharedMemoryCommandHandle commandHandle = b3InitRequestContactPointInformation(physClient);
-	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
 	b3Assert(command);
-	b3Assert(command->m_type == CMD_REQUEST_CONTACT_POINT_INFORMATION);
-	command->m_updateFlags = CMD_REQUEST_CONTACT_POINT_HAS_QUERY_MODE;
-	command->m_requestContactPointArguments.m_mode = CONTACT_QUERY_MODE_AABB_OVERLAP;
+	command->m_type = CMD_REQUEST_AABB_OVERLAP;
+	command->m_updateFlags = 0;
+	command->m_requestOverlappingObjectsArgs.m_startingOverlappingObjectIndex = 0;
+	command->m_requestOverlappingObjectsArgs.m_aabbQueryMin[0] = aabbMin[0];
+	command->m_requestOverlappingObjectsArgs.m_aabbQueryMin[1] = aabbMin[1];
+	command->m_requestOverlappingObjectsArgs.m_aabbQueryMin[2] = aabbMin[2];
 
-	command->m_requestContactPointArguments.m_aabbQueryMin[0] = aabbMin[0];
-	command->m_requestContactPointArguments.m_aabbQueryMin[1] = aabbMin[1];
-	command->m_requestContactPointArguments.m_aabbQueryMin[2] = aabbMin[2];
-
-	command->m_requestContactPointArguments.m_aabbQueryMax[0] = aabbMax[0];
-	command->m_requestContactPointArguments.m_aabbQueryMax[1] = aabbMax[1];
-	command->m_requestContactPointArguments.m_aabbQueryMax[2] = aabbMax[2];
-
-	return commandHandle;
+	command->m_requestOverlappingObjectsArgs.m_aabbQueryMax[0] = aabbMax[0];
+	command->m_requestOverlappingObjectsArgs.m_aabbQueryMax[1] = aabbMax[1];
+	command->m_requestOverlappingObjectsArgs.m_aabbQueryMax[2] = aabbMax[2];
+	return  (b3SharedMemoryCommandHandle)command;
 }
 
 void b3GetAABBOverlapResults(b3PhysicsClientHandle physClient, struct b3AABBOverlapData* data)
 {
-	data->m_numOverlappingObjects = 0;
-//	data->m_objectUniqueIds
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	if (cl)
+	{
+		cl->getCachedOverlappingObjects(data);
+	}
 }
 
 

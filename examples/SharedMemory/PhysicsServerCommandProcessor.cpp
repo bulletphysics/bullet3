@@ -318,6 +318,45 @@ struct SaveWorldObjectData
 	std::string	m_fileName;
 };
 
+struct MyBroadphaseCallback : public btBroadphaseAabbCallback
+{
+	b3AlignedObjectArray<int> m_bodyUniqueIds;
+	b3AlignedObjectArray<int> m_links;
+
+
+	MyBroadphaseCallback()
+	{
+	}
+	virtual ~MyBroadphaseCallback()
+	{
+	}
+	void clear()
+	{
+		m_bodyUniqueIds.clear();
+		m_links.clear();
+	}
+	virtual bool	process(const btBroadphaseProxy* proxy)
+	{
+		btCollisionObject* colObj = (btCollisionObject*)proxy->m_clientObject;
+		btMultiBodyLinkCollider* mbl = btMultiBodyLinkCollider::upcast(colObj);
+		if (mbl)
+		{
+			int bodyUniqueId = mbl->m_multiBody->getUserIndex2();
+			m_bodyUniqueIds.push_back(bodyUniqueId);
+			m_links.push_back(mbl->m_link);
+			return true;
+		}
+		int bodyUniqueId = colObj->getUserIndex2();
+		if (bodyUniqueId >= 0)
+		{
+			m_bodyUniqueIds.push_back(bodyUniqueId);
+			m_links.push_back(mbl->m_link);
+		}
+		return true;
+	}
+};
+
+
 struct PhysicsServerCommandProcessorInternalData
 {
 	///handle management
@@ -453,6 +492,8 @@ struct PhysicsServerCommandProcessorInternalData
 	SharedMemoryDebugDrawer*		m_remoteDebugDrawer;
     
 	btAlignedObjectArray<b3ContactPointData> m_cachedContactPoints;
+	MyBroadphaseCallback m_cachedOverlappingObjects;
+
 
 	btAlignedObjectArray<int> m_sdfRecentLoadedBodies;
 
@@ -2535,6 +2576,62 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						hasStatus = true;
                         break;
                     }
+				case CMD_REQUEST_AABB_OVERLAP:
+				{
+					SharedMemoryStatus& serverCmd = serverStatusOut;
+					int curObjectIndex = clientCmd.m_requestOverlappingObjectsArgs.m_startingOverlappingObjectIndex;
+
+					if (0== curObjectIndex)
+					{
+						//clientCmd.m_requestContactPointArguments.m_aabbQueryMin
+						btVector3 aabbMin, aabbMax;
+						aabbMin.setValue(clientCmd.m_requestOverlappingObjectsArgs.m_aabbQueryMin[0],
+							clientCmd.m_requestOverlappingObjectsArgs.m_aabbQueryMin[1],
+							clientCmd.m_requestOverlappingObjectsArgs.m_aabbQueryMin[2]);
+						aabbMax.setValue(clientCmd.m_requestOverlappingObjectsArgs.m_aabbQueryMax[0],
+							clientCmd.m_requestOverlappingObjectsArgs.m_aabbQueryMax[1],
+							clientCmd.m_requestOverlappingObjectsArgs.m_aabbQueryMax[2]);
+
+						m_data->m_cachedOverlappingObjects.clear();
+
+						m_data->m_dynamicsWorld->getBroadphase()->aabbTest(aabbMin, aabbMax, m_data->m_cachedOverlappingObjects);
+					}
+					
+
+					int totalBytesPerObject = sizeof(b3OverlappingObject);
+					int overlapCapacity = bufferSizeInBytes / totalBytesPerObject - 1;
+					int numOverlap =  m_data->m_cachedOverlappingObjects.m_bodyUniqueIds.size();
+					int remainingObjects = numOverlap - curObjectIndex;
+
+					int curNumObjects = btMin(overlapCapacity, remainingObjects);
+
+					if (numOverlap < overlapCapacity)
+					{
+						
+						b3OverlappingObject* overlapStorage = (b3OverlappingObject*)bufferServerToClient;
+						for (int i = 0; i < m_data->m_cachedOverlappingObjects.m_bodyUniqueIds.size(); i++)
+						{
+							overlapStorage[i].m_objectUniqueId = m_data->m_cachedOverlappingObjects.m_bodyUniqueIds[i];
+							overlapStorage[i].m_linkIndex = m_data->m_cachedOverlappingObjects.m_links[i];
+						}
+
+						serverCmd.m_type = CMD_REQUEST_AABB_OVERLAP_COMPLETED;
+
+						int m_startingOverlappingObjectIndex;
+						int m_numOverlappingObjectsCopied;
+						int m_numRemainingOverlappingObjects;
+						serverCmd.m_sendOverlappingObjectsArgs.m_startingOverlappingObjectIndex = clientCmd.m_requestOverlappingObjectsArgs.m_startingOverlappingObjectIndex;
+						serverCmd.m_sendOverlappingObjectsArgs.m_numOverlappingObjectsCopied = m_data->m_cachedOverlappingObjects.m_bodyUniqueIds.size();
+						serverCmd.m_sendOverlappingObjectsArgs.m_numRemainingOverlappingObjects = remainingObjects - curNumObjects;
+					}
+					else
+					{
+						serverCmd.m_type = CMD_REQUEST_AABB_OVERLAP_FAILED;
+					}
+
+					hasStatus = true;
+					break;
+				}
                 case CMD_REQUEST_CONTACT_POINT_INFORMATION:
                     {
                         SharedMemoryStatus& serverCmd =serverStatusOut;
@@ -2634,74 +2731,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								}
 								break;
 							}
-							case CONTACT_QUERY_MODE_AABB_OVERLAP:
-							{
-								//clientCmd.m_requestContactPointArguments.m_aabbQueryMin
-								btVector3 aabbMin,aabbMax;
-								aabbMin.setValue(clientCmd.m_requestContactPointArguments.m_aabbQueryMin[0],
-									clientCmd.m_requestContactPointArguments.m_aabbQueryMin[1],
-									clientCmd.m_requestContactPointArguments.m_aabbQueryMin[2]);
-								aabbMax.setValue(clientCmd.m_requestContactPointArguments.m_aabbQueryMax[0],
-									clientCmd.m_requestContactPointArguments.m_aabbQueryMax[1],
-									clientCmd.m_requestContactPointArguments.m_aabbQueryMax[2]);
-
-								struct MyBroadphaseCallback : public btBroadphaseAabbCallback
-								{
-									b3AlignedObjectArray<int> m_bodyUniqueIds;
-									b3AlignedObjectArray<int> m_links;
-
-									
-									MyBroadphaseCallback()
-									{
-									}
-									virtual ~MyBroadphaseCallback()
-									{
-									}
-									virtual bool	process(const btBroadphaseProxy* proxy)
-									{
-										btCollisionObject* colObj = (btCollisionObject*)proxy->m_clientObject;
-										btMultiBodyLinkCollider* mbl = btMultiBodyLinkCollider::upcast(colObj);
-										if (mbl)
-										{
-											int bodyUniqueId = mbl->m_multiBody->getUserIndex2();
-											m_bodyUniqueIds.push_back(bodyUniqueId);
-											m_links.push_back(mbl->m_link);
-											return true;
-										}
-										int bodyUniqueId = colObj->getUserIndex2();
-										if (bodyUniqueId >= 0)
-										{
-											m_bodyUniqueIds.push_back(bodyUniqueId);
-											m_links.push_back(mbl->m_link);
-										}
-										return true;
-									}
-								};
-
-								MyBroadphaseCallback callback;
-
-								m_data->m_dynamicsWorld->getBroadphase()->aabbTest(aabbMin,aabbMax,callback);
-
-								int totalBytesPerObject = 2 * sizeof(int);
-								int pairCapacity = bufferSizeInBytes / totalBytesPerObject - 1;
-								if (callback.m_bodyUniqueIds.size() < pairCapacity)
-								{
-									serverCmd.m_type = CMD_AABB_OVERLAP_COMPLETED;
-									int* pairStorage = (int*)bufferServerToClient;
-									for (int i = 0; i < callback.m_bodyUniqueIds.size(); i++)
-									{
-										pairStorage[i * 2] = callback.m_bodyUniqueIds[i];
-										pairStorage[i * 2+1] = callback.m_links[i];
-									}
-								}
-								else
-								{
-									serverCmd.m_type = CMD_AABB_OVERLAP_FAILED;
-								}
-
-								hasStatus = true;
-								break;
-							}
+						
 							case CONTACT_QUERY_MODE_COMPUTE_CLOSEST_POINTS:
 							{
 								//todo(erwincoumans) compute closest points between all, and vs all, pair
@@ -3863,7 +3893,7 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 					}
 					else
 					{
-						motor->setPositionTarget(posTarget - correction*5., 1);
+						motor->setPositionTarget(posTarget, 1);
 					}
 					motor->setVelocityTarget(0, 0.5);
 					btScalar maxImp = (1+0.1*i)*m_data->m_physicsDeltaTime;

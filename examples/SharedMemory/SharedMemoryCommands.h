@@ -155,9 +155,14 @@ struct RequestContactDataArgs
     int m_objectAIndexFilter;
 	int m_objectBIndexFilter;
 	double m_closestDistanceThreshold;
+	int m_mode;
+};
+
+struct RequestOverlappingObjectsArgs
+{
+	int m_startingOverlappingObjectIndex;
 	double m_aabbQueryMin[3];
 	double m_aabbQueryMax[3];
-	int m_mode;
 };
 
 struct RequestVisualShapeDataArgs
@@ -520,6 +525,7 @@ struct SharedMemoryCommand
         struct CalculateJacobianArgs m_calculateJacobianArguments;
         struct CreateJointArgs m_createJointArguments;
         struct RequestContactDataArgs m_requestContactPointArguments;
+		struct RequestOverlappingObjectsArgs m_requestOverlappingObjectsArgs;
         struct RequestVisualShapeDataArgs m_requestVisualShapeDataArguments;
         struct UpdateVisualShapeDataArgs m_updateVisualShapeDataArguments;
         struct LoadTextureArgs m_loadTextureArguments;
@@ -538,6 +544,13 @@ struct SendContactDataArgs
     int m_startingContactPointIndex;
     int m_numContactPointsCopied;
     int m_numRemainingContactPoints;
+};
+
+struct SendOverlappingObjectsArgs
+{
+	int m_startingOverlappingObjectIndex;
+	int m_numOverlappingObjectsCopied;
+	int m_numRemainingOverlappingObjects;
 };
 
 struct SharedMemoryStatus
@@ -562,6 +575,7 @@ struct SharedMemoryStatus
 		struct CalculateInverseDynamicsResultArgs m_inverseDynamicsResultArgs;
         struct CalculateJacobianResultArgs m_jacobianResultArgs;
 		struct SendContactDataArgs m_sendContactPointArgs;
+		struct SendOverlappingObjectsArgs m_sendOverlappingObjectsArgs;
 		struct CalculateInverseKinematicsResultArgs m_inverseKinematicsResultArgs;
 		struct SendVisualShapeDataArgs m_sendVisualShapeArgs;
 	};

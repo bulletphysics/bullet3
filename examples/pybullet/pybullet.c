@@ -682,8 +682,7 @@ static int pybullet_internalGetBasePositionAndOrientation(
 
   if (0 == sm) {
 	  PyErr_SetString(SpamError, "Not connected to physics server.");
-	  Py_INCREF(Py_None);
-	  return Py_None;
+	  return 0;
   }
 
   {
@@ -1628,7 +1627,8 @@ static PyObject* pybullet_getOverlappingObjects(PyObject* self, PyObject* args, 
 	b3SharedMemoryCommandHandle commandHandle;
 	b3SharedMemoryStatusHandle statusHandle;
 	struct b3AABBOverlapData overlapData;
-	
+	int i;
+
 	static char *kwlist[] = { "aabbMin", "aabbMax", NULL };
 	if (0 == sm) {
 		PyErr_SetString(SpamError, "Not connected to physics server.");
@@ -1646,6 +1646,27 @@ static PyObject* pybullet_getOverlappingObjects(PyObject* self, PyObject* args, 
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 	b3GetAABBOverlapResults(sm, &overlapData);
 
+	if (overlapData.m_numOverlappingObjects)
+	{
+		PyObject* pyResultList = PyTuple_New(overlapData.m_numOverlappingObjects);
+		//For huge amount of overlap, we could use numpy instead (see camera pixel data)
+		//What would Python do with huge amount of data? Pass it onto TensorFlow!
+
+		for (i = 0; i < overlapData.m_numOverlappingObjects; i++) {
+			PyObject* overlap = PyTuple_New(2);//body unique id and link index
+
+			PyObject* item;
+			item =
+				PyInt_FromLong(overlapData.m_overlappingObjects[i].m_objectUniqueId);
+			PyTuple_SetItem(overlap, 0, item);
+			item =
+				PyInt_FromLong(overlapData.m_overlappingObjects[i].m_linkIndex);
+			PyTuple_SetItem(overlap, 1, item);
+			PyTuple_SetItem(pyResultList, i, overlap);
+		}
+
+		return pyResultList;
+	}
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1700,7 +1721,6 @@ static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, Py
 }
 
 
-
 static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args, PyObject *keywds) {
   int size = PySequence_Size(args);
   int bodyUniqueIdA = -1;
@@ -1710,7 +1730,6 @@ static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args, Py
   struct b3ContactInformation contactPointData;
   b3SharedMemoryStatusHandle statusHandle;
   int statusType;
-  int i;
   PyObject* pyResultList = 0;
 
 

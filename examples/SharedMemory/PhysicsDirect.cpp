@@ -44,7 +44,8 @@ struct PhysicsDirectInternalData
 	btAlignedObjectArray<int> m_cachedSegmentationMask;
 	
     btAlignedObjectArray<b3ContactPointData> m_cachedContactPoints;
-	
+	btAlignedObjectArray<b3OverlappingObject> m_cachedOverlappingObjects;
+
 	btAlignedObjectArray<b3VisualShapeData> m_cachedVisualShapes;
     
 	PhysicsCommandProcessorInterface* m_commandProcessor;
@@ -309,6 +310,60 @@ bool PhysicsDirect::processVisualShapeData(const struct SharedMemoryCommand& org
 	return m_data->m_hasStatus;
 }
 
+bool PhysicsDirect::processOverlappingObjects(const struct SharedMemoryCommand& orgCommand)
+{
+	SharedMemoryCommand command = orgCommand;
+
+	const SharedMemoryStatus& serverCmd = m_data->m_serverStatus;
+
+	do
+	{
+		bool hasStatus = m_data->m_commandProcessor->processCommand(command, m_data->m_serverStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+
+		int timeout = 1024 * 1024 * 1024;
+		while ((!hasStatus) && (timeout-- > 0))
+		{
+			const  SharedMemoryStatus* stat = processServerStatus();
+			if (stat)
+			{
+				hasStatus = true;
+			}
+		}
+
+
+		m_data->m_hasStatus = hasStatus;
+		if (hasStatus)
+		{
+			if (m_data->m_verboseOutput)
+			{
+				b3Printf("Overlapping Objects Request OK\n");
+			}
+
+			int startOverlapIndex = serverCmd.m_sendOverlappingObjectsArgs.m_startingOverlappingObjectIndex;
+			int numOverlapCopied = serverCmd.m_sendOverlappingObjectsArgs.m_numOverlappingObjectsCopied;
+			m_data->m_cachedOverlappingObjects.resize(startOverlapIndex + numOverlapCopied);
+			b3OverlappingObject* objects = (b3OverlappingObject*)&m_data->m_bulletStreamDataServerToClient[0];
+
+			for (int i = 0; i < numOverlapCopied; i++)
+			{
+				m_data->m_cachedOverlappingObjects[startOverlapIndex + i] = objects[i];
+			}
+
+			if (serverCmd.m_sendOverlappingObjectsArgs.m_numRemainingOverlappingObjects > 0 && serverCmd.m_sendOverlappingObjectsArgs.m_numOverlappingObjectsCopied)
+			{
+				m_data->m_hasStatus = false;
+				command.m_type = CMD_REQUEST_AABB_OVERLAP;
+				command.m_requestOverlappingObjectsArgs.m_startingOverlappingObjectIndex = serverCmd.m_sendOverlappingObjectsArgs.m_startingOverlappingObjectIndex + serverCmd.m_sendOverlappingObjectsArgs.m_numOverlappingObjectsCopied;
+			}
+
+		}
+	} while (serverCmd.m_sendOverlappingObjectsArgs.m_numRemainingOverlappingObjects > 0 && serverCmd.m_sendOverlappingObjectsArgs.m_numOverlappingObjectsCopied);
+
+	return m_data->m_hasStatus;
+
+}
+
+
 
 bool PhysicsDirect::processContactPointData(const struct SharedMemoryCommand& orgCommand)
 {
@@ -525,6 +580,7 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 {
 	switch (serverCmd.m_type)
 	{
+	
 	case CMD_REQUEST_INTERNAL_DATA_COMPLETED:
 	{
 		if (serverCmd.m_numDataStreamBytes)
@@ -634,6 +690,10 @@ bool PhysicsDirect::submitClientCommand(const struct SharedMemoryCommand& comman
 	if (command.m_type == CMD_REQUEST_VISUAL_SHAPE_INFO)
 	{
 		return processVisualShapeData(command);
+	}
+	if (command.m_type == CMD_REQUEST_AABB_OVERLAP)
+	{
+		return processOverlappingObjects(command);
 	}
 
 	bool hasStatus = m_data->m_commandProcessor->processCommand(command,m_data->m_serverStatus,&m_data->m_bulletStreamDataServerToClient[0],SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
@@ -760,6 +820,14 @@ void PhysicsDirect::getCachedContactPointInformation(struct b3ContactInformation
     contactPointData->m_contactPointData = contactPointData->m_numContactPoints? &m_data->m_cachedContactPoints[0] : 0;
     
 }
+
+void PhysicsDirect::getCachedOverlappingObjects(struct b3AABBOverlapData* overlappingObjects)
+{
+	overlappingObjects->m_numOverlappingObjects = m_data->m_cachedOverlappingObjects.size();
+	overlappingObjects->m_overlappingObjects = m_data->m_cachedOverlappingObjects.size() ?
+		&m_data->m_cachedOverlappingObjects[0] : 0;
+}
+
 
 void PhysicsDirect::getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo)
 {
