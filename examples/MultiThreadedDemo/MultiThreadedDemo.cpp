@@ -199,7 +199,7 @@ void MultiThreadedDemo::createSceneObjects()
             }
         }
     }
-
+#if 0
     if ( false )
     {
         // destroyer ball
@@ -211,6 +211,7 @@ void MultiThreadedDemo::createSceneObjects()
         btRigidBody* ballBody = localCreateRigidBody( 10000.f, sphereTrans, ball );
         ballBody->setLinearVelocity( btVector3( 0, 0, -10 ) );
     }
+#endif
     m_guiHelper->autogenerateGraphicsObjects( m_dynamicsWorld );
 
 }
