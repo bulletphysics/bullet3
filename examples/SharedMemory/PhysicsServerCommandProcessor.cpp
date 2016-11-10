@@ -3828,6 +3828,8 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 	{
 		m_data->m_gripperRigidbodyFixed->setFrameInB(btMatrix3x3(gVRGripperOrn));
 		m_data->m_gripperRigidbodyFixed->setPivotInB(gVRGripperPos);
+		btScalar avg = 0.f;
+
 		for (int i = 0; i < m_data->m_gripperMultiBody->getNumLinks(); i++)
 		{
 			if (supportsJointMotor(m_data->m_gripperMultiBody, i))
@@ -3838,7 +3840,14 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 					motor->setErp(0.2);
 					btScalar posTarget = 0.1 + (1 - btMin(btScalar(0.75),gVRGripperAnalog)*btScalar(1.5))*SIMD_HALF_PI*0.29;
 					btScalar maxPosTarget = 0.55;
-						
+					
+					btScalar correction = 0.f;
+
+					if (avg)
+					{
+						correction = m_data->m_gripperMultiBody->getJointPos(i) - avg;
+					}
+					
 					if (m_data->m_gripperMultiBody->getJointPos(i) < 0)
 					{
 						m_data->m_gripperMultiBody->setJointPos(i,0);
@@ -3848,10 +3857,19 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 						m_data->m_gripperMultiBody->setJointPos(i, maxPosTarget);
 					}
 
-					motor->setPositionTarget(posTarget, 1);
+					if (avg)
+					{
+						motor->setPositionTarget(avg, 1);
+					}
+					else
+					{
+						motor->setPositionTarget(posTarget - correction*5., 1);
+					}
 					motor->setVelocityTarget(0, 0.5);
-					btScalar maxImp = 1*m_data->m_physicsDeltaTime;
+					btScalar maxImp = (1+0.1*i)*m_data->m_physicsDeltaTime;
 					motor->setMaxAppliedImpulse(maxImp);
+					avg = m_data->m_gripperMultiBody->getJointPos(i);
+
 					//motor->setRhsClamp(gRhsClamp);
 				}
 			}
@@ -3859,7 +3877,7 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 	}
 
 	// Inverse kinematics for KUKA
-	//if (0)
+	if (m_data->m_KukaId>=0)
 	{
 		InternalBodyHandle* bodyHandle = m_data->getHandle(m_data->m_KukaId);
 		if (bodyHandle && bodyHandle->m_multiBody && bodyHandle->m_multiBody->getNumDofs()==7)
