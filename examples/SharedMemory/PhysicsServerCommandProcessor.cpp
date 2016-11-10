@@ -4083,6 +4083,7 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 			}
 
 			//directly set the position of the links, only for debugging IK, don't use this method!
+#if 0
 			if (0)
 			{
 				for (int i=0;i<mb->getNumLinks();i++)
@@ -4091,6 +4092,7 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 					mb->setJointPosMultiDof(i,&desiredPosition);
 				}
 			} else
+#endif				
 			{
 				int numMotors = 0;
 				//find the joint motors and apply the desired velocity and maximum force/torque
