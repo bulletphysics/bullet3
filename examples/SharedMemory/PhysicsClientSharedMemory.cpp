@@ -40,7 +40,7 @@ struct PhysicsClientSharedMemoryInternalData {
 	btAlignedObjectArray<int> m_cachedSegmentationMaskBuffer;
 
     btAlignedObjectArray<b3ContactPointData> m_cachedContactPoints;
-	
+	btAlignedObjectArray<b3OverlappingObject> m_cachedOverlappingObjects;
 	btAlignedObjectArray<b3VisualShapeData> m_cachedVisualShapes;
 
     btAlignedObjectArray<int> m_bodyIdsRequestInfo;
@@ -596,6 +596,30 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 				b3Warning("Inverse Dynamics computations failed");
 				break;
 			}
+			case CMD_REQUEST_AABB_OVERLAP_FAILED:
+			{
+				b3Warning("Overlapping object query failed");
+				break;
+			}
+			case CMD_REQUEST_AABB_OVERLAP_COMPLETED:
+			{
+				if (m_data->m_verboseOutput)
+				{
+					b3Printf("Overlapping object request completed");
+				}
+
+				int startOverlapIndex = serverCmd.m_sendOverlappingObjectsArgs.m_startingOverlappingObjectIndex;
+				int numOverlapCopied = serverCmd.m_sendOverlappingObjectsArgs.m_numOverlappingObjectsCopied;
+				m_data->m_cachedOverlappingObjects.resize(startOverlapIndex + numOverlapCopied);
+				b3OverlappingObject* objects = (b3OverlappingObject*)m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor;
+
+				for (int i = 0; i < numOverlapCopied; i++)
+				{
+					m_data->m_cachedOverlappingObjects[startOverlapIndex + i] = objects[i];
+				}
+
+				break;
+			}
             case CMD_CONTACT_POINT_INFORMATION_COMPLETED:
                 {
                     if (m_data->m_verboseOutput) 
@@ -740,6 +764,18 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 m_data->m_lastServerStatus = m_data->m_tempBackupServerStatus;
             }
         }
+
+		if (serverCmd.m_type == CMD_REQUEST_AABB_OVERLAP_COMPLETED)
+		{
+			SharedMemoryCommand& command = m_data->m_testBlock1->m_clientCommands[0];
+			if (serverCmd.m_sendOverlappingObjectsArgs.m_numRemainingOverlappingObjects > 0 && serverCmd.m_sendOverlappingObjectsArgs.m_numOverlappingObjectsCopied)
+			{
+				command.m_type = CMD_REQUEST_AABB_OVERLAP;
+				command.m_requestOverlappingObjectsArgs.m_startingOverlappingObjectIndex = serverCmd.m_sendOverlappingObjectsArgs.m_startingOverlappingObjectIndex + serverCmd.m_sendOverlappingObjectsArgs.m_numOverlappingObjectsCopied;
+				submitClientCommand(command);
+				return 0;
+			}
+		}
         
         if (serverCmd.m_type == CMD_CONTACT_POINT_INFORMATION_COMPLETED)
         {
@@ -872,6 +908,14 @@ void PhysicsClientSharedMemory::getCachedContactPointInformation(struct b3Contac
 	contactPointData->m_contactPointData = contactPointData->m_numContactPoints? &m_data->m_cachedContactPoints[0] : 0;
 
 }
+
+void PhysicsClientSharedMemory::getCachedOverlappingObjects(struct b3AABBOverlapData* overlappingObjects)
+{
+	overlappingObjects->m_numOverlappingObjects = m_data->m_cachedOverlappingObjects.size();
+	overlappingObjects->m_overlappingObjects = m_data->m_cachedOverlappingObjects.size() ?
+		&m_data->m_cachedOverlappingObjects[0] : 0;
+}
+
 
 void PhysicsClientSharedMemory::getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo)
 {

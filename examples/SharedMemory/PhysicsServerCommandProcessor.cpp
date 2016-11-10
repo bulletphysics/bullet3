@@ -318,6 +318,45 @@ struct SaveWorldObjectData
 	std::string	m_fileName;
 };
 
+struct MyBroadphaseCallback : public btBroadphaseAabbCallback
+{
+	b3AlignedObjectArray<int> m_bodyUniqueIds;
+	b3AlignedObjectArray<int> m_links;
+
+
+	MyBroadphaseCallback()
+	{
+	}
+	virtual ~MyBroadphaseCallback()
+	{
+	}
+	void clear()
+	{
+		m_bodyUniqueIds.clear();
+		m_links.clear();
+	}
+	virtual bool	process(const btBroadphaseProxy* proxy)
+	{
+		btCollisionObject* colObj = (btCollisionObject*)proxy->m_clientObject;
+		btMultiBodyLinkCollider* mbl = btMultiBodyLinkCollider::upcast(colObj);
+		if (mbl)
+		{
+			int bodyUniqueId = mbl->m_multiBody->getUserIndex2();
+			m_bodyUniqueIds.push_back(bodyUniqueId);
+			m_links.push_back(mbl->m_link);
+			return true;
+		}
+		int bodyUniqueId = colObj->getUserIndex2();
+		if (bodyUniqueId >= 0)
+		{
+			m_bodyUniqueIds.push_back(bodyUniqueId);
+			m_links.push_back(mbl->m_link);
+		}
+		return true;
+	}
+};
+
+
 struct PhysicsServerCommandProcessorInternalData
 {
 	///handle management
@@ -453,6 +492,8 @@ struct PhysicsServerCommandProcessorInternalData
 	SharedMemoryDebugDrawer*		m_remoteDebugDrawer;
     
 	btAlignedObjectArray<b3ContactPointData> m_cachedContactPoints;
+	MyBroadphaseCallback m_cachedOverlappingObjects;
+
 
 	btAlignedObjectArray<int> m_sdfRecentLoadedBodies;
 
@@ -2535,92 +2576,321 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						hasStatus = true;
                         break;
                     }
+				case CMD_REQUEST_AABB_OVERLAP:
+				{
+					SharedMemoryStatus& serverCmd = serverStatusOut;
+					int curObjectIndex = clientCmd.m_requestOverlappingObjectsArgs.m_startingOverlappingObjectIndex;
+
+					if (0== curObjectIndex)
+					{
+						//clientCmd.m_requestContactPointArguments.m_aabbQueryMin
+						btVector3 aabbMin, aabbMax;
+						aabbMin.setValue(clientCmd.m_requestOverlappingObjectsArgs.m_aabbQueryMin[0],
+							clientCmd.m_requestOverlappingObjectsArgs.m_aabbQueryMin[1],
+							clientCmd.m_requestOverlappingObjectsArgs.m_aabbQueryMin[2]);
+						aabbMax.setValue(clientCmd.m_requestOverlappingObjectsArgs.m_aabbQueryMax[0],
+							clientCmd.m_requestOverlappingObjectsArgs.m_aabbQueryMax[1],
+							clientCmd.m_requestOverlappingObjectsArgs.m_aabbQueryMax[2]);
+
+						m_data->m_cachedOverlappingObjects.clear();
+
+						m_data->m_dynamicsWorld->getBroadphase()->aabbTest(aabbMin, aabbMax, m_data->m_cachedOverlappingObjects);
+					}
+					
+
+					int totalBytesPerObject = sizeof(b3OverlappingObject);
+					int overlapCapacity = bufferSizeInBytes / totalBytesPerObject - 1;
+					int numOverlap =  m_data->m_cachedOverlappingObjects.m_bodyUniqueIds.size();
+					int remainingObjects = numOverlap - curObjectIndex;
+
+					int curNumObjects = btMin(overlapCapacity, remainingObjects);
+
+					if (numOverlap < overlapCapacity)
+					{
+						
+						b3OverlappingObject* overlapStorage = (b3OverlappingObject*)bufferServerToClient;
+						for (int i = 0; i < m_data->m_cachedOverlappingObjects.m_bodyUniqueIds.size(); i++)
+						{
+							overlapStorage[i].m_objectUniqueId = m_data->m_cachedOverlappingObjects.m_bodyUniqueIds[i];
+							overlapStorage[i].m_linkIndex = m_data->m_cachedOverlappingObjects.m_links[i];
+						}
+
+						serverCmd.m_type = CMD_REQUEST_AABB_OVERLAP_COMPLETED;
+
+						int m_startingOverlappingObjectIndex;
+						int m_numOverlappingObjectsCopied;
+						int m_numRemainingOverlappingObjects;
+						serverCmd.m_sendOverlappingObjectsArgs.m_startingOverlappingObjectIndex = clientCmd.m_requestOverlappingObjectsArgs.m_startingOverlappingObjectIndex;
+						serverCmd.m_sendOverlappingObjectsArgs.m_numOverlappingObjectsCopied = m_data->m_cachedOverlappingObjects.m_bodyUniqueIds.size();
+						serverCmd.m_sendOverlappingObjectsArgs.m_numRemainingOverlappingObjects = remainingObjects - curNumObjects;
+					}
+					else
+					{
+						serverCmd.m_type = CMD_REQUEST_AABB_OVERLAP_FAILED;
+					}
+
+					hasStatus = true;
+					break;
+				}
                 case CMD_REQUEST_CONTACT_POINT_INFORMATION:
                     {
                         SharedMemoryStatus& serverCmd =serverStatusOut;
                         serverCmd.m_sendContactPointArgs.m_numContactPointsCopied = 0;
                         
                         //make a snapshot of the contact manifolds into individual contact points
-                        if (clientCmd.m_requestContactPointArguments.m_startingContactPointIndex==0)
-                        {
-                            int numContactManifolds = m_data->m_dynamicsWorld->getDispatcher()->getNumManifolds();
+						if (clientCmd.m_requestContactPointArguments.m_startingContactPointIndex == 0)
+						{
 							m_data->m_cachedContactPoints.resize(0);
-							m_data->m_cachedContactPoints.reserve(numContactManifolds*4);
-                            for (int i=0;i<numContactManifolds;i++)
-                            {
-								const btPersistentManifold* manifold =  m_data->m_dynamicsWorld->getDispatcher()->getInternalManifoldPointer()[i];
-                                int linkIndexA = -1;
-                                int linkIndexB = -1;
-                                
-								int objectIndexB = -1;
 
-								const btRigidBody* bodyB = btRigidBody::upcast(manifold->getBody1());
-								if (bodyB)
+							int mode = CONTACT_QUERY_MODE_REPORT_EXISTING_CONTACT_POINTS;
+
+							if (clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_QUERY_MODE)
+							{
+								mode = clientCmd.m_requestContactPointArguments.m_mode;
+							}
+
+							switch (mode)
+							{
+							case CONTACT_QUERY_MODE_REPORT_EXISTING_CONTACT_POINTS:
+							{
+								int numContactManifolds = m_data->m_dynamicsWorld->getDispatcher()->getNumManifolds();
+								m_data->m_cachedContactPoints.reserve(numContactManifolds * 4);
+								for (int i = 0; i < numContactManifolds; i++)
 								{
-									objectIndexB = bodyB->getUserIndex2();
-								}
-								const btMultiBodyLinkCollider* mblB = btMultiBodyLinkCollider::upcast(manifold->getBody1());
-								if (mblB && mblB->m_multiBody)
-								{
-                                    linkIndexB = mblB->m_link;
-									objectIndexB = mblB->m_multiBody->getUserIndex2();
-								}
+									const btPersistentManifold* manifold = m_data->m_dynamicsWorld->getDispatcher()->getInternalManifoldPointer()[i];
+									int linkIndexA = -1;
+									int linkIndexB = -1;
 
-								int objectIndexA = -1;
-								const btRigidBody* bodyA = btRigidBody::upcast(manifold->getBody0());
-								if (bodyA)
-								{
-									objectIndexA  = bodyA->getUserIndex2();
-								}
-								const btMultiBodyLinkCollider* mblA = btMultiBodyLinkCollider::upcast(manifold->getBody0());
-								if (mblA && mblA->m_multiBody)
-								{
-                                    linkIndexA = mblA->m_link;
+									int objectIndexB = -1;
 
-									objectIndexA = mblA->m_multiBody->getUserIndex2();
-								}
-
-								btAssert(bodyA || mblA);
-
-								//apply the filter, if the user provides it
-								if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter>=0)
-								{
-									if ((clientCmd.m_requestContactPointArguments.m_objectAIndexFilter != objectIndexA) &&
-										(clientCmd.m_requestContactPointArguments.m_objectAIndexFilter != objectIndexB))
-									continue;
-								}
-
-                                //apply the second object filter, if the user provides it
-								if (clientCmd.m_requestContactPointArguments.m_objectBIndexFilter>=0)
-								{
-									if ((clientCmd.m_requestContactPointArguments.m_objectBIndexFilter != objectIndexA) &&
-										(clientCmd.m_requestContactPointArguments.m_objectBIndexFilter != objectIndexB))
-									continue;
-								}
-
-								for (int p=0;p<manifold->getNumContacts();p++)
-								{
-
-									b3ContactPointData pt;
-									pt.m_bodyUniqueIdA = objectIndexA;
-									pt.m_bodyUniqueIdB = objectIndexB;
-									const btManifoldPoint& srcPt = manifold->getContactPoint(p);
-									pt.m_contactDistance = srcPt.getDistance();
-									pt.m_contactFlags = 0;
-									pt.m_linkIndexA = linkIndexA;
-									pt.m_linkIndexB = linkIndexB;
-									for (int j=0;j<3;j++)
+									const btRigidBody* bodyB = btRigidBody::upcast(manifold->getBody1());
+									if (bodyB)
 									{
-										pt.m_contactNormalOnBInWS[j] = srcPt.m_normalWorldOnB[j];
-										pt.m_positionOnAInWS[j] = srcPt.getPositionWorldOnA()[j];
-										pt.m_positionOnBInWS[j] = srcPt.getPositionWorldOnB()[j];
+										objectIndexB = bodyB->getUserIndex2();
 									}
-                                    pt.m_normalForce = srcPt.getAppliedImpulse()/m_data->m_physicsDeltaTime;
-//                                    pt.m_linearFrictionForce = srcPt.m_appliedImpulseLateral1;
-									m_data->m_cachedContactPoints.push_back (pt);
+									const btMultiBodyLinkCollider* mblB = btMultiBodyLinkCollider::upcast(manifold->getBody1());
+									if (mblB && mblB->m_multiBody)
+									{
+										linkIndexB = mblB->m_link;
+										objectIndexB = mblB->m_multiBody->getUserIndex2();
+									}
+
+									int objectIndexA = -1;
+									const btRigidBody* bodyA = btRigidBody::upcast(manifold->getBody0());
+									if (bodyA)
+									{
+										objectIndexA = bodyA->getUserIndex2();
+									}
+									const btMultiBodyLinkCollider* mblA = btMultiBodyLinkCollider::upcast(manifold->getBody0());
+									if (mblA && mblA->m_multiBody)
+									{
+										linkIndexA = mblA->m_link;
+
+										objectIndexA = mblA->m_multiBody->getUserIndex2();
+									}
+
+									btAssert(bodyA || mblA);
+
+									//apply the filter, if the user provides it
+									if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter >= 0)
+									{
+										if ((clientCmd.m_requestContactPointArguments.m_objectAIndexFilter != objectIndexA) &&
+											(clientCmd.m_requestContactPointArguments.m_objectAIndexFilter != objectIndexB))
+											continue;
+									}
+
+									//apply the second object filter, if the user provides it
+									if (clientCmd.m_requestContactPointArguments.m_objectBIndexFilter >= 0)
+									{
+										if ((clientCmd.m_requestContactPointArguments.m_objectBIndexFilter != objectIndexA) &&
+											(clientCmd.m_requestContactPointArguments.m_objectBIndexFilter != objectIndexB))
+											continue;
+									}
+
+									for (int p = 0; p < manifold->getNumContacts(); p++)
+									{
+
+										b3ContactPointData pt;
+										pt.m_bodyUniqueIdA = objectIndexA;
+										pt.m_bodyUniqueIdB = objectIndexB;
+										const btManifoldPoint& srcPt = manifold->getContactPoint(p);
+										pt.m_contactDistance = srcPt.getDistance();
+										pt.m_contactFlags = 0;
+										pt.m_linkIndexA = linkIndexA;
+										pt.m_linkIndexB = linkIndexB;
+										for (int j = 0; j < 3; j++)
+										{
+											pt.m_contactNormalOnBInWS[j] = srcPt.m_normalWorldOnB[j];
+											pt.m_positionOnAInWS[j] = srcPt.getPositionWorldOnA()[j];
+											pt.m_positionOnBInWS[j] = srcPt.getPositionWorldOnB()[j];
+										}
+										pt.m_normalForce = srcPt.getAppliedImpulse() / m_data->m_physicsDeltaTime;
+										//                                    pt.m_linearFrictionForce = srcPt.m_appliedImpulseLateral1;
+										m_data->m_cachedContactPoints.push_back(pt);
+									}
 								}
-                            }
-                        }
+								break;
+							}
+						
+							case CONTACT_QUERY_MODE_COMPUTE_CLOSEST_POINTS:
+							{
+								//todo(erwincoumans) compute closest points between all, and vs all, pair
+								btScalar closestDistanceThreshold = 0.f;
+
+								if (clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_CLOSEST_DISTANCE_THRESHOLD)
+								{
+									closestDistanceThreshold = clientCmd.m_requestContactPointArguments.m_closestDistanceThreshold;
+								}
+								
+								int bodyUniqueIdA = clientCmd.m_requestContactPointArguments.m_objectAIndexFilter;
+								int bodyUniqueIdB = clientCmd.m_requestContactPointArguments.m_objectBIndexFilter;
+
+								btAlignedObjectArray<btCollisionObject*> setA;
+								btAlignedObjectArray<btCollisionObject*> setB;
+								btAlignedObjectArray<int> setALinkIndex;
+								btAlignedObjectArray<int> setBLinkIndex;
+								
+								if (bodyUniqueIdA >= 0)
+								{
+									InteralBodyData* bodyA = m_data->getHandle(bodyUniqueIdA);
+									if (bodyA)
+									{
+										if (bodyA->m_multiBody)
+										{
+											if (bodyA->m_multiBody->getBaseCollider())
+											{
+												setA.push_back(bodyA->m_multiBody->getBaseCollider());
+												setALinkIndex.push_back(-1);
+											}
+											for (int i = 0; i < bodyA->m_multiBody->getNumLinks(); i++)
+											{
+												if (bodyA->m_multiBody->getLink(i).m_collider)
+												{
+													setA.push_back(bodyA->m_multiBody->getLink(i).m_collider);
+													setALinkIndex.push_back(i);
+												}
+											}
+										}
+										if (bodyA->m_rigidBody)
+										{
+											setA.push_back(bodyA->m_rigidBody);
+											setALinkIndex.push_back(-1);
+										}
+									}
+								}
+								if (bodyUniqueIdB>=0)
+								{
+									InteralBodyData* bodyB = m_data->getHandle(bodyUniqueIdB);
+									if (bodyB)
+									{
+										if (bodyB->m_multiBody)
+										{
+											if (bodyB->m_multiBody->getBaseCollider())
+											{
+												setB.push_back(bodyB->m_multiBody->getBaseCollider());
+												setBLinkIndex.push_back(-1);
+											}
+											for (int i = 0; i < bodyB->m_multiBody->getNumLinks(); i++)
+											{
+												if (bodyB->m_multiBody->getLink(i).m_collider)
+												{
+													setB.push_back(bodyB->m_multiBody->getLink(i).m_collider);
+													setBLinkIndex.push_back(i);
+												}
+											}
+										}
+										if (bodyB->m_rigidBody)
+										{
+											setB.push_back(bodyB->m_rigidBody);
+											setBLinkIndex.push_back(-1);
+
+										}
+									}
+								}
+
+								{
+									///ContactResultCallback is used to report contact points
+									struct MyContactResultCallback : public btCollisionWorld::ContactResultCallback
+									{
+										//short int	m_collisionFilterGroup;
+										//short int	m_collisionFilterMask;
+										int m_bodyUniqueIdA;
+										int m_bodyUniqueIdB;
+										int m_linkIndexA;
+										int m_linkIndexB;
+										btScalar m_deltaTime;
+
+										btAlignedObjectArray<b3ContactPointData>& m_cachedContactPoints;
+
+										MyContactResultCallback(btAlignedObjectArray<b3ContactPointData>& pointCache)
+										:m_cachedContactPoints(pointCache)
+										{
+										}
+
+										virtual ~MyContactResultCallback()
+										{
+										}
+
+										virtual bool needsCollision(btBroadphaseProxy* proxy0) const
+										{
+											//bool collides = (proxy0->m_collisionFilterGroup & m_collisionFilterMask) != 0;
+											//collides = collides && (m_collisionFilterGroup & proxy0->m_collisionFilterMask);
+											//return collides;
+											return true;
+										}
+
+										virtual	btScalar	addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1)
+										{
+											b3ContactPointData pt;
+											pt.m_bodyUniqueIdA = m_bodyUniqueIdA;
+											pt.m_bodyUniqueIdB = m_bodyUniqueIdB;
+											const btManifoldPoint& srcPt = cp;
+											pt.m_contactDistance = srcPt.getDistance();
+											pt.m_contactFlags = 0;
+											pt.m_linkIndexA = m_linkIndexA;
+											pt.m_linkIndexB = m_linkIndexB;
+											for (int j = 0; j < 3; j++)
+											{
+												pt.m_contactNormalOnBInWS[j] = srcPt.m_normalWorldOnB[j];
+												pt.m_positionOnAInWS[j] = srcPt.getPositionWorldOnA()[j];
+												pt.m_positionOnBInWS[j] = srcPt.getPositionWorldOnB()[j];
+											}
+											pt.m_normalForce = srcPt.getAppliedImpulse() / m_deltaTime;
+											//                                    pt.m_linearFrictionForce = srcPt.m_appliedImpulseLateral1;
+											m_cachedContactPoints.push_back(pt);
+
+											return 1;
+										}
+									};
+
+
+									MyContactResultCallback cb(m_data->m_cachedContactPoints);
+
+									cb.m_bodyUniqueIdA = bodyUniqueIdA;
+									cb.m_bodyUniqueIdB = bodyUniqueIdB;
+									cb.m_deltaTime = m_data->m_physicsDeltaTime;
+
+									for (int i = 0; i < setA.size(); i++)
+									{
+										cb.m_linkIndexA = setALinkIndex[i];
+										for (int j = 0; j < setB.size(); j++)
+										{
+											cb.m_linkIndexB = setBLinkIndex[j];
+											cb.m_closestDistanceThreshold = closestDistanceThreshold;
+											this->m_data->m_dynamicsWorld->contactPairTest(setA[i], setB[j], cb);
+										}
+									}
+								}
+									
+									break;
+								}
+								default:
+								{
+									b3Warning("Unknown contact query mode: %d", mode);
+								}
+
+							}
+						}
                         
 						int numContactPoints = m_data->m_cachedContactPoints.size();
 						
@@ -3588,6 +3858,8 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 	{
 		m_data->m_gripperRigidbodyFixed->setFrameInB(btMatrix3x3(gVRGripperOrn));
 		m_data->m_gripperRigidbodyFixed->setPivotInB(gVRGripperPos);
+		btScalar avg = 0.f;
+
 		for (int i = 0; i < m_data->m_gripperMultiBody->getNumLinks(); i++)
 		{
 			if (supportsJointMotor(m_data->m_gripperMultiBody, i))
@@ -3598,7 +3870,14 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 					motor->setErp(0.2);
 					btScalar posTarget = 0.1 + (1 - btMin(btScalar(0.75),gVRGripperAnalog)*btScalar(1.5))*SIMD_HALF_PI*0.29;
 					btScalar maxPosTarget = 0.55;
-						
+					
+					btScalar correction = 0.f;
+
+					if (avg)
+					{
+						correction = m_data->m_gripperMultiBody->getJointPos(i) - avg;
+					}
+					
 					if (m_data->m_gripperMultiBody->getJointPos(i) < 0)
 					{
 						m_data->m_gripperMultiBody->setJointPos(i,0);
@@ -3608,10 +3887,19 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 						m_data->m_gripperMultiBody->setJointPos(i, maxPosTarget);
 					}
 
-					motor->setPositionTarget(posTarget, 1);
+					if (avg)
+					{
+						motor->setPositionTarget(avg, 1);
+					}
+					else
+					{
+						motor->setPositionTarget(posTarget, 1);
+					}
 					motor->setVelocityTarget(0, 0.5);
-					btScalar maxImp = 1*m_data->m_physicsDeltaTime;
+					btScalar maxImp = (1+0.1*i)*m_data->m_physicsDeltaTime;
 					motor->setMaxAppliedImpulse(maxImp);
+					avg = m_data->m_gripperMultiBody->getJointPos(i);
+
 					//motor->setRhsClamp(gRhsClamp);
 				}
 			}
@@ -3619,7 +3907,7 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 	}
 
 	// Inverse kinematics for KUKA
-	//if (0)
+	if (m_data->m_KukaId>=0)
 	{
 		InternalBodyHandle* bodyHandle = m_data->getHandle(m_data->m_KukaId);
 		if (bodyHandle && bodyHandle->m_multiBody && bodyHandle->m_multiBody->getNumDofs()==7)

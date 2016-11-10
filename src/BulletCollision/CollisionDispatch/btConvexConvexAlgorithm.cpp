@@ -365,7 +365,7 @@ void btConvexConvexAlgorithm ::processCollision (const btCollisionObjectWrapper*
 		//	input.m_maximumDistanceSquared = min0->getMargin() + min1->getMargin() + m_manifoldPtr->getContactProcessingThreshold();
 		//} else
 		//{
-		input.m_maximumDistanceSquared = min0->getMargin() + min1->getMargin() + m_manifoldPtr->getContactBreakingThreshold();
+		input.m_maximumDistanceSquared = min0->getMargin() + min1->getMargin() + m_manifoldPtr->getContactBreakingThreshold()+resultOut->m_closestPointDistanceThreshold;
 //		}
 
 		input.m_maximumDistanceSquared*= input.m_maximumDistanceSquared;

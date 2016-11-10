@@ -161,6 +161,13 @@ struct	btCompoundCompoundLeafCallback : btDbvt::ICollide
 		childShape0->getAabb(newChildWorldTrans0,aabbMin0,aabbMax0);
 		childShape1->getAabb(newChildWorldTrans1,aabbMin1,aabbMax1);
 		
+		btVector3 thresholdVec(m_resultOut->m_closestPointDistanceThreshold, m_resultOut->m_closestPointDistanceThreshold, m_resultOut->m_closestPointDistanceThreshold);
+
+		aabbMin0 -= thresholdVec;
+		aabbMin1 -= thresholdVec;
+		aabbMax0 += thresholdVec;
+		aabbMax1 += thresholdVec;
+
 		if (gCompoundCompoundChildShapePairCallback)
 		{
 			if (!gCompoundCompoundChildShapePairCallback(childShape0,childShape1))
@@ -217,10 +224,12 @@ struct	btCompoundCompoundLeafCallback : btDbvt::ICollide
 
 
 static DBVT_INLINE bool		MyIntersect(	const btDbvtAabbMm& a,
-								  const btDbvtAabbMm& b, const btTransform& xform)
+								  const btDbvtAabbMm& b, const btTransform& xform, btScalar distanceThreshold)
 {
 	btVector3 newmin,newmax;
 	btTransformAabb(b.Mins(),b.Maxs(),0.f,xform,newmin,newmax);
+	newmin -= btVector3(distanceThreshold, distanceThreshold, distanceThreshold);
+	newmax += btVector3(distanceThreshold, distanceThreshold, distanceThreshold);
 	btDbvtAabbMm newb = btDbvtAabbMm::FromMM(newmin,newmax);
 	return Intersect(a,newb);
 }
@@ -229,7 +238,7 @@ static DBVT_INLINE bool		MyIntersect(	const btDbvtAabbMm& a,
 static inline void		MycollideTT(	const btDbvtNode* root0,
 								  const btDbvtNode* root1,
 								  const btTransform& xform,
-								  btCompoundCompoundLeafCallback* callback)
+								  btCompoundCompoundLeafCallback* callback, btScalar distanceThreshold)
 {
 
 		if(root0&&root1)
@@ -241,7 +250,7 @@ static inline void		MycollideTT(	const btDbvtNode* root0,
 			stkStack[0]=btDbvt::sStkNN(root0,root1);
 			do	{
 				btDbvt::sStkNN	p=stkStack[--depth];
-				if(MyIntersect(p.a->volume,p.b->volume,xform))
+				if(MyIntersect(p.a->volume,p.b->volume,xform, distanceThreshold))
 				{
 					if(depth>treshold)
 					{
@@ -343,7 +352,7 @@ void btCompoundCompoundCollisionAlgorithm::processCollision (const btCollisionOb
 
 
 	const btTransform	xform=col0ObjWrap->getWorldTransform().inverse()*col1ObjWrap->getWorldTransform();
-	MycollideTT(tree0->m_root,tree1->m_root,xform,&callback);
+	MycollideTT(tree0->m_root,tree1->m_root,xform,&callback, resultOut->m_closestPointDistanceThreshold);
 
 	//printf("#compound-compound child/leaf overlap =%d                      \r",callback.m_numOverlapPairs);
 
@@ -383,7 +392,9 @@ void btCompoundCompoundCollisionAlgorithm::processCollision (const btCollisionOb
 					newChildWorldTrans0 = orgTrans0*childTrans0 ;
 					childShape0->getAabb(newChildWorldTrans0,aabbMin0,aabbMax0);
 				}
-
+				btVector3 thresholdVec(resultOut->m_closestPointDistanceThreshold, resultOut->m_closestPointDistanceThreshold, resultOut->m_closestPointDistanceThreshold);
+				aabbMin0 -= thresholdVec;
+				aabbMax0 += thresholdVec;
 				{
 					btTransform	orgInterpolationTrans1;
 					const btCollisionShape* childShape1 = 0;
@@ -398,7 +409,8 @@ void btCompoundCompoundCollisionAlgorithm::processCollision (const btCollisionOb
 					childShape1->getAabb(newChildWorldTrans1,aabbMin1,aabbMax1);
 				}
 				
-				
+				aabbMin1 -= thresholdVec;
+				aabbMax1 += thresholdVec;
 
 				if (!TestAabbAgainstAabb2(aabbMin0,aabbMax0,aabbMin1,aabbMax1))
 				{

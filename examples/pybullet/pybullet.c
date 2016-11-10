@@ -680,6 +680,11 @@ static int pybullet_internalGetBasePositionAndOrientation(
   baseOrientation[2] = 0.;
   baseOrientation[3] = 1.;
 
+  if (0 == sm) {
+	  PyErr_SetString(SpamError, "Not connected to physics server.");
+	  return 0;
+  }
+
   {
     {
       b3SharedMemoryCommandHandle cmd_handle =
@@ -1352,6 +1357,10 @@ static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args)
 	int i;
 	PyObject* pyResultList = 0;
 
+	if (0 == sm) {
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
 	if (size == 1) 
 	{
 		if (!PyArg_ParseTuple(args, "i", &objectUniqueId)) {
@@ -1450,6 +1459,11 @@ static PyObject* pybullet_resetVisualShapeData(PyObject* self, PyObject* args)
     b3SharedMemoryStatusHandle statusHandle;
     int statusType;
     
+	if (0 == sm) {
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
     if (size == 4)
     {
         if (!PyArg_ParseTuple(args, "iiii", &objectUniqueId, &jointIndex, &shapeIndex, &textureUniqueId)) {
@@ -1487,6 +1501,11 @@ static PyObject* pybullet_loadTexture(PyObject* self, PyObject* args)
     b3SharedMemoryStatusHandle statusHandle;
     int statusType;
     
+	if (0 == sm) {
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
     if (size == 1)
     {
         if (!PyArg_ParseTuple(args, "s", &filename)) {
@@ -1516,38 +1535,10 @@ static PyObject* pybullet_loadTexture(PyObject* self, PyObject* args)
     return Py_None;
 }
 
-static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args) {
-  int size = PySequence_Size(args);
-  int objectUniqueIdA = -1;
-  int objectUniqueIdB = -1;
-  b3SharedMemoryCommandHandle commandHandle;
-  struct b3ContactInformation contactPointData;
-  b3SharedMemoryStatusHandle statusHandle;
-  int statusType;
-  int i;
-  PyObject* pyResultList = 0;
 
-  if (size == 1) {
-    if (!PyArg_ParseTuple(args, "i", &objectUniqueIdA)) {
-      PyErr_SetString(SpamError, "Error parsing object unique id");
-      return NULL;
-    }
-  }
-  if (size == 2) {
-    if (!PyArg_ParseTuple(args, "ii", &objectUniqueIdA, &objectUniqueIdB)) {
-      PyErr_SetString(SpamError, "Error parsing object unique id");
-      return NULL;
-    }
-  }
-
-  commandHandle = b3InitRequestContactPointInformation(sm);
-  b3SetContactFilterBodyA(commandHandle, objectUniqueIdA);
-  b3SetContactFilterBodyB(commandHandle, objectUniqueIdB);
-  
-  statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
-  statusType = b3GetStatusType(statusHandle);
-  if (statusType == CMD_CONTACT_POINT_INFORMATION_COMPLETED) {
-    /*
+static PyObject* MyConvertContactPoint( struct b3ContactInformation* contactPointPtr)
+{
+	 /*
      0     int m_contactFlags;
      1     int m_bodyUniqueIdA;
      2     int m_bodyUniqueIdB;
@@ -1565,66 +1556,208 @@ static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args) {
      15    double m_normalForce;
      */
 
-    b3GetContactPointInformation(sm, &contactPointData);
-    pyResultList = PyTuple_New(contactPointData.m_numContactPoints);
-    for (i = 0; i < contactPointData.m_numContactPoints; i++) {
+	int i;
+
+	PyObject* pyResultList = PyTuple_New(contactPointPtr->m_numContactPoints);
+    for (i = 0; i < contactPointPtr->m_numContactPoints; i++) {
       PyObject* contactObList = PyTuple_New(16);  // see above 16 fields
       PyObject* item;
       item =
-          PyInt_FromLong(contactPointData.m_contactPointData[i].m_contactFlags);
+          PyInt_FromLong(contactPointPtr->m_contactPointData[i].m_contactFlags);
       PyTuple_SetItem(contactObList, 0, item);
       item = PyInt_FromLong(
-          contactPointData.m_contactPointData[i].m_bodyUniqueIdA);
+          contactPointPtr->m_contactPointData[i].m_bodyUniqueIdA);
       PyTuple_SetItem(contactObList, 1, item);
       item = PyInt_FromLong(
-          contactPointData.m_contactPointData[i].m_bodyUniqueIdB);
+          contactPointPtr->m_contactPointData[i].m_bodyUniqueIdB);
       PyTuple_SetItem(contactObList, 2, item);
       item =
-          PyInt_FromLong(contactPointData.m_contactPointData[i].m_linkIndexA);
+          PyInt_FromLong(contactPointPtr->m_contactPointData[i].m_linkIndexA);
       PyTuple_SetItem(contactObList, 3, item);
       item =
-          PyInt_FromLong(contactPointData.m_contactPointData[i].m_linkIndexB);
+          PyInt_FromLong(contactPointPtr->m_contactPointData[i].m_linkIndexB);
       PyTuple_SetItem(contactObList, 4, item);
       item = PyFloat_FromDouble(
-          contactPointData.m_contactPointData[i].m_positionOnAInWS[0]);
+          contactPointPtr->m_contactPointData[i].m_positionOnAInWS[0]);
       PyTuple_SetItem(contactObList, 5, item);
       item = PyFloat_FromDouble(
-          contactPointData.m_contactPointData[i].m_positionOnAInWS[1]);
+          contactPointPtr->m_contactPointData[i].m_positionOnAInWS[1]);
       PyTuple_SetItem(contactObList, 6, item);
       item = PyFloat_FromDouble(
-          contactPointData.m_contactPointData[i].m_positionOnAInWS[2]);
+          contactPointPtr->m_contactPointData[i].m_positionOnAInWS[2]);
       PyTuple_SetItem(contactObList, 7, item);
 
       item = PyFloat_FromDouble(
-          contactPointData.m_contactPointData[i].m_positionOnBInWS[0]);
+          contactPointPtr->m_contactPointData[i].m_positionOnBInWS[0]);
       PyTuple_SetItem(contactObList, 8, item);
       item = PyFloat_FromDouble(
-          contactPointData.m_contactPointData[i].m_positionOnBInWS[1]);
+          contactPointPtr->m_contactPointData[i].m_positionOnBInWS[1]);
       PyTuple_SetItem(contactObList, 9, item);
       item = PyFloat_FromDouble(
-          contactPointData.m_contactPointData[i].m_positionOnBInWS[2]);
+          contactPointPtr->m_contactPointData[i].m_positionOnBInWS[2]);
       PyTuple_SetItem(contactObList, 10, item);
 
       item = PyFloat_FromDouble(
-          contactPointData.m_contactPointData[i].m_contactNormalOnBInWS[0]);
+          contactPointPtr->m_contactPointData[i].m_contactNormalOnBInWS[0]);
       PyTuple_SetItem(contactObList, 11, item);
       item = PyFloat_FromDouble(
-          contactPointData.m_contactPointData[i].m_contactNormalOnBInWS[1]);
+          contactPointPtr->m_contactPointData[i].m_contactNormalOnBInWS[1]);
       PyTuple_SetItem(contactObList, 12, item);
       item = PyFloat_FromDouble(
-          contactPointData.m_contactPointData[i].m_contactNormalOnBInWS[2]);
+          contactPointPtr->m_contactPointData[i].m_contactNormalOnBInWS[2]);
       PyTuple_SetItem(contactObList, 13, item);
 
       item = PyFloat_FromDouble(
-          contactPointData.m_contactPointData[i].m_contactDistance);
+          contactPointPtr->m_contactPointData[i].m_contactDistance);
       PyTuple_SetItem(contactObList, 14, item);
       item = PyFloat_FromDouble(
-          contactPointData.m_contactPointData[i].m_normalForce);
+          contactPointPtr->m_contactPointData[i].m_normalForce);
       PyTuple_SetItem(contactObList, 15, item);
 
       PyTuple_SetItem(pyResultList, i, contactObList);
     }
     return pyResultList;
+}
+
+static PyObject* pybullet_getOverlappingObjects(PyObject* self, PyObject* args, PyObject *keywds)
+{
+	PyObject* aabbMinOb=0, *aabbMaxOb=0;
+	double aabbMin[3];
+	double aabbMax[3];
+	b3SharedMemoryCommandHandle commandHandle;
+	b3SharedMemoryStatusHandle statusHandle;
+	struct b3AABBOverlapData overlapData;
+	int i;
+
+	static char *kwlist[] = { "aabbMin", "aabbMax", NULL };
+	if (0 == sm) {
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO", kwlist,
+		&aabbMinOb, &aabbMaxOb))
+		return NULL;
+
+	pybullet_internalSetVectord(aabbMinOb, aabbMin);
+	pybullet_internalSetVectord(aabbMaxOb, aabbMax);
+
+	commandHandle = b3InitAABBOverlapQuery(sm, aabbMin, aabbMax);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	b3GetAABBOverlapResults(sm, &overlapData);
+
+	if (overlapData.m_numOverlappingObjects)
+	{
+		PyObject* pyResultList = PyTuple_New(overlapData.m_numOverlappingObjects);
+		//For huge amount of overlap, we could use numpy instead (see camera pixel data)
+		//What would Python do with huge amount of data? Pass it onto TensorFlow!
+
+		for (i = 0; i < overlapData.m_numOverlappingObjects; i++) {
+			PyObject* overlap = PyTuple_New(2);//body unique id and link index
+
+			PyObject* item;
+			item =
+				PyInt_FromLong(overlapData.m_overlappingObjects[i].m_objectUniqueId);
+			PyTuple_SetItem(overlap, 0, item);
+			item =
+				PyInt_FromLong(overlapData.m_overlappingObjects[i].m_linkIndex);
+			PyTuple_SetItem(overlap, 1, item);
+			PyTuple_SetItem(pyResultList, i, overlap);
+		}
+
+		return pyResultList;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
+static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, PyObject *keywds) 
+{
+  int size = PySequence_Size(args);
+  int bodyUniqueIdA = -1;
+  int bodyUniqueIdB = -1;
+  double distanceThreshold = 0.f;
+
+  b3SharedMemoryCommandHandle commandHandle;
+  struct b3ContactInformation contactPointData;
+  b3SharedMemoryStatusHandle statusHandle;
+  int statusType;
+  PyObject* pyResultList = 0;
+
+
+  static char *kwlist[] = { "bodyA", "bodyB", "distance", NULL };
+
+  if (0 == sm) {
+	  PyErr_SetString(SpamError, "Not connected to physics server.");
+	  return NULL;
+  }
+
+  if (!PyArg_ParseTupleAndKeywords(args, keywds, "iid", kwlist,
+	  &bodyUniqueIdA, &bodyUniqueIdB, &distanceThreshold))
+	  return NULL;
+
+
+  commandHandle = b3InitClosestDistanceQuery(sm);
+  b3SetClosestDistanceFilterBodyA(commandHandle, bodyUniqueIdA);
+  b3SetClosestDistanceFilterBodyB(commandHandle, bodyUniqueIdB);
+  b3SetClosestDistanceThreshold(commandHandle, distanceThreshold);
+  
+
+  statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+  statusType = b3GetStatusType(statusHandle);
+  if (statusType == CMD_CONTACT_POINT_INFORMATION_COMPLETED) {
+   
+
+    b3GetContactPointInformation(sm, &contactPointData);
+
+	return MyConvertContactPoint(&contactPointData);
+    
+  }
+
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
+
+static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args, PyObject *keywds) {
+  int size = PySequence_Size(args);
+  int bodyUniqueIdA = -1;
+  int bodyUniqueIdB = -1;
+  
+  b3SharedMemoryCommandHandle commandHandle;
+  struct b3ContactInformation contactPointData;
+  b3SharedMemoryStatusHandle statusHandle;
+  int statusType;
+  PyObject* pyResultList = 0;
+
+
+  static char *kwlist[] = { "bodyA", "bodyB", NULL };
+
+  if (0 == sm) {
+	  PyErr_SetString(SpamError, "Not connected to physics server.");
+	  return NULL;
+  }
+
+  if (!PyArg_ParseTupleAndKeywords(args, keywds, "|ii", kwlist,
+	  &bodyUniqueIdA, &bodyUniqueIdB))
+	  return NULL;
+
+
+  commandHandle = b3InitRequestContactPointInformation(sm);
+  b3SetContactFilterBodyA(commandHandle, bodyUniqueIdA);
+  b3SetContactFilterBodyB(commandHandle, bodyUniqueIdB);
+  //b3SetContactQueryMode(commandHandle, mode);
+
+  statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+  statusType = b3GetStatusType(statusHandle);
+  if (statusType == CMD_CONTACT_POINT_INFORMATION_COMPLETED) {
+   
+    b3GetContactPointInformation(sm, &contactPointData);
+
+	return MyConvertContactPoint(&contactPointData);
+    
   }
 
   Py_INCREF(Py_None);
@@ -2447,11 +2580,21 @@ static PyMethodDef SpamMethods[] = {
 #endif
      },
 
-    {"getContactPointData", pybullet_getContactPointData, METH_VARARGS,
-     "Return the contact point information for all or some of pairwise "
-     "object-object collisions. Optional arguments one or two object unique "
+    {"getContactPoints", pybullet_getContactPointData, METH_VARARGS | METH_KEYWORDS,
+     "Return existing contact points after the stepSimulation command. "
+     "Optional arguments one or two object unique "
      "ids, that need to be involved in the contact."},
 
+	 {"getClosestPoints", pybullet_getClosestPointData, METH_VARARGS | METH_KEYWORDS,
+     "Compute the closest points between two objects, if the distance is below a given threshold."
+     "Input is two objects unique ids and distance threshold."
+     },
+
+	 { "getOverlappingObjects", pybullet_getOverlappingObjects, METH_VARARGS | METH_KEYWORDS,
+		"Return all the objects that have overlap with a given "
+		"axis-aligned bounding box volume (AABB)."
+		"Input are two vectors defining the AABB in world space [min_x,min_y,min_z],[max_x,max_y,max_z]."
+	 },
     {"getVisualShapeData", pybullet_getVisualShapeData, METH_VARARGS,
 	"Return the visual shape information for one object." },
 		 
@@ -2486,6 +2629,7 @@ static PyMethodDef SpamMethods[] = {
     // loadSnapshot
     // raycast info
     // object names
+	// collision query
 
     {NULL, NULL, 0, NULL} /* Sentinel */
 };
@@ -2540,6 +2684,9 @@ initpybullet(void)
 
   PyModule_AddIntConstant(m, "LINK_FRAME", EF_LINK_FRAME);
   PyModule_AddIntConstant(m, "WORLD_FRAME", EF_WORLD_FRAME);
+
+  PyModule_AddIntConstant(m, "CONTACT_REPORT_EXISTING", CONTACT_QUERY_MODE_REPORT_EXISTING_CONTACT_POINTS);
+  PyModule_AddIntConstant(m, "CONTACT_RECOMPUTE_CLOSEST", CONTACT_QUERY_MODE_COMPUTE_CLOSEST_POINTS);
 
   SpamError = PyErr_NewException("pybullet.error", NULL, NULL);
   Py_INCREF(SpamError);
