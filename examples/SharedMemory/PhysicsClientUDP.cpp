@@ -187,6 +187,10 @@ struct	UdpNetworkedInternalData
 				printf("%s disconected.\n", m_event.peer->data);
 
 				break;
+			default:
+					{
+						printf("unknown event type: %d.\n", m_event.type);
+					}
 			}
 		}
 		else if (serviceResult > 0)
@@ -258,6 +262,10 @@ struct	UdpNetworkedInternalData
 
 				break;
 			}
+			default:
+				{
+					printf("unknown event type: %d.\n", m_event.type);
+				}
 			}
 		}
 		else if (serviceResult > 0)
