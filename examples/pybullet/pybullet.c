@@ -197,12 +197,59 @@ static PyObject* pybullet_saveWorld(PyObject* self, PyObject* args) {
 	PyErr_SetString(SpamError, "Cannot execute saveWorld command.");
 	return NULL;
     
+}
+
+
+static PyObject* pybullet_loadBullet(PyObject* self, PyObject* args)
+{
+	int size = PySequence_Size(args);
+	const char* bulletFileName = "";
+
+	if (0 == sm) {
+		PyErr_SetString(SpamError, "Not connected to physics server.");
     return NULL;
+}
+	if (size == 1) {
+		if (!PyArg_ParseTuple(args, "s", &bulletFileName)) return NULL;
+	}
+	return NULL;
+}
+
+static PyObject* pybullet_saveBullet(PyObject* self, PyObject* args)
+{
+	int size = PySequence_Size(args);
+	const char* bulletFileName = "";
+
+	if (0 == sm) {
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+	if (size == 1) {
+		if (!PyArg_ParseTuple(args, "s", &bulletFileName)) return NULL;
+	}
+	return NULL;
 }
 
 
 
-// Load a URDF file indicating the links and joints of an object
+static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args)
+{
+	int size = PySequence_Size(args);
+	const char* mjcfjFileName = "";
+
+	if (0 == sm) {
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+	if (size == 1) {
+		if (!PyArg_ParseTuple(args, "s", &mjcfjFileName)) return NULL;
+	}
+	return NULL;
+}
+
+
+
+// Load a robot from a URDF file (universal robot description format)
 // function can be called without arguments and will default
 // to position (0,0,1) with orientation(0,0,0,1)
 // els(x,y,z) or
@@ -2515,8 +2562,17 @@ static PyMethodDef SpamMethods[] = {
     {"loadSDF", pybullet_loadSDF, METH_VARARGS,
      "Load multibodies from an SDF file."},
 
+	 { "loadBullet", pybullet_loadBullet, METH_VARARGS,
+	"Restore the full state of the world from a .bullet file." },
+
+	{ "saveBullet", pybullet_saveBullet, METH_VARARGS,
+	"Save the full state of the world to a .bullet file." },
+
+	 { "loadMJCF", pybullet_loadMJCF, METH_VARARGS,
+	"Load multibodies from an MJCF file." },
+
 	{"saveWorld", pybullet_saveWorld, METH_VARARGS,
-     "Save an approximate Python file to reproduce the current state of the world: saveWorld"
+     "Save a approximate Python file to reproduce the current state of the world: saveWorld"
 	"(filename). (very preliminary and approximately)"},
 
 	{"getNumBodies", pybullet_getNumBodies, METH_VARARGS,
