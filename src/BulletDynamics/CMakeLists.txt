@@ -22,6 +22,7 @@ SET(BulletDynamics_SRCS
 	ConstraintSolver/btUniversalConstraint.cpp
 	Dynamics/btDiscreteDynamicsWorld.cpp
 	Dynamics/btDiscreteDynamicsWorldMt.cpp
+	Dynamics/btSimulationIslandManagerMt.cpp
 	Dynamics/btRigidBody.cpp
 	Dynamics/btSimpleDynamicsWorld.cpp
 #	Dynamics/Bullet-C-API.cpp
@@ -72,6 +73,7 @@ SET(Dynamics_HDRS
 	Dynamics/btActionInterface.h
 	Dynamics/btDiscreteDynamicsWorld.h
 	Dynamics/btDiscreteDynamicsWorldMt.h
+	Dynamics/btSimulationIslandManagerMt.h
 	Dynamics/btDynamicsWorld.h
 	Dynamics/btSimpleDynamicsWorld.h
 	Dynamics/btRigidBody.h

@@ -2580,17 +2580,17 @@ static PyMethodDef SpamMethods[] = {
 #endif
      },
 
-    {"getContactPoints", pybullet_getContactPointData, METH_VARARGS | METH_KEYWORDS,
+    {"getContactPoints", (PyCFunction)pybullet_getContactPointData, METH_VARARGS | METH_KEYWORDS,
      "Return existing contact points after the stepSimulation command. "
      "Optional arguments one or two object unique "
      "ids, that need to be involved in the contact."},
 
-	 {"getClosestPoints", pybullet_getClosestPointData, METH_VARARGS | METH_KEYWORDS,
+	 {"getClosestPoints", (PyCFunction)pybullet_getClosestPointData, METH_VARARGS | METH_KEYWORDS,
      "Compute the closest points between two objects, if the distance is below a given threshold."
      "Input is two objects unique ids and distance threshold."
      },
 
-	 { "getOverlappingObjects", pybullet_getOverlappingObjects, METH_VARARGS | METH_KEYWORDS,
+	 { "getOverlappingObjects", (PyCFunction)pybullet_getOverlappingObjects, METH_VARARGS | METH_KEYWORDS,
 		"Return all the objects that have overlap with a given "
 		"axis-aligned bounding box volume (AABB)."
 		"Input are two vectors defining the AABB in world space [min_x,min_y,min_z],[max_x,max_y,max_z]."

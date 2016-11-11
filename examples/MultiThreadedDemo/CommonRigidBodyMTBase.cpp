@@ -27,7 +27,7 @@ class btCollisionShape;
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btPoolAllocator.h"
 #include "btBulletCollisionCommon.h"
-#include "BulletCollision/CollisionDispatch/btSimulationIslandManagerMt.h"  // for setSplitIslands()
+#include "BulletDynamics/Dynamics/btSimulationIslandManagerMt.h"  // for setSplitIslands()
 #include "BulletDynamics/Dynamics/btDiscreteDynamicsWorldMt.h"
 #include "BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.h"
 

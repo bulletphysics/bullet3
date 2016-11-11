@@ -33,7 +33,6 @@ SET(BulletCollision_SRCS
 	CollisionDispatch/btInternalEdgeUtility.h
 	CollisionDispatch/btManifoldResult.cpp
 	CollisionDispatch/btSimulationIslandManager.cpp
-	CollisionDispatch/btSimulationIslandManagerMt.cpp
 	CollisionDispatch/btSphereBoxCollisionAlgorithm.cpp
 	CollisionDispatch/btSphereSphereCollisionAlgorithm.cpp
 	CollisionDispatch/btSphereTriangleCollisionAlgorithm.cpp
@@ -141,7 +140,6 @@ SET(CollisionDispatch_HDRS
 	CollisionDispatch/btHashedSimplePairCache.h
 	CollisionDispatch/btManifoldResult.h
 	CollisionDispatch/btSimulationIslandManager.h
-	CollisionDispatch/btSimulationIslandManagerMt.h
 	CollisionDispatch/btSphereBoxCollisionAlgorithm.h
 	CollisionDispatch/btSphereSphereCollisionAlgorithm.h
 	CollisionDispatch/btSphereTriangleCollisionAlgorithm.h

@@ -21,7 +21,7 @@ subject to the following restrictions:
 #include "BulletCollision/BroadphaseCollision/btSimpleBroadphase.h"
 #include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
-#include "BulletCollision/CollisionDispatch/btSimulationIslandManagerMt.h"
+#include "btSimulationIslandManagerMt.h"
 #include "LinearMath/btTransformUtil.h"
 #include "LinearMath/btQuickprof.h"
 
