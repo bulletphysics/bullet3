@@ -44,7 +44,7 @@ protected:
 
 	ShapeCache*							cache(btConvexShape*);
 
-	virtual void drawSceneInternal(const btDiscreteDynamicsWorld* world, int pass);
+	virtual void drawSceneInternal(const btDiscreteDynamicsWorld* world, int pass, int cameraUpAxis);
 
 public:
 		GL_ShapeDrawer();
@@ -53,7 +53,7 @@ public:
 
 		
 
-		virtual void drawScene(const btDiscreteDynamicsWorld* world, bool useShadows);
+		virtual void drawScene(const btDiscreteDynamicsWorld* world, bool useShadows,  int cameraUpAxis);
 
 		///drawOpenGL might allocate temporary memoty, stores pointer in shape userpointer
 		virtual void		drawOpenGL(btScalar* m, const btCollisionShape* shape, const btVector3& color,int	debugMode,const btVector3& worldBoundsMin,const btVector3& worldBoundsMax);

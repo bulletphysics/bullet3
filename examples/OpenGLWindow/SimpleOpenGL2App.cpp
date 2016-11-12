@@ -70,6 +70,11 @@ struct SimpleOpenGL2AppInternalData
 {
 	GLuint m_fontTextureId;
 	GLuint m_largeFontTextureId;
+	int m_upAxis;
+	SimpleOpenGL2AppInternalData()
+		:m_upAxis(1)
+	{
+	}
 	
 };
 static GLuint BindFont2(const CTexFont *_Font)
@@ -268,10 +273,11 @@ void SimpleOpenGL2App::drawGrid(DrawGridData data)
 }
 void SimpleOpenGL2App::setUpAxis(int axis)
 {
+	this->m_data->m_upAxis = axis;
 }
 int SimpleOpenGL2App::getUpAxis() const
 {
-	return 1;
+	return this->m_data->m_upAxis;
 }
 	
 void SimpleOpenGL2App::swapBuffer()

@@ -33,6 +33,7 @@ void SimpleOpenGL2Renderer::updateCamera(int upAxis)
     float projection[16];
     float view[16];
     m_camera.setAspectRatio((float)m_width/(float)m_height);
+	m_camera.setCameraUpAxis(upAxis);
     m_camera.update();
     m_camera.getCameraProjectionMatrix(projection);
     m_camera.getCameraViewMatrix(view);

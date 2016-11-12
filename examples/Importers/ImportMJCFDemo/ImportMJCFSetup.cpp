@@ -44,7 +44,7 @@ public:
 };
 
 
-btAlignedObjectArray<std::string> gFileNameArray;
+static btAlignedObjectArray<std::string> gMCFJFileNameArray;
 
 
 #define MAX_NUM_MOTORS 1024
@@ -94,7 +94,7 @@ ImportMJCFSetup::ImportMJCFSetup(struct GUIHelperInterface* helper, int option, 
 		setFileName(fileName);
 	} else
 	{
-		gFileNameArray.clear();
+		gMCFJFileNameArray.clear();
 		
 
 
@@ -112,26 +112,26 @@ ImportMJCFSetup::ImportMJCFSetup(struct GUIHelperInterface* helper, int option, 
                 b3Printf("mjcf_files.txt entry %s",fileName);
 				if (result==1)
 				{
-					gFileNameArray.push_back(fileName);
+					gMCFJFileNameArray.push_back(fileName);
 				}
 			} while (result==1);
 
 			fclose(f);
 		}
 		
-		if (gFileNameArray.size()==0)
+		if (gMCFJFileNameArray.size()==0)
 		{
-			gFileNameArray.push_back("quadruped/quadruped.mjcf");
+			gMCFJFileNameArray.push_back("quadruped/quadruped.mjcf");
 
 		}
 
-		int numFileNames = gFileNameArray.size();
+		int numFileNames = gMCFJFileNameArray.size();
 
 		if (count>=numFileNames)
 		{
 			count=0;
 		}
-		sprintf(m_fileName,"%s",gFileNameArray[count++].c_str());
+		sprintf(m_fileName,"%s",gMCFJFileNameArray[count++].c_str());
 	}
 }
 
