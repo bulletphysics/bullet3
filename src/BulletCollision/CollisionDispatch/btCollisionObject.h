@@ -79,7 +79,7 @@ protected:
 
 	int				m_islandTag1;
 	int				m_companionId;
-    int             m_uniqueId;
+    int             m_worldArrayIndex;  // index of object in world's collisionObjects array
 
 	mutable int				m_activationState1;
 	mutable btScalar			m_deactivationTime;
@@ -456,14 +456,15 @@ public:
 		m_companionId = id;
 	}
 
-    SIMD_FORCE_INLINE int getUniqueId() const
+    SIMD_FORCE_INLINE int getWorldArrayIndex() const
     {
-        return	m_uniqueId;
+        return	m_worldArrayIndex;
     }
 
-    void	setUniqueId( int id )
+    // only should be called by CollisionWorld
+    void setWorldArrayIndex(int ix)
     {
-        m_uniqueId = id;
+        m_worldArrayIndex = ix;
     }
 
     SIMD_FORCE_INLINE btScalar			getHitFraction() const
