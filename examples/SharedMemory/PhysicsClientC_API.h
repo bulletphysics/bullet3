@@ -143,6 +143,11 @@ int	b3LoadUrdfCommandSetStartOrientation(b3SharedMemoryCommandHandle commandHand
 int	b3LoadUrdfCommandSetUseMultiBody(b3SharedMemoryCommandHandle commandHandle, int useMultiBody);
 int	b3LoadUrdfCommandSetUseFixedBase(b3SharedMemoryCommandHandle commandHandle, int useFixedBase);
 
+b3SharedMemoryCommandHandle	b3LoadBulletCommandInit(b3PhysicsClientHandle physClient, const char* fileName);
+b3SharedMemoryCommandHandle	b3SaveBulletCommandInit(b3PhysicsClientHandle physClient, const char* fileName);
+b3SharedMemoryCommandHandle	b3LoadMJCFCommandInit(b3PhysicsClientHandle physClient, const char* fileName);
+
+
 
 ///compute the forces to achieve an acceleration, given a state q and qdot using inverse dynamics
 b3SharedMemoryCommandHandle	b3CalculateInverseDynamicsCommandInit(b3PhysicsClientHandle physClient, int bodyIndex,
@@ -243,6 +248,7 @@ b3SharedMemoryCommandHandle b3ApplyExternalForceCommandInit(b3PhysicsClientHandl
 void b3ApplyExternalForce(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkId, const double force[3], const double position[3], int flags);
 void b3ApplyExternalTorque(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkId, const double torque[3], int flags);
     
+///experiments of robots interacting with non-rigid objects (such as btSoftBody)
 b3SharedMemoryCommandHandle	b3LoadBunnyCommandInit(b3PhysicsClientHandle physClient);
 int b3LoadBunnySetScale(b3SharedMemoryCommandHandle commandHandle, double scale);
 int b3LoadBunnySetMass(b3SharedMemoryCommandHandle commandHandle, double mass);

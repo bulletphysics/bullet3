@@ -204,21 +204,38 @@ static PyObject* pybullet_loadBullet(PyObject* self, PyObject* args)
 {
 	int size = PySequence_Size(args);
 	const char* bulletFileName = "";
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	b3SharedMemoryCommandHandle command;
+
 
 	if (0 == sm) {
 		PyErr_SetString(SpamError, "Not connected to physics server.");
-    return NULL;
+		return NULL;
 }
 	if (size == 1) {
 		if (!PyArg_ParseTuple(args, "s", &bulletFileName)) return NULL;
 	}
-	return NULL;
+
+	command = b3LoadBulletCommandInit(sm, bulletFileName);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	statusType = b3GetStatusType(statusHandle);
+	if (statusType != CMD_BULLET_LOADING_COMPLETED)
+	{
+		PyErr_SetString(SpamError, "Couldn't load .bullet file.");
+		return NULL;
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 static PyObject* pybullet_saveBullet(PyObject* self, PyObject* args)
 {
 	int size = PySequence_Size(args);
 	const char* bulletFileName = "";
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	b3SharedMemoryCommandHandle command;
 
 	if (0 == sm) {
 		PyErr_SetString(SpamError, "Not connected to physics server.");
@@ -227,7 +244,15 @@ static PyObject* pybullet_saveBullet(PyObject* self, PyObject* args)
 	if (size == 1) {
 		if (!PyArg_ParseTuple(args, "s", &bulletFileName)) return NULL;
 	}
-	return NULL;
+	command = b3SaveBulletCommandInit(sm, bulletFileName);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	if (statusHandle != CMD_BULLET_SAVING_COMPLETED)
+	{
+		PyErr_SetString(SpamError, "Couldn't save .bullet file.");
+		return NULL;
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 
@@ -236,6 +261,9 @@ static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args)
 {
 	int size = PySequence_Size(args);
 	const char* mjcfjFileName = "";
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	b3SharedMemoryCommandHandle command;
 
 	if (0 == sm) {
 		PyErr_SetString(SpamError, "Not connected to physics server.");
@@ -244,7 +272,15 @@ static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args)
 	if (size == 1) {
 		if (!PyArg_ParseTuple(args, "s", &mjcfjFileName)) return NULL;
 	}
-	return NULL;
+	command = b3LoadMJCFCommandInit(sm, mjcfjFileName);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	if (statusHandle != CMD_MJCF_LOADING_COMPLETED)
+	{
+		PyErr_SetString(SpamError, "Couldn't load .mjcf file.");
+		return NULL;
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 

@@ -3371,6 +3371,76 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     break;
                 }
 
+				case CMD_LOAD_BULLET:
+				{
+					
+					SharedMemoryStatus& serverCmd = serverStatusOut;
+					btBulletWorldImporter* importer = new btBulletWorldImporter(m_data->m_dynamicsWorld);
+
+					const char* prefix[] = { "", "./", "./data/", "../data/", "../../data/", "../../../data/", "../../../../data/" };
+					int numPrefixes = sizeof(prefix) / sizeof(const char*);
+					char relativeFileName[1024];
+					FILE* f = 0;
+					bool found = false;
+
+					for (int i = 0; !f && i<numPrefixes; i++)
+					{
+						sprintf(relativeFileName, "%s%s", prefix[i], clientCmd.m_fileArguments.m_fileName);
+						f = fopen(relativeFileName, "rb");
+						if (f)
+						{
+							found = true;
+							break;
+						}
+					}
+					if (f)
+					{
+						fclose(f);
+					}
+
+					if (found)
+					{
+						bool ok = importer->loadFile(relativeFileName);
+						if (ok)
+						{
+							serverCmd.m_type = CMD_BULLET_LOADING_COMPLETED;
+							m_data->m_guiHelper->autogenerateGraphicsObjects(m_data->m_dynamicsWorld);
+							hasStatus = true;
+							break;
+						}
+					}
+					serverCmd.m_type = CMD_BULLET_LOADING_FAILED;
+					hasStatus = true;
+					break;
+				}
+
+				case CMD_SAVE_BULLET:
+				{
+					SharedMemoryStatus& serverCmd = serverStatusOut;
+					
+					FILE* f = fopen(clientCmd.m_fileArguments.m_fileName, "wb");
+					if (f)
+					{
+						btDefaultSerializer* ser = new btDefaultSerializer();
+						m_data->m_dynamicsWorld->serialize(ser);
+						fwrite(ser->getBufferPointer(), ser->getCurrentBufferSize(), 1, f);
+						fclose(f);
+						serverCmd.m_type = CMD_BULLET_SAVING_COMPLETED;
+						delete ser;
+					}
+					serverCmd.m_type = CMD_BULLET_SAVING_FAILED;
+					hasStatus = true;
+					break;
+				}
+
+				case CMD_LOAD_MJCF:
+				{
+					SharedMemoryStatus& serverCmd = serverStatusOut;
+					serverCmd.m_type = CMD_MJCF_LOADING_FAILED;
+					hasStatus = true;
+					break;
+				}
+				
                 default:
                 {
                     b3Error("Unknown command encountered");

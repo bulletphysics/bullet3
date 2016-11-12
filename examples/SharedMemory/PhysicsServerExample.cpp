@@ -74,6 +74,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIHelperCreateRigidBodyGraphicsObject,
 	eGUIHelperRemoveAllGraphicsInstances,
 	eGUIHelperCopyCameraImageData,
+	eGUIHelperAutogenerateGraphicsObjects,
 };
 
 #include <stdio.h>
@@ -530,8 +531,18 @@ public:
 	}
 	
 
+	btDiscreteDynamicsWorld* m_dynamicsWorld;
+
 	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld) 
 	{
+		m_dynamicsWorld = rbWorld;
+		m_cs->lock();
+		m_cs->setSharedParam(1, eGUIHelperAutogenerateGraphicsObjects);
+		m_cs->unlock();
+		while (m_cs->getSharedParam(1) != eGUIHelperIdle)
+		{
+			b3Clock::usleep(1000);
+		}
 	}
     
 	virtual void drawText3D( const char* txt, float posX, float posZY, float posZ, float size)
@@ -916,6 +927,14 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
             m_multiThreadedHelper->getCriticalSection()->unlock();
             break;
         }
+	case eGUIHelperAutogenerateGraphicsObjects:
+	{
+		m_multiThreadedHelper->m_childGuiHelper->autogenerateGraphicsObjects(m_multiThreadedHelper->m_dynamicsWorld);
+		m_multiThreadedHelper->getCriticalSection()->lock();
+		m_multiThreadedHelper->getCriticalSection()->setSharedParam(1, eGUIHelperIdle);
+		m_multiThreadedHelper->getCriticalSection()->unlock();
+		break;
+	}
 	case eGUIHelperIdle:
 	default:
 		{

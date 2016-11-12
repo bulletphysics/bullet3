@@ -662,10 +662,19 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 		}
 		break;
 	}
+	case CMD_BULLET_LOADING_FAILED:
+	{
+		b3Warning("Couldn't load .bullet file");
+		break;
+	}
+	case CMD_BULLET_LOADING_COMPLETED:
+	{
+		break;
+	}
 
 	default:
 	{
-		// b3Error("Unknown server status type");
+		b3Warning("Unknown server status type");
 	}
 	};
 

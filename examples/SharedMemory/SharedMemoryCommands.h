@@ -67,6 +67,11 @@ struct SdfArgs
     int m_useMultiBody;
 };
 
+struct FileArgs
+{
+	char m_fileName[MAX_URDF_FILENAME_LENGTH];
+};
+
 enum EnumUrdfArgsUpdateFlags
 {
 	URDF_ARGS_FILE_NAME=1,
@@ -509,6 +514,7 @@ struct SharedMemoryCommand
     {
         struct UrdfArgs m_urdfArguments;
 		struct SdfArgs m_sdfArguments;
+		struct FileArgs m_fileArguments;
 		struct SdfRequestInfoArgs m_sdfRequestInfoArgs;
 		struct InitPoseArgs m_initPoseArgs;
 		struct SendPhysicsSimulationParameters m_physSimParamArgs;

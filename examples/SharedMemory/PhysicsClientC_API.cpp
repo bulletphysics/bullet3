@@ -79,6 +79,87 @@ b3SharedMemoryCommandHandle	b3LoadUrdfCommandInit(b3PhysicsClientHandle physClie
 	return 0;
 }
 
+b3SharedMemoryCommandHandle	b3LoadBulletCommandInit(b3PhysicsClientHandle physClient, const char* fileName)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+
+	if (cl->canSubmitCommand())
+	{
+		struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+		b3Assert(command);
+		command->m_type = CMD_LOAD_BULLET;
+		int len = strlen(fileName);
+		if (len < MAX_URDF_FILENAME_LENGTH)
+		{
+			strcpy(command->m_fileArguments.m_fileName, fileName);
+		}
+		else
+		{
+			command->m_fileArguments.m_fileName[0] = 0;
+		}
+		command->m_updateFlags = 0;
+
+		return (b3SharedMemoryCommandHandle)command;
+	}
+	return 0;
+}
+
+b3SharedMemoryCommandHandle	b3SaveBulletCommandInit(b3PhysicsClientHandle physClient, const char* fileName)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+
+	if (cl->canSubmitCommand())
+	{
+		struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+		b3Assert(command);
+		command->m_type = CMD_SAVE_BULLET;
+		int len = strlen(fileName);
+		if (len < MAX_URDF_FILENAME_LENGTH)
+		{
+			strcpy(command->m_fileArguments.m_fileName, fileName);
+		}
+		else
+		{
+			command->m_fileArguments.m_fileName[0] = 0;
+		}
+		command->m_updateFlags = 0;
+
+		return (b3SharedMemoryCommandHandle)command;
+	}
+	return 0;
+}
+b3SharedMemoryCommandHandle	b3LoadMJCFCommandInit(b3PhysicsClientHandle physClient, const char* fileName)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+
+	if (cl->canSubmitCommand())
+	{
+		struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+		b3Assert(command);
+		command->m_type = CMD_LOAD_MJCF;
+		int len = strlen(fileName);
+		if (len < MAX_URDF_FILENAME_LENGTH)
+		{
+			strcpy(command->m_fileArguments.m_fileName, fileName);
+		}
+		else
+		{
+			command->m_fileArguments.m_fileName[0] = 0;
+		}
+		command->m_updateFlags = 0;
+
+		return (b3SharedMemoryCommandHandle)command;
+	}
+	return 0;
+}
+
+
 b3SharedMemoryCommandHandle	b3LoadBunnyCommandInit(b3PhysicsClientHandle physClient)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;
