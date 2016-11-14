@@ -74,13 +74,21 @@ int	b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyIndex, int jointInd
     
 b3SharedMemoryCommandHandle b3CreateJoint(b3PhysicsClientHandle physClient, int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, struct b3JointInfo* info);
 
-///Request debug lines for debug visualization. The flags in debugMode are the same as used in Bullet
+///Request physics debug lines for debug visualization. The flags in debugMode are the same as used in Bullet
 ///See btIDebugDraw::DebugDrawModes in Bullet/src/LinearMath/btIDebugDraw.h
 b3SharedMemoryCommandHandle b3InitRequestDebugLinesCommand(b3PhysicsClientHandle physClient, int debugMode);
 
-///Get the pointers to the debug line information, after b3InitRequestDebugLinesCommand returns
+///Get the pointers to the physics debug line information, after b3InitRequestDebugLinesCommand returns
 ///status CMD_DEBUG_LINES_COMPLETED
 void    b3GetDebugLines(b3PhysicsClientHandle physClient, struct b3DebugLines* lines);
+
+/// Add/remove user-specific debug lines and debug text messages
+b3SharedMemoryCommandHandle b3InitUserDebugDrawAddLine3D(b3PhysicsClientHandle physClient, double fromXYZ[3], double toXYZ[3], double colorRGB[3], double lineWidth, double lifeTime);
+b3SharedMemoryCommandHandle b3InitUserDebugDrawAddText3D(b3PhysicsClientHandle physClient, const char* txt, double positionXYZ[3], double colorRGB[3], double textSize, double lifeTime);
+b3SharedMemoryCommandHandle b3InitUserDebugDrawRemove(b3PhysicsClientHandle physClient, int debugItemUniqueId);
+b3SharedMemoryCommandHandle b3InitUserDebugDrawRemoveAll(b3PhysicsClientHandle physClient);
+///All debug items unique Ids are positive: a negative unique Id means failure.
+int b3GetDebugItemUniqueId(b3SharedMemoryStatusHandle statusHandle);
 
 ///request an image from a simulated camera, using a software renderer.
 b3SharedMemoryCommandHandle b3InitRequestCameraImage(b3PhysicsClientHandle physClient);

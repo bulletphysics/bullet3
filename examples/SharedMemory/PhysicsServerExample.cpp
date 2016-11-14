@@ -75,6 +75,10 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIHelperRemoveAllGraphicsInstances,
 	eGUIHelperCopyCameraImageData,
 	eGUIHelperAutogenerateGraphicsObjects,
+	eGUIUserDebugAddText,
+	eGUIUserDebugAddLine,
+	eGUIUserDebugRemoveItem,
+	eGUIUserDebugRemoveAllItems,
 };
 
 #include <stdio.h>
@@ -271,17 +275,43 @@ void*	MotionlsMemoryFunc()
 
 
 
+struct UserDebugDrawLine
+{
+	double	m_debugLineFromXYZ[3];
+	double	m_debugLineToXYZ[3];
+	double	m_debugLineColorRGB[3];
+	double	m_lineWidth;
+	
+	double m_lifeTime;
+	int m_itemUniqueId;
+};
+
+struct UserDebugText
+{
+	char m_text[1024];
+	double m_textPositionXYZ[3];
+	double m_textColorRGB[3];
+	double textSize;
+
+	double m_lifeTime;
+	int m_itemUniqueId;
+};
+
+
+
 class MultiThreadedOpenGLGuiHelper : public GUIHelperInterface
 {
 	CommonGraphicsApp* m_app;
 	
 	b3CriticalSection* m_cs;
-
 	
+	
+
 public:
 
 	GUIHelperInterface* m_childGuiHelper;
 
+	int m_uidGenerator;
 	const unsigned char* m_texels;
 	int m_textureWidth;
 	int m_textureHeight;
@@ -305,6 +335,7 @@ public:
 	MultiThreadedOpenGLGuiHelper(CommonGraphicsApp* app, GUIHelperInterface* guiHelper)
 		:m_app(app)
 		,m_cs(0),
+		m_uidGenerator(0),
 		m_texels(0),
 		m_textureId(-1)
 	{
@@ -548,6 +579,96 @@ public:
 	virtual void drawText3D( const char* txt, float posX, float posZY, float posZ, float size)
 	{
 	}
+
+
+
+
+	btAlignedObjectArray<UserDebugText> m_userDebugText;
+	
+	UserDebugText m_tmpText;
+
+	virtual int		addUserDebugText3D( const char* txt, const double positionXYZ[3], const double	textColorRGB[3], double size, double lifeTime)
+	{
+		
+		m_tmpText.m_itemUniqueId = m_uidGenerator++;
+		m_tmpText.m_lifeTime = lifeTime;
+		m_tmpText.textSize = size;
+		int len = strlen(txt);
+		strcpy(m_tmpText.m_text,txt);
+		m_tmpText.m_textPositionXYZ[0] = positionXYZ[0];
+		m_tmpText.m_textPositionXYZ[1] = positionXYZ[1];
+		m_tmpText.m_textPositionXYZ[2] = positionXYZ[2];
+		m_tmpText.m_textColorRGB[0] = textColorRGB[0];
+		m_tmpText.m_textColorRGB[1] = textColorRGB[1];
+		m_tmpText.m_textColorRGB[2] = textColorRGB[2];
+
+		m_cs->lock();
+		m_cs->setSharedParam(1, eGUIUserDebugAddText);
+		m_cs->unlock();
+		while (m_cs->getSharedParam(1) != eGUIHelperIdle)
+		{
+			b3Clock::usleep(150);
+		}
+
+		return m_userDebugText[m_userDebugText.size()-1].m_itemUniqueId;
+	}
+
+	btAlignedObjectArray<UserDebugDrawLine> m_userDebugLines;
+	UserDebugDrawLine m_tmpLine;
+
+	virtual int		addUserDebugLine(const double	debugLineFromXYZ[3], const double	debugLineToXYZ[3], const double	debugLineColorRGB[3], double lineWidth, double lifeTime )
+	{
+		m_tmpLine.m_lifeTime = lifeTime;
+		m_tmpLine.m_lineWidth = lineWidth;
+		m_tmpLine.m_itemUniqueId = m_uidGenerator++;
+		m_tmpLine.m_debugLineFromXYZ[0] = debugLineFromXYZ[0];
+		m_tmpLine.m_debugLineFromXYZ[1] = debugLineFromXYZ[1];
+		m_tmpLine.m_debugLineFromXYZ[2] = debugLineFromXYZ[2];
+
+		m_tmpLine.m_debugLineToXYZ[0] = debugLineToXYZ[0];
+		m_tmpLine.m_debugLineToXYZ[1] = debugLineToXYZ[1];
+		m_tmpLine.m_debugLineToXYZ[2] = debugLineToXYZ[2];
+		
+		m_tmpLine.m_debugLineColorRGB[0] = debugLineColorRGB[0];
+		m_tmpLine.m_debugLineColorRGB[1] = debugLineColorRGB[1];
+		m_tmpLine.m_debugLineColorRGB[2] = debugLineColorRGB[2];
+		
+		m_cs->lock();
+		m_cs->setSharedParam(1, eGUIUserDebugAddLine);
+		m_cs->unlock();
+		while (m_cs->getSharedParam(1) != eGUIHelperIdle)
+		{
+			b3Clock::usleep(150);
+		}
+		return m_userDebugLines[m_userDebugLines.size()-1].m_itemUniqueId;
+	}
+
+	int m_removeDebugItemUid;
+
+	virtual void	removeUserDebugItem( int debugItemUniqueId)
+	{
+		m_removeDebugItemUid = debugItemUniqueId;
+		m_cs->lock();
+		m_cs->setSharedParam(1, eGUIUserDebugRemoveItem);
+		m_cs->unlock();
+		while (m_cs->getSharedParam(1) != eGUIHelperIdle)
+		{
+			b3Clock::usleep(150);
+		}
+
+	}	
+	virtual void	removeAllUserDebugItems( )
+	{
+		m_cs->lock();
+		m_cs->setSharedParam(1, eGUIUserDebugRemoveAllItems);
+		m_cs->unlock();
+		while (m_cs->getSharedParam(1) != eGUIHelperIdle)
+		{
+			b3Clock::usleep(150);
+		}
+	
+	}
+
 };
 
 
@@ -935,10 +1056,68 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
 		m_multiThreadedHelper->getCriticalSection()->unlock();
 		break;
 	}
+
+	case eGUIUserDebugAddText:
+	{
+		m_multiThreadedHelper->m_userDebugText.push_back(m_multiThreadedHelper->m_tmpText);
+		m_multiThreadedHelper->getCriticalSection()->lock();
+		m_multiThreadedHelper->getCriticalSection()->setSharedParam(1, eGUIHelperIdle);
+		m_multiThreadedHelper->getCriticalSection()->unlock();
+		break;
+	}
+	case eGUIUserDebugAddLine:
+	{
+		m_multiThreadedHelper->m_userDebugLines.push_back(m_multiThreadedHelper->m_tmpLine);
+		m_multiThreadedHelper->getCriticalSection()->lock();
+		m_multiThreadedHelper->getCriticalSection()->setSharedParam(1, eGUIHelperIdle);
+		m_multiThreadedHelper->getCriticalSection()->unlock();
+			break;
+	}
+	case eGUIUserDebugRemoveItem:
+	{
+		for (int i=0;i<m_multiThreadedHelper->m_userDebugLines.size();i++)
+		{
+			if (m_multiThreadedHelper->m_userDebugLines[i].m_itemUniqueId == m_multiThreadedHelper->m_removeDebugItemUid)
+			{
+				m_multiThreadedHelper->m_userDebugLines.swap(i,m_multiThreadedHelper->m_userDebugLines.size()-1);
+				m_multiThreadedHelper->m_userDebugLines.pop_back();
+				break;
+			}
+		}
+
+
+		for (int i=0;i<m_multiThreadedHelper->m_userDebugText.size();i++)
+		{
+			if (m_multiThreadedHelper->m_userDebugText[i].m_itemUniqueId == m_multiThreadedHelper->m_removeDebugItemUid)
+			{
+				m_multiThreadedHelper->m_userDebugText.swap(i,m_multiThreadedHelper->m_userDebugText.size()-1);
+				m_multiThreadedHelper->m_userDebugText.pop_back();
+				break;
+			}
+		}
+
+		m_multiThreadedHelper->getCriticalSection()->lock();
+		m_multiThreadedHelper->getCriticalSection()->setSharedParam(1, eGUIHelperIdle);
+		m_multiThreadedHelper->getCriticalSection()->unlock();
+			break;
+	}
+	case eGUIUserDebugRemoveAllItems:
+	{
+		m_multiThreadedHelper->m_userDebugLines.clear();
+		m_multiThreadedHelper->m_userDebugText.clear();
+		m_multiThreadedHelper->m_uidGenerator = 0;
+		m_multiThreadedHelper->getCriticalSection()->lock();
+		m_multiThreadedHelper->getCriticalSection()->setSharedParam(1, eGUIHelperIdle);
+		m_multiThreadedHelper->getCriticalSection()->unlock();
+			break;
+	}
 	case eGUIHelperIdle:
+		{
+			break;
+		}
 	default:
 		{
-			
+			btAssert(0);
 		}
 	}
 	
@@ -993,15 +1172,38 @@ void PhysicsServerExample::renderScene()
 	//add array of lines
 
 	//draw all user- 'text3d' messages
-		if (m_guiHelper)
+		if (m_multiThreadedHelper)
 		{
-			btVector3 from(0, 0, 0);
-			btVector3 toX(1, 1, 1);
-			btVector3 color(0, 1, 0);
-			double width = 2;
-			m_guiHelper->getAppInterface()->m_renderer->drawLine(from, toX, color, width);
+			
+			for (int i=0;i<m_multiThreadedHelper->m_userDebugLines.size();i++)
+			{
+				btVector3 from;
+				from.setValue(	m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[0],
+								m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[1],
+								m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[2]);
+				btVector3 toX;
+				toX.setValue(	m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[0],
+								m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[1],
+								m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[2]);
+				
+				btVector3 color;
+				color.setValue(	m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[0],
+								m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[1],
+								m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[2]);
 
-			m_guiHelper->getAppInterface()->drawText3D("hi", 1, 1, 1, 1);
+				
+				m_guiHelper->getAppInterface()->m_renderer->drawLine(from, toX, color, m_multiThreadedHelper->m_userDebugLines[i].m_lineWidth);
+			}
+			
+			for (int i=0;i<m_multiThreadedHelper->m_userDebugText.size();i++)
+			{
+				m_guiHelper->getAppInterface()->drawText3D(m_multiThreadedHelper->m_userDebugText[i].m_text,
+					m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ[0],
+					m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ[1],
+					m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ[2],
+					m_multiThreadedHelper->m_userDebugText[i].textSize);
+				
+			}
 		}
 
 

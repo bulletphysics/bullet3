@@ -380,6 +380,20 @@ struct TinyRendererGUIHelper : public GUIHelperInterface
 	virtual void drawText3D( const char* txt, float posX, float posZY, float posZ, float size)
 	{
 	}
+		virtual int		addUserDebugText3D( const char* txt, const double positionXYZ[3], const double	textColorRGB[3], double size, double lifeTime)
+	{
+		return -1;
+	}
+	virtual int		addUserDebugLine(const double	debugLineFromXYZ[3], const double	debugLineToXYZ[3], const double	debugLineColorRGB[3], double lineWidth, double lifeTime )
+	{
+		return -1;
+	}
+	virtual void	removeUserDebugItem( int debugItemUniqueId)
+	{
+	}
+	virtual void	removeAllUserDebugItems( )
+	{
+	}
 };
 
 int main(int argc, char* argv[])

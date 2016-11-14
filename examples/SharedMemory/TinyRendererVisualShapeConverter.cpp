@@ -527,7 +527,11 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(int linkIndex, const 
 			visualShape.m_localInertiaFrame[4] = localInertiaFrame.getRotation()[1];
 			visualShape.m_localInertiaFrame[5] = localInertiaFrame.getRotation()[2];
 			visualShape.m_localInertiaFrame[6] = localInertiaFrame.getRotation()[3];
-			
+            visualShape.m_rgbaColor[0] = rgbaColor[0];
+            visualShape.m_rgbaColor[1] = rgbaColor[1];
+            visualShape.m_rgbaColor[2] = rgbaColor[2];
+            visualShape.m_rgbaColor[3] = rgbaColor[3];
+            
 			convertURDFToVisualShape(&vis, pathPrefix, localInertiaFrame.inverse()*childTrans, vertices, indices,textures, visualShape);
 			m_data->m_visualShapes.push_back(visualShape);
 
@@ -872,10 +876,14 @@ int TinyRendererVisualShapeConverter::registerTexture(unsigned char* texels, int
     return m_data->m_textures.size()-1;
 }
 
-void TinyRendererVisualShapeConverter::loadTextureFile(const char* filename)
+int TinyRendererVisualShapeConverter::loadTextureFile(const char* filename)
 {
     int width,height,n;
     unsigned char* image=0;
     image = stbi_load(filename, &width, &height, &n, 3);
-    registerTexture(image, width, height);
+    if (image && (width>=0) && (height>=0))
+    {
+        return registerTexture(image, width, height);
+    }
+    return -1;
 }

@@ -500,6 +500,40 @@ struct CreateJointArgs
     int m_jointType;
 };
 
+
+
+enum EnumUserDebugDrawFlags
+{
+    USER_DEBUG_HAS_LINE=1,
+	USER_DEBUG_HAS_TEXT=2,
+	USER_DEBUG_REMOVE_ONE_ITEM=4,
+	USER_DEBUG_REMOVE_ALL=8	
+};
+
+struct UserDebugDrawArgs
+{
+	double	m_debugLineFromXYZ[3];
+	double	m_debugLineToXYZ[3];
+	double	m_debugLineColorRGB[3];
+	double	m_lineWidth;
+	
+	double m_lifeTime;
+	int m_removeItemUniqueId;
+
+	char m_text[MAX_FILENAME_LENGTH];
+	double m_textPositionXYZ[3];
+	double m_textColorRGB[3];
+	double m_textSize;
+};
+
+
+
+struct UserDebugDrawResultArgs
+{
+	int m_debugItemUniqueId;
+};
+
+
 struct SharedMemoryCommand
 {
 	int m_type;
@@ -536,6 +570,7 @@ struct SharedMemoryCommand
         struct UpdateVisualShapeDataArgs m_updateVisualShapeDataArguments;
         struct LoadTextureArgs m_loadTextureArguments;
 		struct CalculateInverseKinematicsArgs m_calculateInverseKinematicsArguments;
+		struct UserDebugDrawArgs m_userDebugDrawArgs;
         struct LoadBunnyArgs m_loadBunnyArguments;
     };
 };
@@ -584,6 +619,7 @@ struct SharedMemoryStatus
 		struct SendOverlappingObjectsArgs m_sendOverlappingObjectsArgs;
 		struct CalculateInverseKinematicsResultArgs m_inverseKinematicsResultArgs;
 		struct SendVisualShapeDataArgs m_sendVisualShapeArgs;
+		struct UserDebugDrawResultArgs m_userDebugDrawArgs;
 	};
 };
 

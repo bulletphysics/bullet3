@@ -40,6 +40,8 @@ enum EnumSharedMemoryClientCommand
 	CMD_REQUEST_VISUAL_SHAPE_INFO,
     CMD_UPDATE_VISUAL_SHAPE,
     CMD_LOAD_TEXTURE,
+	CMD_USER_DEBUG_DRAW,
+
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -100,6 +102,8 @@ enum EnumSharedMemoryServerStatus
         CMD_VISUAL_SHAPE_UPDATE_FAILED,
         CMD_LOAD_TEXTURE_COMPLETED,
         CMD_LOAD_TEXTURE_FAILED,
+		CMD_USER_DEBUG_DRAW_COMPLETED,
+		CMD_USER_DEBUG_DRAW_FAILED,
         //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
@@ -239,6 +243,7 @@ struct b3VisualShapeData
 	char m_meshAssetFileName[VISUAL_SHAPE_MAX_PATH_LEN];
 	double m_localInertiaFrame[7];//pos[3], orn[4]
 	//todo: add more data if necessary (material color etc, although material can be in asset file .obj file)
+    double m_rgbaColor[4];
 };
 
 struct b3VisualShapeInformation

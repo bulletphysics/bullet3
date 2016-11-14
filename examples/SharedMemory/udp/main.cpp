@@ -94,7 +94,8 @@ int main(int argc, char *argv[])
 
 					switch (event.type)
 					{
-					case ENET_EVENT_TYPE_CONNECT:
+                        case ENET_EVENT_TYPE_CONNECT:
+                        {
 						printf("A new client connected from %x:%u.\n",
 							event.peer->address.host,
 							event.peer->address.port);
@@ -103,8 +104,9 @@ int main(int argc, char *argv[])
 						event.peer->data = (void*)"Client information";
 
 						break;
-
+                        }
 					case ENET_EVENT_TYPE_RECEIVE:
+                        {
 						if (gVerboseNetworkMessagesServer)
 						{
 							printf("A packet of length %u containing '%s' was "
@@ -171,8 +173,9 @@ int main(int argc, char *argv[])
 						//enet_host_broadcast(server, 0, event.packet);
 
 						break;
-
+                        }
 					case ENET_EVENT_TYPE_DISCONNECT:
+                        {
 						printf("%s disconnected.\n", event.peer->data);
 
 						/* Reset the peer's client information. */
@@ -180,6 +183,11 @@ int main(int argc, char *argv[])
 						event.peer->data = NULL;
 
 						break;
+                        }
+                    default:
+                        {
+                        
+                        }
 					}
 				}
 				else if (serviceResult > 0)
