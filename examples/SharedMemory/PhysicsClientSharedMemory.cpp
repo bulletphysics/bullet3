@@ -703,6 +703,35 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 b3Warning("Load texture failed");
                 break;
             }
+			case CMD_BULLET_LOADING_COMPLETED:
+			{
+				break;
+			}
+			case CMD_BULLET_LOADING_FAILED:
+			{
+				b3Warning("Load .bullet failed");
+				break;
+			}
+			case CMD_BULLET_SAVING_FAILED:
+			{
+				b3Warning("Save .bullet failed");
+				break;
+			}
+			case CMD_MJCF_LOADING_FAILED:
+			{
+				b3Warning("Load .mjcf failed");
+				break;
+			}
+			case CMD_USER_DEBUG_DRAW_COMPLETED:
+			{
+				break;
+			}
+			case CMD_USER_DEBUG_DRAW_FAILED:
+			{
+				b3Warning("User debug draw failed");
+				break;
+			}
+
             default: {
                 b3Error("Unknown server status %d\n", serverCmd.m_type);
                 btAssert(0);

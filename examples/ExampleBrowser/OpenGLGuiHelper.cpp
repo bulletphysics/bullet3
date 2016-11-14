@@ -338,7 +338,7 @@ void OpenGLGuiHelper::render(const btDiscreteDynamicsWorld* rbWorld)
 	if (m_data->m_gl2ShapeDrawer && rbWorld)
 	{
 		m_data->m_gl2ShapeDrawer->enableTexture(true);
-		m_data->m_gl2ShapeDrawer->drawScene(rbWorld,true);
+		m_data->m_gl2ShapeDrawer->drawScene(rbWorld,true, m_data->m_glApp->getUpAxis());
 	}
 }
 void OpenGLGuiHelper::createPhysicsDebugDrawer(btDiscreteDynamicsWorld* rbWorld)

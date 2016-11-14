@@ -69,6 +69,12 @@ struct GUIHelperInterface
 	virtual void drawText3D( const char* txt, float posX, float posZY, float posZ, float size)=0;
 
 
+	
+	virtual int		addUserDebugText3D( const char* txt, const double posisionXYZ[3], const double	textColorRGB[3], double size, double lifeTime)=0;
+	virtual int		addUserDebugLine(const double	debugLineFromXYZ[3], const double	debugLineToXYZ[3], const double	debugLineColorRGB[3], double lineWidth, double lifeTime )=0;
+	virtual void	removeUserDebugItem( int debugItemUniqueId)=0;
+	virtual void	removeAllUserDebugItems( )=0;
+
 };
 
 
@@ -141,7 +147,22 @@ struct DummyGUIHelper : public GUIHelperInterface
 	virtual void drawText3D( const char* txt, float posX, float posZY, float posZ, float size)
 	{
 	}
-	
+
+	virtual int		addUserDebugText3D( const char* txt, const double positionXYZ[3], const double	textColorRGB[3], double size, double lifeTime)
+	{
+		return -1;
+	}
+	virtual int		addUserDebugLine(const double	debugLineFromXYZ[3], const double	debugLineToXYZ[3], const double	debugLineColorRGB[3], double lineWidth, double lifeTime )
+	{
+		return -1;
+	}
+	virtual void	removeUserDebugItem( int debugItemUniqueId)
+	{
+	}
+	virtual void	removeAllUserDebugItems( )
+	{
+	}
+
 };
 
 #endif //GUI_HELPER_INTERFACE_H

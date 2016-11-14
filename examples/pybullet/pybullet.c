@@ -197,12 +197,112 @@ static PyObject* pybullet_saveWorld(PyObject* self, PyObject* args) {
 	PyErr_SetString(SpamError, "Cannot execute saveWorld command.");
 	return NULL;
     
+}
+
+#define MAX_SDF_BODIES 512
+static PyObject* pybullet_loadBullet(PyObject* self, PyObject* args)
+{
+	int size = PySequence_Size(args);
+	const char* bulletFileName = "";
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	b3SharedMemoryCommandHandle command;
+	int i,numBodies;
+	int bodyIndicesOut[MAX_SDF_BODIES];
+	  PyObject* pylist = 0;
+	if (0 == sm) {
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+}
+	if (size == 1) {
+		if (!PyArg_ParseTuple(args, "s", &bulletFileName)) return NULL;
+	}
+
+	command = b3LoadBulletCommandInit(sm, bulletFileName);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	statusType = b3GetStatusType(statusHandle);
+	if (statusType != CMD_BULLET_LOADING_COMPLETED)
+	{
+		PyErr_SetString(SpamError, "Couldn't load .bullet file.");
+		return NULL;
+	}
+
+	numBodies =
+      b3GetStatusBodyIndices(statusHandle, bodyIndicesOut, MAX_SDF_BODIES);
+  if (numBodies > MAX_SDF_BODIES) {
+    PyErr_SetString(SpamError, "loadBullet exceeds body capacity");
     return NULL;
+  }
+
+  pylist = PyTuple_New(numBodies);
+
+  if (numBodies > 0 && numBodies <= MAX_SDF_BODIES) {
+    for (i = 0; i < numBodies; i++) {
+      PyTuple_SetItem(pylist, i, PyInt_FromLong(bodyIndicesOut[i]));
+    }
+  }
+  return pylist;
+
+	
+}
+
+static PyObject* pybullet_saveBullet(PyObject* self, PyObject* args)
+{
+	int size = PySequence_Size(args);
+	const char* bulletFileName = "";
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	b3SharedMemoryCommandHandle command;
+
+	if (0 == sm) {
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+	if (size == 1) {
+		if (!PyArg_ParseTuple(args, "s", &bulletFileName)) return NULL;
+	}
+	command = b3SaveBulletCommandInit(sm, bulletFileName);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	if (statusHandle != CMD_BULLET_SAVING_COMPLETED)
+	{
+		PyErr_SetString(SpamError, "Couldn't save .bullet file.");
+		return NULL;
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 
 
-// Load a URDF file indicating the links and joints of an object
+static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args)
+{
+	int size = PySequence_Size(args);
+	const char* mjcfjFileName = "";
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	b3SharedMemoryCommandHandle command;
+
+	if (0 == sm) {
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+	if (size == 1) {
+		if (!PyArg_ParseTuple(args, "s", &mjcfjFileName)) return NULL;
+	}
+	command = b3LoadMJCFCommandInit(sm, mjcfjFileName);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	if (statusHandle != CMD_MJCF_LOADING_COMPLETED)
+	{
+		PyErr_SetString(SpamError, "Couldn't load .mjcf file.");
+		return NULL;
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
+
+// Load a robot from a URDF file (universal robot description format)
 // function can be called without arguments and will default
 // to position (0,0,1) with orientation(0,0,0,1)
 // els(x,y,z) or
@@ -283,7 +383,7 @@ static double pybullet_internalGetFloatFromSequence(PyObject* seq, int index) {
   return v;
 }
 
-#define MAX_SDF_BODIES 512
+
 
 static PyObject* pybullet_loadSDF(PyObject* self, PyObject* args) {
   const char* sdfFileName = "";
@@ -1293,12 +1393,14 @@ static int pybullet_internalSetMatrix(PyObject* objMat, float matrix[16]) {
 //
 // // Args:
 //  vector - float[3] which will be set by values from objMat
-static int pybullet_internalSetVector(PyObject* objMat, float vector[3]) {
+static int pybullet_internalSetVector(PyObject* objVec, float vector[3]) {
   int i, len;
   PyObject* seq;
+  if (objVec==NULL)
+		return 0;
 
-  seq = PySequence_Fast(objMat, "expected a sequence");
-  len = PySequence_Size(objMat);
+  seq = PySequence_Fast(objVec, "expected a sequence");
+  len = PySequence_Size(objVec);
   if (len == 3) {
     for (i = 0; i < len; i++) {
       vector[i] = pybullet_internalGetFloatFromSequence(seq, i);
@@ -1314,7 +1416,9 @@ static int pybullet_internalSetVector(PyObject* objMat, float vector[3]) {
 static int pybullet_internalSetVectord(PyObject* obVec, double vector[3]) {
     int i, len;
     PyObject* seq;
-    
+    if (obVec==NULL)
+		return 0;
+
     seq = PySequence_Fast(obVec, "expected a sequence");
     len = PySequence_Size(obVec);
     if (len == 3) {
@@ -1332,7 +1436,9 @@ static int pybullet_internalSetVectord(PyObject* obVec, double vector[3]) {
 static int pybullet_internalSetVector4(PyObject* obVec, double vector[4]) {
     int i, len;
     PyObject* seq;
-    
+    if (obVec==NULL)
+		return 0;
+
     seq = PySequence_Fast(obVec, "expected a sequence");
     len = PySequence_Size(obVec);
     if (len == 4) {
@@ -1345,6 +1451,196 @@ static int pybullet_internalSetVector4(PyObject* obVec, double vector[4]) {
     Py_DECREF(seq);
     return 0;
 }
+
+
+
+static PyObject* pybullet_addUserDebugText(PyObject* self, PyObject* args, PyObject *keywds) 
+{
+  int size = PySequence_Size(args);
+  
+  b3SharedMemoryCommandHandle commandHandle;
+  struct b3ContactInformation contactPointData;
+  b3SharedMemoryStatusHandle statusHandle;
+  int statusType;
+  int res = 0;
+
+  PyObject* pyResultList = 0;
+	char* text;
+  double posXYZ[3];
+  double colorRGB[3]={1,1,1};
+
+  
+  PyObject* textPositionObj=0;
+  PyObject* textColorRGBObj=0;
+  double textSize = 1.f;
+  double lifeTime = 0.f;
+  
+  static char *kwlist[] = { "text", "textPosition", "textColorRGB", "textSize", "lifeTime", NULL };
+
+  if (0 == sm) {
+	  PyErr_SetString(SpamError, "Not connected to physics server.");
+	  return NULL;
+  }
+
+  if (!PyArg_ParseTupleAndKeywords(args, keywds, "sO|Odd", kwlist, &text,  &textPositionObj,  &textColorRGBObj,&textSize, &lifeTime))
+  {
+	  return NULL;
+  }
+
+  res = pybullet_internalSetVectord(textPositionObj,posXYZ);
+  if (!res)
+  {
+	  PyErr_SetString(SpamError, "Error converting lineFrom[3]");
+	  return NULL;
+  }
+
+  if (textColorRGBObj)
+  {
+	  res = pybullet_internalSetVectord(textColorRGBObj,colorRGB);
+	  if (!res)
+	  {
+		  PyErr_SetString(SpamError, "Error converting lineTo[3]");
+		  return NULL;
+	  }
+  }
+
+  
+   commandHandle = b3InitUserDebugDrawAddText3D(sm,text,posXYZ,colorRGB,textSize,lifeTime);
+
+  statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+  statusType = b3GetStatusType(statusHandle);
+  if (statusType == CMD_USER_DEBUG_DRAW_COMPLETED) 
+  {
+    int debugItemUniqueId = b3GetDebugItemUniqueId(statusHandle);
+	PyObject* item = PyInt_FromLong(debugItemUniqueId);
+	return item;
+  }
+
+  PyErr_SetString(SpamError, "Error in addUserDebugText.");
+	  return NULL;
+}
+
+
+static PyObject* pybullet_addUserDebugLine(PyObject* self, PyObject* args, PyObject *keywds) 
+{
+  int size = PySequence_Size(args);
+  
+  b3SharedMemoryCommandHandle commandHandle;
+  struct b3ContactInformation contactPointData;
+  b3SharedMemoryStatusHandle statusHandle;
+  int statusType;
+  int res = 0;
+
+  PyObject* pyResultList = 0;
+
+  double fromXYZ[3];
+  double toXYZ[3];
+  double colorRGB[3]={1,1,1};
+
+  PyObject* lineFromObj=0;
+  PyObject* lineToObj=0;
+  PyObject* lineColorRGBObj=0;
+  double lineWidth = 1.f;
+  double lifeTime = 0.f;
+  
+  static char *kwlist[] = { "lineFromXYZ", "lineToXYZ", "lineColorRGB", "lineWidth", "lifeTime", NULL };
+
+  if (0 == sm) {
+	  PyErr_SetString(SpamError, "Not connected to physics server.");
+	  return NULL;
+  }
+
+  if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|Odd", kwlist, &lineFromObj,  &lineToObj,  &lineColorRGBObj,&lineWidth, &lifeTime))
+  {
+	  return NULL;
+  }
+
+  res = pybullet_internalSetVectord(lineFromObj,fromXYZ);
+  if (!res)
+  {
+	  PyErr_SetString(SpamError, "Error converting lineFrom[3]");
+	  return NULL;
+  }
+
+  res = pybullet_internalSetVectord(lineToObj,toXYZ);
+  if (!res)
+  {
+	  PyErr_SetString(SpamError, "Error converting lineTo[3]");
+	  return NULL;
+  }
+  if (lineColorRGBObj)
+  {
+	  res = pybullet_internalSetVectord(lineColorRGBObj,colorRGB);
+  }
+  
+   commandHandle = b3InitUserDebugDrawAddLine3D(sm,fromXYZ,toXYZ,colorRGB,lineWidth,lifeTime);
+
+  statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+  statusType = b3GetStatusType(statusHandle);
+  if (statusType == CMD_USER_DEBUG_DRAW_COMPLETED) 
+  {
+    int debugItemUniqueId = b3GetDebugItemUniqueId(statusHandle);
+	PyObject* item = PyInt_FromLong(debugItemUniqueId);
+	return item;
+  }
+
+  PyErr_SetString(SpamError, "Error in addUserDebugLine.");
+	  return NULL;
+}
+
+
+
+
+static PyObject* pybullet_removeUserDebugItem(PyObject* self, PyObject* args, PyObject *keywds) 
+{
+	 b3SharedMemoryCommandHandle commandHandle;
+  struct b3ContactInformation contactPointData;
+  b3SharedMemoryStatusHandle statusHandle;
+  int statusType;
+  int itemUniqueId;
+
+	if (0 == sm) {
+	  PyErr_SetString(SpamError, "Not connected to physics server.");
+	  return NULL;
+  }
+
+	if (!PyArg_ParseTuple(args, "i", &itemUniqueId)) {
+			PyErr_SetString(SpamError, "Error parsing user debug item unique id");
+			return NULL;
+		}
+
+	commandHandle = b3InitUserDebugDrawRemove(sm,itemUniqueId);
+
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	statusType = b3GetStatusType(statusHandle);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject* pybullet_removeAllUserDebugItems(PyObject* self, PyObject* args, PyObject *keywds) 
+{
+	 b3SharedMemoryCommandHandle commandHandle;
+  struct b3ContactInformation contactPointData;
+  b3SharedMemoryStatusHandle statusHandle;
+  int statusType;
+
+	if (0 == sm) {
+	  PyErr_SetString(SpamError, "Not connected to physics server.");
+	  return NULL;
+  }
+
+	commandHandle = b3InitUserDebugDrawRemoveAll(sm);
+
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	statusType = b3GetStatusType(statusHandle);
+	  
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+	
+
 
 static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args) 
 {
@@ -1426,7 +1722,7 @@ static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args)
 					PyTuple_SetItem(visualShapeObList, 6, vec);
 				}
 
-				
+		visualShapeInfo.m_visualShapeData[0].m_rgbaColor[0];	
 
 				PyTuple_SetItem(pyResultList, i, visualShapeObList);
 			}
@@ -2515,8 +2811,17 @@ static PyMethodDef SpamMethods[] = {
     {"loadSDF", pybullet_loadSDF, METH_VARARGS,
      "Load multibodies from an SDF file."},
 
+	 { "loadBullet", pybullet_loadBullet, METH_VARARGS,
+	"Restore the full state of the world from a .bullet file." },
+
+	{ "saveBullet", pybullet_saveBullet, METH_VARARGS,
+	"Save the full state of the world to a .bullet file." },
+
+	 { "loadMJCF", pybullet_loadMJCF, METH_VARARGS,
+	"Load multibodies from an MJCF file." },
+
 	{"saveWorld", pybullet_saveWorld, METH_VARARGS,
-     "Save an approximate Python file to reproduce the current state of the world: saveWorld"
+     "Save a approximate Python file to reproduce the current state of the world: saveWorld"
 	"(filename). (very preliminary and approximately)"},
 
 	{"getNumBodies", pybullet_getNumBodies, METH_VARARGS,
@@ -2595,6 +2900,30 @@ static PyMethodDef SpamMethods[] = {
 		"axis-aligned bounding box volume (AABB)."
 		"Input are two vectors defining the AABB in world space [min_x,min_y,min_z],[max_x,max_y,max_z]."
 	 },
+
+
+	 { "addUserDebugLine", (PyCFunction)pybullet_addUserDebugLine, METH_VARARGS | METH_KEYWORDS,
+	 "Add a user debug draw line with lineFrom[3], lineTo[3], lineColorRGB[3], lineWidth, lifeTime. "
+	  "A lifeTime of 0 means permanent until removed. Returns a unique id for the user debug item."
+	 },
+
+
+	 { "addUserDebugText", (PyCFunction)pybullet_addUserDebugText, METH_VARARGS | METH_KEYWORDS,
+	 "Add a user debug draw line with text, textPosition[3], textSize and lifeTime in seconds "
+	 "A lifeTime of 0 means permanent until removed. Returns a unique id for the user debug item."
+	  },
+
+	 { "removeUserDebugItem", (PyCFunction)pybullet_removeUserDebugItem, METH_VARARGS | METH_KEYWORDS,
+	 "remove a user debug draw item, giving its unique id"
+	  },
+
+
+	 { "removeAllUserDebugItems", (PyCFunction)pybullet_removeAllUserDebugItems, METH_VARARGS | METH_KEYWORDS,
+	 "remove all user debug draw items"
+	  },
+
+
+
     {"getVisualShapeData", pybullet_getVisualShapeData, METH_VARARGS,
 	"Return the visual shape information for one object." },
 		 

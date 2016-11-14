@@ -3363,13 +3363,173 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     SharedMemoryStatus& serverCmd = serverStatusOut;
                     serverCmd.m_type = CMD_LOAD_TEXTURE_FAILED;
                     
-                    m_data->m_visualConverter.loadTextureFile(clientCmd.m_loadTextureArguments.m_textureFileName);
+                    int uid = m_data->m_visualConverter.loadTextureFile(clientCmd.m_loadTextureArguments.m_textureFileName);
                     
-                    serverCmd.m_type = CMD_LOAD_TEXTURE_COMPLETED;
+                    if (uid>=0)
+                    {
+                        serverCmd.m_type = CMD_LOAD_TEXTURE_COMPLETED;
+                    } else
+                    {
+                        serverCmd.m_type = CMD_LOAD_TEXTURE_FAILED;
+                    }
                     hasStatus = true;
                     
                     break;
                 }
+
+				case CMD_LOAD_BULLET:
+				{
+					
+					SharedMemoryStatus& serverCmd = serverStatusOut;
+					btBulletWorldImporter* importer = new btBulletWorldImporter(m_data->m_dynamicsWorld);
+
+					const char* prefix[] = { "", "./", "./data/", "../data/", "../../data/", "../../../data/", "../../../../data/" };
+					int numPrefixes = sizeof(prefix) / sizeof(const char*);
+					char relativeFileName[1024];
+					FILE* f = 0;
+					bool found = false;
+
+					for (int i = 0; !f && i<numPrefixes; i++)
+					{
+						sprintf(relativeFileName, "%s%s", prefix[i], clientCmd.m_fileArguments.m_fileName);
+						f = fopen(relativeFileName, "rb");
+						if (f)
+						{
+							found = true;
+							break;
+						}
+					}
+					if (f)
+					{
+						fclose(f);
+					}
+
+					if (found)
+					{
+						bool ok = importer->loadFile(relativeFileName);
+						if (ok)
+						{
+							
+							
+							int numRb = importer->getNumRigidBodies();
+							serverStatusOut.m_sdfLoadedArgs.m_numBodies = 0;
+
+							for( int i=0;i<numRb;i++)
+							{
+								btCollisionObject* colObj = importer->getRigidBodyByIndex(i);
+
+								if (colObj)
+								{
+									btRigidBody* rb = btRigidBody::upcast(colObj);
+									if (rb)
+									{
+										int bodyUniqueId = m_data->allocHandle();
+										InternalBodyHandle* bodyHandle = m_data->getHandle(bodyUniqueId);
+										colObj->setUserIndex2(bodyUniqueId);
+										bodyHandle->m_rigidBody = rb;
+
+										if (serverStatusOut.m_sdfLoadedArgs.m_numBodies<MAX_SDF_BODIES)
+										{
+											serverStatusOut.m_sdfLoadedArgs.m_numBodies++;
+											serverStatusOut.m_sdfLoadedArgs.m_bodyUniqueIds[i] = bodyUniqueId;
+										}
+									}
+								}
+							}
+
+							serverCmd.m_type = CMD_BULLET_LOADING_COMPLETED;
+							m_data->m_guiHelper->autogenerateGraphicsObjects(m_data->m_dynamicsWorld);
+							hasStatus = true;
+							break;
+						}
+					}
+					serverCmd.m_type = CMD_BULLET_LOADING_FAILED;
+					hasStatus = true;
+					break;
+				}
+
+				case CMD_SAVE_BULLET:
+				{
+					SharedMemoryStatus& serverCmd = serverStatusOut;
+					
+					FILE* f = fopen(clientCmd.m_fileArguments.m_fileName, "wb");
+					if (f)
+					{
+						btDefaultSerializer* ser = new btDefaultSerializer();
+						m_data->m_dynamicsWorld->serialize(ser);
+						fwrite(ser->getBufferPointer(), ser->getCurrentBufferSize(), 1, f);
+						fclose(f);
+						serverCmd.m_type = CMD_BULLET_SAVING_COMPLETED;
+						delete ser;
+					}
+					serverCmd.m_type = CMD_BULLET_SAVING_FAILED;
+					hasStatus = true;
+					break;
+				}
+
+				case CMD_LOAD_MJCF:
+				{
+					SharedMemoryStatus& serverCmd = serverStatusOut;
+					serverCmd.m_type = CMD_MJCF_LOADING_FAILED;
+					hasStatus = true;
+					break;
+				}
+				
+				case CMD_USER_DEBUG_DRAW:
+					{
+						SharedMemoryStatus& serverCmd = serverStatusOut;
+						serverCmd.m_type = CMD_USER_DEBUG_DRAW_FAILED;
+						hasStatus = true;
+						
+
+						if (clientCmd.m_updateFlags & USER_DEBUG_HAS_TEXT)
+						{
+							int uid = m_data->m_guiHelper->addUserDebugText3D(clientCmd.m_userDebugDrawArgs.m_text,
+								clientCmd.m_userDebugDrawArgs.m_textPositionXYZ,
+								clientCmd.m_userDebugDrawArgs.m_textColorRGB,
+								clientCmd.m_userDebugDrawArgs.m_textSize,
+								clientCmd.m_userDebugDrawArgs.m_lifeTime);
+
+							if (uid>=0)
+							{
+								serverCmd.m_userDebugDrawArgs.m_debugItemUniqueId = uid;
+								serverCmd.m_type = CMD_USER_DEBUG_DRAW_COMPLETED;
+							}
+						}
+
+						if (clientCmd.m_updateFlags & USER_DEBUG_HAS_LINE)
+						{
+							int uid = m_data->m_guiHelper->addUserDebugLine(
+								clientCmd.m_userDebugDrawArgs.m_debugLineFromXYZ,
+								clientCmd.m_userDebugDrawArgs.m_debugLineToXYZ,
+								clientCmd.m_userDebugDrawArgs.m_debugLineColorRGB,
+								clientCmd.m_userDebugDrawArgs.m_lineWidth,
+								clientCmd.m_userDebugDrawArgs.m_lifeTime);
+
+							if (uid>=0)
+							{
+								serverCmd.m_userDebugDrawArgs.m_debugItemUniqueId = uid;
+								serverCmd.m_type = CMD_USER_DEBUG_DRAW_COMPLETED;
+							}
+						}
+						
+
+						if (clientCmd.m_updateFlags & USER_DEBUG_REMOVE_ALL)
+						{
+							m_data->m_guiHelper->removeAllUserDebugItems();
+							serverCmd.m_type = CMD_USER_DEBUG_DRAW_COMPLETED;
+
+						}
+						if (clientCmd.m_updateFlags & USER_DEBUG_REMOVE_ONE_ITEM)
+						{
+							m_data->m_guiHelper->removeUserDebugItem(clientCmd.m_userDebugDrawArgs.m_removeItemUniqueId);
+							serverCmd.m_type = CMD_USER_DEBUG_DRAW_COMPLETED;
+
+						}
+
+						break;        
+					}
+		
 
                 default:
                 {

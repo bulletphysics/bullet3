@@ -79,6 +79,87 @@ b3SharedMemoryCommandHandle	b3LoadUrdfCommandInit(b3PhysicsClientHandle physClie
 	return 0;
 }
 
+b3SharedMemoryCommandHandle	b3LoadBulletCommandInit(b3PhysicsClientHandle physClient, const char* fileName)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+
+	if (cl->canSubmitCommand())
+	{
+		struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+		b3Assert(command);
+		command->m_type = CMD_LOAD_BULLET;
+		int len = strlen(fileName);
+		if (len < MAX_URDF_FILENAME_LENGTH)
+		{
+			strcpy(command->m_fileArguments.m_fileName, fileName);
+		}
+		else
+		{
+			command->m_fileArguments.m_fileName[0] = 0;
+		}
+		command->m_updateFlags = 0;
+
+		return (b3SharedMemoryCommandHandle)command;
+	}
+	return 0;
+}
+
+b3SharedMemoryCommandHandle	b3SaveBulletCommandInit(b3PhysicsClientHandle physClient, const char* fileName)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+
+	if (cl->canSubmitCommand())
+	{
+		struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+		b3Assert(command);
+		command->m_type = CMD_SAVE_BULLET;
+		int len = strlen(fileName);
+		if (len < MAX_URDF_FILENAME_LENGTH)
+		{
+			strcpy(command->m_fileArguments.m_fileName, fileName);
+		}
+		else
+		{
+			command->m_fileArguments.m_fileName[0] = 0;
+		}
+		command->m_updateFlags = 0;
+
+		return (b3SharedMemoryCommandHandle)command;
+	}
+	return 0;
+}
+b3SharedMemoryCommandHandle	b3LoadMJCFCommandInit(b3PhysicsClientHandle physClient, const char* fileName)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+
+	if (cl->canSubmitCommand())
+	{
+		struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+		b3Assert(command);
+		command->m_type = CMD_LOAD_MJCF;
+		int len = strlen(fileName);
+		if (len < MAX_URDF_FILENAME_LENGTH)
+		{
+			strcpy(command->m_fileArguments.m_fileName, fileName);
+		}
+		else
+		{
+			command->m_fileArguments.m_fileName[0] = 0;
+		}
+		command->m_updateFlags = 0;
+
+		return (b3SharedMemoryCommandHandle)command;
+	}
+	return 0;
+}
+
+
 b3SharedMemoryCommandHandle	b3LoadBunnyCommandInit(b3PhysicsClientHandle physClient)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;
@@ -712,6 +793,7 @@ int b3GetStatusBodyIndices(b3SharedMemoryStatusHandle statusHandle, int* bodyInd
 	{
 			switch (status->m_type)
 			{
+				case CMD_BULLET_LOADING_COMPLETED:
 				case CMD_SDF_LOADING_COMPLETED:
 				{
 				    int i,maxBodies;
@@ -980,6 +1062,107 @@ void    b3GetDebugLines(b3PhysicsClientHandle physClient, struct b3DebugLines* l
     }
     
 }
+
+
+/// Add/remove user-specific debug lines and debug text messages
+b3SharedMemoryCommandHandle b3InitUserDebugDrawAddLine3D(b3PhysicsClientHandle physClient, double fromXYZ[3], double toXYZ[3], double colorRGB[3], double lineWidth, double lifeTime)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+	b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type =CMD_USER_DEBUG_DRAW;
+	command->m_updateFlags = USER_DEBUG_HAS_LINE; //USER_DEBUG_HAS_TEXT
+	
+	command->m_userDebugDrawArgs.m_debugLineFromXYZ[0] = fromXYZ[0];
+	command->m_userDebugDrawArgs.m_debugLineFromXYZ[1] = fromXYZ[1];
+	command->m_userDebugDrawArgs.m_debugLineFromXYZ[2] = fromXYZ[2];
+
+	command->m_userDebugDrawArgs.m_debugLineToXYZ[0] = toXYZ[0];
+	command->m_userDebugDrawArgs.m_debugLineToXYZ[1] = toXYZ[1];
+	command->m_userDebugDrawArgs.m_debugLineToXYZ[2] = toXYZ[2];
+	
+	command->m_userDebugDrawArgs.m_debugLineColorRGB[0] = colorRGB[0];
+	command->m_userDebugDrawArgs.m_debugLineColorRGB[1] = colorRGB[1];
+	command->m_userDebugDrawArgs.m_debugLineColorRGB[2] = colorRGB[2];
+		
+	command->m_userDebugDrawArgs.m_lineWidth = lineWidth;
+	command->m_userDebugDrawArgs.m_lifeTime = lifeTime;
+
+	return (b3SharedMemoryCommandHandle) command;
+}
+
+b3SharedMemoryCommandHandle b3InitUserDebugDrawAddText3D(b3PhysicsClientHandle physClient, const char* txt, double positionXYZ[3], double colorRGB[3], double textSize, double lifeTime)
+{
+
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+	b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type =CMD_USER_DEBUG_DRAW;
+	command->m_updateFlags = USER_DEBUG_HAS_TEXT;
+	
+	int len = strlen(txt);
+    if (len<MAX_FILENAME_LENGTH)
+    {
+		strcpy(command->m_userDebugDrawArgs.m_text,txt);
+    } else
+    {
+        command->m_userDebugDrawArgs.m_text[0] = 0;
+    }
+	command->m_userDebugDrawArgs.m_textPositionXYZ[0] = positionXYZ[0];
+	command->m_userDebugDrawArgs.m_textPositionXYZ[1] = positionXYZ[1];
+	command->m_userDebugDrawArgs.m_textPositionXYZ[2] = positionXYZ[2];
+
+	command->m_userDebugDrawArgs.m_textColorRGB[0] = colorRGB[0];
+	command->m_userDebugDrawArgs.m_textColorRGB[1] = colorRGB[1];
+	command->m_userDebugDrawArgs.m_textColorRGB[2] = colorRGB[2];
+	
+	command->m_userDebugDrawArgs.m_textSize = textSize;
+
+	command->m_userDebugDrawArgs.m_lifeTime = lifeTime;
+
+	return (b3SharedMemoryCommandHandle) command;
+}
+
+b3SharedMemoryCommandHandle b3InitUserDebugDrawRemove(b3PhysicsClientHandle physClient, int debugItemUniqueId)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+	b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type =CMD_USER_DEBUG_DRAW;
+	command->m_updateFlags = USER_DEBUG_REMOVE_ONE_ITEM;
+	command->m_userDebugDrawArgs.m_removeItemUniqueId = debugItemUniqueId;
+	return (b3SharedMemoryCommandHandle) command;
+
+}
+
+b3SharedMemoryCommandHandle b3InitUserDebugDrawRemoveAll(b3PhysicsClientHandle physClient)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+	b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type =CMD_USER_DEBUG_DRAW;
+	command->m_updateFlags = USER_DEBUG_REMOVE_ALL;
+	return (b3SharedMemoryCommandHandle) command;
+}
+
+int b3GetDebugItemUniqueId(b3SharedMemoryStatusHandle statusHandle)
+{
+    const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
+    btAssert(status->m_type == CMD_USER_DEBUG_DRAW_COMPLETED);
+    if (status->m_type != CMD_USER_DEBUG_DRAW_COMPLETED)
+        return -1;
+
+	return status->m_userDebugDrawArgs.m_debugItemUniqueId;
+}
+
 
 ///request an image from a simulated camera, using a software renderer.
 b3SharedMemoryCommandHandle b3InitRequestCameraImage(b3PhysicsClientHandle physClient)
@@ -1545,6 +1728,7 @@ b3SharedMemoryCommandHandle	b3CalculateJacobianCommandInit(b3PhysicsClientHandle
     
     return (b3SharedMemoryCommandHandle)command;
 }
+
 
 int b3GetStatusJacobian(b3SharedMemoryStatusHandle statusHandle, double* linearJacobian, double* angularJacobian)
 {
