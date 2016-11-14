@@ -1397,6 +1397,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                              //   printf("-------------------------------\nRendering\n");
 
 
+                                if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_LIGHT_DIRECTION)!=0)
+                                {
+                                    m_data->m_visualConverter.setLightPosition(clientCmd.m_requestPixelDataArguments.m_lightPosition[0], clientCmd.m_requestPixelDataArguments.m_lightPosition[1], clientCmd.m_requestPixelDataArguments.m_lightPosition[2]);
+                                }
                                 if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES)!=0)
                                 {
                                     m_data->m_visualConverter.render(

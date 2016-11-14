@@ -1004,6 +1004,18 @@ void b3RequestCameraImageSelectRenderer(b3SharedMemoryCommandHandle commandHandl
     command->m_updateFlags |= renderer;
 }
 
+void b3RequestCameraImageSetLightPosition(b3SharedMemoryCommandHandle commandHandle, const float lightPosition[3])
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
+    for (int i=0;i<3;i++)
+    {
+        command->m_requestPixelDataArguments.m_lightPosition[i] = lightPosition[i];
+    }
+    command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_LIGHT_DIRECTION;
+}
+
 void b3RequestCameraImageSetCameraMatrices(b3SharedMemoryCommandHandle commandHandle, float viewMatrix[16], float projectionMatrix[16])
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;

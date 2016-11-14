@@ -1801,6 +1801,7 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args) {
   float cameraPos[3];
   float targetPos[3];
   float cameraUp[3];
+  float lightPos[3];
 
   float left, right, bottom, top, aspect;
   float nearVal, farVal;
@@ -1837,6 +1838,22 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args) {
         return NULL;
       }
     }
+  } else if (size == 5)  // set camera resolution and view and projection matrix and light position
+  {
+      if (PyArg_ParseTuple(args, "iiOOO", &width, &height, &objViewMat,
+                           &objProjMat, &lightPos)) {
+          b3RequestCameraImageSetPixelResolution(command, width, height);
+          b3RequestCameraImageSetLightPosition(command, lightPos);
+          // set camera matrices only if set matrix function succeeds
+          if (pybullet_internalSetMatrix(objViewMat, viewMatrix) &&
+              (pybullet_internalSetMatrix(objProjMat, projectionMatrix))) {
+              b3RequestCameraImageSetCameraMatrices(command, viewMatrix,
+                                                    projectionMatrix);
+          } else {
+              PyErr_SetString(SpamError, "Error parsing view or projection matrix.");
+              return NULL;
+          }
+      }
   } else if (size == 7)  // set camera resolution, camera positions and
                          // calculate projection using near/far values.
   {
