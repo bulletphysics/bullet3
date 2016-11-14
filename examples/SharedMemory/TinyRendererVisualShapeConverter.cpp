@@ -73,6 +73,7 @@ struct TinyRendererVisualShapeConverterInternalData
     b3AlignedObjectArray<MyTexture2> m_textures;
 	b3AlignedObjectArray<float> m_depthBuffer;
 	b3AlignedObjectArray<int> m_segmentationMaskBuffer;
+    float m_lightPosition[3];
 	
 	SimpleCamera m_camera;
 	
@@ -84,6 +85,9 @@ struct TinyRendererVisualShapeConverterInternalData
 	{
 	    m_depthBuffer.resize(m_swWidth*m_swHeight);
 	    m_segmentationMaskBuffer.resize(m_swWidth*m_swHeight,-1);
+        m_lightPosition[0] = -50.0;
+        m_lightPosition[1] = 30.0;
+        m_lightPosition[2] = 100.0;
 	}
 	
 };
@@ -671,19 +675,9 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
     
     ATTRIBUTE_ALIGNED16(btScalar modelMat[16]);
     
-    
-    btVector3 lightDirWorld(-5,200,-40);
-    switch (m_data->m_upAxis)
-    {
-    case 1:
-            lightDirWorld = btVector3(-50.f,100,30);
-        break;
-    case 2:
-            lightDirWorld = btVector3(-50.f,30,100);
-            break;
-    default:{}
-    };
-    
+    // Directional light
+    btVector3 lightDirWorld(-50.0,30.0,100.0);
+    lightDirWorld.setValue(m_data->m_lightPosition[0], m_data->m_lightPosition[1], m_data->m_lightPosition[2]);
     lightDirWorld.normalize();
     
   //  printf("num m_swRenderInstances = %d\n", m_data->m_swRenderInstances.size());
@@ -762,6 +756,13 @@ void TinyRendererVisualShapeConverter::setWidthAndHeight(int width, int height)
 	m_data->m_rgbColorBuffer = TGAImage(width, height, TGAImage::RGB);
 	
 		
+}
+
+void TinyRendererVisualShapeConverter::setLightPosition(float x, float y, float z)
+{
+    m_data->m_lightPosition[0] = x;
+    m_data->m_lightPosition[1] = y;
+    m_data->m_lightPosition[2] = z;
 }
 
 void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, 

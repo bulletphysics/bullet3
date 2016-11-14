@@ -92,6 +92,7 @@ void b3RequestCameraImageSetFOVProjectionMatrix(b3SharedMemoryCommandHandle comm
 void b3RequestCameraImageSetPixelResolution(b3SharedMemoryCommandHandle command, int width, int height );
 void b3RequestCameraImageSelectRenderer(b3SharedMemoryCommandHandle commandHandle, int renderer);
 void b3GetCameraImageData(b3PhysicsClientHandle physClient, struct b3CameraImageData* imageData);
+void b3RequestCameraImageSetLightPosition(b3SharedMemoryCommandHandle command, const float lightPosition[3]);
 
 ///request an contact point information
 b3SharedMemoryCommandHandle b3InitRequestContactPointInformation(b3PhysicsClientHandle physClient);

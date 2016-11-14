@@ -133,12 +133,14 @@ struct RequestPixelDataArgs
 	int m_startPixelIndex;
 	int m_pixelWidth;
 	int m_pixelHeight;
+    float m_lightPosition[3];
 };
 
 enum EnumRequestPixelDataUpdateFlags
 {
 	REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES=1,
 	REQUEST_PIXEL_ARGS_SET_PIXEL_WIDTH_HEIGHT=4,
+    REQUEST_PIXEL_ARGS_SET_LIGHT_DIRECTION=8,
 	//don't exceed (1<<15), because this enum is shared with EnumRenderer in SharedMemoryPublic.h
 	
 };
