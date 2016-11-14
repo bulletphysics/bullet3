@@ -731,7 +731,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 				b3Warning("User debug draw failed");
 				break;
 			}
-
+			case CMD_USER_CONSTRAINT_COMPLETED:
+			{
+				break;
+			}
+			case CMD_USER_CONSTRAINT_FAILED:
+			{
+				b3Warning("createConstraint failed");
+				break;
+			}
             default: {
                 b3Error("Unknown server status %d\n", serverCmd.m_type);
                 btAssert(0);

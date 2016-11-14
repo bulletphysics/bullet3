@@ -671,10 +671,18 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 	{
 		break;
 	}
-
+	case CMD_USER_CONSTRAINT_COMPLETED:
+	{
+		break;
+	}
+	case CMD_USER_CONSTRAINT_FAILED:
+	{
+		b3Warning("createConstraint failed");
+		break;
+	}
 	default:
 	{
-		b3Warning("Unknown server status type");
+		//b3Warning("Unknown server status type");
 	}
 	};
 

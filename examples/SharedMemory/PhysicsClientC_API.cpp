@@ -960,7 +960,9 @@ int	b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyIndex, int jointInd
 	return cl->getJointInfo(bodyIndex, jointIndex, *info);
 }
 
-b3SharedMemoryCommandHandle b3CreateJoint(b3PhysicsClientHandle physClient, int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, struct b3JointInfo* info)
+
+
+b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3PhysicsClientHandle physClient, int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, struct b3JointInfo* info)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;
     b3Assert(cl);
@@ -968,21 +970,51 @@ b3SharedMemoryCommandHandle b3CreateJoint(b3PhysicsClientHandle physClient, int 
     struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
     b3Assert(command);
     
-    command->m_type = CMD_CREATE_JOINT;
-    command->m_createJointArguments.m_parentBodyIndex = parentBodyIndex;
-    command->m_createJointArguments.m_parentJointIndex = parentJointIndex;
-    command->m_createJointArguments.m_childBodyIndex = childBodyIndex;
-    command->m_createJointArguments.m_childJointIndex = childJointIndex;
+    command->m_type = CMD_USER_CONSTRAINT;
+	command->m_updateFlags = USER_CONSTRAINT_ADD_CONSTRAINT;
+
+    command->m_userConstraintArguments.m_parentBodyIndex = parentBodyIndex;
+    command->m_userConstraintArguments.m_parentJointIndex = parentJointIndex;
+    command->m_userConstraintArguments.m_childBodyIndex = childBodyIndex;
+    command->m_userConstraintArguments.m_childJointIndex = childJointIndex;
     for (int i = 0; i < 7; ++i) {
-        command->m_createJointArguments.m_parentFrame[i] = info->m_parentFrame[i];
-        command->m_createJointArguments.m_childFrame[i] = info->m_childFrame[i];
+        command->m_userConstraintArguments.m_parentFrame[i] = info->m_parentFrame[i];
+        command->m_userConstraintArguments.m_childFrame[i] = info->m_childFrame[i];
     }
     for (int i = 0; i < 3; ++i) {
-        command->m_createJointArguments.m_jointAxis[i] = info->m_jointAxis[i];
+        command->m_userConstraintArguments.m_jointAxis[i] = info->m_jointAxis[i];
     }
-    command->m_createJointArguments.m_jointType = info->m_jointType;
+    command->m_userConstraintArguments.m_jointType = info->m_jointType;
     return (b3SharedMemoryCommandHandle)command;
 }
+
+b3SharedMemoryCommandHandle  b3InitRemoveUserConstraintCommand(b3PhysicsClientHandle physClient, int userConstraintUniqueId)
+{
+	 PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    
+    command->m_type = CMD_USER_CONSTRAINT;
+	command->m_updateFlags = USER_CONSTRAINT_REMOVE_CONSTRAINT;
+	command->m_userConstraintArguments.m_userConstraintUniqueId = userConstraintUniqueId;
+	return (b3SharedMemoryCommandHandle)command;
+}
+int b3GetStatusUserConstraintUniqueId(b3SharedMemoryStatusHandle statusHandle)
+{
+	const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
+	b3Assert(status);
+	b3Assert(status->m_type == CMD_USER_CONSTRAINT_COMPLETED);
+	if (status && status->m_type == CMD_USER_CONSTRAINT_COMPLETED)
+	{
+		return status->m_userConstraintResultArgs.m_userConstraintUniqueId;
+	}
+
+	return -1;
+
+}
+
 
 b3SharedMemoryCommandHandle b3PickBody(b3PhysicsClientHandle physClient, double rayFromWorldX,
                                        double rayFromWorldY, double rayFromWorldZ,
