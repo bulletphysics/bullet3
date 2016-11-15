@@ -1,4 +1,6 @@
 import pybullet as p
+import time
+
 p.connect(p.GUI)
 p.loadURDF("plane.urdf")
 p.loadURDF("quadruped/quadruped.urdf",0,0,0.2)
@@ -32,4 +34,9 @@ p.resetJointState(1,21,-1.57)
 p.resetJointState(1,23,2.2)
 p.createConstraint(1,20,1,23,3,[0,0,0],[0,-0.01,0.2],[0,0.015,0.2])
 
- 
+p.setGravity(0,0,-10)
+t_end = time.time() + 120 
+i=0
+while time.time() < t_end:
+	i = p.getNumJoints(0)
+	p.stepSimulation()
