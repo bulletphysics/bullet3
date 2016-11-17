@@ -73,14 +73,17 @@ struct TinyRendererVisualShapeConverterInternalData
     b3AlignedObjectArray<MyTexture2> m_textures;
 	b3AlignedObjectArray<float> m_depthBuffer;
 	b3AlignedObjectArray<int> m_segmentationMaskBuffer;
-	
+	btVector3 m_lightDirection;
+	bool m_hasLightDirection;
 	SimpleCamera m_camera;
+	
 	
 	TinyRendererVisualShapeConverterInternalData()
 	:m_upAxis(2),
 	m_swWidth(START_WIDTH),
 	m_swHeight(START_HEIGHT),
-	m_rgbColorBuffer(START_WIDTH,START_HEIGHT,TGAImage::RGB)
+	m_rgbColorBuffer(START_WIDTH,START_HEIGHT,TGAImage::RGB),
+	m_hasLightDirection(false)
 	{
 	    m_depthBuffer.resize(m_swWidth*m_swHeight);
 	    m_segmentationMaskBuffer.resize(m_swWidth*m_swHeight,-1);
@@ -108,7 +111,11 @@ TinyRendererVisualShapeConverter::~TinyRendererVisualShapeConverter()
 	delete m_data;
 }
 	
-
+void TinyRendererVisualShapeConverter::setLightDirection(float x, float y, float z)
+{
+	m_data->m_lightDirection.setValue(x, y, z);
+	m_data->m_hasLightDirection = true;
+}
 
 
 void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut, b3VisualShapeData& visualShapeOut)
@@ -677,16 +684,23 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
     
     
     btVector3 lightDirWorld(-5,200,-40);
-    switch (m_data->m_upAxis)
-    {
-    case 1:
-            lightDirWorld = btVector3(-50.f,100,30);
-        break;
-    case 2:
-            lightDirWorld = btVector3(-50.f,30,100);
-            break;
-    default:{}
-    };
+	if (m_data->m_hasLightDirection)
+	{
+		lightDirWorld = m_data->m_lightDirection;
+	}
+	else
+	{
+		switch (m_data->m_upAxis)
+		{
+		case 1:
+			lightDirWorld = btVector3(-50.f, 100, 30);
+			break;
+		case 2:
+			lightDirWorld = btVector3(-50.f, 30, 100);
+			break;
+		default: {}
+		};
+	}
     
     lightDirWorld.normalize();
     
