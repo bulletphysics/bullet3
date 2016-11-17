@@ -100,6 +100,10 @@ bool PhysicsClientSharedMemory::getBodyInfo(int bodyUniqueId, struct b3BodyInfo&
 		info.m_baseName = bodyJoints->m_baseName.c_str();
 		return true;
 	}
+
+
+
+
 	return false;
 }
 
@@ -204,6 +208,32 @@ bool PhysicsClientSharedMemory::connect() {
         b3Error("Cannot connect to shared memory");
         return false;
     }
+#if 0
+	if (m_data->m_isConnected)
+	{
+		//get all existing bodies and body info...
+
+		SharedMemoryCommand& command = m_data->m_testBlock1->m_clientCommands[0];
+		//now transfer the information of the individual objects etc.
+		command.m_type = CMD_REQUEST_BODY_INFO;
+		command.m_sdfRequestInfoArgs.m_bodyUniqueId = 37;
+		submitClientCommand(command);
+		int timeout = 1024 * 1024 * 1024;
+		
+		const SharedMemoryStatus* status = 0;
+
+		while ((status == 0) && (timeout-- > 0))
+		{
+			status = processServerStatus();
+		
+		}
+
+
+		//submitClientCommand(command);
+
+
+	}
+#endif
     return true;
 }
 
@@ -731,7 +761,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 				b3Warning("User debug draw failed");
 				break;
 			}
-
+			case CMD_USER_CONSTRAINT_COMPLETED:
+			{
+				break;
+			}
+			case CMD_USER_CONSTRAINT_FAILED:
+			{
+				b3Warning("createConstraint failed");
+				break;
+			}
             default: {
                 b3Error("Unknown server status %d\n", serverCmd.m_type);
                 btAssert(0);

@@ -683,7 +683,7 @@ void b3RobotSimAPI::createJoint(int parentBodyIndex, int parentJointIndex, int c
     b3Assert(b3CanSubmitCommand(m_data->m_physicsClient));
     if (b3CanSubmitCommand(m_data->m_physicsClient))
     {
-        statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClient, b3CreateJoint(m_data->m_physicsClient, parentBodyIndex, parentJointIndex, childBodyIndex, childJointIndex, jointInfo));
+        statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClient, b3InitCreateUserConstraintCommand(m_data->m_physicsClient, parentBodyIndex, parentJointIndex, childBodyIndex, childJointIndex, jointInfo));
     }
 }
 

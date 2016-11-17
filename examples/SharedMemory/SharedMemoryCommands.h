@@ -488,7 +488,14 @@ struct CalculateInverseKinematicsResultArgs
 	double m_jointPositions[MAX_DEGREE_OF_FREEDOM];
 };
 
-struct CreateJointArgs
+enum EnumUserConstraintFlags
+{
+    USER_CONSTRAINT_ADD_CONSTRAINT=1,
+	USER_CONSTRAINT_REMOVE_CONSTRAINT=2,
+	USER_CONSTRAINT_CHANGE_CONSTRAINT=4
+};
+
+struct UserConstraintArgs
 {
     int m_parentBodyIndex;
     int m_parentJointIndex;
@@ -498,9 +505,13 @@ struct CreateJointArgs
     double m_childFrame[7];
     double m_jointAxis[3];
     int m_jointType;
+	int m_userConstraintUniqueId;
 };
 
-
+struct UserConstraintResultArgs
+{
+	int m_userConstraintUniqueId;
+};
 
 enum EnumUserDebugDrawFlags
 {
@@ -563,7 +574,7 @@ struct SharedMemoryCommand
         struct ExternalForceArgs m_externalForceArguments;
 		struct CalculateInverseDynamicsArgs m_calculateInverseDynamicsArguments;
         struct CalculateJacobianArgs m_calculateJacobianArguments;
-        struct CreateJointArgs m_createJointArguments;
+        struct UserConstraintArgs m_userConstraintArguments;
         struct RequestContactDataArgs m_requestContactPointArguments;
 		struct RequestOverlappingObjectsArgs m_requestOverlappingObjectsArgs;
         struct RequestVisualShapeDataArgs m_requestVisualShapeDataArguments;
@@ -620,6 +631,7 @@ struct SharedMemoryStatus
 		struct CalculateInverseKinematicsResultArgs m_inverseKinematicsResultArgs;
 		struct SendVisualShapeDataArgs m_sendVisualShapeArgs;
 		struct UserDebugDrawResultArgs m_userDebugDrawArgs;
+		struct UserConstraintResultArgs m_userConstraintResultArgs;
 	};
 };
 

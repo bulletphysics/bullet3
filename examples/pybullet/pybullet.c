@@ -263,7 +263,8 @@ static PyObject* pybullet_saveBullet(PyObject* self, PyObject* args)
 	}
 	command = b3SaveBulletCommandInit(sm, bulletFileName);
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
-	if (statusHandle != CMD_BULLET_SAVING_COMPLETED)
+	statusType = b3GetStatusType(statusHandle);
+	if (statusType != CMD_BULLET_SAVING_COMPLETED)
 	{
 		PyErr_SetString(SpamError, "Couldn't save .bullet file.");
 		return NULL;
@@ -291,7 +292,8 @@ static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args)
 	}
 	command = b3LoadMJCFCommandInit(sm, mjcfjFileName);
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
-	if (statusHandle != CMD_MJCF_LOADING_COMPLETED)
+	statusType = b3GetStatusType(statusHandle);
+	if (statusType != CMD_MJCF_LOADING_COMPLETED)
 	{
 		PyErr_SetString(SpamError, "Couldn't load .mjcf file.");
 		return NULL;
@@ -1433,7 +1435,7 @@ static int pybullet_internalSetVectord(PyObject* obVec, double vector[3]) {
 }
 
 //  vector - double[3] which will be set by values from obVec
-static int pybullet_internalSetVector4(PyObject* obVec, double vector[4]) {
+static int pybullet_internalSetVector4d(PyObject* obVec, double vector[4]) {
     int i, len;
     PyObject* seq;
     if (obVec==NULL)
@@ -1459,7 +1461,6 @@ static PyObject* pybullet_addUserDebugText(PyObject* self, PyObject* args, PyObj
   int size = PySequence_Size(args);
   
   b3SharedMemoryCommandHandle commandHandle;
-  struct b3ContactInformation contactPointData;
   b3SharedMemoryStatusHandle statusHandle;
   int statusType;
   int res = 0;
@@ -1526,7 +1527,6 @@ static PyObject* pybullet_addUserDebugLine(PyObject* self, PyObject* args, PyObj
   int size = PySequence_Size(args);
   
   b3SharedMemoryCommandHandle commandHandle;
-  struct b3ContactInformation contactPointData;
   b3SharedMemoryStatusHandle statusHandle;
   int statusType;
   int res = 0;
@@ -1594,7 +1594,6 @@ static PyObject* pybullet_addUserDebugLine(PyObject* self, PyObject* args, PyObj
 static PyObject* pybullet_removeUserDebugItem(PyObject* self, PyObject* args, PyObject *keywds) 
 {
 	 b3SharedMemoryCommandHandle commandHandle;
-  struct b3ContactInformation contactPointData;
   b3SharedMemoryStatusHandle statusHandle;
   int statusType;
   int itemUniqueId;
@@ -1621,7 +1620,6 @@ static PyObject* pybullet_removeUserDebugItem(PyObject* self, PyObject* args, Py
 static PyObject* pybullet_removeAllUserDebugItems(PyObject* self, PyObject* args, PyObject *keywds) 
 {
 	 b3SharedMemoryCommandHandle commandHandle;
-  struct b3ContactInformation contactPointData;
   b3SharedMemoryStatusHandle statusHandle;
   int statusType;
 
@@ -2016,6 +2014,144 @@ static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, Py
   return Py_None;
 }
 
+static PyObject* pybullet_removeUserConstraint(PyObject* self, PyObject* args, PyObject *keywds) 
+{
+	static char *kwlist[] = { "userConstraintUniqueId",NULL};
+	int userConstraintUniqueId=-1;
+	b3SharedMemoryCommandHandle commandHandle;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+
+
+	if (0 == sm) 
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i", kwlist,&userConstraintUniqueId))
+	{
+		return NULL;
+	}
+
+	commandHandle = b3InitRemoveUserConstraintCommand(sm,userConstraintUniqueId);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	statusType = b3GetStatusType(statusHandle);
+	Py_INCREF(Py_None);
+	return Py_None;
+};
+
+
+/*
+static PyObject* pybullet_updateUserConstraint(PyObject* self, PyObject* args, PyObject *keywds) 
+{
+	return NULL;
+}
+*/
+
+static PyObject* pybullet_createUserConstraint(PyObject* self, PyObject* args, PyObject *keywds) 
+{
+	int size = PySequence_Size(args);
+	int bodyUniqueIdA = -1;
+	int bodyUniqueIdB = -1;
+  
+	b3SharedMemoryCommandHandle commandHandle;
+	int parentBodyUniqueId=-1;
+	int parentLinkIndex=-1;
+	int childBodyUniqueId=-1;
+	int childLinkIndex=-1;
+	int jointType=ePoint2PointType;
+	PyObject* jointAxisObj=0;
+	double jointAxis[3]={0,0,0};
+	PyObject* parentFramePositionObj = 0;
+	double parentFramePosition[3]={0,0,0};
+	PyObject* childFramePositionObj = 0;
+	double childFramePosition[3]={0,0,0};
+	PyObject* parentFrameOrientationObj = 0;
+	double parentFrameOrientation[4]={0,0,0,1};
+	PyObject* childFrameOrientationObj = 0;
+	double childFrameOrientation[4]={0,0,0,1};
+
+	struct b3JointInfo jointInfo;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	PyObject* pyResultList = 0;
+
+
+	static char *kwlist[] = { "parentBodyUniqueId", "parentLinkIndex",
+							  "childBodyUniqueId", "childLinkIndex",
+							"jointType",
+							"jointAxis",
+							"parentFramePosition",
+							"childFramePosition",
+							"parentFrameOrientation",
+		"childFrameOrientation",
+		NULL };
+
+	if (0 == sm) 
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiiiiOOO|OO", kwlist,&parentBodyUniqueId,&parentLinkIndex,
+										&childBodyUniqueId,&childLinkIndex,
+										&jointType,&jointAxisObj,
+										&parentFramePositionObj,
+										&childFramePositionObj,
+										&parentFrameOrientationObj,
+										&childFrameOrientationObj
+	))
+	{
+		return NULL;
+	}
+	
+	pybullet_internalSetVectord(jointAxisObj,jointAxis);
+	pybullet_internalSetVectord(parentFramePositionObj,parentFramePosition);
+	pybullet_internalSetVectord(childFramePositionObj,childFramePosition);
+	pybullet_internalSetVector4d(parentFrameOrientationObj,parentFrameOrientation);
+	pybullet_internalSetVector4d(childFrameOrientationObj,childFrameOrientation);
+	
+	jointInfo.m_jointType = jointType;
+	jointInfo.m_parentFrame[0] = parentFramePosition[0];
+	jointInfo.m_parentFrame[1] = parentFramePosition[1];
+	jointInfo.m_parentFrame[2] = parentFramePosition[2];
+	jointInfo.m_parentFrame[3] = parentFrameOrientation[0];
+	jointInfo.m_parentFrame[4] = parentFrameOrientation[1];
+	jointInfo.m_parentFrame[5] = parentFrameOrientation[2];
+	jointInfo.m_parentFrame[6] = parentFrameOrientation[3];
+
+	jointInfo.m_childFrame[0] = childFramePosition[0];
+	jointInfo.m_childFrame[1] = childFramePosition[1];
+	jointInfo.m_childFrame[2] = childFramePosition[2];
+	jointInfo.m_childFrame[3] = childFrameOrientation[0];
+	jointInfo.m_childFrame[4] = childFrameOrientation[1];
+	jointInfo.m_childFrame[5] = childFrameOrientation[2];
+	jointInfo.m_childFrame[6] = childFrameOrientation[3];
+	
+	jointInfo.m_jointAxis[0] = jointAxis[0];
+	jointInfo.m_jointAxis[1] = jointAxis[1];
+	jointInfo.m_jointAxis[2] = jointAxis[2];
+
+	commandHandle = b3InitCreateUserConstraintCommand(sm,  parentBodyUniqueId, parentLinkIndex, childBodyUniqueId, childLinkIndex, &jointInfo);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	statusType = b3GetStatusType(statusHandle);
+	if (statusType==CMD_USER_CONSTRAINT_COMPLETED)
+	{
+		int userConstraintUid = b3GetStatusUserConstraintUniqueId(statusHandle);
+		PyObject* ob = PyLong_FromLong(userConstraintUid);
+		return ob;
+	} else
+	{
+		PyErr_SetString(SpamError, "createConstraint failed.");
+		return NULL;
+	}
+
+  Py_INCREF(Py_None);
+  return Py_None;
+
+}
 
 static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args, PyObject *keywds) {
   int size = PySequence_Size(args);
@@ -2594,7 +2730,7 @@ static PyObject* pybullet_calculateInverseKinematicsKuka(PyObject* self,
             double pos[3];
             double ori[4]={0,1.0,0,0};
             
-            if (pybullet_internalSetVectord(targetPosObj,pos) && pybullet_internalSetVector4(targetOrnObj,ori))
+            if (pybullet_internalSetVectord(targetPosObj,pos) && pybullet_internalSetVector4d(targetOrnObj,ori))
             {
                 b3SharedMemoryStatusHandle statusHandle;
                 int numPos=0;
@@ -2820,6 +2956,14 @@ static PyMethodDef SpamMethods[] = {
 	 { "loadMJCF", pybullet_loadMJCF, METH_VARARGS,
 	"Load multibodies from an MJCF file." },
 
+	  {"createConstraint", (PyCFunction)pybullet_createUserConstraint, METH_VARARGS | METH_KEYWORDS,
+	"Create a constraint between two bodies. Returns a (int) unique id, if successfull."
+     },
+
+	{"removeConstraint", (PyCFunction)pybullet_removeUserConstraint, METH_VARARGS | METH_KEYWORDS,
+     "Remove a constraint using its unique id."
+     },
+	
 	{"saveWorld", pybullet_saveWorld, METH_VARARGS,
      "Save a approximate Python file to reproduce the current state of the world: saveWorld"
 	"(filename). (very preliminary and approximately)"},

@@ -1,11 +1,14 @@
 #ifdef BT_ENABLE_VR
-//#define BT_USE_CUSTOM_PROFILER
+#ifdef BT_USE_CUSTOM_PROFILER
+#endif
+
 //========= Copyright Valve Corporation ============//
 
 #include "../OpenGLWindow/SimpleOpenGL3App.h"
 #include "../OpenGLWindow/OpenGLInclude.h"
 #include "Bullet3Common/b3Quaternion.h"
 #include "Bullet3Common/b3Transform.h"
+#include "Bullet3Common/b3CommandLineArgs.h"
 
 
 #include "../ExampleBrowser/OpenGLGuiHelper.h"
@@ -776,11 +779,13 @@ void CMainApplication::RunMainLoop()
 
 	while ( !bQuit && !m_app->m_window->requestedExit())
 	{
+		{
 		B3_PROFILE("main");
 
 		bQuit = HandleInput();
 
 		RenderFrame();
+	}
 	}
 
 }
@@ -1282,6 +1287,8 @@ void CMainApplication::AddCubeToScene( Matrix4 mat, std::vector<float> &vertdata
 //-----------------------------------------------------------------------------
 // Purpose: Draw all of the controllers as X/Y/Z lines
 //-----------------------------------------------------------------------------
+extern int gGraspingController;
+
 void CMainApplication::DrawControllers()
 {
 	// don't draw controllers if somebody else has input focus
@@ -1295,6 +1302,8 @@ void CMainApplication::DrawControllers()
 
 	for ( vr::TrackedDeviceIndex_t unTrackedDevice = vr::k_unTrackedDeviceIndex_Hmd + 1; unTrackedDevice < vr::k_unMaxTrackedDeviceCount; ++unTrackedDevice )
 	{
+		
+
 		if ( !m_pHMD->IsTrackedDeviceConnected( unTrackedDevice ) )
 			continue;
 
@@ -2183,9 +2192,11 @@ void CGLRenderModel::Draw()
 //-----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
+
+
 #ifdef BT_USE_CUSTOM_PROFILER
-	//b3SetCustomEnterProfileZoneFunc(...);
-	//b3SetCustomLeaveProfileZoneFunc(...);
+	b3SetCustomEnterProfileZoneFunc(dcEnter);
+	b3SetCustomLeaveProfileZoneFunc(dcLeave);
 #endif
 
 
@@ -2223,7 +2234,6 @@ int main(int argc, char *argv[])
 	pMainApplication->Shutdown();
 
 #ifdef BT_USE_CUSTOM_PROFILER
-//...
 #endif
 
 	return 0;

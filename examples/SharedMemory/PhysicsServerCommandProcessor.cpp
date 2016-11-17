@@ -43,8 +43,12 @@ bool gCloseToKuka=false;
 bool gEnableRealTimeSimVR=false;
 bool gCreateDefaultRobotAssets = false;
 int gInternalSimFlags = 0;
+int gHuskyId = -1;
+btTransform huskyTr = btTransform::getIdentity();
 
 int gCreateObjectSimVR = -1;
+int gEnableKukaControl = 0;
+
 btScalar simTimeScalingFactor = 1;
 btScalar gRhsClamp = 1.f;
 
@@ -120,6 +124,17 @@ struct InteralBodyData
 		m_testData(0)
 	{
 		m_rootLocalInertialFrame.setIdentity();
+	}
+};
+
+struct InteralUserConstraintData
+{
+	btTypedConstraint* m_rbConstraint;
+	btMultiBodyConstraint* m_mbConstraint;
+	InteralUserConstraintData()
+		:m_rbConstraint(0),
+		m_mbConstraint(0)
+	{
 	}
 };
 
@@ -468,6 +483,10 @@ struct PhysicsServerCommandProcessorInternalData
 	btAlignedObjectArray<btMultiBodyJointFeedback*> m_multiBodyJointFeedbacks;
 	btHashMap<btHashPtr, btInverseDynamics::MultiBodyTree*> m_inverseDynamicsBodies;
 	btHashMap<btHashPtr, IKTrajectoryHelper*> m_inverseKinematicsHelpers;
+	
+	int m_userConstraintUIDGenerator;
+	btHashMap<btHashInt, InteralUserConstraintData> m_userConstraints;
+
 	b3AlignedObjectArray<SaveWorldObjectData> m_saveWorldBodyData;
 
 
@@ -523,7 +542,7 @@ struct PhysicsServerCommandProcessorInternalData
 		m_kukaGripperMultiBody(0),
 		m_kukaGripperRevolute1(0),
 		m_kukaGripperRevolute2(0),
-		m_allowRealTimeSimulation(false),
+		m_allowRealTimeSimulation(true),
 		m_huskyId(-1),
 		m_KukaId(-1),
 		m_sphereId(-1),
@@ -532,6 +551,7 @@ struct PhysicsServerCommandProcessorInternalData
 		m_logPlayback(0),
 		m_physicsDeltaTime(1./240.),
         m_numSimulationSubSteps(0),
+		m_userConstraintUIDGenerator(1),
 		m_dynamicsWorld(0),
 		m_remoteDebugDrawer(0),
 		m_guiHelper(0),
@@ -688,7 +708,7 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 #endif
     
     //Workaround: in a VR application, where we avoid synchronizaing between GFX/Physics threads, we don't want to resize this array, so pre-allocate it
-    m_data->m_dynamicsWorld->getCollisionObjectArray().reserve(8192);
+    m_data->m_dynamicsWorld->getCollisionObjectArray().reserve(32768);
     
     m_data->m_remoteDebugDrawer = new SharedMemoryDebugDrawer();
     
@@ -3097,72 +3117,144 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     hasStatus = true;
                     break;
                 }
-                case CMD_CREATE_JOINT:
+                case CMD_USER_CONSTRAINT:
                 {
-                    InteralBodyData* parentBody = m_data->getHandle(clientCmd.m_createJointArguments.m_parentBodyIndex);
-                    if (parentBody && parentBody->m_multiBody)
-                    {
-                        InteralBodyData* childBody = m_data->getHandle(clientCmd.m_createJointArguments.m_childBodyIndex);
-                        if (childBody)
-                        {
-                            btVector3 pivotInParent(clientCmd.m_createJointArguments.m_parentFrame[0], clientCmd.m_createJointArguments.m_parentFrame[1], clientCmd.m_createJointArguments.m_parentFrame[2]);
-                            btVector3 pivotInChild(clientCmd.m_createJointArguments.m_childFrame[0], clientCmd.m_createJointArguments.m_childFrame[1], clientCmd.m_createJointArguments.m_childFrame[2]);
-                            btMatrix3x3 frameInParent(btQuaternion(clientCmd.m_createJointArguments.m_parentFrame[3], clientCmd.m_createJointArguments.m_parentFrame[4], clientCmd.m_createJointArguments.m_parentFrame[5], clientCmd.m_createJointArguments.m_parentFrame[6]));
-                            btMatrix3x3 frameInChild(btQuaternion(clientCmd.m_createJointArguments.m_childFrame[3], clientCmd.m_createJointArguments.m_childFrame[4], clientCmd.m_createJointArguments.m_childFrame[5], clientCmd.m_createJointArguments.m_childFrame[6]));
-                            btVector3 jointAxis(clientCmd.m_createJointArguments.m_jointAxis[0], clientCmd.m_createJointArguments.m_jointAxis[1], clientCmd.m_createJointArguments.m_jointAxis[2]);
-                            if (clientCmd.m_createJointArguments.m_jointType == eFixedType)
-                            {
-                                if (childBody->m_multiBody)
-                                {
-                                    btMultiBodyFixedConstraint* multibodyFixed = new btMultiBodyFixedConstraint(parentBody->m_multiBody,clientCmd.m_createJointArguments.m_parentJointIndex,childBody->m_multiBody,clientCmd.m_createJointArguments.m_childJointIndex,pivotInParent,pivotInChild,frameInParent,frameInChild);
-                                    multibodyFixed->setMaxAppliedImpulse(500.0);
-                                    m_data->m_dynamicsWorld->addMultiBodyConstraint(multibodyFixed);
-                                }
-                                else
-                                {
-                                    btMultiBodyFixedConstraint* rigidbodyFixed = new btMultiBodyFixedConstraint(parentBody->m_multiBody,clientCmd.m_createJointArguments.m_parentJointIndex,childBody->m_rigidBody,pivotInParent,pivotInChild,frameInParent,frameInChild);
-                                    rigidbodyFixed->setMaxAppliedImpulse(500.0);
-                                    btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_data->m_dynamicsWorld;
-                                    world->addMultiBodyConstraint(rigidbodyFixed);
-                                }
-                            }
-                            else if (clientCmd.m_createJointArguments.m_jointType == ePrismaticType)
-                            {
-                                if (childBody->m_multiBody)
-                                {
-                                    btMultiBodySliderConstraint* multibodySlider = new btMultiBodySliderConstraint(parentBody->m_multiBody,clientCmd.m_createJointArguments.m_parentJointIndex,childBody->m_multiBody,clientCmd.m_createJointArguments.m_childJointIndex,pivotInParent,pivotInChild,frameInParent,frameInChild,jointAxis);
-                                    multibodySlider->setMaxAppliedImpulse(500.0);
-                                    m_data->m_dynamicsWorld->addMultiBodyConstraint(multibodySlider);
-                                }
-                                else
-                                {
-                                    btMultiBodySliderConstraint* rigidbodySlider = new btMultiBodySliderConstraint(parentBody->m_multiBody,clientCmd.m_createJointArguments.m_parentJointIndex,childBody->m_rigidBody,pivotInParent,pivotInChild,frameInParent,frameInChild,jointAxis);
-                                    rigidbodySlider->setMaxAppliedImpulse(500.0);
-                                    btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_data->m_dynamicsWorld;
-                                    world->addMultiBodyConstraint(rigidbodySlider);
-                                }
-                            } else if (clientCmd.m_createJointArguments.m_jointType == ePoint2PointType)
-                            {
-                                if (childBody->m_multiBody)
-                                {
-									btMultiBodyPoint2Point* p2p = new btMultiBodyPoint2Point(parentBody->m_multiBody,clientCmd.m_createJointArguments.m_parentJointIndex,childBody->m_multiBody,clientCmd.m_createJointArguments.m_childJointIndex,pivotInParent,pivotInChild);
-                                    p2p->setMaxAppliedImpulse(500);
-                                    m_data->m_dynamicsWorld->addMultiBodyConstraint(p2p);
-                                }
-                                else
-                                {
-                                    btMultiBodyPoint2Point* p2p = new btMultiBodyPoint2Point(parentBody->m_multiBody,clientCmd.m_createJointArguments.m_parentJointIndex,childBody->m_rigidBody,pivotInParent,pivotInChild);
-                                    p2p->setMaxAppliedImpulse(500);
-                                    btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_data->m_dynamicsWorld;
-                                    world->addMultiBodyConstraint(p2p);
-                                }
-                            }
-
-                        }
-                    }
 					SharedMemoryStatus& serverCmd =serverStatusOut;
-                    serverCmd.m_type = CMD_CLIENT_COMMAND_COMPLETED;
+                    serverCmd.m_type = CMD_USER_CONSTRAINT_FAILED;
                     hasStatus = true;
+
+					if (clientCmd.m_updateFlags & USER_CONSTRAINT_ADD_CONSTRAINT)
+					{
+						InteralBodyData* parentBody = m_data->getHandle(clientCmd.m_userConstraintArguments.m_parentBodyIndex);
+						if (parentBody && parentBody->m_multiBody)
+						{
+							InteralBodyData* childBody = m_data->getHandle(clientCmd.m_userConstraintArguments.m_childBodyIndex);
+							if (childBody)
+							{
+								btVector3 pivotInParent(clientCmd.m_userConstraintArguments.m_parentFrame[0], clientCmd.m_userConstraintArguments.m_parentFrame[1], clientCmd.m_userConstraintArguments.m_parentFrame[2]);
+								btVector3 pivotInChild(clientCmd.m_userConstraintArguments.m_childFrame[0], clientCmd.m_userConstraintArguments.m_childFrame[1], clientCmd.m_userConstraintArguments.m_childFrame[2]);
+								btMatrix3x3 frameInParent(btQuaternion(clientCmd.m_userConstraintArguments.m_parentFrame[3], clientCmd.m_userConstraintArguments.m_parentFrame[4], clientCmd.m_userConstraintArguments.m_parentFrame[5], clientCmd.m_userConstraintArguments.m_parentFrame[6]));
+								btMatrix3x3 frameInChild(btQuaternion(clientCmd.m_userConstraintArguments.m_childFrame[3], clientCmd.m_userConstraintArguments.m_childFrame[4], clientCmd.m_userConstraintArguments.m_childFrame[5], clientCmd.m_userConstraintArguments.m_childFrame[6]));
+								btVector3 jointAxis(clientCmd.m_userConstraintArguments.m_jointAxis[0], clientCmd.m_userConstraintArguments.m_jointAxis[1], clientCmd.m_userConstraintArguments.m_jointAxis[2]);
+								if (clientCmd.m_userConstraintArguments.m_jointType == eFixedType)
+								{
+									if (childBody->m_multiBody)
+									{
+										btMultiBodyFixedConstraint* multibodyFixed = new btMultiBodyFixedConstraint(parentBody->m_multiBody,clientCmd.m_userConstraintArguments.m_parentJointIndex,childBody->m_multiBody,clientCmd.m_userConstraintArguments.m_childJointIndex,pivotInParent,pivotInChild,frameInParent,frameInChild);
+										multibodyFixed->setMaxAppliedImpulse(500.0);
+										m_data->m_dynamicsWorld->addMultiBodyConstraint(multibodyFixed);
+										InteralUserConstraintData userConstraintData;
+										userConstraintData.m_mbConstraint = multibodyFixed;
+										int uid = m_data->m_userConstraintUIDGenerator++;
+										m_data->m_userConstraints.insert(uid,userConstraintData);
+										serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = uid;
+										serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
+									
+									}
+									else
+									{
+										btMultiBodyFixedConstraint* rigidbodyFixed = new btMultiBodyFixedConstraint(parentBody->m_multiBody,clientCmd.m_userConstraintArguments.m_parentJointIndex,childBody->m_rigidBody,pivotInParent,pivotInChild,frameInParent,frameInChild);
+										rigidbodyFixed->setMaxAppliedImpulse(500.0);
+										btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_data->m_dynamicsWorld;
+										world->addMultiBodyConstraint(rigidbodyFixed);
+										InteralUserConstraintData userConstraintData;
+										userConstraintData.m_mbConstraint = rigidbodyFixed;
+										int uid = m_data->m_userConstraintUIDGenerator++;
+										m_data->m_userConstraints.insert(uid,userConstraintData);
+										serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = uid;
+										serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
+									}
+								
+								}
+								else if (clientCmd.m_userConstraintArguments.m_jointType == ePrismaticType)
+								{
+									if (childBody->m_multiBody)
+									{
+										btMultiBodySliderConstraint* multibodySlider = new btMultiBodySliderConstraint(parentBody->m_multiBody,clientCmd.m_userConstraintArguments.m_parentJointIndex,childBody->m_multiBody,clientCmd.m_userConstraintArguments.m_childJointIndex,pivotInParent,pivotInChild,frameInParent,frameInChild,jointAxis);
+										multibodySlider->setMaxAppliedImpulse(500.0);
+										m_data->m_dynamicsWorld->addMultiBodyConstraint(multibodySlider);
+										InteralUserConstraintData userConstraintData;
+										userConstraintData.m_mbConstraint = multibodySlider;
+										int uid = m_data->m_userConstraintUIDGenerator++;
+										m_data->m_userConstraints.insert(uid,userConstraintData);
+										serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = uid;
+										serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
+									}
+									else
+									{
+										btMultiBodySliderConstraint* rigidbodySlider = new btMultiBodySliderConstraint(parentBody->m_multiBody,clientCmd.m_userConstraintArguments.m_parentJointIndex,childBody->m_rigidBody,pivotInParent,pivotInChild,frameInParent,frameInChild,jointAxis);
+										rigidbodySlider->setMaxAppliedImpulse(500.0);
+										btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_data->m_dynamicsWorld;
+										world->addMultiBodyConstraint(rigidbodySlider);
+										InteralUserConstraintData userConstraintData;
+										userConstraintData.m_mbConstraint = rigidbodySlider;
+										int uid = m_data->m_userConstraintUIDGenerator++;
+										m_data->m_userConstraints.insert(uid,userConstraintData);
+										serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = uid;
+										serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
+									}
+								
+								} else if (clientCmd.m_userConstraintArguments.m_jointType == ePoint2PointType)
+								{
+									if (childBody->m_multiBody)
+									{
+										btMultiBodyPoint2Point* p2p = new btMultiBodyPoint2Point(parentBody->m_multiBody,clientCmd.m_userConstraintArguments.m_parentJointIndex,childBody->m_multiBody,clientCmd.m_userConstraintArguments.m_childJointIndex,pivotInParent,pivotInChild);
+										p2p->setMaxAppliedImpulse(500);
+										m_data->m_dynamicsWorld->addMultiBodyConstraint(p2p);
+										InteralUserConstraintData userConstraintData;
+										userConstraintData.m_mbConstraint = p2p;
+										int uid = m_data->m_userConstraintUIDGenerator++;
+										m_data->m_userConstraints.insert(uid,userConstraintData);
+										serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = uid;
+										serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
+									}
+									else
+									{
+										btMultiBodyPoint2Point* p2p = new btMultiBodyPoint2Point(parentBody->m_multiBody,clientCmd.m_userConstraintArguments.m_parentJointIndex,childBody->m_rigidBody,pivotInParent,pivotInChild);
+										p2p->setMaxAppliedImpulse(500);
+										btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_data->m_dynamicsWorld;
+										world->addMultiBodyConstraint(p2p);
+										InteralUserConstraintData userConstraintData;
+										userConstraintData.m_mbConstraint = p2p;
+										int uid = m_data->m_userConstraintUIDGenerator++;
+										m_data->m_userConstraints.insert(uid,userConstraintData);
+										serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = uid;
+										serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
+									}
+								
+								} else
+								{
+									b3Warning("unknown constraint type");
+								}
+
+							
+							}
+						}
+					}
+
+					if (clientCmd.m_updateFlags & USER_CONSTRAINT_REMOVE_CONSTRAINT)
+					{
+						int userConstraintUidRemove = clientCmd.m_userConstraintArguments.m_userConstraintUniqueId;
+						InteralUserConstraintData* userConstraintPtr = m_data->m_userConstraints.find(userConstraintUidRemove);
+						if (userConstraintPtr)
+						{
+							if (userConstraintPtr->m_mbConstraint)
+							{
+								m_data->m_dynamicsWorld->removeMultiBodyConstraint(userConstraintPtr->m_mbConstraint);
+								delete userConstraintPtr->m_mbConstraint;
+								m_data->m_userConstraints.remove(userConstraintUidRemove);
+							}
+							if (userConstraintPtr->m_rbConstraint)
+							{
+
+							}
+							serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = -1;
+							serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
+						}
+
+						
+					}
+					
                     break;
                 }
 				case CMD_CALCULATE_INVERSE_KINEMATICS:
@@ -3586,6 +3678,7 @@ void    PhysicsServerCommandProcessor::physicsDebugDraw(int debugDrawFlags)
 
 bool PhysicsServerCommandProcessor::pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld)
 {
+
 	if (m_data->m_dynamicsWorld==0)
 		return false;
 
@@ -3619,7 +3712,7 @@ bool PhysicsServerCommandProcessor::pickBody(const btVector3& rayFromWorld, cons
 		} else
 		{
 			btMultiBodyLinkCollider* multiCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(rayCallback.m_collisionObject);
-			if (multiCol && multiCol->m_multiBody)
+			if (multiCol && multiCol->m_multiBody && multiCol->m_multiBody->getBaseMass()>0.)
 			{
 
 				m_data->m_prevCanSleep = multiCol->m_multiBody->getCanSleep();
@@ -3771,6 +3864,16 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			gSubStep = m_data->m_physicsDeltaTime;
 		}
 		
+		if (gHuskyId >= 0)
+		{
+			InternalBodyHandle* bodyHandle = m_data->getHandle(gHuskyId);
+			if (bodyHandle && bodyHandle->m_multiBody)
+			{
+				huskyTr = bodyHandle->m_multiBody->getBaseWorldTransform();
+			}
+		}
+
+
 		int numSteps = m_data->m_dynamicsWorld->stepSimulation(dtInSec*simTimeScalingFactor,maxSteps, gSubStep);
 		gDroppedSimulationSteps += numSteps > maxSteps ? numSteps - maxSteps : 0;
 
@@ -3830,7 +3933,8 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 		m_data->m_hasGround = true;
 
 		loadUrdf("plane.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, true, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		loadUrdf("samurai.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+//		loadUrdf("samurai.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+//		loadUrdf("quadruped/quadruped.urdf", btVector3(2, 2, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 
 		if (m_data->m_gripperRigidbodyFixed == 0)
 		{
@@ -3993,7 +4097,9 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 		//loadUrdf("rook.urdf", btVector3(-1.2, 0, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 		//loadUrdf("knight.urdf", btVector3(-1.2, 0.2, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 
-		//loadUrdf("husky/husky.urdf", btVector3(2, -5, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+		loadUrdf("husky/husky.urdf", btVector3(2, -5, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+		gHuskyId = bodyId;
+		b3Printf("huskyId = %d", gHuskyId);
 		m_data->m_huskyId = bodyId;
 
 		m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, -10));
@@ -4096,7 +4202,7 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 			q_new[5] = -SIMD_HALF_PI*0.66;
 			q_new[6] = 0;
 
-			if (gCloseToKuka)
+			if (gCloseToKuka && gEnableKukaControl)
 			{
 				double dampIk[6] = {1.0, 1.0, 1.0, 1.0, 1.0, 0.0};
 
