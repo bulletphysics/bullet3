@@ -43,8 +43,12 @@ bool gCloseToKuka=false;
 bool gEnableRealTimeSimVR=false;
 bool gCreateDefaultRobotAssets = false;
 int gInternalSimFlags = 0;
+int gHuskyId = -1;
+btTransform huskyTr = btTransform::getIdentity();
 
 int gCreateObjectSimVR = -1;
+int gEnableKukaControl = 0;
+
 btScalar simTimeScalingFactor = 1;
 btScalar gRhsClamp = 1.f;
 
@@ -538,7 +542,7 @@ struct PhysicsServerCommandProcessorInternalData
 		m_kukaGripperMultiBody(0),
 		m_kukaGripperRevolute1(0),
 		m_kukaGripperRevolute2(0),
-		m_allowRealTimeSimulation(false),
+		m_allowRealTimeSimulation(true),
 		m_huskyId(-1),
 		m_KukaId(-1),
 		m_sphereId(-1),
@@ -704,7 +708,7 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 #endif
     
     //Workaround: in a VR application, where we avoid synchronizaing between GFX/Physics threads, we don't want to resize this array, so pre-allocate it
-    m_data->m_dynamicsWorld->getCollisionObjectArray().reserve(8192);
+    m_data->m_dynamicsWorld->getCollisionObjectArray().reserve(32768);
     
     m_data->m_remoteDebugDrawer = new SharedMemoryDebugDrawer();
     
@@ -3674,6 +3678,7 @@ void    PhysicsServerCommandProcessor::physicsDebugDraw(int debugDrawFlags)
 
 bool PhysicsServerCommandProcessor::pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld)
 {
+
 	if (m_data->m_dynamicsWorld==0)
 		return false;
 
@@ -3707,7 +3712,7 @@ bool PhysicsServerCommandProcessor::pickBody(const btVector3& rayFromWorld, cons
 		} else
 		{
 			btMultiBodyLinkCollider* multiCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(rayCallback.m_collisionObject);
-			if (multiCol && multiCol->m_multiBody)
+			if (multiCol && multiCol->m_multiBody && multiCol->m_multiBody->getBaseMass()>0.)
 			{
 
 				m_data->m_prevCanSleep = multiCol->m_multiBody->getCanSleep();
@@ -3859,6 +3864,16 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 			gSubStep = m_data->m_physicsDeltaTime;
 		}
 		
+		if (gHuskyId >= 0)
+		{
+			InternalBodyHandle* bodyHandle = m_data->getHandle(gHuskyId);
+			if (bodyHandle && bodyHandle->m_multiBody)
+			{
+				huskyTr = bodyHandle->m_multiBody->getBaseWorldTransform();
+			}
+		}
+
+
 		int numSteps = m_data->m_dynamicsWorld->stepSimulation(dtInSec*simTimeScalingFactor,maxSteps, gSubStep);
 		gDroppedSimulationSteps += numSteps > maxSteps ? numSteps - maxSteps : 0;
 
@@ -3918,7 +3933,8 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 		m_data->m_hasGround = true;
 
 		loadUrdf("plane.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, true, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		loadUrdf("samurai.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+//		loadUrdf("samurai.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+//		loadUrdf("quadruped/quadruped.urdf", btVector3(2, 2, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 
 		if (m_data->m_gripperRigidbodyFixed == 0)
 		{
@@ -4081,7 +4097,9 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 		//loadUrdf("rook.urdf", btVector3(-1.2, 0, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 		//loadUrdf("knight.urdf", btVector3(-1.2, 0.2, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 
-		//loadUrdf("husky/husky.urdf", btVector3(2, -5, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+		loadUrdf("husky/husky.urdf", btVector3(2, -5, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+		gHuskyId = bodyId;
+		b3Printf("huskyId = %d", gHuskyId);
 		m_data->m_huskyId = bodyId;
 
 		m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, -10));
@@ -4184,7 +4202,7 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 			q_new[5] = -SIMD_HALF_PI*0.66;
 			q_new[6] = 0;
 
-			if (gCloseToKuka)
+			if (gCloseToKuka && gEnableKukaControl)
 			{
 				double dampIk[6] = {1.0, 1.0, 1.0, 1.0, 1.0, 0.0};
 

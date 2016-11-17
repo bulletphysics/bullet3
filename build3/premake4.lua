@@ -57,7 +57,7 @@
 		description = "Use Midi controller to control parameters"
 	}
 
---	--_OPTIONS["midi"] = "1";
+-- _OPTIONS["midi"] = "1";
 
 	newoption
 	{
@@ -237,6 +237,7 @@ end
 
 	language "C++"
 
+
 	if not _OPTIONS["no-demos"] then
 		include "../examples/ExampleBrowser"
 		include "../examples/OpenGLWindow"
@@ -265,6 +266,10 @@ end
 		end
 	end
 
+	if _OPTIONS["midi"] then
+		include "../examples/ThirdPartyLibs/midi"
+	end
+	
 	if not _OPTIONS["no-enet"] then
 				include "../examples/ThirdPartyLibs/enet"
 				include "../test/enet/nat_punchthrough/client"
