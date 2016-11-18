@@ -35,8 +35,6 @@ protected:
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
-    virtual void addCollisionObject(btCollisionObject* collisionObject,short int collisionFilterGroup=btBroadphaseProxy::StaticFilter,short int collisionFilterMask=btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
-
 	btDiscreteDynamicsWorldMt(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btConstraintSolver* constraintSolver,btCollisionConfiguration* collisionConfiguration);
 	virtual ~btDiscreteDynamicsWorldMt();
 };
