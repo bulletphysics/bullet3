@@ -1377,15 +1377,18 @@ static int pybullet_internalSetMatrix(PyObject* objMat, float matrix[16]) {
   PyObject* seq;
 
   seq = PySequence_Fast(objMat, "expected a sequence");
-  len = PySequence_Size(objMat);
-  if (len == 16) {
-    for (i = 0; i < len; i++) {
-      matrix[i] = pybullet_internalGetFloatFromSequence(seq, i);
-    }
-    Py_DECREF(seq);
-    return 1;
+  if (seq)
+  {
+	  len = PySequence_Size(objMat);
+	  if (len == 16) {
+		  for (i = 0; i < len; i++) {
+			  matrix[i] = pybullet_internalGetFloatFromSequence(seq, i);
+		  }
+		  Py_DECREF(seq);
+		  return 1;
+	  }
+	  Py_DECREF(seq);
   }
-  Py_DECREF(seq);
   return 0;
 }
 
@@ -1397,20 +1400,24 @@ static int pybullet_internalSetMatrix(PyObject* objMat, float matrix[16]) {
 //  vector - float[3] which will be set by values from objMat
 static int pybullet_internalSetVector(PyObject* objVec, float vector[3]) {
   int i, len;
-  PyObject* seq;
+  PyObject* seq=0;
   if (objVec==NULL)
 		return 0;
 
   seq = PySequence_Fast(objVec, "expected a sequence");
-  len = PySequence_Size(objVec);
-  if (len == 3) {
-    for (i = 0; i < len; i++) {
-      vector[i] = pybullet_internalGetFloatFromSequence(seq, i);
-    }
-    Py_DECREF(seq);
-    return 1;
+  if (seq)
+  {
+
+	  len = PySequence_Size(objVec);
+	  if (len == 3) {
+		for (i = 0; i < len; i++) {
+		  vector[i] = pybullet_internalGetFloatFromSequence(seq, i);
+		}
+		Py_DECREF(seq);
+		return 1;
+	  }
+	Py_DECREF(seq);
   }
-  Py_DECREF(seq);
   return 0;
 }
 
@@ -1422,15 +1429,18 @@ static int pybullet_internalSetVectord(PyObject* obVec, double vector[3]) {
 		return 0;
 
     seq = PySequence_Fast(obVec, "expected a sequence");
-    len = PySequence_Size(obVec);
-    if (len == 3) {
-        for (i = 0; i < len; i++) {
-            vector[i] = pybullet_internalGetFloatFromSequence(seq, i);
-        }
-        Py_DECREF(seq);
-        return 1;
-    }
-    Py_DECREF(seq);
+	if (seq)
+	{
+		len = PySequence_Size(obVec);
+		if (len == 3) {
+			for (i = 0; i < len; i++) {
+				vector[i] = pybullet_internalGetFloatFromSequence(seq, i);
+			}
+			Py_DECREF(seq);
+			return 1;
+		}
+		Py_DECREF(seq);
+	}
     return 0;
 }
 
@@ -2196,6 +2206,302 @@ static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args, Py
   return Py_None;
 }
 
+
+
+/// Render an image from the current timestep of the simulation, width, height are required, other args are optional
+// getCameraImage(w, h, view[16], projection[16], lightpos[3])
+static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObject *keywds)
+{
+	/// request an image from a simulated camera, using a software renderer.
+	struct b3CameraImageData imageData;
+	PyObject* objViewMat = 0, *objProjMat = 0, *lightDirObj = 0;
+	int width, height;
+	int size = PySequence_Size(args);
+	float viewMatrix[16];
+	float projectionMatrix[16];
+	float lightDir[3];
+	// inialize cmd
+	b3SharedMemoryCommandHandle command;
+
+	if (0 == sm)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	command = b3InitRequestCameraImage(sm);
+
+	// set camera resolution, optionally view, projection matrix, light direction
+	static char *kwlist[] = { "width", "height", "viewMatrix", "projectionMatrix", "lightDirection",NULL };
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|OOO", kwlist, &width, &height, &objViewMat, &objProjMat, &lightDirObj))
+	{
+		return NULL;
+	}
+	b3RequestCameraImageSetPixelResolution(command, width, height);
+
+	// set camera matrices only if set matrix function succeeds
+	if (pybullet_internalSetMatrix(objViewMat, viewMatrix) && (pybullet_internalSetMatrix(objProjMat, projectionMatrix)))
+	{
+		b3RequestCameraImageSetCameraMatrices(command, viewMatrix, projectionMatrix);
+	}
+	//set light pos only if function succeeds
+	if (pybullet_internalSetVector(lightDirObj, lightDir))
+	{
+		b3RequestCameraImageSetLightDirection(command, lightDir);
+	}
+
+
+	if (b3CanSubmitCommand(sm))
+	{
+		b3SharedMemoryStatusHandle statusHandle;
+		int statusType;
+
+		// b3RequestCameraImageSelectRenderer(command,ER_BULLET_HARDWARE_OPENGL);
+
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+		statusType = b3GetStatusType(statusHandle);
+		if (statusType == CMD_CAMERA_IMAGE_COMPLETED) {
+			PyObject* item2;
+			PyObject* pyResultList;  // store 4 elements in this result: width,
+									 // height, rgbData, depth
+
+#ifdef PYBULLET_USE_NUMPY
+			PyObject* pyRGB;
+			PyObject* pyDep;
+			PyObject* pySeg;
+
+			int i, j, p;
+
+			b3GetCameraImageData(sm, &imageData);
+			// TODO(hellojas): error handling if image size is 0
+			pyResultList = PyTuple_New(5);
+			PyTuple_SetItem(pyResultList, 0, PyInt_FromLong(imageData.m_pixelWidth));
+			PyTuple_SetItem(pyResultList, 1, PyInt_FromLong(imageData.m_pixelHeight));
+
+			int bytesPerPixel = 4;  // Red, Green, Blue, and Alpha each 8 bit values
+
+			npy_intp rgb_dims[3] = { imageData.m_pixelHeight, imageData.m_pixelWidth,
+				bytesPerPixel };
+			npy_intp dep_dims[2] = { imageData.m_pixelHeight, imageData.m_pixelWidth };
+			npy_intp seg_dims[2] = { imageData.m_pixelHeight, imageData.m_pixelWidth };
+
+			pyRGB = PyArray_SimpleNew(3, rgb_dims, NPY_UINT8);
+			pyDep = PyArray_SimpleNew(2, dep_dims, NPY_FLOAT32);
+			pySeg = PyArray_SimpleNew(2, seg_dims, NPY_INT32);
+
+			memcpy(PyArray_DATA(pyRGB), imageData.m_rgbColorData,
+				imageData.m_pixelHeight * imageData.m_pixelWidth * bytesPerPixel);
+			memcpy(PyArray_DATA(pyDep), imageData.m_depthValues,
+				imageData.m_pixelHeight * imageData.m_pixelWidth);
+			memcpy(PyArray_DATA(pySeg), imageData.m_segmentationMaskValues,
+				imageData.m_pixelHeight * imageData.m_pixelWidth);
+
+			PyTuple_SetItem(pyResultList, 2, pyRGB);
+			PyTuple_SetItem(pyResultList, 3, pyDep);
+			PyTuple_SetItem(pyResultList, 4, pySeg);
+#else//PYBULLET_USE_NUMPY
+			PyObject* pylistRGB;
+			PyObject* pylistDep;
+			PyObject* pylistSeg;
+
+			int i, j, p;
+
+			b3GetCameraImageData(sm, &imageData);
+			// TODO(hellojas): error handling if image size is 0
+			pyResultList = PyTuple_New(5);
+			PyTuple_SetItem(pyResultList, 0, PyInt_FromLong(imageData.m_pixelWidth));
+			PyTuple_SetItem(pyResultList, 1, PyInt_FromLong(imageData.m_pixelHeight));
+
+			{
+				PyObject* item;
+				int bytesPerPixel = 4;  // Red, Green, Blue, and Alpha each 8 bit values
+				int num =
+					bytesPerPixel * imageData.m_pixelWidth * imageData.m_pixelHeight;
+				pylistRGB = PyTuple_New(num);
+				pylistDep =
+					PyTuple_New(imageData.m_pixelWidth * imageData.m_pixelHeight);
+				pylistSeg =
+					PyTuple_New(imageData.m_pixelWidth * imageData.m_pixelHeight);
+				for (i = 0; i < imageData.m_pixelWidth; i++) {
+					for (j = 0; j < imageData.m_pixelHeight; j++) {
+						// TODO(hellojas): validate depth values make sense
+						int depIndex = i + j * imageData.m_pixelWidth;
+						{
+							item = PyFloat_FromDouble(imageData.m_depthValues[depIndex]);
+							PyTuple_SetItem(pylistDep, depIndex, item);
+						}
+						{
+							item2 =
+								PyLong_FromLong(imageData.m_segmentationMaskValues[depIndex]);
+							PyTuple_SetItem(pylistSeg, depIndex, item2);
+						}
+
+						for (p = 0; p < bytesPerPixel; p++) {
+							int pixelIndex =
+								bytesPerPixel * (i + j * imageData.m_pixelWidth) + p;
+							item = PyInt_FromLong(imageData.m_rgbColorData[pixelIndex]);
+							PyTuple_SetItem(pylistRGB, pixelIndex, item);
+						}
+					}
+				}
+			}
+
+			PyTuple_SetItem(pyResultList, 2, pylistRGB);
+			PyTuple_SetItem(pyResultList, 3, pylistDep);
+			PyTuple_SetItem(pyResultList, 4, pylistSeg);
+			return pyResultList;
+#endif//PYBULLET_USE_NUMPY
+
+			return pyResultList;
+		}
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+
+}
+
+
+
+static PyObject* pybullet_computeViewMatrix(PyObject* self, PyObject* args, PyObject *keywds)
+{
+	PyObject* camEyeObj = 0;
+	PyObject* camTargetPositionObj = 0;
+	PyObject* camUpVectorObj = 0;
+	float camEye[3];
+	float camTargetPosition[3];
+	float camUpVector[3];
+
+	// set camera resolution, optionally view, projection matrix, light position
+	static char *kwlist[] = { "cameraEyePosition", "cameraTargetPosition", "cameraUpVector",NULL };
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OOO", kwlist, &camEyeObj, &camTargetPositionObj, &camUpVectorObj))
+	{
+		return NULL;
+	}
+
+	if (pybullet_internalSetVector(camEyeObj, camEye) &&
+		pybullet_internalSetVector(camTargetPositionObj, camTargetPosition) &&
+		pybullet_internalSetVector(camUpVectorObj, camUpVector))
+	{
+		float viewMatrix[16];
+		PyObject* pyResultList=0;
+		int i;
+		b3ComputeViewMatrixFromPositions(camEye, camTargetPosition, camUpVector, viewMatrix);
+
+		pyResultList = PyTuple_New(16);
+		for (i = 0; i < 16; i++)
+		{
+			PyObject* item = PyFloat_FromDouble(viewMatrix[i]);
+			PyTuple_SetItem(pyResultList, i, item);
+		}
+		return pyResultList;
+	}
+
+	PyErr_SetString(SpamError, "Error in computeViewMatrix.");
+	return NULL;
+}
+
+///compute a view matrix, helper function for b3RequestCameraImageSetCameraMatrices
+static PyObject* pybullet_computeViewMatrixFromYawPitchRoll(PyObject* self, PyObject* args, PyObject *keywds)
+{
+	PyObject* cameraTargetPositionObj = 0;
+	float cameraTargetPosition[3];
+	float distance, yaw, pitch, roll;
+	int upAxisIndex;
+	float viewMatrix[16];
+	PyObject* pyResultList = 0;
+	int i;
+
+	// set camera resolution, optionally view, projection matrix, light position
+	static char *kwlist[] = { "cameraTargetPosition", "distance", "yaw", "pitch", "roll", "upAxisIndex" ,NULL };
+	
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "Offffi", kwlist, &cameraTargetPositionObj, &distance,&yaw,&pitch,&roll, &upAxisIndex))
+	{
+		return NULL;
+	}
+
+	if (!pybullet_internalSetVector(cameraTargetPositionObj, cameraTargetPosition))
+	{
+		PyErr_SetString(SpamError, "Cannot convert cameraTargetPosition.");
+		return NULL;
+	}
+
+	b3ComputeViewMatrixFromYawPitchRoll(cameraTargetPosition, distance, yaw, pitch, roll, upAxisIndex, viewMatrix);
+
+	pyResultList = PyTuple_New(16);
+	for (i = 0; i < 16; i++)
+	{
+		PyObject* item = PyFloat_FromDouble(viewMatrix[i]);
+		PyTuple_SetItem(pyResultList, i, item);
+	}
+	return pyResultList;
+
+
+}
+
+///compute a projection matrix, helper function for b3RequestCameraImageSetCameraMatrices
+static PyObject* pybullet_computeProjectionMatrix(PyObject* self, PyObject* args, PyObject *keywds)
+{
+	PyObject* pyResultList = 0;
+	float left;
+	float right;
+	float bottom;
+	float top;
+	float nearVal;
+	float farVal;
+	float projectionMatrix[16];
+	int i;
+
+	// set camera resolution, optionally view, projection matrix, light position
+	static char *kwlist[] = { "left", "right", "bottom", "top", "nearVal", "farVal" ,NULL };
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ffffff", kwlist, &left, &right, &bottom, &top, &nearVal, &farVal))
+	{
+		return NULL;
+	}
+
+	
+	b3ComputeProjectionMatrix(left, right, bottom, top, nearVal, farVal, projectionMatrix);
+
+	pyResultList = PyTuple_New(16);
+	for (i = 0; i < 16; i++)
+	{
+		PyObject* item = PyFloat_FromDouble(projectionMatrix[i]);
+		PyTuple_SetItem(pyResultList, i, item);
+	}
+	return pyResultList;
+
+}
+
+static PyObject* pybullet_computeProjectionMatrixFOV(PyObject* self, PyObject* args, PyObject *keywds)
+{
+	float fov,  aspect,  nearVal,  farVal;
+	PyObject* pyResultList = 0;
+	float projectionMatrix[16];
+	int i;
+
+	static char *kwlist[] = { "fov","aspect","nearVal","farVal",NULL };
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ffff", kwlist, &fov, &aspect, &nearVal, &farVal))
+	{
+		return NULL;
+	}
+	
+	b3ComputeProjectionMatrixFOV(fov, aspect, nearVal, farVal, projectionMatrix);
+
+	pyResultList = PyTuple_New(16);
+	for (i = 0; i < 16; i++)
+	{
+		PyObject* item = PyFloat_FromDouble(projectionMatrix[i]);
+		PyTuple_SetItem(pyResultList, i, item);
+	}
+	return pyResultList;
+
+}
+
+
 // Render an image from the current timestep of the simulation
 //
 // Examples:
@@ -2219,7 +2525,7 @@ static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args, Py
 // TODO(hellojas): fix image is cut off at head
 // TODO(hellojas): should we add check to give minimum image resolution
 //  to see object based on camera position?
-static PyObject* pybullet_renderImage(PyObject* self, PyObject* args) {
+static PyObject* pybullet_renderImageObsolete(PyObject* self, PyObject* args) {
   /// request an image from a simulated camera, using a software renderer.
   struct b3CameraImageData imageData;
   PyObject* objViewMat, *objProjMat;
@@ -2277,7 +2583,8 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args) {
       b3RequestCameraImageSetPixelResolution(command, width, height);
       if (pybullet_internalSetVector(objCameraPos, cameraPos) &&
           pybullet_internalSetVector(objTargetPos, targetPos) &&
-          pybullet_internalSetVector(objCameraUp, cameraUp)) {
+          pybullet_internalSetVector(objCameraUp, cameraUp)) 
+	  {
         b3RequestCameraImageSetViewMatrix(command, cameraPos, targetPos,
                                           cameraUp);
       } else {
@@ -3020,14 +3327,34 @@ static PyMethodDef SpamMethods[] = {
      "[x,y,z] in Cartesian coordinates, flag to select TORQUE_IN_LINK_FRAME or "
      "TORQUE_IN_WORLD_FRAME coordinates"},
 
-    {"renderImage", pybullet_renderImage, METH_VARARGS,
-     "Render an image (given the pixel resolution width, height, camera view "
-     "matrix, projection matrix, near, and far values), and return the "
-     "8-8-8bit RGB pixel data and floating point depth values"
-#ifdef PYBULLET_USE_NUMPY
-     " as NumPy arrays"
-#endif
+    {"renderImage", pybullet_renderImageObsolete, METH_VARARGS,
+     "obsolete, please use getCameraImage and getViewProjectionMatrices instead"
      },
+
+	 { "getCameraImage",(PyCFunction)pybullet_getCameraImage, METH_VARARGS| METH_KEYWORDS,
+			"Render an image (given the pixel resolution width, height, camera viewMatrix "
+			", projectionMatrix and lightDirection), and return the "
+			"8-8-8bit RGB pixel data and floating point depth values"
+#ifdef PYBULLET_USE_NUMPY
+			" as NumPy arrays"
+#endif
+	 },
+
+	 { "computeViewMatrix", (PyCFunction)pybullet_computeViewMatrix, METH_VARARGS | METH_KEYWORDS,
+		"Compute a camera viewmatrix from camera eye,  target position and up vector "
+	 },
+
+	{ "computeViewMatrixFromYawPitchRoll",(PyCFunction)pybullet_computeViewMatrixFromYawPitchRoll, METH_VARARGS | METH_KEYWORDS,
+		"Compute a camera viewmatrix from camera eye,  target position and up vector "
+	},
+	
+	{ "computeProjectionMatrix", (PyCFunction)pybullet_computeProjectionMatrix, METH_VARARGS | METH_KEYWORDS,
+		"Compute a camera projection matrix from screen left/right/bottom/top/near/far values"
+	},
+
+	{ "computeProjectionMatrixFOV", (PyCFunction)pybullet_computeProjectionMatrixFOV, METH_VARARGS | METH_KEYWORDS,
+		"Compute a camera projection matrix from fov, aspect ratio, near, far values"
+	},
 
     {"getContactPoints", (PyCFunction)pybullet_getContactPointData, METH_VARARGS | METH_KEYWORDS,
      "Return existing contact points after the stepSimulation command. "

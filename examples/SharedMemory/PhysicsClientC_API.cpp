@@ -1232,209 +1232,244 @@ void b3RequestCameraImageSetCameraMatrices(b3SharedMemoryCommandHandle commandHa
 	command->m_updateFlags |= REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES;
 }
 
+void b3RequestCameraImageSetLightDirection(b3SharedMemoryCommandHandle commandHandle, const float lightDirection[3])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
+	for (int i = 0; i<3; i++)
+	{
+		command->m_requestPixelDataArguments.m_lightDirection[i] = lightDirection[i];
+	}
+	command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_LIGHT_DIRECTION;
+}
+
+
+void b3ComputeViewMatrixFromPositions(const float cameraPosition[3], const float cameraTargetPosition[3], const float cameraUp[3], float viewMatrix[16])
+{
+	b3Vector3 eye = b3MakeVector3(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
+	b3Vector3 center = b3MakeVector3(cameraTargetPosition[0], cameraTargetPosition[1], cameraTargetPosition[2]);
+	b3Vector3 up = b3MakeVector3(cameraUp[0], cameraUp[1], cameraUp[2]);
+	b3Vector3 f = (center - eye).normalized();
+	b3Vector3 u = up.normalized();
+	b3Vector3 s = (f.cross(u)).normalized();
+	u = s.cross(f);
+
+	viewMatrix[0 * 4 + 0] = s.x;
+	viewMatrix[1 * 4 + 0] = s.y;
+	viewMatrix[2 * 4 + 0] = s.z;
+
+	viewMatrix[0 * 4 + 1] = u.x;
+	viewMatrix[1 * 4 + 1] = u.y;
+	viewMatrix[2 * 4 + 1] = u.z;
+
+	viewMatrix[0 * 4 + 2] = -f.x;
+	viewMatrix[1 * 4 + 2] = -f.y;
+	viewMatrix[2 * 4 + 2] = -f.z;
+
+	viewMatrix[0 * 4 + 3] = 0.f;
+	viewMatrix[1 * 4 + 3] = 0.f;
+	viewMatrix[2 * 4 + 3] = 0.f;
+
+	viewMatrix[3 * 4 + 0] = -s.dot(eye);
+	viewMatrix[3 * 4 + 1] = -u.dot(eye);
+	viewMatrix[3 * 4 + 2] = f.dot(eye);
+	viewMatrix[3 * 4 + 3] = 1.f;
+}
+
+
+void b3ComputeViewMatrixFromYawPitchRoll(const float cameraTargetPosition[3], float distance, float yaw, float pitch, float roll, int upAxis, float viewMatrix[16])
+{
+	b3Vector3 camUpVector;
+	b3Vector3 camForward;
+	b3Vector3 camPos;
+	b3Vector3 camTargetPos = b3MakeVector3(cameraTargetPosition[0], cameraTargetPosition[1], cameraTargetPosition[2]);
+	b3Vector3 eyePos = b3MakeVector3(0, 0, 0);
+
+	int forwardAxis(-1);
+
+	{
+
+		switch (upAxis)
+		{
+
+		case 1:
+		{
+
+
+			forwardAxis = 0;
+			eyePos[forwardAxis] = -distance;
+			camForward = b3MakeVector3(eyePos[0], eyePos[1], eyePos[2]);
+			if (camForward.length2() < B3_EPSILON)
+			{
+				camForward.setValue(1.f, 0.f, 0.f);
+			}
+			else
+			{
+				camForward.normalize();
+			}
+			b3Scalar rollRad = roll * b3Scalar(0.01745329251994329547);
+			b3Quaternion rollRot(camForward, rollRad);
+
+			camUpVector = b3QuatRotate(rollRot, b3MakeVector3(0, 1, 0));
+			//gLightPos = b3MakeVector3(-50.f,100,30);
+			break;
+		}
+		case 2:
+		{
+
+
+			forwardAxis = 1;
+			eyePos[forwardAxis] = -distance;
+			camForward = b3MakeVector3(eyePos[0], eyePos[1], eyePos[2]);
+			if (camForward.length2() < B3_EPSILON)
+			{
+				camForward.setValue(1.f, 0.f, 0.f);
+			}
+			else
+			{
+				camForward.normalize();
+			}
+
+			b3Scalar rollRad = roll * b3Scalar(0.01745329251994329547);
+			b3Quaternion rollRot(camForward, rollRad);
+
+			camUpVector = b3QuatRotate(rollRot, b3MakeVector3(0, 0, 1));
+			//gLightPos = b3MakeVector3(-50.f,30,100);
+			break;
+		}
+		default:
+		{
+			//b3Assert(0);
+			return;
+		}
+		};
+	}
+
+
+	b3Scalar yawRad = yaw * b3Scalar(0.01745329251994329547);// rads per deg
+	b3Scalar pitchRad = pitch * b3Scalar(0.01745329251994329547);// rads per deg
+
+	b3Quaternion pitchRot(camUpVector, pitchRad);
+
+	b3Vector3 right = camUpVector.cross(camForward);
+	b3Quaternion yawRot(right, -yawRad);
+
+	eyePos = b3Matrix3x3(pitchRot) * b3Matrix3x3(yawRot) * eyePos;
+	camPos = eyePos;
+	camPos += camTargetPos;
+
+	float camPosf[4] = { camPos[0],camPos[1],camPos[2],0 };
+	float camPosTargetf[4] = { camTargetPos[0],camTargetPos[1],camTargetPos[2],0 };
+	float camUpf[4] = { camUpVector[0],camUpVector[1],camUpVector[2],0 };
+
+	b3ComputeViewMatrixFromPositions(camPosf, camPosTargetf, camUpf,viewMatrix);
+
+}
+
+
+void b3ComputeProjectionMatrix(float left, float right, float bottom, float top, float nearVal, float farVal, float projectionMatrix[16])
+{
+	projectionMatrix[0 * 4 + 0] = (float(2) * nearVal) / (right - left);
+	projectionMatrix[0 * 4 + 1] = float(0);
+	projectionMatrix[0 * 4 + 2] = float(0);
+	projectionMatrix[0 * 4 + 3] = float(0);
+
+	projectionMatrix[1 * 4 + 0] = float(0);
+	projectionMatrix[1 * 4 + 1] = (float(2) * nearVal) / (top - bottom);
+	projectionMatrix[1 * 4 + 2] = float(0);
+	projectionMatrix[1 * 4 + 3] = float(0);
+
+	projectionMatrix[2 * 4 + 0] = (right + left) / (right - left);
+	projectionMatrix[2 * 4 + 1] = (top + bottom) / (top - bottom);
+	projectionMatrix[2 * 4 + 2] = -(farVal + nearVal) / (farVal - nearVal);
+	projectionMatrix[2 * 4 + 3] = float(-1);
+
+	projectionMatrix[3 * 4 + 0] = float(0);
+	projectionMatrix[3 * 4 + 1] = float(0);
+	projectionMatrix[3 * 4 + 2] = -(float(2) * farVal * nearVal) / (farVal - nearVal);
+	projectionMatrix[3 * 4 + 3] = float(0);
+}
+
+
+void b3ComputeProjectionMatrixFOV(float fov, float aspect, float nearVal, float farVal, float projectionMatrix[16])
+{
+	float yScale = 1.0 / tan((3.141592538 / 180.0) * fov / 2);
+	float xScale = yScale / aspect;
+
+	projectionMatrix[0 * 4 + 0] = xScale;
+	projectionMatrix[0 * 4 + 1] = float(0);
+	projectionMatrix[0 * 4 + 2] = float(0);
+	projectionMatrix[0 * 4 + 3] = float(0);
+
+	projectionMatrix[1 * 4 + 0] = float(0);
+	projectionMatrix[1 * 4 + 1] = yScale;
+	projectionMatrix[1 * 4 + 2] = float(0);
+	projectionMatrix[1 * 4 + 3] = float(0);
+
+	projectionMatrix[2 * 4 + 0] = 0;
+	projectionMatrix[2 * 4 + 1] = 0;
+	projectionMatrix[2 * 4 + 2] = (nearVal + farVal) / (nearVal - farVal);
+	projectionMatrix[2 * 4 + 3] = float(-1);
+
+	projectionMatrix[3 * 4 + 0] = float(0);
+	projectionMatrix[3 * 4 + 1] = float(0);
+	projectionMatrix[3 * 4 + 2] = (float(2) * farVal * nearVal) / (nearVal - farVal);
+	projectionMatrix[3 * 4 + 3] = float(0);
+}
+
+
 void b3RequestCameraImageSetViewMatrix2(b3SharedMemoryCommandHandle commandHandle, const float cameraTargetPosition[3], float distance, float yaw, float pitch, float roll, int upAxis)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
     b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
-    b3Vector3 camUpVector;
-    b3Vector3 camForward;
-    b3Vector3 camPos;
-    b3Vector3 camTargetPos = b3MakeVector3(cameraTargetPosition[0],cameraTargetPosition[1],cameraTargetPosition[2]);
-    b3Vector3 eyePos = b3MakeVector3(0,0,0);
-        
-	int forwardAxis(-1);
-	
-	{
-	
-	switch (upAxis)
-	{
-	    
-        case 1:
-            {
-                
-            
-            forwardAxis = 0;
-            eyePos[forwardAxis] = -distance;
-            camForward = b3MakeVector3(eyePos[0],eyePos[1],eyePos[2]);
-            if (camForward.length2() < B3_EPSILON)
-            {
-                camForward.setValue(1.f,0.f,0.f);
-            } else
-            {
-                camForward.normalize();
-            }
-              b3Scalar rollRad = roll * b3Scalar(0.01745329251994329547);
-            b3Quaternion rollRot(camForward,rollRad);
-            
-            camUpVector = b3QuatRotate(rollRot,b3MakeVector3(0,1,0));
-            //gLightPos = b3MakeVector3(-50.f,100,30);
-            break;
-            }
-        case 2:
-            {
-                
-            
-            forwardAxis = 1;
-            eyePos[forwardAxis] = -distance;
-            camForward = b3MakeVector3(eyePos[0],eyePos[1],eyePos[2]);
-            if (camForward.length2() < B3_EPSILON)
-            {
-                camForward.setValue(1.f,0.f,0.f);
-            } else
-            {
-                camForward.normalize();
-            }
-            
-            b3Scalar rollRad = roll * b3Scalar(0.01745329251994329547);
-            b3Quaternion rollRot(camForward,rollRad);
-            
-            camUpVector = b3QuatRotate(rollRot,b3MakeVector3(0,0,1));
-            //gLightPos = b3MakeVector3(-50.f,30,100);
-            break;
-            }
-        default:
-            {
-                //b3Assert(0);
-                return;
-            }
-        };
-	}
-	
-
-	b3Scalar yawRad = yaw * b3Scalar(0.01745329251994329547);// rads per deg
-	b3Scalar pitchRad = pitch * b3Scalar(0.01745329251994329547);// rads per deg
-
-	b3Quaternion pitchRot(camUpVector,pitchRad);
-	
-	b3Vector3 right = camUpVector.cross(camForward);
-	b3Quaternion yawRot(right,-yawRad);
-	
-	
-
-	eyePos = b3Matrix3x3(pitchRot) * b3Matrix3x3(yawRot) * eyePos;
-	camPos = eyePos;
-	camPos += camTargetPos;
-	
-    float camPosf[4] = {camPos[0],camPos[1],camPos[2],0};
-    float camPosTargetf[4] = {camTargetPos[0],camTargetPos[1],camTargetPos[2],0};
-    float camUpf[4] = {camUpVector[0],camUpVector[1],camUpVector[2],0};
-    
-    b3RequestCameraImageSetViewMatrix(commandHandle,camPosf,camPosTargetf,camUpf);
+ 
+	b3ComputeViewMatrixFromYawPitchRoll(cameraTargetPosition, distance, yaw, pitch, roll, upAxis, command->m_requestPixelDataArguments.m_viewMatrix);
+    command->m_updateFlags |= REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES;
     
 }
+
+
+
+
 void b3RequestCameraImageSetViewMatrix(b3SharedMemoryCommandHandle commandHandle, const float cameraPosition[3], const float cameraTargetPosition[3], const float cameraUp[3])
 {
-    b3Vector3 eye = b3MakeVector3(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
-    b3Vector3 center = b3MakeVector3(cameraTargetPosition[0], cameraTargetPosition[1], cameraTargetPosition[2]);
-    b3Vector3 up = b3MakeVector3(cameraUp[0], cameraUp[1], cameraUp[2]);
-    b3Vector3 f = (center - eye).normalized();
-    b3Vector3 u = up.normalized();
-    b3Vector3 s = (f.cross(u)).normalized();
-    u = s.cross(f);
-    
-    float viewMatrix[16];
-    
-    viewMatrix[0*4+0] = s.x;
-    viewMatrix[1*4+0] = s.y;
-    viewMatrix[2*4+0] = s.z;
-    
-    viewMatrix[0*4+1] = u.x;
-    viewMatrix[1*4+1] = u.y;
-    viewMatrix[2*4+1] = u.z;
-    
-    viewMatrix[0*4+2] =-f.x;
-    viewMatrix[1*4+2] =-f.y;
-    viewMatrix[2*4+2] =-f.z;
-    
-    viewMatrix[0*4+3] = 0.f;
-    viewMatrix[1*4+3] = 0.f;
-    viewMatrix[2*4+3] = 0.f;
-    
-    viewMatrix[3*4+0] = -s.dot(eye);
-    viewMatrix[3*4+1] = -u.dot(eye);
-    viewMatrix[3*4+2] = f.dot(eye);
-    viewMatrix[3*4+3] = 1.f;
+	float viewMatrix[16];
+	b3ComputeViewMatrixFromPositions(cameraPosition, cameraTargetPosition, cameraUp, viewMatrix);
     
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
     b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
-    for (int i=0;i<16;i++)
-    {
-        command->m_requestPixelDataArguments.m_viewMatrix[i] = viewMatrix[i];
-    }
+
+	b3ComputeViewMatrixFromPositions(cameraPosition, cameraTargetPosition, cameraUp, command->m_requestPixelDataArguments.m_viewMatrix);
+   
     command->m_updateFlags |= REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES;
 
 }
 
 void b3RequestCameraImageSetProjectionMatrix(b3SharedMemoryCommandHandle commandHandle, float left, float  right, float bottom, float top, float nearVal, float farVal)
 {
-    float frustum[16];
-    
-    frustum[0*4+0] = (float(2) * nearVal) / (right - left);
-    frustum[0*4+1] = float(0);
-    frustum[0*4+2] = float(0);
-    frustum[0*4+3] = float(0);
-    
-    frustum[1*4+0] = float(0);
-    frustum[1*4+1] = (float(2) * nearVal) / (top - bottom);
-    frustum[1*4+2] = float(0);
-    frustum[1*4+3] = float(0);
-    
-    frustum[2*4+0] = (right + left) / (right - left);
-    frustum[2*4+1] = (top + bottom) / (top - bottom);
-    frustum[2*4+2] = -(farVal + nearVal) / (farVal - nearVal);
-    frustum[2*4+3] = float(-1);
-    
-    frustum[3*4+0] = float(0);
-    frustum[3*4+1] = float(0);
-    frustum[3*4+2] = -(float(2) * farVal * nearVal) / (farVal - nearVal);
-    frustum[3*4+3] = float(0);
     
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
     b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
-    for (int i=0;i<16;i++)
-    {
-        command->m_requestPixelDataArguments.m_projectionMatrix[i] = frustum[i];
-    }
+
+	b3ComputeProjectionMatrix(left, right, bottom, top, nearVal, farVal, command->m_requestPixelDataArguments.m_projectionMatrix);
+
     command->m_updateFlags |= REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES;
 }
 
 void b3RequestCameraImageSetFOVProjectionMatrix(b3SharedMemoryCommandHandle commandHandle, float fov, float aspect, float nearVal, float farVal)
 {
-  float yScale = 1.0 / tan((3.141592538 / 180.0) * fov / 2);
-  float xScale = yScale / aspect;
-
-  float frustum[16];
-
-  frustum[0*4+0] = xScale;
-  frustum[0*4+1] = float(0);
-  frustum[0*4+2] = float(0);
-  frustum[0*4+3] = float(0);
-
-  frustum[1*4+0] = float(0);
-  frustum[1*4+1] = yScale;
-  frustum[1*4+2] = float(0);
-  frustum[1*4+3] = float(0);
-
-  frustum[2*4+0] = 0;
-  frustum[2*4+1] = 0;
-  frustum[2*4+2] = (nearVal + farVal) / (nearVal - farVal);
-  frustum[2*4+3] = float(-1);
-
-  frustum[3*4+0] = float(0);
-  frustum[3*4+1] = float(0);
-  frustum[3*4+2] = (float(2) * farVal * nearVal) / (nearVal - farVal);
-  frustum[3*4+3] = float(0);
+  
 
   struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
   b3Assert(command);
   b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
-  for (int i=0;i<16;i++)
-  {
-    command->m_requestPixelDataArguments.m_projectionMatrix[i] = frustum[i];
-  }
+
+  b3ComputeProjectionMatrixFOV(fov, aspect, nearVal, farVal, command->m_requestPixelDataArguments.m_projectionMatrix);
+
   command->m_updateFlags |= REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES;
 }
 

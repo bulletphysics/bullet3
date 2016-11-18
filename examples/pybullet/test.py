@@ -3,7 +3,7 @@ import time
 
 #choose connection method: GUI, DIRECT, SHARED_MEMORY
 pybullet.connect(pybullet.GUI)
-
+pybullet.loadURDF("plane.urdf",0,0,-1)
 #load URDF, given a relative or absolute file+path
 obj = pybullet.loadURDF("r2d2.urdf")
 
