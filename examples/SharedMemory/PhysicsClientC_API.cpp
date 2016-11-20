@@ -1504,6 +1504,8 @@ b3SharedMemoryCommandHandle b3InitRequestContactPointInformation(b3PhysicsClient
 	command->m_requestContactPointArguments.m_startingContactPointIndex = 0;
 	command->m_requestContactPointArguments.m_objectAIndexFilter = -1;
 	command->m_requestContactPointArguments.m_objectBIndexFilter = -1;
+	command->m_requestContactPointArguments.m_linkIndexAIndexFilter = -2;
+	command->m_requestContactPointArguments.m_linkIndexBIndexFilter = -2;
     command->m_updateFlags = 0;
     return (b3SharedMemoryCommandHandle) command;
 }
@@ -1515,6 +1517,37 @@ void b3SetContactFilterBodyA(b3SharedMemoryCommandHandle commandHandle, int body
     b3Assert(command->m_type == CMD_REQUEST_CONTACT_POINT_INFORMATION);
 	command->m_requestContactPointArguments.m_objectAIndexFilter = bodyUniqueIdA;
 }
+
+void b3SetContactFilterLinkA(b3SharedMemoryCommandHandle commandHandle, int linkIndexA)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_REQUEST_CONTACT_POINT_INFORMATION);
+	command->m_updateFlags |= CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_A_FILTER;
+	command->m_requestContactPointArguments.m_linkIndexAIndexFilter= linkIndexA;
+}
+
+void b3SetContactFilterLinkB(b3SharedMemoryCommandHandle commandHandle, int linkIndexB)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_CONTACT_POINT_INFORMATION);
+	command->m_updateFlags |= CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_B_FILTER;
+	command->m_requestContactPointArguments.m_linkIndexBIndexFilter = linkIndexB;
+}
+
+void b3SetClosestDistanceFilterLinkA(b3SharedMemoryCommandHandle commandHandle, int linkIndexA)
+{
+	b3SetContactFilterLinkA(commandHandle, linkIndexA);
+}
+
+void b3SetClosestDistanceFilterLinkB(b3SharedMemoryCommandHandle commandHandle, int linkIndexB)
+{
+	b3SetContactFilterLinkB(commandHandle, linkIndexB);
+}
+
+
+
 
 void b3SetContactFilterBodyB(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueIdB)
 {
