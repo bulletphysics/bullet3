@@ -126,6 +126,10 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIHelperRemoveAllGraphicsInstances,
 	eGUIHelperCopyCameraImageData,
 	eGUIHelperAutogenerateGraphicsObjects,
+	eGUIUserDebugAddText,
+	eGUIUserDebugAddLine,
+	eGUIUserDebugRemoveItem,
+	eGUIUserDebugRemoveAllItems,
 };
 
 #include <stdio.h>
@@ -697,36 +701,43 @@ public:
 		m_tmpText.m_textColorRGB[2] = textColorRGB[2];
 
 		m_cs->lock();
-		m_userDebugText.push_back(m_tmpText);
+		m_cs->setSharedParam(1, eGUIUserDebugAddText);
 		m_cs->unlock();
+		while (m_cs->getSharedParam(1) != eGUIHelperIdle)
+		{
+			b3Clock::usleep(150);
+		}
 
 		return m_userDebugText[m_userDebugText.size()-1].m_itemUniqueId;
 	}
 
 	btAlignedObjectArray<UserDebugDrawLine> m_userDebugLines;
+	UserDebugDrawLine m_tmpLine;
 
 	virtual int		addUserDebugLine(const double	debugLineFromXYZ[3], const double	debugLineToXYZ[3], const double	debugLineColorRGB[3], double lineWidth, double lifeTime )
 	{
-		UserDebugDrawLine tmpLine;
+		m_tmpLine.m_lifeTime = lifeTime;
+		m_tmpLine.m_lineWidth = lineWidth;
+		m_tmpLine.m_itemUniqueId = m_uidGenerator++;
+		m_tmpLine.m_debugLineFromXYZ[0] = debugLineFromXYZ[0];
+		m_tmpLine.m_debugLineFromXYZ[1] = debugLineFromXYZ[1];
+		m_tmpLine.m_debugLineFromXYZ[2] = debugLineFromXYZ[2];
 
-		tmpLine.m_lifeTime = lifeTime;
-		tmpLine.m_lineWidth = lineWidth;
-		tmpLine.m_itemUniqueId = m_uidGenerator++;
-		tmpLine.m_debugLineFromXYZ[0] = debugLineFromXYZ[0];
-		tmpLine.m_debugLineFromXYZ[1] = debugLineFromXYZ[1];
-		tmpLine.m_debugLineFromXYZ[2] = debugLineFromXYZ[2];
-
-		tmpLine.m_debugLineToXYZ[0] = debugLineToXYZ[0];
-		tmpLine.m_debugLineToXYZ[1] = debugLineToXYZ[1];
-		tmpLine.m_debugLineToXYZ[2] = debugLineToXYZ[2];
+		m_tmpLine.m_debugLineToXYZ[0] = debugLineToXYZ[0];
+		m_tmpLine.m_debugLineToXYZ[1] = debugLineToXYZ[1];
+		m_tmpLine.m_debugLineToXYZ[2] = debugLineToXYZ[2];
 		
-		tmpLine.m_debugLineColorRGB[0] = debugLineColorRGB[0];
-		tmpLine.m_debugLineColorRGB[1] = debugLineColorRGB[1];
-		tmpLine.m_debugLineColorRGB[2] = debugLineColorRGB[2];
+		m_tmpLine.m_debugLineColorRGB[0] = debugLineColorRGB[0];
+		m_tmpLine.m_debugLineColorRGB[1] = debugLineColorRGB[1];
+		m_tmpLine.m_debugLineColorRGB[2] = debugLineColorRGB[2];
 		
 		m_cs->lock();
-		m_userDebugLines.push_back(tmpLine);
+		m_cs->setSharedParam(1, eGUIUserDebugAddLine);
 		m_cs->unlock();
+		while (m_cs->getSharedParam(1) != eGUIHelperIdle)
+		{
+			b3Clock::usleep(150);
+		}
 		return m_userDebugLines[m_userDebugLines.size()-1].m_itemUniqueId;
 	}
 
@@ -736,38 +747,23 @@ public:
 	{
 		m_removeDebugItemUid = debugItemUniqueId;
 		m_cs->lock();
-
-		for (int i = 0; i<m_userDebugLines.size(); i++)
-		{
-			if (m_userDebugLines[i].m_itemUniqueId == m_removeDebugItemUid)
-			{
-				m_userDebugLines.swap(i, m_userDebugLines.size() - 1);
-				m_userDebugLines.pop_back();
-				break;
-			}
-		}
-
-
-		for (int i = 0; i<m_userDebugText.size(); i++)
-		{
-			if (m_userDebugText[i].m_itemUniqueId == m_removeDebugItemUid)
-			{
-				m_userDebugText.swap(i, m_userDebugText.size() - 1);
-				m_userDebugText.pop_back();
-				break;
-			}
-		}
-
+		m_cs->setSharedParam(1, eGUIUserDebugRemoveItem);
 		m_cs->unlock();
+		while (m_cs->getSharedParam(1) != eGUIHelperIdle)
+		{
+			b3Clock::usleep(150);
+		}
 
 	}	
 	virtual void	removeAllUserDebugItems( )
 	{
 		m_cs->lock();
-		m_userDebugLines.clear();
-		m_userDebugText.clear();
-		m_uidGenerator = 0;
+		m_cs->setSharedParam(1, eGUIUserDebugRemoveAllItems);
 		m_cs->unlock();
+		while (m_cs->getSharedParam(1) != eGUIHelperIdle)
+		{
+			b3Clock::usleep(150);
+		}
 	
 	}
 
@@ -1252,6 +1248,60 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
 		break;
 	}
 
+	case eGUIUserDebugAddText:
+	{
+		m_multiThreadedHelper->m_userDebugText.push_back(m_multiThreadedHelper->m_tmpText);
+		m_multiThreadedHelper->getCriticalSection()->lock();
+		m_multiThreadedHelper->getCriticalSection()->setSharedParam(1, eGUIHelperIdle);
+		m_multiThreadedHelper->getCriticalSection()->unlock();
+		break;
+	}
+	case eGUIUserDebugAddLine:
+	{
+		m_multiThreadedHelper->m_userDebugLines.push_back(m_multiThreadedHelper->m_tmpLine);
+		m_multiThreadedHelper->getCriticalSection()->lock();
+		m_multiThreadedHelper->getCriticalSection()->setSharedParam(1, eGUIHelperIdle);
+		m_multiThreadedHelper->getCriticalSection()->unlock();
+			break;
+	}
+	case eGUIUserDebugRemoveItem:
+	{
+		for (int i=0;i<m_multiThreadedHelper->m_userDebugLines.size();i++)
+		{
+			if (m_multiThreadedHelper->m_userDebugLines[i].m_itemUniqueId == m_multiThreadedHelper->m_removeDebugItemUid)
+			{
+				m_multiThreadedHelper->m_userDebugLines.swap(i,m_multiThreadedHelper->m_userDebugLines.size()-1);
+				m_multiThreadedHelper->m_userDebugLines.pop_back();
+				break;
+			}
+		}
+
+
+		for (int i=0;i<m_multiThreadedHelper->m_userDebugText.size();i++)
+		{
+			if (m_multiThreadedHelper->m_userDebugText[i].m_itemUniqueId == m_multiThreadedHelper->m_removeDebugItemUid)
+			{
+				m_multiThreadedHelper->m_userDebugText.swap(i,m_multiThreadedHelper->m_userDebugText.size()-1);
+				m_multiThreadedHelper->m_userDebugText.pop_back();
+				break;
+			}
+		}
+
+		m_multiThreadedHelper->getCriticalSection()->lock();
+		m_multiThreadedHelper->getCriticalSection()->setSharedParam(1, eGUIHelperIdle);
+		m_multiThreadedHelper->getCriticalSection()->unlock();
+			break;
+	}
+	case eGUIUserDebugRemoveAllItems:
+	{
+		m_multiThreadedHelper->m_userDebugLines.clear();
+		m_multiThreadedHelper->m_userDebugText.clear();
+		m_multiThreadedHelper->m_uidGenerator = 0;
+		m_multiThreadedHelper->getCriticalSection()->lock();
+		m_multiThreadedHelper->getCriticalSection()->setSharedParam(1, eGUIHelperIdle);
+		m_multiThreadedHelper->getCriticalSection()->unlock();
+			break;
+	}
 	case eGUIHelperIdle:
 		{
 			break;
@@ -1316,7 +1366,7 @@ void PhysicsServerExample::drawUserDebugLines()
 	//draw all user- 'text3d' messages
 	if (m_multiThreadedHelper)
 	{
-		m_args[0].m_cs->lock();
+
 		for (int i = 0; i<m_multiThreadedHelper->m_userDebugLines.size(); i++)
 		{
 			btVector3 from;
@@ -1346,8 +1396,6 @@ void PhysicsServerExample::drawUserDebugLines()
 				m_multiThreadedHelper->m_userDebugText[i].textSize);
 
 		}
-		m_args[0].m_cs->unlock();
-
 	}
 
 }
