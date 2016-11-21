@@ -1501,7 +1501,7 @@ static PyObject* pybullet_addUserDebugText(PyObject* self, PyObject* args, PyObj
   res = pybullet_internalSetVectord(textPositionObj,posXYZ);
   if (!res)
   {
-	  PyErr_SetString(SpamError, "Error converting lineFrom[3]");
+	  PyErr_SetString(SpamError, "Error converting textPositionObj[3]");
 	  return NULL;
   }
 
@@ -1510,7 +1510,7 @@ static PyObject* pybullet_addUserDebugText(PyObject* self, PyObject* args, PyObj
 	  res = pybullet_internalSetVectord(textColorRGBObj,colorRGB);
 	  if (!res)
 	  {
-		  PyErr_SetString(SpamError, "Error converting lineTo[3]");
+		  PyErr_SetString(SpamError, "Error converting textColorRGBObj[3]");
 		  return NULL;
 	  }
   }
@@ -1848,23 +1848,22 @@ static PyObject* MyConvertContactPoint( struct b3ContactInformation* contactPoin
      2     int m_bodyUniqueIdB;
      3     int m_linkIndexA;
      4     int m_linkIndexB;
-     5-6-7     double m_positionOnAInWS[3];//contact point location on object A,
+     5		double m_positionOnAInWS[3];//contact point location on object A,
      in world space coordinates
-     8-9-10     double m_positionOnBInWS[3];//contact point location on object
+     6		double m_positionOnBInWS[3];//contact point location on object
      A, in world space coordinates
-     11-12-13     double m_contactNormalOnBInWS[3];//the separating contact
+     7		double m_contactNormalOnBInWS[3];//the separating contact
      normal, pointing from object B towards object A
-     14     double m_contactDistance;//negative number is penetration, positive
+     8		double m_contactDistance;//negative number is penetration, positive
      is distance.
-
-     15    double m_normalForce;
+     9		double m_normalForce;
      */
 
 	int i;
 
 	PyObject* pyResultList = PyTuple_New(contactPointPtr->m_numContactPoints);
     for (i = 0; i < contactPointPtr->m_numContactPoints; i++) {
-      PyObject* contactObList = PyTuple_New(16);  // see above 16 fields
+      PyObject* contactObList = PyTuple_New(10);  // see above 10 fields
       PyObject* item;
       item =
           PyInt_FromLong(contactPointPtr->m_contactPointData[i].m_contactFlags);
@@ -1881,42 +1880,61 @@ static PyObject* MyConvertContactPoint( struct b3ContactInformation* contactPoin
       item =
           PyInt_FromLong(contactPointPtr->m_contactPointData[i].m_linkIndexB);
       PyTuple_SetItem(contactObList, 4, item);
-      item = PyFloat_FromDouble(
-          contactPointPtr->m_contactPointData[i].m_positionOnAInWS[0]);
-      PyTuple_SetItem(contactObList, 5, item);
-      item = PyFloat_FromDouble(
-          contactPointPtr->m_contactPointData[i].m_positionOnAInWS[1]);
-      PyTuple_SetItem(contactObList, 6, item);
-      item = PyFloat_FromDouble(
-          contactPointPtr->m_contactPointData[i].m_positionOnAInWS[2]);
-      PyTuple_SetItem(contactObList, 7, item);
 
-      item = PyFloat_FromDouble(
-          contactPointPtr->m_contactPointData[i].m_positionOnBInWS[0]);
-      PyTuple_SetItem(contactObList, 8, item);
-      item = PyFloat_FromDouble(
-          contactPointPtr->m_contactPointData[i].m_positionOnBInWS[1]);
-      PyTuple_SetItem(contactObList, 9, item);
-      item = PyFloat_FromDouble(
-          contactPointPtr->m_contactPointData[i].m_positionOnBInWS[2]);
-      PyTuple_SetItem(contactObList, 10, item);
+	  {
+		  PyObject* posAObj = PyTuple_New(3);
 
-      item = PyFloat_FromDouble(
-          contactPointPtr->m_contactPointData[i].m_contactNormalOnBInWS[0]);
-      PyTuple_SetItem(contactObList, 11, item);
-      item = PyFloat_FromDouble(
-          contactPointPtr->m_contactPointData[i].m_contactNormalOnBInWS[1]);
-      PyTuple_SetItem(contactObList, 12, item);
-      item = PyFloat_FromDouble(
-          contactPointPtr->m_contactPointData[i].m_contactNormalOnBInWS[2]);
-      PyTuple_SetItem(contactObList, 13, item);
+		  item = PyFloat_FromDouble(
+			  contactPointPtr->m_contactPointData[i].m_positionOnAInWS[0]);
+		  PyTuple_SetItem(posAObj, 0, item);
+		  item = PyFloat_FromDouble(
+			  contactPointPtr->m_contactPointData[i].m_positionOnAInWS[1]);
+		  PyTuple_SetItem(posAObj, 1, item);
+		  item = PyFloat_FromDouble(
+			  contactPointPtr->m_contactPointData[i].m_positionOnAInWS[2]);
+		  PyTuple_SetItem(posAObj, 2, item);
+
+		  PyTuple_SetItem(contactObList, 5, posAObj);
+	  }
+
+	  {
+		  PyObject* posBObj = PyTuple_New(3);
+
+
+		  item = PyFloat_FromDouble(
+			  contactPointPtr->m_contactPointData[i].m_positionOnBInWS[0]);
+		  PyTuple_SetItem(posBObj, 0, item);
+		  item = PyFloat_FromDouble(
+			  contactPointPtr->m_contactPointData[i].m_positionOnBInWS[1]);
+		  PyTuple_SetItem(posBObj, 1, item);
+		  item = PyFloat_FromDouble(
+			  contactPointPtr->m_contactPointData[i].m_positionOnBInWS[2]);
+		  PyTuple_SetItem(posBObj, 2, item);
+
+		  PyTuple_SetItem(contactObList, 6, posBObj);
+
+	  }
+
+	  {
+		  PyObject* normalOnB = PyTuple_New(3);
+		  item = PyFloat_FromDouble(
+			  contactPointPtr->m_contactPointData[i].m_contactNormalOnBInWS[0]);
+		  PyTuple_SetItem(normalOnB, 0, item);
+		  item = PyFloat_FromDouble(
+			  contactPointPtr->m_contactPointData[i].m_contactNormalOnBInWS[1]);
+		  PyTuple_SetItem(normalOnB, 1, item);
+		  item = PyFloat_FromDouble(
+			  contactPointPtr->m_contactPointData[i].m_contactNormalOnBInWS[2]);
+		  PyTuple_SetItem(normalOnB, 2, item);
+		  PyTuple_SetItem(contactObList, 7, normalOnB);
+	  }
 
       item = PyFloat_FromDouble(
           contactPointPtr->m_contactPointData[i].m_contactDistance);
-      PyTuple_SetItem(contactObList, 14, item);
+      PyTuple_SetItem(contactObList, 8, item);
       item = PyFloat_FromDouble(
           contactPointPtr->m_contactPointData[i].m_normalForce);
-      PyTuple_SetItem(contactObList, 15, item);
+      PyTuple_SetItem(contactObList, 9, item);
 
       PyTuple_SetItem(pyResultList, i, contactObList);
     }
@@ -1982,6 +2000,9 @@ static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, Py
   int size = PySequence_Size(args);
   int bodyUniqueIdA = -1;
   int bodyUniqueIdB = -1;
+  int linkIndexA = -2;
+  int linkIndexB = -2;
+
   double distanceThreshold = 0.f;
 
   b3SharedMemoryCommandHandle commandHandle;
@@ -1991,15 +2012,15 @@ static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, Py
   PyObject* pyResultList = 0;
 
 
-  static char *kwlist[] = { "bodyA", "bodyB", "distance", NULL };
+  static char *kwlist[] = { "bodyA", "bodyB", "distance", "linkIndexA","linkIndexB",NULL };
 
   if (0 == sm) {
 	  PyErr_SetString(SpamError, "Not connected to physics server.");
 	  return NULL;
   }
 
-  if (!PyArg_ParseTupleAndKeywords(args, keywds, "iid", kwlist,
-	  &bodyUniqueIdA, &bodyUniqueIdB, &distanceThreshold))
+  if (!PyArg_ParseTupleAndKeywords(args, keywds, "iid|ii", kwlist,
+	  &bodyUniqueIdA, &bodyUniqueIdB, &distanceThreshold, &linkIndexA, &linkIndexB))
 	  return NULL;
 
 
@@ -2007,7 +2028,14 @@ static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, Py
   b3SetClosestDistanceFilterBodyA(commandHandle, bodyUniqueIdA);
   b3SetClosestDistanceFilterBodyB(commandHandle, bodyUniqueIdB);
   b3SetClosestDistanceThreshold(commandHandle, distanceThreshold);
-  
+  if (linkIndexA >= -1)
+  {
+	  b3SetClosestDistanceFilterLinkA(commandHandle, linkIndexA);
+  }
+  if (linkIndexB >= -1)
+  {
+	  b3SetClosestDistanceFilterLinkB(commandHandle, linkIndexB);
+  }
 
   statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
   statusType = b3GetStatusType(statusHandle);

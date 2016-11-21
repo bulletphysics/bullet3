@@ -1231,7 +1231,7 @@ struct btSingleContactCallback : public btBroadphaseAabbCallback
 			btCollisionObjectWrapper ob0(0,m_collisionObject->getCollisionShape(),m_collisionObject,m_collisionObject->getWorldTransform(),-1,-1);
 			btCollisionObjectWrapper ob1(0,collisionObject->getCollisionShape(),collisionObject,collisionObject->getWorldTransform(),-1,-1);
 
-			btCollisionAlgorithm* algorithm = m_world->getDispatcher()->findAlgorithm(&ob0,&ob1);
+			btCollisionAlgorithm* algorithm = m_world->getDispatcher()->findAlgorithm(&ob0,&ob1,0, BT_CLOSEST_POINT_ALGORITHMS);
 			if (algorithm)
 			{
 				btBridgedManifoldResult contactPointResult(&ob0,&ob1, m_resultCallback);
@@ -1267,7 +1267,7 @@ void	btCollisionWorld::contactPairTest(btCollisionObject* colObjA, btCollisionOb
 	btCollisionObjectWrapper obA(0,colObjA->getCollisionShape(),colObjA,colObjA->getWorldTransform(),-1,-1);
 	btCollisionObjectWrapper obB(0,colObjB->getCollisionShape(),colObjB,colObjB->getWorldTransform(),-1,-1);
 
-	btCollisionAlgorithm* algorithm = getDispatcher()->findAlgorithm(&obA,&obB);
+	btCollisionAlgorithm* algorithm = getDispatcher()->findAlgorithm(&obA,&obB, 0, BT_CLOSEST_POINT_ALGORITHMS);
 	if (algorithm)
 	{
 		btBridgedManifoldResult contactPointResult(&obA,&obB, resultCallback);

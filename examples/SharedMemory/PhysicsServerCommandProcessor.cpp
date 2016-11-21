@@ -542,7 +542,7 @@ struct PhysicsServerCommandProcessorInternalData
 		m_kukaGripperMultiBody(0),
 		m_kukaGripperRevolute1(0),
 		m_kukaGripperRevolute2(0),
-		m_allowRealTimeSimulation(true),
+		m_allowRealTimeSimulation(false),
 		m_huskyId(-1),
 		m_KukaId(-1),
 		m_sphereId(-1),
@@ -2774,6 +2774,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								int bodyUniqueIdA = clientCmd.m_requestContactPointArguments.m_objectAIndexFilter;
 								int bodyUniqueIdB = clientCmd.m_requestContactPointArguments.m_objectBIndexFilter;
 
+								bool hasLinkIndexAFilter = (0!=(clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_A_FILTER));
+								bool hasLinkIndexBFilter = (0!=(clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_B_FILTER));
+
+								int linkIndexA  = clientCmd.m_requestContactPointArguments.m_linkIndexAIndexFilter;
+								int linkIndexB = clientCmd.m_requestContactPointArguments.m_linkIndexBIndexFilter;
+
 								btAlignedObjectArray<btCollisionObject*> setA;
 								btAlignedObjectArray<btCollisionObject*> setB;
 								btAlignedObjectArray<int> setALinkIndex;
@@ -2788,15 +2794,21 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 										{
 											if (bodyA->m_multiBody->getBaseCollider())
 											{
-												setA.push_back(bodyA->m_multiBody->getBaseCollider());
-												setALinkIndex.push_back(-1);
+												if (!hasLinkIndexAFilter || (linkIndexA == -1))
+												{
+													setA.push_back(bodyA->m_multiBody->getBaseCollider());
+													setALinkIndex.push_back(-1);
+												}
 											}
 											for (int i = 0; i < bodyA->m_multiBody->getNumLinks(); i++)
 											{
 												if (bodyA->m_multiBody->getLink(i).m_collider)
 												{
-													setA.push_back(bodyA->m_multiBody->getLink(i).m_collider);
-													setALinkIndex.push_back(i);
+													if (!hasLinkIndexAFilter || (linkIndexA == i))
+													{
+														setA.push_back(bodyA->m_multiBody->getLink(i).m_collider);
+														setALinkIndex.push_back(i);
+													}
 												}
 											}
 										}
@@ -2816,15 +2828,21 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 										{
 											if (bodyB->m_multiBody->getBaseCollider())
 											{
-												setB.push_back(bodyB->m_multiBody->getBaseCollider());
-												setBLinkIndex.push_back(-1);
+												if (!hasLinkIndexBFilter || (linkIndexB == -1))
+												{
+													setB.push_back(bodyB->m_multiBody->getBaseCollider());
+													setBLinkIndex.push_back(-1);
+												}
 											}
 											for (int i = 0; i < bodyB->m_multiBody->getNumLinks(); i++)
 											{
 												if (bodyB->m_multiBody->getLink(i).m_collider)
 												{
-													setB.push_back(bodyB->m_multiBody->getLink(i).m_collider);
-													setBLinkIndex.push_back(i);
+													if (!hasLinkIndexBFilter || (linkIndexB ==i))
+													{
+														setB.push_back(bodyB->m_multiBody->getLink(i).m_collider);
+														setBLinkIndex.push_back(i);
+													}
 												}
 											}
 										}

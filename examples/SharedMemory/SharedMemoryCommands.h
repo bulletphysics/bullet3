@@ -156,6 +156,8 @@ enum EnumRequestContactDataUpdateFlags
 {
 	CMD_REQUEST_CONTACT_POINT_HAS_QUERY_MODE=1,
 	CMD_REQUEST_CONTACT_POINT_HAS_CLOSEST_DISTANCE_THRESHOLD=2,
+	CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_A_FILTER = 4,
+	CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_B_FILTER = 8,
 };
 
 struct RequestContactDataArgs
@@ -163,6 +165,8 @@ struct RequestContactDataArgs
     int m_startingContactPointIndex;
     int m_objectAIndexFilter;
 	int m_objectBIndexFilter;
+	int m_linkIndexAIndexFilter;
+	int m_linkIndexBIndexFilter;
 	double m_closestDistanceThreshold;
 	int m_mode;
 };

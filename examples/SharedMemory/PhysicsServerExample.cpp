@@ -825,6 +825,7 @@ public:
     virtual bool wantsTermination();
     virtual bool isConnected();
 	virtual void	renderScene();
+	void drawUserDebugLines();
 	virtual void    exitPhysics();
 
 	virtual void	physicsDebugDraw(int debugFlags);
@@ -1353,7 +1354,51 @@ extern int gHuskyId;
 extern btTransform huskyTr;
 
 
+void PhysicsServerExample::drawUserDebugLines()
+{
+	static char line0[1024];
+	static char line1[1024];
 
+	//draw all user-debug-lines
+
+	//add array of lines
+
+	//draw all user- 'text3d' messages
+	if (m_multiThreadedHelper)
+	{
+
+		for (int i = 0; i<m_multiThreadedHelper->m_userDebugLines.size(); i++)
+		{
+			btVector3 from;
+			from.setValue(m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[0],
+				m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[1],
+				m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[2]);
+			btVector3 toX;
+			toX.setValue(m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[0],
+				m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[1],
+				m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[2]);
+
+			btVector3 color;
+			color.setValue(m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[0],
+				m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[1],
+				m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[2]);
+
+
+			m_guiHelper->getAppInterface()->m_renderer->drawLine(from, toX, color, m_multiThreadedHelper->m_userDebugLines[i].m_lineWidth);
+		}
+
+		for (int i = 0; i<m_multiThreadedHelper->m_userDebugText.size(); i++)
+		{
+			m_guiHelper->getAppInterface()->drawText3D(m_multiThreadedHelper->m_userDebugText[i].m_text,
+				m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ[0],
+				m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ[1],
+				m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ[2],
+				m_multiThreadedHelper->m_userDebugText[i].textSize);
+
+		}
+	}
+
+}
 
 void PhysicsServerExample::renderScene()
 {
@@ -1369,48 +1414,8 @@ void PhysicsServerExample::renderScene()
 		
 
 	B3_PROFILE("PhysicsServerExample::RenderScene");
-	static char line0[1024];
-		static char line1[1024];
 
-	//draw all user-debug-lines
-
-	//add array of lines
-
-	//draw all user- 'text3d' messages
-		if (m_multiThreadedHelper)
-		{
-			
-			for (int i=0;i<m_multiThreadedHelper->m_userDebugLines.size();i++)
-			{
-				btVector3 from;
-				from.setValue(	m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[0],
-								m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[1],
-								m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[2]);
-				btVector3 toX;
-				toX.setValue(	m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[0],
-								m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[1],
-								m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[2]);
-				
-				btVector3 color;
-				color.setValue(	m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[0],
-								m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[1],
-								m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[2]);
-
-				
-				m_guiHelper->getAppInterface()->m_renderer->drawLine(from, toX, color, m_multiThreadedHelper->m_userDebugLines[i].m_lineWidth);
-			}
-			
-			for (int i=0;i<m_multiThreadedHelper->m_userDebugText.size();i++)
-			{
-				m_guiHelper->getAppInterface()->drawText3D(m_multiThreadedHelper->m_userDebugText[i].m_text,
-					m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ[0],
-					m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ[1],
-					m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ[2],
-					m_multiThreadedHelper->m_userDebugText[i].textSize);
-				
-			}
-		}
-
+	drawUserDebugLines();
 
 	if (gEnableRealTimeSimVR)
 	{
@@ -1424,6 +1429,7 @@ void PhysicsServerExample::renderScene()
 		static int count = 0;
 		count++;
 
+#if 0
 		if (0 == (count & 1))
 		{
 			btScalar curTime = m_clock.getTimeSeconds();
@@ -1444,6 +1450,7 @@ void PhysicsServerExample::renderScene()
 				worseFps = 1000000;
 			}
 		}
+#endif
 
 #ifdef BT_ENABLE_VR
 		if ((gInternalSimFlags&2 ) && m_tinyVrGui==0)
@@ -1468,7 +1475,9 @@ void PhysicsServerExample::renderScene()
 			tr = tr*b3Transform(b3Quaternion(0,0,-SIMD_HALF_PI),b3MakeVector3(0,0,0));
 			b3Scalar dt = 0.01;
 			m_tinyVrGui->clearTextArea();
-			
+			static char line0[1024];
+			static char line1[1024];
+
 			m_tinyVrGui->grapicalPrintf(line0,0,0,0,0,0,255);
 			m_tinyVrGui->grapicalPrintf(line1,0,16,255,255,255,255);
 
@@ -1544,6 +1553,8 @@ void PhysicsServerExample::renderScene()
 
 void    PhysicsServerExample::physicsDebugDraw(int debugDrawFlags)
 {
+	drawUserDebugLines();
+
 	///debug rendering
 	m_physicsServer.physicsDebugDraw(debugDrawFlags);
 
