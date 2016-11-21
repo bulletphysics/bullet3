@@ -13,7 +13,7 @@
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btVector3.h"
 
-const float depth = 2.f;
+const float depth = 10.f;
 
 struct Shader : public IShader {
     
@@ -140,6 +140,88 @@ struct DepthShader : public IShader {
         printf("coefficient: %f\n", 1.0-p[2]/depth);
         color = TGAColor(255, 255, 255)*(1.0-p[2]/depth);
         return false;
+    }
+};
+
+struct ShadowShader : public IShader {
+    
+    Model* m_model;
+    Vec3f m_light_dir_local;
+    Vec3f m_light_color;
+    Matrix& m_modelMat;
+    Matrix m_invModelMat;
+    
+    Matrix& m_modelView1;
+    Matrix& m_projectionMatrix;
+    Vec3f m_localScaling;
+    Matrix& m_lightModelView;
+    Vec4f m_colorRGBA;
+    
+    mat<2,3,float> varying_uv;  // triangle uv coordinates, written by the vertex shader, read by the fragment shader
+    mat<4,3,float> varying_tri; // triangle coordinates (clip coordinates), written by VS, read by FS
+    mat<4,3,float> varying_tri_light_view; // triangle coordinates (clip coordinates), written by VS, read by FS
+    mat<3,3,float> varying_nrm; // normal per vertex to be interpolated by FS
+    
+    ShadowShader(Model* model, Vec3f light_dir_local, Vec3f light_color, Matrix& modelView, Matrix& lightModelView, Matrix& projectionMatrix, Matrix& modelMat, Vec3f localScaling, const Vec4f& colorRGBA)
+    :m_model(model),
+    m_light_dir_local(light_dir_local),
+    m_light_color(light_color),
+    m_modelView1(modelView),
+    m_lightModelView(lightModelView),
+    m_projectionMatrix(projectionMatrix),
+    m_modelMat(modelMat),
+    m_localScaling(localScaling),
+    m_colorRGBA(colorRGBA)
+    {
+        m_invModelMat = m_modelMat.invert_transpose();
+    }
+    virtual Vec4f vertex(int iface, int nthvert) {
+        Vec2f uv = m_model->uv(iface, nthvert);
+        varying_uv.set_col(nthvert, uv);
+        varying_nrm.set_col(nthvert, proj<3>(m_invModelMat*embed<4>(m_model->normal(iface, nthvert), 0.f)));
+        Vec3f unScaledVert = m_model->vert(iface, nthvert);
+        Vec3f scaledVert=Vec3f(unScaledVert[0]*m_localScaling[0],
+                               unScaledVert[1]*m_localScaling[1],
+                               unScaledVert[2]*m_localScaling[2]);
+        Vec4f gl_Vertex = m_projectionMatrix*m_modelView1*embed<4>(scaledVert);
+        varying_tri.set_col(nthvert, gl_Vertex);
+        Vec4f gl_VertexLightView = m_projectionMatrix*m_lightModelView*embed<4>(scaledVert);
+        varying_tri_light_view.set_col(nthvert, gl_VertexLightView);
+        return gl_Vertex;
+    }
+    
+    virtual bool fragment(Vec3f bar, TGAColor &color) {
+        Vec4f p = varying_tri_light_view*bar;
+        float shadow = 1.0-p[2]/depth;
+        printf("shadow: %f\n", shadow);
+        
+        Vec3f bn = (varying_nrm*bar).normalize();
+        Vec2f uv = varying_uv*bar;
+        
+        Vec3f reflection_direction = (bn * (bn * m_light_dir_local * 2.f) - m_light_dir_local).normalize();
+        float specular = pow(b3Max(reflection_direction.z, 0.f), m_model->specular(uv));
+        float diffuse = b3Max(0.f, bn * m_light_dir_local);
+        
+        float ambient_coefficient = 0.6;
+        float diffuse_coefficient = 0.35;
+        float specular_coefficient = 0.05;
+        
+        float intensity = ambient_coefficient + b3Min(diffuse * diffuse_coefficient + specular * specular_coefficient, 1.0f - ambient_coefficient);
+        
+        color = m_model->diffuse(uv) * intensity * shadow;
+        
+        //warning: bgra color is swapped to rgba to upload texture
+        color.bgra[0] *= m_colorRGBA[0];
+        color.bgra[1] *= m_colorRGBA[1];
+        color.bgra[2] *= m_colorRGBA[2];
+        color.bgra[3] *= m_colorRGBA[3];
+        
+        color.bgra[0] *= m_light_color[0];
+        color.bgra[1] *= m_light_color[1];
+        color.bgra[2] *= m_light_color[2];
+        
+        return false;
+
     }
 };
 
@@ -337,7 +419,8 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
         Matrix modelViewMatrix = renderData.m_viewMatrix*renderData.m_modelMatrix;
         Vec3f localScaling(renderData.m_localScaling[0],renderData.m_localScaling[1],renderData.m_localScaling[2]);
         //Shader shader(model, light_dir_local, light_color, modelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, localScaling, model->getColorRGBA());
-        DepthShader shader(model, modelViewMatrix, lightModelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, localScaling);
+        //DepthShader shader(model, modelViewMatrix, lightModelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, localScaling);
+        ShadowShader shader(model, light_dir_local, light_color, modelViewMatrix, lightModelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, localScaling, model->getColorRGBA());
         		
 		//printf("Render %d triangles.\n",model->nfaces());
 		for (int i=0; i<model->nfaces(); i++) 
