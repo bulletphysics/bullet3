@@ -2209,17 +2209,18 @@ static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args, Py
 
 
 /// Render an image from the current timestep of the simulation, width, height are required, other args are optional
-// getCameraImage(w, h, view[16], projection[16], lightpos[3])
+// getCameraImage(w, h, view[16], projection[16], lightDir[3], lightColor[3])
 static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObject *keywds)
 {
 	/// request an image from a simulated camera, using a software renderer.
 	struct b3CameraImageData imageData;
-	PyObject* objViewMat = 0, *objProjMat = 0, *lightDirObj = 0;
+	PyObject* objViewMat = 0, *objProjMat = 0, *lightDirObj = 0, *lightColorObj = 0;
 	int width, height;
 	int size = PySequence_Size(args);
 	float viewMatrix[16];
 	float projectionMatrix[16];
 	float lightDir[3];
+    float lightColor[3];
 	// inialize cmd
 	b3SharedMemoryCommandHandle command;
 
@@ -2232,9 +2233,9 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 	command = b3InitRequestCameraImage(sm);
 
 	// set camera resolution, optionally view, projection matrix, light direction
-	static char *kwlist[] = { "width", "height", "viewMatrix", "projectionMatrix", "lightDirection",NULL };
+	static char *kwlist[] = { "width", "height", "viewMatrix", "projectionMatrix", "lightDirection", "lightColor", NULL };
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|OOO", kwlist, &width, &height, &objViewMat, &objProjMat, &lightDirObj))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|OOOO", kwlist, &width, &height, &objViewMat, &objProjMat, &lightDirObj, &lightColorObj))
 	{
 		return NULL;
 	}
@@ -2245,11 +2246,16 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 	{
 		b3RequestCameraImageSetCameraMatrices(command, viewMatrix, projectionMatrix);
 	}
-	//set light pos only if function succeeds
+	//set light direction only if function succeeds
 	if (pybullet_internalSetVector(lightDirObj, lightDir))
 	{
 		b3RequestCameraImageSetLightDirection(command, lightDir);
 	}
+    //set light color only if function succeeds
+    if (pybullet_internalSetVector(lightColorObj, lightColor))
+    {
+        b3RequestCameraImageSetLightColor(command, lightColor);
+    }
 
 
 	if (b3CanSubmitCommand(sm))

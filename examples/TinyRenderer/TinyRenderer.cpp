@@ -19,6 +19,7 @@ struct Shader : public IShader {
     
     Model* m_model;
     Vec3f m_light_dir_local;
+    Vec3f m_light_color;
     Matrix& m_modelMat;
 	Matrix m_invModelMat;
 
@@ -32,9 +33,10 @@ struct Shader : public IShader {
     mat<3,3,float> varying_nrm; // normal per vertex to be interpolated by FS
     //mat<3,3,float> ndc_tri;     // triangle in normalized device coordinates
 
-    Shader(Model* model, Vec3f light_dir_local, Matrix& modelView, Matrix& projectionMatrix, Matrix& modelMat, Vec3f localScaling, const Vec4f& colorRGBA)
+    Shader(Model* model, Vec3f light_dir_local, Vec3f light_color, Matrix& modelView, Matrix& projectionMatrix, Matrix& modelMat, Vec3f localScaling, const Vec4f& colorRGBA)
     :m_model(model),
     m_light_dir_local(light_dir_local),
+    m_light_color(light_color),
     m_modelView1(modelView),
     m_projectionMatrix(projectionMatrix),
     m_modelMat(modelMat),
@@ -83,6 +85,10 @@ struct Shader : public IShader {
         color.bgra[1] *= m_colorRGBA[1];
         color.bgra[2] *= m_colorRGBA[2];
         color.bgra[3] *= m_colorRGBA[3];
+        
+        color.bgra[0] *= m_light_color[0];
+        color.bgra[1] *= m_light_color[1];
+        color.bgra[2] *= m_light_color[2];
 
         return false;
     }
@@ -260,6 +266,7 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
 	int height = renderData.m_rgbColorBuffer.get_height();
 
 	Vec3f light_dir_local = Vec3f(renderData.m_lightDirWorld[0],renderData.m_lightDirWorld[1],renderData.m_lightDirWorld[2]);
+    Vec3f light_color = Vec3f(renderData.m_lightColor[0],renderData.m_lightColor[1],renderData.m_lightColor[2]);
     Model* model = renderData.m_model;
     if (0==model)
         return;
@@ -278,7 +285,7 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
     {
         Matrix modelViewMatrix = renderData.m_viewMatrix*renderData.m_modelMatrix;
         Vec3f localScaling(renderData.m_localScaling[0],renderData.m_localScaling[1],renderData.m_localScaling[2]);
-        Shader shader(model, light_dir_local, modelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, localScaling, model->getColorRGBA());
+        Shader shader(model, light_dir_local, light_color, modelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, localScaling, model->getColorRGBA());
         		
 		//printf("Render %d triangles.\n",model->nfaces());
 		for (int i=0; i<model->nfaces(); i++) 

@@ -1244,6 +1244,17 @@ void b3RequestCameraImageSetLightDirection(b3SharedMemoryCommandHandle commandHa
 	command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_LIGHT_DIRECTION;
 }
 
+void b3RequestCameraImageSetLightColor(b3SharedMemoryCommandHandle commandHandle, const float lightColor[3])
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
+    for (int i = 0; i<3; i++)
+    {
+        command->m_requestPixelDataArguments.m_lightColor[i] = lightColor[i];
+    }
+    command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_LIGHT_COLOR;
+}
 
 void b3ComputeViewMatrixFromPositions(const float cameraPosition[3], const float cameraTargetPosition[3], const float cameraUp[3], float viewMatrix[16])
 {
