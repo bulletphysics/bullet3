@@ -90,7 +90,7 @@ MultiThreadedDemo::MultiThreadedDemo(struct GUIHelperInterface* helper)
 
 static btScalar gSliderStackRows = 8.0f;
 static btScalar gSliderStackColumns = 6.0f;
-
+static btScalar gSliderStackHeight = 15.0f;
 
 void MultiThreadedDemo::initPhysics()
 {

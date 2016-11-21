@@ -590,6 +590,8 @@ public:
 static bool gMultithreadedWorld = false;
 static bool gDisplayProfileInfo = false;
 static btScalar gSliderNumThreads = 1.0f;  // should be int
+static btScalar gSliderSolverIterations = 10.0f; // should be int
+
 
 ////////////////////////////////////
 CommonRigidBodyMTBase::CommonRigidBodyMTBase( struct GUIHelperInterface* helper )
