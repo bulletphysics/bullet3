@@ -1475,7 +1475,9 @@ void PhysicsServerExample::renderScene()
 			tr = tr*b3Transform(b3Quaternion(0,0,-SIMD_HALF_PI),b3MakeVector3(0,0,0));
 			b3Scalar dt = 0.01;
 			m_tinyVrGui->clearTextArea();
-			
+			static char line0[1024];
+			static char line1[1024];
+
 			m_tinyVrGui->grapicalPrintf(line0,0,0,0,0,0,255);
 			m_tinyVrGui->grapicalPrintf(line1,0,16,255,255,255,255);
 
