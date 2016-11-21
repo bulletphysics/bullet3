@@ -13,7 +13,7 @@
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btVector3.h"
 
-
+const float depth = 2.f;
 
 struct Shader : public IShader {
     
@@ -90,6 +90,55 @@ struct Shader : public IShader {
         color.bgra[1] *= m_light_color[1];
         color.bgra[2] *= m_light_color[2];
 
+        return false;
+    }
+};
+
+struct DepthShader : public IShader {
+    
+    Model* m_model;
+    Matrix& m_modelMat;
+    Matrix m_invModelMat;
+    
+    Matrix& m_modelView1;
+    Matrix& m_projectionMatrix;
+    Vec3f m_localScaling;
+    Matrix& m_lightModelView;
+    
+    mat<2,3,float> varying_uv;  // triangle uv coordinates, written by the vertex shader, read by the fragment shader
+    mat<4,3,float> varying_tri; // triangle coordinates (clip coordinates), written by VS, read by FS
+    mat<4,3,float> varying_tri_light_view; // triangle coordinates (clip coordinates), written by VS, read by FS
+    mat<3,3,float> varying_nrm; // normal per vertex to be interpolated by FS
+    
+    DepthShader(Model* model, Matrix& modelView, Matrix& lightModelView, Matrix& projectionMatrix, Matrix& modelMat, Vec3f localScaling)
+    :m_model(model),
+    m_modelView1(modelView),
+    m_lightModelView(lightModelView),
+    m_projectionMatrix(projectionMatrix),
+    m_modelMat(modelMat),
+    m_localScaling(localScaling)
+    {
+        m_invModelMat = m_modelMat.invert_transpose();
+    }
+    virtual Vec4f vertex(int iface, int nthvert) {
+        Vec2f uv = m_model->uv(iface, nthvert);
+        varying_uv.set_col(nthvert, uv);
+        varying_nrm.set_col(nthvert, proj<3>(m_invModelMat*embed<4>(m_model->normal(iface, nthvert), 0.f)));
+        Vec3f unScaledVert = m_model->vert(iface, nthvert);
+        Vec3f scaledVert=Vec3f(unScaledVert[0]*m_localScaling[0],
+                               unScaledVert[1]*m_localScaling[1],
+                               unScaledVert[2]*m_localScaling[2]);
+        Vec4f gl_Vertex = m_projectionMatrix*m_modelView1*embed<4>(scaledVert);
+        varying_tri.set_col(nthvert, gl_Vertex);
+        Vec4f gl_VertexLightView = m_projectionMatrix*m_lightModelView*embed<4>(scaledVert);
+        varying_tri_light_view.set_col(nthvert, gl_VertexLightView);
+        return gl_Vertex;
+    }
+    
+    virtual bool fragment(Vec3f bar, TGAColor &color) {
+        Vec4f p = varying_tri_light_view*bar;
+        printf("coefficient: %f\n", 1.0-p[2]/depth);
+        color = TGAColor(255, 255, 255)*(1.0-p[2]/depth);
         return false;
     }
 };
@@ -283,9 +332,12 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
 	
 
     {
+        Matrix lightViewMatrix = lookat(Vec3f(0.0,0.1,2.0), Vec3f(0.0,0.0,0.0), Vec3f(0.0,0.0,1.0));
+        Matrix lightModelViewMatrix = lightViewMatrix*renderData.m_modelMatrix;
         Matrix modelViewMatrix = renderData.m_viewMatrix*renderData.m_modelMatrix;
         Vec3f localScaling(renderData.m_localScaling[0],renderData.m_localScaling[1],renderData.m_localScaling[2]);
-        Shader shader(model, light_dir_local, light_color, modelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, localScaling, model->getColorRGBA());
+        //Shader shader(model, light_dir_local, light_color, modelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, localScaling, model->getColorRGBA());
+        DepthShader shader(model, modelViewMatrix, lightModelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, localScaling);
         		
 		//printf("Render %d triangles.\n",model->nfaces());
 		for (int i=0; i<model->nfaces(); i++) 

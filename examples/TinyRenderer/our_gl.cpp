@@ -30,6 +30,7 @@ Matrix projection(float coeff) {
 }
 
 Matrix lookat(Vec3f eye, Vec3f center, Vec3f up) {
+    /*
     Vec3f z = (eye-center).normalize();
     Vec3f x = cross(up,z).normalize();
     Vec3f y = cross(z,x).normalize();
@@ -43,6 +44,36 @@ Matrix lookat(Vec3f eye, Vec3f center, Vec3f up) {
     }
     Matrix ModelView;
     ModelView = Minv*Tr;
+    return ModelView;
+    */
+    
+    Vec3f f = (center - eye).normalize();
+    Vec3f u = up.normalize();
+    Vec3f s = cross(f,u).normalize();
+    u = cross(s,f);
+    
+    Matrix ModelView;
+    ModelView[0][0] = s.x;
+    ModelView[0][1] = s.y;
+    ModelView[0][2] = s.z;
+    
+    ModelView[1][0] = u.x;
+    ModelView[1][1] = u.y;
+    ModelView[1][2] = u.z;
+    
+    ModelView[2][0] =-f.x;
+    ModelView[2][1] =-f.y;
+    ModelView[2][2] =-f.z;
+    
+    ModelView[3][0] = 0.f;
+    ModelView[3][1] = 0.f;
+    ModelView[3][2] = 0.f;
+    
+    ModelView[0][3] = -(s[0]*eye[0]+s[1]*eye[1]+s[2]*eye[2]);
+    ModelView[1][3] = -(u[0]*eye[0]+u[1]*eye[1]+u[2]*eye[2]);
+    ModelView[2][3] = f[0]*eye[0]+f[1]*eye[1]+f[2]*eye[2];
+    ModelView[3][3] = 1.f;
+    
     return ModelView;
 }
 
