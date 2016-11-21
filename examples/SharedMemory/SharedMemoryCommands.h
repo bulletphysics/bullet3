@@ -139,13 +139,15 @@ struct RequestPixelDataArgs
 	int m_pixelWidth;
 	int m_pixelHeight;
 	float m_lightDirection[3];
+    float m_lightColor[3];
 };
 
 enum EnumRequestPixelDataUpdateFlags
 {
 	REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES=1,
-	REQUEST_PIXEL_ARGS_SET_PIXEL_WIDTH_HEIGHT=4,
-	REQUEST_PIXEL_ARGS_SET_LIGHT_DIRECTION=8,
+	REQUEST_PIXEL_ARGS_SET_PIXEL_WIDTH_HEIGHT=2,
+	REQUEST_PIXEL_ARGS_SET_LIGHT_DIRECTION=4,
+    REQUEST_PIXEL_ARGS_SET_LIGHT_COLOR=8,
 	//don't exceed (1<<15), because this enum is shared with EnumRenderer in SharedMemoryPublic.h
 	
 };
@@ -524,7 +526,10 @@ enum EnumUserDebugDrawFlags
     USER_DEBUG_HAS_LINE=1,
 	USER_DEBUG_HAS_TEXT=2,
 	USER_DEBUG_REMOVE_ONE_ITEM=4,
-	USER_DEBUG_REMOVE_ALL=8	
+	USER_DEBUG_REMOVE_ALL=8,	
+	USER_DEBUG_SET_CUSTOM_OBJECT_COLOR = 16,
+	USER_DEBUG_REMOVE_CUSTOM_OBJECT_COLOR = 32,
+
 };
 
 struct UserDebugDrawArgs
@@ -541,6 +546,10 @@ struct UserDebugDrawArgs
 	double m_textPositionXYZ[3];
 	double m_textColorRGB[3];
 	double m_textSize;
+
+	double m_objectDebugColorRGB[3];
+	int m_objectUniqueId;
+	int m_linkIndex;
 };
 
 

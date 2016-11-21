@@ -3531,7 +3531,6 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							for( int i=0;i<numRb;i++)
 							{
 								btCollisionObject* colObj = importer->getRigidBodyByIndex(i);
-
 								if (colObj)
 								{
 									btRigidBody* rb = btRigidBody::upcast(colObj);
@@ -3594,7 +3593,54 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						SharedMemoryStatus& serverCmd = serverStatusOut;
 						serverCmd.m_type = CMD_USER_DEBUG_DRAW_FAILED;
 						hasStatus = true;
-						
+
+						if ((clientCmd.m_updateFlags & USER_DEBUG_SET_CUSTOM_OBJECT_COLOR) || (clientCmd.m_updateFlags & USER_DEBUG_REMOVE_CUSTOM_OBJECT_COLOR))
+						{
+							int bodyUniqueId = clientCmd.m_userDebugDrawArgs.m_objectUniqueId;
+							InteralBodyData* body = m_data->getHandle(bodyUniqueId);
+							if (body)
+							{
+								btCollisionObject* destColObj = 0;
+
+								if (body->m_multiBody)
+								{
+									if (clientCmd.m_userDebugDrawArgs.m_linkIndex == -1)
+									{
+										destColObj = body->m_multiBody->getBaseCollider();
+									}
+									else
+									{
+										if (clientCmd.m_userDebugDrawArgs.m_linkIndex >= 0 && clientCmd.m_userDebugDrawArgs.m_linkIndex < body->m_multiBody->getNumLinks())
+										{
+											destColObj = body->m_multiBody->getLink(clientCmd.m_userDebugDrawArgs.m_linkIndex).m_collider;
+										}
+									}
+
+								}
+								if (body->m_rigidBody)
+								{
+									destColObj = body->m_rigidBody;
+								}
+
+								if (destColObj)
+								{
+									if (clientCmd.m_updateFlags & USER_DEBUG_REMOVE_CUSTOM_OBJECT_COLOR)
+									{
+										destColObj->removeCustomDebugColor();
+										serverCmd.m_type = CMD_USER_DEBUG_DRAW_COMPLETED;
+									}
+									if (clientCmd.m_updateFlags & USER_DEBUG_SET_CUSTOM_OBJECT_COLOR)
+									{
+										btVector3 objectColorRGB;
+										objectColorRGB.setValue(clientCmd.m_userDebugDrawArgs.m_objectDebugColorRGB[0],
+											clientCmd.m_userDebugDrawArgs.m_objectDebugColorRGB[1],
+											clientCmd.m_userDebugDrawArgs.m_objectDebugColorRGB[2]);
+										destColObj->setCustomDebugColor(objectColorRGB);
+										serverCmd.m_type = CMD_USER_DEBUG_DRAW_COMPLETED;
+									}
+								}
+							}
+						}
 
 						if (clientCmd.m_updateFlags & USER_DEBUG_HAS_TEXT)
 						{

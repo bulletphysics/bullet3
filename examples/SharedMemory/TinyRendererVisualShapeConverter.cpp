@@ -75,6 +75,8 @@ struct TinyRendererVisualShapeConverterInternalData
 	b3AlignedObjectArray<int> m_segmentationMaskBuffer;
 	btVector3 m_lightDirection;
 	bool m_hasLightDirection;
+    btVector3 m_lightColor;
+    bool m_hasLightColor;
 	SimpleCamera m_camera;
 	
 	
@@ -83,7 +85,8 @@ struct TinyRendererVisualShapeConverterInternalData
 	m_swWidth(START_WIDTH),
 	m_swHeight(START_HEIGHT),
 	m_rgbColorBuffer(START_WIDTH,START_HEIGHT,TGAImage::RGB),
-	m_hasLightDirection(false)
+	m_hasLightDirection(false),
+    m_hasLightColor(false)
 	{
 	    m_depthBuffer.resize(m_swWidth*m_swHeight);
 	    m_segmentationMaskBuffer.resize(m_swWidth*m_swHeight,-1);
@@ -117,6 +120,11 @@ void TinyRendererVisualShapeConverter::setLightDirection(float x, float y, float
 	m_data->m_hasLightDirection = true;
 }
 
+void TinyRendererVisualShapeConverter::setLightColor(float x, float y, float z)
+{
+    m_data->m_lightColor.setValue(x, y, z);
+    m_data->m_hasLightColor = true;
+}
 
 void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut, b3VisualShapeData& visualShapeOut)
 {
@@ -704,6 +712,12 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
     
     lightDirWorld.normalize();
     
+    btVector3 lightColor(1.0,1.0,1.0);
+    if (m_data->m_hasLightColor)
+    {
+        lightColor = m_data->m_lightColor;
+    }
+    
   //  printf("num m_swRenderInstances = %d\n", m_data->m_swRenderInstances.size());
     for (int i=0;i<m_data->m_swRenderInstances.size();i++)
     {
@@ -737,6 +751,7 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
                     renderObj->m_viewMatrix[i][j] = viewMat[i+4*j];
                     renderObj->m_localScaling = colObj->getCollisionShape()->getLocalScaling();
                     renderObj->m_lightDirWorld = lightDirWorld;
+                    renderObj->m_lightColor = lightColor;
                 }
             }
             TinyRenderer::renderObject(*renderObj);

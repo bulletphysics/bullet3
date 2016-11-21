@@ -1647,8 +1647,45 @@ static PyObject* pybullet_removeAllUserDebugItems(PyObject* self, PyObject* args
 	Py_INCREF(Py_None);
 	return Py_None;
 }
-	
 
+static PyObject* pybullet_setDebugObjectColor(PyObject* self, PyObject* args, PyObject *keywds)
+{
+	PyObject* objectColorRGBObj = 0;
+	double objectColorRGB[3];
+
+	int objectUniqueId = -1;
+	int linkIndex = -2;
+
+	static char *kwlist[] = { "objectUniqueId", "linkIndex","objectDebugColorRGB", NULL };
+
+	if (0 == sm) {
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|O", kwlist,
+		&objectUniqueId, &linkIndex, &objectColorRGBObj))
+		return NULL;
+
+	if (objectColorRGBObj)
+	{
+		if (pybullet_internalSetVectord(objectColorRGBObj, objectColorRGB))
+		{
+			b3SharedMemoryCommandHandle commandHandle = b3InitDebugDrawingCommand(sm);
+			b3SetDebugObjectColor(commandHandle, objectUniqueId, linkIndex, objectColorRGB);
+			b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+		}
+	}
+	else
+	{
+		b3SharedMemoryCommandHandle commandHandle = b3InitDebugDrawingCommand(sm);
+		b3RemoveDebugObjectColor(commandHandle, objectUniqueId, linkIndex);
+		b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+	
 
 static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args) 
 {
@@ -2237,17 +2274,18 @@ static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args, Py
 
 
 /// Render an image from the current timestep of the simulation, width, height are required, other args are optional
-// getCameraImage(w, h, view[16], projection[16], lightpos[3])
+// getCameraImage(w, h, view[16], projection[16], lightDir[3], lightColor[3])
 static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObject *keywds)
 {
 	/// request an image from a simulated camera, using a software renderer.
 	struct b3CameraImageData imageData;
-	PyObject* objViewMat = 0, *objProjMat = 0, *lightDirObj = 0;
+	PyObject* objViewMat = 0, *objProjMat = 0, *lightDirObj = 0, *lightColorObj = 0;
 	int width, height;
 	int size = PySequence_Size(args);
 	float viewMatrix[16];
 	float projectionMatrix[16];
 	float lightDir[3];
+    float lightColor[3];
 	// inialize cmd
 	b3SharedMemoryCommandHandle command;
 
@@ -2260,9 +2298,9 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 	command = b3InitRequestCameraImage(sm);
 
 	// set camera resolution, optionally view, projection matrix, light direction
-	static char *kwlist[] = { "width", "height", "viewMatrix", "projectionMatrix", "lightDirection",NULL };
+	static char *kwlist[] = { "width", "height", "viewMatrix", "projectionMatrix", "lightDirection", "lightColor", NULL };
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|OOO", kwlist, &width, &height, &objViewMat, &objProjMat, &lightDirObj))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|OOOO", kwlist, &width, &height, &objViewMat, &objProjMat, &lightDirObj, &lightColorObj))
 	{
 		return NULL;
 	}
@@ -2273,11 +2311,16 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 	{
 		b3RequestCameraImageSetCameraMatrices(command, viewMatrix, projectionMatrix);
 	}
-	//set light pos only if function succeeds
+	//set light direction only if function succeeds
 	if (pybullet_internalSetVector(lightDirObj, lightDir))
 	{
 		b3RequestCameraImageSetLightDirection(command, lightDir);
 	}
+    //set light color only if function succeeds
+    if (pybullet_internalSetVector(lightColorObj, lightColor))
+    {
+        b3RequestCameraImageSetLightColor(command, lightColor);
+    }
 
 
 	if (b3CanSubmitCommand(sm))
@@ -3421,6 +3464,10 @@ static PyMethodDef SpamMethods[] = {
 	 "remove all user debug draw items"
 	  },
 
+	  {	"setDebugObjectColor", (PyCFunction)pybullet_setDebugObjectColor, METH_VARARGS | METH_KEYWORDS,
+		"Override the wireframe debug drawing color for a particular object unique id / link index."
+		"If you ommit the color, the custom color will be removed."
+	  },
 
 
     {"getVisualShapeData", pybullet_getVisualShapeData, METH_VARARGS,
