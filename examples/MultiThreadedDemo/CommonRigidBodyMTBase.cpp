@@ -633,7 +633,7 @@ void apiSelectButtonCallback(int buttonId, bool buttonState, void* userPointer)
     }
 }
 
-void setThreadCountCallback(float val)
+void setThreadCountCallback(float val, void* userPtr)
 {
     if (gTaskMgr.getApi()==TaskManager::apiNone)
     {
@@ -642,7 +642,14 @@ void setThreadCountCallback(float val)
     else
     {
         gTaskMgr.setNumThreads( int( gSliderNumThreads ) );
-        gSliderNumThreads = float(gTaskMgr.getNumThreads());
+    }
+}
+
+void setSolverIterationCountCallback(float val, void* userPtr)
+{
+    if (btDiscreteDynamicsWorld* world = reinterpret_cast<btDiscreteDynamicsWorld*>(userPtr))
+    {
+       	world->getSolverInfo().m_numIterations = btMax(1, int(gSliderSolverIterations));
     }
 }
 
@@ -728,6 +735,15 @@ void CommonRigidBodyMTBase::createDefaultParameters()
         button.m_callback = boolPtrButtonCallback;
         m_guiHelper->getParameterInterface()->registerButtonParameter( button );
     }
+    {
+        SliderParams slider( "Solver iterations", &gSliderSolverIterations );
+        slider.m_minVal = 1.0f;
+        slider.m_maxVal = 30.0f;
+        slider.m_callback = setSolverIterationCountCallback;
+        slider.m_userPointer = m_dynamicsWorld;
+        slider.m_clampToIntegers = true;
+        m_guiHelper->getParameterInterface()->registerSliderFloatParameter( slider );
+    }
     if (m_multithreadedWorld)
     {
         // create a button for each supported threading API
@@ -750,7 +766,7 @@ void CommonRigidBodyMTBase::createDefaultParameters()
 			slider.m_minVal = 1.0f;
 			slider.m_maxVal = float(gTaskMgr.getMaxNumThreads()*2);
 			slider.m_callback = setThreadCountCallback;
-			slider.m_clampToNotches = false;
+            slider.m_clampToIntegers = true;
             m_guiHelper->getParameterInterface()->registerSliderFloatParameter( slider );
         }
     }

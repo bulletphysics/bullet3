@@ -28,18 +28,20 @@ template<typename T>
 struct MySliderEventHandler : public Gwen::Event::Handler
 {
 	SliderParamChangedCallback m_callback;
+	void* m_userPointer;
 	Gwen::Controls::TextBox* m_label;
 	Gwen::Controls::Slider* m_pSlider;
 	char m_variableName[1024];
 	T* m_targetValue;
     bool m_showValue;
 
-	MySliderEventHandler(const char* varName, Gwen::Controls::TextBox* label, Gwen::Controls::Slider* pSlider,T* target,SliderParamChangedCallback callback)
+	MySliderEventHandler(const char* varName, Gwen::Controls::TextBox* label, Gwen::Controls::Slider* pSlider,T* target, SliderParamChangedCallback callback, void* userPtr)
 		:m_label(label),
 		m_pSlider(pSlider),
 		m_targetValue(target),
         m_showValue(true),
-		m_callback(callback)
+		m_callback(callback),
+        m_userPointer(userPtr)
 	{
 		memcpy(m_variableName,varName,strlen(varName)+1);
 	}
@@ -55,7 +57,7 @@ struct MySliderEventHandler : public Gwen::Event::Handler
 
 		if (m_callback)
 		{
-			(*m_callback)(v);
+			(*m_callback)(v, m_userPointer);
 		}
 
 	}
@@ -223,12 +225,20 @@ void GwenParameterInterface::registerSliderFloatParameter(SliderParams& params)
 	pSlider->SetPos( 10, m_gwenInternalData->m_curYposition );
 	pSlider->SetSize( 200, 20 );
 	pSlider->SetRange( params.m_minVal, params.m_maxVal);
-	pSlider->SetNotchCount(16);//float(params.m_maxVal-params.m_minVal)/100.f);
-	pSlider->SetClampToNotches( params.m_clampToNotches );
+    if (params.m_clampToIntegers)
+    {
+        pSlider->SetNotchCount( int( params.m_maxVal - params.m_minVal ) );
+        pSlider->SetClampToNotches( params.m_clampToNotches );
+    }
+    else
+    {
+        pSlider->SetNotchCount( 16 );//float(params.m_maxVal-params.m_minVal)/100.f);
+        pSlider->SetClampToNotches( params.m_clampToNotches );
+    }
 	pSlider->SetValue( *params.m_paramValuePointer);//dimensions[i] );
 	char labelName[1024];
 	sprintf(labelName,"%s",params.m_name);//axisNames[0]);
-	MySliderEventHandler<btScalar>* handler = new MySliderEventHandler<btScalar>(labelName,label,pSlider,params.m_paramValuePointer,params.m_callback);
+	MySliderEventHandler<btScalar>* handler = new MySliderEventHandler<btScalar>(labelName,label,pSlider,params.m_paramValuePointer,params.m_callback, params.m_userPointer);
     handler->m_showValue = params.m_showValues;
 	m_paramInternalData->m_sliderEventHandlers.push_back(handler);
 

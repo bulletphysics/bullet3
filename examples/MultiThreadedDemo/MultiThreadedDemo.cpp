@@ -99,17 +99,24 @@ void MultiThreadedDemo::initPhysics()
     m_dynamicsWorld->setGravity( btVector3( 0, -10, 0 ) );
 
     {
+        SliderParams slider( "Stack height", &gSliderStackHeight );
+        slider.m_minVal = 1.0f;
+        slider.m_maxVal = 30.0f;
+        slider.m_clampToIntegers = true;
+        m_guiHelper->getParameterInterface()->registerSliderFloatParameter( slider );
+    }
+    {
         SliderParams slider( "Stack rows", &gSliderStackRows );
         slider.m_minVal = 1.0f;
         slider.m_maxVal = 20.0f;
-        slider.m_clampToNotches = false;
+        slider.m_clampToIntegers = true;
         m_guiHelper->getParameterInterface()->registerSliderFloatParameter( slider );
     }
     {
         SliderParams slider( "Stack columns", &gSliderStackColumns );
         slider.m_minVal = 1.0f;
         slider.m_maxVal = 20.0f;
-        slider.m_clampToNotches = false;
+        slider.m_clampToIntegers = true;
         m_guiHelper->getParameterInterface()->registerSliderFloatParameter( slider );
     }
 	
