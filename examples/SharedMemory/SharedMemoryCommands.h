@@ -526,7 +526,10 @@ enum EnumUserDebugDrawFlags
     USER_DEBUG_HAS_LINE=1,
 	USER_DEBUG_HAS_TEXT=2,
 	USER_DEBUG_REMOVE_ONE_ITEM=4,
-	USER_DEBUG_REMOVE_ALL=8	
+	USER_DEBUG_REMOVE_ALL=8,	
+	USER_DEBUG_SET_CUSTOM_OBJECT_COLOR = 16,
+	USER_DEBUG_REMOVE_CUSTOM_OBJECT_COLOR = 32,
+
 };
 
 struct UserDebugDrawArgs
@@ -543,6 +546,10 @@ struct UserDebugDrawArgs
 	double m_textPositionXYZ[3];
 	double m_textColorRGB[3];
 	double m_textSize;
+
+	double m_objectDebugColorRGB[3];
+	int m_objectUniqueId;
+	int m_linkIndex;
 };
 
 

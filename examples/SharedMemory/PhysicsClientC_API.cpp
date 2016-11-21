@@ -1195,6 +1195,46 @@ int b3GetDebugItemUniqueId(b3SharedMemoryStatusHandle statusHandle)
 	return status->m_userDebugDrawArgs.m_debugItemUniqueId;
 }
 
+b3SharedMemoryCommandHandle b3InitDebugDrawingCommand(b3PhysicsClientHandle physClient)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+	command->m_type = CMD_USER_DEBUG_DRAW;
+	command->m_updateFlags = 0;
+	return  (b3SharedMemoryCommandHandle)command;
+}
+
+
+
+void b3SetDebugObjectColor(b3SharedMemoryCommandHandle commandHandle, int objectUniqueId, int linkIndex, double objectColorRGB[3])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_USER_DEBUG_DRAW);
+	command->m_updateFlags |= USER_DEBUG_SET_CUSTOM_OBJECT_COLOR;
+	command->m_userDebugDrawArgs.m_objectUniqueId = objectUniqueId;
+	command->m_userDebugDrawArgs.m_linkIndex = linkIndex;
+	command->m_userDebugDrawArgs.m_objectDebugColorRGB[0] = objectColorRGB[0];
+	command->m_userDebugDrawArgs.m_objectDebugColorRGB[1] = objectColorRGB[1];
+	command->m_userDebugDrawArgs.m_objectDebugColorRGB[2] = objectColorRGB[2];
+}
+
+void b3RemoveDebugObjectColor(b3SharedMemoryCommandHandle commandHandle, int objectUniqueId, int linkIndex)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_USER_DEBUG_DRAW);
+	command->m_updateFlags |= USER_DEBUG_REMOVE_CUSTOM_OBJECT_COLOR;
+	command->m_userDebugDrawArgs.m_objectUniqueId = objectUniqueId;
+	command->m_userDebugDrawArgs.m_linkIndex = linkIndex;
+
+}
+
+
+
 
 ///request an image from a simulated camera, using a software renderer.
 b3SharedMemoryCommandHandle b3InitRequestCameraImage(b3PhysicsClientHandle physClient)

@@ -1647,8 +1647,45 @@ static PyObject* pybullet_removeAllUserDebugItems(PyObject* self, PyObject* args
 	Py_INCREF(Py_None);
 	return Py_None;
 }
-	
 
+static PyObject* pybullet_setDebugObjectColor(PyObject* self, PyObject* args, PyObject *keywds)
+{
+	PyObject* objectColorRGBObj = 0;
+	double objectColorRGB[3];
+
+	int objectUniqueId = -1;
+	int linkIndex = -2;
+
+	static char *kwlist[] = { "objectUniqueId", "linkIndex","objectDebugColorRGB", NULL };
+
+	if (0 == sm) {
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|O", kwlist,
+		&objectUniqueId, &linkIndex, &objectColorRGBObj))
+		return NULL;
+
+	if (objectColorRGBObj)
+	{
+		if (pybullet_internalSetVectord(objectColorRGBObj, objectColorRGB))
+		{
+			b3SharedMemoryCommandHandle commandHandle = b3InitDebugDrawingCommand(sm);
+			b3SetDebugObjectColor(commandHandle, objectUniqueId, linkIndex, objectColorRGB);
+			b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+		}
+	}
+	else
+	{
+		b3SharedMemoryCommandHandle commandHandle = b3InitDebugDrawingCommand(sm);
+		b3RemoveDebugObjectColor(commandHandle, objectUniqueId, linkIndex);
+		b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+	
 
 static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args) 
 {
@@ -3427,6 +3464,10 @@ static PyMethodDef SpamMethods[] = {
 	 "remove all user debug draw items"
 	  },
 
+	  {	"setDebugObjectColor", (PyCFunction)pybullet_setDebugObjectColor, METH_VARARGS | METH_KEYWORDS,
+		"Override the wireframe debug drawing color for a particular object unique id / link index."
+		"If you ommit the color, the custom color will be removed."
+	  },
 
 
     {"getVisualShapeData", pybullet_getVisualShapeData, METH_VARARGS,
