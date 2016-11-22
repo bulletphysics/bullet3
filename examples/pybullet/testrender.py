@@ -19,6 +19,7 @@ pixelHeight = 240
 nearPlane = 0.01
 farPlane = 1000
 lightDirection = [0,1,0]
+lightColor = [1,1,1]#optional argument
 fov = 60
 
 #img_arr = pybullet.renderImage(pixelWidth, pixelHeight)
@@ -28,7 +29,7 @@ for pitch in range (0,360,10) :
     viewMatrix = pybullet.computeViewMatrixFromYawPitchRoll(camTargetPos, camDistance, yaw, pitch, roll, upAxisIndex)
     aspect = pixelWidth / pixelHeight;
     projectionMatrix = pybullet.computeProjectionMatrixFOV(fov, aspect, nearPlane, farPlane);
-    img_arr = pybullet.getCameraImage(pixelWidth, pixelHeight, viewMatrix,projectionMatrix, lightDirection)
+    img_arr = pybullet.getCameraImage(pixelWidth, pixelHeight, viewMatrix,projectionMatrix, lightDirection,lightColor)
     w=img_arr[0]
     h=img_arr[1]
     rgb=img_arr[2]

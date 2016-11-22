@@ -292,6 +292,9 @@ void btCompoundCollisionAlgorithm::processCollision (const btCollisionObjectWrap
 		btTransform otherInCompoundSpace;
 		otherInCompoundSpace = colObjWrap->getWorldTransform().inverse() * otherObjWrap->getWorldTransform();
 		otherObjWrap->getCollisionShape()->getAabb(otherInCompoundSpace,localAabbMin,localAabbMax);
+		btVector3 extraExtends(resultOut->m_closestPointDistanceThreshold, resultOut->m_closestPointDistanceThreshold, resultOut->m_closestPointDistanceThreshold);
+		localAabbMin -= extraExtends;
+		localAabbMax += extraExtends;
 
 		const ATTRIBUTE_ALIGNED16(btDbvtVolume)	bounds=btDbvtVolume::FromMM(localAabbMin,localAabbMax);
 		//process all children, that overlap with  the given AABB bounds
