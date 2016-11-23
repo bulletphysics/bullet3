@@ -4,13 +4,11 @@
 #include "our_gl.h"
 #include "Bullet3Common/b3MinMax.h"
 
-
-
-
 IShader::~IShader() {}
 
 Matrix viewport(int x, int y, int w, int h) 
 {
+    
     Matrix Viewport;
     Viewport = Matrix::identity();
     Viewport[0][3] = x+w/2.f;
@@ -20,6 +18,18 @@ Matrix viewport(int x, int y, int w, int h)
     Viewport[1][1] = h/2.f;
     Viewport[2][2] = 0;
     return Viewport;
+    
+    /*
+    Matrix Viewport;
+    Viewport = Matrix::identity();
+    Viewport[0][3] = x+w/2.f;
+    Viewport[1][3] = y+h/2.f;
+    Viewport[2][3] = .5f;
+    Viewport[0][0] = w/2.f;
+    Viewport[1][1] = h/2.f;
+    Viewport[2][2] = .5f;
+    return Viewport;
+    */
 }
 
 Matrix projection(float coeff) {
@@ -75,6 +85,7 @@ Matrix lookat(Vec3f eye, Vec3f center, Vec3f up) {
     ModelView[3][3] = 1.f;
     
     return ModelView;
+    
 }
 
 Vec3f barycentric(Vec2f A, Vec2f B, Vec2f C, Vec2f P) {
@@ -97,8 +108,7 @@ void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zb
 
 void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zbuffer, int* segmentationMaskBuffer, const Matrix& viewPortMatrix, int objectIndex) {
 	mat<3,4,float> pts  = (viewPortMatrix*clipc).transpose(); // transposed to ease access to each of the points
-	
-	
+    
 	//we don't clip triangles that cross the near plane, just discard them instead of showing artifacts
 	if (pts[0][3]<0 || pts[1][3] <0 || pts[2][3] <0)
 		return;

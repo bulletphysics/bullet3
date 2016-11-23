@@ -89,10 +89,10 @@ protected:
     
 	virtual void resetCamera()
 	{
-		float dist = 1;
+		float dist = 1.233281;
 		float pitch = 193;
 		float yaw = 25;
-		float targetPos[3]={0.008655,0.001998,0.679456};//-3,2.8,-2.5};
+		float targetPos[3]={0.103042,-0.469102,0.631005};//-3,2.8,-2.5};
 		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
 
 	}
@@ -481,21 +481,6 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 			}
 			break;
 		}
-        case CMD_UPDATE_LIGHT:
-        {
-            b3SharedMemoryCommandHandle commandHandle = b3InitRequestCameraImage(m_physicsClientHandle);
-            float viewMatrix[16];
-            float projectionMatrix[16];
-            m_guiHelper->getRenderInterface()->getActiveCamera()->getCameraProjectionMatrix(projectionMatrix);
-            m_guiHelper->getRenderInterface()->getActiveCamera()->getCameraViewMatrix(viewMatrix);
-            
-            b3RequestCameraImageSetCameraMatrices(commandHandle, viewMatrix,projectionMatrix);
-            b3RequestCameraImageSetPixelResolution(commandHandle, camVisualizerWidth,camVisualizerHeight);
-            float lightDir[3] = {0.0,0.1,2.0};
-            b3RequestCameraImageSetLightDirection(commandHandle, lightDir);
-            b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
-            break;
-        }
         default:
         {
             b3Error("Unknown buttonId");
@@ -572,7 +557,6 @@ void	PhysicsClientExample::createButtons()
         createButton("Load SDF",CMD_LOAD_SDF,  isTrigger);
 		createButton("Save World",CMD_SAVE_WORLD,  isTrigger);
         createButton("Get Camera Image",CMD_REQUEST_CAMERA_IMAGE_DATA,isTrigger);
-        createButton("Update Light",CMD_UPDATE_LIGHT,isTrigger);
         createButton("Step Sim",CMD_STEP_FORWARD_SIMULATION,  isTrigger);
 		createButton("Realtime Sim",CMD_CUSTOM_SET_REALTIME_SIMULATION,  isTrigger);
 		createButton("Get Visual Shape Info",CMD_REQUEST_VISUAL_SHAPE_INFO,  isTrigger);
