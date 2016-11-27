@@ -665,7 +665,14 @@ void boolPtrButtonCallback(int buttonId, bool buttonState, void* userPointer)
 
 void toggleSolverModeCallback(int buttonId, bool buttonState, void* userPointer)
 {
-    gSolverMode ^= buttonId;
+    if (buttonState)
+    {
+        gSolverMode |= buttonId;
+    }
+    else
+    {
+        gSolverMode &= ~buttonId;
+    }
     if (CommonRigidBodyMTBase* crb = reinterpret_cast<CommonRigidBodyMTBase*>(userPointer))
     {
         if (crb->m_dynamicsWorld)
@@ -795,6 +802,7 @@ void CommonRigidBodyMTBase::createDefaultParameters()
     {
         // create a button to toggle multithreaded world
         ButtonParams button( "Multithreaded world enable", 0, true );
+        button.m_initialState = gMultithreadedWorld;
         button.m_userPointer = &gMultithreadedWorld;
         button.m_callback = boolPtrButtonCallback;
         m_guiHelper->getParameterInterface()->registerButtonParameter( button );
@@ -802,6 +810,7 @@ void CommonRigidBodyMTBase::createDefaultParameters()
     {
         // create a button to toggle profile printing
         ButtonParams button( "Display solver info", 0, true );
+        button.m_initialState = gDisplayProfileInfo;
         button.m_userPointer = &gDisplayProfileInfo;
         button.m_callback = boolPtrButtonCallback;
         m_guiHelper->getParameterInterface()->registerButtonParameter( button );
@@ -813,7 +822,7 @@ void CommonRigidBodyMTBase::createDefaultParameters()
         char buttonName[256];
         SolverType solverType = static_cast<SolverType>(i);
         sprintf(buttonName, "Solver Type %s", getSolverTypeName(solverType));
-        ButtonParams button( buttonName, 0, true );
+        ButtonParams button( buttonName, 0, false );
         button.m_buttonId = solverType;
         button.m_callback = setSolverTypeCallback;
         m_guiHelper->getParameterInterface()->registerButtonParameter( button );
@@ -831,6 +840,7 @@ void CommonRigidBodyMTBase::createDefaultParameters()
     {
         ButtonParams button( "Solver use SIMD", 0, true );
         button.m_buttonId = SOLVER_SIMD;
+        button.m_initialState = !! (gSolverMode & button.m_buttonId);
         button.m_callback = toggleSolverModeCallback;
         button.m_userPointer = this;
         m_guiHelper->getParameterInterface()->registerButtonParameter( button );
@@ -838,6 +848,7 @@ void CommonRigidBodyMTBase::createDefaultParameters()
     {
         ButtonParams button( "Solver randomize order", 0, true );
         button.m_buttonId = SOLVER_RANDMIZE_ORDER;
+        button.m_initialState = !! (gSolverMode & button.m_buttonId);
         button.m_callback = toggleSolverModeCallback;
         button.m_userPointer = this;
         m_guiHelper->getParameterInterface()->registerButtonParameter( button );
@@ -845,6 +856,7 @@ void CommonRigidBodyMTBase::createDefaultParameters()
     {
         ButtonParams button( "Solver interleave contact/friction", 0, true );
         button.m_buttonId = SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS;
+        button.m_initialState = !! (gSolverMode & button.m_buttonId);
         button.m_callback = toggleSolverModeCallback;
         button.m_userPointer = this;
         m_guiHelper->getParameterInterface()->registerButtonParameter( button );
@@ -852,6 +864,7 @@ void CommonRigidBodyMTBase::createDefaultParameters()
     {
         ButtonParams button( "Solver 2 friction directions", 0, true );
         button.m_buttonId = SOLVER_USE_2_FRICTION_DIRECTIONS;
+        button.m_initialState = !! (gSolverMode & button.m_buttonId);
         button.m_callback = toggleSolverModeCallback;
         button.m_userPointer = this;
         m_guiHelper->getParameterInterface()->registerButtonParameter( button );
@@ -859,6 +872,7 @@ void CommonRigidBodyMTBase::createDefaultParameters()
     {
         ButtonParams button( "Solver friction dir caching", 0, true );
         button.m_buttonId = SOLVER_ENABLE_FRICTION_DIRECTION_CACHING;
+        button.m_initialState = !! (gSolverMode & button.m_buttonId);
         button.m_callback = toggleSolverModeCallback;
         button.m_userPointer = this;
         m_guiHelper->getParameterInterface()->registerButtonParameter( button );
@@ -866,6 +880,7 @@ void CommonRigidBodyMTBase::createDefaultParameters()
     {
         ButtonParams button( "Solver warmstarting", 0, true );
         button.m_buttonId = SOLVER_USE_WARMSTARTING;
+        button.m_initialState = !! (gSolverMode & button.m_buttonId);
         button.m_callback = toggleSolverModeCallback;
         button.m_userPointer = this;
         m_guiHelper->getParameterInterface()->registerButtonParameter( button );
