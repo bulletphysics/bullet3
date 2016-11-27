@@ -13,8 +13,11 @@
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btVector3.h"
 
-b3AlignedObjectArray<float> shadowbuffer;
 Matrix viewportmat;
+float depth = 2.0;
+int indexmap[10000000];
+int count = 0;
+bool setindex = true;
 
 struct Shader : public IShader {
     
@@ -134,7 +137,7 @@ struct DepthShader : public IShader {
     
     virtual bool fragment(Vec3f bar, TGAColor &color) {
         Vec4f p = varying_tri*bar;
-        color = TGAColor(255, 255, 255)*p[2];
+        color = TGAColor(255, 255, 255)*(p[2]/depth);
         return false;
     }
 };
@@ -153,6 +156,8 @@ struct ShadowShader : public IShader {
     Matrix& m_lightModelView;
     Vec4f m_colorRGBA;
     
+    b3AlignedObjectArray<float>& m_shadowBuffer;
+    
     int m_width;
     int m_height;
     
@@ -163,7 +168,7 @@ struct ShadowShader : public IShader {
     mat<4,3,float> varying_tri_light_view;
     mat<3,3,float> varying_nrm; // normal per vertex to be interpolated by FS
     
-    ShadowShader(Model* model, Vec3f light_dir_local, Vec3f light_color, Matrix& modelView, Matrix& lightModelView, Matrix& projectionMatrix, Matrix& modelMat, Vec3f localScaling, const Vec4f& colorRGBA, int width, int height)
+    ShadowShader(Model* model, Vec3f light_dir_local, Vec3f light_color, Matrix& modelView, Matrix& lightModelView, Matrix& projectionMatrix, Matrix& modelMat, Vec3f localScaling, const Vec4f& colorRGBA, int width, int height, b3AlignedObjectArray<float>& shadowBuffer)
     :m_model(model),
     m_light_dir_local(light_dir_local),
     m_light_color(light_color),
@@ -174,7 +179,8 @@ struct ShadowShader : public IShader {
     m_localScaling(localScaling),
     m_colorRGBA(colorRGBA),
     m_width(width),
-    m_height(height)
+    m_height(height),
+    m_shadowBuffer(shadowBuffer)
     {
         m_invModelMat = m_modelMat.invert_transpose();
     }
@@ -195,14 +201,18 @@ struct ShadowShader : public IShader {
     
     virtual bool fragment(Vec3f bar, TGAColor &color) {
         Vec4f p = viewportmat*(varying_tri_light_view*bar);
-        p = p/p[3];
         float depth = p[2];
-        int index_x = b3Min(m_width-1, int(p[0]));
-        index_x = b3Max(0, index_x);
-        int index_y = b3Min(m_height-1, int(p[1]));
-        index_y = b3Max(0, index_y);
-        int idx = index_x + index_y*m_width; // index in the shadowbuffer array
-        float shadow = 0.3+0.7*(shadowbuffer[idx]<-depth); // magic coeff to avoid z-fighting
+        //p = p/p[3];
+        //int index_x = b3Min(m_width-1, int(p[0]));
+        //index_x = b3Max(0, index_x);
+        //int index_y = b3Min(m_height-1, int(p[1]));
+        //index_y = b3Max(0, index_y);
+        //int idx = index_x + index_y*m_width; // index in the shadowbuffer array
+        int idx = indexmap[count];
+        float shadow = 0.8+0.2*(m_shadowBuffer[idx]<-depth+0.43); // magic coeff to avoid z-fighting
+        
+        //printf("count: %d, idx: %d\n", count, idx);
+        //printf("shadowbuffer: %f, depth: %f\n", m_shadowBuffer[idx], -depth+0.43);
         
         Vec3f bn = (varying_nrm*bar).normalize();
         Vec2f uv = varying_uv*bar;
@@ -234,9 +244,10 @@ struct ShadowShader : public IShader {
     }
 };
 
-TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer)
+TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer,b3AlignedObjectArray<float>&shadowBuffer)
 :m_rgbColorBuffer(rgbColorBuffer),
 m_depthBuffer(depthBuffer),
+m_shadowBuffer(shadowBuffer),
 m_segmentationMaskBufferPtr(0),
 m_model(0),
 m_userData(0),
@@ -254,9 +265,10 @@ m_objectIndex(-1)
 
 
 
-TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer, b3AlignedObjectArray<int>* segmentationMaskBuffer, int objectIndex)
+TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer, b3AlignedObjectArray<float>&shadowBuffer, b3AlignedObjectArray<int>* segmentationMaskBuffer, int objectIndex)
 :m_rgbColorBuffer(rgbColorBuffer),
 m_depthBuffer(depthBuffer),
+m_shadowBuffer(shadowBuffer),
 m_segmentationMaskBufferPtr(segmentationMaskBuffer),
 m_model(0),
 m_userData(0),
@@ -414,18 +426,14 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
 	renderData.m_viewportMatrix = viewport(0,0,width, height);
 	
     b3AlignedObjectArray<float>& zbuffer = renderData.m_depthBuffer;
+    b3AlignedObjectArray<float>& shadowbuffer = renderData.m_shadowBuffer;
     int* segmentationMaskBufferPtr = (renderData.m_segmentationMaskBufferPtr && renderData.m_segmentationMaskBufferPtr->size())?&renderData.m_segmentationMaskBufferPtr->at(0):0;
     
     TGAImage tempFrame(width, height, TGAImage::RGB);
     TGAImage& frame = renderData.m_rgbColorBuffer;
-    shadowbuffer.resize(zbuffer.size());
-    for (int i = 0; i < shadowbuffer.size(); ++i)
+    
     {
-        shadowbuffer[i] = -1e30f;
-    }
-
-    {
-        Matrix lightViewMatrix = lookat(light_dir_local, Vec3f(0.0,0.0,0.0), Vec3f(0.0,0.0,1.0));
+        Matrix lightViewMatrix = lookat(light_dir_local*depth, Vec3f(0.0,0.0,0.0), Vec3f(0.0,0.0,1.0));
         Matrix lightModelViewMatrix = lightViewMatrix*renderData.m_modelMatrix;
         Matrix lightViewProjectionMatrix = renderData.m_projectionMatrix;
         Matrix modelViewMatrix = renderData.m_viewMatrix*renderData.m_modelMatrix;
@@ -435,16 +443,31 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
         
         DepthShader shader(model, lightModelViewMatrix, lightViewProjectionMatrix,renderData.m_modelMatrix, localScaling);
         
+        setindex = true;
+        count = 0;
+        
 		for (int i=0; i<model->nfaces(); i++) 
 		{
             for (int j=0; j<3; j++) {
                 shader.vertex(i, j);
             }
-            triangle(shader.varying_tri, shader, frame, &zbuffer[0], segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex);
+            triangle(shader.varying_tri, shader, tempFrame, &shadowbuffer[0], segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex);
+            count++;
         }
         
-        /*
-        ShadowShader shadowShader(model, light_dir_local, light_color, modelViewMatrix, lightModelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, localScaling, model->getColorRGBA(), width, height);
+         for (int k = 0; k < 76800; ++k)
+         {
+             if (shadowbuffer[k] > -1e30f+0.00001)
+             {
+                 printf("[%d]: %f\n", k, shadowbuffer[k]);
+             }
+         }
+        
+        
+        ShadowShader shadowShader(model, light_dir_local, light_color, modelViewMatrix, lightModelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, localScaling, model->getColorRGBA(), width, height, shadowbuffer);
+        
+        setindex = false;
+        count = 0;
         
         for (int i=0; i<model->nfaces(); i++)
         {
@@ -452,8 +475,11 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
                 shadowShader.vertex(i, j);
             }
             triangle(shadowShader.varying_tri, shadowShader, frame, &zbuffer[0], segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex);
+            count++;
         }
         
+        
+        /*
         Shader shader(model, light_dir_local, light_color, modelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, localScaling, model->getColorRGBA());
         
         //printf("Render %d triangles.\n",model->nfaces());

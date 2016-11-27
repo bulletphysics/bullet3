@@ -72,6 +72,7 @@ struct TinyRendererVisualShapeConverterInternalData
 	TGAImage m_rgbColorBuffer;
     b3AlignedObjectArray<MyTexture2> m_textures;
 	b3AlignedObjectArray<float> m_depthBuffer;
+    b3AlignedObjectArray<float> m_shadowBuffer;
 	b3AlignedObjectArray<int> m_segmentationMaskBuffer;
 	btVector3 m_lightDirection;
 	bool m_hasLightDirection;
@@ -89,6 +90,7 @@ struct TinyRendererVisualShapeConverterInternalData
     m_hasLightColor(false)
 	{
 	    m_depthBuffer.resize(m_swWidth*m_swHeight);
+        m_shadowBuffer.resize(m_swWidth*m_swHeight);
 	    m_segmentationMaskBuffer.resize(m_swWidth*m_swHeight,-1);
 	}
 	
@@ -552,7 +554,7 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(int linkIndex, const 
 
             if (vertices.size() && indices.size())
             {
-                TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_rgbColorBuffer,m_data->m_depthBuffer, &m_data->m_segmentationMaskBuffer, bodyUniqueId);
+                TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_rgbColorBuffer,m_data->m_depthBuffer, m_data->m_shadowBuffer, &m_data->m_segmentationMaskBuffer, bodyUniqueId);
 				unsigned char* textureImage=0;
 				int textureWidth=0;
 				int textureHeight=0;
@@ -658,6 +660,7 @@ void TinyRendererVisualShapeConverter::clearBuffers(TGAColor& clearColor)
         {
             m_data->m_rgbColorBuffer.set(x,y,clearColor);
             m_data->m_depthBuffer[x+y*m_data->m_swWidth] = -1e30f;
+            m_data->m_shadowBuffer[x+y*m_data->m_swWidth] = -1e30f;
             m_data->m_segmentationMaskBuffer[x+y*m_data->m_swWidth] = -1;
         }
     }
@@ -772,6 +775,7 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
 			for (int i=0;i<m_data->m_swWidth;i++)
 			{
 				btSwap(m_data->m_depthBuffer[l1+i],m_data->m_depthBuffer[l2+i]);
+                btSwap(m_data->m_shadowBuffer[l1+i],m_data->m_shadowBuffer[l2+i]);
 				btSwap(m_data->m_segmentationMaskBuffer[l1+i],m_data->m_segmentationMaskBuffer[l2+i]);
 			}
 		}
@@ -791,6 +795,7 @@ void TinyRendererVisualShapeConverter::setWidthAndHeight(int width, int height)
 	m_data->m_swHeight = height;
 
 	m_data->m_depthBuffer.resize(m_data->m_swWidth*m_data->m_swHeight);
+    m_data->m_shadowBuffer.resize(m_data->m_swWidth*m_data->m_swHeight);
 	m_data->m_segmentationMaskBuffer.resize(m_data->m_swWidth*m_data->m_swHeight);
 	m_data->m_rgbColorBuffer = TGAImage(width, height, TGAImage::RGB);
 	

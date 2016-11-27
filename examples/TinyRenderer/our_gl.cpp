@@ -4,11 +4,15 @@
 #include "our_gl.h"
 #include "Bullet3Common/b3MinMax.h"
 
+extern int indexmap[10000000];
+extern int count;
+extern bool setindex;
+
 IShader::~IShader() {}
 
 Matrix viewport(int x, int y, int w, int h) 
 {
-    
+    /*
     Matrix Viewport;
     Viewport = Matrix::identity();
     Viewport[0][3] = x+w/2.f;
@@ -18,8 +22,8 @@ Matrix viewport(int x, int y, int w, int h)
     Viewport[1][1] = h/2.f;
     Viewport[2][2] = 0;
     return Viewport;
+    */
     
-    /*
     Matrix Viewport;
     Viewport = Matrix::identity();
     Viewport[0][3] = x+w/2.f;
@@ -29,7 +33,7 @@ Matrix viewport(int x, int y, int w, int h)
     Viewport[1][1] = h/2.f;
     Viewport[2][2] = .5f;
     return Viewport;
-    */
+
 }
 
 Matrix projection(float coeff) {
@@ -140,7 +144,11 @@ void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zb
             Vec3f bc_clip    = Vec3f(bc_screen.x/pts[0][3], bc_screen.y/pts[1][3], bc_screen.z/pts[2][3]);
             bc_clip = bc_clip/(bc_clip.x+bc_clip.y+bc_clip.z);
             float frag_depth = -1*(clipc[2]*bc_clip);
-            if (bc_screen.x<0 || bc_screen.y<0 || bc_screen.z<0 || 
+            if (setindex)
+            {
+                indexmap[count] = P.x+P.y*image.get_width();
+            }
+            if (bc_screen.x<0 || bc_screen.y<0 || bc_screen.z<0 ||
 				zbuffer[P.x+P.y*image.get_width()]>frag_depth) 
 				continue;
             bool discard = shader.fragment(bc_clip, color);

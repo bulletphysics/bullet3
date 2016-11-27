@@ -23,6 +23,7 @@ struct TinyRendererSetupInternalData
 	
 	TGAImage m_rgbColorBuffer;
 	b3AlignedObjectArray<float> m_depthBuffer;
+    b3AlignedObjectArray<float> m_shadowBuffer;
 	b3AlignedObjectArray<int> m_segmentationMaskBuffer;
 
 
@@ -53,6 +54,7 @@ struct TinyRendererSetupInternalData
 		m_animateRenderer(0)
 	{
 		m_depthBuffer.resize(m_width*m_height);
+        m_shadowBuffer.resize(m_width*m_height);
 //        m_segmentationMaskBuffer.resize(m_width*m_height);
 
     }
@@ -188,6 +190,7 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 				TinyRenderObjectData* ob = new TinyRenderObjectData(
 					m_internalData->m_rgbColorBuffer,
 					m_internalData->m_depthBuffer,
+                    m_internalData->m_shadowBuffer,
 					&m_internalData->m_segmentationMaskBuffer,
 					m_internalData->m_renderObjects.size());
                 
@@ -328,6 +331,7 @@ void TinyRendererSetup::stepSimulation(float deltaTime)
             {
                 m_internalData->m_rgbColorBuffer.set(x,y,clearColor);
                 m_internalData->m_depthBuffer[x+y*m_internalData->m_width] = -1e30f;
+                m_internalData->m_shadowBuffer[x+y*m_internalData->m_width] = -1e30f;
             }
         }
 
