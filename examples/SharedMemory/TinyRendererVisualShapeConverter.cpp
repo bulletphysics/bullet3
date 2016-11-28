@@ -36,6 +36,8 @@ subject to the following restrictions:
 #include "../TinyRenderer/model.h"
 #include "../ThirdPartyLibs/stb_image/stb_image.h"
 
+extern int count;
+
 
 enum MyFileType
 {
@@ -721,6 +723,8 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
         lightColor = m_data->m_lightColor;
     }
     
+    count = 0;
+    
   //  printf("num m_swRenderInstances = %d\n", m_data->m_swRenderInstances.size());
     for (int i=0;i<m_data->m_swRenderInstances.size();i++)
     {
@@ -757,7 +761,48 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
                     renderObj->m_lightColor = lightColor;
                 }
             }
-            TinyRenderer::renderObject(*renderObj);
+            TinyRenderer::renderObjectDepth(*renderObj);
+        }
+    }
+    
+    count = 0;
+    
+    for (int i=0;i<m_data->m_swRenderInstances.size();i++)
+    {
+        TinyRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(i);
+        if (0==visualArrayPtr)
+            continue;//can this ever happen?
+        TinyRendererObjectArray* visualArray = *visualArrayPtr;
+        
+        btHashPtr colObjHash = m_data->m_swRenderInstances.getKeyAtIndex(i);
+        
+        
+        const btCollisionObject* colObj = (btCollisionObject*) colObjHash.getPointer();
+        
+        for (int v=0;v<visualArray->m_renderObjects.size();v++)
+        {
+            
+            TinyRenderObjectData* renderObj = visualArray->m_renderObjects[v];
+            
+            
+            //sync the object transform
+            const btTransform& tr = colObj->getWorldTransform();
+            tr.getOpenGLMatrix(modelMat);
+            
+            for (int i=0;i<4;i++)
+            {
+                for (int j=0;j<4;j++)
+                {
+                    
+                    renderObj->m_projectionMatrix[i][j] = projMat[i+4*j];
+                    renderObj->m_modelMatrix[i][j] = modelMat[i+4*j];
+                    renderObj->m_viewMatrix[i][j] = viewMat[i+4*j];
+                    renderObj->m_localScaling = colObj->getCollisionShape()->getLocalScaling();
+                    renderObj->m_lightDirWorld = lightDirWorld;
+                    renderObj->m_lightColor = lightColor;
+                }
+            }
+            TinyRenderer::renderObjectShadow(*renderObj);
         }
     }
 	//printf("write tga \n");

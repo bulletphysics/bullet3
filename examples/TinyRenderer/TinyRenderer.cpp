@@ -455,14 +455,13 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
             count++;
         }
         
-         for (int k = 0; k < 76800; ++k)
-         {
-             if (shadowbuffer[k] > -1e30f+0.00001)
-             {
-                 printf("[%d]: %f\n", k, shadowbuffer[k]);
-             }
-         }
-        
+        for (int k = 0; k < 76800; ++k)
+        {
+            if (shadowbuffer[k] > -1e30f+0.00001)
+            {
+                //printf("[%d]: %f\n", k, shadowbuffer[k]);
+            }
+        }
         
         ShadowShader shadowShader(model, light_dir_local, light_color, modelViewMatrix, lightModelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, localScaling, model->getColorRGBA(), width, height, shadowbuffer);
         
@@ -495,4 +494,103 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
         
     }
         
+}
+
+void TinyRenderer::renderObjectDepth(TinyRenderObjectData& renderData)
+{
+    int width = renderData.m_rgbColorBuffer.get_width();
+    int height = renderData.m_rgbColorBuffer.get_height();
+    
+    Vec3f light_dir_local = Vec3f(renderData.m_lightDirWorld[0],renderData.m_lightDirWorld[1],renderData.m_lightDirWorld[2]);
+    Vec3f light_color = Vec3f(renderData.m_lightColor[0],renderData.m_lightColor[1],renderData.m_lightColor[2]);
+    Model* model = renderData.m_model;
+    if (0==model)
+        return;
+    
+    renderData.m_viewportMatrix = viewport(0,0,width, height);
+    
+    b3AlignedObjectArray<float>& zbuffer = renderData.m_depthBuffer;
+    b3AlignedObjectArray<float>& shadowbuffer = renderData.m_shadowBuffer;
+    int* segmentationMaskBufferPtr = (renderData.m_segmentationMaskBufferPtr && renderData.m_segmentationMaskBufferPtr->size())?&renderData.m_segmentationMaskBufferPtr->at(0):0;
+    
+    TGAImage tempFrame(width, height, TGAImage::RGB);
+    TGAImage& frame = renderData.m_rgbColorBuffer;
+    
+    {
+        Matrix lightViewMatrix = lookat(light_dir_local*depth, Vec3f(0.0,0.0,0.0), Vec3f(0.0,0.0,1.0));
+        Matrix lightModelViewMatrix = lightViewMatrix*renderData.m_modelMatrix;
+        Matrix lightViewProjectionMatrix = renderData.m_projectionMatrix;
+        Matrix modelViewMatrix = renderData.m_viewMatrix*renderData.m_modelMatrix;
+        viewportmat = renderData.m_viewportMatrix;
+        Vec3f localScaling(renderData.m_localScaling[0],renderData.m_localScaling[1],renderData.m_localScaling[2]);
+        
+        
+        DepthShader shader(model, lightModelViewMatrix, lightViewProjectionMatrix,renderData.m_modelMatrix, localScaling);
+        
+        setindex = true;
+        
+        for (int i=0; i<model->nfaces(); i++)
+        {
+            for (int j=0; j<3; j++) {
+                shader.vertex(i, j);
+            }
+            triangle(shader.varying_tri, shader, tempFrame, &shadowbuffer[0], segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex);
+            count++;
+        }
+        
+        for (int k = 0; k < 76800; ++k)
+        {
+            if (shadowbuffer[k] > -1e30f+0.00001)
+            {
+                //printf("[%d]: %f\n", k, shadowbuffer[k]);
+            }
+        }
+        
+    }
+    
+}
+
+void TinyRenderer::renderObjectShadow(TinyRenderObjectData& renderData)
+{
+    int width = renderData.m_rgbColorBuffer.get_width();
+    int height = renderData.m_rgbColorBuffer.get_height();
+    
+    Vec3f light_dir_local = Vec3f(renderData.m_lightDirWorld[0],renderData.m_lightDirWorld[1],renderData.m_lightDirWorld[2]);
+    Vec3f light_color = Vec3f(renderData.m_lightColor[0],renderData.m_lightColor[1],renderData.m_lightColor[2]);
+    Model* model = renderData.m_model;
+    if (0==model)
+        return;
+    
+    renderData.m_viewportMatrix = viewport(0,0,width, height);
+    
+    b3AlignedObjectArray<float>& zbuffer = renderData.m_depthBuffer;
+    b3AlignedObjectArray<float>& shadowbuffer = renderData.m_shadowBuffer;
+    int* segmentationMaskBufferPtr = (renderData.m_segmentationMaskBufferPtr && renderData.m_segmentationMaskBufferPtr->size())?&renderData.m_segmentationMaskBufferPtr->at(0):0;
+    
+    TGAImage tempFrame(width, height, TGAImage::RGB);
+    TGAImage& frame = renderData.m_rgbColorBuffer;
+    
+    {
+        Matrix lightViewMatrix = lookat(light_dir_local*depth, Vec3f(0.0,0.0,0.0), Vec3f(0.0,0.0,1.0));
+        Matrix lightModelViewMatrix = lightViewMatrix*renderData.m_modelMatrix;
+        Matrix lightViewProjectionMatrix = renderData.m_projectionMatrix;
+        Matrix modelViewMatrix = renderData.m_viewMatrix*renderData.m_modelMatrix;
+        viewportmat = renderData.m_viewportMatrix;
+        Vec3f localScaling(renderData.m_localScaling[0],renderData.m_localScaling[1],renderData.m_localScaling[2]);
+        
+        ShadowShader shadowShader(model, light_dir_local, light_color, modelViewMatrix, lightModelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, localScaling, model->getColorRGBA(), width, height, shadowbuffer);
+        
+        setindex = false;
+        
+        for (int i=0; i<model->nfaces(); i++)
+        {
+            for (int j=0; j<3; j++) {
+                shadowShader.vertex(i, j);
+            }
+            triangle(shadowShader.varying_tri, shadowShader, frame, &zbuffer[0], segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex);
+            printf("count: %d\n", count);
+            count++;
+        }
+    }
+    
 }
