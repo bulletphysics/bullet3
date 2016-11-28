@@ -2342,6 +2342,28 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					if (body && body->m_multiBody)
 					{
 						btMultiBody* mb = body->m_multiBody;
+						btVector3 baseLinVel(0, 0, 0);
+						btVector3 baseAngVel(0, 0, 0);
+
+
+						if (clientCmd.m_updateFlags & INIT_POSE_HAS_BASE_LINEAR_VELOCITY)
+						{
+							baseLinVel.setValue(clientCmd.m_initPoseArgs.m_initialStateQdot[0],
+								clientCmd.m_initPoseArgs.m_initialStateQdot[1],
+								clientCmd.m_initPoseArgs.m_initialStateQdot[2]);
+							mb->setBaseVel(baseLinVel);
+
+						}
+
+						if (clientCmd.m_updateFlags & INIT_POSE_HAS_BASE_ANGULAR_VELOCITY)
+						{
+							baseAngVel.setValue(clientCmd.m_initPoseArgs.m_initialStateQdot[3],
+								clientCmd.m_initPoseArgs.m_initialStateQdot[4],
+								clientCmd.m_initPoseArgs.m_initialStateQdot[5]);
+							mb->setBaseOmega(baseAngVel);
+						}
+
+
 						if (clientCmd.m_updateFlags & INIT_POSE_HAS_INITIAL_POSITION)
 						{
 							btVector3 zero(0,0,0);
@@ -2349,7 +2371,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                     clientCmd.m_initPoseArgs.m_hasInitialStateQ[1] &&
                                     clientCmd.m_initPoseArgs.m_hasInitialStateQ[2]);
 
-							mb->setBaseVel(zero);
+							mb->setBaseVel(baseLinVel);
 							mb->setBasePos(btVector3(
 									clientCmd.m_initPoseArgs.m_initialStateQ[0],
 									clientCmd.m_initPoseArgs.m_initialStateQ[1],
@@ -2362,7 +2384,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                     clientCmd.m_initPoseArgs.m_hasInitialStateQ[5] &&
                                     clientCmd.m_initPoseArgs.m_hasInitialStateQ[6]);
 
-							mb->setBaseOmega(btVector3(0,0,0));
+							mb->setBaseOmega(baseAngVel);
 							btQuaternion invOrn(clientCmd.m_initPoseArgs.m_initialStateQ[3],
 									clientCmd.m_initPoseArgs.m_initialStateQ[4],
 									clientCmd.m_initPoseArgs.m_initialStateQ[5],

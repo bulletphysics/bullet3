@@ -672,6 +672,40 @@ int	b3CreatePoseCommandSetBaseOrientation(b3SharedMemoryCommandHandle commandHan
 	return 0;
 }
 
+int	b3CreatePoseCommandSetBaseLinearVelocity(b3SharedMemoryCommandHandle commandHandle, double linVel[3])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_INIT_POSE);
+	command->m_updateFlags |= INIT_POSE_HAS_BASE_LINEAR_VELOCITY;
+	command->m_initPoseArgs.m_hasInitialStateQdot[0] = 1;
+	command->m_initPoseArgs.m_hasInitialStateQdot[1] = 1;
+	command->m_initPoseArgs.m_hasInitialStateQdot[2] = 1;
+
+	command->m_initPoseArgs.m_initialStateQdot[0] = linVel[0];
+	command->m_initPoseArgs.m_initialStateQdot[1] = linVel[1];
+	command->m_initPoseArgs.m_initialStateQdot[2] = linVel[2];
+
+	return 0;
+}
+
+int	b3CreatePoseCommandSetBaseAngularVelocity(b3SharedMemoryCommandHandle commandHandle, double angVel[3])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_INIT_POSE);
+	command->m_updateFlags |= INIT_POSE_HAS_BASE_ANGULAR_VELOCITY;
+	command->m_initPoseArgs.m_hasInitialStateQdot[3] = 1;
+	command->m_initPoseArgs.m_hasInitialStateQdot[4] = 1;
+	command->m_initPoseArgs.m_hasInitialStateQdot[5] = 1;
+
+	command->m_initPoseArgs.m_initialStateQdot[3] = angVel[0];
+	command->m_initPoseArgs.m_initialStateQdot[4] = angVel[1];
+	command->m_initPoseArgs.m_initialStateQdot[5] = angVel[2];
+
+	return 0;
+}
+
 int	b3CreatePoseCommandSetJointPositions(b3SharedMemoryCommandHandle commandHandle, int numJointPositions, const double* jointPositions)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
@@ -685,6 +719,8 @@ int	b3CreatePoseCommandSetJointPositions(b3SharedMemoryCommandHandle commandHand
 	}
 	return 0;
 }
+
+
 
 int	b3CreatePoseCommandSetJointPosition(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle, int jointIndex, double jointPosition)
 {
