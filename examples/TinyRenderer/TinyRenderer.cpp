@@ -202,14 +202,14 @@ struct ShadowShader : public IShader {
     virtual bool fragment(Vec3f bar, TGAColor &color) {
         Vec4f p = viewportmat*(varying_tri_light_view*bar);
         float depth = p[2];
-        //p = p/p[3];
-        //int index_x = b3Min(m_width-1, int(p[0]));
-        //index_x = b3Max(0, index_x);
-        //int index_y = b3Min(m_height-1, int(p[1]));
-        //index_y = b3Max(0, index_y);
-        //int idx = index_x + index_y*m_width; // index in the shadowbuffer array
-        int idx = indexmap[count];
-        float shadow = 0.8+0.2*(m_shadowBuffer[idx]<-depth+0.43); // magic coeff to avoid z-fighting
+        p = p/p[3];
+        int index_x = b3Min(m_width-1, int(p[0]));
+        index_x = b3Max(0, index_x);
+        int index_y = b3Min(m_height-1, int(p[1]));
+        index_y = b3Max(0, index_y);
+        int idx = index_x + index_y*m_width; // index in the shadowbuffer array
+        //int idx = indexmap[count];
+        float shadow = 0.8+0.2*(m_shadowBuffer[idx]<-depth+0.2); // magic coeff to avoid z-fighting
         
         //printf("count: %d, idx: %d\n", count, idx);
         //printf("shadowbuffer: %f, depth: %f\n", m_shadowBuffer[idx], -depth+0.43);
