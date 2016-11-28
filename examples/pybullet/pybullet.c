@@ -3301,11 +3301,6 @@ static PyMethodDef SpamMethods[] = {
      "Set the amount of time to proceed at each call to stepSimulation. (unit "
      "is seconds, typically range is 0.01 or 0.001)"},
 
-
-    {"setTimeStep",  pybullet_setTimeStep, METH_VARARGS,
-        "Set the amount of time to proceed at each call to stepSimulation."
-        " (unit is seconds, typically range is 0.01 or 0.001)"},
-
 	{"setDefaultContactERP",  pybullet_setDefaultContactERP, METH_VARARGS,
         "Set the amount of contact penetration Error Recovery Paramater "
         "(ERP) in each time step. \
