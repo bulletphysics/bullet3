@@ -77,6 +77,9 @@ struct TinyRendererVisualShapeConverterInternalData
 	bool m_hasLightDirection;
     btVector3 m_lightColor;
     bool m_hasLightColor;
+    float m_lightDistance;
+    bool m_hasLightDistance;
+    bool m_hasShadow;
 	SimpleCamera m_camera;
 	
 	
@@ -86,7 +89,8 @@ struct TinyRendererVisualShapeConverterInternalData
 	m_swHeight(START_HEIGHT),
 	m_rgbColorBuffer(START_WIDTH,START_HEIGHT,TGAImage::RGB),
 	m_hasLightDirection(false),
-    m_hasLightColor(false)
+    m_hasLightColor(false),
+    m_hasShadow(true)
 	{
 	    m_depthBuffer.resize(m_swWidth*m_swHeight);
         m_shadowBuffer.resize(m_swWidth*m_swHeight);
@@ -125,6 +129,17 @@ void TinyRendererVisualShapeConverter::setLightColor(float x, float y, float z)
 {
     m_data->m_lightColor.setValue(x, y, z);
     m_data->m_hasLightColor = true;
+}
+
+void TinyRendererVisualShapeConverter::setLightDistance(float dist)
+{
+    m_data->m_lightDistance = dist;
+    m_data->m_hasLightDistance = true;
+}
+
+void TinyRendererVisualShapeConverter::setShadow(bool hasShadow)
+{
+    m_data->m_hasShadow = hasShadow;
 }
 
 void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut, b3VisualShapeData& visualShapeOut)
@@ -721,44 +736,51 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
     }
     
     float lightDistance = 2.0;
-    
-    for (int n=0;n<m_data->m_swRenderInstances.size();n++)
+    if (m_data->m_hasLightDistance)
     {
-        TinyRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(n);
-        if (0==visualArrayPtr)
-            continue;//can this ever happen?
-        TinyRendererObjectArray* visualArray = *visualArrayPtr;
-
-        btHashPtr colObjHash = m_data->m_swRenderInstances.getKeyAtIndex(n);
-        
-        
-        const btCollisionObject* colObj = (btCollisionObject*) colObjHash.getPointer();
-        
-        for (int v=0;v<visualArray->m_renderObjects.size();v++)
-        {
-            
-            TinyRenderObjectData* renderObj = visualArray->m_renderObjects[v];
-            
-        
-            //sync the object transform
-            const btTransform& tr = colObj->getWorldTransform();
-            tr.getOpenGLMatrix(modelMat);
+        lightDistance = m_data->m_hasLightDistance;
+    }
     
-            for (int i=0;i<4;i++)
+    if (m_data->m_hasShadow)
+    {
+        for (int n=0;n<m_data->m_swRenderInstances.size();n++)
+        {
+            TinyRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(n);
+            if (0==visualArrayPtr)
+                continue;//can this ever happen?
+            TinyRendererObjectArray* visualArray = *visualArrayPtr;
+            
+            btHashPtr colObjHash = m_data->m_swRenderInstances.getKeyAtIndex(n);
+            
+            
+            const btCollisionObject* colObj = (btCollisionObject*) colObjHash.getPointer();
+            
+            for (int v=0;v<visualArray->m_renderObjects.size();v++)
             {
-                for (int j=0;j<4;j++)
+                
+                TinyRenderObjectData* renderObj = visualArray->m_renderObjects[v];
+                
+                
+                //sync the object transform
+                const btTransform& tr = colObj->getWorldTransform();
+                tr.getOpenGLMatrix(modelMat);
+                
+                for (int i=0;i<4;i++)
                 {
-                    
-                    renderObj->m_projectionMatrix[i][j] = projMat[i+4*j];
-                    renderObj->m_modelMatrix[i][j] = modelMat[i+4*j];
-                    renderObj->m_viewMatrix[i][j] = viewMat[i+4*j];
+                    for (int j=0;j<4;j++)
+                    {
+                        
+                        renderObj->m_projectionMatrix[i][j] = projMat[i+4*j];
+                        renderObj->m_modelMatrix[i][j] = modelMat[i+4*j];
+                        renderObj->m_viewMatrix[i][j] = viewMat[i+4*j];
+                    }
                 }
+                renderObj->m_localScaling = colObj->getCollisionShape()->getLocalScaling();
+                renderObj->m_lightDirWorld = lightDirWorld;
+                renderObj->m_lightColor = lightColor;
+                renderObj->m_lightDistance = lightDistance;
+                TinyRenderer::renderObjectDepth(*renderObj);
             }
-            renderObj->m_localScaling = colObj->getCollisionShape()->getLocalScaling();
-            renderObj->m_lightDirWorld = lightDirWorld;
-            renderObj->m_lightColor = lightColor;
-            renderObj->m_lightDistance = lightDistance;
-            TinyRenderer::renderObjectDepth(*renderObj);
         }
     }
 

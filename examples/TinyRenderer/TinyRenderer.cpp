@@ -13,85 +13,6 @@
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btVector3.h"
 
-struct Shader : public IShader {
-    
-    Model* m_model;
-    Vec3f m_light_dir_local;
-    Vec3f m_light_color;
-    Matrix& m_modelMat;
-	Matrix m_invModelMat;
-
-    Matrix& m_modelView1;
-    Matrix& m_projectionMat;
-    Vec3f m_localScaling;
-    Vec4f m_colorRGBA;
-
-    mat<2,3,float> varying_uv;  // triangle uv coordinates, written by the vertex shader, read by the fragment shader
-    mat<4,3,float> varying_tri; // triangle coordinates (clip coordinates), written by VS, read by FS
-    mat<3,3,float> varying_nrm; // normal per vertex to be interpolated by FS
-    //mat<3,3,float> ndc_tri;     // triangle in normalized device coordinates
-
-    Shader(Model* model, Vec3f light_dir_local, Vec3f light_color, Matrix& modelView, Matrix& projectionMat, Matrix& modelMat, Vec3f localScaling, const Vec4f& colorRGBA)
-    :m_model(model),
-    m_light_dir_local(light_dir_local),
-    m_light_color(light_color),
-    m_modelView1(modelView),
-    m_projectionMat(projectionMat),
-    m_modelMat(modelMat),
-	m_localScaling(localScaling),
-    m_colorRGBA(colorRGBA)
-    {
-        m_invModelMat = m_modelMat.invert_transpose();
-    }
-
-    virtual Vec4f vertex(int iface, int nthvert) {
-        Vec2f uv = m_model->uv(iface, nthvert);
-        varying_uv.set_col(nthvert, uv);
-        //varying_nrm.set_col(nthvert, proj<3>((m_projectionMatrix*m_modelView).invert_transpose()*embed<4>(m_model->normal(iface, nthvert), 0.f)));
-        varying_nrm.set_col(nthvert, proj<3>(m_invModelMat*embed<4>(m_model->normal(iface, nthvert), 0.f)));
-        //m_localNormal = m_model->normal(iface, nthvert);
-        //varying_nrm.set_col(nthvert, m_model->normal(iface, nthvert));
-        Vec3f unScaledVert = m_model->vert(iface, nthvert);
-
-        Vec3f scaledVert=Vec3f(unScaledVert[0]*m_localScaling[0],
-                               unScaledVert[1]*m_localScaling[1],
-                               unScaledVert[2]*m_localScaling[2]);
-
-        Vec4f gl_Vertex = m_projectionMat*m_modelView1*embed<4>(scaledVert);
-        varying_tri.set_col(nthvert, gl_Vertex);
-        return gl_Vertex;
-    }
-
-    virtual bool fragment(Vec3f bar, TGAColor &color) {
-        Vec3f bn = (varying_nrm*bar).normalize();
-        Vec2f uv = varying_uv*bar;
-
-        Vec3f reflection_direction = (bn * (bn * m_light_dir_local * 2.f) - m_light_dir_local).normalize();
-        float specular = pow(b3Max(reflection_direction.z, 0.f), m_model->specular(uv));
-        float diffuse = b3Max(0.f, bn * m_light_dir_local);
-
-	float ambient_coefficient = 0.6;
-        float diffuse_coefficient = 0.35;
-        float specular_coefficient = 0.05;
-
-        float intensity = ambient_coefficient + b3Min(diffuse * diffuse_coefficient + specular * specular_coefficient, 1.0f - ambient_coefficient);
-
-        color = m_model->diffuse(uv) * intensity;
-
-        //warning: bgra color is swapped to rgba to upload texture
-        color.bgra[0] *= m_colorRGBA[0];
-        color.bgra[1] *= m_colorRGBA[1];
-        color.bgra[2] *= m_colorRGBA[2];
-        color.bgra[3] *= m_colorRGBA[3];
-        
-        color.bgra[0] *= m_light_color[0];
-        color.bgra[1] *= m_light_color[1];
-        color.bgra[2] *= m_light_color[2];
-
-        return false;
-    }
-};
-
 struct DepthShader : public IShader {
     
     Model* m_model;
@@ -138,7 +59,7 @@ struct DepthShader : public IShader {
     }
 };
 
-struct ShadowShader : public IShader {
+struct Shader : public IShader {
     
     Model* m_model;
     Vec3f m_light_dir_local;
@@ -165,7 +86,7 @@ struct ShadowShader : public IShader {
     mat<4,3,float> varying_tri_light_view;
     mat<3,3,float> varying_nrm; // normal per vertex to be interpolated by FS
     
-    ShadowShader(Model* model, Vec3f light_dir_local, Vec3f light_color, Matrix& modelView, Matrix& lightModelView, Matrix& projectionMat, Matrix& modelMat, Matrix& viewportMat, Vec3f localScaling, const Vec4f& colorRGBA, int width, int height, b3AlignedObjectArray<float>& shadowBuffer)
+    Shader(Model* model, Vec3f light_dir_local, Vec3f light_color, Matrix& modelView, Matrix& lightModelView, Matrix& projectionMat, Matrix& modelMat, Matrix& viewportMat, Vec3f localScaling, const Vec4f& colorRGBA, int width, int height, b3AlignedObjectArray<float>& shadowBuffer)
     :m_model(model),
     m_light_dir_local(light_dir_local),
     m_light_color(light_color),
@@ -205,7 +126,6 @@ struct ShadowShader : public IShader {
         int index_x = b3Max(0, b3Min(m_width-1, int(p[0])));
         int index_y = b3Max(0, b3Min(m_height-1, int(p[1])));
         int idx = index_x + index_y*m_width; // index in the shadowbuffer array
-        //int idx = indexmap[count];
         float shadow = 0.8+0.2*(m_shadowBuffer[idx]<-depth+0.2); // magic coeff to avoid z-fighting
         
         Vec3f bn = (varying_nrm*bar).normalize();
@@ -412,7 +332,6 @@ void TinyRenderer::renderObjectDepth(TinyRenderObjectData& renderData)
     int height = renderData.m_rgbColorBuffer.get_height();
     
     Vec3f light_dir_local = Vec3f(renderData.m_lightDirWorld[0],renderData.m_lightDirWorld[1],renderData.m_lightDirWorld[2]);
-    Vec3f light_color = Vec3f(renderData.m_lightColor[0],renderData.m_lightColor[1],renderData.m_lightColor[2]);
     float light_distance = renderData.m_lightDistance;
     Model* model = renderData.m_model;
     if (0==model)
@@ -420,20 +339,17 @@ void TinyRenderer::renderObjectDepth(TinyRenderObjectData& renderData)
     
     renderData.m_viewportMatrix = viewport(0,0,width, height);
     
-    b3AlignedObjectArray<float>& zbuffer = renderData.m_depthBuffer;
     b3AlignedObjectArray<float>& shadowbuffer = renderData.m_shadowBuffer;
-    int* segmentationMaskBufferPtr = (renderData.m_segmentationMaskBufferPtr && renderData.m_segmentationMaskBufferPtr->size())?&renderData.m_segmentationMaskBufferPtr->at(0):0;
+    int* segmentationMaskBufferPtr = 0;
     
-    TGAImage tempFrame(width, height, TGAImage::RGB);
-    TGAImage& frame = renderData.m_rgbColorBuffer;
+    TGAImage depthFrame(width, height, TGAImage::RGB);
     
     {
+        // light target is set to be the origin, and the up direction is set to be vertical up.
         Matrix lightViewMatrix = lookat(light_dir_local*light_distance, Vec3f(0.0,0.0,0.0), Vec3f(0.0,0.0,1.0));
         Matrix lightModelViewMatrix = lightViewMatrix*renderData.m_modelMatrix;
         Matrix lightViewProjectionMatrix = renderData.m_projectionMatrix;
-        Matrix modelViewMatrix = renderData.m_viewMatrix*renderData.m_modelMatrix;
         Vec3f localScaling(renderData.m_localScaling[0],renderData.m_localScaling[1],renderData.m_localScaling[2]);
-        
         
         DepthShader shader(model, lightModelViewMatrix, lightViewProjectionMatrix,renderData.m_modelMatrix, localScaling, light_distance);
         
@@ -442,7 +358,7 @@ void TinyRenderer::renderObjectDepth(TinyRenderObjectData& renderData)
             for (int j=0; j<3; j++) {
                 shader.vertex(i, j);
             }
-            triangle(shader.varying_tri, shader, tempFrame, &shadowbuffer[0], segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex);
+            triangle(shader.varying_tri, shader, depthFrame, &shadowbuffer[0], segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex);
         }
     }
     
@@ -466,24 +382,23 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
     b3AlignedObjectArray<float>& shadowbuffer = renderData.m_shadowBuffer;
     int* segmentationMaskBufferPtr = (renderData.m_segmentationMaskBufferPtr && renderData.m_segmentationMaskBufferPtr->size())?&renderData.m_segmentationMaskBufferPtr->at(0):0;
     
-    TGAImage tempFrame(width, height, TGAImage::RGB);
     TGAImage& frame = renderData.m_rgbColorBuffer;
     
     {
+        // light target is set to be the origin, and the up direction is set to be vertical up.
         Matrix lightViewMatrix = lookat(light_dir_local*light_distance, Vec3f(0.0,0.0,0.0), Vec3f(0.0,0.0,1.0));
         Matrix lightModelViewMatrix = lightViewMatrix*renderData.m_modelMatrix;
-        Matrix lightViewProjectionMatrix = renderData.m_projectionMatrix;
         Matrix modelViewMatrix = renderData.m_viewMatrix*renderData.m_modelMatrix;
         Vec3f localScaling(renderData.m_localScaling[0],renderData.m_localScaling[1],renderData.m_localScaling[2]);
         
-        ShadowShader shadowShader(model, light_dir_local, light_color, modelViewMatrix, lightModelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, renderData.m_viewportMatrix, localScaling, model->getColorRGBA(), width, height, shadowbuffer);
+        Shader shader(model, light_dir_local, light_color, modelViewMatrix, lightModelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, renderData.m_viewportMatrix, localScaling, model->getColorRGBA(), width, height, shadowbuffer);
         
         for (int i=0; i<model->nfaces(); i++)
         {
             for (int j=0; j<3; j++) {
-                shadowShader.vertex(i, j);
+                shader.vertex(i, j);
             }
-            triangle(shadowShader.varying_tri, shadowShader, frame, &zbuffer[0], segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex);
+            triangle(shader.varying_tri, shader, frame, &zbuffer[0], segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex);
         }
     }
     
