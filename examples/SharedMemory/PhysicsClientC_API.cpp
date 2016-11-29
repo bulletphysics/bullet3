@@ -672,6 +672,40 @@ int	b3CreatePoseCommandSetBaseOrientation(b3SharedMemoryCommandHandle commandHan
 	return 0;
 }
 
+int	b3CreatePoseCommandSetBaseLinearVelocity(b3SharedMemoryCommandHandle commandHandle, double linVel[3])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_INIT_POSE);
+	command->m_updateFlags |= INIT_POSE_HAS_BASE_LINEAR_VELOCITY;
+	command->m_initPoseArgs.m_hasInitialStateQdot[0] = 1;
+	command->m_initPoseArgs.m_hasInitialStateQdot[1] = 1;
+	command->m_initPoseArgs.m_hasInitialStateQdot[2] = 1;
+
+	command->m_initPoseArgs.m_initialStateQdot[0] = linVel[0];
+	command->m_initPoseArgs.m_initialStateQdot[1] = linVel[1];
+	command->m_initPoseArgs.m_initialStateQdot[2] = linVel[2];
+
+	return 0;
+}
+
+int	b3CreatePoseCommandSetBaseAngularVelocity(b3SharedMemoryCommandHandle commandHandle, double angVel[3])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_INIT_POSE);
+	command->m_updateFlags |= INIT_POSE_HAS_BASE_ANGULAR_VELOCITY;
+	command->m_initPoseArgs.m_hasInitialStateQdot[3] = 1;
+	command->m_initPoseArgs.m_hasInitialStateQdot[4] = 1;
+	command->m_initPoseArgs.m_hasInitialStateQdot[5] = 1;
+
+	command->m_initPoseArgs.m_initialStateQdot[3] = angVel[0];
+	command->m_initPoseArgs.m_initialStateQdot[4] = angVel[1];
+	command->m_initPoseArgs.m_initialStateQdot[5] = angVel[2];
+
+	return 0;
+}
+
 int	b3CreatePoseCommandSetJointPositions(b3SharedMemoryCommandHandle commandHandle, int numJointPositions, const double* jointPositions)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
@@ -685,6 +719,8 @@ int	b3CreatePoseCommandSetJointPositions(b3SharedMemoryCommandHandle commandHand
 	}
 	return 0;
 }
+
+
 
 int	b3CreatePoseCommandSetJointPosition(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle, int jointIndex, double jointPosition)
 {
@@ -1195,6 +1231,46 @@ int b3GetDebugItemUniqueId(b3SharedMemoryStatusHandle statusHandle)
 	return status->m_userDebugDrawArgs.m_debugItemUniqueId;
 }
 
+b3SharedMemoryCommandHandle b3InitDebugDrawingCommand(b3PhysicsClientHandle physClient)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+	command->m_type = CMD_USER_DEBUG_DRAW;
+	command->m_updateFlags = 0;
+	return  (b3SharedMemoryCommandHandle)command;
+}
+
+
+
+void b3SetDebugObjectColor(b3SharedMemoryCommandHandle commandHandle, int objectUniqueId, int linkIndex, double objectColorRGB[3])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_USER_DEBUG_DRAW);
+	command->m_updateFlags |= USER_DEBUG_SET_CUSTOM_OBJECT_COLOR;
+	command->m_userDebugDrawArgs.m_objectUniqueId = objectUniqueId;
+	command->m_userDebugDrawArgs.m_linkIndex = linkIndex;
+	command->m_userDebugDrawArgs.m_objectDebugColorRGB[0] = objectColorRGB[0];
+	command->m_userDebugDrawArgs.m_objectDebugColorRGB[1] = objectColorRGB[1];
+	command->m_userDebugDrawArgs.m_objectDebugColorRGB[2] = objectColorRGB[2];
+}
+
+void b3RemoveDebugObjectColor(b3SharedMemoryCommandHandle commandHandle, int objectUniqueId, int linkIndex)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_USER_DEBUG_DRAW);
+	command->m_updateFlags |= USER_DEBUG_REMOVE_CUSTOM_OBJECT_COLOR;
+	command->m_userDebugDrawArgs.m_objectUniqueId = objectUniqueId;
+	command->m_userDebugDrawArgs.m_linkIndex = linkIndex;
+
+}
+
+
+
 
 ///request an image from a simulated camera, using a software renderer.
 b3SharedMemoryCommandHandle b3InitRequestCameraImage(b3PhysicsClientHandle physClient)
@@ -1533,6 +1609,8 @@ b3SharedMemoryCommandHandle b3InitRequestContactPointInformation(b3PhysicsClient
 	command->m_requestContactPointArguments.m_startingContactPointIndex = 0;
 	command->m_requestContactPointArguments.m_objectAIndexFilter = -1;
 	command->m_requestContactPointArguments.m_objectBIndexFilter = -1;
+	command->m_requestContactPointArguments.m_linkIndexAIndexFilter = -2;
+	command->m_requestContactPointArguments.m_linkIndexBIndexFilter = -2;
     command->m_updateFlags = 0;
     return (b3SharedMemoryCommandHandle) command;
 }
@@ -1544,6 +1622,37 @@ void b3SetContactFilterBodyA(b3SharedMemoryCommandHandle commandHandle, int body
     b3Assert(command->m_type == CMD_REQUEST_CONTACT_POINT_INFORMATION);
 	command->m_requestContactPointArguments.m_objectAIndexFilter = bodyUniqueIdA;
 }
+
+void b3SetContactFilterLinkA(b3SharedMemoryCommandHandle commandHandle, int linkIndexA)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_REQUEST_CONTACT_POINT_INFORMATION);
+	command->m_updateFlags |= CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_A_FILTER;
+	command->m_requestContactPointArguments.m_linkIndexAIndexFilter= linkIndexA;
+}
+
+void b3SetContactFilterLinkB(b3SharedMemoryCommandHandle commandHandle, int linkIndexB)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_CONTACT_POINT_INFORMATION);
+	command->m_updateFlags |= CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_B_FILTER;
+	command->m_requestContactPointArguments.m_linkIndexBIndexFilter = linkIndexB;
+}
+
+void b3SetClosestDistanceFilterLinkA(b3SharedMemoryCommandHandle commandHandle, int linkIndexA)
+{
+	b3SetContactFilterLinkA(commandHandle, linkIndexA);
+}
+
+void b3SetClosestDistanceFilterLinkB(b3SharedMemoryCommandHandle commandHandle, int linkIndexB)
+{
+	b3SetContactFilterLinkB(commandHandle, linkIndexB);
+}
+
+
+
 
 void b3SetContactFilterBodyB(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueIdB)
 {

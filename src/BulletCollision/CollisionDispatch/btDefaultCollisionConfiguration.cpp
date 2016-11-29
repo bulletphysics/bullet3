@@ -198,6 +198,86 @@ btDefaultCollisionConfiguration::~btDefaultCollisionConfiguration()
 
 }
 
+btCollisionAlgorithmCreateFunc* btDefaultCollisionConfiguration::getClosestPointsAlgorithmCreateFunc(int proxyType0, int proxyType1)
+{
+
+
+	if ((proxyType0 == SPHERE_SHAPE_PROXYTYPE) && (proxyType1 == SPHERE_SHAPE_PROXYTYPE))
+	{
+		return	m_sphereSphereCF;
+	}
+#ifdef USE_BUGGY_SPHERE_BOX_ALGORITHM
+	if ((proxyType0 == SPHERE_SHAPE_PROXYTYPE) && (proxyType1 == BOX_SHAPE_PROXYTYPE))
+	{
+		return	m_sphereBoxCF;
+	}
+
+	if ((proxyType0 == BOX_SHAPE_PROXYTYPE) && (proxyType1 == SPHERE_SHAPE_PROXYTYPE))
+	{
+		return	m_boxSphereCF;
+	}
+#endif //USE_BUGGY_SPHERE_BOX_ALGORITHM
+
+
+	if ((proxyType0 == SPHERE_SHAPE_PROXYTYPE) && (proxyType1 == TRIANGLE_SHAPE_PROXYTYPE))
+	{
+		return	m_sphereTriangleCF;
+	}
+
+	if ((proxyType0 == TRIANGLE_SHAPE_PROXYTYPE) && (proxyType1 == SPHERE_SHAPE_PROXYTYPE))
+	{
+		return	m_triangleSphereCF;
+	}
+
+	if (btBroadphaseProxy::isConvex(proxyType0) && (proxyType1 == STATIC_PLANE_PROXYTYPE))
+	{
+		return m_convexPlaneCF;
+	}
+
+	if (btBroadphaseProxy::isConvex(proxyType1) && (proxyType0 == STATIC_PLANE_PROXYTYPE))
+	{
+		return m_planeConvexCF;
+	}
+
+
+
+	if (btBroadphaseProxy::isConvex(proxyType0) && btBroadphaseProxy::isConvex(proxyType1))
+	{
+		return m_convexConvexCreateFunc;
+	}
+
+	if (btBroadphaseProxy::isConvex(proxyType0) && btBroadphaseProxy::isConcave(proxyType1))
+	{
+		return m_convexConcaveCreateFunc;
+	}
+
+	if (btBroadphaseProxy::isConvex(proxyType1) && btBroadphaseProxy::isConcave(proxyType0))
+	{
+		return m_swappedConvexConcaveCreateFunc;
+	}
+
+
+	if (btBroadphaseProxy::isCompound(proxyType0) && btBroadphaseProxy::isCompound(proxyType1))
+	{
+		return m_compoundCompoundCreateFunc;
+	}
+
+	if (btBroadphaseProxy::isCompound(proxyType0))
+	{
+		return m_compoundCreateFunc;
+	}
+	else
+	{
+		if (btBroadphaseProxy::isCompound(proxyType1))
+		{
+			return m_swappedCompoundCreateFunc;
+		}
+	}
+
+	//failed to find an algorithm
+	return m_emptyCreateFunc;
+
+}
 
 btCollisionAlgorithmCreateFunc* btDefaultCollisionConfiguration::getCollisionAlgorithmCreateFunc(int proxyType0,int proxyType1)
 {

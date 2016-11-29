@@ -122,6 +122,7 @@ protected:
 	///internal update revision number. It will be increased when the object changes. This allows some subsystems to perform lazy evaluation.
 	int			m_updateRevision;
 
+	btVector3	m_customDebugColorRGB;
 
 public:
 
@@ -136,7 +137,8 @@ public:
 		CF_CHARACTER_OBJECT = 16,
 		CF_DISABLE_VISUALIZE_OBJECT = 32, //disable debug drawing
 		CF_DISABLE_SPU_COLLISION_PROCESSING = 64,//disable parallel/SPU processing
-		CF_HAS_CONTACT_STIFFNESS_DAMPING = 128
+		CF_HAS_CONTACT_STIFFNESS_DAMPING = 128,
+		CF_HAS_CUSTOM_DEBUG_RENDERING_COLOR = 256,
 	};
 
 	enum	CollisionObjectTypes
@@ -556,6 +558,26 @@ public:
 		return m_updateRevision;
 	}
 
+	void	setCustomDebugColor(const btVector3& colorRGB)
+	{
+		m_customDebugColorRGB = colorRGB;
+		m_collisionFlags |= CF_HAS_CUSTOM_DEBUG_RENDERING_COLOR;
+	}
+
+	void	removeCustomDebugColor()
+	{
+		m_collisionFlags &= ~CF_HAS_CUSTOM_DEBUG_RENDERING_COLOR;
+	}
+
+	bool getCustomDebugColor(btVector3& colorRGB) const
+	{
+		bool hasCustomColor = (0!=(m_collisionFlags&CF_HAS_CUSTOM_DEBUG_RENDERING_COLOR));
+		if (hasCustomColor)
+		{
+			colorRGB = m_customDebugColorRGB;
+		}
+		return hasCustomColor;
+	}
 
 	inline bool checkCollideWith(const btCollisionObject* co) const
 	{

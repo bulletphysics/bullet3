@@ -103,6 +103,8 @@ public:
 
 	virtual btCollisionAlgorithmCreateFunc* getCollisionAlgorithmCreateFunc(int proxyType0,int proxyType1);
 
+	virtual btCollisionAlgorithmCreateFunc* getClosestPointsAlgorithmCreateFunc(int proxyType0, int proxyType1);
+
 	///Use this method to allow to generate multiple contact points between at once, between two objects using the generic convex-convex algorithm.
 	///By default, this feature is disabled for best performance.
 	///@param numPerturbationIterations controls the number of collision queries. Set it to zero to disable the feature.

@@ -542,7 +542,7 @@ struct PhysicsServerCommandProcessorInternalData
 		m_kukaGripperMultiBody(0),
 		m_kukaGripperRevolute1(0),
 		m_kukaGripperRevolute2(0),
-		m_allowRealTimeSimulation(true),
+		m_allowRealTimeSimulation(false),
 		m_huskyId(-1),
 		m_KukaId(-1),
 		m_sphereId(-1),
@@ -2352,6 +2352,28 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					if (body && body->m_multiBody)
 					{
 						btMultiBody* mb = body->m_multiBody;
+						btVector3 baseLinVel(0, 0, 0);
+						btVector3 baseAngVel(0, 0, 0);
+
+
+						if (clientCmd.m_updateFlags & INIT_POSE_HAS_BASE_LINEAR_VELOCITY)
+						{
+							baseLinVel.setValue(clientCmd.m_initPoseArgs.m_initialStateQdot[0],
+								clientCmd.m_initPoseArgs.m_initialStateQdot[1],
+								clientCmd.m_initPoseArgs.m_initialStateQdot[2]);
+							mb->setBaseVel(baseLinVel);
+
+						}
+
+						if (clientCmd.m_updateFlags & INIT_POSE_HAS_BASE_ANGULAR_VELOCITY)
+						{
+							baseAngVel.setValue(clientCmd.m_initPoseArgs.m_initialStateQdot[3],
+								clientCmd.m_initPoseArgs.m_initialStateQdot[4],
+								clientCmd.m_initPoseArgs.m_initialStateQdot[5]);
+							mb->setBaseOmega(baseAngVel);
+						}
+
+
 						if (clientCmd.m_updateFlags & INIT_POSE_HAS_INITIAL_POSITION)
 						{
 							btVector3 zero(0,0,0);
@@ -2359,7 +2381,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                     clientCmd.m_initPoseArgs.m_hasInitialStateQ[1] &&
                                     clientCmd.m_initPoseArgs.m_hasInitialStateQ[2]);
 
-							mb->setBaseVel(zero);
+							mb->setBaseVel(baseLinVel);
 							mb->setBasePos(btVector3(
 									clientCmd.m_initPoseArgs.m_initialStateQ[0],
 									clientCmd.m_initPoseArgs.m_initialStateQ[1],
@@ -2372,7 +2394,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                     clientCmd.m_initPoseArgs.m_hasInitialStateQ[5] &&
                                     clientCmd.m_initPoseArgs.m_hasInitialStateQ[6]);
 
-							mb->setBaseOmega(btVector3(0,0,0));
+							mb->setBaseOmega(baseAngVel);
 							btQuaternion invOrn(clientCmd.m_initPoseArgs.m_initialStateQ[3],
 									clientCmd.m_initPoseArgs.m_initialStateQ[4],
 									clientCmd.m_initPoseArgs.m_initialStateQ[5],
@@ -2784,6 +2806,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								int bodyUniqueIdA = clientCmd.m_requestContactPointArguments.m_objectAIndexFilter;
 								int bodyUniqueIdB = clientCmd.m_requestContactPointArguments.m_objectBIndexFilter;
 
+								bool hasLinkIndexAFilter = (0!=(clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_A_FILTER));
+								bool hasLinkIndexBFilter = (0!=(clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_B_FILTER));
+
+								int linkIndexA  = clientCmd.m_requestContactPointArguments.m_linkIndexAIndexFilter;
+								int linkIndexB = clientCmd.m_requestContactPointArguments.m_linkIndexBIndexFilter;
+
 								btAlignedObjectArray<btCollisionObject*> setA;
 								btAlignedObjectArray<btCollisionObject*> setB;
 								btAlignedObjectArray<int> setALinkIndex;
@@ -2798,15 +2826,21 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 										{
 											if (bodyA->m_multiBody->getBaseCollider())
 											{
-												setA.push_back(bodyA->m_multiBody->getBaseCollider());
-												setALinkIndex.push_back(-1);
+												if (!hasLinkIndexAFilter || (linkIndexA == -1))
+												{
+													setA.push_back(bodyA->m_multiBody->getBaseCollider());
+													setALinkIndex.push_back(-1);
+												}
 											}
 											for (int i = 0; i < bodyA->m_multiBody->getNumLinks(); i++)
 											{
 												if (bodyA->m_multiBody->getLink(i).m_collider)
 												{
-													setA.push_back(bodyA->m_multiBody->getLink(i).m_collider);
-													setALinkIndex.push_back(i);
+													if (!hasLinkIndexAFilter || (linkIndexA == i))
+													{
+														setA.push_back(bodyA->m_multiBody->getLink(i).m_collider);
+														setALinkIndex.push_back(i);
+													}
 												}
 											}
 										}
@@ -2826,15 +2860,21 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 										{
 											if (bodyB->m_multiBody->getBaseCollider())
 											{
-												setB.push_back(bodyB->m_multiBody->getBaseCollider());
-												setBLinkIndex.push_back(-1);
+												if (!hasLinkIndexBFilter || (linkIndexB == -1))
+												{
+													setB.push_back(bodyB->m_multiBody->getBaseCollider());
+													setBLinkIndex.push_back(-1);
+												}
 											}
 											for (int i = 0; i < bodyB->m_multiBody->getNumLinks(); i++)
 											{
 												if (bodyB->m_multiBody->getLink(i).m_collider)
 												{
-													setB.push_back(bodyB->m_multiBody->getLink(i).m_collider);
-													setBLinkIndex.push_back(i);
+													if (!hasLinkIndexBFilter || (linkIndexB ==i))
+													{
+														setB.push_back(bodyB->m_multiBody->getLink(i).m_collider);
+														setBLinkIndex.push_back(i);
+													}
 												}
 											}
 										}
@@ -3528,7 +3568,6 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							for( int i=0;i<numRb;i++)
 							{
 								btCollisionObject* colObj = importer->getRigidBodyByIndex(i);
-
 								if (colObj)
 								{
 									btRigidBody* rb = btRigidBody::upcast(colObj);
@@ -3591,7 +3630,54 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						SharedMemoryStatus& serverCmd = serverStatusOut;
 						serverCmd.m_type = CMD_USER_DEBUG_DRAW_FAILED;
 						hasStatus = true;
-						
+
+						if ((clientCmd.m_updateFlags & USER_DEBUG_SET_CUSTOM_OBJECT_COLOR) || (clientCmd.m_updateFlags & USER_DEBUG_REMOVE_CUSTOM_OBJECT_COLOR))
+						{
+							int bodyUniqueId = clientCmd.m_userDebugDrawArgs.m_objectUniqueId;
+							InteralBodyData* body = m_data->getHandle(bodyUniqueId);
+							if (body)
+							{
+								btCollisionObject* destColObj = 0;
+
+								if (body->m_multiBody)
+								{
+									if (clientCmd.m_userDebugDrawArgs.m_linkIndex == -1)
+									{
+										destColObj = body->m_multiBody->getBaseCollider();
+									}
+									else
+									{
+										if (clientCmd.m_userDebugDrawArgs.m_linkIndex >= 0 && clientCmd.m_userDebugDrawArgs.m_linkIndex < body->m_multiBody->getNumLinks())
+										{
+											destColObj = body->m_multiBody->getLink(clientCmd.m_userDebugDrawArgs.m_linkIndex).m_collider;
+										}
+									}
+
+								}
+								if (body->m_rigidBody)
+								{
+									destColObj = body->m_rigidBody;
+								}
+
+								if (destColObj)
+								{
+									if (clientCmd.m_updateFlags & USER_DEBUG_REMOVE_CUSTOM_OBJECT_COLOR)
+									{
+										destColObj->removeCustomDebugColor();
+										serverCmd.m_type = CMD_USER_DEBUG_DRAW_COMPLETED;
+									}
+									if (clientCmd.m_updateFlags & USER_DEBUG_SET_CUSTOM_OBJECT_COLOR)
+									{
+										btVector3 objectColorRGB;
+										objectColorRGB.setValue(clientCmd.m_userDebugDrawArgs.m_objectDebugColorRGB[0],
+											clientCmd.m_userDebugDrawArgs.m_objectDebugColorRGB[1],
+											clientCmd.m_userDebugDrawArgs.m_objectDebugColorRGB[2]);
+										destColObj->setCustomDebugColor(objectColorRGB);
+										serverCmd.m_type = CMD_USER_DEBUG_DRAW_COMPLETED;
+									}
+								}
+							}
+						}
 
 						if (clientCmd.m_updateFlags & USER_DEBUG_HAS_TEXT)
 						{

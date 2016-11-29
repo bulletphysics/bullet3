@@ -109,7 +109,9 @@ enum EnumInitPoseFlags
 {
     INIT_POSE_HAS_INITIAL_POSITION=1,
     INIT_POSE_HAS_INITIAL_ORIENTATION=2,
-    INIT_POSE_HAS_JOINT_STATE=4
+    INIT_POSE_HAS_JOINT_STATE=4,
+	INIT_POSE_HAS_BASE_LINEAR_VELOCITY = 8,
+	INIT_POSE_HAS_BASE_ANGULAR_VELOCITY = 16,
 };
 
 
@@ -122,6 +124,8 @@ struct InitPoseArgs
 	int m_bodyUniqueId;
 	int m_hasInitialStateQ[MAX_DEGREE_OF_FREEDOM];
 	double m_initialStateQ[MAX_DEGREE_OF_FREEDOM];
+	int m_hasInitialStateQdot[MAX_DEGREE_OF_FREEDOM];
+	double m_initialStateQdot[MAX_DEGREE_OF_FREEDOM];
 };
 
 
@@ -160,6 +164,8 @@ enum EnumRequestContactDataUpdateFlags
 {
 	CMD_REQUEST_CONTACT_POINT_HAS_QUERY_MODE=1,
 	CMD_REQUEST_CONTACT_POINT_HAS_CLOSEST_DISTANCE_THRESHOLD=2,
+	CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_A_FILTER = 4,
+	CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_B_FILTER = 8,
 };
 
 struct RequestContactDataArgs
@@ -167,6 +173,8 @@ struct RequestContactDataArgs
     int m_startingContactPointIndex;
     int m_objectAIndexFilter;
 	int m_objectBIndexFilter;
+	int m_linkIndexAIndexFilter;
+	int m_linkIndexBIndexFilter;
 	double m_closestDistanceThreshold;
 	int m_mode;
 };
@@ -526,7 +534,10 @@ enum EnumUserDebugDrawFlags
     USER_DEBUG_HAS_LINE=1,
 	USER_DEBUG_HAS_TEXT=2,
 	USER_DEBUG_REMOVE_ONE_ITEM=4,
-	USER_DEBUG_REMOVE_ALL=8	
+	USER_DEBUG_REMOVE_ALL=8,	
+	USER_DEBUG_SET_CUSTOM_OBJECT_COLOR = 16,
+	USER_DEBUG_REMOVE_CUSTOM_OBJECT_COLOR = 32,
+
 };
 
 struct UserDebugDrawArgs
@@ -543,6 +554,10 @@ struct UserDebugDrawArgs
 	double m_textPositionXYZ[3];
 	double m_textColorRGB[3];
 	double m_textSize;
+
+	double m_objectDebugColorRGB[3];
+	int m_objectUniqueId;
+	int m_linkIndex;
 };
 
 
