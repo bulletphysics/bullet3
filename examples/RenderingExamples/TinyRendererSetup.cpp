@@ -154,6 +154,7 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
     
 	const char* fileName = "textured_sphere_smooth.obj";
     fileName = "cube.obj";
+    fileName = "torus/torus_with_plane.obj";
 
 	{
 		
@@ -342,7 +343,44 @@ void TinyRendererSetup::stepSimulation(float deltaTime)
         render->getActiveCamera()->getCameraViewMatrix(viewMat);
         render->getActiveCamera()->getCameraProjectionMatrix(projMat);
             
-
+        for (int o=0;o<this->m_internalData->m_renderObjects.size();o++)
+        {
+            
+            const btTransform& tr = m_internalData->m_transforms[o];
+            tr.getOpenGLMatrix(modelMat2);
+            
+            
+            for (int i=0;i<4;i++)
+            {
+                for (int j=0;j<4;j++)
+                {
+                    m_internalData->m_renderObjects[o]->m_modelMatrix[i][j] = float(modelMat2[i+4*j]);
+                    m_internalData->m_renderObjects[o]->m_viewMatrix[i][j] = viewMat[i+4*j];
+                    m_internalData->m_renderObjects[o]->m_projectionMatrix[i][j] = projMat[i+4*j];
+                    
+                    btVector3 lightDirWorld;
+                    switch (m_app->getUpAxis())
+                    {
+                        case 1:
+                            lightDirWorld = btVector3(-50.f,100,30);
+                            break;
+                        case 2:
+                            lightDirWorld = btVector3(-50.f,30,100);
+                            break;
+                        default:{}
+                    };
+                    
+                    m_internalData->m_renderObjects[o]->m_lightDirWorld = lightDirWorld.normalized();
+                    
+                    btVector3 lightColor(1.0,1.0,1.0);
+                    m_internalData->m_renderObjects[o]->m_lightColor = lightColor;
+                    
+                    m_internalData->m_renderObjects[o]->m_lightDistance = 10.0;
+                    
+                }
+            }
+            TinyRenderer::renderObjectDepth(*m_internalData->m_renderObjects[o]);
+        }
         
         for (int o=0;o<this->m_internalData->m_renderObjects.size();o++)
         {
@@ -375,6 +413,8 @@ void TinyRendererSetup::stepSimulation(float deltaTime)
                     
                     btVector3 lightColor(1.0,1.0,1.0);
                     m_internalData->m_renderObjects[o]->m_lightColor = lightColor;
+                    
+                    m_internalData->m_renderObjects[o]->m_lightDistance = 10.0;
 					
                 }
             }

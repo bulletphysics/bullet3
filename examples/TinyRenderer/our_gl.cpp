@@ -8,18 +8,6 @@ IShader::~IShader() {}
 
 Matrix viewport(int x, int y, int w, int h) 
 {
-    /*
-    Matrix Viewport;
-    Viewport = Matrix::identity();
-    Viewport[0][3] = x+w/2.f;
-    Viewport[1][3] = y+h/2.f;
-    Viewport[2][3] = 1.f;
-    Viewport[0][0] = w/2.f;
-    Viewport[1][1] = h/2.f;
-    Viewport[2][2] = 0;
-    return Viewport;
-    */
-    
     Matrix Viewport;
     Viewport = Matrix::identity();
     Viewport[0][3] = x+w/2.f;
@@ -29,7 +17,6 @@ Matrix viewport(int x, int y, int w, int h)
     Viewport[1][1] = h/2.f;
     Viewport[2][2] = .5f;
     return Viewport;
-
 }
 
 Matrix projection(float coeff) {
@@ -40,23 +27,6 @@ Matrix projection(float coeff) {
 }
 
 Matrix lookat(Vec3f eye, Vec3f center, Vec3f up) {
-    /*
-    Vec3f z = (eye-center).normalize();
-    Vec3f x = cross(up,z).normalize();
-    Vec3f y = cross(z,x).normalize();
-    Matrix Minv = Matrix::identity();
-    Matrix Tr   = Matrix::identity();
-    for (int i=0; i<3; i++) {
-        Minv[0][i] = x[i];
-        Minv[1][i] = y[i];
-        Minv[2][i] = z[i];
-        Tr[i][3] = -center[i];
-    }
-    Matrix ModelView;
-    ModelView = Minv*Tr;
-    return ModelView;
-    */
-    
     Vec3f f = (center - eye).normalize();
     Vec3f u = up.normalize();
     Vec3f s = cross(f,u).normalize();
@@ -85,7 +55,6 @@ Matrix lookat(Vec3f eye, Vec3f center, Vec3f up) {
     ModelView[3][3] = 1.f;
     
     return ModelView;
-    
 }
 
 Vec3f barycentric(Vec2f A, Vec2f B, Vec2f C, Vec2f P) {
@@ -113,7 +82,6 @@ void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zb
 	if (pts[0][3]<0 || pts[1][3] <0 || pts[2][3] <0)
 		return;
 
-	
 	mat<3,2,float> pts2;
     for (int i=0; i<3; i++) pts2[i] = proj<2>(pts[i]/pts[i][3]);
 
@@ -128,15 +96,11 @@ void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zb
         }
     }
 
-	
-	
 	Vec2i P;
     TGAColor color;
     for (P.x=bboxmin.x; P.x<=bboxmax.x; P.x++) {
         for (P.y=bboxmin.y; P.y<=bboxmax.y; P.y++) {
             Vec3f bc_screen  = barycentric(pts2[0], pts2[1], pts2[2], P);
-
-			
             Vec3f bc_clip    = Vec3f(bc_screen.x/pts[0][3], bc_screen.y/pts[1][3], bc_screen.z/pts[2][3]);
             bc_clip = bc_clip/(bc_clip.x+bc_clip.y+bc_clip.z);
             float frag_depth = -1*(clipc[2]*bc_clip);
