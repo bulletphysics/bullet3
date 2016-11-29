@@ -90,7 +90,7 @@ struct TinyRendererVisualShapeConverterInternalData
 	m_rgbColorBuffer(START_WIDTH,START_HEIGHT,TGAImage::RGB),
 	m_hasLightDirection(false),
     m_hasLightColor(false),
-    m_hasShadow(true)
+    m_hasShadow(false)
 	{
 	    m_depthBuffer.resize(m_swWidth*m_swHeight);
         m_shadowBuffer.resize(m_swWidth*m_swHeight);

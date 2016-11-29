@@ -98,6 +98,8 @@ void b3RequestCameraImageSetCameraMatrices(b3SharedMemoryCommandHandle command, 
 void b3RequestCameraImageSetPixelResolution(b3SharedMemoryCommandHandle command, int width, int height );
 void b3RequestCameraImageSetLightDirection(b3SharedMemoryCommandHandle commandHandle, const float lightDirection[3]);
 void b3RequestCameraImageSetLightColor(b3SharedMemoryCommandHandle commandHandle, const float lightColor[3]);
+void b3RequestCameraImageSetLightDistance(b3SharedMemoryCommandHandle commandHandle, float lightDistance);
+void b3RequestCameraImageSetShadow(b3SharedMemoryCommandHandle commandHandle, bool hasShadow);
 void b3RequestCameraImageSelectRenderer(b3SharedMemoryCommandHandle commandHandle, int renderer);
 void b3GetCameraImageData(b3PhysicsClientHandle physClient, struct b3CameraImageData* imageData);
 

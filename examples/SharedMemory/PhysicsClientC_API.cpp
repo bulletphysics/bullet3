@@ -1256,6 +1256,24 @@ void b3RequestCameraImageSetLightColor(b3SharedMemoryCommandHandle commandHandle
     command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_LIGHT_COLOR;
 }
 
+void b3RequestCameraImageSetLightDistance(b3SharedMemoryCommandHandle commandHandle, float lightDistance)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
+    command->m_requestPixelDataArguments.m_lightDistance = lightDistance;
+    command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_LIGHT_DISTANCE;
+}
+
+void b3RequestCameraImageSetShadow(b3SharedMemoryCommandHandle commandHandle, bool hasShadow)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
+    command->m_requestPixelDataArguments.m_hasShadow = hasShadow;
+    command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_SHADOW;
+}
+
 void b3ComputeViewMatrixFromPositions(const float cameraPosition[3], const float cameraTargetPosition[3], const float cameraUp[3], float viewMatrix[16])
 {
 	b3Vector3 eye = b3MakeVector3(cameraPosition[0], cameraPosition[1], cameraPosition[2]);

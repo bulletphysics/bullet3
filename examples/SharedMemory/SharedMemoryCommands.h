@@ -140,6 +140,8 @@ struct RequestPixelDataArgs
 	int m_pixelHeight;
 	float m_lightDirection[3];
     float m_lightColor[3];
+    float m_lightDistance;
+    bool m_hasShadow;
 };
 
 enum EnumRequestPixelDataUpdateFlags
@@ -148,6 +150,8 @@ enum EnumRequestPixelDataUpdateFlags
 	REQUEST_PIXEL_ARGS_SET_PIXEL_WIDTH_HEIGHT=2,
 	REQUEST_PIXEL_ARGS_SET_LIGHT_DIRECTION=4,
     REQUEST_PIXEL_ARGS_SET_LIGHT_COLOR=8,
+    REQUEST_PIXEL_ARGS_SET_LIGHT_DISTANCE=16,
+    REQUEST_PIXEL_ARGS_SET_SHADOW=32,
 	//don't exceed (1<<15), because this enum is shared with EnumRenderer in SharedMemoryPublic.h
 	
 };
