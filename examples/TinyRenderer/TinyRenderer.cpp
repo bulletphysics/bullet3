@@ -107,6 +107,7 @@ m_objectIndex(-1)
     Vec3f    center(0,0,0);
     Vec3f        up(0,0,1);
     m_lightDirWorld.setValue(0,0,0);
+	m_lightColor.setValue(1, 1, 1);
 	m_localScaling.setValue(1,1,1);
     m_modelMatrix = Matrix::identity();
  
@@ -127,6 +128,7 @@ m_objectIndex(objectIndex)
     Vec3f    center(0,0,0);
     Vec3f        up(0,0,1);
     m_lightDirWorld.setValue(0,0,0);
+	m_lightColor.setValue(1, 1, 1);
 	m_localScaling.setValue(1,1,1);
     m_modelMatrix = Matrix::identity();
  

@@ -109,7 +109,9 @@ enum EnumInitPoseFlags
 {
     INIT_POSE_HAS_INITIAL_POSITION=1,
     INIT_POSE_HAS_INITIAL_ORIENTATION=2,
-    INIT_POSE_HAS_JOINT_STATE=4
+    INIT_POSE_HAS_JOINT_STATE=4,
+	INIT_POSE_HAS_BASE_LINEAR_VELOCITY = 8,
+	INIT_POSE_HAS_BASE_ANGULAR_VELOCITY = 16,
 };
 
 
@@ -122,6 +124,8 @@ struct InitPoseArgs
 	int m_bodyUniqueId;
 	int m_hasInitialStateQ[MAX_DEGREE_OF_FREEDOM];
 	double m_initialStateQ[MAX_DEGREE_OF_FREEDOM];
+	int m_hasInitialStateQdot[MAX_DEGREE_OF_FREEDOM];
+	double m_initialStateQdot[MAX_DEGREE_OF_FREEDOM];
 };
 
 

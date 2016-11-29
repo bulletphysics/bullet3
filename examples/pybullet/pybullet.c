@@ -30,6 +30,123 @@ enum eCONNECT_METHOD {
 static PyObject* SpamError;
 static b3PhysicsClientHandle sm = 0;
 
+
+static double pybullet_internalGetFloatFromSequence(PyObject* seq, int index) {
+	double v = 0.0;
+	PyObject* item;
+
+	if (PyList_Check(seq)) {
+		item = PyList_GET_ITEM(seq, index);
+		v = PyFloat_AsDouble(item);
+	}
+	else {
+		item = PyTuple_GET_ITEM(seq, index);
+		v = PyFloat_AsDouble(item);
+	}
+	return v;
+}
+
+
+// internal function to set a float matrix[16]
+// used to initialize camera position with
+// a view and projection matrix in renderImage()
+//
+// // Args:
+//  matrix - float[16] which will be set by values from objMat
+static int pybullet_internalSetMatrix(PyObject* objMat, float matrix[16]) {
+	int i, len;
+	PyObject* seq;
+
+	seq = PySequence_Fast(objMat, "expected a sequence");
+	if (seq)
+	{
+		len = PySequence_Size(objMat);
+		if (len == 16) {
+			for (i = 0; i < len; i++) {
+				matrix[i] = pybullet_internalGetFloatFromSequence(seq, i);
+			}
+			Py_DECREF(seq);
+			return 1;
+		}
+		Py_DECREF(seq);
+	}
+	return 0;
+}
+
+// internal function to set a float vector[3]
+// used to initialize camera position with
+// a view and projection matrix in renderImage()
+//
+// // Args:
+//  vector - float[3] which will be set by values from objMat
+static int pybullet_internalSetVector(PyObject* objVec, float vector[3]) {
+	int i, len;
+	PyObject* seq = 0;
+	if (objVec == NULL)
+		return 0;
+
+	seq = PySequence_Fast(objVec, "expected a sequence");
+	if (seq)
+	{
+
+		len = PySequence_Size(objVec);
+		if (len == 3) {
+			for (i = 0; i < len; i++) {
+				vector[i] = pybullet_internalGetFloatFromSequence(seq, i);
+			}
+			Py_DECREF(seq);
+			return 1;
+		}
+		Py_DECREF(seq);
+	}
+	return 0;
+}
+
+//  vector - double[3] which will be set by values from obVec
+static int pybullet_internalSetVectord(PyObject* obVec, double vector[3]) {
+	int i, len;
+	PyObject* seq;
+	if (obVec == NULL)
+		return 0;
+
+	seq = PySequence_Fast(obVec, "expected a sequence");
+	if (seq)
+	{
+		len = PySequence_Size(obVec);
+		if (len == 3) {
+			for (i = 0; i < len; i++) {
+				vector[i] = pybullet_internalGetFloatFromSequence(seq, i);
+			}
+			Py_DECREF(seq);
+			return 1;
+		}
+		Py_DECREF(seq);
+	}
+	return 0;
+}
+
+//  vector - double[3] which will be set by values from obVec
+static int pybullet_internalSetVector4d(PyObject* obVec, double vector[4]) {
+	int i, len;
+	PyObject* seq;
+	if (obVec == NULL)
+		return 0;
+
+	seq = PySequence_Fast(obVec, "expected a sequence");
+	len = PySequence_Size(obVec);
+	if (len == 4) {
+		for (i = 0; i < len; i++) {
+			vector[i] = pybullet_internalGetFloatFromSequence(seq, i);
+		}
+		Py_DECREF(seq);
+		return 1;
+	}
+	Py_DECREF(seq);
+	return 0;
+}
+
+
+
 // Step through one timestep of the simulation
 static PyObject* pybullet_stepSimulation(PyObject* self, PyObject* args) {
   if (0 == sm) {
@@ -371,19 +488,6 @@ static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args) {
   return PyLong_FromLong(bodyIndex);
 }
 
-static double pybullet_internalGetFloatFromSequence(PyObject* seq, int index) {
-  double v = 0.0;
-  PyObject* item;
-
-  if (PyList_Check(seq)) {
-    item = PyList_GET_ITEM(seq, index);
-    v = PyFloat_AsDouble(item);
-  } else {
-    item = PyTuple_GET_ITEM(seq, index);
-    v = PyFloat_AsDouble(item);
-  }
-  return v;
-}
 
 
 
@@ -768,11 +872,68 @@ pybullet_setDefaultContactERP(PyObject* self, PyObject* args)
     return Py_None;
 }
 
+static int pybullet_internalGetBaseVelocity(
+	int bodyIndex, double baseLinearVelocity[3], double baseAngularVelocity[3]) {
+	baseLinearVelocity[0] = 0.;
+	baseLinearVelocity[1] = 0.;
+	baseLinearVelocity[2] = 0.;
+
+	baseAngularVelocity[0] = 0.;
+	baseAngularVelocity[1] = 0.;
+	baseAngularVelocity[2] = 0.;
+
+	if (0 == sm) {
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return 0;
+	}
+
+	{
+		{
+			b3SharedMemoryCommandHandle cmd_handle =
+				b3RequestActualStateCommandInit(sm, bodyIndex);
+			b3SharedMemoryStatusHandle status_handle =
+				b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
+
+			const int status_type = b3GetStatusType(status_handle);
+			const double* actualStateQdot;
+			// const double* jointReactionForces[];
+
+
+			if (status_type != CMD_ACTUAL_STATE_UPDATE_COMPLETED) {
+				PyErr_SetString(SpamError, "getBaseVelocity failed.");
+				return 0;
+			}
+
+			b3GetStatusActualState(
+				status_handle, 0 /* body_unique_id */,
+				0 /* num_degree_of_freedom_q */, 0 /* num_degree_of_freedom_u */,
+				0 /*root_local_inertial_frame*/, 0,
+				&actualStateQdot, 0 /* joint_reaction_forces */);
+
+			// printf("joint reaction forces=");
+			// for (i=0; i < (sizeof(jointReactionForces)/sizeof(double)); i++) {
+			//   printf("%f ", jointReactionForces[i]);
+			// }
+			// now, position x,y,z = actualStateQ[0],actualStateQ[1],actualStateQ[2]
+			// and orientation x,y,z,w =
+			// actualStateQ[3],actualStateQ[4],actualStateQ[5],actualStateQ[6]
+			baseLinearVelocity[0] = actualStateQdot[0];
+			baseLinearVelocity[1] = actualStateQdot[1];
+			baseLinearVelocity[2] = actualStateQdot[2];
+
+			baseAngularVelocity[0] = actualStateQdot[3];
+			baseAngularVelocity[1] = actualStateQdot[4];
+			baseAngularVelocity[2] = actualStateQdot[5];
+			
+		}
+	}
+	return 1;
+}
 
 // Internal function used to get the base position and orientation
 // Orientation is returned in quaternions
 static int pybullet_internalGetBasePositionAndOrientation(
-    int bodyIndex, double basePosition[3], double baseOrientation[3]) {
+    int bodyIndex, double basePosition[3], double baseOrientation[4]) {
   basePosition[0] = 0.;
   basePosition[1] = 0.;
   basePosition[2] = 0.;
@@ -855,8 +1016,7 @@ static PyObject* pybullet_getBasePositionAndOrientation(PyObject* self,
   if (0 == pybullet_internalGetBasePositionAndOrientation(
                bodyIndex, basePosition, baseOrientation)) {
     PyErr_SetString(SpamError,
-                    "GetBasePositionAndOrientation failed (#joints/links "
-                    "exceeds maximum?).");
+                    "GetBasePositionAndOrientation failed.");
     return NULL;
   }
 
@@ -891,6 +1051,62 @@ static PyObject* pybullet_getBasePositionAndOrientation(PyObject* self,
   }
 }
 
+
+static PyObject* pybullet_getBaseVelocity(PyObject* self,
+	PyObject* args) {
+	int bodyIndex = -1;
+	double baseLinearVelocity[3];
+	double baseAngularVelocity[3];
+	PyObject* pylistLinVel=0;
+	PyObject* pylistAngVel=0;
+
+	if (0 == sm) {
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	if (!PyArg_ParseTuple(args, "i", &bodyIndex)) {
+		PyErr_SetString(SpamError, "Expected a body index (integer).");
+		return NULL;
+	}
+
+	if (0 == pybullet_internalGetBaseVelocity(
+		bodyIndex, baseLinearVelocity, baseAngularVelocity)) {
+		PyErr_SetString(SpamError,
+			"getBaseVelocity failed.");
+		return NULL;
+	}
+
+	{
+		PyObject* item;
+		int i;
+		int num = 3;
+		pylistLinVel = PyTuple_New(num);
+		for (i = 0; i < num; i++) {
+			item = PyFloat_FromDouble(baseLinearVelocity[i]);
+			PyTuple_SetItem(pylistLinVel, i, item);
+		}
+	}
+
+	{
+		PyObject* item;
+		int i;
+		int num = 3;
+		pylistAngVel = PyTuple_New(num);
+		for (i = 0; i < num; i++) {
+			item = PyFloat_FromDouble(baseAngularVelocity[i]);
+			PyTuple_SetItem(pylistAngVel, i, item);
+		}
+	}
+
+	{
+		PyObject* pylist;
+		pylist = PyTuple_New(2);
+		PyTuple_SetItem(pylist, 0, pylistLinVel);
+		PyTuple_SetItem(pylist, 1, pylistAngVel);
+		return pylist;
+	}
+}
 static PyObject* pybullet_getNumBodies(PyObject* self, PyObject* args)
 {
 	if (0 == sm) {
@@ -1034,6 +1250,66 @@ static PyObject* pybullet_resetJointState(PyObject* self, PyObject* args) {
   PyErr_SetString(SpamError, "error in resetJointState.");
   return NULL;
 }
+
+
+
+
+static PyObject* pybullet_resetBaseVelocity(PyObject* self, PyObject* args, PyObject *keywds)
+{
+	static char *kwlist[] = { "objectUniqueId", "linearVelocity", "angularVelocity", NULL };
+
+	if (0 == sm) 
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	{
+		int bodyIndex=0;
+		PyObject* linVelObj=0;
+		PyObject* angVelObj=0;
+		double linVel[3] = { 0, 0, 0 };
+		double angVel[3] = { 0, 0, 0 };
+		
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|OO", kwlist, &bodyIndex, &linVelObj, &angVelObj))
+		{
+			return NULL;
+		}
+		if (linVelObj || angVelObj)
+		{
+
+			b3SharedMemoryCommandHandle commandHandle;
+			b3SharedMemoryStatusHandle statusHandle;
+
+			commandHandle = b3CreatePoseCommandInit(sm, bodyIndex);
+
+			if (linVelObj)
+			{
+				pybullet_internalSetVectord(linVelObj, linVel);
+				b3CreatePoseCommandSetBaseLinearVelocity(commandHandle, linVel);
+			}
+
+			if (angVelObj)
+			{
+				pybullet_internalSetVectord(angVelObj, angVel);
+				b3CreatePoseCommandSetBaseAngularVelocity(commandHandle, angVel);
+			}
+
+			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+			Py_INCREF(Py_None);
+			return Py_None;
+		}
+		else
+		{
+			PyErr_SetString(SpamError, "expected at least linearVelocity and/or angularVelocity.");
+			return NULL;
+		}
+	}
+	PyErr_SetString(SpamError, "error in resetJointState.");
+	return NULL;
+}
+
+
 
 // Reset the position and orientation of the base/root link, position [x,y,z]
 // and orientation quaternion [x,y,z,w]
@@ -1365,105 +1641,6 @@ static PyObject* pybullet_getLinkState(PyObject* self, PyObject* args) {
   Py_INCREF(Py_None);
   return Py_None;
 }
-
-// internal function to set a float matrix[16]
-// used to initialize camera position with
-// a view and projection matrix in renderImage()
-//
-// // Args:
-//  matrix - float[16] which will be set by values from objMat
-static int pybullet_internalSetMatrix(PyObject* objMat, float matrix[16]) {
-  int i, len;
-  PyObject* seq;
-
-  seq = PySequence_Fast(objMat, "expected a sequence");
-  if (seq)
-  {
-	  len = PySequence_Size(objMat);
-	  if (len == 16) {
-		  for (i = 0; i < len; i++) {
-			  matrix[i] = pybullet_internalGetFloatFromSequence(seq, i);
-		  }
-		  Py_DECREF(seq);
-		  return 1;
-	  }
-	  Py_DECREF(seq);
-  }
-  return 0;
-}
-
-// internal function to set a float vector[3]
-// used to initialize camera position with
-// a view and projection matrix in renderImage()
-//
-// // Args:
-//  vector - float[3] which will be set by values from objMat
-static int pybullet_internalSetVector(PyObject* objVec, float vector[3]) {
-  int i, len;
-  PyObject* seq=0;
-  if (objVec==NULL)
-		return 0;
-
-  seq = PySequence_Fast(objVec, "expected a sequence");
-  if (seq)
-  {
-
-	  len = PySequence_Size(objVec);
-	  if (len == 3) {
-		for (i = 0; i < len; i++) {
-		  vector[i] = pybullet_internalGetFloatFromSequence(seq, i);
-		}
-		Py_DECREF(seq);
-		return 1;
-	  }
-	Py_DECREF(seq);
-  }
-  return 0;
-}
-
-//  vector - double[3] which will be set by values from obVec
-static int pybullet_internalSetVectord(PyObject* obVec, double vector[3]) {
-    int i, len;
-    PyObject* seq;
-    if (obVec==NULL)
-		return 0;
-
-    seq = PySequence_Fast(obVec, "expected a sequence");
-	if (seq)
-	{
-		len = PySequence_Size(obVec);
-		if (len == 3) {
-			for (i = 0; i < len; i++) {
-				vector[i] = pybullet_internalGetFloatFromSequence(seq, i);
-			}
-			Py_DECREF(seq);
-			return 1;
-		}
-		Py_DECREF(seq);
-	}
-    return 0;
-}
-
-//  vector - double[3] which will be set by values from obVec
-static int pybullet_internalSetVector4d(PyObject* obVec, double vector[4]) {
-    int i, len;
-    PyObject* seq;
-    if (obVec==NULL)
-		return 0;
-
-    seq = PySequence_Fast(obVec, "expected a sequence");
-    len = PySequence_Size(obVec);
-    if (len == 4) {
-        for (i = 0; i < len; i++) {
-            vector[i] = pybullet_internalGetFloatFromSequence(seq, i);
-        }
-        Py_DECREF(seq);
-        return 1;
-    }
-    Py_DECREF(seq);
-    return 0;
-}
-
 
 
 static PyObject* pybullet_addUserDebugText(PyObject* self, PyObject* args, PyObject *keywds) 
@@ -3301,11 +3478,6 @@ static PyMethodDef SpamMethods[] = {
      "Set the amount of time to proceed at each call to stepSimulation. (unit "
      "is seconds, typically range is 0.01 or 0.001)"},
 
-
-    {"setTimeStep",  pybullet_setTimeStep, METH_VARARGS,
-        "Set the amount of time to proceed at each call to stepSimulation."
-        " (unit is seconds, typically range is 0.01 or 0.001)"},
-
 	{"setDefaultContactERP",  pybullet_setDefaultContactERP, METH_VARARGS,
         "Set the amount of contact penetration Error Recovery Paramater "
         "(ERP) in each time step. \
@@ -3365,6 +3537,19 @@ static PyMethodDef SpamMethods[] = {
      "Reset the world position and orientation of the base of the object "
      "instantaneously, not through physics simulation. (x,y,z) position vector "
      "and (x,y,z,w) quaternion orientation."},
+
+	 { "getBaseVelocity", pybullet_getBaseVelocity,
+		METH_VARARGS,
+		"Get the linear and angular velocity of the base of the object "
+		" in world space coordinates. "
+		"(x,y,z) linear velocity vector and (x,y,z) angular velocity vector." },
+
+	{ "resetBaseVelocity", (PyCFunction)pybullet_resetBaseVelocity, METH_VARARGS | METH_KEYWORDS,
+	"Reset the linear and/or angular velocity of the base of the object "
+	" in world space coordinates. "
+	"linearVelocity (x,y,z) and angularVelocity (x,y,z)." },
+
+	
 
     {"getNumJoints", pybullet_getNumJoints, METH_VARARGS,
      "Get the number of joints for an object."},
