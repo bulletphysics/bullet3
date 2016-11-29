@@ -1265,7 +1265,7 @@ void b3RequestCameraImageSetLightDistance(b3SharedMemoryCommandHandle commandHan
     command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_LIGHT_DISTANCE;
 }
 
-void b3RequestCameraImageSetShadow(b3SharedMemoryCommandHandle commandHandle, bool hasShadow)
+void b3RequestCameraImageSetShadow(b3SharedMemoryCommandHandle commandHandle, int hasShadow)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);

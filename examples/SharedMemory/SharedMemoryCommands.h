@@ -141,7 +141,7 @@ struct RequestPixelDataArgs
 	float m_lightDirection[3];
     float m_lightColor[3];
     float m_lightDistance;
-    bool m_hasShadow;
+    int m_hasShadow;
 };
 
 enum EnumRequestPixelDataUpdateFlags
