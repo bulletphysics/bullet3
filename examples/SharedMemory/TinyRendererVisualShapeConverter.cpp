@@ -36,9 +36,6 @@ subject to the following restrictions:
 #include "../TinyRenderer/model.h"
 #include "../ThirdPartyLibs/stb_image/stb_image.h"
 
-extern int count;
-
-
 enum MyFileType
 {
 	MY_FILE_STL=1,
@@ -723,17 +720,16 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
         lightColor = m_data->m_lightColor;
     }
     
-    count = 0;
+    float lightDistance = 2.0;
     
-  //  printf("num m_swRenderInstances = %d\n", m_data->m_swRenderInstances.size());
-    for (int i=0;i<m_data->m_swRenderInstances.size();i++)
+    for (int n=0;n<m_data->m_swRenderInstances.size();n++)
     {
-        TinyRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(i);
+        TinyRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(n);
         if (0==visualArrayPtr)
             continue;//can this ever happen?
         TinyRendererObjectArray* visualArray = *visualArrayPtr;
 
-        btHashPtr colObjHash = m_data->m_swRenderInstances.getKeyAtIndex(i);
+        btHashPtr colObjHash = m_data->m_swRenderInstances.getKeyAtIndex(n);
         
         
         const btCollisionObject* colObj = (btCollisionObject*) colObjHash.getPointer();
@@ -756,25 +752,24 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
                     renderObj->m_projectionMatrix[i][j] = projMat[i+4*j];
                     renderObj->m_modelMatrix[i][j] = modelMat[i+4*j];
                     renderObj->m_viewMatrix[i][j] = viewMat[i+4*j];
-                    renderObj->m_localScaling = colObj->getCollisionShape()->getLocalScaling();
-                    renderObj->m_lightDirWorld = lightDirWorld;
-                    renderObj->m_lightColor = lightColor;
                 }
             }
+            renderObj->m_localScaling = colObj->getCollisionShape()->getLocalScaling();
+            renderObj->m_lightDirWorld = lightDirWorld;
+            renderObj->m_lightColor = lightColor;
+            renderObj->m_lightDistance = lightDistance;
             TinyRenderer::renderObjectDepth(*renderObj);
         }
     }
-    
-    count = 0;
-    
-    for (int i=0;i<m_data->m_swRenderInstances.size();i++)
+
+    for (int n=0;n<m_data->m_swRenderInstances.size();n++)
     {
-        TinyRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(i);
+        TinyRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(n);
         if (0==visualArrayPtr)
             continue;//can this ever happen?
         TinyRendererObjectArray* visualArray = *visualArrayPtr;
         
-        btHashPtr colObjHash = m_data->m_swRenderInstances.getKeyAtIndex(i);
+        btHashPtr colObjHash = m_data->m_swRenderInstances.getKeyAtIndex(n);
         
         
         const btCollisionObject* colObj = (btCollisionObject*) colObjHash.getPointer();
@@ -797,11 +792,12 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
                     renderObj->m_projectionMatrix[i][j] = projMat[i+4*j];
                     renderObj->m_modelMatrix[i][j] = modelMat[i+4*j];
                     renderObj->m_viewMatrix[i][j] = viewMat[i+4*j];
-                    renderObj->m_localScaling = colObj->getCollisionShape()->getLocalScaling();
-                    renderObj->m_lightDirWorld = lightDirWorld;
-                    renderObj->m_lightColor = lightColor;
                 }
             }
+            renderObj->m_localScaling = colObj->getCollisionShape()->getLocalScaling();
+            renderObj->m_lightDirWorld = lightDirWorld;
+            renderObj->m_lightColor = lightColor;
+            renderObj->m_lightDistance = lightDistance;
             TinyRenderer::renderObjectShadow(*renderObj);
         }
     }
