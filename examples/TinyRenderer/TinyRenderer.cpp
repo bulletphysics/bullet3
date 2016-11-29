@@ -406,11 +406,6 @@ TinyRenderObjectData::~TinyRenderObjectData()
     delete m_model;
 }
 
-void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
-{
-	        
-}
-
 void TinyRenderer::renderObjectDepth(TinyRenderObjectData& renderData)
 {
     int width = renderData.m_rgbColorBuffer.get_width();
@@ -453,7 +448,7 @@ void TinyRenderer::renderObjectDepth(TinyRenderObjectData& renderData)
     
 }
 
-void TinyRenderer::renderObjectShadow(TinyRenderObjectData& renderData)
+void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
 {
     int width = renderData.m_rgbColorBuffer.get_width();
     int height = renderData.m_rgbColorBuffer.get_height();

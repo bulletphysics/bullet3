@@ -798,7 +798,7 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
             renderObj->m_lightDirWorld = lightDirWorld;
             renderObj->m_lightColor = lightColor;
             renderObj->m_lightDistance = lightDistance;
-            TinyRenderer::renderObjectShadow(*renderObj);
+            TinyRenderer::renderObject(*renderObj);
         }
     }
 	//printf("write tga \n");

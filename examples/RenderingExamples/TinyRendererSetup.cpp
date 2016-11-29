@@ -154,7 +154,6 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
     
 	const char* fileName = "textured_sphere_smooth.obj";
     fileName = "cube.obj";
-	
 
 	{
 		
@@ -373,6 +372,9 @@ void TinyRendererSetup::stepSimulation(float deltaTime)
 					};
 					
 					m_internalData->m_renderObjects[o]->m_lightDirWorld = lightDirWorld.normalized();
+                    
+                    btVector3 lightColor(1.0,1.0,1.0);
+                    m_internalData->m_renderObjects[o]->m_lightColor = lightColor;
 					
                 }
             }
