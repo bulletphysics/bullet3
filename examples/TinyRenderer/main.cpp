@@ -147,6 +147,7 @@ int main(int argc, char* argv[])
                 
                 renderData.m_rgbColorBuffer.set(x,y,color);
 				renderData.m_depthBuffer[x+y*textureWidth] = -1e30f;
+                renderData.m_shadowBuffer[x+y*textureWidth] = -1e30f;
             }
         }
         
