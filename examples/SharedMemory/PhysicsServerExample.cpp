@@ -39,6 +39,7 @@ extern bool gEnableRealTimeSimVR;
 extern bool gCreateDefaultRobotAssets;
 extern int gInternalSimFlags;
 extern int gCreateObjectSimVR;
+extern bool gResetSimulation;
 extern int gEnableKukaControl;
 int gGraspingController = -1;
 extern btScalar simTimeScalingFactor;
@@ -273,7 +274,7 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 						args->m_physicsServerPtr->removePickingConstraint();
 					}
 
-					if (!gEnableKukaControl)
+//					if (!gEnableKukaControl)
 					{
 						if (args->m_isVrControllerPicking[c])
 						{
@@ -1670,7 +1671,8 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 	{
 		if (button == 1 && state == 0)
 		{
-//			gVRTeleportPos = gLastPickPos;
+			gResetSimulation = true;
+			//gVRTeleportPos1 = gLastPickPos;
 		}
 	} else
 	{
@@ -1682,7 +1684,7 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 			} else
 			{
 				gDebugRenderToggle = 0;
-				
+#if 0//it confuses people, make it into a debug option in a VR GUI?
 				if (simTimeScalingFactor==0)
 				{
 					simTimeScalingFactor = 1;
@@ -1697,6 +1699,7 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 						simTimeScalingFactor = 0;
 					}
 				}
+#endif
 			}
 		} else
 		{
@@ -1714,7 +1717,7 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 		}
 		else
 		{
-			gEnableKukaControl = !gEnableKukaControl;
+//			gEnableKukaControl = !gEnableKukaControl;
 		}
 	}
 	
