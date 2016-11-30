@@ -552,10 +552,6 @@ struct WalkerFilterCallback : public btOverlapFilterCallback
 	}
 };
 
-void floorNNSliderValue(float notUsed) {
-	gParallelEvaluations = floor(gParallelEvaluations);
-}
-
 void NN3DWalkersExample::initPhysics()
 {
 
@@ -657,8 +653,7 @@ void NN3DWalkersExample::initPhysics()
 		SliderParams slider("Parallel evaluations", &gParallelEvaluations);
 		slider.m_minVal = 1;
 		slider.m_maxVal = NUM_WALKERS;
-		slider.m_clampToNotches = false;
-		slider.m_callback = floorNNSliderValue; // hack to get integer values
+        slider.m_clampToIntegers = true;
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
 			slider);
 	}
