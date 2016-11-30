@@ -43,11 +43,12 @@ bool gCloseToKuka=false;
 bool gEnableRealTimeSimVR=false;
 bool gCreateDefaultRobotAssets = false;
 int gInternalSimFlags = 0;
+bool gResetSimulation = 0;
 int gHuskyId = -1;
 btTransform huskyTr = btTransform::getIdentity();
 
 int gCreateObjectSimVR = -1;
-int gEnableKukaControl = 0;
+int gEnableKukaControl = 1;
 
 btScalar simTimeScalingFactor = 1;
 btScalar gRhsClamp = 1.f;
@@ -718,6 +719,19 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
     
 }
 
+void PhysicsServerCommandProcessor::deleteCachedInverseKinematicsBodies()
+{
+	for (int i = 0; i < m_data->m_inverseKinematicsHelpers.size(); i++)
+	{
+		IKTrajectoryHelper** ikHelperPtr = m_data->m_inverseKinematicsHelpers.getAtIndex(i);
+		if (ikHelperPtr)
+		{
+			IKTrajectoryHelper* ikHelper = *ikHelperPtr;
+			delete ikHelper;
+		}
+	}
+	m_data->m_inverseKinematicsHelpers.clear();
+}
 void PhysicsServerCommandProcessor::deleteCachedInverseDynamicsBodies()
 {
 	for (int i = 0; i < m_data->m_inverseDynamicsBodies.size(); i++)
@@ -736,7 +750,7 @@ void PhysicsServerCommandProcessor::deleteCachedInverseDynamicsBodies()
 void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 {
 	deleteCachedInverseDynamicsBodies();
-
+	deleteCachedInverseKinematicsBodies();
 
 	for (int i=0;i<m_data->m_multiBodyJointFeedbacks.size();i++)
 	{
@@ -2429,29 +2443,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
                 case CMD_RESET_SIMULATION:
                 {
-					//clean up all data
-					deleteCachedInverseDynamicsBodies();
-
-					if (m_data && m_data->m_guiHelper)
-					{
-						m_data->m_guiHelper->removeAllGraphicsInstances();
-					}
-					if (m_data)
-					{
-						m_data->m_visualConverter.resetAll();
-					}
-
-					deleteDynamicsWorld();
-					createEmptyDynamicsWorld();
-
-					m_data->exitHandles();
-					m_data->initHandles();
+					
+					resetSimulation();
 
 					SharedMemoryStatus& serverCmd =serverStatusOut;
 					serverCmd.m_type = CMD_RESET_SIMULATION_COMPLETED;
 					hasStatus = true;
-					m_data->m_hasGround = false;
-					m_data->m_gripperRigidbodyFixed = 0;
                     break;
                 }
 				case CMD_CREATE_RIGID_BODY:
@@ -3940,6 +3937,12 @@ double gDtInSec = 0.f;
 double gSubStep = 0.f;
 void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 {
+	if (gResetSimulation)
+	{
+		resetSimulation();
+		gResetSimulation = false;
+	}
+
 	if ((gEnableRealTimeSimVR || m_data->m_allowRealTimeSimulation) && m_data->m_guiHelper)
 	{
 		
@@ -3997,7 +4000,30 @@ void PhysicsServerCommandProcessor::applyJointDamping(int bodyUniqueId)
     }
 }
 
+void PhysicsServerCommandProcessor::resetSimulation()
+{
+	//clean up all data
+	deleteCachedInverseDynamicsBodies();
 
+	if (m_data && m_data->m_guiHelper)
+	{
+		m_data->m_guiHelper->removeAllGraphicsInstances();
+	}
+	if (m_data)
+	{
+		m_data->m_visualConverter.resetAll();
+	}
+
+	deleteDynamicsWorld();
+	createEmptyDynamicsWorld();
+
+	m_data->exitHandles();
+	m_data->initHandles();
+
+	m_data->m_hasGround = false;
+	m_data->m_gripperRigidbodyFixed = 0;
+
+}
 //todo: move this to Python/scripting
 void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 {
@@ -4141,7 +4167,7 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 			
 		btTransform objectLocalTr[] = {
 			btTransform(btQuaternion(0, 0, 0, 1), btVector3(0.0, 0.0, 0.0)),
-			btTransform(btQuaternion(0, 0, 0, 1), btVector3(0.0, 0.15, 0.64)),
+			btTransform(btQuaternion(btVector3(0,0,1),-SIMD_HALF_PI), btVector3(0.0, 0.15, 0.64)),
 			btTransform(btQuaternion(0, 0, 0, 1), btVector3(0.1, 0.15, 0.85)),
 			btTransform(btQuaternion(0, 0, 0, 1), btVector3(-0.4, 0.05, 0.85)),
 			btTransform(btQuaternion(0, 0, 0, 1), btVector3(-0.3, -0.05, 0.7)),
@@ -4168,7 +4194,7 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 
 		// Table area
 		loadUrdf("table/table.urdf", objectWorldTr[0].getOrigin(), objectWorldTr[0].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		loadUrdf("tray.urdf", objectWorldTr[1].getOrigin(), objectWorldTr[1].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+		loadUrdf("tray/tray_textured.urdf", objectWorldTr[1].getOrigin(), objectWorldTr[1].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 		//loadUrdf("cup_small.urdf", objectWorldTr[2].getOrigin(), objectWorldTr[2].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 		//loadUrdf("pitcher_small.urdf", objectWorldTr[3].getOrigin(), objectWorldTr[3].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 		loadUrdf("teddy_vhacd.urdf", objectWorldTr[4].getOrigin(), objectWorldTr[4].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
