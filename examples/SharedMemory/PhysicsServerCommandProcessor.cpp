@@ -2338,6 +2338,17 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					{
 						m_data->m_dynamicsWorld->getSolverInfo().m_numIterations = clientCmd.m_physSimParamArgs.m_numSolverIterations;
 					}
+
+					if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_USE_SPLIT_IMPULSE)
+					{
+						m_data->m_dynamicsWorld->getSolverInfo().m_splitImpulse = clientCmd.m_physSimParamArgs.m_useSplitImpulse;
+					}
+					if (clientCmd.m_updateFlags &SIM_PARAM_UPDATE_SPLIT_IMPULSE_PENETRATION_THRESHOLD)
+					{
+						m_data->m_dynamicsWorld->getSolverInfo().m_splitImpulsePenetrationThreshold = clientCmd.m_physSimParamArgs.m_splitImpulsePenetrationThreshold;
+					}
+					
+
                     if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_NUM_SIMULATION_SUB_STEPS)
                     {
                         m_data->m_numSimulationSubSteps = clientCmd.m_physSimParamArgs.m_numSimulationSubSteps;
@@ -2363,27 +2374,50 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					int bodyUniqueId = clientCmd.m_initPoseArgs.m_bodyUniqueId;
 					InteralBodyData* body = m_data->getHandle(bodyUniqueId);
 
+					btVector3 baseLinVel(0, 0, 0);
+					btVector3 baseAngVel(0, 0, 0);
+
+					if (clientCmd.m_updateFlags & INIT_POSE_HAS_BASE_LINEAR_VELOCITY)
+					{
+						baseLinVel.setValue(clientCmd.m_initPoseArgs.m_initialStateQdot[0],
+							clientCmd.m_initPoseArgs.m_initialStateQdot[1],
+							clientCmd.m_initPoseArgs.m_initialStateQdot[2]);
+					}
+					if (clientCmd.m_updateFlags & INIT_POSE_HAS_BASE_ANGULAR_VELOCITY)
+					{
+						baseAngVel.setValue(clientCmd.m_initPoseArgs.m_initialStateQdot[3],
+							clientCmd.m_initPoseArgs.m_initialStateQdot[4],
+							clientCmd.m_initPoseArgs.m_initialStateQdot[5]);
+					}
+					btVector3 basePos(0, 0, 0);
+					if (clientCmd.m_updateFlags & INIT_POSE_HAS_INITIAL_POSITION)
+					{
+						basePos = btVector3(
+							clientCmd.m_initPoseArgs.m_initialStateQ[0],
+							clientCmd.m_initPoseArgs.m_initialStateQ[1],
+							clientCmd.m_initPoseArgs.m_initialStateQ[2]);
+					}
+					btQuaternion baseOrn(0, 0, 0, 1);
+					if (clientCmd.m_updateFlags & INIT_POSE_HAS_INITIAL_ORIENTATION)
+					{
+						baseOrn.setValue(clientCmd.m_initPoseArgs.m_initialStateQ[3],
+							clientCmd.m_initPoseArgs.m_initialStateQ[4],
+							clientCmd.m_initPoseArgs.m_initialStateQ[5],
+							clientCmd.m_initPoseArgs.m_initialStateQ[6]);
+					}
 					if (body && body->m_multiBody)
 					{
 						btMultiBody* mb = body->m_multiBody;
-						btVector3 baseLinVel(0, 0, 0);
-						btVector3 baseAngVel(0, 0, 0);
+						
 
 
 						if (clientCmd.m_updateFlags & INIT_POSE_HAS_BASE_LINEAR_VELOCITY)
 						{
-							baseLinVel.setValue(clientCmd.m_initPoseArgs.m_initialStateQdot[0],
-								clientCmd.m_initPoseArgs.m_initialStateQdot[1],
-								clientCmd.m_initPoseArgs.m_initialStateQdot[2]);
 							mb->setBaseVel(baseLinVel);
-
 						}
 
 						if (clientCmd.m_updateFlags & INIT_POSE_HAS_BASE_ANGULAR_VELOCITY)
 						{
-							baseAngVel.setValue(clientCmd.m_initPoseArgs.m_initialStateQdot[3],
-								clientCmd.m_initPoseArgs.m_initialStateQdot[4],
-								clientCmd.m_initPoseArgs.m_initialStateQdot[5]);
 							mb->setBaseOmega(baseAngVel);
 						}
 
@@ -2396,10 +2430,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                     clientCmd.m_initPoseArgs.m_hasInitialStateQ[2]);
 
 							mb->setBaseVel(baseLinVel);
-							mb->setBasePos(btVector3(
-									clientCmd.m_initPoseArgs.m_initialStateQ[0],
-									clientCmd.m_initPoseArgs.m_initialStateQ[1],
-									clientCmd.m_initPoseArgs.m_initialStateQ[2]));
+							mb->setBasePos(basePos);
 						}
 						if (clientCmd.m_updateFlags & INIT_POSE_HAS_INITIAL_ORIENTATION)
 						{
@@ -2409,10 +2440,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                     clientCmd.m_initPoseArgs.m_hasInitialStateQ[6]);
 
 							mb->setBaseOmega(baseAngVel);
-							btQuaternion invOrn(clientCmd.m_initPoseArgs.m_initialStateQ[3],
-									clientCmd.m_initPoseArgs.m_initialStateQ[4],
-									clientCmd.m_initPoseArgs.m_initialStateQ[5],
-									clientCmd.m_initPoseArgs.m_initialStateQ[6]);
+							btQuaternion invOrn(baseOrn);
 
 							mb->setWorldToBaseRot(invOrn.inverse());
 						}
@@ -2441,6 +2469,31 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                         mb->updateCollisionObjectWorldTransforms(scratch_q,scratch_m);
 
                         
+					}
+
+					if (body && body->m_rigidBody)
+					{
+						if (clientCmd.m_updateFlags & INIT_POSE_HAS_BASE_LINEAR_VELOCITY)
+						{
+							body->m_rigidBody->setLinearVelocity(baseLinVel);
+						}
+						if (clientCmd.m_updateFlags & INIT_POSE_HAS_BASE_ANGULAR_VELOCITY)
+						{
+							body->m_rigidBody->setAngularVelocity(baseAngVel);
+						}
+						
+						if (clientCmd.m_updateFlags & INIT_POSE_HAS_INITIAL_POSITION)
+						{
+							body->m_rigidBody->getWorldTransform().setOrigin(basePos);
+							body->m_rigidBody->setLinearVelocity(baseLinVel);
+						}
+
+						if (clientCmd.m_updateFlags & INIT_POSE_HAS_INITIAL_ORIENTATION)
+						{
+							body->m_rigidBody->getWorldTransform().setRotation(baseOrn);
+							body->m_rigidBody->setAngularVelocity(baseAngVel);
+						}
+
 					}
 
 					SharedMemoryStatus& serverCmd =serverStatusOut;
@@ -3114,11 +3167,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     for (int i = 0; i < clientCmd.m_externalForceArguments.m_numForcesAndTorques; ++i)
                     {
                         InteralBodyData* body = m_data->getHandle(clientCmd.m_externalForceArguments.m_bodyUniqueIds[i]);
+						bool isLinkFrame = ((clientCmd.m_externalForceArguments.m_forceFlags[i] & EF_LINK_FRAME) != 0);
+
                         if (body && body->m_multiBody)
                         {
                             btMultiBody* mb = body->m_multiBody;
-                            bool isLinkFrame = ((clientCmd.m_externalForceArguments.m_forceFlags[i] & EF_LINK_FRAME)!=0);
-
+                         
                             if ((clientCmd.m_externalForceArguments.m_forceFlags[i] & EF_FORCE)!=0)
                             {
                                 btVector3 forceLocal(clientCmd.m_externalForceArguments.m_forcesAndTorques[i*3+0],
@@ -3166,6 +3220,36 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                 }
                             }
                         }
+
+						if (body && body->m_rigidBody)
+						{
+							btRigidBody* rb = body->m_rigidBody;
+							if ((clientCmd.m_externalForceArguments.m_forceFlags[i] & EF_FORCE) != 0)
+							{
+								btVector3 forceLocal(clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 0],
+									clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 1],
+									clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 2]);
+								btVector3 positionLocal(
+									clientCmd.m_externalForceArguments.m_positions[i * 3 + 0],
+									clientCmd.m_externalForceArguments.m_positions[i * 3 + 1],
+									clientCmd.m_externalForceArguments.m_positions[i * 3 + 2]);
+
+								btVector3 forceWorld = isLinkFrame ? forceLocal : rb->getWorldTransform().getBasis()*forceLocal;
+								btVector3 relPosWorld = isLinkFrame ? positionLocal : rb->getWorldTransform().getBasis()*positionLocal;
+								rb->applyForce(forceWorld, relPosWorld);
+
+							}
+
+							if ((clientCmd.m_externalForceArguments.m_forceFlags[i] & EF_TORQUE) != 0)
+							{
+								btVector3 torqueLocal(clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 0],
+									clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 1],
+									clientCmd.m_externalForceArguments.m_forcesAndTorques[i * 3 + 2]);
+
+								btVector3 torqueWorld = isLinkFrame ? torqueLocal : rb->getWorldTransform().getBasis()*torqueLocal;
+								rb->applyTorque(torqueWorld);
+							}
+						}
                     }
 
                     SharedMemoryStatus& serverCmd =serverStatusOut;

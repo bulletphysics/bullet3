@@ -528,19 +528,20 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 
 		if(!isFriction)
 		{
-			if (!infoGlobal.m_splitImpulse || (penetration > infoGlobal.m_splitImpulsePenetrationThreshold))
+		//	if (!infoGlobal.m_splitImpulse || (penetration > infoGlobal.m_splitImpulsePenetrationThreshold))
 			{
 				//combine position and velocity into rhs
 				solverConstraint.m_rhs = penetrationImpulse+velocityImpulse;
 				solverConstraint.m_rhsPenetration = 0.f;
 
-			} else
+			}
+		/*else
 			{
 				//split position and velocity into rhs and m_rhsPenetration
 				solverConstraint.m_rhs = velocityImpulse;
 				solverConstraint.m_rhsPenetration = penetrationImpulse;
 			}
-
+			*/
 			solverConstraint.m_lowerLimit = 0;
 			solverConstraint.m_upperLimit = 1e10f;
 		}

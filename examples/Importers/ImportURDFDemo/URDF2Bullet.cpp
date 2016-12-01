@@ -143,6 +143,34 @@ void InitURDF2BulletCache(const URDFImporterInterface& u2b, URDF2BulletCachedDat
 
 }
 
+void processContactParameters(const URDFLinkContactInfo& contactInfo, btCollisionObject* col)
+{
+	if ((contactInfo.m_flags & URDF_CONTACT_HAS_LATERAL_FRICTION) != 0)
+	{
+		col->setFriction(contactInfo.m_lateralFriction);
+	}
+	if ((contactInfo.m_flags & URDF_CONTACT_HAS_RESTITUTION) != 0)
+	{
+		col->setRestitution(contactInfo.m_restitution);
+	}
+
+	if ((contactInfo.m_flags & URDF_CONTACT_HAS_ROLLING_FRICTION) != 0)
+	{
+		col->setRollingFriction(contactInfo.m_rollingFriction);
+	}
+	if ((contactInfo.m_flags & URDF_CONTACT_HAS_SPINNING_FRICTION) != 0)
+	{
+		col->setSpinningFriction(contactInfo.m_spinningFriction);
+	}
+	if ((contactInfo.m_flags & URDF_CONTACT_HAS_STIFFNESS_DAMPING) != 0)
+	{
+		col->setContactStiffnessAndDamping(contactInfo.m_contactStiffness, contactInfo.m_contactDamping);
+	}
+}
+
+
+
+
 void ConvertURDF2BulletInternal(
     const URDFImporterInterface& u2b, MultiBodyCreationInterface& creation,
     URDF2BulletCachedData& cache, int urdfLinkIndex,
@@ -258,11 +286,18 @@ void ConvertURDF2BulletInternal(
 
             world1->addRigidBody(body);
 
+
             compoundShape->setUserIndex(graphicsIndex);
 
+			URDFLinkContactInfo contactInfo;
+			u2b.getLinkContactInfo(urdfLinkIndex, contactInfo);
+
+			processContactParameters(contactInfo, body);
             creation.createRigidBodyGraphicsInstance(urdfLinkIndex, body, color, graphicsIndex);
             cache.registerRigidBody(urdfLinkIndex, body, inertialFrameInWorldSpace, mass, localInertiaDiagonal, compoundShape, localInertialFrame);
             
+
+
             //untested: u2b.convertLinkVisualShapes2(urdfLinkIndex,pathPrefix,localInertialFrame,body);
         } else
         {
@@ -413,22 +448,7 @@ void ConvertURDF2BulletInternal(
 				URDFLinkContactInfo contactInfo;
 				u2b.getLinkContactInfo(urdfLinkIndex,contactInfo);
 
-				if ((contactInfo.m_flags & URDF_CONTACT_HAS_LATERAL_FRICTION)!=0)
-				{
-					col->setFriction(contactInfo.m_lateralFriction);
-				}
-				if ((contactInfo.m_flags & URDF_CONTACT_HAS_ROLLING_FRICTION)!=0)
-				{
-					col->setRollingFriction(contactInfo.m_rollingFriction);
-				}
-                if ((contactInfo.m_flags & URDF_CONTACT_HAS_SPINNING_FRICTION)!=0)
-                {
-                    col->setSpinningFriction(contactInfo.m_spinningFriction);
-                }
-				if ((contactInfo.m_flags & URDF_CONTACT_HAS_STIFFNESS_DAMPING)!=0)
-				{
-				    col->setContactStiffnessAndDamping(contactInfo.m_contactStiffness,contactInfo.m_contactDamping);
-				}
+				processContactParameters(contactInfo, col);
 
                 if (mbLinkIndex>=0) //???? double-check +/- 1
                 {

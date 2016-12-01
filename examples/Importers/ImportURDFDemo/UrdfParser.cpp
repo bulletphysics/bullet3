@@ -672,6 +672,31 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
                   }
               }
           }
+
+		  {
+			  TiXmlElement *restitution_xml = ci->FirstChildElement("restitution");
+			  if (restitution_xml)
+			  {
+				  if (m_parseSDF)
+				  {
+					  link.m_contactInfo.m_restitution = urdfLexicalCast<double>(restitution_xml->GetText());
+					  link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_RESTITUTION;
+				  }
+				  else
+				  {
+					  if (!restitution_xml->Attribute("value"))
+					  {
+						  logger->reportError("Link/contact: restitution element must have value attribute");
+						  return false;
+					  }
+
+					  link.m_contactInfo.m_restitution = urdfLexicalCast<double>(restitution_xml->Attribute("value"));
+					  link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_RESTITUTION;
+
+				  }
+			  }
+		  }
+
           {
               TiXmlElement *spinning_xml = ci->FirstChildElement("spinning_friction");
               if (spinning_xml)
