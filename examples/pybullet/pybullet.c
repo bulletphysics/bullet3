@@ -419,6 +419,62 @@ static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args)
 	return Py_None;
 }
 
+static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* args, PyObject *keywds)
+{
+	double fixedTimeStep = -1;
+	int numSolverIterations = -1;
+	int useSplitImpulse = -1;
+	double splitImpulsePenetrationThreshold = -1;
+
+	if (0 == sm) {
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	static char *kwlist[] = { "fixedTimeStep", "numSolverIterations","useSplitImpulse","splitImpulsePenetrationThreshold", NULL };
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diid", kwlist,&fixedTimeStep,&numSolverIterations,&useSplitImpulse,&splitImpulsePenetrationThreshold))
+	{
+		return NULL;
+	}
+	{
+		b3SharedMemoryCommandHandle command = b3InitPhysicsParamCommand(sm);
+		b3SharedMemoryStatusHandle statusHandle;
+
+		if (numSolverIterations >= 0)
+		{
+			b3PhysicsParamSetNumSolverIterations(command, numSolverIterations);
+		}
+		if (fixedTimeStep >= 0)
+		{
+			b3PhysicsParamSetTimeStep(command, fixedTimeStep);
+		}
+		if (useSplitImpulse >= 0)
+		{
+			b3PhysicsParamSetUseSplitImpulse(command,useSplitImpulse);
+		}
+		if (splitImpulsePenetrationThreshold >= 0)
+		{
+			b3PhysicsParamSetSplitImpulsePenetrationThreshold(command, splitImpulsePenetrationThreshold);
+		}
+
+		//ret = b3PhysicsParamSetRealTimeSimulation(command, enableRealTimeSimulation);
+
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	}
+#if 0
+	b3SharedMemoryCommandHandle	b3InitPhysicsParamCommand(b3PhysicsClientHandle physClient);
+	int	b3PhysicsParamSetGravity(b3SharedMemoryCommandHandle commandHandle, double gravx, double gravy, double gravz);
+	int	b3PhysicsParamSetTimeStep(b3SharedMemoryCommandHandle commandHandle, double timeStep);
+	int	b3PhysicsParamSetDefaultContactERP(b3SharedMemoryCommandHandle commandHandle, double defaultContactERP);
+	int	b3PhysicsParamSetNumSubSteps(b3SharedMemoryCommandHandle commandHandle, int numSubSteps);
+	int b3PhysicsParamSetRealTimeSimulation(b3SharedMemoryCommandHandle commandHandle, int enableRealTimeSimulation);
+	int b3PhysicsParamSetNumSolverIterations(b3SharedMemoryCommandHandle commandHandle, int numSolverIterations);
+#endif
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
 
 
 // Load a robot from a URDF file (universal robot description format)
@@ -426,8 +482,14 @@ static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args)
 // to position (0,0,1) with orientation(0,0,0,1)
 // els(x,y,z) or
 // loadURDF(pos_x, pos_y, pos_z, orn_x, orn_y, orn_z, orn_w)
-static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args) {
+static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args, PyObject *keywds) 
+{
   int size = PySequence_Size(args);
+  static char *kwlist[] = { "fileName", "basePosition", "baseOrientation", "useMaximalCoordinates","useFixedBase", NULL };
+
+  static char *kwlistBackwardCompatible4[] = { "startPosX", "startPosY", "startPosZ", NULL };
+  static char *kwlistBackwardCompatible8[] = { "startPosX", "startPosY", "startPosZ", "startOrnX", "startOrnY","startOrnZ","startOrnW", NULL };
+
 
   int bodyIndex = -1;
   const char* urdfFileName = "";
@@ -439,24 +501,79 @@ static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args) {
   double startOrnY = 0.0;
   double startOrnZ = 0.0;
   double startOrnW = 1.0;
+  int useMaximalCoordinates = 0;
+  int useFixedBase = 0;
+
+  int backwardsCompatibilityArgs = 0;
 
   if (0 == sm) {
     PyErr_SetString(SpamError, "Not connected to physics server.");
     return NULL;
   }
-  if (size == 1) {
-    if (!PyArg_ParseTuple(args, "s", &urdfFileName)) return NULL;
+
+  if (PyArg_ParseTupleAndKeywords(args, keywds, "sddd", kwlistBackwardCompatible4, &urdfFileName, &startPosX,
+	  &startPosY, &startPosZ))
+  {
+	  backwardsCompatibilityArgs = 1;
   }
-  if (size == 4) {
-    if (!PyArg_ParseTuple(args, "sddd", &urdfFileName, &startPosX, &startPosY,
-                          &startPosZ))
-      return NULL;
+  else
+  {
+	  PyErr_Clear();
   }
-  if (size == 8) {
-    if (!PyArg_ParseTuple(args, "sddddddd", &urdfFileName, &startPosX,
-                          &startPosY, &startPosZ, &startOrnX, &startOrnY,
-                          &startOrnZ, &startOrnW))
-      return NULL;
+
+
+  if (PyArg_ParseTupleAndKeywords(args, keywds, "sddddddd", kwlistBackwardCompatible8,&urdfFileName, &startPosX,
+	  &startPosY, &startPosZ, &startOrnX, &startOrnY,&startOrnZ, &startOrnW))
+  {
+	  backwardsCompatibilityArgs = 1;
+  }
+  else
+  {
+	  PyErr_Clear();
+  }
+
+  
+
+  if (!backwardsCompatibilityArgs)
+  {
+	  PyObject* basePosObj = 0;
+	  PyObject* baseOrnObj = 0;
+	  double basePos[3];
+	  double baseOrn[4];
+
+
+	  if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|OOii", kwlist, &urdfFileName, &basePosObj, &baseOrnObj, &useMaximalCoordinates,&useFixedBase))
+	  {
+
+		  return NULL;
+	  }
+	  else
+	  {
+		  if (basePosObj)
+		  {
+			  if (!pybullet_internalSetVectord(basePosObj, basePos))
+			  {
+				  PyErr_SetString(SpamError, "Cannot convert basePosition.");
+				  return NULL;
+			  }
+			  startPosX = basePos[0];
+			  startPosY = basePos[1];
+			  startPosZ = basePos[2];
+
+		  }
+		  if (baseOrnObj)
+		  {
+			  if (!pybullet_internalSetVector4d(baseOrnObj, baseOrn))
+			  {
+				  PyErr_SetString(SpamError, "Cannot convert baseOrientation.");
+				  return NULL;
+			  }
+			  startOrnX = baseOrn[0];
+			  startOrnY = baseOrn[1];
+			  startOrnZ = baseOrn[2];
+			  startOrnW = baseOrn[3];
+		  }
+	  }
   }
 
   if (strlen(urdfFileName)) {
@@ -473,6 +590,15 @@ static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args) {
     b3LoadUrdfCommandSetStartPosition(command, startPosX, startPosY, startPosZ);
     b3LoadUrdfCommandSetStartOrientation(command, startOrnX, startOrnY,
                                          startOrnZ, startOrnW);
+	if (useMaximalCoordinates)
+	{
+		b3LoadUrdfCommandSetUseMultiBody(command, 0);
+	}
+	if (useFixedBase)
+	{
+		b3LoadUrdfCommandSetUseFixedBase(command, 1);
+	}
+
     statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
     statusType = b3GetStatusType(statusHandle);
     if (statusType != CMD_URDF_LOADING_COMPLETED) {
@@ -3483,6 +3609,8 @@ static PyMethodDef SpamMethods[] = {
      "Set the amount of time to proceed at each call to stepSimulation. (unit "
      "is seconds, typically range is 0.01 or 0.001)"},
 
+
+
 	{"setDefaultContactERP",  pybullet_setDefaultContactERP, METH_VARARGS,
         "Set the amount of contact penetration Error Recovery Paramater "
         "(ERP) in each time step. \
@@ -3493,10 +3621,13 @@ static PyMethodDef SpamMethods[] = {
 	"Enable or disable real time simulation (using the real time clock,"
 	" RTC) in the physics server. Expects one integer argument, 0 or 1" },
 
+	{ "setPhysicsEngineParameter", (PyCFunction)pybullet_setPhysicsEngineParameter, METH_VARARGS | METH_KEYWORDS,
+	"Set some internal physics engine parameter, such as cfm or erp etc." },
+
 	{ "setInternalSimFlags", pybullet_setInternalSimFlags, METH_VARARGS,
 	"This is for experimental purposes, use at own risk, magic may or not happen"},
 	
-    {"loadURDF", pybullet_loadURDF, METH_VARARGS,
+    {"loadURDF", (PyCFunction) pybullet_loadURDF, METH_VARARGS | METH_KEYWORDS,
      "Create a multibody by loading a URDF file."},
 
     {"loadSDF", pybullet_loadSDF, METH_VARARGS,

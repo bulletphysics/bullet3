@@ -163,6 +163,9 @@ int	b3PhysicsParamSetDefaultContactERP(b3SharedMemoryCommandHandle commandHandle
 int	b3PhysicsParamSetNumSubSteps(b3SharedMemoryCommandHandle commandHandle, int numSubSteps);
 int b3PhysicsParamSetRealTimeSimulation(b3SharedMemoryCommandHandle commandHandle, int enableRealTimeSimulation);
 int b3PhysicsParamSetNumSolverIterations(b3SharedMemoryCommandHandle commandHandle, int numSolverIterations);
+int b3PhysicsParamSetUseSplitImpulse(b3SharedMemoryCommandHandle commandHandle, int useSplitImpulse);
+int b3PhysicsParamSetSplitImpulsePenetrationThreshold(b3SharedMemoryCommandHandle commandHandle, double splitImpulsePenetrationThreshold);
+
 
 //b3PhysicsParamSetInternalSimFlags is for internal/temporary/easter-egg/experimental demo purposes
 //Use at own risk: magic things may or my not happen when calling this API
