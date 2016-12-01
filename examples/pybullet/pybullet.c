@@ -487,8 +487,8 @@ static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args, PyObject *key
   int size = PySequence_Size(args);
   static char *kwlist[] = { "fileName", "basePosition", "baseOrientation", "useMaximalCoordinates","useFixedBase", NULL };
 
-  static char *kwlistBackwardCompatible4[] = { "startPosX", "startPosY", "startPosZ", NULL };
-  static char *kwlistBackwardCompatible8[] = { "startPosX", "startPosY", "startPosZ", "startOrnX", "startOrnY","startOrnZ","startOrnW", NULL };
+  static char *kwlistBackwardCompatible4[] = { "fileName", "startPosX", "startPosY", "startPosZ", NULL };
+  static char *kwlistBackwardCompatible8[] = { "fileName", "startPosX", "startPosY", "startPosZ", "startOrnX", "startOrnY","startOrnZ","startOrnW", NULL };
 
 
   int bodyIndex = -1;
