@@ -425,15 +425,16 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 	int numSolverIterations = -1;
 	int useSplitImpulse = -1;
 	double splitImpulsePenetrationThreshold = -1;
+	int numSubSteps = -1;
 
 	if (0 == sm) {
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
 
-	static char *kwlist[] = { "fixedTimeStep", "numSolverIterations","useSplitImpulse","splitImpulsePenetrationThreshold", NULL };
+	static char *kwlist[] = { "fixedTimeStep", "numSolverIterations","useSplitImpulse","splitImpulsePenetrationThreshold","numSubSteps", NULL };
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diid", kwlist,&fixedTimeStep,&numSolverIterations,&useSplitImpulse,&splitImpulsePenetrationThreshold))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidi", kwlist,&fixedTimeStep,&numSolverIterations,&useSplitImpulse,&splitImpulsePenetrationThreshold,&numSubSteps))
 	{
 		return NULL;
 	}
@@ -457,6 +458,10 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 		{
 			b3PhysicsParamSetSplitImpulsePenetrationThreshold(command, splitImpulsePenetrationThreshold);
 		}
+		if (numSubSteps>=0)
+			{
+				b3PhysicsParamSetNumSubSteps(command,numSubSteps);
+			}
 
 		//ret = b3PhysicsParamSetRealTimeSimulation(command, enableRealTimeSimulation);
 
