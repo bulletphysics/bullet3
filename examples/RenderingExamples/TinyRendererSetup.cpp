@@ -190,7 +190,7 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 				TinyRenderObjectData* ob = new TinyRenderObjectData(
 					m_internalData->m_rgbColorBuffer,
 					m_internalData->m_depthBuffer,
-                    m_internalData->m_shadowBuffer,
+                    &m_internalData->m_shadowBuffer,
 					&m_internalData->m_segmentationMaskBuffer,
 					m_internalData->m_renderObjects.size());
                 
