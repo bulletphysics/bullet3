@@ -855,7 +855,7 @@ void CMainApplication::RenderFrame()
 	// SwapWindow
 	{
 		B3_PROFILE("m_app->swapBuffer");
-//		m_app->swapBuffer();
+		m_app->swapBuffer();
 		//SDL_GL_SwapWindow( m_pWindow );
 		
 	}
