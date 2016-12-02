@@ -287,7 +287,9 @@ enum EnumSimParamUpdateFlags
 	SIM_PARAM_UPDATE_NUM_SIMULATION_SUB_STEPS=8,
 	SIM_PARAM_UPDATE_REAL_TIME_SIMULATION = 16,
 	SIM_PARAM_UPDATE_DEFAULT_CONTACT_ERP=32,
-	SIM_PARAM_UPDATE_INTERNAL_SIMULATION_FLAGS=64
+	SIM_PARAM_UPDATE_INTERNAL_SIMULATION_FLAGS=64,
+	SIM_PARAM_UPDATE_USE_SPLIT_IMPULSE=128,
+	SIM_PARAM_UPDATE_SPLIT_IMPULSE_PENETRATION_THRESHOLD = 256,
 };
 
 enum EnumLoadBunnyUpdateFlags
@@ -312,6 +314,8 @@ struct SendPhysicsSimulationParameters
 	int m_numSimulationSubSteps;
 	int m_numSolverIterations;
 	bool m_allowRealTimeSimulation;
+	int m_useSplitImpulse;
+	double m_splitImpulsePenetrationThreshold;
 	int m_internalSimFlags;
 	double m_defaultContactERP;
 };

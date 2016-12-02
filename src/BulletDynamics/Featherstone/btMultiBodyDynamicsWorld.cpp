@@ -384,7 +384,7 @@ btMultiBodyDynamicsWorld::btMultiBodyDynamicsWorld(btDispatcher* dispatcher,btBr
 	m_multiBodyConstraintSolver(constraintSolver)
 {
 	//split impulse is not yet supported for Featherstone hierarchies
-	getSolverInfo().m_splitImpulse = false;
+//	getSolverInfo().m_splitImpulse = false;
 	getSolverInfo().m_solverMode |=SOLVER_USE_2_FRICTION_DIRECTIONS;
 	m_solverMultiBodyIslandCallback = new MultiBodyInplaceSolverIslandCallback(constraintSolver,dispatcher);
 }
