@@ -568,7 +568,7 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(int linkIndex, const 
 
             if (vertices.size() && indices.size())
             {
-                TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_rgbColorBuffer,m_data->m_depthBuffer, m_data->m_shadowBuffer, &m_data->m_segmentationMaskBuffer, bodyUniqueId);
+                TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_rgbColorBuffer,m_data->m_depthBuffer, &m_data->m_shadowBuffer, &m_data->m_segmentationMaskBuffer, bodyUniqueId);
 				unsigned char* textureImage=0;
 				int textureWidth=0;
 				int textureHeight=0;
