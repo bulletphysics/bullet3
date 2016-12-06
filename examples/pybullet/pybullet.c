@@ -2582,7 +2582,7 @@ static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args, Py
 
 
 /// Render an image from the current timestep of the simulation, width, height are required, other args are optional
-// getCameraImage(w, h, view[16], projection[16], lightDir[3], lightColor[3], lightDist, hasShadow)
+// getCameraImage(w, h, view[16], projection[16], lightDir[3], lightColor[3], lightDist, hasShadow, lightAmbientCoeff, lightDiffuseCoeff, lightSpecularCoeff)
 static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObject *keywds)
 {
 	/// request an image from a simulated camera, using a software renderer.
@@ -2596,6 +2596,9 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
     float lightColor[3];
     float lightDist = 10.0;
     int hasShadow = 0;
+    float lightAmbientCoeff = 0.6;
+    float lightDiffuseCoeff = 0.35;
+    float lightSpecularCoeff = 0.05;
 	// inialize cmd
 	b3SharedMemoryCommandHandle command;
 
@@ -2608,9 +2611,9 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 	command = b3InitRequestCameraImage(sm);
 
 	// set camera resolution, optionally view, projection matrix, light direction, light color, light distance, shadow
-	static char *kwlist[] = { "width", "height", "viewMatrix", "projectionMatrix", "lightDirection", "lightColor", "lightDistance", "shadow", NULL };
+	static char *kwlist[] = { "width", "height", "viewMatrix", "projectionMatrix", "lightDirection", "lightColor", "lightDistance", "shadow", "lightAmbientCoeff", "lightDiffuseCoeff", "lightSpecularCoeff", NULL };
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|OOOOfi", kwlist, &width, &height, &objViewMat, &objProjMat, &lightDirObj, &lightColorObj, &lightDist, &hasShadow))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|OOOOfifff", kwlist, &width, &height, &objViewMat, &objProjMat, &lightDirObj, &lightColorObj, &lightDist, &hasShadow, &lightAmbientCoeff, &lightDiffuseCoeff, &lightSpecularCoeff))
 	{
 		return NULL;
 	}
@@ -2635,6 +2638,10 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
     b3RequestCameraImageSetLightDistance(command, lightDist);
     
     b3RequestCameraImageSetShadow(command, hasShadow);
+    
+    b3RequestCameraImageSetLightAmbientCoeff(command, lightAmbientCoeff);
+    b3RequestCameraImageSetLightDiffuseCoeff(command, lightDiffuseCoeff);
+    b3RequestCameraImageSetLightSpecularCoeff(command, lightSpecularCoeff);
 
 	if (b3CanSubmitCommand(sm))
 	{
@@ -3730,7 +3737,7 @@ static PyMethodDef SpamMethods[] = {
 
 	 { "getCameraImage",(PyCFunction)pybullet_getCameraImage, METH_VARARGS| METH_KEYWORDS,
 			"Render an image (given the pixel resolution width, height, camera viewMatrix "
-			", projectionMatrix, lightDirection, lightColor, lightDistance, and shadow), and return the "
+			", projectionMatrix, lightDirection, lightColor, lightDistance, shadow, lightAmbientCoeff, lightDiffuseCoeff, and lightSpecularCoeff), and return the "
 			"8-8-8bit RGB pixel data and floating point depth values"
 #ifdef PYBULLET_USE_NUMPY
 			" as NumPy arrays"
