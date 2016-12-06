@@ -145,6 +145,9 @@ struct RequestPixelDataArgs
 	float m_lightDirection[3];
     float m_lightColor[3];
     float m_lightDistance;
+    float m_lightAmbientCoeff;
+    float m_lightDiffuseCoeff;
+    float m_lightSpecularCoeff;
     int m_hasShadow;
 };
 
@@ -156,6 +159,9 @@ enum EnumRequestPixelDataUpdateFlags
     REQUEST_PIXEL_ARGS_SET_LIGHT_COLOR=8,
     REQUEST_PIXEL_ARGS_SET_LIGHT_DISTANCE=16,
     REQUEST_PIXEL_ARGS_SET_SHADOW=32,
+    REQUEST_PIXEL_ARGS_SET_AMBIENT_COEFF=64,
+    REQUEST_PIXEL_ARGS_SET_DIFFUSE_COEFF=128,
+    REQUEST_PIXEL_ARGS_SET_SPECULAR_COEFF=256,
 	//don't exceed (1<<15), because this enum is shared with EnumRenderer in SharedMemoryPublic.h
 	
 };

@@ -66,13 +66,15 @@ struct Shader : public IShader {
     Vec3f m_light_color;
     Matrix& m_modelMat;
     Matrix m_invModelMat;
-    
     Matrix& m_modelView1;
     Matrix& m_projectionMat;
     Vec3f m_localScaling;
     Matrix& m_lightModelView;
     Vec4f m_colorRGBA;
     Matrix& m_viewportMat;
+    float m_ambient_coefficient;
+    float m_diffuse_coefficient;
+    float m_specular_coefficient;
     
     b3AlignedObjectArray<float>* m_shadowBuffer;
     
@@ -86,10 +88,13 @@ struct Shader : public IShader {
     mat<4,3,float> varying_tri_light_view;
     mat<3,3,float> varying_nrm; // normal per vertex to be interpolated by FS
     
-    Shader(Model* model, Vec3f light_dir_local, Vec3f light_color, Matrix& modelView, Matrix& lightModelView, Matrix& projectionMat, Matrix& modelMat, Matrix& viewportMat, Vec3f localScaling, const Vec4f& colorRGBA, int width, int height, b3AlignedObjectArray<float>* shadowBuffer)
+    Shader(Model* model, Vec3f light_dir_local, Vec3f light_color, Matrix& modelView, Matrix& lightModelView, Matrix& projectionMat, Matrix& modelMat, Matrix& viewportMat, Vec3f localScaling, const Vec4f& colorRGBA, int width, int height, b3AlignedObjectArray<float>* shadowBuffer, float ambient_coefficient=0.6, float diffuse_coefficient=0.35, float specular_coefficient=0.05)
     :m_model(model),
     m_light_dir_local(light_dir_local),
     m_light_color(light_color),
+    m_ambient_coefficient(ambient_coefficient),
+    m_diffuse_coefficient(diffuse_coefficient),
+    m_specular_coefficient(specular_coefficient),
     m_modelView1(modelView),
     m_lightModelView(lightModelView),
     m_projectionMat(projectionMat),
@@ -135,11 +140,10 @@ struct Shader : public IShader {
         float specular = pow(b3Max(reflection_direction.z, 0.f), m_model->specular(uv));
         float diffuse = b3Max(0.f, bn * m_light_dir_local);
         
-        float ambient_coefficient = 0.6;
-        float diffuse_coefficient = 0.35;
-        float specular_coefficient = 0.05;
+        Vec3f light_coeff = Vec3f(m_ambient_coefficient, m_diffuse_coefficient, m_specular_coefficient);
+        light_coeff = light_coeff/(light_coeff[0]+light_coeff[1]+light_coeff[2]);
         
-        float intensity = ambient_coefficient + b3Min(diffuse * diffuse_coefficient + specular * specular_coefficient, 1.0f - ambient_coefficient);
+        float intensity = light_coeff[0] + b3Min(diffuse * light_coeff[1] + specular * light_coeff[2], 1.0f - light_coeff[0]);
         
         color = m_model->diffuse(uv) * intensity * shadow;
         
@@ -175,6 +179,9 @@ m_objectIndex(-1)
     m_lightColor.setValue(1, 1, 1);
     m_localScaling.setValue(1,1,1);
     m_modelMatrix = Matrix::identity();
+    m_lightAmbientCoeff = 0.6;
+    m_lightDiffuseCoeff = 0.35;
+    m_lightSpecularCoeff = 0.05;
     
 }
 
@@ -195,6 +202,9 @@ m_objectIndex(objectIndex)
     m_lightColor.setValue(1, 1, 1);
     m_localScaling.setValue(1,1,1);
     m_modelMatrix = Matrix::identity();
+    m_lightAmbientCoeff = 0.6;
+    m_lightDiffuseCoeff = 0.35;
+    m_lightSpecularCoeff = 0.05;
     
 }
 
@@ -214,6 +224,9 @@ m_objectIndex(-1)
 	m_lightColor.setValue(1, 1, 1);
 	m_localScaling.setValue(1,1,1);
     m_modelMatrix = Matrix::identity();
+    m_lightAmbientCoeff = 0.6;
+    m_lightDiffuseCoeff = 0.35;
+    m_lightSpecularCoeff = 0.05;
  
 }
 
@@ -233,6 +246,9 @@ m_objectIndex(objectIndex)
 	m_lightColor.setValue(1, 1, 1);
 	m_localScaling.setValue(1,1,1);
     m_modelMatrix = Matrix::identity();
+    m_lightAmbientCoeff = 0.6;
+    m_lightDiffuseCoeff = 0.35;
+    m_lightSpecularCoeff = 0.05;
  
 }
 
@@ -429,7 +445,7 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
         Matrix modelViewMatrix = renderData.m_viewMatrix*renderData.m_modelMatrix;
         Vec3f localScaling(renderData.m_localScaling[0],renderData.m_localScaling[1],renderData.m_localScaling[2]);
         
-        Shader shader(model, light_dir_local, light_color, modelViewMatrix, lightModelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, renderData.m_viewportMatrix, localScaling, model->getColorRGBA(), width, height, shadowBufferPtr);
+        Shader shader(model, light_dir_local, light_color, modelViewMatrix, lightModelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, renderData.m_viewportMatrix, localScaling, model->getColorRGBA(), width, height, shadowBufferPtr, renderData.m_lightAmbientCoeff, renderData.m_lightDiffuseCoeff, renderData.m_lightSpecularCoeff);
         
         for (int i=0; i<model->nfaces(); i++)
         {
