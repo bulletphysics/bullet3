@@ -140,22 +140,16 @@ struct Shader : public IShader {
         float specular = pow(b3Max(reflection_direction.z, 0.f), m_model->specular(uv));
         float diffuse = b3Max(0.f, bn * m_light_dir_local);
         
-        Vec3f light_coeff = Vec3f(m_ambient_coefficient, m_diffuse_coefficient, m_specular_coefficient);
-        light_coeff = light_coeff/(light_coeff[0]+light_coeff[1]+light_coeff[2]);
+        color = TGAColor(255,255,255,255);
+        color[0] *= m_colorRGBA[0];
+        color[1] *= m_colorRGBA[1];
+        color[2] *= m_colorRGBA[2];
+        color[3] *= m_colorRGBA[3];
         
-        float intensity = light_coeff[0] + b3Min(diffuse * light_coeff[1] + specular * light_coeff[2], 1.0f - light_coeff[0]);
-        
-        color = m_model->diffuse(uv) * intensity * shadow;
-        
-        //warning: bgra color is swapped to rgba to upload texture
-        color.bgra[0] *= m_colorRGBA[0];
-        color.bgra[1] *= m_colorRGBA[1];
-        color.bgra[2] *= m_colorRGBA[2];
-        color.bgra[3] *= m_colorRGBA[3];
-        
-        color.bgra[0] *= m_light_color[0];
-        color.bgra[1] *= m_light_color[1];
-        color.bgra[2] *= m_light_color[2];
+        for (int i = 0; i < 3; ++i)
+        {
+            color[i] = std::min<float>(m_ambient_coefficient*color[i] + shadow*(m_diffuse_coefficient*diffuse+m_specular_coefficient*specular)*color[i]*m_light_color[i], 255);
+        }
         
         return false;
 
