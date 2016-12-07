@@ -148,7 +148,7 @@ struct Shader : public IShader {
         
         for (int i = 0; i < 3; ++i)
         {
-            color[i] = std::min<float>(m_ambient_coefficient*color[i] + shadow*(m_diffuse_coefficient*diffuse+m_specular_coefficient*specular)*color[i]*m_light_color[i], 255);
+            color[i] = b3Min(int(m_ambient_coefficient*color[i] + shadow*(m_diffuse_coefficient*diffuse+m_specular_coefficient*specular)*color[i]*m_light_color[i]), 255);
         }
         
         return false;
