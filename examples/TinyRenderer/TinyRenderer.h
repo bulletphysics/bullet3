@@ -20,6 +20,9 @@ struct TinyRenderObjectData
 	btVector3 m_lightDirWorld;
     btVector3 m_lightColor;
     float m_lightDistance;
+    float m_lightAmbientCoeff;
+    float m_lightDiffuseCoeff;
+    float m_lightSpecularCoeff;
 	
     //Model (vertices, indices, textures, shader)
     Matrix m_modelMatrix;

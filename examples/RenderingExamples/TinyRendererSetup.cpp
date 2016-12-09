@@ -376,7 +376,9 @@ void TinyRendererSetup::stepSimulation(float deltaTime)
                     m_internalData->m_renderObjects[o]->m_lightColor = lightColor;
                     
                     m_internalData->m_renderObjects[o]->m_lightDistance = 10.0;
-                    
+                    m_internalData->m_renderObjects[o]->m_lightAmbientCoeff = 0.6;
+                    m_internalData->m_renderObjects[o]->m_lightDiffuseCoeff = 0.35;
+                    m_internalData->m_renderObjects[o]->m_lightSpecularCoeff = 0.05;
                 }
             }
             TinyRenderer::renderObjectDepth(*m_internalData->m_renderObjects[o]);
@@ -415,6 +417,9 @@ void TinyRendererSetup::stepSimulation(float deltaTime)
                     m_internalData->m_renderObjects[o]->m_lightColor = lightColor;
                     
                     m_internalData->m_renderObjects[o]->m_lightDistance = 10.0;
+                    m_internalData->m_renderObjects[o]->m_lightAmbientCoeff = 0.6;
+                    m_internalData->m_renderObjects[o]->m_lightDiffuseCoeff = 0.35;
+                    m_internalData->m_renderObjects[o]->m_lightSpecularCoeff = 0.05;
 					
                 }
             }

@@ -1449,6 +1449,21 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                 {
                                     m_data->m_visualConverter.setShadow(clientCmd.m_requestPixelDataArguments.m_hasShadow);
                                 }
+                                
+                                if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_AMBIENT_COEFF) != 0)
+                                {
+                                    m_data->m_visualConverter.setLightAmbientCoeff(clientCmd.m_requestPixelDataArguments.m_lightAmbientCoeff);
+                                }
+                                
+                                if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_DIFFUSE_COEFF) != 0)
+                                {
+                                    m_data->m_visualConverter.setLightDiffuseCoeff(clientCmd.m_requestPixelDataArguments.m_lightDiffuseCoeff);
+                                }
+                                
+                                if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_SPECULAR_COEFF) != 0)
+                                {
+                                    m_data->m_visualConverter.setLightSpecularCoeff(clientCmd.m_requestPixelDataArguments.m_lightSpecularCoeff);
+                                }
 
                                 if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES)!=0)
                                 {

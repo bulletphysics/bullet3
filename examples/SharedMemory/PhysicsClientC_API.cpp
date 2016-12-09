@@ -1361,6 +1361,33 @@ void b3RequestCameraImageSetLightDistance(b3SharedMemoryCommandHandle commandHan
     command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_LIGHT_DISTANCE;
 }
 
+void b3RequestCameraImageSetLightAmbientCoeff(b3SharedMemoryCommandHandle commandHandle, float lightAmbientCoeff)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
+    command->m_requestPixelDataArguments.m_lightAmbientCoeff = lightAmbientCoeff;
+    command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_AMBIENT_COEFF;
+}
+
+void b3RequestCameraImageSetLightDiffuseCoeff(b3SharedMemoryCommandHandle commandHandle, float lightDiffuseCoeff)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
+    command->m_requestPixelDataArguments.m_lightDiffuseCoeff = lightDiffuseCoeff;
+    command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_DIFFUSE_COEFF;
+}
+
+void b3RequestCameraImageSetLightSpecularCoeff(b3SharedMemoryCommandHandle commandHandle, float lightSpecularCoeff)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
+    command->m_requestPixelDataArguments.m_lightSpecularCoeff = lightSpecularCoeff;
+    command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_SPECULAR_COEFF;
+}
+
 void b3RequestCameraImageSetShadow(b3SharedMemoryCommandHandle commandHandle, int hasShadow)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;

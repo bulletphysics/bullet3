@@ -230,10 +230,13 @@ struct TinyRendererGUIHelper : public GUIHelperInterface
 								renderObj->m_projectionMatrix[i][j] = projMat[i+4*j];
 								renderObj->m_modelMatrix[i][j] = modelMat[i+4*j];
 								renderObj->m_viewMatrix[i][j] = viewMat[i+4*j];
-								renderObj->m_localScaling = colObj->getCollisionShape()->getLocalScaling();
-								renderObj->m_lightDirWorld = lightDirWorld;
 							}
 						}
+                        renderObj->m_localScaling = colObj->getCollisionShape()->getLocalScaling();
+                        renderObj->m_lightDirWorld = lightDirWorld;
+                        renderObj->m_lightAmbientCoeff = 0.6;
+                        renderObj->m_lightDiffuseCoeff = 0.35;
+                        renderObj->m_lightSpecularCoeff = 0.05;
 						TinyRenderer::renderObject(*renderObj);
 					}
 				}

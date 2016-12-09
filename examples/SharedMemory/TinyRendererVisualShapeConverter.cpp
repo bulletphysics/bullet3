@@ -79,6 +79,12 @@ struct TinyRendererVisualShapeConverterInternalData
     bool m_hasLightColor;
     float m_lightDistance;
     bool m_hasLightDistance;
+    float m_lightAmbientCoeff;
+    bool m_hasLightAmbientCoeff;
+    float m_lightDiffuseCoeff;
+    bool m_hasLightDiffuseCoeff;
+    float m_lightSpecularCoeff;
+    bool m_hasLightSpecularCoeff;
     bool m_hasShadow;
 	SimpleCamera m_camera;
 	
@@ -140,6 +146,24 @@ void TinyRendererVisualShapeConverter::setLightDistance(float dist)
 void TinyRendererVisualShapeConverter::setShadow(bool hasShadow)
 {
     m_data->m_hasShadow = hasShadow;
+}
+
+void TinyRendererVisualShapeConverter::setLightAmbientCoeff(float ambientCoeff)
+{
+    m_data->m_lightAmbientCoeff = ambientCoeff;
+    m_data->m_hasLightAmbientCoeff = true;
+}
+
+void TinyRendererVisualShapeConverter::setLightDiffuseCoeff(float diffuseCoeff)
+{
+    m_data->m_lightDiffuseCoeff = diffuseCoeff;
+    m_data->m_hasLightDiffuseCoeff = true;
+}
+
+void TinyRendererVisualShapeConverter::setLightSpecularCoeff(float specularCoeff)
+{
+    m_data->m_lightSpecularCoeff = specularCoeff;
+    m_data->m_hasLightSpecularCoeff = true;
 }
 
 void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture2>& texturesOut, b3VisualShapeData& visualShapeOut)
@@ -738,7 +762,25 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
     float lightDistance = 2.0;
     if (m_data->m_hasLightDistance)
     {
-        lightDistance = m_data->m_hasLightDistance;
+        lightDistance = m_data->m_lightDistance;
+    }
+    
+    float lightAmbientCoeff = 0.6;
+    if (m_data->m_hasLightAmbientCoeff)
+    {
+        lightAmbientCoeff = m_data->m_lightAmbientCoeff;
+    }
+    
+    float lightDiffuseCoeff = 0.35;
+    if (m_data->m_hasLightDiffuseCoeff)
+    {
+        lightDiffuseCoeff = m_data->m_lightDiffuseCoeff;
+    }
+    
+    float lightSpecularCoeff = 0.05;
+    if (m_data->m_hasLightSpecularCoeff)
+    {
+        lightSpecularCoeff = m_data->m_lightSpecularCoeff;
     }
     
     if (m_data->m_hasShadow)
@@ -779,6 +821,9 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
                 renderObj->m_lightDirWorld = lightDirWorld;
                 renderObj->m_lightColor = lightColor;
                 renderObj->m_lightDistance = lightDistance;
+                renderObj->m_lightAmbientCoeff = lightAmbientCoeff;
+                renderObj->m_lightDiffuseCoeff = lightDiffuseCoeff;
+                renderObj->m_lightSpecularCoeff = lightSpecularCoeff;
                 TinyRenderer::renderObjectDepth(*renderObj);
             }
         }
@@ -820,6 +865,9 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
             renderObj->m_lightDirWorld = lightDirWorld;
             renderObj->m_lightColor = lightColor;
             renderObj->m_lightDistance = lightDistance;
+            renderObj->m_lightAmbientCoeff = lightAmbientCoeff;
+            renderObj->m_lightDiffuseCoeff = lightDiffuseCoeff;
+            renderObj->m_lightSpecularCoeff = lightSpecularCoeff;
             TinyRenderer::renderObject(*renderObj);
         }
     }
