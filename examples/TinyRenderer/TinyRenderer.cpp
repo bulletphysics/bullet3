@@ -140,7 +140,7 @@ struct Shader : public IShader {
         float specular = pow(b3Max(reflection_direction.z, 0.f), m_model->specular(uv));
         float diffuse = b3Max(0.f, bn * m_light_dir_local);
         
-        color = TGAColor(255,255,255,255);
+        color = m_model->diffuse(uv);
         color[0] *= m_colorRGBA[0];
         color[1] *= m_colorRGBA[1];
         color[2] *= m_colorRGBA[2];
