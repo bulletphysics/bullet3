@@ -48,7 +48,7 @@ int gHuskyId = -1;
 btTransform huskyTr = btTransform::getIdentity();
 
 int gCreateObjectSimVR = -1;
-int gEnableKukaControl = 1;
+int gEnableKukaControl = 0;
 
 btScalar simTimeScalingFactor = 1;
 btScalar gRhsClamp = 1.f;
@@ -667,8 +667,6 @@ PhysicsServerCommandProcessor::PhysicsServerCommandProcessor()
 	m_data = new PhysicsServerCommandProcessorInternalData();
 
 	createEmptyDynamicsWorld();
-	m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop = 0.00001;
-	m_data->m_dynamicsWorld->getSolverInfo().m_numIterations = 100;
 
 }
 
@@ -717,6 +715,9 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
     m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
     m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = 0.08;
     
+	m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop = 0.00001;
+	m_data->m_dynamicsWorld->getSolverInfo().m_numIterations = 50;
+
 }
 
 void PhysicsServerCommandProcessor::deleteCachedInverseKinematicsBodies()
@@ -4030,7 +4031,7 @@ void PhysicsServerCommandProcessor::replayFromLogFile(const char* fileName)
 }
 
 
-btVector3 gVRGripperPos(0,0,0.2);
+btVector3 gVRGripperPos(0.6, 0.4, 0.7);
 btQuaternion gVRGripperOrn(0,0,0,1);
 btVector3 gVRController2Pos(0,0,0.2);
 btQuaternion gVRController2Orn(0,0,0,1);
@@ -4044,6 +4045,12 @@ int gDroppedSimulationSteps = 0;
 int gNumSteps = 0;
 double gDtInSec = 0.f;
 double gSubStep = 0.f;
+
+void PhysicsServerCommandProcessor::enableRealTimeSimulation(bool enableRealTimeSim)
+{
+	m_data->m_allowRealTimeSimulation = enableRealTimeSim;
+}
+
 void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 {
 	if (gResetSimulation)
@@ -4052,7 +4059,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 		gResetSimulation = false;
 	}
 
-	if ((gEnableRealTimeSimVR || m_data->m_allowRealTimeSimulation) && m_data->m_guiHelper)
+	if ((m_data->m_allowRealTimeSimulation) && m_data->m_guiHelper)
 	{
 		
 		///this hardcoded C++ scene creation is temporary for demo purposes. It will be done in Python later...
@@ -4170,7 +4177,7 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 		{
 			int bodyId = 0;
 
-			if (loadUrdf("pr2_gripper.urdf", btVector3(0, 0, 0.1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size()))
+			if (loadUrdf("pr2_gripper.urdf", btVector3(-0.2, 0.15, 0.9), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size()))
 			{
 				InteralBodyData* parentBody = m_data->getHandle(bodyId);
 				if (parentBody->m_multiBody)
@@ -4200,6 +4207,30 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 
 		loadUrdf("kuka_iiwa/model_vr_limits.urdf", btVector3(1.4, -0.2, 0.6), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 		m_data->m_KukaId = bodyId;
+		InteralBodyData* kukaBody = m_data->getHandle(m_data->m_KukaId);
+		if (kukaBody->m_multiBody && kukaBody->m_multiBody->getNumDofs() == 7)
+		{
+			btScalar q[7];
+			q[0] = 0;// -SIMD_HALF_PI;
+			q[1] = 0;
+			q[2] = 0;
+			q[3] = SIMD_HALF_PI;
+			q[4] = 0;
+			q[5] = -SIMD_HALF_PI*0.66;
+			q[6] = 0;
+
+			for (int i = 0; i < 7; i++)
+			{
+				kukaBody->m_multiBody->setJointPos(i, q[i]);
+			}
+			btAlignedObjectArray<btQuaternion> scratch_q;
+			btAlignedObjectArray<btVector3> scratch_m;
+			kukaBody->m_multiBody->forwardKinematics(scratch_q, scratch_m);
+			int nLinks = kukaBody->m_multiBody->getNumLinks();
+			scratch_q.resize(nLinks + 1);
+			scratch_m.resize(nLinks + 1);
+			kukaBody->m_multiBody->updateCollisionObjectWorldTransforms(scratch_q, scratch_m);
+		}
 		loadUrdf("lego/lego.urdf", btVector3(1.0, -0.2, .7), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 		loadUrdf("lego/lego.urdf", btVector3(1.0, -0.2, .8), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 		loadUrdf("lego/lego.urdf", btVector3(1.0, -0.2, .9), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
@@ -4208,7 +4239,7 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 		// Load one motor gripper for kuka
 		loadSdf("gripper/wsg50_one_motor_gripper_new_free_base.sdf", &gBufferServerToClient[0], gBufferServerToClient.size(), true);
 		m_data->m_gripperId = bodyId + 1;
-		InteralBodyData* kukaBody = m_data->getHandle(m_data->m_KukaId);
+		
 		InteralBodyData* gripperBody = m_data->getHandle(m_data->m_gripperId);
 
 		// Reset the default gripper motor maximum torque for damping to 0
@@ -4250,6 +4281,7 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 		m_data->m_dynamicsWorld->addMultiBodyConstraint(m_data->m_kukaGripperRevolute1);
 		m_data->m_dynamicsWorld->addMultiBodyConstraint(m_data->m_kukaGripperRevolute2);
 
+		kukaBody = m_data->getHandle(m_data->m_KukaId);
 		if (kukaBody->m_multiBody && kukaBody->m_multiBody->getNumDofs()==7)
 		{
 			gripperBody->m_multiBody->setHasSelfCollision(0);
@@ -4303,7 +4335,7 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 
 		// Table area
 		loadUrdf("table/table.urdf", objectWorldTr[0].getOrigin(), objectWorldTr[0].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		loadUrdf("tray/tray_textured.urdf", objectWorldTr[1].getOrigin(), objectWorldTr[1].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+		//loadUrdf("tray/tray_textured.urdf", objectWorldTr[1].getOrigin(), objectWorldTr[1].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 		//loadUrdf("cup_small.urdf", objectWorldTr[2].getOrigin(), objectWorldTr[2].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 		//loadUrdf("pitcher_small.urdf", objectWorldTr[3].getOrigin(), objectWorldTr[3].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 		loadUrdf("teddy_vhacd.urdf", objectWorldTr[4].getOrigin(), objectWorldTr[4].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
@@ -4344,9 +4376,10 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 		if (motor)
 		{
 			btScalar posTarget = (-0.048)*btMin(btScalar(0.75), gVRGripper2Analog) / 0.75;
-			motor->setPositionTarget(posTarget, .2);
+			motor->setPositionTarget(posTarget, .8);
 			motor->setVelocityTarget(0.0, .5);
-			motor->setMaxAppliedImpulse(5.0);
+			motor->setMaxAppliedImpulse(1.0);
+
 		}
 	}
 

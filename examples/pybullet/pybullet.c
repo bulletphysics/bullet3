@@ -432,7 +432,7 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 		return NULL;
 	}
 
-	static char *kwlist[] = { "fixedTimeStep", "numSolverIterations","useSplitImpulse","splitImpulsePenetrationThreshold","numSubSteps", NULL };
+	static char *kwlist[] = { "fixedTimeStep", "numSolverIterations","useSplitImpulse","splitImpulsePenetrationThreshold", "numSubSteps", NULL };
 
 	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidi", kwlist,&fixedTimeStep,&numSolverIterations,&useSplitImpulse,&splitImpulsePenetrationThreshold,&numSubSteps))
 	{
@@ -446,6 +446,10 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 		{
 			b3PhysicsParamSetNumSolverIterations(command, numSolverIterations);
 		}
+		if (numSubSteps >= 0)
+		{
+			b3PhysicsParamSetNumSubSteps(command, numSubSteps);
+		}
 		if (fixedTimeStep >= 0)
 		{
 			b3PhysicsParamSetTimeStep(command, fixedTimeStep);
@@ -458,10 +462,6 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 		{
 			b3PhysicsParamSetSplitImpulsePenetrationThreshold(command, splitImpulsePenetrationThreshold);
 		}
-		if (numSubSteps>=0)
-			{
-				b3PhysicsParamSetNumSubSteps(command,numSubSteps);
-			}
 
 		//ret = b3PhysicsParamSetRealTimeSimulation(command, enableRealTimeSimulation);
 

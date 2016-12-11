@@ -28,6 +28,8 @@ public:
 
 	virtual void stepSimulationRealTime(double dtInSec);
 
+	virtual void enableRealTimeSimulation(bool enableRealTimeSim);
+
 	//bool	supportsJointMotor(class btMultiBody* body, int linkIndex);
 
 	

@@ -33,7 +33,7 @@ struct TinyRenderObjectData
     
     TGAImage& m_rgbColorBuffer;
     b3AlignedObjectArray<float>& m_depthBuffer;//required, hence a reference
-    b3AlignedObjectArray<float>* m_shadowBuffer;
+    b3AlignedObjectArray<float>* m_shadowBuffer;//optional, hence a pointer
     b3AlignedObjectArray<int>* m_segmentationMaskBufferPtr;//optional, hence a pointer
     
     TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer);

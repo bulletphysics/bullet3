@@ -4,9 +4,10 @@ import math
 
 p.connect(p.SHARED_MEMORY)
 p.loadURDF("plane.urdf")
-quadruped = p.loadURDF("quadruped/quadruped.urdf",0,0,.3)
+p.setGravity(0,0,-1)
+p.setRealTimeSimulation(0)
+quadruped = p.loadURDF("quadruped/quadruped.urdf",10,-2,2)
 #p.getNumJoints(1)
-
 #right front leg
 p.resetJointState(quadruped,0,1.57)
 p.resetJointState(quadruped,2,-2.2)
@@ -64,16 +65,17 @@ p.setJointMotorControl(quadruped,21,p.POSITION_CONTROL,-1.57,1)
 p.setJointMotorControl(quadruped,22,p.VELOCITY_CONTROL,0,0)
 p.setJointMotorControl(quadruped,23,p.VELOCITY_CONTROL,0,0)
 
-p.setGravity(0,0,-10)
+
 
 p_gain = 2
 speed = 10
 amplitude = 1.3
 
 #stand still
-t_end = time.time() + 5
+t_end = time.time() + 2
 while time.time() < t_end:
 	p.stepSimulation()
+p.setGravity(0,0,-10)
 
 jump_amp = 0.5
 
@@ -125,4 +127,4 @@ while time.time() < t_end:
 	p.setJointMotorControl(quadruped,21,p.POSITION_CONTROL,-1.57,1)
 
 	p.stepSimulation()
-
+p.setRealTimeSimulation(1)
