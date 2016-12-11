@@ -85,6 +85,7 @@ public:
 	void replayFromLogFile(const char* fileName);
 	void replayLogCommand(char* bufferServerToClient, int bufferSizeInBytes );
 	void stepSimulationRealTime(double dtInSec);
+	void enableRealTimeSimulation(bool enableRealTimeSim);
 	void applyJointDamping(int bodyUniqueId);
 };
 

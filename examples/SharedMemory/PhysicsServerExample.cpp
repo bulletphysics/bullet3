@@ -1584,7 +1584,11 @@ void PhysicsServerExample::renderScene()
 
 	if (m_guiHelper->getAppInterface()->m_renderer->getActiveCamera()->isVRCamera())
 	{
-		gEnableRealTimeSimVR = true;
+		if (!gEnableRealTimeSimVR)
+		{
+			gEnableRealTimeSimVR = true;
+			m_physicsServer.enableRealTimeSimulation(1);
+		}
 	}
 
 
@@ -1818,8 +1822,6 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 
 void	PhysicsServerExample::vrControllerMoveCallback(int controllerId, float pos[4], float orn[4], float analogAxis)
 {
-
-	gEnableRealTimeSimVR = true;
 
 	if (controllerId <= 0 || controllerId >= MAX_VR_CONTROLLERS)
 	{

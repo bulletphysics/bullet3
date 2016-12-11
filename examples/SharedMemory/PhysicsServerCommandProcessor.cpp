@@ -4030,6 +4030,12 @@ int gDroppedSimulationSteps = 0;
 int gNumSteps = 0;
 double gDtInSec = 0.f;
 double gSubStep = 0.f;
+
+void PhysicsServerCommandProcessor::enableRealTimeSimulation(bool enableRealTimeSim)
+{
+	m_data->m_allowRealTimeSimulation = enableRealTimeSim;
+}
+
 void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 {
 	if (gResetSimulation)
@@ -4038,7 +4044,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
 		gResetSimulation = false;
 	}
 
-	if ((gEnableRealTimeSimVR || m_data->m_allowRealTimeSimulation) && m_data->m_guiHelper)
+	if ((m_data->m_allowRealTimeSimulation) && m_data->m_guiHelper)
 	{
 		
 		///this hardcoded C++ scene creation is temporary for demo purposes. It will be done in Python later...

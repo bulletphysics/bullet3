@@ -5,8 +5,8 @@
       <geometry>
         <box size=".226 0.16 .07"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
+      <material name="black">
+        <color rgba="0 0 0 1"/>
       </material>
     </visual>
     <collision>
@@ -26,9 +26,7 @@
       <geometry>
         <cylinder length="0.026" radius="0.0434"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
-      </material>
+      <material name="black"/>
     </visual>
     <collision>
       <geometry>
@@ -55,9 +53,7 @@
       <geometry>
         <cylinder length="0.026" radius="0.0434"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
-      </material>
+      <material name="black"/>
     </visual>
     <collision>
       <geometry>
@@ -84,9 +80,7 @@
       <geometry>
         <cylinder length="0.026" radius="0.0434"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
-      </material>
+      <material name="black"/>
     </visual>
     <collision>
       <geometry>
@@ -113,9 +107,7 @@
       <geometry>
         <cylinder length="0.026" radius="0.0434"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
-      </material>
+      <material name="black"/>
     </visual>
     <collision>
       <geometry>
@@ -142,9 +134,7 @@
       <geometry>
         <cylinder length="0.026" radius="0.0434"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
-      </material>
+      <material name="black"/>
     </visual>
     <collision>
       <geometry>
@@ -171,9 +161,7 @@
       <geometry>
         <cylinder length="0.026" radius="0.0434"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
-      </material>
+      <material name="black"/>
     </visual>
     <collision>
       <geometry>
@@ -200,9 +188,7 @@
       <geometry>
         <cylinder length="0.026" radius="0.0434"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
-      </material>
+      <material name="black"/>
     </visual>
     <collision>
       <geometry>
@@ -229,9 +215,7 @@
       <geometry>
         <cylinder length="0.026" radius="0.0434"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
-      </material>
+      <material name="black"/>
     </visual>
     <collision>
       <geometry>
@@ -258,8 +242,8 @@
       <geometry>
         <box size=".01 0.01 .11"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
+      <material name="grey">
+        <color rgba="0.65 0.65 0.75 1"/>
       </material>
     </visual>
     <collision>
@@ -286,8 +270,8 @@
       <geometry>
         <box size=".01 0.01 .11"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
+      <material name="grey">
+        <color rgba="0.65 0.65 0.75 1"/>
       </material>
     </visual>
     <collision>
@@ -315,8 +299,8 @@
       <geometry>
         <box size=".01 0.01 .2"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
+      <material name="grey">
+        <color rgba="0.65 0.65 0.75 1"/>
       </material>
     </visual>
     <collision>
@@ -345,8 +329,8 @@
       <geometry>
         <box size=".01 0.01 .2"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
+      <material name="grey">
+        <color rgba="0.65 0.65 0.75 1"/>
       </material>
     </visual>
     <collision>
@@ -374,8 +358,8 @@
       <geometry>
         <box size=".01 0.01 .11"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
+      <material name="grey">
+        <color rgba="0.65 0.65 0.75 1"/>
       </material>
     </visual>
     <collision>
@@ -402,8 +386,8 @@
       <geometry>
         <box size=".01 0.01 .11"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
+      <material name="grey">
+        <color rgba="0.65 0.65 0.75 1"/>
       </material>
     </visual>
     <collision>
@@ -431,8 +415,8 @@
       <geometry>
         <box size=".01 0.01 .2"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
+      <material name="grey">
+        <color rgba="0.65 0.65 0.75 1"/>
       </material>
     </visual>
     <collision>
@@ -461,8 +445,8 @@
       <geometry>
         <box size=".01 0.01 .2"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
+      <material name="grey">
+        <color rgba="0.65 0.65 0.75 1"/>
       </material>
     </visual>
     <collision>
@@ -493,8 +477,8 @@
       <geometry>
         <box size=".01 0.01 .11"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
+      <material name="grey">
+        <color rgba="0.65 0.65 0.75 1"/>
       </material>
     </visual>
     <collision>
@@ -521,8 +505,8 @@
       <geometry>
         <box size=".01 0.01 .11"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
+      <material name="grey">
+        <color rgba="0.65 0.65 0.75 1"/>
       </material>
     </visual>
     <collision>
@@ -550,8 +534,8 @@
       <geometry>
         <box size=".01 0.01 .2"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
+      <material name="grey">
+        <color rgba="0.65 0.65 0.75 1"/>
       </material>
     </visual>
     <collision>
@@ -580,8 +564,8 @@
       <geometry>
         <box size=".01 0.01 .2"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
+      <material name="grey">
+        <color rgba="0.65 0.65 0.75 1"/>
       </material>
     </visual>
     <collision>
@@ -609,8 +593,8 @@
       <geometry>
         <box size=".01 0.01 .11"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
+      <material name="grey">
+        <color rgba="0.65 0.65 0.75 1"/>
       </material>
     </visual>
     <collision>
@@ -637,8 +621,8 @@
       <geometry>
         <box size=".01 0.01 .11"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
+      <material name="grey">
+        <color rgba="0.65 0.65 0.75 1"/>
       </material>
     </visual>
     <collision>
@@ -666,8 +650,8 @@
       <geometry>
         <box size=".01 0.01 .2"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
+      <material name="grey">
+        <color rgba="0.65 0.65 0.75 1"/>
       </material>
     </visual>
     <collision>
@@ -696,8 +680,8 @@
       <geometry>
         <box size=".01 0.01 .2"/>
       </geometry>
-      <material name="blue">
-        <color rgba="0 0 .8 1"/>
+      <material name="grey">
+        <color rgba="0.65 0.65 0.75 1"/>
       </material>
     </visual>
     <collision>
