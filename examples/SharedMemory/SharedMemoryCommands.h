@@ -109,7 +109,9 @@ enum EnumInitPoseFlags
 {
     INIT_POSE_HAS_INITIAL_POSITION=1,
     INIT_POSE_HAS_INITIAL_ORIENTATION=2,
-    INIT_POSE_HAS_JOINT_STATE=4
+    INIT_POSE_HAS_JOINT_STATE=4,
+	INIT_POSE_HAS_BASE_LINEAR_VELOCITY = 8,
+	INIT_POSE_HAS_BASE_ANGULAR_VELOCITY = 16,
 };
 
 
@@ -122,6 +124,8 @@ struct InitPoseArgs
 	int m_bodyUniqueId;
 	int m_hasInitialStateQ[MAX_DEGREE_OF_FREEDOM];
 	double m_initialStateQ[MAX_DEGREE_OF_FREEDOM];
+	int m_hasInitialStateQdot[MAX_DEGREE_OF_FREEDOM];
+	double m_initialStateQdot[MAX_DEGREE_OF_FREEDOM];
 };
 
 
@@ -138,12 +142,20 @@ struct RequestPixelDataArgs
 	int m_startPixelIndex;
 	int m_pixelWidth;
 	int m_pixelHeight;
+	float m_lightDirection[3];
+    float m_lightColor[3];
+    float m_lightDistance;
+    int m_hasShadow;
 };
 
 enum EnumRequestPixelDataUpdateFlags
 {
 	REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES=1,
-	REQUEST_PIXEL_ARGS_SET_PIXEL_WIDTH_HEIGHT=4,
+	REQUEST_PIXEL_ARGS_SET_PIXEL_WIDTH_HEIGHT=2,
+	REQUEST_PIXEL_ARGS_SET_LIGHT_DIRECTION=4,
+    REQUEST_PIXEL_ARGS_SET_LIGHT_COLOR=8,
+    REQUEST_PIXEL_ARGS_SET_LIGHT_DISTANCE=16,
+    REQUEST_PIXEL_ARGS_SET_SHADOW=32,
 	//don't exceed (1<<15), because this enum is shared with EnumRenderer in SharedMemoryPublic.h
 	
 };
@@ -152,6 +164,8 @@ enum EnumRequestContactDataUpdateFlags
 {
 	CMD_REQUEST_CONTACT_POINT_HAS_QUERY_MODE=1,
 	CMD_REQUEST_CONTACT_POINT_HAS_CLOSEST_DISTANCE_THRESHOLD=2,
+	CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_A_FILTER = 4,
+	CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_B_FILTER = 8,
 };
 
 struct RequestContactDataArgs
@@ -159,6 +173,8 @@ struct RequestContactDataArgs
     int m_startingContactPointIndex;
     int m_objectAIndexFilter;
 	int m_objectBIndexFilter;
+	int m_linkIndexAIndexFilter;
+	int m_linkIndexBIndexFilter;
 	double m_closestDistanceThreshold;
 	int m_mode;
 };
@@ -271,7 +287,9 @@ enum EnumSimParamUpdateFlags
 	SIM_PARAM_UPDATE_NUM_SIMULATION_SUB_STEPS=8,
 	SIM_PARAM_UPDATE_REAL_TIME_SIMULATION = 16,
 	SIM_PARAM_UPDATE_DEFAULT_CONTACT_ERP=32,
-	SIM_PARAM_UPDATE_INTERNAL_SIMULATION_FLAGS=64
+	SIM_PARAM_UPDATE_INTERNAL_SIMULATION_FLAGS=64,
+	SIM_PARAM_UPDATE_USE_SPLIT_IMPULSE=128,
+	SIM_PARAM_UPDATE_SPLIT_IMPULSE_PENETRATION_THRESHOLD = 256,
 };
 
 enum EnumLoadBunnyUpdateFlags
@@ -296,6 +314,8 @@ struct SendPhysicsSimulationParameters
 	int m_numSimulationSubSteps;
 	int m_numSolverIterations;
 	bool m_allowRealTimeSimulation;
+	int m_useSplitImpulse;
+	double m_splitImpulsePenetrationThreshold;
 	int m_internalSimFlags;
 	double m_defaultContactERP;
 };
@@ -518,7 +538,10 @@ enum EnumUserDebugDrawFlags
     USER_DEBUG_HAS_LINE=1,
 	USER_DEBUG_HAS_TEXT=2,
 	USER_DEBUG_REMOVE_ONE_ITEM=4,
-	USER_DEBUG_REMOVE_ALL=8	
+	USER_DEBUG_REMOVE_ALL=8,	
+	USER_DEBUG_SET_CUSTOM_OBJECT_COLOR = 16,
+	USER_DEBUG_REMOVE_CUSTOM_OBJECT_COLOR = 32,
+
 };
 
 struct UserDebugDrawArgs
@@ -535,6 +558,10 @@ struct UserDebugDrawArgs
 	double m_textPositionXYZ[3];
 	double m_textColorRGB[3];
 	double m_textSize;
+
+	double m_objectDebugColorRGB[3];
+	int m_objectUniqueId;
+	int m_linkIndex;
 };
 
 

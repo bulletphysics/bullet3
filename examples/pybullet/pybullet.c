@@ -30,6 +30,123 @@ enum eCONNECT_METHOD {
 static PyObject* SpamError;
 static b3PhysicsClientHandle sm = 0;
 
+
+static double pybullet_internalGetFloatFromSequence(PyObject* seq, int index) {
+	double v = 0.0;
+	PyObject* item;
+
+	if (PyList_Check(seq)) {
+		item = PyList_GET_ITEM(seq, index);
+		v = PyFloat_AsDouble(item);
+	}
+	else {
+		item = PyTuple_GET_ITEM(seq, index);
+		v = PyFloat_AsDouble(item);
+	}
+	return v;
+}
+
+
+// internal function to set a float matrix[16]
+// used to initialize camera position with
+// a view and projection matrix in renderImage()
+//
+// // Args:
+//  matrix - float[16] which will be set by values from objMat
+static int pybullet_internalSetMatrix(PyObject* objMat, float matrix[16]) {
+	int i, len;
+	PyObject* seq;
+
+	seq = PySequence_Fast(objMat, "expected a sequence");
+	if (seq)
+	{
+		len = PySequence_Size(objMat);
+		if (len == 16) {
+			for (i = 0; i < len; i++) {
+				matrix[i] = pybullet_internalGetFloatFromSequence(seq, i);
+			}
+			Py_DECREF(seq);
+			return 1;
+		}
+		Py_DECREF(seq);
+	}
+	return 0;
+}
+
+// internal function to set a float vector[3]
+// used to initialize camera position with
+// a view and projection matrix in renderImage()
+//
+// // Args:
+//  vector - float[3] which will be set by values from objMat
+static int pybullet_internalSetVector(PyObject* objVec, float vector[3]) {
+	int i, len;
+	PyObject* seq = 0;
+	if (objVec == NULL)
+		return 0;
+
+	seq = PySequence_Fast(objVec, "expected a sequence");
+	if (seq)
+	{
+
+		len = PySequence_Size(objVec);
+		if (len == 3) {
+			for (i = 0; i < len; i++) {
+				vector[i] = pybullet_internalGetFloatFromSequence(seq, i);
+			}
+			Py_DECREF(seq);
+			return 1;
+		}
+		Py_DECREF(seq);
+	}
+	return 0;
+}
+
+//  vector - double[3] which will be set by values from obVec
+static int pybullet_internalSetVectord(PyObject* obVec, double vector[3]) {
+	int i, len;
+	PyObject* seq;
+	if (obVec == NULL)
+		return 0;
+
+	seq = PySequence_Fast(obVec, "expected a sequence");
+	if (seq)
+	{
+		len = PySequence_Size(obVec);
+		if (len == 3) {
+			for (i = 0; i < len; i++) {
+				vector[i] = pybullet_internalGetFloatFromSequence(seq, i);
+			}
+			Py_DECREF(seq);
+			return 1;
+		}
+		Py_DECREF(seq);
+	}
+	return 0;
+}
+
+//  vector - double[3] which will be set by values from obVec
+static int pybullet_internalSetVector4d(PyObject* obVec, double vector[4]) {
+	int i, len;
+	PyObject* seq;
+	if (obVec == NULL)
+		return 0;
+
+	seq = PySequence_Fast(obVec, "expected a sequence");
+	len = PySequence_Size(obVec);
+	if (len == 4) {
+		for (i = 0; i < len; i++) {
+			vector[i] = pybullet_internalGetFloatFromSequence(seq, i);
+		}
+		Py_DECREF(seq);
+		return 1;
+	}
+	Py_DECREF(seq);
+	return 0;
+}
+
+
+
 // Step through one timestep of the simulation
 static PyObject* pybullet_stepSimulation(PyObject* self, PyObject* args) {
   if (0 == sm) {
@@ -302,6 +419,67 @@ static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args)
 	return Py_None;
 }
 
+static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* args, PyObject *keywds)
+{
+	double fixedTimeStep = -1;
+	int numSolverIterations = -1;
+	int useSplitImpulse = -1;
+	double splitImpulsePenetrationThreshold = -1;
+	int numSubSteps = -1;
+
+	if (0 == sm) {
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	static char *kwlist[] = { "fixedTimeStep", "numSolverIterations","useSplitImpulse","splitImpulsePenetrationThreshold", "numSubSteps", NULL };
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidi", kwlist,&fixedTimeStep,&numSolverIterations,&useSplitImpulse,&splitImpulsePenetrationThreshold,&numSubSteps))
+	{
+		return NULL;
+	}
+	{
+		b3SharedMemoryCommandHandle command = b3InitPhysicsParamCommand(sm);
+		b3SharedMemoryStatusHandle statusHandle;
+
+		if (numSolverIterations >= 0)
+		{
+			b3PhysicsParamSetNumSolverIterations(command, numSolverIterations);
+		}
+		if (numSubSteps >= 0)
+		{
+			b3PhysicsParamSetNumSubSteps(command, numSubSteps);
+		}
+		if (fixedTimeStep >= 0)
+		{
+			b3PhysicsParamSetTimeStep(command, fixedTimeStep);
+		}
+		if (useSplitImpulse >= 0)
+		{
+			b3PhysicsParamSetUseSplitImpulse(command,useSplitImpulse);
+		}
+		if (splitImpulsePenetrationThreshold >= 0)
+		{
+			b3PhysicsParamSetSplitImpulsePenetrationThreshold(command, splitImpulsePenetrationThreshold);
+		}
+
+		//ret = b3PhysicsParamSetRealTimeSimulation(command, enableRealTimeSimulation);
+
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	}
+#if 0
+	b3SharedMemoryCommandHandle	b3InitPhysicsParamCommand(b3PhysicsClientHandle physClient);
+	int	b3PhysicsParamSetGravity(b3SharedMemoryCommandHandle commandHandle, double gravx, double gravy, double gravz);
+	int	b3PhysicsParamSetTimeStep(b3SharedMemoryCommandHandle commandHandle, double timeStep);
+	int	b3PhysicsParamSetDefaultContactERP(b3SharedMemoryCommandHandle commandHandle, double defaultContactERP);
+	int	b3PhysicsParamSetNumSubSteps(b3SharedMemoryCommandHandle commandHandle, int numSubSteps);
+	int b3PhysicsParamSetRealTimeSimulation(b3SharedMemoryCommandHandle commandHandle, int enableRealTimeSimulation);
+	int b3PhysicsParamSetNumSolverIterations(b3SharedMemoryCommandHandle commandHandle, int numSolverIterations);
+#endif
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
 
 
 // Load a robot from a URDF file (universal robot description format)
@@ -309,8 +487,14 @@ static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args)
 // to position (0,0,1) with orientation(0,0,0,1)
 // els(x,y,z) or
 // loadURDF(pos_x, pos_y, pos_z, orn_x, orn_y, orn_z, orn_w)
-static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args) {
+static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args, PyObject *keywds) 
+{
   int size = PySequence_Size(args);
+  static char *kwlist[] = { "fileName", "basePosition", "baseOrientation", "useMaximalCoordinates","useFixedBase", NULL };
+
+  static char *kwlistBackwardCompatible4[] = { "fileName", "startPosX", "startPosY", "startPosZ", NULL };
+  static char *kwlistBackwardCompatible8[] = { "fileName", "startPosX", "startPosY", "startPosZ", "startOrnX", "startOrnY","startOrnZ","startOrnW", NULL };
+
 
   int bodyIndex = -1;
   const char* urdfFileName = "";
@@ -322,24 +506,79 @@ static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args) {
   double startOrnY = 0.0;
   double startOrnZ = 0.0;
   double startOrnW = 1.0;
+  int useMaximalCoordinates = 0;
+  int useFixedBase = 0;
+
+  int backwardsCompatibilityArgs = 0;
 
   if (0 == sm) {
     PyErr_SetString(SpamError, "Not connected to physics server.");
     return NULL;
   }
-  if (size == 1) {
-    if (!PyArg_ParseTuple(args, "s", &urdfFileName)) return NULL;
+
+  if (PyArg_ParseTupleAndKeywords(args, keywds, "sddd", kwlistBackwardCompatible4, &urdfFileName, &startPosX,
+	  &startPosY, &startPosZ))
+  {
+	  backwardsCompatibilityArgs = 1;
   }
-  if (size == 4) {
-    if (!PyArg_ParseTuple(args, "sddd", &urdfFileName, &startPosX, &startPosY,
-                          &startPosZ))
-      return NULL;
+  else
+  {
+	  PyErr_Clear();
   }
-  if (size == 8) {
-    if (!PyArg_ParseTuple(args, "sddddddd", &urdfFileName, &startPosX,
-                          &startPosY, &startPosZ, &startOrnX, &startOrnY,
-                          &startOrnZ, &startOrnW))
-      return NULL;
+
+
+  if (PyArg_ParseTupleAndKeywords(args, keywds, "sddddddd", kwlistBackwardCompatible8,&urdfFileName, &startPosX,
+	  &startPosY, &startPosZ, &startOrnX, &startOrnY,&startOrnZ, &startOrnW))
+  {
+	  backwardsCompatibilityArgs = 1;
+  }
+  else
+  {
+	  PyErr_Clear();
+  }
+
+  
+
+  if (!backwardsCompatibilityArgs)
+  {
+	  PyObject* basePosObj = 0;
+	  PyObject* baseOrnObj = 0;
+	  double basePos[3];
+	  double baseOrn[4];
+
+
+	  if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|OOii", kwlist, &urdfFileName, &basePosObj, &baseOrnObj, &useMaximalCoordinates,&useFixedBase))
+	  {
+
+		  return NULL;
+	  }
+	  else
+	  {
+		  if (basePosObj)
+		  {
+			  if (!pybullet_internalSetVectord(basePosObj, basePos))
+			  {
+				  PyErr_SetString(SpamError, "Cannot convert basePosition.");
+				  return NULL;
+			  }
+			  startPosX = basePos[0];
+			  startPosY = basePos[1];
+			  startPosZ = basePos[2];
+
+		  }
+		  if (baseOrnObj)
+		  {
+			  if (!pybullet_internalSetVector4d(baseOrnObj, baseOrn))
+			  {
+				  PyErr_SetString(SpamError, "Cannot convert baseOrientation.");
+				  return NULL;
+			  }
+			  startOrnX = baseOrn[0];
+			  startOrnY = baseOrn[1];
+			  startOrnZ = baseOrn[2];
+			  startOrnW = baseOrn[3];
+		  }
+	  }
   }
 
   if (strlen(urdfFileName)) {
@@ -356,6 +595,15 @@ static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args) {
     b3LoadUrdfCommandSetStartPosition(command, startPosX, startPosY, startPosZ);
     b3LoadUrdfCommandSetStartOrientation(command, startOrnX, startOrnY,
                                          startOrnZ, startOrnW);
+	if (useMaximalCoordinates)
+	{
+		b3LoadUrdfCommandSetUseMultiBody(command, 0);
+	}
+	if (useFixedBase)
+	{
+		b3LoadUrdfCommandSetUseFixedBase(command, 1);
+	}
+
     statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
     statusType = b3GetStatusType(statusHandle);
     if (statusType != CMD_URDF_LOADING_COMPLETED) {
@@ -371,19 +619,6 @@ static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args) {
   return PyLong_FromLong(bodyIndex);
 }
 
-static double pybullet_internalGetFloatFromSequence(PyObject* seq, int index) {
-  double v = 0.0;
-  PyObject* item;
-
-  if (PyList_Check(seq)) {
-    item = PyList_GET_ITEM(seq, index);
-    v = PyFloat_AsDouble(item);
-  } else {
-    item = PyTuple_GET_ITEM(seq, index);
-    v = PyFloat_AsDouble(item);
-  }
-  return v;
-}
 
 
 
@@ -768,11 +1003,68 @@ pybullet_setDefaultContactERP(PyObject* self, PyObject* args)
     return Py_None;
 }
 
+static int pybullet_internalGetBaseVelocity(
+	int bodyIndex, double baseLinearVelocity[3], double baseAngularVelocity[3]) {
+	baseLinearVelocity[0] = 0.;
+	baseLinearVelocity[1] = 0.;
+	baseLinearVelocity[2] = 0.;
+
+	baseAngularVelocity[0] = 0.;
+	baseAngularVelocity[1] = 0.;
+	baseAngularVelocity[2] = 0.;
+
+	if (0 == sm) {
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return 0;
+	}
+
+	{
+		{
+			b3SharedMemoryCommandHandle cmd_handle =
+				b3RequestActualStateCommandInit(sm, bodyIndex);
+			b3SharedMemoryStatusHandle status_handle =
+				b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
+
+			const int status_type = b3GetStatusType(status_handle);
+			const double* actualStateQdot;
+			// const double* jointReactionForces[];
+
+
+			if (status_type != CMD_ACTUAL_STATE_UPDATE_COMPLETED) {
+				PyErr_SetString(SpamError, "getBaseVelocity failed.");
+				return 0;
+			}
+
+			b3GetStatusActualState(
+				status_handle, 0 /* body_unique_id */,
+				0 /* num_degree_of_freedom_q */, 0 /* num_degree_of_freedom_u */,
+				0 /*root_local_inertial_frame*/, 0,
+				&actualStateQdot, 0 /* joint_reaction_forces */);
+
+			// printf("joint reaction forces=");
+			// for (i=0; i < (sizeof(jointReactionForces)/sizeof(double)); i++) {
+			//   printf("%f ", jointReactionForces[i]);
+			// }
+			// now, position x,y,z = actualStateQ[0],actualStateQ[1],actualStateQ[2]
+			// and orientation x,y,z,w =
+			// actualStateQ[3],actualStateQ[4],actualStateQ[5],actualStateQ[6]
+			baseLinearVelocity[0] = actualStateQdot[0];
+			baseLinearVelocity[1] = actualStateQdot[1];
+			baseLinearVelocity[2] = actualStateQdot[2];
+
+			baseAngularVelocity[0] = actualStateQdot[3];
+			baseAngularVelocity[1] = actualStateQdot[4];
+			baseAngularVelocity[2] = actualStateQdot[5];
+			
+		}
+	}
+	return 1;
+}
 
 // Internal function used to get the base position and orientation
 // Orientation is returned in quaternions
 static int pybullet_internalGetBasePositionAndOrientation(
-    int bodyIndex, double basePosition[3], double baseOrientation[3]) {
+    int bodyIndex, double basePosition[3], double baseOrientation[4]) {
   basePosition[0] = 0.;
   basePosition[1] = 0.;
   basePosition[2] = 0.;
@@ -855,8 +1147,7 @@ static PyObject* pybullet_getBasePositionAndOrientation(PyObject* self,
   if (0 == pybullet_internalGetBasePositionAndOrientation(
                bodyIndex, basePosition, baseOrientation)) {
     PyErr_SetString(SpamError,
-                    "GetBasePositionAndOrientation failed (#joints/links "
-                    "exceeds maximum?).");
+                    "GetBasePositionAndOrientation failed.");
     return NULL;
   }
 
@@ -891,6 +1182,62 @@ static PyObject* pybullet_getBasePositionAndOrientation(PyObject* self,
   }
 }
 
+
+static PyObject* pybullet_getBaseVelocity(PyObject* self,
+	PyObject* args) {
+	int bodyIndex = -1;
+	double baseLinearVelocity[3];
+	double baseAngularVelocity[3];
+	PyObject* pylistLinVel=0;
+	PyObject* pylistAngVel=0;
+
+	if (0 == sm) {
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	if (!PyArg_ParseTuple(args, "i", &bodyIndex)) {
+		PyErr_SetString(SpamError, "Expected a body index (integer).");
+		return NULL;
+	}
+
+	if (0 == pybullet_internalGetBaseVelocity(
+		bodyIndex, baseLinearVelocity, baseAngularVelocity)) {
+		PyErr_SetString(SpamError,
+			"getBaseVelocity failed.");
+		return NULL;
+	}
+
+	{
+		PyObject* item;
+		int i;
+		int num = 3;
+		pylistLinVel = PyTuple_New(num);
+		for (i = 0; i < num; i++) {
+			item = PyFloat_FromDouble(baseLinearVelocity[i]);
+			PyTuple_SetItem(pylistLinVel, i, item);
+		}
+	}
+
+	{
+		PyObject* item;
+		int i;
+		int num = 3;
+		pylistAngVel = PyTuple_New(num);
+		for (i = 0; i < num; i++) {
+			item = PyFloat_FromDouble(baseAngularVelocity[i]);
+			PyTuple_SetItem(pylistAngVel, i, item);
+		}
+	}
+
+	{
+		PyObject* pylist;
+		pylist = PyTuple_New(2);
+		PyTuple_SetItem(pylist, 0, pylistLinVel);
+		PyTuple_SetItem(pylist, 1, pylistAngVel);
+		return pylist;
+	}
+}
 static PyObject* pybullet_getNumBodies(PyObject* self, PyObject* args)
 {
 	if (0 == sm) {
@@ -1034,6 +1381,66 @@ static PyObject* pybullet_resetJointState(PyObject* self, PyObject* args) {
   PyErr_SetString(SpamError, "error in resetJointState.");
   return NULL;
 }
+
+
+
+
+static PyObject* pybullet_resetBaseVelocity(PyObject* self, PyObject* args, PyObject *keywds)
+{
+	static char *kwlist[] = { "objectUniqueId", "linearVelocity", "angularVelocity", NULL };
+
+	if (0 == sm) 
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	{
+		int bodyIndex=0;
+		PyObject* linVelObj=0;
+		PyObject* angVelObj=0;
+		double linVel[3] = { 0, 0, 0 };
+		double angVel[3] = { 0, 0, 0 };
+		
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|OO", kwlist, &bodyIndex, &linVelObj, &angVelObj))
+		{
+			return NULL;
+		}
+		if (linVelObj || angVelObj)
+		{
+
+			b3SharedMemoryCommandHandle commandHandle;
+			b3SharedMemoryStatusHandle statusHandle;
+
+			commandHandle = b3CreatePoseCommandInit(sm, bodyIndex);
+
+			if (linVelObj)
+			{
+				pybullet_internalSetVectord(linVelObj, linVel);
+				b3CreatePoseCommandSetBaseLinearVelocity(commandHandle, linVel);
+			}
+
+			if (angVelObj)
+			{
+				pybullet_internalSetVectord(angVelObj, angVel);
+				b3CreatePoseCommandSetBaseAngularVelocity(commandHandle, angVel);
+			}
+
+			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+			Py_INCREF(Py_None);
+			return Py_None;
+		}
+		else
+		{
+			PyErr_SetString(SpamError, "expected at least linearVelocity and/or angularVelocity.");
+			return NULL;
+		}
+	}
+	PyErr_SetString(SpamError, "error in resetJointState.");
+	return NULL;
+}
+
+
 
 // Reset the position and orientation of the base/root link, position [x,y,z]
 // and orientation quaternion [x,y,z,w]
@@ -1366,95 +1773,6 @@ static PyObject* pybullet_getLinkState(PyObject* self, PyObject* args) {
   return Py_None;
 }
 
-// internal function to set a float matrix[16]
-// used to initialize camera position with
-// a view and projection matrix in renderImage()
-//
-// // Args:
-//  matrix - float[16] which will be set by values from objMat
-static int pybullet_internalSetMatrix(PyObject* objMat, float matrix[16]) {
-  int i, len;
-  PyObject* seq;
-
-  seq = PySequence_Fast(objMat, "expected a sequence");
-  len = PySequence_Size(objMat);
-  if (len == 16) {
-    for (i = 0; i < len; i++) {
-      matrix[i] = pybullet_internalGetFloatFromSequence(seq, i);
-    }
-    Py_DECREF(seq);
-    return 1;
-  }
-  Py_DECREF(seq);
-  return 0;
-}
-
-// internal function to set a float vector[3]
-// used to initialize camera position with
-// a view and projection matrix in renderImage()
-//
-// // Args:
-//  vector - float[3] which will be set by values from objMat
-static int pybullet_internalSetVector(PyObject* objVec, float vector[3]) {
-  int i, len;
-  PyObject* seq;
-  if (objVec==NULL)
-		return 0;
-
-  seq = PySequence_Fast(objVec, "expected a sequence");
-  len = PySequence_Size(objVec);
-  if (len == 3) {
-    for (i = 0; i < len; i++) {
-      vector[i] = pybullet_internalGetFloatFromSequence(seq, i);
-    }
-    Py_DECREF(seq);
-    return 1;
-  }
-  Py_DECREF(seq);
-  return 0;
-}
-
-//  vector - double[3] which will be set by values from obVec
-static int pybullet_internalSetVectord(PyObject* obVec, double vector[3]) {
-    int i, len;
-    PyObject* seq;
-    if (obVec==NULL)
-		return 0;
-
-    seq = PySequence_Fast(obVec, "expected a sequence");
-    len = PySequence_Size(obVec);
-    if (len == 3) {
-        for (i = 0; i < len; i++) {
-            vector[i] = pybullet_internalGetFloatFromSequence(seq, i);
-        }
-        Py_DECREF(seq);
-        return 1;
-    }
-    Py_DECREF(seq);
-    return 0;
-}
-
-//  vector - double[3] which will be set by values from obVec
-static int pybullet_internalSetVector4d(PyObject* obVec, double vector[4]) {
-    int i, len;
-    PyObject* seq;
-    if (obVec==NULL)
-		return 0;
-
-    seq = PySequence_Fast(obVec, "expected a sequence");
-    len = PySequence_Size(obVec);
-    if (len == 4) {
-        for (i = 0; i < len; i++) {
-            vector[i] = pybullet_internalGetFloatFromSequence(seq, i);
-        }
-        Py_DECREF(seq);
-        return 1;
-    }
-    Py_DECREF(seq);
-    return 0;
-}
-
-
 
 static PyObject* pybullet_addUserDebugText(PyObject* self, PyObject* args, PyObject *keywds) 
 {
@@ -1491,7 +1809,7 @@ static PyObject* pybullet_addUserDebugText(PyObject* self, PyObject* args, PyObj
   res = pybullet_internalSetVectord(textPositionObj,posXYZ);
   if (!res)
   {
-	  PyErr_SetString(SpamError, "Error converting lineFrom[3]");
+	  PyErr_SetString(SpamError, "Error converting textPositionObj[3]");
 	  return NULL;
   }
 
@@ -1500,7 +1818,7 @@ static PyObject* pybullet_addUserDebugText(PyObject* self, PyObject* args, PyObj
 	  res = pybullet_internalSetVectord(textColorRGBObj,colorRGB);
 	  if (!res)
 	  {
-		  PyErr_SetString(SpamError, "Error converting lineTo[3]");
+		  PyErr_SetString(SpamError, "Error converting textColorRGBObj[3]");
 		  return NULL;
 	  }
   }
@@ -1637,8 +1955,45 @@ static PyObject* pybullet_removeAllUserDebugItems(PyObject* self, PyObject* args
 	Py_INCREF(Py_None);
 	return Py_None;
 }
-	
 
+static PyObject* pybullet_setDebugObjectColor(PyObject* self, PyObject* args, PyObject *keywds)
+{
+	PyObject* objectColorRGBObj = 0;
+	double objectColorRGB[3];
+
+	int objectUniqueId = -1;
+	int linkIndex = -2;
+
+	static char *kwlist[] = { "objectUniqueId", "linkIndex","objectDebugColorRGB", NULL };
+
+	if (0 == sm) {
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|O", kwlist,
+		&objectUniqueId, &linkIndex, &objectColorRGBObj))
+		return NULL;
+
+	if (objectColorRGBObj)
+	{
+		if (pybullet_internalSetVectord(objectColorRGBObj, objectColorRGB))
+		{
+			b3SharedMemoryCommandHandle commandHandle = b3InitDebugDrawingCommand(sm);
+			b3SetDebugObjectColor(commandHandle, objectUniqueId, linkIndex, objectColorRGB);
+			b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+		}
+	}
+	else
+	{
+		b3SharedMemoryCommandHandle commandHandle = b3InitDebugDrawingCommand(sm);
+		b3RemoveDebugObjectColor(commandHandle, objectUniqueId, linkIndex);
+		b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+	
 
 static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args) 
 {
@@ -1838,23 +2193,22 @@ static PyObject* MyConvertContactPoint( struct b3ContactInformation* contactPoin
      2     int m_bodyUniqueIdB;
      3     int m_linkIndexA;
      4     int m_linkIndexB;
-     5-6-7     double m_positionOnAInWS[3];//contact point location on object A,
+     5		double m_positionOnAInWS[3];//contact point location on object A,
      in world space coordinates
-     8-9-10     double m_positionOnBInWS[3];//contact point location on object
+     6		double m_positionOnBInWS[3];//contact point location on object
      A, in world space coordinates
-     11-12-13     double m_contactNormalOnBInWS[3];//the separating contact
+     7		double m_contactNormalOnBInWS[3];//the separating contact
      normal, pointing from object B towards object A
-     14     double m_contactDistance;//negative number is penetration, positive
+     8		double m_contactDistance;//negative number is penetration, positive
      is distance.
-
-     15    double m_normalForce;
+     9		double m_normalForce;
      */
 
 	int i;
 
 	PyObject* pyResultList = PyTuple_New(contactPointPtr->m_numContactPoints);
     for (i = 0; i < contactPointPtr->m_numContactPoints; i++) {
-      PyObject* contactObList = PyTuple_New(16);  // see above 16 fields
+      PyObject* contactObList = PyTuple_New(10);  // see above 10 fields
       PyObject* item;
       item =
           PyInt_FromLong(contactPointPtr->m_contactPointData[i].m_contactFlags);
@@ -1871,42 +2225,61 @@ static PyObject* MyConvertContactPoint( struct b3ContactInformation* contactPoin
       item =
           PyInt_FromLong(contactPointPtr->m_contactPointData[i].m_linkIndexB);
       PyTuple_SetItem(contactObList, 4, item);
-      item = PyFloat_FromDouble(
-          contactPointPtr->m_contactPointData[i].m_positionOnAInWS[0]);
-      PyTuple_SetItem(contactObList, 5, item);
-      item = PyFloat_FromDouble(
-          contactPointPtr->m_contactPointData[i].m_positionOnAInWS[1]);
-      PyTuple_SetItem(contactObList, 6, item);
-      item = PyFloat_FromDouble(
-          contactPointPtr->m_contactPointData[i].m_positionOnAInWS[2]);
-      PyTuple_SetItem(contactObList, 7, item);
 
-      item = PyFloat_FromDouble(
-          contactPointPtr->m_contactPointData[i].m_positionOnBInWS[0]);
-      PyTuple_SetItem(contactObList, 8, item);
-      item = PyFloat_FromDouble(
-          contactPointPtr->m_contactPointData[i].m_positionOnBInWS[1]);
-      PyTuple_SetItem(contactObList, 9, item);
-      item = PyFloat_FromDouble(
-          contactPointPtr->m_contactPointData[i].m_positionOnBInWS[2]);
-      PyTuple_SetItem(contactObList, 10, item);
+	  {
+		  PyObject* posAObj = PyTuple_New(3);
 
-      item = PyFloat_FromDouble(
-          contactPointPtr->m_contactPointData[i].m_contactNormalOnBInWS[0]);
-      PyTuple_SetItem(contactObList, 11, item);
-      item = PyFloat_FromDouble(
-          contactPointPtr->m_contactPointData[i].m_contactNormalOnBInWS[1]);
-      PyTuple_SetItem(contactObList, 12, item);
-      item = PyFloat_FromDouble(
-          contactPointPtr->m_contactPointData[i].m_contactNormalOnBInWS[2]);
-      PyTuple_SetItem(contactObList, 13, item);
+		  item = PyFloat_FromDouble(
+			  contactPointPtr->m_contactPointData[i].m_positionOnAInWS[0]);
+		  PyTuple_SetItem(posAObj, 0, item);
+		  item = PyFloat_FromDouble(
+			  contactPointPtr->m_contactPointData[i].m_positionOnAInWS[1]);
+		  PyTuple_SetItem(posAObj, 1, item);
+		  item = PyFloat_FromDouble(
+			  contactPointPtr->m_contactPointData[i].m_positionOnAInWS[2]);
+		  PyTuple_SetItem(posAObj, 2, item);
+
+		  PyTuple_SetItem(contactObList, 5, posAObj);
+	  }
+
+	  {
+		  PyObject* posBObj = PyTuple_New(3);
+
+
+		  item = PyFloat_FromDouble(
+			  contactPointPtr->m_contactPointData[i].m_positionOnBInWS[0]);
+		  PyTuple_SetItem(posBObj, 0, item);
+		  item = PyFloat_FromDouble(
+			  contactPointPtr->m_contactPointData[i].m_positionOnBInWS[1]);
+		  PyTuple_SetItem(posBObj, 1, item);
+		  item = PyFloat_FromDouble(
+			  contactPointPtr->m_contactPointData[i].m_positionOnBInWS[2]);
+		  PyTuple_SetItem(posBObj, 2, item);
+
+		  PyTuple_SetItem(contactObList, 6, posBObj);
+
+	  }
+
+	  {
+		  PyObject* normalOnB = PyTuple_New(3);
+		  item = PyFloat_FromDouble(
+			  contactPointPtr->m_contactPointData[i].m_contactNormalOnBInWS[0]);
+		  PyTuple_SetItem(normalOnB, 0, item);
+		  item = PyFloat_FromDouble(
+			  contactPointPtr->m_contactPointData[i].m_contactNormalOnBInWS[1]);
+		  PyTuple_SetItem(normalOnB, 1, item);
+		  item = PyFloat_FromDouble(
+			  contactPointPtr->m_contactPointData[i].m_contactNormalOnBInWS[2]);
+		  PyTuple_SetItem(normalOnB, 2, item);
+		  PyTuple_SetItem(contactObList, 7, normalOnB);
+	  }
 
       item = PyFloat_FromDouble(
           contactPointPtr->m_contactPointData[i].m_contactDistance);
-      PyTuple_SetItem(contactObList, 14, item);
+      PyTuple_SetItem(contactObList, 8, item);
       item = PyFloat_FromDouble(
           contactPointPtr->m_contactPointData[i].m_normalForce);
-      PyTuple_SetItem(contactObList, 15, item);
+      PyTuple_SetItem(contactObList, 9, item);
 
       PyTuple_SetItem(pyResultList, i, contactObList);
     }
@@ -1972,6 +2345,9 @@ static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, Py
   int size = PySequence_Size(args);
   int bodyUniqueIdA = -1;
   int bodyUniqueIdB = -1;
+  int linkIndexA = -2;
+  int linkIndexB = -2;
+
   double distanceThreshold = 0.f;
 
   b3SharedMemoryCommandHandle commandHandle;
@@ -1981,15 +2357,15 @@ static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, Py
   PyObject* pyResultList = 0;
 
 
-  static char *kwlist[] = { "bodyA", "bodyB", "distance", NULL };
+  static char *kwlist[] = { "bodyA", "bodyB", "distance", "linkIndexA","linkIndexB",NULL };
 
   if (0 == sm) {
 	  PyErr_SetString(SpamError, "Not connected to physics server.");
 	  return NULL;
   }
 
-  if (!PyArg_ParseTupleAndKeywords(args, keywds, "iid", kwlist,
-	  &bodyUniqueIdA, &bodyUniqueIdB, &distanceThreshold))
+  if (!PyArg_ParseTupleAndKeywords(args, keywds, "iid|ii", kwlist,
+	  &bodyUniqueIdA, &bodyUniqueIdB, &distanceThreshold, &linkIndexA, &linkIndexB))
 	  return NULL;
 
 
@@ -1997,7 +2373,14 @@ static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, Py
   b3SetClosestDistanceFilterBodyA(commandHandle, bodyUniqueIdA);
   b3SetClosestDistanceFilterBodyB(commandHandle, bodyUniqueIdB);
   b3SetClosestDistanceThreshold(commandHandle, distanceThreshold);
-  
+  if (linkIndexA >= -1)
+  {
+	  b3SetClosestDistanceFilterLinkA(commandHandle, linkIndexA);
+  }
+  if (linkIndexB >= -1)
+  {
+	  b3SetClosestDistanceFilterLinkB(commandHandle, linkIndexB);
+  }
 
   statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
   statusType = b3GetStatusType(statusHandle);
@@ -2196,6 +2579,313 @@ static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args, Py
   return Py_None;
 }
 
+
+
+/// Render an image from the current timestep of the simulation, width, height are required, other args are optional
+// getCameraImage(w, h, view[16], projection[16], lightDir[3], lightColor[3], lightDist, hasShadow)
+static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObject *keywds)
+{
+	/// request an image from a simulated camera, using a software renderer.
+	struct b3CameraImageData imageData;
+	PyObject* objViewMat = 0, *objProjMat = 0, *lightDirObj = 0, *lightColorObj = 0;
+	int width, height;
+	int size = PySequence_Size(args);
+	float viewMatrix[16];
+	float projectionMatrix[16];
+	float lightDir[3];
+    float lightColor[3];
+    float lightDist = 10.0;
+    int hasShadow = 0;
+	// inialize cmd
+	b3SharedMemoryCommandHandle command;
+
+	if (0 == sm)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	command = b3InitRequestCameraImage(sm);
+
+	// set camera resolution, optionally view, projection matrix, light direction, light color, light distance, shadow
+	static char *kwlist[] = { "width", "height", "viewMatrix", "projectionMatrix", "lightDirection", "lightColor", "lightDistance", "shadow", NULL };
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|OOOOfi", kwlist, &width, &height, &objViewMat, &objProjMat, &lightDirObj, &lightColorObj, &lightDist, &hasShadow))
+	{
+		return NULL;
+	}
+	b3RequestCameraImageSetPixelResolution(command, width, height);
+
+	// set camera matrices only if set matrix function succeeds
+	if (pybullet_internalSetMatrix(objViewMat, viewMatrix) && (pybullet_internalSetMatrix(objProjMat, projectionMatrix)))
+	{
+		b3RequestCameraImageSetCameraMatrices(command, viewMatrix, projectionMatrix);
+	}
+	//set light direction only if function succeeds
+	if (pybullet_internalSetVector(lightDirObj, lightDir))
+	{
+		b3RequestCameraImageSetLightDirection(command, lightDir);
+	}
+    //set light color only if function succeeds
+    if (pybullet_internalSetVector(lightColorObj, lightColor))
+    {
+        b3RequestCameraImageSetLightColor(command, lightColor);
+    }
+
+    b3RequestCameraImageSetLightDistance(command, lightDist);
+    
+    b3RequestCameraImageSetShadow(command, hasShadow);
+
+	if (b3CanSubmitCommand(sm))
+	{
+		b3SharedMemoryStatusHandle statusHandle;
+		int statusType;
+
+		// b3RequestCameraImageSelectRenderer(command,ER_BULLET_HARDWARE_OPENGL);
+
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+		statusType = b3GetStatusType(statusHandle);
+		if (statusType == CMD_CAMERA_IMAGE_COMPLETED) {
+			PyObject* item2;
+			PyObject* pyResultList;  // store 4 elements in this result: width,
+									 // height, rgbData, depth
+
+#ifdef PYBULLET_USE_NUMPY
+			PyObject* pyRGB;
+			PyObject* pyDep;
+			PyObject* pySeg;
+
+			int i, j, p;
+
+			b3GetCameraImageData(sm, &imageData);
+			// TODO(hellojas): error handling if image size is 0
+			pyResultList = PyTuple_New(5);
+			PyTuple_SetItem(pyResultList, 0, PyInt_FromLong(imageData.m_pixelWidth));
+			PyTuple_SetItem(pyResultList, 1, PyInt_FromLong(imageData.m_pixelHeight));
+
+			int bytesPerPixel = 4;  // Red, Green, Blue, and Alpha each 8 bit values
+
+			npy_intp rgb_dims[3] = { imageData.m_pixelHeight, imageData.m_pixelWidth,
+				bytesPerPixel };
+			npy_intp dep_dims[2] = { imageData.m_pixelHeight, imageData.m_pixelWidth };
+			npy_intp seg_dims[2] = { imageData.m_pixelHeight, imageData.m_pixelWidth };
+
+			pyRGB = PyArray_SimpleNew(3, rgb_dims, NPY_UINT8);
+			pyDep = PyArray_SimpleNew(2, dep_dims, NPY_FLOAT32);
+			pySeg = PyArray_SimpleNew(2, seg_dims, NPY_INT32);
+
+			memcpy(PyArray_DATA(pyRGB), imageData.m_rgbColorData,
+				imageData.m_pixelHeight * imageData.m_pixelWidth * bytesPerPixel);
+			memcpy(PyArray_DATA(pyDep), imageData.m_depthValues,
+				imageData.m_pixelHeight * imageData.m_pixelWidth);
+			memcpy(PyArray_DATA(pySeg), imageData.m_segmentationMaskValues,
+				imageData.m_pixelHeight * imageData.m_pixelWidth);
+
+			PyTuple_SetItem(pyResultList, 2, pyRGB);
+			PyTuple_SetItem(pyResultList, 3, pyDep);
+			PyTuple_SetItem(pyResultList, 4, pySeg);
+#else//PYBULLET_USE_NUMPY
+			PyObject* pylistRGB;
+			PyObject* pylistDep;
+			PyObject* pylistSeg;
+
+			int i, j, p;
+
+			b3GetCameraImageData(sm, &imageData);
+			// TODO(hellojas): error handling if image size is 0
+			pyResultList = PyTuple_New(5);
+			PyTuple_SetItem(pyResultList, 0, PyInt_FromLong(imageData.m_pixelWidth));
+			PyTuple_SetItem(pyResultList, 1, PyInt_FromLong(imageData.m_pixelHeight));
+
+			{
+				PyObject* item;
+				int bytesPerPixel = 4;  // Red, Green, Blue, and Alpha each 8 bit values
+				int num =
+					bytesPerPixel * imageData.m_pixelWidth * imageData.m_pixelHeight;
+				pylistRGB = PyTuple_New(num);
+				pylistDep =
+					PyTuple_New(imageData.m_pixelWidth * imageData.m_pixelHeight);
+				pylistSeg =
+					PyTuple_New(imageData.m_pixelWidth * imageData.m_pixelHeight);
+				for (i = 0; i < imageData.m_pixelWidth; i++) {
+					for (j = 0; j < imageData.m_pixelHeight; j++) {
+						// TODO(hellojas): validate depth values make sense
+						int depIndex = i + j * imageData.m_pixelWidth;
+						{
+							item = PyFloat_FromDouble(imageData.m_depthValues[depIndex]);
+							PyTuple_SetItem(pylistDep, depIndex, item);
+						}
+						{
+							item2 =
+								PyLong_FromLong(imageData.m_segmentationMaskValues[depIndex]);
+							PyTuple_SetItem(pylistSeg, depIndex, item2);
+						}
+
+						for (p = 0; p < bytesPerPixel; p++) {
+							int pixelIndex =
+								bytesPerPixel * (i + j * imageData.m_pixelWidth) + p;
+							item = PyInt_FromLong(imageData.m_rgbColorData[pixelIndex]);
+							PyTuple_SetItem(pylistRGB, pixelIndex, item);
+						}
+					}
+				}
+			}
+
+			PyTuple_SetItem(pyResultList, 2, pylistRGB);
+			PyTuple_SetItem(pyResultList, 3, pylistDep);
+			PyTuple_SetItem(pyResultList, 4, pylistSeg);
+			return pyResultList;
+#endif//PYBULLET_USE_NUMPY
+
+			return pyResultList;
+		}
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+
+}
+
+
+
+static PyObject* pybullet_computeViewMatrix(PyObject* self, PyObject* args, PyObject *keywds)
+{
+	PyObject* camEyeObj = 0;
+	PyObject* camTargetPositionObj = 0;
+	PyObject* camUpVectorObj = 0;
+	float camEye[3];
+	float camTargetPosition[3];
+	float camUpVector[3];
+
+	// set camera resolution, optionally view, projection matrix, light position
+	static char *kwlist[] = { "cameraEyePosition", "cameraTargetPosition", "cameraUpVector",NULL };
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OOO", kwlist, &camEyeObj, &camTargetPositionObj, &camUpVectorObj))
+	{
+		return NULL;
+	}
+
+	if (pybullet_internalSetVector(camEyeObj, camEye) &&
+		pybullet_internalSetVector(camTargetPositionObj, camTargetPosition) &&
+		pybullet_internalSetVector(camUpVectorObj, camUpVector))
+	{
+		float viewMatrix[16];
+		PyObject* pyResultList=0;
+		int i;
+		b3ComputeViewMatrixFromPositions(camEye, camTargetPosition, camUpVector, viewMatrix);
+
+		pyResultList = PyTuple_New(16);
+		for (i = 0; i < 16; i++)
+		{
+			PyObject* item = PyFloat_FromDouble(viewMatrix[i]);
+			PyTuple_SetItem(pyResultList, i, item);
+		}
+		return pyResultList;
+	}
+
+	PyErr_SetString(SpamError, "Error in computeViewMatrix.");
+	return NULL;
+}
+
+///compute a view matrix, helper function for b3RequestCameraImageSetCameraMatrices
+static PyObject* pybullet_computeViewMatrixFromYawPitchRoll(PyObject* self, PyObject* args, PyObject *keywds)
+{
+	PyObject* cameraTargetPositionObj = 0;
+	float cameraTargetPosition[3];
+	float distance, yaw, pitch, roll;
+	int upAxisIndex;
+	float viewMatrix[16];
+	PyObject* pyResultList = 0;
+	int i;
+
+	// set camera resolution, optionally view, projection matrix, light position
+	static char *kwlist[] = { "cameraTargetPosition", "distance", "yaw", "pitch", "roll", "upAxisIndex" ,NULL };
+	
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "Offffi", kwlist, &cameraTargetPositionObj, &distance,&yaw,&pitch,&roll, &upAxisIndex))
+	{
+		return NULL;
+	}
+
+	if (!pybullet_internalSetVector(cameraTargetPositionObj, cameraTargetPosition))
+	{
+		PyErr_SetString(SpamError, "Cannot convert cameraTargetPosition.");
+		return NULL;
+	}
+
+	b3ComputeViewMatrixFromYawPitchRoll(cameraTargetPosition, distance, yaw, pitch, roll, upAxisIndex, viewMatrix);
+
+	pyResultList = PyTuple_New(16);
+	for (i = 0; i < 16; i++)
+	{
+		PyObject* item = PyFloat_FromDouble(viewMatrix[i]);
+		PyTuple_SetItem(pyResultList, i, item);
+	}
+	return pyResultList;
+
+
+}
+
+///compute a projection matrix, helper function for b3RequestCameraImageSetCameraMatrices
+static PyObject* pybullet_computeProjectionMatrix(PyObject* self, PyObject* args, PyObject *keywds)
+{
+	PyObject* pyResultList = 0;
+	float left;
+	float right;
+	float bottom;
+	float top;
+	float nearVal;
+	float farVal;
+	float projectionMatrix[16];
+	int i;
+
+	// set camera resolution, optionally view, projection matrix, light position
+	static char *kwlist[] = { "left", "right", "bottom", "top", "nearVal", "farVal" ,NULL };
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ffffff", kwlist, &left, &right, &bottom, &top, &nearVal, &farVal))
+	{
+		return NULL;
+	}
+
+	
+	b3ComputeProjectionMatrix(left, right, bottom, top, nearVal, farVal, projectionMatrix);
+
+	pyResultList = PyTuple_New(16);
+	for (i = 0; i < 16; i++)
+	{
+		PyObject* item = PyFloat_FromDouble(projectionMatrix[i]);
+		PyTuple_SetItem(pyResultList, i, item);
+	}
+	return pyResultList;
+
+}
+
+static PyObject* pybullet_computeProjectionMatrixFOV(PyObject* self, PyObject* args, PyObject *keywds)
+{
+	float fov,  aspect,  nearVal,  farVal;
+	PyObject* pyResultList = 0;
+	float projectionMatrix[16];
+	int i;
+
+	static char *kwlist[] = { "fov","aspect","nearVal","farVal",NULL };
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ffff", kwlist, &fov, &aspect, &nearVal, &farVal))
+	{
+		return NULL;
+	}
+	
+	b3ComputeProjectionMatrixFOV(fov, aspect, nearVal, farVal, projectionMatrix);
+
+	pyResultList = PyTuple_New(16);
+	for (i = 0; i < 16; i++)
+	{
+		PyObject* item = PyFloat_FromDouble(projectionMatrix[i]);
+		PyTuple_SetItem(pyResultList, i, item);
+	}
+	return pyResultList;
+
+}
+
+
 // Render an image from the current timestep of the simulation
 //
 // Examples:
@@ -2219,7 +2909,7 @@ static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args, Py
 // TODO(hellojas): fix image is cut off at head
 // TODO(hellojas): should we add check to give minimum image resolution
 //  to see object based on camera position?
-static PyObject* pybullet_renderImage(PyObject* self, PyObject* args) {
+static PyObject* pybullet_renderImageObsolete(PyObject* self, PyObject* args) {
   /// request an image from a simulated camera, using a software renderer.
   struct b3CameraImageData imageData;
   PyObject* objViewMat, *objProjMat;
@@ -2277,7 +2967,8 @@ static PyObject* pybullet_renderImage(PyObject* self, PyObject* args) {
       b3RequestCameraImageSetPixelResolution(command, width, height);
       if (pybullet_internalSetVector(objCameraPos, cameraPos) &&
           pybullet_internalSetVector(objTargetPos, targetPos) &&
-          pybullet_internalSetVector(objCameraUp, cameraUp)) {
+          pybullet_internalSetVector(objCameraUp, cameraUp)) 
+	  {
         b3RequestCameraImageSetViewMatrix(command, cameraPos, targetPos,
                                           cameraUp);
       } else {
@@ -2924,9 +3615,6 @@ static PyMethodDef SpamMethods[] = {
      "is seconds, typically range is 0.01 or 0.001)"},
 
 
-    {"setTimeStep",  pybullet_setTimeStep, METH_VARARGS,
-        "Set the amount of time to proceed at each call to stepSimulation."
-        " (unit is seconds, typically range is 0.01 or 0.001)"},
 
 	{"setDefaultContactERP",  pybullet_setDefaultContactERP, METH_VARARGS,
         "Set the amount of contact penetration Error Recovery Paramater "
@@ -2938,10 +3626,13 @@ static PyMethodDef SpamMethods[] = {
 	"Enable or disable real time simulation (using the real time clock,"
 	" RTC) in the physics server. Expects one integer argument, 0 or 1" },
 
+	{ "setPhysicsEngineParameter", (PyCFunction)pybullet_setPhysicsEngineParameter, METH_VARARGS | METH_KEYWORDS,
+	"Set some internal physics engine parameter, such as cfm or erp etc." },
+
 	{ "setInternalSimFlags", pybullet_setInternalSimFlags, METH_VARARGS,
 	"This is for experimental purposes, use at own risk, magic may or not happen"},
 	
-    {"loadURDF", pybullet_loadURDF, METH_VARARGS,
+    {"loadURDF", (PyCFunction) pybullet_loadURDF, METH_VARARGS | METH_KEYWORDS,
      "Create a multibody by loading a URDF file."},
 
     {"loadSDF", pybullet_loadSDF, METH_VARARGS,
@@ -2988,6 +3679,19 @@ static PyMethodDef SpamMethods[] = {
      "instantaneously, not through physics simulation. (x,y,z) position vector "
      "and (x,y,z,w) quaternion orientation."},
 
+	 { "getBaseVelocity", pybullet_getBaseVelocity,
+		METH_VARARGS,
+		"Get the linear and angular velocity of the base of the object "
+		" in world space coordinates. "
+		"(x,y,z) linear velocity vector and (x,y,z) angular velocity vector." },
+
+	{ "resetBaseVelocity", (PyCFunction)pybullet_resetBaseVelocity, METH_VARARGS | METH_KEYWORDS,
+	"Reset the linear and/or angular velocity of the base of the object "
+	" in world space coordinates. "
+	"linearVelocity (x,y,z) and angularVelocity (x,y,z)." },
+
+	
+
     {"getNumJoints", pybullet_getNumJoints, METH_VARARGS,
      "Get the number of joints for an object."},
 
@@ -3020,14 +3724,34 @@ static PyMethodDef SpamMethods[] = {
      "[x,y,z] in Cartesian coordinates, flag to select TORQUE_IN_LINK_FRAME or "
      "TORQUE_IN_WORLD_FRAME coordinates"},
 
-    {"renderImage", pybullet_renderImage, METH_VARARGS,
-     "Render an image (given the pixel resolution width, height, camera view "
-     "matrix, projection matrix, near, and far values), and return the "
-     "8-8-8bit RGB pixel data and floating point depth values"
-#ifdef PYBULLET_USE_NUMPY
-     " as NumPy arrays"
-#endif
+    {"renderImage", pybullet_renderImageObsolete, METH_VARARGS,
+     "obsolete, please use getCameraImage and getViewProjectionMatrices instead"
      },
+
+	 { "getCameraImage",(PyCFunction)pybullet_getCameraImage, METH_VARARGS| METH_KEYWORDS,
+			"Render an image (given the pixel resolution width, height, camera viewMatrix "
+			", projectionMatrix, lightDirection, lightColor, lightDistance, and shadow), and return the "
+			"8-8-8bit RGB pixel data and floating point depth values"
+#ifdef PYBULLET_USE_NUMPY
+			" as NumPy arrays"
+#endif
+	 },
+
+	 { "computeViewMatrix", (PyCFunction)pybullet_computeViewMatrix, METH_VARARGS | METH_KEYWORDS,
+		"Compute a camera viewmatrix from camera eye,  target position and up vector "
+	 },
+
+	{ "computeViewMatrixFromYawPitchRoll",(PyCFunction)pybullet_computeViewMatrixFromYawPitchRoll, METH_VARARGS | METH_KEYWORDS,
+		"Compute a camera viewmatrix from camera eye,  target position and up vector "
+	},
+	
+	{ "computeProjectionMatrix", (PyCFunction)pybullet_computeProjectionMatrix, METH_VARARGS | METH_KEYWORDS,
+		"Compute a camera projection matrix from screen left/right/bottom/top/near/far values"
+	},
+
+	{ "computeProjectionMatrixFOV", (PyCFunction)pybullet_computeProjectionMatrixFOV, METH_VARARGS | METH_KEYWORDS,
+		"Compute a camera projection matrix from fov, aspect ratio, near, far values"
+	},
 
     {"getContactPoints", (PyCFunction)pybullet_getContactPointData, METH_VARARGS | METH_KEYWORDS,
      "Return existing contact points after the stepSimulation command. "
@@ -3066,6 +3790,10 @@ static PyMethodDef SpamMethods[] = {
 	 "remove all user debug draw items"
 	  },
 
+	  {	"setDebugObjectColor", (PyCFunction)pybullet_setDebugObjectColor, METH_VARARGS | METH_KEYWORDS,
+		"Override the wireframe debug drawing color for a particular object unique id / link index."
+		"If you ommit the color, the custom color will be removed."
+	  },
 
 
     {"getVisualShapeData", pybullet_getVisualShapeData, METH_VARARGS,

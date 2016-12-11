@@ -149,7 +149,6 @@ void	btDiscreteDynamicsWorldMt::solveConstraints(btContactSolverInfo& solverInfo
 {
 	BT_PROFILE("solveConstraints");
 
-
 	m_solverIslandCallbackMt->setup(&solverInfo, getDebugDrawer());
 	m_constraintSolver->prepareSolve(getCollisionWorld()->getNumCollisionObjects(), getCollisionWorld()->getDispatcher()->getNumManifolds());
 
@@ -161,8 +160,3 @@ void	btDiscreteDynamicsWorldMt::solveConstraints(btContactSolverInfo& solverInfo
 }
 
 
-void btDiscreteDynamicsWorldMt::addCollisionObject(btCollisionObject* collisionObject, short int collisionFilterGroup, short int collisionFilterMask)
-{
-    collisionObject->setUniqueId(m_collisionObjects.size());
-    btDiscreteDynamicsWorld::addCollisionObject(collisionObject, collisionFilterGroup, collisionFilterMask);
-}

@@ -751,7 +751,7 @@ int	btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& 
         // Kinematic bodies can be in multiple islands at once, so it is a
         // race condition to write to them, so we use an alternate method
         // to record the solverBodyId
-        int uniqueId = body.getUniqueId();
+        int uniqueId = body.getWorldArrayIndex();
         const int INVALID_SOLVER_BODY_ID = -1;
         if (uniqueId >= m_kinematicBodyUniqueIdToSolverBodyTable.size())
         {

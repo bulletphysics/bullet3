@@ -27,6 +27,7 @@
 //@todo(erwincoumans) those globals are hacks for a VR demo, move this to Python/pybullet!
 extern btVector3 gLastPickPos;
 btVector3 gVRTeleportPos1(0,0,0);
+btScalar gVRTeleportRotZ = 0;
 btQuaternion gVRTeleportOrn(0, 0, 0,1);
 extern btVector3 gVRGripperPos;
 extern btQuaternion gVRGripperOrn;
@@ -39,15 +40,53 @@ extern bool gEnableRealTimeSimVR;
 extern bool gCreateDefaultRobotAssets;
 extern int gInternalSimFlags;
 extern int gCreateObjectSimVR;
+extern bool gResetSimulation;
 extern int gEnableKukaControl;
 int gGraspingController = -1;
 extern btScalar simTimeScalingFactor;
 
 extern bool gVRGripperClosed;
 
-#if B3_USE_MIDI
+const char* startFileNameVR = "0_VRDemoSettings.txt";
 
 #include <vector>
+
+//remember the settings (you don't want to re-tune again and again...)
+static void saveCurrentSettingsVR()
+{
+	FILE* f = fopen(startFileNameVR, "w");
+	if (f)
+	{
+		fprintf(f, "--camPosX= %f\n", gVRTeleportPos1[0]);
+		fprintf(f, "--camPosY= %f\n", gVRTeleportPos1[1]);
+		fprintf(f, "--camPosZ= %f\n", gVRTeleportPos1[2]);
+		fprintf(f, "--camRotZ= %f\n", gVRTeleportRotZ);
+		fclose(f);
+	}
+};
+
+static void loadCurrentSettingsVR(b3CommandLineArgs& args)
+{
+	int currentEntry = 0;
+	FILE* f = fopen(startFileNameVR, "r");
+	if (f)
+	{
+		char oneline[1024];
+		char* argv[] = { 0,&oneline[0] };
+
+		while (fgets(oneline, 1024, f) != NULL)
+		{
+			char *pos;
+			if ((pos = strchr(oneline, '\n')) != NULL)
+				*pos = '\0';
+			args.addArgs(2, argv);
+		}
+		fclose(f);
+	}
+
+};
+#if B3_USE_MIDI
+
 
 static float getParamf(float rangeMin, float rangeMax, int midiVal)
 {
@@ -69,9 +108,10 @@ void midiCallback(double deltatime, std::vector< unsigned char > *message, void 
 		{
 			if (message->at(1) == 16)
 			{
-				float rotZ = getParamf(-3.1415, 3.1415, message->at(2));
-				gVRTeleportOrn = btQuaternion(btVector3(0, 0, 1), rotZ);
-				b3Printf("gVRTeleportOrn rotZ = %f\n", rotZ);
+				gVRTeleportRotZ= getParamf(-3.1415, 3.1415, message->at(2));
+				gVRTeleportOrn = btQuaternion(btVector3(0, 0, 1), gVRTeleportRotZ);
+				saveCurrentSettingsVR();
+				b3Printf("gVRTeleportOrn rotZ = %f\n", gVRTeleportRotZ);
 			}
 
 			if (message->at(1) == 32)
@@ -84,6 +124,7 @@ void midiCallback(double deltatime, std::vector< unsigned char > *message, void 
 				if (message->at(1) == i)
 				{
 					gVRTeleportPos1[i] = getParamf(-2, 2, message->at(2));
+					saveCurrentSettingsVR();
 					b3Printf("gVRTeleportPos[%d] =  %f\n", i,gVRTeleportPos1[i]);
 
 				}
@@ -273,7 +314,7 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 						args->m_physicsServerPtr->removePickingConstraint();
 					}
 
-					if (!gEnableKukaControl)
+//					if (!gEnableKukaControl)
 					{
 						if (args->m_isVrControllerPicking[c])
 						{
@@ -825,6 +866,7 @@ public:
     virtual bool wantsTermination();
     virtual bool isConnected();
 	virtual void	renderScene();
+	void drawUserDebugLines();
 	virtual void    exitPhysics();
 
 	virtual void	physicsDebugDraw(int debugFlags);
@@ -925,7 +967,7 @@ public:
 	virtual void	processCommandLineArgs(int argc, char* argv[])
 	{
 		b3CommandLineArgs args(argc,argv);
-
+		loadCurrentSettingsVR(args);
 		if (args.GetCmdLineArgument("camPosX", gVRTeleportPos1[0]))
 		{
 			printf("camPosX=%f\n", gVRTeleportPos1[0]);
@@ -1353,7 +1395,51 @@ extern int gHuskyId;
 extern btTransform huskyTr;
 
 
+void PhysicsServerExample::drawUserDebugLines()
+{
+	static char line0[1024];
+	static char line1[1024];
 
+	//draw all user-debug-lines
+
+	//add array of lines
+
+	//draw all user- 'text3d' messages
+	if (m_multiThreadedHelper)
+	{
+
+		for (int i = 0; i<m_multiThreadedHelper->m_userDebugLines.size(); i++)
+		{
+			btVector3 from;
+			from.setValue(m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[0],
+				m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[1],
+				m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[2]);
+			btVector3 toX;
+			toX.setValue(m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[0],
+				m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[1],
+				m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[2]);
+
+			btVector3 color;
+			color.setValue(m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[0],
+				m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[1],
+				m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[2]);
+
+
+			m_guiHelper->getAppInterface()->m_renderer->drawLine(from, toX, color, m_multiThreadedHelper->m_userDebugLines[i].m_lineWidth);
+		}
+
+		for (int i = 0; i<m_multiThreadedHelper->m_userDebugText.size(); i++)
+		{
+			m_guiHelper->getAppInterface()->drawText3D(m_multiThreadedHelper->m_userDebugText[i].m_text,
+				m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ[0],
+				m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ[1],
+				m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ[2],
+				m_multiThreadedHelper->m_userDebugText[i].textSize);
+
+		}
+	}
+
+}
 
 void PhysicsServerExample::renderScene()
 {
@@ -1369,48 +1455,8 @@ void PhysicsServerExample::renderScene()
 		
 
 	B3_PROFILE("PhysicsServerExample::RenderScene");
-	static char line0[1024];
-		static char line1[1024];
 
-	//draw all user-debug-lines
-
-	//add array of lines
-
-	//draw all user- 'text3d' messages
-		if (m_multiThreadedHelper)
-		{
-			
-			for (int i=0;i<m_multiThreadedHelper->m_userDebugLines.size();i++)
-			{
-				btVector3 from;
-				from.setValue(	m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[0],
-								m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[1],
-								m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[2]);
-				btVector3 toX;
-				toX.setValue(	m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[0],
-								m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[1],
-								m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[2]);
-				
-				btVector3 color;
-				color.setValue(	m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[0],
-								m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[1],
-								m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[2]);
-
-				
-				m_guiHelper->getAppInterface()->m_renderer->drawLine(from, toX, color, m_multiThreadedHelper->m_userDebugLines[i].m_lineWidth);
-			}
-			
-			for (int i=0;i<m_multiThreadedHelper->m_userDebugText.size();i++)
-			{
-				m_guiHelper->getAppInterface()->drawText3D(m_multiThreadedHelper->m_userDebugText[i].m_text,
-					m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ[0],
-					m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ[1],
-					m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ[2],
-					m_multiThreadedHelper->m_userDebugText[i].textSize);
-				
-			}
-		}
-
+	drawUserDebugLines();
 
 	if (gEnableRealTimeSimVR)
 	{
@@ -1424,6 +1470,7 @@ void PhysicsServerExample::renderScene()
 		static int count = 0;
 		count++;
 
+#if 0
 		if (0 == (count & 1))
 		{
 			btScalar curTime = m_clock.getTimeSeconds();
@@ -1444,6 +1491,7 @@ void PhysicsServerExample::renderScene()
 				worseFps = 1000000;
 			}
 		}
+#endif
 
 #ifdef BT_ENABLE_VR
 		if ((gInternalSimFlags&2 ) && m_tinyVrGui==0)
@@ -1468,7 +1516,9 @@ void PhysicsServerExample::renderScene()
 			tr = tr*b3Transform(b3Quaternion(0,0,-SIMD_HALF_PI),b3MakeVector3(0,0,0));
 			b3Scalar dt = 0.01;
 			m_tinyVrGui->clearTextArea();
-			
+			static char line0[1024];
+			static char line1[1024];
+
 			m_tinyVrGui->grapicalPrintf(line0,0,0,0,0,0,255);
 			m_tinyVrGui->grapicalPrintf(line1,0,16,255,255,255,255);
 
@@ -1544,6 +1594,8 @@ void PhysicsServerExample::renderScene()
 
 void    PhysicsServerExample::physicsDebugDraw(int debugDrawFlags)
 {
+	drawUserDebugLines();
+
 	///debug rendering
 	m_physicsServer.physicsDebugDraw(debugDrawFlags);
 
@@ -1653,13 +1705,16 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 		return;
 
 	if (gGraspingController < 0)
+	{
 		gGraspingController = controllerId;
-
+		gEnableKukaControl = true;
+	}
 	if (controllerId != gGraspingController)
 	{
 		if (button == 1 && state == 0)
 		{
-//			gVRTeleportPos = gLastPickPos;
+			gResetSimulation = true;
+			//gVRTeleportPos1 = gLastPickPos;
 		}
 	} else
 	{
@@ -1671,7 +1726,7 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 			} else
 			{
 				gDebugRenderToggle = 0;
-				
+#if 0//it confuses people, make it into a debug option in a VR GUI?
 				if (simTimeScalingFactor==0)
 				{
 					simTimeScalingFactor = 1;
@@ -1686,6 +1741,7 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 						simTimeScalingFactor = 0;
 					}
 				}
+#endif
 			}
 		} else
 		{
@@ -1703,7 +1759,7 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 		}
 		else
 		{
-			gEnableKukaControl = !gEnableKukaControl;
+//			gEnableKukaControl = !gEnableKukaControl;
 		}
 	}
 	

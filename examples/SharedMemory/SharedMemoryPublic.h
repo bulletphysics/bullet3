@@ -40,6 +40,7 @@ enum EnumSharedMemoryClientCommand
 	CMD_REQUEST_VISUAL_SHAPE_INFO,
     CMD_UPDATE_VISUAL_SHAPE,
     CMD_LOAD_TEXTURE,
+    CMD_SET_SHADOW,
 	CMD_USER_DEBUG_DRAW,
 
     //don't go beyond this command!

@@ -164,9 +164,7 @@ struct	btCompoundCompoundLeafCallback : btDbvt::ICollide
 		btVector3 thresholdVec(m_resultOut->m_closestPointDistanceThreshold, m_resultOut->m_closestPointDistanceThreshold, m_resultOut->m_closestPointDistanceThreshold);
 
 		aabbMin0 -= thresholdVec;
-		aabbMin1 -= thresholdVec;
 		aabbMax0 += thresholdVec;
-		aabbMax1 += thresholdVec;
 
 		if (gCompoundCompoundChildShapePairCallback)
 		{
@@ -183,17 +181,24 @@ struct	btCompoundCompoundLeafCallback : btDbvt::ICollide
 			btSimplePair* pair = m_childCollisionAlgorithmCache->findPair(childIndex0,childIndex1);
 
 			btCollisionAlgorithm* colAlgo = 0;
+			if (m_resultOut->m_closestPointDistanceThreshold > 0)
+			{
+				colAlgo = m_dispatcher->findAlgorithm(&compoundWrap0, &compoundWrap1, 0, BT_CLOSEST_POINT_ALGORITHMS);
+			}
+			else
+			{
+				if (pair)
+				{
+					colAlgo = (btCollisionAlgorithm*)pair->m_userPointer;
 
-			if (pair)
-			{
-				colAlgo = (btCollisionAlgorithm*)pair->m_userPointer;
-				
-			} else
-			{
-				colAlgo = m_dispatcher->findAlgorithm(&compoundWrap0,&compoundWrap1,m_sharedManifold);
-				pair = m_childCollisionAlgorithmCache->addOverlappingPair(childIndex0,childIndex1);
-				btAssert(pair);
-				pair->m_userPointer = colAlgo;
+				}
+				else
+				{
+					colAlgo = m_dispatcher->findAlgorithm(&compoundWrap0, &compoundWrap1, m_sharedManifold, BT_CONTACT_POINT_ALGORITHMS);
+					pair = m_childCollisionAlgorithmCache->addOverlappingPair(childIndex0, childIndex1);
+					btAssert(pair);
+					pair->m_userPointer = colAlgo;
+				}
 			}
 
 			btAssert(colAlgo);
