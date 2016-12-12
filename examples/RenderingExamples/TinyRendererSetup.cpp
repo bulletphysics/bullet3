@@ -23,6 +23,7 @@ struct TinyRendererSetupInternalData
 	
 	TGAImage m_rgbColorBuffer;
 	b3AlignedObjectArray<float> m_depthBuffer;
+    b3AlignedObjectArray<float> m_shadowBuffer;
 	b3AlignedObjectArray<int> m_segmentationMaskBuffer;
 
 
@@ -53,6 +54,7 @@ struct TinyRendererSetupInternalData
 		m_animateRenderer(0)
 	{
 		m_depthBuffer.resize(m_width*m_height);
+        m_shadowBuffer.resize(m_width*m_height);
 //        m_segmentationMaskBuffer.resize(m_width*m_height);
 
     }
@@ -152,7 +154,7 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
     
 	const char* fileName = "textured_sphere_smooth.obj";
     fileName = "cube.obj";
-	
+    fileName = "torus/torus_with_plane.obj";
 
 	{
 		
@@ -188,6 +190,7 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 				TinyRenderObjectData* ob = new TinyRenderObjectData(
 					m_internalData->m_rgbColorBuffer,
 					m_internalData->m_depthBuffer,
+                    &m_internalData->m_shadowBuffer,
 					&m_internalData->m_segmentationMaskBuffer,
 					m_internalData->m_renderObjects.size());
                 
@@ -328,6 +331,7 @@ void TinyRendererSetup::stepSimulation(float deltaTime)
             {
                 m_internalData->m_rgbColorBuffer.set(x,y,clearColor);
                 m_internalData->m_depthBuffer[x+y*m_internalData->m_width] = -1e30f;
+                m_internalData->m_shadowBuffer[x+y*m_internalData->m_width] = -1e30f;
             }
         }
 
@@ -339,7 +343,46 @@ void TinyRendererSetup::stepSimulation(float deltaTime)
         render->getActiveCamera()->getCameraViewMatrix(viewMat);
         render->getActiveCamera()->getCameraProjectionMatrix(projMat);
             
-
+        for (int o=0;o<this->m_internalData->m_renderObjects.size();o++)
+        {
+            
+            const btTransform& tr = m_internalData->m_transforms[o];
+            tr.getOpenGLMatrix(modelMat2);
+            
+            
+            for (int i=0;i<4;i++)
+            {
+                for (int j=0;j<4;j++)
+                {
+                    m_internalData->m_renderObjects[o]->m_modelMatrix[i][j] = float(modelMat2[i+4*j]);
+                    m_internalData->m_renderObjects[o]->m_viewMatrix[i][j] = viewMat[i+4*j];
+                    m_internalData->m_renderObjects[o]->m_projectionMatrix[i][j] = projMat[i+4*j];
+                    
+                    btVector3 lightDirWorld;
+                    switch (m_app->getUpAxis())
+                    {
+                        case 1:
+                            lightDirWorld = btVector3(-50.f,100,30);
+                            break;
+                        case 2:
+                            lightDirWorld = btVector3(-50.f,30,100);
+                            break;
+                        default:{}
+                    };
+                    
+                    m_internalData->m_renderObjects[o]->m_lightDirWorld = lightDirWorld.normalized();
+                    
+                    btVector3 lightColor(1.0,1.0,1.0);
+                    m_internalData->m_renderObjects[o]->m_lightColor = lightColor;
+                    
+                    m_internalData->m_renderObjects[o]->m_lightDistance = 10.0;
+                    m_internalData->m_renderObjects[o]->m_lightAmbientCoeff = 0.6;
+                    m_internalData->m_renderObjects[o]->m_lightDiffuseCoeff = 0.35;
+                    m_internalData->m_renderObjects[o]->m_lightSpecularCoeff = 0.05;
+                }
+            }
+            TinyRenderer::renderObjectDepth(*m_internalData->m_renderObjects[o]);
+        }
         
         for (int o=0;o<this->m_internalData->m_renderObjects.size();o++)
         {
@@ -369,6 +412,14 @@ void TinyRendererSetup::stepSimulation(float deltaTime)
 					};
 					
 					m_internalData->m_renderObjects[o]->m_lightDirWorld = lightDirWorld.normalized();
+                    
+                    btVector3 lightColor(1.0,1.0,1.0);
+                    m_internalData->m_renderObjects[o]->m_lightColor = lightColor;
+                    
+                    m_internalData->m_renderObjects[o]->m_lightDistance = 10.0;
+                    m_internalData->m_renderObjects[o]->m_lightAmbientCoeff = 0.6;
+                    m_internalData->m_renderObjects[o]->m_lightDiffuseCoeff = 0.35;
+                    m_internalData->m_renderObjects[o]->m_lightSpecularCoeff = 0.05;
 					
                 }
             }

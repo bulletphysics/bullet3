@@ -23,6 +23,8 @@ class PhysicsServerCommandProcessor : public PhysicsCommandProcessorInterface
 	//todo: move this to physics client side / Python
 	void createDefaultRobotAssets();
 
+	void resetSimulation();
+
 protected:
 
 
@@ -37,6 +39,7 @@ protected:
 
 	int createBodyInfoStream(int bodyUniqueId, char* bufferServerToClient, int bufferSizeInBytes);
 	void deleteCachedInverseDynamicsBodies();
+	void deleteCachedInverseKinematicsBodies();
 
 public:
 	PhysicsServerCommandProcessor();
@@ -82,6 +85,7 @@ public:
 	void replayFromLogFile(const char* fileName);
 	void replayLogCommand(char* bufferServerToClient, int bufferSizeInBytes );
 	void stepSimulationRealTime(double dtInSec);
+	void enableRealTimeSimulation(bool enableRealTimeSim);
 	void applyJointDamping(int bodyUniqueId);
 };
 
