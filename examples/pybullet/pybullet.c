@@ -3883,6 +3883,12 @@ initpybullet(void)
   PyModule_AddIntConstant(m, "GUI", eCONNECT_GUI);        // user read
   PyModule_AddIntConstant(m, "UDP", eCONNECT_UDP);        // user read
 
+  PyModule_AddIntConstant(m, "JOINT_REVOLUTE", eRevoluteType);        // user read
+  PyModule_AddIntConstant(m, "JOINT_PRISMATIC", ePrismaticType);        // user read
+  PyModule_AddIntConstant(m, "JOINT_SPHERICAL", eSphericalType);        // user read
+  PyModule_AddIntConstant(m, "JOINT_PLANAR", ePlanarType);        // user read
+  PyModule_AddIntConstant(m, "JOINT_FIXED", eFixedType);        // user read
+  PyModule_AddIntConstant(m, "JOINT_POINT2POINT", ePoint2PointType);        // user read
 
   PyModule_AddIntConstant(m, "TORQUE_CONTROL", CONTROL_MODE_TORQUE);
   PyModule_AddIntConstant(m, "VELOCITY_CONTROL",

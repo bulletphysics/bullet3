@@ -130,10 +130,12 @@ enum
 
 // copied from btMultiBodyLink.h
 enum JointType {
-    eRevoluteType = 0,
-    ePrismaticType = 1,
-    eFixedType = 2,
-	ePoint2PointType = 3,
+	eRevoluteType = 0,
+	ePrismaticType = 1,
+	eSphericalType = 2,
+	ePlanarType = 3,
+	eFixedType = 4,
+	ePoint2PointType = 5,
 };
 
 struct b3JointInfo
