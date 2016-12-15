@@ -3405,8 +3405,8 @@ static PyObject* pybullet_getEulerFromQuaternion(PyObject* self,
 }
 
 
-///Experimental Inverse Kinematics binding ,7-dof KUKA IIWA only
-static PyObject* pybullet_calculateInverseKinematicsKuka(PyObject* self,
+///Inverse Kinematics binding
+static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
                                                    PyObject* args) {
     int size;
     if (0 == sm) {
@@ -3825,9 +3825,9 @@ static PyMethodDef SpamMethods[] = {
      "Given an object id, joint positions, joint velocities and joint "
      "accelerations, compute the joint forces using Inverse Dynamics"},
     
-    {"calculateInverseKinematicsKuka", pybullet_calculateInverseKinematicsKuka,
+    {"calculateInverseKinematics", pybullet_calculateInverseKinematics,
         METH_VARARGS,
-        "Experimental, KUKA IIWA only: Given an object id, "
+        "Inverse Kinematics bindings: Given an object id, "
         "current joint positions and target position"
         " for the end effector,"
         "compute the inverse kinematics and return the new joint state"},
