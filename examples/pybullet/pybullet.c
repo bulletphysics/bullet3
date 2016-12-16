@@ -3405,8 +3405,8 @@ static PyObject* pybullet_getEulerFromQuaternion(PyObject* self,
 }
 
 
-///Experimental Inverse Kinematics binding ,7-dof KUKA IIWA only
-static PyObject* pybullet_calculateInverseKinematicsKuka(PyObject* self,
+///Inverse Kinematics binding
+static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
                                                    PyObject* args) {
     int size;
     if (0 == sm) {
@@ -3825,9 +3825,9 @@ static PyMethodDef SpamMethods[] = {
      "Given an object id, joint positions, joint velocities and joint "
      "accelerations, compute the joint forces using Inverse Dynamics"},
     
-    {"calculateInverseKinematicsKuka", pybullet_calculateInverseKinematicsKuka,
+    {"calculateInverseKinematics", pybullet_calculateInverseKinematics,
         METH_VARARGS,
-        "Experimental, KUKA IIWA only: Given an object id, "
+        "Inverse Kinematics bindings: Given an object id, "
         "current joint positions and target position"
         " for the end effector,"
         "compute the inverse kinematics and return the new joint state"},
@@ -3883,6 +3883,12 @@ initpybullet(void)
   PyModule_AddIntConstant(m, "GUI", eCONNECT_GUI);        // user read
   PyModule_AddIntConstant(m, "UDP", eCONNECT_UDP);        // user read
 
+  PyModule_AddIntConstant(m, "JOINT_REVOLUTE", eRevoluteType);        // user read
+  PyModule_AddIntConstant(m, "JOINT_PRISMATIC", ePrismaticType);        // user read
+  PyModule_AddIntConstant(m, "JOINT_SPHERICAL", eSphericalType);        // user read
+  PyModule_AddIntConstant(m, "JOINT_PLANAR", ePlanarType);        // user read
+  PyModule_AddIntConstant(m, "JOINT_FIXED", eFixedType);        // user read
+  PyModule_AddIntConstant(m, "JOINT_POINT2POINT", ePoint2PointType);        // user read
 
   PyModule_AddIntConstant(m, "TORQUE_CONTROL", CONTROL_MODE_TORQUE);
   PyModule_AddIntConstant(m, "VELOCITY_CONTROL",

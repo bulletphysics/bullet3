@@ -676,7 +676,7 @@ bool CMainApplication::HandleInput()
 	for( vr::TrackedDeviceIndex_t unDevice = 0; unDevice < vr::k_unMaxTrackedDeviceCount; unDevice++ )
 	{
 		vr::VRControllerState_t state;
-		if( m_pHMD->GetControllerState( unDevice, &state ) )
+		if( m_pHMD->GetControllerState( unDevice, &state ,sizeof(vr::VRControllerState_t)) )
 		{
 			//we need to have the 'move' events, so no early out here
 			//if (sPrevStates[unDevice].unPacketNum != state.unPacketNum)
@@ -1488,8 +1488,9 @@ void CMainApplication::SetupDistortion()
 			u = x*w; v = 1-y*h;
 			vert.position = Vector2( Xoffset+u, -1+2*y*h );
 
-			vr::DistortionCoordinates_t dc0 = m_pHMD->ComputeDistortion(vr::Eye_Left, u, v);
-
+			vr::DistortionCoordinates_t dc0;
+			bool result = m_pHMD->ComputeDistortion(vr::Eye_Left, u, v,&dc0);
+			btAssert(result);
 			vert.texCoordRed = Vector2(dc0.rfRed[0], 1 - dc0.rfRed[1]);
 			vert.texCoordGreen =  Vector2(dc0.rfGreen[0], 1 - dc0.rfGreen[1]);
 			vert.texCoordBlue = Vector2(dc0.rfBlue[0], 1 - dc0.rfBlue[1]);
@@ -1507,8 +1508,9 @@ void CMainApplication::SetupDistortion()
 			u = x*w; v = 1-y*h;
 			vert.position = Vector2( Xoffset+u, -1+2*y*h );
 
-			vr::DistortionCoordinates_t dc0 = m_pHMD->ComputeDistortion( vr::Eye_Right, u, v );
-
+			vr::DistortionCoordinates_t dc0;
+			bool result = m_pHMD->ComputeDistortion( vr::Eye_Right, u, v,&dc0 );
+			btAssert(result);
 			vert.texCoordRed = Vector2(dc0.rfRed[0], 1 - dc0.rfRed[1]);
 			vert.texCoordGreen = Vector2(dc0.rfGreen[0], 1 - dc0.rfGreen[1]);
 			vert.texCoordBlue = Vector2(dc0.rfBlue[0], 1 - dc0.rfBlue[1]);
