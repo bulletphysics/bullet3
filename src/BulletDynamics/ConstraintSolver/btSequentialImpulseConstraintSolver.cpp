@@ -330,11 +330,11 @@ btScalar btSequentialImpulseConstraintSolver::resolveSplitPenetrationImpulseCach
 		return deltaImpulse;
 }
 
-btScalar btSequentialImpulseConstraintSolver::resolveSplitPenetrationSIMD(btSolverBody& body1,btSolverBody& body2,const btSolverConstraint& c)
+btSimdScalar btSequentialImpulseConstraintSolver::resolveSplitPenetrationSIMD(btSolverBody& body1,btSolverBody& body2,const btSolverConstraint& c)
 {
 #ifdef USE_SIMD
 	if (!c.m_rhsPenetration)
-		return;
+		return 0.f;
 
 	gNumSplitImpulseRecoveries++;
 

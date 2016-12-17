@@ -92,7 +92,7 @@ protected:
 	void	convertContact(btPersistentManifold* manifold,const btContactSolverInfo& infoGlobal);
 
 
-	btScalar	resolveSplitPenetrationSIMD(
+	btSimdScalar	resolveSplitPenetrationSIMD(
      btSolverBody& bodyA,btSolverBody& bodyB,
         const btSolverConstraint& contactConstraint);
 
