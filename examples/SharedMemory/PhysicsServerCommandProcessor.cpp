@@ -717,7 +717,8 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
     
 	m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop = 0.00001;
 	m_data->m_dynamicsWorld->getSolverInfo().m_numIterations = 50;
-
+	m_data->m_dynamicsWorld->getSolverInfo().m_leastSquaresResidualThreshold = 1e-7;
+	
 }
 
 void PhysicsServerCommandProcessor::deleteCachedInverseKinematicsBodies()

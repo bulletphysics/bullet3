@@ -32,6 +32,7 @@ struct	GpuRigidBodyDemoInternalData
 	int m_pickGraphicsShapeIndex;
 	int m_pickGraphicsShapeInstance;
 	b3Config m_config;
+	GUIHelperInterface* m_guiHelper;
 
 	GpuRigidBodyDemoInternalData()
 		:m_instancePosOrnColor(0),
@@ -45,7 +46,8 @@ struct	GpuRigidBodyDemoInternalData
 		m_pickGraphicsShapeInstance(-1),
 		m_pickBody(-1),
 		m_altPressed(0),
-		m_controlPressed(0)
+		m_controlPressed(0),
+		m_guiHelper(0)
 
 	{
 	}

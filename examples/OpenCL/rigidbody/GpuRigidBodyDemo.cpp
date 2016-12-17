@@ -80,7 +80,18 @@ m_window(0)
 	m_window = helper->getAppInterface()->m_window;
 
 	m_data = new GpuRigidBodyDemoInternalData;
+	m_data->m_guiHelper = helper;
 }
+
+void GpuRigidBodyDemo::resetCamera()
+{
+	float dist = 114;
+	float pitch = 52;
+	float yaw = 35;
+	float targetPos[3]={0,0,0};
+	m_data->m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+}
+
 GpuRigidBodyDemo::~GpuRigidBodyDemo()
 {
 

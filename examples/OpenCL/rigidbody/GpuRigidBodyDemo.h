@@ -31,7 +31,8 @@ public:
 	
 	virtual void renderScene();
 	
-	
+	void resetCamera();
+
 	virtual void stepSimulation(float deltaTime);
 
 	//for picking
