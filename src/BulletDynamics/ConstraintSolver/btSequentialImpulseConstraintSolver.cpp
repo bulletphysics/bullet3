@@ -39,7 +39,7 @@ int		gNumSplitImpulseRecoveries = 0;
 
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 
-#define VERBOSE_RESIDUAL_PRINTF 1
+//#define VERBOSE_RESIDUAL_PRINTF 1
 ///This is the scalar reference implementation of solving a single constraint row, the innerloop of the Projected Gauss Seidel/Sequential Impulse constraint solver
 ///Below are optional SSE2 and SSE4/FMA3 versions. We assume most hardware has SSE2. For SSE4/FMA3 we perform a CPU feature check.
 static btSimdScalar gResolveSingleConstraintRowGeneric_scalar_reference(btSolverBody& body1, btSolverBody& body2, const btSolverConstraint& c)
