@@ -406,6 +406,17 @@ struct CommonRigidBodyMTBase : public CommonExampleInterface
 		return body;
 	}
 
+    btRigidBody* createKinematicBody(const btTransform& startTransform, btCollisionShape* shape)
+    {
+        btAssert( ( !shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE ) );
+
+        btRigidBody* body = new btRigidBody( 0.0f, NULL, shape );
+        body->setWorldTransform( startTransform );
+        body->setCollisionFlags( body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT );
+        body->setUserIndex( -1 );
+        m_dynamicsWorld->addRigidBody( body );
+        return body;
+    }
 
 	
 	virtual void renderScene()
