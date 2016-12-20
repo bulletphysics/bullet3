@@ -30,6 +30,13 @@ class btCollisionShape;
 
 #define BT_OVERRIDE
 
+static btScalar gSliderStackRows = 8.0f;
+static btScalar gSliderStackColumns = 6.0f;
+static btScalar gSliderStackHeight = 15.0f;
+static btScalar gSliderGroundHorizontalAmplitude = 0.0f;
+static btScalar gSliderGroundVerticalAmplitude = 0.0f;
+
+
 /// MultiThreadedDemo shows how to setup and use multithreading
 class MultiThreadedDemo  : public CommonRigidBodyMTBase
 {
@@ -41,6 +48,9 @@ class MultiThreadedDemo  : public CommonRigidBodyMTBase
     float m_cameraPitch;
     float m_cameraYaw;
     float m_cameraDist;
+    btRigidBody* m_groundBody;
+    btTransform m_groundStartXf;
+    float m_groundMovePhase;
 
     void createStack( const btVector3& pos, btCollisionShape* boxShape, const btVector3& halfBoxSize, int size );
     void createSceneObjects();
@@ -57,6 +67,28 @@ public:
     {
         if ( m_dynamicsWorld )
         {
+            if (m_groundBody)
+            {
+                // update ground
+                const float cyclesPerSecond = 1.0f;
+                m_groundMovePhase += cyclesPerSecond * deltaTime;
+                m_groundMovePhase -= floor( m_groundMovePhase );  // keep phase between 0 and 1
+                btTransform xf = m_groundStartXf;
+                float gndHOffset = btSin(m_groundMovePhase * SIMD_2_PI) * gSliderGroundHorizontalAmplitude;
+                float gndHVel    = btCos(m_groundMovePhase * SIMD_2_PI) * gSliderGroundHorizontalAmplitude * cyclesPerSecond * SIMD_2_PI; // d(gndHOffset)/dt
+                float gndVOffset = btSin(m_groundMovePhase * SIMD_2_PI) * gSliderGroundVerticalAmplitude;
+                float gndVVel    = btCos(m_groundMovePhase * SIMD_2_PI) * gSliderGroundVerticalAmplitude * cyclesPerSecond * SIMD_2_PI; // d(gndVOffset)/dt
+                btVector3 offset(0,0,0);
+                btVector3 vel(0,0,0);
+                int horizAxis = 2;
+                offset[horizAxis] = gndHOffset;
+                vel[horizAxis] = gndHVel;
+                offset[kUpAxis] = gndVOffset;
+                vel[kUpAxis] = gndVVel;
+                xf.setOrigin(xf.getOrigin() + offset);
+                m_groundBody->setWorldTransform( xf );
+                m_groundBody->setLinearVelocity( vel );
+            }
             // always step by 1/60 for benchmarking
             m_dynamicsWorld->stepSimulation( 1.0f / 60.0f, 0 );
         }
@@ -80,6 +112,8 @@ public:
 MultiThreadedDemo::MultiThreadedDemo(struct GUIHelperInterface* helper)
     : CommonRigidBodyMTBase( helper )
 {
+    m_groundBody = NULL;
+    m_groundMovePhase = 0.0f;
     m_cameraTargetPos = btVector3( 0.0f, 0.0f, 0.0f );
     m_cameraPitch = 90.0f;
     m_cameraYaw = 30.0f;
@@ -87,10 +121,6 @@ MultiThreadedDemo::MultiThreadedDemo(struct GUIHelperInterface* helper)
     helper->setUpAxis( kUpAxis );
 }
 
-
-static btScalar gSliderStackRows = 8.0f;
-static btScalar gSliderStackColumns = 6.0f;
-static btScalar gSliderStackHeight = 15.0f;
 
 void MultiThreadedDemo::initPhysics()
 {
@@ -117,6 +147,22 @@ void MultiThreadedDemo::initPhysics()
         slider.m_minVal = 1.0f;
         slider.m_maxVal = 20.0f;
         slider.m_clampToIntegers = true;
+        m_guiHelper->getParameterInterface()->registerSliderFloatParameter( slider );
+    }
+    {
+        // horizontal ground shake
+        SliderParams slider( "Ground horiz amp", &gSliderGroundHorizontalAmplitude );
+        slider.m_minVal = 0.0f;
+        slider.m_maxVal = 1.0f;
+        slider.m_clampToNotches = false;
+        m_guiHelper->getParameterInterface()->registerSliderFloatParameter( slider );
+    }
+    {
+        // vertical ground shake
+        SliderParams slider( "Ground vert amp", &gSliderGroundVerticalAmplitude );
+        slider.m_minVal = 0.0f;
+        slider.m_maxVal = 1.0f;
+        slider.m_clampToNotches = false;
         m_guiHelper->getParameterInterface()->registerSliderFloatParameter( slider );
     }
 	
@@ -161,6 +207,7 @@ void MultiThreadedDemo::createStack( const btVector3& center, btCollisionShape* 
             btScalar mass = 1.f;
 
             btRigidBody* body = localCreateRigidBody( mass, trans, boxShape );
+            body->setFriction(1.0f);
         }
     }
 }
@@ -172,7 +219,8 @@ void MultiThreadedDemo::createSceneObjects()
         // create ground box
         btTransform tr;
         tr.setIdentity();
-        tr.setOrigin( btVector3( 0, -3, 0 ) );
+        tr.setOrigin( btVector3( 0.f, -3.f, 0.f ) );
+        m_groundStartXf = tr;
 
         //either use heightfield or triangle mesh
 
@@ -182,7 +230,9 @@ void MultiThreadedDemo::createSceneObjects()
         m_collisionShapes.push_back( groundShape );
 
         //create ground object
-        localCreateRigidBody( 0, tr, groundShape );
+        m_groundBody = createKinematicBody( m_groundStartXf, groundShape );
+        m_groundBody->forceActivationState( DISABLE_DEACTIVATION );
+        m_groundBody->setFriction(1.0f);
     }
 
     {

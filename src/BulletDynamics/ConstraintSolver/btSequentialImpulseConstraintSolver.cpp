@@ -738,20 +738,12 @@ int	btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& 
             }
         }
     }
-    else if ( body.isStaticObject() )
+    else if (body.isKinematicObject())
     {
-        // all fixed bodies (inf mass) get mapped to a single solver id
-        if ( m_fixedBodyId < 0 )
-        {
-            m_fixedBodyId = m_tmpSolverBodyPool.size();
-            btSolverBody& fixedBody = m_tmpSolverBodyPool.expand();
-            initSolverBody( &fixedBody, 0, timeStep );
-        }
-        solverBodyId = m_fixedBodyId;
-    }
-    else
-    {
-        // kinematic
+        //
+        // NOTE: must test for kinematic before static because some kinematic objects also
+        //   identify as "static"
+        //
         // Kinematic bodies can be in multiple islands at once, so it is a
         // race condition to write to them, so we use an alternate method
         // to record the solverBodyId
@@ -772,6 +764,17 @@ int	btSequentialImpulseConstraintSolver::getOrInitSolverBody(btCollisionObject& 
             initSolverBody( &solverBody, &body, timeStep );
             m_kinematicBodyUniqueIdToSolverBodyTable[ uniqueId ] = solverBodyId;
         }
+    }
+    else
+    {
+        // all fixed bodies (inf mass) get mapped to a single solver id
+        if ( m_fixedBodyId < 0 )
+        {
+            m_fixedBodyId = m_tmpSolverBodyPool.size();
+            btSolverBody& fixedBody = m_tmpSolverBodyPool.expand();
+            initSolverBody( &fixedBody, 0, timeStep );
+        }
+        solverBodyId = m_fixedBodyId;
     }
     btAssert( solverBodyId < m_tmpSolverBodyPool.size() );
 	return solverBodyId;
