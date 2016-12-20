@@ -52,6 +52,8 @@ struct CommonRigidBodyMTBase : public CommonExampleInterface
 		}
 	}
 
+    virtual void drawScreenText();
+    virtual void renderScene();
 	virtual void physicsDebugDraw(int debugFlags);
 
 	virtual void exitPhysics()
@@ -418,19 +420,7 @@ struct CommonRigidBodyMTBase : public CommonExampleInterface
         return body;
     }
 
-	
-	virtual void renderScene()
-	{
-		{
-			
-			m_guiHelper->syncPhysicsToGraphics(m_dynamicsWorld);
-		}
-		
-		{
-			
-			m_guiHelper->render(m_dynamicsWorld);
-		}
-	}
+
 };
 
 #endif //#define COMMON_RIGID_BODY_MT_BASE_H

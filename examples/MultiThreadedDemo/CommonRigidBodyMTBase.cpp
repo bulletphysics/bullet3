@@ -774,13 +774,9 @@ void CommonRigidBodyMTBase::createDefaultParameters()
     }
 }
 
-void CommonRigidBodyMTBase::physicsDebugDraw(int debugFlags)
+
+void CommonRigidBodyMTBase::drawScreenText()
 {
-	if (m_dynamicsWorld && m_dynamicsWorld->getDebugDrawer())
-	{
-		m_dynamicsWorld->getDebugDrawer()->setDebugMode(debugFlags);
-		m_dynamicsWorld->debugDrawWorld();
-	}
     char msg[ 1024 ];
     int xCoord = 400;
     int yCoord = 30;
@@ -866,3 +862,21 @@ void CommonRigidBodyMTBase::physicsDebugDraw(int debugFlags)
     }
 }
 
+
+void CommonRigidBodyMTBase::physicsDebugDraw(int debugFlags)
+{
+	if (m_dynamicsWorld && m_dynamicsWorld->getDebugDrawer())
+	{
+		m_dynamicsWorld->getDebugDrawer()->setDebugMode(debugFlags);
+		m_dynamicsWorld->debugDrawWorld();
+	}
+	drawScreenText();
+}
+
+
+void CommonRigidBodyMTBase::renderScene()
+{
+    m_guiHelper->syncPhysicsToGraphics(m_dynamicsWorld);
+    m_guiHelper->render(m_dynamicsWorld);
+    drawScreenText();
+}
