@@ -257,7 +257,7 @@ void	btCollisionWorld::removeCollisionObject(btCollisionObject* collisionObject)
 
 
     int iObj = collisionObject->getWorldArrayIndex();
-    btAssert(iObj >= 0 && iObj < m_collisionObjects.size()); // trying to remove an object that was never added or already removed previously?
+//    btAssert(iObj >= 0 && iObj < m_collisionObjects.size()); // trying to remove an object that was never added or already removed previously?
     if (iObj >= 0 && iObj < m_collisionObjects.size())
     {
         btAssert(collisionObject == m_collisionObjects[iObj]);

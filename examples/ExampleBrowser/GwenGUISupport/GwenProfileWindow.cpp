@@ -44,7 +44,7 @@ public:
 	
 	
 	CProfileIterator* profIter;
-	
+
 	class MyMenuItems* m_menuItems;
 	MyProfileWindow (	Gwen::Controls::Base* pParent)
     : Gwen::Controls::WindowControl( pParent ),
@@ -192,7 +192,8 @@ public:
 			
 			
          //   Gwen::Controls::TreeNode* curParent = m_node;
-			
+
+
             double accumulated_time = dumpRecursive(profileIterator,m_node);
 			
             const char* name = profileIterator->Get_Current_Parent_Name();
@@ -278,7 +279,7 @@ MyProfileWindow* setupProfileWindow(GwenInternalData* data)
 	//profWindow->SetHidden(true);	
 	
 	profWindow->m_menuItems = menuItems;
-	//profWindow->profIter = CProfileManager::Get_Iterator();
+	profWindow->profIter = CProfileManager::Get_Iterator();
 	data->m_viewMenu->GetMenu()->AddItem( L"Profiler", menuItems,(Gwen::Event::Handler::Function)&MyMenuItems::MenuItemSelect);
 	
 	menuItems->m_profWindow = profWindow;
@@ -294,6 +295,11 @@ void	processProfileData( MyProfileWindow* profWindow, bool idle)
 		
 		profWindow->UpdateText(profWindow->profIter, idle);
 	}	
+}
+
+bool isProfileWindowVisible(MyProfileWindow* window)
+{
+	return !window->Hidden();
 }
 
 void profileWindowSetVisible(MyProfileWindow* window, bool visible)

@@ -226,5 +226,23 @@ bool btSpinMutex::tryLock()
     return true;
 }
 
-#endif // #else // #if BT_THREADSAFE
+unsigned int btGetCurrentThreadIndex()
+{
+	const unsigned int kNullIndex = ~0U;
+#ifdef _WIN32
+	__declspec( thread ) static unsigned int sThreadIndex = kNullIndex;
+
+#else
+	static __thread unsigned int sThreadIndex = kNullIndex;
+#endif
+	static int gThreadCounter=0;
+
+	if ( sThreadIndex == kNullIndex )
+	{
+		sThreadIndex = gThreadCounter++;
+	}
+	return sThreadIndex;
+}
+
+#endif // #if BT_THREADSAFE
 

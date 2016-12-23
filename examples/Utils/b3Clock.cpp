@@ -47,7 +47,6 @@ struct b3ClockData
 #ifdef B3_USE_WINDOWS_TIMERS
 	LARGE_INTEGER mClockFrequency;
 	DWORD mStartTick;
-	LONGLONG mPrevElapsedTime;
 	LARGE_INTEGER mStartTime;
 #else
 #ifdef __CELLOS_LV2__
@@ -94,7 +93,6 @@ void b3Clock::reset()
 #ifdef B3_USE_WINDOWS_TIMERS
 	QueryPerformanceCounter(&m_data->mStartTime);
 	m_data->mStartTick = GetTickCount();
-	m_data->mPrevElapsedTime = 0;
 #else
 #ifdef __CELLOS_LV2__
 
@@ -121,27 +119,7 @@ unsigned long int b3Clock::getTimeMilliseconds()
 		// Compute the number of millisecond ticks elapsed.
 	unsigned long msecTicks = (unsigned long)(1000 * elapsedTime / 
 		m_data->mClockFrequency.QuadPart);
-		// Check for unexpected leaps in the Win32 performance counter.  
-	// (This is caused by unexpected data across the PCI to ISA 
-		// bridge, aka south bridge.  See Microsoft KB274323.)
-		unsigned long elapsedTicks = GetTickCount() - m_data->mStartTick;
-		signed long msecOff = (signed long)(msecTicks - elapsedTicks);
-		if (msecOff < -100 || msecOff > 100)
-		{
-			// Adjust the starting time forwards.
-			LONGLONG msecAdjustment = b3ClockMin(msecOff * 
-				m_data->mClockFrequency.QuadPart / 1000, elapsedTime - 
-				m_data->mPrevElapsedTime);
-			m_data->mStartTime.QuadPart += msecAdjustment;
-			elapsedTime -= msecAdjustment;
-
-			// Recompute the number of millisecond ticks elapsed.
-			msecTicks = (unsigned long)(1000 * elapsedTime / 
-				m_data->mClockFrequency.QuadPart);
-		}
-
-		// Store the current elapsed time for adjustments next time.
-		m_data->mPrevElapsedTime = elapsedTime;
+	
 
 		return msecTicks;
 #else
@@ -170,38 +148,16 @@ unsigned long int b3Clock::getTimeMilliseconds()
 unsigned long long int b3Clock::getTimeMicroseconds()
 {
 #ifdef B3_USE_WINDOWS_TIMERS
-		LARGE_INTEGER currentTime;
+	//see https://msdn.microsoft.com/en-us/library/windows/desktop/dn553408(v=vs.85).aspx
+		LARGE_INTEGER currentTime, elapsedTime;
+		
 		QueryPerformanceCounter(&currentTime);
-		LONGLONG elapsedTime = currentTime.QuadPart - 
+		elapsedTime.QuadPart = currentTime.QuadPart - 
 			m_data->mStartTime.QuadPart;
+		elapsedTime.QuadPart *= 1000000;
+		elapsedTime.QuadPart /= m_data->mClockFrequency.QuadPart;
 
-		// Compute the number of millisecond ticks elapsed.
-		unsigned long long msecTicks = (unsigned long long)(1000 * elapsedTime / 
-			m_data->mClockFrequency.QuadPart);
-
-		// Check for unexpected leaps in the Win32 performance counter.  
-		// (This is caused by unexpected data across the PCI to ISA 
-		// bridge, aka south bridge.  See Microsoft KB274323.)
-		unsigned long long elapsedTicks = GetTickCount() - m_data->mStartTick;
-		signed long long msecOff = (signed long)(msecTicks - elapsedTicks);
-		if (msecOff < -100 || msecOff > 100)
-		{
-			// Adjust the starting time forwards.
-			LONGLONG msecAdjustment = b3ClockMin(msecOff * 
-				m_data->mClockFrequency.QuadPart / 1000, elapsedTime - 
-				m_data->mPrevElapsedTime);
-			m_data->mStartTime.QuadPart += msecAdjustment;
-			elapsedTime -= msecAdjustment;
-		}
-
-		// Store the current elapsed time for adjustments next time.
-		m_data->mPrevElapsedTime = elapsedTime;
-
-		// Convert to microseconds.
-		unsigned long long usecTicks = (unsigned long)(1000000 * elapsedTime / 
-			m_data->mClockFrequency.QuadPart);
-
-		return usecTicks;
+		return (unsigned long long) elapsedTime.QuadPart;
 #else
 
 #ifdef __CELLOS_LV2__

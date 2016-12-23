@@ -111,7 +111,7 @@ void midiCallback(double deltatime, std::vector< unsigned char > *message, void 
 				gVRTeleportRotZ= getParamf(-3.1415, 3.1415, message->at(2));
 				gVRTeleportOrn = btQuaternion(btVector3(0, 0, 1), gVRTeleportRotZ);
 				saveCurrentSettingsVR();
-				b3Printf("gVRTeleportOrn rotZ = %f\n", gVRTeleportRotZ);
+//				b3Printf("gVRTeleportOrn rotZ = %f\n", gVRTeleportRotZ);
 			}
 
 			if (message->at(1) == 32)
@@ -125,7 +125,7 @@ void midiCallback(double deltatime, std::vector< unsigned char > *message, void 
 				{
 					gVRTeleportPos1[i] = getParamf(-2, 2, message->at(2));
 					saveCurrentSettingsVR();
-					b3Printf("gVRTeleportPos[%d] =  %f\n", i,gVRTeleportPos1[i]);
+//					b3Printf("gVRTeleportPos[%d] =  %f\n", i,gVRTeleportPos1[i]);
 
 				}
 			}
@@ -344,7 +344,7 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 				if (deltaTimeInSeconds>clampedDeltaTime)
 				{
 					deltaTimeInSeconds = clampedDeltaTime;
-					b3Warning("Clamp deltaTime from %f to %f",deltaTimeInSeconds, clampedDeltaTime);
+					//b3Warning("Clamp deltaTime from %f to %f",deltaTimeInSeconds, clampedDeltaTime);
 				}
 				
 				clock.reset();
@@ -1060,7 +1060,7 @@ m_options(options)
 
 #endif
 	m_multiThreadedHelper = helper;
-	b3Printf("Started PhysicsServer\n");
+//	b3Printf("Started PhysicsServer\n");
 }
 
 

@@ -4,6 +4,8 @@
 class MyProfileWindow* setupProfileWindow(struct GwenInternalData* data);
 void processProfileData(MyProfileWindow* window, bool idle);
 void profileWindowSetVisible(MyProfileWindow* window, bool visible);
+bool isProfileWindowVisible(MyProfileWindow* window);
+
 void destroyProfileWindow(MyProfileWindow* window);
 
 #endif//GWEN_PROFILE_WINDOW_H
