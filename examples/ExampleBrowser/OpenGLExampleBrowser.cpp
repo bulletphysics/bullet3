@@ -199,7 +199,12 @@ struct btTimings
                     threadId, endTimeDiv1000,name);
 
 #else
-           
+         
+			
+			if (startTime>endTime)
+			{
+				endTime = startTime;
+			}
             unsigned int startTimeRem1000 = startTime%1000;
             unsigned int endTimeRem1000 = endTime%1000;
 
@@ -237,7 +242,8 @@ struct btTimings
             }
             
             char newname[1024];
-            static int counter2=0;
+			static int counter2=0;
+         
             sprintf(newname,"%s%d",name,counter2++);
 			fprintf(gTimingFile,"{\"cat\":\"timing\",\"pid\":1,\"tid\":%d,\"ts\":%" PRIu64 ".%s ,\"ph\":\"B\",\"name\":\"%s\",\"args\":{}},\n",
 				threadId, startTimeDiv1000,startTimeRem1000Str, newname);
