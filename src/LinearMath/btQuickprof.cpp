@@ -28,6 +28,9 @@
 #if defined (SUNOS) || defined (__SUNOS__)
 #include <stdio.h>
 #endif
+#ifdef __APPLE__
+#include <mach/mach_time.h>
+#endif
 
 #if defined(WIN32) || defined(_WIN32)
 
@@ -68,6 +71,9 @@ struct btClockData
 #ifdef __CELLOS_LV2__
 	uint64_t	mStartTime;
 #else
+#ifdef __APPLE__
+    uint64_t mStartTimeNano;
+#endif
 	struct timeval mStartTime;
 #endif
 #endif //__CELLOS_LV2__
@@ -117,6 +123,9 @@ void btClock::reset()
 	SYS_TIMEBASE_GET( newTime );
 	m_data->mStartTime = newTime;
 #else
+#ifdef __APPLE__
+    m_data->mStartTimeNano = mach_absolute_time();
+#endif
 	gettimeofday(&m_data->mStartTime, 0);
 #endif
 #endif
@@ -218,11 +227,37 @@ unsigned long long int btClock::getTimeNanoseconds()
 
 		return (unsigned long int)((double(newTime-m_data->mStartTime)) / dFreq);
 #else
+#ifdef __APPLE__
+    uint64_t ticks = mach_absolute_time() - m_data->mStartTimeNano;
+    static long double conversion = 0.0L;
+    if( 0.0L == conversion )
+    {
+        // attempt to get conversion to nanoseconds
+        mach_timebase_info_data_t info;
+        int err = mach_timebase_info( &info );
+        if( err )
+        {
+            btAssert(0);
+            conversion = 1.;
+        }
+        conversion = info.numer / info.denom;
+    }
+    return (ticks * conversion);
 
-		struct timeval currentTime;
+    
+#else//__APPLE__
+    
+    timespec ts;
+    clock_gettime(CLOCK_REALTIME,&ts);
+    return 1000000000*ts.tv_sec + ts.tv_nsec;
+
+    
+	/*	struct timeval currentTime;
 		gettimeofday(&currentTime, 0);
-		return (currentTime.tv_sec - m_data->mStartTime.tv_sec) * 1e9 + 
-			(currentTime.tv_usec - m_data->mStartTime.tv_usec);
+		return (currentTime.tv_sec - m_data->mStartTime.tv_sec) * 1e9 +
+			(currentTime.tv_usec - m_data->mStartTime.tv_usec)*1000;
+     */
+#endif//__APPLE__
 #endif//__CELLOS_LV2__
 #endif 
 }
