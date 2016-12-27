@@ -56,7 +56,12 @@
 
 #else //_WIN32
 #include <sys/time.h>
+
+#ifdef BT_LINUX_REALTIME
+//required linking against rt (librt)
 #include <time.h>
+#endif //BT_LINUX_REALTIME
+
 #endif //_WIN32
 
 #define mymin(a,b) (a > b ? a : b)
@@ -248,16 +253,17 @@ unsigned long long int btClock::getTimeNanoseconds()
     
 #else//__APPLE__
     
+#ifdef BT_LINUX_REALTIME
     timespec ts;
     clock_gettime(CLOCK_REALTIME,&ts);
     return 1000000000*ts.tv_sec + ts.tv_nsec;
-
-    
-	/*	struct timeval currentTime;
+#else
+    	struct timeval currentTime;
 		gettimeofday(&currentTime, 0);
 		return (currentTime.tv_sec - m_data->mStartTime.tv_sec) * 1e9 +
 			(currentTime.tv_usec - m_data->mStartTime.tv_usec)*1000;
-     */
+#endif //BT_LINUX_REALTIME
+
 #endif//__APPLE__
 #endif//__CELLOS_LV2__
 #endif 
