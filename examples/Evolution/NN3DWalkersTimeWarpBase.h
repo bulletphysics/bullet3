@@ -525,7 +525,7 @@ struct NN3DWalkersTimeWarpBase: public CommonRigidBodyBase {
 				m_collisionConfiguration);
 		}
 
-		changeERPCFM(); // set appropriate ERP/CFM values according to the string and damper properties of the constraint
+		changeERPCFM(); // set appropriate ERP/CFM values according to the spring and damper properties of the constraint
 
 		if (useSplitImpulse) { // If you experience strong repulsion forces in your constraints, it might help to enable the split impulse feature
 			m_dynamicsWorld->getSolverInfo().m_splitImpulse = 1; //enable split impulse feature
@@ -557,7 +557,7 @@ struct NN3DWalkersTimeWarpBase: public CommonRigidBodyBase {
 
 
 
-	void timeWarpSimulation(float deltaTime) // Override this
+	virtual void performModelUpdate(float deltaTime) // Override this
 	{
 
 	}
@@ -596,7 +596,7 @@ struct NN3DWalkersTimeWarpBase: public CommonRigidBodyBase {
 			//#############
 			// model update - here you perform updates of your model, be it the physics model, the game or simulation state or anything not related to graphics and input
 
-			timeWarpSimulation(deltaTime);
+			performModelUpdate(deltaTime);
 			if(mLoopTimer.getTimeSeconds() - speedUpPrintTimeStamp > 1){
 				// on reset, we calculate the performed speed up
 				double speedUp = ((double)performedTime*1000.0)/((double)(mLoopTimer.getTimeMilliseconds()-performanceTimestamp));
