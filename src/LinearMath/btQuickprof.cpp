@@ -56,6 +56,7 @@
 
 #else //_WIN32
 #include <sys/time.h>
+#include <time.h>
 #endif //_WIN32
 
 #define mymin(a,b) (a > b ? a : b)
