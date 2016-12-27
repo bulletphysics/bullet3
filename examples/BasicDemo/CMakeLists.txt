@@ -69,6 +69,7 @@ IF (WIN32)
              ${BULLET_PHYSICS_SOURCE_DIR}/btgui/OpenGLWindow/GlewWindows
         )
         ADD_DEFINITIONS(-DGLEW_STATIC)
+	LINK_LIBRARIES( ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} )
 ELSE(WIN32)
         IF(APPLE)
                 find_library(COCOA NAMES Cocoa)
