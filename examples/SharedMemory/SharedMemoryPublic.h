@@ -35,14 +35,17 @@ enum EnumSharedMemoryClientCommand
     CMD_CALCULATE_JACOBIAN,
     CMD_USER_CONSTRAINT,
     CMD_REQUEST_CONTACT_POINT_INFORMATION,
+    CMD_REQUEST_RAY_CAST_INTERSECTIONS,
+
 	CMD_REQUEST_AABB_OVERLAP,
+
 	CMD_SAVE_WORLD,
 	CMD_REQUEST_VISUAL_SHAPE_INFO,
     CMD_UPDATE_VISUAL_SHAPE,
     CMD_LOAD_TEXTURE,
     CMD_SET_SHADOW,
 	CMD_USER_DEBUG_DRAW,
-
+	CMD_REQUEST_VR_EVENTS_DATA,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -107,6 +110,8 @@ enum EnumSharedMemoryServerStatus
 		CMD_USER_DEBUG_DRAW_FAILED,
 		CMD_USER_CONSTRAINT_COMPLETED,
 		CMD_USER_CONSTRAINT_FAILED,
+		CMD_REQUEST_VR_EVENTS_DATA_COMPLETED,
+		CMD_REQUEST_RAY_CAST_INTERSECTIONS_COMPLETED,
         //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
@@ -199,6 +204,44 @@ struct b3CameraImageData
 };
 
 
+enum b3VREventType
+{
+	VR_CONTROLLER_MOVE_EVENT=1,
+	VR_CONTROLLER_BUTTON_EVENT
+};
+
+#define MAX_VR_BUTTONS 64
+#define MAX_VR_CONTROLLERS 8
+#define MAX_RAY_HITS 128
+
+enum b3VRButtonInfo
+{
+	eButtonIsDown = 1,
+	eButtonTriggered = 2,
+	eButtonReleased = 4,
+};
+
+struct b3VRControllerEvent
+{
+	int m_controllerId;//valid for VR_CONTROLLER_MOVE_EVENT and VR_CONTROLLER_BUTTON_EVENT
+	int m_numMoveEvents;
+	int m_numButtonEvents;
+	
+	float m_pos[4];//valid for VR_CONTROLLER_MOVE_EVENT and VR_CONTROLLER_BUTTON_EVENT
+	float m_orn[4];//valid for VR_CONTROLLER_MOVE_EVENT and VR_CONTROLLER_BUTTON_EVENT
+
+	float m_analogAxis;//valid if VR_CONTROLLER_MOVE_EVENT
+
+	int m_buttons[MAX_VR_BUTTONS];//valid if VR_CONTROLLER_BUTTON_EVENT, see b3VRButtonInfo
+};
+
+struct b3VREventsData
+{
+	int m_numControllerEvents;
+	struct b3VRControllerEvent* m_controllerEvents;
+};
+
+
 struct b3ContactPointData
 {
 //todo: expose some contact flags, such as telling which fields below are valid
@@ -236,6 +279,22 @@ struct b3ContactInformation
 	int m_numContactPoints;
 	struct b3ContactPointData* m_contactPointData;
 };
+
+struct b3RayHitInfo
+{
+	double m_hitFraction;
+	int m_hitObjectUniqueId;
+	int m_hitObjectLinkIndex;
+	double m_hitPositionWorld[3];
+	double m_hitNormalWorld[3];
+};
+
+struct b3RaycastInformation
+{
+	int m_numRayHits;
+	struct b3RayHitInfo* m_rayHits;
+};
+
 
 #define VISUAL_SHAPE_MAX_PATH_LEN 128
 

@@ -705,7 +705,7 @@ bool CMainApplication::HandleInput()
 //							printf("Device PRESSED: %d, button %d\n", unDevice, button);
 							if (button==2)
 							{
-								glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+								//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 								///todo(erwincoumans) can't use reguar debug drawer, because physics/graphics are not in sync
 								///so it can (and likely will) cause crashes
 								///add a special debug drawer that deals with this

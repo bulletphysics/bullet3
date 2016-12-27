@@ -14,6 +14,7 @@
 #include "Bullet3Common/b3Matrix3x3.h"
 #include "../Utils/b3Clock.h"
 #include "../MultiThreading/b3ThreadSupportInterface.h"
+#include "SharedMemoryPublic.h"
 #ifdef BT_ENABLE_VR
 #include "../RenderingExamples/TinyVRGui.h"
 #endif//BT_ENABLE_VR
@@ -21,7 +22,6 @@
 
 #include "../CommonInterfaces/CommonParameterInterface.h"
 
-#define MAX_VR_CONTROLLERS 8
 
 
 //@todo(erwincoumans) those globals are hacks for a VR demo, move this to Python/pybullet!
@@ -44,7 +44,7 @@ extern bool gResetSimulation;
 extern int gEnableKukaControl;
 int gGraspingController = -1;
 extern btScalar simTimeScalingFactor;
-
+bool gBatchUserDebugLines = true;
 extern bool gVRGripperClosed;
 
 const char* startFileNameVR = "0_VRDemoSettings.txt";
@@ -225,6 +225,13 @@ struct	MotionArgs
 	{
 		for (int i=0;i<MAX_VR_CONTROLLERS;i++)
 		{
+			m_vrControllerEvents[i].m_numButtonEvents = 0;
+			m_vrControllerEvents[i].m_numMoveEvents = 0;
+			for (int b=0;b<MAX_VR_BUTTONS;b++)
+			{
+				m_vrControllerEvents[i].m_buttons[b]=0;
+			}
+
 			m_isVrControllerPicking[i] = false;
 			m_isVrControllerDragging[i] = false;
 			m_isVrControllerReleasing[i] = false;
@@ -234,7 +241,11 @@ struct	MotionArgs
 	b3CriticalSection* m_cs;
 
 	btAlignedObjectArray<MyMouseCommand> m_mouseCommands;
+
+	b3VRControllerEvent m_vrControllerEvents[MAX_VR_CONTROLLERS];
 	
+	b3VRControllerEvent m_sendVrControllerEvents[MAX_VR_CONTROLLERS];
+
 	PhysicsServerSharedMemory*	m_physicsServerPtr;
 	b3AlignedObjectArray<b3Vector3> m_positions;
 
@@ -348,7 +359,33 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 				}
 				
 				clock.reset();
-				args->m_physicsServerPtr->stepSimulationRealTime(deltaTimeInSeconds);
+
+				args->m_cs->lock();
+
+				int numSendVrControllers = 0;
+				for (int i=0;i<MAX_VR_CONTROLLERS;i++)
+				{
+					if (args->m_vrControllerEvents[i].m_numButtonEvents+args->m_vrControllerEvents[i].m_numMoveEvents)
+					{
+						args->m_sendVrControllerEvents[numSendVrControllers++] =
+							args->m_vrControllerEvents[i];
+
+
+						if (args->m_vrControllerEvents[i].m_numButtonEvents)
+						{
+							for (int b=0;b<MAX_VR_BUTTONS;b++)
+							{
+								args->m_vrControllerEvents[i].m_buttons[b] &= eButtonIsDown;
+							}
+						}
+						args->m_vrControllerEvents[i].m_numMoveEvents = 0;
+						args->m_vrControllerEvents[i].m_numButtonEvents = 0;
+					}
+				}
+
+				args->m_cs->unlock();
+
+				args->m_physicsServerPtr->stepSimulationRealTime(deltaTimeInSeconds, args->m_sendVrControllerEvents,numSendVrControllers);
 				deltaTimeInSeconds = 0;
 				
 			}
@@ -993,7 +1030,7 @@ public:
 
 		if (args.CheckCmdLineFlag("robotassets"))
 		{
-			gCreateDefaultRobotAssets = true;
+//			gCreateDefaultRobotAssets = true;
 		}
 
 		if (args.CheckCmdLineFlag("norobotassets"))
@@ -1408,6 +1445,40 @@ void PhysicsServerExample::drawUserDebugLines()
 	if (m_multiThreadedHelper)
 	{
 
+
+		//if gBatchUserDebugLines is true, batch lines based on color+width, to reduce line draw calls
+		struct LineSegment
+		{
+			btVector3 m_from;
+			btVector3 m_to;
+		};
+
+		struct ColorWidth
+		{
+			btVector3FloatData m_color;
+			int width;
+			int getHash() const
+			{
+				unsigned char r = (unsigned char) m_color.m_floats[0]*255;
+				unsigned char g = (unsigned char) m_color.m_floats[1]*255;
+				unsigned char b = (unsigned char) m_color.m_floats[2]*255;
+				unsigned char w = width;
+				return r+(256*g)+(256*256*b)+(256*256*256*w);
+			}
+			bool equals(const ColorWidth& other) const
+			{
+				bool same = ((width == other.width) && (m_color.m_floats[0] == other.m_color.m_floats[0]) &&
+					(m_color.m_floats[1] == other.m_color.m_floats[1]) &&
+					(m_color.m_floats[2] == other.m_color.m_floats[2]));
+				return same;
+			}
+		};
+
+		btAlignedObjectArray< btAlignedObjectArray<unsigned int> > sortedIndices;
+		btAlignedObjectArray< btAlignedObjectArray<btVector3FloatData> > sortedLines;
+
+		btHashMap<ColorWidth,int> hashedLines;
+
 		for (int i = 0; i<m_multiThreadedHelper->m_userDebugLines.size(); i++)
 		{
 			btVector3 from;
@@ -1423,9 +1494,56 @@ void PhysicsServerExample::drawUserDebugLines()
 			color.setValue(m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[0],
 				m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[1],
 				m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[2]);
+			ColorWidth cw;
+			color.serializeFloat(cw.m_color);
+			cw.width = m_multiThreadedHelper->m_userDebugLines[i].m_lineWidth;
+			int index = -1;
+
+			if (gBatchUserDebugLines)
+			{
+				int* indexPtr = hashedLines.find(cw);
+				if (indexPtr)
+				{
+					index = *indexPtr;
+				} else
+				{
+					index = sortedLines.size();
+					sortedLines.expand();
+					sortedIndices.expand();
+					hashedLines.insert(cw,index);
+				}
+				btAssert(index>=0);
+				if (index>=0)
+				{
+					btVector3FloatData from1,toX1;
+					sortedIndices[index].push_back(sortedLines[index].size());
+					from.serializeFloat(from1);
+					sortedLines[index].push_back(from1);
+					sortedIndices[index].push_back(sortedLines[index].size());
+					toX.serializeFloat(toX1);
+					sortedLines[index].push_back(toX1);
+				}
+			}
+			else
+			{
+				m_guiHelper->getAppInterface()->m_renderer->drawLine(from, toX, color, m_multiThreadedHelper->m_userDebugLines[i].m_lineWidth);
+			}
+		}
 
 
-			m_guiHelper->getAppInterface()->m_renderer->drawLine(from, toX, color, m_multiThreadedHelper->m_userDebugLines[i].m_lineWidth);
+		if (gBatchUserDebugLines)
+		{
+			for (int i=0;i<hashedLines.size();i++)
+			{
+				ColorWidth cw = hashedLines.getKeyAtIndex(i);
+				int index = *hashedLines.getAtIndex(i);
+				int stride = sizeof(btVector3FloatData);
+				const float* positions = &sortedLines[index][0].m_floats[0];
+				int numPoints = sortedLines[index].size();
+				const unsigned int* indices = &sortedIndices[index][0];
+				int numIndices = sortedIndices[index].size();
+				m_guiHelper->getAppInterface()->m_renderer->drawLines(positions,cw.m_color.m_floats,numPoints, stride, indices,numIndices,cw.width);
+			}
 		}
 
 		for (int i = 0; i<m_multiThreadedHelper->m_userDebugText.size(); i++)
@@ -1713,6 +1831,30 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 		gGraspingController = controllerId;
 		gEnableKukaControl = true;
 	}
+
+	btTransform trLocal;
+	trLocal.setIdentity();
+	trLocal.setRotation(btQuaternion(btVector3(0, 0, 1), SIMD_HALF_PI)*btQuaternion(btVector3(0, 1, 0), SIMD_HALF_PI));
+
+	btTransform trOrg;
+	trOrg.setIdentity();
+	trOrg.setOrigin(btVector3(pos[0], pos[1], pos[2]));
+	trOrg.setRotation(btQuaternion(orn[0], orn[1], orn[2], orn[3]));
+
+	btTransform tr2a;
+	tr2a.setIdentity();
+	btTransform tr2;
+	tr2.setIdentity();
+
+
+
+	tr2.setOrigin(gVRTeleportPos1);
+	tr2a.setRotation(gVRTeleportOrn);
+
+
+	btTransform trTotal = tr2*tr2a*trOrg*trLocal;
+
+
 	if (controllerId != gGraspingController)
 	{
 		if (button == 1 && state == 0)
@@ -1786,27 +1928,6 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 			m_args[0].m_isVrControllerReleasing[controllerId] = (state == 0);
 		}
 		
-		btTransform trLocal;
-		trLocal.setIdentity();
-		trLocal.setRotation(btQuaternion(btVector3(0, 0, 1), SIMD_HALF_PI)*btQuaternion(btVector3(0, 1, 0), SIMD_HALF_PI));
-
-		btTransform trOrg;
-		trOrg.setIdentity();
-		trOrg.setOrigin(btVector3(pos[0], pos[1], pos[2]));
-		trOrg.setRotation(btQuaternion(orn[0], orn[1], orn[2], orn[3]));
-
-		btTransform tr2a;
-		tr2a.setIdentity();
-		btTransform tr2;
-		tr2.setIdentity();
-
-
-
-		tr2.setOrigin(gVRTeleportPos1);
-		tr2a.setRotation(gVRTeleportOrn);
-
-
-		btTransform trTotal = tr2*tr2a*trOrg*trLocal;
 
 		if ((button == 33) || (button == 1))
 		{
@@ -1817,6 +1938,26 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 		}
 		
 	}
+
+	m_args[0].m_cs->lock();
+	m_args[0].m_vrControllerEvents[controllerId].m_controllerId = controllerId;
+	m_args[0].m_vrControllerEvents[controllerId].m_pos[0] = trTotal.getOrigin()[0];
+	m_args[0].m_vrControllerEvents[controllerId].m_pos[1] = trTotal.getOrigin()[1];
+	m_args[0].m_vrControllerEvents[controllerId].m_pos[2] = trTotal.getOrigin()[2];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[0] = trTotal.getRotation()[0];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[1] = trTotal.getRotation()[1];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[2] = trTotal.getRotation()[2];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[3] = trTotal.getRotation()[3];
+	m_args[0].m_vrControllerEvents[controllerId].m_numButtonEvents++;
+	if (state)
+	{
+		m_args[0].m_vrControllerEvents[controllerId].m_buttons[button]|=eButtonIsDown+eButtonTriggered;
+	} else
+	{
+		m_args[0].m_vrControllerEvents[controllerId].m_buttons[button]|=eButtonReleased;
+		m_args[0].m_vrControllerEvents[controllerId].m_buttons[button] &= ~eButtonIsDown;
+	}
+	m_args[0].m_cs->unlock();
 }
 
 
@@ -1867,6 +2008,19 @@ void	PhysicsServerExample::vrControllerMoveCallback(int controllerId, float pos[
 		m_args[0].m_vrControllerPos[controllerId] = trTotal.getOrigin();
 		m_args[0].m_vrControllerOrn[controllerId] = trTotal.getRotation();
 	}
+
+	m_args[0].m_cs->lock();
+	m_args[0].m_vrControllerEvents[controllerId].m_controllerId = controllerId;
+	m_args[0].m_vrControllerEvents[controllerId].m_pos[0] = trTotal.getOrigin()[0];
+	m_args[0].m_vrControllerEvents[controllerId].m_pos[1] = trTotal.getOrigin()[1];
+	m_args[0].m_vrControllerEvents[controllerId].m_pos[2] = trTotal.getOrigin()[2];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[0] = trTotal.getRotation()[0];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[1] = trTotal.getRotation()[1];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[2] = trTotal.getRotation()[2];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[3] = trTotal.getRotation()[3];
+	m_args[0].m_vrControllerEvents[controllerId].m_numMoveEvents++;
+	m_args[0].m_vrControllerEvents[controllerId].m_analogAxis = analogAxis;
+	m_args[0].m_cs->unlock();
 
 }
 B3_STANDALONE_EXAMPLE(PhysicsServerCreateFunc)

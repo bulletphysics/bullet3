@@ -174,6 +174,18 @@ enum EnumRequestContactDataUpdateFlags
 	CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_B_FILTER = 8,
 };
 
+struct RequestRaycastIntersections
+{
+	double m_rayFromPosition[3];
+	double m_rayToPosition[3];
+};
+
+struct SendRaycastHits
+{
+	int m_numRaycastHits;
+	b3RayHitInfo m_rayHits[MAX_RAY_HITS];
+};
+
 struct RequestContactDataArgs
 {
     int m_startingContactPointIndex;
@@ -615,6 +627,7 @@ struct SharedMemoryCommand
         struct LoadTextureArgs m_loadTextureArguments;
 		struct CalculateInverseKinematicsArgs m_calculateInverseKinematicsArguments;
 		struct UserDebugDrawArgs m_userDebugDrawArgs;
+		struct RequestRaycastIntersections m_requestRaycastIntersections;
         struct LoadBunnyArgs m_loadBunnyArguments;
     };
 };
@@ -637,6 +650,14 @@ struct SendOverlappingObjectsArgs
 	int m_numOverlappingObjectsCopied;
 	int m_numRemainingOverlappingObjects;
 };
+
+struct SendVREvents
+{
+	int m_numVRControllerEvents;
+	b3VRControllerEvent m_controllerEvents[MAX_VR_CONTROLLERS];
+};
+
+
 
 struct SharedMemoryStatus
 {
@@ -665,6 +686,8 @@ struct SharedMemoryStatus
 		struct SendVisualShapeDataArgs m_sendVisualShapeArgs;
 		struct UserDebugDrawResultArgs m_userDebugDrawArgs;
 		struct UserConstraintResultArgs m_userConstraintResultArgs;
+		struct SendVREvents m_sendVREvents;
+		struct SendRaycastHits m_raycastHits;
 	};
 };
 

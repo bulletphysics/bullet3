@@ -26,7 +26,7 @@ public:
 
 	virtual void processClientCommands();
 
-	virtual void stepSimulationRealTime(double dtInSec);
+	virtual void stepSimulationRealTime(double dtInSec,const struct b3VRControllerEvent* vrEvents, int numVREvents);
 
 	virtual void enableRealTimeSimulation(bool enableRealTimeSim);
 

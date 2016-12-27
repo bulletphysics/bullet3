@@ -463,6 +463,8 @@ struct PhysicsServerCommandProcessorInternalData
 	bool m_allowRealTimeSimulation;
 	bool m_hasGround;
 
+	b3VRControllerEvent m_vrEvents[MAX_VR_CONTROLLERS];
+	
 	btMultiBodyFixedConstraint* m_gripperRigidbodyFixed;
 	btMultiBody* m_gripperMultiBody;
 	btMultiBodyFixedConstraint* m_kukaGripperFixed;
@@ -562,6 +564,15 @@ struct PhysicsServerCommandProcessorInternalData
 		m_pickedConstraint(0),
 		m_pickingMultiBodyPoint2Point(0)
 	{
+		for (int i=0;i<MAX_VR_CONTROLLERS;i++)
+		{
+			m_vrEvents[i].m_numButtonEvents = 0;
+			m_vrEvents[i].m_numMoveEvents = 0;
+			for (int b=0;b<MAX_VR_BUTTONS;b++)
+			{
+				m_vrEvents[i].m_buttons[b] = 0;
+			}
+		}
 
 		initHandles();
 #if 0
@@ -1308,6 +1319,85 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 				}
 #endif
 
+				case CMD_REQUEST_VR_EVENTS_DATA:
+				{
+					serverStatusOut.m_sendVREvents.m_numVRControllerEvents = 0;
+					for (int i=0;i<MAX_VR_CONTROLLERS;i++)
+					{
+						if (m_data->m_vrEvents[i].m_numButtonEvents + m_data->m_vrEvents[i].m_numMoveEvents)
+						{
+							serverStatusOut.m_sendVREvents.m_controllerEvents[serverStatusOut.m_sendVREvents.m_numVRControllerEvents++] = m_data->m_vrEvents[i];
+							m_data->m_vrEvents[i].m_numButtonEvents = 0;
+							m_data->m_vrEvents[i].m_numMoveEvents = 0;
+							for (int b=0;b<MAX_VR_BUTTONS;b++)
+							{
+								m_data->m_vrEvents[i].m_buttons[b] = 0;
+							}
+						}
+					}
+					serverStatusOut.m_type = CMD_REQUEST_VR_EVENTS_DATA_COMPLETED;
+					hasStatus = true;
+					break;
+				};
+				case CMD_REQUEST_RAY_CAST_INTERSECTIONS:
+				{
+					btVector3 rayFromWorld(clientCmd.m_requestRaycastIntersections.m_rayFromPosition[0],
+						clientCmd.m_requestRaycastIntersections.m_rayFromPosition[1],
+						clientCmd.m_requestRaycastIntersections.m_rayFromPosition[2]);
+					btVector3 rayToWorld(clientCmd.m_requestRaycastIntersections.m_rayToPosition[0],
+						clientCmd.m_requestRaycastIntersections.m_rayToPosition[1],
+						clientCmd.m_requestRaycastIntersections.m_rayToPosition[2]);
+					btCollisionWorld::ClosestRayResultCallback rayResultCallback(rayFromWorld,rayToWorld);
+					m_data->m_dynamicsWorld->rayTest(rayFromWorld,rayToWorld,rayResultCallback);
+					serverStatusOut.m_raycastHits.m_numRaycastHits = 0;
+
+					if (rayResultCallback.hasHit())
+					{
+						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitFraction 
+							= rayResultCallback.m_closestHitFraction;
+
+						int objectUniqueId = -1;
+						int linkIndex = -1;
+
+						const btRigidBody* body = btRigidBody::upcast(rayResultCallback.m_collisionObject);
+						if (body)
+						{
+							objectUniqueId = rayResultCallback.m_collisionObject->getUserIndex2();
+						} else
+						{
+							const btMultiBodyLinkCollider* mblB = btMultiBodyLinkCollider::upcast(rayResultCallback.m_collisionObject);
+							if (mblB && mblB->m_multiBody)
+							{
+								linkIndex = mblB->m_link;
+								objectUniqueId = mblB->m_multiBody->getUserIndex2();
+							}
+						}
+
+						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitObjectUniqueId 
+							= objectUniqueId;
+						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitObjectLinkIndex
+							= linkIndex;
+
+						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitPositionWorld[0] 
+							= rayResultCallback.m_hitPointWorld[0];
+						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitPositionWorld[1] 
+							= rayResultCallback.m_hitPointWorld[1];
+						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitPositionWorld[2] 
+							= rayResultCallback.m_hitPointWorld[2];
+						
+						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitNormalWorld[0] 
+							= rayResultCallback.m_hitNormalWorld[0]; 
+						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitNormalWorld[1] 
+							= rayResultCallback.m_hitNormalWorld[1]; 
+						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitNormalWorld[2] 
+							= rayResultCallback.m_hitNormalWorld[2]; 
+
+						serverStatusOut.m_raycastHits.m_numRaycastHits++;
+					}
+					serverStatusOut.m_type = CMD_REQUEST_RAY_CAST_INTERSECTIONS_COMPLETED;
+					hasStatus = true;
+					break;
+				};
 				case CMD_REQUEST_DEBUG_LINES:
 					{
 						int curFlags =m_data->m_remoteDebugDrawer->getDebugMode();
@@ -4054,8 +4144,46 @@ void PhysicsServerCommandProcessor::enableRealTimeSimulation(bool enableRealTime
 	m_data->m_allowRealTimeSimulation = enableRealTimeSim;
 }
 
-void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec)
+void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const struct b3VRControllerEvent* vrEvents, int numVREvents)
 {
+	//update m_vrEvents
+	for (int i=0;i<numVREvents;i++)
+	{
+		int controlledId = vrEvents[i].m_controllerId;
+		if (vrEvents[i].m_numMoveEvents)
+		{
+			m_data->m_vrEvents[controlledId].m_analogAxis = vrEvents[i].m_analogAxis;
+		}
+
+		if (vrEvents[i].m_numMoveEvents+vrEvents[i].m_numButtonEvents)
+		{
+			m_data->m_vrEvents[controlledId].m_controllerId = vrEvents[i].m_controllerId;
+
+			m_data->m_vrEvents[controlledId].m_pos[0] = vrEvents[i].m_pos[0];
+			m_data->m_vrEvents[controlledId].m_pos[1] = vrEvents[i].m_pos[1];
+			m_data->m_vrEvents[controlledId].m_pos[2] = vrEvents[i].m_pos[2];
+			
+			m_data->m_vrEvents[controlledId].m_orn[0] = vrEvents[i].m_orn[0];
+			m_data->m_vrEvents[controlledId].m_orn[1] = vrEvents[i].m_orn[1];
+			m_data->m_vrEvents[controlledId].m_orn[2] = vrEvents[i].m_orn[2];
+			m_data->m_vrEvents[controlledId].m_orn[3] = vrEvents[i].m_orn[3];
+		}
+
+		m_data->m_vrEvents[controlledId].m_numButtonEvents += vrEvents[i].m_numButtonEvents;
+		m_data->m_vrEvents[controlledId].m_numMoveEvents += vrEvents[i].m_numMoveEvents;
+		for (int b=0;b<MAX_VR_BUTTONS;b++)
+		{
+			m_data->m_vrEvents[controlledId].m_buttons[b] |= vrEvents[i].m_buttons[b];
+			if (vrEvents[i].m_buttons[b] & eButtonIsDown)
+			{
+				m_data->m_vrEvents[controlledId].m_buttons[b] |= eButtonIsDown;
+			} else
+			{
+				m_data->m_vrEvents[controlledId].m_buttons[b] &= ~eButtonIsDown;
+			}
+		}
+	}
+
 	if (gResetSimulation)
 	{
 		resetSimulation();

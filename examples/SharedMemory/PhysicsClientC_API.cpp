@@ -1122,6 +1122,38 @@ b3SharedMemoryCommandHandle b3RemovePickingConstraint(b3PhysicsClientHandle phys
     return (b3SharedMemoryCommandHandle)command;
 }
 
+b3SharedMemoryCommandHandle b3CreateRaycastCommandInit(b3PhysicsClientHandle physClient, double rayFromWorldX,
+                                       double rayFromWorldY, double rayFromWorldZ,
+                                       double rayToWorldX, double rayToWorldY, double rayToWorldZ)
+{
+    PhysicsClient *cl = (PhysicsClient *)physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand *command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type = CMD_REQUEST_RAY_CAST_INTERSECTIONS;
+	command->m_requestRaycastIntersections.m_rayFromPosition[0] = rayFromWorldX;
+	command->m_requestRaycastIntersections.m_rayFromPosition[1] = rayFromWorldY;
+	command->m_requestRaycastIntersections.m_rayFromPosition[2] = rayFromWorldZ;
+	command->m_requestRaycastIntersections.m_rayToPosition[0] = rayToWorldX;
+	command->m_requestRaycastIntersections.m_rayToPosition[1] = rayToWorldY;
+	command->m_requestRaycastIntersections.m_rayToPosition[2] = rayToWorldZ;
+
+    return (b3SharedMemoryCommandHandle)command;
+
+}
+
+void b3GetRaycastInformation(b3PhysicsClientHandle physClient, struct b3RaycastInformation* raycastInfo)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+	if (cl)
+	{
+		cl->getCachedRaycastHits(raycastInfo);
+	}
+}
+
+
+
 b3SharedMemoryCommandHandle b3InitRequestDebugLinesCommand(b3PhysicsClientHandle physClient, int debugMode)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;
@@ -2134,4 +2166,27 @@ int b3GetStatusInverseKinematicsJointPositions(b3SharedMemoryStatusHandle status
 	}
 
 	return true;
+}
+
+b3SharedMemoryCommandHandle	b3RequestVREventsCommandInit(b3PhysicsClientHandle physClient)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+
+	command->m_type = CMD_REQUEST_VR_EVENTS_DATA;
+	command->m_updateFlags = 0;
+
+	return (b3SharedMemoryCommandHandle)command;
+}
+
+void b3GetVREventsData(b3PhysicsClientHandle physClient, struct b3VREventsData* vrEventsData)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+	if (cl)
+	{
+		cl->getCachedVREvents(vrEventsData);
+	}
 }
