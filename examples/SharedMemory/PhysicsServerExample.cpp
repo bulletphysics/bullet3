@@ -1030,7 +1030,7 @@ public:
 
 		if (args.CheckCmdLineFlag("robotassets"))
 		{
-//			gCreateDefaultRobotAssets = true;
+			gCreateDefaultRobotAssets = true;
 		}
 
 		if (args.CheckCmdLineFlag("norobotassets"))
@@ -1859,7 +1859,7 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 	{
 		if (button == 1 && state == 0)
 		{
-			gResetSimulation = true;
+			//gResetSimulation = true;
 			//gVRTeleportPos1 = gLastPickPos;
 		}
 	} else
