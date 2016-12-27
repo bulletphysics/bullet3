@@ -570,7 +570,7 @@ void btMultiBody::clearForcesAndTorques()
 
 void btMultiBody::clearVelocities()
 {
-	for (int i = 0; i < 6 + getNumLinks(); ++i) 
+	for (int i = 0; i < 6 + getNumDofs(); ++i) 
 	{
 		m_realBuf[i] = 0.f;
 	}

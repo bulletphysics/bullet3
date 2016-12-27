@@ -145,3 +145,9 @@ void PhysicsLoopBack::getCachedVisualShapeInformation(struct b3VisualShapeInform
 {
 	return m_data->m_physicsClient->getCachedVisualShapeInformation(visualShapesInfo);
 }
+
+void PhysicsLoopBack::getCachedOverlappingObjects(struct b3AABBOverlapData* overlappingObjects)
+{
+	return m_data->m_physicsClient->getCachedOverlappingObjects(overlappingObjects);
+}
+

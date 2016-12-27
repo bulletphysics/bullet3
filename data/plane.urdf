@@ -1,6 +1,9 @@
 <?xml version="0.0" ?>
 <robot name="cube.urdf">
   <link name="planeLink">
+  <contact>
+      <lateral_friction value="1.5"/>
+  </contact>
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
        <mass value=".0"/>
@@ -16,9 +19,9 @@
       </material>
     </visual>
     <collision>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <origin rpy="0 0 0" xyz="0 0 -5"/>
       <geometry>
-	 	<box size="10 10 0.001"/>
+	 	<box size="30 30 10"/>
       </geometry>
     </collision>
   </link>

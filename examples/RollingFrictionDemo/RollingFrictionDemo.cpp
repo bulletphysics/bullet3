@@ -123,8 +123,8 @@ void	RollingFrictionDemo::initPhysics()
 		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,groundShape,localInertia);
 		btRigidBody* body = new btRigidBody(rbInfo);
-		body->setFriction(1);
-		body->setRollingFriction(1);
+		body->setFriction(.5);
+
 		//add the body to the dynamics world
 		m_dynamicsWorld->addRigidBody(body);
 	}
@@ -153,8 +153,7 @@ void	RollingFrictionDemo::initPhysics()
 		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,groundShape,localInertia);
 		btRigidBody* body = new btRigidBody(rbInfo);
-		body->setFriction(1);
-		body->setRollingFriction(1);
+		body->setFriction(.1);
 		//add the body to the dynamics world
 		m_dynamicsWorld->addRigidBody(body);
 	}
@@ -217,7 +216,8 @@ void	RollingFrictionDemo::initPhysics()
 						btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
 						btRigidBody* body = new btRigidBody(rbInfo);
 						body->setFriction(1.f);
-						body->setRollingFriction(.3);
+						body->setRollingFriction(.1);
+						body->setSpinningFriction(0.1);
 						body->setAnisotropicFriction(colShape->getAnisotropicRollingFrictionDirection(),btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
 
 

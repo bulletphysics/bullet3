@@ -83,8 +83,11 @@ int main(int argc, char* argv[])
 	//DummyGUIHelper gui;
 
 	CommonExampleOptions options(&gui);
+	
 
 	example = StandaloneExampleCreateFunc(options);
+	example->processCommandLineArgs(argc, argv);
+
 	example->initPhysics();
 	example->resetCamera();
 	

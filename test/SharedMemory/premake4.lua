@@ -17,6 +17,8 @@ project ("Test_SharedMemoryPhysicsClient")
 			"../../examples/SharedMemory/PhysicsClient.h",
 			"../../examples/SharedMemory/PhysicsClientSharedMemory.cpp",
 			"../../examples/SharedMemory/PhysicsClientSharedMemory.h",
+			"../../examples/SharedMemory/PhysicsClientSharedMemory_C_API.cpp",
+			"../../examples/SharedMemory/PhysicsClientSharedMemory_C_API.h",
 			"../../examples/SharedMemory/PhysicsClientC_API.cpp",
 			"../../examples/SharedMemory/PhysicsClientC_API.h",
 			"../../examples/SharedMemory/Win32SharedMemory.cpp",

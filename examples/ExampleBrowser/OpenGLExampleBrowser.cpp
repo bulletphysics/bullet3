@@ -134,9 +134,9 @@ int gSharedMemoryKey=-1;
 
 int gPreferredOpenCLDeviceIndex=-1;
 int gPreferredOpenCLPlatformIndex=-1;
-int gGpuArraySizeX=15;
-int gGpuArraySizeY=15;
-int gGpuArraySizeZ=15;
+int gGpuArraySizeX=45;
+int gGpuArraySizeY=55;
+int gGpuArraySizeZ=45;
 
 //#include <float.h>
 //unsigned int fp_control_state = _controlfp(_EM_INEXACT, _MCW_EM);
@@ -1167,7 +1167,7 @@ void OpenGLExampleBrowser::update(float deltaTime)
 				}
                 BT_PROFILE("Render Scene");
                 sCurrentDemo->renderScene();
-            }
+            } else
             {
 				B3_PROFILE("physicsDebugDraw");
 				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );

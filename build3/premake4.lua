@@ -57,7 +57,7 @@
 		description = "Use Midi controller to control parameters"
 	}
 
---	--_OPTIONS["midi"] = "1";
+-- _OPTIONS["midi"] = "1";
 
 	newoption
 	{
@@ -73,8 +73,8 @@
 
 	newoption
 	{
-		trigger = "enet",
-		description = "Enable enet NAT punchthrough test"
+		trigger = "no-enet",
+		description = "Disable enet and enet tests"
 	}
 
 	newoption
@@ -237,6 +237,7 @@ end
 
 	language "C++"
 
+
 	if not _OPTIONS["no-demos"] then
 		include "../examples/ExampleBrowser"
 		include "../examples/OpenGLWindow"
@@ -261,12 +262,21 @@ end
 
 		if not _OPTIONS["no-test"] then
 			include "../test/SharedMemory"
-			if _OPTIONS["enet"] then
-				include "../examples/ThirdPartyLibs/enet"
-				include "../test/enet/client"
-				include "../test/enet/server"
-			end
+			
 		end
+	end
+
+	if _OPTIONS["midi"] then
+		include "../examples/ThirdPartyLibs/midi"
+	end
+	
+	if not _OPTIONS["no-enet"] then
+				include "../examples/ThirdPartyLibs/enet"
+				include "../test/enet/nat_punchthrough/client"
+				include "../test/enet/nat_punchthrough/server"
+				include "../test/enet/chat/client"
+				include "../test/enet/chat/server"
+				defines {"BT_ENABLE_ENET"}
 	end
 
 	 if _OPTIONS["no-bullet3"] then

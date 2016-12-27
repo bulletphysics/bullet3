@@ -138,19 +138,15 @@ static btScalar gCFMSingularityAvoidance = 0;
 
 //GUI related parameter changing helpers
 
-inline void floorSliderValues(float notUsed) { // floor values that should be ints
-	gSolverIterations = floor(gSolverIterations);
-}
-
-inline void twxChangePhysicsStepsPerSecond(float physicsStepsPerSecond) { // function to change simulation physics steps per second
+inline void twxChangePhysicsStepsPerSecond(float physicsStepsPerSecond, void*) { // function to change simulation physics steps per second
 	gPhysicsStepsPerSecond = physicsStepsPerSecond;
 }
 
-inline void twxChangeFPS(float framesPerSecond) {
+inline void twxChangeFPS(float framesPerSecond, void*) {
 	gFramesPerSecond = framesPerSecond;
 }
 
-inline void twxChangeERPCFM(float notUsed) { // function to change ERP/CFM appropriately
+inline void twxChangeERPCFM(float notUsed, void*) { // function to change ERP/CFM appropriately
 	gChangeErpCfm = true;
 }
 
@@ -166,13 +162,12 @@ inline void changeSolver(int comboboxId, const char* item, void* userPointer) { 
 }
 
 
-inline void twxChangeSolverIterations(float notUsed){ // change the solver iterations
+inline void twxChangeSolverIterations(float notUsed, void* userPtr) { // change the solver iterations
 
-	floorSliderValues(0); // floor the values set by slider
 
 }
 
-inline void clampToCustomSpeedNotches(float speed) { // function to clamp to custom speed notches
+inline void clampToCustomSpeedNotches(float speed, void*) { // function to clamp to custom speed notches
 	double minSpeed = 0;
 	double minSpeedDist = SimulationSpeeds::MAX_SPEED;
 	for (int i = 0; i < SimulationSpeeds::NUM_SPEEDS; i++) {
@@ -200,7 +195,7 @@ inline void switchMaximumSpeed(int buttonId, bool buttonState, void* userPointer
 //	b3Printf("Run maximum speed %s", gMaximumSpeed?"on":"off");
 }
 
-inline void setApplicationTick(float frequency){ // set internal application tick
+inline void setApplicationTick(float frequency, void*){ // set internal application tick
 	gApplicationTick = 1000.0f/frequency;
 }
 
@@ -384,7 +379,7 @@ struct NN3DWalkersTimeWarpBase: public CommonRigidBodyBase {
 			slider.m_minVal = 0;
 			slider.m_maxVal = 1000;
 			slider.m_callback = twxChangePhysicsStepsPerSecond;
-			slider.m_clampToNotches = false;
+            slider.m_clampToIntegers = true;
 			m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
 				slider);
 		}

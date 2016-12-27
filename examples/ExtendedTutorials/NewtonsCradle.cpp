@@ -71,11 +71,9 @@ struct NewtonsCradleExample: public CommonRigidBodyBase {
 
 static NewtonsCradleExample* nex = NULL;
 
-void onPendulaLengthChanged(float pendulaLength); // Change the pendula length
+void onPendulaLengthChanged(float pendulaLength, void* userPtr); // Change the pendula length
 
-void onPendulaRestitutionChanged(float pendulaRestitution); // change the pendula restitution
-
-void floorSliderValue(float notUsed); // floor the slider values which should be integers
+void onPendulaRestitutionChanged(float pendulaRestitution, void* userPtr); // change the pendula restitution
 
 void applyForceWithForceScalar(float forceScalar);
 
@@ -85,8 +83,7 @@ void NewtonsCradleExample::initPhysics() {
 		SliderParams slider("Number of Pendula", &gPendulaQty);
 		slider.m_minVal = 1;
 		slider.m_maxVal = 50;
-		slider.m_callback = floorSliderValue; // hack to get integer values
-		slider.m_clampToNotches = false;
+        slider.m_clampToIntegers = true;
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
 			slider);
 	}
@@ -95,8 +92,7 @@ void NewtonsCradleExample::initPhysics() {
 		SliderParams slider("Number of Displaced Pendula", &gDisplacedPendula);
 		slider.m_minVal = 0;
 		slider.m_maxVal = 49;
-		slider.m_callback = floorSliderValue; // hack to get integer values
-		slider.m_clampToNotches = false;
+        slider.m_clampToIntegers = true;
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
 			slider);
 	}
@@ -343,23 +339,17 @@ void NewtonsCradleExample::applyPendulumForce(btScalar pendulumForce){
 
 // GUI parameter modifiers
 
-void onPendulaLengthChanged(float pendulaLength) {
+void onPendulaLengthChanged(float pendulaLength, void*) {
 	if (nex){
 		nex->changePendulaLength(pendulaLength);
 		//b3Printf("Pendula length changed to %f \n",sliderValue );
 	}
 }
 
-void onPendulaRestitutionChanged(float pendulaRestitution) {
+void onPendulaRestitutionChanged(float pendulaRestitution, void*) {
 	if (nex){
 		nex->changePendulaRestitution(pendulaRestitution);
 	}
-}
-
-void floorSliderValue(float notUsed) {
-	gPendulaQty = floor(gPendulaQty);
-	gDisplacedPendula = floor(gDisplacedPendula);
-
 }
 
 void applyForceWithForceScalar(float forceScalar) {

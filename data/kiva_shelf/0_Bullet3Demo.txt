@@ -1,7 +1,0 @@
---start_demo_name=R2D2 Grasp
---mouse_move_multiplier=0.400000
---mouse_wheel_multiplier=0.010000
---background_color_red= 0.900000
---background_color_green= 0.900000
---background_color_blue= 1.000000
---fixed_timestep= 0.000000

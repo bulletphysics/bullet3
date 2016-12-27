@@ -950,9 +950,9 @@ bool NN3DWalkersExample::keyboardCallback(int key, int state)
 	case ']':
 		gWalkerMotorStrength *= 1.1f;
 		return true;
-//	case 'l':
+	case 'l':
 //		printWalkerConfigs();
-//		return true;
+		return true;
 	default:
 		break;
 	}

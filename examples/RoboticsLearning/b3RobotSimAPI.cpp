@@ -5,6 +5,8 @@
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "../CommonInterfaces/CommonRenderInterface.h"
 //#include "../CommonInterfaces/CommonExampleInterface.h"
+#include "../SharedMemory/PhysicsServerCommandProcessor.h"
+
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "../SharedMemory/PhysicsServerSharedMemory.h"
 #include "../SharedMemory/PhysicsServerSharedMemory.h"
@@ -400,6 +402,21 @@ public:
 	virtual void drawText3D( const char* txt, float posX, float posZY, float posZ, float size)
 	{
 	}
+
+		virtual int		addUserDebugText3D( const char* txt, const double positionXYZ[3], const double	textColorRGB[3], double size, double lifeTime)
+	{
+		return -1;
+	}
+	virtual int		addUserDebugLine(const double	debugLineFromXYZ[3], const double	debugLineToXYZ[3], const double	debugLineColorRGB[3], double lineWidth, double lifeTime )
+	{
+		return -1;
+	}
+	virtual void	removeUserDebugItem( int debugItemUniqueId)
+	{
+	}
+	virtual void	removeAllUserDebugItems( )
+	{
+	}
 };
 
 
@@ -666,7 +683,7 @@ void b3RobotSimAPI::createJoint(int parentBodyIndex, int parentJointIndex, int c
     b3Assert(b3CanSubmitCommand(m_data->m_physicsClient));
     if (b3CanSubmitCommand(m_data->m_physicsClient))
     {
-        statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClient, b3CreateJoint(m_data->m_physicsClient, parentBodyIndex, parentJointIndex, childBodyIndex, childJointIndex, jointInfo));
+        statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClient, b3InitCreateUserConstraintCommand(m_data->m_physicsClient, parentBodyIndex, parentJointIndex, childBodyIndex, childJointIndex, jointInfo));
     }
 }
 
@@ -893,7 +910,8 @@ bool b3RobotSimAPI::connect(GUIHelperInterface* guiHelper)
 	}
 	else
 	{
-		m_data->m_clientServerDirect = new PhysicsDirect();
+		PhysicsServerCommandProcessor* sdk = new PhysicsServerCommandProcessor;
+		m_data->m_clientServerDirect = new PhysicsDirect(sdk);
 		bool connected = m_data->m_clientServerDirect->connect(guiHelper);
 		m_data->m_physicsClient = (b3PhysicsClientHandle)m_data->m_clientServerDirect;
 
@@ -1000,8 +1018,11 @@ void b3RobotSimAPI::getLinkState(int bodyUniqueId, int linkIndex, double* worldP
     }
 }
 
-void b3RobotSimAPI::loadBunny()
+void b3RobotSimAPI::loadBunny(double scale, double mass, double collisionMargin)
 {
     b3SharedMemoryCommandHandle command = b3LoadBunnyCommandInit(m_data->m_physicsClient);
+    b3LoadBunnySetScale(command, scale);
+    b3LoadBunnySetMass(command, mass);
+    b3LoadBunnySetCollisionMargin(command, collisionMargin);
     b3SubmitClientCommand(m_data->m_physicsClient, command);
 }

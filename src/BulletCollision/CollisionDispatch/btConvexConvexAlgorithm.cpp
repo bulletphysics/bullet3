@@ -179,11 +179,10 @@ static SIMD_FORCE_INLINE btScalar capsuleCapsuleDistance(
 
 
 
-btConvexConvexAlgorithm::CreateFunc::CreateFunc(btSimplexSolverInterface*			simplexSolver, btConvexPenetrationDepthSolver* pdSolver)
+btConvexConvexAlgorithm::CreateFunc::CreateFunc(btConvexPenetrationDepthSolver* pdSolver)
 {
 	m_numPerturbationIterations = 0;
 	m_minimumPointsPerturbationThreshold = 3;
-	m_simplexSolver = simplexSolver;
 	m_pdSolver = pdSolver;
 }
 
@@ -191,9 +190,8 @@ btConvexConvexAlgorithm::CreateFunc::~CreateFunc()
 { 
 }
 
-btConvexConvexAlgorithm::btConvexConvexAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,const btCollisionObjectWrapper* body0Wrap,const btCollisionObjectWrapper* body1Wrap,btSimplexSolverInterface* simplexSolver, btConvexPenetrationDepthSolver* pdSolver,int numPerturbationIterations, int minimumPointsPerturbationThreshold)
+btConvexConvexAlgorithm::btConvexConvexAlgorithm(btPersistentManifold* mf,const btCollisionAlgorithmConstructionInfo& ci,const btCollisionObjectWrapper* body0Wrap,const btCollisionObjectWrapper* body1Wrap,btConvexPenetrationDepthSolver* pdSolver,int numPerturbationIterations, int minimumPointsPerturbationThreshold)
 : btActivatingCollisionAlgorithm(ci,body0Wrap,body1Wrap),
-m_simplexSolver(simplexSolver),
 m_pdSolver(pdSolver),
 m_ownManifold (false),
 m_manifoldPtr(mf),
@@ -349,8 +347,8 @@ void btConvexConvexAlgorithm ::processCollision (const btCollisionObjectWrapper*
 
 	
 	btGjkPairDetector::ClosestPointInput input;
-
-	btGjkPairDetector	gjkPairDetector(min0,min1,m_simplexSolver,m_pdSolver);
+    btVoronoiSimplexSolver simplexSolver;
+    btGjkPairDetector	gjkPairDetector( min0, min1, &simplexSolver, m_pdSolver );
 	//TODO: if (dispatchInfo.m_useContinuous)
 	gjkPairDetector.setMinkowskiA(min0);
 	gjkPairDetector.setMinkowskiB(min1);
@@ -367,7 +365,7 @@ void btConvexConvexAlgorithm ::processCollision (const btCollisionObjectWrapper*
 		//	input.m_maximumDistanceSquared = min0->getMargin() + min1->getMargin() + m_manifoldPtr->getContactProcessingThreshold();
 		//} else
 		//{
-		input.m_maximumDistanceSquared = min0->getMargin() + min1->getMargin() + m_manifoldPtr->getContactBreakingThreshold();
+		input.m_maximumDistanceSquared = min0->getMargin() + min1->getMargin() + m_manifoldPtr->getContactBreakingThreshold()+resultOut->m_closestPointDistanceThreshold;
 //		}
 
 		input.m_maximumDistanceSquared*= input.m_maximumDistanceSquared;

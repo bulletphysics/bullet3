@@ -32,13 +32,20 @@ struct TinyRendererVisualShapeConverter : public LinkVisualShapesConverter
 
     void getWidthAndHeight(int& width, int& height);
 	void setWidthAndHeight(int width, int height);
-    
+	void setLightDirection(float x, float y, float z);
+    void setLightColor(float x, float y, float z);
+    void setLightDistance(float dist);
+    void setLightAmbientCoeff(float ambientCoeff);
+    void setLightDiffuseCoeff(float diffuseCoeff);
+    void setLightSpecularCoeff(float specularCoeff);
+    void setShadow(bool hasShadow);
+
     void copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels,int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,  int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied);
     
 	void render();
 	void render(const float viewMat[16], const float projMat[16]);
     
-    void loadTextureFile(const char* filename);
+    int loadTextureFile(const char* filename);
     int registerTexture(unsigned char* texels, int width, int height);
     void activateShapeTexture(int shapeUniqueId, int textureUniqueId);
     void activateShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId);

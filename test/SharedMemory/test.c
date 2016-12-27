@@ -3,6 +3,10 @@
 #include "SharedMemory/PhysicsClientC_API.h"
 #endif //PHYSICS_SHARED_MEMORY
 
+#ifdef PHYSICS_UDP
+#include "SharedMemory/PhysicsClientUDP_C_API.h"
+#endif//PHYSICS_UDP
+
 #ifdef PHYSICS_LOOP_BACK
 #include "SharedMemory/PhysicsLoopBackC_API.h"
 #endif //PHYSICS_LOOP_BACK
@@ -224,7 +228,7 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 #endif
         }
         ///perform some simulation steps for testing
-        for ( i=0;i<100;i++)
+        for ( i=0;i<1000;i++)
         {
 			b3SharedMemoryStatusHandle statusHandle;
 			int statusType;
@@ -319,11 +323,17 @@ int main(int argc, char* argv[])
     b3PhysicsClientHandle sm = b3CreateInProcessPhysicsServerAndConnect(argc,argv);
 #endif //__APPLE__
 #endif
+
 #ifdef PHYSICS_SHARED_MEMORY
         b3PhysicsClientHandle sm = b3ConnectSharedMemory(SHARED_MEMORY_KEY);
 #endif //PHYSICS_SHARED_MEMORY
 
+#ifdef PHYSICS_UDP
+        b3PhysicsClientHandle sm = b3ConnectPhysicsUDP("localhost",1234);
+#endif //PHYSICS_UDP
+
 	testSharedMemory(sm);
 }
 #endif
+
 
