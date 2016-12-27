@@ -60,6 +60,11 @@ public:
 	virtual void getCachedOverlappingObjects(struct b3AABBOverlapData* overlappingObjects);
 
 	virtual void getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo);
+
+	virtual void getCachedVREvents(struct b3VREventsData* vrEventsData);
+
+	virtual void getCachedRaycastHits(struct b3RaycastInformation* raycastHits);
+
 };
 
 #endif  // BT_PHYSICS_CLIENT_API_H

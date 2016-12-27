@@ -1956,6 +1956,188 @@ static PyObject* pybullet_removeAllUserDebugItems(PyObject* self, PyObject* args
 	return Py_None;
 }
 
+
+static PyObject* pybullet_rayTest(PyObject* self, PyObject* args, PyObject *keywds) 
+{
+	b3SharedMemoryCommandHandle commandHandle;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	PyObject* rayFromObj=0;
+	PyObject* rayToObj=0;
+	double from[3];
+	double to[3];
+	static char *kwlist[] = { "rayFromPosition", "rayToPosition", NULL };
+
+	if (0 == sm) {
+	  PyErr_SetString(SpamError, "Not connected to physics server.");
+	  return NULL;
+  }
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO", kwlist,
+		&rayFromObj, &rayToObj))
+		return NULL;
+
+	pybullet_internalSetVectord(rayFromObj,from);
+	pybullet_internalSetVectord(rayToObj,to);
+
+	commandHandle = b3CreateRaycastCommandInit(sm, from[0],from[1],from[2],
+		to[0],to[1],to[2]);
+
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	statusType = b3GetStatusType(statusHandle);
+	if (statusType==CMD_REQUEST_RAY_CAST_INTERSECTIONS_COMPLETED)
+	{
+		struct b3RaycastInformation raycastInfo;
+		PyObject* rayHitsObj = 0;
+		int i;
+		b3GetRaycastInformation(sm, &raycastInfo);
+		
+		rayHitsObj = PyTuple_New(raycastInfo.m_numRayHits);
+		for (i=0;i<raycastInfo.m_numRayHits;i++)
+		{
+			PyObject* singleHitObj  = PyTuple_New(5);
+			{
+				PyObject* ob = PyInt_FromLong(raycastInfo.m_rayHits[i].m_hitObjectUniqueId);
+				PyTuple_SetItem(singleHitObj,0,ob);
+			}
+			{
+				PyObject* ob = PyInt_FromLong(raycastInfo.m_rayHits[i].m_hitObjectLinkIndex);
+				PyTuple_SetItem(singleHitObj,1,ob);
+			}
+			{
+				PyObject* ob = PyFloat_FromDouble(raycastInfo.m_rayHits[i].m_hitFraction);
+				PyTuple_SetItem(singleHitObj,2,ob);
+			}
+			{
+				PyObject* posObj  = PyTuple_New(3);
+				int p;
+				for (p=0;p<3;p++)
+				{
+					PyObject* ob = PyFloat_FromDouble(raycastInfo.m_rayHits[i].m_hitPositionWorld[p]);
+					PyTuple_SetItem(posObj,p,ob);
+				}
+				PyTuple_SetItem(singleHitObj,3,posObj);
+			}
+			{
+				PyObject* normalObj  = PyTuple_New(3);
+				int p;
+				for (p=0;p<3;p++)
+				{
+					PyObject* ob = PyFloat_FromDouble(raycastInfo.m_rayHits[i].m_hitNormalWorld[p]);
+					PyTuple_SetItem(normalObj,p,ob);
+				}
+				PyTuple_SetItem(singleHitObj,4,normalObj);
+			}
+			PyTuple_SetItem(rayHitsObj,i,singleHitObj);
+		}
+		return rayHitsObj;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject* pybullet_getMatrixFromQuaterion(PyObject* self, PyObject* args) 
+{
+	PyObject* quatObj;
+	double quat[4];
+	if (PyArg_ParseTuple(args, "O", &quatObj)) 
+	{
+		if (pybullet_internalSetVector4d(quatObj,quat))
+		{
+			///see btMatrix3x3::setRotation
+			int i;
+			double d = quat[0]*quat[0]+quat[1]*quat[1]+quat[2]*quat[2]+quat[3]*quat[3];
+			double s = 2.0 / d;
+			double xs = quat[0] * s,   ys = quat[1] * s,   zs = quat[2] * s;
+			double wx = quat[3] * xs,  wy = quat[3] * ys,  wz = quat[3] * zs;
+			double xx = quat[0] * xs,  xy = quat[0] * ys,  xz = quat[0] * zs;
+			double yy = quat[1] * ys,  yz = quat[1] * zs,  zz = quat[2] * zs;
+			double mat3x3[9] = {
+				1.0 - (yy + zz), xy - wz, xz + wy,
+				xy + wz, 1.0 - (xx + zz), yz - wx,
+				xz - wy, yz + wx, 1.0 - (xx + yy)};
+			PyObject* matObj = PyTuple_New(9);
+			for (i=0;i<9;i++)
+			{
+				PyTuple_SetItem(matObj,i,PyFloat_FromDouble(mat3x3[i]));
+			}
+			return matObj;
+		}
+	}
+	PyErr_SetString(SpamError, "Couldn't convert quaternion [x,y,z,w].");
+	return NULL;
+};
+
+
+static PyObject* pybullet_getVREvents(PyObject* self, PyObject* args, PyObject *keywds) 
+{
+	b3SharedMemoryCommandHandle commandHandle;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+
+	if (0 == sm) {
+	  PyErr_SetString(SpamError, "Not connected to physics server.");
+	  return NULL;
+  }
+
+	commandHandle = b3RequestVREventsCommandInit(sm);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	statusType = b3GetStatusType(statusHandle);
+	if (statusType==CMD_REQUEST_VR_EVENTS_DATA_COMPLETED)
+	{
+		struct b3VREventsData vrEvents;
+		PyObject* vrEventsObj;
+		int i=0;
+		b3GetVREventsData(sm,&vrEvents);
+		
+		vrEventsObj = PyTuple_New(vrEvents.m_numControllerEvents);
+		for (i=0;i<vrEvents.m_numControllerEvents;i++)
+		{
+			PyObject* vrEventObj = PyTuple_New(7);
+
+			PyTuple_SetItem(vrEventObj,0,PyInt_FromLong(vrEvents.m_controllerEvents[i].m_controllerId));
+			{
+				PyObject* posObj = PyTuple_New(3);
+				PyTuple_SetItem(posObj,0,PyFloat_FromDouble(vrEvents.m_controllerEvents[i].m_pos[0]));
+				PyTuple_SetItem(posObj,1,PyFloat_FromDouble(vrEvents.m_controllerEvents[i].m_pos[1]));
+				PyTuple_SetItem(posObj,2,PyFloat_FromDouble(vrEvents.m_controllerEvents[i].m_pos[2]));
+				PyTuple_SetItem(vrEventObj,1,posObj);
+			}
+			{
+				PyObject* ornObj = PyTuple_New(4);
+				PyTuple_SetItem(ornObj,0,PyFloat_FromDouble(vrEvents.m_controllerEvents[i].m_orn[0]));
+				PyTuple_SetItem(ornObj,1,PyFloat_FromDouble(vrEvents.m_controllerEvents[i].m_orn[1]));
+				PyTuple_SetItem(ornObj,2,PyFloat_FromDouble(vrEvents.m_controllerEvents[i].m_orn[2]));
+				PyTuple_SetItem(ornObj,3,PyFloat_FromDouble(vrEvents.m_controllerEvents[i].m_orn[3]));
+				PyTuple_SetItem(vrEventObj,2,ornObj);
+			}
+
+			PyTuple_SetItem(vrEventObj,3,PyFloat_FromDouble(vrEvents.m_controllerEvents[i].m_analogAxis));
+			PyTuple_SetItem(vrEventObj,4,PyInt_FromLong(vrEvents.m_controllerEvents[i].m_numButtonEvents));
+			PyTuple_SetItem(vrEventObj,5,PyInt_FromLong(vrEvents.m_controllerEvents[i].m_numMoveEvents));
+			{
+				PyObject* buttonsObj = PyTuple_New(MAX_VR_BUTTONS);
+				int b;
+				for (b=0;b<MAX_VR_BUTTONS;b++)
+				{
+					PyObject* button = PyInt_FromLong(vrEvents.m_controllerEvents[i].m_buttons[b]);
+					PyTuple_SetItem(buttonsObj,b,button);
+				}
+				PyTuple_SetItem(vrEventObj,6,buttonsObj);
+			}
+			PyTuple_SetItem(vrEventsObj,i,vrEventObj);
+		}
+	   return vrEventsObj;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+
+}
+
+
+
 static PyObject* pybullet_setDebugObjectColor(PyObject* self, PyObject* args, PyObject *keywds)
 {
 	PyObject* objectColorRGBObj = 0;
@@ -3820,6 +4002,9 @@ static PyMethodDef SpamMethods[] = {
      "Convert quaternion [x,y,z,w] to Euler [roll, pitch, yaw] as in URDF/SDF "
      "convention"},
 
+	 {"getMatrixFromQuaterion", pybullet_getMatrixFromQuaterion,METH_VARARGS,
+		"Compute the 3x3 matrix from a quaternion, as a list of 9 values (row-major)"},
+
     {"calculateInverseDynamics", pybullet_calculateInverseDynamics,
      METH_VARARGS,
      "Given an object id, joint positions, joint velocities and joint "
@@ -3832,12 +4017,21 @@ static PyMethodDef SpamMethods[] = {
         " for the end effector,"
         "compute the inverse kinematics and return the new joint state"},
     
+	{	"getVREvents", (PyCFunction)pybullet_getVREvents, METH_VARARGS | METH_KEYWORDS,
+		"Get Virtual Reality events, for example to track VR controllers position/buttons"
+	  },
+
+	{	"rayTest", (PyCFunction)pybullet_rayTest, METH_VARARGS | METH_KEYWORDS,
+				"Cast a ray and return the first object hit, if any. "
+				"Takes two arguments (from position [x,y,z] and to position [x,y,z] in Cartesian world coordinates"
+	  },
+
+
     // todo(erwincoumans)
     // saveSnapshot
     // loadSnapshot
     // raycast info
     // object names
-	// collision query
 
     {NULL, NULL, 0, NULL} /* Sentinel */
 };
@@ -3901,6 +4095,14 @@ initpybullet(void)
 
   PyModule_AddIntConstant(m, "CONTACT_REPORT_EXISTING", CONTACT_QUERY_MODE_REPORT_EXISTING_CONTACT_POINTS);
   PyModule_AddIntConstant(m, "CONTACT_RECOMPUTE_CLOSEST", CONTACT_QUERY_MODE_COMPUTE_CLOSEST_POINTS);
+
+  PyModule_AddIntConstant(m, "VR_BUTTON_IS_DOWN", eButtonIsDown);
+  PyModule_AddIntConstant(m, "VR_BUTTON_WAS_TRIGGERED", eButtonTriggered);
+  PyModule_AddIntConstant(m, "VR_BUTTON_WAS_RELEASED", eButtonReleased);
+  
+  PyModule_AddIntConstant(m, "VR_MAX_CONTROLLERS", MAX_VR_CONTROLLERS);
+  PyModule_AddIntConstant(m, "VR_MAX_BUTTONS", MAX_VR_BUTTONS);
+
 
   SpamError = PyErr_NewException("pybullet.error", NULL, NULL);
   Py_INCREF(SpamError);

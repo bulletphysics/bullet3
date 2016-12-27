@@ -146,8 +146,17 @@ void PhysicsLoopBack::getCachedVisualShapeInformation(struct b3VisualShapeInform
 	return m_data->m_physicsClient->getCachedVisualShapeInformation(visualShapesInfo);
 }
 
+void PhysicsLoopBack::getCachedVREvents(struct b3VREventsData* vrEventsData)
+{
+	return m_data->m_physicsClient->getCachedVREvents(vrEventsData);
+}
+
 void PhysicsLoopBack::getCachedOverlappingObjects(struct b3AABBOverlapData* overlappingObjects)
 {
 	return m_data->m_physicsClient->getCachedOverlappingObjects(overlappingObjects);
 }
 
+void PhysicsLoopBack::getCachedRaycastHits(struct b3RaycastInformation* raycastHits)
+{
+	return m_data->m_physicsClient->getCachedRaycastHits(raycastHits);
+}

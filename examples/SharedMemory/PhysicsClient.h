@@ -52,6 +52,10 @@ public:
 
 	virtual void getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo) = 0;
 
+	virtual void getCachedVREvents(struct b3VREventsData* vrEventsData) = 0;
+
+	virtual void getCachedRaycastHits(struct b3RaycastInformation* raycastHits) = 0;
+
 };
 
 #endif  // BT_PHYSICS_CLIENT_API_H

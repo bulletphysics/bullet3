@@ -236,9 +236,9 @@ void PhysicsServerSharedMemory::releaseSharedMemory()
 }
 
 
-void PhysicsServerSharedMemory::stepSimulationRealTime(double dtInSec)
+void PhysicsServerSharedMemory::stepSimulationRealTime(double dtInSec, const struct b3VRControllerEvent* vrEvents, int numVREvents)
 {
-	m_data->m_commandProcessor->stepSimulationRealTime(dtInSec);
+	m_data->m_commandProcessor->stepSimulationRealTime(dtInSec,vrEvents, numVREvents);
 }
 
 void PhysicsServerSharedMemory::enableRealTimeSimulation(bool enableRealTimeSim)

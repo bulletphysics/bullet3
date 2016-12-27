@@ -291,6 +291,14 @@ b3SharedMemoryCommandHandle b3MovePickedBody(b3PhysicsClientHandle physClient, d
                                              double rayToWorldZ);
 b3SharedMemoryCommandHandle b3RemovePickingConstraint(b3PhysicsClientHandle physClient);
 
+b3SharedMemoryCommandHandle b3CreateRaycastCommandInit(b3PhysicsClientHandle physClient, double rayFromWorldX,
+                                       double rayFromWorldY, double rayFromWorldZ,
+                                       double rayToWorldX, double rayToWorldY, double rayToWorldZ);
+
+void b3GetRaycastInformation(b3PhysicsClientHandle physClient, struct b3RaycastInformation* raycastInfo);
+
+
+
 /// Apply external force at the body (or link) center of mass, in world space/Cartesian coordinates.
 b3SharedMemoryCommandHandle b3ApplyExternalForceCommandInit(b3PhysicsClientHandle physClient);
 void b3ApplyExternalForce(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkId, const double force[3], const double position[3], int flags);
@@ -301,6 +309,12 @@ b3SharedMemoryCommandHandle	b3LoadBunnyCommandInit(b3PhysicsClientHandle physCli
 int b3LoadBunnySetScale(b3SharedMemoryCommandHandle commandHandle, double scale);
 int b3LoadBunnySetMass(b3SharedMemoryCommandHandle commandHandle, double mass);
 int b3LoadBunnySetCollisionMargin(b3SharedMemoryCommandHandle commandHandle, double collisionMargin);
+
+
+b3SharedMemoryCommandHandle	b3RequestVREventsCommandInit(b3PhysicsClientHandle physClient);
+void b3GetVREventsData(b3PhysicsClientHandle physClient, struct b3VREventsData* vrEventsData);
+
+
 
 #ifdef __cplusplus
 }

@@ -21,6 +21,7 @@
 #include "LinearMath/btIDebugDraw.h"
 int gSharedMemoryKey = -1;
 int  gDebugDrawFlags = 0;
+bool gDisplayDistortion = false;
 
 //how can you try typing on a keyboard, without seeing it?
 //it is pretty funny, to see the desktop in VR!
@@ -704,7 +705,7 @@ bool CMainApplication::HandleInput()
 //							printf("Device PRESSED: %d, button %d\n", unDevice, button);
 							if (button==2)
 							{
-								glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+								//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 								///todo(erwincoumans) can't use reguar debug drawer, because physics/graphics are not in sync
 								///so it can (and likely will) cause crashes
 								///add a special debug drawer that deals with this
@@ -831,15 +832,31 @@ void CMainApplication::RenderFrame()
 			DrawControllers();
 		}
 		RenderStereoTargets();
+
+		if (gDisplayDistortion)
 		{
 			B3_PROFILE("RenderDistortion");
 			RenderDistortion();
+		} else
+		{
+			glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+			glDisable( GL_MULTISAMPLE );
+	 		glBindFramebuffer(GL_READ_FRAMEBUFFER, rightEyeDesc.m_nRenderFramebufferId );
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	
+			glBlitFramebuffer( 0, 0, m_nRenderWidth, m_nRenderHeight, 0, 0, m_nRenderWidth, m_nRenderHeight, 
+				GL_COLOR_BUFFER_BIT,
+ 				GL_LINEAR  );
+
+ 			glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0 );
 		}
 
 		vr::Texture_t leftEyeTexture = {(void*)leftEyeDesc.m_nResolveTextureId, vr::API_OpenGL, vr::ColorSpace_Gamma };
 		vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture );
 		vr::Texture_t rightEyeTexture = {(void*)rightEyeDesc.m_nResolveTextureId, vr::API_OpenGL, vr::ColorSpace_Gamma };
 		vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture );
+		
 	}
 
 	if ( m_bVblank && m_bGlFinishHack )

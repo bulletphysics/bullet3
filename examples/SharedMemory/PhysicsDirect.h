@@ -81,6 +81,9 @@ public:
 
 	virtual void getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo);
 	
+	virtual void getCachedVREvents(struct b3VREventsData* vrEventsData);
+
+	virtual void getCachedRaycastHits(struct b3RaycastInformation* raycastHits);
 
 	//those 2 APIs are for internal use for visualization
 	virtual bool connect(struct GUIHelperInterface* guiHelper);

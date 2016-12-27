@@ -84,7 +84,7 @@ public:
 	void enableCommandLogging(bool enable, const char* fileName);
 	void replayFromLogFile(const char* fileName);
 	void replayLogCommand(char* bufferServerToClient, int bufferSizeInBytes );
-	void stepSimulationRealTime(double dtInSec);
+	void stepSimulationRealTime(double dtInSec,	const struct b3VRControllerEvent* vrEvents, int numVREvents);
 	void enableRealTimeSimulation(bool enableRealTimeSim);
 	void applyJointDamping(int bodyUniqueId);
 };
