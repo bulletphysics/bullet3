@@ -9,6 +9,7 @@ CONTROLLER_ID = 0
 POSITION=1
 BUTTONS=6
 
+
 #assume that the VR physics server is already started before
 p.connect(p.SHARED_MEMORY)
 p.setInternalSimFlags(0)#don't load default robot assets etc
@@ -31,18 +32,18 @@ while True:
 	events = p.getVREvents()
 
 	for e in (events):
-		if (e[BUTTONS][33]&2):
+		if (e[BUTTONS][33]&p.VR_BUTTON_WAS_TRIGGERED):
 			prev[e[CONTROLLER_ID]] = e[POSITION]
-		if (e[BUTTONS][32]&2):
+		if (e[BUTTONS][32]&p.VR_BUTTON_WAS_TRIGGERED):
 			widths[e[CONTROLLER_ID]]=widths[e[0]]+1
 			if (widths[e[CONTROLLER_ID]]>20):
 				widths[e[CONTROLLER_ID]] = 1
-		if (e[BUTTONS][1]&2):
+		if (e[BUTTONS][1]&p.VR_BUTTON_WAS_TRIGGERED):
 			p.resetSimulation()
 			#p.setGravity(0,0,-10)
 			p.removeAllUserDebugItems()
 			p.loadURDF("plane.urdf")
-		if (e[BUTTONS][33]==1):
+		if (e[BUTTONS][33]==p.VR_BUTTON_IS_DOWN):
 			pt = prev[e[CONTROLLER_ID]]
 			
 			#print(prev[e[0]])
