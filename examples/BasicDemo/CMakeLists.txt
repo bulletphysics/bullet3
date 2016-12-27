@@ -60,7 +60,7 @@ SET(AppBasicExampleGui_SRCS
 ADD_DEFINITIONS(-DB3_USE_STANDALONE_EXAMPLE)
 
 LINK_LIBRARIES(
-        BulletDynamics BulletCollision LinearMath OpenGLWindow Bullet3Common ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+        BulletDynamics BulletCollision LinearMath OpenGLWindow Bullet3Common 
 )
 
 #some code to support OpenGL and Glew cross platform
@@ -83,7 +83,7 @@ ELSE(WIN32)
                 ADD_DEFINITIONS("-DGLEW_STATIC")
                 ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
 
-                LINK_LIBRARIES( X11 pthread dl Xext)
+                LINK_LIBRARIES(  pthread dl )
         ENDIF(APPLE)
 ENDIF(WIN32)
 

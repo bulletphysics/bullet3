@@ -1431,6 +1431,32 @@ extern double gSubStep;
 extern int gHuskyId;
 extern btTransform huskyTr;
 
+  struct LineSegment
+                {
+                        btVector3 m_from;
+                        btVector3 m_to;
+                };
+
+                struct ColorWidth
+                {
+                        btVector3FloatData m_color;
+                        int width;
+                        int getHash() const
+                        {
+                                unsigned char r = (unsigned char) m_color.m_floats[0]*255;
+                                unsigned char g = (unsigned char) m_color.m_floats[1]*255;
+                                unsigned char b = (unsigned char) m_color.m_floats[2]*255;
+                                unsigned char w = width;
+                                return r+(256*g)+(256*256*b)+(256*256*256*w);
+                        }
+                        bool equals(const ColorWidth& other) const
+                        {
+                                bool same = ((width == other.width) && (m_color.m_floats[0] == other.m_color.m_floats[0]) &&
+                                        (m_color.m_floats[1] == other.m_color.m_floats[1]) &&
+                                        (m_color.m_floats[2] == other.m_color.m_floats[2]));
+                                return same;
+                        }
+                };
 
 void PhysicsServerExample::drawUserDebugLines()
 {
@@ -1447,32 +1473,6 @@ void PhysicsServerExample::drawUserDebugLines()
 
 
 		//if gBatchUserDebugLines is true, batch lines based on color+width, to reduce line draw calls
-		struct LineSegment
-		{
-			btVector3 m_from;
-			btVector3 m_to;
-		};
-
-		struct ColorWidth
-		{
-			btVector3FloatData m_color;
-			int width;
-			int getHash() const
-			{
-				unsigned char r = (unsigned char) m_color.m_floats[0]*255;
-				unsigned char g = (unsigned char) m_color.m_floats[1]*255;
-				unsigned char b = (unsigned char) m_color.m_floats[2]*255;
-				unsigned char w = width;
-				return r+(256*g)+(256*256*b)+(256*256*256*w);
-			}
-			bool equals(const ColorWidth& other) const
-			{
-				bool same = ((width == other.width) && (m_color.m_floats[0] == other.m_color.m_floats[0]) &&
-					(m_color.m_floats[1] == other.m_color.m_floats[1]) &&
-					(m_color.m_floats[2] == other.m_color.m_floats[2]));
-				return same;
-			}
-		};
 
 		btAlignedObjectArray< btAlignedObjectArray<unsigned int> > sortedIndices;
 		btAlignedObjectArray< btAlignedObjectArray<btVector3FloatData> > sortedLines;
