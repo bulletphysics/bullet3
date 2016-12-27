@@ -159,6 +159,9 @@ struct btTiming
 };
 
 FILE* gTimingFile = 0;
+#ifndef __STDC_FORMAT_MACROS
+#define __STDC_FORMAT_MACROS
+#endif //__STDC_FORMAT_MACROS
 #include <inttypes.h>
 #define BT_TIMING_CAPACITY 65536
 static bool m_firstTiming = true;
