@@ -106,10 +106,10 @@ void GLPrimitiveRenderer::loadBufferData()
 {
     
     PrimVertex vertexData[4] = {
-        { PrimVec4(-1, -1, 0.0, 1.0 ), PrimVec4( 1.0, 0.0, 0.0, 1.0 ) ,PrimVec2(0,0)},
-        { PrimVec4(-1,  1, 0.0, 1.0 ), PrimVec4( 0.0, 1.0, 0.0, 1.0 ) ,PrimVec2(0,1)},
-        { PrimVec4( 1,  1, 0.0, 1.0 ), PrimVec4( 0.0, 0.0, 1.0, 1.0 ) ,PrimVec2(1,1)},
-        { PrimVec4( 1, -1, 0.0, 1.0 ), PrimVec4( 1.0, 1.0, 1.0, 1.0 ) ,PrimVec2(1,0)}
+        PrimVertex( PrimVec4(-1, -1, 0.0, 1.0 ), PrimVec4( 1.0, 0.0, 0.0, 1.0 ) ,PrimVec2(0,0)),
+        PrimVertex( PrimVec4(-1,  1, 0.0, 1.0 ), PrimVec4( 0.0, 1.0, 0.0, 1.0 ) ,PrimVec2(0,1)),
+        PrimVertex( PrimVec4( 1,  1, 0.0, 1.0 ), PrimVec4( 0.0, 0.0, 1.0, 1.0 ) ,PrimVec2(1,1)),
+        PrimVertex( PrimVec4( 1, -1, 0.0, 1.0 ), PrimVec4( 1.0, 1.0, 1.0, 1.0 ) ,PrimVec2(1,0))
     };
     
         
@@ -450,10 +450,10 @@ void GLPrimitiveRenderer::drawTexturedRect2a(float x0, float y0, float x1, float
 {
    
 	   PrimVertex vertexData[4] = {
-        { PrimVec4(-1.f+2.f*x0/float(m_screenWidth), 1.f-2.f*y0/float(m_screenHeight), 0.f, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u0,v0)},
-        { PrimVec4(-1.f+2.f*x0/float(m_screenWidth),  1.f-2.f*y1/float(m_screenHeight), 0.f, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u0,v1)},
-        { PrimVec4( -1.f+2.f*x1/float(m_screenWidth),  1.f-2.f*y1/float(m_screenHeight), 0.f, 1.f ), PrimVec4(color[0], color[1], color[2], color[3]) ,PrimVec2(u1,v1)},
-        { PrimVec4( -1.f+2.f*x1/float(m_screenWidth), 1.f-2.f*y0/float(m_screenHeight), 0.f, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u1,v0)}
+        PrimVertex( PrimVec4(-1.f+2.f*x0/float(m_screenWidth), 1.f-2.f*y0/float(m_screenHeight), 0.f, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u0,v0)),
+        PrimVertex( PrimVec4(-1.f+2.f*x0/float(m_screenWidth),  1.f-2.f*y1/float(m_screenHeight), 0.f, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u0,v1)),
+        PrimVertex(PrimVec4( -1.f+2.f*x1/float(m_screenWidth),  1.f-2.f*y1/float(m_screenHeight), 0.f, 1.f ), PrimVec4(color[0], color[1], color[2], color[3]) ,PrimVec2(u1,v1)),
+        PrimVertex( PrimVec4( -1.f+2.f*x1/float(m_screenWidth), 1.f-2.f*y0/float(m_screenHeight), 0.f, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u1,v0))
     };
 
 	int sz = m_data2->m_numVerticesText;
@@ -486,10 +486,10 @@ void GLPrimitiveRenderer::drawTexturedRect2(float x0, float y0, float x1, float 
 {
    
 	   PrimVertex vertexData[4] = {
-        { PrimVec4(-1.f+2.f*x0/float(m_screenWidth), 1.f-2.f*y0/float(m_screenHeight), 0.f, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u0,v0)},
-        { PrimVec4(-1.f+2.f*x0/float(m_screenWidth),  1.f-2.f*y1/float(m_screenHeight), 0.f, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u0,v1)},
-        { PrimVec4( -1.f+2.f*x1/float(m_screenWidth),  1.f-2.f*y1/float(m_screenHeight), 0.f, 1.f ), PrimVec4(color[0], color[1], color[2], color[3]) ,PrimVec2(u1,v1)},
-        { PrimVec4( -1.f+2.f*x1/float(m_screenWidth), 1.f-2.f*y0/float(m_screenHeight), 0.f, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u1,v0)}
+        PrimVertex( PrimVec4(-1.f+2.f*x0/float(m_screenWidth), 1.f-2.f*y0/float(m_screenHeight), 0.f, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u0,v0)),
+        PrimVertex( PrimVec4(-1.f+2.f*x0/float(m_screenWidth),  1.f-2.f*y1/float(m_screenHeight), 0.f, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u0,v1)),
+        PrimVertex( PrimVec4( -1.f+2.f*x1/float(m_screenWidth),  1.f-2.f*y1/float(m_screenHeight), 0.f, 1.f ), PrimVec4(color[0], color[1], color[2], color[3]) ,PrimVec2(u1,v1)),
+        PrimVertex( PrimVec4( -1.f+2.f*x1/float(m_screenWidth), 1.f-2.f*y0/float(m_screenHeight), 0.f, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u1,v0))
     };
 
 	int sz = m_data2->m_numVerticesText;
@@ -516,10 +516,10 @@ void GLPrimitiveRenderer::drawTexturedRect(float x0, float y0, float x1, float y
 						0,0,1,0,
 						0,0,0,1};
 	   PrimVertex vertexData[4] = {
-        { PrimVec4(-1.f+2.f*x0/float(m_screenWidth), 1.f-2.f*y0/float(m_screenHeight), 0.f, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u0,v0)},
-        { PrimVec4(-1.f+2.f*x0/float(m_screenWidth),  1.f-2.f*y1/float(m_screenHeight), 0.f, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u0,v1)},
-        { PrimVec4( -1.f+2.f*x1/float(m_screenWidth),  1.f-2.f*y1/float(m_screenHeight), 0.f, 1.f ), PrimVec4(color[0], color[1], color[2], color[3]) ,PrimVec2(u1,v1)},
-        { PrimVec4( -1.f+2.f*x1/float(m_screenWidth), 1.f-2.f*y0/float(m_screenHeight), 0.f, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u1,v0)}
+        PrimVertex( PrimVec4(-1.f+2.f*x0/float(m_screenWidth), 1.f-2.f*y0/float(m_screenHeight), 0.f, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u0,v0)),
+        PrimVertex( PrimVec4(-1.f+2.f*x0/float(m_screenWidth),  1.f-2.f*y1/float(m_screenHeight), 0.f, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u0,v1)),
+        PrimVertex( PrimVec4( -1.f+2.f*x1/float(m_screenWidth),  1.f-2.f*y1/float(m_screenHeight), 0.f, 1.f ), PrimVec4(color[0], color[1], color[2], color[3]) ,PrimVec2(u1,v1)),
+        PrimVertex( PrimVec4( -1.f+2.f*x1/float(m_screenWidth), 1.f-2.f*y0/float(m_screenHeight), 0.f, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u1,v0))
     };
     
 	drawTexturedRect3D(vertexData[0],vertexData[1],vertexData[2],vertexData[3],identity,identity,useRGBA);
