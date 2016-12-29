@@ -5,6 +5,8 @@
 
 struct PrimVec2
 {
+	PrimVec2()
+	{}
 	PrimVec2(float x, float y)
 	{
 		p[0] = x;
@@ -28,12 +30,21 @@ struct PrimVec4
 	float p[4];
 };
 
-typedef struct
+struct PrimVertex
 {
+	PrimVertex(const PrimVec4 & p, const PrimVec4 & c, const PrimVec2& u)
+		:position(p),
+		colour(c),
+		uv(u)
+	{
+	}
+
+	PrimVertex()
+	{}
     PrimVec4 position;
     PrimVec4 colour;
 	PrimVec2 uv;
-} PrimVertex;
+} ;
 
 
 class GLPrimitiveRenderer
@@ -42,7 +53,7 @@ class GLPrimitiveRenderer
     int m_screenHeight;
 
 	struct PrimInternalData*	m_data;
-    
+    struct PrimInternalData2*	m_data2;
     void loadBufferData();
     
 public:
@@ -56,6 +67,14 @@ public:
     void drawLine();//float from[4], float to[4], float color[4]);
     void setScreenSize(int width, int height);
     
+	void drawTexturedRect2(float x0, float y0, float x1, float y1, float color[4], float u0,float v0, float u1, float v1, int useRGBA=0);
+	void drawTexturedRect2a(float x0, float y0, float x1, float y1, float color[4], float u0,float v0, float u1, float v1, int useRGBA=0);
+	void flushBatchedRects();
+
+	
+	void drawTexturedRect3D2Text(bool useRGBA = true);
+	void drawTexturedRect3D2(PrimVertex* vertices, int numVertices, bool useRGBA = true);
+  
 	PrimInternalData*	getData()
 	{
 		return m_data;

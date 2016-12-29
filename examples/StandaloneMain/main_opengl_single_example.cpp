@@ -96,11 +96,14 @@ int main(int argc, char* argv[])
 	do
 	{
 		app->m_instancingRenderer->init();
-        app->m_instancingRenderer->updateCamera(app->getUpAxis());
+    app->m_instancingRenderer->updateCamera(app->getUpAxis());
 
 		btScalar dtSec = btScalar(clock.getTimeInSeconds());
+		if (dtSec<0.1)
+			dtSec = 0.1;
+	
 		example->stepSimulation(dtSec);
-	  	clock.reset();
+	  clock.reset();
 
 		example->renderScene();
  	

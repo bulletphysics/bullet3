@@ -239,6 +239,10 @@ struct	MotionArgs
 		}
 	}
 	b3CriticalSection* m_cs;
+	b3CriticalSection* m_cs2;
+	b3CriticalSection* m_cs3;
+	b3CriticalSection* m_csGUI;
+
 
 	btAlignedObjectArray<MyMouseCommand> m_mouseCommands;
 
@@ -289,16 +293,21 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 
 		do
 		{
+			BT_PROFILE("loop");
 			deltaTimeInSeconds+= double(clock.getTimeMicroseconds())/1000000.;
+			clock.reset();
 
 			if (deltaTimeInSeconds<(1./5000.))
 			{
 
 				skip++;
 				skip1++;
+				//if (skip1>105)
 				if (skip1>5)
 				{
+					BT_PROFILE("b3Clock::usleep(250)");
 					b3Clock::usleep(250);
+					skip1 = 0;
 				}
 			} else
 			{
@@ -358,9 +367,9 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 					//b3Warning("Clamp deltaTime from %f to %f",deltaTimeInSeconds, clampedDeltaTime);
 				}
 				
-				clock.reset();
+				
 
-				args->m_cs->lock();
+				args->m_csGUI->lock();
 
 				int numSendVrControllers = 0;
 				for (int i=0;i<MAX_VR_CONTROLLERS;i++)
@@ -383,14 +392,16 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 					}
 				}
 
-				args->m_cs->unlock();
-
-				args->m_physicsServerPtr->stepSimulationRealTime(deltaTimeInSeconds, args->m_sendVrControllerEvents,numSendVrControllers);
+				args->m_csGUI->unlock();
+				{
+					BT_PROFILE("stepSimulationRealTime");
+					args->m_physicsServerPtr->stepSimulationRealTime(deltaTimeInSeconds, args->m_sendVrControllerEvents,numSendVrControllers);
+				}
 				deltaTimeInSeconds = 0;
 				
 			}
 
-			args->m_cs->lock();
+			args->m_csGUI->lock();
 			for (int i = 0; i < args->m_mouseCommands.size(); i++)
 			{
 				switch (args->m_mouseCommands[i].m_type)
@@ -418,10 +429,12 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 				}
 			}
 			args->m_mouseCommands.clear();
-			args->m_cs->unlock();
+			args->m_csGUI->unlock();
 
-
-			args->m_physicsServerPtr->processClientCommands();
+			{
+				BT_PROFILE("processClientCommands");
+				args->m_physicsServerPtr->processClientCommands();
+			}
 			
 		} while (args->m_cs->getSharedParam(0)!=eRequestTerminateMotion);
 	} else
@@ -478,9 +491,10 @@ class MultiThreadedOpenGLGuiHelper : public GUIHelperInterface
 	CommonGraphicsApp* m_app;
 	
 	b3CriticalSection* m_cs;
-	
+	b3CriticalSection* m_cs2;
+	b3CriticalSection* m_cs3;
+	b3CriticalSection* m_csGUI;
 
-	
 
 public:
 
@@ -506,11 +520,43 @@ public:
 	int m_textureId;
 	int m_instanceId;
 	
-	
+	void mainThreadRelease()
+	{
+		BT_PROFILE("mainThreadRelease");
+
+		getCriticalSection()->setSharedParam(1,eGUIHelperIdle);
+		getCriticalSection3()->lock();
+		getCriticalSection2()->unlock();
+		getCriticalSection()->lock();
+		getCriticalSection2()->lock();
+		getCriticalSection()->unlock();
+		getCriticalSection3()->unlock();
+
+	}
+
+	void workerThreadWait()
+	{
+		BT_PROFILE("workerThreadWait");
+		m_cs2->lock();
+		m_cs->unlock();
+		m_cs2->unlock();
+		m_cs3->lock();
+		m_cs3->unlock();
+
+		
+		
+		while (m_cs->getSharedParam(1)!=eGUIHelperIdle)
+		{
+			b3Clock::usleep(100);
+		}
+	}
 
 	MultiThreadedOpenGLGuiHelper(CommonGraphicsApp* app, GUIHelperInterface* guiHelper)
 		:m_app(app)
 		,m_cs(0),
+		m_cs2(0),
+		m_cs3(0),
+		m_csGUI(0),
 		m_uidGenerator(0),
 		m_texels(0),
 		m_textureId(-1)
@@ -534,6 +580,32 @@ public:
 		return m_cs;
 	}
 
+
+	void setCriticalSection2(b3CriticalSection* cs)
+	{
+		m_cs2 = cs;
+	}
+
+	b3CriticalSection* getCriticalSection2()
+	{
+		return m_cs2;
+	}
+
+	void setCriticalSection3(b3CriticalSection* cs)
+	{
+		m_cs3 = cs;
+	}
+
+	void setCriticalSectionGUI(b3CriticalSection* cs)
+	{
+		m_csGUI  = cs;
+	}
+
+
+	b3CriticalSection* getCriticalSection3()
+	{
+		return m_cs3;
+	}
 	btRigidBody* m_body;
 	btVector3 m_color3;
 	virtual void createRigidBodyGraphicsObject(btRigidBody* body,const btVector3& color)
@@ -542,11 +614,8 @@ public:
 		m_color3 = color;
 		m_cs->lock();
 		m_cs->setSharedParam(1,eGUIHelperCreateRigidBodyGraphicsObject);
-		m_cs->unlock();
-		while (m_cs->getSharedParam(1)!=eGUIHelperIdle)
-		{
-			b3Clock::usleep(1000);
-		}
+		workerThreadWait();
+
 	}
 
 	btCollisionObject* m_obj;
@@ -558,11 +627,7 @@ public:
 		m_color2 = color;
 		m_cs->lock();
 		m_cs->setSharedParam(1,eGUIHelperCreateCollisionObjectGraphicsObject);
-		m_cs->unlock();
-		while (m_cs->getSharedParam(1)!=eGUIHelperIdle)
-		{
-			b3Clock::usleep(1000);
-		}
+		workerThreadWait();
 
 	}
 
@@ -572,11 +637,7 @@ public:
 		m_colShape = collisionShape;
 		m_cs->lock();
 		m_cs->setSharedParam(1,eGUIHelperCreateCollisionShapeGraphicsObject);
-		m_cs->unlock();
-		while (m_cs->getSharedParam(1)!=eGUIHelperIdle)
-		{
-			b3Clock::usleep(1000);
-		}
+		workerThreadWait();
 
 	}
 
@@ -584,7 +645,7 @@ public:
 	{
 	    //this check is to prevent a crash, in case we removed all graphics instances, but there are still physics objects.
 	    //the check will be obsolete, once we have a better/safer way of synchronizing physics->graphics transforms
-        if ( m_childGuiHelper->getRenderInterface()->getTotalNumInstances()>0)
+        if ( m_childGuiHelper->getRenderInterface() && m_childGuiHelper->getRenderInterface()->getTotalNumInstances()>0)
         {
             m_childGuiHelper->syncPhysicsToGraphics(rbWorld);
         }
@@ -608,11 +669,10 @@ public:
 
 		m_cs->lock();
 		m_cs->setSharedParam(1,eGUIHelperRegisterTexture);
-		m_cs->unlock();
-		while (m_cs->getSharedParam(1)!=eGUIHelperIdle)
-		{
-			b3Clock::usleep(1000);
-		}
+		
+		workerThreadWait();
+
+
 		return m_textureId;
 	}
 	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType, int textureId)
@@ -626,11 +686,8 @@ public:
 
 		m_cs->lock();
 		m_cs->setSharedParam(1,eGUIHelperRegisterGraphicsShape);
-		m_cs->unlock();
-		while (m_cs->getSharedParam(1)!=eGUIHelperIdle)
-		{
-			b3Clock::usleep(1000);
-		}
+		workerThreadWait();
+
 		return m_shapeIndex;
 	}
 	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling) 
@@ -643,11 +700,7 @@ public:
 
 		m_cs->lock();
 		m_cs->setSharedParam(1,eGUIHelperRegisterGraphicsInstance);
-		m_cs->unlock();
-		while (m_cs->getSharedParam(1)!=eGUIHelperIdle)
-		{
-			b3Clock::usleep(1000);
-		}
+		workerThreadWait();
 		return m_instanceId;
 	}
 
@@ -655,11 +708,7 @@ public:
     {
         m_cs->lock();
 		m_cs->setSharedParam(1,eGUIHelperRemoveAllGraphicsInstances);
-		m_cs->unlock();
-		while (m_cs->getSharedParam(1)!=eGUIHelperIdle)
-		{
-			b3Clock::usleep(1000);
-		}
+		workerThreadWait();
     }
 
 	virtual Common2dCanvasInterface* get2dCanvasInterface()
@@ -730,11 +779,7 @@ public:
         m_numPixelsCopied = numPixelsCopied;
 	    
 		m_cs->setSharedParam(1,eGUIHelperCopyCameraImageData);
-		m_cs->unlock();
-		while (m_cs->getSharedParam(1)!=eGUIHelperIdle)
-		{
-			b3Clock::usleep(1000);
-		}
+		workerThreadWait();
 	}
 	
 
@@ -745,11 +790,7 @@ public:
 		m_dynamicsWorld = rbWorld;
 		m_cs->lock();
 		m_cs->setSharedParam(1, eGUIHelperAutogenerateGraphicsObjects);
-		m_cs->unlock();
-		while (m_cs->getSharedParam(1) != eGUIHelperIdle)
-		{
-			b3Clock::usleep(1000);
-		}
+		workerThreadWait();
 	}
     
 	virtual void drawText3D( const char* txt, float posX, float posZY, float posZ, float size)
@@ -780,11 +821,7 @@ public:
 
 		m_cs->lock();
 		m_cs->setSharedParam(1, eGUIUserDebugAddText);
-		m_cs->unlock();
-		while (m_cs->getSharedParam(1) != eGUIHelperIdle)
-		{
-			b3Clock::usleep(150);
-		}
+		workerThreadWait();
 
 		return m_userDebugText[m_userDebugText.size()-1].m_itemUniqueId;
 	}
@@ -811,11 +848,7 @@ public:
 		
 		m_cs->lock();
 		m_cs->setSharedParam(1, eGUIUserDebugAddLine);
-		m_cs->unlock();
-		while (m_cs->getSharedParam(1) != eGUIHelperIdle)
-		{
-			b3Clock::usleep(150);
-		}
+		workerThreadWait();
 		return m_userDebugLines[m_userDebugLines.size()-1].m_itemUniqueId;
 	}
 
@@ -826,22 +859,14 @@ public:
 		m_removeDebugItemUid = debugItemUniqueId;
 		m_cs->lock();
 		m_cs->setSharedParam(1, eGUIUserDebugRemoveItem);
-		m_cs->unlock();
-		while (m_cs->getSharedParam(1) != eGUIHelperIdle)
-		{
-			b3Clock::usleep(150);
-		}
+		workerThreadWait();
 
 	}	
 	virtual void	removeAllUserDebugItems( )
 	{
 		m_cs->lock();
 		m_cs->setSharedParam(1, eGUIUserDebugRemoveAllItems);
-		m_cs->unlock();
-		while (m_cs->getSharedParam(1) != eGUIHelperIdle)
-		{
-			b3Clock::usleep(150);
-		}
+		workerThreadWait();
 	
 	}
 
@@ -934,9 +959,10 @@ public:
 		cmd.m_rayFrom = rayFrom;
 		cmd.m_rayTo = rayTo;
 		cmd.m_type = MyMouseMove;
-		m_args[0].m_cs->lock();
+		m_args[0].m_csGUI->lock();
 		m_args[0].m_mouseCommands.push_back(cmd);
-		m_args[0].m_cs->unlock();
+		m_args[0].m_csGUI->unlock();
+		
 		return false;
 	};
 
@@ -969,10 +995,11 @@ public:
 				cmd.m_rayFrom = rayFrom;
 				cmd.m_rayTo = rayTo;
 				cmd.m_type = MyMouseButtonDown;
-				m_args[0].m_cs->lock();
+				
+				m_args[0].m_csGUI->lock();
 				m_args[0].m_mouseCommands.push_back(cmd);
-				m_args[0].m_cs->unlock();
-
+				m_args[0].m_csGUI->unlock();
+				
 
 			}
 		} else
@@ -984,9 +1011,10 @@ public:
 				cmd.m_rayFrom.setValue(0,0,0);
 				cmd.m_rayTo.setValue(0, 0, 0);
 				cmd.m_type = MyMouseButtonUp;
-				m_args[0].m_cs->lock();
+				
+				m_args[0].m_csGUI->lock();
 				m_args[0].m_mouseCommands.push_back(cmd);
-				m_args[0].m_cs->unlock();
+				m_args[0].m_csGUI->unlock();
 				//remove p2p
 			}
 		}
@@ -1005,6 +1033,13 @@ public:
 	{
 		b3CommandLineArgs args(argc,argv);
 		loadCurrentSettingsVR(args);
+		int shmemKey;
+		
+		if (args.GetCmdLineArgument("sharedMemoryKey", shmemKey))
+		{
+			setSharedMemoryKey(shmemKey);
+		}
+
 		if (args.GetCmdLineArgument("camPosX", gVRTeleportPos1[0]))
 		{
 			printf("camPosX=%f\n", gVRTeleportPos1[0]);
@@ -1035,7 +1070,7 @@ public:
 
 		if (args.CheckCmdLineFlag("norobotassets"))
 		{
-			gCreateDefaultRobotAssets = false;
+//			gCreateDefaultRobotAssets = false;
 		}
 
 
@@ -1149,6 +1184,10 @@ void	PhysicsServerExample::initPhysics()
 		for (int w=0;w<MAX_MOTION_NUM_THREADS;w++)
 		{
 			m_args[w].m_cs = m_threadSupport->createCriticalSection();
+			m_args[w].m_cs2 = m_threadSupport->createCriticalSection();
+			m_args[w].m_cs3 = m_threadSupport->createCriticalSection();
+			m_args[w].m_csGUI = m_threadSupport->createCriticalSection();
+
 			m_args[w].m_cs->setSharedParam(0,eMotionIsUnInitialized);
 			int numMoving = 0;
  			m_args[w].m_positions.resize(numMoving);
@@ -1165,6 +1204,13 @@ void	PhysicsServerExample::initPhysics()
 
 		m_args[0].m_cs->setSharedParam(1,eGUIHelperIdle);
 		m_multiThreadedHelper->setCriticalSection(m_args[0].m_cs);
+		m_multiThreadedHelper->setCriticalSection2(m_args[0].m_cs2);
+		m_multiThreadedHelper->setCriticalSection3(m_args[0].m_cs3);
+		m_multiThreadedHelper->setCriticalSectionGUI(m_args[0].m_csGUI);
+		
+		m_args[0].m_cs2->lock();
+
+
 		m_isConnected = m_physicsServer.connectSharedMemory( m_guiHelper);
 }
 
@@ -1213,8 +1259,35 @@ bool PhysicsServerExample::wantsTermination()
 
 void	PhysicsServerExample::stepSimulation(float deltaTime)
 {
+	BT_PROFILE("PhysicsServerExample::stepSimulation");
+
 	//this->m_physicsServer.processClientCommands();
 
+	for (int i = m_multiThreadedHelper->m_userDebugLines.size()-1;i>=0;i--)
+	{
+		if (m_multiThreadedHelper->m_userDebugLines[i].m_lifeTime)
+		{
+			m_multiThreadedHelper->m_userDebugLines[i].m_lifeTime -= deltaTime;
+			if (m_multiThreadedHelper->m_userDebugLines[i].m_lifeTime<=0)
+			{
+				m_multiThreadedHelper->m_userDebugLines.swap(i,m_multiThreadedHelper->m_userDebugLines.size()-1);
+				m_multiThreadedHelper->m_userDebugLines.pop_back();
+			}
+		}
+	}
+
+	for (int i = m_multiThreadedHelper->m_userDebugText.size()-1;i>=0;i--)
+	{
+		if (m_multiThreadedHelper->m_userDebugText[i].m_lifeTime)
+		{
+			m_multiThreadedHelper->m_userDebugText[i].m_lifeTime -= deltaTime;
+			if (m_multiThreadedHelper->m_userDebugText[i].m_lifeTime<=0)
+			{
+				m_multiThreadedHelper->m_userDebugText.swap(i,m_multiThreadedHelper->m_userDebugText.size()-1);
+				m_multiThreadedHelper->m_userDebugText.pop_back();
+			}
+		}
+	}
 	//check if any graphics related tasks are requested
 	
 	switch (m_multiThreadedHelper->getCriticalSection()->getSharedParam(1))
@@ -1222,27 +1295,21 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
 	case eGUIHelperCreateCollisionShapeGraphicsObject:
 	{
 		m_multiThreadedHelper->m_childGuiHelper->createCollisionShapeGraphicsObject(m_multiThreadedHelper->m_colShape);
-		m_multiThreadedHelper->getCriticalSection()->lock();
-		m_multiThreadedHelper->getCriticalSection()->setSharedParam(1,eGUIHelperIdle);
-		m_multiThreadedHelper->getCriticalSection()->unlock();
-
+		m_multiThreadedHelper->mainThreadRelease();
 		break;
 	}
 	case eGUIHelperCreateCollisionObjectGraphicsObject:
 	{
 		m_multiThreadedHelper->m_childGuiHelper->createCollisionObjectGraphicsObject(m_multiThreadedHelper->m_obj,
 			m_multiThreadedHelper->m_color2);
-		m_multiThreadedHelper->getCriticalSection()->lock();
-		m_multiThreadedHelper->getCriticalSection()->setSharedParam(1,eGUIHelperIdle);
-		m_multiThreadedHelper->getCriticalSection()->unlock();
+		m_multiThreadedHelper->mainThreadRelease();
+
 		break;
 	}
 	case eGUIHelperCreateRigidBodyGraphicsObject:
 	{
 		m_multiThreadedHelper->m_childGuiHelper->createRigidBodyGraphicsObject(m_multiThreadedHelper->m_body,m_multiThreadedHelper->m_color3);
-		m_multiThreadedHelper->getCriticalSection()->lock();
-		m_multiThreadedHelper->getCriticalSection()->setSharedParam(1,eGUIHelperIdle);
-		m_multiThreadedHelper->getCriticalSection()->unlock();
+		m_multiThreadedHelper->mainThreadRelease();
 		break;
 	}
 	case eGUIHelperRegisterTexture:
@@ -1250,11 +1317,7 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
 		
 		m_multiThreadedHelper->m_textureId = m_multiThreadedHelper->m_childGuiHelper->registerTexture(m_multiThreadedHelper->m_texels,
 						m_multiThreadedHelper->m_textureWidth,m_multiThreadedHelper->m_textureHeight);
-
-		m_multiThreadedHelper->getCriticalSection()->lock();
-		m_multiThreadedHelper->getCriticalSection()->setSharedParam(1,eGUIHelperIdle);
-		m_multiThreadedHelper->getCriticalSection()->unlock();
-		
+		m_multiThreadedHelper->mainThreadRelease();
 		break;
 	}
 	case eGUIHelperRegisterGraphicsShape:
@@ -1266,10 +1329,7 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
 				m_multiThreadedHelper->m_numIndices,
 				m_multiThreadedHelper->m_primitiveType,
 				m_multiThreadedHelper->m_textureId);
-
-		m_multiThreadedHelper->getCriticalSection()->lock();
-		m_multiThreadedHelper->getCriticalSection()->setSharedParam(1,eGUIHelperIdle);
-		m_multiThreadedHelper->getCriticalSection()->unlock();
+		m_multiThreadedHelper->mainThreadRelease();
 		break;
 	}
 	case eGUIHelperRegisterGraphicsInstance:
@@ -1280,21 +1340,19 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
 				m_multiThreadedHelper->m_quaternion,
 				m_multiThreadedHelper->m_color,
 				m_multiThreadedHelper->m_scaling);
-
-		m_multiThreadedHelper->getCriticalSection()->lock();
-		m_multiThreadedHelper->getCriticalSection()->setSharedParam(1,eGUIHelperIdle);
-		m_multiThreadedHelper->getCriticalSection()->unlock();
+		m_multiThreadedHelper->mainThreadRelease();
 		break;
 	}
 	case eGUIHelperRemoveAllGraphicsInstances:
         {
             m_multiThreadedHelper->m_childGuiHelper->removeAllGraphicsInstances();
-			int numRenderInstances = m_multiThreadedHelper->m_childGuiHelper->getRenderInterface()->getTotalNumInstances();
-			b3Assert(numRenderInstances==0);
+			if (m_multiThreadedHelper->m_childGuiHelper->getRenderInterface())
+			{
+				int numRenderInstances = m_multiThreadedHelper->m_childGuiHelper->getRenderInterface()->getTotalNumInstances();
+				b3Assert(numRenderInstances==0);
+			}
+			m_multiThreadedHelper->mainThreadRelease();
 
-            m_multiThreadedHelper->getCriticalSection()->lock();
-            m_multiThreadedHelper->getCriticalSection()->setSharedParam(1,eGUIHelperIdle);
-            m_multiThreadedHelper->getCriticalSection()->unlock();
             break;
         }
         
@@ -1312,34 +1370,26 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
                                                                                  m_multiThreadedHelper->m_destinationWidth, 
                                                                                  m_multiThreadedHelper->m_destinationHeight, 
                                                                                  m_multiThreadedHelper->m_numPixelsCopied);
-            m_multiThreadedHelper->getCriticalSection()->lock();
-            m_multiThreadedHelper->getCriticalSection()->setSharedParam(1,eGUIHelperIdle);
-            m_multiThreadedHelper->getCriticalSection()->unlock();
+ 		m_multiThreadedHelper->mainThreadRelease();
             break;
         }
 	case eGUIHelperAutogenerateGraphicsObjects:
 	{
 		m_multiThreadedHelper->m_childGuiHelper->autogenerateGraphicsObjects(m_multiThreadedHelper->m_dynamicsWorld);
-		m_multiThreadedHelper->getCriticalSection()->lock();
-		m_multiThreadedHelper->getCriticalSection()->setSharedParam(1, eGUIHelperIdle);
-		m_multiThreadedHelper->getCriticalSection()->unlock();
+		m_multiThreadedHelper->mainThreadRelease();
 		break;
 	}
 
 	case eGUIUserDebugAddText:
 	{
 		m_multiThreadedHelper->m_userDebugText.push_back(m_multiThreadedHelper->m_tmpText);
-		m_multiThreadedHelper->getCriticalSection()->lock();
-		m_multiThreadedHelper->getCriticalSection()->setSharedParam(1, eGUIHelperIdle);
-		m_multiThreadedHelper->getCriticalSection()->unlock();
+		m_multiThreadedHelper->mainThreadRelease();
 		break;
 	}
 	case eGUIUserDebugAddLine:
 	{
 		m_multiThreadedHelper->m_userDebugLines.push_back(m_multiThreadedHelper->m_tmpLine);
-		m_multiThreadedHelper->getCriticalSection()->lock();
-		m_multiThreadedHelper->getCriticalSection()->setSharedParam(1, eGUIHelperIdle);
-		m_multiThreadedHelper->getCriticalSection()->unlock();
+		m_multiThreadedHelper->mainThreadRelease();
 			break;
 	}
 	case eGUIUserDebugRemoveItem:
@@ -1365,9 +1415,7 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
 			}
 		}
 
-		m_multiThreadedHelper->getCriticalSection()->lock();
-		m_multiThreadedHelper->getCriticalSection()->setSharedParam(1, eGUIHelperIdle);
-		m_multiThreadedHelper->getCriticalSection()->unlock();
+		m_multiThreadedHelper->mainThreadRelease();
 			break;
 	}
 	case eGUIUserDebugRemoveAllItems:
@@ -1375,9 +1423,7 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
 		m_multiThreadedHelper->m_userDebugLines.clear();
 		m_multiThreadedHelper->m_userDebugText.clear();
 		m_multiThreadedHelper->m_uidGenerator = 0;
-		m_multiThreadedHelper->getCriticalSection()->lock();
-		m_multiThreadedHelper->getCriticalSection()->setSharedParam(1, eGUIHelperIdle);
-		m_multiThreadedHelper->getCriticalSection()->unlock();
+		m_multiThreadedHelper->mainThreadRelease();
 			break;
 	}
 	case eGUIHelperIdle:
@@ -1670,9 +1716,11 @@ void PhysicsServerExample::renderScene()
 	vrOffset[13]= trInv.getOrigin()[1];
 	vrOffset[14]= trInv.getOrigin()[2];
 
-	this->m_multiThreadedHelper->m_childGuiHelper->getRenderInterface()->
+	if (m_multiThreadedHelper->m_childGuiHelper->getRenderInterface())
+	{
+		m_multiThreadedHelper->m_childGuiHelper->getRenderInterface()->
 		getActiveCamera()->setVRCameraOffsetTransform(vrOffset);
-
+	}
 	m_physicsServer.renderScene();
 	
 	for (int i=0;i<MAX_VR_CONTROLLERS;i++)
@@ -1939,7 +1987,7 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 		
 	}
 
-	m_args[0].m_cs->lock();
+	m_args[0].m_csGUI->lock();
 	m_args[0].m_vrControllerEvents[controllerId].m_controllerId = controllerId;
 	m_args[0].m_vrControllerEvents[controllerId].m_pos[0] = trTotal.getOrigin()[0];
 	m_args[0].m_vrControllerEvents[controllerId].m_pos[1] = trTotal.getOrigin()[1];
@@ -1957,7 +2005,7 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 		m_args[0].m_vrControllerEvents[controllerId].m_buttons[button]|=eButtonReleased;
 		m_args[0].m_vrControllerEvents[controllerId].m_buttons[button] &= ~eButtonIsDown;
 	}
-	m_args[0].m_cs->unlock();
+	m_args[0].m_csGUI->unlock();
 }
 
 
@@ -2009,7 +2057,7 @@ void	PhysicsServerExample::vrControllerMoveCallback(int controllerId, float pos[
 		m_args[0].m_vrControllerOrn[controllerId] = trTotal.getRotation();
 	}
 
-	m_args[0].m_cs->lock();
+	m_args[0].m_csGUI->lock();
 	m_args[0].m_vrControllerEvents[controllerId].m_controllerId = controllerId;
 	m_args[0].m_vrControllerEvents[controllerId].m_pos[0] = trTotal.getOrigin()[0];
 	m_args[0].m_vrControllerEvents[controllerId].m_pos[1] = trTotal.getOrigin()[1];
@@ -2020,7 +2068,7 @@ void	PhysicsServerExample::vrControllerMoveCallback(int controllerId, float pos[
 	m_args[0].m_vrControllerEvents[controllerId].m_orn[3] = trTotal.getRotation()[3];
 	m_args[0].m_vrControllerEvents[controllerId].m_numMoveEvents++;
 	m_args[0].m_vrControllerEvents[controllerId].m_analogAxis = analogAxis;
-	m_args[0].m_cs->unlock();
+	m_args[0].m_csGUI->unlock();
 
 }
 B3_STANDALONE_EXAMPLE(PhysicsServerCreateFunc)

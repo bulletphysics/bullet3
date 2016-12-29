@@ -2,13 +2,16 @@
 #include <stdio.h>
 #include <enet/enet.h>
 #include "../../CommonInterfaces/CommonGUIHelperInterface.h"
+#include "Bullet3Common/b3CommandLineArgs.h"
+
 #ifdef NO_SHARED_MEMORY
 	#include "PhysicsServerCommandProcessor.h"
 	typedef PhysicsServerCommandProcessor MyCommandProcessor;
 #else
 	#include "SharedMemoryCommandProcessor.h"
-	typedef SharedMemoryCommandProcessor MyCommandProcessor ;
+	typedef SharedMemoryCommandProcessor MyCommandProcessor;
 #endif //NO_SHARED_MEMORY
+
 #include "SharedMemoryCommands.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "PhysicsServerCommandProcessor.h"
@@ -32,11 +35,28 @@ void MySerializeInt(unsigned int sz, unsigned char* output)
 
 int main(int argc, char *argv[])
 {
+	b3CommandLineArgs parseArgs(argc,argv);
 
 	DummyGUIHelper guiHelper;
-	PhysicsCommandProcessorInterface* sm = new MyCommandProcessor;
+	MyCommandProcessor* sm = new MyCommandProcessor;
 	sm->setGuiHelper(&guiHelper);
-	
+
+	int port = 1234;
+	if (parseArgs.GetCmdLineArgument("port",port))
+	{
+		printf("Using UDP port %d\n", port);
+	}
+
+	gVerboseNetworkMessagesServer = parseArgs.CheckCmdLineFlag("verbose");
+
+#ifndef NO_SHARED_MEMORY
+	int key = 0;
+	if (parseArgs.GetCmdLineArgument("sharedMemoryKey",key))
+	{
+		sm->setSharedMemoryKey(key);
+	}
+#endif//NO_SHARED_MEMORY
+
 //	PhysicsDirect* sm = new PhysicsDirect(sdk);
 
 	//PhysicsClientSharedMemory* sm = new PhysicsClientSharedMemory();
@@ -65,7 +85,7 @@ int main(int argc, char *argv[])
 		/* enet_address_set_host (& address, "x.x.x.x"); */
 		address.host = ENET_HOST_ANY;
 		/* Bind the server to port 1234. */
-		address.port = 1234;
+		address.port = port;
 
 		server = enet_host_create(&address,
 			32,   /* number of clients */

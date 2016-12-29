@@ -4,18 +4,17 @@
 #include "Bullet3Common/b3Scalar.h"
 
 #include <windows.h>
-
+#include <stdio.h>
 //see also https://msdn.microsoft.com/en-us/library/windows/desktop/aa366551%28v=vs.85%29.aspx
 
-//TCHAR szName[]=TEXT("Global\\MyFileMappingObject2");
-TCHAR szName[]=TEXT("MyFileMappingObject2");
 
 struct Win32SharedMemoryInteralData
 {
 	HANDLE m_hMapFile;
 
 	void*	m_buf;
-
+	TCHAR m_szName[1024];
+	
 	Win32SharedMemoryInteralData()
 		:m_hMapFile(0),
 		m_buf(0)
@@ -36,10 +35,18 @@ void*   Win32SharedMemory::allocateSharedMemory(int key, int size, bool allowCre
 {
 	b3Assert(m_internalData->m_buf==0);
 
+#ifdef UNICODE
+	swprintf_s (m_internalData->m_szName,"MyFileMappingObject%d",key);
+#else
+	
+	sprintf(m_internalData->m_szName,"MyFileMappingObject%d",key);	
+#endif
+
+
 	m_internalData->m_hMapFile = OpenFileMapping(
                    FILE_MAP_ALL_ACCESS,   // read/write access
                    FALSE,                 // do not inherit the name
-                   szName);               // name of mapping object
+                   m_internalData->m_szName);               // name of mapping object
 
 	if (m_internalData->m_hMapFile==NULL)
 	{
@@ -51,10 +58,10 @@ void*   Win32SharedMemory::allocateSharedMemory(int key, int size, bool allowCre
                  PAGE_READWRITE,          // read/write access
                  0,                       // maximum object size (high-order DWORD)
                  size,						// maximum object size (low-order DWORD)
-                 szName);                 // name of mapping object
+                 m_internalData->m_szName);                 // name of mapping object
 		 } else
 		 {
-			   b3Error("Could not create file mapping object (%d).\n",GetLastError());
+			   b3Warning("Could not create file mapping object (%d).\n",GetLastError());
 			 return 0;
 		 }
 
@@ -68,7 +75,7 @@ void*   Win32SharedMemory::allocateSharedMemory(int key, int size, bool allowCre
 
    if (m_internalData->m_buf == NULL)
 	{
-		b3Error("Could not map view of file (%d).\n",GetLastError());
+		b3Warning("Could not map view of file (%d).\n",GetLastError());
 		CloseHandle(m_internalData->m_hMapFile);
 		return 0;
    }

@@ -8,7 +8,6 @@
 #include "Bullet3Common/b3FileUtils.h"
 #include "../../ThirdPartyLibs/stb_image/stb_image.h"
 
-
 bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string& fileName, b3ImportMeshData& meshData)
 {
 

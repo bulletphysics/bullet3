@@ -10,7 +10,7 @@
 #include "Bullet3Common/b3Transform.h"
 #include "Bullet3Common/b3CommandLineArgs.h"
 
-
+#include "../Utils/b3Clock.h"
 #include "../ExampleBrowser/OpenGLGuiHelper.h"
 #include "../CommonInterfaces/CommonExampleInterface.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
@@ -156,6 +156,7 @@ private:
 	uint32_t m_nWindowWidth;
 	uint32_t m_nWindowHeight;
 	bool m_hasContext;
+	b3Clock m_clock;
 
 private: // OpenGL bookkeeping
 	int m_iTrackedControllerCount;
@@ -1620,7 +1621,10 @@ void CMainApplication::RenderStereoTargets()
 {
 	B3_PROFILE("CMainApplication::RenderStereoTargets");
 
-	sExample->stepSimulation(1./60.);
+	btScalar dtSec = btScalar(m_clock.getTimeInSeconds());
+	dtSec = b3Min(dtSec,0.1);
+	sExample->stepSimulation(dtSec);
+	m_clock.reset();
 
 	glClearColor( 0.15f, 0.15f, 0.18f, 1.0f ); // nice background color, but not black
 	glEnable( GL_MULTISAMPLE );

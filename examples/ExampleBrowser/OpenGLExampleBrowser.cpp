@@ -163,7 +163,7 @@ FILE* gTimingFile = 0;
 #define __STDC_FORMAT_MACROS
 #endif //__STDC_FORMAT_MACROS
 #include <inttypes.h>
-#define BT_TIMING_CAPACITY 65536
+#define BT_TIMING_CAPACITY 16*65536
 static bool m_firstTiming = true;
 
 
@@ -266,7 +266,10 @@ struct btTimings
 			return;
 		}
 
-		
+		if (m_timings[0].size()==0)
+		{
+			m_timings[0].resize(BT_TIMING_CAPACITY);
+		}
 
 		int slot = m_numTimings++;
 
@@ -279,7 +282,7 @@ struct btTimings
 
 	int m_numTimings;
 	int m_activeBuffer;
-	btTiming m_timings[2][BT_TIMING_CAPACITY];
+	btAlignedObjectArray<btTiming> m_timings[1];
 };
 
 btTimings gTimings[BT_MAX_THREAD_COUNT];
@@ -729,11 +732,13 @@ void	MyComboBoxCallback(int comboId, const char* item)
 
 }
 
+//in case of multi-threading, don't submit messages while the GUI is rendering (causing crashes)
+static bool gBlockGuiMessages = false;
 
 void MyGuiPrintf(const char* msg)
 {
 	printf("b3Printf: %s\n",msg);
-	if (!gDisableDemoSelection)
+	if (!gDisableDemoSelection && !gBlockGuiMessages)
 	{
 		gui2->textOutput(msg);
 		gui2->forceUpdateScrollBars();
@@ -745,7 +750,7 @@ void MyGuiPrintf(const char* msg)
 void MyStatusBarPrintf(const char* msg)
 {
 	printf("b3Printf: %s\n", msg);
-	if (!gDisableDemoSelection)
+	if (!gDisableDemoSelection && !gBlockGuiMessages)
 	{
 		bool isLeft = true;
 		gui2->setStatusBarMessage(msg,isLeft);
@@ -756,7 +761,7 @@ void MyStatusBarPrintf(const char* msg)
 void MyStatusBarError(const char* msg)
 {
 	printf("Warning: %s\n", msg);
-	if (!gDisableDemoSelection)
+	if (!gDisableDemoSelection && !gBlockGuiMessages)
 	{
 		bool isLeft = false;
 		gui2->setStatusBarMessage(msg,isLeft);
@@ -1016,7 +1021,22 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
     b3CommandLineArgs args(argc,argv);
     
 	loadCurrentSettings(startFileName, args);
+	if (args.CheckCmdLineFlag("nogui"))
+	{
+		renderGrid = false;
+		renderGui = false;
+	}
+	if (args.CheckCmdLineFlag("tracing"))
+	{
+		m_firstTiming = true;
+		gProfileDisabled = false;//true;
+		b3SetCustomEnterProfileZoneFunc(MyEnterProfileZoneFunc);
+		b3SetCustomLeaveProfileZoneFunc(MyLeaveProfileZoneFunc);
 
+		//also for Bullet 2.x API
+		btSetCustomEnterProfileZoneFunc(MyEnterProfileZoneFunc);
+		btSetCustomLeaveProfileZoneFunc(MyLeaveProfileZoneFunc);
+	}
 	args.GetCmdLineArgument("fixed_timestep",gFixedTimeStep);
 	args.GetCmdLineArgument("png_skip_frames", gPngSkipFrames);	
 	///The OpenCL rigid body pipeline is experimental and 
@@ -1029,6 +1049,7 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 		enable_experimental_opencl = true;
 		gAllExamples->initOpenCLExampleEntries();
 	}
+	
 	if (args.CheckCmdLineFlag("disable_retina"))
 	{
 		gAllowRetina = false;
@@ -1456,7 +1477,11 @@ void OpenGLExampleBrowser::update(float deltaTime)
 			
 			if (m_internalData->m_gui)
 			{
+				gBlockGuiMessages = true;
 				m_internalData->m_gui->draw(s_instancingRenderer->getScreenWidth(), s_instancingRenderer->getScreenHeight());
+				
+
+				gBlockGuiMessages = false;
 			}
 			
             if (sUseOpenGL2)
