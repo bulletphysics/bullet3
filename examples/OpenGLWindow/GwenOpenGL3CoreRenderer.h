@@ -161,6 +161,7 @@ public:
 
 	virtual void StartClip()
 	{
+
 		if (m_useTrueTypeFont)
 			sth_flush_draw(m_font);
 		Gwen::Rect rect = ClipRegion();
@@ -181,6 +182,7 @@ public:
 
 	virtual void EndClip()
 	{
+
 		if (m_useTrueTypeFont)
 			sth_flush_draw(m_font);
 		glDisable( GL_SCISSOR_TEST );
@@ -196,16 +198,23 @@ public:
 	}
 	virtual void DrawFilledRect( Gwen::Rect rect )
 	{
+//		BT_PROFILE("GWEN_DrawFilledRect");
 		Translate( rect );
 
-		m_primitiveRenderer->drawRect(rect.x, rect.y+m_yOffset, rect.x+rect.w, rect.y+rect.h+m_yOffset, m_currentColor);
+		m_primitiveRenderer->drawRect(rect.x, rect.y+m_yOffset, 
+			rect.x+rect.w, rect.y+rect.h+m_yOffset, m_currentColor);
+
+		
+//		m_primitiveRenderer->drawTexturedRect2a(rect.x, rect.y+m_yOffset, 
+	//		rect.x+rect.w, rect.y+rect.h+m_yOffset, m_currentColor,0,0,1,1);
 //		m_yOffset+=rect.h+10;
 
 	}
     
     void RenderText( Gwen::Font* pFont, Gwen::Point rasterPos, const Gwen::UnicodeString& text )
     {
-		
+//		BT_PROFILE("GWEN_RenderText");
+
         Gwen::String str = Gwen::Utility::UnicodeToString(text);
         const char* unicodeText = (const char*)str.c_str();
         
@@ -246,25 +255,25 @@ public:
 		
 			glBindTexture(GL_TEXTURE_2D,m_fontTextureId);
 			float width = r.x;
+			
 			while (unicodeText[pos])
 			{
+				
 				int c = unicodeText[pos];
 				r.h = m_currentFont->m_CharHeight;
 				r.w = m_currentFont->m_CharWidth[c]+extraSpacing;
 				Gwen::Rect rect = r;
 				Translate( rect );
 
-				m_primitiveRenderer->drawTexturedRect(rect.x, rect.y+m_yOffset, rect.x+rect.w, rect.y+rect.h+m_yOffset, m_currentColor,m_currentFont->m_CharU0[c],m_currentFont->m_CharV0[c],m_currentFont->m_CharU1[c],m_currentFont->m_CharV1[c]);
+				m_primitiveRenderer->drawTexturedRect2(rect.x, rect.y+m_yOffset, rect.x+rect.w, rect.y+rect.h+m_yOffset, m_currentColor,m_currentFont->m_CharU0[c],m_currentFont->m_CharV0[c],m_currentFont->m_CharU1[c],m_currentFont->m_CharV1[c]);
 
-				//DrawTexturedRect(0,r,m_currentFont->m_CharU0[c],m_currentFont->m_CharV0[c],m_currentFont->m_CharU1[c],m_currentFont->m_CharV1[c]);
-			//	DrawFilledRect(r);
-
-			
-			
 				width += r.w;
 				r.x = width;
 				pos++;
 				
+			}
+			{
+				m_primitiveRenderer->drawTexturedRect3D2Text(false);
 			}
 			glBindTexture(GL_TEXTURE_2D,0);
 		}
@@ -272,6 +281,7 @@ public:
     }
     Gwen::Point MeasureText( Gwen::Font* pFont, const Gwen::UnicodeString& text )
     {
+//		BT_PROFILE("GWEN_MeasureText");
         Gwen::String str = Gwen::Utility::UnicodeToString(text);
         const char* unicodeText = (const char*)str.c_str();
         
@@ -341,7 +351,7 @@ public:
 	
 	virtual void DrawTexturedRect( Gwen::Texture* pTexture, Gwen::Rect rect, float u1=0.0f, float v1=0.0f, float u2=1.0f, float v2=1.0f )
 	{
-
+//		BT_PROFILE("DrawTexturedRect");
 		Translate( rect );
 
 		//float eraseColor[4] = {0,0,0,0};

@@ -207,7 +207,7 @@ bool PhysicsClientSharedMemory::connect() {
             m_data->m_isConnected = true;
         }
     } else {
-        b3Error("Cannot connect to shared memory");
+        b3Warning("Cannot connect to shared memory");
         return false;
     }
 #if 0

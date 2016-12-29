@@ -2,11 +2,15 @@ import pybullet as p
 import time
 import math
 
-p.connect(p.SHARED_MEMORY)
+
+physId = p.connect(p.SHARED_MEMORY)
+if (physId<0):
+	p.connect(p.GUI)
+
 p.loadURDF("plane.urdf")
 p.setGravity(0,0,-1)
 p.setRealTimeSimulation(0)
-quadruped = p.loadURDF("quadruped/quadruped.urdf",10,-2,2)
+quadruped = p.loadURDF("quadruped/quadruped.urdf",1,-2,2)
 #p.getNumJoints(1)
 #right front leg
 p.resetJointState(quadruped,0,1.57)
@@ -82,6 +86,7 @@ jump_amp = 0.5
 #jump
 t_end = time.time() + 10
 i=0
+t=0
 while time.time() < t_end:
 	t = time.time()
 	p.setJointMotorControl(quadruped,0,p.POSITION_CONTROL,math.sin(t*speed)*jump_amp+1.57,p_gain)

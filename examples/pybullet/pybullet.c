@@ -30,9 +30,31 @@ enum eCONNECT_METHOD {
 static PyObject* SpamError;
 
 #define MAX_PHYSICS_CLIENTS 1024
-static b3PhysicsClientHandle sPhysicsClients[MAX_PHYSICS_CLIENTS] = {0};
+static b3PhysicsClientHandle sPhysicsClients1[MAX_PHYSICS_CLIENTS] = {0};
 static int sNumPhysicsClients=0;
 
+b3PhysicsClientHandle getPhysicsClient(int physicsClientId)
+{
+	b3PhysicsClientHandle sm;
+	if ((physicsClientId  <0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients1[physicsClientId])) 
+	{
+		return 0;
+	}
+	sm = sPhysicsClients1[physicsClientId];
+	if (sm)
+	{
+		if (b3CanSubmitCommand(sm))
+		{
+			return sm;
+		}
+		//broken connection?
+		b3DisconnectSharedMemory(sm);
+		sPhysicsClients1[physicsClientId] = 0;
+		sNumPhysicsClients--;
+	}
+	return 0;
+
+}
 
 static double pybullet_internalGetFloatFromSequence(PyObject* seq, int index) {
 	double v = 0.0;
@@ -161,13 +183,12 @@ static PyObject* pybullet_stepSimulation(PyObject* self, PyObject* args, PyObjec
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
-	
    
   {
     b3SharedMemoryStatusHandle statusHandle;
@@ -281,22 +302,23 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
     };
   }
 
-
-  for (i=0;i<MAX_PHYSICS_CLIENTS;i++)
+  if (sm && b3CanSubmitCommand(sm))
   {
-	  if (sPhysicsClients[i]==0)
+	  for (i=0;i<MAX_PHYSICS_CLIENTS;i++)
 	  {
-		  freeIndex = i;
-		  break;
+		  if (sPhysicsClients1[i]==0)
+		  {
+			  freeIndex = i;
+			  break;
+		  }
+	  }
+
+	  if (freeIndex>=0)
+	  {
+		  sPhysicsClients1[freeIndex] = sm;
+		  sNumPhysicsClients++;
 	  }
   }
-
-  if (freeIndex>=0)
-  {
-	  sPhysicsClients[freeIndex] = sm;
-	  sNumPhysicsClients++;
-  }
-
   return PyInt_FromLong(freeIndex);
 }
 
@@ -311,20 +333,20 @@ static PyObject* pybullet_disconnectPhysicsServer(PyObject* self,
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
-
+	
 
   {
     b3DisconnectSharedMemory(sm);
     sm = 0;
   }
 
-  sPhysicsClients[physicsClientId] = 0;
+  sPhysicsClients1[physicsClientId] = 0;
   sNumPhysicsClients--;
 
   Py_INCREF(Py_None);
@@ -342,17 +364,12 @@ static PyObject* pybullet_saveWorld(PyObject* self, PyObject* args,PyObject *key
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
-	 if (0==sm)
-    {
-        PyErr_SetString(SpamError, "Not connected to physics server.");
-        return NULL;
-    }
    
 
 	{
@@ -397,12 +414,12 @@ static PyObject* pybullet_loadBullet(PyObject* self, PyObject* args,PyObject *ke
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 	
 
 	command = b3LoadBulletCommandInit(sm, bulletFileName);
@@ -448,12 +465,12 @@ static PyObject* pybullet_saveBullet(PyObject* self, PyObject* args, PyObject* k
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 
 	
 	command = b3SaveBulletCommandInit(sm, bulletFileName);
@@ -485,12 +502,12 @@ static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args, PyObject* key
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 
 
 	command = b3LoadMJCFCommandInit(sm, mjcfFileName);
@@ -522,12 +539,12 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 		return NULL;
 	}
 
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 
 	{
 		b3SharedMemoryCommandHandle command = b3InitPhysicsParamCommand(sm);
@@ -669,13 +686,12 @@ b3PhysicsClientHandle sm=0;
 	  }
   }
 
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
-
 
   if (strlen(urdfFileName)) {
     // printf("(%f, %f, %f) (%f, %f, %f, %f)\n",
@@ -736,12 +752,12 @@ b3PhysicsClientHandle sm = 0;
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 
  
   commandHandle = b3LoadSdfCommandInit(sm, sdfFileName);
@@ -780,12 +796,13 @@ static PyObject* pybullet_resetSimulation(PyObject* self, PyObject* args, PyObje
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
+
   {
     b3SharedMemoryStatusHandle statusHandle;
     statusHandle = b3SubmitClientCommandAndWaitStatus(
@@ -807,12 +824,13 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args) {
   double kd = 1.0;
   int valid = 0;
   int physicsClientId = 0;
-  b3PhysicsClientHandle sm = sPhysicsClients[physicsClientId];
-
-  if (0 == sm) {
-    PyErr_SetString(SpamError, "Not connected to physics server.");
-    return NULL;
-  }
+  b3PhysicsClientHandle sm;
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
 
   size = PySequence_Size(args);
   if (size == 4) {
@@ -985,12 +1003,12 @@ b3PhysicsClientHandle sm = 0;
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 
   {
     int numJoints;
@@ -1066,12 +1084,12 @@ static PyObject* pybullet_setRealTimeSimulation(PyObject* self,
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 	
 
   {
@@ -1106,12 +1124,12 @@ b3PhysicsClientHandle sm = 0;
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 	
 
   {
@@ -1146,12 +1164,12 @@ static PyObject* pybullet_setGravity(PyObject* self, PyObject* args, PyObject* k
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 	
 
     b3SharedMemoryCommandHandle command = b3InitPhysicsParamCommand(sm);
@@ -1172,18 +1190,20 @@ static PyObject* pybullet_setTimeStep(PyObject* self, PyObject* args, PyObject* 
 	double timeStep = 0.001;
 	int ret;
 	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+
 	static char *kwlist[] = { "timeStep", "physicsClientId", NULL };
 	if (!PyArg_ParseTupleAndKeywords(args, keywds, "d|i", kwlist,&timeStep, &physicsClientId))
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
 	{
-	b3PhysicsClientHandle sm = sPhysicsClients[physicsClientId];
 
 	b3SharedMemoryCommandHandle command = b3InitPhysicsParamCommand(sm);
 	b3SharedMemoryStatusHandle statusHandle;
@@ -1202,18 +1222,20 @@ pybullet_setDefaultContactERP(PyObject* self, PyObject* args,PyObject* keywds)
 {  
 	double defaultContactERP=0.005;
 	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+
 	static char *kwlist[] = { "defaultContactERP", "physicsClientId", NULL };
 	if (!PyArg_ParseTupleAndKeywords(args, keywds, "d|i", kwlist,&defaultContactERP, &physicsClientId))
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
 	{
-		b3PhysicsClientHandle sm = sPhysicsClients[physicsClientId];
 	    int ret;
        
         b3SharedMemoryStatusHandle statusHandle;
@@ -1366,12 +1388,12 @@ static PyObject* pybullet_getBasePositionAndOrientation(PyObject* self,
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 	
   if (0 == pybullet_internalGetBasePositionAndOrientation(
                bodyUniqueId, basePosition, baseOrientation,sm)) {
@@ -1427,12 +1449,12 @@ static PyObject* pybullet_getBaseVelocity(PyObject* self,
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 	
 	if (0 == pybullet_internalGetBaseVelocity(
 		bodyUniqueId, baseLinearVelocity, baseAngularVelocity,sm)) {
@@ -1481,12 +1503,12 @@ static PyObject* pybullet_getNumBodies(PyObject* self, PyObject* args, PyObject*
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 	
 
  {
@@ -1511,12 +1533,12 @@ b3PhysicsClientHandle sm  = 0;
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 	
 
 	{
@@ -1546,12 +1568,12 @@ static PyObject* pybullet_getBodyInfo(PyObject* self, PyObject* args, PyObject* 
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 
 	{
 		struct b3BodyInfo info;
@@ -1587,12 +1609,12 @@ static PyObject* pybullet_getNumJoints(PyObject* self, PyObject* args, PyObject*
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
   
     numJoints = b3GetNumJoints(sm, bodyUniqueId);
 
@@ -1619,12 +1641,12 @@ static PyObject* pybullet_resetJointState(PyObject* self, PyObject* args, PyObje
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 	
 
     {
@@ -1674,12 +1696,12 @@ static PyObject* pybullet_resetBaseVelocity(PyObject* self, PyObject* args, PyOb
 			return NULL;
 		}
 
-		if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+		sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 
 
 		if (linVelObj || angVelObj)
@@ -1737,12 +1759,12 @@ static PyObject* pybullet_resetBasePositionAndOrientation(PyObject* self,
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 	
 	{
       b3SharedMemoryCommandHandle commandHandle;
@@ -1828,12 +1850,12 @@ int physicsClientId = 0;
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 	
 
   {
@@ -1909,12 +1931,12 @@ static PyObject* pybullet_getJointState(PyObject* self, PyObject* args,PyObject*
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	 sm = sPhysicsClients[physicsClientId];
 	
 
   {
@@ -1994,12 +2016,12 @@ b3PhysicsClientHandle sm = 0;
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 	
  {
 	{
@@ -2097,12 +2119,12 @@ static PyObject* pybullet_addUserDebugText(PyObject* self, PyObject* args, PyObj
   {
 	  return NULL;
   }
-   if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 
 
   res = pybullet_internalSetVectord(textPositionObj,posXYZ);
@@ -2168,13 +2190,12 @@ static PyObject* pybullet_addUserDebugLine(PyObject* self, PyObject* args, PyObj
   {
 	  return NULL;
   }
-  if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
-
 
   res = pybullet_internalSetVectord(lineFromObj,fromXYZ);
   if (!res)
@@ -2228,13 +2249,12 @@ static PyObject* pybullet_removeUserDebugItem(PyObject* self, PyObject* args, Py
 		return NULL;
 	}
 
-	 if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
-
 
 	commandHandle = b3InitUserDebugDrawRemove(sm,itemUniqueId);
 
@@ -2258,12 +2278,12 @@ static PyObject* pybullet_removeAllUserDebugItems(PyObject* self, PyObject* args
 		return NULL;
 	}
 
-  if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 
 
 	commandHandle = b3InitUserDebugDrawRemoveAll(sm);
@@ -2294,12 +2314,12 @@ static PyObject* pybullet_rayTest(PyObject* self, PyObject* args, PyObject *keyw
 		&rayFromObj, &rayToObj,&physicsClientId))
 		return NULL;
 
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 
 	pybullet_internalSetVectord(rayFromObj,from);
 	pybullet_internalSetVectord(rayToObj,to);
@@ -2407,13 +2427,12 @@ static PyObject* pybullet_getVREvents(PyObject* self, PyObject* args, PyObject *
 		return NULL;
 	}
 	
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
-
 
 
 	commandHandle = b3RequestVREventsCommandInit(sm);
@@ -2488,12 +2507,12 @@ static PyObject* pybullet_setDebugObjectColor(PyObject* self, PyObject* args, Py
 		&objectUniqueId, &linkIndex, &objectColorRGBObj,&physicsClientId))
 		return NULL;
 
-	  if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 
 	if (objectColorRGBObj)
 	{
@@ -2531,12 +2550,12 @@ static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args, PyO
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 	
 
 	{
@@ -2634,13 +2653,12 @@ static PyObject* pybullet_resetVisualShapeData(PyObject* self, PyObject* args,Py
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
-	
 
   
     {
@@ -2677,12 +2695,12 @@ static PyObject* pybullet_loadTexture(PyObject* self, PyObject* args, PyObject* 
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 	
     {
         
@@ -2823,12 +2841,12 @@ static PyObject* pybullet_getOverlappingObjects(PyObject* self, PyObject* args, 
 		&aabbMinOb, &aabbMaxOb,&physicsClientId))
 		return NULL;
 
-	  if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 
 
 	pybullet_internalSetVectord(aabbMinOb, aabbMin);
@@ -2890,12 +2908,12 @@ static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, Py
 	  &bodyUniqueIdA, &bodyUniqueIdB, &distanceThreshold, &linkIndexA, &linkIndexB,&physicsClientId))
 	  return NULL;
 
-    if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 
   commandHandle = b3InitClosestDistanceQuery(sm);
   b3SetClosestDistanceFilterBodyA(commandHandle, bodyUniqueIdA);
@@ -2939,13 +2957,12 @@ static PyObject* pybullet_removeUserConstraint(PyObject* self, PyObject* args, P
 		return NULL;
 	}
 
-	  if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
-
 
 	commandHandle = b3InitRemoveUserConstraintCommand(sm,userConstraintUniqueId);
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
@@ -3017,13 +3034,12 @@ static PyObject* pybullet_createUserConstraint(PyObject* self, PyObject* args, P
 		return NULL;
 	}
 	
-	  if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
-
 
 	pybullet_internalSetVectord(jointAxisObj,jointAxis);
 	pybullet_internalSetVectord(parentFramePositionObj,parentFramePosition);
@@ -3091,14 +3107,12 @@ static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args, Py
 	  &bodyUniqueIdA, &bodyUniqueIdB,&physicsClientId))
 	  return NULL;
 
-  if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
-	 
-
 
   commandHandle = b3InitRequestContactPointInformation(sm);
   b3SetContactFilterBodyA(commandHandle, bodyUniqueIdA);
@@ -3150,12 +3164,12 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 
 	command = b3InitRequestCameraImage(sm);
 	b3RequestCameraImageSetPixelResolution(command, width, height);
@@ -3478,21 +3492,15 @@ static PyObject* pybullet_renderImageObsolete(PyObject* self, PyObject* args) {
 
   // inialize cmd
   b3SharedMemoryCommandHandle command;
+  b3PhysicsClientHandle sm;
   int physicsClientId = 0;
-  b3PhysicsClientHandle sm=0;
-	if (0 == sPhysicsClients[physicsClientId]) 
+
+  	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
-	
-
-  if (0 == sm) {
-    PyErr_SetString(SpamError, "Not connected to physics server.");
-    return NULL;
-  }
-
   command = b3InitRequestCameraImage(sm);
 
   if (size == 2)  // only set camera resolution
@@ -3725,12 +3733,12 @@ static PyObject* pybullet_applyExternalForce(PyObject* self, PyObject* args,PyOb
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
     {
       PyObject* seq;
       int len, i;
@@ -3793,12 +3801,12 @@ static PyObject* pybullet_applyExternalTorque(PyObject* self, PyObject* args,PyO
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 	
     {
       PyObject* seq;
@@ -3982,12 +3990,12 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 	{
 		double pos[3];
 		double ori[4]={0,1.0,0,0};
@@ -4067,12 +4075,12 @@ static PyObject* pybullet_calculateInverseDynamics(PyObject* self,
 	{
 		return NULL;
 	}
-	if ((physicsClientId<0) || (physicsClientId>=MAX_PHYSICS_CLIENTS) || (0 == sPhysicsClients[physicsClientId])) 
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	sm = sPhysicsClients[physicsClientId];
 	
 	{
       int szObPos = PySequence_Size(objPositionsQ);

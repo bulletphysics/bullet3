@@ -447,6 +447,8 @@ static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t
 
 btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, const char* urdfPathPrefix)
 {
+	BT_PROFILE("convertURDFToCollisionShape");
+
 	btCollisionShape* shape = 0;
 
     switch (collision->m_geometry.m_type)
@@ -677,6 +679,7 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 							
 							if (collision->m_flags & URDF_FORCE_CONCAVE_TRIMESH)
 							{
+								BT_PROFILE("convert trimesh");
 								btTriangleMesh* meshInterface = new btTriangleMesh();
 								for (int i=0;i<glmesh->m_numIndices/3;i++)
 								{
@@ -692,6 +695,8 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 								shape = trimesh;
 							} else
 							{
+								BT_PROFILE("convert btConvexHullShape");
+
 								btConvexHullShape* convexHull = new btConvexHullShape(&convertedVerts[0].getX(), convertedVerts.size(), sizeof(btVector3));
 								convexHull->optimizeConvexHull();
 								//convexHull->initializePolyhedralFeatures();
@@ -727,6 +732,7 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 
 static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture>& texturesOut)
 {
+	BT_PROFILE("convertURDFToVisualShapeInternal");
 
 	
 	GLInstanceGraphicsShape* glmesh = 0;
@@ -981,6 +987,8 @@ static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const cha
 	//if we have a convex, tesselate into localVertices/localIndices
 	if ((glmesh==0) && convexColShape)
 	{
+		BT_PROFILE("convexColShape");
+
 		btShapeHull* hull = new btShapeHull(convexColShape);
 		hull->buildHull(0.0);
 		{
@@ -1029,7 +1037,7 @@ static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const cha
 	
 	if (glmesh && glmesh->m_numIndices>0 && glmesh->m_numvertices >0)
 	{
-
+		BT_PROFILE("glmesh");
 		int baseIndex = verticesOut.size();
 
 

@@ -99,6 +99,7 @@ int main(int argc, char* argv[])
         app->m_instancingRenderer->updateCamera(app->getUpAxis());
 
 		btScalar dtSec = btScalar(clock.getTimeInSeconds());
+		dtSec = b3Min(dtSec,0.1);
 		example->stepSimulation(dtSec);
 	  	clock.reset();
 
