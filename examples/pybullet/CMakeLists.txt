@@ -64,6 +64,7 @@ SET(pybullet_SRCS
 		../../examples/Importers/ImportColladaDemo/LoadMeshFromCollada.cpp
 		../../examples/Importers/ImportObjDemo/LoadMeshFromObj.cpp
 		../../examples/Importers/ImportObjDemo/Wavefront2GLInstanceGraphicsShape.cpp
+		../../examples/Importers/ImportMJCFDemo/BulletMJCFImporter.cpp
 		../../examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp
 		../../examples/Importers/ImportURDFDemo/MyMultiBodyCreator.cpp
 		../../examples/Importers/ImportURDFDemo/URDF2Bullet.cpp

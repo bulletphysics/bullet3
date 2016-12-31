@@ -90,6 +90,8 @@ myfiles =
 	"../../Importers/ImportURDFDemo/MultiBodyCreationInterface.h",
 	"../../Importers/ImportURDFDemo/MyMultiBodyCreator.cpp",
 	"../../Importers/ImportURDFDemo/MyMultiBodyCreator.h",
+	"../../Importers/ImportMJCFDemo/BulletMJCFImporter.cpp",
+	"../../Importers/ImportMJCFDemo/BulletMJCFImporter.h",
 	"../../Importers/ImportURDFDemo/BulletUrdfImporter.cpp",
 	"../../Importers/ImportURDFDemo/BulletUrdfImporter.h",
 	"../../Importers/ImportURDFDemo/UrdfParser.cpp",

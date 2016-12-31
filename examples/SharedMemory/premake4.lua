@@ -73,6 +73,8 @@ myfiles =
 	"../Importers/ImportURDFDemo/UrdfParser.h",
 	"../Importers/ImportURDFDemo/URDF2Bullet.cpp",
 	"../Importers/ImportURDFDemo/URDF2Bullet.h",
+	"../Importers/ImportMJCFDemo/BulletMJCFImporter.cpp",
+	"../Importers/ImportMJCFDemo/BulletMJCFImporter.h",
 	"../Utils/b3ResourcePath.cpp",
 	"../Utils/b3Clock.cpp",	
 	"../../Extras/Serialize/BulletWorldImporter/*",

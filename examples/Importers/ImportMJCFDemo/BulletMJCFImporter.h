@@ -27,9 +27,6 @@ public:
 
 	virtual bool loadMJCF(const char* fileName, MJCFErrorLogger* logger, bool forceFixedBase = false);
 
-	int getNumModels() const;
-
-	void activateModel(int modelIndex);
 
 	virtual bool loadURDF(const char* fileName, bool forceFixedBase = false)
 	{
@@ -71,6 +68,10 @@ public:
     virtual int getBodyUniqueId() const;
     
 	virtual class btCompoundShape* convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const ;
+	virtual int getNumAllocatedCollisionShapes() const;
+    virtual class btCollisionShape* getAllocatedCollisionShape(int index);
+	virtual int getNumModels() const;
+    virtual void activateModel(int modelIndex);
 
 
 };

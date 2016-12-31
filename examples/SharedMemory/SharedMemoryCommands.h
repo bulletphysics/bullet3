@@ -91,6 +91,11 @@ struct UrdfArgs
 	int m_useFixedBase;
 };
 
+struct MjcfArgs
+{
+	char m_mjcfFileName[MAX_URDF_FILENAME_LENGTH];
+	int m_useMultiBody;
+};
 
 struct BulletDataStreamArgs
 {
@@ -604,6 +609,7 @@ struct SharedMemoryCommand
     {
         struct UrdfArgs m_urdfArguments;
 		struct SdfArgs m_sdfArguments;
+		struct MjcfArgs	m_mjcfArguments;
 		struct FileArgs m_fileArguments;
 		struct SdfRequestInfoArgs m_sdfRequestInfoArgs;
 		struct InitPoseArgs m_initPoseArgs;

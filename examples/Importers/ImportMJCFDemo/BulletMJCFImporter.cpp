@@ -120,7 +120,10 @@ struct BulletMJCFImporterInternalData
 
 	btAlignedObjectArray<UrdfModel*>	m_models;
 	int m_activeModel;
-	
+
+	//those collision shapes are deleted by caller (todo: make sure this happens!)
+	btAlignedObjectArray<btCollisionShape*> m_allocatedCollisionShapes;
+
 	BulletMJCFImporterInternalData()
 		:m_activeModel(-1)
 	{
@@ -794,7 +797,7 @@ bool BulletMJCFImporter::loadMJCF(const char* fileName, MJCFErrorLogger* logger,
 	m_data->m_pathPrefix[0] = 0;
     
     if (!fileFound){
-        std::cerr << "URDF file not found" << std::endl;
+        std::cerr << "MJCF file not found" << std::endl;
 		return false;
     } else
     {
@@ -1017,6 +1020,8 @@ int BulletMJCFImporter::getBodyUniqueId() const
 class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const
 {
 	btCompoundShape* compound = new btCompoundShape();
+	m_data->m_allocatedCollisionShapes.push_back(compound);
+
 	const UrdfLink* link = m_data->getLink(m_data->m_activeModel,linkIndex);
 	if (link)
 	{
@@ -1075,11 +1080,21 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 			}
 			if (childShape)
 			{
+				m_data->m_allocatedCollisionShapes.push_back(childShape);
 				compound->addChildShape(col->m_linkLocalFrame,childShape);
 			}
 		}
 	}
 	return compound;
+}
+
+int BulletMJCFImporter::getNumAllocatedCollisionShapes() const
+{
+	return m_data->m_allocatedCollisionShapes.size();
+}
+class btCollisionShape* BulletMJCFImporter::getAllocatedCollisionShape(int index)
+{
+	return m_data->m_allocatedCollisionShapes[index];
 }
 
 

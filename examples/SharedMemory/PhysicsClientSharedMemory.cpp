@@ -318,6 +318,14 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 }
                 break;
             }
+
+			case CMD_MJCF_LOADING_COMPLETED:
+			{
+                if (m_data->m_verboseOutput) {
+                    b3Printf("Server loading the MJCF OK\n");
+                }
+                break;
+			}
             case CMD_SDF_LOADING_COMPLETED: {
                 
                 if (m_data->m_verboseOutput) {
@@ -402,6 +410,13 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 
                 break;
             }
+			case CMD_MJCF_LOADING_FAILED:
+			{
+                if (m_data->m_verboseOutput) {
+                    b3Printf("Server failed loading the MJCF...\n");
+                }
+                break;
+			}
              case CMD_SDF_LOADING_FAILED: {
                 if (m_data->m_verboseOutput) {
                     b3Printf("Server failed loading the SDF...\n");
@@ -778,11 +793,6 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 				b3Warning("Save .bullet failed");
 				break;
 			}
-			case CMD_MJCF_LOADING_FAILED:
-			{
-				b3Warning("Load .mjcf failed");
-				break;
-			}
 			case CMD_USER_DEBUG_DRAW_COMPLETED:
 			{
 				break;
@@ -819,7 +829,8 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
             m_data->m_waitingForServer = true;
         }
 
-        if (serverCmd.m_type == CMD_SDF_LOADING_COMPLETED)
+
+        if ((serverCmd.m_type == CMD_SDF_LOADING_COMPLETED) || (serverCmd.m_type == CMD_MJCF_LOADING_COMPLETED))
         {
             int numBodies = serverCmd.m_sdfLoadedArgs.m_numBodies;
             if (numBodies>0)

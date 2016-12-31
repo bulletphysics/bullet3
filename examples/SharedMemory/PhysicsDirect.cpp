@@ -653,6 +653,8 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 
 		break;
 	}
+
+	case CMD_MJCF_LOADING_COMPLETED:
 	case CMD_SDF_LOADING_COMPLETED:
 	{
 		//we'll stream further info from the physics server

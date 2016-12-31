@@ -18,7 +18,7 @@
 #include "btBulletDynamicsCommon.h"
 
 #include "LinearMath/btTransform.h"
-
+#include "../Importers/ImportMJCFDemo/BulletMJCFImporter.h"
 #include "../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointMotor.h"
 #include "LinearMath/btSerializer.h"
@@ -909,8 +909,162 @@ void	PhysicsServerCommandProcessor::createJointMotors(btMultiBody* mb)
 	}
 }
 
+bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName, char* bufferServerToClient, int bufferSizeInBytes, bool useMultiBody, int flags, URDFImporterInterface& u2b)
+{
+	bool loadOk = true;
+        
 
-bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferServerToClient, int bufferSizeInBytes, bool useMultiBody)
+    btTransform rootTrans;
+    rootTrans.setIdentity();
+    if (m_data->m_verboseOutput)
+    {
+        b3Printf("loaded %s OK!", fileName);
+    }
+	SaveWorldObjectData sd;
+	sd.m_fileName = fileName;
+
+
+    for (int m =0; m<u2b.getNumModels();m++)
+    {
+
+        u2b.activateModel(m);
+        btMultiBody* mb = 0;
+        btRigidBody* rb = 0;
+
+        //get a body index
+        int bodyUniqueId = m_data->allocHandle();
+
+        InternalBodyHandle* bodyHandle = m_data->getHandle(bodyUniqueId);
+			
+		sd.m_bodyUniqueIds.push_back(bodyUniqueId);
+
+        u2b.setBodyUniqueId(bodyUniqueId);
+        {
+            btScalar mass = 0;
+            bodyHandle->m_rootLocalInertialFrame.setIdentity();
+            btVector3 localInertiaDiagonal(0,0,0);
+            int urdfLinkIndex = u2b.getRootLinkIndex();
+            u2b.getMassAndInertia(urdfLinkIndex, mass,localInertiaDiagonal,bodyHandle->m_rootLocalInertialFrame);
+        }
+
+
+
+        //todo: move these internal API called inside the 'ConvertURDF2Bullet' call, hidden from the user
+        int rootLinkIndex = u2b.getRootLinkIndex();
+        b3Printf("urdf root link index = %d\n",rootLinkIndex);
+        MyMultiBodyCreator creation(m_data->m_guiHelper);
+
+        u2b.getRootTransformInWorld(rootTrans);
+        ConvertURDF2Bullet(u2b,creation, rootTrans,m_data->m_dynamicsWorld,useMultiBody,u2b.getPathPrefix(),flags);
+
+
+
+        mb = creation.getBulletMultiBody();
+        rb = creation.getRigidBody();
+		if (rb)
+			rb->setUserIndex2(bodyUniqueId);
+
+		if (mb)
+			mb->setUserIndex2(bodyUniqueId);
+
+			
+        if (mb)
+        {
+            bodyHandle->m_multiBody = mb;
+				
+
+			m_data->m_sdfRecentLoadedBodies.push_back(bodyUniqueId);
+
+			createJointMotors(mb);
+
+
+			//disable serialization of the collision objects (they are too big, and the client likely doesn't need them);
+
+            bodyHandle->m_linkLocalInertialFrames.reserve(mb->getNumLinks());
+			for (int i=0;i<mb->getNumLinks();i++)
+            {
+				//disable serialization of the collision objects
+
+				int urdfLinkIndex = creation.m_mb2urdfLink[i];
+				btScalar mass;
+                btVector3 localInertiaDiagonal(0,0,0);
+                btTransform localInertialFrame;
+				u2b.getMassAndInertia(urdfLinkIndex, mass,localInertiaDiagonal,localInertialFrame);
+				bodyHandle->m_linkLocalInertialFrames.push_back(localInertialFrame);
+
+				std::string* linkName = new std::string(u2b.getLinkName(urdfLinkIndex).c_str());
+				m_data->m_strings.push_back(linkName);
+
+				mb->getLink(i).m_linkName = linkName->c_str();
+
+				std::string* jointName = new std::string(u2b.getJointName(urdfLinkIndex).c_str());
+				m_data->m_strings.push_back(jointName);
+
+				mb->getLink(i).m_jointName = jointName->c_str();
+            }
+			std::string* baseName = new std::string(u2b.getLinkName(u2b.getRootLinkIndex()));
+			m_data->m_strings.push_back(baseName);
+			mb->setBaseName(baseName->c_str());
+		} else
+		{
+			b3Warning("No multibody loaded from URDF. Could add btRigidBody+btTypedConstraint solution later.");
+            bodyHandle->m_rigidBody = rb;
+		}
+
+    }
+	
+	for (int i=0;i<u2b.getNumAllocatedCollisionShapes();i++)
+    {
+        btCollisionShape* shape =u2b.getAllocatedCollisionShape(i);
+        m_data->m_collisionShapes.push_back(shape);
+    }
+
+	m_data->m_saveWorldBodyData.push_back(sd);
+
+	return loadOk;
+}
+
+struct MyMJCFLogger2 : public MJCFErrorLogger
+{
+	virtual void reportError(const char* error)
+	{
+		b3Error(error);
+	}
+	virtual void reportWarning(const char* warning)
+	{
+		b3Warning(warning);
+	}
+	virtual void printMessage(const char* msg)
+	{
+		b3Printf(msg);
+	}
+};
+
+bool PhysicsServerCommandProcessor::loadMjcf(const char* fileName, char* bufferServerToClient, int bufferSizeInBytes, bool useMultiBody, int flags)
+{
+	btAssert(m_data->m_dynamicsWorld);
+	if (!m_data->m_dynamicsWorld)
+	{
+		b3Error("loadSdf: No valid m_dynamicsWorld");
+		return false;
+	}
+
+	m_data->m_sdfRecentLoadedBodies.clear();
+
+    BulletMJCFImporter u2b(m_data->m_guiHelper);	//, &m_data->m_visualConverter
+
+	bool useFixedBase = false;
+	MyMJCFLogger2 logger;
+    bool loadOk =  u2b.loadMJCF(fileName, &logger, useFixedBase);
+    if (loadOk)
+	{
+		
+		processImportedObjects(fileName,bufferServerToClient,bufferSizeInBytes,useMultiBody,flags, u2b);
+	}
+	return loadOk;
+}
+
+bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferServerToClient, int bufferSizeInBytes, bool useMultiBody, int flags)
 {
     btAssert(m_data->m_dynamicsWorld);
 	if (!m_data->m_dynamicsWorld)
@@ -923,118 +1077,13 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
 
     BulletURDFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter);
 
-    bool useFixedBase = false;
-    bool loadOk =  u2b.loadSDF(fileName, useFixedBase);
-    if (loadOk)
-    {
-        for (int i=0;i<u2b.getNumAllocatedCollisionShapes();i++)
-        {
-            btCollisionShape* shape =u2b.getAllocatedCollisionShape(i);
-            m_data->m_collisionShapes.push_back(shape);
-        }
-
-        btTransform rootTrans;
-        rootTrans.setIdentity();
-        if (m_data->m_verboseOutput)
-        {
-            b3Printf("loaded %s OK!", fileName);
-        }
-		SaveWorldObjectData sd;
-		sd.m_fileName = fileName;
-
-
-        for (int m =0; m<u2b.getNumModels();m++)
-        {
-
-            u2b.activateModel(m);
-            btMultiBody* mb = 0;
-            btRigidBody* rb = 0;
-
-            //get a body index
-            int bodyUniqueId = m_data->allocHandle();
-
-            InternalBodyHandle* bodyHandle = m_data->getHandle(bodyUniqueId);
-			
-			sd.m_bodyUniqueIds.push_back(bodyUniqueId);
-
-            u2b.setBodyUniqueId(bodyUniqueId);
-            {
-                btScalar mass = 0;
-                bodyHandle->m_rootLocalInertialFrame.setIdentity();
-                btVector3 localInertiaDiagonal(0,0,0);
-                int urdfLinkIndex = u2b.getRootLinkIndex();
-                u2b.getMassAndInertia(urdfLinkIndex, mass,localInertiaDiagonal,bodyHandle->m_rootLocalInertialFrame);
-            }
-
-
-
-            //todo: move these internal API called inside the 'ConvertURDF2Bullet' call, hidden from the user
-            int rootLinkIndex = u2b.getRootLinkIndex();
-            b3Printf("urdf root link index = %d\n",rootLinkIndex);
-            MyMultiBodyCreator creation(m_data->m_guiHelper);
-
-            u2b.getRootTransformInWorld(rootTrans);
-            ConvertURDF2Bullet(u2b,creation, rootTrans,m_data->m_dynamicsWorld,useMultiBody,u2b.getPathPrefix(),CUF_USE_SDF);
-
-
-
-            mb = creation.getBulletMultiBody();
-            rb = creation.getRigidBody();
-			if (rb)
-				rb->setUserIndex2(bodyUniqueId);
-
-			if (mb)
-				mb->setUserIndex2(bodyUniqueId);
-
-			
-            if (mb)
-            {
-                bodyHandle->m_multiBody = mb;
-				
-
-				m_data->m_sdfRecentLoadedBodies.push_back(bodyUniqueId);
-
-				createJointMotors(mb);
-
-
-			    //disable serialization of the collision objects (they are too big, and the client likely doesn't need them);
-
-                bodyHandle->m_linkLocalInertialFrames.reserve(mb->getNumLinks());
-			    for (int i=0;i<mb->getNumLinks();i++)
-                {
-					//disable serialization of the collision objects
-
-				   int urdfLinkIndex = creation.m_mb2urdfLink[i];
-				   btScalar mass;
-                   btVector3 localInertiaDiagonal(0,0,0);
-                   btTransform localInertialFrame;
-				   u2b.getMassAndInertia(urdfLinkIndex, mass,localInertiaDiagonal,localInertialFrame);
-				   bodyHandle->m_linkLocalInertialFrames.push_back(localInertialFrame);
-
-				   std::string* linkName = new std::string(u2b.getLinkName(urdfLinkIndex).c_str());
-				   m_data->m_strings.push_back(linkName);
-
-				   mb->getLink(i).m_linkName = linkName->c_str();
-
-				   std::string* jointName = new std::string(u2b.getJointName(urdfLinkIndex).c_str());
-				   m_data->m_strings.push_back(jointName);
-
-				   mb->getLink(i).m_jointName = jointName->c_str();
-                }
-				std::string* baseName = new std::string(u2b.getLinkName(u2b.getRootLinkIndex()));
-				m_data->m_strings.push_back(baseName);
-				mb->setBaseName(baseName->c_str());
-			} else
-			{
-				b3Warning("No multibody loaded from URDF. Could add btRigidBody+btTypedConstraint solution later.");
-                bodyHandle->m_rigidBody = rb;
-			}
-
-        }
-		
-		m_data->m_saveWorldBodyData.push_back(sd);
-
-    }
+	bool forceFixedBase = false;
+	bool loadOk =u2b.loadSDF(fileName,forceFixedBase);
+	
+	if (loadOk)
+	{
+		processImportedObjects(fileName,bufferServerToClient,bufferSizeInBytes,useMultiBody,flags, u2b);
+	}
     return loadOk;
 }
 
@@ -1767,9 +1816,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                         }
                         bool useMultiBody=(clientCmd.m_updateFlags & URDF_ARGS_USE_MULTIBODY) ? sdfArgs.m_useMultiBody : true;
 
-                        bool completedOk = loadSdf(sdfArgs.m_sdfFileName,bufferServerToClient, bufferSizeInBytes, useMultiBody);
+						int flags = CUF_USE_SDF; //CUF_USE_URDF_INERTIA
+                        bool completedOk = loadSdf(sdfArgs.m_sdfFileName,bufferServerToClient, bufferSizeInBytes, useMultiBody, flags);
                         if (completedOk)
                         {
+							m_data->m_guiHelper->autogenerateGraphicsObjects(this->m_data->m_dynamicsWorld);
+
                             //serverStatusOut.m_type = CMD_SDF_LOADING_FAILED;
                             serverStatusOut.m_sdfLoadedArgs.m_numBodies = m_data->m_sdfRecentLoadedBodies.size();
                             int maxBodies = btMin(MAX_SDF_BODIES, serverStatusOut.m_sdfLoadedArgs.m_numBodies);
@@ -3812,8 +3864,33 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 				{
 					SharedMemoryStatus& serverCmd = serverStatusOut;
 					serverCmd.m_type = CMD_MJCF_LOADING_FAILED;
-					hasStatus = true;
-					break;
+					  const MjcfArgs& mjcfArgs = clientCmd.m_mjcfArguments;
+                        if (m_data->m_verboseOutput)
+                        {
+                            b3Printf("Processed CMD_LOAD_MJCF:%s", mjcfArgs.m_mjcfFileName);
+                        }
+                        bool useMultiBody=(clientCmd.m_updateFlags & URDF_ARGS_USE_MULTIBODY) ? mjcfArgs.m_useMultiBody : true;
+						int flags = CUF_USE_MJCF;//CUF_USE_URDF_INERTIA
+                        bool completedOk = loadMjcf(mjcfArgs.m_mjcfFileName,bufferServerToClient, bufferSizeInBytes, useMultiBody, flags);
+                        if (completedOk)
+                        {
+							m_data->m_guiHelper->autogenerateGraphicsObjects(this->m_data->m_dynamicsWorld);
+
+                            serverStatusOut.m_sdfLoadedArgs.m_numBodies = m_data->m_sdfRecentLoadedBodies.size();
+                            int maxBodies = btMin(MAX_SDF_BODIES, serverStatusOut.m_sdfLoadedArgs.m_numBodies);
+                            for (int i=0;i<maxBodies;i++)
+                            {
+                                serverStatusOut.m_sdfLoadedArgs.m_bodyUniqueIds[i] = m_data->m_sdfRecentLoadedBodies[i];
+                            }
+
+                            serverStatusOut.m_type = CMD_MJCF_LOADING_COMPLETED;
+                        } else
+                        {
+                            serverStatusOut.m_type = CMD_MJCF_LOADING_FAILED;
+                        }
+						hasStatus = true;
+                        break;
+
 				}
 				
 				case CMD_USER_DEBUG_DRAW:
@@ -4376,7 +4453,7 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 
 #if 1
 		// Load one motor gripper for kuka
-		loadSdf("gripper/wsg50_one_motor_gripper_new_free_base.sdf", &gBufferServerToClient[0], gBufferServerToClient.size(), true);
+		loadSdf("gripper/wsg50_one_motor_gripper_new_free_base.sdf", &gBufferServerToClient[0], gBufferServerToClient.size(), true,CUF_USE_SDF);
 		m_data->m_gripperId = bodyId + 1;
 		{
 		InteralBodyData* gripperBody = m_data->getHandle(m_data->m_gripperId);
@@ -4503,7 +4580,7 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 		//loadUrdf("Apple/apple.urdf", objectWorldTr[8].getOrigin(), objectWorldTr[8].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 
 		// Shelf area
-		loadSdf("kiva_shelf/model.sdf", &gBufferServerToClient[0], gBufferServerToClient.size(), true);
+		loadSdf("kiva_shelf/model.sdf", &gBufferServerToClient[0], gBufferServerToClient.size(), true, CUF_USE_SDF);
 		loadUrdf("teddy_vhacd.urdf", btVector3(-0.1, 0.6, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());			
 		loadUrdf("sphere_small.urdf", btVector3(-0.1, 0.6, 1.25), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 		loadUrdf("cube_small.urdf", btVector3(0.3, 0.6, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
