@@ -237,7 +237,13 @@ void ConvertURDF2BulletInternal(
     }
     else
     {
-        linkTransformInWorldSpace =parentTransformInWorldSpace*parent2joint;
+		if (flags & CUF_USE_MJCF)
+		{
+			linkTransformInWorldSpace =parentTransformInWorldSpace*linkTransformInWorldSpace;
+		} else
+		{
+	        linkTransformInWorldSpace =parentTransformInWorldSpace*parent2joint;
+		}
     }
     
     

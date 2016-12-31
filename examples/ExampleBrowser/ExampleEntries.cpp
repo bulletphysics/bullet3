@@ -18,6 +18,7 @@
 #include "../Importers/ImportSTLDemo/ImportSTLSetup.h"
 #include "../Importers/ImportURDFDemo/ImportURDFSetup.h"
 #include "../Importers/ImportSDFDemo/ImportSDFSetup.h"
+#include "../Importers/ImportMJCFDemo/ImportMJCFSetup.h"
 #include "../Collision/CollisionTutorialBullet2.h"
 #include "../GyroscopicDemo/GyroscopicSetup.h"
 #include "../Constraints/Dof6Spring2Setup.h"
@@ -231,6 +232,8 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"URDF (RigidBody)", "Import a URDF file, and create rigid bodies (btRigidBody) connected by constraints.", ImportURDFCreateFunc, 0),
 	ExampleEntry(1,"URDF (MultiBody)", "Import a URDF file and create a single multibody (btMultiBody) with tree hierarchy of links (mobilizers).",
 					ImportURDFCreateFunc, 1),
+	ExampleEntry(1,"MJCF (MultiBody)", "Import a MJCF xml file, create multiple multibodies etc", ImportMJCFCreateFunc),
+
 	ExampleEntry(1,"SDF (MultiBody)", "Import an SDF file, create multiple multibodies etc", ImportSDFCreateFunc),
 
 	ExampleEntry(0,"Vehicles"),

@@ -44,6 +44,7 @@ enum UrdfGeomTypes
 	URDF_GEOM_CYLINDER,
 	URDF_GEOM_MESH,
     URDF_GEOM_PLANE,
+	URDF_GEOM_CAPSULE//non-standard URDF?
     
 };
 
@@ -56,6 +57,10 @@ struct UrdfGeometry
 	
 	btVector3 m_boxSize;
 	
+	double m_capsuleRadius;
+	btVector3 m_capsuleFrom;
+	btVector3 m_capsuleTo;
+
 	double m_cylinderRadius;
 	double m_cylinderLength;
 

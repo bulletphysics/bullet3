@@ -89,7 +89,7 @@ struct ImportUrdfInternalData
 
 ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option, const char* fileName)
 	:CommonMultiBodyBase(helper),
-	m_grav(0),
+	m_grav(-10),
 	m_upAxis(2)
 {
 	m_data = new ImportUrdfInternalData;
@@ -135,7 +135,7 @@ ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option, 
 		
 		if (gFileNameArray.size()==0)
 		{
-			gFileNameArray.push_back("quadruped/quadruped.urdf");
+			gFileNameArray.push_back("r2d2.urdf");
 
 		}
 
