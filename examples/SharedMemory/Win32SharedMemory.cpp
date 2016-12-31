@@ -36,7 +36,7 @@ void*   Win32SharedMemory::allocateSharedMemory(int key, int size, bool allowCre
 	b3Assert(m_internalData->m_buf==0);
 
 #ifdef UNICODE
-	swprintf_s (m_internalData->m_szName,"MyFileMappingObject%d",key);
+	swprintf_s (m_internalData->m_szName,TEXT("MyFileMappingObject%d"),key);
 #else
 	
 	sprintf(m_internalData->m_szName,"MyFileMappingObject%d",key);	
