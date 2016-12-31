@@ -295,6 +295,11 @@ SET(BulletExampleBrowser_SRCS
   ../Importers/ImportURDFDemo/ImportURDFSetup.h
   ../Importers/ImportURDFDemo/URDF2Bullet.h
   ../Importers/ImportURDFDemo/urdf_samples.h
+  ../Importers/ImportURDFDemo/urdf_samples.h
+	../Importers/ImportMJCFDemo/BulletMJCFImporter.cpp
+	../Importers/ImportMJCFDemo/BulletMJCFImporter.h
+	../Importers/ImportMJCFDemo/ImportMJCFSetup.cpp
+	../Importers/ImportMJCFDemo/ImportMJCFSetup.h
   ../Importers/ImportBsp/BspConverter.cpp
   ../Importers/ImportBsp/BspLoader.cpp
   ../Importers/ImportBsp/ImportBspExample.cpp
