@@ -495,7 +495,10 @@ static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args, PyObject* key
 	int statusType;
 	b3SharedMemoryCommandHandle command;
 	b3PhysicsClientHandle sm = 0;
-
+	int numBodies = 0;
+	int i;
+	int bodyIndicesOut[MAX_SDF_BODIES];
+	PyObject* pylist = 0;
 	int physicsClientId = 0;
 	static char *kwlist[] = { "mjcfFileName","physicsClientId", NULL };
 	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|i", kwlist, &mjcfFileName,&physicsClientId))
@@ -518,8 +521,22 @@ static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args, PyObject* key
 		PyErr_SetString(SpamError, "Couldn't load .mjcf file.");
 		return NULL;
 	}
-	Py_INCREF(Py_None);
-	return Py_None;
+
+	  numBodies =
+      b3GetStatusBodyIndices(statusHandle, bodyIndicesOut, MAX_SDF_BODIES);
+  if (numBodies > MAX_SDF_BODIES) {
+    PyErr_SetString(SpamError, "SDF exceeds body capacity");
+    return NULL;
+  }
+
+  pylist = PyTuple_New(numBodies);
+
+  if (numBodies > 0 && numBodies <= MAX_SDF_BODIES) {
+    for (i = 0; i < numBodies; i++) {
+      PyTuple_SetItem(pylist, i, PyInt_FromLong(bodyIndicesOut[i]));
+    }
+  }
+  return pylist;
 }
 
 static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* args, PyObject *keywds)

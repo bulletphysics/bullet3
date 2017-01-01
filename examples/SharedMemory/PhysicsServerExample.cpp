@@ -1908,7 +1908,7 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 		if (button == 1 && state == 0)
 		{
 			//gResetSimulation = true;
-			//gVRTeleportPos1 = gLastPickPos;
+			gVRTeleportPos1 = gLastPickPos;
 		}
 	} else
 	{

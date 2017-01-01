@@ -77,7 +77,7 @@ struct ImportMJCFInternalData
 
 ImportMJCFSetup::ImportMJCFSetup(struct GUIHelperInterface* helper, int option, const char* fileName)
 	:CommonMultiBodyBase(helper),
-	m_grav(-10),
+	m_grav(0),
 	m_upAxis(2)
 {
 	m_data = new ImportMJCFInternalData;
@@ -238,7 +238,7 @@ void ImportMJCFSetup::initPhysics()
 			ConvertURDF2Bullet(importer,creation, rootTrans,m_dynamicsWorld,m_useMultiBody,importer.getPathPrefix(),CUF_USE_MJCF);
 
 			mb = creation.getBulletMultiBody();
-			if (mb)
+			if (0)//mb)
 			{
 				printf("first MJCF file converted!\n");
 				std::string*   name = new std::string(importer.getLinkName(importer.getRootLinkIndex()));

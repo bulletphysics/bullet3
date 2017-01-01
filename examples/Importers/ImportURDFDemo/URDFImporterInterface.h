@@ -53,6 +53,12 @@ public:
     virtual int getBodyUniqueId() const { return 0;}
     
 	virtual class btCompoundShape* convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const  = 0;
+
+	virtual int getNumAllocatedCollisionShapes() const = 0;
+    virtual class btCollisionShape* getAllocatedCollisionShape(int index) = 0;
+	virtual int getNumModels() const=0;
+    virtual void activateModel(int modelIndex)=0;
+
 };
 
 #endif //URDF_IMPORTER_INTERFACE_H

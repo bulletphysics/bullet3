@@ -146,11 +146,11 @@ b3SharedMemoryCommandHandle	b3LoadMJCFCommandInit(b3PhysicsClientHandle physClie
 		int len = strlen(fileName);
 		if (len < MAX_URDF_FILENAME_LENGTH)
 		{
-			strcpy(command->m_fileArguments.m_fileName, fileName);
+			strcpy(command->m_mjcfArguments.m_mjcfFileName, fileName);
 		}
 		else
 		{
-			command->m_fileArguments.m_fileName[0] = 0;
+			command->m_mjcfArguments.m_mjcfFileName[0] = 0;
 		}
 		command->m_updateFlags = 0;
 
@@ -849,6 +849,7 @@ int b3GetStatusBodyIndices(b3SharedMemoryStatusHandle statusHandle, int* bodyInd
 	{
 			switch (status->m_type)
 			{
+				case CMD_MJCF_LOADING_COMPLETED:
 				case CMD_BULLET_LOADING_COMPLETED:
 				case CMD_SDF_LOADING_COMPLETED:
 				{
