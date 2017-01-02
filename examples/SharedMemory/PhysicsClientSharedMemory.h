@@ -12,7 +12,7 @@ class PhysicsClientSharedMemory : public PhysicsClient {
 protected:
 	virtual void setSharedMemoryInterface(class SharedMemoryInterface* sharedMem);
     void processBodyJointInfo(int bodyUniqueId, const struct SharedMemoryStatus& serverCmd);
-
+    
         
 public:
     PhysicsClientSharedMemory();
@@ -56,6 +56,8 @@ public:
 	virtual void getCachedCameraImage(struct b3CameraImageData* cameraData);
 	
 	virtual void getCachedContactPointInformation(struct b3ContactInformation* contactPointData);
+
+	virtual void getCachedOverlappingObjects(struct b3AABBOverlapData* overlappingObjects);
 
 	virtual void getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo);
 };

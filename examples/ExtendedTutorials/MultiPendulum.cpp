@@ -71,11 +71,9 @@ struct MultiPendulumExample: public CommonRigidBodyBase {
 
 static MultiPendulumExample* mex = NULL; // Handle to the example to access it via functions. Do not use this in your simulation!
 
-void onMultiPendulaLengthChanged(float pendulaLength); // Change the pendula length
+void onMultiPendulaLengthChanged(float pendulaLength, void*); // Change the pendula length
 
-void onMultiPendulaRestitutionChanged(float pendulaRestitution); // change the pendula restitution
-
-void floorMSliderValue(float notUsed); // floor the slider values which should be integers
+void onMultiPendulaRestitutionChanged(float pendulaRestitution, void*); // change the pendula restitution
 
 void applyMForceWithForceScalar(float forceScalar);
 
@@ -85,8 +83,7 @@ void MultiPendulumExample::initPhysics() { // Setup your physics scene
 		SliderParams slider("Number of Pendula", &gPendulaQty);
 		slider.m_minVal = 1;
 		slider.m_maxVal = 50;
-		slider.m_callback = floorMSliderValue; // hack to get integer values
-		slider.m_clampToNotches = false;
+        slider.m_clampToIntegers = true;
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
 			slider);
 	}
@@ -95,8 +92,7 @@ void MultiPendulumExample::initPhysics() { // Setup your physics scene
 		SliderParams slider("Number of Displaced Pendula", &gDisplacedPendula);
 		slider.m_minVal = 0;
 		slider.m_maxVal = 49;
-		slider.m_callback = floorMSliderValue; // hack to get integer values
-		slider.m_clampToNotches = false;
+        slider.m_clampToIntegers = true;
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
 			slider);
 	}
@@ -397,7 +393,7 @@ void MultiPendulumExample::applyPendulumForce(btScalar pendulumForce){
 
 // GUI parameter modifiers
 
-void onMultiPendulaLengthChanged(float pendulaLength) { // Change the pendula length
+void onMultiPendulaLengthChanged(float pendulaLength, void*) { // Change the pendula length
 	if (mex){
 		mex->changePendulaLength(pendulaLength);
 	}
@@ -405,16 +401,11 @@ void onMultiPendulaLengthChanged(float pendulaLength) { // Change the pendula le
 
 }
 
-void onMultiPendulaRestitutionChanged(float pendulaRestitution) { // change the pendula restitution
+void onMultiPendulaRestitutionChanged(float pendulaRestitution, void*) { // change the pendula restitution
 	if (mex){
 		mex->changePendulaRestitution(pendulaRestitution);
 	}
 
-}
-
-void floorMSliderValue(float notUsed) { // floor the slider values which should be integers
-	gPendulaQty = floor(gPendulaQty);
-	gDisplacedPendula = floor(gDisplacedPendula);
 }
 
 void applyMForceWithForceScalar(float forceScalar) {

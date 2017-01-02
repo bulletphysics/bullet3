@@ -2131,12 +2131,12 @@ void	SoftDemo::initPhysics()
 			for (int j=0;j<NUM_VERTS_Y-1;j++)
 			{
 				gGroundIndices[index++] = j*NUM_VERTS_X+i;
-				gGroundIndices[index++] = j*NUM_VERTS_X+i+1;
 				gGroundIndices[index++] = (j+1)*NUM_VERTS_X+i+1;
+				gGroundIndices[index++] = j*NUM_VERTS_X+i+1;;
 
 				gGroundIndices[index++] = j*NUM_VERTS_X+i;
-				gGroundIndices[index++] = (j+1)*NUM_VERTS_X+i+1;
 				gGroundIndices[index++] = (j+1)*NUM_VERTS_X+i;
+				gGroundIndices[index++] = (j+1)*NUM_VERTS_X+i+1;
 			}
 		}
 

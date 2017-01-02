@@ -32,10 +32,12 @@ subject to the following restrictions:
 
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btTransform.h"
+#include "../MultiThreadedDemo/ParallelFor.h"
 
 class btDynamicsWorld;
 
 #define NUMRAYS 500
+#define USE_PARALLEL_RAYCASTS 1
 
 class btRigidBody;
 class btBroadphaseInterface;
@@ -47,11 +49,11 @@ struct btCollisionAlgorithmCreateFunc;
 class btDefaultCollisionConfiguration;
 
 
-#include "../CommonInterfaces/CommonRigidBodyBase.h"
+#include "../MultiThreadedDemo/CommonRigidBodyMTBase.h"
 
 
 
-class BenchmarkDemo : public CommonRigidBodyBase
+class BenchmarkDemo : public CommonRigidBodyMTBase
 {
 
 	//keep the collision shapes, for deletion/cleanup
@@ -91,7 +93,7 @@ class BenchmarkDemo : public CommonRigidBodyBase
 	public:
 
 	BenchmarkDemo(struct GUIHelperInterface* helper, int benchmark)
-	:CommonRigidBodyBase(helper),
+	:CommonRigidBodyMTBase(helper),
 	m_benchmark(benchmark)
 	{
 	}
@@ -204,7 +206,39 @@ public:
 			sign = -1.0;
 	}
 
-	void cast (btCollisionWorld* cw)
+    void castRays( btCollisionWorld* cw, int iBegin, int iEnd )
+    {
+        for ( int i = iBegin; i < iEnd; ++i )
+        {
+			btCollisionWorld::ClosestRayResultCallback cb(source[i], dest[i]);
+			
+			cw->rayTest (source[i], dest[i], cb);
+			if (cb.hasHit ())
+			{
+				hit[i] = cb.m_hitPointWorld;
+				normal[i] = cb.m_hitNormalWorld;
+				normal[i].normalize ();
+			} else {
+				hit[i] = dest[i];
+				normal[i] = btVector3(1.0, 0.0, 0.0);
+			}
+
+        }
+    }
+
+    struct CastRaysLoopBody
+    {
+        btRaycastBar2* mRaycasts;
+        btCollisionWorld* mWorld;
+        CastRaysLoopBody(btCollisionWorld* cw, btRaycastBar2* rb) : mWorld(cw), mRaycasts(rb) {}
+
+        void forLoop( int iBegin, int iEnd ) const
+        {
+            mRaycasts->castRays(mWorld, iBegin, iEnd);
+        }
+    };
+
+	void cast (btCollisionWorld* cw, bool multiThreading = false)
 	{
 #ifdef USE_BT_CLOCK
 		frame_timer.reset ();
@@ -228,22 +262,19 @@ public:
 				normal[i].normalize ();
 		}
 #else
-		for (int i = 0; i < NUMRAYS; i++)
-		{
-			btCollisionWorld::ClosestRayResultCallback cb(source[i], dest[i]);
-			
-			cw->rayTest (source[i], dest[i], cb);
-			if (cb.hasHit ())
-			{
-				hit[i] = cb.m_hitPointWorld;
-				normal[i] = cb.m_hitNormalWorld;
-				normal[i].normalize ();
-			} else {
-				hit[i] = dest[i];
-				normal[i] = btVector3(1.0, 0.0, 0.0);
-			}
-
-		}
+#if USE_PARALLEL_RAYCASTS
+        if ( multiThreading )
+        {
+            CastRaysLoopBody rayLooper(cw, this);
+            int grainSize = 20;  // number of raycasts per task
+            parallelFor( 0, NUMRAYS, grainSize, rayLooper );
+        }
+        else
+#endif // USE_PARALLEL_RAYCASTS
+        {
+            // single threaded
+            castRays(cw, 0, NUMRAYS);
+        }
 #ifdef USE_BT_CLOCK
 		ms += frame_timer.getTimeMilliseconds ();
 #endif //USE_BT_CLOCK
@@ -354,42 +385,43 @@ void	BenchmarkDemo::initPhysics()
 
 	setCameraDistance(btScalar(100.));
 
-	///collision configuration contains default setup for memory, collision setup
-	btDefaultCollisionConstructionInfo cci;
-	cci.m_defaultMaxPersistentManifoldPoolSize = 32768;
-	m_collisionConfiguration = new btDefaultCollisionConfiguration(cci);
+    createEmptyDynamicsWorld();
+	/////collision configuration contains default setup for memory, collision setup
+	//btDefaultCollisionConstructionInfo cci;
+	//cci.m_defaultMaxPersistentManifoldPoolSize = 32768;
+	//m_collisionConfiguration = new btDefaultCollisionConfiguration(cci);
 
-	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
-	m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
-	
-	m_dispatcher->setDispatcherFlags(btCollisionDispatcher::CD_DISABLE_CONTACTPOOL_DYNAMIC_ALLOCATION);
+	/////use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+	//m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
+	//
+	//m_dispatcher->setDispatcherFlags(btCollisionDispatcher::CD_DISABLE_CONTACTPOOL_DYNAMIC_ALLOCATION);
 
 
 
-	///the maximum size of the collision world. Make sure objects stay within these boundaries
-	///Don't make the world AABB size too large, it will harm simulation quality and performance
-	btVector3 worldAabbMin(-1000,-1000,-1000);
-	btVector3 worldAabbMax(1000,1000,1000);
-	
-	btHashedOverlappingPairCache* pairCache = new btHashedOverlappingPairCache();
-	m_broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax,3500,pairCache);
+	/////the maximum size of the collision world. Make sure objects stay within these boundaries
+	/////Don't make the world AABB size too large, it will harm simulation quality and performance
+	//btVector3 worldAabbMin(-1000,-1000,-1000);
+	//btVector3 worldAabbMax(1000,1000,1000);
+	//
+	//btHashedOverlappingPairCache* pairCache = new btHashedOverlappingPairCache();
+	//m_broadphase = new btAxisSweep3(worldAabbMin,worldAabbMax,3500,pairCache);
 //	m_broadphase = new btSimpleBroadphase();
 //	m_broadphase = new btDbvtBroadphase();
 	
 
 	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
-	btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
+	//btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
 	
 	
-	m_solver = sol;
+	//m_solver = sol;
 
-	btDiscreteDynamicsWorld* dynamicsWorld;
-	m_dynamicsWorld = dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
+	//btDiscreteDynamicsWorld* dynamicsWorld;
+	//m_dynamicsWorld = dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher,m_broadphase,m_solver,m_collisionConfiguration);
 	
 
 	///the following 3 lines increase the performance dramatically, with a little bit of loss of quality
 	m_dynamicsWorld->getSolverInfo().m_solverMode |=SOLVER_ENABLE_FRICTION_DIRECTION_CACHING; //don't recalculate friction values each frame
-	dynamicsWorld->getSolverInfo().m_numIterations = 5; //few solver iterations 
+	m_dynamicsWorld->getSolverInfo().m_numIterations = 5; //few solver iterations 
 	//m_defaultContactProcessingThreshold = 0.f;//used when creating bodies: body->setContactProcessingThreshold(...);
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 	
@@ -1242,7 +1274,7 @@ void BenchmarkDemo::initRays()
 
 void BenchmarkDemo::castRays()
 {
-	raycastBar.cast (m_dynamicsWorld);
+	raycastBar.cast (m_dynamicsWorld, m_multithreadedWorld);
 }
 
 void	BenchmarkDemo::createTest7()
@@ -1264,7 +1296,7 @@ void	BenchmarkDemo::exitPhysics()
 	}
 	m_ragdolls.clear();
 
-	CommonRigidBodyBase::exitPhysics();
+	CommonRigidBodyMTBase::exitPhysics();
 
 	
 }

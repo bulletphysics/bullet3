@@ -4,7 +4,7 @@
 
 # Bullet Physics SDK
 
-This is the official C++ source code repository of the Bullet Physics SDK: real-time collision detection and multi-physics simulation for games, visual effects, robotics etc.
+This is the official C++ source code repository of the Bullet Physics SDK: real-time collision detection and multi-physics simulation for VR, games, visual effects, robotics, machine learning etc.
 
 New in Bullet 2.85: pybullet Python bindings, improved support for robotics and VR
 

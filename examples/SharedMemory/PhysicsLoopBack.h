@@ -62,6 +62,8 @@ public:
 	
 	virtual void getCachedContactPointInformation(struct b3ContactInformation* contactPointData);
 
+	virtual void getCachedOverlappingObjects(struct b3AABBOverlapData* overlappingObjects);
+
 	virtual void getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo);
 };
 

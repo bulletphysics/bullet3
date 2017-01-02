@@ -782,7 +782,7 @@ GL_ShapeDrawer::~GL_ShapeDrawer()
 	}
 }
 
-void GL_ShapeDrawer::drawSceneInternal(const btDiscreteDynamicsWorld* dynamicsWorld, int pass)
+void GL_ShapeDrawer::drawSceneInternal(const btDiscreteDynamicsWorld* dynamicsWorld, int pass, int cameraUpAxis)
 {
 
 	btAssert(dynamicsWorld);
@@ -849,7 +849,12 @@ void GL_ShapeDrawer::drawSceneInternal(const btDiscreteDynamicsWorld* dynamicsWo
 		//if (!(getDebugMode()& btIDebugDraw::DBG_DrawWireframe))
 		int debugMode = 0;//getDebugMode()
 		//btVector3 m_sundirection(-1,-1,-1);
+		
 		btVector3 m_sundirection(btVector3(1,-2,1)*1000);
+		if (cameraUpAxis==2)
+		{
+			m_sundirection = btVector3(1,1,-2)*1000;
+		}
 				
 		switch(pass)
 		{
@@ -861,9 +866,12 @@ void GL_ShapeDrawer::drawSceneInternal(const btDiscreteDynamicsWorld* dynamicsWo
 
 }
 
-void GL_ShapeDrawer::drawScene(const btDiscreteDynamicsWorld* dynamicsWorld, bool useShadows)
+//this GL_ShapeDrawer will be removed, in the meanwhile directly access this global 'useShadoMaps'
+extern bool useShadowMap;
+void GL_ShapeDrawer::drawScene(const btDiscreteDynamicsWorld* dynamicsWorld, bool useShadows1, int cameraUpAxis)
 {
 
+	bool useShadows = useShadowMap;
 		GLfloat light_ambient[] = { btScalar(0.2), btScalar(0.2), btScalar(0.2), btScalar(1.0) };
 	GLfloat light_diffuse[] = { btScalar(1.0), btScalar(1.0), btScalar(1.0), btScalar(1.0) };
 	GLfloat light_specular[] = { btScalar(1.0), btScalar(1.0), btScalar(1.0), btScalar(1.0 )};
@@ -897,7 +905,7 @@ void GL_ShapeDrawer::drawScene(const btDiscreteDynamicsWorld* dynamicsWorld, boo
 		{
 			glClear(GL_STENCIL_BUFFER_BIT);
 			glEnable(GL_CULL_FACE);
-			drawSceneInternal(dynamicsWorld,0);
+			drawSceneInternal(dynamicsWorld,0, cameraUpAxis);
 
 			glDisable(GL_LIGHTING);
 			glDepthMask(GL_FALSE);
@@ -907,10 +915,10 @@ void GL_ShapeDrawer::drawScene(const btDiscreteDynamicsWorld* dynamicsWorld, boo
 			glStencilFunc(GL_ALWAYS,1,0xFFFFFFFFL);
 			glFrontFace(GL_CCW);
 			glStencilOp(GL_KEEP,GL_KEEP,GL_INCR);
-			drawSceneInternal(dynamicsWorld,1);
+			drawSceneInternal(dynamicsWorld,1,cameraUpAxis);
 			glFrontFace(GL_CW);
 			glStencilOp(GL_KEEP,GL_KEEP,GL_DECR);
-			drawSceneInternal(dynamicsWorld,1);
+			drawSceneInternal(dynamicsWorld,1,cameraUpAxis);
 			glFrontFace(GL_CCW);
 
 			glPolygonMode(GL_FRONT,GL_FILL);
@@ -929,7 +937,7 @@ void GL_ShapeDrawer::drawScene(const btDiscreteDynamicsWorld* dynamicsWorld, boo
 			glStencilFunc( GL_NOTEQUAL, 0, 0xFFFFFFFFL );
 			glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
 			glDisable(GL_LIGHTING);
-			drawSceneInternal(dynamicsWorld,2);
+			drawSceneInternal(dynamicsWorld,2,cameraUpAxis);
 			glEnable(GL_LIGHTING);
 			glDepthFunc(GL_LESS);
 			glDisable(GL_STENCIL_TEST);
@@ -938,6 +946,6 @@ void GL_ShapeDrawer::drawScene(const btDiscreteDynamicsWorld* dynamicsWorld, boo
 		else
 		{
 			glDisable(GL_CULL_FACE);
-			drawSceneInternal(dynamicsWorld,0);
+			drawSceneInternal(dynamicsWorld,0,cameraUpAxis);
 		}
 }

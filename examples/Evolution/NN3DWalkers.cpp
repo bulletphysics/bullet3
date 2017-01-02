@@ -552,10 +552,6 @@ struct WalkerFilterCallback : public btOverlapFilterCallback
 	}
 };
 
-void floorNNSliderValue(float notUsed) {
-	gParallelEvaluations = floor(gParallelEvaluations);
-}
-
 void NN3DWalkersExample::initPhysics()
 {
 
@@ -657,8 +653,7 @@ void NN3DWalkersExample::initPhysics()
 		SliderParams slider("Parallel evaluations", &gParallelEvaluations);
 		slider.m_minVal = 1;
 		slider.m_maxVal = NUM_WALKERS;
-		slider.m_clampToNotches = false;
-		slider.m_callback = floorNNSliderValue; // hack to get integer values
+        slider.m_clampToIntegers = true;
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
 			slider);
 	}
@@ -1035,6 +1030,7 @@ void NN3DWalkersExample::drawMarkings() {
 }
 
 void NN3DWalkersExample::printWalkerConfigs(){
+#if 0
 	char configString[25 + NUM_WALKERS*BODYPART_COUNT*JOINT_COUNT*(3+15+1) + NUM_WALKERS*4 + 1]; // 15 precision + [],\n
 	char* runner = configString;
 	sprintf(runner,"Population configuration:");
@@ -1058,4 +1054,5 @@ void NN3DWalkersExample::printWalkerConfigs(){
 	}
 	runner[0] = '\0';
 	b3Printf(configString);
+#endif
 }

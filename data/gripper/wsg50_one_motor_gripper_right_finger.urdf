@@ -1,0 +1,27 @@
+<?xml version="0.0" ?>
+<robot name="right_finger.urdf">
+  <link name="baseLink">
+    <contact>
+      <lateral_friction value="1.0"/>
+      <inertia_scaling value="3.0"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0.05"/>
+       <mass value=".2"/>
+       <inertia ixx="0.1" ixy="0" ixz="0" iyy="0.1" iyz="0" izz="0.1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 1.5708" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="meshes/l_gripper_tip_scaled.stl" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0.042"/>
+      <geometry>
+	 	<box size="0.02 0.02 0.15"/>
+      </geometry>
+    </collision>
+  </link>
+</robot>
+

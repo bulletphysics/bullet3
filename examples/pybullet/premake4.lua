@@ -33,12 +33,37 @@ project ("pybullet")
 			}
 		end
 
+if not _OPTIONS["no-enet"] then
+
+		includedirs {"../../examples/ThirdPartyLibs/enet/include"}
+	
+		if os.is("Windows") then 
+			defines { "WIN32" }
+			links {"Ws2_32","Winmm"}
+		end
+		if os.is("Linux") then
+		end
+		if os.is("MacOSX") then
+		end		
+		
+		links {"enet"}		
+
+		files {
+			"../../examples/SharedMemory/PhysicsClientUDP.cpp",
+			"../../examples/SharedMemory/PhysicsClientUDP.h",
+			"../../examples/SharedMemory/PhysicsClientUDP_C_API.cpp",
+			"../../examples/SharedMemory/PhysicsClientUDP_C_API.h",
+		}	
+		defines {"BT_ENABLE_ENET"}
+	end
+
+
 		files {
 			"pybullet.c",
 			"../../examples/SharedMemory/IKTrajectoryHelper.cpp",
 			"../../examples/SharedMemory/IKTrajectoryHelper.h",
 			"../../examples/ExampleBrowser/InProcessExampleBrowser.cpp",
-    	"../../examples/SharedMemory/TinyRendererVisualShapeConverter.cpp",
+			"../../examples/SharedMemory/TinyRendererVisualShapeConverter.cpp",
 			"../../examples/SharedMemory/TinyRendererVisualShapeConverter.h",
 			"../../examples/OpenGLWindow/SimpleCamera.cpp",
 			"../../examples/OpenGLWindow/SimpleCamera.h",
@@ -64,6 +89,8 @@ project ("pybullet")
 			"../../examples/SharedMemory/PhysicsServerCommandProcessor.h",
 			"../../examples/SharedMemory/PhysicsClientSharedMemory.cpp",
 			"../../examples/SharedMemory/PhysicsClientSharedMemory.h",
+			"../../examples/SharedMemory/PhysicsClientSharedMemory_C_API.cpp",
+			"../../examples/SharedMemory/PhysicsClientSharedMemory_C_API.h",
 			"../../examples/SharedMemory/PhysicsClientC_API.cpp",
 			"../../examples/SharedMemory/PhysicsClientC_API.h",
 			"../../examples/SharedMemory/Win32SharedMemory.cpp",

@@ -18,6 +18,11 @@ struct TinyRenderObjectData
     Matrix m_viewportMatrix;
 	btVector3 m_localScaling;
 	btVector3 m_lightDirWorld;
+    btVector3 m_lightColor;
+    float m_lightDistance;
+    float m_lightAmbientCoeff;
+    float m_lightDiffuseCoeff;
+    float m_lightSpecularCoeff;
 	
     //Model (vertices, indices, textures, shader)
     Matrix m_modelMatrix;
@@ -28,10 +33,13 @@ struct TinyRenderObjectData
     
     TGAImage& m_rgbColorBuffer;
     b3AlignedObjectArray<float>& m_depthBuffer;//required, hence a reference
+    b3AlignedObjectArray<float>* m_shadowBuffer;//optional, hence a pointer
     b3AlignedObjectArray<int>* m_segmentationMaskBufferPtr;//optional, hence a pointer
-        
+    
     TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer);
-    TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer, b3AlignedObjectArray<int>* segmentationMaskBuffer,int objectIndex);
+    TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer,b3AlignedObjectArray<int>* segmentationMaskBuffer,int objectIndex);
+    TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer,b3AlignedObjectArray<float>* shadowBuffer);
+    TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer,b3AlignedObjectArray<float>* shadowBuffer, b3AlignedObjectArray<int>* segmentationMaskBuffer,int objectIndex);
     virtual ~TinyRenderObjectData();
     
     void loadModel(const char* fileName);
@@ -50,6 +58,7 @@ struct TinyRenderObjectData
 class TinyRenderer
 {
     public:
+        static void renderObjectDepth(TinyRenderObjectData& renderData);
         static void renderObject(TinyRenderObjectData& renderData);
 };
 

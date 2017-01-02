@@ -1,11 +1,14 @@
 #ifdef BT_ENABLE_VR
-//#define BT_USE_CUSTOM_PROFILER
+#ifdef BT_USE_CUSTOM_PROFILER
+#endif
+
 //========= Copyright Valve Corporation ============//
 
 #include "../OpenGLWindow/SimpleOpenGL3App.h"
 #include "../OpenGLWindow/OpenGLInclude.h"
 #include "Bullet3Common/b3Quaternion.h"
 #include "Bullet3Common/b3Transform.h"
+#include "Bullet3Common/b3CommandLineArgs.h"
 
 
 #include "../ExampleBrowser/OpenGLGuiHelper.h"
@@ -673,7 +676,7 @@ bool CMainApplication::HandleInput()
 	for( vr::TrackedDeviceIndex_t unDevice = 0; unDevice < vr::k_unMaxTrackedDeviceCount; unDevice++ )
 	{
 		vr::VRControllerState_t state;
-		if( m_pHMD->GetControllerState( unDevice, &state ) )
+		if( m_pHMD->GetControllerState( unDevice, &state ,sizeof(vr::VRControllerState_t)) )
 		{
 			//we need to have the 'move' events, so no early out here
 			//if (sPrevStates[unDevice].unPacketNum != state.unPacketNum)
@@ -776,11 +779,13 @@ void CMainApplication::RunMainLoop()
 
 	while ( !bQuit && !m_app->m_window->requestedExit())
 	{
+		{
 		B3_PROFILE("main");
 
 		bQuit = HandleInput();
 
 		RenderFrame();
+	}
 	}
 
 }
@@ -844,7 +849,7 @@ void CMainApplication::RenderFrame()
 		// happen right before and after the vsync causing all kinds of jittering issues. This glFinish()
 		// appears to clear that up. Temporary fix while I try to get nvidia to investigate this problem.
 		// 1/29/2014 mikesart
-		glFinish();
+		//glFinish();
 	}
 
 	// SwapWindow
@@ -1282,6 +1287,8 @@ void CMainApplication::AddCubeToScene( Matrix4 mat, std::vector<float> &vertdata
 //-----------------------------------------------------------------------------
 // Purpose: Draw all of the controllers as X/Y/Z lines
 //-----------------------------------------------------------------------------
+extern int gGraspingController;
+
 void CMainApplication::DrawControllers()
 {
 	// don't draw controllers if somebody else has input focus
@@ -1295,6 +1302,8 @@ void CMainApplication::DrawControllers()
 
 	for ( vr::TrackedDeviceIndex_t unTrackedDevice = vr::k_unTrackedDeviceIndex_Hmd + 1; unTrackedDevice < vr::k_unMaxTrackedDeviceCount; ++unTrackedDevice )
 	{
+		
+
 		if ( !m_pHMD->IsTrackedDeviceConnected( unTrackedDevice ) )
 			continue;
 
@@ -1479,8 +1488,9 @@ void CMainApplication::SetupDistortion()
 			u = x*w; v = 1-y*h;
 			vert.position = Vector2( Xoffset+u, -1+2*y*h );
 
-			vr::DistortionCoordinates_t dc0 = m_pHMD->ComputeDistortion(vr::Eye_Left, u, v);
-
+			vr::DistortionCoordinates_t dc0;
+			bool result = m_pHMD->ComputeDistortion(vr::Eye_Left, u, v,&dc0);
+			btAssert(result);
 			vert.texCoordRed = Vector2(dc0.rfRed[0], 1 - dc0.rfRed[1]);
 			vert.texCoordGreen =  Vector2(dc0.rfGreen[0], 1 - dc0.rfGreen[1]);
 			vert.texCoordBlue = Vector2(dc0.rfBlue[0], 1 - dc0.rfBlue[1]);
@@ -1498,8 +1508,9 @@ void CMainApplication::SetupDistortion()
 			u = x*w; v = 1-y*h;
 			vert.position = Vector2( Xoffset+u, -1+2*y*h );
 
-			vr::DistortionCoordinates_t dc0 = m_pHMD->ComputeDistortion( vr::Eye_Right, u, v );
-
+			vr::DistortionCoordinates_t dc0;
+			bool result = m_pHMD->ComputeDistortion( vr::Eye_Right, u, v,&dc0 );
+			btAssert(result);
 			vert.texCoordRed = Vector2(dc0.rfRed[0], 1 - dc0.rfRed[1]);
 			vert.texCoordGreen = Vector2(dc0.rfGreen[0], 1 - dc0.rfGreen[1]);
 			vert.texCoordBlue = Vector2(dc0.rfBlue[0], 1 - dc0.rfBlue[1]);
@@ -2183,9 +2194,11 @@ void CGLRenderModel::Draw()
 //-----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
+
+
 #ifdef BT_USE_CUSTOM_PROFILER
-	//b3SetCustomEnterProfileZoneFunc(...);
-	//b3SetCustomLeaveProfileZoneFunc(...);
+	b3SetCustomEnterProfileZoneFunc(dcEnter);
+	b3SetCustomLeaveProfileZoneFunc(dcLeave);
 #endif
 
 
@@ -2223,7 +2236,6 @@ int main(int argc, char *argv[])
 	pMainApplication->Shutdown();
 
 #ifdef BT_USE_CUSTOM_PROFILER
-//...
 #endif
 
 	return 0;

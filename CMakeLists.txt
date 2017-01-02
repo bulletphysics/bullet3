@@ -28,6 +28,7 @@ OPTION(USE_DOUBLE_PRECISION "Use double precision"	OFF)
 OPTION(USE_GRAPHICAL_BENCHMARK "Use Graphical Benchmark" ON)
 OPTION(BUILD_SHARED_LIBS "Use shared libraries" OFF)
 OPTION(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD "Use btSoftMultiBodyDynamicsWorld" OFF)	
+OPTION(BULLET2_USE_THREAD_LOCKS "Build Bullet 2 libraries with mutex locking around certain operations" OFF)
 
 OPTION(USE_MSVC_INCREMENTAL_LINKING "Use MSVC Incremental Linking" OFF)
 OPTION(USE_CUSTOM_VECTOR_MATH "Use custom vectormath library" OFF)
@@ -155,6 +156,13 @@ IF(USE_GRAPHICAL_BENCHMARK)
 ADD_DEFINITIONS( -DUSE_GRAPHICAL_BENCHMARK)
 ENDIF (USE_GRAPHICAL_BENCHMARK)
 
+IF(BULLET2_USE_THREAD_LOCKS)
+	ADD_DEFINITIONS( -DBT_THREADSAFE=1 )
+	IF (NOT MSVC)
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+	ENDIF (NOT MSVC)
+ENDIF (BULLET2_USE_THREAD_LOCKS)
+
 IF (WIN32)
 OPTION(USE_GLUT "Use Glut"	ON)
 ADD_DEFINITIONS( -D_CRT_SECURE_NO_WARNINGS )
@@ -195,8 +203,6 @@ ENDIF (OPENGL_FOUND)
 #FIND_PACKAGE(GLU)
 
 
-
-
 IF (APPLE)
   FIND_LIBRARY(COCOA_LIBRARY Cocoa)
 ENDIF()
@@ -211,7 +217,8 @@ IF(BUILD_PYBULLET)
 	FIND_PACKAGE(PythonLibs)
 
 	OPTION(BUILD_PYBULLET_NUMPY "Set when you want to build pybullet with NumPy support" OFF)
-
+	OPTION(BUILD_PYBULLET_ENET "Set when you want to build pybullet with enet UDP networking support" ON)
+	
 	IF(BUILD_PYBULLET_NUMPY)	
 		set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/build3/cmake)
 		#include(FindNumPy)
@@ -264,6 +271,15 @@ IF(BUILD_BULLET2_DEMOS)
 	IF(EXISTS ${BULLET_PHYSICS_SOURCE_DIR}/examples AND IS_DIRECTORY ${BULLET_PHYSICS_SOURCE_DIR}/examples)
 		SUBDIRS(examples)
 	ENDIF()
+
+        IF (BULLET2_USE_THREAD_LOCKS)
+            OPTION(BULLET2_MULTITHREADED_OPEN_MP_DEMO "Build Bullet 2 MultithreadedDemo using OpenMP (requires a compiler with OpenMP support)" OFF)
+            OPTION(BULLET2_MULTITHREADED_TBB_DEMO "Build Bullet 2 MultithreadedDemo using Intel Threading Building Blocks (requires the TBB library to be already installed)" OFF)
+            IF (MSVC)
+                OPTION(BULLET2_MULTITHREADED_PPL_DEMO "Build Bullet 2 MultithreadedDemo using Microsoft Parallel Patterns Library (requires MSVC compiler)" OFF)
+            ENDIF (MSVC)
+        ENDIF (BULLET2_USE_THREAD_LOCKS)
+
 ENDIF(BUILD_BULLET2_DEMOS)
 
 

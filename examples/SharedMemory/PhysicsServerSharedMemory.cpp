@@ -241,6 +241,12 @@ void PhysicsServerSharedMemory::stepSimulationRealTime(double dtInSec)
 	m_data->m_commandProcessor->stepSimulationRealTime(dtInSec);
 }
 
+void PhysicsServerSharedMemory::enableRealTimeSimulation(bool enableRealTimeSim)
+{
+	m_data->m_commandProcessor->enableRealTimeSimulation(enableRealTimeSim);
+}
+
+
 
 void PhysicsServerSharedMemory::processClientCommands()
 {
