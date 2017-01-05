@@ -23,7 +23,7 @@ for joint in range (2,6) :
 for step in range (400):
         p.stepSimulation()
 
-p.getContactPointData(husky)
+p.getContactPoints(husky)
 
 p.disconnect()
 
