@@ -162,7 +162,12 @@ FILE* gTimingFile = 0;
 #ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
 #endif //__STDC_FORMAT_MACROS
+
+//see http://stackoverflow.com/questions/18107426/printf-format-for-unsigned-int64-on-windows
+#ifndef _WIN32
 #include <inttypes.h>
+#endif
+
 #define BT_TIMING_CAPACITY 16*65536
 static bool m_firstTiming = true;
 
@@ -246,12 +251,21 @@ struct btTimings
             
             char newname[1024];
 			static int counter2=0;
-         
             sprintf(newname,"%s%d",name,counter2++);
+         
+#ifdef _WIN32
+			
+			fprintf(gTimingFile,"{\"cat\":\"timing\",\"pid\":1,\"tid\":%d,\"ts\":%I64d.%s ,\"ph\":\"B\",\"name\":\"%s\",\"args\":{}},\n",
+				threadId, startTimeDiv1000,startTimeRem1000Str, newname);
+			fprintf(gTimingFile,"{\"cat\":\"timing\",\"pid\":1,\"tid\":%d,\"ts\":%I64d.%s ,\"ph\":\"E\",\"name\":\"%s\",\"args\":{}}",
+				threadId, endTimeDiv1000,endTimeRem1000Str,newname);
+
+#else
 			fprintf(gTimingFile,"{\"cat\":\"timing\",\"pid\":1,\"tid\":%d,\"ts\":%" PRIu64 ".%s ,\"ph\":\"B\",\"name\":\"%s\",\"args\":{}},\n",
 				threadId, startTimeDiv1000,startTimeRem1000Str, newname);
 			fprintf(gTimingFile,"{\"cat\":\"timing\",\"pid\":1,\"tid\":%d,\"ts\":%" PRIu64 ".%s ,\"ph\":\"E\",\"name\":\"%s\",\"args\":{}}",
 				threadId, endTimeDiv1000,endTimeRem1000Str,newname);
+#endif
 #endif
 
 		}

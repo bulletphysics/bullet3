@@ -15,6 +15,8 @@ struct SimpleCamera : public CommonCameraInterface
 	virtual void getCameraViewMatrix(float m[16]) const;
 	
 	virtual void	setVRCamera(const float viewMat[16], const float projectionMatrix[16]);
+	virtual bool	getVRCamera(float viewMat[16], float projectionMatrix[16]);
+
 	virtual void	setVRCameraOffsetTransform(const float offset[16]);
 	virtual void disableVRCamera();
 

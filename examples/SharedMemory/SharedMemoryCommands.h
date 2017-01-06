@@ -594,6 +594,26 @@ struct UserDebugDrawResultArgs
 	int m_debugItemUniqueId;
 };
 
+struct SendVREvents
+{
+	int m_numVRControllerEvents;
+	b3VRControllerEvent m_controllerEvents[MAX_VR_CONTROLLERS];
+};
+
+enum eVRCameraEnums
+{
+	VR_CAMERA_ROOT_POSITION=1,
+	VR_CAMERA_ROOT_ORIENTATION=2,
+	VR_CAMERA_ROOT_TRACKING_OBJECT=4
+};
+
+struct VRCameraState
+{
+	double m_rootPosition[3];
+	double m_rootOrientation[4];
+	int m_trackingObjectUniqueId;
+};
+
 
 struct SharedMemoryCommand
 {
@@ -635,6 +655,7 @@ struct SharedMemoryCommand
 		struct UserDebugDrawArgs m_userDebugDrawArgs;
 		struct RequestRaycastIntersections m_requestRaycastIntersections;
         struct LoadBunnyArgs m_loadBunnyArguments;
+		struct VRCameraState m_vrCameraStateArguments;
     };
 };
 
@@ -657,11 +678,8 @@ struct SendOverlappingObjectsArgs
 	int m_numRemainingOverlappingObjects;
 };
 
-struct SendVREvents
-{
-	int m_numVRControllerEvents;
-	b3VRControllerEvent m_controllerEvents[MAX_VR_CONTROLLERS];
-};
+
+
 
 
 
