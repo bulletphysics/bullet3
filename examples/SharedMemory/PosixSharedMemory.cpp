@@ -66,6 +66,27 @@ struct btPointerCaster
 void*   PosixSharedMemory::allocateSharedMemory(int key, int size,  bool allowCreation)
 {
 #ifdef TEST_SHARED_MEMORY
+    
+    {
+        btSharedMemorySegment* seg = 0;
+        int i=0;
+        
+        for (i=0;i<m_internalData->m_segments.size();i++)
+        {
+            if (m_internalData->m_segments[i].m_key == key)
+            {
+                seg = &m_internalData->m_segments[i];
+                break;
+            }
+        }
+        if (seg)
+        {
+            b3Error("already created shared memory segment using same key");
+            return seg->m_sharedMemoryPtr;
+        }
+
+    }
+    
     int flags = (allowCreation ? IPC_CREAT : 0) | 0666;
     int id = shmget((key_t) key, (size_t) size,flags);
     if (id < 0)
