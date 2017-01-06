@@ -1174,6 +1174,8 @@ static PyObject* pybullet_setGravity(PyObject* self, PyObject* args, PyObject* k
     double gravZ = -10.0;
     int ret;
 	b3PhysicsClientHandle sm  = 0;
+	b3SharedMemoryCommandHandle command;
+	b3SharedMemoryStatusHandle statusHandle;
 
 	int physicsClientId = 0;
 	static char *kwlist[] = { "gravX", "gravY", "gravZ", "physicsClientId", NULL };
@@ -1189,9 +1191,8 @@ static PyObject* pybullet_setGravity(PyObject* self, PyObject* args, PyObject* k
 	}
 	
 
-    b3SharedMemoryCommandHandle command = b3InitPhysicsParamCommand(sm);
-    b3SharedMemoryStatusHandle statusHandle;
-
+    command = b3InitPhysicsParamCommand(sm);
+    
     ret = b3PhysicsParamSetGravity(command, gravX, gravY, gravZ);
     // ret = b3PhysicsParamSetTimeStep(command,  timeStep);
     statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
