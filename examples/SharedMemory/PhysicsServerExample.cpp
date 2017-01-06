@@ -1439,23 +1439,7 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
 
 
 
-	#if 0
-	if (m_options == PHYSICS_SERVER_USE_RTC_CLOCK)
-	{
-		btClock rtc;
-		btScalar endTime = rtc.getTimeMilliseconds() + deltaTime*btScalar(800);
-
-		while (rtc.getTimeMilliseconds()<endTime)
-		{
-			m_physicsServer.processClientCommands();
-		}
-	} else
-	{
-        //for (int i=0;i<10;i++)
-			m_physicsServer.processClientCommands();
-	}
-	#endif
-
+	
 	{
 		if (m_multiThreadedHelper->m_childGuiHelper->getRenderInterface())
 		{
