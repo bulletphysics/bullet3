@@ -1,6 +1,7 @@
 #include "PosixSharedMemory.h"
 #include "Bullet3Common/b3Logging.h"
 #include "LinearMath/btScalar.h" //for btAssert
+#include "LinearMath/btAlignedObjectArray.h"
 
 //Windows implementation is in Win32SharedMemory.cpp
 #ifndef _WIN32
@@ -16,16 +17,28 @@
 
 #endif
 
+struct btSharedMemorySegment
+{
+    int m_key;
+    int m_sharedMemoryId;
+    void* m_sharedMemoryPtr;
+    bool m_createdSharedMemory;
+    
+    btSharedMemorySegment()
+    :    m_sharedMemoryId(-1),
+    m_sharedMemoryPtr(0),
+    m_createdSharedMemory(true)
+    {
+    }
+    
+};
+
 struct PosixSharedMemoryInteralData
 {
-	bool m_createdSharedMemory;
-	int m_sharedMemoryId;
-	void* m_sharedMemoryPtr;
-	
+    btAlignedObjectArray<btSharedMemorySegment> m_segments;
+    
+		
 	PosixSharedMemoryInteralData()
-	:m_createdSharedMemory(false),
-	m_sharedMemoryId(-1),
-	m_sharedMemoryPtr(0)
 	{
 	}
 };
@@ -67,9 +80,12 @@ void*   PosixSharedMemory::allocateSharedMemory(int key, int size,  bool allowCr
             b3Error("shmat returned -1");
         } else
         {
-			m_internalData->m_createdSharedMemory = allowCreation;
-			m_internalData->m_sharedMemoryId = id;
-			m_internalData->m_sharedMemoryPtr = result.ptr;
+            btSharedMemorySegment seg;
+            seg.m_key = key;
+            seg.m_createdSharedMemory = allowCreation;
+            seg.m_sharedMemoryId = id;
+            seg.m_sharedMemoryPtr = result.ptr;
+            m_internalData->m_segments.push_back(seg);
             return result.ptr;
         }
     }
@@ -82,14 +98,33 @@ void*   PosixSharedMemory::allocateSharedMemory(int key, int size,  bool allowCr
 void PosixSharedMemory::releaseSharedMemory(int key, int size)
 {
 #ifdef TEST_SHARED_MEMORY
-    if (m_internalData->m_sharedMemoryId < 0)
+    
+    btSharedMemorySegment* seg = 0;
+    int i=0;
+    
+    for (i=0;i<m_internalData->m_segments.size();i++)
+    {
+        if (m_internalData->m_segments[i].m_key == key)
+        {
+            seg = &m_internalData->m_segments[i];
+            break;
+        }
+    }
+
+    if (0==seg)
+    {
+        b3Error("PosixSharedMemory::releaseSharedMemory: shared memory key not found");
+        return;
+    }
+    
+    if (seg->m_sharedMemoryId < 0)
     {
         b3Error("PosixSharedMemory::releaseSharedMemory: shared memory id is not set");
     } else
     {
-		if (m_internalData->m_createdSharedMemory)
+		if (seg->m_createdSharedMemory)
 		{
-			int result = shmctl(m_internalData->m_sharedMemoryId,IPC_RMID,0);
+			int result = shmctl(seg->m_sharedMemoryId,IPC_RMID,0);
 			if (result == -1)
 			{
 				b3Error("PosixSharedMemory::releaseSharedMemory: shmat returned -1");
@@ -97,15 +132,18 @@ void PosixSharedMemory::releaseSharedMemory(int key, int size)
 			{
 				b3Printf("PosixSharedMemory::releaseSharedMemory removed shared memory");
 			}
-			m_internalData->m_createdSharedMemory = false;
-			m_internalData->m_sharedMemoryId = -1;
+			seg->m_createdSharedMemory = false;
+			seg->m_sharedMemoryId = -1;
 		}
-		if (m_internalData->m_sharedMemoryPtr)
+		if (seg->m_sharedMemoryPtr)
 		{
-			shmdt(m_internalData->m_sharedMemoryPtr);
-			m_internalData->m_sharedMemoryPtr  = 0;
+			shmdt(seg->m_sharedMemoryPtr);
+			seg->m_sharedMemoryPtr  = 0;
 			b3Printf("PosixSharedMemory::releaseSharedMemory detached shared memory\n");
 		}
     }
+
+    m_internalData->m_segments.removeAtIndex(i);
+    
 #endif
 }

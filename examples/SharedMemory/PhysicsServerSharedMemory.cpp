@@ -28,7 +28,7 @@ struct PhysicsServerSharedMemoryInternalData
 
     SharedMemoryBlock* m_testBlocks[MAX_SHARED_MEMORY_BLOCKS];
 	int m_sharedMemoryKey;
-	bool m_isConnected;
+	bool m_areConnected[MAX_SHARED_MEMORY_BLOCKS];
 	bool m_verboseOutput;
 	PhysicsServerCommandProcessor* m_commandProcessor;
 	
@@ -36,8 +36,7 @@ struct PhysicsServerSharedMemoryInternalData
 		:m_sharedMemory(0),
 		m_ownsSharedMemory(false),
   		m_sharedMemoryKey(SHARED_MEMORY_KEY),
-		m_isConnected(false),
-		m_verboseOutput(false),
+    	m_verboseOutput(false),
 		m_commandProcessor(0)
 		
 	{
@@ -45,7 +44,7 @@ struct PhysicsServerSharedMemoryInternalData
         for (int i=0;i<MAX_SHARED_MEMORY_BLOCKS;i++)
         {
             m_testBlocks[i]=0;
-
+            m_areConnected[i]=false;
         }
 	}
 
@@ -89,9 +88,25 @@ PhysicsServerSharedMemory::PhysicsServerSharedMemory(SharedMemoryInterface* shar
 
 PhysicsServerSharedMemory::~PhysicsServerSharedMemory()
 {
+
 	m_data->m_commandProcessor->deleteDynamicsWorld();
 	delete m_data->m_commandProcessor;
-	delete m_data;
+
+    if (m_data->m_sharedMemory)
+    {
+        if (m_data->m_verboseOutput)
+        {
+            b3Printf("m_sharedMemory\n");
+        }
+        if (m_data->m_ownsSharedMemory)
+        {
+            delete m_data->m_sharedMemory;
+        }
+        m_data->m_sharedMemory = 0;
+    }
+
+    
+    delete m_data;
 }
 
 void PhysicsServerSharedMemory::resetDynamicsWorld()
@@ -112,18 +127,22 @@ bool PhysicsServerSharedMemory::connectSharedMemory( struct GUIHelperInterface* 
 
 	
 	bool allowCreation = true;
+    bool allConnected = false;
+    
 	
 
-    if (m_data->m_isConnected)
-    {
-        b3Warning("connectSharedMemory, while already connected");
-        return m_data->m_isConnected;
-    }
+   
     
     
 	int counter = 0;
     for (int block=0;block<MAX_SHARED_MEMORY_BLOCKS;block++)
     {
+        if (m_data->m_areConnected[block])
+        {
+            allConnected = true;
+            b3Warning("connectSharedMemory, while already connected");
+            continue;
+        }
         do
         {
 
@@ -143,26 +162,26 @@ bool PhysicsServerSharedMemory::connectSharedMemory( struct GUIHelperInterface* 
                     {
                         b3Printf("Created and initialized shared memory block\n");
                     }
-                    m_data->m_isConnected = true;
+                    m_data->m_areConnected[block] = true;
                 } else
                 {
                     m_data->m_sharedMemory->releaseSharedMemory(m_data->m_sharedMemoryKey+block, SHARED_MEMORY_SIZE);
                     m_data->m_testBlocks[block] = 0;
-                    m_data->m_isConnected = false;
+                    m_data->m_areConnected[block] = false;
                 }
             } else
             {
                 b3Error("Cannot connect to shared memory");
-                m_data->m_isConnected = false;
+                m_data->m_areConnected[block] = false;
             }
-        } while (counter++ < 10 && !m_data->m_isConnected);
+        } while (counter++ < 10 && !m_data->m_areConnected[block]);
+        if (!m_data->m_areConnected[block])
+        {
+            b3Error("Server cannot connect to shared memory.\n");
+        }
     }
-	if (!m_data->m_isConnected)
-	{
-		b3Error("Server cannot connect to shared memory.\n");
-	}
 	
-	return m_data->m_isConnected;
+	return allConnected;
 }
 
 
@@ -193,59 +212,15 @@ void PhysicsServerSharedMemory::disconnectSharedMemory(bool deInitializeSharedMe
             btAssert(m_data->m_sharedMemory);
             m_data->m_sharedMemory->releaseSharedMemory(m_data->m_sharedMemoryKey+block, SHARED_MEMORY_SIZE);
         }
-        if (m_data->m_sharedMemory)
-        {
-            if (m_data->m_verboseOutput)
-            {
-                b3Printf("m_sharedMemory\n");
-            }
-            if (m_data->m_ownsSharedMemory)
-            {
-                delete m_data->m_sharedMemory;
-            }
-            m_data->m_sharedMemory = 0;
-            m_data->m_testBlocks[block] = 0;
-        }
+        m_data->m_testBlocks[block] = 0;
+        m_data->m_areConnected[block] = false;
+        
     }
 }
 
 void PhysicsServerSharedMemory::releaseSharedMemory()
 {
-    for (int block = 0;block<MAX_SHARED_MEMORY_BLOCKS;block++)
-    {
-        if (m_data->m_verboseOutput)
-        {
-            b3Printf("releaseSharedMemory1\n");
-        }
-        if (m_data->m_testBlocks[block])
-        {
-            if (m_data->m_verboseOutput)
-            {
-                b3Printf("m_testBlock1\n");
-            }
-            m_data->m_testBlocks[block]->m_magicId = 0;
-            if (m_data->m_verboseOutput)
-            {
-                b3Printf("magic id = %d\n",m_data->m_testBlocks[block]->m_magicId);
-            }
-            btAssert(m_data->m_sharedMemory);
-            m_data->m_sharedMemory->releaseSharedMemory(	m_data->m_sharedMemoryKey+block
-    , SHARED_MEMORY_SIZE);
-        }
-        if (m_data->m_sharedMemory)
-        {
-            if (m_data->m_verboseOutput)
-            {
-                b3Printf("m_sharedMemory\n");
-            }
-            if (m_data->m_ownsSharedMemory)
-            {
-                delete m_data->m_sharedMemory;
-            }
-            m_data->m_sharedMemory = 0;
-            m_data->m_testBlocks[block] = 0;
-        }
-    }
+    disconnectSharedMemory(true);
 }
 
 
@@ -265,7 +240,8 @@ void PhysicsServerSharedMemory::processClientCommands()
 {
     for (int block = 0;block<MAX_SHARED_MEMORY_BLOCKS;block++)
     {
-        if (m_data->m_isConnected && m_data->m_testBlocks[block])
+        
+        if (m_data->m_areConnected[block] && m_data->m_testBlocks[block])
         {
             m_data->m_commandProcessor->replayLogCommand(&m_data->m_testBlocks[block]->m_bulletStreamDataServerToClientRefactor[0],SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
             
