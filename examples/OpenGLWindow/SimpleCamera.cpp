@@ -71,6 +71,21 @@ void	SimpleCamera::setVRCamera(const float viewMat[16], const float projectionMa
 	}
 }
 
+bool	SimpleCamera::getVRCamera(float viewMat[16], float projectionMatrix[16])
+{
+	if (m_data->m_enableVR)
+	{
+		for (int i=0;i<16;i++)
+		{
+			viewMat[i] = m_data->m_viewMatrixVR[i];
+			projectionMatrix[i] = m_data->m_projectionMatrixVR[i];
+		}
+	}
+	return false;
+}
+
+
+
 void SimpleCamera::disableVRCamera()
 {
 	m_data->m_enableVR = false;

@@ -2431,6 +2431,56 @@ static PyObject* pybullet_getMatrixFromQuaterion(PyObject* self, PyObject* args)
 };
 
 
+static PyObject* pybullet_setVRCameraState(PyObject* self, PyObject* args, PyObject *keywds) 
+{
+	b3SharedMemoryCommandHandle commandHandle;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+	PyObject* rootPosObj=0;
+	PyObject* rootOrnObj=0;
+	int trackObjectUid=-2;
+	double rootPos[3];
+	double rootOrn[4];
+	
+	static char *kwlist[] = {"rootPosition", "rootOrientation", "trackObject", "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|OOii", kwlist,&rootPosObj, &rootOrnObj, &trackObjectUid,&physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	commandHandle = b3SetVRCameraStateCommandInit(sm);
+
+	if (pybullet_internalSetVectord(rootPosObj,rootPos))
+	{
+		b3SetVRCameraRootPosition(commandHandle,rootPos);
+	}
+	if (pybullet_internalSetVector4d(rootOrnObj,rootOrn))
+	{
+		b3SetVRCameraRootOrientation(commandHandle,rootOrn);
+	}
+
+	if (trackObjectUid>=-1)
+	{
+		b3SetVRCameraTrackingObject(commandHandle,trackObjectUid);
+	}
+
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	statusType = b3GetStatusType(statusHandle);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+
+}
+
+
 static PyObject* pybullet_getVREvents(PyObject* self, PyObject* args, PyObject *keywds) 
 {
 	b3SharedMemoryCommandHandle commandHandle;
@@ -3732,10 +3782,10 @@ static PyObject* pybullet_renderImageObsolete(PyObject* self, PyObject* args) {
 static PyObject* pybullet_applyExternalForce(PyObject* self, PyObject* args,PyObject* keywds) {
  
   {
-    int objectUniqueId, linkIndex, flags;
+    int objectUniqueId=-1, linkIndex=-1, flags;
     double force[3];
     double position[3] = {0.0, 0.0, 0.0};
-    PyObject* forceObj, *posObj;
+    PyObject* forceObj=0, *posObj=0;
 
     b3SharedMemoryCommandHandle command;
     b3SharedMemoryStatusHandle statusHandle;
@@ -4304,15 +4354,15 @@ static PyMethodDef SpamMethods[] = {
      "Set a single joint motor control mode and desired target value. There is "
      "no immediate state change, stepSimulation will process the motors."},
 
-    {"applyExternalForce",(PyCFunction) pybullet_applyExternalForce, METH_VARARGS,
+    {"applyExternalForce",(PyCFunction) pybullet_applyExternalForce, METH_VARARGS| METH_KEYWORDS,
      "for objectUniqueId, linkIndex (-1 for base/root link), apply a force "
      "[x,y,z] at the a position [x,y,z], flag to select FORCE_IN_LINK_FRAME or "
-     "FORCE_IN_WORLD_FRAME coordinates"},
+     "WORLD_FRAME coordinates"},
 
     {"applyExternalTorque", (PyCFunction)pybullet_applyExternalTorque, METH_VARARGS| METH_KEYWORDS,
      "for objectUniqueId, linkIndex (-1 for base/root link) apply a torque "
      "[x,y,z] in Cartesian coordinates, flag to select TORQUE_IN_LINK_FRAME or "
-     "TORQUE_IN_WORLD_FRAME coordinates"},
+     "WORLD_FRAME coordinates"},
 
     {"renderImage", pybullet_renderImageObsolete, METH_VARARGS,
      "obsolete, please use getCameraImage and getViewProjectionMatrices instead"
@@ -4420,6 +4470,11 @@ static PyMethodDef SpamMethods[] = {
 	{	"getVREvents", (PyCFunction)pybullet_getVREvents, METH_VARARGS | METH_KEYWORDS,
 		"Get Virtual Reality events, for example to track VR controllers position/buttons"
 	  },
+	{	"setVRCameraState", (PyCFunction)pybullet_setVRCameraState, METH_VARARGS | METH_KEYWORDS,
+		"Set properties of the VR Camera such as its root transform "
+		"for teleporting or to track objects (camera inside a vehicle for example)."
+	  },
+
 
 	{	"rayTest", (PyCFunction)pybullet_rayTest, METH_VARARGS | METH_KEYWORDS,
 				"Cast a ray and return the first object hit, if any. "
