@@ -46,6 +46,8 @@ enum EnumSharedMemoryClientCommand
     CMD_SET_SHADOW,
 	CMD_USER_DEBUG_DRAW,
 	CMD_REQUEST_VR_EVENTS_DATA,
+	CMD_SET_VR_CAMERA_STATE,
+
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     

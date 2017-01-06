@@ -2191,3 +2191,54 @@ void b3GetVREventsData(b3PhysicsClientHandle physClient, struct b3VREventsData* 
 		cl->getCachedVREvents(vrEventsData);
 	}
 }
+
+b3SharedMemoryCommandHandle	b3SetVRCameraStateCommandInit(b3PhysicsClientHandle physClient)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+
+	command->m_type = CMD_SET_VR_CAMERA_STATE;
+	command->m_updateFlags = 0;
+
+	return (b3SharedMemoryCommandHandle)command;
+
+}
+
+int b3SetVRCameraRootPosition(b3SharedMemoryCommandHandle commandHandle, double rootPos[3])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_SET_VR_CAMERA_STATE);
+    command->m_updateFlags |= VR_CAMERA_ROOT_POSITION;
+	command->m_vrCameraStateArguments.m_rootPosition[0] = rootPos[0];
+	command->m_vrCameraStateArguments.m_rootPosition[1] = rootPos[1];
+	command->m_vrCameraStateArguments.m_rootPosition[2] = rootPos[2];
+	return 0;
+
+}
+
+int b3SetVRCameraRootOrientation(b3SharedMemoryCommandHandle commandHandle, double rootOrn[4])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_SET_VR_CAMERA_STATE);
+    command->m_updateFlags |= VR_CAMERA_ROOT_ORIENTATION;
+	command->m_vrCameraStateArguments.m_rootOrientation[0] = rootOrn[0];
+	command->m_vrCameraStateArguments.m_rootOrientation[1] = rootOrn[1];
+	command->m_vrCameraStateArguments.m_rootOrientation[2] = rootOrn[2];
+	return 0;
+}
+
+int b3SetVRCameraTrackingObject(b3SharedMemoryCommandHandle commandHandle, int objectUniqueId)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_SET_VR_CAMERA_STATE);
+    command->m_updateFlags |= VR_CAMERA_ROOT_TRACKING_OBJECT;
+	command->m_vrCameraStateArguments.m_trackingObjectUniqueId = objectUniqueId;
+	return 0;
+}
+

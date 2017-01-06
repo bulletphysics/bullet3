@@ -26,9 +26,14 @@
 
 //@todo(erwincoumans) those globals are hacks for a VR demo, move this to Python/pybullet!
 extern btVector3 gLastPickPos;
-btVector3 gVRTeleportPos1(0,0,0);
+
+btVector3 gVRTeleportPosLocal(0,0,0);
+btQuaternion gVRTeleportOrnLocal(0,0,0,1);
+
+extern btVector3 gVRTeleportPos1;
+extern btQuaternion gVRTeleportOrn;
 btScalar gVRTeleportRotZ = 0;
-btQuaternion gVRTeleportOrn(0, 0, 0,1);
+
 extern btVector3 gVRGripperPos;
 extern btQuaternion gVRGripperOrn;
 extern btVector3 gVRController2Pos;
@@ -57,9 +62,9 @@ static void saveCurrentSettingsVR()
 	FILE* f = fopen(startFileNameVR, "w");
 	if (f)
 	{
-		fprintf(f, "--camPosX= %f\n", gVRTeleportPos1[0]);
-		fprintf(f, "--camPosY= %f\n", gVRTeleportPos1[1]);
-		fprintf(f, "--camPosZ= %f\n", gVRTeleportPos1[2]);
+		fprintf(f, "--camPosX= %f\n", gVRTeleportPosLocal[0]);
+		fprintf(f, "--camPosY= %f\n", gVRTeleportPosLocal[1]);
+		fprintf(f, "--camPosZ= %f\n", gVRTeleportPosLocal[2]);
 		fprintf(f, "--camRotZ= %f\n", gVRTeleportRotZ);
 		fclose(f);
 	}
@@ -109,9 +114,9 @@ void midiCallback(double deltatime, std::vector< unsigned char > *message, void 
 			if (message->at(1) == 16)
 			{
 				gVRTeleportRotZ= getParamf(-3.1415, 3.1415, message->at(2));
-				gVRTeleportOrn = btQuaternion(btVector3(0, 0, 1), gVRTeleportRotZ);
+				gVRTeleportOrnLocal = btQuaternion(btVector3(0, 0, 1), gVRTeleportRotZ);
 				saveCurrentSettingsVR();
-//				b3Printf("gVRTeleportOrn rotZ = %f\n", gVRTeleportRotZ);
+//				b3Printf("gVRTeleportOrnLocal rotZ = %f\n", gVRTeleportRotZ);
 			}
 
 			if (message->at(1) == 32)
@@ -123,9 +128,9 @@ void midiCallback(double deltatime, std::vector< unsigned char > *message, void 
 			{
 				if (message->at(1) == i)
 				{
-					gVRTeleportPos1[i] = getParamf(-2, 2, message->at(2));
+					gVRTeleportPosLocal[i] = getParamf(-2, 2, message->at(2));
 					saveCurrentSettingsVR();
-//					b3Printf("gVRTeleportPos[%d] =  %f\n", i,gVRTeleportPos1[i]);
+//					b3Printf("gVRTeleportPos[%d] =  %f\n", i,gVRTeleportPosLocal[i]);
 
 				}
 			}
@@ -1040,19 +1045,19 @@ public:
 			setSharedMemoryKey(shmemKey);
 		}
 
-		if (args.GetCmdLineArgument("camPosX", gVRTeleportPos1[0]))
+		if (args.GetCmdLineArgument("camPosX", gVRTeleportPosLocal[0]))
 		{
-			printf("camPosX=%f\n", gVRTeleportPos1[0]);
+			printf("camPosX=%f\n", gVRTeleportPosLocal[0]);
 		}
 
-		if (args.GetCmdLineArgument("camPosY", gVRTeleportPos1[1]))
+		if (args.GetCmdLineArgument("camPosY", gVRTeleportPosLocal[1]))
 		{
-			printf("camPosY=%f\n", gVRTeleportPos1[1]);
+			printf("camPosY=%f\n", gVRTeleportPosLocal[1]);
 		}
 
-		if (args.GetCmdLineArgument("camPosZ", gVRTeleportPos1[2]))
+		if (args.GetCmdLineArgument("camPosZ", gVRTeleportPosLocal[2]))
 		{
-			printf("camPosZ=%f\n", gVRTeleportPos1[2]);
+			printf("camPosZ=%f\n", gVRTeleportPosLocal[2]);
 		}
 
 		float camRotZ = 0.f;
@@ -1060,7 +1065,7 @@ public:
 		{
 			printf("camRotZ = %f\n", camRotZ);
 			btQuaternion ornZ(btVector3(0, 0, 1), camRotZ);
-			gVRTeleportOrn = ornZ;
+			gVRTeleportOrnLocal = ornZ;
 		}
 
 		if (args.CheckCmdLineFlag("robotassets"))
@@ -1474,8 +1479,8 @@ extern int gDroppedSimulationSteps;
 extern int gNumSteps;
 extern double gDtInSec;
 extern double gSubStep;
-extern int gHuskyId;
-extern btTransform huskyTr;
+extern int gVRTrackingObjectUniqueId;
+extern btTransform gVRTrackingObjectTr;
 
   struct LineSegment
                 {
@@ -1607,15 +1612,22 @@ void PhysicsServerExample::drawUserDebugLines()
 
 void PhysicsServerExample::renderScene()
 {
+	btTransform vrTrans;
+	gVRTeleportPos1 = gVRTeleportPosLocal;
+	gVRTeleportOrn = gVRTeleportOrnLocal;
 
-#if 0
 	///little VR test to follow/drive Husky vehicle
-	if (gHuskyId >= 0)
+	if (gVRTrackingObjectUniqueId >= 0)
 	{
-		gVRTeleportPos1 = huskyTr.getOrigin();
-		gVRTeleportOrn = huskyTr.getRotation();
+		btTransform vrTrans;
+		vrTrans.setOrigin(gVRTeleportPosLocal);
+		vrTrans.setRotation(gVRTeleportOrnLocal);
+			
+		vrTrans = vrTrans * gVRTrackingObjectTr;
+
+		gVRTeleportPos1 = vrTrans.getOrigin();
+		gVRTeleportOrn = vrTrans.getRotation();
 	}
-#endif
 		
 
 	B3_PROFILE("PhysicsServerExample::RenderScene");

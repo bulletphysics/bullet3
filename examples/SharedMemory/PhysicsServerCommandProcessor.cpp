@@ -44,11 +44,14 @@ bool gEnableRealTimeSimVR=false;
 bool gCreateDefaultRobotAssets = false;
 int gInternalSimFlags = 0;
 bool gResetSimulation = 0;
-int gHuskyId = -1;
-btTransform huskyTr = btTransform::getIdentity();
+int gVRTrackingObjectUniqueId = -1;
+btTransform gVRTrackingObjectTr = btTransform::getIdentity();
 
 int gCreateObjectSimVR = -1;
 int gEnableKukaControl = 0;
+btVector3 gVRTeleportPos1(0,0,0);
+btQuaternion gVRTeleportOrn(0, 0, 0,1);
+
 
 btScalar simTimeScalingFactor = 1;
 btScalar gRhsClamp = 1.f;
@@ -1369,6 +1372,32 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 				}
 #endif
 
+				case CMD_SET_VR_CAMERA_STATE:
+				{
+
+					if (clientCmd.m_updateFlags & 	VR_CAMERA_ROOT_POSITION)
+					{
+						gVRTeleportPos1[0] = clientCmd.m_vrCameraStateArguments.m_rootPosition[0];
+						gVRTeleportPos1[1] = clientCmd.m_vrCameraStateArguments.m_rootPosition[1];
+						gVRTeleportPos1[2] = clientCmd.m_vrCameraStateArguments.m_rootPosition[2];
+					}
+					if (clientCmd.m_updateFlags & VR_CAMERA_ROOT_ORIENTATION)
+					{
+						gVRTeleportOrn[0] = clientCmd.m_vrCameraStateArguments.m_rootOrientation[0];
+						gVRTeleportOrn[1] = clientCmd.m_vrCameraStateArguments.m_rootOrientation[1];
+						gVRTeleportOrn[2] = clientCmd.m_vrCameraStateArguments.m_rootOrientation[2];
+						gVRTeleportOrn[3] = clientCmd.m_vrCameraStateArguments.m_rootOrientation[3];
+					}
+
+					if (clientCmd.m_updateFlags & VR_CAMERA_ROOT_TRACKING_OBJECT)
+					{
+						gVRTrackingObjectUniqueId = clientCmd.m_vrCameraStateArguments.m_trackingObjectUniqueId;
+					}
+
+					serverStatusOut.m_type  = CMD_CLIENT_COMMAND_COMPLETED;
+					hasStatus = true;
+					break;
+				}
 				case CMD_REQUEST_VR_EVENTS_DATA:
 				{
 					serverStatusOut.m_sendVREvents.m_numVRControllerEvents = 0;
@@ -4287,12 +4316,12 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const
 			gSubStep = m_data->m_physicsDeltaTime;
 		}
 		
-		if (gHuskyId >= 0)
+		if (gVRTrackingObjectUniqueId >= 0)
 		{
-			InternalBodyHandle* bodyHandle = m_data->getHandle(gHuskyId);
+			InternalBodyHandle* bodyHandle = m_data->getHandle(gVRTrackingObjectUniqueId);
 			if (bodyHandle && bodyHandle->m_multiBody)
 			{
-				huskyTr = bodyHandle->m_multiBody->getBaseWorldTransform();
+				gVRTrackingObjectTr  = bodyHandle->m_multiBody->getBaseWorldTransform();
 			}
 		}
 
@@ -4595,8 +4624,6 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 		//loadUrdf("knight.urdf", btVector3(-1.2, 0.2, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 
 		loadUrdf("husky/husky.urdf", btVector3(2, -5, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		gHuskyId = bodyId;
-		b3Printf("huskyId = %d", gHuskyId);
 		m_data->m_huskyId = bodyId;
 
 		m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, -10));
