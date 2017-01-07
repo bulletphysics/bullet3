@@ -749,7 +749,7 @@ void CommonRigidBodyMTBase::createEmptyDynamicsWorld()
 #if USE_PARALLEL_ISLAND_SOLVER
         {
             btConstraintSolver* solvers[ BT_MAX_THREAD_COUNT ];
-            int maxThreadCount = min( BT_MAX_THREAD_COUNT, TaskManager::getMaxNumThreads() );
+            int maxThreadCount = btMin( int(BT_MAX_THREAD_COUNT), TaskManager::getMaxNumThreads() );
             for ( int i = 0; i < maxThreadCount; ++i )
             {
                 solvers[ i ] = createSolverByType( m_solverType );
