@@ -45,7 +45,7 @@ public:
 	
 	CProfileIterator* profIter;
 
-	class MyMenuItems* m_menuItems;
+	class MyMenuItems3* m_menuItems;
 	MyProfileWindow (	Gwen::Controls::Base* pParent)
     : Gwen::Controls::WindowControl( pParent ),
 	profIter(0)
@@ -247,16 +247,17 @@ public:
 	
 };
 
-class MyMenuItems :  public Gwen::Controls::Base
+class MyMenuItems3 :  public Gwen::Controls::Base
 {
 	
 public:
 	
 	class MyProfileWindow* m_profWindow;
-    MyMenuItems() :Gwen::Controls::Base(0)
+    MyMenuItems3() :Gwen::Controls::Base(0)
     {
     }
-   
+    virtual ~MyMenuItems3() {}
+ 
     void MenuItemSelect(Gwen::Controls::Base* pControl)
     {
 		if (m_profWindow->Hidden())
@@ -273,14 +274,14 @@ public:
 
 MyProfileWindow* setupProfileWindow(GwenInternalData* data)
 {
-	MyMenuItems* menuItems = new MyMenuItems;
+	MyMenuItems3* menuItems = new MyMenuItems3;
 	
 	MyProfileWindow* profWindow = new MyProfileWindow(data->pCanvas);
 	//profWindow->SetHidden(true);	
 	
 	profWindow->m_menuItems = menuItems;
 	profWindow->profIter = CProfileManager::Get_Iterator();
-	data->m_viewMenu->GetMenu()->AddItem( L"Profiler", menuItems,(Gwen::Event::Handler::Function)&MyMenuItems::MenuItemSelect);
+	data->m_viewMenu->GetMenu()->AddItem( L"Profiler", menuItems,(Gwen::Event::Handler::Function)&MyMenuItems3::MenuItemSelect);
 	
 	menuItems->m_profWindow = profWindow;
 	
