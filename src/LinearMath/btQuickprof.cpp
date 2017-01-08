@@ -466,11 +466,10 @@ void	CProfileIterator::Enter_Parent( void )
 **
 ***************************************************************************************************/
 
-#include "btThreads.h"
 
 
 
-CProfileNode	gRoots[BT_MAX_THREAD_COUNT]={
+CProfileNode	gRoots[BT_QUICKPROF_MAX_THREAD_COUNT]={
 	CProfileNode("Root",NULL),CProfileNode("Root",NULL),CProfileNode("Root",NULL),CProfileNode("Root",NULL),
 	CProfileNode("Root",NULL),CProfileNode("Root",NULL),CProfileNode("Root",NULL),CProfileNode("Root",NULL),
 	CProfileNode("Root",NULL),CProfileNode("Root",NULL),CProfileNode("Root",NULL),CProfileNode("Root",NULL),
@@ -490,7 +489,7 @@ CProfileNode	gRoots[BT_MAX_THREAD_COUNT]={
 };
 
 
-CProfileNode* gCurrentNodes[BT_MAX_THREAD_COUNT]=
+CProfileNode* gCurrentNodes[BT_QUICKPROF_MAX_THREAD_COUNT]=
 {
 	&gRoots[ 0],	&gRoots[ 1],	&gRoots[ 2],	&gRoots[ 3],
 	&gRoots[ 4],	&gRoots[ 5],	&gRoots[ 6],	&gRoots[ 7],
@@ -517,13 +516,16 @@ unsigned long int			CProfileManager::ResetTime = 0;
 CProfileIterator *	CProfileManager::Get_Iterator( void )
 { 
 
-		int threadIndex = btGetCurrentThreadIndex();
+		int threadIndex = btQuickprofGetCurrentThreadIndex2();
+		if (threadIndex<0)
+			return 0;
+
 		return new CProfileIterator( &gRoots[threadIndex]); 
 }
 
 void						CProfileManager::CleanupMemory(void)
 {
-	for (int i=0;i<BT_MAX_THREAD_COUNT;i++)
+	for (int i=0;i<BT_QUICKPROF_MAX_THREAD_COUNT;i++)
 	{
 		gRoots[i].CleanupMemory();
 	}
@@ -545,7 +547,10 @@ void						CProfileManager::CleanupMemory(void)
  *=============================================================================================*/
 void	CProfileManager::Start_Profile( const char * name )
 {
-	int threadIndex = btGetCurrentThreadIndex();
+	int threadIndex = btQuickprofGetCurrentThreadIndex2();
+	if (threadIndex<0)
+		return;
+
 	if (name != gCurrentNodes[threadIndex]->Get_Name()) {
 		gCurrentNodes[threadIndex] = gCurrentNodes[threadIndex]->Get_Sub_Node( name );
 	}
@@ -559,7 +564,10 @@ void	CProfileManager::Start_Profile( const char * name )
  *=============================================================================================*/
 void	CProfileManager::Stop_Profile( void )
 {
-	int threadIndex = btGetCurrentThreadIndex();
+	int threadIndex = btQuickprofGetCurrentThreadIndex2();
+	if (threadIndex<0)
+		return;
+
 	// Return will indicate whether we should back up to our parent (we may
 	// be profiling a recursive function)
 	if (gCurrentNodes[threadIndex]->Return()) {
@@ -568,14 +576,7 @@ void	CProfileManager::Stop_Profile( void )
 }
 
 
-void	btEnterProfileZoneDefault(const char* name)
-{
-	CProfileManager::Start_Profile( name ); 
-}
-void	btLeaveProfileZoneDefault()
-{
-	CProfileManager::Stop_Profile(); 
-}
+
 
 
 
@@ -587,8 +588,11 @@ void	btLeaveProfileZoneDefault()
 void	CProfileManager::Reset( void )
 {
 	gProfileClock.reset();
-	gRoots[btGetCurrentThreadIndex()].Reset();
-	gRoots[btGetCurrentThreadIndex()].Call();
+	int threadIndex = btQuickprofGetCurrentThreadIndex2();
+	if (threadIndex<0)
+		return;
+	gRoots[threadIndex].Reset();
+	gRoots[threadIndex].Call();
 	FrameCounter = 0;
 	Profile_Get_Ticks(&ResetTime);
 }
@@ -676,16 +680,61 @@ void	CProfileManager::dumpAll()
 }
 
 
-#else
 
+
+unsigned int btQuickprofGetCurrentThreadIndex2()
+{
+	const unsigned int kNullIndex = ~0U;
+#ifdef _WIN32
+	__declspec( thread ) static unsigned int sThreadIndex = kNullIndex;
+#else
+#ifdef __APPLE__
+	#if TARGET_OS_IPHONE
+		unsigned int sThreadIndex = 0;
+		return -1;
+	#else
+		static __thread unsigned int sThreadIndex = kNullIndex;
+	#endif
+#else//__APPLE__
+#if __linux__
+	static __thread unsigned int sThreadIndex = kNullIndex;
+#else
+	unsigned int sThreadIndex = 0;
+	return -1;
+#endif
+#endif//__APPLE__
+	
+#endif
+	static int gThreadCounter=0;
+
+	if ( sThreadIndex == kNullIndex )
+	{
+		sThreadIndex = gThreadCounter++;
+	}
+	return sThreadIndex;
+}
+
+void	btEnterProfileZoneDefault(const char* name)
+{
+	CProfileManager::Start_Profile( name ); 
+}
+void	btLeaveProfileZoneDefault()
+{
+	CProfileManager::Stop_Profile(); 
+}
+
+
+#else
 void	btEnterProfileZoneDefault(const char* name)
 {
 }
 void	btLeaveProfileZoneDefault()
 {
 }
-
 #endif //BT_NO_PROFILE
+
+
+
 
 
 static btEnterProfileZoneFunc* bts_enterFunc = btEnterProfileZoneDefault;

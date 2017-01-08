@@ -272,9 +272,9 @@ struct MotionThreadLocalStorage
 	int threadId;
 };
 
-int skip = 0;
-int skip1 = 0;
+
 float clampedDeltaTime  = 0.2;
+
 
 void	MotionThreadFunc(void* userPtr,void* lsMemory)
 {
@@ -299,24 +299,19 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 		do
 		{
 			BT_PROFILE("loop");
-			deltaTimeInSeconds+= double(clock.getTimeMicroseconds())/1000000.;
+			
+			{
+				BT_PROFILE("Sleep(0)");
+				b3Clock::usleep(0);
+			}
+			double dt = double(clock.getTimeMicroseconds())/1000000.;
+
+			deltaTimeInSeconds+= dt;
+		
 			clock.reset();
 
-			if (deltaTimeInSeconds<(1./5000.))
+			
 			{
-
-				skip++;
-				skip1++;
-				//if (skip1>105)
-				if (skip1>5)
-				{
-					BT_PROFILE("b3Clock::usleep(250)");
-					b3Clock::usleep(250);
-					skip1 = 0;
-				}
-			} else
-			{
-				skip1=0;
 				
 				//process special controller commands, such as
 				//VR controller button press/release and controller motion
@@ -450,9 +445,6 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 	}
 
 
-	printf("finished, #skip = %d, skip1 = %d\n",skip,skip1);
-	skip=0;
-	skip1=0;
 	//do nothing
 
 }

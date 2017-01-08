@@ -293,8 +293,10 @@ void	processProfileData( MyProfileWindow* profWindow, bool idle)
 {
 	if (profWindow)
 	{
-		
-		profWindow->UpdateText(profWindow->profIter, idle);
+		if (profWindow->profIter)
+		{
+			profWindow->UpdateText(profWindow->profIter, idle);
+		}
 	}	
 }
 

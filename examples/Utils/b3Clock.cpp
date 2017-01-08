@@ -187,12 +187,16 @@ double b3Clock::getTimeInSeconds()
 void b3Clock::usleep(int microSeconds)
 {
 #ifdef _WIN32
-	int millis = microSeconds/1000;
-	if (millis < 1)
+	if (microSeconds==0)
 	{
-		millis = 1;
+		Sleep(0);
+	} else
+	{
+		int millis = microSeconds/1000;
+		if (millis<1)
+			millis=1;
+		Sleep(millis);
 	}
-	Sleep(millis);
 #else
 
     ::usleep(microSeconds); 
