@@ -274,6 +274,7 @@ struct MotionThreadLocalStorage
 
 
 float clampedDeltaTime  = 0.2;
+float sleepTimeThreshold = 8./1000.;
 
 
 void	MotionThreadFunc(void* userPtr,void* lsMemory)
@@ -295,17 +296,25 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 
 
 		double deltaTimeInSeconds = 0;
+		double sleepCounter = 0;
 
 		do
 		{
 			BT_PROFILE("loop");
 			
 			{
-				BT_PROFILE("Sleep(0)");
+				BT_PROFILE("usleep(0)");
 				b3Clock::usleep(0);
 			}
 			double dt = double(clock.getTimeMicroseconds())/1000000.;
+			sleepCounter+=dt;
 
+			if (sleepCounter > sleepTimeThreshold)
+			{
+				BT_PROFILE("usleep(100)");
+				sleepCounter = 0;
+				b3Clock::usleep(100);
+			}
 			deltaTimeInSeconds+= dt;
 		
 			clock.reset();
