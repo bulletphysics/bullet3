@@ -51,13 +51,14 @@ public:
     virtual void convertLinkVisualShapes2(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame, class btCollisionObject* colObj, int objectIndex) const  { }
     virtual void setBodyUniqueId(int bodyId) {}
     virtual int getBodyUniqueId() const { return 0;}
-    
+
+   //default implementation for backward compatibility 
 	virtual class btCompoundShape* convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const  = 0;
 
-	virtual int getNumAllocatedCollisionShapes() const = 0;
-    virtual class btCollisionShape* getAllocatedCollisionShape(int index) = 0;
-	virtual int getNumModels() const=0;
-    virtual void activateModel(int modelIndex)=0;
+	virtual int getNumAllocatedCollisionShapes() const { return 0;}
+    virtual class btCollisionShape* getAllocatedCollisionShape(int /*index*/ ) {return 0;}
+	virtual int getNumModels() const {return 0;}
+    virtual void activateModel(int /*modelIndex*/) { }
 
 };
 

@@ -255,6 +255,7 @@ void	ExampleBrowserThreadFunc(void* userPtr,void* lsMemory)
 
 		do
 		{
+			B3_PROFILE("ExampleBrowserThreadFunc");
 			float deltaTimeInSeconds = clock.getTimeMicroseconds()/1000000.f;
 			{
 				if (deltaTimeInSeconds > 0.1)
@@ -263,9 +264,11 @@ void	ExampleBrowserThreadFunc(void* userPtr,void* lsMemory)
 				}
 				if (deltaTimeInSeconds < (gMinUpdateTimeMicroSecs/1e6))
 				{
+					B3_PROFILE("clock.usleep");
 					clock.usleep(gMinUpdateTimeMicroSecs/10.);
 				} else
 				{
+					B3_PROFILE("exampleBrowser->update");
 					clock.reset();
 					exampleBrowser->update(deltaTimeInSeconds);
 				}

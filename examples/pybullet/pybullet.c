@@ -1083,8 +1083,8 @@ b3PhysicsClientHandle sm = 0;
     Py_INCREF(Py_None);
     return Py_None;
   }
-  PyErr_SetString(SpamError, "Error parsing arguments in setJointControl.");
-  return NULL;
+//  PyErr_SetString(SpamError, "Error parsing arguments in setJointControl.");
+//  return NULL;
 }
 
 static PyObject* pybullet_setRealTimeSimulation(PyObject* self,
