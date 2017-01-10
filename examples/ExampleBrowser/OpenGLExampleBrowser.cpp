@@ -379,6 +379,7 @@ void deleteDemo()
 		sCurrentDemo=0;
 		delete s_guiHelper;
 		s_guiHelper = 0;
+
 //		CProfileManager::CleanupMemory();
 	}
 }
@@ -1014,8 +1015,14 @@ OpenGLExampleBrowser::~OpenGLExampleBrowser()
 	delete s_app->m_2dCanvasInterface;
 	s_app->m_2dCanvasInterface = 0;
 
+#ifndef BT_NO_PROFILE
+	destroyProfileWindow(m_internalData->m_profWindow);
+#endif
+
 	m_internalData->m_gui->exit();
 	
+
+
 
 	delete m_internalData->m_gui;
 	delete m_internalData->m_gwenRenderer;
@@ -1029,13 +1036,15 @@ OpenGLExampleBrowser::~OpenGLExampleBrowser()
 	s_app = 0;
 	
 	
-	
-//	delete m_internalData->m_profWindow;
-	
+
+
+
 	delete m_internalData;
     
 	gFileImporterByExtension.clear();
 	gAllExamples = 0;
+
+	
 }
 
 

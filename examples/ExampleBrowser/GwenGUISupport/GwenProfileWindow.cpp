@@ -312,7 +312,10 @@ void profileWindowSetVisible(MyProfileWindow* window, bool visible)
 void destroyProfileWindow(MyProfileWindow* window)
 {
 	CProfileManager::Release_Iterator(window->profIter);
+	delete window->m_menuItems;
 	delete window;
+	CProfileManager::CleanupMemory();
+
 }
 
 #endif //BT_NO_PROFILE

@@ -9,7 +9,7 @@
 
 
 PhysicsClientSharedMemory2::PhysicsClientSharedMemory2(SharedMemoryCommandProcessor* proc)
-	:PhysicsDirect(proc)
+	:PhysicsDirect(proc,false)
 {
 	m_proc = proc;
 }

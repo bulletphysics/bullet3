@@ -779,6 +779,7 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 
 	for (int i=0;i<m_data->m_worldImporters.size();i++)
 	{
+		m_data->m_worldImporters[i]->deleteAllData();
 		delete m_data->m_worldImporters[i];
 	}
 	m_data->m_worldImporters.clear();

@@ -573,7 +573,7 @@ public:
 
 	virtual ~MultiThreadedOpenGLGuiHelper()
 	{
-		delete m_childGuiHelper;
+		//delete m_childGuiHelper;
 	}
 
 	void setCriticalSection(b3CriticalSection* cs)
@@ -1152,9 +1152,12 @@ PhysicsServerExample::~PhysicsServerExample()
 #ifdef BT_ENABLE_VR
 	delete m_tinyVrGui;
 #endif
+
+
 	bool deInitializeSharedMemory = true;
 	m_physicsServer.disconnectSharedMemory(deInitializeSharedMemory);
     m_isConnected = false;
+	delete m_multiThreadedHelper;
 }
 
 bool PhysicsServerExample::isConnected()
@@ -1246,6 +1249,11 @@ void    PhysicsServerExample::exitPhysics()
                 };
 
 		printf("stopping threads\n");
+
+		m_threadSupport->deleteCriticalSection(m_args[0].m_cs);
+		m_threadSupport->deleteCriticalSection(m_args[0].m_cs2);
+		m_threadSupport->deleteCriticalSection(m_args[0].m_cs3);
+		m_threadSupport->deleteCriticalSection(m_args[0].m_csGUI);
 
 		delete m_threadSupport;   
 		m_threadSupport = 0;

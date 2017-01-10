@@ -311,6 +311,7 @@ void b3Win32ThreadSupport::stopThreads()
 			WaitForSingleObject(threadStatus.m_eventCompletetHandle, INFINITE);
 		}
 		
+		delete threadStatus.m_lsMemory;
 
 		threadStatus.m_userPtr = 0;
 		SetEvent(threadStatus.m_eventStartHandle);

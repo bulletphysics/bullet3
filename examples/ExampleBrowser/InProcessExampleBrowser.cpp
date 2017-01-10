@@ -389,6 +389,8 @@ void btShutDownExampleBrowser(btInProcessExampleBrowserInternalData* data)
                 };
 
 	printf("btShutDownExampleBrowser stopping threads\n");
+	data->m_threadSupport->deleteCriticalSection(data->m_args.m_cs);
+
 	delete data->m_threadSupport;
 	delete data->m_sharedMem;
 	delete data;

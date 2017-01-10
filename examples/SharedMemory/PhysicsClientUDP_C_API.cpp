@@ -10,7 +10,7 @@ b3PhysicsClientHandle b3ConnectPhysicsUDP(const char* hostName, int port)
 
 	UdpNetworkedPhysicsProcessor* udp = new UdpNetworkedPhysicsProcessor(hostName, port);
 
-	PhysicsDirect* direct = new PhysicsDirect(udp);
+	PhysicsDirect* direct = new PhysicsDirect(udp,true);
 
 	bool connected = direct->connect();
 	printf("direct!\n");
