@@ -2020,6 +2020,8 @@ static PyObject* pybullet_getLinkState(PyObject* self, PyObject* args,PyObject* 
   PyObject* pyLinkStateWorldOrientation;
   PyObject* pyLinkStateLocalInertialPosition;
   PyObject* pyLinkStateLocalInertialOrientation;
+  PyObject* pyLinkStateWorldLinkFramePosition;
+  PyObject* pyLinkStateWorldLinkFrameOrientation;
 
   struct b3LinkState linkState;
 
@@ -2094,11 +2096,26 @@ b3PhysicsClientHandle sm = 0;
                         PyFloat_FromDouble(linkState.m_localInertialOrientation[i]));
       }
 
-      pyLinkState = PyTuple_New(4);
+	pyLinkStateWorldLinkFramePosition = PyTuple_New(3);
+      for (i = 0; i < 3; ++i) {
+        PyTuple_SetItem(pyLinkStateWorldLinkFramePosition , i,
+                        PyFloat_FromDouble(linkState.m_worldLinkFramePosition[i]));
+      }
+
+	pyLinkStateWorldLinkFrameOrientation = PyTuple_New(4);
+      for (i = 0; i < 4; ++i) {
+        PyTuple_SetItem(pyLinkStateWorldLinkFrameOrientation, i,
+                        PyFloat_FromDouble(linkState.m_worldLinkFrameOrientation[i]));
+      }
+
+
+      pyLinkState = PyTuple_New(6);
       PyTuple_SetItem(pyLinkState, 0, pyLinkStateWorldPosition);
       PyTuple_SetItem(pyLinkState, 1, pyLinkStateWorldOrientation);
       PyTuple_SetItem(pyLinkState, 2, pyLinkStateLocalInertialPosition);
       PyTuple_SetItem(pyLinkState, 3, pyLinkStateLocalInertialOrientation);
+      PyTuple_SetItem(pyLinkState, 4, pyLinkStateWorldLinkFramePosition );
+      PyTuple_SetItem(pyLinkState, 5, pyLinkStateWorldLinkFrameOrientation);
 
       return pyLinkState;
     }
@@ -3010,6 +3027,51 @@ static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, Py
   Py_INCREF(Py_None);
   return Py_None;
 }
+
+
+static PyObject* pybullet_changeUserConstraint(PyObject* self, PyObject* args, PyObject *keywds) 
+{
+	static char *kwlist[] = { "userConstraintUniqueId","jointChildPivot", "jointChildFrameOrientation", "physicsClientId", NULL};
+	int userConstraintUniqueId=-1;
+	b3SharedMemoryCommandHandle commandHandle;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+	PyObject* jointChildPivotObj=0;
+	PyObject* jointChildFrameOrnObj=0;
+	double jointChildPivot[3];
+	double jointChildFrameOrn[4];
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|OOi", kwlist,&userConstraintUniqueId,&jointChildPivotObj, &jointChildFrameOrnObj,&physicsClientId))
+	{
+		return NULL;
+	}
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	commandHandle = b3InitChangeUserConstraintCommand(sm,userConstraintUniqueId);
+
+	if (pybullet_internalSetVectord(jointChildPivotObj,jointChildPivot))
+	{
+		b3InitChangeUserConstraintSetPivotInB(commandHandle, jointChildPivot);
+	}
+	if (pybullet_internalSetVector4d(jointChildFrameOrnObj,jointChildFrameOrn))
+	{
+		b3InitChangeUserConstraintSetFrameInB(commandHandle, jointChildFrameOrn);
+	}
+
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	statusType = b3GetStatusType(statusHandle);
+	Py_INCREF(Py_None);
+	return Py_None;
+};
+
 
 static PyObject* pybullet_removeUserConstraint(PyObject* self, PyObject* args, PyObject *keywds) 
 {
@@ -4048,13 +4110,18 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
         int bodyIndex;
 		int endEffectorLinkIndex;
 		
-        PyObject* targetPosObj;
-		PyObject* targetOrnObj;
+        PyObject* targetPosObj=0;
+		PyObject* targetOrnObj=0;
 
 		int physicsClientId = 0;
 		b3PhysicsClientHandle sm = 0;
-	static char *kwlist[] = { "bodyIndex", "endEffectorLinkIndex", "targetPosition", "targetOrientation","physicsClientId", NULL };
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiOO|i", kwlist,  &bodyIndex, &endEffectorLinkIndex, &targetPosObj,&targetOrnObj,&physicsClientId))
+		PyObject* lowerLimitsObj = 0;
+		PyObject* upperLimitsObj = 0;
+		PyObject* jointRangesObj = 0;
+		PyObject* restPosesObj = 0;
+
+	static char *kwlist[] = { "bodyIndex", "endEffectorLinkIndex", "targetPosition", "targetOrientation","lowerLimits", "upperLimits", "jointRanges", "restPoses", "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiO|OOOOOi", kwlist,  &bodyIndex, &endEffectorLinkIndex, &targetPosObj,&targetOrnObj,&lowerLimitsObj, &upperLimitsObj, &jointRangesObj, &restPosesObj, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -4067,8 +4134,49 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 	{
 		double pos[3];
 		double ori[4]={0,1.0,0,0};
-            
-		if (pybullet_internalSetVectord(targetPosObj,pos) && pybullet_internalSetVector4d(targetOrnObj,ori))
+        int hasPos =pybullet_internalSetVectord(targetPosObj,pos);
+		int hasOrn = pybullet_internalSetVector4d(targetOrnObj,ori);
+
+		int szLowerLimits = lowerLimitsObj ? PySequence_Size(lowerLimitsObj) : 0;
+		int szUpperLimits = upperLimitsObj? PySequence_Size(upperLimitsObj): 0;
+		int szJointRanges = jointRangesObj? PySequence_Size(jointRangesObj):0;
+		int szRestPoses = restPosesObj? PySequence_Size(restPosesObj):0;
+
+		int numJoints = b3GetNumJoints(sm, bodyIndex);
+
+
+		int hasNullSpace = 0;
+		double* lowerLimits = 0;
+		double* upperLimits = 0;
+		double* jointRanges = 0;
+		double* restPoses = 0;
+		
+		if (numJoints && (szLowerLimits == numJoints) && (szUpperLimits == numJoints) &&
+          (szJointRanges == numJoints) && (szRestPoses == numJoints)) 
+		{
+			int szInBytes = sizeof(double) * numJoints;
+			int i;
+			PyObject* pylist = 0;
+			lowerLimits = (double*)malloc(szInBytes);
+			upperLimits = (double*)malloc(szInBytes);
+			jointRanges = (double*)malloc(szInBytes);
+			restPoses = (double*)malloc(szInBytes);
+
+			for (i = 0; i < numJoints; i++) 
+			{
+			  lowerLimits[i] =
+				  pybullet_internalGetFloatFromSequence(lowerLimitsObj, i);
+			  upperLimits[i] =
+				  pybullet_internalGetFloatFromSequence(upperLimitsObj, i);
+			  jointRanges[i] =
+				  pybullet_internalGetFloatFromSequence(jointRangesObj, i);
+			restPoses[i] =
+				pybullet_internalGetFloatFromSequence(restPosesObj, i);
+			}
+			hasNullSpace = 1;
+		}
+
+		if (hasPos)
 		{
 			b3SharedMemoryStatusHandle statusHandle;
 			int numPos=0;
@@ -4076,7 +4184,27 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 			int result;
 
 			b3SharedMemoryCommandHandle command = b3CalculateInverseKinematicsCommandInit(sm,bodyIndex);
-			b3CalculateInverseKinematicsAddTargetPositionWithOrientation(command,6,pos,ori);
+
+			if (hasNullSpace)
+			{
+				if (hasOrn)
+				{
+					b3CalculateInverseKinematicsPosOrnWithNullSpaceVel(command, numJoints, endEffectorLinkIndex, pos, ori, lowerLimits, upperLimits, jointRanges, restPoses);
+				} else
+				{
+					b3CalculateInverseKinematicsPosWithNullSpaceVel(command,numJoints, endEffectorLinkIndex, pos, lowerLimits, upperLimits, jointRanges, restPoses);
+				}
+			} else
+			{
+				if (hasOrn)
+				{
+					b3CalculateInverseKinematicsAddTargetPositionWithOrientation(command,endEffectorLinkIndex,pos,ori);
+				} else
+				{
+					b3CalculateInverseKinematicsAddTargetPurePosition(command,endEffectorLinkIndex,pos);
+				}
+			}
+
 			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
                 
 			result = b3GetStatusInverseKinematicsJointPositions(statusHandle,
@@ -4288,6 +4416,11 @@ static PyMethodDef SpamMethods[] = {
 	  {"createConstraint", (PyCFunction)pybullet_createUserConstraint, METH_VARARGS | METH_KEYWORDS,
 	"Create a constraint between two bodies. Returns a (int) unique id, if successfull."
      },
+
+	{"changeConstraint", (PyCFunction)pybullet_changeUserConstraint, METH_VARARGS | METH_KEYWORDS,
+     "Change some parameters of an existing constraint, such as the child pivot or child frame orientation, using its unique id."
+     },
+
 
 	{"removeConstraint", (PyCFunction)pybullet_removeUserConstraint, METH_VARARGS | METH_KEYWORDS,
      "Remove a constraint using its unique id."

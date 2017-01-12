@@ -82,7 +82,7 @@ public:
 		newargv[argc+1] = t1;
 		m_data = btCreateInProcessExampleBrowser(newargc,newargv);
 		SharedMemoryInterface* shMem = btGetSharedMemoryInterface(m_data);
-
+		free(newargv);
 		setSharedMemoryInterface(shMem);
 	}
 

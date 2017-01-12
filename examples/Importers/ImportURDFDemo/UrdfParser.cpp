@@ -18,6 +18,7 @@ UrdfParser::~UrdfParser()
     for (int i=0;i<m_tmpModels.size();i++)
     {
         cleanModel(m_tmpModels[i]);
+		delete m_tmpModels[i];
     }
     m_sdfModels.clear();
     m_tmpModels.clear();
@@ -540,13 +541,14 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement*
         matPtr->m_name = "mat";
 		if (name_char)
 			matPtr->m_name = name_char;
+		model.m_materials.insert(matPtr->m_name.c_str(),matPtr);
         TiXmlElement *diffuse = mat->FirstChildElement("diffuse");
         if (diffuse) {
             std::string diffuseText = diffuse->GetText();
             btVector4 rgba(1,0,0,1);
             parseVector4(rgba,diffuseText);
             matPtr->m_rgbaColor = rgba;
-            model.m_materials.insert(matPtr->m_name.c_str(),matPtr);
+            
             visual.m_materialName = matPtr->m_name;
             visual.m_hasLocalMaterial = true;
         }

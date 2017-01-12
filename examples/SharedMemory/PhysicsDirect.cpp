@@ -62,11 +62,11 @@ struct PhysicsDirectInternalData
 	}
 };
 
-PhysicsDirect::PhysicsDirect(PhysicsCommandProcessorInterface* physSdk)
+PhysicsDirect::PhysicsDirect(PhysicsCommandProcessorInterface* physSdk, bool passSdkOwnership)
 {
 	m_data = new PhysicsDirectInternalData;
 	m_data->m_commandProcessor = physSdk;
-	m_data->m_ownsCommandProcessor = false;
+	m_data->m_ownsCommandProcessor = passSdkOwnership;
 }
 
 PhysicsDirect::~PhysicsDirect()
@@ -79,9 +79,40 @@ PhysicsDirect::~PhysicsDirect()
 	{
 		delete m_data->m_commandProcessor;
 	}
+
+	resetData();
+
+	
+
 	delete m_data;
 }
 
+void PhysicsDirect::resetData()
+{
+	m_data->m_debugLinesFrom.clear();
+	m_data->m_debugLinesTo.clear();
+	m_data->m_debugLinesColor.clear();
+	for (int i = 0; i<m_data->m_bodyJointMap.size(); i++)
+	{
+		BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap.getAtIndex(i);
+		if (bodyJointsPtr && *bodyJointsPtr)
+		{
+			BodyJointInfoCache2* bodyJoints = *bodyJointsPtr;
+			for (int j = 0; j<bodyJoints->m_jointInfo.size(); j++) {
+				if (bodyJoints->m_jointInfo[j].m_jointName)
+				{
+					free(bodyJoints->m_jointInfo[j].m_jointName);
+				}
+				if (bodyJoints->m_jointInfo[j].m_linkName)
+				{
+					free(bodyJoints->m_jointInfo[j].m_linkName);
+				}
+			}
+			delete (*bodyJointsPtr);
+		}
+	}
+	m_data->m_bodyJointMap.clear();
+}
 
 // return true if connection succesfull, can also check 'isConnected'
 bool PhysicsDirect::connect()
@@ -525,6 +556,14 @@ bool PhysicsDirect::processCamera(const struct SharedMemoryCommand& orgCommand)
 
 void PhysicsDirect::processBodyJointInfo(int bodyUniqueId, const SharedMemoryStatus& serverCmd)
 {
+
+	BodyJointInfoCache2** cachePtr = m_data->m_bodyJointMap[bodyUniqueId];
+	//don't process same bodyUniqueId multiple times
+	if (cachePtr)
+	{
+		return;
+	}
+
     bParse::btBulletFile bf(
         &m_data->m_bulletStreamDataServerToClient[0],
         serverCmd.m_numDataStreamBytes);
@@ -627,30 +666,7 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 	}
 	case CMD_RESET_SIMULATION_COMPLETED:
 	{
-		m_data->m_debugLinesFrom.clear();
-		m_data->m_debugLinesTo.clear();
-		m_data->m_debugLinesColor.clear();
-		for (int i = 0; i<m_data->m_bodyJointMap.size(); i++)
-		{
-			BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap.getAtIndex(i);
-			if (bodyJointsPtr && *bodyJointsPtr)
-			{
-				BodyJointInfoCache2* bodyJoints = *bodyJointsPtr;
-				for (int j = 0; j<bodyJoints->m_jointInfo.size(); j++) {
-					if (bodyJoints->m_jointInfo[j].m_jointName)
-					{
-						free(bodyJoints->m_jointInfo[j].m_jointName);
-					}
-					if (bodyJoints->m_jointInfo[j].m_linkName)
-					{
-						free(bodyJoints->m_jointInfo[j].m_linkName);
-					}
-				}
-				delete (*bodyJointsPtr);
-			}
-		}
-		m_data->m_bodyJointMap.clear();
-
+		resetData();
 		break;
 	}
 

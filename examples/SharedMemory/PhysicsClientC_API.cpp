@@ -3,6 +3,7 @@
 #include "Bullet3Common/b3Scalar.h"
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Common/b3Matrix3x3.h"
+#include "Bullet3Common/b3Transform.h"
 
 #include <string.h>
 #include "SharedMemoryCommands.h"
@@ -534,6 +535,10 @@ void b3GetLinkState(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle
   b3Assert(bodyIndex>=0);
   if (bodyIndex>=0)
   {
+	  b3Transform wlf,com,inertial;
+	
+	  
+
     for (int i = 0; i < 3; ++i) 
     {
       state->m_worldPosition[i] = status->m_sendActualStateArgs.m_linkState[7 * linkIndex + i];
@@ -544,6 +549,20 @@ void b3GetLinkState(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle
       state->m_worldOrientation[i] = status->m_sendActualStateArgs.m_linkState[7 * linkIndex + 3 + i];
       state->m_localInertialOrientation[i] = status->m_sendActualStateArgs.m_linkLocalInertialFrames[7 * linkIndex + 3 + i];
     }
+	com.setOrigin(b3MakeVector3(state->m_worldPosition[0],state->m_worldPosition[1],state->m_worldPosition[2]));
+	com.setRotation(b3Quaternion(state->m_worldOrientation[0],state->m_worldOrientation[1],state->m_worldOrientation[2],state->m_worldOrientation[3]));
+	inertial.setOrigin(b3MakeVector3(state->m_localInertialPosition[0],state->m_localInertialPosition[1],state->m_localInertialPosition[2]));
+	inertial.setRotation(b3Quaternion(state->m_localInertialOrientation[0],state->m_localInertialOrientation[1],state->m_localInertialOrientation[2],state->m_localInertialOrientation[3]));
+	wlf = com*inertial.inverse();
+	for (int i = 0; i < 3; ++i) 
+    {
+		state->m_worldLinkFramePosition[i] = wlf.getOrigin()[i];
+	}
+	b3Quaternion wlfOrn = wlf.getRotation();
+	for (int i = 0; i < 4; ++i) 
+    {
+		state->m_worldLinkFrameOrientation[i] = wlfOrn[i];
+	}
   }
 }
 
@@ -1044,6 +1063,52 @@ b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3PhysicsClientHan
     command->m_userConstraintArguments.m_jointType = info->m_jointType;
     return (b3SharedMemoryCommandHandle)command;
 }
+
+b3SharedMemoryCommandHandle  b3InitChangeUserConstraintCommand(b3PhysicsClientHandle physClient, int userConstraintUniqueId)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type = CMD_USER_CONSTRAINT;
+	command->m_updateFlags = USER_CONSTRAINT_CHANGE_CONSTRAINT;
+	command->m_userConstraintArguments.m_userConstraintUniqueId = userConstraintUniqueId;
+	return (b3SharedMemoryCommandHandle)command;
+}
+
+int b3InitChangeUserConstraintSetPivotInB(b3SharedMemoryCommandHandle commandHandle, double pivotInB[3])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_USER_CONSTRAINT);
+
+	b3Assert(command->m_updateFlags & USER_CONSTRAINT_CHANGE_CONSTRAINT);
+
+	command->m_updateFlags |= USER_CONSTRAINT_CHANGE_PIVOT_IN_B;
+
+	command->m_userConstraintArguments.m_childFrame[0] = pivotInB[0];
+	command->m_userConstraintArguments.m_childFrame[1] = pivotInB[1];
+	command->m_userConstraintArguments.m_childFrame[2] = pivotInB[2];
+	return 0;
+}
+int b3InitChangeUserConstraintSetFrameInB(b3SharedMemoryCommandHandle commandHandle, double frameOrnInB[4])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_USER_CONSTRAINT);
+	b3Assert(command->m_updateFlags & USER_CONSTRAINT_CHANGE_CONSTRAINT);
+
+	command->m_updateFlags |= USER_CONSTRAINT_CHANGE_FRAME_ORN_IN_B;
+
+	command->m_userConstraintArguments.m_childFrame[3] = frameOrnInB[0];
+	command->m_userConstraintArguments.m_childFrame[4] = frameOrnInB[1];
+	command->m_userConstraintArguments.m_childFrame[5] = frameOrnInB[2];
+	command->m_userConstraintArguments.m_childFrame[6] = frameOrnInB[3];
+
+	return 0;
+}
+
 
 b3SharedMemoryCommandHandle  b3InitRemoveUserConstraintCommand(b3PhysicsClientHandle physClient, int userConstraintUniqueId)
 {

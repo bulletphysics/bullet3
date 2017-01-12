@@ -911,7 +911,7 @@ bool b3RobotSimAPI::connect(GUIHelperInterface* guiHelper)
 	else
 	{
 		PhysicsServerCommandProcessor* sdk = new PhysicsServerCommandProcessor;
-		m_data->m_clientServerDirect = new PhysicsDirect(sdk);
+		m_data->m_clientServerDirect = new PhysicsDirect(sdk,true);
 		bool connected = m_data->m_clientServerDirect->connect(guiHelper);
 		m_data->m_physicsClient = (b3PhysicsClientHandle)m_data->m_clientServerDirect;
 

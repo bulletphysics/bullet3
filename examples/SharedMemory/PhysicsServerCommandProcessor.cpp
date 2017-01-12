@@ -779,6 +779,7 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 
 	for (int i=0;i<m_data->m_worldImporters.size();i++)
 	{
+		m_data->m_worldImporters[i]->deleteAllData();
 		delete m_data->m_worldImporters[i];
 	}
 	m_data->m_worldImporters.clear();
@@ -3459,8 +3460,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						InteralBodyData* parentBody = m_data->getHandle(clientCmd.m_userConstraintArguments.m_parentBodyIndex);
 						if (parentBody && parentBody->m_multiBody)
 						{
-							InteralBodyData* childBody = m_data->getHandle(clientCmd.m_userConstraintArguments.m_childBodyIndex);
-							if (childBody)
+							InteralBodyData* childBody = clientCmd.m_userConstraintArguments.m_childBodyIndex>=0 ? m_data->getHandle(clientCmd.m_userConstraintArguments.m_childBodyIndex):0;
+							//also create a constraint with just a single multibody/rigid body without child
+							//if (childBody)
 							{
 								btVector3 pivotInParent(clientCmd.m_userConstraintArguments.m_parentFrame[0], clientCmd.m_userConstraintArguments.m_parentFrame[1], clientCmd.m_userConstraintArguments.m_parentFrame[2]);
 								btVector3 pivotInChild(clientCmd.m_userConstraintArguments.m_childFrame[0], clientCmd.m_userConstraintArguments.m_childFrame[1], clientCmd.m_userConstraintArguments.m_childFrame[2]);
@@ -3469,7 +3471,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								btVector3 jointAxis(clientCmd.m_userConstraintArguments.m_jointAxis[0], clientCmd.m_userConstraintArguments.m_jointAxis[1], clientCmd.m_userConstraintArguments.m_jointAxis[2]);
 								if (clientCmd.m_userConstraintArguments.m_jointType == eFixedType)
 								{
-									if (childBody->m_multiBody)
+									if (childBody && childBody->m_multiBody)
 									{
 										btMultiBodyFixedConstraint* multibodyFixed = new btMultiBodyFixedConstraint(parentBody->m_multiBody,clientCmd.m_userConstraintArguments.m_parentJointIndex,childBody->m_multiBody,clientCmd.m_userConstraintArguments.m_childJointIndex,pivotInParent,pivotInChild,frameInParent,frameInChild);
 										multibodyFixed->setMaxAppliedImpulse(500.0);
@@ -3484,7 +3486,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									}
 									else
 									{
-										btMultiBodyFixedConstraint* rigidbodyFixed = new btMultiBodyFixedConstraint(parentBody->m_multiBody,clientCmd.m_userConstraintArguments.m_parentJointIndex,childBody->m_rigidBody,pivotInParent,pivotInChild,frameInParent,frameInChild);
+										btRigidBody* rb = childBody? childBody->m_rigidBody : 0;
+										btMultiBodyFixedConstraint* rigidbodyFixed = new btMultiBodyFixedConstraint(parentBody->m_multiBody,clientCmd.m_userConstraintArguments.m_parentJointIndex,rb,pivotInParent,pivotInChild,frameInParent,frameInChild);
 										rigidbodyFixed->setMaxAppliedImpulse(500.0);
 										btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_data->m_dynamicsWorld;
 										world->addMultiBodyConstraint(rigidbodyFixed);
@@ -3499,7 +3502,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								}
 								else if (clientCmd.m_userConstraintArguments.m_jointType == ePrismaticType)
 								{
-									if (childBody->m_multiBody)
+									if (childBody &&  childBody->m_multiBody)
 									{
 										btMultiBodySliderConstraint* multibodySlider = new btMultiBodySliderConstraint(parentBody->m_multiBody,clientCmd.m_userConstraintArguments.m_parentJointIndex,childBody->m_multiBody,clientCmd.m_userConstraintArguments.m_childJointIndex,pivotInParent,pivotInChild,frameInParent,frameInChild,jointAxis);
 										multibodySlider->setMaxAppliedImpulse(500.0);
@@ -3513,7 +3516,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									}
 									else
 									{
-										btMultiBodySliderConstraint* rigidbodySlider = new btMultiBodySliderConstraint(parentBody->m_multiBody,clientCmd.m_userConstraintArguments.m_parentJointIndex,childBody->m_rigidBody,pivotInParent,pivotInChild,frameInParent,frameInChild,jointAxis);
+										btRigidBody* rb = childBody? childBody->m_rigidBody : 0;
+									
+										btMultiBodySliderConstraint* rigidbodySlider = new btMultiBodySliderConstraint(parentBody->m_multiBody,clientCmd.m_userConstraintArguments.m_parentJointIndex,rb,pivotInParent,pivotInChild,frameInParent,frameInChild,jointAxis);
 										rigidbodySlider->setMaxAppliedImpulse(500.0);
 										btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_data->m_dynamicsWorld;
 										world->addMultiBodyConstraint(rigidbodySlider);
@@ -3527,7 +3532,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								
 								} else if (clientCmd.m_userConstraintArguments.m_jointType == ePoint2PointType)
 								{
-									if (childBody->m_multiBody)
+									if (childBody && childBody->m_multiBody)
 									{
 										btMultiBodyPoint2Point* p2p = new btMultiBodyPoint2Point(parentBody->m_multiBody,clientCmd.m_userConstraintArguments.m_parentJointIndex,childBody->m_multiBody,clientCmd.m_userConstraintArguments.m_childJointIndex,pivotInParent,pivotInChild);
 										p2p->setMaxAppliedImpulse(500);
@@ -3541,7 +3546,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									}
 									else
 									{
-										btMultiBodyPoint2Point* p2p = new btMultiBodyPoint2Point(parentBody->m_multiBody,clientCmd.m_userConstraintArguments.m_parentJointIndex,childBody->m_rigidBody,pivotInParent,pivotInChild);
+										btRigidBody* rb = childBody? childBody->m_rigidBody : 0;
+									
+										btMultiBodyPoint2Point* p2p = new btMultiBodyPoint2Point(parentBody->m_multiBody,clientCmd.m_userConstraintArguments.m_parentJointIndex,rb,pivotInParent,pivotInChild);
 										p2p->setMaxAppliedImpulse(500);
 										btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*) m_data->m_dynamicsWorld;
 										world->addMultiBodyConstraint(p2p);
@@ -3563,6 +3570,41 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						}
 					}
 
+					if (clientCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_CONSTRAINT)
+					{
+						int userConstraintUidRemove = clientCmd.m_userConstraintArguments.m_userConstraintUniqueId;
+						InteralUserConstraintData* userConstraintPtr = m_data->m_userConstraints.find(userConstraintUidRemove);
+						if (userConstraintPtr)
+						{
+							if (userConstraintPtr->m_mbConstraint)
+							{
+								if (clientCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_PIVOT_IN_B)
+								{
+									btVector3 pivotInB(clientCmd.m_userConstraintArguments.m_childFrame[0],
+										clientCmd.m_userConstraintArguments.m_childFrame[1],
+										clientCmd.m_userConstraintArguments.m_childFrame[2]);
+
+									userConstraintPtr->m_mbConstraint->setPivotInB(pivotInB);
+								}
+								if (clientCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_FRAME_ORN_IN_B)
+								{
+									btQuaternion childFrameOrn(clientCmd.m_userConstraintArguments.m_childFrame[3],
+										clientCmd.m_userConstraintArguments.m_childFrame[4],
+										clientCmd.m_userConstraintArguments.m_childFrame[5],
+										clientCmd.m_userConstraintArguments.m_childFrame[6]);
+
+									btMatrix3x3 childFrameBasis(childFrameOrn);
+									userConstraintPtr->m_mbConstraint->setFrameInB(childFrameBasis);
+								}
+							}
+							if (userConstraintPtr->m_rbConstraint)
+							{
+
+							}
+							serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = -1;
+							serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
+						}
+					}
 					if (clientCmd.m_updateFlags & USER_CONSTRAINT_REMOVE_CONSTRAINT)
 					{
 						int userConstraintUidRemove = clientCmd.m_userConstraintArguments.m_userConstraintUniqueId;

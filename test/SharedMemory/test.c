@@ -1,3 +1,4 @@
+
 //#include "SharedMemoryCommands.h"
 #ifdef PHYSICS_SHARED_MEMORY
 #include "SharedMemory/PhysicsClientC_API.h"
@@ -244,6 +245,17 @@ void testSharedMemory(b3PhysicsClientHandle sm)
             }
         }
         
+		{
+			b3SharedMemoryCommandHandle command;
+			b3SharedMemoryStatusHandle statusHandle;
+            int width = 1024;
+			int height = 1024;
+
+			command = b3InitRequestCameraImage(sm);
+			
+			b3RequestCameraImageSetPixelResolution(command, width, height);
+			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+		}
         if (b3CanSubmitCommand(sm))
         {
             b3SharedMemoryStatusHandle state = b3SubmitClientCommandAndWaitStatus(sm, b3RequestActualStateCommandInit(sm,bodyIndex));

@@ -122,6 +122,7 @@ TinyRendererVisualShapeConverter::TinyRendererVisualShapeConverter()
 }
 TinyRendererVisualShapeConverter::~TinyRendererVisualShapeConverter()
 {
+	resetAll();
 	delete m_data;
 }
 	
@@ -972,6 +973,13 @@ void TinyRendererVisualShapeConverter::resetAll()
 		if (ptrptr && *ptrptr)
 		{
 			TinyRendererObjectArray* ptr = *ptrptr;
+			if (ptr)
+			{
+				for (int o=0;o<ptr->m_renderObjects.size();o++)
+				{
+					delete ptr->m_renderObjects[o];
+				}
+			}
 			delete ptr;
 		}
 	}

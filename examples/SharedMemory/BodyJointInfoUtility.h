@@ -34,6 +34,8 @@ template <typename T, typename U> void addJointInfoFromMultiBodyData(const T* mb
 	{
 		{
 			b3JointInfo info;
+			info.m_jointName = 0;
+			info.m_linkName = 0;
 			info.m_flags = 0;
 			info.m_jointIndex = link;
 			info.m_qIndex =

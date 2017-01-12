@@ -28,9 +28,10 @@ protected:
     
 	void postProcessStatus(const struct SharedMemoryStatus& serverCmd);
 
+	void resetData();
 public:
 
-	PhysicsDirect(class PhysicsCommandProcessorInterface* physSdk);
+	PhysicsDirect(class PhysicsCommandProcessorInterface* physSdk, bool passSdkOwnership);
     
     virtual ~PhysicsDirect();
 
