@@ -1246,6 +1246,9 @@ void    PhysicsServerExample::exitPhysics()
                         {
 							b3Clock::usleep(1000);
                         }
+						//we need to call 'stepSimulation' to make sure that
+						//other threads get out of blocking state (workerThreadWait)
+						stepSimulation(0);
                 };
 
 		printf("stopping threads\n");
