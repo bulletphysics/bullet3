@@ -70,10 +70,10 @@ struct GUIHelperInterface
 
 
 	
-	virtual int		addUserDebugText3D( const char* txt, const double posisionXYZ[3], const double	textColorRGB[3], double size, double lifeTime)=0;
-	virtual int		addUserDebugLine(const double	debugLineFromXYZ[3], const double	debugLineToXYZ[3], const double	debugLineColorRGB[3], double lineWidth, double lifeTime )=0;
-	virtual void	removeUserDebugItem( int debugItemUniqueId)=0;
-	virtual void	removeAllUserDebugItems( )=0;
+	virtual int		addUserDebugText3D( const char* txt, const double posisionXYZ[3], const double	textColorRGB[3], double size, double lifeTime){return -1;};
+	virtual int		addUserDebugLine(const double	debugLineFromXYZ[3], const double	debugLineToXYZ[3], const double	debugLineColorRGB[3], double lineWidth, double lifeTime ){return -1;};
+	virtual void	removeUserDebugItem( int debugItemUniqueId){};
+	virtual void	removeAllUserDebugItems( ){};
 
 };
 
