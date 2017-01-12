@@ -325,11 +325,16 @@ struct b3VisualShapeInformation
 ///use URDF link frame = link COM frame * inertiaFrame.inverse()
 struct b3LinkState
 {
+	//m_worldPosition and m_worldOrientation of the Center Of Mass (COM)
     double m_worldPosition[3];
     double m_worldOrientation[4];
 
     double m_localInertialPosition[3];
     double m_localInertialOrientation[4];
+
+	///world position and orientation of the (URDF) link frame
+	double m_worldLinkFramePosition[3];
+    double m_worldLinkFrameOrientation[4];
 };
 
 //todo: discuss and decide about control mode and combinations
