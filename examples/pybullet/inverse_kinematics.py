@@ -3,7 +3,7 @@ import time
 import math
 from datetime import datetime
 
-
+#clid = p.connect(p.SHARED_MEMORY)
 p.connect(p.GUI)
 p.loadURDF("plane.urdf",[0,0,-0.3])
 kukaId = p.loadURDF("kuka_iiwa/model.urdf",[0,0,0])
@@ -52,7 +52,7 @@ while 1:
 	if (useSimulation and useRealTimeSimulation==0):
 		p.stepSimulation()
 	
-	for i in range (25):
+	for i in range (1):
 		pos = [-0.4,0.2*math.cos(t),0.+0.2*math.sin(t)]
 		#end effector points down, not up (in case useOrientation==1)
 		orn = p.getQuaternionFromEuler([0,-math.pi,0])
@@ -70,7 +70,7 @@ while 1:
 	
 		if (useSimulation):
 			for i in range (numJoints):
-				p.setJointMotorControl2(bodyIndex=kukaId,jointIndex=i,controlMode=p.POSITION_CONTROL,targetPosition=jointPoses[i],targetVelocity=0,force=300,positionGain=0.3,velocityGain=1)
+				p.setJointMotorControl2(bodyIndex=kukaId,jointIndex=i,controlMode=p.POSITION_CONTROL,targetPosition=jointPoses[i],targetVelocity=0,force=500,positionGain=0.03,velocityGain=1)
 		else:
 			#reset the joint state (ignoring all dynamics, not recommended to use during simulation)
 			for i in range (numJoints):
