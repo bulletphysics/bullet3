@@ -3028,6 +3028,51 @@ static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, Py
   return Py_None;
 }
 
+
+static PyObject* pybullet_changeUserConstraint(PyObject* self, PyObject* args, PyObject *keywds) 
+{
+	static char *kwlist[] = { "userConstraintUniqueId","jointChildPivot", "jointChildFrameOrientation", "physicsClientId", NULL};
+	int userConstraintUniqueId=-1;
+	b3SharedMemoryCommandHandle commandHandle;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+	PyObject* jointChildPivotObj=0;
+	PyObject* jointChildFrameOrnObj=0;
+	double jointChildPivot[3];
+	double jointChildFrameOrn[4];
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|OOi", kwlist,&userConstraintUniqueId,&jointChildPivotObj, &jointChildFrameOrnObj,&physicsClientId))
+	{
+		return NULL;
+	}
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	commandHandle = b3InitChangeUserConstraintCommand(sm,userConstraintUniqueId);
+
+	if (pybullet_internalSetVectord(jointChildPivotObj,jointChildPivot))
+	{
+		b3InitChangeUserConstraintSetPivotInB(commandHandle, jointChildPivot);
+	}
+	if (pybullet_internalSetVector4d(jointChildFrameOrnObj,jointChildFrameOrn))
+	{
+		b3InitChangeUserConstraintSetFrameInB(commandHandle, jointChildFrameOrn);
+	}
+
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	statusType = b3GetStatusType(statusHandle);
+	Py_INCREF(Py_None);
+	return Py_None;
+};
+
+
 static PyObject* pybullet_removeUserConstraint(PyObject* self, PyObject* args, PyObject *keywds) 
 {
 	static char *kwlist[] = { "userConstraintUniqueId","physicsClientId", NULL};
@@ -4371,6 +4416,11 @@ static PyMethodDef SpamMethods[] = {
 	  {"createConstraint", (PyCFunction)pybullet_createUserConstraint, METH_VARARGS | METH_KEYWORDS,
 	"Create a constraint between two bodies. Returns a (int) unique id, if successfull."
      },
+
+	{"changeConstraint", (PyCFunction)pybullet_changeUserConstraint, METH_VARARGS | METH_KEYWORDS,
+     "Change some parameters of an existing constraint, such as the child pivot or child frame orientation, using its unique id."
+     },
+
 
 	{"removeConstraint", (PyCFunction)pybullet_removeUserConstraint, METH_VARARGS | METH_KEYWORDS,
      "Remove a constraint using its unique id."

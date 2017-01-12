@@ -53,10 +53,11 @@ public:
 		return m_pivotInB;
 	}
 
-	void setPivotInB(const btVector3& pivotInB)
+	virtual void setPivotInB(const btVector3& pivotInB)
 	{
 		m_pivotInB = pivotInB;
 	}
+
 
 	virtual void debugDraw(class btIDebugDraw* drawer);
 

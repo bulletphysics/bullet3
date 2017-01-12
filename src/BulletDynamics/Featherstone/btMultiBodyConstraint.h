@@ -90,6 +90,10 @@ public:
 	void updateJacobianSizes();
 	void allocateJacobiansMultiDof();
 
+	//many constraints have setFrameInB/setPivotInB. Will use 'getConstraintType' later.
+	virtual void setFrameInB(const btMatrix3x3& frameInB) {}
+	virtual void setPivotInB(const btVector3& pivotInB){}
+
 	virtual void finalizeMultiDof()=0;
 
 	virtual int getIslandIdA() const =0;

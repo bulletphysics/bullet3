@@ -1064,6 +1064,52 @@ b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3PhysicsClientHan
     return (b3SharedMemoryCommandHandle)command;
 }
 
+b3SharedMemoryCommandHandle  b3InitChangeUserConstraintCommand(b3PhysicsClientHandle physClient, int userConstraintUniqueId)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type = CMD_USER_CONSTRAINT;
+	command->m_updateFlags = USER_CONSTRAINT_CHANGE_CONSTRAINT;
+	command->m_userConstraintArguments.m_userConstraintUniqueId = userConstraintUniqueId;
+	return (b3SharedMemoryCommandHandle)command;
+}
+
+int b3InitChangeUserConstraintSetPivotInB(b3SharedMemoryCommandHandle commandHandle, double pivotInB[3])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_USER_CONSTRAINT);
+
+	b3Assert(command->m_updateFlags & USER_CONSTRAINT_CHANGE_CONSTRAINT);
+
+	command->m_updateFlags |= USER_CONSTRAINT_CHANGE_PIVOT_IN_B;
+
+	command->m_userConstraintArguments.m_childFrame[0] = pivotInB[0];
+	command->m_userConstraintArguments.m_childFrame[1] = pivotInB[1];
+	command->m_userConstraintArguments.m_childFrame[2] = pivotInB[2];
+	return 0;
+}
+int b3InitChangeUserConstraintSetFrameInB(b3SharedMemoryCommandHandle commandHandle, double frameOrnInB[4])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_USER_CONSTRAINT);
+	b3Assert(command->m_updateFlags & USER_CONSTRAINT_CHANGE_CONSTRAINT);
+
+	command->m_updateFlags |= USER_CONSTRAINT_CHANGE_FRAME_ORN_IN_B;
+
+	command->m_userConstraintArguments.m_childFrame[3] = frameOrnInB[0];
+	command->m_userConstraintArguments.m_childFrame[4] = frameOrnInB[1];
+	command->m_userConstraintArguments.m_childFrame[5] = frameOrnInB[2];
+	command->m_userConstraintArguments.m_childFrame[6] = frameOrnInB[3];
+
+	return 0;
+}
+
+
 b3SharedMemoryCommandHandle  b3InitRemoveUserConstraintCommand(b3PhysicsClientHandle physClient, int userConstraintUniqueId)
 {
 	 PhysicsClient* cl = (PhysicsClient* ) physClient;
