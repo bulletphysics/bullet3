@@ -238,11 +238,13 @@ void ImportMJCFSetup::initPhysics()
 			ConvertURDF2Bullet(importer,creation, rootTrans,m_dynamicsWorld,m_useMultiBody,importer.getPathPrefix(),CUF_USE_MJCF);
 
 			mb = creation.getBulletMultiBody();
-			if (0)//mb)
-			{
-				printf("first MJCF file converted!\n");
-				std::string*   name = new std::string(importer.getLinkName(importer.getRootLinkIndex()));
-				m_nameMemory.push_back(name);
+                        if (/* DISABLES CODE */ (0))  // mb)
+                        {
+                          printf("first MJCF file converted!\n");
+                          std::string* name =
+                              new std::string(importer.getLinkName(
+                                  importer.getRootLinkIndex()));
+                          m_nameMemory.push_back(name);
 #ifdef TEST_MULTIBODY_SERIALIZATION
 				s->registerNameForPointer(name->c_str(),name->c_str());
 #endif//TEST_MULTIBODY_SERIALIZATION
