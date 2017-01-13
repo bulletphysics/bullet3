@@ -30,6 +30,7 @@
 #endif
 #ifdef __APPLE__
 #include <mach/mach_time.h>
+#include <TargetConditionals.h>
 #endif
 
 #if defined(WIN32) || defined(_WIN32)
