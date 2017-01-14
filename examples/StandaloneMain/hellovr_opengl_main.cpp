@@ -22,6 +22,7 @@
 int gSharedMemoryKey = -1;
 int  gDebugDrawFlags = 0;
 bool gDisplayDistortion = false;
+bool gDisableDesktopGL = false;
 
 //how can you try typing on a keyboard, without seeing it?
 //it is pretty funny, to see the desktop in VR!
@@ -834,23 +835,26 @@ void CMainApplication::RenderFrame()
 		}
 		RenderStereoTargets();
 
-		if (gDisplayDistortion)
+		if (!gDisableDesktopGL)
 		{
-			B3_PROFILE("RenderDistortion");
-			RenderDistortion();
-		} else
-		{
-			glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-			glDisable( GL_MULTISAMPLE );
-	 		glBindFramebuffer(GL_READ_FRAMEBUFFER, rightEyeDesc.m_nRenderFramebufferId );
-			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+			if (gDisplayDistortion)
+			{
+				B3_PROFILE("RenderDistortion");
+				RenderDistortion();
+			} else
+			{
+				glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+				glDisable( GL_MULTISAMPLE );
+	 			glBindFramebuffer(GL_READ_FRAMEBUFFER, rightEyeDesc.m_nRenderFramebufferId );
+				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	
-			glBlitFramebuffer( 0, 0, m_nRenderWidth, m_nRenderHeight, 0, 0, m_nRenderWidth, m_nRenderHeight, 
-				GL_COLOR_BUFFER_BIT,
- 				GL_LINEAR  );
+				glBlitFramebuffer( 0, 0, m_nRenderWidth, m_nRenderHeight, 0, 0, m_nRenderWidth, m_nRenderHeight, 
+					GL_COLOR_BUFFER_BIT,
+ 					GL_LINEAR  );
 
- 			glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0 );
+ 				glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0 );
+			}
 		}
 
 		vr::Texture_t leftEyeTexture = {(void*)leftEyeDesc.m_nResolveTextureId, vr::API_OpenGL, vr::ColorSpace_Gamma };
@@ -873,7 +877,10 @@ void CMainApplication::RenderFrame()
 	// SwapWindow
 	{
 		B3_PROFILE("m_app->swapBuffer");
-		m_app->swapBuffer();
+		if (!gDisableDesktopGL)
+		{
+			m_app->swapBuffer();
+		}
 		//SDL_GL_SwapWindow( m_pWindow );
 		
 	}
@@ -2216,6 +2223,11 @@ void CGLRenderModel::Draw()
 int main(int argc, char *argv[])
 {
 
+	b3CommandLineArgs args(argc,argv);
+	if (args.CheckCmdLineFlag("disable_desktop_gl"))
+	{
+		gDisableDesktopGL = true;
+	}
 
 #ifdef BT_USE_CUSTOM_PROFILER
 	b3SetCustomEnterProfileZoneFunc(dcEnter);
