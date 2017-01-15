@@ -55,5 +55,11 @@ struct URDFLinkContactInfo
 	}
 };
 
+enum UrdfCollisionFlags
+{
+	URDF_FORCE_CONCAVE_TRIMESH=1,
+	URDF_HAS_COLLISION_GROUP=2,
+	URDF_HAS_COLLISION_MASK=4,
+};
 
 #endif //URDF_JOINT_TYPES_H

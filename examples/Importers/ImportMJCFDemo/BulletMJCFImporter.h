@@ -46,6 +46,9 @@ public:
 	/// optional method to provide the link color. return true if the color is available and copied into colorRGBA, return false otherwise
 	virtual bool getLinkColor(int linkIndex, btVector4& colorRGBA) const;
 
+	//optional method to get collision group (type) and mask (affinity)
+	virtual int getCollisionGroupAndMask(int linkIndex, int& colGroup, int& colMask) const ;
+	
 	///this API will likely change, don't override it!
 	virtual bool getLinkContactInfo(int linkIndex, URDFLinkContactInfo& contactInfo ) const;
     

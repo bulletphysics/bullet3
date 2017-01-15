@@ -77,7 +77,7 @@ struct ImportMJCFInternalData
 
 ImportMJCFSetup::ImportMJCFSetup(struct GUIHelperInterface* helper, int option, const char* fileName)
 	:CommonMultiBodyBase(helper),
-	m_grav(0),
+	m_grav(-10),
 	m_upAxis(2)
 {
 	m_data = new ImportMJCFInternalData;
@@ -118,9 +118,10 @@ ImportMJCFSetup::ImportMJCFSetup(struct GUIHelperInterface* helper, int option, 
 		if (gMCFJFileNameArray.size()==0)
 		{
 			gMCFJFileNameArray.push_back("mjcf/humanoid.xml");
+			gMCFJFileNameArray.push_back("mjcf/inverted_pendulum.xml");
+			gMCFJFileNameArray.push_back("mjcf/ant.xml");
 			gMCFJFileNameArray.push_back("mjcf/hello_mjcf2.xml");
 			gMCFJFileNameArray.push_back("mjcf/capsule.xml");
-			gMCFJFileNameArray.push_back("mjcf/ant.xml");
 //			gMCFJFileNameArray.push_back("mjcf/hopper.xml");
 //			gMCFJFileNameArray.push_back("mjcf/swimmer.xml");
 //			gMCFJFileNameArray.push_back("mjcf/reacher.xml");
@@ -238,7 +239,7 @@ void ImportMJCFSetup::initPhysics()
 			ConvertURDF2Bullet(importer,creation, rootTrans,m_dynamicsWorld,m_useMultiBody,importer.getPathPrefix(),CUF_USE_MJCF);
 
 			mb = creation.getBulletMultiBody();
-                        if (/* DISABLES CODE */ (0))  // mb)
+                        if (mb)
                         {
                           printf("first MJCF file converted!\n");
                           std::string* name =

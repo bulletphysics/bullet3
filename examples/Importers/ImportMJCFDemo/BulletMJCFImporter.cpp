@@ -21,10 +21,12 @@
 
 enum ePARENT_LINK_ENUMS
 {
+	BASE_LINK_INDEX=-1,
+
 	INVALID_LINK_INDEX=-2
 };
 
-
+static int gUid=0;
 
 static bool parseVector4(btVector4& vec4, const std::string& vector_str)
 {
@@ -120,12 +122,17 @@ struct BulletMJCFImporterInternalData
 
 	btAlignedObjectArray<UrdfModel*>	m_models;
 	int m_activeModel;
+	//todo: for full MJCF compatibility, we would need a stack of default values
+	int m_defaultCollisionGroup;
+	int m_defaultCollisionMask;
 
 	//those collision shapes are deleted by caller (todo: make sure this happens!)
 	btAlignedObjectArray<btCollisionShape*> m_allocatedCollisionShapes;
 
 	BulletMJCFImporterInternalData()
-		:m_activeModel(-1)
+		:m_activeModel(-1),
+		m_defaultCollisionGroup(1),
+		m_defaultCollisionMask(1)
 	{
 		m_pathPrefix[0] = 0;
 	}
@@ -144,18 +151,49 @@ struct BulletMJCFImporterInternalData
 		return 0;
 	}
 
-	bool parseRootLevel(TiXmlElement* root_xml,MJCFErrorLogger* logger)
+	bool parseDefaults(TiXmlElement* root_xml, MJCFErrorLogger* logger)
 	{
-		for (TiXmlElement* xml = root_xml->FirstChildElement() ; xml ; xml = xml->NextSiblingElement())
+		bool handled= false;
+		//rudimentary 'default' support, would need more work for better feature coverage
+		for (TiXmlElement* child_xml = root_xml->FirstChildElement() ; child_xml ; child_xml = child_xml->NextSiblingElement())
 		{
 			bool handled = false;
-			std::string n = xml->Value();
+			std::string n = child_xml->Value();
+			if (n=="inertial")
+			{
+			}
+			if (n=="geom")
+			{
+				//contype, conaffinity 
+				const char* conTypeStr = child_xml->Attribute("contype");
+				if (conTypeStr)
+				{
+					m_defaultCollisionGroup = urdfLexicalCast<int>(conTypeStr);
+				}
+				const char* conAffinityStr = child_xml->Attribute("conaffinity");
+				if (conAffinityStr)
+				{
+					m_defaultCollisionMask = urdfLexicalCast<int>(conAffinityStr);
+				}
+			}
+		}
+		handled=true;
+		return handled;
+	}
+	bool parseRootLevel(TiXmlElement* root_xml,MJCFErrorLogger* logger)
+	{
+		for (TiXmlElement* rootxml = root_xml->FirstChildElement() ; rootxml ; rootxml = rootxml->NextSiblingElement())
+		{
+			bool handled = false;
+			std::string n = rootxml->Value();
+
+			
 			if (n=="body")
 			{
 				int modelIndex = m_models.size();
 				UrdfModel* model = new UrdfModel();
 				m_models.push_back(model);
-				parseBody(xml,modelIndex, INVALID_LINK_INDEX,logger);
+				parseBody(rootxml,modelIndex, INVALID_LINK_INDEX,logger);
 				initTreeAndRoot(*model,logger);
 				handled = true;
 			}
@@ -168,7 +206,7 @@ struct BulletMJCFImporterInternalData
 
 				UrdfLink* linkPtr = new UrdfLink();
 				linkPtr->m_name = "anonymous";
-				const char* namePtr = xml->Attribute("name");
+				const char* namePtr = rootxml->Attribute("name");
 				if (namePtr)
 				{
 					linkPtr->m_name = namePtr;
@@ -177,12 +215,12 @@ struct BulletMJCFImporterInternalData
 				linkPtr->m_linkIndex = linkIndex;
 				modelPtr->m_links.insert(linkPtr->m_name.c_str(),linkPtr);
 
-				btTransform linkTransform = parseTransform(xml,logger);
-				linkPtr->m_linkTransformInWorld = linkTransform;
-
+				//don't parse geom transform here, it will be inside 'parseGeom'
+				linkPtr->m_linkTransformInWorld.setIdentity();
+				
 //				modelPtr->m_rootLinks.push_back(linkPtr);
 
-				parseGeom(xml,modelIndex, linkIndex,logger);
+				parseGeom(rootxml,modelIndex, linkIndex,logger);
 				initTreeAndRoot(*modelPtr,logger);
 
 				handled = true;
@@ -202,7 +240,7 @@ struct BulletMJCFImporterInternalData
 		return true;
 	}
 
-	bool parseJoint(TiXmlElement* link_xml, int modelIndex, int parentLinkIndex, int linkIndex, MJCFErrorLogger* logger, btTransform& jointTransOut)
+	bool parseJoint(TiXmlElement* link_xml, int modelIndex, int parentLinkIndex, int linkIndex, MJCFErrorLogger* logger, const btTransform& parentToLinkTrans, btTransform& jointTransOut)
 	{
 		const char* jType = link_xml->Attribute("type");
 		const char* limitedStr = link_xml->Attribute("limited");
@@ -210,6 +248,8 @@ struct BulletMJCFImporterInternalData
 		const char* posStr = link_xml->Attribute("pos");
 		const char* ornStr = link_xml->Attribute("quat");
 		const char* nameStr = link_xml->Attribute("name");
+		const char* rangeStr = link_xml->Attribute("range");
+
 		btTransform jointTrans;
 		jointTrans.setIdentity();
 		if (posStr)
@@ -242,12 +282,36 @@ struct BulletMJCFImporterInternalData
 			logger->reportWarning("joint without axis attribute");
 		}
 		bool isLimited = false;
+		double range[2] = {1,0};
+
 		if (limitedStr)
 		{
 			std::string lim = limitedStr;
 			if (lim=="true")
 			{
 				isLimited = true;
+				//parse the 'range' field
+				btArray<std::string> pieces;
+				btArray<float> sizes;
+				btAlignedObjectArray<std::string> strArray;
+				urdfIsAnyOf(" ", strArray);
+				urdfStringSplit(pieces, rangeStr, strArray);
+				for (int i = 0; i < pieces.size(); ++i)
+				{
+					if (!pieces[i].empty())
+					{
+						sizes.push_back(urdfLexicalCast<double>(pieces[i].c_str()));
+					}
+				}
+				if (sizes.size()==2)
+				{
+					range[0] = sizes[0];
+					range[1] = sizes[1];
+				} else
+				{
+					logger->reportWarning("Expected range[2] in joint with limits");
+				}
+
 			}
 		} else
 		{
@@ -259,7 +323,8 @@ struct BulletMJCFImporterInternalData
 		
 		btTransform parentLinkToJointTransform;
 		parentLinkToJointTransform.setIdentity();
-		parentLinkToJointTransform = jointTrans*linkPtr->m_linkTransformInWorld;
+		parentLinkToJointTransform = parentToLinkTrans*jointTrans;
+
 		jointTransOut = jointTrans;
 		UrdfJointTypes ejtype;
 		if (jType)
@@ -268,6 +333,11 @@ struct BulletMJCFImporterInternalData
 			if (jointType == "fixed")
 			{
 				ejtype = URDFFixedJoint;
+				jointHandled = true;
+			}
+			if (jointType == "slide")
+			{
+				ejtype = URDFPrismaticJoint;
 				jointHandled = true;
 			}
 			if (jointType == "hinge")
@@ -288,7 +358,6 @@ struct BulletMJCFImporterInternalData
 
 		if (jointHandled)
 		{
-			//default to 'fixed' joint
 			UrdfJoint* jointPtr = new UrdfJoint();
 			jointPtr->m_childLinkName=linkPtr->m_name;
 			const UrdfLink* parentLink = getLink(modelIndex,parentLinkIndex);
@@ -297,13 +366,18 @@ struct BulletMJCFImporterInternalData
 			jointPtr->m_parentLinkToJointTransform = parentLinkToJointTransform;
 			jointPtr->m_type = ejtype;
 			int numJoints = m_models[modelIndex]->m_joints.size();
+			
+			//range
+			jointPtr->m_lowerLimit = range[0];
+			jointPtr->m_upperLimit = range[1];
+			
 			if (nameStr)
 			{
 				jointPtr->m_name =nameStr; 
 			} else
 			{
 				char jointName[1024];
-				sprintf(jointName,"joint%d_%d",linkIndex,numJoints);
+				sprintf(jointName,"joint%d_%d_%d",gUid++,linkIndex,numJoints);
 				jointPtr->m_name =jointName; 
 			}
 			m_models[modelIndex]->m_joints.insert(jointPtr->m_name.c_str(),jointPtr);
@@ -335,6 +409,9 @@ struct BulletMJCFImporterInternalData
 
 		bool handledGeomType = false;
 		UrdfGeometry geom;
+
+		
+
 		const char* rgba = link_xml->Attribute("rgba");
 		const char* gType = link_xml->Attribute("type");
 		const char* sz = link_xml->Attribute("size");
@@ -356,7 +433,7 @@ struct BulletMJCFImporterInternalData
 			btVector4 o4;
 			if (parseVector4(o4,ornStr))
 			{
-				orn.setValue(o4[3],o4[0],o4[1],o4[2]);
+				orn.setValue(o4[1],o4[2],o4[3],o4[0]);
 				linkLocalFrame.setRotation(orn);
 			}
 		}
@@ -410,16 +487,52 @@ struct BulletMJCFImporterInternalData
 			if (geomType == "capsule")
 			{
 				geom.m_type = URDF_GEOM_CAPSULE;
-				geom.m_capsuleRadius = urdfLexicalCast<double>(sz);
+
+				btArray<std::string> pieces;
+				btArray<float> sizes;
+				btAlignedObjectArray<std::string> strArray;
+				urdfIsAnyOf(" ", strArray);
+				urdfStringSplit(pieces, sz, strArray);
+				for (int i = 0; i < pieces.size(); ++i)
+				{
+					if (!pieces[i].empty())
+					{
+						sizes.push_back(urdfLexicalCast<double>(pieces[i].c_str()));
+					}
+				}
+
+				geom.m_capsuleRadius = 0;
+				geom.m_capsuleHalfHeight = 0.f;
+
+				if (sizes.size()>0)
+				{
+					geom.m_capsuleRadius = sizes[0];
+					if (sizes.size()>1)
+					{
+						geom.m_capsuleHalfHeight = sizes[1];
+					}
+				} else
+				{
+					logger->reportWarning("couldn't convert 'size' attribute of capsule geom");
+				}
 				const char* fromtoStr = link_xml->Attribute("fromto");
+				geom.m_hasFromTo = false;
+
 				if (fromtoStr)
 				{
+					geom.m_hasFromTo = true;
 					std::string fromto = fromtoStr;
 					parseVector6(geom.m_capsuleFrom,geom.m_capsuleTo,fromto,logger);
 					handledGeomType = true;
 				} else
 				{
-					logger->reportWarning("capsule without fromto attribute");
+					if (sizes.size()<2)
+					{
+						logger->reportWarning("capsule without fromto attribute requires 2 sizes (radius and halfheight)");
+					} else
+					{
+						handledGeomType = true;
+					}
 				}
 			}
 			#if 0
@@ -433,6 +546,26 @@ struct BulletMJCFImporterInternalData
 			{
 						
 				UrdfCollision col;
+				col.m_flags |= URDF_HAS_COLLISION_GROUP;
+				col.m_collisionGroup = m_defaultCollisionGroup;
+				
+				col.m_flags |= URDF_HAS_COLLISION_MASK;
+				col.m_collisionMask = m_defaultCollisionMask;
+				
+				//contype, conaffinity 
+				const char* conTypeStr = link_xml->Attribute("contype");
+				if (conTypeStr)
+				{
+					col.m_flags |= URDF_HAS_COLLISION_GROUP;
+					col.m_collisionGroup = urdfLexicalCast<int>(conTypeStr);
+				}
+				const char* conAffinityStr = link_xml->Attribute("conaffinity");
+				if (conAffinityStr)
+				{
+					col.m_flags |= URDF_HAS_COLLISION_MASK;
+					col.m_collisionMask = urdfLexicalCast<int>(conAffinityStr);
+				}
+
 				col.m_geometry = geom;
 				col.m_linkLocalFrame = linkLocalFrame;
 				linkPtr->m_collisionArray.push_back(col);
@@ -478,7 +611,7 @@ struct BulletMJCFImporterInternalData
 			btQuaternion orn(0,0,0,1);
 			if (parseVector4(o4,ornstr))
 			{
-				orn.setValue(o4[3],o4[0],o4[1],o4[2]);//MuJoCo quats are [w,x,y,z], Bullet uses [x,y,z,w]
+				orn.setValue(o4[1],o4[2],o4[3],o4[0]);//MuJoCo quats are [w,x,y,z], Bullet uses [x,y,z,w]
 				tr.setRotation(orn);
 			}
 		} else
@@ -545,33 +678,61 @@ struct BulletMJCFImporterInternalData
 
 		return totalVolume;
 	}
+	UrdfLink* getLink(int modelIndex, int linkIndex)
+	{
+		UrdfLink** linkPtrPtr = m_models[modelIndex]->m_links.getAtIndex(linkIndex);
+		if (linkPtrPtr && *linkPtrPtr)
+		{
+			return *linkPtrPtr;
+		}
+		btAssert(0);
+		return 0;
+	}
 
-	bool parseBody(TiXmlElement* link_xml, int modelIndex, int parentLinkIndex, MJCFErrorLogger* logger)
+	int createBody(int modelIndex, const char* namePtr)
 	{
 		UrdfModel* modelPtr = m_models[modelIndex];
-		int linkIndex = modelPtr->m_links.size();
+		int orgChildLinkIndex = modelPtr->m_links.size();
 		UrdfLink* linkPtr = new UrdfLink();
 		char uniqueLinkName[1024];
-		sprintf(uniqueLinkName,"link%d",linkIndex);
+		sprintf(uniqueLinkName,"link%d",orgChildLinkIndex );
 		linkPtr->m_name = uniqueLinkName;
-		const char* namePtr = link_xml->Attribute("name");
 		if (namePtr)
 		{
 			linkPtr->m_name = namePtr;
 		}
-		
-		linkPtr->m_linkIndex = linkIndex;
+		linkPtr->m_linkIndex = orgChildLinkIndex ;
 		modelPtr->m_links.insert(linkPtr->m_name.c_str(),linkPtr);
 
-		
-		btTransform linkTransform = parseTransform(link_xml,logger);
+		return orgChildLinkIndex;
+	}
+	bool parseBody(TiXmlElement* link_xml, int modelIndex, int orgParentLinkIndex, MJCFErrorLogger* logger)
+	{
+		int newParentLinkIndex = orgParentLinkIndex;
 
-		linkPtr->m_linkTransformInWorld = linkTransform;
-		//body/geom links with no parent are root links
-		if (parentLinkIndex==INVALID_LINK_INDEX)
+		const char* bodyName = link_xml->Attribute("name");
+		int orgChildLinkIndex = createBody(modelIndex,bodyName);
+		
+		int curChildLinkIndex = orgChildLinkIndex;
+		std::string bodyN;
+		
+		if (bodyName)
 		{
-//			modelPtr->m_rootLinks.push_back(linkPtr);
+			bodyN = bodyName;
+		} else
+		{
+			char anon[1024];
+			sprintf(anon,"anon%d",gUid++);
+			bodyN = anon;		
 		}
+		
+
+		btTransform orgLinkTransform = parseTransform(link_xml,logger);
+
+		btTransform linkTransform = parseTransform(link_xml,logger);
+		UrdfLink* linkPtr = getLink(modelIndex,orgChildLinkIndex);
+
+		
 
 		bool massDefined = false;
 		btVector3 inertialPos(0,0,0);
@@ -582,6 +743,7 @@ struct BulletMJCFImporterInternalData
 		bool hasJoint = false;
 		btTransform jointTrans;
 		jointTrans.setIdentity();
+		bool skipFixedJoint = false;
 
 		for (TiXmlElement* xml = link_xml->FirstChildElement() ; xml ; xml = xml->NextSiblingElement())
 		{
@@ -616,31 +778,56 @@ struct BulletMJCFImporterInternalData
 
 			if (n=="joint")
 			{
-				//skip joints at the root for now 
-				//MuJoCo supports more than just 'free' or 'fixed',
-				//so we will need to emulate this with extra root links+joints
-
-				//for now, only convert 1st joint
 				if (!hasJoint)
 				{
-					if (parentLinkIndex!=INVALID_LINK_INDEX)
+					const char* jType = xml->Attribute("type");
+					std::string jointType = jType? jType:"";
+
+					if (newParentLinkIndex!=INVALID_LINK_INDEX || jointType!="free")
 					{
-						parseJoint(xml,modelIndex,parentLinkIndex, linkIndex,logger,jointTrans);
+						if (newParentLinkIndex==INVALID_LINK_INDEX)
+						{
+							int newRootLinkIndex = createBody(modelIndex,0);
+							UrdfLink* rootLink = getLink(modelIndex,newRootLinkIndex);
+							rootLink->m_inertia.m_mass = 0;
+							rootLink->m_linkTransformInWorld.setIdentity();
+							newParentLinkIndex = newRootLinkIndex;
+						}
+
+						int newLinkIndex = createBody(modelIndex,0);
+						parseJoint(xml,modelIndex,newParentLinkIndex, newLinkIndex,logger,linkTransform,jointTrans);
+						
+						//getLink(modelIndex,newLinkIndex)->m_linkTransformInWorld = jointTrans*linkTransform;
+						
+						linkTransform = jointTrans.inverse();
+						newParentLinkIndex = newLinkIndex;
+						//newParentLinkIndex, curChildLinkIndex
+						hasJoint = true;
+						handled = true;
 					}
+				} else
+				{
+					int newLinkIndex = createBody(modelIndex,0);
+					btTransform joint2nextjoint =  jointTrans.inverse();
+					btTransform unused;
+					parseJoint(xml,modelIndex,newParentLinkIndex, newLinkIndex,logger,joint2nextjoint,unused);
+					newParentLinkIndex = newLinkIndex;
+					//todo: compute relative joint transforms (if any) and append to linkTransform
+					hasJoint = true;
+					handled = true;
 				}
-				hasJoint = true;
-				handled = true;
+				
 			}
 			if (n == "geom")
 			{
-				parseGeom(xml,modelIndex, linkIndex, logger);
+				parseGeom(xml,modelIndex, orgChildLinkIndex , logger);
 				handled = true;
 			}
 
 			//recursive
 			if (n=="body")
 			{
-				parseBody(xml,modelIndex,linkIndex,logger);
+				parseBody(xml,modelIndex,orgChildLinkIndex,logger);
 				handled = true;
 			}
 
@@ -657,18 +844,24 @@ struct BulletMJCFImporterInternalData
 			}
 		}
 
-		if ((!hasJoint) && (parentLinkIndex != INVALID_LINK_INDEX))
+		linkPtr->m_linkTransformInWorld = linkTransform;
+		if (bodyN == "cart1")//front_left_leg")
 		{
+			printf("found!\n");
+		}
+		if ((newParentLinkIndex != INVALID_LINK_INDEX) && !skipFixedJoint)
+		{
+			//linkPtr->m_linkTransformInWorld.setIdentity();
 			//default to 'fixed' joint
 			UrdfJoint* jointPtr = new UrdfJoint();
 			jointPtr->m_childLinkName=linkPtr->m_name;
-			const UrdfLink* parentLink = getLink(modelIndex,parentLinkIndex);
+			const UrdfLink* parentLink = getLink(modelIndex,newParentLinkIndex);
 			jointPtr->m_parentLinkName =parentLink->m_name;
 			jointPtr->m_localJointAxis.setValue(1,0,0);
 			jointPtr->m_parentLinkToJointTransform = linkTransform;
 			jointPtr->m_type = URDFFixedJoint;
 			char jointName[1024];
-			sprintf(jointName,"joint%d",linkIndex);
+			sprintf(jointName,"jointfix_%d_%d",gUid++,newParentLinkIndex);
 			jointPtr->m_name =jointName; 
 			m_models[modelIndex]->m_joints.insert(jointPtr->m_name.c_str(),jointPtr);
 		}
@@ -680,9 +873,24 @@ struct BulletMJCFImporterInternalData
 			double volume = computeVolume(linkPtr,logger);
 			mass = density * volume;
 		}
-		linkPtr->m_inertia.m_linkLocalFrame = jointTrans.inverse();
+		linkPtr->m_inertia.m_linkLocalFrame.setIdentity();// = jointTrans.inverse();
 		linkPtr->m_inertia.m_mass = mass;
 		return true;
+	}
+
+	void recurseAddChildLinks(UrdfModel* model, UrdfLink* link)
+	{
+		for (int i=0;i<link->m_childLinks.size();i++)
+		{
+			int linkIndex = model->m_links.size();
+			link->m_childLinks[i]->m_linkIndex = linkIndex;
+			const char* linkName = link->m_childLinks[i]->m_name.c_str();
+			model->m_links.insert(linkName,link->m_childLinks[i]);
+		}
+		for (int i=0;i<link->m_childLinks.size();i++)
+		{
+			recurseAddChildLinks(model,link->m_childLinks[i]);
+		}
 	}
 
 	bool initTreeAndRoot(UrdfModel& model, MJCFErrorLogger* logger)
@@ -762,6 +970,23 @@ struct BulletMJCFImporterInternalData
 		{
 			logger->reportError("URDF without root link found");
 			return false;
+		}
+
+		//re-index the link indices so parent indices are always smaller than child indices
+		btAlignedObjectArray<UrdfLink*> links;
+		links.resize(model.m_links.size());
+		for (int i=0;i<model.m_links.size();i++)
+		{
+			links[i] = *model.m_links.getAtIndex(i);
+		}
+		model.m_links.clear();
+		for (int i=0;i<model.m_rootLinks.size();i++)
+		{
+			UrdfLink* rootLink = model.m_rootLinks[i];
+			int linkIndex = model.m_links.size();
+			rootLink->m_linkIndex = linkIndex;
+			model.m_links.insert(rootLink->m_name.c_str(),rootLink);
+			recurseAddChildLinks(&model, rootLink);
 		}
 		return true;
 	
@@ -850,6 +1075,13 @@ bool BulletMJCFImporter::parseMJCFString(const char* xmlText, MJCFErrorLogger* l
 		m_data->m_fileModelName = modelName;
 	}
 
+	//<compiler>,<option>,<size>,<default>,<body>,<keyframe>,<contactpair>,
+	//<light>, <camera>,<constraint>,<tendon>,<actuator>,<customfield>,<textfield>
+
+	for (TiXmlElement* link_xml = mujoco_xml->FirstChildElement("default"); link_xml; link_xml = link_xml->NextSiblingElement("default"))
+	{
+		m_data->parseDefaults(link_xml,logger);
+	}
 	
 	for (TiXmlElement* link_xml = mujoco_xml->FirstChildElement("body"); link_xml; link_xml = link_xml->NextSiblingElement("body"))
 	{
@@ -861,8 +1093,7 @@ bool BulletMJCFImporter::parseMJCFString(const char* xmlText, MJCFErrorLogger* l
 		m_data->parseRootLevel(link_xml,logger);
 	}
 
-	//<compiler>,<option>,<size>,<default>,<body>,<keyframe>,<contactpair>,
-	//<light>, <camera>,<constraint>,<tendon>,<actuator>,<customfield>,<textfield>
+
 
 	return true;
 }
@@ -901,10 +1132,43 @@ bool BulletMJCFImporter::getLinkColor(int linkIndex, btVector4& colorRGBA) const
 	return false;
 }
 
+//todo: placeholder implementation
+//MuJoCo type/affinity is different from Bullet group/mask, so we should implement a custom collision filter instead
+//(contype1 & conaffinity2) || (contype2 & conaffinity1)
+int BulletMJCFImporter::getCollisionGroupAndMask(int linkIndex, int& colGroup, int& colMask) const 
+{
+	int flags = 0;
+	/*
+	const UrdfLink* link = m_data->getLink(m_data->m_activeModel,linkIndex);
+	if (link)
+	{
+		for (int i=0;i<link->m_collisionArray.size();i++)
+		{
+			const UrdfCollision& col = link->m_collisionArray[i];
+			colGroup = col.m_collisionGroup;
+			flags |= URDF_HAS_COLLISION_GROUP;
+			colMask = col.m_collisionMask;
+			flags |= URDF_HAS_COLLISION_MASK;
+
+		}
+	}
+	*/
+	return flags;
+}
+	
+
 std::string BulletMJCFImporter::getJointName(int linkIndex) const
 {
 	const UrdfLink* link = m_data->getLink(m_data->m_activeModel,linkIndex);
-	return link->m_name;
+	if (link)
+	{
+		if (link->m_parentJoint)
+		{
+			return link->m_parentJoint->m_name;
+		}
+		return link->m_name;
+	}
+	return "";
 }
 
     //fill mass and inertial data. If inertial data is missing, please initialize mass, inertia to sensitive values, and inertialFrame to identity.
@@ -935,7 +1199,8 @@ void BulletMJCFImporter::getLinkChildIndices(int urdfLinkIndex, btAlignedObjectA
 	{
 		for (int i=0;i<link->m_childLinks.size();i++)
 		{
-			childLinkIndices.push_back(link->m_childLinks[i]->m_linkIndex);
+			int childIndex = link->m_childLinks[i]->m_linkIndex;
+			childLinkIndices.push_back(childIndex);
 		}
 	}
 }
@@ -978,12 +1243,13 @@ bool BulletMJCFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joi
 bool BulletMJCFImporter::getRootTransformInWorld(btTransform& rootTransformInWorld) const
 {
 	rootTransformInWorld.setIdentity();
-
+	/*
 	const UrdfLink* link = m_data->getLink(m_data->m_activeModel,0);
 	if (link)
 	{
 		rootTransformInWorld = link->m_linkTransformInWorld;
 	}
+	*/
 	return true;
 }
 
@@ -1060,18 +1326,25 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 			case URDF_GEOM_CAPSULE:
 			{
 				//todo: convert fromto to btCapsuleShape + local btTransform
-				
-				btVector3 f = col->m_geometry.m_capsuleFrom;
-				btVector3 t = col->m_geometry.m_capsuleTo;
-				//MuJoCo seems to take the average of the spheres as center?
-				btVector3 c = (f+t)*0.5;
-				//f-=c;
-				//t-=c;
-				btVector3 fromto[2] = {f,t};
-				btScalar radii[2] = {col->m_geometry.m_capsuleRadius,col->m_geometry.m_capsuleRadius};
+				if (col->m_geometry.m_hasFromTo)
+				{
+					btVector3 f = col->m_geometry.m_capsuleFrom;
+					btVector3 t = col->m_geometry.m_capsuleTo;
+					//MuJoCo seems to take the average of the spheres as center?
+					btVector3 c = (f+t)*0.5;
+					//f-=c;
+					//t-=c;
+					btVector3 fromto[2] = {f,t};
+					btScalar radii[2] = {col->m_geometry.m_capsuleRadius,col->m_geometry.m_capsuleRadius};
 			
-				btMultiSphereShape* ms = new btMultiSphereShape(fromto,radii,2);
-				childShape = ms;
+					btMultiSphereShape* ms = new btMultiSphereShape(fromto,radii,2);
+					childShape = ms;
+				} else
+				{
+					btCapsuleShapeZ* cap = new btCapsuleShapeZ(col->m_geometry.m_capsuleRadius,
+						2.*col->m_geometry.m_capsuleHalfHeight);
+					childShape = cap;
+				}
 				break;
 			}
 			default:
