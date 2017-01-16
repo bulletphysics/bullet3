@@ -51,6 +51,8 @@ static btAlignedObjectArray<std::string> gMCFJFileNameArray;
 
 #define MAX_NUM_MOTORS 1024
 
+
+
 struct ImportMJCFInternalData
 {
     ImportMJCFInternalData()
@@ -171,13 +173,19 @@ struct MyMJCFLogger : public MJCFErrorLogger
 	}
 };
 
+
 void ImportMJCFSetup::initPhysics()
 {
 
 	
 	m_guiHelper->setUpAxis(m_upAxis);
 	
-	this->createEmptyDynamicsWorld();
+	createEmptyDynamicsWorld();
+	
+	//MuJoCo uses a slightly different collision filter mode, use the FILTER_GROUPAMASKB_OR_GROUPBMASKA2
+	//@todo also use the modified collision filter for raycast and other collision related queries
+	m_filterCallback->m_filterMode = FILTER_GROUPAMASKB_OR_GROUPBMASKA2;
+	
 	//m_dynamicsWorld->getSolverInfo().m_numIterations = 100;
     m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
     m_dynamicsWorld->getDebugDrawer()->setDebugMode(

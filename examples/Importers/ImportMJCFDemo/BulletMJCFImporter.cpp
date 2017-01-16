@@ -1137,7 +1137,7 @@ bool BulletMJCFImporter::getLinkColor(int linkIndex, btVector4& colorRGBA) const
 int BulletMJCFImporter::getCollisionGroupAndMask(int linkIndex, int& colGroup, int& colMask) const 
 {
 	int flags = 0;
-	/*
+	
 	const UrdfLink* link = m_data->getLink(m_data->m_activeModel,linkIndex);
 	if (link)
 	{
@@ -1151,7 +1151,7 @@ int BulletMJCFImporter::getCollisionGroupAndMask(int linkIndex, int& colGroup, i
 
 		}
 	}
-	*/
+	
 	return flags;
 }
 	

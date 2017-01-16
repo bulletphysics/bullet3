@@ -616,7 +616,8 @@ void b3RobotSimAPI::processMultiThreadedGraphicsRequests()
 	case eRobotSimGUIHelperRemoveAllGraphicsInstances:
         {
             m_data->m_multiThreadedHelper->m_childGuiHelper->removeAllGraphicsInstances();
-			int numRenderInstances = m_data->m_multiThreadedHelper->m_childGuiHelper->getRenderInterface()->getTotalNumInstances();
+			int numRenderInstances;
+			numRenderInstances = m_data->m_multiThreadedHelper->m_childGuiHelper->getRenderInterface()->getTotalNumInstances();
 			b3Assert(numRenderInstances==0);
 
             m_data->m_multiThreadedHelper->getCriticalSection()->lock();
@@ -901,7 +902,8 @@ bool b3RobotSimAPI::connect(GUIHelperInterface* guiHelper)
 		m_data->m_args[0].m_cs->setSharedParam(1, eRobotSimGUIHelperIdle);
 		m_data->m_multiThreadedHelper->setCriticalSection(m_data->m_args[0].m_cs);
 
-		bool serverConnected = m_data->m_physicsServer.connectSharedMemory(m_data->m_multiThreadedHelper);
+		bool serverConnected;
+		serverConnected = m_data->m_physicsServer.connectSharedMemory(m_data->m_multiThreadedHelper);
 		b3Assert(serverConnected);
 
 		m_data->m_physicsClient = b3ConnectSharedMemory(SHARED_MEMORY_KEY);

@@ -376,6 +376,47 @@ struct MyBroadphaseCallback : public btBroadphaseAabbCallback
 };
 
 
+
+enum MyFilterModes
+{
+	FILTER_GROUPAMASKB_AND_GROUPBMASKA=0,
+	FILTER_GROUPAMASKB_OR_GROUPBMASKA
+};
+
+struct MyOverlapFilterCallback : public btOverlapFilterCallback
+{
+	int m_filterMode;
+	
+	MyOverlapFilterCallback()
+	:m_filterMode(FILTER_GROUPAMASKB_AND_GROUPBMASKA)
+	{
+	}
+	
+	virtual ~MyOverlapFilterCallback()
+	{}
+	// return true when pairs need collision
+	virtual bool	needBroadphaseCollision(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1) const
+	{
+		if (m_filterMode==FILTER_GROUPAMASKB_AND_GROUPBMASKA)
+		{
+			bool collides = (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0;
+			collides = collides && (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);
+			return collides;
+		}
+		
+		if (m_filterMode==FILTER_GROUPAMASKB_OR_GROUPBMASKA)
+		{
+			bool collides = (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0;
+			collides = collides || (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);
+			return collides;
+		}
+		return false;
+	}
+};
+
+
+
+
 struct PhysicsServerCommandProcessorInternalData
 {
 	///handle management
@@ -501,6 +542,9 @@ struct PhysicsServerCommandProcessorInternalData
 	btAlignedObjectArray<std::string*> m_strings;
 
 	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
+
+	MyOverlapFilterCallback* m_broadphaseCollisionFilterCallback;
+	btHashedOverlappingPairCache* m_pairCache;
 	btBroadphaseInterface*	m_broadphase;
 	btCollisionDispatcher*	m_dispatcher;
 	btMultiBodyConstraintSolver*	m_solver;
@@ -559,6 +603,12 @@ struct PhysicsServerCommandProcessorInternalData
 		m_physicsDeltaTime(1./240.),
         m_numSimulationSubSteps(0),
 		m_userConstraintUIDGenerator(1),
+		m_broadphaseCollisionFilterCallback(0),
+		m_pairCache(0),
+		m_broadphase(0),
+		m_dispatcher(0),
+		m_solver(0),
+		m_collisionConfiguration(0),
 		m_dynamicsWorld(0),
 		m_remoteDebugDrawer(0),
 		m_guiHelper(0),
@@ -698,7 +748,6 @@ PhysicsServerCommandProcessor::~PhysicsServerCommandProcessor()
 }
 
 
-
 void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 {
     ///collision configuration contains default setup for memory, collision setup
@@ -711,6 +760,14 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
     ///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
     m_data->m_dispatcher = new	btCollisionDispatcher(m_data->m_collisionConfiguration);
     
+
+	m_data->m_broadphaseCollisionFilterCallback = new MyOverlapFilterCallback();
+	m_data->m_broadphaseCollisionFilterCallback->m_filterMode = FILTER_GROUPAMASKB_OR_GROUPBMASKA;
+	
+	m_data->m_pairCache = new btHashedOverlappingPairCache();
+	
+	m_data->m_pairCache->setOverlapFilterCallback(m_data->m_broadphaseCollisionFilterCallback);
+	
     m_data->m_broadphase = new btDbvtBroadphase();
     
     m_data->m_solver = new btMultiBodyConstraintSolver;
@@ -865,9 +922,16 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 	delete m_data->m_solver;
 	m_data->m_solver=0;
 
+	
 	delete m_data->m_broadphase;
 	m_data->m_broadphase=0;
 
+	delete m_data->m_pairCache;
+	m_data->m_pairCache= 0;
+	
+	delete m_data->m_broadphaseCollisionFilterCallback;
+	m_data->m_broadphaseCollisionFilterCallback= 0;
+	
 	delete m_data->m_dispatcher;
 	m_data->m_dispatcher=0;
 

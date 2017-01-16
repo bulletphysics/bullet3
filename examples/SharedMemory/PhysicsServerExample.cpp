@@ -1368,7 +1368,8 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
             m_multiThreadedHelper->m_childGuiHelper->removeAllGraphicsInstances();
 			if (m_multiThreadedHelper->m_childGuiHelper->getRenderInterface())
 			{
-				int numRenderInstances = m_multiThreadedHelper->m_childGuiHelper->getRenderInterface()->getTotalNumInstances();
+				int numRenderInstances;
+				numRenderInstances = m_multiThreadedHelper->m_childGuiHelper->getRenderInterface()->getTotalNumInstances();
 				b3Assert(numRenderInstances==0);
 			}
 			m_multiThreadedHelper->mainThreadRelease();
@@ -1379,17 +1380,17 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
     case eGUIHelperCopyCameraImageData:
         {
              m_multiThreadedHelper->m_childGuiHelper->copyCameraImageData(m_multiThreadedHelper->m_viewMatrix,
-                                                                                 m_multiThreadedHelper->m_projectionMatrix,
-                                                                                 m_multiThreadedHelper->m_pixelsRGBA,
-                                                                                 m_multiThreadedHelper->m_rgbaBufferSizeInPixels,
-                                                                                 m_multiThreadedHelper->m_depthBuffer,
-                                                                                 m_multiThreadedHelper->m_depthBufferSizeInPixels,
-                                                                                 m_multiThreadedHelper->m_segmentationMaskBuffer,
-                                                                                 m_multiThreadedHelper->m_segmentationMaskBufferSizeInPixels,
-                                                                                 m_multiThreadedHelper->m_startPixelIndex, 
-                                                                                 m_multiThreadedHelper->m_destinationWidth, 
-                                                                                 m_multiThreadedHelper->m_destinationHeight, 
-                                                                                 m_multiThreadedHelper->m_numPixelsCopied);
+				 m_multiThreadedHelper->m_projectionMatrix,
+				 m_multiThreadedHelper->m_pixelsRGBA,
+				 m_multiThreadedHelper->m_rgbaBufferSizeInPixels,
+				 m_multiThreadedHelper->m_depthBuffer,
+				 m_multiThreadedHelper->m_depthBufferSizeInPixels,
+				 m_multiThreadedHelper->m_segmentationMaskBuffer,
+				 m_multiThreadedHelper->m_segmentationMaskBufferSizeInPixels,
+				 m_multiThreadedHelper->m_startPixelIndex, 
+				 m_multiThreadedHelper->m_destinationWidth, 
+				 m_multiThreadedHelper->m_destinationHeight, 
+				 m_multiThreadedHelper->m_numPixelsCopied);
  		m_multiThreadedHelper->mainThreadRelease();
             break;
         }
