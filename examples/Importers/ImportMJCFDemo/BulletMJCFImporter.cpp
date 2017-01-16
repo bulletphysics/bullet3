@@ -1015,7 +1015,7 @@ bool BulletMJCFImporter::loadMJCF(const char* fileName, MJCFErrorLogger* logger,
 	b3FileUtils fu;
 	
 	//bool fileFound = fu.findFile(fileName, relativeFileName, 1024);
-  	bool fileFound = b3ResourcePath::findResourcePath(fileName,relativeFileName,1024);
+  	bool fileFound = (b3ResourcePath::findResourcePath(fileName,relativeFileName,1024)>0);
 	
 	std::string xml_string;
 	m_data->m_pathPrefix[0] = 0;
@@ -1334,7 +1334,8 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 					//f-=c;
 					//t-=c;
 					btVector3 fromto[2] = {f,t};
-					btScalar radii[2] = {col->m_geometry.m_capsuleRadius,col->m_geometry.m_capsuleRadius};
+					btScalar radii[2] = {btScalar(col->m_geometry.m_capsuleRadius)
+										,btScalar(col->m_geometry.m_capsuleRadius)};
 			
 					btMultiSphereShape* ms = new btMultiSphereShape(fromto,radii,2);
 					childShape = ms;

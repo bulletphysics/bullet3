@@ -1978,7 +1978,7 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 
 	if (controllerId == gGraspingController && (button == 33))
 	{
-		gVRGripperClosed =state;
+		gVRGripperClosed =(state!=0);
 	}
 	else
 	{

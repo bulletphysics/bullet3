@@ -39,7 +39,7 @@ struct btMultiBodyJacobianData
 };
 
 
-class btMultiBodyConstraint
+ATTRIBUTE_ALIGNED16(class) btMultiBodyConstraint
 {
 protected:
 
@@ -83,6 +83,8 @@ protected:
 																bool isFriction = false, btScalar desiredVelocity=0, btScalar cfmSlip=0);
 
 public:
+
+	BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	btMultiBodyConstraint(btMultiBody* bodyA,btMultiBody* bodyB,int linkA, int linkB, int numRows, bool isUnilateral);
 	virtual ~btMultiBodyConstraint();

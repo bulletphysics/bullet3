@@ -29,7 +29,8 @@ struct MyDebugVec3
 	float y;
 	float z;
 };
-class MyDebugDrawer : public btIDebugDraw
+
+ATTRIBUTE_ALIGNED16( class )MyDebugDrawer : public btIDebugDraw
 {
 	CommonGraphicsApp* m_glApp;
 	int m_debugMode;
@@ -40,6 +41,7 @@ class MyDebugDrawer : public btIDebugDraw
 	DefaultColors m_ourColors;
 
 public:
+	BT_DECLARE_ALIGNED_ALLOCATOR();
 
 	MyDebugDrawer(CommonGraphicsApp* app)
 		: m_glApp(app)

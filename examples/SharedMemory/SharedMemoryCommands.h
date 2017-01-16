@@ -313,6 +313,7 @@ enum EnumSimParamUpdateFlags
 	SIM_PARAM_UPDATE_INTERNAL_SIMULATION_FLAGS=64,
 	SIM_PARAM_UPDATE_USE_SPLIT_IMPULSE=128,
 	SIM_PARAM_UPDATE_SPLIT_IMPULSE_PENETRATION_THRESHOLD = 256,
+	SIM_PARAM_UPDATE_COLLISION_FILTER_MODE=512
 };
 
 enum EnumLoadBunnyUpdateFlags
@@ -341,6 +342,7 @@ struct SendPhysicsSimulationParameters
 	double m_splitImpulsePenetrationThreshold;
 	int m_internalSimFlags;
 	double m_defaultContactERP;
+	int m_collisionFilterMode;
 };
 
 struct LoadBunnyArgs

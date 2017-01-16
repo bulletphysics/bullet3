@@ -86,7 +86,7 @@ INCLUDE_DIRECTORIES(
 )
 
 LINK_LIBRARIES(
- Bullet3Common BulletWorldImporter BulletInverseDynamicsUtils BulletInverseDynamics BulletDynamics BulletCollision LinearMath BussIK
+ Bullet3Common BulletWorldImporter BulletFileLoader BulletInverseDynamicsUtils BulletInverseDynamics BulletDynamics BulletCollision LinearMath BussIK
 )
 
 IF (WIN32)
@@ -132,6 +132,7 @@ ENDIF(INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
 INCLUDE_DIRECTORIES(
 	${BULLET_PHYSICS_SOURCE_DIR}/src
 	${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs
+	${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew
 )
 
 ADD_DEFINITIONS(-DB3_USE_STANDALONE_EXAMPLE)
