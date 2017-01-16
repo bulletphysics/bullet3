@@ -112,7 +112,7 @@ inline int b3ClipFaceAgainstHull(const b3Float4& separatingNormal, const b3Conve
 	b3GpuFace polyA = facesA[hullA->m_faceOffset+closestFaceA];
 
 	// clip polygon to back of planes of all faces of hull A that are adjacent to witness face
-	int numContacts = numWorldVertsB1;
+	//int numContacts = numWorldVertsB1;
 	int numVerticesA = polyA.m_numIndices;
 	for(int e0=0;e0<numVerticesA;e0++)
 	{
@@ -193,7 +193,7 @@ inline int	b3ClipHullAgainstHull(const b3Float4& separatingNormal,
 	
 	B3_PROFILE("clipHullAgainstHull");
 
-	float curMaxDist=maxDist;
+	//float curMaxDist=maxDist;
 	int closestFaceB=-1;
 	float dmax = -FLT_MAX;
 
@@ -399,7 +399,7 @@ inline int b3ClipHullHullSingle(
 				contact.m_frictionCoeffCmp = 45874;
 				contact.m_restituitionCoeffCmp = 0;
 					
-				float distance = 0.f;
+			//	float distance = 0.f;
 				for (int p=0;p<numPoints;p++)
 				{
 					contact.m_worldPosB[p] = contactsOut[contactIdx.s[p]];//check if it is actually on B
@@ -461,9 +461,6 @@ inline int b3ContactConvexConvexSAT(
     //printf("numvertsB = %d\n",hullB.m_numVertices);
     
 	
-//	b3Float4 contactsOut[B3_MAX_VERTS];
-	int contactCapacity = B3_MAX_VERTS;
-	int numContactsOut=0;
 
 
 #ifdef _WIN32

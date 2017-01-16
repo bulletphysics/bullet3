@@ -157,7 +157,6 @@ struct BulletMJCFImporterInternalData
 		//rudimentary 'default' support, would need more work for better feature coverage
 		for (TiXmlElement* child_xml = root_xml->FirstChildElement() ; child_xml ; child_xml = child_xml->NextSiblingElement())
 		{
-			bool handled = false;
 			std::string n = child_xml->Value();
 			if (n=="inertial")
 			{
@@ -412,7 +411,7 @@ struct BulletMJCFImporterInternalData
 
 		
 
-		const char* rgba = link_xml->Attribute("rgba");
+//		const char* rgba = link_xml->Attribute("rgba");
 		const char* gType = link_xml->Attribute("type");
 		const char* sz = link_xml->Attribute("size");
 		const char* posS = link_xml->Attribute("pos");
@@ -713,7 +712,7 @@ struct BulletMJCFImporterInternalData
 		const char* bodyName = link_xml->Attribute("name");
 		int orgChildLinkIndex = createBody(modelIndex,bodyName);
 		
-		int curChildLinkIndex = orgChildLinkIndex;
+//		int curChildLinkIndex = orgChildLinkIndex;
 		std::string bodyN;
 		
 		if (bodyName)
@@ -727,7 +726,7 @@ struct BulletMJCFImporterInternalData
 		}
 		
 
-		btTransform orgLinkTransform = parseTransform(link_xml,logger);
+//		btTransform orgLinkTransform = parseTransform(link_xml,logger);
 
 		btTransform linkTransform = parseTransform(link_xml,logger);
 		UrdfLink* linkPtr = getLink(modelIndex,orgChildLinkIndex);
@@ -739,7 +738,7 @@ struct BulletMJCFImporterInternalData
 		btQuaternion inertialOrn(0,0,0,1);
 		btScalar mass = 0.f;
 		btVector3 localInertiaDiag(0,0,0);
-		int thisLinkIndex = -2;
+	//	int thisLinkIndex = -2;
 		bool hasJoint = false;
 		btTransform jointTrans;
 		jointTrans.setIdentity();
@@ -1331,7 +1330,7 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 					btVector3 f = col->m_geometry.m_capsuleFrom;
 					btVector3 t = col->m_geometry.m_capsuleTo;
 					//MuJoCo seems to take the average of the spheres as center?
-					btVector3 c = (f+t)*0.5;
+					//btVector3 c = (f+t)*0.5;
 					//f-=c;
 					//t-=c;
 					btVector3 fromto[2] = {f,t};

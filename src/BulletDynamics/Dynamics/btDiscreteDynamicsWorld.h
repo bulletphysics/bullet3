@@ -144,11 +144,11 @@ public:
 
 	virtual btVector3 getGravity () const;
 
-	virtual void	addCollisionObject(btCollisionObject* collisionObject,short int collisionFilterGroup=btBroadphaseProxy::StaticFilter,short int collisionFilterMask=btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+	virtual void	addCollisionObject(btCollisionObject* collisionObject, int collisionFilterGroup=btBroadphaseProxy::StaticFilter, int collisionFilterMask=btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 
 	virtual void	addRigidBody(btRigidBody* body);
 
-	virtual void	addRigidBody(btRigidBody* body, short group, short mask);
+	virtual void	addRigidBody(btRigidBody* body, int group, int mask);
 
 	virtual void	removeRigidBody(btRigidBody* body);
 

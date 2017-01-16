@@ -705,6 +705,7 @@ float computeConcavity(unsigned int vcount,
 			}
 		}
 
+#if 0
 	  if ( ftris.size()  && 0 )
 	  {
 
@@ -725,17 +726,17 @@ float computeConcavity(unsigned int vcount,
 
         do
         {
-          found = false;
-          CTriVector::iterator i;
-          for (i=ftris.begin(); i!=ftris.end(); ++i)
-          {
-            CTri &t = (*i);
-            if ( isFeatureTri(t,flist,maxc,callback,color) )
-            {
-              found = true;
-              totalarea+=t.area();
-            }
-  				}
+			  found = false;
+			  CTriVector::iterator i;
+			  for (i=ftris.begin(); i!=ftris.end(); ++i)
+			  {
+				CTri &t = (*i);
+				if ( isFeatureTri(t,flist,maxc,callback,color) )
+				{
+				  found = true;
+				  totalarea+=t.area();
+				}
+			  }
         } while ( found );
 
 
@@ -759,6 +760,7 @@ float computeConcavity(unsigned int vcount,
             }
           }
         }
+		  
       }
 
       unsigned int color = getDebugColor();
@@ -786,7 +788,7 @@ float computeConcavity(unsigned int vcount,
 
 	  hl.ReleaseResult(result);
   }
-
+#endif
 
 	return cret;
 }

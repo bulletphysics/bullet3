@@ -25,13 +25,9 @@ class GripperGraspExample : public CommonExampleInterface
 	GUIHelperInterface* m_guiHelper;
 	b3RobotSimAPI m_robotSim;
 	int m_options;
-	int m_r2d2Index;
     int m_gripperIndex;
     
-    float m_x;
-    float m_y;
-    float m_z;
-	b3AlignedObjectArray<int> m_movingInstances;
+ 	b3AlignedObjectArray<int> m_movingInstances;
 	enum
 	{
 		numCubesX = 20,
@@ -43,12 +39,8 @@ public:
     :m_app(helper->getAppInterface()),
 	m_guiHelper(helper),
 	m_options(options),
-	m_r2d2Index(-1),
-    m_gripperIndex(-1),
-    m_x(0),
-    m_y(0),
-	m_z(0)
-    {
+    m_gripperIndex(-1)
+	{
 		m_app->setUpAxis(2);
     }
     virtual ~GripperGraspExample()

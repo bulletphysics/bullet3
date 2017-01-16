@@ -721,7 +721,7 @@ static void saveCurrentSettings(int currentEntry,const char* startFileName)
 
 static void loadCurrentSettings(const char* startFileName, b3CommandLineArgs& args)
 {
-	int currentEntry= 0;
+	//int currentEntry= 0;
 	FILE* f = fopen(startFileName,"r");
 	if (f)
 	{

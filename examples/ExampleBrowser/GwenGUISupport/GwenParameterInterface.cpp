@@ -36,12 +36,13 @@ struct MySliderEventHandler : public Gwen::Event::Handler
     bool m_showValue;
 
 	MySliderEventHandler(const char* varName, Gwen::Controls::TextBox* label, Gwen::Controls::Slider* pSlider,T* target, SliderParamChangedCallback callback, void* userPtr)
-		:m_label(label),
+	:	m_callback(callback),
+		m_userPointer(userPtr),
+		m_label(label),
 		m_pSlider(pSlider),
-		m_targetValue(target),
-        m_showValue(true),
-		m_callback(callback),
-        m_userPointer(userPtr)
+	m_targetValue(target),
+	m_showValue(true)
+
 	{
 		memcpy(m_variableName,varName,strlen(varName)+1);
 	}

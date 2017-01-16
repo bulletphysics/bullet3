@@ -242,7 +242,7 @@ void	MultiDofDemo::initPhysics()
 
         if (multibodyConstraint) {
             btVector3 pointInA = -linkHalfExtents;
-            btVector3 pointInB = halfExtents;
+      //      btVector3 pointInB = halfExtents;
             btMatrix3x3 frameInA;
             btMatrix3x3 frameInB;
             frameInA.setIdentity();

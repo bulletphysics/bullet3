@@ -63,8 +63,8 @@ public:
 	
 
 
-	virtual void createProxy(const b3Vector3& aabbMin,  const b3Vector3& aabbMax, int userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
-	virtual void createLargeProxy(const b3Vector3& aabbMin,  const b3Vector3& aabbMax, int userPtr ,short int collisionFilterGroup,short int collisionFilterMask);
+	virtual void createProxy(const b3Vector3& aabbMin,  const b3Vector3& aabbMax, int userPtr , int collisionFilterGroup, int collisionFilterMask);
+	virtual void createLargeProxy(const b3Vector3& aabbMin,  const b3Vector3& aabbMax, int userPtr , int collisionFilterGroup, int collisionFilterMask);
 
 	virtual void  calculateOverlappingPairs(int maxPairs);
 	virtual void  calculateOverlappingPairsHost(int maxPairs);

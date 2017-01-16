@@ -21,7 +21,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>meshes/coarse/link_0.stl</uri>
+            <uri>meshes/link_0.stl</uri>
           </mesh>
         </geometry>
       </collision>
@@ -60,7 +60,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>meshes/coarse/link_1.stl</uri>
+            <uri>meshes/link_1.stl</uri>
           </mesh>
         </geometry>
       </collision>
@@ -119,7 +119,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>meshes/coarse/link_2.stl</uri>
+            <uri>meshes/link_2.stl</uri>
           </mesh>
         </geometry>
       </collision>
@@ -178,7 +178,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>meshes/coarse/link_3.stl</uri>
+            <uri>meshes/link_3.stl</uri>
           </mesh>
         </geometry>
       </collision>
@@ -237,7 +237,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>meshes/coarse/link_4.stl</uri>
+            <uri>meshes/link_4.stl</uri>
           </mesh>
         </geometry>
       </collision>
@@ -296,7 +296,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>meshes/coarse/link_5.stl</uri>
+            <uri>meshes/link_5.stl</uri>
           </mesh>
         </geometry>
       </collision>
@@ -355,7 +355,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>meshes/coarse/link_6.stl</uri>
+            <uri>meshes/link_6.stl</uri>
           </mesh>
         </geometry>
       </collision>
@@ -414,7 +414,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>meshes/coarse/link_7.stl</uri>
+            <uri>meshes/link_7.stl</uri>
           </mesh>
         </geometry>
       </collision>

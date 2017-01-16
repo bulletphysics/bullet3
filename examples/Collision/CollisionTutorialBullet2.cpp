@@ -61,8 +61,8 @@ class CollisionTutorialBullet2 : public CommonExampleInterface
 	plCollisionSdkHandle m_collisionSdkHandle;
 	plCollisionWorldHandle m_collisionWorldHandle;
 	
-	int m_stage;
-	int m_counter;
+//	int m_stage;
+//	int m_counter;
 	
 public:
     
@@ -70,11 +70,11 @@ public:
     :m_app(guiHelper->getAppInterface()),
 	m_guiHelper(guiHelper),
 	m_tutorialIndex(tutorialIndex),
+	m_timeSeriesCanvas0(0),
 	m_collisionSdkHandle(0),
-	m_collisionWorldHandle(0),
-	m_stage(0),
-	m_counter(0),
-	m_timeSeriesCanvas0(0)
+	m_collisionWorldHandle(0)
+//	m_stage(0),
+//	m_counter(0)
     {
 		
 		gTotalPoints = 0;

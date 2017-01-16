@@ -158,9 +158,9 @@ static btScalar loadMass = 350.f;//
 #endif
 
 
-static int rightIndex = 0;
-static int upIndex = 1;
-static int forwardIndex = 2;
+//static int rightIndex = 0;
+//static int upIndex = 1;
+//static int forwardIndex = 2;
 static btVector3 wheelDirectionCS0(0,-1,0);
 static btVector3 wheelAxleCS(-1,0,0);
 
@@ -173,8 +173,8 @@ static bool useMCLPSolver = false;//true;
 #include "Hinge2Vehicle.h"
 
 
-static const int maxProxies = 32766;
-static const int maxOverlap = 65535;
+//static const int maxProxies = 32766;
+//static const int maxOverlap = 65535;
 
 static float	gEngineForce = 0.f;
 
@@ -182,21 +182,21 @@ static float	defaultBreakingForce = 10.f;
 static float	gBreakingForce = 100.f;
 
 static float	maxEngineForce = 1000.f;//this should be engine/velocity dependent
-static float	maxBreakingForce = 100.f;
+//static float	maxBreakingForce = 100.f;
 
 static float	gVehicleSteering = 0.f;
 static float	steeringIncrement = 0.04f;
 static float	steeringClamp = 0.3f;
 static float	wheelRadius = 0.5f;
 static float	wheelWidth = 0.4f;
-static float	wheelFriction = 1000;//BT_LARGE_FLOAT;
-static float	suspensionStiffness = 20.f;
-static float	suspensionDamping = 2.3f;
-static float	suspensionCompression = 4.4f;
-static float	rollInfluence = 0.1f;//1.0f;
+//static float	wheelFriction = 1000;//BT_LARGE_FLOAT;
+//static float	suspensionStiffness = 20.f;
+//static float	suspensionDamping = 2.3f;
+//static float	suspensionCompression = 4.4f;
+//static float	rollInfluence = 0.1f;//1.0f;
 
 
-static btScalar suspensionRestLength(0.6);
+//static btScalar suspensionRestLength(0.6);
 
 #define CUBE_HALF_EXTENTS 1
 
@@ -209,8 +209,8 @@ static btScalar suspensionRestLength(0.6);
 
 Hinge2Vehicle::Hinge2Vehicle(struct GUIHelperInterface* helper)
 :CommonRigidBodyBase(helper),
-m_guiHelper(helper),
 m_carChassis(0),
+m_guiHelper(helper),
 m_liftBody(0),
 m_forkBody(0),
 m_loadBody(0),
@@ -378,10 +378,10 @@ tr.setOrigin(btVector3(0,-3,0));
 	m_wheelShape = new btCylinderShapeX(btVector3(wheelWidth,wheelRadius,wheelRadius));
 	
 
-	const float position[4]={0,10,10,0};
-	const float quaternion[4]={0,0,0,1};
-	const float color[4]={0,1,0,1};
-	const float scaling[4] = {1,1,1,1};
+	//const float position[4]={0,10,10,0};
+	//const float quaternion[4]={0,0,0,1};
+	//const float color[4]={0,1,0,1};
+	//const float scaling[4] = {1,1,1,1};
 
 	btVector3 wheelPos[4] = {
 		btVector3(btScalar(-1.), btScalar(-0.25), btScalar(1.25)),

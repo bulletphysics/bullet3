@@ -23,9 +23,6 @@ class R2D2GraspExample : public CommonExampleInterface
 	int m_options;
 	int m_r2d2Index;
 	
-    float m_x;
-    float m_y;
-    float m_z;
 	b3AlignedObjectArray<int> m_movingInstances;
 	enum
 	{
@@ -38,10 +35,7 @@ public:
     :m_app(helper->getAppInterface()),
 	m_guiHelper(helper),
 	m_options(options),
-	m_r2d2Index(-1),
-    m_x(0),
-    m_y(0),
-	m_z(0)
+	m_r2d2Index(-1)
     {
 		m_app->setUpAxis(2);
     }
@@ -70,7 +64,7 @@ public:
 				b3RobotSimLoadFileResults results;
 				if (m_robotSim.loadFile(args, results) && results.m_uniqueObjectIds.size()==1)
 				{
-					int m_r2d2Index = results.m_uniqueObjectIds[0];
+					m_r2d2Index = results.m_uniqueObjectIds[0];
 					int numJoints = m_robotSim.getNumJoints(m_r2d2Index);
 					b3Printf("numJoints = %d",numJoints);
 

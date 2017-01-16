@@ -4,8 +4,8 @@
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 
-short collisionFilterGroup = short(btBroadphaseProxy::CharacterFilter);
-short collisionFilterMask = short(btBroadphaseProxy::AllFilter ^ (btBroadphaseProxy::CharacterFilter));
+int collisionFilterGroup = int(btBroadphaseProxy::CharacterFilter);
+int collisionFilterMask = int(btBroadphaseProxy::AllFilter ^ (btBroadphaseProxy::CharacterFilter));
 static btScalar radius(0.2);
 
 struct TestHingeTorque : public CommonRigidBodyBase
@@ -123,9 +123,7 @@ void TestHingeTorque::initPhysics()
 	{ // create a door using hinge constraint attached to the world
         
         int numLinks = 2;
-        bool spherical = false;					//set it ot false -to use 1DoF hinges instead of 3DoF sphericals
-        bool canSleep = false;
-        bool selfCollide = false;
+    //    bool selfCollide = false;
         btVector3 linkHalfExtents(0.05, 0.37, 0.1);
         btVector3 baseHalfExtents(0.05, 0.37, 0.1);
 
@@ -223,7 +221,7 @@ void TestHingeTorque::initPhysics()
 		
 		btTransform start; start.setIdentity();
 		btVector3 groundOrigin(-0.4f, 3.f, 0.f);
-		btVector3 basePosition = btVector3(-0.4f, 3.f, 0.f);
+	//	btVector3 basePosition = btVector3(-0.4f, 3.f, 0.f);
 		btQuaternion groundOrn(btVector3(0,1,0),0.25*SIMD_PI);
 		
 		groundOrigin[upAxis] -=.5;

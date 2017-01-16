@@ -546,7 +546,7 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(int linkIndex, const 
 			btAlignedObjectArray<GLInstanceVertex> vertices;
 			btAlignedObjectArray<int> indices;
 			btTransform startTrans; startTrans.setIdentity();
-			int graphicsIndex = -1;
+			//int graphicsIndex = -1;
 
 			const UrdfVisual& vis = link->m_visualArray[v];
 			btTransform childTrans = vis.m_linkLocalFrame;
@@ -660,7 +660,7 @@ int TinyRendererVisualShapeConverter::getVisualShapesData(int bodyUniqueId, int 
 			break;
 		}
 	}
-	int count = 0;
+	//int count = 0;
 
 	if (start >= 0)
 	{

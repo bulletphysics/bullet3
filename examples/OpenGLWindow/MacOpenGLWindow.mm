@@ -223,8 +223,8 @@ MacOpenGLWindow::MacOpenGLWindow()
 m_mouseX(0),
 m_mouseY(0),
 m_modifierFlags(0),
-m_mouseMoveCallback(0),
 m_mouseButtonCallback(0),
+m_mouseMoveCallback(0),
 m_wheelCallback(0),
 m_keyboardCallback(0),
 m_retinaScaleFactor(1),
@@ -334,10 +334,10 @@ void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
     
     // add Edit menu
     NSMenuItem *editMenuItem = [[NSMenuItem new] autorelease];
-    NSMenu *menu = [[NSMenu allocWithZone:[NSMenu menuZone]]initWithTitle:@"Edit"];
+    NSMenu *menu = [[NSMenu alloc]initWithTitle:@"Edit"];
     [editMenuItem setSubmenu: menu];
     
-    NSMenuItem *copyItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]]initWithTitle:@"Copy" action:@selector(copy:) keyEquivalent:@"c"];
+    NSMenuItem *copyItem = [[NSMenuItem alloc]initWithTitle:@"Copy" action:@selector(copy:) keyEquivalent:@"c"];
     
     [menu addItem:copyItem];
     [menubar addItem:editMenuItem];

@@ -31,11 +31,11 @@ struct DepthShader : public IShader {
     
     DepthShader(Model* model, Matrix& lightModelView, Matrix& projectionMat, Matrix& modelMat, Vec3f localScaling, float lightDistance)
     :m_model(model),
-    m_lightModelView(lightModelView),
-    m_projectionMat(projectionMat),
     m_modelMat(modelMat),
-    m_localScaling(localScaling),
-    m_lightDistance(lightDistance)
+	m_projectionMat(projectionMat),
+	m_localScaling(localScaling),
+	m_lightModelView(lightModelView),
+	m_lightDistance(lightDistance)
     {
         m_invModelMat = m_modelMat.invert_transpose();
     }
@@ -92,19 +92,21 @@ struct Shader : public IShader {
     :m_model(model),
     m_light_dir_local(light_dir_local),
     m_light_color(light_color),
-    m_ambient_coefficient(ambient_coefficient),
-    m_diffuse_coefficient(diffuse_coefficient),
-    m_specular_coefficient(specular_coefficient),
-    m_modelView1(modelView),
-    m_lightModelView(lightModelView),
-    m_projectionMat(projectionMat),
-    m_modelMat(modelMat),
-    m_viewportMat(viewportMat),
-    m_localScaling(localScaling),
-    m_colorRGBA(colorRGBA),
-    m_width(width),
-    m_height(height),
-    m_shadowBuffer(shadowBuffer)
+	m_modelMat(modelMat),
+	m_modelView1(modelView),
+	m_projectionMat(projectionMat),
+	m_localScaling(localScaling),
+	m_lightModelView(lightModelView),
+	m_colorRGBA(colorRGBA),
+	m_viewportMat(viewportMat),
+	m_ambient_coefficient(ambient_coefficient),
+	m_diffuse_coefficient(diffuse_coefficient),
+	m_specular_coefficient(specular_coefficient),
+
+	m_shadowBuffer(shadowBuffer),
+	m_width(width),
+    m_height(height)
+   
     {
         m_invModelMat = m_modelMat.invert_transpose();
     }
@@ -157,11 +159,12 @@ struct Shader : public IShader {
 };
 
 TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer,b3AlignedObjectArray<float>* shadowBuffer)
-:m_rgbColorBuffer(rgbColorBuffer),
+:
+m_model(0),
+m_rgbColorBuffer(rgbColorBuffer),
 m_depthBuffer(depthBuffer),
 m_shadowBuffer(shadowBuffer),
 m_segmentationMaskBufferPtr(0),
-m_model(0),
 m_userData(0),
 m_userIndex(-1),
 m_objectIndex(-1)
@@ -180,11 +183,11 @@ m_objectIndex(-1)
 }
 
 TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer, b3AlignedObjectArray<float>* shadowBuffer, b3AlignedObjectArray<int>* segmentationMaskBuffer, int objectIndex)
-:m_rgbColorBuffer(rgbColorBuffer),
+:m_model(0),
+m_rgbColorBuffer(rgbColorBuffer),
 m_depthBuffer(depthBuffer),
 m_shadowBuffer(shadowBuffer),
 m_segmentationMaskBufferPtr(segmentationMaskBuffer),
-m_model(0),
 m_userData(0),
 m_userIndex(-1),
 m_objectIndex(objectIndex)
@@ -203,10 +206,10 @@ m_objectIndex(objectIndex)
 }
 
 TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer)
-:m_rgbColorBuffer(rgbColorBuffer),
+:m_model(0),
+m_rgbColorBuffer(rgbColorBuffer),
 m_depthBuffer(depthBuffer),
 m_segmentationMaskBufferPtr(0),
-m_model(0),
 m_userData(0),
 m_userIndex(-1),
 m_objectIndex(-1)
@@ -225,10 +228,10 @@ m_objectIndex(-1)
 }
 
 TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer, b3AlignedObjectArray<int>* segmentationMaskBuffer, int objectIndex)
-:m_rgbColorBuffer(rgbColorBuffer),
+:m_model(0),
+m_rgbColorBuffer(rgbColorBuffer),
 m_depthBuffer(depthBuffer),
 m_segmentationMaskBufferPtr(segmentationMaskBuffer),
-m_model(0),
 m_userData(0),
 m_userIndex(-1),
 m_objectIndex(objectIndex)

@@ -411,7 +411,7 @@ void bFile::swapDNA(char* ptr)
 
 //	void bDNA::init(char *data, int len, bool swap)
 	int *intPtr=0;short *shtPtr=0;
-	char *cp = 0;int dataLen =0;long nr=0;
+	char *cp = 0;int dataLen =0;
 	intPtr = (int*)data;
 
 	/*
@@ -573,7 +573,7 @@ void bFile::writeFile(const char* fileName)
 void bFile::preSwap()
 {
 
-	const bool brokenDNA = (mFlags&FD_BROKEN_DNA)!=0;
+	//const bool brokenDNA = (mFlags&FD_BROKEN_DNA)!=0;
 	//FD_ENDIAN_SWAP
 	//byte 8 determines the endianness of the file, little (v) versus big (V)
 	int littleEndian= 1;
@@ -1285,7 +1285,7 @@ int bFile::resolvePointersStructRecursive(char *strcPtr, int dna_nr, int verbose
 						}
 						//skip the *
 						printf("<%s type=\"pointer\"> ",&memName[1]);
-						printf("%d ", array[a]);
+						printf("%p ", array[a]);
 						printf("</%s>\n",&memName[1]);
 					}
 
@@ -1303,7 +1303,7 @@ int bFile::resolvePointersStructRecursive(char *strcPtr, int dna_nr, int verbose
 						printf("  ");
 					}
 					printf("<%s type=\"pointer\"> ",&memName[1]);
-					printf("%d ", ptr);
+					printf("%p ", ptr);
 					printf("</%s>\n",&memName[1]);
 				}
 				ptr = findLibPointer(ptr);
@@ -1484,7 +1484,7 @@ void bFile::resolvePointers(int verboseMode)
 				char* oldType = fileDna->getType(oldStruct[0]);
 				
 				if (verboseMode & FD_VERBOSE_EXPORT_XML)
-					printf(" <%s pointer=%d>\n",oldType,dataChunk.oldPtr);
+					printf(" <%s pointer=%p>\n",oldType,dataChunk.oldPtr);
 
 				resolvePointersChunk(dataChunk, verboseMode);
 

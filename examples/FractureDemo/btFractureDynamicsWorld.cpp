@@ -529,7 +529,7 @@ void btFractureDynamicsWorld::fractureCallback( )
 		{
 			int j=f0;
 
-			btCollisionObject* colOb = (btCollisionObject*)manifold->getBody1();
+	//		btCollisionObject* colOb = (btCollisionObject*)manifold->getBody1();
 	//		btRigidBody* otherOb = btRigidBody::upcast(colOb);
 			//	if (!otherOb->getInvMass())
 			//		continue;
@@ -562,8 +562,8 @@ void btFractureDynamicsWorld::fractureCallback( )
 		{
 			int j=f1;
 			{
-				btCollisionObject* colOb = (btCollisionObject*)manifold->getBody0();
-				btRigidBody* otherOb = btRigidBody::upcast(colOb);
+				//btCollisionObject* colOb = (btCollisionObject*)manifold->getBody0();
+				//btRigidBody* otherOb = btRigidBody::upcast(colOb);
 				//	if (!otherOb->getInvMass())
 				//		continue;
 

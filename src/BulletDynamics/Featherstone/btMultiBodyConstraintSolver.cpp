@@ -602,7 +602,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyTorsionalFrictionConstraint(btMu
     
     relaxation = infoGlobal.m_sor;
     
-    btScalar invTimeStep = btScalar(1)/infoGlobal.m_timeStep;
+   // btScalar invTimeStep = btScalar(1)/infoGlobal.m_timeStep;
     
     
     if (multiBodyA)
@@ -817,7 +817,6 @@ void btMultiBodyConstraintSolver::setupMultiBodyTorsionalFrictionConstraint(btMu
     
     {
         
-        btScalar positionalError = 0.f;
         btScalar velocityError = restitution - rel_vel;// * damping;	//note for friction restitution is always set to 0 (check above) so it is acutally velocityError = -rel_vel for friction
         
         if (penetration>0)

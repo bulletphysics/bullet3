@@ -11,8 +11,8 @@
 #include "MultiBodyCreationInterface.h"
 #include <string>
 
-static int bodyCollisionFilterGroup=btBroadphaseProxy::CharacterFilter;
-static int bodyCollisionFilterMask=btBroadphaseProxy::AllFilter&(~btBroadphaseProxy::CharacterFilter);
+//static int bodyCollisionFilterGroup=btBroadphaseProxy::CharacterFilter;
+//static int bodyCollisionFilterMask=btBroadphaseProxy::AllFilter&(~btBroadphaseProxy::CharacterFilter);
 static bool enableConstraints = true;
 
 static btVector4 colors[4] =
@@ -446,8 +446,8 @@ void ConvertURDF2BulletInternal(
 				
 				//base and fixed? -> static, otherwise flag as dynamic
                 bool isDynamic = (mbLinkIndex<0 && cache.m_bulletMultiBody->hasFixedBase())? false : true;
-                short collisionFilterGroup = isDynamic? short(btBroadphaseProxy::DefaultFilter) : short(btBroadphaseProxy::StaticFilter);
-                short collisionFilterMask = isDynamic? 	short(btBroadphaseProxy::AllFilter) : 	short(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+                int collisionFilterGroup = isDynamic? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
+                int collisionFilterMask = isDynamic? 	int(btBroadphaseProxy::AllFilter) : 	int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 
 				int colGroup=0, colMask=0;
 				int flags = u2b.getCollisionGroupAndMask(urdfLinkIndex,colGroup, colMask);

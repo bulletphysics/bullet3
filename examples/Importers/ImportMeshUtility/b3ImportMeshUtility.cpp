@@ -30,7 +30,7 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 		
 		GLInstanceGraphicsShape* gfxShape = btgCreateGraphicsShapeFromWavefrontObj(shapes);
 		
-		int textureIndex = -1;
+		//int textureIndex = -1;
 		//try to load some texture
 		for (int i=0;i<shapes.size();i++)
 		{

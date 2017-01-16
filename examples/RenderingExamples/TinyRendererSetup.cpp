@@ -43,14 +43,14 @@ struct TinyRendererSetupInternalData
 	int m_animateRenderer;
 
 	TinyRendererSetupInternalData(int width, int height)
-		:m_roll(0),
-		m_pitch(0),
-		m_yaw(0),
-
-		m_width(width),
-		m_height(height),
+		:
 		m_rgbColorBuffer(width,height,TGAImage::RGB),
-		m_textureHandle(0),
+	m_width(width),
+	m_height(height),
+	m_pitch(0),
+	m_roll(0),
+	m_yaw(0),
+	m_textureHandle(0),
 		m_animateRenderer(0)
 	{
 		m_depthBuffer.resize(m_width*m_height);

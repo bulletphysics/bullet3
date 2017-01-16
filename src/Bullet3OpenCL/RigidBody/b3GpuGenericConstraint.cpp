@@ -55,7 +55,7 @@ void getInfo2Point2Point(b3GpuGenericConstraint* constraint, b3GpuConstraintInfo
 	info->m_J1linearAxis[2*info->rowskip+2] = 1;
 
 	b3Vector3 a1 = trA.getBasis()*constraint->getPivotInA();
-	b3Vector3 a1a = b3QuatRotate(trA.getRotation(),constraint->getPivotInA());
+	//b3Vector3 a1a = b3QuatRotate(trA.getRotation(),constraint->getPivotInA());
 
 	{
 		b3Vector3* angular0 = (b3Vector3*)(info->m_J1angularAxis);

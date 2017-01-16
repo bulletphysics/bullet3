@@ -233,7 +233,7 @@ void	ExampleBrowserThreadFunc(void* userPtr,void* lsMemory)
 	ExampleBrowserThreadLocalStorage* localStorage = (ExampleBrowserThreadLocalStorage*) lsMemory;
 
 	ExampleBrowserArgs* args = (ExampleBrowserArgs*) userPtr;
-	int workLeft = true;
+	//int workLeft = true;
   b3CommandLineArgs args2(args->m_argc,args->m_argv);
 	b3Clock clock;
 
@@ -411,7 +411,8 @@ btInProcessExampleBrowserMainThreadInternalData* btCreateInProcessExampleBrowser
     data->m_exampleBrowser = new DefaultBrowser(&data->m_examples);
     data->m_sharedMem = new InProcessMemory;
     data->m_exampleBrowser->setSharedMemoryInterface(data->m_sharedMem );
-    bool init = data->m_exampleBrowser->init(argc,argv);
+	bool init;
+	init = data->m_exampleBrowser->init(argc,argv);
     data->m_clock.reset();
     return data;
 }

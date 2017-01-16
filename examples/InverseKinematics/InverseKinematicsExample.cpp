@@ -155,10 +155,7 @@ class InverseKinematicsExample : public CommonExampleInterface
 	b3AlignedObjectArray<Node*> m_ikNodes;
 	Jacobian* m_ikJacobian;
 
-    float m_x;
-    float m_y;
-    float m_z;
-	b3AlignedObjectArray<int> m_movingInstances;
+ 	b3AlignedObjectArray<int> m_movingInstances;
 	int m_targetInstance;
 	enum
 	{
@@ -169,12 +166,9 @@ public:
     
     InverseKinematicsExample(CommonGraphicsApp* app, int option)
     :m_app(app),
-    m_x(0),
-    m_y(0),
-	m_z(0),
-	m_targetInstance(-1),
-	m_ikMethod(option)
-    {
+	m_ikMethod(option),
+	m_targetInstance(-1)
+	{
 		m_app->setUpAxis(2);
         
 		 {
@@ -336,7 +330,7 @@ public:
 
 void InverseKinematicsExample::BuildKukaIIWAShape()
 {
-	const VectorR3& unitx = VectorR3::UnitX;
+	//const VectorR3& unitx = VectorR3::UnitX;
 	const VectorR3& unity = VectorR3::UnitY;
 	const VectorR3& unitz = VectorR3::UnitZ;
 	const VectorR3 unit1(sqrt(14.0) / 8.0, 1.0 / 8.0, 7.0 / 8.0);

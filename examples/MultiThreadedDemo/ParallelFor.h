@@ -224,12 +224,12 @@ private:
 extern TaskManager gTaskMgr;
 
 
-static void initTaskScheduler()
+inline static void initTaskScheduler()
 {
     gTaskMgr.init();
 }
 
-static void cleanupTaskScheduler()
+inline static void cleanupTaskScheduler()
 {
     gTaskMgr.shutdown();
 }

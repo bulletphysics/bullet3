@@ -118,10 +118,10 @@ public:
 	:NN3DWalkersTimeWarpBase(helper),
 	 m_Time(0),
 	 m_SpeedupTimestamp(0),
-	 m_motorStrength(0.5f),
-	 m_targetFrequency(3),
 	 m_targetAccumulator(0),
-	 m_evaluationsQty(0),
+	m_targetFrequency(3),
+	m_motorStrength(0.5f),
+	m_evaluationsQty(0),
 	 m_nextReaped(0),
 	 m_timeSeriesCanvas(0)
 	{
@@ -729,9 +729,9 @@ bool NN3DWalkersExample::detectCollisions()
 				btManifoldPoint& pt = contactManifold->getContactPoint(j);
 				if (pt.getDistance()<0.f)
 				{
-					const btVector3& ptA = pt.getPositionWorldOnA();
-					const btVector3& ptB = pt.getPositionWorldOnB();
-					const btVector3& normalOnB = pt.m_normalWorldOnB;
+					//const btVector3& ptA = pt.getPositionWorldOnA();
+					//const btVector3& ptB = pt.getPositionWorldOnB();
+					//const btVector3& normalOnB = pt.m_normalWorldOnB;
 
 					if(!DRAW_INTERPENETRATIONS){
 						return collisionDetected;

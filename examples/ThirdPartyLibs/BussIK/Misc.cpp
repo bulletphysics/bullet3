@@ -23,7 +23,7 @@ subject to the following restrictions:
 #include <math.h>
 #include "LinearR3.h"
 
-
+#if 0
 
 /****************************************************************
 							 Axes 
@@ -65,7 +65,7 @@ static float zy[] = {
 static int zorder[] = {
 		1, 2, 3, 4, -5, 6
 		};
-
+#endif
 #define LENFRAC		0.10
 #define BASEFRAC	1.10
 
@@ -88,9 +88,9 @@ static int zorder[] = {
 
 /* x, y, z, axes:							*/
 
-static float axx[3] = { 1., 0., 0. };
-static float ayy[3] = { 0., 1., 0. };
-static float azz[3] = { 0., 0., 1. };
+//static float axx[3] = { 1., 0., 0. };
+//static float ayy[3] = { 0., 1., 0. };
+//static float azz[3] = { 0., 0., 1. };
 
 
 

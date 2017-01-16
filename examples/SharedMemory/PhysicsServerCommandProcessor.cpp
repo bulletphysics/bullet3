@@ -438,7 +438,7 @@ struct PhysicsServerCommandProcessorInternalData
 
 		if (m_firstFreeHandle<0)
 		{
-			int curCapacity = m_bodyHandles.size();
+			//int curCapacity = m_bodyHandles.size();
 			int additionalCapacity= m_bodyHandles.size();
 			increaseHandleCapacity(additionalCapacity);
 
@@ -541,14 +541,15 @@ struct PhysicsServerCommandProcessorInternalData
 	TinyRendererVisualShapeConverter  m_visualConverter;
 
 	PhysicsServerCommandProcessorInternalData()
-		:m_hasGround(false),
-		m_gripperRigidbodyFixed(0),
+		:
+		m_allowRealTimeSimulation(false),
+	m_hasGround(false),	
+	m_gripperRigidbodyFixed(0),
 		m_gripperMultiBody(0),
 		m_kukaGripperFixed(0),
 		m_kukaGripperMultiBody(0),
 		m_kukaGripperRevolute1(0),
 		m_kukaGripperRevolute2(0),
-		m_allowRealTimeSimulation(false),
 		m_huskyId(-1),
 		m_KukaId(-1),
 		m_sphereId(-1),
@@ -1336,7 +1337,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 			//m_data->m_testBlock1->m_numProcessedClientCommands++;
 
 			//no timestamp yet
-            int timeStamp = 0;
+            //int timeStamp = 0;
 			
 			//catch uninitialized cases
 			serverStatusOut.m_type = CMD_INVALID_STATUS;
@@ -2920,9 +2921,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 						serverCmd.m_type = CMD_REQUEST_AABB_OVERLAP_COMPLETED;
 
-						int m_startingOverlappingObjectIndex;
-						int m_numOverlappingObjectsCopied;
-						int m_numRemainingOverlappingObjects;
+						//int m_startingOverlappingObjectIndex;
+						//int m_numOverlappingObjectsCopied;
+						//int m_numRemainingOverlappingObjects;
 						serverCmd.m_sendOverlappingObjectsArgs.m_startingOverlappingObjectIndex = clientCmd.m_requestOverlappingObjectsArgs.m_startingOverlappingObjectIndex;
 						serverCmd.m_sendOverlappingObjectsArgs.m_numOverlappingObjectsCopied = m_data->m_cachedOverlappingObjects.m_bodyUniqueIds.size();
 						serverCmd.m_sendOverlappingObjectsArgs.m_numRemainingOverlappingObjects = remainingObjects - curNumObjects;
@@ -3133,8 +3134,6 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									///ContactResultCallback is used to report contact points
 									struct MyContactResultCallback : public btCollisionWorld::ContactResultCallback
 									{
-										//short int	m_collisionFilterGroup;
-										//short int	m_collisionFilterMask;
 										int m_bodyUniqueIdA;
 										int m_bodyUniqueIdB;
 										int m_linkIndexA;
@@ -3789,8 +3788,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     //retrieve the visual shape information for a specific body
                     
 					int totalNumVisualShapes = m_data->m_visualConverter.getNumVisualShapes(clientCmd.m_requestVisualShapeDataArguments.m_bodyUniqueId);
-					int totalBytesPerVisualShape = sizeof (b3VisualShapeData);
-					int visualShapeStorage = bufferSizeInBytes / totalBytesPerVisualShape - 1;
+					//int totalBytesPerVisualShape = sizeof (b3VisualShapeData);
+					//int visualShapeStorage = bufferSizeInBytes / totalBytesPerVisualShape - 1;
 					b3VisualShapeData* visualShapeStoragePtr = (b3VisualShapeData*)bufferServerToClient;
 
 					int remain = totalNumVisualShapes - clientCmd.m_requestVisualShapeDataArguments.m_startingVisualShapeIndex;
@@ -4084,7 +4083,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 	return hasStatus;
 }
 
-static int skip=1;
+//static int skip=1;
 
 void PhysicsServerCommandProcessor::renderScene()
 {

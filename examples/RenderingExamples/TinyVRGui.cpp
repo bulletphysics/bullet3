@@ -19,9 +19,10 @@ struct TestCanvasInterface2 : public Common2dCanvasInterface
 	int m_height;
 
 	TestCanvasInterface2(b3AlignedObjectArray<unsigned char>& texelsRGB, int width, int height)
-		:m_width(width),
-		m_height(height),
-		m_texelsRGB(texelsRGB)
+		:
+		m_texelsRGB(texelsRGB),
+	m_width(width),
+	m_height(height)
 	{
 	}
 

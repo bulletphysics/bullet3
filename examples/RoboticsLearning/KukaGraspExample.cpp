@@ -30,7 +30,7 @@ class KukaGraspExample : public CommonExampleInterface
     b3Vector4 m_targetOri;
     b3Vector4 m_worldOri;
     double m_time;
-	int m_options;
+//	int m_options;
 	
 	b3AlignedObjectArray<int> m_movingInstances;
 	enum
@@ -40,10 +40,10 @@ class KukaGraspExample : public CommonExampleInterface
 	};
 public:
     
-    KukaGraspExample(GUIHelperInterface* helper, int options)
+    KukaGraspExample(GUIHelperInterface* helper, int /* options */)
     :m_app(helper->getAppInterface()),
 	m_guiHelper(helper),
-	m_options(options),
+//	m_options(options),
 	m_kukaIndex(-1),
     m_time(0)
     {

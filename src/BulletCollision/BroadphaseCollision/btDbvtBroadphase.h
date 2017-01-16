@@ -47,7 +47,7 @@ struct btDbvtProxy : btBroadphaseProxy
 	btDbvtProxy*	links[2];
 	int				stage;
 	/* ctor			*/ 
-	btDbvtProxy(const btVector3& aabbMin,const btVector3& aabbMax,void* userPtr,short int collisionFilterGroup, short int collisionFilterMask) :
+	btDbvtProxy(const btVector3& aabbMin,const btVector3& aabbMax,void* userPtr, int collisionFilterGroup,  int collisionFilterMask) :
 	btBroadphaseProxy(aabbMin,aabbMax,userPtr,collisionFilterGroup,collisionFilterMask)
 	{
 		links[0]=links[1]=0;
@@ -105,7 +105,7 @@ struct	btDbvtBroadphase : btBroadphaseInterface
 	void							optimize();
 	
 	/* btBroadphaseInterface Implementation	*/
-	btBroadphaseProxy*				createProxy(const btVector3& aabbMin,const btVector3& aabbMax,int shapeType,void* userPtr,short int collisionFilterGroup,short int collisionFilterMask,btDispatcher* dispatcher,void* multiSapProxy);
+	btBroadphaseProxy*				createProxy(const btVector3& aabbMin,const btVector3& aabbMax,int shapeType,void* userPtr, int collisionFilterGroup, int collisionFilterMask,btDispatcher* dispatcher);
 	virtual void					destroyProxy(btBroadphaseProxy* proxy,btDispatcher* dispatcher);
 	virtual void					setAabb(btBroadphaseProxy* proxy,const btVector3& aabbMin,const btVector3& aabbMax,btDispatcher* dispatcher);
 	virtual void					rayTest(const btVector3& rayFrom,const btVector3& rayTo, btBroadphaseRayCallback& rayCallback, const btVector3& aabbMin=btVector3(0,0,0), const btVector3& aabbMax = btVector3(0,0,0));
