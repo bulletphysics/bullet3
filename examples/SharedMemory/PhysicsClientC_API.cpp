@@ -1338,6 +1338,55 @@ b3SharedMemoryCommandHandle b3InitUserDebugDrawAddText3D(b3PhysicsClientHandle p
 	return (b3SharedMemoryCommandHandle) command;
 }
 
+b3SharedMemoryCommandHandle b3InitUserDebugAddParameter(b3PhysicsClientHandle physClient, const char* txt, double rangeMin, double rangeMax, double startValue)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+	b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type =CMD_USER_DEBUG_DRAW;
+	command->m_updateFlags = USER_DEBUG_ADD_PARAMETER;
+	int len = strlen(txt);
+    if (len<MAX_FILENAME_LENGTH)
+    {
+		strcpy(command->m_userDebugDrawArgs.m_text,txt);
+    } else
+    {
+        command->m_userDebugDrawArgs.m_text[0] = 0;
+    }
+	command->m_userDebugDrawArgs.m_rangeMin = rangeMin;
+	command->m_userDebugDrawArgs.m_rangeMax = rangeMax;
+	command->m_userDebugDrawArgs.m_startValue = startValue;
+	return (b3SharedMemoryCommandHandle)command;
+}
+
+b3SharedMemoryCommandHandle b3InitUserDebugReadParameter(b3PhysicsClientHandle physClient, int debugItemUniqueId)
+{
+		PhysicsClient* cl = (PhysicsClient* ) physClient;
+	b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type =CMD_USER_DEBUG_DRAW;
+	command->m_updateFlags = USER_DEBUG_READ_PARAMETER;
+	command->m_userDebugDrawArgs.m_itemUniqueId = debugItemUniqueId;
+	return (b3SharedMemoryCommandHandle) command;
+}
+
+int b3GetStatusDebugParameterValue(b3SharedMemoryStatusHandle statusHandle, double* paramValue)
+{
+	const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
+	btAssert(status->m_type == CMD_USER_DEBUG_DRAW_PARAMETER_COMPLETED);
+	if (paramValue && (status->m_type == CMD_USER_DEBUG_DRAW_PARAMETER_COMPLETED))
+	{
+		*paramValue = status->m_userDebugDrawArgs.m_parameterValue;
+		return 1;
+	}
+	return 0;
+}
+
+
 b3SharedMemoryCommandHandle b3InitUserDebugDrawRemove(b3PhysicsClientHandle physClient, int debugItemUniqueId)
 {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
@@ -1347,7 +1396,7 @@ b3SharedMemoryCommandHandle b3InitUserDebugDrawRemove(b3PhysicsClientHandle phys
     b3Assert(command);
     command->m_type =CMD_USER_DEBUG_DRAW;
 	command->m_updateFlags = USER_DEBUG_REMOVE_ONE_ITEM;
-	command->m_userDebugDrawArgs.m_removeItemUniqueId = debugItemUniqueId;
+	command->m_userDebugDrawArgs.m_itemUniqueId = debugItemUniqueId;
 	return (b3SharedMemoryCommandHandle) command;
 
 }

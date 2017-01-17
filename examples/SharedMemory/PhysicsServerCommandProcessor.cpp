@@ -4042,7 +4042,28 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						SharedMemoryStatus& serverCmd = serverStatusOut;
 						serverCmd.m_type = CMD_USER_DEBUG_DRAW_FAILED;
 						hasStatus = true;
-
+						if (clientCmd.m_updateFlags & USER_DEBUG_ADD_PARAMETER)
+						{
+							int uid = m_data->m_guiHelper->addUserDebugParameter(
+								clientCmd.m_userDebugDrawArgs.m_text,
+								clientCmd.m_userDebugDrawArgs.m_rangeMin,
+								clientCmd.m_userDebugDrawArgs.m_rangeMax,
+								clientCmd.m_userDebugDrawArgs.m_startValue
+							);
+							serverCmd.m_userDebugDrawArgs.m_debugItemUniqueId = uid;
+							serverCmd.m_type = CMD_USER_DEBUG_DRAW_COMPLETED;
+						}
+						if (clientCmd.m_updateFlags &USER_DEBUG_READ_PARAMETER)
+						{
+						
+							int ok = m_data->m_guiHelper->readUserDebugParameter(
+								clientCmd.m_userDebugDrawArgs.m_itemUniqueId,
+								&serverCmd.m_userDebugDrawArgs.m_parameterValue);
+							if (ok)
+							{
+								serverCmd.m_type = CMD_USER_DEBUG_DRAW_PARAMETER_COMPLETED;
+							} 
+						}
 						if ((clientCmd.m_updateFlags & USER_DEBUG_SET_CUSTOM_OBJECT_COLOR) || (clientCmd.m_updateFlags & USER_DEBUG_REMOVE_CUSTOM_OBJECT_COLOR))
 						{
 							int bodyUniqueId = clientCmd.m_userDebugDrawArgs.m_objectUniqueId;
@@ -4131,7 +4152,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						}
 						if (clientCmd.m_updateFlags & USER_DEBUG_REMOVE_ONE_ITEM)
 						{
-							m_data->m_guiHelper->removeUserDebugItem(clientCmd.m_userDebugDrawArgs.m_removeItemUniqueId);
+							m_data->m_guiHelper->removeUserDebugItem(clientCmd.m_userDebugDrawArgs.m_itemUniqueId);
 							serverCmd.m_type = CMD_USER_DEBUG_DRAW_COMPLETED;
 
 						}
@@ -4229,7 +4250,7 @@ bool PhysicsServerCommandProcessor::pickBody(const btVector3& rayFromWorld, cons
 		} else
 		{
 			btMultiBodyLinkCollider* multiCol = (btMultiBodyLinkCollider*)btMultiBodyLinkCollider::upcast(rayCallback.m_collisionObject);
-			if (multiCol && multiCol->m_multiBody && multiCol->m_multiBody->getBaseMass()>0.)
+			if (multiCol && multiCol->m_multiBody)
 			{
 
 				m_data->m_prevCanSleep = multiCol->m_multiBody->getCanSleep();
@@ -4482,6 +4503,8 @@ void PhysicsServerCommandProcessor::resetSimulation()
 	{
 		m_data->m_visualConverter.resetAll();
 	}
+
+	removePickingConstraint();
 
 	deleteDynamicsWorld();
 	createEmptyDynamicsWorld();

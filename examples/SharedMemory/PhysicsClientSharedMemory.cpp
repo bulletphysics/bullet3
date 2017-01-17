@@ -792,6 +792,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 				b3Warning("Save .bullet failed");
 				break;
 			}
+			case CMD_USER_DEBUG_DRAW_PARAMETER_COMPLETED:
 			case CMD_USER_DEBUG_DRAW_COMPLETED:
 			{
 				break;

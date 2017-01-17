@@ -2126,6 +2126,103 @@ b3PhysicsClientHandle sm = 0;
 }
 
 
+static PyObject* pybullet_readUserDebugParameter(PyObject* self, PyObject* args, PyObject *keywds) 
+{
+
+	b3SharedMemoryCommandHandle commandHandle;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	int itemUniqueId;
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+
+	static char *kwlist[] = { "itemUniqueId", "physicsClientId", NULL };
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|i", kwlist,&itemUniqueId, &physicsClientId))
+	{
+		return NULL;
+	}
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	commandHandle = b3InitUserDebugReadParameter(sm,itemUniqueId);
+
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	statusType = b3GetStatusType(statusHandle);
+	if (statusType == CMD_USER_DEBUG_DRAW_PARAMETER_COMPLETED) 
+	{
+		double paramValue=0.f;
+		int ok = b3GetStatusDebugParameterValue(statusHandle,&paramValue);
+		if (ok)
+		{
+			PyObject* item = PyFloat_FromDouble(paramValue);
+			return item;
+		}
+	}
+
+	PyErr_SetString(SpamError, "Failed to read parameter.");
+	return NULL;
+
+}
+
+	
+
+static PyObject* pybullet_addUserDebugParameter(PyObject* self, PyObject* args, PyObject *keywds) 
+{
+  
+  b3SharedMemoryCommandHandle commandHandle;
+  b3SharedMemoryStatusHandle statusHandle;
+  int statusType;
+  int res = 0;
+
+  char* text;
+  double posXYZ[3];
+  double colorRGB[3]={1,1,1};
+
+  
+  PyObject* textPositionObj=0;
+  double rangeMin = 0.f;
+  double rangeMax = 1.f;
+  double startValue = 0.f;
+  int physicsClientId = 0;
+  b3PhysicsClientHandle sm=0;
+  static char *kwlist[] = { "paramName", "rangeMin", "rangeMax","startValue", "physicsClientId", NULL };
+
+
+  if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|dddi", kwlist, &text,  &rangeMin,  &rangeMax,&startValue, &physicsClientId))
+  {
+	  return NULL;
+  }
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+  
+   commandHandle = b3InitUserDebugAddParameter(sm,text,rangeMin,rangeMax, startValue);
+
+  statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+  statusType = b3GetStatusType(statusHandle);
+  
+	if (statusType == CMD_USER_DEBUG_DRAW_COMPLETED) 
+	{
+		int debugItemUniqueId = b3GetDebugItemUniqueId(statusHandle);
+		PyObject* item = PyInt_FromLong(debugItemUniqueId);
+		return item;
+	}
+
+
+  PyErr_SetString(SpamError, "Error in addUserDebugParameter.");
+  return NULL;
+}
+
+
 static PyObject* pybullet_addUserDebugText(PyObject* self, PyObject* args, PyObject *keywds) 
 {
   
@@ -4541,6 +4638,13 @@ static PyMethodDef SpamMethods[] = {
 	 { "addUserDebugText", (PyCFunction)pybullet_addUserDebugText, METH_VARARGS | METH_KEYWORDS,
 	 "Add a user debug draw line with text, textPosition[3], textSize and lifeTime in seconds "
 	 "A lifeTime of 0 means permanent until removed. Returns a unique id for the user debug item."
+	  },
+
+	  { "addUserDebugParameter", (PyCFunction)pybullet_addUserDebugParameter, METH_VARARGS | METH_KEYWORDS,
+	 "Add a user debug parameter, such as a slider, that can be controlled using a GUI."
+	  },
+	 { "readUserDebugParameter", (PyCFunction)pybullet_readUserDebugParameter, METH_VARARGS | METH_KEYWORDS,
+	 "Read the current value of a user debug parameter, given the user debug item unique id."
 	  },
 
 	 { "removeUserDebugItem", (PyCFunction)pybullet_removeUserDebugItem, METH_VARARGS | METH_KEYWORDS,

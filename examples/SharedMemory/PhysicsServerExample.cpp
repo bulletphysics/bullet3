@@ -176,6 +176,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIHelperAutogenerateGraphicsObjects,
 	eGUIUserDebugAddText,
 	eGUIUserDebugAddLine,
+	eGUIUserDebugAddParameter,
 	eGUIUserDebugRemoveItem,
 	eGUIUserDebugRemoveAllItems,
 };
@@ -478,6 +479,15 @@ struct UserDebugDrawLine
 	double	m_lineWidth;
 	
 	double m_lifeTime;
+	int m_itemUniqueId;
+};
+
+struct UserDebugParameter
+{
+	char m_text[1024];
+	double m_rangeMin;
+	double m_rangeMax;
+	double m_value;
 	int m_itemUniqueId;
 };
 
@@ -807,8 +817,6 @@ public:
 	}
 
 
-
-
 	btAlignedObjectArray<UserDebugText> m_userDebugText;
 	
 	UserDebugText m_tmpText;
@@ -834,6 +842,38 @@ public:
 
 		return m_userDebugText[m_userDebugText.size()-1].m_itemUniqueId;
 	}
+
+	btAlignedObjectArray<UserDebugParameter*> m_userDebugParams;
+	UserDebugParameter m_tmpParam;
+
+	virtual int		readUserDebugParameter(int itemUniqueId, double* value) 
+	{ 
+		for (int i=0;i<m_userDebugParams.size();i++)
+		{
+			if (m_userDebugParams[i]->m_itemUniqueId == itemUniqueId)
+			{
+				*value = m_userDebugParams[i]->m_value;
+				return 1;
+			}
+		}
+		return 0;
+	}
+
+	virtual int		addUserDebugParameter(const char* txt, double	rangeMin, double	rangeMax, double startValue)
+	{
+		strcpy(m_tmpParam.m_text,txt);
+		m_tmpParam.m_rangeMin = rangeMin;
+		m_tmpParam.m_rangeMax = rangeMax;
+		m_tmpParam.m_value = startValue;
+		m_tmpParam.m_itemUniqueId = m_uidGenerator++;
+
+		m_cs->lock();
+		m_cs->setSharedParam(1, eGUIUserDebugAddParameter);
+		workerThreadWait();
+
+		return (*m_userDebugParams[m_userDebugParams.size()-1]).m_itemUniqueId;
+	}
+
 
 	btAlignedObjectArray<UserDebugDrawLine> m_userDebugLines;
 	UserDebugDrawLine m_tmpLine;
@@ -1404,6 +1444,24 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
 	case eGUIUserDebugAddText:
 	{
 		m_multiThreadedHelper->m_userDebugText.push_back(m_multiThreadedHelper->m_tmpText);
+		m_multiThreadedHelper->mainThreadRelease();
+		break;
+	}
+	case eGUIUserDebugAddParameter:
+	{
+		UserDebugParameter* param = new UserDebugParameter(m_multiThreadedHelper->m_tmpParam);
+		m_multiThreadedHelper->m_userDebugParams.push_back(param);
+
+		{
+        SliderParams slider(param->m_text,&param->m_value);
+        slider.m_minVal=param->m_rangeMin;
+        slider.m_maxVal=param->m_rangeMax;
+		
+		if (m_multiThreadedHelper->m_childGuiHelper->getParameterInterface())
+	        m_multiThreadedHelper->m_childGuiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+		}
+
+		//also add actual menu
 		m_multiThreadedHelper->mainThreadRelease();
 		break;
 	}

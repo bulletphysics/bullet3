@@ -63,6 +63,11 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 	{
 		return -1;
 	}
+	virtual int		addUserDebugParameter(const char* txt, double	rangeMin, double	rangeMax, double startValue)
+	{
+		return -1;
+	}
+
 	virtual void	removeUserDebugItem( int debugItemUniqueId)
 	{
 	}
