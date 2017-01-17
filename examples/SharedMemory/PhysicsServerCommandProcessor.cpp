@@ -768,7 +768,7 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 	
 	m_data->m_pairCache->setOverlapFilterCallback(m_data->m_broadphaseCollisionFilterCallback);
 	
-    m_data->m_broadphase = new btDbvtBroadphase();
+    m_data->m_broadphase = new btDbvtBroadphase(m_data->m_pairCache);
     
     m_data->m_solver = new btMultiBodyConstraintSolver;
     
