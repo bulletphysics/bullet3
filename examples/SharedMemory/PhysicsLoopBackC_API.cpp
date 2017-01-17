@@ -9,7 +9,8 @@ b3PhysicsClientHandle b3ConnectPhysicsLoopback(int key)
 {
 	PhysicsLoopBack* loopBack = new PhysicsLoopBack();
 	loopBack->setSharedMemoryKey(key);
-	bool connected = loopBack->connect();
+	bool connected;
+	connected = loopBack->connect();
 	return (b3PhysicsClientHandle  )loopBack;
 }
 

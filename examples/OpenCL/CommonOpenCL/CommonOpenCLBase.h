@@ -43,8 +43,8 @@ struct CommonOpenCLBase : public CommonExampleInterface
 	
 	virtual void initCL(int preferredDeviceIndex, int preferredPlatformIndex)
 	{
-	void* glCtx=0;
-	void* glDC = 0;
+//	void* glCtx=0;
+//	void* glDC = 0;
 	
 	
     

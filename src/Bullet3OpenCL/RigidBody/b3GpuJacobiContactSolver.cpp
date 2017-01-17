@@ -576,7 +576,7 @@ void b3GpuJacobiContactSolver::solveGroupHost(b3RigidBodyData* bodies,b3InertiaD
 		for( i=0; i<numManifolds; i++)
 		{
 
-			float frictionCoeff = contactConstraints[i].getFrictionCoeff();
+			//float frictionCoeff = contactConstraints[i].getFrictionCoeff();
 			int aIdx = (int)contactConstraints[i].m_bodyA;
 			int bIdx = (int)contactConstraints[i].m_bodyB;
 			b3RigidBodyData& bodyA = bodies[aIdx];
@@ -650,7 +650,7 @@ void b3GpuJacobiContactSolver::solveGroupHost(b3RigidBodyData* bodies,b3InertiaD
 	}
 	for (int iter = 0;iter<maxIter;iter++)
 	{
-		int i=0;
+		//int i=0;
 	
 		//solve friction
 

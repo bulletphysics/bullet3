@@ -514,13 +514,13 @@ m_wantsTermination(false),
 m_sharedMemoryKey(SHARED_MEMORY_KEY),
 m_selectedBody(-1),
 m_prevSelectedBody(-1),
-m_numMotors(0),
-m_options(options),
-m_isOptionalServerConnected(false),
 m_canvas(0),
 m_canvasRGBIndex(-1),
 m_canvasDepthIndex(-1),
-m_canvasSegMaskIndex(-1)
+m_canvasSegMaskIndex(-1),
+m_numMotors(0),
+m_options(options),
+m_isOptionalServerConnected(false)
 	
 {
 	b3Printf("Started PhysicsClientExample\n");

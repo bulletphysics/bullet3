@@ -225,13 +225,13 @@ void InverseDynamicsExample::initPhysics()
 			{
 				qd[dof] = 0;
 				char tmp[25];
-				sprintf(tmp,"q_desired[%u]",dof);
+				sprintf(tmp,"q_desired[%lu]",dof);
 				qd_name[dof] = tmp;
 				SliderParams slider(qd_name[dof].c_str(),&qd[dof]);
 				slider.m_minVal=-3.14;
 				slider.m_maxVal=3.14;
 				
-				sprintf(tmp,"q[%u]",dof); 
+				sprintf(tmp,"q[%lu]",dof); 
 				q_name[dof] = tmp;   
 				m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 				btVector4 color = sJointCurveColors[dof&7];
@@ -343,6 +343,7 @@ void InverseDynamicsExample::stepSimulation(float deltaTime)
 		btAlignedObjectArray<btQuaternion> scratch_q;
 		btAlignedObjectArray<btVector3> scratch_m;
 		m_multiBody->forwardKinematics(scratch_q, scratch_m);
+#if 0
 		for (int i = 0; i < m_multiBody->getNumLinks(); i++)
 		{
 			//btVector3 pos = m_multiBody->getLink(i).m_cachedWorldTransform.getOrigin();
@@ -355,6 +356,7 @@ void InverseDynamicsExample::stepSimulation(float deltaTime)
 
 
 		}
+#endif
     }
 }
 

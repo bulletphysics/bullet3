@@ -62,10 +62,9 @@ struct PhysicsClientSharedMemoryInternalData {
         : m_sharedMemory(0),
 		  m_ownsSharedMemory(false),
           m_testBlock1(0),
-		  m_counter(0),
 		  m_cachedCameraPixelsWidth(0),
 		  m_cachedCameraPixelsHeight(0),
-		  
+		  m_counter(0),		  
           m_isConnected(false),
           m_waitingForServer(false),
           m_hasLastServerStatus(false),
@@ -283,7 +282,7 @@ void PhysicsClientSharedMemory::processBodyJointInfo(int bodyUniqueId, const Sha
 }
 
 const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
-    SharedMemoryStatus* stat = 0;
+   // SharedMemoryStatus* stat = 0;
 
     if (!m_data->m_testBlock1) {
 		m_data->m_lastServerStatus.m_type = CMD_SHARED_MEMORY_NOT_INITIALIZED;
@@ -308,7 +307,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
         const SharedMemoryStatus& serverCmd = m_data->m_testBlock1->m_serverCommands[0];
         m_data->m_lastServerStatus = serverCmd;
 
-        EnumSharedMemoryServerStatus s = (EnumSharedMemoryServerStatus)serverCmd.m_type;
+ //       EnumSharedMemoryServerStatus s = (EnumSharedMemoryServerStatus)serverCmd.m_type;
         // consume the command
 
         switch (serverCmd.m_type) {

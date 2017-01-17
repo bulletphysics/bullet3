@@ -24,7 +24,7 @@ subject to the following restrictions:
 #include "LinearMath/btSerializer.h"
 
 
-void	btMultiBodyDynamicsWorld::addMultiBody(btMultiBody* body, short group, short mask)
+void	btMultiBodyDynamicsWorld::addMultiBody(btMultiBody* body, int group, int mask)
 {
 	m_multiBodies.push_back(body);
 

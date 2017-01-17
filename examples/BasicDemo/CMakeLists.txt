@@ -74,7 +74,7 @@ ELSE(WIN32)
         IF(APPLE)
                 find_library(COCOA NAMES Cocoa)
                 MESSAGE(${COCOA})
-                link_libraries(${COCOA})
+                link_libraries(${COCOA} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
 
         ELSE(APPLE)
                 INCLUDE_DIRECTORIES(

@@ -354,7 +354,6 @@ static PyObject* pybullet_disconnectPhysicsServer(PyObject* self,
 }
 
 static PyObject* pybullet_saveWorld(PyObject* self, PyObject* args,PyObject *keywds) {
-	int size = PySequence_Size(args);
 	const char* worldFileName = "";
 
 	b3PhysicsClientHandle sm = 0;
@@ -398,7 +397,6 @@ static PyObject* pybullet_saveWorld(PyObject* self, PyObject* args,PyObject *key
 #define MAX_SDF_BODIES 512
 static PyObject* pybullet_loadBullet(PyObject* self, PyObject* args,PyObject *keywds)
 {
-	int size = PySequence_Size(args);
 	const char* bulletFileName = "";
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType;
@@ -452,7 +450,6 @@ static PyObject* pybullet_loadBullet(PyObject* self, PyObject* args,PyObject *ke
 
 static PyObject* pybullet_saveBullet(PyObject* self, PyObject* args, PyObject* keywds)
 {
-	int size = PySequence_Size(args);
 	const char* bulletFileName = "";
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType;
@@ -489,7 +486,6 @@ static PyObject* pybullet_saveBullet(PyObject* self, PyObject* args, PyObject* k
 
 static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args, PyObject* keywds)
 {
-	int size = PySequence_Size(args);
 	const char* mjcfFileName = "";
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType;
@@ -546,12 +542,15 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 	int useSplitImpulse = -1;
 	double splitImpulsePenetrationThreshold = -1;
 	int numSubSteps = -1;
+	int collisionFilterMode = -1;
+	
 	b3PhysicsClientHandle sm = 0;
 
 	int physicsClientId = 0;
-	static char *kwlist[] = { "fixedTimeStep", "numSolverIterations","useSplitImpulse","splitImpulsePenetrationThreshold", "numSubSteps","physicsClientId", NULL };
+	static char *kwlist[] = { "fixedTimeStep", "numSolverIterations","useSplitImpulse","splitImpulsePenetrationThreshold", "numSubSteps","collisionFilterMode", "physicsClientId", NULL };
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidii", kwlist,&fixedTimeStep,&numSolverIterations,&useSplitImpulse,&splitImpulsePenetrationThreshold,&numSubSteps,&physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidiii", kwlist,&fixedTimeStep,&numSolverIterations,&useSplitImpulse,&splitImpulsePenetrationThreshold,&numSubSteps,
+									 &collisionFilterMode, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -570,6 +569,10 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 		if (numSolverIterations >= 0)
 		{
 			b3PhysicsParamSetNumSolverIterations(command, numSolverIterations);
+		}
+		if (collisionFilterMode>=0)
+		{
+			b3PhysicsParamSetCollisionFilterMode(command, collisionFilterMode);
 		}
 		if (numSubSteps >= 0)
 		{
@@ -614,7 +617,6 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 // loadURDF(pos_x, pos_y, pos_z, orn_x, orn_y, orn_z, orn_w)
 static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args, PyObject *keywds) 
 {
-  int size = PySequence_Size(args);
   int physicsClientId = 0;
 	
   static char *kwlist[] = { "fileName", "basePosition", "baseOrientation", "useMaximalCoordinates","useFixedBase","physicsClientId", NULL };
@@ -753,7 +755,6 @@ b3PhysicsClientHandle sm=0;
 
 static PyObject* pybullet_loadSDF(PyObject* self, PyObject* args, PyObject *keywds) {
   const char* sdfFileName = "";
-  int size = PySequence_Size(args);
   int numBodies = 0;
   int i;
   int bodyIndicesOut[MAX_SDF_BODIES];
@@ -1577,8 +1578,7 @@ static PyObject* pybullet_getBodyInfo(PyObject* self, PyObject* args, PyObject* 
 	
 	{
     int bodyUniqueId= -1;
-    int numJoints = 0;
-	b3PhysicsClientHandle sm = 0;
+ 	b3PhysicsClientHandle sm = 0;
 
     	int physicsClientId = 0;
 	static char *kwlist[] = { "bodyUniqueId", "physicsClientId", NULL };
@@ -2128,15 +2128,13 @@ b3PhysicsClientHandle sm = 0;
 
 static PyObject* pybullet_addUserDebugText(PyObject* self, PyObject* args, PyObject *keywds) 
 {
-  int size = PySequence_Size(args);
   
   b3SharedMemoryCommandHandle commandHandle;
   b3SharedMemoryStatusHandle statusHandle;
   int statusType;
   int res = 0;
 
-  PyObject* pyResultList = 0;
-	char* text;
+char* text;
   double posXYZ[3];
   double colorRGB[3]={1,1,1};
 
@@ -2198,15 +2196,13 @@ static PyObject* pybullet_addUserDebugText(PyObject* self, PyObject* args, PyObj
 
 static PyObject* pybullet_addUserDebugLine(PyObject* self, PyObject* args, PyObject *keywds) 
 {
-  int size = PySequence_Size(args);
   
   b3SharedMemoryCommandHandle commandHandle;
   b3SharedMemoryStatusHandle statusHandle;
   int statusType;
   int res = 0;
 
-  PyObject* pyResultList = 0;
-
+ 
   double fromXYZ[3];
   double toXYZ[3];
   double colorRGB[3]={1,1,1};
@@ -2704,7 +2700,6 @@ static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args, PyO
 					PyTuple_SetItem(visualShapeObList, 6, vec);
 				}
 
-		visualShapeInfo.m_visualShapeData[0].m_rgbaColor[0];	
 
 				PyTuple_SetItem(pyResultList, i, visualShapeObList);
 			}
@@ -2767,7 +2762,6 @@ static PyObject* pybullet_resetVisualShapeData(PyObject* self, PyObject* args,Py
 
 static PyObject* pybullet_loadTexture(PyObject* self, PyObject* args, PyObject* keywds)
 {
-    int size = PySequence_Size(args);
     const char* filename = 0;
     b3SharedMemoryCommandHandle commandHandle;
     b3SharedMemoryStatusHandle statusHandle;
@@ -2970,7 +2964,6 @@ static PyObject* pybullet_getOverlappingObjects(PyObject* self, PyObject* args, 
 
 static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, PyObject *keywds) 
 {
-  int size = PySequence_Size(args);
   int bodyUniqueIdA = -1;
   int bodyUniqueIdB = -1;
   int linkIndexA = -2;
@@ -2982,7 +2975,6 @@ static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, Py
   struct b3ContactInformation contactPointData;
   b3SharedMemoryStatusHandle statusHandle;
   int statusType;
-  PyObject* pyResultList = 0;
   int physicsClientId = 0;
   b3PhysicsClientHandle sm = 0;
   static char *kwlist[] = { "bodyA", "bodyB", "distance", "linkIndexA","linkIndexB","physicsClientId", NULL };
@@ -3031,7 +3023,7 @@ static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, Py
 
 static PyObject* pybullet_changeUserConstraint(PyObject* self, PyObject* args, PyObject *keywds) 
 {
-	static char *kwlist[] = { "userConstraintUniqueId","jointChildPivot", "jointChildFrameOrientation", "physicsClientId", NULL};
+	static char *kwlist[] = { "userConstraintUniqueId","jointChildPivot", "jointChildFrameOrientation","maxForce", "physicsClientId", NULL};
 	int userConstraintUniqueId=-1;
 	b3SharedMemoryCommandHandle commandHandle;
 	b3SharedMemoryStatusHandle statusHandle;
@@ -3042,8 +3034,9 @@ static PyObject* pybullet_changeUserConstraint(PyObject* self, PyObject* args, P
 	PyObject* jointChildFrameOrnObj=0;
 	double jointChildPivot[3];
 	double jointChildFrameOrn[4];
+	double maxForce = -1;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|OOi", kwlist,&userConstraintUniqueId,&jointChildPivotObj, &jointChildFrameOrnObj,&physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|OOdi", kwlist,&userConstraintUniqueId,&jointChildPivotObj, &jointChildFrameOrnObj,&maxForce, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -3064,6 +3057,10 @@ static PyObject* pybullet_changeUserConstraint(PyObject* self, PyObject* args, P
 	if (pybullet_internalSetVector4d(jointChildFrameOrnObj,jointChildFrameOrn))
 	{
 		b3InitChangeUserConstraintSetFrameInB(commandHandle, jointChildFrameOrn);
+	}
+	if (maxForce>=0)
+	{
+		b3InitChangeUserConstraintSetMaxForce(commandHandle,maxForce);
 	}
 
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
@@ -3111,9 +3108,6 @@ static PyObject* pybullet_updateUserConstraint(PyObject* self, PyObject* args, P
 
 static PyObject* pybullet_createUserConstraint(PyObject* self, PyObject* args, PyObject *keywds) 
 {
-	int size = PySequence_Size(args);
-	int bodyUniqueIdA = -1;
-	int bodyUniqueIdB = -1;
   
 	b3SharedMemoryCommandHandle commandHandle;
 	int parentBodyUniqueId=-1;
@@ -3135,7 +3129,6 @@ static PyObject* pybullet_createUserConstraint(PyObject* self, PyObject* args, P
 	struct b3JointInfo jointInfo;
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType;
-	PyObject* pyResultList = 0;
 	int physicsClientId = 0;
 	b3PhysicsClientHandle sm = 0;
 	static char *kwlist[] = { "parentBodyUniqueId", "parentLinkIndex",
@@ -3218,7 +3211,6 @@ static PyObject* pybullet_createUserConstraint(PyObject* self, PyObject* args, P
 }
 
 static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args, PyObject *keywds) {
-  int size = PySequence_Size(args);
   int bodyUniqueIdA = -1;
   int bodyUniqueIdB = -1;
   
@@ -3226,7 +3218,6 @@ static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args, Py
   struct b3ContactInformation contactPointData;
   b3SharedMemoryStatusHandle statusHandle;
   int statusType;
-  PyObject* pyResultList = 0;
 
 
   static char *kwlist[] = { "bodyA", "bodyB","physicsClientId", NULL };
@@ -3273,7 +3264,6 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 	struct b3CameraImageData imageData;
 	PyObject* objViewMat = 0, *objProjMat = 0, *lightDirObj = 0, *lightColorObj = 0;
 	int width, height;
-	int size = PySequence_Size(args);
 	float viewMatrix[16];
 	float projectionMatrix[16];
 	float lightDir[3];
@@ -3852,8 +3842,7 @@ static PyObject* pybullet_applyExternalForce(PyObject* self, PyObject* args,PyOb
 
     b3SharedMemoryCommandHandle command;
     b3SharedMemoryStatusHandle statusHandle;
-    int size = PySequence_Size(args);
-	int physicsClientId = 0;
+  	int physicsClientId = 0;
 	b3PhysicsClientHandle sm = 0;
 	static char *kwlist[] = { "objectUniqueId", "linkIndex",
                             "forceObj", "posObj", "flags", "physicsClientId", NULL };
@@ -4156,7 +4145,6 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 		{
 			int szInBytes = sizeof(double) * numJoints;
 			int i;
-			PyObject* pylist = 0;
 			lowerLimits = (double*)malloc(szInBytes);
 			upperLimits = (double*)malloc(szInBytes);
 			jointRanges = (double*)malloc(szInBytes);

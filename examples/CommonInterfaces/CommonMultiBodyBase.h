@@ -18,10 +18,49 @@
 #include "CommonWindowInterface.h"
 #include "CommonCameraInterface.h"
 
+enum MyFilterModes
+{
+	FILTER_GROUPAMASKB_AND_GROUPBMASKA2=0,
+	FILTER_GROUPAMASKB_OR_GROUPBMASKA2
+};
+
+struct MyOverlapFilterCallback2 : public btOverlapFilterCallback
+{
+	int m_filterMode;
+	
+	MyOverlapFilterCallback2()
+	:m_filterMode(FILTER_GROUPAMASKB_AND_GROUPBMASKA2)
+	{
+	}
+	
+	virtual ~MyOverlapFilterCallback2()
+	{}
+	// return true when pairs need collision
+	virtual bool	needBroadphaseCollision(btBroadphaseProxy* proxy0,btBroadphaseProxy* proxy1) const
+	{
+		if (m_filterMode==FILTER_GROUPAMASKB_AND_GROUPBMASKA2)
+		{
+			bool collides = (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0;
+			collides = collides && (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);
+			return collides;
+		}
+		
+		if (m_filterMode==FILTER_GROUPAMASKB_OR_GROUPBMASKA2)
+		{
+			bool collides = (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0;
+			collides = collides || (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);
+			return collides;
+		}
+		return false;
+	}
+};
+
 struct CommonMultiBodyBase : public CommonExampleInterface
 {
 		//keep the collision shapes, for deletion/cleanup
 	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
+	MyOverlapFilterCallback2* m_filterCallback;
+	btOverlappingPairCache* m_pairCache;
 	btBroadphaseInterface*	m_broadphase;
 	btCollisionDispatcher*	m_dispatcher;
 	btMultiBodyConstraintSolver*	m_solver;
@@ -41,7 +80,9 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 	struct GUIHelperInterface* m_guiHelper;
 
 	CommonMultiBodyBase(GUIHelperInterface* helper)
-	:m_broadphase(0),
+	:m_filterCallback(0),
+		m_pairCache(0),
+		m_broadphase(0),
 		m_dispatcher(0),
 		m_solver(0),
 		m_collisionConfiguration(0),
@@ -59,11 +100,16 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 		///collision configuration contains default setup for memory, collision setup
 		m_collisionConfiguration = new btDefaultCollisionConfiguration();
 		//m_collisionConfiguration->setConvexConvexMultipointIterations();
-
+		m_filterCallback = new MyOverlapFilterCallback2();
+		
 		///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
 		m_dispatcher = new	btCollisionDispatcher(m_collisionConfiguration);
 
-		m_broadphase = new btDbvtBroadphase();//btSimpleBroadphase();
+		m_pairCache = new btHashedOverlappingPairCache();
+
+		m_pairCache->setOverlapFilterCallback(m_filterCallback);
+		
+		m_broadphase = new btDbvtBroadphase(m_pairCache);//btSimpleBroadphase();
 
 		m_solver = new btMultiBodyConstraintSolver;
 
@@ -142,7 +188,13 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 
 		delete m_dispatcher;
 		m_dispatcher=0;
+		
+		delete m_pairCache;
+		m_pairCache = 0;
 
+		delete m_filterCallback;
+		m_filterCallback = 0;
+		
 		delete m_collisionConfiguration;
 		m_collisionConfiguration=0;
 	}

@@ -170,7 +170,7 @@ struct	UdpNetworkedInternalData
 				
 				if (gVerboseNetworkMessagesClient)
 				{
-					printf("A packet of length %u containing '%s' was "
+					printf("A packet of length %lu containing '%s' was "
 						"received from %s on channel %u.\n",
 						m_event.packet->dataLength,
 						m_event.packet->data,
@@ -225,7 +225,7 @@ struct	UdpNetworkedInternalData
 			{
 				if (gVerboseNetworkMessagesClient)
 				{
-					printf("A packet of length %u containing '%s' was "
+					printf("A packet of length %lu containing '%s' was "
 						"received from %s on channel %u.\n",
 						m_event.packet->dataLength,
 						m_event.packet->data,
@@ -303,10 +303,10 @@ enum UDPCommandEnums
 void	UDPThreadFunc(void* userPtr, void* lsMemory)
 {
 	printf("UDPThreadFunc thread started\n");
-	UDPThreadLocalStorage* localStorage = (UDPThreadLocalStorage*)lsMemory;
+//	UDPThreadLocalStorage* localStorage = (UDPThreadLocalStorage*)lsMemory;
 
 	UdpNetworkedInternalData* args = (UdpNetworkedInternalData*)userPtr;
-	int workLeft = true;
+//	int workLeft = true;
 	b3Clock clock;
 	clock.reset();
 	bool init = true;
@@ -366,7 +366,8 @@ void	UDPThreadFunc(void* userPtr, void* lsMemory)
 
 						int sz = sizeof(SharedMemoryCommand);
 						ENetPacket *packet = enet_packet_create(&args->m_clientCmd, sz, ENET_PACKET_FLAG_RELIABLE);
-						int res = enet_peer_send(args->m_peer, 0, packet);
+						int res;
+						res = enet_peer_send(args->m_peer, 0, packet);
 						args->m_cs->lock();
 						args->m_hasCommand = false;
 						args->m_cs->unlock();
@@ -440,7 +441,7 @@ UdpNetworkedPhysicsProcessor::~UdpNetworkedPhysicsProcessor()
 
 bool UdpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
-	int sz = sizeof(SharedMemoryCommand);
+//	int sz = sizeof(SharedMemoryCommand);
 	int timeout = 1024 * 1024 * 1024;
 
 	m_data->m_cs->lock();

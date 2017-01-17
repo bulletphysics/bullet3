@@ -61,9 +61,8 @@ B3_DECLARE_ALIGNED_ALLOCATOR();
 
 	//Usually the client b3CollisionObject or Rigidbody class
 	void*	m_clientObject;
-	short int m_collisionFilterGroup;
-	short int m_collisionFilterMask;
-	void*	m_multiSapParentProxy;		
+	int m_collisionFilterGroup;
+	int m_collisionFilterMask;
 	int			m_uniqueId;//m_uniqueId is introduced for paircache. could get rid of this, by calculating the address offset etc.
 
 	b3Vector3	m_aabbMin;
@@ -75,18 +74,17 @@ B3_DECLARE_ALIGNED_ALLOCATOR();
 	}
 
 	//used for memory pools
-	b3BroadphaseProxy() :m_clientObject(0),m_multiSapParentProxy(0)
+	b3BroadphaseProxy() :m_clientObject(0)
 	{
 	}
 
-	b3BroadphaseProxy(const b3Vector3& aabbMin,const b3Vector3& aabbMax,void* userPtr,short int collisionFilterGroup, short int collisionFilterMask,void* multiSapParentProxy=0)
+	b3BroadphaseProxy(const b3Vector3& aabbMin,const b3Vector3& aabbMax,void* userPtr, int collisionFilterGroup,  int collisionFilterMask)
 		:m_clientObject(userPtr),
 		m_collisionFilterGroup(collisionFilterGroup),
 		m_collisionFilterMask(collisionFilterMask),
 		m_aabbMin(aabbMin),
 		m_aabbMax(aabbMax)
 	{
-		m_multiSapParentProxy = multiSapParentProxy;
 	}
 };
 
@@ -107,7 +105,7 @@ struct b3DbvtProxy : b3BroadphaseProxy
 	/* ctor			*/ 
 
 	explicit b3DbvtProxy() {}
-	b3DbvtProxy(const b3Vector3& aabbMin,const b3Vector3& aabbMax,void* userPtr,short int collisionFilterGroup, short int collisionFilterMask) :
+	b3DbvtProxy(const b3Vector3& aabbMin,const b3Vector3& aabbMax,void* userPtr, int collisionFilterGroup,  int collisionFilterMask) :
 	b3BroadphaseProxy(aabbMin,aabbMax,userPtr,collisionFilterGroup,collisionFilterMask)
 	{
 		links[0]=links[1]=0;
@@ -165,7 +163,7 @@ struct	b3DynamicBvhBroadphase
 	void							optimize();
 	
 	/* b3BroadphaseInterface Implementation	*/
-	b3BroadphaseProxy*				createProxy(const b3Vector3& aabbMin,const b3Vector3& aabbMax,int objectIndex,void* userPtr,short int collisionFilterGroup,short int collisionFilterMask);
+	b3BroadphaseProxy*				createProxy(const b3Vector3& aabbMin,const b3Vector3& aabbMax,int objectIndex,void* userPtr, int collisionFilterGroup, int collisionFilterMask);
 	virtual void					destroyProxy(b3BroadphaseProxy* proxy,b3Dispatcher* dispatcher);
 	virtual void					setAabb(int objectId,const b3Vector3& aabbMin,const b3Vector3& aabbMax,b3Dispatcher* dispatcher);
 	virtual void					rayTest(const b3Vector3& rayFrom,const b3Vector3& rayTo, b3BroadphaseRayCallback& rayCallback, const b3Vector3& aabbMin=b3MakeVector3(0,0,0), const b3Vector3& aabbMax = b3MakeVector3(0,0,0));

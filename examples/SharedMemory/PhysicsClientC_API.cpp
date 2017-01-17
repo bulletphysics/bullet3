@@ -347,6 +347,18 @@ int b3PhysicsParamSetNumSolverIterations(b3SharedMemoryCommandHandle commandHand
 	return 0;
 }
 
+
+int b3PhysicsParamSetCollisionFilterMode(b3SharedMemoryCommandHandle commandHandle, int filterMode)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+	command->m_physSimParamArgs.m_collisionFilterMode = filterMode;
+	command->m_updateFlags |= SIM_PARAM_UPDATE_COLLISION_FILTER_MODE;
+	return 0;
+}
+
+
+
 int	b3PhysicsParamSetTimeStep(b3SharedMemoryCommandHandle commandHandle, double timeStep)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
@@ -1105,6 +1117,19 @@ int b3InitChangeUserConstraintSetFrameInB(b3SharedMemoryCommandHandle commandHan
 	command->m_userConstraintArguments.m_childFrame[4] = frameOrnInB[1];
 	command->m_userConstraintArguments.m_childFrame[5] = frameOrnInB[2];
 	command->m_userConstraintArguments.m_childFrame[6] = frameOrnInB[3];
+
+	return 0;
+}
+
+int b3InitChangeUserConstraintSetMaxForce(b3SharedMemoryCommandHandle commandHandle, double maxAppliedForce)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_USER_CONSTRAINT);
+	b3Assert(command->m_updateFlags & USER_CONSTRAINT_CHANGE_CONSTRAINT);
+	
+	command->m_updateFlags |=USER_CONSTRAINT_CHANGE_MAX_FORCE;
+	command->m_userConstraintArguments.m_maxAppliedForce = maxAppliedForce;
 
 	return 0;
 }

@@ -91,7 +91,7 @@ void MultiBodyConstraintFeedbackSetup::initPhysics()
             m_guiHelper->createCollisionShapeGraphicsObject(box);
             btTransform start; start.setIdentity();
             btVector3 groundOrigin(-0.4f, 3.f, 0.f);
-			btVector3 basePosition = btVector3(-0.4f, 3.f, 0.f);
+			//btVector3 basePosition = btVector3(-0.4f, 3.f, 0.f);
             groundOrigin[upAxis] -=.5;
 			groundOrigin[2]-=0.6;
             start.setOrigin(groundOrigin);
@@ -263,11 +263,11 @@ void MultiBodyConstraintFeedbackSetup::initPhysics()
         local_origin.resize(pMultiBody->getNumLinks() + 1);
         world_to_local[0] = pMultiBody->getWorldToBaseRot();
         local_origin[0] = pMultiBody->getBasePos();
-        double friction = 1;
+      //  double friction = 1;
         {
 
         //	float pos[4]={local_origin[0].x(),local_origin[0].y(),local_origin[0].z(),1};
-            float quat[4]={-world_to_local[0].x(),-world_to_local[0].y(),-world_to_local[0].z(),world_to_local[0].w()};
+           // float quat[4]={-world_to_local[0].x(),-world_to_local[0].y(),-world_to_local[0].z(),world_to_local[0].w()};
 
 
             if (1)
@@ -290,8 +290,8 @@ void MultiBodyConstraintFeedbackSetup::initPhysics()
                 col->setWorldTransform(tr);
 
 				bool isDynamic = (baseMass > 0 && floating);
-				short collisionFilterGroup = isDynamic? short(btBroadphaseProxy::DefaultFilter) : short(btBroadphaseProxy::StaticFilter);
-				short collisionFilterMask = isDynamic? 	short(btBroadphaseProxy::AllFilter) : 	short(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+				int collisionFilterGroup = isDynamic? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
+				int collisionFilterMask = isDynamic? 	int(btBroadphaseProxy::AllFilter) : 	int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 
 
                 world->addCollisionObject(col,collisionFilterGroup,collisionFilterMask);//, 2,1+2);
@@ -343,8 +343,8 @@ void MultiBodyConstraintFeedbackSetup::initPhysics()
             col->setWorldTransform(tr);
      //       col->setFriction(friction);
 			bool isDynamic = 1;//(linkMass > 0);
-			short collisionFilterGroup = isDynamic? short(btBroadphaseProxy::DefaultFilter) : short(btBroadphaseProxy::StaticFilter);
-			short collisionFilterMask = isDynamic? 	short(btBroadphaseProxy::AllFilter) : 	short(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+			int collisionFilterGroup = isDynamic? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
+			int collisionFilterMask = isDynamic? 	int(btBroadphaseProxy::AllFilter) : 	int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 
 			//if (i==0||i>numLinks-2)
 			{
@@ -416,7 +416,7 @@ void MultiBodyConstraintFeedbackSetup::stepSimulation(float deltaTime)
              m_multiBody->getBaseOmega()[2]
              );
     */
-    btScalar jointVel =m_multiBody->getJointVel(0);
+   // btScalar jointVel =m_multiBody->getJointVel(0);
     
 //    b3Printf("child angvel = %f",jointVel);
     

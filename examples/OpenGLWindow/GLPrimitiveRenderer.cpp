@@ -456,7 +456,7 @@ void GLPrimitiveRenderer::drawTexturedRect2a(float x0, float y0, float x1, float
         PrimVertex( PrimVec4( -1.f+2.f*x1/float(m_screenWidth), 1.f-2.f*y0/float(m_screenHeight), 0.f, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u1,v0))
     };
 
-	int sz = m_data2->m_numVerticesText;
+//	int sz = m_data2->m_numVerticesText;
 
 	m_data2->m_verticesRect[m_data2->m_numVerticesRect++]=vertexData[0];
 	m_data2->m_verticesRect[m_data2->m_numVerticesRect++]=vertexData[1];
@@ -492,7 +492,7 @@ void GLPrimitiveRenderer::drawTexturedRect2(float x0, float y0, float x1, float 
         PrimVertex( PrimVec4( -1.f+2.f*x1/float(m_screenWidth), 1.f-2.f*y0/float(m_screenHeight), 0.f, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u1,v0))
     };
 
-	int sz = m_data2->m_numVerticesText;
+//	int sz = m_data2->m_numVerticesText;
 
 	m_data2->m_verticesText[m_data2->m_numVerticesText++]=vertexData[0];
 	m_data2->m_verticesText[m_data2->m_numVerticesText++]=vertexData[1];

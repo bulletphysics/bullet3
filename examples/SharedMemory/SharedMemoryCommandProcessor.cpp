@@ -125,7 +125,6 @@ bool SharedMemoryCommandProcessor::processCommand(const struct SharedMemoryComma
 
 bool SharedMemoryCommandProcessor::receiveStatus(struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
-	SharedMemoryStatus* stat = 0;
 
 	m_data->m_lastServerStatus.m_dataStream = 0;
 	m_data->m_lastServerStatus.m_numDataStreamBytes = 0;

@@ -228,9 +228,10 @@ public:
 
     struct CastRaysLoopBody
     {
-        btRaycastBar2* mRaycasts;
         btCollisionWorld* mWorld;
-        CastRaysLoopBody(btCollisionWorld* cw, btRaycastBar2* rb) : mWorld(cw), mRaycasts(rb) {}
+		btRaycastBar2* mRaycasts;
+
+		CastRaysLoopBody(btCollisionWorld* cw, btRaycastBar2* rb) : mWorld(cw), mRaycasts(rb) {}
 
         void forLoop( int iBegin, int iEnd ) const
         {

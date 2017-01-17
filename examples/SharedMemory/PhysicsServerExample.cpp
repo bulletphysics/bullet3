@@ -56,6 +56,29 @@ const char* startFileNameVR = "0_VRDemoSettings.txt";
 
 #include <vector>
 
+static void loadCurrentSettingsVR(b3CommandLineArgs& args)
+{
+	//int currentEntry = 0;
+	FILE* f = fopen(startFileNameVR, "r");
+	if (f)
+	{
+		char oneline[1024];
+		char* argv[] = { 0,&oneline[0] };
+		
+		while (fgets(oneline, 1024, f) != NULL)
+		{
+			char *pos;
+			if ((pos = strchr(oneline, '\n')) != NULL)
+				*pos = '\0';
+			args.addArgs(2, argv);
+		}
+		fclose(f);
+	}
+	
+};
+
+
+#if B3_USE_MIDI
 //remember the settings (you don't want to re-tune again and again...)
 static void saveCurrentSettingsVR()
 {
@@ -70,27 +93,6 @@ static void saveCurrentSettingsVR()
 	}
 };
 
-static void loadCurrentSettingsVR(b3CommandLineArgs& args)
-{
-	int currentEntry = 0;
-	FILE* f = fopen(startFileNameVR, "r");
-	if (f)
-	{
-		char oneline[1024];
-		char* argv[] = { 0,&oneline[0] };
-
-		while (fgets(oneline, 1024, f) != NULL)
-		{
-			char *pos;
-			if ((pos = strchr(oneline, '\n')) != NULL)
-				*pos = '\0';
-			args.addArgs(2, argv);
-		}
-		fclose(f);
-	}
-
-};
-#if B3_USE_MIDI
 
 
 static float getParamf(float rangeMin, float rangeMax, int midiVal)
@@ -280,10 +282,10 @@ float sleepTimeThreshold = 8./1000.;
 void	MotionThreadFunc(void* userPtr,void* lsMemory)
 {
 	printf("MotionThreadFunc thread started\n");
-	MotionThreadLocalStorage* localStorage = (MotionThreadLocalStorage*) lsMemory;
+	//MotionThreadLocalStorage* localStorage = (MotionThreadLocalStorage*) lsMemory;
 
 	MotionArgs* args = (MotionArgs*) userPtr;
-	int workLeft = true;
+	//int workLeft = true;
 	b3Clock clock;
 	clock.reset();
 	bool init = true;
@@ -494,7 +496,7 @@ struct UserDebugText
 
 class MultiThreadedOpenGLGuiHelper : public GUIHelperInterface
 {
-	CommonGraphicsApp* m_app;
+//	CommonGraphicsApp* m_app;
 	
 	b3CriticalSection* m_cs;
 	b3CriticalSection* m_cs2;
@@ -558,8 +560,9 @@ public:
 	}
 
 	MultiThreadedOpenGLGuiHelper(CommonGraphicsApp* app, GUIHelperInterface* guiHelper)
-		:m_app(app)
-		,m_cs(0),
+		:
+	//m_app(app),
+		m_cs(0),
 		m_cs2(0),
 		m_cs3(0),
 		m_csGUI(0),
@@ -816,7 +819,7 @@ public:
 		m_tmpText.m_itemUniqueId = m_uidGenerator++;
 		m_tmpText.m_lifeTime = lifeTime;
 		m_tmpText.textSize = size;
-		int len = strlen(txt);
+		//int len = strlen(txt);
 		strcpy(m_tmpText.m_text,txt);
 		m_tmpText.m_textPositionXYZ[0] = positionXYZ[0];
 		m_tmpText.m_textPositionXYZ[1] = positionXYZ[1];
@@ -893,7 +896,7 @@ class PhysicsServerExample : public SharedMemoryCommon
     bool m_isConnected;
     btClock m_clock;
 	bool m_replay;
-	int m_options;
+//	int m_options;
 	
 #ifdef BT_ENABLE_VR
 	TinyVRGui* m_tinyVrGui;
@@ -1123,8 +1126,8 @@ PhysicsServerExample::PhysicsServerExample(MultiThreadedOpenGLGuiHelper* helper,
 m_physicsServer(sharedMem),
 m_wantsShutdown(false),
 m_isConnected(false),
-m_replay(false),
-m_options(options)
+m_replay(false)
+//m_options(options)
 #ifdef BT_ENABLE_VR
 ,m_tinyVrGui(0)
 #endif
@@ -1201,7 +1204,7 @@ void	PhysicsServerExample::initPhysics()
 			int numMoving = 0;
  			m_args[w].m_positions.resize(numMoving);
 			m_args[w].m_physicsServerPtr = &m_physicsServer;
-			int index = 0;
+			//int index = 0;
 			
 			m_threadSupport->runTask(B3_THREAD_SCHEDULE_TASK, (void*) &this->m_args[w], w);
 			
@@ -1365,7 +1368,8 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
             m_multiThreadedHelper->m_childGuiHelper->removeAllGraphicsInstances();
 			if (m_multiThreadedHelper->m_childGuiHelper->getRenderInterface())
 			{
-				int numRenderInstances = m_multiThreadedHelper->m_childGuiHelper->getRenderInterface()->getTotalNumInstances();
+				int numRenderInstances;
+				numRenderInstances = m_multiThreadedHelper->m_childGuiHelper->getRenderInterface()->getTotalNumInstances();
 				b3Assert(numRenderInstances==0);
 			}
 			m_multiThreadedHelper->mainThreadRelease();
@@ -1376,17 +1380,17 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
     case eGUIHelperCopyCameraImageData:
         {
              m_multiThreadedHelper->m_childGuiHelper->copyCameraImageData(m_multiThreadedHelper->m_viewMatrix,
-                                                                                 m_multiThreadedHelper->m_projectionMatrix,
-                                                                                 m_multiThreadedHelper->m_pixelsRGBA,
-                                                                                 m_multiThreadedHelper->m_rgbaBufferSizeInPixels,
-                                                                                 m_multiThreadedHelper->m_depthBuffer,
-                                                                                 m_multiThreadedHelper->m_depthBufferSizeInPixels,
-                                                                                 m_multiThreadedHelper->m_segmentationMaskBuffer,
-                                                                                 m_multiThreadedHelper->m_segmentationMaskBufferSizeInPixels,
-                                                                                 m_multiThreadedHelper->m_startPixelIndex, 
-                                                                                 m_multiThreadedHelper->m_destinationWidth, 
-                                                                                 m_multiThreadedHelper->m_destinationHeight, 
-                                                                                 m_multiThreadedHelper->m_numPixelsCopied);
+				 m_multiThreadedHelper->m_projectionMatrix,
+				 m_multiThreadedHelper->m_pixelsRGBA,
+				 m_multiThreadedHelper->m_rgbaBufferSizeInPixels,
+				 m_multiThreadedHelper->m_depthBuffer,
+				 m_multiThreadedHelper->m_depthBufferSizeInPixels,
+				 m_multiThreadedHelper->m_segmentationMaskBuffer,
+				 m_multiThreadedHelper->m_segmentationMaskBufferSizeInPixels,
+				 m_multiThreadedHelper->m_startPixelIndex, 
+				 m_multiThreadedHelper->m_destinationWidth, 
+				 m_multiThreadedHelper->m_destinationHeight, 
+				 m_multiThreadedHelper->m_numPixelsCopied);
  		m_multiThreadedHelper->mainThreadRelease();
             break;
         }
@@ -1507,8 +1511,8 @@ extern btTransform gVRTrackingObjectTr;
 
 void PhysicsServerExample::drawUserDebugLines()
 {
-	static char line0[1024];
-	static char line1[1024];
+	//static char line0[1024];
+	//static char line1[1024];
 
 	//draw all user-debug-lines
 
@@ -1634,15 +1638,16 @@ void PhysicsServerExample::renderScene()
 	{
 		
 		static int frameCount=0;
-		static btScalar prevTime = m_clock.getTimeSeconds();
+		//static btScalar prevTime = m_clock.getTimeSeconds();
 		frameCount++;
-		
+
+#if 0
+
 		static btScalar worseFps = 1000000;
 		int numFrames = 200;
 		static int count = 0;
 		count++;
 
-#if 0
 		if (0 == (count & 1))
 		{
 			btScalar curTime = m_clock.getTimeSeconds();
@@ -1973,7 +1978,7 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 
 	if (controllerId == gGraspingController && (button == 33))
 	{
-		gVRGripperClosed =state;
+		gVRGripperClosed =(state!=0);
 	}
 	else
 	{

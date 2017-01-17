@@ -1100,8 +1100,6 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 
 			int frictionIndex = m_tmpSolverContactConstraintPool.size();
 			btSolverConstraint& solverConstraint = m_tmpSolverContactConstraintPool.expandNonInitializing();
-			btRigidBody* rb0 = btRigidBody::upcast(colObj0);
-			btRigidBody* rb1 = btRigidBody::upcast(colObj1);
 			solverConstraint.m_solverBodyIdA = solverBodyIdA;
 			solverConstraint.m_solverBodyIdB = solverBodyIdB;
 
@@ -1113,9 +1111,9 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 			rel_pos1 = pos1 - colObj0->getWorldTransform().getOrigin();
 			rel_pos2 = pos2 - colObj1->getWorldTransform().getOrigin();
 
-			btVector3 vel1;// = rb0 ? rb0->getVelocityInLocalPoint(rel_pos1) : btVector3(0,0,0);
-			btVector3 vel2;// = rb1 ? rb1->getVelocityInLocalPoint(rel_pos2) : btVector3(0,0,0);
-
+			btVector3 vel1;
+			btVector3 vel2;
+			
 			solverBodyA->getVelocityInLocalPointNoDelta(rel_pos1,vel1);
 			solverBodyB->getVelocityInLocalPointNoDelta(rel_pos2,vel2 );
 
@@ -1126,8 +1124,6 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 
 
 
-//			const btVector3& pos1 = cp.getPositionWorldOnA();
-//			const btVector3& pos2 = cp.getPositionWorldOnB();
 
 			/////setup the friction constraints
 

@@ -208,9 +208,6 @@ void	PairBench::initPhysics()
 	useShadowMap = false;
 
 	
-	int startItem = 0;
-
-	
 	initCL(gPreferredOpenCLDeviceIndex,gPreferredOpenCLPlatformIndex);
 
 	if (m_clData->m_clContext)
@@ -298,7 +295,7 @@ void	PairBench::createBroadphase(int arraySizeX, int arraySizeY, int arraySizeZ)
 					char * patloc;
 
 					
-					for (oriptr = buf; patloc = strstr(oriptr, pattern); oriptr = patloc + patlen)
+					for (oriptr = buf; (patloc = strstr(oriptr, pattern)); oriptr = patloc + patlen)
 					{
 						if (patloc)
 						{
@@ -335,12 +332,14 @@ void	PairBench::createBroadphase(int arraySizeX, int arraySizeY, int arraySizeZ)
 							if (l>500)
 							{
 								b3Vector4 color=b3MakeVector4(0,1,0,0.1);
-								int id = m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+								int id;
+								id = m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 								m_data->m_broadphaseGPU->createLargeProxy(aabbMin,aabbMax,index,group,mask);
 							} else
 							{
 								b3Vector4 color=b3MakeVector4(1,0,0,1);
-								int id = m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+								int id;
+								id = m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 								m_data->m_broadphaseGPU->createProxy(aabbMin,aabbMax,index,group,mask);
 									index++;
 							}
@@ -403,7 +402,8 @@ void	PairBench::createBroadphase(int arraySizeX, int arraySizeY, int arraySizeZ)
 					}*/
 
 
-					int id = m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+					int id;
+					id = m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId,position,orn,color,scaling);
 					
 					
 					b3Vector3 aabbMin = position-scaling;
@@ -486,7 +486,7 @@ void PairBench::stepSimulation(float deltaTime)
 		return;
 
 
-	bool animate=true;
+	//bool animate=true;
 	int numObjects= 0;
 	{
 		B3_PROFILE("Num Objects");
@@ -503,7 +503,7 @@ void PairBench::stepSimulation(float deltaTime)
 		int arraySizeInBytes  = numObjects * (3)*sizeof(b3Vector4);
 
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		cl_bool blocking=  CL_TRUE;
+	//	cl_bool blocking=  CL_TRUE;
 		char* hostPtr= 0;
 		{
 			B3_PROFILE("glMapBufferRange");
@@ -583,7 +583,7 @@ void PairBench::stepSimulation(float deltaTime)
 			B3_PROFILE("updateOnCpu");
 			if (!gPairBenchFileName)
 			{
-			int allAabbs = m_data->m_broadphaseGPU->getAllAabbsCPU().size();
+		//	int allAabbs = m_data->m_broadphaseGPU->getAllAabbsCPU().size();
 			
 
 			b3AlignedObjectArray<b3Vector4> posOrnColorsCpu;
@@ -625,11 +625,12 @@ void PairBench::stepSimulation(float deltaTime)
 		b3Clock cl;
 		dt = cl.getTimeMicroseconds();
 		B3_PROFILE("calculateOverlappingPairs");
-		int sz = sizeof(b3Int4)*64*numObjects;
+		//int sz = sizeof(b3Int4)*64*numObjects;
 
 
 		m_data->m_broadphaseGPU->calculateOverlappingPairs(maxOverlap);
-		int numPairs = m_data->m_broadphaseGPU->getNumOverlap();
+		int numPairs;
+		numPairs = m_data->m_broadphaseGPU->getNumOverlap();
 		//printf("numPairs = %d\n", numPairs);
 		dt = cl.getTimeMicroseconds()-dt;
 		

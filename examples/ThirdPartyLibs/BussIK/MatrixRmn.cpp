@@ -486,7 +486,7 @@ void MatrixRmn::ComputeSVD( MatrixRmn& U, VectorRn& w, MatrixRmn& V ) const
 			 && U.NumRows==U.NumCols && V.NumRows==V.NumCols
 			 && w.GetLength()==Min(NumRows,NumCols) );
 
-	double temp=0.0;
+//	double temp=0.0;
 	VectorRn& superDiag = VectorRn::GetWorkVector( w.GetLength()-1 );		// Some extra work space.  Will get passed around.
 
 	// Choose larger of U, V to hold intermediate results

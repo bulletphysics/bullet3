@@ -279,7 +279,9 @@ void b3Win32ThreadSupport::startThreads(const Win32ThreadConstructionInfo& threa
 
 		}
 		
-		SetThreadAffinityMask(handle, 1<<i);
+		DWORD mask = 1;
+		mask = 1<<mask;
+		SetThreadAffinityMask(handle, mask);
 
 		threadStatus.m_taskId = i;
 		threadStatus.m_commandId = 0;

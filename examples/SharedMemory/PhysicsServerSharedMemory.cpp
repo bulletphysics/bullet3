@@ -128,18 +128,16 @@ bool PhysicsServerSharedMemory::connectSharedMemory( struct GUIHelperInterface* 
 	
 	bool allowCreation = true;
     bool allConnected = false;
-    
+	int numConnected = 0;
 	
-
-   
-    
-    
+	 
 	int counter = 0;
     for (int block=0;block<MAX_SHARED_MEMORY_BLOCKS;block++)
     {
         if (m_data->m_areConnected[block])
         {
             allConnected = true;
+			numConnected++;
             b3Warning("connectSharedMemory, while already connected");
             continue;
         }
@@ -163,6 +161,7 @@ bool PhysicsServerSharedMemory::connectSharedMemory( struct GUIHelperInterface* 
                         b3Printf("Created and initialized shared memory block\n");
                     }
                     m_data->m_areConnected[block] = true;
+					numConnected++;
                 } else
                 {
                     m_data->m_sharedMemory->releaseSharedMemory(m_data->m_sharedMemoryKey+block, SHARED_MEMORY_SIZE);
@@ -180,6 +179,8 @@ bool PhysicsServerSharedMemory::connectSharedMemory( struct GUIHelperInterface* 
             b3Error("Server cannot connect to shared memory.\n");
         }
     }
+	
+	allConnected = (numConnected==MAX_SHARED_MEMORY_BLOCKS);
 	
 	return allConnected;
 }

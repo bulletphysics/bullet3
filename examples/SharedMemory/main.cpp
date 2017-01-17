@@ -81,6 +81,8 @@ int main(int argc, char* argv[])
 	
 	
 	example->initPhysics();
+
+	
 	while (example->isConnected() && !(example->wantsTermination() || interrupted))
 	{
 		example->stepSimulation(1.f/60.f);

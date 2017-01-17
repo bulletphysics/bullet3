@@ -41,8 +41,10 @@ struct MyTexture
 	unsigned char* textureData;
 };
 
-struct BulletURDFInternalData
+ATTRIBUTE_ALIGNED16(struct) BulletURDFInternalData
 {
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+
 	UrdfParser m_urdfParser;
 	struct GUIHelperInterface* m_guiHelper;
 	char m_pathPrefix[1024];
@@ -119,7 +121,7 @@ bool BulletURDFImporter::loadURDF(const char* fileName, bool forceFixedBase)
 	b3FileUtils fu;
 	
 	//bool fileFound = fu.findFile(fileName, relativeFileName, 1024);
-  	bool fileFound = b3ResourcePath::findResourcePath(fileName,relativeFileName,1024);
+  	bool fileFound = (b3ResourcePath::findResourcePath(fileName,relativeFileName,1024))>0;
 	
 	std::string xml_string;
 	m_data->m_pathPrefix[0] = 0;
@@ -171,7 +173,7 @@ bool BulletURDFImporter::loadSDF(const char* fileName, bool forceFixedBase)
     b3FileUtils fu;
     
     //bool fileFound = fu.findFile(fileName, relativeFileName, 1024);
-    bool fileFound = b3ResourcePath::findResourcePath(fileName,relativeFileName,1024);
+    bool fileFound = (b3ResourcePath::findResourcePath(fileName,relativeFileName,1024))>0;
     
     std::string xml_string;
     m_data->m_pathPrefix[0] = 0;

@@ -232,15 +232,15 @@ extern float eye[3];
 extern int glutScreenWidth;
 extern int glutScreenHeight;
 
-static bool sDemoMode = false;
+//static bool sDemoMode = false;
 
 const int maxProxies = 32766;
-const int maxOverlap = 65535;
+//const int maxOverlap = 65535;
 
 static btVector3*	gGroundVertices=0;
 static int*	gGroundIndices=0;
-static btBvhTriangleMeshShape* trimeshShape =0;
-static btRigidBody* staticBody = 0;
+//static btBvhTriangleMeshShape* trimeshShape =0;
+//static btRigidBody* staticBody = 0;
 static float waveheight = 5.f;
 
 const float TRIANGLE_SIZE=8.f;
@@ -249,12 +249,12 @@ int		current_demo=20;
 
 
 #ifdef _DEBUG
-const int gNumObjects = 1;
+//const int gNumObjects = 1;
 #else
-const int gNumObjects = 1;//try this in release mode: 3000. never go above 16384, unless you increate maxNumObjects  value in DemoApplication.cp
+//const int gNumObjects = 1;//try this in release mode: 3000. never go above 16384, unless you increate maxNumObjects  value in DemoApplication.cp
 #endif
 
-const int maxNumObjects = 32760;
+//const int maxNumObjects = 32760;
 
 #define CUBE_HALF_EXTENTS 1.5
 #define EXTRA_HEIGHT -10.f
@@ -1452,7 +1452,8 @@ static void	Init_ClusterRobot(SoftDemo* pdemo)
 	ls.position=psb2->clusterCom(0);psb2->appendLinearJoint(ls,prb);
 
 	btBoxShape*			pbox=new btBoxShape(btVector3(20,1,40));
-	btRigidBody*		pgrn=pdemo->createRigidBody(0,btTransform(btQuaternion(0,-SIMD_HALF_PI/2,0),btVector3(0,0,0)),pbox);
+	btRigidBody*		pgrn;
+	pgrn =pdemo->createRigidBody(0,btTransform(btQuaternion(0,-SIMD_HALF_PI/2,0),btVector3(0,0,0)),pbox);
 
 	pdemo->m_autocam=true;
 

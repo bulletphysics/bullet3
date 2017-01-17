@@ -7,7 +7,7 @@
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
 #include "../Utils/b3ResourcePath.h"
 
-static btScalar radius(0.2);
+//static btScalar radius(0.2);
 
 struct MultiBodySoftContact : public CommonMultiBodyBase
 {
@@ -126,8 +126,8 @@ void MultiBodySoftContact::initPhysics()
 		col->setCollisionShape(childShape);
 		pMultiBody->setBaseCollider(col);
 			bool isDynamic = (mass > 0 && !isFixed);
-		short collisionFilterGroup = isDynamic? short(btBroadphaseProxy::DefaultFilter) : short(btBroadphaseProxy::StaticFilter);
-		short collisionFilterMask = isDynamic? 	short(btBroadphaseProxy::AllFilter) : 	short(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
+		int collisionFilterGroup = isDynamic? int(btBroadphaseProxy::DefaultFilter) : int(btBroadphaseProxy::StaticFilter);
+		int collisionFilterMask = isDynamic? 	int(btBroadphaseProxy::AllFilter) : 	int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 
         m_dynamicsWorld->addCollisionObject(col,collisionFilterGroup,collisionFilterMask);//, 2,1+2);
 

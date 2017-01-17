@@ -83,7 +83,7 @@ void b3Point2PointConstraint::getInfo2NonVirtual (b3ConstraintInfo2* info, const
 	info->m_J1linearAxis[2*info->rowskip+2] = 1;
 
 	b3Vector3 a1 = body0_trans.getBasis()*getPivotInA();
-	b3Vector3 a1a = b3QuatRotate(body0_trans.getRotation(),getPivotInA());
+	//b3Vector3 a1a = b3QuatRotate(body0_trans.getRotation(),getPivotInA());
 
 	{
 		b3Vector3* angular0 = (b3Vector3*)(info->m_J1angularAxis);

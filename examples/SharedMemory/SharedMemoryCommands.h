@@ -313,6 +313,7 @@ enum EnumSimParamUpdateFlags
 	SIM_PARAM_UPDATE_INTERNAL_SIMULATION_FLAGS=64,
 	SIM_PARAM_UPDATE_USE_SPLIT_IMPULSE=128,
 	SIM_PARAM_UPDATE_SPLIT_IMPULSE_PENETRATION_THRESHOLD = 256,
+	SIM_PARAM_UPDATE_COLLISION_FILTER_MODE=512
 };
 
 enum EnumLoadBunnyUpdateFlags
@@ -341,6 +342,7 @@ struct SendPhysicsSimulationParameters
 	double m_splitImpulsePenetrationThreshold;
 	int m_internalSimFlags;
 	double m_defaultContactERP;
+	int m_collisionFilterMode;
 };
 
 struct LoadBunnyArgs
@@ -538,6 +540,8 @@ enum EnumUserConstraintFlags
 	USER_CONSTRAINT_CHANGE_CONSTRAINT=4,
 	USER_CONSTRAINT_CHANGE_PIVOT_IN_B=8,
 	USER_CONSTRAINT_CHANGE_FRAME_ORN_IN_B=16,
+	USER_CONSTRAINT_CHANGE_MAX_FORCE=32,
+	
 };
 
 struct UserConstraintArgs
@@ -550,6 +554,7 @@ struct UserConstraintArgs
     double m_childFrame[7];
     double m_jointAxis[3];
     int m_jointType;
+	double m_maxAppliedForce;
 	int m_userConstraintUniqueId;
 };
 

@@ -51,6 +51,8 @@ static btAlignedObjectArray<std::string> gMCFJFileNameArray;
 
 #define MAX_NUM_MOTORS 1024
 
+
+
 struct ImportMJCFInternalData
 {
     ImportMJCFInternalData()
@@ -77,7 +79,7 @@ struct ImportMJCFInternalData
 
 ImportMJCFSetup::ImportMJCFSetup(struct GUIHelperInterface* helper, int option, const char* fileName)
 	:CommonMultiBodyBase(helper),
-	m_grav(0),
+	m_grav(-10),
 	m_upAxis(2)
 {
 	m_data = new ImportMJCFInternalData;
@@ -118,9 +120,10 @@ ImportMJCFSetup::ImportMJCFSetup(struct GUIHelperInterface* helper, int option, 
 		if (gMCFJFileNameArray.size()==0)
 		{
 			gMCFJFileNameArray.push_back("mjcf/humanoid.xml");
+			gMCFJFileNameArray.push_back("mjcf/inverted_pendulum.xml");
+			gMCFJFileNameArray.push_back("mjcf/ant.xml");
 			gMCFJFileNameArray.push_back("mjcf/hello_mjcf2.xml");
 			gMCFJFileNameArray.push_back("mjcf/capsule.xml");
-			gMCFJFileNameArray.push_back("mjcf/ant.xml");
 //			gMCFJFileNameArray.push_back("mjcf/hopper.xml");
 //			gMCFJFileNameArray.push_back("mjcf/swimmer.xml");
 //			gMCFJFileNameArray.push_back("mjcf/reacher.xml");
@@ -146,24 +149,7 @@ ImportMJCFSetup::~ImportMJCFSetup()
     delete m_data;
 }
 
-static btVector4 colors[4] =
-{
-	btVector4(1,0,0,1),
-	btVector4(0,1,0,1),
-	btVector4(0,1,1,1),
-	btVector4(1,1,0,1),
-};
 
-
-static btVector3 selectColor()
-{
-
-	static int curColor = 0;
-	btVector4 color = colors[curColor];
-	curColor++;
-	curColor&=3;
-	return color;
-}
 
 void ImportMJCFSetup::setFileName(const char* mjcfFileName)
 {
@@ -187,13 +173,19 @@ struct MyMJCFLogger : public MJCFErrorLogger
 	}
 };
 
+
 void ImportMJCFSetup::initPhysics()
 {
 
 	
 	m_guiHelper->setUpAxis(m_upAxis);
 	
-	this->createEmptyDynamicsWorld();
+	createEmptyDynamicsWorld();
+	
+	//MuJoCo uses a slightly different collision filter mode, use the FILTER_GROUPAMASKB_OR_GROUPBMASKA2
+	//@todo also use the modified collision filter for raycast and other collision related queries
+	m_filterCallback->m_filterMode = FILTER_GROUPAMASKB_OR_GROUPBMASKA2;
+	
 	//m_dynamicsWorld->getSolverInfo().m_numIterations = 100;
     m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
     m_dynamicsWorld->getDebugDrawer()->setDebugMode(
@@ -228,7 +220,7 @@ void ImportMJCFSetup::initPhysics()
 
 
 			//todo: move these internal API called inside the 'ConvertURDF2Bullet' call, hidden from the user
-			int rootLinkIndex = importer.getRootLinkIndex();
+			//int rootLinkIndex = importer.getRootLinkIndex();
 			//b3Printf("urdf root link index = %d\n",rootLinkIndex);
 			MyMultiBodyCreator creation(m_guiHelper);
 
@@ -238,7 +230,7 @@ void ImportMJCFSetup::initPhysics()
 			ConvertURDF2Bullet(importer,creation, rootTrans,m_dynamicsWorld,m_useMultiBody,importer.getPathPrefix(),CUF_USE_MJCF);
 
 			mb = creation.getBulletMultiBody();
-                        if (/* DISABLES CODE */ (0))  // mb)
+                        if (mb)
                         {
                           printf("first MJCF file converted!\n");
                           std::string* name =

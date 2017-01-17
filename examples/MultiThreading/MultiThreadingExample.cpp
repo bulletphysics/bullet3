@@ -163,8 +163,6 @@ void*	SamplelsMemoryFunc()
 class MultiThreadingExample : public CommonExampleInterface
 {
     CommonGraphicsApp* m_app;
-	GUIHelperInterface* m_guiHelper;
-    int m_exampleIndex;
     b3ThreadSupportInterface* m_threadSupport;
     btAlignedObjectArray<SampleJob1*> m_jobs;
     int m_numThreads;
@@ -172,12 +170,10 @@ public:
     
     MultiThreadingExample(GUIHelperInterface* guiHelper, int tutorialIndex)
     :m_app(guiHelper->getAppInterface()),
-	m_guiHelper(guiHelper),
-	m_exampleIndex(tutorialIndex),
 	m_threadSupport(0),
 	m_numThreads(8)
     {
-		int numBodies = 1;
+		//int numBodies = 1;
 		
 		m_app->setUpAxis(1);
 		m_app->m_renderer->enableBlend(true);

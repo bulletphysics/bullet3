@@ -97,7 +97,7 @@ inline void project(const b3ConvexPolyhedronData& hull,  const float4& pos, cons
 	{
 		//b3Vector3 pt = trans * vertices[m_vertexOffset+i];
 		//b3Scalar dp = pt.dot(dir);
-		b3Vector3 vertex = vertices[hull.m_vertexOffset+i];
+		//b3Vector3 vertex = vertices[hull.m_vertexOffset+i];
 		b3Scalar dp = dot3F4((float4&)vertices[hull.m_vertexOffset+i],localDir);
 		//b3Assert(dp==dpL);
 		if(dp < min)	min = dp;
@@ -113,7 +113,7 @@ inline void project(const b3ConvexPolyhedronData& hull,  const float4& pos, cons
 	max += offset;
 }
 
-
+#if 0
 static bool TestSepAxis(const b3ConvexPolyhedronData& hullA, const b3ConvexPolyhedronData& hullB, 
 	const float4& posA,const b3Quaternion& ornA,
 	const float4& posB,const b3Quaternion& ornB,
@@ -143,7 +143,7 @@ static bool TestSepAxis(const b3ConvexPolyhedronData& hullA, const b3ConvexPolyh
 	
 	return true;
 }
-
+#endif
 
 bool getClosestPoints(b3GjkPairDetector* gjkDetector, const b3Transform&	transA, const b3Transform&	transB,
 	const b3ConvexPolyhedronData& hullA, const b3ConvexPolyhedronData& hullB, 
@@ -198,11 +198,11 @@ bool getClosestPoints(b3GjkPairDetector* gjkDetector, const b3Transform&	transA,
 	{
 		b3Scalar squaredDistance = B3_LARGE_FLOAT;
 		b3Scalar delta = -1e30f;//b3Scalar(0.);
-		b3Scalar prevDelta = -1e30f;//b3Scalar(0.);
+	//	b3Scalar prevDelta = -1e30f;//b3Scalar(0.);
 		
 		b3Scalar margin = marginA + marginB;
-		b3Scalar bestDeltaN = -1e30f;
-		b3Vector3 bestSepAxis= b3MakeVector3(0,0,0);
+	//	b3Scalar bestDeltaN = -1e30f;
+	//	b3Vector3 bestSepAxis= b3MakeVector3(0,0,0);
 		
 		
 
