@@ -540,6 +540,8 @@ enum EnumUserConstraintFlags
 	USER_CONSTRAINT_CHANGE_CONSTRAINT=4,
 	USER_CONSTRAINT_CHANGE_PIVOT_IN_B=8,
 	USER_CONSTRAINT_CHANGE_FRAME_ORN_IN_B=16,
+	USER_CONSTRAINT_CHANGE_MAX_FORCE=32,
+	
 };
 
 struct UserConstraintArgs
@@ -552,6 +554,7 @@ struct UserConstraintArgs
     double m_childFrame[7];
     double m_jointAxis[3];
     int m_jointType;
+	double m_maxAppliedForce;
 	int m_userConstraintUniqueId;
 };
 

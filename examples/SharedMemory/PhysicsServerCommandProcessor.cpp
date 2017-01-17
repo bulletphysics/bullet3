@@ -3664,6 +3664,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									btMatrix3x3 childFrameBasis(childFrameOrn);
 									userConstraintPtr->m_mbConstraint->setFrameInB(childFrameBasis);
 								}
+								if (clientCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_MAX_FORCE)
+								{
+									btScalar maxImp = clientCmd.m_userConstraintArguments.m_maxAppliedForce*m_data->m_physicsDeltaTime;
+									userConstraintPtr->m_mbConstraint->setMaxAppliedImpulse(maxImp);
+								}
 							}
 							if (userConstraintPtr->m_rbConstraint)
 							{

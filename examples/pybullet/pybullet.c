@@ -542,12 +542,15 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 	int useSplitImpulse = -1;
 	double splitImpulsePenetrationThreshold = -1;
 	int numSubSteps = -1;
+	int collisionFilterMode = -1;
+	
 	b3PhysicsClientHandle sm = 0;
 
 	int physicsClientId = 0;
-	static char *kwlist[] = { "fixedTimeStep", "numSolverIterations","useSplitImpulse","splitImpulsePenetrationThreshold", "numSubSteps","physicsClientId", NULL };
+	static char *kwlist[] = { "fixedTimeStep", "numSolverIterations","useSplitImpulse","splitImpulsePenetrationThreshold", "numSubSteps","collisionFilterMode", "physicsClientId", NULL };
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidii", kwlist,&fixedTimeStep,&numSolverIterations,&useSplitImpulse,&splitImpulsePenetrationThreshold,&numSubSteps,&physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidiii", kwlist,&fixedTimeStep,&numSolverIterations,&useSplitImpulse,&splitImpulsePenetrationThreshold,&numSubSteps,
+									 &collisionFilterMode, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -566,6 +569,10 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 		if (numSolverIterations >= 0)
 		{
 			b3PhysicsParamSetNumSolverIterations(command, numSolverIterations);
+		}
+		if (collisionFilterMode>=0)
+		{
+			b3PhysicsParamSetCollisionFilterMode(command, collisionFilterMode);
 		}
 		if (numSubSteps >= 0)
 		{
@@ -3016,7 +3023,7 @@ static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, Py
 
 static PyObject* pybullet_changeUserConstraint(PyObject* self, PyObject* args, PyObject *keywds) 
 {
-	static char *kwlist[] = { "userConstraintUniqueId","jointChildPivot", "jointChildFrameOrientation", "physicsClientId", NULL};
+	static char *kwlist[] = { "userConstraintUniqueId","jointChildPivot", "jointChildFrameOrientation","maxForce", "physicsClientId", NULL};
 	int userConstraintUniqueId=-1;
 	b3SharedMemoryCommandHandle commandHandle;
 	b3SharedMemoryStatusHandle statusHandle;
@@ -3027,8 +3034,9 @@ static PyObject* pybullet_changeUserConstraint(PyObject* self, PyObject* args, P
 	PyObject* jointChildFrameOrnObj=0;
 	double jointChildPivot[3];
 	double jointChildFrameOrn[4];
+	double maxForce = -1;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|OOi", kwlist,&userConstraintUniqueId,&jointChildPivotObj, &jointChildFrameOrnObj,&physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|OOdi", kwlist,&userConstraintUniqueId,&jointChildPivotObj, &jointChildFrameOrnObj,&maxForce, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -3049,6 +3057,10 @@ static PyObject* pybullet_changeUserConstraint(PyObject* self, PyObject* args, P
 	if (pybullet_internalSetVector4d(jointChildFrameOrnObj,jointChildFrameOrn))
 	{
 		b3InitChangeUserConstraintSetFrameInB(commandHandle, jointChildFrameOrn);
+	}
+	if (maxForce>=0)
+	{
+		b3InitChangeUserConstraintSetMaxForce(commandHandle,maxForce);
 	}
 
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
