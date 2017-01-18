@@ -20,6 +20,7 @@ project ("pybullet")
                 }
 
 	if os.is("MacOSX") then
+--		targetextension {"so"}
 		links{"Cocoa.framework","Python"}
 	end
 
@@ -38,6 +39,7 @@ if not _OPTIONS["no-enet"] then
 		includedirs {"../../examples/ThirdPartyLibs/enet/include"}
 	
 		if os.is("Windows") then 
+--			targetextension {"dylib"}
 			defines { "WIN32" }
 			links {"Ws2_32","Winmm"}
 		end

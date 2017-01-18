@@ -571,6 +571,8 @@ enum EnumUserDebugDrawFlags
 	USER_DEBUG_REMOVE_ALL=8,	
 	USER_DEBUG_SET_CUSTOM_OBJECT_COLOR = 16,
 	USER_DEBUG_REMOVE_CUSTOM_OBJECT_COLOR = 32,
+	USER_DEBUG_ADD_PARAMETER=64,
+	USER_DEBUG_READ_PARAMETER=128,
 
 };
 
@@ -582,12 +584,16 @@ struct UserDebugDrawArgs
 	double	m_lineWidth;
 	
 	double m_lifeTime;
-	int m_removeItemUniqueId;
+	int m_itemUniqueId;
 
 	char m_text[MAX_FILENAME_LENGTH];
 	double m_textPositionXYZ[3];
 	double m_textColorRGB[3];
 	double m_textSize;
+
+	double m_rangeMin;
+	double m_rangeMax;
+	double m_startValue;
 
 	double m_objectDebugColorRGB[3];
 	int m_objectUniqueId;
@@ -599,6 +605,7 @@ struct UserDebugDrawArgs
 struct UserDebugDrawResultArgs
 {
 	int m_debugItemUniqueId;
+	double m_parameterValue;
 };
 
 struct SendVREvents
