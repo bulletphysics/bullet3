@@ -487,7 +487,7 @@ struct UserDebugParameter
 	char m_text[1024];
 	double m_rangeMin;
 	double m_rangeMax;
-	double m_value;
+	btScalar m_value;
 	int m_itemUniqueId;
 };
 
