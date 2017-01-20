@@ -2054,7 +2054,7 @@ b3PhysicsClientHandle sm = 0;
         return NULL;
       }
       if (linkIndex < 0) {
-        PyErr_SetString(SpamError, "getLinkState failed; invalid jointIndex");
+        PyErr_SetString(SpamError, "getLinkState failed; invalid linkIndex");
         return NULL;
       }
 
