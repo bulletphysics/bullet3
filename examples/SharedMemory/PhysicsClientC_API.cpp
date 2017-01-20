@@ -455,10 +455,13 @@ int b3JointControlSetKp(b3SharedMemoryCommandHandle commandHandle, int dofIndex,
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
-    command->m_sendDesiredStateCommandArgument.m_Kp[dofIndex] = value;
-	command->m_updateFlags |= SIM_DESIRED_STATE_HAS_KP;
-    command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] |= SIM_DESIRED_STATE_HAS_KP;
-
+	b3Assert(dofIndex>=0);
+	if (dofIndex>=0)
+	{
+		command->m_sendDesiredStateCommandArgument.m_Kp[dofIndex] = value;
+		command->m_updateFlags |= SIM_DESIRED_STATE_HAS_KP;
+		command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] |= SIM_DESIRED_STATE_HAS_KP;
+	}
     return 0;
 }
 
@@ -466,10 +469,13 @@ int b3JointControlSetKd(b3SharedMemoryCommandHandle commandHandle, int dofIndex,
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
-    command->m_sendDesiredStateCommandArgument.m_Kd[dofIndex] = value;
-	command->m_updateFlags |= SIM_DESIRED_STATE_HAS_KD;
-    command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] |= SIM_DESIRED_STATE_HAS_KD;
-
+	b3Assert(dofIndex>=0);
+	if (dofIndex>=0)
+	{
+		command->m_sendDesiredStateCommandArgument.m_Kd[dofIndex] = value;
+		command->m_updateFlags |= SIM_DESIRED_STATE_HAS_KD;
+	    command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] |= SIM_DESIRED_STATE_HAS_KD;
+	}
     return 0;
 }
 
@@ -477,10 +483,13 @@ int b3JointControlSetDesiredVelocity(b3SharedMemoryCommandHandle commandHandle, 
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
-    command->m_sendDesiredStateCommandArgument.m_desiredStateQdot[dofIndex] = value;
-	command->m_updateFlags |= SIM_DESIRED_STATE_HAS_QDOT;
-    command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] |= SIM_DESIRED_STATE_HAS_QDOT;
-
+	b3Assert(dofIndex>=0);
+	if (dofIndex>=0)
+	{
+		command->m_sendDesiredStateCommandArgument.m_desiredStateQdot[dofIndex] = value;
+		command->m_updateFlags |= SIM_DESIRED_STATE_HAS_QDOT;
+		command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] |= SIM_DESIRED_STATE_HAS_QDOT;
+	}
     return 0;
 }
 
@@ -489,10 +498,13 @@ int b3JointControlSetMaximumForce(b3SharedMemoryCommandHandle commandHandle, int
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
-    command->m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex] = value;
-	command->m_updateFlags |= SIM_DESIRED_STATE_HAS_MAX_FORCE;
-    command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] |= SIM_DESIRED_STATE_HAS_MAX_FORCE;
-
+	b3Assert(dofIndex>=0);
+	if (dofIndex>=0)
+	{
+		command->m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex] = value;
+		command->m_updateFlags |= SIM_DESIRED_STATE_HAS_MAX_FORCE;
+		command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] |= SIM_DESIRED_STATE_HAS_MAX_FORCE;
+	}
     return 0;
 }
 
@@ -500,10 +512,13 @@ int b3JointControlSetDesiredForceTorque(b3SharedMemoryCommandHandle commandHandl
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
-    command->m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex] = value;
-    command->m_updateFlags |= SIM_DESIRED_STATE_HAS_MAX_FORCE;
-    command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] |= SIM_DESIRED_STATE_HAS_MAX_FORCE;
-
+	b3Assert(dofIndex>=0);
+	if (dofIndex>=0)
+	{
+		command->m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex] = value;
+		command->m_updateFlags |= SIM_DESIRED_STATE_HAS_MAX_FORCE;
+		command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] |= SIM_DESIRED_STATE_HAS_MAX_FORCE;
+	}
     return 0;
 }
 

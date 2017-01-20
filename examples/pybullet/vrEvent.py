@@ -10,7 +10,11 @@ POSITION=1
 BUTTONS=6
 
 #assume that the VR physics server is already started before
-p.connect(p.SHARED_MEMORY)
+c = p.connect(p.SHARED_MEMORY)
+print(c)
+if (c<0):
+		p.connect(p.GUI)
+
 p.setInternalSimFlags(0)#don't load default robot assets etc
 p.resetSimulation()
 p.loadURDF("plane.urdf")

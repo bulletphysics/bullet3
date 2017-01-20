@@ -119,6 +119,7 @@ ImportMJCFSetup::ImportMJCFSetup(struct GUIHelperInterface* helper, int option, 
 		
 		if (gMCFJFileNameArray.size()==0)
 		{
+			gMCFJFileNameArray.push_back("MPL/MPL.xml");
 			gMCFJFileNameArray.push_back("mjcf/humanoid.xml");
 			gMCFJFileNameArray.push_back("mjcf/inverted_pendulum.xml");
 			gMCFJFileNameArray.push_back("mjcf/ant.xml");

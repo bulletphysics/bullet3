@@ -1119,7 +1119,7 @@ public:
 
 		if (args.CheckCmdLineFlag("norobotassets"))
 		{
-//			gCreateDefaultRobotAssets = false;
+			gCreateDefaultRobotAssets = false;
 		}
 
 
