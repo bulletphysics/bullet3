@@ -1671,8 +1671,8 @@ void PhysicsServerExample::drawUserDebugLines()
 void PhysicsServerExample::renderScene()
 {
 	btTransform vrTrans;
-	gVRTeleportPos1 = gVRTeleportPosLocal;
-	gVRTeleportOrn = gVRTeleportOrnLocal;
+	//gVRTeleportPos1 = gVRTeleportPosLocal;
+	//gVRTeleportOrn = gVRTeleportOrnLocal;
 
 	///little VR test to follow/drive Husky vehicle
 	if (gVRTrackingObjectUniqueId >= 0)

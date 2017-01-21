@@ -7,6 +7,7 @@ import pybullet as p
 
 CONTROLLER_ID = 0
 POSITION=1
+ORIENTATION=2
 BUTTONS=6
 
 #assume that the VR physics server is already started before

@@ -1,0 +1,19 @@
+   <!--
+    This file and the .stl mesh files referenced from it have been derived by Roboti LLC from the model of the Modular Prosthetic Limb developed by The Johns Hopkins University / Applied Physics Laboratory. The modifications are as follows: the original meshes have been replaced with their convex hulls; the original URDF model has been converted to the MJCF format and a number of MJCF-specific fields have been added.
+
+    The Johns Hopkins University / Applied Physics Laboratory has given Roboti LLC permission to distribute the modified model under the following license:
+
+    =========================
+
+    (C) 2013 The Johns Hopkins University / Applied Physics Laboratory All Rights Reserved.
+
+    Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+
+    ========================
+
+    The modifications made by Roboti LLC are also licensed under the Apache License version 2.0.
+    -->
