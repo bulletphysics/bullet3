@@ -315,9 +315,25 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 
 	  if (freeIndex>=0)
 	  {
+		  	b3SharedMemoryCommandHandle	command;
+			b3SharedMemoryStatusHandle statusHandle;
+			int statusType;
+
+
 		  sPhysicsClients1[freeIndex] = sm;
 		  sNumPhysicsClients++;
+
+		  command = b3InitSyncBodyInfoCommand(sm);
+		  statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+			statusType = b3GetStatusType(statusHandle);
+#if 0
+			if (statusType != CMD_BODY_INFO_COMPLETED) {
+			PyErr_SetString(SpamError, "b3InitSyncBodyInfoCommand failed.");
+			return NULL;
+		}
+#endif
 	  }
+
   }
   return PyInt_FromLong(freeIndex);
 }
@@ -1989,24 +2005,29 @@ static PyObject* pybullet_getJointState(PyObject* self, PyObject* args,PyObject*
       pyListJointState = PyTuple_New(sensorStateSize);
       pyListJointForceTorque = PyTuple_New(forceTorqueSize);
 
-      b3GetJointState(sm, status_handle, jointIndex, &sensorState);
+      if (b3GetJointState(sm, status_handle, jointIndex, &sensorState))
+	  {
+		  PyTuple_SetItem(pyListJointState, 0,
+						  PyFloat_FromDouble(sensorState.m_jointPosition));
+		  PyTuple_SetItem(pyListJointState, 1,
+						  PyFloat_FromDouble(sensorState.m_jointVelocity));
 
-      PyTuple_SetItem(pyListJointState, 0,
-                      PyFloat_FromDouble(sensorState.m_jointPosition));
-      PyTuple_SetItem(pyListJointState, 1,
-                      PyFloat_FromDouble(sensorState.m_jointVelocity));
+		  for (j = 0; j < forceTorqueSize; j++) {
+			PyTuple_SetItem(pyListJointForceTorque, j,
+							PyFloat_FromDouble(sensorState.m_jointForceTorque[j]));
+		  }
 
-      for (j = 0; j < forceTorqueSize; j++) {
-        PyTuple_SetItem(pyListJointForceTorque, j,
-                        PyFloat_FromDouble(sensorState.m_jointForceTorque[j]));
-      }
+		  PyTuple_SetItem(pyListJointState, 2, pyListJointForceTorque);
 
-      PyTuple_SetItem(pyListJointState, 2, pyListJointForceTorque);
+		  PyTuple_SetItem(pyListJointState, 3,
+						  PyFloat_FromDouble(sensorState.m_jointMotorTorque));
 
-      PyTuple_SetItem(pyListJointState, 3,
-                      PyFloat_FromDouble(sensorState.m_jointMotorTorque));
-
-      return pyListJointState;
+		  return pyListJointState;
+	  } else
+	  {
+		PyErr_SetString(SpamError, "getJointState failed (2).");
+		return NULL;
+	  }
     }
   } 
 
@@ -2070,54 +2091,55 @@ b3PhysicsClientHandle sm = 0;
         return NULL;
       }
 
-      b3GetLinkState(sm, status_handle, linkIndex, &linkState);
+      if (b3GetLinkState(sm, status_handle, linkIndex, &linkState))
+	  {
+		  pyLinkStateWorldPosition = PyTuple_New(3);
+		  for (i = 0; i < 3; ++i) {
+			PyTuple_SetItem(pyLinkStateWorldPosition, i,
+							PyFloat_FromDouble(linkState.m_worldPosition[i]));
+		  }
 
-      pyLinkStateWorldPosition = PyTuple_New(3);
-      for (i = 0; i < 3; ++i) {
-        PyTuple_SetItem(pyLinkStateWorldPosition, i,
-                        PyFloat_FromDouble(linkState.m_worldPosition[i]));
-      }
+		  pyLinkStateWorldOrientation = PyTuple_New(4);
+		  for (i = 0; i < 4; ++i) {
+			PyTuple_SetItem(pyLinkStateWorldOrientation, i,
+							PyFloat_FromDouble(linkState.m_worldOrientation[i]));
+		  }
 
-      pyLinkStateWorldOrientation = PyTuple_New(4);
-      for (i = 0; i < 4; ++i) {
-        PyTuple_SetItem(pyLinkStateWorldOrientation, i,
-                        PyFloat_FromDouble(linkState.m_worldOrientation[i]));
-      }
+		  pyLinkStateLocalInertialPosition = PyTuple_New(3);
+		  for (i = 0; i < 3; ++i) {
+			PyTuple_SetItem(pyLinkStateLocalInertialPosition, i,
+							PyFloat_FromDouble(linkState.m_localInertialPosition[i]));
+		  }
 
-      pyLinkStateLocalInertialPosition = PyTuple_New(3);
-      for (i = 0; i < 3; ++i) {
-        PyTuple_SetItem(pyLinkStateLocalInertialPosition, i,
-                        PyFloat_FromDouble(linkState.m_localInertialPosition[i]));
-      }
+		  pyLinkStateLocalInertialOrientation = PyTuple_New(4);
+		  for (i = 0; i < 4; ++i) {
+			PyTuple_SetItem(pyLinkStateLocalInertialOrientation, i,
+							PyFloat_FromDouble(linkState.m_localInertialOrientation[i]));
+		  }
 
-      pyLinkStateLocalInertialOrientation = PyTuple_New(4);
-      for (i = 0; i < 4; ++i) {
-        PyTuple_SetItem(pyLinkStateLocalInertialOrientation, i,
-                        PyFloat_FromDouble(linkState.m_localInertialOrientation[i]));
-      }
+		pyLinkStateWorldLinkFramePosition = PyTuple_New(3);
+		  for (i = 0; i < 3; ++i) {
+			PyTuple_SetItem(pyLinkStateWorldLinkFramePosition , i,
+							PyFloat_FromDouble(linkState.m_worldLinkFramePosition[i]));
+		  }
 
-	pyLinkStateWorldLinkFramePosition = PyTuple_New(3);
-      for (i = 0; i < 3; ++i) {
-        PyTuple_SetItem(pyLinkStateWorldLinkFramePosition , i,
-                        PyFloat_FromDouble(linkState.m_worldLinkFramePosition[i]));
-      }
-
-	pyLinkStateWorldLinkFrameOrientation = PyTuple_New(4);
-      for (i = 0; i < 4; ++i) {
-        PyTuple_SetItem(pyLinkStateWorldLinkFrameOrientation, i,
-                        PyFloat_FromDouble(linkState.m_worldLinkFrameOrientation[i]));
-      }
+		pyLinkStateWorldLinkFrameOrientation = PyTuple_New(4);
+		  for (i = 0; i < 4; ++i) {
+			PyTuple_SetItem(pyLinkStateWorldLinkFrameOrientation, i,
+							PyFloat_FromDouble(linkState.m_worldLinkFrameOrientation[i]));
+		  }
 
 
-      pyLinkState = PyTuple_New(6);
-      PyTuple_SetItem(pyLinkState, 0, pyLinkStateWorldPosition);
-      PyTuple_SetItem(pyLinkState, 1, pyLinkStateWorldOrientation);
-      PyTuple_SetItem(pyLinkState, 2, pyLinkStateLocalInertialPosition);
-      PyTuple_SetItem(pyLinkState, 3, pyLinkStateLocalInertialOrientation);
-      PyTuple_SetItem(pyLinkState, 4, pyLinkStateWorldLinkFramePosition );
-      PyTuple_SetItem(pyLinkState, 5, pyLinkStateWorldLinkFrameOrientation);
+		  pyLinkState = PyTuple_New(6);
+		  PyTuple_SetItem(pyLinkState, 0, pyLinkStateWorldPosition);
+		  PyTuple_SetItem(pyLinkState, 1, pyLinkStateWorldOrientation);
+		  PyTuple_SetItem(pyLinkState, 2, pyLinkStateLocalInertialPosition);
+		  PyTuple_SetItem(pyLinkState, 3, pyLinkStateLocalInertialOrientation);
+		  PyTuple_SetItem(pyLinkState, 4, pyLinkStateWorldLinkFramePosition );
+		  PyTuple_SetItem(pyLinkState, 5, pyLinkStateWorldLinkFrameOrientation);
 
-      return pyLinkState;
+		  return pyLinkState;
+	  }
     }
   }
 

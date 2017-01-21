@@ -811,6 +811,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 				b3Warning("createConstraint failed");
 				break;
 			}
+			case CMD_ACTUAL_STATE_UPDATE_FAILED:
+			{
+				b3Warning("request actual state failed");
+				break;
+			}
+			case CMD_SYNC_BODY_INFO_COMPLETED:
+			{
+				break;
+			}
             default: {
                 b3Error("Unknown server status %d\n", serverCmd.m_type);
                 btAssert(0);
@@ -830,7 +839,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
         }
 
 
-        if ((serverCmd.m_type == CMD_SDF_LOADING_COMPLETED) || (serverCmd.m_type == CMD_MJCF_LOADING_COMPLETED))
+        if ((serverCmd.m_type == CMD_SDF_LOADING_COMPLETED) || (serverCmd.m_type == CMD_MJCF_LOADING_COMPLETED) || (serverCmd.m_type == CMD_SYNC_BODY_INFO_COMPLETED))
         {
             int numBodies = serverCmd.m_sdfLoadedArgs.m_numBodies;
             if (numBodies>0)

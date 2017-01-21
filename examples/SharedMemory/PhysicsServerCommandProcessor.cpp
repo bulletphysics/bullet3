@@ -423,6 +423,12 @@ struct PhysicsServerCommandProcessorInternalData
 	btAlignedObjectArray<InternalBodyHandle>	m_bodyHandles;
 	int m_numUsedHandles;						// number of active handles
 	int	m_firstFreeHandle;		// free handles list
+
+	int getNumHandles() const
+	{
+		return m_bodyHandles.size();
+	}
+
 	InternalBodyHandle* getHandle(int handle)
 	{
 		btAssert(handle>=0);
@@ -1741,6 +1747,23 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					break;
 				}
 
+				case CMD_SYNC_BODY_INFO:
+				{
+					int numHandles = m_data->getNumHandles();
+					int actualNumBodies = 0;
+					for (int i=0;i<numHandles;i++)
+					{
+						InteralBodyData* body = m_data->getHandle(i);
+						if (body && (body->m_multiBody || body->m_rigidBody))
+						{
+							serverStatusOut.m_sdfLoadedArgs.m_bodyUniqueIds[actualNumBodies++] = i;
+						}
+					}
+					serverStatusOut.m_sdfLoadedArgs.m_numBodies = actualNumBodies;
+					serverStatusOut.m_type = CMD_SYNC_BODY_INFO_COMPLETED;
+					hasStatus = true;
+					break;
+				}
                 case CMD_REQUEST_BODY_INFO:
                     {
                         const SdfRequestInfoArgs& sdfInfoArgs = clientCmd.m_sdfRequestInfoArgs;
@@ -3672,7 +3695,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							}
 							if (userConstraintPtr->m_rbConstraint)
 							{
-
+								//todo
 							}
 							serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = -1;
 							serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
@@ -4367,7 +4390,7 @@ void PhysicsServerCommandProcessor::replayFromLogFile(const char* fileName)
 }
 
 
-btVector3 gVRGripperPos(0.6, 0.4, 0.7);
+btVector3 gVRGripperPos(0.7, 0.3, 0.7);
 btQuaternion gVRGripperOrn(0,0,0,1);
 btVector3 gVRController2Pos(0,0,0.2);
 btQuaternion gVRController2Orn(0,0,0,1);
@@ -4764,7 +4787,7 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 		loadUrdf("husky/husky.urdf", btVector3(2, -5, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 		m_data->m_huskyId = bodyId;
 
-		m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, -10));
+		m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
 
 	}
 
