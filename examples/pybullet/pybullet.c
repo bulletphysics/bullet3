@@ -31,6 +31,7 @@ static PyObject* SpamError;
 
 #define MAX_PHYSICS_CLIENTS 1024
 static b3PhysicsClientHandle sPhysicsClients1[MAX_PHYSICS_CLIENTS] = {0};
+static int sPhysicsClientsGUI[MAX_PHYSICS_CLIENTS] = {0};
 static int sNumPhysicsClients=0;
 
 b3PhysicsClientHandle getPhysicsClient(int physicsClientId)
@@ -50,6 +51,8 @@ b3PhysicsClientHandle getPhysicsClient(int physicsClientId)
 		//broken connection?
 		b3DisconnectSharedMemory(sm);
 		sPhysicsClients1[physicsClientId] = 0;
+		sPhysicsClientsGUI[physicsClientId] = 0;
+
 		sNumPhysicsClients--;
 	}
 	return 0;
@@ -209,6 +212,7 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 
 	
   int freeIndex = -1;
+  int method = eCONNECT_GUI;
   int i;
 	b3PhysicsClientHandle sm=0;
 
@@ -221,7 +225,7 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 
 
   {
-    int method = eCONNECT_GUI;
+   
 	int key = SHARED_MEMORY_KEY;
 	int port = 1234;
 	const char* hostName = "localhost";
@@ -237,6 +241,21 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 		}
 	}
 
+	//Only one local in-process GUI connection allowed.
+	if (method == eCONNECT_GUI)
+	{
+		int i;
+		for (i=0;i<MAX_PHYSICS_CLIENTS;i++)
+		{
+			if (sPhysicsClientsGUI[i] ==eCONNECT_GUI)
+			{
+				PyErr_SetString(SpamError,
+					"Only one local in-process GUI connection allowed. Use DIRECT connection mode or start a separate GUI physics server (ExampleBrowser, App_SharedMemoryPhysics_GUI, App_SharedMemoryPhysics_VR) and connect over SHARED_MEMORY or UDP instead.");
+				return NULL;
+			}
+		}
+	}
+	
 	if (size == 2)
 	{
 		if (!PyArg_ParseTuple(args, "ii", &method, &key)) 
@@ -321,6 +340,7 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 
 
 		  sPhysicsClients1[freeIndex] = sm;
+		  sPhysicsClientsGUI[freeIndex] = method;
 		  sNumPhysicsClients++;
 
 		  command = b3InitSyncBodyInfoCommand(sm);
@@ -363,6 +383,7 @@ static PyObject* pybullet_disconnectPhysicsServer(PyObject* self,
   }
 
   sPhysicsClients1[physicsClientId] = 0;
+  sPhysicsClientsGUI[physicsClientId] = 0;
   sNumPhysicsClients--;
 
   Py_INCREF(Py_None);
@@ -2203,7 +2224,6 @@ static PyObject* pybullet_addUserDebugParameter(PyObject* self, PyObject* args, 
   int res = 0;
 
   char* text;
-  double posXYZ[3];
   double colorRGB[3]={1,1,1};
 
   
