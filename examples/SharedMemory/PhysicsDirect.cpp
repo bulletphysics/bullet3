@@ -19,6 +19,8 @@ struct BodyJointInfoCache2
 	btAlignedObjectArray<b3JointInfo> m_jointInfo;
 };
 
+
+
 struct PhysicsDirectInternalData
 {
 	DummyGUIHelper m_noGfx;
@@ -34,6 +36,7 @@ struct PhysicsDirectInternalData
     btAlignedObjectArray<TmpFloat3> m_debugLinesColor;
 
 	btHashMap<btHashInt,BodyJointInfoCache2*> m_bodyJointMap;
+    btHashMap<btHashInt,b3UserConstraint> m_userConstraintInfoMap;
 	
 	char    m_bulletStreamDataServerToClient[SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE];
 
@@ -112,6 +115,7 @@ void PhysicsDirect::resetData()
 		}
 	}
 	m_data->m_bodyJointMap.clear();
+	m_data->m_userConstraintInfoMap.clear();
 }
 
 // return true if connection succesfull, can also check 'isConnected'
@@ -670,12 +674,78 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 		break;
 	}
 
+	case CMD_USER_CONSTRAINT_INFO_COMPLETED:
+    case CMD_USER_CONSTRAINT_COMPLETED:
+    {
+        int cid = serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId;
+        m_data->m_userConstraintInfoMap.insert(cid,serverCmd.m_userConstraintResultArgs);
+        break;
+    }
+    case CMD_REMOVE_USER_CONSTRAINT_COMPLETED:
+    {
+        int cid = serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId;
+        m_data->m_userConstraintInfoMap.remove(cid);
+        break;
+    }
+	case CMD_CHANGE_USER_CONSTRAINT_COMPLETED:
+	{
+        int cid = serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId;
+		b3UserConstraint* userConstraintPtr = m_data->m_userConstraintInfoMap[cid];
+		if (userConstraintPtr)
+		{
+			const b3UserConstraint* serverConstraint = &serverCmd.m_userConstraintResultArgs;
+			if (serverCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_PIVOT_IN_B)
+			{
+					userConstraintPtr->m_childFrame[0] = serverConstraint->m_childFrame[0];
+					userConstraintPtr->m_childFrame[1] = serverConstraint->m_childFrame[1];
+					userConstraintPtr->m_childFrame[2] = serverConstraint->m_childFrame[2];
+			}
+			if (serverCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_FRAME_ORN_IN_B)
+			{
+				userConstraintPtr->m_childFrame[3] = serverConstraint->m_childFrame[3];
+				userConstraintPtr->m_childFrame[4] = serverConstraint->m_childFrame[4];
+				userConstraintPtr->m_childFrame[5] = serverConstraint->m_childFrame[5];
+				userConstraintPtr->m_childFrame[6] = serverConstraint->m_childFrame[6];
+			}
+			if (serverCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_MAX_FORCE)
+			{
+				userConstraintPtr->m_maxAppliedForce = serverConstraint->m_maxAppliedForce;
+			}
+		}
+		break;
+	}
+
+	case CMD_SYNC_BODY_INFO_COMPLETED:
 	case CMD_MJCF_LOADING_COMPLETED:
 	case CMD_SDF_LOADING_COMPLETED:
 	{
 		//we'll stream further info from the physics server
 		//so serverCmd will be invalid, make a copy
 
+		int numConstraints = serverCmd.m_sdfLoadedArgs.m_numUserConstraints;
+		for (int i=0;i<numConstraints;i++)
+		{
+			int constraintUid = serverCmd.m_sdfLoadedArgs.m_userConstraintUniqueIds[i];
+			SharedMemoryCommand infoRequestCommand;
+			infoRequestCommand.m_type = CMD_USER_CONSTRAINT;
+			infoRequestCommand.m_updateFlags = USER_CONSTRAINT_REQUEST_INFO;
+            infoRequestCommand.m_userConstraintArguments.m_userConstraintUniqueId = constraintUid;
+			SharedMemoryStatus infoStatus;
+			bool hasStatus = m_data->m_commandProcessor->processCommand(infoRequestCommand, infoStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+					
+
+			int timeout = 1024 * 1024 * 1024;
+			while ((!hasStatus) && (timeout-- > 0))
+			{
+				hasStatus = m_data->m_commandProcessor->receiveStatus(infoStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+			}
+
+			if (hasStatus)
+			{
+				int cid = infoStatus.m_userConstraintResultArgs.m_userConstraintUniqueId;
+				m_data->m_userConstraintInfoMap.insert(cid,infoStatus.m_userConstraintResultArgs);
+			}
+		}
 
 		int numBodies = serverCmd.m_sdfLoadedArgs.m_numBodies;
 		for (int i = 0; i<numBodies; i++)
@@ -720,10 +790,18 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 	{
 		break;
 	}
-	case CMD_USER_CONSTRAINT_COMPLETED:
+	
+	case CMD_REMOVE_USER_CONSTRAINT_FAILED:
 	{
+		b3Warning("removeConstraint failed");
 		break;
 	}
+	case CMD_CHANGE_USER_CONSTRAINT_FAILED:
+	{
+		b3Warning("changeConstraint failed");
+		break;
+	}
+
 	case CMD_USER_CONSTRAINT_FAILED:
 	{
 		b3Warning("createConstraint failed");
@@ -764,10 +842,12 @@ bool PhysicsDirect::submitClientCommand(const struct SharedMemoryCommand& comman
 
 	bool hasStatus = m_data->m_commandProcessor->processCommand(command,m_data->m_serverStatus,&m_data->m_bulletStreamDataServerToClient[0],SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
 	m_data->m_hasStatus = hasStatus;
-	if (hasStatus)
+	/*if (hasStatus)
 	{
 		postProcessStatus(m_data->m_serverStatus);
+		m_data->m_hasStatus = false;
 	}
+	*/
 	return hasStatus;
 }
 
@@ -775,6 +855,23 @@ int PhysicsDirect::getNumBodies() const
 {
 	return m_data->m_bodyJointMap.size();
 }
+
+int PhysicsDirect::getNumUserConstraints() const
+{
+    return m_data->m_userConstraintInfoMap.size();
+}
+
+int PhysicsDirect::getUserConstraintInfo(int constraintUniqueId, struct b3UserConstraint&info) const
+{
+    b3UserConstraint* constraintPtr =m_data->m_userConstraintInfoMap[constraintUniqueId];
+    if (constraintPtr)
+    {
+        info = *constraintPtr;
+        return 1;
+    }
+    return 0;
+}
+
 
 
 int PhysicsDirect::getBodyUniqueId(int serialIndex) const

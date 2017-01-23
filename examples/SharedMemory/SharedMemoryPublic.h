@@ -47,7 +47,7 @@ enum EnumSharedMemoryClientCommand
 	CMD_USER_DEBUG_DRAW,
 	CMD_REQUEST_VR_EVENTS_DATA,
 	CMD_SET_VR_CAMERA_STATE,
-
+	CMD_SYNC_BODY_INFO,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -112,9 +112,16 @@ enum EnumSharedMemoryServerStatus
 		CMD_USER_DEBUG_DRAW_PARAMETER_COMPLETED,
 		CMD_USER_DEBUG_DRAW_FAILED,
 		CMD_USER_CONSTRAINT_COMPLETED,
+		CMD_USER_CONSTRAINT_INFO_COMPLETED,
+        CMD_REMOVE_USER_CONSTRAINT_COMPLETED,
+        CMD_CHANGE_USER_CONSTRAINT_COMPLETED,
+		CMD_REMOVE_USER_CONSTRAINT_FAILED,
+        CMD_CHANGE_USER_CONSTRAINT_FAILED,
 		CMD_USER_CONSTRAINT_FAILED,
 		CMD_REQUEST_VR_EVENTS_DATA_COMPLETED,
 		CMD_REQUEST_RAY_CAST_INTERSECTIONS_COMPLETED,
+		CMD_SYNC_BODY_INFO_COMPLETED,
+		CMD_SYNC_BODY_INFO_FAILED,
         //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
@@ -160,6 +167,20 @@ struct b3JointInfo
     double m_parentFrame[7]; // position and orientation (quaternion)
     double m_childFrame[7]; // ^^^
     double m_jointAxis[3]; // joint axis in parent local frame
+};
+
+struct b3UserConstraint
+{
+    int m_parentBodyIndex;
+    int m_parentJointIndex;
+    int m_childBodyIndex;
+    int m_childJointIndex;
+    double m_parentFrame[7];
+    double m_childFrame[7];
+    double m_jointAxis[3];
+    int m_jointType;
+    double m_maxAppliedForce;
+    int m_userConstraintUniqueId;
 };
 
 struct b3BodyInfo

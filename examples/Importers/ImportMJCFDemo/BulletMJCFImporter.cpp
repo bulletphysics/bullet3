@@ -8,6 +8,10 @@
 #include "../ImportURDFDemo/UrdfParser.h"
 #include "../ImportURDFDemo/urdfStringSplit.h"
 #include "../ImportURDFDemo/urdfLexicalCast.h"
+#include "../ImportObjDemo/LoadMeshFromObj.h"
+#include "../ImportSTLDemo/LoadMeshFromSTL.h"
+#include"../../ThirdPartyLibs/Wavefront/tiny_obj_loader.h"
+#include "../ImportMeshUtility/b3ImportMeshUtility.h"
 
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 #include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
@@ -16,8 +20,21 @@
 #include "BulletCollision/CollisionShapes/btCapsuleShape.h"
 #include "BulletCollision/CollisionShapes/btCylinderShape.h"
 #include "BulletCollision/CollisionShapes/btMultiSphereShape.h"
+#include "BulletCollision/CollisionShapes/btConvexHullShape.h"
+#include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
+#include "BulletCollision/CollisionShapes/btTriangleMesh.h"
 
 
+
+
+
+#include <vector>
+
+enum eMJCF_FILE_TYPE_ENUMS
+{
+	MJCF_FILE_STL = 1,
+	MJCF_FILE_OBJ = 2
+};
 
 enum ePARENT_LINK_ENUMS
 {
@@ -112,6 +129,10 @@ static bool parseVector6(btVector3& v0, btVector3& v1, const std::string& vector
 }
 
 
+struct MyMJCFAsset
+{
+	std::string  m_fileName;
+};
 
 struct BulletMJCFImporterInternalData
 {
@@ -119,12 +140,20 @@ struct BulletMJCFImporterInternalData
 	char m_pathPrefix[1024];
 
 	std::string m_fileModelName;
+	btHashMap<btHashString,MyMJCFAsset> m_assets;
 
 	btAlignedObjectArray<UrdfModel*>	m_models;
+
+	//<compiler angle="radian" meshdir="mesh/" texturedir="texture/"/>
+	std::string m_meshDir;
+	std::string m_textureDir;
+
+
 	int m_activeModel;
 	//todo: for full MJCF compatibility, we would need a stack of default values
 	int m_defaultCollisionGroup;
 	int m_defaultCollisionMask;
+	btScalar m_defaultCollisionMargin;
 
 	//those collision shapes are deleted by caller (todo: make sure this happens!)
 	btAlignedObjectArray<btCollisionShape*> m_allocatedCollisionShapes;
@@ -132,7 +161,8 @@ struct BulletMJCFImporterInternalData
 	BulletMJCFImporterInternalData()
 		:m_activeModel(-1),
 		m_defaultCollisionGroup(1),
-		m_defaultCollisionMask(1)
+		m_defaultCollisionMask(1),
+		m_defaultCollisionMargin(0.001)//assume unit meters, margin is 1mm
 	{
 		m_pathPrefix[0] = 0;
 	}
@@ -151,6 +181,48 @@ struct BulletMJCFImporterInternalData
 		return 0;
 	}
 
+	void parseCompiler(TiXmlElement* root_xml, MJCFErrorLogger* logger)
+	{
+
+		const char* meshDirStr = root_xml->Attribute("meshdir");
+		if (meshDirStr)
+		{
+			m_meshDir = meshDirStr;
+		}
+		const char* textureDirStr = root_xml->Attribute("texturedir");
+		if (textureDirStr)
+		{
+			m_textureDir = textureDirStr;
+		}
+#if 0
+		for (TiXmlElement* child_xml = root_xml->FirstChildElement() ; child_xml ; child_xml = child_xml->NextSiblingElement())
+		{
+			std::string n = child_xml->Value();
+		}
+#endif
+	}
+	
+	void parseAssets(TiXmlElement* root_xml, MJCFErrorLogger* logger)
+	{
+		//		<mesh name="index0" 	file="index0.stl"/>
+		for (TiXmlElement* child_xml = root_xml->FirstChildElement() ; child_xml ; child_xml = child_xml->NextSiblingElement())
+		{
+			std::string n = child_xml->Value();
+			if (n=="mesh")
+			{
+				const char* assetNameStr = child_xml->Attribute("name");
+				const char* fileNameStr = child_xml->Attribute("file");
+				if (assetNameStr && fileNameStr)
+				{
+					btHashString assetName = assetNameStr;
+					MyMJCFAsset asset;
+					asset.m_fileName = m_meshDir + fileNameStr;
+					m_assets.insert(assetName,asset);
+				}
+			}
+			
+		}
+	}
 	bool parseDefaults(TiXmlElement* root_xml, MJCFErrorLogger* logger)
 	{
 		bool handled= false;
@@ -158,8 +230,13 @@ struct BulletMJCFImporterInternalData
 		for (TiXmlElement* child_xml = root_xml->FirstChildElement() ; child_xml ; child_xml = child_xml->NextSiblingElement())
 		{
 			std::string n = child_xml->Value();
+		
 			if (n=="inertial")
 			{
+			}
+			if (n=="asset")
+			{
+				parseAssets(child_xml,logger);
 			}
 			if (n=="geom")
 			{
@@ -531,6 +608,25 @@ struct BulletMJCFImporterInternalData
 					} else
 					{
 						handledGeomType = true;
+					}
+				}
+			}
+			if (geomType=="mesh")
+			{
+				const char* meshStr = link_xml->Attribute("mesh");
+				if (meshStr)
+				{
+					MyMJCFAsset* assetPtr = m_assets[meshStr];
+					if (assetPtr)
+					{
+						handledGeomType = true;
+						geom.m_type = URDF_GEOM_MESH;
+						geom.m_meshFileName = assetPtr->m_fileName;
+						geom.m_meshScale.setValue(1,1,1);
+						//todo: parse mesh scale
+						if (sz)
+						{
+						}
 					}
 				}
 			}
@@ -1081,6 +1177,17 @@ bool BulletMJCFImporter::parseMJCFString(const char* xmlText, MJCFErrorLogger* l
 	{
 		m_data->parseDefaults(link_xml,logger);
 	}
+
+	for (TiXmlElement* link_xml = mujoco_xml->FirstChildElement("compiler"); link_xml; link_xml = link_xml->NextSiblingElement("compiler"))
+	{
+		m_data->parseCompiler(link_xml,logger);
+	}
+	
+
+	for (TiXmlElement* link_xml = mujoco_xml->FirstChildElement("asset"); link_xml; link_xml = link_xml->NextSiblingElement("asset"))
+	{
+		m_data->parseAssets(link_xml,logger);
+	}
 	
 	for (TiXmlElement* link_xml = mujoco_xml->FirstChildElement("body"); link_xml; link_xml = link_xml->NextSiblingElement("body"))
 	{
@@ -1281,6 +1388,52 @@ int BulletMJCFImporter::getBodyUniqueId() const
 { 
 	return 0;
 }
+
+
+static btCollisionShape* MjcfCreateConvexHullFromShapes(std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale, btScalar collisionMargin)
+{
+	btCompoundShape* compound = new btCompoundShape();
+	compound->setMargin(collisionMargin);
+
+	btTransform identity;
+	identity.setIdentity();
+
+	for (int s = 0; s<(int)shapes.size(); s++)
+	{
+		btConvexHullShape* convexHull = new btConvexHullShape();
+		convexHull->setMargin(collisionMargin);
+		tinyobj::shape_t& shape = shapes[s];
+		int faceCount = shape.mesh.indices.size();
+
+		for (int f = 0; f<faceCount; f += 3)
+		{
+
+			btVector3 pt;
+			pt.setValue(shape.mesh.positions[shape.mesh.indices[f] * 3 + 0],
+				shape.mesh.positions[shape.mesh.indices[f] * 3 + 1],
+				shape.mesh.positions[shape.mesh.indices[f] * 3 + 2]);
+			
+			convexHull->addPoint(pt*geomScale,false);
+
+			pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 0],
+						shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 1],
+						shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 2]);
+			convexHull->addPoint(pt*geomScale, false);
+
+			pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 0],
+						shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 1],
+						shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 2]);
+			convexHull->addPoint(pt*geomScale, false);
+		}
+
+		convexHull->recalcLocalAabb();
+		convexHull->optimizeConvexHull();
+		compound->addChildShape(identity,convexHull);
+	}
+
+	return compound;
+}
+
     
 class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const
 {
@@ -1319,6 +1472,129 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 			}
 			case URDF_GEOM_MESH:
 			{
+				//////////////////////
+				if (1)
+			{
+				if (col->m_geometry.m_meshFileName.length())
+				{
+					const char* filename = col->m_geometry.m_meshFileName.c_str();
+					//b3Printf("mesh->filename=%s\n",filename);
+					char fullPath[1024];
+					int fileType = 0;
+					sprintf(fullPath,"%s%s",pathPrefix,filename);
+					b3FileUtils::toLower(fullPath);
+                    char tmpPathPrefix[1024];
+                    int maxPathLen = 1024;
+                    b3FileUtils::extractPath(filename,tmpPathPrefix,maxPathLen);
+                    
+                    char collisionPathPrefix[1024];
+                    sprintf(collisionPathPrefix,"%s%s",pathPrefix,tmpPathPrefix);
+                    
+					if (strstr(fullPath,".stl"))
+					{
+						fileType = MJCF_FILE_STL;
+					}
+                    if (strstr(fullPath,".obj"))
+                   {
+                       fileType = MJCF_FILE_OBJ;
+                   }
+
+					sprintf(fullPath,"%s%s",pathPrefix,filename);
+					FILE* f = fopen(fullPath,"rb");
+					if (f)
+					{
+						fclose(f);
+						GLInstanceGraphicsShape* glmesh = 0;
+						
+						
+						switch (fileType)
+						{
+                            case MJCF_FILE_OBJ:
+                            {
+								if (col->m_flags & URDF_FORCE_CONCAVE_TRIMESH)
+								{
+									glmesh = LoadMeshFromObj(fullPath, collisionPathPrefix);
+								}
+								else
+								{
+									std::vector<tinyobj::shape_t> shapes;
+									std::string err = tinyobj::LoadObj(shapes, fullPath, collisionPathPrefix);
+									//create a convex hull for each shape, and store it in a btCompoundShape
+
+									childShape = MjcfCreateConvexHullFromShapes(shapes, col->m_geometry.m_meshScale, m_data->m_defaultCollisionMargin);
+									
+								}
+                                break;
+                            }
+						case MJCF_FILE_STL:
+							{
+								glmesh = LoadMeshFromSTL(fullPath);
+							break;
+							}
+						
+						default:
+							{
+                                b3Warning("Unsupported file type in Collision: %s\n",fullPath);
+                               
+							}
+						}
+					
+
+						if (!childShape && glmesh && (glmesh->m_numvertices>0))
+						{
+							//b3Printf("extracted %d verticed from STL file %s\n", glmesh->m_numvertices,fullPath);
+							//int shapeId = m_glApp->m_instancingRenderer->registerShape(&gvertices[0].pos[0],gvertices.size(),&indices[0],indices.size());
+							//convex->setUserIndex(shapeId);
+							btAlignedObjectArray<btVector3> convertedVerts;
+							convertedVerts.reserve(glmesh->m_numvertices);
+							for (int i=0;i<glmesh->m_numvertices;i++)
+							{
+								convertedVerts.push_back(btVector3(
+                                           glmesh->m_vertices->at(i).xyzw[0]*col->m_geometry.m_meshScale[0],
+                                           glmesh->m_vertices->at(i).xyzw[1]*col->m_geometry.m_meshScale[1],
+                                           glmesh->m_vertices->at(i).xyzw[2]*col->m_geometry.m_meshScale[2]));
+							}
+							
+							if (col->m_flags & URDF_FORCE_CONCAVE_TRIMESH)
+							{
+								
+								btTriangleMesh* meshInterface = new btTriangleMesh();
+								for (int i=0;i<glmesh->m_numIndices/3;i++)
+								{
+									float* v0 = glmesh->m_vertices->at(glmesh->m_indices->at(i*3)).xyzw;
+									float* v1 = glmesh->m_vertices->at(glmesh->m_indices->at(i*3+1)).xyzw;
+									float* v2 = glmesh->m_vertices->at(glmesh->m_indices->at(i*3+2)).xyzw;
+									meshInterface->addTriangle(btVector3(v0[0],v0[1],v0[2]),
+																btVector3(v1[0],v1[1],v1[2]),
+															btVector3(v2[0],v2[1],v2[2]));
+								}
+								
+								btBvhTriangleMeshShape* trimesh = new btBvhTriangleMeshShape(meshInterface,true,true);
+								childShape = trimesh;
+							} else
+							{
+								btConvexHullShape* convexHull = new btConvexHullShape(&convertedVerts[0].getX(), convertedVerts.size(), sizeof(btVector3));
+								convexHull->optimizeConvexHull();
+								//convexHull->initializePolyhedralFeatures();
+								convexHull->setMargin(m_data->m_defaultCollisionMargin);
+								childShape = convexHull;
+							}
+						} else
+						{
+							b3Warning("issue extracting mesh from STL file %s\n", fullPath);
+						}
+
+                        delete glmesh;
+                       
+					} else
+					{
+						b3Warning("mesh geometry not found %s\n",fullPath);
+					}
+							
+				}
+			}
+
+				//////////////////////
 				break;
 			}
 			
@@ -1349,6 +1625,7 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 			}
 			default:
 			{
+
 			}
 			}
 			if (childShape)

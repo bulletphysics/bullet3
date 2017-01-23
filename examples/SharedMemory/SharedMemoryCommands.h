@@ -33,7 +33,7 @@
 #define MAX_SDF_FILENAME_LENGTH 1024
 #define MAX_FILENAME_LENGTH MAX_URDF_FILENAME_LENGTH
 #define MAX_NUM_LINKS MAX_DEGREE_OF_FREEDOM
-#define MAX_SDF_BODIES 500
+#define MAX_SDF_BODIES 512
 
 struct TmpFloat3 
 {
@@ -432,6 +432,8 @@ struct SdfLoadedArgs
 {
     int m_numBodies;
     int m_bodyUniqueIds[MAX_SDF_BODIES];
+    int m_numUserConstraints;
+	int m_userConstraintUniqueIds[MAX_SDF_BODIES];
     
     ///@todo(erwincoumans) load cameras, lights etc
     //int m_numCameras; 
@@ -541,27 +543,13 @@ enum EnumUserConstraintFlags
 	USER_CONSTRAINT_CHANGE_PIVOT_IN_B=8,
 	USER_CONSTRAINT_CHANGE_FRAME_ORN_IN_B=16,
 	USER_CONSTRAINT_CHANGE_MAX_FORCE=32,
+	USER_CONSTRAINT_REQUEST_INFO=64,
 	
 };
 
-struct UserConstraintArgs
-{
-    int m_parentBodyIndex;
-    int m_parentJointIndex;
-    int m_childBodyIndex;
-    int m_childJointIndex;
-    double m_parentFrame[7];
-    double m_childFrame[7];
-    double m_jointAxis[3];
-    int m_jointType;
-	double m_maxAppliedForce;
-	int m_userConstraintUniqueId;
-};
 
-struct UserConstraintResultArgs
-{
-	int m_userConstraintUniqueId;
-};
+
+
 
 enum EnumUserDebugDrawFlags
 {
@@ -659,7 +647,7 @@ struct SharedMemoryCommand
         struct ExternalForceArgs m_externalForceArguments;
 		struct CalculateInverseDynamicsArgs m_calculateInverseDynamicsArguments;
         struct CalculateJacobianArgs m_calculateJacobianArguments;
-        struct UserConstraintArgs m_userConstraintArguments;
+        struct b3UserConstraint m_userConstraintArguments;
         struct RequestContactDataArgs m_requestContactPointArguments;
 		struct RequestOverlappingObjectsArgs m_requestOverlappingObjectsArgs;
         struct RequestVisualShapeDataArgs m_requestVisualShapeDataArguments;
@@ -708,6 +696,10 @@ struct SharedMemoryStatus
 	int		m_numDataStreamBytes;
 	char*	m_dataStream;
 
+	//m_updateFlags is a bit fields to tell which parameters were updated, 
+	//m_updateFlags is ignored for most status messages
+    int m_updateFlags;
+
 	union
 	{
 		struct BulletDataStreamArgs	m_dataStreamArguments;
@@ -723,7 +715,7 @@ struct SharedMemoryStatus
 		struct CalculateInverseKinematicsResultArgs m_inverseKinematicsResultArgs;
 		struct SendVisualShapeDataArgs m_sendVisualShapeArgs;
 		struct UserDebugDrawResultArgs m_userDebugDrawArgs;
-		struct UserConstraintResultArgs m_userConstraintResultArgs;
+		struct b3UserConstraint m_userConstraintResultArgs;
 		struct SendVREvents m_sendVREvents;
 		struct SendRaycastHits m_raycastHits;
 	};
