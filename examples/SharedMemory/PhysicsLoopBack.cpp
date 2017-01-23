@@ -99,7 +99,16 @@ bool PhysicsLoopBack::getJointInfo(int bodyIndex, int jointIndex, struct b3Joint
 	return m_data->m_physicsClient->getJointInfo(bodyIndex,jointIndex,info);
 }
 
-///todo: move this out of the
+int PhysicsLoopBack::getNumUserConstraints() const
+{
+    return m_data->m_physicsClient->getNumUserConstraints();
+}
+int PhysicsLoopBack::getUserConstraintInfo(int constraintUniqueId, struct b3UserConstraint&info) const
+{
+    return m_data->m_physicsClient->getUserConstraintInfo( constraintUniqueId, info);
+}
+
+///todo: move this out of the interface
 void PhysicsLoopBack::setSharedMemoryKey(int key)
 {
 	m_data->m_physicsServer->setSharedMemoryKey(key);

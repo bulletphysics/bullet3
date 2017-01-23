@@ -1578,6 +1578,7 @@ static PyObject* pybullet_getNumBodies(PyObject* self, PyObject* args, PyObject*
   }
 }
 
+
 static PyObject* pybullet_getBodyUniqueId(PyObject* self, PyObject* args, PyObject* keywds)
 {
 int physicsClientId = 0;
@@ -1648,6 +1649,122 @@ static PyObject* pybullet_getBodyInfo(PyObject* self, PyObject* args, PyObject* 
   PyErr_SetString(SpamError, "error in getBodyInfo.");
   return NULL;
 }
+
+
+static PyObject* pybullet_getConstraintInfo(PyObject* self, PyObject* args, PyObject* keywds)
+{
+    
+    {
+        int constraintUniqueId= -1;
+        b3PhysicsClientHandle sm = 0;
+        
+        int physicsClientId = 0;
+        static char *kwlist[] = { "constraintUniqueId", "physicsClientId", NULL };
+        if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|i", kwlist,&constraintUniqueId, &physicsClientId))
+        {
+            return NULL;
+        }
+        sm = getPhysicsClient(physicsClientId);
+        if (sm == 0)
+        {
+            PyErr_SetString(SpamError, "Not connected to physics server.");
+            return NULL;
+        }
+        
+        {
+            struct b3UserConstraint constraintInfo;
+            
+            if (b3GetUserConstraintInfo(sm,constraintUniqueId, &constraintInfo))
+            {
+                PyObject* pyListConstraintInfo = PyTuple_New(11);
+
+				PyTuple_SetItem(pyListConstraintInfo,0,PyLong_FromLong(constraintInfo.m_parentBodyIndex));
+                PyTuple_SetItem(pyListConstraintInfo,1,PyLong_FromLong(constraintInfo.m_parentJointIndex));
+                PyTuple_SetItem(pyListConstraintInfo,2,PyLong_FromLong(constraintInfo.m_childBodyIndex));
+                PyTuple_SetItem(pyListConstraintInfo,3,PyLong_FromLong(constraintInfo.m_childJointIndex));
+                PyTuple_SetItem(pyListConstraintInfo,4,PyLong_FromLong(constraintInfo.m_jointType));
+                
+                {
+                    PyObject* axisObj = PyTuple_New(3);
+                    PyTuple_SetItem(axisObj,0,PyFloat_FromDouble(constraintInfo.m_jointAxis[0]));
+                    PyTuple_SetItem(axisObj,1,PyFloat_FromDouble(constraintInfo.m_jointAxis[1]));
+                    PyTuple_SetItem(axisObj,2,PyFloat_FromDouble(constraintInfo.m_jointAxis[2]));
+                    PyTuple_SetItem(pyListConstraintInfo,5,axisObj);
+                }
+                {
+                    PyObject* parentFramePositionObj = PyTuple_New(3);
+                    PyTuple_SetItem(parentFramePositionObj,0,PyFloat_FromDouble(constraintInfo.m_parentFrame[0]));
+                    PyTuple_SetItem(parentFramePositionObj,1,PyFloat_FromDouble(constraintInfo.m_parentFrame[1]));
+                    PyTuple_SetItem(parentFramePositionObj,2,PyFloat_FromDouble(constraintInfo.m_parentFrame[2]));
+                    PyTuple_SetItem(pyListConstraintInfo,6,parentFramePositionObj);
+                }
+                {
+                    PyObject* childFramePositionObj = PyTuple_New(3);
+                    PyTuple_SetItem(childFramePositionObj,0,PyFloat_FromDouble(constraintInfo.m_childFrame[0]));
+                    PyTuple_SetItem(childFramePositionObj,1,PyFloat_FromDouble(constraintInfo.m_childFrame[1]));
+                    PyTuple_SetItem(childFramePositionObj,2,PyFloat_FromDouble(constraintInfo.m_childFrame[2]));
+                    PyTuple_SetItem(pyListConstraintInfo,7,childFramePositionObj);
+                }
+				{
+                    PyObject* parentFrameOrientationObj = PyTuple_New(4);                
+					PyTuple_SetItem(parentFrameOrientationObj,0,PyFloat_FromDouble(constraintInfo.m_parentFrame[3]));
+					PyTuple_SetItem(parentFrameOrientationObj,1,PyFloat_FromDouble(constraintInfo.m_parentFrame[4]));
+					PyTuple_SetItem(parentFrameOrientationObj,2,PyFloat_FromDouble(constraintInfo.m_parentFrame[5]));
+					PyTuple_SetItem(parentFrameOrientationObj,3,PyFloat_FromDouble(constraintInfo.m_parentFrame[6]));
+                    PyTuple_SetItem(pyListConstraintInfo,8,parentFrameOrientationObj);
+				}
+								{
+                    PyObject* childFrameOrientation = PyTuple_New(4);                
+					PyTuple_SetItem(childFrameOrientation,0,PyFloat_FromDouble(constraintInfo.m_childFrame[3]));
+					PyTuple_SetItem(childFrameOrientation,1,PyFloat_FromDouble(constraintInfo.m_childFrame[4]));
+					PyTuple_SetItem(childFrameOrientation,2,PyFloat_FromDouble(constraintInfo.m_childFrame[5]));
+					PyTuple_SetItem(childFrameOrientation,3,PyFloat_FromDouble(constraintInfo.m_childFrame[6]));
+                    PyTuple_SetItem(pyListConstraintInfo,9,childFrameOrientation);
+				}
+				PyTuple_SetItem(pyListConstraintInfo,10,PyFloat_FromDouble(constraintInfo.m_maxAppliedForce));
+
+                return pyListConstraintInfo;
+            } else
+            {
+                PyErr_SetString(SpamError, "Couldn't get user constraint info");
+                return NULL;
+            }
+        }
+    }
+    
+    PyErr_SetString(SpamError, "error in getConstraintInfo.");
+    return NULL;
+}
+
+
+static PyObject* pybullet_getNumConstraints(PyObject* self, PyObject* args, PyObject* keywds)
+{
+    int numConstraints = 0;
+    int physicsClientId = 0;
+    b3PhysicsClientHandle sm = 0;
+    static char *kwlist[] = { "physicsClientId", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|i", kwlist, &physicsClientId))
+    {
+        return NULL;
+    }
+    sm = getPhysicsClient(physicsClientId);
+    if (sm == 0)
+    {
+        PyErr_SetString(SpamError, "Not connected to physics server.");
+        return NULL;
+    }
+    
+    numConstraints = b3GetNumUserConstraints(sm);
+    
+#if PY_MAJOR_VERSION >= 3
+    return PyLong_FromLong(numConstraints);
+#else
+    return PyInt_FromLong(numConstraints);
+#endif
+    
+
+}
+
 
 
 // Return the number of joints in an object based on
@@ -2221,13 +2338,10 @@ static PyObject* pybullet_addUserDebugParameter(PyObject* self, PyObject* args, 
   b3SharedMemoryCommandHandle commandHandle;
   b3SharedMemoryStatusHandle statusHandle;
   int statusType;
-  int res = 0;
 
   char* text;
-  double colorRGB[3]={1,1,1};
 
   
-  PyObject* textPositionObj=0;
   double rangeMin = 0.f;
   double rangeMax = 1.f;
   double startValue = 0.f;
@@ -4541,7 +4655,7 @@ static PyMethodDef SpamMethods[] = {
 	"Load multibodies from an MJCF file." },
 
 	  {"createConstraint", (PyCFunction)pybullet_createUserConstraint, METH_VARARGS | METH_KEYWORDS,
-	"Create a constraint between two bodies. Returns a (int) unique id, if successfull."
+		"Create a constraint between two bodies. Returns a (int) unique id, if successfull."
      },
 
 	{"changeConstraint", (PyCFunction)pybullet_changeUserConstraint, METH_VARARGS | METH_KEYWORDS,
@@ -4561,11 +4675,21 @@ static PyMethodDef SpamMethods[] = {
      "Get the number of bodies in the simulation."},
 
 	{"getBodyUniqueId", (PyCFunction)pybullet_getBodyUniqueId, METH_VARARGS| METH_KEYWORDS,
-     "Get the unique id of the body, given a integer serial index in range [0.. number of bodies)."},
+     "getBodyUniqueId is used after connecting to server with existing bodies."
+	 "Get the unique id of the body, given a integer range [0.. number of bodies)."},
 
 	{"getBodyInfo",(PyCFunction) pybullet_getBodyInfo, METH_VARARGS | METH_KEYWORDS,
      "Get the body info, given a body unique id."},
 	
+    {"getNumConstraints", (PyCFunction)pybullet_getNumConstraints, METH_VARARGS| METH_KEYWORDS,
+        "Get the number of user-created constraints in the simulation."},
+
+    {"getConstraintInfo",(PyCFunction) pybullet_getConstraintInfo, METH_VARARGS | METH_KEYWORDS,
+     "Get the user-created constraint info, given a constraint unique id."},
+    
+	{"getConstraintUniqueId", (PyCFunction)pybullet_getBodyUniqueId, METH_VARARGS| METH_KEYWORDS,
+	"Get the unique id of the constraint, given a integer index in range [0.. number of constraints)."},
+    
     {"getBasePositionAndOrientation",(PyCFunction) pybullet_getBasePositionAndOrientation,
      METH_VARARGS | METH_KEYWORDS,
      "Get the world position and orientation of the base of the object. "

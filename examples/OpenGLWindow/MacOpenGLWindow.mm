@@ -10,6 +10,61 @@
 #include <stddef.h>
 #include <string.h>
 
+#include <Availability.h>
+
+
+//aargh, Mac OSX 10.12 broke backwards compatibility, fix it here for now
+#ifdef __MAC_10_12
+    #define MyNSTitledWindowMask NSWindowStyleMaskTitled
+    #define MyNSResizableWindowMask NSWindowStyleMaskResizable
+    #define MyNSClosableWindowMask NSWindowStyleMaskClosable
+    #define MyNSMiniaturizableWindowMask NSWindowStyleMaskMiniaturizable
+    #define MyNSAnyEventMask NSEventMaskAny
+    #define MyNSEventTypeFlagsChanged NSEventTypeFlagsChanged
+    #define MyNSEventModifierFlagShift NSEventModifierFlagShift
+    #define MyNSEventModifierFlagControl NSEventModifierFlagControl
+    #define MyNSEventModifierFlagOption NSEventModifierFlagOption
+    #define MyNSKeyUp NSEventTypeKeyUp
+    #define MyNSKeyDown NSEventTypeKeyDown
+    #define MyNSRightMouseDown NSEventTypeRightMouseDown
+    #define MyNSLeftMouseDown NSEventTypeLeftMouseDown
+    #define MyNSOtherMouseDown NSEventTypeOtherMouseDown
+    #define MyNSRightMouseUp NSEventTypeRightMouseUp
+    #define MyNSLeftMouseUp NSEventTypeLeftMouseUp
+    #define MyNSOtherMouseUp NSEventTypeOtherMouseUp
+    #define MyNSMouseMoved NSEventTypeMouseMoved
+    #define MyNSLeftMouseDragged NSEventTypeLeftMouseDragged
+    #define MyNSRightMouseDragged NSEventTypeRightMouseDragged
+    #define MyNSOtherMouseDragged NSEventTypeOtherMouseDragged
+    #define MyNSScrollWheel NSEventTypeScrollWheel
+
+
+#else
+    #define MyNSTitledWindowMask NSTitledWindowMask
+    #define MyNSResizableWindowMask NSResizableWindowMask
+    #define MyNSClosableWindowMask NSClosableWindowMask
+    #define MyNSMiniaturizableWindowMask NSMiniaturizableWindowMask
+    #define MyNSAnyEventMask NSAnyEventMask
+    #define MyNSEventTypeFlagsChanged NSFlagsChanged
+    #define MyNSEventModifierFlagShift NSShiftKeyMask
+    #define MyNSEventModifierFlagControl NSControlKeyMask
+    #define MyNSEventModifierFlagOption NSAlternateKeyMask
+    #define MyNSKeyUp NSKeyUp
+    #define MyNSKeyDown NSKeyDown
+    #define NSRightMouseDown NSRightMouseDown
+    #define MyNSLeftMouseDown LeftMouseDown
+    #define MyNSOtherMouseDown NSOtherMouseDown
+    #define MyNSLeftMouseUp NSLeftMouseUp
+    #define MyNSRightMouseUp NSRightMouseUp
+    #define MyNSOtherMouseUp NSOtherMouseUp
+    #define MyNSMouseMoved NSMouseMoved
+    #define MyNSLeftMouseDragged NSLeftMouseDragged
+    #define MyNSRightMouseDragged NSRightMouseDragged
+    #define MyNSOtherMouseDragged NSOtherMouseDragged
+    #define MyNSScrollWheel NSScrollWheel
+
+
+#endif
 
 enum
 {
@@ -368,7 +423,7 @@ void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 	
 	m_internalData->m_window = [NSWindow alloc];
 	[m_internalData->m_window initWithContentRect:frame
-                      styleMask:NSTitledWindowMask |NSResizableWindowMask| NSClosableWindowMask | NSMiniaturizableWindowMask
+                      styleMask:MyNSTitledWindowMask |MyNSResizableWindowMask| MyNSClosableWindowMask | MyNSMiniaturizableWindowMask
                         backing:NSBackingStoreBuffered
                           defer:false];
 	
@@ -771,7 +826,7 @@ void MacOpenGLWindow::startRendering()
         [pool release];
         pool = [[NSAutoreleasePool alloc] init];
         event =        [m_internalData->m_myApp
-         nextEventMatchingMask:NSAnyEventMask
+         nextEventMatchingMask:MyNSAnyEventMask
          untilDate:[NSDate distantPast]
          inMode:NSDefaultRunLoopMode
          //		  inMode:NSEventTrackingRunLoopMode
@@ -780,12 +835,12 @@ void MacOpenGLWindow::startRendering()
 		//NSShiftKeyMask              = 1 << 17,
 		//NSControlKeyMask
 	
-		if ([event type] == NSFlagsChanged)
+		if ([event type] == MyNSEventTypeFlagsChanged)
 		{
 			int modifiers = [event modifierFlags];
 			if (m_keyboardCallback)
 			{
-				if ((modifiers & NSShiftKeyMask))
+				if ((modifiers & MyNSEventModifierFlagShift))
 				{
 					m_keyboardCallback(B3G_SHIFT,1);
 					m_modifierFlags |= MY_MAC_SHIFTKEY;
@@ -797,7 +852,7 @@ void MacOpenGLWindow::startRendering()
 						m_modifierFlags &= ~MY_MAC_SHIFTKEY;
 					}
 				}
-				if (modifiers & NSControlKeyMask)
+				if (modifiers & MyNSEventModifierFlagControl)
 				{
 					m_keyboardCallback(B3G_CONTROL,1);
 					m_modifierFlags |= MY_MAC_CONTROL_KEY;
@@ -809,7 +864,7 @@ void MacOpenGLWindow::startRendering()
 						m_modifierFlags &= ~MY_MAC_CONTROL_KEY;
 					}
 				}
-				if (modifiers & NSAlternateKeyMask)
+				if (modifiers & MyNSEventModifierFlagOption)
 				{
 					m_keyboardCallback(B3G_ALT,1);
 					m_modifierFlags |= MY_MAC_ALTKEY;
@@ -826,7 +881,7 @@ void MacOpenGLWindow::startRendering()
 				
 			}
 		}
-		if ([event type] == NSKeyUp)
+		if ([event type] == MyNSKeyUp)
         {
 			handledEvent = true;
 			
@@ -841,7 +896,9 @@ void MacOpenGLWindow::startRendering()
 				m_keyboardCallback(keycode,state);
 			}
 		}
-        if ([event type] == NSKeyDown)
+
+        
+        if ([event type] == MyNSKeyDown)
         {
 			handledEvent = true;
 			
@@ -861,7 +918,8 @@ void MacOpenGLWindow::startRendering()
 		}
 
 
-        if (([event type]== NSRightMouseDown) || ([ event type]==NSLeftMouseDown)||([event type]==NSOtherMouseDown))
+        
+        if (([event type]== MyNSRightMouseDown) || ([ event type]==MyNSLeftMouseDown)||([event type]==MyNSOtherMouseDown))
         {
            // printf("right mouse!");
           //  float mouseX,mouseY;
@@ -873,17 +931,17 @@ void MacOpenGLWindow::startRendering()
             int button=0;
 	        switch ([event type])
             {
-                case NSLeftMouseDown:
+                case MyNSLeftMouseDown:
                 {
                     button=0;
                     break;
                 }
-                case NSOtherMouseDown:
+                case MyNSOtherMouseDown:
                 {
                     button=1;
                     break;
                 }
-                case NSRightMouseDown:
+                case MyNSRightMouseDown:
                 {
                     button=2;
                     break;
@@ -902,7 +960,7 @@ void MacOpenGLWindow::startRendering()
         }
 		
 		
-        if (([event type]== NSRightMouseUp) || ([ event type]==NSLeftMouseUp)||([event type]==NSOtherMouseUp))
+        if (([event type]== MyNSRightMouseUp) || ([ event type]==MyNSLeftMouseUp)||([event type]==MyNSOtherMouseUp))
         {
 			// printf("right mouse!");
 			//  float mouseX,mouseY;
@@ -915,17 +973,17 @@ void MacOpenGLWindow::startRendering()
             int button=0;
             switch ([event type])
             {
-                case NSLeftMouseUp:
+                case MyNSLeftMouseUp:
                 {
                     button=0;
                     break;
                 }
-                case NSOtherMouseUp:
+                case MyNSOtherMouseUp:
                 {
                     button=1;
                     break;
                 }
-                case NSRightMouseUp:
+                case MyNSRightMouseUp:
                 {
                     button=2;
                     break;
@@ -943,7 +1001,7 @@ void MacOpenGLWindow::startRendering()
         }
 		
         
-        if ([event type] == NSMouseMoved)
+        if ([event type] == MyNSMouseMoved)
         {
             
             NSPoint eventLocation = [event locationInWindow];
@@ -960,7 +1018,8 @@ void MacOpenGLWindow::startRendering()
 			}
         }
         
-        if (([event type] == NSLeftMouseDragged) || ([event type] == NSRightMouseDragged) || ([event type] == NSOtherMouseDragged))
+        
+        if (([event type] == MyNSLeftMouseDragged) || ([event type] == MyNSRightMouseDragged) || ([event type] == MyNSOtherMouseDragged))
         {
             int dx1, dy1;
             CGGetLastMouseDelta (&dx1, &dy1);
@@ -979,7 +1038,7 @@ void MacOpenGLWindow::startRendering()
           //  printf("mouse coord = %f, %f\n",m_mouseX,m_mouseY);
         }
         
-        if ([event type] == NSScrollWheel)
+        if ([event type] == MyNSScrollWheel)
         {
             float dy, dx;
             dy = [ event deltaY ];

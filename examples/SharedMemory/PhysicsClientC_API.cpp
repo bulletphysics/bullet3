@@ -1045,6 +1045,31 @@ int	b3GetNumBodies(b3PhysicsClientHandle physClient)
 	return cl->getNumBodies();
 }
 
+int b3GetNumUserConstraints(b3PhysicsClientHandle physClient)
+{
+    PhysicsClient* cl = (PhysicsClient* ) physClient;
+    return cl->getNumUserConstraints();
+}
+
+int b3GetUserConstraintInfo(b3PhysicsClientHandle physClient, int constraintUniqueId, struct b3UserConstraint* infoPtr)
+{
+    PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3UserConstraint constraintInfo1;
+    b3Assert(physClient);
+    b3Assert(infoPtr);
+    b3Assert(constraintUniqueId>=0);
+    
+    if (infoPtr==0)
+        return 0;
+
+    if (cl->getUserConstraintInfo(constraintUniqueId, constraintInfo1))
+    {
+        *infoPtr = constraintInfo1;
+        return 1;
+    }
+    return 0;
+}
+
 /// return the body unique id, given the index in range [0 , b3GetNumBodies() )
 int b3GetBodyUniqueId(b3PhysicsClientHandle physClient, int serialIndex)
 {

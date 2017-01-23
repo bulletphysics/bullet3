@@ -48,6 +48,10 @@ public:
 
     virtual bool getJointInfo(int bodyIndex, int jointIndex, struct b3JointInfo& info) const;
 
+    virtual int getNumUserConstraints() const;
+    
+    virtual int getUserConstraintInfo(int constraintUniqueId, struct b3UserConstraint&info) const;
+    
 	///todo: move this out of the
     virtual void setSharedMemoryKey(int key);
 
