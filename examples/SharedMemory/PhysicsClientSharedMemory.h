@@ -12,8 +12,8 @@ class PhysicsClientSharedMemory : public PhysicsClient {
 protected:
 	virtual void setSharedMemoryInterface(class SharedMemoryInterface* sharedMem);
     void processBodyJointInfo(int bodyUniqueId, const struct SharedMemoryStatus& serverCmd);
-    
-        
+    void resetData();
+
 public:
     PhysicsClientSharedMemory();
     virtual ~PhysicsClientSharedMemory();
@@ -44,6 +44,10 @@ public:
 
     virtual bool getJointInfo(int bodyUniqueId, int jointIndex, struct b3JointInfo& info) const;
 
+    virtual int getNumUserConstraints() const;
+    
+    virtual int getUserConstraintInfo(int constraintUniqueId, struct b3UserConstraint& info) const;
+    
     virtual void setSharedMemoryKey(int key);
 
     virtual void uploadBulletFileToSharedMemory(const char* data, int len);
