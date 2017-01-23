@@ -1773,7 +1773,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					{
 
 						int key = m_data->m_userConstraints.getKeyAtIndex(i).getUid1();
-						int uid = m_data->m_userConstraints.getAtIndex(i)->m_userConstraintData.m_userConstraintUniqueId;
+//						int uid = m_data->m_userConstraints.getAtIndex(i)->m_userConstraintData.m_userConstraintUniqueId;
 						serverStatusOut.m_sdfLoadedArgs.m_userConstraintUniqueIds[i] = key;
 					}
 

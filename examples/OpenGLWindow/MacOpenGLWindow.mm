@@ -51,8 +51,8 @@
     #define MyNSEventModifierFlagOption NSAlternateKeyMask
     #define MyNSKeyUp NSKeyUp
     #define MyNSKeyDown NSKeyDown
-    #define NSRightMouseDown NSRightMouseDown
-    #define MyNSLeftMouseDown LeftMouseDown
+    #define MyNSRightMouseDown NSRightMouseDown
+    #define MyNSLeftMouseDown NSLeftMouseDown
     #define MyNSOtherMouseDown NSOtherMouseDown
     #define MyNSLeftMouseUp NSLeftMouseUp
     #define MyNSRightMouseUp NSRightMouseUp

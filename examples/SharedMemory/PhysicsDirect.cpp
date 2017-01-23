@@ -729,6 +729,7 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 			SharedMemoryCommand infoRequestCommand;
 			infoRequestCommand.m_type = CMD_USER_CONSTRAINT;
 			infoRequestCommand.m_updateFlags = USER_CONSTRAINT_REQUEST_INFO;
+            infoRequestCommand.m_userConstraintArguments.m_userConstraintUniqueId = constraintUid;
 			SharedMemoryStatus infoStatus;
 			bool hasStatus = m_data->m_commandProcessor->processCommand(infoRequestCommand, infoStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
 					
