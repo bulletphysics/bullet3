@@ -86,7 +86,12 @@ public:
 
 	virtual void	setLocalScaling(const btVector3& scaling)
 	{
-		btConvexInternalShape::setLocalScaling(scaling);
+		btVector3 unScaledImplicitShapeDimensions = m_implicitShapeDimensions / m_localScaling;
+                btConvexInternalShape::setLocalScaling(scaling);
+		m_implicitShapeDimensions = (unScaledImplicitShapeDimensions * scaling);
+		//update m_collisionMargin, since entire radius==margin
+		int radiusAxis = (m_upAxis+2)%3;
+		m_collisionMargin = m_implicitShapeDimensions[radiusAxis];
 	}
 
 	virtual btVector3	getAnisotropicRollingFrictionDirection() const

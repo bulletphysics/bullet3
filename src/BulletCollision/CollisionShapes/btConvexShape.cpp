@@ -230,7 +230,6 @@ btVector3 btConvexShape::localGetSupportVertexWithoutMarginNonVirtual (const btV
 		btScalar halfHeight = capsuleShape->getHalfHeight();
 		int capsuleUpAxis = capsuleShape->getUpAxis();
 
-		btScalar radius = capsuleShape->getRadius();
 		btVector3 supVec(0,0,0);
 
 		btScalar maxDot(btScalar(-BT_LARGE_FLOAT));

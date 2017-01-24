@@ -16,7 +16,6 @@ subject to the following restrictions:
 
 #include "btCapsuleShape.h"
 
-#include "BulletCollision/CollisionShapes/btCollisionMargin.h"
 #include "LinearMath/btQuaternion.h"
 
 btCapsuleShape::btCapsuleShape(btScalar radius, btScalar height) : btConvexInternalShape ()
@@ -49,8 +48,7 @@ btCapsuleShape::btCapsuleShape(btScalar radius, btScalar height) : btConvexInter
 	btVector3 vtx;
 	btScalar newDot;
 	
-	btScalar radius = getRadius();
-
+	
 
 	{
 		btVector3 pos(0,0,0);
@@ -85,8 +83,7 @@ btCapsuleShape::btCapsuleShape(btScalar radius, btScalar height) : btConvexInter
 {
 
 	
-	btScalar radius = getRadius();
-
+	
 	for (int j=0;j<numVectors;j++)
 	{
 		btScalar maxDot(btScalar(-BT_LARGE_FLOAT));
