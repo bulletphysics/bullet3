@@ -123,7 +123,7 @@ ImportMJCFSetup::ImportMJCFSetup(struct GUIHelperInterface* helper, int option, 
 			gMCFJFileNameArray.push_back("mjcf/humanoid.xml");
 			gMCFJFileNameArray.push_back("mjcf/inverted_pendulum.xml");
 			gMCFJFileNameArray.push_back("mjcf/ant.xml");
-			gMCFJFileNameArray.push_back("mjcf/hello_mjcf2.xml");
+			gMCFJFileNameArray.push_back("mjcf/hello_mjcf.xml");
 			gMCFJFileNameArray.push_back("mjcf/capsule.xml");
 //			gMCFJFileNameArray.push_back("mjcf/hopper.xml");
 //			gMCFJFileNameArray.push_back("mjcf/swimmer.xml");
