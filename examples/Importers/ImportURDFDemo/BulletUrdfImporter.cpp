@@ -455,6 +455,16 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 
     switch (collision->m_geometry.m_type)
     {
+		case URDF_GEOM_CAPSULE:
+        {
+			btScalar radius = collision->m_geometry.m_capsuleRadius;
+			btScalar height = btScalar(2.f)*collision->m_geometry.m_capsuleHalfHeight;
+			btCapsuleShapeZ* capsuleShape = new btCapsuleShapeZ(radius,height);
+            shape = capsuleShape;
+			shape ->setMargin(gUrdfDefaultCollisionMargin);
+			break;
+		}
+
         case URDF_GEOM_CYLINDER:
         {
 			btScalar cylRadius = collision->m_geometry.m_cylinderRadius;
