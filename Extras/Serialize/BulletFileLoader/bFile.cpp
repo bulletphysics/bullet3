@@ -75,7 +75,8 @@ bFile::bFile(const char *filename, const char headerString[7])
 		fseek(fp, 0L, SEEK_SET);
 
 		mFileBuffer = (char*)malloc(mFileLen+1);
-		fread(mFileBuffer, mFileLen, 1, fp);
+		size_t bytesRead;
+		bytesRead = fread(mFileBuffer, mFileLen, 1, fp);
 
 		fclose(fp);
 

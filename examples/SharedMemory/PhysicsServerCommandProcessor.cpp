@@ -287,7 +287,8 @@ struct CommandLogPlayback
 		m_file = fopen(fileName,"rb");
 		if (m_file)
 		{
-			fread(m_header,12,1,m_file);
+			size_t bytesRead;
+			bytesRead = fread(m_header,12,1,m_file);
 		}
 		unsigned char c = m_header[7];
 		m_fileIs64bit =  (c=='-');
