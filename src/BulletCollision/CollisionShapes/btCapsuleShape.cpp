@@ -19,8 +19,10 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btCollisionMargin.h"
 #include "LinearMath/btQuaternion.h"
 
-btCapsuleShape::btCapsuleShape(btScalar radius, btScalar height) : btConvexInternalShape ()
+btCapsuleShape::btCapsuleShape(btScalar orgRadius, btScalar height) : btConvexInternalShape ()
 {
+	m_collisionMargin = orgRadius;
+	btScalar radius = 0.f;
 	m_shapeType = CAPSULE_SHAPE_PROXYTYPE;
 	m_upAxis = 1;
 	m_implicitShapeDimensions.setValue(radius,0.5f*height,radius);
@@ -133,7 +135,7 @@ void	btCapsuleShape::calculateLocalInertia(btScalar mass,btVector3& inertia) con
 	btVector3 halfExtents(radius,radius,radius);
 	halfExtents[getUpAxis()]+=getHalfHeight();
 
-	btScalar margin = CONVEX_DISTANCE_MARGIN;
+	btScalar margin = m_collisionMargin;
 
 	btScalar lx=btScalar(2.)*(halfExtents[0]+margin);
 	btScalar ly=btScalar(2.)*(halfExtents[1]+margin);
@@ -149,8 +151,10 @@ void	btCapsuleShape::calculateLocalInertia(btScalar mass,btVector3& inertia) con
 
 }
 
-btCapsuleShapeX::btCapsuleShapeX(btScalar radius,btScalar height)
+btCapsuleShapeX::btCapsuleShapeX(btScalar orgRadius,btScalar height)
 {
+	m_collisionMargin = orgRadius;
+	btScalar radius = 0.f;
 	m_upAxis = 0;
 	m_implicitShapeDimensions.setValue(0.5f*height, radius,radius);
 }
@@ -160,8 +164,10 @@ btCapsuleShapeX::btCapsuleShapeX(btScalar radius,btScalar height)
 
 
 
-btCapsuleShapeZ::btCapsuleShapeZ(btScalar radius,btScalar height)
+btCapsuleShapeZ::btCapsuleShapeZ(btScalar orgRadius,btScalar height)
 {
+	m_collisionMargin = orgRadius;
+	btScalar radius = 0.f;
 	m_upAxis = 2;
 	m_implicitShapeDimensions.setValue(radius,radius,0.5f*height);
 }
