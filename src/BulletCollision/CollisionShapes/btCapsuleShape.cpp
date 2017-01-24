@@ -56,7 +56,7 @@ btCapsuleShape::btCapsuleShape(btScalar radius, btScalar height) : btConvexInter
 		btVector3 pos(0,0,0);
 		pos[getUpAxis()] = getHalfHeight();
 
-		vtx = pos +vec*(radius) - vec * getMargin();
+		vtx = pos;
 		newDot = vec.dot(vtx);
 		if (newDot > maxDot)
 		{
@@ -68,7 +68,7 @@ btCapsuleShape::btCapsuleShape(btScalar radius, btScalar height) : btConvexInter
 		btVector3 pos(0,0,0);
 		pos[getUpAxis()] = -getHalfHeight();
 
-		vtx = pos +vec*(radius) - vec * getMargin();
+		vtx = pos;
 		newDot = vec.dot(vtx);
 		if (newDot > maxDot)
 		{
@@ -97,7 +97,7 @@ btCapsuleShape::btCapsuleShape(btScalar radius, btScalar height) : btConvexInter
 		{
 			btVector3 pos(0,0,0);
 			pos[getUpAxis()] = getHalfHeight();
-			vtx = pos +vec*(radius);
+			vtx = pos;
 			newDot = vec.dot(vtx);
 			if (newDot > maxDot)
 			{
@@ -108,7 +108,7 @@ btCapsuleShape::btCapsuleShape(btScalar radius, btScalar height) : btConvexInter
 		{
 			btVector3 pos(0,0,0);
 			pos[getUpAxis()] = -getHalfHeight();
-			vtx = pos +vec*(radius);
+			vtx = pos;
 			newDot = vec.dot(vtx);
 			if (newDot > maxDot)
 			{
@@ -134,11 +134,9 @@ void	btCapsuleShape::calculateLocalInertia(btScalar mass,btVector3& inertia) con
 	btVector3 halfExtents(radius,radius,radius);
 	halfExtents[getUpAxis()]+=getHalfHeight();
 
-	btScalar margin = m_collisionMargin;
-
-	btScalar lx=btScalar(2.)*(halfExtents[0]+margin);
-	btScalar ly=btScalar(2.)*(halfExtents[1]+margin);
-	btScalar lz=btScalar(2.)*(halfExtents[2]+margin);
+	btScalar lx=btScalar(2.)*(halfExtents[0]);
+	btScalar ly=btScalar(2.)*(halfExtents[1]);
+	btScalar lz=btScalar(2.)*(halfExtents[2]);
 	const btScalar x2 = lx*lx;
 	const btScalar y2 = ly*ly;
 	const btScalar z2 = lz*lz;

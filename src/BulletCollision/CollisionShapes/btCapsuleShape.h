@@ -55,7 +55,6 @@ public:
 	{
 			btVector3 halfExtents(getRadius(),getRadius(),getRadius());
 			halfExtents[m_upAxis] = getRadius() + getHalfHeight();
-			halfExtents += btVector3(getMargin(),getMargin(),getMargin());
 			btMatrix3x3 abs_b = t.getBasis().absolute();  
 			btVector3 center = t.getOrigin();
             btVector3 extent = halfExtents.dot3(abs_b[0], abs_b[1], abs_b[2]);
@@ -87,14 +86,7 @@ public:
 
 	virtual void	setLocalScaling(const btVector3& scaling)
 	{
-		btVector3 oldMargin(getMargin(),getMargin(),getMargin());
-		btVector3 implicitShapeDimensionsWithMargin = m_implicitShapeDimensions+oldMargin;
-		btVector3 unScaledImplicitShapeDimensionsWithMargin = implicitShapeDimensionsWithMargin / m_localScaling;
-
 		btConvexInternalShape::setLocalScaling(scaling);
-
-		m_implicitShapeDimensions = (unScaledImplicitShapeDimensionsWithMargin * m_localScaling) - oldMargin;
-
 	}
 
 	virtual btVector3	getAnisotropicRollingFrictionDirection() const
