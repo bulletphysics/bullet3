@@ -380,7 +380,20 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
 		geom.m_cylinderLength = urdfLexicalCast<double>(shape->Attribute("length"));
 		
 	}
-	
+	else if (type_name == "capsule")
+	{
+		geom.m_type = URDF_GEOM_CAPSULE;
+		if (!shape->Attribute("length") ||
+			!shape->Attribute("radius"))
+	  {
+		  logger->reportError("Capsule shape must have both length and radius attributes");
+		  return false;
+	  }
+		geom.m_hasFromTo = false;
+		geom.m_capsuleRadius = urdfLexicalCast<double>(shape->Attribute("radius"));
+		geom.m_capsuleHalfHeight = btScalar(0.5)*urdfLexicalCast<double>(shape->Attribute("length"));
+		
+	}
   else if (type_name == "mesh")
   {
 	  geom.m_type = URDF_GEOM_MESH;

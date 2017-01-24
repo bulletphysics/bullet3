@@ -94,9 +94,19 @@ struct TinyRendererVisualShapeConverterInternalData
 	m_swWidth(START_WIDTH),
 	m_swHeight(START_HEIGHT),
 	m_rgbColorBuffer(START_WIDTH,START_HEIGHT,TGAImage::RGB),
+	m_lightDirection(btVector3(-5,200,-40)),
 	m_hasLightDirection(false),
+	m_lightColor(btVector3(1.0,1.0,1.0)),
     m_hasLightColor(false),
-    m_hasShadow(false)
+	m_lightDistance(2.0),
+	m_hasLightDistance(false),
+	m_lightAmbientCoeff(0.6),
+    m_hasLightAmbientCoeff(false),
+	m_lightDiffuseCoeff(0.35),
+    m_hasLightDiffuseCoeff(false),
+	m_lightSpecularCoeff(0.05),
+    m_hasLightSpecularCoeff(false),
+	m_hasShadow(false)
 	{
 	    m_depthBuffer.resize(m_swWidth*m_swHeight);
         m_shadowBuffer.resize(m_swWidth*m_swHeight);

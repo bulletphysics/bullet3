@@ -3358,25 +3358,28 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 										virtual	btScalar	addSingleResult(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0, const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1)
 										{
-											b3ContactPointData pt;
-											pt.m_bodyUniqueIdA = m_bodyUniqueIdA;
-											pt.m_bodyUniqueIdB = m_bodyUniqueIdB;
-											const btManifoldPoint& srcPt = cp;
-											pt.m_contactDistance = srcPt.getDistance();
-											pt.m_contactFlags = 0;
-											pt.m_linkIndexA = m_linkIndexA;
-											pt.m_linkIndexB = m_linkIndexB;
-											for (int j = 0; j < 3; j++)
+											if (cp.m_distance1<=m_closestDistanceThreshold)
 											{
-												pt.m_contactNormalOnBInWS[j] = srcPt.m_normalWorldOnB[j];
-												pt.m_positionOnAInWS[j] = srcPt.getPositionWorldOnA()[j];
-												pt.m_positionOnBInWS[j] = srcPt.getPositionWorldOnB()[j];
+												b3ContactPointData pt;
+												pt.m_bodyUniqueIdA = m_bodyUniqueIdA;
+												pt.m_bodyUniqueIdB = m_bodyUniqueIdB;
+												const btManifoldPoint& srcPt = cp;
+												pt.m_contactDistance = srcPt.getDistance();
+												pt.m_contactFlags = 0;
+												pt.m_linkIndexA = m_linkIndexA;
+												pt.m_linkIndexB = m_linkIndexB;
+												for (int j = 0; j < 3; j++)
+												{
+													pt.m_contactNormalOnBInWS[j] = srcPt.m_normalWorldOnB[j];
+													pt.m_positionOnAInWS[j] = srcPt.getPositionWorldOnA()[j];
+													pt.m_positionOnBInWS[j] = srcPt.getPositionWorldOnB()[j];
+												}
+												pt.m_normalForce = srcPt.getAppliedImpulse() / m_deltaTime;
+												//                                    pt.m_linearFrictionForce = srcPt.m_appliedImpulseLateral1;
+												m_cachedContactPoints.push_back(pt);
 											}
-											pt.m_normalForce = srcPt.getAppliedImpulse() / m_deltaTime;
-											//                                    pt.m_linearFrictionForce = srcPt.m_appliedImpulseLateral1;
-											m_cachedContactPoints.push_back(pt);
-
 											return 1;
+
 										}
 									};
 
