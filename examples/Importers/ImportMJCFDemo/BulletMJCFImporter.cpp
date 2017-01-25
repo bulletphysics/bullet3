@@ -296,7 +296,8 @@ struct BulletMJCFImporterInternalData
 				
 //				modelPtr->m_rootLinks.push_back(linkPtr);
 
-				parseGeom(rootxml,modelIndex, linkIndex,logger);
+				btVector3 inertialShift(0,0,0);
+				parseGeom(rootxml,modelIndex, linkIndex,logger,inertialShift);
 				initTreeAndRoot(*modelPtr,logger);
 
 				handled = true;
@@ -469,7 +470,7 @@ struct BulletMJCFImporterInternalData
 		*/
 		return false;
 	}
-	bool parseGeom(TiXmlElement* link_xml, int modelIndex, int linkIndex, MJCFErrorLogger* logger)
+	bool parseGeom(TiXmlElement* link_xml, int modelIndex, int linkIndex, MJCFErrorLogger* logger, btVector3& inertialShift)
 	{
 		UrdfLink** linkPtrPtr = m_models[modelIndex]->m_links.getAtIndex(linkIndex);
 		if (linkPtrPtr==0)
@@ -599,6 +600,7 @@ struct BulletMJCFImporterInternalData
 					geom.m_hasFromTo = true;
 					std::string fromto = fromtoStr;
 					parseVector6(geom.m_capsuleFrom,geom.m_capsuleTo,fromto,logger);
+					inertialShift=0.5*(geom.m_capsuleFrom+geom.m_capsuleTo);
 					handledGeomType = true;
 				} else
 				{
@@ -807,7 +809,9 @@ struct BulletMJCFImporterInternalData
 
 		const char* bodyName = link_xml->Attribute("name");
 		int orgChildLinkIndex = createBody(modelIndex,bodyName);
-		
+		btTransform localInertialFrame;
+		localInertialFrame.setIdentity();
+
 //		int curChildLinkIndex = orgChildLinkIndex;
 		std::string bodyN;
 		
@@ -830,8 +834,8 @@ struct BulletMJCFImporterInternalData
 		
 
 		bool massDefined = false;
-		btVector3 inertialPos(0,0,0);
-		btQuaternion inertialOrn(0,0,0,1);
+		
+		
 		btScalar mass = 0.f;
 		btVector3 localInertiaDiag(0,0,0);
 	//	int thisLinkIndex = -2;
@@ -839,7 +843,7 @@ struct BulletMJCFImporterInternalData
 		btTransform jointTrans;
 		jointTrans.setIdentity();
 		bool skipFixedJoint = false;
-
+		
 		for (TiXmlElement* xml = link_xml->FirstChildElement() ; xml ; xml = xml->NextSiblingElement())
 		{
 			bool handled = false;
@@ -852,7 +856,22 @@ struct BulletMJCFImporterInternalData
 				if (p)
 				{
 					std::string posStr = p;
-					parseVector3(inertialPos,posStr,logger);
+					btVector3 inertialPos(0,0,0);
+					if (parseVector3(inertialPos,posStr,logger))
+					{
+						localInertialFrame.setOrigin(inertialPos);
+					}
+				}
+				const char* o = xml->Attribute("quat");
+				{
+					std::string ornStr = o;
+					btQuaternion orn(0,0,0,1);
+					btVector4 o4;
+					if (parseVector4(o4,ornStr))
+					{
+						orn.setValue(o4[1],o4[2],o4[3],o4[0]);
+						localInertialFrame.setRotation(orn);
+					}
 				}
 				const char* m = xml->Attribute("mass");
 				if (m)
@@ -915,7 +934,12 @@ struct BulletMJCFImporterInternalData
 			}
 			if (n == "geom")
 			{
-				parseGeom(xml,modelIndex, orgChildLinkIndex , logger);
+				btVector3 inertialShift(0,0,0);
+				parseGeom(xml,modelIndex, orgChildLinkIndex , logger,inertialShift);
+				if (!massDefined)
+				{
+					localInertialFrame.setOrigin(inertialShift);
+				}
 				handled = true;
 			}
 
@@ -968,7 +992,7 @@ struct BulletMJCFImporterInternalData
 			double volume = computeVolume(linkPtr,logger);
 			mass = density * volume;
 		}
-		linkPtr->m_inertia.m_linkLocalFrame.setIdentity();// = jointTrans.inverse();
+		linkPtr->m_inertia.m_linkLocalFrame = localInertialFrame;// = jointTrans.inverse();
 		linkPtr->m_inertia.m_mass = mass;
 		return true;
 	}
@@ -1631,7 +1655,7 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 			if (childShape)
 			{
 				m_data->m_allocatedCollisionShapes.push_back(childShape);
-				compound->addChildShape(col->m_linkLocalFrame,childShape);
+				compound->addChildShape(localInertiaFrame.inverse()*col->m_linkLocalFrame,childShape);
 			}
 		}
 	}
