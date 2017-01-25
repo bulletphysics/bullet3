@@ -6,7 +6,7 @@
 #endif //BT_ENABLE_ENET
 
 #ifdef __APPLE__
-#include <Python/Python.h>
+#include <Python.h>
 #else
 #include <Python.h>
 #endif
