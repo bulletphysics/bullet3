@@ -26,11 +26,14 @@ struct UrdfMaterial
 struct UrdfInertia
 {
 	btTransform m_linkLocalFrame;
+	bool m_hasLinkLocalFrame;
+
 	double m_mass;
 	double m_ixx,m_ixy,m_ixz,m_iyy,m_iyz,m_izz;
 	
 	UrdfInertia()
 	{
+		m_hasLinkLocalFrame = false;
 		m_linkLocalFrame.setIdentity();
 		m_mass = 0.f;
 		m_ixx=m_ixy=m_ixz=m_iyy=m_iyz=m_izz=0.f;

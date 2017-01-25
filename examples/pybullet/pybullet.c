@@ -2931,24 +2931,24 @@ static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args, PyO
 
 				{
 					PyObject* vec = PyTuple_New(3);
-					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localInertiaFrame[0]);
+					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localVisualFrame[0]);
 					PyTuple_SetItem(vec, 0, item);
-					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localInertiaFrame[1]);
+					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localVisualFrame[1]);
 					PyTuple_SetItem(vec, 1, item);
-					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localInertiaFrame[2]);
+					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localVisualFrame[2]);
 					PyTuple_SetItem(vec, 2, item);
 					PyTuple_SetItem(visualShapeObList, 5, vec);
 				}
 
 				{
 					PyObject* vec = PyTuple_New(4);
-					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localInertiaFrame[3]);
+					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localVisualFrame[3]);
 					PyTuple_SetItem(vec, 0, item);
-					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localInertiaFrame[4]);
+					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localVisualFrame[4]);
 					PyTuple_SetItem(vec, 1, item);
-					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localInertiaFrame[5]);
+					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localVisualFrame[5]);
 					PyTuple_SetItem(vec, 2, item);
-					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localInertiaFrame[6]);
+					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localVisualFrame[6]);
 					PyTuple_SetItem(vec, 3, item);
 					PyTuple_SetItem(visualShapeObList, 6, vec);
 				}

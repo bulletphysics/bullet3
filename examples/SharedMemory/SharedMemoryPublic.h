@@ -329,7 +329,7 @@ struct b3VisualShapeData
 	int m_visualGeometryType;//box primitive, sphere primitive, triangle mesh
 	double m_dimensions[3];//meaning depends on m_visualGeometryType
 	char m_meshAssetFileName[VISUAL_SHAPE_MAX_PATH_LEN];
-	double m_localInertiaFrame[7];//pos[3], orn[4]
+    double m_localVisualFrame[7];//pos[3], orn[4]
 	//todo: add more data if necessary (material color etc, although material can be in asset file .obj file)
     double m_rgbaColor[4];
 };
