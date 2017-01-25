@@ -16,7 +16,7 @@ subject to the following restrictions:
 ///Specialized capsule-capsule collision algorithm has been added for Bullet 2.75 release to increase ragdoll performance
 ///If you experience problems with capsule-capsule collision, try to define BT_DISABLE_CAPSULE_CAPSULE_COLLIDER and report it in the Bullet forums
 ///with reproduction case
-//define BT_DISABLE_CAPSULE_CAPSULE_COLLIDER 1
+//#define BT_DISABLE_CAPSULE_CAPSULE_COLLIDER 1
 //#define ZERO_MARGIN
 
 #include "btConvexConvexAlgorithm.h"
@@ -310,15 +310,59 @@ void btConvexConvexAlgorithm ::processCollision (const btCollisionObjectWrapper*
 #ifndef BT_DISABLE_CAPSULE_CAPSULE_COLLIDER
 	if ((min0->getShapeType() == CAPSULE_SHAPE_PROXYTYPE) && (min1->getShapeType() == CAPSULE_SHAPE_PROXYTYPE))
 	{
+		//m_manifoldPtr->clearManifold();
+
 		btCapsuleShape* capsuleA = (btCapsuleShape*) min0;
 		btCapsuleShape* capsuleB = (btCapsuleShape*) min1;
-	//	btVector3 localScalingA = capsuleA->getLocalScaling();
-	//	btVector3 localScalingB = capsuleB->getLocalScaling();
 		
 		btScalar threshold = m_manifoldPtr->getContactBreakingThreshold();
 
 		btScalar dist = capsuleCapsuleDistance(normalOnB,	pointOnBWorld,capsuleA->getHalfHeight(),capsuleA->getRadius(),
 			capsuleB->getHalfHeight(),capsuleB->getRadius(),capsuleA->getUpAxis(),capsuleB->getUpAxis(),
+			body0Wrap->getWorldTransform(),body1Wrap->getWorldTransform(),threshold);
+
+		if (dist<threshold)
+		{
+			btAssert(normalOnB.length2()>=(SIMD_EPSILON*SIMD_EPSILON));
+			resultOut->addContactPoint(normalOnB,pointOnBWorld,dist);	
+		}
+		resultOut->refreshContactPoints();
+		return;
+	}
+
+	if ((min0->getShapeType() == CAPSULE_SHAPE_PROXYTYPE) && (min1->getShapeType() == SPHERE_SHAPE_PROXYTYPE))
+	{
+		//m_manifoldPtr->clearManifold();
+
+		btCapsuleShape* capsuleA = (btCapsuleShape*) min0;
+		btSphereShape* capsuleB = (btSphereShape*) min1;
+		
+		btScalar threshold = m_manifoldPtr->getContactBreakingThreshold();
+
+		btScalar dist = capsuleCapsuleDistance(normalOnB,	pointOnBWorld,capsuleA->getHalfHeight(),capsuleA->getRadius(),
+			0.,capsuleB->getRadius(),capsuleA->getUpAxis(),1,
+			body0Wrap->getWorldTransform(),body1Wrap->getWorldTransform(),threshold);
+
+		if (dist<threshold)
+		{
+			btAssert(normalOnB.length2()>=(SIMD_EPSILON*SIMD_EPSILON));
+			resultOut->addContactPoint(normalOnB,pointOnBWorld,dist);	
+		}
+		resultOut->refreshContactPoints();
+		return;
+	}
+
+	if ((min0->getShapeType() == SPHERE_SHAPE_PROXYTYPE) && (min1->getShapeType() == CAPSULE_SHAPE_PROXYTYPE))
+	{
+		//m_manifoldPtr->clearManifold();
+
+		btSphereShape* capsuleA = (btSphereShape*) min0;
+		btCapsuleShape* capsuleB = (btCapsuleShape*) min1;
+		
+		btScalar threshold = m_manifoldPtr->getContactBreakingThreshold();
+
+		btScalar dist = capsuleCapsuleDistance(normalOnB,	pointOnBWorld,0.,capsuleA->getRadius(),
+			capsuleB->getHalfHeight(),capsuleB->getRadius(),1,capsuleB->getUpAxis(),
 			body0Wrap->getWorldTransform(),body1Wrap->getWorldTransform(),threshold);
 
 		if (dist<threshold)
