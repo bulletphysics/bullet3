@@ -4943,7 +4943,7 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 		loadUrdf("husky/husky.urdf", btVector3(2, -5, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 		m_data->m_huskyId = bodyId;
 
-		m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
+		m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, -10));
 
 	}
 
