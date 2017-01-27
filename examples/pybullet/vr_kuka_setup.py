@@ -22,6 +22,7 @@ kuka = objects[0]
 jointPositions=[ -0.000000, -0.000000, 0.000000, 1.570793, 0.000000, -1.036725, 0.000001 ]
 for jointIndex in range (p.getNumJoints(kuka)):
 	p.resetJointState(kuka,jointIndex,jointPositions[jointIndex])
+	p.setJointMotorControl2(kuka,jointIndex,p.POSITION_CONTROL,jointPositions[jointIndex],0)
 
 objects = [p.loadURDF("lego/lego.urdf", 1.000000,-0.200000,0.700000,0.000000,0.000000,0.000000,1.000000)]
 objects = [p.loadURDF("lego/lego.urdf", 1.000000,-0.200000,0.800000,0.000000,0.000000,0.000000,1.000000)]
@@ -35,6 +36,7 @@ p.resetBasePositionAndOrientation(kuka_gripper,[0.923103,-0.200000,1.250036],[-0
 jointPositions=[ 0.000000, -0.011130, -0.206421, 0.205143, -0.009999, 0.000000, -0.010055, 0.000000 ]
 for jointIndex in range (p.getNumJoints(kuka_gripper)):
 	p.resetJointState(kuka_gripper,jointIndex,jointPositions[jointIndex])
+	p.setJointMotorControl2(kuka_gripper,jointIndex,p.POSITION_CONTROL,jointPositions[jointIndex],0)
 
 
 kuka_cid = p.createConstraint(kuka,   6,  kuka_gripper,0,p.JOINT_FIXED, [0,0,0], [0,0,0.05],[0,0,0])

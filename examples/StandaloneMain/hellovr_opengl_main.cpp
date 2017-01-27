@@ -21,7 +21,7 @@
 #include "LinearMath/btIDebugDraw.h"
 int gSharedMemoryKey = -1;
 int  gDebugDrawFlags = 0;
-bool gDisplayDistortion = true;
+bool gDisplayDistortion = false;
 bool gDisableDesktopGL = false;
 
 
