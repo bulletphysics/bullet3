@@ -202,5 +202,86 @@ IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
 ENDIF(INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
 
 
+IF (WIN32)
 
-				
+INCLUDE_DIRECTORIES(
+	${BULLET_PHYSICS_SOURCE_DIR}/src
+	${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs
+	${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew
+	${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/openvr/headers
+	${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/openvr/samples/shared		
+)
+
+
+
+LINK_LIBRARIES(
+ openvr_api Bullet3Common BulletWorldImporter BulletInverseDynamicsUtils BulletInverseDynamics BulletDynamics BulletCollision LinearMath BussIK OpenGLWindow
+)
+
+
+
+
+ 				ADD_DEFINITIONS(-DGLEW_STATIC)
+				LINK_LIBRARIES( ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} )
+				IF (CMAKE_CL_64)
+					LINK_DIRECTORIES(${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/openvr/lib/win64)
+				ELSE(CMAKE_CL_64)
+					LINK_DIRECTORIES(${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/openvr/lib/win32)
+				ENDIF(CMAKE_CL_64)			
+        ADD_EXECUTABLE(App_SharedMemoryPhysics_VR
+                ${SharedMemory_SRCS}
+          ../StandaloneMain/hellovr_opengl_main.cpp
+					../ExampleBrowser/OpenGLGuiHelper.cpp
+					../ExampleBrowser/GL_ShapeDrawer.cpp
+					../ExampleBrowser/CollisionShape2TriangleMesh.cpp
+					../RenderingExamples/TinyVRGui.cpp
+					../RenderingExamples/TimeSeriesCanvas.cpp
+					../RenderingExamples/TimeSeriesFontData.cpp
+					../ThirdPartyLibs/openvr/samples/shared/lodepng.cpp
+					../ThirdPartyLibs/openvr/samples/shared/lodepng.h
+					../ThirdPartyLibs/openvr/samples/shared/Matrices.cpp
+					../ThirdPartyLibs/openvr/samples/shared/Matrices.h
+					../ThirdPartyLibs/openvr/samples/shared/pathtools.cpp
+					../ThirdPartyLibs/openvr/samples/shared/pathtools.h
+					../ThirdPartyLibs/openvr/samples/shared/Vectors.h
+						../MultiThreading/b3Win32ThreadSupport.cpp
+						../MultiThreading/b3Win32ThreadSupport.h
+	          ${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc
+        )			
+
+
+IF (NOT INTERNAL_CREATE_DISTRIBUTABLE_MSVC_PROJECTFILES)
+	IF (CMAKE_CL_64)
+		ADD_CUSTOM_COMMAND(
+			TARGET App_SharedMemoryPhysics_VR
+			POST_BUILD
+			COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/openvr/bin/win64/openvr_api.dll  ${CMAKE_CURRENT_BINARY_DIR}/openvr_api.dll
+		)
+	ELSE(CMAKE_CL_64)
+		ADD_CUSTOM_COMMAND(
+			TARGET App_SharedMemoryPhysics_VR
+			POST_BUILD
+			COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/openvr/bin/win32/openvr_api.dll  ${CMAKE_CURRENT_BINARY_DIR}/openvr_api.dll
+		)
+	ENDIF(CMAKE_CL_64)
+	
+	ADD_CUSTOM_COMMAND(
+                TARGET App_SharedMemoryPhysics_VR
+                POST_BUILD
+                COMMAND ${CMAKE_COMMAND} ARGS -E copy_directory ${BULLET_PHYSICS_SOURCE_DIR}/data ${PROJECT_BINARY_DIR}/data
+        )
+ENDIF (NOT INTERNAL_CREATE_DISTRIBUTABLE_MSVC_PROJECTFILES)
+
+
+SET_TARGET_PROPERTIES(App_SharedMemoryPhysics_VR PROPERTIES  COMPILE_DEFINITIONS BT_ENABLE_VR )
+
+
+
+
+IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
+                        SET_TARGET_PROPERTIES(App_SharedMemoryPhysics_VR PROPERTIES  DEBUG_POSTFIX "_Debug")
+                        SET_TARGET_PROPERTIES(App_SharedMemoryPhysics_VR PROPERTIES  MINSIZEREL_POSTFIX "_MinsizeRel")
+                        SET_TARGET_PROPERTIES(App_SharedMemoryPhysics_VR PROPERTIES  RELWITHDEBINFO_POSTFIX "_RelWithDebugInfo")
+ENDIF(INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
+
+ENDIF(WIN32)
