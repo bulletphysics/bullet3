@@ -213,9 +213,8 @@ OPTION(BUILD_PYBULLET "Set when you want to build pybullet (experimental Python 
 
 
 IF(BUILD_PYBULLET)
-
-	FIND_PACKAGE(PythonLibs)
-
+#	FIND_PACKAGE(PythonLibs)
+	
 	OPTION(BUILD_PYBULLET_NUMPY "Set when you want to build pybullet with NumPy support" OFF)
 	OPTION(BUILD_PYBULLET_ENET "Set when you want to build pybullet with enet UDP networking support" ON)
 	
