@@ -266,6 +266,9 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 					"connectPhysicsServer cannot parse second argument (either integer or string)");
 				return NULL;
 
+			} else
+			{
+				PyErr_Clear();
 			}
 		}
 	}
