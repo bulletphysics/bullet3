@@ -322,13 +322,10 @@ void	UDPThreadFunc(void* userPtr, void* lsMemory)
 
 		do
 		{
+			b3Clock::usleep(0);
+
 			deltaTimeInSeconds += double(clock.getTimeMicroseconds()) / 1000000.;
 
-			if (deltaTimeInSeconds<(1. / 5000.))
-			{
-//				b3Clock::usleep(250);
-			}
-			else
 			{
 			
 				clock.reset();
@@ -441,6 +438,10 @@ UdpNetworkedPhysicsProcessor::~UdpNetworkedPhysicsProcessor()
 
 bool UdpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
+	if(gVerboseNetworkMessagesClient)
+	{
+		printf("PhysicsClientUDP::processCommand\n");
+	}
 //	int sz = sizeof(SharedMemoryCommand);
 	int timeout = 1024 * 1024 * 1024;
 
@@ -475,6 +476,10 @@ bool UdpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryComma
 
 bool UdpNetworkedPhysicsProcessor::receiveStatus(struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
+	if (gVerboseNetworkMessagesClient)
+	{
+		printf("UdpNetworkedPhysicsProcessor::receiveStatus\n");
+	}
 	bool hasStatus = false;
 	if (m_data->m_hasStatus)
 	{
