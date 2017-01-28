@@ -1186,4 +1186,4 @@ char(0),char(0),char(122),char(1),char(93),char(0),char(9),char(0),char(20),char
 char(0),char(0),char(126),char(1),char(91),char(0),char(90),char(1),char(49),char(0),char(127),char(1),char(0),char(0),char(122),char(1),char(4),char(0),char(97),char(1),
 char(0),char(0),char(37),char(0),char(94),char(0),char(7),char(0),char(0),char(0),char(126),char(1),char(92),char(0),char(90),char(1),char(50),char(0),char(127),char(1),
 char(19),char(0),char(123),char(1),char(13),char(0),char(124),char(1),char(7),char(0),char(125),char(1),char(4),char(0),char(97),char(1),};
-
+int sBulletDNAlen64= sizeof(sBulletDNAstr64);
