@@ -473,7 +473,7 @@ bool UdpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryComma
 
 	while (m_data->m_hasCommand &&  (timeout-- > 0))
 	{
-//		b3Clock::usleep(100);
+		b3Clock::usleep(0);
 	}
 
 #if 0
