@@ -184,7 +184,7 @@ struct	UdpNetworkedInternalData
 				break;
 
 			case ENET_EVENT_TYPE_DISCONNECT:
-				printf("%s disconected.\n", m_event.peer->data);
+				printf("%s disconnected.\n", m_event.peer->data);
 
 				break;
 			default:
@@ -239,13 +239,24 @@ struct	UdpNetworkedInternalData
 				{
 
 					SharedMemoryStatus* statPtr = (SharedMemoryStatus*)&m_event.packet->data[4];
-					m_lastStatus = *statPtr;
-					int streamOffsetInBytes = 4 + sizeof(SharedMemoryStatus);
-					int numStreamBytes = packetSizeInBytes - streamOffsetInBytes;
-					m_stream.resize(numStreamBytes);
-					for (int i = 0; i < numStreamBytes; i++)
+					if (statPtr->m_type == CMD_STEP_FORWARD_SIMULATION_COMPLETED)
 					{
-						m_stream[i] = m_event.packet->data[i + streamOffsetInBytes];
+						SharedMemoryStatus dummy;
+						dummy.m_type = CMD_STEP_FORWARD_SIMULATION_COMPLETED;
+						m_lastStatus = dummy;
+						m_stream.resize(0);
+					}
+					else
+					{
+
+						m_lastStatus = *statPtr;
+						int streamOffsetInBytes = 4 + sizeof(SharedMemoryStatus);
+						int numStreamBytes = packetSizeInBytes - streamOffsetInBytes;
+						m_stream.resize(numStreamBytes);
+						for (int i = 0; i < numStreamBytes; i++)
+						{
+							m_stream[i] = m_event.packet->data[i + streamOffsetInBytes];
+						}
 					}
 				}
 				else
@@ -258,7 +269,7 @@ struct	UdpNetworkedInternalData
 			}
 			case ENET_EVENT_TYPE_DISCONNECT:
 			{
-				printf("%s disconected.\n", m_event.peer->data);
+				printf("%s disconnected.\n", m_event.peer->data);
 
 				break;
 			}
@@ -322,13 +333,10 @@ void	UDPThreadFunc(void* userPtr, void* lsMemory)
 
 		do
 		{
+			b3Clock::usleep(0);
+
 			deltaTimeInSeconds += double(clock.getTimeMicroseconds()) / 1000000.;
 
-			if (deltaTimeInSeconds<(1. / 5000.))
-			{
-//				b3Clock::usleep(250);
-			}
-			else
 			{
 			
 				clock.reset();
@@ -363,9 +371,19 @@ void	UDPThreadFunc(void* userPtr, void* lsMemory)
 
 					if (hasCommand)
 					{
+						int sz = 0;
+						ENetPacket *packet = 0;
 
-						int sz = sizeof(SharedMemoryCommand);
-						ENetPacket *packet = enet_packet_create(&args->m_clientCmd, sz, ENET_PACKET_FLAG_RELIABLE);
+						if (args->m_clientCmd.m_type == CMD_STEP_FORWARD_SIMULATION)
+						{
+							sz = sizeof(int);
+							packet = enet_packet_create(&args->m_clientCmd.m_type, sz, ENET_PACKET_FLAG_RELIABLE);
+						}
+						else
+						{
+							sz = sizeof(SharedMemoryCommand);
+							packet = enet_packet_create(&args->m_clientCmd, sz, ENET_PACKET_FLAG_RELIABLE);
+						}
 						int res;
 						res = enet_peer_send(args->m_peer, 0, packet);
 						args->m_cs->lock();
@@ -441,6 +459,10 @@ UdpNetworkedPhysicsProcessor::~UdpNetworkedPhysicsProcessor()
 
 bool UdpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
+	if(gVerboseNetworkMessagesClient)
+	{
+		printf("PhysicsClientUDP::processCommand\n");
+	}
 //	int sz = sizeof(SharedMemoryCommand);
 	int timeout = 1024 * 1024 * 1024;
 
@@ -451,7 +473,7 @@ bool UdpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryComma
 
 	while (m_data->m_hasCommand &&  (timeout-- > 0))
 	{
-//		b3Clock::usleep(100);
+		b3Clock::usleep(0);
 	}
 
 #if 0
@@ -478,6 +500,11 @@ bool UdpNetworkedPhysicsProcessor::receiveStatus(struct SharedMemoryStatus& serv
 	bool hasStatus = false;
 	if (m_data->m_hasStatus)
 	{
+		if (gVerboseNetworkMessagesClient)
+		{
+			printf("UdpNetworkedPhysicsProcessor::receiveStatus\n");
+		}
+
 		hasStatus = true;
 		serverStatusOut = m_data->m_lastStatus;
 		int numStreamBytes = m_data->m_stream.size();
@@ -548,9 +575,9 @@ bool UdpNetworkedPhysicsProcessor::connect()
 		}
 
 	}
-
-
-	return true;
+	unsigned int sharedParam = m_data->m_cs->getSharedParam(1);
+	bool isConnected = (sharedParam == eUDP_Connected);
+	return isConnected;
 }
 
 void UdpNetworkedPhysicsProcessor::disconnect()
@@ -581,6 +608,7 @@ void UdpNetworkedPhysicsProcessor::disconnect()
 
 		delete m_data->m_threadSupport;
 		m_data->m_threadSupport = 0;
+		m_data->m_isConnected = false;
 	}
 
 
