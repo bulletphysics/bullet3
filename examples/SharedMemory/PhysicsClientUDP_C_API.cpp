@@ -20,7 +20,7 @@ b3PhysicsClientHandle b3ConnectPhysicsUDP(const char* hostName, int port)
 	}
 	else
 	{
-		printf("b3ConnectPhysicsUDP NOT connected.\n");
+		printf("b3ConnectPhysicsUDP connection failed.\n");
 
 	}
 	return (b3PhysicsClientHandle)direct;

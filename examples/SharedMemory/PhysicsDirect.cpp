@@ -125,6 +125,7 @@ bool PhysicsDirect::connect()
 	m_data->m_commandProcessor->setGuiHelper(&m_data->m_noGfx);
 
 
+	if (connected)
 	//also request serialization data
 	{
 		SharedMemoryCommand command;
@@ -211,7 +212,7 @@ SharedMemoryCommand* PhysicsDirect::getAvailableSharedMemoryCommand()
 
 bool PhysicsDirect::canSubmitCommand() const
 {
-	return true;
+	return m_data->m_commandProcessor->isConnected();
 }
 
 bool PhysicsDirect::processDebugLines(const struct SharedMemoryCommand& orgCommand)

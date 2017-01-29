@@ -15,7 +15,7 @@
 #include "SharedMemoryCommands.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "PhysicsServerCommandProcessor.h"
-	
+#include "../Utils/b3Clock.h"
 	
 bool gVerboseNetworkMessagesServer = false;
 
@@ -36,6 +36,8 @@ void MySerializeInt(unsigned int sz, unsigned char* output)
 int main(int argc, char *argv[])
 {
 	b3CommandLineArgs parseArgs(argc,argv);
+	b3Clock clock;
+	double timeOutInSeconds = 10;
 
 	DummyGUIHelper guiHelper;
 	MyCommandProcessor* sm = new MyCommandProcessor;
@@ -102,6 +104,8 @@ int main(int argc, char *argv[])
 
 		while (true)
 		{
+			b3Clock::usleep(0);
+
 			serviceResult = 1;
 
 			/* Keep doing host_service until no events are left */
@@ -136,20 +140,36 @@ int main(int argc, char *argv[])
 								event.peer->data,
 								event.channelID);
 						}
+						SharedMemoryCommand cmd;
+
+						SharedMemoryCommand* cmdPtr = 0;
+
+						//performance test
+						if (event.packet->dataLength == sizeof(int))
+						{
+							cmdPtr = &cmd;
+							cmd.m_type = *(int*)event.packet->data;
+						}
+
 						if (event.packet->dataLength == sizeof(SharedMemoryCommand))
 						{
-							SharedMemoryCommand* cmdPtr = (SharedMemoryCommand*)event.packet->data;
+							cmdPtr = (SharedMemoryCommand*)event.packet->data;
+						}
+						if (cmdPtr)
+						{
 							SharedMemoryStatus serverStatus;
 							b3AlignedObjectArray<char> buffer;
 							buffer.resize(SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
 
 							bool hasStatus = sm->processCommand(*cmdPtr,serverStatus, &buffer[0], buffer.size());
 
-							int timeout = 1024 * 1024 * 1024;
-							while ((!hasStatus) && (timeout-- > 0))
+							double startTimeSeconds = clock.getTimeInSeconds();
+							double curTimeSeconds  = clock.getTimeInSeconds();
+
+							while ((!hasStatus) && ((curTimeSeconds - startTimeSeconds) <timeOutInSeconds))
 							{
 								hasStatus = sm->receiveStatus(serverStatus, &buffer[0], buffer.size());
-
+								curTimeSeconds = clock.getTimeInSeconds();
 							}
 							if (gVerboseNetworkMessagesServer)
 							{
@@ -158,29 +178,49 @@ int main(int argc, char *argv[])
 							}
 							if (hasStatus)
 							{
-								//create packetData with [int packetSizeInBytes, status, streamBytes)
-								unsigned char* statBytes = (unsigned char*)&serverStatus;
 								b3AlignedObjectArray<unsigned char> packetData;
-								packetData.resize(4 + sizeof(SharedMemoryStatus) + serverStatus.m_numDataStreamBytes);
-								int sz = packetData.size();
-								int curPos = 0;
+								unsigned char* statBytes = (unsigned char*)&serverStatus;
 
-								MySerializeInt(sz, &packetData[curPos]);
-								curPos += 4;
-								for (int i = 0; i < sizeof(SharedMemoryStatus); i++)
+								if (cmdPtr->m_type == CMD_STEP_FORWARD_SIMULATION)
 								{
-									packetData[i + curPos] = statBytes[i];
-								}
-								curPos += sizeof(SharedMemoryStatus);
+									packetData.resize(4 + sizeof(int));
+									int sz = packetData.size();
+									int curPos = 0;
 
-								for (int i = 0; i < serverStatus.m_numDataStreamBytes; i++)
+									MySerializeInt(sz, &packetData[curPos]);
+									curPos += 4;
+									for (int i = 0; i < sizeof(int); i++)
+									{
+										packetData[i + curPos] = statBytes[i];
+									}
+									curPos += sizeof(int);
+									ENetPacket *packet = enet_packet_create(&packetData[0], packetData.size(), ENET_PACKET_FLAG_RELIABLE);
+									enet_peer_send(event.peer, 0, packet);
+								}
+								else
 								{
-									packetData[i + curPos] = buffer[i];
-								}
+									//create packetData with [int packetSizeInBytes, status, streamBytes)
+									packetData.resize(4 + sizeof(SharedMemoryStatus) + serverStatus.m_numDataStreamBytes);
+									int sz = packetData.size();
+									int curPos = 0;
 
-								ENetPacket *packet = enet_packet_create(&packetData[0], packetData.size() , ENET_PACKET_FLAG_RELIABLE);
-								enet_peer_send(event.peer, 0, packet);
-								//enet_host_broadcast(server, 0, packet);
+									MySerializeInt(sz, &packetData[curPos]);
+									curPos += 4;
+									for (int i = 0; i < sizeof(SharedMemoryStatus); i++)
+									{
+										packetData[i + curPos] = statBytes[i];
+									}
+									curPos += sizeof(SharedMemoryStatus);
+
+									for (int i = 0; i < serverStatus.m_numDataStreamBytes; i++)
+									{
+										packetData[i + curPos] = buffer[i];
+									}
+
+									ENetPacket *packet = enet_packet_create(&packetData[0], packetData.size(), ENET_PACKET_FLAG_RELIABLE);
+									enet_peer_send(event.peer, 0, packet);
+									//enet_host_broadcast(server, 0, packet);
+								}
 							}
 						}
 						else
