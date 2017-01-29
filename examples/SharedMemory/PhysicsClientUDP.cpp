@@ -608,6 +608,7 @@ void UdpNetworkedPhysicsProcessor::disconnect()
 
 		delete m_data->m_threadSupport;
 		m_data->m_threadSupport = 0;
+		m_data->m_isConnected = false;
 	}
 
 
