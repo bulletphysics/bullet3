@@ -11,6 +11,31 @@
 #include "../CommonInterfaces/CommonGraphicsAppInterface.h"
 #include "../CommonInterfaces/CommonWindowInterface.h"
 
+enum SolverType
+{
+    SOLVER_TYPE_SEQUENTIAL_IMPULSE,
+    SOLVER_TYPE_NNCG,
+    SOLVER_TYPE_MLCP_PGS,
+    SOLVER_TYPE_MLCP_DANTZIG,
+    SOLVER_TYPE_MLCP_LEMKE,
+
+    SOLVER_TYPE_COUNT
+};
+
+inline const char* getSolverTypeName( SolverType t )
+{
+    switch (t)
+    {
+    case SOLVER_TYPE_SEQUENTIAL_IMPULSE: return "SequentialImpulse";
+    case SOLVER_TYPE_NNCG: return "NNCG";
+    case SOLVER_TYPE_MLCP_PGS: return "MLCP ProjectedGaussSeidel";
+    case SOLVER_TYPE_MLCP_DANTZIG: return "MLCP Dantzig";
+    case SOLVER_TYPE_MLCP_LEMKE: return "MLCP Lemke";
+    }
+    btAssert( !"unhandled solver type in switch" );
+    return "???";
+}
+
 struct CommonRigidBodyMTBase : public CommonExampleInterface
 {
 		//keep the collision shapes, for deletion/cleanup
@@ -20,6 +45,7 @@ struct CommonRigidBodyMTBase : public CommonExampleInterface
 	btConstraintSolver*	m_solver;
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 	btDiscreteDynamicsWorld* m_dynamicsWorld;
+    SolverType m_solverType;
     bool m_multithreadedWorld;
     bool m_multithreadCapable;
 

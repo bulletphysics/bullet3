@@ -3,12 +3,14 @@
 
 struct MyButtonEventHandler : public Gwen::Event::Handler
 {
+    Gwen::Controls::Button* m_buttonControl;
 	ButtonParamChangedCallback m_callback;
 	void* m_userPointer;
 	int m_buttonId;
 
-	MyButtonEventHandler(ButtonParamChangedCallback callback, int buttonId, void* userPointer)
-		:m_callback(callback),
+	MyButtonEventHandler(Gwen::Controls::Button* buttonControl, ButtonParamChangedCallback callback, int buttonId, void* userPointer)
+		:m_buttonControl(buttonControl),
+        m_callback(callback),
 		m_userPointer(userPointer),
 		m_buttonId(buttonId)
 	{
@@ -18,7 +20,12 @@ struct MyButtonEventHandler : public Gwen::Event::Handler
 	{
 		if (m_callback)
 		{
-			(*m_callback)(m_buttonId, true, m_userPointer);
+            bool buttonState = true;
+            if (m_buttonControl->IsToggle())
+            {
+                buttonState = m_buttonControl->GetToggleState();
+            }
+            ( *m_callback )( m_buttonId, buttonState, m_userPointer );
 		}
 	}
 };
@@ -141,10 +148,11 @@ void GwenParameterInterface::registerButtonParameter(ButtonParams& params)
 {
 	
 	Gwen::Controls::Button* button = new Gwen::Controls::Button(m_gwenInternalData->m_demoPage->GetPage());
-	MyButtonEventHandler* handler = new MyButtonEventHandler(params.m_callback,params.m_buttonId,params.m_userPointer);
+	MyButtonEventHandler* handler = new MyButtonEventHandler(button, params.m_callback,params.m_buttonId,params.m_userPointer);
 	button->SetText(params.m_name);
 	button->onPress.Add( handler, &MyButtonEventHandler::onButtonPress );
     button->SetIsToggle(params.m_isTrigger);
+    button->SetToggleState(params.m_initialState);
     
 	m_paramInternalData->m_buttons.push_back(button);
 	m_paramInternalData->m_buttonEventHandlers.push_back(handler);
