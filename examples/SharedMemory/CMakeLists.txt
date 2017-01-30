@@ -61,6 +61,8 @@ SET(SharedMemory_SRCS
 	../Importers/ImportMJCFDemo/BulletMJCFImporter.h
 	../Utils/b3ResourcePath.cpp
 	../Utils/b3Clock.cpp	
+	../Utils/ChromeTraceUtil.cpp
+	../Utils/ChromeTraceUtil.h
 	../Importers/ImportURDFDemo/URDFImporterInterface.h
 	../Importers/ImportURDFDemo/URDFJointTypes.h
 	../Importers/ImportObjDemo/Wavefront2GLInstanceGraphicsShape.cpp
