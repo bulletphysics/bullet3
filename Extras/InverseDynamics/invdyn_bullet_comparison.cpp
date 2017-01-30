@@ -172,7 +172,7 @@ int compareInverseAndForwardDynamics(vecx &q, vecx &u, vecx &dot_u, btVector3 &g
                 printf("bt:ddot_q[%d]= %f, id:ddot_q= %e, diff= %e\n", i, joint_accel[i],
                        dot_u(i + dot_u_offset), joint_accel[i] - dot_u(i));
             }
-            *acc_error += std::pow(joint_accel[i] - dot_u(i + dot_u_offset), 2);
+            *acc_error += BT_ID_POW(joint_accel[i] - dot_u(i + dot_u_offset), 2);
         }
     } else {
         vec3 base_dot_omega;
@@ -196,14 +196,14 @@ int compareInverseAndForwardDynamics(vecx &q, vecx &u, vecx &dot_u, btVector3 &g
                 printf("bt::base_dot_omega(%d)= %e dot_u[%d]= %e, diff= %e\n", i, base_dot_omega(i),
                        i, dot_u[i], base_dot_omega(i) - dot_u[i]);
             }
-            *acc_error += std::pow(base_dot_omega(i) - dot_u(i), 2);
+            *acc_error += BT_ID_POW(base_dot_omega(i) - dot_u(i), 2);
         }
         for (int i = 0; i < 3; i++) {
             if (verbose) {
                 printf("bt::base_ddot_com(%d)= %e dot_u[%d]= %e, diff= %e\n", i, base_ddot_com(i),
                        i, dot_u[i + 3], base_ddot_com(i) - dot_u[i + 3]);
             }
-            *acc_error += std::pow(base_ddot_com(i) - dot_u(i + 3), 2);
+            *acc_error += BT_ID_POW(base_ddot_com(i) - dot_u(i + 3), 2);
         }
 
         for (int i = 0; i < btmb->getNumDofs(); i++) {
@@ -211,7 +211,7 @@ int compareInverseAndForwardDynamics(vecx &q, vecx &u, vecx &dot_u, btVector3 &g
                 printf("bt:ddot_q[%d]= %f, id:ddot_q= %e, diff= %e\n", i, joint_accel[i],
                        dot_u(i + 6), joint_accel[i] - dot_u(i + 6));
             }
-            *acc_error += std::pow(joint_accel[i] - dot_u(i + 6), 2);
+            *acc_error += BT_ID_POW(joint_accel[i] - dot_u(i + 6), 2);
         }
     }
     *acc_error = std::sqrt(*acc_error);
@@ -288,12 +288,12 @@ int compareInverseAndForwardDynamics(vecx &q, vecx &u, vecx &dot_u, btVector3 &g
                    diff_basis(1, 2), diff_basis(2, 0), diff_basis(2, 1), diff_basis(2, 2));
         }
         double total_pos_err =
-            std::sqrt(std::pow(diff_com(0), 2) + std::pow(diff_com(1), 2) +
-                      std::pow(diff_com(2), 2) + std::pow(diff_basis(0, 0), 2) +
-                      std::pow(diff_basis(0, 1), 2) + std::pow(diff_basis(0, 2), 2) +
-                      std::pow(diff_basis(1, 0), 2) + std::pow(diff_basis(1, 1), 2) +
-                      std::pow(diff_basis(1, 2), 2) + std::pow(diff_basis(2, 0), 2) +
-                      std::pow(diff_basis(2, 1), 2) + std::pow(diff_basis(2, 2), 2));
+            BT_ID_SQRT(BT_ID_POW(diff_com(0), 2) + BT_ID_POW(diff_com(1), 2) +
+                       BT_ID_POW(diff_com(2), 2) + BT_ID_POW(diff_basis(0, 0), 2) +
+                       BT_ID_POW(diff_basis(0, 1), 2) + BT_ID_POW(diff_basis(0, 2), 2) +
+                       BT_ID_POW(diff_basis(1, 0), 2) + BT_ID_POW(diff_basis(1, 1), 2) +
+                       BT_ID_POW(diff_basis(1, 2), 2) + BT_ID_POW(diff_basis(2, 0), 2) +
+                       BT_ID_POW(diff_basis(2, 1), 2) + BT_ID_POW(diff_basis(2, 2), 2));
         if (verbose) {
             printf("======kin-pos-err: %e\n", total_pos_err);
         }

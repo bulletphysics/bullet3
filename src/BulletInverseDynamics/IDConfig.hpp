@@ -14,12 +14,22 @@
 #ifdef BT_CUSTOM_INVERSE_DYNAMICS_CONFIG_H
 #include <cmath>
 #define BT_ID_WO_BULLET
-#define BT_ID_POW(a,b) std::pow(a,b)
+#define BT_ID_SQRT(x) std::sqrt(x)
+#define BT_ID_FABS(x) std::fabs(x)
+#define BT_ID_COS(x) std::cos(x)
+#define BT_ID_SIN(x) std::sin(x)
+#define BT_ID_ATAN2(x, y) std::atan2(x, y)
+#define BT_ID_POW(x, y) std::pow(x, y)
 #define BT_ID_SNPRINTF snprintf
 #define BT_ID_PI M_PI
 #define BT_ID_USE_DOUBLE_PRECISION
 #else
-#define BT_ID_POW(a,b) btPow(a,b)
+#define BT_ID_SQRT(x) btSqrt(x)
+#define BT_ID_FABS(x) btFabs(x)
+#define BT_ID_COS(x) btCos(x)
+#define BT_ID_SIN(x) btSin(x)
+#define BT_ID_ATAN2(x, y) btAtan2(x, y)
+#define BT_ID_POW(x, y) btPow(x, y)
 #define BT_ID_PI SIMD_PI
 #ifdef _WIN32
 	#define BT_ID_SNPRINTF _snprintf
