@@ -192,7 +192,8 @@ files {
 				"../ThirdPartyLibs/openvr/samples/shared/Vectors.h",
 				"../Utils/b3Clock.cpp",
 				"../Utils/b3Clock.h",
-				
+				"../Utils/ChromeTraceUtil.cpp",
+				"../Utils/ChromeTraceUtil.h",
 }
 
 if os.is("Windows") then 

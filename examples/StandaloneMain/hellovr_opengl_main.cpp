@@ -11,6 +11,7 @@
 #include "Bullet3Common/b3CommandLineArgs.h"
 
 #include "../Utils/b3Clock.h"
+#include "../Utils/ChromeTraceUtil.h"
 #include "../ExampleBrowser/OpenGLGuiHelper.h"
 #include "../CommonInterfaces/CommonExampleInterface.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
@@ -344,6 +345,17 @@ b3KeyboardCallback prevKeyboardCallback = 0;
 
 void MyKeyboardCallback(int key, int state)
 {
+	if (key == 'p')
+	{
+		if (state)
+		{
+			b3ChromeUtilsStartTimings();
+		}
+		else
+		{
+			b3ChromeUtilsStopTimingsAndWriteJsonFile();
+		}
+	}
 	if (sExample)
 	{
 		sExample->keyboardCallback(key,state);
@@ -794,6 +806,7 @@ void CMainApplication::RunMainLoop()
 
 	while ( !bQuit && !m_app->m_window->requestedExit())
 	{
+		b3ChromeUtilsEnableProfiling();
 		{
 		B3_PROFILE("main");
 
@@ -2241,6 +2254,12 @@ int main(int argc, char *argv[])
 	{
 		gDisableDesktopGL = true;
 	}
+	if (args.CheckCmdLineFlag("tracing"))
+	{
+		b3ChromeUtilsStartTimings();
+		b3ChromeUtilsEnableProfiling();
+	}
+
 
 #ifdef BT_USE_CUSTOM_PROFILER
 	b3SetCustomEnterProfileZoneFunc(dcEnter);
@@ -2280,8 +2299,11 @@ int main(int argc, char *argv[])
 
 	pMainApplication->Shutdown();
 
-#ifdef BT_USE_CUSTOM_PROFILER
-#endif
+	if (args.CheckCmdLineFlag("tracing"))
+	{
+		b3ChromeUtilsStopTimingsAndWriteJsonFile();
+	}
+
 
 	return 0;
 }

@@ -34,6 +34,8 @@ ADD_LIBRARY(BulletExampleBrowserLib
 	CollisionShape2TriangleMesh.h
 	../Utils/b3Clock.cpp
 	../Utils/b3Clock.h
+	../Utils/ChromeTraceUtil.cpp
+	../Utils/ChromeTraceUtil.h
 	../Utils/b3ResourcePath.cpp
 	../Utils/b3ResourcePath.h
 	../Utils/b3ERPCFMHelper.hpp

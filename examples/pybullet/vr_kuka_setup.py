@@ -1,4 +1,5 @@
 import pybullet as p
+#p.connect(p.UDP,"192.168.86.100")
 p.connect(p.SHARED_MEMORY)
 p.resetSimulation()
 

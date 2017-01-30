@@ -193,6 +193,8 @@ project "BulletExampleBrowserLib"
 		"OpenGLGuiHelper.cpp",
 		"OpenGLExampleBrowser.cpp",
 		"../Utils/b3Clock.cpp",
+		"../Utils/ChromeTraceUtil.cpp",
+		"../Utils/ChromeTraceUtil.h",
 		"*.h",
 		"GwenGUISupport/*.cpp",
 		"GwenGUISupport/*.h",

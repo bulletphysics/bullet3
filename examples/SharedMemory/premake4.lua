@@ -77,6 +77,8 @@ myfiles =
 	"../Importers/ImportMJCFDemo/BulletMJCFImporter.h",
 	"../Utils/b3ResourcePath.cpp",
 	"../Utils/b3Clock.cpp",	
+	"../Utils/ChromeTraceUtil.cpp",
+	"../Utils/ChromeTraceUtil.h",
 	"../../Extras/Serialize/BulletWorldImporter/*",
 	"../../Extras/Serialize/BulletFileLoader/*",	
 	"../Importers/ImportURDFDemo/URDFImporterInterface.h",
