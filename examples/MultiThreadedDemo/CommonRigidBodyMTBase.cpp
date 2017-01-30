@@ -51,6 +51,8 @@ TaskManager gTaskMgr;
 #define BT_OVERRIDE
 #endif
 
+static int gNumIslands = 0;
+
 
 class Profiler
 {
@@ -439,8 +441,6 @@ struct UpdateIslandDispatcher
     }
 };
 
-static int gNumIslands = 0;
-
 void parallelIslandDispatch( btAlignedObjectArray<btSimulationIslandManagerMt::Island*>* islandsPtr, btSimulationIslandManagerMt::IslandCallback* callback )
 {
     ProfileHelper prof(Profiler::kRecordDispatchIslands);
@@ -746,7 +746,7 @@ void CommonRigidBodyMTBase::createEmptyDynamicsWorld()
 
         m_broadphase = new btDbvtBroadphase();
 
-#if USE_PARALLEL_ISLAND_SOLVER
+#if BT_THREADSAFE && USE_PARALLEL_ISLAND_SOLVER
         {
             btConstraintSolver* solvers[ BT_MAX_THREAD_COUNT ];
             int maxThreadCount = btMin( int(BT_MAX_THREAD_COUNT), TaskManager::getMaxNumThreads() );
