@@ -189,6 +189,11 @@ struct b3BodyInfo
 };
 
 
+// copied from btMultiBodyLink.h
+enum SensorType {
+	eSensorForceTorqueType = 1,
+};
+
 
 struct b3JointSensorState
 {

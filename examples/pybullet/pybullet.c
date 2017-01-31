@@ -3362,6 +3362,63 @@ static PyObject* pybullet_updateUserConstraint(PyObject* self, PyObject* args, P
 }
 */
 
+static PyObject* pybullet_enableJointForceTorqueSensor(PyObject* self, PyObject* args, PyObject *keywds)
+{
+	int bodyUniqueId = -1;
+	int jointIndex = -1;
+	int enableSensor = 1;
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+	int numJoints = -1;
+
+	static char *kwlist[] = {"bodyUniqueId", "jointIndex" ,"enableSensor", "physicsClientId" };
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|ii", kwlist, &bodyUniqueId, &jointIndex, &enableSensor,&physicsClientId))
+	{
+		return NULL;
+	}
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	
+	if (bodyUniqueId < 0)
+	{
+		PyErr_SetString(SpamError, "Error: invalid bodyUniqueId");
+		return NULL;
+	}
+	numJoints = b3GetNumJoints(sm, bodyUniqueId);
+	if ((jointIndex < 0) || (jointIndex >= numJoints))
+	{
+		PyErr_SetString(SpamError, "Error: invalid jointIndex.");
+		return NULL;
+	}
+
+	{
+		b3SharedMemoryCommandHandle commandHandle;
+		b3SharedMemoryStatusHandle statusHandle;
+		int statusType;
+
+		commandHandle = b3CreateSensorCommandInit(sm, bodyUniqueId);
+		b3CreateSensorEnable6DofJointForceTorqueSensor(commandHandle, jointIndex, enableSensor);
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+		statusType = b3GetStatusType(statusHandle);
+		if (statusType == CMD_CLIENT_COMMAND_COMPLETED)
+		{
+			Py_INCREF(Py_None);
+			return Py_None;
+		}
+	}
+
+	PyErr_SetString(SpamError, "Error creating sensor.");
+	return NULL;
+}
+
+
 static PyObject* pybullet_createUserConstraint(PyObject* self, PyObject* args, PyObject *keywds) 
 {
   
@@ -3455,15 +3512,11 @@ static PyObject* pybullet_createUserConstraint(PyObject* self, PyObject* args, P
 		int userConstraintUid = b3GetStatusUserConstraintUniqueId(statusHandle);
 		PyObject* ob = PyLong_FromLong(userConstraintUid);
 		return ob;
-	} else
-	{
-		PyErr_SetString(SpamError, "createConstraint failed.");
-		return NULL;
 	}
 
-  Py_INCREF(Py_None);
-  return Py_None;
 
+	PyErr_SetString(SpamError, "createConstraint failed.");
+	return NULL;
 }
 
 static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args, PyObject *keywds) {
@@ -4670,6 +4723,10 @@ static PyMethodDef SpamMethods[] = {
      "Remove a constraint using its unique id."
      },
 	
+	 { "enableJointForceTorqueSensor", (PyCFunction)pybullet_enableJointForceTorqueSensor, METH_VARARGS | METH_KEYWORDS,
+		"Enable or disable a joint force/torque sensor measuring the joint reaction forces."
+	 },
+
 	{"saveWorld", (PyCFunction)pybullet_saveWorld, METH_VARARGS| METH_KEYWORDS,
      "Save a approximate Python file to reproduce the current state of the world: saveWorld"
 	"(filename). (very preliminary and approximately)"},
@@ -4933,6 +4990,9 @@ initpybullet(void)
   PyModule_AddIntConstant(m, "JOINT_PLANAR", ePlanarType);        // user read
   PyModule_AddIntConstant(m, "JOINT_FIXED", eFixedType);        // user read
   PyModule_AddIntConstant(m, "JOINT_POINT2POINT", ePoint2PointType);        // user read
+
+  PyModule_AddIntConstant(m, "SENSOR_FORCE_TORQUE", eSensorForceTorqueType);        // user read
+
 
   PyModule_AddIntConstant(m, "TORQUE_CONTROL", CONTROL_MODE_TORQUE);
   PyModule_AddIntConstant(m, "VELOCITY_CONTROL",
