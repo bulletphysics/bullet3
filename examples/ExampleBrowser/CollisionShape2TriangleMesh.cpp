@@ -111,18 +111,21 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 					vertices.push_back(triangleVerts[2]);
 
 					btVector3 triNormal = (triangleVerts[1]-triangleVerts[0]).cross(triangleVerts[2]-triangleVerts[0]);
-					triNormal.normalize();
+					btScalar dot = triNormal.dot(triNormal);
 
-					for (int v=0;v<3;v++)
+					//cull degenerate triangles
+					if (dot >= SIMD_EPSILON*SIMD_EPSILON)
 					{
-						
-						btVector3 pos =parentTransform*triangleVerts[v];
-						indicesOut.push_back(vertexPositions.size());
-						vertexPositions.push_back(pos);
-						vertexNormals.push_back(triNormal);
+						triNormal /= btSqrt(dot);
+						for (int v = 0; v < 3; v++)
+						{
 
+							btVector3 pos = parentTransform*triangleVerts[v];
+							indicesOut.push_back(vertexPositions.size());
+							vertexPositions.push_back(pos);
+							vertexNormals.push_back(triNormal);
+						}
 					}
-
 					
 				}
 			}
