@@ -320,7 +320,7 @@ public:
 				indices.push_back(indices.size());
 			}
 
-			m_guiHelper->getRenderInterface()->drawLines(&points[0].m_floats[0],lineColor,points.size(),sizeof(btVector3),&indices[0],indices.size(),1);
+			m_guiHelper->getRenderInterface()->drawLines(&points[0].m_floats[0],lineColor,points.size(),sizeof(btVector3FloatData),&indices[0],indices.size(),1);
 		}
 													 
 #if 0
