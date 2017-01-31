@@ -3,6 +3,7 @@
   <link name="base_link">
     <contact>
       <rolling_friction value="0.3"/>
+      <spinning_friction value="0.3"/>
     </contact>
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
