@@ -110,6 +110,7 @@ public:
 
 	// Miscellaneous operation
 	MatrixRmn& AddToDiagonal( double d );					// Adds d to each diagonal
+    MatrixRmn& AddToDiagonal( const VectorRn& dVec);
 
 	// Solving systems of linear equations
 	void Solve( const VectorRn& b, VectorRn* x ) const;	  // Solves the equation   (*this)*x = b;    Uses row operations.  Assumes *this is invertible.   

@@ -148,6 +148,7 @@ public:
         m_time+=dt;
         m_targetPos.setValue(0.4-0.4*b3Cos( m_time), 0, 0.8+0.4*b3Cos( m_time));
         m_targetOri.setValue(0, 1.0, 0, 0);
+        m_targetPos.setValue(0.2*b3Cos( m_time), 0.2*b3Sin( m_time), 1.1);
         
         
         int numJoints = m_robotSim.getNumJoints(m_kukaIndex);
@@ -195,7 +196,7 @@ public:
             ikargs.m_endEffectorTargetPosition[1] = targetPosDataOut.m_floats[1];
             ikargs.m_endEffectorTargetPosition[2] = targetPosDataOut.m_floats[2];
 			
-			ikargs.m_flags |= /*B3_HAS_IK_TARGET_ORIENTATION +*/ B3_HAS_NULL_SPACE_VELOCITY;
+			//ikargs.m_flags |= /*B3_HAS_IK_TARGET_ORIENTATION +*/ B3_HAS_NULL_SPACE_VELOCITY;
 
 			ikargs.m_endEffectorTargetOrientation[0] = targetOriDataOut.m_floats[0];
 			ikargs.m_endEffectorTargetOrientation[1] = targetOriDataOut.m_floats[1];

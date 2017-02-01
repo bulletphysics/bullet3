@@ -4011,12 +4011,16 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                 
                                 endEffectorPosWorld.serializeDouble(endEffectorWorldPosition);
                                 endEffectorOri.serializeDouble(endEffectorWorldOrientation);
-								double dampIK[6] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
+                                
+                                double jointDampCoeff[7] = {20.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+                                ikHelperPtr->setDampingCoeff(numDofs, jointDampCoeff);
+                                
+								double targetDampCoeff[6] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
                                 ikHelperPtr->computeIK(clientCmd.m_calculateInverseKinematicsArguments.m_targetPosition, clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation,
                                                        endEffectorWorldPosition.m_floats, endEffectorWorldOrientation.m_floats,
                                                        &q_current[0],
                                                        numDofs, clientCmd.m_calculateInverseKinematicsArguments.m_endEffectorLinkIndex,
-									&q_new[0], ikMethod, &jacobian_linear[0], &jacobian_angular[0], jacSize*2, dampIK);
+									&q_new[0], ikMethod, &jacobian_linear[0], &jacobian_angular[0], jacSize*2, targetDampCoeff);
                                 
                                 serverCmd.m_inverseKinematicsResultArgs.m_bodyUniqueId =clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId;
                                 for (int i=0;i<numDofs;i++)

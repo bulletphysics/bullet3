@@ -251,6 +251,18 @@ MatrixRmn& MatrixRmn::AddToDiagonal( double d )				// Adds d to each diagonal en
 	return *this;
 }
 
+// Add a vector to the entries on the diagonal
+MatrixRmn& MatrixRmn::AddToDiagonal( const VectorRn& dVec )				// Adds dVec to the diagonal entries
+{
+    long diagLen = Min( NumRows, NumCols );
+    double* dPtr = x;
+    for (int i = 0; i < diagLen && i < dVec.GetLength(); ++i) {
+        *dPtr += dVec[i];
+        dPtr += NumRows+1;
+    }
+    return *this;
+}
+
 // Multiply two MatrixRmn's
 MatrixRmn& MatrixRmn::Multiply( const MatrixRmn& A, const MatrixRmn& B, MatrixRmn& dst )
 {

@@ -389,6 +389,26 @@ void Jacobian::CalcDeltaThetasDLS()
     }
 }
 
+void Jacobian::CalcDeltaThetasDLS2(const VectorRn& dVec)
+{
+    const MatrixRmn& J = ActiveJacobian();
+    
+    U.SetSize(J.GetNumColumns(), J.GetNumColumns());
+    MatrixRmn::TransposeMultiply(J, J, U);
+    U.AddToDiagonal( dVec );
+    
+    dT1.SetLength(J.GetNumColumns());
+    J.MultiplyTranspose(dS, dT1);
+    U.Solve(dT1, &dTheta);
+    
+    // Scale back to not exceed maximum angle changes
+    double maxChange = dTheta.MaxAbs();
+    if ( maxChange>MaxAngleDLS ) {
+        dTheta *= MaxAngleDLS/maxChange;
+    }
+}
+
+
 void Jacobian::CalcDeltaThetasDLSwithSVD() 
 {	
 	const MatrixRmn& J = ActiveJacobian();
