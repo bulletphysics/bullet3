@@ -516,7 +516,11 @@ bool b3RobotSimAPI::calculateInverseKinematics(const struct b3RobotSimInverseKin
 	{
 		b3CalculateInverseKinematicsAddTargetPurePosition(command,args.m_endEffectorLinkIndex,args.m_endEffectorTargetPosition);
 	}
-	
+    
+    if (args.m_flags & B3_HAS_JOINT_DAMPING)
+    {
+        b3CalculateInverseKinematicsSetJointDamping(command, args.m_numDegreeOfFreedom, &args.m_jointDamping[0]);
+    }
 
     b3SharedMemoryStatusHandle statusHandle;
 	statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClient, command);

@@ -196,7 +196,8 @@ public:
             ikargs.m_endEffectorTargetPosition[1] = targetPosDataOut.m_floats[1];
             ikargs.m_endEffectorTargetPosition[2] = targetPosDataOut.m_floats[2];
 			
-			//ikargs.m_flags |= /*B3_HAS_IK_TARGET_ORIENTATION +*/ B3_HAS_NULL_SPACE_VELOCITY;
+			//ikargs.m_flags |= B3_HAS_IK_TARGET_ORIENTATION;
+            ikargs.m_flags |= B3_HAS_JOINT_DAMPING;
 
 			ikargs.m_endEffectorTargetOrientation[0] = targetOriDataOut.m_floats[0];
 			ikargs.m_endEffectorTargetOrientation[1] = targetOriDataOut.m_floats[1];
@@ -209,6 +210,7 @@ public:
             ikargs.m_upperLimits.resize(numJoints);
             ikargs.m_jointRanges.resize(numJoints);
             ikargs.m_restPoses.resize(numJoints);
+            ikargs.m_jointDamping.resize(numJoints,0.5);
             ikargs.m_lowerLimits[0] = -2.32;
             ikargs.m_lowerLimits[1] = -1.6;
             ikargs.m_lowerLimits[2] = -2.32;
@@ -237,6 +239,7 @@ public:
             ikargs.m_restPoses[4] = 0;
             ikargs.m_restPoses[5] = -SIMD_HALF_PI*0.66;
             ikargs.m_restPoses[6] = 0;
+            ikargs.m_jointDamping[0] = 10.0;
             ikargs.m_numDegreeOfFreedom = numJoints;
             
 			if (m_robotSim.calculateInverseKinematics(ikargs,ikresults))

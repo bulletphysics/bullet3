@@ -512,7 +512,8 @@ enum EnumCalculateInverseKinematicsFlags
     IK_HAS_TARGET_POSITION=1,
 	IK_HAS_TARGET_ORIENTATION=2,
     IK_HAS_NULL_SPACE_VELOCITY=4,
-    //IK_HAS_CURRENT_JOINT_POSITIONS=8,//not used yet
+    IK_HAS_JOINT_DAMPING=8,
+    //IK_HAS_CURRENT_JOINT_POSITIONS=16,//not used yet
 };
 
 struct CalculateInverseKinematicsArgs
@@ -526,6 +527,7 @@ struct CalculateInverseKinematicsArgs
     double m_upperLimit[MAX_DEGREE_OF_FREEDOM];
     double m_jointRange[MAX_DEGREE_OF_FREEDOM];
     double m_restPose[MAX_DEGREE_OF_FREEDOM];
+    double m_jointDamping[MAX_DEGREE_OF_FREEDOM];
 };
 
 struct CalculateInverseKinematicsResultArgs

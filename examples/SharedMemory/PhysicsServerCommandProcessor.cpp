@@ -4012,8 +4012,22 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                 endEffectorPosWorld.serializeDouble(endEffectorWorldPosition);
                                 endEffectorOri.serializeDouble(endEffectorWorldOrientation);
                                 
-                                double jointDampCoeff[7] = {20.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
-                                ikHelperPtr->setDampingCoeff(numDofs, jointDampCoeff);
+                                // Set joint damping coefficents. A small default
+                                // damping constant is added to prevent singularity
+                                // with pseudo inverse. The user can set joint damping
+                                // coefficients differently for each joint. The larger
+                                // the damping coefficient is, the less we rely on
+                                // this joint to achieve the IK target.
+                                btAlignedObjectArray<double> joint_damping;
+                                joint_damping.resize(numDofs,0.5);
+                                if (clientCmd.m_updateFlags& IK_HAS_JOINT_DAMPING)
+                                {
+                                    for (int i = 0; i < numDofs; ++i)
+                                    {
+                                        joint_damping[i] = clientCmd.m_calculateInverseKinematicsArguments.m_jointDamping[i];
+                                    }
+                                }
+                                ikHelperPtr->setDampingCoeff(numDofs, &joint_damping[0]);
                                 
 								double targetDampCoeff[6] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
                                 ikHelperPtr->computeIK(clientCmd.m_calculateInverseKinematicsArguments.m_targetPosition, clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation,
