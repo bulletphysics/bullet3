@@ -214,4 +214,5 @@ bool IKTrajectoryHelper::setDampingCoeff(int numQ, const double* coeff)
     {
         m_data->m_dampingCoeff[i] = coeff[i];
     }
+    return true;
 }
