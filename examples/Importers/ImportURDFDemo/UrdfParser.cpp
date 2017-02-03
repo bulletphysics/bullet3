@@ -295,8 +295,19 @@ bool UrdfParser::parseInertia(UrdfInertia& inertia, TiXmlElement* config, ErrorL
             inertia.m_izz  = urdfLexicalCast<double>(izz->GetText());
         } else
         {
-            logger->reportError("Inertial: inertia element must have ixx,ixy,ixz,iyy,iyz,izz child elements");
-            return false;
+			if (ixx && iyy && izz)
+			{
+				inertia.m_ixx  = urdfLexicalCast<double>(ixx->GetText());
+				inertia.m_ixy  = 0;
+				inertia.m_ixz  = 0;
+				inertia.m_iyy  = urdfLexicalCast<double>(iyy->GetText());
+				inertia.m_iyz  = 0;
+				inertia.m_izz  = urdfLexicalCast<double>(izz->GetText());
+			} else
+			{
+	            logger->reportError("Inertial: inertia element must have ixx,ixy,ixz,iyy,iyz,izz child elements");
+		        return false;
+			}
         }
     } else
     {
@@ -304,15 +315,29 @@ bool UrdfParser::parseInertia(UrdfInertia& inertia, TiXmlElement* config, ErrorL
             inertia_xml->Attribute("iyy") && inertia_xml->Attribute("iyz") &&
             inertia_xml->Attribute("izz")))
         {
-          logger->reportError("Inertial: inertia element must have ixx,ixy,ixz,iyy,iyz,izz attributes");
-          return false;
-        }
-        inertia.m_ixx  = urdfLexicalCast<double>(inertia_xml->Attribute("ixx"));
-        inertia.m_ixy  = urdfLexicalCast<double>(inertia_xml->Attribute("ixy"));
-        inertia.m_ixz  = urdfLexicalCast<double>(inertia_xml->Attribute("ixz"));
-        inertia.m_iyy  = urdfLexicalCast<double>(inertia_xml->Attribute("iyy"));
-        inertia.m_iyz  = urdfLexicalCast<double>(inertia_xml->Attribute("iyz"));
-        inertia.m_izz  = urdfLexicalCast<double>(inertia_xml->Attribute("izz"));
+			if ((inertia_xml->Attribute("ixx") && inertia_xml->Attribute("iyy") &&
+            inertia_xml->Attribute("izz")))
+			{
+				inertia.m_ixx  = urdfLexicalCast<double>(inertia_xml->Attribute("ixx"));
+				inertia.m_ixy  = 0;
+				inertia.m_ixz  = 0;
+				inertia.m_iyy  = urdfLexicalCast<double>(inertia_xml->Attribute("iyy"));
+				inertia.m_iyz  = 0;
+				inertia.m_izz  = urdfLexicalCast<double>(inertia_xml->Attribute("izz"));
+			} else
+			{
+	          logger->reportError("Inertial: inertia element must have ixx,ixy,ixz,iyy,iyz,izz attributes");
+		      return false;
+			}
+        } else
+		{
+			inertia.m_ixx  = urdfLexicalCast<double>(inertia_xml->Attribute("ixx"));
+			inertia.m_ixy  = urdfLexicalCast<double>(inertia_xml->Attribute("ixy"));
+			inertia.m_ixz  = urdfLexicalCast<double>(inertia_xml->Attribute("ixz"));
+			inertia.m_iyy  = urdfLexicalCast<double>(inertia_xml->Attribute("iyy"));
+			inertia.m_iyz  = urdfLexicalCast<double>(inertia_xml->Attribute("iyz"));
+			inertia.m_izz  = urdfLexicalCast<double>(inertia_xml->Attribute("izz"));
+		}
     }
 	return true;
     
