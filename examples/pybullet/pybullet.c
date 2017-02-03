@@ -4493,8 +4493,9 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
         if (numJoints && (szJointDamping == numJoints))
         {
             int szInBytes = sizeof(double) * numJoints;
+            int i;
             jointDamping = (double*)malloc(szInBytes);
-            for (int i = 0; i < numJoints; i++)
+            for (i = 0; i < numJoints; i++)
             {
                 jointDamping[i] = pybullet_internalGetFloatFromSequence(jointDampingObj, i);
             }
