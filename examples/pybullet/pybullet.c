@@ -2668,7 +2668,7 @@ static PyObject* pybullet_rayTest(PyObject* self, PyObject* args, PyObject *keyw
 	return Py_None;
 }
 
-static PyObject* pybullet_getMatrixFromQuaterion(PyObject* self, PyObject* args) 
+static PyObject* pybullet_getMatrixFromQuaternion(PyObject* self, PyObject* args)
 {
 	PyObject* quatObj;
 	double quat[4];
@@ -2907,7 +2907,7 @@ static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args, PyO
 			pyResultList = PyTuple_New(visualShapeInfo.m_numVisualShapes);
 			for (i = 0; i < visualShapeInfo.m_numVisualShapes; i++)
 			{
-				PyObject* visualShapeObList = PyTuple_New(7);
+				PyObject* visualShapeObList = PyTuple_New(8);
 				PyObject* item;
 				item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_objectUniqueId);
 				PyTuple_SetItem(visualShapeObList, 0, item);
@@ -2920,11 +2920,11 @@ static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args, PyO
 
 				{
 					PyObject* vec = PyTuple_New(3);
-					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_dimensions[0]);
+					item = PyFloat_FromDouble(visualShapeInfo.m_visualShapeData[i].m_dimensions[0]);
 					PyTuple_SetItem(vec, 0, item);
-					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_dimensions[1]);
+					item = PyFloat_FromDouble(visualShapeInfo.m_visualShapeData[i].m_dimensions[1]);
 					PyTuple_SetItem(vec, 1, item);
-					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_dimensions[2]);
+					item = PyFloat_FromDouble(visualShapeInfo.m_visualShapeData[i].m_dimensions[2]);
 					PyTuple_SetItem(vec, 2, item);
 					PyTuple_SetItem(visualShapeObList, 3, vec);
 				}
@@ -2934,28 +2934,41 @@ static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args, PyO
 
 				{
 					PyObject* vec = PyTuple_New(3);
-					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localVisualFrame[0]);
+					item = PyFloat_FromDouble(visualShapeInfo.m_visualShapeData[i].m_localVisualFrame[0]);
 					PyTuple_SetItem(vec, 0, item);
-					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localVisualFrame[1]);
+					item = PyFloat_FromDouble(visualShapeInfo.m_visualShapeData[i].m_localVisualFrame[1]);
 					PyTuple_SetItem(vec, 1, item);
-					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localVisualFrame[2]);
+					item = PyFloat_FromDouble(visualShapeInfo.m_visualShapeData[i].m_localVisualFrame[2]);
 					PyTuple_SetItem(vec, 2, item);
 					PyTuple_SetItem(visualShapeObList, 5, vec);
 				}
 
 				{
 					PyObject* vec = PyTuple_New(4);
-					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localVisualFrame[3]);
+					item = PyFloat_FromDouble(visualShapeInfo.m_visualShapeData[i].m_localVisualFrame[3]);
 					PyTuple_SetItem(vec, 0, item);
-					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localVisualFrame[4]);
+					item = PyFloat_FromDouble(visualShapeInfo.m_visualShapeData[i].m_localVisualFrame[4]);
 					PyTuple_SetItem(vec, 1, item);
-					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localVisualFrame[5]);
+					item = PyFloat_FromDouble(visualShapeInfo.m_visualShapeData[i].m_localVisualFrame[5]);
 					PyTuple_SetItem(vec, 2, item);
-					item = PyInt_FromLong(visualShapeInfo.m_visualShapeData[i].m_localVisualFrame[6]);
+					item = PyFloat_FromDouble(visualShapeInfo.m_visualShapeData[i].m_localVisualFrame[6]);
 					PyTuple_SetItem(vec, 3, item);
 					PyTuple_SetItem(visualShapeObList, 6, vec);
 				}
 
+                {
+                    PyObject* rgba = PyTuple_New(4);
+                    item = PyFloat_FromDouble(visualShapeInfo.m_visualShapeData[i].m_rgbaColor[0]);
+                    PyTuple_SetItem(rgba, 0, item);
+                    item = PyFloat_FromDouble(visualShapeInfo.m_visualShapeData[i].m_rgbaColor[1]);
+                    PyTuple_SetItem(rgba, 1, item);
+                    item = PyFloat_FromDouble(visualShapeInfo.m_visualShapeData[i].m_rgbaColor[2]);
+                    PyTuple_SetItem(rgba, 2, item);
+                    item = PyFloat_FromDouble(visualShapeInfo.m_visualShapeData[i].m_rgbaColor[3]);
+                    PyTuple_SetItem(rgba, 3, item);
+                    PyTuple_SetItem(visualShapeObList, 7, rgba);
+                }
+                
 
 				PyTuple_SetItem(pyResultList, i, visualShapeObList);
 			}
@@ -4905,7 +4918,7 @@ static PyMethodDef SpamMethods[] = {
      "Convert quaternion [x,y,z,w] to Euler [roll, pitch, yaw] as in URDF/SDF "
      "convention"},
 
-	 {"getMatrixFromQuaterion", pybullet_getMatrixFromQuaterion,METH_VARARGS,
+	 {"getMatrixFromQuaternion", pybullet_getMatrixFromQuaternion,METH_VARARGS,
 		"Compute the 3x3 matrix from a quaternion, as a list of 9 values (row-major)"},
 
     {"calculateInverseDynamics", (PyCFunction)pybullet_calculateInverseDynamics, METH_VARARGS| METH_KEYWORDS,
