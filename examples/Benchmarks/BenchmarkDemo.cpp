@@ -210,9 +210,13 @@ public:
     {
         for ( int i = iBegin; i < iEnd; ++i )
         {
+			
 			btCollisionWorld::ClosestRayResultCallback cb(source[i], dest[i]);
 			
-			cw->rayTest (source[i], dest[i], cb);
+			{
+				BT_PROFILE("cw->rayTest");
+				cw->rayTest(source[i], dest[i], cb);
+			}
 			if (cb.hasHit ())
 			{
 				hit[i] = cb.m_hitPointWorld;
@@ -241,6 +245,8 @@ public:
 
 	void cast (btCollisionWorld* cw, bool multiThreading = false)
 	{
+		BT_PROFILE("cast");
+
 #ifdef USE_BT_CLOCK
 		frame_timer.reset ();
 #endif //USE_BT_CLOCK

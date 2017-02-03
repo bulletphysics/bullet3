@@ -211,7 +211,7 @@ updateVertex(
   positions.push_back(in_positions[3*i.v_idx+1]);
   positions.push_back(in_positions[3*i.v_idx+2]);
 
-  if (i.vn_idx >= 0) {
+  if (i.vn_idx >= 0 && ((3*i.vn_idx+2)<in_normals.size())) {
     normals.push_back(in_normals[3*i.vn_idx+0]);
     normals.push_back(in_normals[3*i.vn_idx+1]);
     normals.push_back(in_normals[3*i.vn_idx+2]);

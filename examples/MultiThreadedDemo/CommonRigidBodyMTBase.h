@@ -31,6 +31,7 @@ inline const char* getSolverTypeName( SolverType t )
     case SOLVER_TYPE_MLCP_PGS: return "MLCP ProjectedGaussSeidel";
     case SOLVER_TYPE_MLCP_DANTZIG: return "MLCP Dantzig";
     case SOLVER_TYPE_MLCP_LEMKE: return "MLCP Lemke";
+    default:{}
     }
     btAssert( !"unhandled solver type in switch" );
     return "???";

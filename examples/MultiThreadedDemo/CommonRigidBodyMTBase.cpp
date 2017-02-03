@@ -611,6 +611,7 @@ btConstraintSolver* createSolverByType( SolverType t )
     case SOLVER_TYPE_MLCP_LEMKE:
         mlcpSolver = new btLemkeSolver();
         break;
+    default: {}
     }
     if (mlcpSolver)
     {
