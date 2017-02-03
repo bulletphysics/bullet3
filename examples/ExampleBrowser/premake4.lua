@@ -120,6 +120,7 @@ project "App_BulletExampleBrowser"
 		"../Vehicles/*",
 		"../Raycast/*",
 		"../MultiBody/MultiDofDemo.cpp",
+		"../MultiBody/GripStability.cpp",
 		"../MultiBody/TestJointTorqueSetup.cpp",
 		"../MultiBody/Pendulum.cpp",
 		"../MultiBody/MultiBodySoftContact.cpp",
