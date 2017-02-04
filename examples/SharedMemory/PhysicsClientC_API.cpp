@@ -2341,6 +2341,19 @@ void b3CalculateInverseKinematicsPosOrnWithNullSpaceVel(b3SharedMemoryCommandHan
 
 }
 
+void b3CalculateInverseKinematicsSetJointDamping(b3SharedMemoryCommandHandle commandHandle, int numDof, const double* jointDampingCoeff)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CALCULATE_INVERSE_KINEMATICS);
+    command->m_updateFlags |= IK_HAS_JOINT_DAMPING;
+    
+    for (int i = 0; i < numDof; ++i)
+    {
+        command->m_calculateInverseKinematicsArguments.m_jointDamping[i] = jointDampingCoeff[i];
+    }
+}
+
 int b3GetStatusInverseKinematicsJointPositions(b3SharedMemoryStatusHandle statusHandle,
 	int* bodyUniqueId,
 	int* dofCount,

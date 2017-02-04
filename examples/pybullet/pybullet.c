@@ -4430,9 +4430,10 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 		PyObject* upperLimitsObj = 0;
 		PyObject* jointRangesObj = 0;
 		PyObject* restPosesObj = 0;
+        PyObject* jointDampingObj = 0;
 
-	static char *kwlist[] = { "bodyIndex", "endEffectorLinkIndex", "targetPosition", "targetOrientation","lowerLimits", "upperLimits", "jointRanges", "restPoses", "physicsClientId", NULL };
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiO|OOOOOi", kwlist,  &bodyIndex, &endEffectorLinkIndex, &targetPosObj,&targetOrnObj,&lowerLimitsObj, &upperLimitsObj, &jointRangesObj, &restPosesObj, &physicsClientId))
+	static char *kwlist[] = { "bodyIndex", "endEffectorLinkIndex", "targetPosition", "targetOrientation","lowerLimits", "upperLimits", "jointRanges", "restPoses", "physicsClientId", "jointDamping", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiO|OOOOOiO", kwlist,  &bodyIndex, &endEffectorLinkIndex, &targetPosObj,&targetOrnObj,&lowerLimitsObj, &upperLimitsObj, &jointRangesObj, &restPosesObj, &physicsClientId, & jointDampingObj))
 	{
 		return NULL;
 	}
@@ -4452,18 +4453,21 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 		int szUpperLimits = upperLimitsObj? PySequence_Size(upperLimitsObj): 0;
 		int szJointRanges = jointRangesObj? PySequence_Size(jointRangesObj):0;
 		int szRestPoses = restPosesObj? PySequence_Size(restPosesObj):0;
+        int szJointDamping = jointDampingObj? PySequence_Size(jointDampingObj):0;
 
 		int numJoints = b3GetNumJoints(sm, bodyIndex);
 
 
 		int hasNullSpace = 0;
+        int hasJointDamping = 0;
 		double* lowerLimits = 0;
 		double* upperLimits = 0;
 		double* jointRanges = 0;
 		double* restPoses = 0;
+        double* jointDamping = 0;
 		
 		if (numJoints && (szLowerLimits == numJoints) && (szUpperLimits == numJoints) &&
-          (szJointRanges == numJoints) && (szRestPoses == numJoints)) 
+          (szJointRanges == numJoints) && (szRestPoses == numJoints))
 		{
 			int szInBytes = sizeof(double) * numJoints;
 			int i;
@@ -4480,11 +4484,23 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 				  pybullet_internalGetFloatFromSequence(upperLimitsObj, i);
 			  jointRanges[i] =
 				  pybullet_internalGetFloatFromSequence(jointRangesObj, i);
-			restPoses[i] =
+			  restPoses[i] =
 				pybullet_internalGetFloatFromSequence(restPosesObj, i);
 			}
 			hasNullSpace = 1;
 		}
+        
+        if (numJoints && (szJointDamping == numJoints))
+        {
+            int szInBytes = sizeof(double) * numJoints;
+            int i;
+            jointDamping = (double*)malloc(szInBytes);
+            for (i = 0; i < numJoints; i++)
+            {
+                jointDamping[i] = pybullet_internalGetFloatFromSequence(jointDampingObj, i);
+            }
+            hasJointDamping = 1;
+        }
 
 		if (hasPos)
 		{
@@ -4514,6 +4530,11 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 					b3CalculateInverseKinematicsAddTargetPurePosition(command,endEffectorLinkIndex,pos);
 				}
 			}
+            
+            if (hasJointDamping)
+            {
+                b3CalculateInverseKinematicsSetJointDamping(command, numJoints, jointDamping);
+            }
 
 			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
                 

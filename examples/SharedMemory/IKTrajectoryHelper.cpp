@@ -16,6 +16,7 @@ struct IKTrajectoryHelperInternalData
 {
     VectorR3 m_endEffectorTargetPosition;
     VectorRn m_nullSpaceVelocity;
+    VectorRn m_dampingCoeff;
     
     b3AlignedObjectArray<Node*> m_ikNodes;
     
@@ -23,6 +24,7 @@ struct IKTrajectoryHelperInternalData
     {
         m_endEffectorTargetPosition.SetZero();
         m_nullSpaceVelocity.SetZero();
+        m_dampingCoeff.SetZero();
     }
 };
 
@@ -136,7 +138,9 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
 		case IK2_DLS:
         case IK2_VEL_DLS:
 		case IK2_VEL_DLS_WITH_ORIENTATION:
-            ikJacobian.CalcDeltaThetasDLS();			// Damped least squares method
+            //ikJacobian.CalcDeltaThetasDLS();			// Damped least squares method
+            assert(m_data->m_dampingCoeff.GetLength()==numQ);
+            ikJacobian.CalcDeltaThetasDLS2(m_data->m_dampingCoeff);
             break;
         case IK2_VEL_DLS_WITH_NULLSPACE:
         case IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE:
@@ -198,6 +202,17 @@ bool IKTrajectoryHelper::computeNullspaceVel(int numQ, const double* q_current, 
         if (q_current[i] < lower_limit[i]) {
             m_data->m_nullSpaceVelocity[i] += stayAwayFromLimitsGain * (lower_limit[i] - q_current[i]) / joint_range[i];
         }
+    }
+    return true;
+}
+
+bool IKTrajectoryHelper::setDampingCoeff(int numQ, const double* coeff)
+{
+    m_data->m_dampingCoeff.SetLength(numQ);
+    m_data->m_dampingCoeff.SetZero();
+    for (int i = 0; i < numQ; ++i)
+    {
+        m_data->m_dampingCoeff[i] = coeff[i];
     }
     return true;
 }
