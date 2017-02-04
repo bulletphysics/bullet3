@@ -444,10 +444,12 @@ int b3JointControlSetDesiredPosition(b3SharedMemoryCommandHandle commandHandle, 
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
-    command->m_sendDesiredStateCommandArgument.m_desiredStateQ[qIndex] = value;
-	command->m_updateFlags |= SIM_DESIRED_STATE_HAS_Q;
-    command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[qIndex] |= SIM_DESIRED_STATE_HAS_Q;
-
+	if ((qIndex>=0) && (qIndex < MAX_DEGREE_OF_FREEDOM))
+	{
+		command->m_sendDesiredStateCommandArgument.m_desiredStateQ[qIndex] = value;
+		command->m_updateFlags |= SIM_DESIRED_STATE_HAS_Q;
+		command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[qIndex] |= SIM_DESIRED_STATE_HAS_Q;
+	}
     return 0;
 }
 
@@ -455,8 +457,7 @@ int b3JointControlSetKp(b3SharedMemoryCommandHandle commandHandle, int dofIndex,
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
-	b3Assert(dofIndex>=0);
-	if (dofIndex>=0)
+	if ((dofIndex>=0) && (dofIndex < MAX_DEGREE_OF_FREEDOM))
 	{
 		command->m_sendDesiredStateCommandArgument.m_Kp[dofIndex] = value;
 		command->m_updateFlags |= SIM_DESIRED_STATE_HAS_KP;
@@ -469,8 +470,7 @@ int b3JointControlSetKd(b3SharedMemoryCommandHandle commandHandle, int dofIndex,
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
-	b3Assert(dofIndex>=0);
-	if (dofIndex>=0)
+	if ((dofIndex>=0) && (dofIndex < MAX_DEGREE_OF_FREEDOM))
 	{
 		command->m_sendDesiredStateCommandArgument.m_Kd[dofIndex] = value;
 		command->m_updateFlags |= SIM_DESIRED_STATE_HAS_KD;
@@ -483,8 +483,7 @@ int b3JointControlSetDesiredVelocity(b3SharedMemoryCommandHandle commandHandle, 
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
-	b3Assert(dofIndex>=0);
-	if (dofIndex>=0)
+	if ((dofIndex>=0) && (dofIndex < MAX_DEGREE_OF_FREEDOM))
 	{
 		command->m_sendDesiredStateCommandArgument.m_desiredStateQdot[dofIndex] = value;
 		command->m_updateFlags |= SIM_DESIRED_STATE_HAS_QDOT;
@@ -498,8 +497,7 @@ int b3JointControlSetMaximumForce(b3SharedMemoryCommandHandle commandHandle, int
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
-	b3Assert(dofIndex>=0);
-	if (dofIndex>=0)
+	if ((dofIndex>=0) && (dofIndex < MAX_DEGREE_OF_FREEDOM))
 	{
 		command->m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex] = value;
 		command->m_updateFlags |= SIM_DESIRED_STATE_HAS_MAX_FORCE;
@@ -512,8 +510,7 @@ int b3JointControlSetDesiredForceTorque(b3SharedMemoryCommandHandle commandHandl
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
-	b3Assert(dofIndex>=0);
-	if (dofIndex>=0)
+	if ((dofIndex>=0) && (dofIndex < MAX_DEGREE_OF_FREEDOM))
 	{
 		command->m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[dofIndex] = value;
 		command->m_updateFlags |= SIM_DESIRED_STATE_HAS_MAX_FORCE;
@@ -547,13 +544,16 @@ int b3GetJointState(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle
 	  bool result = b3GetJointInfo(physClient, bodyIndex,jointIndex, &info);
 	  if (result)
 	  {
-		  state->m_jointPosition = status->m_sendActualStateArgs.m_actualStateQ[info.m_qIndex];
-		  state->m_jointVelocity = status->m_sendActualStateArgs.m_actualStateQdot[info.m_uIndex];
-		  for (int ii(0); ii < 6; ++ii) {
-			state->m_jointForceTorque[ii] = status->m_sendActualStateArgs.m_jointReactionForces[6 * jointIndex + ii];
+		  if ((info.m_qIndex>=0) && (info.m_uIndex>=0)  && (info.m_qIndex < MAX_DEGREE_OF_FREEDOM) && (info.m_uIndex < MAX_DEGREE_OF_FREEDOM))
+		  {
+			  state->m_jointPosition = status->m_sendActualStateArgs.m_actualStateQ[info.m_qIndex];
+			  state->m_jointVelocity = status->m_sendActualStateArgs.m_actualStateQdot[info.m_uIndex];
+			  for (int ii(0); ii < 6; ++ii) {
+				state->m_jointForceTorque[ii] = status->m_sendActualStateArgs.m_jointReactionForces[6 * jointIndex + ii];
+			  }
+			  state->m_jointMotorTorque = status->m_sendActualStateArgs.m_jointMotorForce[jointIndex];
+			  return 1;
 		  }
-		  state->m_jointMotorTorque = status->m_sendActualStateArgs.m_jointMotorForce[jointIndex];
-		  return 1;
 	  }
   }
   return 0;
