@@ -16,7 +16,7 @@ using namespace Gwen;
 
 UnicodeString Gwen::Utility::Format( const wchar_t* fmt, ... )
 {
-	wchar_t strOut[ 4096 ];
+	wchar_t strOut[ 2048 ];
 
 	va_list s;
 	va_start( s, fmt ); 
