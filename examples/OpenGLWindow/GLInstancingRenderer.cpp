@@ -31,13 +31,17 @@ float shadowMapWorldSize=10;
 
 #ifndef __APPLE__
 #ifndef glVertexAttribDivisor
+#ifndef NO_GLEW
 #define glVertexAttribDivisor glVertexAttribDivisorARB
+#endif //NO_GLEW
 #endif //glVertexAttribDivisor
 #ifndef GL_COMPARE_REF_TO_TEXTURE
 #define GL_COMPARE_REF_TO_TEXTURE GL_COMPARE_R_TO_TEXTURE
 #endif //GL_COMPARE_REF_TO_TEXTURE
 #ifndef glDrawElementsInstanced
+#ifndef NO_GLEW
 #define glDrawElementsInstanced glDrawElementsInstancedARB
+#endif //NO_GLEW
 #endif
 #endif //__APPLE__
 #include "GLInstancingRenderer.h"
