@@ -332,10 +332,10 @@ struct MultiBodyInplaceSolverIslandCallback : public btSimulationIslandManager::
 				}
 			}
 
-			if (m_solverInfo->m_minimumSolverBatchSize<=1)
-			{
-				m_solver->solveGroup( bodies,numBodies,manifolds, numManifolds,startConstraint,numCurConstraints,*m_solverInfo,m_debugDrawer,m_dispatcher);
-			} else
+			//if (m_solverInfo->m_minimumSolverBatchSize<=1)
+			//{
+			//	m_solver->solveGroup( bodies,numBodies,manifolds, numManifolds,startConstraint,numCurConstraints,*m_solverInfo,m_debugDrawer,m_dispatcher);
+			//} else
 			{
 				
 				for (i=0;i<numBodies;i++)

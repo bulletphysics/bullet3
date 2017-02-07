@@ -24,6 +24,8 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btManifoldResult.h"
 #include "BulletCollision/CollisionDispatch/btCollisionObjectWrapper.h"
 
+//USE_LOCAL_STACK will avoid most (often all) dynamic memory allocations due to resizing in processCollision and MycollideTT
+#define USE_LOCAL_STACK 1
 
 btShapePairCallback gCompoundCompoundChildShapePairCallback = 0;
 
@@ -251,7 +253,12 @@ static inline void		MycollideTT(	const btDbvtNode* root0,
 			int								depth=1;
 			int								treshold=btDbvt::DOUBLE_STACKSIZE-4;
 			btAlignedObjectArray<btDbvt::sStkNN>	stkStack;
+#ifdef USE_LOCAL_STACK
+			ATTRIBUTE_ALIGNED16(btDbvt::sStkNN localStack[btDbvt::DOUBLE_STACKSIZE]);
+			stkStack.initializeFromBuffer(&localStack,btDbvt::DOUBLE_STACKSIZE,btDbvt::DOUBLE_STACKSIZE);
+#else
 			stkStack.resize(btDbvt::DOUBLE_STACKSIZE);
+#endif
 			stkStack[0]=btDbvt::sStkNN(root0,root1);
 			do	{
 				btDbvt::sStkNN	p=stkStack[--depth];
@@ -329,6 +336,10 @@ void btCompoundCompoundCollisionAlgorithm::processCollision (const btCollisionOb
 	{
 		int i;
 		btManifoldArray manifoldArray;
+#ifdef USE_LOCAL_STACK 
+		btPersistentManifold localManifolds[4];
+		manifoldArray.initializeFromBuffer(&localManifolds,0,4);
+#endif
 		btSimplePairArray& pairs = m_childCollisionAlgorithmCache->getOverlappingPairArray();
 		for (i=0;i<pairs.size();i++)
 		{
