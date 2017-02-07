@@ -13,7 +13,11 @@
 #include "../OpenGLWindow/Win32OpenGLWindow.h"
 #else
 //let's cross the fingers it is Linux/X11
+#ifdef BT_USE_EGL
+#include "../OpenGLWindow/EGLOpenGLWindow.h"
+#else
 #include "../OpenGLWindow/X11OpenGLWindow.h"
+#endif //BT_USE_EGL
 #endif //_WIN32
 #endif//__APPLE__
 #include "../ThirdPartyLibs/Gwen/Renderers/OpenGL_DebugFont.h"
