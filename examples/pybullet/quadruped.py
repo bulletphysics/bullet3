@@ -2,6 +2,8 @@ import pybullet as p
 import time
 import math
 
+useRealTime = 0
+fixedTimeStep = 0.001
 
 physId = p.connect(p.SHARED_MEMORY)
 if (physId<0):
@@ -9,8 +11,10 @@ if (physId<0):
 
 p.loadURDF("plane.urdf")
 p.setGravity(0,0,-1)
+p.setTimeStep(fixedTimeStep)
+
 p.setRealTimeSimulation(0)
-quadruped = p.loadURDF("quadruped/quadruped.urdf",1,-2,2)
+quadruped = p.loadURDF("quadruped/quadruped.urdf",1,-2,1)
 #p.getNumJoints(1)
 #right front leg
 p.resetJointState(quadruped,0,1.57)
@@ -71,24 +75,41 @@ p.setJointMotorControl(quadruped,23,p.VELOCITY_CONTROL,0,0)
 
 
 
-p_gain = 2
-speed = 10
+p_gain =1 
+speed = 10 
 amplitude = 1.3
 
 #stand still
-t_end = time.time() + 2
-while time.time() < t_end:
-	p.stepSimulation()
+p.setRealTimeSimulation(useRealTime)
+
+
+t=0.0
+ref_time = time.time()
+t_end = t + 4
+while t < t_end:
+	if (useRealTime==0):
+		t = t+fixedTimeStep
+		p.stepSimulation()
+	else:
+		t = time.time()-ref_time
+		p.setGravity(0,0,-1)
+
 p.setGravity(0,0,-10)
 
 jump_amp = 0.5
 
 #jump
-t_end = time.time() + 10
+t = 0.0
+t_end = t + 10
 i=0
-t=0
-while time.time() < t_end:
-	t = time.time()
+ref_time = time.time()
+
+while t < t_end:
+	if (useRealTime):
+		t = time.time()-ref_time
+	else:
+		t = t+fixedTimeStep
+
 	p.setJointMotorControl(quadruped,0,p.POSITION_CONTROL,math.sin(t*speed)*jump_amp+1.57,p_gain)
 	p.setJointMotorControl(quadruped,3,p.POSITION_CONTROL,-math.sin(t*speed)*jump_amp-1.57,p_gain)
 	p.setJointMotorControl(quadruped,6,p.POSITION_CONTROL,math.sin(t*speed)*jump_amp+1.57,p_gain)
@@ -97,15 +118,19 @@ while time.time() < t_end:
 	p.setJointMotorControl(quadruped,15,p.POSITION_CONTROL,-math.sin(t*speed)*jump_amp-1.57,p_gain)
 	p.setJointMotorControl(quadruped,18,p.POSITION_CONTROL,math.sin(t*speed)*jump_amp+1.57,p_gain)
 	p.setJointMotorControl(quadruped,21,p.POSITION_CONTROL,-math.sin(t*speed)*jump_amp-1.57,p_gain)
-	
-	p.stepSimulation()
+	if (useRealTime==0):	
+		p.stepSimulation()
 
 
 #hop forward
-t_end = time.time() + 30
+t_end = 20
 i=0
-while time.time() < t_end:
-	t = time.time()
+while t < t_end:
+	if (useRealTime):
+		t = time.time()-ref_time
+	else:
+		t = t+fixedTimeStep
+
 	p.setJointMotorControl(quadruped,0,p.POSITION_CONTROL,math.sin(t*speed)*amplitude+1.57,p_gain)
 	p.setJointMotorControl(quadruped,3,p.POSITION_CONTROL,-1.57,p_gain)
 	p.setJointMotorControl(quadruped,6,p.POSITION_CONTROL,math.sin(t*speed)*amplitude+1.57,p_gain)
@@ -114,14 +139,18 @@ while time.time() < t_end:
 	p.setJointMotorControl(quadruped,15,p.POSITION_CONTROL,-1.57,p_gain)
 	p.setJointMotorControl(quadruped,18,p.POSITION_CONTROL,math.sin(t*speed+3.14)*amplitude+1.57,p_gain)
 	p.setJointMotorControl(quadruped,21,p.POSITION_CONTROL,-1.57,p_gain)
-	
-	p.stepSimulation()
+	if (useRealTime==0):	
+		p.stepSimulation()
 
 #walk
-t_end = time.time() + 120
+t_end = 100
 i=0
-while time.time() < t_end:
-	t = time.time()
+while t < t_end:
+	if (useRealTime):
+		t = time.time()-ref_time
+	else:
+		t = t+fixedTimeStep
+
 	p.setJointMotorControl(quadruped,0,p.POSITION_CONTROL,math.sin(t*3)*.3+1.57,1)
 	p.setJointMotorControl(quadruped,3,p.POSITION_CONTROL,-1.57,1)
 	p.setJointMotorControl(quadruped,6,p.POSITION_CONTROL,math.sin(t*3+0.5*3.14)*.3+1.57,1)
