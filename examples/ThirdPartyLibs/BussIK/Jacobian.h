@@ -68,6 +68,7 @@ public:
 	void CalcDeltaThetasTranspose();
 	void CalcDeltaThetasPseudoinverse();
 	void CalcDeltaThetasDLS();
+    void CalcDeltaThetasDLS2(const VectorRn& dVec);
 	void CalcDeltaThetasDLSwithSVD();
 	void CalcDeltaThetasSDLS();
     void CalcDeltaThetasDLSwithNullspace( const VectorRn& desiredV);

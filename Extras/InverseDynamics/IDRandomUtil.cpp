@@ -63,7 +63,7 @@ vec3 randomAxis() {
         axis(1) = randomFloat(-1.0, 1.0);
         axis(2) = randomFloat(-1.0, 1.0);
 
-        length = std::sqrt(std::pow(axis(0), 2) + std::pow(axis(1), 2) + std::pow(axis(2), 2));
+        length = BT_ID_SQRT(BT_ID_POW(axis(0), 2) + BT_ID_POW(axis(1), 2) + BT_ID_POW(axis(2), 2));
     } while (length < 0.01);
 
     return axis / length;

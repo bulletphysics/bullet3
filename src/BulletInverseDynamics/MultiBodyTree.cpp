@@ -226,10 +226,10 @@ int MultiBodyTree::addBody(int body_index, int parent_index, JointType joint_typ
 				warning_message(
 					"axis of motion not a unit axis ([%f %f %f]), will use normalized vector\n",
 					body_axis_of_motion(0), body_axis_of_motion(1), body_axis_of_motion(2));
-				idScalar length = std::sqrt(std::pow(body_axis_of_motion(0), 2) +
-											std::pow(body_axis_of_motion(1), 2) +
-											std::pow(body_axis_of_motion(2), 2));
-				if (length < std::sqrt(std::numeric_limits<idScalar>::min())) {
+				idScalar length = BT_ID_SQRT(BT_ID_POW(body_axis_of_motion(0), 2) +
+									   BT_ID_POW(body_axis_of_motion(1), 2) +
+									   BT_ID_POW(body_axis_of_motion(2), 2));
+				if (length < BT_ID_SQRT(std::numeric_limits<idScalar>::min())) {
 					error_message("axis of motion vector too short (%e)\n", length);
 					return -1;
 				}

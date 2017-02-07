@@ -77,21 +77,21 @@ static void loadCurrentSettingsVR(b3CommandLineArgs& args)
 	
 };
 
-
-#if B3_USE_MIDI
 //remember the settings (you don't want to re-tune again and again...)
 static void saveCurrentSettingsVR()
 {
 	FILE* f = fopen(startFileNameVR, "w");
 	if (f)
 	{
-		fprintf(f, "--camPosX= %f\n", gVRTeleportPosLocal[0]);
-		fprintf(f, "--camPosY= %f\n", gVRTeleportPosLocal[1]);
-		fprintf(f, "--camPosZ= %f\n", gVRTeleportPosLocal[2]);
+		fprintf(f, "--camPosX= %f\n", gVRTeleportPos1[0]);
+		fprintf(f, "--camPosY= %f\n", gVRTeleportPos1[1]);
+		fprintf(f, "--camPosZ= %f\n", gVRTeleportPos1[2]);
 		fprintf(f, "--camRotZ= %f\n", gVRTeleportRotZ);
 		fclose(f);
 	}
 };
+
+#if B3_USE_MIDI
 
 
 
@@ -116,7 +116,7 @@ void midiCallback(double deltatime, std::vector< unsigned char > *message, void 
 			if (message->at(1) == 16)
 			{
 				gVRTeleportRotZ= getParamf(-3.1415, 3.1415, message->at(2));
-				gVRTeleportOrnLocal = btQuaternion(btVector3(0, 0, 1), gVRTeleportRotZ);
+				gVRTeleportOrn = btQuaternion(btVector3(0, 0, 1), gVRTeleportRotZ);
 				saveCurrentSettingsVR();
 //				b3Printf("gVRTeleportOrnLocal rotZ = %f\n", gVRTeleportRotZ);
 			}
@@ -130,7 +130,7 @@ void midiCallback(double deltatime, std::vector< unsigned char > *message, void 
 			{
 				if (message->at(1) == i)
 				{
-					gVRTeleportPosLocal[i] = getParamf(-2, 2, message->at(2));
+					gVRTeleportPos1[i] = getParamf(-2, 2, message->at(2));
 					saveCurrentSettingsVR();
 //					b3Printf("gVRTeleportPos[%d] =  %f\n", i,gVRTeleportPosLocal[i]);
 
@@ -300,7 +300,6 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 
 		double deltaTimeInSeconds = 0;
 		double sleepCounter = 0;
-
 		do
 		{
 			BT_PROFILE("loop");
@@ -310,6 +309,8 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 				b3Clock::usleep(0);
 			}
 			double dt = double(clock.getTimeMicroseconds())/1000000.;
+			clock.reset();
+
 			sleepCounter+=dt;
 
 			if (sleepCounter > sleepTimeThreshold)
@@ -317,10 +318,18 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 				BT_PROFILE("usleep(100)");
 				sleepCounter = 0;
 				b3Clock::usleep(100);
+
+			}
+
+			{
+				if (gEnableRealTimeSimVR)
+				{
+					BT_PROFILE("usleep(1000)");
+					b3Clock::usleep(1000);
+				}
 			}
 			deltaTimeInSeconds+= dt;
 		
-			clock.reset();
 
 			
 			{
@@ -1071,7 +1080,46 @@ public:
 		//printf("button=%d, state=%d\n",button,state);
 		return false;
 	}
-	virtual bool	keyboardCallback(int key, int state){return false;}
+	virtual bool	keyboardCallback(int key, int state){
+		if (key=='w' && state)
+		{
+			gVRTeleportPos1[0]+=0.1;
+			saveCurrentSettingsVR();
+		}
+		if (key=='s' && state)
+		{
+			gVRTeleportPos1[0]-=0.1;
+			saveCurrentSettingsVR();
+		}
+		if (key=='a' && state)
+		{
+			gVRTeleportPos1[1]-=0.1;
+			saveCurrentSettingsVR();
+		}
+		if (key=='d' && state)
+		{
+			gVRTeleportPos1[1]+=0.1;
+			saveCurrentSettingsVR();
+		}
+		if (key=='q' && state)
+		{
+			gVRTeleportPos1[2]+=0.1;
+			saveCurrentSettingsVR();
+		}
+		if (key=='e' && state)
+		{
+			gVRTeleportPos1[2]-=0.1;
+			saveCurrentSettingsVR();
+		}
+		if (key=='z' && state)
+		{
+			gVRTeleportRotZ+=0.1;
+			gVRTeleportOrn = btQuaternion(btVector3(0, 0, 1), gVRTeleportRotZ);
+			saveCurrentSettingsVR();
+		}
+		
+		return false;
+	}
 
 	virtual void setSharedMemoryKey(int key)
 	{
@@ -1089,19 +1137,19 @@ public:
 			setSharedMemoryKey(shmemKey);
 		}
 
-		if (args.GetCmdLineArgument("camPosX", gVRTeleportPosLocal[0]))
+		if (args.GetCmdLineArgument("camPosX", gVRTeleportPos1[0]))
 		{
-			printf("camPosX=%f\n", gVRTeleportPosLocal[0]);
+			printf("camPosX=%f\n", gVRTeleportPos1[0]);
 		}
 
-		if (args.GetCmdLineArgument("camPosY", gVRTeleportPosLocal[1]))
+		if (args.GetCmdLineArgument("camPosY", gVRTeleportPos1[1]))
 		{
-			printf("camPosY=%f\n", gVRTeleportPosLocal[1]);
+			printf("camPosY=%f\n", gVRTeleportPos1[1]);
 		}
 
-		if (args.GetCmdLineArgument("camPosZ", gVRTeleportPosLocal[2]))
+		if (args.GetCmdLineArgument("camPosZ", gVRTeleportPos1[2]))
 		{
-			printf("camPosZ=%f\n", gVRTeleportPosLocal[2]);
+			printf("camPosZ=%f\n", gVRTeleportPos1[2]);
 		}
 
 		float camRotZ = 0.f;
@@ -1109,7 +1157,7 @@ public:
 		{
 			printf("camRotZ = %f\n", camRotZ);
 			btQuaternion ornZ(btVector3(0, 0, 1), camRotZ);
-			gVRTeleportOrnLocal = ornZ;
+			gVRTeleportOrn = ornZ;
 		}
 
 		if (args.CheckCmdLineFlag("robotassets"))

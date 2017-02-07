@@ -30,6 +30,11 @@ class btCollisionShape;
 #include "BulletDynamics/Dynamics/btSimulationIslandManagerMt.h"  // for setSplitIslands()
 #include "BulletDynamics/Dynamics/btDiscreteDynamicsWorldMt.h"
 #include "BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.h"
+#include "BulletDynamics/ConstraintSolver/btNNCGConstraintSolver.h"
+#include "BulletDynamics/MLCPSolvers/btMLCPSolver.h"
+#include "BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h"
+#include "BulletDynamics/MLCPSolvers/btDantzigSolver.h"
+#include "BulletDynamics/MLCPSolvers/btLemkeSolver.h"
 
 TaskManager gTaskMgr;
 
@@ -45,6 +50,8 @@ TaskManager gTaskMgr;
 #else
 #define BT_OVERRIDE
 #endif
+
+static int gNumIslands = 0;
 
 
 class Profiler
@@ -434,8 +441,6 @@ struct UpdateIslandDispatcher
     }
 };
 
-static int gNumIslands = 0;
-
 void parallelIslandDispatch( btAlignedObjectArray<btSimulationIslandManagerMt::Island*>* islandsPtr, btSimulationIslandManagerMt::IslandCallback* callback )
 {
     ProfileHelper prof(Profiler::kRecordDispatchIslands);
@@ -587,10 +592,47 @@ public:
 
 };
 
+
+btConstraintSolver* createSolverByType( SolverType t )
+{
+    btMLCPSolverInterface* mlcpSolver = NULL;
+    switch ( t )
+    {
+    case SOLVER_TYPE_SEQUENTIAL_IMPULSE:
+        return new btSequentialImpulseConstraintSolver();
+    case SOLVER_TYPE_NNCG:
+        return new btNNCGConstraintSolver();
+    case SOLVER_TYPE_MLCP_PGS:
+        mlcpSolver = new btSolveProjectedGaussSeidel();
+        break;
+    case SOLVER_TYPE_MLCP_DANTZIG:
+        mlcpSolver = new btDantzigSolver();
+        break;
+    case SOLVER_TYPE_MLCP_LEMKE:
+        mlcpSolver = new btLemkeSolver();
+        break;
+    default: {}
+    }
+    if (mlcpSolver)
+    {
+        return new btMLCPSolver(mlcpSolver);
+    }
+    return NULL;
+}
+
+
 static bool gMultithreadedWorld = false;
 static bool gDisplayProfileInfo = false;
-static btScalar gSliderNumThreads = 1.0f;  // should be int
+static SolverType gSolverType = SOLVER_TYPE_SEQUENTIAL_IMPULSE;
+static int gSolverMode = SOLVER_SIMD |
+                        SOLVER_USE_WARMSTARTING |
+                        // SOLVER_RANDMIZE_ORDER |
+                        // SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS |
+                        // SOLVER_USE_2_FRICTION_DIRECTIONS |
+                        0;
 static btScalar gSliderSolverIterations = 10.0f; // should be int
+
+static btScalar gSliderNumThreads = 1.0f;  // should be int
 
 
 ////////////////////////////////////
@@ -619,6 +661,33 @@ void boolPtrButtonCallback(int buttonId, bool buttonState, void* userPointer)
     if (bool* val = static_cast<bool*>(userPointer))
     {
         *val = ! *val;
+    }
+}
+
+void toggleSolverModeCallback(int buttonId, bool buttonState, void* userPointer)
+{
+    if (buttonState)
+    {
+        gSolverMode |= buttonId;
+    }
+    else
+    {
+        gSolverMode &= ~buttonId;
+    }
+    if (CommonRigidBodyMTBase* crb = reinterpret_cast<CommonRigidBodyMTBase*>(userPointer))
+    {
+        if (crb->m_dynamicsWorld)
+        {
+            crb->m_dynamicsWorld->getSolverInfo().m_solverMode = gSolverMode;
+        }
+    }
+}
+
+void setSolverTypeCallback(int buttonId, bool buttonState, void* userPointer)
+{
+    if (buttonId >= 0 && buttonId < SOLVER_TYPE_COUNT)
+    {
+        gSolverType = static_cast<SolverType>(buttonId);
     }
 }
 
@@ -658,6 +727,7 @@ void setSolverIterationCountCallback(float val, void* userPtr)
 void CommonRigidBodyMTBase::createEmptyDynamicsWorld()
 {
     gNumIslands = 0;
+    m_solverType = gSolverType;
 #if BT_THREADSAFE && (BT_USE_OPENMP || BT_USE_PPL || BT_USE_TBB)
     m_multithreadCapable = true;
 #endif
@@ -677,10 +747,18 @@ void CommonRigidBodyMTBase::createEmptyDynamicsWorld()
 
         m_broadphase = new btDbvtBroadphase();
 
-#if USE_PARALLEL_ISLAND_SOLVER
-        m_solver = new MyConstraintSolverPool( TaskManager::getMaxNumThreads() );
+#if BT_THREADSAFE && USE_PARALLEL_ISLAND_SOLVER
+        {
+            btConstraintSolver* solvers[ BT_MAX_THREAD_COUNT ];
+            int maxThreadCount = btMin( int(BT_MAX_THREAD_COUNT), TaskManager::getMaxNumThreads() );
+            for ( int i = 0; i < maxThreadCount; ++i )
+            {
+                solvers[ i ] = createSolverByType( m_solverType );
+            }
+            m_solver = new MyConstraintSolverPool( solvers, maxThreadCount );
+        }
 #else
-        m_solver = new btSequentialImpulseConstraintSolver();
+        m_solver = createSolverByType( m_solverType );
 #endif //#if USE_PARALLEL_ISLAND_SOLVER
         btDiscreteDynamicsWorld* world = new MyDiscreteDynamicsWorld( m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration );
         m_dynamicsWorld = world;
@@ -707,15 +785,14 @@ void CommonRigidBodyMTBase::createEmptyDynamicsWorld()
 
         m_broadphase = new btDbvtBroadphase();
 
-        ///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
-        btSequentialImpulseConstraintSolver* sol = new btSequentialImpulseConstraintSolver;
-        m_solver = sol;
+        m_solver = createSolverByType( m_solverType );
 
         m_dynamicsWorld = new btDiscreteDynamicsWorld( m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration );
     }
     m_dynamicsWorld->setInternalTickCallback( profileBeginCallback, NULL, true );
     m_dynamicsWorld->setInternalTickCallback( profileEndCallback, NULL, false );
     m_dynamicsWorld->setGravity( btVector3( 0, -10, 0 ) );
+    m_dynamicsWorld->getSolverInfo().m_solverMode = gSolverMode;
     createDefaultParameters();
 }
 
@@ -726,18 +803,33 @@ void CommonRigidBodyMTBase::createDefaultParameters()
     {
         // create a button to toggle multithreaded world
         ButtonParams button( "Multithreaded world enable", 0, true );
+        button.m_initialState = gMultithreadedWorld;
         button.m_userPointer = &gMultithreadedWorld;
         button.m_callback = boolPtrButtonCallback;
         m_guiHelper->getParameterInterface()->registerButtonParameter( button );
     }
     {
         // create a button to toggle profile printing
-        ButtonParams button( "Display profile timings", 0, true );
+        ButtonParams button( "Display solver info", 0, true );
+        button.m_initialState = gDisplayProfileInfo;
         button.m_userPointer = &gDisplayProfileInfo;
         button.m_callback = boolPtrButtonCallback;
         m_guiHelper->getParameterInterface()->registerButtonParameter( button );
     }
+
+    // add buttons for switching to different solver types
+    for (int i = 0; i < SOLVER_TYPE_COUNT; ++i)
     {
+        char buttonName[256];
+        SolverType solverType = static_cast<SolverType>(i);
+        sprintf(buttonName, "Solver Type %s", getSolverTypeName(solverType));
+        ButtonParams button( buttonName, 0, false );
+        button.m_buttonId = solverType;
+        button.m_callback = setSolverTypeCallback;
+        m_guiHelper->getParameterInterface()->registerButtonParameter( button );
+    }
+    {
+        // a slider for the number of solver iterations
         SliderParams slider( "Solver iterations", &gSliderSolverIterations );
         slider.m_minVal = 1.0f;
         slider.m_maxVal = 30.0f;
@@ -745,6 +837,54 @@ void CommonRigidBodyMTBase::createDefaultParameters()
         slider.m_userPointer = m_dynamicsWorld;
         slider.m_clampToIntegers = true;
         m_guiHelper->getParameterInterface()->registerSliderFloatParameter( slider );
+    }
+    {
+        ButtonParams button( "Solver use SIMD", 0, true );
+        button.m_buttonId = SOLVER_SIMD;
+        button.m_initialState = !! (gSolverMode & button.m_buttonId);
+        button.m_callback = toggleSolverModeCallback;
+        button.m_userPointer = this;
+        m_guiHelper->getParameterInterface()->registerButtonParameter( button );
+    }
+    {
+        ButtonParams button( "Solver randomize order", 0, true );
+        button.m_buttonId = SOLVER_RANDMIZE_ORDER;
+        button.m_initialState = !! (gSolverMode & button.m_buttonId);
+        button.m_callback = toggleSolverModeCallback;
+        button.m_userPointer = this;
+        m_guiHelper->getParameterInterface()->registerButtonParameter( button );
+    }
+    {
+        ButtonParams button( "Solver interleave contact/friction", 0, true );
+        button.m_buttonId = SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS;
+        button.m_initialState = !! (gSolverMode & button.m_buttonId);
+        button.m_callback = toggleSolverModeCallback;
+        button.m_userPointer = this;
+        m_guiHelper->getParameterInterface()->registerButtonParameter( button );
+    }
+    {
+        ButtonParams button( "Solver 2 friction directions", 0, true );
+        button.m_buttonId = SOLVER_USE_2_FRICTION_DIRECTIONS;
+        button.m_initialState = !! (gSolverMode & button.m_buttonId);
+        button.m_callback = toggleSolverModeCallback;
+        button.m_userPointer = this;
+        m_guiHelper->getParameterInterface()->registerButtonParameter( button );
+    }
+    {
+        ButtonParams button( "Solver friction dir caching", 0, true );
+        button.m_buttonId = SOLVER_ENABLE_FRICTION_DIRECTION_CACHING;
+        button.m_initialState = !! (gSolverMode & button.m_buttonId);
+        button.m_callback = toggleSolverModeCallback;
+        button.m_userPointer = this;
+        m_guiHelper->getParameterInterface()->registerButtonParameter( button );
+    }
+    {
+        ButtonParams button( "Solver warmstarting", 0, true );
+        button.m_buttonId = SOLVER_USE_WARMSTARTING;
+        button.m_initialState = !! (gSolverMode & button.m_buttonId);
+        button.m_callback = toggleSolverModeCallback;
+        button.m_userPointer = this;
+        m_guiHelper->getParameterInterface()->registerButtonParameter( button );
     }
     if (m_multithreadedWorld)
     {
@@ -781,6 +921,12 @@ void CommonRigidBodyMTBase::drawScreenText()
     int xCoord = 400;
     int yCoord = 30;
     int yStep = 30;
+    if (m_solverType != gSolverType)
+    {
+        sprintf( msg, "restart example to change solver type" );
+        m_guiHelper->getAppInterface()->drawText( msg, 300, yCoord, 0.4f );
+        yCoord += yStep;
+    }
     if (m_multithreadCapable)
     {
         if ( m_multithreadedWorld != gMultithreadedWorld )
@@ -815,7 +961,20 @@ void CommonRigidBodyMTBase::drawScreenText()
             m_guiHelper->getAppInterface()->drawText( msg, 100, yCoord, 0.4f );
             yCoord += yStep;
         }
-
+        {
+            int sm = gSolverMode;
+            sprintf( msg, "solver %s mode [%s%s%s%s%s%s]",
+                     getSolverTypeName(m_solverType),
+                     sm & SOLVER_SIMD ? "SIMD" : "",
+                     sm & SOLVER_RANDMIZE_ORDER ? " randomize" : "",
+                     sm & SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS ? " interleave" : "",
+                     sm & SOLVER_USE_2_FRICTION_DIRECTIONS ? " friction2x" : "",
+                     sm & SOLVER_ENABLE_FRICTION_DIRECTION_CACHING ? " frictionDirCaching" : "",
+                     sm & SOLVER_USE_WARMSTARTING ? " warm" : ""
+                     );
+            m_guiHelper->getAppInterface()->drawText( msg, xCoord, yCoord, 0.4f );
+            yCoord += yStep;
+        }
         sprintf( msg, "internalSimStep %5.3f ms",
                  gProfiler.getAverageTime( Profiler::kRecordInternalTimeStep )*0.001f
                  );

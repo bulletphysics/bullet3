@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 					break;
 
 				case ENET_EVENT_TYPE_DISCONNECT:
-					printf("%s disconected.\n", event.peer->data);
+					printf("%s disconnected.\n", event.peer->data);
 
 					/* Reset the peer's client information. */
 

@@ -11,6 +11,7 @@
 #include "Bullet3Common/b3CommandLineArgs.h"
 
 #include "../Utils/b3Clock.h"
+#include "../Utils/ChromeTraceUtil.h"
 #include "../ExampleBrowser/OpenGLGuiHelper.h"
 #include "../CommonInterfaces/CommonExampleInterface.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
@@ -23,9 +24,6 @@ int gSharedMemoryKey = -1;
 int  gDebugDrawFlags = 0;
 bool gDisplayDistortion = false;
 bool gDisableDesktopGL = false;
-
-//how can you try typing on a keyboard, without seeing it?
-//it is pretty funny, to see the desktop in VR!
 
 
 #include <stdio.h>
@@ -343,6 +341,30 @@ std::string GetTrackedDeviceString( vr::IVRSystem *pHmd, vr::TrackedDeviceIndex_
 }
 
 
+b3KeyboardCallback prevKeyboardCallback = 0;
+
+void MyKeyboardCallback(int key, int state)
+{
+	if (key == 'p')
+	{
+		if (state)
+		{
+			b3ChromeUtilsStartTimings();
+		}
+		else
+		{
+			b3ChromeUtilsStopTimingsAndWriteJsonFile();
+		}
+	}
+	if (sExample)
+	{
+		sExample->keyboardCallback(key,state);
+	}
+
+	if (prevKeyboardCallback)
+		prevKeyboardCallback(key,state);
+
+}
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -398,7 +420,9 @@ bool CMainApplication::BInit()
 
 	//sGuiPtr = new DummyGUIHelper;
 
-    
+    prevKeyboardCallback = m_app->m_window->getKeyboardCallback();
+	m_app->m_window->setKeyboardCallback(MyKeyboardCallback);
+
 	CommonExampleOptions options(sGuiPtr);
 
 	sExample = StandaloneExampleCreateFunc(options);
@@ -782,6 +806,7 @@ void CMainApplication::RunMainLoop()
 
 	while ( !bQuit && !m_app->m_window->requestedExit())
 	{
+		b3ChromeUtilsEnableProfiling();
 		{
 		B3_PROFILE("main");
 
@@ -843,6 +868,8 @@ void CMainApplication::RenderFrame()
 				RenderDistortion();
 			} else
 			{
+				//todo: should use framebuffer_multisample_blit_scaled
+				//See https://twitter.com/id_aa_carmack/status/268488838425481217?lang=en
 				glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 				glDisable( GL_MULTISAMPLE );
 	 			glBindFramebuffer(GL_READ_FRAMEBUFFER, rightEyeDesc.m_nRenderFramebufferId );
@@ -857,9 +884,9 @@ void CMainApplication::RenderFrame()
 			}
 		}
 
-		vr::Texture_t leftEyeTexture = {(void*)leftEyeDesc.m_nResolveTextureId, vr::API_OpenGL, vr::ColorSpace_Gamma };
+		vr::Texture_t leftEyeTexture = {(void*)leftEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
 		vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture );
-		vr::Texture_t rightEyeTexture = {(void*)rightEyeDesc.m_nResolveTextureId, vr::API_OpenGL, vr::ColorSpace_Gamma };
+		vr::Texture_t rightEyeTexture = {(void*)rightEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
 		vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture );
 		
 	}
@@ -1629,7 +1656,7 @@ void CMainApplication::RenderStereoTargets()
 	B3_PROFILE("CMainApplication::RenderStereoTargets");
 
 	btScalar dtSec = btScalar(m_clock.getTimeInSeconds());
-	dtSec = b3Min(dtSec,0.1);
+	dtSec = btMin(dtSec,btScalar(0.1));
 	sExample->stepSimulation(dtSec);
 	m_clock.reset();
 
@@ -1879,7 +1906,7 @@ Matrix4 CMainApplication::GetHMDMatrixProjectionEye( vr::Hmd_Eye nEye )
 	if ( !m_pHMD )
 		return Matrix4();
 
-	vr::HmdMatrix44_t mat = m_pHMD->GetProjectionMatrix( nEye, m_fNearClip, m_fFarClip, vr::API_OpenGL);
+	vr::HmdMatrix44_t mat = m_pHMD->GetProjectionMatrix( nEye, m_fNearClip, m_fFarClip);
 
 	return Matrix4(
 		mat.m[0][0], mat.m[1][0], mat.m[2][0], mat.m[3][0],
@@ -1959,7 +1986,6 @@ void CMainApplication::UpdateHMDMatrixPose()
 					case vr::TrackedDeviceClass_Controller:        m_rDevClassChar[nDevice] = 'C'; break;
 					case vr::TrackedDeviceClass_HMD:               m_rDevClassChar[nDevice] = 'H'; break;
 					case vr::TrackedDeviceClass_Invalid:           m_rDevClassChar[nDevice] = 'I'; break;
-					case vr::TrackedDeviceClass_Other:             m_rDevClassChar[nDevice] = 'O'; break;
 					case vr::TrackedDeviceClass_TrackingReference: m_rDevClassChar[nDevice] = 'T'; break;
 					default:                                       m_rDevClassChar[nDevice] = '?'; break;
 					}
@@ -2228,6 +2254,12 @@ int main(int argc, char *argv[])
 	{
 		gDisableDesktopGL = true;
 	}
+	if (args.CheckCmdLineFlag("tracing"))
+	{
+		b3ChromeUtilsStartTimings();
+		b3ChromeUtilsEnableProfiling();
+	}
+
 
 #ifdef BT_USE_CUSTOM_PROFILER
 	b3SetCustomEnterProfileZoneFunc(dcEnter);
@@ -2246,13 +2278,11 @@ int main(int argc, char *argv[])
 	if (sExample)
 	{
 		//until we have a proper VR gui, always assume we want the hard-coded default robot assets
-#if 0
 		char* newargv[2];
 		char* t0 = (char*)"--robotassets";
         newargv[0] = t0;
 		newargv[1] = t0;
 		sExample->processCommandLineArgs(2,newargv);
-#endif
 		sExample->processCommandLineArgs(argc,argv);
 
 	}
@@ -2269,8 +2299,11 @@ int main(int argc, char *argv[])
 
 	pMainApplication->Shutdown();
 
-#ifdef BT_USE_CUSTOM_PROFILER
-#endif
+	if (args.CheckCmdLineFlag("tracing"))
+	{
+		b3ChromeUtilsStopTimingsAndWriteJsonFile();
+	}
+
 
 	return 0;
 }

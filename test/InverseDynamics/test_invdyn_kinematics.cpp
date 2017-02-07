@@ -24,7 +24,7 @@ idScalar calculateNorm(T&);
 // only implemented for vec3
 template <>
 idScalar calculateNorm(vec3& v) {
-    return std::sqrt(BT_ID_POW(v(0), 2) + BT_ID_POW(v(1), 2) + BT_ID_POW(v(2), 2));
+    return BT_ID_SQRT(BT_ID_POW(v(0), 2) + BT_ID_POW(v(1), 2) + BT_ID_POW(v(2), 2));
 }
 
 // template function to convert a DiffType (finite differences)
