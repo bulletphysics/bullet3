@@ -1,5 +1,6 @@
 
 #include "SharedMemoryInProcessPhysicsC_API.h"
+#include "../Utils/b3Clock.h"
 
 #include "PhysicsClientSharedMemory.h"
 #include"../ExampleBrowser/InProcessExampleBrowser.h"
@@ -8,7 +9,8 @@
 class InProcessPhysicsClientSharedMemoryMainThread : public PhysicsClientSharedMemory
 {
     btInProcessExampleBrowserMainThreadInternalData* m_data;
-    
+   b3Clock m_clock;
+ 
 public:
     
     InProcessPhysicsClientSharedMemoryMainThread(int argc, char* argv[])
@@ -41,9 +43,16 @@ public:
         {
             PhysicsClientSharedMemory::disconnectSharedMemory();
         }
-        
-        btUpdateInProcessExampleBrowserMainThread(m_data);
-        return PhysicsClientSharedMemory::processServerStatus();
+    	unsigned long int ms = m_clock.getTimeMilliseconds();
+	if (ms>20)
+	{ 
+		m_clock.reset(); 
+        	btUpdateInProcessExampleBrowserMainThread(m_data);
+        } else
+	{
+		//b3Clock::usleep(100);
+	}
+	return PhysicsClientSharedMemory::processServerStatus();
         
         
     }
