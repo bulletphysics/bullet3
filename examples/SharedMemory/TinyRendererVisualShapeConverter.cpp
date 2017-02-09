@@ -958,7 +958,16 @@ void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixels
         {
 			if (depthBuffer)
 			{
-				depthBuffer[i] = m_data->m_depthBuffer[i+startPixelIndex];
+                float distance = -m_data->m_depthBuffer[i+startPixelIndex];
+                float farPlane = m_data->m_camera.getCameraFrustumFar();
+                float nearPlane = m_data->m_camera.getCameraFrustumNear();
+                
+                btClamp(distance,nearPlane,farPlane);
+                
+                // the depth buffer value is between 0 and 1
+                float a = farPlane / (farPlane - nearPlane);
+                float b = farPlane * nearPlane / (nearPlane - farPlane);
+                depthBuffer[i] = a + b / distance;
 			}
 			if (segmentationMaskBuffer)
             {

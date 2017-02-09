@@ -437,10 +437,15 @@ void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const floa
                         int bytesPerPixel = 4; //RGBA
                         
                         int sourcePixelIndex = (xIndex+yIndex*sourceWidth)*bytesPerPixel;
+                        int sourceDepthIndex = xIndex+yIndex*sourceWidth;
+                        
                         m_data->m_rgbaPixelBuffer1[(i+j*destinationWidth)*4+0] = sourceRgbaPixelBuffer[sourcePixelIndex+0];
                         m_data->m_rgbaPixelBuffer1[(i+j*destinationWidth)*4+1] = sourceRgbaPixelBuffer[sourcePixelIndex+1];
                         m_data->m_rgbaPixelBuffer1[(i+j*destinationWidth)*4+2] = sourceRgbaPixelBuffer[sourcePixelIndex+2];
                         m_data->m_rgbaPixelBuffer1[(i+j*destinationWidth)*4+3] = 255;
+                        
+                        m_data->m_depthBuffer1[i+j*destinationWidth] = sourceDepthBuffer[sourceDepthIndex];
+                        
                     }
                 }
             }
@@ -456,7 +461,7 @@ void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const floa
         {
             for (int i=0;i<numRequestedPixels;i++)
             {
-                depthBuffer[i] = m_data->m_depthBuffer1[i];
+                depthBuffer[i] = m_data->m_depthBuffer1[i+startPixelIndex];
             }
         }
 		if (numPixelsCopied)
