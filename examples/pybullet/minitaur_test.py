@@ -21,7 +21,7 @@ def main(unused_args):
   for i in range(1000):
     a1 = math.sin(i*speed)*amplitude+1.57
     a2 = math.sin(i*speed+3.14)*amplitude+1.57
-    joint_values = [a1, -1.57, a1, -1.57, a2, -1.57, a2, -1.57]
+    joint_values = [a1, 1.57, a2, 1.57, 1.57, a1, 1.57, a2]
     minitaur.applyAction(joint_values)
 
     p.stepSimulation()

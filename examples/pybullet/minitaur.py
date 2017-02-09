@@ -1,4 +1,5 @@
 import pybullet as p
+import numpy as np
 
 class Minitaur:
   def __init__(self):
@@ -8,7 +9,8 @@ class Minitaur:
     self.quadruped = p.loadURDF("quadruped/quadruped.urdf",0,0,.3)
     self.kp = 1
     self.kd = 0.1
-    self.maxForce = 100
+    self.maxForce = 3.5
+    self.motorDir = [1, -1, 1, -1, -1, 1, -1, 1]
     nJoints = p.getNumJoints(self.quadruped)
     self.jointNameToId = {}
     for i in range(nJoints):
@@ -73,11 +75,12 @@ class Minitaur:
     return orientation
 
   def applyAction(self, motorCommands):
-    self.setMotorAngleByName('motor_front_rightR_joint', motorCommands[0])
-    self.setMotorAngleByName('motor_front_rightL_joint', motorCommands[1])
-    self.setMotorAngleByName('motor_front_leftR_joint', motorCommands[2])
-    self.setMotorAngleByName('motor_front_leftL_joint', motorCommands[3])
-    self.setMotorAngleByName('motor_back_rightR_joint', motorCommands[4])
-    self.setMotorAngleByName('motor_back_rightL_joint', motorCommands[5])
-    self.setMotorAngleByName('motor_back_leftR_joint', motorCommands[6])
-    self.setMotorAngleByName('motor_back_leftL_joint', motorCommands[7])
+    motorCommandsWithDir = np.multiply(motorCommands, self.motorDir)
+    self.setMotorAngleByName('motor_front_leftR_joint', motorCommandsWithDir[0])
+    self.setMotorAngleByName('motor_front_leftL_joint', motorCommandsWithDir[1])
+    self.setMotorAngleByName('motor_back_leftR_joint', motorCommandsWithDir[2])
+    self.setMotorAngleByName('motor_back_leftL_joint', motorCommandsWithDir[3])
+    self.setMotorAngleByName('motor_front_rightL_joint', motorCommandsWithDir[4])
+    self.setMotorAngleByName('motor_front_rightR_joint', motorCommandsWithDir[5])
+    self.setMotorAngleByName('motor_back_rightL_joint', motorCommandsWithDir[6])
+    self.setMotorAngleByName('motor_back_rightR_joint', motorCommandsWithDir[7])
