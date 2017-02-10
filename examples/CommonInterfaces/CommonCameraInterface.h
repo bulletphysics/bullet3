@@ -36,6 +36,9 @@ struct CommonCameraInterface
 
 	virtual void	setAspectRatio(float ratio) = 0;
 	virtual float	getAspectRatio() const = 0;
+    
+    virtual float getCameraFrustumFar() const = 0;
+    virtual float getCameraFrustumNear() const = 0;
 };
 
 #endif //COMMON_CAMERA_INTERFACE_H
