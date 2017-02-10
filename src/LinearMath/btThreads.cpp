@@ -98,7 +98,7 @@ subject to the following restrictions:
 #define btSpinPause()	__asm volatile ("pause" ::: "memory")
 #define btSpinEvent()	(void)0
 
-#elif defined(arm)
+#elif defined(__arm__)
 
 // wfe - core enters "wait for event" state (energy saving)
 // sev - sends event to other cores
