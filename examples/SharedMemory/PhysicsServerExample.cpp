@@ -299,7 +299,6 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 
 
 		double deltaTimeInSeconds = 0;
-		double sleepCounter = 0;
 		do
 		{
 			BT_PROFILE("loop");
@@ -310,27 +309,7 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 			}
 			double dt = double(clock.getTimeMicroseconds())/1000000.;
 			clock.reset();
-
-			sleepCounter+=dt;
-
-			if (sleepCounter > sleepTimeThreshold)
-			{
-				BT_PROFILE("usleep(100)");
-				sleepCounter = 0;
-				b3Clock::usleep(100);
-
-			}
-
-			{
-				if (gEnableRealTimeSimVR)
-				{
-					BT_PROFILE("usleep(1000)");
-					b3Clock::usleep(1000);
-				}
-			}
 			deltaTimeInSeconds+= dt;
-		
-
 			
 			{
 				
