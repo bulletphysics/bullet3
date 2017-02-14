@@ -728,6 +728,8 @@ struct btMultiBodyLinkDoubleData
 
 	double					m_jointDamping;
 	double					m_jointFriction;
+	double					m_jointLowerLimit;
+	double					m_jointUpperLimit;
 
 	char					*m_linkName;
 	char					*m_jointName;
@@ -757,6 +759,8 @@ struct btMultiBodyLinkFloatData
 	int						m_posVarCount;
 	float					m_jointDamping;
 	float					m_jointFriction;
+	float					m_jointLowerLimit;
+	float					m_jointUpperLimit;
 
 	char				*m_linkName;
 	char				*m_jointName;

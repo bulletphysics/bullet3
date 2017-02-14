@@ -1366,6 +1366,8 @@ typedef struct bInvalidHandle {
         double m_jointPos[7];
         double m_jointVel[6];
         double m_jointTorque[6];
+        double m_jointLowerLimit;
+        double m_jointUpperLimit;
         double m_jointDamping;
         double m_jointFriction;
         char *m_linkName;
@@ -1393,6 +1395,8 @@ typedef struct bInvalidHandle {
         float m_jointVel[6];
         float m_jointTorque[6];
         int m_posVarCount;
+        float m_jointLowerLimit;
+        float m_jointUpperLimit;
         float m_jointDamping;
         float m_jointFriction;
         char *m_linkName;

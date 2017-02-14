@@ -2017,7 +2017,7 @@ static PyObject* pybullet_getJointInfo(PyObject* self, PyObject* args,PyObject* 
 
   int bodyUniqueId = -1;
   int jointIndex = -1;
-  int jointInfoSize = 8;  // size of struct b3JointInfo
+  int jointInfoSize = 10;  // size of struct b3JointInfo
 b3PhysicsClientHandle sm = 0;
 int physicsClientId = 0;
 	static char *kwlist[] = { "bodyUniqueId", "jointIndex", "physicsClientId", NULL };
@@ -2046,10 +2046,12 @@ int physicsClientId = 0;
         //          info.m_jointType,
         //          info.m_qIndex,
         //          info.m_uIndex);
-        //  printf("  flags=%d jointDamping=%f jointFriction=%f\n",
+        //  printf("  flags=%d jointDamping=%f jointFriction=%f jointLowerLimit=%f jointUpperLimit=%f\n",
         //          info.m_flags,
         //          info.m_jointDamping,
-        //          info.m_jointFriction);
+        //          info.m_jointFriction,
+    	//			info.m_jointLowerLimit,
+    	//			info.m_jointUpperLimit);
         PyTuple_SetItem(pyListJointInfo, 0, PyInt_FromLong(info.m_jointIndex));
         PyTuple_SetItem(pyListJointInfo, 1,
                         PyString_FromString(info.m_jointName));
@@ -2061,6 +2063,10 @@ int physicsClientId = 0;
                         PyFloat_FromDouble(info.m_jointDamping));
         PyTuple_SetItem(pyListJointInfo, 7,
                         PyFloat_FromDouble(info.m_jointFriction));
+        PyTuple_SetItem(pyListJointInfo, 8,
+        				PyFloat_FromDouble(info.m_jointLowerLimit));
+        PyTuple_SetItem(pyListJointInfo, 9,
+        				PyFloat_FromDouble(info.m_jointUpperLimit));
         return pyListJointInfo;
       } else {
         PyErr_SetString(SpamError, "GetJointInfo failed.");

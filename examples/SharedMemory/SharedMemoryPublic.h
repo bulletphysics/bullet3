@@ -164,6 +164,8 @@ struct b3JointInfo
         int m_flags;
 		double m_jointDamping;
 		double m_jointFriction;
+		double m_jointLowerLimit;
+		double m_jointUpperLimit;
     double m_parentFrame[7]; // position and orientation (quaternion)
     double m_childFrame[7]; // ^^^
     double m_jointAxis[3]; // joint axis in parent local frame

@@ -61,6 +61,8 @@ template <typename T, typename U> void addJointInfoFromMultiBodyData(const T* mb
 			info.m_jointType = mb->m_links[link].m_jointType;
 			info.m_jointDamping = mb->m_links[link].m_jointDamping;
 			info.m_jointFriction = mb->m_links[link].m_jointFriction;
+			info.m_jointLowerLimit = mb->m_links[link].m_jointLowerLimit;
+			info.m_jointUpperLimit = mb->m_links[link].m_jointUpperLimit;
 
 			if ((mb->m_links[link].m_jointType == eRevoluteType) ||
 				(mb->m_links[link].m_jointType == ePrismaticType)) {
