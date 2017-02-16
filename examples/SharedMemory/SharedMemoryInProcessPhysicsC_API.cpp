@@ -44,16 +44,13 @@ public:
             PhysicsClientSharedMemory::disconnectSharedMemory();
         }
     	unsigned long int ms = m_clock.getTimeMilliseconds();
-	if (ms>20)
-	{ 
-		m_clock.reset(); 
-        	btUpdateInProcessExampleBrowserMainThread(m_data);
-        } else
-	{
-		//b3Clock::usleep(100);
-	}
-	return PhysicsClientSharedMemory::processServerStatus();
-        
+		if (ms>20)
+		{ 
+			m_clock.reset(); 
+        		btUpdateInProcessExampleBrowserMainThread(m_data);
+		}
+		b3Clock::usleep(0);
+		return PhysicsClientSharedMemory::processServerStatus();
         
     }
     

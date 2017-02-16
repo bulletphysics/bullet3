@@ -19,6 +19,8 @@ public:
 
 	virtual void update(float deltaTime);
 
+	virtual void updateGraphics();
+
 	virtual bool requestedExit();
 
 	virtual void setSharedMemoryInterface(class SharedMemoryInterface* sharedMem);

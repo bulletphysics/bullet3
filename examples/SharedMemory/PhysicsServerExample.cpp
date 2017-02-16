@@ -553,7 +553,7 @@ public:
 		
 		while (m_cs->getSharedParam(1)!=eGUIHelperIdle)
 		{
-			b3Clock::usleep(100);
+			b3Clock::usleep(0);
 		}
 	}
 
@@ -939,6 +939,8 @@ public:
 	virtual void	initPhysics();
 
 	virtual void	stepSimulation(float deltaTime);
+
+	virtual void updateGraphics();
 
     void enableCommandLogging()
 	{
@@ -1342,39 +1344,8 @@ bool PhysicsServerExample::wantsTermination()
     return m_wantsShutdown;
 }
 
-
-
-void	PhysicsServerExample::stepSimulation(float deltaTime)
+void	PhysicsServerExample::updateGraphics()
 {
-	BT_PROFILE("PhysicsServerExample::stepSimulation");
-
-	//this->m_physicsServer.processClientCommands();
-
-	for (int i = m_multiThreadedHelper->m_userDebugLines.size()-1;i>=0;i--)
-	{
-		if (m_multiThreadedHelper->m_userDebugLines[i].m_lifeTime)
-		{
-			m_multiThreadedHelper->m_userDebugLines[i].m_lifeTime -= deltaTime;
-			if (m_multiThreadedHelper->m_userDebugLines[i].m_lifeTime<=0)
-			{
-				m_multiThreadedHelper->m_userDebugLines.swap(i,m_multiThreadedHelper->m_userDebugLines.size()-1);
-				m_multiThreadedHelper->m_userDebugLines.pop_back();
-			}
-		}
-	}
-
-	for (int i = m_multiThreadedHelper->m_userDebugText.size()-1;i>=0;i--)
-	{
-		if (m_multiThreadedHelper->m_userDebugText[i].m_lifeTime)
-		{
-			m_multiThreadedHelper->m_userDebugText[i].m_lifeTime -= deltaTime;
-			if (m_multiThreadedHelper->m_userDebugText[i].m_lifeTime<=0)
-			{
-				m_multiThreadedHelper->m_userDebugText.swap(i,m_multiThreadedHelper->m_userDebugText.size()-1);
-				m_multiThreadedHelper->m_userDebugText.pop_back();
-			}
-		}
-	}
 	//check if any graphics related tasks are requested
 	
 	switch (m_multiThreadedHelper->getCriticalSection()->getSharedParam(1))
@@ -1543,6 +1514,40 @@ void	PhysicsServerExample::stepSimulation(float deltaTime)
 	}
 	
 
+}
+
+void	PhysicsServerExample::stepSimulation(float deltaTime)
+{
+	BT_PROFILE("PhysicsServerExample::stepSimulation");
+
+	//this->m_physicsServer.processClientCommands();
+
+	for (int i = m_multiThreadedHelper->m_userDebugLines.size()-1;i>=0;i--)
+	{
+		if (m_multiThreadedHelper->m_userDebugLines[i].m_lifeTime)
+		{
+			m_multiThreadedHelper->m_userDebugLines[i].m_lifeTime -= deltaTime;
+			if (m_multiThreadedHelper->m_userDebugLines[i].m_lifeTime<=0)
+			{
+				m_multiThreadedHelper->m_userDebugLines.swap(i,m_multiThreadedHelper->m_userDebugLines.size()-1);
+				m_multiThreadedHelper->m_userDebugLines.pop_back();
+			}
+		}
+	}
+
+	for (int i = m_multiThreadedHelper->m_userDebugText.size()-1;i>=0;i--)
+	{
+		if (m_multiThreadedHelper->m_userDebugText[i].m_lifeTime)
+		{
+			m_multiThreadedHelper->m_userDebugText[i].m_lifeTime -= deltaTime;
+			if (m_multiThreadedHelper->m_userDebugText[i].m_lifeTime<=0)
+			{
+				m_multiThreadedHelper->m_userDebugText.swap(i,m_multiThreadedHelper->m_userDebugText.size()-1);
+				m_multiThreadedHelper->m_userDebugText.pop_back();
+			}
+		}
+	}
+	updateGraphics();
 
 
 	
