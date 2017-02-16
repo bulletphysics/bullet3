@@ -209,6 +209,7 @@ public:
         
         if ((m_options & eONE_MOTOR_GRASP)!=0)
         {
+	    m_robotSim.setNumSolverIterations(150);
             {
                 SliderParams slider("Vertical velocity",&sGripperVerticalVelocity);
                 slider.m_minVal=-2;
