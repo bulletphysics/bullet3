@@ -303,6 +303,10 @@
     </joint>
     
     <link name='finger_right'>
+      <contact>
+        <spinning_friction>.3</spinning_friction>
+        <rolling_friction>0.04</rolling_friction>
+      </contact>
       <pose frame=''>0.062 0 0.145 0 0 1.5708</pose>
       <inertial>
         <mass>0.2</mass>
@@ -343,6 +347,10 @@
     </joint>
     
     <link name='finger_left'>
+      <contact>
+        <spinning_friction>.3</spinning_friction>
+        <rolling_friction>0.04</rolling_friction>
+      </contact>
       <pose frame=''>-0.062 0 0.145 0 0 4.71239</pose>
       <inertial>
         <mass>0.2</mass>

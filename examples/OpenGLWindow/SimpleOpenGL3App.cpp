@@ -787,7 +787,7 @@ void SimpleOpenGL3App::dumpFramesToVideo(const char* mp4FileName)
 
 #ifdef _WIN32
 	sprintf(cmd, "ffmpeg -r 60 -f rawvideo -pix_fmt rgba -s %dx%d -i - "
-		"-threads 0 -y -b 50000k  -t 20 -c:v libx264 -preset slow -crf 22 -an   -pix_fmt yuv420p -vf vflip %s", width, height, mp4FileName);
+		"-threads 0 -y -b:v 50000k  -t 20 -c:v libx264 -preset slow -crf 22 -an   -pix_fmt yuv420p -vf vflip %s", width, height, mp4FileName);
 
     //sprintf(cmd, "ffmpeg -r 60 -f rawvideo -pix_fmt rgba   -s %dx%d -i - "
     //		"-y -crf 0  -b:v 1500000 -an -vcodec h264 -vf vflip  %s", width, height, mp4FileName);

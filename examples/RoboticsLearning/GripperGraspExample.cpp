@@ -16,8 +16,8 @@
 #include "b3RobotSimAPI.h"
 #include "../Utils/b3Clock.h"
 
-static btScalar sGripperVerticalVelocity = -0.2f;
-static btScalar sGripperClosingTargetVelocity = 0.5f;
+static btScalar sGripperVerticalVelocity = 0.f;
+static btScalar sGripperClosingTargetVelocity = -0.7f;
 
 class GripperGraspExample : public CommonExampleInterface
 {
@@ -226,9 +226,9 @@ public:
             {
                 b3RobotSimLoadFileArgs args("");
                 b3RobotSimLoadFileResults results;
-                args.m_fileName = "sphere_small.urdf";
-                args.m_startPosition.setValue(0, 0, .107);
-                args.m_startOrientation.setEulerZYX(0, 0, 0);
+                args.m_fileName = "dinnerware/pan_tefal.urdf";
+                args.m_startPosition.setValue(0, -0.2, .47);
+                args.m_startOrientation.setEulerZYX(SIMD_HALF_PI, 0, 0);
                 args.m_useMultiBody = true;
                 m_robotSim.loadFile(args, results);
             }
@@ -492,7 +492,7 @@ public:
             int fingerJointIndices[2]={0,1};
             double fingerTargetVelocities[2]={sGripperVerticalVelocity,sGripperClosingTargetVelocity
             };
-            double maxTorqueValues[2]={50.0,50.0};
+            double maxTorqueValues[2]={800.0,800.0};
             for (int i=0;i<2;i++)
             {
                 b3JointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
@@ -550,8 +550,8 @@ public:
 	virtual void resetCamera()
 	{
 		float dist = 1.5;
-        float pitch = 12;
-        float yaw = -10;
+        float pitch = 18;
+        float yaw = 10;
 		float targetPos[3]={-0.2,0.8,0.3};
 		if (m_app->m_renderer  && m_app->m_renderer->getActiveCamera())
 		{
