@@ -135,6 +135,8 @@ public:
 	void SetupRenderModelForTrackedDevice( vr::TrackedDeviceIndex_t unTrackedDeviceIndex );
 	CGLRenderModel *FindOrLoadRenderModel( const char *pchRenderModelName );
 
+	SimpleOpenGL3App* getApp() { return m_app;}
+
 private: 
 	bool m_bDebugOpenGL;
 	bool m_bVerbose;
@@ -2260,7 +2262,7 @@ int main(int argc, char *argv[])
 		b3ChromeUtilsEnableProfiling();
 	}
 
-
+	
 #ifdef BT_USE_CUSTOM_PROFILER
 	b3SetCustomEnterProfileZoneFunc(dcEnter);
 	b3SetCustomLeaveProfileZoneFunc(dcLeave);
@@ -2287,6 +2289,11 @@ int main(int argc, char *argv[])
 
 	}
 
+	char* gVideoFileName = 0;
+    args.GetCmdLineArgument("mp4",gVideoFileName);
+    if (gVideoFileName)
+        pMainApplication->getApp()->dumpFramesToVideo(gVideoFileName);
+ 
 	//request disable VSYNC
 	typedef bool (APIENTRY *PFNWGLSWAPINTERVALFARPROC)(int);
 	PFNWGLSWAPINTERVALFARPROC wglSwapIntervalEXT = 0;

@@ -383,3 +383,13 @@ float	SimpleCamera::getAspectRatio() const
 {
 	return m_data->m_aspect;
 }
+
+float SimpleCamera::getCameraFrustumFar() const
+{
+    return m_data->m_frustumZFar;
+}
+
+float SimpleCamera::getCameraFrustumNear() const
+{
+    return m_data->m_frustumZNear;
+}
