@@ -839,7 +839,7 @@ void X11OpenGLWindow::pumpMessage()
 
                 if (m_data->m_keyboardCallback)
                 {
-#if 0
+#if 1
                      unsigned short is_retriggered = 0;
 ///filter out keyboard repeat
 //see http://stackoverflow.com/questions/2100654/ignore-auto-repeat-in-x11-applications
@@ -851,8 +851,8 @@ void X11OpenGLWindow::pumpMessage()
                          if (nev.type == KeyPress && nev.xkey.time ==  m_data->m_xev.xkey.time &&
                              nev.xkey.keycode ==  m_data->m_xev.xkey.keycode)
                            {
-                             fprintf (stdout, "key #%ld was retriggered.\n",
-                               (long) MyXLookupKeysym(&nev.xkey, 0));
+                             //fprintf (stdout, "key #%ld was retriggered.\n",
+                              // (long) MyXLookupKeysym(&nev.xkey, 0));
 
                              // delete retriggered KeyPress event
                              MyXNextEvent(m_data->m_dpy, & m_data->m_xev);
@@ -861,6 +861,7 @@ void X11OpenGLWindow::pumpMessage()
                        }
 #endif
                     int state = 0;
+		    if (!is_retriggered)
                     (*m_data->m_keyboardCallback)(keycode,state);
                     }
 

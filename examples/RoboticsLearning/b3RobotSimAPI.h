@@ -157,6 +157,7 @@ public:
 	void setGravity(const b3Vector3& gravityAcceleration);
     
     void setNumSimulationSubSteps(int numSubSteps);
+	void setNumSolverIterations(int numIterations);
 
 	bool calculateInverseKinematics(const struct b3RobotSimInverseKinematicArgs& args, struct b3RobotSimInverseKinematicsResults& results);
 

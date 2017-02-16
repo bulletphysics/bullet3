@@ -257,7 +257,6 @@ void MyKeyboardCallback(int key, int state)
 
 		} else
 		{
-
 			b3ChromeUtilsStopTimingsAndWriteJsonFile();
 		}
 #endif //BT_NO_PROFILE
