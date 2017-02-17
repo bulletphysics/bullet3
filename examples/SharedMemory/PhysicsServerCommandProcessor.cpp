@@ -757,6 +757,97 @@ PhysicsServerCommandProcessor::~PhysicsServerCommandProcessor()
 	delete m_data;
 }
 
+void logCallback(btDynamicsWorld *world, btScalar timeStep)
+{
+	PhysicsServerCommandProcessor* proc = (PhysicsServerCommandProcessor*) world->getWorldUserInfo();
+	proc->logObjectStates(timeStep);
+
+}
+#include "../Utils/RobotLoggingUtil.h"
+
+void PhysicsServerCommandProcessor::logObjectStates(btScalar timeStep)
+{
+	//quick hack
+	static FILE* logFile = 0;
+	static btScalar logTime = 0;
+	//printf("log state at time %f\n",logTime);
+
+	btAlignedObjectArray<std::string> structNames;
+	std::string structTypes;
+	//'t', 'r', 'p', 'y', 'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'u0', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'xd', 'mo'
+	structNames.push_back("t");
+	structNames.push_back("r");
+	structNames.push_back("p");
+	structNames.push_back("y");
+	
+	structNames.push_back("q0");
+	structNames.push_back("q1");
+	structNames.push_back("q2");
+	structNames.push_back("q3");
+	structNames.push_back("q4");
+	structNames.push_back("q5");
+	structNames.push_back("q6");
+	structNames.push_back("q7");
+
+	structNames.push_back("u0");
+	structNames.push_back("u1");
+	structNames.push_back("u2");
+	structNames.push_back("u3");
+	structNames.push_back("u4");
+	structNames.push_back("u5");
+	structNames.push_back("u6");
+	structNames.push_back("u7");
+
+	structNames.push_back("dx");
+	structNames.push_back("mo");
+
+	
+
+/*	structNames.push_back("timeStamp");
+	structNames.push_back("objectId");
+	structNames.push_back("posX");
+	structNames.push_back("posY");
+	structNames.push_back("posZ");
+	*/
+
+	structTypes = "fIfff";//I = int, f = float, B char
+
+	if (logFile==0)
+	{
+		logFile = createMinitaurLogFile("d:/logTest.txt", structNames, structTypes);
+	}
+
+	if (logFile)
+	{
+		for (int i=0;i<m_data->m_dynamicsWorld->getNumMultibodies();i++)
+		{
+			btMultiBody* mb = m_data->m_dynamicsWorld->getMultiBody(i);
+			btVector3 pos = mb->getBasePos();
+
+			MinitaurLogRecord logData;
+			float timeStamp = logTime;
+			int objectUniqueId = mb->getUserIndex2();
+			float posX = pos[0];
+			float posY = pos[1];
+			float posZ = pos[2];
+
+			logData.m_values.push_back(timeStamp);
+			logData.m_values.push_back(objectUniqueId);
+			logData.m_values.push_back(posX);
+			logData.m_values.push_back(posY);
+			logData.m_values.push_back(posZ);
+			//at the moment, appendMinitaurLogData will directly write to disk (potential delay)
+			//better to fill a huge memory buffer and once in a while write it to disk
+			appendMinitaurLogData(logFile, structTypes, logData);
+
+		}
+		fflush(logFile);
+	}
+	//void closeMinitaurLogFile(FILE* f);
+
+	logTime += timeStep;
+
+}
 
 void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 {
@@ -803,6 +894,8 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 //	m_data->m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 2;
 	//todo: islands/constraints are buggy in btMultiBodyDynamicsWorld! (performance + see slipping grasp)
 
+
+	m_data->m_dynamicsWorld->setInternalTickCallback(logCallback,this);
 }
 
 void PhysicsServerCommandProcessor::deleteCachedInverseKinematicsBodies()

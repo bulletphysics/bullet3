@@ -48,6 +48,7 @@ enum EnumSharedMemoryClientCommand
 	CMD_REQUEST_VR_EVENTS_DATA,
 	CMD_SET_VR_CAMERA_STATE,
 	CMD_SYNC_BODY_INFO,
+	CMD_ROBOT_LOGGING,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -301,6 +302,12 @@ enum
 	CONTACT_QUERY_MODE_COMPUTE_CLOSEST_POINTS = 1,
 };
 
+enum 
+{
+	ROBOT_LOGGING_MINITAUR = 0,
+	ROBOT_LOGGING_GENERIC_ROBOT = 1,
+	ROBOT_LOGGING_VR_CONTROLLERS = 2,
+};
 
 
 struct b3ContactInformation

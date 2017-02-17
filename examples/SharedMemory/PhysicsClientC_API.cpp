@@ -2457,3 +2457,42 @@ int b3SetVRCameraTrackingObject(b3SharedMemoryCommandHandle commandHandle, int o
 	return 0;
 }
 
+b3SharedMemoryCommandHandle	b3RobotLoggingCommandInit(b3PhysicsClientHandle physClient)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+
+	command->m_type = CMD_ROBOT_LOGGING;
+	command->m_updateFlags = 0;
+
+	return (b3SharedMemoryCommandHandle)command;
+
+}
+
+int b3RobotLoggingStartMinitaurLog(b3SharedMemoryCommandHandle commandHandle, const char* fileName, int objectUniqueId)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_ROBOT_LOGGING);
+	if (command->m_type == CMD_ROBOT_LOGGING)
+	{
+	    command->m_updateFlags |= ROBOT_LOGGING_START_MINITAUR_LOG;
+	}	
+	return 0;
+}
+
+int b3RobotLoggingStopMinitaurLog(b3SharedMemoryCommandHandle commandHandle)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_ROBOT_LOGGING);
+	if (command->m_type == CMD_ROBOT_LOGGING)
+	{
+	    command->m_updateFlags |= ROBOT_LOGGING_STOP_MINITAUR_LOG;
+	}
+	return 0;
+}
+
