@@ -257,7 +257,6 @@ void MyKeyboardCallback(int key, int state)
 
 		} else
 		{
-
 			b3ChromeUtilsStopTimingsAndWriteJsonFile();
 		}
 #endif //BT_NO_PROFILE
@@ -309,8 +308,11 @@ static void MyMouseMoveCallback( float x, float y)
   	bool handled = false;
 	if (sCurrentDemo)
 		handled = sCurrentDemo->mouseMoveCallback(x,y);
-	if (!handled && gui2)
-		handled = gui2->mouseMoveCallback(x,y);
+	if (renderGui)
+	{
+		if (!handled && gui2)
+			handled = gui2->mouseMoveCallback(x,y);
+	}
 	if (!handled)
 	{
 		if (prevMouseMoveCallback)
@@ -327,9 +329,11 @@ static void MyMouseButtonCallback(int button, int state, float x, float y)
 	if (sCurrentDemo)
 		handled = sCurrentDemo->mouseButtonCallback(button,state,x,y);
 
-	if (!handled && gui2)
-		handled = gui2->mouseButtonCallback(button,state,x,y);
-
+	if (renderGui)
+	{
+		if (!handled && gui2)
+			handled = gui2->mouseButtonCallback(button,state,x,y);
+	}
 	if (!handled)
 	{
 		if (prevMouseButtonCallback )
@@ -1123,6 +1127,18 @@ CommonExampleInterface* OpenGLExampleBrowser::getCurrentExample()
 bool OpenGLExampleBrowser::requestedExit()
 {
 	return s_window->requestedExit();
+}
+
+void OpenGLExampleBrowser::updateGraphics()
+{
+	if (sCurrentDemo)
+	{
+			if (!pauseSimulation || singleStepSimulation)
+			{
+				B3_PROFILE("sCurrentDemo->updateGraphics");
+				sCurrentDemo->updateGraphics();
+			}
+	}
 }
 
 void OpenGLExampleBrowser::update(float deltaTime)

@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<robot name="cube">
+  <!-- Frying pan model, Copyright (c) 2016 Oleg Klimov       -->
+  <!-- LICENSE: CC-SA                                         -->
+  <link name="cube">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="plate.obj"/>
+      </geometry>
+    </visual>
+
+    <collision>  <!-- bottom -->
+      <geometry>
+        <cylinder radius="0.05" length="0.005"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0.0025"/>
+    </collision>
+
+    <collision>
+      <geometry>
+        <mesh filename="plate-collision01.obj"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </collision>
+
+    <collision>
+      <geometry>
+        <mesh filename="plate-collision02.obj"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </collision>
+
+    <collision>
+      <geometry>
+        <mesh filename="plate-collision03.obj"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </collision>
+
+    <collision>
+      <geometry>
+        <mesh filename="plate-collision04.obj"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </collision>
+
+    <collision>
+      <geometry>
+        <mesh filename="plate-collision05.obj"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </collision>
+
+    <collision>
+      <geometry>
+        <mesh filename="plate-collision06.obj"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </collision>
+
+    <inertial>
+      <mass value="0.5"/>  <!-- mr^2 = 0.5*0.12^2 = 0.0072 for Z axis, lighter along other axis -->
+      <inertia ixx="0.005" iyy="0.005" izz="0.0072"/>
+    </inertial>
+  </link>
+
+</robot>
+

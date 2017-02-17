@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<robot name="cube">
+  <!-- Frying pan model, Copyright (c) 2016 Oleg Klimov       -->
+  <!-- LICENSE: CC-SA                                         -->
+  <link name="cube">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="pan_tefal.obj"/>
+      </geometry>
+    </visual>
+    <visual>  <!-- handle -->
+      <geometry>
+        <cylinder radius="0.011" length="0.185"/>
+      </geometry>
+      <origin rpy="0 1.4 0" xyz="0.22 0 0.07"/>
+      <material name="stainless">
+        <color rgba="0.3 0.3 .3 1"/>
+      </material>
+    </visual>
+
+    <collision>  <!-- handle -->
+      <geometry>
+        <cylinder radius="0.011" length="0.185"/>
+      </geometry>
+      <origin rpy="0 1.4 0" xyz="0.22 0 0.07"/>
+    </collision>
+    <collision>  <!-- bottom -->
+      <geometry>
+        <cylinder radius="0.12" length="0.01"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0.005"/>
+    </collision>
+
+    <collision>
+      <geometry>
+        <mesh filename="pan_tefal-collision01.obj"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </collision>
+
+    <collision>
+      <geometry>
+        <mesh filename="pan_tefal-collision02.obj"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </collision>
+
+    <collision>
+      <geometry>
+        <mesh filename="pan_tefal-collision03.obj"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </collision>
+
+    <collision>
+      <geometry>
+        <mesh filename="pan_tefal-collision04.obj"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </collision>
+
+    <collision>
+      <geometry>
+        <mesh filename="pan_tefal-collision05.obj"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </collision>
+
+    <collision>
+      <geometry>
+        <mesh filename="pan_tefal-collision06.obj"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </collision>
+
+    <inertial>
+      <mass value="2."/>  <!-- mr^2 = 0.5*0.12^2 = 0.0072 for Z axis, lighter along other axis -->
+      <inertia ixx="0.005" iyy="0.005" izz="0.0072"/>
+    </inertial>
+  </link>
+
+</robot>
+

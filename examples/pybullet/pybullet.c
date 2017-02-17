@@ -583,14 +583,15 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 	double splitImpulsePenetrationThreshold = -1;
 	int numSubSteps = -1;
 	int collisionFilterMode = -1;
+	double contactBreakingThreshold = -1;
 	
 	b3PhysicsClientHandle sm = 0;
 
 	int physicsClientId = 0;
-	static char *kwlist[] = { "fixedTimeStep", "numSolverIterations","useSplitImpulse","splitImpulsePenetrationThreshold", "numSubSteps","collisionFilterMode", "physicsClientId", NULL };
+	static char *kwlist[] = { "fixedTimeStep", "numSolverIterations","useSplitImpulse","splitImpulsePenetrationThreshold", "numSubSteps","collisionFilterMode", "contactBreakingThreshold", "physicsClientId", NULL };
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidiii", kwlist,&fixedTimeStep,&numSolverIterations,&useSplitImpulse,&splitImpulsePenetrationThreshold,&numSubSteps,
-									 &collisionFilterMode, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidiidi", kwlist,&fixedTimeStep,&numSolverIterations,&useSplitImpulse,&splitImpulsePenetrationThreshold,&numSubSteps,
+									 &collisionFilterMode, &contactBreakingThreshold, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -610,6 +611,7 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 		{
 			b3PhysicsParamSetNumSolverIterations(command, numSolverIterations);
 		}
+
 		if (collisionFilterMode>=0)
 		{
 			b3PhysicsParamSetCollisionFilterMode(command, collisionFilterMode);
@@ -630,6 +632,11 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 		{
 			b3PhysicsParamSetSplitImpulsePenetrationThreshold(command, splitImpulsePenetrationThreshold);
 		}
+		if (contactBreakingThreshold>=0)
+		{
+			b3PhysicsParamSetContactBreakingThreshold(command,contactBreakingThreshold);
+		}
+
 
 		//ret = b3PhysicsParamSetRealTimeSimulation(command, enableRealTimeSimulation);
 

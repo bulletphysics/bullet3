@@ -71,7 +71,7 @@ struct URDF2BulletCachedData
     }
 
 
-    void registerMultiBody( int urdfLinkIndex, class btMultiBody* body, const btTransform& worldTransform, btScalar mass, const btVector3& localInertiaDiagonal, const class btCompoundShape* compound, const btTransform& localInertialFrame)
+    void registerMultiBody( int urdfLinkIndex, class btMultiBody* body, const btTransform& worldTransform, btScalar mass, const btVector3& localInertiaDiagonal, const class btCollisionShape* compound, const btTransform& localInertialFrame)
     {
         m_urdfLinkLocalInertialFrames[urdfLinkIndex] = localInertialFrame;
     }
@@ -81,7 +81,7 @@ struct URDF2BulletCachedData
         return m_urdfLink2rigidBodies[urdfLinkIndex];
     }
 
-    void registerRigidBody( int urdfLinkIndex, class btRigidBody* body, const btTransform& worldTransform, btScalar mass, const btVector3& localInertiaDiagonal, const class btCompoundShape* compound, const btTransform& localInertialFrame)
+    void registerRigidBody( int urdfLinkIndex, class btRigidBody* body, const btTransform& worldTransform, btScalar mass, const btVector3& localInertiaDiagonal, const class btCollisionShape* compound, const btTransform& localInertialFrame)
     {
         btAssert(m_urdfLink2rigidBodies[urdfLinkIndex]==0);
 
@@ -250,7 +250,12 @@ void ConvertURDF2BulletInternal(
     
     
 
-    btCompoundShape* compoundShape = u2b.convertLinkCollisionShapes(urdfLinkIndex,pathPrefix,localInertialFrame);
+    btCompoundShape* tmpShape = u2b.convertLinkCollisionShapes(urdfLinkIndex,pathPrefix,localInertialFrame);
+	btCollisionShape* compoundShape = tmpShape;
+	if (tmpShape->getNumChildShapes() == 1 && tmpShape->getChildTransform(0)==btTransform::getIdentity())
+	{
+		compoundShape = tmpShape->getChildShape(0);
+	}
 	
 	int graphicsIndex = u2b.convertLinkVisualShapes(urdfLinkIndex,pathPrefix,localInertialFrame);
 	

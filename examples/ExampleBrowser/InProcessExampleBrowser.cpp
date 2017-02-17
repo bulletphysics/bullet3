@@ -266,6 +266,7 @@ void	ExampleBrowserThreadFunc(void* userPtr,void* lsMemory)
 				{
 					B3_PROFILE("clock.usleep");
 					clock.usleep(gMinUpdateTimeMicroSecs/10.);
+					exampleBrowser->updateGraphics();
 				} else
 				{
 					B3_PROFILE("exampleBrowser->update");
