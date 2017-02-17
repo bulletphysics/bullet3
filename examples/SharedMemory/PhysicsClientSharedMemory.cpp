@@ -899,6 +899,20 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 			{
 				break;
 			}
+			case CMD_STATE_LOGGING_START_COMPLETED:
+			{
+				break;
+			};
+			case CMD_STATE_LOGGING_COMPLETED:
+			{
+				break;
+			};
+
+			case CMD_STATE_LOGGING_FAILED:
+			{
+				b3Warning("State Logging failed");
+				break;
+			}
             default: {
                 b3Error("Unknown server status %d\n", serverCmd.m_type);
                 btAssert(0);

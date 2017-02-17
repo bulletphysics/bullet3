@@ -56,6 +56,8 @@ ENDIF()
                         ../../examples/SharedMemory/PosixSharedMemory.h
                         ../../examples/Utils/b3ResourcePath.cpp
                         ../../examples/Utils/b3ResourcePath.h
+                        ../../examples/Utils/RobotLoggingUtil.cpp
+                        ../../examples/Utils/RobotLoggingUtil.h
 									      ../../examples/SharedMemory/TinyRendererVisualShapeConverter.cpp
 												../../examples/SharedMemory/TinyRendererVisualShapeConverter.h
 												../../examples/OpenGLWindow/SimpleCamera.cpp

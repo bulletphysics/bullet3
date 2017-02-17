@@ -317,6 +317,8 @@ SET(BulletExampleBrowser_SRCS
   ../Importers/ImportURDFDemo/MyMultiBodyCreator.cpp
   ../Importers/ImportURDFDemo/MyMultiBodyCreator.h
   ../Importers/ImportURDFDemo/UrdfParser.cpp
+  ../Utils/RobotLoggingUtil.cpp
+  ../Utils/RobotLoggingUtil.h
   ../Importers/ImportURDFDemo/urdfStringSplit.cpp
  ../Importers/ImportURDFDemo/urdfStringSplit.h
   ../Importers/ImportURDFDemo/BulletUrdfImporter.cpp

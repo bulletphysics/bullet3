@@ -17,7 +17,7 @@
 #include "BulletInverseDynamics/MultiBodyTree.hpp"
 #include "IKTrajectoryHelper.h"
 #include "btBulletDynamicsCommon.h"
-
+#include "../Utils/RobotLoggingUtil.h"
 #include "LinearMath/btTransform.h"
 #include "../Importers/ImportMJCFDemo/BulletMJCFImporter.h"
 #include "../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.h"
@@ -420,6 +420,142 @@ struct MyOverlapFilterCallback : public btOverlapFilterCallback
 };
 
 
+struct InternalStateLogger
+{
+	int m_loggingUniqueId;
+	int m_loggingType;
+
+	InternalStateLogger()
+		:m_loggingUniqueId(0),
+		m_loggingType(0)
+	{
+	}
+
+	virtual void stop() = 0;
+	virtual void logState(btScalar timeStamp)=0;
+
+};
+
+struct MinitaurStateLogger : public InternalStateLogger
+{
+	int m_loggingTimeStamp;
+	std::string m_fileName;
+	int m_minitaurBodyUniqueId;
+	FILE* m_logFileHandle;
+
+	std::string m_structTypes;
+	btMultiBody* m_minitaurMultiBody;
+	btAlignedObjectArray<int> m_motorIdList;
+
+	MinitaurStateLogger(int loggingUniqueId, std::string fileName, btMultiBody* minitaurMultiBody, btAlignedObjectArray<int>& motorIdList)
+		:m_loggingTimeStamp(0),
+		m_logFileHandle(0),
+		m_minitaurMultiBody(minitaurMultiBody)
+	{
+		m_loggingType = STATE_LOGGING_MINITAUR;
+		m_motorIdList.resize(motorIdList.size());
+		for (int m=0;m<motorIdList.size();m++)
+		{
+			m_motorIdList[m] = motorIdList[m];
+		}
+
+		btAlignedObjectArray<std::string> structNames;
+		//'t', 'r', 'p', 'y', 'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'u0', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'xd', 'mo'
+		structNames.push_back("t");
+		structNames.push_back("r");
+		structNames.push_back("p");
+		structNames.push_back("y");
+	
+		structNames.push_back("q0");
+		structNames.push_back("q1");
+		structNames.push_back("q2");
+		structNames.push_back("q3");
+		structNames.push_back("q4");
+		structNames.push_back("q5");
+		structNames.push_back("q6");
+		structNames.push_back("q7");
+
+		structNames.push_back("u0");
+		structNames.push_back("u1");
+		structNames.push_back("u2");
+		structNames.push_back("u3");
+		structNames.push_back("u4");
+		structNames.push_back("u5");
+		structNames.push_back("u6");
+		structNames.push_back("u7");
+
+		structNames.push_back("dx");
+		structNames.push_back("mo");
+
+		m_structTypes = "IffffffffffffffffffffB";
+		const char* fileNameC = fileName.c_str();
+
+		m_logFileHandle = createMinitaurLogFile(fileNameC, structNames, m_structTypes);
+	}
+	virtual void stop()
+	{
+		if (m_logFileHandle)
+		{
+			closeMinitaurLogFile(m_logFileHandle);
+			m_logFileHandle = 0;
+		}
+	}
+
+	virtual void logState(btScalar timeStep)
+	{
+		if (m_logFileHandle)
+		{
+			
+			btVector3 pos = m_minitaurMultiBody->getBasePos();
+
+			MinitaurLogRecord logData;
+			//'t', 'r', 'p', 'y', 'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'u0', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'xd', 'mo'
+			btScalar motorDir[8] = {1, -1, 1, -1, -1, 1, -1, 1};
+
+			btQuaternion orn = m_minitaurMultiBody->getBaseWorldTransform().getRotation();
+			btMatrix3x3 mat(orn);
+			btScalar roll=0;
+			btScalar pitch=0;
+			btScalar yaw = 0;
+
+			mat.getEulerZYX(yaw,pitch,roll);
+			
+			logData.m_values.push_back(m_loggingTimeStamp);
+			logData.m_values.push_back((float)roll);
+			logData.m_values.push_back((float)pitch);
+			logData.m_values.push_back((float)yaw);
+
+			for (int i=0;i<8;i++)
+			{
+				float jointAngle = (float)motorDir[i]*m_minitaurMultiBody->getJointPos(m_motorIdList[i]);
+				logData.m_values.push_back(jointAngle);
+			}
+			for (int i=0;i<8;i++)
+			{
+                btMultiBodyJointMotor* motor = (btMultiBodyJointMotor*)m_minitaurMultiBody->getLink(m_motorIdList[i]).m_userPtr;
+
+                if (motor && timeStep>btScalar(0))
+                {
+					btScalar force = motor->getAppliedImpulse(0)/timeStep;
+					logData.m_values.push_back((float)force);
+				}
+			}
+			//x is forward component, estimated speed forward
+			float xd_speed = m_minitaurMultiBody->getBaseVel()[0];
+			logData.m_values.push_back(xd_speed);
+			char mode = 6;
+			logData.m_values.push_back(mode);
+
+			//at the moment, appendMinitaurLogData will directly write to disk (potential delay)
+			//better to fill a huge memory buffer and once in a while write it to disk
+			appendMinitaurLogData(m_logFileHandle, m_structTypes, logData);
+
+			fflush(m_logFileHandle);
+		
+			m_loggingTimeStamp++;
+		}
+	}
+};
 
 
 struct PhysicsServerCommandProcessorInternalData
@@ -577,7 +713,8 @@ struct PhysicsServerCommandProcessorInternalData
 
 	btAlignedObjectArray<int> m_sdfRecentLoadedBodies;
 
-
+	btAlignedObjectArray<InternalStateLogger*>	m_stateLoggers;
+	int m_stateLoggersUniqueId;
 
 	struct GUIHelperInterface* m_guiHelper;
 	int m_sharedMemoryKey;
@@ -622,6 +759,7 @@ struct PhysicsServerCommandProcessorInternalData
 		m_collisionConfiguration(0),
 		m_dynamicsWorld(0),
 		m_remoteDebugDrawer(0),
+		m_stateLoggersUniqueId(0),
 		m_guiHelper(0),
 		m_sharedMemoryKey(SHARED_MEMORY_KEY),
 		m_verboseOutput(false),
@@ -758,6 +896,22 @@ PhysicsServerCommandProcessor::~PhysicsServerCommandProcessor()
 	delete m_data;
 }
 
+void logCallback(btDynamicsWorld *world, btScalar timeStep)
+{
+	PhysicsServerCommandProcessor* proc = (PhysicsServerCommandProcessor*) world->getWorldUserInfo();
+	proc->logObjectStates(timeStep);
+
+}
+
+
+void PhysicsServerCommandProcessor::logObjectStates(btScalar timeStep)
+{
+	for (int i=0;i<m_data->m_stateLoggers.size();i++)
+	{
+		m_data->m_stateLoggers[i]->logState(timeStep);
+	}
+
+}
 
 void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 {
@@ -804,6 +958,19 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 //	m_data->m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 2;
 	//todo: islands/constraints are buggy in btMultiBodyDynamicsWorld! (performance + see slipping grasp)
 
+
+	m_data->m_dynamicsWorld->setInternalTickCallback(logCallback,this);
+}
+
+void PhysicsServerCommandProcessor::deleteStateLoggers()
+{
+	for (int i=0;i<m_data->m_stateLoggers.size();i++)
+	{
+		m_data->m_stateLoggers[i]->stop();
+		delete m_data->m_stateLoggers[i];
+	}
+	m_data->m_stateLoggers.clear();
+
 }
 
 void PhysicsServerCommandProcessor::deleteCachedInverseKinematicsBodies()
@@ -838,6 +1005,7 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 {
 	deleteCachedInverseDynamicsBodies();
 	deleteCachedInverseKinematicsBodies();
+	deleteStateLoggers();
 
 	m_data->m_userConstraints.clear();
 	m_data->m_saveWorldBodyData.clear();
@@ -1451,7 +1619,85 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					break;
 				}
 #endif
+				case CMD_STATE_LOGGING:
+				{
+					serverStatusOut.m_type = CMD_STATE_LOGGING_FAILED;
+                    hasStatus = true;
 
+					if (clientCmd.m_updateFlags & STATE_LOGGING_START_LOG)
+					{
+
+						
+						if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_MINITAUR)
+						{
+							
+							std::string fileName = clientCmd.m_stateLoggingArguments.m_fileName;
+							//either provide the minitaur by object unique Id, or search for first multibody with 8 motors...
+
+							
+							if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_OBJECT_UNIQUE_ID)&& (clientCmd.m_stateLoggingArguments.m_numBodyUniqueIds>0))
+							{
+								int bodyUniqueId = clientCmd.m_stateLoggingArguments.m_bodyUniqueIds[0];
+								InteralBodyData* body = m_data->getHandle(bodyUniqueId);
+								if (body)
+								{
+									if (body->m_multiBody)
+									{
+										btAlignedObjectArray<std::string> motorNames;
+										motorNames.push_back("motor_front_leftR_joint");
+										motorNames.push_back("motor_front_leftL_joint");
+										motorNames.push_back("motor_back_leftR_joint");
+										motorNames.push_back("motor_back_leftL_joint");
+										motorNames.push_back("motor_front_rightL_joint");
+										motorNames.push_back("motor_front_rightR_joint");
+										motorNames.push_back("motor_back_rightL_joint");
+										motorNames.push_back("motor_back_rightR_joint");
+										
+										btAlignedObjectArray<int> motorIdList;
+										for (int m=0;m<motorNames.size();m++)
+										{
+											for (int i=0;i<body->m_multiBody->getNumLinks();i++)
+											{
+												std::string jointName;
+												if (body->m_multiBody->getLink(i).m_jointName)
+												{
+													jointName = body->m_multiBody->getLink(i).m_jointName;
+												}
+												if (motorNames[m]==jointName)
+												{
+													motorIdList.push_back(i);
+												}
+											}
+										}
+
+										if (motorIdList.size()==8)
+										{
+											int loggerUid = m_data->m_stateLoggersUniqueId++;
+											MinitaurStateLogger* logger = new MinitaurStateLogger(loggerUid,fileName,body->m_multiBody, motorIdList);
+											m_data->m_stateLoggers.push_back(logger);
+											serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
+											serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
+										}
+									}
+								}
+							}
+						}
+					}
+					if ((clientCmd.m_updateFlags & STATE_LOGGING_STOP_LOG) && clientCmd.m_stateLoggingArguments.m_loggingUniqueId>=0)
+					{
+						serverStatusOut.m_type = CMD_STATE_LOGGING_COMPLETED;
+						for (int i=0;i<m_data->m_stateLoggers.size();i++)
+						{
+							if (m_data->m_stateLoggers[i]->m_loggingUniqueId==clientCmd.m_stateLoggingArguments.m_loggingUniqueId)
+							{
+								m_data->m_stateLoggers[i]->stop();
+								delete m_data->m_stateLoggers[i];
+								m_data->m_stateLoggers.removeAtIndex(i);
+							}
+						}
+					}
+					break;
+				}
 				case CMD_SET_VR_CAMERA_STATE:
 				{
 
@@ -4693,7 +4939,6 @@ void PhysicsServerCommandProcessor::applyJointDamping(int bodyUniqueId)
 void PhysicsServerCommandProcessor::resetSimulation()
 {
 	//clean up all data
-	deleteCachedInverseDynamicsBodies();
 
 	if (m_data && m_data->m_guiHelper)
 	{

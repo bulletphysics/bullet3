@@ -2590,6 +2590,102 @@ static PyObject* pybullet_removeAllUserDebugItems(PyObject* self, PyObject* args
 	return Py_None;
 }
 
+static PyObject* pybullet_startStateLogging(PyObject* self, PyObject* args, PyObject *keywds) 
+{
+	b3SharedMemoryCommandHandle commandHandle;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+
+	b3PhysicsClientHandle sm = 0;
+	int loggingType = -1;
+	char* fileName = 0;
+	PyObject* objectUniqueIdsObj = 0;
+
+	static char *kwlist[] = { "loggingType", "fileName", "objectUniqueIds", "physicsClientId", NULL };
+	int physicsClientId = 0;
+		
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "is|Oi", kwlist,
+		&loggingType, &fileName, &objectUniqueIdsObj,&physicsClientId))
+		return NULL;
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+	{
+		b3SharedMemoryCommandHandle commandHandle;
+		commandHandle = b3StateLoggingCommandInit(sm);
+		
+		b3StateLoggingStart(commandHandle,loggingType,fileName);
+
+		if (objectUniqueIdsObj)
+		{
+			PyObject* seq = PySequence_Fast(objectUniqueIdsObj, "expected a sequence of object unique ids");
+			if (seq)
+			{
+				int len = PySequence_Size(objectUniqueIdsObj);
+				int i;
+				for ( i=0;i<len;i++)
+				{
+					int objectUid = pybullet_internalGetFloatFromSequence(seq, i);
+					b3StateLoggingAddLoggingObjectUniqueId(commandHandle,objectUid);
+				}
+				Py_DECREF(seq);
+			}
+		}
+
+		
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+		statusType = b3GetStatusType(statusHandle);
+		if (statusType==CMD_STATE_LOGGING_START_COMPLETED)
+		{
+			int loggingUniqueId = b3GetStatusLoggingUniqueId(statusHandle);
+			PyObject* loggingUidObj = PyInt_FromLong(loggingUniqueId);
+			return loggingUidObj;
+		}
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject* pybullet_stopStateLogging(PyObject* self, PyObject* args, PyObject *keywds) 
+{
+	b3SharedMemoryCommandHandle commandHandle;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	int loggingId=-1;
+
+	b3PhysicsClientHandle sm = 0;
+	static char *kwlist[] = { "loggingId", "physicsClientId", NULL };
+		int physicsClientId = 0;
+		
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|i", kwlist,
+		&loggingId,&physicsClientId))
+		return NULL;
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+	if (loggingId>=0)
+	{
+		b3SharedMemoryCommandHandle commandHandle;
+		commandHandle = b3StateLoggingCommandInit(sm);
+		b3StateLoggingStop(commandHandle, loggingId);
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+		statusType = b3GetStatusType(statusHandle);
+
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
 
 static PyObject* pybullet_rayTest(PyObject* self, PyObject* args, PyObject *keywds) 
 {
@@ -4967,8 +5063,14 @@ static PyMethodDef SpamMethods[] = {
 		"Set properties of the VR Camera such as its root transform "
 		"for teleporting or to track objects (camera inside a vehicle for example)."
 	  },
-
-
+	  {	"startStateLogging", (PyCFunction)pybullet_startStateLogging, METH_VARARGS | METH_KEYWORDS,
+		"Start logging of state, such as robot base position, orientation, joint positions etc. "
+		"Specify loggingType (STATE_LOG_MINITAUR, STATE_LOG_GENERIC_ROBOT, STATE_LOG_VR_CONTROLLERS etc), "
+		"fileName, optional objectUniqueId. Function returns int loggingUniqueId"
+	  },
+	  {	"stopStateLogging", (PyCFunction)pybullet_stopStateLogging, METH_VARARGS | METH_KEYWORDS,
+		"Stop logging of robot state, given a loggingUniqueId."
+	  },
 	{	"rayTest", (PyCFunction)pybullet_rayTest, METH_VARARGS | METH_KEYWORDS,
 				"Cast a ray and return the first object hit, if any. "
 				"Takes two arguments (from position [x,y,z] and to position [x,y,z] in Cartesian world coordinates"
@@ -5054,6 +5156,9 @@ initpybullet(void)
   PyModule_AddIntConstant(m, "VR_MAX_CONTROLLERS", MAX_VR_CONTROLLERS);
   PyModule_AddIntConstant(m, "VR_MAX_BUTTONS", MAX_VR_BUTTONS);
 
+  PyModule_AddIntConstant(m, "STATE_LOGGING_MINITAUR", STATE_LOGGING_MINITAUR);
+  PyModule_AddIntConstant(m, "STATE_LOGGING_GENERIC_ROBOT", STATE_LOGGING_GENERIC_ROBOT);
+  PyModule_AddIntConstant(m, "STATE_LOGGING_VR_CONTROLLERS", STATE_LOGGING_VR_CONTROLLERS);
 
   SpamError = PyErr_NewException("pybullet.error", NULL, NULL);
   Py_INCREF(SpamError);

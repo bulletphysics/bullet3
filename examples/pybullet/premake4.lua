@@ -101,6 +101,8 @@ if not _OPTIONS["no-enet"] then
 			"../../examples/SharedMemory/PosixSharedMemory.h",
 			"../../examples/Utils/b3ResourcePath.cpp",
 			"../../examples/Utils/b3ResourcePath.h",
+			"../../examples/Utils/RobotLoggingUtil.cpp",
+			"../../examples/Utils/RobotLoggingUtil.h",
 			"../../examples/ThirdPartyLibs/tinyxml/tinystr.cpp",
 			"../../examples/ThirdPartyLibs/tinyxml/tinyxml.cpp",
 			"../../examples/ThirdPartyLibs/tinyxml/tinyxmlerror.cpp",
