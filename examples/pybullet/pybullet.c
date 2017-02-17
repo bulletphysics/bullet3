@@ -2626,7 +2626,8 @@ static PyObject* pybullet_startStateLogging(PyObject* self, PyObject* args, PyOb
 			if (seq)
 			{
 				int len = PySequence_Size(objectUniqueIdsObj);
-				for (int i=0;i<len;i++)
+				int i;
+				for ( i=0;i<len;i++)
 				{
 					int objectUid = pybullet_internalGetFloatFromSequence(seq, i);
 					b3StateLoggingAddLoggingObjectUniqueId(commandHandle,objectUid);
