@@ -2467,7 +2467,7 @@ int b3SetVRCameraTrackingObject(b3SharedMemoryCommandHandle commandHandle, int o
 	return 0;
 }
 
-b3SharedMemoryCommandHandle	b3RobotLoggingCommandInit(b3PhysicsClientHandle physClient)
+b3SharedMemoryCommandHandle	b3StateLoggingCommandInit(b3PhysicsClientHandle physClient)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
 	b3Assert(cl);
@@ -2475,33 +2475,72 @@ b3SharedMemoryCommandHandle	b3RobotLoggingCommandInit(b3PhysicsClientHandle phys
 	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
 	b3Assert(command);
 
-	command->m_type = CMD_ROBOT_LOGGING;
+	command->m_type = CMD_STATE_LOGGING;
 	command->m_updateFlags = 0;
+	command->m_stateLoggingArguments.m_numBodyUniqueIds = 0;
 
 	return (b3SharedMemoryCommandHandle)command;
 
 }
 
-int b3RobotLoggingStartMinitaurLog(b3SharedMemoryCommandHandle commandHandle, const char* fileName, int objectUniqueId)
+int b3StateLoggingStart(b3SharedMemoryCommandHandle commandHandle, int loggingType, const char* fileName)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
-    b3Assert(command->m_type == CMD_ROBOT_LOGGING);
-	if (command->m_type == CMD_ROBOT_LOGGING)
+    b3Assert(command->m_type == CMD_STATE_LOGGING);
+	if (command->m_type == CMD_STATE_LOGGING)
 	{
-	    command->m_updateFlags |= ROBOT_LOGGING_START_MINITAUR_LOG;
+	    command->m_updateFlags |= STATE_LOGGING_START_LOG;
+		int len = strlen(fileName);
+		if (len < MAX_FILENAME_LENGTH)
+		{
+			strcpy(command->m_stateLoggingArguments.m_fileName, fileName);
+		}
+		else
+		{
+			command->m_stateLoggingArguments.m_fileName[0] = 0;
+		}
+		command->m_stateLoggingArguments.m_logType = loggingType;
 	}	
 	return 0;
 }
 
-int b3RobotLoggingStopMinitaurLog(b3SharedMemoryCommandHandle commandHandle)
+int b3GetStatusLoggingUniqueId(b3SharedMemoryStatusHandle statusHandle)
+{
+	const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
+	b3Assert(status);
+	b3Assert(status->m_type == CMD_STATE_LOGGING_START_COMPLETED);
+	if (status && status->m_type == CMD_STATE_LOGGING_START_COMPLETED)
+	{
+		return status->m_stateLoggingResultArgs.m_loggingUniqueId;
+	}
+	return -1;
+}
+
+int b3StateLoggingAddLoggingObjectUniqueId(b3SharedMemoryCommandHandle commandHandle, int objectUniqueId)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
-    b3Assert(command->m_type == CMD_ROBOT_LOGGING);
-	if (command->m_type == CMD_ROBOT_LOGGING)
+    b3Assert(command->m_type == CMD_STATE_LOGGING);
+	if (command->m_type == CMD_STATE_LOGGING)
 	{
-	    command->m_updateFlags |= ROBOT_LOGGING_STOP_MINITAUR_LOG;
+	    command->m_updateFlags |= STATE_LOGGING_FILTER_OBJECT_UNIQUE_ID;
+		if (command->m_stateLoggingArguments.m_numBodyUniqueIds < MAX_SDF_BODIES)
+		{
+			command->m_stateLoggingArguments.m_bodyUniqueIds[command->m_stateLoggingArguments.m_numBodyUniqueIds++] = objectUniqueId;
+		}
+	}
+	return 0;
+}
+int b3StateLoggingStop(b3SharedMemoryCommandHandle commandHandle, int loggingUid)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_STATE_LOGGING);
+	if (command->m_type == CMD_STATE_LOGGING)
+	{
+	    command->m_updateFlags |= STATE_LOGGING_STOP_LOG;
+		command->m_stateLoggingArguments.m_loggingUniqueId = loggingUid;
 	}
 	return 0;
 }

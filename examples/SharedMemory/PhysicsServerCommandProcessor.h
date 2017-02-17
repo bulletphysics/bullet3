@@ -46,6 +46,7 @@ protected:
 	int createBodyInfoStream(int bodyUniqueId, char* bufferServerToClient, int bufferSizeInBytes);
 	void deleteCachedInverseDynamicsBodies();
 	void deleteCachedInverseKinematicsBodies();
+	void deleteStateLoggers();
 
 public:
 	PhysicsServerCommandProcessor();

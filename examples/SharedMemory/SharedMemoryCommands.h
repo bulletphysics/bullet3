@@ -613,12 +613,11 @@ enum eVRCameraEnums
 	VR_CAMERA_ROOT_TRACKING_OBJECT=4
 };
 
-enum eRobotLoggingEnums
+enum eStateLoggingEnums
 {
-	ROBOT_LOGGING_START_MINITAUR_LOG=1,
-	ROBOT_LOGGING_STOP_MINITAUR_LOG=1,
-	ROBOT_LOGGING_START_GENERIC_LOG=1,
-	ROBOT_LOGGING_STOP_GENERIC_LOG=1,
+	STATE_LOGGING_START_LOG=1,
+	STATE_LOGGING_STOP_LOG=2,
+	STATE_LOGGING_FILTER_OBJECT_UNIQUE_ID=4,
 };
 
 struct VRCameraState
@@ -628,6 +627,21 @@ struct VRCameraState
 	int m_trackingObjectUniqueId;
 };
 
+
+
+struct StateLoggingRequest
+{
+	char m_fileName[MAX_FILENAME_LENGTH];
+	int m_logType;//Minitaur, generic robot, VR states
+	int m_numBodyUniqueIds;////only if ROBOT_LOGGING_FILTER_OBJECT_UNIQUE_ID flag is set
+	int m_bodyUniqueIds[MAX_SDF_BODIES];
+	int m_loggingUniqueId;
+};
+
+struct StateLoggingResultArgs
+{
+	int m_loggingUniqueId;
+};
 
 struct SharedMemoryCommand
 {
@@ -670,6 +684,7 @@ struct SharedMemoryCommand
 		struct RequestRaycastIntersections m_requestRaycastIntersections;
         struct LoadBunnyArgs m_loadBunnyArguments;
 		struct VRCameraState m_vrCameraStateArguments;
+		struct StateLoggingRequest m_stateLoggingArguments;
     };
 };
 
@@ -730,6 +745,8 @@ struct SharedMemoryStatus
 		struct b3UserConstraint m_userConstraintResultArgs;
 		struct SendVREvents m_sendVREvents;
 		struct SendRaycastHits m_raycastHits;
+		struct StateLoggingResultArgs m_stateLoggingResultArgs;
+
 	};
 };
 
