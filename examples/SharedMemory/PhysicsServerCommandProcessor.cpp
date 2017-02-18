@@ -558,6 +558,163 @@ struct MinitaurStateLogger : public InternalStateLogger
 	}
 };
 
+struct GenericRobotStateLogger : public InternalStateLogger
+{
+    float m_loggingTimeStamp;
+    std::string m_fileName;
+    FILE* m_logFileHandle;
+    std::string m_structTypes;
+    btMultiBodyDynamicsWorld* m_dynamicsWorld;
+    
+    GenericRobotStateLogger(int loggingUniqueId, std::string fileName, btMultiBodyDynamicsWorld* dynamicsWorld)
+    :m_loggingTimeStamp(0),
+    m_logFileHandle(0),
+    m_dynamicsWorld(dynamicsWorld)
+    {
+        m_loggingType = STATE_LOGGING_GENERIC_ROBOT;
+        
+        btAlignedObjectArray<std::string> structNames;
+        structNames.push_back("timeStamp");
+        structNames.push_back("objectId");
+        structNames.push_back("posX");
+        structNames.push_back("posY");
+        structNames.push_back("posZ");
+        structNames.push_back("oriX");
+        structNames.push_back("oriY");
+        structNames.push_back("oriZ");
+        structNames.push_back("oriW");
+        structNames.push_back("velX");
+        structNames.push_back("velY");
+        structNames.push_back("velZ");
+        structNames.push_back("omegaX");
+        structNames.push_back("omegaY");
+        structNames.push_back("omegaZ");
+        structNames.push_back("qNum");
+        structNames.push_back("q0");
+        structNames.push_back("q1");
+        structNames.push_back("q2");
+        structNames.push_back("q3");
+        structNames.push_back("q4");
+        structNames.push_back("q5");
+        structNames.push_back("q6");
+        structNames.push_back("q7");
+        structNames.push_back("q8");
+        structNames.push_back("q9");
+        structNames.push_back("q10");
+        structNames.push_back("q11");
+        structNames.push_back("u0");
+        structNames.push_back("u1");
+        structNames.push_back("u2");
+        structNames.push_back("u3");
+        structNames.push_back("u4");
+        structNames.push_back("u5");
+        structNames.push_back("u6");
+        structNames.push_back("u7");
+        structNames.push_back("u8");
+        structNames.push_back("u9");
+        structNames.push_back("u10");
+        structNames.push_back("u11");
+        
+        m_structTypes = "fIfffffffffffffIffffffffffffffffffffffff";
+        const char* fileNameC = fileName.c_str();
+        
+        m_logFileHandle = createMinitaurLogFile(fileNameC, structNames, m_structTypes);
+    }
+    virtual void stop()
+    {
+        if (m_logFileHandle)
+        {
+            closeMinitaurLogFile(m_logFileHandle);
+            m_logFileHandle = 0;
+        }
+    }
+    
+    virtual void logState(btScalar timeStep)
+    {
+        if (m_logFileHandle)
+        {
+            for (int i=0;i<m_dynamicsWorld->getNumMultibodies();i++)
+            {
+                MinitaurLogRecord logData;
+                logData.m_values.push_back(m_loggingTimeStamp);
+                
+                btMultiBody* mb = m_dynamicsWorld->getMultiBody(i);
+                btVector3 pos = mb->getBasePos();
+                btQuaternion ori = mb->getWorldToBaseRot();
+                btVector3 vel = mb->getBaseVel();
+                btVector3 omega = mb->getBaseOmega();
+                
+                int objectUniqueId = mb->getUserIndex2();
+                float posX = pos[0];
+                float posY = pos[1];
+                float posZ = pos[2];
+                float oriX = ori.x();
+                float oriY = ori.y();
+                float oriZ = ori.z();
+                float oriW = ori.w();
+                float velX = vel[0];
+                float velY = vel[1];
+                float velZ = vel[2];
+                float omegaX = omega[0];
+                float omegaY = omega[1];
+                float omegaZ = omega[2];
+                
+                logData.m_values.push_back(objectUniqueId);
+                logData.m_values.push_back(posX);
+                logData.m_values.push_back(posY);
+                logData.m_values.push_back(posZ);
+                logData.m_values.push_back(oriX);
+                logData.m_values.push_back(oriY);
+                logData.m_values.push_back(oriZ);
+                logData.m_values.push_back(oriW);
+                logData.m_values.push_back(velX);
+                logData.m_values.push_back(velY);
+                logData.m_values.push_back(velZ);
+                logData.m_values.push_back(omegaX);
+                logData.m_values.push_back(omegaY);
+                logData.m_values.push_back(omegaZ);
+                
+                int numDofs = mb->getNumDofs();
+                logData.m_values.push_back(numDofs);
+                
+                for (int j = 0; j < 12; ++j)
+                {
+                    if (j < numDofs)
+                    {
+                        float q = mb->getJointPos(j);
+                        logData.m_values.push_back(q);
+                    }
+                    else
+                    {
+                        float q = 0.0;
+                        logData.m_values.push_back(q);
+                    }
+                }
+                
+                for (int j = 0; j < 12; ++j)
+                {
+                    if (j < numDofs)
+                    {
+                        float u = mb->getJointVel(j);
+                        logData.m_values.push_back(u);
+                    }
+                    else
+                    {
+                        float u = 0.0;
+                        logData.m_values.push_back(u);
+                    }
+                }
+                
+                //at the moment, appendMinitaurLogData will directly write to disk (potential delay)
+                //better to fill a huge memory buffer and once in a while write it to disk
+                appendMinitaurLogData(m_logFileHandle, m_structTypes, logData);
+                fflush(m_logFileHandle);
+            }
+            
+            m_loggingTimeStamp++;
+        }
+    }
+};
 
 struct PhysicsServerCommandProcessorInternalData
 {
@@ -1683,6 +1840,17 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								}
 							}
 						}
+                        if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_GENERIC_ROBOT)
+                        {
+                            
+                            std::string fileName = clientCmd.m_stateLoggingArguments.m_fileName;
+                            
+                            int loggerUid = m_data->m_stateLoggersUniqueId++;
+                            GenericRobotStateLogger* logger = new GenericRobotStateLogger(loggerUid,fileName,m_data->m_dynamicsWorld);
+                            m_data->m_stateLoggers.push_back(logger);
+                            serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
+                            serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
+                        }
 					}
 					if ((clientCmd.m_updateFlags & STATE_LOGGING_STOP_LOG) && clientCmd.m_stateLoggingArguments.m_loggingUniqueId>=0)
 					{
