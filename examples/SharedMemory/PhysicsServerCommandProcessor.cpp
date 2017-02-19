@@ -430,6 +430,7 @@ struct InternalStateLogger
 		m_loggingType(0)
 	{
 	}
+	virtual ~InternalStateLogger() {}
 
 	virtual void stop() = 0;
 	virtual void logState(btScalar timeStamp)=0;
