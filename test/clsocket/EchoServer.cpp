@@ -19,11 +19,15 @@ int main(int argc, char **argv)
     {
         if ((pClient = socket.Accept()) != NULL)
         {
+			int clientPort = socket.GetClientPort();
+			printf("connected from %s:%d\n", socket.GetClientAddr(),clientPort);
             //----------------------------------------------------------------------
             // Receive request from the client.
             //----------------------------------------------------------------------
             if (pClient->Receive(MAX_PACKET))
             {
+				char* msg = (char*) pClient->GetData();
+				printf("received message [%s]\n",msg);
                 //------------------------------------------------------------------
                 // Send response to client and close connection to the client.
                 //------------------------------------------------------------------

@@ -24,10 +24,12 @@ int main(int argc, char **argv)
         //----------------------------------------------------------------------
         // Send a requtest the server requesting the current time.
         //----------------------------------------------------------------------
-		const char* data = "Hello!";
+		char data[1024];
+		sprintf(data,"%s","Hello!");
 		int len = strlen(data);
-
-        if (socket.Send((const uint8 *)"HELLO\n", len))
+		data[len]=0;
+		len++;
+        if (socket.Send((const uint8 *)data, len))
         {
             //----------------------------------------------------------------------
             // Receive response from the server.

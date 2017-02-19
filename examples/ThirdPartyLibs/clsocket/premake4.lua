@@ -14,7 +14,7 @@
 		
 	
 	includedirs {
-		".","include"
+		".","include","src"
 	}
 	files {
 		"src/SimpleSocket.cpp",

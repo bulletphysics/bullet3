@@ -73,8 +73,15 @@
 
 	newoption
 	{
+		trigger = "no-clsocket",
+		description = "Disable clsocket and clsocket tests (used for optional TCP networking in pybullet and shared memory C-API)"
+	}
+
+
+	newoption
+	{
 		trigger = "no-enet",
-		description = "Disable enet and enet tests"
+		description = "Disable enet and enet tests (used for optional UDP networking in pybullet and shared memory C-API)"
 	}
 
 	newoption
@@ -271,18 +278,20 @@ end
 		include "../examples/ThirdPartyLibs/midi"
 	end
 	
-	if not _OPTIONS["no_clsocket"] then
-		include "../examples/ThirdPartyLibs/clsocket"
+	if not _OPTIONS["no-clsocket"] then
 		defines {"BT_ENABLE_CLSOCKET"}
+		include "../examples/ThirdPartyLibs/clsocket"		
+		include "../test/clsocket"
 	end
 
 	if not _OPTIONS["no-enet"] then
+				defines {"BT_ENABLE_ENET"}
+
 				include "../examples/ThirdPartyLibs/enet"
 				include "../test/enet/nat_punchthrough/client"
 				include "../test/enet/nat_punchthrough/server"
 				include "../test/enet/chat/client"
 				include "../test/enet/chat/server"
-				defines {"BT_ENABLE_ENET"}
 	end
 
 	 if _OPTIONS["no-bullet3"] then
