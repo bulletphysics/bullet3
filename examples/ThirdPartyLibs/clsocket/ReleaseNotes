@@ -1,0 +1,479 @@
+===============================================================================
+Release v1.4.1
+===============================================================================
+
+I. New Features
+---------------
+  * New methods:
+	CSimpleSocket::EnableNagleAlgorithm()
+	CSimpleSocket::DisableNagleAlgorithm()
+
+II. Deprecated Functionality
+----------------------------
+
+III. Bug Fixes
+--------------
+
+ Reported Bugs
+ -------------
+  #95 - Add support to enable/disable Nable algorithm
+ #131 - Multicast receiver not working
+
+ Unreported Bugs
+ ---------------
+
+IV. Known Issues
+----------------
+ #44 - Add MTU size test to unit test so fragmentation can be tested.
+ #45 - Test Select() with Recv() and Send() set as non-blocking.
+ #47 - Mechanism to setting/setting socket options/flags.
+ #48 - Finish support for RAW sockets.
+ #50 - Add IPV6 support
+
+V. Configuration Changes
+------------------------
+
+VI. Release Tag Dependencies
+----------------------------
+ 
+VII. Errata
+-----------
+
+  Bug Fixes
+  -------------
+
+VIII. Documentation Changes
+----------------------------
+
+
+===============================================================================
+Release v1.4.0
+===============================================================================
+
+I. New Features
+---------------
+  * Support for multicast
+  * New methods:
+	CPassiveSocket::BindMulticast()
+	CSimpleSocket::SetMulticast()
+	CSimpleSocket::GetMulticast()
+	
+
+II. Deprecated Functionality
+----------------------------
+
+III. Bug Fixes
+--------------
+
+ Reported Bugs
+ -------------
+ #92 - Add multicast to library
+
+ Unreported Bugs
+ ---------------
+
+IV. Known Issues
+----------------
+ #44 - Add MTU size test to unit test so fragmentation can be tested.
+ #45 - Test Select() with Recv() and Send() set as non-blocking.
+ #47 - Mechanism to setting/setting socket options/flags.
+ #48 - Finish support for RAW sockets.
+ #50 - Add IPV6 support
+
+V. Configuration Changes
+------------------------
+
+VI. Release Tag Dependencies
+----------------------------
+ 
+VII. Errata
+-----------
+
+  Bug Fixes
+  -------------
+
+VIII. Documentation Changes
+----------------------------
+
+
+===============================================================================
+Release v1.3.3
+===============================================================================
+
+I. New Features
+---------------
+  * Now compiles for Macintosh - DMG file not yet supported
+  * New method CSimpleSocket::Shutdown() - used to control 
+    shutdown on socket.  
+
+II. Deprecated Functionality
+----------------------------
+
+III. Bug Fixes
+--------------
+
+ Reported Bugs
+ -------------
+ #49 - Support for Macintosh
+ #86 - Create new method to control shutdown of socket
+ #87 - Memory leak detected
+
+ Unreported Bugs
+ ---------------
+
+IV. Known Issues
+----------------
+ #44 - Add MTU size test to unit test so fragmentation can be tested.
+ #45 - Test Select() with Recv() and Send() set as non-blocking.
+ #47 - Mechanism to setting/setting socket options/flags.
+ #48 - Finish support for RAW sockets.
+ #50 - Add IPV6 support
+
+V. Configuration Changes
+------------------------
+
+VI. Release Tag Dependencies
+----------------------------
+ 
+VII. Errata
+-----------
+
+  Bug Fixes
+  -------------
+
+VIII. Documentation Changes
+----------------------------
+
+
+===============================================================================
+Release v1.3.2
+===============================================================================
+
+I. New Features
+---------------
+
+II. Deprecated Functionality
+----------------------------
+
+III. Bug Fixes
+--------------
+
+ Reported Bugs
+ -------------
+ #84 - CActiveSocket::Close() shutsdown both sides of the socket 
+
+ Unreported Bugs
+ ---------------
+
+IV. Known Issues
+----------------
+ #44 - Add MTU size test to unit test so fragmentation can be tested.
+ #45 - Test Select() with Recv() and Send() set as non-blocking.
+ #47 - Mechanism to setting/setting socket options/flags.
+ #48 - Finish support for RAW sockets.
+ #49 - Support for Macintosh.
+ #50 - Add IPV6 support
+
+V. Configuration Changes
+------------------------
+
+VI. Release Tag Dependencies
+----------------------------
+ 
+VII. Errata
+-----------
+
+  Bug Fixes
+  -------------
+
+VIII. Documentation Changes
+----------------------------
+
+
+===============================================================================
+Release v1.3.1
+===============================================================================
+
+I. New Features
+---------------
+* New methods:
+      SetOptionLinger() - Enable/disable linger option.
+      SetOptionReuseAddr() - Set option reuse port.
+* SimpleSocket::Receive() will only allocate a buffer if the internal buffer
+      is NULL or the buffer size is not equal to the previously allocated 
+      buffer.
+
+II. Deprecated Functionality
+----------------------------
+
+III. Bug Fixes
+--------------
+
+ Reported Bugs
+ -------------
+ #64 - Method GetClientPort() returns value in byte swapped order 
+ #83 - WIN32 SetBlocking() is broke. 
+
+ Unreported Bugs
+ ---------------
+
+IV. Known Issues
+----------------
+ #44 - Add MTU size test to unit test so fragmentation can be tested.
+ #45 - Test Select() with Recv() and Send() set as non-blocking.
+ #47 - Mechanism to setting/setting socket options/flags.
+ #48 - Finish support for RAW sockets.
+ #49 - Support for Macintosh.
+ #50 - Add IPV6 support
+
+V. Configuration Changes
+------------------------
+
+VI. Release Tag Dependencies
+----------------------------
+ 
+VII. Errata
+-----------
+
+  Bug Fixes
+  -------------
+
+VIII. Documentation Changes
+----------------------------
+
+
+
+===============================================================================
+Release v1.3.0
+===============================================================================
+
+I. New Features
+---------------
+* New methods:
+	SendVector() - implements the iovec functionality on both linux and
+		       Windows.
+	SetSendWindowSize() - Sent the TCP window size for send.
+	SetReceiveWindowSize() - Set the TCP windows size for receive.
+	GetSendWindowSize() - Get the TCP window size for send.
+	GetReceiveWindowSize() - Get the TCP window size fo receive.
+	Select(int sec, int usec) - Overloaded function to specify timeout
+                                    value of select.
+
+II. Deprecated Functionality
+----------------------------
+
+III. Bug Fixes
+--------------
+
+ Reported Bugs
+ -------------
+ #33 - Add SendVector mehtod to class
+ #41 - Sockets library MUST be signal safe 	
+ #51 - Add support to set TCP windows size
+ #52 - Select closes socket if timeout occurs 
+ #53 - UDP receive always fails even when successful  	
+
+ Unreported Bugs
+ ---------------
+
+IV. Known Issues
+----------------
+ #44 - Add MTU size test to unit test so fragmentation can be tested.
+ #45 - Test Select() with Recv() and Send() set as non-blocking.
+ #47 - Mechanism to setting/setting socket options/flags.
+ #48 - Finish support for RAW sockets.
+ #49 - Support for Macintosh.
+ #50 - Add IPV6 support
+
+V. Configuration Changes
+------------------------
+
+VI. Release Tag Dependencies
+----------------------------
+ 
+VII. Errata
+-----------
+
+  Bug Fixes
+  -------------
+
+VIII. Documentation Changes
+----------------------------
+
+
+
+
+===============================================================================
+Release v1.2.0
+===============================================================================
+
+I. New Features
+---------------
+* New method SetSocketDscp() and GetSocketDscp() for setting and getting DSCP values.
+
+II. Deprecated Functionality
+----------------------------
+
+III. Bug Fixes
+--------------
+
+ Reported Bugs
+ -------------
+ #17 - Finish documentation of library
+ #34 - Add SendFile() method to class 
+ #37 - Make new methods GetServerAddress() and GetClientAddress() 
+
+ Unreported Bugs
+ ---------------
+
+IV. Known Issues
+----------------
+ #41 - Sockets library MUST be signal safe
+ #44 - Add MTU size test to unit test so fragmentation can be tested.
+ #45 - Test Select() with Recv() and Send() set as non-blocking.
+ #47 - Mechanism to setting/setting socket options/flags
+
+V. Configuration Changes
+------------------------
+
+VI. Release Tag Dependencies
+----------------------------
+ 
+VII. Errata
+-----------
+
+  Bug Fixes
+  -------------
+
+VIII. Documentation Changes
+----------------------------
+
+
+
+===============================================================================
+Release v1.1.0
+===============================================================================
+
+I. New Features
+---------------
+ * UDP Now supported
+
+II. Deprecated Functionality
+----------------------------
+* SetSocketExpedited() method.
+
+III. Bug Fixes
+--------------
+
+ Reported Bugs
+ -------------
+ #18 - Compile under windows
+ #24 - Add more type and error checking to CSocket  
+ #29 - Add UDP support
+ #35 - unit testing of socket library causes crash on windows	
+
+ Unreported Bugs
+ ---------------
+
+IV. Known Issues
+----------------
+
+V. Configuration Changes
+------------------------
+
+VI. Release Tag Dependencies
+----------------------------
+ 
+VII. Errata
+-----------
+
+  Bug Fixes
+  -------------
+
+VIII. Documentation Changes
+----------------------------
+
+
+
+===============================================================================
+Release v1.0.3
+===============================================================================
+
+I. New Features
+---------------
+ * New method SetSocketExpedited() for setting expedited traffice (DSCP settings).
+
+II. Deprecated Functionality
+----------------------------
+
+III. Bug Fixes
+--------------
+
+ Reported Bugs
+ -------------
+ #27 - Finish adding stats code to CSocket class.
+ #30 - ConnectTCP() does not return correct error for inavlid IP Address.
+
+ Unreported Bugs
+ ---------------
+
+IV. Known Issues
+----------------
+
+V. Configuration Changes
+------------------------
+
+VI. Release Tag Dependencies
+----------------------------
+ 
+VII. Errata
+-----------
+
+  Bug Fixes
+  -------------
+
+VIII. Documentation Changes
+----------------------------
+
+
+
+===============================================================================
+Release v1.0.2
+===============================================================================
+
+I. New Features
+---------------
+* Implemented a new socket mode "CSocketMode::Passive" which allows the creation
+  of a listening socket.  Two new methods are available to control behavior for
+  the listening socket: Listen() and Accept().
+
+II. Deprecated Functionality
+----------------------------
+
+III. Bug Fixes
+--------------
+ #23 - Create Listen() method
+
+ Reported Bugs
+ -------------
+
+ Unreported Bugs
+ ---------------
+
+IV. Known Issues
+----------------
+
+V. Configuration Changes
+------------------------
+
+VI. Release Tag Dependencies
+----------------------------
+ 
+VII. Errata
+-----------
+
+  Bug Fixes
+  -------------
+
+VIII. Documentation Changes
+----------------------------
