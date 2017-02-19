@@ -1,10 +1,10 @@
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
-project(clsocket)
+#cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+#project(clsocket)
 
 # set up versioning.
-set(BUILD_MAJOR "1")
-set(BUILD_MINOR "4")
-set(BUILD_VERSION "3")
+#set(BUILD_MAJOR "1")
+#set(BUILD_MINOR "4")
+#set(BUILD_VERSION "3")
 
 include_directories(src)
 
@@ -45,13 +45,14 @@ elseif(WIN32)
         # Special MINGW stuff here
     elseif(MSVC)
         # Special MSVC stuff here
+        add_definitions(-D_WINSOCK_DEPRECATED_NO_WARNINGS)
     else()
         # No idea what it is, but there's a good chance it's too weird.
         MESSAGE( FATAL_ERROR "Using unknown WIN32 compiler... NOT. Please add to build system." )
     endif()
 endif()
 
-OPTION(CLSOCKET_SHARED "Build clsocket lib as shared." ON)
+OPTION(CLSOCKET_SHARED "Build clsocket lib as shared." OFF)
 OPTION(CLSOCKET_DEP_ONLY "Build for use inside other CMake projects as dependency." OFF)
 
 # make the lib
@@ -76,27 +77,5 @@ if(NOT CLSOCKET_DEP_ONLY)
     install(FILES ${CLSOCKET_HEADERS} DESTINATION include)
 else()
 
-endif()
-
-OPTION(CLSOCKET_EXAMPLES "Build the examples" ON)
-
-ADD_EXECUTABLE(echoserver-example examples/EchoServer.cpp)
-TARGET_LINK_LIBRARIES(echoserver-example clsocket)
-
-ADD_EXECUTABLE(querydaytime-example examples/QueryDayTime.cpp)
-TARGET_LINK_LIBRARIES(querydaytime-example clsocket)
-
-
-if(UNIX)
-
-    if(CLSOCKET_EXAMPLES)
-        ADD_EXECUTABLE(clsocket-example examples/RecvAsync.cpp)
-        TARGET_LINK_LIBRARIES(clsocket-example clsocket pthread)
-        if(NOT CLSOCKET_DEP_ONLY)
-            install(TARGETS clsocket-example DESTINATION bin)
-        endif()
-
-
-    endif()
 endif()
 

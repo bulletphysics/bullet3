@@ -251,6 +251,7 @@ end
 		include "../examples/ExtendedTutorials"
 		include "../examples/SharedMemory"
 		include "../examples/ThirdPartyLibs/BussIK"
+		
 		include "../examples/MultiThreading"
 
 		if _OPTIONS["lua"] then
@@ -270,6 +271,11 @@ end
 		include "../examples/ThirdPartyLibs/midi"
 	end
 	
+	if not _OPTIONS["no_clsocket"] then
+		include "../examples/ThirdPartyLibs/clsocket"
+		defines {"BT_ENABLE_CLSOCKET"}
+	end
+
 	if not _OPTIONS["no-enet"] then
 				include "../examples/ThirdPartyLibs/enet"
 				include "../test/enet/nat_punchthrough/client"
