@@ -13,8 +13,10 @@ project ("Test_clsocket_EchoServer")
 		links {"Ws2_32","Winmm"}
 	end
 	if os.is("Linux") then
+		defines {"_LINUX"}
 	end
 	if os.is("MacOSX") then
+		defines {"_DARWIN"}
 	end		
 		
 	links {"clsocket"}		
@@ -38,11 +40,14 @@ project ("Test_clsocket_QueryDayTime")
 		defines { "WIN32" }
 		links {"Ws2_32","Winmm"}
 	end
+
 	if os.is("Linux") then
-	end
-	if os.is("MacOSX") then
-	end		
-		
+                defines {"_LINUX"}
+        end
+        if os.is("MacOSX") then
+                defines {"_DARWIN"}
+        end
+
 	links {"clsocket"}		
 	
 	files {

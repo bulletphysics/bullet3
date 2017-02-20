@@ -19,35 +19,39 @@ int main(int argc, char **argv)
     // and received.
     //--------------------------------------------------------------------------
 //    if (socket.Open("time-C.timefreq.bldrdoc.gov", 13))
-      if (socket.Open("localhost", 6667))
-  {
-        //----------------------------------------------------------------------
-        // Send a requtest the server requesting the current time.
-        //----------------------------------------------------------------------
-		char data[1024];
-		sprintf(data,"%s","Hello!");
-		int len = strlen(data);
-		data[len]=0;
-		len++;
-        if (socket.Send((const uint8 *)data, len))
-        {
-            //----------------------------------------------------------------------
-            // Receive response from the server.
-            //----------------------------------------------------------------------
-            int rec = socket.Receive(len);
-			if (rec)
-			{
-						uint8* data = socket.GetData();
-				memcpy(&time, data, len);
-				printf("%s\n", time);
-			}
+      if (socket.Open("192.168.86.196", 6667))
+      {
+              for (int i=0;i<100;i++)
+              {
+                    //----------------------------------------------------------------------
+                    // Send a requtest the server requesting the current time.
+                    //----------------------------------------------------------------------
+                    char data[1024];
+                    sprintf(data,"%s %d","Hello",i);
+                    int len = strlen(data);
+                    data[len]=0;
+                    printf("Sending [%s]\n",data);
+                    len++;
+                    if (socket.Send((const uint8 *)data, len))
+                    {
+                        //----------------------------------------------------------------------
+                        // Receive response from the server.
+                        //----------------------------------------------------------------------
+                        int rec = socket.Receive(len);
+                        if (rec)
+                        {
+                                    uint8* data = socket.GetData();
+                            memcpy(&time, data, len);
+                            printf("Received: [%s]\n", time);
+                        }
+                    }
+              }
 
             //----------------------------------------------------------------------
             // Close the connection.
             //----------------------------------------------------------------------
             socket.Close();
         }
-    }
 
 
     return 1;

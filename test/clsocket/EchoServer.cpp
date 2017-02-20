@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 				if (pClient->Receive(MAX_PACKET))
 				{
 					char* msg = (char*) pClient->GetData();
-					//printf("received message [%s]\n",msg);
+					printf("received message [%s]\n",msg);
 					//------------------------------------------------------------------
 					// Send response to client and close connection to the client.
 					//------------------------------------------------------------------
