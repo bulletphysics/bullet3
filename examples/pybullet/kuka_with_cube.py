@@ -47,7 +47,7 @@ p.setRealTimeSimulation(useRealTimeSimulation)
 #use 0 for no-removal
 trailDuration = 15
 
-logId = p.startStateLogging(p.STATE_LOGGING_GENERIC_ROBOT,"LOG0001.txt")
+logId = p.startStateLogging(p.STATE_LOGGING_GENERIC_ROBOT,"LOG0001.txt",[0,1,2])
 	
 while 1:
 	if (useRealTimeSimulation):

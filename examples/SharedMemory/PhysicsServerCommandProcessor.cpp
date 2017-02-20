@@ -565,10 +565,13 @@ struct GenericRobotStateLogger : public InternalStateLogger
     FILE* m_logFileHandle;
     std::string m_structTypes;
     btMultiBodyDynamicsWorld* m_dynamicsWorld;
+    btAlignedObjectArray<int> m_bodyIdList;
+    bool m_filterObjectUniqueId;
     
     GenericRobotStateLogger(int loggingUniqueId, std::string fileName, btMultiBodyDynamicsWorld* dynamicsWorld)
     :m_loggingTimeStamp(0),
     m_logFileHandle(0),
+    m_filterObjectUniqueId(false),
     m_dynamicsWorld(dynamicsWorld)
     {
         m_loggingType = STATE_LOGGING_GENERIC_ROBOT;
@@ -635,16 +638,21 @@ struct GenericRobotStateLogger : public InternalStateLogger
         {
             for (int i=0;i<m_dynamicsWorld->getNumMultibodies();i++)
             {
+                btMultiBody* mb = m_dynamicsWorld->getMultiBody(i);
+                int objectUniqueId = mb->getUserIndex2();
+                if (m_filterObjectUniqueId && m_bodyIdList.findLinearSearch2(objectUniqueId) < 0)
+                {
+                    continue;
+                }
+                
                 MinitaurLogRecord logData;
                 logData.m_values.push_back(m_loggingTimeStamp);
                 
-                btMultiBody* mb = m_dynamicsWorld->getMultiBody(i);
                 btVector3 pos = mb->getBasePos();
                 btQuaternion ori = mb->getWorldToBaseRot();
                 btVector3 vel = mb->getBaseVel();
                 btVector3 omega = mb->getBaseOmega();
                 
-                int objectUniqueId = mb->getUserIndex2();
                 float posX = pos[0];
                 float posY = pos[1];
                 float posZ = pos[2];
@@ -1842,11 +1850,20 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						}
                         if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_GENERIC_ROBOT)
                         {
-                            
                             std::string fileName = clientCmd.m_stateLoggingArguments.m_fileName;
                             
                             int loggerUid = m_data->m_stateLoggersUniqueId++;
                             GenericRobotStateLogger* logger = new GenericRobotStateLogger(loggerUid,fileName,m_data->m_dynamicsWorld);
+                            
+                            if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_OBJECT_UNIQUE_ID) && (clientCmd.m_stateLoggingArguments.m_numBodyUniqueIds>0))
+                            {
+                                logger->m_filterObjectUniqueId = true;
+                                for (int i = 0; i < clientCmd.m_stateLoggingArguments.m_numBodyUniqueIds; ++i)
+                                {
+                                    logger->m_bodyIdList.push_back(clientCmd.m_stateLoggingArguments.m_bodyUniqueIds[i]);
+                                }
+                            }
+                            
                             m_data->m_stateLoggers.push_back(logger);
                             serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
                             serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;

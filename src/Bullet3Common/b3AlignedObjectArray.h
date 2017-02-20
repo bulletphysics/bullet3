@@ -483,6 +483,22 @@ protected:
 		}
 		return index;
 	}
+    
+    int	findLinearSearch2(const T& key) const
+    {
+        int index=-1;
+        int i;
+        
+        for (i=0;i<size();i++)
+        {
+            if (m_data[i] == key)
+            {
+                index = i;
+                break;
+            }
+        }
+        return index;
+    }
 
 	void	remove(const T& key)
 	{
