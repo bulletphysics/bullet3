@@ -256,6 +256,7 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 			b3RequestCameraImageSetPixelResolution(command, width, height);
 			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 		}
+        
         if (b3CanSubmitCommand(sm))
         {
             b3SharedMemoryStatusHandle state = b3SubmitClientCommandAndWaitStatus(sm, b3RequestActualStateCommandInit(sm,bodyIndex));
