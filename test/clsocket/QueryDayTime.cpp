@@ -19,7 +19,7 @@ int main(int argc, char **argv)
     // and received.
     //--------------------------------------------------------------------------
 //    if (socket.Open("time-C.timefreq.bldrdoc.gov", 13))
-      if (socket.Open("127.0.0.1", 6789))
+      if (socket.Open("localhost", 6667))
   {
         //----------------------------------------------------------------------
         // Send a requtest the server requesting the current time.
@@ -34,10 +34,13 @@ int main(int argc, char **argv)
             //----------------------------------------------------------------------
             // Receive response from the server.
             //----------------------------------------------------------------------
-            socket.Receive(len);
-			uint8* data = socket.GetData();
-            memcpy(&time, data, len);
-            printf("%s\n", time);
+            int rec = socket.Receive(len);
+			if (rec)
+			{
+						uint8* data = socket.GetData();
+				memcpy(&time, data, len);
+				printf("%s\n", time);
+			}
 
             //----------------------------------------------------------------------
             // Close the connection.

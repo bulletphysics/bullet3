@@ -13,7 +13,7 @@ int main(int argc, char **argv)
     //--------------------------------------------------------------------------
     socket.Initialize();
 
-    socket.Listen("127.0.0.1", 6789);
+    socket.Listen("localhost", 6667);
 
     while (true)
     {
@@ -24,17 +24,34 @@ int main(int argc, char **argv)
             //----------------------------------------------------------------------
             // Receive request from the client.
             //----------------------------------------------------------------------
-            if (pClient->Receive(MAX_PACKET))
-            {
-				char* msg = (char*) pClient->GetData();
-				printf("received message [%s]\n",msg);
-                //------------------------------------------------------------------
-                // Send response to client and close connection to the client.
-                //------------------------------------------------------------------
-                pClient->Send( pClient->GetData(), pClient->GetBytesReceived() );
-                pClient->Close();
-            }
-
+            while (1)
+			{
+				//printf("try receive\n");
+				bool receivedData = false;
+				
+				if (pClient->Receive(MAX_PACKET))
+				{
+					char* msg = (char*) pClient->GetData();
+					//printf("received message [%s]\n",msg);
+					//------------------------------------------------------------------
+					// Send response to client and close connection to the client.
+					//------------------------------------------------------------------
+					pClient->Send( pClient->GetData(), pClient->GetBytesReceived() );
+					receivedData = true;
+					if (strncmp(msg,"stop",4)==0)
+					{
+						printf("Stop request received\n");
+						break;
+					}
+				}
+				if (!receivedData)
+				{
+					printf("Didn't receive data.\n");
+					break;
+				} 
+			}
+			printf("Disconnecting client.\n");
+			pClient->Close();
             delete pClient;
         }
     }
