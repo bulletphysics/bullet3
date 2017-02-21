@@ -558,12 +558,18 @@ int b3GetJointState(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle
 		  {
 			  state->m_jointPosition = status->m_sendActualStateArgs.m_actualStateQ[info.m_qIndex];
 			  state->m_jointVelocity = status->m_sendActualStateArgs.m_actualStateQdot[info.m_uIndex];
-			  for (int ii(0); ii < 6; ++ii) {
-				state->m_jointForceTorque[ii] = status->m_sendActualStateArgs.m_jointReactionForces[6 * jointIndex + ii];
-			  }
-			  state->m_jointMotorTorque = status->m_sendActualStateArgs.m_jointMotorForce[jointIndex];
-			  return 1;
-		  }
+          } else
+          {
+              state->m_jointPosition=0;
+              state->m_jointVelocity=0;
+          }
+          for (int ii(0); ii < 6; ++ii)
+          {
+            state->m_jointForceTorque[ii] = status->m_sendActualStateArgs.m_jointReactionForces[6 * jointIndex + ii];
+          }
+          state->m_jointMotorTorque = status->m_sendActualStateArgs.m_jointMotorForce[jointIndex];
+          return 1;
+		  
 	  }
   }
   return 0;
