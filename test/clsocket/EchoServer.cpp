@@ -28,10 +28,12 @@ int main(int argc, char **argv)
 			{
 				//printf("try receive\n");
 				bool receivedData = false;
-				
-				if (pClient->Receive(MAX_PACKET))
+				int recBytes = 0;
+				recBytes = pClient->Receive(MAX_PACKET);
+				if (recBytes)
 				{
 					char* msg = (char*) pClient->GetData();
+					msg[recBytes]=0;
 					printf("received message [%s]\n",msg);
 					//------------------------------------------------------------------
 					// Send response to client and close connection to the client.

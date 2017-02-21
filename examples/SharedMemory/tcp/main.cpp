@@ -17,7 +17,6 @@ typedef SharedMemoryCommandProcessor MyCommandProcessor;
 #include "PhysicsServerCommandProcessor.h"
 #include "../Utils/b3Clock.h"
 
-#define MAX_PACKET 4096
 
 bool gVerboseNetworkMessagesServer = true;
 
@@ -75,6 +74,8 @@ int main(int argc, char *argv[])
         socket.Initialize();
         
         socket.Listen("localhost", port);
+
+		b3AlignedObjectArray<char> bytesReceived;
         
         while (!exitRequested)
         {
@@ -93,111 +94,130 @@ int main(int argc, char *argv[])
                     //printf("try receive\n");
                     bool receivedData = false;
                     
-                    if (pClient->Receive(MAX_PACKET))
+					int maxLen = 4 + sizeof(SharedMemoryStatus)+SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE;
+       
+                    if (pClient->Receive(maxLen))
                     {
-                        char* msg = (char*) pClient->GetData();
-                        int numBytesRec = pClient->GetBytesReceived();
-                        if (gVerboseNetworkMessagesServer)
-                        {
-                            printf("received message length [%d]\n",numBytesRec);
-                        }
+						
+                        char* msg2 = (char*) pClient->GetData();
+                        int numBytesRec2 = pClient->GetBytesReceived();
+
+						int curSize = bytesReceived.size();
+						bytesReceived.resize(bytesReceived.size()+numBytesRec2);
+						for (int i=0;i<numBytesRec2;i++)
+						{
+							bytesReceived[curSize+i] = msg2[i];
+						}
+
+						if (bytesReceived.size() == 4 || bytesReceived.size()==sizeof(SharedMemoryCommand))
+						{
+							int numBytesRec = bytesReceived.size();
+
+							if (gVerboseNetworkMessagesServer)
+							{
+								printf("received message length [%d]\n",numBytesRec);
+							}
                         
-                        receivedData = true;
+							receivedData = true;
                         
-                        if (strncmp(msg,"stop",4)==0)
-                        {
-                            printf("Stop request received\n");
-                            exitRequested = true;
-                            break;
-                        }
+							if (strncmp(&bytesReceived[0],"stop",4)==0)
+							{
+								printf("Stop request received\n");
+								exitRequested = true;
+								bytesReceived.clear();
+								break;
+							}
                         
                         
-                        SharedMemoryCommand cmd;
+							SharedMemoryCommand cmd;
                         
-                        SharedMemoryCommand* cmdPtr = 0;
+							SharedMemoryCommand* cmdPtr = 0;
                         
-                        //performance test
-                        if (numBytesRec == sizeof(int))
-                        {
-                            cmdPtr = &cmd;
-                            cmd.m_type = *(int*)pClient->GetData();
-                        }
+							//performance test
+							if (numBytesRec == sizeof(int))
+							{
+								cmdPtr = &cmd;
+								cmd.m_type = *(int*)&bytesReceived[0];
+							}
                         
-                        if (numBytesRec == sizeof(SharedMemoryCommand))
-                        {
-                            cmdPtr = (SharedMemoryCommand*)pClient->GetData();
-                        }
-                        if (cmdPtr)
-                        {
-                            SharedMemoryStatus serverStatus;
-                            b3AlignedObjectArray<char> buffer;
-                            buffer.resize(SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
+							if (numBytesRec == sizeof(SharedMemoryCommand))
+							{
+								cmdPtr = (SharedMemoryCommand*)&bytesReceived[0];
+							}
+							if (cmdPtr)
+							{
+								SharedMemoryStatus serverStatus;
+								b3AlignedObjectArray<char> buffer;
+								buffer.resize(SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
                             
-                            bool hasStatus = sm->processCommand(*cmdPtr,serverStatus, &buffer[0], buffer.size());
+								bool hasStatus = sm->processCommand(*cmdPtr,serverStatus, &buffer[0], buffer.size());
                             
-                            double startTimeSeconds = clock.getTimeInSeconds();
-                            double curTimeSeconds  = clock.getTimeInSeconds();
+								double startTimeSeconds = clock.getTimeInSeconds();
+								double curTimeSeconds  = clock.getTimeInSeconds();
                             
-                            while ((!hasStatus) && ((curTimeSeconds - startTimeSeconds) <timeOutInSeconds))
-                            {
-                                hasStatus = sm->receiveStatus(serverStatus, &buffer[0], buffer.size());
-                                curTimeSeconds = clock.getTimeInSeconds();
-                            }
-                            if (gVerboseNetworkMessagesServer)
-                            {
-                                printf("buffer.size = %d\n", buffer.size());
-                                printf("serverStatus.m_numDataStreamBytes = %d\n", serverStatus.m_numDataStreamBytes);
-                            }
-                            if (hasStatus)
-                            {
-                                b3AlignedObjectArray<unsigned char> packetData;
-                                unsigned char* statBytes = (unsigned char*)&serverStatus;
+								while ((!hasStatus) && ((curTimeSeconds - startTimeSeconds) <timeOutInSeconds))
+								{
+									hasStatus = sm->receiveStatus(serverStatus, &buffer[0], buffer.size());
+									curTimeSeconds = clock.getTimeInSeconds();
+								}
+								if (gVerboseNetworkMessagesServer)
+								{
+									printf("buffer.size = %d\n", buffer.size());
+									printf("serverStatus.m_numDataStreamBytes = %d\n", serverStatus.m_numDataStreamBytes);
+								}
+								if (hasStatus)
+								{
+									b3AlignedObjectArray<unsigned char> packetData;
+									unsigned char* statBytes = (unsigned char*)&serverStatus;
                                 
-                                if (cmdPtr->m_type == CMD_STEP_FORWARD_SIMULATION)
-                                {
-                                    packetData.resize(4 + sizeof(int));
-                                    int sz = packetData.size();
-                                    int curPos = 0;
+									if (cmdPtr->m_type == CMD_STEP_FORWARD_SIMULATION)
+									{
+										packetData.resize(4 + sizeof(int));
+										int sz = packetData.size();
+										int curPos = 0;
                                     
-                                    MySerializeInt(sz, &packetData[curPos]);
-                                    curPos += 4;
-                                    for (int i = 0; i < sizeof(int); i++)
-                                    {
-                                        packetData[i + curPos] = statBytes[i];
-                                    }
-                                    curPos += sizeof(int);
+										MySerializeInt(sz, &packetData[curPos]);
+										curPos += 4;
+										for (int i = 0; i < sizeof(int); i++)
+										{
+											packetData[i + curPos] = statBytes[i];
+										}
+										curPos += sizeof(int);
                                     
-                                    pClient->Send( &packetData[0], packetData.size() );
+										pClient->Send( &packetData[0], packetData.size() );
                                    
-                                }
-                                else
-                                {
-                                    //create packetData with [int packetSizeInBytes, status, streamBytes)
-                                    packetData.resize(4 + sizeof(SharedMemoryStatus) + serverStatus.m_numDataStreamBytes);
-                                    int sz = packetData.size();
-                                    int curPos = 0;
+									}
+									else
+									{
+										//create packetData with [int packetSizeInBytes, status, streamBytes)
+										packetData.resize(4 + sizeof(SharedMemoryStatus) + serverStatus.m_numDataStreamBytes);
+										int sz = packetData.size();
+										int curPos = 0;
                                     
-                                    MySerializeInt(sz, &packetData[curPos]);
-                                    curPos += 4;
-                                    for (int i = 0; i < sizeof(SharedMemoryStatus); i++)
-                                    {
-                                        packetData[i + curPos] = statBytes[i];
-                                    }
-                                    curPos += sizeof(SharedMemoryStatus);
+										MySerializeInt(sz, &packetData[curPos]);
+										curPos += 4;
+										for (int i = 0; i < sizeof(SharedMemoryStatus); i++)
+										{
+											packetData[i + curPos] = statBytes[i];
+										}
+										curPos += sizeof(SharedMemoryStatus);
                                     
-                                    for (int i = 0; i < serverStatus.m_numDataStreamBytes; i++)
-                                    {
-                                        packetData[i + curPos] = buffer[i];
-                                    }
+										for (int i = 0; i < serverStatus.m_numDataStreamBytes; i++)
+										{
+											packetData[i + curPos] = buffer[i];
+										}
                                     
-                                    pClient->Send( &packetData[0], packetData.size() );
-                                }
-                            }
-                        }
-                        else
-                        {
-                            printf("received packet with unknown contents\n");
-                        }
+										pClient->Send( &packetData[0], packetData.size() );
+									}
+								}
+							}
+							else
+							{
+								printf("received packet with unknown contents\n");
+							}
+							bytesReceived.clear();
+
+						}
                     }
                     if (!receivedData)
                     {
