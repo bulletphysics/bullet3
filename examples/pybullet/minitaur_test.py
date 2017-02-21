@@ -1,6 +1,7 @@
 import pybullet as p
-
 from minitaur import Minitaur
+from minitaur_evaluate import *
+
 import time
 import math
 import numpy as np
@@ -10,24 +11,13 @@ def main(unused_args):
   c = p.connect(p.SHARED_MEMORY)
   if (c<0):
       c = p.connect(p.GUI)
-  p.resetSimulation()
-  p.setTimeStep(timeStep)
-  p.loadURDF("plane.urdf")
-  p.setGravity(0,0,-10)
 
-  minitaur = Minitaur()
-  amplitude = 0.24795664427
-  speed = 0.2860877729434
-  for i in range(1000):
-    a1 = math.sin(i*speed)*amplitude+1.57
-    a2 = math.sin(i*speed+3.14)*amplitude+1.57
-    joint_values = [a1, -1.57, a1, -1.57, a2, -1.57, a2, -1.57]
-    minitaur.applyAction(joint_values)
+  params = [0.1903581461951056, 0.0006732219568880068, 0.05018085615283363, 3.219916795483583, 6.2406418167980595, 4.189869754607539]
+  evaluate_func = 'evaluate_desired_motorAngle_2Amplitude4Phase'
+  energy_weight = 0.01
 
-    p.stepSimulation()
-#    print(minitaur.getBasePosition())
-    time.sleep(timeStep)
-  final_distance = np.linalg.norm(np.asarray(minitaur.getBasePosition()))
-  print(final_distance)
+  finalReturn = evaluate_params(evaluateFunc = evaluate_func, params=params, objectiveParams=[energy_weight], timeStep=timeStep, sleepTime=timeStep)
+
+  print(finalReturn)
 
 main(0)
