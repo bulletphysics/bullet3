@@ -448,7 +448,7 @@ struct MinitaurStateLogger : public InternalStateLogger
 	btMultiBody* m_minitaurMultiBody;
 	btAlignedObjectArray<int> m_motorIdList;
 
-	MinitaurStateLogger(int loggingUniqueId, std::string fileName, btMultiBody* minitaurMultiBody, btAlignedObjectArray<int>& motorIdList)
+	MinitaurStateLogger(int loggingUniqueId, const std::string& fileName, btMultiBody* minitaurMultiBody, btAlignedObjectArray<int>& motorIdList)
 		:m_loggingTimeStamp(0),
 		m_logFileHandle(0),
 		m_minitaurMultiBody(minitaurMultiBody)
