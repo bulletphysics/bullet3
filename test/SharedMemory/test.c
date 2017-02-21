@@ -8,6 +8,10 @@
 #include "SharedMemory/PhysicsClientUDP_C_API.h"
 #endif//PHYSICS_UDP
 
+#ifdef PHYSICS_TCP
+#include "SharedMemory/PhysicsClientTCP_C_API.h"
+#endif//PHYSICS_TCP
+
 #ifdef PHYSICS_LOOP_BACK
 #include "SharedMemory/PhysicsLoopBackC_API.h"
 #endif //PHYSICS_LOOP_BACK
@@ -343,6 +347,10 @@ int main(int argc, char* argv[])
 
 #ifdef PHYSICS_UDP
         b3PhysicsClientHandle sm = b3ConnectPhysicsUDP("localhost",1234);
+#endif //PHYSICS_UDP
+
+#ifdef PHYSICS_TCP
+        b3PhysicsClientHandle sm = b3ConnectPhysicsTCP("localhost",6667);
 #endif //PHYSICS_UDP
 
 	testSharedMemory(sm);
