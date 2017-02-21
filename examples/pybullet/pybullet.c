@@ -10,7 +10,7 @@
 #endif //BT_ENABLE_CLSOCKET
 
 #ifdef __APPLE__
-#include <Python/Python.h>
+#include <Python.h>
 #else
 #include <Python.h>
 #endif
