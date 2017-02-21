@@ -4,6 +4,7 @@ INCLUDE_DIRECTORIES(
 		${BULLET_PHYSICS_SOURCE_DIR}/examples
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/enet/include
+                ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/clsocket/src
 		${PYTHON_INCLUDE_DIRS}
   )
 IF(BUILD_PYBULLET_NUMPY)
@@ -79,6 +80,9 @@ SET(pybullet_SRCS
 		../../examples/MultiThreading/b3ThreadSupportInterface.cpp
 		
 )
+IF(BUILD_PYBULLET_CLSOCKET)
+ ADD_DEFINITIONS(-DBT_ENABLE_CLSOCKET)
+ENDIF(BUILD_PYBULLET_CLSOCKET)
 
 IF(WIN32)
 	LINK_LIBRARIES(
@@ -87,10 +91,22 @@ IF(WIN32)
 	IF(BUILD_PYBULLET_ENET)
 		ADD_DEFINITIONS(-DWIN32 -DBT_ENABLE_ENET)
 	ENDIF(BUILD_PYBULLET_ENET)
+	IF(BUILD_PYBULLET_CLSOCKET)
+		ADD_DEFINITIONS(-DWIN32)
+	ENDIF(BUILD_PYBULLET_CLSOCKET)
+
 ELSE(WIN32)
 	IF(BUILD_PYBULLET_ENET)
 		ADD_DEFINITIONS(-DHAS_SOCKLEN_T -DBT_ENABLE_ENET)
 	ENDIF(BUILD_PYBULLET_ENET)
+
+	IF(BUILD_PYBULLET_CLSOCKET)	
+		IF(APPLE)
+			ADD_DEFINITIONS(-D_DARWIN)
+		ELSE()
+			ADD_DEFINITIONS(-D_LINUX)
+		ENDIF()
+	ENDIF(BUILD_PYBULLET_CLSOCKET)
 ENDIF(WIN32)
 
 
@@ -112,6 +128,17 @@ IF(BUILD_PYBULLET_ENET)
 	)
 ENDIF(BUILD_PYBULLET_ENET)
 
+IF(BUILD_PYBULLET_CLSOCKET)
+	set(pybullet_SRCS ${pybullet_SRCS}
+		 ../../examples/SharedMemory/PhysicsClientTCP.cpp
+                 ../../examples/SharedMemory/PhysicsClientTCP.h
+                 ../../examples/SharedMemory/PhysicsClientTCP_C_API.cpp
+                 ../../examples/SharedMemory/PhysicsClientTCP_C_API.h
+		 ../../examples/ThirdPartyLibs/clsocket/src/SimpleSocket.cpp
+		 ../../examples/ThirdPartyLibs/clsocket/src/ActiveSocket.cpp
+		 ../../examples/ThirdPartyLibs/clsocket/src/PassiveSocket.cpp
+	)
+ENDIF()
 
 ADD_LIBRARY(pybullet SHARED ${pybullet_SRCS})
 
@@ -124,7 +151,7 @@ SET_TARGET_PROPERTIES(pybullet PROPERTIES DEBUG_POSTFIX "_d")
 
 
 IF(WIN32)
-	IF(BUILD_PYBULLET_ENET)
+	IF(BUILD_PYBULLET_ENET OR BUILD_PYBULLET_CLSOCKET)
 		TARGET_LINK_LIBRARIES(pybullet ws2_32 )
 	ENDIF(BUILD_PYBULLET_ENET)
 
