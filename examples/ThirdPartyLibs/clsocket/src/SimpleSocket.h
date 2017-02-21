@@ -413,6 +413,14 @@ public:
     CSocketError GetSocketError(void) {
         return m_socketErrno;
     };
+    /*
+     CSocketError GetSocketError(void) {
+     CSocketError err = m_socketErrno;
+     m_socketErrno = SocketSuccess;
+     return err;
+     
+     };
+     */
 
     /// Get the total time the of the last operation in milliseconds.
     ///  @return number of milliseconds of last operation.

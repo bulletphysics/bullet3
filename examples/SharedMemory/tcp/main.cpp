@@ -74,8 +74,10 @@ int main(int argc, char *argv[])
         socket.Initialize();
         
         socket.Listen("localhost", port);
-
-		b3AlignedObjectArray<char> bytesReceived;
+        socket.SetBlocking();
+        
+        int curNumErr = 0;
+        
         
         while (!exitRequested)
         {
@@ -83,8 +85,11 @@ int main(int argc, char *argv[])
 
             if ((pClient = socket.Accept()) != NULL)
             {
+                b3AlignedObjectArray<char> bytesReceived;
+
                 int clientPort = socket.GetClientPort();
                 printf("connected from %s:%d\n", socket.GetClientAddr(),clientPort);
+                
                 
                 //----------------------------------------------------------------------
                 // Receive request from the client.
@@ -96,9 +101,27 @@ int main(int argc, char *argv[])
                     
 					int maxLen = 4 + sizeof(SharedMemoryStatus)+SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE;
        
+
+                    //heuristic to detect disconnected clients
+                    CSimpleSocket::CSocketError err = pClient->GetSocketError();
+                    if (err != CSimpleSocket::SocketSuccess)
+                    {
+                        b3Clock::usleep(100);
+                        
+                        curNumErr++;
+                       
+                        if (curNumErr>100)
+                        {
+                            printf("TCP Connection error = %d, curNumErr = %d\n", (int)err, curNumErr);
+                            
+                            break;
+                        }
+                    }
+                    
                     if (pClient->Receive(maxLen))
                     {
-						
+					
+                        curNumErr = 0;
                         char* msg2 = (char*) pClient->GetData();
                         int numBytesRec2 = pClient->GetBytesReceived();
 
@@ -221,9 +244,8 @@ int main(int argc, char *argv[])
                     }
                     if (!receivedData)
                     {
-                        printf("Didn't receive data.\n");
-                        break;
-                    } 
+                        //printf("Didn't receive data.\n");
+                    }
                 }
                 printf("Disconnecting client.\n");
                 pClient->Close();

@@ -5,6 +5,10 @@
 #include "../SharedMemory/PhysicsClientUDP_C_API.h"
 #endif //BT_ENABLE_ENET
 
+#ifdef BT_ENABLE_CLSOCKET
+#include "../SharedMemory/PhysicsClientTCP_C_API.h"
+#endif //BT_ENABLE_CLSOCKET
+
 #ifdef __APPLE__
 #include <Python/Python.h>
 #else
@@ -25,6 +29,7 @@ enum eCONNECT_METHOD {
   eCONNECT_DIRECT = 2,
   eCONNECT_SHARED_MEMORY = 3,
   eCONNECT_UDP = 4,
+  eCONNECT_TCP = 5,
 };
 
 static PyObject* SpamError;
@@ -227,7 +232,9 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
   {
    
 	int key = SHARED_MEMORY_KEY;
-	int port = 1234;
+	int udpPort = 1234;
+    int tcpPort = 6667;
+      
 	const char* hostName = "localhost";
 
 	int size = PySequence_Size(args);
@@ -236,7 +243,7 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 		if (!PyArg_ParseTuple(args, "i", &method)) {
 			PyErr_SetString(SpamError,
 				"connectPhysicsServer expected argument  GUI, "
-				"DIRECT, SHARED_MEMORY or UDP");
+				"DIRECT, SHARED_MEMORY, UDP or TCP");
 			return NULL;
 		}
 	}
@@ -250,7 +257,7 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 			if (sPhysicsClientsGUI[i] ==eCONNECT_GUI)
 			{
 				PyErr_SetString(SpamError,
-					"Only one local in-process GUI connection allowed. Use DIRECT connection mode or start a separate GUI physics server (ExampleBrowser, App_SharedMemoryPhysics_GUI, App_SharedMemoryPhysics_VR) and connect over SHARED_MEMORY or UDP instead.");
+					"Only one local in-process GUI connection allowed. Use DIRECT connection mode or start a separate GUI physics server (ExampleBrowser, App_SharedMemoryPhysics_GUI, App_SharedMemoryPhysics_VR) and connect over SHARED_MEMORY, UDP or TCP instead.");
 				return NULL;
 			}
 		}
@@ -275,12 +282,18 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 
 	if (size == 3)
 	{
+        int port = -1;
 		if (!PyArg_ParseTuple(args, "isi", &method, &hostName, &port))
 		{
 			PyErr_SetString(SpamError,
 				"connectPhysicsServer 3 arguments: method, hostname, port");
 			return NULL;
 		}
+        if (port>=0)
+        {
+            udpPort = port;
+            tcpPort = port;
+        }
 	}
 
 
@@ -308,7 +321,7 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 	{
 #ifdef BT_ENABLE_ENET
 
-		  sm = b3ConnectPhysicsUDP(hostName, port);
+		  sm = b3ConnectPhysicsUDP(hostName, udpPort);
 #else
  		PyErr_SetString(SpamError, "UDP is not enabled in this pybullet build");
 		return NULL;
@@ -316,6 +329,20 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 
 		  break;
 	}
+        case eCONNECT_TCP:
+        {
+#ifdef BT_ENABLE_CLSOCKET
+            
+            sm = b3ConnectPhysicsTCP(hostName, tcpPort);
+#else
+            PyErr_SetString(SpamError, "TCP is not enabled in this pybullet build");
+            return NULL;
+#endif //BT_ENABLE_CLSOCKET
+            
+            break;
+        }
+            
+            
 
       default: {
         PyErr_SetString(SpamError, "connectPhysicsServer unexpected argument");
@@ -5126,6 +5153,7 @@ initpybullet(void)
   PyModule_AddIntConstant(m, "DIRECT", eCONNECT_DIRECT);  // user read
   PyModule_AddIntConstant(m, "GUI", eCONNECT_GUI);        // user read
   PyModule_AddIntConstant(m, "UDP", eCONNECT_UDP);        // user read
+  PyModule_AddIntConstant(m, "TCP", eCONNECT_TCP);        // user read
 
   PyModule_AddIntConstant(m, "JOINT_REVOLUTE", eRevoluteType);        // user read
   PyModule_AddIntConstant(m, "JOINT_PRISMATIC", ePrismaticType);        // user read

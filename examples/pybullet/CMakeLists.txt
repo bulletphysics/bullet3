@@ -95,7 +95,7 @@ ENDIF(WIN32)
 
 
 IF(BUILD_PYBULLET_ENET)
-	ADD_LIBRARY(pybullet SHARED ${pybullet_SRCS} 
+	set(pybullet_SRCS ${pybullet_SRCS} 
 		../../examples/SharedMemory/PhysicsClientUDP.cpp
 		../../examples/SharedMemory/PhysicsClientUDP_C_API.cpp
 		../../examples/SharedMemory/PhysicsClientUDP.h		
@@ -110,9 +110,10 @@ IF(BUILD_PYBULLET_ENET)
 		../../examples/ThirdPartyLibs/enet/peer.c
 		../../examples/ThirdPartyLibs/enet/protocol.c
 	)
-ELSE(BUILD_PYBULLET_ENET)
-	ADD_LIBRARY(pybullet SHARED ${pybullet_SRCS})
 ENDIF(BUILD_PYBULLET_ENET)
+
+
+ADD_LIBRARY(pybullet SHARED ${pybullet_SRCS})
 
 SET_TARGET_PROPERTIES(pybullet PROPERTIES PREFIX "")
 SET_TARGET_PROPERTIES(pybullet PROPERTIES POSTFIX "")
