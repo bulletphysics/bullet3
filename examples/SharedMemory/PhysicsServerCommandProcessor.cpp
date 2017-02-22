@@ -649,7 +649,7 @@ struct GenericRobotStateLogger : public InternalStateLogger
                 logData.m_values.push_back(m_loggingTimeStamp);
                 
                 btVector3 pos = mb->getBasePos();
-                btQuaternion ori = mb->getWorldToBaseRot();
+                btQuaternion ori = mb->getWorldToBaseRot().inverse();
                 btVector3 vel = mb->getBaseVel();
                 btVector3 omega = mb->getBaseOmega();
                 
