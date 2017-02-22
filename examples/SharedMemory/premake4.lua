@@ -318,7 +318,11 @@ if os.is("Windows") then
 					"../ThirdPartyLibs/openvr/samples/shared/Vectors.h",
 	}
 	if os.is("Windows") then 
-		libdirs {"../ThirdPartyLibs/openvr/lib/win32"}
+		configuration {"x32"}
+			libdirs {"../ThirdPartyLibs/openvr/lib/win32"}
+		configuration {"x64"}
+			libdirs {"../ThirdPartyLibs/openvr/lib/win64"}
+		configuration{}
 	end
 	
 	if os.is("Linux") then initX11() end
