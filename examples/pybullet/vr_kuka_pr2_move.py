@@ -12,6 +12,7 @@ ORIENTATION=2
 ANALOG=3
 BUTTONS=6
 
+gripper_max_joint = 0.550569
 while True:
 	events = p.getVREvents()
 
