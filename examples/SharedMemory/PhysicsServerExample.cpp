@@ -1153,6 +1153,12 @@ public:
 			gCreateDefaultRobotAssets = true;
 		}
 
+		if (args.CheckCmdLineFlag("realtimesimulation"))
+		{
+			//gEnableRealTimeSimVR = true;
+			m_physicsServer.enableRealTimeSimulation(true);
+		}
+
 		if (args.CheckCmdLineFlag("norobotassets"))
 		{
 			gCreateDefaultRobotAssets = false;

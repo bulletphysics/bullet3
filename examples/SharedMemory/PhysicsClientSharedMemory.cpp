@@ -268,11 +268,13 @@ bool PhysicsClientSharedMemory::connect() {
 		command.m_type = CMD_REQUEST_BODY_INFO;
 		command.m_sdfRequestInfoArgs.m_bodyUniqueId = 37;
 		submitClientCommand(command);
-		int timeout = 1024 * 1024 * 1024;
-		
+
+		double startTime = clock.getTimeInSeconds();
+		double timeOutInSeconds = 10;
+
 		const SharedMemoryStatus* status = 0;
 
-		while ((status == 0) && (timeout-- > 0))
+		while ((status == 0) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
 		{
 			status = processServerStatus();
 		

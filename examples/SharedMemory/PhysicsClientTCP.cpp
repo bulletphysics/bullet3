@@ -64,7 +64,14 @@ struct	TcpNetworkedInternalData
         m_tcpSocket.Initialize();
         
         m_isConnected = m_tcpSocket.Open(m_hostName.c_str(),m_port);
-        
+        if (m_isConnected)
+		{
+			m_tcpSocket.SetSendTimeout(5,0);
+			m_tcpSocket.SetReceiveTimeout(5,0);
+		}
+		int key = SHARED_MEMORY_MAGIC_NUMBER;
+		m_tcpSocket.Send((uint8*)&key,4);
+		
 		return m_isConnected;
 	}
 
@@ -243,6 +250,8 @@ bool TcpNetworkedPhysicsProcessor::connect()
 
 void TcpNetworkedPhysicsProcessor::disconnect()
 {
+	const char msg[16]="disconnect";
+	m_data->m_tcpSocket.Send((const uint8 *)msg,10);
 	m_data->m_tcpSocket.Close();
 	m_data->m_isConnected = false;
 }

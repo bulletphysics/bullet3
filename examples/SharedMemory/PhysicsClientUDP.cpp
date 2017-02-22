@@ -464,26 +464,32 @@ bool UdpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryComma
 		printf("PhysicsClientUDP::processCommand\n");
 	}
 //	int sz = sizeof(SharedMemoryCommand);
-	int timeout = 1024 * 1024 * 1024;
+	
+	b3Clock clock;
+	double startTime = clock.getTimeInSeconds();
+	double timeOutInSeconds = 10;
 
 	m_data->m_cs->lock();
 	m_data->m_clientCmd = clientCmd;
 	m_data->m_hasCommand = true;
 	m_data->m_cs->unlock();
 
-	while (m_data->m_hasCommand &&  (timeout-- > 0))
+	while ((m_data->m_hasCommand) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
 	{
 		b3Clock::usleep(0);
 	}
 
 #if 0
 
-	timeout = 1024 * 1024 * 1024;
 
 	bool hasStatus = false;
 
+	b3Clock clock;
+	double startTime = clock.getTimeInSeconds();
+	double timeOutInSeconds = 10;
+
 	const SharedMemoryStatus* stat = 0;
-	while ((!hasStatus) && (timeout-- > 0))
+	while ((!hasStatus) && (clock.getTimeInSeconds() - startTime < timeOutInSeconds))
 	{
 		hasStatus = receiveStatus(serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 		b3Clock::usleep(100);

@@ -377,10 +377,11 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 		  statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 			statusType = b3GetStatusType(statusHandle);
 #if 0
-			if (statusType != CMD_BODY_INFO_COMPLETED) {
-			PyErr_SetString(SpamError, "b3InitSyncBodyInfoCommand failed.");
-			return NULL;
-		}
+			if (statusType != CMD_BODY_INFO_COMPLETED) 
+			{
+				PyErr_SetString(SpamError, "b3InitSyncBodyInfoCommand failed.");
+				return NULL;
+			}
 #endif
 	  }
 
