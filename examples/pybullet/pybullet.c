@@ -2619,7 +2619,6 @@ static PyObject* pybullet_removeAllUserDebugItems(PyObject* self, PyObject* args
 
 static PyObject* pybullet_startStateLogging(PyObject* self, PyObject* args, PyObject *keywds) 
 {
-	b3SharedMemoryCommandHandle commandHandle;
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType;
 
@@ -2955,6 +2954,36 @@ static PyObject* pybullet_getVREvents(PyObject* self, PyObject* args, PyObject *
 	Py_INCREF(Py_None);
 	return Py_None;
 
+}
+
+
+static PyObject* pybullet_configureDebugVisualizer(PyObject* self, PyObject* args, PyObject *keywds)
+{
+    int flag=1;
+    int enable = -1;
+    
+    int physicsClientId = 0;
+    b3PhysicsClientHandle sm=0;
+    static char *kwlist[] = { "flag", "enable", "physicsClientId", NULL };
+    
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iii", kwlist,
+                                     &flag, &enable, &physicsClientId))
+        return NULL;
+    
+    sm = getPhysicsClient(physicsClientId);
+    if (sm == 0)
+    {
+        PyErr_SetString(SpamError, "Not connected to physics server.");
+        return NULL;
+    }
+   
+    {
+        b3SharedMemoryCommandHandle commandHandle = b3InitConfigureOpenGLVisualizer(sm);
+        b3ConfigureOpenGLVisualizerSetVisualizationFlags(commandHandle, flag, enable);
+        b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 
@@ -5051,6 +5080,10 @@ static PyMethodDef SpamMethods[] = {
 		"If you ommit the color, the custom color will be removed."
 	  },
 
+    {	"configureDebugVisualizer", (PyCFunction)pybullet_configureDebugVisualizer, METH_VARARGS | METH_KEYWORDS,
+        "For the 3D OpenGL Visualizer, enable/disable GUI, shadows. Set the camera parameters."
+    },
+
 
     {"getVisualShapeData", (PyCFunction)pybullet_getVisualShapeData, METH_VARARGS| METH_KEYWORDS,
 	"Return the visual shape information for one object." },
@@ -5188,6 +5221,12 @@ initpybullet(void)
   PyModule_AddIntConstant(m, "STATE_LOGGING_GENERIC_ROBOT", STATE_LOGGING_GENERIC_ROBOT);
   PyModule_AddIntConstant(m, "STATE_LOGGING_VR_CONTROLLERS", STATE_LOGGING_VR_CONTROLLERS);
 
+  PyModule_AddIntConstant(m, "COV_ENABLE_GUI", COV_ENABLE_GUI);
+  PyModule_AddIntConstant(m, "COV_ENABLE_SHADOWS", COV_ENABLE_SHADOWS);
+  PyModule_AddIntConstant(m, "COV_ENABLE_WIREFRAME", COV_ENABLE_WIREFRAME);
+
+    
+    
   SpamError = PyErr_NewException("pybullet.error", NULL, NULL);
   Py_INCREF(SpamError);
   PyModule_AddObject(m, "error", SpamError);

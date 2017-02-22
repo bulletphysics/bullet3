@@ -504,6 +504,13 @@ class MultiThreadedOpenGLGuiHelper : public GUIHelperInterface
 
 public:
 
+    
+    void setVisualizerFlag(int flag, int enable)
+    {
+        m_childGuiHelper->setVisualizerFlag(flag,enable);
+    }
+
+    
 	GUIHelperInterface* m_childGuiHelper;
 
 	int m_uidGenerator;

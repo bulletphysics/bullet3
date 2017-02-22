@@ -46,6 +46,8 @@ struct GUIHelperInterface
 
 	virtual void resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ)=0;
 	
+    virtual void setVisualizerFlag(int flag, int enable){};
+    
 	virtual void copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16], 
                                   unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, 
                                   float* depthBuffer, int depthBufferSizeInPixels, 

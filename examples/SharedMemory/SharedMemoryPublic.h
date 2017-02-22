@@ -49,6 +49,7 @@ enum EnumSharedMemoryClientCommand
 	CMD_SET_VR_CAMERA_STATE,
 	CMD_SYNC_BODY_INFO,
 	CMD_STATE_LOGGING,
+    CMD_CONFIGURE_OPENGL_VISUALIZER,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -126,6 +127,7 @@ enum EnumSharedMemoryServerStatus
 		CMD_STATE_LOGGING_COMPLETED,
 		CMD_STATE_LOGGING_START_COMPLETED,
 		CMD_STATE_LOGGING_FAILED,
+    
         //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
@@ -398,4 +400,10 @@ enum EnumRenderer
     //ER_FIRE_RAYS=(1<<18),
 };
 
+enum EnumConfigureOpenGLVisualizer
+{
+    COV_ENABLE_GUI=1,
+    COV_ENABLE_SHADOWS,
+    COV_ENABLE_WIREFRAME,
+};
 #endif//SHARED_MEMORY_PUBLIC_H

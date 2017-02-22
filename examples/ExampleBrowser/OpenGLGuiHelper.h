@@ -42,6 +42,8 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 
 	virtual void setUpAxis(int axis);
 	
+    void setVisualizerFlag(int flag, int enable);
+    
 	virtual void resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ);
 	
 	virtual void copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16], 

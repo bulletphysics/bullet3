@@ -2551,3 +2551,50 @@ int b3StateLoggingStop(b3SharedMemoryCommandHandle commandHandle, int loggingUid
 	return 0;
 }
 
+
+///configure the 3D OpenGL debug visualizer (enable/disable GUI widgets, shadows, position camera etc)
+b3SharedMemoryCommandHandle b3InitConfigureOpenGLVisualizer(b3PhysicsClientHandle physClient)
+{
+    PhysicsClient* cl = (PhysicsClient*)physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    
+    command->m_type = CMD_CONFIGURE_OPENGL_VISUALIZER;
+    command->m_updateFlags = 0;
+    
+    return (b3SharedMemoryCommandHandle)command;
+}
+
+void b3ConfigureOpenGLVisualizerSetVisualizationFlags(b3SharedMemoryCommandHandle commandHandle, int flag, int enabled)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER);
+    if (command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER)
+    {
+        command->m_updateFlags |= COV_SET_FLAGS;
+        command->m_configureOpenGLVisualizerArguments.m_setFlag = flag;
+        command->m_configureOpenGLVisualizerArguments.m_setEnabled = enabled;
+    }
+}
+
+void b3ConfigureOpenGLVisualizerSetViewMatrix(b3SharedMemoryCommandHandle commandHandle, float cameraDistance, float cameraPitch, float cameraYaw, const float cameraTargetPosition[3])
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER);
+    
+    if (command->m_type == CMD_CONFIGURE_OPENGL_VISUALIZER)
+    {
+        command->m_updateFlags |= COV_SET_CAMERA_VIEW_MATRIX;
+        command->m_configureOpenGLVisualizerArguments.m_cameraDistance = cameraDistance;
+        command->m_configureOpenGLVisualizerArguments.m_cameraPitch = cameraPitch;
+        command->m_configureOpenGLVisualizerArguments.m_cameraYaw = cameraYaw;
+        command->m_configureOpenGLVisualizerArguments.m_cameraTargetPosition[0] = cameraTargetPosition[0];
+        command->m_configureOpenGLVisualizerArguments.m_cameraTargetPosition[1] = cameraTargetPosition[1];
+        command->m_configureOpenGLVisualizerArguments.m_cameraTargetPosition[2] = cameraTargetPosition[2];
+    }
+}
+

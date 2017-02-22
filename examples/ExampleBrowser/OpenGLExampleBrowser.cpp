@@ -125,10 +125,10 @@ bool sUseOpenGL2 = false;
 extern bool useShadowMap;
 #endif
 
-static bool visualWireframe=false;
+bool visualWireframe=false;
 static bool renderVisualGeometry=true;
 static bool renderGrid = true;
-static bool renderGui = true;
+bool renderGui = true;
 static bool enable_experimental_opencl = false;
 
 int gDebugDrawFlags = 0;

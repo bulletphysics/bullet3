@@ -374,6 +374,30 @@ void OpenGLGuiHelper::setUpAxis(int axis)
 
 }
 
+extern bool useShadowMap;
+extern bool visualWireframe;
+extern bool renderGui;
+#include "../SharedMemory/SharedMemoryPublic.h"
+
+void OpenGLGuiHelper::setVisualizerFlag(int flag, int enable)
+{
+    //temporary direct access
+    if (flag == COV_ENABLE_SHADOWS)
+    {
+        useShadowMap = enable;
+    }
+    if (flag == COV_ENABLE_GUI)
+    {
+        renderGui = enable;
+    }
+    
+    if (flag == COV_ENABLE_WIREFRAME)
+    {
+        visualWireframe = enable;
+    }
+}
+
+
 void OpenGLGuiHelper::resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ)
 {
 	if (getRenderInterface() && getRenderInterface()->getActiveCamera())
