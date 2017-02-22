@@ -42,7 +42,6 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 
 	virtual void setUpAxis(int axis);
 	
-    void setVisualizerFlag(int flag, int enable);
     
 	virtual void resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ);
 	
@@ -82,6 +81,9 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 
 	void setVRMode(bool vrMode);
 
+	void setVisualizerFlag(int flag, int enable);
+
+	virtual void	setVisualizerFlagCallback(VisualizerFlagCallback callback);
 
 };
 

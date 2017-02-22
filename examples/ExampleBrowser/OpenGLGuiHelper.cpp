@@ -154,9 +154,11 @@ struct OpenGLGuiHelperInternalData
 	btAlignedObjectArray<unsigned char> m_rgbaPixelBuffer1;
 	btAlignedObjectArray<float> m_depthBuffer1;
 	
+	VisualizerFlagCallback m_visualizerFlagCallback;
 	OpenGLGuiHelperInternalData()
 		:m_vrMode(false),
-		m_vrSkipShadowPass(0)
+		m_vrSkipShadowPass(0),
+		m_visualizerFlagCallback(0)
 	{
 	}
 
@@ -374,27 +376,17 @@ void OpenGLGuiHelper::setUpAxis(int axis)
 
 }
 
-extern bool useShadowMap;
-extern bool visualWireframe;
-extern bool renderGui;
-#include "../SharedMemory/SharedMemoryPublic.h"
+
+void	OpenGLGuiHelper::setVisualizerFlagCallback(VisualizerFlagCallback callback)
+{
+	m_data->m_visualizerFlagCallback = callback;
+}
+
 
 void OpenGLGuiHelper::setVisualizerFlag(int flag, int enable)
 {
-    //temporary direct access
-    if (flag == COV_ENABLE_SHADOWS)
-    {
-        useShadowMap = enable;
-    }
-    if (flag == COV_ENABLE_GUI)
-    {
-        renderGui = enable;
-    }
-    
-    if (flag == COV_ENABLE_WIREFRAME)
-    {
-        visualWireframe = enable;
-    }
+	if (m_data->m_visualizerFlagCallback)
+		(m_data->m_visualizerFlagCallback)(flag,enable);
 }
 
 

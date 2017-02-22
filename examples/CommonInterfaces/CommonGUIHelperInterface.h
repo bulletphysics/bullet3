@@ -12,6 +12,10 @@ struct CommonParameterInterface;
 struct CommonRenderInterface;
 struct CommonGraphicsApp;
 
+
+
+typedef void (*VisualizerFlagCallback)(int flag, bool enable);
+
 ///The Bullet 2 GraphicsPhysicsBridge let's the graphics engine create graphics representation and synchronize
 struct GUIHelperInterface
 {
@@ -79,6 +83,7 @@ struct GUIHelperInterface
 
 	virtual void	removeUserDebugItem( int debugItemUniqueId){};
 	virtual void	removeAllUserDebugItems( ){};
+	virtual void	setVisualizerFlagCallback(VisualizerFlagCallback callback){}
 
 };
 

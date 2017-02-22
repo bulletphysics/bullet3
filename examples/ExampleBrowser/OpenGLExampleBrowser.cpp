@@ -358,6 +358,24 @@ void OpenGLExampleBrowser::registerFileImporter(const char* extension, CommonExa
     fi.m_createFunc = createFunc;
     gFileImporterByExtension.push_back(fi);
 }
+#include "../SharedMemory/SharedMemoryPublic.h"
+
+void OpenGLExampleBrowserVisualizerFlagCallback(int flag, bool enable)
+{
+    if (flag == COV_ENABLE_SHADOWS)
+    {
+        useShadowMap = enable;
+    }
+    if (flag == COV_ENABLE_GUI)
+    {
+        renderGui = enable;
+    }
+    
+    if (flag == COV_ENABLE_WIREFRAME)
+    {
+        visualWireframe = enable;
+    }
+}
 
 void openFileDemo(const char* filename)
 {
@@ -365,6 +383,8 @@ void openFileDemo(const char* filename)
 	deleteDemo();
    
 	s_guiHelper= new OpenGLGuiHelper(s_app, sUseOpenGL2);
+	s_guiHelper->setVisualizerFlagCallback(OpenGLExampleBrowserVisualizerFlagCallback);
+
     s_parameterInterface->removeAllParameters();
    
 
@@ -419,6 +439,8 @@ void selectDemo(int demoIndex)
 		}
 		int option = gAllExamples->getExampleOption(demoIndex);
 		s_guiHelper= new OpenGLGuiHelper(s_app, sUseOpenGL2);
+		s_guiHelper->setVisualizerFlagCallback(OpenGLExampleBrowserVisualizerFlagCallback);
+
 		CommonExampleOptions options(s_guiHelper, option);
 		options.m_sharedMem = sSharedMem;
 		sCurrentDemo = (*func)(options);
