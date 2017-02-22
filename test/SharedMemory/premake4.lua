@@ -51,6 +51,9 @@ project ("Test_PhysicsClientUDP")
                 	defines { "WIN32" }
         	        links {"Ws2_32","Winmm"}
 	        end
+		if os.is("Linux") then
+			links {"pthread"}
+		end
 
                 defines {"PHYSICS_UDP"}
 
@@ -139,9 +142,6 @@ project ("Test_PhysicsClientTCP")
 									"../../examples/Utils/b3ResourcePath.h",
 									"../../examples/SharedMemory/PhysicsDirect.cpp",
 									"../../examples/Utils/b3Clock.cpp",
-									"../../examples/MultiThreading/b3PosixThreadSupport.cpp",
-									"../../examples/MultiThreading/b3Win32ThreadSupport.cpp",
-									"../../examples/MultiThreading/b3ThreadSupportInterface.cpp",
             }
 
 		
