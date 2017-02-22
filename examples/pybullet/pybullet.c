@@ -2966,7 +2966,7 @@ static PyObject* pybullet_configureDebugVisualizer(PyObject* self, PyObject* arg
     b3PhysicsClientHandle sm=0;
     static char *kwlist[] = { "flag", "enable", "physicsClientId", NULL };
     
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iii", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|i", kwlist,
                                      &flag, &enable, &physicsClientId))
         return NULL;
     
