@@ -507,7 +507,7 @@ struct MinitaurStateLogger : public InternalStateLogger
 		if (m_logFileHandle)
 		{
 			
-			btVector3 pos = m_minitaurMultiBody->getBasePos();
+			//btVector3 pos = m_minitaurMultiBody->getBasePos();
 
 			MinitaurLogRecord logData;
 			//'t', 'r', 'p', 'y', 'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'u0', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'xd', 'mo'
@@ -3570,6 +3570,30 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					hasStatus = true;
 					break;
 				}
+                    
+                case CMD_CONFIGURE_OPENGL_VISUALIZER:
+                {
+                    SharedMemoryStatus& serverCmd = serverStatusOut;
+                    serverCmd.m_type =CMD_CLIENT_COMMAND_COMPLETED;
+                    
+                    hasStatus = true;
+                    if (clientCmd.m_updateFlags&COV_SET_FLAGS)
+                    {
+                        m_data->m_guiHelper->setVisualizerFlag(clientCmd.m_configureOpenGLVisualizerArguments.m_setFlag,
+                                                           clientCmd.m_configureOpenGLVisualizerArguments.m_setEnabled);
+                    }
+                    if (clientCmd.m_updateFlags&COV_SET_CAMERA_VIEW_MATRIX)
+                    {
+                        m_data->m_guiHelper->resetCamera( clientCmd.m_configureOpenGLVisualizerArguments.m_cameraDistance,
+                                                          clientCmd.m_configureOpenGLVisualizerArguments.m_cameraPitch,
+                                                          clientCmd.m_configureOpenGLVisualizerArguments.m_cameraYaw,
+                                                          clientCmd.m_configureOpenGLVisualizerArguments.m_cameraTargetPosition[0],
+                                                          clientCmd.m_configureOpenGLVisualizerArguments.m_cameraTargetPosition[1],
+                                                          clientCmd.m_configureOpenGLVisualizerArguments.m_cameraTargetPosition[2]);
+                    }
+                    break;
+                }
+                                       
                 case CMD_REQUEST_CONTACT_POINT_INFORMATION:
                     {
                         SharedMemoryStatus& serverCmd =serverStatusOut;

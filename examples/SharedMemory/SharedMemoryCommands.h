@@ -643,6 +643,23 @@ struct StateLoggingResultArgs
 	int m_loggingUniqueId;
 };
 
+enum InternalOpenGLVisualizerUpdateFlags
+{
+    COV_SET_CAMERA_VIEW_MATRIX=1,
+    COV_SET_FLAGS=2,
+};
+
+struct ConfigureOpenGLVisualizerRequest
+{
+    double m_cameraDistance;
+    double m_cameraPitch;
+    double m_cameraYaw;
+    double m_cameraTargetPosition[3];
+  
+    int m_setFlag;
+    int m_setEnabled;
+};
+
 struct SharedMemoryCommand
 {
 	int m_type;
@@ -685,6 +702,7 @@ struct SharedMemoryCommand
         struct LoadBunnyArgs m_loadBunnyArguments;
 		struct VRCameraState m_vrCameraStateArguments;
 		struct StateLoggingRequest m_stateLoggingArguments;
+        struct ConfigureOpenGLVisualizerRequest m_configureOpenGLVisualizerArguments;
     };
 };
 

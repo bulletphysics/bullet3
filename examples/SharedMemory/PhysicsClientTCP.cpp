@@ -175,7 +175,6 @@ bool TcpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryComma
 			sz = sizeof(SharedMemoryCommand);
             data = (unsigned char*)&clientCmd;
     	}
-		int res;
 						
         m_data->m_tcpSocket.Send((const uint8 *)data,sz);
 

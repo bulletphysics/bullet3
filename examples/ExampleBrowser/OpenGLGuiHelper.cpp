@@ -154,9 +154,11 @@ struct OpenGLGuiHelperInternalData
 	btAlignedObjectArray<unsigned char> m_rgbaPixelBuffer1;
 	btAlignedObjectArray<float> m_depthBuffer1;
 	
+	VisualizerFlagCallback m_visualizerFlagCallback;
 	OpenGLGuiHelperInternalData()
 		:m_vrMode(false),
-		m_vrSkipShadowPass(0)
+		m_vrSkipShadowPass(0),
+		m_visualizerFlagCallback(0)
 	{
 	}
 
@@ -373,6 +375,20 @@ void OpenGLGuiHelper::setUpAxis(int axis)
 	m_data->m_glApp->setUpAxis(axis);
 
 }
+
+
+void	OpenGLGuiHelper::setVisualizerFlagCallback(VisualizerFlagCallback callback)
+{
+	m_data->m_visualizerFlagCallback = callback;
+}
+
+
+void OpenGLGuiHelper::setVisualizerFlag(int flag, int enable)
+{
+	if (m_data->m_visualizerFlagCallback)
+		(m_data->m_visualizerFlagCallback)(flag,enable);
+}
+
 
 void OpenGLGuiHelper::resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ)
 {
