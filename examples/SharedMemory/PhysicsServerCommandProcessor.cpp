@@ -568,7 +568,7 @@ struct GenericRobotStateLogger : public InternalStateLogger
     btAlignedObjectArray<int> m_bodyIdList;
     bool m_filterObjectUniqueId;
     
-    GenericRobotStateLogger(int loggingUniqueId, std::string fileName, btMultiBodyDynamicsWorld* dynamicsWorld)
+    GenericRobotStateLogger(int loggingUniqueId, const std::string& fileName, btMultiBodyDynamicsWorld* dynamicsWorld)
     :m_loggingTimeStamp(0),
     m_logFileHandle(0),
     m_filterObjectUniqueId(false),
