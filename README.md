@@ -78,16 +78,17 @@ The BulletExampleBrowser binary will be in Bullet/examples/ExampleBrowser.
 You can also build Bullet and pybullet using premake. There are premake executables in the build3 folder.
 Depending on your system (Linux 32bit, 64bit or Mac OSX) use one of the following lines
 Using premake:
+```
 	cd build3
 	./premake4_linux gmake --double --enable_pybullet
 	./premake4_linux64 gmake --double --enable_pybullet
 	./premake4_osx gmake --double --enable_pybullet
+```
 Then
-
+```
 	cd gmake
 	make
-
-Or using cmake:
+```
 
 **Mac OSX Xcode**
 	
