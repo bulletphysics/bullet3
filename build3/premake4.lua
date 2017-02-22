@@ -73,6 +73,12 @@
 
 	newoption
 	{
+		trigger = "standalone-examples",
+		description = "Build standalone examples with reduced dependencies."
+	}
+
+	newoption
+	{
 		trigger = "no-clsocket",
 		description = "Disable clsocket and clsocket tests (used for optional TCP networking in pybullet and shared memory C-API)"
 	}
@@ -249,17 +255,9 @@ end
 		include "../examples/ExampleBrowser"
 		include "../examples/OpenGLWindow"
 		include "../examples/ThirdPartyLibs/Gwen"
-		include "../examples/SimpleOpenGL3"
-		include "../examples/TinyRenderer"
-
 		include "../examples/HelloWorld"
-		include "../examples/BasicDemo"
-		include "../examples/InverseDynamics"
-		include "../examples/ExtendedTutorials"
 		include "../examples/SharedMemory"
 		include "../examples/ThirdPartyLibs/BussIK"
-		
-		include "../examples/MultiThreading"
 
 		if _OPTIONS["lua"] then
 		   include "../examples/ThirdPartyLibs/lua-5.2.3"
@@ -268,9 +266,17 @@ end
 		  include "../examples/pybullet"
 		end
 
+		if _OPTIONS["standalone-examples"] then
+			include "../examples/SimpleOpenGL3"
+			include "../examples/TinyRenderer"
+			include "../examples/BasicDemo"
+			include "../examples/InverseDynamics"
+			include "../examples/ExtendedTutorials"
+			include "../examples/MultiThreading"
+		end
+
 		if not _OPTIONS["no-test"] then
 			include "../test/SharedMemory"
-			
 		end
 	end
 
