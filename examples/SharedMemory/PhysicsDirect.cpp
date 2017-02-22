@@ -4,7 +4,7 @@
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "SharedMemoryCommands.h"
 #include "PhysicsCommandProcessorInterface.h"
-
+#include "../Utils/b3Clock.h"
 
 #include "LinearMath/btHashMap.h"
 #include "LinearMath/btAlignedObjectArray.h"
@@ -137,8 +137,10 @@ bool PhysicsDirect::connect()
 		}
 		else
 		{
-			int timeout = 1024 * 1024 * 1024;
-			while ((!hasStatus) && (timeout-- > 0))
+			b3Clock clock;
+			double timeSec = clock.getTimeInSeconds();
+
+			while ((!hasStatus) && (clock.getTimeInSeconds()-timeSec <10 ))
 			{
 				const  SharedMemoryStatus* stat = processServerStatus();
 				if (stat)
@@ -226,8 +228,11 @@ bool PhysicsDirect::processDebugLines(const struct SharedMemoryCommand& orgComma
 
 		bool hasStatus = m_data->m_commandProcessor->processCommand(command,m_data->m_serverStatus,&m_data->m_bulletStreamDataServerToClient[0],SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
 
-		int timeout = 1024 * 1024 * 1024;
-		while ((!hasStatus) && (timeout-- > 0))
+		b3Clock clock;
+		double startTime = clock.getTimeInSeconds();
+		double timeOutInSeconds = 10;
+
+		while ((!hasStatus) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
 		{
 			const  SharedMemoryStatus* stat = processServerStatus();
 			if (stat)
@@ -308,8 +313,11 @@ bool PhysicsDirect::processVisualShapeData(const struct SharedMemoryCommand& org
 	{
 		bool hasStatus = m_data->m_commandProcessor->processCommand(command, m_data->m_serverStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
 
-		int timeout = 1024 * 1024 * 1024;
-		while ((!hasStatus) && (timeout-- > 0))
+		b3Clock clock;
+		double startTime = clock.getTimeInSeconds();
+		double timeOutInSeconds = 10;
+
+		while ((!hasStatus) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
 		{
 			const  SharedMemoryStatus* stat = processServerStatus();
 			if (stat)
@@ -359,8 +367,11 @@ bool PhysicsDirect::processOverlappingObjects(const struct SharedMemoryCommand& 
 	{
 		bool hasStatus = m_data->m_commandProcessor->processCommand(command, m_data->m_serverStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
 
-		int timeout = 1024 * 1024 * 1024;
-		while ((!hasStatus) && (timeout-- > 0))
+		b3Clock clock;
+		double startTime = clock.getTimeInSeconds();
+		double timeOutInSeconds = 10;
+
+		while ((!hasStatus) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
 		{
 			const  SharedMemoryStatus* stat = processServerStatus();
 			if (stat)
@@ -414,8 +425,11 @@ bool PhysicsDirect::processContactPointData(const struct SharedMemoryCommand& or
     {
         bool hasStatus = m_data->m_commandProcessor->processCommand(command,m_data->m_serverStatus,&m_data->m_bulletStreamDataServerToClient[0],SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
         
-		int timeout = 1024 * 1024 * 1024;
-		while ((!hasStatus) && (timeout-- > 0))
+		b3Clock clock;
+		double startTime = clock.getTimeInSeconds();
+		double timeOutInSeconds = 10;
+
+		while ((!hasStatus) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
 		{
 			const  SharedMemoryStatus* stat = processServerStatus();
 			if (stat)
@@ -475,8 +489,11 @@ bool PhysicsDirect::processCamera(const struct SharedMemoryCommand& orgCommand)
 
 		bool hasStatus = m_data->m_commandProcessor->processCommand(command,m_data->m_serverStatus,&m_data->m_bulletStreamDataServerToClient[0],SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
 		
-		int timeout = 1024 * 1024 * 1024;
-		while ((!hasStatus) && (timeout-- > 0))
+		b3Clock clock;
+		double startTime = clock.getTimeInSeconds();
+		double timeOutInSeconds = 10;
+
+		while ((!hasStatus) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
 		{
 			const  SharedMemoryStatus* stat = processServerStatus();
 			if (stat)
@@ -735,8 +752,11 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 			bool hasStatus = m_data->m_commandProcessor->processCommand(infoRequestCommand, infoStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
 					
 
-			int timeout = 1024 * 1024 * 1024;
-			while ((!hasStatus) && (timeout-- > 0))
+			b3Clock clock;
+			double startTime = clock.getTimeInSeconds();
+			double timeOutInSeconds = 10;
+
+			while ((!hasStatus) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
 			{
 				hasStatus = m_data->m_commandProcessor->receiveStatus(infoStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
 			}
@@ -759,8 +779,11 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 			bool hasStatus = m_data->m_commandProcessor->processCommand(infoRequestCommand, infoStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
 					
 
-			int timeout = 1024 * 1024 * 1024;
-			while ((!hasStatus) && (timeout-- > 0))
+			b3Clock clock;
+			double startTime = clock.getTimeInSeconds();
+			double timeOutInSeconds = 10;
+
+			while ((!hasStatus) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
 			{
 				hasStatus = m_data->m_commandProcessor->receiveStatus(infoStatus, &m_data->m_bulletStreamDataServerToClient[0], SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
 			}

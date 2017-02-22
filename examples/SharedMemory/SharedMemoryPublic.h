@@ -2,6 +2,9 @@
 #define SHARED_MEMORY_PUBLIC_H
 
 #define SHARED_MEMORY_KEY 12347
+///increase the SHARED_MEMORY_MAGIC_NUMBER whenever incompatible changes are made in the structures
+///my convention is year/month/day/rev
+#define SHARED_MEMORY_MAGIC_NUMBER 201702220
 
 enum EnumSharedMemoryClientCommand
 {

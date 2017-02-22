@@ -1033,9 +1033,15 @@ int	b3SubmitClientCommand(b3PhysicsClientHandle physClient, const b3SharedMemory
 
 }
 
+#include "../Utils/b3Clock.h"
+
+
 b3SharedMemoryStatusHandle b3SubmitClientCommandAndWaitStatus(b3PhysicsClientHandle physClient, const b3SharedMemoryCommandHandle commandHandle)
 {
-	int timeout = 1024 * 1024 * 1024;
+	b3Clock clock;
+	double startTime = clock.getTimeInSeconds();
+	double timeOutInSeconds = 10;
+
 	b3SharedMemoryStatusHandle statusHandle = 0;
 	b3Assert(commandHandle);
 	b3Assert(physClient);
@@ -1043,7 +1049,7 @@ b3SharedMemoryStatusHandle b3SubmitClientCommandAndWaitStatus(b3PhysicsClientHan
 	{
 		b3SubmitClientCommand(physClient, commandHandle);
 
-		while ((statusHandle == 0) && (timeout-- > 0))
+		while ((statusHandle == 0) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
 		{
 			statusHandle = b3ProcessServerStatus(physClient);
 		}

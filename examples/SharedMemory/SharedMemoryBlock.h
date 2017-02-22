@@ -1,8 +1,8 @@
 #ifndef SHARED_MEMORY_BLOCK_H
 #define SHARED_MEMORY_BLOCK_H
 
-#define SHARED_MEMORY_MAGIC_NUMBER 64738
 #define SHARED_MEMORY_MAX_COMMANDS 4
+
 
 #include "SharedMemoryCommands.h"
 

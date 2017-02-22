@@ -44,11 +44,8 @@ int main(int argc, char *argv[])
     sm->setGuiHelper(&guiHelper);
     
     int port = 6667;
-    if (parseArgs.GetCmdLineArgument("port",port))
-    {
-        printf("Using TCP port %d\n", port);
-    }
-    
+    parseArgs.GetCmdLineArgument("port",port);
+	
     gVerboseNetworkMessagesServer = parseArgs.CheckCmdLineFlag("verbose");
     
 #ifndef NO_SHARED_MEMORY
@@ -64,7 +61,9 @@ int main(int argc, char *argv[])
     
     if (isPhysicsClientConnected)
     {
-        
+    
+		printf("Starting TCP server using port %d\n", port);
+		
         CPassiveSocket socket;
         CActiveSocket *pClient = NULL;
         
@@ -74,7 +73,7 @@ int main(int argc, char *argv[])
         socket.Initialize();
         
         socket.Listen("localhost", port);
-        socket.SetBlocking();
+        //socket.SetBlocking();
         
         int curNumErr = 0;
         
@@ -89,7 +88,20 @@ int main(int argc, char *argv[])
 
                 int clientPort = socket.GetClientPort();
                 printf("connected from %s:%d\n", socket.GetClientAddr(),clientPort);
-                
+
+                if (pClient->Receive(4))
+                {
+					int clientKey = *(int*)pClient->GetData();
+
+					if (clientKey==SHARED_MEMORY_MAGIC_NUMBER)
+					{
+						printf("Client version OK %d\n", clientKey);
+					} else
+					{
+						printf("Server version (%d) mismatches Client Version (%d)\n", SHARED_MEMORY_MAGIC_NUMBER,clientKey);
+						continue;
+					}
+				}
                 
                 //----------------------------------------------------------------------
                 // Receive request from the client.
@@ -102,25 +114,27 @@ int main(int argc, char *argv[])
 					int maxLen = 4 + sizeof(SharedMemoryStatus)+SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE;
        
 
-                    //heuristic to detect disconnected clients
-                    CSimpleSocket::CSocketError err = pClient->GetSocketError();
-                    if (err != CSimpleSocket::SocketSuccess)
-                    {
-                        b3Clock::usleep(100);
-                        
-                        curNumErr++;
-                       
-                        if (curNumErr>100)
-                        {
-                            printf("TCP Connection error = %d, curNumErr = %d\n", (int)err, curNumErr);
-                            
-                            break;
-                        }
-                    }
                     
                     if (pClient->Receive(maxLen))
                     {
+
+						//heuristic to detect disconnected clients
+						CSimpleSocket::CSocketError err = pClient->GetSocketError();
 					
+						if (err != CSimpleSocket::SocketSuccess || !pClient->IsSocketValid())
+						{
+							b3Clock::usleep(100);
+                        
+							curNumErr++;
+                       
+							if (curNumErr>100)
+							{
+								printf("TCP Connection error = %d, curNumErr = %d\n", (int)err, curNumErr);
+                            
+								break;
+							}
+						}
+
                         curNumErr = 0;
                         char* msg2 = (char*) pClient->GetData();
                         int numBytesRec2 = pClient->GetBytesReceived();
@@ -132,9 +146,26 @@ int main(int argc, char *argv[])
 							bytesReceived[curSize+i] = msg2[i];
 						}
 
-						if (bytesReceived.size() == 4 || bytesReceived.size()==sizeof(SharedMemoryCommand))
+						if (bytesReceived.size() >= 4)
 						{
 							int numBytesRec = bytesReceived.size();
+							if (numBytesRec>=10)
+							{
+								if (strncmp(&bytesReceived[0],"disconnect",10)==0)
+								{
+									printf("Disconnect request received\n");
+									bytesReceived.clear();
+									break;
+								}
+
+								if (strncmp(&bytesReceived[0],"terminateserver",10)==0)
+								{
+									printf("Terminate server request received\n");
+									exitRequested = true;
+									bytesReceived.clear();
+									break;
+								}
+							}
 
 							if (gVerboseNetworkMessagesServer)
 							{
@@ -142,15 +173,6 @@ int main(int argc, char *argv[])
 							}
                         
 							receivedData = true;
-                        
-							if (strncmp(&bytesReceived[0],"stop",4)==0)
-							{
-								printf("Stop request received\n");
-								exitRequested = true;
-								bytesReceived.clear();
-								break;
-							}
-                        
                         
 							SharedMemoryCommand cmd;
                         
@@ -233,12 +255,15 @@ int main(int argc, char *argv[])
 										pClient->Send( &packetData[0], packetData.size() );
 									}
 								}
+
+								bytesReceived.clear();
+
 							}
 							else
 							{
-								printf("received packet with unknown contents\n");
+								//likely an incomplete packet, let's append more bytes
+								//printf("received packet with unknown contents\n");
 							}
-							bytesReceived.clear();
 
 						}
                     }
@@ -256,7 +281,10 @@ int main(int argc, char *argv[])
         
         socket.Close();
         socket.Shutdown(CSimpleSocket::Both);
-    }
+    } else
+	{
+		printf("Error: cannot connect to shared memory physics server.");
+	}
     
     delete sm;
 
