@@ -60,6 +60,7 @@ struct PhysicsClientSharedMemoryInternalData {
     bool m_hasLastServerStatus;
     int m_sharedMemoryKey;
     bool m_verboseOutput;
+	double m_timeOutInSeconds;
 
     PhysicsClientSharedMemoryInternalData()
         : m_sharedMemory(0),
@@ -72,7 +73,9 @@ struct PhysicsClientSharedMemoryInternalData {
           m_waitingForServer(false),
           m_hasLastServerStatus(false),
           m_sharedMemoryKey(SHARED_MEMORY_KEY),
-          m_verboseOutput(false) {}
+          m_verboseOutput(false),
+		  m_timeOutInSeconds(1e30)
+	{}
 
     void processServerStatus();
 
@@ -1208,3 +1211,11 @@ const float* PhysicsClientSharedMemory::getDebugLinesColor() const {
 }
 int PhysicsClientSharedMemory::getNumDebugLines() const { return m_data->m_debugLinesFrom.size(); }
 
+void PhysicsClientSharedMemory::setTimeOut(double timeOutInSeconds)
+{
+	m_data->m_timeOutInSeconds = timeOutInSeconds;
+}
+double PhysicsClientSharedMemory::getTimeOut() const
+{
+	return m_data->m_timeOutInSeconds;
+}

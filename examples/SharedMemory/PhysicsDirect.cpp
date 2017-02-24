@@ -56,11 +56,13 @@ struct PhysicsDirectInternalData
 
 	PhysicsCommandProcessorInterface* m_commandProcessor;
 	bool m_ownsCommandProcessor;
+	double m_timeOutInSeconds;
 
 	PhysicsDirectInternalData()
 		:m_hasStatus(false),
 		m_verboseOutput(false),
-		m_ownsCommandProcessor(false)
+		m_ownsCommandProcessor(false),
+		m_timeOutInSeconds(1e30)
 	{
 	}
 };
@@ -230,7 +232,7 @@ bool PhysicsDirect::processDebugLines(const struct SharedMemoryCommand& orgComma
 
 		b3Clock clock;
 		double startTime = clock.getTimeInSeconds();
-		double timeOutInSeconds = 10;
+		double timeOutInSeconds = m_data->m_timeOutInSeconds;
 
 		while ((!hasStatus) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
 		{
@@ -315,7 +317,7 @@ bool PhysicsDirect::processVisualShapeData(const struct SharedMemoryCommand& org
 
 		b3Clock clock;
 		double startTime = clock.getTimeInSeconds();
-		double timeOutInSeconds = 10;
+		double timeOutInSeconds = m_data->m_timeOutInSeconds;
 
 		while ((!hasStatus) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
 		{
@@ -369,7 +371,7 @@ bool PhysicsDirect::processOverlappingObjects(const struct SharedMemoryCommand& 
 
 		b3Clock clock;
 		double startTime = clock.getTimeInSeconds();
-		double timeOutInSeconds = 10;
+		double timeOutInSeconds = m_data->m_timeOutInSeconds;
 
 		while ((!hasStatus) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
 		{
@@ -427,7 +429,7 @@ bool PhysicsDirect::processContactPointData(const struct SharedMemoryCommand& or
         
 		b3Clock clock;
 		double startTime = clock.getTimeInSeconds();
-		double timeOutInSeconds = 10;
+		double timeOutInSeconds = m_data->m_timeOutInSeconds;
 
 		while ((!hasStatus) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
 		{
@@ -491,7 +493,7 @@ bool PhysicsDirect::processCamera(const struct SharedMemoryCommand& orgCommand)
 		
 		b3Clock clock;
 		double startTime = clock.getTimeInSeconds();
-		double timeOutInSeconds = 10;
+		double timeOutInSeconds = m_data->m_timeOutInSeconds;
 
 		while ((!hasStatus) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
 		{
@@ -754,7 +756,7 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 
 			b3Clock clock;
 			double startTime = clock.getTimeInSeconds();
-			double timeOutInSeconds = 10;
+			double timeOutInSeconds = m_data->m_timeOutInSeconds;
 
 			while ((!hasStatus) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
 			{
@@ -781,7 +783,7 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 
 			b3Clock clock;
 			double startTime = clock.getTimeInSeconds();
-			double timeOutInSeconds = 10;
+			double timeOutInSeconds = m_data->m_timeOutInSeconds;
 
 			while ((!hasStatus) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
 			{
@@ -1033,4 +1035,14 @@ void PhysicsDirect::getCachedRaycastHits(struct b3RaycastInformation* raycastHit
 {
 	raycastHits->m_numRayHits = m_data->m_raycastHits.size();
 	raycastHits->m_rayHits = raycastHits->m_numRayHits? &m_data->m_raycastHits[0] : 0;
+}
+
+void PhysicsDirect::setTimeOut(double timeOutInSeconds)
+{
+	m_data->m_timeOutInSeconds = timeOutInSeconds;
+}
+
+double PhysicsDirect::getTimeOut() const
+{
+	return m_data->m_timeOutInSeconds;
 }

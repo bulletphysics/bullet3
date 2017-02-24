@@ -4,17 +4,16 @@ INCLUDE_DIRECTORIES(
 		${BULLET_PHYSICS_SOURCE_DIR}/examples
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/enet/include
-                ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/clsocket/src
-		${PYTHON_INCLUDE_DIRS}
+		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/clsocket/src
   )
-IF(BUILD_PYBULLET_NUMPY)
-	INCLUDE_DIRECTORIES(
-		${PYTHON_NUMPY_INCLUDE_DIR}
-	)
-ENDIF()
 
-SET(pybullet_SRCS
-	pybullet.c
+
+SET(RobotSimulator_SRCS
+		RobotSimulatorMain.cpp
+		b3RobotSimulatorClientAPI.cpp
+		b3RobotSimulatorClientAPI.h	
+		MinitaurSetup.cpp
+		MinitaurSetup.h
 		../../examples/SharedMemory/IKTrajectoryHelper.cpp
 		../../examples/SharedMemory/IKTrajectoryHelper.h
 		../../examples/ExampleBrowser/InProcessExampleBrowser.cpp
@@ -46,7 +45,6 @@ SET(pybullet_SRCS
 		../../examples/SharedMemory/PhysicsClientSharedMemory.h
 		../../examples/SharedMemory/PhysicsClientSharedMemory_C_API.cpp
 		../../examples/SharedMemory/PhysicsClientSharedMemory_C_API.h
-
 		../../examples/SharedMemory/PhysicsClientC_API.cpp
 		../../examples/SharedMemory/PhysicsClientC_API.h
 		../../examples/SharedMemory/Win32SharedMemory.cpp
@@ -57,7 +55,6 @@ SET(pybullet_SRCS
 		../../examples/Utils/b3ResourcePath.h
 		../../examples/Utils/RobotLoggingUtil.cpp
 		../../examples/Utils/RobotLoggingUtil.h
-		
 		../../examples/ThirdPartyLibs/tinyxml/tinystr.cpp
 		../../examples/ThirdPartyLibs/tinyxml/tinyxml.cpp
 		../../examples/ThirdPartyLibs/tinyxml/tinyxmlerror.cpp
@@ -80,38 +77,39 @@ SET(pybullet_SRCS
 		../../examples/MultiThreading/b3ThreadSupportInterface.cpp
 		
 )
-IF(BUILD_PYBULLET_CLSOCKET)
+
+IF(BUILD_CLSOCKET)
  ADD_DEFINITIONS(-DBT_ENABLE_CLSOCKET)
-ENDIF(BUILD_PYBULLET_CLSOCKET)
+ENDIF(BUILD_CLSOCKET)
 
 IF(WIN32)
 	LINK_LIBRARIES(
 		${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
 	)
-	IF(BUILD_PYBULLET_ENET)
+	IF(BUILD_ENET)
 		ADD_DEFINITIONS(-DWIN32 -DBT_ENABLE_ENET)
-	ENDIF(BUILD_PYBULLET_ENET)
-	IF(BUILD_PYBULLET_CLSOCKET)
+	ENDIF(BUILD_ENET)
+	IF(BUILD_CLSOCKET)
 		ADD_DEFINITIONS(-DWIN32)
-	ENDIF(BUILD_PYBULLET_CLSOCKET)
+	ENDIF(BUILD_CLSOCKET)
 
 ELSE(WIN32)
-	IF(BUILD_PYBULLET_ENET)
+	IF(BUILD_ENET)
 		ADD_DEFINITIONS(-DHAS_SOCKLEN_T -DBT_ENABLE_ENET)
-	ENDIF(BUILD_PYBULLET_ENET)
+	ENDIF(BUILD_ENET)
 
-	IF(BUILD_PYBULLET_CLSOCKET)	
+	IF(BUILD_CLSOCKET)	
 		IF(APPLE)
 			ADD_DEFINITIONS(-D_DARWIN)
 		ELSE()
 			ADD_DEFINITIONS(-D_LINUX)
 		ENDIF()
-	ENDIF(BUILD_PYBULLET_CLSOCKET)
+	ENDIF(BUILD_CLSOCKET)
 ENDIF(WIN32)
 
 
-IF(BUILD_PYBULLET_ENET)
-	set(pybullet_SRCS ${pybullet_SRCS} 
+IF(BUILD_ENET)
+	set(RobotSimulator_SRCS ${RobotSimulator_SRCS} 
 		../../examples/SharedMemory/PhysicsClientUDP.cpp
 		../../examples/SharedMemory/PhysicsClientUDP_C_API.cpp
 		../../examples/SharedMemory/PhysicsClientUDP.h		
@@ -126,10 +124,10 @@ IF(BUILD_PYBULLET_ENET)
 		../../examples/ThirdPartyLibs/enet/peer.c
 		../../examples/ThirdPartyLibs/enet/protocol.c
 	)
-ENDIF(BUILD_PYBULLET_ENET)
+ENDIF(BUILD_ENET)
 
-IF(BUILD_PYBULLET_CLSOCKET)
-	set(pybullet_SRCS ${pybullet_SRCS}
+IF(BUILD_CLSOCKET)
+	set(RobotSimulator_SRCS ${RobotSimulator_SRCS}
 		 ../../examples/SharedMemory/PhysicsClientTCP.cpp
                  ../../examples/SharedMemory/PhysicsClientTCP.h
                  ../../examples/SharedMemory/PhysicsClientTCP_C_API.cpp
@@ -140,27 +138,22 @@ IF(BUILD_PYBULLET_CLSOCKET)
 	)
 ENDIF()
 
-ADD_LIBRARY(pybullet SHARED ${pybullet_SRCS})
+ADD_EXECUTABLE(App_RobotSimulator  ${RobotSimulator_SRCS})
 
-SET_TARGET_PROPERTIES(pybullet PROPERTIES PREFIX "")
-SET_TARGET_PROPERTIES(pybullet PROPERTIES POSTFIX "")
 
-SET_TARGET_PROPERTIES(pybullet PROPERTIES VERSION ${BULLET_VERSION})
-SET_TARGET_PROPERTIES(pybullet PROPERTIES SOVERSION ${BULLET_VERSION})
-SET_TARGET_PROPERTIES(pybullet PROPERTIES DEBUG_POSTFIX "_d")
+SET_TARGET_PROPERTIES(App_RobotSimulator PROPERTIES VERSION ${BULLET_VERSION})
+SET_TARGET_PROPERTIES(App_RobotSimulator PROPERTIES DEBUG_POSTFIX "_d")
 
 
 IF(WIN32)
-	IF(BUILD_PYBULLET_ENET OR BUILD_PYBULLET_CLSOCKET)
-		TARGET_LINK_LIBRARIES(pybullet ws2_32 )
-	ENDIF(BUILD_PYBULLET_ENET OR BUILD_PYBULLET_CLSOCKET)
-
-	SET_TARGET_PROPERTIES(pybullet PROPERTIES SUFFIX ".pyd" )
+	IF(BUILD_ENET OR BUILD_CLSOCKET)
+		TARGET_LINK_LIBRARIES(App_RobotSimulator ws2_32 )
+	ENDIF(BUILD_ENET OR BUILD_CLSOCKET)
 ENDIF(WIN32)
 
 
 
 
-TARGET_LINK_LIBRARIES(pybullet BulletExampleBrowserLib BulletFileLoader BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK Bullet3Common ${PYTHON_LIBRARIES})
+TARGET_LINK_LIBRARIES(App_RobotSimulator BulletExampleBrowserLib BulletFileLoader BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK Bullet3Common)
 
 

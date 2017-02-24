@@ -95,6 +95,8 @@ public:
 	virtual void renderScene();
 	virtual void debugDraw(int debugDrawMode);
 
+	virtual void setTimeOut(double timeOutInSeconds);
+	virtual double getTimeOut() const;
 };
 
 #endif //PHYSICS_DIRECT_H

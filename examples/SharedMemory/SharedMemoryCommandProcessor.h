@@ -29,7 +29,7 @@ public:
 
 	void setSharedMemoryInterface(class SharedMemoryInterface* sharedMem);
 	void setSharedMemoryKey(int key);
-
+	virtual void setTimeOut(double timeOutInSeconds);
 
 };
 

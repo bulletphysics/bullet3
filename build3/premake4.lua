@@ -253,6 +253,7 @@ end
 
 	if not _OPTIONS["no-demos"] then
 		include "../examples/ExampleBrowser"
+		include "../examples/RobotSimulator"
 		include "../examples/OpenGLWindow"
 		include "../examples/ThirdPartyLibs/Gwen"
 		include "../examples/HelloWorld"

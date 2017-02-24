@@ -80,6 +80,7 @@ struct	UdpNetworkedInternalData
 
 	std::string m_hostName;
 	int m_port;
+	double m_timeOutInSeconds;
 
 	UdpNetworkedInternalData()
 		:m_client(0),
@@ -87,7 +88,8 @@ struct	UdpNetworkedInternalData
 		m_isConnected(false),
 		m_threadSupport(0),
 		m_hasCommand(false),
-		m_hasStatus(false)
+		m_hasStatus(false),
+		m_timeOutInSeconds(60)
 	{
 
 	}
@@ -467,7 +469,7 @@ bool UdpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryComma
 	
 	b3Clock clock;
 	double startTime = clock.getTimeInSeconds();
-	double timeOutInSeconds = 10;
+	double timeOutInSeconds = m_data->m_timeOutInSeconds;
 
 	m_data->m_cs->lock();
 	m_data->m_clientCmd = clientCmd;
@@ -486,7 +488,7 @@ bool UdpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryComma
 
 	b3Clock clock;
 	double startTime = clock.getTimeInSeconds();
-	double timeOutInSeconds = 10;
+	double timeOutInSeconds = m_data->m_timeOutInSeconds;
 
 	const SharedMemoryStatus* stat = 0;
 	while ((!hasStatus) && (clock.getTimeInSeconds() - startTime < timeOutInSeconds))
@@ -621,7 +623,7 @@ void UdpNetworkedPhysicsProcessor::disconnect()
 
 }
 
-
-
-
-
+void UdpNetworkedPhysicsProcessor::setTimeOut(double timeOutInSeconds)
+{
+	m_data->m_timeOutInSeconds = timeOutInSeconds;
+}

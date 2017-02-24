@@ -1,5 +1,5 @@
 
-project "App_SharedMemoryPhysics"
+project "App_PhysicsServer_SharedMemory"
 
 if _OPTIONS["ios"] then
 	kind "WindowedApp"
@@ -141,7 +141,7 @@ files {
 	end
 
 
-project "App_SharedMemoryPhysics_GUI"
+project "App_PhysicsServer_SharedMemory_GUI"
 
 if _OPTIONS["ios"] then
         kind "WindowedApp"
@@ -240,8 +240,10 @@ if os.is("MacOSX") then
 	--defines {"__MACOSX_CORE__"}
 end
 
+
+
 if os.is("Windows") then 
-	project "App_SharedMemoryPhysics_VR"
+	project "App_PhysicsServer_SharedMemory_VR"
 	--for now, only enable VR under Windows, until compilation issues are resolved on Mac/Linux
 	defines {"B3_USE_STANDALONE_EXAMPLE","BT_ENABLE_VR"}
 	

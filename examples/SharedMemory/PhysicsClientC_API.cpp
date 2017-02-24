@@ -1040,13 +1040,17 @@ b3SharedMemoryStatusHandle b3SubmitClientCommandAndWaitStatus(b3PhysicsClientHan
 {
 	b3Clock clock;
 	double startTime = clock.getTimeInSeconds();
-	double timeOutInSeconds = 10;
+	
 
 	b3SharedMemoryStatusHandle statusHandle = 0;
 	b3Assert(commandHandle);
 	b3Assert(physClient);
 	if (physClient && commandHandle)
 	{
+		PhysicsClient* cl = (PhysicsClient* ) physClient;
+
+		double timeOutInSeconds = cl->getTimeOut();
+
 		b3SubmitClientCommand(physClient, commandHandle);
 
 		while ((statusHandle == 0) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
@@ -2604,3 +2608,24 @@ void b3ConfigureOpenGLVisualizerSetViewMatrix(b3SharedMemoryCommandHandle comman
     }
 }
 
+void b3SetTimeOut(b3PhysicsClientHandle physClient, double timeOutInSeconds)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	if (cl)
+	{
+		cl->setTimeOut(timeOutInSeconds);
+	}
+		
+}
+
+double b3GetTimeOut(b3PhysicsClientHandle physClient)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	if (cl)
+	{
+		return cl->getTimeOut();
+	}
+	return -1;
+}
