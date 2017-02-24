@@ -310,7 +310,7 @@ enum
 	CONTACT_QUERY_MODE_COMPUTE_CLOSEST_POINTS = 1,
 };
 
-enum 
+enum  b3StateLoggingType
 {
 	STATE_LOGGING_MINITAUR = 0,
 	STATE_LOGGING_GENERIC_ROBOT = 1,
@@ -403,10 +403,19 @@ enum EnumRenderer
     //ER_FIRE_RAYS=(1<<18),
 };
 
-enum EnumConfigureOpenGLVisualizer
+enum b3ConfigureDebugVisualizerEnum
 {
     COV_ENABLE_GUI=1,
     COV_ENABLE_SHADOWS,
     COV_ENABLE_WIREFRAME,
 };
+
+enum eCONNECT_METHOD {
+  eCONNECT_GUI = 1,
+  eCONNECT_DIRECT = 2,
+  eCONNECT_SHARED_MEMORY = 3,
+  eCONNECT_UDP = 4,
+  eCONNECT_TCP = 5,
+};
+
 #endif//SHARED_MEMORY_PUBLIC_H

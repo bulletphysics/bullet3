@@ -355,6 +355,10 @@ int b3StateLoggingAddLoggingObjectUniqueId(b3SharedMemoryCommandHandle commandHa
 int b3GetStatusLoggingUniqueId(b3SharedMemoryStatusHandle statusHandle);
 int b3StateLoggingStop(b3SharedMemoryCommandHandle commandHandle, int loggingUniqueId);
 
+void b3SetTimeOut(b3PhysicsClientHandle physClient, double timeOutInSeconds);
+double b3GetTimeOut(b3PhysicsClientHandle physClient);
+
+
 #ifdef __cplusplus
 }
 #endif

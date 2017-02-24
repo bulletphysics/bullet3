@@ -20,7 +20,7 @@ public:
 	virtual void renderScene() = 0;
 	virtual void   physicsDebugDraw(int debugDrawFlags) = 0;
 	virtual void setGuiHelper(struct GUIHelperInterface* guiHelper) = 0;
-
+	virtual void setTimeOut(double timeOutInSeconds) = 0;
 
 };
 

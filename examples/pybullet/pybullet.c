@@ -24,13 +24,7 @@
 #define PyString_FromString PyBytes_FromString
 #endif
 
-enum eCONNECT_METHOD {
-  eCONNECT_GUI = 1,
-  eCONNECT_DIRECT = 2,
-  eCONNECT_SHARED_MEMORY = 3,
-  eCONNECT_UDP = 4,
-  eCONNECT_TCP = 5,
-};
+
 
 static PyObject* SpamError;
 
@@ -2680,7 +2674,6 @@ static PyObject* pybullet_startStateLogging(PyObject* self, PyObject* args, PyOb
 
 static PyObject* pybullet_stopStateLogging(PyObject* self, PyObject* args, PyObject *keywds) 
 {
-	b3SharedMemoryCommandHandle commandHandle;
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType;
 	int loggingId=-1;
@@ -2712,7 +2705,30 @@ static PyObject* pybullet_stopStateLogging(PyObject* self, PyObject* args, PyObj
 	return Py_None;
 }
 
+static PyObject* pybullet_setTimeOut(PyObject* self, PyObject* args, PyObject *keywds) 
+{
+	static char *kwlist[] = { "timeOutInSeconds", "physicsClientId", NULL };
+	double timeOutInSeconds = -1;
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
 
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "d|i", kwlist,
+		&timeOutInSeconds, &physicsClientId))
+		return NULL;
+	if (timeOutInSeconds>=0)
+	{
+		sm = getPhysicsClient(physicsClientId);
+		if (sm == 0) 
+		{
+			PyErr_SetString(SpamError, "Not connected to physics server.");
+			return NULL;
+		}
+		b3SetTimeOut(sm,timeOutInSeconds);
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
 
 static PyObject* pybullet_rayTest(PyObject* self, PyObject* args, PyObject *keywds) 
 {
@@ -5136,8 +5152,9 @@ static PyMethodDef SpamMethods[] = {
 				"Cast a ray and return the first object hit, if any. "
 				"Takes two arguments (from position [x,y,z] and to position [x,y,z] in Cartesian world coordinates"
 	  },
-
-
+	  {	"setTimeOut", (PyCFunction)pybullet_setTimeOut, METH_VARARGS | METH_KEYWORDS,
+				"Set the timeOut in seconds, used for most of the API calls."
+	  },
     // todo(erwincoumans)
     // saveSnapshot
     // loadSnapshot

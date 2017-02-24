@@ -60,6 +60,9 @@ public:
 
 	virtual void getCachedRaycastHits(struct b3RaycastInformation* raycastHits) = 0;
 
+	virtual void setTimeOut(double timeOutInSeconds) = 0;
+	virtual double getTimeOut() const  = 0;
+
 };
 
 #endif  // BT_PHYSICS_CLIENT_API_H

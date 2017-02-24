@@ -99,6 +99,8 @@ public:
 	void stepSimulationRealTime(double dtInSec,	const struct b3VRControllerEvent* vrEvents, int numVREvents);
 	void enableRealTimeSimulation(bool enableRealTimeSim);
 	void applyJointDamping(int bodyUniqueId);
+
+	virtual void setTimeOut(double timeOutInSeconds);
 };
 
 #endif //PHYSICS_SERVER_COMMAND_PROCESSOR_H

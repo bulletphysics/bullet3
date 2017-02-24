@@ -47,11 +47,13 @@ struct	TcpNetworkedInternalData
 	int m_port;
 
 	b3AlignedObjectArray<unsigned char> m_tempBuffer;
+	double m_timeOutInSeconds;
 
 	TcpNetworkedInternalData()
 		:
 		m_isConnected(false),
-		m_hasCommand(false)
+		m_hasCommand(false),
+		m_timeOutInSeconds(60)
 	{
 
 	}
@@ -66,8 +68,8 @@ struct	TcpNetworkedInternalData
         m_isConnected = m_tcpSocket.Open(m_hostName.c_str(),m_port);
         if (m_isConnected)
 		{
-			m_tcpSocket.SetSendTimeout(5,0);
-			m_tcpSocket.SetReceiveTimeout(5,0);
+			m_tcpSocket.SetSendTimeout(m_timeOutInSeconds,0);
+			m_tcpSocket.SetReceiveTimeout(m_timeOutInSeconds,0);
 		}
 		int key = SHARED_MEMORY_MAGIC_NUMBER;
 		m_tcpSocket.Send((uint8*)&key,4);
@@ -257,7 +259,10 @@ void TcpNetworkedPhysicsProcessor::disconnect()
 }
 
 
-
+void TcpNetworkedPhysicsProcessor::setTimeOut(double timeOutInSeconds)
+{
+	m_data->m_timeOutInSeconds = timeOutInSeconds;
+}
 
 
 

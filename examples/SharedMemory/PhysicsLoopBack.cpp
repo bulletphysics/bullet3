@@ -169,3 +169,13 @@ void PhysicsLoopBack::getCachedRaycastHits(struct b3RaycastInformation* raycastH
 {
 	return m_data->m_physicsClient->getCachedRaycastHits(raycastHits);
 }
+
+void PhysicsLoopBack::setTimeOut(double timeOutInSeconds)
+{
+	m_data->m_physicsClient->setTimeOut(timeOutInSeconds);
+}
+double PhysicsLoopBack::getTimeOut() const
+{
+	return m_data->m_physicsClient->getTimeOut();
+}
+
