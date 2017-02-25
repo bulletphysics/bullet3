@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
 	//Can also use eCONNECT_DIRECT,eCONNECT_SHARED_MEMORY,eCONNECT_UDP,eCONNECT_TCP, for example:
 	//sim->connect(eCONNECT_UDP, "localhost", 1234);
 	sim->configureDebugVisualizer( COV_ENABLE_GUI, 0);
-	sim->configureDebugVisualizer( COV_ENABLE_SHADOWS, 0);//COV_ENABLE_WIREFRAME
+//	sim->configureDebugVisualizer( COV_ENABLE_SHADOWS, 0);//COV_ENABLE_WIREFRAME
 
 	//syncBodies is only needed when connecting to an existing physics server that has already some bodies
 	sim->syncBodies();
@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 	sim->loadURDF("plane.urdf");
 
 	MinitaurSetup minitaur;
-	int minitaurUid = minitaur.setupMinitaur(sim, b3MakeVector3(0,0,1));
+	int minitaurUid = minitaur.setupMinitaur(sim, b3MakeVector3(0,0,.3));
 
 	
 	b3RobotSimulatorLoadUrdfFileArgs args;
@@ -43,12 +43,12 @@ int main(int argc, char* argv[])
 	b3Clock clock;
 	double startTime = clock.getTimeInSeconds();
 	double simWallClockSeconds = 20.;
-
+#if 0
 	while (clock.getTimeInSeconds()-startTime < simWallClockSeconds)
 	{
 		sim->stepSimulation();
 	}
-
+#endif
 	sim->setRealTimeSimulation(true);
 	
 	startTime = clock.getTimeInSeconds();

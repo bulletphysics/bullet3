@@ -512,7 +512,7 @@ bool b3RobotSimulatorClientAPI::getJointState(int bodyUniqueId, int jointIndex, 
     return false;
 }
 
-bool b3RobotSimulatorClientAPI::resetJointState(int bodyUniqueId, int jointIndex, int targetValue)
+bool b3RobotSimulatorClientAPI::resetJointState(int bodyUniqueId, int jointIndex, double targetValue)
 {
     b3SharedMemoryCommandHandle commandHandle;
     b3SharedMemoryStatusHandle statusHandle;

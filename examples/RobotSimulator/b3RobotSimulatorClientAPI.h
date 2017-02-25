@@ -161,7 +161,7 @@ public:
 
 	bool getJointState(int bodyUniqueId, int jointIndex, struct b3JointSensorState *state);
     
-	bool resetJointState(int bodyUniqueId, int jointIndex, int targetValue);
+	bool resetJointState(int bodyUniqueId, int jointIndex, double targetValue);
 
 	void setJointMotorControl(int bodyUniqueId, int jointIndex, const struct b3RobotSimulatorJointMotorArgs& args);
 
