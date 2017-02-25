@@ -571,8 +571,8 @@ struct GenericRobotStateLogger : public InternalStateLogger
     GenericRobotStateLogger(int loggingUniqueId, const std::string& fileName, btMultiBodyDynamicsWorld* dynamicsWorld)
     :m_loggingTimeStamp(0),
     m_logFileHandle(0),
-    m_filterObjectUniqueId(false),
-    m_dynamicsWorld(dynamicsWorld)
+    m_dynamicsWorld(dynamicsWorld),
+    m_filterObjectUniqueId(false)
     {
         m_loggingType = STATE_LOGGING_GENERIC_ROBOT;
         
