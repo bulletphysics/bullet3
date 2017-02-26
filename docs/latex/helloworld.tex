@@ -6,6 +6,8 @@ It is a good idea to try to compile, link and run this HelloWorld.cpp program fi
 
 As you can see in \ref{helloworld_includefiles} you can include a convenience header file \path{btBulletDynamicsCommon.h}.
 
+While linking to Bullet Physics make sure the link order is: BulletSoftBody, BulletDynamics, BulletCollision and LinearMath.
+
 \lstinputlisting[caption=HelloWorld.cpp include header, label=helloworld_includefiles,linerange=includes_start-includes_end]{../../examples/HelloWorld/HelloWorld.cpp}
 Now we create the dynamics world:
 \lstinputlisting[caption=HelloWorld.cpp initialize world, label=stepsimulation,linerange=initialization_start-initialization_end]{../../examples/HelloWorld/HelloWorld.cpp}
