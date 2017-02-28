@@ -75,13 +75,13 @@ In a terminal type:
 This script will invoke cmake and build in the build_cmake directory. You can find pybullet in Bullet/examples/pybullet.
 The BulletExampleBrowser binary will be in Bullet/examples/ExampleBrowser.
 
-You can also build Bullet and pybullet using premake. There are premake executables in the build3 folder.
+You can also build Bullet using premake. There are premake executables in the build3 folder.
 Depending on your system (Linux 32bit, 64bit or Mac OSX) use one of the following lines
 Using premake:
 ```
 	cd build3
-	./premake4_linux gmake --double --enable_pybullet
-	./premake4_linux64 gmake --double --enable_pybullet
+	./premake4_linux gmake --double
+	./premake4_linux64 gmake --double
 	./premake4_osx gmake --double --enable_pybullet
 ```
 Then
@@ -89,6 +89,8 @@ Then
 	cd gmake
 	make
 ```
+
+Note that on Linux, you need to use cmake to build pybullet, since the compiler has issues of mixing shared and static libraries.
 
 **Mac OSX Xcode**
 	
