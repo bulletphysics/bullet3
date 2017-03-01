@@ -704,6 +704,7 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 								}
 								
 								btBvhTriangleMeshShape* trimesh = new btBvhTriangleMeshShape(meshInterface,true,true);
+								trimesh->setLocalScaling(collision->m_geometry.m_meshScale);
 								shape = trimesh;
 							} else
 							{
@@ -713,6 +714,7 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 								convexHull->optimizeConvexHull();
 								//convexHull->initializePolyhedralFeatures();
 								convexHull->setMargin(gUrdfDefaultCollisionMargin);
+								convexHull->setLocalScaling(collision->m_geometry.m_meshScale);
 								shape = convexHull;
 							}
 						} else
