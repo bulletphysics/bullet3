@@ -315,6 +315,7 @@ enum EnumSimParamUpdateFlags
 	SIM_PARAM_UPDATE_SPLIT_IMPULSE_PENETRATION_THRESHOLD = 256,
 	SIM_PARAM_UPDATE_COLLISION_FILTER_MODE=512,
 	SIM_PARAM_UPDATE_CONTACT_BREAKING_THRESHOLD = 1024,
+	SIM_PARAM_MAX_CMD_PER_1MS = 2048,
 };
 
 enum EnumLoadBunnyUpdateFlags
@@ -342,6 +343,7 @@ struct SendPhysicsSimulationParameters
 	int m_useSplitImpulse;
 	double m_splitImpulsePenetrationThreshold;
 	double m_contactBreakingThreshold;
+	int m_maxNumCmdPer1ms;
 	int m_internalSimFlags;
 	double m_defaultContactERP;
 	int m_collisionFilterMode;

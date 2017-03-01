@@ -277,7 +277,7 @@ struct MotionThreadLocalStorage
 
 
 float clampedDeltaTime  = 0.2;
-float sleepTimeThreshold = 8./1000.;
+extern int gMaxNumCmdPer1ms;
 
 
 void	MotionThreadFunc(void* userPtr,void* lsMemory)
@@ -289,6 +289,7 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 	//int workLeft = true;
 	b3Clock clock;
 	clock.reset();
+	b3Clock sleepClock;
 	bool init = true;
 	if (init)
 	{
@@ -299,6 +300,8 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 
 
 		double deltaTimeInSeconds = 0;
+		int numCmdSinceSleep1ms = 0;
+
 		do
 		{
 			BT_PROFILE("loop");
@@ -306,6 +309,19 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 			{
 				BT_PROFILE("usleep(0)");
 				b3Clock::usleep(0);
+			}
+
+			if (numCmdSinceSleep1ms>gMaxNumCmdPer1ms)
+			{
+				BT_PROFILE("usleep(1000)");
+				b3Clock::usleep(1000);
+				numCmdSinceSleep1ms = 0;
+				sleepClock.reset();
+			}
+			if (sleepClock.getTimeMilliseconds()>1)
+			{
+				sleepClock.reset();
+				numCmdSinceSleep1ms = 0;
 			}
 			double dt = double(clock.getTimeMicroseconds())/1000000.;
 			clock.reset();
@@ -434,6 +450,7 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 			{
 				BT_PROFILE("processClientCommands");
 				args->m_physicsServerPtr->processClientCommands();
+				numCmdSinceSleep1ms++;
 			}
 			
 		} while (args->m_cs->getSharedParam(0)!=eRequestTerminateMotion);

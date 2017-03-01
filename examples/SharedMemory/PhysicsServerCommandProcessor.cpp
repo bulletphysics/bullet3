@@ -48,6 +48,7 @@ bool gResetSimulation = 0;
 int gVRTrackingObjectUniqueId = -1;
 btTransform gVRTrackingObjectTr = btTransform::getIdentity();
 
+int gMaxNumCmdPer1ms = 100;//experiment: add some delay to avoid threads starving other threads
 int gCreateObjectSimVR = -1;
 int gEnableKukaControl = 0;
 btVector3 gVRTeleportPos1(0,0,0);
@@ -3161,6 +3162,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					{
 						gContactBreakingThreshold = clientCmd.m_physSimParamArgs.m_contactBreakingThreshold;
 					}
+					if (clientCmd.m_updateFlags&SIM_PARAM_MAX_CMD_PER_1MS)
+					{
+						gMaxNumCmdPer1ms = clientCmd.m_physSimParamArgs.m_maxNumCmdPer1ms;
+					}
+
 					if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_COLLISION_FILTER_MODE)
 					{
 						m_data->m_broadphaseCollisionFilterCallback->m_filterMode = clientCmd.m_physSimParamArgs.m_collisionFilterMode;

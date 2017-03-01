@@ -659,9 +659,11 @@ void CMainApplication::Shutdown()
 		}
 	}
 
-	sExample->exitPhysics();
-	delete sExample;
-
+	if (sExample)
+	{
+		sExample->exitPhysics();
+		delete sExample;
+	}
 	delete m_app;
 	m_app=0;
 	

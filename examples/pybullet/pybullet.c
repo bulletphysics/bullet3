@@ -606,14 +606,14 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 	int numSubSteps = -1;
 	int collisionFilterMode = -1;
 	double contactBreakingThreshold = -1;
-	
+	int maxNumCmdPer1ms = -1;
 	b3PhysicsClientHandle sm = 0;
 
 	int physicsClientId = 0;
-	static char *kwlist[] = { "fixedTimeStep", "numSolverIterations","useSplitImpulse","splitImpulsePenetrationThreshold", "numSubSteps","collisionFilterMode", "contactBreakingThreshold", "physicsClientId", NULL };
+	static char *kwlist[] = { "fixedTimeStep", "numSolverIterations","useSplitImpulse","splitImpulsePenetrationThreshold", "numSubSteps","collisionFilterMode", "contactBreakingThreshold", "maxNumCmdPer1ms", "physicsClientId", NULL };
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidiidi", kwlist,&fixedTimeStep,&numSolverIterations,&useSplitImpulse,&splitImpulsePenetrationThreshold,&numSubSteps,
-									 &collisionFilterMode, &contactBreakingThreshold, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diidiidii", kwlist,&fixedTimeStep,&numSolverIterations,&useSplitImpulse,&splitImpulsePenetrationThreshold,&numSubSteps,
+									 &collisionFilterMode, &contactBreakingThreshold, &maxNumCmdPer1ms, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -658,7 +658,10 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 		{
 			b3PhysicsParamSetContactBreakingThreshold(command,contactBreakingThreshold);
 		}
-
+		if (maxNumCmdPer1ms>=0)
+		{
+			b3PhysicsParamSetMaxNumCommandsPer1ms(command,maxNumCmdPer1ms);
+		}
 
 		//ret = b3PhysicsParamSetRealTimeSimulation(command, enableRealTimeSimulation);
 
