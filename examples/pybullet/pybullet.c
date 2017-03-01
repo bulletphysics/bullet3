@@ -3007,6 +3007,43 @@ static PyObject* pybullet_configureDebugVisualizer(PyObject* self, PyObject* arg
 }
 
 
+static PyObject* pybullet_resetDebugVisualizerCamera(PyObject* self, PyObject* args, PyObject *keywds)
+{
+    float cameraDistance = -1;
+	float cameraYaw = -1;
+	float cameraPitch = -1;
+	PyObject* cameraTargetPosObj=0;
+
+    int physicsClientId = 0;
+    b3PhysicsClientHandle sm=0;
+    static char *kwlist[] = {"cameraDistance", "cameraYaw", "cameraPitch", "cameraTargetPosition", "physicsClientId", NULL };
+    
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "fffO|i", kwlist,
+                                 &cameraDistance, &cameraYaw, &cameraPitch, &cameraTargetPosObj, &physicsClientId))
+        return NULL;
+    
+    sm = getPhysicsClient(physicsClientId);
+    if (sm == 0)
+    {
+        PyErr_SetString(SpamError, "Not connected to physics server.");
+        return NULL;
+    }
+   
+    {
+        b3SharedMemoryCommandHandle commandHandle = b3InitConfigureOpenGLVisualizer(sm);
+		if ((cameraDistance>=0) && (cameraYaw>=0) &&  (cameraPitch>=0))
+		{
+			float cameraTargetPosition[3];
+			if (pybullet_internalSetVector(cameraTargetPosObj,cameraTargetPosition))
+			{
+				b3ConfigureOpenGLVisualizerSetViewMatrix(commandHandle,cameraDistance,cameraPitch, cameraYaw, cameraTargetPosition);
+			}
+		}
+        b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
 
 static PyObject* pybullet_setDebugObjectColor(PyObject* self, PyObject* args, PyObject *keywds)
 {
@@ -5101,9 +5138,14 @@ static PyMethodDef SpamMethods[] = {
 	  },
 
     {	"configureDebugVisualizer", (PyCFunction)pybullet_configureDebugVisualizer, METH_VARARGS | METH_KEYWORDS,
-        "For the 3D OpenGL Visualizer, enable/disable GUI, shadows. Set the camera parameters."
+        "For the 3D OpenGL Visualizer, enable/disable GUI, shadows."
     },
 
+	{	"resetDebugVisualizerCamera", (PyCFunction)pybullet_resetDebugVisualizerCamera, METH_VARARGS | METH_KEYWORDS,
+        "For the 3D OpenGL Visualizer, set the camera distance, yaw, pitch and target position."
+    },
+
+		
 
     {"getVisualShapeData", (PyCFunction)pybullet_getVisualShapeData, METH_VARARGS| METH_KEYWORDS,
 	"Return the visual shape information for one object." },
