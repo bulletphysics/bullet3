@@ -8,19 +8,29 @@
 #include <stdio.h>
 #include <assert.h>
 #define ASSERT_EQ(a,b) assert((a)==(b));
-#include "MinitaurSetup.h"
-#include"../../ThirdPartyLibs/Wavefront/tiny_obj_loader.h"
+#include"Wavefront/tiny_obj_loader.h"
 #include <vector>
 #include "Bullet3Common/b3FileUtils.h"
 #include "../Utils/b3ResourcePath.h"
+#include "Bullet3Common/b3CommandLineArgs.h"
+
 #define MAX_PATH_LEN 1024
 
 int main(int argc, char* argv[])
 {
-	const char* fileName = "kitchens/kitchen.obj";
-	
+
+	b3CommandLineArgs args(argc,argv);
+	char* fileName;
+	args.GetCmdLineArgument("fileName",fileName);
+
+	printf("fileName = %s\n", fileName);
+	if (fileName==0)
+	{
+		printf("Please use --fileName=\"pathToObj\".");
+		exit(0);
+	}
 	char fileNameWithPath[MAX_PATH_LEN];
-  bool fileFound = (b3ResourcePath::findResourcePath(fileName,fileNameWithPath,MAX_PATH_LEN))>0;
+	bool fileFound = (b3ResourcePath::findResourcePath(fileName,fileNameWithPath,MAX_PATH_LEN))>0;
 	char materialPrefixPath[MAX_PATH_LEN];
 	b3FileUtils::extractPath(fileNameWithPath,materialPrefixPath,MAX_PATH_LEN);
 
@@ -32,7 +42,7 @@ int main(int argc, char* argv[])
 	FILE* sdfFile = fopen(sdfFileName,"w");
 	if (sdfFile==0)
 	{
-		printf("Fatal: cannot create sdf file %s\n",sdfFileName);
+		printf("Fatal error: cannot create sdf file %s\n",sdfFileName);
 		exit(0);
 	}
 
@@ -52,7 +62,7 @@ int main(int argc, char* argv[])
 		FILE* f = fopen(objFileName,"w");
 		if (f==0)
 		{
-			printf("Fatal: cannot create part obj file %s\n",objFileName);
+			printf("Fatal error: cannot create part obj file %s\n",objFileName);
 			exit(0);
 		}
 		fprintf(f,"# Exported using automatic converter by Erwin Coumans\n");
@@ -81,13 +91,16 @@ int main(int argc, char* argv[])
 		}
 
 		fprintf(f,"\n");
-		for (int vn = 0;vn<shape.mesh.normals.size()/3;vn++)
+		int numNormals = int(shape.mesh.normals.size());
+
+		for (int vn = 0;vn<numNormals/3;vn++)
 		{
 			fprintf(f,"vn %f %f %f\n",shape.mesh.normals[vn*3+0],shape.mesh.normals[vn*3+1],shape.mesh.normals[vn*3+2]);
 		}
 
 		fprintf(f,"\n");
-		for (int vt = 0;vt<shape.mesh.texcoords.size()/2;vt++)
+		int numTexCoords = int(shape.mesh.texcoords.size());
+		for (int vt = 0;vt<numTexCoords/2;vt++)
 		{
 			fprintf(f,"vt %f %f\n",shape.mesh.texcoords[vt*2+0],shape.mesh.texcoords[vt*2+1]);
 		}

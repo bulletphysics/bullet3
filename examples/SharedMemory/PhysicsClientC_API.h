@@ -350,6 +350,9 @@ int b3SetVRCameraRootPosition(b3SharedMemoryCommandHandle commandHandle, double 
 int b3SetVRCameraRootOrientation(b3SharedMemoryCommandHandle commandHandle, double rootOrn[4]);
 int b3SetVRCameraTrackingObject(b3SharedMemoryCommandHandle commandHandle, int objectUniqueId);
 
+b3SharedMemoryCommandHandle	b3RequestKeyboardEventsCommandInit(b3PhysicsClientHandle physClient);
+void b3GetKeyboardEventsData(b3PhysicsClientHandle physClient, struct b3KeyboardEventsData* keyboardEventsData);
+
 b3SharedMemoryCommandHandle	b3StateLoggingCommandInit(b3PhysicsClientHandle physClient);
 int b3StateLoggingStart(b3SharedMemoryCommandHandle commandHandle, int loggingType, const char* fileName);
 int b3StateLoggingAddLoggingObjectUniqueId(b3SharedMemoryCommandHandle commandHandle, int objectUniqueId);

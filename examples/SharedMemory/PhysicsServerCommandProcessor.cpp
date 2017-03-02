@@ -48,7 +48,7 @@ bool gResetSimulation = 0;
 int gVRTrackingObjectUniqueId = -1;
 btTransform gVRTrackingObjectTr = btTransform::getIdentity();
 
-int gMaxNumCmdPer1ms = 100;//experiment: add some delay to avoid threads starving other threads
+int gMaxNumCmdPer1ms = 10;//experiment: add some delay to avoid threads starving other threads
 int gCreateObjectSimVR = -1;
 int gEnableKukaControl = 0;
 btVector3 gVRTeleportPos1(0,0,0);
@@ -823,6 +823,7 @@ struct PhysicsServerCommandProcessorInternalData
 	bool m_hasGround;
 
 	b3VRControllerEvent m_vrEvents[MAX_VR_CONTROLLERS];
+	btAlignedObjectArray<b3KeyboardEvent> m_keyboardEvents;
 	
 	btMultiBodyFixedConstraint* m_gripperRigidbodyFixed;
 	btMultiBody* m_gripperMultiBody;
@@ -1932,6 +1933,42 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					hasStatus = true;
 					break;
 				};
+
+				case CMD_REQUEST_KEYBOARD_EVENTS_DATA:
+				{
+					serverStatusOut.m_sendKeyboardEvents.m_numKeyboardEvents = m_data->m_keyboardEvents.size();
+					if (serverStatusOut.m_sendKeyboardEvents.m_numKeyboardEvents>MAX_KEYBOARD_EVENTS)
+					{
+						serverStatusOut.m_sendKeyboardEvents.m_numKeyboardEvents = MAX_KEYBOARD_EVENTS;
+					}
+					for (int i=0;i<serverStatusOut.m_sendKeyboardEvents.m_numKeyboardEvents;i++)
+					{
+						serverStatusOut.m_sendKeyboardEvents.m_keyboardEvents[i] = m_data->m_keyboardEvents[i];
+					}
+
+					btAlignedObjectArray<b3KeyboardEvent> events;
+
+					//remove out-of-date events
+					for (int i=0;i<m_data->m_keyboardEvents.size();i++)
+					{
+						b3KeyboardEvent event = m_data->m_keyboardEvents[i];
+						if (event.m_keyState & eButtonIsDown)
+						{
+							event.m_keyState = eButtonIsDown;
+							events.push_back(event);
+						}
+					}
+					m_data->m_keyboardEvents.resize(events.size());
+					for (int i=0;i<events.size();i++)
+					{
+						m_data->m_keyboardEvents[i] = events[i];
+					}
+
+					serverStatusOut.m_type = CMD_REQUEST_KEYBOARD_EVENTS_DATA_COMPLETED;
+					hasStatus = true;
+					break;
+				};
+
 				case CMD_REQUEST_RAY_CAST_INTERSECTIONS:
 				{
 					btVector3 rayFromWorld(clientCmd.m_requestRaycastIntersections.m_rayFromPosition[0],
@@ -5050,7 +5087,7 @@ void PhysicsServerCommandProcessor::enableRealTimeSimulation(bool enableRealTime
 	m_data->m_allowRealTimeSimulation = enableRealTimeSim;
 }
 
-void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const struct b3VRControllerEvent* vrEvents, int numVREvents)
+void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const struct b3VRControllerEvent* vrEvents, int numVREvents,const struct b3KeyboardEvent* keyEvents, int numKeyEvents)
 {
 	//update m_vrEvents
 	for (int i=0;i<numVREvents;i++)
@@ -5090,6 +5127,31 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const
 		}
 	}
 
+	for (int i=0;i<numKeyEvents;i++)
+	{
+		const b3KeyboardEvent& event = keyEvents[i];
+		bool found = false;
+		//search a matching one first, otherwise add new event
+		for (int e=0;e<m_data->m_keyboardEvents.size();e++)
+		{
+			if (event.m_keyCode == m_data->m_keyboardEvents[e].m_keyCode)
+			{
+				m_data->m_keyboardEvents[e].m_keyState |= event.m_keyState;
+				if (event.m_keyState & eButtonIsDown)
+				{
+					m_data->m_keyboardEvents[e].m_keyState |= eButtonIsDown;
+				} else
+				{
+					m_data->m_keyboardEvents[e].m_keyState &= ~eButtonIsDown;
+				}
+				found=true;
+			}
+		}
+		if (!found)
+		{
+			m_data->m_keyboardEvents.push_back(event);
+		}
+	}
 	if (gResetSimulation)
 	{
 		resetSimulation();

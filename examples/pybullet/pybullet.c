@@ -2899,6 +2899,45 @@ static PyObject* pybullet_setVRCameraState(PyObject* self, PyObject* args, PyObj
 
 }
 
+static PyObject* pybullet_getKeyboardEvents(PyObject* self, PyObject* args, PyObject *keywds) 
+{
+	b3SharedMemoryCommandHandle commandHandle;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+	struct b3KeyboardEventsData keyboardEventsData;
+	PyObject* keyEventsObj = 0;
+	int i=0;
+
+	static char *kwlist[] = { "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|i", kwlist,&physicsClientId))
+	{
+		return NULL;
+	}
+	
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0) 
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	commandHandle = b3RequestKeyboardEventsCommandInit(sm);
+	b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	b3GetKeyboardEventsData(sm,&keyboardEventsData);
+
+	keyEventsObj = PyDict_New();
+	
+	for (i=0;i<keyboardEventsData.m_numKeyboardEvents;i++)
+	{
+		PyObject* keyObj = PyLong_FromLong(keyboardEventsData.m_keyboardEvents[i].m_keyCode);
+		PyObject* valObj = PyLong_FromLong(keyboardEventsData.m_keyboardEvents[i].m_keyState);
+		PyDict_SetItem(keyEventsObj, keyObj, valObj);
+	}
+	return keyEventsObj;
+
+}
 
 static PyObject* pybullet_getVREvents(PyObject* self, PyObject* args, PyObject *keywds) 
 {
@@ -5185,6 +5224,10 @@ static PyMethodDef SpamMethods[] = {
 		"Set properties of the VR Camera such as its root transform "
 		"for teleporting or to track objects (camera inside a vehicle for example)."
 	  },
+	{	"getKeyboardEvents", (PyCFunction)pybullet_getKeyboardEvents, METH_VARARGS | METH_KEYWORDS,
+		"Get Keyboard events, keycode and state (KEY_IS_DOWN, KEY_WAS_TRIGGER, KEY_WAS_RELEASED)"
+	  },
+
 	  {	"startStateLogging", (PyCFunction)pybullet_startStateLogging, METH_VARARGS | METH_KEYWORDS,
 		"Start logging of state, such as robot base position, orientation, joint positions etc. "
 		"Specify loggingType (STATE_LOG_MINITAUR, STATE_LOG_GENERIC_ROBOT, STATE_LOG_VR_CONTROLLERS etc), "
@@ -5207,6 +5250,43 @@ static PyMethodDef SpamMethods[] = {
     // object names
 
     {NULL, NULL, 0, NULL} /* Sentinel */
+};
+
+ ///copied from CommonWindowInterface.h
+
+
+enum {
+	B3G_ESCAPE = 27,
+	B3G_F1 = 0xff00,
+	B3G_F2,
+	B3G_F3,
+	B3G_F4,
+	B3G_F5,
+	B3G_F6,
+	B3G_F7,
+	B3G_F8,
+	B3G_F9,
+	B3G_F10,
+	B3G_F11,
+	B3G_F12,
+	B3G_F13,
+	B3G_F14,
+	B3G_F15,
+	B3G_LEFT_ARROW,
+	B3G_RIGHT_ARROW,
+	B3G_UP_ARROW,
+	B3G_DOWN_ARROW,
+	B3G_PAGE_UP,
+	B3G_PAGE_DOWN,
+	B3G_END,
+	B3G_HOME,
+	B3G_INSERT,
+	B3G_DELETE,
+	B3G_BACKSPACE,
+	B3G_SHIFT,
+	B3G_CONTROL,
+	B3G_ALT,
+	B3G_RETURN
 };
 
 #if PY_MAJOR_VERSION >= 3
@@ -5280,6 +5360,10 @@ initpybullet(void)
   PyModule_AddIntConstant(m, "VR_MAX_CONTROLLERS", MAX_VR_CONTROLLERS);
   PyModule_AddIntConstant(m, "VR_MAX_BUTTONS", MAX_VR_BUTTONS);
 
+  PyModule_AddIntConstant(m, "KEY_IS_DOWN", eButtonIsDown);
+  PyModule_AddIntConstant(m, "KEY_WAS_TRIGGERED", eButtonTriggered);
+  PyModule_AddIntConstant(m, "KEY_WAS_RELEASED", eButtonReleased);
+
   PyModule_AddIntConstant(m, "STATE_LOGGING_MINITAUR", STATE_LOGGING_MINITAUR);
   PyModule_AddIntConstant(m, "STATE_LOGGING_GENERIC_ROBOT", STATE_LOGGING_GENERIC_ROBOT);
   PyModule_AddIntConstant(m, "STATE_LOGGING_VR_CONTROLLERS", STATE_LOGGING_VR_CONTROLLERS);
@@ -5287,8 +5371,38 @@ initpybullet(void)
   PyModule_AddIntConstant(m, "COV_ENABLE_GUI", COV_ENABLE_GUI);
   PyModule_AddIntConstant(m, "COV_ENABLE_SHADOWS", COV_ENABLE_SHADOWS);
   PyModule_AddIntConstant(m, "COV_ENABLE_WIREFRAME", COV_ENABLE_WIREFRAME);
+  PyModule_AddIntConstant(m,"B3G_F1",B3G_F1);
+	PyModule_AddIntConstant(m,"B3G_F2",B3G_F2);
+	PyModule_AddIntConstant(m,"B3G_F3",B3G_F3);
+	PyModule_AddIntConstant(m,"B3G_F4",B3G_F4);
+	PyModule_AddIntConstant(m,"B3G_F5",B3G_F5);
+	PyModule_AddIntConstant(m,"B3G_F6",B3G_F6);
+	PyModule_AddIntConstant(m,"B3G_F7",B3G_F7);
+	PyModule_AddIntConstant(m,"B3G_F8",B3G_F8);
+	PyModule_AddIntConstant(m,"B3G_F9",B3G_F9);
+	PyModule_AddIntConstant(m,"B3G_F10",B3G_F10);
+	PyModule_AddIntConstant(m,"B3G_F11",B3G_F11);
+	PyModule_AddIntConstant(m,"B3G_F12",B3G_F12);
+	PyModule_AddIntConstant(m,"B3G_F13",B3G_F13);
+	PyModule_AddIntConstant(m,"B3G_F14",B3G_F14);
+	PyModule_AddIntConstant(m,"B3G_F15",B3G_F15);
+	PyModule_AddIntConstant(m,"B3G_LEFT_ARROW",B3G_LEFT_ARROW);
+	PyModule_AddIntConstant(m,"B3G_RIGHT_ARROW",B3G_RIGHT_ARROW);
+	PyModule_AddIntConstant(m,"B3G_UP_ARROW",B3G_UP_ARROW);
+	PyModule_AddIntConstant(m,"B3G_DOWN_ARROW",B3G_DOWN_ARROW);
+	PyModule_AddIntConstant(m,"B3G_PAGE_UP",B3G_PAGE_UP);
+	PyModule_AddIntConstant(m,"B3G_PAGE_DOWN",B3G_PAGE_DOWN);
+	PyModule_AddIntConstant(m,"B3G_END",B3G_END);
+	PyModule_AddIntConstant(m,"B3G_HOME",B3G_HOME);
+	PyModule_AddIntConstant(m,"B3G_INSERT",B3G_INSERT);
+	PyModule_AddIntConstant(m,"B3G_DELETE",B3G_DELETE);
+	PyModule_AddIntConstant(m,"B3G_BACKSPACE", B3G_BACKSPACE);   
+	PyModule_AddIntConstant(m,"B3G_SHIFT",  B3G_SHIFT);     
+	PyModule_AddIntConstant(m,"B3G_CONTROL", B3G_CONTROL);      
+	PyModule_AddIntConstant(m,"B3G_ALT", B3G_ALT);     
+	PyModule_AddIntConstant(m,"B3G_RETURN", B3G_RETURN);
 
-    
+
     
   SpamError = PyErr_NewException("pybullet.error", NULL, NULL);
   Py_INCREF(SpamError);

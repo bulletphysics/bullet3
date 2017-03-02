@@ -177,7 +177,16 @@ void b3RobotSimulatorClientAPI::resetSimulation()
 	}
     b3SharedMemoryStatusHandle statusHandle;
     statusHandle = b3SubmitClientCommandAndWaitStatus(
-        m_data->m_physicsClientHandle, b3InitResetSimulationCommand(m_data->m_physicsClientHandle));
+    m_data->m_physicsClientHandle, b3InitResetSimulationCommand(m_data->m_physicsClientHandle));
+}
+
+bool b3RobotSimulatorClientAPI::canSubmitCommand() const
+{
+	if (!isConnected())
+	{
+		return false;
+	}
+	return (b3CanSubmitCommand(m_data->m_physicsClientHandle));    
 }
 
 void b3RobotSimulatorClientAPI::stepSimulation()
@@ -190,8 +199,7 @@ void b3RobotSimulatorClientAPI::stepSimulation()
 
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType;
-	b3Assert(b3CanSubmitCommand(m_data->m_physicsClientHandle));
-    if (b3CanSubmitCommand(m_data->m_physicsClientHandle))
+	if (b3CanSubmitCommand(m_data->m_physicsClientHandle))
     {
         statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, b3InitStepSimulationCommand(m_data->m_physicsClientHandle));
         statusType = b3GetStatusType(statusHandle);
@@ -739,6 +747,38 @@ void b3RobotSimulatorClientAPI::configureDebugVisualizer(b3ConfigureDebugVisuali
 	b3ConfigureOpenGLVisualizerSetVisualizationFlags(commandHandle, flag, enable);
 	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
 }
+
+void b3RobotSimulatorClientAPI::getVREvents(b3VREventsData* vrEventsData)
+{
+	vrEventsData->m_numControllerEvents = 0;
+	vrEventsData->m_controllerEvents = 0;
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return;
+	}
+
+	b3SharedMemoryCommandHandle	commandHandle = b3RequestVREventsCommandInit(m_data->m_physicsClientHandle);
+	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
+	b3GetVREventsData(m_data->m_physicsClientHandle, vrEventsData);	
+}
+
+void b3RobotSimulatorClientAPI::getKeyboardEvents(b3KeyboardEventsData* keyboardEventsData)
+{
+	keyboardEventsData->m_numKeyboardEvents = 0;
+	keyboardEventsData->m_keyboardEvents = 0;
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return;
+	}
+
+	b3SharedMemoryCommandHandle	commandHandle = b3RequestKeyboardEventsCommandInit(m_data->m_physicsClientHandle);
+	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
+	b3GetKeyboardEventsData(m_data->m_physicsClientHandle,keyboardEventsData);
+
+}
+
 
 int b3RobotSimulatorClientAPI::startStateLogging(b3StateLoggingType loggingType, const std::string& fileName, const b3AlignedObjectArray<int>& objectUniqueIds)
 {

@@ -2493,6 +2493,33 @@ int b3SetVRCameraTrackingObject(b3SharedMemoryCommandHandle commandHandle, int o
 	return 0;
 }
 
+
+
+b3SharedMemoryCommandHandle	b3RequestKeyboardEventsCommandInit(b3PhysicsClientHandle physClient)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+
+	command->m_type = CMD_REQUEST_KEYBOARD_EVENTS_DATA;
+	command->m_updateFlags = 0;
+
+	return (b3SharedMemoryCommandHandle)command;
+}
+
+void b3GetKeyboardEventsData(b3PhysicsClientHandle physClient, struct b3KeyboardEventsData* keyboardEventsData)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+	if (cl)
+	{
+		cl->getCachedKeyboardEvents(keyboardEventsData);
+	}
+}
+
+
+
 b3SharedMemoryCommandHandle	b3StateLoggingCommandInit(b3PhysicsClientHandle physClient)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;

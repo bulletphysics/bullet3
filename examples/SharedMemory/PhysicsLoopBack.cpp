@@ -160,6 +160,11 @@ void PhysicsLoopBack::getCachedVREvents(struct b3VREventsData* vrEventsData)
 	return m_data->m_physicsClient->getCachedVREvents(vrEventsData);
 }
 
+void PhysicsLoopBack::getCachedKeyboardEvents(struct b3KeyboardEventsData* keyboardEventsData)
+{
+	return m_data->m_physicsClient->getCachedKeyboardEvents(keyboardEventsData);
+}
+
 void PhysicsLoopBack::getCachedOverlappingObjects(struct b3AABBOverlapData* overlappingObjects)
 {
 	return m_data->m_physicsClient->getCachedOverlappingObjects(overlappingObjects);
