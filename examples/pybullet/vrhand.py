@@ -11,6 +11,8 @@ import pybullet as p
 
 #first try to connect to shared memory (VR), if it fails use local GUI
 c = p.connect(p.SHARED_MEMORY)
+if (c<0):
+	c = p.connect(p.GUI)
 #p.resetSimulation()
 p.setGravity(0,0,-10)
 print(c)
@@ -51,7 +53,7 @@ def convertSensor(x):
 	b = (v-minV)/float(maxV-minV)
 	return (1.0-b)
 	
-ser = serial.Serial(port='COM3',baudrate=115200,parity=serial.PARITY_ODD,stopbits=serial.STOPBITS_TWO,bytesize=serial.SEVENBITS)
+ser = serial.Serial(port='COM9',baudrate=115200,parity=serial.PARITY_ODD,stopbits=serial.STOPBITS_TWO,bytesize=serial.SEVENBITS)
 if (ser.isOpen()):
 	while True:
 		events = p.getVREvents()

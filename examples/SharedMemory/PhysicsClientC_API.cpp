@@ -347,6 +347,16 @@ int b3PhysicsParamSetContactBreakingThreshold(b3SharedMemoryCommandHandle comman
 	command->m_updateFlags |= SIM_PARAM_UPDATE_CONTACT_BREAKING_THRESHOLD;
 	return 0;
 }
+int b3PhysicsParamSetMaxNumCommandsPer1ms(b3SharedMemoryCommandHandle commandHandle, int maxNumCmdPer1ms)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+
+	command->m_physSimParamArgs.m_maxNumCmdPer1ms = maxNumCmdPer1ms;
+	command->m_updateFlags |= SIM_PARAM_MAX_CMD_PER_1MS;
+	return 0;
+
+}
 
 int b3PhysicsParamSetNumSolverIterations(b3SharedMemoryCommandHandle commandHandle, int numSolverIterations)
 {

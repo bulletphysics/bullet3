@@ -536,6 +536,7 @@ LoadObj(
   // material
   std::map<std::string, material_t> material_map;
   material_t material;
+  InitMaterial(material);
 
   int maxchars = 8192;  // Alloc enough size.
   std::vector<char> buf(maxchars);  // Alloc enough size.
