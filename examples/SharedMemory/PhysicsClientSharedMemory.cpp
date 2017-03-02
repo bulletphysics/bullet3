@@ -44,6 +44,7 @@ struct PhysicsClientSharedMemoryInternalData {
 	btAlignedObjectArray<b3OverlappingObject> m_cachedOverlappingObjects;
 	btAlignedObjectArray<b3VisualShapeData> m_cachedVisualShapes;
 	btAlignedObjectArray<b3VRControllerEvent> m_cachedVREvents;
+	btAlignedObjectArray<b3KeyboardEvent> m_cachedKeyboardEvents;
 	btAlignedObjectArray<b3RayHitInfo>	m_raycastHits;
 
     btAlignedObjectArray<int> m_bodyIdsRequestInfo;
@@ -773,6 +774,20 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 				break;
 			}
 
+			case CMD_REQUEST_KEYBOARD_EVENTS_DATA_COMPLETED:
+			{
+				if (m_data->m_verboseOutput)
+				{
+					b3Printf("Request keyboard events completed");
+				}
+				m_data->m_cachedKeyboardEvents.resize(serverCmd.m_sendKeyboardEvents.m_numKeyboardEvents);
+				for (int i=0;i<serverCmd.m_sendKeyboardEvents.m_numKeyboardEvents;i++)
+				{
+					m_data->m_cachedKeyboardEvents[i] = serverCmd.m_sendKeyboardEvents.m_keyboardEvents[i];
+				}
+				break;
+			}
+
 			case CMD_REQUEST_AABB_OVERLAP_COMPLETED:
 			{
 				if (m_data->m_verboseOutput)
@@ -1110,7 +1125,17 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 }
 
 bool PhysicsClientSharedMemory::canSubmitCommand() const {
-    return (m_data->m_isConnected && !m_data->m_waitingForServer);
+	if (m_data->m_isConnected && !m_data->m_waitingForServer)
+	{
+		if (m_data->m_testBlock1->m_magicId == SHARED_MEMORY_MAGIC_NUMBER)
+		{
+			return true;
+		} else
+		{
+			return false;
+		}
+	}
+	return false;
 }
 
 struct SharedMemoryCommand* PhysicsClientSharedMemory::getAvailableSharedMemoryCommand() {
@@ -1175,6 +1200,13 @@ void PhysicsClientSharedMemory::getCachedVREvents(struct b3VREventsData* vrEvent
 	vrEventsData->m_numControllerEvents = m_data->m_cachedVREvents.size();
 	vrEventsData->m_controllerEvents = vrEventsData->m_numControllerEvents?
 							&m_data->m_cachedVREvents[0] : 0;
+}
+
+void PhysicsClientSharedMemory::getCachedKeyboardEvents(struct b3KeyboardEventsData* keyboardEventsData)
+{
+	keyboardEventsData->m_numKeyboardEvents = m_data->m_cachedKeyboardEvents.size();
+	keyboardEventsData->m_keyboardEvents = keyboardEventsData->m_numKeyboardEvents?
+		&m_data->m_cachedKeyboardEvents[0] : 0;
 }
 
 void PhysicsClientSharedMemory::getCachedRaycastHits(struct b3RaycastInformation* raycastHits)

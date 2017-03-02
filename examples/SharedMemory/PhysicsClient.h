@@ -58,6 +58,8 @@ public:
 
 	virtual void getCachedVREvents(struct b3VREventsData* vrEventsData) = 0;
 
+	virtual void getCachedKeyboardEvents(struct b3KeyboardEventsData* keyboardEventsData) = 0;
+
 	virtual void getCachedRaycastHits(struct b3RaycastInformation* raycastHits) = 0;
 
 	virtual void setTimeOut(double timeOutInSeconds) = 0;

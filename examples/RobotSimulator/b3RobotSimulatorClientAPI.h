@@ -167,6 +167,8 @@ public:
 
 	void stepSimulation();
 
+	bool canSubmitCommand() const;
+	
 	void setRealTimeSimulation(bool enableRealTimeSimulation);
 
 	void setGravity(const b3Vector3& gravityAcceleration);
@@ -185,6 +187,9 @@ public:
 
 	int startStateLogging(b3StateLoggingType loggingType, const std::string& fileName, const b3AlignedObjectArray<int>& objectUniqueIds);
 	void stopStateLogging(int stateLoggerUniqueId);
+
+	void getVREvents(b3VREventsData* vrEventsData);
+	void getKeyboardEvents(b3KeyboardEventsData* keyboardEventsData);
 
 };
 

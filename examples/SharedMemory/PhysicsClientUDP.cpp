@@ -175,8 +175,8 @@ struct	UdpNetworkedInternalData
 					printf("A packet of length %lu containing '%s' was "
 						"received from %s on channel %u.\n",
 						m_event.packet->dataLength,
-						m_event.packet->data,
-						m_event.peer->data,
+						(char*)m_event.packet->data,
+						(char*)m_event.peer->data,
 						m_event.channelID);
 				}
 				/* Clean up the packet now that we're done using it.
@@ -186,7 +186,7 @@ struct	UdpNetworkedInternalData
 				break;
 
 			case ENET_EVENT_TYPE_DISCONNECT:
-				printf("%s disconnected.\n", m_event.peer->data);
+				printf("%s disconnected.\n", (char*)m_event.peer->data);
 
 				break;
 			default:
@@ -230,8 +230,8 @@ struct	UdpNetworkedInternalData
 					printf("A packet of length %lu containing '%s' was "
 						"received from %s on channel %u.\n",
 						m_event.packet->dataLength,
-						m_event.packet->data,
-						m_event.peer->data,
+						(char*)m_event.packet->data,
+						(char*)m_event.peer->data,
 						m_event.channelID);
 				}
 
@@ -271,7 +271,7 @@ struct	UdpNetworkedInternalData
 			}
 			case ENET_EVENT_TYPE_DISCONNECT:
 			{
-				printf("%s disconnected.\n", m_event.peer->data);
+				printf("%s disconnected.\n", (char*)m_event.peer->data);
 
 				break;
 			}

@@ -49,17 +49,33 @@ int main(int argc, char* argv[])
 		sim->stepSimulation();
 	}
 #endif
-	sim->setRealTimeSimulation(true);
+	sim->setRealTimeSimulation(false);
 	
-	startTime = clock.getTimeInSeconds();
-	while (clock.getTimeInSeconds()-startTime < simWallClockSeconds)
+	while (sim->canSubmitCommand())
 	{
-		b3Clock::usleep(1000);
+		b3KeyboardEventsData keyEvents;
+		sim->getKeyboardEvents(&keyEvents);
+		if (keyEvents.m_numKeyboardEvents)
+		{
+		
+			printf("num key events = %d]\n", keyEvents.m_numKeyboardEvents);
+			//m_keyState is a flag combination of eButtonIsDown,eButtonTriggered, eButtonReleased
+			for (int i=0;i<keyEvents.m_numKeyboardEvents;i++)
+			{
+				printf("keyEvent[%d].m_keyCode = %d, state = %d\n", i,keyEvents.m_keyboardEvents[i].m_keyCode,keyEvents.m_keyboardEvents[i].m_keyState);
+			}
+		}
+		b3Clock::usleep(1000*1000);
 	}
 
+	printf("sim->disconnect\n");
+
 	sim->disconnect();
+	
+	printf("delete sim\n");
 	delete sim;
 
+	printf("exit\n");
 
 }
 

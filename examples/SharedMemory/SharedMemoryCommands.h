@@ -608,6 +608,12 @@ struct SendVREvents
 	b3VRControllerEvent m_controllerEvents[MAX_VR_CONTROLLERS];
 };
 
+struct SendKeyboardEvents
+{
+	int m_numKeyboardEvents;
+	b3KeyboardEvent m_keyboardEvents[MAX_KEYBOARD_EVENTS];
+};
+
 enum eVRCameraEnums
 {
 	VR_CAMERA_ROOT_POSITION=1,
@@ -764,6 +770,7 @@ struct SharedMemoryStatus
 		struct UserDebugDrawResultArgs m_userDebugDrawArgs;
 		struct b3UserConstraint m_userConstraintResultArgs;
 		struct SendVREvents m_sendVREvents;
+		struct SendKeyboardEvents m_sendKeyboardEvents;
 		struct SendRaycastHits m_raycastHits;
 		struct StateLoggingResultArgs m_stateLoggingResultArgs;
 

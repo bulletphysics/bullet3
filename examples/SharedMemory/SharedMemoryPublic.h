@@ -53,6 +53,7 @@ enum EnumSharedMemoryClientCommand
 	CMD_SYNC_BODY_INFO,
 	CMD_STATE_LOGGING,
     CMD_CONFIGURE_OPENGL_VISUALIZER,
+	CMD_REQUEST_KEYBOARD_EVENTS_DATA,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -130,7 +131,8 @@ enum EnumSharedMemoryServerStatus
 		CMD_STATE_LOGGING_COMPLETED,
 		CMD_STATE_LOGGING_START_COMPLETED,
 		CMD_STATE_LOGGING_FAILED,
-    
+		CMD_REQUEST_KEYBOARD_EVENTS_DATA_COMPLETED,
+		CMD_REQUEST_KEYBOARD_EVENTS_DATA_FAILED,
         //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
@@ -251,6 +253,7 @@ enum b3VREventType
 #define MAX_VR_BUTTONS 64
 #define MAX_VR_CONTROLLERS 8
 #define MAX_RAY_HITS 128
+#define MAX_KEYBOARD_EVENTS 256
 
 enum b3VRButtonInfo
 {
@@ -279,6 +282,18 @@ struct b3VREventsData
 	struct b3VRControllerEvent* m_controllerEvents;
 };
 
+
+struct b3KeyboardEvent
+{
+	int m_keyCode;//ascii
+	int m_keyState;// see b3VRButtonInfo
+};
+
+struct b3KeyboardEventsData
+{
+	int m_numKeyboardEvents;
+	struct b3KeyboardEvent* m_keyboardEvents;
+};
 
 struct b3ContactPointData
 {

@@ -181,10 +181,12 @@ void MyKeyboardCallback(int key, int state)
 
 	//b3Printf("key=%d, state=%d", key, state);
 	bool handled = false;
-	
-	if (gui2 && !handled )
+	if (renderGui)
 	{
-		handled = gui2->keyboardCallback(key, state);
+		if (gui2 && !handled )
+		{
+			handled = gui2->keyboardCallback(key, state);
+		}
 	}
 	
 	if (!handled && sCurrentDemo)

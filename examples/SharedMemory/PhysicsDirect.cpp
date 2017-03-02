@@ -52,6 +52,8 @@ struct PhysicsDirectInternalData
 	btAlignedObjectArray<b3VisualShapeData> m_cachedVisualShapes;
     btAlignedObjectArray<b3VRControllerEvent> m_cachedVREvents;
 
+	btAlignedObjectArray<b3KeyboardEvent> m_cachedKeyboardEvents;
+
 	btAlignedObjectArray<b3RayHitInfo>	m_raycastHits;
 
 	PhysicsCommandProcessorInterface* m_commandProcessor;
@@ -667,10 +669,23 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 		{
 			b3Printf("Request VR Events completed");
 		}
-		m_data->m_cachedVREvents.clear();
+		m_data->m_cachedVREvents.resize(serverCmd.m_sendVREvents.m_numVRControllerEvents);
 		for (int i=0;i< serverCmd.m_sendVREvents.m_numVRControllerEvents;i++)
 		{
-			m_data->m_cachedVREvents.push_back(serverCmd.m_sendVREvents.m_controllerEvents[i]);
+			m_data->m_cachedVREvents[i] = serverCmd.m_sendVREvents.m_controllerEvents[i];
+		}
+		break;
+	}
+	case CMD_REQUEST_KEYBOARD_EVENTS_DATA_COMPLETED:
+	{
+		if (m_data->m_verboseOutput)
+		{
+			b3Printf("Request keyboard events completed");
+		}
+		m_data->m_cachedKeyboardEvents.resize(serverCmd.m_sendKeyboardEvents.m_numKeyboardEvents);
+		for (int i=0;i<serverCmd.m_sendKeyboardEvents.m_numKeyboardEvents;i++)
+		{
+			m_data->m_cachedKeyboardEvents[i] = serverCmd.m_sendKeyboardEvents.m_keyboardEvents[i];
 		}
 		break;
 	}
@@ -1029,6 +1044,13 @@ void PhysicsDirect::getCachedVREvents(struct b3VREventsData* vrEventsData)
 	vrEventsData->m_numControllerEvents = m_data->m_cachedVREvents.size();
 	vrEventsData->m_controllerEvents = vrEventsData->m_numControllerEvents?
 							&m_data->m_cachedVREvents[0] : 0;
+}
+
+void PhysicsDirect::getCachedKeyboardEvents(struct b3KeyboardEventsData* keyboardEventsData)
+{
+	keyboardEventsData->m_numKeyboardEvents = m_data->m_cachedKeyboardEvents.size();
+	keyboardEventsData->m_keyboardEvents = keyboardEventsData->m_numKeyboardEvents?
+		&m_data->m_cachedKeyboardEvents[0] : 0;
 }
 
 void PhysicsDirect::getCachedRaycastHits(struct b3RaycastInformation* raycastHits)
