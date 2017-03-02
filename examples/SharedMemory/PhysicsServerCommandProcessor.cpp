@@ -684,35 +684,36 @@ struct GenericRobotStateLogger : public InternalStateLogger
                 
                 int numDofs = mb->getNumDofs();
                 logData.m_values.push_back(numDofs);
+                int numJoints = mb->getNumLinks();
                 
-                for (int j = 0; j < 12; ++j)
+                for (int j = 0; j < numJoints; ++j)
                 {
-                    if (j < numDofs)
+                    if (mb->getLink(j).m_jointType == 0 || mb->getLink(j).m_jointType == 1)
                     {
                         float q = mb->getJointPos(j);
                         logData.m_values.push_back(q);
                     }
-                    else
-                    {
-                        float q = 0.0;
-                        logData.m_values.push_back(q);
-                    }
+                }
+                for (int j = numDofs; j < 12; ++j)
+                {
+                    float q = 0.0;
+                    logData.m_values.push_back(q);
                 }
                 
-                for (int j = 0; j < 12; ++j)
+                for (int j = 0; j < numJoints; ++j)
                 {
-                    if (j < numDofs)
+                    if (mb->getLink(j).m_jointType == 0 || mb->getLink(j).m_jointType == 1)
                     {
                         float u = mb->getJointVel(j);
                         logData.m_values.push_back(u);
                     }
-                    else
-                    {
-                        float u = 0.0;
-                        logData.m_values.push_back(u);
-                    }
                 }
-                
+                for (int j = numDofs; j < 12; ++j)
+                {
+                    float u = 0.0;
+                    logData.m_values.push_back(u);
+                }
+                                
                 //at the moment, appendMinitaurLogData will directly write to disk (potential delay)
                 //better to fill a huge memory buffer and once in a while write it to disk
                 appendMinitaurLogData(m_logFileHandle, m_structTypes, logData);

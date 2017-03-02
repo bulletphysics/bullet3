@@ -71,7 +71,10 @@ for record in log:
     pos = [record[2],record[3],record[4]]
     orn = [record[5],record[6],record[7],record[8]]
     p.resetBasePositionAndOrientation(Id,pos,orn)
-    numJoints = record[15]
+    numJoints = p.getNumJoints(Id)
     for i in range (numJoints):
-    	p.resetJointState(Id,i,record[i+16])
+        jointInfo = p.getJointInfo(Id,i)
+        qIndex = jointInfo[3]
+        if qIndex > -1:
+            p.resetJointState(Id,i,record[qIndex-7+16])
     sleep(0.0005)
