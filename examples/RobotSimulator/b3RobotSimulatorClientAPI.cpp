@@ -342,6 +342,12 @@ bool b3RobotSimulatorClientAPI::loadMJCF(const std::string& fileName, b3RobotSim
 
 bool b3RobotSimulatorClientAPI::loadBullet(const std::string& fileName, b3RobotSimulatorLoadFileResults& results)
 {
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return false;
+	}
+
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType;
 	b3SharedMemoryCommandHandle command;
@@ -397,9 +403,26 @@ bool b3RobotSimulatorClientAPI::loadSDF(const std::string& fileName, b3RobotSimu
 	return statusOk;
 }
 
+bool b3RobotSimulatorClientAPI::getBodyInfo(int bodyUniqueId, struct b3BodyInfo* bodyInfo)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return false;
+	}
+
+	int result = b3GetBodyInfo(m_data->m_physicsClientHandle,  bodyUniqueId, bodyInfo);
+	return (result != 0);
+}
 
 bool b3RobotSimulatorClientAPI::getBasePositionAndOrientation(int bodyUniqueId, b3Vector3& basePosition, b3Quaternion& baseOrientation) const
 {
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return false;
+	}
+
 	b3SharedMemoryCommandHandle cmd_handle =
 		b3RequestActualStateCommandInit(m_data->m_physicsClientHandle, bodyUniqueId);
 	b3SharedMemoryStatusHandle status_handle =
@@ -431,6 +454,12 @@ bool b3RobotSimulatorClientAPI::getBasePositionAndOrientation(int bodyUniqueId, 
 
 bool b3RobotSimulatorClientAPI::resetBasePositionAndOrientation(int bodyUniqueId, b3Vector3& basePosition, b3Quaternion& baseOrientation)
 {
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return false;
+	}
+
 	b3SharedMemoryCommandHandle commandHandle;
 
 	commandHandle = b3CreatePoseCommandInit(m_data->m_physicsClientHandle, bodyUniqueId);
