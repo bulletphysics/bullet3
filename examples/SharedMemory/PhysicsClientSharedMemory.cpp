@@ -414,13 +414,19 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                         if ((flag & bParse::FD_DOUBLE_PRECISION) != 0) {
                             Bullet::btMultiBodyDoubleData* mb =
                                 (Bullet::btMultiBodyDoubleData*)bf.m_multiBodies[i];
-
+							if (mb->m_baseName)
+							{
+								bodyJoints->m_baseName = mb->m_baseName;
+							}
 							addJointInfoFromMultiBodyData(mb,bodyJoints, m_data->m_verboseOutput);
                         } else 
 						{
                             Bullet::btMultiBodyFloatData* mb =
                                 (Bullet::btMultiBodyFloatData*)bf.m_multiBodies[i];
-
+							if (mb->m_baseName)
+							{
+								bodyJoints->m_baseName = mb->m_baseName;
+							}
 							addJointInfoFromMultiBodyData(mb,bodyJoints, m_data->m_verboseOutput);
                         }
                     }

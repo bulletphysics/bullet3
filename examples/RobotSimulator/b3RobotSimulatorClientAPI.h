@@ -150,6 +150,8 @@ public:
 	bool loadMJCF(const std::string& fileName, b3RobotSimulatorLoadFileResults& results);
 	bool loadBullet(const std::string& fileName, b3RobotSimulatorLoadFileResults& results);
 
+	bool getBodyInfo(int bodyUniqueId, struct b3BodyInfo* bodyInfo);
+
 	bool getBasePositionAndOrientation(int bodyUniqueId, b3Vector3& basePosition, b3Quaternion& baseOrientation) const;
 	bool resetBasePositionAndOrientation(int bodyUniqueId, b3Vector3& basePosition, b3Quaternion& baseOrientation);
 

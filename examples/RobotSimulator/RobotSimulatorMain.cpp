@@ -24,6 +24,10 @@ int main(int argc, char* argv[])
 
 	sim->setGravity(b3MakeVector3(0,0,-10));
 
+	int blockId = sim->loadURDF("cube.urdf");
+	b3BodyInfo bodyInfo;
+	sim->getBodyInfo(blockId,&bodyInfo);
+
 	sim->loadURDF("plane.urdf");
 
 	MinitaurSetup minitaur;
