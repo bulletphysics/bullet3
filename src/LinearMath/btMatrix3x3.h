@@ -682,6 +682,7 @@ public:
 	void diagonalize(btMatrix3x3& rot, btScalar tolerance = 1.0e-9, int maxIter=100)
 	{
 		btQuaternion r;
+		r = btQuaternion::getIdentity();
 		extractRotation(r,tolerance,maxIter);
 		rot.setRotation(r);
 		btMatrix3x3 rotInv = btMatrix3x3(r.inverse());
