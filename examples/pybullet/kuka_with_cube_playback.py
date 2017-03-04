@@ -67,14 +67,14 @@ print('item num:'),
 print(itemNum)
 
 for record in log:
-    Id = record[1]
-    pos = [record[2],record[3],record[4]]
-    orn = [record[5],record[6],record[7],record[8]]
+    Id = record[2]
+    pos = [record[3],record[4],record[5]]
+    orn = [record[6],record[7],record[8],record[9]]
     p.resetBasePositionAndOrientation(Id,pos,orn)
     numJoints = p.getNumJoints(Id)
     for i in range (numJoints):
         jointInfo = p.getJointInfo(Id,i)
         qIndex = jointInfo[3]
         if qIndex > -1:
-            p.resetJointState(Id,i,record[qIndex-7+16])
+            p.resetJointState(Id,i,record[qIndex-7+17])
     sleep(0.0005)
