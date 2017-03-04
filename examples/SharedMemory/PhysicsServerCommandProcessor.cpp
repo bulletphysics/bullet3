@@ -578,6 +578,7 @@ struct GenericRobotStateLogger : public InternalStateLogger
         m_loggingType = STATE_LOGGING_GENERIC_ROBOT;
         
         btAlignedObjectArray<std::string> structNames;
+        structNames.push_back("stepCount");
         structNames.push_back("timeStamp");
         structNames.push_back("objectId");
         structNames.push_back("posX");
@@ -619,7 +620,7 @@ struct GenericRobotStateLogger : public InternalStateLogger
         structNames.push_back("u10");
         structNames.push_back("u11");
         
-        m_structTypes = "fIfffffffffffffIffffffffffffffffffffffff";
+        m_structTypes = "IfIfffffffffffffIffffffffffffffffffffffff";
         const char* fileNameC = fileName.c_str();
         
         m_logFileHandle = createMinitaurLogFile(fileNameC, structNames, m_structTypes);
@@ -647,7 +648,10 @@ struct GenericRobotStateLogger : public InternalStateLogger
                 }
                 
                 MinitaurLogRecord logData;
-                logData.m_values.push_back(m_loggingTimeStamp);
+                int stepCount = m_loggingTimeStamp;
+                float timeStamp = m_loggingTimeStamp*m_dynamicsWorld->getSolverInfo().m_timeStep;
+                logData.m_values.push_back(stepCount);
+                logData.m_values.push_back(timeStamp);
                 
                 btVector3 pos = mb->getBasePos();
                 btQuaternion ori = mb->getWorldToBaseRot().inverse();
