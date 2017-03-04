@@ -322,6 +322,7 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 					numCmdSinceSleep1ms = 0;
 					sleepClock.reset();
 				}
+			}
 			if (sleepClock.getTimeMilliseconds()>1)
 			{
 				sleepClock.reset();

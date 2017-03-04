@@ -2625,12 +2625,13 @@ static PyObject* pybullet_startStateLogging(PyObject* self, PyObject* args, PyOb
 	int loggingType = -1;
 	char* fileName = 0;
 	PyObject* objectUniqueIdsObj = 0;
+	int maxLogDof=-1;
 
-	static char *kwlist[] = { "loggingType", "fileName", "objectUniqueIds", "physicsClientId", NULL };
+	static char *kwlist[] = { "loggingType", "fileName", "objectUniqueIds", "maxLogDof", "physicsClientId", NULL };
 	int physicsClientId = 0;
 		
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "is|Oi", kwlist,
-		&loggingType, &fileName, &objectUniqueIdsObj,&physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "is|Oii", kwlist,
+		&loggingType, &fileName, &objectUniqueIdsObj,&maxLogDof, &physicsClientId))
 		return NULL;
 
 	sm = getPhysicsClient(physicsClientId);
@@ -2661,6 +2662,10 @@ static PyObject* pybullet_startStateLogging(PyObject* self, PyObject* args, PyOb
 			}
 		}
 
+		if (maxLogDof>0)
+		{
+			b3StateLoggingSetMaxLogDof(commandHandle, maxLogDof);
+		}
 		
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 		statusType = b3GetStatusType(statusHandle);

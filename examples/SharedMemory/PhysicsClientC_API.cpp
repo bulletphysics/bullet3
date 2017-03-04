@@ -2585,6 +2585,20 @@ int b3StateLoggingAddLoggingObjectUniqueId(b3SharedMemoryCommandHandle commandHa
 	}
 	return 0;
 }
+
+int b3StateLoggingSetMaxLogDof(b3SharedMemoryCommandHandle commandHandle, int maxLogDof)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_STATE_LOGGING);
+	if (command->m_type == CMD_STATE_LOGGING)
+	{
+	    command->m_updateFlags |= STATE_LOGGING_MAX_LOG_DOF;
+		command->m_stateLoggingArguments.m_maxLogDof = maxLogDof;
+	}
+	return 0;
+}
+
 int b3StateLoggingStop(b3SharedMemoryCommandHandle commandHandle, int loggingUid)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;

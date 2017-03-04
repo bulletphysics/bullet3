@@ -1856,6 +1856,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                             std::string fileName = clientCmd.m_stateLoggingArguments.m_fileName;
                             
                             int loggerUid = m_data->m_stateLoggersUniqueId++;
+							int maxLogDof = 12;
+							if ((clientCmd.m_updateFlags & STATE_LOGGING_MAX_LOG_DOF))
+							{
+								maxLogDof = clientCmd.m_stateLoggingArguments.m_maxLogDof;
+							}
                             GenericRobotStateLogger* logger = new GenericRobotStateLogger(loggerUid,fileName,m_data->m_dynamicsWorld);
                             
                             if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_OBJECT_UNIQUE_ID) && (clientCmd.m_stateLoggingArguments.m_numBodyUniqueIds>0))
@@ -1863,7 +1868,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                 logger->m_filterObjectUniqueId = true;
                                 for (int i = 0; i < clientCmd.m_stateLoggingArguments.m_numBodyUniqueIds; ++i)
                                 {
-                                    logger->m_bodyIdList.push_back(clientCmd.m_stateLoggingArguments.m_bodyUniqueIds[i]);
+									int objectUniqueId  = clientCmd.m_stateLoggingArguments.m_bodyUniqueIds[i];
+                                    logger->m_bodyIdList.push_back(objectUniqueId);
                                 }
                             }
                             
