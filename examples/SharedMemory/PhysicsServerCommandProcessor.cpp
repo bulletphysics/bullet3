@@ -48,7 +48,7 @@ bool gResetSimulation = 0;
 int gVRTrackingObjectUniqueId = -1;
 btTransform gVRTrackingObjectTr = btTransform::getIdentity();
 
-int gMaxNumCmdPer1ms = 10;//experiment: add some delay to avoid threads starving other threads
+int gMaxNumCmdPer1ms = -1;//experiment: add some delay to avoid threads starving other threads
 int gCreateObjectSimVR = -1;
 int gEnableKukaControl = 0;
 btVector3 gVRTeleportPos1(0,0,0);

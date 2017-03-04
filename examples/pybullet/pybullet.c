@@ -606,7 +606,7 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 	int numSubSteps = -1;
 	int collisionFilterMode = -1;
 	double contactBreakingThreshold = -1;
-	int maxNumCmdPer1ms = -1;
+	int maxNumCmdPer1ms = -2;
 	b3PhysicsClientHandle sm = 0;
 
 	int physicsClientId = 0;
@@ -658,7 +658,8 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 		{
 			b3PhysicsParamSetContactBreakingThreshold(command,contactBreakingThreshold);
 		}
-		if (maxNumCmdPer1ms>=0)
+		//-1 is disables the maxNumCmdPer1ms feature, allow it
+		if (maxNumCmdPer1ms>=-1)
 		{
 			b3PhysicsParamSetMaxNumCommandsPer1ms(command,maxNumCmdPer1ms);
 		}

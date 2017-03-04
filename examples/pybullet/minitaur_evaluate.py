@@ -18,7 +18,7 @@ def current_position():
 def is_fallen():
   global minitaur
   orientation = minitaur.getBaseOrientation()
-  rotMat = p.getMatrixFromQuaterion(orientation)
+  rotMat = p.getMatrixFromQuaternion(orientation)
   localUp = rotMat[6:]
   return np.dot(np.asarray([0, 0, 1]), np.asarray(localUp)) < 0
 

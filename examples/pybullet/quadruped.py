@@ -2,19 +2,59 @@ import pybullet as p
 import time
 import math
 
-useRealTime = 0
+useRealTime = 1
 fixedTimeStep = 0.001
+speed = 10
+amplitude = 1.3
+jump_amp = 0.5
+maxForce = 3.5
+kp = .6
+kd = 1
+
 
 physId = p.connect(p.SHARED_MEMORY)
 if (physId<0):
 	p.connect(p.GUI)
 
 p.loadURDF("plane.urdf")
-p.setGravity(0,0,-1)
+p.setGravity(0,0,-10)
 p.setTimeStep(fixedTimeStep)
 
-p.setRealTimeSimulation(0)
-quadruped = p.loadURDF("quadruped/quadruped.urdf",1,-2,1)
+p.setRealTimeSimulation(1)
+quadruped = p.loadURDF("quadruped/quadruped.urdf",1,-2,0.3)
+nJoints = p.getNumJoints(quadruped)
+
+jointNameToId = {}
+for i in range(nJoints):
+  jointInfo = p.getJointInfo(quadruped, i)
+  jointNameToId[jointInfo[1].decode('UTF-8')] = jointInfo[0]
+
+motor_front_rightR_joint = jointNameToId['motor_front_rightR_joint']
+hip_front_rightR_link = jointNameToId['hip_front_rightR_link']
+knee_front_rightR_link = jointNameToId['knee_front_rightR_link']
+motor_front_rightL_joint = jointNameToId['motor_front_rightL_joint']
+motor_front_rightL_link = jointNameToId['motor_front_rightL_link']
+knee_front_rightL_link = jointNameToId['knee_front_rightL_link']
+motor_front_leftR_joint = jointNameToId['motor_front_leftR_joint']
+hip_front_leftR_link = jointNameToId['hip_front_leftR_link']
+knee_front_leftR_link = jointNameToId['knee_front_leftR_link']
+motor_front_leftL_joint = jointNameToId['motor_front_leftL_joint']
+motor_front_leftL_link = jointNameToId['motor_front_leftL_link']
+knee_front_leftL_link = jointNameToId['knee_front_leftL_link']
+motor_back_rightR_joint = jointNameToId['motor_back_rightR_joint']
+hip_rightR_link = jointNameToId['hip_rightR_link']
+knee_back_rightR_link = jointNameToId['knee_back_rightR_link']
+motor_back_rightL_joint = jointNameToId['motor_back_rightL_joint']
+motor_back_rightL_link = jointNameToId['motor_back_rightL_link']
+knee_back_rightL_link = jointNameToId['knee_back_rightL_link']
+motor_back_leftR_joint = jointNameToId['motor_back_leftR_joint']
+hip_leftR_link = jointNameToId['hip_leftR_link']
+knee_back_leftR_link = jointNameToId['knee_back_leftR_link']
+motor_back_leftL_joint = jointNameToId['motor_back_leftL_joint']
+motor_back_leftL_link = jointNameToId['motor_back_leftL_link']
+knee_back_leftL_link = jointNameToId['knee_back_leftL_link']
+
+
 #p.getNumJoints(1)
 #right front leg
 p.resetJointState(quadruped,0,1.57)
@@ -74,10 +114,16 @@ p.setJointMotorControl(quadruped,22,p.VELOCITY_CONTROL,0,0)
 p.setJointMotorControl(quadruped,23,p.VELOCITY_CONTROL,0,0)
 
 
+p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_front_rightR_joint, controlMode=p.POSITION_CONTROL, targetPosition=1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_front_rightL_joint, controlMode=p.POSITION_CONTROL, targetPosition=-1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_front_leftR_joint,  controlMode=p.POSITION_CONTROL, targetPosition=1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_front_leftL_joint,  controlMode=p.POSITION_CONTROL, targetPosition=-1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_back_rightR_joint,  controlMode=p.POSITION_CONTROL, targetPosition=1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_back_rightL_joint,  controlMode=p.POSITION_CONTROL, targetPosition=-1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_back_leftR_joint,   controlMode=p.POSITION_CONTROL, targetPosition=1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_back_leftL_joint,   controlMode=p.POSITION_CONTROL, targetPosition=-1.57, positionGain=kp, velocityGain=kd, force=maxForce)
 
-p_gain =1 
-speed = 10 
-amplitude = 1.3
+
 
 #stand still
 p.setRealTimeSimulation(useRealTime)
@@ -92,12 +138,11 @@ while t < t_end:
 		p.stepSimulation()
 	else:
 		t = time.time()-ref_time
-		p.setGravity(0,0,-1)
+		p.setGravity(0,0,-10)
 
 p.setGravity(0,0,-10)
 
-jump_amp = 0.5
-
+    
 #jump
 t = 0.0
 t_end = t + 10
@@ -110,17 +155,17 @@ while t < t_end:
 	else:
 		t = t+fixedTimeStep
 
-	p.setJointMotorControl(quadruped,0,p.POSITION_CONTROL,math.sin(t*speed)*jump_amp+1.57,p_gain)
-	p.setJointMotorControl(quadruped,3,p.POSITION_CONTROL,-math.sin(t*speed)*jump_amp-1.57,p_gain)
-	p.setJointMotorControl(quadruped,6,p.POSITION_CONTROL,math.sin(t*speed)*jump_amp+1.57,p_gain)
-	p.setJointMotorControl(quadruped,9,p.POSITION_CONTROL,-math.sin(t*speed)*jump_amp-1.57,p_gain)
-	p.setJointMotorControl(quadruped,12,p.POSITION_CONTROL,math.sin(t*speed)*jump_amp+1.57,p_gain)
-	p.setJointMotorControl(quadruped,15,p.POSITION_CONTROL,-math.sin(t*speed)*jump_amp-1.57,p_gain)
-	p.setJointMotorControl(quadruped,18,p.POSITION_CONTROL,math.sin(t*speed)*jump_amp+1.57,p_gain)
-	p.setJointMotorControl(quadruped,21,p.POSITION_CONTROL,-math.sin(t*speed)*jump_amp-1.57,p_gain)
+	p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_front_rightR_joint, controlMode=p.POSITION_CONTROL, targetPosition=math.sin(t*speed)*jump_amp+1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+	p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_front_rightL_joint, controlMode=p.POSITION_CONTROL, targetPosition=-math.sin(t*speed)*jump_amp-1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+	p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_front_leftR_joint,  controlMode=p.POSITION_CONTROL, targetPosition=math.sin(t*speed)*jump_amp+1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+	p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_front_leftL_joint,  controlMode=p.POSITION_CONTROL, targetPosition=-math.sin(t*speed)*jump_amp-1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+	p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_back_rightR_joint,  controlMode=p.POSITION_CONTROL, targetPosition=math.sin(t*speed)*jump_amp+1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+	p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_back_rightL_joint,  controlMode=p.POSITION_CONTROL, targetPosition=-math.sin(t*speed)*jump_amp-1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+	p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_back_leftR_joint,   controlMode=p.POSITION_CONTROL, targetPosition=math.sin(t*speed)*jump_amp+1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+	p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_back_leftL_joint,   controlMode=p.POSITION_CONTROL, targetPosition=-math.sin(t*speed)*jump_amp-1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+	
 	if (useRealTime==0):	
 		p.stepSimulation()
-
 
 #hop forward
 t_end = 20
@@ -131,14 +176,15 @@ while t < t_end:
 	else:
 		t = t+fixedTimeStep
 
-	p.setJointMotorControl(quadruped,0,p.POSITION_CONTROL,math.sin(t*speed)*amplitude+1.57,p_gain)
-	p.setJointMotorControl(quadruped,3,p.POSITION_CONTROL,-1.57,p_gain)
-	p.setJointMotorControl(quadruped,6,p.POSITION_CONTROL,math.sin(t*speed)*amplitude+1.57,p_gain)
-	p.setJointMotorControl(quadruped,9,p.POSITION_CONTROL,-1.57,p_gain)
-	p.setJointMotorControl(quadruped,12,p.POSITION_CONTROL,math.sin(t*speed+3.14)*amplitude+1.57,p_gain)
-	p.setJointMotorControl(quadruped,15,p.POSITION_CONTROL,-1.57,p_gain)
-	p.setJointMotorControl(quadruped,18,p.POSITION_CONTROL,math.sin(t*speed+3.14)*amplitude+1.57,p_gain)
-	p.setJointMotorControl(quadruped,21,p.POSITION_CONTROL,-1.57,p_gain)
+	p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_front_rightR_joint, controlMode=p.POSITION_CONTROL, targetPosition=math.sin(t*speed)*amplitude+1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+	p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_front_rightL_joint, controlMode=p.POSITION_CONTROL, targetPosition=-1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+	p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_front_leftR_joint,  controlMode=p.POSITION_CONTROL, targetPosition=math.sin(t*speed)*amplitude+1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+	p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_front_leftL_joint,  controlMode=p.POSITION_CONTROL, targetPosition=-1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+	p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_back_rightR_joint,  controlMode=p.POSITION_CONTROL, targetPosition=math.sin(t*speed+3.14)*amplitude+1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+	p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_back_rightL_joint,  controlMode=p.POSITION_CONTROL, targetPosition=-1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+	p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_back_leftR_joint,   controlMode=p.POSITION_CONTROL, targetPosition=math.sin(t*speed+3.14)*amplitude+1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+	p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_back_leftL_joint,   controlMode=p.POSITION_CONTROL, targetPosition=-1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+
 	if (useRealTime==0):	
 		p.stepSimulation()
 
@@ -151,14 +197,15 @@ while t < t_end:
 	else:
 		t = t+fixedTimeStep
 
-	p.setJointMotorControl(quadruped,0,p.POSITION_CONTROL,math.sin(t*3)*.3+1.57,1)
-	p.setJointMotorControl(quadruped,3,p.POSITION_CONTROL,-1.57,1)
-	p.setJointMotorControl(quadruped,6,p.POSITION_CONTROL,math.sin(t*3+0.5*3.14)*.3+1.57,1)
-	p.setJointMotorControl(quadruped,9,p.POSITION_CONTROL,-1.57,1)
-	p.setJointMotorControl(quadruped,12,p.POSITION_CONTROL,math.sin(t*3+3.14)*.3+1.57,1)
-	p.setJointMotorControl(quadruped,15,p.POSITION_CONTROL,-1.57,1)
-	p.setJointMotorControl(quadruped,18,p.POSITION_CONTROL,math.sin(t*3+1.5*3.14)*.3+1.57,1)
-	p.setJointMotorControl(quadruped,21,p.POSITION_CONTROL,-1.57,1)
+	p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_front_rightR_joint, controlMode=p.POSITION_CONTROL, targetPosition=math.sin(t*3)*.3+1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+	p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_front_rightL_joint, controlMode=p.POSITION_CONTROL, targetPosition=-1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+	p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_front_leftR_joint,  controlMode=p.POSITION_CONTROL, targetPosition=math.sin(t*3+0.5*3.14)*.3+1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+	p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_front_leftL_joint,  controlMode=p.POSITION_CONTROL, targetPosition=-1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+	p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_back_rightR_joint,  controlMode=p.POSITION_CONTROL, targetPosition=math.sin(t*3+3.14)*.3+1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+	p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_back_rightL_joint,  controlMode=p.POSITION_CONTROL, targetPosition=-1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+	p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_back_leftR_joint,   controlMode=p.POSITION_CONTROL, targetPosition=math.sin(t*3+1.5*3.14)*.3+1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+	p.setJointMotorControl2(bodyIndex=quadruped, jointIndex=motor_back_leftL_joint,   controlMode=p.POSITION_CONTROL, targetPosition=-1.57, positionGain=kp, velocityGain=kd, force=maxForce)
+
 
 	p.stepSimulation()
 p.setRealTimeSimulation(1)
