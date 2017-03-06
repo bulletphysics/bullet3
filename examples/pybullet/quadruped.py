@@ -17,6 +17,7 @@ physId = p.connect(p.SHARED_MEMORY)
 if (physId<0):
 	p.connect(p.GUI)
 #p.resetSimulation()
+p.setTimeOut(4)
 p.loadURDF("plane.urdf",0,0,0.1)
 #p.loadSDF("kitchens/1.sdf")
 p.setGravity(0,0,0)
@@ -121,7 +122,7 @@ p.setGravity(0,0,-10)
 
 
 #stand still
-p.setRealTimeSimulation(1)
+p.setRealTimeSimulation(useRealTime)
 
 #jump
 t = 0.0
