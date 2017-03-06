@@ -313,12 +313,15 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 				b3Clock::usleep(0);
 			}
 
-			if (numCmdSinceSleep1ms>gMaxNumCmdPer1ms)
+			if (gMaxNumCmdPer1ms>0)
 			{
-				BT_PROFILE("usleep(1000)");
-				b3Clock::usleep(1000);
-				numCmdSinceSleep1ms = 0;
-				sleepClock.reset();
+				if (numCmdSinceSleep1ms>gMaxNumCmdPer1ms)
+				{
+					BT_PROFILE("usleep(10)");
+					b3Clock::usleep(10);
+					numCmdSinceSleep1ms = 0;
+					sleepClock.reset();
+				}
 			}
 			if (sleepClock.getTimeMilliseconds()>1)
 			{

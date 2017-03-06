@@ -626,6 +626,7 @@ enum eStateLoggingEnums
 	STATE_LOGGING_START_LOG=1,
 	STATE_LOGGING_STOP_LOG=2,
 	STATE_LOGGING_FILTER_OBJECT_UNIQUE_ID=4,
+	STATE_LOGGING_MAX_LOG_DOF=8
 };
 
 struct VRCameraState
@@ -644,6 +645,7 @@ struct StateLoggingRequest
 	int m_numBodyUniqueIds;////only if ROBOT_LOGGING_FILTER_OBJECT_UNIQUE_ID flag is set
 	int m_bodyUniqueIds[MAX_SDF_BODIES];
 	int m_loggingUniqueId;
+	int m_maxLogDof;
 };
 
 struct StateLoggingResultArgs

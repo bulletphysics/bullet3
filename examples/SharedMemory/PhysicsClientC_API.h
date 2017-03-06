@@ -356,8 +356,12 @@ void b3GetKeyboardEventsData(b3PhysicsClientHandle physClient, struct b3Keyboard
 b3SharedMemoryCommandHandle	b3StateLoggingCommandInit(b3PhysicsClientHandle physClient);
 int b3StateLoggingStart(b3SharedMemoryCommandHandle commandHandle, int loggingType, const char* fileName);
 int b3StateLoggingAddLoggingObjectUniqueId(b3SharedMemoryCommandHandle commandHandle, int objectUniqueId);
+int b3StateLoggingSetMaxLogDof(b3SharedMemoryCommandHandle commandHandle, int maxLogDof);
+
 int b3GetStatusLoggingUniqueId(b3SharedMemoryStatusHandle statusHandle);
 int b3StateLoggingStop(b3SharedMemoryCommandHandle commandHandle, int loggingUniqueId);
+
+
 
 void b3SetTimeOut(b3PhysicsClientHandle physClient, double timeOutInSeconds);
 double b3GetTimeOut(b3PhysicsClientHandle physClient);

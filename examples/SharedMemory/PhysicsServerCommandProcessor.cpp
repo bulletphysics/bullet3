@@ -48,7 +48,7 @@ bool gResetSimulation = 0;
 int gVRTrackingObjectUniqueId = -1;
 btTransform gVRTrackingObjectTr = btTransform::getIdentity();
 
-int gMaxNumCmdPer1ms = 10;//experiment: add some delay to avoid threads starving other threads
+int gMaxNumCmdPer1ms = -1;//experiment: add some delay to avoid threads starving other threads
 int gCreateObjectSimVR = -1;
 int gEnableKukaControl = 0;
 btVector3 gVRTeleportPos1(0,0,0);
@@ -512,7 +512,8 @@ struct MinitaurStateLogger : public InternalStateLogger
 
 			MinitaurLogRecord logData;
 			//'t', 'r', 'p', 'y', 'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'u0', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'xd', 'mo'
-			btScalar motorDir[8] = {1, -1, 1, -1, -1, 1, -1, 1};
+			btScalar motorDir[8] = {1, 1, 1, 1, 1, 1, 1, 1};
+
 
 			btQuaternion orn = m_minitaurMultiBody->getBaseWorldTransform().getRotation();
 			btMatrix3x3 mat(orn);
@@ -568,12 +569,14 @@ struct GenericRobotStateLogger : public InternalStateLogger
     btMultiBodyDynamicsWorld* m_dynamicsWorld;
     btAlignedObjectArray<int> m_bodyIdList;
     bool m_filterObjectUniqueId;
-    
-    GenericRobotStateLogger(int loggingUniqueId, const std::string& fileName, btMultiBodyDynamicsWorld* dynamicsWorld)
+    int m_maxLogDof;
+
+    GenericRobotStateLogger(int loggingUniqueId, const std::string& fileName, btMultiBodyDynamicsWorld* dynamicsWorld, int maxLogDof)
     :m_loggingTimeStamp(0),
     m_logFileHandle(0),
     m_dynamicsWorld(dynamicsWorld),
-    m_filterObjectUniqueId(false)
+    m_filterObjectUniqueId(false),
+	m_maxLogDof(maxLogDof)
     {
         m_loggingType = STATE_LOGGING_GENERIC_ROBOT;
         
@@ -595,32 +598,24 @@ struct GenericRobotStateLogger : public InternalStateLogger
         structNames.push_back("omegaY");
         structNames.push_back("omegaZ");
         structNames.push_back("qNum");
-        structNames.push_back("q0");
-        structNames.push_back("q1");
-        structNames.push_back("q2");
-        structNames.push_back("q3");
-        structNames.push_back("q4");
-        structNames.push_back("q5");
-        structNames.push_back("q6");
-        structNames.push_back("q7");
-        structNames.push_back("q8");
-        structNames.push_back("q9");
-        structNames.push_back("q10");
-        structNames.push_back("q11");
-        structNames.push_back("u0");
-        structNames.push_back("u1");
-        structNames.push_back("u2");
-        structNames.push_back("u3");
-        structNames.push_back("u4");
-        structNames.push_back("u5");
-        structNames.push_back("u6");
-        structNames.push_back("u7");
-        structNames.push_back("u8");
-        structNames.push_back("u9");
-        structNames.push_back("u10");
-        structNames.push_back("u11");
+
+		m_structTypes = "IfIfffffffffffffI";
+
+		for (int i=0;i<m_maxLogDof;i++)
+		{
+			m_structTypes.append("f");
+			char jointName[256];
+			sprintf(jointName,"q%d",i);
+			structNames.push_back(jointName);
+		}
+		for (int i=0;i<m_maxLogDof;i++)
+		{
+			m_structTypes.append("f");
+			char jointName[256];
+			sprintf(jointName,"u%d",i);
+			structNames.push_back(jointName);
+		}
         
-        m_structTypes = "IfIfffffffffffffIffffffffffffffffffffffff";
         const char* fileNameC = fileName.c_str();
         
         m_logFileHandle = createMinitaurLogFile(fileNameC, structNames, m_structTypes);
@@ -699,7 +694,7 @@ struct GenericRobotStateLogger : public InternalStateLogger
                         logData.m_values.push_back(q);
                     }
                 }
-                for (int j = numDofs; j < 12; ++j)
+                for (int j = numDofs; j < m_maxLogDof; ++j)
                 {
                     float q = 0.0;
                     logData.m_values.push_back(q);
@@ -713,7 +708,7 @@ struct GenericRobotStateLogger : public InternalStateLogger
                         logData.m_values.push_back(u);
                     }
                 }
-                for (int j = numDofs; j < 12; ++j)
+                for (int j = numDofs; j < m_maxLogDof; ++j)
                 {
                     float u = 0.0;
                     logData.m_values.push_back(u);
@@ -1860,14 +1855,20 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                             std::string fileName = clientCmd.m_stateLoggingArguments.m_fileName;
                             
                             int loggerUid = m_data->m_stateLoggersUniqueId++;
-                            GenericRobotStateLogger* logger = new GenericRobotStateLogger(loggerUid,fileName,m_data->m_dynamicsWorld);
+							int maxLogDof = 12;
+							if ((clientCmd.m_updateFlags & STATE_LOGGING_MAX_LOG_DOF))
+							{
+								maxLogDof = clientCmd.m_stateLoggingArguments.m_maxLogDof;
+							}
+                            GenericRobotStateLogger* logger = new GenericRobotStateLogger(loggerUid,fileName,m_data->m_dynamicsWorld,maxLogDof);
                             
                             if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_OBJECT_UNIQUE_ID) && (clientCmd.m_stateLoggingArguments.m_numBodyUniqueIds>0))
                             {
                                 logger->m_filterObjectUniqueId = true;
                                 for (int i = 0; i < clientCmd.m_stateLoggingArguments.m_numBodyUniqueIds; ++i)
                                 {
-                                    logger->m_bodyIdList.push_back(clientCmd.m_stateLoggingArguments.m_bodyUniqueIds[i]);
+									int objectUniqueId  = clientCmd.m_stateLoggingArguments.m_bodyUniqueIds[i];
+                                    logger->m_bodyIdList.push_back(objectUniqueId);
                                 }
                             }
                             
