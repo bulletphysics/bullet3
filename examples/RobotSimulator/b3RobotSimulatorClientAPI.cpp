@@ -539,7 +539,7 @@ bool b3RobotSimulatorClientAPI::getJointState(int bodyUniqueId, int jointIndex, 
     b3SharedMemoryCommandHandle command = b3RequestActualStateCommandInit(m_data->m_physicsClientHandle,bodyUniqueId);
     b3SharedMemoryStatusHandle statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
     int statusType = b3GetStatusType(statusHandle);
-	if (statusType != CMD_ACTUAL_STATE_UPDATE_COMPLETED) 
+	if (statusType == CMD_ACTUAL_STATE_UPDATE_COMPLETED) 
 	{
 	  if (b3GetJointState(m_data->m_physicsClientHandle, statusHandle, jointIndex, state))
 	  {
