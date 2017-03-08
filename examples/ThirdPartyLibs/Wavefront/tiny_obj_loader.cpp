@@ -507,6 +507,16 @@ LoadObj(
   const char* filename,
   const char* mtl_basepath)
 {
+  std::string tmp = filename;
+  if (!mtl_basepath) {
+    int last_slash = 0;
+    for (int c=0; c<(int)tmp.size(); ++c)
+      if (tmp[c]=='/' || tmp[c]=='\\')
+        last_slash = c;
+    tmp = tmp.substr(0, last_slash);
+    mtl_basepath = tmp.c_str();
+    //fprintf(stderr, "MTL PATH '%s' orig '%s'\n", mtl_basepath, filename);
+  }
 
   shapes.resize(0);
   std::vector<vertex_index> allIndices;

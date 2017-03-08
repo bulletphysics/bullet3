@@ -8,8 +8,8 @@ UrdfParser::UrdfParser()
 :m_parseSDF(false),
 m_activeSdfModel(-1)
 {
+	m_urdf2Model.m_sourceFile = "IN_MEMORY_STRING"; // if loadUrdf() called later, source file name will be replaced with real
 }
-
 
 UrdfParser::~UrdfParser()
 {
@@ -845,7 +845,8 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
   for (TiXmlElement* vis_xml = config->FirstChildElement("visual"); vis_xml; vis_xml = vis_xml->NextSiblingElement("visual"))
   {
 	  UrdfVisual visual;
-	  
+	  visual.m_sourceFileLocation = sourceFileLocation(vis_xml);
+
 	  if (parseVisual(model, visual, vis_xml,logger))
 	  {
 		  link.m_visualArray.push_back(visual);
@@ -864,6 +865,8 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
   for (TiXmlElement* col_xml = config->FirstChildElement("collision"); col_xml; col_xml = col_xml->NextSiblingElement("collision"))
   {
 	  UrdfCollision col;
+	  col.m_sourceFileLocation = sourceFileLocation(col_xml);
+
 	  if (parseCollision(col, col_xml,logger))
 	  {      
 		  link.m_collisionArray.push_back(col);
@@ -1657,3 +1660,9 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
     return true;
 }
 
+std::string UrdfParser::sourceFileLocation(TiXmlElement* e)
+{
+	char buf[1024];
+	snprintf(buf, sizeof(buf), "%s:%i", m_urdf2Model.m_sourceFile.c_str(), e->Row());
+	return buf;
+}

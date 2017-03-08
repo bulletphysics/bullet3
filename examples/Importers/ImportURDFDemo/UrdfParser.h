@@ -77,6 +77,7 @@ struct UrdfGeometry
 
 struct UrdfVisual
 {
+	std::string m_sourceFileLocation;
 	btTransform m_linkLocalFrame;
 	UrdfGeometry m_geometry;
 	std::string m_name;
@@ -90,6 +91,7 @@ struct UrdfVisual
 
 struct UrdfCollision
 {
+	std::string m_sourceFileLocation;
 	btTransform m_linkLocalFrame;
 	UrdfGeometry m_geometry;
 	std::string m_name;
@@ -159,6 +161,7 @@ struct UrdfJoint
 struct UrdfModel
 {
 	std::string m_name;
+	std::string m_sourceFile;
     btTransform m_rootTransformInWorld;
 	btHashMap<btHashString, UrdfMaterial*> m_materials;
 	btHashMap<btHashString, UrdfLink*> m_links;
@@ -204,7 +207,7 @@ public:
 	
 	UrdfParser();
 	virtual ~UrdfParser();
-	
+
     void setParseSDF(bool useSDF)
     {
         m_parseSDF = useSDF;
@@ -262,6 +265,13 @@ public:
             return *m_sdfModels[m_activeSdfModel];
         }
 		return m_urdf2Model;
+	}
+
+	std::string sourceFileLocation(TiXmlElement* e);
+
+	void setSourceFile(const std::string& sourceFile)
+	{
+		m_urdf2Model.m_sourceFile = sourceFile;
 	}
 };
 
