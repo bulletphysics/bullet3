@@ -98,8 +98,11 @@ static GLInstanceGraphicsShape* LoadMeshFromSTL(const char* relativeFileName)
 		}
 		fclose(file);
 	}
-	shape->m_numIndices = shape->m_indices->size();
-	shape->m_numvertices = shape->m_vertices->size();
+	if (shape)
+	{
+		shape->m_numIndices = shape->m_indices->size();
+		shape->m_numvertices = shape->m_vertices->size();
+	}
 	return shape;
 }
 
