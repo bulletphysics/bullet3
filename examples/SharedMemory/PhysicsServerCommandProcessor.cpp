@@ -454,6 +454,7 @@ struct MinitaurStateLogger : public InternalStateLogger
 		m_logFileHandle(0),
 		m_minitaurMultiBody(minitaurMultiBody)
 	{
+        m_loggingUniqueId = loggingUniqueId;
 		m_loggingType = STATE_LOGGING_MINITAUR;
 		m_motorIdList.resize(motorIdList.size());
 		for (int m=0;m<motorIdList.size();m++)
@@ -578,6 +579,7 @@ struct GenericRobotStateLogger : public InternalStateLogger
     m_filterObjectUniqueId(false),
 	m_maxLogDof(maxLogDof)
     {
+        m_loggingUniqueId = loggingUniqueId;
         m_loggingType = STATE_LOGGING_GENERIC_ROBOT;
         
         btAlignedObjectArray<std::string> structNames;
