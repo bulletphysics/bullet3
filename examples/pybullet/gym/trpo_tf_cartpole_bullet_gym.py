@@ -6,9 +6,6 @@ from sandbox.rocky.tf.envs.base import TfEnv
 from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from rllab.envs.gym_env import GymEnv
 from rllab.envs.normalized_env import normalize
-from rllab.misc.instrument import stub, run_experiment_lite
-
-stub(globals())
 
 env = TfEnv(normalize(GymEnv("CartPoleBulletEnv-v0")))
 
@@ -35,14 +32,4 @@ algo = TRPO(
     #plot=True,
 )
 
-run_experiment_lite(
-    algo.train(),
-    # Number of parallel workers for sampling
-    n_parallel=1,
-    # Only keep the snapshot parameters for the last iteration
-    snapshot_mode="last",
-    # Specifies the seed for the experiment. If this is not provided, a random seed
-    # will be used
-    seed=1,
-    #plot=True,
-)
+algo.train()
