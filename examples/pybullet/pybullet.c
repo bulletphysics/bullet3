@@ -5380,6 +5380,10 @@ initpybullet(void)
   PyModule_AddIntConstant(m, "COV_ENABLE_GUI", COV_ENABLE_GUI);
   PyModule_AddIntConstant(m, "COV_ENABLE_SHADOWS", COV_ENABLE_SHADOWS);
   PyModule_AddIntConstant(m, "COV_ENABLE_WIREFRAME", COV_ENABLE_WIREFRAME);
+
+  PyModule_AddIntConstant(m, "ER_TINY_RENDERER", ER_TINY_RENDERER);
+  PyModule_AddIntConstant(m, "ER_BULLET_HARDWARE_OPENGL", ER_BULLET_HARDWARE_OPENGL);
+
   PyModule_AddIntConstant(m,"B3G_F1",B3G_F1);
 	PyModule_AddIntConstant(m,"B3G_F2",B3G_F2);
 	PyModule_AddIntConstant(m,"B3G_F3",B3G_F3);
