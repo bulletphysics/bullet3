@@ -24,13 +24,8 @@ class CartPoleBulletEnv(gym.Env):
 
   def __init__(self):
     # start the bullet physics server
-#    cmdStartBulletServer=['/Users/jietan/Projects/bullet3/build_cmake_python3/examples/SharedMemory/App_SharedMemoryPhysics_GUI']
-#    subprocess.Popen(cmdStartBulletServer)
-    # wait to make sure that the physics server is ready
-#    time.sleep(1)
-    # connect to the physics server
-#    p.connect(p.SHARED_MEMORY)
     p.connect(p.GUI)
+#    p.connect(p.DIRECT)
     observation_high = np.array([
           np.finfo(np.float32).max,
           np.finfo(np.float32).max,
