@@ -444,21 +444,24 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
               return false;
           }
           
-          geom.m_meshFileName = shape->Attribute("filename");
-		  geom.m_meshScale.setValue(1,1,1);
+          bool success = findExistingMeshFile(
+              m_urdf2Model.m_sourceFile, shape->Attribute("filename"), sourceFileLocation(shape),
+              &geom.m_meshFileName, &geom.m_meshFileType);
+          if (!success) return false; // warning printed
+          geom.m_meshScale.setValue(1,1,1);
 
-		  if (shape->Attribute("scale"))
+          if (shape->Attribute("scale"))
           {
               if (!parseVector3(geom.m_meshScale,shape->Attribute("scale"),logger))
-			  {
-				  logger->reportWarning("scale should be a vector3, not single scalar. Workaround activated.\n");
-				  std::string scalar_str = shape->Attribute("scale");
-				  double scaleFactor = urdfLexicalCast<double>(scalar_str.c_str());
-				  if (scaleFactor)
-				  {
-					  geom.m_meshScale.setValue(scaleFactor,scaleFactor,scaleFactor);
-				  }
-			  }
+              {
+                  logger->reportWarning("%s: scale should be a vector3, not single scalar. Workaround activated.\n");
+                  std::string scalar_str = shape->Attribute("scale");
+                  double scaleFactor = urdfLexicalCast<double>(scalar_str.c_str());
+                  if (scaleFactor)
+                  {
+                      geom.m_meshScale.setValue(scaleFactor,scaleFactor,scaleFactor);
+                  }
+              }
           } else
           {
           }

@@ -457,9 +457,8 @@ static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t
 	return compound;
 }
 
-static
 bool findExistingMeshFile(
-	const std::string& path_or_shorter, std::string fn,
+	const std::string& urdf_path, std::string fn,
 	const std::string& error_message_prefix,
 	std::string* out_found_filename, int* out_type)
 {
@@ -472,9 +471,9 @@ bool findExistingMeshFile(
 	std::string ext_ = fn.substr(fn.size()-4);
 	for (std::string::iterator i=ext_.begin(); i!=ext_.end(); ++i)
 		ext += char(tolower(*i));
-	if (ext==".dae")      *out_type = FILE_COLLADA;
-	else if (ext==".stl") *out_type = FILE_STL;
-	else if (ext==".obj") *out_type = FILE_OBJ;
+	if (ext==".dae")      *out_type = UrdfGeometry::FILE_COLLADA;
+	else if (ext==".stl") *out_type = UrdfGeometry::FILE_STL;
+	else if (ext==".obj") *out_type = UrdfGeometry::FILE_OBJ;
 	else
 	{
 		b3Warning("%s: invalid mesh filename extension '%s'\n", error_message_prefix.c_str(), ext.c_str());
@@ -486,12 +485,13 @@ bool findExistingMeshFile(
 		fn = fn.substr(drop_it.length());
 
 	std::list<std::string> shorter;
-	int cnt = path_or_shorter.size();
+	shorter.push_back("../..");
+	shorter.push_back("..");
+	shorter.push_back(".");
+	int cnt = urdf_path.size();
 	for (int i=0; i<cnt; ++i) {
-		if (path_or_shorter[i]=='/' || path_or_shorter[i]=='\\')
-			shorter.push_back(path_or_shorter.substr(0, i));
-		else if (i==cnt-1)
-			shorter.push_back(path_or_shorter.substr(0, cnt));
+		if (urdf_path[i]=='/' || urdf_path[i]=='\\')
+			shorter.push_back(urdf_path.substr(0, i));
 	}
 	shorter.reverse();
 
@@ -589,22 +589,17 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 
 	case URDF_GEOM_MESH:
 	{
-		std::string existing_file;
-		int fileType;
-		bool success = findExistingMeshFile(urdfPathPrefix, collision->m_geometry.m_meshFileName, collision->m_sourceFileLocation, &existing_file, &fileType);
-		if (!success) break; // error message already printed
-
 		GLInstanceGraphicsShape* glmesh = 0;
-		switch (fileType) {
+		switch (collision->m_geometry.m_meshFileType) {
 		case FILE_OBJ:
 			if (collision->m_flags & URDF_FORCE_CONCAVE_TRIMESH)
 			{
-				glmesh = LoadMeshFromObj(existing_file.c_str(), 0);
+				glmesh = LoadMeshFromObj(collision->m_geometry.m_meshFileName.c_str(), 0);
 			}
 			else
 			{
 				std::vector<tinyobj::shape_t> shapes;
-				std::string err = tinyobj::LoadObj(shapes, existing_file.c_str());
+				std::string err = tinyobj::LoadObj(shapes, collision->m_geometry.m_meshFileName.c_str());
 				//create a convex hull for each shape, and store it in a btCompoundShape
 
 				shape = createConvexHullFromShapes(shapes, collision->m_geometry.m_meshScale);
@@ -613,7 +608,7 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 			break;
 
 		case FILE_STL:
-			glmesh = LoadMeshFromSTL(existing_file.c_str());
+			glmesh = LoadMeshFromSTL(collision->m_geometry.m_meshFileName.c_str());
 			break;
 
 		case FILE_COLLADA:
@@ -622,7 +617,7 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 				btAlignedObjectArray<ColladaGraphicsInstance> visualShapeInstances;
 				btTransform upAxisTrans;upAxisTrans.setIdentity();
 				float unitMeterScaling = 1;
-				LoadMeshFromCollada(existing_file.c_str(), visualShapes, visualShapeInstances, upAxisTrans, unitMeterScaling, 2);
+				LoadMeshFromCollada(collision->m_geometry.m_meshFileName.c_str(), visualShapes, visualShapeInstances, upAxisTrans, unitMeterScaling, 2);
 
 				glmesh = new GLInstanceGraphicsShape;
 				glmesh->m_indices = new b3AlignedObjectArray<int>();
@@ -691,7 +686,7 @@ upAxisMat.setIdentity();
 
 		if (!glmesh || glmesh->m_numvertices<=0)
 		{
-			b3Warning("%s: cannot extract mesh from '%s'\n", urdfPathPrefix, existing_file.c_str());
+			b3Warning("%s: cannot extract mesh from '%s'\n", urdfPathPrefix, collision->m_geometry.m_meshFileName.c_str());
 			delete glmesh;
 			break;
 		}
@@ -802,17 +797,12 @@ static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const cha
 
 		case URDF_GEOM_MESH:
 		{
-			std::string existing_file;
-			int fileType;
-			bool success = findExistingMeshFile(urdfPathPrefix, visual->m_geometry.m_meshFileName, visual->m_sourceFileLocation, &existing_file, &fileType);
-			if (!success) break; // error message already printed
-
-			switch (fileType)
+			switch (visual->m_geometry.m_meshFileType)
 			{
 			case FILE_OBJ:
 				{
 					b3ImportMeshData meshData;
-					if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(existing_file, meshData))
+					if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(visual->m_geometry.m_meshFileName, meshData))
 					{
 
 						if (meshData.m_textureImage)
@@ -830,7 +820,7 @@ static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const cha
 
 			case FILE_STL:
 				{
-					glmesh = LoadMeshFromSTL(existing_file.c_str());
+					glmesh = LoadMeshFromSTL(visual->m_geometry.m_meshFileName.c_str());
 					break;
 				}
 
@@ -842,7 +832,7 @@ static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const cha
 					float unitMeterScaling = 1;
 					int upAxis = 2;
 
-					LoadMeshFromCollada(existing_file.c_str(),
+					LoadMeshFromCollada(visual->m_geometry.m_meshFileName.c_str(),
 						visualShapes,
 						visualShapeInstances,
 						upAxisTrans,
@@ -910,7 +900,7 @@ static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const cha
 					}
 					glmesh->m_numIndices = glmesh->m_indices->size();
 					glmesh->m_numvertices = glmesh->m_vertices->size();
-					//glmesh = LoadMeshFromCollada(existing_file);
+					//glmesh = LoadMeshFromCollada(visual->m_geometry.m_meshFileName);
 
 					break;
 				}
@@ -918,7 +908,7 @@ static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const cha
 
 			if (!glmesh || !glmesh->m_vertices || glmesh->m_numvertices<=0)
 			{
-				b3Warning("%s: cannot extract anything useful from mesh '%s'\n", urdfPathPrefix, existing_file.c_str());
+				b3Warning("%s: cannot extract anything useful from mesh '%s'\n", urdfPathPrefix, visual->m_geometry.m_meshFileName.c_str());
 				break;
 			}
 

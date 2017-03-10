@@ -69,11 +69,21 @@ struct UrdfGeometry
 	double m_cylinderRadius;
 	double m_cylinderLength;
 
-    btVector3 m_planeNormal;
+	btVector3 m_planeNormal;
     
+	enum {
+		FILE_STL     =1,
+		FILE_COLLADA =2,
+		FILE_OBJ     =3,
+	};
+	int         m_meshFileType;
 	std::string m_meshFileName;
-	btVector3 m_meshScale;
+	btVector3   m_meshScale;
 };
+
+bool findExistingMeshFile(const std::string& urdf_path, std::string fn,
+	const std::string& error_message_prefix,
+	std::string* out_found_filename, int* out_type); // intended to fill UrdfGeometry::m_meshFileName and Type, but can be used elsewhere
 
 struct UrdfVisual
 {
