@@ -467,13 +467,26 @@ bool findExistingMeshFile(
 		b3Warning("%s: invalid mesh filename '%s'\n", error_message_prefix.c_str(), fn.c_str());
 		return false;
 	}
+
 	std::string ext;
 	std::string ext_ = fn.substr(fn.size()-4);
 	for (std::string::iterator i=ext_.begin(); i!=ext_.end(); ++i)
+	{
 		ext += char(tolower(*i));
-	if (ext==".dae")      *out_type = UrdfGeometry::FILE_COLLADA;
-	else if (ext==".stl") *out_type = UrdfGeometry::FILE_STL;
-	else if (ext==".obj") *out_type = UrdfGeometry::FILE_OBJ;
+	}
+
+	if (ext==".dae")
+	{
+		*out_type = UrdfGeometry::FILE_COLLADA;
+	}
+	else if (ext==".stl")
+	{
+		*out_type = UrdfGeometry::FILE_STL;
+	}
+	else if (ext==".obj")
+	{
+		*out_type = UrdfGeometry::FILE_OBJ;
+	}
 	else
 	{
 		b3Warning("%s: invalid mesh filename extension '%s'\n", error_message_prefix.c_str(), ext.c_str());
@@ -489,9 +502,12 @@ bool findExistingMeshFile(
 	shorter.push_back("..");
 	shorter.push_back(".");
 	int cnt = urdf_path.size();
-	for (int i=0; i<cnt; ++i) {
+	for (int i=0; i<cnt; ++i)
+	{
 		if (urdf_path[i]=='/' || urdf_path[i]=='\\')
+		{
 			shorter.push_back(urdf_path.substr(0, i));
+		}
 	}
 	shorter.reverse();
 
@@ -500,7 +516,8 @@ bool findExistingMeshFile(
 	{
 		std::string attempt = *x + "/" + fn;
 		FILE* f = fopen(attempt.c_str(), "rb");
-		if (!f) {
+		if (!f)
+		{
 			//b3Printf("%s: tried '%s'", error_message_prefix.c_str(), attempt.c_str());
 			continue;
 		}
@@ -514,7 +531,9 @@ bool findExistingMeshFile(
 	{
 		b3Warning("%s: cannot find '%s' in any directory in urdf path\n", error_message_prefix.c_str(), fn.c_str());
 		return false;
-	} else {
+	}
+	else
+	{
 		*out_found_filename = existing_file;
 		return true;
 	}
@@ -590,7 +609,8 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 	case URDF_GEOM_MESH:
 	{
 		GLInstanceGraphicsShape* glmesh = 0;
-		switch (collision->m_geometry.m_meshFileType) {
+		switch (collision->m_geometry.m_meshFileType)
+		{
 		case FILE_OBJ:
 			if (collision->m_flags & URDF_FORCE_CONCAVE_TRIMESH)
 			{

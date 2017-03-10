@@ -439,7 +439,8 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
       }
       else
       {
-          if (!shape->Attribute("filename")) {
+          if (!shape->Attribute("filename"))
+          {
               logger->reportError("Mesh must contain a filename attribute");
               return false;
           }
@@ -447,7 +448,11 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
           bool success = findExistingMeshFile(
               m_urdf2Model.m_sourceFile, shape->Attribute("filename"), sourceFileLocation(shape),
               &geom.m_meshFileName, &geom.m_meshFileType);
-          if (!success) return false; // warning printed
+          if (!success)
+          {
+              // warning printed
+              return false;
+          }
           geom.m_meshScale.setValue(1,1,1);
 
           if (shape->Attribute("scale"))
