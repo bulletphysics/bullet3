@@ -30,7 +30,7 @@ int main(int argc, char** argv)
 	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
 
 	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
-	btCollisionDispatcher* dispatcher = new	btCollisionDispatcher(collisionConfiguration);
+	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
 
 	///btDbvtBroadphase is a good general purpose broadphase. You can also try out btAxis3Sweep.
 	btBroadphaseInterface* overlappingPairCache = new btDbvtBroadphase();
@@ -38,9 +38,9 @@ int main(int argc, char** argv)
 	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
 	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
 
-	btDiscreteDynamicsWorld* dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,overlappingPairCache,solver,collisionConfiguration);
+	btDiscreteDynamicsWorld* dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
 
-	dynamicsWorld->setGravity(btVector3(0,-10,0));
+	dynamicsWorld->setGravity(btVector3(0, -10, 0));
 
 	///-----initialization_end-----
 
@@ -48,38 +48,36 @@ int main(int argc, char** argv)
 	//make sure to re-use collision shapes among rigid bodies whenever possible!
 	btAlignedObjectArray<btCollisionShape*> collisionShapes;
 
-
 	///create a few basic rigid bodies
 
 	//the ground is a cube of side 100 at position y = -56.
 	//the sphere will hit it at y = -6, with center at -5
 	{
-		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.),btScalar(50.),btScalar(50.)));
+		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.), btScalar(50.), btScalar(50.)));
 
 		collisionShapes.push_back(groundShape);
 
 		btTransform groundTransform;
 		groundTransform.setIdentity();
-		groundTransform.setOrigin(btVector3(0,-56,0));
+		groundTransform.setOrigin(btVector3(0, -56, 0));
 
 		btScalar mass(0.);
 
 		//rigidbody is dynamic if and only if mass is non zero, otherwise static
 		bool isDynamic = (mass != 0.f);
 
-		btVector3 localInertia(0,0,0);
+		btVector3 localInertia(0, 0, 0);
 		if (isDynamic)
-			groundShape->calculateLocalInertia(mass,localInertia);
+			groundShape->calculateLocalInertia(mass, localInertia);
 
 		//using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
 		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,groundShape,localInertia);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
 		btRigidBody* body = new btRigidBody(rbInfo);
 
 		//add the body to the dynamics world
 		dynamicsWorld->addRigidBody(body);
 	}
-
 
 	{
 		//create a dynamic rigidbody
@@ -92,37 +90,34 @@ int main(int argc, char** argv)
 		btTransform startTransform;
 		startTransform.setIdentity();
 
-		btScalar	mass(1.f);
+		btScalar mass(1.f);
 
 		//rigidbody is dynamic if and only if mass is non zero, otherwise static
 		bool isDynamic = (mass != 0.f);
 
-		btVector3 localInertia(0,0,0);
+		btVector3 localInertia(0, 0, 0);
 		if (isDynamic)
-			colShape->calculateLocalInertia(mass,localInertia);
+			colShape->calculateLocalInertia(mass, localInertia);
 
-			startTransform.setOrigin(btVector3(2,10,0));
-		
-			//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-			btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-			btRigidBody::btRigidBodyConstructionInfo rbInfo(mass,myMotionState,colShape,localInertia);
-			btRigidBody* body = new btRigidBody(rbInfo);
+		startTransform.setOrigin(btVector3(2, 10, 0));
 
-			dynamicsWorld->addRigidBody(body);
+		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+		btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
+		btRigidBody* body = new btRigidBody(rbInfo);
+
+		dynamicsWorld->addRigidBody(body);
 	}
 
-
-
-/// Do some simulation
-
+	/// Do some simulation
 
 	///-----stepsimulation_start-----
-	for (i=0;i<150;i++)
+	for (i = 0; i < 150; i++)
 	{
-		dynamicsWorld->stepSimulation(1.f/60.f,10);
-		
+		dynamicsWorld->stepSimulation(1.f / 60.f, 10);
+
 		//print positions of all objects
-		for (int j=dynamicsWorld->getNumCollisionObjects()-1; j>=0 ;j--)
+		for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
 		{
 			btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
 			btRigidBody* body = btRigidBody::upcast(obj);
@@ -130,23 +125,23 @@ int main(int argc, char** argv)
 			if (body && body->getMotionState())
 			{
 				body->getMotionState()->getWorldTransform(trans);
-
-			} else
+			}
+			else
 			{
 				trans = obj->getWorldTransform();
 			}
-			printf("world pos object %d = %f,%f,%f\n",j,float(trans.getOrigin().getX()),float(trans.getOrigin().getY()),float(trans.getOrigin().getZ()));
+			printf("world pos object %d = %f,%f,%f\n", j, float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()));
 		}
 	}
 
 	///-----stepsimulation_end-----
 
 	//cleanup in the reverse order of creation/initialization
-	
+
 	///-----cleanup_start-----
 
 	//remove the rigidbodies from the dynamics world and delete them
-	for (i=dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--)
+	for (i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
 	{
 		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
 		btRigidBody* body = btRigidBody::upcast(obj);
@@ -154,12 +149,12 @@ int main(int argc, char** argv)
 		{
 			delete body->getMotionState();
 		}
-		dynamicsWorld->removeCollisionObject( obj );
+		dynamicsWorld->removeCollisionObject(obj);
 		delete obj;
 	}
 
 	//delete collision shapes
-	for (int j=0;j<collisionShapes.size();j++)
+	for (int j = 0; j < collisionShapes.size(); j++)
 	{
 		btCollisionShape* shape = collisionShapes[j];
 		collisionShapes[j] = 0;
@@ -183,4 +178,3 @@ int main(int argc, char** argv)
 	//next line is optional: it will be cleared by the destructor when the array goes out of scope
 	collisionShapes.clear();
 }
-
