@@ -347,6 +347,7 @@ SET(BulletExampleBrowser_SRCS
   ../Constraints/Dof6Spring2Setup.h
   ../Constraints/ConstraintPhysicsSetup.cpp
   ../Constraints/ConstraintPhysicsSetup.h
+  ../TerrainDemo/TerrainExample.cpp
 
 
 	../ThirdPartyLibs/stb_image/stb_image.cpp
