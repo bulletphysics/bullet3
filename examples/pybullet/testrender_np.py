@@ -43,8 +43,8 @@ for pitch in range (0,360,10) :
     print ('width = %d height = %d' % (w,h))
 
     #note that sending the data to matplotlib is really slow
-    
-	plt.imshow(rgb,interpolation='none')    
+
+    plt.imshow(rgb,interpolation='none')
     plt.pause(0.001)
 
 main_stop = time.time()
