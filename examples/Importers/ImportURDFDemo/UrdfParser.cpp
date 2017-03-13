@@ -410,67 +410,68 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
 		geom.m_type = URDF_GEOM_CAPSULE;
 		if (!shape->Attribute("length") ||
 			!shape->Attribute("radius"))
-	  {
-		  logger->reportError("Capsule shape must have both length and radius attributes");
-		  return false;
-	  }
+		{
+			logger->reportError("Capsule shape must have both length and radius attributes");
+			return false;
+		}
 		geom.m_hasFromTo = false;
 		geom.m_capsuleRadius = urdfLexicalCast<double>(shape->Attribute("radius"));
 		geom.m_capsuleHalfHeight = btScalar(0.5)*urdfLexicalCast<double>(shape->Attribute("length"));
-		
 	}
-  else if (type_name == "mesh")
-  {
-	  geom.m_type = URDF_GEOM_MESH;
-      if (m_parseSDF)
-      {
-          TiXmlElement* scale = shape->FirstChildElement("scale");
-          if (0==scale)
-          {
-              geom.m_meshScale.setValue(1,1,1);
-          }
-          else
-          {
-              parseVector3(geom.m_meshScale,scale->GetText(),logger);
-          }
-          
-          TiXmlElement* filename = shape->FirstChildElement("uri");
-          geom.m_meshFileName = filename->GetText();
-      }
-      else
-      {
-          if (!shape->Attribute("filename"))
-          {
-              logger->reportError("Mesh must contain a filename attribute");
-              return false;
-          }
-          
-          bool success = findExistingMeshFile(
-              m_urdf2Model.m_sourceFile, shape->Attribute("filename"), sourceFileLocation(shape),
-              &geom.m_meshFileName, &geom.m_meshFileType);
-          if (!success)
-          {
-              // warning printed
-              return false;
-          }
-          geom.m_meshScale.setValue(1,1,1);
+	else if (type_name == "mesh")
+	{
+		geom.m_type = URDF_GEOM_MESH;
+		geom.m_meshScale.setValue(1,1,1);
+		std::string fn;
 
-          if (shape->Attribute("scale"))
-          {
-              if (!parseVector3(geom.m_meshScale,shape->Attribute("scale"),logger))
-              {
-                  logger->reportWarning("%s: scale should be a vector3, not single scalar. Workaround activated.\n");
-                  std::string scalar_str = shape->Attribute("scale");
-                  double scaleFactor = urdfLexicalCast<double>(scalar_str.c_str());
-                  if (scaleFactor)
-                  {
-                      geom.m_meshScale.setValue(scaleFactor,scaleFactor,scaleFactor);
-                  }
-              }
-          } else
-          {
-          }
-      }
+		if (m_parseSDF)
+		{
+			if (TiXmlElement* scale = shape->FirstChildElement("scale"))
+			{
+				parseVector3(geom.m_meshScale,scale->GetText(),logger);
+			}
+			if (TiXmlElement* filename = shape->FirstChildElement("uri"))
+			{
+				fn = filename->GetText();
+			}
+		}
+		else
+		{
+			// URDF
+			if (shape->Attribute("filename"))
+			{
+				fn = shape->Attribute("filename");
+			}
+			if (shape->Attribute("scale"))
+			{
+				if (!parseVector3(geom.m_meshScale, shape->Attribute("scale"), logger))
+				{
+					logger->reportWarning("Scale should be a vector3, not single scalar. Workaround activated.\n");
+					std::string scalar_str = shape->Attribute("scale");
+					double scaleFactor = urdfLexicalCast<double>(scalar_str.c_str());
+					if (scaleFactor)
+					{
+						geom.m_meshScale.setValue(scaleFactor, scaleFactor, scaleFactor);
+					}
+				}
+			}
+		}
+
+		if (fn.empty())
+		{
+			logger->reportError("Mesh filename is empty");
+			return false;
+		}
+
+		geom.m_meshFileName = fn;
+		bool success = findExistingMeshFile(
+			m_urdf2Model.m_sourceFile, fn, sourceFileLocation(shape),
+			&geom.m_meshFileName, &geom.m_meshFileType);
+		if (!success)
+		{
+			// warning already printed
+			return false;
+		}
   }
   else
   {

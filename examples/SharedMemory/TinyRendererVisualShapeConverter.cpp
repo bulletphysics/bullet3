@@ -380,7 +380,7 @@ void convertURDFToVisualShape(const UrdfVisual* visual, const char* urdfPathPref
 
 		default:
 		{
-			b3Warning("Error: unknown visual geometry type\n");
+			b3Warning("TinyRenderer: unknown visual geometry type %i\n", visual->m_geometry.m_type);
 		}
 	}
 

@@ -755,7 +755,8 @@ upAxisMat.setIdentity();
 	} // mesh case
 
         default:
-		b3Warning("Error: unknown visual geometry type\n");
+		b3Warning("Error: unknown collision geometry type %i\n", collision->m_geometry.m_type);
+		// for example, URDF_GEOM_PLANE
 	}
 	return shape;
 }
@@ -943,7 +944,7 @@ static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const cha
 		}
 
 		default:
-			b3Warning("Error: unknown visual geometry type\n");
+			b3Warning("Error: unknown visual geometry type %i\n", visual->m_geometry.m_type);
 	}
 
 	//if we have a convex, tesselate into localVertices/localIndices
