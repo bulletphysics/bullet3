@@ -3069,8 +3069,8 @@ static PyObject* pybullet_configureDebugVisualizer(PyObject* self, PyObject* arg
 static PyObject* pybullet_resetDebugVisualizerCamera(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	float cameraDistance = -1;
-	float cameraYaw = -1;
-	float cameraPitch = -1;
+	float cameraYaw = 35;
+	float cameraPitch = 50;
 	PyObject* cameraTargetPosObj = 0;
 
 	int physicsClientId = 0;
@@ -3090,7 +3090,7 @@ static PyObject* pybullet_resetDebugVisualizerCamera(PyObject* self, PyObject* a
 
 	{
 		b3SharedMemoryCommandHandle commandHandle = b3InitConfigureOpenGLVisualizer(sm);
-		if ((cameraDistance >= 0) && (cameraYaw >= 0) && (cameraPitch >= 0))
+		if ((cameraDistance >= 0))
 		{
 			float cameraTargetPosition[3];
 			if (pybullet_internalSetVector(cameraTargetPosObj, cameraTargetPosition))
