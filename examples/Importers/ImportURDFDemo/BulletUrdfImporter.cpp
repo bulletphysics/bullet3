@@ -512,19 +512,32 @@ bool findExistingMeshFile(
 	shorter.reverse();
 
 	std::string existing_file;
-	for (std::list<std::string>::iterator x=shorter.begin(); x!=shorter.end(); ++x)
+
 	{
-		std::string attempt = *x + "/" + fn;
+		std::string attempt = fn;
 		FILE* f = fopen(attempt.c_str(), "rb");
-		if (!f)
+		if (f)
 		{
-			//b3Printf("%s: tried '%s'", error_message_prefix.c_str(), attempt.c_str());
-			continue;
+			existing_file = attempt;
+			fclose(f);
 		}
-		fclose(f);
-		existing_file = attempt;
-		//b3Printf("%s: found '%s'", error_message_prefix.c_str(), attempt.c_str());
-		break;
+	}
+	if (existing_file.empty())
+	{
+		for (std::list<std::string>::iterator x=shorter.begin(); x!=shorter.end(); ++x)
+		{
+			std::string attempt = *x + "/" + fn;
+			FILE* f = fopen(attempt.c_str(), "rb");
+			if (!f)
+			{
+				//b3Printf("%s: tried '%s'", error_message_prefix.c_str(), attempt.c_str());
+				continue;
+			}
+			fclose(f);
+			existing_file = attempt;
+			//b3Printf("%s: found '%s'", error_message_prefix.c_str(), attempt.c_str());
+			break;
+		}
 	}
 
 	if (existing_file.empty())
