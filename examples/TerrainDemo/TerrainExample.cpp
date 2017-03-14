@@ -16,15 +16,11 @@ subject to the following restrictions:
 
 
 #include <array>
-#include <gmpxx.h>
+#include <limits>
 #include "TerrainExample.h"
 
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
-
-
-#include "LinearMath/btVector3.h"
-#include "LinearMath/btAlignedObjectArray.h"
 
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
 
