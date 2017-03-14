@@ -1715,15 +1715,9 @@ static PyObject* pybullet_getBodyInfo(PyObject* self, PyObject* args, PyObject* 
 				PyTuple_SetItem(pyListJointInfo, 0, PyString_FromString(info.m_baseName));
 				return pyListJointInfo;
 			}
-			else
-			{
-				PyErr_SetString(SpamError, "Couldn't get body info");
-				return NULL;
-			}
 		}
 	}
-
-	PyErr_SetString(SpamError, "error in getBodyInfo.");
+	PyErr_SetString(SpamError, "Couldn't get body info");
 	return NULL;
 }
 
@@ -1800,15 +1794,10 @@ static PyObject* pybullet_getConstraintInfo(PyObject* self, PyObject* args, PyOb
 
 				return pyListConstraintInfo;
 			}
-			else
-			{
-				PyErr_SetString(SpamError, "Couldn't get user constraint info");
-				return NULL;
-			}
 		}
 	}
 
-	PyErr_SetString(SpamError, "error in getConstraintInfo.");
+	PyErr_SetString(SpamError, "Couldn't get user constraint info");
 	return NULL;
 }
 
@@ -1908,12 +1897,10 @@ static PyObject* pybullet_resetJointState(PyObject* self, PyObject* args, PyObje
 												targetValue);
 
 			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
-			Py_INCREF(Py_None);
-			return Py_None;
 		}
 	}
-	PyErr_SetString(SpamError, "error in resetJointState.");
-	return NULL;
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 static PyObject* pybullet_resetBaseVelocity(PyObject* self, PyObject* args, PyObject* keywds)
@@ -2055,12 +2042,10 @@ static PyObject* pybullet_resetBasePositionAndOrientation(PyObject* self,
 												  orn[2], orn[3]);
 
 			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
-			Py_INCREF(Py_None);
-			return Py_None;
 		}
 	}
-	PyErr_SetString(SpamError, "error in resetJointState.");
-	return NULL;
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 // Get the a single joint info for a specific bodyIndex
