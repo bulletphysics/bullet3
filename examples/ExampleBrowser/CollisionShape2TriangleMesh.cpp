@@ -45,7 +45,6 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 
 			for (int i=0;i<4;i++)
 			{
-				btVector3 vtxPos;
 				btVector3 pos =parentTransform*verts[i];
 				vertexPositions.push_back(pos);
 				vertexNormals.push_back(triNormal);
@@ -59,9 +58,7 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 			btBvhTriangleMeshShape* trimesh = (btBvhTriangleMeshShape*) collisionShape;
 			btVector3 trimeshScaling = trimesh->getLocalScaling();
 			btStridingMeshInterface* meshInterface = trimesh->getMeshInterface();
-			btAlignedObjectArray<btVector3> vertices;
-			btAlignedObjectArray<int> indices;
-				
+
 			for (int partId=0;partId<meshInterface->getNumSubParts();partId++)
 			{
 					
@@ -77,8 +74,7 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 					
 				btVector3 triangleVerts[3];
 				meshInterface->getLockedReadOnlyVertexIndexBase(&vertexbase,numverts,	type,stride,&indexbase,indexstride,numfaces,indicestype,partId);
-				btVector3 aabbMin,aabbMax;
-					
+
 				for (int triangleIndex = 0 ; triangleIndex < numfaces;triangleIndex++)
 				{
 					unsigned int* gfxbase = (unsigned int*)(indexbase+triangleIndex*indexstride);
@@ -103,12 +99,6 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 															btScalar(graphicsbase[2]*trimeshScaling.getZ()));
 						}
 					}
-					indices.push_back(vertices.size());
-					vertices.push_back(triangleVerts[0]);
-					indices.push_back(vertices.size());
-					vertices.push_back(triangleVerts[1]);
-					indices.push_back(vertices.size());
-					vertices.push_back(triangleVerts[2]);
 
 					btVector3 triNormal = (triangleVerts[1]-triangleVerts[0]).cross(triangleVerts[2]-triangleVerts[0]);
 					btScalar dot = triNormal.dot(triNormal);
