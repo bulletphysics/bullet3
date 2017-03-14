@@ -2,6 +2,8 @@
 # Require p.setInternalSimFlags(0) in kuka_setup
 import pybullet as p
 import math
+import numpy as np
+
 p.connect(p.SHARED_MEMORY)
 
 kuka = 3
