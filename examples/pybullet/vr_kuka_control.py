@@ -7,6 +7,7 @@ p.connect(p.SHARED_MEMORY)
 kuka = 3
 kuka_gripper = 7
 POSITION = 1
+ORIENTATION = 2
 BUTTONS = 6
 
 THRESHOLD = 1.3
@@ -71,14 +72,30 @@ while True:
 				p.setJointMotorControl2(kuka_gripper, i, p.VELOCITY_CONTROL, targetVelocity=-5, force=50)
 
 		if sq_len < THRESHOLD * THRESHOLD:
+			eef_pos = e[POSITION]
 
-			joint_pos = p.calculateInverseKinematics(kuka, 6, e[POSITION], (0, 1, 0, 0), 
+			joint_pos = p.calculateInverseKinematics(kuka, 6, eef_pos, 
 				lowerLimits=LOWER_LIMITS, upperLimits=UPPER_LIMITS, 
 				jointRanges=JOINT_RANGE, restPoses=REST_POSE, jointDamping=JOINT_DAMP)
-			for i in range(len(joint_pos)):
+
+			# Only need links 1- 5, no need for joint 6 with pure position IK
+			for i in range(len(joint_pos) - 1):
 				p.setJointMotorControl2(kuka, i, p.POSITION_CONTROL, 
-					targetPosition=joint_pos[i], targetVelocity=0, 
-					positionGain=0.6, velocityGain=1.0, force=MAX_FORCE)
+					targetPosition=joint_pos[i], targetVelocity=0, positionGain=0.05, 
+					velocityGain=1.0, force=MAX_FORCE)
+	
+			# Rotate the end effector
+			targetOrn = e[ORIENTATION]
+
+			_, _, z = p.getEulerFromQuaternion(targetOrn)
+			# End effector needs protection, done by using triangular tricks
+			p.setJointMotorControl2(kuka, 6, p.POSITION_CONTROL, 
+				targetPosition=np.arcsin(np.sin(z)), targetVelocity=0, positionGain=0.6, 
+				velocityGain=1.0, force=MAX_FORCE)
+
+			p.setJointMotorControl2(kuka, 5, p.POSITION_CONTROL, 
+				targetPosition=-math.pi, targetVelocity=0, 
+				positionGain=0.03, velocityGain=1.0, force=MAX_FORCE)
 
 		else:
 			# Set back to original rest pose
