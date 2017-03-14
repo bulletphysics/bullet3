@@ -2,7 +2,7 @@
 # Require p.setInternalSimFlags(0) in kuka_setup
 import pybullet as p
 import math
-import numpy as np
+# import numpy as np
 
 p.connect(p.SHARED_MEMORY)
 
@@ -20,6 +20,8 @@ REST_POSE = [0, 0, 0, math.pi / 2, 0, -math.pi * 0.66, 0]
 JOINT_DAMP = [.1, .1, .1, .1, .1, .1, .1]
 REST_JOINT_POS = [-0., -0., 0., 1.570793, 0., -1.036725, 0.000001]
 MAX_FORCE = 500
+KUKA_GRIPPER_REST_POS = [0., -0.011130, -0.206421, 0.205143, -0.009999, 0., -0.010055, 0.]
+KUKA_GRIPPER_CLOZ_POS = [0.0, -0.047564246423083795, 0.6855956234759611, -0.7479294372303137, 0.05054599996976922, 0.0, 0.049838105678835724, 0.0]
 
 def euc_dist(posA, posB):
 	dist = 0.
@@ -37,40 +39,23 @@ while True:
 	for e in (events):
 
 		# Only use one controller
+		###########################################
+		# This is important: make sure there's only one VR Controller!
 		if e[0] == controllers[0]:
 			break
 
 		sq_len = euc_dist(p.getLinkState(kuka, 6)[0], e[POSITION])
 
 		# A simplistic version of gripper control
+		#@TO-DO: Add slider for the gripper
 		if e[BUTTONS][33] & p.VR_BUTTON_WAS_TRIGGERED:
 			# avg = 0.
 			for i in range(p.getNumJoints(kuka_gripper)):
-				p.setJointMotorControl2(kuka_gripper, i, p.VELOCITY_CONTROL, targetVelocity=5, force=50)
-			# 	posTarget = 0.1 + (1 - min(0.75, e[3])) * 1.5 * math.pi * 0.29;
-			# 	maxPosTarget = 0.55
-			# 	correction = 0.
-			# 	jointPosition = p.getJointState(kuka_gripper, i)[0]
-			# 	if avg:
-			# 		correction = jointPosition - avg
-			# 	if jointPosition < 0:
-			# 		p.resetJointState(kuka_gripper, i, 0)
-			# 	if jointPosition > maxPosTarget:
-			# 		p.resetJointState(kuka_gripper, i, maxPosTarget)
-			# 	if avg:
+				p.setJointMotorControl2(kuka_gripper, i, p.POSITION_CONTROL, targetPosition=KUKA_GRIPPER_CLOZ_POS[i], force=50)
 
-			# 		p.setJointMotorControl2(kuka_gripper, i, p.POSITION_CONTROL, 
-			# 			targetPosition=avg, targetVelocity=0., 
-			# 			positionGain=1, velocityGain=0.5, force=50)
-			# 	else:
-			# 		p.setJointMotorControl2(kuka_gripper, i, p.POSITION_CONTROL, 
-			# 			targetPosition=posTarget, targetVelocity=0., 
-			# 			positionGain=1, velocityGain=0.5, force=50)
-			# 	avg = p.getJointState(kuka_gripper, i)[0]
-				
 		if e[BUTTONS][33] & p.VR_BUTTON_WAS_RELEASED:	
 			for i in range(p.getNumJoints(kuka_gripper)):
-				p.setJointMotorControl2(kuka_gripper, i, p.VELOCITY_CONTROL, targetVelocity=-5, force=50)
+				p.setJointMotorControl2(kuka_gripper, i, p.POSITION_CONTROL, targetPosition=KUKA_GRIPPER_REST_POS[i], force=50)
 
 		if sq_len < THRESHOLD * THRESHOLD:
 			eef_pos = e[POSITION]
@@ -90,12 +75,18 @@ while True:
 
 			_, _, z = p.getEulerFromQuaternion(targetOrn)
 			# End effector needs protection, done by using triangular tricks
-			p.setJointMotorControl2(kuka, 6, p.POSITION_CONTROL, 
-				targetPosition=np.arcsin(np.sin(z)), targetVelocity=0, positionGain=0.5, 
-				velocityGain=1.0, force=MAX_FORCE)
+
+			if LOWER_LIMITS[6] < z < UPPER_LIMITS[6]:
+				p.setJointMotorControl2(kuka, 6, p.POSITION_CONTROL, 
+					targetPosition=z, targetVelocity=0, positionGain=0.03, velocityGain=1.0, force=MAX_FORCE)
+
+			else:
+				p.setJointMotorControl2(kuka, 6, p.POSITION_CONTROL, 
+					targetPosition=joint_pos[6], targetVelocity=0, positionGain=0.05, 
+					velocityGain=1.0, force=MAX_FORCE)
 
 			p.setJointMotorControl2(kuka, 5, p.POSITION_CONTROL, 
-				targetPosition=-math.pi, targetVelocity=0, 
+				targetPosition=-1.57, targetVelocity=0, 
 				positionGain=0.03, velocityGain=1.0, force=MAX_FORCE)
 
 		else:
