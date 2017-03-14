@@ -183,6 +183,50 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 						btTransform childWorldTrans = parentTransform * compound->getChildTransform(i);
 						CollisionShape2TriangleMesh(compound->getChildShape(i),childWorldTrans,vertexPositions,vertexNormals,indicesOut);
 					}
+                } else if (collisionShape->isConcave())
+                {
+                    btConcaveShape* concaveShape = (btConcaveShape*) collisionShape;
+
+                    struct MyTriangleCallback : public btTriangleCallback {
+                    public:
+
+                        const btTransform& mParentTransform;
+                        btAlignedObjectArray<btVector3>& mVertexPositions;
+                        btAlignedObjectArray<btVector3>& mVertexNormals;
+                        btAlignedObjectArray<int>& mIndicesOut;
+
+                        MyTriangleCallback(const btTransform& parentTransform, btAlignedObjectArray<btVector3>& vertexPositions, btAlignedObjectArray<btVector3>& vertexNormals, btAlignedObjectArray<int>& indicesOut)
+                                : mParentTransform(parentTransform), mVertexPositions(vertexPositions), mVertexNormals(vertexNormals), mIndicesOut(indicesOut)
+                        {
+                        }
+
+                        virtual void processTriangle(btVector3* triangle, int partId, int triangleIndex) {
+                            btVector3 triNormal = (triangle[1]-triangle[0]).cross(triangle[2]-triangle[0]);
+                            btScalar dot = triNormal.dot(triNormal);
+
+                            //cull degenerate triangles
+                            if (dot >= SIMD_EPSILON*SIMD_EPSILON)
+                            {
+                                triNormal /= btSqrt(dot);
+                                for (int v = 0; v < 3; v++)
+                                {
+
+                                    btVector3 pos = mParentTransform*triangle[v];
+                                    mIndicesOut.push_back(mVertexPositions.size());
+                                    mVertexPositions.push_back(pos);
+                                    mVertexNormals.push_back(triNormal);
+                                }
+                            }
+                        }
+                    };
+
+                    btVector3 aabbMin, aabbMax;
+
+                    concaveShape->getAabb(btTransform::getIdentity(), aabbMin, aabbMax);
+
+                    MyTriangleCallback callback(parentTransform, vertexPositions, vertexNormals, indicesOut);
+
+                    concaveShape->processAllTriangles(&callback, aabbMin, aabbMax);
 				} else
 				{
 					btAssert(0);
