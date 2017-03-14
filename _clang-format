@@ -83,8 +83,9 @@ SpacesInContainerLiterals: true
 SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
+AccessModifierOffset: -4
 Standard:        Auto
 TabWidth:        4
-UseTab:          Always
+UseTab:          ForContinuationAndIndentation
 ...
 
