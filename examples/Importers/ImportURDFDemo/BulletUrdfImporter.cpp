@@ -32,6 +32,7 @@ static btScalar gUrdfDefaultCollisionMargin = 0.001;
 
 #include <iostream>
 #include <fstream>
+#include <list>
 #include "UrdfParser.h"
 
 struct MyTexture
@@ -47,14 +48,27 @@ ATTRIBUTE_ALIGNED16(struct) BulletURDFInternalData
 
 	UrdfParser m_urdfParser;
 	struct GUIHelperInterface* m_guiHelper;
+	std::string m_sourceFile;
 	char m_pathPrefix[1024];
 	int m_bodyId;
 	btHashMap<btHashInt,btVector4> m_linkColors;
     btAlignedObjectArray<btCollisionShape*> m_allocatedCollisionShapes;
 	
 	LinkVisualShapesConverter* m_customVisualShapesConverter;
-};
 
+	void setSourceFile(const std::string& relativeFileName, const std::string& prefix)
+	{
+		m_sourceFile = relativeFileName;
+		m_urdfParser.setSourceFile(relativeFileName);
+		strncpy(m_pathPrefix, prefix.c_str(), sizeof(m_pathPrefix));
+		m_pathPrefix[sizeof(m_pathPrefix)-1] = 0; // required, strncpy doesn't write zero on overflow
+	}
+
+	BulletURDFInternalData()
+	{
+		m_pathPrefix[0] = 0;
+	}
+};
 
 void BulletURDFImporter::printTree()
 {
@@ -76,7 +90,6 @@ BulletURDFImporter::BulletURDFImporter(struct GUIHelperInterface* helper, LinkVi
 	m_data = new BulletURDFInternalData;
 	
 	m_data->m_guiHelper = helper;
-	m_data->m_pathPrefix[0]=0;
 	m_data->m_customVisualShapesConverter = customConverter;
 
   
@@ -111,7 +124,6 @@ struct BulletErrorLogger : public ErrorLogger
 
 bool BulletURDFImporter::loadURDF(const char* fileName, bool forceFixedBase)
 {
-
 	if (strlen(fileName)==0)
         return false;
 
@@ -124,17 +136,16 @@ bool BulletURDFImporter::loadURDF(const char* fileName, bool forceFixedBase)
   	bool fileFound = (b3ResourcePath::findResourcePath(fileName,relativeFileName,1024))>0;
 	
 	std::string xml_string;
-	m_data->m_pathPrefix[0] = 0;
-    
-    if (!fileFound){
-        std::cerr << "URDF file not found" << std::endl;
-		return false;
-    } else
-    {
-		
-		int maxPathLen = 1024;
-		fu.extractPath(relativeFileName,m_data->m_pathPrefix,maxPathLen);
 
+	if (!fileFound){
+		b3Warning("URDF file '%s' not found\n", fileName);
+		return false;
+	} else
+	{
+		
+		char path[1024];
+		fu.extractPath(relativeFileName, path, sizeof(path));
+		m_data->setSourceFile(relativeFileName, path);
 
         std::fstream xml_file(relativeFileName, std::fstream::in);
         while ( xml_file.good())
@@ -166,7 +177,7 @@ void BulletURDFImporter::activateModel(int modelIndex)
 
 bool BulletURDFImporter::loadSDF(const char* fileName, bool forceFixedBase)
 {
-    
+
     //int argc=0;
     char relativeFileName[1024];
     
@@ -176,17 +187,16 @@ bool BulletURDFImporter::loadSDF(const char* fileName, bool forceFixedBase)
     bool fileFound = (b3ResourcePath::findResourcePath(fileName,relativeFileName,1024))>0;
     
     std::string xml_string;
-    m_data->m_pathPrefix[0] = 0;
     
     if (!fileFound){
-        std::cerr << "SDF file not found" << std::endl;
+        b3Warning("SDF file '%s' not found\n", fileName);
         return false;
     } else
     {
         
-        int maxPathLen = 1024;
-        fu.extractPath(relativeFileName,m_data->m_pathPrefix,maxPathLen);
-        
+        char path[1024];
+        fu.extractPath(relativeFileName, path, sizeof(path));
+        m_data->setSourceFile(relativeFileName, path);
         
         std::fstream xml_file(relativeFileName, std::fstream::in);
         while ( xml_file.good() )
@@ -447,6 +457,88 @@ static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t
 	return compound;
 }
 
+bool findExistingMeshFile(
+	const std::string& urdf_path, std::string fn,
+	const std::string& error_message_prefix,
+	std::string* out_found_filename, int* out_type)
+{
+	if (fn.size() <= 4)
+	{
+		b3Warning("%s: invalid mesh filename '%s'\n", error_message_prefix.c_str(), fn.c_str());
+		return false;
+	}
+
+	std::string ext;
+	std::string ext_ = fn.substr(fn.size()-4);
+	for (std::string::iterator i=ext_.begin(); i!=ext_.end(); ++i)
+	{
+		ext += char(tolower(*i));
+	}
+
+	if (ext==".dae")
+	{
+		*out_type = UrdfGeometry::FILE_COLLADA;
+	}
+	else if (ext==".stl")
+	{
+		*out_type = UrdfGeometry::FILE_STL;
+	}
+	else if (ext==".obj")
+	{
+		*out_type = UrdfGeometry::FILE_OBJ;
+	}
+	else
+	{
+		b3Warning("%s: invalid mesh filename extension '%s'\n", error_message_prefix.c_str(), ext.c_str());
+		return false;
+	}
+
+	std::string drop_it = "package://";
+	if (fn.substr(0, drop_it.length())==drop_it)
+		fn = fn.substr(drop_it.length());
+
+	std::list<std::string> shorter;
+	shorter.push_back("../..");
+	shorter.push_back("..");
+	shorter.push_back(".");
+	int cnt = urdf_path.size();
+	for (int i=0; i<cnt; ++i)
+	{
+		if (urdf_path[i]=='/' || urdf_path[i]=='\\')
+		{
+			shorter.push_back(urdf_path.substr(0, i));
+		}
+	}
+	shorter.reverse();
+
+	std::string existing_file;
+	for (std::list<std::string>::iterator x=shorter.begin(); x!=shorter.end(); ++x)
+	{
+		std::string attempt = *x + "/" + fn;
+		FILE* f = fopen(attempt.c_str(), "rb");
+		if (!f)
+		{
+			//b3Printf("%s: tried '%s'", error_message_prefix.c_str(), attempt.c_str());
+			continue;
+		}
+		fclose(f);
+		existing_file = attempt;
+		//b3Printf("%s: found '%s'", error_message_prefix.c_str(), attempt.c_str());
+		break;
+	}
+
+	if (existing_file.empty())
+	{
+		b3Warning("%s: cannot find '%s' in any directory in urdf path\n", error_message_prefix.c_str(), fn.c_str());
+		return false;
+	}
+	else
+	{
+		*out_found_filename = existing_file;
+		return true;
+	}
+}
+
 btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, const char* urdfPathPrefix)
 {
 	BT_PROFILE("convertURDFToCollisionShape");
@@ -507,239 +599,165 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
         }
         case URDF_GEOM_SPHERE:
         {
-            
 			btScalar radius = collision->m_geometry.m_sphereRadius;
 			btSphereShape* sphereShape = new btSphereShape(radius);
             shape = sphereShape;
 			shape ->setMargin(gUrdfDefaultCollisionMargin);
             break;
+	}
 
-            break;
-        }
-        case URDF_GEOM_MESH:
-        {
-			if (collision->m_name.length())
+	case URDF_GEOM_MESH:
+	{
+		GLInstanceGraphicsShape* glmesh = 0;
+		switch (collision->m_geometry.m_meshFileType)
+		{
+		case FILE_OBJ:
+			if (collision->m_flags & URDF_FORCE_CONCAVE_TRIMESH)
 			{
-				//b3Printf("collision->name=%s\n",collision->m_name.c_str());
+				glmesh = LoadMeshFromObj(collision->m_geometry.m_meshFileName.c_str(), 0);
 			}
-			if (1)
+			else
 			{
-				if (collision->m_geometry.m_meshFileName.length())
+				std::vector<tinyobj::shape_t> shapes;
+				std::string err = tinyobj::LoadObj(shapes, collision->m_geometry.m_meshFileName.c_str());
+				//create a convex hull for each shape, and store it in a btCompoundShape
+
+				shape = createConvexHullFromShapes(shapes, collision->m_geometry.m_meshScale);
+				return shape;
+			}
+			break;
+
+		case FILE_STL:
+			glmesh = LoadMeshFromSTL(collision->m_geometry.m_meshFileName.c_str());
+			break;
+
+		case FILE_COLLADA:
+			{
+				btAlignedObjectArray<GLInstanceGraphicsShape> visualShapes;
+				btAlignedObjectArray<ColladaGraphicsInstance> visualShapeInstances;
+				btTransform upAxisTrans;upAxisTrans.setIdentity();
+				float unitMeterScaling = 1;
+				LoadMeshFromCollada(collision->m_geometry.m_meshFileName.c_str(), visualShapes, visualShapeInstances, upAxisTrans, unitMeterScaling, 2);
+
+				glmesh = new GLInstanceGraphicsShape;
+				glmesh->m_indices = new b3AlignedObjectArray<int>();
+				glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
+
+				for (int i=0;i<visualShapeInstances.size();i++)
 				{
-					const char* filename = collision->m_geometry.m_meshFileName.c_str();
-					//b3Printf("mesh->filename=%s\n",filename);
-					char fullPath[1024];
-					int fileType = 0;
-					sprintf(fullPath,"%s%s",urdfPathPrefix,filename);
-					b3FileUtils::toLower(fullPath);
-                    char tmpPathPrefix[1024];
-                    int maxPathLen = 1024;
-                    b3FileUtils::extractPath(filename,tmpPathPrefix,maxPathLen);
-                    
-                    char collisionPathPrefix[1024];
-                    sprintf(collisionPathPrefix,"%s%s",urdfPathPrefix,tmpPathPrefix);
-                    
-                    
-                    
-					if (strstr(fullPath,".dae"))
+					ColladaGraphicsInstance* instance = &visualShapeInstances[i];
+					GLInstanceGraphicsShape* gfxShape = &visualShapes[instance->m_shapeIndex];
+
+					b3AlignedObjectArray<GLInstanceVertex> verts;
+					verts.resize(gfxShape->m_vertices->size());
+
+					int baseIndex = glmesh->m_vertices->size();
+
+					for (int i=0;i<gfxShape->m_vertices->size();i++)
 					{
-						fileType = FILE_COLLADA;
+						verts[i].normal[0] = 	gfxShape->m_vertices->at(i).normal[0];
+						verts[i].normal[1] = 	gfxShape->m_vertices->at(i).normal[1];
+						verts[i].normal[2] = 	gfxShape->m_vertices->at(i).normal[2];
+						verts[i].uv[0] = gfxShape->m_vertices->at(i).uv[0];
+						verts[i].uv[1] = gfxShape->m_vertices->at(i).uv[1];
+						verts[i].xyzw[0] = gfxShape->m_vertices->at(i).xyzw[0];
+						verts[i].xyzw[1] = gfxShape->m_vertices->at(i).xyzw[1];
+						verts[i].xyzw[2] = gfxShape->m_vertices->at(i).xyzw[2];
+						verts[i].xyzw[3] = gfxShape->m_vertices->at(i).xyzw[3];
+
 					}
-					if (strstr(fullPath,".stl"))
+
+					int curNumIndices = glmesh->m_indices->size();
+					int additionalIndices = gfxShape->m_indices->size();
+					glmesh->m_indices->resize(curNumIndices+additionalIndices);
+					for (int k=0;k<additionalIndices;k++)
 					{
-						fileType = FILE_STL;
+						glmesh->m_indices->at(curNumIndices+k)=gfxShape->m_indices->at(k)+baseIndex;
 					}
-                    if (strstr(fullPath,".obj"))
-                   {
-                       fileType = FILE_OBJ;
-                   }
 
-					sprintf(fullPath,"%s%s",urdfPathPrefix,filename);
-					FILE* f = fopen(fullPath,"rb");
-					if (f)
+					//compensate upAxisTrans and unitMeterScaling here
+					btMatrix4x4 upAxisMat;
+upAxisMat.setIdentity();
+					//upAxisMat.setPureRotation(upAxisTrans.getRotation());
+					btMatrix4x4 unitMeterScalingMat;
+					unitMeterScalingMat.setPureScaling(btVector3(unitMeterScaling,unitMeterScaling,unitMeterScaling));
+					btMatrix4x4 worldMat = unitMeterScalingMat*instance->m_worldTransform*upAxisMat;
+					//btMatrix4x4 worldMat = instance->m_worldTransform;
+					int curNumVertices = glmesh->m_vertices->size();
+					int additionalVertices = verts.size();
+					glmesh->m_vertices->reserve(curNumVertices+additionalVertices);
+
+					for(int v=0;v<verts.size();v++)
 					{
-						fclose(f);
-						GLInstanceGraphicsShape* glmesh = 0;
-						
-						
-						switch (fileType)
-						{
-                            case FILE_OBJ:
-                            {
-								if (collision->m_flags & URDF_FORCE_CONCAVE_TRIMESH)
-								{
-									glmesh = LoadMeshFromObj(fullPath, collisionPathPrefix);
-								}
-								else
-								{
-									std::vector<tinyobj::shape_t> shapes;
-									std::string err = tinyobj::LoadObj(shapes, fullPath, collisionPathPrefix);
-									//create a convex hull for each shape, and store it in a btCompoundShape
-
-									shape = createConvexHullFromShapes(shapes, collision->m_geometry.m_meshScale);
-									return shape;
-								}
-                                break;
-                            }
-						case FILE_STL:
-							{
-								glmesh = LoadMeshFromSTL(fullPath);
-							break;
-							}
-						case FILE_COLLADA:
-							{
-								
-								btAlignedObjectArray<GLInstanceGraphicsShape> visualShapes;
-								btAlignedObjectArray<ColladaGraphicsInstance> visualShapeInstances;
-								btTransform upAxisTrans;upAxisTrans.setIdentity();
-								float unitMeterScaling=1;
-								int upAxis = 2;
-								LoadMeshFromCollada(fullPath,
-													visualShapes, 
-													visualShapeInstances,
-													upAxisTrans,
-													unitMeterScaling,
-													upAxis );
-								
-								glmesh = new GLInstanceGraphicsShape;
-						//		int index = 0;
-								glmesh->m_indices = new b3AlignedObjectArray<int>();
-								glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
-
-								for (int i=0;i<visualShapeInstances.size();i++)
-								{
-									ColladaGraphicsInstance* instance = &visualShapeInstances[i];
-									GLInstanceGraphicsShape* gfxShape = &visualShapes[instance->m_shapeIndex];
-		
-									b3AlignedObjectArray<GLInstanceVertex> verts;
-									verts.resize(gfxShape->m_vertices->size());
-
-									int baseIndex = glmesh->m_vertices->size();
-
-									for (int i=0;i<gfxShape->m_vertices->size();i++)
-									{
-										verts[i].normal[0] = 	gfxShape->m_vertices->at(i).normal[0];
-										verts[i].normal[1] = 	gfxShape->m_vertices->at(i).normal[1];
-										verts[i].normal[2] = 	gfxShape->m_vertices->at(i).normal[2];
-										verts[i].uv[0] = gfxShape->m_vertices->at(i).uv[0];
-										verts[i].uv[1] = gfxShape->m_vertices->at(i).uv[1];
-										verts[i].xyzw[0] = gfxShape->m_vertices->at(i).xyzw[0];
-										verts[i].xyzw[1] = gfxShape->m_vertices->at(i).xyzw[1];
-										verts[i].xyzw[2] = gfxShape->m_vertices->at(i).xyzw[2];
-										verts[i].xyzw[3] = gfxShape->m_vertices->at(i).xyzw[3];
-
-									}
-
-									int curNumIndices = glmesh->m_indices->size();
-									int additionalIndices = gfxShape->m_indices->size();
-									glmesh->m_indices->resize(curNumIndices+additionalIndices);
-									for (int k=0;k<additionalIndices;k++)
-									{
-										glmesh->m_indices->at(curNumIndices+k)=gfxShape->m_indices->at(k)+baseIndex;
-									}
-			
-									//compensate upAxisTrans and unitMeterScaling here
-									btMatrix4x4 upAxisMat;
-                                    upAxisMat.setIdentity();
-									//upAxisMat.setPureRotation(upAxisTrans.getRotation());
-									btMatrix4x4 unitMeterScalingMat;
-									unitMeterScalingMat.setPureScaling(btVector3(unitMeterScaling,unitMeterScaling,unitMeterScaling));
-									btMatrix4x4 worldMat = unitMeterScalingMat*instance->m_worldTransform*upAxisMat;
-									//btMatrix4x4 worldMat = instance->m_worldTransform;
-									int curNumVertices = glmesh->m_vertices->size();
-									int additionalVertices = verts.size();
-									glmesh->m_vertices->reserve(curNumVertices+additionalVertices);
-									
-									for(int v=0;v<verts.size();v++)
-									{
-										btVector3 pos(verts[v].xyzw[0],verts[v].xyzw[1],verts[v].xyzw[2]);
-										pos = worldMat*pos;
-										verts[v].xyzw[0] = float(pos[0]);
-										verts[v].xyzw[1] = float(pos[1]);
-										verts[v].xyzw[2] = float(pos[2]);
-										glmesh->m_vertices->push_back(verts[v]);
-									}
-								}
-								glmesh->m_numIndices = glmesh->m_indices->size();
-								glmesh->m_numvertices = glmesh->m_vertices->size();
-								//glmesh = LoadMeshFromCollada(fullPath);
-
-								break;
-							}
-						default:
-							{
-                                b3Warning("Unsupported file type in Collision: %s\n",fullPath);
-                                btAssert(0);
-							}
-						}
-					
-
-						if (glmesh && (glmesh->m_numvertices>0))
-						{
-							//b3Printf("extracted %d verticed from STL file %s\n", glmesh->m_numvertices,fullPath);
-							//int shapeId = m_glApp->m_instancingRenderer->registerShape(&gvertices[0].pos[0],gvertices.size(),&indices[0],indices.size());
-							//convex->setUserIndex(shapeId);
-							btAlignedObjectArray<btVector3> convertedVerts;
-							convertedVerts.reserve(glmesh->m_numvertices);
-							for (int i=0;i<glmesh->m_numvertices;i++)
-							{
-								convertedVerts.push_back(btVector3(
-                                           glmesh->m_vertices->at(i).xyzw[0]*collision->m_geometry.m_meshScale[0],
-                                           glmesh->m_vertices->at(i).xyzw[1]*collision->m_geometry.m_meshScale[1],
-                                           glmesh->m_vertices->at(i).xyzw[2]*collision->m_geometry.m_meshScale[2]));
-							}
-							
-							if (collision->m_flags & URDF_FORCE_CONCAVE_TRIMESH)
-							{
-								BT_PROFILE("convert trimesh");
-								btTriangleMesh* meshInterface = new btTriangleMesh();
-								for (int i=0;i<glmesh->m_numIndices/3;i++)
-								{
-									float* v0 = glmesh->m_vertices->at(glmesh->m_indices->at(i*3)).xyzw;
-									float* v1 = glmesh->m_vertices->at(glmesh->m_indices->at(i*3+1)).xyzw;
-									float* v2 = glmesh->m_vertices->at(glmesh->m_indices->at(i*3+2)).xyzw;
-									meshInterface->addTriangle(btVector3(v0[0],v0[1],v0[2]),
-																btVector3(v1[0],v1[1],v1[2]),
-															btVector3(v2[0],v2[1],v2[2]));
-								}
-								
-								btBvhTriangleMeshShape* trimesh = new btBvhTriangleMeshShape(meshInterface,true,true);
-								trimesh->setLocalScaling(collision->m_geometry.m_meshScale);
-								shape = trimesh;
-							} else
-							{
-								BT_PROFILE("convert btConvexHullShape");
-
-								btConvexHullShape* convexHull = new btConvexHullShape(&convertedVerts[0].getX(), convertedVerts.size(), sizeof(btVector3));
-								convexHull->optimizeConvexHull();
-								//convexHull->initializePolyhedralFeatures();
-								convexHull->setMargin(gUrdfDefaultCollisionMargin);
-								convexHull->setLocalScaling(collision->m_geometry.m_meshScale);
-								shape = convexHull;
-							}
-						} else
-						{
-							b3Warning("issue extracting mesh from STL file %s\n", fullPath);
-						}
-
-                        delete glmesh;
-                       
-					} else
-					{
-						b3Warning("mesh geometry not found %s\n",fullPath);
+						btVector3 pos(verts[v].xyzw[0],verts[v].xyzw[1],verts[v].xyzw[2]);
+						pos = worldMat*pos;
+						verts[v].xyzw[0] = float(pos[0]);
+						verts[v].xyzw[1] = float(pos[1]);
+						verts[v].xyzw[2] = float(pos[2]);
+						glmesh->m_vertices->push_back(verts[v]);
 					}
-							
 				}
+				glmesh->m_numIndices = glmesh->m_indices->size();
+				glmesh->m_numvertices = glmesh->m_vertices->size();
+				//glmesh = LoadMeshFromCollada(success.c_str());
+				break;
 			}
+		}
 
-					
-            break;
-        }
+		if (!glmesh || glmesh->m_numvertices<=0)
+		{
+			b3Warning("%s: cannot extract mesh from '%s'\n", urdfPathPrefix, collision->m_geometry.m_meshFileName.c_str());
+			delete glmesh;
+			break;
+		}
+
+		btAlignedObjectArray<btVector3> convertedVerts;
+		convertedVerts.reserve(glmesh->m_numvertices);
+		for (int i=0; i<glmesh->m_numvertices; i++)
+		{
+			convertedVerts.push_back(btVector3(
+				glmesh->m_vertices->at(i).xyzw[0]*collision->m_geometry.m_meshScale[0],
+				glmesh->m_vertices->at(i).xyzw[1]*collision->m_geometry.m_meshScale[1],
+				glmesh->m_vertices->at(i).xyzw[2]*collision->m_geometry.m_meshScale[2]));
+		}
+
+		if (collision->m_flags & URDF_FORCE_CONCAVE_TRIMESH)
+		{
+			BT_PROFILE("convert trimesh");
+			btTriangleMesh* meshInterface = new btTriangleMesh();
+			for (int i=0; i<glmesh->m_numIndices/3; i++)
+			{
+				float* v0 = glmesh->m_vertices->at(glmesh->m_indices->at(i*3)).xyzw;
+				float* v1 = glmesh->m_vertices->at(glmesh->m_indices->at(i*3+1)).xyzw;
+				float* v2 = glmesh->m_vertices->at(glmesh->m_indices->at(i*3+2)).xyzw;
+				meshInterface->addTriangle(
+					btVector3(v0[0],v0[1],v0[2]),
+					btVector3(v1[0],v1[1],v1[2]),
+					btVector3(v2[0],v2[1],v2[2]));
+			}
+			btBvhTriangleMeshShape* trimesh = new btBvhTriangleMeshShape(meshInterface,true,true);
+			trimesh->setLocalScaling(collision->m_geometry.m_meshScale);
+			shape = trimesh;
+
+		} else
+		{
+			BT_PROFILE("convert btConvexHullShape");
+			btConvexHullShape* convexHull = new btConvexHullShape(&convertedVerts[0].getX(), convertedVerts.size(), sizeof(btVector3));
+			convexHull->optimizeConvexHull();
+			//convexHull->initializePolyhedralFeatures();
+			convexHull->setMargin(gUrdfDefaultCollisionMargin);
+			convexHull->setLocalScaling(collision->m_geometry.m_meshScale);
+			shape = convexHull;
+		}
+
+		delete glmesh;
+		break;
+	} // mesh case
+
         default:
-        {
-            b3Warning("Error: unknown visual geometry type\n");
-        }
-    }
+		b3Warning("Error: unknown collision geometry type %i\n", collision->m_geometry.m_type);
+		// for example, URDF_GEOM_PLANE
+	}
 	return shape;
 }
 
@@ -778,17 +796,17 @@ static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const cha
 			convexColShape = cylZShape;
 			break;
 		}
+
 		case URDF_GEOM_BOX:
 		{
-			
 			btVector3 extents = visual->m_geometry.m_boxSize;
-			
 			btBoxShape* boxShape = new btBoxShape(extents*0.5f);
 			//btConvexShape* boxShape = new btConeShapeX(extents[2]*0.5,extents[0]*0.5);
 			convexColShape = boxShape;
 			convexColShape->setMargin(gUrdfDefaultCollisionMargin);
 			break;
 		}
+
 		case URDF_GEOM_SPHERE:
 		{
 			btScalar radius = visual->m_geometry.m_sphereRadius;
@@ -796,206 +814,137 @@ static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const cha
 			convexColShape = sphereShape;
 			convexColShape->setMargin(gUrdfDefaultCollisionMargin);
 			break;
-
-			break;
 		}
+
 		case URDF_GEOM_MESH:
 		{
-			if (visual->m_name.length())
+			switch (visual->m_geometry.m_meshFileType)
 			{
-				//b3Printf("visual->name=%s\n", visual->m_name.c_str());
-			}
-			if (1)//visual->m_geometry)
-			{
-				if (visual->m_geometry.m_meshFileName.length())
+			case FILE_OBJ:
 				{
-					const char* filename = visual->m_geometry.m_meshFileName.c_str();
-					//b3Printf("mesh->filename=%s\n", filename);
-					char fullPath[1024];
-					int fileType = 0;
-                    
-                    char tmpPathPrefix[1024];
-                    std::string xml_string;
-                    int maxPathLen = 1024;
-                    b3FileUtils::extractPath(filename,tmpPathPrefix,maxPathLen);
-                   
-                    char visualPathPrefix[1024];
-                    sprintf(visualPathPrefix,"%s%s",urdfPathPrefix,tmpPathPrefix);
-                    
-                    
-					sprintf(fullPath, "%s%s", urdfPathPrefix, filename);
-					b3FileUtils::toLower(fullPath);
-					if (strstr(fullPath, ".dae"))
+					b3ImportMeshData meshData;
+					if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(visual->m_geometry.m_meshFileName, meshData))
 					{
-						fileType = FILE_COLLADA;
+
+						if (meshData.m_textureImage)
+						{
+							MyTexture texData;
+							texData.m_width = meshData.m_textureWidth;
+							texData.m_height = meshData.m_textureHeight;
+							texData.textureData = meshData.m_textureImage;
+							texturesOut.push_back(texData);
+						}
+						glmesh = meshData.m_gfxShape;
 					}
-					if (strstr(fullPath, ".stl"))
-					{
-						fileType = FILE_STL;
-					}
-                    if (strstr(fullPath,".obj"))
-                    {
-                        fileType = FILE_OBJ;
-                    }
-
-
-					sprintf(fullPath, "%s%s", urdfPathPrefix, filename);
-					FILE* f = fopen(fullPath, "rb");
-					if (f)
-					{
-						fclose(f);
-						
-						switch (fileType)
-						{
-                            case FILE_OBJ:
-                            {
-//                                glmesh = LoadMeshFromObj(fullPath,visualPathPrefix);
-						
-								b3ImportMeshData meshData;
-								if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(fullPath, meshData))
-								{
-									
-									if (meshData.m_textureImage)
-									{
-										MyTexture texData;
-										texData.m_width = meshData.m_textureWidth;
-										texData.m_height = meshData.m_textureHeight;
-										texData.textureData = meshData.m_textureImage;
-										texturesOut.push_back(texData);
-									}
-									glmesh = meshData.m_gfxShape;
-								}
-								
-                                break;
-                            }
-                           
-						case FILE_STL:
-						{
-							glmesh = LoadMeshFromSTL(fullPath);
-							break;
-						}
-						case FILE_COLLADA:
-						{
-
-							btAlignedObjectArray<GLInstanceGraphicsShape> visualShapes;
-							btAlignedObjectArray<ColladaGraphicsInstance> visualShapeInstances;
-							btTransform upAxisTrans; upAxisTrans.setIdentity();
-							float unitMeterScaling = 1;
-							int upAxis = 2;
-
-							LoadMeshFromCollada(fullPath,
-								visualShapes,
-								visualShapeInstances,
-								upAxisTrans,
-								unitMeterScaling,
-												upAxis);
-
-							glmesh = new GLInstanceGraphicsShape;
-					//		int index = 0;
-							glmesh->m_indices = new b3AlignedObjectArray<int>();
-							glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
-
-							for (int i = 0; i<visualShapeInstances.size(); i++)
-							{
-								ColladaGraphicsInstance* instance = &visualShapeInstances[i];
-								GLInstanceGraphicsShape* gfxShape = &visualShapes[instance->m_shapeIndex];
-
-								b3AlignedObjectArray<GLInstanceVertex> verts;
-								verts.resize(gfxShape->m_vertices->size());
-
-								int baseIndex = glmesh->m_vertices->size();
-
-								for (int i = 0; i<gfxShape->m_vertices->size(); i++)
-								{
-									verts[i].normal[0] = gfxShape->m_vertices->at(i).normal[0];
-									verts[i].normal[1] = gfxShape->m_vertices->at(i).normal[1];
-									verts[i].normal[2] = gfxShape->m_vertices->at(i).normal[2];
-									verts[i].uv[0] = gfxShape->m_vertices->at(i).uv[0];
-									verts[i].uv[1] = gfxShape->m_vertices->at(i).uv[1];
-									verts[i].xyzw[0] = gfxShape->m_vertices->at(i).xyzw[0];
-									verts[i].xyzw[1] = gfxShape->m_vertices->at(i).xyzw[1];
-									verts[i].xyzw[2] = gfxShape->m_vertices->at(i).xyzw[2];
-									verts[i].xyzw[3] = gfxShape->m_vertices->at(i).xyzw[3];
-
-								}
-
-								int curNumIndices = glmesh->m_indices->size();
-								int additionalIndices = gfxShape->m_indices->size();
-								glmesh->m_indices->resize(curNumIndices + additionalIndices);
-								for (int k = 0; k<additionalIndices; k++)
-								{
-									glmesh->m_indices->at(curNumIndices + k) = gfxShape->m_indices->at(k) + baseIndex;
-								}
-
-								//compensate upAxisTrans and unitMeterScaling here
-								btMatrix4x4 upAxisMat;
-								upAxisMat.setIdentity();
-//								upAxisMat.setPureRotation(upAxisTrans.getRotation());
-								btMatrix4x4 unitMeterScalingMat;
-								unitMeterScalingMat.setPureScaling(btVector3(unitMeterScaling, unitMeterScaling, unitMeterScaling));
-								btMatrix4x4 worldMat = unitMeterScalingMat*upAxisMat*instance->m_worldTransform;
-								//btMatrix4x4 worldMat = instance->m_worldTransform;
-								int curNumVertices = glmesh->m_vertices->size();
-								int additionalVertices = verts.size();
-								glmesh->m_vertices->reserve(curNumVertices + additionalVertices);
-
-								for (int v = 0; v<verts.size(); v++)
-								{
-									btVector3 pos(verts[v].xyzw[0], verts[v].xyzw[1], verts[v].xyzw[2]);
-									pos = worldMat*pos;
-									verts[v].xyzw[0] = float(pos[0]);
-									verts[v].xyzw[1] = float(pos[1]);
-									verts[v].xyzw[2] = float(pos[2]);
-									glmesh->m_vertices->push_back(verts[v]);
-								}
-							}
-							glmesh->m_numIndices = glmesh->m_indices->size();
-							glmesh->m_numvertices = glmesh->m_vertices->size();
-							//glmesh = LoadMeshFromCollada(fullPath);
-
-							break;
-						}
-						default:
-						{
-                            b3Warning("Error: unsupported file type for Visual mesh: %s\n", fullPath);
-                            btAssert(0);
-						}
-						}
-
-
-						if (glmesh && glmesh->m_vertices && (glmesh->m_numvertices>0))
-						{
-						    //apply the geometry scaling
-						    for (int i=0;i<glmesh->m_vertices->size();i++)
-                            {
-                                glmesh->m_vertices->at(i).xyzw[0] *= visual->m_geometry.m_meshScale[0];
-                                glmesh->m_vertices->at(i).xyzw[1] *= visual->m_geometry.m_meshScale[1];
-                                glmesh->m_vertices->at(i).xyzw[2] *= visual->m_geometry.m_meshScale[2];
-                            }
-						    
-						}
-						else
-						{
-							b3Warning("issue extracting mesh from COLLADA/STL file %s\n", fullPath);
-						}
-
-					}
-					else
-					{
-						b3Warning("mesh geometry not found %s\n", fullPath);
-					}
-
-
+					break;
 				}
+
+			case FILE_STL:
+				{
+					glmesh = LoadMeshFromSTL(visual->m_geometry.m_meshFileName.c_str());
+					break;
+				}
+
+			case FILE_COLLADA:
+				{
+					btAlignedObjectArray<GLInstanceGraphicsShape> visualShapes;
+					btAlignedObjectArray<ColladaGraphicsInstance> visualShapeInstances;
+					btTransform upAxisTrans; upAxisTrans.setIdentity();
+					float unitMeterScaling = 1;
+					int upAxis = 2;
+
+					LoadMeshFromCollada(visual->m_geometry.m_meshFileName.c_str(),
+						visualShapes,
+						visualShapeInstances,
+						upAxisTrans,
+						unitMeterScaling,
+						upAxis);
+
+					glmesh = new GLInstanceGraphicsShape;
+			//		int index = 0;
+					glmesh->m_indices = new b3AlignedObjectArray<int>();
+					glmesh->m_vertices = new b3AlignedObjectArray<GLInstanceVertex>();
+
+					for (int i = 0; i<visualShapeInstances.size(); i++)
+					{
+						ColladaGraphicsInstance* instance = &visualShapeInstances[i];
+						GLInstanceGraphicsShape* gfxShape = &visualShapes[instance->m_shapeIndex];
+
+						b3AlignedObjectArray<GLInstanceVertex> verts;
+						verts.resize(gfxShape->m_vertices->size());
+
+						int baseIndex = glmesh->m_vertices->size();
+
+						for (int i = 0; i<gfxShape->m_vertices->size(); i++)
+						{
+							verts[i].normal[0] = gfxShape->m_vertices->at(i).normal[0];
+							verts[i].normal[1] = gfxShape->m_vertices->at(i).normal[1];
+							verts[i].normal[2] = gfxShape->m_vertices->at(i).normal[2];
+							verts[i].uv[0] = gfxShape->m_vertices->at(i).uv[0];
+							verts[i].uv[1] = gfxShape->m_vertices->at(i).uv[1];
+							verts[i].xyzw[0] = gfxShape->m_vertices->at(i).xyzw[0];
+							verts[i].xyzw[1] = gfxShape->m_vertices->at(i).xyzw[1];
+							verts[i].xyzw[2] = gfxShape->m_vertices->at(i).xyzw[2];
+							verts[i].xyzw[3] = gfxShape->m_vertices->at(i).xyzw[3];
+
+						}
+
+						int curNumIndices = glmesh->m_indices->size();
+						int additionalIndices = gfxShape->m_indices->size();
+						glmesh->m_indices->resize(curNumIndices + additionalIndices);
+						for (int k = 0; k<additionalIndices; k++)
+						{
+							glmesh->m_indices->at(curNumIndices + k) = gfxShape->m_indices->at(k) + baseIndex;
+						}
+
+						//compensate upAxisTrans and unitMeterScaling here
+						btMatrix4x4 upAxisMat;
+						upAxisMat.setIdentity();
+	//								upAxisMat.setPureRotation(upAxisTrans.getRotation());
+						btMatrix4x4 unitMeterScalingMat;
+						unitMeterScalingMat.setPureScaling(btVector3(unitMeterScaling, unitMeterScaling, unitMeterScaling));
+						btMatrix4x4 worldMat = unitMeterScalingMat*upAxisMat*instance->m_worldTransform;
+						//btMatrix4x4 worldMat = instance->m_worldTransform;
+						int curNumVertices = glmesh->m_vertices->size();
+						int additionalVertices = verts.size();
+						glmesh->m_vertices->reserve(curNumVertices + additionalVertices);
+
+						for (int v = 0; v<verts.size(); v++)
+						{
+							btVector3 pos(verts[v].xyzw[0], verts[v].xyzw[1], verts[v].xyzw[2]);
+							pos = worldMat*pos;
+							verts[v].xyzw[0] = float(pos[0]);
+							verts[v].xyzw[1] = float(pos[1]);
+							verts[v].xyzw[2] = float(pos[2]);
+							glmesh->m_vertices->push_back(verts[v]);
+						}
+					}
+					glmesh->m_numIndices = glmesh->m_indices->size();
+					glmesh->m_numvertices = glmesh->m_vertices->size();
+					//glmesh = LoadMeshFromCollada(visual->m_geometry.m_meshFileName);
+
+					break;
+				}
+			} // switch file type
+
+			if (!glmesh || !glmesh->m_vertices || glmesh->m_numvertices<=0)
+			{
+				b3Warning("%s: cannot extract anything useful from mesh '%s'\n", urdfPathPrefix, visual->m_geometry.m_meshFileName.c_str());
+				break;
 			}
 
-
+			//apply the geometry scaling
+			for (int i=0;i<glmesh->m_vertices->size();i++)
+			{
+				glmesh->m_vertices->at(i).xyzw[0] *= visual->m_geometry.m_meshScale[0];
+				glmesh->m_vertices->at(i).xyzw[1] *= visual->m_geometry.m_meshScale[1];
+				glmesh->m_vertices->at(i).xyzw[2] *= visual->m_geometry.m_meshScale[2];
+			}
 			break;
 		}
+
 		default:
-		{
-			b3Warning("Error: unknown visual geometry type\n");
-		}
+			b3Warning("Error: unknown visual geometry type %i\n", visual->m_geometry.m_type);
 	}
 
 	//if we have a convex, tesselate into localVertices/localIndices
