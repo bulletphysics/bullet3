@@ -687,7 +687,11 @@ unsigned int btQuickprofGetCurrentThreadIndex2()
 {
 	const unsigned int kNullIndex = ~0U;
 #ifdef _WIN32
-	__declspec( thread ) static unsigned int sThreadIndex = kNullIndex;
+    #if defined(__MINGW32__) || defined(__MINGW64__)
+        static __thread unsigned int sThreadIndex = kNullIndex;
+    #else
+        __declspec( thread ) static unsigned int sThreadIndex = kNullIndex;
+    #endif
 #else
 #ifdef __APPLE__
 	#if TARGET_OS_IPHONE
