@@ -35,7 +35,7 @@ while True:
 	for e in (events):
 
 		# Only use one controller
-		if e[0] == min(controllers):
+		if e[0] == controllers[0]:
 			break
 
 		sq_len = euc_dist(p.getLinkState(kuka, 6)[0], e[POSITION])
@@ -66,7 +66,6 @@ while True:
 			# 			positionGain=1, velocityGain=0.5, force=50)
 			# 	avg = p.getJointState(kuka_gripper, i)[0]
 				
-
 		if e[BUTTONS][33] & p.VR_BUTTON_WAS_RELEASED:	
 			for i in range(p.getNumJoints(kuka_gripper)):
 				p.setJointMotorControl2(kuka_gripper, i, p.VELOCITY_CONTROL, targetVelocity=-5, force=50)
@@ -78,8 +77,8 @@ while True:
 				lowerLimits=LOWER_LIMITS, upperLimits=UPPER_LIMITS, 
 				jointRanges=JOINT_RANGE, restPoses=REST_POSE, jointDamping=JOINT_DAMP)
 
-			# Only need links 1- 5, no need for joint 6 with pure position IK
-			for i in range(len(joint_pos) - 1):
+			# Only need links 1- 4, no need for joint 5-6 with pure position IK
+			for i in range(len(joint_pos) - 2):
 				p.setJointMotorControl2(kuka, i, p.POSITION_CONTROL, 
 					targetPosition=joint_pos[i], targetVelocity=0, positionGain=0.05, 
 					velocityGain=1.0, force=MAX_FORCE)
@@ -90,7 +89,7 @@ while True:
 			_, _, z = p.getEulerFromQuaternion(targetOrn)
 			# End effector needs protection, done by using triangular tricks
 			p.setJointMotorControl2(kuka, 6, p.POSITION_CONTROL, 
-				targetPosition=np.arcsin(np.sin(z)), targetVelocity=0, positionGain=0.6, 
+				targetPosition=np.arcsin(np.sin(z)), targetVelocity=0, positionGain=0.5, 
 				velocityGain=1.0, force=MAX_FORCE)
 
 			p.setJointMotorControl2(kuka, 5, p.POSITION_CONTROL, 
