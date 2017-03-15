@@ -1,3 +1,7 @@
+import sys
+#some python interpreters need '.' added
+sys.path.append(".")
+
 import pybullet as p
 from minitaur import Minitaur
 from minitaur_evaluate import *

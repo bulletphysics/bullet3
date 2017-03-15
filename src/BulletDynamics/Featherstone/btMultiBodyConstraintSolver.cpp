@@ -48,9 +48,11 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 	}
 
 	//solve featherstone normal contact
-	for (int j=0;j<m_multiBodyNormalContactConstraints.size();j++)
+	for (int j0=0;j0<m_multiBodyNormalContactConstraints.size();j0++)
 	{
-		btMultiBodySolverConstraint& constraint = m_multiBodyNormalContactConstraints[j];
+		int index = iteration&1? j0 : m_multiBodyNormalContactConstraints.size()-1-j0;
+
+		btMultiBodySolverConstraint& constraint = m_multiBodyNormalContactConstraints[index];
 		btScalar residual = 0.f;
 
 		if (iteration < infoGlobal.m_numIterations)
@@ -68,11 +70,13 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 	
 	//solve featherstone frictional contact
 
-	for (int j=0;j<this->m_multiBodyFrictionContactConstraints.size();j++)
+	for (int j1=0;j1<this->m_multiBodyFrictionContactConstraints.size();j1++)
 	{
 		if (iteration < infoGlobal.m_numIterations)
 		{
-			btMultiBodySolverConstraint& frictionConstraint = m_multiBodyFrictionContactConstraints[j];
+			int index = iteration&1? j1 : m_multiBodyFrictionContactConstraints.size()-1-j1;
+
+			btMultiBodySolverConstraint& frictionConstraint = m_multiBodyFrictionContactConstraints[index];
 			btScalar totalImpulse = m_multiBodyNormalContactConstraints[frictionConstraint.m_frictionIndex].m_appliedImpulse;
 			//adjust friction limits here
 			if (totalImpulse>btScalar(0))
