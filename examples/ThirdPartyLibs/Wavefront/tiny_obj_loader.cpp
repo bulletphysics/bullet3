@@ -218,8 +218,18 @@ updateVertex(
   }
 
   if (i.vt_idx >= 0) {
-    texcoords.push_back(in_texcoords[2*i.vt_idx+0]);
-    texcoords.push_back(in_texcoords[2*i.vt_idx+1]);
+	int numTexCoords = in_texcoords.size();
+	int index0 = 2*i.vt_idx+0;
+	int index1 = 2*i.vt_idx+1;
+
+	if (index0>=0 && (index0)<numTexCoords)
+	{
+		texcoords.push_back(in_texcoords[index0]);
+	}
+	if (index1>=0 && (index1)<numTexCoords)
+	{
+		texcoords.push_back(in_texcoords[index1]);
+	}
   }
 
   unsigned int idx = positions.size() / 3 - 1;

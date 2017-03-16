@@ -190,11 +190,11 @@
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
-  <joint name="motor_front_rightR_joint" type="continuous">
+  <joint name="motor_front_rightR_joint" type="fixed">
     <axis xyz="0 0 1"/>
     <parent link="chassis_right"/>
     <child link="motor_front_rightR_link"/>
-    <origin rpy="1.57075 0 0" xyz="0.21 -0.025 0"/>
+    <origin rpy="1.57075 -1.570796 0" xyz="0.21 -0.025 0"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -219,11 +219,11 @@
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
-  <joint name="motor_front_rightL_joint" type="continuous">
+  <joint name="motor_front_rightL_joint" type="fixed">
     <axis xyz="0 0 1"/>
     <parent link="chassis_right"/>
     <child link="motor_front_rightL_link"/>
-    <origin rpy="1.57075 0 3.141592" xyz="0.21 0.04 0"/>
+    <origin rpy="1.57075 -1.570796 3.141592" xyz="0.21 0.04 0"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -248,11 +248,11 @@
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
-  <joint name="motor_front_leftR_joint" type="continuous">
+  <joint name="motor_front_leftR_joint" type="fixed">
     <axis xyz="0 0 1"/>
     <parent link="chassis_left"/>
     <child link="motor_front_leftR_link"/>
-    <origin rpy="1.57075 0 3.141592" xyz="0.21 0.025 0"/>
+    <origin rpy="1.57075 1.570796 3.141592" xyz="0.21 0.025 0"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -272,11 +272,11 @@
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
-  <joint name="motor_front_leftL_joint" type="continuous">
+  <joint name="motor_front_leftL_joint" type="fixed">
     <axis xyz="0 0 1"/>
     <parent link="chassis_left"/>
     <child link="motor_front_leftL_link"/>
-    <origin rpy="1.57075 0 0" xyz="0.21 -0.04 0"/>
+    <origin rpy="1.57075 1.570796 0" xyz="0.21 -0.04 0"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -301,11 +301,11 @@
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
-  <joint name="motor_back_rightR_joint" type="continuous">
+  <joint name="motor_back_rightR_joint" type="fixed">
     <axis xyz="0 0 1"/>
     <parent link="chassis_right"/>
     <child link="motor_back_rightR_link"/>
-    <origin rpy="1.57075 0 0" xyz="-0.21 -0.025 0"/>
+    <origin rpy="1.57075 -1.570796 0" xyz="-0.21 -0.025 0"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -330,11 +330,11 @@
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
-  <joint name="motor_back_rightL_joint" type="continuous">
+  <joint name="motor_back_rightL_joint" type="fixed">
     <axis xyz="0 0 1"/>
     <parent link="chassis_right"/>
     <child link="motor_back_rightL_link"/>
-    <origin rpy="1.57075 0 3.141592" xyz="-0.21 0.04 0"/>
+    <origin rpy="1.57075 -1.570796 3.141592" xyz="-0.21 0.04 0"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -359,11 +359,11 @@
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
-  <joint name="motor_back_leftR_joint" type="continuous">
+  <joint name="motor_back_leftR_joint" type="fixed">
     <axis xyz="0 0 1"/>
     <parent link="chassis_left"/>
     <child link="motor_back_leftR_link"/>
-    <origin rpy="1.57075 0 3.141592" xyz="-0.21 0.025 0"/>
+    <origin rpy="1.57075 1.570796 3.141592" xyz="-0.21 0.025 0"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -388,11 +388,11 @@
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
-  <joint name="motor_back_leftL_joint" type="continuous">
+  <joint name="motor_back_leftL_joint" type="fixed">
     <axis xyz="0 0 1"/>
     <parent link="chassis_left"/>
     <child link="motor_back_leftL_link"/>
-    <origin rpy="1.57075 0 0" xyz="-0.21 -0.04 0"/>
+    <origin rpy="1.57075 1.570796 0" xyz="-0.21 -0.04 0"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -427,9 +427,7 @@
 
 	<link name="lower_leg_front_rightR_link">
 	<contact>
-		<stiffness value="10000"/>
-		<damping value="10"/>
-		<lateral_friction value="1"/>
+<lateral_friction value="1"/>
   </contact>
 
     <visual>
@@ -452,11 +450,11 @@
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
-  <joint name="knee_front_rightR_link" type="revolute">
+  <joint name="knee_front_rightR_link" type="fixed">
     <axis xyz="0 1 0"/>
     <parent link="upper_leg_front_rightR_link"/>
     <child link="lower_leg_front_rightR_link"/>
-    <origin rpy="0 0 0" xyz="0.0 0.01 .055"/>
+    <origin rpy="0 -2.1834 0" xyz="0.0 0.01 .055"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -495,9 +493,7 @@
   
   <link name="lower_leg_front_rightL_link">
 	<contact>
-		<stiffness value="10000"/>
-		<damping value="10"/>
-		<lateral_friction value="1"/>
+<lateral_friction value="1"/>
   </contact>
 
     <visual>
@@ -520,11 +516,11 @@
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
-  <joint name="knee_front_rightL_link" type="revolute">
+  <joint name="knee_front_rightL_link" type="fixed">
     <axis xyz="0 1 0"/>
     <parent link="upper_leg_front_rightL_link"/>
     <child link="lower_leg_front_rightL_link"/>
-    <origin rpy="0 0 0" xyz="0.0 0.01 .055"/>
+    <origin rpy="0 -2.1834 0" xyz="0.0 0.01 .055"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -561,9 +557,7 @@
 
 	<link name="lower_leg_front_leftR_link">
 	<contact>
-		<stiffness value="10000"/>
-		<damping value="10"/>
-		<lateral_friction value="1"/>
+<lateral_friction value="1"/>
   </contact>
 
     <visual>
@@ -586,11 +580,11 @@
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
-  <joint name="knee_front_leftR_link" type="revolute">
+  <joint name="knee_front_leftR_link" type="fixed">
     <axis xyz="0 1 0"/>
     <parent link="upper_leg_front_leftR_link"/>
     <child link="lower_leg_front_leftR_link"/>
-    <origin rpy="0 0 0" xyz="0.0 0.01 .055"/>
+    <origin rpy="0 2.1834 0" xyz="0.0 0.01 .055"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -628,9 +622,7 @@
 
   <link name="lower_leg_front_leftL_link">
 	<contact>
-		<stiffness value="10000"/>
-		<damping value="10"/>
-		<lateral_friction value="1"/>
+<lateral_friction value="1"/>
   </contact>
 
     <visual>
@@ -653,11 +645,11 @@
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
-  <joint name="knee_front_leftL_link" type="revolute">
+  <joint name="knee_front_leftL_link" type="fixed">
     <axis xyz="0 1 0"/>
     <parent link="upper_leg_front_leftL_link"/>
     <child link="lower_leg_front_leftL_link"/>
-    <origin rpy="0 0 0" xyz="0.0 0.01 .055"/>
+    <origin rpy="0 2.1834 0" xyz="0.0 0.01 .055"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -692,9 +684,7 @@
 
 	<link name="lower_leg_back_rightR_link">
 	<contact>
-		<stiffness value="10000"/>
-		<damping value="10"/>
-		<lateral_friction value="1"/>
+<lateral_friction value="1"/>
   </contact>
 
     <visual>
@@ -717,11 +707,11 @@
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
-  <joint name="knee_back_rightR_link" type="revolute">
+  <joint name="knee_back_rightR_link" type="fixed">
     <axis xyz="0 1 0"/>
     <parent link="upper_leg_back_rightR_link"/>
     <child link="lower_leg_back_rightR_link"/>
-    <origin rpy="0 0 0" xyz="0.0 0.01 .055"/>
+    <origin rpy="0 -2.1834 0" xyz="0.0 0.01 .055"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -760,11 +750,9 @@
   
   <link name="lower_leg_back_rightL_link">
 	<contact>
-		<stiffness value="10000"/>
-		<damping value="10"/>
-		<lateral_friction value="1"/>
+<lateral_friction value="1"/>
   </contact>
-  
+
     <visual>
     	<origin rpy="0.0 0 0" xyz="0 0 .1"/>
       <geometry>
@@ -785,11 +773,11 @@
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
-  <joint name="knee_back_rightL_link" type="revolute">
+  <joint name="knee_back_rightL_link" type="fixed">
     <axis xyz="0 1 0"/>
     <parent link="upper_leg_back_rightL_link"/>
     <child link="lower_leg_back_rightL_link"/>
-    <origin rpy="0 0 0" xyz="0.0 0.01 .055"/>
+    <origin rpy="0 -2.1834 0" xyz="0.0 0.01 .055"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -826,9 +814,7 @@
 
 <link name="lower_leg_back_leftR_link">
 	<contact>
-		<stiffness value="10000"/>
-		<damping value="10"/>
-		<lateral_friction value="1"/>
+<lateral_friction value="1"/>
   </contact>
 
     <visual>
@@ -851,11 +837,11 @@
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
-  <joint name="knee_back_leftR_link" type="revolute">
+  <joint name="knee_back_leftR_link" type="fixed">
     <axis xyz="0 1 0"/>
     <parent link="upper_leg_back_leftR_link"/>
     <child link="lower_leg_back_leftR_link"/>
-    <origin rpy="0 0 0" xyz="0.0 0.01 .055"/>
+    <origin rpy="0 2.1834 0" xyz="0.0 0.01 .055"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -891,9 +877,7 @@
  
   <link name="lower_leg_back_leftL_link">
 	<contact>
-		<stiffness value="10000"/>
-		<damping value="10"/>
-		<lateral_friction value="1"/>
+<lateral_friction value="1"/>
   </contact>
 
     <visual>
@@ -916,11 +900,11 @@
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
-  <joint name="knee_back_leftL_link" type="revolute">
+  <joint name="knee_back_leftL_link" type="fixed">
     <axis xyz="0 1 0"/>
     <parent link="upper_leg_back_leftL_link"/>
     <child link="lower_leg_back_leftL_link"/>
-    <origin rpy="0 0 0" xyz="0.0 0.01 .055"/>
+    <origin rpy="0 2.1834 0" xyz="0.0 0.01 .055"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
