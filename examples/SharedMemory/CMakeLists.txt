@@ -38,6 +38,8 @@ SET(SharedMemory_SRCS
 	PhysicsServerCommandProcessor.h
 	TinyRendererVisualShapeConverter.cpp
 	TinyRendererVisualShapeConverter.h
+	SharedMemoryCommands.h
+	SharedMemoryPublic.h
 	../TinyRenderer/geometry.cpp
 	../TinyRenderer/model.cpp
 	../TinyRenderer/tgaimage.cpp

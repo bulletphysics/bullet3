@@ -568,3 +568,10 @@ struct CommonGraphicsApp* OpenGLGuiHelper::getAppInterface()
 	return m_data->m_glApp;
 }
 
+void	OpenGLGuiHelper::dumpFramesToVideo(const char* mp4FileName)
+{
+	if (m_data->m_glApp)
+	{
+		m_data->m_glApp->dumpFramesToVideo(mp4FileName);
+	}
+}

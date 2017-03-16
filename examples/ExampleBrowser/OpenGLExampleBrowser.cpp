@@ -371,6 +371,7 @@ void OpenGLExampleBrowserVisualizerFlagCallback(int flag, bool enable)
     if (flag == COV_ENABLE_GUI)
     {
         renderGui = enable;
+		renderGrid = enable;
     }
     
     if (flag == COV_ENABLE_WIREFRAME)
@@ -868,8 +869,8 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 	}
 		
 	
-	int width = 1024;
-    int height=768;
+	int width = 1280;
+    int height=640;
 #ifndef NO_OPENGL3
     SimpleOpenGL3App* simpleApp=0;
 	sUseOpenGL2 =args.CheckCmdLineFlag("opengl2");
