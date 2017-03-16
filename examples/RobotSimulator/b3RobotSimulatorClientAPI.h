@@ -138,7 +138,7 @@ public:
 	b3Vector3 getEulerFromQuaternion(const b3Quaternion& quat);
 
 	int loadURDF(const std::string& fileName, const struct b3RobotSimulatorLoadUrdfFileArgs& args = b3RobotSimulatorLoadUrdfFileArgs());
-	bool loadSDF(const std::string& fileName, b3RobotSimulatorLoadFileResults& results = b3RobotSimulatorLoadFileResults(), const struct b3RobotSimulatorLoadSdfFileArgs& args = b3RobotSimulatorLoadSdfFileArgs());
+	bool loadSDF(const std::string& fileName, b3RobotSimulatorLoadFileResults& results, const struct b3RobotSimulatorLoadSdfFileArgs& args = b3RobotSimulatorLoadSdfFileArgs());
 	bool loadMJCF(const std::string& fileName, b3RobotSimulatorLoadFileResults& results);
 	bool loadBullet(const std::string& fileName, b3RobotSimulatorLoadFileResults& results);
 
