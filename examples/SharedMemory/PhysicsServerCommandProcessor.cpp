@@ -438,6 +438,31 @@ struct InternalStateLogger
 
 };
 
+struct VideoMP4Loggger : public InternalStateLogger
+{
+
+	struct GUIHelperInterface* m_guiHelper;
+	std::string m_fileName;
+	VideoMP4Loggger(int loggerUid,const char* fileName,GUIHelperInterface* guiHelper)
+		:m_guiHelper(guiHelper)
+	{
+		m_fileName = fileName;
+		m_loggingUniqueId = loggerUid;
+		m_loggingType = STATE_LOGGING_VIDEO_MP4;
+		m_guiHelper->dumpFramesToVideo(fileName);
+	}
+
+	virtual void stop()
+	{
+		m_guiHelper->dumpFramesToVideo(0);
+	}
+	virtual void logState(btScalar timeStamp)
+	{
+		//dumping video frames happens in another thread
+		//we could add some overlay of timestamp here, if needed/wanted
+	}
+};
+
 struct MinitaurStateLogger : public InternalStateLogger
 {
 	int m_loggingTimeStamp;
@@ -1797,6 +1822,17 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					if (clientCmd.m_updateFlags & STATE_LOGGING_START_LOG)
 					{
 
+						if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_VIDEO_MP4)
+						{
+							if (clientCmd.m_stateLoggingArguments.m_fileName)
+							{
+								int loggerUid = m_data->m_stateLoggersUniqueId++;
+								VideoMP4Loggger* logger = new VideoMP4Loggger(loggerUid,clientCmd.m_stateLoggingArguments.m_fileName,this->m_data->m_guiHelper);
+								m_data->m_stateLoggers.push_back(logger);
+								serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
+								serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
+							}
+						}
 						
 						if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_MINITAUR)
 						{

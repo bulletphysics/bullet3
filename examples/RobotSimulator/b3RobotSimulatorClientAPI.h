@@ -130,6 +130,8 @@ public:
 
 	bool isConnected() const;
 
+	void setTimeOut(double timeOutInSec);
+
 	void syncBodies();
 
 	void resetSimulation();
@@ -181,8 +183,9 @@ public:
 	bool getLinkState(int bodyUniqueId, int linkIndex, b3LinkState* linkState);
 
 	void configureDebugVisualizer(enum b3ConfigureDebugVisualizerEnum flag, int enable);
+	void resetDebugVisualizerCamera(double cameraDistance, double cameraPitch, double cameraYaw, const b3Vector3& targetPos);
 
-	int startStateLogging(b3StateLoggingType loggingType, const std::string& fileName, const b3AlignedObjectArray<int>& objectUniqueIds, int maxLogDof = -1);
+	int startStateLogging(b3StateLoggingType loggingType, const std::string& fileName, const b3AlignedObjectArray<int>& objectUniqueIds=b3AlignedObjectArray<int>(), int maxLogDof = -1);
 	void stopStateLogging(int stateLoggerUniqueId);
 
 	void getVREvents(b3VREventsData* vrEventsData);

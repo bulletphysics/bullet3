@@ -179,7 +179,9 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIUserDebugAddParameter,
 	eGUIUserDebugRemoveItem,
 	eGUIUserDebugRemoveAllItems,
+	eGUIDumpFramesToVideo,
 };
+
 
 #include <stdio.h>
 //#include "BulletMultiThreaded/PlatformDefinitions.h"
@@ -489,7 +491,7 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 		args->m_cs->unlock();
 	}
 
-
+	args->m_physicsServerPtr->disconnectSharedMemory(true);
 	//do nothing
 
 }
@@ -957,6 +959,16 @@ public:
 		m_cs->setSharedParam(1, eGUIUserDebugRemoveAllItems);
 		workerThreadWait();
 	
+	}
+
+	const char* m_mp4FileName;
+	virtual void	dumpFramesToVideo(const char* mp4FileName)
+	{
+		m_cs->lock();
+		m_mp4FileName = mp4FileName;
+		m_cs->setSharedParam(1, eGUIDumpFramesToVideo);
+		workerThreadWait();
+		m_mp4FileName = 0;
 	}
 
 };
@@ -1614,6 +1626,14 @@ void	PhysicsServerExample::updateGraphics()
 		m_multiThreadedHelper->mainThreadRelease();
 			break;
 	}
+
+	case eGUIDumpFramesToVideo:
+	{
+		m_multiThreadedHelper->m_childGuiHelper->dumpFramesToVideo(m_multiThreadedHelper->m_mp4FileName);
+		m_multiThreadedHelper->mainThreadRelease();
+		break;
+	}
+
 	case eGUIHelperIdle:
 		{
 			break;

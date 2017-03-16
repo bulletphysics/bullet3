@@ -188,6 +188,8 @@ bool PhysicsServerSharedMemory::connectSharedMemory( struct GUIHelperInterface* 
 
 void PhysicsServerSharedMemory::disconnectSharedMemory(bool deInitializeSharedMemory)
 {
+	m_data->m_commandProcessor->deleteDynamicsWorld();
+
 	m_data->m_commandProcessor->setGuiHelper(0);
 
 	if (m_data->m_verboseOutput)

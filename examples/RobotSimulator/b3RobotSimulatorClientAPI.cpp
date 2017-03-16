@@ -134,6 +134,18 @@ bool b3RobotSimulatorClientAPI::isConnected() const
 	return (m_data->m_physicsClientHandle != 0);
 }
 
+void b3RobotSimulatorClientAPI::setTimeOut(double timeOutInSec)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return;
+	}
+	b3SetTimeOut(m_data->m_physicsClientHandle,timeOutInSec);
+
+}
+
+
 void b3RobotSimulatorClientAPI::disconnect()
 {
 	if (!isConnected())
@@ -852,4 +864,19 @@ void b3RobotSimulatorClientAPI::stopStateLogging(int stateLoggerUniqueId)
 	commandHandle = b3StateLoggingCommandInit(m_data->m_physicsClientHandle);
 	b3StateLoggingStop(commandHandle, stateLoggerUniqueId);
 	statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
+}
+
+void b3RobotSimulatorClientAPI::resetDebugVisualizerCamera(double cameraDistance, double cameraPitch, double cameraYaw, const b3Vector3& targetPos)
+{
+	b3SharedMemoryCommandHandle commandHandle = b3InitConfigureOpenGLVisualizer(m_data->m_physicsClientHandle);
+	if (commandHandle)
+	{
+	if ((cameraDistance >= 0))
+	{
+		b3Vector3FloatData camTargetPos;
+		targetPos.serializeFloat(camTargetPos);
+		b3ConfigureOpenGLVisualizerSetViewMatrix(commandHandle, cameraDistance, cameraPitch, cameraYaw, camTargetPos.m_floats);			
+	}
+	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
+	}
 }

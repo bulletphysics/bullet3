@@ -85,6 +85,8 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 
 	virtual void	setVisualizerFlagCallback(VisualizerFlagCallback callback);
 
+	virtual void	dumpFramesToVideo(const char* mp4FileName);
+
 };
 
 #endif //OPENGL_GUI_HELPER_H
