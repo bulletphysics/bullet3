@@ -49,56 +49,68 @@ void MinitaurSetup::resetPose(class b3RobotSimulatorClientAPI* sim)
 		sim->setJointMotorControl(m_data->m_quadrupedUniqueId,i,controlArgs);
 	}
 
-	//right front leg
-	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["motor_front_rightR_joint"],1.57);
-	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_front_rightR_link"],-2.2);
-	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["motor_front_rightL_joint"],-1.57);
-	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_front_rightL_link"],2.2);
+	b3Scalar startAngle = B3_HALF_PI;
+	b3Scalar upperLegLength = 11.5;
+	b3Scalar lowerLegLength = 20;
+	b3Scalar kneeAngle = B3_PI+b3Acos(upperLegLength/lowerLegLength);
+		
+	b3Scalar motorDirs[8] = {-1,-1,-1,-1,1,1,1,1};
 	b3JointInfo jointInfo;
 	jointInfo.m_jointType = ePoint2PointType;
-	jointInfo.m_parentFrame[0] = 0;	jointInfo.m_parentFrame[1] = 0.01;	jointInfo.m_parentFrame[2] = 0.2;
-	jointInfo.m_childFrame[0] = 0;	jointInfo.m_childFrame[1] = -0.015;	jointInfo.m_childFrame[2] = 0.2;
-	sim->createConstraint(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_front_rightR_link"],
-		m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_front_rightL_link"],&jointInfo);
-	setDesiredMotorAngle(sim,"motor_front_rightR_joint",1.57);
-	setDesiredMotorAngle(sim,"motor_front_rightL_joint",-1.57);
-
-	//left front leg
-	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["motor_front_leftR_joint"],1.57);
-	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_front_leftR_link"],-2.2);
-	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["motor_front_leftL_joint"],-1.57);
-	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_front_leftL_link"],2.2);
-	jointInfo.m_parentFrame[0] = 0;	jointInfo.m_parentFrame[1] = -0.01;	jointInfo.m_parentFrame[2] = 0.2;
-	jointInfo.m_childFrame[0] = 0;	jointInfo.m_childFrame[1] = 0.015;	jointInfo.m_childFrame[2] = 0.2;
+		//left front leg
+	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["motor_front_leftL_joint"],motorDirs[0] * startAngle);
+	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_front_leftL_link"],motorDirs[0]*kneeAngle);
+	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["motor_front_leftR_joint"],motorDirs[1] * startAngle);
+	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_front_leftR_link"],motorDirs[1]*kneeAngle);
+	
+	jointInfo.m_parentFrame[0] = 0;	jointInfo.m_parentFrame[1] = 0.005;	jointInfo.m_parentFrame[2] = 0.2;
+	jointInfo.m_childFrame[0] = 0;	jointInfo.m_childFrame[1] = 0.01;	jointInfo.m_childFrame[2] = 0.2;
 	sim->createConstraint(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_front_leftR_link"],
 		m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_front_leftL_link"],&jointInfo);
-	setDesiredMotorAngle(sim,"motor_front_leftR_joint", 1.57);
-	setDesiredMotorAngle(sim,"motor_front_leftL_joint", -1.57);
-
-	//right back leg
-  	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["motor_back_rightR_joint"],1.57);
-	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_back_rightR_link"],-2.2);
-	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["motor_back_rightL_joint"],-1.57);
-	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_back_rightL_link"],2.2);
-	jointInfo.m_parentFrame[0] = 0;	jointInfo.m_parentFrame[1] = 0.01;	jointInfo.m_parentFrame[2] = 0.2;
-	jointInfo.m_childFrame[0] = 0;	jointInfo.m_childFrame[1] = -0.015;	jointInfo.m_childFrame[2] = 0.2;
-	sim->createConstraint(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_back_rightR_link"],
-		m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_back_rightL_link"],&jointInfo);
-	setDesiredMotorAngle(sim,"motor_back_rightR_joint", 1.57);
-	setDesiredMotorAngle(sim,"motor_back_rightL_joint", -1.57);
-
+	setDesiredMotorAngle(sim,"motor_front_leftL_joint", motorDirs[0] * startAngle);
+	setDesiredMotorAngle(sim,"motor_front_leftR_joint", motorDirs[1] * startAngle);
+	
 	//left back leg
-	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["motor_back_leftR_joint"],1.57);
-	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_back_leftR_link"],-2.2);
-	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["motor_back_leftL_joint"],-1.57);
-	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_back_leftL_link"],2.2);
-	jointInfo.m_parentFrame[0] = 0;	jointInfo.m_parentFrame[1] = -0.01;	jointInfo.m_parentFrame[2] = 0.2;
-	jointInfo.m_childFrame[0] = 0;	jointInfo.m_childFrame[1] = 0.015;	jointInfo.m_childFrame[2] = 0.2;
+	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["motor_back_leftL_joint"],motorDirs[2] * startAngle);
+	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_back_leftL_link"],motorDirs[2] * kneeAngle);
+	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["motor_back_leftR_joint"],motorDirs[3] * startAngle);
+	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_back_leftR_link"],motorDirs[3] * kneeAngle);
+	jointInfo.m_parentFrame[0] = 0;	jointInfo.m_parentFrame[1] = 0.005;	jointInfo.m_parentFrame[2] = 0.2;
+	jointInfo.m_childFrame[0] = 0;	jointInfo.m_childFrame[1] = 0.01;	jointInfo.m_childFrame[2] = 0.2;
 	sim->createConstraint(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_back_leftR_link"],
 		m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_back_leftL_link"],&jointInfo);
-	setDesiredMotorAngle(sim,"motor_back_leftR_joint", 1.57);
-	setDesiredMotorAngle(sim,"motor_back_leftL_joint", -1.57);
+	setDesiredMotorAngle(sim,"motor_back_leftL_joint", motorDirs[2] * startAngle);
+	setDesiredMotorAngle(sim,"motor_back_leftR_joint", motorDirs[3] * startAngle);
 
+
+	//right front leg
+	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["motor_front_rightL_joint"],motorDirs[4] * startAngle);
+	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_front_rightL_link"],motorDirs[4] * kneeAngle);
+	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["motor_front_rightR_joint"],motorDirs[5]*startAngle);
+	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_front_rightR_link"],motorDirs[5] * kneeAngle);
+
+	
+	
+	jointInfo.m_parentFrame[0] = 0;	jointInfo.m_parentFrame[1] = 0.005;	jointInfo.m_parentFrame[2] = 0.2;
+	jointInfo.m_childFrame[0] = 0;	jointInfo.m_childFrame[1] = 0.01;	jointInfo.m_childFrame[2] = 0.2;
+	sim->createConstraint(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_front_rightR_link"],
+		m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_front_rightL_link"],&jointInfo);
+	setDesiredMotorAngle(sim,"motor_front_rightL_joint",motorDirs[4] * startAngle);
+	setDesiredMotorAngle(sim,"motor_front_rightR_joint",motorDirs[5] * startAngle);
+
+
+	//right back leg
+	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["motor_back_rightL_joint"],motorDirs[6] * startAngle);
+	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_back_rightL_link"],motorDirs[6] * kneeAngle);
+  	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["motor_back_rightR_joint"],motorDirs[7] * startAngle);
+	sim->resetJointState(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_back_rightR_link"],motorDirs[7] * kneeAngle);
+
+	jointInfo.m_parentFrame[0] = 0;	jointInfo.m_parentFrame[1] = 0.005;	jointInfo.m_parentFrame[2] = 0.2;
+	jointInfo.m_childFrame[0] = 0;	jointInfo.m_childFrame[1] = 0.01;	jointInfo.m_childFrame[2] = 0.2;
+	sim->createConstraint(m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_back_rightR_link"],
+		m_data->m_quadrupedUniqueId,*m_data->m_jointNameToId["knee_back_rightL_link"],&jointInfo);
+	setDesiredMotorAngle(sim,"motor_back_rightL_joint", motorDirs[6] * startAngle);
+	setDesiredMotorAngle(sim,"motor_back_rightR_joint", motorDirs[7] * startAngle);
 
 }
 
@@ -109,7 +121,7 @@ int MinitaurSetup::setupMinitaur(class b3RobotSimulatorClientAPI* sim, const b3V
 	args.m_startPosition = startPos;
 	args.m_startOrientation = startOrn;
 
-	m_data->m_quadrupedUniqueId = sim->loadURDF("quadruped/quadruped.urdf",args);
+	m_data->m_quadrupedUniqueId = sim->loadURDF("quadruped/minitaur.urdf",args);
 
 	int numJoints = sim->getNumJoints(m_data->m_quadrupedUniqueId);
 	for (int i=0;i<numJoints;i++)

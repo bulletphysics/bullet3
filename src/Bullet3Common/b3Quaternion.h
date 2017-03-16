@@ -126,15 +126,16 @@ public:
 			sinRoll * cosPitch * cosYaw - cosRoll * sinPitch * sinYaw,
 			cosRoll * cosPitch * cosYaw + sinRoll * sinPitch * sinYaw);
 	}
-  /**@brief Set the quaternion using euler angles 
+ 
+	/**@brief Set the quaternion using euler angles 
    * @param yaw Angle around Z
    * @param pitch Angle around Y
    * @param roll Angle around X */
-	void setEulerZYX(const b3Scalar& yaw, const b3Scalar& pitch, const b3Scalar& roll)
+	void setEulerZYX(const b3Scalar& yawZ, const b3Scalar& pitchY, const b3Scalar& rollX)
 	{
-		b3Scalar halfYaw = b3Scalar(yaw) * b3Scalar(0.5);  
-		b3Scalar halfPitch = b3Scalar(pitch) * b3Scalar(0.5);  
-		b3Scalar halfRoll = b3Scalar(roll) * b3Scalar(0.5);  
+		b3Scalar halfYaw = b3Scalar(yawZ) * b3Scalar(0.5);  
+		b3Scalar halfPitch = b3Scalar(pitchY) * b3Scalar(0.5);  
+		b3Scalar halfRoll = b3Scalar(rollX) * b3Scalar(0.5);  
 		b3Scalar cosYaw = b3Cos(halfYaw);
 		b3Scalar sinYaw = b3Sin(halfYaw);
 		b3Scalar cosPitch = b3Cos(halfPitch);
@@ -145,7 +146,30 @@ public:
                          cosRoll * sinPitch * cosYaw + sinRoll * cosPitch * sinYaw, //y
                          cosRoll * cosPitch * sinYaw - sinRoll * sinPitch * cosYaw, //z
                          cosRoll * cosPitch * cosYaw + sinRoll * sinPitch * sinYaw); //formerly yzx
+		normalize();
 	}
+
+	  /**@brief Get the euler angles from this quaternion
+	   * @param yaw Angle around Z
+	   * @param pitch Angle around Y
+	   * @param roll Angle around X */
+	void getEulerZYX(b3Scalar& yawZ, b3Scalar& pitchY, b3Scalar& rollX) const
+	{
+		b3Scalar squ;
+		b3Scalar sqx;
+		b3Scalar sqy;
+		b3Scalar sqz;
+		b3Scalar sarg;
+		sqx = m_floats[0] * m_floats[0];
+		sqy = m_floats[1] * m_floats[1];
+		sqz = m_floats[2] * m_floats[2];
+		squ = m_floats[3] * m_floats[3];
+		rollX = b3Atan2(2 * (m_floats[1] * m_floats[2] + m_floats[3] * m_floats[0]), squ - sqx - sqy + sqz);
+		sarg = b3Scalar(-2.) * (m_floats[0] * m_floats[2] - m_floats[3] * m_floats[1]);
+		pitchY = sarg <= b3Scalar(-1.0) ? b3Scalar(-0.5) * B3_PI: (sarg >= b3Scalar(1.0) ? b3Scalar(0.5) * B3_PI : b3Asin(sarg));
+		yawZ = b3Atan2(2 * (m_floats[0] * m_floats[1] + m_floats[3] * m_floats[2]), squ + sqx - sqy - sqz);
+	}
+
   /**@brief Add two quaternions
    * @param q The quaternion to add to this one */
 	B3_FORCE_INLINE	b3Quaternion& operator+=(const b3Quaternion& q)

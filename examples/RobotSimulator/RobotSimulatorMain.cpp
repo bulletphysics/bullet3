@@ -19,14 +19,19 @@ int main(int argc, char* argv[])
 
 	//syncBodies is only needed when connecting to an existing physics server that has already some bodies
 	sim->syncBodies();
-	
-	sim->setTimeStep(1./240.);
+	b3Scalar fixedTimeStep = 1./240.;
 
-	sim->setGravity(b3MakeVector3(0,0,-10));
+	sim->setTimeStep(fixedTimeStep);
 
-	int blockId = sim->loadURDF("cube.urdf");
-	b3BodyInfo bodyInfo;
-	sim->getBodyInfo(blockId,&bodyInfo);
+	b3Quaternion q = sim->getQuaternionFromEuler(b3MakeVector3(0.1,0.2,0.3));
+	b3Vector3 rpy;
+	rpy = sim->getEulerFromQuaternion(q);
+
+	sim->setGravity(b3MakeVector3(0,0,-9.8));
+
+	//int blockId = sim->loadURDF("cube.urdf");
+	//b3BodyInfo bodyInfo;
+	//sim->getBodyInfo(blockId,&bodyInfo);
 
 	sim->loadURDF("plane.urdf");
 
@@ -34,15 +39,15 @@ int main(int argc, char* argv[])
 	int minitaurUid = minitaur.setupMinitaur(sim, b3MakeVector3(0,0,.3));
 
 	
-	b3RobotSimulatorLoadUrdfFileArgs args;
-	args.m_startPosition.setValue(2,0,1);
-	int r2d2 = sim->loadURDF("r2d2.urdf",args);
+	//b3RobotSimulatorLoadUrdfFileArgs args;
+	//args.m_startPosition.setValue(2,0,1);
+	//int r2d2 = sim->loadURDF("r2d2.urdf",args);
 
-	b3RobotSimulatorLoadFileResults sdfResults;
-	if (!sim->loadSDF("two_cubes.sdf",sdfResults))
-	{
-		b3Warning("Can't load SDF!\n");
-	}
+	//b3RobotSimulatorLoadFileResults sdfResults;
+	//if (!sim->loadSDF("two_cubes.sdf",sdfResults))
+	//{
+//		b3Warning("Can't load SDF!\n");
+	//}
 
 	b3Clock clock;
 	double startTime = clock.getTimeInSeconds();
@@ -69,7 +74,8 @@ int main(int argc, char* argv[])
 				printf("keyEvent[%d].m_keyCode = %d, state = %d\n", i,keyEvents.m_keyboardEvents[i].m_keyCode,keyEvents.m_keyboardEvents[i].m_keyState);
 			}
 		}
-		b3Clock::usleep(1000*1000);
+		sim->stepSimulation();
+		b3Clock::usleep(1000.*1000.*fixedTimeStep);
 	}
 
 	printf("sim->disconnect\n");
