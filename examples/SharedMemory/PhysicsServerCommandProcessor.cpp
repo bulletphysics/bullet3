@@ -1824,7 +1824,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 						if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_VIDEO_MP4)
 						{
-							if (clientCmd.m_stateLoggingArguments.m_fileName)
+							//if (clientCmd.m_stateLoggingArguments.m_fileName)
 							{
 								int loggerUid = m_data->m_stateLoggersUniqueId++;
 								VideoMP4Loggger* logger = new VideoMP4Loggger(loggerUid,clientCmd.m_stateLoggingArguments.m_fileName,this->m_data->m_guiHelper);
