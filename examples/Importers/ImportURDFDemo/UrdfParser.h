@@ -85,26 +85,23 @@ bool findExistingMeshFile(const std::string& urdf_path, std::string fn,
 	const std::string& error_message_prefix,
 	std::string* out_found_filename, int* out_type); // intended to fill UrdfGeometry::m_meshFileName and Type, but can be used elsewhere
 
-struct UrdfVisual
+struct UrdfShape
 {
 	std::string m_sourceFileLocation;
 	btTransform m_linkLocalFrame;
 	UrdfGeometry m_geometry;
 	std::string m_name;
+};
+
+struct UrdfVisual: UrdfShape
+{
 	std::string m_materialName;
 	bool m_hasLocalMaterial;
 	UrdfMaterial m_localMaterial;
 };
 
-
-
-
-struct UrdfCollision
+struct UrdfCollision: UrdfShape
 {
-	std::string m_sourceFileLocation;
-	btTransform m_linkLocalFrame;
-	UrdfGeometry m_geometry;
-	std::string m_name;
 	int m_flags;
 	int m_collisionGroup;
 	int m_collisionMask;
