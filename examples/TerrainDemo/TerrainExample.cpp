@@ -15,8 +15,8 @@ subject to the following restrictions:
 */
 
 
-#include <array>
 #include <limits>
+#include <cmath>
 #include "TerrainExample.h"
 
 #include "btBulletDynamicsCommon.h"
@@ -43,8 +43,7 @@ struct TerrainExample : public CommonRigidBodyBase
 	}
 };
 
-constexpr int pointsPerSide = 65;
-std::array<float, pointsPerSide*pointsPerSide> points;
+float points[65*65];
 
 void TerrainExample::initPhysics()
 {
@@ -61,6 +60,7 @@ void TerrainExample::initPhysics()
 	float height = 0.0f;
     float min = std::numeric_limits<float>::max();
     float max = std::numeric_limits<float>::min();
+    int pointsPerSide = 65;
 
 
     //Set this to non-zero to add waves to the terrain.
@@ -68,14 +68,14 @@ void TerrainExample::initPhysics()
 
 	for (size_t i = 0; i < pointsPerSide; ++i) {
 		for (size_t j = 0; j < pointsPerSide; ++j) {
-            float pointHeight = height + (std::sin((float)i * 0.75f) * waveHeight);
-            max = std::max(pointHeight, max);
-            min = std::min(pointHeight, min);
+            float pointHeight = height + (sin((float)i * 0.75f) * waveHeight);
+            max = fmax(pointHeight, max);
+            min = fmin(pointHeight, min);
 			points[(i * pointsPerSide) + j] = pointHeight;
  		}
 	}
 
-	btHeightfieldTerrainShape* groundShape = new btHeightfieldTerrainShape(pointsPerSide, pointsPerSide, points.data(), 1.0f, min, max, 1, PHY_FLOAT, false);
+	btHeightfieldTerrainShape* groundShape = new btHeightfieldTerrainShape(pointsPerSide, pointsPerSide, points, 1.0f, min, max, 1, PHY_FLOAT, false);
 	//groundShape->setMargin(0.5);
 
 	m_collisionShapes.push_back(groundShape);
