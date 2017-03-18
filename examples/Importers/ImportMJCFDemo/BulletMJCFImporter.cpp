@@ -152,6 +152,9 @@ struct BulletMJCFImporterInternalData
 	int m_defaultCollisionMask;
 	btScalar m_defaultCollisionMargin;
 
+	// joint defaults
+	std::string m_defaultJointLimited;
+
 	//those collision shapes are deleted by caller (todo: make sure this happens!)
 	btAlignedObjectArray<btCollisionShape*> m_allocatedCollisionShapes;
 
@@ -242,6 +245,17 @@ struct BulletMJCFImporterInternalData
 			if (n=="asset")
 			{
 				parseAssets(child_xml,logger);
+			}
+			if (n=="joint")
+			{
+				// Other attributes here:
+				// armature="1"
+				// damping="1"
+				// limited="true"
+				if (const char* conTypeStr = child_xml->Attribute("limited"))
+				{
+					m_defaultJointLimited = child_xml->Attribute("limited");
+				}
 			}
 			if (n=="geom")
 			{
@@ -366,39 +380,57 @@ struct BulletMJCFImporterInternalData
 		bool isLimited = false;
 		double range[2] = {1,0};
 
+		std::string lim = m_defaultJointLimited;
 		if (limitedStr)
 		{
-			std::string lim = limitedStr;
-			if (lim=="true")
-			{
-				isLimited = true;
-				//parse the 'range' field
-				btArray<std::string> pieces;
-				btArray<float> sizes;
-				btAlignedObjectArray<std::string> strArray;
-				urdfIsAnyOf(" ", strArray);
-				urdfStringSplit(pieces, rangeStr, strArray);
-				for (int i = 0; i < pieces.size(); ++i)
-				{
-					if (!pieces[i].empty())
-					{
-						sizes.push_back(urdfLexicalCast<double>(pieces[i].c_str()));
-					}
-				}
-				if (sizes.size()==2)
-				{
-					range[0] = sizes[0];
-					range[1] = sizes[1];
-				} else
-				{
-					logger->reportWarning("Expected range[2] in joint with limits");
-				}
-
-			}
-		} else
-		{
-//			logger->reportWarning("joint without limited field");
+			lim = limitedStr;
 		}
+		if (lim=="true")
+		{
+			isLimited = true;
+			//parse the 'range' field
+			btArray<std::string> pieces;
+			btArray<float> sizes;
+			btAlignedObjectArray<std::string> strArray;
+			urdfIsAnyOf(" ", strArray);
+			urdfStringSplit(pieces, rangeStr, strArray);
+			for (int i = 0; i < pieces.size(); ++i)
+			{
+				if (!pieces[i].empty())
+				{
+					sizes.push_back(urdfLexicalCast<double>(pieces[i].c_str()));
+				}
+			}
+			if (sizes.size()==2)
+			{
+				// TODO angle units are in "<compiler angle="degree" inertiafromgeom="true"/>
+				range[0] = sizes[0] * M_PI / 180;
+				range[1] = sizes[1] * M_PI / 180;
+			} else
+			{
+				logger->reportWarning("Expected range[2] in joint with limits");
+			}
+		}
+
+		// TODO armature : real, "0" Armature inertia (or rotor inertia) of all
+		// degrees of freedom created by this joint. These are constants added to the
+		// diagonal of the inertia matrix in generalized coordinates. They make the
+		// simulation more stable, and often increase physical realism. This is because
+		// when a motor is attached to the system with a transmission that amplifies
+		// the motor force by c, the inertia of the rotor (i.e. the moving part of the
+		// motor) is amplified by c*c. The same holds for gears in the early stages of
+		// planetary gear boxes. These extra inertias often dominate the inertias of
+		// the robot parts that are represented explicitly in the model, and the
+		// armature attribute is the way to model them.
+
+		// TODO damping : real, "0" Damping applied to all degrees of
+		// freedom created by this joint. Unlike friction loss
+		// which is computed by the constraint solver, damping is
+		// simply a force linear in velocity. It is included in
+		// the passive forces. Despite this simplicity, larger
+		// damping values can make numerical integrators unstable,
+		// which is why our Euler integrator handles damping
+		// implicitly. See Integration in the Computation chapter.
 
 		bool jointHandled = false;
 		const UrdfLink* linkPtr = getLink(modelIndex,linkIndex);
@@ -448,11 +480,11 @@ struct BulletMJCFImporterInternalData
 			jointPtr->m_parentLinkToJointTransform = parentLinkToJointTransform;
 			jointPtr->m_type = ejtype;
 			int numJoints = m_models[modelIndex]->m_joints.size();
-			
+
 			//range
 			jointPtr->m_lowerLimit = range[0];
 			jointPtr->m_upperLimit = range[1];
-			
+
 			if (nameStr)
 			{
 				jointPtr->m_name =nameStr; 
