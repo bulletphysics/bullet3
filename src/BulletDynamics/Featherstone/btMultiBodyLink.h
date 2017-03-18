@@ -109,7 +109,7 @@ struct btMultibodyLink
     btVector3 m_appliedForce;    // In WORLD frame
     btVector3 m_appliedTorque;   // In WORLD frame
 
-btVector3 m_appliedConstraintForce;    // In WORLD frame
+    btVector3 m_appliedConstraintForce;    // In WORLD frame
     btVector3 m_appliedConstraintTorque;   // In WORLD frame
 
 	btScalar m_jointPos[7];
