@@ -575,7 +575,7 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement*
   if (name_char)
 	  visual.m_name = name_char;
 
-	visual.m_hasLocalMaterial = false;
+	visual.m_geometry.m_hasLocalMaterial = false;
 	
   // Material
   TiXmlElement *mat = config->FirstChildElement("material");
@@ -597,7 +597,7 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement*
             matPtr->m_rgbaColor = rgba;
             
             visual.m_materialName = matPtr->m_name;
-            visual.m_hasLocalMaterial = true;
+            visual.m_geometry.m_hasLocalMaterial = true;
         }
     } 
     else
@@ -616,11 +616,11 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement*
           TiXmlElement *c = mat->FirstChildElement("color");
           if (t||c)
           {
-              if (parseMaterial(visual.m_localMaterial, mat,logger))
+              if (parseMaterial(visual.m_geometry.m_localMaterial, mat,logger))
               {
-                  UrdfMaterial* matPtr = new UrdfMaterial(visual.m_localMaterial);
+                  UrdfMaterial* matPtr = new UrdfMaterial(visual.m_geometry.m_localMaterial);
                   model.m_materials.insert(matPtr->m_name.c_str(),matPtr);
-                  visual.m_hasLocalMaterial = true;
+                  visual.m_geometry.m_hasLocalMaterial = true;
               }
           }
       }
@@ -1408,12 +1408,12 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 				for (int i=0;i<link->m_visualArray.size();i++)
 				{
 					UrdfVisual& vis = link->m_visualArray.at(i);
-					if (!vis.m_hasLocalMaterial && vis.m_materialName.c_str())
+					if (!vis.m_geometry.m_hasLocalMaterial && vis.m_materialName.c_str())
 					{
 						UrdfMaterial** mat = m_urdf2Model.m_materials.find(vis.m_materialName.c_str());
 						if (mat && *mat)
 						{
-							vis.m_localMaterial = **mat;
+							vis.m_geometry.m_localMaterial = **mat;
 						} else
 						{
 							//logger->reportError("Cannot find material with name:");
@@ -1603,12 +1603,12 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
                     for (int i=0;i<link->m_visualArray.size();i++)
                     {
                         UrdfVisual& vis = link->m_visualArray.at(i);
-                        if (!vis.m_hasLocalMaterial && vis.m_materialName.c_str())
+                        if (!vis.m_geometry.m_hasLocalMaterial && vis.m_materialName.c_str())
                         {
                             UrdfMaterial** mat = localModel->m_materials.find(vis.m_materialName.c_str());
                             if (mat && *mat)
                             {
-                                vis.m_localMaterial = **mat;
+                                vis.m_geometry.m_localMaterial = **mat;
                             } else
                             {
                                 //logger->reportError("Cannot find material with name:");

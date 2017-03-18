@@ -155,6 +155,9 @@ struct BulletMJCFImporterInternalData
 	// joint defaults
 	std::string m_defaultJointLimited;
 
+	// geom defaults
+	std::string m_defaultGeomRgba;
+
 	//those collision shapes are deleted by caller (todo: make sure this happens!)
 	btAlignedObjectArray<btCollisionShape*> m_allocatedCollisionShapes;
 
@@ -269,6 +272,11 @@ struct BulletMJCFImporterInternalData
 				if (conAffinityStr)
 				{
 					m_defaultCollisionMask = urdfLexicalCast<int>(conAffinityStr);
+				}
+				const char* rgba = child_xml->Attribute("rgba");
+				if (rgba)
+				{
+					m_defaultGeomRgba = rgba;
 				}
 			}
 		}
@@ -404,8 +412,8 @@ struct BulletMJCFImporterInternalData
 			if (sizes.size()==2)
 			{
 				// TODO angle units are in "<compiler angle="degree" inertiafromgeom="true"/>
-				range[0] = sizes[0] * M_PI / 180;
-				range[1] = sizes[1] * M_PI / 180;
+				range[0] = sizes[0] * B3_PI / 180;
+				range[1] = sizes[1] * B3_PI / 180;
 			} else
 			{
 				logger->reportWarning("Expected range[2] in joint with limits");
@@ -526,10 +534,23 @@ struct BulletMJCFImporterInternalData
 
 		
 
-//		const char* rgba = link_xml->Attribute("rgba");
 		const char* gType = link_xml->Attribute("type");
 		const char* sz = link_xml->Attribute("size");
 		const char* posS = link_xml->Attribute("pos");
+
+		std::string rgba = m_defaultGeomRgba;
+		if (const char* rgbattr = link_xml->Attribute("rgba"))
+		{
+			rgba = rgbattr;
+		}
+		if (!rgba.empty())
+		{
+			// "0 0.7 0.7 1"
+			parseVector4(geom.m_localMaterial.m_rgbaColor, rgba);
+			geom.m_hasLocalMaterial = true;
+			geom.m_localMaterial.m_name = rgba;
+		}
+
 		if (posS)
 		{
 			btVector3 pos(0,0,0);

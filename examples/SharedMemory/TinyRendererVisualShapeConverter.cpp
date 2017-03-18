@@ -178,6 +178,12 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 	visualShapeOut.m_dimensions[1] = 0;
 	visualShapeOut.m_dimensions[2] = 0;
 	visualShapeOut.m_meshAssetFileName[0] = 0;
+	if (visual->m_geometry.m_hasLocalMaterial) {
+		visualShapeOut.m_rgbaColor[0] = visual->m_geometry.m_localMaterial.m_rgbaColor[0];
+		visualShapeOut.m_rgbaColor[1] = visual->m_geometry.m_localMaterial.m_rgbaColor[1];
+		visualShapeOut.m_rgbaColor[2] = visual->m_geometry.m_localMaterial.m_rgbaColor[2];
+		visualShapeOut.m_rgbaColor[3] = visual->m_geometry.m_localMaterial.m_rgbaColor[3];
+	}
 	
 	GLInstanceGraphicsShape* glmesh = 0;
 
@@ -215,23 +221,33 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 		{
 			btVector3 p1 = visual->m_geometry.m_capsuleFrom;
 			btVector3 p2 = visual->m_geometry.m_capsuleTo;
-			btVector3 v      =  p2 - p1;
-			btVector3 center = (p2 + p1) * 0.5;
-			btScalar rad = visual->m_geometry.m_capsuleRadius;
-			btVector3 up_vector(0,0,1);
-			btVector3 dir  = v.normalized();
-			btVector3 axis = dir.cross(up_vector);
-			if (axis.fuzzyZero())
-			{
-				axis = btVector3(0,0,1);
+			btTransform tr;
+			tr.setIdentity();
+			btScalar rad, len;
+			if (visual->m_geometry.m_hasFromTo) {
+				btVector3 v      =  p2 - p1;
+				btVector3 center = (p2 + p1) * 0.5;
+				btVector3 up_vector(0,0,1);
+				btVector3 dir  = v.normalized();
+				btVector3 axis = dir.cross(up_vector);
+				if (axis.fuzzyZero())
+				{
+					axis = btVector3(0,0,1);
+				}
+				else
+				{
+					axis.normalize();
+				}
+				btQuaternion q(axis, -acos(dir.dot(up_vector)));
+				btTransform capsule_orient(q, center);
+				tr = visual->m_linkLocalFrame * capsule_orient;
+				len = v.length();
+				rad = visual->m_geometry.m_capsuleRadius;
+			} else {
+				tr = visual->m_linkLocalFrame;
+				len = visual->m_geometry.m_capsuleHalfHeight;
+				rad = visual->m_geometry.m_capsuleRadius;
 			}
-			else
-			{
-				axis.normalize();
-			}
-			btQuaternion q(axis, -acos(dir.dot(up_vector)));
-			btTransform capsule_orient(q, center);
-			btTransform tr = visual->m_linkLocalFrame * capsule_orient;
 			visualShapeOut.m_localVisualFrame[0] = tr.getOrigin()[0];
 			visualShapeOut.m_localVisualFrame[1] = tr.getOrigin()[1];
 			visualShapeOut.m_localVisualFrame[2] = tr.getOrigin()[2];
@@ -239,7 +255,7 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 			visualShapeOut.m_localVisualFrame[4] = tr.getRotation()[1];
 			visualShapeOut.m_localVisualFrame[5] = tr.getRotation()[2];
 			visualShapeOut.m_localVisualFrame[6] = tr.getRotation()[3];
-			visualShapeOut.m_dimensions[0] = v.length();
+			visualShapeOut.m_dimensions[0] = len;
 			visualShapeOut.m_dimensions[1] = rad;
 			break;
 		}

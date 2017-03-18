@@ -18,9 +18,13 @@ struct ErrorLogger
 
 struct UrdfMaterial
 {
-	std::string m_name;	
+	std::string m_name;
 	std::string m_textureFilename;
-	btVector4 m_rgbaColor;
+	btVector4 m_rgbaColor; // [0]==r [1]==g [2]==b [3]==a
+	UrdfMaterial():
+		m_rgbaColor(0.8, 0.8, 0.8, 1)
+	{
+	}
 };
 
 struct UrdfInertia
@@ -79,6 +83,9 @@ struct UrdfGeometry
 	int         m_meshFileType;
 	std::string m_meshFileName;
 	btVector3   m_meshScale;
+
+	UrdfMaterial m_localMaterial;
+	bool m_hasLocalMaterial;
 };
 
 bool findExistingMeshFile(const std::string& urdf_path, std::string fn,
@@ -96,8 +103,6 @@ struct UrdfShape
 struct UrdfVisual: UrdfShape
 {
 	std::string m_materialName;
-	bool m_hasLocalMaterial;
-	UrdfMaterial m_localMaterial;
 };
 
 struct UrdfCollision: UrdfShape
