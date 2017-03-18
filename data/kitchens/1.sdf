@@ -1,0 +1,6783 @@
+<sdf version='1.6'>
+	<world name='default'>
+	<gravity>0 0 -9.8</gravity>
+		<model name='part0.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d0'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_0'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part0.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part0.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.109800 0.349000 0.694100 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part1.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d1'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_1'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part1.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part1.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.839200 0.898000 0.651000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part2.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d2'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_2'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part2.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part2.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.698000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part3.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d3'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_3'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part3.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part3.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.698000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part4.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d4'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_4'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part4.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part4.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.698000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part5.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d5'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_5'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part5.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part5.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.698000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part6.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d6'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_6'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part6.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part6.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.698000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part7.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d7'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_7'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part7.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part7.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.698000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part8.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d8'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_8'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part8.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part8.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.698000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part9.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d9'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_9'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part9.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part9.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.698000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part10.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d10'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_10'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part10.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part10.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.058800 0.058800 0.058800 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part11.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d11'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_11'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part11.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part11.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.058800 0.058800 0.058800 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part12.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d12'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_12'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part12.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part12.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.058800 0.058800 0.058800 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part13.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d13'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_13'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part13.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part13.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.058800 0.058800 0.058800 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part14.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d14'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_14'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part14.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part14.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part15.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d15'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_15'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part15.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part15.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part16.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d16'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_16'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part16.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part16.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part17.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d17'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_17'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part17.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part17.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part18.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d18'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_18'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part18.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part18.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part19.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d19'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_19'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part19.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part19.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part20.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d20'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_20'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part20.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part20.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part21.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d21'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_21'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part21.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part21.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part22.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d22'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_22'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part22.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part22.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part23.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d23'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_23'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part23.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part23.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part24.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d24'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_24'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part24.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part24.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part25.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d25'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_25'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part25.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part25.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part26.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d26'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_26'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part26.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part26.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part27.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d27'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_27'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part27.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part27.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part28.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d28'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_28'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part28.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part28.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.341200 0.878400 0.776500 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part29.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d29'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_29'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part29.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part29.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.341200 0.878400 0.776500 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part30.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d30'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_30'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part30.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part30.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.341200 0.878400 0.776500 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part31.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d31'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_31'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part31.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part31.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.341200 0.878400 0.776500 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part32.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d32'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_32'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part32.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part32.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.341200 0.878400 0.776500 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part33.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d33'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_33'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part33.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part33.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.341200 0.878400 0.776500 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part34.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d34'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_34'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part34.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part34.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part35.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d35'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_35'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part35.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part35.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part36.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d36'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_36'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part36.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part36.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part37.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d37'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_37'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part37.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part37.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part38.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d38'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_38'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part38.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part38.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part39.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d39'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_39'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part39.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part39.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part40.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d40'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_40'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part40.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part40.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part41.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d41'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_41'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part41.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part41.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part42.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d42'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_42'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part42.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part42.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part43.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d43'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_43'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part43.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part43.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part44.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d44'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_44'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part44.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part44.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part45.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d45'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_45'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part45.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part45.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part46.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d46'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_46'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part46.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part46.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part47.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d47'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_47'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part47.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part47.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part48.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d48'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_48'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part48.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part48.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part49.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d49'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_49'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part49.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part49.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part50.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d50'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_50'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part50.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part50.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part51.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d51'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_51'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part51.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part51.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part52.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d52'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_52'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part52.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part52.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part53.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d53'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_53'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part53.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part53.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part54.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d54'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_54'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part54.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part54.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part55.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d55'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_55'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part55.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part55.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part56.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d56'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_56'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part56.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part56.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part57.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d57'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_57'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part57.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part57.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part58.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d58'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_58'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part58.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part58.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part59.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d59'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_59'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part59.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part59.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part60.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d60'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_60'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part60.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part60.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part61.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d61'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_61'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part61.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part61.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part62.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d62'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_62'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part62.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part62.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part63.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d63'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_63'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part63.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part63.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part64.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d64'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_64'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part64.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part64.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part65.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d65'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_65'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part65.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part65.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.337300 0.337300 0.337300 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part66.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d66'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_66'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part66.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part66.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part67.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d67'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_67'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part67.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part67.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.102000 0.694100 0.345100 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part68.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d68'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_68'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part68.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part68.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part69.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d69'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_69'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part69.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part69.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part70.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d70'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_70'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part70.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part70.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part71.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d71'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_71'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part71.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part71.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part72.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d72'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_72'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part72.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part72.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part73.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d73'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_73'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part73.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part73.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part74.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d74'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_74'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part74.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part74.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part75.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d75'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_75'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part75.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part75.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part76.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d76'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_76'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part76.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part76.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part77.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d77'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_77'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part77.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part77.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part78.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d78'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_78'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part78.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part78.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part79.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d79'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_79'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part79.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part79.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part80.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d80'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_80'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part80.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part80.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part81.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d81'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_81'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part81.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part81.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part82.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d82'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_82'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part82.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part82.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part83.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d83'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_83'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part83.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part83.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part84.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d84'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_84'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part84.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part84.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part85.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d85'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_85'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part85.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part85.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part86.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d86'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_86'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part86.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part86.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part87.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d87'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_87'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part87.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part87.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part88.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d88'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_88'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part88.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part88.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part89.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d89'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_89'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part89.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part89.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part90.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d90'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_90'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part90.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part90.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part91.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d91'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_91'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part91.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part91.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part92.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d92'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_92'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part92.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part92.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part93.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d93'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_93'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part93.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part93.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part94.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d94'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_94'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part94.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part94.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part95.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d95'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_95'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part95.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part95.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part96.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d96'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_96'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part96.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part96.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part97.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d97'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_97'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part97.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part97.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part98.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d98'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_98'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part98.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part98.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part99.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d99'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_99'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part99.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part99.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part100.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d100'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_100'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part100.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part100.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part101.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d101'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_101'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part101.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part101.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part102.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d102'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_102'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part102.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part102.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part103.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d103'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_103'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part103.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part103.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part104.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d104'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_104'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part104.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part104.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part105.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d105'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_105'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part105.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part105.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.000000 0.000000 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part106.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d106'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_106'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part106.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part106.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.600000 0.894100 0.600000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part107.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d107'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_107'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part107.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part107.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.690200 0.102000 0.102000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part108.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d108'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_108'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part108.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part108.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.600000 0.894100 0.600000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part109.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d109'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_109'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part109.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part109.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>1.000000 1.000000 1.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part110.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d110'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_110'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part110.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part110.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>1.000000 1.000000 1.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part111.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d111'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_111'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part111.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part111.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>1.000000 1.000000 1.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part112.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d112'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_112'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part112.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part112.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>1.000000 1.000000 1.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part113.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d113'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_113'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part113.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part113.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>1.000000 0.874500 0.498000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part114.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d114'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_114'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part114.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part114.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.647100 0.403900 0.321600 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part115.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d115'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_115'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part115.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part115.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>1.000000 1.000000 1.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part116.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d116'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_116'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part116.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part116.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>1.000000 0.874500 0.498000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part117.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d117'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_117'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part117.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part117.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>1.000000 1.000000 1.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part118.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d118'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_118'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part118.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part118.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>1.000000 1.000000 1.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part119.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d119'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_119'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part119.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part119.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.647100 0.403900 0.321600 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part120.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d120'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_120'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part120.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part120.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>1.000000 1.000000 1.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part121.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d121'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_121'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part121.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part121.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>1.000000 1.000000 1.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part122.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d122'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_122'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part122.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part122.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>1.000000 1.000000 1.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part123.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d123'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_123'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part123.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part123.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>1.000000 1.000000 1.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part124.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d124'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_124'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part124.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part124.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>1.000000 1.000000 1.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part125.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d125'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_125'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part125.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part125.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.102000 0.694100 0.345100 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part126.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d126'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_126'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part126.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part126.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part127.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d127'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_127'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part127.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part127.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part128.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d128'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_128'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part128.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part128.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part129.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d129'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_129'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part129.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part129.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part130.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d130'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_130'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part130.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part130.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part131.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d131'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_131'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part131.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part131.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part132.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d132'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_132'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part132.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part132.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part133.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d133'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_133'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part133.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part133.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part134.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d134'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_134'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part134.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part134.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part135.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d135'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_135'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part135.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part135.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part136.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d136'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_136'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part136.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part136.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part137.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d137'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_137'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part137.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part137.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part138.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d138'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_138'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part138.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part138.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part139.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d139'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_139'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part139.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part139.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part140.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d140'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_140'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part140.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part140.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part141.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d141'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_141'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part141.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part141.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part142.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d142'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_142'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part142.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part142.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part143.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d143'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_143'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part143.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part143.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.196100 0.196100 0.196100 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part144.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d144'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_144'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part144.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part144.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.909800 0.909800 0.909800 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part145.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d145'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_145'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part145.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part145.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.447100 0.125500 0.125500 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part146.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d146'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part146.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.145100 0.145100 0.145100 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part147.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d147'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_147'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part147.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part147.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part148.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d148'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_148'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part148.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part148.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.447100 0.125500 0.125500 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part149.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d149'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_149'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part149.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part149.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.145100 0.145100 0.145100 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part150.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d150'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_150'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part150.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part150.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.145100 0.145100 0.145100 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part151.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d151'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_151'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part151.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part151.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.784300 0.682400 0.466700 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part152.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d152'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_152'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part152.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part152.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.352900 0.682400 0.000000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part153.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d153'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_153'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part153.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part153.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part154.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d154'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_154'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part154.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part154.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part155.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d155'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_155'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part155.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part155.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part156.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d156'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_156'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part156.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part156.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part157.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d157'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_157'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part157.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part157.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.196100 0.196100 0.196100 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part158.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d158'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_158'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part158.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part158.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part159.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d159'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_159'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part159.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part159.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part160.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d160'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_160'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part160.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part160.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part161.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d161'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_161'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part161.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part161.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part162.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d162'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_162'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part162.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part162.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.196100 0.196100 0.196100 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part163.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d163'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_163'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part163.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part163.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part164.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d164'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_164'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part164.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part164.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part165.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d165'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_165'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part165.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part165.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part166.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d166'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_166'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part166.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part166.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part167.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d167'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_167'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part167.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part167.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part168.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d168'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_168'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part168.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part168.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part169.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d169'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_169'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part169.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part169.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part170.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d170'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_170'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part170.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part170.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.451000 0.451000 0.451000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part171.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d171'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_171'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part171.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part171.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>0.647100 0.403900 0.321600 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part172.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d172'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_172'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part172.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part172.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>1.000000 0.874500 0.498000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+		<model name='part173.obj'>
+			<static>1</static>
+			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
+			<link name='link_d173'>
+			<inertial>
+			<mass>0</mass>
+			<inertia>
+			<ixx>0.166667</ixx>
+			<ixy>0</ixy>
+			<ixz>0</ixz>
+			<iyy>0.166667</iyy>
+			<iyz>0</iyz>
+			<izz>0.166667</izz>
+			</inertia>
+			</inertial>
+			<collision concave='yes' name='collision_173'>
+			<geometry>
+			<mesh>
+			<scale>.1 .1 .1</scale>
+				<uri>fatihrmutfak/part173.obj</uri>
+			</mesh>
+			</geometry>
+			  </collision>
+			<visual name='visual'>
+				<geometry>
+				<mesh>
+					<scale>.1 .1 .1</scale>
+					<uri>fatihrmutfak/part173.obj</uri>
+				</mesh>
+				</geometry>
+			<material>
+				<ambient>1 0 0 1</ambient>
+				<diffuse>1.000000 0.874500 0.498000 1</diffuse>
+				<specular>0.1 0.1 0.1 1</specular>
+				<emissive>0 0 0 0</emissive>
+			 </material>
+			 </visual>
+			 </link>
+			</model>
+	</world>
+</sdf>

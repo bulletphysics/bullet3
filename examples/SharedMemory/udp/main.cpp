@@ -133,9 +133,11 @@ int main(int argc, char *argv[])
                         {
 						if (gVerboseNetworkMessagesServer)
 						{
+							int dataLen = (int)event.packet->dataLength;
+
 							printf("A packet of length %u containing '%s' was "
 								"received from %s on channel %u.\n",
-								event.packet->dataLength,
+								dataLen,
 								event.packet->data,
 								event.peer->data,
 								event.channelID);

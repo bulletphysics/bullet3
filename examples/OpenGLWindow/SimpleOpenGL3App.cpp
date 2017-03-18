@@ -774,20 +774,22 @@ void SimpleOpenGL3App::swapBuffer()
 			m_data->m_frameDumpPngFileName = 0;
         }
     }
- m_window->endRendering();
-        m_window->startRendering();
+	m_window->endRendering();
+	m_window->startRendering();
 }
 
 // see also http://blog.mmacklin.com/2013/06/11/real-time-video-capture-with-ffmpeg/
 void SimpleOpenGL3App::dumpFramesToVideo(const char* mp4FileName)
 {
-    int width = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenWidth();
-    int height = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenHeight();
-    char cmd[8192];
+	if (mp4FileName)
+	{
+		int width = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenWidth();
+		int height = (int)m_window->getRetinaScale()*m_instancingRenderer->getScreenHeight();
+		char cmd[8192];
 
 #ifdef _WIN32
 	sprintf(cmd, "ffmpeg -r 60 -f rawvideo -pix_fmt rgba -s %dx%d -i - "
-		"-threads 0 -y -b 50000k  -t 20 -c:v libx264 -preset slow -crf 22 -an   -pix_fmt yuv420p -vf vflip %s", width, height, mp4FileName);
+		"-threads 0 -y -b:v 50000k  -t 20 -c:v libx264 -preset slow -crf 22 -an   -pix_fmt yuv420p -vf vflip %s", width, height, mp4FileName);
 
     //sprintf(cmd, "ffmpeg -r 60 -f rawvideo -pix_fmt rgba   -s %dx%d -i - "
     //		"-y -crf 0  -b:v 1500000 -an -vcodec h264 -vf vflip  %s", width, height, mp4FileName);
@@ -803,15 +805,25 @@ void SimpleOpenGL3App::dumpFramesToVideo(const char* mp4FileName)
     //              sprintf(cmd,"ffmpeg -r 60 -f rawvideo -pix_fmt rgba -s %dx%d -i - "
     //              "-threads 0 -preset fast -y -crf 21 -vf vflip %s",width,height,mp4FileName);
 
-    if (m_data->m_ffmpegFile)
-    {
-        pclose(m_data->m_ffmpegFile);
-    }
-	if (mp4FileName)
-	{
-		m_data->m_ffmpegFile = popen(cmd, "w");
+		if (m_data->m_ffmpegFile)
+		{
+			pclose(m_data->m_ffmpegFile);
+		}
+		if (mp4FileName)
+		{
+			m_data->m_ffmpegFile = popen(cmd, "w");
 
-		m_data->m_frameDumpPngFileName = mp4FileName;
+			m_data->m_frameDumpPngFileName = mp4FileName;
+		}
+	} else
+	{
+		if (m_data->m_ffmpegFile)
+		{
+			fflush(m_data->m_ffmpegFile);
+			pclose(m_data->m_ffmpegFile);
+			m_data->m_frameDumpPngFileName = 0;
+		}
+		m_data->m_ffmpegFile = 0;
 	}
 }
 void SimpleOpenGL3App::dumpNextFrameToPng(const char* filename)

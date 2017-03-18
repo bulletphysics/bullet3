@@ -188,6 +188,8 @@ bool PhysicsServerSharedMemory::connectSharedMemory( struct GUIHelperInterface* 
 
 void PhysicsServerSharedMemory::disconnectSharedMemory(bool deInitializeSharedMemory)
 {
+	m_data->m_commandProcessor->deleteDynamicsWorld();
+
 	m_data->m_commandProcessor->setGuiHelper(0);
 
 	if (m_data->m_verboseOutput)
@@ -225,9 +227,9 @@ void PhysicsServerSharedMemory::releaseSharedMemory()
 }
 
 
-void PhysicsServerSharedMemory::stepSimulationRealTime(double dtInSec, const struct b3VRControllerEvent* vrEvents, int numVREvents)
+void PhysicsServerSharedMemory::stepSimulationRealTime(double dtInSec, const struct b3VRControllerEvent* vrEvents, int numVREvents, const struct b3KeyboardEvent* keyEvents, int numKeyEvents)
 {
-	m_data->m_commandProcessor->stepSimulationRealTime(dtInSec,vrEvents, numVREvents);
+	m_data->m_commandProcessor->stepSimulationRealTime(dtInSec,vrEvents, numVREvents, keyEvents,numKeyEvents);
 }
 
 void PhysicsServerSharedMemory::enableRealTimeSimulation(bool enableRealTimeSim)

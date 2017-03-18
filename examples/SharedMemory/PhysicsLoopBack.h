@@ -72,8 +72,12 @@ public:
 
 	virtual void getCachedVREvents(struct b3VREventsData* vrEventsData);
 
+	virtual void getCachedKeyboardEvents(struct b3KeyboardEventsData* keyboardEventsData);
+
 	virtual void getCachedRaycastHits(struct b3RaycastInformation* raycastHits);
 
+	virtual void setTimeOut(double timeOutInSeconds);
+	virtual double getTimeOut() const;
 };
 
 #endif //PHYSICS_LOOP_BACK_H

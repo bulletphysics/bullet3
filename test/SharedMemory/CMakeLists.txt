@@ -56,15 +56,19 @@ ENDIF()
                         ../../examples/SharedMemory/PosixSharedMemory.h
                         ../../examples/Utils/b3ResourcePath.cpp
                         ../../examples/Utils/b3ResourcePath.h
-									      ../../examples/SharedMemory/TinyRendererVisualShapeConverter.cpp
-												../../examples/SharedMemory/TinyRendererVisualShapeConverter.h
-												../../examples/OpenGLWindow/SimpleCamera.cpp
-												../../examples/OpenGLWindow/SimpleCamera.h
-												../../examples/TinyRenderer/geometry.cpp
-												../../examples/TinyRenderer/model.cpp
-												../../examples/TinyRenderer/tgaimage.cpp
-												../../examples/TinyRenderer/our_gl.cpp
-												../../examples/TinyRenderer/TinyRenderer.cpp
+                        ../../examples/Utils/b3Clock.cpp
+                        ../../examples/Utils/b3Clock.h
+						../../examples/Utils/RobotLoggingUtil.cpp
+                        ../../examples/Utils/RobotLoggingUtil.h
+					    ../../examples/SharedMemory/TinyRendererVisualShapeConverter.cpp
+						../../examples/SharedMemory/TinyRendererVisualShapeConverter.h
+						../../examples/OpenGLWindow/SimpleCamera.cpp
+						../../examples/OpenGLWindow/SimpleCamera.h
+						../../examples/TinyRenderer/geometry.cpp
+						../../examples/TinyRenderer/model.cpp
+						../../examples/TinyRenderer/tgaimage.cpp
+						../../examples/TinyRenderer/our_gl.cpp
+						../../examples/TinyRenderer/TinyRenderer.cpp
                         ../../examples/ThirdPartyLibs/tinyxml/tinystr.cpp
                         ../../examples/ThirdPartyLibs/tinyxml/tinyxml.cpp
                         ../../examples/ThirdPartyLibs/tinyxml/tinyxmlerror.cpp

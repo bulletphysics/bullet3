@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import pybullet
 import time
 
-pybullet.connect(pybullet.DIRECT)
+pybullet.connect(pybullet.GUI)
 pybullet.loadURDF("r2d2.urdf")
 
 camTargetPos = [0,0,0]
@@ -18,8 +18,8 @@ pitch = 10.0
 roll=0
 upAxisIndex = 2
 camDistance = 4
-pixelWidth = 1920
-pixelHeight = 1080
+pixelWidth = 1024
+pixelHeight = 768
 nearPlane = 0.01
 farPlane = 1000
 
@@ -31,7 +31,7 @@ for pitch in range (0,360,10) :
     viewMatrix = pybullet.computeViewMatrixFromYawPitchRoll(camTargetPos, camDistance, yaw, pitch, roll, upAxisIndex)
     aspect = pixelWidth / pixelHeight;
     projectionMatrix = pybullet.computeProjectionMatrixFOV(fov, aspect, nearPlane, farPlane);
-    img_arr = pybullet.getCameraImage(pixelWidth, pixelHeight, viewMatrix,projectionMatrix, [0,1,0])
+    img_arr = pybullet.getCameraImage(pixelWidth, pixelHeight, viewMatrix,projectionMatrix, [0,1,0],renderer=pybullet.ER_BULLET_HARDWARE_OPENGL)
     stop = time.time()
     print ("renderImage %f" % (stop - start))
 
@@ -40,13 +40,12 @@ for pitch in range (0,360,10) :
     rgb=img_arr[2] #color data RGB
     dep=img_arr[3] #depth data
 
-    print 'width = %d height = %d' % (w,h)
+    print ('width = %d height = %d' % (w,h))
 
     #note that sending the data to matplotlib is really slow
-    #show
+
     plt.imshow(rgb,interpolation='none')
-    #plt.show()
-    plt.pause(0.01)
+    plt.pause(0.001)
 
 main_stop = time.time()
 

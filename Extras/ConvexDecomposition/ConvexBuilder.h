@@ -40,13 +40,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vlookup.h"
 #include "LinearMath/btAlignedObjectArray.h"
 
-using namespace ConvexDecomposition;
-
 
 class CHull
 {
 public:
-	CHull(const ConvexResult &result);
+	CHull(const ConvexDecomposition::ConvexResult &result);
 
 	~CHull(void);
 
@@ -56,7 +54,7 @@ public:
 	float          mMax[3];
 	float          mVolume;
 	float          mDiagonal; // long edge..
-	ConvexResult  *mResult;
+	ConvexDecomposition::ConvexResult  *mResult;
 };
 
 // Usage: std::sort( list.begin(), list.end(), StringSortRef() );
@@ -75,23 +73,23 @@ typedef btAlignedObjectArray< CHull * > CHullVector;
 
 
 
-class ConvexBuilder : public ConvexDecompInterface
+class ConvexBuilder : public ConvexDecomposition::ConvexDecompInterface
 {
 public:
-	ConvexBuilder(ConvexDecompInterface *callback);
+	ConvexBuilder(ConvexDecomposition::ConvexDecompInterface *callback);
 
 	virtual ~ConvexBuilder(void);
 
 	bool isDuplicate(unsigned int i1,unsigned int i2,unsigned int i3,
 		unsigned int ci1,unsigned int ci2,unsigned int ci3);
 
-	void getMesh(const ConvexResult &cr,VertexLookup vc,UintVector &indices);
+	void getMesh(const ConvexDecomposition::ConvexResult &cr,VertexLookup vc,UintVector &indices);
 
 	CHull * canMerge(CHull *a,CHull *b);
 
 	bool combineHulls(void);
 
-	unsigned int process(const DecompDesc &desc);
+	unsigned int process(const ConvexDecomposition::DecompDesc &desc);
 
 	virtual void ConvexDebugTri(const float *p1,const float *p2,const float *p3,unsigned int color);
 
@@ -100,7 +98,7 @@ public:
 
 	virtual void ConvexDebugBound(const float *bmin,const float *bmax,unsigned int color);
 
-	virtual void ConvexDecompResult(ConvexResult &result);
+	virtual void ConvexDecompResult(ConvexDecomposition::ConvexResult &result);
 
 	void sortChulls(CHullVector &hulls);
 

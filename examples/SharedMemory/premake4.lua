@@ -1,5 +1,5 @@
 
-project "App_SharedMemoryPhysics"
+project "App_PhysicsServer_SharedMemory"
 
 if _OPTIONS["ios"] then
 	kind "WindowedApp"
@@ -76,7 +76,9 @@ myfiles =
 	"../Importers/ImportMJCFDemo/BulletMJCFImporter.cpp",
 	"../Importers/ImportMJCFDemo/BulletMJCFImporter.h",
 	"../Utils/b3ResourcePath.cpp",
-	"../Utils/b3Clock.cpp",	
+	"../Utils/b3Clock.cpp",
+	"../Utils/RobotLoggingUtil.cpp",
+	"../Utils/RobotLoggingUtil.h",
 	"../Utils/ChromeTraceUtil.cpp",
 	"../Utils/ChromeTraceUtil.h",
 	"../../Extras/Serialize/BulletWorldImporter/*",
@@ -139,7 +141,7 @@ files {
 	end
 
 
-project "App_SharedMemoryPhysics_GUI"
+project "App_PhysicsServer_SharedMemory_GUI"
 
 if _OPTIONS["ios"] then
         kind "WindowedApp"
@@ -238,8 +240,10 @@ if os.is("MacOSX") then
 	--defines {"__MACOSX_CORE__"}
 end
 
+
+
 if os.is("Windows") then 
-	project "App_SharedMemoryPhysics_VR"
+	project "App_PhysicsServer_SharedMemory_VR"
 	--for now, only enable VR under Windows, until compilation issues are resolved on Mac/Linux
 	defines {"B3_USE_STANDALONE_EXAMPLE","BT_ENABLE_VR"}
 	
@@ -316,7 +320,11 @@ if os.is("Windows") then
 					"../ThirdPartyLibs/openvr/samples/shared/Vectors.h",
 	}
 	if os.is("Windows") then 
-		libdirs {"../ThirdPartyLibs/openvr/lib/win32"}
+		configuration {"x32"}
+			libdirs {"../ThirdPartyLibs/openvr/lib/win32"}
+		configuration {"x64"}
+			libdirs {"../ThirdPartyLibs/openvr/lib/win64"}
+		configuration{}
 	end
 	
 	if os.is("Linux") then initX11() end
@@ -365,3 +373,5 @@ end
 
 
 include "udp"
+include "tcp"
+

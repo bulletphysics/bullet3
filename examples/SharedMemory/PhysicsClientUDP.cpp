@@ -80,6 +80,7 @@ struct	UdpNetworkedInternalData
 
 	std::string m_hostName;
 	int m_port;
+	double m_timeOutInSeconds;
 
 	UdpNetworkedInternalData()
 		:m_client(0),
@@ -87,7 +88,8 @@ struct	UdpNetworkedInternalData
 		m_isConnected(false),
 		m_threadSupport(0),
 		m_hasCommand(false),
-		m_hasStatus(false)
+		m_hasStatus(false),
+		m_timeOutInSeconds(60)
 	{
 
 	}
@@ -173,8 +175,8 @@ struct	UdpNetworkedInternalData
 					printf("A packet of length %lu containing '%s' was "
 						"received from %s on channel %u.\n",
 						m_event.packet->dataLength,
-						m_event.packet->data,
-						m_event.peer->data,
+						(char*)m_event.packet->data,
+						(char*)m_event.peer->data,
 						m_event.channelID);
 				}
 				/* Clean up the packet now that we're done using it.
@@ -184,7 +186,7 @@ struct	UdpNetworkedInternalData
 				break;
 
 			case ENET_EVENT_TYPE_DISCONNECT:
-				printf("%s disconnected.\n", m_event.peer->data);
+				printf("%s disconnected.\n", (char*)m_event.peer->data);
 
 				break;
 			default:
@@ -228,8 +230,8 @@ struct	UdpNetworkedInternalData
 					printf("A packet of length %lu containing '%s' was "
 						"received from %s on channel %u.\n",
 						m_event.packet->dataLength,
-						m_event.packet->data,
-						m_event.peer->data,
+						(char*)m_event.packet->data,
+						(char*)m_event.peer->data,
 						m_event.channelID);
 				}
 
@@ -269,7 +271,7 @@ struct	UdpNetworkedInternalData
 			}
 			case ENET_EVENT_TYPE_DISCONNECT:
 			{
-				printf("%s disconnected.\n", m_event.peer->data);
+				printf("%s disconnected.\n", (char*)m_event.peer->data);
 
 				break;
 			}
@@ -464,26 +466,32 @@ bool UdpNetworkedPhysicsProcessor::processCommand(const struct SharedMemoryComma
 		printf("PhysicsClientUDP::processCommand\n");
 	}
 //	int sz = sizeof(SharedMemoryCommand);
-	int timeout = 1024 * 1024 * 1024;
+	
+	b3Clock clock;
+	double startTime = clock.getTimeInSeconds();
+	double timeOutInSeconds = m_data->m_timeOutInSeconds;
 
 	m_data->m_cs->lock();
 	m_data->m_clientCmd = clientCmd;
 	m_data->m_hasCommand = true;
 	m_data->m_cs->unlock();
 
-	while (m_data->m_hasCommand &&  (timeout-- > 0))
+	while ((m_data->m_hasCommand) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
 	{
 		b3Clock::usleep(0);
 	}
 
 #if 0
 
-	timeout = 1024 * 1024 * 1024;
 
 	bool hasStatus = false;
 
+	b3Clock clock;
+	double startTime = clock.getTimeInSeconds();
+	double timeOutInSeconds = m_data->m_timeOutInSeconds;
+
 	const SharedMemoryStatus* stat = 0;
-	while ((!hasStatus) && (timeout-- > 0))
+	while ((!hasStatus) && (clock.getTimeInSeconds() - startTime < timeOutInSeconds))
 	{
 		hasStatus = receiveStatus(serverStatusOut, bufferServerToClient, bufferSizeInBytes);
 		b3Clock::usleep(100);
@@ -615,7 +623,7 @@ void UdpNetworkedPhysicsProcessor::disconnect()
 
 }
 
-
-
-
-
+void UdpNetworkedPhysicsProcessor::setTimeOut(double timeOutInSeconds)
+{
+	m_data->m_timeOutInSeconds = timeOutInSeconds;
+}

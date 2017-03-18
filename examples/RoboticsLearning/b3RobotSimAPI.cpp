@@ -478,6 +478,16 @@ void b3RobotSimAPI::setGravity(const b3Vector3& gravityAcceleration)
 
 }
 
+void b3RobotSimAPI::setNumSolverIterations(int numIterations)
+{
+    b3SharedMemoryCommandHandle command = b3InitPhysicsParamCommand(m_data->m_physicsClient);
+    b3SharedMemoryStatusHandle statusHandle;
+    b3PhysicsParamSetNumSolverIterations(command, numIterations);
+    statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClient, command);
+    b3Assert(b3GetStatusType(statusHandle)==CMD_CLIENT_COMMAND_COMPLETED);
+
+}
+
 void b3RobotSimAPI::setNumSimulationSubSteps(int numSubSteps)
 {
     b3SharedMemoryCommandHandle command = b3InitPhysicsParamCommand(m_data->m_physicsClient);

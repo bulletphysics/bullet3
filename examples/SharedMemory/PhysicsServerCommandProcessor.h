@@ -20,6 +20,8 @@ class PhysicsServerCommandProcessor : public PhysicsCommandProcessorInterface
 
 	struct PhysicsServerCommandProcessorInternalData* m_data;
 
+	
+
 	//todo: move this to physics client side / Python
 	void createDefaultRobotAssets();
 
@@ -44,6 +46,7 @@ protected:
 	int createBodyInfoStream(int bodyUniqueId, char* bufferServerToClient, int bufferSizeInBytes);
 	void deleteCachedInverseDynamicsBodies();
 	void deleteCachedInverseKinematicsBodies();
+	void deleteStateLoggers();
 
 public:
 	PhysicsServerCommandProcessor();
@@ -84,13 +87,20 @@ public:
 	virtual bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld);
 	virtual bool movePickedBody(const btVector3& rayFromWorld, const btVector3& rayToWorld);
 	virtual void removePickingConstraint();
-	
+
+	//logging /playback the shared memory commands
 	void enableCommandLogging(bool enable, const char* fileName);
 	void replayFromLogFile(const char* fileName);
 	void replayLogCommand(char* bufferServerToClient, int bufferSizeInBytes );
-	void stepSimulationRealTime(double dtInSec,	const struct b3VRControllerEvent* vrEvents, int numVREvents);
+
+	//logging of object states (position etc)
+	void logObjectStates(btScalar timeStep);
+
+	void stepSimulationRealTime(double dtInSec,	const struct b3VRControllerEvent* vrEvents, int numVREvents, const struct b3KeyboardEvent* keyEvents, int numKeyEvents);
 	void enableRealTimeSimulation(bool enableRealTimeSim);
 	void applyJointDamping(int bodyUniqueId);
+
+	virtual void setTimeOut(double timeOutInSeconds);
 };
 
 #endif //PHYSICS_SERVER_COMMAND_PROCESSOR_H

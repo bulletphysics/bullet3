@@ -69,14 +69,25 @@ struct UrdfGeometry
 	double m_cylinderRadius;
 	double m_cylinderLength;
 
-    btVector3 m_planeNormal;
+	btVector3 m_planeNormal;
     
+	enum {
+		FILE_STL     =1,
+		FILE_COLLADA =2,
+		FILE_OBJ     =3,
+	};
+	int         m_meshFileType;
 	std::string m_meshFileName;
-	btVector3 m_meshScale;
+	btVector3   m_meshScale;
 };
+
+bool findExistingMeshFile(const std::string& urdf_path, std::string fn,
+	const std::string& error_message_prefix,
+	std::string* out_found_filename, int* out_type); // intended to fill UrdfGeometry::m_meshFileName and Type, but can be used elsewhere
 
 struct UrdfVisual
 {
+	std::string m_sourceFileLocation;
 	btTransform m_linkLocalFrame;
 	UrdfGeometry m_geometry;
 	std::string m_name;
@@ -90,6 +101,7 @@ struct UrdfVisual
 
 struct UrdfCollision
 {
+	std::string m_sourceFileLocation;
 	btTransform m_linkLocalFrame;
 	UrdfGeometry m_geometry;
 	std::string m_name;
@@ -159,6 +171,7 @@ struct UrdfJoint
 struct UrdfModel
 {
 	std::string m_name;
+	std::string m_sourceFile;
     btTransform m_rootTransformInWorld;
 	btHashMap<btHashString, UrdfMaterial*> m_materials;
 	btHashMap<btHashString, UrdfLink*> m_links;
@@ -204,7 +217,7 @@ public:
 	
 	UrdfParser();
 	virtual ~UrdfParser();
-	
+
     void setParseSDF(bool useSDF)
     {
         m_parseSDF = useSDF;
@@ -262,6 +275,13 @@ public:
             return *m_sdfModels[m_activeSdfModel];
         }
 		return m_urdf2Model;
+	}
+
+	std::string sourceFileLocation(TiXmlElement* e);
+
+	void setSourceFile(const std::string& sourceFile)
+	{
+		m_urdf2Model.m_sourceFile = sourceFile;
 	}
 };
 

@@ -12,6 +12,10 @@ struct CommonParameterInterface;
 struct CommonRenderInterface;
 struct CommonGraphicsApp;
 
+
+
+typedef void (*VisualizerFlagCallback)(int flag, bool enable);
+
 ///The Bullet 2 GraphicsPhysicsBridge let's the graphics engine create graphics representation and synchronize
 struct GUIHelperInterface
 {
@@ -46,6 +50,8 @@ struct GUIHelperInterface
 
 	virtual void resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ)=0;
 	
+    virtual void setVisualizerFlag(int flag, int enable){};
+    
 	virtual void copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16], 
                                   unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, 
                                   float* depthBuffer, int depthBufferSizeInPixels, 
@@ -77,6 +83,10 @@ struct GUIHelperInterface
 
 	virtual void	removeUserDebugItem( int debugItemUniqueId){};
 	virtual void	removeAllUserDebugItems( ){};
+	virtual void	setVisualizerFlagCallback(VisualizerFlagCallback callback){}
+
+	//empty name stops dumping video
+	virtual void	dumpFramesToVideo(const char* mp4FileName) {};
 
 };
 

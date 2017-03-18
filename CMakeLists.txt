@@ -210,7 +210,10 @@ ENDIF()
 OPTION(BUILD_BULLET3 "Set when you want to build Bullet 3" ON)
 
 OPTION(BUILD_PYBULLET "Set when you want to build pybullet (experimental Python bindings for Bullet)" OFF)
-
+	
+OPTION(BUILD_ENET "Set when you want to build apps with enet UDP networking support" ON)
+OPTION(BUILD_CLSOCKET "Set when you want to build apps with enet TCP networking support" ON)
+	
 
 IF(BUILD_PYBULLET)
 
@@ -218,6 +221,7 @@ IF(BUILD_PYBULLET)
 
 	OPTION(BUILD_PYBULLET_NUMPY "Set when you want to build pybullet with NumPy support" OFF)
 	OPTION(BUILD_PYBULLET_ENET "Set when you want to build pybullet with enet UDP networking support" ON)
+	OPTION(BUILD_PYBULLET_CLSOCKET "Set when you want to build pybullet with enet TCP networking support" ON)
 	
 	IF(BUILD_PYBULLET_NUMPY)	
 		set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/build3/cmake)

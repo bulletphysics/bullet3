@@ -154,9 +154,11 @@ struct OpenGLGuiHelperInternalData
 	btAlignedObjectArray<unsigned char> m_rgbaPixelBuffer1;
 	btAlignedObjectArray<float> m_depthBuffer1;
 	
+	VisualizerFlagCallback m_visualizerFlagCallback;
 	OpenGLGuiHelperInternalData()
 		:m_vrMode(false),
-		m_vrSkipShadowPass(0)
+		m_vrSkipShadowPass(0),
+		m_visualizerFlagCallback(0)
 	{
 	}
 
@@ -374,6 +376,20 @@ void OpenGLGuiHelper::setUpAxis(int axis)
 
 }
 
+
+void	OpenGLGuiHelper::setVisualizerFlagCallback(VisualizerFlagCallback callback)
+{
+	m_data->m_visualizerFlagCallback = callback;
+}
+
+
+void OpenGLGuiHelper::setVisualizerFlag(int flag, int enable)
+{
+	if (m_data->m_visualizerFlagCallback)
+		(m_data->m_visualizerFlagCallback)(flag,enable);
+}
+
+
 void OpenGLGuiHelper::resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ)
 {
 	if (getRenderInterface() && getRenderInterface()->getActiveCamera())
@@ -411,47 +427,67 @@ void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const floa
 			SimpleCamera tempCam;
 			getRenderInterface()->setActiveCamera(&tempCam);
 			getRenderInterface()->getActiveCamera()->setVRCamera(viewMatrix,projectionMatrix);
-			getRenderInterface()->renderScene();
+			{
+				BT_PROFILE("renderScene");
+				getRenderInterface()->renderScene();
+			}
 			getRenderInterface()->setActiveCamera(oldCam);
 			
 			{
+				BT_PROFILE("copy pixels");
                 btAlignedObjectArray<unsigned char> sourceRgbaPixelBuffer;
                 btAlignedObjectArray<float> sourceDepthBuffer;
                 //copy the image into our local cache
                 sourceRgbaPixelBuffer.resize(sourceWidth*sourceHeight*numBytesPerPixel);
                 sourceDepthBuffer.resize(sourceWidth*sourceHeight);
-                m_data->m_glApp->getScreenPixels(&(sourceRgbaPixelBuffer[0]),sourceRgbaPixelBuffer.size(), &sourceDepthBuffer[0],sizeof(float)*sourceDepthBuffer.size());
+				{
+					BT_PROFILE("getScreenPixels");
+	                m_data->m_glApp->getScreenPixels(&(sourceRgbaPixelBuffer[0]),sourceRgbaPixelBuffer.size(), &sourceDepthBuffer[0],sizeof(float)*sourceDepthBuffer.size());
+				}
 			
                 m_data->m_rgbaPixelBuffer1.resize(destinationWidth*destinationHeight*numBytesPerPixel);
                 m_data->m_depthBuffer1.resize(destinationWidth*destinationHeight);
                 //rescale and flip
-                
-                for (int i=0;i<destinationWidth;i++)
-                {
-                    for (int j=0;j<destinationHeight;j++)
-                    {
-                        int xIndex = int(float(i)*(float(sourceWidth)/float(destinationWidth)));
-                        int yIndex = int(float(destinationHeight-1-j)*(float(sourceHeight)/float(destinationHeight)));
-                        btClamp(xIndex,0,sourceWidth);
-                        btClamp(yIndex,0,sourceHeight);
-                        int bytesPerPixel = 4; //RGBA
+				{
+					BT_PROFILE("resize and flip");
+					for (int j=0;j<destinationHeight;j++)
+					{
+						for (int i=0;i<destinationWidth;i++)
+						{
+							int xIndex = int(float(i)*(float(sourceWidth)/float(destinationWidth)));
+							int yIndex = int(float(destinationHeight-1-j)*(float(sourceHeight)/float(destinationHeight)));
+							btClamp(xIndex,0,sourceWidth);
+							btClamp(yIndex,0,sourceHeight);
+							int bytesPerPixel = 4; //RGBA
                         
-                        int sourcePixelIndex = (xIndex+yIndex*sourceWidth)*bytesPerPixel;
-                        int sourceDepthIndex = xIndex+yIndex*sourceWidth;
+							int sourcePixelIndex = (xIndex+yIndex*sourceWidth)*bytesPerPixel;
+							int sourceDepthIndex = xIndex+yIndex*sourceWidth;
+#define COPY4PIXELS 1
+#ifdef COPY4PIXELS
+							int* dst = (int*)&m_data->m_rgbaPixelBuffer1[(i+j*destinationWidth)*4+0];
+							int* src = (int*)&sourceRgbaPixelBuffer[sourcePixelIndex+0];
+							*dst = *src;
+							
+#else
+							m_data->m_rgbaPixelBuffer1[(i+j*destinationWidth)*4+0] = sourceRgbaPixelBuffer[sourcePixelIndex+0];
+							m_data->m_rgbaPixelBuffer1[(i+j*destinationWidth)*4+1] = sourceRgbaPixelBuffer[sourcePixelIndex+1];
+							m_data->m_rgbaPixelBuffer1[(i+j*destinationWidth)*4+2] = sourceRgbaPixelBuffer[sourcePixelIndex+2];
+							m_data->m_rgbaPixelBuffer1[(i+j*destinationWidth)*4+3] = 255;
+#endif                        
+							if (depthBuffer)
+							{ 
+								m_data->m_depthBuffer1[i+j*destinationWidth] = sourceDepthBuffer[sourceDepthIndex];
+							}
                         
-                        m_data->m_rgbaPixelBuffer1[(i+j*destinationWidth)*4+0] = sourceRgbaPixelBuffer[sourcePixelIndex+0];
-                        m_data->m_rgbaPixelBuffer1[(i+j*destinationWidth)*4+1] = sourceRgbaPixelBuffer[sourcePixelIndex+1];
-                        m_data->m_rgbaPixelBuffer1[(i+j*destinationWidth)*4+2] = sourceRgbaPixelBuffer[sourcePixelIndex+2];
-                        m_data->m_rgbaPixelBuffer1[(i+j*destinationWidth)*4+3] = 255;
-                        
-                        m_data->m_depthBuffer1[i+j*destinationWidth] = sourceDepthBuffer[sourceDepthIndex];
-                        
-                    }
+						}
+					}
                 }
             }
         }
         if (pixelsRGBA)
         {
+			BT_PROFILE("copy rgba pixels");
+
             for (int i=0;i<numRequestedPixels*numBytesPerPixel;i++)
             {
                 pixelsRGBA[i] = m_data->m_rgbaPixelBuffer1[i+startPixelIndex*numBytesPerPixel];
@@ -459,6 +495,8 @@ void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const floa
         }
         if (depthBuffer)
         {
+			BT_PROFILE("copy depth buffer pixels");
+
             for (int i=0;i<numRequestedPixels;i++)
             {
                 depthBuffer[i] = m_data->m_depthBuffer1[i+startPixelIndex];
@@ -530,3 +568,10 @@ struct CommonGraphicsApp* OpenGLGuiHelper::getAppInterface()
 	return m_data->m_glApp;
 }
 
+void	OpenGLGuiHelper::dumpFramesToVideo(const char* mp4FileName)
+{
+	if (m_data->m_glApp)
+	{
+		m_data->m_glApp->dumpFramesToVideo(mp4FileName);
+	}
+}

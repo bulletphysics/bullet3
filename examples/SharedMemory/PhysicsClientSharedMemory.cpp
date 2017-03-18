@@ -44,6 +44,7 @@ struct PhysicsClientSharedMemoryInternalData {
 	btAlignedObjectArray<b3OverlappingObject> m_cachedOverlappingObjects;
 	btAlignedObjectArray<b3VisualShapeData> m_cachedVisualShapes;
 	btAlignedObjectArray<b3VRControllerEvent> m_cachedVREvents;
+	btAlignedObjectArray<b3KeyboardEvent> m_cachedKeyboardEvents;
 	btAlignedObjectArray<b3RayHitInfo>	m_raycastHits;
 
     btAlignedObjectArray<int> m_bodyIdsRequestInfo;
@@ -60,6 +61,7 @@ struct PhysicsClientSharedMemoryInternalData {
     bool m_hasLastServerStatus;
     int m_sharedMemoryKey;
     bool m_verboseOutput;
+	double m_timeOutInSeconds;
 
     PhysicsClientSharedMemoryInternalData()
         : m_sharedMemory(0),
@@ -72,7 +74,9 @@ struct PhysicsClientSharedMemoryInternalData {
           m_waitingForServer(false),
           m_hasLastServerStatus(false),
           m_sharedMemoryKey(SHARED_MEMORY_KEY),
-          m_verboseOutput(false) {}
+          m_verboseOutput(false),
+		  m_timeOutInSeconds(1e30)
+	{}
 
     void processServerStatus();
 
@@ -268,11 +272,13 @@ bool PhysicsClientSharedMemory::connect() {
 		command.m_type = CMD_REQUEST_BODY_INFO;
 		command.m_sdfRequestInfoArgs.m_bodyUniqueId = 37;
 		submitClientCommand(command);
-		int timeout = 1024 * 1024 * 1024;
-		
+
+		double startTime = clock.getTimeInSeconds();
+		double timeOutInSeconds = 10;
+
 		const SharedMemoryStatus* status = 0;
 
-		while ((status == 0) && (timeout-- > 0))
+		while ((status == 0) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
 		{
 			status = processServerStatus();
 		
@@ -408,13 +414,19 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                         if ((flag & bParse::FD_DOUBLE_PRECISION) != 0) {
                             Bullet::btMultiBodyDoubleData* mb =
                                 (Bullet::btMultiBodyDoubleData*)bf.m_multiBodies[i];
-
+							if (mb->m_baseName)
+							{
+								bodyJoints->m_baseName = mb->m_baseName;
+							}
 							addJointInfoFromMultiBodyData(mb,bodyJoints, m_data->m_verboseOutput);
                         } else 
 						{
                             Bullet::btMultiBodyFloatData* mb =
                                 (Bullet::btMultiBodyFloatData*)bf.m_multiBodies[i];
-
+							if (mb->m_baseName)
+							{
+								bodyJoints->m_baseName = mb->m_baseName;
+							}
 							addJointInfoFromMultiBodyData(mb,bodyJoints, m_data->m_verboseOutput);
                         }
                     }
@@ -768,6 +780,20 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 				break;
 			}
 
+			case CMD_REQUEST_KEYBOARD_EVENTS_DATA_COMPLETED:
+			{
+				if (m_data->m_verboseOutput)
+				{
+					b3Printf("Request keyboard events completed");
+				}
+				m_data->m_cachedKeyboardEvents.resize(serverCmd.m_sendKeyboardEvents.m_numKeyboardEvents);
+				for (int i=0;i<serverCmd.m_sendKeyboardEvents.m_numKeyboardEvents;i++)
+				{
+					m_data->m_cachedKeyboardEvents[i] = serverCmd.m_sendKeyboardEvents.m_keyboardEvents[i];
+				}
+				break;
+			}
+
 			case CMD_REQUEST_AABB_OVERLAP_COMPLETED:
 			{
 				if (m_data->m_verboseOutput)
@@ -897,6 +923,20 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 			
 			case CMD_SYNC_BODY_INFO_COMPLETED:
 			{
+				break;
+			}
+			case CMD_STATE_LOGGING_START_COMPLETED:
+			{
+				break;
+			};
+			case CMD_STATE_LOGGING_COMPLETED:
+			{
+				break;
+			};
+
+			case CMD_STATE_LOGGING_FAILED:
+			{
+				b3Warning("State Logging failed");
 				break;
 			}
             default: {
@@ -1091,7 +1131,17 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 }
 
 bool PhysicsClientSharedMemory::canSubmitCommand() const {
-    return (m_data->m_isConnected && !m_data->m_waitingForServer);
+	if (m_data->m_isConnected && !m_data->m_waitingForServer)
+	{
+		if (m_data->m_testBlock1->m_magicId == SHARED_MEMORY_MAGIC_NUMBER)
+		{
+			return true;
+		} else
+		{
+			return false;
+		}
+	}
+	return false;
 }
 
 struct SharedMemoryCommand* PhysicsClientSharedMemory::getAvailableSharedMemoryCommand() {
@@ -1158,6 +1208,13 @@ void PhysicsClientSharedMemory::getCachedVREvents(struct b3VREventsData* vrEvent
 							&m_data->m_cachedVREvents[0] : 0;
 }
 
+void PhysicsClientSharedMemory::getCachedKeyboardEvents(struct b3KeyboardEventsData* keyboardEventsData)
+{
+	keyboardEventsData->m_numKeyboardEvents = m_data->m_cachedKeyboardEvents.size();
+	keyboardEventsData->m_keyboardEvents = keyboardEventsData->m_numKeyboardEvents?
+		&m_data->m_cachedKeyboardEvents[0] : 0;
+}
+
 void PhysicsClientSharedMemory::getCachedRaycastHits(struct b3RaycastInformation* raycastHits)
 {
 	raycastHits->m_numRayHits = m_data->m_raycastHits.size();
@@ -1192,3 +1249,11 @@ const float* PhysicsClientSharedMemory::getDebugLinesColor() const {
 }
 int PhysicsClientSharedMemory::getNumDebugLines() const { return m_data->m_debugLinesFrom.size(); }
 
+void PhysicsClientSharedMemory::setTimeOut(double timeOutInSeconds)
+{
+	m_data->m_timeOutInSeconds = timeOutInSeconds;
+}
+double PhysicsClientSharedMemory::getTimeOut() const
+{
+	return m_data->m_timeOutInSeconds;
+}

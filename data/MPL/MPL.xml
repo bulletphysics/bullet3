@@ -49,30 +49,30 @@
     </visual>
 
     <asset>
-		<mesh name="index0" 	file="index0.stl"/>
-		<mesh name="index1" 	file="index1.stl"/>
-		<mesh name="index2" 	file="index2.stl"/>
-		<mesh name="index3" 	file="index3.stl"/>
-		<mesh name="middle0" 	file="middle0.stl"/>
-		<mesh name="middle1" 	file="middle1.stl"/>
-		<mesh name="middle2" 	file="middle2.stl"/>
-		<mesh name="middle3" 	file="middle3.stl"/>
-		<mesh name="palm" 		file="palm.stl"/>
-		<mesh name="pinky0" 	file="pinky0.stl"/>
-		<mesh name="pinky1" 	file="pinky1.stl"/>
-		<mesh name="pinky2" 	file="pinky2.stl"/>
-		<mesh name="pinky3" 	file="pinky3.stl"/>
-		<mesh name="ring0" 		file="ring0.stl"/>
-		<mesh name="ring1" 		file="ring1.stl"/>
-		<mesh name="ring2" 		file="ring2.stl"/>
-		<mesh name="ring3" 		file="ring3.stl"/>
-		<mesh name="thumb0" 	file="thumb0.stl"/>
-		<mesh name="thumb1" 	file="thumb1.stl"/>
-		<mesh name="thumb2" 	file="thumb2.stl"/>
-		<mesh name="thumb3" 	file="thumb3.stl"/>
-		<mesh name="wristx" 	file="wristx.stl"/>
-		<mesh name="wristy" 	file="wristy.stl"/>
-		<mesh name="wristz" 	file="wristz.stl"/>
+		<mesh name="index0" 	file="index0_collision.STL"/>
+		<mesh name="index1" 	file="index1_collision.STL"/>
+		<mesh name="index2" 	file="index2_collision.STL"/>
+		<mesh name="index3" 	file="index3_collision.STL"/>
+		<mesh name="middle0" 	file="middle0_collision.STL"/>
+		<mesh name="middle1" 	file="middle1_collision.STL"/>
+		<mesh name="middle2" 	file="middle2_collision.STL"/>
+		<mesh name="middle3" 	file="middle3_collision.STL"/>
+		<mesh name="palm" 		file="palm.STL"/>
+		<mesh name="pinky0" 	file="pinky0_collision.STL"/>
+		<mesh name="pinky1" 	file="pinky1_collision.STL"/>
+		<mesh name="pinky2" 	file="pinky2_collision.STL"/>
+		<mesh name="pinky3" 	file="pinky3_collision.STL"/>
+		<mesh name="ring0" 		file="ring0_collision.STL"/>
+		<mesh name="ring1" 		file="ring1_collision.STL"/>
+		<mesh name="ring2" 		file="ring2_collision.STL"/>
+		<mesh name="ring3" 		file="ring3_collision.STL"/>
+		<mesh name="thumb0" 	file="thumb0_collision.STL"/>
+		<mesh name="thumb1" 	file="thumb1_collision.STL"/>
+		<mesh name="thumb2" 	file="thumb2_collision.STL"/>
+		<mesh name="thumb3" 	file="thumb3_collision.STL"/>
+		<mesh name="wristx" 	file="wristx_collision.STL"/>
+		<mesh name="wristy" 	file="wristy_collision.STL"/>
+		<mesh name="wristz" 	file="wristz_collision.STL"/>
         
 		<texture type="skybox" builtin="gradient" rgb1=".4 .6 .8" rgb2="0 0 0" 
 			width="100" height="100"/>

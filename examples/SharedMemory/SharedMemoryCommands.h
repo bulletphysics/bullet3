@@ -313,7 +313,9 @@ enum EnumSimParamUpdateFlags
 	SIM_PARAM_UPDATE_INTERNAL_SIMULATION_FLAGS=64,
 	SIM_PARAM_UPDATE_USE_SPLIT_IMPULSE=128,
 	SIM_PARAM_UPDATE_SPLIT_IMPULSE_PENETRATION_THRESHOLD = 256,
-	SIM_PARAM_UPDATE_COLLISION_FILTER_MODE=512
+	SIM_PARAM_UPDATE_COLLISION_FILTER_MODE=512,
+	SIM_PARAM_UPDATE_CONTACT_BREAKING_THRESHOLD = 1024,
+	SIM_PARAM_MAX_CMD_PER_1MS = 2048,
 };
 
 enum EnumLoadBunnyUpdateFlags
@@ -340,6 +342,8 @@ struct SendPhysicsSimulationParameters
 	bool m_allowRealTimeSimulation;
 	int m_useSplitImpulse;
 	double m_splitImpulsePenetrationThreshold;
+	double m_contactBreakingThreshold;
+	int m_maxNumCmdPer1ms;
 	int m_internalSimFlags;
 	double m_defaultContactERP;
 	int m_collisionFilterMode;
@@ -604,11 +608,25 @@ struct SendVREvents
 	b3VRControllerEvent m_controllerEvents[MAX_VR_CONTROLLERS];
 };
 
+struct SendKeyboardEvents
+{
+	int m_numKeyboardEvents;
+	b3KeyboardEvent m_keyboardEvents[MAX_KEYBOARD_EVENTS];
+};
+
 enum eVRCameraEnums
 {
 	VR_CAMERA_ROOT_POSITION=1,
 	VR_CAMERA_ROOT_ORIENTATION=2,
 	VR_CAMERA_ROOT_TRACKING_OBJECT=4
+};
+
+enum eStateLoggingEnums
+{
+	STATE_LOGGING_START_LOG=1,
+	STATE_LOGGING_STOP_LOG=2,
+	STATE_LOGGING_FILTER_OBJECT_UNIQUE_ID=4,
+	STATE_LOGGING_MAX_LOG_DOF=8
 };
 
 struct VRCameraState
@@ -618,6 +636,39 @@ struct VRCameraState
 	int m_trackingObjectUniqueId;
 };
 
+
+
+struct StateLoggingRequest
+{
+	char m_fileName[MAX_FILENAME_LENGTH];
+	int m_logType;//Minitaur, generic robot, VR states
+	int m_numBodyUniqueIds;////only if ROBOT_LOGGING_FILTER_OBJECT_UNIQUE_ID flag is set
+	int m_bodyUniqueIds[MAX_SDF_BODIES];
+	int m_loggingUniqueId;
+	int m_maxLogDof;
+};
+
+struct StateLoggingResultArgs
+{
+	int m_loggingUniqueId;
+};
+
+enum InternalOpenGLVisualizerUpdateFlags
+{
+    COV_SET_CAMERA_VIEW_MATRIX=1,
+    COV_SET_FLAGS=2,
+};
+
+struct ConfigureOpenGLVisualizerRequest
+{
+    double m_cameraDistance;
+    double m_cameraPitch;
+    double m_cameraYaw;
+    double m_cameraTargetPosition[3];
+  
+    int m_setFlag;
+    int m_setEnabled;
+};
 
 struct SharedMemoryCommand
 {
@@ -660,6 +711,8 @@ struct SharedMemoryCommand
 		struct RequestRaycastIntersections m_requestRaycastIntersections;
         struct LoadBunnyArgs m_loadBunnyArguments;
 		struct VRCameraState m_vrCameraStateArguments;
+		struct StateLoggingRequest m_stateLoggingArguments;
+        struct ConfigureOpenGLVisualizerRequest m_configureOpenGLVisualizerArguments;
     };
 };
 
@@ -719,7 +772,10 @@ struct SharedMemoryStatus
 		struct UserDebugDrawResultArgs m_userDebugDrawArgs;
 		struct b3UserConstraint m_userConstraintResultArgs;
 		struct SendVREvents m_sendVREvents;
+		struct SendKeyboardEvents m_sendKeyboardEvents;
 		struct SendRaycastHits m_raycastHits;
+		struct StateLoggingResultArgs m_stateLoggingResultArgs;
+
 	};
 };
 

@@ -212,4 +212,6 @@ void SharedMemoryCommandProcessor::setSharedMemoryKey(int key)
 	m_data->m_sharedMemoryKey = key; 
 }
 
-
+void SharedMemoryCommandProcessor::setTimeOut(double /*timeOutInSeconds*/)
+{
+}

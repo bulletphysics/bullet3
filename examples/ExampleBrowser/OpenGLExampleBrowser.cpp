@@ -125,10 +125,10 @@ bool sUseOpenGL2 = false;
 extern bool useShadowMap;
 #endif
 
-static bool visualWireframe=false;
+bool visualWireframe=false;
 static bool renderVisualGeometry=true;
 static bool renderGrid = true;
-static bool renderGui = true;
+bool renderGui = true;
 static bool enable_experimental_opencl = false;
 
 int gDebugDrawFlags = 0;
@@ -181,10 +181,12 @@ void MyKeyboardCallback(int key, int state)
 
 	//b3Printf("key=%d, state=%d", key, state);
 	bool handled = false;
-	
-	if (gui2 && !handled )
+	if (renderGui)
 	{
-		handled = gui2->keyboardCallback(key, state);
+		if (gui2 && !handled )
+		{
+			handled = gui2->keyboardCallback(key, state);
+		}
 	}
 	
 	if (!handled && sCurrentDemo)
@@ -257,7 +259,6 @@ void MyKeyboardCallback(int key, int state)
 
 		} else
 		{
-
 			b3ChromeUtilsStopTimingsAndWriteJsonFile();
 		}
 #endif //BT_NO_PROFILE
@@ -309,8 +310,11 @@ static void MyMouseMoveCallback( float x, float y)
   	bool handled = false;
 	if (sCurrentDemo)
 		handled = sCurrentDemo->mouseMoveCallback(x,y);
-	if (!handled && gui2)
-		handled = gui2->mouseMoveCallback(x,y);
+	if (renderGui)
+	{
+		if (!handled && gui2)
+			handled = gui2->mouseMoveCallback(x,y);
+	}
 	if (!handled)
 	{
 		if (prevMouseMoveCallback)
@@ -327,9 +331,11 @@ static void MyMouseButtonCallback(int button, int state, float x, float y)
 	if (sCurrentDemo)
 		handled = sCurrentDemo->mouseButtonCallback(button,state,x,y);
 
-	if (!handled && gui2)
-		handled = gui2->mouseButtonCallback(button,state,x,y);
-
+	if (renderGui)
+	{
+		if (!handled && gui2)
+			handled = gui2->mouseButtonCallback(button,state,x,y);
+	}
 	if (!handled)
 	{
 		if (prevMouseButtonCallback )
@@ -354,6 +360,25 @@ void OpenGLExampleBrowser::registerFileImporter(const char* extension, CommonExa
     fi.m_createFunc = createFunc;
     gFileImporterByExtension.push_back(fi);
 }
+#include "../SharedMemory/SharedMemoryPublic.h"
+
+void OpenGLExampleBrowserVisualizerFlagCallback(int flag, bool enable)
+{
+    if (flag == COV_ENABLE_SHADOWS)
+    {
+        useShadowMap = enable;
+    }
+    if (flag == COV_ENABLE_GUI)
+    {
+        renderGui = enable;
+		renderGrid = enable;
+    }
+    
+    if (flag == COV_ENABLE_WIREFRAME)
+    {
+        visualWireframe = enable;
+    }
+}
 
 void openFileDemo(const char* filename)
 {
@@ -361,6 +386,8 @@ void openFileDemo(const char* filename)
 	deleteDemo();
    
 	s_guiHelper= new OpenGLGuiHelper(s_app, sUseOpenGL2);
+	s_guiHelper->setVisualizerFlagCallback(OpenGLExampleBrowserVisualizerFlagCallback);
+
     s_parameterInterface->removeAllParameters();
    
 
@@ -415,6 +442,8 @@ void selectDemo(int demoIndex)
 		}
 		int option = gAllExamples->getExampleOption(demoIndex);
 		s_guiHelper= new OpenGLGuiHelper(s_app, sUseOpenGL2);
+		s_guiHelper->setVisualizerFlagCallback(OpenGLExampleBrowserVisualizerFlagCallback);
+
 		CommonExampleOptions options(s_guiHelper, option);
 		options.m_sharedMem = sSharedMem;
 		sCurrentDemo = (*func)(options);
@@ -840,8 +869,8 @@ bool OpenGLExampleBrowser::init(int argc, char* argv[])
 	}
 		
 	
-	int width = 1024;
-    int height=768;
+	int width = 1280;
+    int height=640;
 #ifndef NO_OPENGL3
     SimpleOpenGL3App* simpleApp=0;
 	sUseOpenGL2 =args.CheckCmdLineFlag("opengl2");
@@ -1123,6 +1152,18 @@ CommonExampleInterface* OpenGLExampleBrowser::getCurrentExample()
 bool OpenGLExampleBrowser::requestedExit()
 {
 	return s_window->requestedExit();
+}
+
+void OpenGLExampleBrowser::updateGraphics()
+{
+	if (sCurrentDemo)
+	{
+			if (!pauseSimulation || singleStepSimulation)
+			{
+				B3_PROFILE("sCurrentDemo->updateGraphics");
+				sCurrentDemo->updateGraphics();
+			}
+	}
 }
 
 void OpenGLExampleBrowser::update(float deltaTime)

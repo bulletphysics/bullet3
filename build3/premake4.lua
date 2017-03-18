@@ -73,8 +73,21 @@
 
 	newoption
 	{
+		trigger = "standalone-examples",
+		description = "Build standalone examples with reduced dependencies."
+	}
+
+	newoption
+	{
+		trigger = "no-clsocket",
+		description = "Disable clsocket and clsocket tests (used for optional TCP networking in pybullet and shared memory C-API)"
+	}
+
+
+	newoption
+	{
 		trigger = "no-enet",
-		description = "Disable enet and enet tests"
+		description = "Disable enet and enet tests (used for optional UDP networking in pybullet and shared memory C-API)"
 	}
 
 	newoption
@@ -240,18 +253,12 @@ end
 
 	if not _OPTIONS["no-demos"] then
 		include "../examples/ExampleBrowser"
+		include "../examples/RobotSimulator"
 		include "../examples/OpenGLWindow"
 		include "../examples/ThirdPartyLibs/Gwen"
-		include "../examples/SimpleOpenGL3"
-		include "../examples/TinyRenderer"
-
 		include "../examples/HelloWorld"
-		include "../examples/BasicDemo"
-		include "../examples/InverseDynamics"
-		include "../examples/ExtendedTutorials"
 		include "../examples/SharedMemory"
 		include "../examples/ThirdPartyLibs/BussIK"
-		include "../examples/MultiThreading"
 
 		if _OPTIONS["lua"] then
 		   include "../examples/ThirdPartyLibs/lua-5.2.3"
@@ -260,9 +267,17 @@ end
 		  include "../examples/pybullet"
 		end
 
+		if _OPTIONS["standalone-examples"] then
+			include "../examples/SimpleOpenGL3"
+			include "../examples/TinyRenderer"
+			include "../examples/BasicDemo"
+			include "../examples/InverseDynamics"
+			include "../examples/ExtendedTutorials"
+			include "../examples/MultiThreading"
+		end
+
 		if not _OPTIONS["no-test"] then
 			include "../test/SharedMemory"
-			
 		end
 	end
 
@@ -270,13 +285,20 @@ end
 		include "../examples/ThirdPartyLibs/midi"
 	end
 	
+	if not _OPTIONS["no-clsocket"] then
+		defines {"BT_ENABLE_CLSOCKET"}
+		include "../examples/ThirdPartyLibs/clsocket"		
+		include "../test/clsocket"
+	end
+
 	if not _OPTIONS["no-enet"] then
+				defines {"BT_ENABLE_ENET"}
+
 				include "../examples/ThirdPartyLibs/enet"
 				include "../test/enet/nat_punchthrough/client"
 				include "../test/enet/nat_punchthrough/server"
 				include "../test/enet/chat/client"
 				include "../test/enet/chat/server"
-				defines {"BT_ENABLE_ENET"}
 	end
 
 	 if _OPTIONS["no-bullet3"] then

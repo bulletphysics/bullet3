@@ -2,6 +2,9 @@
 #define SHARED_MEMORY_PUBLIC_H
 
 #define SHARED_MEMORY_KEY 12347
+///increase the SHARED_MEMORY_MAGIC_NUMBER whenever incompatible changes are made in the structures
+///my convention is year/month/day/rev
+#define SHARED_MEMORY_MAGIC_NUMBER 201703010
 
 enum EnumSharedMemoryClientCommand
 {
@@ -48,6 +51,9 @@ enum EnumSharedMemoryClientCommand
 	CMD_REQUEST_VR_EVENTS_DATA,
 	CMD_SET_VR_CAMERA_STATE,
 	CMD_SYNC_BODY_INFO,
+	CMD_STATE_LOGGING,
+    CMD_CONFIGURE_OPENGL_VISUALIZER,
+	CMD_REQUEST_KEYBOARD_EVENTS_DATA,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -122,6 +128,11 @@ enum EnumSharedMemoryServerStatus
 		CMD_REQUEST_RAY_CAST_INTERSECTIONS_COMPLETED,
 		CMD_SYNC_BODY_INFO_COMPLETED,
 		CMD_SYNC_BODY_INFO_FAILED,
+		CMD_STATE_LOGGING_COMPLETED,
+		CMD_STATE_LOGGING_START_COMPLETED,
+		CMD_STATE_LOGGING_FAILED,
+		CMD_REQUEST_KEYBOARD_EVENTS_DATA_COMPLETED,
+		CMD_REQUEST_KEYBOARD_EVENTS_DATA_FAILED,
         //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
@@ -155,20 +166,20 @@ enum JointType {
 
 struct b3JointInfo
 {
-        char* m_linkName;
-        char* m_jointName;
-        int m_jointType;
-        int m_qIndex;
-        int m_uIndex;
-        int m_jointIndex;
-        int m_flags;
-		double m_jointDamping;
-		double m_jointFriction;
-		double m_jointLowerLimit;
-		double m_jointUpperLimit;
-    double m_parentFrame[7]; // position and orientation (quaternion)
-    double m_childFrame[7]; // ^^^
-    double m_jointAxis[3]; // joint axis in parent local frame
+	char* m_linkName;
+	char* m_jointName;
+	int m_jointType;
+	int m_qIndex;
+	int m_uIndex;
+	int m_jointIndex;
+	int m_flags;
+	double m_jointDamping;
+	double m_jointFriction;
+	double m_jointLowerLimit;
+	double m_jointUpperLimit;
+	double m_parentFrame[7]; // position and orientation (quaternion)
+	double m_childFrame[7]; // ^^^
+	double m_jointAxis[3]; // joint axis in parent local frame
 };
 
 struct b3UserConstraint
@@ -244,6 +255,7 @@ enum b3VREventType
 #define MAX_VR_BUTTONS 64
 #define MAX_VR_CONTROLLERS 8
 #define MAX_RAY_HITS 128
+#define MAX_KEYBOARD_EVENTS 256
 
 enum b3VRButtonInfo
 {
@@ -272,6 +284,18 @@ struct b3VREventsData
 	struct b3VRControllerEvent* m_controllerEvents;
 };
 
+
+struct b3KeyboardEvent
+{
+	int m_keyCode;//ascii
+	int m_keyState;// see b3VRButtonInfo
+};
+
+struct b3KeyboardEventsData
+{
+	int m_numKeyboardEvents;
+	struct b3KeyboardEvent* m_keyboardEvents;
+};
 
 struct b3ContactPointData
 {
@@ -303,6 +327,14 @@ enum
 	CONTACT_QUERY_MODE_COMPUTE_CLOSEST_POINTS = 1,
 };
 
+enum  b3StateLoggingType
+{
+	STATE_LOGGING_MINITAUR = 0,
+	STATE_LOGGING_GENERIC_ROBOT = 1,
+	STATE_LOGGING_VR_CONTROLLERS = 2,
+	STATE_LOGGING_VIDEO_MP4 = 3,
+	STATE_LOGGING_COMMANDS = 4,
+};
 
 
 struct b3ContactInformation
@@ -387,6 +419,21 @@ enum EnumRenderer
     ER_TINY_RENDERER=(1<<16),
     ER_BULLET_HARDWARE_OPENGL=(1<<17),
     //ER_FIRE_RAYS=(1<<18),
+};
+
+enum b3ConfigureDebugVisualizerEnum
+{
+    COV_ENABLE_GUI=1,
+    COV_ENABLE_SHADOWS,
+    COV_ENABLE_WIREFRAME,
+};
+
+enum eCONNECT_METHOD {
+  eCONNECT_GUI = 1,
+  eCONNECT_DIRECT = 2,
+  eCONNECT_SHARED_MEMORY = 3,
+  eCONNECT_UDP = 4,
+  eCONNECT_TCP = 5,
 };
 
 #endif//SHARED_MEMORY_PUBLIC_H

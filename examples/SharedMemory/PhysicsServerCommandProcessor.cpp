@@ -12,11 +12,12 @@
 #include "BulletDynamics/Featherstone/btMultiBodyFixedConstraint.h"
 #include "BulletDynamics/Featherstone/btMultiBodySliderConstraint.h"
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
+#include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
 #include "LinearMath/btHashMap.h"
 #include "BulletInverseDynamics/MultiBodyTree.hpp"
 #include "IKTrajectoryHelper.h"
 #include "btBulletDynamicsCommon.h"
-
+#include "../Utils/RobotLoggingUtil.h"
 #include "LinearMath/btTransform.h"
 #include "../Importers/ImportMJCFDemo/BulletMJCFImporter.h"
 #include "../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.h"
@@ -47,6 +48,7 @@ bool gResetSimulation = 0;
 int gVRTrackingObjectUniqueId = -1;
 btTransform gVRTrackingObjectTr = btTransform::getIdentity();
 
+int gMaxNumCmdPer1ms = -1;//experiment: add some delay to avoid threads starving other threads
 int gCreateObjectSimVR = -1;
 int gEnableKukaControl = 0;
 btVector3 gVRTeleportPos1(0,0,0);
@@ -419,7 +421,336 @@ struct MyOverlapFilterCallback : public btOverlapFilterCallback
 };
 
 
+struct InternalStateLogger
+{
+	int m_loggingUniqueId;
+	int m_loggingType;
 
+	InternalStateLogger()
+		:m_loggingUniqueId(0),
+		m_loggingType(0)
+	{
+	}
+	virtual ~InternalStateLogger() {}
+
+	virtual void stop() = 0;
+	virtual void logState(btScalar timeStamp)=0;
+
+};
+
+struct VideoMP4Loggger : public InternalStateLogger
+{
+
+	struct GUIHelperInterface* m_guiHelper;
+	std::string m_fileName;
+	VideoMP4Loggger(int loggerUid,const char* fileName,GUIHelperInterface* guiHelper)
+		:m_guiHelper(guiHelper)
+	{
+		m_fileName = fileName;
+		m_loggingUniqueId = loggerUid;
+		m_loggingType = STATE_LOGGING_VIDEO_MP4;
+		m_guiHelper->dumpFramesToVideo(fileName);
+	}
+
+	virtual void stop()
+	{
+		m_guiHelper->dumpFramesToVideo(0);
+	}
+	virtual void logState(btScalar timeStamp)
+	{
+		//dumping video frames happens in another thread
+		//we could add some overlay of timestamp here, if needed/wanted
+	}
+};
+
+struct MinitaurStateLogger : public InternalStateLogger
+{
+	int m_loggingTimeStamp;
+	std::string m_fileName;
+	int m_minitaurBodyUniqueId;
+	FILE* m_logFileHandle;
+
+	std::string m_structTypes;
+	btMultiBody* m_minitaurMultiBody;
+	btAlignedObjectArray<int> m_motorIdList;
+
+	MinitaurStateLogger(int loggingUniqueId, const std::string& fileName, btMultiBody* minitaurMultiBody, btAlignedObjectArray<int>& motorIdList)
+		:m_loggingTimeStamp(0),
+		m_logFileHandle(0),
+		m_minitaurMultiBody(minitaurMultiBody)
+	{
+        m_loggingUniqueId = loggingUniqueId;
+		m_loggingType = STATE_LOGGING_MINITAUR;
+		m_motorIdList.resize(motorIdList.size());
+		for (int m=0;m<motorIdList.size();m++)
+		{
+			m_motorIdList[m] = motorIdList[m];
+		}
+
+		btAlignedObjectArray<std::string> structNames;
+		//'t', 'r', 'p', 'y', 'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'u0', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'xd', 'mo'
+		structNames.push_back("t");
+		structNames.push_back("r");
+		structNames.push_back("p");
+		structNames.push_back("y");
+	
+		structNames.push_back("q0");
+		structNames.push_back("q1");
+		structNames.push_back("q2");
+		structNames.push_back("q3");
+		structNames.push_back("q4");
+		structNames.push_back("q5");
+		structNames.push_back("q6");
+		structNames.push_back("q7");
+
+		structNames.push_back("u0");
+		structNames.push_back("u1");
+		structNames.push_back("u2");
+		structNames.push_back("u3");
+		structNames.push_back("u4");
+		structNames.push_back("u5");
+		structNames.push_back("u6");
+		structNames.push_back("u7");
+
+		structNames.push_back("dx");
+		structNames.push_back("mo");
+
+		m_structTypes = "IffffffffffffffffffffB";
+		const char* fileNameC = fileName.c_str();
+
+		m_logFileHandle = createMinitaurLogFile(fileNameC, structNames, m_structTypes);
+	}
+	virtual void stop()
+	{
+		if (m_logFileHandle)
+		{
+			closeMinitaurLogFile(m_logFileHandle);
+			m_logFileHandle = 0;
+		}
+	}
+
+	virtual void logState(btScalar timeStep)
+	{
+		if (m_logFileHandle)
+		{
+			
+			//btVector3 pos = m_minitaurMultiBody->getBasePos();
+
+			MinitaurLogRecord logData;
+			//'t', 'r', 'p', 'y', 'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'u0', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'xd', 'mo'
+			btScalar motorDir[8] = {1, 1, 1, 1, 1, 1, 1, 1};
+
+
+			btQuaternion orn = m_minitaurMultiBody->getBaseWorldTransform().getRotation();
+			btMatrix3x3 mat(orn);
+			btScalar roll=0;
+			btScalar pitch=0;
+			btScalar yaw = 0;
+
+			mat.getEulerZYX(yaw,pitch,roll);
+			
+			logData.m_values.push_back(m_loggingTimeStamp);
+			logData.m_values.push_back((float)roll);
+			logData.m_values.push_back((float)pitch);
+			logData.m_values.push_back((float)yaw);
+
+			for (int i=0;i<8;i++)
+			{
+				float jointAngle = (float)motorDir[i]*m_minitaurMultiBody->getJointPos(m_motorIdList[i]);
+				logData.m_values.push_back(jointAngle);
+			}
+			for (int i=0;i<8;i++)
+			{
+                btMultiBodyJointMotor* motor = (btMultiBodyJointMotor*)m_minitaurMultiBody->getLink(m_motorIdList[i]).m_userPtr;
+
+                if (motor && timeStep>btScalar(0))
+                {
+					btScalar force = motor->getAppliedImpulse(0)/timeStep;
+					logData.m_values.push_back((float)force);
+				}
+			}
+			//x is forward component, estimated speed forward
+			float xd_speed = m_minitaurMultiBody->getBaseVel()[0];
+			logData.m_values.push_back(xd_speed);
+			char mode = 6;
+			logData.m_values.push_back(mode);
+
+			//at the moment, appendMinitaurLogData will directly write to disk (potential delay)
+			//better to fill a huge memory buffer and once in a while write it to disk
+			appendMinitaurLogData(m_logFileHandle, m_structTypes, logData);
+
+			fflush(m_logFileHandle);
+		
+			m_loggingTimeStamp++;
+		}
+	}
+};
+
+struct GenericRobotStateLogger : public InternalStateLogger
+{
+    float m_loggingTimeStamp;
+    std::string m_fileName;
+    FILE* m_logFileHandle;
+    std::string m_structTypes;
+    btMultiBodyDynamicsWorld* m_dynamicsWorld;
+    btAlignedObjectArray<int> m_bodyIdList;
+    bool m_filterObjectUniqueId;
+    int m_maxLogDof;
+
+    GenericRobotStateLogger(int loggingUniqueId, const std::string& fileName, btMultiBodyDynamicsWorld* dynamicsWorld, int maxLogDof)
+    :m_loggingTimeStamp(0),
+    m_logFileHandle(0),
+    m_dynamicsWorld(dynamicsWorld),
+    m_filterObjectUniqueId(false),
+	m_maxLogDof(maxLogDof)
+    {
+        m_loggingUniqueId = loggingUniqueId;
+        m_loggingType = STATE_LOGGING_GENERIC_ROBOT;
+        
+        btAlignedObjectArray<std::string> structNames;
+        structNames.push_back("stepCount");
+        structNames.push_back("timeStamp");
+        structNames.push_back("objectId");
+        structNames.push_back("posX");
+        structNames.push_back("posY");
+        structNames.push_back("posZ");
+        structNames.push_back("oriX");
+        structNames.push_back("oriY");
+        structNames.push_back("oriZ");
+        structNames.push_back("oriW");
+        structNames.push_back("velX");
+        structNames.push_back("velY");
+        structNames.push_back("velZ");
+        structNames.push_back("omegaX");
+        structNames.push_back("omegaY");
+        structNames.push_back("omegaZ");
+        structNames.push_back("qNum");
+
+		m_structTypes = "IfIfffffffffffffI";
+
+		for (int i=0;i<m_maxLogDof;i++)
+		{
+			m_structTypes.append("f");
+			char jointName[256];
+			sprintf(jointName,"q%d",i);
+			structNames.push_back(jointName);
+		}
+		for (int i=0;i<m_maxLogDof;i++)
+		{
+			m_structTypes.append("f");
+			char jointName[256];
+			sprintf(jointName,"u%d",i);
+			structNames.push_back(jointName);
+		}
+        
+        const char* fileNameC = fileName.c_str();
+        
+        m_logFileHandle = createMinitaurLogFile(fileNameC, structNames, m_structTypes);
+    }
+    virtual void stop()
+    {
+        if (m_logFileHandle)
+        {
+            closeMinitaurLogFile(m_logFileHandle);
+            m_logFileHandle = 0;
+        }
+    }
+    
+    virtual void logState(btScalar timeStep)
+    {
+        if (m_logFileHandle)
+        {
+            for (int i=0;i<m_dynamicsWorld->getNumMultibodies();i++)
+            {
+                btMultiBody* mb = m_dynamicsWorld->getMultiBody(i);
+                int objectUniqueId = mb->getUserIndex2();
+                if (m_filterObjectUniqueId && m_bodyIdList.findLinearSearch2(objectUniqueId) < 0)
+                {
+                    continue;
+                }
+                
+                MinitaurLogRecord logData;
+                int stepCount = m_loggingTimeStamp;
+                float timeStamp = m_loggingTimeStamp*m_dynamicsWorld->getSolverInfo().m_timeStep;
+                logData.m_values.push_back(stepCount);
+                logData.m_values.push_back(timeStamp);
+                
+                btVector3 pos = mb->getBasePos();
+                btQuaternion ori = mb->getWorldToBaseRot().inverse();
+                btVector3 vel = mb->getBaseVel();
+                btVector3 omega = mb->getBaseOmega();
+                
+                float posX = pos[0];
+                float posY = pos[1];
+                float posZ = pos[2];
+                float oriX = ori.x();
+                float oriY = ori.y();
+                float oriZ = ori.z();
+                float oriW = ori.w();
+                float velX = vel[0];
+                float velY = vel[1];
+                float velZ = vel[2];
+                float omegaX = omega[0];
+                float omegaY = omega[1];
+                float omegaZ = omega[2];
+                
+                logData.m_values.push_back(objectUniqueId);
+                logData.m_values.push_back(posX);
+                logData.m_values.push_back(posY);
+                logData.m_values.push_back(posZ);
+                logData.m_values.push_back(oriX);
+                logData.m_values.push_back(oriY);
+                logData.m_values.push_back(oriZ);
+                logData.m_values.push_back(oriW);
+                logData.m_values.push_back(velX);
+                logData.m_values.push_back(velY);
+                logData.m_values.push_back(velZ);
+                logData.m_values.push_back(omegaX);
+                logData.m_values.push_back(omegaY);
+                logData.m_values.push_back(omegaZ);
+                
+                int numDofs = mb->getNumDofs();
+                logData.m_values.push_back(numDofs);
+                int numJoints = mb->getNumLinks();
+                
+                for (int j = 0; j < numJoints; ++j)
+                {
+                    if (mb->getLink(j).m_jointType == 0 || mb->getLink(j).m_jointType == 1)
+                    {
+                        float q = mb->getJointPos(j);
+                        logData.m_values.push_back(q);
+                    }
+                }
+                for (int j = numDofs; j < m_maxLogDof; ++j)
+                {
+                    float q = 0.0;
+                    logData.m_values.push_back(q);
+                }
+                
+                for (int j = 0; j < numJoints; ++j)
+                {
+                    if (mb->getLink(j).m_jointType == 0 || mb->getLink(j).m_jointType == 1)
+                    {
+                        float u = mb->getJointVel(j);
+                        logData.m_values.push_back(u);
+                    }
+                }
+                for (int j = numDofs; j < m_maxLogDof; ++j)
+                {
+                    float u = 0.0;
+                    logData.m_values.push_back(u);
+                }
+                                
+                //at the moment, appendMinitaurLogData will directly write to disk (potential delay)
+                //better to fill a huge memory buffer and once in a while write it to disk
+                appendMinitaurLogData(m_logFileHandle, m_structTypes, logData);
+                fflush(m_logFileHandle);
+            }
+            
+            m_loggingTimeStamp++;
+        }
+    }
+};
 
 struct PhysicsServerCommandProcessorInternalData
 {
@@ -518,6 +849,7 @@ struct PhysicsServerCommandProcessorInternalData
 	bool m_hasGround;
 
 	b3VRControllerEvent m_vrEvents[MAX_VR_CONTROLLERS];
+	btAlignedObjectArray<b3KeyboardEvent> m_keyboardEvents;
 	
 	btMultiBodyFixedConstraint* m_gripperRigidbodyFixed;
 	btMultiBody* m_gripperMultiBody;
@@ -576,7 +908,8 @@ struct PhysicsServerCommandProcessorInternalData
 
 	btAlignedObjectArray<int> m_sdfRecentLoadedBodies;
 
-
+	btAlignedObjectArray<InternalStateLogger*>	m_stateLoggers;
+	int m_stateLoggersUniqueId;
 
 	struct GUIHelperInterface* m_guiHelper;
 	int m_sharedMemoryKey;
@@ -621,6 +954,7 @@ struct PhysicsServerCommandProcessorInternalData
 		m_collisionConfiguration(0),
 		m_dynamicsWorld(0),
 		m_remoteDebugDrawer(0),
+		m_stateLoggersUniqueId(0),
 		m_guiHelper(0),
 		m_sharedMemoryKey(SHARED_MEMORY_KEY),
 		m_verboseOutput(false),
@@ -757,6 +1091,22 @@ PhysicsServerCommandProcessor::~PhysicsServerCommandProcessor()
 	delete m_data;
 }
 
+void logCallback(btDynamicsWorld *world, btScalar timeStep)
+{
+	PhysicsServerCommandProcessor* proc = (PhysicsServerCommandProcessor*) world->getWorldUserInfo();
+	proc->logObjectStates(timeStep);
+
+}
+
+
+void PhysicsServerCommandProcessor::logObjectStates(btScalar timeStep)
+{
+	for (int i=0;i<m_data->m_stateLoggers.size();i++)
+	{
+		m_data->m_stateLoggers[i]->logState(timeStep);
+	}
+
+}
 
 void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 {
@@ -803,6 +1153,19 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 //	m_data->m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 2;
 	//todo: islands/constraints are buggy in btMultiBodyDynamicsWorld! (performance + see slipping grasp)
 
+
+	m_data->m_dynamicsWorld->setInternalTickCallback(logCallback,this);
+}
+
+void PhysicsServerCommandProcessor::deleteStateLoggers()
+{
+	for (int i=0;i<m_data->m_stateLoggers.size();i++)
+	{
+		m_data->m_stateLoggers[i]->stop();
+		delete m_data->m_stateLoggers[i];
+	}
+	m_data->m_stateLoggers.clear();
+
 }
 
 void PhysicsServerCommandProcessor::deleteCachedInverseKinematicsBodies()
@@ -837,6 +1200,7 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 {
 	deleteCachedInverseDynamicsBodies();
 	deleteCachedInverseKinematicsBodies();
+	deleteStateLoggers();
 
 	m_data->m_userConstraints.clear();
 	m_data->m_saveWorldBodyData.clear();
@@ -1450,7 +1814,122 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					break;
 				}
 #endif
+				case CMD_STATE_LOGGING:
+				{
+					serverStatusOut.m_type = CMD_STATE_LOGGING_FAILED;
+                    hasStatus = true;
 
+					if (clientCmd.m_updateFlags & STATE_LOGGING_START_LOG)
+					{
+
+						if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_VIDEO_MP4)
+						{
+							if (clientCmd.m_stateLoggingArguments.m_fileName)
+							{
+								int loggerUid = m_data->m_stateLoggersUniqueId++;
+								VideoMP4Loggger* logger = new VideoMP4Loggger(loggerUid,clientCmd.m_stateLoggingArguments.m_fileName,this->m_data->m_guiHelper);
+								m_data->m_stateLoggers.push_back(logger);
+								serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
+								serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
+							}
+						}
+						
+						if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_MINITAUR)
+						{
+							
+							std::string fileName = clientCmd.m_stateLoggingArguments.m_fileName;
+							//either provide the minitaur by object unique Id, or search for first multibody with 8 motors...
+
+							
+							if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_OBJECT_UNIQUE_ID)&& (clientCmd.m_stateLoggingArguments.m_numBodyUniqueIds>0))
+							{
+								int bodyUniqueId = clientCmd.m_stateLoggingArguments.m_bodyUniqueIds[0];
+								InteralBodyData* body = m_data->getHandle(bodyUniqueId);
+								if (body)
+								{
+									if (body->m_multiBody)
+									{
+										btAlignedObjectArray<std::string> motorNames;
+										motorNames.push_back("motor_front_leftR_joint");
+										motorNames.push_back("motor_front_leftL_joint");
+										motorNames.push_back("motor_back_leftR_joint");
+										motorNames.push_back("motor_back_leftL_joint");
+										motorNames.push_back("motor_front_rightL_joint");
+										motorNames.push_back("motor_front_rightR_joint");
+										motorNames.push_back("motor_back_rightL_joint");
+										motorNames.push_back("motor_back_rightR_joint");
+										
+										btAlignedObjectArray<int> motorIdList;
+										for (int m=0;m<motorNames.size();m++)
+										{
+											for (int i=0;i<body->m_multiBody->getNumLinks();i++)
+											{
+												std::string jointName;
+												if (body->m_multiBody->getLink(i).m_jointName)
+												{
+													jointName = body->m_multiBody->getLink(i).m_jointName;
+												}
+												if (motorNames[m]==jointName)
+												{
+													motorIdList.push_back(i);
+												}
+											}
+										}
+
+										if (motorIdList.size()==8)
+										{
+											int loggerUid = m_data->m_stateLoggersUniqueId++;
+											MinitaurStateLogger* logger = new MinitaurStateLogger(loggerUid,fileName,body->m_multiBody, motorIdList);
+											m_data->m_stateLoggers.push_back(logger);
+											serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
+											serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
+										}
+									}
+								}
+							}
+						}
+                        if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_GENERIC_ROBOT)
+                        {
+                            std::string fileName = clientCmd.m_stateLoggingArguments.m_fileName;
+                            
+                            int loggerUid = m_data->m_stateLoggersUniqueId++;
+							int maxLogDof = 12;
+							if ((clientCmd.m_updateFlags & STATE_LOGGING_MAX_LOG_DOF))
+							{
+								maxLogDof = clientCmd.m_stateLoggingArguments.m_maxLogDof;
+							}
+                            GenericRobotStateLogger* logger = new GenericRobotStateLogger(loggerUid,fileName,m_data->m_dynamicsWorld,maxLogDof);
+                            
+                            if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_OBJECT_UNIQUE_ID) && (clientCmd.m_stateLoggingArguments.m_numBodyUniqueIds>0))
+                            {
+                                logger->m_filterObjectUniqueId = true;
+                                for (int i = 0; i < clientCmd.m_stateLoggingArguments.m_numBodyUniqueIds; ++i)
+                                {
+									int objectUniqueId  = clientCmd.m_stateLoggingArguments.m_bodyUniqueIds[i];
+                                    logger->m_bodyIdList.push_back(objectUniqueId);
+                                }
+                            }
+                            
+                            m_data->m_stateLoggers.push_back(logger);
+                            serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
+                            serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
+                        }
+					}
+					if ((clientCmd.m_updateFlags & STATE_LOGGING_STOP_LOG) && clientCmd.m_stateLoggingArguments.m_loggingUniqueId>=0)
+					{
+						serverStatusOut.m_type = CMD_STATE_LOGGING_COMPLETED;
+						for (int i=0;i<m_data->m_stateLoggers.size();i++)
+						{
+							if (m_data->m_stateLoggers[i]->m_loggingUniqueId==clientCmd.m_stateLoggingArguments.m_loggingUniqueId)
+							{
+								m_data->m_stateLoggers[i]->stop();
+								delete m_data->m_stateLoggers[i];
+								m_data->m_stateLoggers.removeAtIndex(i);
+							}
+						}
+					}
+					break;
+				}
 				case CMD_SET_VR_CAMERA_STATE:
 				{
 
@@ -1497,6 +1976,42 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					hasStatus = true;
 					break;
 				};
+
+				case CMD_REQUEST_KEYBOARD_EVENTS_DATA:
+				{
+					serverStatusOut.m_sendKeyboardEvents.m_numKeyboardEvents = m_data->m_keyboardEvents.size();
+					if (serverStatusOut.m_sendKeyboardEvents.m_numKeyboardEvents>MAX_KEYBOARD_EVENTS)
+					{
+						serverStatusOut.m_sendKeyboardEvents.m_numKeyboardEvents = MAX_KEYBOARD_EVENTS;
+					}
+					for (int i=0;i<serverStatusOut.m_sendKeyboardEvents.m_numKeyboardEvents;i++)
+					{
+						serverStatusOut.m_sendKeyboardEvents.m_keyboardEvents[i] = m_data->m_keyboardEvents[i];
+					}
+
+					btAlignedObjectArray<b3KeyboardEvent> events;
+
+					//remove out-of-date events
+					for (int i=0;i<m_data->m_keyboardEvents.size();i++)
+					{
+						b3KeyboardEvent event = m_data->m_keyboardEvents[i];
+						if (event.m_keyState & eButtonIsDown)
+						{
+							event.m_keyState = eButtonIsDown;
+							events.push_back(event);
+						}
+					}
+					m_data->m_keyboardEvents.resize(events.size());
+					for (int i=0;i<events.size();i++)
+					{
+						m_data->m_keyboardEvents[i] = events[i];
+					}
+
+					serverStatusOut.m_type = CMD_REQUEST_KEYBOARD_EVENTS_DATA_COMPLETED;
+					hasStatus = true;
+					break;
+				};
+
 				case CMD_REQUEST_RAY_CAST_INTERSECTIONS:
 				{
 					btVector3 rayFromWorld(clientCmd.m_requestRaycastIntersections.m_rayFromPosition[0],
@@ -2724,6 +3239,14 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					{
 						m_data->m_dynamicsWorld->getSolverInfo().m_numIterations = clientCmd.m_physSimParamArgs.m_numSolverIterations;
 					}
+					if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_CONTACT_BREAKING_THRESHOLD)
+					{
+						gContactBreakingThreshold = clientCmd.m_physSimParamArgs.m_contactBreakingThreshold;
+					}
+					if (clientCmd.m_updateFlags&SIM_PARAM_MAX_CMD_PER_1MS)
+					{
+						gMaxNumCmdPer1ms = clientCmd.m_physSimParamArgs.m_maxNumCmdPer1ms;
+					}
 
 					if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_COLLISION_FILTER_MODE)
 					{
@@ -3134,6 +3657,30 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					hasStatus = true;
 					break;
 				}
+                    
+                case CMD_CONFIGURE_OPENGL_VISUALIZER:
+                {
+                    SharedMemoryStatus& serverCmd = serverStatusOut;
+                    serverCmd.m_type =CMD_CLIENT_COMMAND_COMPLETED;
+                    
+                    hasStatus = true;
+                    if (clientCmd.m_updateFlags&COV_SET_FLAGS)
+                    {
+                        m_data->m_guiHelper->setVisualizerFlag(clientCmd.m_configureOpenGLVisualizerArguments.m_setFlag,
+                                                           clientCmd.m_configureOpenGLVisualizerArguments.m_setEnabled);
+                    }
+                    if (clientCmd.m_updateFlags&COV_SET_CAMERA_VIEW_MATRIX)
+                    {
+                        m_data->m_guiHelper->resetCamera( clientCmd.m_configureOpenGLVisualizerArguments.m_cameraDistance,
+                                                          clientCmd.m_configureOpenGLVisualizerArguments.m_cameraPitch,
+                                                          clientCmd.m_configureOpenGLVisualizerArguments.m_cameraYaw,
+                                                          clientCmd.m_configureOpenGLVisualizerArguments.m_cameraTargetPosition[0],
+                                                          clientCmd.m_configureOpenGLVisualizerArguments.m_cameraTargetPosition[1],
+                                                          clientCmd.m_configureOpenGLVisualizerArguments.m_cameraTargetPosition[2]);
+                    }
+                    break;
+                }
+                                       
                 case CMD_REQUEST_CONTACT_POINT_INFORMATION:
                     {
                         SharedMemoryStatus& serverCmd =serverStatusOut;
@@ -4583,7 +5130,7 @@ void PhysicsServerCommandProcessor::enableRealTimeSimulation(bool enableRealTime
 	m_data->m_allowRealTimeSimulation = enableRealTimeSim;
 }
 
-void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const struct b3VRControllerEvent* vrEvents, int numVREvents)
+void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const struct b3VRControllerEvent* vrEvents, int numVREvents,const struct b3KeyboardEvent* keyEvents, int numKeyEvents)
 {
 	//update m_vrEvents
 	for (int i=0;i<numVREvents;i++)
@@ -4623,6 +5170,31 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const
 		}
 	}
 
+	for (int i=0;i<numKeyEvents;i++)
+	{
+		const b3KeyboardEvent& event = keyEvents[i];
+		bool found = false;
+		//search a matching one first, otherwise add new event
+		for (int e=0;e<m_data->m_keyboardEvents.size();e++)
+		{
+			if (event.m_keyCode == m_data->m_keyboardEvents[e].m_keyCode)
+			{
+				m_data->m_keyboardEvents[e].m_keyState |= event.m_keyState;
+				if (event.m_keyState & eButtonIsDown)
+				{
+					m_data->m_keyboardEvents[e].m_keyState |= eButtonIsDown;
+				} else
+				{
+					m_data->m_keyboardEvents[e].m_keyState &= ~eButtonIsDown;
+				}
+				found=true;
+			}
+		}
+		if (!found)
+		{
+			m_data->m_keyboardEvents.push_back(event);
+		}
+	}
 	if (gResetSimulation)
 	{
 		resetSimulation();
@@ -4689,7 +5261,6 @@ void PhysicsServerCommandProcessor::applyJointDamping(int bodyUniqueId)
 void PhysicsServerCommandProcessor::resetSimulation()
 {
 	//clean up all data
-	deleteCachedInverseDynamicsBodies();
 
 	if (m_data && m_data->m_guiHelper)
 	{
@@ -5253,4 +5824,8 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 		} 
 			
 	}
+}
+
+void PhysicsServerCommandProcessor::setTimeOut(double /*timeOutInSeconds*/)
+{
 }
