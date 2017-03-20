@@ -919,6 +919,7 @@ struct PhysicsServerCommandProcessorInternalData
 
 	//data for picking objects
 	class btRigidBody*	m_pickedBody;
+    int m_savedActivationState;
 	class btTypedConstraint* m_pickedConstraint;
 	class btMultiBodyPoint2Point*		m_pickingMultiBodyPoint2Point;
 	btVector3 m_oldPickingPos;
@@ -1146,7 +1147,8 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
     
     m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
     m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = 0.08;
-    
+
+	m_data->m_dynamicsWorld->getSolverInfo().m_frictionERP = 0.2;//need to check if there are artifacts with frictionERP
 	m_data->m_dynamicsWorld->getSolverInfo().m_linearSlop = 0.00001;
 	m_data->m_dynamicsWorld->getSolverInfo().m_numIterations = 50;
 	m_data->m_dynamicsWorld->getSolverInfo().m_leastSquaresResidualThreshold = 1e-7;
@@ -1824,7 +1826,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 						if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_VIDEO_MP4)
 						{
-							if (clientCmd.m_stateLoggingArguments.m_fileName)
+							//if (clientCmd.m_stateLoggingArguments.m_fileName)
 							{
 								int loggerUid = m_data->m_stateLoggersUniqueId++;
 								VideoMP4Loggger* logger = new VideoMP4Loggger(loggerUid,clientCmd.m_stateLoggingArguments.m_fileName,this->m_data->m_guiHelper);
@@ -4978,6 +4980,7 @@ bool PhysicsServerCommandProcessor::pickBody(const btVector3& rayFromWorld, cons
 			if (!(body->isStaticObject() || body->isKinematicObject()))
 			{
 				m_data->m_pickedBody = body;
+                m_data->m_savedActivationState = body->getActivationState();
 				m_data->m_pickedBody->setActivationState(DISABLE_DEACTIVATION);
 				//printf("pickPos=%f,%f,%f\n",pickPos.getX(),pickPos.getY(),pickPos.getZ());
 				btVector3 localPivot = body->getCenterOfMassTransform().inverse() * pickPos;
@@ -5070,7 +5073,7 @@ void PhysicsServerCommandProcessor::removePickingConstraint()
 		m_data->m_dynamicsWorld->removeConstraint(m_data->m_pickedConstraint);
 		delete m_data->m_pickedConstraint;
 		m_data->m_pickedConstraint = 0;
-		m_data->m_pickedBody->forceActivationState(ACTIVE_TAG);
+		m_data->m_pickedBody->forceActivationState(m_data->m_savedActivationState);
 		m_data->m_pickedBody = 0;
 	}
 	if (m_data->m_pickingMultiBodyPoint2Point)

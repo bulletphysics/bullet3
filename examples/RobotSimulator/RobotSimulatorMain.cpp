@@ -61,6 +61,7 @@ int main(int argc, char* argv[])
 	sim->setRealTimeSimulation(false);
 	int vidLogId = -1;
 	int minitaurLogId = -1;
+	int rotateCamera = 0;
 
 	while (sim->canSubmitCommand())
 	{
@@ -73,9 +74,11 @@ int main(int argc, char* argv[])
 			//m_keyState is a flag combination of eButtonIsDown,eButtonTriggered, eButtonReleased
 			for (int i=0;i<keyEvents.m_numKeyboardEvents;i++)
 			{
-				if (keyEvents.m_keyboardEvents[i].m_keyCode=='0')
+				b3KeyboardEvent& e = keyEvents.m_keyboardEvents[i];
+
+				if (e.m_keyCode=='0')
 				{
-					if ( keyEvents.m_keyboardEvents[i].m_keyState&eButtonTriggered)
+					if ( e.m_keyState&eButtonTriggered)
 					{
 						if (vidLogId < 0)
 						{
@@ -89,17 +92,22 @@ int main(int argc, char* argv[])
 					}
 				}
 
-				if (keyEvents.m_keyboardEvents[i].m_keyCode=='m')
+				if (e.m_keyCode=='m')
 				{
-					if ( minitaurLogId<0 && keyEvents.m_keyboardEvents[i].m_keyState&eButtonTriggered)
+					if ( minitaurLogId<0 && e.m_keyState&eButtonTriggered)
 					{
 						minitaurLogId = sim->startStateLogging(STATE_LOGGING_MINITAUR,"simlog.bin");
 					}
-					if (minitaurLogId>=0 && keyEvents.m_keyboardEvents[i].m_keyState&eButtonReleased)
+					if (minitaurLogId>=0 && e.m_keyState&eButtonReleased)
 					{
 						sim->stopStateLogging(minitaurLogId);
 						minitaurLogId=-1;
 					}
+				}
+
+				if (e.m_keyCode == 'r' && e.m_keyState&eButtonTriggered)
+				{
+					rotateCamera = 1-rotateCamera;
 				}
 
 
@@ -107,10 +115,17 @@ int main(int argc, char* argv[])
 			}
 		}
 		sim->stepSimulation();
-		static double yaw=0;
-		double distance = 10.5+9 * b3Sin(yaw);
-		yaw+=0.008;
-		sim->resetDebugVisualizerCamera(distance,yaw,20,b3MakeVector3(0,0,0.1));
+
+		if (rotateCamera)
+		{
+			static double yaw=0;
+			double distance = 1;
+			yaw+=0.1;
+			b3Vector3 basePos;
+			b3Quaternion baseOrn;
+			sim->getBasePositionAndOrientation(minitaurUid,basePos,baseOrn);
+			sim->resetDebugVisualizerCamera(distance,yaw,20,basePos);
+		}
 		b3Clock::usleep(1000.*1000.*fixedTimeStep);
 	}
 

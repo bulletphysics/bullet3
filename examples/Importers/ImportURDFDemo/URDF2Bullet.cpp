@@ -166,6 +166,10 @@ void processContactParameters(const URDFLinkContactInfo& contactInfo, btCollisio
 	{
 		col->setContactStiffnessAndDamping(contactInfo.m_contactStiffness, contactInfo.m_contactDamping);
 	}
+	if ((contactInfo.m_flags & URDF_CONTACT_HAS_FRICTION_ANCHOR) != 0)
+	{
+		col->setCollisionFlags(col->getCollisionFlags() | btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+	}
 }
 
 
