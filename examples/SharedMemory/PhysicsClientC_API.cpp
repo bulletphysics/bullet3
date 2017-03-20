@@ -914,7 +914,7 @@ b3SharedMemoryStatusHandle b3ProcessServerStatus(b3PhysicsClientHandle physClien
 int b3GetStatusType(b3SharedMemoryStatusHandle statusHandle)
 {
     const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
-    b3Assert(status);
+    //b3Assert(status);
     if (status)
     {
         return status->m_type;
@@ -1063,7 +1063,7 @@ b3SharedMemoryStatusHandle b3SubmitClientCommandAndWaitStatus(b3PhysicsClientHan
 
 		b3SubmitClientCommand(physClient, commandHandle);
 
-		while ((statusHandle == 0) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
+		while (cl->isConnected() && (statusHandle == 0) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
 		{
 			statusHandle = b3ProcessServerStatus(physClient);
 		}

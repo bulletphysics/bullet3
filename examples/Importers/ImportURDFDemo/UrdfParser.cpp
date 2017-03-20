@@ -768,6 +768,13 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
                   }
               }
           }
+          {
+          	TiXmlElement *friction_anchor = ci->FirstChildElement("friction_anchor");
+            if (friction_anchor)
+            {
+            	link.m_contactInfo.m_flags |= URDF_CONTACT_HAS_FRICTION_ANCHOR;
+            }
+          }
            {
            
               TiXmlElement *stiffness_xml = ci->FirstChildElement("stiffness");

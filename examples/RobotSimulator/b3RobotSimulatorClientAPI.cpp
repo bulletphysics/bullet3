@@ -210,7 +210,7 @@ void b3RobotSimulatorClientAPI::stepSimulation()
 	{
 		statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, b3InitStepSimulationCommand(m_data->m_physicsClientHandle));
 		statusType = b3GetStatusType(statusHandle);
-		b3Assert(statusType == CMD_STEP_FORWARD_SIMULATION_COMPLETED);
+		//b3Assert(statusType == CMD_STEP_FORWARD_SIMULATION_COMPLETED);
 	}
 }
 
@@ -226,7 +226,7 @@ void b3RobotSimulatorClientAPI::setGravity(const b3Vector3& gravityAcceleration)
 	b3SharedMemoryStatusHandle statusHandle;
 	b3PhysicsParamSetGravity(command, gravityAcceleration[0], gravityAcceleration[1], gravityAcceleration[2]);
 	statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
-	b3Assert(b3GetStatusType(statusHandle) == CMD_CLIENT_COMMAND_COMPLETED);
+//	b3Assert(b3GetStatusType(statusHandle) == CMD_CLIENT_COMMAND_COMPLETED);
 }
 
 b3Quaternion b3RobotSimulatorClientAPI::getQuaternionFromEuler(const b3Vector3& rollPitchYaw)
