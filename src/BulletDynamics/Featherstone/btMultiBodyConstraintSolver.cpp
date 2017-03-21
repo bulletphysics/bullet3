@@ -543,15 +543,20 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 
 		btScalar positionalError = 0.f;
 		btScalar velocityError = restitution - rel_vel;// * damping;	//note for friction restitution is always set to 0 (check above) so it is acutally velocityError = -rel_vel for friction
-
-    if (distance>0)
-		{
-			positionalError = 0;
-			velocityError -= distance / infoGlobal.m_timeStep;
-
-		} else
+		if (isFriction)
 		{
 			positionalError = -distance * erp/infoGlobal.m_timeStep;
+		} else
+		{
+    			if (distance>0)
+			{
+				positionalError = 0;
+				velocityError -= distance / infoGlobal.m_timeStep;
+
+			} else
+			{
+				positionalError = -distance * erp/infoGlobal.m_timeStep;
+			}
 		}
 
 		btScalar  penetrationImpulse = positionalError*solverConstraint.m_jacDiagABInv;
