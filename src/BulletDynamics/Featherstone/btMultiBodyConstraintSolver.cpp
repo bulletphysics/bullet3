@@ -442,7 +442,10 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
         distance = cp.getDistance()+infoGlobal.m_linearSlop;
     } else
     {
-        distance = (cp.getPositionWorldOnA() - cp.getPositionWorldOnB()).dot(contactNormal);
+        if (cp.m_contactPointFlags & BT_CONTACT_FLAG_FRICTION_ANCHOR)
+        {
+          distance = (cp.getPositionWorldOnA() - cp.getPositionWorldOnB()).dot(contactNormal);
+        }
     }
   
     
@@ -541,17 +544,14 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 		btScalar positionalError = 0.f;
 		btScalar velocityError = restitution - rel_vel;// * damping;	//note for friction restitution is always set to 0 (check above) so it is acutally velocityError = -rel_vel for friction
 
-		if (distance>0 && !isFriction)
+    if (distance>0)
 		{
 			positionalError = 0;
 			velocityError -= distance / infoGlobal.m_timeStep;
 
 		} else
 		{
-			if (cp.m_contactPointFlags & BT_CONTACT_FLAG_FRICTION_ANCHOR)
-			{
-				positionalError = -distance * erp/infoGlobal.m_timeStep;
-			}
+			positionalError = -distance * erp/infoGlobal.m_timeStep;
 		}
 
 		btScalar  penetrationImpulse = positionalError*solverConstraint.m_jacDiagABInv;
