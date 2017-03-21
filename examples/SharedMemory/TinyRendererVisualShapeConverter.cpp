@@ -192,31 +192,6 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 	switch (visual->m_geometry.m_type)
 	{
 		case URDF_GEOM_CYLINDER:
-		{
-			btAlignedObjectArray<btVector3> vertices;
-		
-			visualShapeOut.m_dimensions[0] = visual->m_geometry.m_cylinderLength;
-			visualShapeOut.m_dimensions[1] = visual->m_geometry.m_cylinderRadius;
-			
-			//int numVerts = sizeof(barrel_vertices)/(9*sizeof(float));
-			int numSteps = 32;
-			for (int i = 0; i<numSteps; i++)
-			{
-
-				btScalar cylRadius = visual->m_geometry.m_cylinderRadius;
-				btScalar cylLength = visual->m_geometry.m_cylinderLength;
-				
-				btVector3 vert(cylRadius*btSin(SIMD_2_PI*(float(i) / numSteps)), cylRadius*btCos(SIMD_2_PI*(float(i) / numSteps)), cylLength / 2.);
-				vertices.push_back(vert);
-				vert[2] = -cylLength / 2.;
-				vertices.push_back(vert);
-			}
-
-			btConvexHullShape* cylZShape = new btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
-			cylZShape->setMargin(0.001);
-			convexColShape = cylZShape;
-			break;
-		}
 		case URDF_GEOM_CAPSULE:
 		{
 			btVector3 p1 = visual->m_geometry.m_capsuleFrom;
@@ -257,6 +232,27 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 			visualShapeOut.m_localVisualFrame[6] = tr.getRotation()[3];
 			visualShapeOut.m_dimensions[0] = len;
 			visualShapeOut.m_dimensions[1] = rad;
+
+			btAlignedObjectArray<btVector3> vertices;
+			int numSteps = 32;
+			for (int i = 0; i<numSteps; i++)
+			{
+				btVector3 vert(rad*btSin(SIMD_2_PI*(float(i) / numSteps)), rad*btCos(SIMD_2_PI*(float(i) / numSteps)), len / 2.);
+				vertices.push_back(vert);
+				vert[2] = -len / 2.;
+				vertices.push_back(vert);
+			}
+			if (visual->m_geometry.m_type==URDF_GEOM_CAPSULE) {
+				// TODO: check if tiny renderer works with that, didn't check -- Oleg
+				btVector3 pole1(0, 0, + len / 2. + rad);
+				btVector3 pole2(0, 0, - len / 2. - rad);
+				vertices.push_back(pole1);
+				vertices.push_back(pole2);
+			}
+
+			btConvexHullShape* cylZShape = new btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
+			cylZShape->setMargin(0.001);
+			convexColShape = cylZShape;
 			break;
 		}
 		case URDF_GEOM_BOX:

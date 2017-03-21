@@ -70,9 +70,6 @@ struct UrdfGeometry
 	btVector3 m_capsuleFrom;
 	btVector3 m_capsuleTo;
 
-	double m_cylinderRadius;
-	double m_cylinderLength;
-
 	btVector3 m_planeNormal;
     
 	enum {

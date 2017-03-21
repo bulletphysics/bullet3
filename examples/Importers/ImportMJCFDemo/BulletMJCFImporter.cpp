@@ -618,10 +618,10 @@ struct BulletMJCFImporterInternalData
 				handledGeomType = true;
 			}
 
-			//todo: capsule, cylinder, meshes or heightfields etc
-			if (geomType == "capsule")
+			if (geomType == "capsule" || geomType == "cylinder")
 			{
-				geom.m_type = URDF_GEOM_CAPSULE;
+				// <geom conaffinity="0" contype="0" fromto="0 0 0 0 0 0.02" name="root" rgba="0.9 0.4 0.6 1" size=".011" type="cylinder"/>
+				geom.m_type = geomType=="cylinder" ? URDF_GEOM_CYLINDER : URDF_GEOM_CAPSULE;
 
 				btArray<std::string> pieces;
 				btArray<float> sizes;
@@ -695,13 +695,6 @@ struct BulletMJCFImporterInternalData
 					}
 				}
 			}
-			#if 0
-			if (geomType == "cylinder")
-			{
-				geom.m_type = URDF_GEOM_CYLINDER;
-				handledGeomType = true;
-			}
-#endif
 			if (handledGeomType)
 			{
 						
@@ -866,6 +859,7 @@ struct BulletMJCFImporterInternalData
 
 		return orgChildLinkIndex;
 	}
+
 	bool parseBody(TiXmlElement* link_xml, int modelIndex, int orgParentLinkIndex, MJCFErrorLogger* logger)
 	{
 		int newParentLinkIndex = orgParentLinkIndex;
@@ -1027,10 +1021,6 @@ struct BulletMJCFImporterInternalData
 		}
 
 		linkPtr->m_linkTransformInWorld = linkTransform;
-		if (bodyN == "cart1")//front_left_leg")
-		{
-			printf("found!\n");
-		}
 		if ((newParentLinkIndex != INVALID_LINK_INDEX) && !skipFixedJoint)
 		{
 			//linkPtr->m_linkTransformInWorld.setIdentity();

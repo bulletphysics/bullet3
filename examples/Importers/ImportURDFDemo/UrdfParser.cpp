@@ -401,8 +401,9 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
 		  logger->reportError("Cylinder shape must have both length and radius attributes");
 		  return false;
 	  }
-		geom.m_cylinderRadius = urdfLexicalCast<double>(shape->Attribute("radius"));
-		geom.m_cylinderLength = urdfLexicalCast<double>(shape->Attribute("length"));
+		geom.m_hasFromTo = false;
+		geom.m_capsuleRadius = urdfLexicalCast<double>(shape->Attribute("radius"));
+		geom.m_capsuleHalfHeight = urdfLexicalCast<double>(shape->Attribute("length"));
 		
 	}
 	else if (type_name == "capsule")

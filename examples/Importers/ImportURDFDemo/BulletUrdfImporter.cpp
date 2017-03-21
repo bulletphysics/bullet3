@@ -562,8 +562,8 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 
         case URDF_GEOM_CYLINDER:
         {
-			btScalar cylRadius = collision->m_geometry.m_cylinderRadius;
-			btScalar cylLength = collision->m_geometry.m_cylinderLength;
+			btScalar cylRadius = collision->m_geometry.m_capsuleRadius;
+			btScalar cylLength = collision->m_geometry.m_capsuleHalfHeight;
 			
             btAlignedObjectArray<btVector3> vertices;
             //int numVerts = sizeof(barrel_vertices)/(9*sizeof(float));
@@ -785,8 +785,8 @@ static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const cha
 			for (int i = 0; i<numSteps; i++)
 			{
 
-				btScalar cylRadius = visual->m_geometry.m_cylinderRadius;
-				btScalar cylLength = visual->m_geometry.m_cylinderLength;
+				btScalar cylRadius = visual->m_geometry.m_capsuleRadius;
+				btScalar cylLength = visual->m_geometry.m_capsuleHalfHeight;
 				
 				btVector3 vert(cylRadius*btSin(SIMD_2_PI*(float(i) / numSteps)), cylRadius*btCos(SIMD_2_PI*(float(i) / numSteps)), cylLength / 2.);
 				vertices.push_back(vert);
