@@ -1398,8 +1398,8 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 
 
         //todo: move these internal API called inside the 'ConvertURDF2Bullet' call, hidden from the user
-        int rootLinkIndex = u2b.getRootLinkIndex();
-        b3Printf("urdf root link index = %d\n",rootLinkIndex);
+        //int rootLinkIndex = u2b.getRootLinkIndex();
+        //b3Printf("urdf root link index = %d\n",rootLinkIndex);
         MyMultiBodyCreator creation(m_data->m_guiHelper);
 
         u2b.getRootTransformInWorld(rootTrans);

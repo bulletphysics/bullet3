@@ -414,6 +414,11 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 			break;
 		} // case mesh
 
+		case URDF_GEOM_PLANE:
+			// TODO: plane in tiny renderer
+			// TODO: export visualShapeOut for external render
+			break;
+
 		default:
 		{
 			b3Warning("TinyRenderer: unknown visual geometry type %i\n", visual->m_geometry.m_type);

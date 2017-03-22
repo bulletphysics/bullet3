@@ -143,6 +143,7 @@ struct BulletMJCFImporterInternalData
 	//<compiler angle="radian" meshdir="mesh/" texturedir="texture/"/>
 	std::string m_meshDir;
 	std::string m_textureDir;
+	std::string m_angleUnits;
 
 
 	int m_activeModel;
@@ -213,6 +214,8 @@ struct BulletMJCFImporterInternalData
 		{
 			m_textureDir = textureDirStr;
 		}
+		const char* angle = root_xml->Attribute("angle");
+		m_angleUnits = angle ? angle : "degree";  // degrees by default, http://www.mujoco.org/book/modeling.html#compiler
 #if 0
 		for (TiXmlElement* child_xml = root_xml->FirstChildElement() ; child_xml ; child_xml = child_xml->NextSiblingElement())
 		{
@@ -406,7 +409,7 @@ struct BulletMJCFImporterInternalData
 			isLimited = true;
 			//parse the 'range' field
 			btArray<std::string> pieces;
-			btArray<float> sizes;
+			btArray<float> limits;
 			btAlignedObjectArray<std::string> strArray;
 			urdfIsAnyOf(" ", strArray);
 			urdfStringSplit(pieces, rangeStr, strArray);
@@ -414,17 +417,28 @@ struct BulletMJCFImporterInternalData
 			{
 				if (!pieces[i].empty())
 				{
-					sizes.push_back(urdfLexicalCast<double>(pieces[i].c_str()));
+					limits.push_back(urdfLexicalCast<double>(pieces[i].c_str()));
 				}
 			}
-			if (sizes.size()==2)
+			bool success = false;
+			if (limits.size()==2)
 			{
-				// TODO angle units are in "<compiler angle="degree" inertiafromgeom="true"/>
-				range[0] = sizes[0] * B3_PI / 180;
-				range[1] = sizes[1] * B3_PI / 180;
-			} else
+				if (m_angleUnits=="degree")
+				{
+					range[0] = limits[0] * B3_PI / 180;
+					range[1] = limits[1] * B3_PI / 180;
+					success = true;
+				}
+				else if (m_angleUnits=="radian")
+				{
+					range[0] = limits[0];
+					range[1] = limits[1];
+					success = true;
+				}
+			}
+			if (!success)
 			{
-				logger->reportWarning("Expected range[2] in joint with limits");
+				logger->reportWarning( (sourceFileLocation(link_xml) + ": cannot parse 'range' attribute (units='" + m_angleUnits + "'')").c_str() );
 			}
 		}
 
