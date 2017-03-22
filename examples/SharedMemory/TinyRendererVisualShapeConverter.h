@@ -16,7 +16,7 @@ struct TinyRendererVisualShapeConverter : public LinkVisualShapesConverter
 	
 	virtual ~TinyRendererVisualShapeConverter();
 	
-	virtual void convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfModel& model, class btCollisionObject* colShape, int objectIndex);
+	virtual void convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, class btCollisionObject* colShape, int objectIndex);
 	
 	virtual int getNumVisualShapes(int bodyUniqueId);
 

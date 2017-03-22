@@ -1499,7 +1499,7 @@ bool PhysicsServerCommandProcessor::loadMjcf(const char* fileName, char* bufferS
 
 	m_data->m_sdfRecentLoadedBodies.clear();
 
-    BulletMJCFImporter u2b(m_data->m_guiHelper);	//, &m_data->m_visualConverter
+    BulletMJCFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter);
 
 	bool useFixedBase = false;
 	MyMJCFLogger2 logger;
@@ -4612,20 +4612,19 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					int remain = totalNumVisualShapes - clientCmd.m_requestVisualShapeDataArguments.m_startingVisualShapeIndex;
 					int shapeIndex = clientCmd.m_requestVisualShapeDataArguments.m_startingVisualShapeIndex;
 
-					m_data->m_visualConverter.getVisualShapesData(clientCmd.m_requestVisualShapeDataArguments.m_bodyUniqueId,
+					int success = m_data->m_visualConverter.getVisualShapesData(clientCmd.m_requestVisualShapeDataArguments.m_bodyUniqueId,
 						shapeIndex,
 						visualShapeStoragePtr);
-
-
-                    //m_visualConverter
-					serverCmd.m_sendVisualShapeArgs.m_numRemainingVisualShapes = remain-1;
-					serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied = 1;
-					serverCmd.m_sendVisualShapeArgs.m_startingVisualShapeIndex = clientCmd.m_requestVisualShapeDataArguments.m_startingVisualShapeIndex;
-					serverCmd.m_sendVisualShapeArgs.m_bodyUniqueId = clientCmd.m_requestVisualShapeDataArguments.m_bodyUniqueId;
-					serverCmd.m_numDataStreamBytes = sizeof(b3VisualShapeData)*serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied;
-                    serverCmd.m_type =CMD_VISUAL_SHAPE_INFO_COMPLETED;
-                    hasStatus = true;
-                    break;
+					if (success) {
+						serverCmd.m_sendVisualShapeArgs.m_numRemainingVisualShapes = remain-1;
+						serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied = 1;
+						serverCmd.m_sendVisualShapeArgs.m_startingVisualShapeIndex = clientCmd.m_requestVisualShapeDataArguments.m_startingVisualShapeIndex;
+						serverCmd.m_sendVisualShapeArgs.m_bodyUniqueId = clientCmd.m_requestVisualShapeDataArguments.m_bodyUniqueId;
+						serverCmd.m_numDataStreamBytes = sizeof(b3VisualShapeData)*serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied;
+						serverCmd.m_type = CMD_VISUAL_SHAPE_INFO_COMPLETED;
+					}
+					hasStatus = true;
+					break;
                 }
                 case CMD_UPDATE_VISUAL_SHAPE:
                 {

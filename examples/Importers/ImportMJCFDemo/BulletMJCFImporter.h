@@ -18,9 +18,8 @@ class BulletMJCFImporter : public URDFImporterInterface
 {
 	struct BulletMJCFImporterInternalData* m_data;
 
-
 public:
-	BulletMJCFImporter(struct GUIHelperInterface* helper);
+	BulletMJCFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter);
 	virtual ~BulletMJCFImporter();
 	
 	virtual bool parseMJCFString(const char* xmlString, MJCFErrorLogger* logger);
@@ -66,7 +65,7 @@ public:
     
 	virtual int convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame) const;
     
-    virtual void convertLinkVisualShapes2(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame, class btCollisionObject* colObj, int objectIndex) const;
+    virtual void convertLinkVisualShapes2(int linkIndex, int urdfIndex, const char* pathPrefix, const btTransform& inertialFrame, class btCollisionObject* colObj, int objectIndex) const;
     virtual void setBodyUniqueId(int bodyId);
     virtual int getBodyUniqueId() const;
     
