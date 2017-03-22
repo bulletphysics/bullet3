@@ -75,16 +75,6 @@ void BulletURDFImporter::printTree()
 //	btAssert(0);
 }
 
-
-enum MyFileType
-{
-	FILE_STL=1,
-	FILE_COLLADA=2,
-    FILE_OBJ=3,
-};
-
-
-    
 BulletURDFImporter::BulletURDFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter)
 {
 	m_data = new BulletURDFInternalData;
@@ -572,8 +562,8 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 
         case URDF_GEOM_CYLINDER:
         {
-			btScalar cylRadius = collision->m_geometry.m_cylinderRadius;
-			btScalar cylLength = collision->m_geometry.m_cylinderLength;
+			btScalar cylRadius = collision->m_geometry.m_capsuleRadius;
+			btScalar cylLength = collision->m_geometry.m_capsuleHalfHeight;
 			
             btAlignedObjectArray<btVector3> vertices;
             //int numVerts = sizeof(barrel_vertices)/(9*sizeof(float));
@@ -624,7 +614,7 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 		GLInstanceGraphicsShape* glmesh = 0;
 		switch (collision->m_geometry.m_meshFileType)
 		{
-		case FILE_OBJ:
+		case UrdfGeometry::FILE_OBJ:
 			if (collision->m_flags & URDF_FORCE_CONCAVE_TRIMESH)
 			{
 				glmesh = LoadMeshFromObj(collision->m_geometry.m_meshFileName.c_str(), 0);
@@ -640,11 +630,11 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 			}
 			break;
 
-		case FILE_STL:
+		case UrdfGeometry::FILE_STL:
 			glmesh = LoadMeshFromSTL(collision->m_geometry.m_meshFileName.c_str());
 			break;
 
-		case FILE_COLLADA:
+		case UrdfGeometry::FILE_COLLADA:
 			{
 				btAlignedObjectArray<GLInstanceGraphicsShape> visualShapes;
 				btAlignedObjectArray<ColladaGraphicsInstance> visualShapeInstances;
@@ -795,8 +785,8 @@ static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const cha
 			for (int i = 0; i<numSteps; i++)
 			{
 
-				btScalar cylRadius = visual->m_geometry.m_cylinderRadius;
-				btScalar cylLength = visual->m_geometry.m_cylinderLength;
+				btScalar cylRadius = visual->m_geometry.m_capsuleRadius;
+				btScalar cylLength = visual->m_geometry.m_capsuleHalfHeight;
 				
 				btVector3 vert(cylRadius*btSin(SIMD_2_PI*(float(i) / numSteps)), cylRadius*btCos(SIMD_2_PI*(float(i) / numSteps)), cylLength / 2.);
 				vertices.push_back(vert);
@@ -833,7 +823,7 @@ static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const cha
 		{
 			switch (visual->m_geometry.m_meshFileType)
 			{
-			case FILE_OBJ:
+			case UrdfGeometry::FILE_OBJ:
 				{
 					b3ImportMeshData meshData;
 					if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(visual->m_geometry.m_meshFileName, meshData))
@@ -852,13 +842,13 @@ static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const cha
 					break;
 				}
 
-			case FILE_STL:
+			case UrdfGeometry::FILE_STL:
 				{
 					glmesh = LoadMeshFromSTL(visual->m_geometry.m_meshFileName.c_str());
 					break;
 				}
 
-			case FILE_COLLADA:
+			case UrdfGeometry::FILE_COLLADA:
 				{
 					btAlignedObjectArray<GLInstanceGraphicsShape> visualShapes;
 					btAlignedObjectArray<ColladaGraphicsInstance> visualShapeInstances;
@@ -1128,15 +1118,17 @@ bool BulletURDFImporter::getLinkContactInfo(int linkIndex, URDFLinkContactInfo& 
 	return false;
 }
 
-void BulletURDFImporter::convertLinkVisualShapes2(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, class btCollisionObject* colObj, int bodyUniqueId) const
+void BulletURDFImporter::convertLinkVisualShapes2(int linkIndex, int urdfIndex, const char* pathPrefix, const btTransform& localInertiaFrame, class btCollisionObject* colObj, int bodyUniqueId) const
 {
-
   	if (m_data->m_customVisualShapesConverter)
 	{
 		const UrdfModel& model = m_data->m_urdfParser.getModel();
-		m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex,pathPrefix,localInertiaFrame, model, colObj, bodyUniqueId);
+		UrdfLink*const* linkPtr = model.m_links.getAtIndex(urdfIndex);
+		if (linkPtr)
+		{
+			m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex,pathPrefix,localInertiaFrame, *linkPtr, &model, colObj, bodyUniqueId);
+		}
 	}
-
 }
 
 int BulletURDFImporter::getNumAllocatedCollisionShapes() const

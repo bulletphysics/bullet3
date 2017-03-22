@@ -188,12 +188,12 @@ void ImportMJCFSetup::initPhysics()
 	m_filterCallback->m_filterMode = FILTER_GROUPAMASKB_OR_GROUPBMASKA2;
 	
 	//m_dynamicsWorld->getSolverInfo().m_numIterations = 100;
-    m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
-    m_dynamicsWorld->getDebugDrawer()->setDebugMode(
-    btIDebugDraw::DBG_DrawConstraints
-    +btIDebugDraw::DBG_DrawContactPoints
-    +btIDebugDraw::DBG_DrawAabb
-        );//+btIDebugDraw::DBG_DrawConstraintLimits);
+	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
+	m_dynamicsWorld->getDebugDrawer()->setDebugMode(
+		btIDebugDraw::DBG_DrawConstraints
+		+btIDebugDraw::DBG_DrawContactPoints
+		+btIDebugDraw::DBG_DrawAabb
+	);//+btIDebugDraw::DBG_DrawConstraintLimits);
 
 
 	if (m_guiHelper->getParameterInterface())
@@ -203,20 +203,23 @@ void ImportMJCFSetup::initPhysics()
 		slider.m_maxVal = 10;
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 	}
-	
-	BulletMJCFImporter importer(m_guiHelper);
+
+	BulletMJCFImporter importer(m_guiHelper, 0);
 	MyMJCFLogger logger;
 	bool result = importer.loadMJCF(m_fileName,&logger);
 	if (result)
 	{
-		 btTransform rootTrans;
-        rootTrans.setIdentity();
-        
-        for (int m =0; m<importer.getNumModels();m++)
-		{
+		btTransform rootTrans;
+		rootTrans.setIdentity();
 
-            importer.activateModel(m);
-            
+		for (int m =0; m<importer.getNumModels();m++)
+		{
+			importer.activateModel(m);
+
+			// normally used with PhysicsServerCommandProcessor that allocates unique ids to multibodies,
+			// emulate this behavior here:
+			importer.setBodyUniqueId(m);
+
 			btMultiBody* mb = 0;
 
 
@@ -226,18 +229,17 @@ void ImportMJCFSetup::initPhysics()
 			MyMultiBodyCreator creation(m_guiHelper);
 
 			rootTrans.setIdentity();
-           importer.getRootTransformInWorld(rootTrans);
+			importer.getRootTransformInWorld(rootTrans);
 
 			ConvertURDF2Bullet(importer,creation, rootTrans,m_dynamicsWorld,m_useMultiBody,importer.getPathPrefix(),CUF_USE_MJCF);
 
 			mb = creation.getBulletMultiBody();
-                        if (mb)
-                        {
-                          printf("first MJCF file converted!\n");
-                          std::string* name =
-                              new std::string(importer.getLinkName(
-                                  importer.getRootLinkIndex()));
-                          m_nameMemory.push_back(name);
+			if (mb)
+			{
+				std::string* name =
+				new std::string(importer.getLinkName(
+					importer.getRootLinkIndex()));
+					m_nameMemory.push_back(name);
 #ifdef TEST_MULTIBODY_SERIALIZATION
 				s->registerNameForPointer(name->c_str(),name->c_str());
 #endif//TEST_MULTIBODY_SERIALIZATION
@@ -287,10 +289,11 @@ void ImportMJCFSetup::initPhysics()
 							m_data->m_numMotors++;
 						}
 					}
-
 				}
+
 			} else
 			{
+				// not multibody
 				if (1)
 				{
 					//create motors for each generic joint
