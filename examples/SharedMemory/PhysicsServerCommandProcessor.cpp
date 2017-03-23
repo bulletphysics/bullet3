@@ -3365,15 +3365,24 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						}
 						if (clientCmd.m_updateFlags & INIT_POSE_HAS_JOINT_STATE)
 						{
-							int dofIndex = 7;
+							int uDofIndex = 6;
+							int posVarCountIndex = 7;
 							for (int i=0;i<mb->getNumLinks();i++)
 							{
-							    if ( (clientCmd.m_initPoseArgs.m_hasInitialStateQ[dofIndex]) && (mb->getLink(i).m_dofCount==1))
+							    if ( (clientCmd.m_initPoseArgs.m_hasInitialStateQ[posVarCountIndex]) && (mb->getLink(i).m_dofCount==1))
 								{
-									mb->setJointPos(i,clientCmd.m_initPoseArgs.m_initialStateQ[dofIndex]);
-									mb->setJointVel(i,0);
+									mb->setJointPos(i,clientCmd.m_initPoseArgs.m_initialStateQ[posVarCountIndex]);
+									mb->setJointVel(i,0);//backwards compatibility
 								}
-								dofIndex += mb->getLink(i).m_dofCount;
+							    if ((clientCmd.m_initPoseArgs.m_hasInitialStateQdot[uDofIndex]) && (mb->getLink(i).m_dofCount==1))
+								{
+									btScalar vel = clientCmd.m_initPoseArgs.m_initialStateQdot[uDofIndex];
+									mb->setJointVel(i,vel);
+								}
+
+								posVarCountIndex += mb->getLink(i).m_posVarCount;
+								uDofIndex += mb->getLink(i).m_dofCount;
+
 							}
 						}
                         

@@ -572,7 +572,7 @@ int b3GetJointState(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle
   if (bodyIndex>=0)
   {
 	  b3JointInfo info;
-	  bool result = b3GetJointInfo(physClient, bodyIndex,jointIndex, &info);
+	  bool result = b3GetJointInfo(physClient, bodyIndex,jointIndex, &info)!=0;
 	  if (result)
 	  {
 		  if ((info.m_qIndex>=0) && (info.m_uIndex>=0)  && (info.m_qIndex < MAX_DEGREE_OF_FREEDOM) && (info.m_uIndex < MAX_DEGREE_OF_FREEDOM))
@@ -746,6 +746,7 @@ b3SharedMemoryCommandHandle b3CreatePoseCommandInit(b3PhysicsClientHandle physCl
 	for (int i=0;i<MAX_DEGREE_OF_FREEDOM;i++)
     {
         command->m_initPoseArgs.m_hasInitialStateQ[i] = 0;
+		command->m_initPoseArgs.m_hasInitialStateQdot[i] = 0;
     }
     return (b3SharedMemoryCommandHandle) command;
 }
@@ -828,8 +829,11 @@ int	b3CreatePoseCommandSetJointPositions(b3SharedMemoryCommandHandle commandHand
     command->m_updateFlags |=INIT_POSE_HAS_JOINT_STATE;
 	for (int i=0;i<numJointPositions;i++)
 	{
-		command->m_initPoseArgs.m_initialStateQ[i+7] = jointPositions[i];
-		command->m_initPoseArgs.m_hasInitialStateQ[i+7] = 1;
+		if ((i+7)<MAX_DEGREE_OF_FREEDOM)
+		{
+			command->m_initPoseArgs.m_initialStateQ[i+7] = jointPositions[i];
+			command->m_initPoseArgs.m_hasInitialStateQ[i+7] = 1;
+		}
 	}
 	return 0;
 }
@@ -853,6 +857,40 @@ int	b3CreatePoseCommandSetJointPosition(b3PhysicsClientHandle physClient, b3Shar
 	return 0;
 }
 
+int	b3CreatePoseCommandSetJointVelocities(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle,  int numJointVelocities, const double* jointVelocities)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_INIT_POSE);
+  
+	command->m_updateFlags |=INIT_POSE_HAS_JOINT_VELOCITY;
+	for (int i=0;i<numJointVelocities;i++)
+	{
+		if ((i+6)<MAX_DEGREE_OF_FREEDOM)
+		{
+			command->m_initPoseArgs.m_initialStateQdot[i+6] = jointVelocities[i];
+			command->m_initPoseArgs.m_hasInitialStateQdot[i+6] = 1;
+		}
+	}
+	return 0;
+}
+
+int	b3CreatePoseCommandSetJointVelocity(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle,  int jointIndex, double jointVelocity)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_INIT_POSE);
+	command->m_updateFlags |=INIT_POSE_HAS_JOINT_VELOCITY;
+	b3JointInfo info;
+	b3GetJointInfo(physClient, command->m_initPoseArgs.m_bodyUniqueId,jointIndex, &info);
+	btAssert((info.m_flags & JOINT_HAS_MOTORIZED_POWER) && info.m_uIndex >=0);
+	if ((info.m_flags & JOINT_HAS_MOTORIZED_POWER) && (info.m_uIndex >=0) && (info.m_uIndex<MAX_DEGREE_OF_FREEDOM))
+	{
+		command->m_initPoseArgs.m_initialStateQdot[info.m_uIndex] = jointVelocity;
+		command->m_initPoseArgs.m_hasInitialStateQdot[info.m_uIndex] = 1;
+	}
+	return 0;
+}
 
 
 
