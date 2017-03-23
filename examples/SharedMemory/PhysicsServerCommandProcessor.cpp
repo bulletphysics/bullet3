@@ -120,6 +120,7 @@ struct InteralBodyData
 	btMultiBody* m_multiBody;
 	btRigidBody* m_rigidBody;
 	int m_testData;
+    std::string m_bodyName;
 
 	btTransform m_rootLocalInertialFrame;
 	btAlignedObjectArray<btTransform> m_linkLocalInertialFrames;
@@ -1607,6 +1608,8 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 
         btMultiBody* mb = creation.getBulletMultiBody();
         btRigidBody* rb = creation.getRigidBody();
+        
+        bodyHandle->m_bodyName = u2b.getBodyName();
 
 		if (useMultiBody)
 		{

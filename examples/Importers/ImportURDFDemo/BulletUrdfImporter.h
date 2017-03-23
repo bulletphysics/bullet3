@@ -34,6 +34,8 @@ public:
 	virtual int getRootLinkIndex() const;
     
     virtual void getLinkChildIndices(int linkIndex, btAlignedObjectArray<int>& childLinkIndices) const;
+    
+    virtual std::string getBodyName() const;
 
     virtual std::string getLinkName(int linkIndex) const;
 
