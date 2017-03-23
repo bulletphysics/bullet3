@@ -1,5 +1,3 @@
-
-
 #include "OpenGLExampleBrowser.h"
 
 #include "Bullet3Common/b3CommandLineArgs.h"
