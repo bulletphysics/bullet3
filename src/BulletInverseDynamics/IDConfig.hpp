@@ -78,7 +78,7 @@ struct idArray {
 	typedef b3AlignedObjectArray<T> type;
 };
 typedef int idArrayIdx;
-#define ID_DECLARE_ALIGNED_ALLOCATOR B3_DECLARE_ALIGNED_ALLOCATOR
+#define ID_DECLARE_ALIGNED_ALLOCATOR() B3_DECLARE_ALIGNED_ALLOCATOR()
 
 // use bullet's allocator functions
 #define idMalloc btAllocFunc
