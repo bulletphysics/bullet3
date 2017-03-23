@@ -371,6 +371,7 @@ void OpenGLExampleBrowserVisualizerFlagCallback(int flag, bool enable)
     if (flag == COV_ENABLE_GUI)
     {
         renderGui = enable;
+		renderGrid = enable;
     }
     
     if (flag == COV_ENABLE_WIREFRAME)

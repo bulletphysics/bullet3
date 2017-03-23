@@ -914,7 +914,7 @@ b3SharedMemoryStatusHandle b3ProcessServerStatus(b3PhysicsClientHandle physClien
 int b3GetStatusType(b3SharedMemoryStatusHandle statusHandle)
 {
     const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
-    b3Assert(status);
+    //b3Assert(status);
     if (status)
     {
         return status->m_type;
@@ -1063,7 +1063,7 @@ b3SharedMemoryStatusHandle b3SubmitClientCommandAndWaitStatus(b3PhysicsClientHan
 
 		b3SubmitClientCommand(physClient, commandHandle);
 
-		while ((statusHandle == 0) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
+		while (cl->isConnected() && (statusHandle == 0) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
 		{
 			statusHandle = b3ProcessServerStatus(physClient);
 		}
@@ -2585,6 +2585,20 @@ int b3StateLoggingAddLoggingObjectUniqueId(b3SharedMemoryCommandHandle commandHa
 	}
 	return 0;
 }
+
+int b3StateLoggingSetMaxLogDof(b3SharedMemoryCommandHandle commandHandle, int maxLogDof)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_STATE_LOGGING);
+	if (command->m_type == CMD_STATE_LOGGING)
+	{
+	    command->m_updateFlags |= STATE_LOGGING_MAX_LOG_DOF;
+		command->m_stateLoggingArguments.m_maxLogDof = maxLogDof;
+	}
+	return 0;
+}
+
 int b3StateLoggingStop(b3SharedMemoryCommandHandle commandHandle, int loggingUid)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;

@@ -18,7 +18,7 @@ def current_position():
 def is_fallen():
   global minitaur
   orientation = minitaur.getBaseOrientation()
-  rotMat = p.getMatrixFromQuaterion(orientation)
+  rotMat = p.getMatrixFromQuaternion(orientation)
   localUp = rotMat[6:]
   return np.dot(np.asarray([0, 0, 1]), np.asarray(localUp)) < 0
 
@@ -58,7 +58,7 @@ evaluate_func_map['evaluate_desired_motorAngle_hop'] = evaluate_desired_motorAng
 
 
 
-def evaluate_params(evaluateFunc, params, objectiveParams, urdfRoot='', timeStep=0.01, maxNumSteps=1000, sleepTime=0):
+def evaluate_params(evaluateFunc, params, objectiveParams, urdfRoot='', timeStep=0.01, maxNumSteps=10000, sleepTime=0):
   print('start evaluation')
   beforeTime = time.time()
   p.resetSimulation()

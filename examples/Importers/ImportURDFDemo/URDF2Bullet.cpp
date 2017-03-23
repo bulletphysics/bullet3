@@ -166,6 +166,10 @@ void processContactParameters(const URDFLinkContactInfo& contactInfo, btCollisio
 	{
 		col->setContactStiffnessAndDamping(contactInfo.m_contactStiffness, contactInfo.m_contactDamping);
 	}
+	if ((contactInfo.m_flags & URDF_CONTACT_HAS_FRICTION_ANCHOR) != 0)
+	{
+		col->setCollisionFlags(col->getCollisionFlags() | btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+	}
 }
 
 
@@ -311,7 +315,7 @@ void ConvertURDF2BulletInternal(
             
 
 
-            //untested: u2b.convertLinkVisualShapes2(urdfLinkIndex,pathPrefix,localInertialFrame,body);
+            //untested: u2b.convertLinkVisualShapes2(linkIndex,urdfLinkIndex,pathPrefix,localInertialFrame,body);
         } else
         {
             if (cache.m_bulletMultiBody==0)
@@ -469,8 +473,8 @@ void ConvertURDF2BulletInternal(
                 btVector4 color = selectColor2();//(0.0,0.0,0.5);
 				u2b.getLinkColor(urdfLinkIndex,color);
                 creation.createCollisionObjectGraphicsInstance(urdfLinkIndex,col,color);
-                
-                u2b.convertLinkVisualShapes2(urdfLinkIndex,pathPrefix,localInertialFrame,col, u2b.getBodyUniqueId());
+
+                u2b.convertLinkVisualShapes2(mbLinkIndex, urdfLinkIndex, pathPrefix, localInertialFrame,col, u2b.getBodyUniqueId());
 
 				URDFLinkContactInfo contactInfo;
 				u2b.getLinkContactInfo(urdfLinkIndex,contactInfo);
@@ -487,7 +491,7 @@ void ConvertURDF2BulletInternal(
             }
         } else
         {
-            //u2b.convertLinkVisualShapes2(urdfLinkIndex,pathPrefix,localInertialFrame,compoundShape);
+            //u2b.convertLinkVisualShapes2(urdfLinkIndex,urdfIndex,pathPrefix,localInertialFrame,compoundShape);
         }
     }
 

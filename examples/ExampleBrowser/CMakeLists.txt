@@ -191,6 +191,8 @@ SET(BulletExampleBrowser_SRCS
 	../SharedMemory/PhysicsLoopBackC_API.h
 	../SharedMemory/PhysicsServerCommandProcessor.cpp
 	../SharedMemory/PhysicsServerCommandProcessor.h
+	../SharedMemory/SharedMemoryCommands.h
+	../SharedMemory/SharedMemoryPublic.h
 	../BasicDemo/BasicExample.cpp
 	../BasicDemo/BasicExample.h
 	../InverseDynamics/InverseDynamicsExample.cpp

@@ -16,7 +16,7 @@ if (c<0):
 		p.connect(p.GUI)
 		
 #load the MuJoCo MJCF hand
-objects = p.loadMJCF("MPL/mpl.xml")
+objects = p.loadMJCF("MPL/MPL.xml")
 
 hand=objects[0]
 #clamp in range 400-600

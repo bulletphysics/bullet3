@@ -16,8 +16,8 @@ def readLogFile(filename, verbose = True):
   print('Opened'),
   print(filename)
 
-  keys = f.readline().rstrip('\n').split(',')
-  fmt = f.readline().rstrip('\n')
+  keys = f.readline().decode('utf8').rstrip('\n').split(',')
+  fmt = f.readline().decode('utf8').rstrip('\n')
   
   # The byte number of one record
   sz = struct.calcsize(fmt)
@@ -37,7 +37,7 @@ def readLogFile(filename, verbose = True):
   # Read data
   wholeFile = f.read()
   # split by alignment word
-  chunks = wholeFile.split('\xaa\xbb')
+  chunks = wholeFile.split(b'\xaa\xbb')
   log = list()
   for chunk in chunks:
     if len(chunk) == sz:

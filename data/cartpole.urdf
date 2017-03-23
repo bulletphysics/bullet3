@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<robot name="physics">
+
+    <link name="slideBar">
+    <visual>
+      <geometry>
+        <box size="30 0.05 0.05"/>
+      </geometry>
+      <origin xyz="0 0 0"/>
+      <material name="green">
+        <color rgba="0 0.8 .8 1"/>
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+    </inertial>
+  </link>
+
+  <link name="cart">
+    <visual>
+      <geometry>
+        <box size="0.5 0.5 0.2"/>
+      </geometry>
+      <origin xyz="0 0 0"/>
+      <material name="blue">
+        <color rgba="0 0 .8 1"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+          <box size="0.5 0.5 0.2"/>
+      </geometry>
+      <origin xyz="0 0 0"/>
+    </collision>
+    <inertial>
+      <mass value="1"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+    </inertial>
+  </link>
+
+  <joint name="slider_to_cart" type="prismatic">
+    <axis xyz="1 0 0"/>
+    <origin xyz="0.0 0.0 0.0"/>
+    <parent link="slideBar"/>
+    <child link="cart"/>
+    <limit effort="1000.0" lower="-15" upper="15" velocity="5"/>
+  </joint>
+
+  <link name="pole">
+    <visual>
+      <geometry>
+        <box size="0.05 0.05 1.0"/>	
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0.5"/>
+      <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <inertial>
+    <origin xyz="0 0 0.5"/>
+      <mass value="10"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+    </inertial>
+  </link>
+
+  <joint name="cart_to_pole" type="continuous">
+    <axis xyz="0 1 0"/>
+    <origin xyz="0.0 0.0 0"/>
+    <parent link="cart"/>
+    <child link="pole"/>
+  </joint>
+  
+</robot>

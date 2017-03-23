@@ -85,6 +85,9 @@ struct GUIHelperInterface
 	virtual void	removeAllUserDebugItems( ){};
 	virtual void	setVisualizerFlagCallback(VisualizerFlagCallback callback){}
 
+	//empty name stops dumping video
+	virtual void	dumpFramesToVideo(const char* mp4FileName) {};
+
 };
 
 

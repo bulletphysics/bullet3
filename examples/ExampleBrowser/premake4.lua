@@ -88,6 +88,8 @@ project "App_BulletExampleBrowser"
 		"../SharedMemory/PhysicsServerCommandProcessor.h",
 		"../SharedMemory/TinyRendererVisualShapeConverter.cpp",
 		"../SharedMemory/TinyRendererVisualShapeConverter.h",
+		"../SharedMemory/SharedMemoryCommands.h",
+		"../SharedMemory/SharedMemoryPublic.h",
 		"../MultiThreading/MultiThreadingExample.cpp",
 		"../MultiThreading/b3PosixThreadSupport.cpp",
 		"../MultiThreading/b3Win32ThreadSupport.cpp",
