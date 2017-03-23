@@ -539,6 +539,17 @@ int b3JointControlSetDesiredForceTorque(b3SharedMemoryCommandHandle commandHandl
     return 0;
 }
 
+b3SharedMemoryCommandHandle b3RequestBodyNameCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId)
+{
+    PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type = CMD_REQUEST_BODY_NAME;
+    command->m_requestBodyNameArguments.m_bodyUniqueId = bodyUniqueId;
+    return (b3SharedMemoryCommandHandle) command;
+}
 
 b3SharedMemoryCommandHandle b3RequestActualStateCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId)
 {
@@ -1016,6 +1027,20 @@ int b3GetStatusActualState(b3SharedMemoryStatusHandle statusHandle,
     if (jointReactionForces) {
         *jointReactionForces = args.m_jointReactionForces;
     }
+    return true;
+}
+
+int b3GetBodyName(b3SharedMemoryStatusHandle statusHandle,
+                  struct b3BodyInfo* info)
+{
+    const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
+    const SendBodyNameArgs &args = status->m_sendBodyNameArgs;
+    btAssert(status->m_type == CMD_REQUEST_BODY_NAME_COMPLETED);
+    if (status->m_type != CMD_REQUEST_BODY_NAME_COMPLETED)
+        return false;
+    
+    info->m_bodyName = args.m_bodyName;
+    
     return true;
 }
 

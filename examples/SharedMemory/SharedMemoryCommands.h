@@ -356,13 +356,20 @@ struct LoadBunnyArgs
     double m_collisionMargin;
 };
 
+struct RequestBodyNameArgs
+{
+    int m_bodyUniqueId;
+};
+
+struct SendBodyNameArgs
+{
+    char m_bodyName[MAX_FILENAME_LENGTH];
+};
+
 struct RequestActualStateArgs
 {
 	int m_bodyUniqueId;
 };
-
-
-
 
 struct SendActualStateArgs
 {
@@ -713,6 +720,7 @@ struct SharedMemoryCommand
 		struct VRCameraState m_vrCameraStateArguments;
 		struct StateLoggingRequest m_stateLoggingArguments;
         struct ConfigureOpenGLVisualizerRequest m_configureOpenGLVisualizerArguments;
+        struct RequestBodyNameArgs m_requestBodyNameArguments;
     };
 };
 
@@ -775,6 +783,7 @@ struct SharedMemoryStatus
 		struct SendKeyboardEvents m_sendKeyboardEvents;
 		struct SendRaycastHits m_raycastHits;
 		struct StateLoggingResultArgs m_stateLoggingResultArgs;
+        struct SendBodyNameArgs m_sendBodyNameArgs;
 
 	};
 };

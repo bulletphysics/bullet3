@@ -2232,6 +2232,69 @@ static PyObject* pybullet_getJointState(PyObject* self, PyObject* args, PyObject
 	return Py_None;
 }
 
+// Returns the name of a body given the bodyIndex
+//
+// Args:
+//  bodyIndex - integer indicating body in simulation
+//
+// The returned pylist includes the body name in string format
+
+static PyObject* pybullet_getBodyName(PyObject* self, PyObject* args, PyObject* keywds)
+{
+    {
+        int bodyUniqueId = -1;
+        b3PhysicsClientHandle sm = 0;
+        
+        int physicsClientId = 0;
+        static char* kwlist[] = {"bodyUniqueId", "physicsClientId", NULL};
+        if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|i", kwlist, &bodyUniqueId, &physicsClientId))
+        {
+            return NULL;
+        }
+        sm = getPhysicsClient(physicsClientId);
+        if (sm == 0)
+        {
+            PyErr_SetString(SpamError, "Not connected to physics server.");
+            return NULL;
+        }
+        
+        {
+            int status_type = 0;
+            b3SharedMemoryCommandHandle cmd_handle;
+            b3SharedMemoryStatusHandle status_handle;
+            
+            if (bodyUniqueId < 0)
+            {
+                PyErr_SetString(SpamError, "getBodyName failed; invalid bodyIndex");
+                return NULL;
+            }
+            
+            cmd_handle =
+            b3RequestBodyNameCommandInit(sm, bodyUniqueId);
+            status_handle =
+            b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
+            
+            status_type = b3GetStatusType(status_handle);
+            if (status_type != CMD_REQUEST_BODY_NAME_COMPLETED)
+            {
+                PyErr_SetString(SpamError, "getBodyName failed; invalid return status");
+                return NULL;
+            }
+
+            struct b3BodyInfo info;
+            if (b3GetBodyName(status_handle, &info))
+            {
+                PyObject* pyBodyNameInfo = PyTuple_New(1);
+                PyTuple_SetItem(pyBodyNameInfo, 0, PyString_FromString(info.m_bodyName));
+                return pyBodyNameInfo;
+            }
+        }
+    }
+    PyErr_SetString(SpamError, "Couldn't get body name");
+    return NULL;
+}
+
+
 static PyObject* pybullet_getLinkState(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	PyObject* pyLinkState;
@@ -5100,6 +5163,9 @@ static PyMethodDef SpamMethods[] = {
 
 	{"getJointState", (PyCFunction)pybullet_getJointState, METH_VARARGS | METH_KEYWORDS,
 	 "Get the state (position, velocity etc) for a joint on a body."},
+    
+    {"getBodyName", (PyCFunction)pybullet_getBodyName, METH_VARARGS | METH_KEYWORDS,
+     "Get the name of a body."},
 
 	{"getLinkState", (PyCFunction)pybullet_getLinkState, METH_VARARGS | METH_KEYWORDS,
 	 "Provides extra information such as the Cartesian world coordinates"

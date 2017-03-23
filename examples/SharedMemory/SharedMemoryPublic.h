@@ -54,6 +54,7 @@ enum EnumSharedMemoryClientCommand
 	CMD_STATE_LOGGING,
     CMD_CONFIGURE_OPENGL_VISUALIZER,
 	CMD_REQUEST_KEYBOARD_EVENTS_DATA,
+    CMD_REQUEST_BODY_NAME,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -133,6 +134,8 @@ enum EnumSharedMemoryServerStatus
 		CMD_STATE_LOGGING_FAILED,
 		CMD_REQUEST_KEYBOARD_EVENTS_DATA_COMPLETED,
 		CMD_REQUEST_KEYBOARD_EVENTS_DATA_FAILED,
+        CMD_REQUEST_BODY_NAME_COMPLETED,
+        CMD_REQUEST_BODY_NAME_FAILED,
         //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
@@ -197,6 +200,7 @@ struct b3UserConstraint
 struct b3BodyInfo
 {
 	const char* m_baseName;
+    const char* m_bodyName; // for btRigidBody, it does not have a base, but can still have a body name from urdf
 };
 
 

@@ -4906,8 +4906,26 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 						break;        
 					}
-		
-
+                case CMD_REQUEST_BODY_NAME:
+                {
+                    int bodyUniqueId = clientCmd.m_requestBodyNameArguments.m_bodyUniqueId;
+                    InteralBodyData* body = m_data->getHandle(bodyUniqueId);
+                    if (body)
+                    {
+                        SharedMemoryStatus& serverCmd = serverStatusOut;
+                        serverCmd.m_type = CMD_REQUEST_BODY_NAME_COMPLETED;
+                        strcpy(serverCmd.m_sendBodyNameArgs.m_bodyName, body->m_bodyName.c_str());
+                        hasStatus = true;
+                    }
+                    else
+                    {
+                        b3Warning("The body name requested is not available");
+                        SharedMemoryStatus& serverCmd = serverStatusOut;
+                        serverCmd.m_type = CMD_REQUEST_BODY_NAME_FAILED;
+                        hasStatus = true;
+                    }
+                    break;
+                }
                 default:
                 {
                     b3Error("Unknown command encountered");

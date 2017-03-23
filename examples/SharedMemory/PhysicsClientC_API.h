@@ -57,6 +57,9 @@ int b3GetStatusActualState(b3SharedMemoryStatusHandle statusHandle,
                            const double* actualStateQdot[],
                            const double* jointReactionForces[]);
 
+int b3GetBodyName(b3SharedMemoryStatusHandle statusHandle,
+                           struct b3BodyInfo* info);
+
 ///If you re-connected to an existing server, or server changed otherwise, sync the body info and user constraints etc.
 b3SharedMemoryCommandHandle b3InitSyncBodyInfoCommand(b3PhysicsClientHandle physClient);
 
@@ -308,6 +311,8 @@ int b3CreateSensorEnable6DofJointForceTorqueSensor(b3SharedMemoryCommandHandle c
 ///b3CreateSensorEnableIMUForLink is not implemented yet.
 ///For now, if the IMU is located in the root link, use the root world transform to mimic an IMU.
 int b3CreateSensorEnableIMUForLink(b3SharedMemoryCommandHandle commandHandle, int linkIndex, int enable);
+    
+b3SharedMemoryCommandHandle b3RequestBodyNameCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId);
 
 b3SharedMemoryCommandHandle b3RequestActualStateCommandInit(b3PhysicsClientHandle physClient,int bodyUniqueId);
 int b3GetJointState(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle statusHandle, int jointIndex, struct b3JointSensorState *state);

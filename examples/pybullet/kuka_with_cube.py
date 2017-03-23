@@ -48,6 +48,9 @@ p.setRealTimeSimulation(useRealTimeSimulation)
 trailDuration = 15
 
 logId = p.startStateLogging(p.STATE_LOGGING_GENERIC_ROBOT,"LOG0001.txt",[0,1,2])
+
+for i in xrange(5):
+    print "Body %d's name is %s." % (i, p.getBodyName(i)[0])
 	
 while 1:
 	if (useRealTimeSimulation):
