@@ -1864,11 +1864,13 @@ static PyObject* pybullet_resetJointState(PyObject* self, PyObject* args, PyObje
 		int bodyUniqueId;
 		int jointIndex;
 		double targetValue;
+		double targetVelocity = 0;
+
 		b3PhysicsClientHandle sm = 0;
 
 		int physicsClientId = 0;
-		static char* kwlist[] = {"bodyUniqueId", "jointIndex", "targetValue", "physicsClientId", NULL};
-		if (!PyArg_ParseTupleAndKeywords(args, keywds, "iid|i", kwlist, &bodyUniqueId, &jointIndex, &targetValue, &physicsClientId))
+		static char* kwlist[] = {"bodyUniqueId", "jointIndex", "targetValue", "targetVelocity", "physicsClientId", NULL};
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "iid|di", kwlist, &bodyUniqueId, &jointIndex, &targetValue, &targetVelocity, &physicsClientId))
 		{
 			return NULL;
 		}
@@ -1895,6 +1897,9 @@ static PyObject* pybullet_resetJointState(PyObject* self, PyObject* args, PyObje
 
 			b3CreatePoseCommandSetJointPosition(sm, commandHandle, jointIndex,
 												targetValue);
+
+			b3CreatePoseCommandSetJointVelocity(sm, commandHandle, jointIndex,
+												targetVelocity);
 
 			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 		}
@@ -2912,8 +2917,6 @@ static PyObject* pybullet_setVRCameraState(PyObject* self, PyObject* args, PyObj
 static PyObject* pybullet_getKeyboardEvents(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	b3SharedMemoryCommandHandle commandHandle;
-	b3SharedMemoryStatusHandle statusHandle;
-	int statusType;
 	int physicsClientId = 0;
 	b3PhysicsClientHandle sm = 0;
 	struct b3KeyboardEventsData keyboardEventsData;
