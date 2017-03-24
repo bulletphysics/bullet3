@@ -173,9 +173,17 @@ struct BulletMJCFImporterInternalData
 
 	std::string sourceFileLocation(TiXmlElement* e)
 	{
+#if 0
+	//no C++11 snprintf etc
 		char buf[1024];
 		snprintf(buf, sizeof(buf), "%s:%i", m_sourceFileName.c_str(), e->Row());
 		return buf;
+#else
+		char row[1024];
+		sprintf(row,"%d",e->Row());
+		std::string str = m_sourceFileName.c_str() + std::string(":") + std::string(row);
+		return str;
+#endif
 	}
 	
 	const UrdfLink* getLink(int modelIndex, int linkIndex) const

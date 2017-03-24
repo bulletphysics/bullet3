@@ -1679,7 +1679,17 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
 
 std::string UrdfParser::sourceFileLocation(TiXmlElement* e)
 {
+#if 0
+	//no C++11 etc, no snprintf
+
 	char buf[1024];
 	snprintf(buf, sizeof(buf), "%s:%i", m_urdf2Model.m_sourceFile.c_str(), e->Row());
 	return buf;
+#else
+	char row[1024];
+        sprintf(row,"%d",e->Row());
+        std::string str = m_urdf2Model.m_sourceFile.c_str() + std::string(":") + std::string(row);
+        return str;
+#endif
+
 }

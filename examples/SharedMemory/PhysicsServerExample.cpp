@@ -305,7 +305,8 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 
 		double deltaTimeInSeconds = 0;
 		int numCmdSinceSleep1ms = 0;
-
+		unsigned long long int prevTime = clock.getTimeMicroseconds();
+		
 		do
 		{
 			BT_PROFILE("loop");
@@ -330,8 +331,16 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 				sleepClock.reset();
 				numCmdSinceSleep1ms = 0;
 			}
+
+			unsigned long long int curTime = clock.getTimeMicroseconds();
+			unsigned long long int dtMicro = curTime - prevTime;
+			prevTime = curTime;
+#if 1
+			double dt = double(dtMicro)/1000000.;
+#else
 			double dt = double(clock.getTimeMicroseconds())/1000000.;
 			clock.reset();
+#endif
 			deltaTimeInSeconds+= dt;
 			
 			{
