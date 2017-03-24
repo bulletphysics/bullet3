@@ -79,7 +79,7 @@ static bool parseVector3(btVector3& vec3, const std::string& vector_str, MJCFErr
 	}
 	if (rgba.size() < 3)
 	{
-		logger->reportWarning("Couldn't parse vector3");
+		logger->reportWarning( ("Couldn't parse vector3 '" + vector_str + "'").c_str() );
 		return false;
 	}
     if (lastThree) {
@@ -113,7 +113,8 @@ static bool parseVector6(btVector3& v0, btVector3& v1, const std::string& vector
 	}
 	if (values.size() < 6)
 	{
-		logger->reportWarning("Couldn't parse 6 floats");
+		logger->reportWarning( ("Couldn't parse 6 floats '" + vector_str + "'").c_str() );
+
 		return false;
 	}
 	v0.setValue(values[0],values[1],values[2]);
@@ -348,8 +349,7 @@ struct BulletMJCFImporterInternalData
 			}
 			if (!handled)
 			{
-				logger->reportWarning("Unhandled root element");
-				logger->reportWarning(n.c_str());
+				logger->reportWarning( (sourceFileLocation(rootxml) + ": unhandled root element '" + n + "'").c_str() );
 			}
 		}
 		return true;
@@ -394,7 +394,7 @@ struct BulletMJCFImporterInternalData
 			parseVector3(jointAxis,ax,logger);
 		} else
 		{
-			logger->reportWarning("joint without axis attribute");
+			logger->reportWarning( (sourceFileLocation(link_xml) + ": joint without axis attribute").c_str() );
 		}
 		bool isLimited = false;
 		double range[2] = {1,0};
@@ -497,7 +497,7 @@ struct BulletMJCFImporterInternalData
 			}
 		} else
 		{
-			logger->reportWarning("Expected 'type' attribute for joint");
+			logger->reportWarning( (sourceFileLocation(link_xml) + ": expected 'type' attribute for joint").c_str() );
 		}
 
 		if (jointHandled)
@@ -542,6 +542,7 @@ struct BulletMJCFImporterInternalData
 		UrdfLink** linkPtrPtr = m_models[modelIndex]->m_links.getAtIndex(linkIndex);
 		if (linkPtrPtr==0)
 		{
+			// XXX: should it be assert?
 			logger->reportWarning("Invalide linkindex");
 			return false;
 		}
@@ -635,7 +636,7 @@ struct BulletMJCFImporterInternalData
 					geom.m_sphereRadius = urdfLexicalCast<double>(sz);
 				} else
 				{
-					logger->reportWarning("Expected size field (scalar) in sphere geom");
+					logger->reportWarning( (sourceFileLocation(link_xml) + ": no size field (scalar) in sphere geom").c_str() );
 				}
 				handledGeomType = true;
 			}
@@ -670,7 +671,7 @@ struct BulletMJCFImporterInternalData
 					}
 				} else
 				{
-					logger->reportWarning("couldn't convert 'size' attribute of capsule geom");
+					logger->reportWarning( (sourceFileLocation(link_xml) + ": couldn't convert 'size' attribute of capsule geom").c_str() );
 				}
 				const char* fromtoStr = link_xml->Attribute("fromto");
 				geom.m_hasFromTo = false;
@@ -686,7 +687,7 @@ struct BulletMJCFImporterInternalData
 				{
 					if (sizes.size()<2)
 					{
-						logger->reportWarning("capsule without fromto attribute requires 2 sizes (radius and halfheight)");
+						logger->reportWarning( (sourceFileLocation(link_xml) + ": capsule without fromto attribute requires 2 sizes (radius and halfheight)").c_str() );
 					} else
 					{
 						handledGeomType = true;
@@ -747,13 +748,11 @@ struct BulletMJCFImporterInternalData
 
 			} else
 			{
-				char warn[1024];
-				sprintf(warn,"Unknown/unhandled geom type: %s", geomType.c_str());
-				logger->reportWarning(warn);
+				logger->reportWarning( (sourceFileLocation(link_xml) + ": unhandled geom type '" + geomType + "'").c_str() );
 			}
 		} else
 		{
-			logger->reportWarning("geom requires type");
+			logger->reportWarning( (sourceFileLocation(link_xml) + ": geom requires type").c_str() );
 		}
 
 		return handledGeomType;
@@ -1035,10 +1034,7 @@ struct BulletMJCFImporterInternalData
 			}
 			if (!handled)
 			{
-				char warn[1024];
-				std::string n = xml->Value();
-				sprintf(warn,"Unknown/unhandled field: %s", n.c_str());
-				logger->reportWarning(warn);
+				logger->reportWarning( (sourceFileLocation(xml) + ": unknown field '" + n + "'").c_str() );
 			}
 		}
 
