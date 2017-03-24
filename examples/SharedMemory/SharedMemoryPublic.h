@@ -166,18 +166,20 @@ enum JointType {
 
 struct b3JointInfo
 {
-        char* m_linkName;
-        char* m_jointName;
-        int m_jointType;
-        int m_qIndex;
-        int m_uIndex;
-        int m_jointIndex;
-        int m_flags;
-		double m_jointDamping;
-		double m_jointFriction;
-    double m_parentFrame[7]; // position and orientation (quaternion)
-    double m_childFrame[7]; // ^^^
-    double m_jointAxis[3]; // joint axis in parent local frame
+	char* m_linkName;
+	char* m_jointName;
+	int m_jointType;
+	int m_qIndex;
+	int m_uIndex;
+	int m_jointIndex;
+	int m_flags;
+	double m_jointDamping;
+	double m_jointFriction;
+	double m_jointLowerLimit;
+	double m_jointUpperLimit;
+	double m_parentFrame[7]; // position and orientation (quaternion)
+	double m_childFrame[7]; // ^^^
+	double m_jointAxis[3]; // joint axis in parent local frame
 };
 
 struct b3UserConstraint

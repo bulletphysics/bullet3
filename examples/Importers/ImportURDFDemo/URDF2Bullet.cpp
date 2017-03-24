@@ -377,7 +377,9 @@ void ConvertURDF2BulletInternal(
                         cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointDamping = jointDamping;
                         cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointFriction= jointFriction;
                         creation.addLinkMapping(urdfLinkIndex,mbLinkIndex);
-                        if (jointType == URDFRevoluteJoint && jointLowerLimit <= jointUpperLimit) {
+                        if (jointLowerLimit <= jointUpperLimit) {
+                        	cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointLowerLimit = jointLowerLimit;
+                        	cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointUpperLimit = jointUpperLimit;
                           //std::string name = u2b.getLinkName(urdfLinkIndex);
                           //printf("create btMultiBodyJointLimitConstraint for revolute link name=%s urdf link index=%d (low=%f, up=%f)\n", name.c_str(), urdfLinkIndex, jointLowerLimit, jointUpperLimit);
                           btMultiBodyConstraint* con = new btMultiBodyJointLimitConstraint(cache.m_bulletMultiBody, mbLinkIndex, jointLowerLimit, jointUpperLimit);
@@ -402,12 +404,14 @@ void ConvertURDF2BulletInternal(
                                                                    parentRotToThis, quatRotate(offsetInB.getRotation(),jointAxisInJointSpace), offsetInA.getOrigin(),//parent2joint.getOrigin(),
                                                                    -offsetInB.getOrigin(),
                                                                    disableParentCollision);
+                        cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointDamping = jointDamping;
+                        cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointFriction= jointFriction;
                         creation.addLinkMapping(urdfLinkIndex,mbLinkIndex);
-						if (jointLowerLimit <= jointUpperLimit)
-						{
+						if (jointLowerLimit <= jointUpperLimit) {
+                        	cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointLowerLimit = jointLowerLimit;
+                        	cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointUpperLimit = jointUpperLimit;
 							//std::string name = u2b.getLinkName(urdfLinkIndex);
 							//printf("create btMultiBodyJointLimitConstraint for prismatic link name=%s urdf link index=%d (low=%f, up=%f)\n", name.c_str(), urdfLinkIndex, jointLowerLimit,jointUpperLimit);
-
 							btMultiBodyConstraint* con = new btMultiBodyJointLimitConstraint(cache.m_bulletMultiBody, mbLinkIndex, jointLowerLimit, jointUpperLimit);
 							world1->addMultiBodyConstraint(con);
 						}
