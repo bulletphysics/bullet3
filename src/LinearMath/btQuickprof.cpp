@@ -518,7 +518,7 @@ CProfileIterator *	CProfileManager::Get_Iterator( void )
 { 
 
 		int threadIndex = btQuickprofGetCurrentThreadIndex2();
-		if (threadIndex<0)
+		if ((threadIndex<0) || threadIndex >= BT_QUICKPROF_MAX_THREAD_COUNT)
 			return 0;
 
 		return new CProfileIterator( &gRoots[threadIndex]); 
@@ -549,7 +549,7 @@ void						CProfileManager::CleanupMemory(void)
 void	CProfileManager::Start_Profile( const char * name )
 {
 	int threadIndex = btQuickprofGetCurrentThreadIndex2();
-	if (threadIndex<0)
+	if ((threadIndex<0) || threadIndex >= BT_QUICKPROF_MAX_THREAD_COUNT)
 		return;
 
 	if (name != gCurrentNodes[threadIndex]->Get_Name()) {
@@ -566,7 +566,7 @@ void	CProfileManager::Start_Profile( const char * name )
 void	CProfileManager::Stop_Profile( void )
 {
 	int threadIndex = btQuickprofGetCurrentThreadIndex2();
-	if (threadIndex<0)
+	if ((threadIndex<0) || threadIndex >= BT_QUICKPROF_MAX_THREAD_COUNT)
 		return;
 
 	// Return will indicate whether we should back up to our parent (we may
@@ -590,7 +590,7 @@ void	CProfileManager::Reset( void )
 {
 	gProfileClock.reset();
 	int threadIndex = btQuickprofGetCurrentThreadIndex2();
-	if (threadIndex<0)
+	if ((threadIndex<0) || threadIndex >= BT_QUICKPROF_MAX_THREAD_COUNT)
 		return;
 	gRoots[threadIndex].Reset();
 	gRoots[threadIndex].Call();
