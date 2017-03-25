@@ -85,10 +85,23 @@ IF(MSVC)
 	  ADD_DEFINITIONS(-D_WIN64)
 	ELSE()
 	  OPTION(USE_MSVC_SSE "Use MSVC /arch:sse option"	ON)
+	  option(USE_MSVC_SSE2 "Compile your program with SSE2 instructions" ON)
+
 	  IF (USE_MSVC_SSE)
 		  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE")
 	  ENDIF()
+	  IF (USE_MSVC_SSE2)
+		  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")
+	  ENDIF()
+
 	ENDIF()
+
+	option(USE_MSVC_AVX "Compile your program with AVX instructions"  OFF)
+
+	IF(USE_MSVC_AVX)
+		add_definitions(/arch:AVX)
+	ENDIF()
+
 	OPTION(USE_MSVC_FAST_FLOATINGPOINT "Use MSVC /fp:fast option"	ON)
 	IF (USE_MSVC_FAST_FLOATINGPOINT)
 		  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fp:fast")
