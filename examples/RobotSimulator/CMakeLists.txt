@@ -14,13 +14,6 @@ SET(RobotSimulator_SRCS
 		b3RobotSimulatorClientAPI.h	
 		MinitaurSetup.cpp
 		MinitaurSetup.h
-		Bound.cpp
-		GRAPI/BulletMinitaur.cpp
-		GRAPI/BulletMotor.cpp
-		GRAPI/BulletRemoteKeyboard
-		GRAPI/BulletRobot
-		GRAPI/Impl.cpp
-		GRAPI/MinitaurLeg.cpp
 		../../examples/SharedMemory/IKTrajectoryHelper.cpp
 		../../examples/SharedMemory/IKTrajectoryHelper.h
 		../../examples/ExampleBrowser/InProcessExampleBrowser.cpp
