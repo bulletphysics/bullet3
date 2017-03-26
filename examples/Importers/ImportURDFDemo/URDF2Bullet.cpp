@@ -232,9 +232,11 @@ void ConvertURDF2BulletInternal(
     btScalar jointUpperLimit;
     btScalar jointDamping;
     btScalar jointFriction;
+	btScalar jointMaxForce;
+	btScalar jointMaxVelocity;
 
 
-    bool hasParentJoint = u2b.getJointInfo(urdfLinkIndex, parent2joint, linkTransformInWorldSpace, jointAxisInJointSpace, jointType,jointLowerLimit,jointUpperLimit, jointDamping, jointFriction);
+    bool hasParentJoint = u2b.getJointInfo2(urdfLinkIndex, parent2joint, linkTransformInWorldSpace, jointAxisInJointSpace, jointType,jointLowerLimit,jointUpperLimit, jointDamping, jointFriction,jointMaxForce,jointMaxVelocity);
 	std::string linkName = u2b.getLinkName(urdfLinkIndex);
                           
     if (flags & CUF_USE_SDF)
@@ -375,7 +377,10 @@ void ConvertURDF2BulletInternal(
                                                                   -offsetInB.getOrigin(),
                                                                   disableParentCollision);
                         cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointDamping = jointDamping;
-                        cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointFriction= jointFriction;
+                        cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointFriction = jointFriction;
+						cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointLowerLimit = jointLowerLimit;
+						cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointUpperLimit = jointUpperLimit;
+
                         creation.addLinkMapping(urdfLinkIndex,mbLinkIndex);
                         if (jointType == URDFRevoluteJoint && jointLowerLimit <= jointUpperLimit) {
                           //std::string name = u2b.getLinkName(urdfLinkIndex);

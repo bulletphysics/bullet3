@@ -23,7 +23,6 @@
 #include "../CommonInterfaces/CommonParameterInterface.h"
 
 
-
 //@todo(erwincoumans) those globals are hacks for a VR demo, move this to Python/pybullet!
 extern btVector3 gLastPickPos;
 
@@ -309,27 +308,27 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 		
 		do
 		{
-			BT_PROFILE("loop");
-			
 			{
-				BT_PROFILE("usleep(0)");
 				b3Clock::usleep(0);
 			}
 
-			if (gMaxNumCmdPer1ms>0)
 			{
-				if (numCmdSinceSleep1ms>gMaxNumCmdPer1ms)
+				
+				if (gMaxNumCmdPer1ms>0)
 				{
-					BT_PROFILE("usleep(10)");
-					b3Clock::usleep(10);
-					numCmdSinceSleep1ms = 0;
-					sleepClock.reset();
+					if (numCmdSinceSleep1ms>gMaxNumCmdPer1ms)
+					{
+						BT_PROFILE("usleep(10)");
+						b3Clock::usleep(10);
+						numCmdSinceSleep1ms = 0;
+						sleepClock.reset();
+					}
 				}
-			}
-			if (sleepClock.getTimeMilliseconds()>1)
-			{
-				sleepClock.reset();
-				numCmdSinceSleep1ms = 0;
+				if (sleepClock.getTimeMilliseconds()>1)
+				{
+					sleepClock.reset();
+					numCmdSinceSleep1ms = 0;
+				}
 			}
 
 			unsigned long long int curTime = clock.getTimeMicroseconds();
@@ -344,7 +343,7 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 			deltaTimeInSeconds+= dt;
 			
 			{
-				
+
 				//process special controller commands, such as
 				//VR controller button press/release and controller motion
 
@@ -449,7 +448,6 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 
 				args->m_csGUI->unlock();
 				{
-					BT_PROFILE("stepSimulationRealTime");
 					args->m_physicsServerPtr->stepSimulationRealTime(deltaTimeInSeconds, args->m_sendVrControllerEvents,numSendVrControllers, keyEvents, args->m_sendKeyEvents.size());
 				}
 				deltaTimeInSeconds = 0;
@@ -487,7 +485,6 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 			args->m_csGUI->unlock();
 
 			{
-				BT_PROFILE("processClientCommands");
 				args->m_physicsServerPtr->processClientCommands();
 				numCmdSinceSleep1ms++;
 			}

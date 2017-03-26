@@ -2075,7 +2075,7 @@ static PyObject* pybullet_getJointInfo(PyObject* self, PyObject* args, PyObject*
 
 	int bodyUniqueId = -1;
 	int jointIndex = -1;
-	int jointInfoSize = 8;  // size of struct b3JointInfo
+	int jointInfoSize = 12;  // size of struct b3JointInfo
 	b3PhysicsClientHandle sm = 0;
 	int physicsClientId = 0;
 	static char* kwlist[] = {"bodyUniqueId", "jointIndex", "physicsClientId", NULL};
@@ -2118,7 +2118,16 @@ static PyObject* pybullet_getJointInfo(PyObject* self, PyObject* args, PyObject*
 				PyTuple_SetItem(pyListJointInfo, 6,
 								PyFloat_FromDouble(info.m_jointDamping));
 				PyTuple_SetItem(pyListJointInfo, 7,
-								PyFloat_FromDouble(info.m_jointFriction));
+								PyFloat_FromDouble(info.m_jointFriction1));
+				PyTuple_SetItem(pyListJointInfo, 8,
+								PyFloat_FromDouble(info.m_jointLowerLimit));
+				PyTuple_SetItem(pyListJointInfo, 9,
+								PyFloat_FromDouble(info.m_jointUpperLimit));
+				PyTuple_SetItem(pyListJointInfo, 10,
+								PyFloat_FromDouble(info.m_jointMaxForce));
+				PyTuple_SetItem(pyListJointInfo, 11,
+								PyFloat_FromDouble(info.m_jointMaxVelocity));
+
 				return pyListJointInfo;
 			}
 			else
@@ -2246,17 +2255,21 @@ static PyObject* pybullet_getLinkState(PyObject* self, PyObject* args, PyObject*
 	PyObject* pyLinkStateLocalInertialOrientation;
 	PyObject* pyLinkStateWorldLinkFramePosition;
 	PyObject* pyLinkStateWorldLinkFrameOrientation;
+	PyObject* pyLinkStateWorldLinkLinearVelocity;
+	PyObject* pyLinkStateWorldLinkAngularVelocity;
 
 	struct b3LinkState linkState;
 
 	int bodyUniqueId = -1;
 	int linkIndex = -1;
+	int computeLinkVelocity = 0;
+
 	int i;
 	b3PhysicsClientHandle sm = 0;
 
 	int physicsClientId = 0;
-	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|i", kwlist, &bodyUniqueId, &linkIndex, &physicsClientId))
+	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "computeLinkVelocity", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|ii", kwlist, &bodyUniqueId, &linkIndex,&computeLinkVelocity, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -2286,6 +2299,12 @@ static PyObject* pybullet_getLinkState(PyObject* self, PyObject* args, PyObject*
 
 			cmd_handle =
 				b3RequestActualStateCommandInit(sm, bodyUniqueId);
+
+			if (computeLinkVelocity)
+			{
+				b3RequestActualStateCommandComputeLinkVelocity(cmd_handle,computeLinkVelocity);
+			}
+
 			status_handle =
 				b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
 
@@ -2340,7 +2359,16 @@ static PyObject* pybullet_getLinkState(PyObject* self, PyObject* args, PyObject*
 									PyFloat_FromDouble(linkState.m_worldLinkFrameOrientation[i]));
 				}
 
-				pyLinkState = PyTuple_New(6);
+				
+
+				if (computeLinkVelocity)
+				{
+					pyLinkState = PyTuple_New(8);
+				} else
+				{
+					pyLinkState = PyTuple_New(6);
+				}
+
 				PyTuple_SetItem(pyLinkState, 0, pyLinkStateWorldPosition);
 				PyTuple_SetItem(pyLinkState, 1, pyLinkStateWorldOrientation);
 				PyTuple_SetItem(pyLinkState, 2, pyLinkStateLocalInertialPosition);
@@ -2348,6 +2376,20 @@ static PyObject* pybullet_getLinkState(PyObject* self, PyObject* args, PyObject*
 				PyTuple_SetItem(pyLinkState, 4, pyLinkStateWorldLinkFramePosition);
 				PyTuple_SetItem(pyLinkState, 5, pyLinkStateWorldLinkFrameOrientation);
 
+				if (computeLinkVelocity)
+				{
+					pyLinkStateWorldLinkLinearVelocity = PyTuple_New(3);
+					pyLinkStateWorldLinkAngularVelocity = PyTuple_New(3);
+					for (i = 0; i < 3; ++i)
+					{
+						PyTuple_SetItem(pyLinkStateWorldLinkLinearVelocity, i,
+										PyFloat_FromDouble(linkState.m_worldLinearVelocity[i]));
+						PyTuple_SetItem(pyLinkStateWorldLinkAngularVelocity, i,
+										PyFloat_FromDouble(linkState.m_worldAngularVelocity[i]));
+					}
+					PyTuple_SetItem(pyLinkState, 6, pyLinkStateWorldLinkLinearVelocity);
+					PyTuple_SetItem(pyLinkState, 7, pyLinkStateWorldLinkAngularVelocity);
+				}
 				return pyLinkState;
 			}
 		}

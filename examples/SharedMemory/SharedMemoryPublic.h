@@ -4,7 +4,7 @@
 #define SHARED_MEMORY_KEY 12347
 ///increase the SHARED_MEMORY_MAGIC_NUMBER whenever incompatible changes are made in the structures
 ///my convention is year/month/day/rev
-#define SHARED_MEMORY_MAGIC_NUMBER 201703010
+#define SHARED_MEMORY_MAGIC_NUMBER 201703024
 
 enum EnumSharedMemoryClientCommand
 {
@@ -174,10 +174,14 @@ struct b3JointInfo
         int m_jointIndex;
         int m_flags;
 		double m_jointDamping;
-		double m_jointFriction;
-    double m_parentFrame[7]; // position and orientation (quaternion)
-    double m_childFrame[7]; // ^^^
-    double m_jointAxis[3]; // joint axis in parent local frame
+		double m_jointFriction1;
+		double m_jointLowerLimit;
+		double m_jointUpperLimit;
+		double m_jointMaxForce;
+		double m_jointMaxVelocity;
+		double m_parentFrame[7]; // position and orientation (quaternion)
+		double m_childFrame[7]; // ^^^
+		double m_jointAxis[3]; // joint axis in parent local frame
 };
 
 struct b3UserConstraint
@@ -377,6 +381,11 @@ struct b3VisualShapeInformation
 	struct b3VisualShapeData* m_visualShapeData;
 };
 
+enum eLinkStateFlags
+{
+	ACTUAL_STATE_COMPUTE_LINKVELOCITY=1
+};
+
 ///b3LinkState provides extra information such as the Cartesian world coordinates
 ///center of mass (COM) of the link, relative to the world reference frame.
 ///Orientation is a quaternion x,y,z,w
@@ -394,6 +403,10 @@ struct b3LinkState
 	///world position and orientation of the (URDF) link frame
 	double m_worldLinkFramePosition[3];
     double m_worldLinkFrameOrientation[4];
+
+	double m_worldLinearVelocity[3]; //only valid when ACTUAL_STATE_COMPUTE_LINKVELOCITY is set (b3RequestActualStateCommandComputeLinkVelocity)
+	double m_worldAngularVelocity[3]; //only valid when ACTUAL_STATE_COMPUTE_LINKVELOCITY is set (b3RequestActualStateCommandComputeLinkVelocity)
+
 };
 
 //todo: discuss and decide about control mode and combinations
