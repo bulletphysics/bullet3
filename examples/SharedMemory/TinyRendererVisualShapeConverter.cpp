@@ -220,7 +220,7 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 				rad = visual->m_geometry.m_capsuleRadius;
 			} else {
 				tr = visual->m_linkLocalFrame;
-				len = visual->m_geometry.m_capsuleHalfHeight;
+				len = visual->m_geometry.m_capsuleHeight;
 				rad = visual->m_geometry.m_capsuleRadius;
 			}
 			visualShapeOut.m_localVisualFrame[0] = tr.getOrigin()[0];

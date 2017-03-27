@@ -564,9 +564,9 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 		case URDF_GEOM_CAPSULE:
         {
 			btScalar radius = collision->m_geometry.m_capsuleRadius;
-			btScalar height = btScalar(2.f)*collision->m_geometry.m_capsuleHalfHeight;
+			btScalar height = collision->m_geometry.m_capsuleHeight;
 			btCapsuleShapeZ* capsuleShape = new btCapsuleShapeZ(radius,height);
-            shape = capsuleShape;
+			shape = capsuleShape;
 			shape ->setMargin(gUrdfDefaultCollisionMargin);
 			break;
 		}
@@ -574,7 +574,7 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
         case URDF_GEOM_CYLINDER:
         {
 			btScalar cylRadius = collision->m_geometry.m_capsuleRadius;
-			btScalar cylLength = collision->m_geometry.m_capsuleHalfHeight;
+			btScalar cylLength = collision->m_geometry.m_capsuleHeight;
 			
             btAlignedObjectArray<btVector3> vertices;
             //int numVerts = sizeof(barrel_vertices)/(9*sizeof(float));
@@ -797,7 +797,7 @@ static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const cha
 			{
 
 				btScalar cylRadius = visual->m_geometry.m_capsuleRadius;
-				btScalar cylLength = visual->m_geometry.m_capsuleHalfHeight;
+				btScalar cylLength = visual->m_geometry.m_capsuleHeight;
 				
 				btVector3 vert(cylRadius*btSin(SIMD_2_PI*(float(i) / numSteps)), cylRadius*btCos(SIMD_2_PI*(float(i) / numSteps)), cylLength / 2.);
 				vertices.push_back(vert);
