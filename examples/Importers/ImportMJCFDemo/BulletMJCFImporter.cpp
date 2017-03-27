@@ -1398,12 +1398,14 @@ void BulletMJCFImporter::getLinkChildIndices(int urdfLinkIndex, btAlignedObjectA
 	}
 }
     
-bool BulletMJCFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction) const
+bool BulletMJCFImporter::getJointInfo2(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction, btScalar& jointMaxForce, btScalar& jointMaxVelocity) const
 {
-    jointLowerLimit = 0.f;
+	jointLowerLimit = 0.f;
     jointUpperLimit = 0.f;
 	jointDamping = 0.f;
 	jointFriction = 0.f;
+	jointMaxForce = 0;
+	jointMaxVelocity = 0;
 
 	const UrdfLink* link = m_data->getLink(m_data->m_activeModel,urdfLinkIndex);
 	if (link)
@@ -1421,7 +1423,9 @@ bool BulletMJCFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joi
 			jointUpperLimit = pj->m_upperLimit;
 			jointDamping = pj->m_jointDamping;
 			jointFriction = pj->m_jointFriction;
-
+			jointMaxForce = pj->m_effortLimit;
+			jointMaxVelocity = pj->m_velocityLimit;
+			
 			return true;
 		} else
 		{
@@ -1431,6 +1435,14 @@ bool BulletMJCFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joi
 	}
 	
 	return false;
+}
+
+bool BulletMJCFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction) const
+{
+	//backwards compatibility for custom file importers
+	btScalar jointMaxForce = 0;
+	btScalar jointMaxVelocity = 0;
+	return getJointInfo2(urdfLinkIndex, parent2joint, linkTransformInWorld, jointAxisInJointSpace, jointType, jointLowerLimit, jointUpperLimit, jointDamping, jointFriction,jointMaxForce, jointMaxVelocity);
 }
     
 bool BulletMJCFImporter::getRootTransformInWorld(btTransform& rootTransformInWorld) const

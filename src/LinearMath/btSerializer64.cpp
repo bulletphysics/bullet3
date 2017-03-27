@@ -1,4 +1,4 @@
-char sBulletDNAstr[]= {
+char sBulletDNAstr64[]= {
 char(83),char(68),char(78),char(65),char(78),char(65),char(77),char(69),char(-124),char(1),char(0),char(0),char(109),char(95),char(115),char(105),char(122),char(101),char(0),char(109),
 char(95),char(99),char(97),char(112),char(97),char(99),char(105),char(116),char(121),char(0),char(42),char(109),char(95),char(100),char(97),char(116),char(97),char(0),char(109),char(95),
 char(99),char(111),char(108),char(108),char(105),char(115),char(105),char(111),char(110),char(83),char(104),char(97),char(112),char(101),char(115),char(0),char(109),char(95),char(99),char(111),
@@ -421,16 +421,16 @@ char(116),char(77),char(117),char(108),char(116),char(105),char(66),char(111),ch
 char(97),char(116),char(97),char(0),char(98),char(116),char(77),char(117),char(108),char(116),char(105),char(66),char(111),char(100),char(121),char(68),char(111),char(117),char(98),char(108),
 char(101),char(68),char(97),char(116),char(97),char(0),char(98),char(116),char(77),char(117),char(108),char(116),char(105),char(66),char(111),char(100),char(121),char(70),char(108),char(111),
 char(97),char(116),char(68),char(97),char(116),char(97),char(0),char(0),char(84),char(76),char(69),char(78),char(1),char(0),char(1),char(0),char(2),char(0),char(2),char(0),
-char(4),char(0),char(4),char(0),char(4),char(0),char(4),char(0),char(8),char(0),char(0),char(0),char(12),char(0),char(36),char(0),char(8),char(0),char(16),char(0),
+char(4),char(0),char(4),char(0),char(4),char(0),char(4),char(0),char(8),char(0),char(0),char(0),char(16),char(0),char(48),char(0),char(16),char(0),char(16),char(0),
 char(32),char(0),char(16),char(0),char(32),char(0),char(48),char(0),char(96),char(0),char(64),char(0),char(-128),char(0),char(20),char(0),char(48),char(0),char(80),char(0),
-char(16),char(0),char(84),char(0),char(-124),char(0),char(12),char(0),char(52),char(0),char(52),char(0),char(20),char(0),char(64),char(0),char(4),char(0),char(4),char(0),
-char(8),char(0),char(4),char(0),char(32),char(0),char(28),char(0),char(60),char(0),char(56),char(0),char(76),char(0),char(76),char(0),char(24),char(0),char(60),char(0),
-char(60),char(0),char(60),char(0),char(16),char(0),char(64),char(0),char(68),char(0),char(-32),char(1),char(8),char(1),char(-104),char(0),char(88),char(0),char(-72),char(0),
-char(104),char(0),char(-16),char(1),char(-80),char(3),char(8),char(0),char(52),char(0),char(52),char(0),char(0),char(0),char(68),char(0),char(84),char(0),char(-124),char(0),
-char(116),char(0),char(92),char(1),char(-36),char(0),char(-116),char(1),char(124),char(1),char(-44),char(0),char(-4),char(0),char(-52),char(1),char(92),char(1),char(116),char(2),
-char(-124),char(2),char(-76),char(4),char(-52),char(0),char(108),char(1),char(92),char(0),char(-116),char(0),char(16),char(0),char(100),char(0),char(20),char(0),char(36),char(0),
-char(100),char(0),char(92),char(0),char(104),char(0),char(-64),char(0),char(92),char(1),char(104),char(0),char(-76),char(1),char(-16),char(2),char(-120),char(1),char(-64),char(0),
-char(100),char(0),char(0),char(0),char(83),char(84),char(82),char(67),char(84),char(0),char(0),char(0),char(10),char(0),char(3),char(0),char(4),char(0),char(0),char(0),
+char(16),char(0),char(96),char(0),char(-112),char(0),char(16),char(0),char(56),char(0),char(56),char(0),char(20),char(0),char(72),char(0),char(4),char(0),char(4),char(0),
+char(8),char(0),char(4),char(0),char(56),char(0),char(32),char(0),char(80),char(0),char(72),char(0),char(96),char(0),char(80),char(0),char(32),char(0),char(64),char(0),
+char(64),char(0),char(64),char(0),char(16),char(0),char(72),char(0),char(80),char(0),char(-16),char(1),char(24),char(1),char(-104),char(0),char(88),char(0),char(-72),char(0),
+char(104),char(0),char(0),char(2),char(-64),char(3),char(8),char(0),char(64),char(0),char(64),char(0),char(0),char(0),char(80),char(0),char(96),char(0),char(-112),char(0),
+char(-128),char(0),char(104),char(1),char(-24),char(0),char(-104),char(1),char(-120),char(1),char(-32),char(0),char(8),char(1),char(-40),char(1),char(104),char(1),char(-128),char(2),
+char(-112),char(2),char(-64),char(4),char(-40),char(0),char(120),char(1),char(104),char(0),char(-104),char(0),char(16),char(0),char(104),char(0),char(24),char(0),char(40),char(0),
+char(104),char(0),char(96),char(0),char(104),char(0),char(-56),char(0),char(104),char(1),char(112),char(0),char(-24),char(1),char(0),char(3),char(-104),char(1),char(-48),char(0),
+char(112),char(0),char(0),char(0),char(83),char(84),char(82),char(67),char(84),char(0),char(0),char(0),char(10),char(0),char(3),char(0),char(4),char(0),char(0),char(0),
 char(4),char(0),char(1),char(0),char(9),char(0),char(2),char(0),char(11),char(0),char(3),char(0),char(10),char(0),char(3),char(0),char(10),char(0),char(4),char(0),
 char(10),char(0),char(5),char(0),char(12),char(0),char(2),char(0),char(9),char(0),char(6),char(0),char(9),char(0),char(7),char(0),char(13),char(0),char(1),char(0),
 char(7),char(0),char(8),char(0),char(14),char(0),char(1),char(0),char(8),char(0),char(8),char(0),char(15),char(0),char(1),char(0),char(7),char(0),char(8),char(0),
@@ -596,4 +596,4 @@ char(0),char(0),char(126),char(1),char(93),char(0),char(9),char(0),char(20),char
 char(0),char(0),char(-126),char(1),char(91),char(0),char(90),char(1),char(49),char(0),char(-125),char(1),char(0),char(0),char(126),char(1),char(4),char(0),char(97),char(1),
 char(0),char(0),char(37),char(0),char(94),char(0),char(7),char(0),char(0),char(0),char(-126),char(1),char(92),char(0),char(90),char(1),char(50),char(0),char(-125),char(1),
 char(19),char(0),char(127),char(1),char(13),char(0),char(-128),char(1),char(7),char(0),char(-127),char(1),char(4),char(0),char(97),char(1),};
-int sBulletDNAlen= sizeof(sBulletDNAstr);
+int sBulletDNAlen64= sizeof(sBulletDNAstr64);

@@ -112,7 +112,7 @@ btMultiBody::btMultiBody(int n_links,
 		m_userObjectPointer(0),
 		m_userIndex2(-1),
 		m_userIndex(-1),
-		m_linearDamping(0.0f),
+		m_linearDamping(0.04f),
 		m_angularDamping(0.04f),
 		m_useGyroTerm(true),
 			m_maxAppliedImpulse(1000.f),
@@ -1965,6 +1965,10 @@ const char*	btMultiBody::serialize(void* dataBuffer, class btSerializer* seriali
 				memPtr->m_parentIndex = getLink(i).m_parent;
 				memPtr->m_jointDamping = getLink(i).m_jointDamping;
 				memPtr->m_jointFriction = getLink(i).m_jointFriction;
+				memPtr->m_jointLowerLimit = getLink(i).m_jointLowerLimit;
+				memPtr->m_jointUpperLimit = getLink(i).m_jointUpperLimit;
+				memPtr->m_jointMaxForce = getLink(i).m_jointMaxForce;
+				memPtr->m_jointMaxVelocity = getLink(i).m_jointMaxVelocity;
 
 				getLink(i).m_eVector.serialize(memPtr->m_parentComToThisComOffset);
 				getLink(i).m_dVector.serialize(memPtr->m_thisPivotToThisComOffset);

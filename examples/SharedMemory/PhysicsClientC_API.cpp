@@ -548,9 +548,23 @@ b3SharedMemoryCommandHandle b3RequestActualStateCommandInit(b3PhysicsClientHandl
     struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
     b3Assert(command);
     command->m_type =CMD_REQUEST_ACTUAL_STATE;
+	command->m_updateFlags = 0;
 	command->m_requestActualStateInformationCommandArgument.m_bodyUniqueId = bodyUniqueId;
     return (b3SharedMemoryCommandHandle) command;
 }
+
+int b3RequestActualStateCommandComputeLinkVelocity(b3SharedMemoryCommandHandle commandHandle, int computeLinkVelocity)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	btAssert(command->m_type == CMD_REQUEST_ACTUAL_STATE);
+	if (computeLinkVelocity && command->m_type == CMD_REQUEST_ACTUAL_STATE)
+	{
+		command->m_updateFlags |= ACTUAL_STATE_COMPUTE_LINKVELOCITY;
+	}
+	return 0;
+}
+
 
 int b3GetJointState(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle statusHandle, int jointIndex, b3JointSensorState *state)
 {
@@ -605,6 +619,8 @@ int b3GetLinkState(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle 
     {
       state->m_worldPosition[i] = status->m_sendActualStateArgs.m_linkState[7 * linkIndex + i];
       state->m_localInertialPosition[i] = status->m_sendActualStateArgs.m_linkLocalInertialFrames[7 * linkIndex + i];
+	  state->m_worldLinearVelocity[i] = status->m_sendActualStateArgs.m_linkWorldVelocities[6*linkIndex+i];
+	  state->m_worldAngularVelocity[i] = status->m_sendActualStateArgs.m_linkWorldVelocities[6*linkIndex+i+3];
     }
     for (int i = 0; i < 4; ++i) 
     {
@@ -1086,6 +1102,7 @@ int	b3SubmitClientCommand(b3PhysicsClientHandle physClient, const b3SharedMemory
 
 b3SharedMemoryStatusHandle b3SubmitClientCommandAndWaitStatus(b3PhysicsClientHandle physClient, const b3SharedMemoryCommandHandle commandHandle)
 {
+	B3_PROFILE("b3SubmitClientCommandAndWaitStatus");
 	b3Clock clock;
 	double startTime = clock.getTimeInSeconds();
 	
@@ -1099,11 +1116,17 @@ b3SharedMemoryStatusHandle b3SubmitClientCommandAndWaitStatus(b3PhysicsClientHan
 
 		double timeOutInSeconds = cl->getTimeOut();
 
-		b3SubmitClientCommand(physClient, commandHandle);
-
-		while (cl->isConnected() && (statusHandle == 0) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
 		{
-			statusHandle = b3ProcessServerStatus(physClient);
+			B3_PROFILE("b3SubmitClientCommand");
+			b3SubmitClientCommand(physClient, commandHandle);
+		}
+		{
+			B3_PROFILE("b3ProcessServerStatus");
+			while (cl->isConnected() && (statusHandle == 0) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
+			{
+					clock.usleep(0);
+					statusHandle = b3ProcessServerStatus(physClient);
+			}
 		}
 		return (b3SharedMemoryStatusHandle)statusHandle;
 	}
