@@ -3808,6 +3808,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									{
 										linkIndexB = mblB->m_link;
 										objectIndexB = mblB->m_multiBody->getUserIndex2();
+										if (
+											(clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_B_FILTER) &&
+											clientCmd.m_requestContactPointArguments.m_linkIndexBIndexFilter != linkIndexB)
+										{
+											continue;
+										}
 									}
 
 									int objectIndexA = -1;
@@ -3820,8 +3826,13 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									if (mblA && mblA->m_multiBody)
 									{
 										linkIndexA = mblA->m_link;
-
 										objectIndexA = mblA->m_multiBody->getUserIndex2();
+										if (
+											(clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_A_FILTER) &&
+											clientCmd.m_requestContactPointArguments.m_linkIndexAIndexFilter != linkIndexA)
+										{
+											continue;
+										}
 									}
 
 									btAssert(bodyA || mblA);
