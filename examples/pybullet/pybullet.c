@@ -693,8 +693,9 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	int physicsClientId = 0;
+	int flags = 0;
 
-	static char* kwlist[] = {"fileName", "basePosition", "baseOrientation", "useMaximalCoordinates", "useFixedBase", "physicsClientId", NULL};
+	static char* kwlist[] = {"fileName", "basePosition", "baseOrientation", "useMaximalCoordinates", "useFixedBase", "flags","physicsClientId", NULL};
 
 	static char* kwlistBackwardCompatible4[] = {"fileName", "startPosX", "startPosY", "startPosZ", NULL};
 	static char* kwlistBackwardCompatible8[] = {"fileName", "startPosX", "startPosY", "startPosZ", "startOrnX", "startOrnY", "startOrnZ", "startOrnW", NULL};
@@ -741,7 +742,7 @@ static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args, PyObject* key
 		double basePos[3];
 		double baseOrn[4];
 
-		if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|OOiii", kwlist, &urdfFileName, &basePosObj, &baseOrnObj, &useMaximalCoordinates, &useFixedBase, &physicsClientId))
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|OOiiii", kwlist, &urdfFileName, &basePosObj, &baseOrnObj, &useMaximalCoordinates, &useFixedBase, &flags, &physicsClientId))
 		{
 			return NULL;
 		}
@@ -789,6 +790,8 @@ static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args, PyObject* key
 		int statusType;
 		b3SharedMemoryCommandHandle command =
 			b3LoadUrdfCommandInit(sm, urdfFileName);
+
+		b3LoadUrdfCommandSetFlags(command,flags);
 
 		// setting the initial position, orientation and other arguments are
 		// optional
@@ -3916,14 +3919,12 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 	b3RequestCameraImageSetLightDiffuseCoeff(command, lightDiffuseCoeff);
 	b3RequestCameraImageSetLightSpecularCoeff(command, lightSpecularCoeff);
 
-	b3RequestCameraImageSelectRenderer(command, renderer);
+	b3RequestCameraImageSelectRenderer(command, renderer);//renderer could be ER_BULLET_HARDWARE_OPENGL
 
 	if (b3CanSubmitCommand(sm))
 	{
 		b3SharedMemoryStatusHandle statusHandle;
 		int statusType;
-
-		// b3RequestCameraImageSelectRenderer(command,ER_BULLET_HARDWARE_OPENGL);
 
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 		statusType = b3GetStatusType(statusHandle);
@@ -4349,7 +4350,6 @@ static PyObject* pybullet_renderImageObsolete(PyObject* self, PyObject* args)
 		b3SharedMemoryStatusHandle statusHandle;
 		int statusType;
 
-		// b3RequestCameraImageSelectRenderer(command,ER_BULLET_HARDWARE_OPENGL);
 
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 		statusType = b3GetStatusType(statusHandle);
@@ -5422,6 +5422,8 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "ER_TINY_RENDERER", ER_TINY_RENDERER);
 	PyModule_AddIntConstant(m, "ER_BULLET_HARDWARE_OPENGL", ER_BULLET_HARDWARE_OPENGL);
 
+	PyModule_AddIntConstant(m, "URDF_USE_INERTIA_FROM_FILE", URDF_USE_INERTIA_FROM_FILE);
+	
 	PyModule_AddIntConstant(m, "B3G_F1", B3G_F1);
 	PyModule_AddIntConstant(m, "B3G_F2", B3G_F2);
 	PyModule_AddIntConstant(m, "B3G_F3", B3G_F3);

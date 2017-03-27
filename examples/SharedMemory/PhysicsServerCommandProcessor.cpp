@@ -1539,7 +1539,7 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
 
 
 bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVector3& pos, const btQuaternion& orn,
-                             bool useMultiBody, bool useFixedBase, int* bodyUniqueIdPtr, char* bufferServerToClient, int bufferSizeInBytes)
+                             bool useMultiBody, bool useFixedBase, int* bodyUniqueIdPtr, char* bufferServerToClient, int bufferSizeInBytes, int flags)
 {
 	BT_PROFILE("loadURDF");
 	btAssert(m_data->m_dynamicsWorld);
@@ -1597,7 +1597,7 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
         //                      printf("urdf root link index = %d\n",rootLinkIndex);
 		MyMultiBodyCreator creation(m_data->m_guiHelper);
 
-        ConvertURDF2Bullet(u2b,creation, tr,m_data->m_dynamicsWorld,useMultiBody,u2b.getPathPrefix());
+        ConvertURDF2Bullet(u2b,creation, tr,m_data->m_dynamicsWorld,useMultiBody,u2b.getPathPrefix(),flags);
 
         for (int i=0;i<u2b.getNumAllocatedCollisionShapes();i++)
         {
@@ -2617,6 +2617,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						initialPos[1] = urdfArgs.m_initialPosition[1];
 						initialPos[2] = urdfArgs.m_initialPosition[2];
 					}
+					int urdfFlags = 0;
+					if (clientCmd.m_updateFlags & URDF_ARGS_HAS_CUSTOM_URDF_FLAGS)
+					{
+						urdfFlags = urdfArgs.m_urdfFlags;
+					}
 					if (clientCmd.m_updateFlags & URDF_ARGS_INITIAL_ORIENTATION)
 					{
 						initialOrn[0] = urdfArgs.m_initialOrientation[0];
@@ -2630,8 +2635,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     //load the actual URDF and send a report: completed or failed
                     bool completedOk = loadUrdf(urdfArgs.m_urdfFileName,
                                                initialPos,initialOrn,
-                                               useMultiBody, useFixedBase,&bodyUniqueId, bufferServerToClient, bufferSizeInBytes);
-
+                                               useMultiBody, useFixedBase,&bodyUniqueId, bufferServerToClient, bufferSizeInBytes, urdfFlags);
 
                     if (completedOk)
                     {
@@ -5399,7 +5403,7 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 		btVector3 spawnDir = mat.getColumn(0);
 		btVector3 shiftPos = spawnDir*spawnDistance;
 		btVector3 spawnPos = gVRGripperPos + shiftPos;
-		loadUrdf("sphere_small.urdf", spawnPos, gVRGripperOrn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+		loadUrdf("sphere_small.urdf", spawnPos, gVRGripperOrn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size(),0);
 		//loadUrdf("lego/lego.urdf", spawnPos, gVRGripperOrn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 		m_data->m_sphereId = bodyId;
 		InteralBodyData* parentBody = m_data->getHandle(bodyId);

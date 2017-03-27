@@ -260,6 +260,8 @@ int b3RobotSimulatorClientAPI::loadURDF(const std::string& fileName, const struc
 
 	//setting the initial position, orientation and other arguments are optional
 
+	b3LoadUrdfCommandSetFlags(command,args.m_flags);
+
 	b3LoadUrdfCommandSetStartPosition(command, args.m_startPosition[0],
 									  args.m_startPosition[1],
 									  args.m_startPosition[2]);
