@@ -346,6 +346,17 @@ void ConvertURDF2BulletInternal(
             btQuaternion parentRotToThis = offsetInB.getRotation() * offsetInA.inverse().getRotation();
 
             bool disableParentCollision = true;
+
+			if (createMultiBody && cache.m_bulletMultiBody)
+			{
+				cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointDamping = jointDamping;
+				cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointFriction = jointFriction;
+				cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointLowerLimit = jointLowerLimit;
+				cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointUpperLimit = jointUpperLimit;
+				cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointMaxForce = jointMaxForce;
+				cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointMaxVelocity = jointMaxVelocity;
+			}
+
             switch (jointType)
             {
                 case URDFFixedJoint:
@@ -376,11 +387,6 @@ void ConvertURDF2BulletInternal(
                                                                   parentRotToThis, quatRotate(offsetInB.getRotation(),jointAxisInJointSpace), offsetInA.getOrigin(),//parent2joint.getOrigin(),
                                                                   -offsetInB.getOrigin(),
                                                                   disableParentCollision);
-                        cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointDamping = jointDamping;
-                        cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointFriction = jointFriction;
-						cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointLowerLimit = jointLowerLimit;
-						cache.m_bulletMultiBody->getLink(mbLinkIndex).m_jointUpperLimit = jointUpperLimit;
-
                         creation.addLinkMapping(urdfLinkIndex,mbLinkIndex);
                         if (jointType == URDFRevoluteJoint && jointLowerLimit <= jointUpperLimit) {
                           //std::string name = u2b.getLinkName(urdfLinkIndex);
