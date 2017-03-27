@@ -174,7 +174,7 @@ struct b3JointInfo
         int m_jointIndex;
         int m_flags;
 		double m_jointDamping;
-		double m_jointFriction1;
+		double m_jointFriction;
 		double m_jointLowerLimit;
 		double m_jointUpperLimit;
 		double m_jointMaxForce;
