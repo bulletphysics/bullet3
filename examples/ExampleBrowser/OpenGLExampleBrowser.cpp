@@ -495,10 +495,10 @@ static void saveCurrentSettings(int currentEntry,const char* startFileName)
 		{
 			fprintf(f,"--enable_experimental_opencl\n");
 		}
-		if (sUseOpenGL2 )
-		{
-			fprintf(f,"--opengl2\n");
-		}
+//		if (sUseOpenGL2 )
+//		{
+//			fprintf(f,"--opengl2\n");
+//		}
 
 		fclose(f);
 	}

@@ -5,14 +5,18 @@
 #include "../CommonInterfaces/CommonRenderInterface.h"
 #include "SimpleCamera.h"
 
-struct SimpleOpenGL2Renderer : public CommonRenderInterface
+class SimpleOpenGL2Renderer : public CommonRenderInterface
 {
-    int m_width;
-    int m_height;
-    SimpleCamera	m_camera;
-    
+	struct SimpleOpenGL2RendererInternalData* m_data;
+  
+	void drawSceneInternal(int pass, int cameraUpAxis);
+	void drawOpenGL(int instanceIndex);
+
+public:
+
     SimpleOpenGL2Renderer(int width, int height);
-    
+    virtual ~SimpleOpenGL2Renderer();
+
     virtual void init();
     
     virtual void updateCamera(int upAxis);
@@ -21,11 +25,7 @@ struct SimpleOpenGL2Renderer : public CommonRenderInterface
 	virtual CommonCameraInterface* getActiveCamera();
 	virtual void setActiveCamera(CommonCameraInterface* cam);
 
-	virtual void	resize(int width, int height)
-	{
-		m_width = width;
-		m_height = height;
-	}
+	virtual void	resize(int width, int height);
 
     virtual void removeAllInstances();
     
@@ -40,20 +40,11 @@ struct SimpleOpenGL2Renderer : public CommonRenderInterface
     
     virtual void renderScene();
     
-    virtual int getScreenWidth()
-    {
-        return m_width;
-    }
-    virtual int getScreenHeight()
-    {
-        return m_height;
-    }
-	virtual int	registerTexture(const unsigned char* texels, int width, int height)
-	{
-		return -1;
-	}
-	virtual void    updateTexture(int textureIndex, const unsigned char* texels) {}
-    virtual void activateTexture(int textureIndex) {}
+    virtual int getScreenWidth();
+    virtual int getScreenHeight();
+	virtual int	registerTexture(const unsigned char* texels, int width, int height);
+	virtual void    updateTexture(int textureIndex, const unsigned char* texels);
+    virtual void activateTexture(int textureIndex);
 
 
     virtual int registerGraphicsInstance(int shapeIndex, const double* position, const double* quaternion, const double* color, const double* scaling);
