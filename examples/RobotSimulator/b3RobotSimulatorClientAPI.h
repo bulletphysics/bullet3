@@ -15,12 +15,14 @@ struct b3RobotSimulatorLoadUrdfFileArgs
 	b3Quaternion m_startOrientation;
 	bool m_forceOverrideFixedBase;
 	bool m_useMultiBody;
+	int m_flags;
 
 	b3RobotSimulatorLoadUrdfFileArgs()
 		: m_startPosition(b3MakeVector3(0, 0, 0)),
 		  m_startOrientation(b3Quaternion(0, 0, 0, 1)),
 		  m_forceOverrideFixedBase(false),
-		  m_useMultiBody(true)
+		  m_useMultiBody(true),
+		  m_flags(0)
 	{
 	}
 };

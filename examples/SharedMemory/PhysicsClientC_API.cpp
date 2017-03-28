@@ -238,6 +238,19 @@ int	b3LoadUrdfCommandSetUseFixedBase(b3SharedMemoryCommandHandle commandHandle, 
 	return -1;
 }
 
+int	b3LoadUrdfCommandSetFlags(b3SharedMemoryCommandHandle commandHandle, int flags)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_LOAD_URDF);
+	if (command && (command->m_type == CMD_LOAD_URDF))
+	{
+		command->m_updateFlags |= 	URDF_ARGS_HAS_CUSTOM_URDF_FLAGS;
+		command->m_urdfArguments.m_urdfFlags = flags;
+	}
+	return 0;
+}
+
 int	b3LoadUrdfCommandSetStartPosition(b3SharedMemoryCommandHandle commandHandle, double startPosX,double startPosY,double startPosZ)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;

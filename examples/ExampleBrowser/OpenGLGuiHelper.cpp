@@ -10,8 +10,6 @@
 
 #include "../OpenGLWindow/SimpleCamera.h"
 #include "../OpenGLWindow/GLInstanceGraphicsShape.h"
-//backwards compatibility
-#include "GL_ShapeDrawer.h"
 
 
 #define BT_LINE_BATCH_SIZE 512
@@ -147,7 +145,6 @@ struct OpenGLGuiHelperInternalData
 {
 	struct CommonGraphicsApp* m_glApp;
 	class MyDebugDrawer* m_debugDraw;
-	GL_ShapeDrawer* m_gl2ShapeDrawer;
 	bool m_vrMode;
 	int m_vrSkipShadowPass;
 
@@ -178,19 +175,13 @@ OpenGLGuiHelper::OpenGLGuiHelper(CommonGraphicsApp* glApp, bool useOpenGL2)
 	m_data->m_glApp = glApp;
 	m_data->m_debugDraw = 0;
 	
-	m_data->m_gl2ShapeDrawer = 0;
-
-	if (useOpenGL2)
-	{
-		m_data->m_gl2ShapeDrawer = new GL_ShapeDrawer();
-
-	}
+	
 }
 
 OpenGLGuiHelper::~OpenGLGuiHelper()
 {
 	delete m_data->m_debugDraw;
-	delete m_data->m_gl2ShapeDrawer;
+
 	delete m_data;
 }
 
@@ -337,13 +328,7 @@ void OpenGLGuiHelper::render(const btDiscreteDynamicsWorld* rbWorld)
 		m_data->m_glApp->m_renderer->renderScene();	
 	}
 	
-	//backwards compatible OpenGL2 rendering
-
-	if (m_data->m_gl2ShapeDrawer && rbWorld)
-	{
-		m_data->m_gl2ShapeDrawer->enableTexture(true);
-		m_data->m_gl2ShapeDrawer->drawScene(rbWorld,true, m_data->m_glApp->getUpAxis());
-	}
+	
 }
 void OpenGLGuiHelper::createPhysicsDebugDrawer(btDiscreteDynamicsWorld* rbWorld)
 {

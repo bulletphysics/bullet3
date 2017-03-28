@@ -79,6 +79,7 @@ enum EnumUrdfArgsUpdateFlags
 	URDF_ARGS_INITIAL_ORIENTATION=4,
 	URDF_ARGS_USE_MULTIBODY=8,
 	URDF_ARGS_USE_FIXED_BASE=16,
+	URDF_ARGS_HAS_CUSTOM_URDF_FLAGS = 32
 };
 
 
@@ -89,6 +90,7 @@ struct UrdfArgs
 	double m_initialOrientation[4];
 	int m_useMultiBody;
 	int m_useFixedBase;
+	int m_urdfFlags;
 };
 
 struct MjcfArgs

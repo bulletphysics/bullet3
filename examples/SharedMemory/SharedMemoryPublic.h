@@ -447,4 +447,9 @@ enum eCONNECT_METHOD {
   eCONNECT_TCP = 5,
 };
 
+enum eURDF_Flags
+{
+	URDF_USE_INERTIA_FROM_FILE=2,//sync with URDF2Bullet.h 'ConvertURDFFlags'
+};
+
 #endif//SHARED_MEMORY_PUBLIC_H
