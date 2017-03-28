@@ -134,7 +134,7 @@ void SimpleOpenGL2Renderer::writeSingleInstanceScaleToCPU(double* scale, int src
 
 int SimpleOpenGL2Renderer::getTotalNumInstances() const
 {
-    return 0;
+    return m_data->m_graphicsInstances.size();
 }
 
 void	SimpleOpenGL2Renderer::getCameraViewMatrix(float viewMat[16]) const
