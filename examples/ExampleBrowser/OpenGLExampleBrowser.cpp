@@ -1237,8 +1237,8 @@ void OpenGLExampleBrowser::update(float deltaTime)
 			if (renderGrid)
             {
                 BT_PROFILE("Draw Grid");
-                glPolygonOffset(3.0, 3);
-                glEnable(GL_POLYGON_OFFSET_FILL);
+                //glPolygonOffset(3.0, 3);
+                //glEnable(GL_POLYGON_OFFSET_FILL);
                 s_app->drawGrid(dg);
                 
             }

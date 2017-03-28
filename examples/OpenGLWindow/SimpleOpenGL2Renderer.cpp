@@ -323,7 +323,7 @@ void SimpleOpenGL2Renderer::drawSceneInternal(int pass, int cameraUpAxis)
 
 void SimpleOpenGL2Renderer::renderScene()
 {
-	GLfloat light_ambient[] = { b3Scalar(0.4), b3Scalar(0.4), b3Scalar(0.4), b3Scalar(1.0) };
+	GLfloat light_ambient[] = { b3Scalar(0.2), b3Scalar(0.2), b3Scalar(0.2), b3Scalar(1.0) };
 	GLfloat light_diffuse[] = { b3Scalar(1.0), b3Scalar(1.0), b3Scalar(1.0), b3Scalar(1.0) };
 	GLfloat light_specular[] = { b3Scalar(1.0), b3Scalar(1.0), b3Scalar(1.0), b3Scalar(1.0 )};
 	/*	light_position is NOT default value	*/
