@@ -2121,7 +2121,7 @@ static PyObject* pybullet_getJointInfo(PyObject* self, PyObject* args, PyObject*
 				PyTuple_SetItem(pyListJointInfo, 6,
 								PyFloat_FromDouble(info.m_jointDamping));
 				PyTuple_SetItem(pyListJointInfo, 7,
-								PyFloat_FromDouble(info.m_jointFriction1));
+								PyFloat_FromDouble(info.m_jointFriction));
 				PyTuple_SetItem(pyListJointInfo, 8,
 								PyFloat_FromDouble(info.m_jointLowerLimit));
 				PyTuple_SetItem(pyListJointInfo, 9,
