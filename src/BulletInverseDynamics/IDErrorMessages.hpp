@@ -5,7 +5,7 @@
 /// name of file being compiled, without leading path components
 #define __INVDYN_FILE_WO_DIR__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
-#ifndef BT_ID_WO_BULLET
+#if !defined(BT_ID_WO_BULLET) && !defined(BT_USE_INVERSE_DYNAMICS_WITH_BULLET2)
 #include "Bullet3Common/b3Logging.h"
 #define error_message(...) b3Error(__VA_ARGS__)
 #define warning_message(...) b3Warning(__VA_ARGS__)
