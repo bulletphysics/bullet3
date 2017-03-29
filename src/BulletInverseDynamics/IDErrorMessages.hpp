@@ -24,11 +24,6 @@
 		fprintf(stderr, "[Warning:%s:%d] ", __INVDYN_FILE_WO_DIR__, __LINE__);					 \
 		fprintf(stderr, __VA_ARGS__);															  \
 	} while (0)
-#define warning_message(...)																		 \
-	do {																						   \
-		fprintf(stderr, "[Warning:%s:%d] ", __INVDYN_FILE_WO_DIR__, __LINE__);					   \
-		fprintf(stderr, __VA_ARGS__);															\
-	} while (0)
 #define id_printf(...) printf(__VA_ARGS__)
 #endif  // BT_ID_WO_BULLET
 #endif
