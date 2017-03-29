@@ -341,7 +341,7 @@ void PhysicsClientSharedMemory::processBodyJointInfo(int bodyUniqueId, const Sha
 
 const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
    // SharedMemoryStatus* stat = 0;
-
+	
     if (!m_data->m_testBlock1) {
 		m_data->m_lastServerStatus.m_type = CMD_SHARED_MEMORY_NOT_INITIALIZED;
 		return &m_data->m_lastServerStatus;
@@ -358,7 +358,9 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 	 }
 
     if (m_data->m_testBlock1->m_numServerCommands >
-        m_data->m_testBlock1->m_numProcessedServerCommands) {
+        m_data->m_testBlock1->m_numProcessedServerCommands) 
+	{
+		B3_PROFILE("processServerCMD");
         btAssert(m_data->m_testBlock1->m_numServerCommands ==
                  m_data->m_testBlock1->m_numProcessedServerCommands + 1);
 
@@ -368,8 +370,13 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
  //       EnumSharedMemoryServerStatus s = (EnumSharedMemoryServerStatus)serverCmd.m_type;
         // consume the command
 
-        switch (serverCmd.m_type) {
-            case CMD_CLIENT_COMMAND_COMPLETED: {
+        switch (serverCmd.m_type) 
+		{
+
+            case CMD_CLIENT_COMMAND_COMPLETED: 
+			{
+				B3_PROFILE("CMD_CLIENT_COMMAND_COMPLETED");
+
                 if (m_data->m_verboseOutput) {
                     b3Printf("Server completed command");
                 }
@@ -378,13 +385,17 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 
 			case CMD_MJCF_LOADING_COMPLETED:
 			{
+				B3_PROFILE("CMD_MJCF_LOADING_COMPLETED");
+
                 if (m_data->m_verboseOutput) {
                     b3Printf("Server loading the MJCF OK\n");
                 }
                 break;
 			}
-            case CMD_SDF_LOADING_COMPLETED: {
-                
+            case CMD_SDF_LOADING_COMPLETED: 
+			{
+				B3_PROFILE("CMD_SDF_LOADING_COMPLETED");
+
                 if (m_data->m_verboseOutput) {
                     b3Printf("Server loading the SDF OK\n");
                 }
@@ -392,7 +403,9 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 break;
             }
 
-            case CMD_URDF_LOADING_COMPLETED: {
+            case CMD_URDF_LOADING_COMPLETED: 
+			{
+				B3_PROFILE("CMD_URDF_LOADING_COMPLETED");
                 
                 if (m_data->m_verboseOutput) {
                     b3Printf("Server loading the URDF OK\n");
@@ -444,19 +457,28 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 }
                 break;
             }
-            case CMD_DESIRED_STATE_RECEIVED_COMPLETED: {
+            case CMD_DESIRED_STATE_RECEIVED_COMPLETED: 
+			{
+				B3_PROFILE("CMD_DESIRED_STATE_RECEIVED_COMPLETED");
+
                 if (m_data->m_verboseOutput) {
                     b3Printf("Server received desired state");
                 }
                 break;
             }
-            case CMD_STEP_FORWARD_SIMULATION_COMPLETED: {
+            case CMD_STEP_FORWARD_SIMULATION_COMPLETED: 
+			{
+				B3_PROFILE("CMD_STEP_FORWARD_SIMULATION_COMPLETED");
+
                 if (m_data->m_verboseOutput) {
                     b3Printf("Server completed step simulation");
                 }
                 break;
             }
-            case CMD_URDF_LOADING_FAILED: {
+            case CMD_URDF_LOADING_FAILED: 
+			{
+				B3_PROFILE("CMD_URDF_LOADING_FAILED");
+
                 if (m_data->m_verboseOutput) {
                     b3Printf("Server failed loading the URDF...\n");
                 }
@@ -465,24 +487,30 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
             }
 			case CMD_USER_CONSTRAINT_INFO_COMPLETED:
 			{
-				 int cid = serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId;
+				B3_PROFILE("CMD_USER_CONSTRAINT_INFO_COMPLETED");
+
+				int cid = serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId;
 				m_data->m_userConstraintInfoMap.insert(cid,serverCmd.m_userConstraintResultArgs);
 				break;
 			}
 			case CMD_USER_CONSTRAINT_COMPLETED:
 			{
+				B3_PROFILE("CMD_USER_CONSTRAINT_COMPLETED");
 				int cid = serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId;
 				m_data->m_userConstraintInfoMap.insert(cid,serverCmd.m_userConstraintResultArgs);
 				break;
 			}
 			case CMD_REMOVE_USER_CONSTRAINT_COMPLETED:
 			{
+				B3_PROFILE("CMD_REMOVE_USER_CONSTRAINT_COMPLETED");
 				int cid = serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId;
 				m_data->m_userConstraintInfoMap.remove(cid);
 				break;
 			}
 			case CMD_CHANGE_USER_CONSTRAINT_COMPLETED:
 			{
+				B3_PROFILE("CMD_CHANGE_USER_CONSTRAINT_COMPLETED");
+
 				int cid = serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId;
 				b3UserConstraint* userConstraintPtr = m_data->m_userConstraintInfoMap[cid];
 				if (userConstraintPtr)
@@ -511,26 +539,31 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 
 			case CMD_USER_CONSTRAINT_FAILED:
 			{
+				B3_PROFILE("CMD_USER_CONSTRAINT_FAILED");
 				b3Warning("createConstraint failed");
 				break;
 			}
 			case CMD_REMOVE_USER_CONSTRAINT_FAILED:
 			{
+				B3_PROFILE("CMD_REMOVE_USER_CONSTRAINT_FAILED");
 				b3Warning("removeConstraint failed");
 				break;
 			}
 			case CMD_CHANGE_USER_CONSTRAINT_FAILED:
 			{
+				B3_PROFILE("CMD_CHANGE_USER_CONSTRAINT_FAILED");
 				b3Warning("changeConstraint failed");
 				break;
 			}
 			case CMD_ACTUAL_STATE_UPDATE_FAILED:
 			{
+				B3_PROFILE("CMD_ACTUAL_STATE_UPDATE_FAILED");
 				b3Warning("request actual state failed");
 				break;
 			}
             case CMD_BODY_INFO_COMPLETED:
             {
+				B3_PROFILE("CMD_BODY_INFO_COMPLETED");
                 if (m_data->m_verboseOutput) {
                     b3Printf("Received body info\n");
                 }
@@ -541,12 +574,14 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
             }
 			case CMD_MJCF_LOADING_FAILED:
 			{
+				B3_PROFILE("CMD_MJCF_LOADING_FAILED");
                 if (m_data->m_verboseOutput) {
                     b3Printf("Server failed loading the MJCF...\n");
                 }
                 break;
 			}
              case CMD_SDF_LOADING_FAILED: {
+				B3_PROFILE("CMD_SDF_LOADING_FAILED");
                 if (m_data->m_verboseOutput) {
                     b3Printf("Server failed loading the SDF...\n");
                 }
@@ -555,6 +590,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
             }
 
             case CMD_BULLET_DATA_STREAM_RECEIVED_COMPLETED: {
+				B3_PROFILE("CMD_BULLET_DATA_STREAM_RECEIVED_COMPLETED");
                 if (m_data->m_verboseOutput) {
                     b3Printf("Server received bullet data stream OK\n");
                 }
@@ -562,6 +598,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 break;
             }
             case CMD_BULLET_DATA_STREAM_RECEIVED_FAILED: {
+				B3_PROFILE("CMD_BULLET_DATA_STREAM_RECEIVED_FAILED");
                 if (m_data->m_verboseOutput) {
                     b3Printf("Server failed receiving bullet data stream\n");
                 }
@@ -570,37 +607,33 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
             }
 
             case CMD_ACTUAL_STATE_UPDATE_COMPLETED: {
-                if (m_data->m_verboseOutput) {
+				B3_PROFILE("CMD_ACTUAL_STATE_UPDATE_COMPLETED");
+                if (m_data->m_verboseOutput) 
+				{
                     b3Printf("Received actual state\n");
-                }
-                SharedMemoryStatus& command = m_data->m_testBlock1->m_serverCommands[0];
+                
+					SharedMemoryStatus& command = m_data->m_testBlock1->m_serverCommands[0];
 
-                int numQ = command.m_sendActualStateArgs.m_numDegreeOfFreedomQ;
-                int numU = command.m_sendActualStateArgs.m_numDegreeOfFreedomU;
-                if (m_data->m_verboseOutput) {
+					int numQ = command.m_sendActualStateArgs.m_numDegreeOfFreedomQ;
+					int numU = command.m_sendActualStateArgs.m_numDegreeOfFreedomU;
                     b3Printf("size Q = %d, size U = %d\n", numQ, numU);
-                }
-                char msg[1024];
+					char msg[1024];
+					{
+						sprintf(msg, "Q=[");
 
-                {
-                    sprintf(msg, "Q=[");
-
-                    for (int i = 0; i < numQ; i++) {
-                        if (i < numQ - 1) {
-                            sprintf(msg, "%s%f,", msg,
-                                    command.m_sendActualStateArgs.m_actualStateQ[i]);
-                        } else {
-                            sprintf(msg, "%s%f", msg,
-                                    command.m_sendActualStateArgs.m_actualStateQ[i]);
-                        }
-                    }
-                    sprintf(msg, "%s]", msg);
-                }
-                if (m_data->m_verboseOutput) {
+						for (int i = 0; i < numQ; i++) {
+							if (i < numQ - 1) {
+								sprintf(msg, "%s%f,", msg,
+										command.m_sendActualStateArgs.m_actualStateQ[i]);
+							} else {
+								sprintf(msg, "%s%f", msg,
+										command.m_sendActualStateArgs.m_actualStateQ[i]);
+							}
+						}
+						sprintf(msg, "%s]", msg);
+					}
                     b3Printf(msg);
-                }
-
-                {
+               
                     sprintf(msg, "U=[");
 
                     for (int i = 0; i < numU; i++) {
@@ -613,18 +646,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                         }
                     }
                     sprintf(msg, "%s]", msg);
-                }
-                if (m_data->m_verboseOutput) {
+               
                     b3Printf(msg);
-                }
-
-                if (m_data->m_verboseOutput) {
                     b3Printf("\n");
                 }
                 break;
             }
             case CMD_RESET_SIMULATION_COMPLETED: {
-                if (m_data->m_verboseOutput) {
+				B3_PROFILE("CMD_RESET_SIMULATION_COMPLETED");
+             if (m_data->m_verboseOutput) {
                     b3Printf("CMD_RESET_SIMULATION_COMPLETED clean data\n");
                 }
 				resetData();
@@ -632,6 +662,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 break;
             }
             case CMD_DEBUG_LINES_COMPLETED: {
+				B3_PROFILE("CMD_DEBUG_LINES_COMPLETED");
                 if (m_data->m_verboseOutput) {
                     b3Printf("Success receiving %d debug lines",
                              serverCmd.m_sendDebugLinesArgs.m_numDebugLines);
@@ -675,11 +706,13 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
             }
 			case CMD_RIGID_BODY_CREATION_COMPLETED:
 			{
+				B3_PROFILE("CMD_RIGID_BODY_CREATION_COMPLETED");
 
 				break;
 			}
             case CMD_DEBUG_LINES_OVERFLOW_FAILED: {
-                b3Warning("Error receiving debug lines");
+				B3_PROFILE("CMD_DEBUG_LINES_OVERFLOW_FAILED");
+               b3Warning("Error receiving debug lines");
                 m_data->m_debugLinesFrom.resize(0);
                 m_data->m_debugLinesTo.resize(0);
                 m_data->m_debugLinesColor.resize(0);
@@ -689,6 +722,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
             
             case CMD_CAMERA_IMAGE_COMPLETED:
             {
+				B3_PROFILE("CMD_CAMERA_IMAGE_COMPLETED");
 				if (m_data->m_verboseOutput) 
 				{
 					b3Printf("Camera image OK\n");
@@ -738,7 +772,8 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
             
             case CMD_CAMERA_IMAGE_FAILED:
             {
-                b3Warning("Camera image FAILED\n");
+				B3_PROFILE("CMD_CAMERA_IMAGE_FAILED");
+               b3Warning("Camera image FAILED\n");
                 break;
             }
 			case CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED:
@@ -772,6 +807,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 
 			case CMD_REQUEST_VR_EVENTS_DATA_COMPLETED:
 			{
+				B3_PROFILE("CMD_REQUEST_VR_EVENTS_DATA_COMPLETED");
 				if (m_data->m_verboseOutput)
 				{
 					b3Printf("Request VR Events completed");
@@ -786,6 +822,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 
 			case CMD_REQUEST_KEYBOARD_EVENTS_DATA_COMPLETED:
 			{
+				B3_PROFILE("CMD_REQUEST_KEYBOARD_EVENTS_DATA_COMPLETED");
 				if (m_data->m_verboseOutput)
 				{
 					b3Printf("Request keyboard events completed");
@@ -800,6 +837,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 
 			case CMD_REQUEST_AABB_OVERLAP_COMPLETED:
 			{
+				B3_PROFILE("CMD_REQUEST_AABB_OVERLAP_COMPLETED");
 				if (m_data->m_verboseOutput)
 				{
 					b3Printf("Overlapping object request completed");
@@ -819,7 +857,8 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 			}
             case CMD_CONTACT_POINT_INFORMATION_COMPLETED:
                 {
-                    if (m_data->m_verboseOutput) 
+				B3_PROFILE("CMD_CONTACT_POINT_INFORMATION_COMPLETED");
+                 if (m_data->m_verboseOutput) 
                     {
                         b3Printf("Contact Point Information Request OK\n");
                     }
@@ -839,30 +878,38 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 }
             case CMD_CONTACT_POINT_INFORMATION_FAILED:
                 {
-                    b3Warning("Contact Point Information Request failed");
+				B3_PROFILE("CMD_CONTACT_POINT_INFORMATION_FAILED");
+                 b3Warning("Contact Point Information Request failed");
                     break;
                 }
 
 			case CMD_SAVE_WORLD_COMPLETED:
-				break;
+			{
+			B3_PROFILE("CMD_SAVE_WORLD_COMPLETED");
+			break;
+			}
 					
 			case CMD_SAVE_WORLD_FAILED:
 			{
-				b3Warning("Saving world  failed");
+				B3_PROFILE("CMD_SAVE_WORLD_FAILED");
+					b3Warning("Saving world  failed");
 				break;
 			}
 			case CMD_CALCULATE_INVERSE_KINEMATICS_COMPLETED:
 			{
-                    break;
+					B3_PROFILE("CMD_CALCULATE_INVERSE_KINEMATICS_COMPLETED");
+                   break;
                 }
             case CMD_CALCULATE_INVERSE_KINEMATICS_FAILED:
                 {
-                    b3Warning("Calculate Inverse Kinematics Request failed");
+					B3_PROFILE("CMD_CALCULATE_INVERSE_KINEMATICS_FAILED");
+                   b3Warning("Calculate Inverse Kinematics Request failed");
                     break;
                 }
 			case CMD_VISUAL_SHAPE_INFO_COMPLETED:
 			{
-				if (m_data->m_verboseOutput)
+			B3_PROFILE("CMD_VISUAL_SHAPE_INFO_COMPLETED");
+			if (m_data->m_verboseOutput)
 				{
 					b3Printf("Visual Shape Information Request OK\n");
 				}
@@ -949,6 +996,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
             }
         };
 
+
         m_data->m_testBlock1->m_numProcessedServerCommands++;
         // we don't have more than 1 command outstanding (in total, either server or client)
         btAssert(m_data->m_testBlock1->m_numProcessedServerCommands ==
@@ -964,6 +1012,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 
         if ((serverCmd.m_type == CMD_SDF_LOADING_COMPLETED) || (serverCmd.m_type == CMD_MJCF_LOADING_COMPLETED) || (serverCmd.m_type == CMD_SYNC_BODY_INFO_COMPLETED))
         {
+			B3_PROFILE("CMD_LOADING_COMPLETED");
 			int numConstraints = serverCmd.m_sdfLoadedArgs.m_numUserConstraints;
 			for (int i=0;i<numConstraints;i++)
 			{
@@ -994,6 +1043,8 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
         
 		if (serverCmd.m_type == CMD_USER_CONSTRAINT_INFO_COMPLETED)
 		{
+			B3_PROFILE("CMD_USER_CONSTRAINT_INFO_COMPLETED");
+
 			if (m_data->m_constraintIdsRequestInfo.size())
 			{
 				int cid = m_data->m_constraintIdsRequestInfo[m_data->m_constraintIdsRequestInfo.size()-1];
@@ -1013,6 +1064,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 
         if (serverCmd.m_type == CMD_BODY_INFO_COMPLETED)
         {
+			B3_PROFILE("CMD_BODY_INFO_COMPLETED");
             //are there any bodies left to be processed?
             if (m_data->m_bodyIdsRequestInfo.size())
             {
@@ -1046,6 +1098,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 
 		if (serverCmd.m_type == CMD_REQUEST_AABB_OVERLAP_COMPLETED)
 		{
+			B3_PROFILE("CMD_REQUEST_AABB_OVERLAP_COMPLETED2");
 			SharedMemoryCommand& command = m_data->m_testBlock1->m_clientCommands[0];
 			if (serverCmd.m_sendOverlappingObjectsArgs.m_numRemainingOverlappingObjects > 0 && serverCmd.m_sendOverlappingObjectsArgs.m_numOverlappingObjectsCopied)
 			{
@@ -1058,6 +1111,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
         
         if (serverCmd.m_type == CMD_CONTACT_POINT_INFORMATION_COMPLETED)
         {
+			B3_PROFILE("CMD_CONTACT_POINT_INFORMATION_COMPLETED2");
             SharedMemoryCommand& command = m_data->m_testBlock1->m_clientCommands[0];
 			if (serverCmd.m_sendContactPointArgs.m_numRemainingContactPoints>0 && serverCmd.m_sendContactPointArgs.m_numContactPointsCopied)
 			{
@@ -1072,6 +1126,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
         
 		if (serverCmd.m_type == CMD_VISUAL_SHAPE_INFO_COMPLETED)
 		{
+			B3_PROFILE("CMD_VISUAL_SHAPE_INFO_COMPLETED2");
 			SharedMemoryCommand& command = m_data->m_testBlock1->m_clientCommands[0];
 			if (serverCmd.m_sendVisualShapeArgs.m_numRemainingVisualShapes >0 && serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied)
 			{
@@ -1087,6 +1142,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 
 		if (serverCmd.m_type == CMD_CAMERA_IMAGE_COMPLETED)
 		{
+			B3_PROFILE("CMD_CAMERA_IMAGE_COMPLETED2");
 			SharedMemoryCommand& command = m_data->m_testBlock1->m_clientCommands[0];
 
 			if (serverCmd.m_sendPixelDataArguments.m_numRemainingPixels > 0 && serverCmd.m_sendPixelDataArguments.m_numPixelsCopied)
@@ -1110,7 +1166,9 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
         }
 
         if ((serverCmd.m_type == CMD_DEBUG_LINES_COMPLETED) &&
-            (serverCmd.m_sendDebugLinesArgs.m_numRemainingDebugLines > 0)) {
+            (serverCmd.m_sendDebugLinesArgs.m_numRemainingDebugLines > 0)) 
+		{
+			B3_PROFILE("CMD_DEBUG_LINES_COMPLETED2");
             SharedMemoryCommand& command = m_data->m_testBlock1->m_clientCommands[0];
 
             // continue requesting debug lines for drawing
@@ -1125,7 +1183,10 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
         return &m_data->m_lastServerStatus;
 
     } else {
-        if (m_data->m_verboseOutput) {
+        if (m_data->m_verboseOutput) 
+		{
+			B3_PROFILE("m_verboseOutput");
+
             b3Printf("m_numServerStatus  = %d, processed = %d\n",
                      m_data->m_testBlock1->m_numServerCommands,
                      m_data->m_testBlock1->m_numProcessedServerCommands);

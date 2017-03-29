@@ -1399,8 +1399,8 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 
 
         //todo: move these internal API called inside the 'ConvertURDF2Bullet' call, hidden from the user
-        int rootLinkIndex = u2b.getRootLinkIndex();
-        b3Printf("urdf root link index = %d\n",rootLinkIndex);
+        //int rootLinkIndex = u2b.getRootLinkIndex();
+        //b3Printf("urdf root link index = %d\n",rootLinkIndex);
         MyMultiBodyCreator creation(m_data->m_guiHelper);
 
         u2b.getRootTransformInWorld(rootTrans);
@@ -1540,7 +1540,7 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
 
 
 bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVector3& pos, const btQuaternion& orn,
-                             bool useMultiBody, bool useFixedBase, int* bodyUniqueIdPtr, char* bufferServerToClient, int bufferSizeInBytes)
+                             bool useMultiBody, bool useFixedBase, int* bodyUniqueIdPtr, char* bufferServerToClient, int bufferSizeInBytes, int flags)
 {
 	BT_PROFILE("loadURDF");
 	btAssert(m_data->m_dynamicsWorld);
@@ -1598,7 +1598,7 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
         //                      printf("urdf root link index = %d\n",rootLinkIndex);
 		MyMultiBodyCreator creation(m_data->m_guiHelper);
 
-        ConvertURDF2Bullet(u2b,creation, tr,m_data->m_dynamicsWorld,useMultiBody,u2b.getPathPrefix());
+        ConvertURDF2Bullet(u2b,creation, tr,m_data->m_dynamicsWorld,useMultiBody,u2b.getPathPrefix(),flags);
 
         for (int i=0;i<u2b.getNumAllocatedCollisionShapes();i++)
         {
@@ -1761,6 +1761,7 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
 
 bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes )
 {
+	BT_PROFILE("processCommand");
 
 	bool hasStatus = false;
 
@@ -1821,6 +1822,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 #endif
 				case CMD_STATE_LOGGING:
 				{
+					BT_PROFILE("CMD_STATE_LOGGING");
+
 					serverStatusOut.m_type = CMD_STATE_LOGGING_FAILED;
                     hasStatus = true;
 
@@ -1937,6 +1940,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 				}
 				case CMD_SET_VR_CAMERA_STATE:
 				{
+					BT_PROFILE("CMD_SET_VR_CAMERA_STATE");
 
 					if (clientCmd.m_updateFlags & 	VR_CAMERA_ROOT_POSITION)
 					{
@@ -1963,6 +1967,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 				}
 				case CMD_REQUEST_VR_EVENTS_DATA:
 				{
+					BT_PROFILE("CMD_REQUEST_VR_EVENTS_DATA");
+
 					serverStatusOut.m_sendVREvents.m_numVRControllerEvents = 0;
 					for (int i=0;i<MAX_VR_CONTROLLERS;i++)
 					{
@@ -1984,6 +1990,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 				case CMD_REQUEST_KEYBOARD_EVENTS_DATA:
 				{
+					BT_PROFILE("CMD_REQUEST_KEYBOARD_EVENTS_DATA");
+
 					serverStatusOut.m_sendKeyboardEvents.m_numKeyboardEvents = m_data->m_keyboardEvents.size();
 					if (serverStatusOut.m_sendKeyboardEvents.m_numKeyboardEvents>MAX_KEYBOARD_EVENTS)
 					{
@@ -2019,6 +2027,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 				case CMD_REQUEST_RAY_CAST_INTERSECTIONS:
 				{
+					BT_PROFILE("CMD_REQUEST_RAY_CAST_INTERSECTIONS");
+
 					btVector3 rayFromWorld(clientCmd.m_requestRaycastIntersections.m_rayFromPosition[0],
 						clientCmd.m_requestRaycastIntersections.m_rayFromPosition[1],
 						clientCmd.m_requestRaycastIntersections.m_rayFromPosition[2]);
@@ -2078,6 +2088,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 				};
 				case CMD_REQUEST_DEBUG_LINES:
 					{
+						BT_PROFILE("CMD_REQUEST_DEBUG_LINES");
+
 						int curFlags =m_data->m_remoteDebugDrawer->getDebugMode();
 
                         int debugMode = clientCmd.m_requestDebugLinesArguments.m_debugMode;//clientCmd.btIDebugDraw::DBG_DrawWireframe|btIDebugDraw::DBG_DrawAabb;
@@ -2147,7 +2159,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 				case CMD_REQUEST_CAMERA_IMAGE_DATA:
 				{
-
+					BT_PROFILE("CMD_REQUEST_CAMERA_IMAGE_DATA");
 					int startPixelIndex = clientCmd.m_requestPixelDataArguments.m_startPixelIndex;
                     int width = clientCmd.m_requestPixelDataArguments.m_pixelWidth;
                     int height = clientCmd.m_requestPixelDataArguments.m_pixelHeight;
@@ -2276,6 +2288,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 				case CMD_SYNC_BODY_INFO:
 				{
+					BT_PROFILE("CMD_SYNC_BODY_INFO");
+
 					int numHandles = m_data->getNumHandles();
 					int actualNumBodies = 0;
 					for (int i=0;i<numHandles;i++)
@@ -2304,6 +2318,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 				}
                 case CMD_REQUEST_BODY_INFO:
                     {
+						BT_PROFILE("CMD_REQUEST_BODY_INFO");
+
                         const SdfRequestInfoArgs& sdfInfoArgs = clientCmd.m_sdfRequestInfoArgs;
                         //stream info into memory
                         int streamSizeInBytes = createBodyInfoStream(sdfInfoArgs.m_bodyUniqueId, bufferServerToClient, bufferSizeInBytes);
@@ -2317,6 +2333,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     }
 				case CMD_SAVE_WORLD:
 				{
+					BT_PROFILE("CMD_SAVE_WORLD");
+
 					///this is a very rudimentary way to save the state of the world, for scene authoring
 					///many todo's, for example save the state of motor controllers etc.
 
@@ -2552,6 +2570,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 				}
                 case CMD_LOAD_SDF:
                     {
+						BT_PROFILE("CMD_LOAD_SDF");
+
                         const SdfArgs& sdfArgs = clientCmd.m_sdfArguments;
                         if (m_data->m_verboseOutput)
                         {
@@ -2584,7 +2604,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     }
                 case CMD_LOAD_URDF:
                 {
-
+					BT_PROFILE("CMD_LOAD_URDF");
                     const UrdfArgs& urdfArgs = clientCmd.m_urdfArguments;
 					if (m_data->m_verboseOutput)
 					{
@@ -2600,6 +2620,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						initialPos[1] = urdfArgs.m_initialPosition[1];
 						initialPos[2] = urdfArgs.m_initialPosition[2];
 					}
+					int urdfFlags = 0;
+					if (clientCmd.m_updateFlags & URDF_ARGS_HAS_CUSTOM_URDF_FLAGS)
+					{
+						urdfFlags = urdfArgs.m_urdfFlags;
+					}
 					if (clientCmd.m_updateFlags & URDF_ARGS_INITIAL_ORIENTATION)
 					{
 						initialOrn[0] = urdfArgs.m_initialOrientation[0];
@@ -2613,8 +2638,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     //load the actual URDF and send a report: completed or failed
                     bool completedOk = loadUrdf(urdfArgs.m_urdfFileName,
                                                initialPos,initialOrn,
-                                               useMultiBody, useFixedBase,&bodyUniqueId, bufferServerToClient, bufferSizeInBytes);
-
+                                               useMultiBody, useFixedBase,&bodyUniqueId, bufferServerToClient, bufferSizeInBytes, urdfFlags);
 
                     if (completedOk)
                     {
@@ -2691,6 +2715,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                 }
                 case CMD_CREATE_SENSOR:
                 {
+					BT_PROFILE("CMD_CREATE_SENSOR");
+
 					if (m_data->m_verboseOutput)
 					{
 						b3Printf("Processed CMD_CREATE_SENSOR");
@@ -2759,6 +2785,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                 }
 				case CMD_SEND_DESIRED_STATE:
                     {
+						BT_PROFILE("CMD_SEND_DESIRED_STATE");
 						if (m_data->m_verboseOutput)
 						{
                             b3Printf("Processed CMD_SEND_DESIRED_STATE");
@@ -2951,6 +2978,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 				}
 				case CMD_REQUEST_ACTUAL_STATE:
 					{
+					BT_PROFILE("CMD_REQUEST_ACTUAL_STATE");
 						if (m_data->m_verboseOutput)
 						{
 							b3Printf("Sending the actual state (Q,U)");
@@ -3024,6 +3052,20 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								serverCmd.m_sendActualStateArgs.m_actualStateQdot[5] = mb->getBaseOmega()[2];
 								totalDegreeOfFreedomU += 6;//3 linear and 3 angular DOF
 							}
+
+							btAlignedObjectArray<btVector3> omega;
+							btAlignedObjectArray<btVector3> linVel;
+							
+							bool computeLinkVelocities = ((clientCmd.m_updateFlags & ACTUAL_STATE_COMPUTE_LINKVELOCITY)!=0);
+							if (computeLinkVelocities)
+							{
+								omega.resize(mb->getNumLinks()+1);
+								linVel.resize(mb->getNumLinks()+1);
+								{
+									B3_PROFILE("compTreeLinkVelocities");
+									mb->compTreeLinkVelocities(&omega[0], &linVel[0]);
+								}
+							}
 							for (int l=0;l<mb->getNumLinks();l++)
 							{
 								for (int d=0;d<mb->getLink(l).m_posVarCount;d++)
@@ -3073,28 +3115,46 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                         //}
                                     }
                                 }
-                btVector3 linkLocalInertialOrigin = body->m_linkLocalInertialFrames[l].getOrigin();
-                btQuaternion linkLocalInertialRotation = body->m_linkLocalInertialFrames[l].getRotation();
+								btVector3 linkLocalInertialOrigin = body->m_linkLocalInertialFrames[l].getOrigin();
+								btQuaternion linkLocalInertialRotation = body->m_linkLocalInertialFrames[l].getRotation();
 
-                btVector3 linkCOMOrigin =  mb->getLink(l).m_cachedWorldTransform.getOrigin();
-                btQuaternion linkCOMRotation =  mb->getLink(l).m_cachedWorldTransform.getRotation();
+								btVector3 linkCOMOrigin =  mb->getLink(l).m_cachedWorldTransform.getOrigin();
+								btQuaternion linkCOMRotation =  mb->getLink(l).m_cachedWorldTransform.getRotation();
 
-                serverCmd.m_sendActualStateArgs.m_linkState[l*7+0] = linkCOMOrigin.getX();
-                serverCmd.m_sendActualStateArgs.m_linkState[l*7+1] = linkCOMOrigin.getY();
-                serverCmd.m_sendActualStateArgs.m_linkState[l*7+2] = linkCOMOrigin.getZ();
-                serverCmd.m_sendActualStateArgs.m_linkState[l*7+3] = linkCOMRotation.x();
-                serverCmd.m_sendActualStateArgs.m_linkState[l*7+4] = linkCOMRotation.y();
-                serverCmd.m_sendActualStateArgs.m_linkState[l*7+5] = linkCOMRotation.z();
-                serverCmd.m_sendActualStateArgs.m_linkState[l*7+6] = linkCOMRotation.w();
+								serverCmd.m_sendActualStateArgs.m_linkState[l*7+0] = linkCOMOrigin.getX();
+								serverCmd.m_sendActualStateArgs.m_linkState[l*7+1] = linkCOMOrigin.getY();
+								serverCmd.m_sendActualStateArgs.m_linkState[l*7+2] = linkCOMOrigin.getZ();
+								serverCmd.m_sendActualStateArgs.m_linkState[l*7+3] = linkCOMRotation.x();
+								serverCmd.m_sendActualStateArgs.m_linkState[l*7+4] = linkCOMRotation.y();
+								serverCmd.m_sendActualStateArgs.m_linkState[l*7+5] = linkCOMRotation.z();
+								serverCmd.m_sendActualStateArgs.m_linkState[l*7+6] = linkCOMRotation.w();
 
-                serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+0] = linkLocalInertialOrigin.getX();
-                serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+1] = linkLocalInertialOrigin.getY();
-                serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+2] = linkLocalInertialOrigin.getZ();
 
-                serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+3] = linkLocalInertialRotation.x();
-                serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+4] = linkLocalInertialRotation.y();
-                serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+5] = linkLocalInertialRotation.z();
-                serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+6] = linkLocalInertialRotation.w();
+								btVector3 worldLinVel(0,0,0);
+								btVector3 worldAngVel(0,0,0);
+								
+								if (computeLinkVelocities)
+								{
+									const btMatrix3x3& linkRotMat = mb->getLink(l).m_cachedWorldTransform.getBasis();
+									worldLinVel = linkRotMat * linVel[l+1];
+									worldAngVel = linkRotMat * omega[l+1];
+								}
+
+								serverCmd.m_sendActualStateArgs.m_linkWorldVelocities[l*6+0] = worldLinVel[0];
+								serverCmd.m_sendActualStateArgs.m_linkWorldVelocities[l*6+1] = worldLinVel[1];
+								serverCmd.m_sendActualStateArgs.m_linkWorldVelocities[l*6+2] = worldLinVel[2];
+								serverCmd.m_sendActualStateArgs.m_linkWorldVelocities[l*6+3] = worldAngVel[0];
+								serverCmd.m_sendActualStateArgs.m_linkWorldVelocities[l*6+4] = worldAngVel[1];
+								serverCmd.m_sendActualStateArgs.m_linkWorldVelocities[l*6+5] = worldAngVel[2];
+								
+								serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+0] = linkLocalInertialOrigin.getX();
+								serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+1] = linkLocalInertialOrigin.getY();
+								serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+2] = linkLocalInertialOrigin.getZ();
+
+								serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+3] = linkLocalInertialRotation.x();
+								serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+4] = linkLocalInertialRotation.y();
+								serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+5] = linkLocalInertialRotation.z();
+								serverCmd.m_sendActualStateArgs.m_linkLocalInertialFrames[l*7+6] = linkLocalInertialRotation.w();
 
                             }
 
@@ -3157,6 +3217,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					}
                 case CMD_STEP_FORWARD_SIMULATION:
                 {
+					BT_PROFILE("CMD_STEP_FORWARD_SIMULATION");
+
 
 					if (m_data->m_verboseOutput)
 					{
@@ -3191,6 +3253,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 				case CMD_REQUEST_INTERNAL_DATA:
 				{
+					BT_PROFILE("CMD_REQUEST_INTERNAL_DATA");
+
 					//todo: also check version etc?
 
 					SharedMemoryStatus& serverCmd = serverStatusOut;
@@ -3213,6 +3277,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 				};
 				case CMD_SEND_PHYSICS_SIMULATION_PARAMETERS:
 				{
+					BT_PROFILE("CMD_SEND_PHYSICS_SIMULATION_PARAMETERS");
+
 					if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_DELTA_TIME)
 					{
 						m_data->m_physicsDeltaTime = clientCmd.m_physSimParamArgs.m_deltaTime;
@@ -3288,6 +3354,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 				};
 				case CMD_INIT_POSE:
 				{
+					BT_PROFILE("CMD_INIT_POSE");
+
 					if (m_data->m_verboseOutput)
 					{
 						b3Printf("Server Init Pose not implemented yet");
@@ -3436,7 +3504,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
                 case CMD_RESET_SIMULATION:
                 {
-					
+					BT_PROFILE("CMD_RESET_SIMULATION");
+
 					resetSimulation();
 
 					SharedMemoryStatus& serverCmd =serverStatusOut;
@@ -3447,6 +3516,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 				case CMD_CREATE_RIGID_BODY:
 				case CMD_CREATE_BOX_COLLISION_SHAPE:
 					{
+						BT_PROFILE("CMD_CREATE_RIGID_BODY");
+
                         btVector3 halfExtents(1,1,1);
                         if (clientCmd.m_updateFlags & BOX_SHAPE_HAS_HALF_EXTENTS)
                         {
@@ -3581,6 +3652,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					}
                 case CMD_PICK_BODY:
                     {
+						BT_PROFILE("CMD_PICK_BODY");
+
                         pickBody(btVector3(clientCmd.m_pickBodyArguments.m_rayFromWorld[0],
                                            clientCmd.m_pickBodyArguments.m_rayFromWorld[1],
                                            clientCmd.m_pickBodyArguments.m_rayFromWorld[2]),
@@ -3596,6 +3669,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     }
                 case CMD_MOVE_PICKED_BODY:
                     {
+						BT_PROFILE("CMD_MOVE_PICKED_BODY");
+
                         movePickedBody(btVector3(clientCmd.m_pickBodyArguments.m_rayFromWorld[0],
                                                  clientCmd.m_pickBodyArguments.m_rayFromWorld[1],
                                                  clientCmd.m_pickBodyArguments.m_rayFromWorld[2]),
@@ -3610,6 +3685,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     }
                 case CMD_REMOVE_PICKING_CONSTRAINT_BODY:
                     {
+						BT_PROFILE("CMD_REMOVE_PICKING_CONSTRAINT_BODY");
                         removePickingConstraint();
 
 						SharedMemoryStatus& serverCmd =serverStatusOut;
@@ -3619,6 +3695,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     }
 				case CMD_REQUEST_AABB_OVERLAP:
 				{
+					BT_PROFILE("CMD_REQUEST_AABB_OVERLAP");
 					SharedMemoryStatus& serverCmd = serverStatusOut;
 					int curObjectIndex = clientCmd.m_requestOverlappingObjectsArgs.m_startingOverlappingObjectIndex;
 
@@ -3676,6 +3753,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     
                 case CMD_CONFIGURE_OPENGL_VISUALIZER:
                 {
+					BT_PROFILE("CMD_CONFIGURE_OPENGL_VISUALIZER");
                     SharedMemoryStatus& serverCmd = serverStatusOut;
                     serverCmd.m_type =CMD_CLIENT_COMMAND_COMPLETED;
                     
@@ -3699,6 +3777,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                        
                 case CMD_REQUEST_CONTACT_POINT_INFORMATION:
                     {
+						BT_PROFILE("CMD_REQUEST_CONTACT_POINT_INFORMATION");
                         SharedMemoryStatus& serverCmd =serverStatusOut;
                         serverCmd.m_sendContactPointArgs.m_numContactPointsCopied = 0;
                         
@@ -3738,6 +3817,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									{
 										linkIndexB = mblB->m_link;
 										objectIndexB = mblB->m_multiBody->getUserIndex2();
+										if (
+											(clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_B_FILTER) &&
+											clientCmd.m_requestContactPointArguments.m_linkIndexBIndexFilter != linkIndexB)
+										{
+											continue;
+										}
 									}
 
 									int objectIndexA = -1;
@@ -3750,8 +3835,13 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									if (mblA && mblA->m_multiBody)
 									{
 										linkIndexA = mblA->m_link;
-
 										objectIndexA = mblA->m_multiBody->getUserIndex2();
+										if (
+											(clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_A_FILTER) &&
+											clientCmd.m_requestContactPointArguments.m_linkIndexAIndexFilter != linkIndexA)
+										{
+											continue;
+										}
 									}
 
 									btAssert(bodyA || mblA);
@@ -4009,6 +4099,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     }
 				case CMD_CALCULATE_INVERSE_DYNAMICS:
 				{
+					BT_PROFILE("CMD_CALCULATE_INVERSE_DYNAMICS");
 					SharedMemoryStatus& serverCmd = serverStatusOut;
 					InternalBodyHandle* bodyHandle = m_data->getHandle(clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId);
 					if (bodyHandle && bodyHandle->m_multiBody)
@@ -4059,6 +4150,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 				}
                 case CMD_CALCULATE_JACOBIAN:
                 {
+					BT_PROFILE("CMD_CALCULATE_JACOBIAN");
+
                     SharedMemoryStatus& serverCmd = serverStatusOut;
                     InternalBodyHandle* bodyHandle = m_data->getHandle(clientCmd.m_calculateJacobianArguments.m_bodyUniqueId);
                     if (bodyHandle && bodyHandle->m_multiBody)
@@ -4115,6 +4208,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                 }
                 case CMD_APPLY_EXTERNAL_FORCE:
                 {
+					BT_PROFILE("CMD_APPLY_EXTERNAL_FORCE");
+
                 	if (m_data->m_verboseOutput)
                     {
                         b3Printf("CMD_APPLY_EXTERNAL_FORCE clientCmd = %d\n", clientCmd.m_sequenceNumber);
@@ -4214,6 +4309,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                 }
                 case CMD_USER_CONSTRAINT:
                 {
+					BT_PROFILE("CMD_USER_CONSTRAINT");
+
 					SharedMemoryStatus& serverCmd =serverStatusOut;
                     serverCmd.m_type = CMD_USER_CONSTRAINT_FAILED;
                     hasStatus = true;
@@ -4444,6 +4541,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                 }
 				case CMD_CALCULATE_INVERSE_KINEMATICS:
 					{
+						BT_PROFILE("CMD_CALCULATE_INVERSE_KINEMATICS");
 						SharedMemoryStatus& serverCmd = serverStatusOut;
 						serverCmd.m_type = CMD_CALCULATE_INVERSE_KINEMATICS_FAILED;
 
@@ -4613,7 +4711,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					}
                 case CMD_REQUEST_VISUAL_SHAPE_INFO:
                 {
-                    
+                    BT_PROFILE("CMD_REQUEST_VISUAL_SHAPE_INFO");
                     SharedMemoryStatus& serverCmd = serverStatusOut;
                     serverCmd.m_type = CMD_VISUAL_SHAPE_INFO_FAILED;
                     //retrieve the visual shape information for a specific body
@@ -4642,6 +4740,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                 }
                 case CMD_UPDATE_VISUAL_SHAPE:
                 {
+					BT_PROFILE("CMD_UPDATE_VISUAL_SHAPE");
                     SharedMemoryStatus& serverCmd = serverStatusOut;
                     serverCmd.m_type = CMD_VISUAL_SHAPE_UPDATE_FAILED;
                     
@@ -4654,6 +4753,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                 }
                 case CMD_LOAD_TEXTURE:
                 {
+					BT_PROFILE("CMD_LOAD_TEXTURE");
                     SharedMemoryStatus& serverCmd = serverStatusOut;
                     serverCmd.m_type = CMD_LOAD_TEXTURE_FAILED;
                     
@@ -4673,7 +4773,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 				case CMD_LOAD_BULLET:
 				{
-					
+					BT_PROFILE("CMD_LOAD_BULLET");
 					SharedMemoryStatus& serverCmd = serverStatusOut;
 					btBulletWorldImporter* importer = new btBulletWorldImporter(m_data->m_dynamicsWorld);
 
@@ -4744,6 +4844,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 				case CMD_SAVE_BULLET:
 				{
+					BT_PROFILE("CMD_SAVE_BULLET");
 					SharedMemoryStatus& serverCmd = serverStatusOut;
 					
 					FILE* f = fopen(clientCmd.m_fileArguments.m_fileName, "wb");
@@ -4763,6 +4864,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 				case CMD_LOAD_MJCF:
 				{
+					BT_PROFILE("CMD_LOAD_MJCF");
 					SharedMemoryStatus& serverCmd = serverStatusOut;
 					serverCmd.m_type = CMD_MJCF_LOADING_FAILED;
 					  const MjcfArgs& mjcfArgs = clientCmd.m_mjcfArguments;
@@ -4797,6 +4899,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 				
 				case CMD_USER_DEBUG_DRAW:
 					{
+					BT_PROFILE("CMD_USER_DEBUG_DRAW");
 						SharedMemoryStatus& serverCmd = serverStatusOut;
 						serverCmd.m_type = CMD_USER_DEBUG_DRAW_FAILED;
 						hasStatus = true;
@@ -4919,6 +5022,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					}
                 default:
                 {
+					BT_PROFILE("CMD_UNKNOWN");
                     b3Error("Unknown command encountered");
 
 					SharedMemoryStatus& serverCmd =serverStatusOut;
@@ -5313,7 +5417,7 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 		btVector3 spawnDir = mat.getColumn(0);
 		btVector3 shiftPos = spawnDir*spawnDistance;
 		btVector3 spawnPos = gVRGripperPos + shiftPos;
-		loadUrdf("sphere_small.urdf", spawnPos, gVRGripperOrn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
+		loadUrdf("sphere_small.urdf", spawnPos, gVRGripperOrn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size(),0);
 		//loadUrdf("lego/lego.urdf", spawnPos, gVRGripperOrn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
 		m_data->m_sphereId = bodyId;
 		InteralBodyData* parentBody = m_data->getHandle(bodyId);

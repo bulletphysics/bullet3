@@ -365,12 +365,14 @@ void  BulletURDFImporter::getMassAndInertia(int linkIndex, btScalar& mass,btVect
 	}
 }
     
-bool BulletURDFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction) const
+bool BulletURDFImporter::getJointInfo2(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction, btScalar& jointMaxForce, btScalar& jointMaxVelocity) const 
 {
     jointLowerLimit = 0.f;
     jointUpperLimit = 0.f;
 	jointDamping = 0.f;
 	jointFriction = 0.f;
+	jointMaxForce = 0.f;
+	jointMaxVelocity = 0.f;
 
 	UrdfLink* const* linkPtr = m_data->m_urdfParser.getModel().m_links.getAtIndex(urdfLinkIndex);
 	btAssert(linkPtr);
@@ -389,7 +391,8 @@ bool BulletURDFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joi
 			jointUpperLimit = pj->m_upperLimit;
 			jointDamping = pj->m_jointDamping;
 			jointFriction = pj->m_jointFriction;
-
+			jointMaxForce = pj->m_effortLimit;
+			jointMaxVelocity = pj->m_velocityLimit;
 			return true;
 		} else
 		{
@@ -399,6 +402,14 @@ bool BulletURDFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joi
 	}
 	
 	return false;
+
+};
+
+bool BulletURDFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction) const
+{
+	btScalar jointMaxForce;
+	btScalar jointMaxVelocity;
+	return getJointInfo2(urdfLinkIndex, parent2joint, linkTransformInWorld, jointAxisInJointSpace, jointType, jointLowerLimit, jointUpperLimit, jointDamping, jointFriction,jointMaxForce,jointMaxVelocity); 
 	
 }
 
@@ -558,9 +569,9 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 		case URDF_GEOM_CAPSULE:
         {
 			btScalar radius = collision->m_geometry.m_capsuleRadius;
-			btScalar height = btScalar(2.f)*collision->m_geometry.m_capsuleHalfHeight;
+			btScalar height = collision->m_geometry.m_capsuleHeight;
 			btCapsuleShapeZ* capsuleShape = new btCapsuleShapeZ(radius,height);
-            shape = capsuleShape;
+			shape = capsuleShape;
 			shape ->setMargin(gUrdfDefaultCollisionMargin);
 			break;
 		}
@@ -568,7 +579,7 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
         case URDF_GEOM_CYLINDER:
         {
 			btScalar cylRadius = collision->m_geometry.m_capsuleRadius;
-			btScalar cylLength = collision->m_geometry.m_capsuleHalfHeight;
+			btScalar cylLength = collision->m_geometry.m_capsuleHeight;
 			
             btAlignedObjectArray<btVector3> vertices;
             //int numVerts = sizeof(barrel_vertices)/(9*sizeof(float));
@@ -791,7 +802,7 @@ static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const cha
 			{
 
 				btScalar cylRadius = visual->m_geometry.m_capsuleRadius;
-				btScalar cylLength = visual->m_geometry.m_capsuleHalfHeight;
+				btScalar cylLength = visual->m_geometry.m_capsuleHeight;
 				
 				btVector3 vert(cylRadius*btSin(SIMD_2_PI*(float(i) / numSteps)), cylRadius*btCos(SIMD_2_PI*(float(i) / numSteps)), cylLength / 2.);
 				vertices.push_back(vert);

@@ -136,7 +136,11 @@ btVector3 m_appliedConstraintForce;    // In WORLD frame
     
 	btScalar m_jointDamping; //todo: implement this internally. It is unused for now, it is set by a URDF loader. User can apply manual damping.
 	btScalar m_jointFriction; //todo: implement this internally. It is unused for now, it is set by a URDF loader. User can apply manual friction using a velocity motor.
-
+	btScalar m_jointLowerLimit; //todo: implement this internally. It is unused for now, it is set by a URDF loader. 
+	btScalar m_jointUpperLimit; //todo: implement this internally. It is unused for now, it is set by a URDF loader.
+	btScalar m_jointMaxForce; //todo: implement this internally. It is unused for now, it is set by a URDF loader. 
+	btScalar m_jointMaxVelocity;//todo: implement this internally. It is unused for now, it is set by a URDF loader. 
+	
 	// ctor: set some sensible defaults
 	btMultibodyLink()
 		: 	m_mass(1),
@@ -153,7 +157,11 @@ btVector3 m_appliedConstraintForce;    // In WORLD frame
 			m_jointName(0),
             m_userPtr(0),
 			m_jointDamping(0),
-			m_jointFriction(0)
+			m_jointFriction(0),
+			m_jointLowerLimit(0),
+			m_jointUpperLimit(0),
+			m_jointMaxForce(0),
+			m_jointMaxVelocity(0)
 	{
 		
 		m_inertiaLocal.setValue(1, 1, 1);

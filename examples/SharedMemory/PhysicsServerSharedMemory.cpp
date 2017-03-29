@@ -252,6 +252,7 @@ void PhysicsServerSharedMemory::processClientCommands()
             if (m_data->m_testBlocks[block]->m_numClientCommands> m_data->m_testBlocks[block]->m_numProcessedClientCommands)
             {
                
+				BT_PROFILE("processClientCommand");
 
                 //until we implement a proper ring buffer, we assume always maximum of 1 outstanding commands
                 btAssert(m_data->m_testBlocks[block]->m_numClientCommands==m_data->m_testBlocks[block]->m_numProcessedClientCommands+1);
