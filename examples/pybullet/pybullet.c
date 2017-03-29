@@ -1711,8 +1711,9 @@ static PyObject* pybullet_getBodyInfo(PyObject* self, PyObject* args, PyObject* 
 			struct b3BodyInfo info;
 			if (b3GetBodyInfo(sm, bodyUniqueId, &info))
 			{
-				PyObject* pyListJointInfo = PyTuple_New(1);
+				PyObject* pyListJointInfo = PyTuple_New(2);
 				PyTuple_SetItem(pyListJointInfo, 0, PyString_FromString(info.m_baseName));
+                PyTuple_SetItem(pyListJointInfo, 1, PyString_FromString(info.m_bodyName));
 				return pyListJointInfo;
 			}
 		}

@@ -20,6 +20,7 @@ struct BodyJointInfoCache
 {
 	std::string m_baseName;
 	btAlignedObjectArray<b3JointInfo> m_jointInfo;
+    std::string m_bodyName;
 };
 
 struct PhysicsClientSharedMemoryInternalData {
@@ -106,6 +107,7 @@ bool PhysicsClientSharedMemory::getBodyInfo(int bodyUniqueId, struct b3BodyInfo&
 	{
 		BodyJointInfoCache* bodyJoints = *bodyJointsPtr;
 		info.m_baseName = bodyJoints->m_baseName.c_str();
+        info.m_bodyName = bodyJoints->m_bodyName.c_str();
 		return true;
 	}
 
@@ -306,6 +308,7 @@ void PhysicsClientSharedMemory::processBodyJointInfo(int bodyUniqueId, const Sha
     
     BodyJointInfoCache* bodyJoints = new BodyJointInfoCache;
     m_data->m_bodyJointMap.insert(bodyUniqueId,bodyJoints);
+    bodyJoints->m_bodyName = serverCmd.m_dataStreamArguments.m_bodyName;
     
     for (int i = 0; i < bf.m_multiBodies.size(); i++)
     {
@@ -405,6 +408,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 
 					BodyJointInfoCache* bodyJoints = new BodyJointInfoCache;
                     m_data->m_bodyJointMap.insert(bodyUniqueId,bodyJoints);
+                    bodyJoints->m_bodyName = serverCmd.m_dataStreamArguments.m_bodyName;
 
                     for (int i = 0; i < bf.m_multiBodies.size(); i++) {
 
