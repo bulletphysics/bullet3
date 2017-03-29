@@ -65,7 +65,7 @@ struct UrdfGeometry
 	btVector3 m_boxSize;
 	
 	double m_capsuleRadius;
-	double m_capsuleHalfHeight;
+	double m_capsuleHeight;
 	int m_hasFromTo;
 	btVector3 m_capsuleFrom;
 	btVector3 m_capsuleTo;

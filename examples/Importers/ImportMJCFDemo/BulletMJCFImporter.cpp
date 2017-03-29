@@ -79,7 +79,7 @@ static bool parseVector3(btVector3& vec3, const std::string& vector_str, MJCFErr
 	}
 	if (rgba.size() < 3)
 	{
-		logger->reportWarning("Couldn't parse vector3");
+		logger->reportWarning( ("Couldn't parse vector3 '" + vector_str + "'").c_str() );
 		return false;
 	}
     if (lastThree) {
@@ -113,7 +113,8 @@ static bool parseVector6(btVector3& v0, btVector3& v1, const std::string& vector
 	}
 	if (values.size() < 6)
 	{
-		logger->reportWarning("Couldn't parse 6 floats");
+		logger->reportWarning( ("Couldn't parse 6 floats '" + vector_str + "'").c_str() );
+
 		return false;
 	}
 	v0.setValue(values[0],values[1],values[2]);
@@ -143,6 +144,7 @@ struct BulletMJCFImporterInternalData
 	//<compiler angle="radian" meshdir="mesh/" texturedir="texture/"/>
 	std::string m_meshDir;
 	std::string m_textureDir;
+	std::string m_angleUnits;
 
 
 	int m_activeModel;
@@ -213,6 +215,8 @@ struct BulletMJCFImporterInternalData
 		{
 			m_textureDir = textureDirStr;
 		}
+		const char* angle = root_xml->Attribute("angle");
+		m_angleUnits = angle ? angle : "degree";  // degrees by default, http://www.mujoco.org/book/modeling.html#compiler
 #if 0
 		for (TiXmlElement* child_xml = root_xml->FirstChildElement() ; child_xml ; child_xml = child_xml->NextSiblingElement())
 		{
@@ -345,8 +349,7 @@ struct BulletMJCFImporterInternalData
 			}
 			if (!handled)
 			{
-				logger->reportWarning("Unhandled root element");
-				logger->reportWarning(n.c_str());
+				logger->reportWarning( (sourceFileLocation(rootxml) + ": unhandled root element '" + n + "'").c_str() );
 			}
 		}
 		return true;
@@ -354,6 +357,7 @@ struct BulletMJCFImporterInternalData
 
 	bool parseJoint(TiXmlElement* link_xml, int modelIndex, int parentLinkIndex, int linkIndex, MJCFErrorLogger* logger, const btTransform& parentToLinkTrans, btTransform& jointTransOut)
 	{
+		bool jointHandled = false;
 		const char* jType = link_xml->Attribute("type");
 		const char* limitedStr = link_xml->Attribute("limited");
 		const char* axisStr = link_xml->Attribute("axis");
@@ -383,83 +387,29 @@ struct BulletMJCFImporterInternalData
 				jointTrans.setRotation(orn);
 			}
 		}
-		btVector3 jointAxis(1,0,0);
 
+		btVector3 jointAxis(1,0,0);
 		if (axisStr)
 		{
 			std::string ax = axisStr;
 			parseVector3(jointAxis,ax,logger);
 		} else
 		{
-			logger->reportWarning("joint without axis attribute");
+			logger->reportWarning( (sourceFileLocation(link_xml) + ": joint without axis attribute").c_str() );
 		}
-		bool isLimited = false;
-		double range[2] = {1,0};
 
+		double range[2] = {1,0};
 		std::string lim = m_defaultJointLimited;
 		if (limitedStr)
 		{
 			lim = limitedStr;
 		}
-		if (lim=="true")
-		{
-			isLimited = true;
-			//parse the 'range' field
-			btArray<std::string> pieces;
-			btArray<float> sizes;
-			btAlignedObjectArray<std::string> strArray;
-			urdfIsAnyOf(" ", strArray);
-			urdfStringSplit(pieces, rangeStr, strArray);
-			for (int i = 0; i < pieces.size(); ++i)
-			{
-				if (!pieces[i].empty())
-				{
-					sizes.push_back(urdfLexicalCast<double>(pieces[i].c_str()));
-				}
-			}
-			if (sizes.size()==2)
-			{
-				// TODO angle units are in "<compiler angle="degree" inertiafromgeom="true"/>
-				range[0] = sizes[0] * B3_PI / 180;
-				range[1] = sizes[1] * B3_PI / 180;
-			} else
-			{
-				logger->reportWarning("Expected range[2] in joint with limits");
-			}
-		}
+		bool isLimited = lim=="true";
 
-		// TODO armature : real, "0" Armature inertia (or rotor inertia) of all
-		// degrees of freedom created by this joint. These are constants added to the
-		// diagonal of the inertia matrix in generalized coordinates. They make the
-		// simulation more stable, and often increase physical realism. This is because
-		// when a motor is attached to the system with a transmission that amplifies
-		// the motor force by c, the inertia of the rotor (i.e. the moving part of the
-		// motor) is amplified by c*c. The same holds for gears in the early stages of
-		// planetary gear boxes. These extra inertias often dominate the inertias of
-		// the robot parts that are represented explicitly in the model, and the
-		// armature attribute is the way to model them.
-
-		// TODO damping : real, "0" Damping applied to all degrees of
-		// freedom created by this joint. Unlike friction loss
-		// which is computed by the constraint solver, damping is
-		// simply a force linear in velocity. It is included in
-		// the passive forces. Despite this simplicity, larger
-		// damping values can make numerical integrators unstable,
-		// which is why our Euler integrator handles damping
-		// implicitly. See Integration in the Computation chapter.
-
-		bool jointHandled = false;
-		const UrdfLink* linkPtr = getLink(modelIndex,linkIndex);
-		
-		btTransform parentLinkToJointTransform;
-		parentLinkToJointTransform.setIdentity();
-		parentLinkToJointTransform = parentToLinkTrans*jointTrans;
-
-		jointTransOut = jointTrans;
 		UrdfJointTypes ejtype;
 		if (jType)
 		{
-			std::string jointType = jType; 
+			std::string jointType = jType;
 			if (jointType == "fixed")
 			{
 				ejtype = URDFFixedJoint;
@@ -483,8 +433,66 @@ struct BulletMJCFImporterInternalData
 			}
 		} else
 		{
-			logger->reportWarning("Expected 'type' attribute for joint");
+			logger->reportWarning( (sourceFileLocation(link_xml) + ": expected 'type' attribute for joint").c_str() );
 		}
+
+		if (isLimited)
+		{
+			//parse the 'range' field
+			btArray<std::string> pieces;
+			btArray<float> limits;
+			btAlignedObjectArray<std::string> strArray;
+			urdfIsAnyOf(" ", strArray);
+			urdfStringSplit(pieces, rangeStr, strArray);
+			for (int i = 0; i < pieces.size(); ++i)
+			{
+				if (!pieces[i].empty())
+				{
+					limits.push_back(urdfLexicalCast<double>(pieces[i].c_str()));
+				}
+			}
+			if (limits.size()==2)
+			{
+				range[0] = limits[0];
+				range[1] = limits[1];
+				if (m_angleUnits=="degree" && ejtype==URDFRevoluteJoint)
+				{
+					range[0] = limits[0] * B3_PI / 180;
+					range[1] = limits[1] * B3_PI / 180;
+				}
+			}
+			else
+			{
+				logger->reportWarning( (sourceFileLocation(link_xml) + ": cannot parse 'range' attribute (units='" + m_angleUnits + "'')").c_str() );
+			}
+		}
+
+		// TODO armature : real, "0" Armature inertia (or rotor inertia) of all
+		// degrees of freedom created by this joint. These are constants added to the
+		// diagonal of the inertia matrix in generalized coordinates. They make the
+		// simulation more stable, and often increase physical realism. This is because
+		// when a motor is attached to the system with a transmission that amplifies
+		// the motor force by c, the inertia of the rotor (i.e. the moving part of the
+		// motor) is amplified by c*c. The same holds for gears in the early stages of
+		// planetary gear boxes. These extra inertias often dominate the inertias of
+		// the robot parts that are represented explicitly in the model, and the
+		// armature attribute is the way to model them.
+
+		// TODO damping : real, "0" Damping applied to all degrees of
+		// freedom created by this joint. Unlike friction loss
+		// which is computed by the constraint solver, damping is
+		// simply a force linear in velocity. It is included in
+		// the passive forces. Despite this simplicity, larger
+		// damping values can make numerical integrators unstable,
+		// which is why our Euler integrator handles damping
+		// implicitly. See Integration in the Computation chapter.
+
+		const UrdfLink* linkPtr = getLink(modelIndex,linkIndex);
+		
+		btTransform parentLinkToJointTransform;
+		parentLinkToJointTransform.setIdentity();
+		parentLinkToJointTransform = parentToLinkTrans*jointTrans;
+		jointTransOut = jointTrans;
 
 		if (jointHandled)
 		{
@@ -528,6 +536,7 @@ struct BulletMJCFImporterInternalData
 		UrdfLink** linkPtrPtr = m_models[modelIndex]->m_links.getAtIndex(linkIndex);
 		if (linkPtrPtr==0)
 		{
+			// XXX: should it be assert?
 			logger->reportWarning("Invalide linkindex");
 			return false;
 		}
@@ -621,7 +630,7 @@ struct BulletMJCFImporterInternalData
 					geom.m_sphereRadius = urdfLexicalCast<double>(sz);
 				} else
 				{
-					logger->reportWarning("Expected size field (scalar) in sphere geom");
+					logger->reportWarning( (sourceFileLocation(link_xml) + ": no size field (scalar) in sphere geom").c_str() );
 				}
 				handledGeomType = true;
 			}
@@ -645,18 +654,18 @@ struct BulletMJCFImporterInternalData
 				}
 
 				geom.m_capsuleRadius = 0;
-				geom.m_capsuleHalfHeight = 0.f;
+				geom.m_capsuleHeight = 0.f;
 
 				if (sizes.size()>0)
 				{
 					geom.m_capsuleRadius = sizes[0];
 					if (sizes.size()>1)
 					{
-						geom.m_capsuleHalfHeight = sizes[1];
+						geom.m_capsuleHeight = 2*sizes[1];
 					}
 				} else
 				{
-					logger->reportWarning("couldn't convert 'size' attribute of capsule geom");
+					logger->reportWarning( (sourceFileLocation(link_xml) + ": couldn't convert 'size' attribute of capsule geom").c_str() );
 				}
 				const char* fromtoStr = link_xml->Attribute("fromto");
 				geom.m_hasFromTo = false;
@@ -672,7 +681,7 @@ struct BulletMJCFImporterInternalData
 				{
 					if (sizes.size()<2)
 					{
-						logger->reportWarning("capsule without fromto attribute requires 2 sizes (radius and halfheight)");
+						logger->reportWarning( (sourceFileLocation(link_xml) + ": capsule without fromto attribute requires 2 sizes (radius and halfheight)").c_str() );
 					} else
 					{
 						handledGeomType = true;
@@ -733,13 +742,11 @@ struct BulletMJCFImporterInternalData
 
 			} else
 			{
-				char warn[1024];
-				sprintf(warn,"Unknown/unhandled geom type: %s", geomType.c_str());
-				logger->reportWarning(warn);
+				logger->reportWarning( (sourceFileLocation(link_xml) + ": unhandled geom type '" + geomType + "'").c_str() );
 			}
 		} else
 		{
-			logger->reportWarning("geom requires type");
+			logger->reportWarning( (sourceFileLocation(link_xml) + ": geom requires type").c_str() );
 		}
 
 		return handledGeomType;
@@ -1021,10 +1028,7 @@ struct BulletMJCFImporterInternalData
 			}
 			if (!handled)
 			{
-				char warn[1024];
-				std::string n = xml->Value();
-				sprintf(warn,"Unknown/unhandled field: %s", n.c_str());
-				logger->reportWarning(warn);
+				logger->reportWarning( (sourceFileLocation(xml) + ": unknown field '" + n + "'").c_str() );
 			}
 		}
 
@@ -1677,7 +1681,7 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 				} else
 				{
 					btCapsuleShapeZ* cap = new btCapsuleShapeZ(col->m_geometry.m_capsuleRadius,
-						2.*col->m_geometry.m_capsuleHalfHeight);
+						col->m_geometry.m_capsuleHeight);
 					childShape = cap;
 				}
 				break;

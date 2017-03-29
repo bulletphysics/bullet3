@@ -1398,8 +1398,8 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 
 
         //todo: move these internal API called inside the 'ConvertURDF2Bullet' call, hidden from the user
-        int rootLinkIndex = u2b.getRootLinkIndex();
-        b3Printf("urdf root link index = %d\n",rootLinkIndex);
+        //int rootLinkIndex = u2b.getRootLinkIndex();
+        //b3Printf("urdf root link index = %d\n",rootLinkIndex);
         MyMultiBodyCreator creation(m_data->m_guiHelper);
 
         u2b.getRootTransformInWorld(rootTrans);
@@ -3812,6 +3812,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									{
 										linkIndexB = mblB->m_link;
 										objectIndexB = mblB->m_multiBody->getUserIndex2();
+										if (
+											(clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_B_FILTER) &&
+											clientCmd.m_requestContactPointArguments.m_linkIndexBIndexFilter != linkIndexB)
+										{
+											continue;
+										}
 									}
 
 									int objectIndexA = -1;
@@ -3824,8 +3830,13 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									if (mblA && mblA->m_multiBody)
 									{
 										linkIndexA = mblA->m_link;
-
 										objectIndexA = mblA->m_multiBody->getUserIndex2();
+										if (
+											(clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_A_FILTER) &&
+											clientCmd.m_requestContactPointArguments.m_linkIndexAIndexFilter != linkIndexA)
+										{
+											continue;
+										}
 									}
 
 									btAssert(bodyA || mblA);

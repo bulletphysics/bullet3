@@ -403,7 +403,7 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
 	  }
 		geom.m_hasFromTo = false;
 		geom.m_capsuleRadius = urdfLexicalCast<double>(shape->Attribute("radius"));
-		geom.m_capsuleHalfHeight = urdfLexicalCast<double>(shape->Attribute("length"));
+		geom.m_capsuleHeight = urdfLexicalCast<double>(shape->Attribute("length"));
 		
 	}
 	else if (type_name == "capsule")
@@ -417,7 +417,7 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
 		}
 		geom.m_hasFromTo = false;
 		geom.m_capsuleRadius = urdfLexicalCast<double>(shape->Attribute("radius"));
-		geom.m_capsuleHalfHeight = btScalar(0.5)*urdfLexicalCast<double>(shape->Attribute("length"));
+		geom.m_capsuleHeight = urdfLexicalCast<double>(shape->Attribute("length"));
 	}
 	else if (type_name == "mesh")
 	{
