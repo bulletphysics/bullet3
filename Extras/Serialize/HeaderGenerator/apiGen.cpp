@@ -20,12 +20,13 @@
 #include "bDNA.h"
 #include "bBlenderFile.h"
 #include "btBulletFile.h"
+#include "LinearMath/btSerializer.h"
 #include "bCommon.h"
 #include <map>
 #include <vector>
 #include <string.h>
 
-bool isBulletFile = false;
+bool isBulletFile = true;
 
 using namespace bParse;
 typedef std::string bString;
@@ -216,10 +217,12 @@ int main(int argc,char** argv)
 	using namespace bParse;
 	dump = fopen("dump.py", "w");
 
+
 	if (!dump) return 0;
 	fprintf(dump, "%s\n", data);
 
-	
+
+#if 0
 	char* filename = "../../../../data/r2d2_multibody.bullet";
 	
 	if (argc==2)
@@ -269,9 +272,12 @@ int main(int argc,char** argv)
 		bBlenderFile	f(memBuf,len);
 		swap = (f.getFlags() & FD_ENDIAN_SWAP)!=0;
 	}
-
-	
-	
+#else
+	isBulletFile = true;
+	bool swap = false;
+	char* memBuf = sBulletDNAstr;
+	int len = sBulletDNAlen;
+#endif
 
 
 	char *blenderData = memBuf;

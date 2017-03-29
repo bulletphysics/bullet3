@@ -1,4 +1,7 @@
+import sys
+sys.path.append(".")
 import dump
+
 
 
 header = """/* Copyright (C) 2011 Erwin Coumans & Charlie C

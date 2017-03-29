@@ -79,6 +79,7 @@ enum EnumUrdfArgsUpdateFlags
 	URDF_ARGS_INITIAL_ORIENTATION=4,
 	URDF_ARGS_USE_MULTIBODY=8,
 	URDF_ARGS_USE_FIXED_BASE=16,
+	URDF_ARGS_HAS_CUSTOM_URDF_FLAGS = 32
 };
 
 
@@ -89,6 +90,7 @@ struct UrdfArgs
 	double m_initialOrientation[4];
 	int m_useMultiBody;
 	int m_useFixedBase;
+	int m_urdfFlags;
 };
 
 struct MjcfArgs
@@ -117,6 +119,7 @@ enum EnumInitPoseFlags
     INIT_POSE_HAS_JOINT_STATE=4,
 	INIT_POSE_HAS_BASE_LINEAR_VELOCITY = 8,
 	INIT_POSE_HAS_BASE_ANGULAR_VELOCITY = 16,
+	INIT_POSE_HAS_JOINT_VELOCITY=32,
 };
 
 
@@ -382,6 +385,7 @@ struct SendActualStateArgs
     double m_jointMotorForce[MAX_DEGREE_OF_FREEDOM];
     
     double m_linkState[7*MAX_NUM_LINKS];
+	double m_linkWorldVelocities[6*MAX_NUM_LINKS];//linear velocity and angular velocity in world space (x/y/z each).
     double m_linkLocalInertialFrames[7*MAX_NUM_LINKS];
 };
 

@@ -495,10 +495,10 @@ static void saveCurrentSettings(int currentEntry,const char* startFileName)
 		{
 			fprintf(f,"--enable_experimental_opencl\n");
 		}
-		if (sUseOpenGL2 )
-		{
-			fprintf(f,"--opengl2\n");
-		}
+//		if (sUseOpenGL2 )
+//		{
+//			fprintf(f,"--opengl2\n");
+//		}
 
 		fclose(f);
 	}
@@ -1237,8 +1237,8 @@ void OpenGLExampleBrowser::update(float deltaTime)
 			if (renderGrid)
             {
                 BT_PROFILE("Draw Grid");
-                glPolygonOffset(3.0, 3);
-                glEnable(GL_POLYGON_OFFSET_FILL);
+                //glPolygonOffset(3.0, 3);
+                //glEnable(GL_POLYGON_OFFSET_FILL);
                 s_app->drawGrid(dg);
                 
             }

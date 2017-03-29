@@ -238,6 +238,19 @@ int	b3LoadUrdfCommandSetUseFixedBase(b3SharedMemoryCommandHandle commandHandle, 
 	return -1;
 }
 
+int	b3LoadUrdfCommandSetFlags(b3SharedMemoryCommandHandle commandHandle, int flags)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_LOAD_URDF);
+	if (command && (command->m_type == CMD_LOAD_URDF))
+	{
+		command->m_updateFlags |= 	URDF_ARGS_HAS_CUSTOM_URDF_FLAGS;
+		command->m_urdfArguments.m_urdfFlags = flags;
+	}
+	return 0;
+}
+
 int	b3LoadUrdfCommandSetStartPosition(b3SharedMemoryCommandHandle commandHandle, double startPosX,double startPosY,double startPosZ)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
@@ -548,9 +561,23 @@ b3SharedMemoryCommandHandle b3RequestActualStateCommandInit(b3PhysicsClientHandl
     struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
     b3Assert(command);
     command->m_type =CMD_REQUEST_ACTUAL_STATE;
+	command->m_updateFlags = 0;
 	command->m_requestActualStateInformationCommandArgument.m_bodyUniqueId = bodyUniqueId;
     return (b3SharedMemoryCommandHandle) command;
 }
+
+int b3RequestActualStateCommandComputeLinkVelocity(b3SharedMemoryCommandHandle commandHandle, int computeLinkVelocity)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	btAssert(command->m_type == CMD_REQUEST_ACTUAL_STATE);
+	if (computeLinkVelocity && command->m_type == CMD_REQUEST_ACTUAL_STATE)
+	{
+		command->m_updateFlags |= ACTUAL_STATE_COMPUTE_LINKVELOCITY;
+	}
+	return 0;
+}
+
 
 int b3GetJointState(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle statusHandle, int jointIndex, b3JointSensorState *state)
 {
@@ -561,7 +588,7 @@ int b3GetJointState(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle
   if (bodyIndex>=0)
   {
 	  b3JointInfo info;
-	  bool result = b3GetJointInfo(physClient, bodyIndex,jointIndex, &info);
+	  bool result = b3GetJointInfo(physClient, bodyIndex,jointIndex, &info)!=0;
 	  if (result)
 	  {
 		  if ((info.m_qIndex>=0) && (info.m_uIndex>=0)  && (info.m_qIndex < MAX_DEGREE_OF_FREEDOM) && (info.m_uIndex < MAX_DEGREE_OF_FREEDOM))
@@ -605,6 +632,8 @@ int b3GetLinkState(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle 
     {
       state->m_worldPosition[i] = status->m_sendActualStateArgs.m_linkState[7 * linkIndex + i];
       state->m_localInertialPosition[i] = status->m_sendActualStateArgs.m_linkLocalInertialFrames[7 * linkIndex + i];
+	  state->m_worldLinearVelocity[i] = status->m_sendActualStateArgs.m_linkWorldVelocities[6*linkIndex+i];
+	  state->m_worldAngularVelocity[i] = status->m_sendActualStateArgs.m_linkWorldVelocities[6*linkIndex+i+3];
     }
     for (int i = 0; i < 4; ++i) 
     {
@@ -735,6 +764,7 @@ b3SharedMemoryCommandHandle b3CreatePoseCommandInit(b3PhysicsClientHandle physCl
 	for (int i=0;i<MAX_DEGREE_OF_FREEDOM;i++)
     {
         command->m_initPoseArgs.m_hasInitialStateQ[i] = 0;
+		command->m_initPoseArgs.m_hasInitialStateQdot[i] = 0;
     }
     return (b3SharedMemoryCommandHandle) command;
 }
@@ -817,8 +847,11 @@ int	b3CreatePoseCommandSetJointPositions(b3SharedMemoryCommandHandle commandHand
     command->m_updateFlags |=INIT_POSE_HAS_JOINT_STATE;
 	for (int i=0;i<numJointPositions;i++)
 	{
-		command->m_initPoseArgs.m_initialStateQ[i+7] = jointPositions[i];
-		command->m_initPoseArgs.m_hasInitialStateQ[i+7] = 1;
+		if ((i+7)<MAX_DEGREE_OF_FREEDOM)
+		{
+			command->m_initPoseArgs.m_initialStateQ[i+7] = jointPositions[i];
+			command->m_initPoseArgs.m_hasInitialStateQ[i+7] = 1;
+		}
 	}
 	return 0;
 }
@@ -842,6 +875,40 @@ int	b3CreatePoseCommandSetJointPosition(b3PhysicsClientHandle physClient, b3Shar
 	return 0;
 }
 
+int	b3CreatePoseCommandSetJointVelocities(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle,  int numJointVelocities, const double* jointVelocities)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_INIT_POSE);
+  
+	command->m_updateFlags |=INIT_POSE_HAS_JOINT_VELOCITY;
+	for (int i=0;i<numJointVelocities;i++)
+	{
+		if ((i+6)<MAX_DEGREE_OF_FREEDOM)
+		{
+			command->m_initPoseArgs.m_initialStateQdot[i+6] = jointVelocities[i];
+			command->m_initPoseArgs.m_hasInitialStateQdot[i+6] = 1;
+		}
+	}
+	return 0;
+}
+
+int	b3CreatePoseCommandSetJointVelocity(b3PhysicsClientHandle physClient, b3SharedMemoryCommandHandle commandHandle,  int jointIndex, double jointVelocity)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_INIT_POSE);
+	command->m_updateFlags |=INIT_POSE_HAS_JOINT_VELOCITY;
+	b3JointInfo info;
+	b3GetJointInfo(physClient, command->m_initPoseArgs.m_bodyUniqueId,jointIndex, &info);
+	btAssert((info.m_flags & JOINT_HAS_MOTORIZED_POWER) && info.m_uIndex >=0);
+	if ((info.m_flags & JOINT_HAS_MOTORIZED_POWER) && (info.m_uIndex >=0) && (info.m_uIndex<MAX_DEGREE_OF_FREEDOM))
+	{
+		command->m_initPoseArgs.m_initialStateQdot[info.m_uIndex] = jointVelocity;
+		command->m_initPoseArgs.m_hasInitialStateQdot[info.m_uIndex] = 1;
+	}
+	return 0;
+}
 
 
 
@@ -1048,6 +1115,7 @@ int	b3SubmitClientCommand(b3PhysicsClientHandle physClient, const b3SharedMemory
 
 b3SharedMemoryStatusHandle b3SubmitClientCommandAndWaitStatus(b3PhysicsClientHandle physClient, const b3SharedMemoryCommandHandle commandHandle)
 {
+	B3_PROFILE("b3SubmitClientCommandAndWaitStatus");
 	b3Clock clock;
 	double startTime = clock.getTimeInSeconds();
 	
@@ -1061,11 +1129,17 @@ b3SharedMemoryStatusHandle b3SubmitClientCommandAndWaitStatus(b3PhysicsClientHan
 
 		double timeOutInSeconds = cl->getTimeOut();
 
-		b3SubmitClientCommand(physClient, commandHandle);
-
-		while (cl->isConnected() && (statusHandle == 0) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
 		{
-			statusHandle = b3ProcessServerStatus(physClient);
+			B3_PROFILE("b3SubmitClientCommand");
+			b3SubmitClientCommand(physClient, commandHandle);
+		}
+		{
+			B3_PROFILE("b3ProcessServerStatus");
+			while (cl->isConnected() && (statusHandle == 0) && (clock.getTimeInSeconds()-startTime < timeOutInSeconds))
+			{
+					clock.usleep(0);
+					statusHandle = b3ProcessServerStatus(physClient);
+			}
 		}
 		return (b3SharedMemoryStatusHandle)statusHandle;
 	}
