@@ -1716,7 +1716,7 @@ static PyObject* pybullet_getBodyInfo(PyObject* self, PyObject* args, PyObject* 
 			{
 				PyObject* pyListJointInfo = PyTuple_New(2);
 				PyTuple_SetItem(pyListJointInfo, 0, PyString_FromString(info.m_baseName));
-                PyTuple_SetItem(pyListJointInfo, 1, PyString_FromString(info.m_bodyName));
+				PyTuple_SetItem(pyListJointInfo, 1, PyString_FromString(info.m_bodyName));
 				return pyListJointInfo;
 			}
 		}
@@ -5146,8 +5146,8 @@ static PyMethodDef SpamMethods[] = {
 
 	{"getJointState", (PyCFunction)pybullet_getJointState, METH_VARARGS | METH_KEYWORDS,
 	 "Get the state (position, velocity etc) for a joint on a body."},
-    
-    {"getLinkState", (PyCFunction)pybullet_getLinkState, METH_VARARGS | METH_KEYWORDS,
+	
+	{"getLinkState", (PyCFunction)pybullet_getLinkState, METH_VARARGS | METH_KEYWORDS,
 	 "Provides extra information such as the Cartesian world coordinates"
 	 " center of mass (COM) of the link, relative to the world reference"
 	 " frame."},

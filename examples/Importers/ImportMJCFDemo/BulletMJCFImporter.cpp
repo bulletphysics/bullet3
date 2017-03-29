@@ -1325,7 +1325,7 @@ int BulletMJCFImporter::getRootLinkIndex() const
 
 std::string BulletMJCFImporter::getBodyName() const
 {
-    return m_data->m_fileModelName;
+	return m_data->m_fileModelName;
 }
 
 bool BulletMJCFImporter::getLinkColor(int linkIndex, btVector4& colorRGBA) const

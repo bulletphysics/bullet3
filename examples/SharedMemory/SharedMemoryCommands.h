@@ -103,7 +103,7 @@ struct BulletDataStreamArgs
 {
 	char m_bulletFileName[MAX_FILENAME_LENGTH];
 	int m_bodyUniqueId;
-    char m_bodyName[MAX_FILENAME_LENGTH];
+	char m_bodyName[MAX_FILENAME_LENGTH];
 };
 
 struct SetJointFeedbackArgs

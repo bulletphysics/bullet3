@@ -272,7 +272,7 @@ std::string BulletURDFImporter::getLinkName(int linkIndex) const
 
 std::string BulletURDFImporter::getBodyName() const
 {
-    return m_data->m_urdfParser.getModel().m_name;
+	return m_data->m_urdfParser.getModel().m_name;
 }
     
 std::string BulletURDFImporter::getJointName(int linkIndex) const
