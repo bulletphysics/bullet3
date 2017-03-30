@@ -17,6 +17,7 @@ struct BodyJointInfoCache2
 {
 	std::string m_baseName;
 	btAlignedObjectArray<b3JointInfo> m_jointInfo;
+	std::string m_bodyName;
 };
 
 
@@ -605,6 +606,7 @@ void PhysicsDirect::processBodyJointInfo(int bodyUniqueId, const SharedMemorySta
 	
     BodyJointInfoCache2* bodyJoints = new BodyJointInfoCache2;
     m_data->m_bodyJointMap.insert(bodyUniqueId,bodyJoints);
+	bodyJoints->m_bodyName = serverCmd.m_dataStreamArguments.m_bodyName;
 
     for (int i = 0; i < bf.m_multiBodies.size(); i++) 
     {
@@ -931,6 +933,7 @@ bool PhysicsDirect::getBodyInfo(int bodyUniqueId, struct b3BodyInfo& info) const
 	{
 		BodyJointInfoCache2* bodyJoints = *bodyJointsPtr;
 		info.m_baseName = bodyJoints->m_baseName.c_str();
+		info.m_bodyName = bodyJoints->m_bodyName.c_str();
 		return true;
 	}
 	

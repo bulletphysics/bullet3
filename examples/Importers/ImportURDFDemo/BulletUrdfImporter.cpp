@@ -269,6 +269,11 @@ std::string BulletURDFImporter::getLinkName(int linkIndex) const
 	}
 	return "";
 }
+
+std::string BulletURDFImporter::getBodyName() const
+{
+	return m_data->m_urdfParser.getModel().m_name;
+}
     
 std::string BulletURDFImporter::getJointName(int linkIndex) const
 {
@@ -956,9 +961,15 @@ static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const cha
 			}
 			break;
 		}
-
+		case URDF_GEOM_PLANE:
+		{
+			b3Warning("No default visual for URDF_GEOM_PLANE");
+			break;
+		}
 		default:
+		{
 			b3Warning("Error: unknown visual geometry type %i\n", visual->m_geometry.m_type);
+		}
 	}
 
 	//if we have a convex, tesselate into localVertices/localIndices

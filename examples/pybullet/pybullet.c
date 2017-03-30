@@ -221,6 +221,7 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 	int freeIndex = -1;
 	int method = eCONNECT_GUI;
 	int i;
+	char* options="";
 	b3PhysicsClientHandle sm = 0;
 
 	if (sNumPhysicsClients >= MAX_PHYSICS_CLIENTS)
@@ -237,15 +238,24 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 
 		const char* hostName = "localhost";
 
-		int size = PySequence_Size(args);
-		if (size == 1)
+
+		static char* kwlist1[] = {"method","key", "options", NULL};
+		static char* kwlist2[] = {"method","hostName", "port", "options", NULL};
+		
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|is", kwlist1, &method,&key,&options))
 		{
-			if (!PyArg_ParseTuple(args, "i", &method))
+			int port = -1;
+			if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|sis", kwlist2, &method,&hostName, &port,&options))
 			{
-				PyErr_SetString(SpamError,
-								"connectPhysicsServer expected argument  GUI, "
-								"DIRECT, SHARED_MEMORY, UDP or TCP");
 				return NULL;
+			} else
+			{
+				PyErr_Clear();
+				if (port>=0)
+				{
+					udpPort = port;
+					tcpPort = port;
+				}
 			}
 		}
 
@@ -264,45 +274,12 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 			}
 		}
 
-		if (size == 2)
-		{
-			if (!PyArg_ParseTuple(args, "ii", &method, &key))
-			{
-				if (!PyArg_ParseTuple(args, "is", &method, &hostName))
-				{
-					PyErr_SetString(SpamError,
-									"connectPhysicsServer cannot parse second argument (either integer or string)");
-					return NULL;
-				}
-				else
-				{
-					PyErr_Clear();
-				}
-			}
-		}
-
-		if (size == 3)
-		{
-			int port = -1;
-			if (!PyArg_ParseTuple(args, "isi", &method, &hostName, &port))
-			{
-				PyErr_SetString(SpamError,
-								"connectPhysicsServer 3 arguments: method, hostname, port");
-				return NULL;
-			}
-			if (port >= 0)
-			{
-				udpPort = port;
-				tcpPort = port;
-			}
-		}
-
 		switch (method)
 		{
 			case eCONNECT_GUI:
 			{
-				int argc = 0;
-				char* argv[1] = {0};
+				int argc = 2;
+				char* argv[2] = {"unused",options};
 
 #ifdef __APPLE__
 				sm = b3CreateInProcessPhysicsServerAndConnectMainThread(argc, argv);
@@ -1714,8 +1691,9 @@ static PyObject* pybullet_getBodyInfo(PyObject* self, PyObject* args, PyObject* 
 			struct b3BodyInfo info;
 			if (b3GetBodyInfo(sm, bodyUniqueId, &info))
 			{
-				PyObject* pyListJointInfo = PyTuple_New(1);
+				PyObject* pyListJointInfo = PyTuple_New(2);
 				PyTuple_SetItem(pyListJointInfo, 0, PyString_FromString(info.m_baseName));
+				PyTuple_SetItem(pyListJointInfo, 1, PyString_FromString(info.m_bodyName));
 				return pyListJointInfo;
 			}
 		}
@@ -5161,7 +5139,7 @@ static PyMethodDef SpamMethods[] = {
 
 	{"getJointState", (PyCFunction)pybullet_getJointState, METH_VARARGS | METH_KEYWORDS,
 	 "Get the state (position, velocity etc) for a joint on a body."},
-
+	
 	{"getLinkState", (PyCFunction)pybullet_getLinkState, METH_VARARGS | METH_KEYWORDS,
 	 "Provides extra information such as the Cartesian world coordinates"
 	 " center of mass (COM) of the link, relative to the world reference"

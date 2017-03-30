@@ -32,6 +32,28 @@ inline int btGetVersion()
 	return BT_BULLET_VERSION;
 }
 
+
+// The following macro "BT_NOT_EMPTY_FILE" can be put into a file
+// in order suppress the MS Visual C++ Linker warning 4221
+//
+// warning LNK4221: no public symbols found; archive member will be inaccessible
+//
+// This warning occurs on PC and XBOX when a file compiles out completely
+// has no externally visible symbols which may be dependant on configuration
+// #defines and options.
+//
+// see more https://stackoverflow.com/questions/1822887/what-is-the-best-way-to-eliminate-ms-visual-c-linker-warning-warning-lnk422
+
+#if defined (_MSC_VER)
+	#define BT_NOT_EMPTY_FILE_CAT_II(p, res) res
+	#define BT_NOT_EMPTY_FILE_CAT_I(a, b) BT_NOT_EMPTY_FILE_CAT_II(~, a ## b)
+	#define BT_NOT_EMPTY_FILE_CAT(a, b) BT_NOT_EMPTY_FILE_CAT_I(a, b)
+	#define BT_NOT_EMPTY_FILE namespace { char BT_NOT_EMPTY_FILE_CAT(NoEmptyFileDummy, __COUNTER__); }
+#else
+	#define BT_NOT_EMPTY_FILE 
+#endif
+
+
 // clang and most formatting tools don't support indentation of preprocessor guards, so turn it off
 // clang-format off
 #if defined(DEBUG) || defined (_DEBUG)

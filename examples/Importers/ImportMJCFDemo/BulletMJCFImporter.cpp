@@ -1026,6 +1026,11 @@ struct BulletMJCFImporterInternalData
 			{
 				handled = true;
 			}
+			if (n=="site")
+			{
+				handled = true;
+			}
+
 			if (!handled)
 			{
 				logger->reportWarning( (sourceFileLocation(xml) + ": unknown field '" + n + "'").c_str() );
@@ -1322,6 +1327,11 @@ int BulletMJCFImporter::getRootLinkIndex() const
 	 }
 	return "";
  }
+
+std::string BulletMJCFImporter::getBodyName() const
+{
+	return m_data->m_fileModelName;
+}
 
 bool BulletMJCFImporter::getLinkColor(int linkIndex, btVector4& colorRGBA) const
 {
