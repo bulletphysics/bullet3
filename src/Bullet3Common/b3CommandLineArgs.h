@@ -29,7 +29,7 @@ public:
 	    {
 	        std::string arg = argv[i];
 
-	        if ((arg[0] != '-') || (arg[1] != '-')) {
+			if ((arg.length() < 2) || (arg[0] != '-') || (arg[1] != '-')) {
 	        	continue;
 	        }
 
