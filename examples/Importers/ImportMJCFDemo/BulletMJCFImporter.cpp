@@ -1026,6 +1026,11 @@ struct BulletMJCFImporterInternalData
 			{
 				handled = true;
 			}
+			if (n=="site")
+			{
+				handled = true;
+			}
+
 			if (!handled)
 			{
 				logger->reportWarning( (sourceFileLocation(xml) + ": unknown field '" + n + "'").c_str() );

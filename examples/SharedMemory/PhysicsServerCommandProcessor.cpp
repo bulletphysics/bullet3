@@ -1580,6 +1580,7 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
         {
             btScalar mass = 0;
             bodyHandle->m_rootLocalInertialFrame.setIdentity();
+			bodyHandle->m_bodyName = u2b.getBodyName();
             btVector3 localInertiaDiagonal(0,0,0);
             int urdfLinkIndex = u2b.getRootLinkIndex();
             u2b.getMassAndInertia(urdfLinkIndex, mass,localInertiaDiagonal,bodyHandle->m_rootLocalInertialFrame);
@@ -2528,7 +2529,15 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
                         serverStatusOut.m_type = CMD_BODY_INFO_COMPLETED;
                         serverStatusOut.m_dataStreamArguments.m_bodyUniqueId = sdfInfoArgs.m_bodyUniqueId;
-                        serverStatusOut.m_numDataStreamBytes = streamSizeInBytes;
+                        serverStatusOut.m_dataStreamArguments.m_bodyName[0] = 0;
+						
+						InternalBodyHandle* bodyHandle = m_data->getHandle(clientCmd.m_calculateJacobianArguments.m_bodyUniqueId);
+						if (bodyHandle)
+						{
+							strcpy(serverStatusOut.m_dataStreamArguments.m_bodyName,bodyHandle->m_bodyName.c_str());
+						}
+
+						serverStatusOut.m_numDataStreamBytes = streamSizeInBytes;
 						
                         hasStatus = true;
                         break;

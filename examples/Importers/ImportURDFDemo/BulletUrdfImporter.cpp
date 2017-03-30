@@ -961,9 +961,15 @@ static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const cha
 			}
 			break;
 		}
-
+		case URDF_GEOM_PLANE:
+		{
+			b3Warning("No default visual for URDF_GEOM_PLANE");
+			break;
+		}
 		default:
+		{
 			b3Warning("Error: unknown visual geometry type %i\n", visual->m_geometry.m_type);
+		}
 	}
 
 	//if we have a convex, tesselate into localVertices/localIndices
