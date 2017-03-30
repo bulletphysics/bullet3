@@ -15,7 +15,6 @@ public:
 
 	virtual ~URDFImporterInterface() {}
 	
- 
     virtual bool loadURDF(const char* fileName, bool forceFixedBase = false)=0;
 
     virtual bool loadSDF(const char* fileName, bool forceFixedBase = false) { return false;}
@@ -27,8 +26,12 @@ public:
     
     ///pure virtual interfaces, precondition is a valid linkIndex (you can assert/terminate if the linkIndex is out of range)
     virtual std::string getLinkName(int linkIndex) const =0;
-    
-	virtual std::string getBodyName() const = 0;
+
+	//various derived class in internal source code break with new pure virtual methods, so provide some default implementation
+	virtual std::string getBodyName() const
+	{
+		return "";
+	}
     
 	/// optional method to provide the link color. return true if the color is available and copied into colorRGBA, return false otherwise
 	virtual bool getLinkColor(int linkIndex, btVector4& colorRGBA) const { return false;}
