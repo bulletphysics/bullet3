@@ -892,8 +892,8 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 
 
 
-        		flagsize = sizeof(char)*(strlen(additionalMacros) + strlen(flags) + 5);
-		compileFlags = (char*) malloc(flagsize);
+        flagsize = sizeof(char) * (strlen(additionalMacros) + strlen(flags) + 5);
+		compileFlags = (char*)malloc(flagsize);
 #ifdef _MSC_VER
 		sprintf_s(compileFlags,flagsize, "%s %s", flags, additionalMacros);
 #else
@@ -905,7 +905,7 @@ cl_program b3OpenCLUtils_compileCLProgramFromString(cl_context clContext, cl_dev
 			char *build_log;
 			size_t ret_val_size;
 			clGetProgramBuildInfo(m_cpProgram, device, CL_PROGRAM_BUILD_LOG, 0, NULL, &ret_val_size);
-			build_log = (char*) malloc(sizeof(char)*(ret_val_size+1));
+			build_log = (char*)malloc(sizeof(char) * (ret_val_size+1));
 			clGetProgramBuildInfo(m_cpProgram, device, CL_PROGRAM_BUILD_LOG, ret_val_size, build_log, NULL);
 
 			// to be carefully, terminate with \0

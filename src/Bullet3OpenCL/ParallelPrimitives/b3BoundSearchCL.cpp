@@ -109,8 +109,8 @@ void b3BoundSearchCL::execute(b3OpenCLArray<b3SortData>& src, int nSrc, b3OpenCL
 	{
 		b3Assert( m_lower );
 		b3Assert( m_upper );
-		b3Assert( m_lower->capacity() <= (int)nDst );
-		b3Assert( m_upper->capacity() <= (int)nDst );
+		b3Assert( int(m_lower->capacity()) <= nDst );
+		b3Assert( int(m_upper->capacity()) <= nDst );
 
 		int zero = 0;
 		m_filler->execute( *m_lower, zero, nDst );

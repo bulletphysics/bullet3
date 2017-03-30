@@ -3860,11 +3860,10 @@ void GpuSatCollision::computeConvexConvexContactsGPUSAT( b3OpenCLArray<b3Int4>* 
 		
 	{
 		//now perform the tree query on GPU
-			
-					
-				
-				
-		if (treeNodesGPU->size() && treeNodesGPU->size())
+
+        // DEAD CODE: identical expressions!
+        //  vvvvvvvvvvvvvvvvvvvv    vvvvvvvvvvvvvvvvvvvv
+        if (treeNodesGPU->size() && treeNodesGPU->size())
 		{
 			if (bvhTraversalKernelGPU)
 			{

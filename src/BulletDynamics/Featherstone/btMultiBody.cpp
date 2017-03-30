@@ -1367,7 +1367,7 @@ void btMultiBody::calcAccelerationDeltasMultiDof(const btScalar *force, btScalar
     scratch_r.resize(m_dofCount);
     scratch_v.resize(4*num_links + 4);	    
 
-    btScalar * r_ptr = m_dofCount ? &scratch_r[0] : 0;
+    btScalar * r_ptr = m_dofCount ? &scratch_r[0] : NULL;
     btVector3 * v_ptr = &scratch_v[0];
 
     // zhat_i^A (scratch space)
@@ -1379,12 +1379,12 @@ void btMultiBody::calcAccelerationDeltasMultiDof(const btScalar *force, btScalar
 
     // hhat (cached), accel (scratch)
     // hhat is NOT stored for the base (but ahat is) 
-	const btSpatialForceVector * h = (btSpatialForceVector *)(m_dofCount > 0 ? &m_vectorBuf[0] : 0);
+	const btSpatialForceVector * h = (btSpatialForceVector *)(m_dofCount > 0 ? &m_vectorBuf[0] : NULL);
 	btSpatialMotionVector * spatAcc = (btSpatialMotionVector *)v_ptr;
 	v_ptr += num_links * 2 + 2;
 
     // Y_i (scratch), invD_i (cached)
-    const btScalar * invD = m_dofCount > 0 ? &m_realBuf[6 + m_dofCount] : 0;
+    const btScalar * invD = m_dofCount > 0 ? &m_realBuf[6 + m_dofCount] : NULL;
 	btScalar * Y = r_ptr; 
 	////////////////
 	//aux variables

@@ -397,6 +397,7 @@ m_raycastAccelerator(0)
 	{
 		for (BP_FP_INT_TYPE i = m_firstFreeHandle; i < maxHandles; i++)
 			m_pHandles[i].SetNextFree(static_cast<BP_FP_INT_TYPE>(i + 1));
+
 		m_pHandles[maxHandles - 1].SetNextFree(0);
 	}
 
@@ -423,6 +424,7 @@ m_raycastAccelerator(0)
 		m_pEdges[axis][0].m_handle = 0;
 		m_pEdges[axis][1].m_pos = m_handleSentinel;
 		m_pEdges[axis][1].m_handle = 0;
+
 #ifdef DEBUG_BROADPHASE
 		debugPrintAxis(axis);
 #endif //DEBUG_BROADPHASE

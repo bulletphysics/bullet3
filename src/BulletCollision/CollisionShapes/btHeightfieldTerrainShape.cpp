@@ -19,12 +19,10 @@ subject to the following restrictions:
 
 
 
-btHeightfieldTerrainShape::btHeightfieldTerrainShape
-(
-int heightStickWidth, int heightStickLength, const void* heightfieldData,
-btScalar heightScale, btScalar minHeight, btScalar maxHeight,int upAxis,
-PHY_ScalarType hdt, bool flipQuadEdges
-)
+btHeightfieldTerrainShape::btHeightfieldTerrainShape(
+    int heightStickWidth, int heightStickLength, const void* heightfieldData,
+    btScalar heightScale, btScalar minHeight, btScalar maxHeight,int upAxis,
+    PHY_ScalarType hdt, bool flipQuadEdges)
 {
 	initialize(heightStickWidth, heightStickLength, heightfieldData,
 	           heightScale, minHeight, maxHeight, upAxis, hdt,
@@ -51,12 +49,10 @@ btHeightfieldTerrainShape::btHeightfieldTerrainShape(int heightStickWidth, int h
 
 
 
-void btHeightfieldTerrainShape::initialize
-(
-int heightStickWidth, int heightStickLength, const void* heightfieldData,
-btScalar heightScale, btScalar minHeight, btScalar maxHeight, int upAxis,
-PHY_ScalarType hdt, bool flipQuadEdges
-)
+void btHeightfieldTerrainShape::initialize(
+    int heightStickWidth, int heightStickLength, const void* heightfieldData,
+    btScalar heightScale, btScalar minHeight, btScalar maxHeight, int upAxis,
+    PHY_ScalarType hdt, bool flipQuadEdges)
 {
 	// validation
 	btAssert(heightStickWidth > 1);// && "bad width");

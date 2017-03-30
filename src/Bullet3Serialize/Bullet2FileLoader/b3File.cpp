@@ -913,6 +913,8 @@ void bFile::safeSwapPtr(char *dst, const char *src)
 
 	if (ptrFile == ptrMem)
 	{
+        b3Assert(dst != NULL);
+        b3Assert(src != NULL);
 		memcpy(dst, src, ptrMem);
 	}
 	else if (ptrMem==4 && ptrFile==8)

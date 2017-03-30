@@ -2130,7 +2130,7 @@ void				btSoftBody::indicesToPointers(const int* map)
 	{
 		m_anchors[i].m_node=IDX2PTR(m_anchors[i].m_node,base);
 	}
-	for(i=0,ni=m_notes.size();i<ni;++i)
+	for(i=0,ni=int(m_notes.size());i<ni;++i)
 	{
 		for(int j=0;j<m_notes[i].m_rank;++j)
 		{
