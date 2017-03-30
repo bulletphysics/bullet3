@@ -103,6 +103,7 @@ struct BulletDataStreamArgs
 {
 	char m_bulletFileName[MAX_FILENAME_LENGTH];
 	int m_bodyUniqueId;
+	char m_bodyName[MAX_FILENAME_LENGTH];
 };
 
 struct SetJointFeedbackArgs
@@ -363,9 +364,6 @@ struct RequestActualStateArgs
 {
 	int m_bodyUniqueId;
 };
-
-
-
 
 struct SendActualStateArgs
 {

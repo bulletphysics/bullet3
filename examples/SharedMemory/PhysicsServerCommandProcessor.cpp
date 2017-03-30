@@ -120,6 +120,7 @@ struct InteralBodyData
 	btMultiBody* m_multiBody;
 	btRigidBody* m_rigidBody;
 	int m_testData;
+	std::string m_bodyName;
 
 	btTransform m_rootLocalInertialFrame;
 	btAlignedObjectArray<btTransform> m_linkLocalInertialFrames;
@@ -1607,6 +1608,8 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 
         btMultiBody* mb = creation.getBulletMultiBody();
         btRigidBody* rb = creation.getRigidBody();
+		
+		bodyHandle->m_bodyName = u2b.getBodyName();
 
 		if (useMultiBody)
 		{
@@ -2650,6 +2653,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							serverStatusOut.m_numDataStreamBytes = m_data->m_urdfLinkNameMapper.at(m_data->m_urdfLinkNameMapper.size()-1)->m_memSerializer->getCurrentBufferSize();
 						}
 						serverStatusOut.m_dataStreamArguments.m_bodyUniqueId = bodyUniqueId;
+						InteralBodyData* body = m_data->getHandle(bodyUniqueId);
+						strcpy(serverStatusOut.m_dataStreamArguments.m_bodyName, body->m_bodyName.c_str());
 						hasStatus = true;
 
                     } else
@@ -5015,8 +5020,6 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 						break;        
 					}
-		
-
                 default:
                 {
 					BT_PROFILE("CMD_UNKNOWN");

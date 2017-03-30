@@ -201,6 +201,7 @@ struct b3UserConstraint
 struct b3BodyInfo
 {
 	const char* m_baseName;
+	const char* m_bodyName; // for btRigidBody, it does not have a base, but can still have a body name from urdf
 };
 
 

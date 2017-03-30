@@ -1,5 +1,5 @@
 <?xml version="0.0" ?>
-<robot name="cube.urdf">
+<robot name="cube">
   <link name="baseLink">
     <contact>
       <lateral_friction value="1.0"/>
