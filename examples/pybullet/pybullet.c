@@ -3818,18 +3818,20 @@ static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args, Py
 {
 	int bodyUniqueIdA = -1;
 	int bodyUniqueIdB = -1;
-
+    int linkIndexA = -2;
+    int linkIndexB = -2;
+    
 	b3SharedMemoryCommandHandle commandHandle;
 	struct b3ContactInformation contactPointData;
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType;
 
-	static char* kwlist[] = {"bodyA", "bodyB", "physicsClientId", NULL};
+	static char* kwlist[] = {"bodyA", "bodyB", "linkIndexA", "linkIndexB", "physicsClientId", NULL};
 
 	int physicsClientId = 0;
 	b3PhysicsClientHandle sm = 0;
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iii", kwlist,
-									 &bodyUniqueIdA, &bodyUniqueIdB, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iiiii", kwlist,
+									 &bodyUniqueIdA, &bodyUniqueIdB, &linkIndexA, &linkIndexB, &physicsClientId))
 		return NULL;
 
 	sm = getPhysicsClient(physicsClientId);
@@ -3840,10 +3842,24 @@ static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args, Py
 	}
 
 	commandHandle = b3InitRequestContactPointInformation(sm);
-	b3SetContactFilterBodyA(commandHandle, bodyUniqueIdA);
-	b3SetContactFilterBodyB(commandHandle, bodyUniqueIdB);
-	//b3SetContactQueryMode(commandHandle, mode);
+    if (bodyUniqueIdA>=0)
+    {
+        b3SetContactFilterBodyA(commandHandle, bodyUniqueIdA);
+    }
+    if (bodyUniqueIdB>=0)
+    {
+        b3SetContactFilterBodyB(commandHandle, bodyUniqueIdB);
+    }
 
+    if (linkIndexA>=-1)
+    {
+        b3SetContactFilterLinkA( commandHandle, linkIndexA);
+    }
+    if (linkIndexB >=-1)
+    {
+        b3SetContactFilterLinkB( commandHandle, linkIndexB);
+    }
+    
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 	statusType = b3GetStatusType(statusHandle);
 	if (statusType == CMD_CONTACT_POINT_INFORMATION_COMPLETED)

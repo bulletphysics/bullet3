@@ -435,7 +435,7 @@ struct InternalStateLogger
 	virtual ~InternalStateLogger() {}
 
 	virtual void stop() = 0;
-	virtual void logState(btScalar timeStamp)=0;
+	virtual void logState(btScalar timeStep)=0;
 
 };
 
@@ -457,7 +457,7 @@ struct VideoMP4Loggger : public InternalStateLogger
 	{
 		m_guiHelper->dumpFramesToVideo(0);
 	}
-	virtual void logState(btScalar timeStamp)
+	virtual void logState(btScalar timeStep)
 	{
 		//dumping video frames happens in another thread
 		//we could add some overlay of timestamp here, if needed/wanted
@@ -583,6 +583,203 @@ struct MinitaurStateLogger : public InternalStateLogger
 			fflush(m_logFileHandle);
 		
 			m_loggingTimeStamp++;
+		}
+	}
+};
+
+
+struct b3VRControllerEvents
+{
+	b3VRControllerEvent m_vrEvents[MAX_VR_CONTROLLERS];
+	
+	b3VRControllerEvents()
+	{
+		init();
+	}
+
+	virtual ~b3VRControllerEvents()
+	{
+	}
+
+	void init()
+	{
+		for (int i=0;i<MAX_VR_CONTROLLERS;i++)
+		{
+			m_vrEvents[i].m_numButtonEvents = 0;
+			m_vrEvents[i].m_numMoveEvents = 0;
+			for (int b=0;b<MAX_VR_BUTTONS;b++)
+			{
+				m_vrEvents[i].m_buttons[b] = 0;
+			}
+		}
+	}
+
+	void addNewVREvents(const struct b3VRControllerEvent* vrEvents, int numVREvents)
+	{
+	//update m_vrEvents
+		for (int i=0;i<numVREvents;i++)
+		{
+			int controlledId = vrEvents[i].m_controllerId;
+			if (vrEvents[i].m_numMoveEvents)
+			{
+				m_vrEvents[controlledId].m_analogAxis = vrEvents[i].m_analogAxis;
+			}
+
+			if (vrEvents[i].m_numMoveEvents+vrEvents[i].m_numButtonEvents)
+			{
+				m_vrEvents[controlledId].m_controllerId = vrEvents[i].m_controllerId;
+
+				m_vrEvents[controlledId].m_pos[0] = vrEvents[i].m_pos[0];
+				m_vrEvents[controlledId].m_pos[1] = vrEvents[i].m_pos[1];
+				m_vrEvents[controlledId].m_pos[2] = vrEvents[i].m_pos[2];
+				m_vrEvents[controlledId].m_orn[0] = vrEvents[i].m_orn[0];
+				m_vrEvents[controlledId].m_orn[1] = vrEvents[i].m_orn[1];
+				m_vrEvents[controlledId].m_orn[2] = vrEvents[i].m_orn[2];
+				m_vrEvents[controlledId].m_orn[3] = vrEvents[i].m_orn[3];
+			}
+
+			m_vrEvents[controlledId].m_numButtonEvents += vrEvents[i].m_numButtonEvents;
+			m_vrEvents[controlledId].m_numMoveEvents += vrEvents[i].m_numMoveEvents;
+			for (int b=0;b<MAX_VR_BUTTONS;b++)
+			{
+				m_vrEvents[controlledId].m_buttons[b] |= vrEvents[i].m_buttons[b];
+				if (vrEvents[i].m_buttons[b] & eButtonIsDown)
+				{
+					m_vrEvents[controlledId].m_buttons[b] |= eButtonIsDown;
+				} else
+				{
+					m_vrEvents[controlledId].m_buttons[b] &= ~eButtonIsDown;
+				}
+			}
+		}
+	};
+};
+
+struct VRControllerStateLogger : public InternalStateLogger
+{
+	b3VRControllerEvents m_vrEvents;
+	int m_loggingTimeStamp;
+
+	std::string m_fileName;
+	FILE* m_logFileHandle;
+	std::string m_structTypes;
+
+	VRControllerStateLogger(int loggingUniqueId, const std::string& fileName)
+		:m_loggingTimeStamp(0),
+		m_fileName(fileName),
+		m_logFileHandle(0)
+	{
+		m_loggingUniqueId = loggingUniqueId;
+		m_loggingType = STATE_LOGGING_VR_CONTROLLERS;
+
+		btAlignedObjectArray<std::string> structNames;
+		structNames.push_back("stepCount");
+		structNames.push_back("timeStamp");
+		structNames.push_back("controllerId");
+		structNames.push_back("numMoveEvents");
+		structNames.push_back("m_numButtonEvents");
+		structNames.push_back("posX");
+        structNames.push_back("posY");
+        structNames.push_back("posZ");
+        structNames.push_back("oriX");
+        structNames.push_back("oriY");
+        structNames.push_back("oriZ");
+        structNames.push_back("oriW");
+		structNames.push_back("analogAxis");
+		structNames.push_back("buttons0");
+		structNames.push_back("buttons1");
+		structNames.push_back("buttons2");
+		structNames.push_back("buttons3");
+		structNames.push_back("buttons4");
+		structNames.push_back("buttons5");
+		structNames.push_back("buttons6");
+		m_structTypes = "IfIIIffffffffIIIIIII";
+
+		const char* fileNameC = fileName.c_str();
+		m_logFileHandle = createMinitaurLogFile(fileNameC, structNames, m_structTypes);
+
+	}
+	virtual void stop()
+	{
+		 if (m_logFileHandle)
+        {
+            closeMinitaurLogFile(m_logFileHandle);
+            m_logFileHandle = 0;
+        }
+	}
+	virtual void logState(btScalar timeStep)
+	{
+		if (m_logFileHandle)
+        {
+               
+                int stepCount = m_loggingTimeStamp;
+                float timeStamp = m_loggingTimeStamp*timeStep;
+            
+				for (int i=0;i<MAX_VR_CONTROLLERS;i++)
+				{
+					b3VRControllerEvent& event = m_vrEvents.m_vrEvents[i];
+
+					if (event.m_numButtonEvents + event.m_numMoveEvents)
+					{
+						MinitaurLogRecord logData;
+
+						//serverStatusOut.m_sendVREvents.m_controllerEvents[serverStatusOut.m_sendVREvents.m_numVRControllerEvents++] = event;
+						//log the event
+						logData.m_values.push_back(stepCount);
+						logData.m_values.push_back(timeStamp);
+						logData.m_values.push_back(event.m_controllerId);
+						logData.m_values.push_back(event.m_numMoveEvents);
+						logData.m_values.push_back(event.m_numButtonEvents);
+						logData.m_values.push_back(event.m_pos[0]);
+						logData.m_values.push_back(event.m_pos[1]);
+						logData.m_values.push_back(event.m_pos[2]);
+						logData.m_values.push_back(event.m_orn[0]);
+						logData.m_values.push_back(event.m_orn[1]);
+						logData.m_values.push_back(event.m_orn[2]);
+						logData.m_values.push_back(event.m_orn[3]);
+						logData.m_values.push_back(event.m_analogAxis);
+						int packedButtons[7]={0,0,0,0,0,0,0};
+
+						int packedButtonIndex = 0;
+						int packedButtonShift = 0;
+						//encode the 64 buttons into 7 int (3 bits each), each int stores 10 buttons
+						for (int b=0;b<MAX_VR_BUTTONS;b++)
+						{
+							int buttonMask = event.m_buttons[b];
+							buttonMask = buttonMask << (packedButtonShift*3);
+							packedButtons[packedButtonIndex] |= buttonMask;
+							packedButtonShift++;
+
+							if (packedButtonShift>=10)
+							{
+								packedButtonShift=0;
+								packedButtonIndex++;
+								if (packedButtonIndex>=7)
+								{
+									btAssert(0);
+									break;
+								}
+							}
+						}
+
+						for (int b=0;b<7;b++)
+						{
+							logData.m_values.push_back(packedButtons[b]);
+						}
+
+						appendMinitaurLogData(m_logFileHandle, m_structTypes, logData);
+
+						event.m_numButtonEvents = 0;
+						event.m_numMoveEvents = 0;
+						for (int b=0;b<MAX_VR_BUTTONS;b++)
+						{
+							event.m_buttons[b] = 0;
+						}
+					}
+				}
+
+				fflush(m_logFileHandle);
+				m_loggingTimeStamp++;
 		}
 	}
 };
@@ -849,7 +1046,7 @@ struct PhysicsServerCommandProcessorInternalData
 	bool m_allowRealTimeSimulation;
 	bool m_hasGround;
 
-	b3VRControllerEvent m_vrEvents[MAX_VR_CONTROLLERS];
+	b3VRControllerEvents m_vrEvents1;
 	btAlignedObjectArray<b3KeyboardEvent> m_keyboardEvents;
 	
 	btMultiBodyFixedConstraint* m_gripperRigidbodyFixed;
@@ -964,15 +1161,7 @@ struct PhysicsServerCommandProcessorInternalData
 		m_pickedConstraint(0),
 		m_pickingMultiBodyPoint2Point(0)
 	{
-		for (int i=0;i<MAX_VR_CONTROLLERS;i++)
-		{
-			m_vrEvents[i].m_numButtonEvents = 0;
-			m_vrEvents[i].m_numMoveEvents = 0;
-			for (int b=0;b<MAX_VR_BUTTONS;b++)
-			{
-				m_vrEvents[i].m_buttons[b] = 0;
-			}
-		}
+		m_vrEvents1.init();
 
 		initHandles();
 #if 0
@@ -1922,6 +2111,17 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                             serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
                             serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
                         }
+
+						if (clientCmd.m_stateLoggingArguments.m_logType ==STATE_LOGGING_VR_CONTROLLERS)
+						{
+							std::string fileName = clientCmd.m_stateLoggingArguments.m_fileName;
+                            int loggerUid = m_data->m_stateLoggersUniqueId++;
+                            VRControllerStateLogger* logger = new VRControllerStateLogger(loggerUid,fileName);
+                            m_data->m_stateLoggers.push_back(logger);
+                            serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
+                            serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
+							
+						}
 					}
 					if ((clientCmd.m_updateFlags & STATE_LOGGING_STOP_LOG) && clientCmd.m_stateLoggingArguments.m_loggingUniqueId>=0)
 					{
@@ -1972,14 +2172,16 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					serverStatusOut.m_sendVREvents.m_numVRControllerEvents = 0;
 					for (int i=0;i<MAX_VR_CONTROLLERS;i++)
 					{
-						if (m_data->m_vrEvents[i].m_numButtonEvents + m_data->m_vrEvents[i].m_numMoveEvents)
+						b3VRControllerEvent& event = m_data->m_vrEvents1.m_vrEvents[i];
+
+						if (event.m_numButtonEvents + event.m_numMoveEvents)
 						{
-							serverStatusOut.m_sendVREvents.m_controllerEvents[serverStatusOut.m_sendVREvents.m_numVRControllerEvents++] = m_data->m_vrEvents[i];
-							m_data->m_vrEvents[i].m_numButtonEvents = 0;
-							m_data->m_vrEvents[i].m_numMoveEvents = 0;
+							serverStatusOut.m_sendVREvents.m_controllerEvents[serverStatusOut.m_sendVREvents.m_numVRControllerEvents++] = event;
+							event.m_numButtonEvents = 0;
+							event.m_numMoveEvents = 0;
 							for (int b=0;b<MAX_VR_BUTTONS;b++)
 							{
-								m_data->m_vrEvents[i].m_buttons[b] = 0;
+								event.m_buttons[b] = 0;
 							}
 						}
 					}
@@ -5250,41 +5452,13 @@ void PhysicsServerCommandProcessor::enableRealTimeSimulation(bool enableRealTime
 
 void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const struct b3VRControllerEvent* vrEvents, int numVREvents,const struct b3KeyboardEvent* keyEvents, int numKeyEvents)
 {
-	//update m_vrEvents
-	for (int i=0;i<numVREvents;i++)
+	m_data->m_vrEvents1.addNewVREvents(vrEvents,numVREvents);
+	for (int i=0;i<m_data->m_stateLoggers.size();i++)
 	{
-		int controlledId = vrEvents[i].m_controllerId;
-		if (vrEvents[i].m_numMoveEvents)
+		if (m_data->m_stateLoggers[i]->m_loggingType==STATE_LOGGING_VR_CONTROLLERS)
 		{
-			m_data->m_vrEvents[controlledId].m_analogAxis = vrEvents[i].m_analogAxis;
-		}
-
-		if (vrEvents[i].m_numMoveEvents+vrEvents[i].m_numButtonEvents)
-		{
-			m_data->m_vrEvents[controlledId].m_controllerId = vrEvents[i].m_controllerId;
-
-			m_data->m_vrEvents[controlledId].m_pos[0] = vrEvents[i].m_pos[0];
-			m_data->m_vrEvents[controlledId].m_pos[1] = vrEvents[i].m_pos[1];
-			m_data->m_vrEvents[controlledId].m_pos[2] = vrEvents[i].m_pos[2];
-			
-			m_data->m_vrEvents[controlledId].m_orn[0] = vrEvents[i].m_orn[0];
-			m_data->m_vrEvents[controlledId].m_orn[1] = vrEvents[i].m_orn[1];
-			m_data->m_vrEvents[controlledId].m_orn[2] = vrEvents[i].m_orn[2];
-			m_data->m_vrEvents[controlledId].m_orn[3] = vrEvents[i].m_orn[3];
-		}
-
-		m_data->m_vrEvents[controlledId].m_numButtonEvents += vrEvents[i].m_numButtonEvents;
-		m_data->m_vrEvents[controlledId].m_numMoveEvents += vrEvents[i].m_numMoveEvents;
-		for (int b=0;b<MAX_VR_BUTTONS;b++)
-		{
-			m_data->m_vrEvents[controlledId].m_buttons[b] |= vrEvents[i].m_buttons[b];
-			if (vrEvents[i].m_buttons[b] & eButtonIsDown)
-			{
-				m_data->m_vrEvents[controlledId].m_buttons[b] |= eButtonIsDown;
-			} else
-			{
-				m_data->m_vrEvents[controlledId].m_buttons[b] &= ~eButtonIsDown;
-			}
+			VRControllerStateLogger* vrLogger = (VRControllerStateLogger*) m_data->m_stateLoggers[i];
+			vrLogger->m_vrEvents.addNewVREvents(vrEvents,numVREvents);
 		}
 	}
 
