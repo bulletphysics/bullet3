@@ -1,3 +1,4 @@
+#include "vld.h"
 #include "../SharedMemory/PhysicsClientC_API.h"
 #include "../SharedMemory/PhysicsDirectC_API.h"
 #include "../SharedMemory/SharedMemoryInProcessPhysicsC_API.h"
@@ -397,6 +398,22 @@ static PyObject* pybullet_disconnectPhysicsServer(PyObject* self,
 	Py_INCREF(Py_None);
 	return Py_None;
 }
+
+
+void b3pybulletExitFunc()
+{
+	int i;
+	for (i=0;i<MAX_PHYSICS_CLIENTS;i++)
+	{
+		if (sPhysicsClients1[i])
+		{
+			b3DisconnectSharedMemory(sPhysicsClients1[i]);
+			sPhysicsClients1[i] = 0;
+			sNumPhysicsClients--;
+		}
+	}
+}
+
 
 static PyObject* pybullet_saveWorld(PyObject* self, PyObject* args, PyObject* keywds)
 {
@@ -5452,6 +5469,10 @@ initpybullet(void)
 	SpamError = PyErr_NewException("pybullet.error", NULL, NULL);
 	Py_INCREF(SpamError);
 	PyModule_AddObject(m, "error", SpamError);
+
+		
+	Py_AtExit( b3pybulletExitFunc );
+	
 
 #ifdef PYBULLET_USE_NUMPY
 	// Initialize numpy array.
