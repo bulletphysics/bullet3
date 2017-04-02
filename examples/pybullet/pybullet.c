@@ -2678,12 +2678,16 @@ static PyObject* pybullet_startStateLogging(PyObject* self, PyObject* args, PyOb
 	char* fileName = 0;
 	PyObject* objectUniqueIdsObj = 0;
 	int maxLogDof = -1;
+	int bodyIndexA = -1;
+	int bodyIndexB = -1;
+	int linkIndexA = -2;
+	int linkIndexB = -2;
 
-	static char* kwlist[] = {"loggingType", "fileName", "objectUniqueIds", "maxLogDof", "physicsClientId", NULL};
+	static char* kwlist[] = {"loggingType", "fileName", "objectUniqueIds", "maxLogDof", "bodyIndexA", "bodyIndexB", "linkIndexA", "linkIndexB", "physicsClientId", NULL};
 	int physicsClientId = 0;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "is|Oii", kwlist,
-									 &loggingType, &fileName, &objectUniqueIdsObj, &maxLogDof, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "is|Oiiiiii", kwlist,
+									 &loggingType, &fileName, &objectUniqueIdsObj, &maxLogDof, &bodyIndexA, &bodyIndexB, &linkIndexA, &linkIndexB, &physicsClientId))
 		return NULL;
 
 	sm = getPhysicsClient(physicsClientId);
@@ -2717,6 +2721,23 @@ static PyObject* pybullet_startStateLogging(PyObject* self, PyObject* args, PyOb
 		if (maxLogDof > 0)
 		{
 			b3StateLoggingSetMaxLogDof(commandHandle, maxLogDof);
+		}
+		
+		if (bodyIndexA > -1)
+		{
+			b3StateLoggingSetLinkIndexA(commandHandle, bodyIndexA);
+		}
+		if (bodyIndexB > -1)
+		{
+			b3StateLoggingSetBodyIndexB(commandHandle, bodyIndexB);
+		}
+		if (linkIndexA > -2)
+		{
+			b3StateLoggingSetLinkIndexA(commandHandle, linkIndexA);
+		}
+		if (linkIndexB > -2)
+		{
+			b3StateLoggingSetLinkIndexB(commandHandle, linkIndexB);
 		}
 
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
@@ -5293,8 +5314,8 @@ static PyMethodDef SpamMethods[] = {
 
 	{"startStateLogging", (PyCFunction)pybullet_startStateLogging, METH_VARARGS | METH_KEYWORDS,
 	 "Start logging of state, such as robot base position, orientation, joint positions etc. "
-	 "Specify loggingType (STATE_LOG_MINITAUR, STATE_LOG_GENERIC_ROBOT, STATE_LOG_VR_CONTROLLERS etc), "
-	 "fileName, optional objectUniqueId. Function returns int loggingUniqueId"},
+	 "Specify loggingType (STATE_LOGGING_MINITAUR, STATE_LOGGING_GENERIC_ROBOT, STATE_LOGGING_VR_CONTROLLERS, STATE_LOGGING_CONTACT_POINTS, etc), "
+	 "fileName, optional objectUniqueId, maxLogDof, bodyIndexA, bodyIndexB, linkIndexA, linkIndexB. Function returns int loggingUniqueId"},
 	{"stopStateLogging", (PyCFunction)pybullet_stopStateLogging, METH_VARARGS | METH_KEYWORDS,
 	 "Stop logging of robot state, given a loggingUniqueId."},
 	{"rayTest", (PyCFunction)pybullet_rayTest, METH_VARARGS | METH_KEYWORDS,
@@ -5425,6 +5446,7 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "STATE_LOGGING_GENERIC_ROBOT", STATE_LOGGING_GENERIC_ROBOT);
 	PyModule_AddIntConstant(m, "STATE_LOGGING_VR_CONTROLLERS", STATE_LOGGING_VR_CONTROLLERS);
 	PyModule_AddIntConstant(m, "STATE_LOGGING_VIDEO_MP4", STATE_LOGGING_VIDEO_MP4);
+	PyModule_AddIntConstant(m, "STATE_LOGGING_CONTACT_POINTS", STATE_LOGGING_CONTACT_POINTS);
 
 	PyModule_AddIntConstant(m, "COV_ENABLE_GUI", COV_ENABLE_GUI);
 	PyModule_AddIntConstant(m, "COV_ENABLE_SHADOWS", COV_ENABLE_SHADOWS);
