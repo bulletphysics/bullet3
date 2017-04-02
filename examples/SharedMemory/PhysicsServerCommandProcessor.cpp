@@ -950,6 +950,169 @@ struct GenericRobotStateLogger : public InternalStateLogger
     }
 };
 
+struct ContactPointsStateLogger : public InternalStateLogger
+{
+	int m_loggingTimeStamp;
+	
+	std::string m_fileName;
+	FILE* m_logFileHandle;
+	std::string m_structTypes;
+	btMultiBodyDynamicsWorld* m_dynamicsWorld;
+	bool m_filterLinkA;
+	bool m_filterLinkB;
+	int m_linkIndexA;
+	int m_linkIndexB;
+	int m_bodyIndexA;
+	int m_bodyIndexB;
+	
+	ContactPointsStateLogger(int loggingUniqueId, const std::string& fileName, btMultiBodyDynamicsWorld* dynamicsWorld)
+	:m_loggingTimeStamp(0),
+	m_fileName(fileName),
+	m_logFileHandle(0),
+	m_dynamicsWorld(dynamicsWorld),
+	m_filterLinkA(false),
+	m_filterLinkB(false),
+	m_linkIndexA(-2),
+	m_linkIndexB(-2),
+	m_bodyIndexA(-1),
+	m_bodyIndexB(-1)
+	{
+		m_loggingUniqueId = loggingUniqueId;
+		m_loggingType = STATE_LOGGING_CONTACT_POINTS;
+		
+		btAlignedObjectArray<std::string> structNames;
+		structNames.push_back("stepCount");
+		structNames.push_back("timeStamp");
+		structNames.push_back("contactFlag");
+		structNames.push_back("bodyUniqueIdA");
+		structNames.push_back("bodyUniqueIdB");
+		structNames.push_back("linkIndexA");
+		structNames.push_back("linkIndexB");
+		structNames.push_back("positionOnAX");
+		structNames.push_back("positionOnAY");
+		structNames.push_back("positionOnAZ");
+		structNames.push_back("positionOnBX");
+		structNames.push_back("positionOnBY");
+		structNames.push_back("positionOnBZ");
+		structNames.push_back("contactNormalOnBX");
+		structNames.push_back("contactNormalOnBY");
+		structNames.push_back("contactNormalOnBZ");
+		structNames.push_back("contactDistance");
+		structNames.push_back("normalForce");
+		m_structTypes = "IfIIIIIfffffffffff";
+		
+		const char* fileNameC = fileName.c_str();
+		m_logFileHandle = createMinitaurLogFile(fileNameC, structNames, m_structTypes);
+		
+	}
+	virtual void stop()
+	{
+		if (m_logFileHandle)
+		{
+			closeMinitaurLogFile(m_logFileHandle);
+			m_logFileHandle = 0;
+		}
+	}
+	virtual void logState(btScalar timeStep)
+	{
+		if (m_logFileHandle)
+		{
+			int numContactManifolds = m_dynamicsWorld->getDispatcher()->getNumManifolds();
+			for (int i = 0; i < numContactManifolds; i++)
+			{
+				const btPersistentManifold* manifold = m_dynamicsWorld->getDispatcher()->getInternalManifoldPointer()[i];
+				int linkIndexA = -1;
+				int linkIndexB = -1;
+				
+				int objectIndexB = -1;
+				
+				const btRigidBody* bodyB = btRigidBody::upcast(manifold->getBody1());
+				if (bodyB)
+				{
+					objectIndexB = bodyB->getUserIndex2();
+				}
+				const btMultiBodyLinkCollider* mblB = btMultiBodyLinkCollider::upcast(manifold->getBody1());
+				if (mblB && mblB->m_multiBody)
+				{
+					linkIndexB = mblB->m_link;
+					objectIndexB = mblB->m_multiBody->getUserIndex2();
+					if (m_filterLinkB && (m_linkIndexB != linkIndexB))
+					{
+						continue;
+					}
+				}
+				
+				int objectIndexA = -1;
+				const btRigidBody* bodyA = btRigidBody::upcast(manifold->getBody0());
+				if (bodyA)
+				{
+					objectIndexA = bodyA->getUserIndex2();
+				}
+				const btMultiBodyLinkCollider* mblA = btMultiBodyLinkCollider::upcast(manifold->getBody0());
+				if (mblA && mblA->m_multiBody)
+				{
+					linkIndexA = mblA->m_link;
+					objectIndexA = mblA->m_multiBody->getUserIndex2();
+					if (m_filterLinkA && (m_linkIndexA != linkIndexA))
+					{
+						continue;
+					}
+				}
+				
+				btAssert(bodyA || mblA);
+				
+				//apply the filter, if the user provides it
+				if (m_bodyIndexA >= 0)
+				{
+					if ((m_bodyIndexA != objectIndexA) &&
+						(m_bodyIndexA != objectIndexB))
+						continue;
+				}
+				
+				//apply the second object filter, if the user provides it
+				if (m_bodyIndexB >= 0)
+				{
+					if ((m_bodyIndexB != objectIndexA) &&
+						(m_bodyIndexB != objectIndexB))
+						continue;
+				}
+				
+				for (int p = 0; p < manifold->getNumContacts(); p++)
+				{
+					MinitaurLogRecord logData;
+					int stepCount = m_loggingTimeStamp;
+					float timeStamp = m_loggingTimeStamp*timeStep;
+					logData.m_values.push_back(stepCount);
+					logData.m_values.push_back(timeStamp);
+					
+					const btManifoldPoint& srcPt = manifold->getContactPoint(p);
+					
+					logData.m_values.push_back(0); // reserved contact flag
+					logData.m_values.push_back(objectIndexA);
+					logData.m_values.push_back(objectIndexB);
+					logData.m_values.push_back(linkIndexA);
+					logData.m_values.push_back(linkIndexB);
+					logData.m_values.push_back((float)(srcPt.getPositionWorldOnA()[0]));
+					logData.m_values.push_back((float)(srcPt.getPositionWorldOnA()[1]));
+					logData.m_values.push_back((float)(srcPt.getPositionWorldOnA()[2]));
+					logData.m_values.push_back((float)(srcPt.getPositionWorldOnB()[0]));
+					logData.m_values.push_back((float)(srcPt.getPositionWorldOnB()[1]));
+					logData.m_values.push_back((float)(srcPt.getPositionWorldOnB()[2]));
+					logData.m_values.push_back((float)(srcPt.m_normalWorldOnB[0]));
+					logData.m_values.push_back((float)(srcPt.m_normalWorldOnB[1]));
+					logData.m_values.push_back((float)(srcPt.m_normalWorldOnB[2]));
+					logData.m_values.push_back((float)(srcPt.getDistance()));
+					logData.m_values.push_back((float)(srcPt.getAppliedImpulse() / timeStep));
+					
+					appendMinitaurLogData(m_logFileHandle, m_structTypes, logData);
+					fflush(m_logFileHandle);
+				}
+			}
+			m_loggingTimeStamp++;
+		}
+	}
+};
+
 struct PhysicsServerCommandProcessorInternalData
 {
 	///handle management
