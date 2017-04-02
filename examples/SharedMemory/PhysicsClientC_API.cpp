@@ -2659,6 +2659,58 @@ int b3StateLoggingAddLoggingObjectUniqueId(b3SharedMemoryCommandHandle commandHa
 	return 0;
 }
 
+int b3StateLoggingSetLinkIndexA(b3SharedMemoryCommandHandle commandHandle, int linkIndexA)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type = CMD_STATE_LOGGING);
+	if (command->m_type == CMD_STATE_LOGGING)
+	{
+		command->m_updateFlags |= STATE_LOGGING_FILTER_LINK_INDEX_A;
+		command->m_stateLoggingArguments.m_linkIndexA = linkIndexA;
+	}
+	return 0;
+}
+
+int b3StateLoggingSetLinkIndexB(b3SharedMemoryCommandHandle commandHandle, int linkIndexB)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type = CMD_STATE_LOGGING);
+	if (command->m_type == CMD_STATE_LOGGING)
+	{
+		command->m_updateFlags |= STATE_LOGGING_FILTER_LINK_INDEX_B;
+		command->m_stateLoggingArguments.m_linkIndexB = linkIndexB;
+	}
+	return 0;
+}
+
+int b3StateLoggingSetBodyIndexA(b3SharedMemoryCommandHandle commandHandle, int bodyIndexA)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type = CMD_STATE_LOGGING);
+	if (command->m_type == CMD_STATE_LOGGING)
+	{
+		command->m_updateFlags |= STATE_LOGGING_FILTER_BODY_INDEX_A;
+		command->m_stateLoggingArguments.m_bodyIndexA = bodyIndexA;
+	}
+	return 0;
+}
+
+int b3StateLoggingSetBodyIndexB(b3SharedMemoryCommandHandle commandHandle, int bodyIndexB)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type = CMD_STATE_LOGGING);
+	if (command->m_type == CMD_STATE_LOGGING)
+	{
+		command->m_updateFlags |= STATE_LOGGING_FILTER_BODY_INDEX_B;
+		command->m_stateLoggingArguments.m_bodyIndexB = bodyIndexB;
+	}
+	return 0;
+}
+
 int b3StateLoggingSetMaxLogDof(b3SharedMemoryCommandHandle commandHandle, int maxLogDof)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;

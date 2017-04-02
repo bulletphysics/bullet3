@@ -2275,7 +2275,33 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                             serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
                             serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
                         }
-
+						if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_CONTACT_POINTS)
+						{
+							std::string fileName = clientCmd.m_stateLoggingArguments.m_fileName;
+							int loggerUid = m_data->m_stateLoggersUniqueId++;
+							ContactPointsStateLogger* logger = new ContactPointsStateLogger(loggerUid,fileName,m_data->m_dynamicsWorld);
+							if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_LINK_INDEX_A) && clientCmd.m_stateLoggingArguments.m_linkIndexA >= -1)
+							{
+								logger->m_filterLinkA = true;
+								logger->m_linkIndexA = clientCmd.m_stateLoggingArguments.m_linkIndexA;
+							}
+							if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_LINK_INDEX_B) && clientCmd.m_stateLoggingArguments.m_linkIndexB >= -1)
+							{
+								logger->m_filterLinkB = true;
+								logger->m_linkIndexB = clientCmd.m_stateLoggingArguments.m_linkIndexB;
+							}
+							if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_BODY_INDEX_A) && clientCmd.m_stateLoggingArguments.m_bodyIndexA > -1)
+							{
+								logger->m_bodyIndexA = clientCmd.m_stateLoggingArguments.m_bodyIndexA;
+							}
+							if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_BODY_INDEX_B) && clientCmd.m_stateLoggingArguments.m_bodyIndexB > -1)
+							{
+								logger->m_bodyIndexB = clientCmd.m_stateLoggingArguments.m_bodyIndexB;
+							}
+							m_data->m_stateLoggers.push_back(logger);
+							serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
+							serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
+						}
 						if (clientCmd.m_stateLoggingArguments.m_logType ==STATE_LOGGING_VR_CONTROLLERS)
 						{
 							std::string fileName = clientCmd.m_stateLoggingArguments.m_fileName;

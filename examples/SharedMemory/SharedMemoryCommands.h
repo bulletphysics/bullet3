@@ -628,7 +628,11 @@ enum eStateLoggingEnums
 	STATE_LOGGING_START_LOG=1,
 	STATE_LOGGING_STOP_LOG=2,
 	STATE_LOGGING_FILTER_OBJECT_UNIQUE_ID=4,
-	STATE_LOGGING_MAX_LOG_DOF=8
+	STATE_LOGGING_MAX_LOG_DOF=8,
+	STATE_LOGGING_FILTER_LINK_INDEX_A=16,
+	STATE_LOGGING_FILTER_LINK_INDEX_B=32,
+	STATE_LOGGING_FILTER_BODY_INDEX_A=64,
+	STATE_LOGGING_FILTER_BODY_INDEX_B=128,
 };
 
 struct VRCameraState
@@ -643,11 +647,15 @@ struct VRCameraState
 struct StateLoggingRequest
 {
 	char m_fileName[MAX_FILENAME_LENGTH];
-	int m_logType;//Minitaur, generic robot, VR states
-	int m_numBodyUniqueIds;////only if ROBOT_LOGGING_FILTER_OBJECT_UNIQUE_ID flag is set
+	int m_logType;//Minitaur, generic robot, VR states, contact points
+	int m_numBodyUniqueIds;////only if STATE_LOGGING_FILTER_OBJECT_UNIQUE_ID flag is set
 	int m_bodyUniqueIds[MAX_SDF_BODIES];
 	int m_loggingUniqueId;
 	int m_maxLogDof;
+	int m_linkIndexA; // only if STATE_LOGGING_FILTER_LINK_INDEX_A flag is set
+	int m_linkIndexB; // only if STATE_LOGGING_FILTER_LINK_INDEX_B flag is set
+	int m_bodyIndexA;
+	int m_bodyIndexB;
 };
 
 struct StateLoggingResultArgs
