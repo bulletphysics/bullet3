@@ -41,10 +41,17 @@
 				"X11OpenGLWindows.h"
 			}
 		end
+		if not os.is("MacoSX") then
+			excludes {
+				"MacOpenGLWindow.cpp"
+			}
+		end
 		if os.is("MacOSX") then
 			files
 			{
-					"../OpenGLWindow/MacOpenGLWindow.h",
-					"../OpenGLWindow/MacOpenGLWindow.mm",
+					"MacOpenGLWindow.h",
+					"MacOpenGLWindow.cpp",
+					"MacOpenGLWindowObjC.m",
+					"MacOpenGLWindowObjC.h",
 			} 
 		end

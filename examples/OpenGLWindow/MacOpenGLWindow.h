@@ -8,18 +8,6 @@
 class MacOpenGLWindow : public CommonWindowInterface
 {
     struct MacOpenGLWindowInternalData* m_internalData;
-    float m_mouseX;
-    float m_mouseY;
-   int m_modifierFlags;
-   
-    b3MouseButtonCallback m_mouseButtonCallback;
-    b3MouseMoveCallback m_mouseMoveCallback;
-    b3WheelCallback m_wheelCallback;
-    b3KeyboardCallback m_keyboardCallback;
-	b3RenderCallback m_renderCallback;
-	
-    float m_retinaScaleFactor;
-	bool m_allowRetina;
 	
 public:
     
@@ -34,7 +22,7 @@ public:
     
     void endRendering();//swap buffers
     
-  	virtual bool	requestedExit() const;
+	virtual bool	requestedExit() const;
 
 	virtual	void	setRequestExit();
     
@@ -42,59 +30,32 @@ public:
     
     void runMainLoop();
 
-     virtual bool    isModifierKeyPressed(int key);
+    virtual bool    isModifierKeyPressed(int key);
     
-    void setMouseButtonCallback(b3MouseButtonCallback	mouseCallback)
-    {
-        m_mouseButtonCallback = mouseCallback;
-    }
+    void setMouseButtonCallback(b3MouseButtonCallback	mouseCallback);
 
-    void setMouseMoveCallback(b3MouseMoveCallback	mouseCallback)
-    {
-        m_mouseMoveCallback = mouseCallback;
-    }
+    void setMouseMoveCallback(b3MouseMoveCallback	mouseCallback);
     
     void setResizeCallback(b3ResizeCallback resizeCallback);
    
  
-	void setKeyboardCallback( b3KeyboardCallback	keyboardCallback)
-    {
-        m_keyboardCallback = keyboardCallback;
-    }
+	void setKeyboardCallback( b3KeyboardCallback	keyboardCallback);
 
-	virtual b3MouseMoveCallback getMouseMoveCallback()
-	{
-		return m_mouseMoveCallback;
-	}
-	virtual b3MouseButtonCallback getMouseButtonCallback()
-	{
-		return m_mouseButtonCallback;
-	}
+	virtual b3MouseMoveCallback getMouseMoveCallback();
+
+	virtual b3MouseButtonCallback getMouseButtonCallback();
+
 	virtual b3ResizeCallback getResizeCallback();
 
-	virtual b3WheelCallback getWheelCallback()
-	{
-		return m_wheelCallback;
-	}
+	virtual b3WheelCallback getWheelCallback();
 
-    b3KeyboardCallback getKeyboardCallback()
-	{
-		return m_keyboardCallback;
-	}
+   b3KeyboardCallback getKeyboardCallback();
+	  
+	void setWheelCallback (b3WheelCallback wheelCallback);
+
+    float getRetinaScale() const;
     
-	void setWheelCallback (b3WheelCallback wheelCallback)
-    {
-        m_wheelCallback = wheelCallback;
-    }
-
-    float getRetinaScale() const
-    {
-        return m_retinaScaleFactor;
-    }
-	virtual	void	setAllowRetina(bool allow)
-	{
-		m_allowRetina = allow;
-	}
+   virtual	void	setAllowRetina(bool allow);
 	
 	virtual	void	createWindow(const b3gWindowConstructionInfo& ci);
 	
