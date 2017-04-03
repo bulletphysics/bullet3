@@ -13,8 +13,9 @@ IF(BUILD_PYBULLET_NUMPY)
 	)
 ENDIF()
 
-SET(pybullet_SRCS
-	pybullet.c
+FILE(GLOB GwenGUISupport_SRCS "../../examples/ExampleBrowser/GwenGUISupport/*" )
+
+SET(c_api_SRCS
 		../../examples/SharedMemory/IKTrajectoryHelper.cpp
 		../../examples/SharedMemory/IKTrajectoryHelper.h
 		../../examples/ExampleBrowser/InProcessExampleBrowser.cpp
@@ -46,25 +47,46 @@ SET(pybullet_SRCS
 		../../examples/SharedMemory/PhysicsClientSharedMemory.h
 		../../examples/SharedMemory/PhysicsClientSharedMemory_C_API.cpp
 		../../examples/SharedMemory/PhysicsClientSharedMemory_C_API.h
-
 		../../examples/SharedMemory/PhysicsClientC_API.cpp
+
 		../../examples/SharedMemory/PhysicsClientC_API.h
+		../../examples/SharedMemory/SharedMemoryPublic.h
+
 		../../examples/SharedMemory/Win32SharedMemory.cpp
 		../../examples/SharedMemory/Win32SharedMemory.h
 		../../examples/SharedMemory/PosixSharedMemory.cpp
 		../../examples/SharedMemory/PosixSharedMemory.h
+
 		../../examples/Utils/b3ResourcePath.cpp
 		../../examples/Utils/b3ResourcePath.h
 		../../examples/Utils/RobotLoggingUtil.cpp
 		../../examples/Utils/RobotLoggingUtil.h
-		
+		../../examples/Utils/b3Clock.cpp
+		../../examples/Utils/b3ResourcePath.cpp
+		../../examples/Utils/b3ERPCFMHelper.hpp
+		../../examples/Utils/b3ReferenceFrameHelper.hpp
+		../../examples/Utils/ChromeTraceUtil.cpp
+
 		../../examples/ThirdPartyLibs/tinyxml/tinystr.cpp
 		../../examples/ThirdPartyLibs/tinyxml/tinyxml.cpp
 		../../examples/ThirdPartyLibs/tinyxml/tinyxmlerror.cpp
 		../../examples/ThirdPartyLibs/tinyxml/tinyxmlparser.cpp
+
 		../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.cpp
 		../../examples/ThirdPartyLibs/Wavefront/tiny_obj_loader.h
+
 		../../examples/ThirdPartyLibs/stb_image/stb_image.cpp
+
+		../../examples/ThirdPartyLibs/BussIK/Jacobian.cpp
+		../../examples/ThirdPartyLibs/BussIK/LinearR2.cpp
+		../../examples/ThirdPartyLibs/BussIK/LinearR3.cpp
+		../../examples/ThirdPartyLibs/BussIK/LinearR4.cpp
+		../../examples/ThirdPartyLibs/BussIK/MatrixRmn.cpp
+		../../examples/ThirdPartyLibs/BussIK/Misc.cpp
+		../../examples/ThirdPartyLibs/BussIK/Node.cpp
+		../../examples/ThirdPartyLibs/BussIK/Tree.cpp
+		../../examples/ThirdPartyLibs/BussIK/VectorRn.cpp
+
 		../../examples/Importers/ImportColladaDemo/LoadMeshFromCollada.cpp
 		../../examples/Importers/ImportObjDemo/LoadMeshFromObj.cpp
 		../../examples/Importers/ImportObjDemo/Wavefront2GLInstanceGraphicsShape.cpp
@@ -75,11 +97,69 @@ SET(pybullet_SRCS
 		../../examples/Importers/ImportURDFDemo/UrdfParser.cpp
 		../../examples/Importers/ImportURDFDemo/urdfStringSplit.cpp
 		../../examples/Importers/ImportMeshUtility/b3ImportMeshUtility.cpp 
+
 		../../examples/MultiThreading/b3PosixThreadSupport.cpp
 		../../examples/MultiThreading/b3Win32ThreadSupport.cpp
 		../../examples/MultiThreading/b3ThreadSupportInterface.cpp
-		
+
+		../../Extras/InverseDynamics/btMultiBodyTreeCreator.cpp
+		../../Extras/InverseDynamics/CloneTreeCreator.cpp
+		../../Extras/InverseDynamics/CoilCreator.cpp
+		../../Extras/InverseDynamics/DillCreator.cpp
+		../../Extras/InverseDynamics/IDRandomUtil.cpp
+		../../Extras/InverseDynamics/invdyn_bullet_comparison.cpp
+		../../Extras/InverseDynamics/MultiBodyNameMap.cpp
+		../../Extras/InverseDynamics/MultiBodyTreeCreator.cpp
+		../../Extras/InverseDynamics/MultiBodyTreeDebugGraph.cpp
+		../../Extras/InverseDynamics/RandomTreeCreator.cpp
+		../../Extras/InverseDynamics/SimpleTreeCreator.cpp
+		../../Extras/InverseDynamics/User2InternalIndex.cpp
+
+		../../Extras/Serialize/BulletFileLoader/bFile.cpp
+		../../Extras/Serialize/BulletFileLoader/bDNA.cpp
+		../../Extras/Serialize/BulletFileLoader/bChunk.cpp
+		../../Extras/Serialize/BulletFileLoader/btBulletFile.cpp
+		../../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.cpp
+		../../Extras/Serialize/BulletWorldImporter/btWorldImporter.cpp
+
+		../../examples/ExampleBrowser/OpenGLExampleBrowser.cpp
+		../../examples/ExampleBrowser/OpenGLGuiHelper.cpp
+		../../examples/ExampleBrowser/GL_ShapeDrawer.cpp
+		../../examples/ExampleBrowser/CollisionShape2TriangleMesh.cpp
+
+		../../examples/ThirdPartyLibs/Glew/glew.c
+
+		../../examples/OpenGLWindow/TwFonts.cpp
+		../../examples/OpenGLWindow/GLInstancingRenderer.cpp
+		../../examples/OpenGLWindow/GLRenderToTexture.cpp
+		../../examples/OpenGLWindow/SimpleOpenGL2Renderer.cpp
+		../../examples/OpenGLWindow/GLPrimitiveRenderer.cpp
+		../../examples/OpenGLWindow/opengl_fontstashcallbacks.cpp
+		../../examples/OpenGLWindow/LoadShader.cpp
+		../../examples/OpenGLWindow/EGLOpenGLWindow.cpp
+		../../examples/OpenGLWindow/fontstash.cpp
+		../../examples/OpenGLWindow/GLInstancingRenderer.cpp
+		../../examples/OpenGLWindow/GLPrimitiveRenderer.cpp
+		../../examples/OpenGLWindow/GLRenderToTexture.cpp
+		../../examples/OpenGLWindow/LoadShader.cpp
+		../../examples/OpenGLWindow/opengl_fontstashcallbacks.cpp
+		../../examples/OpenGLWindow/OpenSans.cpp
+		../../examples/OpenGLWindow/SimpleCamera.cpp
+		../../examples/OpenGLWindow/SimpleOpenGL2App.cpp
+		../../examples/OpenGLWindow/SimpleOpenGL2Renderer.cpp
+		../../examples/OpenGLWindow/SimpleOpenGL3App.cpp
+		../../examples/OpenGLWindow/TwFonts.cpp
+		../../examples/OpenGLWindow/Win32OpenGLWindow.cpp
+		../../examples/OpenGLWindow/Win32Window.cpp
+		../../examples/OpenGLWindow/X11OpenGLWindow.cpp
+
+		${GwenGUISupport_SRCS}
 )
+
+SET(pybullet_SRCS
+	pybullet.c
+)
+
 IF(BUILD_PYBULLET_CLSOCKET)
  ADD_DEFINITIONS(-DBT_ENABLE_CLSOCKET)
 ENDIF(BUILD_PYBULLET_CLSOCKET)
@@ -140,7 +220,8 @@ IF(BUILD_PYBULLET_CLSOCKET)
 	)
 ENDIF()
 
-ADD_LIBRARY(pybullet SHARED ${pybullet_SRCS})
+ADD_LIBRARY(pybullet SHARED ${pybullet_SRCS} ${c_api_SRCS})
+ADD_LIBRARY(PhysicsClientC_API ${c_api_SRCS})
 
 SET_TARGET_PROPERTIES(pybullet PROPERTIES PREFIX "")
 SET_TARGET_PROPERTIES(pybullet PROPERTIES POSTFIX "")
@@ -149,6 +230,8 @@ SET_TARGET_PROPERTIES(pybullet PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(pybullet PROPERTIES SOVERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(pybullet PROPERTIES DEBUG_POSTFIX "_d")
 
+SET_TARGET_PROPERTIES(PhysicsClientC_API PROPERTIES VERSION ${BULLET_VERSION})
+SET_TARGET_PROPERTIES(PhysicsClientC_API PROPERTIES SOVERSION ${BULLET_VERSION})
 
 IF(WIN32)
 	IF(BUILD_PYBULLET_ENET OR BUILD_PYBULLET_CLSOCKET)
@@ -161,6 +244,20 @@ ENDIF(WIN32)
 
 
 
+TARGET_LINK_LIBRARIES(PhysicsClientC_API BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamics LinearMath Bullet3Common gwen)
+
 TARGET_LINK_LIBRARIES(pybullet BulletExampleBrowserLib BulletFileLoader BulletWorldImporter BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK Bullet3Common ${PYTHON_LIBRARIES})
 
+
+IF (INSTALL_LIBS)
+	INSTALL(FILES
+		../../examples/SharedMemory/PhysicsClientC_API.h
+		../../examples/SharedMemory/SharedMemoryPublic.h
+		DESTINATION include/bullet
+		)
+	INSTALL(TARGETS
+		PhysicsClientC_API
+		LIBRARY DESTINATION lib${LIB_SUFFIX}
+		)
+ENDIF (INSTALL_LIBS)
 
