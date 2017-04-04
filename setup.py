@@ -369,7 +369,6 @@ elif _platform == "win32":
     libraries = ['Ws2_32','Winmm','User32','Opengl32','kernel32','glu32','Gdi32','Comdlg32']
     CXX_FLAGS += '-DWIN32 '
     CXX_FLAGS += '-DGLEW_STATIC '
-    CXX_FLAGS += '-DGLEW_INIT_OPENGL11_FUNCTIONS=1 '
     sources = ["examples/ThirdPartyLibs/enet/win32.c"]\
     +["examples/OpenGLWindow/Win32Window.cpp"]\
     +["examples/OpenGLWindow/Win32OpenGLWindow.cpp"]\
