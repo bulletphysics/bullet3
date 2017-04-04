@@ -631,8 +631,8 @@ enum eStateLoggingEnums
 	STATE_LOGGING_MAX_LOG_DOF=8,
 	STATE_LOGGING_FILTER_LINK_INDEX_A=16,
 	STATE_LOGGING_FILTER_LINK_INDEX_B=32,
-	STATE_LOGGING_FILTER_BODY_INDEX_A=64,
-	STATE_LOGGING_FILTER_BODY_INDEX_B=128,
+	STATE_LOGGING_FILTER_BODY_UNIQUE_ID_A=64,
+	STATE_LOGGING_FILTER_BODY_UNIQUE_ID_B=128,
 };
 
 struct VRCameraState
@@ -654,8 +654,8 @@ struct StateLoggingRequest
 	int m_maxLogDof;
 	int m_linkIndexA; // only if STATE_LOGGING_FILTER_LINK_INDEX_A flag is set
 	int m_linkIndexB; // only if STATE_LOGGING_FILTER_LINK_INDEX_B flag is set
-	int m_bodyIndexA;
-	int m_bodyIndexB;
+	int m_bodyUniqueIdA; // only if STATE_LOGGING_FILTER_BODY_UNIQUE_ID_A flag is set
+	int m_bodyUniqueIdB; // only if STATE_LOGGING_FILTER_BODY_UNIQUE_ID_B flag is set
 };
 
 struct StateLoggingResultArgs

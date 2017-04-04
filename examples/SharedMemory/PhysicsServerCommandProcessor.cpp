@@ -962,8 +962,8 @@ struct ContactPointsStateLogger : public InternalStateLogger
 	bool m_filterLinkB;
 	int m_linkIndexA;
 	int m_linkIndexB;
-	int m_bodyIndexA;
-	int m_bodyIndexB;
+	int m_bodyUniqueIdA;
+	int m_bodyUniqueIdB;
 	
 	ContactPointsStateLogger(int loggingUniqueId, const std::string& fileName, btMultiBodyDynamicsWorld* dynamicsWorld)
 	:m_loggingTimeStamp(0),
@@ -974,8 +974,8 @@ struct ContactPointsStateLogger : public InternalStateLogger
 	m_filterLinkB(false),
 	m_linkIndexA(-2),
 	m_linkIndexB(-2),
-	m_bodyIndexA(-1),
-	m_bodyIndexB(-1)
+	m_bodyUniqueIdA(-1),
+	m_bodyUniqueIdB(-1)
 	{
 		m_loggingUniqueId = loggingUniqueId;
 		m_loggingType = STATE_LOGGING_CONTACT_POINTS;
@@ -1062,18 +1062,18 @@ struct ContactPointsStateLogger : public InternalStateLogger
 				btAssert(bodyA || mblA);
 				
 				//apply the filter, if the user provides it
-				if (m_bodyIndexA >= 0)
+				if (m_bodyUniqueIdA >= 0)
 				{
-					if ((m_bodyIndexA != objectIndexA) &&
-						(m_bodyIndexA != objectIndexB))
+					if ((m_bodyUniqueIdA != objectIndexA) &&
+						(m_bodyUniqueIdA != objectIndexB))
 						continue;
 				}
 				
 				//apply the second object filter, if the user provides it
-				if (m_bodyIndexB >= 0)
+				if (m_bodyUniqueIdB >= 0)
 				{
-					if ((m_bodyIndexB != objectIndexA) &&
-						(m_bodyIndexB != objectIndexB))
+					if ((m_bodyUniqueIdB != objectIndexA) &&
+						(m_bodyUniqueIdB != objectIndexB))
 						continue;
 				}
 				
@@ -2290,13 +2290,13 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								logger->m_filterLinkB = true;
 								logger->m_linkIndexB = clientCmd.m_stateLoggingArguments.m_linkIndexB;
 							}
-							if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_BODY_INDEX_A) && clientCmd.m_stateLoggingArguments.m_bodyIndexA > -1)
+							if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_BODY_UNIQUE_ID_A) && clientCmd.m_stateLoggingArguments.m_bodyUniqueIdA > -1)
 							{
-								logger->m_bodyIndexA = clientCmd.m_stateLoggingArguments.m_bodyIndexA;
+								logger->m_bodyUniqueIdA = clientCmd.m_stateLoggingArguments.m_bodyUniqueIdA;
 							}
-							if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_BODY_INDEX_B) && clientCmd.m_stateLoggingArguments.m_bodyIndexB > -1)
+							if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_BODY_UNIQUE_ID_B) && clientCmd.m_stateLoggingArguments.m_bodyUniqueIdB > -1)
 							{
-								logger->m_bodyIndexB = clientCmd.m_stateLoggingArguments.m_bodyIndexB;
+								logger->m_bodyUniqueIdB = clientCmd.m_stateLoggingArguments.m_bodyUniqueIdB;
 							}
 							m_data->m_stateLoggers.push_back(logger);
 							serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;

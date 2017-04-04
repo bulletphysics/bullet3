@@ -2678,16 +2678,16 @@ static PyObject* pybullet_startStateLogging(PyObject* self, PyObject* args, PyOb
 	char* fileName = 0;
 	PyObject* objectUniqueIdsObj = 0;
 	int maxLogDof = -1;
-	int bodyIndexA = -1;
-	int bodyIndexB = -1;
+	int bodyUniqueIdA = -1;
+	int bodyUniqueIdB = -1;
 	int linkIndexA = -2;
 	int linkIndexB = -2;
 
-	static char* kwlist[] = {"loggingType", "fileName", "objectUniqueIds", "maxLogDof", "bodyIndexA", "bodyIndexB", "linkIndexA", "linkIndexB", "physicsClientId", NULL};
+	static char* kwlist[] = {"loggingType", "fileName", "objectUniqueIds", "maxLogDof", "bodyUniqueIdA", "bodyUniqueIdB", "linkIndexA", "linkIndexB", "physicsClientId", NULL};
 	int physicsClientId = 0;
 
 	if (!PyArg_ParseTupleAndKeywords(args, keywds, "is|Oiiiiii", kwlist,
-									 &loggingType, &fileName, &objectUniqueIdsObj, &maxLogDof, &bodyIndexA, &bodyIndexB, &linkIndexA, &linkIndexB, &physicsClientId))
+									 &loggingType, &fileName, &objectUniqueIdsObj, &maxLogDof, &bodyUniqueIdA, &bodyUniqueIdB, &linkIndexA, &linkIndexB, &physicsClientId))
 		return NULL;
 
 	sm = getPhysicsClient(physicsClientId);
@@ -2723,13 +2723,13 @@ static PyObject* pybullet_startStateLogging(PyObject* self, PyObject* args, PyOb
 			b3StateLoggingSetMaxLogDof(commandHandle, maxLogDof);
 		}
 		
-		if (bodyIndexA > -1)
+		if (bodyUniqueIdA > -1)
 		{
-			b3StateLoggingSetLinkIndexA(commandHandle, bodyIndexA);
+			b3StateLoggingSetBodyAUniqueId(commandHandle, bodyUniqueIdA);
 		}
-		if (bodyIndexB > -1)
+		if (bodyUniqueIdB > -1)
 		{
-			b3StateLoggingSetBodyIndexB(commandHandle, bodyIndexB);
+			b3StateLoggingSetBodyBUniqueId(commandHandle, bodyUniqueIdB);
 		}
 		if (linkIndexA > -2)
 		{

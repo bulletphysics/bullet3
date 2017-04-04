@@ -2685,28 +2685,28 @@ int b3StateLoggingSetLinkIndexB(b3SharedMemoryCommandHandle commandHandle, int l
 	return 0;
 }
 
-int b3StateLoggingSetBodyIndexA(b3SharedMemoryCommandHandle commandHandle, int bodyIndexA)
+int b3StateLoggingSetBodyAUniqueId(b3SharedMemoryCommandHandle commandHandle, int bodyAUniqueId)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
 	b3Assert(command);
 	b3Assert(command->m_type = CMD_STATE_LOGGING);
 	if (command->m_type == CMD_STATE_LOGGING)
 	{
-		command->m_updateFlags |= STATE_LOGGING_FILTER_BODY_INDEX_A;
-		command->m_stateLoggingArguments.m_bodyIndexA = bodyIndexA;
+		command->m_updateFlags |= STATE_LOGGING_FILTER_BODY_UNIQUE_ID_A;
+		command->m_stateLoggingArguments.m_bodyUniqueIdA = bodyAUniqueId;
 	}
 	return 0;
 }
 
-int b3StateLoggingSetBodyIndexB(b3SharedMemoryCommandHandle commandHandle, int bodyIndexB)
+int b3StateLoggingSetBodyBUniqueId(b3SharedMemoryCommandHandle commandHandle, int bodyBUniqueId)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
 	b3Assert(command);
 	b3Assert(command->m_type = CMD_STATE_LOGGING);
 	if (command->m_type == CMD_STATE_LOGGING)
 	{
-		command->m_updateFlags |= STATE_LOGGING_FILTER_BODY_INDEX_B;
-		command->m_stateLoggingArguments.m_bodyIndexB = bodyIndexB;
+		command->m_updateFlags |= STATE_LOGGING_FILTER_BODY_UNIQUE_ID_B;
+		command->m_stateLoggingArguments.m_bodyUniqueIdB = bodyBUniqueId;
 	}
 	return 0;
 }
