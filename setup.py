@@ -403,7 +403,7 @@ setup(
      ) ],
      classifiers=['Development Status :: 4 - Beta',
                    'License :: OSI Approved :: zlib/libpng License',
-                   'Operating System :: Microsoft :: Windows'
+                   'Operating System :: Microsoft :: Windows',
                    'Operating System :: POSIX :: Linux',
                    'Operating System :: MacOS',
                    'Intended Audience :: Science/Research',
