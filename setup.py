@@ -18,8 +18,9 @@ print(platform)
 
 CXX_FLAGS = ''
 CXX_FLAGS += '-DGWEN_COMPILE_STATIC '
-#CXX_FLAGS += '-DBT_ENABLE_ENET '
-#CXX_FLAGS += '-DBT_ENABLE_CLSOCKET '
+CXX_FLAGS += '-DBT_USE_DOUBLE_PRECISION '
+CXX_FLAGS += '-DBT_ENABLE_ENET '
+CXX_FLAGS += '-DBT_ENABLE_CLSOCKET '
 
 # libraries += [current_python]
 
@@ -48,6 +49,10 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["examples/SharedMemory/Win32SharedMemory.cpp"]\
 +["examples/SharedMemory/PosixSharedMemory.cpp"]\
 +["examples/SharedMemory/TinyRendererVisualShapeConverter.cpp"]\
++["examples/SharedMemory/PhysicsClientUDP.cpp"]\
++["examples/SharedMemory/PhysicsClientUDP_C_API.cpp"]\
++["examples/SharedMemory/PhysicsClientTCP.cpp"]\
++["examples/SharedMemory/PhysicsClientTCP_C_API.cpp"]\
 +["examples/Utils/b3ResourcePath.cpp"]\
 +["examples/Utils/RobotLoggingUtil.cpp"]\
 +["examples/Utils/ChromeTraceUtil.cpp"]\
@@ -386,7 +391,7 @@ elif _platform == "darwin":
 
 setup(
 	name = 'pybullet',
-	version='0.1.5',
+	version='0.1.6',
 	description='Official Python Interface for the Bullet Physics SDK Robotics Simulator',
 	long_description='pybullet is an easy to use Python module for physics simulation, robotics and machine learning based on the Bullet Physics SDK. With pybullet you can load articulated bodies from URDF, SDF and other file formats. pybullet provides forward dynamics simulation, inverse dynamics computation, forward and inverse kinematics and collision detection and ray intersection queries. Aside from physics simulation, pybullet supports to rendering, with a CPU renderer and OpenGL visualization and support for virtual reality headsets.',
 	url='https://github.com/bulletphysics/bullet3',
