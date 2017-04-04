@@ -19,6 +19,7 @@ enum ConvertURDFFlags {
   // Use inertia values in URDF instead of recomputing them from collision shape.
   CUF_USE_URDF_INERTIA = 2,
   CUF_USE_MJCF = 4,
+  CUF_USE_SELF_COLLISION=8
 };
 
 void ConvertURDF2Bullet(const URDFImporterInterface& u2b,

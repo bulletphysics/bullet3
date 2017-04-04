@@ -1973,6 +1973,10 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 				mb->setUserIndex2(bodyUniqueId);
 				bodyHandle->m_multiBody = mb;
 
+				if (flags & URDF_USE_SELF_COLLISION)
+				{
+					mb->setHasSelfCollision(true);
+				}
 				createJointMotors(mb);
 
 
