@@ -386,7 +386,7 @@ elif _platform == "darwin":
 
 setup(
 	name = 'pybullet',
-	version='0.1.3',
+	version='0.1.4',
 	description='Official Python Interface for the Bullet Physics SDK Robotics Simulator',
 	long_description='pybullet is an easy to use Python module for physics simulation, robotics and machine learning based on the Bullet Physics SDK. With pybullet you can load articulated bodies from URDF, SDF and other file formats. pybullet provides forward dynamics simulation, inverse dynamics computation, forward and inverse kinematics and collision detection and ray intersection queries. Aside from physics simulation, pybullet supports to rendering, with a CPU renderer and OpenGL visualization and support for virtual reality headsets.',
 	url='https://github.com/bulletphysics/bullet3',
@@ -394,13 +394,24 @@ setup(
 	author_email='erwincoumans@google.com',
 	license='zlib',
 	platforms='any',
-	keywords=['physics', 'robotics', 'collision detection', 'simulation'],
+	keywords=['game development', 'virtual reality', 'physics simulation', 'robotics', 'collision detection', 'opengl'],
 	ext_modules = [Extension("pybullet", 
 	sources =  sources,
 	libraries = libraries,
 	extra_compile_args=CXX_FLAGS.split(),
 	include_dirs = ["src","examples/ThirdPartyLibs","examples/ThirdPartyLibs/Glew", "examples/ThirdPartyLibs/enet/include","examples/ThirdPartyLibs/clsocket/src"]
      ) ],
+     classifiers=['Development Status :: 4 - Beta',
+                   'License :: OSI Approved :: zlib/libpng License',
+                   'Operating System :: Microsoft :: Windows'
+                   'Operating System :: POSIX :: Linux',
+                   'Operating System :: MacOS',
+                   'Intended Audience :: Science/Research',
+                   "Programming Language :: Python",
+                   'Programming Language :: Python :: 2.7',
+                   'Programming Language :: Python :: 3.4',
+                   'Topic :: Games/Entertainment :: Simulation',
+                   'Framework :: Robot Framework'],                   
 	package_data = {
         'pybullet': ['data/*'],
     },
