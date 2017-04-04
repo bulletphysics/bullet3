@@ -47,7 +47,8 @@ p.setRealTimeSimulation(useRealTimeSimulation)
 #use 0 for no-removal
 trailDuration = 15
 
-logId = p.startStateLogging(p.STATE_LOGGING_GENERIC_ROBOT,"LOG0001.txt",[0,1,2])
+logId1 = p.startStateLogging(p.STATE_LOGGING_GENERIC_ROBOT,"LOG0001.txt",[0,1,2])
+logId2 = p.startStateLogging(p.STATE_LOGGING_CONTACT_POINTS,"LOG0002.txt",bodyUniqueIdA=2)
 
 for i in xrange(5):
     print "Body %d's name is %s." % (i, p.getBodyInfo(i)[1])
