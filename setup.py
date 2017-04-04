@@ -23,7 +23,7 @@ CXX_FLAGS += '-DGWEN_COMPILE_STATIC '
 
 # libraries += [current_python]
 
-libraries = [""]
+libraries = []
 
 sources = ["examples/pybullet/pybullet.c"]\
 +["examples/ExampleBrowser/InProcessExampleBrowser.cpp"]\
@@ -352,7 +352,7 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["examples/ThirdPartyLibs/Gwen/Renderers/OpenGL_DebugFont.cpp"]\
 
 if _platform == "linux" or _platform == "linux2":
-    libraries += ['dl','pthread']
+    libraries = ['dl','pthread']
     CXX_FLAGS += '-D_LINUX '
     CXX_FLAGS += '-DGLEW_STATIC '
     CXX_FLAGS += '-DGLEW_INIT_OPENGL11_FUNCTIONS=1 '
@@ -364,7 +364,17 @@ if _platform == "linux" or _platform == "linux2":
     +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\
     +["examples/ThirdPartyLibs/Glew/glew.c"]\
     + sources
-
+elif _platform == "win32":
+    print("win32!")
+    libraries = ['Ws2_32','Winmm','User32','Opengl32','kernel32','glu32','Gdi32','Comdlg32']
+    CXX_FLAGS += '-DWIN32 '
+    CXX_FLAGS += '-DGLEW_STATIC '
+    CXX_FLAGS += '-DGLEW_INIT_OPENGL11_FUNCTIONS=1 '
+    sources = ["examples/ThirdPartyLibs/enet/win32.c"]\
+    +["examples/OpenGLWindow/Win32Window.cpp"]\
+    +["examples/OpenGLWindow/Win32OpenGLWindow.cpp"]\
+    +["examples/ThirdPartyLibs/Glew/glew.c"]\
+    +sources
 elif _platform == "darwin":
     print("darwin!")
     os.environ['LDFLAGS'] = '-framework Cocoa -framework OpenGL'
@@ -387,8 +397,8 @@ setup(
 	platforms='any',
 	keywords=['physics', 'robotics', 'collision detection', 'simulation'],
 	ext_modules = [Extension("pybullet", 
-	sources =  sources
-	,
+	sources =  sources,
+	libraries = libraries,
 	extra_compile_args=CXX_FLAGS.split(),
 	include_dirs = ["src","examples/ThirdPartyLibs","examples/ThirdPartyLibs/Glew", "examples/ThirdPartyLibs/enet/include","examples/ThirdPartyLibs/clsocket/src"]
      ) ],
