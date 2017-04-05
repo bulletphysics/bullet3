@@ -89,6 +89,8 @@ sources.extend(rglob('examples/OpenGLWindow/**/*.cpp', exclude = {
 # normalize
 sources = [os.path.normpath(x) for x in sources]
 
+print(len(sources))
+
 if _platform == 'linux' or _platform == 'linux2':
 	libraries.extend([
 		'dl',
