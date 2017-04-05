@@ -185,14 +185,15 @@ enum EnumRequestContactDataUpdateFlags
 
 struct RequestRaycastIntersections
 {
-	double m_rayFromPosition[3];
-	double m_rayToPosition[3];
+	int m_numRays;
+	double m_rayFromPositions[MAX_RAY_INTERSECTION_BATCH_SIZE][3];
+	double m_rayToPositions[MAX_RAY_INTERSECTION_BATCH_SIZE][3];
 };
 
 struct SendRaycastHits
 {
 	int m_numRaycastHits;
-	b3RayHitInfo m_rayHits[MAX_RAY_HITS];
+	b3RayHitInfo m_rayHits[MAX_RAY_INTERSECTION_BATCH_SIZE];
 };
 
 struct RequestContactDataArgs
