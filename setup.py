@@ -140,9 +140,8 @@ elif _platform == "win32":
 
 elif _platform == "darwin":
 	print("darwin!")
+
 	os.environ['LDFLAGS'] = '-framework Cocoa -framework OpenGL'
-	CXX_FLAGS += '-DHAS_SOCKLEN_T '
-	CXX_FLAGS += '-D_DARWIN '
 
 	define_macros.extend([
 		('HAS_SOCKLEN_T', None),
