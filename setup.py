@@ -89,7 +89,7 @@ sources.extend(rglob('examples/OpenGLWindow/**/*.cpp', exclude = {
 # normalize
 sources = [os.path.normpath(x) for x in sources]
 
-if _platform == "linux" or _platform == "linux2":
+if _platform == 'linux' or _platform == 'linux2':
 	libraries.extend([
 		'dl',
 		'pthread',
@@ -107,13 +107,13 @@ if _platform == "linux" or _platform == "linux2":
 	extra_compile_args.extend(['-fno-inline-functions-called-once'])
 
 	sources.extend([
-		"examples/ThirdPartyLibs/enet/unix.c",
-		"examples/OpenGLWindow/X11OpenGLWindow.cpp",
-		"examples/ThirdPartyLibs/Glew/glew.c",
+		'examples/ThirdPartyLibs/enet/unix.c',
+		'examples/OpenGLWindow/X11OpenGLWindow.cpp',
+		'examples/ThirdPartyLibs/Glew/glew.c',
 	])
 
-elif _platform == "win32":
-	print("win32!")
+elif _platform == 'win32':
+	print('win32!')
 
 	libraries.extend([
 		'Ws2_32',
@@ -132,14 +132,14 @@ elif _platform == "win32":
 	])
 
 	sources.extend([
-		"examples/ThirdPartyLibs/enet/win32.c",
-		"examples/OpenGLWindow/Win32Window.cpp",
-		"examples/OpenGLWindow/Win32OpenGLWindow.cpp",
-		"examples/ThirdPartyLibs/Glew/glew.c",
+		'examples/ThirdPartyLibs/enet/win32.c',
+		'examples/OpenGLWindow/Win32Window.cpp',
+		'examples/OpenGLWindow/Win32OpenGLWindow.cpp',
+		'examples/ThirdPartyLibs/Glew/glew.c',
 	])
 
-elif _platform == "darwin":
-	print("darwin!")
+elif _platform == 'darwin':
+	print('darwin!')
 
 	os.environ['LDFLAGS'] = '-framework Cocoa -framework OpenGL'
 
@@ -149,24 +149,24 @@ elif _platform == "darwin":
 	])
 
 	sources.extend([
-		"examples/ThirdPartyLibs/enet/unix.c",
-		"examples/OpenGLWindow/MacOpenGLWindow.cpp",
-		"examples/OpenGLWindow/MacOpenGLWindowObjC.m",
+		'examples/ThirdPartyLibs/enet/unix.c',
+		'examples/OpenGLWindow/MacOpenGLWindow.cpp',
+		'examples/OpenGLWindow/MacOpenGLWindowObjC.m',
 	])
 
 else:
 	raise Exception('Platform %s is notrecognized' % _platform)
 
 include_dirs = [
-	"src",
-	"examples/ThirdPartyLibs",
-	"examples/ThirdPartyLibs/Glew",
-	"examples/ThirdPartyLibs/enet/include",
-	"examples/ThirdPartyLibs/clsocket/src",
+	'src',
+	'examples/ThirdPartyLibs',
+	'examples/ThirdPartyLibs/Glew',
+	'examples/ThirdPartyLibs/enet/include',
+	'examples/ThirdPartyLibs/clsocket/src',
 ]
 
 pybullet = Extension(
-	"pybullet", 
+	'pybullet', 
 	sources =  sources,
 	libraries = libraries,
 	define_macros = define_macros,
@@ -181,7 +181,7 @@ classifiers = [
 	'Operating System :: POSIX :: Linux',
 	'Operating System :: MacOS',
 	'Intended Audience :: Science/Research',
-	"Programming Language :: Python",
+	'Programming Language :: Python',
 	'Programming Language :: Python :: 2.7',
 	'Programming Language :: Python :: 3.4',
 	'Programming Language :: Python :: 3.5',
