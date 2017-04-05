@@ -1,21 +1,15 @@
-
-from setuptools import find_packages
+from setuptools import setup, Extension, find_packages
 from sys import platform as _platform
-import sys
+import os, sys, glob
 
-from distutils.core import setup
-from distutils.extension import Extension
-from distutils.util import get_platform
-from glob import glob
-
-#see http://stackoverflow.com/a/8719066/295157
-import os
+# see http://stackoverflow.com/a/8719066/295157
 
 def rglob(path, exclude = set()):
-	return [x for x in glob(path, recursive = True) if os.path.basename(x) not in exclude]
+	return [x for x in glob.glob(path, recursive = True) if os.path.basename(x) not in exclude]
 
-platform = get_platform()
-print(platform)
+# from distutils.util import get_platform
+# platform = get_platform()
+# print(platform)
 
 extra_compile_args = []
 
@@ -161,6 +155,9 @@ elif _platform == "darwin":
 		"examples/OpenGLWindow/MacOpenGLWindowObjC.m",
 	])
 
+else:
+	raise Exception('Platform %s is notrecognized' % _platform)
+
 include_dirs = [
 	"src",
 	"examples/ThirdPartyLibs",
@@ -230,4 +227,3 @@ setup(
 		'pybullet': ['data/*'],
 	},
 )
-
