@@ -34,7 +34,7 @@ class Minitaur:
     self.maxForce = 3.5
     self.nMotors = 8
     self.motorIdList = []
-    self.motorDir = [1, 1, 1, 1, 1, 1, 1, 1]
+    self.motorDir = [-1, -1, -1, -1, 1, 1, 1, 1]
     self.buildJointNameToIdDict()
     self.buildMotorIdList()
 
