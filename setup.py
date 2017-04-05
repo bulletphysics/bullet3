@@ -89,8 +89,6 @@ sources.extend(rglob('examples/OpenGLWindow/**/*.cpp', exclude = {
 # normalize
 sources = [os.path.normpath(x) for x in sources]
 
-print(len(sources))
-
 if _platform == 'linux' or _platform == 'linux2':
 	libraries.extend([
 		'dl',
@@ -169,10 +167,10 @@ include_dirs = [
 
 pybullet = Extension(
 	'pybullet', 
-	sources =  sources,
+	sources = sources,
 	libraries = libraries,
 	define_macros = define_macros,
-	extra_compile_args=extra_compile_args,
+	extra_compile_args = extra_compile_args,
 	include_dirs = include_dirs
 )
 
@@ -212,18 +210,18 @@ OpenGL visualization and support for virtual reality headsets.
 '''
 
 setup(
-	name='pybullet',
-	version='0.1.6',
-	description='Official Python Interface for the Bullet Physics SDK Robotics Simulator',
-	long_description=long_description,
-	url='https://github.com/bulletphysics/bullet3',
-	author='Erwin Coumans, Yunfei Bai, Jasmine Hsu',
-	author_email='erwincoumans@google.com',
-	license='zlib',
-	platforms='any',
-	keywords=keywords,
+	name = 'pybullet',
+	version = '0.1.6',
+	description = 'Official Python Interface for the Bullet Physics SDK Robotics Simulator',
+	long_description = long_description,
+	url = 'https://github.com/bulletphysics/bullet3',
+	author = 'Erwin Coumans, Yunfei Bai, Jasmine Hsu',
+	author_email = 'erwincoumans@google.com',
+	license = 'zlib',
+	platforms = 'any',
+	keywords = keywords,
 	ext_modules = [pybullet],
-	classifiers=classifiers,
+	classifiers = classifiers,
 	package_data = {
 		'pybullet': ['data/*'],
 	},
