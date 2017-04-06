@@ -400,8 +400,8 @@ static PyObject* pybullet_disconnectPhysicsServer(PyObject* self,
 	return Py_None;
 }
 
-
-void b3pybulletExitFunc()
+///to avoid memory leaks, disconnect all physics servers explicitly
+void b3pybulletExitFunc(void)
 {
 	int i;
 	for (i=0;i<MAX_PHYSICS_CLIENTS;i++)
@@ -2812,7 +2812,7 @@ static PyObject* pybullet_setTimeOut(PyObject* self, PyObject* args, PyObject* k
 	return Py_None;
 }
 
-static PyObject* pybullet_rayTest(PyObject* self, PyObject* args, PyObject* keywds)
+static PyObject* pybullet_rayTestObsolete(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	b3SharedMemoryCommandHandle commandHandle;
 	b3SharedMemoryStatusHandle statusHandle;
@@ -2841,6 +2841,154 @@ static PyObject* pybullet_rayTest(PyObject* self, PyObject* args, PyObject* keyw
 
 	commandHandle = b3CreateRaycastCommandInit(sm, from[0], from[1], from[2],
 											   to[0], to[1], to[2]);
+
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	statusType = b3GetStatusType(statusHandle);
+	if (statusType == CMD_REQUEST_RAY_CAST_INTERSECTIONS_COMPLETED)
+	{
+		struct b3RaycastInformation raycastInfo;
+		PyObject* rayHitsObj = 0;
+		int i;
+		b3GetRaycastInformation(sm, &raycastInfo);
+
+		rayHitsObj = PyTuple_New(raycastInfo.m_numRayHits);
+		for (i = 0; i < raycastInfo.m_numRayHits; i++)
+		{
+			PyObject* singleHitObj = PyTuple_New(5);
+			{
+				PyObject* ob = PyInt_FromLong(raycastInfo.m_rayHits[i].m_hitObjectUniqueId);
+				PyTuple_SetItem(singleHitObj, 0, ob);
+			}
+			{
+				PyObject* ob = PyInt_FromLong(raycastInfo.m_rayHits[i].m_hitObjectLinkIndex);
+				PyTuple_SetItem(singleHitObj, 1, ob);
+			}
+			{
+				PyObject* ob = PyFloat_FromDouble(raycastInfo.m_rayHits[i].m_hitFraction);
+				PyTuple_SetItem(singleHitObj, 2, ob);
+			}
+			{
+				PyObject* posObj = PyTuple_New(3);
+				int p;
+				for (p = 0; p < 3; p++)
+				{
+					PyObject* ob = PyFloat_FromDouble(raycastInfo.m_rayHits[i].m_hitPositionWorld[p]);
+					PyTuple_SetItem(posObj, p, ob);
+				}
+				PyTuple_SetItem(singleHitObj, 3, posObj);
+			}
+			{
+				PyObject* normalObj = PyTuple_New(3);
+				int p;
+				for (p = 0; p < 3; p++)
+				{
+					PyObject* ob = PyFloat_FromDouble(raycastInfo.m_rayHits[i].m_hitNormalWorld[p]);
+					PyTuple_SetItem(normalObj, p, ob);
+				}
+				PyTuple_SetItem(singleHitObj, 4, normalObj);
+			}
+			PyTuple_SetItem(rayHitsObj, i, singleHitObj);
+		}
+		return rayHitsObj;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	b3SharedMemoryCommandHandle commandHandle;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	PyObject* rayFromObjList = 0;
+	PyObject* rayToObjList = 0;
+	b3PhysicsClientHandle sm = 0;
+	int sizeFrom = 0;
+	int sizeTo = 0;
+
+
+	static char* kwlist[] = {"rayFromPositions", "rayToPositions", "physicsClientId", NULL};
+	int physicsClientId = 0;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|i", kwlist,
+									 &rayFromObjList, &rayToObjList, &physicsClientId))
+		return NULL;
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	
+	commandHandle = b3CreateRaycastBatchCommandInit(sm);
+
+	
+	if (rayFromObjList)
+	{
+		PyObject* seqRayFromObj = PySequence_Fast(rayFromObjList, "expected a sequence of rayFrom positions");
+		PyObject* seqRayToObj = PySequence_Fast(rayToObjList, "expected a sequence of 'rayTo' positions");
+
+		if (seqRayFromObj && seqRayToObj)
+		{
+			int lenFrom = PySequence_Size(rayFromObjList);
+			int lenTo= PySequence_Size(seqRayToObj);
+			if (lenFrom!=lenTo)
+			{
+					PyErr_SetString(SpamError, "Size of from_positions need to be equal to size of to_positions.");
+					Py_DECREF(seqRayFromObj);
+					Py_DECREF(seqRayToObj);
+					return NULL;
+			} else
+			{
+				int i;
+
+				if (lenFrom >= MAX_RAY_INTERSECTION_BATCH_SIZE)
+				{
+					PyErr_SetString(SpamError, "Number of rays exceed the maximum batch size.");
+					Py_DECREF(seqRayFromObj);
+					Py_DECREF(seqRayToObj);
+					return NULL;
+				}
+				for (i = 0; i < lenFrom; i++)
+				{
+					PyObject* rayFromObj = PySequence_GetItem(rayFromObjList,i);
+					PyObject* rayToObj = PySequence_GetItem(seqRayToObj,i);
+					double rayFromWorld[3];
+					double rayToWorld[3];
+					
+					if ((pybullet_internalSetVectord(rayFromObj, rayFromWorld)) &&
+						(pybullet_internalSetVectord(rayToObj, rayToWorld)))
+					{
+						b3RaycastBatchAddRay(commandHandle, rayFromWorld, rayToWorld);	
+					} else
+					{
+						PyErr_SetString(SpamError, "Items in the from/to positions need to be an [x,y,z] list of 3 floats/doubles");
+						Py_DECREF(seqRayFromObj);
+						Py_DECREF(seqRayToObj);
+						Py_DECREF(rayFromObj);
+						Py_DECREF(rayToObj);
+						return NULL;
+					}
+					Py_DECREF(rayFromObj);
+					Py_DECREF(rayToObj);
+				}
+			}
+		} else
+		{
+
+		}
+		if (seqRayFromObj)
+		{
+			Py_DECREF(seqRayFromObj);
+		}
+		if (seqRayToObj)
+		{
+			Py_DECREF(seqRayToObj);
+		}
+	}
 
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 	statusType = b3GetStatusType(statusHandle);
@@ -5319,9 +5467,14 @@ static PyMethodDef SpamMethods[] = {
 	 "fileName, optional objectUniqueId, maxLogDof, bodyUniqueIdA, bodyUniqueIdB, linkIndexA, linkIndexB. Function returns int loggingUniqueId"},
 	{"stopStateLogging", (PyCFunction)pybullet_stopStateLogging, METH_VARARGS | METH_KEYWORDS,
 	 "Stop logging of robot state, given a loggingUniqueId."},
-	{"rayTest", (PyCFunction)pybullet_rayTest, METH_VARARGS | METH_KEYWORDS,
+	{"rayTest", (PyCFunction)pybullet_rayTestObsolete, METH_VARARGS | METH_KEYWORDS,
 	 "Cast a ray and return the first object hit, if any. "
-	 "Takes two arguments (from position [x,y,z] and to position [x,y,z] in Cartesian world coordinates"},
+	 "Takes two arguments (from_position [x,y,z] and to_position [x,y,z] in Cartesian world coordinates"},
+
+	{"rayTestBatch", (PyCFunction)pybullet_rayTestBatch, METH_VARARGS | METH_KEYWORDS,
+		"Cast a batch of rays and return the result for each of the rays (first object hit, if any. or -1) "
+	 "Takes two arguments (list of from_positions [x,y,z] and a list of to_positions [x,y,z] in Cartesian world coordinates"},
+
 	{"setTimeOut", (PyCFunction)pybullet_setTimeOut, METH_VARARGS | METH_KEYWORDS,
 	 "Set the timeOut in seconds, used for most of the API calls."},
 	// todo(erwincoumans)
@@ -5458,7 +5611,9 @@ initpybullet(void)
 
 	PyModule_AddIntConstant(m, "URDF_USE_INERTIA_FROM_FILE", URDF_USE_INERTIA_FROM_FILE);
 	PyModule_AddIntConstant(m, "URDF_USE_SELF_COLLISION", URDF_USE_SELF_COLLISION);
-	
+
+	PyModule_AddIntConstant(m, "MAX_RAY_INTERSECTION_BATCH_SIZE", MAX_RAY_INTERSECTION_BATCH_SIZE);
+
 	PyModule_AddIntConstant(m, "B3G_F1", B3G_F1);
 	PyModule_AddIntConstant(m, "B3G_F2", B3G_F2);
 	PyModule_AddIntConstant(m, "B3G_F3", B3G_F3);
