@@ -1,4 +1,5 @@
 from setuptools import setup, Extension, find_packages
+from distutils.util import get_platform
 from sys import platform as _platform
 import os, sys, glob
 
@@ -7,9 +8,8 @@ import os, sys, glob
 def rglob(path, exclude = set()):
 	return [x for x in glob.glob(path, recursive = True) if os.path.basename(x) not in exclude]
 
-# from distutils.util import get_platform
-# platform = get_platform()
-# print(platform)
+platform = get_platform()
+print(platform)
 
 extra_compile_args = []
 
