@@ -2424,58 +2424,74 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 				case CMD_REQUEST_RAY_CAST_INTERSECTIONS:
 				{
 					BT_PROFILE("CMD_REQUEST_RAY_CAST_INTERSECTIONS");
-
-					btVector3 rayFromWorld(clientCmd.m_requestRaycastIntersections.m_rayFromPosition[0],
-						clientCmd.m_requestRaycastIntersections.m_rayFromPosition[1],
-						clientCmd.m_requestRaycastIntersections.m_rayFromPosition[2]);
-					btVector3 rayToWorld(clientCmd.m_requestRaycastIntersections.m_rayToPosition[0],
-						clientCmd.m_requestRaycastIntersections.m_rayToPosition[1],
-						clientCmd.m_requestRaycastIntersections.m_rayToPosition[2]);
-					btCollisionWorld::ClosestRayResultCallback rayResultCallback(rayFromWorld,rayToWorld);
-					m_data->m_dynamicsWorld->rayTest(rayFromWorld,rayToWorld,rayResultCallback);
 					serverStatusOut.m_raycastHits.m_numRaycastHits = 0;
 
-					if (rayResultCallback.hasHit())
+					for (int ray=0;ray<clientCmd.m_requestRaycastIntersections.m_numRays;ray++)
 					{
-						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitFraction 
-							= rayResultCallback.m_closestHitFraction;
+						btVector3 rayFromWorld(clientCmd.m_requestRaycastIntersections.m_rayFromPositions[ray][0],
+							clientCmd.m_requestRaycastIntersections.m_rayFromPositions[ray][1],
+							clientCmd.m_requestRaycastIntersections.m_rayFromPositions[ray][2]);
+						btVector3 rayToWorld(clientCmd.m_requestRaycastIntersections.m_rayToPositions[ray][0],
+							clientCmd.m_requestRaycastIntersections.m_rayToPositions[ray][1],
+							clientCmd.m_requestRaycastIntersections.m_rayToPositions[ray][2]);
 
-						int objectUniqueId = -1;
-						int linkIndex = -1;
+						btCollisionWorld::ClosestRayResultCallback rayResultCallback(rayFromWorld,rayToWorld);
+						m_data->m_dynamicsWorld->rayTest(rayFromWorld,rayToWorld,rayResultCallback);
+						int rayHits = serverStatusOut.m_raycastHits.m_numRaycastHits;
 
-						const btRigidBody* body = btRigidBody::upcast(rayResultCallback.m_collisionObject);
-						if (body)
+						if (rayResultCallback.hasHit())
 						{
-							objectUniqueId = rayResultCallback.m_collisionObject->getUserIndex2();
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitFraction 
+								= rayResultCallback.m_closestHitFraction;
+
+							int objectUniqueId = -1;
+							int linkIndex = -1;
+
+							const btRigidBody* body = btRigidBody::upcast(rayResultCallback.m_collisionObject);
+							if (body)
+							{
+								objectUniqueId = rayResultCallback.m_collisionObject->getUserIndex2();
+							} else
+							{
+								const btMultiBodyLinkCollider* mblB = btMultiBodyLinkCollider::upcast(rayResultCallback.m_collisionObject);
+								if (mblB && mblB->m_multiBody)
+								{
+									linkIndex = mblB->m_link;
+									objectUniqueId = mblB->m_multiBody->getUserIndex2();
+								}
+							}
+
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitObjectUniqueId 
+								= objectUniqueId;
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitObjectLinkIndex
+								= linkIndex;
+
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitPositionWorld[0] 
+								= rayResultCallback.m_hitPointWorld[0];
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitPositionWorld[1] 
+								= rayResultCallback.m_hitPointWorld[1];
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitPositionWorld[2] 
+								= rayResultCallback.m_hitPointWorld[2];
+						
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitNormalWorld[0] 
+								= rayResultCallback.m_hitNormalWorld[0]; 
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitNormalWorld[1] 
+								= rayResultCallback.m_hitNormalWorld[1]; 
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitNormalWorld[2] 
+								= rayResultCallback.m_hitNormalWorld[2]; 
+
 						} else
 						{
-							const btMultiBodyLinkCollider* mblB = btMultiBodyLinkCollider::upcast(rayResultCallback.m_collisionObject);
-							if (mblB && mblB->m_multiBody)
-							{
-								linkIndex = mblB->m_link;
-								objectUniqueId = mblB->m_multiBody->getUserIndex2();
-							}
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitFraction = 1;
+							serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitObjectUniqueId = -1;
+							serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitObjectLinkIndex = -1;
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitPositionWorld[0] = 0;
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitPositionWorld[1] = 0;
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitPositionWorld[2] = 0;
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitNormalWorld[0] = 0;
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitNormalWorld[1] = 0;
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitNormalWorld[2] = 0;
 						}
-
-						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitObjectUniqueId 
-							= objectUniqueId;
-						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitObjectLinkIndex
-							= linkIndex;
-
-						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitPositionWorld[0] 
-							= rayResultCallback.m_hitPointWorld[0];
-						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitPositionWorld[1] 
-							= rayResultCallback.m_hitPointWorld[1];
-						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitPositionWorld[2] 
-							= rayResultCallback.m_hitPointWorld[2];
-						
-						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitNormalWorld[0] 
-							= rayResultCallback.m_hitNormalWorld[0]; 
-						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitNormalWorld[1] 
-							= rayResultCallback.m_hitNormalWorld[1]; 
-						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitNormalWorld[2] 
-							= rayResultCallback.m_hitNormalWorld[2]; 
-
 						serverStatusOut.m_raycastHits.m_numRaycastHits++;
 					}
 					serverStatusOut.m_type = CMD_REQUEST_RAY_CAST_INTERSECTIONS_COMPLETED;

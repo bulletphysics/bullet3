@@ -1383,16 +1383,51 @@ b3SharedMemoryCommandHandle b3CreateRaycastCommandInit(b3PhysicsClientHandle phy
     struct SharedMemoryCommand *command = cl->getAvailableSharedMemoryCommand();
     b3Assert(command);
     command->m_type = CMD_REQUEST_RAY_CAST_INTERSECTIONS;
-	command->m_requestRaycastIntersections.m_rayFromPosition[0] = rayFromWorldX;
-	command->m_requestRaycastIntersections.m_rayFromPosition[1] = rayFromWorldY;
-	command->m_requestRaycastIntersections.m_rayFromPosition[2] = rayFromWorldZ;
-	command->m_requestRaycastIntersections.m_rayToPosition[0] = rayToWorldX;
-	command->m_requestRaycastIntersections.m_rayToPosition[1] = rayToWorldY;
-	command->m_requestRaycastIntersections.m_rayToPosition[2] = rayToWorldZ;
+	command->m_requestRaycastIntersections.m_numRays = 1;
+	command->m_requestRaycastIntersections.m_rayFromPositions[0][0] = rayFromWorldX;
+	command->m_requestRaycastIntersections.m_rayFromPositions[0][1] = rayFromWorldY;
+	command->m_requestRaycastIntersections.m_rayFromPositions[0][2] = rayFromWorldZ;
+	command->m_requestRaycastIntersections.m_rayToPositions[0][0] = rayToWorldX;
+	command->m_requestRaycastIntersections.m_rayToPositions[0][1] = rayToWorldY;
+	command->m_requestRaycastIntersections.m_rayToPositions[0][2] = rayToWorldZ;
 
     return (b3SharedMemoryCommandHandle)command;
-
 }
+
+b3SharedMemoryCommandHandle b3CreateRaycastBatchCommandInit(b3PhysicsClientHandle physClient)
+{
+	PhysicsClient *cl = (PhysicsClient *)physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand *command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type = CMD_REQUEST_RAY_CAST_INTERSECTIONS;
+	command->m_updateFlags = 0;
+	command->m_requestRaycastIntersections.m_numRays = 0;
+	return (b3SharedMemoryCommandHandle)command;
+}
+
+void b3RaycastBatchAddRay(b3SharedMemoryCommandHandle commandHandle, const double rayFromWorld[3], const double rayToWorld[3])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_RAY_CAST_INTERSECTIONS);
+	if (command->m_type == CMD_REQUEST_RAY_CAST_INTERSECTIONS)
+	{
+		int numRays = command->m_requestRaycastIntersections.m_numRays;
+		if (numRays<MAX_RAY_INTERSECTION_BATCH_SIZE)
+		{
+			command->m_requestRaycastIntersections.m_rayFromPositions[numRays][0] = rayFromWorld[0];
+			command->m_requestRaycastIntersections.m_rayFromPositions[numRays][1] = rayFromWorld[1];
+			command->m_requestRaycastIntersections.m_rayFromPositions[numRays][2] = rayFromWorld[2];
+			command->m_requestRaycastIntersections.m_rayToPositions[numRays][0] = rayToWorld[0];
+			command->m_requestRaycastIntersections.m_rayToPositions[numRays][1] = rayToWorld[1];
+			command->m_requestRaycastIntersections.m_rayToPositions[numRays][2] = rayToWorld[2];
+			command->m_requestRaycastIntersections.m_numRays++;
+		}
+	}
+}
+
 
 void b3GetRaycastInformation(b3PhysicsClientHandle physClient, struct b3RaycastInformation* raycastInfo)
 {
