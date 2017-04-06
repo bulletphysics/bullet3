@@ -834,13 +834,16 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
                                 //todo: rescale the depthValue to [0..255]
                                 if (depthValue>-1e20)
                                 {
-                                    int rgb =  (depthValue-minDepthValue)*(255. / (btFabs(maxDepthValue-minDepthValue)));
-                                    if (rgb<0 || rgb>255)
-                                    {
-                                        
-                                        printf("rgb=%d\n",rgb);
-                                    }
-                 
+									int rgb = 0;
+
+									if (maxDepthValue!=minDepthValue)
+									{
+										rgb =  (depthValue-minDepthValue)*(255. / (btFabs(maxDepthValue-minDepthValue)));
+										if (rgb<0 || rgb>255)
+										{
+    										//printf("rgb=%d\n",rgb);
+	                                    }
+									}                 
                                     m_canvas->setPixel(m_canvasDepthIndex,i,j,
                                         rgb,
                                         rgb,

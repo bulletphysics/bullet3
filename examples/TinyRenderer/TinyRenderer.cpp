@@ -377,42 +377,91 @@ TinyRenderObjectData::~TinyRenderObjectData()
     delete m_model;
 }
 
-void TinyRenderer::renderObjectDepth(TinyRenderObjectData& renderData)
+static bool equals(const Vec4f& vA, const Vec4f& vB)
 {
-    int width = renderData.m_rgbColorBuffer.get_width();
-    int height = renderData.m_rgbColorBuffer.get_height();
-    
-    Vec3f light_dir_local = Vec3f(renderData.m_lightDirWorld[0],renderData.m_lightDirWorld[1],renderData.m_lightDirWorld[2]);
-    float light_distance = renderData.m_lightDistance;
-    Model* model = renderData.m_model;
-    if (0==model)
-        return;
-    
-    renderData.m_viewportMatrix = viewport(0,0,width, height);
-    
-    float* shadowBufferPtr = (renderData.m_shadowBuffer && renderData.m_shadowBuffer->size())?&renderData.m_shadowBuffer->at(0):0;
-    int* segmentationMaskBufferPtr = 0;
-    
-    TGAImage depthFrame(width, height, TGAImage::RGB);
-    
-    {
-        // light target is set to be the origin, and the up direction is set to be vertical up.
-        Matrix lightViewMatrix = lookat(light_dir_local*light_distance, Vec3f(0.0,0.0,0.0), Vec3f(0.0,0.0,1.0));
-        Matrix lightModelViewMatrix = lightViewMatrix*renderData.m_modelMatrix;
-        Matrix lightViewProjectionMatrix = renderData.m_projectionMatrix;
-        Vec3f localScaling(renderData.m_localScaling[0],renderData.m_localScaling[1],renderData.m_localScaling[2]);
-        
-        DepthShader shader(model, lightModelViewMatrix, lightViewProjectionMatrix,renderData.m_modelMatrix, localScaling, light_distance);
-        
-        for (int i=0; i<model->nfaces(); i++)
-        {
-            for (int j=0; j<3; j++) {
-                shader.vertex(i, j);
-            }
-            triangle(shader.varying_tri, shader, depthFrame, shadowBufferPtr, segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex);
-        }
-    }
-    
+	return false;
+}
+
+static void clipEdge(const mat<4,3,float>& triangleIn, int vertexIndexA, int vertexIndexB, b3AlignedObjectArray<Vec4f>& vertices)
+{
+	Vec4f v0New = triangleIn.col(vertexIndexA);
+	Vec4f v1New = triangleIn.col(vertexIndexB);
+
+	bool v0Inside = v0New[3] > 0.f && v0New[2] > -v0New[3];
+	bool v1Inside= v1New[3] > 0.f && v1New[2] > -v1New[3];
+
+	if (v0Inside && v1Inside)
+	{
+
+	} else if (v0Inside || v1Inside)
+	{
+		float d0 = v0New[2]+v0New[3];
+		float d1 = v1New[2]+v1New[3];
+		float factor = 1.0 / (d1-d0);
+		Vec4f newVertex =(v0New*d1-v1New*d0)*factor;
+		if (v0Inside)
+		{
+			v1New = newVertex;
+		} else
+		{
+			v0New = newVertex;
+		}
+	} else
+	{
+		return;
+	}
+
+	if (vertices.size()==0 || !(equals(vertices[vertices.size()-1],v0New)))
+	{
+		vertices.push_back(v0New);
+	}
+
+	vertices.push_back(v1New);
+}
+
+
+
+
+static bool clipTriangleAgainstNearplane(const mat<4,3,float>& triangleIn, b3AlignedObjectArray<mat<4,3,float> >& clippedTrianglesOut)
+{
+	//discard triangle if all vertices are behind near-plane
+	if (triangleIn[3][0]<0 && triangleIn[3][1] <0 && triangleIn[3][2] <0)
+	{
+		return false;
+	}
+
+	//accept triangle if all vertices are in front of the near-plane
+	if (triangleIn[3][0]>=0 && triangleIn[3][1] >=0 && triangleIn[3][2] >=0)
+	{
+		clippedTrianglesOut.push_back(triangleIn);
+		return false;
+	}
+
+	Vec4f vtxCache[5];
+
+	b3AlignedObjectArray<Vec4f> vertices;
+	vertices.initializeFromBuffer(vtxCache,0,5);
+	clipEdge(triangleIn,0,1,vertices);
+	clipEdge(triangleIn,1,2,vertices);
+	clipEdge(triangleIn,2,0,vertices);
+
+	if (vertices.size()<3)
+		return false;
+	
+	if (equals(vertices[0],vertices[vertices.size()-1]))
+	{
+		vertices.pop_back();
+	}
+
+	//create a fan of triangles
+	for (int i=1;i<vertices.size()-1;i++)
+	{
+		mat<4,3,float>& vtx = clippedTrianglesOut.expand();
+		vtx.set_col(0,vertices[0]);
+		vtx.set_col(1,vertices[i]);
+		vtx.set_col(2,vertices[i+1]);
+	}
+	return true;
 }
 
 void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
@@ -449,7 +498,82 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
             for (int j=0; j<3; j++) {
                 shader.vertex(i, j);
             }
-            triangle(shader.varying_tri, shader, frame, &zbuffer[0], segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex);
+
+			mat<4,3,float> stackTris[3];
+
+			b3AlignedObjectArray< mat<4,3,float> > clippedTriangles;
+			clippedTriangles.initializeFromBuffer(stackTris,0,3);
+
+			bool hasClipped = clipTriangleAgainstNearplane(shader.varying_tri,clippedTriangles);
+
+			if (hasClipped)
+			{
+				for (int t=0;t<clippedTriangles.size();t++)
+				{
+					triangleClipped(clippedTriangles[t], shader.varying_tri, shader, frame, &zbuffer[0], segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex);
+				}
+			}
+			else
+			{
+				triangle(shader.varying_tri, shader, frame, &zbuffer[0], segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex);
+			}
+        }
+    }
+    
+}
+
+
+void TinyRenderer::renderObjectDepth(TinyRenderObjectData& renderData)
+{
+    int width = renderData.m_rgbColorBuffer.get_width();
+    int height = renderData.m_rgbColorBuffer.get_height();
+    
+    Vec3f light_dir_local = Vec3f(renderData.m_lightDirWorld[0],renderData.m_lightDirWorld[1],renderData.m_lightDirWorld[2]);
+    float light_distance = renderData.m_lightDistance;
+    Model* model = renderData.m_model;
+    if (0==model)
+        return;
+    
+    renderData.m_viewportMatrix = viewport(0,0,width, height);
+    
+    float* shadowBufferPtr = (renderData.m_shadowBuffer && renderData.m_shadowBuffer->size())?&renderData.m_shadowBuffer->at(0):0;
+    int* segmentationMaskBufferPtr = 0;
+    
+    TGAImage depthFrame(width, height, TGAImage::RGB);
+    
+    {
+        // light target is set to be the origin, and the up direction is set to be vertical up.
+        Matrix lightViewMatrix = lookat(light_dir_local*light_distance, Vec3f(0.0,0.0,0.0), Vec3f(0.0,0.0,1.0));
+        Matrix lightModelViewMatrix = lightViewMatrix*renderData.m_modelMatrix;
+        Matrix lightViewProjectionMatrix = renderData.m_projectionMatrix;
+        Vec3f localScaling(renderData.m_localScaling[0],renderData.m_localScaling[1],renderData.m_localScaling[2]);
+        
+        DepthShader shader(model, lightModelViewMatrix, lightViewProjectionMatrix,renderData.m_modelMatrix, localScaling, light_distance);
+        
+        for (int i=0; i<model->nfaces(); i++)
+        {
+            for (int j=0; j<3; j++) {
+                shader.vertex(i, j);
+            }
+
+
+			mat<4,3,float> stackTris[3];
+
+			b3AlignedObjectArray< mat<4,3,float> > clippedTriangles;
+			clippedTriangles.initializeFromBuffer(stackTris,0,3);
+
+			bool hasClipped = clipTriangleAgainstNearplane(shader.varying_tri,clippedTriangles);
+
+			if (hasClipped)
+			{
+				for (int t=0;t<clippedTriangles.size();t++)
+				{
+					triangleClipped(clippedTriangles[t], shader.varying_tri, shader, depthFrame, shadowBufferPtr, segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex);
+				}
+			} else
+			{
+					triangle(shader.varying_tri, shader, depthFrame, shadowBufferPtr, segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex);
+			}
         }
     }
     
