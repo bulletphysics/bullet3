@@ -49,8 +49,8 @@ nJoints = p.getNumJoints(quadruped)
 # Map joint names to ids
 jointNameToId = {}
 for i in range(nJoints):
-    jointInfo=p.getJointInfo(quadruped, i)
-    jointNameToId[jointInfo[1].decode('UTF-8')] = jointInfo[0]
+	jointInfo=p.getJointInfo(quadruped, i)
+	jointNameToId[jointInfo[1].decode('UTF-8')] = jointInfo[0]
 
 # Make nice names of joints
 motor_front_rightR_joint = jointNameToId['motor_front_rightR_joint']
@@ -154,12 +154,13 @@ p.saveWorld("quadru.py")
 # Log
 logId = p.startStateLogging(p.STATE_LOGGING_MINITAUR,"quadrupedLog.txt",[quadruped])
 
-# Jump
+# Init jump
 t = 0.0
 t_end = t + 100
 i=0
 ref_time = time.time()
 
+# Jump!
 while t < t_end:
 	if (useRealTime):
 		t = time.time()-ref_time
@@ -167,7 +168,7 @@ while t < t_end:
 		t = t+fixedTimeStep
 	if (True):
 
-		target = math.sin(t*speed)*jump_amp+ halfpi;
+		target = math.sin(t*speed)*jump_amp + halfpi;
 		p.setJointMotorControl2(bodyIndex=quadruped,jointIndex=legnumbering[0],controlMode=p.POSITION_CONTROL,targetPosition=motordir[0]*target,positionGain=kp, velocityGain=kd, force=maxForce)
 		p.setJointMotorControl2(bodyIndex=quadruped,jointIndex=legnumbering[1],controlMode=p.POSITION_CONTROL,targetPosition=motordir[1]*target,positionGain=kp, velocityGain=kd, force=maxForce)
 		p.setJointMotorControl2(bodyIndex=quadruped,jointIndex=legnumbering[2],controlMode=p.POSITION_CONTROL,targetPosition=motordir[2]*target,positionGain=kp, velocityGain=kd, force=maxForce)
