@@ -89,7 +89,7 @@ sources.extend(rglob('examples/OpenGLWindow/**/*.cpp', exclude = {
 # normalize
 sources = [os.path.normpath(x) for x in sources]
 
-if _platform == 'linux' or _platform == 'linux2':
+if _platform.startswith('linux'):
 	libraries.extend([
 		'dl',
 		'pthread',
@@ -112,7 +112,7 @@ if _platform == 'linux' or _platform == 'linux2':
 		'examples/ThirdPartyLibs/Glew/glew.c',
 	])
 
-elif _platform == 'win32':
+elif _platform.startswith('win32'):
 	print('win32!')
 
 	libraries.extend([
@@ -138,7 +138,7 @@ elif _platform == 'win32':
 		'examples/ThirdPartyLibs/Glew/glew.c',
 	])
 
-elif _platform == 'darwin':
+elif _platform.startswith('darwin'):
 	print('darwin!')
 
 	os.environ['LDFLAGS'] = '-framework Cocoa -framework OpenGL'
