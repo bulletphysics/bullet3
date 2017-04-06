@@ -814,7 +814,17 @@ struct BulletMJCFImporterInternalData
 
 			case URDF_GEOM_CYLINDER:
 			{
-				//todo
+				double r = col->m_geometry.m_capsuleRadius;
+				btScalar h(0);
+				//and one cylinder of 'height'
+				if (col->m_geometry.m_hasFromTo)
+				{
+					h = (col->m_geometry.m_capsuleFrom-col->m_geometry.m_capsuleTo).length();
+				} else
+				{
+					h = col->m_geometry.m_capsuleHeight;
+				}
+				totalVolume += SIMD_PI*r*r*h;
 				break;
 			}
 			case URDF_GEOM_MESH:
@@ -832,10 +842,16 @@ struct BulletMJCFImporterInternalData
 				//one sphere 
 				double r = col->m_geometry.m_capsuleRadius;
 				totalVolume += 4./3.*SIMD_PI*r*r*r;
-				//and one cylinder of 'height'
-				btScalar h = (col->m_geometry.m_capsuleFrom-col->m_geometry.m_capsuleTo).length();
+				btScalar h(0);
+				if (col->m_geometry.m_hasFromTo)
+				{
+					//and one cylinder of 'height'
+					h = (col->m_geometry.m_capsuleFrom-col->m_geometry.m_capsuleTo).length();
+				} else
+				{
+					h = col->m_geometry.m_capsuleHeight;
+				}
 				totalVolume += SIMD_PI*r*r*h;
-				
 				break;
 			}
 			default:
@@ -935,6 +951,7 @@ struct BulletMJCFImporterInternalData
 					}
 				}
 				const char* o = xml->Attribute("quat");
+				if (o)
 				{
 					std::string ornStr = o;
 					btQuaternion orn(0,0,0,1);
@@ -1585,7 +1602,40 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 			}
 			case URDF_GEOM_CYLINDER:
 			{
-//				childShape = new btCylinderShape(col->m_geometry...);
+				if (col->m_geometry.m_hasFromTo)
+				{
+					btVector3 f = col->m_geometry.m_capsuleFrom;
+					btVector3 t = col->m_geometry.m_capsuleTo;
+					
+					//compute the local 'fromto' transform
+					btVector3 localPosition = btScalar(0.5)*(t+f);
+					btQuaternion localOrn;
+					localOrn = btQuaternion::getIdentity();
+
+					btVector3 diff = t-f;
+					btScalar lenSqr = diff.length2();
+					btScalar height = 0.f;
+
+					if (lenSqr > SIMD_EPSILON)
+					{
+						height = btSqrt(lenSqr);
+						btVector3 ax = diff / height;
+
+						btVector3 zAxis(0,0,1);
+						localOrn = shortestArcQuat(zAxis,ax);
+					}
+					btCylinderShapeZ* cyl = new btCylinderShapeZ(btVector3(col->m_geometry.m_capsuleRadius,col->m_geometry.m_capsuleRadius,btScalar(0.5)*height));
+
+					btCompoundShape* compound = new btCompoundShape();
+					btTransform localTransform(localOrn,localPosition);
+					compound->addChildShape(localTransform,cyl);
+					childShape = compound;
+				} else
+				{
+					btCylinderShapeZ* cap = new btCylinderShapeZ(btVector3(col->m_geometry.m_capsuleRadius,
+						col->m_geometry.m_capsuleRadius,btScalar(0.5)*col->m_geometry.m_capsuleHeight));
+					childShape = cap;
+				}
 				break;
 			}
 			case URDF_GEOM_MESH:
@@ -1673,15 +1723,10 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 			}
 			case URDF_GEOM_CAPSULE:
 			{
-				//todo: convert fromto to btCapsuleShape + local btTransform
 				if (col->m_geometry.m_hasFromTo)
 				{
 					btVector3 f = col->m_geometry.m_capsuleFrom;
 					btVector3 t = col->m_geometry.m_capsuleTo;
-					//MuJoCo seems to take the average of the spheres as center?
-					//btVector3 c = (f+t)*0.5;
-					//f-=c;
-					//t-=c;
 					btVector3 fromto[2] = {f,t};
 					btScalar radii[2] = {btScalar(col->m_geometry.m_capsuleRadius)
 										,btScalar(col->m_geometry.m_capsuleRadius)};
