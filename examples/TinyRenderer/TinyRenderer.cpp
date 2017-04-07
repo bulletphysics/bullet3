@@ -427,7 +427,7 @@ static bool clipTriangleAgainstNearplane(const mat<4,3,float>& triangleIn, b3Ali
 	//discard triangle if all vertices are behind near-plane
 	if (triangleIn[3][0]<0 && triangleIn[3][1] <0 && triangleIn[3][2] <0)
 	{
-		return false;
+		return true;
 	}
 
 	//accept triangle if all vertices are in front of the near-plane
@@ -446,7 +446,7 @@ static bool clipTriangleAgainstNearplane(const mat<4,3,float>& triangleIn, b3Ali
 	clipEdge(triangleIn,2,0,vertices);
 
 	if (vertices.size()<3)
-		return false;
+		return true;
 	
 	if (equals(vertices[0],vertices[vertices.size()-1]))
 	{
