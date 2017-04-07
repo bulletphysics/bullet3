@@ -152,9 +152,7 @@ void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zb
 void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zbuffer, int* segmentationMaskBuffer, const Matrix& viewPortMatrix, int objectIndex) {
 	mat<3,4,float> pts  = (viewPortMatrix*clipc).transpose(); // transposed to ease access to each of the points
     
-	//we don't clip triangles that cross the near plane, just discard them instead of showing artifacts
-	if (pts[0][3]<0 || pts[1][3] <0 || pts[2][3] <0)
-		return;
+	
 
 	mat<3,2,float> pts2;
     for (int i=0; i<3; i++) pts2[i] = proj<2>(pts[i]/pts[i][3]);
