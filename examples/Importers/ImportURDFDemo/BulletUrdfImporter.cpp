@@ -746,16 +746,13 @@ upAxisMat.setIdentity();
 			btTriangleMesh* meshInterface = new btTriangleMesh();
 			for (int i=0; i<glmesh->m_numIndices/3; i++)
 			{
-				float* v0 = glmesh->m_vertices->at(glmesh->m_indices->at(i*3)).xyzw;
-				float* v1 = glmesh->m_vertices->at(glmesh->m_indices->at(i*3+1)).xyzw;
-				float* v2 = glmesh->m_vertices->at(glmesh->m_indices->at(i*3+2)).xyzw;
-				meshInterface->addTriangle(
-					btVector3(v0[0],v0[1],v0[2]),
-					btVector3(v1[0],v1[1],v1[2]),
-					btVector3(v2[0],v2[1],v2[2]));
+				const btVector3& v0 = convertedVerts[glmesh->m_indices->at(i*3)];
+				const btVector3& v1 = convertedVerts[glmesh->m_indices->at(i*3+1)];
+				const btVector3& v2 = convertedVerts[glmesh->m_indices->at(i*3+2)];
+				meshInterface->addTriangle(v0,v1,v2);
 			}
 			btBvhTriangleMeshShape* trimesh = new btBvhTriangleMeshShape(meshInterface,true,true);
-			trimesh->setLocalScaling(collision->m_geometry.m_meshScale);
+			//trimesh->setLocalScaling(collision->m_geometry.m_meshScale);
 			shape = trimesh;
 
 		} else
@@ -765,7 +762,7 @@ upAxisMat.setIdentity();
 			convexHull->optimizeConvexHull();
 			//convexHull->initializePolyhedralFeatures();
 			convexHull->setMargin(gUrdfDefaultCollisionMargin);
-			convexHull->setLocalScaling(collision->m_geometry.m_meshScale);
+			//convexHull->setLocalScaling(collision->m_geometry.m_meshScale);
 			shape = convexHull;
 		}
 
