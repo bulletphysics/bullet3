@@ -2537,9 +2537,18 @@ b3SharedMemoryCommandHandle	b3RequestVREventsCommandInit(b3PhysicsClientHandle p
 	b3Assert(command);
 
 	command->m_type = CMD_REQUEST_VR_EVENTS_DATA;
-	command->m_updateFlags = 0;
-
+	command->m_updateFlags = VR_DEVICE_CONTROLLER;
 	return (b3SharedMemoryCommandHandle)command;
+}
+
+void b3VREventsSetDeviceTypeFilter(b3SharedMemoryCommandHandle commandHandle, int deviceTypeFilter)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+	if (command->m_type == CMD_REQUEST_VR_EVENTS_DATA)
+	{
+		command->m_updateFlags = deviceTypeFilter;
+	}
 }
 
 void b3GetVREventsData(b3PhysicsClientHandle physClient, struct b3VREventsData* vrEventsData)

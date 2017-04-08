@@ -605,6 +605,7 @@ struct b3VRControllerEvents
 	{
 		for (int i=0;i<MAX_VR_CONTROLLERS;i++)
 		{
+			m_vrEvents[i].m_deviceType = 0;
 			m_vrEvents[i].m_numButtonEvents = 0;
 			m_vrEvents[i].m_numMoveEvents = 0;
 			for (int b=0;b<MAX_VR_BUTTONS;b++)
@@ -628,6 +629,7 @@ struct b3VRControllerEvents
 			if (vrEvents[i].m_numMoveEvents+vrEvents[i].m_numButtonEvents)
 			{
 				m_vrEvents[controlledId].m_controllerId = vrEvents[i].m_controllerId;
+				m_vrEvents[controlledId].m_deviceType = vrEvents[i].m_deviceType;
 
 				m_vrEvents[controlledId].m_pos[0] = vrEvents[i].m_pos[0];
 				m_vrEvents[controlledId].m_pos[1] = vrEvents[i].m_pos[1];
@@ -1209,7 +1211,9 @@ struct PhysicsServerCommandProcessorInternalData
 	bool m_allowRealTimeSimulation;
 	bool m_hasGround;
 
-	b3VRControllerEvents m_vrEvents1;
+	b3VRControllerEvents m_vrControllerEvents;
+
+
 	btAlignedObjectArray<b3KeyboardEvent> m_keyboardEvents;
 	
 	btMultiBodyFixedConstraint* m_gripperRigidbodyFixed;
@@ -1324,7 +1328,7 @@ struct PhysicsServerCommandProcessorInternalData
 		m_pickedConstraint(0),
 		m_pickingMultiBodyPoint2Point(0)
 	{
-		m_vrEvents1.init();
+		m_vrControllerEvents.init();
 
 		initHandles();
 #if 0
@@ -2362,20 +2366,23 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 				case CMD_REQUEST_VR_EVENTS_DATA:
 				{
 					BT_PROFILE("CMD_REQUEST_VR_EVENTS_DATA");
-
 					serverStatusOut.m_sendVREvents.m_numVRControllerEvents = 0;
+
 					for (int i=0;i<MAX_VR_CONTROLLERS;i++)
 					{
-						b3VRControllerEvent& event = m_data->m_vrEvents1.m_vrEvents[i];
+						b3VRControllerEvent& event = m_data->m_vrControllerEvents.m_vrEvents[i];
 
-						if (event.m_numButtonEvents + event.m_numMoveEvents)
+						if (clientCmd.m_updateFlags&event.m_deviceType)
 						{
-							serverStatusOut.m_sendVREvents.m_controllerEvents[serverStatusOut.m_sendVREvents.m_numVRControllerEvents++] = event;
-							event.m_numButtonEvents = 0;
-							event.m_numMoveEvents = 0;
-							for (int b=0;b<MAX_VR_BUTTONS;b++)
+							if (event.m_numButtonEvents + event.m_numMoveEvents)
 							{
-								event.m_buttons[b] = 0;
+								serverStatusOut.m_sendVREvents.m_controllerEvents[serverStatusOut.m_sendVREvents.m_numVRControllerEvents++] = event;
+								event.m_numButtonEvents = 0;
+								event.m_numMoveEvents = 0;
+								for (int b=0;b<MAX_VR_BUTTONS;b++)
+								{
+									event.m_buttons[b] = 0;
+								}
 							}
 						}
 					}
@@ -5668,15 +5675,15 @@ void PhysicsServerCommandProcessor::enableRealTimeSimulation(bool enableRealTime
 	m_data->m_allowRealTimeSimulation = enableRealTimeSim;
 }
 
-void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const struct b3VRControllerEvent* vrEvents, int numVREvents,const struct b3KeyboardEvent* keyEvents, int numKeyEvents)
+void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const struct b3VRControllerEvent* vrControllerEvents, int numVRControllerEvents,const struct b3KeyboardEvent* keyEvents, int numKeyEvents)
 {
-	m_data->m_vrEvents1.addNewVREvents(vrEvents,numVREvents);
+	m_data->m_vrControllerEvents.addNewVREvents(vrControllerEvents,numVRControllerEvents);
 	for (int i=0;i<m_data->m_stateLoggers.size();i++)
 	{
 		if (m_data->m_stateLoggers[i]->m_loggingType==STATE_LOGGING_VR_CONTROLLERS)
 		{
 			VRControllerStateLogger* vrLogger = (VRControllerStateLogger*) m_data->m_stateLoggers[i];
-			vrLogger->m_vrEvents.addNewVREvents(vrEvents,numVREvents);
+			vrLogger->m_vrEvents.addNewVREvents(vrControllerEvents,numVRControllerEvents);
 		}
 	}
 

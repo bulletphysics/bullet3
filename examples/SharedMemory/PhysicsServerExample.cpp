@@ -1046,7 +1046,9 @@ public:
 
 	virtual void	vrControllerButtonCallback(int controllerId, int button, int state, float pos[4], float orientation[4]);
 	virtual void	vrControllerMoveCallback(int controllerId, float pos[4], float orientation[4], float analogAxis);
-	
+	virtual void	vrHMDMoveCallback(int controllerId, float pos[4], float orientation[4]);
+	virtual void	vrGenericTrackerMoveCallback(int controllerId, float pos[4], float orientation[4]);
+
 
 	virtual bool	mouseMoveCallback(float x,float y)
 	{
@@ -2229,6 +2231,7 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 
 	m_args[0].m_csGUI->lock();
 	m_args[0].m_vrControllerEvents[controllerId].m_controllerId = controllerId;
+	m_args[0].m_vrControllerEvents[controllerId].m_deviceType = VR_DEVICE_CONTROLLER;
 	m_args[0].m_vrControllerEvents[controllerId].m_pos[0] = trTotal.getOrigin()[0];
 	m_args[0].m_vrControllerEvents[controllerId].m_pos[1] = trTotal.getOrigin()[1];
 	m_args[0].m_vrControllerEvents[controllerId].m_pos[2] = trTotal.getOrigin()[2];
@@ -2252,7 +2255,7 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 void	PhysicsServerExample::vrControllerMoveCallback(int controllerId, float pos[4], float orn[4], float analogAxis)
 {
 
-	if (controllerId <= 0 || controllerId >= MAX_VR_CONTROLLERS)
+	if (controllerId < 0 || controllerId >= MAX_VR_CONTROLLERS)
 	{
 		printf("Controller Id exceeds max: %d > %d", controllerId, MAX_VR_CONTROLLERS);
 		return;
@@ -2299,6 +2302,7 @@ void	PhysicsServerExample::vrControllerMoveCallback(int controllerId, float pos[
 
 	m_args[0].m_csGUI->lock();
 	m_args[0].m_vrControllerEvents[controllerId].m_controllerId = controllerId;
+	m_args[0].m_vrControllerEvents[controllerId].m_deviceType = VR_DEVICE_CONTROLLER;
 	m_args[0].m_vrControllerEvents[controllerId].m_pos[0] = trTotal.getOrigin()[0];
 	m_args[0].m_vrControllerEvents[controllerId].m_pos[1] = trTotal.getOrigin()[1];
 	m_args[0].m_vrControllerEvents[controllerId].m_pos[2] = trTotal.getOrigin()[2];
@@ -2311,4 +2315,87 @@ void	PhysicsServerExample::vrControllerMoveCallback(int controllerId, float pos[
 	m_args[0].m_csGUI->unlock();
 
 }
+
+void	PhysicsServerExample::vrHMDMoveCallback(int controllerId, float pos[4], float orn[4])
+{
+		if (controllerId < 0 || controllerId >= MAX_VR_CONTROLLERS)
+	{
+		printf("Controller Id exceeds max: %d > %d", controllerId, MAX_VR_CONTROLLERS);
+		return;
+	}
+
+	//we may need to add some trLocal transform, to align the camera to our preferences
+	btTransform trLocal;
+	trLocal.setIdentity();
+//	trLocal.setRotation(btQuaternion(btVector3(0, 0, 1), SIMD_HALF_PI)*btQuaternion(btVector3(0, 1, 0), SIMD_HALF_PI));
+
+	btTransform trOrg;
+	trOrg.setIdentity();
+	trOrg.setOrigin(btVector3(pos[0], pos[1], pos[2]));
+	trOrg.setRotation(btQuaternion(orn[0], orn[1], orn[2], orn[3]));
+
+	btTransform tr2a;
+	tr2a.setIdentity();
+	btTransform tr2;
+	tr2.setIdentity();
+	tr2.setOrigin(gVRTeleportPos1);
+	tr2a.setRotation(gVRTeleportOrn);
+	btTransform trTotal = tr2*tr2a*trOrg*trLocal;
+
+
+
+	m_args[0].m_csGUI->lock();
+	m_args[0].m_vrControllerEvents[controllerId].m_controllerId = controllerId;
+	m_args[0].m_vrControllerEvents[controllerId].m_deviceType = VR_DEVICE_HMD;
+	m_args[0].m_vrControllerEvents[controllerId].m_pos[0] = trTotal.getOrigin()[0];
+	m_args[0].m_vrControllerEvents[controllerId].m_pos[1] = trTotal.getOrigin()[1];
+	m_args[0].m_vrControllerEvents[controllerId].m_pos[2] = trTotal.getOrigin()[2];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[0] = trTotal.getRotation()[0];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[1] = trTotal.getRotation()[1];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[2] = trTotal.getRotation()[2];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[3] = trTotal.getRotation()[3];
+	m_args[0].m_vrControllerEvents[controllerId].m_numMoveEvents++;
+	m_args[0].m_csGUI->unlock();
+}
+void	PhysicsServerExample::vrGenericTrackerMoveCallback(int controllerId, float pos[4], float orn[4])
+{
+	if (controllerId < 0 || controllerId >= MAX_VR_CONTROLLERS)
+	{
+		printf("Controller Id exceeds max: %d > %d", controllerId, MAX_VR_CONTROLLERS);
+		return;
+	}
+
+		//we may need to add some trLocal transform, to align the camera to our preferences
+	btTransform trLocal;
+	trLocal.setIdentity();
+	trLocal.setRotation(btQuaternion(btVector3(0, 0, 1), SIMD_HALF_PI)*btQuaternion(btVector3(0, 1, 0), SIMD_HALF_PI));
+
+
+	btTransform trOrg;
+	trOrg.setIdentity();
+	trOrg.setOrigin(btVector3(pos[0], pos[1], pos[2]));
+	trOrg.setRotation(btQuaternion(orn[0], orn[1], orn[2], orn[3]));
+
+	btTransform tr2a;
+	tr2a.setIdentity();
+	btTransform tr2;
+	tr2.setIdentity();
+	tr2.setOrigin(gVRTeleportPos1);
+	tr2a.setRotation(gVRTeleportOrn);
+	btTransform trTotal = tr2*tr2a*trOrg*trLocal;
+
+	m_args[0].m_csGUI->lock();
+	m_args[0].m_vrControllerEvents[controllerId].m_controllerId = controllerId;
+	m_args[0].m_vrControllerEvents[controllerId].m_deviceType = VR_DEVICE_GENERIC_TRACKER;
+	m_args[0].m_vrControllerEvents[controllerId].m_pos[0] = trTotal.getOrigin()[0];
+	m_args[0].m_vrControllerEvents[controllerId].m_pos[1] = trTotal.getOrigin()[1];
+	m_args[0].m_vrControllerEvents[controllerId].m_pos[2] = trTotal.getOrigin()[2];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[0] = trTotal.getRotation()[0];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[1] = trTotal.getRotation()[1];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[2] = trTotal.getRotation()[2];
+	m_args[0].m_vrControllerEvents[controllerId].m_orn[3] = trTotal.getRotation()[3];
+	m_args[0].m_vrControllerEvents[controllerId].m_numMoveEvents++;
+	m_args[0].m_csGUI->unlock();
+}
+
 B3_STANDALONE_EXAMPLE(PhysicsServerCreateFunc)

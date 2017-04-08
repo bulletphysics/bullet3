@@ -3166,10 +3166,11 @@ static PyObject* pybullet_getVREvents(PyObject* self, PyObject* args, PyObject* 
 	b3SharedMemoryCommandHandle commandHandle;
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType;
+	int deviceTypeFilter = VR_DEVICE_CONTROLLER;
 	int physicsClientId = 0;
 	b3PhysicsClientHandle sm = 0;
-	static char* kwlist[] = {"physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|i", kwlist, &physicsClientId))
+	static char* kwlist[] = {"deviceTypeFilter", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|ii", kwlist, &deviceTypeFilter, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -3182,6 +3183,9 @@ static PyObject* pybullet_getVREvents(PyObject* self, PyObject* args, PyObject* 
 	}
 
 	commandHandle = b3RequestVREventsCommandInit(sm);
+
+	b3VREventsSetDeviceTypeFilter(commandHandle, deviceTypeFilter);
+
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 	statusType = b3GetStatusType(statusHandle);
 	if (statusType == CMD_REQUEST_VR_EVENTS_DATA_COMPLETED)
@@ -3194,7 +3198,7 @@ static PyObject* pybullet_getVREvents(PyObject* self, PyObject* args, PyObject* 
 		vrEventsObj = PyTuple_New(vrEvents.m_numControllerEvents);
 		for (i = 0; i < vrEvents.m_numControllerEvents; i++)
 		{
-			PyObject* vrEventObj = PyTuple_New(7);
+			PyObject* vrEventObj = PyTuple_New(8);
 
 			PyTuple_SetItem(vrEventObj, 0, PyInt_FromLong(vrEvents.m_controllerEvents[i].m_controllerId));
 			{
@@ -3226,6 +3230,7 @@ static PyObject* pybullet_getVREvents(PyObject* self, PyObject* args, PyObject* 
 				}
 				PyTuple_SetItem(vrEventObj, 6, buttonsObj);
 			}
+			PyTuple_SetItem(vrEventObj, 7, PyInt_FromLong(vrEvents.m_controllerEvents[i].m_deviceType));
 			PyTuple_SetItem(vrEventsObj, i, vrEventObj);
 		}
 		return vrEventsObj;
@@ -5591,6 +5596,10 @@ initpybullet(void)
 
 	PyModule_AddIntConstant(m, "VR_MAX_CONTROLLERS", MAX_VR_CONTROLLERS);
 	PyModule_AddIntConstant(m, "VR_MAX_BUTTONS", MAX_VR_BUTTONS);
+
+	PyModule_AddIntConstant(m, "VR_DEVICE_CONTROLLER", VR_DEVICE_CONTROLLER);
+	PyModule_AddIntConstant(m, "VR_DEVICE_HMD", VR_DEVICE_HMD);
+	PyModule_AddIntConstant(m, "VR_DEVICE_GENERIC_TRACKER", VR_DEVICE_GENERIC_TRACKER);
 
 	PyModule_AddIntConstant(m, "KEY_IS_DOWN", eButtonIsDown);
 	PyModule_AddIntConstant(m, "KEY_WAS_TRIGGERED", eButtonTriggered);

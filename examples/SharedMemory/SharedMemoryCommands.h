@@ -605,6 +605,7 @@ struct UserDebugDrawResultArgs
 	double m_parameterValue;
 };
 
+
 struct SendVREvents
 {
 	int m_numVRControllerEvents;
