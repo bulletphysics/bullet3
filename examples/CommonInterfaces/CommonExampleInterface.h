@@ -49,6 +49,8 @@ public:
 
 	virtual void	vrControllerMoveCallback(int controllerId, float pos[4], float orientation[4], float analogAxis) {}
 	virtual void	vrControllerButtonCallback(int controllerId, int button, int state, float pos[4], float orientation[4]){}
+	virtual void	vrHMDMoveCallback(int controllerId, float pos[4], float orientation[4]){}
+	virtual void	vrGenericTrackerMoveCallback(int controllerId, float pos[4], float orientation[4]){}
 
 	virtual void	processCommandLineArgs(int argc, char* argv[]){};
 };

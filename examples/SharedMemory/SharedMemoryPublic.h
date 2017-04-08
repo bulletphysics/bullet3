@@ -252,7 +252,9 @@ struct b3CameraImageData
 enum b3VREventType
 {
 	VR_CONTROLLER_MOVE_EVENT=1,
-	VR_CONTROLLER_BUTTON_EVENT
+	VR_CONTROLLER_BUTTON_EVENT=2,
+	VR_HMD_MOVE_EVENT=4,
+	VR_GENERIC_TRACKER_MOVE_EVENT=8,
 };
 
 #define MAX_VR_BUTTONS 64
@@ -271,9 +273,19 @@ enum b3VRButtonInfo
 	eButtonReleased = 4,
 };
 
+
+
+enum eVRDeviceTypeEnums
+{
+	VR_DEVICE_CONTROLLER=1,
+	VR_DEVICE_HMD=2,
+	VR_DEVICE_GENERIC_TRACKER=4,
+};
+
 struct b3VRControllerEvent
 {
 	int m_controllerId;//valid for VR_CONTROLLER_MOVE_EVENT and VR_CONTROLLER_BUTTON_EVENT
+	int m_deviceType;
 	int m_numMoveEvents;
 	int m_numButtonEvents;
 	
@@ -289,6 +301,11 @@ struct b3VREventsData
 {
 	int m_numControllerEvents;
 	struct b3VRControllerEvent* m_controllerEvents;
+	int m_numHmdEvents;
+	struct b3VRMoveEvent* m_hmdEvents;
+
+	int  m_numGenericTrackerEvents;
+	struct b3VRMoveEvent* m_genericTrackerEvents;
 };
 
 
