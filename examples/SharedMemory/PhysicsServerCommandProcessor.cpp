@@ -661,13 +661,14 @@ struct VRControllerStateLogger : public InternalStateLogger
 {
 	b3VRControllerEvents m_vrEvents;
 	int m_loggingTimeStamp;
-
+	int m_deviceTypeFilter;
 	std::string m_fileName;
 	FILE* m_logFileHandle;
 	std::string m_structTypes;
 
-	VRControllerStateLogger(int loggingUniqueId, const std::string& fileName)
+	VRControllerStateLogger(int loggingUniqueId, int deviceTypeFilter, const std::string& fileName)
 		:m_loggingTimeStamp(0),
+		m_deviceTypeFilter(deviceTypeFilter),
 		m_fileName(fileName),
 		m_logFileHandle(0)
 	{
@@ -716,66 +717,68 @@ struct VRControllerStateLogger : public InternalStateLogger
                
                 int stepCount = m_loggingTimeStamp;
                 float timeStamp = m_loggingTimeStamp*timeStep;
-            
+
 				for (int i=0;i<MAX_VR_CONTROLLERS;i++)
 				{
 					b3VRControllerEvent& event = m_vrEvents.m_vrEvents[i];
-
-					if (event.m_numButtonEvents + event.m_numMoveEvents)
+					if (m_deviceTypeFilter & event.m_deviceType)
 					{
-						MinitaurLogRecord logData;
-
-						//serverStatusOut.m_sendVREvents.m_controllerEvents[serverStatusOut.m_sendVREvents.m_numVRControllerEvents++] = event;
-						//log the event
-						logData.m_values.push_back(stepCount);
-						logData.m_values.push_back(timeStamp);
-						logData.m_values.push_back(event.m_controllerId);
-						logData.m_values.push_back(event.m_numMoveEvents);
-						logData.m_values.push_back(event.m_numButtonEvents);
-						logData.m_values.push_back(event.m_pos[0]);
-						logData.m_values.push_back(event.m_pos[1]);
-						logData.m_values.push_back(event.m_pos[2]);
-						logData.m_values.push_back(event.m_orn[0]);
-						logData.m_values.push_back(event.m_orn[1]);
-						logData.m_values.push_back(event.m_orn[2]);
-						logData.m_values.push_back(event.m_orn[3]);
-						logData.m_values.push_back(event.m_analogAxis);
-						int packedButtons[7]={0,0,0,0,0,0,0};
-
-						int packedButtonIndex = 0;
-						int packedButtonShift = 0;
-						//encode the 64 buttons into 7 int (3 bits each), each int stores 10 buttons
-						for (int b=0;b<MAX_VR_BUTTONS;b++)
+						if (event.m_numButtonEvents + event.m_numMoveEvents)
 						{
-							int buttonMask = event.m_buttons[b];
-							buttonMask = buttonMask << (packedButtonShift*3);
-							packedButtons[packedButtonIndex] |= buttonMask;
-							packedButtonShift++;
+							MinitaurLogRecord logData;
 
-							if (packedButtonShift>=10)
+							//serverStatusOut.m_sendVREvents.m_controllerEvents[serverStatusOut.m_sendVREvents.m_numVRControllerEvents++] = event;
+							//log the event
+							logData.m_values.push_back(stepCount);
+							logData.m_values.push_back(timeStamp);
+							logData.m_values.push_back(event.m_controllerId);
+							logData.m_values.push_back(event.m_numMoveEvents);
+							logData.m_values.push_back(event.m_numButtonEvents);
+							logData.m_values.push_back(event.m_pos[0]);
+							logData.m_values.push_back(event.m_pos[1]);
+							logData.m_values.push_back(event.m_pos[2]);
+							logData.m_values.push_back(event.m_orn[0]);
+							logData.m_values.push_back(event.m_orn[1]);
+							logData.m_values.push_back(event.m_orn[2]);
+							logData.m_values.push_back(event.m_orn[3]);
+							logData.m_values.push_back(event.m_analogAxis);
+							int packedButtons[7]={0,0,0,0,0,0,0};
+
+							int packedButtonIndex = 0;
+							int packedButtonShift = 0;
+							//encode the 64 buttons into 7 int (3 bits each), each int stores 10 buttons
+							for (int b=0;b<MAX_VR_BUTTONS;b++)
 							{
-								packedButtonShift=0;
-								packedButtonIndex++;
-								if (packedButtonIndex>=7)
+								int buttonMask = event.m_buttons[b];
+								buttonMask = buttonMask << (packedButtonShift*3);
+								packedButtons[packedButtonIndex] |= buttonMask;
+								packedButtonShift++;
+
+								if (packedButtonShift>=10)
 								{
-									btAssert(0);
-									break;
+									packedButtonShift=0;
+									packedButtonIndex++;
+									if (packedButtonIndex>=7)
+									{
+										btAssert(0);
+										break;
+									}
 								}
 							}
-						}
 
-						for (int b=0;b<7;b++)
-						{
-							logData.m_values.push_back(packedButtons[b]);
-						}
+							for (int b=0;b<7;b++)
+							{
+								logData.m_values.push_back(packedButtons[b]);
+							}
 
-						appendMinitaurLogData(m_logFileHandle, m_structTypes, logData);
+							appendMinitaurLogData(m_logFileHandle, m_structTypes, logData);
 
-						event.m_numButtonEvents = 0;
-						event.m_numMoveEvents = 0;
-						for (int b=0;b<MAX_VR_BUTTONS;b++)
-						{
-							event.m_buttons[b] = 0;
+							event.m_numButtonEvents = 0;
+							event.m_numMoveEvents = 0;
+							for (int b=0;b<MAX_VR_BUTTONS;b++)
+							{
+								event.m_buttons[b] = 0;
+							}
 						}
 					}
 				}
@@ -2314,7 +2317,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						{
 							std::string fileName = clientCmd.m_stateLoggingArguments.m_fileName;
                             int loggerUid = m_data->m_stateLoggersUniqueId++;
-                            VRControllerStateLogger* logger = new VRControllerStateLogger(loggerUid,fileName);
+							int deviceFilterType = VR_DEVICE_CONTROLLER;
+							if (clientCmd.m_updateFlags & STATE_LOGGING_FILTER_DEVICE_TYPE)
+							{
+								deviceFilterType = clientCmd.m_stateLoggingArguments.m_deviceFilterType;
+							}
+                            VRControllerStateLogger* logger = new VRControllerStateLogger(loggerUid,deviceFilterType, fileName);
                             m_data->m_stateLoggers.push_back(logger);
                             serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
                             serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
