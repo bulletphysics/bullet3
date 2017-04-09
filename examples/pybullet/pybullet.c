@@ -2683,8 +2683,9 @@ static PyObject* pybullet_startStateLogging(PyObject* self, PyObject* args, PyOb
 	int bodyUniqueIdB = -1;
 	int linkIndexA = -2;
 	int linkIndexB = -2;
+	int deviceTypeFilter = -1;
 
-	static char* kwlist[] = {"loggingType", "fileName", "objectUniqueIds", "maxLogDof", "bodyUniqueIdA", "bodyUniqueIdB", "linkIndexA", "linkIndexB", "physicsClientId", NULL};
+	static char* kwlist[] = {"loggingType", "fileName", "objectUniqueIds", "maxLogDof", "bodyUniqueIdA", "bodyUniqueIdB", "linkIndexA", "linkIndexB", "deviceTypeFilter", "physicsClientId", NULL};
 	int physicsClientId = 0;
 
 	if (!PyArg_ParseTupleAndKeywords(args, keywds, "is|Oiiiiii", kwlist,
@@ -2739,6 +2740,11 @@ static PyObject* pybullet_startStateLogging(PyObject* self, PyObject* args, PyOb
 		if (linkIndexB > -2)
 		{
 			b3StateLoggingSetLinkIndexB(commandHandle, linkIndexB);
+		}
+
+		if (deviceTypeFilter>=0)
+		{
+			b3StateLoggingSetDeviceTypeFilter(commandHandle,deviceTypeFilter);
 		}
 
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);

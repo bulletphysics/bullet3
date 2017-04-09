@@ -2648,6 +2648,7 @@ b3SharedMemoryCommandHandle	b3StateLoggingCommandInit(b3PhysicsClientHandle phys
 	command->m_type = CMD_STATE_LOGGING;
 	command->m_updateFlags = 0;
 	command->m_stateLoggingArguments.m_numBodyUniqueIds = 0;
+	command->m_stateLoggingArguments.m_deviceFilterType = VR_DEVICE_CONTROLLER;
 
 	return (b3SharedMemoryCommandHandle)command;
 
@@ -2767,6 +2768,20 @@ int b3StateLoggingSetMaxLogDof(b3SharedMemoryCommandHandle commandHandle, int ma
 	}
 	return 0;
 }
+
+int b3StateLoggingSetDeviceTypeFilter(b3SharedMemoryCommandHandle commandHandle, int deviceTypeFilter)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_STATE_LOGGING);
+	if (command->m_type == CMD_STATE_LOGGING)
+	{
+	    command->m_updateFlags |= STATE_LOGGING_FILTER_DEVICE_TYPE;
+		command->m_stateLoggingArguments.m_deviceFilterType = deviceTypeFilter;
+	}
+	return 0;
+}
+
 
 int b3StateLoggingStop(b3SharedMemoryCommandHandle commandHandle, int loggingUid)
 {
