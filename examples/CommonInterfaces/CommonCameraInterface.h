@@ -24,6 +24,8 @@ struct CommonCameraInterface
 
 	virtual void	setCameraUpVector(float x,float y, float z) = 0;
 	virtual	void	getCameraUpVector(float up[3]) const = 0;
+	virtual void	getCameraForwardVector(float fwd[3]) const = 0;
+
 	///the setCameraUpAxis will call the 'setCameraUpVector' and 'setCameraForwardVector'
 	virtual void	setCameraUpAxis(int axis) = 0;
 	virtual int		getCameraUpAxis() const = 0;

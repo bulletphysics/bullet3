@@ -3246,6 +3246,84 @@ static PyObject* pybullet_getVREvents(PyObject* self, PyObject* args, PyObject* 
 	return Py_None;
 }
 
+static PyObject* pybullet_getDebugVisualizerCamera(PyObject* self, PyObject* args, PyObject* keywds)
+{
+
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+	static char* kwlist[] = {"physicsClientId", NULL};
+	b3SharedMemoryCommandHandle commandHandle;
+	int hasCamInfo;
+	b3SharedMemoryStatusHandle statusHandle;
+	struct b3OpenGLVisualizerCameraInfo camera;
+	PyObject* pyCameraList =0;
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	commandHandle = b3InitRequestOpenGLVisualizerCameraCommand(sm);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+
+	hasCamInfo  = b3GetStatusOpenGLVisualizerCamera(statusHandle, &camera);
+	if (hasCamInfo)
+	{
+		PyObject* item=0;
+		pyCameraList = PyTuple_New(8);
+		item = PyInt_FromLong(camera.m_width);
+		PyTuple_SetItem(pyCameraList,0,item);
+		item = PyInt_FromLong(camera.m_height);
+		PyTuple_SetItem(pyCameraList,1,item);
+		{
+			PyObject* viewMat16 = PyTuple_New(16);
+			PyObject* projMat16 = PyTuple_New(16);
+			int i;
+
+			for (i=0;i<16;i++)
+			{
+				item = PyFloat_FromDouble(camera.m_viewMatrix[i]);
+				PyTuple_SetItem(viewMat16,i,item);
+				item = PyFloat_FromDouble(camera.m_projectionMatrix[i]);
+				PyTuple_SetItem(projMat16,i,item);
+			}
+			PyTuple_SetItem(pyCameraList,2,viewMat16);
+			PyTuple_SetItem(pyCameraList,3,projMat16);
+		}
+
+		{
+			PyObject* item=0;
+			int i;
+			PyObject* camUp = PyTuple_New(3);
+			PyObject* camFwd = PyTuple_New(3);
+			PyObject* hor = PyTuple_New(3);
+			PyObject* vert= PyTuple_New(3);
+			for (i=0;i<3;i++)
+			{
+				item = PyFloat_FromDouble(camera.m_camUp[i]);
+				PyTuple_SetItem(camUp,i,item);
+				item = PyFloat_FromDouble(camera.m_camForward[i]);
+				PyTuple_SetItem(camFwd,i,item);
+				item = PyFloat_FromDouble(camera.m_horizontal[i]);
+				PyTuple_SetItem(hor,i,item);
+				item = PyFloat_FromDouble(camera.m_vertical[i]);
+				PyTuple_SetItem(vert,i,item);
+			}
+			PyTuple_SetItem(pyCameraList,4,camUp);
+			PyTuple_SetItem(pyCameraList,5,camFwd);
+			PyTuple_SetItem(pyCameraList,6,hor);
+			PyTuple_SetItem(pyCameraList,7,vert);
+		}
+		return pyCameraList;
+	}
+
+	PyErr_SetString(SpamError, "Cannot get OpenGL visualizer camera info.");
+	return NULL;
+
+}
+
 static PyObject* pybullet_configureDebugVisualizer(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	int flag = 1;
@@ -5426,6 +5504,9 @@ static PyMethodDef SpamMethods[] = {
 	{"setDebugObjectColor", (PyCFunction)pybullet_setDebugObjectColor, METH_VARARGS | METH_KEYWORDS,
 	 "Override the wireframe debug drawing color for a particular object unique id / link index."
 	 "If you ommit the color, the custom color will be removed."},
+
+	{"getDebugVisualizerCamera", (PyCFunction)pybullet_getDebugVisualizerCamera, METH_VARARGS | METH_KEYWORDS,
+	 "Get information about the 3D visualizer camera, such as width, height, view matrix, projection matrix etc."},
 
 	{"configureDebugVisualizer", (PyCFunction)pybullet_configureDebugVisualizer, METH_VARARGS | METH_KEYWORDS,
 	 "For the 3D OpenGL Visualizer, enable/disable GUI, shadows."},
