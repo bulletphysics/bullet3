@@ -4186,6 +4186,24 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					break;
 				}
                     
+				case CMD_REQUEST_OPENGL_VISUALIZER_CAMERA:
+				{
+					BT_PROFILE("CMD_REQUEST_OPENGL_VISUALIZER_CAMERA");
+                    SharedMemoryStatus& serverCmd = serverStatusOut;
+					bool result = this->m_data->m_guiHelper->getCameraInfo(
+						&serverCmd.m_visualizerCameraResultArgs.m_width,
+						&serverCmd.m_visualizerCameraResultArgs.m_height,
+						serverCmd.m_visualizerCameraResultArgs.m_viewMatrix,
+						serverCmd.m_visualizerCameraResultArgs.m_projectionMatrix,
+						serverCmd.m_visualizerCameraResultArgs.m_camUp,
+						serverCmd.m_visualizerCameraResultArgs.m_camForward,
+						serverCmd.m_visualizerCameraResultArgs.m_horizontal,
+						serverCmd.m_visualizerCameraResultArgs.m_vertical);
+                    serverCmd.m_type = result ? CMD_REQUEST_OPENGL_VISUALIZER_CAMERA_COMPLETED: CMD_REQUEST_OPENGL_VISUALIZER_CAMERA_FAILED;
+					hasStatus = true;
+					break;
+				}
+
                 case CMD_CONFIGURE_OPENGL_VISUALIZER:
                 {
 					BT_PROFILE("CMD_CONFIGURE_OPENGL_VISUALIZER");

@@ -790,7 +790,7 @@ struct SharedMemoryStatus
 		struct SendKeyboardEvents m_sendKeyboardEvents;
 		struct SendRaycastHits m_raycastHits;
 		struct StateLoggingResultArgs m_stateLoggingResultArgs;
-
+		struct b3OpenGLVisualizerCameraInfo m_visualizerCameraResultArgs;
 	};
 };
 

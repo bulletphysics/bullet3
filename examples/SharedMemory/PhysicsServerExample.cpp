@@ -808,6 +808,12 @@ public:
 	    m_childGuiHelper->resetCamera(camDist,pitch,yaw,camPosX,camPosY,camPosZ);
 	}
 
+	virtual bool getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3],float hor[3], float vert[3] ) const
+	{
+		return m_childGuiHelper->getCameraInfo(width,height,viewMatrix,projectionMatrix,camUp,camForward,hor,vert);
+	}
+
+
 	float m_viewMatrix[16];
     float m_projectionMatrix[16];
     unsigned char* m_pixelsRGBA;

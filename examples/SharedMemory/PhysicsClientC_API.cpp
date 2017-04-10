@@ -2843,6 +2843,33 @@ void b3ConfigureOpenGLVisualizerSetViewMatrix(b3SharedMemoryCommandHandle comman
     }
 }
 
+b3SharedMemoryCommandHandle b3InitRequestOpenGLVisualizerCameraCommand(b3PhysicsClientHandle physClient)
+{
+    PhysicsClient* cl = (PhysicsClient*)physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    
+    command->m_type = CMD_REQUEST_OPENGL_VISUALIZER_CAMERA;
+    command->m_updateFlags = 0;
+    
+    return (b3SharedMemoryCommandHandle)command;
+
+}
+
+int b3GetStatusOpenGLVisualizerCamera(b3SharedMemoryStatusHandle statusHandle, b3OpenGLVisualizerCameraInfo* camera)
+{
+	const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
+    //b3Assert(status);
+    if (status && status->m_type == CMD_REQUEST_OPENGL_VISUALIZER_CAMERA_COMPLETED)
+    {
+		*camera = status->m_visualizerCameraResultArgs;
+		return 1;
+	}
+	return 0;
+}
+
 void b3SetTimeOut(b3PhysicsClientHandle physClient, double timeOutInSeconds)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;

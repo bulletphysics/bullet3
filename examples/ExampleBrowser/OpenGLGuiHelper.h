@@ -15,6 +15,7 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 	virtual ~OpenGLGuiHelper();
 
 	virtual struct CommonRenderInterface* getRenderInterface();
+	virtual const struct CommonRenderInterface* getRenderInterface() const;
 
 	virtual void createRigidBodyGraphicsObject(btRigidBody* body, const btVector3& color);
 
@@ -44,7 +45,8 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 	
     
 	virtual void resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ);
-	
+	virtual bool getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3],float hor[3], float vert[3] ) const;
+
 	virtual void copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16], 
                                   unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, 
                                   float* depthBuffer, int depthBufferSizeInPixels, 

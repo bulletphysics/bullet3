@@ -54,6 +54,7 @@ enum EnumSharedMemoryClientCommand
 	CMD_STATE_LOGGING,
     CMD_CONFIGURE_OPENGL_VISUALIZER,
 	CMD_REQUEST_KEYBOARD_EVENTS_DATA,
+	CMD_REQUEST_OPENGL_VISUALIZER_CAMERA,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -133,6 +134,8 @@ enum EnumSharedMemoryServerStatus
 		CMD_STATE_LOGGING_FAILED,
 		CMD_REQUEST_KEYBOARD_EVENTS_DATA_COMPLETED,
 		CMD_REQUEST_KEYBOARD_EVENTS_DATA_FAILED,
+		CMD_REQUEST_OPENGL_VISUALIZER_CAMERA_FAILED,
+		CMD_REQUEST_OPENGL_VISUALIZER_CAMERA_COMPLETED,
         //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
@@ -248,6 +251,19 @@ struct b3CameraImageData
 	const int* m_segmentationMaskValues;//m_pixelWidth*m_pixelHeight ints
 };
 
+struct b3OpenGLVisualizerCameraInfo
+{
+    int m_width;
+    int m_height;
+	float m_viewMatrix[16];
+	float m_projectionMatrix[16];
+	
+	float m_camUp[3];
+	float m_camForward[3];
+
+	float m_horizontal[3];
+	float m_vertical[3];
+};
 
 enum b3VREventType
 {

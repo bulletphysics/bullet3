@@ -834,6 +834,16 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 		break;
 	}
 	
+	case CMD_REQUEST_OPENGL_VISUALIZER_CAMERA_COMPLETED:
+	{
+		break;
+	}
+
+	case CMD_REQUEST_OPENGL_VISUALIZER_CAMERA_FAILED:
+	{
+		b3Warning("requestOpenGLVisualizeCamera failed");
+		break;
+	}
 	case CMD_REMOVE_USER_CONSTRAINT_FAILED:
 	{
 		b3Warning("removeConstraint failed");
