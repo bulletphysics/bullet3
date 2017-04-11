@@ -11,15 +11,24 @@
 #include "../SharedMemory/PhysicsClientTCP_C_API.h"
 #endif  //BT_ENABLE_CLSOCKET
 
-#ifdef __APPLE__
+#if defined(__APPLE__) && (!defined(B3_NO_PYTHON_FRAMEWORK))
 #include <Python/Python.h>
 #else
 #include <Python.h>
 #endif
 
+#ifdef B3_DUMP_PYTHON_VERSION
+#define B3_VALUE_TO_STRING(x) #x
+#define B3_VALUE(x) B3_VALUE_TO_STRING(x)
+#define B3_VAR_NAME_VALUE(var) #var "="  B3_VALUE(var)
+#pragma message(B3_VAR_NAME_VALUE(PY_MAJOR_VERSION))
+#pragma message(B3_VAR_NAME_VALUE(PY_MINOR_VERSION))
+#endif
+
 #ifdef PYBULLET_USE_NUMPY
 #include <numpy/arrayobject.h>
 #endif
+
 
 #if PY_MAJOR_VERSION >= 3
 #define PyInt_FromLong PyLong_FromLong
