@@ -201,96 +201,99 @@ void MyKeyboardCallback(int key, int state)
 	//if (handled)
 	//	return;
 
-	if (key=='a' && state)
+	if (s_window && s_window->isModifierKeyPressed(B3G_CONTROL))
 	{
-		gDebugDrawFlags ^= btIDebugDraw::DBG_DrawAabb;
-	}
-	if (key=='c' && state)
-	{
-		gDebugDrawFlags ^= btIDebugDraw::DBG_DrawContactPoints;
-	}
-	if (key == 'd' && state)
-	{
-		gDebugDrawFlags ^= btIDebugDraw::DBG_NoDeactivation;
-		gDisableDeactivation = ((gDebugDrawFlags & btIDebugDraw::DBG_NoDeactivation) != 0);
-	}
-	if (key == 'k' && state)
-	{
-		gDebugDrawFlags ^= btIDebugDraw::DBG_DrawConstraints;
-	}
-
-	if (key=='l' && state)
-	{
-		gDebugDrawFlags ^= btIDebugDraw::DBG_DrawConstraintLimits;
-	}
-	if (key=='w' && state)
-	{
-		visualWireframe=!visualWireframe;
-		gDebugDrawFlags ^= btIDebugDraw::DBG_DrawWireframe;
-	}
-
-
-	if (key=='v' && state)
-	{
-		renderVisualGeometry = !renderVisualGeometry;
-	}
-	if (key=='g' && state)
-	{
-		renderGrid = !renderGrid;
-		renderGui = !renderGui;
-	}
-
-
-	if (key=='i' && state)
-	{
-		pauseSimulation = !pauseSimulation;
-	}
-	if (key == 'o' && state)
-	{
-		singleStepSimulation = true;
-	}
-
-	if (key=='p')
-	{
-#ifndef BT_NO_PROFILE
-		if (state)
+		if (key=='a' && state)
 		{
-			b3ChromeUtilsStartTimings();
-
-		} else
-		{
-			b3ChromeUtilsStopTimingsAndWriteJsonFile();
+			gDebugDrawFlags ^= btIDebugDraw::DBG_DrawAabb;
 		}
-#endif //BT_NO_PROFILE
-	}
-
-#ifndef NO_OPENGL3
-	if (key=='s' && state)
-	{
-		useShadowMap=!useShadowMap;
-	}
-#endif
-	if (key==B3G_F1)
-	{
-		static int count=0;
-		if (state)
+		if (key=='c' && state)
 		{
-			b3Printf("F1 pressed %d", count++);
+			gDebugDrawFlags ^= btIDebugDraw::DBG_DrawContactPoints;
+		}
+		if (key == 'd' && state)
+		{
+			gDebugDrawFlags ^= btIDebugDraw::DBG_NoDeactivation;
+			gDisableDeactivation = ((gDebugDrawFlags & btIDebugDraw::DBG_NoDeactivation) != 0);
+		}
+		if (key == 'k' && state)
+		{
+			gDebugDrawFlags ^= btIDebugDraw::DBG_DrawConstraints;
+		}
 
-			if (gPngFileName)
+		if (key=='l' && state)
+		{
+			gDebugDrawFlags ^= btIDebugDraw::DBG_DrawConstraintLimits;
+		}
+		if (key=='w' && state)
+		{
+			visualWireframe=!visualWireframe;
+			gDebugDrawFlags ^= btIDebugDraw::DBG_DrawWireframe;
+		}
+
+
+		if (key=='v' && state)
+		{
+			renderVisualGeometry = !renderVisualGeometry;
+		}
+		if (key=='g' && state)
+		{
+			renderGrid = !renderGrid;
+			renderGui = !renderGui;
+		}
+
+
+		if (key=='i' && state)
+		{
+			pauseSimulation = !pauseSimulation;
+		}
+		if (key == 'o' && state)
+		{
+			singleStepSimulation = true;
+		}
+
+		if (key=='p')
+		{
+	#ifndef BT_NO_PROFILE
+			if (state)
 			{
-				b3Printf("disable image dump");
+				b3ChromeUtilsStartTimings();
 
-				gPngFileName=0;
 			} else
 			{
-				gPngFileName = gAllExamples->getExampleName(sCurrentDemoIndex);
-				b3Printf("enable image dump %s",gPngFileName);
-
+				b3ChromeUtilsStopTimingsAndWriteJsonFile();
 			}
-		} else 
+	#endif //BT_NO_PROFILE
+		}
+
+	#ifndef NO_OPENGL3
+		if (key=='s' && state)
 		{
-			b3Printf("F1 released %d",count++);
+			useShadowMap=!useShadowMap;
+		}
+	#endif
+		if (key==B3G_F1)
+		{
+			static int count=0;
+			if (state)
+			{
+				b3Printf("F1 pressed %d", count++);
+
+				if (gPngFileName)
+				{
+					b3Printf("disable image dump");
+
+					gPngFileName=0;
+				} else
+				{
+					gPngFileName = gAllExamples->getExampleName(sCurrentDemoIndex);
+					b3Printf("enable image dump %s",gPngFileName);
+
+				}
+			} else 
+			{
+				b3Printf("F1 released %d",count++);
+			}
 		}
 	}
 	if (key==B3G_ESCAPE && s_window)

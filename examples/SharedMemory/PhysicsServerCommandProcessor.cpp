@@ -1515,7 +1515,10 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 //	m_data->m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 2;
 	//todo: islands/constraints are buggy in btMultiBodyDynamicsWorld! (performance + see slipping grasp)
 
-
+	if (m_data->m_guiHelper)
+	{
+		m_data->m_guiHelper->createPhysicsDebugDrawer(m_data->m_dynamicsWorld);
+	}
 	m_data->m_dynamicsWorld->setInternalTickCallback(logCallback,this);
 }
 

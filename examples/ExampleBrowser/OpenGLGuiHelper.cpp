@@ -338,6 +338,12 @@ void OpenGLGuiHelper::render(const btDiscreteDynamicsWorld* rbWorld)
 void OpenGLGuiHelper::createPhysicsDebugDrawer(btDiscreteDynamicsWorld* rbWorld)
 {
 	btAssert(rbWorld);
+	if (m_data->m_debugDraw)
+	{
+		delete m_data->m_debugDraw;
+		m_data->m_debugDraw = 0;
+	}
+
     m_data->m_debugDraw = new MyDebugDrawer(m_data->m_glApp);
     rbWorld->setDebugDrawer(m_data->m_debugDraw );
 
