@@ -267,7 +267,10 @@ IF(BUILD_PYBULLET)
 	OPTION(BUILD_PYBULLET_NUMPY "Set when you want to build pybullet with NumPy support" OFF)
 	OPTION(BUILD_PYBULLET_ENET "Set when you want to build pybullet with enet UDP networking support" ON)
 	OPTION(BUILD_PYBULLET_CLSOCKET "Set when you want to build pybullet with enet TCP networking support" ON)
-	
+
+	OPTION(BUILD_PYBULLET_MAC_USE_PYTHON_FRAMEWORK "Set when you want to use the Python Framework on Mac" ON)
++#if defined(__APPLE__) && (!defined(B3_NO_PYTHON_FRAMEWORK))
+
 	IF(BUILD_PYBULLET_NUMPY)	
 		set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/build3/cmake)
 		#include(FindNumPy)
@@ -286,6 +289,19 @@ IF(BUILD_PYBULLET)
 	ELSE(WIN32)
 		SET(BUILD_SHARED_LIBS ON CACHE BOOL "Shared Libs" FORCE)
 	ENDIF(WIN32)
+
+	IF(APPLE)
+		OPTION(BUILD_PYBULLET_MAC_USE_PYTHON_FRAMEWORK "Set when you want to use the Python Framework on Mac" ON)
+		IF(NOT BUILD_PYBULLET_MAC_USE_PYTHON_FRAMEWORK)
+			add_definitions(-DB3_NO_PYTHON_FRAMEWORK)
+		ENDIF(NOT BUILD_PYBULLET_MAC_USE_PYTHON_FRAMEWORK)
+		OPTION(BUILD_PYBULLET_SHOW_PY_VERSION "Set when you want to show the PY_MAJOR_VERSION and PY_MAJOR_VERSION using #pragme message." OFF)
+		IF(BUILD_PYBULLET_SHOW_PY_VERSION)
+			add_definitions(-DB3_DUMP_PYTHON_VERSION)
+		ENDIF()
+
+	ENDIF(APPLE)
+
 ENDIF(BUILD_PYBULLET)
 
 IF(BUILD_BULLET3)
