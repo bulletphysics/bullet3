@@ -1,3 +1,5 @@
+#ifdef __APPLE__
+
 #include "MacOpenGLWindow.h"
 
 #include "OpenGLInclude.h"
@@ -187,6 +189,7 @@ void	MacOpenGLWindow::setAllowRetina(bool allow)
 }
 	
 
-	
+#endif //__APPLE__
+
 	
 

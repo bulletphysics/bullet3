@@ -185,14 +185,15 @@ enum EnumRequestContactDataUpdateFlags
 
 struct RequestRaycastIntersections
 {
-	double m_rayFromPosition[3];
-	double m_rayToPosition[3];
+	int m_numRays;
+	double m_rayFromPositions[MAX_RAY_INTERSECTION_BATCH_SIZE][3];
+	double m_rayToPositions[MAX_RAY_INTERSECTION_BATCH_SIZE][3];
 };
 
 struct SendRaycastHits
 {
 	int m_numRaycastHits;
-	b3RayHitInfo m_rayHits[MAX_RAY_HITS];
+	b3RayHitInfo m_rayHits[MAX_RAY_INTERSECTION_BATCH_SIZE];
 };
 
 struct RequestContactDataArgs
@@ -604,6 +605,7 @@ struct UserDebugDrawResultArgs
 	double m_parameterValue;
 };
 
+
 struct SendVREvents
 {
 	int m_numVRControllerEvents;
@@ -615,6 +617,7 @@ struct SendKeyboardEvents
 	int m_numKeyboardEvents;
 	b3KeyboardEvent m_keyboardEvents[MAX_KEYBOARD_EVENTS];
 };
+
 
 enum eVRCameraEnums
 {
@@ -633,6 +636,7 @@ enum eStateLoggingEnums
 	STATE_LOGGING_FILTER_LINK_INDEX_B=32,
 	STATE_LOGGING_FILTER_BODY_UNIQUE_ID_A=64,
 	STATE_LOGGING_FILTER_BODY_UNIQUE_ID_B=128,
+	STATE_LOGGING_FILTER_DEVICE_TYPE=256
 };
 
 struct VRCameraState
@@ -656,6 +660,7 @@ struct StateLoggingRequest
 	int m_linkIndexB; // only if STATE_LOGGING_FILTER_LINK_INDEX_B flag is set
 	int m_bodyUniqueIdA; // only if STATE_LOGGING_FILTER_BODY_UNIQUE_ID_A flag is set
 	int m_bodyUniqueIdB; // only if STATE_LOGGING_FILTER_BODY_UNIQUE_ID_B flag is set
+	int m_deviceFilterType; //user to select (filter) which VR devices to log
 };
 
 struct StateLoggingResultArgs
@@ -785,7 +790,7 @@ struct SharedMemoryStatus
 		struct SendKeyboardEvents m_sendKeyboardEvents;
 		struct SendRaycastHits m_raycastHits;
 		struct StateLoggingResultArgs m_stateLoggingResultArgs;
-
+		struct b3OpenGLVisualizerCameraInfo m_visualizerCameraResultArgs;
 	};
 };
 

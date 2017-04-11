@@ -1383,16 +1383,51 @@ b3SharedMemoryCommandHandle b3CreateRaycastCommandInit(b3PhysicsClientHandle phy
     struct SharedMemoryCommand *command = cl->getAvailableSharedMemoryCommand();
     b3Assert(command);
     command->m_type = CMD_REQUEST_RAY_CAST_INTERSECTIONS;
-	command->m_requestRaycastIntersections.m_rayFromPosition[0] = rayFromWorldX;
-	command->m_requestRaycastIntersections.m_rayFromPosition[1] = rayFromWorldY;
-	command->m_requestRaycastIntersections.m_rayFromPosition[2] = rayFromWorldZ;
-	command->m_requestRaycastIntersections.m_rayToPosition[0] = rayToWorldX;
-	command->m_requestRaycastIntersections.m_rayToPosition[1] = rayToWorldY;
-	command->m_requestRaycastIntersections.m_rayToPosition[2] = rayToWorldZ;
+	command->m_requestRaycastIntersections.m_numRays = 1;
+	command->m_requestRaycastIntersections.m_rayFromPositions[0][0] = rayFromWorldX;
+	command->m_requestRaycastIntersections.m_rayFromPositions[0][1] = rayFromWorldY;
+	command->m_requestRaycastIntersections.m_rayFromPositions[0][2] = rayFromWorldZ;
+	command->m_requestRaycastIntersections.m_rayToPositions[0][0] = rayToWorldX;
+	command->m_requestRaycastIntersections.m_rayToPositions[0][1] = rayToWorldY;
+	command->m_requestRaycastIntersections.m_rayToPositions[0][2] = rayToWorldZ;
 
     return (b3SharedMemoryCommandHandle)command;
-
 }
+
+b3SharedMemoryCommandHandle b3CreateRaycastBatchCommandInit(b3PhysicsClientHandle physClient)
+{
+	PhysicsClient *cl = (PhysicsClient *)physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand *command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type = CMD_REQUEST_RAY_CAST_INTERSECTIONS;
+	command->m_updateFlags = 0;
+	command->m_requestRaycastIntersections.m_numRays = 0;
+	return (b3SharedMemoryCommandHandle)command;
+}
+
+void b3RaycastBatchAddRay(b3SharedMemoryCommandHandle commandHandle, const double rayFromWorld[3], const double rayToWorld[3])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_RAY_CAST_INTERSECTIONS);
+	if (command->m_type == CMD_REQUEST_RAY_CAST_INTERSECTIONS)
+	{
+		int numRays = command->m_requestRaycastIntersections.m_numRays;
+		if (numRays<MAX_RAY_INTERSECTION_BATCH_SIZE)
+		{
+			command->m_requestRaycastIntersections.m_rayFromPositions[numRays][0] = rayFromWorld[0];
+			command->m_requestRaycastIntersections.m_rayFromPositions[numRays][1] = rayFromWorld[1];
+			command->m_requestRaycastIntersections.m_rayFromPositions[numRays][2] = rayFromWorld[2];
+			command->m_requestRaycastIntersections.m_rayToPositions[numRays][0] = rayToWorld[0];
+			command->m_requestRaycastIntersections.m_rayToPositions[numRays][1] = rayToWorld[1];
+			command->m_requestRaycastIntersections.m_rayToPositions[numRays][2] = rayToWorld[2];
+			command->m_requestRaycastIntersections.m_numRays++;
+		}
+	}
+}
+
 
 void b3GetRaycastInformation(b3PhysicsClientHandle physClient, struct b3RaycastInformation* raycastInfo)
 {
@@ -2502,9 +2537,18 @@ b3SharedMemoryCommandHandle	b3RequestVREventsCommandInit(b3PhysicsClientHandle p
 	b3Assert(command);
 
 	command->m_type = CMD_REQUEST_VR_EVENTS_DATA;
-	command->m_updateFlags = 0;
-
+	command->m_updateFlags = VR_DEVICE_CONTROLLER;
 	return (b3SharedMemoryCommandHandle)command;
+}
+
+void b3VREventsSetDeviceTypeFilter(b3SharedMemoryCommandHandle commandHandle, int deviceTypeFilter)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+	if (command->m_type == CMD_REQUEST_VR_EVENTS_DATA)
+	{
+		command->m_updateFlags = deviceTypeFilter;
+	}
 }
 
 void b3GetVREventsData(b3PhysicsClientHandle physClient, struct b3VREventsData* vrEventsData)
@@ -2604,6 +2648,7 @@ b3SharedMemoryCommandHandle	b3StateLoggingCommandInit(b3PhysicsClientHandle phys
 	command->m_type = CMD_STATE_LOGGING;
 	command->m_updateFlags = 0;
 	command->m_stateLoggingArguments.m_numBodyUniqueIds = 0;
+	command->m_stateLoggingArguments.m_deviceFilterType = VR_DEVICE_CONTROLLER;
 
 	return (b3SharedMemoryCommandHandle)command;
 
@@ -2724,6 +2769,20 @@ int b3StateLoggingSetMaxLogDof(b3SharedMemoryCommandHandle commandHandle, int ma
 	return 0;
 }
 
+int b3StateLoggingSetDeviceTypeFilter(b3SharedMemoryCommandHandle commandHandle, int deviceTypeFilter)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_STATE_LOGGING);
+	if (command->m_type == CMD_STATE_LOGGING)
+	{
+	    command->m_updateFlags |= STATE_LOGGING_FILTER_DEVICE_TYPE;
+		command->m_stateLoggingArguments.m_deviceFilterType = deviceTypeFilter;
+	}
+	return 0;
+}
+
+
 int b3StateLoggingStop(b3SharedMemoryCommandHandle commandHandle, int loggingUid)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
@@ -2782,6 +2841,33 @@ void b3ConfigureOpenGLVisualizerSetViewMatrix(b3SharedMemoryCommandHandle comman
         command->m_configureOpenGLVisualizerArguments.m_cameraTargetPosition[1] = cameraTargetPosition[1];
         command->m_configureOpenGLVisualizerArguments.m_cameraTargetPosition[2] = cameraTargetPosition[2];
     }
+}
+
+b3SharedMemoryCommandHandle b3InitRequestOpenGLVisualizerCameraCommand(b3PhysicsClientHandle physClient)
+{
+    PhysicsClient* cl = (PhysicsClient*)physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    
+    command->m_type = CMD_REQUEST_OPENGL_VISUALIZER_CAMERA;
+    command->m_updateFlags = 0;
+    
+    return (b3SharedMemoryCommandHandle)command;
+
+}
+
+int b3GetStatusOpenGLVisualizerCamera(b3SharedMemoryStatusHandle statusHandle, b3OpenGLVisualizerCameraInfo* camera)
+{
+	const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
+    //b3Assert(status);
+    if (status && status->m_type == CMD_REQUEST_OPENGL_VISUALIZER_CAMERA_COMPLETED)
+    {
+		*camera = status->m_visualizerCameraResultArgs;
+		return 1;
+	}
+	return 0;
 }
 
 void b3SetTimeOut(b3PhysicsClientHandle physClient, double timeOutInSeconds)

@@ -32,7 +32,7 @@
   <link name="base_chassis_link">
     <visual>
       <geometry>
-        <box size=".33 0.14 .07"/>
+        <box size=".33 0.10 .07"/>
       </geometry>
       <material name="black">
         <color rgba="0.3 0.3 0.3 1"/>
@@ -59,7 +59,7 @@
 
     <collision>
       <geometry>
-       <box size=".34 0.14 .07"/>
+       <box size=".33 0.10 .07"/>
       </geometry>
     </collision>
     <collision>
@@ -229,7 +229,7 @@
   </joint>
   
   
-  <link name="motor_front_leftR_link">
+  <link name="motor_front_leftL_link">
     <visual>
       <geometry>
         <mesh filename="tmotor3.obj" scale="1 1 1"/>
@@ -248,17 +248,17 @@
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
-  <joint name="motor_front_leftR_joint" type="continuous">
+  <joint name="motor_front_leftL_joint" type="continuous">
     <axis xyz="0 0 1"/>
     <parent link="chassis_left"/>
-    <child link="motor_front_leftR_link"/>
+    <child link="motor_front_leftL_link"/>
     <origin rpy="1.57075 0 3.141592" xyz="0.21 0.025 0"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
 
 
-	<link name="motor_front_leftL_link">
+	<link name="motor_front_leftR_link">
     <visual>
       <geometry>
         <mesh filename="tmotor3.obj" scale="1 1 1"/>
@@ -272,10 +272,10 @@
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
-  <joint name="motor_front_leftL_joint" type="continuous">
+  <joint name="motor_front_leftR_joint" type="continuous">
     <axis xyz="0 0 1"/>
     <parent link="chassis_left"/>
-    <child link="motor_front_leftL_link"/>
+    <child link="motor_front_leftR_link"/>
     <origin rpy="1.57075 0 0" xyz="0.21 -0.04 0"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
@@ -340,36 +340,7 @@
   </joint>
   
   
-  <link name="motor_back_leftR_link">
-    <visual>
-      <geometry>
-        <mesh filename="tmotor3.obj" scale="1 1 1"/>
-      </geometry>
-      <material name="white">
-        <color rgba="1 1 1 1"/>
-      </material>
-    </visual>
-    <collision>
-      <geometry>
-        <cylinder length="0.026" radius="0.0434"/>
-      </geometry>
-    </collision>
-    <inertial>
-      <mass value="0.25"/>
-      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
-    </inertial>
-  </link>
-  <joint name="motor_back_leftR_joint" type="continuous">
-    <axis xyz="0 0 1"/>
-    <parent link="chassis_left"/>
-    <child link="motor_back_leftR_link"/>
-    <origin rpy="1.57075 0 3.141592" xyz="-0.21 0.025 0"/>
-    <limit effort="100" velocity="100"/>
-    <joint_properties damping="0.0" friction="0.0"/>
-  </joint>
-
-
-	<link name="motor_back_leftL_link">
+  <link name="motor_back_leftL_link">
     <visual>
       <geometry>
         <mesh filename="tmotor3.obj" scale="1 1 1"/>
@@ -392,6 +363,35 @@
     <axis xyz="0 0 1"/>
     <parent link="chassis_left"/>
     <child link="motor_back_leftL_link"/>
+    <origin rpy="1.57075 0 3.141592" xyz="-0.21 0.025 0"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+
+
+	<link name="motor_back_leftR_link">
+    <visual>
+      <geometry>
+        <mesh filename="tmotor3.obj" scale="1 1 1"/>
+      </geometry>
+      <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="0.026" radius="0.0434"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.25"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+    </inertial>
+  </link>
+  <joint name="motor_back_leftR_joint" type="continuous">
+    <axis xyz="0 0 1"/>
+    <parent link="chassis_left"/>
+    <child link="motor_back_leftR_link"/>
     <origin rpy="1.57075 0 0" xyz="-0.21 -0.04 0"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>

@@ -1551,9 +1551,11 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 	b3CreateOrtho(-shadowMapWorldSize,shadowMapWorldSize,-shadowMapWorldSize,shadowMapWorldSize,1,300,depthProjectionMatrix);//-14,14,-14,14,1,200, depthProjectionMatrix);
 	float depthViewMatrix[4][4];
 	b3Vector3 center = b3MakeVector3(0,0,0);
-	float upf[3];
-	m_data->m_activeCamera->getCameraUpVector(upf);
-	b3Vector3 up = b3MakeVector3(upf[0],upf[1],upf[2]);
+	//float upf[3];
+	//m_data->m_activeCamera->getCameraUpVector(upf);
+	b3Vector3 up, fwd;
+	b3PlaneSpace1(gLightPos,up,fwd);
+//	b3Vector3 up = b3MakeVector3(upf[0],upf[1],upf[2]);
 	b3CreateLookAt(gLightPos,center,up,&depthViewMatrix[0][0]);
 	//b3CreateLookAt(lightPos,m_data->m_cameraTargetPosition,b3Vector3(0,1,0),(float*)depthModelViewMatrix2);
 
