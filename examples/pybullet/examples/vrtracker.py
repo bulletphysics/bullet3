@@ -19,6 +19,9 @@ if (c<0):
 p.setInternalSimFlags(0)#don't load default robot assets etc
 p.resetSimulation()
 p.loadURDF("plane.urdf")
+p.loadURDF("cube.urdf",0,0,1)
+p.setGravity(0,0,-10)
+p.setRealTimeSimulation(1)
 
 prevPosition=[None]*p.VR_MAX_CONTROLLERS
 colors=[0.,0.5,0.5]*p.VR_MAX_CONTROLLERS
@@ -31,6 +34,10 @@ colors[2] = [0,0.5,0]
 colors[3] = [0,0,0.5]
 colors[4] = [0.5,0.5,0.]
 colors[5] = [.5,.5,.5]
+
+p.startStateLogging(p.STATE_LOGGING_VR_CONTROLLERS, "vr_hmd.bin",deviceTypeFilter=p.VR_DEVICE_HMD)
+p.startStateLogging(p.STATE_LOGGING_GENERIC_ROBOT, "generic_data.bin")
+p.startStateLogging(p.STATE_LOGGING_CONTACT_POINTS, "contact_points.bin")
 
 while True:
 	events = p.getVREvents(p.VR_DEVICE_HMD+p.VR_DEVICE_GENERIC_TRACKER)

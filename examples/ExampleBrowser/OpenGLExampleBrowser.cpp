@@ -201,7 +201,7 @@ void MyKeyboardCallback(int key, int state)
 	//if (handled)
 	//	return;
 
-	if (s_window && s_window->isModifierKeyPressed(B3G_CONTROL))
+	//if (s_window && s_window->isModifierKeyPressed(B3G_CONTROL))
 	{
 		if (key=='a' && state)
 		{

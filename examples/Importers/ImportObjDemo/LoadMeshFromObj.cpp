@@ -9,9 +9,16 @@
 
 GLInstanceGraphicsShape* LoadMeshFromObj(const char* relativeFileName, const char* materialPrefixPath)
 {
+	B3_PROFILE("LoadMeshFromObj");
 	std::vector<tinyobj::shape_t> shapes;
-	std::string err = tinyobj::LoadObj(shapes, relativeFileName, materialPrefixPath);
-		
-	GLInstanceGraphicsShape* gfxShape = btgCreateGraphicsShapeFromWavefrontObj(shapes);
-	return gfxShape;
+	{
+		B3_PROFILE("tinyobj::LoadObj2");
+		std::string err = tinyobj::LoadObj(shapes, relativeFileName, materialPrefixPath);
+	}
+
+	{
+		B3_PROFILE("btgCreateGraphicsShapeFromWavefrontObj");
+		GLInstanceGraphicsShape* gfxShape = btgCreateGraphicsShapeFromWavefrontObj(shapes);
+		return gfxShape;
+	}
 }
