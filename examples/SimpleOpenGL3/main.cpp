@@ -1,8 +1,15 @@
 
 
+//#define USE_OPENGL2
+#ifdef USE_OPENGL2
+#include "OpenGLWindow/SimpleOpenGL2App.h"
+typedef SimpleOpenGL2App SimpleOpenGLApp ;
 
+#else
 #include "OpenGLWindow/SimpleOpenGL3App.h"
+typedef SimpleOpenGL3App SimpleOpenGLApp ;
 
+#endif //USE_OPENGL2
 
 #include "Bullet3Common/b3Quaternion.h"
 #include "Bullet3Common/b3CommandLineArgs.h"
@@ -23,7 +30,7 @@ static b3KeyboardCallback sOldKeyboardCB = 0;
 
 float gWidth = 1024;
 float gHeight = 768;
-SimpleOpenGL3App* app  = 0;
+SimpleOpenGLApp* app  = 0;
 float gMouseX = 0;
 float gMouseY = 0;
 float g_MouseWheel = 0.0f;
@@ -246,11 +253,12 @@ int main(int argc, char* argv[])
 		b3CommandLineArgs myArgs(argc, argv);
 
 
-		app = new SimpleOpenGL3App("SimpleOpenGL3App", gWidth, gHeight, true);
+		app = new SimpleOpenGLApp("SimpleOpenGLApp", gWidth, gHeight);
 
-		app->m_instancingRenderer->getActiveCamera()->setCameraDistance(13);
-		app->m_instancingRenderer->getActiveCamera()->setCameraPitch(0);
-		app->m_instancingRenderer->getActiveCamera()->setCameraTargetPosition(0, 0, 0);
+		app->m_renderer->getActiveCamera()->setCameraDistance(13);
+		app->m_renderer->getActiveCamera()->setCameraPitch(0);
+		app->m_renderer->getActiveCamera()->setCameraTargetPosition(0, 0, 0);
+
 		sOldKeyboardCB = app->m_window->getKeyboardCallback();
 		app->m_window->setKeyboardCallback(MyKeyboardCallback);
 		sOldMouseMoveCB = app->m_window->getMouseMoveCallback();
@@ -320,19 +328,19 @@ int main(int argc, char* argv[])
 			app->m_renderer->activateTexture(textureHandle);
 			app->m_renderer->updateTexture(textureHandle, image);
 
-			float color[4] = { 255, 1, 1, 1 };
-			app->m_primRenderer->drawTexturedRect(100, 200, gWidth / 2 - 50, gHeight / 2 - 50, color, 0, 0, 1, 1, true);
+			//float color[4] = { 255, 1, 1, 1 };
+			//app->m_primRenderer->drawTexturedRect(100, 200, gWidth / 2 - 50, gHeight / 2 - 50, color, 0, 0, 1, 1, true);
 
 
-			app->m_instancingRenderer->init();
-			app->m_instancingRenderer->updateCamera();
+			app->m_renderer->init();
+			app->m_renderer->updateCamera(1);
 
 			app->m_renderer->renderScene();
 			app->drawGrid();
 			char bla[1024];
 			sprintf(bla, "Simple test frame %d", frameCount);
 
-			app->drawText(bla, 10, 10);
+			//app->drawText(bla, 10, 10);
 
 #ifdef B3_USE_IMGUI
 			{
