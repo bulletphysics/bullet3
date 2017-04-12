@@ -266,9 +266,10 @@ end
 		if _OPTIONS["enable_pybullet"] then
 		  include "../examples/pybullet"
 		end
+		include "../examples/SimpleOpenGL3"
 
 		if _OPTIONS["standalone-examples"] then
-			include "../examples/SimpleOpenGL3"
+			
 			include "../examples/TinyRenderer"
 			include "../examples/BasicDemo"
 			include "../examples/InverseDynamics"

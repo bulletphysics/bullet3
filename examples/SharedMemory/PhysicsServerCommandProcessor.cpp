@@ -696,7 +696,8 @@ struct VRControllerStateLogger : public InternalStateLogger
 		structNames.push_back("buttons4");
 		structNames.push_back("buttons5");
 		structNames.push_back("buttons6");
-		m_structTypes = "IfIIIffffffffIIIIIII";
+		structNames.push_back("deviceType");
+		m_structTypes = "IfIIIffffffffIIIIIIII";
 
 		const char* fileNameC = fileName.c_str();
 		m_logFileHandle = createMinitaurLogFile(fileNameC, structNames, m_structTypes);
@@ -770,7 +771,7 @@ struct VRControllerStateLogger : public InternalStateLogger
 							{
 								logData.m_values.push_back(packedButtons[b]);
 							}
-
+							logData.m_values.push_back(event.m_deviceType);
 							appendMinitaurLogData(m_logFileHandle, m_structTypes, logData);
 
 							event.m_numButtonEvents = 0;
@@ -829,7 +830,7 @@ struct GenericRobotStateLogger : public InternalStateLogger
         structNames.push_back("omegaZ");
         structNames.push_back("qNum");
 
-		m_structTypes = "IfIfffffffffffffI";
+		m_structTypes = "IfifffffffffffffI";
 
 		for (int i=0;i<m_maxLogDof;i++)
 		{
@@ -1004,7 +1005,7 @@ struct ContactPointsStateLogger : public InternalStateLogger
 		structNames.push_back("contactNormalOnBZ");
 		structNames.push_back("contactDistance");
 		structNames.push_back("normalForce");
-		m_structTypes = "IfIIIIIfffffffffff";
+		m_structTypes = "IfIiiiifffffffffff";
 		
 		const char* fileNameC = fileName.c_str();
 		m_logFileHandle = createMinitaurLogFile(fileNameC, structNames, m_structTypes);
@@ -1515,7 +1516,10 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 //	m_data->m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 2;
 	//todo: islands/constraints are buggy in btMultiBodyDynamicsWorld! (performance + see slipping grasp)
 
-
+	if (m_data->m_guiHelper)
+	{
+		m_data->m_guiHelper->createPhysicsDebugDrawer(m_data->m_dynamicsWorld);
+	}
 	m_data->m_dynamicsWorld->setInternalTickCallback(logCallback,this);
 }
 
@@ -5808,6 +5812,7 @@ void PhysicsServerCommandProcessor::resetSimulation()
 	if (m_data && m_data->m_guiHelper)
 	{
 		m_data->m_guiHelper->removeAllGraphicsInstances();
+		m_data->m_guiHelper->removeAllUserDebugItems();
 	}
 	if (m_data)
 	{

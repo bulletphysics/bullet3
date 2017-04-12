@@ -143,7 +143,7 @@ p.setRealTimeSimulation(useRealTime)
 print("quadruped Id = ")
 print(quadruped)
 p.saveWorld("quadru.py")
-logId = p.startStateLogging(p.STATE_LOGGING_MINITAUR,"quadrupedLog.txt",[quadruped])
+logId = p.startStateLogging(p.STATE_LOGGING_MINITAUR,"quadrupedLog.bin",[quadruped])
 
 
 
