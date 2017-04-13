@@ -21,10 +21,26 @@ CXX_FLAGS += '-DGWEN_COMPILE_STATIC '
 CXX_FLAGS += '-DBT_USE_DOUBLE_PRECISION '
 CXX_FLAGS += '-DBT_ENABLE_ENET '
 CXX_FLAGS += '-DBT_ENABLE_CLSOCKET '
+CXX_FLAGS += '-DB3_DUMP_PYTHON_VERSION '
+
+
 
 # libraries += [current_python]
 
 libraries = []
+include_dirs = []
+
+try:
+    import numpy
+    NP_DIRS = [numpy.get_include()]
+except:
+	  print("numpy is disabled. getCameraImage maybe slower.")
+else:
+	  print("numpy is enabled.")
+	  CXX_FLAGS += '-DPYBULLET_USE_NUMPY '
+	  for d in NP_DIRS:
+	    print("numpy_include_dirs = %s" % d)
+	  include_dirs += NP_DIRS
 
 sources = ["examples/pybullet/pybullet.c"]\
 +["examples/ExampleBrowser/InProcessExampleBrowser.cpp"]\
@@ -365,20 +381,18 @@ if _platform == "linux" or _platform == "linux2":
     CXX_FLAGS += '-DDYNAMIC_LOAD_X11_FUNCTIONS '
     CXX_FLAGS += '-DHAS_SOCKLEN_T '
     CXX_FLAGS += '-fno-inline-functions-called-once'
-    sources = ["examples/ThirdPartyLibs/enet/unix.c"]\
+    sources = sources + ["examples/ThirdPartyLibs/enet/unix.c"]\
     +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\
-    +["examples/ThirdPartyLibs/Glew/glew.c"]\
-    + sources
+    +["examples/ThirdPartyLibs/Glew/glew.c"]
 elif _platform == "win32":
     print("win32!")
     libraries = ['Ws2_32','Winmm','User32','Opengl32','kernel32','glu32','Gdi32','Comdlg32']
     CXX_FLAGS += '-DWIN32 '
     CXX_FLAGS += '-DGLEW_STATIC '
-    sources = ["examples/ThirdPartyLibs/enet/win32.c"]\
+    sources = sources + ["examples/ThirdPartyLibs/enet/win32.c"]\
     +["examples/OpenGLWindow/Win32Window.cpp"]\
     +["examples/OpenGLWindow/Win32OpenGLWindow.cpp"]\
-    +["examples/ThirdPartyLibs/Glew/glew.c"]\
-    +sources
+    +["examples/ThirdPartyLibs/Glew/glew.c"]
 elif _platform == "darwin":
     print("darwin!")
     os.environ['LDFLAGS'] = '-framework Cocoa -framework OpenGL'
@@ -404,7 +418,7 @@ setup(
 	sources =  sources,
 	libraries = libraries,
 	extra_compile_args=CXX_FLAGS.split(),
-	include_dirs = ["src","examples/ThirdPartyLibs","examples/ThirdPartyLibs/Glew", "examples/ThirdPartyLibs/enet/include","examples/ThirdPartyLibs/clsocket/src"]
+	include_dirs = include_dirs + ["src","examples/ThirdPartyLibs","examples/ThirdPartyLibs/Glew", "examples/ThirdPartyLibs/enet/include","examples/ThirdPartyLibs/clsocket/src"]
      ) ],
      classifiers=['Development Status :: 4 - Beta',
                    'License :: OSI Approved :: zlib/libpng License',
