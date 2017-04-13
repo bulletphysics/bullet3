@@ -539,7 +539,7 @@ void ConvertURDF2Bullet(
 	if (world1 && cache.m_bulletMultiBody)
 	{
 		btMultiBody* mb = cache.m_bulletMultiBody;
-		mb->setHasSelfCollision(false);
+		mb->setHasSelfCollision(true);
 		mb->finalizeMultiDof();
 
 		btTransform localInertialFrameRoot = cache.m_urdfLinkLocalInertialFrames[urdfLinkIndex];
