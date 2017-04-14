@@ -114,7 +114,7 @@ ELSE(WIN32)
 			        )
 							
         ELSE(APPLE)
-         			LINK_LIBRARIES(  pthread dl )
+                                LINK_LIBRARIES(  pthread ${DL} )
 			        ADD_EXECUTABLE(App_PhysicsServer_SharedMemory
 			                ${SharedMemory_SRCS}
 			                ../MultiThreading/b3PosixThreadSupport.cpp
@@ -181,7 +181,7 @@ ELSE(WIN32)
 			        )
 							
         ELSE(APPLE)
-         			LINK_LIBRARIES(  pthread dl )
+				LINK_LIBRARIES(  pthread ${DL} )
          			ADD_DEFINITIONS("-DGLEW_INIT_OPENGL11_FUNCTIONS=1")
               ADD_DEFINITIONS("-DGLEW_STATIC")
               ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
