@@ -1,5 +1,7 @@
 #include "TinyAudioExample.h"
-#include "../CommonInterfaces/CommonRigidBodyBase.h"
+#include "../CommonInterfaces/CommonExampleInterface.h"
+#include "../CommonInterfaces/CommonGUIHelperInterface.h"
+
 #include "RtAudio.h"
 #include "b3AudioListener.h"
 #include "b3SoundSource.h"
