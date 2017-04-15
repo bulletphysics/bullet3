@@ -13,48 +13,10 @@ m_activeSdfModel(-1)
 
 UrdfParser::~UrdfParser()
 {
-    cleanModel(&m_urdf2Model);
-    
-    for (int i=0;i<m_tmpModels.size();i++)
-    {
-        cleanModel(m_tmpModels[i]);
+	for (int i=0;i<m_tmpModels.size();i++)
+	{
 		delete m_tmpModels[i];
-    }
-    m_sdfModels.clear();
-    m_tmpModels.clear();
-}
-
-void UrdfParser::cleanModel(UrdfModel* model)
-{
-    for (int i=0;i<model->m_materials.size();i++)
-    {
-        UrdfMaterial** matPtr = model->m_materials.getAtIndex(i);
-        if (matPtr)
-        {
-            UrdfMaterial* mat = *matPtr;
-            delete mat;
-        }
-    }
-    
-    for (int i=0;i<model->m_links.size();i++)
-    {
-        UrdfLink** linkPtr = model->m_links.getAtIndex(i);
-        if (linkPtr)
-        {
-            UrdfLink* link = *linkPtr;
-            delete link;
-        }
-    }
-    
-    for (int i=0;i<model->m_joints.size();i++)
-    {
-        UrdfJoint** jointPtr = model->m_joints.getAtIndex(i);
-        if (jointPtr)
-        {
-            UrdfJoint* joint = *jointPtr;
-            delete joint;
-        }
-    }
+	}
 }
 
 static bool parseVector4(btVector4& vec4, const std::string& vector_str)
@@ -1471,6 +1433,7 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 		UrdfMaterial** mat =m_urdf2Model.m_materials.find(material->m_name.c_str());
 		if (mat)
 		{
+			delete material;
 			logger->reportWarning("Duplicate material");
 		} else
 		{
@@ -1494,6 +1457,7 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 			{
 				logger->reportError("Link name is not unique, link names in the same model have to be unique");
 				logger->reportError(link->m_name.c_str());
+				delete link;
 				return false;
 			} else
 			{
@@ -1542,6 +1506,7 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 			{
 				logger->reportError("joint '%s' is not unique.");
 				logger->reportError(joint->m_name.c_str());
+				delete joint;
 				return false;
 			}
 			else
@@ -1552,6 +1517,7 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 		else
 		{
 			logger->reportError("joint xml is not initialized correctly");
+			delete joint;
 			return false;
 		}
 	}
@@ -1666,7 +1632,8 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
             UrdfMaterial** mat =localModel->m_materials.find(material->m_name.c_str());
             if (mat)
             {
-                logger->reportWarning("Duplicate material");
+		logger->reportWarning("Duplicate material");
+		delete material;
             } else
             {
                 localModel->m_materials.insert(material->m_name.c_str(),material);
@@ -1689,6 +1656,7 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
                 {
                     logger->reportError("Link name is not unique, link names in the same model have to be unique");
                     logger->reportError(link->m_name.c_str());
+                    delete link;
                     return false;
                 } else
                 {
@@ -1737,6 +1705,7 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
                 {
                     logger->reportError("joint '%s' is not unique.");
                     logger->reportError(joint->m_name.c_str());
+                    delete joint;
                     return false;
                 }
                 else
@@ -1747,6 +1716,7 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
             else
             {
                 logger->reportError("joint xml is not initialized correctly");
+                delete joint;
                 return false;
             }
         }

@@ -195,7 +195,37 @@ struct UrdfModel
 	{
 		m_rootTransformInWorld.setIdentity();
 	}
-	
+
+	~UrdfModel()
+	{
+		for (int i = 0; i < m_materials.size(); i++)
+		{
+			UrdfMaterial** ptr = m_materials.getAtIndex(i);
+			if (ptr)
+			{
+				UrdfMaterial* t = *ptr;
+				delete t;
+			}
+		}
+		for (int i = 0; i < m_links.size(); i++)
+		{
+			UrdfLink** ptr = m_links.getAtIndex(i);
+			if (ptr)
+			{
+				UrdfLink* t = *ptr;
+				delete t;
+			}
+		}
+		for (int i = 0; i < m_joints.size(); i++)
+		{
+			UrdfJoint** ptr = m_joints.getAtIndex(i);
+			if (ptr)
+			{
+				UrdfJoint* t = *ptr;
+				delete t;
+			}
+		}
+	}
 };
 
 class UrdfParser
@@ -210,7 +240,6 @@ protected:
     int m_activeSdfModel;
 
     
-    void cleanModel(UrdfModel* model);
 	bool parseInertia(UrdfInertia& inertia, class TiXmlElement* config, ErrorLogger* logger);
 	bool parseGeometry(UrdfGeometry& geom, class TiXmlElement* g, ErrorLogger* logger);
 	bool parseVisual(UrdfModel& model, UrdfVisual& visual, class TiXmlElement* config, ErrorLogger* logger);

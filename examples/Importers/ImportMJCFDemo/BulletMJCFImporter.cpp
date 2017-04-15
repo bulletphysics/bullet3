@@ -195,6 +195,14 @@ struct BulletMJCFImporterInternalData
 		m_pathPrefix[0] = 0;
 	}
 
+	~BulletMJCFImporterInternalData()
+	{
+		for (int i=0;i<m_models.size();i++)
+		{
+			delete m_models[i];
+		}
+	}
+
 	std::string sourceFileLocation(TiXmlElement* e)
 	{
 #if 0
