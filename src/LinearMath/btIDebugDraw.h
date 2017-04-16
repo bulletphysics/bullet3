@@ -101,6 +101,9 @@ class	btIDebugDraw
 		btScalar minPs = -SIMD_HALF_PI;
 		btScalar maxPs = SIMD_HALF_PI;
 		btScalar stepDegrees = 30.f;
+		radius *= up.length();	//apply implicit uniform scaling
+		up.normalize();
+		axis.normalize();
 		drawSpherePatch(center, up, axis, radius,minTh, maxTh, minPs, maxPs, color, stepDegrees ,false);
 		drawSpherePatch(center, up, -axis, radius,minTh, maxTh, minPs, maxPs, color, stepDegrees,false );
 	}
@@ -337,59 +340,36 @@ class	btIDebugDraw
 	virtual void drawCapsule(btScalar radius, btScalar halfHeight, int upAxis, const btTransform& transform, const btVector3& color)
 	{
 		int stepDegrees = 30;
-
-		btVector3 capStart(0.f,0.f,0.f);
-		capStart[upAxis] = -halfHeight;
-
-		btVector3 capEnd(0.f,0.f,0.f);
-		capEnd[upAxis] = halfHeight;
+		btVector3 start = transform.getOrigin();
+		btVector3 capStart(0.f, 0.f, 0.f);
+		capStart[upAxis] = halfHeight;
+		btVector3 capEnd(0.f, 0.f, 0.f);
+		capEnd[upAxis] = -halfHeight;
 
 		// Draw the ends
 		{
+			btVector3 up = transform.getBasis().getColumn((upAxis + 1) % 3);
+			btVector3 axis = transform.getBasis().getColumn(upAxis);
+			btScalar minTh = -SIMD_HALF_PI;
+			btScalar maxTh = SIMD_HALF_PI;
+			btScalar minPs = -SIMD_HALF_PI;
+			btScalar maxPs = SIMD_HALF_PI;
+			btScalar capradius = radius * up.length();	//apply implicit uniform scaling
+			up.normalize();
+			axis.normalize();
 
-			btTransform childTransform = transform;
-			childTransform.getOrigin() = transform * capStart;
-			{
-				btVector3 center = childTransform.getOrigin();
-				btVector3 up = childTransform.getBasis().getColumn((upAxis+1)%3);
-				btVector3 axis = -childTransform.getBasis().getColumn(upAxis);
-				btScalar minTh = -SIMD_HALF_PI;
-				btScalar maxTh = SIMD_HALF_PI;
-				btScalar minPs = -SIMD_HALF_PI;
-				btScalar maxPs = SIMD_HALF_PI;
-				
-				drawSpherePatch(center, up, axis, radius,minTh, maxTh, minPs, maxPs, color, btScalar(stepDegrees) ,false);
-			}
-
-
-
-		}
-
-		{
-			btTransform childTransform = transform;
-			childTransform.getOrigin() = transform * capEnd;
-			{
-				btVector3 center = childTransform.getOrigin();
-				btVector3 up = childTransform.getBasis().getColumn((upAxis+1)%3);
-				btVector3 axis = childTransform.getBasis().getColumn(upAxis);
-				btScalar minTh = -SIMD_HALF_PI;
-				btScalar maxTh = SIMD_HALF_PI;
-				btScalar minPs = -SIMD_HALF_PI;
-				btScalar maxPs = SIMD_HALF_PI;
-				drawSpherePatch(center, up, axis, radius,minTh, maxTh, minPs, maxPs, color, btScalar(stepDegrees) ,false);
-			}
+			//draw
+			drawSpherePatch(start + (transform.getBasis() * capStart), up, axis, capradius, minTh, maxTh, minPs, maxPs, color, btScalar(stepDegrees), false);
+			drawSpherePatch(start + (transform.getBasis() * capEnd), up, -axis, capradius, minTh, maxTh, minPs, maxPs, color, btScalar(stepDegrees), false);
 		}
 
 		// Draw some additional lines
-		btVector3 start = transform.getOrigin();
-
 		for (int i=0;i<360;i+=stepDegrees)
 		{
-			capEnd[(upAxis+1)%3] = capStart[(upAxis+1)%3] = btSin(btScalar(i)*SIMD_RADS_PER_DEG)*radius;
-			capEnd[(upAxis+2)%3] = capStart[(upAxis+2)%3]  = btCos(btScalar(i)*SIMD_RADS_PER_DEG)*radius;
-			drawLine(start+transform.getBasis() * capStart,start+transform.getBasis() * capEnd, color);
-		}
-		
+			capEnd[(upAxis + 1) % 3] = capStart[(upAxis + 1) % 3] = btSin(btScalar(i)*SIMD_RADS_PER_DEG)*radius;
+			capEnd[(upAxis + 2) % 3] = capStart[(upAxis + 2) % 3] = btCos(btScalar(i)*SIMD_RADS_PER_DEG)*radius;
+			drawLine(start + transform.getBasis() * capStart, start + transform.getBasis() * capEnd, color);
+		}		
 	}
 
 	virtual void drawCylinder(btScalar radius, btScalar halfHeight, int upAxis, const btTransform& transform, const btVector3& color)
@@ -414,8 +394,13 @@ class	btIDebugDraw
 		yaxis[upAxis] = btScalar(1.0);
 		btVector3 xaxis(0,0,0);
 		xaxis[(upAxis+1)%3] = btScalar(1.0);
-		drawArc(start-transform.getBasis()*(offsetHeight),transform.getBasis()*yaxis,transform.getBasis()*xaxis,radius,radius,0,SIMD_2_PI,color,false,btScalar(10.0));
-		drawArc(start+transform.getBasis()*(offsetHeight),transform.getBasis()*yaxis,transform.getBasis()*xaxis,radius,radius,0,SIMD_2_PI,color,false,btScalar(10.0));
+		btVector3 normal = transform.getBasis()*yaxis;
+		btVector3 axis = transform.getBasis()*xaxis;
+		radius *= normal.length();	//apply implicit uniform scaling
+		normal.normalize();
+		axis.normalize();
+		drawArc(start - transform.getBasis()*(offsetHeight), normal, axis, radius, radius, 0, SIMD_2_PI, color, false, btScalar(10.0));
+		drawArc(start + transform.getBasis()*(offsetHeight), normal, axis, radius, radius, 0, SIMD_2_PI, color, false, btScalar(10.0));
 	}
 
 	virtual void drawCone(btScalar radius, btScalar height, int upAxis, const btTransform& transform, const btVector3& color)
@@ -452,7 +437,12 @@ class	btIDebugDraw
 		yaxis[upAxis] = btScalar(1.0);
 		btVector3 xaxis(0,0,0);
 		xaxis[(upAxis+1)%3] = btScalar(1.0);
-		drawArc(start-transform.getBasis()*(offsetHeight),transform.getBasis()*yaxis,transform.getBasis()*xaxis,radius,radius,0,SIMD_2_PI,color,false,10.0);
+		btVector3 normal = transform.getBasis()*yaxis;
+		btVector3 axis = transform.getBasis()*xaxis;
+		radius *= normal.length();	//apply implicit uniform scaling
+		normal.normalize();
+		axis.normalize();
+		drawArc(start - transform.getBasis()*(offsetHeight), normal, axis, radius, radius, 0, SIMD_2_PI, color, false, 10.0);
 	}
 
 	virtual void drawPlane(const btVector3& planeNormal, btScalar planeConst, const btTransform& transform, const btVector3& color)

@@ -23,6 +23,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h" //for raycasting
 #include "BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
+#include "BulletCollision/CollisionShapes/btUniformScalingShape.h"
 #include "BulletCollision/NarrowPhaseCollision/btSubSimplexConvexCast.h"
 #include "BulletCollision/NarrowPhaseCollision/btGjkConvexCast.h"
 #include "BulletCollision/NarrowPhaseCollision/btContinuousConvexCollision.h"
@@ -1424,6 +1425,18 @@ void btCollisionWorld::debugDrawObject(const btTransform& worldTransform, const 
                 break;
 
             }
+
+		case UNIFORM_SCALING_SHAPE_PROXYTYPE:
+			{
+				const btUniformScalingShape* uniformScaleShape = static_cast<const btUniformScalingShape*>(shape);
+				btScalar scale = uniformScaleShape->getUniformScalingFactor();
+				btTransform childTrans = btTransform(btMatrix3x3(scale, btScalar(0.0), btScalar(0.0), btScalar(0.0), scale, btScalar(0.0), btScalar(0.0), btScalar(0.0), scale));
+				const btCollisionShape* colShape = uniformScaleShape->getChildShape();
+				if (colShape)
+					debugDrawObject(worldTransform*childTrans, colShape, color);
+				break;
+			}
+
         default:
             {
 
