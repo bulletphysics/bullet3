@@ -424,6 +424,16 @@ static void clipEdge(const mat<4,3,float>& triangleIn, int vertexIndexA, int ver
 
 static bool clipTriangleAgainstNearplane(const mat<4,3,float>& triangleIn, b3AlignedObjectArray<mat<4,3,float> >& clippedTrianglesOut)
 {
+
+
+	float orientation = (triangleIn[0][1] - triangleIn[0][0]) * (triangleIn[1][2] - triangleIn[1][0]) 
+	- (triangleIn[1][1] - triangleIn[1][0]) * (triangleIn[0][2] - triangleIn[0][0]);
+	
+	if (orientation < 0.0) 
+	{
+		return true;
+	}
+
 	//discard triangle if all vertices are behind near-plane
 	if (triangleIn[3][0]<0 && triangleIn[3][1] <0 && triangleIn[3][2] <0)
 	{
