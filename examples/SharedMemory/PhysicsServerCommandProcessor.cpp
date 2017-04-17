@@ -376,7 +376,8 @@ struct MyBroadphaseCallback : public btBroadphaseAabbCallback
 		if (bodyUniqueId >= 0)
 		{
 			m_bodyUniqueIds.push_back(bodyUniqueId);
-			m_links.push_back(mbl->m_link);
+			//it is not a multibody, so use -1 otherwise
+			m_links.push_back(-1);
 		}
 		return true;
 	}
