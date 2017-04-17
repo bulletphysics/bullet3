@@ -25,3 +25,10 @@ script:
   - make -j8
   - ctest -j8 --output-on-failure
   - sudo make install
+  - git clean -d -x -ff .
+  - cd build3
+  - case "$TRAVIS_OS_NAME" in linux) ./premake4_linux64 gmake;; osx) ./premake4_osx gmake;; esac
+  - cd gmake
+  - make
+  - cd ../..
+  - S=0; for T in $(ls bin/Test_* | grep -v '^bin/Test_Gwen_OpenGL'); do echo "Running test '$T'..."; "./$T"; SS=$?; echo "Test '$T' exited with status '$SS'"; [ $S -eq 0 ] && S=$SS; done; exit $S
