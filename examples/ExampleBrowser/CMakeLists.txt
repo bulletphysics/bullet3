@@ -65,7 +65,7 @@ IF (BUILD_SHARED_LIBS)
                  TARGET_LINK_LIBRARIES(
                                 BulletExampleBrowserLib Bullet3Common BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamicsUtils
                                 BulletInverseDynamics LinearMath OpenGLWindow gwen BussIK
-                                pthread dl
+                                pthread ${DL}
                         )
         ENDIF(APPLE)
 	ENDIF(WIN32)
@@ -106,7 +106,7 @@ ELSE(WIN32)
 		ADD_DEFINITIONS("-DGLEW_STATIC")
 		ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
 		INCLUDE_DIRECTORIES( ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew )
-		LINK_LIBRARIES( pthread dl)
+		LINK_LIBRARIES( pthread ${DL})
 	ENDIF(APPLE)
 ENDIF(WIN32)
 
