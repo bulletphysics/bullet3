@@ -402,6 +402,18 @@ elif _platform == "darwin":
     sources = sources + ["examples/ThirdPartyLibs/enet/unix.c"]\
     +["examples/OpenGLWindow/MacOpenGLWindow.cpp"]\
     +["examples/OpenGLWindow/MacOpenGLWindowObjC.m"]
+else:
+    print("bsd!")
+    os.environ['LDFLAGS'] = '-L/usr/X11R6/lib'
+    CXX_FLAGS += '-D_BSD '
+    CXX_FLAGS += '-I/usr/X11R6/include '
+    CXX_FLAGS += '-DHAS_SOCKLEN_T '
+    CXX_FLAGS += '-fno-inline-functions-called-once'
+    sources = ["examples/ThirdPartyLibs/enet/unix.c"]\
+    +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\
+    +["examples/ThirdPartyLibs/Glew/glew.c"]\
+    + sources
+
 
 setup(
 	name = 'pybullet',
