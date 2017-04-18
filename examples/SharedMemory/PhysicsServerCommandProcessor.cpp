@@ -4639,7 +4639,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                 // Set jacobian value
                                 tree->calculateJacobians(q);
                                 btInverseDynamics::mat3x jac_t(3, num_dofs);
-                                tree->getBodyJacobianTrans(clientCmd.m_calculateJacobianArguments.m_linkIndex, &jac_t);
+                                tree->getBodyJacobianTrans(clientCmd.m_calculateJacobianArguments.m_linkIndex+1, &jac_t);
                                 for (int i = 0; i < 3; ++i)
                                 {
                                     for (int j = 0; j < num_dofs; ++j)
@@ -5065,8 +5065,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                         tree->calculateJacobians(q);
                                         btInverseDynamics::mat3x jac_t(3, numDofs);
                                         btInverseDynamics::mat3x jac_r(3,numDofs);
-                                        tree->getBodyJacobianTrans(endEffectorLinkIndex, &jac_t);
-                                        tree->getBodyJacobianRot(endEffectorLinkIndex, &jac_r);
+										// Note that inverse dynamics uses zero-based indexing of bodies, not starting from -1 for the base link.
+                                        tree->getBodyJacobianTrans(endEffectorLinkIndex+1, &jac_t);
+                                        tree->getBodyJacobianRot(endEffectorLinkIndex+1, &jac_r);
                                         for (int i = 0; i < 3; ++i)
                                         {
                                             for (int j = 0; j < numDofs; ++j)
@@ -6235,8 +6236,8 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 							tree->calculateJacobians(q);
 							btInverseDynamics::mat3x jac_t(3,numDofs);
 							btInverseDynamics::mat3x jac_r(3,numDofs);
-							tree->getBodyJacobianTrans(endEffectorLinkIndex, &jac_t);
-							tree->getBodyJacobianRot(endEffectorLinkIndex, &jac_r);
+							tree->getBodyJacobianTrans(endEffectorLinkIndex+1, &jac_t);
+							tree->getBodyJacobianRot(endEffectorLinkIndex+1, &jac_r);
 							for (int i = 0; i < 3; ++i)
 							{
 								for (int j = 0; j < numDofs; ++j)
