@@ -447,12 +447,9 @@ int	btDiscreteDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, 
 
 		saveKinematicState(fixedTimeStep*clampedSimulationSteps);
 
-		applyGravity();
-
-
-
 		for (int i=0;i<clampedSimulationSteps;i++)
 		{
+			applyGravity();
 			internalSingleStepSimulation(fixedTimeStep);
 			synchronizeMotionStates();
 		}
