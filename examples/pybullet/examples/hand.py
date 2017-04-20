@@ -20,10 +20,18 @@ objects = p.loadMJCF("MPL/MPL.xml")
 
 hand=objects[0]
 #clamp in range 400-600
-minV = 400
-maxV = 600
+#minV = 400
+#maxV = 600
+minV = 250
+maxV = 450
 
 p.setRealTimeSimulation(1)
+
+def getSerialOrNone(portname):
+    try:
+       return serial.Serial(port=portname,baudrate=115200,parity=serial.PARITY_ODD,stopbits=serial.STOPBITS_TWO,bytesize=serial.SEVENBITS)
+    except:
+       return None
 
 def convertSensor(x):
 	v = minV
@@ -37,9 +45,25 @@ def convertSensor(x):
 		v=maxV
 	b = (v-minV)/float(maxV-minV)
 	return (1.0-b)
-	
-ser = serial.Serial(port='COM13',baudrate=115200,parity=serial.PARITY_ODD,stopbits=serial.STOPBITS_TWO,bytesize=serial.SEVENBITS)
-if (ser.isOpen()):
+
+ser = None
+portindex = 0
+while (ser is None and portindex < 30):
+	portname = 'COM'+str(portindex)
+	print(portname)
+	ser = getSerialOrNone(portname)
+	if (ser is None):
+		portname = "/dev/cu.usbmodem14"+str(portindex)
+		print(portname)
+		ser = getSerialOrNone(portname)
+		if (ser is not None):
+			print("COnnected!")
+	portindex = portindex+1
+
+if (ser is None):
+	ser = serial.Serial(port = "/dev/cu.usbmodem1421",baudrate=115200,parity=serial.PARITY_ODD,stopbits=serial.STOPBITS_TWO,bytesize=serial.SEVENBITS)
+
+if (ser is not None and ser.isOpen()):
 	while True:
 		while ser.inWaiting() > 0:
 			line = str(ser.readline())
@@ -76,3 +100,5 @@ if (ser.isOpen()):
 				#print(pink)
 				#print(index)
 				#print(thumb)
+else:
+	print("Cannot find port")
