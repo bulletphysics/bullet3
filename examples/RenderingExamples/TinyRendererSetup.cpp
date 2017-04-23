@@ -18,6 +18,8 @@
 #include "../CommonInterfaces/CommonParameterInterface.h"
 
 
+
+
 struct TinyRendererSetupInternalData
 {
 	
@@ -42,6 +44,8 @@ struct TinyRendererSetupInternalData
 	int m_textureHandle;
 	int m_animateRenderer;
 
+	double m_lightPos[3];
+
 	TinyRendererSetupInternalData(int width, int height)
 		:
 		m_rgbColorBuffer(width,height,TGAImage::RGB),
@@ -53,6 +57,10 @@ struct TinyRendererSetupInternalData
 	m_textureHandle(0),
 		m_animateRenderer(0)
 	{
+		m_lightPos[0] = -3;
+		m_lightPos[1] = 3;
+		m_lightPos[2] = 3;
+
 		m_depthBuffer.resize(m_width*m_height);
         m_shadowBuffer.resize(m_width*m_height);
 //        m_segmentationMaskBuffer.resize(m_width*m_height);
@@ -115,9 +123,7 @@ struct TinyRendererSetup : public CommonExampleInterface
 
 	virtual bool	keyboardCallback(int key, int state);
 
-	virtual void	renderScene()
-	{
-	}
+	virtual void	renderScene();
    
     void animateRenderer(int animateRendererIndex)
     {
@@ -295,6 +301,28 @@ void TinyRendererSetup::initPhysics()
     m_guiHelper->getParameterInterface()->registerComboBox( comboParams);
     }
     
+	{
+        SliderParams slider("LightPosX",&m_internalData->m_lightPos[0]);
+        slider.m_minVal=-10;
+        slider.m_maxVal=10;
+		if (m_guiHelper->getParameterInterface())
+	        m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+    }
+	{
+        SliderParams slider("LightPosY",&m_internalData->m_lightPos[1]);
+        slider.m_minVal=-10;
+        slider.m_maxVal=10;
+		if (m_guiHelper->getParameterInterface())
+	        m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+    }
+	{
+        SliderParams slider("LightPosZ",&m_internalData->m_lightPos[2]);
+        slider.m_minVal=-10;
+        slider.m_maxVal=10;
+		if (m_guiHelper->getParameterInterface())
+	        m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+    }
+
 }
 
 
@@ -303,14 +331,33 @@ void TinyRendererSetup::exitPhysics()
 
 }
 
-
 void TinyRendererSetup::stepSimulation(float deltaTime)
 {
     m_internalData->updateTransforms();
+}
+
+void	TinyRendererSetup::renderScene()
+{
+    m_internalData->updateTransforms();
     
+	btVector4 from(m_internalData->m_lightPos[0],m_internalData->m_lightPos[1],m_internalData->m_lightPos[2],1);
+	btVector4 toX(m_internalData->m_lightPos[0]+0.1,m_internalData->m_lightPos[1],m_internalData->m_lightPos[2],1);
+	btVector4 toY(m_internalData->m_lightPos[0],m_internalData->m_lightPos[1]+0.1,m_internalData->m_lightPos[2],1);
+	btVector4 toZ(m_internalData->m_lightPos[0],m_internalData->m_lightPos[1],m_internalData->m_lightPos[2]+0.1,1);
+	btVector4 colorX(1,0,0,1);
+	btVector4 colorY(0,1,0,1);
+	btVector4 colorZ(0,0,1,1);
+	int width=2;
+	m_guiHelper->getRenderInterface()->drawLine( from,toX,colorX,width);
+	m_guiHelper->getRenderInterface()->drawLine( from,toY,colorY,width);
+	m_guiHelper->getRenderInterface()->drawLine( from,toZ,colorZ,width);
+
     if (!m_useSoftware)
     {
-        
+     
+		btVector3 lightPos(m_internalData->m_lightPos[0],m_internalData->m_lightPos[1],m_internalData->m_lightPos[2]);
+		m_guiHelper->getRenderInterface()->setLightPosition(lightPos);
+
         for (int i=0;i<m_internalData->m_transforms.size();i++)
         {
             m_guiHelper->getRenderInterface()->writeSingleInstanceTransformToCPU(m_internalData->m_transforms[i].getOrigin(),m_internalData->m_transforms[i].getRotation(),i);
@@ -358,17 +405,7 @@ void TinyRendererSetup::stepSimulation(float deltaTime)
                     m_internalData->m_renderObjects[o]->m_viewMatrix[i][j] = viewMat[i+4*j];
                     m_internalData->m_renderObjects[o]->m_projectionMatrix[i][j] = projMat[i+4*j];
                     
-                    btVector3 lightDirWorld;
-                    switch (m_app->getUpAxis())
-                    {
-                        case 1:
-                            lightDirWorld = btVector3(-50.f,100,30);
-                            break;
-                        case 2:
-                            lightDirWorld = btVector3(-50.f,30,100);
-                            break;
-                        default:{}
-                    };
+                    btVector3 lightDirWorld = btVector3(m_internalData->m_lightPos[0],m_internalData->m_lightPos[1],m_internalData->m_lightPos[2]);
                     
                     m_internalData->m_renderObjects[o]->m_lightDirWorld = lightDirWorld.normalized();
                     
@@ -399,17 +436,7 @@ void TinyRendererSetup::stepSimulation(float deltaTime)
                     m_internalData->m_renderObjects[o]->m_viewMatrix[i][j] = viewMat[i+4*j];
                     m_internalData->m_renderObjects[o]->m_projectionMatrix[i][j] = projMat[i+4*j];
                     
-					btVector3 lightDirWorld;
-					switch (m_app->getUpAxis())
-					{
-					case 1:
-    						lightDirWorld = btVector3(-50.f,100,30);
-    					break;
-					case 2:
-							lightDirWorld = btVector3(-50.f,30,100);
-							break;
-					default:{}
-					};
+					btVector3 lightDirWorld = btVector3(m_internalData->m_lightPos[0],m_internalData->m_lightPos[1],m_internalData->m_lightPos[2]);
 					
 					m_internalData->m_renderObjects[o]->m_lightDirWorld = lightDirWorld.normalized();
                     

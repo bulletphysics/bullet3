@@ -79,7 +79,6 @@ float shadowMapWorldSize=10;
 static InternalDataRenderer* sData2;
 
 GLint lineWidthRange[2]={1,1};
-static b3Vector3 gLightPos=b3MakeVector3(-5,12,-4);
 
 struct b3GraphicsInstance
 {
@@ -156,6 +155,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 	GLfloat m_projectionMatrix[16];
 	GLfloat m_viewMatrix[16];
 
+	b3Vector3 m_lightPos;
 
 	GLuint				m_defaultTexturehandle;
 	b3AlignedObjectArray<InternalTextureHandle>	m_textureHandles;
@@ -172,6 +172,8 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 		m_shadowTexture(0),
 		m_renderFrameBuffer(0)
 	{
+		m_lightPos=b3MakeVector3(-5,50,50);
+
 		//clear to zero to make it obvious if the matrix is used uninitialized
 		for (int i=0;i<16;i++)
 		{
@@ -996,23 +998,26 @@ void GLInstancingRenderer::setActiveCamera(CommonCameraInterface* cam)
 	m_data->m_activeCamera = cam;
 }
 
+void GLInstancingRenderer::setLightPosition(const float lightPos[3])
+{
+	m_data->m_lightPos[0] = lightPos[0];
+	m_data->m_lightPos[1] = lightPos[1];
+	m_data->m_lightPos[2] = lightPos[2];
+}
+
+void GLInstancingRenderer::setLightPosition(const double lightPos[3])
+{
+	m_data->m_lightPos[0] = lightPos[0];
+	m_data->m_lightPos[1] = lightPos[1];
+	m_data->m_lightPos[2] = lightPos[2];
+}
+
 
 void GLInstancingRenderer::updateCamera(int upAxis)
 {
 
     b3Assert(glGetError() ==GL_NO_ERROR);
 	m_upAxis = upAxis;
-	switch (upAxis)
-	{
-    case 1:
-    		gLightPos = b3MakeVector3(-50.f,100,30);
-    	break;
-    case 2:
-			gLightPos = b3MakeVector3(-50.f,30,100);
-			break;
-    default:
-    b3Assert(0);
-	};
 
 	m_data->m_activeCamera->setCameraUpAxis(upAxis);
 	m_data->m_activeCamera->setAspectRatio((float)m_screenWidth/(float)m_screenHeight);
@@ -1554,9 +1559,10 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 	//float upf[3];
 	//m_data->m_activeCamera->getCameraUpVector(upf);
 	b3Vector3 up, fwd;
-	b3PlaneSpace1(gLightPos,up,fwd);
+	b3Vector3 lightDir = m_data->m_lightPos.normalized();
+	b3PlaneSpace1(lightDir,up,fwd);
 //	b3Vector3 up = b3MakeVector3(upf[0],upf[1],upf[2]);
-	b3CreateLookAt(gLightPos,center,up,&depthViewMatrix[0][0]);
+	b3CreateLookAt(m_data->m_lightPos,center,up,&depthViewMatrix[0][0]);
 	//b3CreateLookAt(lightPos,m_data->m_cameraTargetPosition,b3Vector3(0,1,0),(float*)depthModelViewMatrix2);
 
 	GLfloat depthModelMatrix[4][4];
@@ -1726,7 +1732,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 							glUniformMatrix4fv(ProjectionMatrix, 1, false, &m_data->m_projectionMatrix[0]);
 							glUniformMatrix4fv(ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
 							
-							b3Vector3 gLightDir = gLightPos;
+							b3Vector3 gLightDir = m_data->m_lightPos;
 							gLightDir.normalize();
 							glUniform3f(regularLightDirIn,gLightDir[0],gLightDir[1],gLightDir[2]);
 
@@ -1763,7 +1769,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 							float MVP[16];
 							b3Matrix4x4Mul16(m_data->m_projectionMatrix,m_data->m_viewMatrix,MVP);
 							glUniformMatrix4fv(useShadow_MVP, 1, false, &MVP[0]);
-							b3Vector3 gLightDir = gLightPos;
+							b3Vector3 gLightDir = m_data->m_lightPos;
 							gLightDir.normalize();
 							glUniform3f(useShadow_lightDirIn,gLightDir[0],gLightDir[1],gLightDir[2]);
 							glUniformMatrix4fv(useShadow_DepthBiasModelViewMatrix, 1, false, &depthBiasMVP[0][0]);

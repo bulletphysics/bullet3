@@ -28,6 +28,8 @@ struct CommonRenderInterface
 	virtual CommonCameraInterface* getActiveCamera()=0;
 	virtual void setActiveCamera(CommonCameraInterface* cam)=0;
 	
+	virtual void setLightPosition(const float lightPos[3]) = 0;
+	virtual void setLightPosition(const double lightPos[3]) = 0;
 
 	virtual void renderScene()=0;
 	virtual void renderSceneInternal(int renderMode=B3_DEFAULT_RENDERMODE){};
