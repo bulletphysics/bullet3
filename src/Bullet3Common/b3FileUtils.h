@@ -36,7 +36,7 @@ struct b3FileUtils
 
 			for (int i=0;!f && i<numPrefixes;i++)
 			{
-#ifdef _WIN32
+#if defined(_WIN32) && ( !defined(__MINGW32__) || !defined(__MINGW64__) )
 				sprintf_s(relativeFileName,maxRelativeFileNameMaxLen,"%s%s",prefix[i],orgFileName);
 #else
 				sprintf(relativeFileName,"%s%s",prefix[i],orgFileName);
