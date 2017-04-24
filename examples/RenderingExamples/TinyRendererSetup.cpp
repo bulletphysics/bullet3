@@ -44,7 +44,7 @@ struct TinyRendererSetupInternalData
 	int m_textureHandle;
 	int m_animateRenderer;
 
-	double m_lightPos[3];
+	btVector3 m_lightPos;
 
 	TinyRendererSetupInternalData(int width, int height)
 		:
@@ -57,10 +57,8 @@ struct TinyRendererSetupInternalData
 	m_textureHandle(0),
 		m_animateRenderer(0)
 	{
-		m_lightPos[0] = -3;
-		m_lightPos[1] = 3;
-		m_lightPos[2] = 3;
-
+		m_lightPos.setValue(-3,15,15);
+		
 		m_depthBuffer.resize(m_width*m_height);
         m_shadowBuffer.resize(m_width*m_height);
 //        m_segmentationMaskBuffer.resize(m_width*m_height);
