@@ -405,7 +405,7 @@ elif _platform == "darwin":
 
 setup(
 	name = 'pybullet',
-	version='0.1.7',
+	version='1.0.1',
 	description='Official Python Interface for the Bullet Physics SDK Robotics Simulator',
 	long_description='pybullet is an easy to use Python module for physics simulation, robotics and machine learning based on the Bullet Physics SDK. With pybullet you can load articulated bodies from URDF, SDF and other file formats. pybullet provides forward dynamics simulation, inverse dynamics computation, forward and inverse kinematics and collision detection and ray intersection queries. Aside from physics simulation, pybullet supports to rendering, with a CPU renderer and OpenGL visualization and support for virtual reality headsets.',
 	url='https://github.com/bulletphysics/bullet3',
@@ -420,7 +420,7 @@ setup(
 	extra_compile_args=CXX_FLAGS.split(),
 	include_dirs = include_dirs + ["src","examples/ThirdPartyLibs","examples/ThirdPartyLibs/Glew", "examples/ThirdPartyLibs/enet/include","examples/ThirdPartyLibs/clsocket/src"]
      ) ],
-     classifiers=['Development Status :: 4 - Beta',
+     classifiers=['Development Status :: 5 - Production/Stable',
                    'License :: OSI Approved :: zlib/libpng License',
                    'Operating System :: Microsoft :: Windows',
                    'Operating System :: POSIX :: Linux',
@@ -429,6 +429,8 @@ setup(
                    "Programming Language :: Python",
                    'Programming Language :: Python :: 2.7',
                    'Programming Language :: Python :: 3.4',
+                   'Programming Language :: Python :: 3.5',
+                   'Programming Language :: Python :: 3.6',
                    'Topic :: Games/Entertainment :: Simulation',
                    'Framework :: Robot Framework'],                   
 	package_data = {

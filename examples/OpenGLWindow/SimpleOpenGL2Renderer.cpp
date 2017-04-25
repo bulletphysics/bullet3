@@ -78,6 +78,14 @@ void SimpleOpenGL2Renderer::setActiveCamera(CommonCameraInterface* cam)
 	b3Assert(0);//not supported yet
 }
 
+void SimpleOpenGL2Renderer::setLightPosition(const float lightPos[3])
+{
+}
+void SimpleOpenGL2Renderer::setLightPosition(const double lightPos[3])
+{
+}
+
+
 void SimpleOpenGL2Renderer::updateCamera(int upAxis)
 {
     float projection[16];
