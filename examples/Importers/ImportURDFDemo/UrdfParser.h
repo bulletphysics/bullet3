@@ -50,9 +50,9 @@ enum UrdfGeomTypes
 	URDF_GEOM_BOX,
 	URDF_GEOM_CYLINDER,
 	URDF_GEOM_MESH,
-    URDF_GEOM_PLANE,
-	URDF_GEOM_CAPSULE//non-standard URDF?
-    
+	URDF_GEOM_PLANE,
+	URDF_GEOM_CAPSULE, //non-standard URDF?
+	URDF_GEOM_UNKNOWN, 
 };
 
 
@@ -83,6 +83,14 @@ struct UrdfGeometry
 
 	UrdfMaterial m_localMaterial;
 	bool m_hasLocalMaterial;
+
+	UrdfGeometry()
+	:m_type(URDF_GEOM_UNKNOWN),
+	m_hasFromTo(false),
+	m_hasLocalMaterial(false)
+	{
+	}
+
 };
 
 bool findExistingMeshFile(const std::string& urdf_path, std::string fn,

@@ -1741,6 +1741,11 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 				}
 				break;
 			}
+			case URDF_GEOM_UNKNOWN:
+                        {
+				break;
+			}
+
 			} // switch geom
 
 			if (childShape)
