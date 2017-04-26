@@ -130,9 +130,9 @@ struct Shader : public IShader {
         float depth = p[2];
         p = p/p[3];
         
-        int index_x = b3Max(0, b3Min(m_width-1, int(p[0])));
-        int index_y = b3Max(0, b3Min(m_height-1, int(p[1])));
-        int idx = index_x + index_y*m_width; // index in the shadowbuffer array
+		float index_x = b3Max(float(0.0), b3Min(float(m_width-1), p[0]));
+		float index_y = b3Max(float(0.0), b3Min(float(m_height-1), p[1]));
+		int idx = int(index_x) + int(index_y)*m_width; // index in the shadowbuffer array
         float shadow = 0.8+0.2*(m_shadowBuffer->at(idx)<-depth+0.05); // magic coeff to avoid z-fighting
         
         Vec3f bn = (varying_nrm*bar).normalize();
