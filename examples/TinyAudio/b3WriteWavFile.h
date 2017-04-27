@@ -25,7 +25,7 @@ public:
 	void closeWavFile();
 
 	void tick( double* values, int numValues );
-	void tick( float* values, int numValues );
+	
 
 };
 
