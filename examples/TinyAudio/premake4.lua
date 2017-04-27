@@ -36,6 +36,6 @@ if os.is("MacOSX") then
 	links{"Cocoa.framework"}
 	links{"CoreAudio.framework", "coreMIDI.framework", "Cocoa.framework"}
 
-	defines {"__OS_MACOSX__"}
+	defines {"__OS_MACOSX__", "__MACOSX_CORE__"}
 end
 

@@ -16,6 +16,7 @@ const unsigned long B3_FLOAT64 = 0x20;
 
 b3ReadWavFile::b3ReadWavFile()
 {
+	fd_ = 0;
 	m_machineIsLittleEndian = b3MachineIsLittleEndian();
 }
 b3ReadWavFile::~b3ReadWavFile()

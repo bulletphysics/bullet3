@@ -23,7 +23,7 @@ class b3ReadWavFile
 	unsigned long m_numFrames;
 	unsigned long dataType_;
 	double fileDataRate_;
-	FILE *fd_ = 0;
+	FILE *fd_;
 	unsigned long dataOffset_;
 	unsigned int channels_;
 	bool m_machineIsLittleEndian;
