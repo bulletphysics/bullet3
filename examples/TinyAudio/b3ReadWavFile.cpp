@@ -1,7 +1,7 @@
 
 //b3ReadWavFile is implemented based on code from the STK toolkit
 //See https://github.com/thestk/stk
-//Some improvement: the ticking data (b3WavTicker) is separate from wav file, 
+//Some improvement: the ticking data (b3WavTicker) is separate from wav file,
 //This makes it possoble to play a single wav multiple times at the same time
 
 #include "b3ReadWavFile.h"
@@ -20,9 +20,9 @@ b3ReadWavFile::b3ReadWavFile()
 }
 b3ReadWavFile::~b3ReadWavFile()
 {
+	if (fd_)
+		fclose(fd_);
 }
-		
-
 
 void b3ReadWavFile::normalize(double peak)
 {
@@ -100,12 +100,13 @@ b3WavTicker b3ReadWavFile::createWavTicker(double sampleRate)
 
 bool b3ReadWavFile::getWavInfo(const char *fileName)
 {
-	fd_ = fopen(fileName, "rb");
+	fd_ = fopen(fileName,"rb");
 	if (fd_ == 0)
 		return false;
 
 	char header[12];
-	if (fread(&header, 4, 3, fd_) != 3) goto error;
+	if (fread(&header, 4, 3, fd_) != 3)
+		return false;
 	bool res = false;
 
 	if (!strncmp(header, "RIFF", 4) &&
@@ -116,22 +117,28 @@ bool b3ReadWavFile::getWavInfo(const char *fileName)
 	// Find "format" chunk ... it must come before the "data" chunk.
 	char id[4];
 	int chunkSize;
-	if (fread(&id, 4, 1, fd_) != 1) goto error;
+	if (fread(&id, 4, 1, fd_) != 1)
+		return false;
 	while (strncmp(id, "fmt ", 4))
 	{
-		if (fread(&chunkSize, 4, 1, fd_) != 1) goto error;
+		if (fread(&chunkSize, 4, 1, fd_) != 1)
+			return false;
 		if (!m_machineIsLittleEndian)
 		{
 			b3Swap32((unsigned char *)&chunkSize);
-		}		
-		if (fseek(fd_, chunkSize, SEEK_CUR) == -1) goto error;
-		if (fread(&id, 4, 1, fd_) != 1) goto error;
+		}
+		if (fseek(fd_, chunkSize, SEEK_CUR) == -1)
+			return false;
+		if (fread(&id, 4, 1, fd_) != 1)
+			return false;
 	}
 
 	// Check that the data is not compressed.
 	unsigned short format_tag;
-	if (fread(&chunkSize, 4, 1, fd_) != 1) goto error;  // Read fmt chunk size.
-	if (fread(&format_tag, 2, 1, fd_) != 1) goto error;
+	if (fread(&chunkSize, 4, 1, fd_) != 1)
+		return false;  // Read fmt chunk size.
+	if (fread(&format_tag, 2, 1, fd_) != 1)
+		return false;
 	if (!m_machineIsLittleEndian)
 	{
 		b3Swap16((unsigned char *)&format_tag);
@@ -140,21 +147,27 @@ bool b3ReadWavFile::getWavInfo(const char *fileName)
 	if (format_tag == 0xFFFE)
 	{  // WAVE_FORMAT_EXTENSIBLE
 		dataOffset_ = ftell(fd_);
-		if (fseek(fd_, 14, SEEK_CUR) == -1) goto error;
+		if (fseek(fd_, 14, SEEK_CUR) == -1)
+			return false;
 		unsigned short extSize;
-		if (fread(&extSize, 2, 1, fd_) != 1) goto error;
+		if (fread(&extSize, 2, 1, fd_) != 1)
+			return false;
 		if (!m_machineIsLittleEndian)
 		{
 			b3Swap16((unsigned char *)&extSize);
 		}
-		if (extSize == 0) goto error;
-		if (fseek(fd_, 6, SEEK_CUR) == -1) goto error;
-		if (fread(&format_tag, 2, 1, fd_) != 1) goto error;
+		if (extSize == 0)
+			return false;
+		if (fseek(fd_, 6, SEEK_CUR) == -1)
+			return false;
+		if (fread(&format_tag, 2, 1, fd_) != 1)
+			return false;
 		if (!m_machineIsLittleEndian)
 		{
 			b3Swap16((unsigned char *)&format_tag);
 		}
-		if (fseek(fd_, dataOffset_, SEEK_SET) == -1) goto error;
+		if (fseek(fd_, dataOffset_, SEEK_SET) == -1)
+			return false;
 	}
 	if (format_tag != 1 && format_tag != 3)
 	{  // PCM = 1, FLOAT = 3
@@ -164,7 +177,8 @@ bool b3ReadWavFile::getWavInfo(const char *fileName)
 
 	// Get number of channels from the header.
 	short int temp;
-	if (fread(&temp, 2, 1, fd_) != 1) goto error;
+	if (fread(&temp, 2, 1, fd_) != 1)
+		return false;
 	if (!m_machineIsLittleEndian)
 	{
 		b3Swap16((unsigned char *)&temp);
@@ -173,7 +187,8 @@ bool b3ReadWavFile::getWavInfo(const char *fileName)
 
 	// Get file sample rate from the header.
 	int srate;
-	if (fread(&srate, 4, 1, fd_) != 1) goto error;
+	if (fread(&srate, 4, 1, fd_) != 1)
+		return false;
 	if (!m_machineIsLittleEndian)
 	{
 		b3Swap32((unsigned char *)&srate);
@@ -182,8 +197,10 @@ bool b3ReadWavFile::getWavInfo(const char *fileName)
 
 	// Determine the data type.
 	dataType_ = 0;
-	if (fseek(fd_, 6, SEEK_CUR) == -1) goto error;  // Locate bits_per_sample info.
-	if (fread(&temp, 2, 1, fd_) != 1) goto error;
+	if (fseek(fd_, 6, SEEK_CUR) == -1)
+		return false;  // Locate bits_per_sample info.
+	if (fread(&temp, 2, 1, fd_) != 1)
+		return false;
 	if (!m_machineIsLittleEndian)
 	{
 		b3Swap16((unsigned char *)&temp);
@@ -213,26 +230,32 @@ bool b3ReadWavFile::getWavInfo(const char *fileName)
 	}
 
 	// Jump over any remaining part of the "fmt" chunk.
-	if (fseek(fd_, chunkSize - 16, SEEK_CUR) == -1) goto error;
+	if (fseek(fd_, chunkSize - 16, SEEK_CUR) == -1)
+		return false;
 
 	// Find "data" chunk ... it must come after the "fmt" chunk.
-	if (fread(&id, 4, 1, fd_) != 1) goto error;
+	if (fread(&id, 4, 1, fd_) != 1)
+		return false;
 
 	while (strncmp(id, "data", 4))
 	{
-		if (fread(&chunkSize, 4, 1, fd_) != 1) goto error;
+		if (fread(&chunkSize, 4, 1, fd_) != 1)
+			return false;
 		if (!m_machineIsLittleEndian)
 		{
 			b3Swap32((unsigned char *)&chunkSize);
 		}
 		chunkSize += chunkSize % 2;  // chunk sizes must be even
-		if (fseek(fd_, chunkSize, SEEK_CUR) == -1) goto error;
-		if (fread(&id, 4, 1, fd_) != 1) goto error;
+		if (fseek(fd_, chunkSize, SEEK_CUR) == -1)
+			return false;
+		if (fread(&id, 4, 1, fd_) != 1)
+			return false;
 	}
 
 	// Get length of data from the header.
 	int bytes;
-	if (fread(&bytes, 4, 1, fd_) != 1) goto error;
+	if (fread(&bytes, 4, 1, fd_) != 1)
+		return false;
 	if (!m_machineIsLittleEndian)
 	{
 		b3Swap32((unsigned char *)&bytes);
@@ -248,15 +271,7 @@ bool b3ReadWavFile::getWavInfo(const char *fileName)
 	}
 	wavFile_ = true;
 	return true;
-
-error:
-	if (fd_)
-		fclose(fd_);
-
-	//  oStream_ << "FileRead: error reading WAV file (" << fileName << ").";
-	return false;
 }
-
 
 bool b3ReadWavFile::read(unsigned long startFrame, bool doNormalize)
 {
