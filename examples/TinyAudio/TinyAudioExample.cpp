@@ -2,21 +2,27 @@
 #include "../CommonInterfaces/CommonExampleInterface.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 
-#include "RtAudio.h"
-#include "b3AudioListener.h"
+
+
+#include "b3SoundEngine.h"
 #include "b3SoundSource.h"
+
+
+
 
 class TinyAudioExample : public CommonExampleInterface
 {
-	b3AudioListener m_listener;
-	b3SoundSource m_soundA;
-	RtAudio m_dac;
+	
 	GUIHelperInterface* m_guiHelper;
-	int m_soundIndexA;
 
+	
+	b3SoundEngine m_soundEngine;
+	b3SoundSource* m_soundSource;
+	
 public:
 	TinyAudioExample(struct GUIHelperInterface* helper)
-		:m_guiHelper(helper)
+		:m_guiHelper(helper),
+		m_soundSource(0)
 	{
 	}
 	
@@ -26,35 +32,21 @@ public:
 
 	virtual void initPhysics()
 	{
-		m_soundIndexA = m_listener.addSoundSource(&m_soundA);
-		RtAudioFormat format = ( sizeof(double) == 8 ) ? RTAUDIO_FLOAT64 : RTAUDIO_FLOAT32;
-		RtAudio::StreamParameters parameters;
-		parameters.deviceId = 1;// dac.getDefaultOutputDevice();
-		parameters.nChannels = 2;
+		m_soundEngine.init();
+		int sampleRate = m_soundEngine.getSampleRate();
 
-		// The default real-time audio input and output buffer size.  If
-		// clicks are occuring in the input and/or output sound stream, a
-		// larger buffer size may help.  Larger buffer sizes, however, produce
-		// more latency.
-		const unsigned int RT_BUFFER_SIZE = 512;
-
-		unsigned int bufferFrames = RT_BUFFER_SIZE;
-		int sampleRate = m_listener.getSampleRate();
-
-		m_dac.openStream( &parameters, NULL, format, (unsigned int)sampleRate, &bufferFrames, &b3AudioListener::tick,
-		(void *)m_listener.getTickData());
-
-		// Install an interrupt handler function.
-		//	(void) signal( SIGINT, finish );
-
-		m_dac.startStream();
+		m_soundSource = new b3SoundSource();
+		m_soundSource->setWavFile(1,"wav/xylophone.rosewood.ff.C5B5_1.wav", sampleRate);
+		m_soundSource->setWavFile(0,"wav/xylophone.rosewood.ff.C5B5_1.wav", sampleRate);
+		m_soundSource->setOscillatorAmplitude(0,1);
+		m_soundSource->setOscillatorAmplitude(1,1);
+		m_soundEngine.addSoundSource(m_soundSource);
 
 	}  
 	
 	virtual void exitPhysics()
 	{
-		m_dac.closeStream();
-		m_listener.removeSoundSource(m_soundIndexA);
+		m_soundEngine.exit();
 	}
 
 	virtual void renderScene()
@@ -78,6 +70,37 @@ public:
 	}
 	virtual bool	keyboardCallback(int key, int state)
 	{
+		if (key=='v' || key=='b')
+		{
+
+				if (state)
+				{
+					if (key=='b')
+					{
+						m_soundSource->setOscillatorFrequency(0, 442);
+						m_soundSource->setOscillatorFrequency(1, 442);
+					}
+					if (key=='v')
+					{
+						m_soundSource->setOscillatorFrequency(0, 2*442);
+						m_soundSource->setOscillatorFrequency(1, 2*442);
+					}
+				}
+
+
+				if (state==1)
+				{
+					m_soundSource->startSound();
+					
+
+				}
+				else
+				{
+					m_soundSource->stopSound();
+				}
+		}
+
+
 		return false;
 	}
 

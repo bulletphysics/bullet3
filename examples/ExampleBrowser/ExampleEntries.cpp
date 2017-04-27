@@ -52,6 +52,10 @@
 #include "../RoboticsLearning/GripperGraspExample.h"
 #include "../InverseKinematics/InverseKinematicsExample.h"
 
+#ifdef B3_ENABLE_TINY_AUDIO
+#include "../TinyAudio/TinyAudioExample.h"
+#endif //B3_ENABLE_TINY_AUDIO
+
 #ifdef ENABLE_LUA
 #include "../LuaDemo/LuaPhysicsSetup.h"
 #endif
@@ -100,7 +104,6 @@ struct ExampleEntry
 
 static ExampleEntry gDefaultExamples[]=
 {
-
 	ExampleEntry(0,"API"),
 
 	ExampleEntry(1,"Basic Example","Create some rigid bodies using box collision shapes. This is a good example to familiarize with the basic initialization of Bullet. The Basic Example can also be compiled without graphical user interface, as a console application. Press W for wireframe, A to show AABBs, I to suspend/restart physics simulation. Press D to toggle auto-deactivation of the simulation. ", BasicExampleCreateFunc),
@@ -307,7 +310,11 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"TinyRenderer", "Very small software renderer.", TinyRendererCreateFunc),
 	ExampleEntry(1,"Dynamic Texture", "Dynamic updated textured applied to a cube.", DynamicTexturedCubeDemoCreateFunc),
 
-		
+#ifdef B3_ENABLE_TINY_AUDIO
+	ExampleEntry(0,"Audio"),
+	ExampleEntry(1,"Simple Audio","Play some sound", TinyAudioExampleCreateFunc),
+#endif
+
 
 	//Extended Tutorials Added by Mobeen
 	ExampleEntry(0,"Extended Tutorials"),

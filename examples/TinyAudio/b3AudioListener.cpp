@@ -1,5 +1,7 @@
 #include "b3AudioListener.h"
 #include "b3SoundSource.h"
+#include "Bullet3Common/b3Logging.h"
+#include "b3WriteWavFile.h"
 
 template <class T>
 inline const T& MyMin(const T& a, const T& b) 
@@ -7,6 +9,7 @@ inline const T& MyMin(const T& a, const T& b)
   return a < b ? a : b ;
 }
 #define MAX_SOUND_SOURCES 128
+#define B3_SAMPLE_RATE 48000
 
 struct b3AudioListenerInternalData
 {
@@ -15,10 +18,14 @@ struct b3AudioListenerInternalData
 
 	b3SoundSource* m_soundSources[MAX_SOUND_SOURCES];
 
+   
+	b3WriteWavFile m_wavOut2;
+
 	b3AudioListenerInternalData()
 		:m_numControlTicks(64),
-		m_sampleRate(48000)
+		m_sampleRate(B3_SAMPLE_RATE)
 	{
+
 		for (int i=0;i<MAX_SOUND_SOURCES;i++)
 		{
 			m_soundSources[i] = 0;
@@ -29,10 +36,14 @@ struct b3AudioListenerInternalData
 b3AudioListener::b3AudioListener()
 {
 	m_data = new b3AudioListenerInternalData();
+
+	m_data->m_wavOut2.setWavFile("bulletAudio2.wav",B3_SAMPLE_RATE,2,false);
 }
 
 b3AudioListener::~b3AudioListener()
 {
+	m_data->m_wavOut2.closeWavFile();
+
 	delete m_data;
 }
 
@@ -52,11 +63,14 @@ int b3AudioListener::addSoundSource(b3SoundSource* source)
 	return soundIndex;
 }
 
-void b3AudioListener::removeSoundSource(int soundSourceIndex)
+void b3AudioListener::removeSoundSource(b3SoundSource* source)
 {
-	if (soundSourceIndex >=0 && soundSourceIndex<MAX_SOUND_SOURCES)
+	for (int i=0;i<MAX_SOUND_SOURCES;i++)
 	{
-		m_data->m_soundSources[soundSourceIndex] = 0;
+		if (m_data->m_soundSources[i]==source)
+		{
+			m_data->m_soundSources[i] = 0;
+		}
 	}
 }
 
@@ -75,16 +89,24 @@ double b3AudioListener::getSampleRate() const
 	return m_data->m_sampleRate;
 }
 
+void b3AudioListener::setSampleRate(double sampleRate)
+{
+	m_data->m_sampleRate = sampleRate;
+}
 
 
 int b3AudioListener::tick(void *outputBuffer,void *inputBuffer1,unsigned int nBufferFrames,
 	double streamTime,unsigned int status,void *dataPointer)
 {
+	B3_PROFILE("b3AudioListener::tick");
+
 	b3AudioListenerInternalData *data = (b3AudioListenerInternalData *)dataPointer;
 	register double outs[2],*samples = (double *)outputBuffer;
 	register double tempOuts[2];
 	int counter,nTicks = (int)nBufferFrames;
 	bool done = false;
+	
+	int numSamples = 0;
 
 	while(nTicks > 0 && !done)
 	{
@@ -103,6 +125,9 @@ int b3AudioListener::tick(void *outputBuffer,void *inputBuffer1,unsigned int nBu
 					{
 						if (data->m_soundSources[i])
 						{
+							tempOuts[0] = 0;
+							tempOuts[1] = 0;
+
 							if (data->m_soundSources[i]->computeSamples(tempOuts,1, data->m_sampleRate))
 							{
 								numActiveSources++;
@@ -116,17 +141,25 @@ int b3AudioListener::tick(void *outputBuffer,void *inputBuffer1,unsigned int nBu
 					//simple mixer
 					if (numActiveSources)
 					{
-						outs[0] *= 1./numActiveSources;
-						outs[1] *= 1./numActiveSources;
+						outs[0] *= .3/numActiveSources;
+						outs[1] *= .3/numActiveSources;
 					}
-		
+
 				*samples++ = outs[0];
 				*samples++ = outs[1];
+				numSamples++;
+				
 			}
 			nTicks -= counter;
 		}
 		if(nTicks == 0) 
 			break;
+	}
+
+	//logging to wav file
+	if (numSamples)
+	{
+		data->m_wavOut2.tick( (double *)outputBuffer,numSamples);
 	}
 	return 0;
 }
