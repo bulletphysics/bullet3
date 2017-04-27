@@ -3,7 +3,7 @@
 //http://github.com/thestk/stk
 
 //! ADSR envelope states.
-#include <stdio.h>
+
 
 enum
 {
@@ -40,7 +40,6 @@ double b3ADSR::tick()
 				m_value = m_target;
 				m_target = m_sustainLevel;
 				m_state = ADSR_DECAY;
-				printf("ADSR_ATTACK->ADSR_DECAY\n");
 			}
 			break;
 
@@ -52,7 +51,6 @@ double b3ADSR::tick()
 				{
 					m_value = m_sustainLevel;
 					m_state = ADSR_SUSTAIN;
-					printf("ADSR_DECAY->ADSR_SUSTAIN\n");
 				}
 			}
 			else
@@ -62,7 +60,6 @@ double b3ADSR::tick()
 				{
 					m_value = m_sustainLevel;
 					m_state = ADSR_SUSTAIN;
-					printf("ADSR_DECAY->ADSR_SUSTAIN\n");
 				}
 			}
 			break;
@@ -73,7 +70,6 @@ double b3ADSR::tick()
 			{
 				m_value = 0.0;
 				m_state = ADSR_IDLE;
-				printf("ADSR_RELEASE->ADSR_IDLE\n");
 			}
 	}
 
@@ -90,13 +86,11 @@ void b3ADSR::keyOn()
 	if (m_target <= 0.0)
 		m_target = 1.0;
 	m_state = ADSR_ATTACK;
-	printf("keyOn::ADSR_ATTACK\n");
 }
 
 void b3ADSR::keyOff()
 {
 	m_target = 0.0;
 	m_state = ADSR_RELEASE;
-	printf("keyOff::ADSR_RELEASE\n");
 
 }

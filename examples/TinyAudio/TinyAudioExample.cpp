@@ -42,12 +42,11 @@ public:
 		m_soundSource->setOscillatorAmplitude(1,1);
 		m_soundEngine.addSoundSource(m_soundSource);
 		m_soundSource->startSound();
-m_soundSource->stopSound();
 	}  
 	
 	virtual void exitPhysics()
 	{
-		
+		m_soundSource->stopSound();		
 		m_soundEngine.exit();
 	}
 
