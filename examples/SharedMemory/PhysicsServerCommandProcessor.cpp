@@ -2792,10 +2792,21 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								fwrite(line,len,1,f);
 							}
 							{
-								sprintf(line,"p.connect(p.SHARED_MEMORY)\n");
+								sprintf(line,"cin = p.connect(p.SHARED_MEMORY)\n");
 								int len = strlen(line);
 								fwrite(line,len,1,f);
 							}
+							{
+								sprintf(line,"if (cin < 0):\n");
+								int len = strlen(line);
+								fwrite(line,len,1,f);
+							}
+							{
+								sprintf(line,"    cin = p.connect(p.GUI)\n");
+								int len = strlen(line);
+								fwrite(line,len,1,f);
+							}
+
 							//for each objects ...
 							for (int i=0;i<m_data->m_saveWorldBodyData.size();i++)
 							{
@@ -2830,15 +2841,21 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 													int len = strlen(line);
 													fwrite(line,len,1,f);
 												}
+												if (strstr(sd.m_fileName.c_str(),".xml") && i==0)
+												{
+													sprintf(line,"objects = p.loadMJCF(\"%s\")\n",sd.m_fileName.c_str());
+													int len = strlen(line);
+													fwrite(line,len,1,f);
+												}
 
-												if (strstr(sd.m_fileName.c_str(),".sdf") || ((strstr(sd.m_fileName.c_str(),".urdf")) && mb->getNumLinks()) )
+												if (strstr(sd.m_fileName.c_str(),".sdf") || strstr(sd.m_fileName.c_str(),".xml") || ((strstr(sd.m_fileName.c_str(),".urdf")) && mb->getNumLinks()) )
 												{
 													sprintf(line,"ob = objects[%d]\n",i);
 													int len = strlen(line);
 													fwrite(line,len,1,f);
 												}
 
-												if (strstr(sd.m_fileName.c_str(),".sdf"))
+												if (strstr(sd.m_fileName.c_str(),".sdf")||strstr(sd.m_fileName.c_str(),".xml"))
 												{
 													sprintf(line,"p.resetBasePositionAndOrientation(ob,[%f,%f,%f],[%f,%f,%f,%f])\n",
 														comTr.getOrigin()[0],comTr.getOrigin()[1],comTr.getOrigin()[2],
