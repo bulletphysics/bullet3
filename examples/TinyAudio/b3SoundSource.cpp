@@ -103,6 +103,7 @@ bool b3SoundSource::computeSamples(double* sampleBuffer, int numSamples, double 
 			{
 				int frame = 0;
 				double data = m_data->m_oscillators[osc].m_amplitude * m_data->m_wavFile.tick(frame,&m_data->m_oscillators[osc].m_wavTicker);
+				
 				samples[osc] += data;
 			}
 	
