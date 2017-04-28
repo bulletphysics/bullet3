@@ -183,11 +183,11 @@ public:
 
 
 	virtual ~btRigidBody()
-        { 
-                //No constraints should point to this rigidbody
+	{ 
+		//No constraints should point to this rigidbody
 		//Remove constraints from the dynamics world before you delete the related rigidbodies. 
-                btAssert(m_constraintRefs.size()==0); 
-        }
+		btAssert(m_constraintRefs.size()==0); 
+	}
 
 protected:
 
@@ -293,7 +293,7 @@ public:
 	{
 		return m_totalTorque;
 	};
-    
+
 	const btVector3& getInvInertiaDiagLocal() const
 	{
 		return m_invInertiaLocal;
@@ -326,7 +326,7 @@ public:
 		m_linearVelocity += impulse *m_linearFactor * m_inverseMass;
 	}
 	
-  	void applyTorqueImpulse(const btVector3& torque)
+	void applyTorqueImpulse(const btVector3& torque)
 	{
 			m_angularVelocity += m_invInertiaTensorWorld * torque * m_angularFactor;
 	}
@@ -335,10 +335,19 @@ public:
 	{
 		if (m_inverseMass != btScalar(0.))
 		{
-			applyCentralImpulse(impulse);
-			if (m_angularFactor)
+			float d = rel_pos.length();
+			if (d < SIMD_EPSILON)
 			{
-				applyTorqueImpulse(rel_pos.cross(impulse*m_linearFactor));
+			    applyCentralImpulse(impulse);
+			}
+			else
+			{
+				btVector3 normal = rel_pos / d;
+			    applyCentralImpulse(impulse.dot(normal) * normal);
+			    if (m_angularFactor)
+			    {
+				    applyTorqueImpulse(rel_pos.cross(impulse*m_linearFactor));
+			    }
 			}
 		}
 	}
