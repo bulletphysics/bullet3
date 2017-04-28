@@ -80,6 +80,12 @@ b3SoundSource::~b3SoundSource()
 	delete m_data;
 }
 
+void b3SoundSource::setADSR( double attack, double decay, double sustain, double release)
+{
+	m_data->m_envelope.setValues(attack,decay,sustain,release);
+}
+
+
 bool b3SoundSource::computeSamples(double* sampleBuffer, int numSamples, double sampleRate)
 {
 	
@@ -110,7 +116,7 @@ bool b3SoundSource::computeSamples(double* sampleBuffer, int numSamples, double 
 				if (m_data->m_oscillators[osc].m_type == 128)
 				{
 					int frame = 0;
-					double data = m_data->m_oscillators[osc].m_amplitude * m_data->m_wavFilePtr->tick(frame,&m_data->m_oscillators[osc].m_wavTicker);
+					double data = env * m_data->m_oscillators[osc].m_amplitude * m_data->m_wavFilePtr->tick(frame,&m_data->m_oscillators[osc].m_wavTicker);
 					samples[osc] += data;
 					numActive++;
 				}

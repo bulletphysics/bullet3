@@ -80,7 +80,7 @@ public:
 
 	virtual void initPhysics()
 	{
-		int numSoundSources = 8;
+		int numSoundSources = 32;
 		bool useRealTimeDac = true;
 
 		m_soundEngine.init(numSoundSources, useRealTimeDac);
@@ -138,10 +138,13 @@ public:
 					b3SoundMessage msg;
 					msg.m_type = B3_SOUND_SOURCE_SINE_OSCILLATOR;
 					msg.m_frequency = freq;
-					msg.m_amplitude = .25;
+					msg.m_amplitude = 1;
 
-					//msg.m_type = B3_SOUND_SOURCE_WAV_FILE;
-					//msg.m_wavId = m_wavId;
+					msg.m_type = B3_SOUND_SOURCE_WAV_FILE;
+					msg.m_wavId = m_wavId;
+					msg.m_attackRate = 1;
+					msg.m_sustainLevel = 1;
+					msg.m_releaseRate = 0.001;
 
 					m_soundEngine.startSound(soundSourceIndex, msg);
 					m_keyToSoundSource.insert(hs,soundSourceIndex);

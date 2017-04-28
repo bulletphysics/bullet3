@@ -138,13 +138,9 @@ int b3AudioListener::tick(void *outputBuffer,void *inputBuffer1,unsigned int nBu
 						}
 					}
 
-					//simple mixer
-					if (numActiveSources)
-					{
-						
-						outs[0] *= 1./4.;
-						outs[1] *= 1./4.;
-					}
+					//soft-clipping of sounds
+					outs[0] = tanh(outs[0]);
+					outs[1] = tanh(outs[1]);
 
 				*samples++ = outs[0];
 				*samples++ = outs[1];

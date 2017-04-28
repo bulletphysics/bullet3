@@ -20,6 +20,7 @@ public:
 	void setOscillatorFrequency(int oscillatorIndex, double frequency);
 	void setOscillatorAmplitude(int oscillatorIndex, double amplitude);
 	void setOscillatorPhase(int oscillatorIndex, double phase);
+	void setADSR( double attackRate, double decayRate, double sustainLevel, double releaseRate);
 
 	bool setWavFile(int oscillatorIndex, class b3ReadWavFile* wavFilePtr, int sampleRate);
 

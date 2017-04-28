@@ -101,14 +101,18 @@ int b3SoundEngine::getAvailableSoundSource()
 void b3SoundEngine::startSound(int soundSourceIndex, b3SoundMessage msg)
 {
 	b3SoundSource* soundSource = m_data->m_soundSources[soundSourceIndex];
+	soundSource->setOscillatorAmplitude(0,msg.m_amplitude);
+	soundSource->setOscillatorAmplitude(1,msg.m_amplitude);
+
+	soundSource->setADSR(msg.m_attackRate,msg.m_decayRate,msg.m_sustainLevel,msg.m_releaseRate);
+
 	switch (msg.m_type)
 	{
 		case B3_SOUND_SOURCE_SINE_OSCILLATOR:
 		{
 			soundSource->setOscillatorFrequency(0, msg.m_frequency);
 			soundSource->setOscillatorFrequency(1, msg.m_frequency);
-			soundSource->setOscillatorAmplitude(0,msg.m_amplitude);
-			soundSource->setOscillatorAmplitude(1,msg.m_amplitude);
+			
 			soundSource->startSound();
 			break;
 		}

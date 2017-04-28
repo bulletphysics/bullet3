@@ -21,6 +21,15 @@ public:
 	bool isIdle() const;
 	void keyOn();
 	void keyOff();
+
+	void setValues(double attack,double decay,double sustain,double release)
+	{
+		m_attackRate = attack;
+		m_decayRate = decay;
+		m_sustainLevel = sustain;
+		m_releaseRate = release;
+	}
+
 };
 
 #endif //B3_ADSR_H
