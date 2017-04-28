@@ -5,6 +5,9 @@
 #include "b3AudioListener.h"
 #include "b3SoundSource.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
+#include "b3ReadWavFile.h"
+#include "../Utils/b3ResourcePath.h"
+#include "Bullet3Common/b3HashMap.h"
 
 // The default real-time audio input and output buffer size.  If
 // clicks are occuring in the input and/or output sound stream, a
@@ -17,9 +20,17 @@ struct b3SoundEngineInternalData
 {
 	b3AudioListener m_listener;
 	RtAudio m_dac;
+	bool m_useRealTimeDac;
 
 	b3AlignedObjectArray<b3SoundSource*> m_soundSources;
+	b3HashMap<b3HashInt, b3ReadWavFile*> m_wavFiles;
+	int m_wavFileUidGenerator;
 
+	b3SoundEngineInternalData()
+		: m_useRealTimeDac(false),
+		  m_wavFileUidGenerator(123)
+	{
+	}
 };
 
 b3SoundEngine::b3SoundEngine()
@@ -33,49 +44,113 @@ b3SoundEngine::~b3SoundEngine()
 	delete m_data;
 }
 
-void b3SoundEngine::init()
+void b3SoundEngine::init(int maxNumSoundSources, bool useRealTimeDac)
 {
+	for (int i = 0; i < maxNumSoundSources; i++)
+	{
+		b3SoundSource* source = new b3SoundSource();
+		m_data->m_soundSources.push_back(source);
+		m_data->m_listener.addSoundSource(source);
+	}
 
-	RtAudioFormat format = ( sizeof(double) == 8 ) ? RTAUDIO_FLOAT64 : RTAUDIO_FLOAT32;
-	RtAudio::StreamParameters parameters;
-	parameters.deviceId = m_data->m_dac.getDefaultOutputDevice();
-	parameters.nChannels = 2;
+	this->m_data->m_useRealTimeDac = useRealTimeDac;
 
-	unsigned int bufferFrames = RT_BUFFER_SIZE;
-	double sampleRate = m_data->m_listener.getSampleRate();
+	if (useRealTimeDac)
+	{
+		RtAudioFormat format = (sizeof(double) == 8) ? RTAUDIO_FLOAT64 : RTAUDIO_FLOAT32;
+		RtAudio::StreamParameters parameters;
+		parameters.deviceId = m_data->m_dac.getDefaultOutputDevice();
+		parameters.nChannels = 2;
 
-	m_data->m_dac.openStream( &parameters, NULL, format, (unsigned int)sampleRate, &bufferFrames, &b3AudioListener::tick,
-	(void *)m_data->m_listener.getTickData());
+		unsigned int bufferFrames = RT_BUFFER_SIZE;
+		double sampleRate = m_data->m_listener.getSampleRate();
 
-	m_data->m_dac.startStream();
+		m_data->m_dac.openStream(&parameters, NULL, format, (unsigned int)sampleRate, &bufferFrames, &b3AudioListener::tick,
+								 (void*)m_data->m_listener.getTickData());
+
+		m_data->m_dac.startStream();
+	}
 }
 
 void b3SoundEngine::exit()
 {
 	m_data->m_dac.closeStream();
+	m_data->m_useRealTimeDac = false;
 
-	for (int i=0;i<m_data->m_soundSources.size();i++)
+	for (int i = 0; i < m_data->m_soundSources.size(); i++)
 	{
 		m_data->m_listener.removeSoundSource(m_data->m_soundSources[i]);
+		m_data->m_soundSources[i]->stopSound();
 		delete m_data->m_soundSources[i];
 	}
 	m_data->m_soundSources.clear();
 }
 
-
-void b3SoundEngine::addSoundSource(b3SoundSource* source)
+int b3SoundEngine::getAvailableSoundSource()
 {
-	m_data->m_soundSources.push_back(source);
-	m_data->m_listener.addSoundSource(source);
+	for (int i = 0; i < m_data->m_soundSources.size(); i++)
+	{
+		if (m_data->m_soundSources[i]->isAvailable())
+		{
+			return i;
+		}
+	}
+	return -1;
 }
 
-void b3SoundEngine::removeSoundSource(b3SoundSource* source)
+void b3SoundEngine::startSound(int soundSourceIndex, b3SoundMessage msg)
 {
-	m_data->m_soundSources.remove(source);
+	b3SoundSource* soundSource = m_data->m_soundSources[soundSourceIndex];
+	switch (msg.m_type)
+	{
+		case B3_SOUND_SOURCE_SINE_OSCILLATOR:
+		{
+			soundSource->setOscillatorFrequency(0, msg.m_frequency);
+			soundSource->setOscillatorFrequency(1, msg.m_frequency);
+			soundSource->setOscillatorAmplitude(0,msg.m_amplitude);
+			soundSource->setOscillatorAmplitude(1,msg.m_amplitude);
+			soundSource->startSound();
+			break;
+		}
+		case B3_SOUND_SOURCE_WAV_FILE:
+		{
+			b3ReadWavFile** wavFilePtr = m_data->m_wavFiles[msg.m_wavId];
+			if (wavFilePtr)
+			{
+				b3ReadWavFile* wavFile = *wavFilePtr;
+				soundSource->setWavFile(0,wavFile,getSampleRate());
+				soundSource->setWavFile(1,wavFile,getSampleRate());
+				soundSource->startSound();
+			}
+			break;
+		}
+		default:
+		{
+		}
+	}
+}
+
+void b3SoundEngine::releaseSound(int soundSourceIndex)
+{
+	b3SoundSource* soundSource = m_data->m_soundSources[soundSourceIndex];
+	soundSource->stopSound();
 }
 
 int b3SoundEngine::loadWavFile(const char* fileName)
 {
+	char resourcePath[1024];
+
+	if (b3ResourcePath::findResourcePath(fileName, resourcePath, 1024))
+	{
+		b3ReadWavFile* wavFile = new b3ReadWavFile();
+		wavFile->getWavInfo(resourcePath);
+		wavFile->resize();
+		wavFile->read(0, true);
+		wavFile->normalize(1);
+		int wavUID = m_data->m_wavFileUidGenerator++;
+		m_data->m_wavFiles.insert(wavUID, wavFile);
+		return wavUID;
+	}
 	return 0;
 }
 
@@ -83,5 +158,3 @@ double b3SoundEngine::getSampleRate() const
 {
 	return m_data->m_listener.getSampleRate();
 }
-
-	

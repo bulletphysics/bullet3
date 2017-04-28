@@ -3,10 +3,11 @@
 #define MY2PI (2.*3.14159265)
 #include <math.h>
 
-#include "../Utils/b3ResourcePath.h"
+
 #include "Bullet3Common/b3FileUtils.h"
 #include "b3ReadWavFile.h"
 #include "b3ADSR.h"
+#include "b3Sound_C_Api.h"
 
 struct b3SoundOscillator
 {
@@ -62,7 +63,11 @@ struct b3SoundSourceInternalData
 {
 	b3SoundOscillator m_oscillators[MAX_OSCILLATORS];
 	b3ADSR m_envelope;
-	b3ReadWavFile m_wavFile;
+	b3ReadWavFile* m_wavFilePtr;
+	b3SoundSourceInternalData()
+		:m_wavFilePtr(0)
+	{
+	}
 };
 
 b3SoundSource::b3SoundSource()
@@ -79,6 +84,7 @@ bool b3SoundSource::computeSamples(double* sampleBuffer, int numSamples, double 
 {
 	
 	double* outputSamples = sampleBuffer;
+	int numActive = 0;
 
 	for (int i=0;i<numSamples;i++)
 	{
@@ -87,32 +93,45 @@ bool b3SoundSource::computeSamples(double* sampleBuffer, int numSamples, double 
 		double env = m_data->m_envelope.tick();
 		if (env)
 		{
-		for (int osc=0;osc<MAX_OSCILLATORS;osc++)
+			for (int osc=0;osc<MAX_OSCILLATORS;osc++)
+			{
+				if (m_data->m_oscillators[osc].m_type == 0)
+				{
+					samples[osc] +=  env * m_data->m_oscillators[osc].sampleSineWaveForm(sampleRate);
+					numActive++;
+				}
+
+				if (m_data->m_oscillators[osc].m_type == 1)
+				{
+					samples[osc] += env * m_data->m_oscillators[osc].sampleSawWaveForm(sampleRate);
+					numActive++;
+				}
+
+				if (m_data->m_oscillators[osc].m_type == 128)
+				{
+					int frame = 0;
+					double data = m_data->m_oscillators[osc].m_amplitude * m_data->m_wavFilePtr->tick(frame,&m_data->m_oscillators[osc].m_wavTicker);
+					samples[osc] += data;
+					numActive++;
+				}
+			}	
+		} else
 		{
-			if (m_data->m_oscillators[osc].m_type == 0)
+			for (int osc=0;osc<MAX_OSCILLATORS;osc++)
 			{
-				samples[osc] +=  env * m_data->m_oscillators[osc].sampleSineWaveForm(sampleRate);
+				if (m_data->m_oscillators[osc].m_type == 128)
+				{
+					m_data->m_oscillators[osc].m_wavTicker.finished_ = true;
+				}
 			}
-
-			if (m_data->m_oscillators[osc].m_type == 1)
-			{
-				samples[osc] += env * m_data->m_oscillators[osc].sampleSawWaveForm(sampleRate);
-			}
-
-			if (m_data->m_oscillators[osc].m_type == 128)
-			{
-				int frame = 0;
-				double data = m_data->m_oscillators[osc].m_amplitude * m_data->m_wavFile.tick(frame,&m_data->m_oscillators[osc].m_wavTicker);
-				
-				samples[osc] += data;
-			}
-	
-		}	
 		}
 		//sample *= 1./double(MAX_OSCILLATORS);
 
 		double sampleLeft = samples[0];
 		double sampleRight = samples[1];
+		if (sampleLeft != sampleRight)
+		{
+		}
 
 		*outputSamples++ = sampleRight;
 		*outputSamples++ = sampleLeft ;
@@ -127,7 +146,7 @@ bool b3SoundSource::computeSamples(double* sampleBuffer, int numSamples, double 
 		}
 	}
 	*/
-	return true;
+	return numActive>0;
 //	return false;
 }
 
@@ -152,22 +171,28 @@ void b3SoundSource::setOscillatorPhase(int oscillatorIndex, double phase)
 	m_data->m_oscillators[oscillatorIndex].m_phase = phase;
 }
 
+bool b3SoundSource::isAvailable() const
+{
+	//available if ADSR is idle and wavticker is finished
+	return m_data->m_envelope.isIdle();
+}
+
 void b3SoundSource::startSound()
 {
 	if (m_data->m_envelope.isIdle())
 	{
 		for (int osc=0;osc<MAX_OSCILLATORS;osc++)
 		{
-			static int reset = 0;
-			printf("reset %d!\n",reset++);
-			if (m_data->m_oscillators[osc].m_wavTicker.finished_)
+			m_data->m_oscillators[osc].reset();
+
+			if (m_data->m_oscillators[osc].m_type == B3_SOUND_SOURCE_WAV_FILE)//				.m_wavTicker.finished_)
 			{
-				m_data->m_oscillators[osc].reset();
+				
 				//test reverse playback of wav
-				m_data->m_oscillators[osc].m_wavTicker.rate_ *= -1;
+				//m_data->m_oscillators[osc].m_wavTicker.rate_ *= -1;
 				if (m_data->m_oscillators[osc].m_wavTicker.rate_<0)
 				{
-					m_data->m_oscillators[osc].m_wavTicker.time_ = m_data->m_wavFile.getNumFrames()-1.;
+					m_data->m_oscillators[osc].m_wavTicker.time_ = m_data->m_wavFilePtr->getNumFrames()-1.;
 				} else
 				{
 					m_data->m_oscillators[osc].m_wavTicker.time_ = 0.f;
@@ -187,18 +212,11 @@ void b3SoundSource::stopSound()
 }
 
 
-bool b3SoundSource::setWavFile(int oscillatorIndex, const char* fileName, int sampleRate)
+bool b3SoundSource::setWavFile(int oscillatorIndex, b3ReadWavFile* wavFilePtr, int sampleRate)
 {
-	char resourcePath[1024];
-		
-	if (b3ResourcePath::findResourcePath(fileName,resourcePath,1024))
 	{
-
-		m_data->m_wavFile.getWavInfo(resourcePath);
-		m_data->m_wavFile.resize();
-		m_data->m_wavFile.read(0,true);
-		m_data->m_wavFile.normalize(1);
-		m_data->m_oscillators[oscillatorIndex].m_wavTicker = m_data->m_wavFile.createWavTicker(sampleRate);
+		m_data->m_wavFilePtr = wavFilePtr;
+		m_data->m_oscillators[oscillatorIndex].m_wavTicker = m_data->m_wavFilePtr->createWavTicker(sampleRate);
 
 //		waveIn.openFile(resourcePath);
 		double rate = 1.0;

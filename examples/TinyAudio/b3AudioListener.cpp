@@ -141,8 +141,9 @@ int b3AudioListener::tick(void *outputBuffer,void *inputBuffer1,unsigned int nBu
 					//simple mixer
 					if (numActiveSources)
 					{
-						outs[0] *= .3/numActiveSources;
-						outs[1] *= .3/numActiveSources;
+						
+						outs[0] *= 1./4.;
+						outs[1] *= 1./4.;
 					}
 
 				*samples++ = outs[0];

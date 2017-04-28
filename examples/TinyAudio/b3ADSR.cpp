@@ -18,9 +18,9 @@ b3ADSR::b3ADSR()
 {
 	m_target = 0.0;
 	m_value = 0.0;
-	m_attackRate = 0.001;
+	m_attackRate = 0.0001;
 	m_decayRate = 0.00001;
-	m_releaseRate = 0.005;
+	m_releaseRate = 0.0005;
 	m_sustainLevel = 0.5;
 	m_state = ADSR_IDLE;
 }
@@ -78,7 +78,7 @@ double b3ADSR::tick()
 
 bool b3ADSR::isIdle() const
 {
-	return true;
+	return m_state == ADSR_IDLE;
 }
 
 void b3ADSR::keyOn()

@@ -1,6 +1,9 @@
 #ifndef B3_SOUND_SOURCE_H
 #define B3_SOUND_SOURCE_H
 
+#include "b3Sound_C_Api.h"
+
+
 class b3SoundSource
 {
 	struct b3SoundSourceInternalData* m_data;
@@ -18,11 +21,12 @@ public:
 	void setOscillatorAmplitude(int oscillatorIndex, double amplitude);
 	void setOscillatorPhase(int oscillatorIndex, double phase);
 
-	bool setWavFile(int oscillatorIndex, const char* fileName, int sampleRate);
+	bool setWavFile(int oscillatorIndex, class b3ReadWavFile* wavFilePtr, int sampleRate);
 
 	void startSound();
 	void stopSound();
 
+	bool isAvailable() const;
 };
 
 #endif //B3_SOUND_SOURCE_H
