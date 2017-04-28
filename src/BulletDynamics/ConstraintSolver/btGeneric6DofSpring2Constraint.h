@@ -317,7 +317,7 @@ protected:
 	void calculateJacobi(btRotationalLimitMotor2* limot, const btTransform& transA,const btTransform& transB, btConstraintInfo2* info, int srow, btVector3& ax1, int rotational, int rotAllowed);
 	int get_limit_motor_info2(btRotationalLimitMotor2* limot,
 		const btTransform& transA,const btTransform& transB,const btVector3& linVelA,const btVector3& linVelB,const btVector3& angVelA,const btVector3& angVelB,
-		btConstraintInfo2* info, int row, btVector3& ax1, int rotational, int rotAllowed = false);
+		btConstraintInfo2* info, int row, btVector3& ax1, int findex, int rotAllowed = false);
 
 public:
 
