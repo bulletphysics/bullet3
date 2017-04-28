@@ -140,6 +140,13 @@ void Model::load_texture(std::string filename, const char *suffix, TGAImage &img
 TGAColor Model::diffuse(Vec2f uvf) {
     if (diffusemap_.get_width() && diffusemap_.get_height())
     {
+		double val;
+//		bool repeat = true;
+//		if (repeat)
+		{
+			uvf[0] = modf(uvf[0],&val);
+			uvf[1] = modf(uvf[1],&val);
+		}
         Vec2i uv(uvf[0]*diffusemap_.get_width(), uvf[1]*diffusemap_.get_height());
         return diffusemap_.get(uv[0], uv[1]);
     }

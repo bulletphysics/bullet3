@@ -6,7 +6,8 @@ INCLUDE_DIRECTORIES(
 
 FILE(GLOB OpenGLWindow_HDRS "*.h" )
 
-FILE(GLOB OpenGLWindowMac_CPP "Mac*.mm")
+FILE(GLOB OpenGLWindowMac_CPP "Mac*.cpp")
+FILE(GLOB OpenGLWindowMacObjC_CPP "Mac*.m")
 FILE(GLOB OpenGLWindowWin32_CPP "Win32*.cpp")
 FILE(GLOB OpenGLWindowLinux_CPP "X11*.cpp")
 
@@ -16,6 +17,7 @@ LIST(REMOVE_ITEM OpenGLWindowCommon_CPP ${OpenGLWindowMac_CPP} )
 LIST(REMOVE_ITEM OpenGLWindowCommon_CPP ${OpenGLWindowWin32_CPP} )
 LIST(REMOVE_ITEM OpenGLWindowCommon_CPP ${OpenGLWindowLinux_CPP} )
 LIST(REMOVE_ITEM OpenGLWindowCommon_CPP X11OpenGLWindow.cpp )
+LIST(REMOVE_ITEM OpenGLWindowCommon_CPP MacOpenGLWindow.cpp )
 #MESSAGE (${OpenGLWindowCommon_CPP})
 
 IF (WIN32)
@@ -27,7 +29,7 @@ IF (WIN32)
 ENDIF(WIN32)
 
 IF (APPLE)
-	SET(OpenGLWindow_SRCS ${OpenGLWindowMac_CPP} ${OpenGLWindowCommon_CPP} )
+	SET(OpenGLWindow_SRCS ${OpenGLWindowMac_CPP} ${OpenGLWindowMacObjC_CPP}  ${OpenGLWindowCommon_CPP} )
 ENDIF(APPLE)
 
 #no Linux detection?
@@ -59,7 +61,7 @@ if (BUILD_SHARED_LIBS)
   else()
 	set (CMAKE_THREAD_PREFER_PTHREAD TRUE)
 	FIND_PACKAGE(Threads)
-   	target_link_libraries(OpenGLWindow dl ${CMAKE_THREAD_LIBS_INIT})
+	target_link_libraries(OpenGLWindow ${DL} ${CMAKE_THREAD_LIBS_INIT})
   endif()
 endif()
 

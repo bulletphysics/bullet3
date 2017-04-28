@@ -63,7 +63,9 @@
 		links{"Cocoa.framework"}
 print("hello!")
 		files{
-		"../../examples/OpenGLWindow/MacOpenGLWindow.mm",
+		"../../examples/OpenGLWindow/MacOpenGLWindow.cpp",
 		"../../examples/OpenGLWindow/MacOpenGLWindow.h",
+		"../../examples/OpenGLWindow/MacOpenGLWindowObjC.m",
+		"../../examples/OpenGLWindow/MacOpenGLWindowObjC.h",
 		}
 	end

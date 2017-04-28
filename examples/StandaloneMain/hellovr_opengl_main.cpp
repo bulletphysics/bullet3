@@ -709,8 +709,50 @@ bool CMainApplication::HandleInput()
 		vr::VRControllerState_t state;
 		if( m_pHMD->GetControllerState( unDevice, &state ,sizeof(vr::VRControllerState_t)) )
 		{
+			b3Transform tr;
+			getControllerTransform(unDevice, tr);
+			float pos[3] = { tr.getOrigin()[0], tr.getOrigin()[1], tr.getOrigin()[2] };
+			b3Quaternion born = tr.getRotation();
+			float orn[4] = { born[0], born[1], born[2], born[3] };
+
 			//we need to have the 'move' events, so no early out here
 			//if (sPrevStates[unDevice].unPacketNum != state.unPacketNum)
+			if( m_pHMD->GetTrackedDeviceClass( unDevice) == vr::TrackedDeviceClass_HMD )
+			{
+				Matrix4 rotYtoZ = rotYtoZ.identity();
+				//some Bullet apps (especially robotics related) require Z as up-axis)
+				if (m_app->getUpAxis()==2)
+				{
+					rotYtoZ.rotateX(-90);
+				}
+				Matrix4 viewMatCenter = m_mat4HMDPose * rotYtoZ;
+				const float* mat = viewMatCenter.invertAffine().get();
+				pos[0] = mat[12];
+				pos[1] = mat[13];
+				pos[2] = mat[14];
+
+				b3Matrix3x3 bmat;
+				for (int i=0;i<3;i++)
+				{
+					for (int j=0;j<3;j++)
+					{
+						bmat[i][j] = mat[i+4*j];
+					}
+				}
+				b3Quaternion orn2;
+				bmat.getRotation(orn2);
+				orn[0] = orn2[0];
+				orn[1] = orn2[1];
+				orn[2] = orn2[2];
+				orn[3] = orn2[3];
+				sExample->vrHMDMoveCallback(unDevice, pos,orn);
+			}
+
+			if( m_pHMD->GetTrackedDeviceClass( unDevice) == vr::TrackedDeviceClass_GenericTracker )
+			{
+				sExample->vrGenericTrackerMoveCallback(unDevice, pos,orn);
+			}
+
 			if( m_pHMD->GetTrackedDeviceClass( unDevice) == vr::TrackedDeviceClass_Controller )
 			{
 				sPrevStates[unDevice].unPacketNum = state.unPacketNum;
@@ -723,11 +765,6 @@ bool CMainApplication::HandleInput()
 					if (isTrigger)
 					{
 
-						b3Transform tr;
-						getControllerTransform(unDevice, tr);
-						float pos[3] = { tr.getOrigin()[0], tr.getOrigin()[1], tr.getOrigin()[2] };
-						b3Quaternion born = tr.getRotation();
-						float orn[4] = { born[0], born[1], born[2], born[3] };
 
 						//pressed now, not pressed before -> raise a button down event
 						if ((sPrevStates[unDevice].ulButtonPressed&trigger)==0)
@@ -765,11 +802,6 @@ bool CMainApplication::HandleInput()
 						{
 							
 
-							b3Transform tr;
-							getControllerTransform(unDevice, tr);
-							float pos[3] = { tr.getOrigin()[0], tr.getOrigin()[1], tr.getOrigin()[2] };
-							b3Quaternion born = tr.getRotation();
-							float orn[4] = { born[0], born[1], born[2], born[3] };
 	//							printf("Device RELEASED: %d, button %d\n", unDevice,button);
 					
 							//not pressed now, but pressed before -> raise a button up event

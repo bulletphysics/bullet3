@@ -54,6 +54,7 @@ enum EnumSharedMemoryClientCommand
 	CMD_STATE_LOGGING,
     CMD_CONFIGURE_OPENGL_VISUALIZER,
 	CMD_REQUEST_KEYBOARD_EVENTS_DATA,
+	CMD_REQUEST_OPENGL_VISUALIZER_CAMERA,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -133,6 +134,8 @@ enum EnumSharedMemoryServerStatus
 		CMD_STATE_LOGGING_FAILED,
 		CMD_REQUEST_KEYBOARD_EVENTS_DATA_COMPLETED,
 		CMD_REQUEST_KEYBOARD_EVENTS_DATA_FAILED,
+		CMD_REQUEST_OPENGL_VISUALIZER_CAMERA_FAILED,
+		CMD_REQUEST_OPENGL_VISUALIZER_CAMERA_COMPLETED,
         //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
@@ -248,17 +251,36 @@ struct b3CameraImageData
 	const int* m_segmentationMaskValues;//m_pixelWidth*m_pixelHeight ints
 };
 
+struct b3OpenGLVisualizerCameraInfo
+{
+    int m_width;
+    int m_height;
+	float m_viewMatrix[16];
+	float m_projectionMatrix[16];
+	
+	float m_camUp[3];
+	float m_camForward[3];
+
+	float m_horizontal[3];
+	float m_vertical[3];
+};
 
 enum b3VREventType
 {
 	VR_CONTROLLER_MOVE_EVENT=1,
-	VR_CONTROLLER_BUTTON_EVENT
+	VR_CONTROLLER_BUTTON_EVENT=2,
+	VR_HMD_MOVE_EVENT=4,
+	VR_GENERIC_TRACKER_MOVE_EVENT=8,
 };
 
 #define MAX_VR_BUTTONS 64
 #define MAX_VR_CONTROLLERS 8
-#define MAX_RAY_HITS 128
+
+#define MAX_RAY_INTERSECTION_BATCH_SIZE 256
+#define MAX_RAY_HITS MAX_RAY_INTERSECTION_BATCH_SIZE
 #define MAX_KEYBOARD_EVENTS 256
+
+
 
 enum b3VRButtonInfo
 {
@@ -267,9 +289,19 @@ enum b3VRButtonInfo
 	eButtonReleased = 4,
 };
 
+
+
+enum eVRDeviceTypeEnums
+{
+	VR_DEVICE_CONTROLLER=1,
+	VR_DEVICE_HMD=2,
+	VR_DEVICE_GENERIC_TRACKER=4,
+};
+
 struct b3VRControllerEvent
 {
 	int m_controllerId;//valid for VR_CONTROLLER_MOVE_EVENT and VR_CONTROLLER_BUTTON_EVENT
+	int m_deviceType;
 	int m_numMoveEvents;
 	int m_numButtonEvents;
 	
@@ -285,6 +317,11 @@ struct b3VREventsData
 {
 	int m_numControllerEvents;
 	struct b3VRControllerEvent* m_controllerEvents;
+	int m_numHmdEvents;
+	struct b3VRMoveEvent* m_hmdEvents;
+
+	int  m_numGenericTrackerEvents;
+	struct b3VRMoveEvent* m_genericTrackerEvents;
 };
 
 
@@ -337,6 +374,7 @@ enum  b3StateLoggingType
 	STATE_LOGGING_VR_CONTROLLERS = 2,
 	STATE_LOGGING_VIDEO_MP4 = 3,
 	STATE_LOGGING_COMMANDS = 4,
+	STATE_LOGGING_CONTACT_POINTS = 5,
 };
 
 
@@ -451,6 +489,7 @@ enum eCONNECT_METHOD {
 enum eURDF_Flags
 {
 	URDF_USE_INERTIA_FROM_FILE=2,//sync with URDF2Bullet.h 'ConvertURDFFlags'
+	URDF_USE_SELF_COLLISION=8,//see CUF_USE_SELF_COLLISION
 };
 
 #endif//SHARED_MEMORY_PUBLIC_H

@@ -10,7 +10,7 @@
 
 bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string& fileName, b3ImportMeshData& meshData)
 {
-
+	B3_PROFILE("loadAndRegisterMeshFromFileInternal");
 	meshData.m_gfxShape = 0;
 	meshData.m_textureImage = 0;
 	meshData.m_textureHeight = 0;
@@ -26,7 +26,10 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 		btVector3 shift(0,0,0);
     	
 		std::vector<tinyobj::shape_t> shapes;
-		std::string err = tinyobj::LoadObj(shapes, relativeFileName, pathPrefix);
+		{
+			B3_PROFILE("tinyobj::LoadObj");
+			std::string err = tinyobj::LoadObj(shapes, relativeFileName, pathPrefix);
+		}
 		
 		GLInstanceGraphicsShape* gfxShape = btgCreateGraphicsShapeFromWavefrontObj(shapes);
 		

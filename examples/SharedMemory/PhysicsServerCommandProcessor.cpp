@@ -376,7 +376,8 @@ struct MyBroadphaseCallback : public btBroadphaseAabbCallback
 		if (bodyUniqueId >= 0)
 		{
 			m_bodyUniqueIds.push_back(bodyUniqueId);
-			m_links.push_back(mbl->m_link);
+			//it is not a multibody, so use -1 otherwise
+			m_links.push_back(-1);
 		}
 		return true;
 	}
@@ -605,6 +606,7 @@ struct b3VRControllerEvents
 	{
 		for (int i=0;i<MAX_VR_CONTROLLERS;i++)
 		{
+			m_vrEvents[i].m_deviceType = 0;
 			m_vrEvents[i].m_numButtonEvents = 0;
 			m_vrEvents[i].m_numMoveEvents = 0;
 			for (int b=0;b<MAX_VR_BUTTONS;b++)
@@ -628,6 +630,7 @@ struct b3VRControllerEvents
 			if (vrEvents[i].m_numMoveEvents+vrEvents[i].m_numButtonEvents)
 			{
 				m_vrEvents[controlledId].m_controllerId = vrEvents[i].m_controllerId;
+				m_vrEvents[controlledId].m_deviceType = vrEvents[i].m_deviceType;
 
 				m_vrEvents[controlledId].m_pos[0] = vrEvents[i].m_pos[0];
 				m_vrEvents[controlledId].m_pos[1] = vrEvents[i].m_pos[1];
@@ -659,13 +662,14 @@ struct VRControllerStateLogger : public InternalStateLogger
 {
 	b3VRControllerEvents m_vrEvents;
 	int m_loggingTimeStamp;
-
+	int m_deviceTypeFilter;
 	std::string m_fileName;
 	FILE* m_logFileHandle;
 	std::string m_structTypes;
 
-	VRControllerStateLogger(int loggingUniqueId, const std::string& fileName)
+	VRControllerStateLogger(int loggingUniqueId, int deviceTypeFilter, const std::string& fileName)
 		:m_loggingTimeStamp(0),
+		m_deviceTypeFilter(deviceTypeFilter),
 		m_fileName(fileName),
 		m_logFileHandle(0)
 	{
@@ -693,7 +697,8 @@ struct VRControllerStateLogger : public InternalStateLogger
 		structNames.push_back("buttons4");
 		structNames.push_back("buttons5");
 		structNames.push_back("buttons6");
-		m_structTypes = "IfIIIffffffffIIIIIII";
+		structNames.push_back("deviceType");
+		m_structTypes = "IfIIIffffffffIIIIIIII";
 
 		const char* fileNameC = fileName.c_str();
 		m_logFileHandle = createMinitaurLogFile(fileNameC, structNames, m_structTypes);
@@ -714,66 +719,68 @@ struct VRControllerStateLogger : public InternalStateLogger
                
                 int stepCount = m_loggingTimeStamp;
                 float timeStamp = m_loggingTimeStamp*timeStep;
-            
+
 				for (int i=0;i<MAX_VR_CONTROLLERS;i++)
 				{
 					b3VRControllerEvent& event = m_vrEvents.m_vrEvents[i];
-
-					if (event.m_numButtonEvents + event.m_numMoveEvents)
+					if (m_deviceTypeFilter & event.m_deviceType)
 					{
-						MinitaurLogRecord logData;
-
-						//serverStatusOut.m_sendVREvents.m_controllerEvents[serverStatusOut.m_sendVREvents.m_numVRControllerEvents++] = event;
-						//log the event
-						logData.m_values.push_back(stepCount);
-						logData.m_values.push_back(timeStamp);
-						logData.m_values.push_back(event.m_controllerId);
-						logData.m_values.push_back(event.m_numMoveEvents);
-						logData.m_values.push_back(event.m_numButtonEvents);
-						logData.m_values.push_back(event.m_pos[0]);
-						logData.m_values.push_back(event.m_pos[1]);
-						logData.m_values.push_back(event.m_pos[2]);
-						logData.m_values.push_back(event.m_orn[0]);
-						logData.m_values.push_back(event.m_orn[1]);
-						logData.m_values.push_back(event.m_orn[2]);
-						logData.m_values.push_back(event.m_orn[3]);
-						logData.m_values.push_back(event.m_analogAxis);
-						int packedButtons[7]={0,0,0,0,0,0,0};
-
-						int packedButtonIndex = 0;
-						int packedButtonShift = 0;
-						//encode the 64 buttons into 7 int (3 bits each), each int stores 10 buttons
-						for (int b=0;b<MAX_VR_BUTTONS;b++)
+						if (event.m_numButtonEvents + event.m_numMoveEvents)
 						{
-							int buttonMask = event.m_buttons[b];
-							buttonMask = buttonMask << (packedButtonShift*3);
-							packedButtons[packedButtonIndex] |= buttonMask;
-							packedButtonShift++;
+							MinitaurLogRecord logData;
 
-							if (packedButtonShift>=10)
+							//serverStatusOut.m_sendVREvents.m_controllerEvents[serverStatusOut.m_sendVREvents.m_numVRControllerEvents++] = event;
+							//log the event
+							logData.m_values.push_back(stepCount);
+							logData.m_values.push_back(timeStamp);
+							logData.m_values.push_back(event.m_controllerId);
+							logData.m_values.push_back(event.m_numMoveEvents);
+							logData.m_values.push_back(event.m_numButtonEvents);
+							logData.m_values.push_back(event.m_pos[0]);
+							logData.m_values.push_back(event.m_pos[1]);
+							logData.m_values.push_back(event.m_pos[2]);
+							logData.m_values.push_back(event.m_orn[0]);
+							logData.m_values.push_back(event.m_orn[1]);
+							logData.m_values.push_back(event.m_orn[2]);
+							logData.m_values.push_back(event.m_orn[3]);
+							logData.m_values.push_back(event.m_analogAxis);
+							int packedButtons[7]={0,0,0,0,0,0,0};
+
+							int packedButtonIndex = 0;
+							int packedButtonShift = 0;
+							//encode the 64 buttons into 7 int (3 bits each), each int stores 10 buttons
+							for (int b=0;b<MAX_VR_BUTTONS;b++)
 							{
-								packedButtonShift=0;
-								packedButtonIndex++;
-								if (packedButtonIndex>=7)
+								int buttonMask = event.m_buttons[b];
+								buttonMask = buttonMask << (packedButtonShift*3);
+								packedButtons[packedButtonIndex] |= buttonMask;
+								packedButtonShift++;
+
+								if (packedButtonShift>=10)
 								{
-									btAssert(0);
-									break;
+									packedButtonShift=0;
+									packedButtonIndex++;
+									if (packedButtonIndex>=7)
+									{
+										btAssert(0);
+										break;
+									}
 								}
 							}
-						}
 
-						for (int b=0;b<7;b++)
-						{
-							logData.m_values.push_back(packedButtons[b]);
-						}
+							for (int b=0;b<7;b++)
+							{
+								logData.m_values.push_back(packedButtons[b]);
+							}
+							logData.m_values.push_back(event.m_deviceType);
+							appendMinitaurLogData(m_logFileHandle, m_structTypes, logData);
 
-						appendMinitaurLogData(m_logFileHandle, m_structTypes, logData);
-
-						event.m_numButtonEvents = 0;
-						event.m_numMoveEvents = 0;
-						for (int b=0;b<MAX_VR_BUTTONS;b++)
-						{
-							event.m_buttons[b] = 0;
+							event.m_numButtonEvents = 0;
+							event.m_numMoveEvents = 0;
+							for (int b=0;b<MAX_VR_BUTTONS;b++)
+							{
+								event.m_buttons[b] = 0;
+							}
 						}
 					}
 				}
@@ -824,7 +831,7 @@ struct GenericRobotStateLogger : public InternalStateLogger
         structNames.push_back("omegaZ");
         structNames.push_back("qNum");
 
-		m_structTypes = "IfIfffffffffffffI";
+		m_structTypes = "IfifffffffffffffI";
 
 		for (int i=0;i<m_maxLogDof;i++)
 		{
@@ -950,6 +957,169 @@ struct GenericRobotStateLogger : public InternalStateLogger
     }
 };
 
+struct ContactPointsStateLogger : public InternalStateLogger
+{
+	int m_loggingTimeStamp;
+	
+	std::string m_fileName;
+	FILE* m_logFileHandle;
+	std::string m_structTypes;
+	btMultiBodyDynamicsWorld* m_dynamicsWorld;
+	bool m_filterLinkA;
+	bool m_filterLinkB;
+	int m_linkIndexA;
+	int m_linkIndexB;
+	int m_bodyUniqueIdA;
+	int m_bodyUniqueIdB;
+	
+	ContactPointsStateLogger(int loggingUniqueId, const std::string& fileName, btMultiBodyDynamicsWorld* dynamicsWorld)
+	:m_loggingTimeStamp(0),
+	m_fileName(fileName),
+	m_logFileHandle(0),
+	m_dynamicsWorld(dynamicsWorld),
+	m_filterLinkA(false),
+	m_filterLinkB(false),
+	m_linkIndexA(-2),
+	m_linkIndexB(-2),
+	m_bodyUniqueIdA(-1),
+	m_bodyUniqueIdB(-1)
+	{
+		m_loggingUniqueId = loggingUniqueId;
+		m_loggingType = STATE_LOGGING_CONTACT_POINTS;
+		
+		btAlignedObjectArray<std::string> structNames;
+		structNames.push_back("stepCount");
+		structNames.push_back("timeStamp");
+		structNames.push_back("contactFlag");
+		structNames.push_back("bodyUniqueIdA");
+		structNames.push_back("bodyUniqueIdB");
+		structNames.push_back("linkIndexA");
+		structNames.push_back("linkIndexB");
+		structNames.push_back("positionOnAX");
+		structNames.push_back("positionOnAY");
+		structNames.push_back("positionOnAZ");
+		structNames.push_back("positionOnBX");
+		structNames.push_back("positionOnBY");
+		structNames.push_back("positionOnBZ");
+		structNames.push_back("contactNormalOnBX");
+		structNames.push_back("contactNormalOnBY");
+		structNames.push_back("contactNormalOnBZ");
+		structNames.push_back("contactDistance");
+		structNames.push_back("normalForce");
+		m_structTypes = "IfIiiiifffffffffff";
+		
+		const char* fileNameC = fileName.c_str();
+		m_logFileHandle = createMinitaurLogFile(fileNameC, structNames, m_structTypes);
+		
+	}
+	virtual void stop()
+	{
+		if (m_logFileHandle)
+		{
+			closeMinitaurLogFile(m_logFileHandle);
+			m_logFileHandle = 0;
+		}
+	}
+	virtual void logState(btScalar timeStep)
+	{
+		if (m_logFileHandle)
+		{
+			int numContactManifolds = m_dynamicsWorld->getDispatcher()->getNumManifolds();
+			for (int i = 0; i < numContactManifolds; i++)
+			{
+				const btPersistentManifold* manifold = m_dynamicsWorld->getDispatcher()->getInternalManifoldPointer()[i];
+				int linkIndexA = -1;
+				int linkIndexB = -1;
+				
+				int objectIndexB = -1;
+				
+				const btRigidBody* bodyB = btRigidBody::upcast(manifold->getBody1());
+				if (bodyB)
+				{
+					objectIndexB = bodyB->getUserIndex2();
+				}
+				const btMultiBodyLinkCollider* mblB = btMultiBodyLinkCollider::upcast(manifold->getBody1());
+				if (mblB && mblB->m_multiBody)
+				{
+					linkIndexB = mblB->m_link;
+					objectIndexB = mblB->m_multiBody->getUserIndex2();
+					if (m_filterLinkB && (m_linkIndexB != linkIndexB))
+					{
+						continue;
+					}
+				}
+				
+				int objectIndexA = -1;
+				const btRigidBody* bodyA = btRigidBody::upcast(manifold->getBody0());
+				if (bodyA)
+				{
+					objectIndexA = bodyA->getUserIndex2();
+				}
+				const btMultiBodyLinkCollider* mblA = btMultiBodyLinkCollider::upcast(manifold->getBody0());
+				if (mblA && mblA->m_multiBody)
+				{
+					linkIndexA = mblA->m_link;
+					objectIndexA = mblA->m_multiBody->getUserIndex2();
+					if (m_filterLinkA && (m_linkIndexA != linkIndexA))
+					{
+						continue;
+					}
+				}
+				
+				btAssert(bodyA || mblA);
+				
+				//apply the filter, if the user provides it
+				if (m_bodyUniqueIdA >= 0)
+				{
+					if ((m_bodyUniqueIdA != objectIndexA) &&
+						(m_bodyUniqueIdA != objectIndexB))
+						continue;
+				}
+				
+				//apply the second object filter, if the user provides it
+				if (m_bodyUniqueIdB >= 0)
+				{
+					if ((m_bodyUniqueIdB != objectIndexA) &&
+						(m_bodyUniqueIdB != objectIndexB))
+						continue;
+				}
+				
+				for (int p = 0; p < manifold->getNumContacts(); p++)
+				{
+					MinitaurLogRecord logData;
+					int stepCount = m_loggingTimeStamp;
+					float timeStamp = m_loggingTimeStamp*timeStep;
+					logData.m_values.push_back(stepCount);
+					logData.m_values.push_back(timeStamp);
+					
+					const btManifoldPoint& srcPt = manifold->getContactPoint(p);
+					
+					logData.m_values.push_back(0); // reserved contact flag
+					logData.m_values.push_back(objectIndexA);
+					logData.m_values.push_back(objectIndexB);
+					logData.m_values.push_back(linkIndexA);
+					logData.m_values.push_back(linkIndexB);
+					logData.m_values.push_back((float)(srcPt.getPositionWorldOnA()[0]));
+					logData.m_values.push_back((float)(srcPt.getPositionWorldOnA()[1]));
+					logData.m_values.push_back((float)(srcPt.getPositionWorldOnA()[2]));
+					logData.m_values.push_back((float)(srcPt.getPositionWorldOnB()[0]));
+					logData.m_values.push_back((float)(srcPt.getPositionWorldOnB()[1]));
+					logData.m_values.push_back((float)(srcPt.getPositionWorldOnB()[2]));
+					logData.m_values.push_back((float)(srcPt.m_normalWorldOnB[0]));
+					logData.m_values.push_back((float)(srcPt.m_normalWorldOnB[1]));
+					logData.m_values.push_back((float)(srcPt.m_normalWorldOnB[2]));
+					logData.m_values.push_back((float)(srcPt.getDistance()));
+					logData.m_values.push_back((float)(srcPt.getAppliedImpulse() / timeStep));
+					
+					appendMinitaurLogData(m_logFileHandle, m_structTypes, logData);
+					fflush(m_logFileHandle);
+				}
+			}
+			m_loggingTimeStamp++;
+		}
+	}
+};
+
 struct PhysicsServerCommandProcessorInternalData
 {
 	///handle management
@@ -1046,7 +1216,9 @@ struct PhysicsServerCommandProcessorInternalData
 	bool m_allowRealTimeSimulation;
 	bool m_hasGround;
 
-	b3VRControllerEvents m_vrEvents1;
+	b3VRControllerEvents m_vrControllerEvents;
+
+
 	btAlignedObjectArray<b3KeyboardEvent> m_keyboardEvents;
 	
 	btMultiBodyFixedConstraint* m_gripperRigidbodyFixed;
@@ -1161,7 +1333,7 @@ struct PhysicsServerCommandProcessorInternalData
 		m_pickedConstraint(0),
 		m_pickingMultiBodyPoint2Point(0)
 	{
-		m_vrEvents1.init();
+		m_vrControllerEvents.init();
 
 		initHandles();
 #if 0
@@ -1345,7 +1517,10 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 //	m_data->m_dynamicsWorld->getSolverInfo().m_minimumSolverBatchSize = 2;
 	//todo: islands/constraints are buggy in btMultiBodyDynamicsWorld! (performance + see slipping grasp)
 
-
+	if (m_data->m_guiHelper)
+	{
+		m_data->m_guiHelper->createPhysicsDebugDrawer(m_data->m_dynamicsWorld);
+	}
 	m_data->m_dynamicsWorld->setInternalTickCallback(logCallback,this);
 }
 
@@ -1810,6 +1985,10 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 				mb->setUserIndex2(bodyUniqueId);
 				bodyHandle->m_multiBody = mb;
 
+				if (flags & URDF_USE_SELF_COLLISION)
+				{
+					mb->setHasSelfCollision(true);
+				}
 				createJointMotors(mb);
 
 
@@ -2112,12 +2291,43 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                             serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
                             serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
                         }
-
+						if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_CONTACT_POINTS)
+						{
+							std::string fileName = clientCmd.m_stateLoggingArguments.m_fileName;
+							int loggerUid = m_data->m_stateLoggersUniqueId++;
+							ContactPointsStateLogger* logger = new ContactPointsStateLogger(loggerUid,fileName,m_data->m_dynamicsWorld);
+							if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_LINK_INDEX_A) && clientCmd.m_stateLoggingArguments.m_linkIndexA >= -1)
+							{
+								logger->m_filterLinkA = true;
+								logger->m_linkIndexA = clientCmd.m_stateLoggingArguments.m_linkIndexA;
+							}
+							if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_LINK_INDEX_B) && clientCmd.m_stateLoggingArguments.m_linkIndexB >= -1)
+							{
+								logger->m_filterLinkB = true;
+								logger->m_linkIndexB = clientCmd.m_stateLoggingArguments.m_linkIndexB;
+							}
+							if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_BODY_UNIQUE_ID_A) && clientCmd.m_stateLoggingArguments.m_bodyUniqueIdA > -1)
+							{
+								logger->m_bodyUniqueIdA = clientCmd.m_stateLoggingArguments.m_bodyUniqueIdA;
+							}
+							if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_BODY_UNIQUE_ID_B) && clientCmd.m_stateLoggingArguments.m_bodyUniqueIdB > -1)
+							{
+								logger->m_bodyUniqueIdB = clientCmd.m_stateLoggingArguments.m_bodyUniqueIdB;
+							}
+							m_data->m_stateLoggers.push_back(logger);
+							serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
+							serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
+						}
 						if (clientCmd.m_stateLoggingArguments.m_logType ==STATE_LOGGING_VR_CONTROLLERS)
 						{
 							std::string fileName = clientCmd.m_stateLoggingArguments.m_fileName;
                             int loggerUid = m_data->m_stateLoggersUniqueId++;
-                            VRControllerStateLogger* logger = new VRControllerStateLogger(loggerUid,fileName);
+							int deviceFilterType = VR_DEVICE_CONTROLLER;
+							if (clientCmd.m_updateFlags & STATE_LOGGING_FILTER_DEVICE_TYPE)
+							{
+								deviceFilterType = clientCmd.m_stateLoggingArguments.m_deviceFilterType;
+							}
+                            VRControllerStateLogger* logger = new VRControllerStateLogger(loggerUid,deviceFilterType, fileName);
                             m_data->m_stateLoggers.push_back(logger);
                             serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
                             serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
@@ -2169,20 +2379,23 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 				case CMD_REQUEST_VR_EVENTS_DATA:
 				{
 					BT_PROFILE("CMD_REQUEST_VR_EVENTS_DATA");
-
 					serverStatusOut.m_sendVREvents.m_numVRControllerEvents = 0;
+
 					for (int i=0;i<MAX_VR_CONTROLLERS;i++)
 					{
-						b3VRControllerEvent& event = m_data->m_vrEvents1.m_vrEvents[i];
+						b3VRControllerEvent& event = m_data->m_vrControllerEvents.m_vrEvents[i];
 
-						if (event.m_numButtonEvents + event.m_numMoveEvents)
+						if (clientCmd.m_updateFlags&event.m_deviceType)
 						{
-							serverStatusOut.m_sendVREvents.m_controllerEvents[serverStatusOut.m_sendVREvents.m_numVRControllerEvents++] = event;
-							event.m_numButtonEvents = 0;
-							event.m_numMoveEvents = 0;
-							for (int b=0;b<MAX_VR_BUTTONS;b++)
+							if (event.m_numButtonEvents + event.m_numMoveEvents)
 							{
-								event.m_buttons[b] = 0;
+								serverStatusOut.m_sendVREvents.m_controllerEvents[serverStatusOut.m_sendVREvents.m_numVRControllerEvents++] = event;
+								event.m_numButtonEvents = 0;
+								event.m_numMoveEvents = 0;
+								for (int b=0;b<MAX_VR_BUTTONS;b++)
+								{
+									event.m_buttons[b] = 0;
+								}
 							}
 						}
 					}
@@ -2231,58 +2444,74 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 				case CMD_REQUEST_RAY_CAST_INTERSECTIONS:
 				{
 					BT_PROFILE("CMD_REQUEST_RAY_CAST_INTERSECTIONS");
-
-					btVector3 rayFromWorld(clientCmd.m_requestRaycastIntersections.m_rayFromPosition[0],
-						clientCmd.m_requestRaycastIntersections.m_rayFromPosition[1],
-						clientCmd.m_requestRaycastIntersections.m_rayFromPosition[2]);
-					btVector3 rayToWorld(clientCmd.m_requestRaycastIntersections.m_rayToPosition[0],
-						clientCmd.m_requestRaycastIntersections.m_rayToPosition[1],
-						clientCmd.m_requestRaycastIntersections.m_rayToPosition[2]);
-					btCollisionWorld::ClosestRayResultCallback rayResultCallback(rayFromWorld,rayToWorld);
-					m_data->m_dynamicsWorld->rayTest(rayFromWorld,rayToWorld,rayResultCallback);
 					serverStatusOut.m_raycastHits.m_numRaycastHits = 0;
 
-					if (rayResultCallback.hasHit())
+					for (int ray=0;ray<clientCmd.m_requestRaycastIntersections.m_numRays;ray++)
 					{
-						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitFraction 
-							= rayResultCallback.m_closestHitFraction;
+						btVector3 rayFromWorld(clientCmd.m_requestRaycastIntersections.m_rayFromPositions[ray][0],
+							clientCmd.m_requestRaycastIntersections.m_rayFromPositions[ray][1],
+							clientCmd.m_requestRaycastIntersections.m_rayFromPositions[ray][2]);
+						btVector3 rayToWorld(clientCmd.m_requestRaycastIntersections.m_rayToPositions[ray][0],
+							clientCmd.m_requestRaycastIntersections.m_rayToPositions[ray][1],
+							clientCmd.m_requestRaycastIntersections.m_rayToPositions[ray][2]);
 
-						int objectUniqueId = -1;
-						int linkIndex = -1;
+						btCollisionWorld::ClosestRayResultCallback rayResultCallback(rayFromWorld,rayToWorld);
+						m_data->m_dynamicsWorld->rayTest(rayFromWorld,rayToWorld,rayResultCallback);
+						int rayHits = serverStatusOut.m_raycastHits.m_numRaycastHits;
 
-						const btRigidBody* body = btRigidBody::upcast(rayResultCallback.m_collisionObject);
-						if (body)
+						if (rayResultCallback.hasHit())
 						{
-							objectUniqueId = rayResultCallback.m_collisionObject->getUserIndex2();
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitFraction 
+								= rayResultCallback.m_closestHitFraction;
+
+							int objectUniqueId = -1;
+							int linkIndex = -1;
+
+							const btRigidBody* body = btRigidBody::upcast(rayResultCallback.m_collisionObject);
+							if (body)
+							{
+								objectUniqueId = rayResultCallback.m_collisionObject->getUserIndex2();
+							} else
+							{
+								const btMultiBodyLinkCollider* mblB = btMultiBodyLinkCollider::upcast(rayResultCallback.m_collisionObject);
+								if (mblB && mblB->m_multiBody)
+								{
+									linkIndex = mblB->m_link;
+									objectUniqueId = mblB->m_multiBody->getUserIndex2();
+								}
+							}
+
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitObjectUniqueId 
+								= objectUniqueId;
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitObjectLinkIndex
+								= linkIndex;
+
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitPositionWorld[0] 
+								= rayResultCallback.m_hitPointWorld[0];
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitPositionWorld[1] 
+								= rayResultCallback.m_hitPointWorld[1];
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitPositionWorld[2] 
+								= rayResultCallback.m_hitPointWorld[2];
+						
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitNormalWorld[0] 
+								= rayResultCallback.m_hitNormalWorld[0]; 
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitNormalWorld[1] 
+								= rayResultCallback.m_hitNormalWorld[1]; 
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitNormalWorld[2] 
+								= rayResultCallback.m_hitNormalWorld[2]; 
+
 						} else
 						{
-							const btMultiBodyLinkCollider* mblB = btMultiBodyLinkCollider::upcast(rayResultCallback.m_collisionObject);
-							if (mblB && mblB->m_multiBody)
-							{
-								linkIndex = mblB->m_link;
-								objectUniqueId = mblB->m_multiBody->getUserIndex2();
-							}
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitFraction = 1;
+							serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitObjectUniqueId = -1;
+							serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitObjectLinkIndex = -1;
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitPositionWorld[0] = 0;
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitPositionWorld[1] = 0;
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitPositionWorld[2] = 0;
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitNormalWorld[0] = 0;
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitNormalWorld[1] = 0;
+							serverStatusOut.m_raycastHits.m_rayHits[rayHits].m_hitNormalWorld[2] = 0;
 						}
-
-						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitObjectUniqueId 
-							= objectUniqueId;
-						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitObjectLinkIndex
-							= linkIndex;
-
-						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitPositionWorld[0] 
-							= rayResultCallback.m_hitPointWorld[0];
-						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitPositionWorld[1] 
-							= rayResultCallback.m_hitPointWorld[1];
-						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitPositionWorld[2] 
-							= rayResultCallback.m_hitPointWorld[2];
-						
-						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitNormalWorld[0] 
-							= rayResultCallback.m_hitNormalWorld[0]; 
-						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitNormalWorld[1] 
-							= rayResultCallback.m_hitNormalWorld[1]; 
-						serverStatusOut.m_raycastHits.m_rayHits[serverStatusOut.m_raycastHits.m_numRaycastHits].m_hitNormalWorld[2] 
-							= rayResultCallback.m_hitNormalWorld[2]; 
-
 						serverStatusOut.m_raycastHits.m_numRaycastHits++;
 					}
 					serverStatusOut.m_type = CMD_REQUEST_RAY_CAST_INTERSECTIONS_COMPLETED;
@@ -2563,10 +2792,21 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								fwrite(line,len,1,f);
 							}
 							{
-								sprintf(line,"p.connect(p.SHARED_MEMORY)\n");
+								sprintf(line,"cin = p.connect(p.SHARED_MEMORY)\n");
 								int len = strlen(line);
 								fwrite(line,len,1,f);
 							}
+							{
+								sprintf(line,"if (cin < 0):\n");
+								int len = strlen(line);
+								fwrite(line,len,1,f);
+							}
+							{
+								sprintf(line,"    cin = p.connect(p.GUI)\n");
+								int len = strlen(line);
+								fwrite(line,len,1,f);
+							}
+
 							//for each objects ...
 							for (int i=0;i<m_data->m_saveWorldBodyData.size();i++)
 							{
@@ -2601,15 +2841,21 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 													int len = strlen(line);
 													fwrite(line,len,1,f);
 												}
+												if (strstr(sd.m_fileName.c_str(),".xml") && i==0)
+												{
+													sprintf(line,"objects = p.loadMJCF(\"%s\")\n",sd.m_fileName.c_str());
+													int len = strlen(line);
+													fwrite(line,len,1,f);
+												}
 
-												if (strstr(sd.m_fileName.c_str(),".sdf") || ((strstr(sd.m_fileName.c_str(),".urdf")) && mb->getNumLinks()) )
+												if (strstr(sd.m_fileName.c_str(),".sdf") || strstr(sd.m_fileName.c_str(),".xml") || ((strstr(sd.m_fileName.c_str(),".urdf")) && mb->getNumLinks()) )
 												{
 													sprintf(line,"ob = objects[%d]\n",i);
 													int len = strlen(line);
 													fwrite(line,len,1,f);
 												}
 
-												if (strstr(sd.m_fileName.c_str(),".sdf"))
+												if (strstr(sd.m_fileName.c_str(),".sdf")||strstr(sd.m_fileName.c_str(),".xml"))
 												{
 													sprintf(line,"p.resetBasePositionAndOrientation(ob,[%f,%f,%f],[%f,%f,%f,%f])\n",
 														comTr.getOrigin()[0],comTr.getOrigin()[1],comTr.getOrigin()[2],
@@ -3962,6 +4208,24 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					break;
 				}
                     
+				case CMD_REQUEST_OPENGL_VISUALIZER_CAMERA:
+				{
+					BT_PROFILE("CMD_REQUEST_OPENGL_VISUALIZER_CAMERA");
+                    SharedMemoryStatus& serverCmd = serverStatusOut;
+					bool result = this->m_data->m_guiHelper->getCameraInfo(
+						&serverCmd.m_visualizerCameraResultArgs.m_width,
+						&serverCmd.m_visualizerCameraResultArgs.m_height,
+						serverCmd.m_visualizerCameraResultArgs.m_viewMatrix,
+						serverCmd.m_visualizerCameraResultArgs.m_projectionMatrix,
+						serverCmd.m_visualizerCameraResultArgs.m_camUp,
+						serverCmd.m_visualizerCameraResultArgs.m_camForward,
+						serverCmd.m_visualizerCameraResultArgs.m_horizontal,
+						serverCmd.m_visualizerCameraResultArgs.m_vertical);
+                    serverCmd.m_type = result ? CMD_REQUEST_OPENGL_VISUALIZER_CAMERA_COMPLETED: CMD_REQUEST_OPENGL_VISUALIZER_CAMERA_FAILED;
+					hasStatus = true;
+					break;
+				}
+
                 case CMD_CONFIGURE_OPENGL_VISUALIZER:
                 {
 					BT_PROFILE("CMD_CONFIGURE_OPENGL_VISUALIZER");
@@ -4392,7 +4656,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                 // Set jacobian value
                                 tree->calculateJacobians(q);
                                 btInverseDynamics::mat3x jac_t(3, num_dofs);
-                                tree->getBodyJacobianTrans(clientCmd.m_calculateJacobianArguments.m_linkIndex, &jac_t);
+                                tree->getBodyJacobianTrans(clientCmd.m_calculateJacobianArguments.m_linkIndex+1, &jac_t);
                                 for (int i = 0; i < 3; ++i)
                                 {
                                     for (int j = 0; j < num_dofs; ++j)
@@ -4818,8 +5082,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                         tree->calculateJacobians(q);
                                         btInverseDynamics::mat3x jac_t(3, numDofs);
                                         btInverseDynamics::mat3x jac_r(3,numDofs);
-                                        tree->getBodyJacobianTrans(endEffectorLinkIndex, &jac_t);
-                                        tree->getBodyJacobianRot(endEffectorLinkIndex, &jac_r);
+										// Note that inverse dynamics uses zero-based indexing of bodies, not starting from -1 for the base link.
+                                        tree->getBodyJacobianTrans(endEffectorLinkIndex+1, &jac_t);
+                                        tree->getBodyJacobianRot(endEffectorLinkIndex+1, &jac_r);
                                         for (int i = 0; i < 3; ++i)
                                         {
                                             for (int j = 0; j < numDofs; ++j)
@@ -5459,15 +5724,15 @@ void PhysicsServerCommandProcessor::enableRealTimeSimulation(bool enableRealTime
 	m_data->m_allowRealTimeSimulation = enableRealTimeSim;
 }
 
-void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const struct b3VRControllerEvent* vrEvents, int numVREvents,const struct b3KeyboardEvent* keyEvents, int numKeyEvents)
+void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const struct b3VRControllerEvent* vrControllerEvents, int numVRControllerEvents,const struct b3KeyboardEvent* keyEvents, int numKeyEvents)
 {
-	m_data->m_vrEvents1.addNewVREvents(vrEvents,numVREvents);
+	m_data->m_vrControllerEvents.addNewVREvents(vrControllerEvents,numVRControllerEvents);
 	for (int i=0;i<m_data->m_stateLoggers.size();i++)
 	{
 		if (m_data->m_stateLoggers[i]->m_loggingType==STATE_LOGGING_VR_CONTROLLERS)
 		{
 			VRControllerStateLogger* vrLogger = (VRControllerStateLogger*) m_data->m_stateLoggers[i];
-			vrLogger->m_vrEvents.addNewVREvents(vrEvents,numVREvents);
+			vrLogger->m_vrEvents.addNewVREvents(vrControllerEvents,numVRControllerEvents);
 		}
 	}
 
@@ -5566,6 +5831,7 @@ void PhysicsServerCommandProcessor::resetSimulation()
 	if (m_data && m_data->m_guiHelper)
 	{
 		m_data->m_guiHelper->removeAllGraphicsInstances();
+		m_data->m_guiHelper->removeAllUserDebugItems();
 	}
 	if (m_data)
 	{
@@ -5987,8 +6253,8 @@ void PhysicsServerCommandProcessor::createDefaultRobotAssets()
 							tree->calculateJacobians(q);
 							btInverseDynamics::mat3x jac_t(3,numDofs);
 							btInverseDynamics::mat3x jac_r(3,numDofs);
-							tree->getBodyJacobianTrans(endEffectorLinkIndex, &jac_t);
-							tree->getBodyJacobianRot(endEffectorLinkIndex, &jac_r);
+							tree->getBodyJacobianTrans(endEffectorLinkIndex+1, &jac_t);
+							tree->getBodyJacobianRot(endEffectorLinkIndex+1, &jac_r);
 							for (int i = 0; i < 3; ++i)
 							{
 								for (int j = 0; j < numDofs; ++j)

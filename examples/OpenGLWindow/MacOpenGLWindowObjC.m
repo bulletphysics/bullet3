@@ -1,4 +1,4 @@
-#include "MacOpenGLWindow.h"
+#include "MacOpenGLWindowObjC.h"
 
 #define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
 #import <Cocoa/Cocoa.h>
@@ -66,12 +66,7 @@
 
 #endif
 
-enum
-{
-	MY_MAC_ALTKEY=1,
-	MY_MAC_SHIFTKEY=2,
-	MY_MAC_CONTROL_KEY=4
-};
+
 
 /* report GL errors, if any, to stderr */
 static void checkError(const char *functionName)
@@ -118,9 +113,7 @@ void dumpInfo(void)
 -(NSOpenGLContext*) getContext;
 @end
 
-float loop;
 
-#define Pi 3.1415
 
 @implementation TestView
 
@@ -197,7 +190,6 @@ float loop;
 	[m_context flushBuffer];
 	[NSOpenGLContext clearCurrentContext];
 	
-	loop = loop + 0.1;
 }
 
 -(void) MakeContext :(int) openglVersion
@@ -257,105 +249,75 @@ float loop;
 
 struct MacOpenGLWindowInternalData
 {
-    MacOpenGLWindowInternalData()
-    {
-        m_myApp = 0;
-        m_myview = 0;
-        m_pool = 0;
-        m_window = 0;
-        m_exitRequested = false;
-    }
-    NSApplication*      m_myApp;
-    TestView*             m_myview;
-    NSAutoreleasePool*  m_pool;
-    NSWindow*           m_window;
-    bool m_exitRequested;
-    
+  
+	NSApplication*      m_myApp;
+	TestView*             m_myview;
+	NSAutoreleasePool*  m_pool;
+	NSWindow*           m_window;
+	bool m_exitRequested;
+	
+	float m_mouseX;
+	float m_mouseY;
+	int m_modifierFlags;
+	
+	b3MouseButtonCallback m_mouseButtonCallback;
+	b3MouseMoveCallback m_mouseMoveCallback;
+	b3WheelCallback m_wheelCallback;
+	b3KeyboardCallback m_keyboardCallback;
+	b3RenderCallback m_renderCallback;
+	
+	float m_retinaScaleFactor;
+	bool m_allowRetina;
 };
 
-MacOpenGLWindow::MacOpenGLWindow()
-:m_internalData(0),
-m_mouseX(0),
-m_mouseY(0),
-m_modifierFlags(0),
-m_mouseButtonCallback(0),
-m_mouseMoveCallback(0),
-m_wheelCallback(0),
-m_keyboardCallback(0),
-m_retinaScaleFactor(1),
-m_allowRetina(true)
+struct MacOpenGLWindowInternalData* Mac_createData()
 {
-}
-
-MacOpenGLWindow::~MacOpenGLWindow()
-{
-    if (m_internalData)
-        closeWindow();
-}
-
-
-bool    MacOpenGLWindow::isModifierKeyPressed(int key)
-{
-        bool isPressed = false;
-
-        switch (key)
-        {
-                case B3G_ALT:
-                {
-                        isPressed = ((m_modifierFlags & MY_MAC_ALTKEY)!=0);
-                        break;
-                };
-                case B3G_SHIFT:
-                {
-                        isPressed = ((m_modifierFlags & MY_MAC_SHIFTKEY)!=0);
-                        break;
-                };
-                case B3G_CONTROL:
-                {
-                        isPressed = ((m_modifierFlags & MY_MAC_CONTROL_KEY )!=0);
-                        break;
-                };
-
-                default:
-                {
-                }
-        };
-        return isPressed;
-}
-
-float	MacOpenGLWindow::getTimeInSeconds()
-{
-	return 0.f;
-}
-
-
-void MacOpenGLWindow::setRenderCallback( b3RenderCallback renderCallback)
-{
-	m_renderCallback = renderCallback;
-}
-
-void MacOpenGLWindow::setWindowTitle(const char* windowTitle)
-{
-	[m_internalData->m_window setTitle:[NSString stringWithCString:windowTitle encoding:NSISOLatin1StringEncoding]] ;
-}
-
-void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
-{
-    if (m_internalData)
-        closeWindow();
-
-	const char* windowTitle = ci.m_title;
+	struct MacOpenGLWindowInternalData* data = malloc(sizeof(struct MacOpenGLWindowInternalData));
 	
+	data->m_myApp = 0;
+	data->m_myview = 0;
+	data->m_pool = 0;
+	data->m_window = 0;
+	data->m_exitRequested = false;
+	
+	data->m_mouseX=-1;
+	data->m_mouseY=-1;
+	data->m_modifierFlags = 0;
+	
+	data->m_mouseButtonCallback = 0;
+	data->m_mouseMoveCallback = 0;;
+	data->m_wheelCallback =0;
+	data->m_keyboardCallback =0;
+	data->m_renderCallback=0;
+	
+	data->m_allowRetina = true;
+	data->m_retinaScaleFactor = 1;
+	
+	return data;
+}
 
+void Mac_destroyData(struct MacOpenGLWindowInternalData* data)
+{
+	free(data);
+}
+
+void Mac_setWindowTitle(struct MacOpenGLWindowInternalData* data, const char* windowTitle)
+{
+    [data->m_window setTitle:[NSString stringWithCString:windowTitle encoding:NSISOLatin1StringEncoding]] ;
+}
+
+int Mac_createWindow(struct MacOpenGLWindowInternalData* m_internalData,struct MacWindowConstructionInfo* ci)
+{
+    
+    const char* windowTitle = ci->m_title;
+		m_internalData->m_allowRetina = (ci->m_allowRetina!=0);
     
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    
-    m_internalData = new MacOpenGLWindowInternalData;
-  
+       
     m_internalData->m_pool = [NSAutoreleasePool new];
-	m_internalData->m_myApp = [NSApplication sharedApplication];
-	//myApp = [MyApp sharedApplication];
-	//home();
+    m_internalData->m_myApp = [NSApplication sharedApplication];
+    //myApp = [MyApp sharedApplication];
+    //home();
     
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
     
@@ -372,7 +334,7 @@ void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
     
     [appMenu addItem:quitMenuItem];
     [appMenuItem setSubmenu:appMenu];
- 
+    
     NSMenuItem *fileMenuItem = [[NSMenuItem new] autorelease];
     NSMenu *fileMenu = [[NSMenu alloc] initWithTitle:@"File"];
     [fileMenuItem setSubmenu: fileMenu]; // was setMenu:
@@ -380,12 +342,12 @@ void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
     NSMenuItem *newMenu = [[NSMenuItem alloc] initWithTitle:@"New" action:NULL keyEquivalent:@""];
     NSMenuItem *openMenu = [[NSMenuItem alloc] initWithTitle:@"Open" action:NULL keyEquivalent:@""];
     NSMenuItem *saveMenu = [[NSMenuItem alloc] initWithTitle:@"Save" action:NULL keyEquivalent:@""];
-
+    
     [fileMenu addItem: newMenu];
     [fileMenu addItem: openMenu];
     [fileMenu addItem: saveMenu];
     [menubar addItem: fileMenuItem];
-        
+    
     
     // add Edit menu
     NSMenuItem *editMenuItem = [[NSMenuItem new] autorelease];
@@ -397,144 +359,123 @@ void MacOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
     [menu addItem:copyItem];
     [menubar addItem:editMenuItem];
     
-   // [mainMenu setSubmenu:menu forItem:menuItem];
+    // [mainMenu setSubmenu:menu forItem:menuItem];
     
     
     //NSMenuItem *fileMenuItem = [[NSMenuItem alloc] initWithTitle: @"File"];
     /*[fileMenuItem setSubmenu: fileMenu]; // was setMenu:
-    [fileMenuItem release];
-    */
+     [fileMenuItem release];
+     */
     
     /*NSMenu *newMenu;
-    NSMenuItem *newItem;
+     NSMenuItem *newItem;
+     
+     // Add the submenu
+     newItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]]
+     initWithTitle:@"Flashy" action:NULL keyEquivalent:@""];
+     newMenu = [[NSMenu allocWithZone:[NSMenu menuZone]]
+     initWithTitle:@"Flashy"];
+     [newItem setSubmenu:newMenu];
+     [newMenu release];
+     [[NSApp mainMenu] addItem:newItem];
+     [newItem release];
+     */
     
-    // Add the submenu
-    newItem = [[NSMenuItem allocWithZone:[NSMenu menuZone]]
-               initWithTitle:@"Flashy" action:NULL keyEquivalent:@""];
-    newMenu = [[NSMenu allocWithZone:[NSMenu menuZone]]
-               initWithTitle:@"Flashy"];
-    [newItem setSubmenu:newMenu];
-    [newMenu release];
-    [[NSApp mainMenu] addItem:newItem];
-    [newItem release];
-    */
+    NSRect frame = NSMakeRect(0., 0., ci->m_width, ci->m_height);
     
-	NSRect frame = NSMakeRect(0., 0., ci.m_width, ci.m_height);
-	
-	m_internalData->m_window = [NSWindow alloc];
-	[m_internalData->m_window initWithContentRect:frame
-                      styleMask:MyNSTitledWindowMask |MyNSResizableWindowMask| MyNSClosableWindowMask | MyNSMiniaturizableWindowMask
-                        backing:NSBackingStoreBuffered
-                          defer:false];
-	
-	
-	[m_internalData->m_window setTitle:[NSString stringWithCString:windowTitle encoding:NSISOLatin1StringEncoding]] ;
-	
-	m_internalData->m_myview = [TestView alloc];
-
+    m_internalData->m_window = [NSWindow alloc];
+    [m_internalData->m_window initWithContentRect:frame
+                                        styleMask:MyNSTitledWindowMask |MyNSResizableWindowMask| MyNSClosableWindowMask | MyNSMiniaturizableWindowMask
+                                          backing:NSBackingStoreBuffered
+                                            defer:false];
+    
+    
+    [m_internalData->m_window setTitle:[NSString stringWithCString:windowTitle encoding:NSISOLatin1StringEncoding]] ;
+    
+    m_internalData->m_myview = [TestView alloc];
+    
     [m_internalData->m_myview setResizeCallback:0];
-     ///ci.m_resizeCallback];
+    ///ci.m_resizeCallback];
     
-	[m_internalData->m_myview initWithFrame: frame];
+    [m_internalData->m_myview initWithFrame: frame];
     
-	// OpenGL init!
-	[m_internalData->m_myview MakeContext : ci.m_openglVersion];
-
-   // https://developer.apple.com/library/mac/#documentation/GraphicsAnimation/Conceptual/HighResolutionOSX/CapturingScreenContents/CapturingScreenContents.html#//apple_ref/doc/uid/TP40012302-CH10-SW1
+    // OpenGL init!
+    [m_internalData->m_myview MakeContext : ci->m_openglVersion];
+    
+    // https://developer.apple.com/library/mac/#documentation/GraphicsAnimation/Conceptual/HighResolutionOSX/CapturingScreenContents/CapturingScreenContents.html#//apple_ref/doc/uid/TP40012302-CH10-SW1
     //support HighResolutionOSX for Retina Macbook
-    if (ci.m_openglVersion>=3)
+    if (ci->m_openglVersion>=3)
     {
-		if (m_allowRetina)
-		{
-			[m_internalData->m_myview  setWantsBestResolutionOpenGLSurface:YES];
-		}
+
+        if (m_internalData->m_allowRetina)
+        {
+            [m_internalData->m_myview  setWantsBestResolutionOpenGLSurface:YES];
+        }
     }
     NSSize sz;
     sz.width = 1;
     sz.height = 1;
     
-   //  float newBackingScaleFactor = [m_internalData->m_window backingScaleFactor];
+    //  float newBackingScaleFactor = [m_internalData->m_window backingScaleFactor];
     
     dumpInfo();
     
-
     
- 
+    
+    
     [m_internalData->m_window setContentView: m_internalData->m_myview];
-
-  
     
-	[m_internalData->m_window setDelegate:(id) m_internalData->m_myview];
-	
+    
+    
+    [m_internalData->m_window setDelegate:(id) m_internalData->m_myview];
+    
     [m_internalData->m_window makeKeyAndOrderFront: nil];
     
     [m_internalData->m_myview MakeCurrent];
-	
+    
     
     [NSApp activateIgnoringOtherApps:YES];
     
-   
-//[m_internalData->m_window setLevel:NSMainMenuWindowLevel];
     
-//    [NSEvent addGlobalMonitorForEventsMatchingMask:NSMouseMovedMask];
+    //[m_internalData->m_window setLevel:NSMainMenuWindowLevel];
     
-//    [NSEvent addGlobalMonitorForEventsMatchingMask:NSMouseMovedMask handler:^(NSEvent *event)
-  //  {
-        //[window setFrameOrigin:[NSEvent mouseLocation]];
-      //  NSPoint eventLocation = [m_internalData->m_window mouseLocationOutsideOfEventStream];
-        
-      //  NSPoint eventLocation = [event locationInWindow];
-        //NSPoint center = [m_internalData->m_myview convertPoint:eventLocation fromView:nil];
-       // m_mouseX = center.x;
-       // m_mouseY = [m_internalData->m_myview GetWindowHeight] - center.y;
-        
-        
-        // printf("mouse coord = %f, %f\n",m_mouseX,m_mouseY);
+    //    [NSEvent addGlobalMonitorForEventsMatchingMask:NSMouseMovedMask];
+    
+    //    [NSEvent addGlobalMonitorForEventsMatchingMask:NSMouseMovedMask handler:^(NSEvent *event)
+    //  {
+    //[window setFrameOrigin:[NSEvent mouseLocation]];
+    //  NSPoint eventLocation = [m_internalData->m_window mouseLocationOutsideOfEventStream];
+    
+    //  NSPoint eventLocation = [event locationInWindow];
+    //NSPoint center = [m_internalData->m_myview convertPoint:eventLocation fromView:nil];
+    // m_mouseX = center.x;
+    // m_mouseY = [m_internalData->m_myview GetWindowHeight] - center.y;
+    
+    
+    // printf("mouse coord = %f, %f\n",m_mouseX,m_mouseY);
     //    if (m_mouseMoveCallback)
-     //       (*m_mouseMoveCallback)(m_mouseX,m_mouseY);
-        
-   // }];
-
+    //       (*m_mouseMoveCallback)(m_mouseX,m_mouseY);
+    
+    // }];
+    
     //see http://stackoverflow.com/questions/8238473/cant-get-nsmousemoved-events-from-nexteventmatchingmask-with-an-nsopenglview
-/*       ProcessSerialNumber psn;
-	GetCurrentProcess(&psn);
+    /*       ProcessSerialNumber psn;
+     GetCurrentProcess(&psn);
      TransformProcessType(&psn, kProcessTransformToForegroundApplication);
      SetFrontProcess(&psn);
-    */
-#ifndef NO_OPENGL3 
-    m_retinaScaleFactor = [m_internalData->m_myview convertSizeToBacking:sz].width;
+     */
+
+#ifndef NO_OPENGL3
+    m_internalData->m_retinaScaleFactor = [m_internalData->m_myview convertSizeToBacking:sz].width;
 #else
-	m_retinaScaleFactor=1.f;
+    m_internalData->m_retinaScaleFactor=1.f;
 #endif
-
-     [m_internalData->m_myApp finishLaunching];
+    [m_internalData->m_myApp finishLaunching];
     [pool release];
-
+    
+    return 0;
 }
 
-void MacOpenGLWindow::runMainLoop()
-{
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    // FILE* dump = fopen ("/Users/erwincoumans/yes.txt","wb");
-    // fclose(dump);
-    
-   
-
-    
-    [pool release];
-
-}
-
-void MacOpenGLWindow::closeWindow()
-{
-    
-    delete m_internalData;
-    m_internalData = 0;
-    
-}
-extern float m_azi;
-extern float m_ele;
-extern float m_cameraDistance;
 
 
  /*
@@ -809,9 +750,9 @@ int getAsciiCodeFromVirtualKeycode(int virtualKeyCode)
 }
 
 
-void MacOpenGLWindow::startRendering()
+int Mac_updateWindow(struct MacOpenGLWindowInternalData* m_internalData)
 {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	 NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     
     
 	GLint err = glGetError();
@@ -834,46 +775,47 @@ void MacOpenGLWindow::startRendering()
         
 		//NSShiftKeyMask              = 1 << 17,
 		//NSControlKeyMask
-	
+
 		if ([event type] == MyNSEventTypeFlagsChanged)
 		{
 			int modifiers = [event modifierFlags];
-			if (m_keyboardCallback)
+
+			if (m_internalData->m_keyboardCallback)
 			{
 				if ((modifiers & MyNSEventModifierFlagShift))
 				{
-					m_keyboardCallback(B3G_SHIFT,1);
-					m_modifierFlags |= MY_MAC_SHIFTKEY;
+					m_internalData->m_keyboardCallback(B3G_SHIFT,1);
+					m_internalData->m_modifierFlags |= MY_MAC_SHIFTKEY;
 				}else
 				{
-					if (m_modifierFlags& MY_MAC_SHIFTKEY)
+					if (m_internalData->m_modifierFlags& MY_MAC_SHIFTKEY)
 					{
-						m_keyboardCallback(B3G_SHIFT,0);	
-						m_modifierFlags &= ~MY_MAC_SHIFTKEY;
+						m_internalData->m_keyboardCallback(B3G_SHIFT,0);	
+						m_internalData->m_modifierFlags &= ~MY_MAC_SHIFTKEY;
 					}
 				}
 				if (modifiers & MyNSEventModifierFlagControl)
 				{
-					m_keyboardCallback(B3G_CONTROL,1);
-					m_modifierFlags |= MY_MAC_CONTROL_KEY;
+					m_internalData->m_keyboardCallback(B3G_CONTROL,1);
+					m_internalData->m_modifierFlags |= MY_MAC_CONTROL_KEY;
 				} else
 				{
-					if (m_modifierFlags&MY_MAC_CONTROL_KEY)
+					if (m_internalData->m_modifierFlags&MY_MAC_CONTROL_KEY)
 					{
-						m_keyboardCallback(B3G_CONTROL,0);
-						m_modifierFlags &= ~MY_MAC_CONTROL_KEY;
+						m_internalData->m_keyboardCallback(B3G_CONTROL,0);
+						m_internalData->m_modifierFlags &= ~MY_MAC_CONTROL_KEY;
 					}
 				}
 				if (modifiers & MyNSEventModifierFlagOption)
 				{
-					m_keyboardCallback(B3G_ALT,1);
-					m_modifierFlags |= MY_MAC_ALTKEY;
+					m_internalData->m_keyboardCallback(B3G_ALT,1);
+					m_internalData->m_modifierFlags |= MY_MAC_ALTKEY;
 				} else
 				{
-						if (m_modifierFlags&MY_MAC_ALTKEY)
+						if (m_internalData->m_modifierFlags&MY_MAC_ALTKEY)
 						{
-								m_keyboardCallback(B3G_ALT,0);
-								m_modifierFlags &= ~MY_MAC_ALTKEY;
+								m_internalData->m_keyboardCallback(B3G_ALT,0);
+								m_internalData->m_modifierFlags &= ~MY_MAC_ALTKEY;
 
 						}
 				}
@@ -890,10 +832,10 @@ void MacOpenGLWindow::startRendering()
 			int keycode = getAsciiCodeFromVirtualKeycode(virtualKeycode);
 			// printf("keycode = %d\n", keycode);
 			
-			if (m_keyboardCallback)
+			if (m_internalData->m_keyboardCallback)
 			{
 				int state = 0;
-				m_keyboardCallback(keycode,state);
+				m_internalData->m_keyboardCallback(keycode,state);
 			}
 		}
 
@@ -909,10 +851,10 @@ void MacOpenGLWindow::startRendering()
 				int keycode = getAsciiCodeFromVirtualKeycode(virtualKeycode);
 				//printf("keycode = %d\n", keycode);
 
-				if (m_keyboardCallback)
+				if (m_internalData->m_keyboardCallback)
 				{
 					int state = 1;
-					m_keyboardCallback(keycode,state);
+					m_internalData->m_keyboardCallback(keycode,state);
 				}
 			}
 		}
@@ -926,8 +868,8 @@ void MacOpenGLWindow::startRendering()
             
             NSPoint eventLocation = [event locationInWindow];
             NSPoint center = [m_internalData->m_myview convertPoint:eventLocation fromView:nil];
-            m_mouseX = center.x;
-            m_mouseY = [m_internalData->m_myview GetWindowHeight] - center.y;
+            m_internalData->m_mouseX = center.x;
+            m_internalData->m_mouseY = [m_internalData->m_myview GetWindowHeight] - center.y;
             int button=0;
 	        switch ([event type])
             {
@@ -952,10 +894,10 @@ void MacOpenGLWindow::startRendering()
                 }
             };
            // printf("mouse coord = %f, %f\n",mouseX,mouseY);
-            if (m_mouseButtonCallback)
+            if (m_internalData->m_mouseButtonCallback)
 			{
 				//handledEvent = true;
-                (*m_mouseButtonCallback)(button,1,m_mouseX,m_mouseY);
+                (*m_internalData->m_mouseButtonCallback)(button,1,m_internalData->m_mouseX,m_internalData->m_mouseY);
             }
         }
 		
@@ -967,8 +909,8 @@ void MacOpenGLWindow::startRendering()
             
             NSPoint eventLocation = [event locationInWindow];
             NSPoint center = [m_internalData->m_myview convertPoint:eventLocation fromView:nil];
-            m_mouseX = center.x;
-            m_mouseY = [m_internalData->m_myview GetWindowHeight] - center.y;
+            m_internalData->m_mouseX = center.x;
+            m_internalData->m_mouseY = [m_internalData->m_myview GetWindowHeight] - center.y;
 	        
             int button=0;
             switch ([event type])
@@ -995,8 +937,8 @@ void MacOpenGLWindow::startRendering()
             };
             
 			// printf("mouse coord = %f, %f\n",mouseX,mouseY);
-            if (m_mouseButtonCallback)
-                (*m_mouseButtonCallback)(button,0,m_mouseX,m_mouseY);
+            if (m_internalData->m_mouseButtonCallback)
+                (*m_internalData->m_mouseButtonCallback)(button,0,m_internalData->m_mouseX,m_internalData->m_mouseY);
             
         }
 		
@@ -1006,15 +948,15 @@ void MacOpenGLWindow::startRendering()
             
             NSPoint eventLocation = [event locationInWindow];
             NSPoint center = [m_internalData->m_myview convertPoint:eventLocation fromView:nil];
-            m_mouseX = center.x;
-            m_mouseY = [m_internalData->m_myview GetWindowHeight] - center.y;
+            m_internalData->m_mouseX = center.x;
+            m_internalData->m_mouseY = [m_internalData->m_myview GetWindowHeight] - center.y;
        
             
            // printf("mouse coord = %f, %f\n",m_mouseX,m_mouseY);
-            if (m_mouseMoveCallback)
+            if (m_internalData->m_mouseMoveCallback)
 			{
 				//handledEvent = true;
-                (*m_mouseMoveCallback)(m_mouseX,m_mouseY);
+                (*m_internalData->m_mouseMoveCallback)(m_internalData->m_mouseX,m_internalData->m_mouseY);
 			}
         }
         
@@ -1026,13 +968,13 @@ void MacOpenGLWindow::startRendering()
         
             NSPoint eventLocation = [event locationInWindow];
             NSPoint center = [m_internalData->m_myview convertPoint:eventLocation fromView:nil];
-            m_mouseX = center.x;
-            m_mouseY = [m_internalData->m_myview GetWindowHeight] - center.y;
+            m_internalData->m_mouseX = center.x;
+            m_internalData->m_mouseY = [m_internalData->m_myview GetWindowHeight] - center.y;
             
-            if (m_mouseMoveCallback)
+            if (m_internalData->m_mouseMoveCallback)
             {
 				//handledEvent = true;
-                (*m_mouseMoveCallback)(m_mouseX,m_mouseY);
+                (*m_internalData->m_mouseMoveCallback)(m_internalData->m_mouseX,m_internalData->m_mouseY);
             }
 
           //  printf("mouse coord = %f, %f\n",m_mouseX,m_mouseY);
@@ -1044,15 +986,16 @@ void MacOpenGLWindow::startRendering()
             dy = [ event deltaY ];
             dx = [ event deltaX ];
             
-            if (m_wheelCallback)
+            if (m_internalData->m_wheelCallback)
 			{
 				handledEvent = true;
-                (*m_wheelCallback)(dx,dy);
+                (*m_internalData->m_wheelCallback)(dx,dy);
 			}
           //  m_cameraDistance -= dy*0.1;
             // m_azi -= dx*0.1;
             
         }
+
 
 		if (!handledEvent)
 			[m_internalData->m_myApp sendEvent:event];
@@ -1080,28 +1023,52 @@ void MacOpenGLWindow::startRendering()
     err = glGetError();
     assert(err==GL_NO_ERROR);
     
-    float aspect;
-    //b3Vector3 extents;
-    
-    if (getWidth()  > getHeight())
-    {
-        aspect = (float)getWidth() / (float)getHeight();
-        //extents.setValue(aspect * 1.0f, 1.0f,0);
-    } else
-    {
-        aspect = (float)getHeight() / (float)getWidth();
-        //extents.setValue(1.0f, aspect*1.f,0);
-    }
     
     err = glGetError();
     assert(err==GL_NO_ERROR);
      [pool release];
-
+     return 0;
+     
 }
 
-void MacOpenGLWindow::endRendering()
+int Mac_isModifierKeyPressed(struct MacOpenGLWindowInternalData* m_internalData, int key)
 {
-    [m_internalData->m_myview MakeCurrent];
+
+	int isPressed = 0;
+	
+	switch (key)
+	{
+	        case B3G_ALT:
+	        {
+	                isPressed = ((m_internalData->m_modifierFlags & MY_MAC_ALTKEY)!=0);
+	                break;
+	        };
+	        case B3G_SHIFT:
+	        {
+	                isPressed = ((m_internalData->m_modifierFlags & MY_MAC_SHIFTKEY)!=0);
+	                break;
+	        };
+	        case B3G_CONTROL:
+	        {
+	                isPressed = ((m_internalData->m_modifierFlags & MY_MAC_CONTROL_KEY )!=0);
+	                break;
+	        };
+	
+	        default:
+	        {
+	        }
+	};
+	return isPressed;
+}  
+
+//void Mac_setRenderCallback(struct MacOpenGLWindowInternalData* m_internalData, b3RenderCallback renderCallback)
+//{
+//	m_internalData->m_renderCallback = renderCallback;
+//}
+
+void Mac_swapBuffer(struct MacOpenGLWindowInternalData* m_internalData)
+{
+	 [m_internalData->m_myview MakeCurrent];
 //#ifndef NO_OPENGL3
 //	glSwapAPPLE();
 //#else
@@ -1110,21 +1077,76 @@ void MacOpenGLWindow::endRendering()
 
 }
 
-bool MacOpenGLWindow::requestedExit() const
+int Mac_requestedExit(struct MacOpenGLWindowInternalData* m_internalData)
 {
-    bool closeme = m_internalData->m_myview.GetRequestClose;
+    int closeme = m_internalData->m_myview.GetRequestClose;
     return m_internalData->m_exitRequested || closeme;
 }
 
-void MacOpenGLWindow::setRequestExit()
+void Mac_setRequestExit(struct MacOpenGLWindowInternalData* m_internalData)
 {
 	m_internalData->m_exitRequested = true;
 }
 
-#include <string.h>
-int MacOpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)
+
+    
+void Mac_setMouseButtonCallback(struct MacOpenGLWindowInternalData* m_internalData, b3MouseButtonCallback	mouseCallback)
 {
-    //save/restore the OpenGL context, NSOpenPanel can mess it up
+	m_internalData->m_mouseButtonCallback = mouseCallback;
+}
+
+b3MouseButtonCallback Mac_getMouseButtonCallback(struct MacOpenGLWindowInternalData* m_internalData)
+{
+	return m_internalData->m_mouseButtonCallback;
+}
+
+void Mac_setWheelCallback(struct MacOpenGLWindowInternalData* m_internalData, b3WheelCallback wheelCallback)
+{
+	m_internalData->m_wheelCallback = wheelCallback;
+}
+
+b3WheelCallback Mac_getWheelCallback(struct MacOpenGLWindowInternalData* m_internalData)
+{
+	return m_internalData->m_wheelCallback;
+}
+
+
+
+void Mac_setMouseMoveCallback(struct MacOpenGLWindowInternalData* m_internalData, b3MouseMoveCallback	mouseCallback)
+{
+	m_internalData->m_mouseMoveCallback = mouseCallback;
+}    
+
+b3MouseMoveCallback Mac_getMouseMoveCallback(struct MacOpenGLWindowInternalData* m_internalData)
+{
+	return m_internalData->m_mouseMoveCallback;
+}
+
+b3KeyboardCallback Mac_getKeyboardCallback(struct MacOpenGLWindowInternalData* m_internalData)
+{
+	return m_internalData->m_keyboardCallback;
+}
+
+void Mac_setKeyboardCallback( struct MacOpenGLWindowInternalData* m_internalData, b3KeyboardCallback	keyboardCallback)
+{
+	m_internalData->m_keyboardCallback = keyboardCallback;
+}
+
+float Mac_getRetinaScale(struct MacOpenGLWindowInternalData* m_internalData)
+{
+	return m_internalData->m_retinaScaleFactor;
+}
+    
+
+void	Mac_setAllowRetina(struct MacOpenGLWindowInternalData* m_internalData, int allow)
+{
+	m_internalData->m_allowRetina = allow;
+}
+	
+	
+int Mac_fileOpenDialog(char* filename, int maxNameLength)
+{
+	  //save/restore the OpenGL context, NSOpenPanel can mess it up
     //http://stackoverflow.com/questions/13987148/nsopenpanel-breaks-my-sdl-opengl-app
     
     NSOpenGLContext *foo = [NSOpenGLContext currentContext];
@@ -1145,7 +1167,7 @@ int MacOpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)
    {
        //without the file://
        NSString *myString = [zUrl absoluteString];
-       int slen = [myString length];
+       int slen = (int)[myString length];
        if (slen < maxNameLength)
        {
            const char *cfilename=[myString UTF8String];
@@ -1153,7 +1175,7 @@ int MacOpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)
            const char* p = strstr(cfilename, "file://");
             if (p==cfilename)
             {
-                int actualLen = strlen(cfilename)-7;
+                int actualLen = (int)strlen(cfilename)-7;
                 memcpy(filename, cfilename+7,actualLen);
                 filename[actualLen]=0;
                 return actualLen;
@@ -1164,23 +1186,20 @@ int MacOpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)
     return 0;
 }
 
-
-
-void MacOpenGLWindow::getMouseCoordinates(int& x, int& y)
+void Mac_getMouseCoordinates(struct MacOpenGLWindowInternalData* m_internalData, int* xPtr, int* yPtr)
 {
-    
+	    
     NSPoint pt = [m_internalData->m_window mouseLocationOutsideOfEventStream];
-    m_mouseX = pt.x;
-    m_mouseY = pt.y;
+    m_internalData->m_mouseX = pt.x;
+    m_internalData->m_mouseY = pt.y;
     
-    x = m_mouseX;
+    *xPtr = m_internalData->m_mouseX;
     //our convention is x,y is upper left hand side
-    y = [m_internalData->m_myview GetWindowHeight]-m_mouseY;
-
+    *yPtr = [m_internalData->m_myview GetWindowHeight]-m_internalData->m_mouseY;
     
 }
 
-int   MacOpenGLWindow::getWidth() const
+int   Mac_getWidth(struct MacOpenGLWindowInternalData* m_internalData)
 {
     if (m_internalData && m_internalData->m_myview && m_internalData->m_myview.GetWindowWidth)
         return m_internalData->m_myview.GetWindowWidth;
@@ -1188,25 +1207,23 @@ int   MacOpenGLWindow::getWidth() const
     return 0;
 }
 
-int   MacOpenGLWindow::getHeight() const
+int   Mac_getHeight(struct MacOpenGLWindowInternalData* m_internalData)
 {
     if (m_internalData && m_internalData->m_myview && m_internalData->m_myview.GetWindowHeight)
         return m_internalData->m_myview.GetWindowHeight;
     return 0;
 }
 
-
-void MacOpenGLWindow::setResizeCallback(b3ResizeCallback resizeCallback)
+void Mac_setResizeCallback(struct MacOpenGLWindowInternalData* m_internalData, b3ResizeCallback resizeCallback)
 {
     [m_internalData->m_myview setResizeCallback:resizeCallback];
     if (resizeCallback)
     {
-		(resizeCallback)(getWidth(), getHeight());
+			(resizeCallback)(Mac_getWidth(m_internalData), Mac_getHeight(m_internalData));
     }
 }
 
-b3ResizeCallback MacOpenGLWindow::getResizeCallback()
+b3ResizeCallback Mac_getResizeCallback(struct MacOpenGLWindowInternalData* m_internalData)
 {
 	return [m_internalData->m_myview getResizeCallback];
 }
-

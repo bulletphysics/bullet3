@@ -93,6 +93,27 @@ int readMinitaurLogFile(const char* fileName, btAlignedObjectArray<std::string>&
 							break;
 
 						}
+						int v = (int) *(unsigned int*)blaat;
+						if (s==1)
+						{
+							if (verbose)
+							{
+								printf("%s = %d\n",structNames[i].c_str(),v);
+							}
+							record.m_values.push_back(v);
+						}
+						break;
+					}
+					case 'i':
+					{
+						size_t s = fread(blaat,sizeof(int),1,f);
+						if (s != 1)
+						{
+							eof = true;
+							retVal = eCorruptValue;
+							break;
+
+						}
 						int v = *(int*)blaat;
 						if (s==1)
 						{
@@ -219,6 +240,7 @@ void appendMinitaurLogData(FILE* f, std::string& structTypes, const MinitaurLogR
 			{
 				switch(structTypes[i])
 				{
+				case 'i':
 				case 'I':
 				{
 					fwrite(&logData.m_values[i].m_intVal,sizeof(int),1,f);

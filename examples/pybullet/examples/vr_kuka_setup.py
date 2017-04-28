@@ -1,6 +1,9 @@
 import pybullet as p
 #p.connect(p.UDP,"192.168.86.100")
-p.connect(p.SHARED_MEMORY)
+
+cid = p.connect(p.SHARED_MEMORY)
+if (cid<0):
+	p.connect(p.GUI)
 p.resetSimulation()
 
 objects = [p.loadURDF("plane.urdf", 0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,1.000000)]

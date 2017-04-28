@@ -68,6 +68,8 @@ void	SimpleCamera::setVRCamera(const float viewMat[16], const float projectionMa
 	{
 		m_data->m_viewMatrixVR[i] = viewMat[i];
 		m_data->m_projectionMatrixVR[i] = projectionMatrix[i];
+		m_data->m_frustumZNear = m_data->m_projectionMatrixVR[14]/(m_data->m_projectionMatrixVR[10]-1);
+		m_data->m_frustumZFar = m_data->m_projectionMatrixVR[14]/(m_data->m_projectionMatrixVR[10]+1);
 	}
 }
 
@@ -346,11 +348,37 @@ void	SimpleCamera::setCameraUpVector(float x,float y ,float z)
 
 void	SimpleCamera::getCameraUpVector(float up[3]) const
 {
-	up[0] = float(m_data->m_cameraUp[0]);
-	up[1] = float(m_data->m_cameraUp[1]);
-	up[2] = float(m_data->m_cameraUp[2]);
+	if (m_data->m_enableVR)
+	{
+		float viewMatTotal[16];
+		getCameraViewMatrix(viewMatTotal);
+		up[0] = viewMatTotal[0];
+		up[1] = viewMatTotal[4];
+		up[2] = viewMatTotal[8];
+	} else
+	{
+		up[0] = float(m_data->m_cameraUp[0]);
+		up[1] = float(m_data->m_cameraUp[1]);
+		up[2] = float(m_data->m_cameraUp[2]);
+	}
 }
 
+void	SimpleCamera::getCameraForwardVector(float fwd[3]) const
+{
+	if (m_data->m_enableVR)
+	{
+		float viewMatTotal[16];
+		getCameraViewMatrix(viewMatTotal);
+		fwd[0] = viewMatTotal[2];
+		fwd[1] = viewMatTotal[6];
+		fwd[2] = viewMatTotal[10];
+	} else
+	{
+		fwd[0] = float(m_data->m_cameraForward[0]);
+		fwd[1] = float(m_data->m_cameraForward[1]);
+		fwd[2] = float(m_data->m_cameraForward[2]);
+	}
+}
 
 void	SimpleCamera::setCameraYaw(float yaw)
 {

@@ -89,10 +89,10 @@ protected:
     
 	virtual void resetCamera()
 	{
-        float dist = 4;
-        float pitch = 193;
-        float yaw = 25;
-        float targetPos[3]={0,0,0.5};//-3,2.8,-2.5};
+        float dist = 3.45;
+        float pitch = 287;
+        float yaw = 16.2;
+        float targetPos[3]={2.05,0.02,0.53};//-3,2.8,-2.5};
 		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
 
 	}
@@ -256,7 +256,11 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
         
         case  CMD_LOAD_SDF:
         {
-            b3SharedMemoryCommandHandle commandHandle = b3LoadSdfCommandInit(m_physicsClientHandle, "two_cubes.sdf");//kuka_iiwa/model.sdf");
+#ifdef BT_DEBUG
+			b3SharedMemoryCommandHandle commandHandle = b3LoadSdfCommandInit(m_physicsClientHandle, "two_cubes.sdf");
+#else
+			b3SharedMemoryCommandHandle commandHandle = b3LoadSdfCommandInit(m_physicsClientHandle, "kitchens/1.sdf");//two_cubes.sdf");//kitchens/1.sdf");//kuka_iiwa/model.sdf");
+#endif
             b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
             break;
         }
@@ -834,13 +838,16 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
                                 //todo: rescale the depthValue to [0..255]
                                 if (depthValue>-1e20)
                                 {
-                                    int rgb =  (depthValue-minDepthValue)*(255. / (btFabs(maxDepthValue-minDepthValue)));
-                                    if (rgb<0 || rgb>255)
-                                    {
-                                        
-                                        printf("rgb=%d\n",rgb);
-                                    }
-                 
+									int rgb = 0;
+
+									if (maxDepthValue!=minDepthValue)
+									{
+										rgb =  (depthValue-minDepthValue)*(255. / (btFabs(maxDepthValue-minDepthValue)));
+										if (rgb<0 || rgb>255)
+										{
+    										//printf("rgb=%d\n",rgb);
+	                                    }
+									}                 
                                     m_canvas->setPixel(m_canvasDepthIndex,i,j,
                                         rgb,
                                         rgb,
