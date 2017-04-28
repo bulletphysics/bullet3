@@ -12,6 +12,7 @@
 #include "GLInstanceGraphicsShape.h"
 #include "stdlib.h"
 #include "TwFonts.h"
+#include "SimpleOpenGL2Renderer.h"
 #ifdef __APPLE__
 #include "MacOpenGLWindow.h"
 #else
@@ -176,6 +177,8 @@ SimpleOpenGL2App::SimpleOpenGL2App(const char* title, int width, int height)
     m_window->setKeyboardCallback(Simple2KeyboardCallback);
     m_window->setWheelCallback(Simple2WheelCallback);
 	m_window->setResizeCallback(Simple2ResizeCallback);
+
+	m_renderer = new SimpleOpenGL2Renderer(width,height);
 
 }
 

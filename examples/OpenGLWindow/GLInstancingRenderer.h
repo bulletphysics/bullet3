@@ -117,7 +117,9 @@ public:
 	virtual CommonCameraInterface* getActiveCamera();
 	virtual void setActiveCamera(CommonCameraInterface* cam);
 	
-	
+	virtual void setLightPosition(const float lightPos[3]);
+	virtual void setLightPosition(const double lightPos[3]);
+
 	virtual void	resize(int width, int height);
 	virtual int	getScreenWidth()
 	{

@@ -70,6 +70,80 @@ Vec3f barycentric(Vec2f A, Vec2f B, Vec2f C, Vec2f P) {
     return Vec3f(-1,1,1); // in this case generate negative coordinates, it will be thrown away by the rasterizator
 }
 
+void triangleClipped(mat<4,3,float> &clipc, mat<4,3,float> &orgClipc, IShader &shader, TGAImage &image, float *zbuffer, const Matrix& viewPortMatrix) 
+{
+    triangleClipped(clipc, orgClipc,shader,image,zbuffer,0,viewPortMatrix,0);
+}
+
+void triangleClipped(mat<4,3,float> &clipc, mat<4,3,float> &orgClipc, IShader &shader, TGAImage &image, float *zbuffer, int* segmentationMaskBuffer, const Matrix& viewPortMatrix, int objectIndex) 
+{
+
+	mat<3,4,float> screenSpacePts  = (viewPortMatrix*clipc).transpose(); // transposed to ease access to each of the points
+    
+	mat<3,2,float> pts2;
+    for (int i=0; i<3; i++)
+	{
+		pts2[i] = proj<2>(screenSpacePts[i]/screenSpacePts[i][3]);
+	}
+
+    Vec2f bboxmin( std::numeric_limits<float>::max(),  std::numeric_limits<float>::max());
+    Vec2f bboxmax(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
+    Vec2f clamp(image.get_width()-1, image.get_height()-1);
+	
+    for (int i=0; i<3; i++) {
+        for (int j=0; j<2; j++) {
+            bboxmin[j] = b3Max(0.f,      b3Min(bboxmin[j], pts2[i][j]));
+            bboxmax[j] = b3Min(clamp[j], b3Max(bboxmax[j], pts2[i][j]));
+        }
+    }
+
+	Vec2i P;
+    TGAColor color;
+
+	mat<3,4,float> orgScreenSpacePts  = (viewPortMatrix*orgClipc).transpose(); // transposed to ease access to each of the points
+    
+	mat<3,2,float> orgPts2;
+	for (int i=0; i<3; i++)
+	{
+		orgPts2[i] = proj<2>(orgScreenSpacePts[i]/orgScreenSpacePts[i][3]);
+	}
+
+
+	for (P.x=bboxmin.x; P.x<=bboxmax.x; P.x++) {
+        for (P.y=bboxmin.y; P.y<=bboxmax.y; P.y++) 
+		{
+			float frag_depth = 0;
+			{
+				Vec3f bc_screen  = barycentric(pts2[0], pts2[1], pts2[2], P);
+				Vec3f bc_clip    = Vec3f(bc_screen.x/screenSpacePts[0][3], bc_screen.y/screenSpacePts[1][3], bc_screen.z/screenSpacePts[2][3]);
+				bc_clip = bc_clip/(bc_clip.x+bc_clip.y+bc_clip.z);
+				frag_depth = -1*(clipc[2]*bc_clip);
+		
+				if (bc_screen.x<0 || bc_screen.y<0 || bc_screen.z<0 ||
+					zbuffer[P.x+P.y*image.get_width()]>frag_depth) 
+					continue;
+			}
+
+			Vec3f bc_screen2  = barycentric(orgPts2[0], orgPts2[1], orgPts2[2], P);
+            Vec3f bc_clip2    = Vec3f(bc_screen2.x/orgScreenSpacePts[0][3], bc_screen2.y/orgScreenSpacePts[1][3], bc_screen2.z/orgScreenSpacePts[2][3]);
+            bc_clip2 = bc_clip2/(bc_clip2.x+bc_clip2.y+bc_clip2.z);
+			float frag_depth2 = -1*(orgClipc[2]*bc_clip2);
+            
+            bool discard = shader.fragment(bc_clip2, color);
+
+            if (!discard) {
+                zbuffer[P.x+P.y*image.get_width()] = frag_depth;
+                if (segmentationMaskBuffer)
+                {
+                    segmentationMaskBuffer[P.x+P.y*image.get_width()] = objectIndex;
+                }
+                image.set(P.x, P.y, color);
+            }
+        }
+    }
+}
+
+
 void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zbuffer, const Matrix& viewPortMatrix) 
 {
     triangle(clipc,shader,image,zbuffer,0,viewPortMatrix,0);
@@ -78,9 +152,7 @@ void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zb
 void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zbuffer, int* segmentationMaskBuffer, const Matrix& viewPortMatrix, int objectIndex) {
 	mat<3,4,float> pts  = (viewPortMatrix*clipc).transpose(); // transposed to ease access to each of the points
     
-	//we don't clip triangles that cross the near plane, just discard them instead of showing artifacts
-	if (pts[0][3]<0 || pts[1][3] <0 || pts[2][3] <0)
-		return;
+	
 
 	mat<3,2,float> pts2;
     for (int i=0; i<3; i++) pts2[i] = proj<2>(pts[i]/pts[i][3]);
@@ -119,4 +191,3 @@ void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zb
         }
     }
 }
-

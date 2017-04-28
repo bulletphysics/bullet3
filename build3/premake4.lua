@@ -158,11 +158,15 @@ end
 		description = "Double precision version of Bullet"
 	}
 	
+	newoption
+	{
+		trigger = "audio",
+		description = "Enable audio"
+	}
 	if _OPTIONS["double"] then
 		defines {"BT_USE_DOUBLE_PRECISION"}
 	end
 
-	
 	configurations {"Release", "Debug"}
 	configuration "Release"
 		flags { "Optimize", "EnableSSE2","StaticRuntime", "NoMinimalRebuild", "FloatFast"}
@@ -251,6 +255,10 @@ end
 	language "C++"
 
 
+	if _OPTIONS["audio"] then
+		include "../examples/TinyAudio"
+	end
+
 	if not _OPTIONS["no-demos"] then
 		include "../examples/ExampleBrowser"
 		include "../examples/RobotSimulator"
@@ -266,9 +274,10 @@ end
 		if _OPTIONS["enable_pybullet"] then
 		  include "../examples/pybullet"
 		end
+		include "../examples/SimpleOpenGL3"
 
 		if _OPTIONS["standalone-examples"] then
-			include "../examples/SimpleOpenGL3"
+			
 			include "../examples/TinyRenderer"
 			include "../examples/BasicDemo"
 			include "../examples/InverseDynamics"

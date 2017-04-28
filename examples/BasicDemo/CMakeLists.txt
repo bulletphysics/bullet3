@@ -84,7 +84,7 @@ ELSE(WIN32)
                 ADD_DEFINITIONS("-DGLEW_STATIC")
                 ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
 
-                LINK_LIBRARIES(  pthread dl )
+                LINK_LIBRARIES(  pthread ${DL} )
         ENDIF(APPLE)
 ENDIF(WIN32)
 

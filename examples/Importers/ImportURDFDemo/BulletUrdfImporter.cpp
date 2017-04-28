@@ -421,6 +421,7 @@ bool BulletURDFImporter::getRootTransformInWorld(btTransform& rootTransformInWor
 
 static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale)
 {
+	B3_PROFILE("createConvexHullFromShapes");
 	btCompoundShape* compound = new btCompoundShape();
 	compound->setMargin(gUrdfDefaultCollisionMargin);
 
@@ -633,6 +634,7 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 		case UrdfGeometry::FILE_OBJ:
 			if (collision->m_flags & URDF_FORCE_CONCAVE_TRIMESH)
 			{
+				
 				glmesh = LoadMeshFromObj(collision->m_geometry.m_meshFileName.c_str(), 0);
 			}
 			else
@@ -744,19 +746,23 @@ upAxisMat.setIdentity();
 		{
 			BT_PROFILE("convert trimesh");
 			btTriangleMesh* meshInterface = new btTriangleMesh();
-			for (int i=0; i<glmesh->m_numIndices/3; i++)
 			{
-				float* v0 = glmesh->m_vertices->at(glmesh->m_indices->at(i*3)).xyzw;
-				float* v1 = glmesh->m_vertices->at(glmesh->m_indices->at(i*3+1)).xyzw;
-				float* v2 = glmesh->m_vertices->at(glmesh->m_indices->at(i*3+2)).xyzw;
-				meshInterface->addTriangle(
-					btVector3(v0[0],v0[1],v0[2]),
-					btVector3(v1[0],v1[1],v1[2]),
-					btVector3(v2[0],v2[1],v2[2]));
+				BT_PROFILE("convert vertices");
+
+				for (int i=0; i<glmesh->m_numIndices/3; i++)
+				{
+					const btVector3& v0 = convertedVerts[glmesh->m_indices->at(i*3)];
+					const btVector3& v1 = convertedVerts[glmesh->m_indices->at(i*3+1)];
+					const btVector3& v2 = convertedVerts[glmesh->m_indices->at(i*3+2)];
+					meshInterface->addTriangle(v0,v1,v2);
+				}
 			}
-			btBvhTriangleMeshShape* trimesh = new btBvhTriangleMeshShape(meshInterface,true,true);
-			trimesh->setLocalScaling(collision->m_geometry.m_meshScale);
-			shape = trimesh;
+			{
+				BT_PROFILE("create btBvhTriangleMeshShape");
+				btBvhTriangleMeshShape* trimesh = new btBvhTriangleMeshShape(meshInterface,true,true);
+				//trimesh->setLocalScaling(collision->m_geometry.m_meshScale);
+				shape = trimesh;
+			}
 
 		} else
 		{
@@ -765,7 +771,7 @@ upAxisMat.setIdentity();
 			convexHull->optimizeConvexHull();
 			//convexHull->initializePolyhedralFeatures();
 			convexHull->setMargin(gUrdfDefaultCollisionMargin);
-			convexHull->setLocalScaling(collision->m_geometry.m_meshScale);
+			//convexHull->setLocalScaling(collision->m_geometry.m_meshScale);
 			shape = convexHull;
 		}
 

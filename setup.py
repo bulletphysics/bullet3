@@ -21,10 +21,26 @@ CXX_FLAGS += '-DGWEN_COMPILE_STATIC '
 CXX_FLAGS += '-DBT_USE_DOUBLE_PRECISION '
 CXX_FLAGS += '-DBT_ENABLE_ENET '
 CXX_FLAGS += '-DBT_ENABLE_CLSOCKET '
+CXX_FLAGS += '-DB3_DUMP_PYTHON_VERSION '
+
+
 
 # libraries += [current_python]
 
 libraries = []
+include_dirs = []
+
+try:
+    import numpy
+    NP_DIRS = [numpy.get_include()]
+except:
+	  print("numpy is disabled. getCameraImage maybe slower.")
+else:
+	  print("numpy is enabled.")
+	  CXX_FLAGS += '-DPYBULLET_USE_NUMPY '
+	  for d in NP_DIRS:
+	    print("numpy_include_dirs = %s" % d)
+	  include_dirs += NP_DIRS
 
 sources = ["examples/pybullet/pybullet.c"]\
 +["examples/ExampleBrowser/InProcessExampleBrowser.cpp"]\
@@ -365,20 +381,18 @@ if _platform == "linux" or _platform == "linux2":
     CXX_FLAGS += '-DDYNAMIC_LOAD_X11_FUNCTIONS '
     CXX_FLAGS += '-DHAS_SOCKLEN_T '
     CXX_FLAGS += '-fno-inline-functions-called-once'
-    sources = ["examples/ThirdPartyLibs/enet/unix.c"]\
+    sources = sources + ["examples/ThirdPartyLibs/enet/unix.c"]\
     +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\
-    +["examples/ThirdPartyLibs/Glew/glew.c"]\
-    + sources
+    +["examples/ThirdPartyLibs/Glew/glew.c"]
 elif _platform == "win32":
     print("win32!")
     libraries = ['Ws2_32','Winmm','User32','Opengl32','kernel32','glu32','Gdi32','Comdlg32']
     CXX_FLAGS += '-DWIN32 '
     CXX_FLAGS += '-DGLEW_STATIC '
-    sources = ["examples/ThirdPartyLibs/enet/win32.c"]\
+    sources = sources + ["examples/ThirdPartyLibs/enet/win32.c"]\
     +["examples/OpenGLWindow/Win32Window.cpp"]\
     +["examples/OpenGLWindow/Win32OpenGLWindow.cpp"]\
-    +["examples/ThirdPartyLibs/Glew/glew.c"]\
-    +sources
+    +["examples/ThirdPartyLibs/Glew/glew.c"]
 elif _platform == "darwin":
     print("darwin!")
     os.environ['LDFLAGS'] = '-framework Cocoa -framework OpenGL'
@@ -388,10 +402,22 @@ elif _platform == "darwin":
     sources = sources + ["examples/ThirdPartyLibs/enet/unix.c"]\
     +["examples/OpenGLWindow/MacOpenGLWindow.cpp"]\
     +["examples/OpenGLWindow/MacOpenGLWindowObjC.m"]
+else:
+    print("bsd!")
+    os.environ['LDFLAGS'] = '-L/usr/X11R6/lib'
+    CXX_FLAGS += '-D_BSD '
+    CXX_FLAGS += '-I/usr/X11R6/include '
+    CXX_FLAGS += '-DHAS_SOCKLEN_T '
+    CXX_FLAGS += '-fno-inline-functions-called-once'
+    sources = ["examples/ThirdPartyLibs/enet/unix.c"]\
+    +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\
+    +["examples/ThirdPartyLibs/Glew/glew.c"]\
+    + sources
+
 
 setup(
 	name = 'pybullet',
-	version='0.1.6',
+	version='1.0.1',
 	description='Official Python Interface for the Bullet Physics SDK Robotics Simulator',
 	long_description='pybullet is an easy to use Python module for physics simulation, robotics and machine learning based on the Bullet Physics SDK. With pybullet you can load articulated bodies from URDF, SDF and other file formats. pybullet provides forward dynamics simulation, inverse dynamics computation, forward and inverse kinematics and collision detection and ray intersection queries. Aside from physics simulation, pybullet supports to rendering, with a CPU renderer and OpenGL visualization and support for virtual reality headsets.',
 	url='https://github.com/bulletphysics/bullet3',
@@ -404,9 +430,9 @@ setup(
 	sources =  sources,
 	libraries = libraries,
 	extra_compile_args=CXX_FLAGS.split(),
-	include_dirs = ["src","examples/ThirdPartyLibs","examples/ThirdPartyLibs/Glew", "examples/ThirdPartyLibs/enet/include","examples/ThirdPartyLibs/clsocket/src"]
+	include_dirs = include_dirs + ["src","examples/ThirdPartyLibs","examples/ThirdPartyLibs/Glew", "examples/ThirdPartyLibs/enet/include","examples/ThirdPartyLibs/clsocket/src"]
      ) ],
-     classifiers=['Development Status :: 4 - Beta',
+     classifiers=['Development Status :: 5 - Production/Stable',
                    'License :: OSI Approved :: zlib/libpng License',
                    'Operating System :: Microsoft :: Windows',
                    'Operating System :: POSIX :: Linux',
@@ -415,6 +441,8 @@ setup(
                    "Programming Language :: Python",
                    'Programming Language :: Python :: 2.7',
                    'Programming Language :: Python :: 3.4',
+                   'Programming Language :: Python :: 3.5',
+                   'Programming Language :: Python :: 3.6',
                    'Topic :: Games/Entertainment :: Simulation',
                    'Framework :: Robot Framework'],                   
 	package_data = {
