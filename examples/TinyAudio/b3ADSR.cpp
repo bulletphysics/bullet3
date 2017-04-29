@@ -85,6 +85,10 @@ void b3ADSR::keyOn()
 {
 	if (m_target <= 0.0)
 		m_target = 1.0;
+	if (m_attackRate==1)
+	{
+		m_value = 1.0;
+	}
 	m_state = ADSR_ATTACK;
 }
 

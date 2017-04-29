@@ -26,6 +26,10 @@
 #include "Bullet3Common/b3Logging.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "SharedMemoryCommands.h"
+#include "LinearMath/btRandom.h"
+#ifdef B3_ENABLE_TINY_AUDIO
+#include "../TinyAudio/b3SoundEngine.h"
+#endif
 
 #ifdef USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 #include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
@@ -1297,6 +1301,10 @@ struct PhysicsServerCommandProcessorInternalData
 	btScalar m_oldPickingDist;
 	bool m_prevCanSleep;
 	TinyRendererVisualShapeConverter  m_visualConverter;
+#ifdef B3_ENABLE_TINY_AUDIO
+	b3SoundEngine m_soundEngine;
+	int m_wavIds[3];
+#endif
 
 	PhysicsServerCommandProcessorInternalData()
 		:
@@ -1456,11 +1464,101 @@ PhysicsServerCommandProcessor::~PhysicsServerCommandProcessor()
 
 void logCallback(btDynamicsWorld *world, btScalar timeStep)
 {
+	//handle the logging and playing sounds
 	PhysicsServerCommandProcessor* proc = (PhysicsServerCommandProcessor*) world->getWorldUserInfo();
+	proc->processCollisionForces(timeStep);
+	
 	proc->logObjectStates(timeStep);
 
 }
 
+bool MyContactAddedCallback(btManifoldPoint& cp,	const btCollisionObjectWrapper* colObj0Wrap,int partId0,int index0,const btCollisionObjectWrapper* colObj1Wrap,int partId1,int index1)
+{
+	return true;
+}
+
+
+
+
+bool MyContactDestroyedCallback(void* userPersistentData)
+{
+	//printf("destroyed\n");
+	return false;
+}
+
+bool MyContactProcessedCallback(btManifoldPoint& cp,void* body0,void* body1)
+{
+	//printf("processed\n");
+	return false;
+
+}
+void MyContactStartedCallback(btPersistentManifold* const &manifold)
+{
+	//printf("started\n");
+}
+void MyContactEndedCallback(btPersistentManifold* const &manifold)
+{
+//	printf("ended\n");
+}
+
+
+
+void PhysicsServerCommandProcessor::processCollisionForces(btScalar timeStep)
+{
+#ifdef B3_ENABLE_TINY_AUDIO
+	//this is experimental at the moment: impulse thresholds, sound parameters will be exposed in C-API/pybullet.
+	//audio will go into a wav file, as well as real-time output to speakers/headphones using RtAudio/DAC.
+
+	int numContactManifolds =  m_data->m_dynamicsWorld->getDispatcher()->getNumManifolds();
+	for (int i = 0; i < numContactManifolds; i++)
+	{
+		const btPersistentManifold* manifold = m_data->m_dynamicsWorld->getDispatcher()->getInternalManifoldPointer()[i];
+		for (int p=0;p<manifold->getNumContacts();p++)
+		{
+			double imp = manifold->getContactPoint(p).getAppliedImpulse();
+				//printf ("manifold %d, contact %d, lifeTime:%d, appliedImpulse:%f\n",i,p, manifold->getContactPoint(p).getLifeTime(),imp);
+
+			if (imp>0.4 && manifold->getContactPoint(p).getLifeTime()==1)
+			{
+				int soundSourceIndex = m_data->m_soundEngine.getAvailableSoundSource();
+				if (soundSourceIndex>=0)
+				{
+					b3SoundMessage msg;
+					msg.m_releaseRate = 0.0001;
+					msg.m_attackRate = 1.;
+					msg.m_type = B3_SOUND_SOURCE_WAV_FILE;
+					
+					int cardboardIndex = float(rand())/float(RAND_MAX)*2.9;
+
+					msg.m_wavId = m_data->m_wavIds[cardboardIndex];
+
+					float rnd = rand()% 2;
+					
+					msg.m_frequency = 100+rnd*10.;
+
+					m_data->m_soundEngine.startSound(soundSourceIndex,msg);
+					m_data->m_soundEngine.releaseSound(soundSourceIndex);
+
+				}
+			}
+		}
+		int linkIndexA = -1;
+		int linkIndexB = -1;
+				
+		int objectIndexB = -1;
+				
+		const btRigidBody* bodyB = btRigidBody::upcast(manifold->getBody1());
+		if (bodyB)
+		{
+			objectIndexB = bodyB->getUserIndex2();
+		}
+		const btMultiBodyLinkCollider* mblB = btMultiBodyLinkCollider::upcast(manifold->getBody1());
+		if (mblB && mblB->m_multiBody)
+		{
+		}
+	}
+#endif//B3_ENABLE_TINY_AUDIO
+}
 
 void PhysicsServerCommandProcessor::logObjectStates(btScalar timeStep)
 {
@@ -1522,6 +1620,20 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 		m_data->m_guiHelper->createPhysicsDebugDrawer(m_data->m_dynamicsWorld);
 	}
 	m_data->m_dynamicsWorld->setInternalTickCallback(logCallback,this);
+
+#ifdef B3_ENABLE_TINY_AUDIO
+	m_data->m_soundEngine.init(16,true);
+	m_data->m_wavIds[0] = m_data->m_soundEngine.loadWavFile("wav/cardboardbox0.wav");
+	m_data->m_wavIds[1] = m_data->m_soundEngine.loadWavFile("wav/cardboardbox1.wav");
+	m_data->m_wavIds[2] = m_data->m_soundEngine.loadWavFile("wav/cardboardbox2.wav");
+
+//we don't use those callbacks (yet), experimental
+//	gContactAddedCallback = MyContactAddedCallback;
+//	gContactDestroyedCallback = MyContactDestroyedCallback;
+//	gContactProcessedCallback = MyContactProcessedCallback;
+//	gContactStartedCallback = MyContactStartedCallback;
+//	gContactEndedCallback = MyContactEndedCallback;
+#endif
 }
 
 void PhysicsServerCommandProcessor::deleteStateLoggers()
@@ -1565,6 +1677,14 @@ void PhysicsServerCommandProcessor::deleteCachedInverseDynamicsBodies()
 
 void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 {
+#ifdef B3_ENABLE_TINY_AUDIO
+	m_data->m_soundEngine.exit();
+	//gContactDestroyedCallback = 0;
+	//gContactProcessedCallback = 0;
+	//gContactStartedCallback = 0;
+	//gContactEndedCallback = 0;
+#endif
+	
 	deleteCachedInverseDynamicsBodies();
 	deleteCachedInverseKinematicsBodies();
 	deleteStateLoggers();

@@ -87,6 +87,35 @@ if not _OPTIONS["no-enet"] then
                 defines {"BT_ENABLE_CLSOCKET"}
         end
 
+		if _OPTIONS["audio"] then
+			files {
+				"../TinyAudio/b3ADSR.cpp",
+				"../TinyAudio/b3AudioListener.cpp",
+				"../TinyAudio/b3ReadWavFile.cpp",
+				"../TinyAudio/b3SoundEngine.cpp",
+				"../TinyAudio/b3SoundSource.cpp",
+				"../TinyAudio/b3WriteWavFile.cpp",
+				"../TinyAudio/RtAudio.cpp",
+			}
+			defines {"B3_ENABLE_TINY_AUDIO"}
+			
+			if os.is("Windows") then
+				links {"winmm","Wsock32","dsound"}
+				defines {"WIN32","__WINDOWS_MM__","__WINDOWS_DS__"}
+			end
+			
+			if os.is("Linux") then initX11() 
+			                defines  {"__OS_LINUX__","__LINUX_ALSA__"}
+				links {"asound","pthread"}
+			end
+
+
+			if os.is("MacOSX") then
+				links{"Cocoa.framework"}
+				links{"CoreAudio.framework", "coreMIDI.framework", "Cocoa.framework"}
+				defines {"__OS_MACOSX__","__MACOSX_CORE__"}
+			end
+		end
 		files {
 			"RobotSimulatorMain.cpp",
 			"b3RobotSimulatorClientAPI.cpp",

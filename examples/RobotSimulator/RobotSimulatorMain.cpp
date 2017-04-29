@@ -35,12 +35,16 @@ int main(int argc, char* argv[])
 
 	sim->loadURDF("plane.urdf");
 
-	MinitaurSetup minitaur;
-	int minitaurUid = minitaur.setupMinitaur(sim, b3MakeVector3(0,0,.3));
+	b3RobotSimulatorLoadUrdfFileArgs args;
+	args.m_startPosition.setValue(0,0,2);
+	for (int i=0;i<10;i++)
+	{
+		args.m_startPosition[0] = 0.5*i;
+		args.m_startPosition[1] = 0.5*i;
+		args.m_startPosition[2] = 2+i*2;
+		int r2d2 = sim->loadURDF("cube.urdf",args);
+	}
 
-	
-	//b3RobotSimulatorLoadUrdfFileArgs args;
-	//args.m_startPosition.setValue(2,0,1);
 	//int r2d2 = sim->loadURDF("r2d2.urdf",args);
 
 	//b3RobotSimulatorLoadFileResults sdfResults;
@@ -123,8 +127,8 @@ int main(int argc, char* argv[])
 			yaw+=0.1;
 			b3Vector3 basePos;
 			b3Quaternion baseOrn;
-			sim->getBasePositionAndOrientation(minitaurUid,basePos,baseOrn);
-			sim->resetDebugVisualizerCamera(distance,yaw,20,basePos);
+//			sim->getBasePositionAndOrientation(minitaurUid,basePos,baseOrn);
+		//	sim->resetDebugVisualizerCamera(distance,yaw,20,basePos);
 		}
 		b3Clock::usleep(1000.*1000.*fixedTimeStep);
 	}
