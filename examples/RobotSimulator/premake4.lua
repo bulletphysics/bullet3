@@ -98,6 +98,12 @@ if not _OPTIONS["no-enet"] then
 				"../TinyAudio/RtAudio.cpp",
 			}
 			defines {"B3_ENABLE_TINY_AUDIO"}
+
+			if _OPTIONS["serial"] then
+				defines{"B3_ENABLE_SERIAL"}
+				includedirs {"../../examples/ThirdPartyLibs/serial/include"}
+				links {"serial"}
+			end
 			
 			if os.is("Windows") then
 				links {"winmm","Wsock32","dsound"}

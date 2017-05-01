@@ -506,6 +506,22 @@ bool b3RobotSimulatorClientAPI::resetBaseVelocity(int bodyUniqueId, const b3Vect
 	return true;
 }
 
+void b3RobotSimulatorClientAPI::setInternalSimFlags(int flags)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return;
+	}
+	{
+		b3SharedMemoryCommandHandle command = b3InitPhysicsParamCommand(m_data->m_physicsClientHandle);
+		b3SharedMemoryStatusHandle statusHandle;
+		b3PhysicsParamSetInternalSimFlags(command, flags);
+		statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
+	}
+}
+
+
 void b3RobotSimulatorClientAPI::setRealTimeSimulation(bool enableRealTimeSimulation)
 {
 	if (!isConnected())

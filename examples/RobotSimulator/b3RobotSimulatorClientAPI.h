@@ -17,6 +17,15 @@ struct b3RobotSimulatorLoadUrdfFileArgs
 	bool m_useMultiBody;
 	int m_flags;
 
+	b3RobotSimulatorLoadUrdfFileArgs(const b3Vector3& startPos, const b3Quaternion& startOrn)
+		: m_startPosition(startPos),
+		  m_startOrientation(startOrn),
+		  m_forceOverrideFixedBase(false),
+		  m_useMultiBody(true),
+		  m_flags(0)
+	{
+	}
+
 	b3RobotSimulatorLoadUrdfFileArgs()
 		: m_startPosition(b3MakeVector3(0, 0, 0)),
 		  m_startOrientation(b3Quaternion(0, 0, 0, 1)),
@@ -171,6 +180,8 @@ public:
 	bool canSubmitCommand() const;
 
 	void setRealTimeSimulation(bool enableRealTimeSimulation);
+
+	void setInternalSimFlags(int flags);
 
 	void setGravity(const b3Vector3& gravityAcceleration);
 
