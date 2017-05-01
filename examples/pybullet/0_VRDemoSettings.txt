@@ -1,0 +1,4 @@
+--camPosX= -0.100000
+--camPosY= 0.000000
+--camPosZ= 0.000000
+--camRotZ= 0.000000
