@@ -24,7 +24,7 @@ public:
 
 	bool setWavFile(int oscillatorIndex, class b3ReadWavFile* wavFilePtr, int sampleRate);
 
-	void startSound();
+	void startSound(bool autoKeyOff);
 	void stopSound();
 
 	bool isAvailable() const;

@@ -7,6 +7,8 @@
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "b3ReadWavFile.h"
 #include "../Utils/b3ResourcePath.h"
+#include "../Utils/b3HashString.h"
+
 #include "Bullet3Common/b3HashMap.h"
 
 // The default real-time audio input and output buffer size.  If
@@ -24,6 +26,8 @@ struct b3SoundEngineInternalData
 
 	b3AlignedObjectArray<b3SoundSource*> m_soundSources;
 	b3HashMap<b3HashInt, b3ReadWavFile*> m_wavFiles;
+	b3HashMap<b3HashString, int> m_name2wav;
+
 	int m_wavFileUidGenerator;
 
 	b3SoundEngineInternalData()
@@ -84,6 +88,19 @@ void b3SoundEngine::exit()
 		delete m_data->m_soundSources[i];
 	}
 	m_data->m_soundSources.clear();
+
+	for (int i=0;i<m_data->m_wavFiles.size();i++)
+	{
+		b3ReadWavFile** wavPtr = m_data->m_wavFiles.getAtIndex(i);
+		if (wavPtr && *wavPtr)
+		{
+			b3ReadWavFile* wav = *wavPtr;
+			delete wav;
+		}
+	}
+	m_data->m_wavFiles.clear();
+	m_data->m_name2wav.clear();
+
 }
 
 int b3SoundEngine::getAvailableSoundSource()
@@ -113,7 +130,7 @@ void b3SoundEngine::startSound(int soundSourceIndex, b3SoundMessage msg)
 			soundSource->setOscillatorFrequency(0, msg.m_frequency);
 			soundSource->setOscillatorFrequency(1, msg.m_frequency);
 			
-			soundSource->startSound();
+			soundSource->startSound(msg.m_autoKeyOff);
 			break;
 		}
 		case B3_SOUND_SOURCE_WAV_FILE:
@@ -124,7 +141,7 @@ void b3SoundEngine::startSound(int soundSourceIndex, b3SoundMessage msg)
 				b3ReadWavFile* wavFile = *wavFilePtr;
 				soundSource->setWavFile(0,wavFile,getSampleRate());
 				soundSource->setWavFile(1,wavFile,getSampleRate());
-				soundSource->startSound();
+				soundSource->startSound(msg.m_autoKeyOff);
 			}
 			break;
 		}
@@ -142,6 +159,11 @@ void b3SoundEngine::releaseSound(int soundSourceIndex)
 
 int b3SoundEngine::loadWavFile(const char* fileName)
 {
+	int* wavUidPtr = m_data->m_name2wav[fileName];
+	if (wavUidPtr)
+	{
+		return *wavUidPtr;
+	}
 	char resourcePath[1024];
 
 	if (b3ResourcePath::findResourcePath(fileName, resourcePath, 1024))
@@ -153,6 +175,7 @@ int b3SoundEngine::loadWavFile(const char* fileName)
 		wavFile->normalize(1);
 		int wavUID = m_data->m_wavFileUidGenerator++;
 		m_data->m_wavFiles.insert(wavUID, wavFile);
+		m_data->m_name2wav.insert(fileName,wavUID);
 		return wavUID;
 	}
 	return 0;

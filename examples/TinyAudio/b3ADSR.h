@@ -11,7 +11,7 @@ class b3ADSR
 	double m_releaseRate;
 	double m_releaseTime;
 	double m_sustainLevel;
-
+	bool m_autoKeyOff;
 public:
 
 	b3ADSR();
@@ -19,7 +19,7 @@ public:
 
 	double tick();
 	bool isIdle() const;
-	void keyOn();
+	void keyOn(bool autoKeyOff);
 	void keyOff();
 
 	void setValues(double attack,double decay,double sustain,double release)

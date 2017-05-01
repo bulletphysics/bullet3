@@ -48,7 +48,7 @@
 //quick test for file import, @todo(erwincoumans) make it more general and add other file formats
 #include "../Importers/ImportURDFDemo/ImportURDFSetup.h"
 #include "../Importers/ImportBullet/SerializeSetup.h"
-
+#include "../Utils/b3HashString.h"
 #include "Bullet3Common/b3HashMap.h"
 
 struct GL3TexLoader : public MyTextureLoader

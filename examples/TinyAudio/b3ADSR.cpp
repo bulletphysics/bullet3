@@ -23,6 +23,7 @@ b3ADSR::b3ADSR()
 	m_releaseRate = 0.0005;
 	m_sustainLevel = 0.5;
 	m_state = ADSR_IDLE;
+	m_autoKeyOff = false;
 }
 
 b3ADSR::~b3ADSR()
@@ -51,6 +52,10 @@ double b3ADSR::tick()
 				{
 					m_value = m_sustainLevel;
 					m_state = ADSR_SUSTAIN;
+					if (m_autoKeyOff)
+					{
+						keyOff();
+					}
 				}
 			}
 			else
@@ -60,6 +65,11 @@ double b3ADSR::tick()
 				{
 					m_value = m_sustainLevel;
 					m_state = ADSR_SUSTAIN;
+					if (m_autoKeyOff)
+					{
+						keyOff();
+					}
+
 				}
 			}
 			break;
@@ -81,8 +91,9 @@ bool b3ADSR::isIdle() const
 	return m_state == ADSR_IDLE;
 }
 
-void b3ADSR::keyOn()
+void b3ADSR::keyOn(bool autoKeyOff)
 {
+	m_autoKeyOff = autoKeyOff;
 	if (m_target <= 0.0)
 		m_target = 1.0;
 	if (m_attackRate==1)
@@ -94,6 +105,7 @@ void b3ADSR::keyOn()
 
 void b3ADSR::keyOff()
 {
+	m_autoKeyOff = false;
 	m_target = 0.0;
 	m_state = ADSR_RELEASE;
 

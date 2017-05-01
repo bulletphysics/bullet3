@@ -183,7 +183,7 @@ bool b3SoundSource::isAvailable() const
 	return m_data->m_envelope.isIdle();
 }
 
-void b3SoundSource::startSound()
+void b3SoundSource::startSound(bool autoKeyOff)
 {
 	if (m_data->m_envelope.isIdle())
 	{
@@ -209,7 +209,7 @@ void b3SoundSource::startSound()
 			}
 		}
 	}
-	m_data->m_envelope.keyOn();
+	m_data->m_envelope.keyOn(autoKeyOff);
 }
 
 void b3SoundSource::stopSound()

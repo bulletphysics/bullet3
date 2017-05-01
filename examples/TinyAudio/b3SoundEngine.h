@@ -16,6 +16,7 @@ struct b3SoundMessage
 	double m_decayRate;
 	double m_sustainLevel;
 	double m_releaseRate;
+	bool m_autoKeyOff;
 
 	b3SoundMessage()
 		:m_type(B3_SOUND_SOURCE_SINE_OSCILLATOR),
@@ -25,7 +26,8 @@ struct b3SoundMessage
 		m_attackRate(0.001),
 		m_decayRate(0.00001),
 		m_sustainLevel(0.5),
-		m_releaseRate(0.0005)
+		m_releaseRate(0.0005),
+		m_autoKeyOff(false)
 	{
 	}
 };

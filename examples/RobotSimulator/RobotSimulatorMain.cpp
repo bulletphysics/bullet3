@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
 	//sim->connect(eCONNECT_UDP, "localhost", 1234);
 	sim->configureDebugVisualizer( COV_ENABLE_GUI, 0);
 //	sim->configureDebugVisualizer( COV_ENABLE_SHADOWS, 0);//COV_ENABLE_WIREFRAME
-	sim->setTimeOut(10);
+	sim->setTimeOut(12345);
 	//syncBodies is only needed when connecting to an existing physics server that has already some bodies
 	sim->syncBodies();
 	b3Scalar fixedTimeStep = 1./240.;
@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 	//b3BodyInfo bodyInfo;
 	//sim->getBodyInfo(blockId,&bodyInfo);
 
-	sim->loadURDF("plane.urdf");
+	sim->loadURDF("plane_with_collision_audio.urdf");
 
 	b3RobotSimulatorLoadUrdfFileArgs args;
 	args.m_startPosition.setValue(0,0,2);
