@@ -2,7 +2,6 @@
 #include "b3RobotSimulatorClientAPI.h"
 
 #include "Bullet3Common/b3HashMap.h"
-#include "../Utils/b3HashString.h"
 
 struct MinitaurSetupInternalData
 {

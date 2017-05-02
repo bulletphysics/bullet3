@@ -132,6 +132,8 @@ class b3RobotSimulatorClientAPI
 	struct b3RobotSimulatorClientAPI_InternalData* m_data;
 
 public:
+
+
 	b3RobotSimulatorClientAPI();
 	virtual ~b3RobotSimulatorClientAPI();
 
@@ -167,7 +169,11 @@ public:
 
 	bool getJointInfo(int bodyUniqueId, int jointIndex, b3JointInfo* jointInfo);
 
-	void createConstraint(int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, b3JointInfo* jointInfo);
+	int createConstraint(int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, b3JointInfo* jointInfo);
+
+	int changeConstraint(int constraintId, b3JointInfo* jointInfo);
+
+	void removeConstraint(int constraintId);
 
 	bool getJointState(int bodyUniqueId, int jointIndex, struct b3JointSensorState* state);
 
@@ -188,6 +194,7 @@ public:
 	void setTimeStep(double timeStepInSeconds);
 	void setNumSimulationSubSteps(int numSubSteps);
 	void setNumSolverIterations(int numIterations);
+	void setContactBreakingThreshold(double threshold);
 
 	bool calculateInverseKinematics(const struct b3RobotSimulatorInverseKinematicArgs& args, struct b3RobotSimulatorInverseKinematicsResults& results);
 
@@ -201,7 +208,7 @@ public:
 	int startStateLogging(b3StateLoggingType loggingType, const std::string& fileName, const b3AlignedObjectArray<int>& objectUniqueIds=b3AlignedObjectArray<int>(), int maxLogDof = -1);
 	void stopStateLogging(int stateLoggerUniqueId);
 
-	void getVREvents(b3VREventsData* vrEventsData);
+	void getVREvents(b3VREventsData* vrEventsData, int deviceTypeFilter);
 	void getKeyboardEvents(b3KeyboardEventsData* keyboardEventsData);
 };
 

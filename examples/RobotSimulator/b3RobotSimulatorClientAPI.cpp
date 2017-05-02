@@ -560,20 +560,69 @@ bool b3RobotSimulatorClientAPI::getJointInfo(int bodyUniqueId, int jointIndex, b
 	return (b3GetJointInfo(m_data->m_physicsClientHandle, bodyUniqueId, jointIndex, jointInfo) != 0);
 }
 
-void b3RobotSimulatorClientAPI::createConstraint(int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, b3JointInfo* jointInfo)
+int b3RobotSimulatorClientAPI::createConstraint(int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, b3JointInfo* jointInfo)
 {
 	if (!isConnected())
 	{
 		b3Warning("Not connected");
-		return;
+		return -1;
 	}
 	b3SharedMemoryStatusHandle statusHandle;
 	b3Assert(b3CanSubmitCommand(m_data->m_physicsClientHandle));
 	if (b3CanSubmitCommand(m_data->m_physicsClientHandle))
 	{
 		statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, b3InitCreateUserConstraintCommand(m_data->m_physicsClientHandle, parentBodyIndex, parentJointIndex, childBodyIndex, childJointIndex, jointInfo));
+		int statusType = b3GetStatusType(statusHandle);
+		if (statusType == CMD_USER_CONSTRAINT_COMPLETED)
+		{
+			int userConstraintUid = b3GetStatusUserConstraintUniqueId(statusHandle);
+			return userConstraintUid;
+		}
 	}
+	return -1;
 }
+
+int b3RobotSimulatorClientAPI::changeConstraint(int constraintId, b3JointInfo* jointInfo)
+{
+
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return -1;
+	}
+	b3SharedMemoryCommandHandle commandHandle = b3InitChangeUserConstraintCommand(m_data->m_physicsClientHandle, constraintId);
+
+	if (jointInfo->m_flags & eJointChangeMaxForce)
+	{
+		b3InitChangeUserConstraintSetMaxForce(commandHandle, jointInfo->m_jointMaxForce);
+	}
+
+	if (jointInfo->m_flags & eJointChangeChildFramePosition)
+	{
+		b3InitChangeUserConstraintSetPivotInB(commandHandle, &jointInfo->m_childFrame[0]);
+	}
+	if (jointInfo->m_flags & eJointChangeChildFrameOrientation)
+	{
+		b3InitChangeUserConstraintSetFrameInB(commandHandle, &jointInfo->m_childFrame[3]);
+	}
+
+	b3SharedMemoryStatusHandle statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
+	int statusType = b3GetStatusType(statusHandle);
+	return statusType;
+}
+
+void b3RobotSimulatorClientAPI::removeConstraint(int constraintId)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return;
+	}
+	b3SharedMemoryCommandHandle commandHandle = b3InitRemoveUserConstraintCommand(m_data->m_physicsClientHandle, constraintId);
+	b3SharedMemoryStatusHandle statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
+	int statusType = b3GetStatusType(statusHandle);
+}
+
 
 bool b3RobotSimulatorClientAPI::getJointState(int bodyUniqueId, int jointIndex, struct b3JointSensorState* state)
 {
@@ -684,6 +733,21 @@ void b3RobotSimulatorClientAPI::setNumSolverIterations(int numIterations)
 	statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
 	b3Assert(b3GetStatusType(statusHandle) == CMD_CLIENT_COMMAND_COMPLETED);
 }
+
+void b3RobotSimulatorClientAPI::setContactBreakingThreshold(double threshold)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return;
+	}
+	b3SharedMemoryCommandHandle command = b3InitPhysicsParamCommand(m_data->m_physicsClientHandle);
+	b3SharedMemoryStatusHandle statusHandle;
+	b3PhysicsParamSetContactBreakingThreshold(command,threshold);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
+	b3Assert(b3GetStatusType(statusHandle) == CMD_CLIENT_COMMAND_COMPLETED);
+}
+
 
 void b3RobotSimulatorClientAPI::setTimeStep(double timeStepInSeconds)
 {
@@ -815,7 +879,7 @@ void b3RobotSimulatorClientAPI::configureDebugVisualizer(b3ConfigureDebugVisuali
 	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
 }
 
-void b3RobotSimulatorClientAPI::getVREvents(b3VREventsData* vrEventsData)
+void b3RobotSimulatorClientAPI::getVREvents(b3VREventsData* vrEventsData,int deviceTypeFilter)
 {
 	vrEventsData->m_numControllerEvents = 0;
 	vrEventsData->m_controllerEvents = 0;
@@ -826,6 +890,7 @@ void b3RobotSimulatorClientAPI::getVREvents(b3VREventsData* vrEventsData)
 	}
 
 	b3SharedMemoryCommandHandle commandHandle = b3RequestVREventsCommandInit(m_data->m_physicsClientHandle);
+	b3VREventsSetDeviceTypeFilter(commandHandle, deviceTypeFilter);
 	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
 	b3GetVREventsData(m_data->m_physicsClientHandle, vrEventsData);
 }

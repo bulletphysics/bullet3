@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
 	//sim->connect(eCONNECT_UDP, "localhost", 1234);
 	sim->configureDebugVisualizer( COV_ENABLE_GUI, 0);
 //	sim->configureDebugVisualizer( COV_ENABLE_SHADOWS, 0);//COV_ENABLE_WIREFRAME
-	sim->setTimeOut(12345);
+	sim->setTimeOut(10);
 	//syncBodies is only needed when connecting to an existing physics server that has already some bodies
 	sim->syncBodies();
 	b3Scalar fixedTimeStep = 1./240.;
@@ -33,18 +33,14 @@ int main(int argc, char* argv[])
 	//b3BodyInfo bodyInfo;
 	//sim->getBodyInfo(blockId,&bodyInfo);
 
-	sim->loadURDF("plane_with_collision_audio.urdf");
+	sim->loadURDF("plane.urdf");
 
-	b3RobotSimulatorLoadUrdfFileArgs args;
-	args.m_startPosition.setValue(0,0,2);
-	for (int i=0;i<10;i++)
-	{
-		args.m_startPosition[0] = 0.5*i;
-		args.m_startPosition[1] = 0.5*i;
-		args.m_startPosition[2] = 2+i*2;
-		int r2d2 = sim->loadURDF("cube.urdf",args);
-	}
+	MinitaurSetup minitaur;
+	int minitaurUid = minitaur.setupMinitaur(sim, b3MakeVector3(0,0,.3));
 
+	
+	//b3RobotSimulatorLoadUrdfFileArgs args;
+	//args.m_startPosition.setValue(2,0,1);
 	//int r2d2 = sim->loadURDF("r2d2.urdf",args);
 
 	//b3RobotSimulatorLoadFileResults sdfResults;
@@ -127,8 +123,8 @@ int main(int argc, char* argv[])
 			yaw+=0.1;
 			b3Vector3 basePos;
 			b3Quaternion baseOrn;
-//			sim->getBasePositionAndOrientation(minitaurUid,basePos,baseOrn);
-		//	sim->resetDebugVisualizerCamera(distance,yaw,20,basePos);
+			sim->getBasePositionAndOrientation(minitaurUid,basePos,baseOrn);
+			sim->resetDebugVisualizerCamera(distance,yaw,20,basePos);
 		}
 		b3Clock::usleep(1000.*1000.*fixedTimeStep);
 	}
@@ -143,5 +139,4 @@ int main(int argc, char* argv[])
 	printf("exit\n");
 
 }
-
 

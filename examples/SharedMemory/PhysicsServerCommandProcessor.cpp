@@ -2196,9 +2196,10 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 							}
 						}
 					}
-                }
 #endif
-				std::string* baseName = new std::string(u2b.getLinkName(u2b.getRootLinkIndex()));
+				}
+
+			   std::string* baseName = new std::string(u2b.getLinkName(u2b.getRootLinkIndex()));
 				m_data->m_strings.push_back(baseName);
 
 				mb->setBaseName(baseName->c_str());

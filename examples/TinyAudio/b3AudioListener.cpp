@@ -20,10 +20,12 @@ struct b3AudioListenerInternalData
 
    
 	b3WriteWavFile m_wavOut2;
+	bool m_writeWavOut;
 
 	b3AudioListenerInternalData()
 		:m_numControlTicks(64),
-		m_sampleRate(B3_SAMPLE_RATE)
+		m_sampleRate(B3_SAMPLE_RATE),
+		m_writeWavOut(false)
 	{
 
 		for (int i=0;i<MAX_SOUND_SOURCES;i++)
@@ -36,13 +38,18 @@ struct b3AudioListenerInternalData
 b3AudioListener::b3AudioListener()
 {
 	m_data = new b3AudioListenerInternalData();
-
-	m_data->m_wavOut2.setWavFile("bulletAudio2.wav",B3_SAMPLE_RATE,2,false);
+	if (m_data->m_writeWavOut)
+	{
+		m_data->m_wavOut2.setWavFile("bulletAudio2.wav",B3_SAMPLE_RATE,2,false);
+	}
 }
 
 b3AudioListener::~b3AudioListener()
 {
-	m_data->m_wavOut2.closeWavFile();
+	if (m_data->m_writeWavOut)
+	{
+		m_data->m_wavOut2.closeWavFile();
+	}
 
 	delete m_data;
 }
@@ -154,7 +161,7 @@ int b3AudioListener::tick(void *outputBuffer,void *inputBuffer1,unsigned int nBu
 	}
 
 	//logging to wav file
-	if (numSamples)
+	if (data->m_writeWavOut && numSamples)
 	{
 		data->m_wavOut2.tick( (double *)outputBuffer,numSamples);
 	}

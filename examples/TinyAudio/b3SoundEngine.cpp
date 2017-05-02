@@ -7,7 +7,6 @@
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "b3ReadWavFile.h"
 #include "../Utils/b3ResourcePath.h"
-#include "../Utils/b3HashString.h"
 
 #include "Bullet3Common/b3HashMap.h"
 
