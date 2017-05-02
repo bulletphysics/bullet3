@@ -3732,6 +3732,39 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 					break;
 				};
+				case CMD_RESET_DYNAMIC_INFO:
+				{
+					BT_PROFILE("CMD_RESET_DYNAMIC_INFO");
+					
+					if (clientCmd.m_updateFlags & RESET_DYNAMIC_INFO_SET_MASS)
+					{
+						int bodyUniqueId = clientCmd.m_resetDynamicInfoArgs.m_bodyUniqueId;
+						int linkIndex = clientCmd.m_resetDynamicInfoArgs.m_linkIndex;
+						double mass = clientCmd.m_resetDynamicInfoArgs.m_mass;
+						btAssert(bodyUniqueId >= 0);
+						btAssert(linkIndex >= -1);
+						
+						InteralBodyData* body = m_data->getHandle(bodyUniqueId);
+						if (body && body->m_multiBody)
+						{
+							btMultiBody* mb = body->m_multiBody;
+							if (linkIndex == -1)
+							{
+								mb->setBaseMass(mass);
+							}
+							else
+							{
+								mb->getLink(linkIndex).m_mass = mass;
+							}
+						}
+					}
+					
+					SharedMemoryStatus& serverCmd =serverStatusOut;
+					serverCmd.m_type = CMD_CLIENT_COMMAND_COMPLETED;
+					hasStatus = true;
+					
+					break;
+				};
 				case CMD_SEND_PHYSICS_SIMULATION_PARAMETERS:
 				{
 					BT_PROFILE("CMD_SEND_PHYSICS_SIMULATION_PARAMETERS");

@@ -604,6 +604,43 @@ static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args, PyObject* key
 	return pylist;
 }
 
+static PyObject* pybullet_resetDynamicInfo(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	int bodyUniqueId = -1;
+	int linkIndex = -2;
+	double mass = -1;
+	b3PhysicsClientHandle sm = 0;
+	
+	int physicsClientId = 0;
+	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "mass", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|di", kwlist, &bodyUniqueId, &linkIndex,&mass, &physicsClientId))
+	{
+		return NULL;
+	}
+	
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+	
+	{
+		b3SharedMemoryCommandHandle command = b3InitResetDynamicInfo(sm);
+		b3SharedMemoryStatusHandle statusHandle;
+		
+		if (mass >= 0)
+		{
+			b3ResetDynamicInfoSetMass(command, bodyUniqueId, linkIndex, mass);
+		}
+		
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	}
+	
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	double fixedTimeStep = -1;
@@ -5435,6 +5472,9 @@ static PyMethodDef SpamMethods[] = {
 	{"resetJointState", (PyCFunction)pybullet_resetJointState, METH_VARARGS | METH_KEYWORDS,
 	 "Reset the state (position, velocity etc) for a joint on a body "
 	 "instantaneously, not through physics simulation."},
+	
+	{"resetDynamicInfo", (PyCFunction)pybullet_resetDynamicInfo, METH_VARARGS | METH_KEYWORDS,
+	 "Reset dynamic information such as mass, COM."},
 
 	{"setJointMotorControl", (PyCFunction)pybullet_setJointMotorControl, METH_VARARGS,
 	 "This (obsolete) method cannot select non-zero physicsClientId, use setJointMotorControl2 instead."
