@@ -79,6 +79,11 @@ class btHashInt
 {
 	int	m_uid;
 public:
+
+	btHashInt()
+	{
+	}
+
 	btHashInt(int uid)	:m_uid(uid)
 	{
 	}

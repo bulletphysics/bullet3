@@ -258,7 +258,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					break;
 				};
 			}
-			if (keycode>=0 && sData && sData->m_keyboardCallback)// && ((HIWORD(lParam) & KF_REPEAT) == 0))
+			if (keycode>=0 && sData && sData->m_keyboardCallback  && ((HIWORD(lParam) & KF_REPEAT) == 0))
 			{
 				int state = 1;
 				(*sData->m_keyboardCallback)(keycode,state);

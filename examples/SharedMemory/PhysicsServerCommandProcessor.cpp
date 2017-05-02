@@ -26,6 +26,10 @@
 #include "Bullet3Common/b3Logging.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "SharedMemoryCommands.h"
+#include "LinearMath/btRandom.h"
+#ifdef B3_ENABLE_TINY_AUDIO
+#include "../TinyAudio/b3SoundEngine.h"
+#endif
 
 #ifdef USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 #include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
@@ -115,6 +119,7 @@ struct SharedMemoryDebugDrawer : public btIDebugDraw
 };
 
 
+
 struct InteralBodyData
 {
 	btMultiBody* m_multiBody;
@@ -124,6 +129,9 @@ struct InteralBodyData
 
 	btTransform m_rootLocalInertialFrame;
 	btAlignedObjectArray<btTransform> m_linkLocalInertialFrames;
+#ifdef B3_ENABLE_TINY_AUDIO
+	btHashMap<btHashInt, SDFAudioSource> m_audioSources;
+#endif //B3_ENABLE_TINY_AUDIO
 
 	InteralBodyData()
 		:m_multiBody(0),
@@ -1297,6 +1305,9 @@ struct PhysicsServerCommandProcessorInternalData
 	btScalar m_oldPickingDist;
 	bool m_prevCanSleep;
 	TinyRendererVisualShapeConverter  m_visualConverter;
+#ifdef B3_ENABLE_TINY_AUDIO
+	b3SoundEngine m_soundEngine;
+#endif
 
 	PhysicsServerCommandProcessorInternalData()
 		:
@@ -1456,11 +1467,118 @@ PhysicsServerCommandProcessor::~PhysicsServerCommandProcessor()
 
 void logCallback(btDynamicsWorld *world, btScalar timeStep)
 {
+	//handle the logging and playing sounds
 	PhysicsServerCommandProcessor* proc = (PhysicsServerCommandProcessor*) world->getWorldUserInfo();
+	proc->processCollisionForces(timeStep);
+	
 	proc->logObjectStates(timeStep);
 
 }
 
+bool MyContactAddedCallback(btManifoldPoint& cp,	const btCollisionObjectWrapper* colObj0Wrap,int partId0,int index0,const btCollisionObjectWrapper* colObj1Wrap,int partId1,int index1)
+{
+	return true;
+}
+
+
+
+
+bool MyContactDestroyedCallback(void* userPersistentData)
+{
+	//printf("destroyed\n");
+	return false;
+}
+
+bool MyContactProcessedCallback(btManifoldPoint& cp,void* body0,void* body1)
+{
+	//printf("processed\n");
+	return false;
+
+}
+void MyContactStartedCallback(btPersistentManifold* const &manifold)
+{
+	//printf("started\n");
+}
+void MyContactEndedCallback(btPersistentManifold* const &manifold)
+{
+//	printf("ended\n");
+}
+
+
+
+void PhysicsServerCommandProcessor::processCollisionForces(btScalar timeStep)
+{
+#ifdef B3_ENABLE_TINY_AUDIO
+	//this is experimental at the moment: impulse thresholds, sound parameters will be exposed in C-API/pybullet.
+	//audio will go into a wav file, as well as real-time output to speakers/headphones using RtAudio/DAC.
+
+	int numContactManifolds =  m_data->m_dynamicsWorld->getDispatcher()->getNumManifolds();
+	for (int i = 0; i < numContactManifolds; i++)
+	{
+		const btPersistentManifold* manifold = m_data->m_dynamicsWorld->getDispatcher()->getInternalManifoldPointer()[i];
+
+		bool objHasSound[2];
+		objHasSound[0] = (0!=(manifold->getBody0()->getCollisionFlags() & btCollisionObject::CF_HAS_COLLISION_SOUND_TRIGGER));
+		objHasSound[1] = (0!=(manifold->getBody1()->getCollisionFlags() & btCollisionObject::CF_HAS_COLLISION_SOUND_TRIGGER));
+		const btCollisionObject* colObjs[2] = {manifold->getBody0(),manifold->getBody1()};
+
+		for (int ob = 0;ob<2;ob++)
+		{
+			if (objHasSound[ob])
+			{
+				int uid0 = -1;
+				int linkIndex = -2;
+
+				const btMultiBodyLinkCollider* mblB = btMultiBodyLinkCollider::upcast(colObjs[ob]);
+				if (mblB && mblB->m_multiBody)
+				{
+					linkIndex = mblB->m_link;
+					uid0 = mblB->m_multiBody->getUserIndex2();
+				}
+				const btRigidBody* bodyB = btRigidBody::upcast(colObjs[ob]);
+				if (bodyB)
+				{
+					uid0 = bodyB->getUserIndex2();
+					linkIndex = -1;
+				}
+
+				if ((uid0<0)||(linkIndex<-1))
+					continue;
+
+				InternalBodyHandle* bodyHandle0 = m_data->getHandle(uid0);
+				SDFAudioSource* audioSrc = bodyHandle0->m_audioSources[linkIndex];
+				if (audioSrc==0)
+					continue;
+
+				for (int p=0;p<manifold->getNumContacts();p++)
+				{
+					double imp = manifold->getContactPoint(p).getAppliedImpulse();
+						//printf ("manifold %d, contact %d, lifeTime:%d, appliedImpulse:%f\n",i,p, manifold->getContactPoint(p).getLifeTime(),imp);
+
+					if (imp>audioSrc->m_collisionForceThreshold && manifold->getContactPoint(p).getLifeTime()==1)
+					{
+						int soundSourceIndex = m_data->m_soundEngine.getAvailableSoundSource();
+						if (soundSourceIndex>=0)
+						{
+							b3SoundMessage msg;
+							msg.m_attackRate = audioSrc->m_attackRate;
+							msg.m_decayRate = audioSrc->m_decayRate;
+							msg.m_sustainLevel = audioSrc->m_sustainLevel;
+							msg.m_releaseRate = audioSrc->m_releaseRate;
+							msg.m_amplitude = audioSrc->m_gain;
+							msg.m_frequency = audioSrc->m_pitch;
+							msg.m_type = B3_SOUND_SOURCE_WAV_FILE;
+							msg.m_wavId = audioSrc->m_userIndex;
+							msg.m_autoKeyOff = true;
+							m_data->m_soundEngine.startSound(soundSourceIndex,msg);
+						}
+					}
+				}
+			}
+		}
+	}
+#endif//B3_ENABLE_TINY_AUDIO
+}
 
 void PhysicsServerCommandProcessor::logObjectStates(btScalar timeStep)
 {
@@ -1522,6 +1640,17 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 		m_data->m_guiHelper->createPhysicsDebugDrawer(m_data->m_dynamicsWorld);
 	}
 	m_data->m_dynamicsWorld->setInternalTickCallback(logCallback,this);
+
+#ifdef B3_ENABLE_TINY_AUDIO
+	m_data->m_soundEngine.init(16,true);
+
+//we don't use those callbacks (yet), experimental
+//	gContactAddedCallback = MyContactAddedCallback;
+//	gContactDestroyedCallback = MyContactDestroyedCallback;
+//	gContactProcessedCallback = MyContactProcessedCallback;
+//	gContactStartedCallback = MyContactStartedCallback;
+//	gContactEndedCallback = MyContactEndedCallback;
+#endif
 }
 
 void PhysicsServerCommandProcessor::deleteStateLoggers()
@@ -1565,6 +1694,14 @@ void PhysicsServerCommandProcessor::deleteCachedInverseDynamicsBodies()
 
 void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 {
+#ifdef B3_ENABLE_TINY_AUDIO
+	m_data->m_soundEngine.exit();
+	//gContactDestroyedCallback = 0;
+	//gContactProcessedCallback = 0;
+	//gContactStartedCallback = 0;
+	//gContactEndedCallback = 0;
+#endif
+	
 	deleteCachedInverseDynamicsBodies();
 	deleteCachedInverseKinematicsBodies();
 	deleteStateLoggers();
@@ -1919,7 +2056,6 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 
     BulletURDFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter);
 
-
     bool loadOk =  u2b.loadURDF(fileName, useFixedBase);
 
 
@@ -1991,6 +2127,22 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 				}
 				createJointMotors(mb);
 
+#ifdef B3_ENABLE_TINY_AUDIO
+				{
+					SDFAudioSource audioSource;
+					int urdfRootLink = u2b.getRootLinkIndex();//LinkIndex = creation.m_mb2urdfLink[-1];
+					if (u2b.getLinkAudioSource(urdfRootLink,audioSource))
+					{
+						int flags = mb->getBaseCollider()->getCollisionFlags();
+						mb->getBaseCollider()->setCollisionFlags(flags | btCollisionObject::CF_HAS_COLLISION_SOUND_TRIGGER);
+						audioSource.m_userIndex = m_data->m_soundEngine.loadWavFile(audioSource.m_uri.c_str());
+						if (audioSource.m_userIndex>=0)
+						{
+							bodyHandle->m_audioSources.insert(-1, audioSource);
+						}
+					}
+				}
+#endif
 
 				//serialize the btMultiBody and send the data to the client. This is one way to get the link/joint names across the (shared memory) wire
 			    UrdfLinkNameMapUtil* util = new UrdfLinkNameMapUtil;
@@ -2010,6 +2162,7 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
                 bodyHandle->m_linkLocalInertialFrames.reserve(mb->getNumLinks());
 			    for (int i=0;i<mb->getNumLinks();i++)
                 {
+					int link=i;
 					//disable serialization of the collision objects
                    util->m_memSerializer->m_skipPointers.insert(mb->getLink(i).m_collider,0);
 				   int urdfLinkIndex = creation.m_mb2urdfLink[i];
@@ -2028,9 +2181,25 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 				   m_data->m_strings.push_back(jointName);
 				   util->m_memSerializer->registerNameForPointer(jointName->c_str(),jointName->c_str());
 				   mb->getLink(i).m_jointName = jointName->c_str();
-                }
+#ifdef B3_ENABLE_TINY_AUDIO
+				   {
+						SDFAudioSource audioSource;
+						int urdfLinkIndex = creation.m_mb2urdfLink[link];
+						if (u2b.getLinkAudioSource(urdfLinkIndex,audioSource))
+						{
+							int flags = mb->getLink(link).m_collider->getCollisionFlags();
+							mb->getLink(i).m_collider->setCollisionFlags(flags | btCollisionObject::CF_HAS_COLLISION_SOUND_TRIGGER);
+							audioSource.m_userIndex = m_data->m_soundEngine.loadWavFile(audioSource.m_uri.c_str());
+							if (audioSource.m_userIndex>=0)
+							{
+								bodyHandle->m_audioSources.insert(link, audioSource);
+							}
+						}
+					}
+#endif
+				}
 
-				std::string* baseName = new std::string(u2b.getLinkName(u2b.getRootLinkIndex()));
+			   std::string* baseName = new std::string(u2b.getLinkName(u2b.getRootLinkIndex()));
 				m_data->m_strings.push_back(baseName);
 
 				mb->setBaseName(baseName->c_str());

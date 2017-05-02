@@ -5,6 +5,7 @@
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btHashMap.h"
 #include "URDFJointTypes.h"
+#include "SDFAudioTypes.h"
 
 #define btArray btAlignedObjectArray
 #include <string>
@@ -139,6 +140,8 @@ struct UrdfLink
 	int m_linkIndex;
 	
 	URDFLinkContactInfo m_contactInfo;
+
+	SDFAudioSource m_audioSource;
 
 	UrdfLink()
 		:m_parentLink(0),
