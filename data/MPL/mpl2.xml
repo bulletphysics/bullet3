@@ -25,7 +25,7 @@
 
     <default>
 		<default class="MPL"> 
-			<geom material="MatMesh" contype="1" conaffinity="1" condim="4" margin="0.001"/>
+			<geom material="MatMesh" contype="1" conaffinity="1" condim="4" friction="1 .5 0.5" margin="0.001"/>
         	<joint limited="true" damping="0.2" armature=".01"/>
         	<site material="MatTouch" type="ellipsoid" group="3"/>
             <position ctrllimited="true" kp="10"/>
@@ -104,7 +104,7 @@
 
       
 		<!-- ======= ROBOT ======= -->
-          <body name="wristy" pos="0 0 0">
+          <body  childclass="MPL" name="wristy" pos="0 0 0">
               <inertial pos="-7.08369e-005 -0.0217787 -0.000286168" quat="0.707488 0.00581744 -0.0107421 0.70662" mass="0.0272932" diaginertia="2.46813e-005 1.77029e-005 1.71079e-005" />
               <geom type="mesh" mesh="wristy"/>
               <joint type="free"/>
