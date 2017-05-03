@@ -2793,11 +2793,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 				{
 					BT_PROFILE("CMD_SYNC_BODY_INFO");
 
-					int numHandles = m_data->m_bodyHandles.getNumHandles();
+					b3AlignedObjectArray<int> usedHandles;
+					m_data->m_bodyHandles.getUsedHandles(usedHandles);
 					int actualNumBodies = 0;
-					for (int i=0;i<numHandles;i++)
+					for (int i=0;i<usedHandles.size();i++)
 					{
-						InteralBodyData* body = m_data->m_bodyHandles.getHandle(i);
+						InteralBodyData* body = m_data->m_bodyHandles.getHandle(usedHandles[i]);
 						if (body && (body->m_multiBody || body->m_rigidBody))
 						{
 							serverStatusOut.m_sdfLoadedArgs.m_bodyUniqueIds[actualNumBodies++] = i;

@@ -4,6 +4,12 @@
 
 #include "Bullet3Common/b3AlignedObjectArray.h"
 
+enum 
+{
+	B3_POOL_HANDLE_TERMINAL_FREE=-1,
+	B3_POOL_HANDLE_TERMINAL_USED =-2
+};
+
 template <typename U>
 struct b3PoolBodyHandle : public U
 {
@@ -43,6 +49,18 @@ public:
 	int getNumHandles() const
 	{
 		return m_bodyHandles.size();
+	}
+
+	void getUsedHandles(b3AlignedObjectArray<int>& usedHandles) const
+	{
+
+		for (int i=0;i<m_bodyHandles.size();i++)
+		{
+			if (m_bodyHandles[i].GetNextFree()==B3_POOL_HANDLE_TERMINAL_USED)
+			{
+				usedHandles.push_back(i);
+			}
+		}
 	}
 
 	T* getHandle(int handle)
@@ -108,7 +126,7 @@ public:
 
 			getHandle(handle)->SetNextFree(m_firstFreeHandle);
 		}
-
+		getHandle(handle)->SetNextFree(B3_POOL_HANDLE_TERMINAL_USED);
 
 		return handle;
 	}
