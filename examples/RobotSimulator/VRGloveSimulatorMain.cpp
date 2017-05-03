@@ -40,12 +40,11 @@ int main(int argc, char* argv[])
 	args.GetCmdLineArgument("disableGui",disableGui);
 	int disableShadows = 0;
 	args.GetCmdLineArgument("disableShadows",disableShadows);
+	int useKitchen = 0;
+	args.GetCmdLineArgument("useKitchen",useKitchen);
 	
 	int deviceTypeFilter =	VR_DEVICE_GENERIC_TRACKER;
 	args.GetCmdLineArgument("deviceTypeFilter",deviceTypeFilter);
-
-	int wireFrame = 0;
-	args.GetCmdLineArgument("wireFrame",wireFrame);
 
 	printf("port=%s, speed=%d, connection mode=%s\n", port.c_str(), baud,mode.c_str());	
 	
@@ -82,11 +81,6 @@ int main(int argc, char* argv[])
 		sim->configureDebugVisualizer( COV_ENABLE_SHADOWS, 0);
 	}
 
-	if (wireFrame)
-	{
-		sim->configureDebugVisualizer( COV_ENABLE_WIREFRAME, 1);
-	}
-	
 
 	sim->setTimeOut(12345);
 	//syncBodies is only needed when connecting to an existing physics server that has already some bodies
@@ -102,8 +96,14 @@ int main(int argc, char* argv[])
 	sim->setGravity(b3MakeVector3(0,0,-9.8));
 	sim->setContactBreakingThreshold(0.001);
 
-	sim->loadURDF("plane_with_collision_audio.urdf");
-
+	if (useKitchen)
+	{
+		b3RobotSimulatorLoadFileResults res;
+		sim->loadSDF("kitchens/1.sdf",res);
+	} else
+	{
+		sim->loadURDF("plane_with_collision_audio.urdf");
+	}
 	
 	int handUid = -1;
 
@@ -156,6 +156,7 @@ int main(int argc, char* argv[])
 	jointInfo.m_parentFrame[5] = handOrn[2];
 	jointInfo.m_parentFrame[6] = handOrn[3];
 
+	sim->resetBasePositionAndOrientation(handUid,handStartPosWorld,handStartOrnWorld);
 	int handConstraintId = sim->createConstraint(handUid,-1,-1,-1,&jointInfo);
 	double maxFingerForce = 10;
 	double maxArmForce  = 1000;
@@ -182,7 +183,7 @@ int main(int argc, char* argv[])
 	sim->loadURDF("cube_small.urdf",b3RobotSimulatorLoadUrdfFileArgs(b3MakeVector3( 0.950000,-0.100000,0.700000),b3Quaternion(0.000000,0.000000,0.707107,0.707107)));
 	sim->loadURDF("sphere_small.urdf",b3RobotSimulatorLoadUrdfFileArgs(b3MakeVector3(0.850000,-0.400000,0.700000),b3Quaternion(0.000000,0.000000,0.707107,0.707107)));
 
-
+	
 	b3Clock clock;
 	double startTime = clock.getTimeInSeconds();
 	double simWallClockSeconds = 20.;
@@ -200,7 +201,7 @@ int main(int argc, char* argv[])
 		my_serial.setBytesize(serial::sevenbits);
 		my_serial.setParity(serial::parity_odd);
 		my_serial.setStopbits(serial::stopbits_two);
-		my_serial.setTimeout(serial::Timeout::simpleTimeout(10));
+		my_serial.setTimeout(serial::Timeout::simpleTimeout(0.01));
 		my_serial.open();
 	} catch(...)
 	{
@@ -216,10 +217,13 @@ int main(int argc, char* argv[])
 
 
 	my_serial.flush();
+
+	
 	while (sim->canSubmitCommand())
 	{
+		clock.usleep(1);
+
 		b3VREventsData vrEvents;
-	
 
 		sim->getVREvents(&vrEvents, deviceTypeFilter);
 		//instead of iterating over all vr events, we just take the most up-to-date one
@@ -258,7 +262,7 @@ int main(int argc, char* argv[])
 		}
 		if (result.length())
 		{
-			//my_serial.flush();
+			my_serial.flush();
 			int res = result.find("\n");
 			while (res<0)
 			{
