@@ -16,12 +16,13 @@ public:
          double streamTime, unsigned int status, void *dataPointer);
 
 	int addSoundSource(b3SoundSource* source);
-	void removeSoundSource(int soundSourceIndex);
+	void removeSoundSource(b3SoundSource* source);
 
 	b3AudioListenerInternalData* getTickData();
 	const b3AudioListenerInternalData* getTickData() const;
 
 	double getSampleRate() const;
+	void setSampleRate(double sampleRate);
 
 };         	
 

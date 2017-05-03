@@ -167,6 +167,14 @@ enum JointType {
 	ePoint2PointType = 5,
 };
 
+
+enum b3JointInfoFlags
+{
+	eJointChangeMaxForce = 1,
+	eJointChangeChildFramePosition = 2,
+	eJointChangeChildFrameOrientation = 4,
+};
+
 struct b3JointInfo
 {
         char* m_linkName;
@@ -317,11 +325,7 @@ struct b3VREventsData
 {
 	int m_numControllerEvents;
 	struct b3VRControllerEvent* m_controllerEvents;
-	int m_numHmdEvents;
-	struct b3VRMoveEvent* m_hmdEvents;
-
-	int  m_numGenericTrackerEvents;
-	struct b3VRMoveEvent* m_genericTrackerEvents;
+	
 };
 
 

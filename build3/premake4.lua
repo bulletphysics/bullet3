@@ -160,6 +160,12 @@ end
 	
 	newoption
 	{
+		trigger = "serial",
+		description = "Enable serial, for testing the VR glove in C++"
+	}
+	
+	newoption
+	{
 		trigger = "audio",
 		description = "Enable audio"
 	}
@@ -257,6 +263,10 @@ end
 
 	if _OPTIONS["audio"] then
 		include "../examples/TinyAudio"
+	end
+
+	if _OPTIONS["serial"] then
+		include "../examples/ThirdPartyLibs/serial"
 	end
 
 	if not _OPTIONS["no-demos"] then
