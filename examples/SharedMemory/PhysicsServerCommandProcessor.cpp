@@ -3830,7 +3830,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						btAssert(bodyUniqueId >= 0);
 						btAssert(linkIndex >= -1);
 						
-						InteralBodyData* body = m_data->getHandle(bodyUniqueId);
+						InteralBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 						if (body && body->m_multiBody)
 						{
 							btMultiBody* mb = body->m_multiBody;
@@ -3853,7 +3853,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						btAssert(bodyUniqueId >= 0);
 						btAssert(linkIndex >= -1);
 						
-						InteralBodyData* body = m_data->getHandle(bodyUniqueId);
+						InteralBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 						if (body && body->m_multiBody)
 						{
 							btMultiBody* mb = body->m_multiBody;
