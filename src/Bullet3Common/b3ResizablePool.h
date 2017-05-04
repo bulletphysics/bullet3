@@ -13,7 +13,7 @@ enum
 template <typename U>
 struct b3PoolBodyHandle : public U
 {
-	BT_DECLARE_ALIGNED_ALLOCATOR();
+	B3_DECLARE_ALIGNED_ALLOCATOR();
 
 	int m_nextFreeHandle;
 	void SetNextFree(int next)
@@ -39,10 +39,12 @@ public:
 	
 	b3ResizablePool()
 	{
+		initHandles();
 	}
 	
 	virtual ~b3ResizablePool()
 	{
+		exitHandles();
 	}
 ///handle management
 
@@ -65,8 +67,8 @@ public:
 
 	T* getHandle(int handle)
 	{
-		btAssert(handle>=0);
-		btAssert(handle<m_bodyHandles.size());
+		b3Assert(handle>=0);
+		b3Assert(handle<m_bodyHandles.size());
 		if ((handle<0) || (handle>=m_bodyHandles.size()))
 		{
 			return 0;
@@ -81,7 +83,7 @@ public:
 	void increaseHandleCapacity(int extraCapacity)
 	{
 		int curCapacity = m_bodyHandles.size();
-		btAssert(curCapacity == m_numUsedHandles);
+		//b3Assert(curCapacity == m_numUsedHandles);
 		int newCapacity = curCapacity + extraCapacity;
 		m_bodyHandles.resize(newCapacity);
 
@@ -111,7 +113,7 @@ public:
 
 	int allocHandle()
 	{
-		btAssert(m_firstFreeHandle>=0);
+		b3Assert(m_firstFreeHandle>=0);
 
 		int handle = m_firstFreeHandle;
 		m_firstFreeHandle = getHandle(handle)->GetNextFree();
@@ -134,7 +136,7 @@ public:
 
 	void freeHandle(int handle)
 	{
-		btAssert(handle >= 0);
+		b3Assert(handle >= 0);
 
 		getHandle(handle)->SetNextFree(m_firstFreeHandle);
 		m_firstFreeHandle = handle;

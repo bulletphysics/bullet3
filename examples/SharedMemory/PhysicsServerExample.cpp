@@ -179,6 +179,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIUserDebugRemoveItem,
 	eGUIUserDebugRemoveAllItems,
 	eGUIDumpFramesToVideo,
+	eGUIHelperRemoveGraphicsInstance,
 };
 
 
@@ -777,6 +778,15 @@ public:
 		m_cs->setSharedParam(1,eGUIHelperRemoveAllGraphicsInstances);
 		workerThreadWait();
     }
+
+	int m_graphicsInstanceRemove;
+	virtual void removeGraphicsInstance(int graphicsUid)
+	{
+		m_graphicsInstanceRemove = graphicsUid;
+		m_cs->lock();
+		m_cs->setSharedParam(1,eGUIHelperRemoveGraphicsInstance);
+		workerThreadWait();    
+	}
 
 	virtual Common2dCanvasInterface* get2dCanvasInterface()
 	{
@@ -1551,7 +1561,15 @@ void	PhysicsServerExample::updateGraphics()
 
             break;
         }
-        
+	case eGUIHelperRemoveGraphicsInstance:
+	{
+		m_multiThreadedHelper->m_childGuiHelper->removeGraphicsInstance(m_multiThreadedHelper->m_graphicsInstanceRemove);
+		m_multiThreadedHelper->mainThreadRelease();
+		break;
+	}
+       
+	
+
     case eGUIHelperCopyCameraImageData:
         {
              m_multiThreadedHelper->m_childGuiHelper->copyCameraImageData(m_multiThreadedHelper->m_viewMatrix,
