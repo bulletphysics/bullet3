@@ -1097,6 +1097,11 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 				int bodyUniqueId = serverCmd.m_removeObjectArgs.m_bodyUniqueIds[i];
 				removeCachedBody(bodyUniqueId);
 			}
+			for (int i=0;i<serverCmd.m_removeObjectArgs.m_numUserConstraints;i++)
+			{
+				int key = serverCmd.m_removeObjectArgs.m_userConstraintUniqueIds[i];
+				m_data->m_userConstraintInfoMap.remove(key);
+			}
 		}
 
 		if (serverCmd.m_type == CMD_USER_CONSTRAINT_INFO_COMPLETED)

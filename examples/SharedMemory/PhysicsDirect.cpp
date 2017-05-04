@@ -736,6 +736,12 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 			int bodyUniqueId = serverCmd.m_removeObjectArgs.m_bodyUniqueIds[i];
 			removeCachedBody(bodyUniqueId);
 		}
+		for (int i=0;i<serverCmd.m_removeObjectArgs.m_numUserConstraints;i++)
+		{
+			int key = serverCmd.m_removeObjectArgs.m_userConstraintUniqueIds[i];
+			m_data->m_userConstraintInfoMap.remove(key);
+		}
+
 		break;
 	}
 	case CMD_CHANGE_USER_CONSTRAINT_COMPLETED:

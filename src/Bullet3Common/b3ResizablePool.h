@@ -167,11 +167,13 @@ public:
 	{
 		b3Assert(handle >= 0);
 
-		getHandleInternal(handle)->clear();
-		getHandleInternal(handle)->setNextFree(m_firstFreeHandle);
-		m_firstFreeHandle = handle;
-
-		m_numUsedHandles--;
+		if (m_bodyHandles[handle].getNextFree()==B3_POOL_HANDLE_TERMINAL_USED)
+		{
+			getHandleInternal(handle)->clear();
+			getHandleInternal(handle)->setNextFree(m_firstFreeHandle);
+			m_firstFreeHandle = handle;
+			m_numUsedHandles--;
+		}
 	}
 };
 	///end handle management

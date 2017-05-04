@@ -4941,19 +4941,48 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							if (bodyHandle->m_multiBody)
 							{
 								serverCmd.m_removeObjectArgs.m_bodyUniqueIds[serverCmd.m_removeObjectArgs.m_numBodies++] = bodyUniqueId;
+
+								//also remove user constraints...
+								for (int i=m_data->m_dynamicsWorld->getNumMultiBodyConstraints()-1;i>=0;i--)
+								{
+									btMultiBodyConstraint* mbc = m_data->m_dynamicsWorld->getMultiBodyConstraint(i);
+									if ((mbc->getMultiBodyA() == bodyHandle->m_multiBody)||(mbc->getMultiBodyB()==bodyHandle->m_multiBody))
+									{
+										m_data->m_dynamicsWorld->removeMultiBodyConstraint(mbc);
+
+										//also remove user constraint and submit it as removed
+										for (int c=m_data->m_userConstraints.size()-1;c>=0;c--)
+										{
+											InteralUserConstraintData* userConstraintPtr = m_data->m_userConstraints.getAtIndex(c);
+											int userConstraintKey = m_data->m_userConstraints.getKeyAtIndex(c).getUid1();
+
+											if (userConstraintPtr->m_mbConstraint == mbc)
+											{
+												m_data->m_userConstraints.remove(userConstraintKey);
+												serverCmd.m_removeObjectArgs.m_userConstraintUniqueIds[serverCmd.m_removeObjectArgs.m_numUserConstraints++]=userConstraintKey;
+											}
+										}
+
+										delete mbc;
+										
+
+									}
+								}
+								
 								if (bodyHandle->m_multiBody->getBaseCollider())
 								{
+									m_data->m_dynamicsWorld->removeCollisionObject(bodyHandle->m_multiBody->getBaseCollider());
 									int graphicsIndex = bodyHandle->m_multiBody->getBaseCollider()->getUserIndex();
 									m_data->m_guiHelper->removeGraphicsInstance(graphicsIndex);
-									m_data->m_dynamicsWorld->removeCollisionObject(bodyHandle->m_multiBody->getBaseCollider());
 								}
 								for (int link=0;link<bodyHandle->m_multiBody->getNumLinks();link++)
 								{
+									
 									if (bodyHandle->m_multiBody->getLink(link).m_collider)
 									{
+										m_data->m_dynamicsWorld->removeCollisionObject(bodyHandle->m_multiBody->getLink(link).m_collider);
 										int graphicsIndex = bodyHandle->m_multiBody->getLink(link).m_collider->getUserIndex();
 										m_data->m_guiHelper->removeGraphicsInstance(graphicsIndex);
-										m_data->m_dynamicsWorld->removeCollisionObject(bodyHandle->m_multiBody->getLink(link).m_collider);
 									}
 								}
 								int numCollisionObjects = m_data->m_dynamicsWorld->getNumCollisionObjects();
@@ -4961,6 +4990,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								numCollisionObjects =  m_data->m_dynamicsWorld->getNumCollisionObjects();
 								//todo: clear all other remaining data, release memory etc
 
+								delete bodyHandle->m_multiBody;
+								bodyHandle->m_multiBody=0;
 								serverCmd.m_type = CMD_REMOVE_BODY_COMPLETED;
 							}
 							if (bodyHandle->m_rigidBody)
@@ -4970,6 +5001,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								m_data->m_dynamicsWorld->removeRigidBody(bodyHandle->m_rigidBody);
 								int graphicsInstance = bodyHandle->m_rigidBody->getUserIndex2();
 								m_data->m_guiHelper->removeGraphicsInstance(graphicsInstance);
+								delete bodyHandle->m_rigidBody;
+								bodyHandle->m_rigidBody=0;
 								serverCmd.m_type = CMD_REMOVE_BODY_COMPLETED;
 							}
 						}
