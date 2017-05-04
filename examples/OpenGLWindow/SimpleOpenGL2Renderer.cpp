@@ -28,6 +28,9 @@ B3_ATTRIBUTE_ALIGNED16(struct) SimpleGL2Instance
 	b3Quaternion orn;
 	b3Vector3 m_rgbColor;
 	b3Vector3 m_scaling;
+	void clear()
+	{
+	}
 };
 
 

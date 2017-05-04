@@ -16,11 +16,11 @@ struct b3PoolBodyHandle : public U
 	B3_DECLARE_ALIGNED_ALLOCATOR();
 
 	int m_nextFreeHandle;
-	void SetNextFree(int next)
+	void setNextFree(int next)
 	{
 		m_nextFreeHandle = next;
 	}
-	int	GetNextFree() const
+	int	getNextFree() const
 	{
 		return m_nextFreeHandle;
 	}
@@ -34,6 +34,16 @@ protected:
 	b3AlignedObjectArray<T>	m_bodyHandles;
 	int m_numUsedHandles;						// number of active handles
 	int	m_firstFreeHandle;		// free handles list
+
+	T* getHandleInternal(int handle)
+	{
+		return &m_bodyHandles[handle];
+
+	}
+	const T* getHandleInternal(int handle) const
+	{
+		return &m_bodyHandles[handle];
+	}
 
 public:
 	
@@ -58,12 +68,14 @@ public:
 
 		for (int i=0;i<m_bodyHandles.size();i++)
 		{
-			if (m_bodyHandles[i].GetNextFree()==B3_POOL_HANDLE_TERMINAL_USED)
+			if (m_bodyHandles[i].getNextFree()==B3_POOL_HANDLE_TERMINAL_USED)
 			{
 				usedHandles.push_back(i);
 			}
 		}
 	}
+
+	
 
 	T* getHandle(int handle)
 	{
@@ -73,11 +85,28 @@ public:
 		{
 			return 0;
 		}
-		return &m_bodyHandles[handle];
+
+		if (m_bodyHandles[handle].getNextFree()==B3_POOL_HANDLE_TERMINAL_USED)
+		{
+			return &m_bodyHandles[handle];
+		}
+		return 0;
+
 	}
 	const T* getHandle(int handle) const
 	{
-		return &m_bodyHandles[handle];
+		b3Assert(handle>=0);
+		b3Assert(handle<m_bodyHandles.size());
+		if ((handle<0) || (handle>=m_bodyHandles.size()))
+		{
+			return 0;
+		}
+
+		if (m_bodyHandles[handle].getNextFree()==B3_POOL_HANDLE_TERMINAL_USED)
+		{
+			return &m_bodyHandles[handle];
+		}
+		return 0;
 	}
 
 	void increaseHandleCapacity(int extraCapacity)
@@ -89,10 +118,10 @@ public:
 
 		{
 			for (int i = curCapacity; i < newCapacity; i++)
-				m_bodyHandles[i].SetNextFree(i + 1);
+				m_bodyHandles[i].setNextFree(i + 1);
 
 
-			m_bodyHandles[newCapacity - 1].SetNextFree(-1);
+			m_bodyHandles[newCapacity - 1].setNextFree(-1);
 		}
 		m_firstFreeHandle = curCapacity;
 	}
@@ -116,7 +145,7 @@ public:
 		b3Assert(m_firstFreeHandle>=0);
 
 		int handle = m_firstFreeHandle;
-		m_firstFreeHandle = getHandle(handle)->GetNextFree();
+		m_firstFreeHandle = getHandleInternal(handle)->getNextFree();
 		m_numUsedHandles++;
 
 		if (m_firstFreeHandle<0)
@@ -126,10 +155,10 @@ public:
 			increaseHandleCapacity(additionalCapacity);
 
 
-			getHandle(handle)->SetNextFree(m_firstFreeHandle);
+			getHandleInternal(handle)->setNextFree(m_firstFreeHandle);
 		}
-		getHandle(handle)->SetNextFree(B3_POOL_HANDLE_TERMINAL_USED);
-
+		getHandleInternal(handle)->setNextFree(B3_POOL_HANDLE_TERMINAL_USED);
+		getHandleInternal(handle)->clear();
 		return handle;
 	}
 
@@ -138,7 +167,8 @@ public:
 	{
 		b3Assert(handle >= 0);
 
-		getHandle(handle)->SetNextFree(m_firstFreeHandle);
+		getHandleInternal(handle)->clear();
+		getHandleInternal(handle)->setNextFree(m_firstFreeHandle);
 		m_firstFreeHandle = handle;
 
 		m_numUsedHandles--;

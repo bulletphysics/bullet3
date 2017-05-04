@@ -155,6 +155,10 @@ struct b3PublicGraphicsInstanceData
 	GLfloat m_color[4];
 	GLfloat m_scale[4];
 
+	void clear()
+	{
+	}
+
 };
 
 typedef b3PoolBodyHandle<b3PublicGraphicsInstanceData> b3PublicGraphicsInstance;

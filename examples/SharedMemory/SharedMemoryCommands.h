@@ -435,6 +435,14 @@ struct CreateBoxShapeArgs
 	double m_colorRGBA[4];
 };
 
+struct b3ObjectArgs
+{
+    int m_numBodies;
+    int m_bodyUniqueIds[MAX_SDF_BODIES];
+	int m_numUserConstraints;
+	int m_userConstraintUniqueIds[MAX_SDF_BODIES];
+};
+
 struct SdfLoadedArgs
 {
     int m_numBodies;
@@ -556,6 +564,10 @@ enum EnumUserConstraintFlags
 	
 };
 
+enum EnumBodyChangeFlags
+{
+	BODY_DELETE_FLAG=1,
+};
 
 
 
@@ -728,6 +740,8 @@ struct SharedMemoryCommand
 		struct VRCameraState m_vrCameraStateArguments;
 		struct StateLoggingRequest m_stateLoggingArguments;
         struct ConfigureOpenGLVisualizerRequest m_configureOpenGLVisualizerArguments;
+		struct b3ObjectArgs m_removeObjectArgs;
+
     };
 };
 
@@ -791,6 +805,7 @@ struct SharedMemoryStatus
 		struct SendRaycastHits m_raycastHits;
 		struct StateLoggingResultArgs m_stateLoggingResultArgs;
 		struct b3OpenGLVisualizerCameraInfo m_visualizerCameraResultArgs;
+		struct b3ObjectArgs m_removeObjectArgs;
 	};
 };
 

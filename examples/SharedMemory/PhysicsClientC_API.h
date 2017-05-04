@@ -60,6 +60,8 @@ int b3GetStatusActualState(b3SharedMemoryStatusHandle statusHandle,
 ///If you re-connected to an existing server, or server changed otherwise, sync the body info and user constraints etc.
 b3SharedMemoryCommandHandle b3InitSyncBodyInfoCommand(b3PhysicsClientHandle physClient);
 
+b3SharedMemoryCommandHandle b3InitRemoveBodyCommand(b3PhysicsClientHandle physClient, int bodyUniqueId);
+
 ///return the total number of bodies in the simulation
 int	b3GetNumBodies(b3PhysicsClientHandle physClient);
 

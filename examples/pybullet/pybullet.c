@@ -714,7 +714,7 @@ static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args, PyObject* key
 	double startOrnY = 0.0;
 	double startOrnZ = 0.0;
 	double startOrnW = 1.0;
-	int useMaximalCoordinates = 0;
+	int useMaximalCoordinates = -1;
 	int useFixedBase = 0;
 
 	int backwardsCompatibilityArgs = 0;
@@ -802,9 +802,9 @@ static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args, PyObject* key
 		b3LoadUrdfCommandSetStartPosition(command, startPosX, startPosY, startPosZ);
 		b3LoadUrdfCommandSetStartOrientation(command, startOrnX, startOrnY,
 											 startOrnZ, startOrnW);
-		if (useMaximalCoordinates)
+		if (useMaximalCoordinates>=0)
 		{
-			b3LoadUrdfCommandSetUseMultiBody(command, 0);
+			b3LoadUrdfCommandSetUseMultiBody(command, useMaximalCoordinates);
 		}
 		if (useFixedBase)
 		{
@@ -1693,6 +1693,40 @@ static PyObject* pybullet_getBodyUniqueId(PyObject* self, PyObject* args, PyObje
 		return PyInt_FromLong(bodyUniqueId);
 #endif
 	}
+}
+
+static PyObject* pybullet_removeBody(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	{
+		int bodyUniqueId = -1;
+		b3PhysicsClientHandle sm = 0;
+
+		int physicsClientId = 0;
+		static char* kwlist[] = {"bodyUniqueId", "physicsClientId", NULL};
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|i", kwlist, &bodyUniqueId, &physicsClientId))
+		{
+			return NULL;
+		}
+		sm = getPhysicsClient(physicsClientId);
+		if (sm == 0)
+		{
+			PyErr_SetString(SpamError, "Not connected to physics server.");
+			return NULL;
+		}
+		if (bodyUniqueId>=0)
+		{
+			b3SharedMemoryStatusHandle statusHandle;
+			int statusType;
+			if (b3CanSubmitCommand(sm))
+			{
+				statusHandle = b3SubmitClientCommandAndWaitStatus( sm, b3InitRemoveBodyCommand(sm,bodyUniqueId));
+				statusType = b3GetStatusType(statusHandle);
+			}
+		}
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 static PyObject* pybullet_getBodyInfo(PyObject* self, PyObject* args, PyObject* keywds)
@@ -5386,6 +5420,9 @@ static PyMethodDef SpamMethods[] = {
 
 	{"getBodyInfo", (PyCFunction)pybullet_getBodyInfo, METH_VARARGS | METH_KEYWORDS,
 	 "Get the body info, given a body unique id."},
+
+	{"removeBody", (PyCFunction)pybullet_removeBody, METH_VARARGS | METH_KEYWORDS,
+	 "Remove a body by its body unique id."},
 
 	{"getNumConstraints", (PyCFunction)pybullet_getNumConstraints, METH_VARARGS | METH_KEYWORDS,
 	 "Get the number of user-created constraints in the simulation."},

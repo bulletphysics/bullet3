@@ -135,13 +135,21 @@ struct InteralBodyData
 	btHashMap<btHashInt, SDFAudioSource> m_audioSources;
 #endif //B3_ENABLE_TINY_AUDIO
 
-	InteralBodyData()
-		:m_multiBody(0),
-		m_rigidBody(0),
-		m_testData(0)
+	InteralBodyData()		
 	{
-		m_rootLocalInertialFrame.setIdentity();
+		clear();
 	}
+
+	void clear()
+	{
+		m_multiBody=0;
+		m_rigidBody=0;
+		m_testData=0;
+		m_bodyName="";
+		m_rootLocalInertialFrame.setIdentity();
+		m_linkLocalInertialFrames.clear();
+	}
+
 };
 
 struct InteralUserConstraintData
@@ -1248,6 +1256,7 @@ struct PhysicsServerCommandProcessorInternalData
 	{
 		m_vrControllerEvents.init();
 
+		m_bodyHandles.exitHandles();
 		m_bodyHandles.initHandles();
 #if 0
 		btAlignedObjectArray<int> bla;
@@ -2849,7 +2858,6 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 					///this is a very rudimentary way to save the state of the world, for scene authoring
 					///many todo's, for example save the state of motor controllers etc.
-
 					
 					{
 						//saveWorld(clientCmd.m_sdfArguments.m_sdfFileName);
@@ -4860,6 +4868,62 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     hasStatus = true;
                     break;
                 }
+				case CMD_REMOVE_BODY:
+				{
+					SharedMemoryStatus& serverCmd =serverStatusOut;
+                    serverCmd.m_type = CMD_REMOVE_BODY_FAILED;
+					serverCmd.m_removeObjectArgs.m_numBodies = 0;
+					serverCmd.m_removeObjectArgs.m_numUserConstraints = 0;
+
+					for (int i=0;i<clientCmd.m_removeObjectArgs.m_numBodies;i++)
+					{
+						int bodyUniqueId = clientCmd.m_removeObjectArgs.m_bodyUniqueIds[i];
+						InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+						if (bodyHandle)
+						{
+							if (bodyHandle->m_multiBody)
+							{
+								serverCmd.m_removeObjectArgs.m_bodyUniqueIds[serverCmd.m_removeObjectArgs.m_numBodies++] = bodyUniqueId;
+								if (bodyHandle->m_multiBody->getBaseCollider())
+								{
+									int graphicsIndex = bodyHandle->m_multiBody->getBaseCollider()->getUserIndex();
+									m_data->m_guiHelper->removeGraphicsInstance(graphicsIndex);
+									m_data->m_dynamicsWorld->removeCollisionObject(bodyHandle->m_multiBody->getBaseCollider());
+								}
+								for (int link=0;link<bodyHandle->m_multiBody->getNumLinks();link++)
+								{
+									if (bodyHandle->m_multiBody->getLink(link).m_collider)
+									{
+										int graphicsIndex = bodyHandle->m_multiBody->getLink(link).m_collider->getUserIndex();
+										m_data->m_guiHelper->removeGraphicsInstance(graphicsIndex);
+										m_data->m_dynamicsWorld->removeCollisionObject(bodyHandle->m_multiBody->getLink(link).m_collider);
+									}
+								}
+								int numCollisionObjects = m_data->m_dynamicsWorld->getNumCollisionObjects();
+								m_data->m_dynamicsWorld->removeMultiBody(bodyHandle->m_multiBody);
+								numCollisionObjects =  m_data->m_dynamicsWorld->getNumCollisionObjects();
+								//todo: clear all other remaining data, release memory etc
+
+								serverCmd.m_type = CMD_REMOVE_BODY_COMPLETED;
+							}
+							if (bodyHandle->m_rigidBody)
+							{
+								serverCmd.m_removeObjectArgs.m_bodyUniqueIds[serverCmd.m_removeObjectArgs.m_numBodies++] = bodyUniqueId;
+								//todo: clear all other remaining data...
+								m_data->m_dynamicsWorld->removeRigidBody(bodyHandle->m_rigidBody);
+								int graphicsInstance = bodyHandle->m_rigidBody->getUserIndex2();
+								m_data->m_guiHelper->removeGraphicsInstance(graphicsInstance);
+								serverCmd.m_type = CMD_REMOVE_BODY_COMPLETED;
+							}
+						}
+
+						m_data->m_bodyHandles.freeHandle(bodyUniqueId);
+					}
+					
+
+                    hasStatus = true;
+					break;
+				}
                 case CMD_USER_CONSTRAINT:
                 {
 					BT_PROFILE("CMD_USER_CONSTRAINT");
