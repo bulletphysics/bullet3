@@ -249,6 +249,8 @@ LINK_LIBRARIES(
 					../ThirdPartyLibs/openvr/samples/shared/Matrices.h
 					../ThirdPartyLibs/openvr/samples/shared/pathtools.cpp
 					../ThirdPartyLibs/openvr/samples/shared/pathtools.h
+					../ThirdPartyLibs/openvr/samples/shared/strtools.cpp
+					../ThirdPartyLibs/openvr/samples/shared/strtools.h					
 					../ThirdPartyLibs/openvr/samples/shared/Vectors.h
 						../MultiThreading/b3Win32ThreadSupport.cpp
 						../MultiThreading/b3Win32ThreadSupport.h
@@ -261,7 +263,7 @@ IF (NOT INTERNAL_CREATE_DISTRIBUTABLE_MSVC_PROJECTFILES)
 		ADD_CUSTOM_COMMAND(
 			TARGET App_PhysicsServer_SharedMemory_VR
 			POST_BUILD
-			COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/openvr/bin/win64/openvr_api.dll  ${CMAKE_CURRENT_BINARY_DIR}/openvr_api.dll
+			COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/openvr/bin/win64/openvr_api.dll  ${CMAKE_CURRENT_BINARY_DIR}/openvr64pi.dll
 		)
 	ELSE(CMAKE_CL_64)
 		ADD_CUSTOM_COMMAND(
