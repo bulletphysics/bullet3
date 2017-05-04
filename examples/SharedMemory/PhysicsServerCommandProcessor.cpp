@@ -1729,7 +1729,7 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 
 	delete m_data->m_collisionConfiguration;
 	m_data->m_collisionConfiguration=0;
-	m_userConstraintUIDGenerator = 1;
+	m_data->m_userConstraintUIDGenerator = 1;
 }
 
 
