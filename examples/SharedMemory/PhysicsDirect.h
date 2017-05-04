@@ -29,6 +29,9 @@ protected:
 	void postProcessStatus(const struct SharedMemoryStatus& serverCmd);
 
 	void resetData();
+
+	void removeCachedBody(int bodyUniqueId);
+
 public:
 
 	PhysicsDirect(class PhysicsCommandProcessorInterface* physSdk, bool passSdkOwnership);

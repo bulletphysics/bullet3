@@ -13,6 +13,7 @@ protected:
 	virtual void setSharedMemoryInterface(class SharedMemoryInterface* sharedMem);
     void processBodyJointInfo(int bodyUniqueId, const struct SharedMemoryStatus& serverCmd);
     void resetData();
+	void removeCachedBody(int bodyUniqueId);
 
 public:
     PhysicsClientSharedMemory();

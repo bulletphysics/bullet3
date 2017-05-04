@@ -6,6 +6,7 @@
 #include "GLInstanceGraphicsShape.h"
 #include "Bullet3Common/b3Quaternion.h"
 #include "Bullet3Common/b3Transform.h"
+#include "Bullet3Common/b3ResizablePool.h"
 
 B3_ATTRIBUTE_ALIGNED16(struct) SimpleGL2Shape
 {
@@ -27,6 +28,9 @@ B3_ATTRIBUTE_ALIGNED16(struct) SimpleGL2Instance
 	b3Quaternion orn;
 	b3Vector3 m_rgbColor;
 	b3Vector3 m_scaling;
+	void clear()
+	{
+	}
 };
 
 
@@ -38,13 +42,18 @@ struct InternalTextureHandle2
     int m_height;
 };
 
+typedef b3PoolBodyHandle<SimpleGL2Instance> SimpleGL2InstanceHandle;
+
 struct SimpleOpenGL2RendererInternalData
 {
 	int m_width;
     int m_height;
     SimpleCamera	m_camera;
 	b3AlignedObjectArray<SimpleGL2Shape*> m_shapes;
-	b3AlignedObjectArray<SimpleGL2Instance> m_graphicsInstances;
+	//b3AlignedObjectArray<SimpleGL2Instance> m_graphicsInstances1;
+
+	b3ResizablePool<SimpleGL2InstanceHandle> m_graphicsInstancesPool;
+
 	b3AlignedObjectArray<InternalTextureHandle2>	m_textureHandles;
 
 };
@@ -118,11 +127,17 @@ void SimpleOpenGL2Renderer::removeAllInstances()
 		delete m_data->m_shapes[i];
 	}
 	m_data->m_shapes.clear();
-	m_data->m_graphicsInstances.clear();
+	m_data->m_graphicsInstancesPool.exitHandles();
+	m_data->m_graphicsInstancesPool.initHandles();
+	
 	//also destroy textures?
 	m_data->m_textureHandles.clear();
 }
 
+void SimpleOpenGL2Renderer::removeGraphicsInstance(int instanceUid)
+{
+	m_data->m_graphicsInstancesPool.freeHandle(instanceUid);
+}
 
 void SimpleOpenGL2Renderer::writeSingleInstanceColorToCPU(float* color, int srcIndex)
 {
@@ -142,7 +157,7 @@ void SimpleOpenGL2Renderer::writeSingleInstanceScaleToCPU(double* scale, int src
 
 int SimpleOpenGL2Renderer::getTotalNumInstances() const
 {
-    return m_data->m_graphicsInstances.size();
+    return m_data->m_graphicsInstancesPool.getNumHandles();
 }
 
 void	SimpleOpenGL2Renderer::getCameraViewMatrix(float viewMat[16]) const
@@ -158,7 +173,13 @@ void	SimpleOpenGL2Renderer::getCameraProjectionMatrix(float projMat[16]) const
 
 void SimpleOpenGL2Renderer::drawOpenGL(int instanceIndex)
 {
-	const SimpleGL2Instance& inst = m_data->m_graphicsInstances[instanceIndex];
+	const SimpleGL2Instance* instPtr = m_data->m_graphicsInstancesPool.getHandle(instanceIndex);
+	if (0==instPtr)
+	{
+		b3Assert(0);
+		return;
+	}
+	const SimpleGL2Instance& inst = *instPtr;
 	const SimpleGL2Shape* shape = m_data->m_shapes[inst.m_shapeIndex];
 
 
@@ -244,9 +265,11 @@ void SimpleOpenGL2Renderer::drawOpenGL(int instanceIndex)
 
 void SimpleOpenGL2Renderer::drawSceneInternal(int pass, int cameraUpAxis)
 {
-	for (int i=0;i<m_data->m_graphicsInstances.size();i++)
+	b3AlignedObjectArray<int> usedHandles;
+	m_data->m_graphicsInstancesPool.getUsedHandles(usedHandles);
+	for (int i=0;i<usedHandles.size();i++)
 	{
-		drawOpenGL(i);
+		drawOpenGL(usedHandles[i]);
 	}
 
 	#if 0
@@ -435,8 +458,12 @@ void SimpleOpenGL2Renderer::activateTexture(int textureIndex)
 
 int SimpleOpenGL2Renderer::registerGraphicsInstance(int shapeIndex, const double* position, const double* quaternion, const double* color, const double* scaling)
 {
-	int sz = m_data->m_graphicsInstances.size();
-	SimpleGL2Instance& instance = m_data->m_graphicsInstances.expand();
+	int newHandle = m_data->m_graphicsInstancesPool.allocHandle();
+
+	
+//	int sz = m_data->m_graphicsInstances.size();
+
+	SimpleGL2Instance& instance = *m_data->m_graphicsInstancesPool.getHandle(newHandle);
 	instance.m_shapeIndex = shapeIndex;
 	instance.m_position[0] = position[0];
 	instance.m_position[1] = position[1];
@@ -451,13 +478,13 @@ int SimpleOpenGL2Renderer::registerGraphicsInstance(int shapeIndex, const double
 	instance.m_scaling[0] = scaling[0];
 	instance.m_scaling[1] = scaling[1];
 	instance.m_scaling[2] = scaling[2];
-	return sz;
+	return newHandle;
 }
 
 int SimpleOpenGL2Renderer::registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling)
 {
-	int sz = m_data->m_graphicsInstances.size();
-	SimpleGL2Instance& instance = m_data->m_graphicsInstances.expand();
+	int newHandle = m_data->m_graphicsInstancesPool.allocHandle();
+	SimpleGL2Instance& instance = *m_data->m_graphicsInstancesPool.getHandle(newHandle);
 	instance.m_shapeIndex = shapeIndex;
 	instance.m_position[0] = position[0];
 	instance.m_position[1] = position[1];
@@ -472,7 +499,7 @@ int SimpleOpenGL2Renderer::registerGraphicsInstance(int shapeIndex, const float*
 	instance.m_scaling[0] = scaling[0];
 	instance.m_scaling[1] = scaling[1];
 	instance.m_scaling[2] = scaling[2];
-	return sz;
+	return newHandle;
 }
 
 void SimpleOpenGL2Renderer::drawLines(const float* positions, const float color[4], int numPoints, int pointStrideInBytes, const unsigned int* indices, int numIndices, float pointDrawSize)
@@ -545,26 +572,30 @@ int SimpleOpenGL2Renderer::registerShape(const float* vertices, int numvertices,
 
 void SimpleOpenGL2Renderer::writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int srcIndex)
 {
-	m_data->m_graphicsInstances[srcIndex].m_position[0] = position[0];
-	m_data->m_graphicsInstances[srcIndex].m_position[1] = position[1];
-	m_data->m_graphicsInstances[srcIndex].m_position[2] = position[2];
+	SimpleGL2Instance& graphicsInstance = *m_data->m_graphicsInstancesPool.getHandle(srcIndex);
+	
+	graphicsInstance.m_position[0] = position[0];
+	graphicsInstance.m_position[1] = position[1];
+	graphicsInstance.m_position[2] = position[2];
 
-	m_data->m_graphicsInstances[srcIndex].orn[0] = orientation[0];
-	m_data->m_graphicsInstances[srcIndex].orn[1] = orientation[1];
-	m_data->m_graphicsInstances[srcIndex].orn[2] = orientation[2];
-	m_data->m_graphicsInstances[srcIndex].orn[3] = orientation[3];
+	graphicsInstance.orn[0] = orientation[0];
+	graphicsInstance.orn[1] = orientation[1];
+	graphicsInstance.orn[2] = orientation[2];
+	graphicsInstance.orn[3] = orientation[3];
 
 }
 void SimpleOpenGL2Renderer::writeSingleInstanceTransformToCPU(const double* position, const double* orientation, int srcIndex)
 {
-	m_data->m_graphicsInstances[srcIndex].m_position[0] = position[0];
-	m_data->m_graphicsInstances[srcIndex].m_position[1] = position[1];
-	m_data->m_graphicsInstances[srcIndex].m_position[2] = position[2];
+	SimpleGL2Instance& graphicsInstance = *m_data->m_graphicsInstancesPool.getHandle(srcIndex);
+	
+	graphicsInstance.m_position[0] = position[0];
+	graphicsInstance.m_position[1] = position[1];
+	graphicsInstance.m_position[2] = position[2];
 
-	m_data->m_graphicsInstances[srcIndex].orn[0] = orientation[0];
-	m_data->m_graphicsInstances[srcIndex].orn[1] = orientation[1];
-	m_data->m_graphicsInstances[srcIndex].orn[2] = orientation[2];
-	m_data->m_graphicsInstances[srcIndex].orn[3] = orientation[3];
+	graphicsInstance.orn[0] = orientation[0];
+	graphicsInstance.orn[1] = orientation[1];
+	graphicsInstance.orn[2] = orientation[2];
+	graphicsInstance.orn[3] = orientation[3];
 }
 void SimpleOpenGL2Renderer::writeTransforms()
 {

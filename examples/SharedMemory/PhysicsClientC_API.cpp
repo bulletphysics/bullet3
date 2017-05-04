@@ -1349,6 +1349,24 @@ b3SharedMemoryCommandHandle  b3InitRemoveUserConstraintCommand(b3PhysicsClientHa
 	command->m_userConstraintArguments.m_userConstraintUniqueId = userConstraintUniqueId;
 	return (b3SharedMemoryCommandHandle)command;
 }
+
+b3SharedMemoryCommandHandle b3InitRemoveBodyCommand(b3PhysicsClientHandle physClient, int bodyUniqueId)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    
+    command->m_type = CMD_REMOVE_BODY;
+	command->m_updateFlags = BODY_DELETE_FLAG;
+	command->m_removeObjectArgs.m_numBodies = 1;
+	command->m_removeObjectArgs.m_bodyUniqueIds[0] = bodyUniqueId;
+	command->m_removeObjectArgs.m_numUserConstraints = 0;
+	
+	return (b3SharedMemoryCommandHandle)command;
+}
+
 int b3GetStatusUserConstraintUniqueId(b3SharedMemoryStatusHandle statusHandle)
 {
 	const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;

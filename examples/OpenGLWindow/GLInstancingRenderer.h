@@ -41,9 +41,9 @@ class GLInstancingRenderer : public CommonRenderInterface
 	int m_upAxis;
     bool m_enableBlend;
     
-	
+	int registerGraphicsInstanceInternal(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling);
+	void rebuildGraphicsInstances();
 
-	
 	
 public:
 	GLInstancingRenderer(int m_maxObjectCapacity, int maxShapeCapacityInBytes = 56*1024*1024);
@@ -57,7 +57,8 @@ public:
 	void InitShaders();
 	void CleanupShaders();
 	virtual void removeAllInstances();
-	
+	virtual void removeGraphicsInstance(int instanceUid);
+
 	virtual void updateShape(int shapeIndex, const float* vertices);
 
 	///vertices must be in the format x,y,z, nx,ny,nz, u,v
@@ -71,6 +72,7 @@ public:
 	///position x,y,z, quaternion x,y,z,w, color r,g,b,a, scaling x,y,z
 	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling);
 	virtual int registerGraphicsInstance(int shapeIndex, const double* position, const double* quaternion, const double* color, const double* scaling);
+
 
 	void writeTransforms();
 

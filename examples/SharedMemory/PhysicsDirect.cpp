@@ -724,6 +724,26 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
         m_data->m_userConstraintInfoMap.remove(cid);
         break;
     }
+	case CMD_REMOVE_BODY_FAILED:
+	{
+		b3Warning("Remove body failed\n");
+		break;
+	}
+	case CMD_REMOVE_BODY_COMPLETED:
+	{
+		for (int i=0;i<serverCmd.m_removeObjectArgs.m_numBodies;i++)
+		{
+			int bodyUniqueId = serverCmd.m_removeObjectArgs.m_bodyUniqueIds[i];
+			removeCachedBody(bodyUniqueId);
+		}
+		for (int i=0;i<serverCmd.m_removeObjectArgs.m_numUserConstraints;i++)
+		{
+			int key = serverCmd.m_removeObjectArgs.m_userConstraintUniqueIds[i];
+			m_data->m_userConstraintInfoMap.remove(key);
+		}
+
+		break;
+	}
 	case CMD_CHANGE_USER_CONSTRAINT_COMPLETED:
 	{
         int cid = serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId;
@@ -908,6 +928,28 @@ int PhysicsDirect::getNumBodies() const
 {
 	return m_data->m_bodyJointMap.size();
 }
+
+void PhysicsDirect::removeCachedBody(int bodyUniqueId)
+{
+	BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
+	if (bodyJointsPtr && *bodyJointsPtr)
+	{
+		BodyJointInfoCache2* bodyJoints = *bodyJointsPtr;
+		for (int j=0;j<bodyJoints->m_jointInfo.size();j++) {
+			if (bodyJoints->m_jointInfo[j].m_jointName)
+			{
+				free(bodyJoints->m_jointInfo[j].m_jointName);
+			}
+			if (bodyJoints->m_jointInfo[j].m_linkName)
+			{
+				free(bodyJoints->m_jointInfo[j].m_linkName);
+			}
+		}
+		delete (*bodyJointsPtr);
+		m_data->m_bodyJointMap.remove(bodyUniqueId);
+	}
+}
+
 
 int PhysicsDirect::getNumUserConstraints() const
 {

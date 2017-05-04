@@ -199,6 +199,28 @@ PhysicsClientSharedMemory::~PhysicsClientSharedMemory() {
     delete m_data;
 }
 
+void PhysicsClientSharedMemory::removeCachedBody(int bodyUniqueId)
+{
+	BodyJointInfoCache** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
+	if (bodyJointsPtr && *bodyJointsPtr)
+	{
+
+		BodyJointInfoCache* bodyJoints = *bodyJointsPtr;
+		for (int j=0;j<bodyJoints->m_jointInfo.size();j++) 
+		{
+			if (bodyJoints->m_jointInfo[j].m_jointName)
+			{
+				free(bodyJoints->m_jointInfo[j].m_jointName);
+			}
+			if (bodyJoints->m_jointInfo[j].m_linkName)
+			{
+				free(bodyJoints->m_jointInfo[j].m_linkName);
+			}
+		}
+		delete (*bodyJointsPtr);
+		m_data->m_bodyJointMap.remove(bodyUniqueId);
+	}
+}
 void PhysicsClientSharedMemory::resetData()
 {
 	m_data->m_debugLinesFrom.clear();
@@ -1008,7 +1030,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 			{
 				break;
 			}
-
+			case CMD_REMOVE_BODY_COMPLETED:
+			{
+				break;
+			}
+			case CMD_REMOVE_BODY_FAILED:
+			{
+				b3Warning("Removing body failed");
+				break;
+			}
             default: {
                 b3Error("Unknown server status %d\n", serverCmd.m_type);
                 btAssert(0);
@@ -1059,7 +1089,21 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 return 0;    
             }
         }
-        
+
+		if (serverCmd.m_type == CMD_REMOVE_BODY_COMPLETED)
+		{
+			for (int i=0;i<serverCmd.m_removeObjectArgs.m_numBodies;i++)
+			{
+				int bodyUniqueId = serverCmd.m_removeObjectArgs.m_bodyUniqueIds[i];
+				removeCachedBody(bodyUniqueId);
+			}
+			for (int i=0;i<serverCmd.m_removeObjectArgs.m_numUserConstraints;i++)
+			{
+				int key = serverCmd.m_removeObjectArgs.m_userConstraintUniqueIds[i];
+				m_data->m_userConstraintInfoMap.remove(key);
+			}
+		}
+
 		if (serverCmd.m_type == CMD_USER_CONSTRAINT_INFO_COMPLETED)
 		{
 			B3_PROFILE("CMD_USER_CONSTRAINT_INFO_COMPLETED");
