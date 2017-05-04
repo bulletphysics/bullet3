@@ -48,6 +48,8 @@ public:
     virtual int getNumUserConstraints() const;
     
     virtual int getUserConstraintInfo(int constraintUniqueId, struct b3UserConstraint& info) const;
+	
+	virtual int getUserConstraintId(int serialIndex) const;
     
     virtual void setSharedMemoryKey(int key);
 

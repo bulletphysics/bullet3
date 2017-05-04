@@ -56,6 +56,7 @@ enum EnumSharedMemoryClientCommand
 	CMD_REQUEST_KEYBOARD_EVENTS_DATA,
 	CMD_REQUEST_OPENGL_VISUALIZER_CAMERA,
 	CMD_REMOVE_BODY,
+	CMD_RESET_DYNAMIC_INFO,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -218,6 +219,11 @@ struct b3BodyInfo
 	const char* m_bodyName; // for btRigidBody, it does not have a base, but can still have a body name from urdf
 };
 
+struct b3DynamicInfo
+{
+	double m_mass;
+	double m_localInertialPosition[3];
+};
 
 // copied from btMultiBodyLink.h
 enum SensorType {

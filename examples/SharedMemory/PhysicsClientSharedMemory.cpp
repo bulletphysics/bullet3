@@ -163,6 +163,15 @@ int PhysicsClientSharedMemory::getUserConstraintInfo(int constraintUniqueId, str
     return 0;
 }
 
+int PhysicsClientSharedMemory::getUserConstraintId(int serialIndex) const
+{
+	if ((serialIndex >= 0) && (serialIndex < getNumUserConstraints()))
+	{
+		return m_data->m_userConstraintInfoMap.getKeyAtIndex(serialIndex).getUid1();
+	}
+	return -1;
+}
+
 PhysicsClientSharedMemory::PhysicsClientSharedMemory()
 
 {
