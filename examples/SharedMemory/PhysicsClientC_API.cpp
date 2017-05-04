@@ -1240,6 +1240,17 @@ int b3ResetDynamicInfoSetMass(b3SharedMemoryCommandHandle commandHandle, int bod
 	return 0;
 }
 
+int b3ResetDynamicInfoSetLateralFriction(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double lateralFriction)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_RESET_DYNAMIC_INFO);
+	command->m_resetDynamicInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_resetDynamicInfoArgs.m_linkIndex = linkIndex;
+	command->m_resetDynamicInfoArgs.m_lateralFriction = lateralFriction;
+	command->m_updateFlags |= RESET_DYNAMIC_INFO_SET_LATERAL_FRICTION;
+	return 0;
+}
+
 b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3PhysicsClientHandle physClient, int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, struct b3JointInfo* info)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;

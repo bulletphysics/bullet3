@@ -80,6 +80,7 @@ int b3GetDynamicInfo(b3PhysicsClientHandle physClient, int bodyUniqueId, int lin
 	
 b3SharedMemoryCommandHandle b3InitResetDynamicInfo(b3PhysicsClientHandle physClient);
 int b3ResetDynamicInfoSetMass(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double mass);
+int b3ResetDynamicInfoSetLateralFriction(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double lateralFriction);
     
 b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3PhysicsClientHandle physClient, int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, struct b3JointInfo* info);
 

@@ -212,7 +212,6 @@ struct b3DynamicInfo
 {
 	double m_mass;
 	double m_localInertialPosition[3];
-	double m_localInertialOrientation[4];
 };
 
 // copied from btMultiBodyLink.h

@@ -14,5 +14,7 @@ p.setRealTimeSimulation(0)
 t=0
 while 1:
 	t=t+1
+	if t > 400:
+		p.resetDynamicInfo(bodyUniqueId=0,linkIndex=-1,lateralFriction=0.01)
 	time.sleep(.01)
 	p.stepSimulation()

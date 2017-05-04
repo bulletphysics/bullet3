@@ -609,11 +609,12 @@ static PyObject* pybullet_resetDynamicInfo(PyObject* self, PyObject* args, PyObj
 	int bodyUniqueId = -1;
 	int linkIndex = -2;
 	double mass = -1;
+	double lateralFriction = -1;
 	b3PhysicsClientHandle sm = 0;
 	
 	int physicsClientId = 0;
-	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "mass", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|di", kwlist, &bodyUniqueId, &linkIndex,&mass, &physicsClientId))
+	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "mass", "lateralFriction", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|ddi", kwlist, &bodyUniqueId, &linkIndex,&mass, &lateralFriction, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -632,6 +633,11 @@ static PyObject* pybullet_resetDynamicInfo(PyObject* self, PyObject* args, PyObj
 		if (mass >= 0)
 		{
 			b3ResetDynamicInfoSetMass(command, bodyUniqueId, linkIndex, mass);
+		}
+		
+		if (lateralFriction >= 0)
+		{
+			b3ResetDynamicInfoSetLateralFriction(command, bodyUniqueId, linkIndex, lateralFriction);
 		}
 		
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
@@ -5504,7 +5510,7 @@ static PyMethodDef SpamMethods[] = {
 	 "instantaneously, not through physics simulation."},
 	
 	{"resetDynamicInfo", (PyCFunction)pybullet_resetDynamicInfo, METH_VARARGS | METH_KEYWORDS,
-	 "Reset dynamic information such as mass, COM."},
+	 "Reset dynamic information such as mass, lateral friction coefficient."},
 
 	{"setJointMotorControl", (PyCFunction)pybullet_setJointMotorControl, METH_VARARGS,
 	 "This (obsolete) method cannot select non-zero physicsClientId, use setJointMotorControl2 instead."

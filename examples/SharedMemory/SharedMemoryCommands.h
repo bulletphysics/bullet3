@@ -110,6 +110,7 @@ enum EnumResetDynamicInfoFlags
 {
 	RESET_DYNAMIC_INFO_SET_MASS=1,
 	RESET_DYNAMIC_INFO_SET_COM=2,
+	RESET_DYNAMIC_INFO_SET_LATERAL_FRICTION=4,
 };
 
 struct ResetDynamicInfoArgs
@@ -118,6 +119,7 @@ struct ResetDynamicInfoArgs
 	int m_linkIndex;
 	double m_mass;
 	double m_COM[3];
+	double m_lateralFriction;
 };
 
 struct SetJointFeedbackArgs
