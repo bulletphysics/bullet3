@@ -1232,6 +1232,7 @@ int b3ResetDynamicInfoSetMass(b3SharedMemoryCommandHandle commandHandle, int bod
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
 	b3Assert(command->m_type == CMD_RESET_DYNAMIC_INFO);
+	b3Assert(mass > 0);
 	command->m_resetDynamicInfoArgs.m_bodyUniqueId = bodyUniqueId;
 	command->m_resetDynamicInfoArgs.m_linkIndex = linkIndex;
 	command->m_resetDynamicInfoArgs.m_mass = mass;
