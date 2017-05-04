@@ -106,6 +106,22 @@ struct BulletDataStreamArgs
 	char m_bodyName[MAX_FILENAME_LENGTH];
 };
 
+enum EnumResetDynamicInfoFlags
+{
+	RESET_DYNAMIC_INFO_SET_MASS=1,
+	RESET_DYNAMIC_INFO_SET_COM=2,
+	RESET_DYNAMIC_INFO_SET_LATERAL_FRICTION=4,
+};
+
+struct ResetDynamicInfoArgs
+{
+	int m_bodyUniqueId;
+	int m_linkIndex;
+	double m_mass;
+	double m_COM[3];
+	double m_lateralFriction;
+};
+
 struct SetJointFeedbackArgs
 {
 	int m_bodyUniqueId;
@@ -702,6 +718,7 @@ struct SharedMemoryCommand
 		struct MjcfArgs	m_mjcfArguments;
 		struct FileArgs m_fileArguments;
 		struct SdfRequestInfoArgs m_sdfRequestInfoArgs;
+		struct ResetDynamicInfoArgs m_resetDynamicInfoArgs;
 		struct InitPoseArgs m_initPoseArgs;
 		struct SendPhysicsSimulationParameters m_physSimParamArgs;
 		struct BulletDataStreamArgs	m_dataStreamArguments;

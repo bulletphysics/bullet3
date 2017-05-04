@@ -1179,6 +1179,13 @@ int b3GetUserConstraintInfo(b3PhysicsClientHandle physClient, int constraintUniq
     return 0;
 }
 
+/// return the user constraint id, given the index in range [0 , b3GetNumUserConstraints() )
+int b3GetUserConstraintId(b3PhysicsClientHandle physClient, int serialIndex)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+	return cl->getUserConstraintId(serialIndex);
+}
+
 /// return the body unique id, given the index in range [0 , b3GetNumBodies() )
 int b3GetBodyUniqueId(b3PhysicsClientHandle physClient, int serialIndex)
 {
@@ -1208,7 +1215,41 @@ int	b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyIndex, int jointInd
 	return cl->getJointInfo(bodyIndex, jointIndex, *info);
 }
 
+b3SharedMemoryCommandHandle b3InitResetDynamicInfo(b3PhysicsClientHandle physClient)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+	command->m_type = CMD_RESET_DYNAMIC_INFO;
+	command->m_updateFlags = 0;
+	
+	return (b3SharedMemoryCommandHandle) command;
+}
 
+int b3ResetDynamicInfoSetMass(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double mass)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_RESET_DYNAMIC_INFO);
+	b3Assert(mass > 0);
+	command->m_resetDynamicInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_resetDynamicInfoArgs.m_linkIndex = linkIndex;
+	command->m_resetDynamicInfoArgs.m_mass = mass;
+	command->m_updateFlags |= RESET_DYNAMIC_INFO_SET_MASS;
+	return 0;
+}
+
+int b3ResetDynamicInfoSetLateralFriction(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double lateralFriction)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_RESET_DYNAMIC_INFO);
+	command->m_resetDynamicInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_resetDynamicInfoArgs.m_linkIndex = linkIndex;
+	command->m_resetDynamicInfoArgs.m_lateralFriction = lateralFriction;
+	command->m_updateFlags |= RESET_DYNAMIC_INFO_SET_LATERAL_FRICTION;
+	return 0;
+}
 
 b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3PhysicsClientHandle physClient, int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, struct b3JointInfo* info)
 {
