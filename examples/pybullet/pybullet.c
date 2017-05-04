@@ -1846,6 +1846,36 @@ static PyObject* pybullet_getConstraintInfo(PyObject* self, PyObject* args, PyOb
 	return NULL;
 }
 
+static PyObject* pybullet_getConstraintUniqueId(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	int serialIndex = -1;
+	b3PhysicsClientHandle sm = 0;
+	
+	static char* kwlist[] = {"serialIndex", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|i", kwlist, &serialIndex, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+	
+	{
+		int userConstraintId = -1;
+		userConstraintId = b3GetUserConstraintId(sm, serialIndex);
+		
+#if PY_MAJOR_VERSION >= 3
+		return PyLong_FromLong(userConstraintId);
+#else
+		return PyInt_FromLong(userConstraintId);
+#endif
+	}
+}
+
 static PyObject* pybullet_getNumConstraints(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	int numConstraints = 0;
@@ -5430,7 +5460,7 @@ static PyMethodDef SpamMethods[] = {
 	{"getConstraintInfo", (PyCFunction)pybullet_getConstraintInfo, METH_VARARGS | METH_KEYWORDS,
 	 "Get the user-created constraint info, given a constraint unique id."},
 
-	{"getConstraintUniqueId", (PyCFunction)pybullet_getBodyUniqueId, METH_VARARGS | METH_KEYWORDS,
+	{"getConstraintUniqueId", (PyCFunction)pybullet_getConstraintUniqueId, METH_VARARGS | METH_KEYWORDS,
 	 "Get the unique id of the constraint, given a integer index in range [0.. number of constraints)."},
 
 	{"getBasePositionAndOrientation", (PyCFunction)pybullet_getBasePositionAndOrientation,

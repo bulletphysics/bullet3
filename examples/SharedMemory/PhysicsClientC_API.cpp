@@ -1179,6 +1179,13 @@ int b3GetUserConstraintInfo(b3PhysicsClientHandle physClient, int constraintUniq
     return 0;
 }
 
+/// return the user constraint id, given the index in range [0 , b3GetNumUserConstraints() )
+int b3GetUserConstraintId(b3PhysicsClientHandle physClient, int serialIndex)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+	return cl->getUserConstraintId(serialIndex);
+}
+
 /// return the body unique id, given the index in range [0 , b3GetNumBodies() )
 int b3GetBodyUniqueId(b3PhysicsClientHandle physClient, int serialIndex)
 {
