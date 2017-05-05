@@ -399,6 +399,18 @@ protected:
 		return &m_valueArray[index];
 	}
 
+	 Key getKeyAtIndex(int index)
+    {
+        b3Assert(index < m_keyArray.size());
+        return m_keyArray[index];
+    }
+    
+    const Key getKeyAtIndex(int index) const
+    {
+        b3Assert(index < m_keyArray.size());
+        return m_keyArray[index];
+    }
+
 	Value* operator[](const Key& key) {
 		return find(key);
 	}

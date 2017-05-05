@@ -13,7 +13,9 @@
 #include "BulletDynamics/Featherstone/btMultiBodySliderConstraint.h"
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
-#include "LinearMath/btHashMap.h"
+#include "Bullet3Common/b3HashMap.h"
+#include "../Utils/ChromeTraceUtil.h"
+
 #include "BulletInverseDynamics/MultiBodyTree.hpp"
 #include "IKTrajectoryHelper.h"
 #include "btBulletDynamicsCommon.h"
@@ -28,7 +30,7 @@
 #include "SharedMemoryCommands.h"
 #include "LinearMath/btRandom.h"
 #include "Bullet3Common/b3ResizablePool.h"
-
+#include "../Utils/b3Clock.h"
 #ifdef B3_ENABLE_TINY_AUDIO
 #include "../TinyAudio/b3SoundEngine.h"
 #endif
@@ -132,7 +134,7 @@ struct InteralBodyData
 	btTransform m_rootLocalInertialFrame;
 	btAlignedObjectArray<btTransform> m_linkLocalInertialFrames;
 #ifdef B3_ENABLE_TINY_AUDIO
-	btHashMap<btHashInt, SDFAudioSource> m_audioSources;
+	b3HashMap<btHashInt, SDFAudioSource> m_audioSources;
 #endif //B3_ENABLE_TINY_AUDIO
 
 	InteralBodyData()		
@@ -1158,11 +1160,11 @@ struct PhysicsServerCommandProcessorInternalData
 	btScalar m_physicsDeltaTime;
     btScalar m_numSimulationSubSteps;
 	btAlignedObjectArray<btMultiBodyJointFeedback*> m_multiBodyJointFeedbacks;
-	btHashMap<btHashPtr, btInverseDynamics::MultiBodyTree*> m_inverseDynamicsBodies;
-	btHashMap<btHashPtr, IKTrajectoryHelper*> m_inverseKinematicsHelpers;
+	b3HashMap<btHashPtr, btInverseDynamics::MultiBodyTree*> m_inverseDynamicsBodies;
+	b3HashMap<btHashPtr, IKTrajectoryHelper*> m_inverseKinematicsHelpers;
 	
 	int m_userConstraintUIDGenerator;
-	btHashMap<btHashInt, InteralUserConstraintData> m_userConstraints;
+	b3HashMap<btHashInt, InteralUserConstraintData> m_userConstraints;
 
 	b3AlignedObjectArray<SaveWorldObjectData> m_saveWorldBodyData;
 
@@ -1198,6 +1200,8 @@ struct PhysicsServerCommandProcessorInternalData
 
 	btAlignedObjectArray<InternalStateLogger*>	m_stateLoggers;
 	int m_stateLoggersUniqueId;
+	int m_profileTimingLoggingUid;
+	std::string m_profileTimingFileName;
 
 	struct GUIHelperInterface* m_guiHelper;
 	int m_sharedMemoryKey;
@@ -1218,6 +1222,8 @@ struct PhysicsServerCommandProcessorInternalData
 #ifdef B3_ENABLE_TINY_AUDIO
 	b3SoundEngine m_soundEngine;
 #endif
+
+	b3HashMap<b3HashString,  char*> m_profileEvents;
 
 	PhysicsServerCommandProcessorInternalData()
 		:
@@ -1247,6 +1253,7 @@ struct PhysicsServerCommandProcessorInternalData
 		m_dynamicsWorld(0),
 		m_remoteDebugDrawer(0),
 		m_stateLoggersUniqueId(0),
+		m_profileTimingLoggingUid(-1),
 		m_guiHelper(0),
 		m_sharedMemoryKey(SHARED_MEMORY_KEY),
 		m_verboseOutput(false),
@@ -1372,7 +1379,11 @@ PhysicsServerCommandProcessor::~PhysicsServerCommandProcessor()
 		delete m_data->m_commandLogger;
 		m_data->m_commandLogger = 0;
 	}
-
+	for (int i=0;i<m_data->m_profileEvents.size();i++)
+	{
+		char* event = *m_data->m_profileEvents.getAtIndex(i);
+		delete[] event;
+	}
 	delete m_data;
 }
 
@@ -2210,7 +2221,7 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
 
 bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes )
 {
-	BT_PROFILE("processCommand");
+//	BT_PROFILE("processCommand");
 
 	bool hasStatus = false;
 
@@ -2278,7 +2289,18 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 					if (clientCmd.m_updateFlags & STATE_LOGGING_START_LOG)
 					{
-
+						if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_PROFILE_TIMINGS)
+						{
+							if (m_data->m_profileTimingLoggingUid<0)
+							{
+								b3ChromeUtilsStartTimings();
+								m_data->m_profileTimingFileName = clientCmd.m_stateLoggingArguments.m_fileName;
+								int loggerUid = m_data->m_stateLoggersUniqueId++;
+								serverStatusOut.m_type = CMD_STATE_LOGGING_START_COMPLETED;
+								serverStatusOut.m_stateLoggingResultArgs.m_loggingUniqueId = loggerUid;
+								m_data->m_profileTimingLoggingUid = loggerUid;
+							}
+						}
 						if (clientCmd.m_stateLoggingArguments.m_logType == STATE_LOGGING_VIDEO_MP4)
 						{
 							//if (clientCmd.m_stateLoggingArguments.m_fileName)
@@ -2416,14 +2438,22 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					}
 					if ((clientCmd.m_updateFlags & STATE_LOGGING_STOP_LOG) && clientCmd.m_stateLoggingArguments.m_loggingUniqueId>=0)
 					{
-						serverStatusOut.m_type = CMD_STATE_LOGGING_COMPLETED;
-						for (int i=0;i<m_data->m_stateLoggers.size();i++)
+						if (clientCmd.m_stateLoggingArguments.m_loggingUniqueId == m_data->m_profileTimingLoggingUid)
 						{
-							if (m_data->m_stateLoggers[i]->m_loggingUniqueId==clientCmd.m_stateLoggingArguments.m_loggingUniqueId)
+							b3ChromeUtilsStopTimingsAndWriteJsonFile(m_data->m_profileTimingFileName.c_str());
+							m_data->m_profileTimingLoggingUid = -1;
+						}
+						else
+						{
+							serverStatusOut.m_type = CMD_STATE_LOGGING_COMPLETED;
+							for (int i=0;i<m_data->m_stateLoggers.size();i++)
 							{
-								m_data->m_stateLoggers[i]->stop();
-								delete m_data->m_stateLoggers[i];
-								m_data->m_stateLoggers.removeAtIndex(i);
+								if (m_data->m_stateLoggers[i]->m_loggingUniqueId==clientCmd.m_stateLoggingArguments.m_loggingUniqueId)
+								{
+									m_data->m_stateLoggers[i]->stop();
+									delete m_data->m_stateLoggers[i];
+									m_data->m_stateLoggers.removeAtIndex(i);
+								}
 							}
 						}
 					}
@@ -2458,7 +2488,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 				}
 				case CMD_REQUEST_VR_EVENTS_DATA:
 				{
-					BT_PROFILE("CMD_REQUEST_VR_EVENTS_DATA");
+					//BT_PROFILE("CMD_REQUEST_VR_EVENTS_DATA");
 					serverStatusOut.m_sendVREvents.m_numVRControllerEvents = 0;
 
 					for (int i=0;i<MAX_VR_CONTROLLERS;i++)
@@ -2486,7 +2516,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 				case CMD_REQUEST_KEYBOARD_EVENTS_DATA:
 				{
-					BT_PROFILE("CMD_REQUEST_KEYBOARD_EVENTS_DATA");
+					//BT_PROFILE("CMD_REQUEST_KEYBOARD_EVENTS_DATA");
 
 					serverStatusOut.m_sendKeyboardEvents.m_numKeyboardEvents = m_data->m_keyboardEvents.size();
 					if (serverStatusOut.m_sendKeyboardEvents.m_numKeyboardEvents>MAX_KEYBOARD_EVENTS)
@@ -3320,6 +3350,56 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
                     break;
                 }
+				case CMD_PROFILE_TIMING:
+				{
+					{
+						B3_PROFILE("custom");//clientCmd.m_profile.m_name);
+						{
+							B3_PROFILE("event");//clientCmd.m_profile.m_name);
+							char** eventNamePtr = m_data->m_profileEvents[clientCmd.m_profile.m_name];
+							char* eventName = 0;
+							if (eventNamePtr)
+							{
+								B3_PROFILE("reuse");
+								eventName = *eventNamePtr;
+								
+							} else
+							{
+								B3_PROFILE("alloc");
+								int len = strlen(clientCmd.m_profile.m_name);
+								eventName = new char[len+1];
+								strcpy(eventName,clientCmd.m_profile.m_name);
+								eventName[len] = 0;
+								m_data->m_profileEvents.insert(eventName,eventName);
+								
+							}
+
+							
+							{
+								{
+									B3_PROFILE("with");//clientCmd.m_profile.m_name);
+									{
+										B3_PROFILE("some");//clientCmd.m_profile.m_name);
+										{
+											B3_PROFILE("deep");//clientCmd.m_profile.m_name);
+											{
+												B3_PROFILE("level");//clientCmd.m_profile.m_name);
+												{
+													B3_PROFILE(eventName);
+													b3Clock::usleep(clientCmd.m_profile.m_durationInMicroSeconds);
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+					serverStatusOut.m_type = CMD_CLIENT_COMMAND_COMPLETED;
+					hasStatus = true;
+					break;
+				}
+
 				case CMD_SEND_DESIRED_STATE:
                     {
 						BT_PROFILE("CMD_SEND_DESIRED_STATE");

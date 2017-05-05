@@ -113,6 +113,8 @@ myfiles =
 	"../../Importers/ImportURDFDemo/URDF2Bullet.h",
 	"../../Utils/b3ResourcePath.cpp",
 	"../../Utils/b3Clock.cpp",
+	"../../Utils/ChromeTraceUtil.cpp",
+	"../../Utils/ChromeTraceUtil.h",
 	"../../Utils/RobotLoggingUtil.cpp",
 	"../../Utils/RobotLoggingUtil.h",
 	"../../../Extras/Serialize/BulletWorldImporter/*",

@@ -2879,6 +2879,42 @@ static PyObject* pybullet_startStateLogging(PyObject* self, PyObject* args, PyOb
 	return Py_None;
 }
 
+static PyObject* pybullet_submitProfileTiming(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	char* eventName = 0;
+	int duractionInMicroSeconds=-1;
+
+	b3PhysicsClientHandle sm = 0;
+	static char* kwlist[] = {"eventName ", "duraction", "physicsClientId", NULL};
+	int physicsClientId = 0;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|ii", kwlist,
+									 &eventName, &duractionInMicroSeconds, &physicsClientId))
+		return NULL;
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+	if (eventName)
+	{
+		b3SharedMemoryCommandHandle commandHandle;
+		commandHandle = b3ProfileTimingCommandInit(sm, eventName);
+		if (duractionInMicroSeconds>=0)
+		{
+			b3SetProfileTimingDuractionInMicroSeconds(commandHandle, duractionInMicroSeconds);
+		}
+		b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
 static PyObject* pybullet_stopStateLogging(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	b3SharedMemoryStatusHandle statusHandle;
@@ -5691,6 +5727,10 @@ static PyMethodDef SpamMethods[] = {
 		"Cast a batch of rays and return the result for each of the rays (first object hit, if any. or -1) "
 	 "Takes two arguments (list of from_positions [x,y,z] and a list of to_positions [x,y,z] in Cartesian world coordinates"},
 
+	{"submitProfileTiming", (PyCFunction)pybullet_submitProfileTiming, METH_VARARGS | METH_KEYWORDS,
+	 "Add a custom profile timing that will be visible in performance profile recordings on the physics server."
+	 "On the physics server (in GUI and VR mode) you can press 'p' to start and/or stop profile recordings" },
+
 	{"setTimeOut", (PyCFunction)pybullet_setTimeOut, METH_VARARGS | METH_KEYWORDS,
 	 "Set the timeOut in seconds, used for most of the API calls."},
 	// todo(erwincoumans)
@@ -5821,6 +5861,7 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "STATE_LOGGING_VR_CONTROLLERS", STATE_LOGGING_VR_CONTROLLERS);
 	PyModule_AddIntConstant(m, "STATE_LOGGING_VIDEO_MP4", STATE_LOGGING_VIDEO_MP4);
 	PyModule_AddIntConstant(m, "STATE_LOGGING_CONTACT_POINTS", STATE_LOGGING_CONTACT_POINTS);
+	PyModule_AddIntConstant(m, "STATE_LOGGING_PROFILE_TIMINGS", STATE_LOGGING_PROFILE_TIMINGS);
 
 	PyModule_AddIntConstant(m, "COV_ENABLE_GUI", COV_ENABLE_GUI);
 	PyModule_AddIntConstant(m, "COV_ENABLE_SHADOWS", COV_ENABLE_SHADOWS);

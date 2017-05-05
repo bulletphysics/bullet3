@@ -459,6 +459,14 @@ struct b3ObjectArgs
 	int m_userConstraintUniqueIds[MAX_SDF_BODIES];
 };
 
+struct b3Profile
+{
+	char m_name[MAX_FILENAME_LENGTH];
+	int m_durationInMicroSeconds;
+};
+
+
+
 struct SdfLoadedArgs
 {
     int m_numBodies;
@@ -758,6 +766,7 @@ struct SharedMemoryCommand
 		struct StateLoggingRequest m_stateLoggingArguments;
         struct ConfigureOpenGLVisualizerRequest m_configureOpenGLVisualizerArguments;
 		struct b3ObjectArgs m_removeObjectArgs;
+		struct b3Profile m_profile;
 
     };
 };

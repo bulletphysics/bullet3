@@ -912,6 +912,11 @@ void b3RobotSimulatorClientAPI::getKeyboardEvents(b3KeyboardEventsData* keyboard
 
 int b3RobotSimulatorClientAPI::startStateLogging(b3StateLoggingType loggingType, const std::string& fileName, const b3AlignedObjectArray<int>& objectUniqueIds, int maxLogDof)
 {
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return -1;
+	}
 	int loggingUniqueId = -1;
 	b3SharedMemoryCommandHandle commandHandle;
 	commandHandle = b3StateLoggingCommandInit(m_data->m_physicsClientHandle);
@@ -942,6 +947,12 @@ int b3RobotSimulatorClientAPI::startStateLogging(b3StateLoggingType loggingType,
 
 void b3RobotSimulatorClientAPI::stopStateLogging(int stateLoggerUniqueId)
 {
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return;
+	}
+
 	b3SharedMemoryCommandHandle commandHandle;
 	b3SharedMemoryStatusHandle statusHandle;
 	commandHandle = b3StateLoggingCommandInit(m_data->m_physicsClientHandle);
@@ -951,6 +962,12 @@ void b3RobotSimulatorClientAPI::stopStateLogging(int stateLoggerUniqueId)
 
 void b3RobotSimulatorClientAPI::resetDebugVisualizerCamera(double cameraDistance, double cameraPitch, double cameraYaw, const b3Vector3& targetPos)
 {
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return;
+	}
+
 	b3SharedMemoryCommandHandle commandHandle = b3InitConfigureOpenGLVisualizer(m_data->m_physicsClientHandle);
 	if (commandHandle)
 	{
@@ -962,4 +979,20 @@ void b3RobotSimulatorClientAPI::resetDebugVisualizerCamera(double cameraDistance
 	}
 	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
 	}
+}
+
+void b3RobotSimulatorClientAPI::submitProfileTiming(const std::string&  profileName, int durationInMicroSeconds)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return;
+	}
+
+	b3SharedMemoryCommandHandle	commandHandle = b3ProfileTimingCommandInit(m_data->m_physicsClientHandle, profileName.c_str());
+	if (durationInMicroSeconds>=0)
+	{
+		b3SetProfileTimingDuractionInMicroSeconds(commandHandle, durationInMicroSeconds);
+	}
+	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
 }
