@@ -2695,6 +2695,41 @@ void b3GetKeyboardEventsData(b3PhysicsClientHandle physClient, struct b3Keyboard
 }
 
 
+b3SharedMemoryCommandHandle	b3ProfileTimingCommandInit(b3PhysicsClientHandle physClient, const char* name)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+
+	int len = strlen(name);
+	if (len>=0 && len < (MAX_FILENAME_LENGTH+1))
+	{
+		command->m_type = CMD_PROFILE_TIMING;
+		strcpy(command->m_profile.m_name,name);
+		command->m_profile.m_name[len]=0;
+	} else
+	{
+		const char* invalid = "InvalidProfileTimingName";
+		int len = strlen(invalid);
+		strcpy(command->m_profile.m_name,invalid);
+		command->m_profile.m_name[len] = 0;
+	}
+	command->m_profile.m_durationInMicroSeconds = 0;
+	return (b3SharedMemoryCommandHandle)command;
+}
+
+void b3SetProfileTimingDuractionInMicroSeconds(b3SharedMemoryCommandHandle commandHandle, int duration)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_PROFILE_TIMING);
+	if (command->m_type == CMD_PROFILE_TIMING)
+	{
+		command->m_profile.m_durationInMicroSeconds  = duration;
+	}
+}
 
 b3SharedMemoryCommandHandle	b3StateLoggingCommandInit(b3PhysicsClientHandle physClient)
 {
@@ -2840,7 +2875,6 @@ int b3StateLoggingSetDeviceTypeFilter(b3SharedMemoryCommandHandle commandHandle,
 	}
 	return 0;
 }
-
 
 int b3StateLoggingStop(b3SharedMemoryCommandHandle commandHandle, int loggingUid)
 {
