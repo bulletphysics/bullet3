@@ -37,7 +37,7 @@ struct GUIHelperInterface
 	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType, int textureId) = 0;
 	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling) =0;
     virtual void removeAllGraphicsInstances()=0;
-	virtual void removeGraphicsInstance(int graphicsUid)=0;
+	virtual void removeGraphicsInstance(int graphicsUid) {}
 
 	virtual Common2dCanvasInterface* get2dCanvasInterface()=0;
 	
