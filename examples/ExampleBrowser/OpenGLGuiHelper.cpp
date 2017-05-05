@@ -243,7 +243,10 @@ void OpenGLGuiHelper::removeAllGraphicsInstances()
 
 void OpenGLGuiHelper::removeGraphicsInstance(int graphicsUid)
 {
-	m_data->m_glApp->m_renderer->removeGraphicsInstance(graphicsUid);
+	if (graphicsUid>=0)
+	{
+		m_data->m_glApp->m_renderer->removeGraphicsInstance(graphicsUid);
+	};
 }
 
 
