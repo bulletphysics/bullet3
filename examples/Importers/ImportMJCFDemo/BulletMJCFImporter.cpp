@@ -1025,9 +1025,9 @@ struct BulletMJCFImporterInternalData
 		UrdfModel* modelPtr = m_models[modelIndex];
 		int orgChildLinkIndex = modelPtr->m_links.size();
 		UrdfLink* linkPtr = new UrdfLink();
-		char uniqueLinkName[1024];
-		sprintf(uniqueLinkName,"link%d",orgChildLinkIndex );
-		linkPtr->m_name = uniqueLinkName;
+		char linkn[1024];
+		sprintf(linkn, "link%d_%d", modelIndex, orgChildLinkIndex);
+		linkPtr->m_name = linkn;
 		if (namePtr)
 		{
 			linkPtr->m_name = namePtr;
