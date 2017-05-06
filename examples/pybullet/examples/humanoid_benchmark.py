@@ -1,6 +1,6 @@
 import pybullet as p
 import time
-p.connect(p.GUI)
+p.connect(p.DIRECT)
 p.setGravity(0,0,-10)
 p.setPhysicsEngineParameter(numSolverIterations=5)
 p.setPhysicsEngineParameter(fixedTimeStep=1./240.)
