@@ -29,6 +29,9 @@ protected:
 	void postProcessStatus(const struct SharedMemoryStatus& serverCmd);
 
 	void resetData();
+
+	void removeCachedBody(int bodyUniqueId);
+
 public:
 
 	PhysicsDirect(class PhysicsCommandProcessorInterface* physSdk, bool passSdkOwnership);
@@ -66,6 +69,8 @@ public:
     virtual int getNumUserConstraints() const;
     
     virtual int getUserConstraintInfo(int constraintUniqueId, struct b3UserConstraint& info) const;
+	
+	virtual int getUserConstraintId(int serialIndex) const;
     
 	///todo: move this out of the
     virtual void setSharedMemoryKey(int key);

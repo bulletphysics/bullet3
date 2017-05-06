@@ -39,7 +39,9 @@ void main(void)
 	
 
 	float visibility = texture(shadowMap, vec3(ShadowCoord.xy,(ShadowCoord.z)/ShadowCoord.w));
-	
+	if (intensity<0.5)
+		visibility = 0;
+
 	intensity = 0.7*intensity  + 0.3*intensity*visibility;
 	
 	cf = intensity*(vec3(1.0,1.0,1.0)-ambient)+ambient;

@@ -664,6 +664,82 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
     }
 
 	{
+		//optional 'audio_source' parameters
+		//modified version of SDF audio_source specification in //http://sdformat.org/spec?ver=1.6&elem=link
+		#if 0
+		<audio_source>
+          <uri>file://media/audio/cheer.mp3</uri>
+          <pitch>2.0</pitch>
+          <gain>1.0</gain>
+          <loop>false</loop>
+          <contact>
+            <collision>collision</collision>
+          </contact>
+        </audio_source>
+		#endif
+		TiXmlElement* ci = config->FirstChildElement("audio_source");
+		if (ci)
+		{
+			link.m_audioSource.m_flags |= SDFAudioSource::SDFAudioSourceValid;
+			
+			const char* fn = ci->Attribute("filename");
+			if (fn)
+			{
+				link.m_audioSource.m_uri = fn;
+			} else
+			{
+				if (TiXmlElement* filename_xml = ci->FirstChildElement("uri"))
+				{
+					link.m_audioSource.m_uri = filename_xml->GetText();
+				}
+			}
+			if (TiXmlElement* pitch_xml = ci->FirstChildElement("pitch"))
+			{
+				link.m_audioSource.m_pitch = urdfLexicalCast<double>(pitch_xml->GetText());
+			}
+			if (TiXmlElement* gain_xml = ci->FirstChildElement("gain"))
+			{
+				link.m_audioSource.m_gain = urdfLexicalCast<double>(gain_xml->GetText());
+			}
+
+			if (TiXmlElement* attack_rate_xml = ci->FirstChildElement("attack_rate"))
+			{
+				link.m_audioSource.m_attackRate = urdfLexicalCast<double>(attack_rate_xml->GetText());
+			}
+
+			if (TiXmlElement* decay_rate_xml = ci->FirstChildElement("decay_rate"))
+			{
+				link.m_audioSource.m_decayRate = urdfLexicalCast<double>(decay_rate_xml->GetText());
+			}
+
+			if (TiXmlElement* sustain_level_xml = ci->FirstChildElement("sustain_level"))
+			{
+				link.m_audioSource.m_sustainLevel = urdfLexicalCast<double>(sustain_level_xml->GetText());
+			}
+
+			if (TiXmlElement* release_rate_xml = ci->FirstChildElement("release_rate"))
+			{
+				link.m_audioSource.m_releaseRate = urdfLexicalCast<double>(release_rate_xml->GetText());
+			}
+
+			if (TiXmlElement* loop_xml = ci->FirstChildElement("loop"))
+			{
+				std::string looptxt = loop_xml->GetText();
+				if (looptxt == "true")
+				{
+					link.m_audioSource.m_flags |= SDFAudioSource::SDFAudioSourceLooping;
+				}
+			}
+			if (TiXmlElement* forceThreshold_xml = ci->FirstChildElement("collision_force_threshold"))
+			{
+				link.m_audioSource.m_collisionForceThreshold= urdfLexicalCast<double>(forceThreshold_xml->GetText());
+			}
+			//todo: see other audio_source children
+			//pitch, gain, loop, contact
+			
+		}
+	}
+	{
 		//optional 'contact' parameters
 	 TiXmlElement* ci = config->FirstChildElement("contact");
 	  if (ci)

@@ -917,7 +917,7 @@ void btMultiBodyDynamicsWorld::clearMultiBodyConstraintForces()
 void btMultiBodyDynamicsWorld::clearMultiBodyForces()
 {
               {
-                BT_PROFILE("clearMultiBodyForces");
+               // BT_PROFILE("clearMultiBodyForces");
                 for (int i=0;i<this->m_multiBodies.size();i++)
                 {
                         btMultiBody* bod = m_multiBodies[i];

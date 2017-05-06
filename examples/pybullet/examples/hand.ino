@@ -10,6 +10,10 @@ int sensorPin3 = A3;
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
+  digitalWrite(A0, INPUT_PULLUP);
+  digitalWrite(A1, INPUT_PULLUP);
+  digitalWrite(A2, INPUT_PULLUP);
+  digitalWrite(A3, INPUT_PULLUP);
 }
 
 void loop() {

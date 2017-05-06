@@ -53,6 +53,8 @@ float shadowMapWorldSize=10;
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Common/b3Quaternion.h"
 #include "Bullet3Common/b3Matrix3x3.h"
+#include "Bullet3Common/b3ResizablePool.h"
+
 #include "LoadShader.h"
 
 #include "GLInstanceRendererInternalData.h"
@@ -79,7 +81,6 @@ float shadowMapWorldSize=10;
 static InternalDataRenderer* sData2;
 
 GLint lineWidthRange[2]={1,1};
-static b3Vector3 gLightPos=b3MakeVector3(-5,12,-4);
 
 struct b3GraphicsInstance
 {
@@ -91,7 +92,7 @@ struct b3GraphicsInstance
 	int m_numVertices;
 
 	int m_numGraphicsInstances;
-
+	b3AlignedObjectArray<int> m_tempObjectUids;
 	int m_instanceOffset;
 	int m_vertexArrayOffset;
 	int	m_primitiveType;
@@ -145,7 +146,22 @@ struct InternalTextureHandle
     int m_height;
 };
 
+struct b3PublicGraphicsInstanceData
+{
+	int m_shapeIndex;
+	int m_internalInstanceIndex;
+	GLfloat m_position[4];
+	GLfloat m_orientation[4];
+	GLfloat m_color[4];
+	GLfloat m_scale[4];
 
+	void clear()
+	{
+	}
+
+};
+
+typedef b3PoolBodyHandle<b3PublicGraphicsInstanceData> b3PublicGraphicsInstance;
 
 struct InternalDataRenderer : public GLInstanceRendererInternalData
 {
@@ -156,6 +172,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 	GLfloat m_projectionMatrix[16];
 	GLfloat m_viewMatrix[16];
 
+	b3Vector3 m_lightPos;
 
 	GLuint				m_defaultTexturehandle;
 	b3AlignedObjectArray<InternalTextureHandle>	m_textureHandles;
@@ -165,13 +182,18 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 	
 	GLuint				m_renderFrameBuffer;
 	
-	
+
+
+	b3ResizablePool< b3PublicGraphicsInstance> m_publicGraphicsInstances;
+
 	InternalDataRenderer() :
 	m_activeCamera(&m_defaultCamera1),
 		m_shadowMap(0),
 		m_shadowTexture(0),
 		m_renderFrameBuffer(0)
 	{
+		m_lightPos=b3MakeVector3(-50,30,100);
+
 		//clear to zero to make it obvious if the matrix is used uninitialized
 		for (int i=0;i<16;i++)
 		{
@@ -282,6 +304,8 @@ void GLInstancingRenderer::removeAllInstances()
 		delete m_graphicsInstances[i];
 	}
 	m_graphicsInstances.clear();
+	m_data->m_publicGraphicsInstances.exitHandles();
+	m_data->m_publicGraphicsInstances.initHandles();
 }
 
 
@@ -311,8 +335,13 @@ GLInstancingRenderer::~GLInstancingRenderer()
 
 
 
-void GLInstancingRenderer::writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int srcIndex)
+void GLInstancingRenderer::writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int bodyUniqueId)
 {
+
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3Assert(pg);
+	int srcIndex = pg->m_internalInstanceIndex;
+
 	b3Assert(srcIndex<m_data->m_totalNumInstances);
 	b3Assert(srcIndex>=0);
 	m_data->m_instance_positions_ptr[srcIndex*4+0]=position[0];
@@ -325,16 +354,16 @@ void GLInstancingRenderer::writeSingleInstanceTransformToCPU(const float* positi
 	m_data->m_instance_quaternion_ptr[srcIndex*4+2]=orientation[2];
 	m_data->m_instance_quaternion_ptr[srcIndex*4+3]=orientation[3];
 
-/*	m_data->m_instance_colors_ptr[srcIndex*4+0]=color[0];
-	m_data->m_instance_colors_ptr[srcIndex*4+1]=color[1];
-	m_data->m_instance_colors_ptr[srcIndex*4+2]=color[2];
-	m_data->m_instance_colors_ptr[srcIndex*4+3]=color[3];
-	*/
 }
 
 
-void GLInstancingRenderer::readSingleInstanceTransformFromCPU(int srcIndex, float* position, float* orientation)
+void GLInstancingRenderer::readSingleInstanceTransformFromCPU(int bodyUniqueId, float* position, float* orientation)
 {
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3Assert(pg);
+	int srcIndex = pg->m_internalInstanceIndex;
+
+
 	b3Assert(srcIndex<m_data->m_totalNumInstances);
 	b3Assert(srcIndex>=0);
 	position[0] = m_data->m_instance_positions_ptr[srcIndex*4+0];
@@ -346,16 +375,23 @@ void GLInstancingRenderer::readSingleInstanceTransformFromCPU(int srcIndex, floa
 	orientation[2] = m_data->m_instance_quaternion_ptr[srcIndex*4+2];
 	orientation[3] = m_data->m_instance_quaternion_ptr[srcIndex*4+3];
 }
-void GLInstancingRenderer::writeSingleInstanceColorToCPU(double* color, int srcIndex)
+void GLInstancingRenderer::writeSingleInstanceColorToCPU(double* color, int bodyUniqueId)
 {
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3Assert(pg);
+	int srcIndex = pg->m_internalInstanceIndex;
+
 	m_data->m_instance_colors_ptr[srcIndex*4+0]=float(color[0]);
 	m_data->m_instance_colors_ptr[srcIndex*4+1]=float(color[1]);
 	m_data->m_instance_colors_ptr[srcIndex*4+2]=float(color[2]);
 	m_data->m_instance_colors_ptr[srcIndex*4+3]=float(color[3]);
 }
 
-void GLInstancingRenderer::writeSingleInstanceColorToCPU(float* color, int srcIndex)
+void GLInstancingRenderer::writeSingleInstanceColorToCPU(float* color, int bodyUniqueId)
 {
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3Assert(pg);
+	int srcIndex = pg->m_internalInstanceIndex;
 
 	m_data->m_instance_colors_ptr[srcIndex*4+0]=color[0];
 	m_data->m_instance_colors_ptr[srcIndex*4+1]=color[1];
@@ -363,24 +399,36 @@ void GLInstancingRenderer::writeSingleInstanceColorToCPU(float* color, int srcIn
 	m_data->m_instance_colors_ptr[srcIndex*4+3]=color[3];
 }
 
-void GLInstancingRenderer::writeSingleInstanceScaleToCPU(float* scale, int srcIndex)
+void GLInstancingRenderer::writeSingleInstanceScaleToCPU(float* scale, int bodyUniqueId)
 {
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3Assert(pg);
+	int srcIndex = pg->m_internalInstanceIndex;
+
 	m_data->m_instance_scale_ptr[srcIndex*3+0]=scale[0];
 	m_data->m_instance_scale_ptr[srcIndex*3+1]=scale[1];
 	m_data->m_instance_scale_ptr[srcIndex*3+2]=scale[2];
 }
 
-void GLInstancingRenderer::writeSingleInstanceScaleToCPU(double* scale, int srcIndex)
+void GLInstancingRenderer::writeSingleInstanceScaleToCPU(double* scale, int bodyUniqueId)
 {
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3Assert(pg);
+	int srcIndex = pg->m_internalInstanceIndex;
+
 	m_data->m_instance_scale_ptr[srcIndex*3+0]=scale[0];
 	m_data->m_instance_scale_ptr[srcIndex*3+1]=scale[1];
 	m_data->m_instance_scale_ptr[srcIndex*3+2]=scale[2];
 }
 
-void GLInstancingRenderer::writeSingleInstanceTransformToGPU(float* position, float* orientation, int objectIndex)
+void GLInstancingRenderer::writeSingleInstanceTransformToGPU(float* position, float* orientation, int objectUniqueId)
 {
 	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
 	//glFlush();
+
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(objectUniqueId);
+	b3Assert(pg);
+	int objectIndex = pg->m_internalInstanceIndex;
 
 	char* orgBase =  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_READ_WRITE);
 	//b3GraphicsInstance* gfxObj = m_graphicsInstances[k];
@@ -572,15 +620,92 @@ int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const double*
     return registerGraphicsInstance(shapeIndex,pos,orn,color,scaling);
 }
 
-
-int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling)
+void GLInstancingRenderer::rebuildGraphicsInstances()
 {
-	b3Assert(shapeIndex == (m_graphicsInstances.size()-1));
-	b3Assert(m_graphicsInstances.size()<m_data->m_maxNumObjectCapacity-1);
+	m_data->m_totalNumInstances = 0;
+
+	b3AlignedObjectArray<int> usedObjects;
+	m_data->m_publicGraphicsInstances.getUsedHandles(usedObjects);
+
+	for (int i=0;i<usedObjects.size();i++)
+	{
+		int bodyUniqueId = usedObjects[i];
+		b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+		b3Assert(pg);
+		int srcIndex = pg->m_internalInstanceIndex;
+
+		pg->m_position[0] = m_data->m_instance_positions_ptr[srcIndex*4+0];
+		pg->m_position[1] = m_data->m_instance_positions_ptr[srcIndex*4+1];
+		pg->m_position[2] = m_data->m_instance_positions_ptr[srcIndex*4+2];
+		pg->m_orientation[0] = m_data->m_instance_quaternion_ptr[srcIndex*4+0];
+		pg->m_orientation[1] = m_data->m_instance_quaternion_ptr[srcIndex*4+1];
+		pg->m_orientation[2] = m_data->m_instance_quaternion_ptr[srcIndex*4+2];
+		pg->m_orientation[3] = m_data->m_instance_quaternion_ptr[srcIndex*4+3];
+		pg->m_color[0] = m_data->m_instance_colors_ptr[srcIndex*4+0];
+		pg->m_color[1] = m_data->m_instance_colors_ptr[srcIndex*4+1];
+		pg->m_color[2] = m_data->m_instance_colors_ptr[srcIndex*4+2];
+		pg->m_color[3] = m_data->m_instance_colors_ptr[srcIndex*4+3];
+		pg->m_scale[0] = m_data->m_instance_scale_ptr[srcIndex*3+0];
+		pg->m_scale[1] = m_data->m_instance_scale_ptr[srcIndex*3+1];
+		pg->m_scale[2] = m_data->m_instance_scale_ptr[srcIndex*3+2];
+	}
+	for (int i=0;i<m_graphicsInstances.size();i++)
+	{
+		m_graphicsInstances[i]->m_numGraphicsInstances = 0;
+		m_graphicsInstances[i]->m_instanceOffset = 0;
+		m_graphicsInstances[i]->m_tempObjectUids.clear();
+	}
+	for (int i=0;i<usedObjects.size();i++)
+	{
+		int bodyUniqueId = usedObjects[i];
+		b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+		m_graphicsInstances[pg->m_shapeIndex]->m_tempObjectUids.push_back(bodyUniqueId);
+	}
+
+	int curOffset = 0;
+	m_data->m_totalNumInstances = 0;
+
+	for (int i=0;i<m_graphicsInstances.size();i++)
+	{
+		m_graphicsInstances[i]->m_instanceOffset = curOffset;
+		m_graphicsInstances[i]->m_numGraphicsInstances = 0;
+
+		for (int g=0;g<m_graphicsInstances[i]->m_tempObjectUids.size();g++)
+		{
+			curOffset++;
+			int objectUniqueId = m_graphicsInstances[i]->m_tempObjectUids[g];
+			b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(objectUniqueId);
+			
+			registerGraphicsInstanceInternal(objectUniqueId,pg->m_position,pg->m_orientation,pg->m_color,pg->m_scale);
+		}
+	}
+
+}
+
+void GLInstancingRenderer::removeGraphicsInstance(int instanceUid)
+{
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(instanceUid);
+	b3Assert(pg);
+	if (pg)
+	{
+		m_data->m_publicGraphicsInstances.freeHandle(instanceUid);
+		rebuildGraphicsInstances();
+	}
+}
+
+
+int GLInstancingRenderer::registerGraphicsInstanceInternal(int newUid, const float* position, const float* quaternion, const float* color, const float* scaling)
+{
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(newUid);
+	int shapeIndex = pg->m_shapeIndex;
+//	b3Assert(pg);
+//	int objectIndex = pg->m_internalInstanceIndex;
+
+	
 
 	b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
-
 	int index = gfxObj->m_numGraphicsInstances + gfxObj->m_instanceOffset;
+	pg->m_internalInstanceIndex = index;
 
 	int maxElements = m_data->m_instance_positions_ptr.size();
 	if (index*4<maxElements)
@@ -611,7 +736,50 @@ int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const float* 
 		b3Error("registerGraphicsInstance out of range, %d\n", maxElements);
 		return -1;
 	}
-	return index;//gfxObj->m_numGraphicsInstances;
+	return newUid;//gfxObj->m_numGraphicsInstances;
+}
+
+int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling)
+{
+	int newUid = m_data->m_publicGraphicsInstances.allocHandle();
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(newUid);
+	pg->m_shapeIndex = shapeIndex;
+
+	//b3Assert(shapeIndex == (m_graphicsInstances.size()-1));
+	b3Assert(m_graphicsInstances.size()<m_data->m_maxNumObjectCapacity-1);
+	if (shapeIndex == (m_graphicsInstances.size()-1))
+	{
+		registerGraphicsInstanceInternal(newUid, position,quaternion,color,scaling);
+	} else
+	{
+
+		int srcIndex = m_data->m_totalNumInstances++;
+		pg->m_internalInstanceIndex = srcIndex;
+
+		m_data->m_instance_positions_ptr[srcIndex*4+0] = position[0];
+		m_data->m_instance_positions_ptr[srcIndex*4+1] = position[1];
+		m_data->m_instance_positions_ptr[srcIndex*4+2] = position[2];
+		m_data->m_instance_positions_ptr[srcIndex*4+3] = 1.;
+
+		m_data->m_instance_quaternion_ptr[srcIndex*4+0] = quaternion[0];
+		m_data->m_instance_quaternion_ptr[srcIndex*4+1] = quaternion[1];
+		m_data->m_instance_quaternion_ptr[srcIndex*4+2] = quaternion[2];
+		m_data->m_instance_quaternion_ptr[srcIndex*4+3] = quaternion[3];
+
+		m_data->m_instance_colors_ptr[srcIndex*4+0] = color[0];
+		m_data->m_instance_colors_ptr[srcIndex*4+1] = color[1];
+		m_data->m_instance_colors_ptr[srcIndex*4+2] = color[2];
+		m_data->m_instance_colors_ptr[srcIndex*4+3] = color[3];
+
+		m_data->m_instance_scale_ptr[srcIndex*3+0] = scaling[0];
+		m_data->m_instance_scale_ptr[srcIndex*3+1] = scaling[1];
+		m_data->m_instance_scale_ptr[srcIndex*3+2] = scaling[2];
+
+
+		rebuildGraphicsInstances();
+	}
+
+	return newUid;
 }
 
 
@@ -996,23 +1164,26 @@ void GLInstancingRenderer::setActiveCamera(CommonCameraInterface* cam)
 	m_data->m_activeCamera = cam;
 }
 
+void GLInstancingRenderer::setLightPosition(const float lightPos[3])
+{
+	m_data->m_lightPos[0] = lightPos[0];
+	m_data->m_lightPos[1] = lightPos[1];
+	m_data->m_lightPos[2] = lightPos[2];
+}
+
+void GLInstancingRenderer::setLightPosition(const double lightPos[3])
+{
+	m_data->m_lightPos[0] = lightPos[0];
+	m_data->m_lightPos[1] = lightPos[1];
+	m_data->m_lightPos[2] = lightPos[2];
+}
+
 
 void GLInstancingRenderer::updateCamera(int upAxis)
 {
 
     b3Assert(glGetError() ==GL_NO_ERROR);
 	m_upAxis = upAxis;
-	switch (upAxis)
-	{
-    case 1:
-    		gLightPos = b3MakeVector3(-50.f,100,30);
-    	break;
-    case 2:
-			gLightPos = b3MakeVector3(-50.f,30,100);
-			break;
-    default:
-    b3Assert(0);
-	};
 
 	m_data->m_activeCamera->setCameraUpAxis(upAxis);
 	m_data->m_activeCamera->setAspectRatio((float)m_screenWidth/(float)m_screenHeight);
@@ -1554,9 +1725,10 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 	//float upf[3];
 	//m_data->m_activeCamera->getCameraUpVector(upf);
 	b3Vector3 up, fwd;
-	b3PlaneSpace1(gLightPos,up,fwd);
+	b3Vector3 lightDir = m_data->m_lightPos.normalized();
+	b3PlaneSpace1(lightDir,up,fwd);
 //	b3Vector3 up = b3MakeVector3(upf[0],upf[1],upf[2]);
-	b3CreateLookAt(gLightPos,center,up,&depthViewMatrix[0][0]);
+	b3CreateLookAt(m_data->m_lightPos,center,up,&depthViewMatrix[0][0]);
 	//b3CreateLookAt(lightPos,m_data->m_cameraTargetPosition,b3Vector3(0,1,0),(float*)depthModelViewMatrix2);
 
 	GLfloat depthModelMatrix[4][4];
@@ -1726,7 +1898,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 							glUniformMatrix4fv(ProjectionMatrix, 1, false, &m_data->m_projectionMatrix[0]);
 							glUniformMatrix4fv(ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
 							
-							b3Vector3 gLightDir = gLightPos;
+							b3Vector3 gLightDir = m_data->m_lightPos;
 							gLightDir.normalize();
 							glUniform3f(regularLightDirIn,gLightDir[0],gLightDir[1],gLightDir[2]);
 
@@ -1763,7 +1935,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 							float MVP[16];
 							b3Matrix4x4Mul16(m_data->m_projectionMatrix,m_data->m_viewMatrix,MVP);
 							glUniformMatrix4fv(useShadow_MVP, 1, false, &MVP[0]);
-							b3Vector3 gLightDir = gLightPos;
+							b3Vector3 gLightDir = m_data->m_lightPos;
 							gLightDir.normalize();
 							glUniform3f(useShadow_lightDirIn,gLightDir[0],gLightDir[1],gLightDir[2]);
 							glUniformMatrix4fv(useShadow_DepthBiasModelViewMatrix, 1, false, &depthBiasMVP[0][0]);

@@ -4,6 +4,7 @@
 
 #include "MultiBodyCreationInterface.h"
 #include "LinearMath/btAlignedObjectArray.h"
+#include "LinearMath/btHashMap.h"
 
 struct GUIHelperInterface;
 class btMultiBody;
@@ -28,7 +29,6 @@ protected:
     
 	struct GUIHelperInterface* m_guiHelper;
 
-	
 	btAlignedObjectArray<btGeneric6DofSpring2Constraint*> m_6DofConstraints;
 
 public:

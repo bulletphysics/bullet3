@@ -1,6 +1,8 @@
 #include "BulletMJCFImporter.h"
 #include "../../ThirdPartyLibs/tinyxml/tinyxml.h"
 #include "Bullet3Common/b3FileUtils.h"
+#include "Bullet3Common/b3HashMap.h"
+
 #include <string>
 #include "../../Utils/b3ResourcePath.h"
 #include <iostream>
@@ -129,6 +131,35 @@ struct MyMJCFAsset
 	std::string  m_fileName;
 };
 
+struct MyMJCFDefaults
+{
+	int m_defaultCollisionGroup;
+	int m_defaultCollisionMask;
+	btScalar m_defaultCollisionMargin;
+
+	// joint defaults
+	std::string m_defaultJointLimited;
+
+	// geom defaults
+	std::string m_defaultGeomRgba;
+	int m_defaultConDim;
+	double m_defaultLateralFriction;
+	double m_defaultSpinningFriction;
+	double m_defaultRollingFriction;
+
+	MyMJCFDefaults()
+		:m_defaultCollisionGroup(1),
+		m_defaultCollisionMask(1),
+		m_defaultCollisionMargin(0.001),//assume unit meters, margin is 1mm
+		m_defaultConDim(3),
+		m_defaultLateralFriction(0.5),
+		m_defaultSpinningFriction(0),
+		m_defaultRollingFriction(0)
+	{
+	}
+
+};
+
 struct BulletMJCFImporterInternalData
 {
 	GUIHelperInterface* m_guiHelper;
@@ -149,26 +180,17 @@ struct BulletMJCFImporterInternalData
 
 	int m_activeModel;
 	int m_activeBodyUniqueId;
-	//todo: for full MJCF compatibility, we would need a stack of default values
-	int m_defaultCollisionGroup;
-	int m_defaultCollisionMask;
-	btScalar m_defaultCollisionMargin;
 
-	// joint defaults
-	std::string m_defaultJointLimited;
-
-	// geom defaults
-	std::string m_defaultGeomRgba;
+	//todo: for better MJCF compatibility, we would need a stack of default values
+	MyMJCFDefaults m_globalDefaults;
+	b3HashMap<b3HashString, MyMJCFDefaults> m_classDefaults;
 
 	//those collision shapes are deleted by caller (todo: make sure this happens!)
 	btAlignedObjectArray<btCollisionShape*> m_allocatedCollisionShapes;
 
 	BulletMJCFImporterInternalData()
 		:m_activeModel(-1),
-		m_activeBodyUniqueId(-1),
-		m_defaultCollisionGroup(1),
-		m_defaultCollisionMask(1),
-		m_defaultCollisionMargin(0.001)//assume unit meters, margin is 1mm
+		m_activeBodyUniqueId(-1)
 	{
 		m_pathPrefix[0] = 0;
 	}
@@ -246,7 +268,9 @@ struct BulletMJCFImporterInternalData
 			
 		}
 	}
-	bool parseDefaults(TiXmlElement* root_xml, MJCFErrorLogger* logger)
+	
+	
+	bool parseDefaults(MyMJCFDefaults& defaults, TiXmlElement* root_xml, MJCFErrorLogger* logger)
 	{
 		bool handled= false;
 		//rudimentary 'default' support, would need more work for better feature coverage
@@ -254,6 +278,27 @@ struct BulletMJCFImporterInternalData
 		{
 			std::string n = child_xml->Value();
 		
+			if (n.find("default")!=std::string::npos)
+			{
+				const char* className = child_xml->Attribute("class");
+
+				if (className)
+				{
+					MyMJCFDefaults* curDefaultsPtr = m_classDefaults[className];
+					if (!curDefaultsPtr)
+					{
+						MyMJCFDefaults def;
+						m_classDefaults.insert(className,def);
+						curDefaultsPtr = m_classDefaults[className];
+					}
+					if (curDefaultsPtr)
+					{
+						MyMJCFDefaults& curDefaults = *curDefaultsPtr; 
+						parseDefaults(curDefaults, child_xml, logger);
+					}
+				}
+			}
+
 			if (n=="inertial")
 			{
 			}
@@ -269,7 +314,7 @@ struct BulletMJCFImporterInternalData
 				// limited="true"
 				if (const char* conTypeStr = child_xml->Attribute("limited"))
 				{
-					m_defaultJointLimited = child_xml->Attribute("limited");
+					defaults.m_defaultJointLimited = child_xml->Attribute("limited");
 				}
 			}
 			if (n=="geom")
@@ -278,24 +323,60 @@ struct BulletMJCFImporterInternalData
 				const char* conTypeStr = child_xml->Attribute("contype");
 				if (conTypeStr)
 				{
-					m_defaultCollisionGroup = urdfLexicalCast<int>(conTypeStr);
+					defaults.m_defaultCollisionGroup = urdfLexicalCast<int>(conTypeStr);
 				}
 				const char* conAffinityStr = child_xml->Attribute("conaffinity");
 				if (conAffinityStr)
 				{
-					m_defaultCollisionMask = urdfLexicalCast<int>(conAffinityStr);
+					defaults.m_defaultCollisionMask = urdfLexicalCast<int>(conAffinityStr);
 				}
 				const char* rgba = child_xml->Attribute("rgba");
 				if (rgba)
 				{
-					m_defaultGeomRgba = rgba;
+					defaults.m_defaultGeomRgba = rgba;
+				}
+
+				const char* conDimS = child_xml->Attribute("condim");
+				if (conDimS)
+				{
+					defaults.m_defaultConDim=urdfLexicalCast<int>(conDimS);
+				}
+				int conDim = defaults.m_defaultConDim;
+
+				const char* frictionS = child_xml->Attribute("friction");
+				if (frictionS)
+				{
+					btArray<std::string> pieces;
+					btArray<float> frictions;
+					btAlignedObjectArray<std::string> strArray;
+					urdfIsAnyOf(" ", strArray);
+					urdfStringSplit(pieces, frictionS, strArray);
+					for (int i = 0; i < pieces.size(); ++i)
+					{
+						if (!pieces[i].empty())
+						{
+							frictions.push_back(urdfLexicalCast<double>(pieces[i].c_str()));
+						}
+					}
+					if (frictions.size()>0)
+					{
+						defaults.m_defaultLateralFriction = frictions[0];
+					}
+					if (frictions.size()>1)
+					{
+						defaults.m_defaultSpinningFriction = frictions[1];
+					}
+					if (frictions.size()>2)
+					{
+						defaults.m_defaultRollingFriction = frictions[2];
+					}
 				}
 			}
 		}
 		handled=true;
 		return handled;
 	}
-	bool parseRootLevel(TiXmlElement* root_xml,MJCFErrorLogger* logger)
+	bool parseRootLevel(MyMJCFDefaults& defaults,  TiXmlElement* root_xml,MJCFErrorLogger* logger)
 	{
 		for (TiXmlElement* rootxml = root_xml->FirstChildElement() ; rootxml ; rootxml = rootxml->NextSiblingElement())
 		{
@@ -308,7 +389,7 @@ struct BulletMJCFImporterInternalData
 				int modelIndex = m_models.size();
 				UrdfModel* model = new UrdfModel();
 				m_models.push_back(model);
-				parseBody(rootxml,modelIndex, INVALID_LINK_INDEX,logger);
+				parseBody(defaults, rootxml,modelIndex, INVALID_LINK_INDEX,logger);
 				initTreeAndRoot(*model,logger);
 				handled = true;
 			}
@@ -336,7 +417,7 @@ struct BulletMJCFImporterInternalData
 //				modelPtr->m_rootLinks.push_back(linkPtr);
 
 				btVector3 inertialShift(0,0,0);
-				parseGeom(rootxml,modelIndex, linkIndex,logger,inertialShift);
+				parseGeom(defaults, rootxml,modelIndex, linkIndex,logger,inertialShift);
 				initTreeAndRoot(*modelPtr,logger);
 
 				handled = true;
@@ -355,7 +436,7 @@ struct BulletMJCFImporterInternalData
 		return true;
 	}
 
-	bool parseJoint(TiXmlElement* link_xml, int modelIndex, int parentLinkIndex, int linkIndex, MJCFErrorLogger* logger, const btTransform& parentToLinkTrans, btTransform& jointTransOut)
+	bool parseJoint(MyMJCFDefaults& defaults, TiXmlElement* link_xml, int modelIndex, int parentLinkIndex, int linkIndex, MJCFErrorLogger* logger, const btTransform& parentToLinkTrans, btTransform& jointTransOut)
 	{
 		bool jointHandled = false;
 		const char* jType = link_xml->Attribute("type");
@@ -399,7 +480,7 @@ struct BulletMJCFImporterInternalData
 		}
 
 		double range[2] = {1,0};
-		std::string lim = m_defaultJointLimited;
+		std::string lim = m_globalDefaults.m_defaultJointLimited;
 		if (limitedStr)
 		{
 			lim = limitedStr;
@@ -531,7 +612,7 @@ struct BulletMJCFImporterInternalData
 		*/
 		return false;
 	}
-	bool parseGeom(TiXmlElement* link_xml, int modelIndex, int linkIndex, MJCFErrorLogger* logger, btVector3& inertialShift)
+	bool parseGeom(MyMJCFDefaults& defaults, TiXmlElement* link_xml, int modelIndex, int linkIndex, MJCFErrorLogger* logger, btVector3& inertialShift)
 	{
 		UrdfLink** linkPtrPtr = m_models[modelIndex]->m_links.getAtIndex(linkIndex);
 		if (linkPtrPtr==0)
@@ -554,8 +635,66 @@ struct BulletMJCFImporterInternalData
 		const char* gType = link_xml->Attribute("type");
 		const char* sz = link_xml->Attribute("size");
 		const char* posS = link_xml->Attribute("pos");
+		int conDim = defaults.m_defaultConDim;
 
-		std::string rgba = m_defaultGeomRgba;
+		const char* conDimS = link_xml->Attribute("condim");
+		{
+			if (conDimS)
+			{
+				conDim = urdfLexicalCast<int>(conDimS);
+			} 
+		}
+
+		double lateralFriction = defaults.m_defaultLateralFriction;
+		double spinningFriction = defaults.m_defaultSpinningFriction;
+		double rollingFriction = defaults.m_defaultRollingFriction;
+
+		const char* frictionS = link_xml->Attribute("friction");
+		if (frictionS)
+		{
+			btArray<std::string> pieces;
+			btArray<float> frictions;
+			btAlignedObjectArray<std::string> strArray;
+			urdfIsAnyOf(" ", strArray);
+			urdfStringSplit(pieces, sz, strArray);
+			for (int i = 0; i < pieces.size(); ++i)
+			{
+				if (!pieces[i].empty())
+				{
+					frictions.push_back(urdfLexicalCast<double>(pieces[i].c_str()));
+				}
+			}
+			if (frictions.size()>0)
+			{
+				lateralFriction = frictions[0];
+			}
+			if (frictions.size()>1 && conDim>3)
+			{
+				spinningFriction = frictions[1];
+			}
+			if (frictions.size()>2 && conDim>4)
+			{
+				rollingFriction = frictions[2];
+			}
+
+		}
+
+		linkPtr->m_contactInfo.m_lateralFriction=lateralFriction;
+		linkPtr->m_contactInfo.m_spinningFriction=spinningFriction;
+		linkPtr->m_contactInfo.m_rollingFriction=rollingFriction;
+
+		if (conDim>3)
+		{
+			linkPtr->m_contactInfo.m_spinningFriction=defaults.m_defaultSpinningFriction;
+			linkPtr->m_contactInfo.m_flags |= URDF_CONTACT_HAS_SPINNING_FRICTION;
+		}
+		if (conDim>4)
+		{
+			linkPtr->m_contactInfo.m_rollingFriction=defaults.m_defaultRollingFriction;
+			linkPtr->m_contactInfo.m_flags |= URDF_CONTACT_HAS_ROLLING_FRICTION;
+		}
+
+		std::string rgba = defaults.m_defaultGeomRgba;
 		if (const char* rgbattr = link_xml->Attribute("rgba"))
 		{
 			rgba = rgbattr;
@@ -717,10 +856,10 @@ struct BulletMJCFImporterInternalData
 						
 				UrdfCollision col;
 				col.m_flags |= URDF_HAS_COLLISION_GROUP;
-				col.m_collisionGroup = m_defaultCollisionGroup;
+				col.m_collisionGroup = defaults.m_defaultCollisionGroup;
 				
 				col.m_flags |= URDF_HAS_COLLISION_MASK;
-				col.m_collisionMask = m_defaultCollisionMask;
+				col.m_collisionMask = defaults.m_defaultCollisionMask;
 				
 				//contype, conaffinity 
 				const char* conTypeStr = link_xml->Attribute("contype");
@@ -891,10 +1030,21 @@ struct BulletMJCFImporterInternalData
 		return orgChildLinkIndex;
 	}
 
-	bool parseBody(TiXmlElement* link_xml, int modelIndex, int orgParentLinkIndex, MJCFErrorLogger* logger)
+	bool parseBody(MyMJCFDefaults& defaults, TiXmlElement* link_xml, int modelIndex, int orgParentLinkIndex, MJCFErrorLogger* logger)
 	{
+		MyMJCFDefaults curDefaults = defaults;
+
 		int newParentLinkIndex = orgParentLinkIndex;
 
+		const char* childClassName = link_xml->Attribute("childclass");
+		if (childClassName)
+		{
+			MyMJCFDefaults* classDefaults = m_classDefaults[childClassName];
+			if (classDefaults)
+			{
+				curDefaults = *classDefaults;
+			}
+		}
 		const char* bodyName = link_xml->Attribute("name");
 		int orgChildLinkIndex = createBody(modelIndex,bodyName);
 		btTransform localInertialFrame;
@@ -998,7 +1148,7 @@ struct BulletMJCFImporterInternalData
 						}
 
 						int newLinkIndex = createBody(modelIndex,0);
-						parseJoint(xml,modelIndex,newParentLinkIndex, newLinkIndex,logger,linkTransform,jointTrans);
+						parseJoint(curDefaults,xml,modelIndex,newParentLinkIndex, newLinkIndex,logger,linkTransform,jointTrans);
 						
 						//getLink(modelIndex,newLinkIndex)->m_linkTransformInWorld = jointTrans*linkTransform;
 						
@@ -1013,7 +1163,7 @@ struct BulletMJCFImporterInternalData
 					int newLinkIndex = createBody(modelIndex,0);
 					btTransform joint2nextjoint =  jointTrans.inverse();
 					btTransform unused;
-					parseJoint(xml,modelIndex,newParentLinkIndex, newLinkIndex,logger,joint2nextjoint,unused);
+					parseJoint(curDefaults, xml,modelIndex,newParentLinkIndex, newLinkIndex,logger,joint2nextjoint,unused);
 					newParentLinkIndex = newLinkIndex;
 					//todo: compute relative joint transforms (if any) and append to linkTransform
 					hasJoint = true;
@@ -1024,7 +1174,7 @@ struct BulletMJCFImporterInternalData
 			if (n == "geom")
 			{
 				btVector3 inertialShift(0,0,0);
-				parseGeom(xml,modelIndex, orgChildLinkIndex , logger,inertialShift);
+				parseGeom(curDefaults, xml,modelIndex, orgChildLinkIndex , logger,inertialShift);
 				if (!massDefined)
 				{
 					localInertialFrame.setOrigin(inertialShift);
@@ -1035,7 +1185,7 @@ struct BulletMJCFImporterInternalData
 			//recursive
 			if (n=="body")
 			{
-				parseBody(xml,modelIndex,orgChildLinkIndex,logger);
+				parseBody(curDefaults, xml,modelIndex,orgChildLinkIndex,logger);
 				handled = true;
 			}
 
@@ -1288,7 +1438,7 @@ bool BulletMJCFImporter::parseMJCFString(const char* xmlText, MJCFErrorLogger* l
 
 	for (TiXmlElement* link_xml = mujoco_xml->FirstChildElement("default"); link_xml; link_xml = link_xml->NextSiblingElement("default"))
 	{
-		m_data->parseDefaults(link_xml,logger);
+		m_data->parseDefaults(m_data->m_globalDefaults,link_xml,logger);
 	}
 
 	for (TiXmlElement* link_xml = mujoco_xml->FirstChildElement("compiler"); link_xml; link_xml = link_xml->NextSiblingElement("compiler"))
@@ -1304,12 +1454,12 @@ bool BulletMJCFImporter::parseMJCFString(const char* xmlText, MJCFErrorLogger* l
 	
 	for (TiXmlElement* link_xml = mujoco_xml->FirstChildElement("body"); link_xml; link_xml = link_xml->NextSiblingElement("body"))
 	{
-		m_data->parseRootLevel(link_xml,logger);
+		m_data->parseRootLevel(m_data->m_globalDefaults, link_xml,logger);
 	}
 
 	for (TiXmlElement* link_xml = mujoco_xml->FirstChildElement("worldbody"); link_xml; link_xml = link_xml->NextSiblingElement("worldbody"))
 	{
-		m_data->parseRootLevel(link_xml,logger);
+		m_data->parseRootLevel(m_data->m_globalDefaults, link_xml,logger);
 	}
 
 
@@ -1570,7 +1720,7 @@ static btCollisionShape* MjcfCreateConvexHullFromShapes(std::vector<tinyobj::sha
 }
 
     
-class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const
+class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes( int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const
 {
 	btCompoundShape* compound = new btCompoundShape();
 	m_data->m_allocatedCollisionShapes.push_back(compound);
@@ -1655,7 +1805,7 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 							std::string err = tinyobj::LoadObj(shapes, col->m_geometry.m_meshFileName.c_str());
 							//create a convex hull for each shape, and store it in a btCompoundShape
 
-							childShape = MjcfCreateConvexHullFromShapes(shapes, col->m_geometry.m_meshScale, m_data->m_defaultCollisionMargin);
+							childShape = MjcfCreateConvexHullFromShapes( shapes, col->m_geometry.m_meshScale, m_data->m_globalDefaults.m_defaultCollisionMargin);
 
 						}
 						break;
@@ -1713,7 +1863,7 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 						btConvexHullShape* convexHull = new btConvexHullShape(&convertedVerts[0].getX(), convertedVerts.size(), sizeof(btVector3));
 						convexHull->optimizeConvexHull();
 						//convexHull->initializePolyhedralFeatures();
-						convexHull->setMargin(m_data->m_defaultCollisionMargin);
+						convexHull->setMargin(m_data->m_globalDefaults.m_defaultCollisionMargin);
 						childShape = convexHull;
 					}
 				}
@@ -1741,6 +1891,11 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes(int linkIn
 				}
 				break;
 			}
+			case URDF_GEOM_UNKNOWN:
+                        {
+				break;
+			}
+
 			} // switch geom
 
 			if (childShape)

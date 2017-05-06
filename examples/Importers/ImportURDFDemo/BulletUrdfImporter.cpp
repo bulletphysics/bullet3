@@ -421,6 +421,7 @@ bool BulletURDFImporter::getRootTransformInWorld(btTransform& rootTransformInWor
 
 static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale)
 {
+	B3_PROFILE("createConvexHullFromShapes");
 	btCompoundShape* compound = new btCompoundShape();
 	compound->setMargin(gUrdfDefaultCollisionMargin);
 
@@ -633,6 +634,7 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 		case UrdfGeometry::FILE_OBJ:
 			if (collision->m_flags & URDF_FORCE_CONCAVE_TRIMESH)
 			{
+				
 				glmesh = LoadMeshFromObj(collision->m_geometry.m_meshFileName.c_str(), 0);
 			}
 			else
@@ -744,16 +746,23 @@ upAxisMat.setIdentity();
 		{
 			BT_PROFILE("convert trimesh");
 			btTriangleMesh* meshInterface = new btTriangleMesh();
-			for (int i=0; i<glmesh->m_numIndices/3; i++)
 			{
-				const btVector3& v0 = convertedVerts[glmesh->m_indices->at(i*3)];
-				const btVector3& v1 = convertedVerts[glmesh->m_indices->at(i*3+1)];
-				const btVector3& v2 = convertedVerts[glmesh->m_indices->at(i*3+2)];
-				meshInterface->addTriangle(v0,v1,v2);
+				BT_PROFILE("convert vertices");
+
+				for (int i=0; i<glmesh->m_numIndices/3; i++)
+				{
+					const btVector3& v0 = convertedVerts[glmesh->m_indices->at(i*3)];
+					const btVector3& v1 = convertedVerts[glmesh->m_indices->at(i*3+1)];
+					const btVector3& v2 = convertedVerts[glmesh->m_indices->at(i*3+2)];
+					meshInterface->addTriangle(v0,v1,v2);
+				}
 			}
-			btBvhTriangleMeshShape* trimesh = new btBvhTriangleMeshShape(meshInterface,true,true);
-			//trimesh->setLocalScaling(collision->m_geometry.m_meshScale);
-			shape = trimesh;
+			{
+				BT_PROFILE("create btBvhTriangleMeshShape");
+				btBvhTriangleMeshShape* trimesh = new btBvhTriangleMeshShape(meshInterface,true,true);
+				//trimesh->setLocalScaling(collision->m_geometry.m_meshScale);
+				shape = trimesh;
+			}
 
 		} else
 		{
@@ -1125,9 +1134,9 @@ bool BulletURDFImporter::getLinkColor(int linkIndex, btVector4& colorRGBA) const
 	return false;
 }
 
-bool BulletURDFImporter::getLinkContactInfo(int linkIndex, URDFLinkContactInfo& contactInfo ) const
+bool BulletURDFImporter::getLinkContactInfo(int urdflinkIndex, URDFLinkContactInfo& contactInfo ) const
 {
-	UrdfLink* const* linkPtr = m_data->m_urdfParser.getModel().m_links.getAtIndex(linkIndex);
+	UrdfLink* const* linkPtr = m_data->m_urdfParser.getModel().m_links.getAtIndex(urdflinkIndex);
 	if (linkPtr)
 	{
 		const UrdfLink* link = *linkPtr;
@@ -1136,6 +1145,22 @@ bool BulletURDFImporter::getLinkContactInfo(int linkIndex, URDFLinkContactInfo& 
 	}
 	return false;
 }
+
+bool BulletURDFImporter::getLinkAudioSource(int linkIndex, SDFAudioSource& audioSource) const
+{
+	UrdfLink* const* linkPtr = m_data->m_urdfParser.getModel().m_links.getAtIndex(linkIndex);
+	if (linkPtr)
+	{
+		const UrdfLink* link = *linkPtr;
+		if (link->m_audioSource.m_flags & SDFAudioSource::SDFAudioSourceValid)
+		{
+			audioSource = link->m_audioSource;
+			return true;
+		}
+	}
+	return false;
+}
+
 
 void BulletURDFImporter::convertLinkVisualShapes2(int linkIndex, int urdfIndex, const char* pathPrefix, const btTransform& localInertiaFrame, class btCollisionObject* colObj, int bodyUniqueId) const
 {

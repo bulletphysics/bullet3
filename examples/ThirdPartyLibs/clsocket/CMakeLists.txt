@@ -30,14 +30,7 @@ LIST(APPEND CLSOCKET_SOURCES ${CLSOCKET_HEADERS})
 # OS and compiler checks. 
 if(UNIX)
     # linux / normal unix
-    add_definitions(-D_LINUX)
-    if(CYGWIN)
-        # Special Cygwin stuff here
-    elseif(APPLE)
-        # Special Apple stuff here
-        remove_definitions(-D_LINUX)
-        add_definitions(-D_DARWIN)
-    endif()
+    add_definitions(${OSDEF})
 elseif(WIN32)
     add_definitions(-DWIN32)
     SET(PROJECT_LIBS Ws2_32.lib)

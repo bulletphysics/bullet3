@@ -241,6 +241,15 @@ void OpenGLGuiHelper::removeAllGraphicsInstances()
     m_data->m_glApp->m_renderer->removeAllInstances();
 }
 
+void OpenGLGuiHelper::removeGraphicsInstance(int graphicsUid)
+{
+	if (graphicsUid>=0)
+	{
+		m_data->m_glApp->m_renderer->removeGraphicsInstance(graphicsUid);
+	};
+}
+
+
 void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* collisionShape)
 {
 	//already has a graphics object?
@@ -338,6 +347,12 @@ void OpenGLGuiHelper::render(const btDiscreteDynamicsWorld* rbWorld)
 void OpenGLGuiHelper::createPhysicsDebugDrawer(btDiscreteDynamicsWorld* rbWorld)
 {
 	btAssert(rbWorld);
+	if (m_data->m_debugDraw)
+	{
+		delete m_data->m_debugDraw;
+		m_data->m_debugDraw = 0;
+	}
+
     m_data->m_debugDraw = new MyDebugDrawer(m_data->m_glApp);
     rbWorld->setDebugDrawer(m_data->m_debugDraw );
 
@@ -581,7 +596,7 @@ void OpenGLGuiHelper::autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWor
 		btCollisionObject* colObj = rbWorld->getCollisionObjectArray()[i];
 		sortedObjects.push_back(colObj);
 	}
-	sortedObjects.quickSort(shapePointerCompareFunc);
+	//sortedObjects.quickSort(shapePointerCompareFunc);
 	for (int i=0;i<sortedObjects.size();i++)
 	{
 		btCollisionObject* colObj = sortedObjects[i];

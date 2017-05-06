@@ -46,6 +46,7 @@ static GLInstanceGraphicsShape* LoadMeshFromSTL(const char* relativeFileName)
 							int expectedBinaryFileSize = numTriangles* 50 + 84;
 							if (expectedBinaryFileSize != size)
 							{
+								delete[] memoryBuffer;
 								return 0;
 							}
 

@@ -23,11 +23,14 @@ struct CommonRenderInterface
 	virtual void init()=0;
 	virtual void updateCamera(int upAxis)=0;
 	virtual void removeAllInstances() = 0;
-	
+	virtual void removeGraphicsInstance(int instanceUid) = 0;
+
 	virtual const CommonCameraInterface* getActiveCamera() const =0;
 	virtual CommonCameraInterface* getActiveCamera()=0;
 	virtual void setActiveCamera(CommonCameraInterface* cam)=0;
 	
+	virtual void setLightPosition(const float lightPos[3]) = 0;
+	virtual void setLightPosition(const double lightPos[3]) = 0;
 
 	virtual void renderScene()=0;
 	virtual void renderSceneInternal(int renderMode=B3_DEFAULT_RENDERMODE){};

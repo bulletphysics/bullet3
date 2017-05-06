@@ -282,7 +282,36 @@ if os.is("Windows") then
 			end
 		
 	end
-		
+	if _OPTIONS["audio"] then
+			files {
+				"../TinyAudio/b3ADSR.cpp",
+				"../TinyAudio/b3AudioListener.cpp",
+				"../TinyAudio/b3ReadWavFile.cpp",
+				"../TinyAudio/b3SoundEngine.cpp",
+				"../TinyAudio/b3SoundSource.cpp",
+				"../TinyAudio/b3WriteWavFile.cpp",
+				"../TinyAudio/RtAudio.cpp",
+			}
+			
+			defines {"B3_ENABLE_TINY_AUDIO"}
+			
+			if os.is("Windows") then
+				links {"winmm","Wsock32","dsound"}
+				defines {"WIN32","__WINDOWS_MM__","__WINDOWS_DS__"}
+			end
+			
+			if os.is("Linux") then initX11() 
+			                defines  {"__OS_LINUX__","__LINUX_ALSA__"}
+				links {"asound","pthread"}
+			end
+
+
+			if os.is("MacOSX") then
+				links{"Cocoa.framework"}
+				links{"CoreAudio.framework", "coreMIDI.framework", "Cocoa.framework"}
+				defines {"__OS_MACOSX__","__MACOSX_CORE__"}
+			end
+		end
 	includedirs {
 			".","../../src", "../ThirdPartyLibs",
 			"../ThirdPartyLibs/openvr/headers",
@@ -315,6 +344,7 @@ if os.is("Windows") then
 					"../ThirdPartyLibs/openvr/samples/shared/lodepng.h",
 					"../ThirdPartyLibs/openvr/samples/shared/Matrices.cpp",
 					"../ThirdPartyLibs/openvr/samples/shared/Matrices.h",
+					"../ThirdPartyLibs/openvr/samples/shared/strtools.cpp",
 					"../ThirdPartyLibs/openvr/samples/shared/pathtools.cpp",
 					"../ThirdPartyLibs/openvr/samples/shared/pathtools.h",
 					"../ThirdPartyLibs/openvr/samples/shared/Vectors.h",

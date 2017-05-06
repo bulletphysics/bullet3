@@ -61,7 +61,7 @@ if (BUILD_SHARED_LIBS)
   else()
 	set (CMAKE_THREAD_PREFER_PTHREAD TRUE)
 	FIND_PACKAGE(Threads)
-   	target_link_libraries(OpenGLWindow dl ${CMAKE_THREAD_LIBS_INIT})
+	target_link_libraries(OpenGLWindow ${DL} ${CMAKE_THREAD_LIBS_INIT})
   endif()
 endif()
 

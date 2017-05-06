@@ -106,6 +106,22 @@ struct BulletDataStreamArgs
 	char m_bodyName[MAX_FILENAME_LENGTH];
 };
 
+enum EnumResetDynamicInfoFlags
+{
+	RESET_DYNAMIC_INFO_SET_MASS=1,
+	RESET_DYNAMIC_INFO_SET_COM=2,
+	RESET_DYNAMIC_INFO_SET_LATERAL_FRICTION=4,
+};
+
+struct ResetDynamicInfoArgs
+{
+	int m_bodyUniqueId;
+	int m_linkIndex;
+	double m_mass;
+	double m_COM[3];
+	double m_lateralFriction;
+};
+
 struct SetJointFeedbackArgs
 {
 	int m_bodyUniqueId;
@@ -435,6 +451,22 @@ struct CreateBoxShapeArgs
 	double m_colorRGBA[4];
 };
 
+struct b3ObjectArgs
+{
+    int m_numBodies;
+    int m_bodyUniqueIds[MAX_SDF_BODIES];
+	int m_numUserConstraints;
+	int m_userConstraintUniqueIds[MAX_SDF_BODIES];
+};
+
+struct b3Profile
+{
+	char m_name[MAX_FILENAME_LENGTH];
+	int m_durationInMicroSeconds;
+};
+
+
+
 struct SdfLoadedArgs
 {
     int m_numBodies;
@@ -556,6 +588,10 @@ enum EnumUserConstraintFlags
 	
 };
 
+enum EnumBodyChangeFlags
+{
+	BODY_DELETE_FLAG=1,
+};
 
 
 
@@ -702,6 +738,7 @@ struct SharedMemoryCommand
 		struct MjcfArgs	m_mjcfArguments;
 		struct FileArgs m_fileArguments;
 		struct SdfRequestInfoArgs m_sdfRequestInfoArgs;
+		struct ResetDynamicInfoArgs m_resetDynamicInfoArgs;
 		struct InitPoseArgs m_initPoseArgs;
 		struct SendPhysicsSimulationParameters m_physSimParamArgs;
 		struct BulletDataStreamArgs	m_dataStreamArguments;
@@ -728,6 +765,9 @@ struct SharedMemoryCommand
 		struct VRCameraState m_vrCameraStateArguments;
 		struct StateLoggingRequest m_stateLoggingArguments;
         struct ConfigureOpenGLVisualizerRequest m_configureOpenGLVisualizerArguments;
+		struct b3ObjectArgs m_removeObjectArgs;
+		struct b3Profile m_profile;
+
     };
 };
 
@@ -791,6 +831,7 @@ struct SharedMemoryStatus
 		struct SendRaycastHits m_raycastHits;
 		struct StateLoggingResultArgs m_stateLoggingResultArgs;
 		struct b3OpenGLVisualizerCameraInfo m_visualizerCameraResultArgs;
+		struct b3ObjectArgs m_removeObjectArgs;
 	};
 };
 
