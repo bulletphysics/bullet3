@@ -108,6 +108,11 @@ int PhysicsLoopBack::getUserConstraintInfo(int constraintUniqueId, struct b3User
     return m_data->m_physicsClient->getUserConstraintInfo( constraintUniqueId, info);
 }
 
+int PhysicsLoopBack::getUserConstraintId(int serialIndex) const
+{
+	return m_data->m_physicsClient->getUserConstraintId(serialIndex);
+}
+
 ///todo: move this out of the interface
 void PhysicsLoopBack::setSharedMemoryKey(int key)
 {

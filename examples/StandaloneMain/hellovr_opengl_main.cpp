@@ -355,7 +355,7 @@ void MyKeyboardCallback(int key, int state)
 		}
 		else
 		{
-			b3ChromeUtilsStopTimingsAndWriteJsonFile();
+			b3ChromeUtilsStopTimingsAndWriteJsonFile("timings");
 		}
 	}
 	if (sExample)
@@ -2342,7 +2342,7 @@ int main(int argc, char *argv[])
 
 	if (args.CheckCmdLineFlag("tracing"))
 	{
-		b3ChromeUtilsStopTimingsAndWriteJsonFile();
+		b3ChromeUtilsStopTimingsAndWriteJsonFile("timings");
 	}
 
 

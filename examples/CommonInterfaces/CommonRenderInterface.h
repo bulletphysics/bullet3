@@ -23,7 +23,8 @@ struct CommonRenderInterface
 	virtual void init()=0;
 	virtual void updateCamera(int upAxis)=0;
 	virtual void removeAllInstances() = 0;
-	
+	virtual void removeGraphicsInstance(int instanceUid) = 0;
+
 	virtual const CommonCameraInterface* getActiveCamera() const =0;
 	virtual CommonCameraInterface* getActiveCamera()=0;
 	virtual void setActiveCamera(CommonCameraInterface* cam)=0;

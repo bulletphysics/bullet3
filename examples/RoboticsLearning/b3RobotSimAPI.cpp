@@ -50,6 +50,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eRobotSimGUIHelperCreateCollisionObjectGraphicsObject,
 	eRobotSimGUIHelperRemoveAllGraphicsInstances,
 	eRobotSimGUIHelperCopyCameraImageData,
+	eRobotSimGUIHelperRemoveGraphicsInstance,
 };
 
 #include <stdio.h>
@@ -315,6 +316,17 @@ public:
     {
         m_cs->lock();
 		m_cs->setSharedParam(1,eRobotSimGUIHelperRemoveAllGraphicsInstances);
+		m_cs->unlock();
+		while (m_cs->getSharedParam(1)!=eRobotSimGUIHelperIdle)
+		{
+		}
+    }
+	int m_graphicsInstanceRemove;
+	 virtual void removeGraphicsInstance(int instanceUid)
+    {
+        m_cs->lock();
+		m_cs->setSharedParam(1,eRobotSimGUIHelperRemoveGraphicsInstance);
+		m_graphicsInstanceRemove = instanceUid;
 		m_cs->unlock();
 		while (m_cs->getSharedParam(1)!=eRobotSimGUIHelperIdle)
 		{
@@ -639,6 +651,14 @@ void b3RobotSimAPI::processMultiThreadedGraphicsRequests()
             m_data->m_multiThreadedHelper->getCriticalSection()->unlock();
             break;
         }
+	case eRobotSimGUIHelperRemoveGraphicsInstance:
+	{
+		m_data->m_multiThreadedHelper->m_childGuiHelper->removeGraphicsInstance(m_data->m_multiThreadedHelper->m_graphicsInstanceRemove);
+        m_data->m_multiThreadedHelper->getCriticalSection()->lock();
+        m_data->m_multiThreadedHelper->getCriticalSection()->setSharedParam(1,eRobotSimGUIHelperIdle);
+        m_data->m_multiThreadedHelper->getCriticalSection()->unlock();
+		break;
+	}
     case eRobotSimGUIHelperCopyCameraImageData:
         {
             m_data->m_multiThreadedHelper->m_childGuiHelper->copyCameraImageData(m_data->m_multiThreadedHelper->m_viewMatrix,

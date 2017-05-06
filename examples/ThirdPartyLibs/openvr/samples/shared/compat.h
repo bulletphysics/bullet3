@@ -15,6 +15,7 @@
 #define vsprintf_s  sprintf
 #define _stricmp    strcmp
 #define stricmp     strcmp
+#define strnicmp    strncasecmp
 #define strcpy_s(dst, n, src)   int(strncpy(dst, src, n) != nullptr)
 #define fopen_s(fd, path, mode) int((*fd = fopen(path, mode)) != nullptr)
 #define _vsnprintf_s(buffer, size, fmt, ap)  vsnprintf(buffer, size, fmt, ap)

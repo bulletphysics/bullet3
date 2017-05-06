@@ -210,6 +210,9 @@ public:
 
 	void getVREvents(b3VREventsData* vrEventsData, int deviceTypeFilter);
 	void getKeyboardEvents(b3KeyboardEventsData* keyboardEventsData);
+
+	void submitProfileTiming(const std::string&  profileName, int durationInMicroSeconds=1);				
+
 };
 
 #endif  //B3_ROBOT_SIMULATOR_CLIENT_API_H

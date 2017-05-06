@@ -374,7 +374,7 @@ void	btDiscreteDynamicsWorld::synchronizeSingleMotionState(btRigidBody* body)
 
 void	btDiscreteDynamicsWorld::synchronizeMotionStates()
 {
-	BT_PROFILE("synchronizeMotionStates");
+//	BT_PROFILE("synchronizeMotionStates");
 	if (m_synchronizeAllMotionStates)
 	{
 		//iterate  over all collision objects
@@ -402,7 +402,6 @@ int	btDiscreteDynamicsWorld::stepSimulation( btScalar timeStep,int maxSubSteps, 
 {
 	startProfiling(timeStep);
 
-	BT_PROFILE("stepSimulation");
 
 	int numSimulationSubSteps = 0;
 

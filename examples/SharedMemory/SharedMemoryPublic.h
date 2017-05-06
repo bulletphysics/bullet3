@@ -55,6 +55,9 @@ enum EnumSharedMemoryClientCommand
     CMD_CONFIGURE_OPENGL_VISUALIZER,
 	CMD_REQUEST_KEYBOARD_EVENTS_DATA,
 	CMD_REQUEST_OPENGL_VISUALIZER_CAMERA,
+	CMD_REMOVE_BODY,
+	CMD_RESET_DYNAMIC_INFO,
+	CMD_PROFILE_TIMING,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -136,6 +139,8 @@ enum EnumSharedMemoryServerStatus
 		CMD_REQUEST_KEYBOARD_EVENTS_DATA_FAILED,
 		CMD_REQUEST_OPENGL_VISUALIZER_CAMERA_FAILED,
 		CMD_REQUEST_OPENGL_VISUALIZER_CAMERA_COMPLETED,
+		CMD_REMOVE_BODY_COMPLETED,
+		CMD_REMOVE_BODY_FAILED,
         //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
@@ -215,6 +220,11 @@ struct b3BodyInfo
 	const char* m_bodyName; // for btRigidBody, it does not have a base, but can still have a body name from urdf
 };
 
+struct b3DynamicInfo
+{
+	double m_mass;
+	double m_localInertialPosition[3];
+};
 
 // copied from btMultiBodyLink.h
 enum SensorType {
@@ -379,6 +389,7 @@ enum  b3StateLoggingType
 	STATE_LOGGING_VIDEO_MP4 = 3,
 	STATE_LOGGING_COMMANDS = 4,
 	STATE_LOGGING_CONTACT_POINTS = 5,
+	STATE_LOGGING_PROFILE_TIMINGS = 6,
 };
 
 

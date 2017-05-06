@@ -58,6 +58,8 @@ ENDIF()
                         ../../examples/Utils/b3ResourcePath.h
                         ../../examples/Utils/b3Clock.cpp
                         ../../examples/Utils/b3Clock.h
+												../../examples/Utils/ChromeTraceUtil.cpp
+												../../examples/Utils/ChromeTraceUtil.h
 						../../examples/Utils/RobotLoggingUtil.cpp
                         ../../examples/Utils/RobotLoggingUtil.h
 					    ../../examples/SharedMemory/TinyRendererVisualShapeConverter.cpp

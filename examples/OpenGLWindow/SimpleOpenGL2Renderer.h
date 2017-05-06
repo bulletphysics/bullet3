@@ -32,7 +32,7 @@ public:
 	virtual void	resize(int width, int height);
 
     virtual void removeAllInstances();
-    
+    virtual void removeGraphicsInstance(int instanceUid);
     
     virtual void writeSingleInstanceColorToCPU(float* color, int srcIndex);
     virtual void writeSingleInstanceColorToCPU(double* color, int srcIndex);
