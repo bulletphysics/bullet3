@@ -285,6 +285,9 @@ void ConvertURDF2BulletInternal(
             if (!(flags & CUF_USE_URDF_INERTIA))
             {
                 compoundShape->calculateLocalInertia(mass, localInertiaDiagonal);
+                btAssert(localInertiaDiagonal[0] < 1e10);
+                btAssert(localInertiaDiagonal[1] < 1e10);
+                btAssert(localInertiaDiagonal[2] < 1e10);
             }
             URDFLinkContactInfo contactInfo;
             u2b.getLinkContactInfo(urdfLinkIndex,contactInfo);

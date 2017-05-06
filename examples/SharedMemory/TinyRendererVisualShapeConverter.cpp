@@ -526,7 +526,7 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 		}
 		else
 		{
-			// We have to see something, take collision shape. Useful for MuJoCo xml, where there is not visual shape.
+			// We have to see something, take collision shape. Useful for MuJoCo xml, where there are no explicit visual shapes.
 			useVisual = false;
 			cnt = linkPtr->m_collisionArray.size();
 		}
