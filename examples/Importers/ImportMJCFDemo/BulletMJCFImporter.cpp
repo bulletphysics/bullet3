@@ -660,7 +660,7 @@ struct BulletMJCFImporterInternalData
 			btArray<float> frictions;
 			btAlignedObjectArray<std::string> strArray;
 			urdfIsAnyOf(" ", strArray);
-			urdfStringSplit(pieces, sz, strArray);
+			urdfStringSplit(pieces, frictionS, strArray);
 			for (int i = 0; i < pieces.size(); ++i)
 			{
 				if (!pieces[i].empty())
