@@ -3,7 +3,10 @@ import time
 p.connect(p.GUI)
 p.setGravity(0,0,-10)
 p.setPhysicsEngineParameter(numSolverIterations=5)
-p.loadMJCF("mjcf/humanoid.xml")
+p.setPhysicsEngineParameter(fixedTimeStep=1./240.)
+p.setPhysicsEngineParameter(numSubSteps=1)
+
+p.loadMJCF("mjcf/humanoid_symmetric.xml")
 
 #first let the humanoid fall
 p.setRealTimeSimulation(1)
