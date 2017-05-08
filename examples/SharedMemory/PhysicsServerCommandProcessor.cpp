@@ -3955,6 +3955,38 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					
 					break;
 				};
+				case CMD_GET_DYNAMIC_INFO:
+				{
+					int bodyUniqueId = clientCmd.m_getDynamicInfoArgs.m_bodyUniqueId;
+					int linkIndex = clientCmd.m_getDynamicInfoArgs.m_linkIndex;
+					InteralBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+					if (body && body->m_multiBody)
+					{
+						SharedMemoryStatus& serverCmd = serverStatusOut;
+						serverCmd.m_type = CMD_GET_DYNAMIC_INFO_COMPLETED;
+						
+						btMultiBody* mb = body->m_multiBody;
+						if (linkIndex == -1)
+						{
+							serverCmd.m_dynamicInfo.m_mass = mb->getBaseMass();
+							serverCmd.m_dynamicInfo.m_lateralFrictionCoeff = mb->getBaseCollider()->getFriction();
+						}
+						else
+						{
+							serverCmd.m_dynamicInfo.m_mass = mb->getLinkMass(linkIndex);
+							serverCmd.m_dynamicInfo.m_lateralFrictionCoeff = mb->getLinkCollider(linkIndex)->getFriction();
+						}
+						hasStatus = true;
+					}
+					else
+					{
+						b3Warning("The dynamic info requested is not available");
+						SharedMemoryStatus& serverCmd = serverStatusOut;
+						serverCmd.m_type = CMD_GET_DYNAMIC_INFO_FAILED;
+						hasStatus = true;
+					}
+					break;
+				}
 				case CMD_SEND_PHYSICS_SIMULATION_PARAMETERS:
 				{
 					BT_PROFILE("CMD_SEND_PHYSICS_SIMULATION_PARAMETERS");

@@ -54,8 +54,8 @@ protected:
 	int m_canvasDepthIndex;
 	int m_canvasSegMaskIndex;
 
-	float m_lightPos[3];
-	float m_specularCoeff;
+	btScalar m_lightPos[3];
+	btScalar m_specularCoeff;
 	
 	void	createButton(const char* name, int id, bool isTrigger );
 
@@ -281,7 +281,11 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
             
             b3RequestCameraImageSetCameraMatrices(commandHandle, viewMatrix,projectionMatrix);
 						b3RequestCameraImageSetPixelResolution(commandHandle, camVisualizerWidth,camVisualizerHeight);
-			b3RequestCameraImageSetLightDirection(commandHandle, m_lightPos);
+			float lightPos[3];
+			lightPos[0] = m_lightPos[0];
+			lightPos[1] = m_lightPos[1];
+			lightPos[2] = m_lightPos[2];
+			b3RequestCameraImageSetLightDirection(commandHandle, lightPos);
 			b3RequestCameraImageSetLightSpecularCoeff(commandHandle, m_specularCoeff);
 						b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
 		        break;

@@ -1039,6 +1039,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 				b3Warning("Removing body failed");
 				break;
 			}
+			case CMD_GET_DYNAMIC_INFO_COMPLETED:
+			{
+				break;
+			}
+			case CMD_GET_DYNAMIC_INFO_FAILED:
+			{
+				b3Warning("Request dynamic info failed");
+				break;
+			}
             default: {
                 b3Error("Unknown server status %d\n", serverCmd.m_type);
                 btAssert(0);

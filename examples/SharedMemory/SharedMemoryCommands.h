@@ -122,6 +122,12 @@ struct ResetDynamicInfoArgs
 	double m_lateralFriction;
 };
 
+struct GetDynamicInfoArgs
+{
+	int m_bodyUniqueId;
+	int m_linkIndex;
+};
+
 struct SetJointFeedbackArgs
 {
 	int m_bodyUniqueId;
@@ -739,6 +745,7 @@ struct SharedMemoryCommand
 		struct FileArgs m_fileArguments;
 		struct SdfRequestInfoArgs m_sdfRequestInfoArgs;
 		struct ResetDynamicInfoArgs m_resetDynamicInfoArgs;
+		struct GetDynamicInfoArgs m_getDynamicInfoArgs;
 		struct InitPoseArgs m_initPoseArgs;
 		struct SendPhysicsSimulationParameters m_physSimParamArgs;
 		struct BulletDataStreamArgs	m_dataStreamArguments;

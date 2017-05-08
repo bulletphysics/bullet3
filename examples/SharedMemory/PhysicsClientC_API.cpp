@@ -1214,9 +1214,30 @@ int	b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyIndex, int jointInd
 	return cl->getJointInfo(bodyIndex, jointIndex, *info);
 }
 
-int b3GetDynamicInfo(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, struct b3DynamicInfo* info)
+b3SharedMemoryCommandHandle b3GetDynamicInfoCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex)
 {
-	return 0;
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+	command->m_type = CMD_GET_DYNAMIC_INFO;
+	command->m_getDynamicInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_getDynamicInfoArgs.m_linkIndex = linkIndex;
+	return (b3SharedMemoryCommandHandle) command;
+}
+
+int b3GetDynamicInfo(b3SharedMemoryStatusHandle statusHandle, struct b3DynamicInfo* info)
+{
+	const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
+	const b3DynamicInfo &dynamicInfo = status->m_dynamicInfo;
+	btAssert(status->m_type == CMD_GET_DYNAMIC_INFO);
+	if (status->m_type != CMD_GET_DYNAMIC_INFO_COMPLETED)
+		return false;
+
+	info->m_mass = dynamicInfo.m_mass;
+	info->m_lateralFrictionCoeff = dynamicInfo.m_lateralFrictionCoeff;
+	return true;
 }
 
 b3SharedMemoryCommandHandle b3InitResetDynamicInfo(b3PhysicsClientHandle physClient)
