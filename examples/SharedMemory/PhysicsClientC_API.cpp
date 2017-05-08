@@ -1208,11 +1208,15 @@ int	b3GetNumJoints(b3PhysicsClientHandle physClient, int bodyId)
 	return cl->getNumJoints(bodyId);
 }
 
-
 int	b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyIndex, int jointIndex, struct b3JointInfo* info)
 {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
 	return cl->getJointInfo(bodyIndex, jointIndex, *info);
+}
+
+int b3GetDynamicInfo(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex, struct b3DynamicInfo* info)
+{
+	return 0;
 }
 
 b3SharedMemoryCommandHandle b3InitResetDynamicInfo(b3PhysicsClientHandle physClient)

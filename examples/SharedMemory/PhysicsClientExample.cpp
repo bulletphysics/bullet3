@@ -53,6 +53,9 @@ protected:
 	int m_canvasRGBIndex;
 	int m_canvasDepthIndex;
 	int m_canvasSegMaskIndex;
+
+	float m_lightPos[3];
+	float m_specularCoeff;
 	
 	void	createButton(const char* name, int id, bool isTrigger );
 
@@ -257,7 +260,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
         case  CMD_LOAD_SDF:
         {
 #ifdef BT_DEBUG
-			b3SharedMemoryCommandHandle commandHandle = b3LoadSdfCommandInit(m_physicsClientHandle, "two_cubes.sdf");
+			b3SharedMemoryCommandHandle commandHandle = b3LoadSdfCommandInit(m_physicsClientHandle, "kuka_iiwa/model.sdf");
 #else
 			b3SharedMemoryCommandHandle commandHandle = b3LoadSdfCommandInit(m_physicsClientHandle, "kitchens/1.sdf");//two_cubes.sdf");//kitchens/1.sdf");//kuka_iiwa/model.sdf");
 #endif
@@ -278,6 +281,8 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
             
             b3RequestCameraImageSetCameraMatrices(commandHandle, viewMatrix,projectionMatrix);
 						b3RequestCameraImageSetPixelResolution(commandHandle, camVisualizerWidth,camVisualizerHeight);
+			b3RequestCameraImageSetLightDirection(commandHandle, m_lightPos);
+			b3RequestCameraImageSetLightSpecularCoeff(commandHandle, m_specularCoeff);
 						b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
 		        break;
         }
@@ -522,6 +527,7 @@ m_canvas(0),
 m_canvasRGBIndex(-1),
 m_canvasDepthIndex(-1),
 m_canvasSegMaskIndex(-1),
+m_specularCoeff(1.0),
 m_numMotors(0),
 m_options(options),
 m_isOptionalServerConnected(false)
@@ -660,6 +666,29 @@ void	PhysicsClientExample::createButtons()
 				}
 			}
 		}
+		
+		{
+			SliderParams sliderLightPosX("light source position x",&m_lightPos[0]);
+			SliderParams sliderLightPosY("light source position y",&m_lightPos[1]);
+			SliderParams sliderLightPosZ("light source position z",&m_lightPos[2]);
+			SliderParams sliderSpecularCoeff("specular coefficient",&m_specularCoeff);
+			sliderLightPosX.m_minVal=-1.5;
+			sliderLightPosX.m_maxVal=1.5;
+			sliderLightPosY.m_minVal=-1.5;
+			sliderLightPosY.m_maxVal=1.5;
+			sliderLightPosZ.m_minVal=-1.5;
+			sliderLightPosZ.m_maxVal=1.5;
+			sliderSpecularCoeff.m_minVal=0;
+			sliderSpecularCoeff.m_maxVal=5.0;
+			if (m_guiHelper && m_guiHelper->getParameterInterface())
+			{
+				m_guiHelper->getParameterInterface()->registerSliderFloatParameter(sliderLightPosX);
+				m_guiHelper->getParameterInterface()->registerSliderFloatParameter(sliderLightPosY);
+				m_guiHelper->getParameterInterface()->registerSliderFloatParameter(sliderLightPosZ);
+				m_guiHelper->getParameterInterface()->registerSliderFloatParameter(sliderSpecularCoeff);
+			}
+
+		}
     }
 }
 
@@ -684,6 +713,10 @@ void	PhysicsClientExample::initPhysics()
 
 	m_selectedBody = -1;
 	m_prevSelectedBody = -1;
+	
+	m_lightPos[0] = 1.0;
+	m_lightPos[1] = 1.0;
+	m_lightPos[2] = 1.0;
 
 	{
 		m_canvas = m_guiHelper->get2dCanvasInterface();

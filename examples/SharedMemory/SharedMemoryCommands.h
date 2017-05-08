@@ -832,6 +832,7 @@ struct SharedMemoryStatus
 		struct StateLoggingResultArgs m_stateLoggingResultArgs;
 		struct b3OpenGLVisualizerCameraInfo m_visualizerCameraResultArgs;
 		struct b3ObjectArgs m_removeObjectArgs;
+		struct b3DynamicInfo m_dynamicInfo;
 	};
 };
 
