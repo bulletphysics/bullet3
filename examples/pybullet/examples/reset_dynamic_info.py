@@ -16,5 +16,9 @@ while 1:
 	t=t+1
 	if t > 400:
 		p.resetDynamicInfo(bodyUniqueId=0,linkIndex=-1,lateralFriction=0.01)
+	mass1,frictionCoeff1=p.getDynamicInfo(bodyUniqueId=0,linkIndex=-1)
+	mass2,frictionCoeff2=p.getDynamicInfo(bodyUniqueId=2,linkIndex=-1)
+	print mass1,frictionCoeff1
+	print mass2,frictionCoeff2
 	time.sleep(.01)
 	p.stepSimulation()

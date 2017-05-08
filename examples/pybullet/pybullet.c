@@ -647,6 +647,63 @@ static PyObject* pybullet_resetDynamicInfo(PyObject* self, PyObject* args, PyObj
 	return Py_None;
 }
 
+static PyObject* pybullet_getDynamicInfo(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	{
+		int bodyUniqueId = -1;
+		int linkIndex = -2;
+		b3PhysicsClientHandle sm = 0;
+		
+		int physicsClientId = 0;
+		static char* kwlist[] = {"bodyUniqueId", "linkIndex", "physicsClientId", NULL};
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|i", kwlist, &bodyUniqueId, &linkIndex, &physicsClientId))
+		{
+			return NULL;
+		}
+		sm = getPhysicsClient(physicsClientId);
+		if (sm == 0)
+		{
+			PyErr_SetString(SpamError, "Not connected to physics server.");
+			return NULL;
+		}
+		{
+			int status_type = 0;
+			b3SharedMemoryCommandHandle cmd_handle;
+			b3SharedMemoryStatusHandle status_handle;
+			
+			if (bodyUniqueId < 0)
+			{
+				PyErr_SetString(SpamError, "getDynamicInfo failed; invalid bodyUniqueId");
+				return NULL;
+			}
+			if (linkIndex < -1)
+			{
+				PyErr_SetString(SpamError, "getDynamicInfo failed; invalid linkIndex");
+				return NULL;
+			}
+			cmd_handle = b3GetDynamicInfoCommandInit(sm, bodyUniqueId, linkIndex);
+			status_handle = b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
+			status_type = b3GetStatusType(status_handle);
+			if (status_type != CMD_GET_DYNAMIC_INFO_COMPLETED)
+			{
+				PyErr_SetString(SpamError, "getDynamicInfo failed; invalid return status");
+				return NULL;
+			}
+			struct b3DynamicInfo info;
+			if (b3GetDynamicInfo(status_handle, &info))
+			{
+				PyObject* pyDynamicInfo = PyTuple_New(2);
+				PyTuple_SetItem(pyDynamicInfo, 0, PyFloat_FromDouble(info.m_mass));
+				PyTuple_SetItem(pyDynamicInfo, 1, PyFloat_FromDouble(info.m_lateralFrictionCoeff));
+				return pyDynamicInfo;
+			}
+		}
+	}
+	PyErr_SetString(SpamError, "Couldn't get dynamic info");
+	return NULL;
+}
+
+
 static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	double fixedTimeStep = -1;
@@ -5584,6 +5641,9 @@ static PyMethodDef SpamMethods[] = {
 	
 	{"resetDynamicInfo", (PyCFunction)pybullet_resetDynamicInfo, METH_VARARGS | METH_KEYWORDS,
 	 "Reset dynamic information such as mass, lateral friction coefficient."},
+	
+	{"getDynamicInfo", (PyCFunction)pybullet_getDynamicInfo, METH_VARARGS | METH_KEYWORDS,
+	 "Get dynamic information such as mass, lateral friction coefficient."},
 
 	{"setJointMotorControl", (PyCFunction)pybullet_setJointMotorControl, METH_VARARGS,
 	 "This (obsolete) method cannot select non-zero physicsClientId, use setJointMotorControl2 instead."
