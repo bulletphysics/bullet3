@@ -1208,46 +1208,71 @@ int	b3GetNumJoints(b3PhysicsClientHandle physClient, int bodyId)
 	return cl->getNumJoints(bodyId);
 }
 
-
 int	b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyIndex, int jointIndex, struct b3JointInfo* info)
 {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
 	return cl->getJointInfo(bodyIndex, jointIndex, *info);
 }
 
-b3SharedMemoryCommandHandle b3InitResetDynamicInfo(b3PhysicsClientHandle physClient)
+b3SharedMemoryCommandHandle b3GetDynamicsInfoCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex)
 {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
 	b3Assert(cl);
 	b3Assert(cl->canSubmitCommand());
 	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
 	b3Assert(command);
-	command->m_type = CMD_RESET_DYNAMIC_INFO;
+	command->m_type = CMD_GET_DYNAMICS_INFO;
+	command->m_getDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_getDynamicsInfoArgs.m_linkIndex = linkIndex;
+	return (b3SharedMemoryCommandHandle) command;
+}
+
+int b3GetDynamicsInfo(b3SharedMemoryStatusHandle statusHandle, struct b3DynamicsInfo* info)
+{
+	const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
+	const b3DynamicsInfo &dynamicsInfo = status->m_dynamicsInfo;
+	btAssert(status->m_type == CMD_GET_DYNAMICS_INFO);
+	if (status->m_type != CMD_GET_DYNAMICS_INFO_COMPLETED)
+		return false;
+
+	info->m_mass = dynamicsInfo.m_mass;
+	info->m_lateralFrictionCoeff = dynamicsInfo.m_lateralFrictionCoeff;
+	return true;
+}
+
+b3SharedMemoryCommandHandle b3InitChangeDynamicsInfo(b3PhysicsClientHandle physClient)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+	command->m_type = CMD_CHANGE_DYNAMICS_INFO;
 	command->m_updateFlags = 0;
 	
 	return (b3SharedMemoryCommandHandle) command;
 }
 
-int b3ResetDynamicInfoSetMass(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double mass)
+int b3ChangeDynamicsInfoSetMass(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double mass)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
-	b3Assert(command->m_type == CMD_RESET_DYNAMIC_INFO);
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
 	b3Assert(mass > 0);
-	command->m_resetDynamicInfoArgs.m_bodyUniqueId = bodyUniqueId;
-	command->m_resetDynamicInfoArgs.m_linkIndex = linkIndex;
-	command->m_resetDynamicInfoArgs.m_mass = mass;
-	command->m_updateFlags |= RESET_DYNAMIC_INFO_SET_MASS;
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_linkIndex = linkIndex;
+	command->m_changeDynamicsInfoArgs.m_mass = mass;
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_MASS;
 	return 0;
 }
 
-int b3ResetDynamicInfoSetLateralFriction(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double lateralFriction)
+int b3ChangeDynamicsInfoSetLateralFriction(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double lateralFriction)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
-	b3Assert(command->m_type == CMD_RESET_DYNAMIC_INFO);
-	command->m_resetDynamicInfoArgs.m_bodyUniqueId = bodyUniqueId;
-	command->m_resetDynamicInfoArgs.m_linkIndex = linkIndex;
-	command->m_resetDynamicInfoArgs.m_lateralFriction = lateralFriction;
-	command->m_updateFlags |= RESET_DYNAMIC_INFO_SET_LATERAL_FRICTION;
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_linkIndex = linkIndex;
+	command->m_changeDynamicsInfoArgs.m_lateralFriction = lateralFriction;
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION;
 	return 0;
 }
 
