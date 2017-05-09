@@ -604,7 +604,7 @@ static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args, PyObject* key
 	return pylist;
 }
 
-static PyObject* pybullet_resetDynamicInfo(PyObject* self, PyObject* args, PyObject* keywds)
+static PyObject* pybullet_changeDynamicsInfo(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	int bodyUniqueId = -1;
 	int linkIndex = -2;
@@ -627,17 +627,17 @@ static PyObject* pybullet_resetDynamicInfo(PyObject* self, PyObject* args, PyObj
 	}
 	
 	{
-		b3SharedMemoryCommandHandle command = b3InitResetDynamicInfo(sm);
+		b3SharedMemoryCommandHandle command = b3InitChangeDynamicsInfo(sm);
 		b3SharedMemoryStatusHandle statusHandle;
 		
 		if (mass >= 0)
 		{
-			b3ResetDynamicInfoSetMass(command, bodyUniqueId, linkIndex, mass);
+			b3ChangeDynamicsInfoSetMass(command, bodyUniqueId, linkIndex, mass);
 		}
 		
 		if (lateralFriction >= 0)
 		{
-			b3ResetDynamicInfoSetLateralFriction(command, bodyUniqueId, linkIndex, lateralFriction);
+			b3ChangeDynamicsInfoSetLateralFriction(command, bodyUniqueId, linkIndex, lateralFriction);
 		}
 		
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
@@ -646,6 +646,63 @@ static PyObject* pybullet_resetDynamicInfo(PyObject* self, PyObject* args, PyObj
 	Py_INCREF(Py_None);
 	return Py_None;
 }
+
+static PyObject* pybullet_getDynamicsInfo(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	{
+		int bodyUniqueId = -1;
+		int linkIndex = -2;
+		b3PhysicsClientHandle sm = 0;
+		
+		int physicsClientId = 0;
+		static char* kwlist[] = {"bodyUniqueId", "linkIndex", "physicsClientId", NULL};
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|i", kwlist, &bodyUniqueId, &linkIndex, &physicsClientId))
+		{
+			return NULL;
+		}
+		sm = getPhysicsClient(physicsClientId);
+		if (sm == 0)
+		{
+			PyErr_SetString(SpamError, "Not connected to physics server.");
+			return NULL;
+		}
+		{
+			int status_type = 0;
+			b3SharedMemoryCommandHandle cmd_handle;
+			b3SharedMemoryStatusHandle status_handle;
+			
+			if (bodyUniqueId < 0)
+			{
+				PyErr_SetString(SpamError, "getDynamicsInfo failed; invalid bodyUniqueId");
+				return NULL;
+			}
+			if (linkIndex < -1)
+			{
+				PyErr_SetString(SpamError, "getDynamicsInfo failed; invalid linkIndex");
+				return NULL;
+			}
+			cmd_handle = b3GetDynamicsInfoCommandInit(sm, bodyUniqueId, linkIndex);
+			status_handle = b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
+			status_type = b3GetStatusType(status_handle);
+			if (status_type != CMD_GET_DYNAMICS_INFO_COMPLETED)
+			{
+				PyErr_SetString(SpamError, "getDynamicsInfo failed; invalid return status");
+				return NULL;
+			}
+			struct b3DynamicsInfo info;
+			if (b3GetDynamicsInfo(status_handle, &info))
+			{
+				PyObject* pyDynamicsInfo = PyTuple_New(2);
+				PyTuple_SetItem(pyDynamicsInfo, 0, PyFloat_FromDouble(info.m_mass));
+				PyTuple_SetItem(pyDynamicsInfo, 1, PyFloat_FromDouble(info.m_lateralFrictionCoeff));
+				return pyDynamicsInfo;
+			}
+		}
+	}
+	PyErr_SetString(SpamError, "Couldn't get dynamics info");
+	return NULL;
+}
+
 
 static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* args, PyObject* keywds)
 {
@@ -5582,8 +5639,11 @@ static PyMethodDef SpamMethods[] = {
 	 "Reset the state (position, velocity etc) for a joint on a body "
 	 "instantaneously, not through physics simulation."},
 	
-	{"resetDynamicInfo", (PyCFunction)pybullet_resetDynamicInfo, METH_VARARGS | METH_KEYWORDS,
-	 "Reset dynamic information such as mass, lateral friction coefficient."},
+	{"changeDynamicsInfo", (PyCFunction)pybullet_changeDynamicsInfo, METH_VARARGS | METH_KEYWORDS,
+	 "change dynamics information such as mass, lateral friction coefficient."},
+	
+	{"getDynamicsInfo", (PyCFunction)pybullet_getDynamicsInfo, METH_VARARGS | METH_KEYWORDS,
+	 "Get dynamics information such as mass, lateral friction coefficient."},
 
 	{"setJointMotorControl", (PyCFunction)pybullet_setJointMotorControl, METH_VARARGS,
 	 "This (obsolete) method cannot select non-zero physicsClientId, use setJointMotorControl2 instead."
