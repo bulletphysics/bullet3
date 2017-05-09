@@ -1240,39 +1240,39 @@ int b3GetDynamicsInfo(b3SharedMemoryStatusHandle statusHandle, struct b3Dynamics
 	return true;
 }
 
-b3SharedMemoryCommandHandle b3InitResetDynamicsInfo(b3PhysicsClientHandle physClient)
+b3SharedMemoryCommandHandle b3InitChangeDynamicsInfo(b3PhysicsClientHandle physClient)
 {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
 	b3Assert(cl);
 	b3Assert(cl->canSubmitCommand());
 	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
 	b3Assert(command);
-	command->m_type = CMD_RESET_DYNAMICS_INFO;
+	command->m_type = CMD_CHANGE_DYNAMICS_INFO;
 	command->m_updateFlags = 0;
 	
 	return (b3SharedMemoryCommandHandle) command;
 }
 
-int b3ResetDynamicsInfoSetMass(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double mass)
+int b3ChangeDynamicsInfoSetMass(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double mass)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
-	b3Assert(command->m_type == CMD_RESET_DYNAMICS_INFO);
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
 	b3Assert(mass > 0);
-	command->m_resetDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
-	command->m_resetDynamicsInfoArgs.m_linkIndex = linkIndex;
-	command->m_resetDynamicsInfoArgs.m_mass = mass;
-	command->m_updateFlags |= RESET_DYNAMICS_INFO_SET_MASS;
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_linkIndex = linkIndex;
+	command->m_changeDynamicsInfoArgs.m_mass = mass;
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_MASS;
 	return 0;
 }
 
-int b3ResetDynamicsInfoSetLateralFriction(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double lateralFriction)
+int b3ChangeDynamicsInfoSetLateralFriction(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double lateralFriction)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
-	b3Assert(command->m_type == CMD_RESET_DYNAMICS_INFO);
-	command->m_resetDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
-	command->m_resetDynamicsInfoArgs.m_linkIndex = linkIndex;
-	command->m_resetDynamicsInfoArgs.m_lateralFriction = lateralFriction;
-	command->m_updateFlags |= RESET_DYNAMICS_INFO_SET_LATERAL_FRICTION;
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_linkIndex = linkIndex;
+	command->m_changeDynamicsInfoArgs.m_lateralFriction = lateralFriction;
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION;
 	return 0;
 }
 

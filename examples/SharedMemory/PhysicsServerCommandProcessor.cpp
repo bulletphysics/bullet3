@@ -3898,15 +3898,15 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 					break;
 				};
-				case CMD_RESET_DYNAMICS_INFO:
+				case CMD_CHANGE_DYNAMICS_INFO:
 				{
-					BT_PROFILE("CMD_RESET_DYNAMICS_INFO");
+					BT_PROFILE("CMD_CHANGE_DYNAMICS_INFO");
 					
-					if (clientCmd.m_updateFlags & RESET_DYNAMICS_INFO_SET_MASS)
+					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MASS)
 					{
-						int bodyUniqueId = clientCmd.m_resetDynamicsInfoArgs.m_bodyUniqueId;
-						int linkIndex = clientCmd.m_resetDynamicsInfoArgs.m_linkIndex;
-						double mass = clientCmd.m_resetDynamicsInfoArgs.m_mass;
+						int bodyUniqueId = clientCmd.m_changeDynamicsInfoArgs.m_bodyUniqueId;
+						int linkIndex = clientCmd.m_changeDynamicsInfoArgs.m_linkIndex;
+						double mass = clientCmd.m_changeDynamicsInfoArgs.m_mass;
 						btAssert(bodyUniqueId >= 0);
 						btAssert(linkIndex >= -1);
 						
@@ -3925,11 +3925,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						}
 					}
 					
-					if (clientCmd.m_updateFlags & RESET_DYNAMICS_INFO_SET_LATERAL_FRICTION)
+					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION)
 					{
-						int bodyUniqueId = clientCmd.m_resetDynamicsInfoArgs.m_bodyUniqueId;
-						int linkIndex = clientCmd.m_resetDynamicsInfoArgs.m_linkIndex;
-						double lateralFriction = clientCmd.m_resetDynamicsInfoArgs.m_lateralFriction;
+						int bodyUniqueId = clientCmd.m_changeDynamicsInfoArgs.m_bodyUniqueId;
+						int linkIndex = clientCmd.m_changeDynamicsInfoArgs.m_linkIndex;
+						double lateralFriction = clientCmd.m_changeDynamicsInfoArgs.m_lateralFriction;
 						btAssert(bodyUniqueId >= 0);
 						btAssert(linkIndex >= -1);
 						

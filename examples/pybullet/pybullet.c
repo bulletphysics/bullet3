@@ -604,7 +604,7 @@ static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args, PyObject* key
 	return pylist;
 }
 
-static PyObject* pybullet_resetDynamicsInfo(PyObject* self, PyObject* args, PyObject* keywds)
+static PyObject* pybullet_changeDynamicsInfo(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	int bodyUniqueId = -1;
 	int linkIndex = -2;
@@ -627,17 +627,17 @@ static PyObject* pybullet_resetDynamicsInfo(PyObject* self, PyObject* args, PyOb
 	}
 	
 	{
-		b3SharedMemoryCommandHandle command = b3InitResetDynamicsInfo(sm);
+		b3SharedMemoryCommandHandle command = b3InitChangeDynamicsInfo(sm);
 		b3SharedMemoryStatusHandle statusHandle;
 		
 		if (mass >= 0)
 		{
-			b3ResetDynamicsInfoSetMass(command, bodyUniqueId, linkIndex, mass);
+			b3ChangeDynamicsInfoSetMass(command, bodyUniqueId, linkIndex, mass);
 		}
 		
 		if (lateralFriction >= 0)
 		{
-			b3ResetDynamicsInfoSetLateralFriction(command, bodyUniqueId, linkIndex, lateralFriction);
+			b3ChangeDynamicsInfoSetLateralFriction(command, bodyUniqueId, linkIndex, lateralFriction);
 		}
 		
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
@@ -5639,8 +5639,8 @@ static PyMethodDef SpamMethods[] = {
 	 "Reset the state (position, velocity etc) for a joint on a body "
 	 "instantaneously, not through physics simulation."},
 	
-	{"resetDynamicsInfo", (PyCFunction)pybullet_resetDynamicsInfo, METH_VARARGS | METH_KEYWORDS,
-	 "Reset dynamics information such as mass, lateral friction coefficient."},
+	{"changeDynamicsInfo", (PyCFunction)pybullet_changeDynamicsInfo, METH_VARARGS | METH_KEYWORDS,
+	 "change dynamics information such as mass, lateral friction coefficient."},
 	
 	{"getDynamicsInfo", (PyCFunction)pybullet_getDynamicsInfo, METH_VARARGS | METH_KEYWORDS,
 	 "Get dynamics information such as mass, lateral friction coefficient."},

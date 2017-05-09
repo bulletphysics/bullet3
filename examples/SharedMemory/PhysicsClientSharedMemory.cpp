@@ -1045,7 +1045,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 			}
 			case CMD_GET_DYNAMICS_INFO_FAILED:
 			{
-				b3Warning("Request dynamic info failed");
+				b3Warning("Request dynamics info failed");
 				break;
 			}
             default: {
