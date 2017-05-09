@@ -1039,11 +1039,11 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 				b3Warning("Removing body failed");
 				break;
 			}
-			case CMD_GET_DYNAMIC_INFO_COMPLETED:
+			case CMD_GET_DYNAMICS_INFO_COMPLETED:
 			{
 				break;
 			}
-			case CMD_GET_DYNAMIC_INFO_FAILED:
+			case CMD_GET_DYNAMICS_INFO_FAILED:
 			{
 				b3Warning("Request dynamic info failed");
 				break;

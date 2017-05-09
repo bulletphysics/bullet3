@@ -77,13 +77,13 @@ int	b3GetNumJoints(b3PhysicsClientHandle physClient, int bodyIndex);
 ///given a body and joint index, return the joint information. See b3JointInfo in SharedMemoryPublic.h
 int	b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyIndex, int jointIndex, struct b3JointInfo* info);
 
-b3SharedMemoryCommandHandle b3GetDynamicInfoCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex);
+b3SharedMemoryCommandHandle b3GetDynamicsInfoCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex);
 ///given a body unique id and link index, return the dynamic information. See b3DynamicInfo in SharedMemoryPublic.h
-int b3GetDynamicInfo(b3SharedMemoryStatusHandle statusHandle, struct b3DynamicInfo* info);
+int b3GetDynamicsInfo(b3SharedMemoryStatusHandle statusHandle, struct b3DynamicsInfo* info);
 	
-b3SharedMemoryCommandHandle b3InitResetDynamicInfo(b3PhysicsClientHandle physClient);
-int b3ResetDynamicInfoSetMass(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double mass);
-int b3ResetDynamicInfoSetLateralFriction(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double lateralFriction);
+b3SharedMemoryCommandHandle b3InitResetDynamicsInfo(b3PhysicsClientHandle physClient);
+int b3ResetDynamicsInfoSetMass(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double mass);
+int b3ResetDynamicsInfoSetLateralFriction(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double lateralFriction);
     
 b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3PhysicsClientHandle physClient, int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, struct b3JointInfo* info);
 

@@ -56,8 +56,8 @@ enum EnumSharedMemoryClientCommand
 	CMD_REQUEST_KEYBOARD_EVENTS_DATA,
 	CMD_REQUEST_OPENGL_VISUALIZER_CAMERA,
 	CMD_REMOVE_BODY,
-	CMD_RESET_DYNAMIC_INFO,
-	CMD_GET_DYNAMIC_INFO,
+	CMD_RESET_DYNAMICS_INFO,
+	CMD_GET_DYNAMICS_INFO,
 	CMD_PROFILE_TIMING,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
@@ -142,8 +142,8 @@ enum EnumSharedMemoryServerStatus
 		CMD_REQUEST_OPENGL_VISUALIZER_CAMERA_COMPLETED,
 		CMD_REMOVE_BODY_COMPLETED,
 		CMD_REMOVE_BODY_FAILED,
-		CMD_GET_DYNAMIC_INFO_COMPLETED,
-		CMD_GET_DYNAMIC_INFO_FAILED,
+		CMD_GET_DYNAMICS_INFO_COMPLETED,
+		CMD_GET_DYNAMICS_INFO_FAILED,
         //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
@@ -223,7 +223,7 @@ struct b3BodyInfo
 	const char* m_bodyName; // for btRigidBody, it does not have a base, but can still have a body name from urdf
 };
 
-struct b3DynamicInfo
+struct b3DynamicsInfo
 {
 	double m_mass;
 	double m_localInertialPosition[3];
