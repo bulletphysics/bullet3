@@ -12,6 +12,7 @@
 #include "../OpenGLWindow/ShapeData.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btVector3.h"
+#include "Bullet3Common/b3Logging.h"
 
 struct DepthShader : public IShader {
     
@@ -72,6 +73,8 @@ struct Shader : public IShader {
     Matrix& m_lightModelView;
     Vec4f m_colorRGBA;
     Matrix& m_viewportMat;
+	Matrix m_projectionModelViewMat;
+	Matrix m_projectionLightViewMat;
     float m_ambient_coefficient;
     float m_diffuse_coefficient;
     float m_specular_coefficient;
@@ -110,8 +113,11 @@ struct Shader : public IShader {
    
     {
         m_invModelMat = m_modelMat.invert_transpose();
+		m_projectionModelViewMat = m_projectionMat*m_modelView1;
+		m_projectionLightViewMat = m_projectionMat*m_lightModelView;
     }
     virtual Vec4f vertex(int iface, int nthvert) {
+		B3_PROFILE("vertex");
         Vec2f uv = m_model->uv(iface, nthvert);
         varying_uv.set_col(nthvert, uv);
         varying_nrm.set_col(nthvert, proj<3>(m_invModelMat*embed<4>(m_model->normal(iface, nthvert), 0.f)));
@@ -119,16 +125,17 @@ struct Shader : public IShader {
         Vec3f scaledVert=Vec3f(unScaledVert[0]*m_localScaling[0],
                                unScaledVert[1]*m_localScaling[1],
                                unScaledVert[2]*m_localScaling[2]);
-        Vec4f gl_Vertex = m_projectionMat*m_modelView1*embed<4>(scaledVert);
+        Vec4f gl_Vertex = m_projectionModelViewMat*embed<4>(scaledVert);
         varying_tri.set_col(nthvert, gl_Vertex);
 		Vec4f world_Vertex = m_modelMat*embed<4>(scaledVert);
 		world_tri.set_col(nthvert, world_Vertex);
-        Vec4f gl_VertexLightView = m_projectionMat*m_lightModelView*embed<4>(scaledVert);
+        Vec4f gl_VertexLightView = m_projectionLightViewMat*embed<4>(scaledVert);
         varying_tri_light_view.set_col(nthvert, gl_VertexLightView);
         return gl_Vertex;
     }
     
     virtual bool fragment(Vec3f bar, TGAColor &color) {
+		B3_PROFILE("fragment");
         Vec4f p = m_viewportMat*(varying_tri_light_view*bar);
         float depth = p[2];
         p = p/p[3];
@@ -502,6 +509,7 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
         
         for (int i=0; i<model->nfaces(); i++)
         {
+			B3_PROFILE("face");
             for (int j=0; j<3; j++) {
                 shader.vertex(i, j);
             }
