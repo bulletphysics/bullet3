@@ -87,6 +87,7 @@ struct Shader : public IShader {
     mat<4,3,float> varying_tri; // triangle coordinates (clip coordinates), written by VS, read by FS
     mat<4,3,float> varying_tri_light_view;
     mat<3,3,float> varying_nrm; // normal per vertex to be interpolated by FS
+	mat<4,3,float> world_tri; // model triangle coordinates in the world space used for backface culling, written by VS
     
     Shader(Model* model, Vec3f light_dir_local, Vec3f light_color, Matrix& modelView, Matrix& lightModelView, Matrix& projectionMat, Matrix& modelMat, Matrix& viewportMat, Vec3f localScaling, const Vec4f& colorRGBA, int width, int height, b3AlignedObjectArray<float>* shadowBuffer, float ambient_coefficient=0.6, float diffuse_coefficient=0.35, float specular_coefficient=0.05)
     :m_model(model),
@@ -120,6 +121,8 @@ struct Shader : public IShader {
                                unScaledVert[2]*m_localScaling[2]);
         Vec4f gl_Vertex = m_projectionMat*m_modelView1*embed<4>(scaledVert);
         varying_tri.set_col(nthvert, gl_Vertex);
+		Vec4f world_Vertex = m_modelMat*embed<4>(scaledVert);
+		world_tri.set_col(nthvert, world_Vertex);
         Vec4f gl_VertexLightView = m_projectionMat*m_lightModelView*embed<4>(scaledVert);
         varying_tri_light_view.set_col(nthvert, gl_VertexLightView);
         return gl_Vertex;
@@ -492,6 +495,8 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
         Matrix lightModelViewMatrix = lightViewMatrix*renderData.m_modelMatrix;
         Matrix modelViewMatrix = renderData.m_viewMatrix*renderData.m_modelMatrix;
         Vec3f localScaling(renderData.m_localScaling[0],renderData.m_localScaling[1],renderData.m_localScaling[2]);
+		Matrix viewMatrixInv = renderData.m_viewMatrix.invert();
+		btVector3 P(viewMatrixInv[0][3], viewMatrixInv[1][3], viewMatrixInv[2][3]);
         
         Shader shader(model, light_dir_local, light_color, modelViewMatrix, lightModelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, renderData.m_viewportMatrix, localScaling, model->getColorRGBA(), width, height, shadowBufferPtr, renderData.m_lightAmbientCoeff, renderData.m_lightDiffuseCoeff, renderData.m_lightSpecularCoeff);
         
@@ -500,6 +505,14 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
             for (int j=0; j<3; j++) {
                 shader.vertex(i, j);
             }
+			
+			// backface culling
+			btVector3 v0(shader.world_tri.col(0)[0], shader.world_tri.col(0)[1], shader.world_tri.col(0)[2]);
+			btVector3 v1(shader.world_tri.col(1)[0], shader.world_tri.col(1)[1], shader.world_tri.col(1)[2]);
+			btVector3 v2(shader.world_tri.col(2)[0], shader.world_tri.col(2)[1], shader.world_tri.col(2)[2]);
+			btVector3 N = (v1-v0).cross(v2-v0);
+			if ((v0-P).dot(N) >= 0)
+				continue;
 
 			mat<4,3,float> stackTris[3];
 
