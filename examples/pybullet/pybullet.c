@@ -563,8 +563,10 @@ static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args, PyObject* key
 	int bodyIndicesOut[MAX_SDF_BODIES];
 	PyObject* pylist = 0;
 	int physicsClientId = 0;
-	static char* kwlist[] = {"mjcfFileName", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|i", kwlist, &mjcfFileName, &physicsClientId))
+	int flags = -1;
+
+	static char* kwlist[] = {"mjcfFileName", "flags", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|ii", kwlist, &mjcfFileName, &flags, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -576,6 +578,10 @@ static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args, PyObject* key
 	}
 
 	command = b3LoadMJCFCommandInit(sm, mjcfFileName);
+	if (flags>=0)
+	{
+		b3LoadMJCFCommandSetFlags(command,flags);
+	}
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 	statusType = b3GetStatusType(statusHandle);
 	if (statusType != CMD_MJCF_LOADING_COMPLETED)
@@ -3206,8 +3212,8 @@ static PyObject* pybullet_startStateLogging(PyObject* self, PyObject* args, PyOb
 
 static PyObject* pybullet_submitProfileTiming(PyObject* self, PyObject* args, PyObject* keywds)
 {
-	b3SharedMemoryStatusHandle statusHandle;
-	int statusType;
+//	b3SharedMemoryStatusHandle statusHandle;
+//	int statusType;
 	char* eventName = 0;
 	int duractionInMicroSeconds=-1;
 
@@ -6208,6 +6214,8 @@ initpybullet(void)
 
 	PyModule_AddIntConstant(m, "URDF_USE_INERTIA_FROM_FILE", URDF_USE_INERTIA_FROM_FILE);
 	PyModule_AddIntConstant(m, "URDF_USE_SELF_COLLISION", URDF_USE_SELF_COLLISION);
+	PyModule_AddIntConstant(m, "URDF_USE_SELF_COLLISION_EXCLUDE_PARENT", URDF_USE_SELF_COLLISION_EXCLUDE_PARENT);
+	PyModule_AddIntConstant(m, "URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS", URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS);
 
 	PyModule_AddIntConstant(m, "MAX_RAY_INTERSECTION_BATCH_SIZE", MAX_RAY_INTERSECTION_BATCH_SIZE);
 

@@ -93,10 +93,13 @@ struct UrdfArgs
 	int m_urdfFlags;
 };
 
+
+
 struct MjcfArgs
 {
 	char m_mjcfFileName[MAX_URDF_FILENAME_LENGTH];
 	int m_useMultiBody;
+	int m_flags;
 };
 
 struct BulletDataStreamArgs

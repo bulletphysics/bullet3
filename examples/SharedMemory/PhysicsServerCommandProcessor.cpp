@@ -5693,7 +5693,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                             b3Printf("Processed CMD_LOAD_MJCF:%s", mjcfArgs.m_mjcfFileName);
                         }
                         bool useMultiBody=(clientCmd.m_updateFlags & URDF_ARGS_USE_MULTIBODY) ? (mjcfArgs.m_useMultiBody!=0) : true;
-						int flags = CUF_USE_MJCF;//CUF_USE_URDF_INERTIA
+						int flags = CUF_USE_MJCF;
+						if (clientCmd.m_updateFlags&URDF_ARGS_HAS_CUSTOM_URDF_FLAGS)
+						{
+							flags |= clientCmd.m_mjcfArguments.m_flags;
+						}
+
                         bool completedOk = loadMjcf(mjcfArgs.m_mjcfFileName,bufferServerToClient, bufferSizeInBytes, useMultiBody, flags);
                         if (completedOk)
                         {
