@@ -8,53 +8,53 @@ import argparse
 from time import sleep
 
 def readLogFile(filename, verbose = True):
-	f = open(filename, 'rb')
-		
+  f = open(filename, 'rb')
+
   print('Opened'),
   print(filename)
-  
+
   keys = f.readline().decode('utf8').rstrip('\n').split(',')
   fmt = f.readline().decode('utf8').rstrip('\n')
-  
+
   # The byte number of one record
   sz = struct.calcsize(fmt)
   # The type number of one record
   ncols = len(fmt)
-  
-  if verbose:
-	  print('Keys:'),
-    print(keys)
-	print('Format:'),
-	print(fmt)
-	print('Size:'),
-	print(sz)
-	print('Columns:'),
-	print(ncols)
 
-# Read data
-wholeFile = f.read()
-	# split by alignment word
-	chunks = wholeFile.split(b'\xaa\xbb')
+  if verbose:
+    print('Keys:'),
+    print(keys)
+    print('Format:'),
+    print(fmt)
+    print('Size:'),
+    print(sz)
+    print('Columns:'),
+    print(ncols)
+
+  # Read data
+  wholeFile = f.read()
+  # split by alignment word
+  chunks = wholeFile.split(b'\xaa\xbb')
   log = list()
   if verbose:
   	print("num chunks:")
   	print(len(chunks))
-chunkIndex = 0
-	for chunk in chunks:
-		print("len(chunk)=",len(chunk)," sz = ", sz)
-			if len(chunk) == sz:
-				print("chunk #",chunkIndex)
-					chunkIndex=chunkIndex+1
+  chunkIndex = 0
+  for chunk in chunks:
+    print("len(chunk)=",len(chunk)," sz = ", sz)
+    if len(chunk) == sz:
+      print("chunk #",chunkIndex)
+      chunkIndex=chunkIndex+1
       values = struct.unpack(fmt, chunk)
-	  record = list()
-	  for i in range(ncols):
-		  record.append(values[i])
-			  if verbose:
-				  print("    ",keys[i],"=",values[i])
+      record = list()
+      for i in range(ncols):
+        record.append(values[i])
+        if verbose:
+        	print("    ",keys[i],"=",values[i])
 
-log.append(record)
-	
-	return log
+      log.append(record)
+
+  return log
 
 
 numArgs = len(sys.argv)
@@ -70,5 +70,5 @@ print("filename=")
 print(fileName)
 
 verbose = True
-
+	
 readLogFile(fileName,verbose)
