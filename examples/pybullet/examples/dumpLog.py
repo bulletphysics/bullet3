@@ -61,7 +61,7 @@ numArgs = len(sys.argv)
 
 print ('Number of arguments:', numArgs, 'arguments.')
 print ('Argument List:', str(sys.argv))
-fileName = "log.bin"
+fileName = "data/example_log_vr.bin"
 
 if (numArgs>1):
 	fileName = sys.argv[1]
@@ -71,4 +71,38 @@ print(fileName)
 
 verbose = True
 	
-readLogFile(fileName,verbose)
+log = readLogFile(fileName,verbose)
+
+# the index of the first integer in the vr log file for packed buttons
+firstPackedButtonIndex = 13
+# the number of packed buttons in one integer
+numGroupedButtons = 10
+# the number of integers for packed buttons
+numPackedButtons = 7
+# the mask to get the button state
+buttonMask = 7
+
+for record in log:
+	# indices of buttons that are down
+	buttonDownIndices = []
+	# indices of buttons that are triggered
+	buttonTriggeredIndices = []
+	# indices of buttons that are released
+	buttonReleasedIndices = []
+	buttonIndex = 0
+	for packedButtonIndex in range(firstPackedButtonIndex, firstPackedButtonIndex+numPackedButtons):
+		for packButtonShift in range(numGroupedButtons):
+			buttonEvent = buttonMask & record[packedButtonIndex]
+			if buttonEvent == 1:
+				buttonDownIndices.append(buttonIndex)
+			elif buttonEvent == 2:
+				buttonTriggeredIndices.append(buttonIndex)
+			elif buttonEvent == 4:
+				buttonReleasedIndices.append(buttonIndex)
+			record[packedButtonIndex] = record[packedButtonIndex] >> 3
+			buttonIndex += 1
+	if len(buttonDownIndices) or len(buttonTriggeredIndices) or len(buttonReleasedIndices):
+		print ('timestamp: ', record[1])
+		print ('button is down: ', buttonDownIndices)
+		print ('button is triggered: ', buttonTriggeredIndices)
+		print ('button is released: ', buttonReleasedIndices)
