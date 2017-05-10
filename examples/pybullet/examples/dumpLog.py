@@ -93,11 +93,11 @@ for record in log:
 	for packedButtonIndex in range(firstPackedButtonIndex, firstPackedButtonIndex+numPackedButtons):
 		for packButtonShift in range(numGroupedButtons):
 			buttonEvent = buttonMask & record[packedButtonIndex]
-			if buttonEvent == 1:
+			if buttonEvent & 1:
 				buttonDownIndices.append(buttonIndex)
-			elif buttonEvent == 2:
+			elif buttonEvent & 2:
 				buttonTriggeredIndices.append(buttonIndex)
-			elif buttonEvent == 4:
+			elif buttonEvent & 4:
 				buttonReleasedIndices.append(buttonIndex)
 			record[packedButtonIndex] = record[packedButtonIndex] >> 3
 			buttonIndex += 1
