@@ -192,7 +192,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 		m_shadowTexture(0),
 		m_renderFrameBuffer(0)
 	{
-		m_lightPos=b3MakeVector3(-50,30,100);
+		m_lightPos=b3MakeVector3(-50,50,50);
 
 		//clear to zero to make it obvious if the matrix is used uninitialized
 		for (int i=0;i<16;i++)
