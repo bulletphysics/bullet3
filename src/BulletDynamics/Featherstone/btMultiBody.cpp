@@ -2013,5 +2013,10 @@ const char*	btMultiBody::serialize(void* dataBuffer, class btSerializer* seriali
 		}
 		mbd->m_links = mbd->m_numLinks? (btMultiBodyLinkData*) serializer->getUniquePointer((void*)&m_links[0]):0;
 
+		// Fill padding with zeros to appease msan.
+#ifdef BT_USE_DOUBLE_PRECISION
+		memset(mbd->m_padding, 0, sizeof(mbd->m_padding));
+#endif
+
 		return btMultiBodyDataName;
 }

@@ -237,7 +237,7 @@ int	b3LoadUrdfCommandSetFlags(b3SharedMemoryCommandHandle commandHandle, int fla
 b3SharedMemoryCommandHandle	b3LoadBulletCommandInit(b3PhysicsClientHandle physClient, const char* fileName);
 b3SharedMemoryCommandHandle	b3SaveBulletCommandInit(b3PhysicsClientHandle physClient, const char* fileName);
 b3SharedMemoryCommandHandle	b3LoadMJCFCommandInit(b3PhysicsClientHandle physClient, const char* fileName);
-
+void b3LoadMJCFCommandSetFlags(b3SharedMemoryCommandHandle commandHandle, int flags);
 
 
 ///compute the forces to achieve an acceleration, given a state q and qdot using inverse dynamics

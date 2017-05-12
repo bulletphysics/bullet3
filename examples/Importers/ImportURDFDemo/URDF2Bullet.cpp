@@ -473,12 +473,12 @@ void ConvertURDF2BulletInternal(
                 int collisionFilterMask = isDynamic? 	int(btBroadphaseProxy::AllFilter) : 	int(btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter);
 
 				int colGroup=0, colMask=0;
-				int flags = u2b.getCollisionGroupAndMask(urdfLinkIndex,colGroup, colMask);
-				if (flags & URDF_HAS_COLLISION_GROUP)
+				int collisionFlags = u2b.getCollisionGroupAndMask(urdfLinkIndex,colGroup, colMask);
+				if (collisionFlags & URDF_HAS_COLLISION_GROUP)
 				{
 					collisionFilterGroup = colGroup;
 				}
-				if (flags & URDF_HAS_COLLISION_MASK)
+				if (collisionFlags & URDF_HAS_COLLISION_MASK)
 				{
 					collisionFilterMask = colMask;
 				}
@@ -498,6 +498,14 @@ void ConvertURDF2BulletInternal(
                 if (mbLinkIndex>=0) //???? double-check +/- 1
                 {
                     cache.m_bulletMultiBody->getLink(mbLinkIndex).m_collider=col;
+					if (flags&CUF_USE_SELF_COLLISION_EXCLUDE_PARENT)
+					{
+						cache.m_bulletMultiBody->getLink(mbLinkIndex).m_flags |= BT_MULTIBODYLINKFLAGS_DISABLE_PARENT_COLLISION;
+					}
+					if (flags&CUF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
+					{
+						cache.m_bulletMultiBody->getLink(mbLinkIndex).m_flags |= BT_MULTIBODYLINKFLAGS_DISABLE_ALL_PARENT_COLLISION;
+					}
                 } else
                 {
                     cache.m_bulletMultiBody->setBaseCollider(col);
@@ -539,7 +547,9 @@ void ConvertURDF2Bullet(
 	if (world1 && cache.m_bulletMultiBody)
 	{
 		btMultiBody* mb = cache.m_bulletMultiBody;
-		mb->setHasSelfCollision(false);
+
+		mb->setHasSelfCollision((flags&CUF_USE_SELF_COLLISION)!=0);
+		
 		mb->finalizeMultiDof();
 
 		btTransform localInertialFrameRoot = cache.m_urdfLinkLocalInertialFrames[urdfLinkIndex];
