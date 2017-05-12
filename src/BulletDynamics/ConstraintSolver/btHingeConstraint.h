@@ -314,7 +314,7 @@ public:
 	{ 
 		return m_enableAngularMotor; 
 	}
-	inline btScalar getMotorTargetVelosity() 
+	inline btScalar getMotorTargetVelocity() 
 	{ 
 		return m_motorTargetVelocity; 
 	}
