@@ -90,6 +90,7 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 
 	virtual void	dumpFramesToVideo(const char* mp4FileName);
 
+	int createCheckeredTexture(int r,int g, int b);
 };
 
 #endif //OPENGL_GUI_HELPER_H
