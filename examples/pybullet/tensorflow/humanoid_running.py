@@ -9,10 +9,6 @@ p.setGravity(0,0,-9.8)
 p.setPhysicsEngineParameter(fixedTimeStep=1.0/60., numSolverIterations=5, numSubSteps=2)
 #this mp4 recording requires ffmpeg installed
 #mp4log = p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4,"humanoid.mp4")
-# numSubSteps:
-# 1  falls often at 300 fps
-# 2  works fine  at 300 fps
-# 11 not that slower at 180 fps
 
 
 plane, human1  = p.loadMJCF("mjcf/humanoid_symmetric.xml",flags = p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
