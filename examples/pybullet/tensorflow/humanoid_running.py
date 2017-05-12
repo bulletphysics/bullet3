@@ -4,15 +4,11 @@ import numpy as np
 
 import pybullet as p
 import time
-p.connect(p.SHARED_MEMORY) #GUI is slower, but shows the running gait
+p.connect(p.GUI) #GUI is slower, but shows the running gait
 p.setGravity(0,0,-9.8)
 p.setPhysicsEngineParameter(fixedTimeStep=1.0/60., numSolverIterations=5, numSubSteps=2)
 #this mp4 recording requires ffmpeg installed
 #mp4log = p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4,"humanoid.mp4")
-# numSubSteps:
-# 1  falls often at 300 fps
-# 2  works fine  at 300 fps
-# 11 not that slower at 180 fps
 
 
 plane, human1  = p.loadMJCF("mjcf/humanoid_symmetric.xml",flags = p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
@@ -65,7 +61,9 @@ dummy.initial_z = None
 def current_relative_position(human, j, lower, upper):
 	#print("j")
 	#print(j)
-	pos, vel, *other = p.getJointState(human, j)
+	temp  = p.getJointState(human, j)
+	pos = temp[0]
+	vel = temp[1]
 	#print("pos")
 	#print(pos)
 	#print("vel")
@@ -186,7 +184,7 @@ def demo_run():
 		p.setJointMotorControlArray(human2, motors,controlMode=p.TORQUE_CONTROL, forces=forces)
 
 		p.stepSimulation()
-		time.sleep(0.01)
+		#time.sleep(0.01)
 		distance=5
 		yaw = 0
 		humanPos, humanOrn = p.getBasePositionAndOrientation(human)
