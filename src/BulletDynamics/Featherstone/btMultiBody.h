@@ -140,6 +140,11 @@ public:
 		return m_baseCollider;
 	}
 
+	btMultiBodyLinkCollider* getLinkCollider(int index)
+	{
+		return m_colliders[index];
+	}
+
     //
     // get parent
     // input: link num from 0 to num_links-1

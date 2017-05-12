@@ -5,6 +5,7 @@
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btHashMap.h"
 #include "URDFJointTypes.h"
+#include "SDFAudioTypes.h"
 
 #define btArray btAlignedObjectArray
 #include <string>
@@ -50,9 +51,9 @@ enum UrdfGeomTypes
 	URDF_GEOM_BOX,
 	URDF_GEOM_CYLINDER,
 	URDF_GEOM_MESH,
-    URDF_GEOM_PLANE,
-	URDF_GEOM_CAPSULE//non-standard URDF?
-    
+	URDF_GEOM_PLANE,
+	URDF_GEOM_CAPSULE, //non-standard URDF?
+	URDF_GEOM_UNKNOWN, 
 };
 
 
@@ -83,6 +84,14 @@ struct UrdfGeometry
 
 	UrdfMaterial m_localMaterial;
 	bool m_hasLocalMaterial;
+
+	UrdfGeometry()
+	:m_type(URDF_GEOM_UNKNOWN),
+	m_hasFromTo(false),
+	m_hasLocalMaterial(false)
+	{
+	}
+
 };
 
 bool findExistingMeshFile(const std::string& urdf_path, std::string fn,
@@ -131,6 +140,8 @@ struct UrdfLink
 	int m_linkIndex;
 	
 	URDFLinkContactInfo m_contactInfo;
+
+	SDFAudioSource m_audioSource;
 
 	UrdfLink()
 		:m_parentLink(0),
@@ -184,7 +195,37 @@ struct UrdfModel
 	{
 		m_rootTransformInWorld.setIdentity();
 	}
-	
+
+	~UrdfModel()
+	{
+		for (int i = 0; i < m_materials.size(); i++)
+		{
+			UrdfMaterial** ptr = m_materials.getAtIndex(i);
+			if (ptr)
+			{
+				UrdfMaterial* t = *ptr;
+				delete t;
+			}
+		}
+		for (int i = 0; i < m_links.size(); i++)
+		{
+			UrdfLink** ptr = m_links.getAtIndex(i);
+			if (ptr)
+			{
+				UrdfLink* t = *ptr;
+				delete t;
+			}
+		}
+		for (int i = 0; i < m_joints.size(); i++)
+		{
+			UrdfJoint** ptr = m_joints.getAtIndex(i);
+			if (ptr)
+			{
+				UrdfJoint* t = *ptr;
+				delete t;
+			}
+		}
+	}
 };
 
 class UrdfParser
@@ -199,7 +240,6 @@ protected:
     int m_activeSdfModel;
 
     
-    void cleanModel(UrdfModel* model);
 	bool parseInertia(UrdfInertia& inertia, class TiXmlElement* config, ErrorLogger* logger);
 	bool parseGeometry(UrdfGeometry& geom, class TiXmlElement* g, ErrorLogger* logger);
 	bool parseVisual(UrdfModel& model, UrdfVisual& visual, class TiXmlElement* config, ErrorLogger* logger);

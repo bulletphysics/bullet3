@@ -12,6 +12,7 @@
 #include "../OpenGLWindow/ShapeData.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btVector3.h"
+#include "Bullet3Common/b3Logging.h"
 
 struct DepthShader : public IShader {
     
@@ -72,6 +73,8 @@ struct Shader : public IShader {
     Matrix& m_lightModelView;
     Vec4f m_colorRGBA;
     Matrix& m_viewportMat;
+	Matrix m_projectionModelViewMat;
+	Matrix m_projectionLightViewMat;
     float m_ambient_coefficient;
     float m_diffuse_coefficient;
     float m_specular_coefficient;
@@ -87,6 +90,7 @@ struct Shader : public IShader {
     mat<4,3,float> varying_tri; // triangle coordinates (clip coordinates), written by VS, read by FS
     mat<4,3,float> varying_tri_light_view;
     mat<3,3,float> varying_nrm; // normal per vertex to be interpolated by FS
+	mat<4,3,float> world_tri; // model triangle coordinates in the world space used for backface culling, written by VS
     
     Shader(Model* model, Vec3f light_dir_local, Vec3f light_color, Matrix& modelView, Matrix& lightModelView, Matrix& projectionMat, Matrix& modelMat, Matrix& viewportMat, Vec3f localScaling, const Vec4f& colorRGBA, int width, int height, b3AlignedObjectArray<float>* shadowBuffer, float ambient_coefficient=0.6, float diffuse_coefficient=0.35, float specular_coefficient=0.05)
     :m_model(model),
@@ -109,8 +113,11 @@ struct Shader : public IShader {
    
     {
         m_invModelMat = m_modelMat.invert_transpose();
+		m_projectionModelViewMat = m_projectionMat*m_modelView1;
+		m_projectionLightViewMat = m_projectionMat*m_lightModelView;
     }
     virtual Vec4f vertex(int iface, int nthvert) {
+		B3_PROFILE("vertex");
         Vec2f uv = m_model->uv(iface, nthvert);
         varying_uv.set_col(nthvert, uv);
         varying_nrm.set_col(nthvert, proj<3>(m_invModelMat*embed<4>(m_model->normal(iface, nthvert), 0.f)));
@@ -118,21 +125,24 @@ struct Shader : public IShader {
         Vec3f scaledVert=Vec3f(unScaledVert[0]*m_localScaling[0],
                                unScaledVert[1]*m_localScaling[1],
                                unScaledVert[2]*m_localScaling[2]);
-        Vec4f gl_Vertex = m_projectionMat*m_modelView1*embed<4>(scaledVert);
+        Vec4f gl_Vertex = m_projectionModelViewMat*embed<4>(scaledVert);
         varying_tri.set_col(nthvert, gl_Vertex);
-        Vec4f gl_VertexLightView = m_projectionMat*m_lightModelView*embed<4>(scaledVert);
+		Vec4f world_Vertex = m_modelMat*embed<4>(scaledVert);
+		world_tri.set_col(nthvert, world_Vertex);
+        Vec4f gl_VertexLightView = m_projectionLightViewMat*embed<4>(scaledVert);
         varying_tri_light_view.set_col(nthvert, gl_VertexLightView);
         return gl_Vertex;
     }
     
     virtual bool fragment(Vec3f bar, TGAColor &color) {
+		B3_PROFILE("fragment");
         Vec4f p = m_viewportMat*(varying_tri_light_view*bar);
         float depth = p[2];
         p = p/p[3];
         
-        int index_x = b3Max(0, b3Min(m_width-1, int(p[0])));
-        int index_y = b3Max(0, b3Min(m_height-1, int(p[1])));
-        int idx = index_x + index_y*m_width; // index in the shadowbuffer array
+		float index_x = b3Max(float(0.0), b3Min(float(m_width-1), p[0]));
+		float index_y = b3Max(float(0.0), b3Min(float(m_height-1), p[1]));
+		int idx = int(index_x) + int(index_y)*m_width; // index in the shadowbuffer array
         float shadow = 0.8+0.2*(m_shadowBuffer->at(idx)<-depth+0.05); // magic coeff to avoid z-fighting
         
         Vec3f bn = (varying_nrm*bar).normalize();
@@ -426,14 +436,6 @@ static bool clipTriangleAgainstNearplane(const mat<4,3,float>& triangleIn, b3Ali
 {
 
 
-	float orientation = (triangleIn[0][1] - triangleIn[0][0]) * (triangleIn[1][2] - triangleIn[1][0]) 
-	- (triangleIn[1][1] - triangleIn[1][0]) * (triangleIn[0][2] - triangleIn[0][0]);
-	
-	if (orientation < 0.0) 
-	{
-		return true;
-	}
-
 	//discard triangle if all vertices are behind near-plane
 	if (triangleIn[3][0]<0 && triangleIn[3][1] <0 && triangleIn[3][2] <0)
 	{
@@ -500,14 +502,25 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
         Matrix lightModelViewMatrix = lightViewMatrix*renderData.m_modelMatrix;
         Matrix modelViewMatrix = renderData.m_viewMatrix*renderData.m_modelMatrix;
         Vec3f localScaling(renderData.m_localScaling[0],renderData.m_localScaling[1],renderData.m_localScaling[2]);
+		Matrix viewMatrixInv = renderData.m_viewMatrix.invert();
+		btVector3 P(viewMatrixInv[0][3], viewMatrixInv[1][3], viewMatrixInv[2][3]);
         
         Shader shader(model, light_dir_local, light_color, modelViewMatrix, lightModelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, renderData.m_viewportMatrix, localScaling, model->getColorRGBA(), width, height, shadowBufferPtr, renderData.m_lightAmbientCoeff, renderData.m_lightDiffuseCoeff, renderData.m_lightSpecularCoeff);
         
         for (int i=0; i<model->nfaces(); i++)
         {
+			B3_PROFILE("face");
             for (int j=0; j<3; j++) {
                 shader.vertex(i, j);
             }
+			
+			// backface culling
+			btVector3 v0(shader.world_tri.col(0)[0], shader.world_tri.col(0)[1], shader.world_tri.col(0)[2]);
+			btVector3 v1(shader.world_tri.col(1)[0], shader.world_tri.col(1)[1], shader.world_tri.col(1)[2]);
+			btVector3 v2(shader.world_tri.col(2)[0], shader.world_tri.col(2)[1], shader.world_tri.col(2)[2]);
+			btVector3 N = (v1-v0).cross(v2-v0);
+			if ((v0-P).dot(N) >= 0)
+				continue;
 
 			mat<4,3,float> stackTris[3];
 

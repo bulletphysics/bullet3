@@ -239,7 +239,7 @@ void b3ChromeUtilsStartTimings()
 		btSetCustomLeaveProfileZoneFunc(MyLeaveProfileZoneFunc);
 }
 
-void b3ChromeUtilsStopTimingsAndWriteJsonFile()
+void b3ChromeUtilsStopTimingsAndWriteJsonFile(const char* fileNamePrefix)
 {
 		b3SetCustomEnterProfileZoneFunc(MyDummyEnterProfileZoneFunc);
 			b3SetCustomLeaveProfileZoneFunc(MyDummyLeaveProfileZoneFunc);
@@ -248,7 +248,7 @@ void b3ChromeUtilsStopTimingsAndWriteJsonFile()
 			btSetCustomLeaveProfileZoneFunc(MyDummyLeaveProfileZoneFunc);
 			char fileName[1024];
 			static int fileCounter = 0;
-			sprintf(fileName,"timings_%d.json",fileCounter++);
+			sprintf(fileName,"%s_%d.json",fileNamePrefix, fileCounter++);
 			gTimingFile = fopen(fileName,"w");
 			fprintf(gTimingFile,"{\"traceEvents\":[\n");
 			//dump the content to file

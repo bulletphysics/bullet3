@@ -5,7 +5,7 @@
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btTransform.h"
 #include "URDFJointTypes.h"
-
+#include "SDFAudioTypes.h"
 
 class URDFImporterInterface
 {
@@ -40,6 +40,8 @@ public:
 	///this API will likely change, don't override it!
 	virtual bool getLinkContactInfo(int linkIndex, URDFLinkContactInfo& contactInfo ) const  { return false;}
     
+	virtual bool getLinkAudioSource(int linkIndex, SDFAudioSource& audioSource) const { return false;}
+
     virtual std::string getJointName(int linkIndex) const = 0;
 
     //fill mass and inertial data. If inertial data is missing, please initialize mass, inertia to sensitive values, and inertialFrame to identity.

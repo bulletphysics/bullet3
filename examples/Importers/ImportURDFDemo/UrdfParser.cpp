@@ -13,48 +13,10 @@ m_activeSdfModel(-1)
 
 UrdfParser::~UrdfParser()
 {
-    cleanModel(&m_urdf2Model);
-    
-    for (int i=0;i<m_tmpModels.size();i++)
-    {
-        cleanModel(m_tmpModels[i]);
+	for (int i=0;i<m_tmpModels.size();i++)
+	{
 		delete m_tmpModels[i];
-    }
-    m_sdfModels.clear();
-    m_tmpModels.clear();
-}
-
-void UrdfParser::cleanModel(UrdfModel* model)
-{
-    for (int i=0;i<model->m_materials.size();i++)
-    {
-        UrdfMaterial** matPtr = model->m_materials.getAtIndex(i);
-        if (matPtr)
-        {
-            UrdfMaterial* mat = *matPtr;
-            delete mat;
-        }
-    }
-    
-    for (int i=0;i<model->m_links.size();i++)
-    {
-        UrdfLink** linkPtr = model->m_links.getAtIndex(i);
-        if (linkPtr)
-        {
-            UrdfLink* link = *linkPtr;
-            delete link;
-        }
-    }
-    
-    for (int i=0;i<model->m_joints.size();i++)
-    {
-        UrdfJoint** jointPtr = model->m_joints.getAtIndex(i);
-        if (jointPtr)
-        {
-            UrdfJoint* joint = *jointPtr;
-            delete joint;
-        }
-    }
+	}
 }
 
 static bool parseVector4(btVector4& vec4, const std::string& vector_str)
@@ -663,6 +625,82 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
         }
     }
 
+	{
+		//optional 'audio_source' parameters
+		//modified version of SDF audio_source specification in //http://sdformat.org/spec?ver=1.6&elem=link
+		#if 0
+		<audio_source>
+          <uri>file://media/audio/cheer.mp3</uri>
+          <pitch>2.0</pitch>
+          <gain>1.0</gain>
+          <loop>false</loop>
+          <contact>
+            <collision>collision</collision>
+          </contact>
+        </audio_source>
+		#endif
+		TiXmlElement* ci = config->FirstChildElement("audio_source");
+		if (ci)
+		{
+			link.m_audioSource.m_flags |= SDFAudioSource::SDFAudioSourceValid;
+			
+			const char* fn = ci->Attribute("filename");
+			if (fn)
+			{
+				link.m_audioSource.m_uri = fn;
+			} else
+			{
+				if (TiXmlElement* filename_xml = ci->FirstChildElement("uri"))
+				{
+					link.m_audioSource.m_uri = filename_xml->GetText();
+				}
+			}
+			if (TiXmlElement* pitch_xml = ci->FirstChildElement("pitch"))
+			{
+				link.m_audioSource.m_pitch = urdfLexicalCast<double>(pitch_xml->GetText());
+			}
+			if (TiXmlElement* gain_xml = ci->FirstChildElement("gain"))
+			{
+				link.m_audioSource.m_gain = urdfLexicalCast<double>(gain_xml->GetText());
+			}
+
+			if (TiXmlElement* attack_rate_xml = ci->FirstChildElement("attack_rate"))
+			{
+				link.m_audioSource.m_attackRate = urdfLexicalCast<double>(attack_rate_xml->GetText());
+			}
+
+			if (TiXmlElement* decay_rate_xml = ci->FirstChildElement("decay_rate"))
+			{
+				link.m_audioSource.m_decayRate = urdfLexicalCast<double>(decay_rate_xml->GetText());
+			}
+
+			if (TiXmlElement* sustain_level_xml = ci->FirstChildElement("sustain_level"))
+			{
+				link.m_audioSource.m_sustainLevel = urdfLexicalCast<double>(sustain_level_xml->GetText());
+			}
+
+			if (TiXmlElement* release_rate_xml = ci->FirstChildElement("release_rate"))
+			{
+				link.m_audioSource.m_releaseRate = urdfLexicalCast<double>(release_rate_xml->GetText());
+			}
+
+			if (TiXmlElement* loop_xml = ci->FirstChildElement("loop"))
+			{
+				std::string looptxt = loop_xml->GetText();
+				if (looptxt == "true")
+				{
+					link.m_audioSource.m_flags |= SDFAudioSource::SDFAudioSourceLooping;
+				}
+			}
+			if (TiXmlElement* forceThreshold_xml = ci->FirstChildElement("collision_force_threshold"))
+			{
+				link.m_audioSource.m_collisionForceThreshold= urdfLexicalCast<double>(forceThreshold_xml->GetText());
+			}
+			//todo: see other audio_source children
+			//pitch, gain, loop, contact
+			
+		}
+	}
 	{
 		//optional 'contact' parameters
 	 TiXmlElement* ci = config->FirstChildElement("contact");
@@ -1395,6 +1433,7 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 		UrdfMaterial** mat =m_urdf2Model.m_materials.find(material->m_name.c_str());
 		if (mat)
 		{
+			delete material;
 			logger->reportWarning("Duplicate material");
 		} else
 		{
@@ -1418,6 +1457,7 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 			{
 				logger->reportError("Link name is not unique, link names in the same model have to be unique");
 				logger->reportError(link->m_name.c_str());
+				delete link;
 				return false;
 			} else
 			{
@@ -1466,6 +1506,7 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 			{
 				logger->reportError("joint '%s' is not unique.");
 				logger->reportError(joint->m_name.c_str());
+				delete joint;
 				return false;
 			}
 			else
@@ -1476,6 +1517,7 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 		else
 		{
 			logger->reportError("joint xml is not initialized correctly");
+			delete joint;
 			return false;
 		}
 	}
@@ -1590,7 +1632,8 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
             UrdfMaterial** mat =localModel->m_materials.find(material->m_name.c_str());
             if (mat)
             {
-                logger->reportWarning("Duplicate material");
+		logger->reportWarning("Duplicate material");
+		delete material;
             } else
             {
                 localModel->m_materials.insert(material->m_name.c_str(),material);
@@ -1613,6 +1656,7 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
                 {
                     logger->reportError("Link name is not unique, link names in the same model have to be unique");
                     logger->reportError(link->m_name.c_str());
+                    delete link;
                     return false;
                 } else
                 {
@@ -1661,6 +1705,7 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
                 {
                     logger->reportError("joint '%s' is not unique.");
                     logger->reportError(joint->m_name.c_str());
+                    delete joint;
                     return false;
                 }
                 else
@@ -1671,6 +1716,7 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
             else
             {
                 logger->reportError("joint xml is not initialized correctly");
+                delete joint;
                 return false;
             }
         }

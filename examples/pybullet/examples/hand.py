@@ -22,8 +22,13 @@ hand=objects[0]
 #clamp in range 400-600
 #minV = 400
 #maxV = 600
-minV = 250
-maxV = 450
+minVarray = [275,280,350,290]
+maxVarray = [450,550,500,400]
+
+pinkId = 0
+middleId = 1
+indexId = 2
+thumbId = 3
 
 p.setRealTimeSimulation(1)
 
@@ -33,7 +38,10 @@ def getSerialOrNone(portname):
     except:
        return None
 
-def convertSensor(x):
+def convertSensor(x, fingerIndex):
+	minV = minVarray[fingerIndex]
+	maxV = maxVarray[fingerIndex]
+	
 	v = minV
 	try:
 		v = float(x)
@@ -44,7 +52,7 @@ def convertSensor(x):
 	if (v>maxV):
 		v=maxV
 	b = (v-minV)/float(maxV-minV)
-	return (1.0-b)
+	return (b)
 
 ser = None
 portindex = 0
@@ -62,6 +70,7 @@ while (ser is None and portindex < 30):
 
 if (ser is None):
 	ser = serial.Serial(port = "/dev/cu.usbmodem1421",baudrate=115200,parity=serial.PARITY_ODD,stopbits=serial.STOPBITS_TWO,bytesize=serial.SEVENBITS)
+pi=3.141592
 
 if (ser is not None and ser.isOpen()):
 	while True:
@@ -69,13 +78,13 @@ if (ser is not None and ser.isOpen()):
 			line = str(ser.readline())
 			words = line.split(",")
 			if (len(words)==6):
-				middle = convertSensor(words[1])
-				pink = convertSensor(words[2])
-				index = convertSensor(words[3])
-				thumb = convertSensor(words[4])
-
-				p.setJointMotorControl2(hand,7,p.POSITION_CONTROL,thumb)
-				p.setJointMotorControl2(hand,9,p.POSITION_CONTROL,thumb)
+				pink = convertSensor(words[1],pinkId)
+				middle = convertSensor(words[2],middleId)
+				index = convertSensor(words[3],indexId)
+				thumb = convertSensor(words[4],thumbId)
+			
+				p.setJointMotorControl2(hand,7,p.POSITION_CONTROL,pi/4.)	
+				p.setJointMotorControl2(hand,9,p.POSITION_CONTROL,thumb+pi/10)
 				p.setJointMotorControl2(hand,11,p.POSITION_CONTROL,thumb)
 				p.setJointMotorControl2(hand,13,p.POSITION_CONTROL,thumb)
 				

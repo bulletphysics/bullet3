@@ -179,6 +179,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIUserDebugRemoveItem,
 	eGUIUserDebugRemoveAllItems,
 	eGUIDumpFramesToVideo,
+	eGUIHelperRemoveGraphicsInstance,
 };
 
 
@@ -778,6 +779,15 @@ public:
 		workerThreadWait();
     }
 
+	int m_graphicsInstanceRemove;
+	virtual void removeGraphicsInstance(int graphicsUid)
+	{
+		m_graphicsInstanceRemove = graphicsUid;
+		m_cs->lock();
+		m_cs->setSharedParam(1,eGUIHelperRemoveGraphicsInstance);
+		workerThreadWait();    
+	}
+
 	virtual Common2dCanvasInterface* get2dCanvasInterface()
 	{
 		return 0;
@@ -1193,39 +1203,45 @@ public:
 			printf("key[%d]=%d state = %d\n",i,m_args[0].m_keyboardEvents[i].m_keyCode,m_args[0].m_keyboardEvents[i].m_keyState);
 		}
 		*/
+		double shift=0.1;
+
+		CommonWindowInterface* window = m_guiHelper->getAppInterface()->m_window;
+		if (window->isModifierKeyPressed(B3G_SHIFT))
+			shift=0.01;
+
 		if (key=='w' && state)
 		{
-			gVRTeleportPos1[0]+=0.1;
+			gVRTeleportPos1[0]+=shift;
 			saveCurrentSettingsVR();
 		}
 		if (key=='s' && state)
 		{
-			gVRTeleportPos1[0]-=0.1;
+			gVRTeleportPos1[0]-=shift;
 			saveCurrentSettingsVR();
 		}
 		if (key=='a' && state)
 		{
-			gVRTeleportPos1[1]-=0.1;
+			gVRTeleportPos1[1]-=shift;
 			saveCurrentSettingsVR();
 		}
 		if (key=='d' && state)
 		{
-			gVRTeleportPos1[1]+=0.1;
+			gVRTeleportPos1[1]+=shift;
 			saveCurrentSettingsVR();
 		}
 		if (key=='q' && state)
 		{
-			gVRTeleportPos1[2]+=0.1;
+			gVRTeleportPos1[2]+=shift;
 			saveCurrentSettingsVR();
 		}
 		if (key=='e' && state)
 		{
-			gVRTeleportPos1[2]-=0.1;
+			gVRTeleportPos1[2]-=shift;
 			saveCurrentSettingsVR();
 		}
 		if (key=='z' && state)
 		{
-			gVRTeleportRotZ+=0.1;
+			gVRTeleportRotZ+=shift;
 			gVRTeleportOrn = btQuaternion(btVector3(0, 0, 1), gVRTeleportRotZ);
 			saveCurrentSettingsVR();
 		}
@@ -1551,7 +1567,15 @@ void	PhysicsServerExample::updateGraphics()
 
             break;
         }
-        
+	case eGUIHelperRemoveGraphicsInstance:
+	{
+		m_multiThreadedHelper->m_childGuiHelper->removeGraphicsInstance(m_multiThreadedHelper->m_graphicsInstanceRemove);
+		m_multiThreadedHelper->mainThreadRelease();
+		break;
+	}
+       
+	
+
     case eGUIHelperCopyCameraImageData:
         {
              m_multiThreadedHelper->m_childGuiHelper->copyCameraImageData(m_multiThreadedHelper->m_viewMatrix,

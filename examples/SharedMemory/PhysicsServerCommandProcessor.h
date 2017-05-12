@@ -95,6 +95,7 @@ public:
 
 	//logging of object states (position etc)
 	void logObjectStates(btScalar timeStep);
+	void processCollisionForces(btScalar timeStep);
 
 	void stepSimulationRealTime(double dtInSec,	const struct b3VRControllerEvent* vrEvents, int numVREvents, const struct b3KeyboardEvent* keyEvents, int numKeyEvents);
 	void enableRealTimeSimulation(bool enableRealTimeSim);

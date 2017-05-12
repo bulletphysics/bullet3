@@ -402,10 +402,22 @@ elif _platform == "darwin":
     sources = sources + ["examples/ThirdPartyLibs/enet/unix.c"]\
     +["examples/OpenGLWindow/MacOpenGLWindow.cpp"]\
     +["examples/OpenGLWindow/MacOpenGLWindowObjC.m"]
+else:
+    print("bsd!")
+    os.environ['LDFLAGS'] = '-L/usr/X11R6/lib'
+    CXX_FLAGS += '-D_BSD '
+    CXX_FLAGS += '-I/usr/X11R6/include '
+    CXX_FLAGS += '-DHAS_SOCKLEN_T '
+    CXX_FLAGS += '-fno-inline-functions-called-once'
+    sources = ["examples/ThirdPartyLibs/enet/unix.c"]\
+    +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\
+    +["examples/ThirdPartyLibs/Glew/glew.c"]\
+    + sources
+
 
 setup(
 	name = 'pybullet',
-	version='1.0.1',
+	version='1.0.2',
 	description='Official Python Interface for the Bullet Physics SDK Robotics Simulator',
 	long_description='pybullet is an easy to use Python module for physics simulation, robotics and machine learning based on the Bullet Physics SDK. With pybullet you can load articulated bodies from URDF, SDF and other file formats. pybullet provides forward dynamics simulation, inverse dynamics computation, forward and inverse kinematics and collision detection and ray intersection queries. Aside from physics simulation, pybullet supports to rendering, with a CPU renderer and OpenGL visualization and support for virtual reality headsets.',
 	url='https://github.com/bulletphysics/bullet3',

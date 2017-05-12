@@ -41,8 +41,10 @@ public:
 
 	virtual bool getLinkColor(int linkIndex, btVector4& colorRGBA) const;
 
-	virtual bool getLinkContactInfo(int linkIndex, URDFLinkContactInfo& contactInfo ) const;
+	virtual bool getLinkContactInfo(int urdflinkIndex, URDFLinkContactInfo& contactInfo ) const;
 	
+	virtual bool getLinkAudioSource(int linkIndex, SDFAudioSource& audioSource) const;
+
     virtual std::string getJointName(int linkIndex) const;
     
     virtual void  getMassAndInertia(int linkIndex, btScalar& mass,btVector3& localInertiaDiagonal, btTransform& inertialFrame) const;

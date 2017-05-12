@@ -48,7 +48,6 @@
 //quick test for file import, @todo(erwincoumans) make it more general and add other file formats
 #include "../Importers/ImportURDFDemo/ImportURDFSetup.h"
 #include "../Importers/ImportBullet/SerializeSetup.h"
-
 #include "Bullet3Common/b3HashMap.h"
 
 struct GL3TexLoader : public MyTextureLoader
@@ -261,7 +260,7 @@ void MyKeyboardCallback(int key, int state)
 
 			} else
 			{
-				b3ChromeUtilsStopTimingsAndWriteJsonFile();
+				b3ChromeUtilsStopTimingsAndWriteJsonFile("timings");
 			}
 	#endif //BT_NO_PROFILE
 		}

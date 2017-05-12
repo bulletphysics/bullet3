@@ -36,6 +36,9 @@ static btScalar gBoxRestitution = 0; // set box restitution to 0
 static btScalar gSphereFriction = 1; // set sphere friction to 1
 
 static btScalar gSphereRollingFriction = 1; // set sphere rolling friction to 1
+static btScalar gSphereSpinningFriction = 0.3; // set sphere spinning friction to 0.3
+
+
 
 static btScalar gSphereRestitution = 0; // set sphere restitution to 0
 
@@ -149,6 +152,16 @@ void InclinedPlaneExample::initPhysics()
     m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
     }
 
+	{ // create slider to change the sphere rolling friction
+    SliderParams slider("Sphere Spinning",&gSphereSpinningFriction);
+    slider.m_minVal=0;
+    slider.m_maxVal=2;
+    slider.m_clampToNotches = false;
+    slider.m_callback = onSphereRestitutionChanged;
+    m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+    }
+	
+
     { // create slider to change the sphere restitution
     SliderParams slider("Sphere Restitution",&gSphereRestitution);
     slider.m_minVal=0;
@@ -240,6 +253,8 @@ void InclinedPlaneExample::initPhysics()
 		gSphere->setFriction(gSphereFriction);
 		gSphere->setRestitution(gSphereRestitution);
 		gSphere->setRollingFriction(gSphereRollingFriction);
+		gSphere->setSpinningFriction(gSphereSpinningFriction);
+
 	}
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);

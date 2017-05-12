@@ -1134,9 +1134,9 @@ bool BulletURDFImporter::getLinkColor(int linkIndex, btVector4& colorRGBA) const
 	return false;
 }
 
-bool BulletURDFImporter::getLinkContactInfo(int linkIndex, URDFLinkContactInfo& contactInfo ) const
+bool BulletURDFImporter::getLinkContactInfo(int urdflinkIndex, URDFLinkContactInfo& contactInfo ) const
 {
-	UrdfLink* const* linkPtr = m_data->m_urdfParser.getModel().m_links.getAtIndex(linkIndex);
+	UrdfLink* const* linkPtr = m_data->m_urdfParser.getModel().m_links.getAtIndex(urdflinkIndex);
 	if (linkPtr)
 	{
 		const UrdfLink* link = *linkPtr;
@@ -1145,6 +1145,22 @@ bool BulletURDFImporter::getLinkContactInfo(int linkIndex, URDFLinkContactInfo& 
 	}
 	return false;
 }
+
+bool BulletURDFImporter::getLinkAudioSource(int linkIndex, SDFAudioSource& audioSource) const
+{
+	UrdfLink* const* linkPtr = m_data->m_urdfParser.getModel().m_links.getAtIndex(linkIndex);
+	if (linkPtr)
+	{
+		const UrdfLink* link = *linkPtr;
+		if (link->m_audioSource.m_flags & SDFAudioSource::SDFAudioSourceValid)
+		{
+			audioSource = link->m_audioSource;
+			return true;
+		}
+	}
+	return false;
+}
+
 
 void BulletURDFImporter::convertLinkVisualShapes2(int linkIndex, int urdfIndex, const char* pathPrefix, const btTransform& localInertiaFrame, class btCollisionObject* colObj, int bodyUniqueId) const
 {
