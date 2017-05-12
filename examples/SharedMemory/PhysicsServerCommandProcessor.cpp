@@ -4536,7 +4536,6 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									int linkIndexB = -1;
 
 									int objectIndexB = -1;
-
 									const btRigidBody* bodyB = btRigidBody::upcast(manifold->getBody1());
 									if (bodyB)
 									{
@@ -4547,12 +4546,6 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									{
 										linkIndexB = mblB->m_link;
 										objectIndexB = mblB->m_multiBody->getUserIndex2();
-										if (
-											(clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_B_FILTER) &&
-											clientCmd.m_requestContactPointArguments.m_linkIndexBIndexFilter != linkIndexB)
-										{
-											continue;
-										}
 									}
 
 									int objectIndexA = -1;
@@ -4566,30 +4559,55 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									{
 										linkIndexA = mblA->m_link;
 										objectIndexA = mblA->m_multiBody->getUserIndex2();
-										if (
-											(clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_A_FILTER) &&
-											clientCmd.m_requestContactPointArguments.m_linkIndexAIndexFilter != linkIndexA)
+									}
+									btAssert(bodyA || mblA);
+
+									//apply the filter, if the user provides it
+									bool swap = false;
+									if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter >= 0)
+									{
+										if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter == objectIndexA)
+										{
+											swap = false;
+										}
+										else if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter == objectIndexB)
+										{
+											swap = true;
+										}
+										else
 										{
 											continue;
 										}
 									}
 
-									btAssert(bodyA || mblA);
-
-									//apply the filter, if the user provides it
-									if (clientCmd.m_requestContactPointArguments.m_objectAIndexFilter >= 0)
+									if (swap)
 									{
-										if ((clientCmd.m_requestContactPointArguments.m_objectAIndexFilter != objectIndexA) &&
-											(clientCmd.m_requestContactPointArguments.m_objectAIndexFilter != objectIndexB))
-											continue;
+										std::swap(objectIndexA, objectIndexB);
+										std::swap(linkIndexA, linkIndexB);
+										std::swap(bodyA, bodyB);
 									}
 
 									//apply the second object filter, if the user provides it
 									if (clientCmd.m_requestContactPointArguments.m_objectBIndexFilter >= 0)
 									{
-										if ((clientCmd.m_requestContactPointArguments.m_objectBIndexFilter != objectIndexA) &&
-											(clientCmd.m_requestContactPointArguments.m_objectBIndexFilter != objectIndexB))
+										if (clientCmd.m_requestContactPointArguments.m_objectBIndexFilter != objectIndexB)
+										{
 											continue;
+										}
+									}
+
+									if (
+										(clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_A_FILTER) &&
+										clientCmd.m_requestContactPointArguments.m_linkIndexAIndexFilter != linkIndexA)
+									{
+										continue;
+									}
+
+									if (
+										(clientCmd.m_updateFlags & CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_B_FILTER) &&
+										clientCmd.m_requestContactPointArguments.m_linkIndexBIndexFilter != linkIndexB)
+									{
+										continue;
 									}
 
 									for (int p = 0; p < manifold->getNumContacts(); p++)
