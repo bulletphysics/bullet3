@@ -74,15 +74,47 @@ public:
 		if (m_link>=0)
 		{
 			const btMultibodyLink& link = m_multiBody->getLink(this->m_link);
-			if ((link.m_flags&BT_MULTIBODYLINKFLAGS_DISABLE_PARENT_COLLISION) && link.m_parent == other->m_link)
-				return false;
+			if (link.m_flags&BT_MULTIBODYLINKFLAGS_DISABLE_PARENT_COLLISION)
+			{
+				if ( link.m_parent == other->m_link)
+					return false;
+			}
+			if (link.m_flags&BT_MULTIBODYLINKFLAGS_DISABLE_ALL_PARENT_COLLISION)
+			{
+				int parent_of_this = m_link;
+				while (1) 
+				{
+					if (parent_of_this==-1) 
+						break;
+					parent_of_this = m_multiBody->getLink(parent_of_this).m_parent;
+					if (parent_of_this==other->m_link)
+					{
+						return false;
+					}
+				}
+			}
 		}
 		
 		if (other->m_link>=0)
 		{
 			const btMultibodyLink& otherLink = other->m_multiBody->getLink(other->m_link);
-			if ((otherLink.m_flags& BT_MULTIBODYLINKFLAGS_DISABLE_PARENT_COLLISION) && otherLink.m_parent == this->m_link)
-				return false;
+			if (otherLink.m_flags& BT_MULTIBODYLINKFLAGS_DISABLE_PARENT_COLLISION)
+			{
+				if (otherLink.m_parent == this->m_link)
+					return false;
+			}
+			if (otherLink.m_flags& BT_MULTIBODYLINKFLAGS_DISABLE_ALL_PARENT_COLLISION)
+			{
+				int parent_of_other = other->m_link;
+				while (1) 
+				{
+					if (parent_of_other==-1) 
+						break;
+					parent_of_other = m_multiBody->getLink(parent_of_other).m_parent;
+					if (parent_of_other==this->m_link)
+						return false;
+				}
+			}
 		}
 		return true;
 	}

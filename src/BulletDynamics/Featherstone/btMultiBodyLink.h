@@ -22,7 +22,8 @@ subject to the following restrictions:
 
 enum	btMultiBodyLinkFlags
 {
-	BT_MULTIBODYLINKFLAGS_DISABLE_PARENT_COLLISION = 1
+	BT_MULTIBODYLINKFLAGS_DISABLE_PARENT_COLLISION = 1,
+	BT_MULTIBODYLINKFLAGS_DISABLE_ALL_PARENT_COLLISION = 2,
 };
 
 //both defines are now permanently enabled

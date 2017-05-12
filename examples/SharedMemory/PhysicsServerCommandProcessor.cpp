@@ -3898,15 +3898,15 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 					break;
 				};
-				case CMD_RESET_DYNAMIC_INFO:
+				case CMD_CHANGE_DYNAMICS_INFO:
 				{
-					BT_PROFILE("CMD_RESET_DYNAMIC_INFO");
+					BT_PROFILE("CMD_CHANGE_DYNAMICS_INFO");
 					
-					if (clientCmd.m_updateFlags & RESET_DYNAMIC_INFO_SET_MASS)
+					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MASS)
 					{
-						int bodyUniqueId = clientCmd.m_resetDynamicInfoArgs.m_bodyUniqueId;
-						int linkIndex = clientCmd.m_resetDynamicInfoArgs.m_linkIndex;
-						double mass = clientCmd.m_resetDynamicInfoArgs.m_mass;
+						int bodyUniqueId = clientCmd.m_changeDynamicsInfoArgs.m_bodyUniqueId;
+						int linkIndex = clientCmd.m_changeDynamicsInfoArgs.m_linkIndex;
+						double mass = clientCmd.m_changeDynamicsInfoArgs.m_mass;
 						btAssert(bodyUniqueId >= 0);
 						btAssert(linkIndex >= -1);
 						
@@ -3925,11 +3925,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						}
 					}
 					
-					if (clientCmd.m_updateFlags & RESET_DYNAMIC_INFO_SET_LATERAL_FRICTION)
+					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION)
 					{
-						int bodyUniqueId = clientCmd.m_resetDynamicInfoArgs.m_bodyUniqueId;
-						int linkIndex = clientCmd.m_resetDynamicInfoArgs.m_linkIndex;
-						double lateralFriction = clientCmd.m_resetDynamicInfoArgs.m_lateralFriction;
+						int bodyUniqueId = clientCmd.m_changeDynamicsInfoArgs.m_bodyUniqueId;
+						int linkIndex = clientCmd.m_changeDynamicsInfoArgs.m_linkIndex;
+						double lateralFriction = clientCmd.m_changeDynamicsInfoArgs.m_lateralFriction;
 						btAssert(bodyUniqueId >= 0);
 						btAssert(linkIndex >= -1);
 						
@@ -3955,6 +3955,38 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					
 					break;
 				};
+				case CMD_GET_DYNAMICS_INFO:
+				{
+					int bodyUniqueId = clientCmd.m_getDynamicsInfoArgs.m_bodyUniqueId;
+					int linkIndex = clientCmd.m_getDynamicsInfoArgs.m_linkIndex;
+					InteralBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+					if (body && body->m_multiBody)
+					{
+						SharedMemoryStatus& serverCmd = serverStatusOut;
+						serverCmd.m_type = CMD_GET_DYNAMICS_INFO_COMPLETED;
+						
+						btMultiBody* mb = body->m_multiBody;
+						if (linkIndex == -1)
+						{
+							serverCmd.m_dynamicsInfo.m_mass = mb->getBaseMass();
+							serverCmd.m_dynamicsInfo.m_lateralFrictionCoeff = mb->getBaseCollider()->getFriction();
+						}
+						else
+						{
+							serverCmd.m_dynamicsInfo.m_mass = mb->getLinkMass(linkIndex);
+							serverCmd.m_dynamicsInfo.m_lateralFrictionCoeff = mb->getLinkCollider(linkIndex)->getFriction();
+						}
+						hasStatus = true;
+					}
+					else
+					{
+						b3Warning("The dynamic info requested is not available");
+						SharedMemoryStatus& serverCmd = serverStatusOut;
+						serverCmd.m_type = CMD_GET_DYNAMICS_INFO_FAILED;
+						hasStatus = true;
+					}
+					break;
+				}
 				case CMD_SEND_PHYSICS_SIMULATION_PARAMETERS:
 				{
 					BT_PROFILE("CMD_SEND_PHYSICS_SIMULATION_PARAMETERS");
@@ -5661,7 +5693,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                             b3Printf("Processed CMD_LOAD_MJCF:%s", mjcfArgs.m_mjcfFileName);
                         }
                         bool useMultiBody=(clientCmd.m_updateFlags & URDF_ARGS_USE_MULTIBODY) ? (mjcfArgs.m_useMultiBody!=0) : true;
-						int flags = CUF_USE_MJCF;//CUF_USE_URDF_INERTIA
+						int flags = CUF_USE_MJCF;
+						if (clientCmd.m_updateFlags&URDF_ARGS_HAS_CUSTOM_URDF_FLAGS)
+						{
+							flags |= clientCmd.m_mjcfArguments.m_flags;
+						}
+
                         bool completedOk = loadMjcf(mjcfArgs.m_mjcfFileName,bufferServerToClient, bufferSizeInBytes, useMultiBody, flags);
                         if (completedOk)
                         {

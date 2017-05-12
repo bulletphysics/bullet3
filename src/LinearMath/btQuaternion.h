@@ -355,7 +355,15 @@ public:
 	{
 		return btSqrt(length2());
 	}
-
+	btQuaternion& safeNormalize()
+	{
+		btScalar l2 = length2();
+		if (l2>SIMD_EPSILON)
+		{
+			normalize();
+		}
+		return *this;
+	}
   /**@brief Normalize the quaternion 
    * Such that x^2 + y^2 + z^2 +w^2 = 1 */
 	btQuaternion& normalize() 
