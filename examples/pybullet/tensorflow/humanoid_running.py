@@ -61,7 +61,9 @@ dummy.initial_z = None
 def current_relative_position(human, j, lower, upper):
 	#print("j")
 	#print(j)
-	pos, vel, *other = p.getJointState(human, j)
+	temp  = p.getJointState(human, j)
+	pos = temp[0]
+	vel = temp[1]
 	#print("pos")
 	#print(pos)
 	#print("vel")
