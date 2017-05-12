@@ -4,7 +4,7 @@ import numpy as np
 
 import pybullet as p
 import time
-p.connect(p.SHARED_MEMORY) #GUI is slower, but shows the running gait
+p.connect(p.GUI) #GUI is slower, but shows the running gait
 p.setGravity(0,0,-9.8)
 p.setPhysicsEngineParameter(fixedTimeStep=1.0/60., numSolverIterations=5, numSubSteps=2)
 #this mp4 recording requires ffmpeg installed
@@ -186,7 +186,7 @@ def demo_run():
 		p.setJointMotorControlArray(human2, motors,controlMode=p.TORQUE_CONTROL, forces=forces)
 
 		p.stepSimulation()
-		time.sleep(0.01)
+		#time.sleep(0.01)
 		distance=5
 		yaw = 0
 		humanPos, humanOrn = p.getBasePositionAndOrientation(human)
