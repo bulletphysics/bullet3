@@ -5101,6 +5101,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								
 								if (bodyHandle->m_multiBody->getBaseCollider())
 								{
+									m_data->m_visualConverter.removeVisualShape(bodyHandle->m_multiBody->getBaseCollider());
 									m_data->m_dynamicsWorld->removeCollisionObject(bodyHandle->m_multiBody->getBaseCollider());
 									int graphicsIndex = bodyHandle->m_multiBody->getBaseCollider()->getUserIndex();
 									m_data->m_guiHelper->removeGraphicsInstance(graphicsIndex);
@@ -5110,6 +5111,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									
 									if (bodyHandle->m_multiBody->getLink(link).m_collider)
 									{
+										m_data->m_visualConverter.removeVisualShape(bodyHandle->m_multiBody->getLink(link).m_collider);
 										m_data->m_dynamicsWorld->removeCollisionObject(bodyHandle->m_multiBody->getLink(link).m_collider);
 										int graphicsIndex = bodyHandle->m_multiBody->getLink(link).m_collider->getUserIndex();
 										m_data->m_guiHelper->removeGraphicsInstance(graphicsIndex);
@@ -5126,6 +5128,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							}
 							if (bodyHandle->m_rigidBody)
 							{
+								m_data->m_visualConverter.removeVisualShape(bodyHandle->m_rigidBody);
 								serverCmd.m_removeObjectArgs.m_bodyUniqueIds[serverCmd.m_removeObjectArgs.m_numBodies++] = bodyUniqueId;
 								//todo: clear all other remaining data...
 								m_data->m_dynamicsWorld->removeRigidBody(bodyHandle->m_rigidBody);
