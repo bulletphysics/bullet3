@@ -124,6 +124,17 @@ struct b3RobotSimulatorInverseKinematicsResults
 	b3AlignedObjectArray<double> m_calculatedJointPositions;
 };
 
+struct b3JointStates2
+{
+    int m_bodyUniqueId;
+    int m_numDegreeOfFreedomQ;
+    int m_numDegreeOfFreedomU;
+    b3Transform m_rootLocalInertialFrame;
+    b3AlignedObjectArray<double> m_actualStateQ;
+    b3AlignedObjectArray<double> m_actualStateQdot;
+    b3AlignedObjectArray<double> m_jointReactionForces;
+};
+
 ///The b3RobotSimulatorClientAPI is pretty much the C++ version of pybullet
 ///as documented in the pybullet Quickstart Guide
 ///https://docs.google.com/document/d/10sXEhzFRSnvFcl3XxNGhnD4N2SedqwdAvK3dsihxVUA
@@ -136,6 +147,11 @@ public:
 
 	b3RobotSimulatorClientAPI();
 	virtual ~b3RobotSimulatorClientAPI();
+
+	//setGuiHelper is only used when embedded in existing example browser
+	void setGuiHelper(struct GUIHelperInterface* guiHelper);
+	//renderScene is only used when embedded in existing example browser
+	virtual void renderScene();
 
 	bool connect(int mode, const std::string& hostName = "localhost", int portOrKey = -1);
 
@@ -176,6 +192,8 @@ public:
 	void removeConstraint(int constraintId);
 
 	bool getJointState(int bodyUniqueId, int jointIndex, struct b3JointSensorState* state);
+
+	bool getJointStates(int bodyUniqueId, b3JointStates2& state);
 
 	bool resetJointState(int bodyUniqueId, int jointIndex, double targetValue);
 

@@ -14,8 +14,9 @@ b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnect(int argc, char* a
 
 b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectMainThread(int argc, char* argv[]);
 
+b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect(struct GUIHelperInterface* guiHelper);
     
-    
+void b3InProcessRenderSceneInternal(b3PhysicsClientHandle clientHandle);
     
 #ifdef __cplusplus
 }

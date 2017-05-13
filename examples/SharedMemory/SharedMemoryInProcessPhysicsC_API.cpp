@@ -4,6 +4,9 @@
 
 #include "PhysicsClientSharedMemory.h"
 #include"../ExampleBrowser/InProcessExampleBrowser.h"
+#include "PhysicsServerExample.h"
+#include "../CommonInterfaces/CommonExampleInterface.h"
+#include "InProcessMemory.h"
 
 #include "Bullet3Common/b3Logging.h"
 class InProcessPhysicsClientSharedMemoryMainThread : public PhysicsClientSharedMemory
@@ -124,3 +127,100 @@ b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnect(int argc, char* a
 	return (b3PhysicsClientHandle ) cl;
 }
 
+class InProcessPhysicsClientExistingExampleBrowser : public PhysicsClientSharedMemory
+{
+	CommonExampleInterface*  m_physicsServerExample;
+	SharedMemoryInterface* m_sharedMem;
+	b3Clock m_clock;
+	unsigned long long int m_prevTime;
+public:
+	InProcessPhysicsClientExistingExampleBrowser (struct GUIHelperInterface* guiHelper)
+	{
+		
+
+		m_sharedMem = new InProcessMemory;
+		CommonExampleOptions options(guiHelper);
+		options.m_sharedMem = m_sharedMem;
+			
+		m_physicsServerExample = PhysicsServerCreateFunc(options);
+		m_physicsServerExample ->initPhysics();
+		m_physicsServerExample ->resetCamera();
+		setSharedMemoryInterface(m_sharedMem);
+		m_clock.reset();
+		m_prevTime = m_clock.getTimeMicroseconds();
+
+	}
+	virtual ~InProcessPhysicsClientExistingExampleBrowser()
+	{
+		m_physicsServerExample->exitPhysics();
+		//s_instancingRenderer->removeAllInstances();
+		delete m_physicsServerExample;
+		delete m_sharedMem;
+	}
+
+	 // return non-null if there is a status, nullptr otherwise
+    virtual const struct SharedMemoryStatus* processServerStatus()
+    {
+		//m_physicsServerExample->updateGraphics();
+
+		unsigned long long int curTime = m_clock.getTimeMicroseconds();
+		unsigned long long int dtMicro = curTime - m_prevTime;
+		m_prevTime = curTime;
+
+		double dt = double(dtMicro)/1000000.;
+
+		m_physicsServerExample->stepSimulation(dt);
+
+		#if 0
+		{
+			//if (btIsExampleBrowserMainThreadTerminated(m_data))
+			//{
+			//	PhysicsClientSharedMemory::disconnectSharedMemory();
+			//}
+		}
+			//{	
+	   		//unsigned long int ms = m_clock.getTimeMilliseconds();
+			//if (ms>20)
+			//{ 
+			//	B3_PROFILE("m_clock.reset()");
+		//
+			//	m_clock.reset(); 
+        		//btUpdateInProcessExampleBrowserMainThread(m_data);
+			//}
+		}
+	#endif
+		{
+			b3Clock::usleep(0);
+		}
+		const SharedMemoryStatus* stat = 0;
+
+		{
+			stat = PhysicsClientSharedMemory::processServerStatus();
+		}
+
+		return stat;
+        
+    }
+
+	virtual void renderScene()
+	{
+		m_physicsServerExample->renderScene();
+	}
+
+	
+};
+
+void b3InProcessRenderSceneInternal(b3PhysicsClientHandle clientHandle)
+{
+	InProcessPhysicsClientExistingExampleBrowser* cl = (InProcessPhysicsClientExistingExampleBrowser*) clientHandle;
+	cl->renderScene();
+}
+
+b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect(struct GUIHelperInterface* guiHelper)
+{
+
+	InProcessPhysicsClientExistingExampleBrowser* cl  = new InProcessPhysicsClientExistingExampleBrowser(guiHelper);
+	//InProcessPhysicsClientFromGuiHelper* cl = new InProcessPhysicsClientFromGuiHelper(guiHelper);
+    cl->connect();
+	return (b3PhysicsClientHandle ) cl;
+}
