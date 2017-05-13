@@ -98,11 +98,11 @@ public:
 
 	virtual void writeSingleInstanceTransformToGPU(float* position, float* orientation, int srcIndex);
 
-	virtual void writeSingleInstanceColorToCPU(float* color, int srcIndex);
-	virtual void writeSingleInstanceColorToCPU(double* color, int srcIndex);
+	virtual void writeSingleInstanceColorToCPU(const float* color, int srcIndex);
+	virtual void writeSingleInstanceColorToCPU(const double* color, int srcIndex);
 
-	virtual void writeSingleInstanceScaleToCPU(float* scale, int srcIndex);
-	virtual void writeSingleInstanceScaleToCPU(double* scale, int srcIndex);
+	virtual void writeSingleInstanceScaleToCPU(const float* scale, int srcIndex);
+	virtual void writeSingleInstanceScaleToCPU(const double* scale, int srcIndex);
 
 	
 	virtual struct	GLInstanceRendererInternalData* getInternalData();

@@ -487,7 +487,10 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
     Model* model = renderData.m_model;
     if (0==model)
         return;
-    
+	//discard invisible objects (zero alpha)
+	if (model->getColorRGBA()[3]==0)
+		return;
+
     renderData.m_viewportMatrix = viewport(0,0,width, height);
     
     b3AlignedObjectArray<float>& zbuffer = renderData.m_depthBuffer;
@@ -506,7 +509,8 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
 		btVector3 P(viewMatrixInv[0][3], viewMatrixInv[1][3], viewMatrixInv[2][3]);
         
         Shader shader(model, light_dir_local, light_color, modelViewMatrix, lightModelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, renderData.m_viewportMatrix, localScaling, model->getColorRGBA(), width, height, shadowBufferPtr, renderData.m_lightAmbientCoeff, renderData.m_lightDiffuseCoeff, renderData.m_lightSpecularCoeff);
-        
+       
+		
         for (int i=0; i<model->nfaces(); i++)
         {
 			B3_PROFILE("face");

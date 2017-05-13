@@ -4027,7 +4027,7 @@ static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args, PyO
 	return Py_None;
 }
 
-static PyObject* pybullet_resetVisualShapeData(PyObject* self, PyObject* args, PyObject* keywds)
+static PyObject* pybullet_changeVisualShape(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	int objectUniqueId = -1;
 	int jointIndex = -1;
@@ -4037,9 +4037,11 @@ static PyObject* pybullet_resetVisualShapeData(PyObject* self, PyObject* args, P
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType;
 	int physicsClientId = 0;
+	PyObject* rgbaColorObj = 0;
+
 	b3PhysicsClientHandle sm = 0;
-	static char* kwlist[] = {"objectUniqueId", "jointIndex", "shapeIndex", "textureUniqueId", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiii|i", kwlist, &objectUniqueId, &jointIndex, &shapeIndex, &textureUniqueId, &physicsClientId))
+	static char* kwlist[] = {"objectUniqueId", "linkIndex", "shapeIndex", "textureUniqueId", "rgbaColor", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|iiOi", kwlist, &objectUniqueId, &jointIndex, &shapeIndex, &textureUniqueId, &rgbaColorObj, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -4052,6 +4054,14 @@ static PyObject* pybullet_resetVisualShapeData(PyObject* self, PyObject* args, P
 
 	{
 		commandHandle = b3InitUpdateVisualShape(sm, objectUniqueId, jointIndex, shapeIndex, textureUniqueId);
+
+		if (rgbaColorObj)
+		{
+			double rgbaColor[4] = {1,1,1,1};
+			pybullet_internalSetVector4d(rgbaColorObj, rgbaColor);
+			b3UpdateVisualShapeRGBAColor(commandHandle,rgbaColor);
+		}
+
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 		statusType = b3GetStatusType(statusHandle);
 		if (statusType == CMD_VISUAL_SHAPE_UPDATE_COMPLETED)
@@ -5913,7 +5923,7 @@ static PyMethodDef SpamMethods[] = {
 	 "Reset the state (position, velocity etc) for a joint on a body "
 	 "instantaneously, not through physics simulation."},
 	
-	{"changeDynamicsInfo", (PyCFunction)pybullet_changeDynamicsInfo, METH_VARARGS | METH_KEYWORDS,
+	{"changeDynamics", (PyCFunction)pybullet_changeDynamicsInfo, METH_VARARGS | METH_KEYWORDS,
 	 "change dynamics information such as mass, lateral friction coefficient."},
 	
 	{"getDynamicsInfo", (PyCFunction)pybullet_getDynamicsInfo, METH_VARARGS | METH_KEYWORDS,
@@ -6019,8 +6029,11 @@ static PyMethodDef SpamMethods[] = {
 	{"getVisualShapeData", (PyCFunction)pybullet_getVisualShapeData, METH_VARARGS | METH_KEYWORDS,
 	 "Return the visual shape information for one object."},
 
-	{"resetVisualShapeData", (PyCFunction)pybullet_resetVisualShapeData, METH_VARARGS | METH_KEYWORDS,
-	 "Reset part of the visual shape information for one object."},
+	{"changeVisualShape", (PyCFunction)pybullet_changeVisualShape, METH_VARARGS | METH_KEYWORDS,
+	 "Change part of the visual shape information for one object."},
+	
+	 {"resetVisualShapeData", (PyCFunction)pybullet_changeVisualShape, METH_VARARGS | METH_KEYWORDS,
+	 "Obsolete method, kept for backward compatibility, use changeVisualShapeData instead."},
 
 	{"loadTexture", (PyCFunction)pybullet_loadTexture, METH_VARARGS | METH_KEYWORDS,
 	 "Load texture file."},

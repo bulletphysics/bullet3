@@ -14,7 +14,7 @@ protected:
     void processBodyJointInfo(int bodyUniqueId, const struct SharedMemoryStatus& serverCmd);
     void resetData();
 	void removeCachedBody(int bodyUniqueId);
-
+	virtual void renderSceneInternal() {};
 public:
     PhysicsClientSharedMemory();
     virtual ~PhysicsClientSharedMemory();

@@ -375,7 +375,7 @@ void GLInstancingRenderer::readSingleInstanceTransformFromCPU(int bodyUniqueId, 
 	orientation[2] = m_data->m_instance_quaternion_ptr[srcIndex*4+2];
 	orientation[3] = m_data->m_instance_quaternion_ptr[srcIndex*4+3];
 }
-void GLInstancingRenderer::writeSingleInstanceColorToCPU(double* color, int bodyUniqueId)
+void GLInstancingRenderer::writeSingleInstanceColorToCPU(const double* color, int bodyUniqueId)
 {
 	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
 	b3Assert(pg);
@@ -387,7 +387,7 @@ void GLInstancingRenderer::writeSingleInstanceColorToCPU(double* color, int body
 	m_data->m_instance_colors_ptr[srcIndex*4+3]=float(color[3]);
 }
 
-void GLInstancingRenderer::writeSingleInstanceColorToCPU(float* color, int bodyUniqueId)
+void GLInstancingRenderer::writeSingleInstanceColorToCPU(const float* color, int bodyUniqueId)
 {
 	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
 	b3Assert(pg);
@@ -399,7 +399,7 @@ void GLInstancingRenderer::writeSingleInstanceColorToCPU(float* color, int bodyU
 	m_data->m_instance_colors_ptr[srcIndex*4+3]=color[3];
 }
 
-void GLInstancingRenderer::writeSingleInstanceScaleToCPU(float* scale, int bodyUniqueId)
+void GLInstancingRenderer::writeSingleInstanceScaleToCPU(const float* scale, int bodyUniqueId)
 {
 	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
 	b3Assert(pg);
@@ -410,7 +410,7 @@ void GLInstancingRenderer::writeSingleInstanceScaleToCPU(float* scale, int bodyU
 	m_data->m_instance_scale_ptr[srcIndex*3+2]=scale[2];
 }
 
-void GLInstancingRenderer::writeSingleInstanceScaleToCPU(double* scale, int bodyUniqueId)
+void GLInstancingRenderer::writeSingleInstanceScaleToCPU(const double* scale, int bodyUniqueId)
 {
 	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
 	b3Assert(pg);

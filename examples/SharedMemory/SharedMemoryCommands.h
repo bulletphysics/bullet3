@@ -245,12 +245,19 @@ struct RequestVisualShapeDataArgs
 	int m_startingVisualShapeIndex;
 };
 
+enum EnumUpdateVisualShapeData
+{
+	CMD_UPDATE_VISUAL_SHAPE_TEXTURE=1,
+	CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR=2,
+};
+
 struct UpdateVisualShapeDataArgs
 {
     int m_bodyUniqueId;
     int m_jointIndex;
     int m_shapeIndex;
     int m_textureUniqueId;
+	double m_rgbaColor[4];
 };
 
 struct LoadTextureArgs
