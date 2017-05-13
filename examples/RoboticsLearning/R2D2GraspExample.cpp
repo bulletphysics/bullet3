@@ -11,7 +11,7 @@
 #include "../SharedMemory/PhysicsClientC_API.h"
 #include <string>
 
-#include "b3RobotSimAPI.h"
+#include "../RobotSimulator/b3RobotSimulatorClientAPI.h"
 #include "../Utils/b3Clock.h"
 
 ///quick demo showing the right-handed coordinate system and positive rotations around each axis
@@ -19,7 +19,7 @@ class R2D2GraspExample : public CommonExampleInterface
 {
     CommonGraphicsApp* m_app;
 	GUIHelperInterface* m_guiHelper;
-	b3RobotSimAPI m_robotSim;
+	b3RobotSimulatorClientAPI m_robotSim;
 	int m_options;
 	int m_r2d2Index;
 	
@@ -51,20 +51,22 @@ public:
     }
     virtual void    initPhysics()
     {
-		bool connected = m_robotSim.connect(m_guiHelper);
+		int mode = eCONNECT_EXISTING_EXAMPLE_BROWSER;
+		m_robotSim.setGuiHelper(m_guiHelper);
+		bool connected = m_robotSim.connect(mode);
+
 		b3Printf("robotSim connected = %d",connected);
 		
 		
 		if ((m_options & eROBOTIC_LEARN_GRASP)!=0)
 		{
 			{
-				b3RobotSimLoadFileArgs args("");
-				args.m_fileName = "r2d2.urdf";
+				b3RobotSimulatorLoadUrdfFileArgs args;
 				args.m_startPosition.setValue(0,0,.5);
-				b3RobotSimLoadFileResults results;
-				if (m_robotSim.loadFile(args, results) && results.m_uniqueObjectIds.size()==1)
+				m_r2d2Index = m_robotSim.loadURDF("r2d2.urdf",args);
+
+				if (m_r2d2Index>=0)
 				{
-					m_r2d2Index = results.m_uniqueObjectIds[0];
 					int numJoints = m_robotSim.getNumJoints(m_r2d2Index);
 					b3Printf("numJoints = %d",numJoints);
 
@@ -78,7 +80,7 @@ public:
 					int wheelTargetVelocities[4]={-10,-10,-10,-10};
 					for (int i=0;i<4;i++)
 					{
-						b3JointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
+						b3RobotSimulatorJointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
 						controlArgs.m_targetVelocity = wheelTargetVelocities[i];
 						controlArgs.m_maxTorqueValue = 1e30;
 						m_robotSim.setJointMotorControl(m_r2d2Index,wheelJointIndices[i],controlArgs);
@@ -86,84 +88,67 @@ public:
 				}
 			}
 			{
-				b3RobotSimLoadFileArgs args("");
-				args.m_fileName = "kiva_shelf/model.sdf";
-                args.m_forceOverrideFixedBase = true;
-				args.m_fileType = B3_SDF_FILE;
-                args.m_startOrientation = b3Quaternion(0,0,0,1);
-                b3RobotSimLoadFileResults results;
-                m_robotSim.loadFile(args,results);
+				b3RobotSimulatorLoadFileResults results;
+				m_robotSim.loadSDF("kiva_shelf/model.sdf",results);
 			}
 			{
-				b3RobotSimLoadFileArgs args("");
-				args.m_fileName = "plane.urdf";
-				args.m_startPosition.setValue(0,0,0);
-				args.m_forceOverrideFixedBase = true;
-				b3RobotSimLoadFileResults results;
-				m_robotSim.loadFile(args,results);
-				m_robotSim.setGravity(b3MakeVector3(0,0,-10));
+				m_robotSim.loadURDF("results");
 			}
+
+			m_robotSim.setGravity(b3MakeVector3(0,0,-10));
 	
 		}
 
 		if ((m_options & eROBOTIC_LEARN_COMPLIANT_CONTACT)!=0)
 		{
-			b3RobotSimLoadFileArgs args("");
-			b3RobotSimLoadFileResults results;
+			b3RobotSimulatorLoadUrdfFileArgs args;
+			b3RobotSimulatorLoadFileResults results;
 			{
-				args.m_fileName = "cube_soft.urdf";
 				args.m_startPosition.setValue(0,0,2.5);
 				args.m_startOrientation.setEulerZYX(0,0.2,0);
-				m_robotSim.loadFile(args,results);
+				m_r2d2Index = m_robotSim.loadURDF("cube_soft.urdf",args);
 			}
 			{
-				args.m_fileName = "cube_no_friction.urdf";
 				args.m_startPosition.setValue(0,2,2.5);
 				args.m_startOrientation.setEulerZYX(0,0.2,0);
-				m_robotSim.loadFile(args,results);
+				m_robotSim.loadURDF("cube_no_friction.urdf",args);
 			}
 			{
-				b3RobotSimLoadFileArgs args("");
-				args.m_fileName = "plane.urdf";
 				args.m_startPosition.setValue(0,0,0);
 				args.m_startOrientation.setEulerZYX(0,0.2,0);
 				args.m_forceOverrideFixedBase = true;
-				b3RobotSimLoadFileResults results;
-				m_robotSim.loadFile(args,results);
-				m_robotSim.setGravity(b3MakeVector3(0,0,-10));
+				m_robotSim.loadURDF("plane.urdf",args);
 			}
+
+			m_robotSim.setGravity(b3MakeVector3(0,0,-10));
 		}
 	
         if ((m_options & eROBOTIC_LEARN_ROLLING_FRICTION)!=0)
         {
-            b3RobotSimLoadFileArgs args("");
-            b3RobotSimLoadFileResults results;
+            b3RobotSimulatorLoadUrdfFileArgs args;
+			b3RobotSimulatorLoadFileResults results;
             {
-                args.m_fileName = "sphere2_rolling_friction.urdf";
                 args.m_startPosition.setValue(0,0,2.5);
                 args.m_startOrientation.setEulerZYX(0,0,0);
                 args.m_useMultiBody = true;
-                m_robotSim.loadFile(args,results);
+                m_robotSim.loadURDF("sphere2_rolling_friction.urdf",args);
             }
             {
-                args.m_fileName = "sphere2.urdf";
                 args.m_startPosition.setValue(0,2,2.5);
                 args.m_startOrientation.setEulerZYX(0,0,0);
                 args.m_useMultiBody = true;
-                m_robotSim.loadFile(args,results);
+                m_robotSim.loadURDF("sphere2.urdf", args);
             }
             {
-                b3RobotSimLoadFileArgs args("");
-                args.m_fileName = "plane.urdf";
                 args.m_startPosition.setValue(0,0,0);
                 args.m_startOrientation.setEulerZYX(0,0.2,0);
                 args.m_useMultiBody = true;
                 args.m_forceOverrideFixedBase = true;
-                b3RobotSimLoadFileResults results;
-                m_robotSim.loadFile(args,results);
-                m_robotSim.setGravity(b3MakeVector3(0,0,-10));
+                m_robotSim.loadURDF("plane.urdf", args);
             }
-        }
+
+			m_robotSim.setGravity(b3MakeVector3(0,0,-10));
+		}
 
 		
     }

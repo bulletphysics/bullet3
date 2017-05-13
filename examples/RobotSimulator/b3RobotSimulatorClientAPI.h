@@ -148,11 +148,6 @@ public:
 	b3RobotSimulatorClientAPI();
 	virtual ~b3RobotSimulatorClientAPI();
 
-	//setGuiHelper is only used when embedded in existing example browser
-	void setGuiHelper(struct GUIHelperInterface* guiHelper);
-	//renderScene is only used when embedded in existing example browser
-	virtual void renderScene();
-
 	bool connect(int mode, const std::string& hostName = "localhost", int portOrKey = -1);
 
 	void disconnect();
@@ -231,6 +226,21 @@ public:
 
 	void submitProfileTiming(const std::string&  profileName, int durationInMicroSeconds=1);				
 
+
+	//////////////// INTERNAL
+
+	void loadBunny(double scale, double mass, double collisionMargin);
+
+	//setGuiHelper is only used when embedded in existing example browser
+	void setGuiHelper(struct GUIHelperInterface* guiHelper);
+	//renderScene is only used when embedded in existing example browser
+	virtual void renderScene();
+	//debugDraw is only used when embedded in existing example browser
+	virtual void debugDraw(int debugDrawMode);
+	virtual bool	mouseMoveCallback(float x,float y);
+	virtual bool	mouseButtonCallback(int button, int state, float x, float y);
+
+	////////////////INTERNAL
 };
 
 #endif  //B3_ROBOT_SIMULATOR_CLIENT_API_H

@@ -58,10 +58,7 @@ public:
     }
 
     
-    virtual void physicsDebugDraw(int debugDrawMode)
-    {
-        
-    }
+   
     virtual void    initPhysics()
     {
         
@@ -266,9 +263,9 @@ public:
     }
 
 	
-    virtual void	physicsDebugDraw()
+    virtual void	physicsDebugDraw(int debugDrawMode)
     {
-      	
+      	m_robotSim.debugDraw(debugDrawMode);
     }
     virtual bool	mouseMoveCallback(float x,float y)
     {

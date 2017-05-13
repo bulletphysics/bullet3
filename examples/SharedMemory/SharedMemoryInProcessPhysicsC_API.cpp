@@ -170,25 +170,6 @@ public:
 		double dt = double(dtMicro)/1000000.;
 
 		m_physicsServerExample->stepSimulation(dt);
-
-		#if 0
-		{
-			//if (btIsExampleBrowserMainThreadTerminated(m_data))
-			//{
-			//	PhysicsClientSharedMemory::disconnectSharedMemory();
-			//}
-		}
-			//{	
-	   		//unsigned long int ms = m_clock.getTimeMilliseconds();
-			//if (ms>20)
-			//{ 
-			//	B3_PROFILE("m_clock.reset()");
-		//
-			//	m_clock.reset(); 
-        		//btUpdateInProcessExampleBrowserMainThread(m_data);
-			//}
-		}
-	#endif
 		{
 			b3Clock::usleep(0);
 		}
@@ -206,15 +187,43 @@ public:
 	{
 		m_physicsServerExample->renderScene();
 	}
-
+	virtual void debugDraw(int debugDrawMode)
+	{
+		m_physicsServerExample->physicsDebugDraw(debugDrawMode);
+	}
+	virtual bool mouseMoveCallback(float x, float y)
+	{
+		return m_physicsServerExample->mouseMoveCallback(x,y);
+	}
+	virtual bool mouseButtonCallback(int button, int state, float x, float y)
+	{
+		return m_physicsServerExample->mouseButtonCallback(button,state,x,y);
+	}
 	
 };
 
+void b3InProcessDebugDrawInternal(b3PhysicsClientHandle clientHandle, int debugDrawMode)
+{
+	InProcessPhysicsClientExistingExampleBrowser* cl = (InProcessPhysicsClientExistingExampleBrowser*) clientHandle;
+	cl->debugDraw(debugDrawMode);
+}
 void b3InProcessRenderSceneInternal(b3PhysicsClientHandle clientHandle)
 {
 	InProcessPhysicsClientExistingExampleBrowser* cl = (InProcessPhysicsClientExistingExampleBrowser*) clientHandle;
 	cl->renderScene();
 }
+
+int b3InProcessMouseMoveCallback(b3PhysicsClientHandle clientHandle,float x,float y)
+{
+	InProcessPhysicsClientExistingExampleBrowser* cl = (InProcessPhysicsClientExistingExampleBrowser*) clientHandle;
+	return cl->mouseMoveCallback(x,y);
+}
+int b3InProcessMouseButtonCallback(b3PhysicsClientHandle clientHandle, int button, int state, float x, float y)
+{
+	InProcessPhysicsClientExistingExampleBrowser* cl = (InProcessPhysicsClientExistingExampleBrowser*) clientHandle;
+	return cl->mouseButtonCallback(button,state, x,y);
+}
+
 
 b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect(struct GUIHelperInterface* guiHelper)
 {

@@ -60,6 +60,46 @@ void b3RobotSimulatorClientAPI::renderScene()
 	}
 }
 
+void b3RobotSimulatorClientAPI::debugDraw(int debugDrawMode)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return;
+	}
+	if (m_data->m_guiHelper)
+	{
+		b3InProcessDebugDrawInternal(m_data->m_physicsClientHandle,debugDrawMode);
+	}
+}
+
+bool	b3RobotSimulatorClientAPI::mouseMoveCallback(float x,float y)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return false;
+	}
+	if (m_data->m_guiHelper)
+	{
+		return b3InProcessMouseMoveCallback(m_data->m_physicsClientHandle, x,y);
+	}
+	return false;
+}
+bool	b3RobotSimulatorClientAPI::mouseButtonCallback(int button, int state, float x, float y)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return false;
+	}
+	if (m_data->m_guiHelper)
+	{
+		return b3InProcessMouseButtonCallback(m_data->m_physicsClientHandle, button,state,x,y);
+	}
+	return false;
+}
+
 
 
 bool b3RobotSimulatorClientAPI::connect(int mode, const std::string& hostName, int portOrKey)
@@ -106,7 +146,7 @@ bool b3RobotSimulatorClientAPI::connect(int mode, const std::string& hostName, i
 			{
 				key = portOrKey;
 			}
-			sm = b3ConnectSharedMemory(key);
+			sm = b3ConnectSharedMemory2(key);
 			break;
 		}
 		case eCONNECT_UDP:
@@ -1088,4 +1128,19 @@ void b3RobotSimulatorClientAPI::submitProfileTiming(const std::string&  profileN
 		b3SetProfileTimingDuractionInMicroSeconds(commandHandle, durationInMicroSeconds);
 	}
 	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
+}
+
+void b3RobotSimulatorClientAPI::loadBunny(double scale, double mass, double collisionMargin)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return;
+	}
+
+    b3SharedMemoryCommandHandle command = b3LoadBunnyCommandInit(m_data->m_physicsClientHandle);
+    b3LoadBunnySetScale(command, scale);
+    b3LoadBunnySetMass(command, mass);
+    b3LoadBunnySetCollisionMargin(command, collisionMargin);
+    b3SubmitClientCommand(m_data->m_physicsClientHandle, command);
 }
