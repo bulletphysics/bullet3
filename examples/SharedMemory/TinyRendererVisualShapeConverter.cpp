@@ -972,6 +972,24 @@ void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixels
     }    
 }
 
+void TinyRendererVisualShapeConverter::removeVisualShape(class btCollisionObject* colObj)
+{
+	TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances[colObj];
+	if (ptrptr && *ptrptr)
+	{
+		TinyRendererObjectArray* ptr = *ptrptr;
+		if (ptr)
+		{
+			for (int o=0;o<ptr->m_renderObjects.size();o++)
+			{
+				delete ptr->m_renderObjects[o];
+			}
+		}
+		delete ptr;
+		m_data->m_swRenderInstances.remove(colObj);
+	}
+}
+
 
 void TinyRendererVisualShapeConverter::resetAll()
 {
