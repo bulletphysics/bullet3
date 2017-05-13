@@ -11,15 +11,6 @@ p.setPhysicsEngineParameter(fixedTimeStep=1.0/60., numSolverIterations=5, numSub
 #mp4log = p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4,"humanoid.mp4")
 
 
-plane, human1  = p.loadMJCF("mjcf/humanoid_symmetric.xml",flags = p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
-p.removeBody(plane)
-print (human1)
-p.resetBasePositionAndOrientation(human1,[0,1,1.5],[0,0,0,1])
-
-plane, human2  = p.loadMJCF("mjcf/humanoid_symmetric.xml",flags = p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
-p.resetBasePositionAndOrientation(human2,[0,2,1.5],[0,0,0,1])
-p.removeBody(plane)
-
 plane, human  = p.loadMJCF("mjcf/humanoid_symmetric.xml",flags = p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
 
 ordered_joints = []
@@ -36,8 +27,6 @@ for j in range( p.getNumJoints(human) ):
 	lower, upper = (info[8], info[9])
 	ordered_joints.append( (j, lower, upper) )
 	p.setJointMotorControl2(human, j, controlMode=p.VELOCITY_CONTROL, force=0)
-	p.setJointMotorControl2(human1, j, controlMode=p.VELOCITY_CONTROL, force=0)
-	p.setJointMotorControl2(human2, j, controlMode=p.VELOCITY_CONTROL, force=0)
 
 	
 
@@ -151,13 +140,9 @@ def demo_run():
 	frame = 0
 	while 1:
 		obs = collect_observations(human)
-		obs1 = collect_observations(human1)
-		obs2 = collect_observations(human2)
-
+	
 		actions = pi.act(obs)
-		actions1 = pi.act(obs1)
-		actions2 = pi.act(obs2)
-
+	
 		#print(" ".join(["%+0.2f"%x for x in obs]))
 		#print("Motors")
 		#print(motors)
@@ -174,12 +159,6 @@ def demo_run():
 		for m in range(len(motors)):
 			forces[m] = motor_power[m]*actions[m]*0.082
 		p.setJointMotorControlArray(human, motors,controlMode=p.TORQUE_CONTROL, forces=forces)
-		for m in range(len(motors)):
-			forces[m] = motor_power[m]*actions1[m]*0.082
-		p.setJointMotorControlArray(human1, motors,controlMode=p.TORQUE_CONTROL, forces=forces)
-		for m in range(len(motors)):
-			forces[m] = motor_power[m]*actions2[m]*0.082
-		p.setJointMotorControlArray(human2, motors,controlMode=p.TORQUE_CONTROL, forces=forces)
 
 		p.stepSimulation()
 		#time.sleep(0.01)
