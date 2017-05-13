@@ -23,10 +23,12 @@ out vec4 color;
 
 void main(void)
 {
-  vec4 texel = fragment.color*texture(Diffuse,vert.texcoord);
+	vec4 texel = fragment.color*texture(Diffuse,vert.texcoord);
 	vec3 ct,cf;
 	float intensity,at,af;
-	
+	if (fragment.color.w==0)
+		discard;
+
 	intensity = 0.5+0.5*clamp( dot( normalize(normal),lightDir ), -1,1 );
 	
 	af = 1.0;
@@ -45,6 +47,5 @@ void main(void)
 	intensity = 0.7*intensity  + 0.3*intensity*visibility;
 	
 	cf = intensity*(vec3(1.0,1.0,1.0)-ambient)+ambient;
-		
 	color  = vec4(ct * cf, fragment.color.w);
 }

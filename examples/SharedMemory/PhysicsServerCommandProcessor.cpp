@@ -5585,9 +5585,52 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     SharedMemoryStatus& serverCmd = serverStatusOut;
                     serverCmd.m_type = CMD_VISUAL_SHAPE_UPDATE_FAILED;
                     
-                    m_data->m_visualConverter.activateShapeTexture(clientCmd.m_updateVisualShapeDataArguments.m_bodyUniqueId, clientCmd.m_updateVisualShapeDataArguments.m_jointIndex, clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex, clientCmd.m_updateVisualShapeDataArguments.m_textureUniqueId);
-                    
-                    serverCmd.m_type = CMD_VISUAL_SHAPE_UPDATE_COMPLETED;
+					if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_TEXTURE) 
+					{
+						if (clientCmd.m_updateVisualShapeDataArguments.m_textureUniqueId>=0)
+						{
+		                    m_data->m_visualConverter.activateShapeTexture(clientCmd.m_updateVisualShapeDataArguments.m_bodyUniqueId, clientCmd.m_updateVisualShapeDataArguments.m_jointIndex, clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex, clientCmd.m_updateVisualShapeDataArguments.m_textureUniqueId);
+						}
+					}                    
+   
+					if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR) 
+					{
+						int bodyUniqueId = clientCmd.m_updateVisualShapeDataArguments.m_bodyUniqueId;
+						int linkIndex = clientCmd.m_updateVisualShapeDataArguments.m_jointIndex;
+
+						InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+						if (bodyHandle)
+						{
+							if (bodyHandle->m_multiBody)
+							{
+								if (linkIndex==-1)
+								{
+									if (bodyHandle->m_multiBody->getBaseCollider())
+									{
+										//m_data->m_visualConverter.changeRGBAColor(...)
+										int graphicsIndex = bodyHandle->m_multiBody->getBaseCollider()->getUserIndex();
+										m_data->m_guiHelper->changeRGBAColor(graphicsIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
+									}
+								} else
+								{
+									if (linkIndex<bodyHandle->m_multiBody->getNumLinks())
+									{
+										if (bodyHandle->m_multiBody->getLink(linkIndex).m_collider)
+										{
+											//m_data->m_visualConverter.changeRGBAColor(...)
+											int graphicsIndex = bodyHandle->m_multiBody->getLink(linkIndex).m_collider->getUserIndex();
+											m_data->m_guiHelper->changeRGBAColor(graphicsIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
+										}
+									}
+								}
+							} else
+							{
+								//todo: change color for rigid body
+							}
+						}
+					}
+	
+					serverCmd.m_type = CMD_VISUAL_SHAPE_UPDATE_COMPLETED;
                     hasStatus = true;
 
                     break;

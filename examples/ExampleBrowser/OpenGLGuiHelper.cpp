@@ -314,6 +314,14 @@ void OpenGLGuiHelper::removeGraphicsInstance(int graphicsUid)
 	};
 }
 
+void OpenGLGuiHelper::changeRGBAColor(int instanceUid, const double rgbaColor[4])
+{
+	if (instanceUid>=0)
+	{
+		m_data->m_glApp->m_renderer->writeSingleInstanceColorToCPU(rgbaColor,instanceUid);
+	};
+}
+
 int OpenGLGuiHelper::createCheckeredTexture(int red,int green, int blue)
 {
 	int texWidth=1024;

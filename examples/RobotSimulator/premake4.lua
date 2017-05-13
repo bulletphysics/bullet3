@@ -199,6 +199,7 @@ if not _OPTIONS["no-enet"] then
 	end
 
 
+if _OPTIONS["serial"] then
 
 project ("App_VRGloveHandSimulator")
 
@@ -248,12 +249,11 @@ project ("App_VRGloveHandSimulator")
 			}
 			defines {"B3_ENABLE_TINY_AUDIO"}
 
-			if _OPTIONS["serial"] then
-				defines{"B3_ENABLE_SERIAL"}
-				includedirs {"../../examples/ThirdPartyLibs/serial/include"}
-				links {"serial"}
-			end
 			
+			defines{"B3_ENABLE_SERIAL"}
+			includedirs {"../../examples/ThirdPartyLibs/serial/include"}
+			links {"serial"}
+		
 			if os.is("Windows") then
 				links {"winmm","Wsock32","dsound"}
 				defines {"WIN32","__WINDOWS_MM__","__WINDOWS_DS__"}
@@ -280,3 +280,4 @@ project ("App_VRGloveHandSimulator")
 	if os.is("Linux") then
        		initX11()
 	end
+end
