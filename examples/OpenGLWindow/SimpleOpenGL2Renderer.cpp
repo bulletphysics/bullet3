@@ -139,18 +139,18 @@ void SimpleOpenGL2Renderer::removeGraphicsInstance(int instanceUid)
 	m_data->m_graphicsInstancesPool.freeHandle(instanceUid);
 }
 
-void SimpleOpenGL2Renderer::writeSingleInstanceColorToCPU(float* color, int srcIndex)
+void SimpleOpenGL2Renderer::writeSingleInstanceColorToCPU(const float* color, int srcIndex)
 {
 }
-void SimpleOpenGL2Renderer::writeSingleInstanceColorToCPU(double* color, int srcIndex)
+void SimpleOpenGL2Renderer::writeSingleInstanceColorToCPU(const double* color, int srcIndex)
 {
     
 }
 
-void SimpleOpenGL2Renderer::writeSingleInstanceScaleToCPU(float* scale, int srcIndex)
+void SimpleOpenGL2Renderer::writeSingleInstanceScaleToCPU(const float* scale, int srcIndex)
 {
 }
-void SimpleOpenGL2Renderer::writeSingleInstanceScaleToCPU(double* scale, int srcIndex)
+void SimpleOpenGL2Renderer::writeSingleInstanceScaleToCPU(const double* scale, int srcIndex)
 {
 }
 

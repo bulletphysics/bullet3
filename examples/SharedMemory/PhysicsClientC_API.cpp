@@ -2320,7 +2320,28 @@ b3SharedMemoryCommandHandle b3InitUpdateVisualShape(b3PhysicsClientHandle physCl
     command->m_updateVisualShapeDataArguments.m_shapeIndex = shapeIndex;
     command->m_updateVisualShapeDataArguments.m_textureUniqueId = textureUniqueId;
     command->m_updateFlags = 0;
+
+	if (textureUniqueId>=0)
+	{
+		command->m_updateFlags |= CMD_UPDATE_VISUAL_SHAPE_TEXTURE;
+	}
     return (b3SharedMemoryCommandHandle) command;
+}
+
+void b3UpdateVisualShapeRGBAColor(b3SharedMemoryCommandHandle commandHandle, double rgbaColor[4])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_UPDATE_VISUAL_SHAPE);
+
+	if (command->m_type == CMD_UPDATE_VISUAL_SHAPE)
+	{
+		command->m_updateVisualShapeDataArguments.m_rgbaColor[0] = rgbaColor[0];
+		command->m_updateVisualShapeDataArguments.m_rgbaColor[1] = rgbaColor[1];
+		command->m_updateVisualShapeDataArguments.m_rgbaColor[2] = rgbaColor[2];
+		command->m_updateVisualShapeDataArguments.m_rgbaColor[3] = rgbaColor[3];
+		command->m_updateFlags |= CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR;
+	}
 }
 
 b3SharedMemoryCommandHandle b3ApplyExternalForceCommandInit(b3PhysicsClientHandle physClient)

@@ -180,6 +180,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIUserDebugRemoveAllItems,
 	eGUIDumpFramesToVideo,
 	eGUIHelperRemoveGraphicsInstance,
+	eGUIHelperChangeGraphicsInstanceRGBAColor,
 };
 
 
@@ -785,6 +786,20 @@ public:
 		m_graphicsInstanceRemove = graphicsUid;
 		m_cs->lock();
 		m_cs->setSharedParam(1,eGUIHelperRemoveGraphicsInstance);
+		workerThreadWait();    
+	}
+
+	double m_rgbaColor[4];
+	int m_graphicsInstanceChangeColor;
+	virtual void changeRGBAColor(int instanceUid, const double rgbaColor[4])
+	{
+		m_graphicsInstanceChangeColor = instanceUid;
+		m_rgbaColor[0] = rgbaColor[0];
+		m_rgbaColor[1] = rgbaColor[1];
+		m_rgbaColor[2] = rgbaColor[2];
+		m_rgbaColor[3] = rgbaColor[3];
+		m_cs->lock();
+		m_cs->setSharedParam(1,eGUIHelperChangeGraphicsInstanceRGBAColor);
 		workerThreadWait();    
 	}
 
@@ -1573,8 +1588,13 @@ void	PhysicsServerExample::updateGraphics()
 		m_multiThreadedHelper->mainThreadRelease();
 		break;
 	}
-       
-	
+
+	case eGUIHelperChangeGraphicsInstanceRGBAColor:
+	{
+		m_multiThreadedHelper->m_childGuiHelper->changeRGBAColor(m_multiThreadedHelper->m_graphicsInstanceChangeColor,m_multiThreadedHelper->m_rgbaColor);
+		m_multiThreadedHelper->mainThreadRelease();
+		break;
+	}
 
     case eGUIHelperCopyCameraImageData:
         {
