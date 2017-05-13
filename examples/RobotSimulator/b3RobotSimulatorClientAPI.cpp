@@ -146,7 +146,7 @@ bool b3RobotSimulatorClientAPI::connect(int mode, const std::string& hostName, i
 			{
 				key = portOrKey;
 			}
-			sm = b3ConnectSharedMemory2(key);
+			sm = b3ConnectSharedMemory(key);
 			break;
 		}
 		case eCONNECT_UDP:
