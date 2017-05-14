@@ -2694,6 +2694,128 @@ static PyObject* pybullet_getJointState(PyObject* self, PyObject* args, PyObject
 	return Py_None;
 }
 
+static PyObject* pybullet_getJointStates(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	PyObject* pyListJointForceTorque;
+	PyObject* pyListJointState;
+	PyObject* jointIndicesObj=0;
+
+	struct b3JointSensorState sensorState;
+
+	int bodyUniqueId = -1;
+	int sensorStateSize = 4;  // size of struct b3JointSensorState
+	int forceTorqueSize = 6;  // size of force torque list from b3JointSensorState
+	int j;
+
+	b3PhysicsClientHandle sm = 0;
+	int physicsClientId = 0;
+	static char* kwlist[] = {"bodyUniqueId", "jointIndices", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iO|i", kwlist, &bodyUniqueId, &jointIndicesObj, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	{
+		{
+			int i;
+			int status_type = 0;
+			int numRequestedJoints = 0;
+			PyObject* jointIndicesSeq = 0;
+			int numJoints = 0;
+			PyObject* resultListJointState=0;
+			b3SharedMemoryCommandHandle cmd_handle;
+			b3SharedMemoryStatusHandle status_handle;
+
+			if (bodyUniqueId < 0)
+			{
+				PyErr_SetString(SpamError, "getJointState failed; invalid bodyIndex");
+				return NULL;
+			}
+			numJoints = b3GetNumJoints(sm, bodyUniqueId);
+			jointIndicesSeq =  PySequence_Fast(jointIndicesObj, "expected a sequence of joint indices");
+
+			if (jointIndicesSeq==0)
+			{
+				PyErr_SetString(SpamError, "expected a sequence of joint indices");
+				return NULL;
+			}
+		
+			numRequestedJoints = PySequence_Size(jointIndicesObj);
+			if (numRequestedJoints==0)
+			{
+				Py_DECREF(jointIndicesSeq);
+				Py_INCREF(Py_None);
+				return Py_None;
+			}
+		
+			
+
+			cmd_handle =
+				b3RequestActualStateCommandInit(sm, bodyUniqueId);
+			status_handle =
+				b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
+
+			status_type = b3GetStatusType(status_handle);
+			if (status_type != CMD_ACTUAL_STATE_UPDATE_COMPLETED)
+			{
+				PyErr_SetString(SpamError, "getJointState failed.");
+				return NULL;
+			}
+
+			resultListJointState = PyTuple_New(numRequestedJoints);
+
+			for (i = 0; i < numRequestedJoints; i++)
+			{
+				int jointIndex = pybullet_internalGetFloatFromSequence(jointIndicesSeq, i);
+				if ((jointIndex >= numJoints) || (jointIndex < 0))
+				{
+					Py_DECREF(jointIndicesSeq);
+					PyErr_SetString(SpamError, "Joint index out-of-range.");
+					return NULL;
+				}
+
+				pyListJointState = PyTuple_New(sensorStateSize);
+				pyListJointForceTorque = PyTuple_New(forceTorqueSize);
+
+				if (b3GetJointState(sm, status_handle, jointIndex, &sensorState))
+				{
+					PyTuple_SetItem(pyListJointState, 0,
+									PyFloat_FromDouble(sensorState.m_jointPosition));
+					PyTuple_SetItem(pyListJointState, 1,
+									PyFloat_FromDouble(sensorState.m_jointVelocity));
+
+					for (j = 0; j < forceTorqueSize; j++)
+					{
+						PyTuple_SetItem(pyListJointForceTorque, j,
+										PyFloat_FromDouble(sensorState.m_jointForceTorque[j]));
+					}
+
+					PyTuple_SetItem(pyListJointState, 2, pyListJointForceTorque);
+
+					PyTuple_SetItem(pyListJointState, 3,
+									PyFloat_FromDouble(sensorState.m_jointMotorTorque));
+
+					PyTuple_SetItem(resultListJointState, i, pyListJointState);
+				}
+				else
+				{
+					PyErr_SetString(SpamError, "getJointState failed (2).");
+					return NULL;
+				}
+			}
+			return resultListJointState;
+		}
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
 static PyObject* pybullet_getLinkState(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	PyObject* pyLinkState;
@@ -5913,7 +6035,10 @@ static PyMethodDef SpamMethods[] = {
 
 	{"getJointState", (PyCFunction)pybullet_getJointState, METH_VARARGS | METH_KEYWORDS,
 	 "Get the state (position, velocity etc) for a joint on a body."},
-	
+
+	{"getJointStates", (PyCFunction)pybullet_getJointStates, METH_VARARGS | METH_KEYWORDS,
+	 "Get the state (position, velocity etc) for multiple joints on a body."},
+
 	{"getLinkState", (PyCFunction)pybullet_getLinkState, METH_VARARGS | METH_KEYWORDS,
 	 "Provides extra information such as the Cartesian world coordinates"
 	 " center of mass (COM) of the link, relative to the world reference"
