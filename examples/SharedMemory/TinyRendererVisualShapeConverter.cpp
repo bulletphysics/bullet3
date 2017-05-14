@@ -1011,6 +1011,7 @@ void TinyRendererVisualShapeConverter::resetAll()
 	}
 	
 	m_data->m_swRenderInstances.clear();
+	m_data->m_visualShapes.clear();
 }
 
 void TinyRendererVisualShapeConverter::activateShapeTexture(int shapeUniqueId, int textureUniqueId)
