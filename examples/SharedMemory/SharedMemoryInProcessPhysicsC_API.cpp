@@ -225,9 +225,9 @@ int b3InProcessMouseButtonCallback(b3PhysicsClientHandle clientHandle, int butto
 }
 
 
-b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect(struct GUIHelperInterface* guiHelper)
+b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect(void* guiHelperPtr)
 {
-
+	GUIHelperInterface* guiHelper = (GUIHelperInterface*) guiHelperPtr;
 	InProcessPhysicsClientExistingExampleBrowser* cl  = new InProcessPhysicsClientExistingExampleBrowser(guiHelper);
 	//InProcessPhysicsClientFromGuiHelper* cl = new InProcessPhysicsClientFromGuiHelper(guiHelper);
     cl->connect();
