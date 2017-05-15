@@ -893,17 +893,25 @@ int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, 
 	gfxObj->m_numVertices = numvertices;
 
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
+	
 	int vertexStrideInBytes = 9*sizeof(float);
 	int sz = numvertices*vertexStrideInBytes;
+	int totalUsed = vertexStrideInBytes*gfxObj->m_vertexArrayOffset+sz;
+	b3Assert(totalUsed<m_data->m_maxShapeCapacityInBytes);
+	if (totalUsed>=m_data->m_maxShapeCapacityInBytes)
+	{
+		return -1;
+	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
+
 #if 0
 
 	char* dest=  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_WRITE_ONLY);//GL_WRITE_ONLY
 	
 	
 #ifdef B3_DEBUG
-	int totalUsed = vertexStrideInBytes*gfxObj->m_vertexArrayOffset+sz;
-	b3Assert(totalUsed<m_data->m_maxShapeCapacityInBytes);
+	
 #endif//B3_DEBUG
 
 	memcpy(dest+vertexStrideInBytes*gfxObj->m_vertexArrayOffset,vertices,sz);
