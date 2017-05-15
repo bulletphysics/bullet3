@@ -20,6 +20,13 @@ LIST(REMOVE_ITEM OpenGLWindowCommon_CPP X11OpenGLWindow.cpp )
 LIST(REMOVE_ITEM OpenGLWindowCommon_CPP MacOpenGLWindow.cpp )
 #MESSAGE (${OpenGLWindowCommon_CPP})
 
+IF (NOT BUILD_OPENGL3_DEMOS)
+  FILE(GLOB OPENGL3_CPP  "SimpleOpenGL3App.cpp")
+  FILE(GLOB OPENGL3_HDRS "SimpleOpenGL3App.h")
+  LIST(REMOVE_ITEM OpenGLWindowCommon_CPP ${OPENGL3_CPP} )
+  LIST(REMOVE_ITEM OpenGLWindow_HDRS      ${OPENGL3_HDRS} )
+ENDIF()
+
 IF (WIN32)
 	SET(OpenGLWindow_SRCS ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew/glew.c ${OpenGLWindowWin32_CPP} ${OpenGLWindowCommon_CPP})
 	INCLUDE_DIRECTORIES(
