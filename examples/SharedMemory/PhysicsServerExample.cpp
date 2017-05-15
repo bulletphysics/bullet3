@@ -25,6 +25,8 @@
 
 //@todo(erwincoumans) those globals are hacks for a VR demo, move this to Python/pybullet!
 extern btVector3 gLastPickPos;
+bool gEnablePicking=true;
+bool gEnableTeleporting=true;
 
 btVector3 gVRTeleportPosLocal(0,0,0);
 btQuaternion gVRTeleportOrnLocal(0,0,0,1);
@@ -565,7 +567,11 @@ public:
         m_childGuiHelper->setVisualizerFlag(flag,enable);
     }
 
-    
+    void	setVisualizerFlagCallback(VisualizerFlagCallback callback)
+	{
+		m_childGuiHelper->setVisualizerFlagCallback(callback);
+	}
+
 	GUIHelperInterface* m_childGuiHelper;
 
 	int m_uidGenerator;
@@ -997,6 +1003,10 @@ public:
 		workerThreadWait();
 	
 	}
+
+	
+
+
 
 	const char* m_mp4FileName;
 	virtual void	dumpFramesToVideo(const char* mp4FileName)
@@ -2015,28 +2025,31 @@ void PhysicsServerExample::renderScene()
 	}
 	m_physicsServer.renderScene();
 	
-	for (int i=0;i<MAX_VR_CONTROLLERS;i++)
+	if (gEnablePicking)
 	{
-		if (m_args[0].m_isVrControllerPicking[i] || m_args[0].m_isVrControllerDragging[i])
+		for (int i=0;i<MAX_VR_CONTROLLERS;i++)
 		{
-			btVector3 from = m_args[0].m_vrControllerPos[i];
-			btMatrix3x3 mat(m_args[0].m_vrControllerOrn[i]);
+			if (m_args[0].m_isVrControllerPicking[i] || m_args[0].m_isVrControllerDragging[i])
+			{
+				btVector3 from = m_args[0].m_vrControllerPos[i];
+				btMatrix3x3 mat(m_args[0].m_vrControllerOrn[i]);
 	
-			btVector3 toX = from+mat.getColumn(0);
-			btVector3 toY = from+mat.getColumn(1);
-			btVector3 toZ = from+mat.getColumn(2);
+				btVector3 toX = from+mat.getColumn(0);
+				btVector3 toY = from+mat.getColumn(1);
+				btVector3 toZ = from+mat.getColumn(2);
 	
-			int width = 2;
+				int width = 2;
 
 	
-			btVector4 color;
-			color=btVector4(1,0,0,1);
-			m_guiHelper->getAppInterface()->m_renderer->drawLine(from,toX,color,width);
-			color=btVector4(0,1,0,1);
-			m_guiHelper->getAppInterface()->m_renderer->drawLine(from,toY,color,width);
-			color=btVector4(0,0,1,1);
-			m_guiHelper->getAppInterface()->m_renderer->drawLine(from,toZ,color,width);
+				btVector4 color;
+				color=btVector4(1,0,0,1);
+				m_guiHelper->getAppInterface()->m_renderer->drawLine(from,toX,color,width);
+				color=btVector4(0,1,0,1);
+				m_guiHelper->getAppInterface()->m_renderer->drawLine(from,toY,color,width);
+				color=btVector4(0,0,1,1);
+				m_guiHelper->getAppInterface()->m_renderer->drawLine(from,toZ,color,width);
 	
+			}
 		}
 	}
 
@@ -2132,10 +2145,12 @@ btVector3	PhysicsServerExample::getRayTo(int x,int y)
 
 extern int gSharedMemoryKey;
 
+
 class CommonExampleInterface*    PhysicsServerCreateFunc(struct CommonExampleOptions& options)
 {
 
 	MultiThreadedOpenGLGuiHelper* guiHelperWrapper = new MultiThreadedOpenGLGuiHelper(options.m_guiHelper->getAppInterface(),options.m_guiHelper);
+	
 
   	PhysicsServerExample* example = new PhysicsServerExample(guiHelperWrapper, 
 		options.m_sharedMem, 
@@ -2250,7 +2265,7 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 	}
 	
 
-	if (button==1)
+	if (button==1 && gEnableTeleporting)
 	{
 		m_args[0].m_isVrControllerTeleporting[controllerId] = true;
 	}
@@ -2262,7 +2277,7 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 	else
 	{
 
-		if (button == 33)
+		if (button == 33 && gEnablePicking)
 		{
 			m_args[0].m_isVrControllerPicking[controllerId] = (state != 0);
 			m_args[0].m_isVrControllerReleasing[controllerId] = (state == 0);

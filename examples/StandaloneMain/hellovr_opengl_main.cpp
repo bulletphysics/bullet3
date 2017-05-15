@@ -367,6 +367,47 @@ void MyKeyboardCallback(int key, int state)
 		prevKeyboardCallback(key,state);
 
 }
+
+
+
+
+#include "../SharedMemory/SharedMemoryPublic.h"
+extern bool useShadowMap;
+extern int gDebugDrawFlags;
+
+extern bool gEnablePicking;
+extern bool gEnableTeleporting;
+
+void VRPhysicsServerVisualizerFlagCallback(int flag, bool enable)
+{
+    if (flag == COV_ENABLE_SHADOWS)
+    {
+        useShadowMap = enable;
+    }
+    if (flag == COV_ENABLE_GUI)
+    {
+		//there is no regular GUI here, but disable the 
+    }
+
+	if (flag==COV_ENABLE_VR_TELEPORTING)
+	{
+		gEnableTeleporting = enable;
+	}
+
+	if (flag == COV_ENABLE_VR_PICKING)
+	{
+		gEnablePicking = enable;
+	}
+    
+    if (flag == COV_ENABLE_WIREFRAME)
+    {
+		gDebugDrawFlags |= btIDebugDraw::DBG_DrawWireframe;
+    } else
+	{
+		gDebugDrawFlags &= ~btIDebugDraw::DBG_DrawWireframe;
+	}
+}
+
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -418,6 +459,7 @@ bool CMainApplication::BInit()
 
 	
 	sGuiPtr = new OpenGLGuiHelper(m_app,false);
+	sGuiPtr->setVisualizerFlagCallback(VRPhysicsServerVisualizerFlagCallback);
 	sGuiPtr->setVRMode(true);
 
 	//sGuiPtr = new DummyGUIHelper;
