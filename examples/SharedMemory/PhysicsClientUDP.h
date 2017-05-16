@@ -24,7 +24,7 @@ public:
 
 	virtual bool receiveStatus(struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes);
 
-	virtual void renderScene();
+	virtual void renderScene(int renderFlags);
 
 	virtual void   physicsDebugDraw(int debugDrawFlags);
 

@@ -1621,6 +1621,11 @@ static void    b3CreateLookAt(const b3Vector3& eye, const b3Vector3& center,cons
 void GLInstancingRenderer::renderSceneInternal(int renderMode)
 {
 
+	if (!useShadowMap)
+	{
+		renderMode = B3_DEFAULT_RENDERMODE;
+	}
+
 //	glEnable(GL_DEPTH_TEST);
 
 	GLint dims[4];
