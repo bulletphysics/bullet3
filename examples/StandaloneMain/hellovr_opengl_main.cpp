@@ -373,10 +373,9 @@ void MyKeyboardCallback(int key, int state)
 
 #include "../SharedMemory/SharedMemoryPublic.h"
 extern bool useShadowMap;
-extern int gDebugDrawFlags;
+bool gEnableVRRenderControllers=true;
 
-extern bool gEnablePicking;
-extern bool gEnableTeleporting;
+
 
 void VRPhysicsServerVisualizerFlagCallback(int flag, bool enable)
 {
@@ -388,24 +387,27 @@ void VRPhysicsServerVisualizerFlagCallback(int flag, bool enable)
     {
 		//there is no regular GUI here, but disable the 
     }
-
-	if (flag==COV_ENABLE_VR_TELEPORTING)
+	if (flag == COV_ENABLE_VR_RENDER_CONTROLLERS)
 	{
-		gEnableTeleporting = enable;
+		gEnableVRRenderControllers = enable;
 	}
+	
 
-	if (flag == COV_ENABLE_VR_PICKING)
-	{
-		gEnablePicking = enable;
-	}
-    
+
     if (flag == COV_ENABLE_WIREFRAME)
     {
-		gDebugDrawFlags |= btIDebugDraw::DBG_DrawWireframe;
-    } else
-	{
-		gDebugDrawFlags &= ~btIDebugDraw::DBG_DrawWireframe;
+		if (enable)
+		{
+			glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+			//gDebugDrawFlags |= btIDebugDraw::DBG_DrawWireframe;
+		} else
+		{
+			glPolygonMode( GL_FRONT_AND_BACK, GL_FILL);
+			//gDebugDrawFlags &= ~btIDebugDraw::DBG_DrawWireframe;
+		}
 	}
+
+	
 }
 
 //-----------------------------------------------------------------------------
@@ -815,6 +817,7 @@ bool CMainApplication::HandleInput()
 							if (button==2)
 							{
 								//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+
 								///todo(erwincoumans) can't use reguar debug drawer, because physics/graphics are not in sync
 								///so it can (and likely will) cause crashes
 								///add a special debug drawer that deals with this
@@ -852,7 +855,6 @@ bool CMainApplication::HandleInput()
 								if (button==2)
 								{
 									gDebugDrawFlags = 0;
-									glPolygonMode( GL_FRONT_AND_BACK, GL_FILL);
 								}
 							
 								sExample->vrControllerButtonCallback(unDevice, button, 0, pos, orn);
@@ -1421,6 +1423,8 @@ extern int gGraspingController;
 
 void CMainApplication::DrawControllers()
 {
+
+	
 	// don't draw controllers if somebody else has input focus
 	if( m_pHMD->IsInputFocusCapturedByAnotherProcess() )
 		return;
@@ -1908,39 +1912,42 @@ void CMainApplication::RenderScene( vr::Hmd_Eye nEye )
 
 	bool bIsInputCapturedByAnotherProcess = m_pHMD->IsInputFocusCapturedByAnotherProcess();
 
-	if( !bIsInputCapturedByAnotherProcess )
+	if (gEnableVRRenderControllers)
 	{
-		// draw the controller axis lines
-		glUseProgram( m_unControllerTransformProgramID );
-		glUniformMatrix4fv( m_nControllerMatrixLocation, 1, GL_FALSE, GetCurrentViewProjectionMatrix( nEye ).get() );
-		glBindVertexArray( m_unControllerVAO );
-		glDrawArrays( GL_LINES, 0, m_uiControllerVertcount );
-		glBindVertexArray( 0 );
+		if( !bIsInputCapturedByAnotherProcess )
+		{
+			// draw the controller axis lines
+			glUseProgram( m_unControllerTransformProgramID );
+			glUniformMatrix4fv( m_nControllerMatrixLocation, 1, GL_FALSE, GetCurrentViewProjectionMatrix( nEye ).get() );
+			glBindVertexArray( m_unControllerVAO );
+			glDrawArrays( GL_LINES, 0, m_uiControllerVertcount );
+			glBindVertexArray( 0 );
+		}
+
+		// ----- Render Model rendering -----
+		glUseProgram( m_unRenderModelProgramID );
+
+		for( uint32_t unTrackedDevice = 0; unTrackedDevice < vr::k_unMaxTrackedDeviceCount; unTrackedDevice++ )
+		{
+			if( !m_rTrackedDeviceToRenderModel[ unTrackedDevice ] || !m_rbShowTrackedDevice[ unTrackedDevice ] )
+				continue;
+
+			const vr::TrackedDevicePose_t & pose = m_rTrackedDevicePose[ unTrackedDevice ];
+			if( !pose.bPoseIsValid )
+				continue;
+
+			if( bIsInputCapturedByAnotherProcess && m_pHMD->GetTrackedDeviceClass( unTrackedDevice ) == vr::TrackedDeviceClass_Controller )
+				continue;
+
+			const Matrix4 & matDeviceToTracking = m_rmat4DevicePose[ unTrackedDevice ];
+			Matrix4 matMVP = GetCurrentViewProjectionMatrix( nEye ) * matDeviceToTracking;
+			glUniformMatrix4fv( m_nRenderModelMatrixLocation, 1, GL_FALSE, matMVP.get() );
+
+			m_rTrackedDeviceToRenderModel[ unTrackedDevice ]->Draw();
+		}
 	}
-
-	// ----- Render Model rendering -----
-	glUseProgram( m_unRenderModelProgramID );
-
-	for( uint32_t unTrackedDevice = 0; unTrackedDevice < vr::k_unMaxTrackedDeviceCount; unTrackedDevice++ )
-	{
-		if( !m_rTrackedDeviceToRenderModel[ unTrackedDevice ] || !m_rbShowTrackedDevice[ unTrackedDevice ] )
-			continue;
-
-		const vr::TrackedDevicePose_t & pose = m_rTrackedDevicePose[ unTrackedDevice ];
-		if( !pose.bPoseIsValid )
-			continue;
-
-		if( bIsInputCapturedByAnotherProcess && m_pHMD->GetTrackedDeviceClass( unTrackedDevice ) == vr::TrackedDeviceClass_Controller )
-			continue;
-
-		const Matrix4 & matDeviceToTracking = m_rmat4DevicePose[ unTrackedDevice ];
-		Matrix4 matMVP = GetCurrentViewProjectionMatrix( nEye ) * matDeviceToTracking;
-		glUniformMatrix4fv( m_nRenderModelMatrixLocation, 1, GL_FALSE, matMVP.get() );
-
-		m_rTrackedDeviceToRenderModel[ unTrackedDevice ]->Draw();
-	}
-
-	glUseProgram( 0 );
+		glUseProgram( 0 );
+	
 }
 
 

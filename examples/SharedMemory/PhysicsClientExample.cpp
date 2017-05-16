@@ -122,7 +122,8 @@ protected:
 	{
 		if (m_options == eCLIENTEXAMPLE_SERVER)
 		{
-			m_physicsServer.renderScene();
+			int renderFlags = 0;
+			m_physicsServer.renderScene(renderFlags);
 		}
 
         b3DebugLines debugLines;

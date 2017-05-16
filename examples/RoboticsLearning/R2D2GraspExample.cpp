@@ -92,7 +92,7 @@ public:
 				m_robotSim.loadSDF("kiva_shelf/model.sdf",results);
 			}
 			{
-				m_robotSim.loadURDF("results");
+				m_robotSim.loadURDF("plane.urdf");
 			}
 
 			m_robotSim.setGravity(b3MakeVector3(0,0,-10));

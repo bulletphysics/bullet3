@@ -78,7 +78,7 @@ public:
 		return false;
 	};
 
-	virtual void renderScene();
+	virtual void renderScene(int renderFlags);
 	virtual void   physicsDebugDraw(int debugDrawFlags);
 	virtual void setGuiHelper(struct GUIHelperInterface* guiHelper);
 	

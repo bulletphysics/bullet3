@@ -798,6 +798,8 @@ void	btMultiBodyDynamicsWorld::debugDrawWorld()
 {
 	BT_PROFILE("btMultiBodyDynamicsWorld debugDrawWorld");
 
+	btDiscreteDynamicsWorld::debugDrawWorld();
+
 	bool drawConstraints = false;
 	if (getDebugDrawer())
 	{
@@ -867,7 +869,7 @@ void	btMultiBodyDynamicsWorld::debugDrawWorld()
 		}
 	}
 
-	btDiscreteDynamicsWorld::debugDrawWorld();
+	
 }
 
 

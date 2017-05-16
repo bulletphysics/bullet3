@@ -27,6 +27,9 @@
 extern btVector3 gLastPickPos;
 bool gEnablePicking=true;
 bool gEnableTeleporting=true;
+bool gEnableRendering= true;
+bool gEnableSyncPhysicsRendering= true;
+bool gEnableUpdateDebugDrawLines = true;
 
 btVector3 gVRTeleportPosLocal(0,0,0);
 btQuaternion gVRTeleportOrnLocal(0,0,0,1);
@@ -183,6 +186,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIDumpFramesToVideo,
 	eGUIHelperRemoveGraphicsInstance,
 	eGUIHelperChangeGraphicsInstanceRGBAColor,
+	eGUIHelperSetVisualizerFlag,
 };
 
 
@@ -234,7 +238,8 @@ struct MyMouseCommand
 struct	MotionArgs
 {
 	MotionArgs()
-		:m_physicsServerPtr(0)
+		:m_physicsServerPtr(0),
+		m_debugDrawFlags(0)
 	{
 		for (int i=0;i<MAX_VR_CONTROLLERS;i++)
 		{
@@ -256,6 +261,7 @@ struct	MotionArgs
 	b3CriticalSection* m_cs3;
 	b3CriticalSection* m_csGUI;
 
+	int m_debugDrawFlags;
 
 	btAlignedObjectArray<MyMouseCommand> m_mouseCommands;
 
@@ -454,6 +460,15 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 				{
 					args->m_physicsServerPtr->stepSimulationRealTime(deltaTimeInSeconds, args->m_sendVrControllerEvents,numSendVrControllers, keyEvents, args->m_sendKeyEvents.size());
 				}
+				{
+					if (gEnableUpdateDebugDrawLines)
+					{
+						args->m_csGUI->lock();
+							args->m_physicsServerPtr->physicsDebugDraw(args->m_debugDrawFlags);
+							gEnableUpdateDebugDrawLines=false;
+						args->m_csGUI->unlock();
+					}
+				}
 				deltaTimeInSeconds = 0;
 				
 			}
@@ -548,6 +563,138 @@ struct UserDebugText
 };
 
 
+  struct LineSegment
+{
+        btVector3 m_from;
+        btVector3 m_to;
+};
+
+struct ColorWidth
+{
+        btVector3FloatData m_color;
+        int width;
+        int getHash() const
+        {
+                unsigned char r = (unsigned char) m_color.m_floats[0]*255;
+                unsigned char g = (unsigned char) m_color.m_floats[1]*255;
+                unsigned char b = (unsigned char) m_color.m_floats[2]*255;
+                unsigned char w = width;
+                return r+(256*g)+(256*256*b)+(256*256*256*w);
+        }
+        bool equals(const ColorWidth& other) const
+        {
+                bool same = ((width == other.width) && (m_color.m_floats[0] == other.m_color.m_floats[0]) &&
+                        (m_color.m_floats[1] == other.m_color.m_floats[1]) &&
+                        (m_color.m_floats[2] == other.m_color.m_floats[2]));
+                return same;
+        }
+};
+
+
+
+ATTRIBUTE_ALIGNED16( class )MultithreadedDebugDrawer : public btIDebugDraw
+{
+	class GUIHelperInterface* m_guiHelper;
+	int m_debugMode;
+
+	btAlignedObjectArray< btAlignedObjectArray<unsigned int> > m_sortedIndices;
+	btAlignedObjectArray< btAlignedObjectArray<btVector3FloatData> > m_sortedLines;
+	btHashMap<ColorWidth,int> m_hashedLines;
+
+
+	public:
+	void drawDebugDrawerLines()
+	{
+		if (m_hashedLines.size())
+		{
+			for (int i=0;i<m_hashedLines.size();i++)
+			{
+				ColorWidth cw = m_hashedLines.getKeyAtIndex(i);
+				int index = *m_hashedLines.getAtIndex(i);
+				int stride = sizeof(btVector3FloatData);
+				const float* positions = &m_sortedLines[index][0].m_floats[0];
+				int numPoints = m_sortedLines[index].size();
+				const unsigned int* indices = &m_sortedIndices[index][0];
+				int numIndices = m_sortedIndices[index].size();
+				m_guiHelper->getRenderInterface()->drawLines(positions,cw.m_color.m_floats,numPoints, stride, indices,numIndices,cw.width);
+			}
+		}
+	}
+	MultithreadedDebugDrawer(GUIHelperInterface* guiHelper)
+		:m_guiHelper(guiHelper),
+		m_debugMode(0)
+	{
+	}
+	virtual ~MultithreadedDebugDrawer()
+	{
+	}
+	virtual void	drawLine(const btVector3& from,const btVector3& to,const btVector3& color)
+	{
+		{
+			ColorWidth cw;
+			color.serializeFloat(cw.m_color);
+			cw.width = 1;
+			int index = -1;
+
+			int* indexPtr = m_hashedLines.find(cw);
+			if (indexPtr)
+			{
+				index = *indexPtr;
+			} else
+			{
+				index = m_sortedLines.size();
+				m_sortedLines.expand();
+				m_sortedIndices.expand();
+				m_hashedLines.insert(cw,index);
+			}
+			btAssert(index>=0);
+			if (index>=0)
+			{
+				btVector3FloatData from1,toX1;
+				m_sortedIndices[index].push_back(m_sortedLines[index].size());
+				from.serializeFloat(from1);
+				m_sortedLines[index].push_back(from1);
+				m_sortedIndices[index].push_back(m_sortedLines[index].size());
+				to.serializeFloat(toX1);
+				m_sortedLines[index].push_back(toX1);
+			}
+		}
+	}
+
+	virtual void	drawContactPoint(const btVector3& PointOnB,const btVector3& normalOnB,btScalar distance,int lifeTime,const btVector3& color)
+	{
+		drawLine(PointOnB,PointOnB+normalOnB*distance,color);
+		btVector3 ncolor(0, 0, 0);
+		drawLine(PointOnB, PointOnB + normalOnB*0.01, ncolor);
+	}
+
+	virtual void	reportErrorWarning(const char* warningString)
+	{
+	}
+	virtual void	draw3dText(const btVector3& location,const char* textString)
+	{
+	}
+	virtual void	setDebugMode(int debugMode)
+	{
+		m_debugMode = debugMode;
+	}
+
+	virtual int		getDebugMode() const
+	{
+		return m_debugMode;
+	}
+
+	virtual void clearLines()
+	{
+		m_hashedLines.clear();
+		m_sortedIndices.clear();
+		m_sortedLines.clear();
+	}
+	virtual void flushLines()
+	{
+		
+	}
+};
 
 class MultiThreadedOpenGLGuiHelper : public GUIHelperInterface
 {
@@ -557,21 +704,19 @@ class MultiThreadedOpenGLGuiHelper : public GUIHelperInterface
 	b3CriticalSection* m_cs2;
 	b3CriticalSection* m_cs3;
 	b3CriticalSection* m_csGUI;
-
+	
 
 public:
 
     
-    void setVisualizerFlag(int flag, int enable)
-    {
-        m_childGuiHelper->setVisualizerFlag(flag,enable);
-    }
-
-    void	setVisualizerFlagCallback(VisualizerFlagCallback callback)
-	{
-		m_childGuiHelper->setVisualizerFlagCallback(callback);
-	}
-
+   MultithreadedDebugDrawer* m_debugDraw;
+   void drawDebugDrawerLines()
+   {
+	   if (m_debugDraw)
+	   {
+		   m_debugDraw->drawDebugDrawerLines();
+	   }
+   }
 	GUIHelperInterface* m_childGuiHelper;
 
 	int m_uidGenerator;
@@ -632,6 +777,7 @@ public:
 		m_cs2(0),
 		m_cs3(0),
 		m_csGUI(0),
+		m_debugDraw(0),
 		m_uidGenerator(0),
 		m_texels(0),
 		m_textureId(-1)
@@ -733,7 +879,18 @@ public:
 
 	virtual void createPhysicsDebugDrawer( btDiscreteDynamicsWorld* rbWorld)
 	{
-		m_childGuiHelper->createPhysicsDebugDrawer(rbWorld);
+		btAssert(rbWorld);
+		if (m_debugDraw)
+		{
+			delete m_debugDraw;
+			m_debugDraw = 0;
+		}
+
+		m_debugDraw = new MultithreadedDebugDrawer(this);
+
+		rbWorld->setDebugDrawer(m_debugDraw );
+
+		//m_childGuiHelper->createPhysicsDebugDrawer(rbWorld);
 	}
 
 	virtual int	registerTexture(const unsigned char* texels, int width, int height)
@@ -765,6 +922,25 @@ public:
 
 		return m_shapeIndex;
 	}
+
+	int m_visualizerFlag;
+	int m_visualizerEnable;
+	 void setVisualizerFlag(int flag, int enable)
+    {
+		m_visualizerFlag = flag;
+		m_visualizerEnable = enable;
+
+		m_cs->lock();
+		m_cs->setSharedParam(1,eGUIHelperSetVisualizerFlag);
+		workerThreadWait();
+    }
+
+    void	setVisualizerFlagCallback(VisualizerFlagCallback callback)
+	{
+		m_childGuiHelper->setVisualizerFlagCallback(callback);
+	}
+
+
 	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling) 
 	{
 		m_shapeIndex = shapeIndex;
@@ -1568,6 +1744,38 @@ void	PhysicsServerExample::updateGraphics()
 		m_multiThreadedHelper->mainThreadRelease();
 		break;
 	}
+
+	case eGUIHelperSetVisualizerFlag:
+	{
+		int flag = m_multiThreadedHelper->m_visualizerFlag;
+		int enable = m_multiThreadedHelper->m_visualizerEnable;
+
+		if (flag==COV_ENABLE_VR_TELEPORTING)
+		{
+			gEnableTeleporting = enable;
+		}
+
+		if (flag == COV_ENABLE_VR_PICKING)
+		{
+			gEnablePicking = enable;
+		}
+    
+		if (flag ==COV_ENABLE_SYNC_RENDERING_INTERNAL)
+		{
+			gEnableSyncPhysicsRendering = enable;
+		}
+
+		if (flag == COV_ENABLE_RENDERING)
+		{
+			gEnableRendering = enable;
+		}
+
+		m_multiThreadedHelper->m_childGuiHelper->setVisualizerFlag(m_multiThreadedHelper->m_visualizerFlag,m_multiThreadedHelper->m_visualizerEnable);
+		m_multiThreadedHelper->mainThreadRelease();
+		break;
+    }
+
+
 	case eGUIHelperRegisterGraphicsInstance:
 	{
 		m_multiThreadedHelper->m_instanceId = m_multiThreadedHelper->m_childGuiHelper->registerGraphicsInstance(
@@ -1771,32 +1979,6 @@ extern double gSubStep;
 extern int gVRTrackingObjectUniqueId;
 extern btTransform gVRTrackingObjectTr;
 
-  struct LineSegment
-                {
-                        btVector3 m_from;
-                        btVector3 m_to;
-                };
-
-                struct ColorWidth
-                {
-                        btVector3FloatData m_color;
-                        int width;
-                        int getHash() const
-                        {
-                                unsigned char r = (unsigned char) m_color.m_floats[0]*255;
-                                unsigned char g = (unsigned char) m_color.m_floats[1]*255;
-                                unsigned char b = (unsigned char) m_color.m_floats[2]*255;
-                                unsigned char w = width;
-                                return r+(256*g)+(256*256*b)+(256*256*256*w);
-                        }
-                        bool equals(const ColorWidth& other) const
-                        {
-                                bool same = ((width == other.width) && (m_color.m_floats[0] == other.m_color.m_floats[0]) &&
-                                        (m_color.m_floats[1] == other.m_color.m_floats[1]) &&
-                                        (m_color.m_floats[2] == other.m_color.m_floats[2]));
-                                return same;
-                        }
-                };
 
 void PhysicsServerExample::drawUserDebugLines()
 {
@@ -2023,7 +2205,15 @@ void PhysicsServerExample::renderScene()
 		m_multiThreadedHelper->m_childGuiHelper->getRenderInterface()->
 		getActiveCamera()->setVRCameraOffsetTransform(vrOffset);
 	}
-	m_physicsServer.renderScene();
+	if (gEnableRendering)
+	{
+		int renderFlags = 0;
+		if (!gEnableSyncPhysicsRendering)
+		{
+			renderFlags|=1;//COV_DISABLE_SYNC_RENDERING;
+		}
+		m_physicsServer.renderScene(renderFlags);
+	}
 	
 	if (gEnablePicking)
 	{
@@ -2071,9 +2261,18 @@ void    PhysicsServerExample::physicsDebugDraw(int debugDrawFlags)
 {
 	drawUserDebugLines();
 
-	///debug rendering
-	m_physicsServer.physicsDebugDraw(debugDrawFlags);
+	if (gEnableRendering)
+	{
+		///debug rendering
+		//m_physicsServer.physicsDebugDraw(debugDrawFlags);
+		m_args[0].m_csGUI->lock();
+		//draw stuff and flush?
+		this->m_multiThreadedHelper->m_debugDraw->drawDebugDrawerLines();
+		m_args[0].m_debugDrawFlags = debugDrawFlags;
+		gEnableUpdateDebugDrawLines = true;
+		m_args[0].m_csGUI->unlock();
 
+	}
 }
 
 
