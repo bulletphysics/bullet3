@@ -183,7 +183,7 @@ bool SharedMemoryCommandProcessor::receiveStatus(struct SharedMemoryStatus& serv
 	return false;
 }
 
-void SharedMemoryCommandProcessor::renderScene()
+void SharedMemoryCommandProcessor::renderScene(int renderFlags)
 {
 }
 

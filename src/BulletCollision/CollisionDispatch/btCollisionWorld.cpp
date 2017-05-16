@@ -1514,6 +1514,8 @@ void	btCollisionWorld::debugDrawWorld()
 {
 	if (getDebugDrawer())
 	{
+		getDebugDrawer()->clearLines();
+
 		btIDebugDraw::DefaultColors defaultColors = getDebugDrawer()->getDefaultColors();
 
 		if ( getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawContactPoints)

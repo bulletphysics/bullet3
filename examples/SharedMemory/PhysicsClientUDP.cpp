@@ -540,7 +540,7 @@ bool UdpNetworkedPhysicsProcessor::receiveStatus(struct SharedMemoryStatus& serv
 }
 
 
-void UdpNetworkedPhysicsProcessor::renderScene()
+void UdpNetworkedPhysicsProcessor::renderScene(int renderFlags)
 {
 }
 

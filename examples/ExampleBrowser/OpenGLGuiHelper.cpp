@@ -52,6 +52,10 @@ public:
 		
 		
 	}
+
+	virtual ~MyDebugDrawer()
+	{
+	}
 	virtual DefaultColors	getDefaultColors() const	
 	{	
 		return m_ourColors;
@@ -1179,11 +1183,11 @@ void OpenGLGuiHelper::autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWor
 		createCollisionShapeGraphicsObject(colObj->getCollisionShape());
 		int colorIndex = colObj->getBroadphaseHandle()->getUid() & 3;
 
-		btVector3 color;
+		btVector4 color;
 		color = sColors[colorIndex];
 		if (colObj->getCollisionShape()->getShapeType()==STATIC_PLANE_PROXYTYPE)
 		{
-			color.setValue(1,1,1);
+			color.setValue(1,1,1,1);
 		}
 		createCollisionObjectGraphicsObject(colObj,color);
 			
