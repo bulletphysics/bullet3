@@ -6189,6 +6189,15 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const
 		gResetSimulation = false;
 	}
 
+	if (gVRTrackingObjectUniqueId >= 0)
+	{
+		InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(gVRTrackingObjectUniqueId);
+		if (bodyHandle && bodyHandle->m_multiBody)
+		{
+			gVRTrackingObjectTr  = bodyHandle->m_multiBody->getBaseWorldTransform();
+		}
+	}
+
 	if ((m_data->m_allowRealTimeSimulation) && m_data->m_guiHelper)
 	{
 		
@@ -6208,14 +6217,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const
 			gSubStep = m_data->m_physicsDeltaTime;
 		}
 		
-		if (gVRTrackingObjectUniqueId >= 0)
-		{
-			InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(gVRTrackingObjectUniqueId);
-			if (bodyHandle && bodyHandle->m_multiBody)
-			{
-				gVRTrackingObjectTr  = bodyHandle->m_multiBody->getBaseWorldTransform();
-			}
-		}
+		
 
 
 		int numSteps = m_data->m_dynamicsWorld->stepSimulation(dtInSec*simTimeScalingFactor,maxSteps, gSubStep);

@@ -2712,6 +2712,8 @@ int b3SetVRCameraRootOrientation(b3SharedMemoryCommandHandle commandHandle, doub
 	command->m_vrCameraStateArguments.m_rootOrientation[0] = rootOrn[0];
 	command->m_vrCameraStateArguments.m_rootOrientation[1] = rootOrn[1];
 	command->m_vrCameraStateArguments.m_rootOrientation[2] = rootOrn[2];
+	command->m_vrCameraStateArguments.m_rootOrientation[3] = rootOrn[3];
+
 	return 0;
 }
 
