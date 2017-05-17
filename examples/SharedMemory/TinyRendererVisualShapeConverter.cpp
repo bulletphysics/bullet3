@@ -516,7 +516,6 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 	btAssert(linkPtr); // TODO: remove if (not doing it now, because diff will be 50+ lines)
 	if (linkPtr)
 	{
-		const btArray<UrdfVisual>* shapeArray;
 		bool useVisual;
 		int cnt = 0;
 		if (linkPtr->m_visualArray.size() > 0)
@@ -1011,6 +1010,7 @@ void TinyRendererVisualShapeConverter::resetAll()
 	}
 	
 	m_data->m_swRenderInstances.clear();
+	m_data->m_visualShapes.clear();
 }
 
 void TinyRendererVisualShapeConverter::activateShapeTexture(int shapeUniqueId, int textureUniqueId)

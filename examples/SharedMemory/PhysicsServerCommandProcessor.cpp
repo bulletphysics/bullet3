@@ -2181,7 +2181,7 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
     //serialize the btMultiBody and send the data to the client. This is one way to get the link/joint names across the (shared memory) wire
 
     InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(bodyUniqueId);
-    btMultiBody* mb = bodyHandle->m_multiBody;
+	btMultiBody* mb = bodyHandle? bodyHandle->m_multiBody:0;   
     if (mb)
     {
         UrdfLinkNameMapUtil* util = new UrdfLinkNameMapUtil;
@@ -2837,10 +2837,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					int actualNumBodies = 0;
 					for (int i=0;i<usedHandles.size();i++)
 					{
-						InteralBodyData* body = m_data->m_bodyHandles.getHandle(usedHandles[i]);
+						int usedHandle = usedHandles[i];
+						InteralBodyData* body = m_data->m_bodyHandles.getHandle(usedHandle);
 						if (body && (body->m_multiBody || body->m_rigidBody))
 						{
-							serverStatusOut.m_sdfLoadedArgs.m_bodyUniqueIds[actualNumBodies++] = i;
+							serverStatusOut.m_sdfLoadedArgs.m_bodyUniqueIds[actualNumBodies++] = usedHandle;
 						}
 					}
 					serverStatusOut.m_sdfLoadedArgs.m_numBodies = actualNumBodies;
@@ -4216,10 +4217,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
                 case CMD_RESET_SIMULATION:
                 {
+
 					BT_PROFILE("CMD_RESET_SIMULATION");
-
+					m_data->m_guiHelper->setVisualizerFlag(COV_ENABLE_SYNC_RENDERING_INTERNAL,0);
 					resetSimulation();
-
+					m_data->m_guiHelper->setVisualizerFlag(COV_ENABLE_SYNC_RENDERING_INTERNAL,1);
+					
 					SharedMemoryStatus& serverCmd =serverStatusOut;
 					serverCmd.m_type = CMD_RESET_SIMULATION_COMPLETED;
 					hasStatus = true;
@@ -5062,6 +5065,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					serverCmd.m_removeObjectArgs.m_numBodies = 0;
 					serverCmd.m_removeObjectArgs.m_numUserConstraints = 0;
 
+					m_data->m_guiHelper->setVisualizerFlag(COV_ENABLE_SYNC_RENDERING_INTERNAL,0);
+
 					for (int i=0;i<clientCmd.m_removeObjectArgs.m_numBodies;i++)
 					{
 						int bodyUniqueId = clientCmd.m_removeObjectArgs.m_bodyUniqueIds[i];
@@ -5142,7 +5147,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 						m_data->m_bodyHandles.freeHandle(bodyUniqueId);
 					}
-					
+					m_data->m_guiHelper->setVisualizerFlag(COV_ENABLE_SYNC_RENDERING_INTERNAL,1);
+
 
                     hasStatus = true;
 					break;
@@ -5929,11 +5935,14 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 //static int skip=1;
 
-void PhysicsServerCommandProcessor::renderScene()
+void PhysicsServerCommandProcessor::renderScene(int renderFlags)
 {
 	if (m_data->m_guiHelper)
 	{
-		m_data->m_guiHelper->syncPhysicsToGraphics(m_data->m_dynamicsWorld);
+		if (0==(renderFlags&COV_DISABLE_SYNC_RENDERING))
+		{
+			m_data->m_guiHelper->syncPhysicsToGraphics(m_data->m_dynamicsWorld);
+		}
 		m_data->m_guiHelper->render(m_data->m_dynamicsWorld);
 	}
 #ifdef USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
