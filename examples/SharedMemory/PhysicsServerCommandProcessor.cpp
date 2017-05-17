@@ -2181,7 +2181,7 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
     //serialize the btMultiBody and send the data to the client. This is one way to get the link/joint names across the (shared memory) wire
 
     InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(bodyUniqueId);
-    btMultiBody* mb = bodyHandle->m_multiBody;
+	btMultiBody* mb = bodyHandle? bodyHandle->m_multiBody:0;   
     if (mb)
     {
         UrdfLinkNameMapUtil* util = new UrdfLinkNameMapUtil;
@@ -2837,10 +2837,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					int actualNumBodies = 0;
 					for (int i=0;i<usedHandles.size();i++)
 					{
-						InteralBodyData* body = m_data->m_bodyHandles.getHandle(usedHandles[i]);
+						int usedHandle = usedHandles[i];
+						InteralBodyData* body = m_data->m_bodyHandles.getHandle(usedHandle);
 						if (body && (body->m_multiBody || body->m_rigidBody))
 						{
-							serverStatusOut.m_sdfLoadedArgs.m_bodyUniqueIds[actualNumBodies++] = i;
+							serverStatusOut.m_sdfLoadedArgs.m_bodyUniqueIds[actualNumBodies++] = usedHandle;
 						}
 					}
 					serverStatusOut.m_sdfLoadedArgs.m_numBodies = actualNumBodies;
