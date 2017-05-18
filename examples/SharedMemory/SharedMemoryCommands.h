@@ -353,6 +353,8 @@ enum EnumSimParamUpdateFlags
 	SIM_PARAM_UPDATE_COLLISION_FILTER_MODE=512,
 	SIM_PARAM_UPDATE_CONTACT_BREAKING_THRESHOLD = 1024,
 	SIM_PARAM_MAX_CMD_PER_1MS = 2048,
+	SIM_PARAM_ENABLE_FILE_CACHING = 4096,
+
 };
 
 enum EnumLoadBunnyUpdateFlags
@@ -384,6 +386,7 @@ struct SendPhysicsSimulationParameters
 	int m_internalSimFlags;
 	double m_defaultContactERP;
 	int m_collisionFilterMode;
+	int m_enableFileCaching;
 };
 
 struct LoadBunnyArgs
@@ -675,7 +678,8 @@ enum eVRCameraEnums
 {
 	VR_CAMERA_ROOT_POSITION=1,
 	VR_CAMERA_ROOT_ORIENTATION=2,
-	VR_CAMERA_ROOT_TRACKING_OBJECT=4
+	VR_CAMERA_ROOT_TRACKING_OBJECT=4,
+	VR_CAMERA_FLAG = 8,
 };
 
 enum eStateLoggingEnums
@@ -696,6 +700,7 @@ struct VRCameraState
 	double m_rootPosition[3];
 	double m_rootOrientation[4];
 	int m_trackingObjectUniqueId;
+	int m_trackingObjectFlag;
 };
 
 

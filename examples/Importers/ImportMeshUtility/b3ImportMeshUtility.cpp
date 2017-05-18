@@ -7,7 +7,7 @@
 #include "../../Utils/b3ResourcePath.h"
 #include "Bullet3Common/b3FileUtils.h"
 #include "../../ThirdPartyLibs/stb_image/stb_image.h"
-
+#include "../ImportObjDemo/LoadMeshFromObj.h"
 bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string& fileName, b3ImportMeshData& meshData)
 {
 	B3_PROFILE("loadAndRegisterMeshFromFileInternal");
@@ -28,7 +28,8 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 		std::vector<tinyobj::shape_t> shapes;
 		{
 			B3_PROFILE("tinyobj::LoadObj");
-			std::string err = tinyobj::LoadObj(shapes, relativeFileName, pathPrefix);
+			std::string err = LoadFromCachedOrFromObj(shapes, relativeFileName, pathPrefix);
+			//std::string err = tinyobj::LoadObj(shapes, relativeFileName, pathPrefix);
 		}
 		
 		GLInstanceGraphicsShape* gfxShape = btgCreateGraphicsShapeFromWavefrontObj(shapes);

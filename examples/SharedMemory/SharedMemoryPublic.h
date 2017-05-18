@@ -320,6 +320,11 @@ enum eVRDeviceTypeEnums
 	VR_DEVICE_GENERIC_TRACKER=4,
 };
 
+enum EVRCameraFlags
+{
+	VR_CAMERA_TRACK_OBJECT_ORIENTATION=1,
+};
+
 struct b3VRControllerEvent
 {
 	int m_controllerId;//valid for VR_CONTROLLER_MOVE_EVENT and VR_CONTROLLER_BUTTON_EVENT

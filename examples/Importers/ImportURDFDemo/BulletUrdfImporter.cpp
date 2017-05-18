@@ -634,8 +634,15 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 		case UrdfGeometry::FILE_OBJ:
 			if (collision->m_flags & URDF_FORCE_CONCAVE_TRIMESH)
 			{
-				
-				glmesh = LoadMeshFromObj(collision->m_geometry.m_meshFileName.c_str(), 0);
+				char relativeFileName[1024];
+				char pathPrefix[1024];
+				pathPrefix[0] = 0;
+				if (b3ResourcePath::findResourcePath(collision->m_geometry.m_meshFileName.c_str(), relativeFileName, 1024))
+				{
+
+					b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
+				}
+				glmesh = LoadMeshFromObj(collision->m_geometry.m_meshFileName.c_str(), pathPrefix);
 			}
 			else
 			{
