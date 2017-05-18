@@ -560,9 +560,12 @@ LoadObj(
 
   int maxchars = 8192;  // Alloc enough size.
   std::vector<char> buf(maxchars);  // Alloc enough size.
+  std::string linebuf;
+  linebuf.reserve(maxchars);
+
   while (ifs.peek() != -1) {
 
-    std::string linebuf;
+	linebuf.resize(0);
     safeGetline(ifs,linebuf);
 
     // Trim newline '\r\n' or '\r'

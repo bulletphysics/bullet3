@@ -22,6 +22,7 @@
 #include "../Utils/RobotLoggingUtil.h"
 #include "LinearMath/btTransform.h"
 #include "../Importers/ImportMJCFDemo/BulletMJCFImporter.h"
+#include "../Importers/ImportObjDemo/LoadMeshFromObj.h"
 #include "../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointMotor.h"
 #include "LinearMath/btSerializer.h"
@@ -54,6 +55,8 @@ bool gCreateDefaultRobotAssets = false;
 int gInternalSimFlags = 0;
 bool gResetSimulation = 0;
 int gVRTrackingObjectUniqueId = -1;
+int gVRTrackingObjectFlag = VR_CAMERA_TRACK_OBJECT_ORIENTATION;
+
 btTransform gVRTrackingObjectTr = btTransform::getIdentity();
 
 int gMaxNumCmdPer1ms = -1;//experiment: add some delay to avoid threads starving other threads
@@ -2440,6 +2443,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					{
 						if (clientCmd.m_stateLoggingArguments.m_loggingUniqueId == m_data->m_profileTimingLoggingUid)
 						{
+							serverStatusOut.m_type = CMD_STATE_LOGGING_COMPLETED;
 							b3ChromeUtilsStopTimingsAndWriteJsonFile(m_data->m_profileTimingFileName.c_str());
 							m_data->m_profileTimingLoggingUid = -1;
 						}
@@ -2480,6 +2484,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					if (clientCmd.m_updateFlags & VR_CAMERA_ROOT_TRACKING_OBJECT)
 					{
 						gVRTrackingObjectUniqueId = clientCmd.m_vrCameraStateArguments.m_trackingObjectUniqueId;
+					}
+
+					if (clientCmd.m_updateFlags & VR_CAMERA_FLAG)
+					{
+						gVRTrackingObjectFlag = clientCmd.m_vrCameraStateArguments.m_trackingObjectFlag;
 					}
 
 					serverStatusOut.m_type  = CMD_CLIENT_COMMAND_COMPLETED;
@@ -4058,6 +4067,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     {
                         m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = clientCmd.m_physSimParamArgs.m_defaultContactERP;
                     }
+
+					if (clientCmd.m_updateFlags&SIM_PARAM_ENABLE_FILE_CACHING)
+                    {
+						b3EnableFileCaching(clientCmd.m_physSimParamArgs.m_enableFileCaching);
+                    }
+
 
 					SharedMemoryStatus& serverCmd =serverStatusOut;
 					serverCmd.m_type = CMD_CLIENT_COMMAND_COMPLETED;
@@ -6189,6 +6204,24 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const
 		gResetSimulation = false;
 	}
 
+	if (gVRTrackingObjectUniqueId >= 0)
+	{
+		InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(gVRTrackingObjectUniqueId);
+		if (bodyHandle && bodyHandle->m_multiBody)
+		{
+//			gVRTrackingObjectTr  = bodyHandle->m_multiBody->getBaseWorldTransform();
+
+			if (gVRTrackingObjectUniqueId>=0)
+			{
+				gVRTrackingObjectTr.setOrigin(bodyHandle->m_multiBody->getBaseWorldTransform().getOrigin());
+			}
+			if (gVRTrackingObjectFlag&VR_CAMERA_TRACK_OBJECT_ORIENTATION)
+			{
+				gVRTrackingObjectTr.setBasis(bodyHandle->m_multiBody->getBaseWorldTransform().getBasis());
+			}	
+		}
+	}
+
 	if ((m_data->m_allowRealTimeSimulation) && m_data->m_guiHelper)
 	{
 		
@@ -6208,14 +6241,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const
 			gSubStep = m_data->m_physicsDeltaTime;
 		}
 		
-		if (gVRTrackingObjectUniqueId >= 0)
-		{
-			InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(gVRTrackingObjectUniqueId);
-			if (bodyHandle && bodyHandle->m_multiBody)
-			{
-				gVRTrackingObjectTr  = bodyHandle->m_multiBody->getBaseWorldTransform();
-			}
-		}
+		
 
 
 		int numSteps = m_data->m_dynamicsWorld->stepSimulation(dtInSec*simTimeScalingFactor,maxSteps, gSubStep);
