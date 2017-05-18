@@ -95,6 +95,9 @@ static int pybullet_internalSetMatrix(PyObject* objMat, float matrix[16])
 	int i, len;
 	PyObject* seq;
 
+	if (objMat==NULL)
+		return 0;
+
 	seq = PySequence_Fast(objMat, "expected a sequence");
 	if (seq)
 	{
@@ -123,6 +126,7 @@ static int pybullet_internalSetVector(PyObject* objVec, float vector[3])
 {
 	int i, len;
 	PyObject* seq = 0;
+
 	if (objVec == NULL)
 		return 0;
 
@@ -4755,12 +4759,13 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 	float projectionMatrix[16];
 	float lightDir[3];
 	float lightColor[3];
-	float lightDist = 10.0;
-	int hasShadow = 0;
-	float lightAmbientCoeff = 0.6;
-	float lightDiffuseCoeff = 0.35;
-	float lightSpecularCoeff = 0.05;
-	int renderer = 0;
+	float lightDist = -1;
+	int hasShadow = -1;
+	float lightAmbientCoeff = -1;
+	float lightDiffuseCoeff = -1;
+	float lightSpecularCoeff = -1;
+
+	int renderer = -1;
 	// inialize cmd
 	b3SharedMemoryCommandHandle command;
 	int physicsClientId = 0;
@@ -4783,12 +4788,12 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 	b3RequestCameraImageSetPixelResolution(command, width, height);
 
 	// set camera matrices only if set matrix function succeeds
-	if (pybullet_internalSetMatrix(objViewMat, viewMatrix) && (pybullet_internalSetMatrix(objProjMat, projectionMatrix)))
+	if (objViewMat && objProjMat && pybullet_internalSetMatrix(objViewMat, viewMatrix) && (pybullet_internalSetMatrix(objProjMat, projectionMatrix)))
 	{
 		b3RequestCameraImageSetCameraMatrices(command, viewMatrix, projectionMatrix);
 	}
 	//set light direction only if function succeeds
-	if (pybullet_internalSetVector(lightDirObj, lightDir))
+	if (lightDirObj && pybullet_internalSetVector(lightDirObj, lightDir))
 	{
 		b3RequestCameraImageSetLightDirection(command, lightDir);
 	}
@@ -4797,16 +4802,34 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 	{
 		b3RequestCameraImageSetLightColor(command, lightColor);
 	}
+	if (lightDist>=0)
+	{
+		b3RequestCameraImageSetLightDistance(command, lightDist);
+	}
 
-	b3RequestCameraImageSetLightDistance(command, lightDist);
+	if (hasShadow>=0)
+	{
+		b3RequestCameraImageSetShadow(command, hasShadow);
+	}
+	if (lightAmbientCoeff>=0)
+	{
+		b3RequestCameraImageSetLightAmbientCoeff(command, lightAmbientCoeff);
+	}
+	if (lightDiffuseCoeff>=0)
+	{
+		b3RequestCameraImageSetLightDiffuseCoeff(command, lightDiffuseCoeff);
+	}
 
-	b3RequestCameraImageSetShadow(command, hasShadow);
+	if (lightSpecularCoeff>=0)
+	{
+		b3RequestCameraImageSetLightSpecularCoeff(command, lightSpecularCoeff);
+	}
 
-	b3RequestCameraImageSetLightAmbientCoeff(command, lightAmbientCoeff);
-	b3RequestCameraImageSetLightDiffuseCoeff(command, lightDiffuseCoeff);
-	b3RequestCameraImageSetLightSpecularCoeff(command, lightSpecularCoeff);
-
-	b3RequestCameraImageSelectRenderer(command, renderer);//renderer could be ER_BULLET_HARDWARE_OPENGL
+	if (renderer>=0)
+	{
+		b3RequestCameraImageSelectRenderer(command, renderer);//renderer could be ER_BULLET_HARDWARE_OPENGL
+	}
+		//PyErr_Clear();
 
 	if (b3CanSubmitCommand(sm))
 	{
