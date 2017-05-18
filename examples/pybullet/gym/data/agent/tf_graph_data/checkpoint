@@ -1,2 +1,2 @@
-model_checkpoint_path: "/cns/ij-d/home/jietan/persistent/minitaur/minitaur_vizier_3_153645653/Bullet/MinitaurSimEnv/28158/0003600000/agent/tf_graph_data/tf_graph_data.ckpt"
-all_model_checkpoint_paths: "/cns/ij-d/home/jietan/persistent/minitaur/minitaur_vizier_3_153645653/Bullet/MinitaurSimEnv/28158/0003600000/agent/tf_graph_data/tf_graph_data.ckpt"
+model_checkpoint_path: "tf_graph_data_converted.ckpt-0"
+all_model_checkpoint_paths: "tf_graph_data_converted.ckpt-0"
