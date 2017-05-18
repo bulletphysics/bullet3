@@ -226,7 +226,7 @@ bool TcpNetworkedPhysicsProcessor::receiveStatus(struct SharedMemoryStatus& serv
 }
 
 
-void TcpNetworkedPhysicsProcessor::renderScene()
+void TcpNetworkedPhysicsProcessor::renderScene(int renderFlags)
 {
 }
 

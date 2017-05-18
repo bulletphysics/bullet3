@@ -52,6 +52,10 @@ public:
 		
 		
 	}
+
+	virtual ~MyDebugDrawer()
+	{
+	}
 	virtual DefaultColors	getDefaultColors() const	
 	{	
 		return m_ourColors;
