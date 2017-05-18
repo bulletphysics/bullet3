@@ -2,29 +2,32 @@
 
 //#include "SharedMemoryCommands.h"
 
-#include "SharedMemory/PhysicsClientC_API.h"
+#include "../SharedMemory/PhysicsClientC_API.h"
 
 #ifdef BT_ENABLE_ENET
-#include "SharedMemory/PhysicsClientUDP_C_API.h"
+#include "../SharedMemory/PhysicsClientUDP_C_API.h"
 #endif  //PHYSICS_UDP
 
 #ifdef BT_ENABLE_CLSOCKET
-#include "SharedMemory/PhysicsClientTCP_C_API.h"
+#include "../SharedMemory/PhysicsClientTCP_C_API.h"
 #endif  //PHYSICS_TCP
 
-#include "SharedMemory/PhysicsDirectC_API.h"
+#include "../SharedMemory/PhysicsDirectC_API.h"
 
-#include "SharedMemory/SharedMemoryInProcessPhysicsC_API.h"
+#include "../SharedMemory/SharedMemoryInProcessPhysicsC_API.h"
 
-#include "SharedMemory/SharedMemoryPublic.h"
+
+#include "../SharedMemory/SharedMemoryPublic.h"
 #include "Bullet3Common/b3Logging.h"
 
 struct b3RobotSimulatorClientAPI_InternalData
 {
 	b3PhysicsClientHandle m_physicsClientHandle;
+	struct GUIHelperInterface* m_guiHelper;
 
 	b3RobotSimulatorClientAPI_InternalData()
-		: m_physicsClientHandle(0)
+		: m_physicsClientHandle(0),
+		m_guiHelper(0)
 	{
 	}
 };
@@ -38,6 +41,66 @@ b3RobotSimulatorClientAPI::~b3RobotSimulatorClientAPI()
 {
 	delete m_data;
 }
+
+void b3RobotSimulatorClientAPI::setGuiHelper(struct GUIHelperInterface* guiHelper)
+{
+	m_data->m_guiHelper = guiHelper;
+}
+
+void b3RobotSimulatorClientAPI::renderScene()
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return;
+	}
+	if (m_data->m_guiHelper)
+	{
+		b3InProcessRenderSceneInternal(m_data->m_physicsClientHandle);
+	}
+}
+
+void b3RobotSimulatorClientAPI::debugDraw(int debugDrawMode)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return;
+	}
+	if (m_data->m_guiHelper)
+	{
+		b3InProcessDebugDrawInternal(m_data->m_physicsClientHandle,debugDrawMode);
+	}
+}
+
+bool	b3RobotSimulatorClientAPI::mouseMoveCallback(float x,float y)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return false;
+	}
+	if (m_data->m_guiHelper)
+	{
+		return b3InProcessMouseMoveCallback(m_data->m_physicsClientHandle, x,y);
+	}
+	return false;
+}
+bool	b3RobotSimulatorClientAPI::mouseButtonCallback(int button, int state, float x, float y)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return false;
+	}
+	if (m_data->m_guiHelper)
+	{
+		return b3InProcessMouseButtonCallback(m_data->m_physicsClientHandle, button,state,x,y);
+	}
+	return false;
+}
+
+
 
 bool b3RobotSimulatorClientAPI::connect(int mode, const std::string& hostName, int portOrKey)
 {
@@ -55,6 +118,12 @@ bool b3RobotSimulatorClientAPI::connect(int mode, const std::string& hostName, i
 
 	switch (mode)
 	{
+		case eCONNECT_EXISTING_EXAMPLE_BROWSER:
+		{
+			sm = b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect(m_data->m_guiHelper);
+			break;
+		}
+
 		case eCONNECT_GUI:
 		{
 			int argc = 0;
@@ -644,8 +713,72 @@ bool b3RobotSimulatorClientAPI::getJointState(int bodyUniqueId, int jointIndex, 
 	return false;
 }
 
+bool b3RobotSimulatorClientAPI::getJointStates(int bodyUniqueId, b3JointStates2& state)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return false;
+	}
+
+	b3SharedMemoryCommandHandle command = b3RequestActualStateCommandInit(m_data->m_physicsClientHandle,bodyUniqueId);
+    b3SharedMemoryStatusHandle statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
+    
+    if (statusHandle)
+    {
+     //   double rootInertialFrame[7];
+        const double* rootLocalInertialFrame;
+        const double* actualStateQ;
+        const double* actualStateQdot;
+        const double* jointReactionForces;
+        
+        int stat = b3GetStatusActualState(statusHandle,
+                        &state.m_bodyUniqueId,
+                        &state.m_numDegreeOfFreedomQ,
+                        &state.m_numDegreeOfFreedomU,
+                        &rootLocalInertialFrame,
+                        &actualStateQ,
+                        &actualStateQdot,
+                        &jointReactionForces);
+        if (stat)
+        {
+            state.m_actualStateQ.resize(state.m_numDegreeOfFreedomQ);
+            state.m_actualStateQdot.resize(state.m_numDegreeOfFreedomU);
+
+            for (int i=0;i<state.m_numDegreeOfFreedomQ;i++)
+            {
+                state.m_actualStateQ[i] = actualStateQ[i];
+            }
+            for (int i=0;i<state.m_numDegreeOfFreedomU;i++)
+            {
+                state.m_actualStateQdot[i] = actualStateQdot[i];
+            }
+            int numJoints = getNumJoints(bodyUniqueId);
+            state.m_jointReactionForces.resize(6*numJoints);
+            for (int i=0;i<numJoints*6;i++)
+            {
+                state.m_jointReactionForces[i] = jointReactionForces[i];
+            }
+            
+            return true;
+        }
+        //rootInertialFrame,
+          //              &state.m_actualStateQ[0],
+            //            &state.m_actualStateQdot[0],
+              //          &state.m_jointReactionForces[0]);
+        
+     
+    }
+    return false;
+}
+
 bool b3RobotSimulatorClientAPI::resetJointState(int bodyUniqueId, int jointIndex, double targetValue)
 {
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return false;
+	}
 	b3SharedMemoryCommandHandle commandHandle;
 	b3SharedMemoryStatusHandle statusHandle;
 	int numJoints;
@@ -995,4 +1128,19 @@ void b3RobotSimulatorClientAPI::submitProfileTiming(const std::string&  profileN
 		b3SetProfileTimingDuractionInMicroSeconds(commandHandle, durationInMicroSeconds);
 	}
 	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
+}
+
+void b3RobotSimulatorClientAPI::loadBunny(double scale, double mass, double collisionMargin)
+{
+	if (!isConnected())
+	{
+		b3Warning("Not connected");
+		return;
+	}
+
+    b3SharedMemoryCommandHandle command = b3LoadBunnyCommandInit(m_data->m_physicsClientHandle);
+    b3LoadBunnySetScale(command, scale);
+    b3LoadBunnySetMass(command, mass);
+    b3LoadBunnySetCollisionMargin(command, collisionMargin);
+    b3SubmitClientCommand(m_data->m_physicsClientHandle, command);
 }

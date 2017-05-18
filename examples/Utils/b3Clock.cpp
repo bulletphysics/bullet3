@@ -198,11 +198,13 @@ void b3Clock::usleep(int microSeconds)
 		Sleep(millis);
 	}
 #else
-
-    ::usleep(microSeconds); 
-	//struct timeval tv;
-	//tv.tv_sec = microSeconds/1000000L;
-	//tv.tv_usec = microSeconds%1000000L;
-	//return select(0, 0, 0, 0, &tv);
+	if (microSeconds>0)
+	{
+		::usleep(microSeconds); 
+		//struct timeval tv;
+		//tv.tv_sec = microSeconds/1000000L;
+		//tv.tv_usec = microSeconds%1000000L;
+		//return select(0, 0, 0, 0, &tv);
+	}
 #endif
 }

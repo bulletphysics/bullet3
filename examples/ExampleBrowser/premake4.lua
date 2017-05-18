@@ -118,6 +118,8 @@ project "App_BulletExampleBrowser"
 		"../MultiThreading/b3ThreadSupportInterface.cpp",
 		"../InverseDynamics/InverseDynamicsExample.cpp",
 		"../InverseDynamics/InverseDynamicsExample.h",
+		"../RobotSimulator/b3RobotSimulatorClientAPI.cpp",
+		"../RobotSimulator/b3RobotSimulatorClientAPI.h",		
 		"../BasicDemo/BasicExample.*",
 		"../Tutorial/*",
 		"../ExtendedTutorials/*",

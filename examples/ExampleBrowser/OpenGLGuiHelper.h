@@ -26,7 +26,8 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling);
 	virtual void removeAllGraphicsInstances();
 	virtual void removeGraphicsInstance(int graphicsUid);
-
+	virtual void changeRGBAColor(int instanceUid, const double rgbaColor[4]);
+	
 	virtual void createCollisionShapeGraphicsObject(btCollisionShape* collisionShape);
 
 	virtual void syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWorld);
@@ -90,6 +91,7 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 
 	virtual void	dumpFramesToVideo(const char* mp4FileName);
 
+	int createCheckeredTexture(int r,int g, int b);
 };
 
 #endif //OPENGL_GUI_HELPER_H

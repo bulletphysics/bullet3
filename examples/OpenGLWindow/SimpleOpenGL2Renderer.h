@@ -34,10 +34,10 @@ public:
     virtual void removeAllInstances();
     virtual void removeGraphicsInstance(int instanceUid);
     
-    virtual void writeSingleInstanceColorToCPU(float* color, int srcIndex);
-    virtual void writeSingleInstanceColorToCPU(double* color, int srcIndex);
-	virtual void writeSingleInstanceScaleToCPU(float* scale, int srcIndex);
-    virtual void writeSingleInstanceScaleToCPU(double* scale, int srcIndex);
+    virtual void writeSingleInstanceColorToCPU(const float* color, int srcIndex);
+    virtual void writeSingleInstanceColorToCPU(const double* color, int srcIndex);
+	virtual void writeSingleInstanceScaleToCPU(const float* scale, int srcIndex);
+    virtual void writeSingleInstanceScaleToCPU(const double* scale, int srcIndex);
     virtual void	getCameraViewMatrix(float viewMat[16]) const;
     virtual void	getCameraProjectionMatrix(float projMat[16]) const;
 

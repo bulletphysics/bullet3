@@ -381,6 +381,17 @@ int b3PhysicsParamSetMaxNumCommandsPer1ms(b3SharedMemoryCommandHandle commandHan
 
 }
 
+int b3PhysicsParamSetEnableFileCaching(b3SharedMemoryCommandHandle commandHandle, int enableFileCaching)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+
+	command->m_physSimParamArgs.m_enableFileCaching= enableFileCaching;
+	command->m_updateFlags |= SIM_PARAM_ENABLE_FILE_CACHING ;
+	return 0;
+
+}
+
 int b3PhysicsParamSetNumSolverIterations(b3SharedMemoryCommandHandle commandHandle, int numSolverIterations)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
@@ -1785,7 +1796,10 @@ void b3RequestCameraImageSelectRenderer(b3SharedMemoryCommandHandle commandHandl
     b3Assert(command);
     b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
     b3Assert(renderer>(1<<15));
-    command->m_updateFlags |= renderer;
+	if (renderer>(1<<15))
+	{
+	    command->m_updateFlags |= renderer;
+	}
 }
 
 void b3RequestCameraImageSetCameraMatrices(b3SharedMemoryCommandHandle commandHandle, float viewMatrix[16], float projectionMatrix[16])
@@ -2320,7 +2334,28 @@ b3SharedMemoryCommandHandle b3InitUpdateVisualShape(b3PhysicsClientHandle physCl
     command->m_updateVisualShapeDataArguments.m_shapeIndex = shapeIndex;
     command->m_updateVisualShapeDataArguments.m_textureUniqueId = textureUniqueId;
     command->m_updateFlags = 0;
+
+	if (textureUniqueId>=0)
+	{
+		command->m_updateFlags |= CMD_UPDATE_VISUAL_SHAPE_TEXTURE;
+	}
     return (b3SharedMemoryCommandHandle) command;
+}
+
+void b3UpdateVisualShapeRGBAColor(b3SharedMemoryCommandHandle commandHandle, double rgbaColor[4])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_UPDATE_VISUAL_SHAPE);
+
+	if (command->m_type == CMD_UPDATE_VISUAL_SHAPE)
+	{
+		command->m_updateVisualShapeDataArguments.m_rgbaColor[0] = rgbaColor[0];
+		command->m_updateVisualShapeDataArguments.m_rgbaColor[1] = rgbaColor[1];
+		command->m_updateVisualShapeDataArguments.m_rgbaColor[2] = rgbaColor[2];
+		command->m_updateVisualShapeDataArguments.m_rgbaColor[3] = rgbaColor[3];
+		command->m_updateFlags |= CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR;
+	}
 }
 
 b3SharedMemoryCommandHandle b3ApplyExternalForceCommandInit(b3PhysicsClientHandle physClient)
@@ -2691,6 +2726,8 @@ int b3SetVRCameraRootOrientation(b3SharedMemoryCommandHandle commandHandle, doub
 	command->m_vrCameraStateArguments.m_rootOrientation[0] = rootOrn[0];
 	command->m_vrCameraStateArguments.m_rootOrientation[1] = rootOrn[1];
 	command->m_vrCameraStateArguments.m_rootOrientation[2] = rootOrn[2];
+	command->m_vrCameraStateArguments.m_rootOrientation[3] = rootOrn[3];
+
 	return 0;
 }
 
@@ -2704,6 +2741,15 @@ int b3SetVRCameraTrackingObject(b3SharedMemoryCommandHandle commandHandle, int o
 	return 0;
 }
 
+int b3SetVRCameraTrackingObjectFlag(b3SharedMemoryCommandHandle commandHandle, int flag)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_SET_VR_CAMERA_STATE);
+    command->m_updateFlags |= VR_CAMERA_FLAG;
+	command->m_vrCameraStateArguments.m_trackingObjectFlag = flag;
+	return 0;
+}
 
 
 b3SharedMemoryCommandHandle	b3RequestKeyboardEventsCommandInit(b3PhysicsClientHandle physClient)

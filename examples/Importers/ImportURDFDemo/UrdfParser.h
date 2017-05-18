@@ -87,7 +87,16 @@ struct UrdfGeometry
 
 	UrdfGeometry()
 	:m_type(URDF_GEOM_UNKNOWN),
-	m_hasFromTo(false),
+		m_sphereRadius(1),
+		m_boxSize(1,1,1),
+		m_capsuleRadius(1),
+		m_capsuleHeight(1),
+		m_hasFromTo(0),
+		m_capsuleFrom(0,1,0),
+		m_capsuleTo(1,0,0),
+		m_planeNormal(0,0,1),
+		m_meshFileType(0),
+		m_meshScale(1,1,1),
 	m_hasLocalMaterial(false)
 	{
 	}

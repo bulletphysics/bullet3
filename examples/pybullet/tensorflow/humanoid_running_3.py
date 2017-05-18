@@ -4,18 +4,27 @@ import numpy as np
 
 import pybullet as p
 import time
-p.connect(p.GUI) #DIRECT is much faster, but GUI shows the running gait
+p.connect(p.GUI) #GUI is slower, but shows the running gait
 p.setGravity(0,0,-9.8)
 p.setPhysicsEngineParameter(fixedTimeStep=1.0/60., numSolverIterations=5, numSubSteps=2)
 #this mp4 recording requires ffmpeg installed
 #mp4log = p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4,"humanoid.mp4")
 
+objs = p.loadMJCF("mjcf/ground.xml",flags = p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
+ground = objs[0]
 
-plane, human  = p.loadMJCF("mjcf/humanoid_symmetric.xml",flags = p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
+objs = p.loadMJCF("mjcf/humanoid_symmetric_no_ground.xml",flags = p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
+human1 =objs[0]
+p.resetBasePositionAndOrientation(human1,[0,0.8,1.5],[0,0,0,1])
 
+objs = p.loadMJCF("mjcf/humanoid_symmetric_no_ground.xml",flags = p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
+human2 = objs[0]
+p.resetBasePositionAndOrientation(human2,[0,1.5,1.5],[0,0,0,1])
+
+
+objs  = p.loadMJCF("mjcf/humanoid_symmetric_no_ground.xml",flags = p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
+human = objs[0]
 ordered_joints = []
-ordered_joint_indices = []
-
 
 jdict = {}
 for j in range( p.getNumJoints(human) ):
@@ -23,16 +32,14 @@ for j in range( p.getNumJoints(human) ):
 	link_name = info[12].decode("ascii")
 	if link_name=="left_foot": left_foot = j
 	if link_name=="right_foot": right_foot = j
-	ordered_joint_indices.append(j)
-		
 	if info[2] != p.JOINT_REVOLUTE: continue
 	jname = info[1].decode("ascii")
 	jdict[jname] = j
 	lower, upper = (info[8], info[9])
 	ordered_joints.append( (j, lower, upper) )
-	
-	
 	p.setJointMotorControl2(human, j, controlMode=p.VELOCITY_CONTROL, force=0)
+	p.setJointMotorControl2(human1, j, controlMode=p.VELOCITY_CONTROL, force=0)
+	p.setJointMotorControl2(human2, j, controlMode=p.VELOCITY_CONTROL, force=0)
 
 	
 
@@ -53,14 +60,10 @@ class Dummy:
 dummy = Dummy()
 dummy.initial_z = None
 
-def current_relative_position(jointStates, human, j, lower, upper):
+def current_relative_position(human, j, lower, upper):
 	#print("j")
 	#print(j)
-	#print (len(jointStates))
-	#print(j)
-	temp  = jointStates[j]
-	pos = temp[0]
-	vel = temp[1]
+	pos, vel, *other = p.getJointState(human, j)
 	#print("pos")
 	#print(pos)
 	#print("vel")
@@ -72,11 +75,7 @@ def current_relative_position(jointStates, human, j, lower, upper):
 		)
 
 def collect_observations(human):
-	#print("ordered_joint_indices")
-	#print(ordered_joint_indices)
-	
-	jointStates = p.getJointStates(human,ordered_joint_indices)
-	j = np.array([current_relative_position(jointStates, human, *jtuple) for jtuple in ordered_joints]).flatten()
+	j = np.array([current_relative_position(human, *jtuple) for jtuple in ordered_joints]).flatten()
 	#print("j")
 	#print(j)
 	body_xyz, (qx, qy, qz, qw) = p.getBasePositionAndOrientation(human)
@@ -154,9 +153,13 @@ def demo_run():
 	frame = 0
 	while 1:
 		obs = collect_observations(human)
-	
+		obs1 = collect_observations(human1)
+		obs2 = collect_observations(human2)
+
 		actions = pi.act(obs)
-	
+		actions1 = pi.act(obs1)
+		actions2 = pi.act(obs2)
+
 		#print(" ".join(["%+0.2f"%x for x in obs]))
 		#print("Motors")
 		#print(motors)
@@ -173,13 +176,19 @@ def demo_run():
 		for m in range(len(motors)):
 			forces[m] = motor_power[m]*actions[m]*0.082
 		p.setJointMotorControlArray(human, motors,controlMode=p.TORQUE_CONTROL, forces=forces)
+		for m in range(len(motors)):
+			forces[m] = motor_power[m]*actions1[m]*0.082
+		p.setJointMotorControlArray(human1, motors,controlMode=p.TORQUE_CONTROL, forces=forces)
+		for m in range(len(motors)):
+			forces[m] = motor_power[m]*actions2[m]*0.082
+		p.setJointMotorControlArray(human2, motors,controlMode=p.TORQUE_CONTROL, forces=forces)
 
 		p.stepSimulation()
-		#time.sleep(0.01)
-		distance=5
+		time.sleep(0.1)
+		distance=3
 		yaw = 0
 		humanPos, humanOrn = p.getBasePositionAndOrientation(human)
-		p.resetDebugVisualizerCamera(distance,yaw,20,humanPos);
+		p.resetDebugVisualizerCamera(distance,yaw,90,humanPos);
 		frame += 1
 		
 		if frame==1000: break

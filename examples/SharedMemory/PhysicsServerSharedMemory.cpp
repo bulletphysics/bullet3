@@ -274,9 +274,9 @@ void PhysicsServerSharedMemory::processClientCommands()
     }
 }
 
-void PhysicsServerSharedMemory::renderScene()
+void PhysicsServerSharedMemory::renderScene(int renderFlags)
 {
-	m_data->m_commandProcessor->renderScene();
+	m_data->m_commandProcessor->renderScene(renderFlags);
 
 	
 	
