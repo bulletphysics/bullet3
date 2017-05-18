@@ -238,8 +238,9 @@ struct MyMouseCommand
 struct	MotionArgs
 {
 	MotionArgs()
-		:m_physicsServerPtr(0),
-		m_debugDrawFlags(0)
+		:
+		m_debugDrawFlags(0),
+		m_physicsServerPtr(0)
 	{
 		for (int i=0;i<MAX_VR_CONTROLLERS;i++)
 		{
