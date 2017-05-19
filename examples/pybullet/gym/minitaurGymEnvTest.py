@@ -10,7 +10,7 @@ import numpy as np
 import tensorflow as tf
 
 from envs.bullet.minitaurGymEnv import MinitaurGymEnv
-from agents import simpleAgent
+from agents import simplerAgent
 
 def testSinePolicy():
   """Tests sine policy
@@ -53,17 +53,14 @@ def testDDPGPolicy():
   environment = MinitaurGymEnv(render=True)
   sum_reward = 0
   steps = 1000
-  ckpt_path = 'data/agent/tf_graph_data/tf_graph_data.ckpt'
+  ckpt_path = 'data/agent/tf_graph_data/tf_graph_data_converted.ckpt-0'
   observation_shape = (31,)
   action_size = 8
   actor_layer_sizes = (100, 181)
   n_steps = 0
   tf.reset_default_graph()
   with tf.Session() as session:
-    agent = simpleAgent.SimpleAgent(session, ckpt_path,
-                                    actor_layer_sizes,
-                                    observation_size=observation_shape,
-                                    action_size=action_size)
+    agent = simplerAgent.SimplerAgent(session, ckpt_path)
     state = environment.reset()
     action = agent(state)
     for _ in range(steps):
