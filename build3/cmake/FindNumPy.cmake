@@ -50,7 +50,8 @@ include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(NumPy REQUIRED_VARS PYTHON_NUMPY_INCLUDE_DIR PYTHON_NUMPY_VERSION
                                         VERSION_VAR   PYTHON_NUMPY_VERSION)
 
-if(PYTHON_NUMPY_FOUND)
+if(NUMPY_FOUND)
+  set(PYTHON_NUMPY_FOUND TRUE)
   message(STATUS "NumPy ver. ${PYTHON_NUMPY_VERSION} found (include: ${PYTHON_NUMPY_INCLUDE_DIR})")
 endif()
 
