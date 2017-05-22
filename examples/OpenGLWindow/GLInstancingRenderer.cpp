@@ -192,7 +192,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 		m_shadowTexture(0),
 		m_renderFrameBuffer(0)
 	{
-		m_lightPos=b3MakeVector3(-50,30,100);
+		m_lightPos=b3MakeVector3(-50,50,50);
 
 		//clear to zero to make it obvious if the matrix is used uninitialized
 		for (int i=0;i<16;i++)
@@ -375,7 +375,7 @@ void GLInstancingRenderer::readSingleInstanceTransformFromCPU(int bodyUniqueId, 
 	orientation[2] = m_data->m_instance_quaternion_ptr[srcIndex*4+2];
 	orientation[3] = m_data->m_instance_quaternion_ptr[srcIndex*4+3];
 }
-void GLInstancingRenderer::writeSingleInstanceColorToCPU(double* color, int bodyUniqueId)
+void GLInstancingRenderer::writeSingleInstanceColorToCPU(const double* color, int bodyUniqueId)
 {
 	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
 	b3Assert(pg);
@@ -387,7 +387,7 @@ void GLInstancingRenderer::writeSingleInstanceColorToCPU(double* color, int body
 	m_data->m_instance_colors_ptr[srcIndex*4+3]=float(color[3]);
 }
 
-void GLInstancingRenderer::writeSingleInstanceColorToCPU(float* color, int bodyUniqueId)
+void GLInstancingRenderer::writeSingleInstanceColorToCPU(const float* color, int bodyUniqueId)
 {
 	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
 	b3Assert(pg);
@@ -399,7 +399,7 @@ void GLInstancingRenderer::writeSingleInstanceColorToCPU(float* color, int bodyU
 	m_data->m_instance_colors_ptr[srcIndex*4+3]=color[3];
 }
 
-void GLInstancingRenderer::writeSingleInstanceScaleToCPU(float* scale, int bodyUniqueId)
+void GLInstancingRenderer::writeSingleInstanceScaleToCPU(const float* scale, int bodyUniqueId)
 {
 	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
 	b3Assert(pg);
@@ -410,7 +410,7 @@ void GLInstancingRenderer::writeSingleInstanceScaleToCPU(float* scale, int bodyU
 	m_data->m_instance_scale_ptr[srcIndex*3+2]=scale[2];
 }
 
-void GLInstancingRenderer::writeSingleInstanceScaleToCPU(double* scale, int bodyUniqueId)
+void GLInstancingRenderer::writeSingleInstanceScaleToCPU(const double* scale, int bodyUniqueId)
 {
 	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
 	b3Assert(pg);
@@ -893,17 +893,25 @@ int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, 
 	gfxObj->m_numVertices = numvertices;
 
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
+	
 	int vertexStrideInBytes = 9*sizeof(float);
 	int sz = numvertices*vertexStrideInBytes;
+	int totalUsed = vertexStrideInBytes*gfxObj->m_vertexArrayOffset+sz;
+	b3Assert(totalUsed<m_data->m_maxShapeCapacityInBytes);
+	if (totalUsed>=m_data->m_maxShapeCapacityInBytes)
+	{
+		return -1;
+	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
+
 #if 0
 
 	char* dest=  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_WRITE_ONLY);//GL_WRITE_ONLY
 	
 	
 #ifdef B3_DEBUG
-	int totalUsed = vertexStrideInBytes*gfxObj->m_vertexArrayOffset+sz;
-	b3Assert(totalUsed<m_data->m_maxShapeCapacityInBytes);
+	
 #endif//B3_DEBUG
 
 	memcpy(dest+vertexStrideInBytes*gfxObj->m_vertexArrayOffset,vertices,sz);
@@ -1612,6 +1620,11 @@ static void    b3CreateLookAt(const b3Vector3& eye, const b3Vector3& center,cons
 
 void GLInstancingRenderer::renderSceneInternal(int renderMode)
 {
+
+	if (!useShadowMap)
+	{
+		renderMode = B3_DEFAULT_RENDERMODE;
+	}
 
 //	glEnable(GL_DEPTH_TEST);
 

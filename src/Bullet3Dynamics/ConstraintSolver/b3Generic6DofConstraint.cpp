@@ -516,7 +516,7 @@ int b3Generic6DofConstraint::get_limit_motor_info2(
 	b3ConstraintInfo2 *info, int row, b3Vector3& ax1, int rotational,int rotAllowed)
 {
     int srow = row * info->rowskip;
-    int powered = limot->m_enableMotor;
+    bool powered = limot->m_enableMotor;
     int limit = limot->m_currentLimit;
     if (powered || limit)
     {   // if the joint is powered, or has joint limits, add in the extra row
@@ -584,7 +584,7 @@ int b3Generic6DofConstraint::get_limit_motor_info2(
         }
         // if we're limited low and high simultaneously, the joint motor is
         // ineffective
-        if (limit && (limot->m_loLimit == limot->m_hiLimit)) powered = 0;
+        if (limit && (limot->m_loLimit == limot->m_hiLimit)) powered = false;
         info->m_constraintError[srow] = b3Scalar(0.f);
         if (powered)
         {

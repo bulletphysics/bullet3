@@ -56,7 +56,8 @@ enum EnumSharedMemoryClientCommand
 	CMD_REQUEST_KEYBOARD_EVENTS_DATA,
 	CMD_REQUEST_OPENGL_VISUALIZER_CAMERA,
 	CMD_REMOVE_BODY,
-	CMD_RESET_DYNAMIC_INFO,
+	CMD_CHANGE_DYNAMICS_INFO,
+	CMD_GET_DYNAMICS_INFO,
 	CMD_PROFILE_TIMING,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
@@ -141,6 +142,8 @@ enum EnumSharedMemoryServerStatus
 		CMD_REQUEST_OPENGL_VISUALIZER_CAMERA_COMPLETED,
 		CMD_REMOVE_BODY_COMPLETED,
 		CMD_REMOVE_BODY_FAILED,
+		CMD_GET_DYNAMICS_INFO_COMPLETED,
+		CMD_GET_DYNAMICS_INFO_FAILED,
         //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
@@ -220,10 +223,11 @@ struct b3BodyInfo
 	const char* m_bodyName; // for btRigidBody, it does not have a base, but can still have a body name from urdf
 };
 
-struct b3DynamicInfo
+struct b3DynamicsInfo
 {
 	double m_mass;
 	double m_localInertialPosition[3];
+	double m_lateralFrictionCoeff;
 };
 
 // copied from btMultiBodyLink.h
@@ -314,6 +318,11 @@ enum eVRDeviceTypeEnums
 	VR_DEVICE_CONTROLLER=1,
 	VR_DEVICE_HMD=2,
 	VR_DEVICE_GENERIC_TRACKER=4,
+};
+
+enum EVRCameraFlags
+{
+	VR_CAMERA_TRACK_OBJECT_ORIENTATION=1,
 };
 
 struct b3VRControllerEvent
@@ -491,6 +500,11 @@ enum b3ConfigureDebugVisualizerEnum
     COV_ENABLE_GUI=1,
     COV_ENABLE_SHADOWS,
     COV_ENABLE_WIREFRAME,
+	COV_ENABLE_VR_TELEPORTING,
+	COV_ENABLE_VR_PICKING,
+	COV_ENABLE_VR_RENDER_CONTROLLERS,
+	COV_ENABLE_RENDERING,
+	COV_ENABLE_SYNC_RENDERING_INTERNAL,
 };
 
 enum eCONNECT_METHOD {
@@ -499,12 +513,15 @@ enum eCONNECT_METHOD {
   eCONNECT_SHARED_MEMORY = 3,
   eCONNECT_UDP = 4,
   eCONNECT_TCP = 5,
+  eCONNECT_EXISTING_EXAMPLE_BROWSER=6,
 };
 
 enum eURDF_Flags
 {
 	URDF_USE_INERTIA_FROM_FILE=2,//sync with URDF2Bullet.h 'ConvertURDFFlags'
 	URDF_USE_SELF_COLLISION=8,//see CUF_USE_SELF_COLLISION
+	URDF_USE_SELF_COLLISION_EXCLUDE_PARENT=16,
+	URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS=32,
 };
 
 #endif//SHARED_MEMORY_PUBLIC_H

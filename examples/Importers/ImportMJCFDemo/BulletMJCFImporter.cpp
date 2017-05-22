@@ -195,6 +195,14 @@ struct BulletMJCFImporterInternalData
 		m_pathPrefix[0] = 0;
 	}
 
+	~BulletMJCFImporterInternalData()
+	{
+		for (int i=0;i<m_models.size();i++)
+		{
+			delete m_models[i];
+		}
+	}
+
 	std::string sourceFileLocation(TiXmlElement* e)
 	{
 #if 0
@@ -630,11 +638,7 @@ struct BulletMJCFImporterInternalData
 		bool handledGeomType = false;
 		UrdfGeometry geom;
 
-		
-
-		const char* gType = link_xml->Attribute("type");
 		const char* sz = link_xml->Attribute("size");
-		const char* posS = link_xml->Attribute("pos");
 		int conDim = defaults.m_defaultConDim;
 
 		const char* conDimS = link_xml->Attribute("condim");
@@ -656,7 +660,7 @@ struct BulletMJCFImporterInternalData
 			btArray<float> frictions;
 			btAlignedObjectArray<std::string> strArray;
 			urdfIsAnyOf(" ", strArray);
-			urdfStringSplit(pieces, sz, strArray);
+			urdfStringSplit(pieces, frictionS, strArray);
 			for (int i = 0; i < pieces.size(); ++i)
 			{
 				if (!pieces[i].empty())
@@ -707,6 +711,7 @@ struct BulletMJCFImporterInternalData
 			geom.m_localMaterial.m_name = rgba;
 		}
 
+		const char* posS = link_xml->Attribute("pos");
 		if (posS)
 		{
 			btVector3 pos(0,0,0);
@@ -716,18 +721,32 @@ struct BulletMJCFImporterInternalData
 				linkLocalFrame.setOrigin(pos);
 			}
 		}
+
 		const char* ornS = link_xml->Attribute("quat");
 		if (ornS)
 		{
-			std::string ornStr = ornS;
 			btQuaternion orn(0,0,0,1);
 			btVector4 o4;
-			if (parseVector4(o4,ornStr))
+			if (parseVector4(o4, ornS))
 			{
 				orn.setValue(o4[1],o4[2],o4[3],o4[0]);
 				linkLocalFrame.setRotation(orn);
 			}
 		}
+
+		const char* axis_and_angle = link_xml->Attribute("axisangle");
+		if (axis_and_angle)
+		{
+			btQuaternion orn(0,0,0,1);
+			btVector4 o4;
+			if (parseVector4(o4, axis_and_angle))
+			{
+				orn.setRotation(btVector3(o4[0],o4[1],o4[2]), o4[3]);
+				linkLocalFrame.setRotation(orn);
+			}
+		}
+
+		const char* gType = link_xml->Attribute("type");
 		if (gType)
 		{
 			std::string geomType = gType;
@@ -792,8 +811,8 @@ struct BulletMJCFImporterInternalData
 					}
 				}
 
-				geom.m_capsuleRadius = 0;
-				geom.m_capsuleHeight = 0.f;
+				geom.m_capsuleRadius = 2.00f; // 2 to make it visible if something is wrong
+				geom.m_capsuleHeight = 2.00f;
 
 				if (sizes.size()>0)
 				{
@@ -877,6 +896,7 @@ struct BulletMJCFImporterInternalData
 
 				col.m_geometry = geom;
 				col.m_linkLocalFrame = linkLocalFrame;
+				col.m_sourceFileLocation = sourceFileLocation(link_xml);
 				linkPtr->m_collisionArray.push_back(col);
 
 			} else
@@ -950,22 +970,6 @@ struct BulletMJCFImporterInternalData
 					col->m_geometry.m_boxSize[2];
 				break;
 			}
-
-			case URDF_GEOM_CYLINDER:
-			{
-				double r = col->m_geometry.m_capsuleRadius;
-				btScalar h(0);
-				//and one cylinder of 'height'
-				if (col->m_geometry.m_hasFromTo)
-				{
-					h = (col->m_geometry.m_capsuleFrom-col->m_geometry.m_capsuleTo).length();
-				} else
-				{
-					h = col->m_geometry.m_capsuleHeight;
-				}
-				totalVolume += SIMD_PI*r*r*h;
-				break;
-			}
 			case URDF_GEOM_MESH:
 			{
 				//todo (based on mesh bounding box?)
@@ -976,11 +980,15 @@ struct BulletMJCFImporterInternalData
 				//todo
 				break;
 			}
+			case URDF_GEOM_CYLINDER:
 			case URDF_GEOM_CAPSULE:
 			{
 				//one sphere 
 				double r = col->m_geometry.m_capsuleRadius;
-				totalVolume += 4./3.*SIMD_PI*r*r*r;
+				if (col->m_geometry.m_type==URDF_GEOM_CAPSULE)
+				{
+					totalVolume += 4./3.*SIMD_PI*r*r*r;
+				}
 				btScalar h(0);
 				if (col->m_geometry.m_hasFromTo)
 				{
@@ -1017,9 +1025,9 @@ struct BulletMJCFImporterInternalData
 		UrdfModel* modelPtr = m_models[modelIndex];
 		int orgChildLinkIndex = modelPtr->m_links.size();
 		UrdfLink* linkPtr = new UrdfLink();
-		char uniqueLinkName[1024];
-		sprintf(uniqueLinkName,"link%d",orgChildLinkIndex );
-		linkPtr->m_name = uniqueLinkName;
+		char linkn[1024];
+		sprintf(linkn, "link%d_%d", modelIndex, orgChildLinkIndex);
+		linkPtr->m_name = linkn;
 		if (namePtr)
 		{
 			linkPtr->m_name = namePtr;
@@ -1205,6 +1213,7 @@ struct BulletMJCFImporterInternalData
 		}
 
 		linkPtr->m_linkTransformInWorld = linkTransform;
+
 		if ((newParentLinkIndex != INVALID_LINK_INDEX) && !skipFixedJoint)
 		{
 			//linkPtr->m_linkTransformInWorld.setIdentity();

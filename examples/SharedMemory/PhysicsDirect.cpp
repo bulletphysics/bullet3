@@ -171,7 +171,8 @@ bool PhysicsDirect::connect(struct GUIHelperInterface* guiHelper)
 
 void PhysicsDirect::renderScene()
 {
-	m_data->m_commandProcessor->renderScene();
+	int renderFlags = 0;
+	m_data->m_commandProcessor->renderScene(renderFlags);
 }
 
 void PhysicsDirect::debugDraw(int debugDrawMode)

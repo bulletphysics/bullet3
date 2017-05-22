@@ -516,7 +516,6 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 	btAssert(linkPtr); // TODO: remove if (not doing it now, because diff will be 50+ lines)
 	if (linkPtr)
 	{
-		const btArray<UrdfVisual>* shapeArray;
 		bool useVisual;
 		int cnt = 0;
 		if (linkPtr->m_visualArray.size() > 0)
@@ -526,7 +525,7 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 		}
 		else
 		{
-			// We have to see something, take collision shape. Useful for MuJoCo xml, where there is not visual shape.
+			// We have to see something, take collision shape. Useful for MuJoCo xml, where there are no explicit visual shapes.
 			useVisual = false;
 			cnt = linkPtr->m_collisionArray.size();
 		}
@@ -972,6 +971,24 @@ void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixels
     }    
 }
 
+void TinyRendererVisualShapeConverter::removeVisualShape(class btCollisionObject* colObj)
+{
+	TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances[colObj];
+	if (ptrptr && *ptrptr)
+	{
+		TinyRendererObjectArray* ptr = *ptrptr;
+		if (ptr)
+		{
+			for (int o=0;o<ptr->m_renderObjects.size();o++)
+			{
+				delete ptr->m_renderObjects[o];
+			}
+		}
+		delete ptr;
+		m_data->m_swRenderInstances.remove(colObj);
+	}
+}
+
 
 void TinyRendererVisualShapeConverter::resetAll()
 {
@@ -993,6 +1010,7 @@ void TinyRendererVisualShapeConverter::resetAll()
 	}
 	
 	m_data->m_swRenderInstances.clear();
+	m_data->m_visualShapes.clear();
 }
 
 void TinyRendererVisualShapeConverter::activateShapeTexture(int shapeUniqueId, int textureUniqueId)

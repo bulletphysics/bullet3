@@ -13,7 +13,7 @@
 #include "../SharedMemory/SharedMemoryPublic.h"
 #include <string>
 
-#include "b3RobotSimAPI.h"
+#include "../RobotSimulator/b3RobotSimulatorClientAPI.h"
 #include "../Utils/b3Clock.h"
 
 static btScalar sGripperVerticalVelocity = 0.f;
@@ -23,7 +23,7 @@ class GripperGraspExample : public CommonExampleInterface
 {
     CommonGraphicsApp* m_app;
 	GUIHelperInterface* m_guiHelper;
-	b3RobotSimAPI m_robotSim;
+	b3RobotSimulatorClientAPI m_robotSim;
 	int m_options;
     int m_gripperIndex;
     
@@ -55,8 +55,12 @@ public:
     }
     virtual void    initPhysics()
     {
-	bool connected = m_robotSim.connect(m_guiHelper);
-	b3Printf("robotSim connected = %d",connected);
+
+		int mode = eCONNECT_EXISTING_EXAMPLE_BROWSER;
+		m_robotSim.setGuiHelper(m_guiHelper);
+		bool connected = m_robotSim.connect(mode);
+
+		b3Printf("robotSim connected = %d",connected);
 	
         if ((m_options & eGRIPPER_GRASP)!=0)
         {
@@ -76,23 +80,18 @@ public:
                 m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
             }
 			{
-				b3RobotSimLoadFileArgs args("");
-				b3RobotSimLoadFileResults results;
-				args.m_fileName = "cube_small.urdf";
+
+				b3RobotSimulatorLoadUrdfFileArgs args;
 				args.m_startPosition.setValue(0, 0, .107);
 				args.m_startOrientation.setEulerZYX(0, 0, 0);
 				args.m_useMultiBody = true;
-				m_robotSim.loadFile(args, results);
+				m_robotSim.loadURDF("cube_small.urdf", args);
 			}
 
             {
-                b3RobotSimLoadFileArgs args("");
-                args.m_fileName = "gripper/wsg50_with_r2d2_gripper.sdf";
-                args.m_fileType = B3_SDF_FILE;
-                args.m_useMultiBody = true;
-                b3RobotSimLoadFileResults results;
-                
-                if (m_robotSim.loadFile(args, results) && results.m_uniqueObjectIds.size()==1)
+                b3RobotSimulatorLoadFileResults results;
+                m_robotSim.loadSDF("gripper/wsg50_with_r2d2_gripper.sdf",results);
+                if (results.m_uniqueObjectIds.size()==1)
                 {
                     
                     m_gripperIndex = results.m_uniqueObjectIds[0];
@@ -111,7 +110,7 @@ public:
                     double fingerTargetPositions[2]={-0.04,0.04};
                     for (int i=0;i<2;i++)
                     {
-                        b3JointMotorArgs controlArgs(CONTROL_MODE_POSITION_VELOCITY_PD);
+                        b3RobotSimulatorJointMotorArgs controlArgs(CONTROL_MODE_POSITION_VELOCITY_PD);
                         controlArgs.m_targetPosition = fingerTargetPositions[i];
                         controlArgs.m_kp = 5.0;
                         controlArgs.m_kd = 3.0;
@@ -124,7 +123,7 @@ public:
                     double maxTorqueValues[3]={40.0,50.0,50.0};
                     for (int i=0;i<3;i++)
                     {
-                        b3JointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
+                        b3RobotSimulatorJointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
                         controlArgs.m_targetVelocity = fingerTargetVelocities[i];
                         controlArgs.m_maxTorqueValue = maxTorqueValues[i];
                         controlArgs.m_kd = 1.;
@@ -135,15 +134,7 @@ public:
            
             if (1)
             {
-                b3RobotSimLoadFileArgs args("");
-                args.m_fileName = "plane.urdf";
-                args.m_startPosition.setValue(0,0,0);
-                args.m_startOrientation.setEulerZYX(0,0,0);
-                args.m_forceOverrideFixedBase = true;
-                args.m_useMultiBody = true;
-                b3RobotSimLoadFileResults results;
-                m_robotSim.loadFile(args,results);
-                
+                m_robotSim.loadURDF("plane.urdf");
             }
             m_robotSim.setGravity(b3MakeVector3(0,0,-10));
             m_robotSim.setNumSimulationSubSteps(4);
@@ -152,24 +143,17 @@ public:
         if ((m_options & eTWO_POINT_GRASP)!=0)
         {
             {
-                b3RobotSimLoadFileArgs args("");
-                b3RobotSimLoadFileResults results;
-                args.m_fileName = "cube_small.urdf";
+                b3RobotSimulatorLoadUrdfFileArgs args;
                 args.m_startPosition.setValue(0, 0, .107);
-                args.m_startOrientation.setEulerZYX(0, 0, 0);
-                args.m_useMultiBody = true;
-                m_robotSim.loadFile(args, results);
+                m_robotSim.loadURDF("cube_small.urdf", args);
             }
             
             {
-                b3RobotSimLoadFileArgs args("");
-                b3RobotSimLoadFileResults results;
-                args.m_fileName = "cube_gripper_left.urdf";
+                b3RobotSimulatorLoadUrdfFileArgs args;
                 args.m_startPosition.setValue(0.068, 0.02, 0.11);
-                args.m_useMultiBody = true;
-                m_robotSim.loadFile(args, results);
+                m_robotSim.loadURDF("cube_gripper_left.urdf", args);
                 
-                b3JointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
+                b3RobotSimulatorJointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
                 controlArgs.m_targetVelocity = -0.1;
                 controlArgs.m_maxTorqueValue = 10.0;
                 controlArgs.m_kd = 1.;
@@ -177,14 +161,11 @@ public:
             }
             
             {
-                b3RobotSimLoadFileArgs args("");
-                b3RobotSimLoadFileResults results;
-                args.m_fileName = "cube_gripper_right.urdf";
+                b3RobotSimulatorLoadUrdfFileArgs args;
                 args.m_startPosition.setValue(-0.068, 0.02, 0.11);
-                args.m_useMultiBody = true;
-                m_robotSim.loadFile(args, results);
+                m_robotSim.loadURDF("cube_gripper_right.urdf", args);
                 
-                b3JointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
+                b3RobotSimulatorJointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
                 controlArgs.m_targetVelocity = 0.1;
                 controlArgs.m_maxTorqueValue = 10.0;
                 controlArgs.m_kd = 1.;
@@ -193,14 +174,7 @@ public:
             
             if (1)
             {
-                b3RobotSimLoadFileArgs args("");
-                args.m_fileName = "plane.urdf";
-                args.m_startPosition.setValue(0,0,0);
-                args.m_startOrientation.setEulerZYX(0,0,0);
-                args.m_forceOverrideFixedBase = true;
-                args.m_useMultiBody = true;
-                b3RobotSimLoadFileResults results;
-                m_robotSim.loadFile(args,results);
+                m_robotSim.loadURDF("plane.urdf");
                 
             }
             m_robotSim.setGravity(b3MakeVector3(0,0,-10));
@@ -225,22 +199,17 @@ public:
                 m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
             }
             {
-                b3RobotSimLoadFileArgs args("");
-                b3RobotSimLoadFileResults results;
-                args.m_fileName = "dinnerware/pan_tefal.urdf";
+                b3RobotSimulatorLoadUrdfFileArgs args;
                 args.m_startPosition.setValue(0, -0.2, .47);
                 args.m_startOrientation.setEulerZYX(SIMD_HALF_PI, 0, 0);
-                args.m_useMultiBody = true;
-                m_robotSim.loadFile(args, results);
+                m_robotSim.loadURDF("dinnerware/pan_tefal.urdf", args);
             }
             {
-                b3RobotSimLoadFileArgs args("");
-                args.m_fileName = "gripper/wsg50_one_motor_gripper_new.sdf";
-                args.m_fileType = B3_SDF_FILE;
-                args.m_useMultiBody = true;
-                b3RobotSimLoadFileResults results;
-                
-                if (m_robotSim.loadFile(args, results) && results.m_uniqueObjectIds.size()==1)
+                b3RobotSimulatorLoadFileResults args;
+                b3RobotSimulatorLoadFileResults results;
+                m_robotSim.loadSDF("gripper/wsg50_one_motor_gripper_new.sdf",results);
+
+                if (results.m_uniqueObjectIds.size()==1)
                 {
                     
                     m_gripperIndex = results.m_uniqueObjectIds[0];
@@ -256,7 +225,7 @@ public:
                     
                     for (int i=0;i<8;i++)
                     {
-                        b3JointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
+                        b3RobotSimulatorJointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
                         controlArgs.m_maxTorqueValue = 0.0;
                         m_robotSim.setJointMotorControl(m_gripperIndex,i,controlArgs);
                     }
@@ -266,15 +235,7 @@ public:
             
             if (1)
             {
-                b3RobotSimLoadFileArgs args("");
-                args.m_fileName = "plane.urdf";
-                args.m_startPosition.setValue(0,0,0);
-                args.m_startOrientation.setEulerZYX(0,0,0);
-                args.m_forceOverrideFixedBase = true;
-                args.m_useMultiBody = true;
-                b3RobotSimLoadFileResults results;
-                m_robotSim.loadFile(args,results);
-                
+                m_robotSim.loadURDF("plane.urdf");
             }
             m_robotSim.setGravity(b3MakeVector3(0,0,-10));
             
@@ -316,8 +277,8 @@ public:
             revoluteJoint2.m_jointAxis[1] = 0.0;
             revoluteJoint2.m_jointAxis[2] = 0.0;
             revoluteJoint2.m_jointType = ePoint2PointType;
-            m_robotSim.createJoint(1, 2, 1, 4, &revoluteJoint1);
-            m_robotSim.createJoint(1, 3, 1, 6, &revoluteJoint2);
+            m_robotSim.createConstraint(1, 2, 1, 4, &revoluteJoint1);
+            m_robotSim.createConstraint(1, 3, 1, 6, &revoluteJoint2);
         }
 		
         if ((m_options & eGRASP_SOFT_BODY)!=0)
@@ -337,13 +298,10 @@ public:
                 m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
             }
             {
-                b3RobotSimLoadFileArgs args("");
-                args.m_fileName = "gripper/wsg50_one_motor_gripper_new.sdf";
-                args.m_fileType = B3_SDF_FILE;
-                args.m_useMultiBody = true;
-                b3RobotSimLoadFileResults results;
-                
-                if (m_robotSim.loadFile(args, results) && results.m_uniqueObjectIds.size()==1)
+                b3RobotSimulatorLoadFileResults results;
+				m_robotSim.loadSDF("gripper/wsg50_one_motor_gripper_new.sdf",results);
+
+                if (results.m_uniqueObjectIds.size()==1)
                 {
                     
                     m_gripperIndex = results.m_uniqueObjectIds[0];
@@ -359,7 +317,7 @@ public:
                     
                     for (int i=0;i<8;i++)
                     {
-                        b3JointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
+                        b3RobotSimulatorJointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
                         controlArgs.m_maxTorqueValue = 0.0;
                         m_robotSim.setJointMotorControl(m_gripperIndex,i,controlArgs);
                     }
@@ -367,14 +325,10 @@ public:
                 }
             }
             {
-                b3RobotSimLoadFileArgs args("");
-                args.m_fileName = "plane.urdf";
+				b3RobotSimulatorLoadUrdfFileArgs args;
                 args.m_startPosition.setValue(0,0,-0.2);
                 args.m_startOrientation.setEulerZYX(0,0,0);
-                args.m_forceOverrideFixedBase = true;
-                args.m_useMultiBody = true;
-                b3RobotSimLoadFileResults results;
-                m_robotSim.loadFile(args,results);
+                m_robotSim.loadURDF("plane.urdf", args);
                 
             }
             m_robotSim.setGravity(b3MakeVector3(0,0,-10));
@@ -418,23 +372,20 @@ public:
             revoluteJoint2.m_jointAxis[1] = 0.0;
             revoluteJoint2.m_jointAxis[2] = 0.0;
             revoluteJoint2.m_jointType = ePoint2PointType;
-            m_robotSim.createJoint(0, 2, 0, 4, &revoluteJoint1);
-            m_robotSim.createJoint(0, 3, 0, 6, &revoluteJoint2);
+            m_robotSim.createConstraint(0, 2, 0, 4, &revoluteJoint1);
+            m_robotSim.createConstraint(0, 3, 0, 6, &revoluteJoint2);
         }
         
         if ((m_options & eSOFTBODY_MULTIBODY_COUPLING)!=0)
         {
             {
-                b3RobotSimLoadFileArgs args("");
-                args.m_fileName = "kuka_iiwa/model_free_base.urdf";
+                b3RobotSimulatorLoadUrdfFileArgs args;
                 args.m_startPosition.setValue(0,1.0,2.0);
                 args.m_startOrientation.setEulerZYX(0,0,1.57);
                 args.m_forceOverrideFixedBase = false;
                 args.m_useMultiBody = true;
-                b3RobotSimLoadFileResults results;
-                m_robotSim.loadFile(args,results);
+                int kukaId = m_robotSim.loadURDF("kuka_iiwa/model_free_base.urdf", args);
                 
-                int kukaId = results.m_uniqueObjectIds[0];
                 int numJoints = m_robotSim.getNumJoints(kukaId);
                 b3Printf("numJoints = %d",numJoints);
                 
@@ -443,20 +394,18 @@ public:
                     b3JointInfo jointInfo;
                     m_robotSim.getJointInfo(kukaId,i,&jointInfo);
                     b3Printf("joint[%d].m_jointName=%s",i,jointInfo.m_jointName);
-                    b3JointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
+                    b3RobotSimulatorJointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
                     controlArgs.m_maxTorqueValue = 0.0;
                     m_robotSim.setJointMotorControl(kukaId,i,controlArgs);
                 }
             }
             {
-                b3RobotSimLoadFileArgs args("");
-                args.m_fileName = "plane.urdf";
+                b3RobotSimulatorLoadUrdfFileArgs args;
                 args.m_startPosition.setValue(0,0,0);
                 args.m_startOrientation.setEulerZYX(0,0,0);
                 args.m_forceOverrideFixedBase = true;
                 args.m_useMultiBody = false;
-                b3RobotSimLoadFileResults results;
-                m_robotSim.loadFile(args,results);
+                m_robotSim.loadURDF("plane.urdf", args);
             }
             m_robotSim.setGravity(b3MakeVector3(0,0,-10));
             m_robotSim.loadBunny(0.5,10.0,0.1);
@@ -479,7 +428,7 @@ public:
                 double maxTorqueValues[3]={40.0,50.0,50.0};
                 for (int i=0;i<3;i++)
                 {
-                    b3JointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
+                    b3RobotSimulatorJointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
                     controlArgs.m_targetVelocity = fingerTargetVelocities[i];
                     controlArgs.m_maxTorqueValue = maxTorqueValues[i];
                     controlArgs.m_kd = 1.;
@@ -496,7 +445,7 @@ public:
             double maxTorqueValues[2]={800.0,800.0};
             for (int i=0;i<2;i++)
             {
-                b3JointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
+                b3RobotSimulatorJointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
                 controlArgs.m_targetVelocity = fingerTargetVelocities[i];
                 controlArgs.m_maxTorqueValue = maxTorqueValues[i];
                 controlArgs.m_kd = 1.;
@@ -512,7 +461,7 @@ public:
             double maxTorqueValues[2]={50.0,10.0};
             for (int i=0;i<2;i++)
             {
-                b3JointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
+                b3RobotSimulatorJointMotorArgs controlArgs(CONTROL_MODE_VELOCITY);
                 controlArgs.m_targetVelocity = fingerTargetVelocities[i];
                 controlArgs.m_maxTorqueValue = maxTorqueValues[i];
                 controlArgs.m_kd = 1.;
@@ -531,17 +480,13 @@ public:
     }
 
 	
-    virtual void	physicsDebugDraw()
-    {
-		
-    }
     virtual bool	mouseMoveCallback(float x,float y)
     {
-		return false;   
+		return m_robotSim.mouseMoveCallback(x,y);   
     }
     virtual bool	mouseButtonCallback(int button, int state, float x, float y)
     {
-        return false;   
+        return m_robotSim.mouseButtonCallback(button,state,x,y);
     }
     virtual bool	keyboardCallback(int key, int state)
     {

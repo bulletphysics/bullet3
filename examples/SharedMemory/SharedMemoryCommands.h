@@ -93,10 +93,13 @@ struct UrdfArgs
 	int m_urdfFlags;
 };
 
+
+
 struct MjcfArgs
 {
 	char m_mjcfFileName[MAX_URDF_FILENAME_LENGTH];
 	int m_useMultiBody;
+	int m_flags;
 };
 
 struct BulletDataStreamArgs
@@ -106,20 +109,26 @@ struct BulletDataStreamArgs
 	char m_bodyName[MAX_FILENAME_LENGTH];
 };
 
-enum EnumResetDynamicInfoFlags
+enum EnumChangeDynamicsInfoFlags
 {
-	RESET_DYNAMIC_INFO_SET_MASS=1,
-	RESET_DYNAMIC_INFO_SET_COM=2,
-	RESET_DYNAMIC_INFO_SET_LATERAL_FRICTION=4,
+	CHANGE_DYNAMICS_INFO_SET_MASS=1,
+	CHANGE_DYNAMICS_INFO_SET_COM=2,
+	CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION=4,
 };
 
-struct ResetDynamicInfoArgs
+struct ChangeDynamicsInfoArgs
 {
 	int m_bodyUniqueId;
 	int m_linkIndex;
 	double m_mass;
 	double m_COM[3];
 	double m_lateralFriction;
+};
+
+struct GetDynamicsInfoArgs
+{
+	int m_bodyUniqueId;
+	int m_linkIndex;
 };
 
 struct SetJointFeedbackArgs
@@ -236,12 +245,19 @@ struct RequestVisualShapeDataArgs
 	int m_startingVisualShapeIndex;
 };
 
+enum EnumUpdateVisualShapeData
+{
+	CMD_UPDATE_VISUAL_SHAPE_TEXTURE=1,
+	CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR=2,
+};
+
 struct UpdateVisualShapeDataArgs
 {
     int m_bodyUniqueId;
     int m_jointIndex;
     int m_shapeIndex;
     int m_textureUniqueId;
+	double m_rgbaColor[4];
 };
 
 struct LoadTextureArgs
@@ -337,6 +353,8 @@ enum EnumSimParamUpdateFlags
 	SIM_PARAM_UPDATE_COLLISION_FILTER_MODE=512,
 	SIM_PARAM_UPDATE_CONTACT_BREAKING_THRESHOLD = 1024,
 	SIM_PARAM_MAX_CMD_PER_1MS = 2048,
+	SIM_PARAM_ENABLE_FILE_CACHING = 4096,
+
 };
 
 enum EnumLoadBunnyUpdateFlags
@@ -368,6 +386,7 @@ struct SendPhysicsSimulationParameters
 	int m_internalSimFlags;
 	double m_defaultContactERP;
 	int m_collisionFilterMode;
+	int m_enableFileCaching;
 };
 
 struct LoadBunnyArgs
@@ -659,7 +678,8 @@ enum eVRCameraEnums
 {
 	VR_CAMERA_ROOT_POSITION=1,
 	VR_CAMERA_ROOT_ORIENTATION=2,
-	VR_CAMERA_ROOT_TRACKING_OBJECT=4
+	VR_CAMERA_ROOT_TRACKING_OBJECT=4,
+	VR_CAMERA_FLAG = 8,
 };
 
 enum eStateLoggingEnums
@@ -680,6 +700,7 @@ struct VRCameraState
 	double m_rootPosition[3];
 	double m_rootOrientation[4];
 	int m_trackingObjectUniqueId;
+	int m_trackingObjectFlag;
 };
 
 
@@ -738,7 +759,8 @@ struct SharedMemoryCommand
 		struct MjcfArgs	m_mjcfArguments;
 		struct FileArgs m_fileArguments;
 		struct SdfRequestInfoArgs m_sdfRequestInfoArgs;
-		struct ResetDynamicInfoArgs m_resetDynamicInfoArgs;
+		struct ChangeDynamicsInfoArgs m_changeDynamicsInfoArgs;
+		struct GetDynamicsInfoArgs m_getDynamicsInfoArgs;
 		struct InitPoseArgs m_initPoseArgs;
 		struct SendPhysicsSimulationParameters m_physSimParamArgs;
 		struct BulletDataStreamArgs	m_dataStreamArguments;
@@ -832,6 +854,7 @@ struct SharedMemoryStatus
 		struct StateLoggingResultArgs m_stateLoggingResultArgs;
 		struct b3OpenGLVisualizerCameraInfo m_visualizerCameraResultArgs;
 		struct b3ObjectArgs m_removeObjectArgs;
+		struct b3DynamicsInfo m_dynamicsInfo;
 	};
 };
 

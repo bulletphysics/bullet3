@@ -26,7 +26,7 @@ B3_ATTRIBUTE_ALIGNED16(struct) SimpleGL2Instance
 	int m_shapeIndex;
 	b3Vector3 m_position;
 	b3Quaternion orn;
-	b3Vector3 m_rgbColor;
+	b3Vector4 m_rgbColor;
 	b3Vector3 m_scaling;
 	void clear()
 	{
@@ -139,18 +139,18 @@ void SimpleOpenGL2Renderer::removeGraphicsInstance(int instanceUid)
 	m_data->m_graphicsInstancesPool.freeHandle(instanceUid);
 }
 
-void SimpleOpenGL2Renderer::writeSingleInstanceColorToCPU(float* color, int srcIndex)
+void SimpleOpenGL2Renderer::writeSingleInstanceColorToCPU(const float* color, int srcIndex)
 {
 }
-void SimpleOpenGL2Renderer::writeSingleInstanceColorToCPU(double* color, int srcIndex)
+void SimpleOpenGL2Renderer::writeSingleInstanceColorToCPU(const double* color, int srcIndex)
 {
     
 }
 
-void SimpleOpenGL2Renderer::writeSingleInstanceScaleToCPU(float* scale, int srcIndex)
+void SimpleOpenGL2Renderer::writeSingleInstanceScaleToCPU(const float* scale, int srcIndex)
 {
 }
-void SimpleOpenGL2Renderer::writeSingleInstanceScaleToCPU(double* scale, int srcIndex)
+void SimpleOpenGL2Renderer::writeSingleInstanceScaleToCPU(const double* scale, int srcIndex)
 {
 }
 
@@ -182,6 +182,10 @@ void SimpleOpenGL2Renderer::drawOpenGL(int instanceIndex)
 	const SimpleGL2Instance& inst = *instPtr;
 	const SimpleGL2Shape* shape = m_data->m_shapes[inst.m_shapeIndex];
 
+	if (inst.m_rgbColor[3]==0)
+	{
+		return;
+	}
 
 	glPushMatrix(); 
 	b3Transform tr;
@@ -475,6 +479,8 @@ int SimpleOpenGL2Renderer::registerGraphicsInstance(int shapeIndex, const double
 	instance.m_rgbColor[0] = color[0];
 	instance.m_rgbColor[1] = color[1];
 	instance.m_rgbColor[2] = color[2];
+	instance.m_rgbColor[3] = color[3];
+
 	instance.m_scaling[0] = scaling[0];
 	instance.m_scaling[1] = scaling[1];
 	instance.m_scaling[2] = scaling[2];
@@ -496,6 +502,8 @@ int SimpleOpenGL2Renderer::registerGraphicsInstance(int shapeIndex, const float*
 	instance.m_rgbColor[0] = color[0];
 	instance.m_rgbColor[1] = color[1];
 	instance.m_rgbColor[2] = color[2];
+	instance.m_rgbColor[3] = color[3];
+
 	instance.m_scaling[0] = scaling[0];
 	instance.m_scaling[1] = scaling[1];
 	instance.m_scaling[2] = scaling[2];

@@ -277,9 +277,10 @@ static ExampleEntry gDefaultExamples[]=
     ExampleEntry(1,"Gripper Grasp","Grasp experiment with a gripper to improve contact model", GripperGraspExampleCreateFunc,eGRIPPER_GRASP),
     ExampleEntry(1,"Two Point Grasp","Grasp experiment with two point contact to test rolling friction", GripperGraspExampleCreateFunc, eTWO_POINT_GRASP),
 	ExampleEntry(1,"One Motor Gripper Grasp","Grasp experiment with a gripper with one motor to test slider constraint for closed loop structure", GripperGraspExampleCreateFunc, eONE_MOTOR_GRASP),
-    ExampleEntry(1,"Grasp Soft Body","Grasp soft body experiment", GripperGraspExampleCreateFunc, eGRASP_SOFT_BODY),
-    ExampleEntry(1,"Softbody Multibody Coupling","Two way coupling between soft body and multibody experiment", GripperGraspExampleCreateFunc, eSOFTBODY_MULTIBODY_COUPLING),
-
+#ifdef  USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+	ExampleEntry(1,"Grasp Soft Body","Grasp soft body experiment", GripperGraspExampleCreateFunc, eGRASP_SOFT_BODY),
+	ExampleEntry(1,"Softbody Multibody Coupling","Two way coupling between soft body and multibody experiment", GripperGraspExampleCreateFunc, eSOFTBODY_MULTIBODY_COUPLING),
+#endif //USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 
 #ifdef ENABLE_LUA
 	ExampleEntry(1,"Lua Script", "Create the dynamics world, collision shapes and rigid bodies using Lua scripting",

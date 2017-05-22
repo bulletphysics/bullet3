@@ -588,6 +588,10 @@ public:
                              ) :
                              btDiscreteDynamicsWorldMt( dispatcher, pairCache, constraintSolver, collisionConfiguration )
     {
+#if USE_PARALLEL_ISLAND_SOLVER
+        btSimulationIslandManagerMt* islandMgr = static_cast<btSimulationIslandManagerMt*>( m_islandManager );
+        islandMgr->setIslandDispatchFunction( parallelIslandDispatch );
+#endif //#if USE_PARALLEL_ISLAND_SOLVER
     }
 
 };
@@ -762,14 +766,7 @@ void CommonRigidBodyMTBase::createEmptyDynamicsWorld()
 #endif //#if USE_PARALLEL_ISLAND_SOLVER
         btDiscreteDynamicsWorld* world = new MyDiscreteDynamicsWorld( m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration );
         m_dynamicsWorld = world;
-
-#if USE_PARALLEL_ISLAND_SOLVER
-        if ( btSimulationIslandManagerMt* islandMgr = dynamic_cast<btSimulationIslandManagerMt*>( world->getSimulationIslandManager() ) )
-        {
-            islandMgr->setIslandDispatchFunction( parallelIslandDispatch );
-            m_multithreadedWorld = true;
-        }
-#endif //#if USE_PARALLEL_ISLAND_SOLVER
+        m_multithreadedWorld = true;
     }
     else
     {

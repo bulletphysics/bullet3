@@ -55,10 +55,10 @@ struct CommonRenderInterface
     
 	virtual void writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int srcIndex)=0;
 	virtual void writeSingleInstanceTransformToCPU(const double* position, const double* orientation, int srcIndex)=0;
-	virtual void writeSingleInstanceColorToCPU(float* color, int srcIndex)=0;
-	virtual void writeSingleInstanceColorToCPU(double* color, int srcIndex)=0;
-	virtual void writeSingleInstanceScaleToCPU(float* scale, int srcIndex)=0;
-	virtual void writeSingleInstanceScaleToCPU(double* scale, int srcIndex)=0;
+	virtual void writeSingleInstanceColorToCPU(const float* color, int srcIndex)=0;
+	virtual void writeSingleInstanceColorToCPU(const double* color, int srcIndex)=0;
+	virtual void writeSingleInstanceScaleToCPU(const float* scale, int srcIndex)=0;
+	virtual void writeSingleInstanceScaleToCPU(const double* scale, int srcIndex)=0;
     
     virtual int getTotalNumInstances() const = 0;
     
