@@ -237,7 +237,7 @@ void GwenParameterInterface::registerSliderFloatParameter(SliderParams& params)
     if (params.m_clampToIntegers)
     {
         pSlider->SetNotchCount( int( params.m_maxVal - params.m_minVal ) );
-        pSlider->SetClampToNotches( params.m_clampToNotches );
+        pSlider->SetClampToNotches( true );
     }
     else
     {
