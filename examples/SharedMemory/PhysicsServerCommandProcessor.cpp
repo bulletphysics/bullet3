@@ -3247,6 +3247,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                 }
                 case CMD_LOAD_BUNNY:
                 {
+					serverStatusOut.m_type = CMD_UNKNOWN_COMMAND_FLUSHED;
+					hasStatus = true;
 #ifdef USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
                     double scale = 0.1;
                     double mass = 0.1;
@@ -3287,6 +3289,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     psb->getCollisionShape()->setMargin(collisionMargin);
                     
                     m_data->m_dynamicsWorld->addSoftBody(psb);
+					serverStatusOut.m_type = CMD_CLIENT_COMMAND_COMPLETED;
 #endif
                     break;
                 }
