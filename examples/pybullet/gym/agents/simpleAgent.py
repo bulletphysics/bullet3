@@ -10,11 +10,12 @@ import numpy as np
 import tensorflow as tf
 import pdb
 
-class SimplerAgent():
+class SimpleAgent():
   def __init__(
       self,
       session,
       ckpt_path,
+      actor_layer_size,
       observation_dim=31
   ):
     self._ckpt_path = ckpt_path
