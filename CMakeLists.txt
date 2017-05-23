@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.4.3)
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
-
+cmake_policy(SET CMP0017 NEW)
 #this line has to appear before 'PROJECT' in order to be able to disable incremental linking
 SET(MSVC_INCREMENTAL_DEFAULT ON)
 
@@ -27,7 +27,7 @@ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 OPTION(USE_DOUBLE_PRECISION "Use double precision"	OFF)
 OPTION(USE_GRAPHICAL_BENCHMARK "Use Graphical Benchmark" ON)
 OPTION(BUILD_SHARED_LIBS "Use shared libraries" OFF)
-OPTION(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD "Use btSoftMultiBodyDynamicsWorld" OFF)	
+OPTION(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD "Use btSoftMultiBodyDynamicsWorld" OFF)
 OPTION(BULLET2_USE_THREAD_LOCKS "Build Bullet 2 libraries with mutex locking around certain operations" OFF)
 
 OPTION(USE_MSVC_INCREMENTAL_LINKING "Use MSVC Incremental Linking" OFF)
@@ -123,22 +123,22 @@ IF(MSVC)
 
 	OPTION(USE_MSVC_EXEPTIONS "Use MSVC C++ exceptions option"	OFF)
 
-	
+
 
 	OPTION(USE_MSVC_COMDAT_FOLDING "Use MSVC /OPT:ICF COMDAT folding option"	ON)
-		
+
 	IF(USE_MSVC_COMDAT_FOLDING)
 		set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /OPT:ICF")
 		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /OPT:ICF")
 	ENDIF()
-	
+
 	OPTION(USE_MSVC_DISABLE_RTTI "Use MSVC /GR- disabled RTTI flags option"	ON)
 	IF(USE_MSVC_DISABLE_RTTI)
 	  STRING(REGEX REPLACE "/GR" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}) # Disable RTTI
 		SET(CMAKE_C_FLAGS "/GR- ${CMAKE_C_FLAGS}")
 		SET(CMAKE_CXX_FLAGS "/GR- ${CMAKE_CXX_FLAGS}")
 	ENDIF(USE_MSVC_DISABLE_RTTI)
-	
+
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244 /wd4267")
 ENDIF(MSVC)
 
@@ -254,24 +254,39 @@ ENDIF()
 
 OPTION(BUILD_BULLET3 "Set when you want to build Bullet 3" ON)
 
-OPTION(BUILD_PYBULLET "Set when you want to build pybullet (Python bindings for Bullet)" OFF)
-	
+# Optional Python configuration
+# builds pybullet automatically if all the requirements are met
+SET(PYTHON_VERSION_PYBULLET "2.7" CACHE STRING "Python version pybullet will use.")
+SET(Python_ADDITIONAL_VERSIONS 2.7 2.7.3 3 3.0 3.1 3.2 3.3 3.4 3.5 3.6)
+SET_PROPERTY(CACHE PYTHON_VERSION_PYBULLET PROPERTY STRINGS ${Python_ADDITIONAL_VERSIONS})
+SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build3/cmake ${CMAKE_MODULE_PATH})
+OPTION(EXACT_PYTHON_VERSION "Require Python and match PYTHON_VERSION_PYBULLET exactly, e.g. 2.7.3" OFF)
+IF(EXACT_PYTHON_VERSION)
+  set(EXACT_PYTHON_VERSION_FLAG EXACT REQUIRED)
+ENDIF(EXACT_PYTHON_VERSION)
+# first find the python interpreter
+FIND_PACKAGE(PythonInterp ${PYTHON_VERSION_PYBULLET} ${EXACT_PYTHON_VERSION_FLAG})
+# python library should exactly match that of the interpreter
+FIND_PACKAGE(PythonLibs ${PYTHON_VERSION_STRING} EXACT)
+SET(DEFAULT_BUILD_PYBULLET OFF)
+IF(PYTHONLIBS_FOUND)
+	SET(DEFAULT_BUILD_PYBULLET ON)
+ENDIF(PYTHONLIBS_FOUND)
+OPTION(BUILD_PYBULLET "Set when you want to build pybullet (Python bindings for Bullet)" ${DEFAULT_BUILD_PYBULLET})
+
 OPTION(BUILD_ENET "Set when you want to build apps with enet UDP networking support" ON)
 OPTION(BUILD_CLSOCKET "Set when you want to build apps with enet TCP networking support" ON)
-	
+
 
 IF(BUILD_PYBULLET)
 
-	FIND_PACKAGE(PythonLibs)
-
-	OPTION(BUILD_PYBULLET_NUMPY "Set when you want to build pybullet with NumPy support" OFF)
+	OPTION(BUILD_PYBULLET_NUMPY "Set when you want to build pybullet with NumPy support" ON)
 	OPTION(BUILD_PYBULLET_ENET "Set when you want to build pybullet with enet UDP networking support" ON)
 	OPTION(BUILD_PYBULLET_CLSOCKET "Set when you want to build pybullet with enet TCP networking support" ON)
 
-	OPTION(BUILD_PYBULLET_MAC_USE_PYTHON_FRAMEWORK "Set when you want to use the Python Framework on Mac" ON)
+	OPTION(BUILD_PYBULLET_MAC_USE_PYTHON_FRAMEWORK "Set when you want to use the Python Framework on Mac" OFF)
 
-	IF(BUILD_PYBULLET_NUMPY)	
-		set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/build3/cmake)
+	IF(BUILD_PYBULLET_NUMPY)
 		#include(FindNumPy)
 		FIND_PACKAGE(NumPy)
 		if (PYTHON_NUMPY_FOUND)
@@ -281,7 +296,6 @@ IF(BUILD_PYBULLET)
 			message("NumPy not found")
 		endif()
 	ENDIF()
-	OPTION(BUILD_PYBULLET "Set when you want to build pybullet (experimental Python bindings for Bullet)" OFF)
 
 	IF(WIN32)
 		SET(BUILD_SHARED_LIBS OFF CACHE BOOL "Shared Libs" FORCE)
