@@ -114,7 +114,10 @@ struct InplaceSolverIslandCallbackMt : public btSimulationIslandManagerMt::Islan
 
 btConstraintSolverPoolMt::ThreadSolver* btConstraintSolverPoolMt::getAndLockThreadSolver()
 {
-    int i = btGetCurrentThreadIndex() % m_solvers.size();
+    int i = 0;
+#if BT_THREADSAFE
+    i = btGetCurrentThreadIndex() % m_solvers.size();
+#endif // #if BT_THREADSAFE
     while ( true )
     {
         ThreadSolver& solver = m_solvers[ i ];

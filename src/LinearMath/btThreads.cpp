@@ -465,6 +465,12 @@ bool btSpinMutex::tryLock()
     return true;
 }
 
+// non-parallel version of btParallelFor
+void btParallelFor( int iBegin, int iEnd, int grainSize, const btIParallelForBody& body )
+{
+    btAssert(!"called btParallelFor in non-threadsafe build. enable BT_THREADSAFE");
+    body.forLoop( iBegin, iEnd );
+}
 
 #endif // #if BT_THREADSAFE
 

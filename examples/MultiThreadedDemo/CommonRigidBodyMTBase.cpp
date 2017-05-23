@@ -250,6 +250,7 @@ public:
     void init()
     {
         addTaskScheduler( btGetSequentialTaskScheduler() );
+#if BT_THREADSAFE
         addTaskScheduler( btGetOpenMPTaskScheduler() );
         addTaskScheduler( btGetTBBTaskScheduler() );
         addTaskScheduler( btGetPPLTaskScheduler() );
@@ -263,6 +264,7 @@ public:
             btSetTaskScheduler( m_taskSchedulers[ 0 ] );
         }
         btGetTaskScheduler()->setNumThreads( btGetTaskScheduler()->getMaxNumThreads() );
+#endif // #if BT_THREADSAFE
     }
 
     void addTaskScheduler( btITaskScheduler* ts )
@@ -353,6 +355,7 @@ static void setSolverTypeCallback(int buttonId, bool buttonState, void* userPoin
 
 static void setNumThreads( int numThreads )
 {
+#if BT_THREADSAFE
     int newNumThreads = ( std::min )( numThreads, int( BT_MAX_THREAD_COUNT ) );
     int oldNumThreads = btGetTaskScheduler()->getNumThreads();
     // only call when the thread count is different
@@ -360,13 +363,16 @@ static void setNumThreads( int numThreads )
     {
         btGetTaskScheduler()->setNumThreads( newNumThreads );
     }
+#endif // #if BT_THREADSAFE
 }
 
 static void apiSelectButtonCallback(int buttonId, bool buttonState, void* userPointer)
 {
+#if BT_THREADSAFE
     // change the task scheduler
     btSetTaskScheduler( gTaskSchedulerMgr.getTaskScheduler( buttonId ) );
     setNumThreads( int( gSliderNumThreads ) );
+#endif // #if BT_THREADSAFE
 }
 
 static void setThreadCountCallback(float val, void* userPtr)
@@ -392,6 +398,7 @@ void CommonRigidBodyMTBase::createEmptyDynamicsWorld()
 #endif
     if ( gMultithreadedWorld )
     {
+#if BT_THREADSAFE
         m_dispatcher = NULL;
         btDefaultCollisionConstructionInfo cci;
         cci.m_defaultMaxPersistentManifoldPoolSize = 80000;
@@ -416,6 +423,7 @@ void CommonRigidBodyMTBase::createEmptyDynamicsWorld()
         m_dynamicsWorld = world;
         m_multithreadedWorld = true;
         btAssert( btGetTaskScheduler() != NULL );
+#endif // #if BT_THREADSAFE
     }
     else
     {
@@ -534,6 +542,7 @@ void CommonRigidBodyMTBase::createDefaultParameters()
     }
     if (m_multithreadedWorld)
     {
+#if BT_THREADSAFE
         // create a button for each supported threading API
         for ( int iApi = 0; iApi < gTaskSchedulerMgr.getNumTaskSchedulers(); ++iApi )
         {
@@ -558,6 +567,7 @@ void CommonRigidBodyMTBase::createDefaultParameters()
             slider.m_clampToIntegers = true;
             m_guiHelper->getParameterInterface()->registerSliderFloatParameter( slider );
         }
+#endif // #if BT_THREADSAFE
     }
 }
 
@@ -589,6 +599,7 @@ void CommonRigidBodyMTBase::drawScreenText()
     {
         if ( m_multithreadedWorld )
         {
+#if BT_THREADSAFE
             int numManifolds = m_dispatcher->getNumManifolds();
             int numContacts = 0;
             for ( int i = 0; i < numManifolds; ++i )
@@ -607,6 +618,7 @@ void CommonRigidBodyMTBase::drawScreenText()
                      );
             m_guiHelper->getAppInterface()->drawText( msg, 100, yCoord, 0.4f );
             yCoord += yStep;
+#endif // #if BT_THREADSAFE
         }
         {
             int sm = gSolverMode;
