@@ -22,6 +22,7 @@
 #include "../Utils/RobotLoggingUtil.h"
 #include "LinearMath/btTransform.h"
 #include "../Importers/ImportMJCFDemo/BulletMJCFImporter.h"
+#include "../Importers/ImportObjDemo/LoadMeshFromObj.h"
 #include "../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointMotor.h"
 #include "LinearMath/btSerializer.h"
@@ -54,6 +55,8 @@ bool gCreateDefaultRobotAssets = false;
 int gInternalSimFlags = 0;
 bool gResetSimulation = 0;
 int gVRTrackingObjectUniqueId = -1;
+int gVRTrackingObjectFlag = VR_CAMERA_TRACK_OBJECT_ORIENTATION;
+
 btTransform gVRTrackingObjectTr = btTransform::getIdentity();
 
 int gMaxNumCmdPer1ms = -1;//experiment: add some delay to avoid threads starving other threads
@@ -2181,7 +2184,7 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
     //serialize the btMultiBody and send the data to the client. This is one way to get the link/joint names across the (shared memory) wire
 
     InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(bodyUniqueId);
-    btMultiBody* mb = bodyHandle->m_multiBody;
+	btMultiBody* mb = bodyHandle? bodyHandle->m_multiBody:0;   
     if (mb)
     {
         UrdfLinkNameMapUtil* util = new UrdfLinkNameMapUtil;
@@ -2440,6 +2443,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					{
 						if (clientCmd.m_stateLoggingArguments.m_loggingUniqueId == m_data->m_profileTimingLoggingUid)
 						{
+							serverStatusOut.m_type = CMD_STATE_LOGGING_COMPLETED;
 							b3ChromeUtilsStopTimingsAndWriteJsonFile(m_data->m_profileTimingFileName.c_str());
 							m_data->m_profileTimingLoggingUid = -1;
 						}
@@ -2480,6 +2484,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					if (clientCmd.m_updateFlags & VR_CAMERA_ROOT_TRACKING_OBJECT)
 					{
 						gVRTrackingObjectUniqueId = clientCmd.m_vrCameraStateArguments.m_trackingObjectUniqueId;
+					}
+
+					if (clientCmd.m_updateFlags & VR_CAMERA_FLAG)
+					{
+						gVRTrackingObjectFlag = clientCmd.m_vrCameraStateArguments.m_trackingObjectFlag;
 					}
 
 					serverStatusOut.m_type  = CMD_CLIENT_COMMAND_COMPLETED;
@@ -2837,10 +2846,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					int actualNumBodies = 0;
 					for (int i=0;i<usedHandles.size();i++)
 					{
-						InteralBodyData* body = m_data->m_bodyHandles.getHandle(usedHandles[i]);
+						int usedHandle = usedHandles[i];
+						InteralBodyData* body = m_data->m_bodyHandles.getHandle(usedHandle);
 						if (body && (body->m_multiBody || body->m_rigidBody))
 						{
-							serverStatusOut.m_sdfLoadedArgs.m_bodyUniqueIds[actualNumBodies++] = i;
+							serverStatusOut.m_sdfLoadedArgs.m_bodyUniqueIds[actualNumBodies++] = usedHandle;
 						}
 					}
 					serverStatusOut.m_sdfLoadedArgs.m_numBodies = actualNumBodies;
@@ -3237,6 +3247,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                 }
                 case CMD_LOAD_BUNNY:
                 {
+					serverStatusOut.m_type = CMD_UNKNOWN_COMMAND_FLUSHED;
+					hasStatus = true;
 #ifdef USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
                     double scale = 0.1;
                     double mass = 0.1;
@@ -3277,6 +3289,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     psb->getCollisionShape()->setMargin(collisionMargin);
                     
                     m_data->m_dynamicsWorld->addSoftBody(psb);
+					serverStatusOut.m_type = CMD_CLIENT_COMMAND_COMPLETED;
 #endif
                     break;
                 }
@@ -4058,6 +4071,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                         m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = clientCmd.m_physSimParamArgs.m_defaultContactERP;
                     }
 
+					if (clientCmd.m_updateFlags&SIM_PARAM_ENABLE_FILE_CACHING)
+                    {
+						b3EnableFileCaching(clientCmd.m_physSimParamArgs.m_enableFileCaching);
+                    }
+
+
 					SharedMemoryStatus& serverCmd =serverStatusOut;
 					serverCmd.m_type = CMD_CLIENT_COMMAND_COMPLETED;
 					hasStatus = true;
@@ -4216,10 +4235,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
                 case CMD_RESET_SIMULATION:
                 {
+
 					BT_PROFILE("CMD_RESET_SIMULATION");
-
+					m_data->m_guiHelper->setVisualizerFlag(COV_ENABLE_SYNC_RENDERING_INTERNAL,0);
 					resetSimulation();
-
+					m_data->m_guiHelper->setVisualizerFlag(COV_ENABLE_SYNC_RENDERING_INTERNAL,1);
+					
 					SharedMemoryStatus& serverCmd =serverStatusOut;
 					serverCmd.m_type = CMD_RESET_SIMULATION_COMPLETED;
 					hasStatus = true;
@@ -5062,6 +5083,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					serverCmd.m_removeObjectArgs.m_numBodies = 0;
 					serverCmd.m_removeObjectArgs.m_numUserConstraints = 0;
 
+					m_data->m_guiHelper->setVisualizerFlag(COV_ENABLE_SYNC_RENDERING_INTERNAL,0);
+
 					for (int i=0;i<clientCmd.m_removeObjectArgs.m_numBodies;i++)
 					{
 						int bodyUniqueId = clientCmd.m_removeObjectArgs.m_bodyUniqueIds[i];
@@ -5142,7 +5165,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 						m_data->m_bodyHandles.freeHandle(bodyUniqueId);
 					}
-					
+					m_data->m_guiHelper->setVisualizerFlag(COV_ENABLE_SYNC_RENDERING_INTERNAL,1);
+
 
                     hasStatus = true;
 					break;
@@ -5929,11 +5953,14 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 //static int skip=1;
 
-void PhysicsServerCommandProcessor::renderScene()
+void PhysicsServerCommandProcessor::renderScene(int renderFlags)
 {
 	if (m_data->m_guiHelper)
 	{
-		m_data->m_guiHelper->syncPhysicsToGraphics(m_data->m_dynamicsWorld);
+		if (0==(renderFlags&COV_DISABLE_SYNC_RENDERING))
+		{
+			m_data->m_guiHelper->syncPhysicsToGraphics(m_data->m_dynamicsWorld);
+		}
 		m_data->m_guiHelper->render(m_data->m_dynamicsWorld);
 	}
 #ifdef USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
@@ -6180,6 +6207,24 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const
 		gResetSimulation = false;
 	}
 
+	if (gVRTrackingObjectUniqueId >= 0)
+	{
+		InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(gVRTrackingObjectUniqueId);
+		if (bodyHandle && bodyHandle->m_multiBody)
+		{
+//			gVRTrackingObjectTr  = bodyHandle->m_multiBody->getBaseWorldTransform();
+
+			if (gVRTrackingObjectUniqueId>=0)
+			{
+				gVRTrackingObjectTr.setOrigin(bodyHandle->m_multiBody->getBaseWorldTransform().getOrigin());
+			}
+			if (gVRTrackingObjectFlag&VR_CAMERA_TRACK_OBJECT_ORIENTATION)
+			{
+				gVRTrackingObjectTr.setBasis(bodyHandle->m_multiBody->getBaseWorldTransform().getBasis());
+			}	
+		}
+	}
+
 	if ((m_data->m_allowRealTimeSimulation) && m_data->m_guiHelper)
 	{
 		
@@ -6199,14 +6244,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const
 			gSubStep = m_data->m_physicsDeltaTime;
 		}
 		
-		if (gVRTrackingObjectUniqueId >= 0)
-		{
-			InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(gVRTrackingObjectUniqueId);
-			if (bodyHandle && bodyHandle->m_multiBody)
-			{
-				gVRTrackingObjectTr  = bodyHandle->m_multiBody->getBaseWorldTransform();
-			}
-		}
+		
 
 
 		int numSteps = m_data->m_dynamicsWorld->stepSimulation(dtInSec*simTimeScalingFactor,maxSteps, gSubStep);

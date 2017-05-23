@@ -33,7 +33,7 @@ public:
 	//and for physics visualization. The idea is that physicsDebugDraw can also send wireframe
 	//to a physics client, over shared memory
 	virtual void    physicsDebugDraw(int debugDrawFlags)=0;
-	virtual void    renderScene()=0;
+	virtual void    renderScene(int renderFlags)=0;
 
 	virtual void enableCommandLogging(bool enable, const char* fileName)=0;
 	virtual void replayFromLogFile(const char* fileName)=0;
