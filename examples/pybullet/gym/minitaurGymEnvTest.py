@@ -14,10 +14,9 @@ from envs.bullet.minitaurGymEnv import MinitaurGymEnv
 try:
   import sonnet
   from agents import simpleAgentWithSonnet as agent_lib
-  ckpt_path = 'data/agent/tf_graph_data/tf_graph_data_converted.ckpt-0'
 except ImportError:
   from agents import simpleAgent as agent_lib
-  ckpt_path = 'data/agent/tf_graph_data/tf_graph_data.ckpt'
+
   
 def testSinePolicy():
   """Tests sine policy
@@ -60,7 +59,7 @@ def testDDPGPolicy():
   environment = MinitaurGymEnv(render=True)
   sum_reward = 0
   steps = 1000
-
+  ckpt_path = 'data/agent/tf_graph_data/tf_graph_data_converted.ckpt-0'
   observation_shape = (31,)
   action_size = 8
   actor_layer_size = (100, 181)
