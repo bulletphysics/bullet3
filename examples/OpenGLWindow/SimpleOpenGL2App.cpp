@@ -297,13 +297,14 @@ void SimpleOpenGL2App::swapBuffer()
 	m_window->startRendering();
 
 }
-void SimpleOpenGL2App::drawText( const char* txt, int posX, int posY, float size)
+
+void SimpleOpenGL2App::drawText( const char* txt, int posXi, int posYi, float size, float colorRGBA[4])
 {
 
 }
 
 
-		static		void	restoreOpenGLState()
+static		void	restoreOpenGLState()
 			{
 				
 				
@@ -338,6 +339,11 @@ void SimpleOpenGL2App::drawText( const char* txt, int posX, int posY, float size
 				glDisable(GL_TEXTURE_2D);
 
 			}
+
+void SimpleOpenGL2App::drawText3D( const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlag)
+{
+
+}
 
 void SimpleOpenGL2App::drawText3D( const char* txt, float worldPosX, float worldPosY, float worldPosZ, float size1)
 {

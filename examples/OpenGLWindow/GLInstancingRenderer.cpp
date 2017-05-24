@@ -52,6 +52,7 @@ float shadowMapWorldSize=10;
 
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Common/b3Quaternion.h"
+#include "Bullet3Common/b3Transform.h"
 #include "Bullet3Common/b3Matrix3x3.h"
 #include "Bullet3Common/b3ResizablePool.h"
 
@@ -73,6 +74,36 @@ float shadowMapWorldSize=10;
 
 #include "GLRenderToTexture.h"
 
+
+static const char* triangleVertexShaderText =
+"#version 330\n"
+"precision highp float;"
+"uniform mat4 MVP;\n"
+"uniform vec3 vCol;\n"
+"attribute vec4 vPos;\n"
+"attribute vec2 vUV;\n"
+"out vec3 clr;\n"
+"out vec2 uv0;\n"
+"void main()\n"
+"{\n"
+"    gl_Position = MVP * vPos;\n"
+"    clr = vCol;\n"
+"    uv0 = vUV;\n"
+"}\n";
+
+
+static const char* triangleFragmentShader =
+"#version 330\n"
+"precision highp float;"
+"in vec3 clr;\n"
+"in vec2 uv0;"
+"out vec4 color;"
+"uniform sampler2D Diffuse;"
+"void main()\n"
+"{\n"
+"    vec4 texel = texture(Diffuse,uv0);\n"
+"    color = vec4(clr,texel.r)*texel;\n"
+"}\n";
 
 
 
@@ -213,6 +244,14 @@ struct	GLInstanceRendererInternalData* GLInstancingRenderer::getInternalData()
 }
 
 
+static GLuint				triangleShaderProgram;
+static GLint triangle_mvp_location=-1;
+static GLint triangle_vpos_location=-1;
+static GLint triangle_vUV_location=-1;
+static GLint triangle_vcol_location=-1;
+static GLuint triangleIndexVbo=0;
+
+
 static GLuint               linesShader;        // The line renderer
 static GLuint               useShadowMapInstancingShader;        // The shadow instancing renderer
 static GLuint               createShadowMapInstancingShader;        // The shadow instancing renderer
@@ -333,7 +372,29 @@ GLInstancingRenderer::~GLInstancingRenderer()
 
 
 
+bool GLInstancingRenderer::readSingleInstanceTransformToCPU(float* position, float* orientation, int shapeIndex)
+{
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(shapeIndex);
+	if (pg)
+	{
+		int srcIndex = pg->m_internalInstanceIndex;
 
+		if ((srcIndex<m_data->m_totalNumInstances) && (srcIndex>=0))
+		{
+			position[0] = m_data->m_instance_positions_ptr[srcIndex*4+0];
+			position[1] = m_data->m_instance_positions_ptr[srcIndex*4+1];
+			position[2] = m_data->m_instance_positions_ptr[srcIndex*4+2];
+
+			orientation[0] = m_data->m_instance_quaternion_ptr[srcIndex*4+0];
+			orientation[1] = m_data->m_instance_quaternion_ptr[srcIndex*4+1];
+			orientation[2] = m_data->m_instance_quaternion_ptr[srcIndex*4+2];
+			orientation[3] = m_data->m_instance_quaternion_ptr[srcIndex*4+3];
+			return true;
+		}
+	}
+
+	return false;
+}
 
 void GLInstancingRenderer::writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int bodyUniqueId)
 {
@@ -783,7 +844,7 @@ int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const float* 
 }
 
 
-int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width, int height)
+int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width, int height, bool flipPixelsY)
 {
 	b3Assert(glGetError() ==GL_NO_ERROR);
 	glActiveTexture(GL_TEXTURE0);
@@ -801,12 +862,16 @@ int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width
     h.m_height = height;
 
 	m_data->m_textureHandles.push_back(h);
-	updateTexture(textureIndex, texels);
+	if (texels)
+	{
+		updateTexture(textureIndex, texels, flipPixelsY);
+	}
 	return textureIndex;
 }
 
 
-void    GLInstancingRenderer::updateTexture(int textureIndex, const unsigned char* texels)
+
+void    GLInstancingRenderer::updateTexture(int textureIndex, const unsigned char* texels, bool flipPixelsY)
 {
     if (textureIndex>=0)
     {
@@ -816,25 +881,30 @@ void    GLInstancingRenderer::updateTexture(int textureIndex, const unsigned cha
         glActiveTexture(GL_TEXTURE0);
         b3Assert(glGetError() ==GL_NO_ERROR);
         InternalTextureHandle& h = m_data->m_textureHandles[textureIndex];
-
-		//textures need to be flipped for OpenGL...
-		b3AlignedObjectArray<unsigned char> flippedTexels;
-		flippedTexels.resize(h.m_width* h.m_height * 3);
-		for (int i = 0; i < h.m_width; i++)
-		{
-			for (int j = 0; j < h.m_height; j++)
-			{
-				flippedTexels[(i + j*h.m_width) * 3] =      texels[(i + (h.m_height - 1 -j )*h.m_width) * 3];
-				flippedTexels[(i + j*h.m_width) * 3+1] =    texels[(i + (h.m_height - 1 - j)*h.m_width) * 3+1];
-				flippedTexels[(i + j*h.m_width) * 3+2] =    texels[(i + (h.m_height - 1 - j)*h.m_width) * 3+2];
-			}
-		}
-
-
-        glBindTexture(GL_TEXTURE_2D,h.m_glTexture);
+		glBindTexture(GL_TEXTURE_2D,h.m_glTexture);
         b3Assert(glGetError() ==GL_NO_ERROR);
-      //  const GLubyte*	image= (const GLubyte*)texels;	
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, h.m_width,h.m_height,0,GL_RGB,GL_UNSIGNED_BYTE,&flippedTexels[0]);
+
+		if (flipPixelsY)
+		{
+			//textures need to be flipped for OpenGL...
+			b3AlignedObjectArray<unsigned char> flippedTexels;
+			flippedTexels.resize(h.m_width* h.m_height * 3);
+
+			for (int i = 0; i < h.m_width; i++)
+			{
+				for (int j = 0; j < h.m_height; j++)
+				{
+					flippedTexels[(i + j*h.m_width) * 3] =      texels[(i + (h.m_height - 1 -j )*h.m_width) * 3];
+					flippedTexels[(i + j*h.m_width) * 3+1] =    texels[(i + (h.m_height - 1 - j)*h.m_width) * 3+1];
+					flippedTexels[(i + j*h.m_width) * 3+2] =    texels[(i + (h.m_height - 1 - j)*h.m_width) * 3+2];
+				}
+			}
+
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, h.m_width,h.m_height,0,GL_RGB,GL_UNSIGNED_BYTE,&flippedTexels[0]);
+		} else
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, h.m_width,h.m_height,0,GL_RGB,GL_UNSIGNED_BYTE,&texels[0]);
+		}
         b3Assert(glGetError() ==GL_NO_ERROR);
         glGenerateMipmap(GL_TEXTURE_2D);
         b3Assert(glGetError() ==GL_NO_ERROR);
@@ -951,6 +1021,15 @@ void GLInstancingRenderer::InitShaders()
 	int ORIENTATION_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity*sizeof(float)*4);
 	int COLOR_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity*sizeof(float)*4);
 	int SCALE_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity*sizeof(float)*3);
+
+	{
+		triangleShaderProgram = gltLoadShaderPair(triangleVertexShaderText,triangleFragmentShader);
+		triangle_mvp_location = glGetUniformLocation(triangleShaderProgram, "MVP");
+		triangle_vpos_location = glGetAttribLocation(triangleShaderProgram, "vPos");
+		triangle_vUV_location = glGetAttribLocation(triangleShaderProgram, "vUV");
+		triangle_vcol_location = glGetUniformLocation(triangleShaderProgram, "vCol");
+		glGenBuffers(1, &triangleIndexVbo);
+	}
 
 	linesShader = gltLoadShaderPair(linesVertexShader,linesFragmentShader);
 	lines_ModelViewMatrix = glGetUniformLocation(linesShader, "ModelViewMatrix");
@@ -1294,6 +1373,216 @@ void GLInstancingRenderer::renderScene()
 }
 
 
+struct PointerCaster
+{
+	union {
+		int m_baseIndex;
+		GLvoid* m_pointer;
+	};
+
+	PointerCaster()
+	:m_pointer(0)
+		{
+		}
+
+
+};
+
+
+
+#if 0
+static void    b3CreateFrustum(
+                        float left,
+                        float right,
+                        float bottom,
+                        float top,
+                        float nearVal,
+                        float farVal,
+                        float frustum[16])
+{
+
+    frustum[0*4+0] = (float(2) * nearVal) / (right - left);
+    frustum[0*4+1] = float(0);
+    frustum[0*4+2] = float(0);
+    frustum[0*4+3] = float(0);
+
+    frustum[1*4+0] = float(0);
+    frustum[1*4+1] = (float(2) * nearVal) / (top - bottom);
+    frustum[1*4+2] = float(0);
+    frustum[1*4+3] = float(0);
+
+    frustum[2*4+0] = (right + left) / (right - left);
+    frustum[2*4+1] = (top + bottom) / (top - bottom);
+    frustum[2*4+2] = -(farVal + nearVal) / (farVal - nearVal);
+    frustum[2*4+3] = float(-1);
+
+    frustum[3*4+0] = float(0);
+    frustum[3*4+1] = float(0);
+    frustum[3*4+2] = -(float(2) * farVal * nearVal) / (farVal - nearVal);
+    frustum[3*4+3] = float(0);
+
+}
+#endif
+
+static void b3Matrix4x4Mul(GLfloat aIn[4][4], GLfloat bIn[4][4], GLfloat result[4][4])
+{
+	for (int j=0;j<4;j++)
+		for (int i=0;i<4;i++)
+			result[j][i] = aIn[0][i] * bIn[j][0] + aIn[1][i] * bIn[j][1] + aIn[2][i] * bIn[j][2] + aIn[3][i] * bIn[j][3];
+}
+
+static void b3Matrix4x4Mul16(GLfloat aIn[16], GLfloat bIn[16], GLfloat result[16])
+{
+	for (int j=0;j<4;j++)
+		for (int i=0;i<4;i++)
+			result[j*4+i] = aIn[0*4+i] * bIn[j*4+0] + aIn[1*4+i] * bIn[j*4+1] + aIn[2*4+i] * bIn[j*4+2] + aIn[3*4+i] * bIn[j*4+3];
+}
+
+
+static void b3CreateDiagonalMatrix(GLfloat value, GLfloat result[4][4])
+{
+	for (int i=0;i<4;i++)
+	{
+		for (int j=0;j<4;j++)
+		{
+			if (i==j)
+			{
+				result[i][j] = value;
+			} else
+			{
+				result[i][j] = 0.f;
+			}
+		}
+	}
+}
+
+static void b3CreateOrtho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar, GLfloat result[4][4])
+{
+	b3CreateDiagonalMatrix(1.f,result);
+
+	result[0][0] = 2.f / (right - left);
+	result[1][1] = 2.f / (top - bottom);
+	result[2][2] = - 2.f / (zFar - zNear);
+	result[3][0] = - (right + left) / (right - left);
+	result[3][1] = - (top + bottom) / (top - bottom);
+	result[3][2] = - (zFar + zNear) / (zFar - zNear);
+}
+
+static void    b3CreateLookAt(const b3Vector3& eye, const b3Vector3& center,const b3Vector3& up, GLfloat result[16])
+{
+    b3Vector3 f = (center - eye).normalized();
+    b3Vector3 u = up.normalized();
+    b3Vector3 s = (f.cross(u)).normalized();
+    u = s.cross(f);
+
+    result[0*4+0] = s.x;
+    result[1*4+0] = s.y;
+    result[2*4+0] = s.z;
+
+	result[0*4+1] = u.x;
+    result[1*4+1] = u.y;
+    result[2*4+1] = u.z;
+
+    result[0*4+2] =-f.x;
+    result[1*4+2] =-f.y;
+    result[2*4+2] =-f.z;
+
+	result[0*4+3] = 0.f;
+    result[1*4+3] = 0.f;
+    result[2*4+3] = 0.f;
+
+    result[3*4+0] = -s.dot(eye);
+    result[3*4+1] = -u.dot(eye);
+    result[3*4+2] = f.dot(eye);
+    result[3*4+3] = 1.f;
+}
+
+
+
+
+typedef struct
+{
+    float position[4];
+    float colour[4];
+	float uv[2];
+} MyVertex;
+
+
+void GLInstancingRenderer::drawTexturedTriangleMesh(float worldPosition[3], float worldOrientation[4], const float* vertices, int numvertices, const unsigned int* indices, int numIndices, float colorRGBA[4], int textureIndex)
+{
+	b3Quaternion orn(worldOrientation[0],worldOrientation[1],worldOrientation[2],worldOrientation[3]);
+	b3Vector3 pos = b3MakeVector3(worldPosition[0],worldPosition[1],worldPosition[2]);
+
+	b3Transform worldTrans(orn,pos);
+	b3Scalar worldMatUnk[16];
+	worldTrans.getOpenGLMatrix(worldMatUnk);
+	float modelMat[16];
+	for (int i=0;i<16;i++)
+	{
+		modelMat[i] = worldMatUnk[i];
+	}
+	glEnable(GL_TEXTURE_2D);
+
+	activateTexture(textureIndex);
+
+	
+	glUseProgram(triangleShaderProgram);
+	int err =GL_NO_ERROR;
+	err = glGetError();
+	b3Assert(err ==GL_NO_ERROR);
+	GLuint vertex_buffer=0;
+	glGenBuffers(1, &vertex_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(MyVertex)*numvertices, vertices, GL_STATIC_DRAW);
+
+	err = glGetError();
+	b3Assert(err ==GL_NO_ERROR);
+	//glUniformMatrix4fv(useShadow_ProjectionMatrix, 1, false, &m_data->m_projectionMatrix[0]);
+	//glUniformMatrix4fv(useShadow_ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
+	float modelView[16];
+
+	b3Matrix4x4Mul16(m_data->m_projectionMatrix,m_data->m_viewMatrix,modelView);
+	float MVP[16];
+	b3Matrix4x4Mul16(modelView,modelMat,MVP);
+	
+	glUniformMatrix4fv(triangle_mvp_location, 1, GL_FALSE, (const GLfloat*) MVP);
+	err = glGetError();
+	b3Assert(err ==GL_NO_ERROR);
+
+	glUniform3f(triangle_vcol_location,colorRGBA[0],colorRGBA[1],colorRGBA[2]);
+	b3Assert(err ==GL_NO_ERROR);
+
+	glEnableVertexAttribArray(triangle_vpos_location);
+	glVertexAttribPointer(triangle_vpos_location, 4, GL_FLOAT, GL_FALSE,
+                          sizeof(MyVertex), (void*) 0);
+	err = glGetError();
+	b3Assert(err ==GL_NO_ERROR);
+	glEnableVertexAttribArray(triangle_vUV_location);
+	err = glGetError();
+	b3Assert(err ==GL_NO_ERROR);
+	glVertexAttribPointer(triangle_vUV_location, 2, GL_FLOAT, GL_FALSE,
+                          sizeof(MyVertex), (void*) (sizeof(float) * 8));
+
+	err = glGetError();
+	b3Assert(err ==GL_NO_ERROR);
+
+
+ b3Assert(glGetError() ==GL_NO_ERROR);
+ 
+	  b3Assert(glGetError() ==GL_NO_ERROR);
+	glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT,indices);
+	  b3Assert(glGetError() ==GL_NO_ERROR);
+	glDeleteBuffers(1,&vertex_buffer);
+	  b3Assert(glGetError() ==GL_NO_ERROR);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D,0);
+	glUseProgram(0);
+
+}
+//virtual void drawTexturedTriangleMesh(const double* vertices, int numvertices, const int* indices, int numIndices, int primitiveType=B3_GL_TRIANGLES, int textureIndex=-1);
+
+
 void GLInstancingRenderer::drawPoint(const double* position, const double color[4], double pointDrawSize)
 {
 	float pos[4]={(float)position[0],(float)position[1],(float)position[2],0};
@@ -1490,131 +1779,6 @@ void GLInstancingRenderer::drawLine(const float from[4], const float to[4], cons
 	b3Assert(glGetError() ==GL_NO_ERROR);
 	glUseProgram(0);
 }
-
-struct PointerCaster
-{
-	union {
-		int m_baseIndex;
-		GLvoid* m_pointer;
-	};
-
-	PointerCaster()
-	:m_pointer(0)
-		{
-		}
-
-
-};
-
-
-
-#if 0
-static void    b3CreateFrustum(
-                        float left,
-                        float right,
-                        float bottom,
-                        float top,
-                        float nearVal,
-                        float farVal,
-                        float frustum[16])
-{
-
-    frustum[0*4+0] = (float(2) * nearVal) / (right - left);
-    frustum[0*4+1] = float(0);
-    frustum[0*4+2] = float(0);
-    frustum[0*4+3] = float(0);
-
-    frustum[1*4+0] = float(0);
-    frustum[1*4+1] = (float(2) * nearVal) / (top - bottom);
-    frustum[1*4+2] = float(0);
-    frustum[1*4+3] = float(0);
-
-    frustum[2*4+0] = (right + left) / (right - left);
-    frustum[2*4+1] = (top + bottom) / (top - bottom);
-    frustum[2*4+2] = -(farVal + nearVal) / (farVal - nearVal);
-    frustum[2*4+3] = float(-1);
-
-    frustum[3*4+0] = float(0);
-    frustum[3*4+1] = float(0);
-    frustum[3*4+2] = -(float(2) * farVal * nearVal) / (farVal - nearVal);
-    frustum[3*4+3] = float(0);
-
-}
-#endif
-
-static void b3Matrix4x4Mul(GLfloat aIn[4][4], GLfloat bIn[4][4], GLfloat result[4][4])
-{
-	for (int j=0;j<4;j++)
-		for (int i=0;i<4;i++)
-			result[j][i] = aIn[0][i] * bIn[j][0] + aIn[1][i] * bIn[j][1] + aIn[2][i] * bIn[j][2] + aIn[3][i] * bIn[j][3];
-}
-
-static void b3Matrix4x4Mul16(GLfloat aIn[16], GLfloat bIn[16], GLfloat result[16])
-{
-	for (int j=0;j<4;j++)
-		for (int i=0;i<4;i++)
-			result[j*4+i] = aIn[0*4+i] * bIn[j*4+0] + aIn[1*4+i] * bIn[j*4+1] + aIn[2*4+i] * bIn[j*4+2] + aIn[3*4+i] * bIn[j*4+3];
-}
-
-
-static void b3CreateDiagonalMatrix(GLfloat value, GLfloat result[4][4])
-{
-	for (int i=0;i<4;i++)
-	{
-		for (int j=0;j<4;j++)
-		{
-			if (i==j)
-			{
-				result[i][j] = value;
-			} else
-			{
-				result[i][j] = 0.f;
-			}
-		}
-	}
-}
-
-static void b3CreateOrtho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar, GLfloat result[4][4])
-{
-	b3CreateDiagonalMatrix(1.f,result);
-
-	result[0][0] = 2.f / (right - left);
-	result[1][1] = 2.f / (top - bottom);
-	result[2][2] = - 2.f / (zFar - zNear);
-	result[3][0] = - (right + left) / (right - left);
-	result[3][1] = - (top + bottom) / (top - bottom);
-	result[3][2] = - (zFar + zNear) / (zFar - zNear);
-}
-
-static void    b3CreateLookAt(const b3Vector3& eye, const b3Vector3& center,const b3Vector3& up, GLfloat result[16])
-{
-    b3Vector3 f = (center - eye).normalized();
-    b3Vector3 u = up.normalized();
-    b3Vector3 s = (f.cross(u)).normalized();
-    u = s.cross(f);
-
-    result[0*4+0] = s.x;
-    result[1*4+0] = s.y;
-    result[2*4+0] = s.z;
-
-	result[0*4+1] = u.x;
-    result[1*4+1] = u.y;
-    result[2*4+1] = u.z;
-
-    result[0*4+2] =-f.x;
-    result[1*4+2] =-f.y;
-    result[2*4+2] =-f.z;
-
-	result[0*4+3] = 0.f;
-    result[1*4+3] = 0.f;
-    result[2*4+3] = 0.f;
-
-    result[3*4+0] = -s.dot(eye);
-    result[3*4+1] = -u.dot(eye);
-    result[3*4+2] = f.dot(eye);
-    result[3*4+3] = 1.f;
-}
-
 
 
 
@@ -1960,7 +2124,10 @@ b3Assert(glGetError() ==GL_NO_ERROR);
                             {
                                 glDisable (GL_BLEND);
                             }
-                            glActiveTexture(GL_TEXTURE0);
+							glActiveTexture(GL_TEXTURE1);
+							glBindTexture(GL_TEXTURE_2D,0);
+
+							glActiveTexture(GL_TEXTURE0);
 							glBindTexture(GL_TEXTURE_2D,0);
                             break;
 						}

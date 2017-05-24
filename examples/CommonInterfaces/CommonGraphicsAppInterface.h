@@ -37,6 +37,12 @@ enum EnumSphereLevelOfDetail
 };
 struct CommonGraphicsApp
 {
+	enum drawText3DOption
+	{
+		eDrawText3D_OrtogonalFaceCamera=1,
+		eDrawText3D_TrueType=2,
+		eDrawText3D_TrackObject=4,
+	};
 	class CommonWindowInterface*	m_window;
 	struct CommonRenderInterface*	m_renderer;
 	struct CommonParameterInterface*	m_parameterInterface;
@@ -120,8 +126,21 @@ struct CommonGraphicsApp
 	virtual int getUpAxis() const = 0;
 	
 	virtual void swapBuffer() = 0;
-	virtual void drawText( const char* txt, int posX, int posY, float size = 1.0f) = 0;
-	virtual void drawText3D( const char* txt, float posX, float posZY, float posZ, float size)=0;
+	virtual void drawText( const char* txt, int posX, int posY)
+	{
+		float size=1;
+		float colorRGBA[4]={1,1,1,1};
+		drawText(txt,posX,posY, size, colorRGBA);
+	}
+
+	virtual void drawText( const char* txt, int posX, int posY, float size)
+	{
+		float colorRGBA[4]={1,1,1,1};
+		drawText(txt,posX,posY,size,colorRGBA);
+	}
+	virtual void drawText( const char* txt, int posX, int posY, float size, float colorRGBA[4]) = 0;
+	virtual void drawText3D( const char* txt, float posX, float posY, float posZ, float size)=0;
+	virtual void drawText3D( const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlag)=0;
 	virtual void drawTexturedRect(float x0, float y0, float x1, float y1, float color[4], float u0,float v0, float u1, float v1, int useRGBA)=0;
 	virtual int	registerCubeShape(float halfExtentsX,float halfExtentsY, float halfExtentsZ, int textureIndex = -1,  float textureScaling = 1)=0;
 	virtual int	registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lod, int textureId=-1) = 0;

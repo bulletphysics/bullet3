@@ -43,6 +43,7 @@ public:
 	//to a physics client, over shared memory
 	void    physicsDebugDraw(int debugDrawFlags);
 	void    renderScene(int renderFlags);
+	void	syncPhysicsToGraphics();
 
 	void enableCommandLogging(bool enable, const char* fileName);
 	void replayFromLogFile(const char* fileName);

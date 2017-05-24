@@ -17,6 +17,14 @@ enum
 	B3_USE_SHADOWMAP_RENDERMODE,
 };
 
+struct CommonGfxVertex3D
+{
+	float x,y,z,w;
+	float nx,ny,nz;
+	float u,v;
+};
+
+
 struct CommonRenderInterface
 {
 	virtual ~CommonRenderInterface() {}
@@ -46,13 +54,17 @@ struct CommonRenderInterface
 	virtual void drawLine(const double from[4], const double to[4], const double color[4], double lineWidth) = 0;
 	virtual void drawPoint(const float* position, const float color[4], float pointDrawSize)=0;
 	virtual void drawPoint(const double* position, const double color[4], double pointDrawSize)=0;
+	virtual void drawTexturedTriangleMesh(float worldPosition[3], float worldOrientation[4], const float* vertices, int numvertices, const unsigned int* indices, int numIndices, float color[4], int textureIndex=-1)=0;
+
 	virtual int registerShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType=B3_GL_TRIANGLES, int textureIndex=-1)=0;
     virtual void updateShape(int shapeIndex, const float* vertices)=0;
     
-    virtual int registerTexture(const unsigned char* texels, int width, int height)=0;
-    virtual void updateTexture(int textureIndex, const unsigned char* texels)=0;
+    virtual int registerTexture(const unsigned char* texels, int width, int height, bool flipPixelsY=true)=0;
+    virtual void updateTexture(int textureIndex, const unsigned char* texels, bool flipPixelsY=true)=0;
     virtual void activateTexture(int textureIndex)=0;
-    
+
+	virtual bool readSingleInstanceTransformToCPU(float* position, float* orientation, int srcIndex)=0;
+
 	virtual void writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int srcIndex)=0;
 	virtual void writeSingleInstanceTransformToCPU(const double* position, const double* orientation, int srcIndex)=0;
 	virtual void writeSingleInstanceColorToCPU(const float* color, int srcIndex)=0;
