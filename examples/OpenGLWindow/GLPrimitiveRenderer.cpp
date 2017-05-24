@@ -43,8 +43,6 @@ static const char* fragmentShader3D= \
 "		texcolor = vec4(1,1,1,texcolor.x);\n"
 "  }\n"
 "   fragColour = colourV*texcolor;\n"
-"   if (fragColour.w == 0.f)\n"
-"      discard;\n"
 "}\n";
 
 

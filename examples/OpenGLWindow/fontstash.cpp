@@ -564,10 +564,10 @@ static Vertex* setv(Vertex* v, float x, float y, float s, float t, float width, 
 	v->uv.p[0] = s;
     v->uv.p[1] = t;
 
-    v->colour.p[0] = colorRGBA[0];
-    v->colour.p[1] = colorRGBA[1];
-    v->colour.p[2] = colorRGBA[2];
-    v->colour.p[3] = colorRGBA[3];
+    v->colour.p[0] = 0.1;//colorRGBA[0];
+    v->colour.p[1] = 0.1;//colorRGBA[1];
+    v->colour.p[2] = 0.1;//colorRGBA[2];
+    v->colour.p[3] = 1.0;//colorRGBA[3];
 
 	return v+1;
 }

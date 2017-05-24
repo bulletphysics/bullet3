@@ -6011,6 +6011,11 @@ void PhysicsServerCommandProcessor::renderScene(int renderFlags)
 {
 	if (m_data->m_guiHelper)
 	{
+		if (0==(renderFlags&COV_DISABLE_SYNC_RENDERING))		
+ 		{		
+ 			m_data->m_guiHelper->syncPhysicsToGraphics(m_data->m_dynamicsWorld);		
+ 		}
+
 		m_data->m_guiHelper->render(m_data->m_dynamicsWorld);
 	}
 #ifdef USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD

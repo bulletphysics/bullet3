@@ -129,13 +129,13 @@ struct CommonGraphicsApp
 	virtual void drawText( const char* txt, int posX, int posY)
 	{
 		float size=1;
-		float colorRGBA[4]={1,1,1,1};
+		float colorRGBA[4]={0,0,0,1};
 		drawText(txt,posX,posY, size, colorRGBA);
 	}
 
 	virtual void drawText( const char* txt, int posX, int posY, float size)
 	{
-		float colorRGBA[4]={1,1,1,1};
+		float colorRGBA[4]={0,0,0,1};
 		drawText(txt,posX,posY,size,colorRGBA);
 	}
 	virtual void drawText( const char* txt, int posX, int posY, float size, float colorRGBA[4]) = 0;
