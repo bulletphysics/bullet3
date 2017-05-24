@@ -114,7 +114,7 @@ public:
 	virtual void drawPoints(const float* positions, const float color[4], int numPoints, int pointStrideInBytes, float pointDrawSize);
 	virtual void drawPoint(const float* position, const float color[4], float pointSize=1);
 	virtual void drawPoint(const double* position, const double color[4], double pointDrawSize=1);
-	virtual void drawTexturedTriangleMesh(float worldPosition[3], float worldOrientation[4], const float* vertices, int numvertices, const unsigned int* indices, int numIndices, float color[4], int textureIndex=-1);
+	virtual void drawTexturedTriangleMesh(float worldPosition[3], float worldOrientation[4], const float* vertices, int numvertices, const unsigned int* indices, int numIndices, float color[4], int textureIndex=-1, int vertexLayout=0);
 	
 	virtual void updateCamera(int upAxis=1);
 

@@ -225,7 +225,7 @@ struct	MyRenderCallbacks : public RenderCallbacks
 					float halfExtentsZ=1;
 					float textureScaling = 4;
 
-					b3AlignedObjectArray<CommonGfxVertex3D> verts;
+					b3AlignedObjectArray<GfxVertexFormat1> verts;
 					verts.resize(numVertices);
 					for (int i=0;i<numVertices;i++)
 					{
@@ -682,7 +682,7 @@ int	SimpleOpenGL3App::registerCubeShape(float halfExtentsX,float halfExtentsY, f
 	int numVertices = sizeof(cube_vertices_textured)/strideInBytes;
 	int numIndices = sizeof(cube_indices)/sizeof(int);
 
-	b3AlignedObjectArray<CommonGfxVertex3D> verts;
+	b3AlignedObjectArray<GfxVertexFormat1> verts;
 	verts.resize(numVertices);
 	for (int i=0;i<numVertices;i++)
 	{

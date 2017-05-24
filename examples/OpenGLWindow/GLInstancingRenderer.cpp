@@ -23,7 +23,7 @@ float shadowMapWorldSize=10;
 
 #define MAX_POINTS_IN_BATCH 1024
 #define MAX_LINES_IN_BATCH 1024
-
+#define MAX_TRIANGLES_IN_BATCH 8192
 
 #include "OpenGLInclude.h"
 #include "../CommonInterfaces/CommonWindowInterface.h"
@@ -75,18 +75,20 @@ float shadowMapWorldSize=10;
 #include "GLRenderToTexture.h"
 
 
+
 static const char* triangleVertexShaderText =
 "#version 330\n"
 "precision highp float;"
 "uniform mat4 MVP;\n"
 "uniform vec3 vCol;\n"
-"in vec4 vPos;\n"
-"in vec2 vUV;\n"
+"layout (location = 0) in vec3 vPos;\n"
+"layout (location = 1) in vec2 vUV;\n"
+
 "out vec3 clr;\n"
 "out vec2 uv0;\n"
 "void main()\n"
 "{\n"
-"    gl_Position = MVP * vPos;\n"
+"    gl_Position = MVP * vec4(vPos,1);\n"
 "    clr = vCol;\n"
 "    uv0 = vUV;\n"
 "}\n";
@@ -244,12 +246,14 @@ struct	GLInstanceRendererInternalData* GLInstancingRenderer::getInternalData()
 }
 
 
-static GLuint				triangleShaderProgram;
-static GLint triangle_mvp_location=-1;
-static GLint triangle_vpos_location=-1;
-static GLint triangle_vUV_location=-1;
-static GLint triangle_vcol_location=-1;
-static GLuint triangleIndexVbo=0;
+static GLuint	triangleShaderProgram;
+static GLint	triangle_mvp_location=-1;
+static GLint	triangle_vpos_location=-1;
+static GLint	triangle_vUV_location=-1;
+static GLint	triangle_vcol_location=-1;
+static GLuint	triangleVertexBufferObject=0;
+static GLuint	triangleVertexArrayObject=0;
+static GLuint	triangleIndexVbo=0;
 
 
 static GLuint               linesShader;        // The line renderer
@@ -1024,11 +1028,28 @@ void GLInstancingRenderer::InitShaders()
 
 	{
 		triangleShaderProgram = gltLoadShaderPair(triangleVertexShaderText,triangleFragmentShader);
+		
+		//triangle_vpos_location = glGetAttribLocation(triangleShaderProgram, "vPos");
+		//triangle_vUV_location = glGetAttribLocation(triangleShaderProgram, "vUV");
+
 		triangle_mvp_location = glGetUniformLocation(triangleShaderProgram, "MVP");
-		triangle_vpos_location = glGetAttribLocation(triangleShaderProgram, "vPos");
-		triangle_vUV_location = glGetAttribLocation(triangleShaderProgram, "vUV");
 		triangle_vcol_location = glGetUniformLocation(triangleShaderProgram, "vCol");
+	
+		glLinkProgram(triangleShaderProgram);
+		glUseProgram(triangleShaderProgram);
+
+		glGenVertexArrays(1, &triangleVertexArrayObject);
+		glBindVertexArray(triangleVertexArrayObject);
+
+		glGenBuffers(1, &triangleVertexBufferObject);
 		glGenBuffers(1, &triangleIndexVbo);
+
+		int sz = MAX_TRIANGLES_IN_BATCH*sizeof(GfxVertexFormat0);
+		glBindVertexArray(triangleVertexArrayObject);
+		glBindBuffer(GL_ARRAY_BUFFER, triangleVertexBufferObject);
+		glBufferData(GL_ARRAY_BUFFER, sz, 0, GL_DYNAMIC_DRAW);
+
+		glBindVertexArray(0);
 	}
 
 	linesShader = gltLoadShaderPair(linesVertexShader,linesFragmentShader);
@@ -1500,19 +1521,24 @@ static void    b3CreateLookAt(const b3Vector3& eye, const b3Vector3& center,cons
 
 
 
-typedef struct
-{
-    float position[4];
-    float colour[4];
-	float uv[2];
-} MyVertex;
 
 
-void GLInstancingRenderer::drawTexturedTriangleMesh(float worldPosition[3], float worldOrientation[4], const float* vertices, int numvertices, const unsigned int* indices, int numIndices, float colorRGBA[4], int textureIndex)
+
+void GLInstancingRenderer::drawTexturedTriangleMesh(float worldPosition[3], float worldOrientation[4], const float* vertices, int numvertices, const unsigned int* indices, int numIndices, float colorRGBA[4], int textureIndex, int vertexLayout)
 {
+	int sz = sizeof(GfxVertexFormat0);
+
+	glActiveTexture(GL_TEXTURE0);
+	activateTexture(textureIndex);
+	checkError("activateTexture");
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glUseProgram(triangleShaderProgram);
+
 	b3Quaternion orn(worldOrientation[0],worldOrientation[1],worldOrientation[2],worldOrientation[3]);
 	b3Vector3 pos = b3MakeVector3(worldPosition[0],worldPosition[1],worldPosition[2]);
 
+	
 	b3Transform worldTrans(orn,pos);
 	b3Scalar worldMatUnk[16];
 	worldTrans.getOpenGLMatrix(worldMatUnk);
@@ -1521,66 +1547,59 @@ void GLInstancingRenderer::drawTexturedTriangleMesh(float worldPosition[3], floa
 	{
 		modelMat[i] = worldMatUnk[i];
 	}
-	glEnable(GL_TEXTURE_2D);
-
-	activateTexture(textureIndex);
-
-	
-	glUseProgram(triangleShaderProgram);
-	int err =GL_NO_ERROR;
-	err = glGetError();
-	b3Assert(err ==GL_NO_ERROR);
-	GLuint vertex_buffer=0;
-	glGenBuffers(1, &vertex_buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(MyVertex)*numvertices, vertices, GL_STATIC_DRAW);
-
-	err = glGetError();
-	b3Assert(err ==GL_NO_ERROR);
-	//glUniformMatrix4fv(useShadow_ProjectionMatrix, 1, false, &m_data->m_projectionMatrix[0]);
-	//glUniformMatrix4fv(useShadow_ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
-	float modelView[16];
-
-	b3Matrix4x4Mul16(m_data->m_projectionMatrix,m_data->m_viewMatrix,modelView);
+	float viewProjection[16];
+	b3Matrix4x4Mul16(m_data->m_projectionMatrix,m_data->m_viewMatrix,viewProjection);
 	float MVP[16];
-	b3Matrix4x4Mul16(modelView,modelMat,MVP);
-	
+	b3Matrix4x4Mul16(viewProjection,modelMat,MVP);
 	glUniformMatrix4fv(triangle_mvp_location, 1, GL_FALSE, (const GLfloat*) MVP);
-	err = glGetError();
-	b3Assert(err ==GL_NO_ERROR);
+	checkError("glUniformMatrix4fv");
 
 	glUniform3f(triangle_vcol_location,colorRGBA[0],colorRGBA[1],colorRGBA[2]);
-	b3Assert(err ==GL_NO_ERROR);
+	checkError("glUniform3f");
+	
+	glBindVertexArray(triangleVertexArrayObject);
+	checkError("glBindVertexArray");
 
-	glEnableVertexAttribArray(triangle_vpos_location);
-	glVertexAttribPointer(triangle_vpos_location, 4, GL_FLOAT, GL_FALSE,
-                          sizeof(MyVertex), (void*) 0);
-	err = glGetError();
-	b3Assert(err ==GL_NO_ERROR);
-	glEnableVertexAttribArray(triangle_vUV_location);
-	err = glGetError();
-	b3Assert(err ==GL_NO_ERROR);
-	glVertexAttribPointer(triangle_vUV_location, 2, GL_FLOAT, GL_FALSE,
-                          sizeof(MyVertex), (void*) (sizeof(float) * 8));
+	glBindBuffer(GL_ARRAY_BUFFER, triangleVertexBufferObject);
+	checkError("glBindBuffer");
 
-	err = glGetError();
-	b3Assert(err ==GL_NO_ERROR);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GfxVertexFormat0)*numvertices, 0, GL_DYNAMIC_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GfxVertexFormat0)*numvertices, vertices);
 
+	PointerCaster posCast;
+	posCast.m_baseIndex = 0;
+	PointerCaster uvCast;
+	uvCast.m_baseIndex = 8*sizeof(float);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GfxVertexFormat0), posCast.m_pointer);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GfxVertexFormat0), uvCast.m_pointer);		
+	checkError("glVertexAttribPointer");
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	
+	glVertexAttribDivisor(0,0);
+	glVertexAttribDivisor(1,0);
+	checkError("glVertexAttribDivisor");
+	
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triangleIndexVbo);
+	int indexBufferSizeInBytes = numIndices*sizeof(int);
 
- b3Assert(glGetError() ==GL_NO_ERROR);
- 
-	  b3Assert(glGetError() ==GL_NO_ERROR);
-	glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT,indices);
-	  b3Assert(glGetError() ==GL_NO_ERROR);
-	glDeleteBuffers(1,&vertex_buffer);
-	  b3Assert(glGetError() ==GL_NO_ERROR);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices*sizeof(int), NULL, GL_DYNAMIC_DRAW);
+	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, numIndices*sizeof(int), indices);
+
+	glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
+
+	//glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT,indices);
+	checkError("glDrawElements");
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D,0);
 	glUseProgram(0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER,0);
+	glBindVertexArray(0);
+	checkError("glBindVertexArray");
 
 }
-//virtual void drawTexturedTriangleMesh(const double* vertices, int numvertices, const int* indices, int numIndices, int primitiveType=B3_GL_TRIANGLES, int textureIndex=-1);
 
 
 void GLInstancingRenderer::drawPoint(const double* position, const double color[4], double pointDrawSize)
@@ -1648,8 +1667,7 @@ void GLInstancingRenderer::drawLines(const float* positions, const float color[4
 	b3Clamp(lineWidth,(float)lineWidthRange[0],(float)lineWidthRange[1]);
 	glLineWidth(lineWidth);
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
-	b3Assert(glGetError() ==GL_NO_ERROR);
+
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	glActiveTexture(GL_TEXTURE0);

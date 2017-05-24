@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
 
 			float orientation[4] = {0,0,0,1};
 			
-			//app->drawText3D(bla,0,0,1,1);
+			app->drawText3D(bla,0,0,1,1);
 
 			sprintf(bla, "3d bitmap camera facing text:%d", frameCount);			
 			app->drawText3D(bla,position2,orientation,color,1,CommonGraphicsApp::eDrawText3D_OrtogonalFaceCamera);
@@ -178,9 +178,6 @@ int main(int argc, char* argv[])
 			app->drawText3D(bla,position2,orn,blue,1,CommonGraphicsApp::eDrawText3D_TrueType);
 
 			
-			//app->drawText3D(bla,position, orientation,color,0.1,optionFlag);
-		
-
 			app->swapBuffer();
 		} while (!app->m_window->requestedExit());
 

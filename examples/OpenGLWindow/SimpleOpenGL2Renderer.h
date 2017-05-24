@@ -41,7 +41,7 @@ public:
     virtual void writeSingleInstanceScaleToCPU(const double* scale, int srcIndex);
     virtual void	getCameraViewMatrix(float viewMat[16]) const;
     virtual void	getCameraProjectionMatrix(float projMat[16]) const;
-	virtual void drawTexturedTriangleMesh(float worldPosition[3], float worldOrientation[4], const float* vertices, int numvertices, const unsigned int* indices, int numIndices, float color[4], int textureIndex=-1)
+	virtual void drawTexturedTriangleMesh(float worldPosition[3], float worldOrientation[4], const float* vertices, int numvertices, const unsigned int* indices, int numIndices, float color[4], int textureIndex=-1, int vertexLayout=0)
 	{
 	}
     
