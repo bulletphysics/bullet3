@@ -57,8 +57,10 @@ struct OpenGLGuiHelper : public GUIHelperInterface
                                   int destinationHeight, int* numPixelsCopied);
 
 	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld) ;
-    
-    virtual void drawText3D( const char* txt, float posX, float posY, float posZ, float size);
+
+	virtual void drawText3D( const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlag);
+
+	virtual void drawText3D( const char* txt, float posX, float posY, float posZ, float size);
 
 	virtual int		addUserDebugText3D( const char* txt, const double positionXYZ[3], const double	textColorRGB[3], double size, double lifeTime)
 	{

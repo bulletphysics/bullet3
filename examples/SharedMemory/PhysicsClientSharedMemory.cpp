@@ -280,7 +280,15 @@ bool PhysicsClientSharedMemory::connect() {
 
     if (m_data->m_testBlock1) {
         if (m_data->m_testBlock1->m_magicId != SHARED_MEMORY_MAGIC_NUMBER) {
-            b3Error("Error: please start server before client\n");
+			//there is no chance people are still using this software 100 years from now ;-)
+			if ((m_data->m_testBlock1->m_magicId < 211705023) && 
+				(m_data->m_testBlock1->m_magicId >=201705023))
+			{
+				b3Error("Error: physics server version mismatch (expected %d got %d)\n",SHARED_MEMORY_MAGIC_NUMBER, m_data->m_testBlock1->m_magicId);
+			} else
+			{
+				b3Error("Error connecting to shared memory: please start server before client\n");
+			}
             m_data->m_sharedMemory->releaseSharedMemory(m_data->m_sharedMemoryKey,
                                                         SHARED_MEMORY_SIZE);
             m_data->m_testBlock1 = 0;

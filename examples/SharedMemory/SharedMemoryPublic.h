@@ -4,7 +4,8 @@
 #define SHARED_MEMORY_KEY 12347
 ///increase the SHARED_MEMORY_MAGIC_NUMBER whenever incompatible changes are made in the structures
 ///my convention is year/month/day/rev
-#define SHARED_MEMORY_MAGIC_NUMBER 201703024
+#define SHARED_MEMORY_MAGIC_NUMBER 201705023
+//#define SHARED_MEMORY_MAGIC_NUMBER 201703024
 
 enum EnumSharedMemoryClientCommand
 {
@@ -505,6 +506,13 @@ enum b3ConfigureDebugVisualizerEnum
 	COV_ENABLE_VR_RENDER_CONTROLLERS,
 	COV_ENABLE_RENDERING,
 	COV_ENABLE_SYNC_RENDERING_INTERNAL,
+};
+
+enum b3AddUserDebugItemEnum
+{
+	DEB_DEBUG_TEXT_USE_ORIENTATION=1,
+	DEB_DEBUG_TEXT_USE_TRUE_TYPE_FONTS=2,
+	DEB_DEBUG_TEXT_HAS_TRACKING_OBJECT=4,
 };
 
 enum eCONNECT_METHOD {

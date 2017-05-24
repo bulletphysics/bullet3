@@ -278,8 +278,11 @@ void PhysicsServerSharedMemory::renderScene(int renderFlags)
 {
 	m_data->m_commandProcessor->renderScene(renderFlags);
 
-	
-	
+}
+
+void	PhysicsServerSharedMemory::syncPhysicsToGraphics()
+{
+	m_data->m_commandProcessor->syncPhysicsToGraphics();
 }
 
 void    PhysicsServerSharedMemory::physicsDebugDraw(int debugDrawFlags)

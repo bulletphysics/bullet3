@@ -139,6 +139,11 @@ void SimpleOpenGL2Renderer::removeGraphicsInstance(int instanceUid)
 	m_data->m_graphicsInstancesPool.freeHandle(instanceUid);
 }
 
+bool SimpleOpenGL2Renderer::readSingleInstanceTransformToCPU(float* position, float* orientation, int srcIndex)
+{
+	return false;
+}
+
 void SimpleOpenGL2Renderer::writeSingleInstanceColorToCPU(const float* color, int srcIndex)
 {
 }
@@ -388,7 +393,7 @@ void SimpleOpenGL2Renderer::renderScene()
 }
     
     
-int	SimpleOpenGL2Renderer::registerTexture(const unsigned char* texels, int width, int height)
+int	SimpleOpenGL2Renderer::registerTexture(const unsigned char* texels, int width, int height, bool flipTexelsY)
 {
 	b3Assert(glGetError() ==GL_NO_ERROR);
 	glActiveTexture(GL_TEXTURE0);
@@ -406,12 +411,12 @@ int	SimpleOpenGL2Renderer::registerTexture(const unsigned char* texels, int widt
     h.m_height = height;
 
 	m_data->m_textureHandles.push_back(h);
-	updateTexture(textureIndex, texels);
+	updateTexture(textureIndex, texels,flipTexelsY);
 	return textureIndex;
 }
 
 
-void    SimpleOpenGL2Renderer::updateTexture(int textureIndex, const unsigned char* texels)
+void    SimpleOpenGL2Renderer::updateTexture(int textureIndex, const unsigned char* texels, bool flipTexelsY)
 {
     if (textureIndex>=0)
     {
@@ -420,27 +425,36 @@ void    SimpleOpenGL2Renderer::updateTexture(int textureIndex, const unsigned ch
 
         glActiveTexture(GL_TEXTURE0);
         b3Assert(glGetError() ==GL_NO_ERROR);
-        InternalTextureHandle2& h = m_data->m_textureHandles[textureIndex];
+		InternalTextureHandle2& h = m_data->m_textureHandles[textureIndex];
+		glBindTexture(GL_TEXTURE_2D,h.m_glTexture);
+        b3Assert(glGetError() ==GL_NO_ERROR);
 
-		//textures need to be flipped for OpenGL...
-		b3AlignedObjectArray<unsigned char> flippedTexels;
-		flippedTexels.resize(h.m_width* h.m_height * 3);
-		for (int i = 0; i < h.m_width; i++)
+       
+		if (flipTexelsY)
 		{
-			for (int j = 0; j < h.m_height; j++)
+			//textures need to be flipped for OpenGL...
+			b3AlignedObjectArray<unsigned char> flippedTexels;
+			flippedTexels.resize(h.m_width* h.m_height * 3);
+			for (int i = 0; i < h.m_width; i++)
 			{
-				flippedTexels[(i + j*h.m_width) * 3] =      texels[(i + (h.m_height - 1 -j )*h.m_width) * 3];
-				flippedTexels[(i + j*h.m_width) * 3+1] =    texels[(i + (h.m_height - 1 - j)*h.m_width) * 3+1];
-				flippedTexels[(i + j*h.m_width) * 3+2] =    texels[(i + (h.m_height - 1 - j)*h.m_width) * 3+2];
+				for (int j = 0; j < h.m_height; j++)
+				{
+					flippedTexels[(i + j*h.m_width) * 3] =      texels[(i + (h.m_height - 1 -j )*h.m_width) * 3];
+					flippedTexels[(i + j*h.m_width) * 3+1] =    texels[(i + (h.m_height - 1 - j)*h.m_width) * 3+1];
+					flippedTexels[(i + j*h.m_width) * 3+2] =    texels[(i + (h.m_height - 1 - j)*h.m_width) * 3+2];
+				}
 			}
+			  //  const GLubyte*	image= (const GLubyte*)texels;	
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, h.m_width,h.m_height,0,GL_RGB,GL_UNSIGNED_BYTE,&flippedTexels[0]);
+    
+		} else
+		{
+			//  const GLubyte*	image= (const GLubyte*)texels;	
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, h.m_width,h.m_height,0,GL_RGB,GL_UNSIGNED_BYTE,&texels[0]);
+    
 		}
 
-
-        glBindTexture(GL_TEXTURE_2D,h.m_glTexture);
-        b3Assert(glGetError() ==GL_NO_ERROR);
-      //  const GLubyte*	image= (const GLubyte*)texels;	
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, h.m_width,h.m_height,0,GL_RGB,GL_UNSIGNED_BYTE,&flippedTexels[0]);
-        b3Assert(glGetError() ==GL_NO_ERROR);
+		b3Assert(glGetError() ==GL_NO_ERROR);
         glGenerateMipmap(GL_TEXTURE_2D);
         b3Assert(glGetError() ==GL_NO_ERROR);
     }

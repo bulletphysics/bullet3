@@ -1612,6 +1612,9 @@ b3SharedMemoryCommandHandle b3InitUserDebugDrawAddLine3D(b3PhysicsClientHandle p
 		
 	command->m_userDebugDrawArgs.m_lineWidth = lineWidth;
 	command->m_userDebugDrawArgs.m_lifeTime = lifeTime;
+	command->m_userDebugDrawArgs.m_parentObjectUniqueId = -1;
+	command->m_userDebugDrawArgs.m_parentLinkIndex = -1;
+	command->m_userDebugDrawArgs.m_optionFlags = 0;
 
 	return (b3SharedMemoryCommandHandle) command;
 }
@@ -1646,9 +1649,50 @@ b3SharedMemoryCommandHandle b3InitUserDebugDrawAddText3D(b3PhysicsClientHandle p
 	command->m_userDebugDrawArgs.m_textSize = textSize;
 
 	command->m_userDebugDrawArgs.m_lifeTime = lifeTime;
+	command->m_userDebugDrawArgs.m_parentObjectUniqueId = -1;
+	command->m_userDebugDrawArgs.m_parentLinkIndex = -1;
+
+	command->m_userDebugDrawArgs.m_optionFlags = 0;
 
 	return (b3SharedMemoryCommandHandle) command;
 }
+
+void b3UserDebugTextSetOptionFlags(b3SharedMemoryCommandHandle commandHandle, int optionFlags)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_USER_DEBUG_DRAW);
+	b3Assert(command->m_updateFlags & USER_DEBUG_HAS_TEXT);
+	command->m_userDebugDrawArgs.m_optionFlags = optionFlags;
+	command->m_updateFlags |= USER_DEBUG_HAS_OPTION_FLAGS;
+}
+
+void b3UserDebugTextSetOrientation(b3SharedMemoryCommandHandle commandHandle, double orientation[4])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_USER_DEBUG_DRAW);
+	b3Assert(command->m_updateFlags & USER_DEBUG_HAS_TEXT);
+	command->m_userDebugDrawArgs.m_textOrientation[0] = orientation[0];
+	command->m_userDebugDrawArgs.m_textOrientation[1] = orientation[1];
+	command->m_userDebugDrawArgs.m_textOrientation[2] = orientation[2];
+	command->m_userDebugDrawArgs.m_textOrientation[3] = orientation[3];
+	command->m_updateFlags |= USER_DEBUG_HAS_TEXT_ORIENTATION;
+
+}
+
+
+void b3UserDebugItemSetParentObject(b3SharedMemoryCommandHandle commandHandle, int objectUniqueId, int linkIndex)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_USER_DEBUG_DRAW);
+	
+	command->m_updateFlags |= USER_DEBUG_HAS_PARENT_OBJECT;
+	command->m_userDebugDrawArgs.m_parentObjectUniqueId = objectUniqueId;
+	command->m_userDebugDrawArgs.m_parentLinkIndex = linkIndex;
+}
+
 
 b3SharedMemoryCommandHandle b3InitUserDebugAddParameter(b3PhysicsClientHandle physClient, const char* txt, double rangeMin, double rangeMax, double startValue)
 {
@@ -1670,6 +1714,8 @@ b3SharedMemoryCommandHandle b3InitUserDebugAddParameter(b3PhysicsClientHandle ph
 	command->m_userDebugDrawArgs.m_rangeMin = rangeMin;
 	command->m_userDebugDrawArgs.m_rangeMax = rangeMax;
 	command->m_userDebugDrawArgs.m_startValue = startValue;
+	command->m_userDebugDrawArgs.m_parentObjectUniqueId = -1;
+	command->m_userDebugDrawArgs.m_optionFlags = 0;
 	return (b3SharedMemoryCommandHandle)command;
 }
 
