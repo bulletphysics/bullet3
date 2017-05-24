@@ -3079,16 +3079,16 @@ static PyObject* pybullet_addUserDebugText(PyObject* self, PyObject* args, PyObj
 	PyObject* textColorRGBObj = 0;
 	PyObject* textOrientationObj = 0;
 	double textOrientation[4];
-	int trackingObjectUniqueId=-1;
-	int trackingLinkIndex=-1;
+	int parentObjectUniqueId=-1;
+	int parentLinkIndex=-1;
 
 	double textSize = 1.f;
 	double lifeTime = 0.f;
 	int physicsClientId = 0;
 	b3PhysicsClientHandle sm = 0;
-	static char* kwlist[] = {"text", "textPosition", "textColorRGB", "textSize", "lifeTime", "textOrientation", "trackObjectUniqueId", "trackLinkIndex", "physicsClientId", NULL};
+	static char* kwlist[] = {"text", "textPosition", "textColorRGB", "textSize", "lifeTime", "textOrientation", "parentObjectUniqueId", "parentLinkIndex", "physicsClientId", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "sO|OddOiii", kwlist, &text, &textPositionObj, &textColorRGBObj, &textSize, &lifeTime, &textOrientationObj, &trackingObjectUniqueId, &trackingLinkIndex, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "sO|OddOiii", kwlist, &text, &textPositionObj, &textColorRGBObj, &textSize, &lifeTime, &textOrientationObj, &parentObjectUniqueId, &parentLinkIndex, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -3118,9 +3118,9 @@ static PyObject* pybullet_addUserDebugText(PyObject* self, PyObject* args, PyObj
 
 	commandHandle = b3InitUserDebugDrawAddText3D(sm, text, posXYZ, colorRGB, textSize, lifeTime);
 
-	if (trackingObjectUniqueId>=0)
+	if (parentObjectUniqueId>=0)
 	{
-		b3UserDebugItemSetTrackingObject(commandHandle, trackingObjectUniqueId,trackingLinkIndex);
+		b3UserDebugItemSetParentObject(commandHandle, parentObjectUniqueId,parentLinkIndex);
 	}
 	if (textOrientationObj)
 	{
@@ -3158,8 +3158,8 @@ static PyObject* pybullet_addUserDebugLine(PyObject* self, PyObject* args, PyObj
 	double fromXYZ[3];
 	double toXYZ[3];
 	double colorRGB[3] = {1, 1, 1};
-	int trackingObjectUniqueId=-1;
-	int trackingLinkIndex=-1;
+	int parentObjectUniqueId=-1;
+	int parentLinkIndex=-1;
 
 	PyObject* lineFromObj = 0;
 	PyObject* lineToObj = 0;
@@ -3168,9 +3168,9 @@ static PyObject* pybullet_addUserDebugLine(PyObject* self, PyObject* args, PyObj
 	double lifeTime = 0.f;
 	int physicsClientId = 0;
 	b3PhysicsClientHandle sm = 0;
-	static char* kwlist[] = {"lineFromXYZ", "lineToXYZ", "lineColorRGB", "lineWidth", "lifeTime", "trackObjectUniqueId", "trackLinkIndex", "physicsClientId", NULL};
+	static char* kwlist[] = {"lineFromXYZ", "lineToXYZ", "lineColorRGB", "lineWidth", "lifeTime", "parentObjectUniqueId", "parentLinkIndex", "physicsClientId", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|Oddiii", kwlist, &lineFromObj, &lineToObj, &lineColorRGBObj, &lineWidth, &lifeTime, &trackingObjectUniqueId, &trackingLinkIndex, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|Oddiii", kwlist, &lineFromObj, &lineToObj, &lineColorRGBObj, &lineWidth, &lifeTime, &parentObjectUniqueId, &parentLinkIndex, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -3201,9 +3201,9 @@ static PyObject* pybullet_addUserDebugLine(PyObject* self, PyObject* args, PyObj
 
 	commandHandle = b3InitUserDebugDrawAddLine3D(sm, fromXYZ, toXYZ, colorRGB, lineWidth, lifeTime);
 
-	if (trackingObjectUniqueId>=0)
+	if (parentObjectUniqueId>=0)
 	{
-		b3UserDebugItemSetTrackingObject(commandHandle, trackingObjectUniqueId,trackingLinkIndex);
+		b3UserDebugItemSetParentObject(commandHandle, parentObjectUniqueId,parentLinkIndex);
 	}
 
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);

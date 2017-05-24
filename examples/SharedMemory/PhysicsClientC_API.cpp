@@ -1612,8 +1612,8 @@ b3SharedMemoryCommandHandle b3InitUserDebugDrawAddLine3D(b3PhysicsClientHandle p
 		
 	command->m_userDebugDrawArgs.m_lineWidth = lineWidth;
 	command->m_userDebugDrawArgs.m_lifeTime = lifeTime;
-	command->m_userDebugDrawArgs.m_trackingObjectUniqueId = -1;
-	command->m_userDebugDrawArgs.m_trackingLinkIndex = -1;
+	command->m_userDebugDrawArgs.m_parentObjectUniqueId = -1;
+	command->m_userDebugDrawArgs.m_parentLinkIndex = -1;
 	command->m_userDebugDrawArgs.m_optionFlags = 0;
 
 	return (b3SharedMemoryCommandHandle) command;
@@ -1649,8 +1649,8 @@ b3SharedMemoryCommandHandle b3InitUserDebugDrawAddText3D(b3PhysicsClientHandle p
 	command->m_userDebugDrawArgs.m_textSize = textSize;
 
 	command->m_userDebugDrawArgs.m_lifeTime = lifeTime;
-	command->m_userDebugDrawArgs.m_trackingObjectUniqueId = -1;
-	command->m_userDebugDrawArgs.m_trackingLinkIndex = -1;
+	command->m_userDebugDrawArgs.m_parentObjectUniqueId = -1;
+	command->m_userDebugDrawArgs.m_parentLinkIndex = -1;
 
 	command->m_userDebugDrawArgs.m_optionFlags = 0;
 
@@ -1682,15 +1682,15 @@ void b3UserDebugTextSetOrientation(b3SharedMemoryCommandHandle commandHandle, do
 }
 
 
-void b3UserDebugItemSetTrackingObject(b3SharedMemoryCommandHandle commandHandle, int objectUniqueId, int linkIndex)
+void b3UserDebugItemSetParentObject(b3SharedMemoryCommandHandle commandHandle, int objectUniqueId, int linkIndex)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
 	b3Assert(command);
 	b3Assert(command->m_type == CMD_USER_DEBUG_DRAW);
 	
-	command->m_updateFlags |= USER_DEBUG_HAS_TRACKING_OBJECT;
-	command->m_userDebugDrawArgs.m_trackingObjectUniqueId = objectUniqueId;
-	command->m_userDebugDrawArgs.m_trackingLinkIndex = linkIndex;
+	command->m_updateFlags |= USER_DEBUG_HAS_PARENT_OBJECT;
+	command->m_userDebugDrawArgs.m_parentObjectUniqueId = objectUniqueId;
+	command->m_userDebugDrawArgs.m_parentLinkIndex = linkIndex;
 }
 
 
@@ -1714,7 +1714,7 @@ b3SharedMemoryCommandHandle b3InitUserDebugAddParameter(b3PhysicsClientHandle ph
 	command->m_userDebugDrawArgs.m_rangeMin = rangeMin;
 	command->m_userDebugDrawArgs.m_rangeMax = rangeMax;
 	command->m_userDebugDrawArgs.m_startValue = startValue;
-	command->m_userDebugDrawArgs.m_trackingObjectUniqueId = -1;
+	command->m_userDebugDrawArgs.m_parentObjectUniqueId = -1;
 	command->m_userDebugDrawArgs.m_optionFlags = 0;
 	return (b3SharedMemoryCommandHandle)command;
 }

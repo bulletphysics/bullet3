@@ -627,7 +627,7 @@ enum EnumUserDebugDrawFlags
 	USER_DEBUG_READ_PARAMETER=128,
 	USER_DEBUG_HAS_OPTION_FLAGS=256,
 	USER_DEBUG_HAS_TEXT_ORIENTATION = 512,
-	USER_DEBUG_HAS_TRACKING_OBJECT=1024,
+	USER_DEBUG_HAS_PARENT_OBJECT=1024,
 
 };
 
@@ -644,8 +644,8 @@ struct UserDebugDrawArgs
 	char m_text[MAX_FILENAME_LENGTH];
 	double m_textPositionXYZ[3];
 	double m_textOrientation[4];
-	int m_trackingObjectUniqueId;
-	int m_trackingLinkIndex;
+	int m_parentObjectUniqueId;
+	int m_parentLinkIndex;
 	double m_textColorRGB[3];
 	double m_textSize;
 	int m_optionFlags;

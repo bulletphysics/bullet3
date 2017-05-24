@@ -5820,12 +5820,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 						int trackingVisualShapeIndex = -1;
 
-						if (clientCmd.m_userDebugDrawArgs.m_trackingObjectUniqueId>=0)
+						if (clientCmd.m_userDebugDrawArgs.m_parentObjectUniqueId>=0)
 						{
-							InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_userDebugDrawArgs.m_trackingObjectUniqueId);
+							InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_userDebugDrawArgs.m_parentObjectUniqueId);
 							if (bodyHandle && bodyHandle->m_multiBody)
 							{
-								int linkIndex = clientCmd.m_userDebugDrawArgs.m_trackingLinkIndex;
+								int linkIndex = clientCmd.m_userDebugDrawArgs.m_parentLinkIndex;
 								if (linkIndex ==-1)
 								{
 									if (bodyHandle->m_multiBody->getBaseCollider())

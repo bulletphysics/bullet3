@@ -127,7 +127,7 @@ b3SharedMemoryCommandHandle b3InitUserDebugDrawAddText3D(b3PhysicsClientHandle p
 void b3UserDebugTextSetOptionFlags(b3SharedMemoryCommandHandle commandHandle, int optionFlags);
 void b3UserDebugTextSetOrientation(b3SharedMemoryCommandHandle commandHandle, double orientation[4]);
 
-void b3UserDebugItemSetTrackingObject(b3SharedMemoryCommandHandle commandHandle, int objectUniqueId, int linkIndex);
+void b3UserDebugItemSetParentObject(b3SharedMemoryCommandHandle commandHandle, int objectUniqueId, int linkIndex);
 
 b3SharedMemoryCommandHandle b3InitUserDebugAddParameter(b3PhysicsClientHandle physClient, const char* txt, double rangeMin, double rangeMax, double startValue);
 b3SharedMemoryCommandHandle b3InitUserDebugReadParameter(b3PhysicsClientHandle physClient, int debugItemUniqueId);
