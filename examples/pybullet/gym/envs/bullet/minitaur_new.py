@@ -4,8 +4,12 @@ import copy
 import math
 
 class Minitaur:
-  def __init__(self, urdfRootPath=''):
+
+  def __init__(self, urdfRootPath='', timeStep=0.01, isEnableSelfCollision=True, motorVelocityLimit=10.0):
     self.urdfRootPath = urdfRootPath
+    self.isEnableSelfCollision = isEnableSelfCollision
+    self.motorVelocityLimit = motorVelocityLimit
+    self.timeStep = timeStep
     self.reset()
 
   def buildJointNameToIdDict(self):
@@ -27,8 +31,10 @@ class Minitaur:
     self.motorIdList.append(self.jointNameToId['motor_back_rightR_joint'])
 
   def reset(self):
-#    self.quadruped = p.loadURDF("%squadruped/minitaur.urdf" % self.urdfRootPath, [0,0,.2], flags=p.URDF_USE_SELF_COLLISION)
-    self.quadruped = p.loadURDF("%squadruped/minitaur.urdf" % self.urdfRootPath, [0,0,.2])
+    if self.isEnableSelfCollision:
+      self.quadruped = p.loadURDF("%s/quadruped/minitaur.urdf" % self.urdfRootPath, [0,0,.2], flags=p.URDF_USE_SELF_COLLISION)
+    else:
+      self.quadruped = p.loadURDF("%s/quadruped/minitaur.urdf" % self.urdfRootPath, [0,0,.2])
     self.kp = 1
     self.kd = 1
     self.maxForce = 3.5
@@ -116,11 +122,15 @@ class Minitaur:
     observation.extend(self.getMotorVelocities().tolist())
     observation.extend(self.getMotorTorques().tolist())
     observation.extend(list(self.getBaseOrientation()))
-    observation.extend(list(self.getBasePosition()))
     return observation
 
 
   def applyAction(self, motorCommands):
+    if self.motorVelocityLimit < np.inf:
+      currentMotorAngle = self.getMotorAngles()
+      motorCommandsMax = currentMotorAngle + self.timeStep * self.motorVelocityLimit
+      motorCommandsMin = currentMotorAngle - self.timeStep * self.motorVelocityLimit
+      motorCommands = np.clip(motorCommands, motorCommandsMin, motorCommandsMax)
     motorCommandsWithDir = np.multiply(motorCommands, self.motorDir)
 #    print('action: {}'.format(motorCommands))
 #    print('motor: {}'.format(motorCommandsWithDir))

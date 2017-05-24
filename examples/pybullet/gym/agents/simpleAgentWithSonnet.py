@@ -18,7 +18,7 @@ class SimpleAgent():
       session,
       ckpt_path,
       actor_layer_size,
-      observation_size=(31,),
+      observation_size=(28,),
       action_size=8,
   ):
     self._ckpt_path = ckpt_path
@@ -30,7 +30,7 @@ class SimpleAgent():
 
   def _build(self):
     self._agent_net = actor_net.ActorNetwork(self._actor_layer_size, self._action_size)
-    self._obs = tf.placeholder(tf.float32, (31,))
+    self._obs = tf.placeholder(tf.float32, self._observation_size)
     with tf.name_scope('Act'):
       batch_obs = snt.nest.pack_iterable_as(self._obs,
                                             snt.nest.map(lambda x: tf.expand_dims(x, 0),
