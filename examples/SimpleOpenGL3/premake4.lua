@@ -17,7 +17,7 @@
 		initGlew()
 	
 		files {
-		"*.cpp",
+		"main.cpp",
 		"*.h",
 		}
 		
