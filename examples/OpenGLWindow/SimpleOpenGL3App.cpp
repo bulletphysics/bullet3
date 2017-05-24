@@ -33,7 +33,7 @@
 #include <assert.h>
 #include "GLRenderToTexture.h"
 #include "Bullet3Common/b3Quaternion.h"
-#include <string>//memset
+#include <string.h>//memset
 #ifdef _WIN32
     #define popen _popen
     #define pclose _pclose
