@@ -60,9 +60,9 @@ def testDDPGPolicy():
   sum_reward = 0
   steps = 1000
   ckpt_path = 'data/agent/tf_graph_data/tf_graph_data_converted.ckpt-0'
-  observation_shape = (31,)
+  observation_shape = (28,)
   action_size = 8
-  actor_layer_size = (100, 181)
+  actor_layer_size = (297, 158)
   n_steps = 0
   tf.reset_default_graph()
   with tf.Session() as session:
