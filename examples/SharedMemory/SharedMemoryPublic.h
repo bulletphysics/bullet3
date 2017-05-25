@@ -4,7 +4,7 @@
 #define SHARED_MEMORY_KEY 12347
 ///increase the SHARED_MEMORY_MAGIC_NUMBER whenever incompatible changes are made in the structures
 ///my convention is year/month/day/rev
-#define SHARED_MEMORY_MAGIC_NUMBER 201705023
+#define SHARED_MEMORY_MAGIC_NUMBER 201705025
 //#define SHARED_MEMORY_MAGIC_NUMBER 201703024
 
 enum EnumSharedMemoryClientCommand
@@ -425,7 +425,7 @@ struct b3RaycastInformation
 };
 
 
-#define VISUAL_SHAPE_MAX_PATH_LEN 128
+#define VISUAL_SHAPE_MAX_PATH_LEN 1024
 
 struct b3VisualShapeData
 {
