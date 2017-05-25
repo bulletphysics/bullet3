@@ -5816,6 +5816,37 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						SharedMemoryStatus& serverCmd = serverStatusOut;
 						serverCmd.m_type = CMD_USER_DEBUG_DRAW_FAILED;
 						hasStatus = true;
+
+
+						int trackingVisualShapeIndex = -1;
+
+						if (clientCmd.m_userDebugDrawArgs.m_parentObjectUniqueId>=0)
+						{
+							InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_userDebugDrawArgs.m_parentObjectUniqueId);
+							if (bodyHandle && bodyHandle->m_multiBody)
+							{
+								int linkIndex = clientCmd.m_userDebugDrawArgs.m_parentLinkIndex;
+								if (linkIndex ==-1)
+								{
+									if (bodyHandle->m_multiBody->getBaseCollider())
+									{
+										trackingVisualShapeIndex  = bodyHandle->m_multiBody->getBaseCollider()->getUserIndex();
+									}
+								} else
+								{
+									if (linkIndex >=0 && linkIndex < bodyHandle->m_multiBody->getNumLinks())
+									{
+										if (bodyHandle->m_multiBody->getLink(linkIndex).m_collider)
+										{
+											trackingVisualShapeIndex  = bodyHandle->m_multiBody->getLink(linkIndex).m_collider->getUserIndex();
+										}
+									}
+
+								}
+
+							}
+						}
+
 						if (clientCmd.m_updateFlags & USER_DEBUG_ADD_PARAMETER)
 						{
 							int uid = m_data->m_guiHelper->addUserDebugParameter(
@@ -5888,11 +5919,27 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 						if (clientCmd.m_updateFlags & USER_DEBUG_HAS_TEXT)
 						{
+								//addUserDebugText3D( const double orientation[4], const double	textColorRGB[3], double size, double lifeTime, int trackingObjectUniqueId, int optionFlags){return -1;}
+
+							int optionFlags = clientCmd.m_userDebugDrawArgs.m_optionFlags;
+
+							if (clientCmd.m_updateFlags & USER_DEBUG_HAS_TEXT_ORIENTATION)
+							{
+								optionFlags |= DEB_DEBUG_TEXT_USE_ORIENTATION;
+							}
+
+
+							
+
+
 							int uid = m_data->m_guiHelper->addUserDebugText3D(clientCmd.m_userDebugDrawArgs.m_text,
 								clientCmd.m_userDebugDrawArgs.m_textPositionXYZ,
+								clientCmd.m_userDebugDrawArgs.m_textOrientation,
 								clientCmd.m_userDebugDrawArgs.m_textColorRGB,
 								clientCmd.m_userDebugDrawArgs.m_textSize,
-								clientCmd.m_userDebugDrawArgs.m_lifeTime);
+								clientCmd.m_userDebugDrawArgs.m_lifeTime,
+								trackingVisualShapeIndex,
+								optionFlags);
 
 							if (uid>=0)
 							{
@@ -5908,7 +5955,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								clientCmd.m_userDebugDrawArgs.m_debugLineToXYZ,
 								clientCmd.m_userDebugDrawArgs.m_debugLineColorRGB,
 								clientCmd.m_userDebugDrawArgs.m_lineWidth,
-								clientCmd.m_userDebugDrawArgs.m_lifeTime);
+								clientCmd.m_userDebugDrawArgs.m_lifeTime,
+								trackingVisualShapeIndex);
 
 							if (uid>=0)
 							{
@@ -5953,14 +6001,21 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 //static int skip=1;
 
+void PhysicsServerCommandProcessor::syncPhysicsToGraphics()
+{
+	m_data->m_guiHelper->syncPhysicsToGraphics(m_data->m_dynamicsWorld);
+}
+
+
 void PhysicsServerCommandProcessor::renderScene(int renderFlags)
 {
 	if (m_data->m_guiHelper)
 	{
-		if (0==(renderFlags&COV_DISABLE_SYNC_RENDERING))
-		{
-			m_data->m_guiHelper->syncPhysicsToGraphics(m_data->m_dynamicsWorld);
-		}
+		if (0==(renderFlags&COV_DISABLE_SYNC_RENDERING))		
+ 		{		
+ 			m_data->m_guiHelper->syncPhysicsToGraphics(m_data->m_dynamicsWorld);		
+ 		}
+
 		m_data->m_guiHelper->render(m_data->m_dynamicsWorld);
 	}
 #ifdef USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD

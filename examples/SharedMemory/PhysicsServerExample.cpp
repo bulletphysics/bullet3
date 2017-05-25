@@ -541,6 +541,7 @@ struct UserDebugDrawLine
 	
 	double m_lifeTime;
 	int m_itemUniqueId;
+	int m_trackingVisualShapeIndex;
 };
 
 struct UserDebugParameter
@@ -555,12 +556,16 @@ struct UserDebugParameter
 struct UserDebugText
 {
 	char m_text[1024];
-	double m_textPositionXYZ[3];
+	double m_textPositionXYZ1[3];
 	double m_textColorRGB[3];
 	double textSize;
 
 	double m_lifeTime;
 	int m_itemUniqueId;
+	double m_textOrientation[4];
+	int m_trackingVisualShapeIndex;
+	int m_optionFlags;
+
 };
 
 
@@ -783,7 +788,7 @@ public:
 		m_texels(0),
 		m_textureId(-1)
 	{
-		m_childGuiHelper = guiHelper;;
+		m_childGuiHelper = guiHelper;
 
 	}
 
@@ -1078,12 +1083,16 @@ public:
 	{
 	}
 
+	virtual void drawText3D( const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlag)
+	{
+	}
+
 
 	btAlignedObjectArray<UserDebugText> m_userDebugText;
 	
 	UserDebugText m_tmpText;
 
-	virtual int		addUserDebugText3D( const char* txt, const double positionXYZ[3], const double	textColorRGB[3], double size, double lifeTime)
+	virtual int		addUserDebugText3D( const char* txt, const double positionXYZ[3], const double orientation[4], const double	textColorRGB[3], double size, double lifeTime, int trackingVisualShapeIndex, int optionFlags)
 	{
 		
 		m_tmpText.m_itemUniqueId = m_uidGenerator++;
@@ -1091,12 +1100,26 @@ public:
 		m_tmpText.textSize = size;
 		//int len = strlen(txt);
 		strcpy(m_tmpText.m_text,txt);
-		m_tmpText.m_textPositionXYZ[0] = positionXYZ[0];
-		m_tmpText.m_textPositionXYZ[1] = positionXYZ[1];
-		m_tmpText.m_textPositionXYZ[2] = positionXYZ[2];
+		m_tmpText.m_textPositionXYZ1[0] = positionXYZ[0];
+		m_tmpText.m_textPositionXYZ1[1] = positionXYZ[1];
+		m_tmpText.m_textPositionXYZ1[2] = positionXYZ[2];
+
+		m_tmpText.m_textOrientation[0] = orientation[0];
+		m_tmpText.m_textOrientation[1] = orientation[1];
+		m_tmpText.m_textOrientation[2] = orientation[2];
+		m_tmpText.m_textOrientation[3] = orientation[3];
+
 		m_tmpText.m_textColorRGB[0] = textColorRGB[0];
 		m_tmpText.m_textColorRGB[1] = textColorRGB[1];
 		m_tmpText.m_textColorRGB[2] = textColorRGB[2];
+
+		m_tmpText.m_trackingVisualShapeIndex = trackingVisualShapeIndex;
+
+		m_tmpText.m_optionFlags = optionFlags;
+		m_tmpText.m_textOrientation[0] = orientation[0];
+		m_tmpText.m_textOrientation[1] = orientation[1];
+		m_tmpText.m_textOrientation[2] = orientation[2];
+		m_tmpText.m_textOrientation[3] = orientation[3];
 
 		m_cs->lock();
 		m_cs->setSharedParam(1, eGUIUserDebugAddText);
@@ -1140,7 +1163,7 @@ public:
 	btAlignedObjectArray<UserDebugDrawLine> m_userDebugLines;
 	UserDebugDrawLine m_tmpLine;
 
-	virtual int		addUserDebugLine(const double	debugLineFromXYZ[3], const double	debugLineToXYZ[3], const double	debugLineColorRGB[3], double lineWidth, double lifeTime )
+	virtual int		addUserDebugLine(const double	debugLineFromXYZ[3], const double	debugLineToXYZ[3], const double	debugLineColorRGB[3], double lineWidth, double lifeTime , int trackingVisualShapeIndex)
 	{
 		m_tmpLine.m_lifeTime = lifeTime;
 		m_tmpLine.m_lineWidth = lineWidth;
@@ -1156,7 +1179,7 @@ public:
 		m_tmpLine.m_debugLineColorRGB[0] = debugLineColorRGB[0];
 		m_tmpLine.m_debugLineColorRGB[1] = debugLineColorRGB[1];
 		m_tmpLine.m_debugLineColorRGB[2] = debugLineColorRGB[2];
-		
+		m_tmpLine.m_trackingVisualShapeIndex = trackingVisualShapeIndex;
 		m_cs->lock();
 		m_cs->setSharedParam(1, eGUIUserDebugAddLine);
 		workerThreadWait();
@@ -2004,6 +2027,11 @@ void PhysicsServerExample::drawUserDebugLines()
 
 		for (int i = 0; i<m_multiThreadedHelper->m_userDebugLines.size(); i++)
 		{
+
+			
+
+
+
 			btVector3 from;
 			from.setValue(m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[0],
 				m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[1],
@@ -2012,6 +2040,26 @@ void PhysicsServerExample::drawUserDebugLines()
 			toX.setValue(m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[0],
 				m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[1],
 				m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[2]);
+
+			int graphicsIndex = m_multiThreadedHelper->m_userDebugLines[i].m_trackingVisualShapeIndex;
+			if (graphicsIndex>=0)
+			{
+				CommonRenderInterface* renderer = m_guiHelper->getRenderInterface();
+				if (renderer)
+				{
+					float parentPos[3];
+					float parentOrn[4];
+
+					if (renderer->readSingleInstanceTransformToCPU(parentPos,parentOrn,graphicsIndex))
+					{
+						btTransform parentTrans;
+						parentTrans.setOrigin(btVector3(parentPos[0],parentPos[1],parentPos[2]));
+						parentTrans.setRotation(btQuaternion(parentOrn[0],parentOrn[1],parentOrn[2],parentOrn[3]));
+						from = parentTrans*from;
+						toX = parentTrans*toX;
+					}
+				}
+			}
 
 			btVector3 color;
 			color.setValue(m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[0],
@@ -2071,11 +2119,77 @@ void PhysicsServerExample::drawUserDebugLines()
 
 		for (int i = 0; i<m_multiThreadedHelper->m_userDebugText.size(); i++)
 		{
+
+//			int optionFlag = CommonGraphicsApp::eDrawText3D_OrtogonalFaceCamera|CommonGraphicsApp::eDrawText3D_TrueType;
+			//int optionFlag = CommonGraphicsApp::eDrawText3D_OrtogonalFaceCamera;
+			int optionFlag = 0;
+			float orientation[4] = {0,0,0,1};
+			if (m_multiThreadedHelper->m_userDebugText[i].m_optionFlags&CommonGraphicsApp::eDrawText3D_OrtogonalFaceCamera)
+			{
+				orientation[0] = m_multiThreadedHelper->m_userDebugText[i].m_textOrientation[0];
+				orientation[1] = m_multiThreadedHelper->m_userDebugText[i].m_textOrientation[1];
+				orientation[2] = m_multiThreadedHelper->m_userDebugText[i].m_textOrientation[2];
+				orientation[3] = m_multiThreadedHelper->m_userDebugText[i].m_textOrientation[3];
+				optionFlag |= CommonGraphicsApp::eDrawText3D_TrueType;
+			} else
+			{
+				optionFlag |= CommonGraphicsApp::eDrawText3D_OrtogonalFaceCamera;
+			}
+
+			float colorRGBA[4] = {
+				m_multiThreadedHelper->m_userDebugText[i].m_textColorRGB[0],
+				m_multiThreadedHelper->m_userDebugText[i].m_textColorRGB[1],
+				m_multiThreadedHelper->m_userDebugText[i].m_textColorRGB[2],
+				1.};
+
+			float pos[3] = {m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ1[0],
+			m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ1[1],
+			m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ1[2]};
+
+			int graphicsIndex = m_multiThreadedHelper->m_userDebugText[i].m_trackingVisualShapeIndex;
+			if (graphicsIndex>=0)
+			{
+				CommonRenderInterface* renderer = m_guiHelper->getRenderInterface();
+				if (renderer)
+				{
+					float parentPos[3];
+					float parentOrn[4];
+
+					if (renderer->readSingleInstanceTransformToCPU(parentPos,parentOrn,graphicsIndex))
+					{
+						btTransform parentTrans;
+						parentTrans.setOrigin(btVector3(parentPos[0],parentPos[1],parentPos[2]));
+						parentTrans.setRotation(btQuaternion(parentOrn[0],parentOrn[1],parentOrn[2],parentOrn[3]));
+						btTransform childTr;
+						childTr.setOrigin(btVector3(pos[0],pos[1],pos[2]));
+						childTr.setRotation(btQuaternion(orientation[0],orientation[1],orientation[2],orientation[3]));
+
+						btTransform siteTr = parentTrans*childTr;
+						pos[0] = siteTr.getOrigin()[0];
+						pos[1] = siteTr.getOrigin()[1];
+						pos[2] = siteTr.getOrigin()[2];
+						btQuaternion siteOrn = siteTr.getRotation();
+						orientation[0] = siteOrn[0];
+						orientation[1] = siteOrn[1];
+						orientation[2] = siteOrn[2];
+						orientation[3] = siteOrn[3];
+					}
+				}
+			}
+
+
+
 			m_guiHelper->getAppInterface()->drawText3D(m_multiThreadedHelper->m_userDebugText[i].m_text,
+				pos,orientation,colorRGBA,
+				m_multiThreadedHelper->m_userDebugText[i].textSize,optionFlag);
+
+
+			/*m_guiHelper->getAppInterface()->drawText3D(m_multiThreadedHelper->m_userDebugText[i].m_text,
 				m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ[0],
 				m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ[1],
 				m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ[2],
 				m_multiThreadedHelper->m_userDebugText[i].textSize);
+				*/
 
 		}
 	}
@@ -2260,6 +2374,11 @@ void PhysicsServerExample::renderScene()
 
 void    PhysicsServerExample::physicsDebugDraw(int debugDrawFlags)
 {
+	if (gEnableSyncPhysicsRendering)
+	{
+		m_physicsServer.syncPhysicsToGraphics();
+	}
+
 	drawUserDebugLines();
 
 	if (gEnableRendering)

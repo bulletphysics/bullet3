@@ -16,10 +16,14 @@ class MinitaurGymEnv(gym.Env):
   def __init__(self,
                urdfRoot="",
                actionRepeat=1,
+               isEnableSelfCollision=True,
+               motorVelocityLimit=10.0,
                render=False):
     self._timeStep = 0.01
     self._urdfRoot = urdfRoot
     self._actionRepeat = actionRepeat
+    self._motorVelocityLimit = motorVelocityLimit
+    self._isEnableSelfCollision = isEnableSelfCollision
     self._observation = []
     self._envStepCounter = 0
     self._render = render
@@ -44,7 +48,7 @@ class MinitaurGymEnv(gym.Env):
     p.setTimeStep(self._timeStep)
     p.loadURDF("%splane.urdf" % self._urdfRoot)
     p.setGravity(0,0,-10)
-    self._minitaur = minitaur_new.Minitaur(self._urdfRoot)
+    self._minitaur = minitaur_new.Minitaur(urdfRootPath=self._urdfRoot, timeStep=self._timeStep, isEnableSelfCollision=self._isEnableSelfCollision, motorVelocityLimit=self._motorVelocityLimit)
     self._envStepCounter = 0
     self._lastBasePosition = [0, 0, 0]
     for i in range(100):
