@@ -16,7 +16,7 @@ class SimpleAgent():
       session,
       ckpt_path,
       actor_layer_size,
-      observation_dim=31
+      observation_dim=28
   ):
     self._ckpt_path = ckpt_path
     self._session = session
