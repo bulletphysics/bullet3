@@ -97,14 +97,7 @@ int main(int argc, char* argv[])
 
 		int textureHandle = app->m_renderer->registerTexture(image, textureWidth, textureHeight);
 
-		int cubeIndex = app->registerCubeShape(1, 1, 1);
 
-		b3Vector3 pos = b3MakeVector3(0, 0, 0);
-		b3Quaternion orn(0, 0, 0, 1);
-		b3Vector4 color = b3MakeVector4(1, 0, 0,1);
-		b3Vector3 scaling = b3MakeVector3 (1, 1, 1);
-		//app->m_renderer->registerGraphicsInstance(cubeIndex, pos, orn, color, scaling);
-		app->m_renderer->writeTransforms();
 
 		do
 		{
@@ -151,7 +144,6 @@ int main(int argc, char* argv[])
 
 			float yellow[4] = {1,1,0,1};
 			app->drawText(bla, 10, 10, 1, yellow);
-			int optionFlag = 0;
 			float position[3] = {1,1,1};
 			float position2[3] = {0,0,5};
 
