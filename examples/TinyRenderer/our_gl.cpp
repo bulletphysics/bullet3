@@ -182,7 +182,8 @@ void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zb
             bool discard = shader.fragment(bc_clip, color);
 			if (frag_depth<-shader.m_farPlane)
 				discard=true;
-
+			if (frag_depth>-shader.m_nearPlane)
+				discard=true;
             if (!discard) {
                 zbuffer[P.x+P.y*image.get_width()] = frag_depth;
                 if (segmentationMaskBuffer)
