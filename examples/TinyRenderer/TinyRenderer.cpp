@@ -38,6 +38,9 @@ struct DepthShader : public IShader {
 	m_lightModelView(lightModelView),
 	m_lightDistance(lightDistance)
     {
+	m_nearPlane = m_projectionMat.col(3)[2]/(m_projectionMat.col(2)[2]-1);
+	m_farPlane = m_projectionMat.col(3)[2]/(m_projectionMat.col(2)[2]+1);
+
         m_invModelMat = m_modelMat.invert_transpose();
     }
     virtual Vec4f vertex(int iface, int nthvert) {
@@ -580,7 +583,6 @@ void TinyRenderer::renderObjectDepth(TinyRenderObjectData& renderData)
         Vec3f localScaling(renderData.m_localScaling[0],renderData.m_localScaling[1],renderData.m_localScaling[2]);
         
         DepthShader shader(model, lightModelViewMatrix, lightViewProjectionMatrix,renderData.m_modelMatrix, localScaling, light_distance);
-        shader.m_farPlane=1e30;
         for (int i=0; i<model->nfaces(); i++)
         {
             for (int j=0; j<3; j++) {
