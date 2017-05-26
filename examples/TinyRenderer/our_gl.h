@@ -11,6 +11,8 @@ Matrix projection(float coeff=0.f); // coeff = -1/c
 Matrix lookat(Vec3f eye, Vec3f center, Vec3f up);
 
 struct IShader {
+	 float m_nearPlane;
+	float m_farPlane;
     virtual ~IShader();
     virtual Vec4f vertex(int iface, int nthvert) = 0;
     virtual bool fragment(Vec3f bar, TGAColor &color) = 0;
