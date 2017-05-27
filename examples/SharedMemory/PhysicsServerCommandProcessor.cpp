@@ -3915,52 +3915,122 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 				{
 					BT_PROFILE("CMD_CHANGE_DYNAMICS_INFO");
 					
-					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MASS)
-					{
-						int bodyUniqueId = clientCmd.m_changeDynamicsInfoArgs.m_bodyUniqueId;
-						int linkIndex = clientCmd.m_changeDynamicsInfoArgs.m_linkIndex;
-						double mass = clientCmd.m_changeDynamicsInfoArgs.m_mass;
-						btAssert(bodyUniqueId >= 0);
-						btAssert(linkIndex >= -1);
+					int bodyUniqueId = clientCmd.m_changeDynamicsInfoArgs.m_bodyUniqueId;
+					int linkIndex = clientCmd.m_changeDynamicsInfoArgs.m_linkIndex;
+					double mass = clientCmd.m_changeDynamicsInfoArgs.m_mass;
+					double lateralFriction = clientCmd.m_changeDynamicsInfoArgs.m_lateralFriction;
+					double spinningFriction = clientCmd.m_changeDynamicsInfoArgs.m_spinningFriction;
+					double rollingFriction = clientCmd.m_changeDynamicsInfoArgs.m_rollingFriction;
+					double restitution = clientCmd.m_changeDynamicsInfoArgs.m_restitution;
+					btAssert(bodyUniqueId >= 0);
+					btAssert(linkIndex >= -1);
 						
-						InteralBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
-						if (body && body->m_multiBody)
+					InteralBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+
+					if (body && body->m_multiBody)
+					{
+						btMultiBody* mb = body->m_multiBody;
+						if (linkIndex == -1)
 						{
-							btMultiBody* mb = body->m_multiBody;
-							if (linkIndex == -1)
+							if (mb->getBaseCollider())
 							{
-								mb->setBaseMass(mass);
+								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_RESTITUTION)
+								{
+									mb->getBaseCollider()->setRestitution(restitution);
+								}
+								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION)
+								{
+									mb->getBaseCollider()->setFriction(lateralFriction);
+								}
+								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_SPINNING_FRICTION)
+								{
+									mb->getBaseCollider()->setSpinningFriction(spinningFriction);
+								}
+								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ROLLING_FRICTION)
+								{
+									mb->getBaseCollider()->setRollingFriction(rollingFriction);
+								}								
 							}
-							else
+							if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MASS)
+							{
+								mb->setBaseMass(mass);	
+								if (mb->getBaseCollider() && mb->getBaseCollider()->getCollisionShape())
+								{
+									btVector3 localInertia;
+									mb->getBaseCollider()->getCollisionShape()->calculateLocalInertia(mass,localInertia);
+									mb->setBaseInertia(localInertia);
+								}
+							}
+						}
+						else
+						{
+							if (mb->getLinkCollider(linkIndex))
+							{
+								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_RESTITUTION)
+								{
+									mb->getLinkCollider(linkIndex)->setRestitution(restitution);
+								}
+								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_SPINNING_FRICTION)
+								{
+									mb->getLinkCollider(linkIndex)->setSpinningFriction(spinningFriction);
+								}
+								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ROLLING_FRICTION)
+								{
+									mb->getLinkCollider(linkIndex)->setRollingFriction(rollingFriction);
+								}
+
+								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION)
+								{
+									mb->getLinkCollider(linkIndex)->setFriction(lateralFriction);
+								}
+								
+			
+							}
+							if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MASS)
 							{
 								mb->getLink(linkIndex).m_mass = mass;
+								if (mb->getLinkCollider(linkIndex) && mb->getLinkCollider(linkIndex)->getCollisionShape())
+								{
+									btVector3 localInertia;
+									mb->getLinkCollider(linkIndex)->getCollisionShape()->calculateLocalInertia(mass,localInertia);
+									mb->getLink(linkIndex).m_inertiaLocal = localInertia;
+								}
+
+							}
+						}
+					} else
+					{
+						if (body && body->m_rigidBody)
+						{
+							if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_RESTITUTION)
+							{
+								body->m_rigidBody->setRestitution(restitution);
+							}
+							if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION)
+							{
+								body->m_rigidBody->setFriction(lateralFriction);
+							}
+							if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_SPINNING_FRICTION)
+							{
+								body->m_rigidBody->setSpinningFriction(spinningFriction);
+							}
+							if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ROLLING_FRICTION)
+							{
+								body->m_rigidBody->setRollingFriction(rollingFriction);
+							}
+
+							if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MASS)
+							{
+								btVector3 localInertia;
+								if (body->m_rigidBody->getCollisionShape())
+								{
+									body->m_rigidBody->getCollisionShape()->calculateLocalInertia(mass,localInertia);
+								}
+								body->m_rigidBody->setMassProps(mass,localInertia);
 							}
 						}
 					}
 					
-					if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION)
-					{
-						int bodyUniqueId = clientCmd.m_changeDynamicsInfoArgs.m_bodyUniqueId;
-						int linkIndex = clientCmd.m_changeDynamicsInfoArgs.m_linkIndex;
-						double lateralFriction = clientCmd.m_changeDynamicsInfoArgs.m_lateralFriction;
-						btAssert(bodyUniqueId >= 0);
-						btAssert(linkIndex >= -1);
-						
-						InteralBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
-						if (body && body->m_multiBody)
-						{
-							btMultiBody* mb = body->m_multiBody;
-							if (linkIndex == -1)
-							{
-								mb->getBaseCollider()->setFriction(lateralFriction);
-							}
-							else
-							{
-								mb->getLinkCollider(linkIndex)->setFriction(lateralFriction);
-							}
-						}
-					}
-
 					
 					SharedMemoryStatus& serverCmd =serverStatusOut;
 					serverCmd.m_type = CMD_CLIENT_COMMAND_COMPLETED;
@@ -4070,6 +4140,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     {
                         m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = clientCmd.m_physSimParamArgs.m_defaultContactERP;
                     }
+					if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_RESTITUTION_VELOCITY_THRESHOLD)
+                    {
+                        m_data->m_dynamicsWorld->getSolverInfo().m_restitutionVelocityThreshold = clientCmd.m_physSimParamArgs.m_restitutionVelocityThreshold;
+                    }
+
+					
 
 					if (clientCmd.m_updateFlags&SIM_PARAM_ENABLE_FILE_CACHING)
                     {
