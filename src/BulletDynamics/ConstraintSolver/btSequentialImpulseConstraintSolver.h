@@ -86,7 +86,7 @@ protected:
 	unsigned long	m_btSeed2;
 
 	
-	btScalar restitutionCurve(btScalar rel_vel, btScalar restitution);
+	btScalar restitutionCurve(btScalar rel_vel, btScalar restitution, btScalar velocityThreshold);
 
 	virtual void convertContacts(btPersistentManifold** manifoldPtr, int numManifolds, const btContactSolverInfo& infoGlobal);
 

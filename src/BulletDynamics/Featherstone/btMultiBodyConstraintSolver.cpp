@@ -491,7 +491,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyContactConstraint(btMultiBodySol
 
 		if(!isFriction)
 		{
-			restitution =  restitutionCurve(rel_vel, cp.m_combinedRestitution);	
+			restitution =  restitutionCurve(rel_vel, cp.m_combinedRestitution, infoGlobal.m_restitutionVelocityThreshold);	
 			if (restitution <= btScalar(0.))
 			{
 				restitution = 0.f;
@@ -830,7 +830,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyTorsionalFrictionConstraint(btMu
         
         if(!isFriction)
         {
-            restitution =  restitutionCurve(rel_vel, cp.m_combinedRestitution);
+            restitution =  restitutionCurve(rel_vel, cp.m_combinedRestitution, infoGlobal.m_restitutionVelocityThreshold);
             if (restitution <= btScalar(0.))
             {
                 restitution = 0.f;

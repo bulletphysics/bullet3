@@ -506,8 +506,12 @@ void	btSequentialImpulseConstraintSolver::initSolverBody(btSolverBody* solverBod
 
 
 
-btScalar btSequentialImpulseConstraintSolver::restitutionCurve(btScalar rel_vel, btScalar restitution)
+btScalar btSequentialImpulseConstraintSolver::restitutionCurve(btScalar rel_vel, btScalar restitution, btScalar velocityThreshold)
 {
+	//printf("rel_vel =%f\n", rel_vel);
+	if (btFabs(rel_vel)<velocityThreshold)
+		return 0.;
+
 	btScalar rest = restitution * -rel_vel;
 	return rest;
 }
@@ -947,7 +951,7 @@ void btSequentialImpulseConstraintSolver::setupContactConstraint(btSolverConstra
 					solverConstraint.m_friction = cp.m_combinedFriction;
 
 
-					restitution =  restitutionCurve(rel_vel, cp.m_combinedRestitution);
+					restitution =  restitutionCurve(rel_vel, cp.m_combinedRestitution, infoGlobal.m_restitutionVelocityThreshold);
 					if (restitution <= btScalar(0.))
 					{
 						restitution = 0.f;
