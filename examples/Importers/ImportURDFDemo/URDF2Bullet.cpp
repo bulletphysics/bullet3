@@ -362,8 +362,14 @@ void ConvertURDF2BulletInternal(
 
             switch (jointType)
             {
+				case URDFFloatingJoint:
+				case URDFPlanarJoint:
                 case URDFFixedJoint:
                 {
+					if ((jointType==URDFFloatingJoint)||(jointType==URDFPlanarJoint))
+					{
+						printf("Warning: joint unsupported, creating a fixed joint instead.");
+					}
                     if (createMultiBody)
                     {
                         //todo: adjust the center of mass transform and pivot axis properly

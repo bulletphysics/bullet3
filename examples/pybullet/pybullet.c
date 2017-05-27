@@ -6463,7 +6463,7 @@ initpybullet(void)
 	SpamError = PyErr_NewException("pybullet.error", NULL, NULL);
 	Py_INCREF(SpamError);
 	PyModule_AddObject(m, "error", SpamError);
-
+	printf("pybullet build time: %s %s\n", __DATE__,__TIME__);
 		
 	Py_AtExit( b3pybulletExitFunc );
 	

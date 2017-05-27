@@ -421,3 +421,13 @@ float SimpleCamera::getCameraFrustumNear() const
 {
     return m_data->m_frustumZNear;
 }
+
+void SimpleCamera::setCameraFrustumFar(float far)
+{
+	m_data->m_frustumZFar = far;
+}
+
+void SimpleCamera::setCameraFrustumNear(float near)
+{
+	m_data->m_frustumZNear = near;
+}

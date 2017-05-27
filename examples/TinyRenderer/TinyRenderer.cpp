@@ -38,6 +38,9 @@ struct DepthShader : public IShader {
 	m_lightModelView(lightModelView),
 	m_lightDistance(lightDistance)
     {
+	m_nearPlane = m_projectionMat.col(3)[2]/(m_projectionMat.col(2)[2]-1);
+	m_farPlane = m_projectionMat.col(3)[2]/(m_projectionMat.col(2)[2]+1);
+
         m_invModelMat = m_modelMat.invert_transpose();
     }
     virtual Vec4f vertex(int iface, int nthvert) {
@@ -91,7 +94,8 @@ struct Shader : public IShader {
     mat<4,3,float> varying_tri_light_view;
     mat<3,3,float> varying_nrm; // normal per vertex to be interpolated by FS
 	mat<4,3,float> world_tri; // model triangle coordinates in the world space used for backface culling, written by VS
-    
+   
+
     Shader(Model* model, Vec3f light_dir_local, Vec3f light_color, Matrix& modelView, Matrix& lightModelView, Matrix& projectionMat, Matrix& modelMat, Matrix& viewportMat, Vec3f localScaling, const Vec4f& colorRGBA, int width, int height, b3AlignedObjectArray<float>* shadowBuffer, float ambient_coefficient=0.6, float diffuse_coefficient=0.35, float specular_coefficient=0.05)
     :m_model(model),
     m_light_dir_local(light_dir_local),
@@ -112,6 +116,9 @@ struct Shader : public IShader {
     m_height(height)
    
     {
+		m_nearPlane = m_projectionMat.col(3)[2]/(m_projectionMat.col(2)[2]-1);
+		m_farPlane = m_projectionMat.col(3)[2]/(m_projectionMat.col(2)[2]+1);
+		//printf("near=%f, far=%f\n", m_nearPlane, m_farPlane);
         m_invModelMat = m_modelMat.invert_transpose();
 		m_projectionModelViewMat = m_projectionMat*m_modelView1;
 		m_projectionLightViewMat = m_projectionMat*m_lightModelView;
@@ -576,7 +583,6 @@ void TinyRenderer::renderObjectDepth(TinyRenderObjectData& renderData)
         Vec3f localScaling(renderData.m_localScaling[0],renderData.m_localScaling[1],renderData.m_localScaling[2]);
         
         DepthShader shader(model, lightModelViewMatrix, lightViewProjectionMatrix,renderData.m_modelMatrix, localScaling, light_distance);
-        
         for (int i=0; i<model->nfaces(); i++)
         {
             for (int j=0; j<3; j++) {
