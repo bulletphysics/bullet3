@@ -187,12 +187,14 @@ files {
 				"../ThirdPartyLibs/openvr/samples/shared/lodepng.h",
 				"../ThirdPartyLibs/openvr/samples/shared/Matrices.cpp",
 				"../ThirdPartyLibs/openvr/samples/shared/Matrices.h",
+				"../ThirdPartyLibs/openvr/samples/shared/strtools.cpp",
 				"../ThirdPartyLibs/openvr/samples/shared/pathtools.cpp",
 				"../ThirdPartyLibs/openvr/samples/shared/pathtools.h",
 				"../ThirdPartyLibs/openvr/samples/shared/Vectors.h",
 				"../Utils/b3Clock.cpp",
 				"../Utils/b3Clock.h",
-				
+				"../Utils/ChromeTraceUtil.cpp",
+				"../Utils/ChromeTraceUtil.h",
 }
 
 if os.is("Windows") then 

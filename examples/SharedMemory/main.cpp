@@ -72,6 +72,7 @@ int main(int argc, char* argv[])
 	CommonExampleOptions options(&noGfx);
 
 	args.GetCmdLineArgument("shared_memory_key", gSharedMemoryKey);
+	args.GetCmdLineArgument("sharedMemoryKey", gSharedMemoryKey);
 	
 // options.m_option |= PHYSICS_SERVER_ENABLE_COMMAND_LOGGING;
 // options.m_option |= PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG;
@@ -80,6 +81,8 @@ int main(int argc, char* argv[])
 	
 	
 	example->initPhysics();
+
+	
 	while (example->isConnected() && !(example->wantsTermination() || interrupted))
 	{
 		example->stepSimulation(1.f/60.f);

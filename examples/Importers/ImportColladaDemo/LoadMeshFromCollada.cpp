@@ -336,9 +336,7 @@ void readLibraryGeometries(TiXmlDocument& doc, btAlignedObjectArray<GLInstanceGr
 
 void readNodeHierarchy(TiXmlElement* node,btHashMap<btHashString,int>& name2Shape, btAlignedObjectArray<ColladaGraphicsInstance>& visualShapeInstances,  const btMatrix4x4& parentTransMat)
 {
-	const char* nodeName = node->Attribute("id");
-	//printf("processing node %s\n", nodeName);
-
+	
 	
 	btMatrix4x4 nodeTrans;
 	nodeTrans.setIdentity();

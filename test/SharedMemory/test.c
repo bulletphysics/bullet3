@@ -1,3 +1,4 @@
+
 //#include "SharedMemoryCommands.h"
 #ifdef PHYSICS_SHARED_MEMORY
 #include "SharedMemory/PhysicsClientC_API.h"
@@ -6,6 +7,10 @@
 #ifdef PHYSICS_UDP
 #include "SharedMemory/PhysicsClientUDP_C_API.h"
 #endif//PHYSICS_UDP
+
+#ifdef PHYSICS_TCP
+#include "SharedMemory/PhysicsClientTCP_C_API.h"
+#endif//PHYSICS_TCP
 
 #ifdef PHYSICS_LOOP_BACK
 #include "SharedMemory/PhysicsLoopBackC_API.h"
@@ -244,6 +249,18 @@ void testSharedMemory(b3PhysicsClientHandle sm)
             }
         }
         
+		{
+			b3SharedMemoryCommandHandle command;
+			b3SharedMemoryStatusHandle statusHandle;
+            int width = 1024;
+			int height = 1024;
+
+			command = b3InitRequestCameraImage(sm);
+			
+			b3RequestCameraImageSetPixelResolution(command, width, height);
+			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+		}
+        
         if (b3CanSubmitCommand(sm))
         {
             b3SharedMemoryStatusHandle state = b3SubmitClientCommandAndWaitStatus(sm, b3RequestActualStateCommandInit(sm,bodyIndex));
@@ -330,6 +347,10 @@ int main(int argc, char* argv[])
 
 #ifdef PHYSICS_UDP
         b3PhysicsClientHandle sm = b3ConnectPhysicsUDP("localhost",1234);
+#endif //PHYSICS_UDP
+
+#ifdef PHYSICS_TCP
+        b3PhysicsClientHandle sm = b3ConnectPhysicsTCP("localhost",6667);
 #endif //PHYSICS_UDP
 
 	testSharedMemory(sm);

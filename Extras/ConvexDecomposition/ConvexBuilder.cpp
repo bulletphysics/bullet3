@@ -12,9 +12,9 @@ unsigned int MAXDEPTH = 8 ;
 float CONCAVE_PERCENT = 1.0f ;
 float MERGE_PERCENT   = 2.0f ;
 
-CHull::CHull(const ConvexResult &result)
+CHull::CHull(const ConvexDecomposition::ConvexResult &result)
 {
-	mResult = new ConvexResult(result);
+	mResult = new ConvexDecomposition::ConvexResult(result);
 	mVolume = computeMeshVolume( result.mHullVertices, result.mHullTcount, result.mHullIndices );
 
 	mDiagonal = getBoundingRegion( result.mHullVcount, result.mHullVertices, sizeof(float)*3, mMin, mMax );
@@ -81,7 +81,7 @@ bool ConvexBuilder::isDuplicate(unsigned int i1,unsigned int i2,unsigned int i3,
 	return dcount == 3;
 }
 
-void ConvexBuilder::getMesh(const ConvexResult &cr,VertexLookup vc,UintVector &indices)
+void ConvexBuilder::getMesh(const ConvexDecomposition::ConvexResult &cr,VertexLookup vc,UintVector &indices)
 {
 	unsigned int *src = cr.mHullIndices;
 
@@ -154,19 +154,19 @@ CHull * ConvexBuilder::canMerge(CHull *a,CHull *b)
 		return 0;
 	}
 
-	HullResult hresult;
-	HullLibrary hl;
-	HullDesc   desc;
+	ConvexDecomposition::HullResult hresult;
+	ConvexDecomposition::HullLibrary hl;
+	ConvexDecomposition::HullDesc   desc;
 
-	desc.SetHullFlag(QF_TRIANGLES);
+	desc.SetHullFlag(ConvexDecomposition::QF_TRIANGLES);
 
 	desc.mVcount       = vcount;
 	desc.mVertices     = vertices;
 	desc.mVertexStride = sizeof(float)*3;
 
-	HullError hret = hl.CreateConvexHull(desc,hresult);
+	ConvexDecomposition::HullError hret = hl.CreateConvexHull(desc,hresult);
 
-	if ( hret == QE_OK )
+	if ( hret == ConvexDecomposition::QE_OK )
 	{
 
 		float combineVolume  = computeMeshVolume( hresult.mOutputVertices, hresult.mNumFaces, hresult.mIndices );
@@ -175,7 +175,7 @@ CHull * ConvexBuilder::canMerge(CHull *a,CHull *b)
 		float percent = (sumVolume*100) / combineVolume;
 		if ( percent >= (100.0f-MERGE_PERCENT) )
 		{
-			ConvexResult cr(hresult.mNumOutputVertices, hresult.mOutputVertices, hresult.mNumFaces, hresult.mIndices);
+			ConvexDecomposition::ConvexResult cr(hresult.mNumOutputVertices, hresult.mOutputVertices, hresult.mNumFaces, hresult.mIndices);
 			ret = new CHull(cr);
 		}
 	}
@@ -259,7 +259,7 @@ bool ConvexBuilder::combineHulls(void)
 	return combine;
 }
 
-unsigned int ConvexBuilder::process(const DecompDesc &desc)
+unsigned int ConvexBuilder::process(const ConvexDecomposition::DecompDesc &desc)
 {
 
 	unsigned int ret = 0;
@@ -282,13 +282,13 @@ unsigned int ConvexBuilder::process(const DecompDesc &desc)
 		// before we hand it back to the application, we need to regenerate the hull based on the
 		// limits given by the user.
 
-		const ConvexResult &c = *cr->mResult; // the high resolution hull...
+		const ConvexDecomposition::ConvexResult &c = *cr->mResult; // the high resolution hull...
 
-		HullResult result;
-		HullLibrary hl;
-		HullDesc   hdesc;
+		ConvexDecomposition::HullResult result;
+		ConvexDecomposition::HullLibrary hl;
+		ConvexDecomposition::HullDesc   hdesc;
 
-		hdesc.SetHullFlag(QF_TRIANGLES);
+		hdesc.SetHullFlag(ConvexDecomposition::QF_TRIANGLES);
 
 		hdesc.mVcount       = c.mHullVcount;
 		hdesc.mVertices     = c.mHullVertices;
@@ -298,14 +298,14 @@ unsigned int ConvexBuilder::process(const DecompDesc &desc)
 		if ( desc.mSkinWidth  )
 		{
 			hdesc.mSkinWidth = desc.mSkinWidth;
-			hdesc.SetHullFlag(QF_SKIN_WIDTH); // do skin width computation.
+			hdesc.SetHullFlag(ConvexDecomposition::QF_SKIN_WIDTH); // do skin width computation.
 		}
 
-		HullError ret = hl.CreateConvexHull(hdesc,result);
+		ConvexDecomposition::HullError ret = hl.CreateConvexHull(hdesc,result);
 
-		if ( ret == QE_OK )
+		if ( ret == ConvexDecomposition::QE_OK )
 		{
-			ConvexResult r(result.mNumOutputVertices, result.mOutputVertices, result.mNumFaces, result.mIndices);
+			ConvexDecomposition::ConvexResult r(result.mNumOutputVertices, result.mOutputVertices, result.mNumFaces, result.mIndices);
 
 			r.mHullVolume = computeMeshVolume( result.mOutputVertices, result.mNumFaces, result.mIndices ); // the volume of the hull.
 
@@ -358,7 +358,7 @@ void ConvexBuilder::ConvexDebugBound(const float *bmin,const float *bmax,unsigne
 	mCallback->ConvexDebugBound(bmin,bmax,color);
 }
 
-void ConvexBuilder::ConvexDecompResult(ConvexResult &result)
+void ConvexBuilder::ConvexDecompResult(ConvexDecomposition::ConvexResult &result)
 {
 	CHull *ch = new CHull(result);
 	mChulls.push_back(ch);

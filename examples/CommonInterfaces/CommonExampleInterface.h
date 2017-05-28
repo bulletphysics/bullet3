@@ -37,6 +37,7 @@ public:
 	
 	virtual void    initPhysics()=0;
 	virtual void    exitPhysics()=0;
+	virtual void	updateGraphics(){}
 	virtual void	stepSimulation(float deltaTime)=0;
 	virtual void	renderScene()=0;
 	virtual void	physicsDebugDraw(int debugFlags)=0;//for now we reuse the flags in Bullet/src/LinearMath/btIDebugDraw.h
@@ -48,6 +49,8 @@ public:
 
 	virtual void	vrControllerMoveCallback(int controllerId, float pos[4], float orientation[4], float analogAxis) {}
 	virtual void	vrControllerButtonCallback(int controllerId, int button, int state, float pos[4], float orientation[4]){}
+	virtual void	vrHMDMoveCallback(int controllerId, float pos[4], float orientation[4]){}
+	virtual void	vrGenericTrackerMoveCallback(int controllerId, float pos[4], float orientation[4]){}
 
 	virtual void	processCommandLineArgs(int argc, char* argv[]){};
 };

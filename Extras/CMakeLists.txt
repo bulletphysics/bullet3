@@ -1,4 +1,4 @@
-SUBDIRS( Serialize ConvexDecomposition HACD GIMPACTUtils )
+SUBDIRS( obj2sdf Serialize ConvexDecomposition HACD GIMPACTUtils )
 
 IF(BUILD_BULLET3)
 	SUBDIRS( InverseDynamics)

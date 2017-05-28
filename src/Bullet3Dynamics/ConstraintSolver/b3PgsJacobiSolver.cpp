@@ -142,8 +142,9 @@ int	getNumContacts(b3Contact4* contact)
 }
 
 b3PgsJacobiSolver::b3PgsJacobiSolver(bool usePgs)
-:m_btSeed2(0),m_usePgs(usePgs),
-m_numSplitImpulseRecoveries(0)
+:m_usePgs(usePgs),
+m_numSplitImpulseRecoveries(0),
+m_btSeed2(0)
 {
 
 }
@@ -1084,7 +1085,7 @@ b3Scalar b3PgsJacobiSolver::solveGroupCacheFriendlySetup(b3RigidBodyData* bodies
 	m_deltaAngularVelocities.resize(0);
 	m_deltaAngularVelocities.resize(numBodies,b3MakeVector3(0,0,0));
 	
-	int totalBodies = 0;
+	//int totalBodies = 0;
 
 	for (int i=0;i<numConstraints;i++)
 	{

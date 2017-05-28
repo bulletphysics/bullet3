@@ -52,6 +52,7 @@ namespace {
         bottom_out = -displacement.cross(top_out) + rotation_matrix * bottom_in;
     }
 
+#if 0
     void InverseSpatialTransform(const btMatrix3x3 &rotation_matrix,
                                  const btVector3 &displacement,
                                  const btVector3 &top_in,
@@ -81,6 +82,8 @@ namespace {
 		top_out = a_top.cross(b_top);
 		bottom_out = a_bottom.cross(b_top) + a_top.cross(b_bottom);
 	}
+#endif
+	
 }
 
 
@@ -427,6 +430,13 @@ const btQuaternion & btMultiBody::getParentToLocalRot(int i) const
 
 btVector3 btMultiBody::localPosToWorld(int i, const btVector3 &local_pos) const
 {
+	btAssert(i>=-1);
+	btAssert(i<m_links.size());
+	if ((i<-1) || (i>=m_links.size()))
+	{
+		return btVector3(SIMD_INFINITY,SIMD_INFINITY,SIMD_INFINITY);
+	}
+
     btVector3 result = local_pos;
     while (i != -1) {
         // 'result' is in frame i. transform it to frame parent(i)
@@ -444,6 +454,13 @@ btVector3 btMultiBody::localPosToWorld(int i, const btVector3 &local_pos) const
 
 btVector3 btMultiBody::worldPosToLocal(int i, const btVector3 &world_pos) const
 {
+	btAssert(i>=-1);
+	btAssert(i<m_links.size());
+	if ((i<-1) || (i>=m_links.size()))
+	{
+		return btVector3(SIMD_INFINITY,SIMD_INFINITY,SIMD_INFINITY);
+	}
+
     if (i == -1) {
         // world to base
         return quatRotate(getWorldToBaseRot(),(world_pos - getBasePos()));
@@ -455,6 +472,14 @@ btVector3 btMultiBody::worldPosToLocal(int i, const btVector3 &world_pos) const
 
 btVector3 btMultiBody::localDirToWorld(int i, const btVector3 &local_dir) const
 {
+	btAssert(i>=-1);
+	btAssert(i<m_links.size());
+	if ((i<-1) || (i>=m_links.size()))
+	{
+		return btVector3(SIMD_INFINITY,SIMD_INFINITY,SIMD_INFINITY);
+	}
+
+
     btVector3 result = local_dir;
     while (i != -1) {
         result = quatRotate(getParentToLocalRot(i).inverse() , result);
@@ -466,6 +491,13 @@ btVector3 btMultiBody::localDirToWorld(int i, const btVector3 &local_dir) const
 
 btVector3 btMultiBody::worldDirToLocal(int i, const btVector3 &world_dir) const
 {
+	btAssert(i>=-1);
+	btAssert(i<m_links.size());
+	if ((i<-1) || (i>=m_links.size()))
+	{
+		return btVector3(SIMD_INFINITY,SIMD_INFINITY,SIMD_INFINITY);
+	}
+
     if (i == -1) {
         return quatRotate(getWorldToBaseRot(), world_dir);
     } else {
@@ -1206,7 +1238,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 
 
 
-void btMultiBody::solveImatrix(const btVector3& rhs_top, const btVector3& rhs_bot, float result[6]) const
+void btMultiBody::solveImatrix(const btVector3& rhs_top, const btVector3& rhs_bot, btScalar result[6]) const
 {
 	int num_links = getNumLinks();
 	///solve I * x = rhs, so the result = invI * rhs
@@ -1765,7 +1797,6 @@ void btMultiBody::goToSleep()
 
 void btMultiBody::checkMotionAndSleepIfRequired(btScalar timestep)
 {
-	int num_links = getNumLinks();
 	extern bool gDisableDeactivation;
     if (!m_canSleep || gDisableDeactivation) 
 	{
@@ -1934,6 +1965,10 @@ const char*	btMultiBody::serialize(void* dataBuffer, class btSerializer* seriali
 				memPtr->m_parentIndex = getLink(i).m_parent;
 				memPtr->m_jointDamping = getLink(i).m_jointDamping;
 				memPtr->m_jointFriction = getLink(i).m_jointFriction;
+				memPtr->m_jointLowerLimit = getLink(i).m_jointLowerLimit;
+				memPtr->m_jointUpperLimit = getLink(i).m_jointUpperLimit;
+				memPtr->m_jointMaxForce = getLink(i).m_jointMaxForce;
+				memPtr->m_jointMaxVelocity = getLink(i).m_jointMaxVelocity;
 
 				getLink(i).m_eVector.serialize(memPtr->m_parentComToThisComOffset);
 				getLink(i).m_dVector.serialize(memPtr->m_thisPivotToThisComOffset);
@@ -1977,6 +2012,11 @@ const char*	btMultiBody::serialize(void* dataBuffer, class btSerializer* seriali
 			serializer->finalizeChunk(chunk,btMultiBodyLinkDataName,BT_ARRAY_CODE,(void*) &m_links[0]);
 		}
 		mbd->m_links = mbd->m_numLinks? (btMultiBodyLinkData*) serializer->getUniquePointer((void*)&m_links[0]):0;
+
+		// Fill padding with zeros to appease msan.
+#ifdef BT_USE_DOUBLE_PRECISION
+		memset(mbd->m_padding, 0, sizeof(mbd->m_padding));
+#endif
 
 		return btMultiBodyDataName;
 }

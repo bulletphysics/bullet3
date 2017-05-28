@@ -2,6 +2,10 @@
 #define SHARED_MEMORY_PUBLIC_H
 
 #define SHARED_MEMORY_KEY 12347
+///increase the SHARED_MEMORY_MAGIC_NUMBER whenever incompatible changes are made in the structures
+///my convention is year/month/day/rev
+#define SHARED_MEMORY_MAGIC_NUMBER 201705025
+//#define SHARED_MEMORY_MAGIC_NUMBER 201703024
 
 enum EnumSharedMemoryClientCommand
 {
@@ -35,14 +39,27 @@ enum EnumSharedMemoryClientCommand
     CMD_CALCULATE_JACOBIAN,
     CMD_USER_CONSTRAINT,
     CMD_REQUEST_CONTACT_POINT_INFORMATION,
+    CMD_REQUEST_RAY_CAST_INTERSECTIONS,
+
 	CMD_REQUEST_AABB_OVERLAP,
+
 	CMD_SAVE_WORLD,
 	CMD_REQUEST_VISUAL_SHAPE_INFO,
     CMD_UPDATE_VISUAL_SHAPE,
     CMD_LOAD_TEXTURE,
     CMD_SET_SHADOW,
 	CMD_USER_DEBUG_DRAW,
-
+	CMD_REQUEST_VR_EVENTS_DATA,
+	CMD_SET_VR_CAMERA_STATE,
+	CMD_SYNC_BODY_INFO,
+	CMD_STATE_LOGGING,
+    CMD_CONFIGURE_OPENGL_VISUALIZER,
+	CMD_REQUEST_KEYBOARD_EVENTS_DATA,
+	CMD_REQUEST_OPENGL_VISUALIZER_CAMERA,
+	CMD_REMOVE_BODY,
+	CMD_CHANGE_DYNAMICS_INFO,
+	CMD_GET_DYNAMICS_INFO,
+	CMD_PROFILE_TIMING,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -104,9 +121,30 @@ enum EnumSharedMemoryServerStatus
         CMD_LOAD_TEXTURE_COMPLETED,
         CMD_LOAD_TEXTURE_FAILED,
 		CMD_USER_DEBUG_DRAW_COMPLETED,
+		CMD_USER_DEBUG_DRAW_PARAMETER_COMPLETED,
 		CMD_USER_DEBUG_DRAW_FAILED,
 		CMD_USER_CONSTRAINT_COMPLETED,
+		CMD_USER_CONSTRAINT_INFO_COMPLETED,
+        CMD_REMOVE_USER_CONSTRAINT_COMPLETED,
+        CMD_CHANGE_USER_CONSTRAINT_COMPLETED,
+		CMD_REMOVE_USER_CONSTRAINT_FAILED,
+        CMD_CHANGE_USER_CONSTRAINT_FAILED,
 		CMD_USER_CONSTRAINT_FAILED,
+		CMD_REQUEST_VR_EVENTS_DATA_COMPLETED,
+		CMD_REQUEST_RAY_CAST_INTERSECTIONS_COMPLETED,
+		CMD_SYNC_BODY_INFO_COMPLETED,
+		CMD_SYNC_BODY_INFO_FAILED,
+		CMD_STATE_LOGGING_COMPLETED,
+		CMD_STATE_LOGGING_START_COMPLETED,
+		CMD_STATE_LOGGING_FAILED,
+		CMD_REQUEST_KEYBOARD_EVENTS_DATA_COMPLETED,
+		CMD_REQUEST_KEYBOARD_EVENTS_DATA_FAILED,
+		CMD_REQUEST_OPENGL_VISUALIZER_CAMERA_FAILED,
+		CMD_REQUEST_OPENGL_VISUALIZER_CAMERA_COMPLETED,
+		CMD_REMOVE_BODY_COMPLETED,
+		CMD_REMOVE_BODY_FAILED,
+		CMD_GET_DYNAMICS_INFO_COMPLETED,
+		CMD_GET_DYNAMICS_INFO_FAILED,
         //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
@@ -138,6 +176,14 @@ enum JointType {
 	ePoint2PointType = 5,
 };
 
+
+enum b3JointInfoFlags
+{
+	eJointChangeMaxForce = 1,
+	eJointChangeChildFramePosition = 2,
+	eJointChangeChildFrameOrientation = 4,
+};
+
 struct b3JointInfo
 {
         char* m_linkName;
@@ -149,16 +195,46 @@ struct b3JointInfo
         int m_flags;
 		double m_jointDamping;
 		double m_jointFriction;
-    double m_parentFrame[7]; // position and orientation (quaternion)
-    double m_childFrame[7]; // ^^^
-    double m_jointAxis[3]; // joint axis in parent local frame
+		double m_jointLowerLimit;
+		double m_jointUpperLimit;
+		double m_jointMaxForce;
+		double m_jointMaxVelocity;
+		double m_parentFrame[7]; // position and orientation (quaternion)
+		double m_childFrame[7]; // ^^^
+		double m_jointAxis[3]; // joint axis in parent local frame
+};
+
+struct b3UserConstraint
+{
+    int m_parentBodyIndex;
+    int m_parentJointIndex;
+    int m_childBodyIndex;
+    int m_childJointIndex;
+    double m_parentFrame[7];
+    double m_childFrame[7];
+    double m_jointAxis[3];
+    int m_jointType;
+    double m_maxAppliedForce;
+    int m_userConstraintUniqueId;
 };
 
 struct b3BodyInfo
 {
 	const char* m_baseName;
+	const char* m_bodyName; // for btRigidBody, it does not have a base, but can still have a body name from urdf
 };
 
+struct b3DynamicsInfo
+{
+	double m_mass;
+	double m_localInertialPosition[3];
+	double m_lateralFrictionCoeff;
+};
+
+// copied from btMultiBodyLink.h
+enum SensorType {
+	eSensorForceTorqueType = 1,
+};
 
 
 struct b3JointSensorState
@@ -198,6 +274,92 @@ struct b3CameraImageData
 	const int* m_segmentationMaskValues;//m_pixelWidth*m_pixelHeight ints
 };
 
+struct b3OpenGLVisualizerCameraInfo
+{
+    int m_width;
+    int m_height;
+	float m_viewMatrix[16];
+	float m_projectionMatrix[16];
+	
+	float m_camUp[3];
+	float m_camForward[3];
+
+	float m_horizontal[3];
+	float m_vertical[3];
+};
+
+enum b3VREventType
+{
+	VR_CONTROLLER_MOVE_EVENT=1,
+	VR_CONTROLLER_BUTTON_EVENT=2,
+	VR_HMD_MOVE_EVENT=4,
+	VR_GENERIC_TRACKER_MOVE_EVENT=8,
+};
+
+#define MAX_VR_BUTTONS 64
+#define MAX_VR_CONTROLLERS 8
+
+#define MAX_RAY_INTERSECTION_BATCH_SIZE 256
+#define MAX_RAY_HITS MAX_RAY_INTERSECTION_BATCH_SIZE
+#define MAX_KEYBOARD_EVENTS 256
+
+
+
+enum b3VRButtonInfo
+{
+	eButtonIsDown = 1,
+	eButtonTriggered = 2,
+	eButtonReleased = 4,
+};
+
+
+
+enum eVRDeviceTypeEnums
+{
+	VR_DEVICE_CONTROLLER=1,
+	VR_DEVICE_HMD=2,
+	VR_DEVICE_GENERIC_TRACKER=4,
+};
+
+enum EVRCameraFlags
+{
+	VR_CAMERA_TRACK_OBJECT_ORIENTATION=1,
+};
+
+struct b3VRControllerEvent
+{
+	int m_controllerId;//valid for VR_CONTROLLER_MOVE_EVENT and VR_CONTROLLER_BUTTON_EVENT
+	int m_deviceType;
+	int m_numMoveEvents;
+	int m_numButtonEvents;
+	
+	float m_pos[4];//valid for VR_CONTROLLER_MOVE_EVENT and VR_CONTROLLER_BUTTON_EVENT
+	float m_orn[4];//valid for VR_CONTROLLER_MOVE_EVENT and VR_CONTROLLER_BUTTON_EVENT
+
+	float m_analogAxis;//valid if VR_CONTROLLER_MOVE_EVENT
+
+	int m_buttons[MAX_VR_BUTTONS];//valid if VR_CONTROLLER_BUTTON_EVENT, see b3VRButtonInfo
+};
+
+struct b3VREventsData
+{
+	int m_numControllerEvents;
+	struct b3VRControllerEvent* m_controllerEvents;
+	
+};
+
+
+struct b3KeyboardEvent
+{
+	int m_keyCode;//ascii
+	int m_keyState;// see b3VRButtonInfo
+};
+
+struct b3KeyboardEventsData
+{
+	int m_numKeyboardEvents;
+	struct b3KeyboardEvent* m_keyboardEvents;
+};
 
 struct b3ContactPointData
 {
@@ -229,6 +391,16 @@ enum
 	CONTACT_QUERY_MODE_COMPUTE_CLOSEST_POINTS = 1,
 };
 
+enum  b3StateLoggingType
+{
+	STATE_LOGGING_MINITAUR = 0,
+	STATE_LOGGING_GENERIC_ROBOT = 1,
+	STATE_LOGGING_VR_CONTROLLERS = 2,
+	STATE_LOGGING_VIDEO_MP4 = 3,
+	STATE_LOGGING_COMMANDS = 4,
+	STATE_LOGGING_CONTACT_POINTS = 5,
+	STATE_LOGGING_PROFILE_TIMINGS = 6,
+};
 
 
 struct b3ContactInformation
@@ -237,7 +409,23 @@ struct b3ContactInformation
 	struct b3ContactPointData* m_contactPointData;
 };
 
-#define VISUAL_SHAPE_MAX_PATH_LEN 128
+struct b3RayHitInfo
+{
+	double m_hitFraction;
+	int m_hitObjectUniqueId;
+	int m_hitObjectLinkIndex;
+	double m_hitPositionWorld[3];
+	double m_hitNormalWorld[3];
+};
+
+struct b3RaycastInformation
+{
+	int m_numRayHits;
+	struct b3RayHitInfo* m_rayHits;
+};
+
+
+#define VISUAL_SHAPE_MAX_PATH_LEN 1024
 
 struct b3VisualShapeData
 {
@@ -246,7 +434,7 @@ struct b3VisualShapeData
 	int m_visualGeometryType;//box primitive, sphere primitive, triangle mesh
 	double m_dimensions[3];//meaning depends on m_visualGeometryType
 	char m_meshAssetFileName[VISUAL_SHAPE_MAX_PATH_LEN];
-	double m_localInertiaFrame[7];//pos[3], orn[4]
+    double m_localVisualFrame[7];//pos[3], orn[4]
 	//todo: add more data if necessary (material color etc, although material can be in asset file .obj file)
     double m_rgbaColor[4];
 };
@@ -257,6 +445,11 @@ struct b3VisualShapeInformation
 	struct b3VisualShapeData* m_visualShapeData;
 };
 
+enum eLinkStateFlags
+{
+	ACTUAL_STATE_COMPUTE_LINKVELOCITY=1
+};
+
 ///b3LinkState provides extra information such as the Cartesian world coordinates
 ///center of mass (COM) of the link, relative to the world reference frame.
 ///Orientation is a quaternion x,y,z,w
@@ -264,11 +457,20 @@ struct b3VisualShapeInformation
 ///use URDF link frame = link COM frame * inertiaFrame.inverse()
 struct b3LinkState
 {
+	//m_worldPosition and m_worldOrientation of the Center Of Mass (COM)
     double m_worldPosition[3];
     double m_worldOrientation[4];
 
     double m_localInertialPosition[3];
     double m_localInertialOrientation[4];
+
+	///world position and orientation of the (URDF) link frame
+	double m_worldLinkFramePosition[3];
+    double m_worldLinkFrameOrientation[4];
+
+	double m_worldLinearVelocity[3]; //only valid when ACTUAL_STATE_COMPUTE_LINKVELOCITY is set (b3RequestActualStateCommandComputeLinkVelocity)
+	double m_worldAngularVelocity[3]; //only valid when ACTUAL_STATE_COMPUTE_LINKVELOCITY is set (b3RequestActualStateCommandComputeLinkVelocity)
+
 };
 
 //todo: discuss and decide about control mode and combinations
@@ -292,6 +494,42 @@ enum EnumRenderer
     ER_TINY_RENDERER=(1<<16),
     ER_BULLET_HARDWARE_OPENGL=(1<<17),
     //ER_FIRE_RAYS=(1<<18),
+};
+
+enum b3ConfigureDebugVisualizerEnum
+{
+    COV_ENABLE_GUI=1,
+    COV_ENABLE_SHADOWS,
+    COV_ENABLE_WIREFRAME,
+	COV_ENABLE_VR_TELEPORTING,
+	COV_ENABLE_VR_PICKING,
+	COV_ENABLE_VR_RENDER_CONTROLLERS,
+	COV_ENABLE_RENDERING,
+	COV_ENABLE_SYNC_RENDERING_INTERNAL,
+};
+
+enum b3AddUserDebugItemEnum
+{
+	DEB_DEBUG_TEXT_USE_ORIENTATION=1,
+	DEB_DEBUG_TEXT_USE_TRUE_TYPE_FONTS=2,
+	DEB_DEBUG_TEXT_HAS_TRACKING_OBJECT=4,
+};
+
+enum eCONNECT_METHOD {
+  eCONNECT_GUI = 1,
+  eCONNECT_DIRECT = 2,
+  eCONNECT_SHARED_MEMORY = 3,
+  eCONNECT_UDP = 4,
+  eCONNECT_TCP = 5,
+  eCONNECT_EXISTING_EXAMPLE_BROWSER=6,
+};
+
+enum eURDF_Flags
+{
+	URDF_USE_INERTIA_FROM_FILE=2,//sync with URDF2Bullet.h 'ConvertURDFFlags'
+	URDF_USE_SELF_COLLISION=8,//see CUF_USE_SELF_COLLISION
+	URDF_USE_SELF_COLLISION_EXCLUDE_PARENT=16,
+	URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS=32,
 };
 
 #endif//SHARED_MEMORY_PUBLIC_H

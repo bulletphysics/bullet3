@@ -224,6 +224,8 @@ enum TestExampleBrowserCommunicationEnums
 	eExampleBrowserHasTerminated
 };
 
+static double gMinUpdateTimeMicroSecs = 4000.;
+
 void	ExampleBrowserThreadFunc(void* userPtr,void* lsMemory)
 {
 	printf("ExampleBrowserThreadFunc started\n");
@@ -231,7 +233,7 @@ void	ExampleBrowserThreadFunc(void* userPtr,void* lsMemory)
 	ExampleBrowserThreadLocalStorage* localStorage = (ExampleBrowserThreadLocalStorage*) lsMemory;
 
 	ExampleBrowserArgs* args = (ExampleBrowserArgs*) userPtr;
-	int workLeft = true;
+	//int workLeft = true;
   b3CommandLineArgs args2(args->m_argc,args->m_argv);
 	b3Clock clock;
 
@@ -253,9 +255,25 @@ void	ExampleBrowserThreadFunc(void* userPtr,void* lsMemory)
 
 		do
 		{
+			B3_PROFILE("ExampleBrowserThreadFunc");
 			float deltaTimeInSeconds = clock.getTimeMicroseconds()/1000000.f;
-			clock.reset();
-			exampleBrowser->update(deltaTimeInSeconds);
+			{
+				if (deltaTimeInSeconds > 0.1)
+				{
+					deltaTimeInSeconds = 0.1;
+				}
+				if (deltaTimeInSeconds < (gMinUpdateTimeMicroSecs/1e6))
+				{
+					B3_PROFILE("clock.usleep");
+					clock.usleep(gMinUpdateTimeMicroSecs/10.);
+					exampleBrowser->updateGraphics();
+				} else
+				{
+					B3_PROFILE("exampleBrowser->update");
+					clock.reset();
+					exampleBrowser->update(deltaTimeInSeconds);
+				}
+			}
 
 		} while (!exampleBrowser->requestedExit() && (args->m_cs->getSharedParam(0)!=eRequestTerminateExampleBrowser));
 	} else
@@ -372,6 +390,8 @@ void btShutDownExampleBrowser(btInProcessExampleBrowserInternalData* data)
                 };
 
 	printf("btShutDownExampleBrowser stopping threads\n");
+	data->m_threadSupport->deleteCriticalSection(data->m_args.m_cs);
+
 	delete data->m_threadSupport;
 	delete data->m_sharedMem;
 	delete data;
@@ -392,7 +412,8 @@ btInProcessExampleBrowserMainThreadInternalData* btCreateInProcessExampleBrowser
     data->m_exampleBrowser = new DefaultBrowser(&data->m_examples);
     data->m_sharedMem = new InProcessMemory;
     data->m_exampleBrowser->setSharedMemoryInterface(data->m_sharedMem );
-    bool init = data->m_exampleBrowser->init(argc,argv);
+	bool init;
+	init = data->m_exampleBrowser->init(argc,argv);
     data->m_clock.reset();
     return data;
 }

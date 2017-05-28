@@ -6,13 +6,14 @@ struct Bullet2CollisionSdkInternalData
 	btCollisionConfiguration* m_collisionConfig;
 	btCollisionDispatcher* m_dispatcher;
 	btBroadphaseInterface* m_aabbBroadphase;
-
 	btCollisionWorld* m_collisionWorld;
 	
 	Bullet2CollisionSdkInternalData()
-		:m_aabbBroadphase(0),
-		m_dispatcher(0),
-		m_collisionWorld(0)
+		:
+	m_collisionConfig(0),
+	m_dispatcher(0),
+	m_aabbBroadphase(0),
+	m_collisionWorld(0)
 	{
 	}
 };

@@ -24,7 +24,7 @@ b3GpuParallelLinearBvhBroadphase::b3GpuParallelLinearBvhBroadphase(cl_context co
 {
 }
 
-void b3GpuParallelLinearBvhBroadphase::createProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr, short int collisionFilterGroup, short int collisionFilterMask)
+void b3GpuParallelLinearBvhBroadphase::createProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr,  int collisionFilterGroup,  int collisionFilterMask)
 {
 	int newAabbIndex = m_aabbsCpu.size();
 
@@ -39,7 +39,7 @@ void b3GpuParallelLinearBvhBroadphase::createProxy(const b3Vector3& aabbMin, con
 	
 	m_aabbsCpu.push_back(aabb);
 }
-void b3GpuParallelLinearBvhBroadphase::createLargeProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr, short int collisionFilterGroup, short int collisionFilterMask)
+void b3GpuParallelLinearBvhBroadphase::createLargeProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr,  int collisionFilterGroup,  int collisionFilterMask)
 {
 	int newAabbIndex = m_aabbsCpu.size();
 

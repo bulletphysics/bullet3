@@ -20,7 +20,9 @@ subject to the following restrictions:
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "BulletSoftBody/btSoftBody.h"
 
+#ifndef BT_SOFT_RIGID_DYNAMICS_WORLD_H
 typedef	btAlignedObjectArray<btSoftBody*> btSoftBodyArray;
+#endif
 
 class btSoftBodySolver;
 
@@ -55,7 +57,7 @@ public:
 
 	virtual void	debugDrawWorld();
 
-	void	addSoftBody(btSoftBody* body,short int collisionFilterGroup=btBroadphaseProxy::DefaultFilter,short int collisionFilterMask=btBroadphaseProxy::AllFilter);
+	void	addSoftBody(btSoftBody* body, int collisionFilterGroup=btBroadphaseProxy::DefaultFilter, int collisionFilterMask=btBroadphaseProxy::AllFilter);
 
 	void	removeSoftBody(btSoftBody* body);
 

@@ -14,22 +14,53 @@ bool searchIncremental3dSapOnGpu = true;
 
 #define B3_BROADPHASE_SAP_PATH "src/Bullet3OpenCL/BroadphaseCollision/kernels/sap.cl"
 
+/*
+	
+ 
+	
+	
+	
+ 
+	b3OpenCLArray<int> m_pairCount;
+ 
+ 
+	b3OpenCLArray<b3SapAabb>	m_allAabbsGPU;
+	b3AlignedObjectArray<b3SapAabb>	m_allAabbsCPU;
+ 
+	virtual b3OpenCLArray<b3SapAabb>&	getAllAabbsGPU()
+	{
+ return m_allAabbsGPU;
+	}
+	virtual b3AlignedObjectArray<b3SapAabb>&	getAllAabbsCPU()
+	{
+ return m_allAabbsCPU;
+	}
+ 
+	b3OpenCLArray<b3Vector3>	m_sum;
+	b3OpenCLArray<b3Vector3>	m_sum2;
+	b3OpenCLArray<b3Vector3>	m_dst;
+ 
+	b3OpenCLArray<int>	m_smallAabbsMappingGPU;
+	b3AlignedObjectArray<int> m_smallAabbsMappingCPU;
+ 
+	b3OpenCLArray<int>	m_largeAabbsMappingGPU;
+	b3AlignedObjectArray<int> m_largeAabbsMappingCPU;
+ 
+	
+	b3OpenCLArray<b3Int4>		m_overlappingPairs;
+ 
+	//temporary gpu work memory
+	b3OpenCLArray<b3SortData>	m_gpuSmallSortData;
+	b3OpenCLArray<b3SapAabb>	m_gpuSmallSortedAabbs;
+ 
+	class b3PrefixScanFloat4CL*		m_prefixScanFloat4;
+ */
 
 b3GpuSapBroadphase::b3GpuSapBroadphase(cl_context ctx,cl_device_id device, cl_command_queue  q , b3GpuSapKernelType kernelType)
 :m_context(ctx),
 m_device(device),
 m_queue(q),
-m_allAabbsGPU(ctx,q),
-m_smallAabbsMappingGPU(ctx,q),
-m_largeAabbsMappingGPU(ctx,q),
-m_pairCount(ctx,q),
-m_overlappingPairs(ctx,q),
-m_gpuSmallSortData(ctx,q),
-m_gpuSmallSortedAabbs(ctx,q),
-m_sum(ctx,q),
-m_sum2(ctx,q),
-m_dst(ctx,q),
-m_currentBuffer(-1),
+
 m_objectMinMaxIndexGPUaxis0(ctx,q),
 m_objectMinMaxIndexGPUaxis1(ctx,q),
 m_objectMinMaxIndexGPUaxis2(ctx,q),
@@ -45,7 +76,18 @@ m_sortedAxisGPU2prev(ctx,q),
 m_addedHostPairsGPU(ctx,q),
 m_removedHostPairsGPU(ctx,q),
 m_addedCountGPU(ctx,q),
-m_removedCountGPU(ctx,q)
+m_removedCountGPU(ctx,q),
+m_currentBuffer(-1),
+m_pairCount(ctx,q),
+m_allAabbsGPU(ctx,q),
+m_sum(ctx,q),
+m_sum2(ctx,q),
+m_dst(ctx,q),
+m_smallAabbsMappingGPU(ctx,q),
+m_largeAabbsMappingGPU(ctx,q),
+m_overlappingPairs(ctx,q),
+m_gpuSmallSortData(ctx,q),
+m_gpuSmallSortedAabbs(ctx,q)
 {
 	const char* sapSrc = sapCL;
     
@@ -191,7 +233,7 @@ void  b3GpuSapBroadphase::init3dSap()
 
 		for (int axis=0;axis<3;axis++)
 		{
-			int totalNumAabbs = m_allAabbsCPU.size();
+			//int totalNumAabbs = m_allAabbsCPU.size();
 			int numEndPoints = m_sortedAxisCPU[axis][m_currentBuffer].size();
 			m_objectMinMaxIndexCPU[axis][m_currentBuffer].resize(numEndPoints);
 			for (int i=0;i<numEndPoints;i++)
@@ -240,7 +282,7 @@ b3AlignedObjectArray<b3SapAabb>	preAabbs;
 
 void  b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 {
-	static int framepje = 0;
+	//static int framepje = 0;
 	//printf("framepje=%d\n",framepje++);
 	
 
@@ -371,6 +413,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 			m_sorter->executeHost(m_sortedAxisCPU[axis][m_currentBuffer]);
 	}
 
+#if 0
 	if (0)
 	{
 		for (int axis=0;axis<3;axis++)
@@ -378,14 +421,14 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 			//printf("axis %d\n",axis);
 			for (int i=0;i<m_sortedAxisCPU[axis][m_currentBuffer].size();i++)
 			{
-				int key = m_sortedAxisCPU[axis][m_currentBuffer][i].m_key;
-				int value = m_sortedAxisCPU[axis][m_currentBuffer][i].m_value;
+				//int key = m_sortedAxisCPU[axis][m_currentBuffer][i].m_key;
+				//int value = m_sortedAxisCPU[axis][m_currentBuffer][i].m_value;
 				//printf("[%d]=%d\n",i,value);
 			}
 
 		}
 	}
-
+#endif
 
 	{
 		B3_PROFILE("assign m_objectMinMaxIndexCPU");
@@ -409,7 +452,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 		}
 	}
 
-
+#if 0
 	if (0)
 	{	
 		printf("==========================\n");
@@ -440,6 +483,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 		}
 
 	}
+#endif
 
 
 	int a = m_objectMinMaxIndexCPU[0][m_currentBuffer].size();
@@ -654,7 +698,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHostIncremental3Sap()
 							int otherIndex = otherIndex2/2;
 							if (otherIndex!=i)
 							{
-								bool otherIsMin = ((otherIndex2&1)==0);
+								//bool otherIsMin = ((otherIndex2&1)==0);
 								//if (otherIsMin)
 								{
 									//bool overlap = TestAabbAgainstAabb2((const b3Vector3&)m_allAabbsCPU[i].m_min, (const b3Vector3&)m_allAabbsCPU[i].m_max,(const b3Vector3&)m_allAabbsCPU[otherIndex].m_min,(const b3Vector3&)m_allAabbsCPU[otherIndex].m_max);
@@ -906,7 +950,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHost(int maxPairs)
 		for (int i=0;i<numSmallAabbs;i++)
 		{
 			b3SapAabb smallAabbi = m_allAabbsCPU[m_smallAabbsMappingCPU[i]];
-			float reference = smallAabbi.m_max[axis];
+			//float reference = smallAabbi.m_max[axis];
 
 			for (int j=i+1;j<numSmallAabbs;j++)
 			{
@@ -941,7 +985,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairsHost(int maxPairs)
 		{
 			b3SapAabb smallAabbi = m_allAabbsCPU[m_smallAabbsMappingCPU[i]];
 
-			float reference = smallAabbi.m_max[axis];
+			//float reference = smallAabbi.m_max[axis];
 			int numLargeAabbs = m_largeAabbsMappingCPU.size();
 
 			for (int j=0;j<numLargeAabbs;j++)
@@ -1022,7 +1066,7 @@ void  b3GpuSapBroadphase::calculateOverlappingPairs(int maxPairs)
 
 	{
 
-	bool syncOnHost = false;
+	//bool syncOnHost = false;
 
 	int numSmallAabbs = m_smallAabbsMappingCPU.size();
 	if (m_prefixScanFloat4 && numSmallAabbs)
@@ -1261,7 +1305,7 @@ void b3GpuSapBroadphase::writeAabbsToGpu()
 
 }
 
-void b3GpuSapBroadphase::createLargeProxy(const b3Vector3& aabbMin,  const b3Vector3& aabbMax, int userPtr ,short int collisionFilterGroup,short int collisionFilterMask)
+void b3GpuSapBroadphase::createLargeProxy(const b3Vector3& aabbMin,  const b3Vector3& aabbMax, int userPtr , int collisionFilterGroup, int collisionFilterMask)
 {
 	int index = userPtr;
 	b3SapAabb aabb;
@@ -1277,7 +1321,7 @@ void b3GpuSapBroadphase::createLargeProxy(const b3Vector3& aabbMin,  const b3Vec
 	m_allAabbsCPU.push_back(aabb);
 }
 
-void b3GpuSapBroadphase::createProxy(const b3Vector3& aabbMin,  const b3Vector3& aabbMax, int userPtr ,short int collisionFilterGroup,short int collisionFilterMask)
+void b3GpuSapBroadphase::createProxy(const b3Vector3& aabbMin,  const b3Vector3& aabbMax, int userPtr , int collisionFilterGroup, int collisionFilterMask)
 {
 	int index = userPtr;
 	b3SapAabb aabb;

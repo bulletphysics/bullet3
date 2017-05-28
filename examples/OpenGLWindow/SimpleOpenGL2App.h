@@ -17,18 +17,16 @@ public:
 	virtual int getUpAxis() const;
 	
 	virtual void swapBuffer();
-	virtual void drawText( const char* txt, int posX, int posY, float size);
+	virtual void drawText( const char* txt, int posX, int posY, float size, float colorRGBA[4]);
+	
 	virtual void drawTexturedRect(float x0, float y0, float x1, float y1, float color[4], float u0,float v0, float u1, float v1, int useRGBA){};
 	virtual void setBackgroundColor(float red, float green, float blue);
-	virtual int	registerCubeShape(float halfExtentsX,float halfExtentsY, float halfExtentsZ, int textureIndex = -1,  float textureScaling = 1)
-	{
-		return 0;
-	}
-	virtual int	registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lod, int textureId=-1)
-	{
-		return 0;
-	}
+	virtual int	registerCubeShape(float halfExtentsX,float halfExtentsY, float halfExtentsZ, int textureIndex = -1,  float textureScaling = 1);
+
+	virtual int	registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lod, int textureId=-1);
     virtual void drawText3D( const char* txt, float posX, float posZY, float posZ, float size);
+	virtual void drawText3D( const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlag);
+	
     virtual void registerGrid(int xres, int yres, float color0[4], float color1[4]);
 
     

@@ -254,9 +254,12 @@ struct b3SolveTask// : public ThreadPool::Task
 				int maxNumBatches,
 				b3AlignedObjectArray<int>* wgUsedBodies, int curWgidx
 				)
-		: m_bodies( bodies ), m_shapes( shapes ), m_constraints( constraints ), m_start( start ), m_nConstraints( nConstraints ),
-		m_solveFriction( true ),m_maxNumBatches(maxNumBatches),
-		m_wgUsedBodies(wgUsedBodies),m_curWgidx(curWgidx)
+		: m_bodies( bodies ), m_shapes( shapes ), m_constraints( constraints ), 
+		m_wgUsedBodies(wgUsedBodies),m_curWgidx(curWgidx),
+m_start( start ), 
+	m_nConstraints( nConstraints ),
+	m_solveFriction( true ),
+	m_maxNumBatches(maxNumBatches)
 	{}
 
 	unsigned short int getType(){ return 0; }
@@ -281,10 +284,11 @@ struct b3SolveTask// : public ThreadPool::Task
 				float frictionCoeff = b3GetFrictionCoeff(&m_constraints[i]);
 				int aIdx = (int)m_constraints[i].m_bodyA;
 				int bIdx = (int)m_constraints[i].m_bodyB;
-				int localBatch = m_constraints[i].m_batchIdx;
+				//int localBatch = m_constraints[i].m_batchIdx;
 				b3RigidBodyData& bodyA = m_bodies[aIdx];
 				b3RigidBodyData& bodyB = m_bodies[bIdx];
 
+#if 0
 				if ((bodyA.m_invMass) && (bodyB.m_invMass))
 				{
 				//	printf("aIdx=%d, bIdx=%d\n", aIdx,bIdx);
@@ -293,7 +297,7 @@ struct b3SolveTask// : public ThreadPool::Task
 				{
 					//printf("ic(b)=%d, localBatch=%d\n",ic,localBatch);
 				}
-
+#endif
 				if (aIdx==10)
 				{
 					//printf("ic(a)=%d, localBatch=%d\n",ic,localBatch);
@@ -393,7 +397,7 @@ void b3CpuRigidBodyPipeline::solveContactConstraints()
 	int m_nIterations = 4;
 
 	b3AlignedObjectArray<b3ContactConstraint4> contactConstraints;
-	const b3AlignedObjectArray<b3Contact4Data>& contacts = m_data->m_np->getContacts();
+//	const b3AlignedObjectArray<b3Contact4Data>& contacts = m_data->m_np->getContacts();
 	int n = contactConstraints.size();
 	//convert contacts...
 

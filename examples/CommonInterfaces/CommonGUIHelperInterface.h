@@ -12,6 +12,10 @@ struct CommonParameterInterface;
 struct CommonRenderInterface;
 struct CommonGraphicsApp;
 
+
+
+typedef void (*VisualizerFlagCallback)(int flag, bool enable);
+
 ///The Bullet 2 GraphicsPhysicsBridge let's the graphics engine create graphics representation and synchronize
 struct GUIHelperInterface
 {
@@ -33,6 +37,8 @@ struct GUIHelperInterface
 	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType, int textureId) = 0;
 	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling) =0;
     virtual void removeAllGraphicsInstances()=0;
+	virtual void removeGraphicsInstance(int graphicsUid) {}
+	virtual void changeRGBAColor(int instanceUid, const double rgbaColor[4]) {}
 	
 	virtual Common2dCanvasInterface* get2dCanvasInterface()=0;
 	
@@ -40,12 +46,24 @@ struct GUIHelperInterface
 
 	virtual CommonRenderInterface* getRenderInterface()=0;
 
+	virtual const CommonRenderInterface* getRenderInterface() const
+	{
+		return 0;
+	}
+
 	virtual CommonGraphicsApp* getAppInterface()=0;
 
 	virtual void setUpAxis(int axis)=0;
 
 	virtual void resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ)=0;
-	
+
+	virtual bool getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3],float hor[3], float vert[3] ) const
+	{
+		return false;
+	}
+
+    virtual void setVisualizerFlag(int flag, int enable){};
+    
 	virtual void copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16], 
                                   unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, 
                                   float* depthBuffer, int depthBufferSizeInPixels, 
@@ -66,14 +84,20 @@ struct GUIHelperInterface
 
 	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld) =0;
 	
-	virtual void drawText3D( const char* txt, float posX, float posZY, float posZ, float size)=0;
-
-
+	virtual void drawText3D( const char* txt, float posX, float posY, float posZ, float size){}
+	virtual void drawText3D( const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlag){}
 	
-	virtual int		addUserDebugText3D( const char* txt, const double posisionXYZ[3], const double	textColorRGB[3], double size, double lifeTime)=0;
-	virtual int		addUserDebugLine(const double	debugLineFromXYZ[3], const double	debugLineToXYZ[3], const double	debugLineColorRGB[3], double lineWidth, double lifeTime )=0;
-	virtual void	removeUserDebugItem( int debugItemUniqueId)=0;
-	virtual void	removeAllUserDebugItems( )=0;
+	virtual int		addUserDebugText3D( const char* txt, const double positionXYZ[3], const double orientation[4], const double	textColorRGB[3], double size, double lifeTime, int trackingVisualShapeIndex, int optionFlags){return -1;}
+	virtual int		addUserDebugLine(const double	debugLineFromXYZ[3], const double	debugLineToXYZ[3], const double	debugLineColorRGB[3], double lineWidth, double lifeTime , int trackingVisualShapeIndex){return -1;};
+	virtual int		addUserDebugParameter(const char* txt, double	rangeMin, double	rangeMax, double startValue){return -1;};
+	virtual int		readUserDebugParameter(int itemUniqueId, double* value) { return 0;}
+
+	virtual void	removeUserDebugItem( int debugItemUniqueId){};
+	virtual void	removeAllUserDebugItems( ){};
+	virtual void	setVisualizerFlagCallback(VisualizerFlagCallback callback){}
+
+	//empty name stops dumping video
+	virtual void	dumpFramesToVideo(const char* mp4FileName) {};
 
 };
 
@@ -100,7 +124,9 @@ struct DummyGUIHelper : public GUIHelperInterface
 	virtual int registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType, int textureId){return -1;}
 	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling) {return -1;}
     virtual void removeAllGraphicsInstances(){}
-	
+	virtual void removeGraphicsInstance(int graphicsUid){}
+	virtual void changeRGBAColor(int instanceUid, const double rgbaColor[4]) {}
+
 	virtual Common2dCanvasInterface* get2dCanvasInterface()
 	{
 		return 0;
@@ -147,12 +173,12 @@ struct DummyGUIHelper : public GUIHelperInterface
 	virtual void drawText3D( const char* txt, float posX, float posZY, float posZ, float size)
 	{
 	}
-
-	virtual int		addUserDebugText3D( const char* txt, const double positionXYZ[3], const double	textColorRGB[3], double size, double lifeTime)
+	
+	virtual void drawText3D( const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlag)
 	{
-		return -1;
 	}
-	virtual int		addUserDebugLine(const double	debugLineFromXYZ[3], const double	debugLineToXYZ[3], const double	debugLineColorRGB[3], double lineWidth, double lifeTime )
+
+	virtual int		addUserDebugLine(const double	debugLineFromXYZ[3], const double	debugLineToXYZ[3], const double	debugLineColorRGB[3], double lineWidth, double lifeTime , int trackingVisualShapeIndex)
 	{
 		return -1;
 	}

@@ -34,24 +34,29 @@ public:
 	virtual int getRootLinkIndex() const;
     
     virtual void getLinkChildIndices(int linkIndex, btAlignedObjectArray<int>& childLinkIndices) const;
+    
+	virtual std::string getBodyName() const;
 
     virtual std::string getLinkName(int linkIndex) const;
 
 	virtual bool getLinkColor(int linkIndex, btVector4& colorRGBA) const;
 
-	virtual bool getLinkContactInfo(int linkIndex, URDFLinkContactInfo& contactInfo ) const;
+	virtual bool getLinkContactInfo(int urdflinkIndex, URDFLinkContactInfo& contactInfo ) const;
 	
+	virtual bool getLinkAudioSource(int linkIndex, SDFAudioSource& audioSource) const;
+
     virtual std::string getJointName(int linkIndex) const;
     
     virtual void  getMassAndInertia(int linkIndex, btScalar& mass,btVector3& localInertiaDiagonal, btTransform& inertialFrame) const;
 
     virtual bool getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction) const;
-    
+    virtual bool getJointInfo2(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction, btScalar& jointMaxForce, btScalar& jointMaxVelocity) const;
+
     virtual bool getRootTransformInWorld(btTransform& rootTransformInWorld) const;
 
     virtual int convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame) const;
 
-    virtual void convertLinkVisualShapes2(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame, class btCollisionObject* colObj, int bodyUniqueId) const;
+    virtual void convertLinkVisualShapes2(int linkIndex, int urdfIndex, const char* pathPrefix, const btTransform& inertialFrame, class btCollisionObject* colObj, int bodyUniqueId) const;
 
     ///todo(erwincoumans) refactor this convertLinkCollisionShapes/memory allocation
     

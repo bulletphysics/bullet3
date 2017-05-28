@@ -4,7 +4,7 @@
 #define GWEN_MACROS_H
 #include <stdlib.h>
 #include <stdarg.h>
-#ifndef __APPLE__
+#if !defined(__APPLE__) && !defined(__OpenBSD__)
 #include <malloc.h>
 #endif //__APPLE__
 #include <memory.h>
@@ -38,7 +38,7 @@
 	#define GwenUtil_OutputDebugWideString( lpOutputString ) //wprintf( lpOutputString  )
 	#define GwenUtil_WideStringToFloat( _Str ) wcstof(_Str, NULL)
 
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__OpenBSD__)
 
 	#define GwenUtil_VSNPrintFSafe( _DstBuf, _DstSize, _MaxCount, _Format, _ArgList ) vsnprintf( _DstBuf, _DstSize, _Format, _ArgList )
 	#define GwenUtil_VSWPrintFSafe( _DstBuf, _SizeInWords, _Format, _ArgList ) vswprintf( _DstBuf, _SizeInWords, _Format, _ArgList )

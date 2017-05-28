@@ -98,7 +98,7 @@ class b3HashedOverlappingPairCache : public b3OverlappingPairCache
 {
 	b3BroadphasePairArray	m_overlappingPairArray;
 	b3OverlapFilterCallback* m_overlapFilterCallback;
-	bool		m_blockedForChanges;
+//	bool		m_blockedForChanges;
 
 
 public:

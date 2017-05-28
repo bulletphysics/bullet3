@@ -34,6 +34,8 @@ template <typename T, typename U> void addJointInfoFromMultiBodyData(const T* mb
 	{
 		{
 			b3JointInfo info;
+			info.m_jointName = 0;
+			info.m_linkName = 0;
 			info.m_flags = 0;
 			info.m_jointIndex = link;
 			info.m_qIndex =
@@ -59,6 +61,10 @@ template <typename T, typename U> void addJointInfoFromMultiBodyData(const T* mb
 			info.m_jointType = mb->m_links[link].m_jointType;
 			info.m_jointDamping = mb->m_links[link].m_jointDamping;
 			info.m_jointFriction = mb->m_links[link].m_jointFriction;
+			info.m_jointLowerLimit = mb->m_links[link].m_jointLowerLimit;
+			info.m_jointUpperLimit = mb->m_links[link].m_jointUpperLimit;
+			info.m_jointMaxForce = mb->m_links[link].m_jointMaxForce;
+			info.m_jointMaxVelocity = mb->m_links[link].m_jointMaxVelocity;
 
 			if ((mb->m_links[link].m_jointType == eRevoluteType) ||
 				(mb->m_links[link].m_jointType == ePrismaticType)) {

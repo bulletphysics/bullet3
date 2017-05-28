@@ -44,8 +44,8 @@ public:
 	
 	
 	CProfileIterator* profIter;
-	
-	class MyMenuItems* m_menuItems;
+
+	class MyMenuItems3* m_menuItems;
 	MyProfileWindow (	Gwen::Controls::Base* pParent)
     : Gwen::Controls::WindowControl( pParent ),
 	profIter(0)
@@ -192,7 +192,8 @@ public:
 			
 			
          //   Gwen::Controls::TreeNode* curParent = m_node;
-			
+
+
             double accumulated_time = dumpRecursive(profileIterator,m_node);
 			
             const char* name = profileIterator->Get_Current_Parent_Name();
@@ -246,16 +247,17 @@ public:
 	
 };
 
-class MyMenuItems :  public Gwen::Controls::Base
+class MyMenuItems3 :  public Gwen::Controls::Base
 {
 	
 public:
 	
 	class MyProfileWindow* m_profWindow;
-    MyMenuItems() :Gwen::Controls::Base(0)
+    MyMenuItems3() :Gwen::Controls::Base(0)
     {
     }
-   
+    virtual ~MyMenuItems3() {}
+ 
     void MenuItemSelect(Gwen::Controls::Base* pControl)
     {
 		if (m_profWindow->Hidden())
@@ -272,14 +274,14 @@ public:
 
 MyProfileWindow* setupProfileWindow(GwenInternalData* data)
 {
-	MyMenuItems* menuItems = new MyMenuItems;
+	MyMenuItems3* menuItems = new MyMenuItems3;
 	
 	MyProfileWindow* profWindow = new MyProfileWindow(data->pCanvas);
 	//profWindow->SetHidden(true);	
 	
 	profWindow->m_menuItems = menuItems;
-	//profWindow->profIter = CProfileManager::Get_Iterator();
-	data->m_viewMenu->GetMenu()->AddItem( L"Profiler", menuItems,(Gwen::Event::Handler::Function)&MyMenuItems::MenuItemSelect);
+	profWindow->profIter = CProfileManager::Get_Iterator();
+	data->m_viewMenu->GetMenu()->AddItem( L"Profiler", menuItems,(Gwen::Event::Handler::Function)&MyMenuItems3::MenuItemSelect);
 	
 	menuItems->m_profWindow = profWindow;
 	
@@ -291,9 +293,16 @@ void	processProfileData( MyProfileWindow* profWindow, bool idle)
 {
 	if (profWindow)
 	{
-		
-		profWindow->UpdateText(profWindow->profIter, idle);
+		if (profWindow->profIter)
+		{
+			profWindow->UpdateText(profWindow->profIter, idle);
+		}
 	}	
+}
+
+bool isProfileWindowVisible(MyProfileWindow* window)
+{
+	return !window->Hidden();
 }
 
 void profileWindowSetVisible(MyProfileWindow* window, bool visible)
@@ -303,7 +312,10 @@ void profileWindowSetVisible(MyProfileWindow* window, bool visible)
 void destroyProfileWindow(MyProfileWindow* window)
 {
 	CProfileManager::Release_Iterator(window->profIter);
+	delete window->m_menuItems;
 	delete window;
+	CProfileManager::CleanupMemory();
+
 }
 
 #endif //BT_NO_PROFILE

@@ -108,7 +108,7 @@ btCollisionWorld::~btCollisionWorld()
 
 
 
-void	btCollisionWorld::addCollisionObject(btCollisionObject* collisionObject,short int collisionFilterGroup,short int collisionFilterMask)
+void	btCollisionWorld::addCollisionObject(btCollisionObject* collisionObject, int collisionFilterGroup, int collisionFilterMask)
 {
 
 	btAssert(collisionObject);
@@ -135,8 +135,7 @@ void	btCollisionWorld::addCollisionObject(btCollisionObject* collisionObject,sho
 		collisionObject,
 		collisionFilterGroup,
 		collisionFilterMask,
-		m_dispatcher1,0
-		))	;
+		m_dispatcher1))	;
 
 
 
@@ -257,7 +256,7 @@ void	btCollisionWorld::removeCollisionObject(btCollisionObject* collisionObject)
 
 
     int iObj = collisionObject->getWorldArrayIndex();
-    btAssert(iObj >= 0 && iObj < m_collisionObjects.size()); // trying to remove an object that was never added or already removed previously?
+//    btAssert(iObj >= 0 && iObj < m_collisionObjects.size()); // trying to remove an object that was never added or already removed previously?
     if (iObj >= 0 && iObj < m_collisionObjects.size())
     {
         btAssert(collisionObject == m_collisionObjects[iObj]);
@@ -1515,6 +1514,8 @@ void	btCollisionWorld::debugDrawWorld()
 {
 	if (getDebugDrawer())
 	{
+		getDebugDrawer()->clearLines();
+
 		btIDebugDraw::DefaultColors defaultColors = getDebugDrawer()->getDefaultColors();
 
 		if ( getDebugDrawer()->getDebugMode() & btIDebugDraw::DBG_DrawContactPoints)

@@ -595,6 +595,7 @@ struct NN3DWalkersTimeWarpBase: public CommonRigidBodyBase {
 			if(mLoopTimer.getTimeSeconds() - speedUpPrintTimeStamp > 1){
 				// on reset, we calculate the performed speed up
 				double speedUp = ((double)performedTime*1000.0)/((double)(mLoopTimer.getTimeMilliseconds()-performanceTimestamp));
+//				b3Printf("Avg Effective speedup: %f",speedUp);
 				performedTime = 0;
 				performanceTimestamp = mLoopTimer.getTimeMilliseconds();
 				speedUpPrintTimeStamp = mLoopTimer.getTimeSeconds();

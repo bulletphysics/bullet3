@@ -76,7 +76,7 @@ void calculateDotJacUError(const MultiBodyTreeCreator& creator, const int nloops
         EXPECT_EQ(0, tree2->calculatePositionAndVelocityKinematics(q, u));
         EXPECT_EQ(0, tree2->calculateJacobians(q, u));
 
-        for (size_t idx = 0; idx < nbodies; idx++) {
+        for (int idx = 0; idx < nbodies; idx++) {
             vec3 tmp1, tmp2;
             vec3 diff;
             EXPECT_EQ(0, tree1->getBodyLinearAcceleration(idx, &tmp1));
@@ -134,7 +134,7 @@ void calculateJacobianError(const MultiBodyTreeCreator& creator, const int nloop
         EXPECT_EQ(0, tree2->calculatePositionKinematics(q));
         EXPECT_EQ(0, tree2->calculateJacobians(q));
 
-        for (size_t idx = 0; idx < nbodies; idx++) {
+        for (int idx = 0; idx < nbodies; idx++) {
             mat3x ref_jac_r(3, ndofs);
             mat3x ref_jac_t(3, ndofs);
             ref_jac_r.setZero();
@@ -211,7 +211,7 @@ void calculateVelocityJacobianError(const MultiBodyTreeCreator& creator, const i
         EXPECT_EQ(0, tree2->calculatePositionKinematics(q));
         EXPECT_EQ(0, tree2->calculateJacobians(q));
 
-        for (size_t idx = 0; idx < nbodies; idx++) {
+        for (int idx = 0; idx < nbodies; idx++) {
             vec3 vel1;
             vec3 omg1;
             vec3 vel2;

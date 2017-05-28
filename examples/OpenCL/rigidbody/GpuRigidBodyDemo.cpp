@@ -233,7 +233,7 @@ void GpuRigidBodyDemo::stepSimulation(float deltaTime)
 			GLuint vbo = m_instancingRenderer->getInternalData()->m_vbo;
 			int arraySizeInBytes  = numObjects * (3)*sizeof(b3Vector4);
 			glBindBuffer(GL_ARRAY_BUFFER, vbo);
-			cl_bool blocking=  CL_TRUE;
+//			cl_bool blocking=  CL_TRUE;
 			positions=  (b3Vector4*)glMapBufferRange( GL_ARRAY_BUFFER,m_instancingRenderer->getMaxShapeCapacity(),arraySizeInBytes, GL_MAP_READ_BIT );//GL_READ_WRITE);//GL_WRITE_ONLY
 			GLint err = glGetError();
 			assert(err==GL_NO_ERROR);
@@ -296,7 +296,7 @@ void GpuRigidBodyDemo::stepSimulation(float deltaTime)
 		int arraySizeInBytes  = numObjects * (3)*sizeof(b3Vector4);
 
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		cl_bool blocking=  CL_TRUE;
+//		cl_bool blocking=  CL_TRUE;
 		positions=  (b3Vector4*)glMapBufferRange( GL_ARRAY_BUFFER,m_instancingRenderer->getMaxShapeCapacity(),arraySizeInBytes, GL_MAP_WRITE_BIT );//GL_READ_WRITE);//GL_WRITE_ONLY
 		err = glGetError();
 		assert(err==GL_NO_ERROR);
@@ -329,7 +329,7 @@ b3Vector3	GpuRigidBodyDemo::getRayTo(int x,int y)
 	float farPlane = 10000.f;
 	rayForward*= farPlane;
 
-	b3Vector3 rightOffset;
+//	b3Vector3 rightOffset;
 	b3Vector3 m_cameraUp=b3MakeVector3(0,1,0);
 	b3Vector3 vertical = m_cameraUp;
 
@@ -401,7 +401,7 @@ bool	GpuRigidBodyDemo::mouseMoveCallback(float x,float y)
 		m_data->m_rigidBodyPipeline->removeConstraintByUid(m_data->m_pickConstraint);
 		b3Vector3 newRayTo = getRayTo(x,y);
 		b3Vector3 rayFrom;
-		b3Vector3 oldPivotInB = m_data->m_pickPivotInB;
+	//	b3Vector3 oldPivotInB = m_data->m_pickPivotInB;
 		b3Vector3 newPivotB;
 		m_guiHelper->getRenderInterface()->getActiveCamera()->getCameraPosition(rayFrom);
 		b3Vector3 dir = newRayTo-rayFrom;

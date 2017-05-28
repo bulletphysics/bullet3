@@ -2,6 +2,7 @@
 #pragma once
 
 #include <string>
+#include <stdint.h>
 
 /** Returns the path (including filename) to the current executable */
 std::string Path_GetExecutablePath();
@@ -13,7 +14,7 @@ std::string Path_GetWorkingDirectory();
 bool Path_SetWorkingDirectory( const std::string & sPath );
 
 /** returns the path (including filename) of the current shared lib or DLL */
-std::string Path_GetModulePath();
+std::string Path_GetThisModulePath();
 
 /** Returns the specified path without its filename.
 * If slash is unspecified the native path separator of the current platform
@@ -26,6 +27,9 @@ std::string Path_StripDirectory( const std::string & sPath, char slash = 0 );
 /** returns just the filename with no extension of the provided filename. 
 * If there is a path the path is left intact. */
 std::string Path_StripExtension( const std::string & sPath );
+
+/** returns just extension of the provided filename (if any). */
+std::string Path_GetExtension( const std::string & sPath );
 
 /** Returns true if the path is absolute */
 bool Path_IsAbsolute( const std::string & sPath );
@@ -60,11 +64,14 @@ std::string Path_Join(
 * will be used. */
 std::string Path_Compact( const std::string & sRawPath, char slash = 0 );
 
+//** Removed trailing slashes */
+std::string Path_RemoveTrailingSlash( const std::string & sRawPath, char slash = 0 );
+
 /** returns true if the specified path exists and is a directory */
 bool Path_IsDirectory( const std::string & sPath );
 
-/** Returns the path to the current DLL or exe */
-std::string GetThisModulePath();
+/** returns true if the specified path represents an app bundle */
+bool Path_IsAppBundle( const std::string & sPath );
 
 /** returns true if the the path exists */
 bool Path_Exists( const std::string & sPath );
@@ -75,11 +82,31 @@ std::string Path_FindParentSubDirectoryRecursively( const std::string &strStartD
 
 /** Path operations to read or write text/binary files */
 unsigned char * Path_ReadBinaryFile( const std::string &strFilename, int *pSize );
+uint32_t  Path_ReadBinaryFile( const std::string &strFilename, unsigned char *pBuffer, uint32_t unSize );
+bool Path_WriteBinaryFile( const std::string &strFilename, unsigned char *pData, unsigned nSize );
 std::string Path_ReadTextFile( const std::string &strFilename );
 bool Path_WriteStringToTextFile( const std::string &strFilename, const char *pchData );
+bool Path_WriteStringToTextFileAtomic( const std::string &strFilename, const char *pchData );
+
+/** Returns a file:// url for paths, or an http or https url if that's what was provided */
+std::string Path_FilePathToUrl( const std::string & sRelativePath, const std::string & sBasePath );
+
+/** Strips off file:// off a URL and returns the path. For other kinds of URLs an empty string is returned */
+std::string Path_UrlToFilePath( const std::string & sFileUrl );
+
+/** Returns the root of the directory the system wants us to store user documents in */
+std::string GetUserDocumentsPath();
+
+#ifndef MAX_UNICODE_PATH
+	#define MAX_UNICODE_PATH 32767
+#endif
+
+#ifndef MAX_UNICODE_PATH_IN_UTF8
+	#define MAX_UNICODE_PATH_IN_UTF8 (MAX_UNICODE_PATH * 4)
+#endif
 
 //-----------------------------------------------------------------------------
-#if defined(_WIN32)
+#if defined(WIN32)
 #define DYNAMIC_LIB_EXT	".dll"
 #ifdef _WIN64
 #define PLATSUBDIR	"win64"
@@ -91,7 +118,11 @@ bool Path_WriteStringToTextFile( const std::string &strFilename, const char *pch
 #define PLATSUBDIR	"osx32"
 #elif defined(LINUX)
 #define DYNAMIC_LIB_EXT	".so"
+#if defined( LINUX32 )
 #define PLATSUBDIR	"linux32"
+#else
+#define PLATSUBDIR	"linux64"
+#endif
 #else
 #warning "Unknown platform for PLATSUBDIR"
 #define PLATSUBDIR	"unknown_platform"

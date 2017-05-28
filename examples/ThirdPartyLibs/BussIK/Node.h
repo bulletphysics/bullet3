@@ -45,7 +45,7 @@ public:
 
 	double GetTheta() const { return theta; }
 	double AddToTheta( double& delta ) { 
-		double orgTheta = theta;
+		//double orgTheta = theta;
 		theta += delta;
 #if 0
 		if (theta < minTheta)

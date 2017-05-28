@@ -125,7 +125,7 @@ void	btSoftMultiBodyDynamicsWorld::solveSoftBodiesConstraints( btScalar timeStep
 
 }
 
-void	btSoftMultiBodyDynamicsWorld::addSoftBody(btSoftBody* body,short int collisionFilterGroup,short int collisionFilterMask)
+void	btSoftMultiBodyDynamicsWorld::addSoftBody(btSoftBody* body, int collisionFilterGroup, int collisionFilterMask)
 {
 	m_softBodies.push_back(body);
 

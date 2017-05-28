@@ -89,7 +89,7 @@ struct ImportUrdfInternalData
 
 ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option, const char* fileName)
 	:CommonMultiBodyBase(helper),
-	m_grav(0),
+	m_grav(-10),
 	m_upAxis(2)
 {
 	m_data = new ImportUrdfInternalData;
@@ -135,7 +135,7 @@ ImportUrdfSetup::ImportUrdfSetup(struct GUIHelperInterface* helper, int option, 
 		
 		if (gFileNameArray.size()==0)
 		{
-			gFileNameArray.push_back("quadruped/quadruped.urdf");
+			gFileNameArray.push_back("r2d2.urdf");
 
 		}
 
@@ -159,24 +159,7 @@ ImportUrdfSetup::~ImportUrdfSetup()
     delete m_data;
 }
 
-static btVector4 colors[4] =
-{
-	btVector4(1,0,0,1),
-	btVector4(0,1,0,1),
-	btVector4(0,1,1,1),
-	btVector4(1,1,0,1),
-};
 
-
-static btVector3 selectColor()
-{
-
-	static int curColor = 0;
-	btVector4 color = colors[curColor];
-	curColor++;
-	curColor&=3;
-	return color;
-}
 
 void ImportUrdfSetup::setFileName(const char* urdfFileName)
 {
@@ -237,7 +220,7 @@ void ImportUrdfSetup::initPhysics()
 
 
 			//todo: move these internal API called inside the 'ConvertURDF2Bullet' call, hidden from the user
-			int rootLinkIndex = u2b.getRootLinkIndex();
+			//int rootLinkIndex = u2b.getRootLinkIndex();
 			//b3Printf("urdf root link index = %d\n",rootLinkIndex);
 			MyMultiBodyCreator creation(m_guiHelper);
 

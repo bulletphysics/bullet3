@@ -49,36 +49,48 @@ All source code files are licensed under the permissive zlib license
 
 **Windows**
 
-Click on build_visual_studio.bat and open build3/vs2010/0MySolution.sln
+Click on build_visual_studio_vr_pybullet_double.bat and open build3/vs2010/0MySolution.sln
+When asked, convert the projects to a newer version of Visual Studio.
+If you installed Python in the C:\ root directory, the batch file should find it automatically.
+Otherwise, edit this batch file to choose where Python include/lib directories are located.
 
 **Windows Virtual Reality sandbox for HTC Vive and Oculus Rift**
 
-Click on build_visual_studio_vr_pybullet_double.bat and open build3/vs2010/0MySolution.sln
-Edit this batch file to choose where Python include/lib directories are located.
 Build and run the App_SharedMemoryPhysics_VR project, preferably in Release/optimized build.
 You can connect from Python pybullet to the sandbox using:
 
 ```
 import pybullet as p
-p.connect(p.SHARED_MEMORY)
+p.connect(p.SHARED_MEMORY) #or (p.TCP, "localhost", 6667) or (p.UDP, "192.168.86.10",1234)
 ```
 
 **Linux and Mac OSX gnu make**
 
+Make sure cmake is installed (sudo apt-get install cmake, brew install cmake, or https://cmake.org)
+
 In a terminal type:
 
-	cd build3
+	./build_cmake_pybullet_double.sh
 
+This script will invoke cmake and build in the build_cmake directory. You can find pybullet in Bullet/examples/pybullet.
+The BulletExampleBrowser binary will be in Bullet/examples/ExampleBrowser.
+
+You can also build Bullet using premake. There are premake executables in the build3 folder.
 Depending on your system (Linux 32bit, 64bit or Mac OSX) use one of the following lines
-
-	./premake4_linux gmake
-	./premake4_linux64 gmake
-	./premake4_osx gmake
-
+Using premake:
+```
+	cd build3
+	./premake4_linux gmake --double
+	./premake4_linux64 gmake --double
+	./premake4_osx gmake --double --enable_pybullet
+```
 Then
-
+```
 	cd gmake
 	make
+```
+
+Note that on Linux, you need to use cmake to build pybullet, since the compiler has issues of mixing shared and static libraries.
 
 **Mac OSX Xcode**
 	

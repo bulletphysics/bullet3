@@ -20,6 +20,7 @@ project ("pybullet")
                 }
 
 	if os.is("MacOSX") then
+--		targetextension {"so"}
 		links{"Cocoa.framework","Python"}
 	end
 
@@ -38,6 +39,7 @@ if not _OPTIONS["no-enet"] then
 		includedirs {"../../examples/ThirdPartyLibs/enet/include"}
 	
 		if os.is("Windows") then 
+--			targetextension {"dylib"}
 			defines { "WIN32" }
 			links {"Ws2_32","Winmm"}
 		end
@@ -56,6 +58,32 @@ if not _OPTIONS["no-enet"] then
 		}	
 		defines {"BT_ENABLE_ENET"}
 	end
+
+	if not _OPTIONS["no-clsocket"] then
+
+                includedirs {"../../examples/ThirdPartyLibs/clsocket/src"}
+
+		 if os.is("Windows") then
+                	defines { "WIN32" }
+                	links {"Ws2_32","Winmm"}
+       		 end
+        	if os.is("Linux") then
+                	defines {"_LINUX"}
+        	end
+        	if os.is("MacOSX") then
+                	defines {"_DARWIN"}
+        	end
+
+                links {"clsocket"}
+
+                files {
+                        "../../examples/SharedMemory/PhysicsClientTCP.cpp",
+                        "../../examples/SharedMemory/PhysicsClientTCP.h",
+                        "../../examples/SharedMemory/PhysicsClientTCP_C_API.cpp",
+                        "../../examples/SharedMemory/PhysicsClientTCP_C_API.h",
+                }
+                defines {"BT_ENABLE_CLSOCKET"}
+        end
 
 
 		files {
@@ -97,8 +125,12 @@ if not _OPTIONS["no-enet"] then
 			"../../examples/SharedMemory/Win32SharedMemory.h",
 			"../../examples/SharedMemory/PosixSharedMemory.cpp",
 			"../../examples/SharedMemory/PosixSharedMemory.h",
+			"../../examples/SharedMemory/SharedMemoryCommands.h",
+			"../../examples/SharedMemory/SharedMemoryPublic.h",
 			"../../examples/Utils/b3ResourcePath.cpp",
 			"../../examples/Utils/b3ResourcePath.h",
+			"../../examples/Utils/RobotLoggingUtil.cpp",
+			"../../examples/Utils/RobotLoggingUtil.h",
 			"../../examples/ThirdPartyLibs/tinyxml/tinystr.cpp",
 			"../../examples/ThirdPartyLibs/tinyxml/tinyxml.cpp",
 			"../../examples/ThirdPartyLibs/tinyxml/tinyxmlerror.cpp",
@@ -109,6 +141,7 @@ if not _OPTIONS["no-enet"] then
 			"../../examples/Importers/ImportColladaDemo/LoadMeshFromCollada.cpp",
 			"../../examples/Importers/ImportObjDemo/LoadMeshFromObj.cpp",
 			"../../examples/Importers/ImportObjDemo/Wavefront2GLInstanceGraphicsShape.cpp",
+			"../../examples/Importers/ImportMJCFDemo/BulletMJCFImporter.cpp",
 			"../../examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp",
 			"../../examples/Importers/ImportURDFDemo/MyMultiBodyCreator.cpp",
 			"../../examples/Importers/ImportURDFDemo/URDF2Bullet.cpp",

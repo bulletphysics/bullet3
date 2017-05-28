@@ -16,7 +16,7 @@ inline void b3ProjectAxis(const b3ConvexPolyhedronData& hull,  const b3Float4& p
 	{
 		//b3Vector3 pt = trans * vertices[m_vertexOffset+i];
 		//b3Scalar dp = pt.dot(dir);
-		b3Vector3 vertex = vertices[hull.m_vertexOffset+i];
+		//b3Vector3 vertex = vertices[hull.m_vertexOffset+i];
 		b3Scalar dp = b3Dot3F4((b3Float4&)vertices[hull.m_vertexOffset+i],localDir);
 		//b3Assert(dp==dpL);
 		if(dp < min)	min = dp;

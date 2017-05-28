@@ -1,0 +1,471 @@
+<mujoco model="MPL">
+    <!--
+    This file and the .stl mesh files referenced from it have been derived by Roboti LLC from the model of the Modular Prosthetic Limb developed by The Johns Hopkins University / Applied Physics Laboratory. The modifications are as follows: the original meshes have been replaced with their convex hulls; the original URDF model has been converted to the MJCF format and a number of MJCF-specific fields have been added.
+
+    The Johns Hopkins University / Applied Physics Laboratory has given Roboti LLC permission to distribute the modified model under the following license:
+
+    =========================
+
+    (C) 2013 The Johns Hopkins University / Applied Physics Laboratory All Rights Reserved.
+
+    Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+
+    ========================
+
+    The modifications made by Roboti LLC are also licensed under the Apache License version 2.0.
+    -->
+    
+    <compiler angle="radian" meshdir="mesh/" texturedir="texture/"/>
+    <option timestep="0.002" iterations="50" apirate="50"/>
+    <size njmax="600" nconmax="150" nstack="300000"/>
+
+    <default>
+		<default class="MPL"> 
+			<geom material="MatMesh" contype="1" conaffinity="1" condim="4" friction="1 .5 0.5" margin="0.001"/>
+        	<joint limited="true" damping="0.2" armature=".01"/>
+        	<site material="MatTouch" type="ellipsoid" group="3"/>
+            <position ctrllimited="true" kp="10"/>
+		</default>
+
+        <default class="IMU">
+	        <site material="MatIMU" type="box" group="4"/>
+        </default>
+        
+        <default class="free">
+            <joint type="free" damping="0" armature="0" limited="false"/>
+        </default>     
+    </default>
+
+    <statistic extent="1" center="0 -0.2 0.2"/>
+
+    <visual>
+        <quality shadowsize="2048"/>
+    	<map fogstart="6" fogend="10"/>
+    	<headlight diffuse=".6 .6 .6" specular="0 0 0"/>
+    </visual>
+
+    <asset>
+		<mesh name="index0" 	file="index0_collision.stl"/>
+		<mesh name="index1" 	file="index1_collision.stl"/>
+		<mesh name="index2" 	file="index2_collision.stl"/>
+		<mesh name="index3" 	file="index3_collision.stl"/>
+		<mesh name="middle0" 	file="middle0_collision.stl"/>
+		<mesh name="middle1" 	file="middle1_collision.stl"/>
+		<mesh name="middle2" 	file="middle2_collision.stl"/>
+		<mesh name="middle3" 	file="middle3_collision.stl"/>
+		<mesh name="palm" 		file="palm_collision.stl"/>
+		<mesh name="pinky0" 	file="pinky0_collision.stl"/>
+		<mesh name="pinky1" 	file="pinky1_collision.stl"/>
+		<mesh name="pinky2" 	file="pinky2_collision.stl"/>
+		<mesh name="pinky3" 	file="pinky3_collision.stl"/>
+		<mesh name="ring0" 		file="ring0_collision.stl"/>
+		<mesh name="ring1" 		file="ring1_collision.stl"/>
+		<mesh name="ring2" 		file="ring2_collision.stl"/>
+		<mesh name="ring3" 		file="ring3_collision.stl"/>
+		<mesh name="thumb0" 	file="thumb0_collision.stl"/>
+		<mesh name="thumb1" 	file="thumb1_collision.stl"/>
+		<mesh name="thumb2" 	file="thumb2_collision.stl"/>
+		<mesh name="thumb3" 	file="thumb3_collision.stl"/>
+		<mesh name="wristx" 	file="wristx_collision.stl"/>
+		<mesh name="wristy" 	file="wristy_collision.stl"/>
+		<mesh name="wristz" 	file="wristz_collision.stl"/>
+        
+		<texture type="skybox" builtin="gradient" rgb1=".4 .6 .8" rgb2="0 0 0" 
+			width="100" height="100"/>
+		<texture name="groundplane" type="2d" builtin="checker" rgb1=".2 .3 .4" rgb2=".1 .2 .3" 
+            width="100" height="100"/>
+		<texture name="skin" type="cube" file="skin.png"/>
+		<texture name="marble2d" type="2d" file="marble.png"/>
+		<texture name="marblecube" type="cube" file="marble.png"/>
+
+		<material name="groundplane" texture="groundplane" texrepeat="10 10"/>
+		<material name="table2d" texture="marble2d" reflectance="0.3" rgba=".8 .8 .8 1"/>
+		<material name="tablecube" texture="marblecube" rgba=".8 .8 .8 1"/>
+        <material name="MatTouch" rgba=".3 .9 .3 .3"/>
+        <material name="MatIMU" rgba=".1 .1 .9 1"/>
+        <material name="MatMesh" texture="skin"/>
+	</asset>
+
+    <contact>       
+        <exclude body1="wristz" body2="wristy"/>
+		<exclude body1="wristx" body2="thumb0"/>
+		<exclude body1="palm" body2="thumb1"/>
+        <exclude body1="palm" body2="index1"/>
+        <exclude body1="palm" body2="middle1"/>
+        <exclude body1="palm" body2="ring1"/>
+        <exclude body1="palm" body2="pinky1"/>
+    </contact>
+
+    <worldbody>
+
+      
+		<!-- ======= ROBOT ======= -->
+          <body  childclass="MPL" name="wristy" pos="0 0 0">
+              <inertial pos="-7.08369e-005 -0.0217787 -0.000286168" quat="0.707488 0.00581744 -0.0107421 0.70662" mass="0.0272932" diaginertia="2.46813e-005 1.77029e-005 1.71079e-005" />
+              <geom type="mesh" mesh="wristy"/>
+              <joint type="free"/>
+              <body name="wristx" pos="-3.36826e-005 -0.0476452 0.00203763">
+                  <inertial pos="0.00139174 -0.00975189 -0.00252668" quat="-0.0729226 0.705959 0.0352732 0.703605" mass="0.010691" diaginertia="5.04455e-006 4.25035e-006 3.25677e-006" />
+                  <joint name="wrist_UDEV" damping="0.4" type="hinge" pos="0 0 0" axis="0 0 -1" range="-0.261 0.785"/>
+                  <geom type="mesh" mesh="wristx"/>
+                  <body name="wristz" pos="0.0001872 -0.03 -0.002094">
+                      <inertial pos="0.000579016 -0.00125952 0.000455968" quat="0.527723 0.475346 0.521597 0.472749" mass="0.00602247" diaginertia="1.58133e-006 1.43102e-006 1.26861e-006" />
+                      <joint name="wrist_FLEX" damping="0.4" type="hinge" pos="0 0 0" axis="1 0 0" range="-1.04 1.04"/>
+                      <geom type="mesh" mesh="wristz"/>
+	  			
+	  			    <!-- ======= PALM  ======= -->
+                      <body name="palm" pos="0.025625 0 0">
+                          <inertial pos="-0.0217876 -0.0376147 0.00276997" quat="-0.146373 0.723094 0.0985561 0.66783" mass="0.119867" diaginertia="0.000123088 0.000100082 6.89467e-005" />
+                          <geom type="mesh" mesh="palm"/>
+                          <site name="palm_thumb" pos="-0.0052 -0.0438 -0.0182" size=".017 .03 .01"/>
+                          <site name="palm_pinky" pos="-0.0358 -0.0401 -0.0183" size=".017 .03 .01"/>
+                          <site name="palm_side" pos="-0.0604 -0.0329 -0.0048" size=".01 .03 .015"/>
+                          <site name="palm_back" pos="-0.0246 -0.0446 0.018" size=".03 .035 .015"/>
+                      
+                          <!-- ======= THUMB ======= -->
+                          <body name="thumb0" pos="0.00835752 -0.0206978 -0.010093" quat="0.990237 0.0412644 -0.0209178 -0.13149">
+                              <inertial pos="0.00863339 -0.000156884 -0.000945846" quat="0.408795 0.551643 0.541079 0.485602" mass="0.00336696" diaginertia="4.50769e-007 4.48758e-007 2.35017e-007" />
+                              <joint name="thumb_ABD" type="hinge" pos="0 0 0" axis="0 1 0" range="0 2.07"/>
+                              <geom type="mesh" mesh="thumb0"/>
+                              <body name="thumb1" pos="0.0209172 -0.00084 0.0014476">
+                                  <inertial pos="0.019024 0.000361131 -0.000186763" quat="0.5208 0.469572 0.484571 0.522934" mass="0.00596213" diaginertia="9.88001e-007 9.45125e-007 5.32989e-007" />
+                                  <joint name="thumb_MCP" type="hinge" pos="0 0 0" axis="0 0 -1" range="0 1.03"/>
+                                  <geom type="mesh" mesh="thumb1"/>
+                                  <site name="thumb_proximal" pos="0.0173 -0.008 0.0009" size=".015 .0075 .01"/>
+                                  <body name="thumb2" pos="0.0335 0 -0.0007426">
+                                      <inertial pos="0.0188965 0.000375725 0.00065381" quat="0.502274 0.484638 0.475673 0.535333" mass="0.00599792" diaginertia="9.96692e-007 9.64948e-007 5.14416e-007" />
+                                      <joint name="thumb_PIP" type="hinge" pos="0 0 0" axis="0 0 -1" range="0 1.03"/>
+                                      <geom type="mesh" mesh="thumb2"/>
+                                      <site name="thumb_medial" pos="0.0182 -0.008 0.0015" size=".015 .0075 .01"/>
+                                      <body name="thumb3" pos="0.0335 0 0.0010854">
+                                      	<inertial pos="0.0188965 0.000375725 0.00065381" quat="0.502274 0.484638 0.475673 0.535333" mass="0.00599792" diaginertia="9.96692e-007 9.64948e-007 5.14416e-007" />
+                                          <joint name="thumb_DIP" type="hinge" pos="0 0 0" axis="0 0 -1" range="-0.819 1.28"/>
+                                          <geom type="mesh" mesh="thumb3"/>
+                                          <site name="thumb_distal" pos="0.0156 -0.007 0.0003" size=".015 .0075 .01" axisangle="0 0 1 0.2"/>
+                                          <site class="IMU" name="thumb_IMU" pos="0.0099 -0.00052 0" quat=".5 .5 .5 .5" size=".003 .003 .003"/>
+                                      </body>
+                                  </body>
+                              </body>
+                          </body>
+
+	  				    <!-- ======= INDEX ======= -->
+                          <body name="index0" pos="0.00986485 -0.0658 0.00101221" quat="0.996195 0 0.0871557 0">
+                              <inertial pos="-0.000142572 -0.00548494 0.000206145" quat="0.699132 0.714861 -0.000723869 0.013694" mass="0.00295579" diaginertia="4.22462e-007 4.02281e-007 1.93868e-007" />
+                              <joint name="index_ABD" type="hinge" pos="0 0 0" axis="0 0 1" range="0 0.345"/>
+                              <geom type="mesh" mesh="index0"/>
+                              <body name="index1" pos="6.26e-005 -0.018 0">
+                                  <inertial pos="0.000406487 -0.0213125 0.000655609" quat="0.698452 0.715642 -0.00415384 0.0023049" mass="0.00478235" diaginertia="8.18599e-007 7.95693e-007 3.06254e-007" />
+                                  <joint name="index_MCP" type="hinge" pos="0 0 0" axis="1 0 0" range="-0.785 1.57"/>
+                                  <geom type="mesh" mesh="index1"/>
+                                  <site name="index_proximal" pos="0 -0.0235 -0.007" size=".009 .015 .0075"/>
+                                  <body name="index2" pos="0.001086 -0.0435 0.0005">
+                                      <inertial pos="-0.000841462 -0.012689 0.000572665" quat="0.734882 0.677481 -0.028511 0.0124827" mass="0.00344764" diaginertia="3.63962e-007 3.59059e-007 1.05304e-007" />
+                                      <joint name="index_PIP" type="hinge" pos="0 0 0" axis="1 0 0" range="0 1.72"/>
+                                      <geom type="mesh" mesh="index2"/>
+                                      <site name="index_medial" pos="0 -0.009 -0.0047" size=".0075 .01 .006"/>
+                                      <body name="index3" pos="-0.000635 -0.0245 0">
+                                          <inertial pos="4.32004e-005 -0.0125318 0.000903476" quat="0.516251 0.4829 -0.483241 0.516498" mass="0.00274415" diaginertia="1.19635e-007 1.09202e-007 7.77873e-008" />
+                                          <joint name="index_DIP" type="hinge" pos="0 0 0" axis="1 0 0" range="0 1.38"/>
+                                          <geom type="mesh" mesh="index3"/>
+                                          <site name="index_distal" pos="0 -0.0132 -0.0038" size=".0075 .01 .006"/>
+                                          <site class="IMU" name="index_IMU" pos="0 -0.0093 0.00063" quat=".5 .5 -.5 .5" size=".003 .003 .003"/>
+                                      </body>
+                                  </body>
+                              </body>
+                          </body>
+	  				
+	  				    <!-- ======= MIDDLE ======= -->
+                          <body name="middle0" pos="-0.012814 -0.0779014 0.00544608" quat="-3.14 0.0436194 0 0">
+                              <inertial pos="-0.000142567 -0.00548493 0.000206162" quat="0.699131 0.714862 -0.000723874 0.013694" mass="0.00295579" diaginertia="4.22461e-007 4.02281e-007 1.93868e-007" />
+                              <!--<joint name="middle0" type="hinge" pos="0 0 0" range="-0.345 0" axis="0 0 -1" />-->
+                              <geom type="mesh" mesh="middle0"/>
+                              <body name="middle1" pos="6.26e-005 -0.018 0">
+                                  <inertial pos="0.000406411 -0.0213125 0.00065565" quat="0.698451 0.715642 -0.00415503 0.00230486" mass="0.00478229" diaginertia="8.18595e-007 7.9569e-007 3.06253e-007" />
+                                  <joint name="middle_MCP" type="hinge" pos="0 0 0" axis="1 0 0" range="-0.785 1.57"/>
+                                  <geom type="mesh" mesh="middle1"/>
+                                  <site name="middle_proximal" pos="0 -0.025 -0.007" size=".009 .015 .0075"/>
+                                  <body name="middle2" pos="0.001086 -0.0435 0.0005">
+                                      <inertial pos="-0.000841444 -0.012689 0.00057266" quat="0.734883 0.677482 -0.0284727 0.0124412" mass="0.00344765" diaginertia="3.63962e-007 3.5906e-007 1.05304e-007" />
+                                      <joint name="middle_PIP" type="hinge" pos="0 0 0" axis="1 0 0" range="0 1.73"/>
+                                      <geom type="mesh" mesh="middle2"/>
+                                      <site name="middle_medial" pos="0 -0.0146 -0.0047" size=".0075 .01 .006"/>
+                                      <body name="middle3" pos="-0.000635 -0.0245 0">
+                                          <inertial pos="4.31236e-005 -0.0125318 0.000903446" quat="0.516263 0.482913 -0.483228 0.516487" mass="0.00274417" diaginertia="1.19635e-007 1.09202e-007 7.77884e-008" />
+                                          <joint name="middle_DIP" type="hinge" pos="0 0 0" axis="1 0 0" range="0 1.38"/>
+                                          <geom type="mesh" mesh="middle3"/>
+                                          <site name="middle_distal" pos="0 -0.0129 -0.0038" size=".0075 .01 .006"/>
+                                          <site class="IMU" name="middle_IMU" pos="0 -0.0093 0.00063" quat=".5 .5 -.5 .5" size=".003 .003 .003"/> 
+                                      </body>
+                                  </body>
+                              </body>
+                          </body>
+	  				
+  				        <!-- ======= RING ======= -->
+                          <body name="ring0" pos="-0.0354928 -0.0666999 0.00151221" quat="0.996195 0 -0.0871557 0">
+                              <inertial pos="-0.000142559 -0.00548494 0.000206147" quat="0.699132 0.714861 -0.000720946 0.013691" mass="0.00295579" diaginertia="4.22462e-007 4.02281e-007 1.93868e-007" />
+                              <joint name="ring_ABD" type="hinge" pos="0 0 0" axis="0 0 -1" range="0 0.345"/>
+                              <geom type="mesh" mesh="ring0"/>
+                              <body name="ring1" pos="6.26e-005 -0.018 0">
+                                  <inertial pos="0.000406447 -0.0213125 0.00065563" quat="0.698451 0.715642 -0.00415675 0.00230715" mass="0.00478232" diaginertia="8.18597e-007 7.95692e-007 3.06254e-007" />
+                                  <joint name="ring_MCP" type="hinge" pos="0 0 0" axis="1 0 0" range="-0.785 1.57"/>
+                                  <geom type="mesh" mesh="ring1"/>
+                                  <site name="ring_proximal" pos="0 -0.0259 -0.007" size=".009 .015 .0075"/>
+                                  <body name="ring2" pos="0.001086 -0.0435 0.0005">
+                                      <inertial pos="-0.000841518 -0.012689 0.000572674" quat="0.73488 0.677478 -0.0285773 0.0125557" mass="0.00344767" diaginertia="3.63963e-007 3.59061e-007 1.05305e-007" />
+                                      <joint name="ring_PIP" type="hinge" pos="0 0 0" axis="1 0 0" range="0 1.72"/>
+                                      <geom type="mesh" mesh="ring2"/>
+                                      <site name="ring_medial" pos="0 -0.0137 -0.0047" size=".0075 .01 .006"/>
+                                      <body name="ring3" pos="-0.000635 -0.0245 0">
+                                          <inertial pos="4.31973e-005 -0.0125318 0.000903457" quat="0.516255 0.482902 -0.483238 0.516495" mass="0.00274416" diaginertia="1.19635e-007 1.09202e-007 7.77877e-008" />
+                                          <joint name="ring_DIP" type="hinge" pos="0 0 0" axis="1 0 0" range="0 1.38"/>
+                                          <geom type="mesh" mesh="ring3"/>
+                                          <site name="ring_distal" pos="0 -0.0117 -0.0038" size=".0075 .01 .006"/>
+                                          <site class="IMU" name="ring_IMU" pos="0 -0.0093 0.00063" quat=".5 .5 -.5 .5" size=".003 .003 .003"/>
+                                      </body>
+                                  </body>
+                              </body>
+                          </body>
+	  				
+	  				    <!-- ======= LITTLE ======= -->
+                          <body name="pinky0" pos="-0.0562459 -0.0554001 -0.00563858" quat="0.996195 0 -0.0871557 0">
+                              <inertial pos="-0.000142559 -0.00538484 0.000206147" quat="0.699132 0.714861 -0.000721037 0.0136911" mass="0.00295579" diaginertia="4.22462e-007 4.02281e-007 1.93868e-007" />
+                              <joint name="pinky_ABD" type="hinge" pos="0 0 0" axis="0 0 -1" range="0 0.345"/>
+                              <geom type="mesh" mesh="pinky0"/>
+                              <body name="pinky1" pos="6.26e-005 -0.0178999 0">
+                                  <inertial pos="0.000458624 -0.0160478 0.000924735" quat="0.685529 0.72723 0.021252 -0.0270914" mass="0.0034099" diaginertia="4.03391e-007 3.84061e-007 2.19866e-007" />
+                                  <joint name="pinky_MCP" type="hinge" pos="0 0 0" axis="1 0 0" range="-0.785 1.57"/>
+                                  <geom type="mesh" mesh="pinky1"/>
+                                  <site name="pinky_proximal" pos="0 -0.021 -0.0066" size=".009 .013 .0075"/>
+                                  <body name="pinky2" pos="0.000578 -0.033 0.0005">
+                                      <inertial pos="-0.000270832 -0.00914628 0.000738493" quat="0.746786 0.664476 -4.11065e-005 -0.0279675" mass="0.00250622" diaginertia="1.79089e-007 1.75934e-007 7.44543e-008" />
+                                      <joint name="pinky_PIP" type="hinge" pos="0 0 0" axis="1 0 0" range="0 1.72"/>
+                                      <geom type="mesh" mesh="pinky2"/>
+                                      <site name="pinky_medial" pos="0 -0.0117 -0.0047" size=".0075 .01 .006"/>
+                                      <body name="pinky3" pos="-4.78e-005 -0.0175 0">
+                                          <inertial pos="3.85026e-005 -0.0125047 0.000912295" quat="0.516037 0.484447 -0.483043 0.515448" mass="0.00273265" diaginertia="1.19141e-007 1.08629e-007 7.77271e-008" />
+                                          <joint name="pinky_DIP" type="hinge" pos="0 0 0" axis="1 0 0" range="0 1.38"/>
+                                          <geom type="mesh" mesh="pinky3"/>
+                                          <site name="pinky_distal" pos="0 -0.0121 -0.0038" size=".0075 .01 .006"/>
+                                          <site class="IMU" name="pinky_IMU" pos="0 -0.0093 0.00063" quat=".5 .5 -.5 .5" size=".003 .003 .003"/>
+                                      </body>
+                                  </body>
+                              </body>
+                          </body>
+                      </body>
+                  </body>
+              </body>
+          </body>
+    
+    </worldbody>
+	
+
+	<sensor>
+        <jointpos name="Sjp_wrist_PRO"	joint="wrist_PRO"/>
+    	<jointpos name="Sjp_wrist_UDEV" joint="wrist_UDEV"/>
+    	<jointpos name="Sjp_wrist_FLEX" joint="wrist_FLEX"/>
+        <jointpos name="Sjp_thumb_ABD"	joint="thumb_ABD"/>
+        <jointpos name="Sjp_thumb_MCP"  joint="thumb_MCP"/>
+        <jointpos name="Sjp_thumb_PIP"  joint="thumb_PIP"/>
+        <jointpos name="Sjp_thumb_DIP"  joint="thumb_DIP"/>
+    	<jointpos name="Sjp_index_ABD"  joint="index_ABD"/>
+    	<jointpos name="Sjp_index_MCP"  joint="index_MCP"/>
+    	<jointpos name="Sjp_index_PIP"  joint="index_PIP"/>
+    	<jointpos name="Sjp_index_DIP"  joint="index_DIP"/>
+    	<jointpos name="Sjp_middle_MCP" joint="middle_MCP"/>
+    	<jointpos name="Sjp_middle_PIP" joint="middle_PIP"/>
+    	<jointpos name="Sjp_middle_DIP"	joint="middle_DIP"/>
+    	<jointpos name="Sjp_ring_ABD"   joint="ring_ABD"/>
+    	<jointpos name="Sjp_ring_MCP"   joint="ring_MCP"/>
+    	<jointpos name="Sjp_ring_PIP"   joint="ring_PIP"/>
+    	<jointpos name="Sjp_ring_DIP"   joint="ring_DIP"/>
+    	<jointpos name="Sjp_pinky_ABD"  joint="pinky_ABD"/>
+    	<jointpos name="Sjp_pinky_MCP"  joint="pinky_MCP"/>
+    	<jointpos name="Sjp_pinky_PIP"  joint="pinky_PIP"/>
+    	<jointpos name="Sjp_pinky_DIP"  joint="pinky_DIP"/>
+
+		<jointvel name="Sjv_wrist_PRO"  joint="wrist_PRO"/>
+    	<jointvel name="Sjv_wrist_UDEV" joint="wrist_UDEV"/>
+    	<jointvel name="Sjv_wrist_FLEX" joint="wrist_FLEX"/>
+        <jointvel name="Sjv_thumb_ABD"  joint="thumb_ABD"/>
+        <jointvel name="Sjv_thumb_MCP"  joint="thumb_MCP"/>
+        <jointvel name="Sjv_thumb_PIP"  joint="thumb_PIP"/>
+        <jointvel name="Sjv_thumb_DIP"  joint="thumb_DIP"/>
+    	<jointvel name="Sjv_index_ABD"  joint="index_ABD"/>
+    	<jointvel name="Sjv_index_MCP"  joint="index_MCP"/>
+    	<jointvel name="Sjv_index_PIP"  joint="index_PIP"/>
+    	<jointvel name="Sjv_index_DIP"  joint="index_DIP"/>
+    	<jointvel name="Sjv_middle_MCP" joint="middle_MCP"/>
+    	<jointvel name="Sjv_middle_PIP" joint="middle_PIP"/>
+    	<jointvel name="Sjv_middle_DIP" joint="middle_DIP"/>
+    	<jointvel name="Sjv_ring_ABD"   joint="ring_ABD"/>
+    	<jointvel name="Sjv_ring_MCP"   joint="ring_MCP"/>
+    	<jointvel name="Sjv_ring_PIP"   joint="ring_PIP"/>
+    	<jointvel name="Sjv_ring_DIP"   joint="ring_DIP"/>
+    	<jointvel name="Sjv_pinky_ABD"  joint="pinky_ABD"/>
+    	<jointvel name="Sjv_pinky_MCP"  joint="pinky_MCP"/>
+    	<jointvel name="Sjv_pinky_PIP"  joint="pinky_PIP"/>
+    	<jointvel name="Sjv_pinky_DIP"  joint="pinky_DIP"/>
+		
+        <actuatorpos name="Sap_wrist_PRO" 	actuator="A_wrist_PRO" />
+    	<actuatorpos name="Sap_wrist_UDEV"	actuator="A_wrist_UDEV" />
+    	<actuatorpos name="Sap_wrist_FLEX"	actuator="A_wrist_FLEX" />
+        <actuatorpos name="Sap_thumb_ABD" 	actuator="A_thumb_ABD" />
+        <actuatorpos name="Sap_thumb_MCP" 	actuator="A_thumb_MCP" />
+        <actuatorpos name="Sap_thumb_PIP" 	actuator="A_thumb_PIP" />
+        <actuatorpos name="Sap_thumb_DIP" 	actuator="A_thumb_DIP" />
+        <actuatorpos name="Sap_index_ABD" 	actuator="A_index_ABD" />
+    	<actuatorpos name="Sap_index_MCP" 	actuator="A_index_MCP" />
+    	<actuatorpos name="Sap_middle_MCP"	actuator="A_middle_MCP"/>
+    	<actuatorpos name="Sap_ring_MCP"  	actuator="A_ring_MCP"  />
+        <actuatorpos name="Sap_pinky_ABD" 	actuator="A_pinky_ABD" />
+    	<actuatorpos name="Sap_pinky_MCP" 	actuator="A_pinky_MCP" />
+
+        <actuatorvel name="Sav_wrist_PRO" 	actuator="A_wrist_PRO" />
+        <actuatorvel name="Sav_wrist_UDEV"	actuator="A_wrist_UDEV"/>
+        <actuatorvel name="Sav_wrist_FLEX"	actuator="A_wrist_FLEX"/>
+        <actuatorvel name="Sav_thumb_ABD" 	actuator="A_thumb_ABD" />
+        <actuatorvel name="Sav_thumb_MCP" 	actuator="A_thumb_MCP" />
+        <actuatorvel name="Sav_thumb_PIP" 	actuator="A_thumb_PIP" />
+        <actuatorvel name="Sav_thumb_DIP" 	actuator="A_thumb_DIP" />
+        <actuatorvel name="Sav_index_ABD" 	actuator="A_index_ABD" />
+        <actuatorvel name="Sav_index_MCP" 	actuator="A_index_MCP" />
+        <actuatorvel name="Sav_middle_MCP"	actuator="A_middle_MCP"/>
+        <actuatorvel name="Sav_ring_MCP"  	actuator="A_ring_MCP"  />
+        <actuatorvel name="Sav_pinky_ABD" 	actuator="A_pinky_ABD" />
+        <actuatorvel name="Sav_pinky_MCP" 	actuator="A_pinky_MCP" />
+	
+        <actuatorfrc name="Saf_wrist_PRO" 	actuator="A_wrist_PRO"/>
+        <actuatorfrc name="Saf_wrist_UDEV" 	actuator="A_wrist_UDEV"/>
+        <actuatorfrc name="Saf_wrist_FLEX" 	actuator="A_wrist_FLEX"/>
+        <actuatorfrc name="Saf_thumb_ABD" 	actuator="A_thumb_ABD"/>
+        <actuatorfrc name="Saf_thumb_MCP" 	actuator="A_thumb_MCP"/>
+        <actuatorfrc name="Saf_thumb_PIP" 	actuator="A_thumb_PIP"/>
+        <actuatorfrc name="Saf_thumb_DIP" 	actuator="A_thumb_DIP"/>
+        <actuatorfrc name="Saf_index_ABD" 	actuator="A_index_ABD"/>
+        <actuatorfrc name="Saf_index_MCP" 	actuator="A_index_MCP"/>
+        <actuatorfrc name="Saf_middle_MCP" 	actuator="A_middle_MCP"/>
+        <actuatorfrc name="Saf_ring_MCP"  	actuator="A_ring_MCP"/>
+        <actuatorfrc name="Saf_pinky_ABD" 	actuator="A_pinky_ABD"/>
+        <actuatorfrc name="Saf_pinky_MCP" 	actuator="A_pinky_MCP"/>
+
+    	<accelerometer name="S_thumb_IMU" 	site="thumb_IMU"/>
+    	<accelerometer name="S_index_IMU" 	site="index_IMU"/>
+    	<accelerometer name="S_middle_IMU" 	site="middle_IMU"/>
+    	<accelerometer name="S_ring_IMU" 	site="ring_IMU"/>
+    	<accelerometer name="S_pinky_IMU" 	site="pinky_IMU"/>
+
+        <gyro                               site="thumb_IMU"/>
+        <gyro                               site="index_IMU"/>
+        <gyro                               site="middle_IMU"/>
+        <gyro                               site="ring_IMU"/>
+        <gyro                               site="pinky_IMU"/>
+
+    	<touch name="S_palm_thumb" 		site="palm_thumb"/>
+    	<touch name="S_palm_pinky" 		site="palm_pinky"/>
+    	<touch name="S_palm_side" 		site="palm_side"/>
+    	<touch name="S_palm_back" 		site="palm_back"/>
+    	<touch name="S_thumb_proximal" 	site="thumb_proximal"/>
+    	<touch name="S_thumb_medial" 	site="thumb_medial"/>
+    	<touch name="S_thumb_distal" 	site="thumb_distal"/>
+    	<touch name="S_index_proximal" 	site="index_proximal"/>
+    	<touch name="S_index_medial" 	site="index_medial"/>
+    	<touch name="S_index_distal" 	site="index_distal"/>
+    	<touch name="S_middle_proximal" site="middle_proximal"/>
+    	<touch name="S_middle_medial" 	site="middle_medial"/>
+    	<touch name="S_middle_distal" 	site="middle_distal"/>
+    	<touch name="S_ring_proximal" 	site="ring_proximal"/>
+    	<touch name="S_ring_medial" 	site="ring_medial"/>
+    	<touch name="S_ring_distal" 	site="ring_distal"/>
+    	<touch name="S_pinky_proximal" 	site="pinky_proximal"/>
+    	<touch name="S_pinky_medial" 	site="pinky_medial"/>
+    	<touch name="S_pinky_distal" 	site="pinky_distal"/>
+	</sensor>
+
+
+	<tendon>
+		<!--Index coupler tendons-->
+		<fixed name="T_index32_cpl" range="0 1">
+			<joint joint="index_DIP"  coef="0.00705"/>
+			<joint joint="index_PIP"  coef="-0.00805"/>
+		</fixed>
+		<fixed name="T_index21_cpl" range="0 1">
+			<joint joint="index_PIP"  coef="0.010"/>
+			<joint joint="index_MCP"  coef="-0.010"/>
+		</fixed>
+		
+		<!--Middle coupler tendons-->
+		<fixed name="T_middle32_cpl">
+			<joint joint="middle_DIP"  coef="0.00705"/>
+			<joint joint="middle_PIP"  coef="-0.00805"/>
+		</fixed>
+		<fixed name="T_middle21_cpl">
+			<joint joint="middle_PIP"  coef="0.010"/>
+			<joint joint="middle_MCP"  coef="-0.010"/>
+		</fixed>
+		
+		<!--Ring coupler tendons-->
+		<fixed name="T_ring32_cpl">
+			<joint joint="ring_DIP"  coef="0.00705"/>
+			<joint joint="ring_PIP"  coef="-0.00805"/>
+		</fixed>
+		<fixed name="T_ring21_cpl">
+			<joint joint="ring_PIP"  coef="0.010"/>
+			<joint joint="ring_MCP"  coef="-0.010"/>
+		</fixed>
+		
+		<!--Little coupler tendons-->
+		<fixed name="T_pinky32_cpl">
+			<joint joint="pinky_DIP"  coef="0.00705"/>
+			<joint joint="pinky_PIP"  coef="-0.00805"/>
+		</fixed>
+		<fixed name="T_pinky21_cpl">
+			<joint joint="pinky_PIP"  coef="0.010"/>
+			<joint joint="pinky_MCP"  coef="-0.010"/>
+		</fixed>
+		
+	</tendon>
+	
+	
+	<equality>
+        <weld body1="mocap" body2="forearm" solref="0.01 1" solimp=".9 .9 0.01"/>
+
+		<!-- DIP-PIP-MCP Couplings -->
+		<tendon name="E_index32_cpl" 	tendon1="T_index32_cpl"/>
+		<tendon name="E_index21_cpl" 	tendon1="T_index21_cpl"/>
+		<tendon name="E_middle32_cpl" 	tendon1="T_middle32_cpl"/>
+		<tendon name="E_middle21_cpl" 	tendon1="T_middle21_cpl"/>
+		<tendon name="E_ring32_cpl" 	tendon1="T_ring32_cpl"/>
+		<tendon name="E_ring21_cpl" 	tendon1="T_ring21_cpl"/>
+		<tendon name="E_pinky32_cpl" 	tendon1="T_pinky32_cpl"/>
+		<tendon name="E_pinky21_cpl" 	tendon1="T_pinky21_cpl"/>
+		
+		<!-- AD-AB Coupling -->
+		<joint name="ring_pinky_cpl" joint1="ring_ABD" joint2="pinky_ABD" polycoef="0 0.5 0 0 0"/>
+	</equality>
+	
+	
+	<actuator>
+		<!-- Wrist -->
+        <position name="A_wrist_PRO"  class="MPL" joint="wrist_PRO"  ctrlrange="-1.57 1.57"/>
+		<position name="A_wrist_UDEV" class="MPL" joint="wrist_UDEV" ctrlrange="-0.26 0.79"/>
+		<position name="A_wrist_FLEX" class="MPL" joint="wrist_FLEX" ctrlrange="-1 1"/>
+
+        <!-- Thumb -->
+        <position name="A_thumb_ABD"  class="MPL" joint="thumb_ABD"  ctrlrange="0 2.1"/>
+        <position name="A_thumb_MCP"  class="MPL" joint="thumb_MCP"  ctrlrange="0 1.0"/>
+        <position name="A_thumb_PIP"  class="MPL" joint="thumb_PIP"  ctrlrange="0 1.0"/>
+        <position name="A_thumb_DIP"  class="MPL" joint="thumb_DIP"  ctrlrange="-0.82 1.3"/>
+		
+		<!-- Fingers -->
+        <position name="A_index_ABD"  class="MPL" joint="index_ABD"  ctrlrange="0 0.34"/>
+		<position name="A_index_MCP"  class="MPL" joint="index_MCP"  ctrlrange="0 1.6"/>
+		<position name="A_middle_MCP" class="MPL" joint="middle_MCP" ctrlrange="0 1.6"/>
+		<position name="A_ring_MCP"   class="MPL" joint="ring_MCP" 	 ctrlrange="0 1.6"/>
+        <position name="A_pinky_ABD"  class="MPL" joint="pinky_ABD"  ctrlrange="0 0.34"/>
+		<position name="A_pinky_MCP"  class="MPL" joint="pinky_MCP"  ctrlrange="0 1.6"/>
+	</actuator>
+</mujoco>

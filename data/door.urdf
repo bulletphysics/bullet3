@@ -72,7 +72,7 @@
   </link>
    <link name="childA">
     <inertial>
-      <origin rpy="0 0 0" xyz="0 0 -0.36"/>
+      <origin rpy="0 0 0" xyz="0.4 0 0.4"/>
       <mass value="1.0"/>
       <inertia ixx="0.048966669" ixy="0" ixz="0" iyy="0.046466667" iyz="0" izz="0.0041666669"/>
     </inertial>

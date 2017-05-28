@@ -140,6 +140,11 @@ public:
 		return m_baseCollider;
 	}
 
+	btMultiBodyLinkCollider* getLinkCollider(int index)
+	{
+		return m_colliders[index];
+	}
+
     //
     // get parent
     // input: link num from 0 to num_links-1
@@ -560,6 +565,8 @@ void addJointTorque(int i, btScalar Q);
 	}
 	void	forwardKinematics(btAlignedObjectArray<btQuaternion>& scratch_q,btAlignedObjectArray<btVector3>& scratch_m);
 
+	void compTreeLinkVelocities(btVector3 *omega, btVector3 *vel) const;
+
 	void	updateCollisionObjectWorldTransforms(btAlignedObjectArray<btQuaternion>& scratch_q,btAlignedObjectArray<btVector3>& scratch_m);
 	
 	virtual	int	calculateSerializeBufferSize()	const;
@@ -613,9 +620,8 @@ private:
     btMultiBody(const btMultiBody &);  // not implemented
     void operator=(const btMultiBody &);  // not implemented
 
-    void compTreeLinkVelocities(btVector3 *omega, btVector3 *vel) const;
 
-	void solveImatrix(const btVector3& rhs_top, const btVector3& rhs_bot, float result[6]) const;
+	void solveImatrix(const btVector3& rhs_top, const btVector3& rhs_bot, btScalar result[6]) const;
 	void solveImatrix(const btSpatialForceVector &rhs, btSpatialMotionVector &result) const;
 	
 	void updateLinksDofOffsets()
@@ -727,7 +733,11 @@ struct btMultiBodyLinkDoubleData
 
 	double					m_jointDamping;
 	double					m_jointFriction;
-
+	double					m_jointLowerLimit;
+	double					m_jointUpperLimit;
+	double					m_jointMaxForce;
+	double					m_jointMaxVelocity;
+	
 	char					*m_linkName;
 	char					*m_jointName;
 	btCollisionObjectDoubleData	*m_linkCollider;
@@ -756,7 +766,11 @@ struct btMultiBodyLinkFloatData
 	int						m_posVarCount;
 	float					m_jointDamping;
 	float					m_jointFriction;
-
+	float					m_jointLowerLimit;
+	float					m_jointUpperLimit;
+	float					m_jointMaxForce;
+	float					m_jointMaxVelocity;
+	
 	char				*m_linkName;
 	char				*m_jointName;
 	btCollisionObjectFloatData	*m_linkCollider;

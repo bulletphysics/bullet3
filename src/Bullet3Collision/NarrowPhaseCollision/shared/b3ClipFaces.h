@@ -108,7 +108,7 @@ __kernel void   clipFacesAndFindContactsKernel(    __global const b3Float4* sepa
             
                 
                 int closestFaceA = clippingFaces[pairIndex].x;
-                int closestFaceB = clippingFaces[pairIndex].y;
+               // int closestFaceB = clippingFaces[pairIndex].y;
                 int numVertsInA = clippingFaces[pairIndex].z;
                 int numVertsInB = clippingFaces[pairIndex].w;
                 

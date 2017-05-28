@@ -157,7 +157,7 @@ typedef b3AlignedObjectArray<b3BvhSubtreeInfo>		BvhSubtreeInfoArray;
 
 
 ///The b3QuantizedBvh class stores an AABB tree that can be quickly traversed on CPU and Cell SPU.
-///It is used by the b3BvhTriangleMeshShape as midphase, and by the b3MultiSapBroadphase.
+///It is used by the b3BvhTriangleMeshShape as midphase
 ///It is recommended to use quantization for better performance and lower memory requirements.
 B3_ATTRIBUTE_ALIGNED16(class) b3QuantizedBvh
 {

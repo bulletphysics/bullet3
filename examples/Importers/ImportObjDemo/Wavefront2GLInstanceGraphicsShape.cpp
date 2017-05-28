@@ -33,7 +33,7 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(std::vector<tiny
 					int vtxBaseIndex = vertices->size();
 					
 					
-					if (f<0 && f>=shape.mesh.indices.size())
+					if (f<0 && f>=int(shape.mesh.indices.size()))
 					{
 						continue;
 					}
@@ -49,7 +49,7 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(std::vector<tiny
 					{
 						int uv0Index = shape.mesh.indices[f]*2+0;
 						int uv1Index = shape.mesh.indices[f]*2+1;
-						if (uv0Index>=0 && uv1Index>=0 && (uv0Index < shape.mesh.texcoords.size()) && (uv1Index < shape.mesh.texcoords.size()))
+						if (uv0Index>=0 && uv1Index>=0 && (uv0Index < int(shape.mesh.texcoords.size()) && (uv1Index < shape.mesh.texcoords.size())))
 						{
 							vtx0.uv[0] = shape.mesh.texcoords[uv0Index];
 							vtx0.uv[1] = shape.mesh.texcoords[uv1Index];

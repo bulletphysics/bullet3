@@ -76,16 +76,16 @@ struct RaytracerInternalData
 	RaytracerInternalData()
 		:m_canvasIndex(-1),
 		m_canvas(0),
-		m_roll(0),
-		m_pitch(0),
-		m_yaw(0),
 #ifdef _DEBUG
-		m_width(64),
-		m_height(64)
+	m_width(64),
+	m_height(64),
 #else
-		m_width(128),
-		m_height(128)
+	m_width(128),
+	m_height(128),
 #endif
+		m_pitch(0),
+	m_roll(0),
+	m_yaw(0)
 	{
 		btConeShape* cone = new btConeShape(1,1);
 		btSphereShape* sphere = new btSphereShape(1);
@@ -300,7 +300,7 @@ void RaytracerPhysicsSetup::stepSimulation(float deltaTime)
 	
 
 	
-	int	mode = 0;
+//	int	mode = 0;
 	int x,y;
 
 	for (x=0;x<m_internalData->m_width;x++)

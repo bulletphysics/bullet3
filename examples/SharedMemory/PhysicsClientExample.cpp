@@ -53,6 +53,9 @@ protected:
 	int m_canvasRGBIndex;
 	int m_canvasDepthIndex;
 	int m_canvasSegMaskIndex;
+
+	btScalar m_lightPos[3];
+	btScalar m_specularCoeff;
 	
 	void	createButton(const char* name, int id, bool isTrigger );
 
@@ -89,10 +92,10 @@ protected:
     
 	virtual void resetCamera()
 	{
-        float dist = 4;
-        float pitch = 193;
-        float yaw = 25;
-        float targetPos[3]={0,0,0.5};//-3,2.8,-2.5};
+        float dist = 3.45;
+        float pitch = 287;
+        float yaw = 16.2;
+        float targetPos[3]={2.05,0.02,0.53};//-3,2.8,-2.5};
 		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
 
 	}
@@ -119,7 +122,8 @@ protected:
 	{
 		if (m_options == eCLIENTEXAMPLE_SERVER)
 		{
-			m_physicsServer.renderScene();
+			int renderFlags = 0;
+			m_physicsServer.renderScene(renderFlags);
 		}
 
         b3DebugLines debugLines;
@@ -256,7 +260,11 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
         
         case  CMD_LOAD_SDF:
         {
-            b3SharedMemoryCommandHandle commandHandle = b3LoadSdfCommandInit(m_physicsClientHandle, "two_cubes.sdf");//kuka_iiwa/model.sdf");
+#ifdef BT_DEBUG
+			b3SharedMemoryCommandHandle commandHandle = b3LoadSdfCommandInit(m_physicsClientHandle, "two_cubes.sdf");
+#else
+			b3SharedMemoryCommandHandle commandHandle = b3LoadSdfCommandInit(m_physicsClientHandle, "kitchens/1.sdf");//two_cubes.sdf");//kitchens/1.sdf");//kuka_iiwa/model.sdf");
+#endif
             b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
             break;
         }
@@ -274,6 +282,12 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
             
             b3RequestCameraImageSetCameraMatrices(commandHandle, viewMatrix,projectionMatrix);
 						b3RequestCameraImageSetPixelResolution(commandHandle, camVisualizerWidth,camVisualizerHeight);
+			float lightPos[3];
+			lightPos[0] = m_lightPos[0];
+			lightPos[1] = m_lightPos[1];
+			lightPos[2] = m_lightPos[2];
+			b3RequestCameraImageSetLightDirection(commandHandle, lightPos);
+			b3RequestCameraImageSetLightSpecularCoeff(commandHandle, m_specularCoeff);
 						b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
 		        break;
         }
@@ -514,13 +528,14 @@ m_wantsTermination(false),
 m_sharedMemoryKey(SHARED_MEMORY_KEY),
 m_selectedBody(-1),
 m_prevSelectedBody(-1),
-m_numMotors(0),
-m_options(options),
-m_isOptionalServerConnected(false),
 m_canvas(0),
 m_canvasRGBIndex(-1),
 m_canvasDepthIndex(-1),
-m_canvasSegMaskIndex(-1)
+m_canvasSegMaskIndex(-1),
+m_specularCoeff(1.0),
+m_numMotors(0),
+m_options(options),
+m_isOptionalServerConnected(false)
 	
 {
 	b3Printf("Started PhysicsClientExample\n");
@@ -656,6 +671,29 @@ void	PhysicsClientExample::createButtons()
 				}
 			}
 		}
+		
+		{
+			SliderParams sliderLightPosX("light source position x",&m_lightPos[0]);
+			SliderParams sliderLightPosY("light source position y",&m_lightPos[1]);
+			SliderParams sliderLightPosZ("light source position z",&m_lightPos[2]);
+			SliderParams sliderSpecularCoeff("specular coefficient",&m_specularCoeff);
+			sliderLightPosX.m_minVal=-1.5;
+			sliderLightPosX.m_maxVal=1.5;
+			sliderLightPosY.m_minVal=-1.5;
+			sliderLightPosY.m_maxVal=1.5;
+			sliderLightPosZ.m_minVal=-1.5;
+			sliderLightPosZ.m_maxVal=1.5;
+			sliderSpecularCoeff.m_minVal=0;
+			sliderSpecularCoeff.m_maxVal=5.0;
+			if (m_guiHelper && m_guiHelper->getParameterInterface())
+			{
+				m_guiHelper->getParameterInterface()->registerSliderFloatParameter(sliderLightPosX);
+				m_guiHelper->getParameterInterface()->registerSliderFloatParameter(sliderLightPosY);
+				m_guiHelper->getParameterInterface()->registerSliderFloatParameter(sliderLightPosZ);
+				m_guiHelper->getParameterInterface()->registerSliderFloatParameter(sliderSpecularCoeff);
+			}
+
+		}
     }
 }
 
@@ -680,6 +718,10 @@ void	PhysicsClientExample::initPhysics()
 
 	m_selectedBody = -1;
 	m_prevSelectedBody = -1;
+	
+	m_lightPos[0] = 1.0;
+	m_lightPos[1] = 1.0;
+	m_lightPos[2] = 1.0;
 
 	{
 		m_canvas = m_guiHelper->get2dCanvasInterface();
@@ -834,13 +876,16 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
                                 //todo: rescale the depthValue to [0..255]
                                 if (depthValue>-1e20)
                                 {
-                                    int rgb =  (depthValue-minDepthValue)*(255. / (btFabs(maxDepthValue-minDepthValue)));
-                                    if (rgb<0 || rgb>255)
-                                    {
-                                        
-                                        printf("rgb=%d\n",rgb);
-                                    }
-                 
+									int rgb = 0;
+
+									if (maxDepthValue!=minDepthValue)
+									{
+										rgb =  (depthValue-minDepthValue)*(255. / (btFabs(maxDepthValue-minDepthValue)));
+										if (rgb<0 || rgb>255)
+										{
+    										//printf("rgb=%d\n",rgb);
+	                                    }
+									}                 
                                     m_canvas->setPixel(m_canvasDepthIndex,i,j,
                                         rgb,
                                         rgb,

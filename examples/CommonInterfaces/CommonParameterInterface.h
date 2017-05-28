@@ -26,7 +26,7 @@ struct SliderParams
 	m_callback(0),
 	m_paramValuePointer(targetValuePointer),
 	m_userPointer(0),
-	m_clampToNotches(true),
+	m_clampToNotches(false),
     m_clampToIntegers(false),
     m_showValues(true)
 	{
@@ -43,6 +43,7 @@ struct ButtonParams
 	int m_buttonId;
 	void* m_userPointer;
     bool m_isTrigger;
+    bool m_initialState;
 
 	ButtonParamChangedCallback m_callback;
 	ButtonParams(const char* name, int buttonId, bool isTrigger)
@@ -50,6 +51,7 @@ struct ButtonParams
 		m_buttonId(buttonId),
 		m_userPointer(0),
     m_isTrigger(isTrigger),
+    m_initialState(false),
 	m_callback(0)
 	{
 	}

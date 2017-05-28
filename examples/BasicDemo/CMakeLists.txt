@@ -60,7 +60,7 @@ SET(AppBasicExampleGui_SRCS
 ADD_DEFINITIONS(-DB3_USE_STANDALONE_EXAMPLE)
 
 LINK_LIBRARIES(
-        BulletDynamics BulletCollision LinearMath OpenGLWindow Bullet3Common ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY}
+        BulletDynamics BulletCollision LinearMath OpenGLWindow Bullet3Common 
 )
 
 #some code to support OpenGL and Glew cross platform
@@ -69,11 +69,12 @@ IF (WIN32)
              ${BULLET_PHYSICS_SOURCE_DIR}/btgui/OpenGLWindow/GlewWindows
         )
         ADD_DEFINITIONS(-DGLEW_STATIC)
+	LINK_LIBRARIES( ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} )
 ELSE(WIN32)
         IF(APPLE)
                 find_library(COCOA NAMES Cocoa)
                 MESSAGE(${COCOA})
-                link_libraries(${COCOA})
+                link_libraries(${COCOA} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
 
         ELSE(APPLE)
                 INCLUDE_DIRECTORIES(
@@ -83,7 +84,7 @@ ELSE(WIN32)
                 ADD_DEFINITIONS("-DGLEW_STATIC")
                 ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
 
-                LINK_LIBRARIES( X11 pthread dl Xext)
+                LINK_LIBRARIES(  pthread ${DL} )
         ENDIF(APPLE)
 ENDIF(WIN32)
 

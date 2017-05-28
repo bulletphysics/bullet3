@@ -15,6 +15,12 @@ subject to the following restrictions:
 
 #include "NN3DWalkers.h"
 
+#include "btBulletDynamicsCommon.h"
+
+#include "LinearMath/btIDebugDraw.h"
+#include "LinearMath/btAlignedObjectArray.h"
+#include "LinearMath/btHashMap.h"
+
 class btBroadphaseInterface;
 class btCollisionShape;
 class btOverlappingPairCache;
@@ -24,15 +30,12 @@ struct btCollisionAlgorithmCreateFunc;
 class btDefaultCollisionConfiguration;
 class NNWalker;
 
-#include "btBulletDynamicsCommon.h"
-#include "LinearMath/btIDebugDraw.h"
-#include "LinearMath/btAlignedObjectArray.h"
-#include "LinearMath/btHashMap.h"
+#include "NN3DWalkersTimeWarpBase.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
+
 #include "../Utils/b3ReferenceFrameHelper.hpp"
 #include "../Utils/b3Clock.h"
 #include "../RenderingExamples/TimeSeriesCanvas.h"
-#include "NN3DWalkersTimeWarpBase.h"
 
 // #### configurable parameters ####
 #ifndef NUM_WALKER_LEGS
@@ -1268,10 +1271,10 @@ void NN3DWalkersExample::scheduleEvaluations() {
 			m_walkersInEvaluation++;
 
 			if(REBUILD_WALKER){ // deletes and recreates the walker in the position
-				m_guiHelper->removeAllGraphicsInstances();
-				m_ground->setUserIndex(-1); // reset to get a new graphics object
-				m_ground->setUserIndex2(-1); // reset to get a new graphics object
-				m_ground->getCollisionShape()->setUserIndex(-1); // reset to get a new graphics object
+//				m_guiHelper->removeAllGraphicsInstances();
+//				m_ground->setUserIndex(-1); // reset to get a new graphics object
+//				m_ground->setUserIndex2(-1); // reset to get a new graphics object
+//				m_ground->getCollisionShape()->setUserIndex(-1); // reset to get a new graphics object
 
 				resetWalkerAt(i, m_resetPosition);
 			}

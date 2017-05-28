@@ -46,6 +46,7 @@ static GLInstanceGraphicsShape* LoadMeshFromSTL(const char* relativeFileName)
 							int expectedBinaryFileSize = numTriangles* 50 + 84;
 							if (expectedBinaryFileSize != size)
 							{
+								delete[] memoryBuffer;
 								return 0;
 							}
 
@@ -98,8 +99,11 @@ static GLInstanceGraphicsShape* LoadMeshFromSTL(const char* relativeFileName)
 		}
 		fclose(file);
 	}
-	shape->m_numIndices = shape->m_indices->size();
-	shape->m_numvertices = shape->m_vertices->size();
+	if (shape)
+	{
+		shape->m_numIndices = shape->m_indices->size();
+		shape->m_numvertices = shape->m_vertices->size();
+	}
 	return shape;
 }
 

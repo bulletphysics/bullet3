@@ -53,13 +53,19 @@ struct RTB3CollisionWorld
 	b3AlignedObjectArray<b3Aabb>	m_worldSpaceAabbs;
 	b3AlignedObjectArray<b3GpuFace> m_planeFaces;
 	b3AlignedObjectArray<b3CompoundOverlappingPair> m_compoundOverlappingPairs;
-	int m_nextFreeShapeIndex;
+	
+	union
+	{
+		int m_nextFreeShapeIndex;
+		void* m_nextFreeShapePtr;
+	};
 	int m_nextFreeCollidableIndex;
 	int m_nextFreePlaneFaceIndex;
 
 	RTB3CollisionWorld()
-	:m_nextFreeCollidableIndex(START_COLLIDABLE_INDEX),
+	:
 	m_nextFreeShapeIndex(START_SHAPE_INDEX),
+	m_nextFreeCollidableIndex(START_COLLIDABLE_INDEX),
 	m_nextFreePlaneFaceIndex(0)//this value is never exposed to the user, so we can start from 0
 	{
 	}
@@ -125,7 +131,8 @@ plCollisionShapeHandle RealTimeBullet3CollisionSdk::createSphereShape(plCollisio
 		shape.m_childOrientation.setValue(0,0,0,1);
 		shape.m_radius = radius;
 		shape.m_shapeType = RTB3_SHAPE_SPHERE;
-		return (plCollisionShapeHandle) world->m_nextFreeShapeIndex++;
+		world->m_nextFreeShapeIndex++;
+		return (plCollisionShapeHandle) world->m_nextFreeShapePtr;
 	}
 	return 0;
 }
@@ -147,7 +154,8 @@ plCollisionShapeHandle RealTimeBullet3CollisionSdk::createPlaneShape(plCollision
 		world->m_planeFaces[world->m_nextFreePlaneFaceIndex].m_plane = b3MakeVector4(planeNormalX,planeNormalY,planeNormalZ,planeConstant);
 		shape.m_shapeIndex = world->m_nextFreePlaneFaceIndex++;
 		shape.m_shapeType = RTB3_SHAPE_PLANE;
-		return (plCollisionShapeHandle) world->m_nextFreeShapeIndex++;
+		world->m_nextFreeShapeIndex++;
+		return (plCollisionShapeHandle)world->m_nextFreeShapePtr ;
 	}
 	return 0;
 }
@@ -169,7 +177,8 @@ plCollisionShapeHandle RealTimeBullet3CollisionSdk::createCapsuleShape(plCollisi
 		shape.m_height = height;
 		shape.m_shapeIndex = capsuleAxis;
 		shape.m_shapeType = RTB3_SHAPE_CAPSULE;
-		return (plCollisionShapeHandle) world->m_nextFreeShapeIndex++;
+		world->m_nextFreeShapeIndex++;
+		return (plCollisionShapeHandle) world->m_nextFreeShapePtr;
 	}
 	return 0;
 }
@@ -186,7 +195,8 @@ plCollisionShapeHandle RealTimeBullet3CollisionSdk::createCompoundShape(plCollis
 		shape.m_childOrientation.setValue(0,0,0,1);
 		shape.m_numChildShapes = 0;
 		shape.m_shapeType = RTB3_SHAPE_COMPOUND_INTERNAL;
-		return (plCollisionShapeHandle) world->m_nextFreeShapeIndex++;
+		world->m_nextFreeShapeIndex++;
+		return (plCollisionShapeHandle) world->m_nextFreeShapePtr;
 	}
 	return 0;
 }
@@ -265,7 +275,8 @@ plCollisionObjectHandle RealTimeBullet3CollisionSdk::createCollisionObject(  plC
 				collidable.m_shapeIndex = shape.m_shapeIndex;
 				break;
 		*/
-		return (plCollisionObjectHandle)world->m_nextFreeCollidableIndex++;
+		world->m_nextFreeCollidableIndex++;
+		return (plCollisionObjectHandle)world->m_nextFreeShapePtr;
 	}
 	return 0;
 }

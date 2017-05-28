@@ -445,7 +445,7 @@ int		b3GpuNarrowPhase::registerCompoundShape(b3AlignedObjectArray<b3GpuChildShap
 	for (int i=0;i<childShapes->size();i++)
 	{
 		int childColIndex = childShapes->at(i).m_shapeIndex;
-		b3Collidable& childCol = getCollidableCpu(childColIndex);
+		//b3Collidable& childCol = getCollidableCpu(childColIndex);
 		b3SapAabb aabbLoc =m_data->m_localShapeAABBCPU->at(childColIndex);
 
 		b3Vector3 childLocalAabbMin=b3MakeVector3(aabbLoc.m_min[0],aabbLoc.m_min[1],aabbLoc.m_min[2]);
@@ -832,7 +832,7 @@ void b3GpuNarrowPhase::computeContacts(cl_mem broadphasePairs, int numBroadphase
 	//swap buffer
 	m_data->m_currentContactBuffer=1-m_data->m_currentContactBuffer;
 
-	int curSize = m_data->m_pBufContactBuffersGPU[m_data->m_currentContactBuffer]->size();
+	//int curSize = m_data->m_pBufContactBuffersGPU[m_data->m_currentContactBuffer]->size();
 
 	int maxTriConvexPairCapacity = m_data->m_config.m_maxTriConvexPairCapacity;
 	int numTriConvexPairsOut=0;

@@ -20,6 +20,9 @@ public:
 	/// the b3Clock was created.
 	unsigned long int getTimeMilliseconds();
 
+	/// Gets the system time in milliseconds
+	unsigned long int getSystemTimeMilliseconds();
+
 	/// Returns the time in us since the last call to reset or since 
 	/// the Clock was created.
 	unsigned long long int getTimeMicroseconds();
@@ -27,9 +30,6 @@ public:
 	/// Returns the time in seconds since the last call to reset or since 
 	/// the Clock was created.
 	double getTimeInSeconds();
-
-	/// Gets the system time in milliseconds
-	double getSystemTimeMilliseconds();
 
 	///Sleep for 'microSeconds', to yield to other threads and not waste 100% CPU cycles.
 	///Note that some operating systems may sleep a longer time.

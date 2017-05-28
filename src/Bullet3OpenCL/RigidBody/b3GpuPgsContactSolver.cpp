@@ -138,7 +138,7 @@ b3GpuPgsContactSolver::b3GpuPgsContactSolver(cl_context ctx,cl_device_id device,
 	m_data->m_offsets = new b3OpenCLArray<unsigned int>( ctx,m_data->m_queue,B3_SOLVER_N_CELLS);
 	m_data->m_offsets->resize(B3_SOLVER_N_CELLS);
 	const char* additionalMacros = "";
-	const char* srcFileNameForCaching="";
+	//const char* srcFileNameForCaching="";
 
 
 
@@ -556,32 +556,38 @@ static bool b3ContactCmp(const b3Contact4& p, const b3Contact4& q)
 
 
 
-static const int gridTable4x4[] = 
-{
-    0,1,17,16,
-	1,2,18,19,
-	17,18,32,3,
-	16,19,3,34
-};
 
-static const int gridTable8x8[] = 
-{
-	  0,  2,  3, 16, 17, 18, 19,  1,
-	 66, 64, 80, 67, 82, 81, 65, 83,
-	131,144,128,130,147,129,145,146,
-	208,195,194,192,193,211,210,209,
-	 21, 22, 23,  5,  4,  6,  7, 20,
-	 86, 85, 69, 87, 70, 68, 84, 71,
-	151,133,149,150,135,148,132,134,
-	197,27,214,213,212,199,198,196
-	
-};
+
 
 
 
 
 #define USE_SPATIAL_BATCHING 1
 #define USE_4x4_GRID 1
+
+#ifndef USE_SPATIAL_BATCHING
+static const int gridTable4x4[] = 
+{
+	0,1,17,16,
+	1,2,18,19,
+	17,18,32,3,
+	16,19,3,34
+};
+static const int gridTable8x8[] = 
+{
+	0,  2,  3, 16, 17, 18, 19,  1,
+	66, 64, 80, 67, 82, 81, 65, 83,
+	131,144,128,130,147,129,145,146,
+	208,195,194,192,193,211,210,209,
+	21, 22, 23,  5,  4,  6,  7, 20,
+	86, 85, 69, 87, 70, 68, 84, 71,
+	151,133,149,150,135,148,132,134,
+	197,27,214,213,212,199,198,196
+	
+};
+
+
+#endif
 
 
 void SetSortDataCPU(b3Contact4* gContact, b3RigidBodyData* gBodies, b3SortData* gSortDataOut, int nContacts,float scale,const b3Int4& nSplit,int staticIdx)
@@ -597,7 +603,6 @@ void SetSortDataCPU(b3Contact4* gContact, b3RigidBodyData* gBodies, b3SortData* 
 			int bIdx = abs(bPtrAndSignBit);
 
 			bool aStatic = (aPtrAndSignBit<0) ||(aPtrAndSignBit==staticIdx);
-			bool bStatic = (bPtrAndSignBit<0) ||(bPtrAndSignBit==staticIdx);
 
 	#if USE_SPATIAL_BATCHING		
 			int idx = (aStatic)? bIdx: aIdx;
@@ -609,6 +614,8 @@ void SetSortDataCPU(b3Contact4* gContact, b3RigidBodyData* gBodies, b3SortData* 
 			int newIndex = (xIdx+yIdx*nSplit.x+zIdx*nSplit.x*nSplit.y);
 		
 	#else//USE_SPATIAL_BATCHING
+			bool bStatic = (bPtrAndSignBit<0) ||(bPtrAndSignBit==staticIdx);
+
 		#if USE_4x4_GRID
 			int aa = aIdx&3;
 			int bb = bIdx&3;
@@ -797,7 +804,7 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 
 
 
-				const b3OpenCLArray<b3RigidBodyData>* bodyNative = bodyBuf;
+				//const b3OpenCLArray<b3RigidBodyData>* bodyNative = bodyBuf;
 
 
 				{
@@ -1033,7 +1040,7 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 				}
 
 
-				bool compareGPU = false;
+//				bool compareGPU = false;
 				if (nContacts)
 				{
 					if (!gCpuBatchContacts)
@@ -1070,7 +1077,7 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 						{
 							m_data->m_batchSizes.resize(B3_MAX_NUM_BATCHES);
 							int totalNumConstraints = cpuContacts.size();
-							int simdWidth =numBodies+1;//-1;//64;//-1;//32;
+							//int simdWidth =numBodies+1;//-1;//64;//-1;//32;
 							int numBatches = sortConstraintByBatch3( &cpuContacts[0], totalNumConstraints, totalNumConstraints+1,csCfg.m_staticIdx ,numBodies,&m_data->m_batchSizes[0]);	//	on GPU
 							maxNumBatches = b3Max(numBatches,maxNumBatches);
 							static int globalMaxBatch = 0;
@@ -1138,17 +1145,17 @@ void b3GpuPgsContactSolver::solveContacts(int numBodies, cl_mem bodyBuf, cl_mem 
 					B3_PROFILE("copyToHost");
 					m_data->m_pBufContactOutGPU->copyToHost(cpuContacts);
 				}
-				b3OpenCLArray<unsigned int>* countsNative = m_data->m_solverGPU->m_numConstraints;
-				b3OpenCLArray<unsigned int>* offsetsNative = m_data->m_solverGPU->m_offsets;
+//				b3OpenCLArray<unsigned int>* countsNative = m_data->m_solverGPU->m_numConstraints;
+//				b3OpenCLArray<unsigned int>* offsetsNative = m_data->m_solverGPU->m_offsets;
 
 
 
-				int numNonzeroGrid=0;
+//				int numNonzeroGrid=0;
 
 				{
 					m_data->m_batchSizes.resize(B3_MAX_NUM_BATCHES);
 					int totalNumConstraints = cpuContacts.size();
-					int simdWidth =numBodies+1;//-1;//64;//-1;//32;
+	//				int simdWidth =numBodies+1;//-1;//64;//-1;//32;
 					int numBatches = sortConstraintByBatch3( &cpuContacts[0], totalNumConstraints, totalNumConstraints+1,csCfg.m_staticIdx ,numBodies,&m_data->m_batchSizes[0]);	//	on GPU
 					maxNumBatches = b3Max(numBatches,maxNumBatches);
 					static int globalMaxBatch = 0;
@@ -1420,7 +1427,7 @@ inline int b3GpuPgsContactSolver::sortConstraintByBatch2( b3Contact4* cs, int nu
 		idxSrc[i] = i;
     
 	int numValidConstraints = 0;
-	int unprocessedConstraintIndex = 0;
+//	int unprocessedConstraintIndex = 0;
 
 	int batchIdx = 0;
     
@@ -1588,7 +1595,7 @@ inline int b3GpuPgsContactSolver::sortConstraintByBatch3( b3Contact4* cs, int nu
 #endif
 	
 	int numValidConstraints = 0;
-	int unprocessedConstraintIndex = 0;
+//	int unprocessedConstraintIndex = 0;
 
 	int batchIdx = 0;
     

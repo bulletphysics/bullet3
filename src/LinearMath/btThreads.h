@@ -69,7 +69,6 @@ const unsigned int BT_MAX_THREAD_COUNT = 64;
 SIMD_FORCE_INLINE void btMutexLock( btSpinMutex* ) {}
 SIMD_FORCE_INLINE void btMutexUnlock( btSpinMutex* ) {}
 SIMD_FORCE_INLINE bool btMutexTryLock( btSpinMutex* ) {return true;}
-
 #endif
 
 

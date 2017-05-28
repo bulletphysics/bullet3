@@ -10,12 +10,18 @@
 	#include <OpenGL/OpenGL.h>
 	#include <OpenGL/gl.h>
 #else
-	#ifdef GLEW_STATIC
-	#include "CustomGL/glew.h"
-	#else
-	#include <GL/glew.h>
-	#endif
-#endif
+#ifdef GLEW_STATIC
+#include "CustomGL/glew.h"
+#else
+#ifdef NO_GLEW
+#define GL_GLEXT_LEGACY
+#include "third_party/GL/gl/include/GL/gl.h"
+#include "third_party/GL/gl/include/GL/glext.h"
+#else
+#include <GL/glew.h>
+#endif //NO_GLEW
+#endif //GLEW_STATIC
+#endif//(__APPLE__)
 
 #include "FontData.h"
 

@@ -43,6 +43,8 @@ project ("App_PhysicsServerSharedMemoryBridgeUDP")
 		"../PosixSharedMemory.h",
 		"../../Utils/b3ResourcePath.cpp",
 		"../../Utils/b3ResourcePath.h",
+		"../../Utils/b3Clock.cpp",
+		"../../Utils/b3Clock.h",		
 	}
 
 
@@ -90,6 +92,8 @@ myfiles =
 	"../../Importers/ImportURDFDemo/MultiBodyCreationInterface.h",
 	"../../Importers/ImportURDFDemo/MyMultiBodyCreator.cpp",
 	"../../Importers/ImportURDFDemo/MyMultiBodyCreator.h",
+	"../../Importers/ImportMJCFDemo/BulletMJCFImporter.cpp",
+	"../../Importers/ImportMJCFDemo/BulletMJCFImporter.h",
 	"../../Importers/ImportURDFDemo/BulletUrdfImporter.cpp",
 	"../../Importers/ImportURDFDemo/BulletUrdfImporter.h",
 	"../../Importers/ImportURDFDemo/UrdfParser.cpp",
@@ -99,7 +103,11 @@ myfiles =
 	"../../Importers/ImportURDFDemo/URDF2Bullet.cpp",
 	"../../Importers/ImportURDFDemo/URDF2Bullet.h",
 	"../../Utils/b3ResourcePath.cpp",
-	"../../Utils/b3Clock.cpp",	
+	"../../Utils/b3Clock.cpp",
+	"../../Utils/ChromeTraceUtil.cpp",
+	"../../Utils/ChromeTraceUtil.h",
+	"../../Utils/RobotLoggingUtil.cpp",
+	"../../Utils/RobotLoggingUtil.h",
 	"../../../Extras/Serialize/BulletWorldImporter/*",
 	"../../../Extras/Serialize/BulletFileLoader/*",	
 	"../../Importers/ImportURDFDemo/URDFImporterInterface.h",

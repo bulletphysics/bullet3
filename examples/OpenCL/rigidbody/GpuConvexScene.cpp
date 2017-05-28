@@ -223,8 +223,8 @@ int	GpuConvexScene::createDynamicsObjects2( const float* vertices, int numVertic
 	}
 
 	int shapeId = m_guiHelper->getRenderInterface()->registerShape(&vertices[0],numVertices,indices,numIndices,B3_GL_TRIANGLES,textureIndex);
-	int group=1;
-	int mask=1;
+	//int group=1;
+	//int mask=1;
 	int index=0;
 
 
@@ -237,7 +237,7 @@ int	GpuConvexScene::createDynamicsObjects2( const float* vertices, int numVertic
 		int curColor = 0;
 		float scaling[4] = {1,1,1,1};
 		int prevBody = -1;
-		int insta = 0;
+		//int insta = 0;
 
 		b3ConvexUtility* utilPtr = new b3ConvexUtility();
 
@@ -290,9 +290,11 @@ int	GpuConvexScene::createDynamicsObjects2( const float* vertices, int numVertic
 					b3Vector4 color = colors[curColor];
 					curColor++;
 					curColor&=3;
-					b3Vector4 scalin=b3MakeVector4(1,1,1,1);
-					int id = m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId,position,orn,color,scaling);
-					int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
+//					b3Vector4 scaling=b3MakeVector4(1,1,1,1);
+					int id;
+					id= m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+					int pid;
+					pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(mass,position,orn,colIndex,index,false);
 
 
 					if (prevBody>=0)
@@ -319,8 +321,8 @@ void GpuConvexScene::createStaticEnvironment()
 	int numIndices = sizeof(cube_indices)/sizeof(int);
 	//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
 	int shapeId = m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
-	int group=1;
-	int mask=1;
+	//int group=1;
+	//int mask=1;
 	int index=0;
 
 
@@ -332,8 +334,10 @@ void GpuConvexScene::createStaticEnvironment()
 
 		b3Vector4 color=b3MakeVector4(0,0,1,1);
 
-		int id = m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
-		int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0.f,position,orn,colIndex,index,false);
+		int id;
+		id = m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+		int pid;
+		pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0.f,position,orn,colIndex,index,false);
 
 	}
 }
@@ -345,8 +349,8 @@ void GpuConvexPlaneScene::createStaticEnvironment()
 	int numIndices = sizeof(cube_indices)/sizeof(int);
 	//int shapeId = ci.m_instancingRenderer->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
 	int shapeId = m_guiHelper->getRenderInterface()->registerShape(&cube_vertices[0],numVertices,cube_indices,numIndices);
-	int group=1;
-	int mask=1;
+//	int group=1;
+//	int mask=1;
 	int index=0;
 
 
@@ -358,8 +362,10 @@ void GpuConvexPlaneScene::createStaticEnvironment()
 
 		b3Vector4 color=b3MakeVector4(0,0,1,1);
 
-		int id = m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId,position,orn,color,scaling);
-		int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0.f,position,orn,colIndex,index,false);
+		int id;
+		id = m_guiHelper->getRenderInterface()->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+		int pid;
+		pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(0.f,position,orn,colIndex,index,false);
 
 	}
 
@@ -535,8 +541,8 @@ void GpuTetraScene::createFromTetGenData(const char* ele,
 			int numVertices = sizeof(mytetra_vertices)/strideInBytes;
 			int numIndices = sizeof(mytetra_indices)/sizeof(int);
 			int shapeId = m_instancingRenderer->registerShape(&mytetra_vertices[0],numVertices,mytetra_indices,numIndices);
-			int group=1;
-			int mask=1;
+		//	int group=1;
+		//	int mask=1;
 			
 
 
@@ -553,8 +559,10 @@ void GpuTetraScene::createFromTetGenData(const char* ele,
 				b3Vector4 color = colors[curColor++];
 				curColor&=3;
 				
-				int id = m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
-				int pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(1.f,position,orn,colIndex,0,false);
+				int id;
+				id = m_instancingRenderer->registerGraphicsInstance(shapeId,position,orn,color,scaling);
+				int pid;
+				pid = m_data->m_rigidBodyPipeline->registerPhysicsInstance(1.f,position,orn,colIndex,0,false);
 				//rigidBodyIds.push_back(pid);
 
 			}
@@ -620,7 +628,8 @@ void GpuTetraScene::createFromTetGenData(const char* ele,
 		bool useGPU = true;
 		if (useGPU)
 		{
-			int cid = m_data->m_rigidBodyPipeline->createFixedConstraint(bodyIndexA,bodyIndexB,pivotInA,pivotInB,relTargetAB,breakingThreshold);
+			int cid;
+			cid = m_data->m_rigidBodyPipeline->createFixedConstraint(bodyIndexA,bodyIndexB,pivotInA,pivotInB,relTargetAB,breakingThreshold);
 		} else
 		{
 			b3FixedConstraint* c = new b3FixedConstraint(bodyIndexA,bodyIndexB,frameInA,frameInB);

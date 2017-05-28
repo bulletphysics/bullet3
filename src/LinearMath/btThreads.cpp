@@ -226,5 +226,6 @@ bool btSpinMutex::tryLock()
     return true;
 }
 
-#endif // #else // #if BT_THREADSAFE
+
+#endif // #if BT_THREADSAFE
 

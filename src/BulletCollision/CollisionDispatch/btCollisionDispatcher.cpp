@@ -239,10 +239,7 @@ public:
 
 	virtual bool	processOverlap(btBroadphasePair& pair)
 	{
-		BT_PROFILE("btCollisionDispatcher::processOverlap");
-
 		(*m_dispatcher->getNearCallback())(pair,*m_dispatcher,m_dispatchInfo);
-
 		return false;
 	}
 };

@@ -125,7 +125,6 @@ bool SharedMemoryCommandProcessor::processCommand(const struct SharedMemoryComma
 
 bool SharedMemoryCommandProcessor::receiveStatus(struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
-	SharedMemoryStatus* stat = 0;
 
 	m_data->m_lastServerStatus.m_dataStream = 0;
 	m_data->m_lastServerStatus.m_numDataStreamBytes = 0;
@@ -184,7 +183,7 @@ bool SharedMemoryCommandProcessor::receiveStatus(struct SharedMemoryStatus& serv
 	return false;
 }
 
-void SharedMemoryCommandProcessor::renderScene()
+void SharedMemoryCommandProcessor::renderScene(int renderFlags)
 {
 }
 
@@ -213,4 +212,6 @@ void SharedMemoryCommandProcessor::setSharedMemoryKey(int key)
 	m_data->m_sharedMemoryKey = key; 
 }
 
-
+void SharedMemoryCommandProcessor::setTimeOut(double /*timeOutInSeconds*/)
+{
+}

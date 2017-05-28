@@ -65,10 +65,15 @@ int getSpecialKeyFromVirtualKeycode(int virtualKeyCode)
 	{
 		return virtualKeyCode+32;//todo: fix the ascii A vs a input
 	}
+	if (virtualKeyCode >= '0' && virtualKeyCode <= '9')
+	{
+		return virtualKeyCode;
+	}
 
 	switch (virtualKeyCode)
 	{
 		case VK_RETURN: {keycode = B3G_RETURN; break; };
+		case VK_ESCAPE: {keycode = B3G_ESCAPE; break; };
 		case VK_F1: {keycode = B3G_F1; break;}
 		case VK_F2: {keycode = B3G_F2; break;}
 		case VK_F3: {keycode = B3G_F3; break;}
@@ -217,6 +222,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 	case WM_CHAR:
 		{
+#if 0
 			//skip 'enter' key, it is processed in WM_KEYUP/WM_KEYDOWN 
 			int keycode = getAsciiCodeFromVirtualKeycode(wParam);
 			if (keycode < 0)
@@ -227,6 +233,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					(*sData->m_keyboardCallback)(wParam, state);
 				}
 			}
+#endif
 			return 0;
 		}
 	case WM_SYSKEYDOWN:
@@ -251,7 +258,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					break;
 				};
 			}
-			if (keycode>=0 && sData && sData->m_keyboardCallback)// && ((HIWORD(lParam) & KF_REPEAT) == 0))
+			if (keycode>=0 && sData && sData->m_keyboardCallback  && ((HIWORD(lParam) & KF_REPEAT) == 0))
 			{
 				int state = 1;
 				(*sData->m_keyboardCallback)(keycode,state);

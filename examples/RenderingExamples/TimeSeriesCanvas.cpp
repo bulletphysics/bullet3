@@ -316,7 +316,7 @@ void TimeSeriesCanvas::insertDataAtCurrentTime(float orgV, int dataSourceIndex, 
 	float amp = m_internalData->m_pixelsPerUnit;
 	//insert some new value(s) in the right-most column
 	{
-		float time = m_internalData->getTime();
+	//	float time = m_internalData->getTime();
 		
 		float v = zero+amp*orgV;
 		

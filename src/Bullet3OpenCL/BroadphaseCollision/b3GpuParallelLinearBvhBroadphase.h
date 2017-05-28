@@ -36,8 +36,8 @@ public:
 	b3GpuParallelLinearBvhBroadphase(cl_context context, cl_device_id device, cl_command_queue queue);
 	virtual ~b3GpuParallelLinearBvhBroadphase() {}
 
-	virtual void createProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr, short int collisionFilterGroup, short int collisionFilterMask);
-	virtual void createLargeProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr, short int collisionFilterGroup, short int collisionFilterMask);
+	virtual void createProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr,  int collisionFilterGroup,  int collisionFilterMask);
+	virtual void createLargeProxy(const b3Vector3& aabbMin, const b3Vector3& aabbMax, int userPtr,  int collisionFilterGroup,  int collisionFilterMask);
 	
 	virtual void calculateOverlappingPairs(int maxPairs);
 	virtual void calculateOverlappingPairsHost(int maxPairs);

@@ -4,6 +4,7 @@ INCLUDE_DIRECTORIES(
 		${BULLET_PHYSICS_SOURCE_DIR}/examples
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/enet/include
+                ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/clsocket/src
 		${PYTHON_INCLUDE_DIRS}
   )
 IF(BUILD_PYBULLET_NUMPY)
@@ -54,6 +55,9 @@ SET(pybullet_SRCS
 		../../examples/SharedMemory/PosixSharedMemory.h
 		../../examples/Utils/b3ResourcePath.cpp
 		../../examples/Utils/b3ResourcePath.h
+		../../examples/Utils/RobotLoggingUtil.cpp
+		../../examples/Utils/RobotLoggingUtil.h
+		
 		../../examples/ThirdPartyLibs/tinyxml/tinystr.cpp
 		../../examples/ThirdPartyLibs/tinyxml/tinyxml.cpp
 		../../examples/ThirdPartyLibs/tinyxml/tinyxmlerror.cpp
@@ -64,6 +68,7 @@ SET(pybullet_SRCS
 		../../examples/Importers/ImportColladaDemo/LoadMeshFromCollada.cpp
 		../../examples/Importers/ImportObjDemo/LoadMeshFromObj.cpp
 		../../examples/Importers/ImportObjDemo/Wavefront2GLInstanceGraphicsShape.cpp
+		../../examples/Importers/ImportMJCFDemo/BulletMJCFImporter.cpp
 		../../examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp
 		../../examples/Importers/ImportURDFDemo/MyMultiBodyCreator.cpp
 		../../examples/Importers/ImportURDFDemo/URDF2Bullet.cpp
@@ -75,6 +80,9 @@ SET(pybullet_SRCS
 		../../examples/MultiThreading/b3ThreadSupportInterface.cpp
 		
 )
+IF(BUILD_PYBULLET_CLSOCKET)
+ ADD_DEFINITIONS(-DBT_ENABLE_CLSOCKET)
+ENDIF(BUILD_PYBULLET_CLSOCKET)
 
 IF(WIN32)
 	LINK_LIBRARIES(
@@ -83,15 +91,23 @@ IF(WIN32)
 	IF(BUILD_PYBULLET_ENET)
 		ADD_DEFINITIONS(-DWIN32 -DBT_ENABLE_ENET)
 	ENDIF(BUILD_PYBULLET_ENET)
+	IF(BUILD_PYBULLET_CLSOCKET)
+		ADD_DEFINITIONS(-DWIN32)
+	ENDIF(BUILD_PYBULLET_CLSOCKET)
+
 ELSE(WIN32)
 	IF(BUILD_PYBULLET_ENET)
 		ADD_DEFINITIONS(-DHAS_SOCKLEN_T -DBT_ENABLE_ENET)
 	ENDIF(BUILD_PYBULLET_ENET)
+
+	IF(BUILD_PYBULLET_CLSOCKET)	
+		ADD_DEFINITIONS(${OSDEF})
+	ENDIF(BUILD_PYBULLET_CLSOCKET)
 ENDIF(WIN32)
 
 
 IF(BUILD_PYBULLET_ENET)
-	ADD_LIBRARY(pybullet SHARED ${pybullet_SRCS} 
+	set(pybullet_SRCS ${pybullet_SRCS} 
 		../../examples/SharedMemory/PhysicsClientUDP.cpp
 		../../examples/SharedMemory/PhysicsClientUDP_C_API.cpp
 		../../examples/SharedMemory/PhysicsClientUDP.h		
@@ -106,9 +122,21 @@ IF(BUILD_PYBULLET_ENET)
 		../../examples/ThirdPartyLibs/enet/peer.c
 		../../examples/ThirdPartyLibs/enet/protocol.c
 	)
-ELSE(BUILD_PYBULLET_ENET)
-	ADD_LIBRARY(pybullet SHARED ${pybullet_SRCS})
 ENDIF(BUILD_PYBULLET_ENET)
+
+IF(BUILD_PYBULLET_CLSOCKET)
+	set(pybullet_SRCS ${pybullet_SRCS}
+		 ../../examples/SharedMemory/PhysicsClientTCP.cpp
+                 ../../examples/SharedMemory/PhysicsClientTCP.h
+                 ../../examples/SharedMemory/PhysicsClientTCP_C_API.cpp
+                 ../../examples/SharedMemory/PhysicsClientTCP_C_API.h
+		 ../../examples/ThirdPartyLibs/clsocket/src/SimpleSocket.cpp
+		 ../../examples/ThirdPartyLibs/clsocket/src/ActiveSocket.cpp
+		 ../../examples/ThirdPartyLibs/clsocket/src/PassiveSocket.cpp
+	)
+ENDIF()
+
+ADD_LIBRARY(pybullet SHARED ${pybullet_SRCS})
 
 SET_TARGET_PROPERTIES(pybullet PROPERTIES PREFIX "")
 SET_TARGET_PROPERTIES(pybullet PROPERTIES POSTFIX "")
@@ -119,9 +147,9 @@ SET_TARGET_PROPERTIES(pybullet PROPERTIES DEBUG_POSTFIX "_d")
 
 
 IF(WIN32)
-	IF(BUILD_PYBULLET_ENET)
+	IF(BUILD_PYBULLET_ENET OR BUILD_PYBULLET_CLSOCKET)
 		TARGET_LINK_LIBRARIES(pybullet ws2_32 )
-	ENDIF(BUILD_PYBULLET_ENET)
+	ENDIF(BUILD_PYBULLET_ENET OR BUILD_PYBULLET_CLSOCKET)
 
 	SET_TARGET_PROPERTIES(pybullet PROPERTIES SUFFIX ".pyd" )
 ENDIF(WIN32)

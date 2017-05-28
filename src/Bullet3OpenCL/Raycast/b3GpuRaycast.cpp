@@ -196,7 +196,7 @@ void b3GpuRaycast::castRaysHost(const b3AlignedObjectArray<b3RayInfo>& rays,	b3A
 		{
 				
 			const b3Vector3& pos = bodies[b].m_pos;
-			const b3Quaternion& orn = bodies[b].m_quat;
+			//const b3Quaternion& orn = bodies[b].m_quat;
 			
 			switch (collidables[bodies[b].m_collidableIdx].m_shapeType)
 			{

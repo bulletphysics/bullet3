@@ -23,7 +23,7 @@ float shadowMapWorldSize=10;
 
 #define MAX_POINTS_IN_BATCH 1024
 #define MAX_LINES_IN_BATCH 1024
-
+#define MAX_TRIANGLES_IN_BATCH 8192
 
 #include "OpenGLInclude.h"
 #include "../CommonInterfaces/CommonWindowInterface.h"
@@ -31,13 +31,17 @@ float shadowMapWorldSize=10;
 
 #ifndef __APPLE__
 #ifndef glVertexAttribDivisor
+#ifndef NO_GLEW
 #define glVertexAttribDivisor glVertexAttribDivisorARB
+#endif //NO_GLEW
 #endif //glVertexAttribDivisor
 #ifndef GL_COMPARE_REF_TO_TEXTURE
 #define GL_COMPARE_REF_TO_TEXTURE GL_COMPARE_R_TO_TEXTURE
 #endif //GL_COMPARE_REF_TO_TEXTURE
 #ifndef glDrawElementsInstanced
+#ifndef NO_GLEW
 #define glDrawElementsInstanced glDrawElementsInstancedARB
+#endif //NO_GLEW
 #endif
 #endif //__APPLE__
 #include "GLInstancingRenderer.h"
@@ -48,7 +52,10 @@ float shadowMapWorldSize=10;
 
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Common/b3Quaternion.h"
+#include "Bullet3Common/b3Transform.h"
 #include "Bullet3Common/b3Matrix3x3.h"
+#include "Bullet3Common/b3ResizablePool.h"
+
 #include "LoadShader.h"
 
 #include "GLInstanceRendererInternalData.h"
@@ -69,13 +76,44 @@ float shadowMapWorldSize=10;
 
 
 
+static const char* triangleVertexShaderText =
+"#version 330\n"
+"precision highp float;"
+"uniform mat4 MVP;\n"
+"uniform vec3 vCol;\n"
+"layout (location = 0) in vec3 vPos;\n"
+"layout (location = 1) in vec2 vUV;\n"
+
+"out vec3 clr;\n"
+"out vec2 uv0;\n"
+"void main()\n"
+"{\n"
+"    gl_Position = MVP * vec4(vPos,1);\n"
+"    clr = vCol;\n"
+"    uv0 = vUV;\n"
+"}\n";
+
+
+static const char* triangleFragmentShader =
+"#version 330\n"
+"precision highp float;"
+"in vec3 clr;\n"
+"in vec2 uv0;"
+"out vec4 color;"
+"uniform sampler2D Diffuse;"
+"void main()\n"
+"{\n"
+"    vec4 texel = texture(Diffuse,uv0);\n"
+"    color = vec4(clr,texel.r)*texel;\n"
+"}\n";
+
+
 
 //#include "../../opencl/gpu_rigidbody_pipeline/b3GpuNarrowphaseAndSolver.h"//for m_maxNumObjectCapacity
 
 static InternalDataRenderer* sData2;
 
 GLint lineWidthRange[2]={1,1};
-static b3Vector3 gLightPos=b3MakeVector3(-5,12,-4);
 
 struct b3GraphicsInstance
 {
@@ -87,7 +125,7 @@ struct b3GraphicsInstance
 	int m_numVertices;
 
 	int m_numGraphicsInstances;
-
+	b3AlignedObjectArray<int> m_tempObjectUids;
 	int m_instanceOffset;
 	int m_vertexArrayOffset;
 	int	m_primitiveType;
@@ -141,7 +179,22 @@ struct InternalTextureHandle
     int m_height;
 };
 
+struct b3PublicGraphicsInstanceData
+{
+	int m_shapeIndex;
+	int m_internalInstanceIndex;
+	GLfloat m_position[4];
+	GLfloat m_orientation[4];
+	GLfloat m_color[4];
+	GLfloat m_scale[4];
 
+	void clear()
+	{
+	}
+
+};
+
+typedef b3PoolBodyHandle<b3PublicGraphicsInstanceData> b3PublicGraphicsInstance;
 
 struct InternalDataRenderer : public GLInstanceRendererInternalData
 {
@@ -152,6 +205,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 	GLfloat m_projectionMatrix[16];
 	GLfloat m_viewMatrix[16];
 
+	b3Vector3 m_lightPos;
 
 	GLuint				m_defaultTexturehandle;
 	b3AlignedObjectArray<InternalTextureHandle>	m_textureHandles;
@@ -161,13 +215,18 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 	
 	GLuint				m_renderFrameBuffer;
 	
-	
+
+
+	b3ResizablePool< b3PublicGraphicsInstance> m_publicGraphicsInstances;
+
 	InternalDataRenderer() :
+	m_activeCamera(&m_defaultCamera1),
 		m_shadowMap(0),
 		m_shadowTexture(0),
-		m_renderFrameBuffer(0),
-		m_activeCamera(&m_defaultCamera1)
+		m_renderFrameBuffer(0)
 	{
+		m_lightPos=b3MakeVector3(-50,50,50);
+
 		//clear to zero to make it obvious if the matrix is used uninitialized
 		for (int i=0;i<16;i++)
 		{
@@ -185,6 +244,16 @@ struct	GLInstanceRendererInternalData* GLInstancingRenderer::getInternalData()
 {
 	return m_data;
 }
+
+
+static GLuint	triangleShaderProgram;
+static GLint	triangle_mvp_location=-1;
+static GLint	triangle_vpos_location=-1;
+static GLint	triangle_vUV_location=-1;
+static GLint	triangle_vcol_location=-1;
+static GLuint	triangleVertexBufferObject=0;
+static GLuint	triangleVertexArrayObject=0;
+static GLuint	triangleIndexVbo=0;
 
 
 static GLuint               linesShader;        // The line renderer
@@ -278,6 +347,8 @@ void GLInstancingRenderer::removeAllInstances()
 		delete m_graphicsInstances[i];
 	}
 	m_graphicsInstances.clear();
+	m_data->m_publicGraphicsInstances.exitHandles();
+	m_data->m_publicGraphicsInstances.initHandles();
 }
 
 
@@ -305,10 +376,37 @@ GLInstancingRenderer::~GLInstancingRenderer()
 
 
 
-
-
-void GLInstancingRenderer::writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int srcIndex)
+bool GLInstancingRenderer::readSingleInstanceTransformToCPU(float* position, float* orientation, int shapeIndex)
 {
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(shapeIndex);
+	if (pg)
+	{
+		int srcIndex = pg->m_internalInstanceIndex;
+
+		if ((srcIndex<m_data->m_totalNumInstances) && (srcIndex>=0))
+		{
+			position[0] = m_data->m_instance_positions_ptr[srcIndex*4+0];
+			position[1] = m_data->m_instance_positions_ptr[srcIndex*4+1];
+			position[2] = m_data->m_instance_positions_ptr[srcIndex*4+2];
+
+			orientation[0] = m_data->m_instance_quaternion_ptr[srcIndex*4+0];
+			orientation[1] = m_data->m_instance_quaternion_ptr[srcIndex*4+1];
+			orientation[2] = m_data->m_instance_quaternion_ptr[srcIndex*4+2];
+			orientation[3] = m_data->m_instance_quaternion_ptr[srcIndex*4+3];
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void GLInstancingRenderer::writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int bodyUniqueId)
+{
+
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3Assert(pg);
+	int srcIndex = pg->m_internalInstanceIndex;
+
 	b3Assert(srcIndex<m_data->m_totalNumInstances);
 	b3Assert(srcIndex>=0);
 	m_data->m_instance_positions_ptr[srcIndex*4+0]=position[0];
@@ -321,16 +419,16 @@ void GLInstancingRenderer::writeSingleInstanceTransformToCPU(const float* positi
 	m_data->m_instance_quaternion_ptr[srcIndex*4+2]=orientation[2];
 	m_data->m_instance_quaternion_ptr[srcIndex*4+3]=orientation[3];
 
-/*	m_data->m_instance_colors_ptr[srcIndex*4+0]=color[0];
-	m_data->m_instance_colors_ptr[srcIndex*4+1]=color[1];
-	m_data->m_instance_colors_ptr[srcIndex*4+2]=color[2];
-	m_data->m_instance_colors_ptr[srcIndex*4+3]=color[3];
-	*/
 }
 
 
-void GLInstancingRenderer::readSingleInstanceTransformFromCPU(int srcIndex, float* position, float* orientation)
+void GLInstancingRenderer::readSingleInstanceTransformFromCPU(int bodyUniqueId, float* position, float* orientation)
 {
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3Assert(pg);
+	int srcIndex = pg->m_internalInstanceIndex;
+
+
 	b3Assert(srcIndex<m_data->m_totalNumInstances);
 	b3Assert(srcIndex>=0);
 	position[0] = m_data->m_instance_positions_ptr[srcIndex*4+0];
@@ -342,16 +440,23 @@ void GLInstancingRenderer::readSingleInstanceTransformFromCPU(int srcIndex, floa
 	orientation[2] = m_data->m_instance_quaternion_ptr[srcIndex*4+2];
 	orientation[3] = m_data->m_instance_quaternion_ptr[srcIndex*4+3];
 }
-void GLInstancingRenderer::writeSingleInstanceColorToCPU(double* color, int srcIndex)
+void GLInstancingRenderer::writeSingleInstanceColorToCPU(const double* color, int bodyUniqueId)
 {
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3Assert(pg);
+	int srcIndex = pg->m_internalInstanceIndex;
+
 	m_data->m_instance_colors_ptr[srcIndex*4+0]=float(color[0]);
 	m_data->m_instance_colors_ptr[srcIndex*4+1]=float(color[1]);
 	m_data->m_instance_colors_ptr[srcIndex*4+2]=float(color[2]);
 	m_data->m_instance_colors_ptr[srcIndex*4+3]=float(color[3]);
 }
 
-void GLInstancingRenderer::writeSingleInstanceColorToCPU(float* color, int srcIndex)
+void GLInstancingRenderer::writeSingleInstanceColorToCPU(const float* color, int bodyUniqueId)
 {
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3Assert(pg);
+	int srcIndex = pg->m_internalInstanceIndex;
 
 	m_data->m_instance_colors_ptr[srcIndex*4+0]=color[0];
 	m_data->m_instance_colors_ptr[srcIndex*4+1]=color[1];
@@ -359,24 +464,36 @@ void GLInstancingRenderer::writeSingleInstanceColorToCPU(float* color, int srcIn
 	m_data->m_instance_colors_ptr[srcIndex*4+3]=color[3];
 }
 
-void GLInstancingRenderer::writeSingleInstanceScaleToCPU(float* scale, int srcIndex)
+void GLInstancingRenderer::writeSingleInstanceScaleToCPU(const float* scale, int bodyUniqueId)
 {
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3Assert(pg);
+	int srcIndex = pg->m_internalInstanceIndex;
+
 	m_data->m_instance_scale_ptr[srcIndex*3+0]=scale[0];
 	m_data->m_instance_scale_ptr[srcIndex*3+1]=scale[1];
 	m_data->m_instance_scale_ptr[srcIndex*3+2]=scale[2];
 }
 
-void GLInstancingRenderer::writeSingleInstanceScaleToCPU(double* scale, int srcIndex)
+void GLInstancingRenderer::writeSingleInstanceScaleToCPU(const double* scale, int bodyUniqueId)
 {
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3Assert(pg);
+	int srcIndex = pg->m_internalInstanceIndex;
+
 	m_data->m_instance_scale_ptr[srcIndex*3+0]=scale[0];
 	m_data->m_instance_scale_ptr[srcIndex*3+1]=scale[1];
 	m_data->m_instance_scale_ptr[srcIndex*3+2]=scale[2];
 }
 
-void GLInstancingRenderer::writeSingleInstanceTransformToGPU(float* position, float* orientation, int objectIndex)
+void GLInstancingRenderer::writeSingleInstanceTransformToGPU(float* position, float* orientation, int objectUniqueId)
 {
 	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
 	//glFlush();
+
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(objectUniqueId);
+	b3Assert(pg);
+	int objectIndex = pg->m_internalInstanceIndex;
 
 	char* orgBase =  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_READ_WRITE);
 	//b3GraphicsInstance* gfxObj = m_graphicsInstances[k];
@@ -568,15 +685,92 @@ int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const double*
     return registerGraphicsInstance(shapeIndex,pos,orn,color,scaling);
 }
 
-
-int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling)
+void GLInstancingRenderer::rebuildGraphicsInstances()
 {
-	b3Assert(shapeIndex == (m_graphicsInstances.size()-1));
-	b3Assert(m_graphicsInstances.size()<m_data->m_maxNumObjectCapacity-1);
+	m_data->m_totalNumInstances = 0;
+
+	b3AlignedObjectArray<int> usedObjects;
+	m_data->m_publicGraphicsInstances.getUsedHandles(usedObjects);
+
+	for (int i=0;i<usedObjects.size();i++)
+	{
+		int bodyUniqueId = usedObjects[i];
+		b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+		b3Assert(pg);
+		int srcIndex = pg->m_internalInstanceIndex;
+
+		pg->m_position[0] = m_data->m_instance_positions_ptr[srcIndex*4+0];
+		pg->m_position[1] = m_data->m_instance_positions_ptr[srcIndex*4+1];
+		pg->m_position[2] = m_data->m_instance_positions_ptr[srcIndex*4+2];
+		pg->m_orientation[0] = m_data->m_instance_quaternion_ptr[srcIndex*4+0];
+		pg->m_orientation[1] = m_data->m_instance_quaternion_ptr[srcIndex*4+1];
+		pg->m_orientation[2] = m_data->m_instance_quaternion_ptr[srcIndex*4+2];
+		pg->m_orientation[3] = m_data->m_instance_quaternion_ptr[srcIndex*4+3];
+		pg->m_color[0] = m_data->m_instance_colors_ptr[srcIndex*4+0];
+		pg->m_color[1] = m_data->m_instance_colors_ptr[srcIndex*4+1];
+		pg->m_color[2] = m_data->m_instance_colors_ptr[srcIndex*4+2];
+		pg->m_color[3] = m_data->m_instance_colors_ptr[srcIndex*4+3];
+		pg->m_scale[0] = m_data->m_instance_scale_ptr[srcIndex*3+0];
+		pg->m_scale[1] = m_data->m_instance_scale_ptr[srcIndex*3+1];
+		pg->m_scale[2] = m_data->m_instance_scale_ptr[srcIndex*3+2];
+	}
+	for (int i=0;i<m_graphicsInstances.size();i++)
+	{
+		m_graphicsInstances[i]->m_numGraphicsInstances = 0;
+		m_graphicsInstances[i]->m_instanceOffset = 0;
+		m_graphicsInstances[i]->m_tempObjectUids.clear();
+	}
+	for (int i=0;i<usedObjects.size();i++)
+	{
+		int bodyUniqueId = usedObjects[i];
+		b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+		m_graphicsInstances[pg->m_shapeIndex]->m_tempObjectUids.push_back(bodyUniqueId);
+	}
+
+	int curOffset = 0;
+	m_data->m_totalNumInstances = 0;
+
+	for (int i=0;i<m_graphicsInstances.size();i++)
+	{
+		m_graphicsInstances[i]->m_instanceOffset = curOffset;
+		m_graphicsInstances[i]->m_numGraphicsInstances = 0;
+
+		for (int g=0;g<m_graphicsInstances[i]->m_tempObjectUids.size();g++)
+		{
+			curOffset++;
+			int objectUniqueId = m_graphicsInstances[i]->m_tempObjectUids[g];
+			b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(objectUniqueId);
+			
+			registerGraphicsInstanceInternal(objectUniqueId,pg->m_position,pg->m_orientation,pg->m_color,pg->m_scale);
+		}
+	}
+
+}
+
+void GLInstancingRenderer::removeGraphicsInstance(int instanceUid)
+{
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(instanceUid);
+	b3Assert(pg);
+	if (pg)
+	{
+		m_data->m_publicGraphicsInstances.freeHandle(instanceUid);
+		rebuildGraphicsInstances();
+	}
+}
+
+
+int GLInstancingRenderer::registerGraphicsInstanceInternal(int newUid, const float* position, const float* quaternion, const float* color, const float* scaling)
+{
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(newUid);
+	int shapeIndex = pg->m_shapeIndex;
+//	b3Assert(pg);
+//	int objectIndex = pg->m_internalInstanceIndex;
+
+	
 
 	b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
-
 	int index = gfxObj->m_numGraphicsInstances + gfxObj->m_instanceOffset;
+	pg->m_internalInstanceIndex = index;
 
 	int maxElements = m_data->m_instance_positions_ptr.size();
 	if (index*4<maxElements)
@@ -607,16 +801,59 @@ int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const float* 
 		b3Error("registerGraphicsInstance out of range, %d\n", maxElements);
 		return -1;
 	}
-	return index;//gfxObj->m_numGraphicsInstances;
+	return newUid;//gfxObj->m_numGraphicsInstances;
+}
+
+int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling)
+{
+	int newUid = m_data->m_publicGraphicsInstances.allocHandle();
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(newUid);
+	pg->m_shapeIndex = shapeIndex;
+
+	//b3Assert(shapeIndex == (m_graphicsInstances.size()-1));
+	b3Assert(m_graphicsInstances.size()<m_data->m_maxNumObjectCapacity-1);
+	if (shapeIndex == (m_graphicsInstances.size()-1))
+	{
+		registerGraphicsInstanceInternal(newUid, position,quaternion,color,scaling);
+	} else
+	{
+
+		int srcIndex = m_data->m_totalNumInstances++;
+		pg->m_internalInstanceIndex = srcIndex;
+
+		m_data->m_instance_positions_ptr[srcIndex*4+0] = position[0];
+		m_data->m_instance_positions_ptr[srcIndex*4+1] = position[1];
+		m_data->m_instance_positions_ptr[srcIndex*4+2] = position[2];
+		m_data->m_instance_positions_ptr[srcIndex*4+3] = 1.;
+
+		m_data->m_instance_quaternion_ptr[srcIndex*4+0] = quaternion[0];
+		m_data->m_instance_quaternion_ptr[srcIndex*4+1] = quaternion[1];
+		m_data->m_instance_quaternion_ptr[srcIndex*4+2] = quaternion[2];
+		m_data->m_instance_quaternion_ptr[srcIndex*4+3] = quaternion[3];
+
+		m_data->m_instance_colors_ptr[srcIndex*4+0] = color[0];
+		m_data->m_instance_colors_ptr[srcIndex*4+1] = color[1];
+		m_data->m_instance_colors_ptr[srcIndex*4+2] = color[2];
+		m_data->m_instance_colors_ptr[srcIndex*4+3] = color[3];
+
+		m_data->m_instance_scale_ptr[srcIndex*3+0] = scaling[0];
+		m_data->m_instance_scale_ptr[srcIndex*3+1] = scaling[1];
+		m_data->m_instance_scale_ptr[srcIndex*3+2] = scaling[2];
+
+
+		rebuildGraphicsInstances();
+	}
+
+	return newUid;
 }
 
 
-int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width, int height)
+int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width, int height, bool flipPixelsY)
 {
 	b3Assert(glGetError() ==GL_NO_ERROR);
 	glActiveTexture(GL_TEXTURE0);
 	int textureIndex = m_data->m_textureHandles.size();
-    const GLubyte*	image= (const GLubyte*)texels;	
+  //  const GLubyte*	image= (const GLubyte*)texels;	
 	GLuint textureHandle;
 	glGenTextures(1,(GLuint*)&textureHandle);
 	glBindTexture(GL_TEXTURE_2D,textureHandle);
@@ -629,12 +866,16 @@ int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width
     h.m_height = height;
 
 	m_data->m_textureHandles.push_back(h);
-	updateTexture(textureIndex, texels);
+	if (texels)
+	{
+		updateTexture(textureIndex, texels, flipPixelsY);
+	}
 	return textureIndex;
 }
 
 
-void    GLInstancingRenderer::updateTexture(int textureIndex, const unsigned char* texels)
+
+void    GLInstancingRenderer::updateTexture(int textureIndex, const unsigned char* texels, bool flipPixelsY)
 {
     if (textureIndex>=0)
     {
@@ -644,25 +885,30 @@ void    GLInstancingRenderer::updateTexture(int textureIndex, const unsigned cha
         glActiveTexture(GL_TEXTURE0);
         b3Assert(glGetError() ==GL_NO_ERROR);
         InternalTextureHandle& h = m_data->m_textureHandles[textureIndex];
-
-		//textures need to be flipped for OpenGL...
-		b3AlignedObjectArray<unsigned char> flippedTexels;
-		flippedTexels.resize(h.m_width* h.m_height * 3);
-		for (int i = 0; i < h.m_width; i++)
-		{
-			for (int j = 0; j < h.m_height; j++)
-			{
-				flippedTexels[(i + j*h.m_width) * 3] =      texels[(i + (h.m_height - 1 -j )*h.m_width) * 3];
-				flippedTexels[(i + j*h.m_width) * 3+1] =    texels[(i + (h.m_height - 1 - j)*h.m_width) * 3+1];
-				flippedTexels[(i + j*h.m_width) * 3+2] =    texels[(i + (h.m_height - 1 - j)*h.m_width) * 3+2];
-			}
-		}
-
-
-        glBindTexture(GL_TEXTURE_2D,h.m_glTexture);
+		glBindTexture(GL_TEXTURE_2D,h.m_glTexture);
         b3Assert(glGetError() ==GL_NO_ERROR);
-        const GLubyte*	image= (const GLubyte*)texels;	
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, h.m_width,h.m_height,0,GL_RGB,GL_UNSIGNED_BYTE,&flippedTexels[0]);
+
+		if (flipPixelsY)
+		{
+			//textures need to be flipped for OpenGL...
+			b3AlignedObjectArray<unsigned char> flippedTexels;
+			flippedTexels.resize(h.m_width* h.m_height * 3);
+
+			for (int i = 0; i < h.m_width; i++)
+			{
+				for (int j = 0; j < h.m_height; j++)
+				{
+					flippedTexels[(i + j*h.m_width) * 3] =      texels[(i + (h.m_height - 1 -j )*h.m_width) * 3];
+					flippedTexels[(i + j*h.m_width) * 3+1] =    texels[(i + (h.m_height - 1 - j)*h.m_width) * 3+1];
+					flippedTexels[(i + j*h.m_width) * 3+2] =    texels[(i + (h.m_height - 1 - j)*h.m_width) * 3+2];
+				}
+			}
+
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, h.m_width,h.m_height,0,GL_RGB,GL_UNSIGNED_BYTE,&flippedTexels[0]);
+		} else
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, h.m_width,h.m_height,0,GL_RGB,GL_UNSIGNED_BYTE,&texels[0]);
+		}
         b3Assert(glGetError() ==GL_NO_ERROR);
         glGenerateMipmap(GL_TEXTURE_2D);
         b3Assert(glGetError() ==GL_NO_ERROR);
@@ -721,17 +967,25 @@ int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, 
 	gfxObj->m_numVertices = numvertices;
 
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
+	
 	int vertexStrideInBytes = 9*sizeof(float);
 	int sz = numvertices*vertexStrideInBytes;
+	int totalUsed = vertexStrideInBytes*gfxObj->m_vertexArrayOffset+sz;
+	b3Assert(totalUsed<m_data->m_maxShapeCapacityInBytes);
+	if (totalUsed>=m_data->m_maxShapeCapacityInBytes)
+	{
+		return -1;
+	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
+
 #if 0
 
 	char* dest=  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_WRITE_ONLY);//GL_WRITE_ONLY
 	
 	
 #ifdef B3_DEBUG
-	int totalUsed = vertexStrideInBytes*gfxObj->m_vertexArrayOffset+sz;
-	b3Assert(totalUsed<m_data->m_maxShapeCapacityInBytes);
+	
 #endif//B3_DEBUG
 
 	memcpy(dest+vertexStrideInBytes*gfxObj->m_vertexArrayOffset,vertices,sz);
@@ -771,6 +1025,32 @@ void GLInstancingRenderer::InitShaders()
 	int ORIENTATION_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity*sizeof(float)*4);
 	int COLOR_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity*sizeof(float)*4);
 	int SCALE_BUFFER_SIZE = (m_data->m_maxNumObjectCapacity*sizeof(float)*3);
+
+	{
+		triangleShaderProgram = gltLoadShaderPair(triangleVertexShaderText,triangleFragmentShader);
+		
+		//triangle_vpos_location = glGetAttribLocation(triangleShaderProgram, "vPos");
+		//triangle_vUV_location = glGetAttribLocation(triangleShaderProgram, "vUV");
+
+		triangle_mvp_location = glGetUniformLocation(triangleShaderProgram, "MVP");
+		triangle_vcol_location = glGetUniformLocation(triangleShaderProgram, "vCol");
+	
+		glLinkProgram(triangleShaderProgram);
+		glUseProgram(triangleShaderProgram);
+
+		glGenVertexArrays(1, &triangleVertexArrayObject);
+		glBindVertexArray(triangleVertexArrayObject);
+
+		glGenBuffers(1, &triangleVertexBufferObject);
+		glGenBuffers(1, &triangleIndexVbo);
+
+		int sz = MAX_TRIANGLES_IN_BATCH*sizeof(GfxVertexFormat0);
+		glBindVertexArray(triangleVertexArrayObject);
+		glBindBuffer(GL_ARRAY_BUFFER, triangleVertexBufferObject);
+		glBufferData(GL_ARRAY_BUFFER, sz, 0, GL_DYNAMIC_DRAW);
+
+		glBindVertexArray(0);
+	}
 
 	linesShader = gltLoadShaderPair(linesVertexShader,linesFragmentShader);
 	lines_ModelViewMatrix = glGetUniformLocation(linesShader, "ModelViewMatrix");
@@ -992,23 +1272,26 @@ void GLInstancingRenderer::setActiveCamera(CommonCameraInterface* cam)
 	m_data->m_activeCamera = cam;
 }
 
+void GLInstancingRenderer::setLightPosition(const float lightPos[3])
+{
+	m_data->m_lightPos[0] = lightPos[0];
+	m_data->m_lightPos[1] = lightPos[1];
+	m_data->m_lightPos[2] = lightPos[2];
+}
+
+void GLInstancingRenderer::setLightPosition(const double lightPos[3])
+{
+	m_data->m_lightPos[0] = lightPos[0];
+	m_data->m_lightPos[1] = lightPos[1];
+	m_data->m_lightPos[2] = lightPos[2];
+}
+
 
 void GLInstancingRenderer::updateCamera(int upAxis)
 {
 
     b3Assert(glGetError() ==GL_NO_ERROR);
 	m_upAxis = upAxis;
-	switch (upAxis)
-	{
-    case 1:
-    		gLightPos = b3MakeVector3(-50.f,100,30);
-    	break;
-    case 2:
-			gLightPos = b3MakeVector3(-50.f,30,100);
-			break;
-    default:
-    b3Assert(0);
-	};
 
 	m_data->m_activeCamera->setCameraUpAxis(upAxis);
 	m_data->m_activeCamera->setAspectRatio((float)m_screenWidth/(float)m_screenHeight);
@@ -1111,6 +1394,214 @@ void GLInstancingRenderer::renderScene()
 }
 
 
+struct PointerCaster
+{
+	union {
+		int m_baseIndex;
+		GLvoid* m_pointer;
+	};
+
+	PointerCaster()
+	:m_pointer(0)
+		{
+		}
+
+
+};
+
+
+
+#if 0
+static void    b3CreateFrustum(
+                        float left,
+                        float right,
+                        float bottom,
+                        float top,
+                        float nearVal,
+                        float farVal,
+                        float frustum[16])
+{
+
+    frustum[0*4+0] = (float(2) * nearVal) / (right - left);
+    frustum[0*4+1] = float(0);
+    frustum[0*4+2] = float(0);
+    frustum[0*4+3] = float(0);
+
+    frustum[1*4+0] = float(0);
+    frustum[1*4+1] = (float(2) * nearVal) / (top - bottom);
+    frustum[1*4+2] = float(0);
+    frustum[1*4+3] = float(0);
+
+    frustum[2*4+0] = (right + left) / (right - left);
+    frustum[2*4+1] = (top + bottom) / (top - bottom);
+    frustum[2*4+2] = -(farVal + nearVal) / (farVal - nearVal);
+    frustum[2*4+3] = float(-1);
+
+    frustum[3*4+0] = float(0);
+    frustum[3*4+1] = float(0);
+    frustum[3*4+2] = -(float(2) * farVal * nearVal) / (farVal - nearVal);
+    frustum[3*4+3] = float(0);
+
+}
+#endif
+
+static void b3Matrix4x4Mul(GLfloat aIn[4][4], GLfloat bIn[4][4], GLfloat result[4][4])
+{
+	for (int j=0;j<4;j++)
+		for (int i=0;i<4;i++)
+			result[j][i] = aIn[0][i] * bIn[j][0] + aIn[1][i] * bIn[j][1] + aIn[2][i] * bIn[j][2] + aIn[3][i] * bIn[j][3];
+}
+
+static void b3Matrix4x4Mul16(GLfloat aIn[16], GLfloat bIn[16], GLfloat result[16])
+{
+	for (int j=0;j<4;j++)
+		for (int i=0;i<4;i++)
+			result[j*4+i] = aIn[0*4+i] * bIn[j*4+0] + aIn[1*4+i] * bIn[j*4+1] + aIn[2*4+i] * bIn[j*4+2] + aIn[3*4+i] * bIn[j*4+3];
+}
+
+
+static void b3CreateDiagonalMatrix(GLfloat value, GLfloat result[4][4])
+{
+	for (int i=0;i<4;i++)
+	{
+		for (int j=0;j<4;j++)
+		{
+			if (i==j)
+			{
+				result[i][j] = value;
+			} else
+			{
+				result[i][j] = 0.f;
+			}
+		}
+	}
+}
+
+static void b3CreateOrtho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar, GLfloat result[4][4])
+{
+	b3CreateDiagonalMatrix(1.f,result);
+
+	result[0][0] = 2.f / (right - left);
+	result[1][1] = 2.f / (top - bottom);
+	result[2][2] = - 2.f / (zFar - zNear);
+	result[3][0] = - (right + left) / (right - left);
+	result[3][1] = - (top + bottom) / (top - bottom);
+	result[3][2] = - (zFar + zNear) / (zFar - zNear);
+}
+
+static void    b3CreateLookAt(const b3Vector3& eye, const b3Vector3& center,const b3Vector3& up, GLfloat result[16])
+{
+    b3Vector3 f = (center - eye).normalized();
+    b3Vector3 u = up.normalized();
+    b3Vector3 s = (f.cross(u)).normalized();
+    u = s.cross(f);
+
+    result[0*4+0] = s.x;
+    result[1*4+0] = s.y;
+    result[2*4+0] = s.z;
+
+	result[0*4+1] = u.x;
+    result[1*4+1] = u.y;
+    result[2*4+1] = u.z;
+
+    result[0*4+2] =-f.x;
+    result[1*4+2] =-f.y;
+    result[2*4+2] =-f.z;
+
+	result[0*4+3] = 0.f;
+    result[1*4+3] = 0.f;
+    result[2*4+3] = 0.f;
+
+    result[3*4+0] = -s.dot(eye);
+    result[3*4+1] = -u.dot(eye);
+    result[3*4+2] = f.dot(eye);
+    result[3*4+3] = 1.f;
+}
+
+
+
+
+
+
+
+void GLInstancingRenderer::drawTexturedTriangleMesh(float worldPosition[3], float worldOrientation[4], const float* vertices, int numvertices, const unsigned int* indices, int numIndices, float colorRGBA[4], int textureIndex, int vertexLayout)
+{
+	int sz = sizeof(GfxVertexFormat0);
+
+	glActiveTexture(GL_TEXTURE0);
+	activateTexture(textureIndex);
+	checkError("activateTexture");
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glUseProgram(triangleShaderProgram);
+
+	b3Quaternion orn(worldOrientation[0],worldOrientation[1],worldOrientation[2],worldOrientation[3]);
+	b3Vector3 pos = b3MakeVector3(worldPosition[0],worldPosition[1],worldPosition[2]);
+
+	
+	b3Transform worldTrans(orn,pos);
+	b3Scalar worldMatUnk[16];
+	worldTrans.getOpenGLMatrix(worldMatUnk);
+	float modelMat[16];
+	for (int i=0;i<16;i++)
+	{
+		modelMat[i] = worldMatUnk[i];
+	}
+	float viewProjection[16];
+	b3Matrix4x4Mul16(m_data->m_projectionMatrix,m_data->m_viewMatrix,viewProjection);
+	float MVP[16];
+	b3Matrix4x4Mul16(viewProjection,modelMat,MVP);
+	glUniformMatrix4fv(triangle_mvp_location, 1, GL_FALSE, (const GLfloat*) MVP);
+	checkError("glUniformMatrix4fv");
+
+	glUniform3f(triangle_vcol_location,colorRGBA[0],colorRGBA[1],colorRGBA[2]);
+	checkError("glUniform3f");
+	
+	glBindVertexArray(triangleVertexArrayObject);
+	checkError("glBindVertexArray");
+
+	glBindBuffer(GL_ARRAY_BUFFER, triangleVertexBufferObject);
+	checkError("glBindBuffer");
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GfxVertexFormat0)*numvertices, 0, GL_DYNAMIC_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GfxVertexFormat0)*numvertices, vertices);
+
+	PointerCaster posCast;
+	posCast.m_baseIndex = 0;
+	PointerCaster uvCast;
+	uvCast.m_baseIndex = 8*sizeof(float);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GfxVertexFormat0), posCast.m_pointer);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GfxVertexFormat0), uvCast.m_pointer);		
+	checkError("glVertexAttribPointer");
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	
+	glVertexAttribDivisor(0,0);
+	glVertexAttribDivisor(1,0);
+	checkError("glVertexAttribDivisor");
+	
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triangleIndexVbo);
+	int indexBufferSizeInBytes = numIndices*sizeof(int);
+
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices*sizeof(int), NULL, GL_DYNAMIC_DRAW);
+	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, numIndices*sizeof(int), indices);
+
+	glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
+
+	//glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT,indices);
+	checkError("glDrawElements");
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D,0);
+	glUseProgram(0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER,0);
+	glBindVertexArray(0);
+	checkError("glBindVertexArray");
+
+}
+
+
 void GLInstancingRenderer::drawPoint(const double* position, const double color[4], double pointDrawSize)
 {
 	float pos[4]={(float)position[0],(float)position[1],(float)position[2],0};
@@ -1176,8 +1667,7 @@ void GLInstancingRenderer::drawLines(const float* positions, const float color[4
 	b3Clamp(lineWidth,(float)lineWidthRange[0],(float)lineWidthRange[1]);
 	glLineWidth(lineWidth);
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
-	b3Assert(glGetError() ==GL_NO_ERROR);
+
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	glActiveTexture(GL_TEXTURE0);
@@ -1308,135 +1798,15 @@ void GLInstancingRenderer::drawLine(const float from[4], const float to[4], cons
 	glUseProgram(0);
 }
 
-struct PointerCaster
-{
-	union {
-		int m_baseIndex;
-		GLvoid* m_pointer;
-	};
-
-	PointerCaster()
-	:m_pointer(0)
-		{
-		}
-
-
-};
-
-
-
-#if 0
-static void    b3CreateFrustum(
-                        float left,
-                        float right,
-                        float bottom,
-                        float top,
-                        float nearVal,
-                        float farVal,
-                        float frustum[16])
-{
-
-    frustum[0*4+0] = (float(2) * nearVal) / (right - left);
-    frustum[0*4+1] = float(0);
-    frustum[0*4+2] = float(0);
-    frustum[0*4+3] = float(0);
-
-    frustum[1*4+0] = float(0);
-    frustum[1*4+1] = (float(2) * nearVal) / (top - bottom);
-    frustum[1*4+2] = float(0);
-    frustum[1*4+3] = float(0);
-
-    frustum[2*4+0] = (right + left) / (right - left);
-    frustum[2*4+1] = (top + bottom) / (top - bottom);
-    frustum[2*4+2] = -(farVal + nearVal) / (farVal - nearVal);
-    frustum[2*4+3] = float(-1);
-
-    frustum[3*4+0] = float(0);
-    frustum[3*4+1] = float(0);
-    frustum[3*4+2] = -(float(2) * farVal * nearVal) / (farVal - nearVal);
-    frustum[3*4+3] = float(0);
-
-}
-#endif
-
-static void b3Matrix4x4Mul(GLfloat aIn[4][4], GLfloat bIn[4][4], GLfloat result[4][4])
-{
-	for (int j=0;j<4;j++)
-		for (int i=0;i<4;i++)
-			result[j][i] = aIn[0][i] * bIn[j][0] + aIn[1][i] * bIn[j][1] + aIn[2][i] * bIn[j][2] + aIn[3][i] * bIn[j][3];
-}
-
-static void b3Matrix4x4Mul16(GLfloat aIn[16], GLfloat bIn[16], GLfloat result[16])
-{
-	for (int j=0;j<4;j++)
-		for (int i=0;i<4;i++)
-			result[j*4+i] = aIn[0*4+i] * bIn[j*4+0] + aIn[1*4+i] * bIn[j*4+1] + aIn[2*4+i] * bIn[j*4+2] + aIn[3*4+i] * bIn[j*4+3];
-}
-
-
-static void b3CreateDiagonalMatrix(GLfloat value, GLfloat result[4][4])
-{
-	for (int i=0;i<4;i++)
-	{
-		for (int j=0;j<4;j++)
-		{
-			if (i==j)
-			{
-				result[i][j] = value;
-			} else
-			{
-				result[i][j] = 0.f;
-			}
-		}
-	}
-}
-
-static void b3CreateOrtho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar, GLfloat result[4][4])
-{
-	b3CreateDiagonalMatrix(1.f,result);
-
-	result[0][0] = 2.f / (right - left);
-	result[1][1] = 2.f / (top - bottom);
-	result[2][2] = - 2.f / (zFar - zNear);
-	result[3][0] = - (right + left) / (right - left);
-	result[3][1] = - (top + bottom) / (top - bottom);
-	result[3][2] = - (zFar + zNear) / (zFar - zNear);
-}
-
-static void    b3CreateLookAt(const b3Vector3& eye, const b3Vector3& center,const b3Vector3& up, GLfloat result[16])
-{
-    b3Vector3 f = (center - eye).normalized();
-    b3Vector3 u = up.normalized();
-    b3Vector3 s = (f.cross(u)).normalized();
-    u = s.cross(f);
-
-    result[0*4+0] = s.x;
-    result[1*4+0] = s.y;
-    result[2*4+0] = s.z;
-
-	result[0*4+1] = u.x;
-    result[1*4+1] = u.y;
-    result[2*4+1] = u.z;
-
-    result[0*4+2] =-f.x;
-    result[1*4+2] =-f.y;
-    result[2*4+2] =-f.z;
-
-	result[0*4+3] = 0.f;
-    result[1*4+3] = 0.f;
-    result[2*4+3] = 0.f;
-
-    result[3*4+0] = -s.dot(eye);
-    result[3*4+1] = -u.dot(eye);
-    result[3*4+2] = f.dot(eye);
-    result[3*4+3] = 1.f;
-}
-
-
 
 
 void GLInstancingRenderer::renderSceneInternal(int renderMode)
 {
+
+	if (!useShadowMap)
+	{
+		renderMode = B3_DEFAULT_RENDERMODE;
+	}
 
 //	glEnable(GL_DEPTH_TEST);
 
@@ -1547,10 +1917,13 @@ void GLInstancingRenderer::renderSceneInternal(int renderMode)
 	b3CreateOrtho(-shadowMapWorldSize,shadowMapWorldSize,-shadowMapWorldSize,shadowMapWorldSize,1,300,depthProjectionMatrix);//-14,14,-14,14,1,200, depthProjectionMatrix);
 	float depthViewMatrix[4][4];
 	b3Vector3 center = b3MakeVector3(0,0,0);
-	float upf[3];
-	m_data->m_activeCamera->getCameraUpVector(upf);
-	b3Vector3 up = b3MakeVector3(upf[0],upf[1],upf[2]);
-	b3CreateLookAt(gLightPos,center,up,&depthViewMatrix[0][0]);
+	//float upf[3];
+	//m_data->m_activeCamera->getCameraUpVector(upf);
+	b3Vector3 up, fwd;
+	b3Vector3 lightDir = m_data->m_lightPos.normalized();
+	b3PlaneSpace1(lightDir,up,fwd);
+//	b3Vector3 up = b3MakeVector3(upf[0],upf[1],upf[2]);
+	b3CreateLookAt(m_data->m_lightPos,center,up,&depthViewMatrix[0][0]);
 	//b3CreateLookAt(lightPos,m_data->m_cameraTargetPosition,b3Vector3(0,1,0),(float*)depthModelViewMatrix2);
 
 	GLfloat depthModelMatrix[4][4];
@@ -1720,7 +2093,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 							glUniformMatrix4fv(ProjectionMatrix, 1, false, &m_data->m_projectionMatrix[0]);
 							glUniformMatrix4fv(ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
 							
-							b3Vector3 gLightDir = gLightPos;
+							b3Vector3 gLightDir = m_data->m_lightPos;
 							gLightDir.normalize();
 							glUniform3f(regularLightDirIn,gLightDir[0],gLightDir[1],gLightDir[2]);
 
@@ -1757,7 +2130,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 							float MVP[16];
 							b3Matrix4x4Mul16(m_data->m_projectionMatrix,m_data->m_viewMatrix,MVP);
 							glUniformMatrix4fv(useShadow_MVP, 1, false, &MVP[0]);
-							b3Vector3 gLightDir = gLightPos;
+							b3Vector3 gLightDir = m_data->m_lightPos;
 							gLightDir.normalize();
 							glUniform3f(useShadow_lightDirIn,gLightDir[0],gLightDir[1],gLightDir[2]);
 							glUniformMatrix4fv(useShadow_DepthBiasModelViewMatrix, 1, false, &depthBiasMVP[0][0]);
@@ -1769,7 +2142,10 @@ b3Assert(glGetError() ==GL_NO_ERROR);
                             {
                                 glDisable (GL_BLEND);
                             }
-                            glActiveTexture(GL_TEXTURE0);
+							glActiveTexture(GL_TEXTURE1);
+							glBindTexture(GL_TEXTURE_2D,0);
+
+							glActiveTexture(GL_TEXTURE0);
 							glBindTexture(GL_TEXTURE_2D,0);
                             break;
 						}

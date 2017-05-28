@@ -11,8 +11,8 @@
 #include "../SharedMemory/PhysicsServerSharedMemory.h"
 #include "../SharedMemory/PhysicsClientC_API.h"
 #include <string>
+#include "../RobotSimulator/b3RobotSimulatorClientAPI.h"
 
-#include "b3RobotSimAPI.h"
 #include "../Utils/b3Clock.h"
 
 ///quick demo showing the right-handed coordinate system and positive rotations around each axis
@@ -20,7 +20,8 @@ class KukaGraspExample : public CommonExampleInterface
 {
     CommonGraphicsApp* m_app;
 	GUIHelperInterface* m_guiHelper;
-	b3RobotSimAPI m_robotSim;
+	b3RobotSimulatorClientAPI m_robotSim;
+
     int m_kukaIndex;
     
     IKTrajectoryHelper m_ikHelper;
@@ -30,7 +31,7 @@ class KukaGraspExample : public CommonExampleInterface
     b3Vector4 m_targetOri;
     b3Vector4 m_worldOri;
     double m_time;
-	int m_options;
+//	int m_options;
 	
 	b3AlignedObjectArray<int> m_movingInstances;
 	enum
@@ -40,10 +41,10 @@ class KukaGraspExample : public CommonExampleInterface
 	};
 public:
     
-    KukaGraspExample(GUIHelperInterface* helper, int options)
+    KukaGraspExample(GUIHelperInterface* helper, int /* options */)
     :m_app(helper->getAppInterface()),
 	m_guiHelper(helper),
-	m_options(options),
+//	m_options(options),
 	m_kukaIndex(-1),
     m_time(0)
     {
@@ -57,10 +58,7 @@ public:
     }
 
     
-    virtual void physicsDebugDraw(int debugDrawMode)
-    {
-        
-    }
+   
     virtual void    initPhysics()
     {
         
@@ -78,19 +76,18 @@ public:
         
         
         
-        
-		bool connected = m_robotSim.connect(m_guiHelper);
+        int mode = eCONNECT_EXISTING_EXAMPLE_BROWSER;
+		m_robotSim.setGuiHelper(m_guiHelper);
+		bool connected = m_robotSim.connect(mode);
+			
+//			0;//m_robotSim.connect(m_guiHelper);
 		b3Printf("robotSim connected = %d",connected);
 		
 		
         {
-            b3RobotSimLoadFileArgs args("");
-            args.m_fileName = "kuka_iiwa/model.urdf";
-            args.m_startPosition.setValue(0,0,0);
-            b3RobotSimLoadFileResults results;
-            if (m_robotSim.loadFile(args, results) && results.m_uniqueObjectIds.size()==1)
+			m_kukaIndex  = m_robotSim.loadURDF("kuka_iiwa/model.urdf");
+			if (m_kukaIndex >=0)
             {
-                m_kukaIndex = results.m_uniqueObjectIds[0];
                 int numJoints = m_robotSim.getNumJoints(m_kukaIndex);
                 b3Printf("numJoints = %d",numJoints);
 
@@ -112,24 +109,9 @@ public:
                 }
                  */
             }
-            
-			if (0)
-        	{
-				b3RobotSimLoadFileArgs args("");
-				args.m_fileName = "kiva_shelf/model.sdf";
-                args.m_forceOverrideFixedBase = true;
-				args.m_fileType = B3_SDF_FILE;
-                args.m_startOrientation = b3Quaternion(0,0,0,1);
-                b3RobotSimLoadFileResults results;
-                m_robotSim.loadFile(args,results);
-			}
+			
 			{
-				b3RobotSimLoadFileArgs args("");
-				args.m_fileName = "plane.urdf";
-				args.m_startPosition.setValue(0,0,0);
-				args.m_forceOverrideFixedBase = true;
-				b3RobotSimLoadFileResults results;
-				m_robotSim.loadFile(args,results);
+				m_robotSim.loadURDF("plane.urdf");
 				m_robotSim.setGravity(b3MakeVector3(0,0,0));
 			}
 	
@@ -148,6 +130,7 @@ public:
         m_time+=dt;
         m_targetPos.setValue(0.4-0.4*b3Cos( m_time), 0, 0.8+0.4*b3Cos( m_time));
         m_targetOri.setValue(0, 1.0, 0, 0);
+        m_targetPos.setValue(0.2*b3Cos( m_time), 0.2*b3Sin( m_time), 1.1);
         
         
         int numJoints = m_robotSim.getNumJoints(m_kukaIndex);
@@ -156,9 +139,7 @@ public:
         {
             double q_current[7]={0,0,0,0,0,0,0};
 
-            double world_position[3]={0,0,0};
-            double world_orientation[4]={0,0,0,0};
-            b3JointStates jointStates;
+            b3JointStates2 jointStates;
             
             if (m_robotSim.getJointStates(m_kukaIndex,jointStates))
             {
@@ -170,10 +151,13 @@ public:
                 }
             }
             // compute body position and orientation
-            m_robotSim.getLinkState(0, 6, world_position, world_orientation);
-            m_worldPos.setValue(world_position[0], world_position[1], world_position[2]);
-            m_worldOri.setValue(world_orientation[0], world_orientation[1], world_orientation[2], world_orientation[3]);
-            
+			b3LinkState linkState;
+            m_robotSim.getLinkState(0, 6, &linkState);
+			
+			m_worldPos.setValue(linkState.m_worldLinkFramePosition[0], linkState.m_worldLinkFramePosition[1], linkState.m_worldLinkFramePosition[2]);
+            m_worldOri.setValue(linkState.m_worldLinkFrameOrientation[0], linkState.m_worldLinkFrameOrientation[1], linkState.m_worldLinkFrameOrientation[2], linkState.m_worldLinkFrameOrientation[3]);
+
+
             b3Vector3DoubleData targetPosDataOut;
             m_targetPos.serializeDouble(targetPosDataOut);
             b3Vector3DoubleData worldPosDataOut;
@@ -184,8 +168,8 @@ public:
             m_worldOri.serializeDouble(worldOriDataOut);
 
             
-			b3RobotSimInverseKinematicArgs ikargs;
-			b3RobotSimInverseKinematicsResults ikresults;
+			b3RobotSimulatorInverseKinematicArgs ikargs;
+			b3RobotSimulatorInverseKinematicsResults ikresults;
 			
          
 			ikargs.m_bodyUniqueId = m_kukaIndex;
@@ -195,7 +179,8 @@ public:
             ikargs.m_endEffectorTargetPosition[1] = targetPosDataOut.m_floats[1];
             ikargs.m_endEffectorTargetPosition[2] = targetPosDataOut.m_floats[2];
 			
-			ikargs.m_flags |= /*B3_HAS_IK_TARGET_ORIENTATION +*/ B3_HAS_NULL_SPACE_VELOCITY;
+			//ikargs.m_flags |= B3_HAS_IK_TARGET_ORIENTATION;
+            ikargs.m_flags |= B3_HAS_JOINT_DAMPING;
 
 			ikargs.m_endEffectorTargetOrientation[0] = targetOriDataOut.m_floats[0];
 			ikargs.m_endEffectorTargetOrientation[1] = targetOriDataOut.m_floats[1];
@@ -208,6 +193,7 @@ public:
             ikargs.m_upperLimits.resize(numJoints);
             ikargs.m_jointRanges.resize(numJoints);
             ikargs.m_restPoses.resize(numJoints);
+            ikargs.m_jointDamping.resize(numJoints,0.5);
             ikargs.m_lowerLimits[0] = -2.32;
             ikargs.m_lowerLimits[1] = -1.6;
             ikargs.m_lowerLimits[2] = -2.32;
@@ -236,6 +222,7 @@ public:
             ikargs.m_restPoses[4] = 0;
             ikargs.m_restPoses[5] = -SIMD_HALF_PI*0.66;
             ikargs.m_restPoses[6] = 0;
+            ikargs.m_jointDamping[0] = 10.0;
             ikargs.m_numDegreeOfFreedom = numJoints;
             
 			if (m_robotSim.calculateInverseKinematics(ikargs,ikresults))
@@ -243,7 +230,7 @@ public:
                 //copy the IK result to the desired state of the motor/actuator
                 for (int i=0;i<numJoints;i++)
                 {
-                    b3JointMotorArgs t(CONTROL_MODE_POSITION_VELOCITY_PD);
+                    b3RobotSimulatorJointMotorArgs t(CONTROL_MODE_POSITION_VELOCITY_PD);
                     t.m_targetPosition = ikresults.m_calculatedJointPositions[i];
                     t.m_maxTorqueValue = 100.0;
                     t.m_kp= 1.0;
@@ -253,6 +240,7 @@ public:
 
                 }
             }
+		
         }
         
         
@@ -275,9 +263,9 @@ public:
     }
 
 	
-    virtual void	physicsDebugDraw()
+    virtual void	physicsDebugDraw(int debugDrawMode)
     {
-      	
+      	m_robotSim.debugDraw(debugDrawMode);
     }
     virtual bool	mouseMoveCallback(float x,float y)
     {

@@ -13,8 +13,13 @@ struct PrimInternalData
     GLint m_positionAttribute;
     GLint m_textureAttribute;
     GLuint m_vertexBuffer;
-    GLuint m_vertexArrayObject;
+	GLuint m_vertexBuffer2;
+
+	GLuint m_vertexArrayObject;
+	GLuint m_vertexArrayObject2;
+
     GLuint  m_indexBuffer;
+    GLuint  m_indexBuffer2;
     GLuint m_texturehandle;
 };
 

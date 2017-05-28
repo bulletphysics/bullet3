@@ -24,7 +24,7 @@ idScalar calculateNorm(T&);
 // only implemented for vec3
 template <>
 idScalar calculateNorm(vec3& v) {
-    return std::sqrt(BT_ID_POW(v(0), 2) + BT_ID_POW(v(1), 2) + BT_ID_POW(v(2), 2));
+    return BT_ID_SQRT(BT_ID_POW(v(0), 2) + BT_ID_POW(v(1), 2) + BT_ID_POW(v(2), 2));
 }
 
 // template function to convert a DiffType (finite differences)
@@ -340,7 +340,8 @@ TEST(InvDynKinematicsDifferentiation, errorOrder) {
                                   &max_linear_acceleration_error[1],
                                   &max_angular_acceleration_error[1]);
 
-    const idScalar expected_linear_velocity_error_1 =
+/*
+	const idScalar expected_linear_velocity_error_1 =
         max_linear_velocity_error[0] * pow(kDeltaTs[1] / kDeltaTs[0], 2);
     const idScalar expected_angular_velocity_error_1 =
         max_angular_velocity_error[0] * pow(kDeltaTs[1] / kDeltaTs[0], 2);
@@ -349,7 +350,7 @@ TEST(InvDynKinematicsDifferentiation, errorOrder) {
     const idScalar expected_angular_acceleration_error_1 =
         max_angular_acceleration_error[0] * pow(kDeltaTs[1] / kDeltaTs[0], 2);
 
-/*    printf("linear vel error: %e %e  %e\n", max_linear_velocity_error[1],
+    printf("linear vel error: %e %e  %e\n", max_linear_velocity_error[1],
            expected_linear_velocity_error_1,
            max_linear_velocity_error[1] - expected_linear_velocity_error_1);
     printf("angular vel error: %e %e  %e\n", max_angular_velocity_error[1],

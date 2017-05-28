@@ -14,6 +14,8 @@
 #include "../CommonInterfaces/CommonMultiBodyBase.h"
 
 #include "../ImportURDFDemo/MyMultiBodyCreator.h"
+#include "BulletMJCFImporter.h"
+#include "../ImportURDFDemo/URDF2Bullet.h"
 
 class ImportMJCFSetup : public CommonMultiBodyBase
 {
@@ -49,6 +51,8 @@ static btAlignedObjectArray<std::string> gMCFJFileNameArray;
 
 #define MAX_NUM_MOTORS 1024
 
+
+
 struct ImportMJCFInternalData
 {
     ImportMJCFInternalData()
@@ -63,7 +67,7 @@ struct ImportMJCFInternalData
     }
 
     
-    btScalar m_motorTargetVelocities[MAX_NUM_MOTORS];
+    btScalar m_motorTargetPositions[MAX_NUM_MOTORS];
     btMultiBodyJointMotor* m_jointMotors [MAX_NUM_MOTORS];
 	btGeneric6DofSpring2Constraint* m_generic6DofJointMotors [MAX_NUM_MOTORS];
     int m_numMotors;
@@ -75,19 +79,13 @@ struct ImportMJCFInternalData
 
 ImportMJCFSetup::ImportMJCFSetup(struct GUIHelperInterface* helper, int option, const char* fileName)
 	:CommonMultiBodyBase(helper),
-	m_grav(0),
+	m_grav(-10),
 	m_upAxis(2)
 {
 	m_data = new ImportMJCFInternalData;
 
-	if (option==1)
-	{
-		m_useMultiBody = true;
-	} else
-	{
-		m_useMultiBody = false;
-	}
-
+	m_useMultiBody = true;
+	
 	static int count = 0;
 	if (fileName)
 	{
@@ -121,8 +119,26 @@ ImportMJCFSetup::ImportMJCFSetup(struct GUIHelperInterface* helper, int option, 
 		
 		if (gMCFJFileNameArray.size()==0)
 		{
-			gMCFJFileNameArray.push_back("quadruped/quadruped.mjcf");
+			gMCFJFileNameArray.push_back("MPL/MPL.xml");
 
+			gMCFJFileNameArray.push_back("mjcf/humanoid.xml");
+			gMCFJFileNameArray.push_back("mjcf/inverted_pendulum.xml");
+			gMCFJFileNameArray.push_back("mjcf/ant.xml");
+			gMCFJFileNameArray.push_back("mjcf/hello_mjcf.xml");
+	
+			gMCFJFileNameArray.push_back("mjcf/cylinder.xml");
+			gMCFJFileNameArray.push_back("mjcf/cylinder_fromtoX.xml");
+			gMCFJFileNameArray.push_back("mjcf/cylinder_fromtoY.xml");
+			gMCFJFileNameArray.push_back("mjcf/cylinder_fromtoZ.xml");
+
+			gMCFJFileNameArray.push_back("mjcf/capsule.xml");
+			gMCFJFileNameArray.push_back("mjcf/capsule_fromtoX.xml");
+			gMCFJFileNameArray.push_back("mjcf/capsule_fromtoY.xml");
+			gMCFJFileNameArray.push_back("mjcf/capsule_fromtoZ.xml");
+	
+			gMCFJFileNameArray.push_back("mjcf/hopper.xml");
+			gMCFJFileNameArray.push_back("mjcf/swimmer.xml");
+			gMCFJFileNameArray.push_back("mjcf/reacher.xml");
 		}
 
 		int numFileNames = gMCFJFileNameArray.size();
@@ -145,24 +161,7 @@ ImportMJCFSetup::~ImportMJCFSetup()
     delete m_data;
 }
 
-static btVector4 colors[4] =
-{
-	btVector4(1,0,0,1),
-	btVector4(0,1,0,1),
-	btVector4(0,1,1,1),
-	btVector4(1,1,0,1),
-};
 
-
-static btVector3 selectColor()
-{
-
-	static int curColor = 0;
-	btVector4 color = colors[curColor];
-	curColor++;
-	curColor&=3;
-	return color;
-}
 
 void ImportMJCFSetup::setFileName(const char* mjcfFileName)
 {
@@ -170,6 +169,21 @@ void ImportMJCFSetup::setFileName(const char* mjcfFileName)
 }
 
 
+struct MyMJCFLogger : public MJCFErrorLogger
+{
+	virtual void reportError(const char* error)
+	{
+		b3Error(error);
+	}
+	virtual void reportWarning(const char* warning)
+	{
+		b3Warning(warning);
+	}
+	virtual void printMessage(const char* msg)
+	{
+		b3Printf(msg);
+	}
+};
 
 
 void ImportMJCFSetup::initPhysics()
@@ -178,14 +192,19 @@ void ImportMJCFSetup::initPhysics()
 	
 	m_guiHelper->setUpAxis(m_upAxis);
 	
-	this->createEmptyDynamicsWorld();
+	createEmptyDynamicsWorld();
+	
+	//MuJoCo uses a slightly different collision filter mode, use the FILTER_GROUPAMASKB_OR_GROUPBMASKA2
+	//@todo also use the modified collision filter for raycast and other collision related queries
+	m_filterCallback->m_filterMode = FILTER_GROUPAMASKB_OR_GROUPBMASKA2;
+	
 	//m_dynamicsWorld->getSolverInfo().m_numIterations = 100;
-    m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
-    m_dynamicsWorld->getDebugDrawer()->setDebugMode(
-    btIDebugDraw::DBG_DrawConstraints
-    +btIDebugDraw::DBG_DrawContactPoints
-    +btIDebugDraw::DBG_DrawAabb
-        );//+btIDebugDraw::DBG_DrawConstraintLimits);
+	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
+	m_dynamicsWorld->getDebugDrawer()->setDebugMode(
+		btIDebugDraw::DBG_DrawConstraints
+		+btIDebugDraw::DBG_DrawContactPoints
+		+btIDebugDraw::DBG_DrawAabb
+	);//+btIDebugDraw::DBG_DrawConstraintLimits);
 
 
 	if (m_guiHelper->getParameterInterface())
@@ -195,8 +214,138 @@ void ImportMJCFSetup::initPhysics()
 		slider.m_maxVal = 10;
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 	}
-	
 
+	BulletMJCFImporter importer(m_guiHelper, 0);
+	MyMJCFLogger logger;
+	bool result = importer.loadMJCF(m_fileName,&logger);
+	if (result)
+	{
+		btTransform rootTrans;
+		rootTrans.setIdentity();
+
+		for (int m =0; m<importer.getNumModels();m++)
+		{
+			importer.activateModel(m);
+
+			// normally used with PhysicsServerCommandProcessor that allocates unique ids to multibodies,
+			// emulate this behavior here:
+			importer.setBodyUniqueId(m);
+
+			btMultiBody* mb = 0;
+
+
+			//todo: move these internal API called inside the 'ConvertURDF2Bullet' call, hidden from the user
+			//int rootLinkIndex = importer.getRootLinkIndex();
+			//b3Printf("urdf root link index = %d\n",rootLinkIndex);
+			MyMultiBodyCreator creation(m_guiHelper);
+
+			rootTrans.setIdentity();
+			importer.getRootTransformInWorld(rootTrans);
+
+			ConvertURDF2Bullet(importer,creation, rootTrans,m_dynamicsWorld,m_useMultiBody,importer.getPathPrefix(),CUF_USE_MJCF);
+
+			mb = creation.getBulletMultiBody();
+			if (mb)
+			{
+				std::string* name =
+				new std::string(importer.getLinkName(
+					importer.getRootLinkIndex()));
+					m_nameMemory.push_back(name);
+#ifdef TEST_MULTIBODY_SERIALIZATION
+				s->registerNameForPointer(name->c_str(),name->c_str());
+#endif//TEST_MULTIBODY_SERIALIZATION
+				mb->setBaseName(name->c_str());
+				//create motors for each btMultiBody joint
+				int numLinks = mb->getNumLinks();
+				for (int i=0;i<numLinks;i++)
+				{
+					int mbLinkIndex = i;
+					int urdfLinkIndex = creation.m_mb2urdfLink[mbLinkIndex];
+
+					std::string* jointName = new std::string(importer.getJointName(urdfLinkIndex));
+					std::string* linkName = new std::string(importer.getLinkName(urdfLinkIndex).c_str());
+#ifdef TEST_MULTIBODY_SERIALIZATION					
+					s->registerNameForPointer(jointName->c_str(),jointName->c_str());
+					s->registerNameForPointer(linkName->c_str(),linkName->c_str());
+#endif//TEST_MULTIBODY_SERIALIZATION
+					m_nameMemory.push_back(jointName);
+					m_nameMemory.push_back(linkName);
+
+					mb->getLink(i).m_linkName = linkName->c_str();
+					mb->getLink(i).m_jointName = jointName->c_str();
+							
+					if (mb->getLink(mbLinkIndex).m_jointType==btMultibodyLink::eRevolute
+					    ||mb->getLink(mbLinkIndex).m_jointType==btMultibodyLink::ePrismatic
+					)
+					{
+						if (m_data->m_numMotors<MAX_NUM_MOTORS)
+						{
+							
+							char motorName[1024];
+							sprintf(motorName,"%s q ", jointName->c_str());
+							btScalar* motorPos = &m_data->m_motorTargetPositions[m_data->m_numMotors];
+							*motorPos = 0.f;
+							SliderParams slider(motorName,motorPos);
+							slider.m_minVal=-4;
+							slider.m_maxVal=4;
+							slider.m_clampToIntegers = false;
+							slider.m_clampToNotches = false;
+							m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+							float maxMotorImpulse = 5.f;
+							btMultiBodyJointMotor* motor = new btMultiBodyJointMotor(mb,mbLinkIndex,0,0,maxMotorImpulse);
+							motor->setErp(0.1);
+							//motor->setMaxAppliedImpulse(0);
+							m_data->m_jointMotors[m_data->m_numMotors]=motor;
+							m_dynamicsWorld->addMultiBodyConstraint(motor);
+							m_data->m_numMotors++;
+						}
+					}
+				}
+
+			} else
+			{
+				// not multibody
+				if (1)
+				{
+					//create motors for each generic joint
+					int num6Dof = creation.getNum6DofConstraints();
+					for (int i=0;i<num6Dof;i++)
+					{
+						btGeneric6DofSpring2Constraint* c = creation.get6DofConstraint(i);
+						if (c->getUserConstraintPtr())
+						{
+							GenericConstraintUserInfo* jointInfo = (GenericConstraintUserInfo*)c->getUserConstraintPtr();
+							if ((jointInfo->m_urdfJointType ==URDFRevoluteJoint) || 
+								(jointInfo->m_urdfJointType ==URDFPrismaticJoint) ||
+								(jointInfo->m_urdfJointType ==URDFContinuousJoint))
+							{
+								int urdfLinkIndex = jointInfo->m_urdfIndex;
+								std::string jointName = importer.getJointName(urdfLinkIndex);
+								char motorName[1024];
+								sprintf(motorName,"%s q'", jointName.c_str());
+								btScalar* motorVel = &m_data->m_motorTargetPositions[m_data->m_numMotors];
+
+								*motorVel = 0.f;
+								SliderParams slider(motorName,motorVel);
+								slider.m_minVal=-4;
+								slider.m_maxVal=4;
+								m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+								m_data->m_generic6DofJointMotors[m_data->m_numMotors]=c;
+								bool motorOn = true;
+								c->enableMotor(jointInfo->m_jointAxisIndex,motorOn);
+								c->setMaxMotorForce(jointInfo->m_jointAxisIndex,10000);
+								c->setTargetVelocity(jointInfo->m_jointAxisIndex,0);
+								
+								m_data->m_numMotors++;
+							}
+						}
+					}
+				}
+			
+			}
+		}
+		m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
+	}
 		
 }
 
@@ -206,7 +355,7 @@ void ImportMJCFSetup::stepSimulation(float deltaTime)
 {
 	if (m_dynamicsWorld)
 	{
-		btVector3 gravity(0, 0, 0);
+		btVector3 gravity(0, 0, -10);
 		gravity[m_upAxis] = m_grav;
 		m_dynamicsWorld->setGravity(gravity);
 
@@ -214,13 +363,12 @@ void ImportMJCFSetup::stepSimulation(float deltaTime)
         {
 			if (m_data->m_jointMotors[i])
 			{
-				m_data->m_jointMotors[i]->setVelocityTarget(m_data->m_motorTargetVelocities[i]);
+				m_data->m_jointMotors[i]->setPositionTarget(m_data->m_motorTargetPositions[i]);
 			}
 			if (m_data->m_generic6DofJointMotors[i])
 			{
 				GenericConstraintUserInfo* jointInfo = (GenericConstraintUserInfo*)m_data->m_generic6DofJointMotors[i]->getUserConstraintPtr();
-				m_data->m_generic6DofJointMotors[i]->setTargetVelocity(jointInfo->m_jointAxisIndex,m_data->m_motorTargetVelocities[i]);
-				//jointInfo->
+				m_data->m_generic6DofJointMotors[i]->setTargetVelocity(jointInfo->m_jointAxisIndex,m_data->m_motorTargetPositions[i]);
 			}
         }
 

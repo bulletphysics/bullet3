@@ -180,7 +180,7 @@ B3_STATIC void b3MprConvexSupport(int pairIndex,int bodyIndex,  b3ConstArray(b3R
 	{
 
 
-		b3Float4 supVec = b3MakeFloat4(0,0,0,0);
+	//	b3Float4 supVec = b3MakeFloat4(0,0,0,0);
 		float maxDot = -B3_LARGE_FLOAT;
 
 		if( 0 < hull->m_numVertices )

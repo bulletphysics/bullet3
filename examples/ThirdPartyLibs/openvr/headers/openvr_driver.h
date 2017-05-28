@@ -21,19 +21,13 @@ struct VkPhysicalDevice_T;
 struct VkInstance_T;
 struct VkQueue_T;
 
+// Forward declarations to avoid requiring d3d12.h
+struct ID3D12Resource;
+struct ID3D12CommandQueue;
+
 namespace vr
 {
-
-#if defined(__linux__) || defined(__APPLE__) 
-	// The 32-bit version of gcc has the alignment requirement for uint64 and double set to
-	// 4 meaning that even with #pragma pack(8) these types will only be four-byte aligned.
-	// The 64-bit version of gcc has the alignment requirement for these types set to
-	// 8 meaning that unless we use #pragma pack(4) our structures will get bigger.
-	// The 64-bit structure packing has to match the 32-bit structure packing for each platform.
-	#pragma pack( push, 4 )
-#else
-	#pragma pack( push, 8 )
-#endif
+#pragma pack( push, 8 )
 
 typedef void* glSharedTextureHandle_t;
 typedef int32_t glInt_t;
@@ -111,10 +105,13 @@ enum EVREye
 	Eye_Right = 1
 };
 
-enum EGraphicsAPIConvention
+enum ETextureType
 {
-	API_DirectX = 0, // Normalized Z goes from 0 at the viewer to 1 at the far clip plane
-	API_OpenGL = 1,  // Normalized Z goes from 1 at the viewer to -1 at the far clip plane
+	TextureType_DirectX = 0, // Handle is an ID3D11Texture
+	TextureType_OpenGL = 1,  // Handle is an OpenGL texture name or an OpenGL render buffer name, depending on submit flags
+	TextureType_Vulkan = 2, // Handle is a pointer to a VRVulkanTextureData_t structure
+	TextureType_IOSurface = 3, // Handle is a macOS cross-process-sharable IOSurfaceRef
+	TextureType_DirectX12 = 4, // Handle is a pointer to a D3D12TextureData_t structure
 };
 
 enum EColorSpace
@@ -126,8 +123,8 @@ enum EColorSpace
 
 struct Texture_t
 {
-	void* handle; // Native d3d texture pointer or GL texture id.
-	EGraphicsAPIConvention eType;
+	void* handle; // See ETextureType definition above
+	ETextureType eType;
 	EColorSpace eColorSpace;
 };
 
@@ -161,11 +158,9 @@ enum ETrackedDeviceClass
 	TrackedDeviceClass_Invalid = 0,				// the ID was not valid.
 	TrackedDeviceClass_HMD = 1,					// Head-Mounted Displays
 	TrackedDeviceClass_Controller = 2,			// Tracked controllers
+	TrackedDeviceClass_GenericTracker = 3,		// Generic trackers, similar to controllers
 	TrackedDeviceClass_TrackingReference = 4,	// Camera and base stations that serve as tracking reference points
-
-	TrackedDeviceClass_Count,					// This isn't a class that will ever be returned. It is used for allocating arrays and such
-
-	TrackedDeviceClass_Other = 1000,
+	TrackedDeviceClass_DisplayRedirect = 5,		// Accessories that aren't necessarily tracked themselves, but may redirect video output from other tracked devices
 };
 
 
@@ -198,14 +193,40 @@ enum ETrackingUniverseOrigin
 {
 	TrackingUniverseSeated = 0,		// Poses are provided relative to the seated zero pose
 	TrackingUniverseStanding = 1,	// Poses are provided relative to the safe bounds configured by the user
-	TrackingUniverseRawAndUncalibrated = 2,	// Poses are provided in the coordinate system defined by the driver. You probably don't want this one.
+	TrackingUniverseRawAndUncalibrated = 2,	// Poses are provided in the coordinate system defined by the driver.  It has Y up and is unified for devices of the same driver. You usually don't want this one.
 };
+
+// Refers to a single container of properties
+typedef uint64_t PropertyContainerHandle_t;
+typedef uint32_t PropertyTypeTag_t;
+
+static const PropertyContainerHandle_t k_ulInvalidPropertyContainer = 0;
+static const PropertyTypeTag_t k_unInvalidPropertyTag = 0;
+
+// Use these tags to set/get common types as struct properties
+static const PropertyTypeTag_t k_unFloatPropertyTag = 1;
+static const PropertyTypeTag_t k_unInt32PropertyTag = 2;
+static const PropertyTypeTag_t k_unUint64PropertyTag = 3;
+static const PropertyTypeTag_t k_unBoolPropertyTag = 4;
+static const PropertyTypeTag_t k_unStringPropertyTag = 5;
+
+static const PropertyTypeTag_t k_unHmdMatrix34PropertyTag = 20;
+static const PropertyTypeTag_t k_unHmdMatrix44PropertyTag = 21;
+static const PropertyTypeTag_t k_unHmdVector3PropertyTag = 22;
+static const PropertyTypeTag_t k_unHmdVector4PropertyTag = 23;
+
+static const PropertyTypeTag_t k_unHiddenAreaPropertyTag = 30;
+
+static const PropertyTypeTag_t k_unOpenVRInternalReserved_Start = 1000;
+static const PropertyTypeTag_t k_unOpenVRInternalReserved_End = 10000;
 
 
 /** Each entry in this enum represents a property that can be retrieved about a
 * tracked device. Many fields are only valid for one ETrackedDeviceClass. */
 enum ETrackedDeviceProperty
 {
+	Prop_Invalid								= 0,
+
 	// general properties that apply to all device classes
 	Prop_TrackingSystemName_String				= 1000,
 	Prop_ModelNumber_String						= 1001,
@@ -241,6 +262,8 @@ enum ETrackedDeviceProperty
 	Prop_DriverVersion_String                   = 1031,
 	Prop_Firmware_ForceUpdateRequired_Bool      = 1032,
 	Prop_ViveSystemButtonFixRequired_Bool		= 1033,
+	Prop_ParentDriver_Uint64					= 1034,
+	Prop_ResourceRoot_String					= 1035,
 
 	// Properties that are unique to TrackedDeviceClass_HMD
 	Prop_ReportsTimeSinceVSync_Bool				= 2000,
@@ -281,6 +304,11 @@ enum ETrackedDeviceProperty
 	Prop_ScreenshotVerticalFieldOfViewDegrees_Float = 2035,
 	Prop_DisplaySuppressed_Bool					= 2036,
 	Prop_DisplayAllowNightMode_Bool				= 2037,
+	Prop_DisplayMCImageWidth_Int32				= 2038,
+	Prop_DisplayMCImageHeight_Int32				= 2039,
+	Prop_DisplayMCImageNumChannels_Int32		= 2040,
+	Prop_DisplayMCImageData_Binary				= 2041,
+	Prop_SecondsFromPhotonsToVblank_Float		= 2042,
 
 	// Properties that are unique to TrackedDeviceClass_Controller
 	Prop_AttachedDeviceId_String				= 3000,
@@ -312,6 +340,19 @@ enum ETrackedDeviceProperty
 	Prop_NamedIconPathDeviceStandby_String			= 5007, // PNG for static icon, or GIF for animation, 50x32 for headsets and 32x32 for others
 	Prop_NamedIconPathDeviceAlertLow_String			= 5008, // PNG for static icon, or GIF for animation, 50x32 for headsets and 32x32 for others
 
+	// Properties that are used by helpers, but are opaque to applications
+	Prop_DisplayHiddenArea_Binary_Start				= 5100,
+	Prop_DisplayHiddenArea_Binary_End				= 5150,
+
+	// Properties that are unique to drivers
+	Prop_UserConfigPath_String					= 6000,
+	Prop_InstallPath_String						= 6001,
+	Prop_HasDisplayComponent_Bool				= 6002,
+	Prop_HasControllerComponent_Bool			= 6003,
+	Prop_HasCameraComponent_Bool				= 6004,
+	Prop_HasDriverDirectModeComponent_Bool		= 6005,
+	Prop_HasVirtualDisplayComponent_Bool		= 6006,
+
 	// Vendors are free to expose private debug data in this reserved region
 	Prop_VendorSpecific_Reserved_Start			= 10000,
 	Prop_VendorSpecific_Reserved_End			= 10999,
@@ -327,12 +368,14 @@ enum ETrackedPropertyError
 	TrackedProp_WrongDataType				= 1,
 	TrackedProp_WrongDeviceClass			= 2,
 	TrackedProp_BufferTooSmall				= 3,
-	TrackedProp_UnknownProperty				= 4,
+	TrackedProp_UnknownProperty				= 4, // Driver has not set the property (and may not ever).
 	TrackedProp_InvalidDevice				= 5,
 	TrackedProp_CouldNotContactServer		= 6,
 	TrackedProp_ValueNotProvidedByDevice	= 7,
 	TrackedProp_StringExceedsMaximumLength	= 8,
 	TrackedProp_NotYetAvailable				= 9, // The property value isn't known yet, but is expected soon. Call again later.
+	TrackedProp_PermissionDenied			= 10,
+	TrackedProp_InvalidOperation			= 11,
 };
 
 /** Allows the application to control what part of the provided texture will be used in the
@@ -358,13 +401,13 @@ enum EVRSubmitFlags
 	// If the texture pointer passed in is actually a renderbuffer (e.g. for MSAA in OpenGL) then set this flag.
 	Submit_GlRenderBuffer = 0x02,
 
-	// Handle is pointer to VulkanData_t
-	Submit_VulkanTexture = 0x04,
+	// Do not use
+	Submit_Reserved = 0x04,
 };
 
 /** Data required for passing Vulkan textures to IVRCompositor::Submit.
 * Be sure to call OpenVR_Shutdown before destroying these resources. */
-struct VulkanData_t
+struct VRVulkanTextureData_t
 {
 	uint64_t m_nImage; // VkImage
 	VkDevice_T *m_pDevice;
@@ -375,6 +418,14 @@ struct VulkanData_t
 	uint32_t m_nWidth, m_nHeight, m_nFormat, m_nSampleCount;
 };
 
+/** Data required for passing D3D12 textures to IVRCompositor::Submit.
+* Be sure to call OpenVR_Shutdown before destroying these resources. */
+struct D3D12TextureData_t
+{
+	ID3D12Resource *m_pResource;
+	ID3D12CommandQueue *m_pCommandQueue;
+	uint32_t m_nNodeMask;
+};
 
 /** Status of the overall system or tracked objects */
 enum EVRState
@@ -398,7 +449,7 @@ enum EVREventType
 	VREvent_TrackedDeviceActivated		= 100,
 	VREvent_TrackedDeviceDeactivated	= 101,
 	VREvent_TrackedDeviceUpdated		= 102,
-	VREvent_TrackedDeviceUserInteractionStarted		= 103,
+	VREvent_TrackedDeviceUserInteractionStarted	= 103,
 	VREvent_TrackedDeviceUserInteractionEnded	= 104,
 	VREvent_IpdChanged					= 105,
 	VREvent_EnterStandbyMode			= 106,
@@ -406,6 +457,7 @@ enum EVREventType
 	VREvent_TrackedDeviceRoleChanged	= 108,
 	VREvent_WatchdogWakeUpRequested		= 109,
 	VREvent_LensDistortionChanged		= 110,
+	VREvent_PropertyChanged				= 111,
 
 	VREvent_ButtonPress					= 200, // data is controller
 	VREvent_ButtonUnpress				= 201, // data is controller
@@ -435,78 +487,83 @@ enum EVREventType
 
 	VREvent_OverlayShown				= 500,
 	VREvent_OverlayHidden				= 501,
-	VREvent_DashboardActivated		= 502,
-	VREvent_DashboardDeactivated	= 503,
-	VREvent_DashboardThumbSelected	= 504, // Sent to the overlay manager - data is overlay
-	VREvent_DashboardRequested		= 505, // Sent to the overlay manager - data is overlay
-	VREvent_ResetDashboard			= 506, // Send to the overlay manager
-	VREvent_RenderToast				= 507, // Send to the dashboard to render a toast - data is the notification ID
-	VREvent_ImageLoaded				= 508, // Sent to overlays when a SetOverlayRaw or SetOverlayFromFile call finishes loading
-	VREvent_ShowKeyboard = 509, // Sent to keyboard renderer in the dashboard to invoke it
-	VREvent_HideKeyboard = 510, // Sent to keyboard renderer in the dashboard to hide it
-	VREvent_OverlayGamepadFocusGained		= 511, // Sent to an overlay when IVROverlay::SetFocusOverlay is called on it
-	VREvent_OverlayGamepadFocusLost = 512, // Send to an overlay when it previously had focus and IVROverlay::SetFocusOverlay is called on something else
+	VREvent_DashboardActivated			= 502,
+	VREvent_DashboardDeactivated		= 503,
+	VREvent_DashboardThumbSelected		= 504, // Sent to the overlay manager - data is overlay
+	VREvent_DashboardRequested			= 505, // Sent to the overlay manager - data is overlay
+	VREvent_ResetDashboard				= 506, // Send to the overlay manager
+	VREvent_RenderToast					= 507, // Send to the dashboard to render a toast - data is the notification ID
+	VREvent_ImageLoaded					= 508, // Sent to overlays when a SetOverlayRaw or SetOverlayFromFile call finishes loading
+	VREvent_ShowKeyboard				= 509, // Sent to keyboard renderer in the dashboard to invoke it
+	VREvent_HideKeyboard				= 510, // Sent to keyboard renderer in the dashboard to hide it
+	VREvent_OverlayGamepadFocusGained	= 511, // Sent to an overlay when IVROverlay::SetFocusOverlay is called on it
+	VREvent_OverlayGamepadFocusLost		= 512, // Send to an overlay when it previously had focus and IVROverlay::SetFocusOverlay is called on something else
 	VREvent_OverlaySharedTextureChanged = 513,
-	VREvent_DashboardGuideButtonDown = 514,
-	VREvent_DashboardGuideButtonUp = 515,
-	VREvent_ScreenshotTriggered	= 516, // Screenshot button combo was pressed, Dashboard should request a screenshot
-	VREvent_ImageFailed				= 517, // Sent to overlays when a SetOverlayRaw or SetOverlayfromFail fails to load
-	VREvent_DashboardOverlayCreated = 518,
+	VREvent_DashboardGuideButtonDown	= 514,
+	VREvent_DashboardGuideButtonUp		= 515,
+	VREvent_ScreenshotTriggered			= 516, // Screenshot button combo was pressed, Dashboard should request a screenshot
+	VREvent_ImageFailed					= 517, // Sent to overlays when a SetOverlayRaw or SetOverlayfromFail fails to load
+	VREvent_DashboardOverlayCreated		= 518,
 
 	// Screenshot API
-	VREvent_RequestScreenshot = 520, // Sent by vrclient application to compositor to take a screenshot
-	VREvent_ScreenshotTaken = 521, // Sent by compositor to the application that the screenshot has been taken
-	VREvent_ScreenshotFailed = 522, // Sent by compositor to the application that the screenshot failed to be taken
-	VREvent_SubmitScreenshotToDashboard = 523, // Sent by compositor to the dashboard that a completed screenshot was submitted
-	VREvent_ScreenshotProgressToDashboard = 524, // Sent by compositor to the dashboard that a completed screenshot was submitted
+	VREvent_RequestScreenshot				= 520, // Sent by vrclient application to compositor to take a screenshot
+	VREvent_ScreenshotTaken					= 521, // Sent by compositor to the application that the screenshot has been taken
+	VREvent_ScreenshotFailed				= 522, // Sent by compositor to the application that the screenshot failed to be taken
+	VREvent_SubmitScreenshotToDashboard		= 523, // Sent by compositor to the dashboard that a completed screenshot was submitted
+	VREvent_ScreenshotProgressToDashboard	= 524, // Sent by compositor to the dashboard that a completed screenshot was submitted
+
+	VREvent_PrimaryDashboardDeviceChanged	= 525,
 
 	VREvent_Notification_Shown				= 600,
 	VREvent_Notification_Hidden				= 601,
 	VREvent_Notification_BeginInteraction	= 602,
 	VREvent_Notification_Destroyed			= 603,
 
-	VREvent_Quit						= 700, // data is process
-	VREvent_ProcessQuit					= 701, // data is process
-	VREvent_QuitAborted_UserPrompt		= 702, // data is process
-	VREvent_QuitAcknowledged			= 703, // data is process
-	VREvent_DriverRequestedQuit			= 704, // The driver has requested that SteamVR shut down
+	VREvent_Quit							= 700, // data is process
+	VREvent_ProcessQuit						= 701, // data is process
+	VREvent_QuitAborted_UserPrompt			= 702, // data is process
+	VREvent_QuitAcknowledged				= 703, // data is process
+	VREvent_DriverRequestedQuit				= 704, // The driver has requested that SteamVR shut down
 
-	VREvent_ChaperoneDataHasChanged		= 800,
-	VREvent_ChaperoneUniverseHasChanged	= 801,
-	VREvent_ChaperoneTempDataHasChanged = 802,
-	VREvent_ChaperoneSettingsHaveChanged = 803,
-	VREvent_SeatedZeroPoseReset			= 804,
+	VREvent_ChaperoneDataHasChanged			= 800,
+	VREvent_ChaperoneUniverseHasChanged		= 801,
+	VREvent_ChaperoneTempDataHasChanged		= 802,
+	VREvent_ChaperoneSettingsHaveChanged	= 803,
+	VREvent_SeatedZeroPoseReset				= 804,
 
-	VREvent_AudioSettingsHaveChanged	= 820,
+	VREvent_AudioSettingsHaveChanged		= 820,
 
-	VREvent_BackgroundSettingHasChanged	= 850,
-	VREvent_CameraSettingsHaveChanged	= 851,
-	VREvent_ReprojectionSettingHasChanged = 852,
-	VREvent_ModelSkinSettingsHaveChanged = 853,
-	VREvent_EnvironmentSettingsHaveChanged = 854,
-	VREvent_PowerSettingsHaveChanged = 855,
+	VREvent_BackgroundSettingHasChanged		= 850,
+	VREvent_CameraSettingsHaveChanged		= 851,
+	VREvent_ReprojectionSettingHasChanged	= 852,
+	VREvent_ModelSkinSettingsHaveChanged	= 853,
+	VREvent_EnvironmentSettingsHaveChanged	= 854,
+	VREvent_PowerSettingsHaveChanged		= 855,
 
-	VREvent_StatusUpdate				= 900,
+	VREvent_StatusUpdate					= 900,
 
-	VREvent_MCImageUpdated				= 1000,
+	VREvent_MCImageUpdated					= 1000,
 
-	VREvent_FirmwareUpdateStarted	= 1100,
-	VREvent_FirmwareUpdateFinished	= 1101,
+	VREvent_FirmwareUpdateStarted			= 1100,
+	VREvent_FirmwareUpdateFinished			= 1101,
 
-	VREvent_KeyboardClosed				= 1200,
-	VREvent_KeyboardCharInput			= 1201,
-	VREvent_KeyboardDone				= 1202, // Sent when DONE button clicked on keyboard
+	VREvent_KeyboardClosed					= 1200,
+	VREvent_KeyboardCharInput				= 1201,
+	VREvent_KeyboardDone					= 1202, // Sent when DONE button clicked on keyboard
 
-	VREvent_ApplicationTransitionStarted	= 1300,
-	VREvent_ApplicationTransitionAborted	= 1301,
-	VREvent_ApplicationTransitionNewAppStarted = 1302,
-	VREvent_ApplicationListUpdated			= 1303,
-	VREvent_ApplicationMimeTypeLoad			= 1304,
+	VREvent_ApplicationTransitionStarted		= 1300,
+	VREvent_ApplicationTransitionAborted		= 1301,
+	VREvent_ApplicationTransitionNewAppStarted	= 1302,
+	VREvent_ApplicationListUpdated				= 1303,
+	VREvent_ApplicationMimeTypeLoad				= 1304,
+	VREvent_ApplicationTransitionNewAppLaunchComplete = 1305,
+	VREvent_ProcessConnected					= 1306,
+	VREvent_ProcessDisconnected					= 1307,
 
-	VREvent_Compositor_MirrorWindowShown	= 1400,
-	VREvent_Compositor_MirrorWindowHidden	= 1401,
-	VREvent_Compositor_ChaperoneBoundsShown = 1410,
-	VREvent_Compositor_ChaperoneBoundsHidden = 1411,
+	VREvent_Compositor_MirrorWindowShown		= 1400,
+	VREvent_Compositor_MirrorWindowHidden		= 1401,
+	VREvent_Compositor_ChaperoneBoundsShown		= 1410,
+	VREvent_Compositor_ChaperoneBoundsHidden	= 1411,
 
 	VREvent_TrackedCamera_StartVideoStream  = 1500,
 	VREvent_TrackedCamera_StopVideoStream   = 1501,
@@ -514,24 +571,30 @@ enum EVREventType
 	VREvent_TrackedCamera_ResumeVideoStream = 1503,
 	VREvent_TrackedCamera_EditingSurface    = 1550,
 
-	VREvent_PerformanceTest_EnableCapture = 1600,
-	VREvent_PerformanceTest_DisableCapture = 1601,
-	VREvent_PerformanceTest_FidelityLevel = 1602,
+	VREvent_PerformanceTest_EnableCapture	= 1600,
+	VREvent_PerformanceTest_DisableCapture	= 1601,
+	VREvent_PerformanceTest_FidelityLevel	= 1602,
+
+	VREvent_MessageOverlay_Closed			= 1650,
 	
 	// Vendors are free to expose private events in this reserved region
-	VREvent_VendorSpecific_Reserved_Start = 10000,
-	VREvent_VendorSpecific_Reserved_End = 19999,
+	VREvent_VendorSpecific_Reserved_Start	= 10000,
+	VREvent_VendorSpecific_Reserved_End		= 19999,
 };
 
 
 /** Level of Hmd activity */
+// UserInteraction_Timeout means the device is in the process of timing out.
+// InUse = ( k_EDeviceActivityLevel_UserInteraction || k_EDeviceActivityLevel_UserInteraction_Timeout )
+// VREvent_TrackedDeviceUserInteractionStarted fires when the devices transitions from Standby -> UserInteraction or Idle -> UserInteraction.
+// VREvent_TrackedDeviceUserInteractionEnded fires when the devices transitions from UserInteraction_Timeout -> Idle
 enum EDeviceActivityLevel
-{
-	k_EDeviceActivityLevel_Unknown = -1,
-	k_EDeviceActivityLevel_Idle = 0,
-	k_EDeviceActivityLevel_UserInteraction = 1,
-	k_EDeviceActivityLevel_UserInteraction_Timeout = 2,
-	k_EDeviceActivityLevel_Standby = 3,
+{	
+	k_EDeviceActivityLevel_Unknown = -1,									
+	k_EDeviceActivityLevel_Idle = 0,						// No activity for the last 10 seconds
+	k_EDeviceActivityLevel_UserInteraction = 1,				// Activity (movement or prox sensor) is happening now	
+	k_EDeviceActivityLevel_UserInteraction_Timeout = 2,		// No activity for the last 0.5 seconds
+	k_EDeviceActivityLevel_Standby = 3,						// Idle for at least 5 seconds (configurable in Settings -> Power Management)
 };
 
 
@@ -703,6 +766,17 @@ struct VREvent_EditingCameraSurface_t
 	uint32_t nVisualMode;
 };
 
+struct VREvent_MessageOverlay_t
+{
+	uint32_t unVRMessageOverlayResponse; // vr::VRMessageOverlayResponse enum
+};
+
+struct VREvent_Property_t
+{
+	PropertyContainerHandle_t container;
+	ETrackedDeviceProperty prop;
+};
+
 /** NOTE!!! If you change this you MUST manually update openvr_interop.cs.py */
 typedef union
 {
@@ -724,7 +798,16 @@ typedef union
 	VREvent_ScreenshotProgress_t screenshotProgress;
 	VREvent_ApplicationLaunch_t applicationLaunch;
 	VREvent_EditingCameraSurface_t cameraSurface;
+	VREvent_MessageOverlay_t messageOverlay;
+	VREvent_Property_t property;
 } VREvent_Data_t;
+
+
+#if defined(__linux__) || defined(__APPLE__) 
+// This structure was originally defined mis-packed on Linux, preserved for 
+// compatibility. 
+#pragma pack( push, 4 )
+#endif
 
 /** An event posted by the server to all running applications */
 struct VREvent_t
@@ -736,6 +819,9 @@ struct VREvent_t
 	VREvent_Data_t data;
 };
 
+#if defined(__linux__) || defined(__APPLE__) 
+#pragma pack( pop )
+#endif
 
 /** The mesh to draw into the stencil (or depth) buffer to perform 
 * early stencil (or depth) kills of pixels that will never appear on the HMD.
@@ -755,6 +841,8 @@ enum EHiddenAreaMeshType
 	k_eHiddenAreaMesh_Standard = 0,
 	k_eHiddenAreaMesh_Inverse = 1,
 	k_eHiddenAreaMesh_LineLoop = 2,
+
+	k_eHiddenAreaMesh_Max = 3,
 };
 
 
@@ -782,6 +870,12 @@ struct VRControllerAxis_t
 static const uint32_t k_unControllerStateAxisCount = 5;
 
 
+#if defined(__linux__) || defined(__APPLE__) 
+// This structure was originally defined mis-packed on Linux, preserved for 
+// compatibility. 
+#pragma pack( push, 4 )
+#endif
+
 /** Holds all the state of a controller at one moment in time. */
 struct VRControllerState001_t
 {
@@ -796,6 +890,9 @@ struct VRControllerState001_t
 	// Axis data for the controller's analog inputs
 	VRControllerAxis_t rAxis[ k_unControllerStateAxisCount ];
 };
+#if defined(__linux__) || defined(__APPLE__) 
+#pragma pack( pop )
+#endif
 
 
 typedef VRControllerState001_t VRControllerState_t;
@@ -878,6 +975,7 @@ enum EVRApplicationType
 									// interfaces (like IVRSettings and IVRApplications) but not hardware.
 	VRApplication_VRMonitor = 5,	// Reserved for vrmonitor
 	VRApplication_SteamWatchdog = 6,// Reserved for Steam
+	VRApplication_Bootstrapper = 7, // Start up SteamVR
 
 	VRApplication_Max
 };
@@ -944,6 +1042,8 @@ enum EVRInitError
 	VRInitError_Init_InvalidApplicationType		= 130,
 	VRInitError_Init_NotAvailableToWatchdogApps = 131,
 	VRInitError_Init_WatchdogDisabledInSettings = 132,
+	VRInitError_Init_VRDashboardNotFound		= 133,
+	VRInitError_Init_VRDashboardStartupFailed	= 134,
 
 	VRInitError_Driver_Failed				= 200,
 	VRInitError_Driver_Unknown				= 201,
@@ -1121,16 +1221,7 @@ static const uint32_t k_unScreenshotHandleInvalid = 0;
 namespace vr
 {
 
-#if defined(__linux__) || defined(__APPLE__) 
-	// The 32-bit version of gcc has the alignment requirement for uint64 and double set to
-	// 4 meaning that even with #pragma pack(8) these types will only be four-byte aligned.
-	// The 64-bit version of gcc has the alignment requirement for these types set to
-	// 8 meaning that unless we use #pragma pack(4) our structures will get bigger.
-	// The 64-bit structure packing has to match the 32-bit structure packing for each platform.
-	#pragma pack( push, 4 )
-#else
-	#pragma pack( push, 8 )
-#endif
+#pragma pack( push, 8 )
 
 enum ECameraVideoStreamFormat
 {
@@ -1257,14 +1348,12 @@ namespace vr
 
 	//-----------------------------------------------------------------------------
 	// steamvr keys
-
 	static const char * const k_pch_SteamVR_Section = "steamvr";
 	static const char * const k_pch_SteamVR_RequireHmd_String = "requireHmd";
 	static const char * const k_pch_SteamVR_ForcedDriverKey_String = "forcedDriver";
 	static const char * const k_pch_SteamVR_ForcedHmdKey_String = "forcedHmd";
 	static const char * const k_pch_SteamVR_DisplayDebug_Bool = "displayDebug";
 	static const char * const k_pch_SteamVR_DebugProcessPipe_String = "debugProcessPipe";
-	static const char * const k_pch_SteamVR_EnableDistortion_Bool = "enableDistortion";
 	static const char * const k_pch_SteamVR_DisplayDebugX_Int32 = "displayDebugX";
 	static const char * const k_pch_SteamVR_DisplayDebugY_Int32 = "displayDebugY";
 	static const char * const k_pch_SteamVR_SendSystemButtonToAllApps_Bool= "sendSystemButtonToAllApps";
@@ -1294,29 +1383,27 @@ namespace vr
 	static const char * const k_pch_SteamVR_ShowMirrorView_Bool = "showMirrorView";
 	static const char * const k_pch_SteamVR_MirrorViewGeometry_String = "mirrorViewGeometry";
 	static const char * const k_pch_SteamVR_StartMonitorFromAppLaunch = "startMonitorFromAppLaunch";
+	static const char * const k_pch_SteamVR_StartCompositorFromAppLaunch_Bool = "startCompositorFromAppLaunch";
+	static const char * const k_pch_SteamVR_StartDashboardFromAppLaunch_Bool = "startDashboardFromAppLaunch";
+	static const char * const k_pch_SteamVR_StartOverlayAppsFromDashboard_Bool = "startOverlayAppsFromDashboard";
 	static const char * const k_pch_SteamVR_EnableHomeApp = "enableHomeApp";
 	static const char * const k_pch_SteamVR_SetInitialDefaultHomeApp = "setInitialDefaultHomeApp";
 	static const char * const k_pch_SteamVR_CycleBackgroundImageTimeSec_Int32 = "CycleBackgroundImageTimeSec";
 	static const char * const k_pch_SteamVR_RetailDemo_Bool = "retailDemo";
 	static const char * const k_pch_SteamVR_IpdOffset_Float = "ipdOffset";
 
-
 	//-----------------------------------------------------------------------------
 	// lighthouse keys
-
 	static const char * const k_pch_Lighthouse_Section = "driver_lighthouse";
 	static const char * const k_pch_Lighthouse_DisableIMU_Bool = "disableimu";
 	static const char * const k_pch_Lighthouse_UseDisambiguation_String = "usedisambiguation";
 	static const char * const k_pch_Lighthouse_DisambiguationDebug_Int32 = "disambiguationdebug";
-
 	static const char * const k_pch_Lighthouse_PrimaryBasestation_Int32 = "primarybasestation";
 	static const char * const k_pch_Lighthouse_DBHistory_Bool = "dbhistory";
 
 	//-----------------------------------------------------------------------------
 	// null keys
-
 	static const char * const k_pch_Null_Section = "driver_null";
-	static const char * const k_pch_Null_EnableNullDriver_Bool = "enable";
 	static const char * const k_pch_Null_SerialNumber_String = "serialNumber";
 	static const char * const k_pch_Null_ModelNumber_String = "modelNumber";
 	static const char * const k_pch_Null_WindowX_Int32 = "windowX";
@@ -1416,6 +1503,10 @@ namespace vr
 	//-----------------------------------------------------------------------------
 	// model skin keys
 	static const char * const k_pch_modelskin_Section = "modelskins";
+
+	//-----------------------------------------------------------------------------
+	// driver keys - These could be checked in any driver_<name> section
+	static const char * const k_pch_Driver_Enable_Bool = "enable";
 
 } // namespace vr
 
@@ -1534,37 +1625,11 @@ public:
 	// Tracking Methods
 	// ------------------------------------
 	virtual DriverPose_t GetPose() = 0;
-
-	// ------------------------------------
-	// Property Methods
-	// ------------------------------------
-
-	/** Returns a bool property. If the property is not available this function will return false. */
-	virtual bool GetBoolTrackedDeviceProperty( ETrackedDeviceProperty prop, ETrackedPropertyError *pError ) = 0;
-
-	/** Returns a float property. If the property is not available this function will return 0. */
-	virtual float GetFloatTrackedDeviceProperty( ETrackedDeviceProperty prop, ETrackedPropertyError *pError ) = 0;
-
-	/** Returns an int property. If the property is not available this function will return 0. */
-	virtual int32_t GetInt32TrackedDeviceProperty( ETrackedDeviceProperty prop, ETrackedPropertyError *pError ) = 0;
-
-	/** Returns a uint64 property. If the property is not available this function will return 0. */
-	virtual uint64_t GetUint64TrackedDeviceProperty( ETrackedDeviceProperty prop, ETrackedPropertyError *pError ) = 0;
-
-	/** Returns a matrix property. If the device index is not valid or the property is not a matrix type, this function will return identity. */
-	virtual HmdMatrix34_t GetMatrix34TrackedDeviceProperty( ETrackedDeviceProperty prop, ETrackedPropertyError *pError ) = 0;
-
-	/** Returns a string property. If the property is not available this function will return 0 and pError will be 
-	* set to an error. Otherwise it returns the length of the number of bytes necessary to hold this string including 
-	* the trailing null. If the buffer is too small the error will be TrackedProp_BufferTooSmall.  Drivers may not 
-	* return strings longer than k_unMaxPropertyStringSize. */
-	virtual uint32_t GetStringTrackedDeviceProperty( ETrackedDeviceProperty prop, char *pchValue, uint32_t unBufferSize, ETrackedPropertyError *pError ) = 0;
-
 };
 
 
 
-static const char *ITrackedDeviceServerDriver_Version = "ITrackedDeviceServerDriver_004";
+static const char *ITrackedDeviceServerDriver_Version = "ITrackedDeviceServerDriver_005";
 
 }
 // ivrdisplaycomponent.h
@@ -1736,73 +1801,21 @@ namespace vr
 class ITrackedDeviceServerDriver;
 struct TrackedDeviceDriverInfo_t;
 struct DriverPose_t;
-
-class IDriverLog
-{
-public:
-	/** Writes a log message to the log file prefixed with the driver name */
-	virtual void Log( const char *pchLogMessage ) = 0;
-};
+typedef PropertyContainerHandle_t DriverHandle_t;
 
 /** This interface is provided by vrserver to allow the driver to notify 
 * the system when something changes about a device. These changes must
 * not change the serial number or class of the device because those values
 * are permanently associated with the device's index. */
-class IServerDriverHost
+class IVRDriverContext
 {
 public:
-	/** Notifies the server that a tracked device has been added. If this function returns true
-	* the server will call Activate on the device. If it returns false some kind of error
-	* has occurred and the device will not be activated. */
-	virtual bool TrackedDeviceAdded( const char *pchDeviceSerialNumber ) = 0;
+	/** Returns the requested interface. If the interface was not available it will return NULL and fill
+	* out the error. */
+	virtual void *GetGenericInterface( const char *pchInterfaceVersion, EVRInitError *peError = nullptr ) = 0;
 
-	/** Notifies the server that a tracked device's pose has been updated */
-	virtual void TrackedDevicePoseUpdated( uint32_t unWhichDevice, const DriverPose_t & newPose ) = 0;
-
-	/** Notifies the server that the property cache for the specified device should be invalidated */
-	virtual void TrackedDevicePropertiesChanged( uint32_t unWhichDevice ) = 0;
-
-	/** Notifies the server that vsync has occurred on the the display attached to the device. This is
-	* only permitted on devices of the HMD class. */
-	virtual void VsyncEvent( double vsyncTimeOffsetSeconds ) = 0;
-
-	/** notifies the server that the button was pressed */
-	virtual void TrackedDeviceButtonPressed( uint32_t unWhichDevice, EVRButtonId eButtonId, double eventTimeOffset ) = 0;
-
-	/** notifies the server that the button was unpressed */
-	virtual void TrackedDeviceButtonUnpressed( uint32_t unWhichDevice, EVRButtonId eButtonId, double eventTimeOffset ) = 0;
-
-	/** notifies the server that the button was pressed */
-	virtual void TrackedDeviceButtonTouched( uint32_t unWhichDevice, EVRButtonId eButtonId, double eventTimeOffset ) = 0;
-
-	/** notifies the server that the button was unpressed */
-	virtual void TrackedDeviceButtonUntouched( uint32_t unWhichDevice, EVRButtonId eButtonId, double eventTimeOffset ) = 0;
-
-	/** notifies the server than a controller axis changed */
-	virtual void TrackedDeviceAxisUpdated( uint32_t unWhichDevice, uint32_t unWhichAxis, const VRControllerAxis_t & axisState ) = 0;
-
-	/** Notifies the server that the MC image has been updated for the display attached to the device. This is
-	* only permitted on devices of the HMD class. */
-	virtual void MCImageUpdated() = 0;
-	
-	/** always returns a pointer to a valid interface pointer of IVRSettings */
-	virtual IVRSettings *GetSettings( const char *pchInterfaceVersion ) = 0;
-
-	/** Notifies the server that the physical IPD adjustment has been moved on the HMD */
-	virtual void PhysicalIpdSet( uint32_t unWhichDevice, float fPhysicalIpdMeters ) = 0;
-
-	/** Notifies the server that the proximity sensor on the specified device  */
-	virtual void ProximitySensorState( uint32_t unWhichDevice, bool bProximitySensorTriggered ) = 0;
-
-	/** Sends a vendor specific event (VREvent_VendorSpecific_Reserved_Start..VREvent_VendorSpecific_Reserved_End */
-	virtual void VendorSpecificEvent( uint32_t unWhichDevice, vr::EVREventType eventType, const VREvent_Data_t & eventData, double eventTimeOffset ) = 0;
-
-	/** Returns true if SteamVR is exiting */
-	virtual bool IsExiting() = 0;
-
-	/** Returns true and fills the event with the next event on the queue if there is one. If there are no events
-	* this method returns false. uncbVREvent should be the size in bytes of the VREvent_t struct */
-	virtual bool PollNextEvent( VREvent_t *pEvent, uint32_t uncbVREvent ) = 0;
+	/** Returns the property container handle for this driver */
+	virtual DriverHandle_t GetDriverHandle() = 0;
 };
 
 
@@ -1819,22 +1832,13 @@ public:
 	*	config files.
 	* pchDriverInstallDir - The absolute path of the root directory for the driver.
 	*/
-	virtual EVRInitError Init( IDriverLog *pDriverLog, vr::IServerDriverHost *pDriverHost, const char *pchUserDriverConfigDir, const char *pchDriverInstallDir ) = 0;
+	virtual EVRInitError Init( IVRDriverContext *pDriverContext ) = 0;
 
 	/** cleans up the driver right before it is unloaded */
 	virtual void Cleanup() = 0;
 
 	/** Returns the version of the ITrackedDeviceServerDriver interface used by this driver */
 	virtual const char * const *GetInterfaceVersions() = 0;
-
-	/** returns the number of HMDs that this driver manages that are physically connected. */
-	virtual uint32_t GetTrackedDeviceCount() = 0;
-
-	/** returns a single HMD */
-	virtual ITrackedDeviceServerDriver *GetTrackedDeviceDriver( uint32_t unWhich ) = 0;
-
-	/** returns a single HMD by ID */
-	virtual ITrackedDeviceServerDriver* FindTrackedDeviceDriver( const char *pchId ) = 0;
 
 	/** Allows the driver do to some work in the main loop of the server. */
 	virtual void RunFrame() = 0;
@@ -1856,104 +1860,531 @@ public:
 };
 
 
-static const char *IServerTrackedDeviceProvider_Version = "IServerTrackedDeviceProvider_003";
+static const char *IServerTrackedDeviceProvider_Version = "IServerTrackedDeviceProvider_004";
 
 
-/** This interface is provided by vrclient to allow the driver call back and query various information */
-class IClientDriverHost
+
+
+/** This interface must be implemented in each driver. It will be loaded in vrclient.dll */
+class IVRWatchdogProvider
 {
 public:
-	/** Returns the device class of a tracked device. If there has not been a device connected in this slot
-	* since the application started this function will return TrackedDevice_Invalid. For previous detected
-	* devices the function will return the previously observed device class. 
-	*
-	* To determine which devices exist on the system, just loop from 0 to k_unMaxTrackedDeviceCount and check
-	* the device class. Every device with something other than TrackedDevice_Invalid is associated with an 
-	* actual tracked device. */
-	virtual ETrackedDeviceClass GetTrackedDeviceClass( vr::TrackedDeviceIndex_t unDeviceIndex ) = 0;
+	/** initializes the driver in watchdog mode. */
+	virtual EVRInitError Init( IVRDriverContext *pDriverContext ) = 0;
 
-	/** Returns true if there is a device connected in this slot. */
-	virtual bool IsTrackedDeviceConnected( vr::TrackedDeviceIndex_t unDeviceIndex ) = 0;
+	/** cleans up the driver right before it is unloaded */
+	virtual void Cleanup() = 0;
+};
 
-	/** Returns a bool property. If the device index is not valid or the property is not a bool type this function will return false. */
-	virtual bool GetBoolTrackedDeviceProperty( vr::TrackedDeviceIndex_t unDeviceIndex, ETrackedDeviceProperty prop, ETrackedPropertyError *pError = 0L ) = 0;
+static const char *IVRWatchdogProvider_Version = "IVRWatchdogProvider_001";
 
-	/** Returns a float property. If the device index is not valid or the property is not a float type this function will return 0. */
-	virtual float GetFloatTrackedDeviceProperty( vr::TrackedDeviceIndex_t unDeviceIndex, ETrackedDeviceProperty prop, ETrackedPropertyError *pError = 0L ) = 0;
+}
+// ivrproperties.h
+#include <string>
 
-	/** Returns an int property. If the device index is not valid or the property is not a int type this function will return 0. */
-	virtual int32_t GetInt32TrackedDeviceProperty( vr::TrackedDeviceIndex_t unDeviceIndex, ETrackedDeviceProperty prop, ETrackedPropertyError *pError = 0L ) = 0;
+namespace vr
+{
 
-	/** Returns a uint64 property. If the device index is not valid or the property is not a uint64 type this function will return 0. */
-	virtual uint64_t GetUint64TrackedDeviceProperty( vr::TrackedDeviceIndex_t unDeviceIndex, ETrackedDeviceProperty prop, ETrackedPropertyError *pError = 0L ) = 0;
+	enum EPropertyWriteType
+	{
+		PropertyWrite_Set = 0,
+		PropertyWrite_Erase = 1,
+		PropertyWrite_SetError = 2
+	};
 
-	/** Returns a string property. If the device index is not valid or the property is not a float type this function will 
+	struct PropertyWrite_t
+	{
+		ETrackedDeviceProperty prop;
+		EPropertyWriteType writeType;
+		ETrackedPropertyError eSetError;
+		void *pvBuffer;
+		uint32_t unBufferSize;
+		PropertyTypeTag_t unTag;
+		ETrackedPropertyError eError;
+	};
+
+	struct PropertyRead_t
+	{
+		ETrackedDeviceProperty prop;
+		void *pvBuffer;
+		uint32_t unBufferSize;
+		PropertyTypeTag_t unTag;
+		uint32_t unRequiredBufferSize;
+		ETrackedPropertyError eError;
+	};
+
+
+class IVRProperties
+{
+public:
+
+	/** Reads a set of properties atomically. See the PropertyReadBatch_t struct for more information. */
+	virtual ETrackedPropertyError ReadPropertyBatch( PropertyContainerHandle_t ulContainerHandle, PropertyRead_t *pBatch, uint32_t unBatchEntryCount ) = 0;
+
+	/** Writes a set of properties atomically. See the PropertyWriteBatch_t struct for more information. */
+	virtual ETrackedPropertyError WritePropertyBatch( PropertyContainerHandle_t ulContainerHandle, PropertyWrite_t *pBatch, uint32_t unBatchEntryCount ) = 0;
+
+	/** returns a string that corresponds with the specified property error. The string will be the name
+	* of the error enum value for all valid error codes */
+	virtual const char *GetPropErrorNameFromEnum( ETrackedPropertyError error ) = 0;
+
+	/** Returns a container handle given a tracked device index */
+	virtual PropertyContainerHandle_t TrackedDeviceToPropertyContainer( TrackedDeviceIndex_t nDevice ) = 0;
+
+};
+
+static const char * const IVRProperties_Version = "IVRProperties_001";
+
+class CVRPropertyHelpers
+{
+public:
+	CVRPropertyHelpers( IVRProperties * pProperties ) : m_pProperties( pProperties ) {}
+
+	/** Returns a scaler property. If the device index is not valid or the property value type does not match,
+	* this function will return false. */
+	bool GetBoolProperty( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, ETrackedPropertyError *pError = 0L );
+	float GetFloatProperty( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, ETrackedPropertyError *pError = 0L );
+	int32_t GetInt32Property( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, ETrackedPropertyError *pError = 0L );
+	uint64_t GetUint64Property( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, ETrackedPropertyError *pError = 0L );
+
+	/** Returns a single typed property. If the device index is not valid or the property is not a string type this function will
 	* return 0. Otherwise it returns the length of the number of bytes necessary to hold this string including the trailing
-	* null. Strings will generally fit in buffers of k_unTrackingStringSize characters. */
-	virtual uint32_t GetStringTrackedDeviceProperty( vr::TrackedDeviceIndex_t unDeviceIndex, ETrackedDeviceProperty prop, char *pchValue, uint32_t unBufferSize, ETrackedPropertyError *pError = 0L ) = 0;
+	* null. Strings will always fit in buffers of k_unMaxPropertyStringSize characters. */
+	uint32_t GetProperty( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, VR_OUT_STRING() void *pvBuffer, uint32_t unBufferSize, PropertyTypeTag_t *punTag, ETrackedPropertyError *pError = 0L );
 
-	/** always returns a pointer to a valid interface pointer of IVRSettings */
-	virtual void *GetGenericInterface( const char *pchInterfaceVersion ) = 0; 
 
+	/** Returns a string property. If the device index is not valid or the property is not a string type this function will
+	* return 0. Otherwise it returns the length of the number of bytes necessary to hold this string including the trailing
+	* null. Strings will always fit in buffers of k_unMaxPropertyStringSize characters. */
+	uint32_t GetStringProperty( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, VR_OUT_STRING() char *pchValue, uint32_t unBufferSize, ETrackedPropertyError *pError = 0L );
+
+	/** Returns a string property as a std::string. If the device index is not valid or the property is not a string type this function will
+	* return an empty string. */
+	std::string GetStringProperty( vr::PropertyContainerHandle_t ulContainer, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError *peError = nullptr );
+
+	/** Sets a scaler property. The new value will be returned on any subsequent call to get this property in any process. */
+	ETrackedPropertyError SetBoolProperty( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, bool bNewValue );
+	ETrackedPropertyError SetFloatProperty( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, float fNewValue );
+	ETrackedPropertyError SetInt32Property( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, int32_t nNewValue );
+	ETrackedPropertyError SetUint64Property( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, uint64_t ulNewValue );
+
+	/** Sets a string property. The new value will be returned on any subsequent call to get this property in any process. */
+	ETrackedPropertyError SetStringProperty( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, const char *pchNewValue );
+
+	/** Sets a single typed property. The new value will be returned on any subsequent call to get this property in any process. */
+	ETrackedPropertyError SetProperty( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, void *pvNewValue, uint32_t unNewValueSize, PropertyTypeTag_t unTag );
+
+	/** Sets the error return value for a property. This value will be returned on all subsequent requests to get the property */
+	ETrackedPropertyError SetPropertyError( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, ETrackedPropertyError eError );
+
+	/** Clears any value or error set for the property. */
+	ETrackedPropertyError EraseProperty( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop );
+
+	/* Turns a device index into a property container handle. */
+	PropertyContainerHandle_t TrackedDeviceToPropertyContainer( TrackedDeviceIndex_t nDevice ) { return m_pProperties->TrackedDeviceToPropertyContainer( nDevice );  }
+
+private:
+	template<typename T>
+	T GetPropertyHelper( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, ETrackedPropertyError *pError, T bDefault, PropertyTypeTag_t unTypeTag );
+
+	IVRProperties *m_pProperties;
+};
+
+
+inline uint32_t CVRPropertyHelpers::GetProperty( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, VR_OUT_STRING() void *pvBuffer, uint32_t unBufferSize, PropertyTypeTag_t *punTag, ETrackedPropertyError *pError )
+{
+	PropertyRead_t batch;
+	batch.prop = prop;
+	batch.pvBuffer = pvBuffer;
+	batch.unBufferSize = unBufferSize;
+
+	m_pProperties->ReadPropertyBatch( ulContainerHandle, &batch, 1 );
+
+	if ( pError )
+	{
+		*pError = batch.eError;
+	}
+
+	if ( punTag )
+	{
+		*punTag = batch.unTag;
+	}
+
+	return batch.unRequiredBufferSize;
+}
+
+
+/** Sets a single typed property. The new value will be returned on any subsequent call to get this property in any process. */
+inline ETrackedPropertyError CVRPropertyHelpers::SetProperty( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, void *pvNewValue, uint32_t unNewValueSize, PropertyTypeTag_t unTag )
+{
+	PropertyWrite_t batch;
+	batch.writeType = PropertyWrite_Set;
+	batch.prop = prop;
+	batch.pvBuffer = pvNewValue;
+	batch.unBufferSize = unNewValueSize;
+	batch.unTag = unTag;
+
+	m_pProperties->WritePropertyBatch( ulContainerHandle, &batch, 1 );
+
+	return batch.eError;
+}
+
+
+/** Returns a string property. If the device index is not valid or the property is not a string type this function will
+* return 0. Otherwise it returns the length of the number of bytes necessary to hold this string including the trailing
+* null. Strings will always fit in buffers of k_unMaxPropertyStringSize characters. */
+inline uint32_t CVRPropertyHelpers::GetStringProperty( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, VR_OUT_STRING() char *pchValue, uint32_t unBufferSize, ETrackedPropertyError *pError )
+{
+	PropertyTypeTag_t unTag;
+	ETrackedPropertyError error;
+	uint32_t unRequiredSize = GetProperty( ulContainerHandle, prop, pchValue, unBufferSize, &unTag, &error );
+	if ( unTag != k_unStringPropertyTag && error == TrackedProp_Success )
+	{
+		error = TrackedProp_WrongDataType;
+	}
+
+	if ( pError )
+	{
+		*pError = error;
+	}
+
+	if ( error != TrackedProp_Success )
+	{
+		if ( pchValue && unBufferSize )
+		{
+			*pchValue = '\0';
+		}
+	}
+
+	return unRequiredSize;
+}
+
+
+/** Returns a string property as a std::string. If the device index is not valid or the property is not a string type this function will
+* return an empty string. */
+inline std::string CVRPropertyHelpers::GetStringProperty( vr::PropertyContainerHandle_t ulContainer, vr::ETrackedDeviceProperty prop, vr::ETrackedPropertyError *peError )
+{
+	char buf[1024];
+	vr::ETrackedPropertyError err;
+	uint32_t unRequiredBufferLen = GetStringProperty( ulContainer, prop, buf, sizeof(buf), &err );
+
+	std::string sResult;
+
+	if ( err == TrackedProp_Success )
+	{
+		sResult = buf;
+	}
+	else if ( err == TrackedProp_BufferTooSmall )
+	{
+		char *pchBuffer = new char[unRequiredBufferLen];
+		unRequiredBufferLen = GetStringProperty( ulContainer, prop, pchBuffer, unRequiredBufferLen, &err );
+		sResult = pchBuffer;
+		delete[] pchBuffer;
+	}
+
+	if ( peError )
+	{
+		*peError = err;
+	}
+
+	return sResult;
+}
+
+
+/** Sets a string property. The new value will be returned on any subsequent call to get this property in any process. */
+inline ETrackedPropertyError CVRPropertyHelpers::SetStringProperty( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, const char *pchNewValue )
+{
+	if ( !pchNewValue )
+		return TrackedProp_InvalidOperation;
+
+	// this is strlen without the dependency on string.h
+	const char *pchCurr = pchNewValue;
+	while ( *pchCurr )
+	{
+		pchCurr++;
+	}
+
+	return SetProperty( ulContainerHandle, prop, (void *)pchNewValue, (uint32_t)(pchCurr - pchNewValue) + 1, k_unStringPropertyTag );
+}
+
+
+template<typename T>
+inline T CVRPropertyHelpers::GetPropertyHelper( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, ETrackedPropertyError *pError, T bDefault, PropertyTypeTag_t unTypeTag )
+{
+	T bValue;
+	ETrackedPropertyError eError;
+	PropertyTypeTag_t unReadTag;
+	GetProperty( ulContainerHandle, prop, &bValue, sizeof( bValue ), &unReadTag, &eError );
+	if ( unReadTag != unTypeTag && eError == TrackedProp_Success )
+	{
+		eError = TrackedProp_WrongDataType;
+	};
+
+	if ( pError )
+		*pError = eError;
+	if ( eError != TrackedProp_Success )
+	{
+		return bDefault;
+	}
+	else
+	{
+		return bValue;
+	}
+}
+
+
+inline bool CVRPropertyHelpers::GetBoolProperty( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, ETrackedPropertyError *pError )
+{
+	return GetPropertyHelper<bool>( ulContainerHandle, prop, pError, false, k_unBoolPropertyTag );
+}
+
+
+inline float CVRPropertyHelpers::GetFloatProperty( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, ETrackedPropertyError *pError )
+{
+	return GetPropertyHelper<float>( ulContainerHandle, prop, pError, 0.f, k_unFloatPropertyTag );
+}
+
+inline int32_t CVRPropertyHelpers::GetInt32Property( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, ETrackedPropertyError *pError )
+{
+	return GetPropertyHelper<int32_t>( ulContainerHandle, prop, pError, 0, k_unInt32PropertyTag );
+}
+
+inline uint64_t CVRPropertyHelpers::GetUint64Property( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, ETrackedPropertyError *pError )
+{
+	return GetPropertyHelper<uint64_t>( ulContainerHandle, prop, pError, 0, k_unUint64PropertyTag );
+}
+
+inline ETrackedPropertyError CVRPropertyHelpers::SetBoolProperty( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, bool bNewValue )
+{
+	return SetProperty( ulContainerHandle, prop, &bNewValue, sizeof( bNewValue ), k_unBoolPropertyTag );
+}
+
+inline ETrackedPropertyError CVRPropertyHelpers::SetFloatProperty( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, float fNewValue )
+{
+	return SetProperty( ulContainerHandle, prop, &fNewValue, sizeof( fNewValue ), k_unFloatPropertyTag );
+}
+
+inline ETrackedPropertyError CVRPropertyHelpers::SetInt32Property( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, int32_t nNewValue )
+{
+	return SetProperty( ulContainerHandle, prop, &nNewValue, sizeof( nNewValue ), k_unInt32PropertyTag );
+}
+
+inline ETrackedPropertyError CVRPropertyHelpers::SetUint64Property( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, uint64_t ulNewValue )
+{
+	return SetProperty( ulContainerHandle, prop, &ulNewValue, sizeof( ulNewValue ), k_unUint64PropertyTag );
+}
+
+/** Sets the error return value for a property. This value will be returned on all subsequent requests to get the property */
+inline ETrackedPropertyError CVRPropertyHelpers::SetPropertyError( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop, ETrackedPropertyError eError )
+{
+	PropertyWrite_t batch;
+	batch.writeType = PropertyWrite_SetError;
+	batch.prop = prop;
+	batch.eSetError = eError;
+
+	m_pProperties->WritePropertyBatch( ulContainerHandle, &batch, 1 );
+
+	return batch.eError;
+}
+
+/** Clears any value or error set for the property. */
+inline ETrackedPropertyError CVRPropertyHelpers::EraseProperty( PropertyContainerHandle_t ulContainerHandle, ETrackedDeviceProperty prop )
+{
+	PropertyWrite_t batch;
+	batch.writeType = PropertyWrite_Erase;
+	batch.prop = prop;
+
+	m_pProperties->WritePropertyBatch( ulContainerHandle, &batch, 1 );
+
+	return batch.eError;
+
+}
+
+}
+
+
+// ivrdriverlog.h
+namespace vr
+{
+
+class IVRDriverLog
+{
+public:
+	/** Writes a log message to the log file prefixed with the driver name */
+	virtual void Log( const char *pchLogMessage ) = 0;
+};
+
+
+static const char *IVRDriverLog_Version = "IVRDriverLog_001";
+
+}
+// ivrserverdriverhost.h
+namespace vr
+{
+
+class ITrackedDeviceServerDriver;
+struct TrackedDeviceDriverInfo_t;
+struct DriverPose_t;
+
+/** This interface is provided by vrserver to allow the driver to notify 
+* the system when something changes about a device. These changes must
+* not change the serial number or class of the device because those values
+* are permanently associated with the device's index. */
+class IVRServerDriverHost
+{
+public:
+	/** Notifies the server that a tracked device has been added. If this function returns true
+	* the server will call Activate on the device. If it returns false some kind of error
+	* has occurred and the device will not be activated. */
+	virtual bool TrackedDeviceAdded( const char *pchDeviceSerialNumber, ETrackedDeviceClass eDeviceClass, ITrackedDeviceServerDriver *pDriver ) = 0;
+
+	/** Notifies the server that a tracked device's pose has been updated */
+	virtual void TrackedDevicePoseUpdated( uint32_t unWhichDevice, const DriverPose_t & newPose, uint32_t unPoseStructSize ) = 0;
+
+	/** Notifies the server that vsync has occurred on the the display attached to the device. This is
+	* only permitted on devices of the HMD class. */
+	virtual void VsyncEvent( double vsyncTimeOffsetSeconds ) = 0;
+
+	/** notifies the server that the button was pressed */
+	virtual void TrackedDeviceButtonPressed( uint32_t unWhichDevice, EVRButtonId eButtonId, double eventTimeOffset ) = 0;
+
+	/** notifies the server that the button was unpressed */
+	virtual void TrackedDeviceButtonUnpressed( uint32_t unWhichDevice, EVRButtonId eButtonId, double eventTimeOffset ) = 0;
+
+	/** notifies the server that the button was pressed */
+	virtual void TrackedDeviceButtonTouched( uint32_t unWhichDevice, EVRButtonId eButtonId, double eventTimeOffset ) = 0;
+
+	/** notifies the server that the button was unpressed */
+	virtual void TrackedDeviceButtonUntouched( uint32_t unWhichDevice, EVRButtonId eButtonId, double eventTimeOffset ) = 0;
+
+	/** notifies the server than a controller axis changed */
+	virtual void TrackedDeviceAxisUpdated( uint32_t unWhichDevice, uint32_t unWhichAxis, const VRControllerAxis_t & axisState ) = 0;
+
+	/** Notifies the server that the proximity sensor on the specified device  */
+	virtual void ProximitySensorState( uint32_t unWhichDevice, bool bProximitySensorTriggered ) = 0;
+
+	/** Sends a vendor specific event (VREvent_VendorSpecific_Reserved_Start..VREvent_VendorSpecific_Reserved_End */
+	virtual void VendorSpecificEvent( uint32_t unWhichDevice, vr::EVREventType eventType, const VREvent_Data_t & eventData, double eventTimeOffset ) = 0;
+
+	/** Returns true if SteamVR is exiting */
+	virtual bool IsExiting() = 0;
+
+	/** Returns true and fills the event with the next event on the queue if there is one. If there are no events
+	* this method returns false. uncbVREvent should be the size in bytes of the VREvent_t struct */
+	virtual bool PollNextEvent( VREvent_t *pEvent, uint32_t uncbVREvent ) = 0;
+
+	/** Provides access to device poses for drivers.  Poses are in their "raw" tracking space which is uniquely
+	* defined by each driver providing poses for its devices.  It is up to clients of this function to correlate
+	* poses across different drivers.  Poses are indexed by their device id, and their associated driver and
+	* other properties can be looked up via IVRProperties. */
+	virtual void GetRawTrackedDevicePoses( float fPredictedSecondsFromNow, TrackedDevicePose_t *pTrackedDevicePoseArray, uint32_t unTrackedDevicePoseArrayCount ) = 0;
+};
+
+static const char *IVRServerDriverHost_Version = "IVRServerDriverHost_004";
+
+}
+
+// ivrhiddenarea.h
+namespace vr
+{
+
+class CVRHiddenAreaHelpers
+{
+public:
+	CVRHiddenAreaHelpers( IVRProperties *pProperties ) : m_pProperties( pProperties ) {}
+
+	/** Stores a hidden area mesh in a property */
+	ETrackedPropertyError SetHiddenArea( EVREye eEye, EHiddenAreaMeshType type, HmdVector2_t *pVerts, uint32_t unVertCount );
+
+	/** retrieves a hidden area mesh from a property. Returns the vert count read out of the property.  */
+	uint32_t GetHiddenArea( EVREye eEye, EHiddenAreaMeshType type, HmdVector2_t *pVerts, uint32_t unVertCount, ETrackedPropertyError *peError );
+
+private:
+	ETrackedDeviceProperty GetPropertyEnum( EVREye eEye, EHiddenAreaMeshType type )
+	{
+		return (ETrackedDeviceProperty)(Prop_DisplayHiddenArea_Binary_Start + ((int)type * 2) + (int)eEye);
+	}
+
+	IVRProperties *m_pProperties;
+};
+
+
+inline ETrackedPropertyError CVRHiddenAreaHelpers::SetHiddenArea( EVREye eEye, EHiddenAreaMeshType type, HmdVector2_t *pVerts, uint32_t unVertCount )
+{
+	ETrackedDeviceProperty prop = GetPropertyEnum( eEye, type );
+	CVRPropertyHelpers propHelpers( m_pProperties );
+	return propHelpers.SetProperty( propHelpers.TrackedDeviceToPropertyContainer( k_unTrackedDeviceIndex_Hmd ), prop, pVerts, sizeof( HmdVector2_t ) * unVertCount, k_unHiddenAreaPropertyTag );
+}
+
+
+inline uint32_t CVRHiddenAreaHelpers::GetHiddenArea( EVREye eEye, EHiddenAreaMeshType type, HmdVector2_t *pVerts, uint32_t unVertCount, ETrackedPropertyError *peError )
+{
+	ETrackedDeviceProperty prop = GetPropertyEnum( eEye, type );
+	CVRPropertyHelpers propHelpers( m_pProperties );
+	ETrackedPropertyError propError;
+	PropertyTypeTag_t unTag;
+	uint32_t unBytesNeeded = propHelpers.GetProperty( propHelpers.TrackedDeviceToPropertyContainer( k_unTrackedDeviceIndex_Hmd ), prop, pVerts, sizeof( HmdVector2_t )*unVertCount, &unTag, &propError );
+	if ( propError == TrackedProp_Success && unTag != k_unHiddenAreaPropertyTag )
+	{
+		propError = TrackedProp_WrongDataType;
+		unBytesNeeded = 0;
+	}
+
+	if ( peError )
+	{
+		*peError = propError;
+	}
+
+	return unBytesNeeded / sizeof( HmdVector2_t );
+}
+
+}
+// ivrwatchdoghost.h
+namespace vr
+{
+
+/** This interface is provided by vrclient to allow the driver to make everything wake up */
+class IVRWatchdogHost
+{
+public:
 	/** Client drivers in watchdog mode should call this when they have received a signal from hardware that should
 	* cause SteamVR to start */
 	virtual void WatchdogWakeUp() = 0;
 };
 
+static const char *IVRWatchdogHost_Version = "IVRWatchdogHost_001";
 
-/** Defines the mode that the client driver should start in. */
-enum EClientDriverMode
-{
-	ClientDriverMode_Normal = 0,
-	ClientDriverMode_Watchdog = 1, // client should return VRInitError_Init_LowPowerWatchdogNotSupported if it can't support this mode
 };
 
 
-/** This interface must be implemented in each driver. It will be loaded in vrclient.dll */
-class IClientTrackedDeviceProvider
+
+// ivrvirtualdisplay.h
+namespace vr
 {
-public:
-	/** initializes the driver. This will be called before any other methods are called,
-	* except BIsHmdPresent(). BIsHmdPresent is called outside of the Init/Cleanup pair.
-	* If Init returns anything other than VRInitError_None the driver DLL will be unloaded.
-	*
-	* pDriverHost will never be NULL, and will always be a pointer to a IClientDriverHost interface
-	*
-	* pchUserDriverConfigDir - The absolute path of the directory where the driver should store user
-	*	config files.
-	* pchDriverInstallDir - The absolute path of the root directory for the driver.
-	*/
-	virtual EVRInitError Init( EClientDriverMode eDriverMode, IDriverLog *pDriverLog, vr::IClientDriverHost *pDriverHost, const char *pchUserDriverConfigDir, const char *pchDriverInstallDir ) = 0;
+	// ----------------------------------------------------------------------------------------------
+	// Purpose: This component is used for drivers that implement a virtual display (e.g. wireless).
+	// ----------------------------------------------------------------------------------------------
+	class IVRVirtualDisplay
+	{
+	public:
 
-	/** cleans up the driver right before it is unloaded */
-	virtual void Cleanup() = 0;
+		/** Submits final backbuffer for display. */
+		virtual void Present( vr::SharedTextureHandle_t backbufferTextureHandle ) = 0;
 
-	/** Called when the client needs to inform an application if an HMD is attached that uses
-	* this driver. This method should be as lightweight as possible and should have no side effects
-	* such as hooking process functions or leaving resources loaded. Init will not be called before 
-	* this method and Cleanup will not be called after it.
-	*/
-	virtual bool BIsHmdPresent( const char *pchUserConfigDir ) = 0;
+		/** Block until the last presented buffer start scanning out. */
+		virtual void WaitForPresent() = 0;
 
-	/** called when the client inits an HMD to let the client driver know which one is in use */
-	virtual EVRInitError SetDisplayId( const char *pchDisplayId ) = 0;
+		/** Provides timing data for synchronizing with display. */
+		virtual bool GetTimeSinceLastVsync( float *pfSecondsSinceLastVsync, uint64_t *pulFrameCounter ) = 0;
+	};
 
-	/** Returns the stencil mesh information for the current HMD. If this HMD does not have a stencil mesh the vertex data and count will be
-	* NULL and 0 respectively. This mesh is meant to be rendered into the stencil buffer (or into the depth buffer setting nearz) before rendering
-	* each eye's view. The pixels covered by this mesh will never be seen by the user after the lens distortion is applied and based on visibility to the panels.
-	* This will improve perf by letting the GPU early-reject pixels the user will never see before running the pixel shader.
-	* NOTE: Render this mesh with backface culling disabled since the winding order of the vertices can be different per-HMD or per-eye.
-	*/
-	virtual HiddenAreaMesh_t GetHiddenAreaMesh( EVREye eEye, EHiddenAreaMeshType type ) = 0;
+	static const char *IVRVirtualDisplay_Version = "IVRVirtualDisplay_001";
 
-	/** Get the MC image for the current HMD.
-	* Returns the size in bytes of the buffer required to hold the specified resource. */
-	virtual uint32_t GetMCImage( uint32_t *pImgWidth, uint32_t *pImgHeight, uint32_t *pChannels, void *pDataBuffer, uint32_t unBufferLen ) = 0;
-};
-
-static const char *IClientTrackedDeviceProvider_Version = "IClientTrackedDeviceProvider_005";
-
+	/** Returns the current IVRVirtualDisplay pointer or NULL the interface could not be found. */
+	VR_INTERFACE vr::IVRVirtualDisplay *VR_CALLTYPE VRVirtualDisplay();
 }
+
+
 
 
 
@@ -1969,9 +2400,186 @@ namespace vr
 		IVRControllerComponent_Version,
 		IVRCameraComponent_Version,
 		IServerTrackedDeviceProvider_Version,
-		IClientTrackedDeviceProvider_Version,
+		IVRWatchdogProvider_Version,
+		IVRVirtualDisplay_Version,
 		nullptr
 	};
+
+	inline IVRDriverContext *&VRDriverContext()
+	{
+		static IVRDriverContext *pHost;
+		return pHost;
+	}
+
+	class COpenVRDriverContext
+	{
+	public:
+		COpenVRDriverContext() : m_propertyHelpers(nullptr), m_hiddenAreaHelpers(nullptr) { Clear(); }
+		void Clear();
+
+		EVRInitError InitServer();
+		EVRInitError InitWatchdog();
+
+		IVRSettings *VRSettings()
+		{
+			if ( m_pVRSettings == nullptr )
+			{
+				EVRInitError eError;
+				m_pVRSettings = (IVRSettings *)VRDriverContext()->GetGenericInterface( IVRSettings_Version, &eError );
+			}
+			return m_pVRSettings;
+		}
+
+		IVRProperties *VRPropertiesRaw()
+		{
+			if ( m_pVRProperties == nullptr )
+			{
+				EVRInitError eError;
+				m_pVRProperties = (IVRProperties *)VRDriverContext()->GetGenericInterface( IVRProperties_Version, &eError );
+				m_propertyHelpers = CVRPropertyHelpers( m_pVRProperties );
+				m_hiddenAreaHelpers = CVRHiddenAreaHelpers( m_pVRProperties );
+			}
+			return m_pVRProperties;
+		}
+
+		CVRPropertyHelpers *VRProperties()
+		{
+			VRPropertiesRaw();
+			return &m_propertyHelpers;
+		}
+
+		CVRHiddenAreaHelpers *VRHiddenArea()
+		{
+			VRPropertiesRaw();
+			return &m_hiddenAreaHelpers;
+		}
+
+		IVRServerDriverHost *VRServerDriverHost()
+		{
+			if ( m_pVRServerDriverHost == nullptr )
+			{
+				EVRInitError eError;
+				m_pVRServerDriverHost = (IVRServerDriverHost *)VRDriverContext()->GetGenericInterface( IVRServerDriverHost_Version, &eError );
+			}
+			return m_pVRServerDriverHost;
+		}
+
+		IVRWatchdogHost *VRWatchdogHost()
+		{
+			if ( m_pVRWatchdogHost == nullptr )
+			{
+				EVRInitError eError;
+				m_pVRWatchdogHost = (IVRWatchdogHost *)VRDriverContext()->GetGenericInterface( IVRWatchdogHost_Version, &eError );
+			}
+			return m_pVRWatchdogHost;
+		}
+
+		IVRDriverLog *VRDriverLog()
+		{
+			if ( m_pVRDriverLog == nullptr )
+			{
+				EVRInitError eError;
+				m_pVRDriverLog = (IVRDriverLog *)VRDriverContext()->GetGenericInterface( IVRDriverLog_Version, &eError );
+			}
+			return m_pVRDriverLog;
+		}
+
+		DriverHandle_t VR_CALLTYPE VRDriverHandle()
+		{
+			return VRDriverContext()->GetDriverHandle();
+		}
+
+	private:
+		IVRSettings			*m_pVRSettings;
+		IVRProperties		*m_pVRProperties;
+		CVRPropertyHelpers	m_propertyHelpers;
+		CVRHiddenAreaHelpers	m_hiddenAreaHelpers;
+		IVRServerDriverHost	*m_pVRServerDriverHost;
+		IVRWatchdogHost		*m_pVRWatchdogHost;
+		IVRDriverLog		*m_pVRDriverLog;
+	};
+
+	inline COpenVRDriverContext &OpenVRInternal_ModuleServerDriverContext()
+	{
+		static void *ctx[sizeof( COpenVRDriverContext ) / sizeof( void * )];
+		return *(COpenVRDriverContext *)ctx; // bypass zero-init constructor
+	}
+
+	inline IVRSettings *VR_CALLTYPE VRSettings() { return OpenVRInternal_ModuleServerDriverContext().VRSettings(); }
+	inline IVRProperties *VR_CALLTYPE VRPropertiesRaw() { return OpenVRInternal_ModuleServerDriverContext().VRPropertiesRaw(); }
+	inline CVRPropertyHelpers *VR_CALLTYPE VRProperties() { return OpenVRInternal_ModuleServerDriverContext().VRProperties(); }
+	inline CVRHiddenAreaHelpers *VR_CALLTYPE VRHiddenArea() { return OpenVRInternal_ModuleServerDriverContext().VRHiddenArea(); }
+	inline IVRDriverLog *VR_CALLTYPE VRDriverLog() { return OpenVRInternal_ModuleServerDriverContext().VRDriverLog(); }
+	inline IVRServerDriverHost *VR_CALLTYPE VRServerDriverHost() { return OpenVRInternal_ModuleServerDriverContext().VRServerDriverHost(); }
+	inline IVRWatchdogHost *VR_CALLTYPE VRWatchdogHost() { return OpenVRInternal_ModuleServerDriverContext().VRWatchdogHost(); }
+	inline DriverHandle_t VR_CALLTYPE VRDriverHandle() { return OpenVRInternal_ModuleServerDriverContext().VRDriverHandle(); }
+	inline void COpenVRDriverContext::Clear()
+	{
+		m_pVRSettings = nullptr;
+		m_pVRProperties = nullptr;
+		m_pVRServerDriverHost = nullptr;
+		m_pVRDriverLog = nullptr;
+		m_pVRWatchdogHost = nullptr;
+	}
+
+	inline EVRInitError COpenVRDriverContext::InitServer()
+	{
+		Clear();
+		if ( !VRServerDriverHost()
+			|| !VRSettings()
+			|| !VRProperties()
+			|| !VRDriverLog() )
+			return VRInitError_Init_InterfaceNotFound;
+		return VRInitError_None;
+	}
+
+	inline EVRInitError COpenVRDriverContext::InitWatchdog()
+	{
+		Clear();
+		if ( !VRWatchdogHost()
+			|| !VRSettings()
+			|| !VRDriverLog() )
+			return VRInitError_Init_InterfaceNotFound;
+		return VRInitError_None;
+	}
+
+	inline EVRInitError InitServerDriverContext( IVRDriverContext *pContext )
+	{
+		VRDriverContext() = pContext;
+		return OpenVRInternal_ModuleServerDriverContext().InitServer();
+	}
+
+	inline EVRInitError InitWatchdogDriverContext( IVRDriverContext *pContext )
+	{
+		VRDriverContext() = pContext;
+		return OpenVRInternal_ModuleServerDriverContext().InitWatchdog();
+	}
+
+	inline void CleanupDriverContext()
+	{
+		VRDriverContext() = nullptr;
+		OpenVRInternal_ModuleServerDriverContext().Clear();
+	}
+
+	#define VR_INIT_SERVER_DRIVER_CONTEXT( pContext ) \
+			{ \
+			vr::EVRInitError eError = vr::InitServerDriverContext( pContext ); \
+			if( eError != vr::VRInitError_None ) \
+				return eError; \
+			}
+
+	#define VR_CLEANUP_SERVER_DRIVER_CONTEXT() \
+		vr::CleanupDriverContext();
+
+	#define VR_INIT_WATCHDOG_DRIVER_CONTEXT( pContext ) \
+			{ \
+			vr::EVRInitError eError = vr::InitWatchdogDriverContext( pContext ); \
+			if( eError != vr::VRInitError_None ) \
+				return eError; \
+			}
+
+	#define VR_CLEANUP_WATCHDOG_DRIVER_CONTEXT() \
+		vr::CleanupDriverContext();
 }
 // End
 

@@ -457,8 +457,8 @@ void Dof6ConstraintTutorial::animate()
 /////// servo motor: flip its target periodically
 #ifdef USE_6DOF2
 		static float servoNextFrame = -1;
-		btScalar pos = m_data->m_ServoMotorConstraint->getRotationalLimitMotor(2)->m_currentPosition;
-		btScalar target = m_data->m_ServoMotorConstraint->getRotationalLimitMotor(2)->m_servoTarget;
+		//btScalar pos = m_data->m_ServoMotorConstraint->getRotationalLimitMotor(2)->m_currentPosition;
+		//btScalar target = m_data->m_ServoMotorConstraint->getRotationalLimitMotor(2)->m_servoTarget;
 		if(servoNextFrame < 0)
 		{
 			m_data->m_ServoMotorConstraint->getRotationalLimitMotor(2)->m_servoTarget *= -1;
@@ -510,7 +510,7 @@ void Dof6ConstraintTutorial::stepSimulation(float deltaTime)
 	//animate();
 	
 
-	float time = m_data->m_timeSeriesCanvas->getCurrentTime();
+	//float time = m_data->m_timeSeriesCanvas->getCurrentTime();
 	
 	float prevPos = m_data->m_TranslateSpringBody->getWorldTransform().getOrigin().x();
 	m_dynamicsWorld->stepSimulation(deltaTime);

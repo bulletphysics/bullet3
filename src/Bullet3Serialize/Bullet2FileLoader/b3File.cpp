@@ -391,7 +391,8 @@ void bFile::swapDNA(char* ptr)
 	char* data = &ptr[20];
 //	void bDNA::init(char *data, int len, bool swap)
 	int *intPtr=0;short *shtPtr=0;
-	char *cp = 0;int dataLen =0;long nr=0;
+	char *cp = 0;int dataLen =0;
+	//long nr=0;
 	intPtr = (int*)data;
 
 	/*
@@ -540,7 +541,7 @@ void bFile::writeFile(const char* fileName)
 void bFile::preSwap()
 {
 
-	const bool brokenDNA = (mFlags&FD_BROKEN_DNA)!=0;
+	//const bool brokenDNA = (mFlags&FD_BROKEN_DNA)!=0;
 	//FD_ENDIAN_SWAP
 	//byte 8 determines the endianness of the file, little (v) versus big (V)
 	int littleEndian= 1;
@@ -1173,7 +1174,7 @@ void bFile::resolvePointersMismatch()
 				int p = 0;
 				while (blockLen-- > 0)
 				{
-					b3PointerUid dp = {0};
+					b3PointerUid dp = {{0}};
 					safeSwapPtr((char*)dp.m_uniqueIds, oldPtr);
 
 					void **tptr = (void**)(newPtr + p * ptrMem);

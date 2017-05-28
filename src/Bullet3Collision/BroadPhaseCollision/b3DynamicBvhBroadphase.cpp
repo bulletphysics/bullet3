@@ -164,8 +164,8 @@ b3BroadphaseProxy*				b3DynamicBvhBroadphase::createProxy(	const b3Vector3& aabb
 															  const b3Vector3& aabbMax,
 															  int objectId,
 															  void* userPtr,
-															  short int collisionFilterGroup,
-															  short int collisionFilterMask)
+															   int collisionFilterGroup,
+																int collisionFilterMask)
 {
 	b3DbvtProxy* mem = &m_proxies[objectId];
 	b3DbvtProxy*		proxy=new(mem) b3DbvtProxy(	aabbMin,aabbMax,userPtr,

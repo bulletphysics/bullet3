@@ -1,15 +1,18 @@
 #include "SimpleOpenGL2App.h"
 #define USE_OPENGL2
 #include "OpenGLInclude.h"
-
+#include "ShapeData.h"
 #include "Bullet3Common/b3Logging.h"//b3Assert?
 #include "Bullet3Common/b3Scalar.h"
 #include "Bullet3Common/b3AlignedObjectArray.h"
 #include "Bullet3Common/b3Vector3.h"
+#include "Bullet3Common/b3Quaternion.h"
 #include "../CommonInterfaces/CommonRenderInterface.h"
 #include "../OpenGLWindow/GLPrimitiveRenderer.h"
+#include "GLInstanceGraphicsShape.h"
 #include "stdlib.h"
 #include "TwFonts.h"
+#include "SimpleOpenGL2Renderer.h"
 #ifdef __APPLE__
 #include "MacOpenGLWindow.h"
 #else
@@ -20,7 +23,11 @@
 #include "Win32OpenGLWindow.h"
 #else
 //let's cross the fingers it is Linux/X11
+#ifdef BT_USE_EGL
+#include "EGLOpenGLWindow.h"
+#else
 #include "X11OpenGLWindow.h"
+#endif //BT_USE_EGL
 #endif //_WIN32
 #endif//__APPLE__
 #include <stdio.h>
@@ -115,25 +122,27 @@ SimpleOpenGL2App::SimpleOpenGL2App(const char* title, int width, int height)
 	m_window->setWindowTitle(title);
 
 
+#ifndef NO_GLEW
 #ifndef __APPLE__
 #ifndef _WIN32
-//some Linux implementations need the 'glewExperimental' to be true
+    //some Linux implementations need the 'glewExperimental' to be true
     glewExperimental = GL_TRUE;
-#endif
-
-
+#endif //_WIN32
+    
+    
     if (glewInit() != GLEW_OK)
-	{
+    {
         b3Error("glewInit failed");
-		exit(1);
-	}
+        exit(1);
+    }
     if (!GLEW_VERSION_2_1)  // check that the machine supports the 2.1 API.
-	{
-		b3Error("GLEW_VERSION_2_1 needs to support 2_1");
-		exit(1); // or handle the error in a nicer way
-	}
-
-#endif
+    {
+        b3Error("GLEW_VERSION_2_1 needs to support 2_1");
+        exit(1); // or handle the error in a nicer way
+    }
+    
+#endif //__APPLE__
+#endif //NO_GLEW
 
 	
 	TwGenerateDefaultFonts();
@@ -155,19 +164,21 @@ SimpleOpenGL2App::SimpleOpenGL2App(const char* title, int width, int height)
 
     b3Assert(glGetError() ==GL_NO_ERROR);
 
-	//m_instancingRenderer = new GLInstancingRenderer(128*1024,32*1024*1024);
-	//m_instancingRenderer->init();
-	//m_instancingRenderer->resize(width,height);
+	//m_renderer = new GLInstancingRenderer(128*1024,32*1024*1024);
+	//m_renderer->init();
+	//m_renderer->resize(width,height);
 
 	b3Assert(glGetError() ==GL_NO_ERROR);
 
-	//m_instancingRenderer->InitShaders();
+	//m_renderer->InitShaders();
 
 	m_window->setMouseMoveCallback(Simple2MouseMoveCallback);
 	m_window->setMouseButtonCallback(Simple2MouseButtonCallback);
     m_window->setKeyboardCallback(Simple2KeyboardCallback);
     m_window->setWheelCallback(Simple2WheelCallback);
 	m_window->setResizeCallback(Simple2ResizeCallback);
+
+	m_renderer = new SimpleOpenGL2Renderer(width,height);
 
 }
 
@@ -269,7 +280,7 @@ void SimpleOpenGL2App::drawGrid(DrawGridData data)
 
 	//we don't use drawPoints because all points would have the same color
 //	b3Vector3 points[3] = { b3MakeVector3(1, 0, 0), b3MakeVector3(0, 1, 0), b3MakeVector3(0, 0, 1) };
-//	m_instancingRenderer->drawPoints(&points[0].x, b3MakeVector3(1, 0, 0), 3, sizeof(b3Vector3), 6);
+//	m_renderer->drawPoints(&points[0].x, b3MakeVector3(1, 0, 0), 3, sizeof(b3Vector3), 6);
 }
 void SimpleOpenGL2App::setUpAxis(int axis)
 {
@@ -286,13 +297,14 @@ void SimpleOpenGL2App::swapBuffer()
 	m_window->startRendering();
 
 }
-void SimpleOpenGL2App::drawText( const char* txt, int posX, int posY, float size)
+
+void SimpleOpenGL2App::drawText( const char* txt, int posXi, int posYi, float size, float colorRGBA[4])
 {
 
 }
 
 
-		static		void	restoreOpenGLState()
+static		void	restoreOpenGLState()
 			{
 				
 				
@@ -327,6 +339,11 @@ void SimpleOpenGL2App::drawText( const char* txt, int posX, int posY, float size
 				glDisable(GL_TEXTURE_2D);
 
 			}
+
+void SimpleOpenGL2App::drawText3D( const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlag)
+{
+
+}
 
 void SimpleOpenGL2App::drawText3D( const char* txt, float worldPosX, float worldPosY, float worldPosZ, float size1)
 {
@@ -420,10 +437,10 @@ void SimpleOpenGL2App::drawText3D( const char* txt, float worldPosX, float world
 						0,0,0,1};
 */
 			   PrimVertex vertexData[4] = {
-					{ PrimVec4(-1.f+2.f*x0/float(screenWidth), 1.f-2.f*y0/float(screenHeight), z, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u0,v0)},
-					{ PrimVec4(-1.f+2.f*x0/float(screenWidth),  1.f-2.f*y1/float(screenHeight), z, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u0,v1)},
-					{ PrimVec4( -1.f+2.f*x1/float(screenWidth),  1.f-2.f*y1/float(screenHeight), z, 1.f ), PrimVec4(color[0], color[1], color[2], color[3]) ,PrimVec2(u1,v1)},
-					{ PrimVec4( -1.f+2.f*x1/float(screenWidth), 1.f-2.f*y0/float(screenHeight), z, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u1,v0)}
+					PrimVertex( PrimVec4(-1.f+2.f*x0/float(screenWidth), 1.f-2.f*y0/float(screenHeight), z, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u0,v0)),
+					PrimVertex( PrimVec4(-1.f+2.f*x0/float(screenWidth),  1.f-2.f*y1/float(screenHeight), z, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u0,v1)),
+					PrimVertex(PrimVec4( -1.f+2.f*x1/float(screenWidth),  1.f-2.f*y1/float(screenHeight), z, 1.f ), PrimVec4(color[0], color[1], color[2], color[3]) ,PrimVec2(u1,v1)),
+					PrimVertex( PrimVec4( -1.f+2.f*x1/float(screenWidth), 1.f-2.f*y0/float(screenHeight), z, 1.f ), PrimVec4( color[0], color[1], color[2], color[3] ) ,PrimVec2(u1,v0))
 				};
     
 				glBegin(GL_TRIANGLES);
@@ -460,8 +477,106 @@ void SimpleOpenGL2App::drawText3D( const char* txt, float worldPosX, float world
 	restoreOpenGLState();
 }
 
-void SimpleOpenGL2App::registerGrid(int xres, int yres, float color0[4], float color1[4])
+
+void SimpleOpenGL2App::registerGrid(int cells_x, int cells_z, float color0[4], float color1[4])
 {
-    
+	b3Vector3 cubeExtents=b3MakeVector3(0.5,0.5,0.5);
+	cubeExtents[m_data->m_upAxis] = 0;
+	int cubeId = registerCubeShape(cubeExtents[0],cubeExtents[1],cubeExtents[2]);
+
+	b3Quaternion orn(0,0,0,1);
+	b3Vector3 center=b3MakeVector3(0,0,0,1);
+	b3Vector3 scaling=b3MakeVector3(1,1,1,1);
+
+	for ( int i = 0; i < cells_x; i++) 
+	{
+		for (int j = 0; j < cells_z; j++) 
+		{
+			float* color =0;
+			if ((i + j) % 2 == 0) 
+			{
+				color = (float*)color0;
+			} else {
+				color = (float*)color1;
+			}
+			if (this->m_data->m_upAxis==1)
+			{
+				center =b3MakeVector3((i + 0.5f) - cells_x * 0.5f, 0.f, (j + 0.5f) - cells_z * 0.5f);
+			} else
+			{
+				center =b3MakeVector3((i + 0.5f) - cells_x * 0.5f, (j + 0.5f) - cells_z * 0.5f,0.f );
+			}
+			m_renderer->registerGraphicsInstance(cubeId,center,orn,color,scaling);
+		}
+	}
+	
 }
 
+int	SimpleOpenGL2App::registerGraphicsUnitSphereShape(EnumSphereLevelOfDetail lod, int textureId)
+{
+
+	int strideInBytes = 9*sizeof(float);
+
+	int graphicsShapeIndex = -1;
+
+	switch (lod)
+	{
+		case 		SPHERE_LOD_POINT_SPRITE:
+		{
+			int numVertices = sizeof(point_sphere_vertices)/strideInBytes;
+			int numIndices = sizeof(point_sphere_indices)/sizeof(int);
+			graphicsShapeIndex = m_renderer->registerShape(&point_sphere_vertices[0],numVertices,point_sphere_indices,numIndices,B3_GL_POINTS,textureId);
+			break;
+		}
+
+		case SPHERE_LOD_LOW:
+		{
+			int numVertices = sizeof(low_sphere_vertices)/strideInBytes;
+			int numIndices = sizeof(low_sphere_indices)/sizeof(int);
+			graphicsShapeIndex = m_renderer->registerShape(&low_sphere_vertices[0],numVertices,low_sphere_indices,numIndices,B3_GL_TRIANGLES,textureId);
+			break;
+		}
+		case SPHERE_LOD_MEDIUM:
+		{
+			int numVertices = sizeof(medium_sphere_vertices)/strideInBytes;
+			int numIndices = sizeof(medium_sphere_indices)/sizeof(int);
+			graphicsShapeIndex = m_renderer->registerShape(&medium_sphere_vertices[0],numVertices,medium_sphere_indices,numIndices,B3_GL_TRIANGLES,textureId);
+			break;
+		}
+		case SPHERE_LOD_HIGH:
+		default:
+		{
+			int numVertices = sizeof(detailed_sphere_vertices)/strideInBytes;
+			int numIndices = sizeof(detailed_sphere_indices)/sizeof(int);
+			graphicsShapeIndex = m_renderer->registerShape(&detailed_sphere_vertices[0],numVertices,detailed_sphere_indices,numIndices,B3_GL_TRIANGLES,textureId);
+			break;
+		}
+	};
+	return graphicsShapeIndex;
+}
+
+
+int	SimpleOpenGL2App::registerCubeShape(float halfExtentsX,float halfExtentsY, float halfExtentsZ, int textureIndex,  float textureScaling )
+{
+	int strideInBytes = 9*sizeof(float);
+	int numVertices = sizeof(cube_vertices_textured)/strideInBytes;
+	int numIndices = sizeof(cube_indices)/sizeof(int);
+
+	b3AlignedObjectArray<GLInstanceVertex> verts;
+	verts.resize(numVertices);
+	for (int i=0;i<numVertices;i++)
+	{
+		verts[i].xyzw[0] = halfExtentsX*cube_vertices_textured[i*9];
+		verts[i].xyzw[1] = halfExtentsY*cube_vertices_textured[i*9+1];
+		verts[i].xyzw[2] = halfExtentsZ*cube_vertices_textured[i*9+2];
+		verts[i].xyzw[3] = cube_vertices_textured[i*9+3];
+		verts[i].normal[0] = cube_vertices_textured[i*9+4];
+		verts[i].normal[1]= cube_vertices_textured[i*9+5];
+		verts[i].normal[2] = cube_vertices_textured[i*9+6];
+		verts[i].uv[0] = cube_vertices_textured[i*9+7]*textureScaling;
+		verts[i].uv[1] = cube_vertices_textured[i*9+8]*textureScaling;
+	}
+	
+	int shapeId = m_renderer->registerShape(&verts[0].xyzw[0],numVertices,cube_indices,numIndices,B3_GL_TRIANGLES,textureIndex);
+	return shapeId;
+}

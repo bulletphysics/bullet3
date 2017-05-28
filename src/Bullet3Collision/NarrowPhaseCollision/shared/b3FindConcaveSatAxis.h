@@ -323,7 +323,7 @@ bool b3FindSeparatingAxisEdgeEdge(	const b3ConvexPolyhedronData* hullA, __global
 	b3Float4 posB = posB1;
 	posB.w = 0.f;
 
-	int curPlaneTests=0;
+//	int curPlaneTests=0;
 
 	int curEdgeEdge = 0;
 	// Test edges
@@ -577,7 +577,7 @@ __kernel void   b3FindConcaveSeparatingAxisKernel( __global b3Int4* concavePairs
 
 	hasSeparatingNormals[i] = 0;
 
-	int numFacesA = convexShapes[shapeIndexA].m_numFaces;
+//	int numFacesA = convexShapes[shapeIndexA].m_numFaces;
 	int numActualConcaveConvexTests = 0;
 	
 	int f = concavePairs[i].z;
@@ -620,7 +620,7 @@ __kernel void   b3FindConcaveSeparatingAxisKernel( __global b3Int4* concavePairs
 		int hasSeparatingAxis=5;
 		b3Float4 sepAxis=b3MakeFloat4(1,2,3,4);
 
-		int localCC=0;
+	//	int localCC=0;
 		numActualConcaveConvexTests++;
 
 		//a triangle has 3 unique edges
@@ -665,7 +665,7 @@ __kernel void   b3FindConcaveSeparatingAxisKernel( __global b3Int4* concavePairs
 			indicesA[5]=0;
 			curUsedIndices+=3;
 			float c = b3Dot(normal,verticesA[0]);
-			float c1 = -face.m_plane.w;
+		//	float c1 = -face.m_plane.w;
 			facesA[fidx].m_plane.x = -normal.x;
 			facesA[fidx].m_plane.y = -normal.y;
 			facesA[fidx].m_plane.z = -normal.z;

@@ -168,10 +168,9 @@ btBroadphaseProxy*				btDbvtBroadphase::createProxy(	const btVector3& aabbMin,
 															  const btVector3& aabbMax,
 															  int /*shapeType*/,
 															  void* userPtr,
-															  short int collisionFilterGroup,
-															  short int collisionFilterMask,
-															  btDispatcher* /*dispatcher*/,
-															  void* /*multiSapProxy*/)
+															  int collisionFilterGroup,
+															  int collisionFilterMask,
+															  btDispatcher* /*dispatcher*/)
 {
 	btDbvtProxy*		proxy=new(btAlignedAlloc(sizeof(btDbvtProxy),16)) btDbvtProxy(	aabbMin,aabbMax,userPtr,
 		collisionFilterGroup,
@@ -545,7 +544,9 @@ void							btDbvtBroadphase::collide(btDispatcher* dispatcher)
 	btDbvtProxy*	current=m_stageRoots[m_stageCurrent];
 	if(current)
 	{
+#if DBVT_BP_ACCURATESLEEPING
 		btDbvtTreeCollider	collider(this);
+#endif
 		do	{
 			btDbvtProxy*	next=current->links[1];
 			listremove(current,m_stageRoots[current->stage]);

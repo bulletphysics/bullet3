@@ -18,6 +18,7 @@
 #include "../Importers/ImportSTLDemo/ImportSTLSetup.h"
 #include "../Importers/ImportURDFDemo/ImportURDFSetup.h"
 #include "../Importers/ImportSDFDemo/ImportSDFSetup.h"
+#include "../Importers/ImportMJCFDemo/ImportMJCFSetup.h"
 #include "../Collision/CollisionTutorialBullet2.h"
 #include "../GyroscopicDemo/GyroscopicSetup.h"
 #include "../Constraints/Dof6Spring2Setup.h"
@@ -50,6 +51,10 @@
 #include "../RoboticsLearning/KukaGraspExample.h"
 #include "../RoboticsLearning/GripperGraspExample.h"
 #include "../InverseKinematics/InverseKinematicsExample.h"
+
+#ifdef B3_ENABLE_TINY_AUDIO
+#include "../TinyAudio/TinyAudioExample.h"
+#endif //B3_ENABLE_TINY_AUDIO
 
 #ifdef ENABLE_LUA
 #include "../LuaDemo/LuaPhysicsSetup.h"
@@ -99,7 +104,6 @@ struct ExampleEntry
 
 static ExampleEntry gDefaultExamples[]=
 {
-
 	ExampleEntry(0,"API"),
 
 	ExampleEntry(1,"Basic Example","Create some rigid bodies using box collision shapes. This is a good example to familiarize with the basic initialization of Bullet. The Basic Example can also be compiled without graphical user interface, as a console application. Press W for wireframe, A to show AABBs, I to suspend/restart physics simulation. Press D to toggle auto-deactivation of the simulation. ", BasicExampleCreateFunc),
@@ -132,6 +136,17 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Inverted Pendulum PD","Keep an inverted pendulum up using open loop PD control", InvertedPendulumPDControlCreateFunc),
 	ExampleEntry(1,"MultiBody Soft Contact", "Using the error correction parameter (ERP) and constraint force mixing (CFM) values for contacts to simulate compliant contact.",MultiBodySoftContactCreateFunc,0),
 
+	ExampleEntry(0,"Physics Client-Server"),
+	ExampleEntry(1,"Physics Server", "Create a physics server that communicates with a physics client over shared memory. You can connect to the server using pybullet, a PhysicsClient or a UDP/TCP Bridge.",
+			PhysicsServerCreateFunc),
+	ExampleEntry(1, "Physics Client (Shared Mem)", "Create a physics client that can communicate with a physics server over shared memory.", PhysicsClientCreateFunc),
+
+//	ExampleEntry(1,"Physics Server (Logging)", "Create a physics server that communicates with a physics client over shared memory. It will log all commands to a file.",
+//			PhysicsServerCreateFunc,PHYSICS_SERVER_ENABLE_COMMAND_LOGGING),
+//	ExampleEntry(1,"Physics Server (Replay Log)", "Create a physics server that replay a command log from disk.",
+//			PhysicsServerCreateFunc,PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG),
+//	
+//	ExampleEntry(1, "Physics Client (Direct)", "Create a physics client that can communicate with a physics server directly in-process.", PhysicsClientCreateFunc,eCLIENTEXAMPLE_DIRECT),
 
 	ExampleEntry(0,"Inverse Dynamics"),
     ExampleEntry(1,"Inverse Dynamics URDF", "Create a btMultiBody from URDF. Create an inverse MultiBodyTree model from that. Use either decoupled PD control or computed torque control using the inverse model to track joint position targets", InverseDynamicsExampleCreateFunc,BT_ID_LOAD_URDF),
@@ -231,6 +246,8 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"URDF (RigidBody)", "Import a URDF file, and create rigid bodies (btRigidBody) connected by constraints.", ImportURDFCreateFunc, 0),
 	ExampleEntry(1,"URDF (MultiBody)", "Import a URDF file and create a single multibody (btMultiBody) with tree hierarchy of links (mobilizers).",
 					ImportURDFCreateFunc, 1),
+	ExampleEntry(1,"MJCF (MultiBody)", "Import a MJCF xml file, create multiple multibodies etc", ImportMJCFCreateFunc),
+
 	ExampleEntry(1,"SDF (MultiBody)", "Import an SDF file, create multiple multibodies etc", ImportSDFCreateFunc),
 
 	ExampleEntry(0,"Vehicles"),
@@ -248,19 +265,10 @@ static ExampleEntry gDefaultExamples[]=
 
 
 	ExampleEntry(0,"Experiments"),
+	
+
 	ExampleEntry(1,"Robot Control", "Create a physics client and server to create and control robots.",
 			PhysicsClientCreateFunc, eCLIENTEXAMPLE_SERVER),
-	ExampleEntry(1,"Physics Server", "Create a physics server that communicates with a physics client over shared memory",
-			PhysicsServerCreateFunc),
-	ExampleEntry(1,"Physics Server (RTC)", "Create a physics server that communicates with a physics client over shared memory. At each update, the Physics Server will continue calling 'stepSimulation' based on the real-time clock (RTC).",
-			PhysicsServerCreateFunc,PHYSICS_SERVER_USE_RTC_CLOCK),
-
-	ExampleEntry(1,"Physics Server (Logging)", "Create a physics server that communicates with a physics client over shared memory. It will log all commands to a file.",
-			PhysicsServerCreateFunc,PHYSICS_SERVER_ENABLE_COMMAND_LOGGING),
-	ExampleEntry(1,"Physics Server (Replay Log)", "Create a physics server that replay a command log from disk.",
-			PhysicsServerCreateFunc,PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG),
-	ExampleEntry(1, "Physics Client (Shared Mem)", "Create a physics client that can communicate with a physics server over shared memory.", PhysicsClientCreateFunc),
-	ExampleEntry(1, "Physics Client (Direct)", "Create a physics client that can communicate with a physics server directly in-process.", PhysicsClientCreateFunc,eCLIENTEXAMPLE_DIRECT),
 
 	ExampleEntry(1,"R2D2 Grasp","Load the R2D2 robot from URDF file and control it to grasp objects", R2D2GraspExampleCreateFunc, eROBOTIC_LEARN_GRASP),
 	ExampleEntry(1,"Kuka IK","Control a Kuka IIWA robot to follow a target using IK. This IK is not setup properly yet.", KukaGraspExampleCreateFunc,0),
@@ -269,9 +277,10 @@ static ExampleEntry gDefaultExamples[]=
     ExampleEntry(1,"Gripper Grasp","Grasp experiment with a gripper to improve contact model", GripperGraspExampleCreateFunc,eGRIPPER_GRASP),
     ExampleEntry(1,"Two Point Grasp","Grasp experiment with two point contact to test rolling friction", GripperGraspExampleCreateFunc, eTWO_POINT_GRASP),
 	ExampleEntry(1,"One Motor Gripper Grasp","Grasp experiment with a gripper with one motor to test slider constraint for closed loop structure", GripperGraspExampleCreateFunc, eONE_MOTOR_GRASP),
-    ExampleEntry(1,"Grasp Soft Body","Grasp soft body experiment", GripperGraspExampleCreateFunc, eGRASP_SOFT_BODY),
-    ExampleEntry(1,"Softbody Multibody Coupling","Two way coupling between soft body and multibody experiment", GripperGraspExampleCreateFunc, eSOFTBODY_MULTIBODY_COUPLING),
-
+#ifdef  USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+	ExampleEntry(1,"Grasp Soft Body","Grasp soft body experiment", GripperGraspExampleCreateFunc, eGRASP_SOFT_BODY),
+	ExampleEntry(1,"Softbody Multibody Coupling","Two way coupling between soft body and multibody experiment", GripperGraspExampleCreateFunc, eSOFTBODY_MULTIBODY_COUPLING),
+#endif //USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 
 #ifdef ENABLE_LUA
 	ExampleEntry(1,"Lua Script", "Create the dynamics world, collision shapes and rigid bodies using Lua scripting",
@@ -302,7 +311,11 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"TinyRenderer", "Very small software renderer.", TinyRendererCreateFunc),
 	ExampleEntry(1,"Dynamic Texture", "Dynamic updated textured applied to a cube.", DynamicTexturedCubeDemoCreateFunc),
 
-		
+#ifdef B3_ENABLE_TINY_AUDIO
+	ExampleEntry(0,"Audio"),
+	ExampleEntry(1,"Simple Audio","Play some sound", TinyAudioExampleCreateFunc),
+#endif
+
 
 	//Extended Tutorials Added by Mobeen
 	ExampleEntry(0,"Extended Tutorials"),

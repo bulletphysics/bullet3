@@ -443,8 +443,6 @@ void Dof6Spring2Setup::animate()
 /////// servo motor: flip its target periodically
 #ifdef USE_6DOF2
 		static float servoNextFrame = -1;
-		btScalar pos = m_data->m_ServoMotorConstraint->getRotationalLimitMotor(2)->m_currentPosition;
-		btScalar target = m_data->m_ServoMotorConstraint->getRotationalLimitMotor(2)->m_servoTarget;
 		if(servoNextFrame < 0)
 		{
 			m_data->m_ServoMotorConstraint->getRotationalLimitMotor(2)->m_servoTarget *= -1;

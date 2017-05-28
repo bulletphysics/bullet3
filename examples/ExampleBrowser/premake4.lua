@@ -35,6 +35,28 @@ project "App_BulletExampleBrowser"
                         }
                 end
 
+	if _OPTIONS["audio"] then
+			files {"../TinyAudio/*.cpp"}
+			defines {"B3_ENABLE_TINY_AUDIO"}
+			
+			if os.is("Windows") then
+				links {"winmm","Wsock32","dsound"}
+				defines {"WIN32","__WINDOWS_MM__","__WINDOWS_DS__"}
+			end
+			
+			if os.is("Linux") then initX11() 
+			                defines  {"__OS_LINUX__","__LINUX_ALSA__"}
+				links {"asound","pthread"}
+			end
+
+
+			if os.is("MacOSX") then
+				links{"Cocoa.framework"}
+				links{"CoreAudio.framework", "coreMIDI.framework", "Cocoa.framework"}
+				defines {"__OS_MACOSX__","__MACOSX_CORE__"}
+			end
+		end
+					
     if _OPTIONS["lua"] then
                 includedirs{"../ThirdPartyLibs/lua-5.2.3/src"}
                 links {"lua-5.2.3"}
@@ -88,15 +110,21 @@ project "App_BulletExampleBrowser"
 		"../SharedMemory/PhysicsServerCommandProcessor.h",
 		"../SharedMemory/TinyRendererVisualShapeConverter.cpp",
 		"../SharedMemory/TinyRendererVisualShapeConverter.h",
+		"../SharedMemory/SharedMemoryCommands.h",
+		"../SharedMemory/SharedMemoryPublic.h",
 		"../MultiThreading/MultiThreadingExample.cpp",
 		"../MultiThreading/b3PosixThreadSupport.cpp",
 		"../MultiThreading/b3Win32ThreadSupport.cpp",
 		"../MultiThreading/b3ThreadSupportInterface.cpp",
 		"../InverseDynamics/InverseDynamicsExample.cpp",
 		"../InverseDynamics/InverseDynamicsExample.h",
+		"../RobotSimulator/b3RobotSimulatorClientAPI.cpp",
+		"../RobotSimulator/b3RobotSimulatorClientAPI.h",		
 		"../BasicDemo/BasicExample.*",
 		"../Tutorial/*",
 		"../ExtendedTutorials/*",
+		"../Utils/RobotLoggingUtil.cpp",
+		"../Utils/RobotLoggingUtil.h",
 		"../Evolution/NN3DWalkers.cpp",
 		"../Evolution/NN3DWalkers.h",
 		"../Collision/*",
@@ -180,6 +208,8 @@ project "BulletExampleBrowserLib"
 		files {"../LuaDemo/LuaPhysicsSetup.cpp"}
 	end
 
+	
+	
 			
 		initOpenGL()
 		initGlew()
@@ -193,6 +223,9 @@ project "BulletExampleBrowserLib"
 		"OpenGLGuiHelper.cpp",
 		"OpenGLExampleBrowser.cpp",
 		"../Utils/b3Clock.cpp",
+		"../Utils/b3Clock.h",
+		"../Utils/ChromeTraceUtil.cpp",
+		"../Utils/ChromeTraceUtil.h",
 		"*.h",
 		"GwenGUISupport/*.cpp",
 		"GwenGUISupport/*.h",

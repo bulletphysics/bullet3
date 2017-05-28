@@ -11,8 +11,9 @@ b3PhysicsClientHandle b3ConnectPhysicsDirect()
 {
 	PhysicsServerCommandProcessor* sdk = new PhysicsServerCommandProcessor;
 
-	PhysicsDirect* direct = new PhysicsDirect(sdk);
-	bool connected = direct->connect();
+	PhysicsDirect* direct = new PhysicsDirect(sdk,true);
+	bool connected;
+	connected = direct->connect();
 	return (b3PhysicsClientHandle  )direct;
 }
 

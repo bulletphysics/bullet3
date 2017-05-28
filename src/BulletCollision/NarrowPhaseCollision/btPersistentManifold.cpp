@@ -21,6 +21,8 @@ subject to the following restrictions:
 btScalar					gContactBreakingThreshold = btScalar(0.02);
 ContactDestroyedCallback	gContactDestroyedCallback = 0;
 ContactProcessedCallback	gContactProcessedCallback = 0;
+ContactStartedCallback		gContactStartedCallback = 0;
+ContactEndedCallback		gContactEndedCallback = 0;
 ///gContactCalcArea3Points will approximate the convex hull area using 3 points
 ///when setting it to false, it will use 4 points to compute the area: it is more accurate but slower
 bool						gContactCalcArea3Points = true;
@@ -279,6 +281,7 @@ void btPersistentManifold::refreshContactPoints(const btTransform& trA,const btT
 			removeContactPoint(i);
 		} else
 		{
+            //todo: friction anchor may require the contact to be around a bit longer
 			//contact also becomes invalid when relative movement orthogonal to normal exceeds margin
 			projectedPoint = manifoldPoint.m_positionWorldOnA - manifoldPoint.m_normalWorldOnB * manifoldPoint.m_distance1;
 			projectedDifference = manifoldPoint.m_positionWorldOnB - projectedPoint;

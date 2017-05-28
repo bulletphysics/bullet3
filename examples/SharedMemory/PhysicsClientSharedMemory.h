@@ -12,8 +12,9 @@ class PhysicsClientSharedMemory : public PhysicsClient {
 protected:
 	virtual void setSharedMemoryInterface(class SharedMemoryInterface* sharedMem);
     void processBodyJointInfo(int bodyUniqueId, const struct SharedMemoryStatus& serverCmd);
-    
-        
+    void resetData();
+	void removeCachedBody(int bodyUniqueId);
+	virtual void renderSceneInternal() {};
 public:
     PhysicsClientSharedMemory();
     virtual ~PhysicsClientSharedMemory();
@@ -44,6 +45,12 @@ public:
 
     virtual bool getJointInfo(int bodyUniqueId, int jointIndex, struct b3JointInfo& info) const;
 
+    virtual int getNumUserConstraints() const;
+    
+    virtual int getUserConstraintInfo(int constraintUniqueId, struct b3UserConstraint& info) const;
+	
+	virtual int getUserConstraintId(int serialIndex) const;
+    
     virtual void setSharedMemoryKey(int key);
 
     virtual void uploadBulletFileToSharedMemory(const char* data, int len);
@@ -60,6 +67,16 @@ public:
 	virtual void getCachedOverlappingObjects(struct b3AABBOverlapData* overlappingObjects);
 
 	virtual void getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo);
+
+	virtual void getCachedVREvents(struct b3VREventsData* vrEventsData);
+
+	virtual void getCachedKeyboardEvents(struct b3KeyboardEventsData* keyboardEventsData);
+
+	virtual void getCachedRaycastHits(struct b3RaycastInformation* raycastHits);
+
+	virtual void setTimeOut(double timeOutInSeconds);
+	virtual double getTimeOut() const;
+
 };
 
 #endif  // BT_PHYSICS_CLIENT_API_H

@@ -48,6 +48,12 @@ public:
 
     virtual bool getJointInfo(int bodyIndex, int jointIndex, struct b3JointInfo& info) const;
 
+    virtual int getNumUserConstraints() const;
+    
+    virtual int getUserConstraintInfo(int constraintUniqueId, struct b3UserConstraint&info) const;
+	
+	virtual int getUserConstraintId(int serialIndex) const;
+    
 	///todo: move this out of the
     virtual void setSharedMemoryKey(int key);
 
@@ -65,6 +71,15 @@ public:
 	virtual void getCachedOverlappingObjects(struct b3AABBOverlapData* overlappingObjects);
 
 	virtual void getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo);
+
+	virtual void getCachedVREvents(struct b3VREventsData* vrEventsData);
+
+	virtual void getCachedKeyboardEvents(struct b3KeyboardEventsData* keyboardEventsData);
+
+	virtual void getCachedRaycastHits(struct b3RaycastInformation* raycastHits);
+
+	virtual void setTimeOut(double timeOutInSeconds);
+	virtual double getTimeOut() const;
 };
 
 #endif //PHYSICS_LOOP_BACK_H

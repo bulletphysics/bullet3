@@ -1,0 +1,16 @@
+include MANIFEST.in *.txt
+recursive-include examples *.h
+recursive-include examples *.hpp
+recursive-include Extras *.h
+recursive-include Extras *.hpp
+recursive-include src *.h
+recursive-include src *.hpp
+include examples/ThirdPartyLibs/enet/unix.c
+include examples/OpenGLWindow/X11OpenGLWindow.cpp
+include examples/ThirdPartyLibs/Glew/glew.c
+include examples/ThirdPartyLibs/enet/win32.c
+include examples/OpenGLWindow/Win32Window.cpp
+include examples/OpenGLWindow/Win32OpenGLWindow.cpp
+include examples/ThirdPartyLibs/Glew/glew.c
+include examples/OpenGLWindow/MacOpenGLWindow.cpp
+include examples/OpenGLWindow/MacOpenGLWindowObjC.m

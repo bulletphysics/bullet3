@@ -41,9 +41,9 @@ class GLInstancingRenderer : public CommonRenderInterface
 	int m_upAxis;
     bool m_enableBlend;
     
-	
+	int registerGraphicsInstanceInternal(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling);
+	void rebuildGraphicsInstances();
 
-	
 	
 public:
 	GLInstancingRenderer(int m_maxObjectCapacity, int maxShapeCapacityInBytes = 56*1024*1024);
@@ -57,14 +57,15 @@ public:
 	void InitShaders();
 	void CleanupShaders();
 	virtual void removeAllInstances();
-	
+	virtual void removeGraphicsInstance(int instanceUid);
+
 	virtual void updateShape(int shapeIndex, const float* vertices);
 
 	///vertices must be in the format x,y,z, nx,ny,nz, u,v
 	virtual int registerShape(const float* vertices, int numvertices, const int* indices, int numIndices, int primitiveType=B3_GL_TRIANGLES, int textureIndex=-1);
 	
-	virtual int	registerTexture(const unsigned char* texels, int width, int height);
-	virtual void    updateTexture(int textureIndex, const unsigned char* texels);
+	virtual int registerTexture(const unsigned char* texels, int width, int height, bool flipPixelsY=true);
+    virtual void updateTexture(int textureIndex, const unsigned char* texels, bool flipPixelsY=true);
     virtual void activateTexture(int textureIndex);
 
 
@@ -72,9 +73,11 @@ public:
 	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling);
 	virtual int registerGraphicsInstance(int shapeIndex, const double* position, const double* quaternion, const double* color, const double* scaling);
 
+
 	void writeTransforms();
 
-	
+	virtual bool readSingleInstanceTransformToCPU(float* position, float* orientation, int srcIndex);
+
 	virtual void writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int srcIndex);
 	virtual void writeSingleInstanceTransformToCPU(const double* position, const double* orientation, int srcIndex)
     {
@@ -96,11 +99,11 @@ public:
 
 	virtual void writeSingleInstanceTransformToGPU(float* position, float* orientation, int srcIndex);
 
-	virtual void writeSingleInstanceColorToCPU(float* color, int srcIndex);
-	virtual void writeSingleInstanceColorToCPU(double* color, int srcIndex);
+	virtual void writeSingleInstanceColorToCPU(const float* color, int srcIndex);
+	virtual void writeSingleInstanceColorToCPU(const double* color, int srcIndex);
 
-	virtual void writeSingleInstanceScaleToCPU(float* scale, int srcIndex);
-	virtual void writeSingleInstanceScaleToCPU(double* scale, int srcIndex);
+	virtual void writeSingleInstanceScaleToCPU(const float* scale, int srcIndex);
+	virtual void writeSingleInstanceScaleToCPU(const double* scale, int srcIndex);
 
 	
 	virtual struct	GLInstanceRendererInternalData* getInternalData();
@@ -111,13 +114,17 @@ public:
 	virtual void drawPoints(const float* positions, const float color[4], int numPoints, int pointStrideInBytes, float pointDrawSize);
 	virtual void drawPoint(const float* position, const float color[4], float pointSize=1);
 	virtual void drawPoint(const double* position, const double color[4], double pointDrawSize=1);
+	virtual void drawTexturedTriangleMesh(float worldPosition[3], float worldOrientation[4], const float* vertices, int numvertices, const unsigned int* indices, int numIndices, float color[4], int textureIndex=-1, int vertexLayout=0);
+	
 	virtual void updateCamera(int upAxis=1);
 
 	virtual const CommonCameraInterface* getActiveCamera() const;
 	virtual CommonCameraInterface* getActiveCamera();
 	virtual void setActiveCamera(CommonCameraInterface* cam);
 	
-	
+	virtual void setLightPosition(const float lightPos[3]);
+	virtual void setLightPosition(const double lightPos[3]);
+
 	virtual void	resize(int width, int height);
 	virtual int	getScreenWidth()
 	{

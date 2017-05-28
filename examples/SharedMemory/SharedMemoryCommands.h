@@ -33,7 +33,7 @@
 #define MAX_SDF_FILENAME_LENGTH 1024
 #define MAX_FILENAME_LENGTH MAX_URDF_FILENAME_LENGTH
 #define MAX_NUM_LINKS MAX_DEGREE_OF_FREEDOM
-#define MAX_SDF_BODIES 500
+#define MAX_SDF_BODIES 512
 
 struct TmpFloat3 
 {
@@ -79,6 +79,7 @@ enum EnumUrdfArgsUpdateFlags
 	URDF_ARGS_INITIAL_ORIENTATION=4,
 	URDF_ARGS_USE_MULTIBODY=8,
 	URDF_ARGS_USE_FIXED_BASE=16,
+	URDF_ARGS_HAS_CUSTOM_URDF_FLAGS = 32
 };
 
 
@@ -89,13 +90,51 @@ struct UrdfArgs
 	double m_initialOrientation[4];
 	int m_useMultiBody;
 	int m_useFixedBase;
+	int m_urdfFlags;
 };
 
+
+
+struct MjcfArgs
+{
+	char m_mjcfFileName[MAX_URDF_FILENAME_LENGTH];
+	int m_useMultiBody;
+	int m_flags;
+};
 
 struct BulletDataStreamArgs
 {
 	char m_bulletFileName[MAX_FILENAME_LENGTH];
 	int m_bodyUniqueId;
+	char m_bodyName[MAX_FILENAME_LENGTH];
+};
+
+enum EnumChangeDynamicsInfoFlags
+{
+	CHANGE_DYNAMICS_INFO_SET_MASS=1,
+	CHANGE_DYNAMICS_INFO_SET_COM=2,
+	CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION=4,
+	CHANGE_DYNAMICS_INFO_SET_SPINNING_FRICTION=8,
+	CHANGE_DYNAMICS_INFO_SET_ROLLING_FRICTION=16,
+	CHANGE_DYNAMICS_INFO_SET_RESTITUTION=32,
+};
+
+struct ChangeDynamicsInfoArgs
+{
+	int m_bodyUniqueId;
+	int m_linkIndex;
+	double m_mass;
+	double m_COM[3];
+	double m_lateralFriction;
+	double m_spinningFriction;
+	double m_rollingFriction;
+	double m_restitution;
+};
+
+struct GetDynamicsInfoArgs
+{
+	int m_bodyUniqueId;
+	int m_linkIndex;
 };
 
 struct SetJointFeedbackArgs
@@ -112,6 +151,7 @@ enum EnumInitPoseFlags
     INIT_POSE_HAS_JOINT_STATE=4,
 	INIT_POSE_HAS_BASE_LINEAR_VELOCITY = 8,
 	INIT_POSE_HAS_BASE_ANGULAR_VELOCITY = 16,
+	INIT_POSE_HAS_JOINT_VELOCITY=32,
 };
 
 
@@ -174,6 +214,19 @@ enum EnumRequestContactDataUpdateFlags
 	CMD_REQUEST_CONTACT_POINT_HAS_LINK_INDEX_B_FILTER = 8,
 };
 
+struct RequestRaycastIntersections
+{
+	int m_numRays;
+	double m_rayFromPositions[MAX_RAY_INTERSECTION_BATCH_SIZE][3];
+	double m_rayToPositions[MAX_RAY_INTERSECTION_BATCH_SIZE][3];
+};
+
+struct SendRaycastHits
+{
+	int m_numRaycastHits;
+	b3RayHitInfo m_rayHits[MAX_RAY_INTERSECTION_BATCH_SIZE];
+};
+
 struct RequestContactDataArgs
 {
     int m_startingContactPointIndex;
@@ -198,12 +251,19 @@ struct RequestVisualShapeDataArgs
 	int m_startingVisualShapeIndex;
 };
 
+enum EnumUpdateVisualShapeData
+{
+	CMD_UPDATE_VISUAL_SHAPE_TEXTURE=1,
+	CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR=2,
+};
+
 struct UpdateVisualShapeDataArgs
 {
     int m_bodyUniqueId;
     int m_jointIndex;
     int m_shapeIndex;
     int m_textureUniqueId;
+	double m_rgbaColor[4];
 };
 
 struct LoadTextureArgs
@@ -296,6 +356,13 @@ enum EnumSimParamUpdateFlags
 	SIM_PARAM_UPDATE_INTERNAL_SIMULATION_FLAGS=64,
 	SIM_PARAM_UPDATE_USE_SPLIT_IMPULSE=128,
 	SIM_PARAM_UPDATE_SPLIT_IMPULSE_PENETRATION_THRESHOLD = 256,
+	SIM_PARAM_UPDATE_COLLISION_FILTER_MODE=512,
+	SIM_PARAM_UPDATE_CONTACT_BREAKING_THRESHOLD = 1024,
+	SIM_PARAM_MAX_CMD_PER_1MS = 2048,
+	SIM_PARAM_ENABLE_FILE_CACHING = 4096,
+	SIM_PARAM_UPDATE_RESTITUTION_VELOCITY_THRESHOLD = 8192,
+
+
 };
 
 enum EnumLoadBunnyUpdateFlags
@@ -322,8 +389,13 @@ struct SendPhysicsSimulationParameters
 	bool m_allowRealTimeSimulation;
 	int m_useSplitImpulse;
 	double m_splitImpulsePenetrationThreshold;
+	double m_contactBreakingThreshold;
+	int m_maxNumCmdPer1ms;
 	int m_internalSimFlags;
 	double m_defaultContactERP;
+	int m_collisionFilterMode;
+	int m_enableFileCaching;
+	double m_restitutionVelocityThreshold;
 };
 
 struct LoadBunnyArgs
@@ -337,9 +409,6 @@ struct RequestActualStateArgs
 {
 	int m_bodyUniqueId;
 };
-
-
-
 
 struct SendActualStateArgs
 {
@@ -359,6 +428,7 @@ struct SendActualStateArgs
     double m_jointMotorForce[MAX_DEGREE_OF_FREEDOM];
     
     double m_linkState[7*MAX_NUM_LINKS];
+	double m_linkWorldVelocities[6*MAX_NUM_LINKS];//linear velocity and angular velocity in world space (x/y/z each).
     double m_linkLocalInertialFrames[7*MAX_NUM_LINKS];
 };
 
@@ -409,10 +479,28 @@ struct CreateBoxShapeArgs
 	double m_colorRGBA[4];
 };
 
+struct b3ObjectArgs
+{
+    int m_numBodies;
+    int m_bodyUniqueIds[MAX_SDF_BODIES];
+	int m_numUserConstraints;
+	int m_userConstraintUniqueIds[MAX_SDF_BODIES];
+};
+
+struct b3Profile
+{
+	char m_name[MAX_FILENAME_LENGTH];
+	int m_durationInMicroSeconds;
+};
+
+
+
 struct SdfLoadedArgs
 {
     int m_numBodies;
     int m_bodyUniqueIds[MAX_SDF_BODIES];
+    int m_numUserConstraints;
+	int m_userConstraintUniqueIds[MAX_SDF_BODIES];
     
     ///@todo(erwincoumans) load cameras, lights etc
     //int m_numCameras; 
@@ -491,7 +579,8 @@ enum EnumCalculateInverseKinematicsFlags
     IK_HAS_TARGET_POSITION=1,
 	IK_HAS_TARGET_ORIENTATION=2,
     IK_HAS_NULL_SPACE_VELOCITY=4,
-    //IK_HAS_CURRENT_JOINT_POSITIONS=8,//not used yet
+    IK_HAS_JOINT_DAMPING=8,
+    //IK_HAS_CURRENT_JOINT_POSITIONS=16,//not used yet
 };
 
 struct CalculateInverseKinematicsArgs
@@ -505,6 +594,7 @@ struct CalculateInverseKinematicsArgs
     double m_upperLimit[MAX_DEGREE_OF_FREEDOM];
     double m_jointRange[MAX_DEGREE_OF_FREEDOM];
     double m_restPose[MAX_DEGREE_OF_FREEDOM];
+    double m_jointDamping[MAX_DEGREE_OF_FREEDOM];
 };
 
 struct CalculateInverseKinematicsResultArgs
@@ -518,26 +608,21 @@ enum EnumUserConstraintFlags
 {
     USER_CONSTRAINT_ADD_CONSTRAINT=1,
 	USER_CONSTRAINT_REMOVE_CONSTRAINT=2,
-	USER_CONSTRAINT_CHANGE_CONSTRAINT=4
+	USER_CONSTRAINT_CHANGE_CONSTRAINT=4,
+	USER_CONSTRAINT_CHANGE_PIVOT_IN_B=8,
+	USER_CONSTRAINT_CHANGE_FRAME_ORN_IN_B=16,
+	USER_CONSTRAINT_CHANGE_MAX_FORCE=32,
+	USER_CONSTRAINT_REQUEST_INFO=64,
+	
 };
 
-struct UserConstraintArgs
+enum EnumBodyChangeFlags
 {
-    int m_parentBodyIndex;
-    int m_parentJointIndex;
-    int m_childBodyIndex;
-    int m_childJointIndex;
-    double m_parentFrame[7];
-    double m_childFrame[7];
-    double m_jointAxis[3];
-    int m_jointType;
-	int m_userConstraintUniqueId;
+	BODY_DELETE_FLAG=1,
 };
 
-struct UserConstraintResultArgs
-{
-	int m_userConstraintUniqueId;
-};
+
+
 
 enum EnumUserDebugDrawFlags
 {
@@ -547,6 +632,11 @@ enum EnumUserDebugDrawFlags
 	USER_DEBUG_REMOVE_ALL=8,	
 	USER_DEBUG_SET_CUSTOM_OBJECT_COLOR = 16,
 	USER_DEBUG_REMOVE_CUSTOM_OBJECT_COLOR = 32,
+	USER_DEBUG_ADD_PARAMETER=64,
+	USER_DEBUG_READ_PARAMETER=128,
+	USER_DEBUG_HAS_OPTION_FLAGS=256,
+	USER_DEBUG_HAS_TEXT_ORIENTATION = 512,
+	USER_DEBUG_HAS_PARENT_OBJECT=1024,
 
 };
 
@@ -558,12 +648,21 @@ struct UserDebugDrawArgs
 	double	m_lineWidth;
 	
 	double m_lifeTime;
-	int m_removeItemUniqueId;
+	int m_itemUniqueId;
 
 	char m_text[MAX_FILENAME_LENGTH];
 	double m_textPositionXYZ[3];
+	double m_textOrientation[4];
+	int m_parentObjectUniqueId;
+	int m_parentLinkIndex;
 	double m_textColorRGB[3];
 	double m_textSize;
+	int m_optionFlags;
+
+
+	double m_rangeMin;
+	double m_rangeMax;
+	double m_startValue;
 
 	double m_objectDebugColorRGB[3];
 	int m_objectUniqueId;
@@ -575,8 +674,90 @@ struct UserDebugDrawArgs
 struct UserDebugDrawResultArgs
 {
 	int m_debugItemUniqueId;
+	double m_parameterValue;
 };
 
+
+struct SendVREvents
+{
+	int m_numVRControllerEvents;
+	b3VRControllerEvent m_controllerEvents[MAX_VR_CONTROLLERS];
+};
+
+struct SendKeyboardEvents
+{
+	int m_numKeyboardEvents;
+	b3KeyboardEvent m_keyboardEvents[MAX_KEYBOARD_EVENTS];
+};
+
+
+enum eVRCameraEnums
+{
+	VR_CAMERA_ROOT_POSITION=1,
+	VR_CAMERA_ROOT_ORIENTATION=2,
+	VR_CAMERA_ROOT_TRACKING_OBJECT=4,
+	VR_CAMERA_FLAG = 8,
+};
+
+enum eStateLoggingEnums
+{
+	STATE_LOGGING_START_LOG=1,
+	STATE_LOGGING_STOP_LOG=2,
+	STATE_LOGGING_FILTER_OBJECT_UNIQUE_ID=4,
+	STATE_LOGGING_MAX_LOG_DOF=8,
+	STATE_LOGGING_FILTER_LINK_INDEX_A=16,
+	STATE_LOGGING_FILTER_LINK_INDEX_B=32,
+	STATE_LOGGING_FILTER_BODY_UNIQUE_ID_A=64,
+	STATE_LOGGING_FILTER_BODY_UNIQUE_ID_B=128,
+	STATE_LOGGING_FILTER_DEVICE_TYPE=256
+};
+
+struct VRCameraState
+{
+	double m_rootPosition[3];
+	double m_rootOrientation[4];
+	int m_trackingObjectUniqueId;
+	int m_trackingObjectFlag;
+};
+
+
+
+struct StateLoggingRequest
+{
+	char m_fileName[MAX_FILENAME_LENGTH];
+	int m_logType;//Minitaur, generic robot, VR states, contact points
+	int m_numBodyUniqueIds;////only if STATE_LOGGING_FILTER_OBJECT_UNIQUE_ID flag is set
+	int m_bodyUniqueIds[MAX_SDF_BODIES];
+	int m_loggingUniqueId;
+	int m_maxLogDof;
+	int m_linkIndexA; // only if STATE_LOGGING_FILTER_LINK_INDEX_A flag is set
+	int m_linkIndexB; // only if STATE_LOGGING_FILTER_LINK_INDEX_B flag is set
+	int m_bodyUniqueIdA; // only if STATE_LOGGING_FILTER_BODY_UNIQUE_ID_A flag is set
+	int m_bodyUniqueIdB; // only if STATE_LOGGING_FILTER_BODY_UNIQUE_ID_B flag is set
+	int m_deviceFilterType; //user to select (filter) which VR devices to log
+};
+
+struct StateLoggingResultArgs
+{
+	int m_loggingUniqueId;
+};
+
+enum InternalOpenGLVisualizerUpdateFlags
+{
+    COV_SET_CAMERA_VIEW_MATRIX=1,
+    COV_SET_FLAGS=2,
+};
+
+struct ConfigureOpenGLVisualizerRequest
+{
+    double m_cameraDistance;
+    double m_cameraPitch;
+    double m_cameraYaw;
+    double m_cameraTargetPosition[3];
+  
+    int m_setFlag;
+    int m_setEnabled;
+};
 
 struct SharedMemoryCommand
 {
@@ -592,8 +773,11 @@ struct SharedMemoryCommand
     {
         struct UrdfArgs m_urdfArguments;
 		struct SdfArgs m_sdfArguments;
+		struct MjcfArgs	m_mjcfArguments;
 		struct FileArgs m_fileArguments;
 		struct SdfRequestInfoArgs m_sdfRequestInfoArgs;
+		struct ChangeDynamicsInfoArgs m_changeDynamicsInfoArgs;
+		struct GetDynamicsInfoArgs m_getDynamicsInfoArgs;
 		struct InitPoseArgs m_initPoseArgs;
 		struct SendPhysicsSimulationParameters m_physSimParamArgs;
 		struct BulletDataStreamArgs	m_dataStreamArguments;
@@ -607,7 +791,7 @@ struct SharedMemoryCommand
         struct ExternalForceArgs m_externalForceArguments;
 		struct CalculateInverseDynamicsArgs m_calculateInverseDynamicsArguments;
         struct CalculateJacobianArgs m_calculateJacobianArguments;
-        struct UserConstraintArgs m_userConstraintArguments;
+        struct b3UserConstraint m_userConstraintArguments;
         struct RequestContactDataArgs m_requestContactPointArguments;
 		struct RequestOverlappingObjectsArgs m_requestOverlappingObjectsArgs;
         struct RequestVisualShapeDataArgs m_requestVisualShapeDataArguments;
@@ -615,7 +799,14 @@ struct SharedMemoryCommand
         struct LoadTextureArgs m_loadTextureArguments;
 		struct CalculateInverseKinematicsArgs m_calculateInverseKinematicsArguments;
 		struct UserDebugDrawArgs m_userDebugDrawArgs;
+		struct RequestRaycastIntersections m_requestRaycastIntersections;
         struct LoadBunnyArgs m_loadBunnyArguments;
+		struct VRCameraState m_vrCameraStateArguments;
+		struct StateLoggingRequest m_stateLoggingArguments;
+        struct ConfigureOpenGLVisualizerRequest m_configureOpenGLVisualizerArguments;
+		struct b3ObjectArgs m_removeObjectArgs;
+		struct b3Profile m_profile;
+
     };
 };
 
@@ -638,6 +829,11 @@ struct SendOverlappingObjectsArgs
 	int m_numRemainingOverlappingObjects;
 };
 
+
+
+
+
+
 struct SharedMemoryStatus
 {
 	int m_type;
@@ -648,6 +844,10 @@ struct SharedMemoryStatus
 	//m_streamBytes is only for internal purposes
 	int		m_numDataStreamBytes;
 	char*	m_dataStream;
+
+	//m_updateFlags is a bit fields to tell which parameters were updated, 
+	//m_updateFlags is ignored for most status messages
+    int m_updateFlags;
 
 	union
 	{
@@ -664,7 +864,14 @@ struct SharedMemoryStatus
 		struct CalculateInverseKinematicsResultArgs m_inverseKinematicsResultArgs;
 		struct SendVisualShapeDataArgs m_sendVisualShapeArgs;
 		struct UserDebugDrawResultArgs m_userDebugDrawArgs;
-		struct UserConstraintResultArgs m_userConstraintResultArgs;
+		struct b3UserConstraint m_userConstraintResultArgs;
+		struct SendVREvents m_sendVREvents;
+		struct SendKeyboardEvents m_sendKeyboardEvents;
+		struct SendRaycastHits m_raycastHits;
+		struct StateLoggingResultArgs m_stateLoggingResultArgs;
+		struct b3OpenGLVisualizerCameraInfo m_visualizerCameraResultArgs;
+		struct b3ObjectArgs m_removeObjectArgs;
+		struct b3DynamicsInfo m_dynamicsInfo;
 	};
 };
 

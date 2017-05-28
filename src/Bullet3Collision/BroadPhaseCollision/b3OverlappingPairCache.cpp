@@ -32,8 +32,8 @@ int b3g_findPairs =0;
 
 
 b3HashedOverlappingPairCache::b3HashedOverlappingPairCache():
-	m_overlapFilterCallback(0),
-	m_blockedForChanges(false)
+	m_overlapFilterCallback(0)
+//,	m_blockedForChanges(false)
 {
 	int initialAllocatedSize= 2;
 	m_overlappingPairArray.reserve(initialAllocatedSize);

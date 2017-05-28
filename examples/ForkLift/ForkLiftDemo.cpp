@@ -46,6 +46,7 @@ class btCollisionShape;
 class ForkLiftDemo  : public CommonExampleInterface
 {
 	public:
+	GUIHelperInterface* m_guiHelper;
 
 		/* extra stuff*/
 	btVector3 m_cameraPosition;
@@ -57,7 +58,6 @@ class ForkLiftDemo  : public CommonExampleInterface
 	btRigidBody* m_carChassis;
 	btRigidBody* localCreateRigidBody(btScalar mass, const btTransform& worldTransform, btCollisionShape* colSape);
 
-	GUIHelperInterface* m_guiHelper;
 	int m_wheelInstances[4];
 
 //----------------------------
@@ -195,8 +195,6 @@ bool useMCLPSolver = true;
 #include "ForkLiftDemo.h"
 
 
-const int maxProxies = 32766;
-const int maxOverlap = 65535;
 
 ///btRaycastVehicle is the interface for the constraint that implements the raycast vehicle
 ///notice that for higher-quality slow-moving vehicles, another approach might be better

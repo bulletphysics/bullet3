@@ -97,14 +97,7 @@ int main(int argc, char* argv[])
 
 		int textureHandle = app->m_renderer->registerTexture(image, textureWidth, textureHeight);
 
-		int cubeIndex = app->registerCubeShape(1, 1, 1);
 
-		b3Vector3 pos = b3MakeVector3(0, 0, 0);
-		b3Quaternion orn(0, 0, 0, 1);
-		b3Vector3 color = b3MakeVector3(1, 0, 0);
-		b3Vector3 scaling = b3MakeVector3 (1, 1, 1);
-		app->m_renderer->registerGraphicsInstance(cubeIndex, pos, orn, color, scaling);
-		app->m_renderer->writeTransforms();
 
 		do
 		{
@@ -137,7 +130,7 @@ int main(int argc, char* argv[])
 			app->m_renderer->activateTexture(textureHandle);
 			app->m_renderer->updateTexture(textureHandle, image);
 
-			float color[4] = { 255, 1, 1, 1 };
+			float color[4] = { 1, 0, 0, 1 };
 			app->m_primRenderer->drawTexturedRect(100, 200, gWidth / 2 - 50, gHeight / 2 - 50, color, 0, 0, 1, 1, true);
 
 
@@ -147,9 +140,36 @@ int main(int argc, char* argv[])
 			app->m_renderer->renderScene();
 			app->drawGrid();
 			char bla[1024];
-			sprintf(bla, "Simple test frame %d", frameCount);
+			sprintf(bla, "2d text:%d", frameCount);
 
-			app->drawText(bla, 10, 10);
+			float yellow[4] = {1,1,0,1};
+			app->drawText(bla, 10, 10, 1, yellow);
+			float position[3] = {1,1,1};
+			float position2[3] = {0,0,5};
+
+			float orientation[4] = {0,0,0,1};
+			
+			app->drawText3D(bla,0,0,1,1);
+
+			sprintf(bla, "3d bitmap camera facing text:%d", frameCount);			
+			app->drawText3D(bla,position2,orientation,color,1,CommonGraphicsApp::eDrawText3D_OrtogonalFaceCamera);
+			
+			sprintf(bla, "3d bitmap text:%d", frameCount);			
+			app->drawText3D(bla,position,orientation,color,0.001,0);
+
+			float green[4] = {0,1,0,1};
+			float blue[4] = {0,0,1,1};
+
+			sprintf(bla, "3d ttf camera facing text:%d", frameCount);			
+			app->drawText3D(bla,position2,orientation,green,1,CommonGraphicsApp::eDrawText3D_TrueType|CommonGraphicsApp::eDrawText3D_OrtogonalFaceCamera);
+
+			app->drawText3D(bla,position2,orientation,green,1,CommonGraphicsApp::eDrawText3D_TrueType|CommonGraphicsApp::eDrawText3D_OrtogonalFaceCamera);
+			sprintf(bla, "3d ttf text:%d", frameCount);
+			b3Quaternion orn;
+			orn.setEulerZYX(B3_HALF_PI/2.,0,B3_HALF_PI/2.);
+			app->drawText3D(bla,position2,orn,blue,1,CommonGraphicsApp::eDrawText3D_TrueType);
+
+			
 			app->swapBuffer();
 		} while (!app->m_window->requestedExit());
 
