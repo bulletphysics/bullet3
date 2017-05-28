@@ -651,8 +651,6 @@ void btSequentialImpulseConstraintSolver::setupTorsionalFrictionConstraint(	btSo
 									btScalar desiredVelocity, btScalar cfmSlip)
 
 {
-	btVector3 normalAxis(0,0,0);
-
 
 	solverConstraint.m_contactNormal1 = normalAxis;
 	solverConstraint.m_contactNormal2 = -normalAxis;
