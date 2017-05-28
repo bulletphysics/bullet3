@@ -695,7 +695,7 @@ static PyObject* pybullet_getDynamicsInfo(PyObject* self, PyObject* args, PyObje
 			int status_type = 0;
 			b3SharedMemoryCommandHandle cmd_handle;
 			b3SharedMemoryStatusHandle status_handle;
-			
+			struct b3DynamicsInfo info;
 			if (bodyUniqueId < 0)
 			{
 				PyErr_SetString(SpamError, "getDynamicsInfo failed; invalid bodyUniqueId");
@@ -714,7 +714,7 @@ static PyObject* pybullet_getDynamicsInfo(PyObject* self, PyObject* args, PyObje
 				PyErr_SetString(SpamError, "getDynamicsInfo failed; invalid return status");
 				return NULL;
 			}
-			struct b3DynamicsInfo info;
+			
 			if (b3GetDynamicsInfo(status_handle, &info))
 			{
 				PyObject* pyDynamicsInfo = PyTuple_New(2);
@@ -1450,33 +1450,39 @@ static PyObject* pybullet_setJointMotorControlArray(PyObject* self, PyObject* ar
 		for (i=0;i<numControlledDofs;i++)
 		{
 			double targetVelocity = 0.0;
+			double targetPosition = 0.0;
+			double force = 100000.0;
+			double kp = 0.1;
+			double kd = 1.0;
+			int jointIndex;
+
 			if (targetVelocitiesSeq)
 			{
 				targetVelocity = pybullet_internalGetFloatFromSequence(targetVelocitiesSeq, i);
 			}
-			double targetPosition = 0.0;
+
 			if (targetPositionsSeq)
 			{
 				targetPosition = pybullet_internalGetFloatFromSequence(targetPositionsSeq, i);
 			}
 
-			double force = 100000.0;
+			
 			if (forcesSeq)
 			{
 				force = pybullet_internalGetFloatFromSequence(forcesSeq, i);
 			}
-			double kp = 0.1;
+			
 			if (kpsSeq)
 			{
 				kp = pybullet_internalGetFloatFromSequence(kpsSeq, i);
 			}
-			double kd = 1.0;
+			
 			if (kdsSeq)
 			{
 				kd = pybullet_internalGetFloatFromSequence(kdsSeq, i);
 			}
 
-			int jointIndex = pybullet_internalGetFloatFromSequence(jointIndicesSeq, i);
+			jointIndex = pybullet_internalGetFloatFromSequence(jointIndicesSeq, i);
 			b3GetJointInfo(sm, bodyIndex, jointIndex, &info);
 
 			switch (controlMode)
