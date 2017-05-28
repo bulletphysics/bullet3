@@ -392,6 +392,18 @@ int b3PhysicsParamSetEnableFileCaching(b3SharedMemoryCommandHandle commandHandle
 
 }
 
+int b3PhysicsParamSetRestitutionVelocityThreshold(b3SharedMemoryCommandHandle commandHandle, double restitutionVelocityThreshold)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+
+	command->m_physSimParamArgs.m_restitutionVelocityThreshold = restitutionVelocityThreshold;
+	command->m_updateFlags |= SIM_PARAM_UPDATE_RESTITUTION_VELOCITY_THRESHOLD  ;
+	return 0;
+
+}
+
+
 int b3PhysicsParamSetNumSolverIterations(b3SharedMemoryCommandHandle commandHandle, int numSolverIterations)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
@@ -1295,6 +1307,42 @@ int b3ChangeDynamicsInfoSetLateralFriction(b3SharedMemoryCommandHandle commandHa
 	command->m_changeDynamicsInfoArgs.m_lateralFriction = lateralFriction;
 	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION;
 	return 0;
+}
+
+int b3ChangeDynamicsInfoSetSpinningFriction(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double friction)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_linkIndex = linkIndex;
+	command->m_changeDynamicsInfoArgs.m_spinningFriction = friction;
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_SPINNING_FRICTION;
+	return 0;
+
+}
+int b3ChangeDynamicsInfoSetRollingFriction(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double friction)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_linkIndex = linkIndex;
+	command->m_changeDynamicsInfoArgs.m_rollingFriction = friction;
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_ROLLING_FRICTION;
+	return 0;
+
+}
+
+
+int b3ChangeDynamicsInfoSetRestitution(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double restitution)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_linkIndex = linkIndex;
+	command->m_changeDynamicsInfoArgs.m_restitution = restitution;
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_RESTITUTION;
+	return 0;
+
 }
 
 b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3PhysicsClientHandle physClient, int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, struct b3JointInfo* info)
