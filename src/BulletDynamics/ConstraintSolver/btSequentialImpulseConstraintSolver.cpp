@@ -652,8 +652,8 @@ void btSequentialImpulseConstraintSolver::setupTorsionalFrictionConstraint(	btSo
 
 {
 
-	solverConstraint.m_contactNormal1 = normalAxis;
-	solverConstraint.m_contactNormal2 = -normalAxis;
+	solverConstraint.m_contactNormal1 = normalAxis1;
+	solverConstraint.m_contactNormal2 = -normalAxis1;
 	btSolverBody& solverBodyA = m_tmpSolverBodyPool[solverBodyIdA];
 	btSolverBody& solverBodyB = m_tmpSolverBodyPool[solverBodyIdB];
 
