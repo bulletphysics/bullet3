@@ -1,14 +1,6 @@
 import pybullet as p
-import time
-import math
-from datetime import datetime
-from numpy import *
-from pylab import *
 import struct
-import sys
-import os, fnmatch
-import argparse
-from time import sleep
+
 
 def readLogFile(filename, verbose = True):
   f = open(filename, 'rb')

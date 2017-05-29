@@ -48,7 +48,6 @@ public:
 	void enableCommandLogging(bool enable, const char* fileName);
 	void replayFromLogFile(const char* fileName);
 	
-	void resetDynamicsWorld();
 
 };
 

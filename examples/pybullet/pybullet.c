@@ -695,7 +695,7 @@ static PyObject* pybullet_getDynamicsInfo(PyObject* self, PyObject* args, PyObje
 			int status_type = 0;
 			b3SharedMemoryCommandHandle cmd_handle;
 			b3SharedMemoryStatusHandle status_handle;
-			
+			struct b3DynamicsInfo info;
 			if (bodyUniqueId < 0)
 			{
 				PyErr_SetString(SpamError, "getDynamicsInfo failed; invalid bodyUniqueId");
@@ -714,7 +714,7 @@ static PyObject* pybullet_getDynamicsInfo(PyObject* self, PyObject* args, PyObje
 				PyErr_SetString(SpamError, "getDynamicsInfo failed; invalid return status");
 				return NULL;
 			}
-			struct b3DynamicsInfo info;
+			
 			if (b3GetDynamicsInfo(status_handle, &info))
 			{
 				PyObject* pyDynamicsInfo = PyTuple_New(2);
@@ -840,7 +840,7 @@ static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args, PyObject* key
 	static char* kwlistBackwardCompatible4[] = {"fileName", "startPosX", "startPosY", "startPosZ", NULL};
 	static char* kwlistBackwardCompatible8[] = {"fileName", "startPosX", "startPosY", "startPosZ", "startOrnX", "startOrnY", "startOrnZ", "startOrnW", NULL};
 
-	int bodyIndex = -1;
+	int bodyUniqueId= -1;
 	const char* urdfFileName = "";
 
 	double startPosX = 0.0;
@@ -954,7 +954,7 @@ static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args, PyObject* key
 			PyErr_SetString(SpamError, "Cannot load URDF file.");
 			return NULL;
 		}
-		bodyIndex = b3GetStatusBodyIndex(statusHandle);
+		bodyUniqueId = b3GetStatusBodyIndex(statusHandle);
 	}
 	else
 	{
@@ -962,7 +962,7 @@ static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args, PyObject* key
 						"Empty filename, method expects 1, 4 or 8 arguments.");
 		return NULL;
 	}
-	return PyLong_FromLong(bodyIndex);
+	return PyLong_FromLong(bodyUniqueId);
 }
 
 static PyObject* pybullet_loadSDF(PyObject* self, PyObject* args, PyObject* keywds)
@@ -1049,7 +1049,7 @@ static PyObject* pybullet_resetSimulation(PyObject* self, PyObject* args, PyObje
 static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
 {
 	int size;
-	int bodyIndex, jointIndex, controlMode;
+	int bodyUniqueId, jointIndex, controlMode;
 
 	double targetPosition = 0.0;
 	double targetVelocity = 0.0;
@@ -1072,7 +1072,7 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
 	{
 		double targetValue = 0.0;
 		// see switch statement below for convertsions dependent on controlMode
-		if (!PyArg_ParseTuple(args, "iiid", &bodyIndex, &jointIndex, &controlMode,
+		if (!PyArg_ParseTuple(args, "iiid", &bodyUniqueId, &jointIndex, &controlMode,
 							  &targetValue))
 		{
 			PyErr_SetString(SpamError, "Error parsing arguments");
@@ -1106,7 +1106,7 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
 	{
 		double targetValue = 0.0;
 		// See switch statement for conversions
-		if (!PyArg_ParseTuple(args, "iiidd", &bodyIndex, &jointIndex, &controlMode,
+		if (!PyArg_ParseTuple(args, "iiidd", &bodyUniqueId, &jointIndex, &controlMode,
 							  &targetValue, &maxForce))
 		{
 			PyErr_SetString(SpamError, "Error parsing arguments");
@@ -1141,7 +1141,7 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
 	{
 		double gain = 0.0;
 		double targetValue = 0.0;
-		if (!PyArg_ParseTuple(args, "iiiddd", &bodyIndex, &jointIndex, &controlMode,
+		if (!PyArg_ParseTuple(args, "iiiddd", &bodyUniqueId, &jointIndex, &controlMode,
 							  &targetValue, &maxForce, &gain))
 		{
 			PyErr_SetString(SpamError, "Error parsing arguments");
@@ -1177,7 +1177,7 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
 	if (size == 8)
 	{
 		// only applicable for CONTROL_MODE_POSITION_VELOCITY_PD.
-		if (!PyArg_ParseTuple(args, "iiiddddd", &bodyIndex, &jointIndex,
+		if (!PyArg_ParseTuple(args, "iiiddddd", &bodyUniqueId, &jointIndex,
 							  &controlMode, &targetPosition, &targetVelocity,
 							  &maxForce, &kp, &kd))
 		{
@@ -1194,7 +1194,7 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
 		b3SharedMemoryStatusHandle statusHandle;
 		struct b3JointInfo info;
 
-		numJoints = b3GetNumJoints(sm, bodyIndex);
+		numJoints = b3GetNumJoints(sm, bodyUniqueId);
 		if ((jointIndex >= numJoints) || (jointIndex < 0))
 		{
 			PyErr_SetString(SpamError, "Joint index out-of-range.");
@@ -1209,9 +1209,9 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
 			return NULL;
 		}
 
-		commandHandle = b3JointControlCommandInit2(sm, bodyIndex, controlMode);
+		commandHandle = b3JointControlCommandInit2(sm, bodyUniqueId, controlMode);
 
-		b3GetJointInfo(sm, bodyIndex, jointIndex, &info);
+		b3GetJointInfo(sm, bodyUniqueId, jointIndex, &info);
 
 		switch (controlMode)
 		{
@@ -1258,7 +1258,7 @@ static PyObject* pybullet_setJointMotorControl(PyObject* self, PyObject* args)
 
 static PyObject* pybullet_setJointMotorControlArray(PyObject* self, PyObject* args, PyObject* keywds)
 {
-	int bodyIndex,  controlMode;
+	int bodyUniqueId,  controlMode;
 	PyObject* jointIndicesObj = 0;
 	PyObject* targetPositionsObj = 0;
 	PyObject* targetVelocitiesObj = 0;
@@ -1269,11 +1269,17 @@ static PyObject* pybullet_setJointMotorControlArray(PyObject* self, PyObject* ar
 	b3PhysicsClientHandle sm = 0;
 
 	int physicsClientId = 0;
-	static char* kwlist[] = {"bodyIndex", "jointIndices", "controlMode", "targetPositions", "targetVelocities", "forces", "positionGains", "velocityGains", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iOi|OOOOOi", kwlist, &bodyIndex, &jointIndicesObj, &controlMode,
+	static char* kwlist[] = {"bodyUniqueId", "jointIndices", "controlMode", "targetPositions", "targetVelocities", "forces", "positionGains", "velocityGains", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iOi|OOOOOi", kwlist, &bodyUniqueId, &jointIndicesObj, &controlMode,
 									 &targetPositionsObj, &targetVelocitiesObj, &forcesObj, &kpsObj, &kdsObj, &physicsClientId))
 	{
-		return NULL;
+		static char* kwlist2[] = {"bodyIndex", "jointIndices", "controlMode", "targetPositions", "targetVelocities", "forces", "positionGains", "velocityGains", "physicsClientId", NULL};
+		PyErr_Clear();
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "iOi|OOOOOi", kwlist2, &bodyUniqueId, &jointIndicesObj, &controlMode,
+									 &targetPositionsObj, &targetVelocitiesObj, &forcesObj, &kpsObj, &kdsObj, &physicsClientId))
+		{
+			return NULL;
+		}
 	}
 	sm = getPhysicsClient(physicsClientId);
 	if (sm == 0)
@@ -1297,7 +1303,7 @@ static PyObject* pybullet_setJointMotorControlArray(PyObject* self, PyObject* ar
 		PyObject* kpsSeq = 0;
 		PyObject* kdsSeq = 0;
 
-		numJoints = b3GetNumJoints(sm, bodyIndex);
+		numJoints = b3GetNumJoints(sm, bodyUniqueId);
 		
 		if ((controlMode != CONTROL_MODE_VELOCITY) &&
 			(controlMode != CONTROL_MODE_TORQUE) &&
@@ -1445,39 +1451,45 @@ static PyObject* pybullet_setJointMotorControlArray(PyObject* self, PyObject* ar
 			kdsSeq =  PySequence_Fast(kdsObj, "expected a sequence of kds");
 		}
 
-		commandHandle = b3JointControlCommandInit2(sm, bodyIndex, controlMode);
+		commandHandle = b3JointControlCommandInit2(sm, bodyUniqueId, controlMode);
 
 		for (i=0;i<numControlledDofs;i++)
 		{
 			double targetVelocity = 0.0;
+			double targetPosition = 0.0;
+			double force = 100000.0;
+			double kp = 0.1;
+			double kd = 1.0;
+			int jointIndex;
+
 			if (targetVelocitiesSeq)
 			{
 				targetVelocity = pybullet_internalGetFloatFromSequence(targetVelocitiesSeq, i);
 			}
-			double targetPosition = 0.0;
+
 			if (targetPositionsSeq)
 			{
 				targetPosition = pybullet_internalGetFloatFromSequence(targetPositionsSeq, i);
 			}
 
-			double force = 100000.0;
+			
 			if (forcesSeq)
 			{
 				force = pybullet_internalGetFloatFromSequence(forcesSeq, i);
 			}
-			double kp = 0.1;
+			
 			if (kpsSeq)
 			{
 				kp = pybullet_internalGetFloatFromSequence(kpsSeq, i);
 			}
-			double kd = 1.0;
+			
 			if (kdsSeq)
 			{
 				kd = pybullet_internalGetFloatFromSequence(kdsSeq, i);
 			}
 
-			int jointIndex = pybullet_internalGetFloatFromSequence(jointIndicesSeq, i);
-			b3GetJointInfo(sm, bodyIndex, jointIndex, &info);
+			jointIndex = pybullet_internalGetFloatFromSequence(jointIndicesSeq, i);
+			b3GetJointInfo(sm, bodyUniqueId, jointIndex, &info);
 
 			switch (controlMode)
 			{
@@ -1526,7 +1538,7 @@ static PyObject* pybullet_setJointMotorControlArray(PyObject* self, PyObject* ar
 
 static PyObject* pybullet_setJointMotorControl2(PyObject* self, PyObject* args, PyObject* keywds)
 {
-	int bodyIndex, jointIndex, controlMode;
+	int bodyUniqueId, jointIndex, controlMode;
 
 	double targetPosition = 0.0;
 	double targetVelocity = 0.0;
@@ -1536,11 +1548,18 @@ static PyObject* pybullet_setJointMotorControl2(PyObject* self, PyObject* args, 
 	b3PhysicsClientHandle sm = 0;
 
 	int physicsClientId = 0;
-	static char* kwlist[] = {"bodyIndex", "jointIndex", "controlMode", "targetPosition", "targetVelocity", "force", "positionGain", "velocityGain", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iii|dddddi", kwlist, &bodyIndex, &jointIndex, &controlMode,
+	static char* kwlist[] = {"bodyUniqueId", "jointIndex", "controlMode", "targetPosition", "targetVelocity", "force", "positionGain", "velocityGain", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iii|dddddi", kwlist, &bodyUniqueId, &jointIndex, &controlMode,
 									 &targetPosition, &targetVelocity, &force, &kp, &kd, &physicsClientId))
 	{
-		return NULL;
+		//backward compatibility, bodyIndex -> bodyUniqueId, don't need to update this function: people have to migrate to bodyUniqueId
+		static char* kwlist2[] = {"bodyIndex", "jointIndex", "controlMode", "targetPosition", "targetVelocity", "force", "positionGain", "velocityGain", "physicsClientId", NULL};
+		PyErr_Clear();
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "iii|dddddi", kwlist2, &bodyUniqueId, &jointIndex, &controlMode,
+									 &targetPosition, &targetVelocity, &force, &kp, &kd, &physicsClientId))
+		{
+			return NULL;
+		}
 	}
 	sm = getPhysicsClient(physicsClientId);
 	if (sm == 0)
@@ -1555,7 +1574,7 @@ static PyObject* pybullet_setJointMotorControl2(PyObject* self, PyObject* args, 
 		b3SharedMemoryStatusHandle statusHandle;
 		struct b3JointInfo info;
 
-		numJoints = b3GetNumJoints(sm, bodyIndex);
+		numJoints = b3GetNumJoints(sm, bodyUniqueId);
 		if ((jointIndex >= numJoints) || (jointIndex < 0))
 		{
 			PyErr_SetString(SpamError, "Joint index out-of-range.");
@@ -1570,9 +1589,9 @@ static PyObject* pybullet_setJointMotorControl2(PyObject* self, PyObject* args, 
 			return NULL;
 		}
 
-		commandHandle = b3JointControlCommandInit2(sm, bodyIndex, controlMode);
+		commandHandle = b3JointControlCommandInit2(sm, bodyUniqueId, controlMode);
 
-		b3GetJointInfo(sm, bodyIndex, jointIndex, &info);
+		b3GetJointInfo(sm, bodyUniqueId, jointIndex, &info);
 
 		switch (controlMode)
 		{
@@ -1789,7 +1808,7 @@ pybullet_setDefaultContactERP(PyObject* self, PyObject* args, PyObject* keywds)
 }
 
 static int pybullet_internalGetBaseVelocity(
-	int bodyIndex, double baseLinearVelocity[3], double baseAngularVelocity[3], b3PhysicsClientHandle sm)
+	int bodyUniqueId, double baseLinearVelocity[3], double baseAngularVelocity[3], b3PhysicsClientHandle sm)
 {
 	baseLinearVelocity[0] = 0.;
 	baseLinearVelocity[1] = 0.;
@@ -1808,7 +1827,7 @@ static int pybullet_internalGetBaseVelocity(
 	{
 		{
 			b3SharedMemoryCommandHandle cmd_handle =
-				b3RequestActualStateCommandInit(sm, bodyIndex);
+				b3RequestActualStateCommandInit(sm, bodyUniqueId);
 			b3SharedMemoryStatusHandle status_handle =
 				b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
 
@@ -1850,7 +1869,7 @@ static int pybullet_internalGetBaseVelocity(
 // Internal function used to get the base position and orientation
 // Orientation is returned in quaternions
 static int pybullet_internalGetBasePositionAndOrientation(
-	int bodyIndex, double basePosition[3], double baseOrientation[4], b3PhysicsClientHandle sm)
+	int bodyUniqueId, double basePosition[3], double baseOrientation[4], b3PhysicsClientHandle sm)
 {
 	basePosition[0] = 0.;
 	basePosition[1] = 0.;
@@ -1870,7 +1889,7 @@ static int pybullet_internalGetBasePositionAndOrientation(
 	{
 		{
 			b3SharedMemoryCommandHandle cmd_handle =
-				b3RequestActualStateCommandInit(sm, bodyIndex);
+				b3RequestActualStateCommandInit(sm, bodyUniqueId);
 			b3SharedMemoryStatusHandle status_handle =
 				b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
 
@@ -2389,7 +2408,7 @@ static PyObject* pybullet_resetBaseVelocity(PyObject* self, PyObject* args, PyOb
 	static char* kwlist[] = {"objectUniqueId", "linearVelocity", "angularVelocity", "physicsClientId", NULL};
 
 	{
-		int bodyIndex = 0;
+		int bodyUniqueId = 0;
 		PyObject* linVelObj = 0;
 		PyObject* angVelObj = 0;
 		double linVel[3] = {0, 0, 0};
@@ -2397,7 +2416,7 @@ static PyObject* pybullet_resetBaseVelocity(PyObject* self, PyObject* args, PyOb
 		int physicsClientId = 0;
 		b3PhysicsClientHandle sm = 0;
 
-		if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|OOi", kwlist, &bodyIndex, &linVelObj, &angVelObj, &physicsClientId))
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|OOi", kwlist, &bodyUniqueId, &linVelObj, &angVelObj, &physicsClientId))
 		{
 			return NULL;
 		}
@@ -2414,7 +2433,7 @@ static PyObject* pybullet_resetBaseVelocity(PyObject* self, PyObject* args, PyOb
 			b3SharedMemoryCommandHandle commandHandle;
 			b3SharedMemoryStatusHandle statusHandle;
 
-			commandHandle = b3CreatePoseCommandInit(sm, bodyIndex);
+			commandHandle = b3CreatePoseCommandInit(sm, bodyUniqueId);
 
 			if (linVelObj)
 			{
@@ -2529,10 +2548,10 @@ static PyObject* pybullet_resetBasePositionAndOrientation(PyObject* self,
 	return Py_None;
 }
 
-// Get the a single joint info for a specific bodyIndex
+// Get the a single joint info for a specific bodyUniqueId
 //
 // Args:
-//  bodyIndex - integer indicating body in simulation
+//  bodyUniqueId - integer indicating body in simulation
 //  jointIndex - integer indicating joint for a specific body
 //
 // Joint information includes:
@@ -2568,7 +2587,7 @@ static PyObject* pybullet_getJointInfo(PyObject* self, PyObject* args, PyObject*
 
 	{
 		{
-			// printf("body index = %d, joint index =%d\n", bodyIndex, jointIndex);
+			// printf("body index = %d, joint index =%d\n", bodyUniqueId, jointIndex);
 
 			pyListJointInfo = PyTuple_New(jointInfoSize);
 
@@ -2620,10 +2639,10 @@ static PyObject* pybullet_getJointInfo(PyObject* self, PyObject* args, PyObject*
 	return Py_None;
 }
 
-// Returns the state of a specific joint in a given bodyIndex
+// Returns the state of a specific joint in a given bodyUniqueId
 //
 // Args:
-//  bodyIndex - integer indicating body in simulation
+//  bodyUniqueId - integer indicating body in simulation
 //  jointIndex - integer indicating joint for a specific body
 //
 // The state of a joint includes the following:
@@ -2668,7 +2687,7 @@ static PyObject* pybullet_getJointState(PyObject* self, PyObject* args, PyObject
 
 			if (bodyUniqueId < 0)
 			{
-				PyErr_SetString(SpamError, "getJointState failed; invalid bodyIndex");
+				PyErr_SetString(SpamError, "getJointState failed; invalid bodyUniqueId");
 				return NULL;
 			}
 			if (jointIndex < 0)
@@ -2764,7 +2783,7 @@ static PyObject* pybullet_getJointStates(PyObject* self, PyObject* args, PyObjec
 
 			if (bodyUniqueId < 0)
 			{
-				PyErr_SetString(SpamError, "getJointState failed; invalid bodyIndex");
+				PyErr_SetString(SpamError, "getJointState failed; invalid bodyUniqueId");
 				return NULL;
 			}
 			numJoints = b3GetNumJoints(sm, bodyUniqueId);
@@ -2888,7 +2907,7 @@ static PyObject* pybullet_getLinkState(PyObject* self, PyObject* args, PyObject*
 
 			if (bodyUniqueId < 0)
 			{
-				PyErr_SetString(SpamError, "getLinkState failed; invalid bodyIndex");
+				PyErr_SetString(SpamError, "getLinkState failed; invalid bodyUniqueId");
 				return NULL;
 			}
 			if (linkIndex < 0)
@@ -5722,7 +5741,7 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 													 PyObject* args, PyObject* keywds)
 
 {
-	int bodyIndex;
+	int bodyUniqueId;
 	int endEffectorLinkIndex;
 
 	PyObject* targetPosObj = 0;
@@ -5736,10 +5755,16 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 	PyObject* restPosesObj = 0;
 	PyObject* jointDampingObj = 0;
 
-	static char* kwlist[] = {"bodyIndex", "endEffectorLinkIndex", "targetPosition", "targetOrientation", "lowerLimits", "upperLimits", "jointRanges", "restPoses", "jointDamping", "physicsClientId",  NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiO|OOOOOOi", kwlist, &bodyIndex, &endEffectorLinkIndex, &targetPosObj, &targetOrnObj, &lowerLimitsObj, &upperLimitsObj, &jointRangesObj, &restPosesObj, &jointDampingObj, &physicsClientId))
+	static char* kwlist[] = {"bodyUniqueId", "endEffectorLinkIndex", "targetPosition", "targetOrientation", "lowerLimits", "upperLimits", "jointRanges", "restPoses", "jointDamping", "physicsClientId",  NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiO|OOOOOOi", kwlist, &bodyUniqueId, &endEffectorLinkIndex, &targetPosObj, &targetOrnObj, &lowerLimitsObj, &upperLimitsObj, &jointRangesObj, &restPosesObj, &jointDampingObj, &physicsClientId))
 	{
-		return NULL;
+		//backward compatibility bodyIndex -> bodyUniqueId. don't update keywords, people need to migrate to bodyUniqueId version
+		static char* kwlist2[] = {"bodyIndex", "endEffectorLinkIndex", "targetPosition", "targetOrientation", "lowerLimits", "upperLimits", "jointRanges", "restPoses", "jointDamping", "physicsClientId",  NULL};
+		PyErr_Clear();
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiO|OOOOOOi", kwlist2, &bodyUniqueId, &endEffectorLinkIndex, &targetPosObj, &targetOrnObj, &lowerLimitsObj, &upperLimitsObj, &jointRangesObj, &restPosesObj, &jointDampingObj, &physicsClientId))
+		{
+			return NULL;
+		}
 	}
 	sm = getPhysicsClient(physicsClientId);
 	if (sm == 0)
@@ -5759,7 +5784,7 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 		int szRestPoses = restPosesObj ? PySequence_Size(restPosesObj) : 0;
 		int szJointDamping = jointDampingObj ? PySequence_Size(jointDampingObj) : 0;
 
-		int numJoints = b3GetNumJoints(sm, bodyIndex);
+		int numJoints = b3GetNumJoints(sm, bodyUniqueId);
 
 		int hasNullSpace = 0;
 		int hasJointDamping = 0;
@@ -5812,7 +5837,7 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 			int resultBodyIndex;
 			int result;
 
-			b3SharedMemoryCommandHandle command = b3CalculateInverseKinematicsCommandInit(sm, bodyIndex);
+			b3SharedMemoryCommandHandle command = b3CalculateInverseKinematicsCommandInit(sm, bodyUniqueId);
 
 			if (hasNullSpace)
 			{
@@ -5893,17 +5918,23 @@ static PyObject* pybullet_calculateInverseDynamics(PyObject* self,
 												   PyObject* args, PyObject* keywds)
 {
 	{
-		int bodyIndex;
+		int bodyUniqueId;
 		PyObject* objPositionsQ;
 		PyObject* objVelocitiesQdot;
 		PyObject* objAccelerations;
 		int physicsClientId = 0;
 		b3PhysicsClientHandle sm = 0;
-		static char* kwlist[] = {"bodyIndex", "objPositions", "objVelocities", "objAccelerations", "physicsClientId", NULL};
-		if (!PyArg_ParseTupleAndKeywords(args, keywds, "iOOO|i", kwlist, &bodyIndex, &objPositionsQ,
+		static char* kwlist[] = {"bodyUniqueId", "objPositions", "objVelocities", "objAccelerations", "physicsClientId", NULL};
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "iOOO|i", kwlist, &bodyUniqueId, &objPositionsQ,
 										 &objVelocitiesQdot, &objAccelerations, &physicsClientId))
 		{
+			static char* kwlist2[] = {"bodyIndex", "objPositions", "objVelocities", "objAccelerations", "physicsClientId", NULL};
+			PyErr_Clear();
+			if (!PyArg_ParseTupleAndKeywords(args, keywds, "iOOO|i", kwlist2, &bodyUniqueId, &objPositionsQ,
+											 &objVelocitiesQdot, &objAccelerations, &physicsClientId))
+			{
 			return NULL;
+			}
 		}
 		sm = getPhysicsClient(physicsClientId);
 		if (sm == 0)
@@ -5916,7 +5947,7 @@ static PyObject* pybullet_calculateInverseDynamics(PyObject* self,
 			int szObPos = PySequence_Size(objPositionsQ);
 			int szObVel = PySequence_Size(objVelocitiesQdot);
 			int szObAcc = PySequence_Size(objAccelerations);
-			int numJoints = b3GetNumJoints(sm, bodyIndex);
+			int numJoints = b3GetNumJoints(sm, bodyUniqueId);
 			if (numJoints && (szObPos == numJoints) && (szObVel == numJoints) &&
 				(szObAcc == numJoints))
 			{
@@ -5943,7 +5974,7 @@ static PyObject* pybullet_calculateInverseDynamics(PyObject* self,
 					int statusType;
 					b3SharedMemoryCommandHandle commandHandle =
 						b3CalculateInverseDynamicsCommandInit(
-							sm, bodyIndex, jointPositionsQ, jointVelocitiesQdot,
+							sm, bodyUniqueId, jointPositionsQ, jointVelocitiesQdot,
 							jointAccelerations);
 					statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 
