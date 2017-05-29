@@ -30,7 +30,7 @@ struct PhysicsServerSharedMemoryInternalData
 	int m_sharedMemoryKey;
 	bool m_areConnected[MAX_SHARED_MEMORY_BLOCKS];
 	bool m_verboseOutput;
-	PhysicsServerCommandProcessor* m_commandProcessor;
+	CommandProcessorInterface* m_commandProcessor;
 	
 	PhysicsServerSharedMemoryInternalData()
 		:m_sharedMemory(0),
@@ -89,7 +89,7 @@ PhysicsServerSharedMemory::PhysicsServerSharedMemory(SharedMemoryInterface* shar
 PhysicsServerSharedMemory::~PhysicsServerSharedMemory()
 {
 
-	m_data->m_commandProcessor->deleteDynamicsWorld();
+	//m_data->m_commandProcessor->deleteDynamicsWorld();
 	delete m_data->m_commandProcessor;
 
     if (m_data->m_sharedMemory)
@@ -109,11 +109,12 @@ PhysicsServerSharedMemory::~PhysicsServerSharedMemory()
     delete m_data;
 }
 
-void PhysicsServerSharedMemory::resetDynamicsWorld()
+/*void PhysicsServerSharedMemory::resetDynamicsWorld()
 {
 	m_data->m_commandProcessor->deleteDynamicsWorld();
 	m_data->m_commandProcessor ->createEmptyDynamicsWorld();
 }
+*/
 void PhysicsServerSharedMemory::setSharedMemoryKey(int key)
 {
 	m_data->m_sharedMemoryKey = key;
@@ -188,7 +189,7 @@ bool PhysicsServerSharedMemory::connectSharedMemory( struct GUIHelperInterface* 
 
 void PhysicsServerSharedMemory::disconnectSharedMemory(bool deInitializeSharedMemory)
 {
-	m_data->m_commandProcessor->deleteDynamicsWorld();
+	//m_data->m_commandProcessor->deleteDynamicsWorld();
 
 	m_data->m_commandProcessor->setGuiHelper(0);
 
