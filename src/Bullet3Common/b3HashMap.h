@@ -44,8 +44,8 @@ struct b3HashString
 
 		/* Fowler / Noll / Vo (FNV) Hash */
 		unsigned int hash = InitialFNV;
-		
-		for(int i = 0; m_string[i]; i++)
+		int len = m_string.length();
+		for(int i = 0; i<len; i++)
 		{
 			hash = hash ^ (m_string[i]);       /* xor  the low 8 bits */
 			hash = hash * FNVMultiple;  /* multiply by the magic number */
