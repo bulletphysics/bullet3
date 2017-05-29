@@ -600,7 +600,7 @@ struct ColorWidth
 
 ATTRIBUTE_ALIGNED16( class )MultithreadedDebugDrawer : public btIDebugDraw
 {
-	class GUIHelperInterface* m_guiHelper;
+	struct GUIHelperInterface* m_guiHelper;
 	int m_debugMode;
 
 	btAlignedObjectArray< btAlignedObjectArray<unsigned int> > m_sortedIndices;
@@ -1776,22 +1776,22 @@ void	PhysicsServerExample::updateGraphics()
 
 		if (flag==COV_ENABLE_VR_TELEPORTING)
 		{
-			gEnableTeleporting = enable;
+			gEnableTeleporting = (enable!=0);
 		}
 
 		if (flag == COV_ENABLE_VR_PICKING)
 		{
-			gEnablePicking = enable;
+			gEnablePicking = (enable!=0);
 		}
     
 		if (flag ==COV_ENABLE_SYNC_RENDERING_INTERNAL)
 		{
-			gEnableSyncPhysicsRendering = enable;
+			gEnableSyncPhysicsRendering = (enable!=0);
 		}
 
 		if (flag == COV_ENABLE_RENDERING)
 		{
-			gEnableRendering = enable;
+			gEnableRendering = (enable!=0);
 		}
 
 		m_multiThreadedHelper->m_childGuiHelper->setVisualizerFlag(m_multiThreadedHelper->m_visualizerFlag,m_multiThreadedHelper->m_visualizerEnable);
