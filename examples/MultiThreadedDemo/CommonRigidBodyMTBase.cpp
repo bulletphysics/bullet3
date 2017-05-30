@@ -35,6 +35,7 @@ class btCollisionShape;
 #include "BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h"
 #include "BulletDynamics/MLCPSolvers/btDantzigSolver.h"
 #include "BulletDynamics/MLCPSolvers/btLemkeSolver.h"
+#include "../MultiThreading/btTaskScheduler.h"
 
 
 static int gNumIslands = 0;
@@ -173,7 +174,7 @@ void myParallelIslandDispatch( btAlignedObjectArray<btSimulationIslandManagerMt:
 ///
 ATTRIBUTE_ALIGNED16( class ) MyDiscreteDynamicsWorld : public btDiscreteDynamicsWorldMt
 {
-    typedef btDiscreteDynamicsWorld ParentClass;
+    typedef btDiscreteDynamicsWorldMt ParentClass;
 
 protected:
 
@@ -244,6 +245,7 @@ btConstraintSolver* createSolverByType( SolverType t )
 class btTaskSchedulerManager
 {
     btAlignedObjectArray<btITaskScheduler*> m_taskSchedulers;
+    btAlignedObjectArray<btITaskScheduler*> m_allocatedTaskSchedulers;
 
 public:
     btTaskSchedulerManager() {}
@@ -251,6 +253,11 @@ public:
     {
         addTaskScheduler( btGetSequentialTaskScheduler() );
 #if BT_THREADSAFE
+        if ( btITaskScheduler* ts = createDefaultTaskScheduler() )
+        {
+            m_allocatedTaskSchedulers.push_back( ts );
+            addTaskScheduler( ts );
+        }
         addTaskScheduler( btGetOpenMPTaskScheduler() );
         addTaskScheduler( btGetTBBTaskScheduler() );
         addTaskScheduler( btGetPPLTaskScheduler() );
@@ -263,8 +270,15 @@ public:
         {
             btSetTaskScheduler( m_taskSchedulers[ 0 ] );
         }
-        btGetTaskScheduler()->setNumThreads( btGetTaskScheduler()->getMaxNumThreads() );
 #endif // #if BT_THREADSAFE
+    }
+    void shutdown()
+    {
+        for ( int i = 0; i < m_allocatedTaskSchedulers.size(); ++i )
+        {
+            delete m_allocatedTaskSchedulers[ i ];
+        }
+        m_allocatedTaskSchedulers.clear();
     }
 
     void addTaskScheduler( btITaskScheduler* ts )
@@ -281,8 +295,13 @@ public:
 
 static btTaskSchedulerManager gTaskSchedulerMgr;
 
+#if BT_THREADSAFE
+static bool gMultithreadedWorld = true;
+static bool gDisplayProfileInfo = true;
+#else
 static bool gMultithreadedWorld = false;
 static bool gDisplayProfileInfo = false;
+#endif
 static SolverType gSolverType = SOLVER_TYPE_SEQUENTIAL_IMPULSE;
 static int gSolverMode = SOLVER_SIMD |
                         SOLVER_USE_WARMSTARTING |
