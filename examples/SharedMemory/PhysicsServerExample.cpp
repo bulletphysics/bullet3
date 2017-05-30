@@ -1813,6 +1813,13 @@ void	PhysicsServerExample::updateGraphics()
 	}
 	case eGUIHelperRemoveAllGraphicsInstances:
         {
+#ifdef BT_ENABLE_VR
+			if (m_tinyVrGui)
+			{
+				delete m_tinyVrGui;
+				m_tinyVrGui=0;
+			}
+#endif //BT_ENABLE_VR
             m_multiThreadedHelper->m_childGuiHelper->removeAllGraphicsInstances();
 			if (m_multiThreadedHelper->m_childGuiHelper->getRenderInterface())
 			{
@@ -2224,8 +2231,11 @@ void PhysicsServerExample::renderScene()
 	{
 		
 		static int frameCount=0;
-		//static btScalar prevTime = m_clock.getTimeSeconds();
+		static btScalar prevTime = m_clock.getTimeSeconds();
 		frameCount++;
+		
+		static char line0[1024]={0};
+		static char line1[1024]={0};
 
 #if 0
 
@@ -2233,7 +2243,8 @@ void PhysicsServerExample::renderScene()
 		int numFrames = 200;
 		static int count = 0;
 		count++;
-
+		
+			
 		if (0 == (count & 1))
 		{
 			btScalar curTime = m_clock.getTimeSeconds();
@@ -2279,9 +2290,6 @@ void PhysicsServerExample::renderScene()
 			tr = tr*b3Transform(b3Quaternion(0,0,-SIMD_HALF_PI),b3MakeVector3(0,0,0));
 			b3Scalar dt = 0.01;
 			m_tinyVrGui->clearTextArea();
-			static char line0[1024];
-			static char line1[1024];
-
 			m_tinyVrGui->grapicalPrintf(line0,0,0,0,0,0,255);
 			m_tinyVrGui->grapicalPrintf(line1,0,16,255,255,255,255);
 
