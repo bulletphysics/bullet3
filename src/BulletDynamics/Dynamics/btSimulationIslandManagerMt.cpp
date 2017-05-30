@@ -548,6 +548,7 @@ void btSimulationIslandManagerMt::mergeIslands()
 
 void btSimulationIslandManagerMt::serialIslandDispatch( btAlignedObjectArray<Island*>* islandsPtr, IslandCallback* callback )
 {
+    BT_PROFILE( "serialIslandDispatch" );
     // serial dispatch
     btAlignedObjectArray<Island*>& islands = *islandsPtr;
     for ( int i = 0; i < islands.size(); ++i )
@@ -592,6 +593,7 @@ struct UpdateIslandDispatcher : public btIParallelForBody
 
 void btSimulationIslandManagerMt::parallelIslandDispatch( btAlignedObjectArray<Island*>* islandsPtr, IslandCallback* callback )
 {
+    BT_PROFILE( "parallelIslandDispatch" );
     int grainSize = 1;  // iterations per task
     UpdateIslandDispatcher dispatcher;
     dispatcher.islandsPtr = islandsPtr;

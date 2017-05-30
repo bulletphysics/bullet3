@@ -284,26 +284,29 @@ struct UpdaterUnconstrainedMotion : public btIParallelForBody
 void btDiscreteDynamicsWorldMt::predictUnconstraintMotion( btScalar timeStep )
 {
     BT_PROFILE( "predictUnconstraintMotion" );
-    int grainSize = 50;  // num of iterations per task for TBB
-    int bodyCount = m_nonStaticRigidBodies.size();
-    UpdaterUnconstrainedMotion update;
-    update.timeStep = timeStep;
-    update.rigidBodies = bodyCount ? &m_nonStaticRigidBodies[ 0 ] : NULL;
-    btParallelFor( 0, bodyCount, grainSize, update );
+    if ( m_nonStaticRigidBodies.size() > 0 )
+    {
+        UpdaterUnconstrainedMotion update;
+        update.timeStep = timeStep;
+        update.rigidBodies = &m_nonStaticRigidBodies[ 0 ];
+        int grainSize = 50;  // num of iterations per task for task scheduler
+        btParallelFor( 0, m_nonStaticRigidBodies.size(), grainSize, update );
+    }
 }
 
 
 void btDiscreteDynamicsWorldMt::createPredictiveContacts( btScalar timeStep )
 {
+    BT_PROFILE( "createPredictiveContacts" );
     releasePredictiveContacts();
-    int grainSize = 50;  // num of iterations per task for TBB or OPENMP
-    if ( int bodyCount = m_nonStaticRigidBodies.size() )
+    if ( m_nonStaticRigidBodies.size() > 0 )
     {
         UpdaterCreatePredictiveContacts update;
         update.world = this;
         update.timeStep = timeStep;
         update.rigidBodies = &m_nonStaticRigidBodies[ 0 ];
-        btParallelFor( 0, bodyCount, grainSize, update );
+        int grainSize = 50;  // num of iterations per task for task scheduler
+        btParallelFor( 0, m_nonStaticRigidBodies.size(), grainSize, update );
     }
 }
 
@@ -311,14 +314,14 @@ void btDiscreteDynamicsWorldMt::createPredictiveContacts( btScalar timeStep )
 void btDiscreteDynamicsWorldMt::integrateTransforms( btScalar timeStep )
 {
     BT_PROFILE( "integrateTransforms" );
-    int grainSize = 50;  // num of iterations per task for TBB or OPENMP
-    if ( int bodyCount = m_nonStaticRigidBodies.size() )
+    if ( m_nonStaticRigidBodies.size() > 0 )
     {
         UpdaterIntegrateTransforms update;
         update.world = this;
         update.timeStep = timeStep;
         update.rigidBodies = &m_nonStaticRigidBodies[ 0 ];
-        btParallelFor( 0, bodyCount, grainSize, update );
+        int grainSize = 50;  // num of iterations per task for task scheduler
+        btParallelFor( 0, m_nonStaticRigidBodies.size(), grainSize, update );
     }
 }
 

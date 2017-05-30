@@ -14,6 +14,7 @@ subject to the following restrictions:
 
 
 #include "btThreads.h"
+#include "btQuickprof.h"
 #include <algorithm>  // for min and max
 
 #if BT_THREADSAFE
@@ -114,10 +115,12 @@ public:
     }
     virtual void parallelFor( int iBegin, int iEnd, int grainSize, const btIParallelForBody& body ) BT_OVERRIDE
     {
+        BT_PROFILE( "parallelFor_OpenMP" );
         btPushThreadsAreRunning();
 #pragma omp parallel for schedule( static, 1 )
         for ( int i = iBegin; i < iEnd; i += grainSize )
         {
+            BT_PROFILE( "OpenMP_job" );
             body.forLoop( i, ( std::min )( i + grainSize, iEnd ) );
         }
         btPopThreadsAreRunning();
@@ -174,11 +177,13 @@ public:
 
         void operator()( const tbb::blocked_range<int>& range ) const
         {
+            BT_PROFILE( "TBB_job" );
             mBody->forLoop( range.begin(), range.end() );
         }
     };
     virtual void parallelFor( int iBegin, int iEnd, int grainSize, const btIParallelForBody& body ) BT_OVERRIDE
     {
+        BT_PROFILE( "parallelFor_TBB" );
         // TBB dispatch
         BodyAdapter tbbBody;
         tbbBody.mBody = &body;
@@ -232,11 +237,13 @@ public:
 
         void operator()( int i ) const
         {
+            BT_PROFILE( "PPL_job" );
             mBody->forLoop( i, ( std::min )( i + mGrainSize, mIndexEnd ) );
         }
     };
     virtual void parallelFor( int iBegin, int iEnd, int grainSize, const btIParallelForBody& body ) BT_OVERRIDE
     {
+        BT_PROFILE( "parallelFor_PPL" );
         // PPL dispatch
         BodyAdapter pplBody;
         pplBody.mBody = &body;
@@ -488,6 +495,7 @@ public:
     virtual void setNumThreads( int numThreads ) BT_OVERRIDE {}
     virtual void parallelFor( int iBegin, int iEnd, int grainSize, const btIParallelForBody& body ) BT_OVERRIDE
     {
+        BT_PROFILE( "parallelFor_sequential" );
         body.forLoop( iBegin, iEnd );
     }
 };
