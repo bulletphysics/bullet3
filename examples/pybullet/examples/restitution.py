@@ -4,7 +4,9 @@
 import pybullet as p
 import time
 
-p.connect(p.GUI)
+cid = p.connect(p.SHARED_MEMORY)
+if (cid<0):
+	cid = p.connect(p.GUI)
 restitutionId = p.addUserDebugParameter("restitution",0,1,1)
 restitutionVelocityThresholdId = p.addUserDebugParameter("res. vel. threshold",0,3,0.2)
 

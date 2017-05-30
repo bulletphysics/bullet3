@@ -3159,3 +3159,38 @@ double b3GetTimeOut(b3PhysicsClientHandle physClient)
 	}
 	return -1;
 }
+
+void b3MultiplyTransforms(const double posA[3], const double ornA[4], const double posB[3], const double ornB[4], double outPos[3], double outOrn[4])
+{
+	b3Transform trA;
+	b3Transform trB;
+	trA.setOrigin(b3MakeVector3(posA[0],posA[1],posA[2]));
+	trA.setRotation(b3Quaternion(ornA[0],ornA[1],ornA[2],ornA[3]));
+	trB.setOrigin(b3MakeVector3(posB[0],posB[1],posB[2]));
+	trB.setRotation(b3Quaternion(ornB[0],ornB[1],ornB[2],ornB[3]));
+	b3Transform res = trA*trB;
+	outPos[0] = res.getOrigin()[0];
+	outPos[1] = res.getOrigin()[1];
+	outPos[2] = res.getOrigin()[2];
+	b3Quaternion orn = res.getRotation();
+	outOrn[0] = orn[0];
+	outOrn[1] = orn[1];
+	outOrn[2] = orn[2];
+	outOrn[3] = orn[3];
+}
+
+void b3InvertTransform(const double pos[3], const double orn[4], double outPos[3], double outOrn[4])
+{
+	b3Transform tr;
+	tr.setOrigin(b3MakeVector3(pos[0],pos[1],pos[2]));
+	tr.setRotation(b3Quaternion(orn[0],orn[1],orn[2],orn[3]));
+	b3Transform trInv = tr.inverse();
+	outPos[0] = trInv.getOrigin()[0];
+	outPos[1] = trInv.getOrigin()[1];
+	outPos[2] = trInv.getOrigin()[2];
+	b3Quaternion invOrn = trInv.getRotation();
+	outOrn[0] = invOrn[0];
+	outOrn[1] = invOrn[1];
+	outOrn[2] = invOrn[2];
+	outOrn[3] = invOrn[3];
+}

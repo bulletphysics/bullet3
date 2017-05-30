@@ -225,7 +225,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 		m_shadowTexture(0),
 		m_renderFrameBuffer(0)
 	{
-		m_lightPos=b3MakeVector3(-50,50,50);
+		m_lightPos=b3MakeVector3(-50,30,40);
 
 		//clear to zero to make it obvious if the matrix is used uninitialized
 		for (int i=0;i<16;i++)
@@ -405,6 +405,10 @@ void GLInstancingRenderer::writeSingleInstanceTransformToCPU(const float* positi
 
 	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
 	b3Assert(pg);
+
+	if (pg==0)
+		return;
+
 	int srcIndex = pg->m_internalInstanceIndex;
 
 	b3Assert(srcIndex<m_data->m_totalNumInstances);
