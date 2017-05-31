@@ -5668,6 +5668,114 @@ static PyObject* pybullet_getQuaternionFromEuler(PyObject* self,
 	Py_INCREF(Py_None);
 	return Py_None;
 }
+
+static PyObject* pybullet_multiplyTransforms(PyObject* self,
+												 PyObject* args, PyObject* keywds)
+{
+	PyObject* posAObj = 0;
+	PyObject* ornAObj = 0;
+	PyObject* posBObj = 0;
+	PyObject* ornBObj = 0;
+
+	int hasPosA=0;
+	int hasOrnA=0;
+	int hasPosB=0;
+	int hasOrnB=0;
+
+	double posA[3];
+	double ornA[4] = {0, 0, 0, 1};
+	double posB[3];
+	double ornB[4] = {0, 0, 0, 1};
+
+	static char* kwlist[] = {"positionA", "orientationA", "positionB", "orientationB", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OOOO", kwlist, &posAObj, &ornAObj,&posBObj, &ornBObj))
+	{
+		return NULL;
+	}
+	
+	hasPosA = pybullet_internalSetVectord(posAObj, posA);
+	hasOrnA = pybullet_internalSetVector4d(ornAObj, ornA);
+	hasPosB = pybullet_internalSetVectord(posBObj, posB);
+	hasOrnB= pybullet_internalSetVector4d(ornBObj, ornB);
+
+	if (hasPosA&&hasOrnA&&hasPosB&&hasOrnB)
+	{
+		double outPos[3];
+		double outOrn[4];
+		int i;
+		PyObject* pyListOutObj=0;
+		PyObject* pyPosOutObj=0;
+		PyObject* pyOrnOutObj=0;
+
+		b3MultiplyTransforms(posA,ornA,posB,ornB, outPos, outOrn);
+
+		pyListOutObj = PyTuple_New(2);
+		pyPosOutObj = PyTuple_New(3);
+		pyOrnOutObj = PyTuple_New(4);
+		for (i = 0; i < 3; i++)
+			PyTuple_SetItem(pyPosOutObj, i, PyFloat_FromDouble(outPos[i]));
+		for (i = 0; i < 4; i++)
+			PyTuple_SetItem(pyOrnOutObj, i, PyFloat_FromDouble(outOrn[i]));
+		
+		PyTuple_SetItem(pyListOutObj, 0, pyPosOutObj);
+		PyTuple_SetItem(pyListOutObj, 1, pyOrnOutObj);
+
+		return pyListOutObj;
+	}
+	PyErr_SetString(SpamError, "Invalid input: expected positionA [x,y,z], orientationA [x,y,z,w], positionB, orientationB.");
+	return NULL;
+}
+
+static PyObject* pybullet_invertTransform(PyObject* self,
+												 PyObject* args, PyObject* keywds)
+{
+	PyObject* posObj = 0;
+	PyObject* ornObj = 0;
+	double pos[3];
+	double orn[4] = {0, 0, 0, 1};
+	int hasPos =0;
+	int hasOrn =0;
+
+	static char* kwlist[] = {"position", "orientation",  NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO", kwlist, &posObj, &ornObj))
+	{
+		return NULL;
+	}
+
+	hasPos = pybullet_internalSetVectord(posObj, pos);
+	hasOrn = pybullet_internalSetVector4d(ornObj, orn);
+	
+	if (hasPos && hasOrn)
+	{
+		double outPos[3];
+		double outOrn[4];
+		int i;
+		PyObject* pyListOutObj=0;
+		PyObject* pyPosOutObj=0;
+		PyObject* pyOrnOutObj=0;
+
+		b3InvertTransform(pos, orn, outPos, outOrn);
+
+		pyListOutObj = PyTuple_New(2);
+		pyPosOutObj = PyTuple_New(3);
+		pyOrnOutObj = PyTuple_New(4);
+		for (i = 0; i < 3; i++)
+			PyTuple_SetItem(pyPosOutObj, i, PyFloat_FromDouble(outPos[i]));
+		for (i = 0; i < 4; i++)
+			PyTuple_SetItem(pyOrnOutObj, i, PyFloat_FromDouble(outOrn[i]));
+		
+		PyTuple_SetItem(pyListOutObj, 0, pyPosOutObj);
+		PyTuple_SetItem(pyListOutObj, 1, pyOrnOutObj);
+
+		return pyListOutObj;
+	}
+	
+
+	PyErr_SetString(SpamError, "Invalid input: expected position [x,y,z] and orientation [x,y,z,w].");
+	return NULL;
+}
+	 	 
+
 /// quaternion <-> euler yaw/pitch/roll convention from URDF/SDF, see Gazebo
 /// https://github.com/arpg/Gazebo/blob/master/gazebo/math/Quaternion.cc
 static PyObject* pybullet_getEulerFromQuaternion(PyObject* self,
@@ -5774,7 +5882,7 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 	}
 	{
 		double pos[3];
-		double ori[4] = {0, 1.0, 0, 0};
+		double ori[4] = {0, 0, 0, 1};
 		int hasPos = pybullet_internalSetVectord(targetPosObj, pos);
 		int hasOrn = pybullet_internalSetVector4d(targetOrnObj, ori);
 
@@ -6286,6 +6394,12 @@ static PyMethodDef SpamMethods[] = {
 	 "Convert quaternion [x,y,z,w] to Euler [roll, pitch, yaw] as in URDF/SDF "
 	 "convention"},
 
+	 {"multiplyTransforms", (PyCFunction) pybullet_multiplyTransforms,  METH_VARARGS | METH_KEYWORDS,
+	 "Multiply two transform, provided as [position], [quaternion]."},
+	 
+	 {"invertTransform", (PyCFunction) pybullet_invertTransform, METH_VARARGS  | METH_KEYWORDS,
+	 "Invert a transform, provided as [position], [quaternion]."},
+	 
 	{"getMatrixFromQuaternion", pybullet_getMatrixFromQuaternion, METH_VARARGS,
 	 "Compute the 3x3 matrix from a quaternion, as a list of 9 values (row-major)"},
 
