@@ -5,7 +5,7 @@
 #include "../CommonInterfaces/Common2dCanvasInterface.h"
 #include "SharedMemoryCommon.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
-
+#include "PhysicsServerCommandProcessor.h"
 #include "PhysicsClientC_API.h"
 #include "PhysicsClient.h"
 //#include "SharedMemoryCommands.h"
@@ -37,6 +37,7 @@ class PhysicsClientExample : public SharedMemoryCommon
 {
 protected:
     b3PhysicsClientHandle m_physicsClientHandle;
+	
 
 	//this m_physicsServer is only used when option eCLIENTEXAMPLE_SERVER is enabled
 	PhysicsServerSharedMemory	m_physicsServer;
@@ -520,10 +521,26 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 }
 
 
+struct Bullet2CommandProcessorCreation3 : public CommandProcessorCreationInterface
+{
+	virtual class CommandProcessorInterface* createCommandProcessor()
+	{
+		PhysicsServerCommandProcessor* proc = new PhysicsServerCommandProcessor;
+		return proc;
+	}
+
+	virtual void deleteCommandProcessor(CommandProcessorInterface* proc)
+	{
+		delete proc;
+	}
+};
+
+static Bullet2CommandProcessorCreation3 sB2PC2;
 
 PhysicsClientExample::PhysicsClientExample(GUIHelperInterface* helper, int options)
 :SharedMemoryCommon(helper),
 m_physicsClientHandle(0),
+m_physicsServer(&sB2PC2,0,0),
 m_wantsTermination(false),
 m_sharedMemoryKey(SHARED_MEMORY_KEY),
 m_selectedBody(-1),
@@ -565,6 +582,7 @@ PhysicsClientExample::~PhysicsClientExample()
             m_canvas->destroyCanvas(m_canvasSegMaskIndex);
 		
 	}
+	
     b3Printf("~PhysicsClientExample\n");
 }
 

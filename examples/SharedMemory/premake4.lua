@@ -23,6 +23,7 @@ myfiles =
 	"PhysicsClientSharedMemory.cpp",
 	"PhysicsClientExample.cpp",
 	"PhysicsServerExample.cpp",
+	"PhysicsServerExampleBullet2.cpp",
 	"PhysicsServerSharedMemory.cpp",
 	"PhysicsServerSharedMemory.h",
 	"PhysicsServer.cpp",

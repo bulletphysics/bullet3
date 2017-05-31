@@ -4,9 +4,7 @@
 
 #include "PhysicsServerExample.h"
 
-#ifdef B3_USE_MIDI
-#include "RtMidi.h"
-#endif//B3_USE_MIDI
+
 
 #include "PhysicsServerSharedMemory.h"
 #include "Bullet3Common/b3CommandLineArgs.h"
@@ -24,37 +22,26 @@
 
 
 //@todo(erwincoumans) those globals are hacks for a VR demo, move this to Python/pybullet!
-extern btVector3 gLastPickPos;
 bool gEnablePicking=true;
 bool gEnableTeleporting=true;
 bool gEnableRendering= true;
 bool gEnableSyncPhysicsRendering= true;
 bool gEnableUpdateDebugDrawLines = true;
 
+
+//extern btVector3 gLastPickPos;
 btVector3 gVRTeleportPosLocal(0,0,0);
 btQuaternion gVRTeleportOrnLocal(0,0,0,1);
 
-extern btVector3 gVRTeleportPos1;
-extern btQuaternion gVRTeleportOrn;
+
 btScalar gVRTeleportRotZ = 0;
 
-extern btVector3 gVRGripperPos;
-extern btQuaternion gVRGripperOrn;
-extern btVector3 gVRController2Pos;
-extern btQuaternion gVRController2Orn;
-extern btScalar gVRGripperAnalog;
-extern btScalar gVRGripper2Analog;
-extern bool gCloseToKuka;
-extern bool gEnableRealTimeSimVR;
-extern bool gCreateDefaultRobotAssets;
 extern int gInternalSimFlags;
-extern int gCreateObjectSimVR;
 extern bool gResetSimulation;
-extern int gEnableKukaControl;
 int gGraspingController = -1;
 extern btScalar simTimeScalingFactor;
 bool gBatchUserDebugLines = true;
-extern bool gVRGripperClosed;
+
 
 const char* startFileNameVR = "0_VRDemoSettings.txt";
 
@@ -82,70 +69,20 @@ static void loadCurrentSettingsVR(b3CommandLineArgs& args)
 };
 
 //remember the settings (you don't want to re-tune again and again...)
-static void saveCurrentSettingsVR()
+
+
+static void saveCurrentSettingsVR(const btVector3& VRTeleportPos1)
 {
 	FILE* f = fopen(startFileNameVR, "w");
 	if (f)
 	{
-		fprintf(f, "--camPosX= %f\n", gVRTeleportPos1[0]);
-		fprintf(f, "--camPosY= %f\n", gVRTeleportPos1[1]);
-		fprintf(f, "--camPosZ= %f\n", gVRTeleportPos1[2]);
+		fprintf(f, "--camPosX= %f\n", VRTeleportPos1[0]);
+		fprintf(f, "--camPosY= %f\n", VRTeleportPos1[1]);
+		fprintf(f, "--camPosZ= %f\n", VRTeleportPos1[2]);
 		fprintf(f, "--camRotZ= %f\n", gVRTeleportRotZ);
 		fclose(f);
 	}
 };
-
-#if B3_USE_MIDI
-
-
-
-static float getParamf(float rangeMin, float rangeMax, int midiVal)
-{
-	float v = rangeMin + (rangeMax - rangeMin)* (float(midiVal / 127.));
-	return v;
-}
-void midiCallback(double deltatime, std::vector< unsigned char > *message, void *userData)
-{
-	unsigned int nBytes = message->size();
-	for (unsigned int i = 0; i<nBytes; i++)
-		std::cout << "Byte " << i << " = " << (int)message->at(i) << ", ";
-	if (nBytes > 0)
-		std::cout << "stamp = " << deltatime << std::endl;
-	
-	if (nBytes > 2)
-	{
-		
-		if (message->at(0) == 176)
-		{
-			if (message->at(1) == 16)
-			{
-				gVRTeleportRotZ= getParamf(-3.1415, 3.1415, message->at(2));
-				gVRTeleportOrn = btQuaternion(btVector3(0, 0, 1), gVRTeleportRotZ);
-				saveCurrentSettingsVR();
-//				b3Printf("gVRTeleportOrnLocal rotZ = %f\n", gVRTeleportRotZ);
-			}
-
-			if (message->at(1) == 32)
-			{
-				gCreateDefaultRobotAssets = 1;
-			}
-
-			for (int i = 0; i < 3; i++)
-			{
-				if (message->at(1) == i)
-				{
-					gVRTeleportPos1[i] = getParamf(-2, 2, message->at(2));
-					saveCurrentSettingsVR();
-//					b3Printf("gVRTeleportPos[%d] =  %f\n", i,gVRTeleportPosLocal[i]);
-
-				}
-			}
-		}
-	}
-}
-
-#endif //B3_USE_MIDI
-
 bool gDebugRenderToggle  = false;
 void	MotionThreadFunc(void* userPtr,void* lsMemory);
 void*	MotionlsMemoryFunc();
@@ -291,7 +228,6 @@ struct MotionThreadLocalStorage
 
 
 float clampedDeltaTime  = 0.2;
-extern int gMaxNumCmdPer1ms;
 
 
 void	MotionThreadFunc(void* userPtr,void* lsMemory)
@@ -325,16 +261,7 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 
 			{
 				
-				if (gMaxNumCmdPer1ms>0)
-				{
-					if (numCmdSinceSleep1ms>gMaxNumCmdPer1ms)
-					{
-						BT_PROFILE("usleep(10)");
-						b3Clock::usleep(10);
-						numCmdSinceSleep1ms = 0;
-						sleepClock.reset();
-					}
-				}
+
 				if (sleepClock.getTimeMilliseconds()>1)
 				{
 					sleepClock.reset();
@@ -1229,9 +1156,7 @@ class PhysicsServerExample : public SharedMemoryCommon
 	MotionArgs m_args[MAX_MOTION_NUM_THREADS];
 	MultiThreadedOpenGLGuiHelper* m_multiThreadedHelper;
     bool m_wantsShutdown;
-#ifdef B3_USE_MIDI
-	RtMidiIn* m_midi;
-#endif
+
     bool m_isConnected;
     btClock m_clock;
 	bool m_replay;
@@ -1243,7 +1168,7 @@ class PhysicsServerExample : public SharedMemoryCommon
 
 public:
 
-	PhysicsServerExample(MultiThreadedOpenGLGuiHelper* helper, SharedMemoryInterface* sharedMem=0, int options=0);
+	PhysicsServerExample(MultiThreadedOpenGLGuiHelper* helper, CommandProcessorCreationInterface* commandProcessorCreator, SharedMemoryInterface* sharedMem=0, int options=0);
 
 	virtual ~PhysicsServerExample();
 
@@ -1434,42 +1359,53 @@ public:
 		if (window->isModifierKeyPressed(B3G_SHIFT))
 			shift=0.01;
 
+		btVector3 VRTeleportPos =this->m_physicsServer.getVRTeleportPosition();
+
 		if (key=='w' && state)
 		{
-			gVRTeleportPos1[0]+=shift;
-			saveCurrentSettingsVR();
+			VRTeleportPos[0]+=shift;
+			m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+			saveCurrentSettingsVR(VRTeleportPos);
 		}
 		if (key=='s' && state)
 		{
-			gVRTeleportPos1[0]-=shift;
-			saveCurrentSettingsVR();
+			VRTeleportPos[0]-=shift;
+			m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+			saveCurrentSettingsVR(VRTeleportPos);
 		}
 		if (key=='a' && state)
 		{
-			gVRTeleportPos1[1]-=shift;
-			saveCurrentSettingsVR();
+			VRTeleportPos[1]-=shift;
+			m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+			saveCurrentSettingsVR(VRTeleportPos);
 		}
 		if (key=='d' && state)
 		{
-			gVRTeleportPos1[1]+=shift;
-			saveCurrentSettingsVR();
+			VRTeleportPos[1]+=shift;
+			m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+			saveCurrentSettingsVR(VRTeleportPos);
 		}
 		if (key=='q' && state)
 		{
-			gVRTeleportPos1[2]+=shift;
-			saveCurrentSettingsVR();
+			VRTeleportPos[2]+=shift;
+			m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+			saveCurrentSettingsVR(VRTeleportPos);
 		}
 		if (key=='e' && state)
 		{
-			gVRTeleportPos1[2]-=shift;
-			saveCurrentSettingsVR();
+			VRTeleportPos[2]-=shift;
+			m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+			saveCurrentSettingsVR(VRTeleportPos);
 		}
 		if (key=='z' && state)
 		{
 			gVRTeleportRotZ+=shift;
-			gVRTeleportOrn = btQuaternion(btVector3(0, 0, 1), gVRTeleportRotZ);
-			saveCurrentSettingsVR();
+			btQuaternion VRTeleportOrn = btQuaternion(btVector3(0, 0, 1), gVRTeleportRotZ);
+			m_physicsServer.setVRTeleportOrientation(VRTeleportOrn);
+			saveCurrentSettingsVR(VRTeleportPos);
 		}
+		
+		
 		
 		return false;
 	}
@@ -1490,33 +1426,33 @@ public:
 			setSharedMemoryKey(shmemKey);
 		}
 
-		if (args.GetCmdLineArgument("camPosX", gVRTeleportPos1[0]))
+		btVector3 vrTeleportPos = m_physicsServer.getVRTeleportPosition();
+
+		if (args.GetCmdLineArgument("camPosX", vrTeleportPos[0]))
 		{
-			printf("camPosX=%f\n", gVRTeleportPos1[0]);
+			printf("camPosX=%f\n", vrTeleportPos[0]);
 		}
 
-		if (args.GetCmdLineArgument("camPosY", gVRTeleportPos1[1]))
+		if (args.GetCmdLineArgument("camPosY", vrTeleportPos[1]))
 		{
-			printf("camPosY=%f\n", gVRTeleportPos1[1]);
+			printf("camPosY=%f\n", vrTeleportPos[1]);
 		}
 
-		if (args.GetCmdLineArgument("camPosZ", gVRTeleportPos1[2]))
+		if (args.GetCmdLineArgument("camPosZ", vrTeleportPos[2]))
 		{
-			printf("camPosZ=%f\n", gVRTeleportPos1[2]);
+			printf("camPosZ=%f\n", vrTeleportPos[2]);
 		}
+
+		m_physicsServer.setVRTeleportPosition(vrTeleportPos);
 
 		float camRotZ = 0.f;
 		if (args.GetCmdLineArgument("camRotZ", camRotZ))
 		{
 			printf("camRotZ = %f\n", camRotZ);
 			btQuaternion ornZ(btVector3(0, 0, 1), camRotZ);
-			gVRTeleportOrn = ornZ;
+			m_physicsServer.setVRTeleportOrientation(ornZ);
 		}
 
-		if (args.CheckCmdLineFlag("robotassets"))
-		{
-			gCreateDefaultRobotAssets = true;
-		}
 
 		if (args.CheckCmdLineFlag("realtimesimulation"))
 		{
@@ -1524,53 +1460,17 @@ public:
 			m_physicsServer.enableRealTimeSimulation(true);
 		}
 
-		if (args.CheckCmdLineFlag("norobotassets"))
-		{
-			gCreateDefaultRobotAssets = false;
-		}
+		
 
 
 	}
 
 };
 
-#ifdef B3_USE_MIDI
-static bool chooseMidiPort(RtMidiIn *rtmidi)
-{
-	/*
 
-	std::cout << "\nWould you like to open a virtual input port? [y/N] ";
-
-	std::string keyHit;
-	std::getline( std::cin, keyHit );
-	if ( keyHit == "y" ) {
-	rtmidi->openVirtualPort();
-	return true;
-	}
-	*/
-
-	std::string portName;
-	unsigned int i = 0, nPorts = rtmidi->getPortCount();
-	if (nPorts == 0) {
-		std::cout << "No midi input ports available!" << std::endl;
-		return false;
-	}
-
-	if (nPorts > 0) {
-		std::cout << "\nOpening midi input port " << rtmidi->getPortName() << std::endl;
-	}
-
-	//  std::getline( std::cin, keyHit );  // used to clear out stdin
-	rtmidi->openPort(i);
-
-	return true;
-}
-#endif //B3_USE_MIDI
-
-
-PhysicsServerExample::PhysicsServerExample(MultiThreadedOpenGLGuiHelper* helper, SharedMemoryInterface* sharedMem, int options)
+PhysicsServerExample::PhysicsServerExample(MultiThreadedOpenGLGuiHelper* helper,CommandProcessorCreationInterface* commandProcessorCreator, SharedMemoryInterface* sharedMem, int options)
 :SharedMemoryCommon(helper),
-m_physicsServer(sharedMem),
+m_physicsServer(commandProcessorCreator,sharedMem,0),
 m_wantsShutdown(false),
 m_isConnected(false),
 m_replay(false)
@@ -1579,14 +1479,7 @@ m_replay(false)
 ,m_tinyVrGui(0)
 #endif
 {
-#ifdef B3_USE_MIDI
-	m_midi = new   RtMidiIn();
-	chooseMidiPort(m_midi);
-	m_midi->setCallback(&midiCallback);
-	// Don't ignore sysex, timing, or active sensing messages.
-	m_midi->ignoreTypes(false, false, false);
 
-#endif
 	m_multiThreadedHelper = helper;
 //	b3Printf("Started PhysicsServer\n");
 }
@@ -1595,10 +1488,7 @@ m_replay(false)
 
 PhysicsServerExample::~PhysicsServerExample()
 {
-#ifdef B3_USE_MIDI
-	delete m_midi;
-	m_midi = 0;
-#endif
+
 #ifdef BT_ENABLE_VR
 	delete m_tinyVrGui;
 #endif
@@ -2007,7 +1897,6 @@ extern int gDroppedSimulationSteps;
 extern int gNumSteps;
 extern double gDtInSec;
 extern double gSubStep;
-extern int gVRTrackingObjectUniqueId;
 extern btTransform gVRTrackingObjectTr;
 
 
@@ -2206,28 +2095,15 @@ void PhysicsServerExample::drawUserDebugLines()
 void PhysicsServerExample::renderScene()
 {
 	btTransform vrTrans;
-	//gVRTeleportPos1 = gVRTeleportPosLocal;
-	//gVRTeleportOrn = gVRTeleportOrnLocal;
 
-	///little VR test to follow/drive Husky vehicle
-	if (gVRTrackingObjectUniqueId >= 0)
-	{
-		btTransform vrTrans;
-		vrTrans.setOrigin(gVRTeleportPosLocal);
-		vrTrans.setRotation(gVRTeleportOrnLocal);
-			
-		vrTrans = vrTrans * gVRTrackingObjectTr;
 
-		gVRTeleportPos1 = vrTrans.getOrigin();
-		gVRTeleportOrn = vrTrans.getRotation();
-	}
 		
 
 	B3_PROFILE("PhysicsServerExample::RenderScene");
 
 	drawUserDebugLines();
 
-	if (gEnableRealTimeSimVR)
+	if (m_physicsServer.isRealTimeSimulationEnabled())
 	{
 		
 		static int frameCount=0;
@@ -2285,8 +2161,10 @@ void PhysicsServerExample::renderScene()
 		{
 
 			b3Transform tr;tr.setIdentity();
-			tr.setOrigin(b3MakeVector3(gVRController2Pos[0],gVRController2Pos[1],gVRController2Pos[2]));
-			tr.setRotation(b3Quaternion(gVRController2Orn[0],gVRController2Orn[1],gVRController2Orn[2],gVRController2Orn[3]));
+			btVector3 VRController2Pos = m_physicsServer.getVRTeleportPosition();
+			btQuaternion VRController2Orn = m_physicsServer.getVRTeleportOrientation();
+			tr.setOrigin(b3MakeVector3(VRController2Pos[0],VRController2Pos[1],VRController2Pos[2]));
+			tr.setRotation(b3Quaternion(VRController2Orn[0],VRController2Orn[1],VRController2Orn[2],VRController2Orn[3]));
 			tr = tr*b3Transform(b3Quaternion(0,0,-SIMD_HALF_PI),b3MakeVector3(0,0,0));
 			b3Scalar dt = 0.01;
 			m_tinyVrGui->clearTextArea();
@@ -2304,8 +2182,8 @@ void PhysicsServerExample::renderScene()
 	btTransform tr2a, tr2;
 	tr2a.setIdentity();
 	tr2.setIdentity();
-	tr2.setOrigin(gVRTeleportPos1);
-	tr2a.setRotation(gVRTeleportOrn);
+	tr2.setOrigin(m_physicsServer.getVRTeleportPosition());
+	tr2a.setRotation(m_physicsServer.getVRTeleportOrientation());
 	btTransform trTotal = tr2*tr2a;
 	btTransform trInv = trTotal.inverse();
 
@@ -2368,9 +2246,8 @@ void PhysicsServerExample::renderScene()
 
 	if (m_guiHelper->getAppInterface()->m_renderer->getActiveCamera()->isVRCamera())
 	{
-		if (!gEnableRealTimeSimVR)
+		if (!m_physicsServer.isRealTimeSimulationEnabled())
 		{
-			gEnableRealTimeSimVR = true;
 			m_physicsServer.enableRealTimeSimulation(1);
 		}
 	}
@@ -2470,35 +2347,6 @@ btVector3	PhysicsServerExample::getRayTo(int x,int y)
 }
 
 
-extern int gSharedMemoryKey;
-
-
-class CommonExampleInterface*    PhysicsServerCreateFunc(struct CommonExampleOptions& options)
-{
-
-	MultiThreadedOpenGLGuiHelper* guiHelperWrapper = new MultiThreadedOpenGLGuiHelper(options.m_guiHelper->getAppInterface(),options.m_guiHelper);
-	
-
-  	PhysicsServerExample* example = new PhysicsServerExample(guiHelperWrapper, 
-		options.m_sharedMem, 
-		options.m_option);
-
-	if (gSharedMemoryKey>=0)
-	{
-		example->setSharedMemoryKey(gSharedMemoryKey);
-	}
-	if (options.m_option & PHYSICS_SERVER_ENABLE_COMMAND_LOGGING)
-	{
-		example->enableCommandLogging();
-	}
-	if (options.m_option & PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG)
-	{
-		example->replayFromLogFile();
-	}
-	return example;
-
-}
-
 
 
 void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int button, int state, float pos[4], float orn[4])
@@ -2511,7 +2359,6 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 	if (gGraspingController < 0)
 	{
 		gGraspingController = controllerId;
-		gEnableKukaControl = true;
 	}
 
 	btTransform trLocal;
@@ -2530,8 +2377,8 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 
 
 
-	tr2.setOrigin(gVRTeleportPos1);
-	tr2a.setRotation(gVRTeleportOrn);
+	tr2.setOrigin(m_physicsServer.getVRTeleportPosition());
+	tr2a.setRotation(m_physicsServer.getVRTeleportOrientation());
 
 
 	btTransform trTotal = tr2*tr2a*trOrg*trLocal;
@@ -2541,8 +2388,7 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 	{
 		if (button == 1 && state == 0)
 		{
-			//gResetSimulation = true;
-			gVRTeleportPos1 = gLastPickPos;
+			
 		}
 	} else
 	{
@@ -2583,7 +2429,6 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 
 		if (controllerId == gGraspingController)
 		{
-			gCreateObjectSimVR = 1;
 		}
 		else
 		{
@@ -2599,7 +2444,7 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 
 	if (controllerId == gGraspingController && (button == 33))
 	{
-		gVRGripperClosed =(state!=0);
+		
 	}
 	else
 	{
@@ -2669,25 +2514,18 @@ void	PhysicsServerExample::vrControllerMoveCallback(int controllerId, float pos[
 
 	
 
-	tr2.setOrigin(gVRTeleportPos1);
-	tr2a.setRotation(gVRTeleportOrn);
+	tr2.setOrigin(m_physicsServer.getVRTeleportPosition());
+	tr2a.setRotation(m_physicsServer.getVRTeleportOrientation());
 
 
 	btTransform trTotal = tr2*tr2a*trOrg*trLocal;
 
 	if (controllerId == gGraspingController)
 	{
-		gVRGripperAnalog = analogAxis;
 
-		gVRGripperPos = trTotal.getOrigin();
-		gVRGripperOrn = trTotal.getRotation();
 	}
 	else
 	{
-		gVRGripper2Analog = analogAxis;
-		gVRController2Pos = trTotal.getOrigin();
-		gVRController2Orn = trTotal.getRotation();
-		
 		m_args[0].m_vrControllerPos[controllerId] = trTotal.getOrigin();
 		m_args[0].m_vrControllerOrn[controllerId] = trTotal.getRotation();
 	}
@@ -2730,8 +2568,8 @@ void	PhysicsServerExample::vrHMDMoveCallback(int controllerId, float pos[4], flo
 	tr2a.setIdentity();
 	btTransform tr2;
 	tr2.setIdentity();
-	tr2.setOrigin(gVRTeleportPos1);
-	tr2a.setRotation(gVRTeleportOrn);
+	tr2.setOrigin(m_physicsServer.getVRTeleportPosition());
+	tr2a.setRotation(m_physicsServer.getVRTeleportOrientation());
 	btTransform trTotal = tr2*tr2a*trOrg*trLocal;
 
 
@@ -2772,8 +2610,8 @@ void	PhysicsServerExample::vrGenericTrackerMoveCallback(int controllerId, float 
 	tr2a.setIdentity();
 	btTransform tr2;
 	tr2.setIdentity();
-	tr2.setOrigin(gVRTeleportPos1);
-	tr2a.setRotation(gVRTeleportOrn);
+	tr2.setOrigin(m_physicsServer.getVRTeleportPosition());
+	tr2a.setRotation(m_physicsServer.getVRTeleportOrientation());
 	btTransform trTotal = tr2*tr2a*trOrg*trLocal;
 
 	m_args[0].m_csGUI->lock();
@@ -2790,4 +2628,36 @@ void	PhysicsServerExample::vrGenericTrackerMoveCallback(int controllerId, float 
 	m_args[0].m_csGUI->unlock();
 }
 
-B3_STANDALONE_EXAMPLE(PhysicsServerCreateFunc)
+
+extern int gSharedMemoryKey;
+
+
+class CommonExampleInterface*    PhysicsServerCreateFuncInternal(struct CommonExampleOptions& options)
+{
+
+	MultiThreadedOpenGLGuiHelper* guiHelperWrapper = new MultiThreadedOpenGLGuiHelper(options.m_guiHelper->getAppInterface(),options.m_guiHelper);
+	
+
+  	PhysicsServerExample* example = new PhysicsServerExample(guiHelperWrapper, 
+		options.m_commandProcessorCreation,
+		options.m_sharedMem, 
+		options.m_option);
+
+	if (gSharedMemoryKey>=0)
+	{
+		example->setSharedMemoryKey(gSharedMemoryKey);
+	}
+	if (options.m_option & PHYSICS_SERVER_ENABLE_COMMAND_LOGGING)
+	{
+		example->enableCommandLogging();
+	}
+	if (options.m_option & PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG)
+	{
+		example->replayFromLogFile();
+	}
+	return example;
+
+}
+
+
+
