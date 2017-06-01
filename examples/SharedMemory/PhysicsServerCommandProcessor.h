@@ -94,7 +94,7 @@ public:
 	void logObjectStates(btScalar timeStep);
 	void processCollisionForces(btScalar timeStep);
 
-	virtual void stepSimulationRealTime(double dtInSec,	const struct b3VRControllerEvent* vrEvents, int numVREvents, const struct b3KeyboardEvent* keyEvents, int numKeyEvents);
+	virtual void stepSimulationRealTime(double dtInSec,	const struct b3VRControllerEvent* vrControllerEvents, int numVRControllerEvents, const struct b3KeyboardEvent* keyEvents, int numKeyEvents);
 	virtual void enableRealTimeSimulation(bool enableRealTimeSim);
 	virtual bool isRealTimeSimulationEnabled() const;
 
@@ -103,10 +103,10 @@ public:
 	virtual void setTimeOut(double timeOutInSeconds);
 
 	virtual const btVector3& getVRTeleportPosition() const;
-	virtual void setVRTeleportPosition(const btVector3& vrReleportPos);
+	virtual void setVRTeleportPosition(const btVector3& vrTeleportPos);
 
 	virtual const btQuaternion& getVRTeleportOrientation() const;
-	virtual void setVRTeleportOrientation(const btQuaternion& vrReleportOrn);
+	virtual void setVRTeleportOrientation(const btQuaternion& vrTeleportOrn);
 };
 
 #endif //PHYSICS_SERVER_COMMAND_PROCESSOR_H
