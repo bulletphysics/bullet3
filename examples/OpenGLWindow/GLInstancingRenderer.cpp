@@ -129,6 +129,8 @@ struct b3GraphicsInstance
 	int m_instanceOffset;
 	int m_vertexArrayOffset;
 	int	m_primitiveType;
+	float m_materialShinyNess;
+	b3Vector3 m_materialSpecularColor;
 
 	b3GraphicsInstance()
 	:m_cube_vao(-1),
@@ -139,7 +141,9 @@ struct b3GraphicsInstance
 		m_numGraphicsInstances(0),
 		m_instanceOffset(0),
 		m_vertexArrayOffset(0),
-		m_primitiveType(B3_GL_TRIANGLES)
+		m_primitiveType(B3_GL_TRIANGLES),
+		m_materialShinyNess(81),
+		m_materialSpecularColor(b3MakeVector3(1,1,1))
 	{
 	}
 
@@ -204,8 +208,10 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
     
 	GLfloat m_projectionMatrix[16];
 	GLfloat m_viewMatrix[16];
+	GLfloat m_viewMatrixInverse[16];
 
 	b3Vector3 m_lightPos;
+	b3Vector3 m_lightSpecularIntensity;
 
 	GLuint				m_defaultTexturehandle;
 	b3AlignedObjectArray<InternalTextureHandle>	m_textureHandles;
@@ -226,12 +232,14 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 		m_renderFrameBuffer(0)
 	{
 		m_lightPos=b3MakeVector3(-50,30,40);
+		m_lightSpecularIntensity.setValue(1,1,1);
 
 		//clear to zero to make it obvious if the matrix is used uninitialized
 		for (int i=0;i<16;i++)
 		{
 			m_projectionMatrix[i]=0;
 			m_viewMatrix[i]=0;
+			m_viewMatrixInverse[i]=0;
 		}
 
 	}
@@ -280,9 +288,14 @@ GLuint linesVertexArrayObject=0;
 GLuint linesIndexVbo = 0;
 
 
+static GLint	useShadow_ViewMatrixInverse=0;
 static GLint	useShadow_ModelViewMatrix=0;
+static GLint	useShadow_lightSpecularIntensity = 0;
+static GLint	useShadow_materialSpecularColor = 0;
 static GLint	useShadow_MVP=0;
-static GLint  useShadow_lightDirIn=0;
+static GLint	useShadow_lightPosIn=0;
+static GLint	useShadow_cameraPositionIn = 0;
+static GLint	useShadow_materialShininessIn = 0;
 
 static GLint	useShadow_ProjectionMatrix=0;
 static GLint	useShadow_DepthBiasModelViewMatrix=0;
@@ -296,7 +309,7 @@ static GLint	ProjectionMatrix=0;
 static GLint	regularLightDirIn=0;
 
 
-static GLint                uniform_texture_diffuse = 0;
+static GLint	uniform_texture_diffuse = 0;
 
 static GLint	screenWidthPointSprite=0;
 static GLint	ModelViewMatrixPointSprite=0;
@@ -1103,13 +1116,18 @@ void GLInstancingRenderer::InitShaders()
 
 	glLinkProgram(useShadowMapInstancingShader);
 	glUseProgram(useShadowMapInstancingShader);
+	useShadow_ViewMatrixInverse = glGetUniformLocation(useShadowMapInstancingShader, "ViewMatrixInverse");
 	useShadow_ModelViewMatrix = glGetUniformLocation(useShadowMapInstancingShader, "ModelViewMatrix");
+	useShadow_lightSpecularIntensity = glGetUniformLocation(useShadowMapInstancingShader, "lightSpecularIntensityIn");
+	useShadow_materialSpecularColor = glGetUniformLocation(useShadowMapInstancingShader, "materialSpecularColorIn");
 	useShadow_MVP = 		glGetUniformLocation(useShadowMapInstancingShader, "MVP");
 	useShadow_ProjectionMatrix = glGetUniformLocation(useShadowMapInstancingShader, "ProjectionMatrix");
 	useShadow_DepthBiasModelViewMatrix = glGetUniformLocation(useShadowMapInstancingShader, "DepthBiasModelViewProjectionMatrix");
 	useShadow_uniform_texture_diffuse = glGetUniformLocation(useShadowMapInstancingShader, "Diffuse");
 	useShadow_shadowMap = glGetUniformLocation(useShadowMapInstancingShader,"shadowMap");
-	useShadow_lightDirIn = glGetUniformLocation(useShadowMapInstancingShader,"lightDirIn");
+	useShadow_lightPosIn = glGetUniformLocation(useShadowMapInstancingShader,"lightPosIn");
+	useShadow_cameraPositionIn = glGetUniformLocation(useShadowMapInstancingShader,"cameraPositionIn");
+	useShadow_materialShininessIn = glGetUniformLocation(useShadowMapInstancingShader,"materialShininessIn");
 
 	createShadowMapInstancingShader = gltLoadShaderPair(createShadowMapInstancingVertexShader,createShadowMapInstancingFragmentShader);
 	glLinkProgram(createShadowMapInstancingShader);
@@ -1276,6 +1294,15 @@ void GLInstancingRenderer::setActiveCamera(CommonCameraInterface* cam)
 	m_data->m_activeCamera = cam;
 }
 
+void GLInstancingRenderer::setLightSpecularIntensity(const float lightSpecularIntensity[3])
+{
+	m_data->m_lightSpecularIntensity[0] = lightSpecularIntensity[0];
+	m_data->m_lightSpecularIntensity[1] = lightSpecularIntensity[1];
+	m_data->m_lightSpecularIntensity[2] = lightSpecularIntensity[2];
+}
+
+
+
 void GLInstancingRenderer::setLightPosition(const float lightPos[3])
 {
 	m_data->m_lightPos[0] = lightPos[0];
@@ -1302,6 +1329,21 @@ void GLInstancingRenderer::updateCamera(int upAxis)
 	m_data->m_defaultCamera1.update();
     m_data->m_activeCamera->getCameraProjectionMatrix(m_data->m_projectionMatrix);
     m_data->m_activeCamera->getCameraViewMatrix(m_data->m_viewMatrix);
+	b3Scalar viewMat[16];
+	b3Scalar viewMatInverse[16];
+	
+	for (int i=0;i<16;i++)
+	{
+		viewMat[i] = m_data->m_viewMatrix[i];
+	}
+	b3Transform tr;
+	tr.setFromOpenGLMatrix(viewMat);
+	tr = tr.inverse();
+	tr.getOpenGLMatrix(viewMatInverse);
+	for (int i=0;i<16;i++)
+	{
+		m_data->m_viewMatrixInverse[i]=viewMatInverse[i];
+	}
 
 
 }
@@ -2131,12 +2173,24 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 							glUseProgram(useShadowMapInstancingShader);
 							glUniformMatrix4fv(useShadow_ProjectionMatrix, 1, false, &m_data->m_projectionMatrix[0]);
 							glUniformMatrix4fv(useShadow_ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
+							glUniformMatrix4fv(useShadow_ViewMatrixInverse, 1, false, &m_data->m_viewMatrixInverse[0]);
+							glUniformMatrix4fv(useShadow_ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
+
+							glUniform3f(useShadow_lightSpecularIntensity, m_data->m_lightSpecularIntensity[0],m_data->m_lightSpecularIntensity[1],m_data->m_lightSpecularIntensity[2]);
+							glUniform3f(useShadow_materialSpecularColor, gfxObj->m_materialSpecularColor[0],gfxObj->m_materialSpecularColor[1],gfxObj->m_materialSpecularColor[2]);
+
+							
+
 							float MVP[16];
 							b3Matrix4x4Mul16(m_data->m_projectionMatrix,m_data->m_viewMatrix,MVP);
 							glUniformMatrix4fv(useShadow_MVP, 1, false, &MVP[0]);
-							b3Vector3 gLightDir = m_data->m_lightPos;
-							gLightDir.normalize();
-							glUniform3f(useShadow_lightDirIn,gLightDir[0],gLightDir[1],gLightDir[2]);
+							//gLightDir.normalize();
+							glUniform3f(useShadow_lightPosIn,m_data->m_lightPos[0],m_data->m_lightPos[1],m_data->m_lightPos[2]);
+							float camPos[3];
+							m_data->m_activeCamera->getCameraPosition(camPos);
+							glUniform3f(useShadow_cameraPositionIn,camPos[0],camPos[1],camPos[2]);
+							glUniform1f(useShadow_materialShininessIn,gfxObj->m_materialShinyNess);
+						
 							glUniformMatrix4fv(useShadow_DepthBiasModelViewMatrix, 1, false, &depthBiasMVP[0][0]);
 							glActiveTexture(GL_TEXTURE1);
 							glBindTexture(GL_TEXTURE_2D, m_data->m_shadowTexture);
