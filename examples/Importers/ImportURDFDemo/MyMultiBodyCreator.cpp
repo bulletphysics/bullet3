@@ -201,7 +201,9 @@ void MyMultiBodyCreator::createRigidBodyGraphicsInstance2(int linkIndex, class b
 {        
     m_guiHelper->createRigidBodyGraphicsObject(body, colorRgba);
 	int graphicsInstanceId = body->getUserIndex();
-	m_guiHelper->changeSpecularColor(graphicsInstanceId,specularColor);
+	btVector3DoubleData speculard;
+	specularColor.serializeDouble(speculard);
+	m_guiHelper->changeSpecularColor(graphicsInstanceId,speculard.m_floats);
 }
 
 
@@ -216,7 +218,9 @@ void MyMultiBodyCreator::createCollisionObjectGraphicsInstance2(int linkIndex, c
 {
 	createCollisionObjectGraphicsInstance(linkIndex,col,colorRgba);
 	int graphicsInstanceId = col->getUserIndex();
-	m_guiHelper->changeSpecularColor(graphicsInstanceId,specularColor);
+	btVector3DoubleData speculard;
+	specularColor.serializeDouble(speculard);
+	m_guiHelper->changeSpecularColor(graphicsInstanceId,speculard.m_floats);
 
 }
 
