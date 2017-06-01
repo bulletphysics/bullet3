@@ -110,10 +110,10 @@ class BenchmarkDemo : public CommonRigidBodyMTBase
 	void resetCamera()
 	{
 		float dist = 120;
-		float pitch = 52;
-		float yaw = 35;
+		float pitch = -35;
+		float yaw = 52;
 		float targetPos[3]={0,10.46,0};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 };
 

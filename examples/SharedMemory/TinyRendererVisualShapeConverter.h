@@ -26,7 +26,7 @@ struct TinyRendererVisualShapeConverter : public LinkVisualShapesConverter
 
 	void setUpAxis(int axis);
 	
-    void resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ);
+    void resetCamera(float camDist, float yaw, float pitch, float camPosX,float camPosY, float camPosZ);
 	
     void clearBuffers(struct TGAColor& clearColor);
 

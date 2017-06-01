@@ -107,10 +107,10 @@ public:
 	{
 		//@todo depends on current_demo?
 		float dist = 45;
-		float pitch = 27;
-		float yaw = 31;
+		float pitch = -31;
+		float yaw = 27;
 		float targetPos[3]={10-1,0};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 
 	SoftDemo(struct GUIHelperInterface* helper) 

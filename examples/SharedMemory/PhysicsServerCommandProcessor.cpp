@@ -4517,8 +4517,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     if (clientCmd.m_updateFlags&COV_SET_CAMERA_VIEW_MATRIX)
                     {
                         m_data->m_guiHelper->resetCamera( clientCmd.m_configureOpenGLVisualizerArguments.m_cameraDistance,
-                                                          clientCmd.m_configureOpenGLVisualizerArguments.m_cameraPitch,
                                                           clientCmd.m_configureOpenGLVisualizerArguments.m_cameraYaw,
+                                                          clientCmd.m_configureOpenGLVisualizerArguments.m_cameraPitch,
                                                           clientCmd.m_configureOpenGLVisualizerArguments.m_cameraTargetPosition[0],
                                                           clientCmd.m_configureOpenGLVisualizerArguments.m_cameraTargetPosition[1],
                                                           clientCmd.m_configureOpenGLVisualizerArguments.m_cameraTargetPosition[2]);

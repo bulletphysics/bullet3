@@ -1930,6 +1930,86 @@ void b3RequestCameraImageSetShadow(b3SharedMemoryCommandHandle commandHandle, in
     command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_SHADOW;
 }
 
+void b3ComputeYawPitchRollFromPosition(const float cameraPosition[3], const float cameraTargetPosition[3], const float cameraUp[3], int upAxis, float* cameraDistance, float* cameraYaw, float* cameraPitch)
+{
+	b3Vector3 camPos = b3MakeVector3(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
+	b3Vector3 camTargetPos = b3MakeVector3(cameraTargetPosition[0], cameraTargetPosition[1], cameraTargetPosition[2]);
+	b3Vector3 camUpVector = b3MakeVector3(cameraUp[0], cameraUp[1], cameraUp[2]);
+	camUpVector.normalize();
+	
+	*cameraDistance = (camPos - camTargetPos).length();
+	
+	b3Vector3 eyePos = camPos - camTargetPos;
+	b3Vector3 eyeInitPos = b3MakeVector3(0, 0, 0);
+	
+	int forwardAxis = -1;
+	
+	switch (upAxis)
+	{
+		case 1:
+			forwardAxis = 2;
+			break;
+		case 2:
+			forwardAxis = 1;
+			break;
+		default:
+			return;
+	};
+	
+	eyeInitPos[forwardAxis] = -(*cameraDistance);
+	eyeInitPos.normalize();
+	eyePos.normalize();
+	
+	b3Quaternion rot = b3ShortestArcQuat(eyeInitPos, eyePos);
+	btScalar yawRad;
+	btScalar pitchRad;
+	btScalar rollRad;
+	
+	switch (upAxis)
+	{
+		case 1:
+			rot.getEulerZYX(rollRad, yawRad, pitchRad);
+			pitchRad = -pitchRad;
+			break;
+		case 2:
+			rot.getEulerZYX(yawRad, rollRad, pitchRad);
+			break;
+		default:
+			return;
+	};
+	
+	*cameraYaw = yawRad/b3Scalar(0.01745329251994329547);
+	*cameraPitch = pitchRad/b3Scalar(0.01745329251994329547);
+	float cameraRoll = rollRad/b3Scalar(0.01745329251994329547);
+	printf("camera roll: %f\n", cameraRoll);
+}
+
+void b3ComputePositionFromViewMatrix(const float viewMatrix[16], float cameraPosition[3], float cameraTargetPosition[3], float cameraUp[3])
+{
+	b3Matrix3x3 r(viewMatrix[0], viewMatrix[4], viewMatrix[8], viewMatrix[1], viewMatrix[5], viewMatrix[9], viewMatrix[2], viewMatrix[6], viewMatrix[10]);
+	b3Vector3 p = b3MakeVector3(viewMatrix[12], viewMatrix[13], viewMatrix[14]);
+	b3Transform t(r,p);
+	b3Transform tinv = t.inverse();
+	b3Matrix3x3 basis = tinv.getBasis();
+	b3Vector3 origin = tinv.getOrigin();
+	printf("basis: %f, %f, %f, %f, %f, %f, %f, %f, %f\n", basis[0][0], basis[0][1], basis[0][2], basis[1][0], basis[1][1], basis[1][2], basis[2][0], basis[2][1], basis[2][2]);
+	printf("origin: %f, %f, %f\n", origin[0], origin[1], origin[2]);
+	b3Vector3 s = b3MakeVector3(basis[0][0], basis[1][0], basis[2][0]);
+	b3Vector3 u = b3MakeVector3(basis[0][1], basis[1][1], basis[2][1]);
+	b3Vector3 f = b3MakeVector3(-basis[0][2], -basis[1][2], -basis[2][2]);
+	b3Vector3 eye = origin;
+	cameraPosition[0] = eye[0];
+	cameraPosition[1] = eye[1];
+	cameraPosition[2] = eye[2];
+	b3Vector3 center = f + eye;
+	cameraTargetPosition[0] = center[0];
+	cameraTargetPosition[1] = center[1];
+	cameraTargetPosition[2] = center[2];
+	cameraUp[0] = u[0];
+	cameraUp[1] = u[1];
+	cameraUp[2] = u[2];
+}
+
 void b3ComputeViewMatrixFromPositions(const float cameraPosition[3], const float cameraTargetPosition[3], const float cameraUp[3], float viewMatrix[16])
 {
 	b3Vector3 eye = b3MakeVector3(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
@@ -1970,77 +2050,43 @@ void b3ComputeViewMatrixFromYawPitchRoll(const float cameraTargetPosition[3], fl
 	b3Vector3 camPos;
 	b3Vector3 camTargetPos = b3MakeVector3(cameraTargetPosition[0], cameraTargetPosition[1], cameraTargetPosition[2]);
 	b3Vector3 eyePos = b3MakeVector3(0, 0, 0);
-
-	int forwardAxis(-1);
-
-	{
-
-		switch (upAxis)
-		{
-
-		case 1:
-		{
-
-
-			forwardAxis = 0;
-			eyePos[forwardAxis] = -distance;
-			camForward = b3MakeVector3(eyePos[0], eyePos[1], eyePos[2]);
-			if (camForward.length2() < B3_EPSILON)
-			{
-				camForward.setValue(1.f, 0.f, 0.f);
-			}
-			else
-			{
-				camForward.normalize();
-			}
-			b3Scalar rollRad = roll * b3Scalar(0.01745329251994329547);
-			b3Quaternion rollRot(camForward, rollRad);
-
-			camUpVector = b3QuatRotate(rollRot, b3MakeVector3(0, 1, 0));
-			//gLightPos = b3MakeVector3(-50.f,100,30);
-			break;
-		}
-		case 2:
-		{
-
-
-			forwardAxis = 1;
-			eyePos[forwardAxis] = -distance;
-			camForward = b3MakeVector3(eyePos[0], eyePos[1], eyePos[2]);
-			if (camForward.length2() < B3_EPSILON)
-			{
-				camForward.setValue(1.f, 0.f, 0.f);
-			}
-			else
-			{
-				camForward.normalize();
-			}
-
-			b3Scalar rollRad = roll * b3Scalar(0.01745329251994329547);
-			b3Quaternion rollRot(camForward, rollRad);
-
-			camUpVector = b3QuatRotate(rollRot, b3MakeVector3(0, 0, 1));
-			//gLightPos = b3MakeVector3(-50.f,30,100);
-			break;
-		}
-		default:
-		{
-			//b3Assert(0);
-			return;
-		}
-		};
-	}
-
-
+	
 	b3Scalar yawRad = yaw * b3Scalar(0.01745329251994329547);// rads per deg
 	b3Scalar pitchRad = pitch * b3Scalar(0.01745329251994329547);// rads per deg
-
-	b3Quaternion pitchRot(camUpVector, pitchRad);
-
-	b3Vector3 right = camUpVector.cross(camForward);
-	b3Quaternion yawRot(right, -yawRad);
-
-	eyePos = b3Matrix3x3(pitchRot) * b3Matrix3x3(yawRot) * eyePos;
+	b3Scalar rollRad = 0.0;
+	b3Quaternion eyeRot;
+	
+	int forwardAxis(-1);
+	switch (upAxis)
+	{
+		case 1:
+			forwardAxis = 2;
+			camUpVector = b3MakeVector3(0,1,0);
+			eyeRot.setEulerZYX(rollRad, yawRad, -pitchRad);
+			break;
+		case 2:
+			forwardAxis = 1;
+			camUpVector = b3MakeVector3(0,0,1);
+			eyeRot.setEulerZYX(yawRad, rollRad, pitchRad);
+			break;
+		default:
+			return;
+	};
+	
+	eyePos[forwardAxis] = -distance;
+	
+	camForward = b3MakeVector3(eyePos[0],eyePos[1],eyePos[2]);
+	if (camForward.length2() < B3_EPSILON)
+	{
+		camForward.setValue(1.f,0.f,0.f);
+	} else
+	{
+		camForward.normalize();
+	}
+	
+	eyePos = b3Matrix3x3(eyeRot)*eyePos;
+	camUpVector = b3Matrix3x3(eyeRot)*camUpVector;
+	
 	camPos = eyePos;
 	camPos += camTargetPos;
 

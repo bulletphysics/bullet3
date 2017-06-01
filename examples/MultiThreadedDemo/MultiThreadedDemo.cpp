@@ -98,8 +98,8 @@ public:
     virtual void resetCamera() BT_OVERRIDE
 	{
         m_guiHelper->resetCamera( m_cameraDist,
-                                  m_cameraPitch,
                                   m_cameraYaw,
+                                  m_cameraPitch,
                                   m_cameraTargetPos.x(),
                                   m_cameraTargetPos.y(),
                                   m_cameraTargetPos.z()
@@ -115,8 +115,8 @@ MultiThreadedDemo::MultiThreadedDemo(struct GUIHelperInterface* helper)
     m_groundBody = NULL;
     m_groundMovePhase = 0.0f;
     m_cameraTargetPos = btVector3( 0.0f, 0.0f, 0.0f );
-    m_cameraPitch = 90.0f;
-    m_cameraYaw = 30.0f;
+    m_cameraPitch = -30.0f;
+    m_cameraYaw = 90.0f;
     m_cameraDist = 48.0f;
     helper->setUpAxis( kUpAxis );
 }

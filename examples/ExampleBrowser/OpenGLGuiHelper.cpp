@@ -973,7 +973,7 @@ void OpenGLGuiHelper::setVisualizerFlag(int flag, int enable)
 }
 
 
-void OpenGLGuiHelper::resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ)
+void OpenGLGuiHelper::resetCamera(float camDist, float yaw, float pitch, float camPosX,float camPosY, float camPosZ)
 {
 	if (getRenderInterface() && getRenderInterface()->getActiveCamera())
 	{

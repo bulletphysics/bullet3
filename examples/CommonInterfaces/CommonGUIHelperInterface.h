@@ -55,7 +55,7 @@ struct GUIHelperInterface
 
 	virtual void setUpAxis(int axis)=0;
 
-	virtual void resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ)=0;
+	virtual void resetCamera(float camDist, float yaw, float pitch, float camPosX,float camPosY, float camPosZ)=0;
 
 	virtual bool getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3],float hor[3], float vert[3] ) const
 	{
@@ -151,7 +151,7 @@ struct DummyGUIHelper : public GUIHelperInterface
 	virtual void setUpAxis(int axis)
 	{
 	}
-	virtual void resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ)
+	virtual void resetCamera(float camDist, float yaw, float pitch, float camPosX,float camPosY, float camPosZ)
 	{
 	}
 

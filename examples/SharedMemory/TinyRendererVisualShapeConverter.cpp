@@ -115,11 +115,11 @@ TinyRendererVisualShapeConverter::TinyRendererVisualShapeConverter()
 	m_data = new TinyRendererVisualShapeConverterInternalData();
 	
 	float dist = 1.5;
-	float pitch = -80;
-	float yaw = 10;
+	float pitch = -10;
+	float yaw = -80;
 	float targetPos[3]={0,0,0};
 	m_data->m_camera.setCameraUpAxis(m_data->m_upAxis);
-	resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+	resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 
 
 }
@@ -678,7 +678,7 @@ void TinyRendererVisualShapeConverter::setUpAxis(int axis)
     m_data->m_camera.setCameraUpAxis(axis);
     m_data->m_camera.update();
 }
-void TinyRendererVisualShapeConverter::resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ)
+void TinyRendererVisualShapeConverter::resetCamera(float camDist, float yaw, float pitch, float camPosX,float camPosY, float camPosZ)
 {
     m_data->m_camera.setCameraDistance(camDist);
     m_data->m_camera.setCameraPitch(pitch);

@@ -150,8 +150,8 @@ void GpuConvexScene::setupScene()
 	m_guiHelper->getRenderInterface()->getActiveCamera()->setCameraTargetPosition(camPos[0],camPos[1],camPos[2]);
 	m_guiHelper->getRenderInterface()->getActiveCamera()->setCameraDistance(150);
 	//m_instancingRenderer->setCameraYaw(85);
-	m_guiHelper->getRenderInterface()->getActiveCamera()->setCameraYaw(30);
-	m_guiHelper->getRenderInterface()->getActiveCamera()->setCameraPitch(225);
+	m_guiHelper->getRenderInterface()->getActiveCamera()->setCameraYaw(225);
+	m_guiHelper->getRenderInterface()->getActiveCamera()->setCameraPitch(-30);
 	
 
 	m_guiHelper->getRenderInterface()->updateCamera(1);//>updateCamera();

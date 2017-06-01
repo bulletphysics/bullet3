@@ -1016,9 +1016,9 @@ public:
 	{
 		m_childGuiHelper->setUpAxis(axis);
 	}
-	virtual void resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ)
+	virtual void resetCamera(float camDist, float yaw, float pitch, float camPosX,float camPosY, float camPosZ)
 	{
-	    m_childGuiHelper->resetCamera(camDist,pitch,yaw,camPosX,camPosY,camPosZ);
+	    m_childGuiHelper->resetCamera(camDist,yaw,pitch,camPosX,camPosY,camPosZ);
 	}
 
 	virtual bool getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3],float hor[3], float vert[3] ) const
@@ -1269,10 +1269,10 @@ public:
 	virtual void resetCamera()
 	{
 		float dist = 5;
-		float pitch = 50;
-		float yaw = 35;
+		float pitch = -35;
+		float yaw = 50;
 		float targetPos[3]={0,0,0};//-3,2.8,-2.5};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 
     virtual bool wantsTermination();
