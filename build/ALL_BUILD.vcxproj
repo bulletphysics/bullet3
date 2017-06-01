@@ -1,0 +1,365 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|Win32">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|Win32">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGUID>{A0394F25-2B9E-40BD-B783-450ABE3FB476}</ProjectGUID>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>Win32</Platform>
+    <ProjectName>ALL_BUILD</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+    <PropertyGroup>
+      <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+      <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+      <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+      <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+      <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\CMakeLists.txt">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building Custom Rule C:/develop/dependencies/bullet3/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -HC:/develop/dependencies/bullet3 -BC:/develop/dependencies/bullet3/build --check-stamp-file C:\develop\dependencies\bullet3\build\CMakeFiles\generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:/develop/dependencies/bullet3/CMakeLists.txt;C:\develop\dependencies\bullet3\CMakeLists.txt;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeSystem.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeCCompiler.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeCXXCompiler.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeGenericSystem.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\WindowsPaths.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows-cl.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeCPlatform.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeCXXPlatform.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\cl.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeRCCompiler.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeRCInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCXXInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows-cl.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeCPlatform.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeCXXPlatform.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\cl.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindOpenGL.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\develop\dependencies\bullet3\BulletConfig.cmake.in;C:\develop\dependencies\bullet3\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\develop\dependencies\bullet3\build\CMakeFiles\generate.stamp</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building Custom Rule C:/develop/dependencies/bullet3/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -HC:/develop/dependencies/bullet3 -BC:/develop/dependencies/bullet3/build --check-stamp-file C:\develop\dependencies\bullet3\build\CMakeFiles\generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:/develop/dependencies/bullet3/CMakeLists.txt;C:\develop\dependencies\bullet3\CMakeLists.txt;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeSystem.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeCCompiler.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeCXXCompiler.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeGenericSystem.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\WindowsPaths.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows-cl.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeCPlatform.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeCXXPlatform.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\cl.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeRCCompiler.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeRCInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCXXInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows-cl.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeCPlatform.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeCXXPlatform.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\cl.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindOpenGL.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\develop\dependencies\bullet3\BulletConfig.cmake.in;C:\develop\dependencies\bullet3\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\develop\dependencies\bullet3\build\CMakeFiles\generate.stamp</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Building Custom Rule C:/develop/dependencies/bullet3/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
+"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -HC:/develop/dependencies/bullet3 -BC:/develop/dependencies/bullet3/build --check-stamp-file C:\develop\dependencies\bullet3\build\CMakeFiles\generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:/develop/dependencies/bullet3/CMakeLists.txt;C:\develop\dependencies\bullet3\CMakeLists.txt;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeSystem.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeCCompiler.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeCXXCompiler.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeGenericSystem.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\WindowsPaths.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows-cl.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeCPlatform.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeCXXPlatform.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\cl.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeRCCompiler.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeRCInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCXXInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows-cl.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeCPlatform.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeCXXPlatform.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\cl.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindOpenGL.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\develop\dependencies\bullet3\BulletConfig.cmake.in;C:\develop\dependencies\bullet3\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:\develop\dependencies\bullet3\build\CMakeFiles\generate.stamp</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Building Custom Rule C:/develop/dependencies/bullet3/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
+"C:\Program Files (x86)\CMake 2.8\bin\cmake.exe" -HC:/develop/dependencies/bullet3 -BC:/develop/dependencies/bullet3/build --check-stamp-file C:\develop\dependencies\bullet3\build\CMakeFiles\generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:/develop/dependencies/bullet3/CMakeLists.txt;C:\develop\dependencies\bullet3\CMakeLists.txt;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeSystem.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeCCompiler.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeCXXCompiler.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeGenericSystem.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\WindowsPaths.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows-cl.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeCPlatform.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeCXXPlatform.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\cl.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeRCCompiler.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeRCInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCXXInformation.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\Windows-cl.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeCPlatform.cmake;C:\develop\dependencies\bullet3\build\CMakeFiles\CMakeCXXPlatform.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\Platform\cl.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindOpenGL.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\FindPackageMessage.cmake;C:\Program Files (x86)\CMake 2.8\share\cmake-2.8\Modules\CMakeParseArguments.cmake;C:\develop\dependencies\bullet3\BulletConfig.cmake.in;C:\develop\dependencies\bullet3\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:\develop\dependencies\bullet3\build\CMakeFiles\generate.stamp</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="CMakeFiles\78381cbf800356678e19f13b4af1651b\ALL_BUILD.rule">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Build all projects</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:/develop/dependencies/bullet3/build/CMakeFiles/78381cbf800356678e19f13b4af1651b/ALL_BUILD.rule;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\develop\dependencies\bullet3\build\CMakeFiles\ALL_BUILD</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Build all projects</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:/develop/dependencies/bullet3/build/CMakeFiles/78381cbf800356678e19f13b4af1651b/ALL_BUILD.rule;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\develop\dependencies\bullet3\build\CMakeFiles\ALL_BUILD</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Build all projects</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:/develop/dependencies/bullet3/build/CMakeFiles/78381cbf800356678e19f13b4af1651b/ALL_BUILD.rule;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:\develop\dependencies\bullet3\build\CMakeFiles\ALL_BUILD</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Build all projects</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:/develop/dependencies/bullet3/build/CMakeFiles/78381cbf800356678e19f13b4af1651b/ALL_BUILD.rule;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:\develop\dependencies\bullet3\build\CMakeFiles\ALL_BUILD</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CMakeFiles\ALL_BUILD" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/BasicDemo/AppBasicDemo.vcxproj">
+      <Project>27CC1DCB-42B5-4985-8E7E-B868ED133FC7</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/Benchmarks/AppBenchmarks.vcxproj">
+      <Project>2D9E99CB-5C34-41D4-A482-CEECE05D78A8</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/Box2dDemo/AppBox2dDemo.vcxproj">
+      <Project>00664E6F-123A-4D1C-9BD0-C361361664A5</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/BspDemo/AppBspPhysicsDemo.vcxproj">
+      <Project>B4533879-1F5A-4BE2-8877-DBC0B3B96506</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/BulletXmlImportDemo/AppBulletXmlImportDemo.vcxproj">
+      <Project>ED2A05AB-6A94-4B10-B6FD-9F8B969C09AF</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/CcdPhysicsDemo/AppCcdPhysicsDemo.vcxproj">
+      <Project>F68D9C60-0CCF-4EEA-853F-CCB12B902A20</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/CharacterDemo/AppCharacterDemo.vcxproj">
+      <Project>4E8C0E33-FF99-44CD-B8D8-7471FB0C8FFA</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/CollisionDemo/AppCollisionDemo.vcxproj">
+      <Project>0BCA1AA2-306D-4E61-A775-626B56CF615D</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/CollisionInterfaceDemo/AppCollisionInterfaceDemo.vcxproj">
+      <Project>8911C7CF-009A-4803-A0D1-E9BC209E41B6</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/ConcaveConvexcastDemo/AppConcaveConvexCastDemo.vcxproj">
+      <Project>7002B574-2F4C-4CB6-9C35-6784B79B5280</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/ConcaveDemo/AppConcaveDemo.vcxproj">
+      <Project>8C80477E-BD37-47B2-AA11-27B933DEC26C</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/ConcaveRaycastDemo/AppConcaveRayCastDemo.vcxproj">
+      <Project>6C41A13C-0379-41DA-9F73-AF38669F00C8</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/ConstraintDemo/AppConstraintDemo.vcxproj">
+      <Project>E3E4FAF7-82DD-4CFA-9BFD-4DE26E9E04F0</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/ContinuousConvexCollision/AppContinuousConvexCollisionDemo.vcxproj">
+      <Project>5DDA2779-B5F6-47E4-8143-1FCEA7C69E40</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/ConvexDecompositionDemo/AppConvexDecompositionDemo.vcxproj">
+      <Project>06367453-7769-47DA-8B0D-5CF8AA5F204F</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/ConvexHullDistance/AppConvexHullDistanceDemo.vcxproj">
+      <Project>C665ACDB-CCE2-4369-9BC4-F8D97BACF504</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/DoublePrecisionDemo/AppDoublePrecisionDemo.vcxproj">
+      <Project>3F2BE0EA-7AAE-4B34-9467-149A1613B772</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/FeatherstoneMultiBodyDemo/AppFeatherstoneMultiBodyDemo.vcxproj">
+      <Project>1733F6D4-963A-4C35-91BC-F9E082EB1597</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/ForkLiftDemo/AppForkLiftDemo.vcxproj">
+      <Project>3B9D0319-ECE0-45CF-9C39-5239E10FA628</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/FractureDemo/AppFractureDemo.vcxproj">
+      <Project>718ED860-3B8B-4EA6-8F9A-D2C729CC5501</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/GenericJointDemo/AppGenericJointDemo.vcxproj">
+      <Project>64D59BB1-69F4-4953-8287-819358D4D5C0</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/GyroscopicDemo/AppGyroscopicDemo.vcxproj">
+      <Project>AF56966F-2B53-4757-BCE1-5DD1151912B2</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/HelloWorld/AppHelloWorld.vcxproj">
+      <Project>B270F37C-00B9-476D-B000-6D39C03F28B5</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/InternalEdgeDemo/AppInternalEdgeDemo.vcxproj">
+      <Project>9F5E795E-6285-422F-A5B1-E09A58977520</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/GjkConvexCastDemo/AppLinearConvexCastDemo.vcxproj">
+      <Project>DA3CCB78-4167-4CE6-8EBD-ED0A657F3681</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/DynamicControlDemo/AppMotorDemo.vcxproj">
+      <Project>495E08B6-4FA3-4A25-9F2E-55307931F115</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/MovingConcaveDemo/AppMovingConcaveDemo.vcxproj">
+      <Project>A935C8E2-B825-40C9-9A7E-95F1266F2EE6</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/MultiMaterialDemo/AppMultiMaterialDemo.vcxproj">
+      <Project>1E0120D1-B3C6-411B-B508-DD17019FEFB7</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/RagdollDemo/AppRagdollDemo.vcxproj">
+      <Project>BFEFBA72-CEBB-4EB7-BA39-2040313D81D4</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/RaytestDemo/AppRaytestDemo.vcxproj">
+      <Project>896211D6-9422-4A4A-8A5E-24E7EF7E2EEB</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/Raytracer/AppRaytracer.vcxproj">
+      <Project>DAFFF293-F76F-46EE-A3DC-C1681A5B387E</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/RollingFrictionDemo/AppRollingFrictionDemo.vcxproj">
+      <Project>802B16EC-4CCC-4076-81B8-DD589B4C8CB2</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/SerializeDemo/AppSerializeDemo.vcxproj">
+      <Project>835274DE-BB44-42B8-A9C7-56D987EF59D8</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/SimplexDemo/AppSimplexDemo.vcxproj">
+      <Project>EB25D92D-4182-4D5D-8E75-E850C2C7AF55</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/SliderConstraintDemo/AppSliderConstraintDemo.vcxproj">
+      <Project>3467BE94-AFCA-4DEF-B47F-FB587DB5EB04</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/SoftDemo/AppSoftBodyDemo.vcxproj">
+      <Project>E76CD6B7-D1B3-4BD9-8943-5AFD156B1A7F</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/UserCollisionAlgorithm/AppUserCollisionAlgorithm.vcxproj">
+      <Project>4ACEC4BE-8A73-42A5-BDA1-40701BD2E8CA</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/VehicleDemo/AppVehicleDemo.vcxproj">
+      <Project>E7DB0C7E-5633-4A1B-95BA-E7D7864940B1</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/VoronoiFractureDemo/AppVoronoiFractureDemo.vcxproj">
+      <Project>CE15229F-342B-4799-A32D-225DE979ACDA</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/src/BulletCollision/BulletCollision.vcxproj">
+      <Project>D4A6242D-0EC9-445E-BC45-58FC84E20175</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/src/BulletDynamics/BulletDynamics.vcxproj">
+      <Project>0E48FD9E-75B6-47E0-ACFD-D0D5C5AEB824</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Extras/Serialize/BulletFileLoader/BulletFileLoader.vcxproj">
+      <Project>EF55563F-0C29-43EA-B8CA-42E442E00116</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/src/BulletSoftBody/BulletSoftBody.vcxproj">
+      <Project>7DF22A8E-C0C5-4E5F-99B5-4F7CB6CE5956</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Extras/Serialize/BulletWorldImporter/BulletWorldImporter.vcxproj">
+      <Project>B2325F5A-FF49-4450-AC5A-80222DE386D7</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Extras/Serialize/BulletXmlWorldImporter/BulletXmlWorldImporter.vcxproj">
+      <Project>7688A7C4-C916-43AF-B9B9-BF825C55C8A3</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Extras/ConvexDecomposition/ConvexDecomposition.vcxproj">
+      <Project>5FBABC26-761A-45FE-9DF7-3F0B2A7BD24E</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Extras/GIMPACTUtils/GIMPACTUtils.vcxproj">
+      <Project>7EFCAE9E-E1B2-4470-8D95-147E4406B771</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Extras/HACD/HACD.vcxproj">
+      <Project>5876269E-55D4-49B9-BDB8-229C13D4787F</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/src/LinearMath/LinearMath.vcxproj">
+      <Project>98AA118D-3EE8-4300-98D0-A9989B825192</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/Demos/OpenGL/OpenGLSupport.vcxproj">
+      <Project>DDBA3965-7CB9-40D3-AE30-271021E0F582</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/ZERO_CHECK.vcxproj">
+      <Project>7F56FE4D-BC81-414D-859C-9A82CD46A1AF</Project>
+    </ProjectReference>
+    <ProjectReference Include="C:/develop/dependencies/bullet3/build/test/gtest-1.7.0/gtest.vcxproj">
+      <Project>56383C78-34F2-4EE6-8726-13B2831CC29D</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
