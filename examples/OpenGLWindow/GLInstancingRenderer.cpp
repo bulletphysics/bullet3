@@ -142,8 +142,8 @@ struct b3GraphicsInstance
 		m_instanceOffset(0),
 		m_vertexArrayOffset(0),
 		m_primitiveType(B3_GL_TRIANGLES),
-		m_materialShinyNess(81),
-		m_materialSpecularColor(b3MakeVector3(1,1,1))
+		m_materialShinyNess(41),
+		m_materialSpecularColor(b3MakeVector3(.5,.5,.5))
 	{
 	}
 

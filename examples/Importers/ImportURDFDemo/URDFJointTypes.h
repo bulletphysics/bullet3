@@ -69,7 +69,7 @@ struct UrdfMaterialColor
 	btVector3 m_specularColor;
 	UrdfMaterialColor()
 		:m_rgbaColor(0.8, 0.8, 0.8, 1),
-		m_specularColor(0.5,0.5,0.5)
+		m_specularColor(0.4,0.4,0.4)
 	{
 	}
 };
