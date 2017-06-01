@@ -706,7 +706,7 @@ struct BulletMJCFImporterInternalData
 		if (!rgba.empty())
 		{
 			// "0 0.7 0.7 1"
-			parseVector4(geom.m_localMaterial.m_rgbaColor, rgba);
+			parseVector4(geom.m_localMaterial.m_matColor.m_rgbaColor, rgba);
 			geom.m_hasLocalMaterial = true;
 			geom.m_localMaterial.m_name = rgba;
 		}

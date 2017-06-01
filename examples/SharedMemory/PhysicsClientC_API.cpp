@@ -2452,6 +2452,21 @@ void b3UpdateVisualShapeRGBAColor(b3SharedMemoryCommandHandle commandHandle, dou
 	}
 }
 
+void b3UpdateVisualShapeSpecularColor(b3SharedMemoryCommandHandle commandHandle, double specularColor[3])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_UPDATE_VISUAL_SHAPE);
+
+	if (command->m_type == CMD_UPDATE_VISUAL_SHAPE)
+	{
+		command->m_updateVisualShapeDataArguments.m_specularColor[0] = specularColor[0];
+		command->m_updateVisualShapeDataArguments.m_specularColor[1] = specularColor[1];
+		command->m_updateVisualShapeDataArguments.m_specularColor[2] = specularColor[2];
+		command->m_updateFlags |= CMD_UPDATE_VISUAL_SHAPE_SPECULAR_COLOR;
+	}
+}
+
 b3SharedMemoryCommandHandle b3ApplyExternalForceCommandInit(b3PhysicsClientHandle physClient)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;

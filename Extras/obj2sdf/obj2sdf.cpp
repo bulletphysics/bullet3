@@ -16,12 +16,32 @@
 
 #define MAX_PATH_LEN 1024
 
+std::string StripExtension( const std::string & sPath )
+{
+	for( std::string::const_reverse_iterator i = sPath.rbegin(); i != sPath.rend(); i++ )
+	{
+		if( *i == '.' )
+		{
+			return std::string( sPath.begin(), i.base() - 1 );
+		}
+
+		// if we find a slash there is no extension
+		if( *i == '\\' || *i == '/' )
+			break;
+	}
+
+	// we didn't find an extension
+	return sPath;
+}
+
 int main(int argc, char* argv[])
 {
 
 	b3CommandLineArgs args(argc,argv);
 	char* fileName;
 	args.GetCmdLineArgument("fileName",fileName);
+
+	std::string matLibName = StripExtension(fileName);
 
 	printf("fileName = %s\n", fileName);
 	if (fileName==0)
@@ -58,7 +78,13 @@ int main(int argc, char* argv[])
 		}
 
 		char objFileName[MAX_PATH_LEN];
-		sprintf(objFileName,"%s/part%d.obj",materialPrefixPath,s);
+		if (strlen(materialPrefixPath)>0)
+		{
+			sprintf(objFileName,"%s/part%d.obj",materialPrefixPath,s);
+		} else
+		{
+			sprintf(objFileName,"part%d.obj",s);
+		}
 		FILE* f = fopen(objFileName,"w");
 		if (f==0)
 		{
@@ -66,7 +92,15 @@ int main(int argc, char* argv[])
 			exit(0);
 		}
 		fprintf(f,"# Exported using automatic converter by Erwin Coumans\n");
-		fprintf(f,"mtllib bedroom.mtl\n");
+		if (matLibName.length())
+		{
+			fprintf(f,"mtllib %s.mtl\n", matLibName.c_str());
+		} else
+		{
+			fprintf(f,"mtllib bedroom.mtl\n");
+
+		}
+
 
 		int faceCount = shape.mesh.indices.size();
 		int vertexCount = shape.mesh.positions.size();

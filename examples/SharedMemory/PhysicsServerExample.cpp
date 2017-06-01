@@ -123,6 +123,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIDumpFramesToVideo,
 	eGUIHelperRemoveGraphicsInstance,
 	eGUIHelperChangeGraphicsInstanceRGBAColor,
+	eGUIHelperChangeGraphicsInstanceSpecularColor,
 	eGUIHelperSetVisualizerFlag,
 };
 
@@ -916,6 +917,19 @@ public:
 		m_cs->lock();
 		m_cs->setSharedParam(1,eGUIHelperChangeGraphicsInstanceRGBAColor);
 		workerThreadWait();    
+	}
+
+	double m_specularColor[3];
+	int m_graphicsInstanceChangeSpecular;
+	virtual void changeSpecularColor(int instanceUid, const double specularColor[3])
+	{
+		m_graphicsInstanceChangeSpecular = instanceUid;
+		m_specularColor[0] = specularColor[0];
+		m_specularColor[1] = specularColor[1];
+		m_specularColor[2] = specularColor[2];
+		m_cs->lock();
+		m_cs->setSharedParam(1,eGUIHelperChangeGraphicsInstanceSpecularColor);
+		workerThreadWait(); 
 	}
 
 	virtual Common2dCanvasInterface* get2dCanvasInterface()
@@ -1733,6 +1747,13 @@ void	PhysicsServerExample::updateGraphics()
 		m_multiThreadedHelper->m_childGuiHelper->changeRGBAColor(m_multiThreadedHelper->m_graphicsInstanceChangeColor,m_multiThreadedHelper->m_rgbaColor);
 		m_multiThreadedHelper->mainThreadRelease();
 		break;
+	}
+	case eGUIHelperChangeGraphicsInstanceSpecularColor:
+	{
+		m_multiThreadedHelper->m_childGuiHelper->changeSpecularColor(m_multiThreadedHelper->m_graphicsInstanceChangeSpecular,m_multiThreadedHelper->m_specularColor);
+		m_multiThreadedHelper->mainThreadRelease();
+		break;
+
 	}
 
     case eGUIHelperCopyCameraImageData:

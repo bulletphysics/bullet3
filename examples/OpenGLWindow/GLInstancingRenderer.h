@@ -95,12 +95,16 @@ public:
 
     }
 
+
 	virtual void readSingleInstanceTransformFromCPU(int srcIndex, float* position, float* orientation);
 
 	virtual void writeSingleInstanceTransformToGPU(float* position, float* orientation, int srcIndex);
 
 	virtual void writeSingleInstanceColorToCPU(const float* color, int srcIndex);
 	virtual void writeSingleInstanceColorToCPU(const double* color, int srcIndex);
+
+	virtual void writeSingleInstanceSpecularColorToCPU(const double* specular, int srcIndex);
+	virtual void writeSingleInstanceSpecularColorToCPU(const float* specular, int srcIndex);
 
 	virtual void writeSingleInstanceScaleToCPU(const float* scale, int srcIndex);
 	virtual void writeSingleInstanceScaleToCPU(const double* scale, int srcIndex);

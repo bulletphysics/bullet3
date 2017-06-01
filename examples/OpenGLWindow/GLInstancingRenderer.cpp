@@ -492,6 +492,60 @@ void GLInstancingRenderer::writeSingleInstanceScaleToCPU(const float* scale, int
 	m_data->m_instance_scale_ptr[srcIndex*3+2]=scale[2];
 }
 
+void GLInstancingRenderer::writeSingleInstanceSpecularColorToCPU(const double* specular, int bodyUniqueId)
+{
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3Assert(pg);
+	int srcIndex = pg->m_internalInstanceIndex;
+
+	int totalNumInstances = 0;
+
+	int gfxObjIndex = -1;
+
+	for (int i=0;i<m_graphicsInstances.size();i++)
+	{
+		totalNumInstances+=m_graphicsInstances[i]->m_numGraphicsInstances;
+		if (srcIndex<totalNumInstances)
+		{
+			gfxObjIndex = i;
+			break;
+		}
+	}
+	if (gfxObjIndex>0)
+	{
+		m_graphicsInstances[gfxObjIndex]->m_materialSpecularColor[0] = specular[0];
+		m_graphicsInstances[gfxObjIndex]->m_materialSpecularColor[1] = specular[1];
+		m_graphicsInstances[gfxObjIndex]->m_materialSpecularColor[2] = specular[2];
+	}
+}
+void GLInstancingRenderer::writeSingleInstanceSpecularColorToCPU(const float* specular, int bodyUniqueId)
+{
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3Assert(pg);
+	int srcIndex = pg->m_internalInstanceIndex;
+
+	int totalNumInstances = 0;
+
+	int gfxObjIndex = -1;
+
+	for (int i=0;i<m_graphicsInstances.size();i++)
+	{
+		totalNumInstances+=m_graphicsInstances[i]->m_numGraphicsInstances;
+		if (srcIndex<totalNumInstances)
+		{
+			gfxObjIndex = i;
+			break;
+		}
+	}
+	if (gfxObjIndex>0)
+	{
+		m_graphicsInstances[gfxObjIndex]->m_materialSpecularColor[0] = specular[0];
+		m_graphicsInstances[gfxObjIndex]->m_materialSpecularColor[1] = specular[1];
+		m_graphicsInstances[gfxObjIndex]->m_materialSpecularColor[2] = specular[2];
+	}
+}
+
+
 void GLInstancingRenderer::writeSingleInstanceScaleToCPU(const double* scale, int bodyUniqueId)
 {
 	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);

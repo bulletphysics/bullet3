@@ -63,4 +63,15 @@ enum UrdfCollisionFlags
 	URDF_HAS_COLLISION_MASK=4,
 };
 
+struct UrdfMaterialColor
+{
+	btVector4 m_rgbaColor;
+	btVector3 m_specularColor;
+	UrdfMaterialColor()
+		:m_rgbaColor(0.8, 0.8, 0.8, 1),
+		m_specularColor(0.5,0.5,0.5)
+	{
+	}
+};
+
 #endif //URDF_JOINT_TYPES_H
