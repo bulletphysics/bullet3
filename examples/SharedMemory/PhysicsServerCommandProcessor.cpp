@@ -49,9 +49,8 @@
 
 //@todo(erwincoumans) those globals are hacks for a VR demo, move this to Python/pybullet!
 btVector3 gLastPickPos(0, 0, 0);
-bool gCloseToKuka=false;
-bool gEnableRealTimeSimVR=false;
-bool gCreateDefaultRobotAssets = false;
+
+
 int gInternalSimFlags = 0;
 bool gResetSimulation = 0;
 int gVRTrackingObjectUniqueId = -1;
@@ -59,9 +58,9 @@ int gVRTrackingObjectFlag = VR_CAMERA_TRACK_OBJECT_ORIENTATION;
 
 btTransform gVRTrackingObjectTr = btTransform::getIdentity();
 
-int gMaxNumCmdPer1ms = -1;//experiment: add some delay to avoid threads starving other threads
-int gCreateObjectSimVR = -1;
-int gEnableKukaControl = 0;
+
+
+
 btVector3 gVRTeleportPos1(0,0,0);
 btQuaternion gVRTeleportOrn(0, 0, 0,1);
 
@@ -1137,25 +1136,13 @@ struct PhysicsServerCommandProcessorInternalData
 
 
 	bool m_allowRealTimeSimulation;
-	bool m_hasGround;
+	
 
 	b3VRControllerEvents m_vrControllerEvents;
 
 
 	btAlignedObjectArray<b3KeyboardEvent> m_keyboardEvents;
 	
-	btMultiBodyFixedConstraint* m_gripperRigidbodyFixed;
-	btMultiBody* m_gripperMultiBody;
-	btMultiBodyFixedConstraint* m_kukaGripperFixed;
-	btMultiBody* m_kukaGripperMultiBody;
-	btMultiBodyPoint2Point* m_kukaGripperRevolute1;
-	btMultiBodyPoint2Point* m_kukaGripperRevolute2;
-	
-
-	int m_huskyId;
-	int m_KukaId;
-	int m_sphereId;
-	int m_gripperId;
 	CommandLogger* m_commandLogger;
 	CommandLogPlayback* m_logPlayback;
 
@@ -1231,17 +1218,6 @@ struct PhysicsServerCommandProcessorInternalData
 	PhysicsServerCommandProcessorInternalData()
 		:
 		m_allowRealTimeSimulation(false),
-	m_hasGround(false),	
-	m_gripperRigidbodyFixed(0),
-		m_gripperMultiBody(0),
-		m_kukaGripperFixed(0),
-		m_kukaGripperMultiBody(0),
-		m_kukaGripperRevolute1(0),
-		m_kukaGripperRevolute2(0),
-		m_huskyId(-1),
-		m_KukaId(-1),
-		m_sphereId(-1),
-		m_gripperId(-1),
 		m_commandLogger(0),
 		m_logPlayback(0),
 		m_physicsDeltaTime(1./240.),
@@ -4087,7 +4063,6 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_INTERNAL_SIMULATION_FLAGS)
 					{
 						//these flags are for internal/temporary/easter-egg/experimental demo purposes, use at own risk
-						gCreateDefaultRobotAssets = (clientCmd.m_physSimParamArgs.m_internalSimFlags & SIM_PARAM_INTERNAL_CREATE_ROBOT_ASSETS);
 						gInternalSimFlags = clientCmd.m_physSimParamArgs.m_internalSimFlags;
 					}
 
@@ -4111,11 +4086,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					{
 						gContactBreakingThreshold = clientCmd.m_physSimParamArgs.m_contactBreakingThreshold;
 					}
-					if (clientCmd.m_updateFlags&SIM_PARAM_MAX_CMD_PER_1MS)
-					{
-						gMaxNumCmdPer1ms = clientCmd.m_physSimParamArgs.m_maxNumCmdPer1ms;
-					}
-
+					
 					if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_COLLISION_FILTER_MODE)
 					{
 						m_data->m_broadphaseCollisionFilterCallback->m_filterMode = clientCmd.m_physSimParamArgs.m_collisionFilterMode;
@@ -5693,7 +5664,6 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						}
 					}                    
    
-					if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR) 
 					{
 						int bodyUniqueId = clientCmd.m_updateVisualShapeDataArguments.m_bodyUniqueId;
 						int linkIndex = clientCmd.m_updateVisualShapeDataArguments.m_jointIndex;
@@ -5709,7 +5679,15 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									{
 										//m_data->m_visualConverter.changeRGBAColor(...)
 										int graphicsIndex = bodyHandle->m_multiBody->getBaseCollider()->getUserIndex();
-										m_data->m_guiHelper->changeRGBAColor(graphicsIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
+										if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR) 
+										{
+											m_data->m_guiHelper->changeRGBAColor(graphicsIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
+										}
+										if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_SPECULAR_COLOR) 
+										{
+											m_data->m_guiHelper->changeSpecularColor(graphicsIndex,clientCmd.m_updateVisualShapeDataArguments.m_specularColor);
+										}
+										
 									}
 								} else
 								{
@@ -5719,7 +5697,15 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 										{
 											//m_data->m_visualConverter.changeRGBAColor(...)
 											int graphicsIndex = bodyHandle->m_multiBody->getLink(linkIndex).m_collider->getUserIndex();
-											m_data->m_guiHelper->changeRGBAColor(graphicsIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
+											if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR) 
+											{
+												m_data->m_guiHelper->changeRGBAColor(graphicsIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
+											}
+											if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_SPECULAR_COLOR) 
+											{
+												m_data->m_guiHelper->changeSpecularColor(graphicsIndex,clientCmd.m_updateVisualShapeDataArguments.m_specularColor);
+											}
+
 										}
 									}
 								}
@@ -6282,7 +6268,7 @@ btQuaternion gVRController2Orn(0,0,0,1);
 btScalar gVRGripper2Analog = 0;
 btScalar gVRGripperAnalog = 0;
 
-bool gVRGripperClosed = false;
+
 
 
 int gDroppedSimulationSteps = 0;
@@ -6293,6 +6279,11 @@ double gSubStep = 0.f;
 void PhysicsServerCommandProcessor::enableRealTimeSimulation(bool enableRealTimeSim)
 {
 	m_data->m_allowRealTimeSimulation = enableRealTimeSim;
+}
+
+bool PhysicsServerCommandProcessor::isRealTimeSimulationEnabled() const
+{
+	return 	m_data->m_allowRealTimeSimulation;
 }
 
 void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const struct b3VRControllerEvent* vrControllerEvents, int numVRControllerEvents,const struct b3KeyboardEvent* keyEvents, int numKeyEvents)
@@ -6348,23 +6339,22 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const
 			if (gVRTrackingObjectUniqueId>=0)
 			{
 				gVRTrackingObjectTr.setOrigin(bodyHandle->m_multiBody->getBaseWorldTransform().getOrigin());
+				gVRTeleportPos1 = gVRTrackingObjectTr.getOrigin();
 			}
 			if (gVRTrackingObjectFlag&VR_CAMERA_TRACK_OBJECT_ORIENTATION)
 			{
 				gVRTrackingObjectTr.setBasis(bodyHandle->m_multiBody->getBaseWorldTransform().getBasis());
+				gVRTeleportOrn = gVRTrackingObjectTr.getRotation();
+
 			}	
+
 		}
 	}
 
 	if ((m_data->m_allowRealTimeSimulation) && m_data->m_guiHelper)
 	{
 		
-		///this hardcoded C++ scene creation is temporary for demo purposes. It will be done in Python later...
-		if (gCreateDefaultRobotAssets)
-		{
-			createDefaultRobotAssets();
-		}
-
+		
 		int maxSteps = m_data->m_numSimulationSubSteps+3;
 		if (m_data->m_numSimulationSubSteps)
 		{
@@ -6413,553 +6403,29 @@ void PhysicsServerCommandProcessor::resetSimulation()
 	m_data->m_bodyHandles.exitHandles();
 	m_data->m_bodyHandles.initHandles();
 
-	m_data->m_hasGround = false;
-	m_data->m_gripperRigidbodyFixed = 0;
+	
+	
 
 }
 
-//todo: move this to Python/scripting (it is almost ready to be removed!)
-void PhysicsServerCommandProcessor::createDefaultRobotAssets()
-{
-	static btAlignedObjectArray<char> gBufferServerToClient;
-	gBufferServerToClient.resize(SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
-	int bodyId = 0;
-
-	if (gCreateObjectSimVR >= 0)
-	{
-		gCreateObjectSimVR = -1;
-		btMatrix3x3 mat(gVRGripperOrn);
-		btScalar spawnDistance = 0.1;
-		btVector3 spawnDir = mat.getColumn(0);
-		btVector3 shiftPos = spawnDir*spawnDistance;
-		btVector3 spawnPos = gVRGripperPos + shiftPos;
-		loadUrdf("sphere_small.urdf", spawnPos, gVRGripperOrn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size(),0);
-		//loadUrdf("lego/lego.urdf", spawnPos, gVRGripperOrn, true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		m_data->m_sphereId = bodyId;
-		InteralBodyData* parentBody = m_data->m_bodyHandles.getHandle(bodyId);
-		if (parentBody->m_multiBody)
-		{
-			parentBody->m_multiBody->setBaseVel(spawnDir * 5);
-		}
-	}
-
-	if (!m_data->m_hasGround)
-	{
-		m_data->m_hasGround = true;
-
-		loadUrdf("plane.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, true, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		loadUrdf("samurai.urdf", btVector3(0, 0, 0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-//		loadUrdf("quadruped/quadruped.urdf", btVector3(2, 2, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-
-		if (m_data->m_gripperRigidbodyFixed == 0)
-		{
-			int bodyId = 0;
-
-			if (loadUrdf("pr2_gripper.urdf", btVector3(-0.2, 0.15, 0.9), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size()))
-			{
-				InteralBodyData* parentBody = m_data->m_bodyHandles.getHandle(bodyId);
-				if (parentBody->m_multiBody)
-				{
-					parentBody->m_multiBody->setHasSelfCollision(0);
-					btVector3 pivotInParent(0.2, 0, 0);
-					btMatrix3x3 frameInParent;
-					//frameInParent.setRotation(btQuaternion(0, 0, 0, 1));
-					frameInParent.setIdentity();
-					btVector3 pivotInChild(0, 0, 0);
-					btMatrix3x3 frameInChild;
-					frameInChild.setIdentity();
-
-					m_data->m_gripperRigidbodyFixed = new btMultiBodyFixedConstraint(parentBody->m_multiBody, -1, 0, pivotInParent, pivotInChild, frameInParent, frameInChild);
-					m_data->m_gripperMultiBody = parentBody->m_multiBody;
-					if (m_data->m_gripperMultiBody->getNumLinks() > 2)
-					{
-						m_data->m_gripperMultiBody->setJointPos(0, 0);
-						m_data->m_gripperMultiBody->setJointPos(2, 0);
-					}
-					m_data->m_gripperRigidbodyFixed->setMaxAppliedImpulse(500);
-					btMultiBodyDynamicsWorld* world = (btMultiBodyDynamicsWorld*)m_data->m_dynamicsWorld;
-					world->addMultiBodyConstraint(m_data->m_gripperRigidbodyFixed);
-				}
-			}	
-		}
-
-		loadUrdf("kuka_iiwa/model_vr_limits.urdf", btVector3(1.4, -0.2, 0.6), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		m_data->m_KukaId = bodyId;
-		if (m_data->m_KukaId>=0)
-		{
-			InteralBodyData* kukaBody = m_data->m_bodyHandles.getHandle(m_data->m_KukaId);
-			if (kukaBody->m_multiBody && kukaBody->m_multiBody->getNumDofs() == 7)
-			{
-				btScalar q[7];
-				q[0] = 0;// -SIMD_HALF_PI;
-				q[1] = 0;
-				q[2] = 0;
-				q[3] = SIMD_HALF_PI;
-				q[4] = 0;
-				q[5] = -SIMD_HALF_PI*0.66;
-				q[6] = 0;
-
-				for (int i = 0; i < 7; i++)
-				{
-					kukaBody->m_multiBody->setJointPos(i, q[i]);
-				}
-				btAlignedObjectArray<btQuaternion> scratch_q;
-				btAlignedObjectArray<btVector3> scratch_m;
-				kukaBody->m_multiBody->forwardKinematics(scratch_q, scratch_m);
-				int nLinks = kukaBody->m_multiBody->getNumLinks();
-				scratch_q.resize(nLinks + 1);
-				scratch_m.resize(nLinks + 1);
-				kukaBody->m_multiBody->updateCollisionObjectWorldTransforms(scratch_q, scratch_m);
-			}
-		}
-#if 1
-		loadUrdf("lego/lego.urdf", btVector3(1.0, -0.2, .7), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		loadUrdf("lego/lego.urdf", btVector3(1.0, -0.2, .8), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		loadUrdf("lego/lego.urdf", btVector3(1.0, -0.2, .9), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-#endif
-
-		//		loadUrdf("r2d2.urdf", btVector3(-2, -4, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-
-#if 1
-		// Load one motor gripper for kuka
-		loadSdf("gripper/wsg50_one_motor_gripper_new_free_base.sdf", &gBufferServerToClient[0], gBufferServerToClient.size(), true,CUF_USE_SDF);
-		m_data->m_gripperId = bodyId + 1;
-		{
-		InteralBodyData* gripperBody = m_data->m_bodyHandles.getHandle(m_data->m_gripperId);
-
-		// Reset the default gripper motor maximum torque for damping to 0
-		for (int i = 0; i < gripperBody->m_multiBody->getNumLinks(); i++)
-		{
-			if (supportsJointMotor(gripperBody->m_multiBody, i))
-			{
-				btMultiBodyJointMotor* motor = (btMultiBodyJointMotor*)gripperBody->m_multiBody->getLink(i).m_userPtr;
-				if (motor)
-				{
-					motor->setMaxAppliedImpulse(0);
-				}
-			}
-		}
-		}
-#endif
-#if 1
-		for (int i = 0; i < 6; i++)
-		{
-			loadUrdf("jenga/jenga.urdf", btVector3(1.3-0.1*i,-0.7,  .75), btQuaternion(btVector3(0,1,0),SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		}
-#endif
-		//loadUrdf("nao/nao.urdf", btVector3(2,5, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-
-		// Add slider joint for fingers
-		btVector3 pivotInParent1(-0.055, 0, 0.02);
-		btVector3 pivotInChild1(0, 0, 0);
-		btMatrix3x3 frameInParent1(btQuaternion(0, 0, 0, 1.0));
-		btMatrix3x3 frameInChild1(btQuaternion(0, 0, 0, 1.0));
-		btVector3 jointAxis1(1.0, 0, 0);
-		btVector3 pivotInParent2(0.055, 0, 0.02);
-		btVector3 pivotInChild2(0, 0, 0);
-		btMatrix3x3 frameInParent2(btQuaternion(0, 0, 0, 1.0));
-		btMatrix3x3 frameInChild2(btQuaternion(0, 0, 1.0, 0));
-		btVector3 jointAxis2(1.0, 0, 0);
-
-		if (m_data->m_gripperId>=0)
-		{
-		InteralBodyData* gripperBody = m_data->m_bodyHandles.getHandle(m_data->m_gripperId);
-		m_data->m_kukaGripperRevolute1 = new btMultiBodyPoint2Point(gripperBody->m_multiBody, 2, gripperBody->m_multiBody, 4, pivotInParent1, pivotInChild1);
-		m_data->m_kukaGripperRevolute1->setMaxAppliedImpulse(5.0);
-		m_data->m_kukaGripperRevolute2 = new btMultiBodyPoint2Point(gripperBody->m_multiBody, 3, gripperBody->m_multiBody, 6, pivotInParent2, pivotInChild2);
-		m_data->m_kukaGripperRevolute2->setMaxAppliedImpulse(5.0);
-
-		m_data->m_dynamicsWorld->addMultiBodyConstraint(m_data->m_kukaGripperRevolute1);
-		m_data->m_dynamicsWorld->addMultiBodyConstraint(m_data->m_kukaGripperRevolute2);
-
-		}
-
-		if (m_data->m_KukaId>=0)
-		{
-		InteralBodyData* kukaBody = m_data->m_bodyHandles.getHandle(m_data->m_KukaId);
-		if (kukaBody->m_multiBody && kukaBody->m_multiBody->getNumDofs()==7)
-		{
-			if (m_data->m_gripperId>=0)
-			{
-			InteralBodyData* gripperBody = m_data->m_bodyHandles.getHandle(m_data->m_gripperId);
-
-			gripperBody->m_multiBody->setHasSelfCollision(0);
-			btVector3 pivotInParent(0, 0, 0.05);
-			btMatrix3x3 frameInParent;
-			frameInParent.setIdentity();
-			btVector3 pivotInChild(0, 0, 0);
-			btMatrix3x3 frameInChild;
-			frameInChild.setIdentity();
-
-			m_data->m_kukaGripperFixed = new btMultiBodyFixedConstraint(kukaBody->m_multiBody, 6, gripperBody->m_multiBody, 0, pivotInParent, pivotInChild, frameInParent, frameInChild);
-			m_data->m_kukaGripperMultiBody = gripperBody->m_multiBody;
-			m_data->m_kukaGripperFixed->setMaxAppliedImpulse(500);
-			m_data->m_dynamicsWorld->addMultiBodyConstraint(m_data->m_kukaGripperFixed);
-			}
-		}
-		}
-#if 0
-
-		for (int i = 0; i < 10; i++)
-		{
-			loadUrdf("cube.urdf", btVector3(-4, -2, 0.5 + i), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		}
-
-		loadUrdf("sphere2.urdf", btVector3(-5, 0, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		loadUrdf("sphere2.urdf", btVector3(-5, 0, 2), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		loadUrdf("sphere2.urdf", btVector3(-5, 0, 3), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-#endif		
-		btTransform objectLocalTr[] = {
-			btTransform(btQuaternion(0, 0, 0, 1), btVector3(0.0, 0.0, 0.0)),
-			btTransform(btQuaternion(btVector3(0,0,1),-SIMD_HALF_PI), btVector3(0.0, 0.15, 0.64)),
-			btTransform(btQuaternion(0, 0, 0, 1), btVector3(0.1, 0.15, 0.85)),
-			btTransform(btQuaternion(0, 0, 0, 1), btVector3(-0.4, 0.05, 0.85)),
-			btTransform(btQuaternion(0, 0, 0, 1), btVector3(-0.3, -0.05, 0.7)),
-			btTransform(btQuaternion(0, 0, 0, 1), btVector3(0.1, 0.05, 0.7)),
-			btTransform(btQuaternion(0, 0, 0, 1), btVector3(-0.2, 0.15, 0.7)),
-			btTransform(btQuaternion(0, 0, 0, 1), btVector3(-0.2, 0.15, 0.9)),
-			btTransform(btQuaternion(0, 0, 0, 1), btVector3(0.2, 0.05, 0.8))
-		};
-
-
-		btAlignedObjectArray<btTransform> objectWorldTr;
-		int numOb = sizeof(objectLocalTr) / sizeof(btTransform);
-		objectWorldTr.resize(numOb);
-
-		btTransform tr;
-		tr.setIdentity();
-		tr.setRotation(btQuaternion(btVector3(0, 0, 1), SIMD_HALF_PI));
-		tr.setOrigin(btVector3(1.0, -0.2, 0));
-
-		for (int i = 0; i < numOb; i++)
-		{
-			objectWorldTr[i] = tr*objectLocalTr[i];
-		}
-
-		// Table area
-		loadUrdf("table/table.urdf", objectWorldTr[0].getOrigin(), objectWorldTr[0].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		//loadUrdf("tray/tray_textured.urdf", objectWorldTr[1].getOrigin(), objectWorldTr[1].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		//loadUrdf("cup_small.urdf", objectWorldTr[2].getOrigin(), objectWorldTr[2].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		//loadUrdf("pitcher_small.urdf", objectWorldTr[3].getOrigin(), objectWorldTr[3].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		loadUrdf("teddy_vhacd.urdf", objectWorldTr[4].getOrigin(), objectWorldTr[4].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-
-		loadUrdf("cube_small.urdf", objectWorldTr[5].getOrigin(), objectWorldTr[5].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		loadUrdf("sphere_small.urdf", objectWorldTr[6].getOrigin(), objectWorldTr[6].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		loadUrdf("duck_vhacd.urdf", objectWorldTr[7].getOrigin(), objectWorldTr[7].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		//loadUrdf("Apple/apple.urdf", objectWorldTr[8].getOrigin(), objectWorldTr[8].getRotation(), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-
-		// Shelf area
-		loadSdf("kiva_shelf/model.sdf", &gBufferServerToClient[0], gBufferServerToClient.size(), true, CUF_USE_SDF);
-		loadUrdf("teddy_vhacd.urdf", btVector3(-0.1, 0.6, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());			
-		loadUrdf("sphere_small.urdf", btVector3(-0.1, 0.6, 1.25), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		loadUrdf("cube_small.urdf", btVector3(0.3, 0.6, 0.85), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-			
-		// Chess area
-		loadUrdf("table_square/table_square.urdf", btVector3(-1.0, 0, 0.0), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		//loadUrdf("pawn.urdf", btVector3(-0.8, -0.1, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		//loadUrdf("queen.urdf", btVector3(-0.9, -0.2, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		//loadUrdf("king.urdf", btVector3(-1.0, 0, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		//loadUrdf("bishop.urdf", btVector3(-1.1, 0.1, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		//loadUrdf("rook.urdf", btVector3(-1.2, 0, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		//loadUrdf("knight.urdf", btVector3(-1.2, 0.2, 0.7), btQuaternion(btVector3(1, 0, 0), SIMD_HALF_PI), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-
-		loadUrdf("husky/husky.urdf", btVector3(2, -5, 1), btQuaternion(0, 0, 0, 1), true, false, &bodyId, &gBufferServerToClient[0], gBufferServerToClient.size());
-		m_data->m_huskyId = bodyId;
-
-		m_data->m_dynamicsWorld->setGravity(btVector3(0, 0, -10));
-
-	}
-
-	if (m_data->m_kukaGripperFixed && m_data->m_kukaGripperMultiBody)
-	{
-		InteralBodyData* childBody = m_data->m_bodyHandles.getHandle(m_data->m_gripperId);
-		// Add gripper controller
-		btMultiBodyJointMotor* motor = (btMultiBodyJointMotor*)childBody->m_multiBody->getLink(1).m_userPtr;
-		if (motor)
-		{
-			btScalar posTarget = (-0.048)*btMin(btScalar(0.75), gVRGripper2Analog) / 0.75;
-			motor->setPositionTarget(posTarget, .8);
-			motor->setVelocityTarget(0.0, .5);
-			motor->setMaxAppliedImpulse(1.0);
-
-		}
-	}
-
-	if (m_data->m_gripperRigidbodyFixed && m_data->m_gripperMultiBody)
-	{
-		m_data->m_gripperRigidbodyFixed->setFrameInB(btMatrix3x3(gVRGripperOrn));
-		m_data->m_gripperRigidbodyFixed->setPivotInB(gVRGripperPos);
-		btScalar avg = 0.f;
-
-		for (int i = 0; i < m_data->m_gripperMultiBody->getNumLinks(); i++)
-		{
-			if (supportsJointMotor(m_data->m_gripperMultiBody, i))
-			{
-				btMultiBodyJointMotor* motor = (btMultiBodyJointMotor*)m_data->m_gripperMultiBody->getLink(i ).m_userPtr;
-				if (motor)
-				{
-					motor->setErp(0.2);
-					btScalar posTarget = 0.1 + (1 - btMin(btScalar(0.75),gVRGripperAnalog)*btScalar(1.5))*SIMD_HALF_PI*0.29;
-					btScalar maxPosTarget = 0.55;
-					
-					btScalar correction = 0.f;
-
-					if (avg)
-					{
-						correction = m_data->m_gripperMultiBody->getJointPos(i) - avg;
-					}
-					
-					if (m_data->m_gripperMultiBody->getJointPos(i) < 0)
-					{
-						m_data->m_gripperMultiBody->setJointPos(i,0);
-					}
-					if (m_data->m_gripperMultiBody->getJointPos(i) > maxPosTarget)
-					{
-						m_data->m_gripperMultiBody->setJointPos(i, maxPosTarget);
-					}
-
-					if (avg)
-					{
-						motor->setPositionTarget(avg, 1);
-					}
-					else
-					{
-						motor->setPositionTarget(posTarget, 1);
-					}
-					motor->setVelocityTarget(0, 0.5);
-					btScalar maxImp = (1+0.1*i)*m_data->m_physicsDeltaTime;
-					motor->setMaxAppliedImpulse(maxImp);
-					avg = m_data->m_gripperMultiBody->getJointPos(i);
-
-					//motor->setRhsClamp(gRhsClamp);
-				}
-			}
-		}
-	}
-
-	// Inverse kinematics for KUKA
-	if (m_data->m_KukaId>=0)
-	{
-		InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(m_data->m_KukaId);
-		if (bodyHandle && bodyHandle->m_multiBody && bodyHandle->m_multiBody->getNumDofs()==7)
-		{
-			btMultiBody* mb = bodyHandle->m_multiBody;				
-			btScalar sqLen = (mb->getBaseWorldTransform().getOrigin() - gVRController2Pos).length2();
-			btScalar distanceThreshold = 1.3;
-			gCloseToKuka=(sqLen<(distanceThreshold*distanceThreshold));
-
-			int numDofs = bodyHandle->m_multiBody->getNumDofs();
-			btAlignedObjectArray<double> q_new;
-			btAlignedObjectArray<double> q_current;
-			q_current.resize(numDofs);
-			for (int i = 0; i < numDofs; i++)
-			{
-				q_current[i] = bodyHandle->m_multiBody->getJointPos(i);
-			}
-                       
-			q_new.resize(numDofs);
-			//sensible rest-pose
-			q_new[0] = 0;// -SIMD_HALF_PI;
-			q_new[1] = 0;
-			q_new[2] = 0;
-			q_new[3] = SIMD_HALF_PI;
-			q_new[4] = 0;
-			q_new[5] = -SIMD_HALF_PI*0.66;
-			q_new[6] = 0;
-
-			if (gCloseToKuka && gEnableKukaControl)
-			{
-				double dampIk[6] = {1.0, 1.0, 1.0, 1.0, 1.0, 0.0};
-
-				IKTrajectoryHelper** ikHelperPtrPtr = m_data->m_inverseKinematicsHelpers.find(bodyHandle->m_multiBody);
-				IKTrajectoryHelper* ikHelperPtr = 0;
-
-				if (ikHelperPtrPtr)
-				{
-					ikHelperPtr = *ikHelperPtrPtr;
-				}
-				else
-				{
-					IKTrajectoryHelper* tmpHelper = new IKTrajectoryHelper;
-					m_data->m_inverseKinematicsHelpers.insert(bodyHandle->m_multiBody, tmpHelper);
-					ikHelperPtr = tmpHelper;
-				}
-
-				int endEffectorLinkIndex = 6;
-
-				if (ikHelperPtr && (endEffectorLinkIndex<bodyHandle->m_multiBody->getNumLinks()))
-				{					
-					b3AlignedObjectArray<double> jacobian_linear;
-					jacobian_linear.resize(3*numDofs);
-					b3AlignedObjectArray<double> jacobian_angular;
-					jacobian_angular.resize(3*numDofs);
-					int jacSize = 0;
-                                
-					btInverseDynamics::MultiBodyTree* tree = m_data->findOrCreateTree(bodyHandle->m_multiBody);
-                               
-					if (tree)
-					{
-						jacSize = jacobian_linear.size();
-						// Set jacobian value
-						int baseDofs = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 6;
-                                                                      
-						btInverseDynamics::vecx nu(numDofs+baseDofs), qdot(numDofs + baseDofs), q(numDofs + baseDofs), joint_force(numDofs + baseDofs);
-						for (int i = 0; i < numDofs; i++)
-						{
-							q_current[i] = bodyHandle->m_multiBody->getJointPos(i);
-							q[i+baseDofs] = bodyHandle->m_multiBody->getJointPos(i);
-							qdot[i + baseDofs] = 0;
-							nu[i+baseDofs] = 0;
-						}
-						// Set the gravity to correspond to the world gravity
-						btInverseDynamics::vec3 id_grav(m_data->m_dynamicsWorld->getGravity());
-                                    
-						if (-1 != tree->setGravityInWorldFrame(id_grav) &&
-							-1 != tree->calculateInverseDynamics(q, qdot, nu, &joint_force))
-						{
-							tree->calculateJacobians(q);
-							btInverseDynamics::mat3x jac_t(3,numDofs);
-							btInverseDynamics::mat3x jac_r(3,numDofs);
-							tree->getBodyJacobianTrans(endEffectorLinkIndex+1, &jac_t);
-							tree->getBodyJacobianRot(endEffectorLinkIndex+1, &jac_r);
-							for (int i = 0; i < 3; ++i)
-							{
-								for (int j = 0; j < numDofs; ++j)
-								{
-									jacobian_linear[i*numDofs+j] = jac_t(i,j);
-									jacobian_angular[i*numDofs+j] = jac_r(i,j);
-								}
-							}
-						}
-					}
-                       
-					int ikMethod= IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE;//IK2_VEL_DLS_WITH_ORIENTATION; //IK2_VEL_DLS;
-                               
-					btVector3DoubleData endEffectorWorldPosition;
-					btVector3DoubleData endEffectorWorldOrientation;
-					btVector3DoubleData targetWorldPosition;
-					btVector3DoubleData targetWorldOrientation;
-                                
-					btVector3 endEffectorPosWorld =  bodyHandle->m_multiBody->getLink(endEffectorLinkIndex).m_cachedWorldTransform.getOrigin();
-					btQuaternion endEffectorOriWorld = bodyHandle->m_multiBody->getLink(endEffectorLinkIndex).m_cachedWorldTransform.getRotation();
-					btVector4 endEffectorOri(endEffectorOriWorld.x(),endEffectorOriWorld.y(),endEffectorOriWorld.z(),endEffectorOriWorld.w());
-                        
-					// Prescribed position and orientation
-					static btScalar time=0.f;
-					time+=0.01;
-					btVector3 targetPos(0.4-0.4*b3Cos( time), 0, 0.8+0.4*b3Cos( time));
-					targetPos +=mb->getBasePos();
-					btVector4 downOrn(0,1,0,0);
-
-					// Controller orientation
-					btVector4 controllerOrn(gVRController2Orn.x(), gVRController2Orn.y(), gVRController2Orn.z(), gVRController2Orn.w());
-						
-					// Set position and orientation
-					endEffectorPosWorld.serializeDouble(endEffectorWorldPosition);
-					endEffectorOri.serializeDouble(endEffectorWorldOrientation);
-					downOrn.serializeDouble(targetWorldOrientation);
-					//targetPos.serializeDouble(targetWorldPosition);
-						
-					gVRController2Pos.serializeDouble(targetWorldPosition);
-						
-					//controllerOrn.serializeDouble(targetWorldOrientation);
-
-					if (ikMethod == IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE)
-					{
-						btAlignedObjectArray<double> lower_limit;
-						btAlignedObjectArray<double> upper_limit;
-						btAlignedObjectArray<double> joint_range;
-						btAlignedObjectArray<double> rest_pose;
-						lower_limit.resize(numDofs);
-						upper_limit.resize(numDofs);
-						joint_range.resize(numDofs);
-						rest_pose.resize(numDofs);
-						lower_limit[0] = -.967;
-						lower_limit[1] = -2.0;
-						lower_limit[2] = -2.96;
-						lower_limit[3] = 0.19;
-						lower_limit[4] = -2.96;
-						lower_limit[5] = -2.09;
-						lower_limit[6] = -3.05;
-						upper_limit[0] = .96;
-						upper_limit[1] = 2.0;
-						upper_limit[2] = 2.96;
-						upper_limit[3] = 2.29;
-						upper_limit[4] = 2.96;
-						upper_limit[5] = 2.09;
-						upper_limit[6] = 3.05;
-						joint_range[0] = 5.8;
-						joint_range[1] = 4;
-						joint_range[2] = 5.8;
-						joint_range[3] = 4;
-						joint_range[4] = 5.8;
-						joint_range[5] = 4;
-						joint_range[6] = 6;
-						rest_pose[0] = 0;
-						rest_pose[1] = 0;
-						rest_pose[2] = 0;
-						rest_pose[3] = SIMD_HALF_PI;
-						rest_pose[4] = 0;
-						rest_pose[5] = -SIMD_HALF_PI*0.66;
-						rest_pose[6] = 0;
-						ikHelperPtr->computeNullspaceVel(numDofs, &q_current[0], &lower_limit[0], &upper_limit[0], &joint_range[0], &rest_pose[0]);
-					}
-
-					ikHelperPtr->computeIK(targetWorldPosition.m_floats, targetWorldOrientation.m_floats,
-													endEffectorWorldPosition.m_floats, endEffectorWorldOrientation.m_floats,
-													&q_current[0],
-													numDofs, endEffectorLinkIndex,
-								&q_new[0], ikMethod, &jacobian_linear[0], &jacobian_angular[0], jacSize*2, dampIk);
-				}
-			}
-
-			//directly set the position of the links, only for debugging IK, don't use this method!
-#if 0			
-			if (0)
-			{
-				for (int i=0;i<mb->getNumLinks();i++)
-				{
-					btScalar desiredPosition = q_new[i];
-					mb->setJointPosMultiDof(i,&desiredPosition);
-				}
-			} else
-#endif
-			{
-				int numMotors = 0;
-				//find the joint motors and apply the desired velocity and maximum force/torque
-				{
-					int velIndex = 6;//skip the 3 linear + 3 angular degree of freedom velocity entries of the base
-					int posIndex = 7;//skip 3 positional and 4 orientation (quaternion) positional degrees of freedom of the base
-					for (int link=0;link<mb->getNumLinks();link++)
-					{
-						if (supportsJointMotor(mb,link))
-						{
-							btMultiBodyJointMotor* motor = (btMultiBodyJointMotor*)mb->getLink(link).m_userPtr;
-
-							if (motor)
-							{
-								btScalar desiredVelocity = 0.f;
-								btScalar desiredPosition = q_new[link];
-								motor->setRhsClamp(gRhsClamp);
-								//printf("link %d: %f", link, q_new[link]);
-								motor->setVelocityTarget(desiredVelocity,1.0);
-								motor->setPositionTarget(desiredPosition,0.6);
-								btScalar maxImp = 1.0;
-									
-								motor->setMaxAppliedImpulse(maxImp);
-								numMotors++;
-							}
-						}
-						velIndex += mb->getLink(link).m_dofCount;
-						posIndex += mb->getLink(link).m_posVarCount;
-					}
-				}
-			}
-		} 
-			
-	}
-}
 
 void PhysicsServerCommandProcessor::setTimeOut(double /*timeOutInSeconds*/)
 {
+}
+
+const btVector3& PhysicsServerCommandProcessor::getVRTeleportPosition() const
+{
+	return gVRTeleportPos1;
+}
+void PhysicsServerCommandProcessor::setVRTeleportPosition(const btVector3& vrTeleportPos)
+{
+	gVRTeleportPos1 = vrTeleportPos;
+}
+const btQuaternion& PhysicsServerCommandProcessor::getVRTeleportOrientation() const
+{
+	return gVRTeleportOrn;
+}
+void PhysicsServerCommandProcessor::setVRTeleportOrientation(const btQuaternion& vrTeleportOrn)
+{
+	gVRTeleportOrn = vrTeleportOrn;
 }

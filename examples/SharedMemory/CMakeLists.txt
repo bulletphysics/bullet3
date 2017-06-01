@@ -7,6 +7,7 @@ SET(SharedMemory_SRCS
 	PhysicsClientSharedMemory.cpp
 	PhysicsClientExample.cpp
 	PhysicsServerExample.cpp
+	PhysicsServerExampleBullet2.cpp
 	PhysicsServerSharedMemory.cpp
 	PhysicsServerSharedMemory.h
 	PhysicsServer.cpp

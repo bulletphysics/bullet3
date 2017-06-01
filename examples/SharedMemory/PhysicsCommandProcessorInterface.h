@@ -31,6 +31,7 @@ public:
 
 
 class btVector3;
+class btQuaternion;
 
 class CommandProcessorInterface : public PhysicsCommandProcessorInterface
 {
@@ -41,6 +42,7 @@ public:
 	virtual void syncPhysicsToGraphics()=0;
 	virtual void stepSimulationRealTime(double dtInSec,const struct b3VRControllerEvent* vrEvents, int numVREvents, const struct b3KeyboardEvent* keyEvents, int numKeyEvents)=0;
 	virtual void enableRealTimeSimulation(bool enableRealTimeSim)=0;
+	virtual bool isRealTimeSimulationEnabled() const=0;
 
 	virtual void enableCommandLogging(bool enable, const char* fileName)=0;
 	virtual void replayFromLogFile(const char* fileName)=0;
@@ -50,6 +52,11 @@ public:
 	virtual bool movePickedBody(const btVector3& rayFromWorld, const btVector3& rayToWorld)=0;
 	virtual void removePickingConstraint()=0;
 
+	virtual const btVector3& getVRTeleportPosition() const=0;
+	virtual void setVRTeleportPosition(const btVector3& vrReleportPos)=0;
+
+	virtual const btQuaternion& getVRTeleportOrientation() const=0;
+	virtual void setVRTeleportOrientation(const btQuaternion& vrReleportOrn)=0;
 };
 
 #endif //PHYSICS_COMMAND_PROCESSOR_INTERFACE_H

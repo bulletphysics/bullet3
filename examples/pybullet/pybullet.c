@@ -4244,10 +4244,13 @@ static PyObject* pybullet_changeVisualShape(PyObject* self, PyObject* args, PyOb
 	int statusType;
 	int physicsClientId = 0;
 	PyObject* rgbaColorObj = 0;
+	PyObject* specularColorObj = 0;
+
+	
 
 	b3PhysicsClientHandle sm = 0;
-	static char* kwlist[] = {"objectUniqueId", "linkIndex", "shapeIndex", "textureUniqueId", "rgbaColor", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|iiOi", kwlist, &objectUniqueId, &jointIndex, &shapeIndex, &textureUniqueId, &rgbaColorObj, &physicsClientId))
+	static char* kwlist[] = {"objectUniqueId", "linkIndex", "shapeIndex", "textureUniqueId", "rgbaColor", "specularColor", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|iiOOi", kwlist, &objectUniqueId, &jointIndex, &shapeIndex, &textureUniqueId, &rgbaColorObj, &specularColorObj, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -4260,6 +4263,14 @@ static PyObject* pybullet_changeVisualShape(PyObject* self, PyObject* args, PyOb
 
 	{
 		commandHandle = b3InitUpdateVisualShape(sm, objectUniqueId, jointIndex, shapeIndex, textureUniqueId);
+
+		if (specularColorObj)
+		{
+			double specularColor[3] = {1,1,1};
+			pybullet_internalSetVectord(specularColorObj, specularColor);
+			b3UpdateVisualShapeSpecularColor(commandHandle,specularColor);
+
+		}
 
 		if (rgbaColorObj)
 		{

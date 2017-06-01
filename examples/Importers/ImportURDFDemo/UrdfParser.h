@@ -17,13 +17,15 @@ struct ErrorLogger
 	virtual void printMessage(const char* msg)=0;
 };
 
+
+
 struct UrdfMaterial
 {
 	std::string m_name;
 	std::string m_textureFilename;
-	btVector4 m_rgbaColor; // [0]==r [1]==g [2]==b [3]==a
-	UrdfMaterial():
-		m_rgbaColor(0.8, 0.8, 0.8, 1)
+	UrdfMaterialColor m_matColor;
+
+	UrdfMaterial()
 	{
 	}
 };

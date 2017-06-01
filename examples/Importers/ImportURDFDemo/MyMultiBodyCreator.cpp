@@ -194,14 +194,36 @@ void MyMultiBodyCreator::addLinkMapping(int urdfLinkIndex, int mbLinkIndex)
 
 void MyMultiBodyCreator::createRigidBodyGraphicsInstance(int linkIndex, btRigidBody* body, const btVector3& colorRgba, int graphicsIndex) 
 {
-        
     m_guiHelper->createRigidBodyGraphicsObject(body, colorRgba);
 }
+
+void MyMultiBodyCreator::createRigidBodyGraphicsInstance2(int linkIndex, class btRigidBody* body, const btVector3& colorRgba, const btVector3& specularColor, int graphicsIndex)
+{        
+    m_guiHelper->createRigidBodyGraphicsObject(body, colorRgba);
+	int graphicsInstanceId = body->getUserIndex();
+	btVector3DoubleData speculard;
+	specularColor.serializeDouble(speculard);
+	m_guiHelper->changeSpecularColor(graphicsInstanceId,speculard.m_floats);
+}
+
+
+
     
 void MyMultiBodyCreator::createCollisionObjectGraphicsInstance(int linkIndex, class btCollisionObject* colObj, const btVector3& colorRgba) 
 {
     m_guiHelper->createCollisionObjectGraphicsObject(colObj,colorRgba);
 }
+
+void MyMultiBodyCreator::createCollisionObjectGraphicsInstance2(int linkIndex, class btCollisionObject* col, const btVector4& colorRgba, const btVector3& specularColor)
+{
+	createCollisionObjectGraphicsInstance(linkIndex,col,colorRgba);
+	int graphicsInstanceId = col->getUserIndex();
+	btVector3DoubleData speculard;
+	specularColor.serializeDouble(speculard);
+	m_guiHelper->changeSpecularColor(graphicsInstanceId,speculard.m_floats);
+
+}
+
 
 btMultiBody* MyMultiBodyCreator::getBulletMultiBody()
 {
