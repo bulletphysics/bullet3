@@ -81,6 +81,7 @@ project "App_BulletExampleBrowser"
 		"../SharedMemory/PhysicsClientC_API.cpp",
 		"../SharedMemory/PhysicsClientC_API.h",
 		"../SharedMemory/PhysicsServerExample.cpp",
+		"../SharedMemory/PhysicsServerExampleBullet2.cpp",
 		"../SharedMemory/PhysicsClientExample.cpp",
 		"../SharedMemory/PhysicsServer.cpp",
 		"../SharedMemory/PhysicsServerSharedMemory.cpp",

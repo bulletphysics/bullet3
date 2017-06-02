@@ -8,7 +8,9 @@ enum PhysicsServerOptions
 	PHYSICS_SERVER_USE_RTC_CLOCK = 4,
 };
 
-class CommonExampleInterface*    PhysicsServerCreateFunc(struct CommonExampleOptions& options);
+///Don't use PhysicsServerCreateFuncInternal directly
+///Use PhysicsServerCreateFuncBullet2 instead, or initialize options.m_commandProcessor
+class CommonExampleInterface*    PhysicsServerCreateFuncInternal(struct CommonExampleOptions& options);
 
 #endif //PHYSICS_SERVER_EXAMPLE_H
 

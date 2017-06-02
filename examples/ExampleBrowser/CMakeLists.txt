@@ -175,6 +175,7 @@ SET(BulletExampleBrowser_SRCS
 	../SharedMemory/PhysicsClient.cpp
 	../SharedMemory/PhysicsClientC_API.cpp
 	../SharedMemory/PhysicsServerExample.cpp
+	../SharedMemory/PhysicsServerExampleBullet2.cpp
 	../SharedMemory/PhysicsClientExample.cpp
 	../SharedMemory/PosixSharedMemory.cpp
 	../SharedMemory/Win32SharedMemory.cpp

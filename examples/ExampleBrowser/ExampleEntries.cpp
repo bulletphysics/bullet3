@@ -39,7 +39,7 @@
 #include "../FractureDemo/FractureDemo.h"
 #include "../DynamicControlDemo/MotorDemo.h"
 #include "../RollingFrictionDemo/RollingFrictionDemo.h"
-#include "../SharedMemory/PhysicsServerExample.h"
+#include "../SharedMemory/PhysicsServerExampleBullet2.h"
 #include "../SharedMemory/PhysicsClientExample.h"
 #include "../Constraints/TestHingeTorque.h"
 #include "../RenderingExamples/TimeSeriesExample.h"
@@ -138,7 +138,7 @@ static ExampleEntry gDefaultExamples[]=
 
 	ExampleEntry(0,"Physics Client-Server"),
 	ExampleEntry(1,"Physics Server", "Create a physics server that communicates with a physics client over shared memory. You can connect to the server using pybullet, a PhysicsClient or a UDP/TCP Bridge.",
-			PhysicsServerCreateFunc),
+			PhysicsServerCreateFuncBullet2),
 	ExampleEntry(1, "Physics Client (Shared Mem)", "Create a physics client that can communicate with a physics server over shared memory.", PhysicsClientCreateFunc),
 
 //	ExampleEntry(1,"Physics Server (Logging)", "Create a physics server that communicates with a physics client over shared memory. It will log all commands to a file.",

@@ -2,7 +2,8 @@
 #define PHYSICS_SERVER_SHARED_MEMORY_H
 
 #include "PhysicsServer.h"
- 
+#include "LinearMath/btQuaternion.h"
+
 class PhysicsServerSharedMemory : public PhysicsServer
 {
 	struct PhysicsServerSharedMemoryInternalData* m_data;
@@ -14,7 +15,7 @@ protected:
 	
 	
 public:
-	PhysicsServerSharedMemory(class SharedMemoryInterface* sharedMem=0);
+	PhysicsServerSharedMemory(struct CommandProcessorCreationInterface* commandProcessorCreator, class SharedMemoryInterface* sharedMem, int bla);
 	virtual ~PhysicsServerSharedMemory();
 
 	virtual void setSharedMemoryKey(int key);
@@ -29,6 +30,7 @@ public:
 	virtual void stepSimulationRealTime(double dtInSec,const struct b3VRControllerEvent* vrEvents, int numVREvents, const struct b3KeyboardEvent* keyEvents, int numKeyEvents);
 
 	virtual void enableRealTimeSimulation(bool enableRealTimeSim);
+	virtual bool isRealTimeSimulationEnabled() const;
 
 	//bool	supportsJointMotor(class btMultiBody* body, int linkIndex);
 
@@ -37,6 +39,14 @@ public:
 	virtual bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld);
 	virtual bool movePickedBody(const btVector3& rayFromWorld, const btVector3& rayToWorld);
 	virtual void removePickingConstraint();
+
+	virtual const btVector3& getVRTeleportPosition() const;
+	virtual void setVRTeleportPosition(const btVector3& vrReleportPos);
+
+	virtual const btQuaternion& getVRTeleportOrientation() const;
+	virtual void setVRTeleportOrientation(const btQuaternion& vrReleportOrn);
+
+	
 
 	//for physicsDebugDraw and renderScene are mainly for debugging purposes
 	//and for physics visualization. The idea is that physicsDebugDraw can also send wireframe

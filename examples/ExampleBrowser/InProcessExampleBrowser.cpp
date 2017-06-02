@@ -28,6 +28,8 @@ void*	ExampleBrowserMemoryFunc();
 #include "EmptyExample.h"
 
 #include "../SharedMemory/PhysicsServerExample.h"
+#include "../SharedMemory/PhysicsServerExampleBullet2.h"
+
 #include "../SharedMemory/PhysicsClientExample.h"
 
 #ifndef _WIN32
@@ -124,14 +126,14 @@ static ExampleEntryPhysicsServer gDefaultExamplesPhysicsServer[]=
 	ExampleEntryPhysicsServer(0,"Robotics Control"),
 
 	ExampleEntryPhysicsServer(1,"Physics Server", "Create a physics server that communicates with a physics client over shared memory",
-			PhysicsServerCreateFunc),
+			PhysicsServerCreateFuncBullet2),
     ExampleEntryPhysicsServer(1,"Physics Server (RTC)", "Create a physics server that communicates with a physics client over shared memory. At each update, the Physics Server will continue calling 'stepSimulation' based on the real-time clock (RTC).",
-			PhysicsServerCreateFunc,PHYSICS_SERVER_USE_RTC_CLOCK),
+			PhysicsServerCreateFuncBullet2,PHYSICS_SERVER_USE_RTC_CLOCK),
 
 	ExampleEntryPhysicsServer(1,"Physics Server (Logging)", "Create a physics server that communicates with a physics client over shared memory. It will log all commands to a file.",
-			PhysicsServerCreateFunc,PHYSICS_SERVER_ENABLE_COMMAND_LOGGING),
+			PhysicsServerCreateFuncBullet2,PHYSICS_SERVER_ENABLE_COMMAND_LOGGING),
 	ExampleEntryPhysicsServer(1,"Physics Server (Replay Log)", "Create a physics server that replay a command log from disk.",
-			PhysicsServerCreateFunc,PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG),
+			PhysicsServerCreateFuncBullet2,PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG),
 
 
 };

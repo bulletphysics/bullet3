@@ -79,6 +79,9 @@ struct CommonRenderInterface
 	virtual void writeSingleInstanceColorToCPU(const double* color, int srcIndex)=0;
 	virtual void writeSingleInstanceScaleToCPU(const float* scale, int srcIndex)=0;
 	virtual void writeSingleInstanceScaleToCPU(const double* scale, int srcIndex)=0;
+	virtual void writeSingleInstanceSpecularColorToCPU(const double* specular, int srcIndex)=0;
+	virtual void writeSingleInstanceSpecularColorToCPU(const float* specular, int srcIndex)=0;
+	
     
     virtual int getTotalNumInstances() const = 0;
     

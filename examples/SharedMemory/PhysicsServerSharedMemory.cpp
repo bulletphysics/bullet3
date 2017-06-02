@@ -3,7 +3,7 @@
 #include "Win32SharedMemory.h"
 
 #include "../CommonInterfaces/CommonRenderInterface.h"
-
+#include "../CommonInterfaces/CommonExampleInterface.h"
 #include "btBulletDynamicsCommon.h"
 
 #include "LinearMath/btTransform.h"
@@ -31,7 +31,8 @@ struct PhysicsServerSharedMemoryInternalData
 	bool m_areConnected[MAX_SHARED_MEMORY_BLOCKS];
 	bool m_verboseOutput;
 	CommandProcessorInterface* m_commandProcessor;
-	
+	CommandProcessorCreationInterface* m_commandProcessorCreator;
+
 	PhysicsServerSharedMemoryInternalData()
 		:m_sharedMemory(0),
 		m_ownsSharedMemory(false),
@@ -64,9 +65,10 @@ struct PhysicsServerSharedMemoryInternalData
 };
 
 
-PhysicsServerSharedMemory::PhysicsServerSharedMemory(SharedMemoryInterface* sharedMem)
+PhysicsServerSharedMemory::PhysicsServerSharedMemory(CommandProcessorCreationInterface* commandProcessorCreator, SharedMemoryInterface* sharedMem, int bla)
 {
 	m_data = new PhysicsServerSharedMemoryInternalData();
+	m_data->m_commandProcessorCreator = commandProcessorCreator;
 	if (sharedMem)
 	{
 		m_data->m_sharedMemory = sharedMem;
@@ -81,17 +83,13 @@ PhysicsServerSharedMemory::PhysicsServerSharedMemory(SharedMemoryInterface* shar
 	m_data->m_ownsSharedMemory = true;
 	}
 
-	m_data->m_commandProcessor = new PhysicsServerCommandProcessor;
 
+	m_data->m_commandProcessor = commandProcessorCreator->createCommandProcessor();
 
 }
 
 PhysicsServerSharedMemory::~PhysicsServerSharedMemory()
 {
-
-	//m_data->m_commandProcessor->deleteDynamicsWorld();
-	delete m_data->m_commandProcessor;
-
     if (m_data->m_sharedMemory)
     {
         if (m_data->m_verboseOutput)
@@ -105,7 +103,7 @@ PhysicsServerSharedMemory::~PhysicsServerSharedMemory()
         m_data->m_sharedMemory = 0;
     }
 
-    
+	m_data->m_commandProcessorCreator->deleteCommandProcessor(m_data->m_commandProcessor);
     delete m_data;
 }
 
@@ -238,6 +236,11 @@ void PhysicsServerSharedMemory::enableRealTimeSimulation(bool enableRealTimeSim)
 	m_data->m_commandProcessor->enableRealTimeSimulation(enableRealTimeSim);
 }
 
+bool PhysicsServerSharedMemory::isRealTimeSimulationEnabled() const
+{
+	return m_data->m_commandProcessor->isRealTimeSimulationEnabled();
+}
+
 
 
 void PhysicsServerSharedMemory::processClientCommands()
@@ -315,3 +318,24 @@ void PhysicsServerSharedMemory::replayFromLogFile(const char* fileName)
 {
 	m_data->m_commandProcessor->replayFromLogFile(fileName);
 }
+
+const btVector3& PhysicsServerSharedMemory::getVRTeleportPosition() const
+{
+	return m_data->m_commandProcessor->getVRTeleportPosition();
+}
+void PhysicsServerSharedMemory::setVRTeleportPosition(const btVector3& vrTeleportPos)
+{
+	m_data->m_commandProcessor->setVRTeleportPosition(vrTeleportPos);
+}
+
+const btQuaternion& PhysicsServerSharedMemory::getVRTeleportOrientation() const
+{
+	return m_data->m_commandProcessor->getVRTeleportOrientation();
+
+}
+void PhysicsServerSharedMemory::setVRTeleportOrientation(const btQuaternion& vrTeleportOrn)
+{
+	m_data->m_commandProcessor->setVRTeleportOrientation(vrTeleportOrn);
+}
+
+	
