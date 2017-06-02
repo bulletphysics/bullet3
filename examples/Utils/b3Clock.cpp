@@ -46,7 +46,6 @@ struct b3ClockData
 
 #ifdef B3_USE_WINDOWS_TIMERS
 	LARGE_INTEGER mClockFrequency;
-	DWORD mStartTick;
 	LARGE_INTEGER mStartTime;
 #else
 #ifdef __CELLOS_LV2__
@@ -92,7 +91,6 @@ void b3Clock::reset(bool zeroReference)
 {
 	if (zeroReference)
 	{
-		m_data->mStartTick = 0;
 #ifdef B3_USE_WINDOWS_TIMERS
 		m_data->mStartTime.QuadPart = 0;
 #else
@@ -107,7 +105,6 @@ void b3Clock::reset(bool zeroReference)
 	{
 #ifdef B3_USE_WINDOWS_TIMERS
 	QueryPerformanceCounter(&m_data->mStartTime);
-	m_data->mStartTick = GetTickCount();
 #else
 #ifdef __CELLOS_LV2__
 
