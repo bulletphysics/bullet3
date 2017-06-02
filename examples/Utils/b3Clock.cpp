@@ -88,8 +88,23 @@ b3Clock& b3Clock::operator=(const b3Clock& other)
 
 
 	/// Resets the initial reference time.
-void b3Clock::reset()
+void b3Clock::reset(bool zeroReference)
 {
+	if (zeroReference)
+	{
+		m_data->mStartTick = 0;
+#ifdef B3_USE_WINDOWS_TIMERS
+		m_data->mStartTime.QuadPart = 0;
+#else
+	#ifdef __CELLOS_LV2__
+			m_data->mStartTime = 0;
+	#else
+			m_data->mStartTime = (struct timeval){0};
+	#endif
+#endif
+
+	} else
+	{
 #ifdef B3_USE_WINDOWS_TIMERS
 	QueryPerformanceCounter(&m_data->mStartTime);
 	m_data->mStartTick = GetTickCount();
@@ -105,6 +120,7 @@ void b3Clock::reset()
 	gettimeofday(&m_data->mStartTime, 0);
 #endif
 #endif
+	}
 }
 
 /// Returns the time in ms since the last call to reset or since 
