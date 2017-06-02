@@ -3940,38 +3940,40 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						}
 						else
 						{
-							if (mb->getLinkCollider(linkIndex))
+							if (linkIndex >= 0 && linkIndex < mb->getNumLinks())
 							{
-								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_RESTITUTION)
+								if (mb->getLinkCollider(linkIndex))
 								{
-									mb->getLinkCollider(linkIndex)->setRestitution(restitution);
-								}
-								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_SPINNING_FRICTION)
-								{
-									mb->getLinkCollider(linkIndex)->setSpinningFriction(spinningFriction);
-								}
-								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ROLLING_FRICTION)
-								{
-									mb->getLinkCollider(linkIndex)->setRollingFriction(rollingFriction);
-								}
+									if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_RESTITUTION)
+									{
+										mb->getLinkCollider(linkIndex)->setRestitution(restitution);
+									}
+									if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_SPINNING_FRICTION)
+									{
+										mb->getLinkCollider(linkIndex)->setSpinningFriction(spinningFriction);
+									}
+									if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ROLLING_FRICTION)
+									{
+										mb->getLinkCollider(linkIndex)->setRollingFriction(rollingFriction);
+									}
 
-								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION)
-								{
-									mb->getLinkCollider(linkIndex)->setFriction(lateralFriction);
-								}
+									if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION)
+									{
+										mb->getLinkCollider(linkIndex)->setFriction(lateralFriction);
+									}
 								
 			
-							}
-							if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MASS)
-							{
-								mb->getLink(linkIndex).m_mass = mass;
-								if (mb->getLinkCollider(linkIndex) && mb->getLinkCollider(linkIndex)->getCollisionShape())
-								{
-									btVector3 localInertia;
-									mb->getLinkCollider(linkIndex)->getCollisionShape()->calculateLocalInertia(mass,localInertia);
-									mb->getLink(linkIndex).m_inertiaLocal = localInertia;
 								}
-
+								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MASS)
+								{
+									mb->getLink(linkIndex).m_mass = mass;
+									if (mb->getLinkCollider(linkIndex) && mb->getLinkCollider(linkIndex)->getCollisionShape())
+									{
+										btVector3 localInertia;
+										mb->getLinkCollider(linkIndex)->getCollisionShape()->calculateLocalInertia(mass,localInertia);
+										mb->getLink(linkIndex).m_inertiaLocal = localInertia;
+									}
+								}
 							}
 						}
 					} else

@@ -568,6 +568,15 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 
     switch (collision->m_geometry.m_type)
     {
+	case URDF_GEOM_PLANE:
+		{
+			btVector3 planeNormal = collision->m_geometry.m_planeNormal;
+			btScalar planeConstant = 0;//not available?
+			btStaticPlaneShape* plane = new btStaticPlaneShape(planeNormal,planeConstant);
+			shape = plane;
+			shape ->setMargin(gUrdfDefaultCollisionMargin);
+			break;
+		}
 		case URDF_GEOM_CAPSULE:
         {
 			btScalar radius = collision->m_geometry.m_capsuleRadius;
@@ -789,7 +798,7 @@ upAxisMat.setIdentity();
 
         default:
 		b3Warning("Error: unknown collision geometry type %i\n", collision->m_geometry.m_type);
-		// for example, URDF_GEOM_PLANE
+		
 	}
 	return shape;
 }
