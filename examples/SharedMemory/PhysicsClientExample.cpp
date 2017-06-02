@@ -526,6 +526,18 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
             b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
             break;
         }
+		case CMD_UPDATE_VISUAL_SHAPE:
+		{
+			int objectUniqueId = 0;
+			int linkIndex = -1;
+			int shapeIndex = -1;
+			int textureIndex = -1;
+			double rgbaColor[4] = {0.0, 1.0, 0.0, 1.0};
+			b3SharedMemoryCommandHandle commandHandle = b3InitUpdateVisualShape(m_physicsClientHandle, objectUniqueId, linkIndex, shapeIndex, textureIndex);
+			b3UpdateVisualShapeRGBAColor(commandHandle, rgbaColor);
+			b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+			break;
+		}
 
         default:
         {
@@ -604,6 +616,7 @@ void	PhysicsClientExample::createButtons()
         createButton("Load SDF",CMD_LOAD_SDF,  isTrigger);
 		createButton("Save World",CMD_SAVE_WORLD,  isTrigger);
         createButton("Set Shadow",CMD_SET_SHADOW, isTrigger);
+		createButton("Update Visual Shape",CMD_UPDATE_VISUAL_SHAPE, isTrigger);
         createButton("Get Camera Image",CMD_REQUEST_CAMERA_IMAGE_DATA,isTrigger);
         createButton("Step Sim",CMD_STEP_FORWARD_SIMULATION,  isTrigger);
 		createButton("Realtime Sim",CMD_CUSTOM_SET_REALTIME_SIMULATION,  isTrigger);

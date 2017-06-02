@@ -671,6 +671,34 @@ int TinyRendererVisualShapeConverter::getVisualShapesData(int bodyUniqueId, int 
 	return 0;
 }
 
+void TinyRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int linkIndex, const double rgbaColor[4])
+{
+	int start = -1;
+	for (int i = 0; i < m_data->m_visualShapes.size(); i++)
+	{
+		if (m_data->m_visualShapes[i].m_objectUniqueId == bodyUniqueId && m_data->m_visualShapes[i].m_linkIndex == linkIndex)
+		{
+			start = i;
+			m_data->m_visualShapes[i].m_rgbaColor[0] = rgbaColor[0];
+			m_data->m_visualShapes[i].m_rgbaColor[1] = rgbaColor[1];
+			m_data->m_visualShapes[i].m_rgbaColor[2] = rgbaColor[2];
+			m_data->m_visualShapes[i].m_rgbaColor[3] = rgbaColor[3];
+			break;
+		}
+	}
+	
+	TinyRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(start);
+	TinyRendererObjectArray* visualArray = *visualArrayPtr;
+	
+	btHashPtr colObjHash = m_data->m_swRenderInstances.getKeyAtIndex(start);
+	const btCollisionObject* colObj = (btCollisionObject*) colObjHash.getPointer();
+	
+	float rgba[4] = {rgbaColor[0], rgbaColor[1], rgbaColor[2], rgbaColor[3]};
+	for (int v=0;v<visualArray->m_renderObjects.size();v++)
+	{
+		visualArray->m_renderObjects[v]->m_model->setColorRGBA(rgba);
+	}
+}
 
 void TinyRendererVisualShapeConverter::setUpAxis(int axis)
 {

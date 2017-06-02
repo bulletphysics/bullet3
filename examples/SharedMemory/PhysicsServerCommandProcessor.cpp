@@ -5631,7 +5631,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								{
 									if (bodyHandle->m_multiBody->getBaseCollider())
 									{
-										//m_data->m_visualConverter.changeRGBAColor(...)
+										m_data->m_visualConverter.changeRGBAColor(bodyUniqueId,linkIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 										int graphicsIndex = bodyHandle->m_multiBody->getBaseCollider()->getUserIndex();
 										m_data->m_guiHelper->changeRGBAColor(graphicsIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 									}
@@ -5641,7 +5641,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									{
 										if (bodyHandle->m_multiBody->getLink(linkIndex).m_collider)
 										{
-											//m_data->m_visualConverter.changeRGBAColor(...)
+											m_data->m_visualConverter.changeRGBAColor(bodyUniqueId,linkIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 											int graphicsIndex = bodyHandle->m_multiBody->getLink(linkIndex).m_collider->getUserIndex();
 											m_data->m_guiHelper->changeRGBAColor(graphicsIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 										}
