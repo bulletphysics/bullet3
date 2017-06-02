@@ -142,7 +142,11 @@ public:
 
 	btMultiBodyLinkCollider* getLinkCollider(int index)
 	{
-		return m_colliders[index];
+		if (index >= 0 && index < m_colliders.size())
+		{
+			return m_colliders[index];
+		}
+		return 0;
 	}
 
     //

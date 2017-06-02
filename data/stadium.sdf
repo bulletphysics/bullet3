@@ -48,12 +48,11 @@
 			</inertia>
 			</inertial>
 			<collision name='collision_1'>
-			<pose frame=''>0 0 -0.5 0 0 0</pose>
 			<geometry>
-				
-            <box>
-              <size>100 100 1</size>
-            </box>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
           </geometry>
 			  </collision>
 			<visual name='visual'>
