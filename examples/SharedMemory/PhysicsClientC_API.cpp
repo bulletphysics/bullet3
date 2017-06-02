@@ -1930,14 +1930,14 @@ void b3RequestCameraImageSetShadow(b3SharedMemoryCommandHandle commandHandle, in
     command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_SHADOW;
 }
 
-void b3ComputeYawPitchRollFromPosition(const float cameraPosition[3], const float cameraTargetPosition[3], const float cameraUp[3], int upAxis, float* cameraDistance, float* cameraYaw, float* cameraPitch)
+void b3ComputeYawPitchRollFromPosition(const float cameraPosition[3], const float cameraTargetPosition[3], const float cameraUp[3], int upAxis, float& cameraDistance, float& cameraYaw, float& cameraPitch)
 {
 	b3Vector3 camPos = b3MakeVector3(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
 	b3Vector3 camTargetPos = b3MakeVector3(cameraTargetPosition[0], cameraTargetPosition[1], cameraTargetPosition[2]);
 	b3Vector3 camUpVector = b3MakeVector3(cameraUp[0], cameraUp[1], cameraUp[2]);
 	camUpVector.normalize();
 	
-	*cameraDistance = (camPos - camTargetPos).length();
+	cameraDistance = (camPos - camTargetPos).length();
 	
 	b3Vector3 eyePos = camPos - camTargetPos;
 	b3Vector3 eyeInitPos = b3MakeVector3(0, 0, 0);
@@ -1956,7 +1956,7 @@ void b3ComputeYawPitchRollFromPosition(const float cameraPosition[3], const floa
 			return;
 	};
 	
-	eyeInitPos[forwardAxis] = -(*cameraDistance);
+	eyeInitPos[forwardAxis] = -cameraDistance;
 	eyeInitPos.normalize();
 	eyePos.normalize();
 	
@@ -1978,10 +1978,8 @@ void b3ComputeYawPitchRollFromPosition(const float cameraPosition[3], const floa
 			return;
 	};
 	
-	*cameraYaw = yawRad/b3Scalar(0.01745329251994329547);
-	*cameraPitch = pitchRad/b3Scalar(0.01745329251994329547);
-	float cameraRoll = rollRad/b3Scalar(0.01745329251994329547);
-	printf("camera roll: %f\n", cameraRoll);
+	cameraYaw = yawRad/b3Scalar(0.01745329251994329547);
+	cameraPitch = pitchRad/b3Scalar(0.01745329251994329547);
 }
 
 void b3ComputePositionFromViewMatrix(const float viewMatrix[16], float cameraPosition[3], float cameraTargetPosition[3], float cameraUp[3])
@@ -1992,8 +1990,6 @@ void b3ComputePositionFromViewMatrix(const float viewMatrix[16], float cameraPos
 	b3Transform tinv = t.inverse();
 	b3Matrix3x3 basis = tinv.getBasis();
 	b3Vector3 origin = tinv.getOrigin();
-	printf("basis: %f, %f, %f, %f, %f, %f, %f, %f, %f\n", basis[0][0], basis[0][1], basis[0][2], basis[1][0], basis[1][1], basis[1][2], basis[2][0], basis[2][1], basis[2][2]);
-	printf("origin: %f, %f, %f\n", origin[0], origin[1], origin[2]);
 	b3Vector3 s = b3MakeVector3(basis[0][0], basis[1][0], basis[2][0]);
 	b3Vector3 u = b3MakeVector3(basis[0][1], basis[1][1], basis[2][1]);
 	b3Vector3 f = b3MakeVector3(-basis[0][2], -basis[1][2], -basis[2][2]);
@@ -2008,6 +2004,14 @@ void b3ComputePositionFromViewMatrix(const float viewMatrix[16], float cameraPos
 	cameraUp[0] = u[0];
 	cameraUp[1] = u[1];
 	cameraUp[2] = u[2];
+}
+
+void b3ComputeYawPitchRollFromViewMatrix(const float viewMatrix[16], int upAxis, float& cameraDistance, float& cameraYaw, float& cameraPitch, float cameraTargetPosition[3])
+{
+	float cameraPosition[3];
+	float cameraUp[3];
+	b3ComputePositionFromViewMatrix(viewMatrix, cameraPosition, cameraTargetPosition, cameraUp);
+	b3ComputeYawPitchRollFromPosition(cameraPosition, cameraTargetPosition, cameraUp, upAxis, cameraDistance, cameraYaw, cameraPitch);
 }
 
 void b3ComputeViewMatrixFromPositions(const float cameraPosition[3], const float cameraTargetPosition[3], const float cameraUp[3], float viewMatrix[16])

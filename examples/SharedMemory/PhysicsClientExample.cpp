@@ -273,33 +273,25 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
             ///request an image from a simulated camera, using a software renderer.
             
             b3SharedMemoryCommandHandle commandHandle = b3InitRequestCameraImage(m_physicsClientHandle);
-			
-			float cameraPos[3] = {1.0, 1.0, 1.0};
-			float cameraTarget[3] = {2.0, 1.0, 1.0};
-			float cameraUp[3] = {0.0, 0.0, 1.0};
-			float viewMat[16];
-			b3ComputeViewMatrixFromPositions(cameraPos, cameraTarget, cameraUp, viewMat);
-			printf("viewMat: %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", viewMat[0], viewMat[1], viewMat[2], viewMat[3], viewMat[4], viewMat[5], viewMat[6], viewMat[7], viewMat[8], viewMat[9], viewMat[10], viewMat[11], viewMat[12], viewMat[13], viewMat[14], viewMat[15]);
-			float cameraPos2[3];
-			float cameraTarget2[3];
-			float cameraUp2[3];
-			b3ComputePositionFromViewMatrix(viewMat, cameraPos2, cameraTarget2, cameraUp2);
-			printf("cameraPos2: %f, %f, %f\n", cameraPos2[0], cameraPos2[1], cameraPos2[2]);
-			printf("cameraTarget2: %f, %f, %f\n", cameraTarget2[0], cameraTarget2[1], cameraTarget2[2]);
-			printf("cameraUp2: %f, %f, %f\n", cameraUp2[0], cameraUp2[1], cameraUp2[2]);
-			
-			float cameraDistance;
-			float cameraYaw;
-			float cameraPitch;
-			b3ComputeYawPitchRollFromPosition(cameraPos2, cameraTarget2, cameraUp2, 2, &cameraDistance, &cameraYaw, &cameraPitch);
-			printf("camera distance: %f\n", cameraDistance);
-			printf("camera yaw: %f\n", cameraYaw);
-			printf("camera pitch: %f\n", cameraPitch);
-			
-			b3ComputeViewMatrixFromYawPitchRoll(cameraTarget2, 1.0, -90.0, 0.0, 0.0, 2, viewMat);
             //b3RequestCameraImageSelectRenderer(commandHandle,ER_BULLET_HARDWARE_OPENGL);
             
 						float viewMatrix[16];
+			
+			float cameraTargetPosition[3] = {1.0, 2.0, 3.0};
+			float distance = 1.0;
+			float yaw = 10.0;
+			float pitch = 70.0;
+			float roll = 0.0;
+			int upAxis = 2;
+			float cameraDistance;
+			float cameraYaw;
+			float cameraPitch;
+			float cameraTargetPositionNew[3];
+			b3ComputeViewMatrixFromYawPitchRoll(cameraTargetPosition, distance, yaw, pitch, roll, upAxis, viewMatrix);
+			b3ComputeYawPitchRollFromViewMatrix(viewMatrix, upAxis, cameraDistance, cameraYaw, cameraPitch, cameraTargetPositionNew);
+			b3ComputeViewMatrixFromYawPitchRoll(cameraTargetPositionNew, cameraDistance, cameraYaw, cameraPitch, 0.0, upAxis, viewMatrix);
+			
+			
 						float projectionMatrix[16];
 						m_guiHelper->getRenderInterface()->getActiveCamera()->getCameraProjectionMatrix(projectionMatrix);
             m_guiHelper->getRenderInterface()->getActiveCamera()->getCameraViewMatrix(viewMatrix);
