@@ -14,6 +14,254 @@ subject to the following restrictions:
 
 
 #include "btThreads.h"
+#include "btQuickprof.h"
+#include <algorithm>  // for min and max
+
+#if BT_THREADSAFE
+
+#if BT_USE_OPENMP
+
+#include <omp.h>
+
+#endif // #if BT_USE_OPENMP
+
+
+#if BT_USE_PPL
+
+// use Microsoft Parallel Patterns Library (installed with Visual Studio 2010 and later)
+#include <ppl.h>  // if you get a compile error here, check whether your version of Visual Studio includes PPL
+// Visual Studio 2010 and later should come with it
+#include <concrtrm.h>  // for GetProcessorCount()
+
+#endif // #if BT_USE_PPL
+
+
+#if BT_USE_TBB
+
+// use Intel Threading Building Blocks for thread management
+#define __TBB_NO_IMPLICIT_LINKAGE 1
+#include <tbb/tbb.h>
+#include <tbb/task_scheduler_init.h>
+#include <tbb/parallel_for.h>
+#include <tbb/blocked_range.h>
+
+#endif // #if BT_USE_TBB
+
+
+static btITaskScheduler* gBtTaskScheduler;
+static int gThreadsRunningCounter = 0;  // useful for detecting if we are trying to do nested parallel-for calls
+static btSpinMutex gThreadsRunningCounterMutex;
+
+void btPushThreadsAreRunning()
+{
+    gThreadsRunningCounterMutex.lock();
+    gThreadsRunningCounter++;
+    gThreadsRunningCounterMutex.unlock();
+}
+
+void btPopThreadsAreRunning()
+{
+    gThreadsRunningCounterMutex.lock();
+    gThreadsRunningCounter--;
+    gThreadsRunningCounterMutex.unlock();
+}
+
+bool btThreadsAreRunning()
+{
+    return gThreadsRunningCounter != 0;
+}
+
+
+void btSetTaskScheduler( btITaskScheduler* ts )
+{
+    gBtTaskScheduler = ts;
+}
+
+btITaskScheduler* btGetTaskScheduler()
+{
+    return gBtTaskScheduler;
+}
+
+void btParallelFor( int iBegin, int iEnd, int grainSize, const btIParallelForBody& body )
+{
+    gBtTaskScheduler->parallelFor( iBegin, iEnd, grainSize, body );
+}
+
+
+#if BT_USE_OPENMP
+///
+/// btTaskSchedulerOpenMP -- OpenMP task scheduler implementation
+///
+class btTaskSchedulerOpenMP : public btITaskScheduler
+{
+    int m_numThreads;
+public:
+    btTaskSchedulerOpenMP() : btITaskScheduler( "OpenMP" )
+    {
+        m_numThreads = 0;
+    }
+    virtual int getMaxNumThreads() const BT_OVERRIDE
+    {
+        return omp_get_max_threads();
+    }
+    virtual int getNumThreads() const BT_OVERRIDE
+    {
+        return m_numThreads;
+    }
+    virtual void setNumThreads( int numThreads ) BT_OVERRIDE
+    {
+        m_numThreads = ( std::max )( 1, numThreads );
+        omp_set_num_threads( m_numThreads );
+    }
+    virtual void parallelFor( int iBegin, int iEnd, int grainSize, const btIParallelForBody& body ) BT_OVERRIDE
+    {
+        BT_PROFILE( "parallelFor_OpenMP" );
+        btPushThreadsAreRunning();
+#pragma omp parallel for schedule( static, 1 )
+        for ( int i = iBegin; i < iEnd; i += grainSize )
+        {
+            BT_PROFILE( "OpenMP_job" );
+            body.forLoop( i, ( std::min )( i + grainSize, iEnd ) );
+        }
+        btPopThreadsAreRunning();
+    }
+};
+#endif // #if BT_USE_OPENMP
+
+
+#if BT_USE_TBB
+///
+/// btTaskSchedulerTBB -- task scheduler implemented via Intel Threaded Building Blocks
+///
+class btTaskSchedulerTBB : public btITaskScheduler
+{
+    int m_numThreads;
+    tbb::task_scheduler_init* m_tbbSchedulerInit;
+
+public:
+    btTaskSchedulerTBB() : btITaskScheduler( "IntelTBB" )
+    {
+        m_numThreads = 0;
+        m_tbbSchedulerInit = NULL;
+    }
+    ~btTaskSchedulerTBB()
+    {
+        if ( m_tbbSchedulerInit )
+        {
+            delete m_tbbSchedulerInit;
+            m_tbbSchedulerInit = NULL;
+        }
+    }
+
+    virtual int getMaxNumThreads() const BT_OVERRIDE
+    {
+        return tbb::task_scheduler_init::default_num_threads();
+    }
+    virtual int getNumThreads() const BT_OVERRIDE
+    {
+        return m_numThreads;
+    }
+    virtual void setNumThreads( int numThreads ) BT_OVERRIDE
+    {
+        m_numThreads = ( std::max )( 1, numThreads );
+        if ( m_tbbSchedulerInit )
+        {
+            delete m_tbbSchedulerInit;
+            m_tbbSchedulerInit = NULL;
+        }
+        m_tbbSchedulerInit = new tbb::task_scheduler_init( m_numThreads );
+    }
+    struct BodyAdapter
+    {
+        const btIParallelForBody* mBody;
+
+        void operator()( const tbb::blocked_range<int>& range ) const
+        {
+            BT_PROFILE( "TBB_job" );
+            mBody->forLoop( range.begin(), range.end() );
+        }
+    };
+    virtual void parallelFor( int iBegin, int iEnd, int grainSize, const btIParallelForBody& body ) BT_OVERRIDE
+    {
+        BT_PROFILE( "parallelFor_TBB" );
+        // TBB dispatch
+        BodyAdapter tbbBody;
+        tbbBody.mBody = &body;
+        btPushThreadsAreRunning();
+        tbb::parallel_for( tbb::blocked_range<int>( iBegin, iEnd, grainSize ),
+            tbbBody,
+            tbb::simple_partitioner()
+        );
+        btPopThreadsAreRunning();
+    }
+};
+#endif // #if BT_USE_TBB
+
+#if BT_USE_PPL
+///
+/// btTaskSchedulerPPL -- task scheduler implemented via Microsoft Parallel Patterns Lib
+///
+class btTaskSchedulerPPL : public btITaskScheduler
+{
+    int m_numThreads;
+public:
+    btTaskSchedulerPPL() : btITaskScheduler( "PPL" )
+    {
+        m_numThreads = 0;
+    }
+    virtual int getMaxNumThreads() const BT_OVERRIDE
+    {
+        return concurrency::GetProcessorCount();
+    }
+    virtual int getNumThreads() const BT_OVERRIDE
+    {
+        return m_numThreads;
+    }
+    virtual void setNumThreads( int numThreads ) BT_OVERRIDE
+    {
+        m_numThreads = ( std::max )( 1, numThreads );
+        using namespace concurrency;
+        if ( CurrentScheduler::Id() != -1 )
+        {
+            CurrentScheduler::Detach();
+        }
+        SchedulerPolicy policy;
+        policy.SetConcurrencyLimits( m_numThreads, m_numThreads );
+        CurrentScheduler::Create( policy );
+    }
+    struct BodyAdapter
+    {
+        const btIParallelForBody* mBody;
+        int mGrainSize;
+        int mIndexEnd;
+
+        void operator()( int i ) const
+        {
+            BT_PROFILE( "PPL_job" );
+            mBody->forLoop( i, ( std::min )( i + mGrainSize, mIndexEnd ) );
+        }
+    };
+    virtual void parallelFor( int iBegin, int iEnd, int grainSize, const btIParallelForBody& body ) BT_OVERRIDE
+    {
+        BT_PROFILE( "parallelFor_PPL" );
+        // PPL dispatch
+        BodyAdapter pplBody;
+        pplBody.mBody = &body;
+        pplBody.mGrainSize = grainSize;
+        pplBody.mIndexEnd = iEnd;
+        btPushThreadsAreRunning();
+        // note: MSVC 2010 doesn't support partitioner args, so avoid them
+        concurrency::parallel_for( iBegin,
+            iEnd,
+            grainSize,
+            pplBody
+        );
+        btPopThreadsAreRunning();
+    }
+};
+#endif // #if BT_USE_PPL
+
+
 
 //
 // Lightweight spin-mutex based on atomics
@@ -21,8 +269,6 @@ subject to the following restrictions:
 // presumably because when it fails to lock at first it would sleep the thread and trigger costly
 // context switching.
 // 
-
-#if BT_THREADSAFE
 
 #if __cplusplus >= 201103L
 
@@ -226,6 +472,74 @@ bool btSpinMutex::tryLock()
     return true;
 }
 
+// non-parallel version of btParallelFor
+void btParallelFor( int iBegin, int iEnd, int grainSize, const btIParallelForBody& body )
+{
+    btAssert(!"called btParallelFor in non-threadsafe build. enable BT_THREADSAFE");
+    body.forLoop( iBegin, iEnd );
+}
 
 #endif // #if BT_THREADSAFE
+
+
+///
+/// btTaskSchedulerSequential -- non-threaded implementation of task scheduler
+///                              (fallback in case no multi-threaded schedulers are available)
+///
+class btTaskSchedulerSequential : public btITaskScheduler
+{
+public:
+    btTaskSchedulerSequential() : btITaskScheduler( "Sequential" ) {}
+    virtual int getMaxNumThreads() const BT_OVERRIDE { return 1; }
+    virtual int getNumThreads() const BT_OVERRIDE { return 1; }
+    virtual void setNumThreads( int numThreads ) BT_OVERRIDE {}
+    virtual void parallelFor( int iBegin, int iEnd, int grainSize, const btIParallelForBody& body ) BT_OVERRIDE
+    {
+        BT_PROFILE( "parallelFor_sequential" );
+        body.forLoop( iBegin, iEnd );
+    }
+};
+
+// create a non-threaded task scheduler (always available)
+btITaskScheduler* btGetSequentialTaskScheduler()
+{
+    static btTaskSchedulerSequential sTaskScheduler;
+    return &sTaskScheduler;
+}
+
+
+// create an OpenMP task scheduler (if available, otherwise returns null)
+btITaskScheduler* btGetOpenMPTaskScheduler()
+{
+#if BT_USE_OPENMP && BT_THREADSAFE
+    static btTaskSchedulerOpenMP sTaskScheduler;
+    return &sTaskScheduler;
+#else
+    return NULL;
+#endif
+}
+
+
+// create an Intel TBB task scheduler (if available, otherwise returns null)
+btITaskScheduler* btGetTBBTaskScheduler()
+{
+#if BT_USE_TBB && BT_THREADSAFE
+    static btTaskSchedulerTBB sTaskScheduler;
+    return &sTaskScheduler;
+#else
+    return NULL;
+#endif
+}
+
+
+// create a PPL task scheduler (if available, otherwise returns null)
+btITaskScheduler* btGetPPLTaskScheduler()
+{
+#if BT_USE_PPL && BT_THREADSAFE
+    static btTaskSchedulerPPL sTaskScheduler;
+    return &sTaskScheduler;
+#else
+    return NULL;
+#endif
+}
 
