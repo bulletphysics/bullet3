@@ -58,9 +58,9 @@ public:
 	
 	void resetCamera()
 	{
-		float dist = 35;
-		float pitch = -14;
-		float yaw = 0;
+		float dist = 1;
+		float pitch = 70;
+		float yaw = 10;
 		float targetPos[3]={0,0,0};
 		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}

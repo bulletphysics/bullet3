@@ -1960,7 +1960,14 @@ void b3ComputeYawPitchRollFromPosition(const float cameraPosition[3], const floa
 	eyeInitPos.normalize();
 	eyePos.normalize();
 	
+	eyeInitPos[0] = 0.0;
+	eyeInitPos[1] = -1.0;
+	eyeInitPos[2] = 0.0;
 	b3Quaternion rot = b3ShortestArcQuat(eyeInitPos, eyePos);
+	//rot[0] = 0.571393847;
+	//rot[1] = 0.0499904789;
+	//rot[2] = 0.0713938028;
+	//rot[3] = 0.816034972;
 	btScalar yawRad;
 	btScalar pitchRad;
 	btScalar rollRad;
@@ -2088,7 +2095,9 @@ void b3ComputeViewMatrixFromYawPitchRoll(const float cameraTargetPosition[3], fl
 		camForward.normalize();
 	}
 	
-	eyePos = b3Matrix3x3(eyeRot)*eyePos;
+	eyePos[3] = 1.0;
+	//eyePos = b3Matrix3x3(eyeRot)*eyePos;
+	eyePos = b3QuatRotate(eyeRot, eyePos);
 	camUpVector = b3Matrix3x3(eyeRot)*camUpVector;
 	
 	camPos = eyePos;

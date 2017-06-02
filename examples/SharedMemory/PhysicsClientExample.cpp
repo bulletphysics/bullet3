@@ -277,7 +277,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
             
 						float viewMatrix[16];
 			
-			float cameraTargetPosition[3] = {1.0, 2.0, 3.0};
+			float cameraTargetPosition[3] = {0.0, 0.0, 0.0};
 			float distance = 1.0;
 			float yaw = 10.0;
 			float pitch = 70.0;
