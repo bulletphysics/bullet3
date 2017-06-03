@@ -47,8 +47,8 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 	virtual void setUpAxis(int axis);
 	
     
-	virtual void resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ);
-	virtual bool getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3],float hor[3], float vert[3] ) const;
+	virtual void resetCamera(float camDist, float yaw, float pitch, float camPosX,float camPosY, float camPosZ);
+	virtual bool getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3],float hor[3], float vert[3], float* yaw, float* pitch, float* camDist, float camTarget[3]) const;
 
 	virtual void copyCameraImageData(const float viewMatrix[16], const float projectionMatrix[16], 
                                   unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, 

@@ -67,10 +67,10 @@ class BspDemo : public CommonRigidBodyBase
 	virtual void resetCamera()
 	{
 		float dist = 43;
-		float pitch = -175;
-		float yaw = 12;
+		float pitch = -12;
+		float yaw = -175;
 		float targetPos[3]={4,-25,-6};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 	
 

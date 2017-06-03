@@ -128,8 +128,8 @@ public:
 	virtual void resetCamera()
 	{
 		float dist = 13;
-		float pitch = 50;
-		float yaw = 13;
+		float pitch = -13;
+		float yaw = 50;
 		float targetPos[3]={-1,0,-0.3};
 		if (m_app->m_renderer  && m_app->m_renderer->getActiveCamera())
 		{

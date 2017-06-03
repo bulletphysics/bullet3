@@ -979,7 +979,7 @@ void OpenGLGuiHelper::setVisualizerFlag(int flag, int enable)
 }
 
 
-void OpenGLGuiHelper::resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ)
+void OpenGLGuiHelper::resetCamera(float camDist, float yaw, float pitch, float camPosX,float camPosY, float camPosZ)
 {
 	if (getRenderInterface() && getRenderInterface()->getActiveCamera())
 	{
@@ -990,7 +990,7 @@ void OpenGLGuiHelper::resetCamera(float camDist, float pitch, float yaw, float c
 	}
 }
 
-bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3],float hor[3], float vert[3] ) const
+bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3],float hor[3], float vert[3], float* yaw, float* pitch, float* camDist, float cameraTarget[3]) const
 {
 	if (getRenderInterface() && getRenderInterface()->getActiveCamera())
 	{
@@ -1036,6 +1036,13 @@ bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16
 		vert[0] = vertical[0];
 		vert[1] = vertical[1];
 		vert[2] = vertical[2];
+		
+		*yaw = getRenderInterface()->getActiveCamera()->getCameraYaw();
+		*pitch = getRenderInterface()->getActiveCamera()->getCameraPitch();
+		*camDist = getRenderInterface()->getActiveCamera()->getCameraDistance();
+		cameraTarget[0] = camTarget[0];
+		cameraTarget[1] = camTarget[1];
+		cameraTarget[2] = camTarget[2];
 		return true;
 	}
 	return false;
