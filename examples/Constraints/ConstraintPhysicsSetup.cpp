@@ -18,10 +18,10 @@ struct ConstraintPhysicsSetup : public CommonRigidBodyBase
 	virtual void resetCamera()
 	{
 		float dist = 7;
-		float pitch = 721;
-		float yaw = 44;
+		float pitch = -44;
+		float yaw = 721;
 		float targetPos[3]={8,1,-11};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 	
 

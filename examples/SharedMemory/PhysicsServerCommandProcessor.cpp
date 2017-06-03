@@ -4545,7 +4545,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						serverCmd.m_visualizerCameraResultArgs.m_camUp,
 						serverCmd.m_visualizerCameraResultArgs.m_camForward,
 						serverCmd.m_visualizerCameraResultArgs.m_horizontal,
-						serverCmd.m_visualizerCameraResultArgs.m_vertical);
+						serverCmd.m_visualizerCameraResultArgs.m_vertical,
+						&serverCmd.m_visualizerCameraResultArgs.m_yaw,
+						&serverCmd.m_visualizerCameraResultArgs.m_pitch,
+						&serverCmd.m_visualizerCameraResultArgs.m_dist,
+						serverCmd.m_visualizerCameraResultArgs.m_target);
                     serverCmd.m_type = result ? CMD_REQUEST_OPENGL_VISUALIZER_CAMERA_COMPLETED: CMD_REQUEST_OPENGL_VISUALIZER_CAMERA_FAILED;
 					hasStatus = true;
 					break;
@@ -4566,8 +4570,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     if (clientCmd.m_updateFlags&COV_SET_CAMERA_VIEW_MATRIX)
                     {
                         m_data->m_guiHelper->resetCamera( clientCmd.m_configureOpenGLVisualizerArguments.m_cameraDistance,
-                                                          clientCmd.m_configureOpenGLVisualizerArguments.m_cameraPitch,
                                                           clientCmd.m_configureOpenGLVisualizerArguments.m_cameraYaw,
+                                                          clientCmd.m_configureOpenGLVisualizerArguments.m_cameraPitch,
                                                           clientCmd.m_configureOpenGLVisualizerArguments.m_cameraTargetPosition[0],
                                                           clientCmd.m_configureOpenGLVisualizerArguments.m_cameraTargetPosition[1],
                                                           clientCmd.m_configureOpenGLVisualizerArguments.m_cameraTargetPosition[2]);
@@ -5679,7 +5683,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								{
 									if (bodyHandle->m_multiBody->getBaseCollider())
 									{
-										//m_data->m_visualConverter.changeRGBAColor(...)
+										m_data->m_visualConverter.changeRGBAColor(bodyUniqueId,linkIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 										int graphicsIndex = bodyHandle->m_multiBody->getBaseCollider()->getUserIndex();
 										if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR) 
 										{
@@ -5697,7 +5701,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									{
 										if (bodyHandle->m_multiBody->getLink(linkIndex).m_collider)
 										{
-											//m_data->m_visualConverter.changeRGBAColor(...)
+											m_data->m_visualConverter.changeRGBAColor(bodyUniqueId,linkIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 											int graphicsIndex = bodyHandle->m_multiBody->getLink(linkIndex).m_collider->getUserIndex();
 											if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR) 
 											{

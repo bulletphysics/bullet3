@@ -96,10 +96,10 @@ class Planar2D : public CommonRigidBodyBase
 	void resetCamera()
 	{
 		float dist = 9;
-		float pitch = 539;
-		float yaw = 11;
+		float pitch = -11;
+		float yaw = 539;
 		float targetPos[3]={8.6,10.5,-20.6};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 	
 	

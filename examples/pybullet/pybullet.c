@@ -3963,7 +3963,7 @@ static PyObject* pybullet_getDebugVisualizerCamera(PyObject* self, PyObject* arg
 	if (hasCamInfo)
 	{
 		PyObject* item=0;
-		pyCameraList = PyTuple_New(8);
+		pyCameraList = PyTuple_New(12);
 		item = PyInt_FromLong(camera.m_width);
 		PyTuple_SetItem(pyCameraList,0,item);
 		item = PyInt_FromLong(camera.m_height);
@@ -4006,6 +4006,23 @@ static PyObject* pybullet_getDebugVisualizerCamera(PyObject* self, PyObject* arg
 			PyTuple_SetItem(pyCameraList,5,camFwd);
 			PyTuple_SetItem(pyCameraList,6,hor);
 			PyTuple_SetItem(pyCameraList,7,vert);
+		}
+		item = PyFloat_FromDouble(camera.m_yaw);
+		PyTuple_SetItem(pyCameraList,8,item);
+		item = PyFloat_FromDouble(camera.m_pitch);
+		PyTuple_SetItem(pyCameraList,9,item);
+		item = PyFloat_FromDouble(camera.m_dist);
+		PyTuple_SetItem(pyCameraList,10,item);
+		{
+			PyObject* item=0;
+			int i;
+			PyObject* camTarget = PyTuple_New(3);
+			for (i=0;i<3;i++)
+			{
+				item = PyFloat_FromDouble(camera.m_target[i]);
+				PyTuple_SetItem(camTarget,i,item);
+			}
+			PyTuple_SetItem(pyCameraList,11,camTarget);
 		}
 		return pyCameraList;
 	}
