@@ -271,7 +271,6 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
         case CMD_REQUEST_CAMERA_IMAGE_DATA:
         {
             ///request an image from a simulated camera, using a software renderer.
-            
             b3SharedMemoryCommandHandle commandHandle = b3InitRequestCameraImage(m_physicsClientHandle);
             //b3RequestCameraImageSelectRenderer(commandHandle,ER_BULLET_HARDWARE_OPENGL);
             
@@ -328,6 +327,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
                     //b3Printf("Joint %d: %f", i, sensorState.m_jointMotorTorque);
                 }
 			}
+			
             break;
         };
 

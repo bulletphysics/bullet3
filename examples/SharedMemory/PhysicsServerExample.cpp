@@ -1021,9 +1021,9 @@ public:
 	    m_childGuiHelper->resetCamera(camDist,yaw,pitch,camPosX,camPosY,camPosZ);
 	}
 
-	virtual bool getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3],float hor[3], float vert[3] ) const
+	virtual bool getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3],float hor[3], float vert[3], float* yaw, float* pitch, float* camDist, float camTarget[3]) const
 	{
-		return m_childGuiHelper->getCameraInfo(width,height,viewMatrix,projectionMatrix,camUp,camForward,hor,vert);
+		return m_childGuiHelper->getCameraInfo(width,height,viewMatrix,projectionMatrix,camUp,camForward,hor,vert,yaw,pitch,camDist,camTarget);
 	}
 
 

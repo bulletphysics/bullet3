@@ -4496,7 +4496,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						serverCmd.m_visualizerCameraResultArgs.m_camUp,
 						serverCmd.m_visualizerCameraResultArgs.m_camForward,
 						serverCmd.m_visualizerCameraResultArgs.m_horizontal,
-						serverCmd.m_visualizerCameraResultArgs.m_vertical);
+						serverCmd.m_visualizerCameraResultArgs.m_vertical,
+						&serverCmd.m_visualizerCameraResultArgs.m_yaw,
+						&serverCmd.m_visualizerCameraResultArgs.m_pitch,
+						&serverCmd.m_visualizerCameraResultArgs.m_dist,
+						serverCmd.m_visualizerCameraResultArgs.m_target);
                     serverCmd.m_type = result ? CMD_REQUEST_OPENGL_VISUALIZER_CAMERA_COMPLETED: CMD_REQUEST_OPENGL_VISUALIZER_CAMERA_FAILED;
 					hasStatus = true;
 					break;
