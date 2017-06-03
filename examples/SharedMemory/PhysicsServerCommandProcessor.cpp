@@ -124,7 +124,14 @@ struct SharedMemoryDebugDrawer : public btIDebugDraw
 	}
 };
 
-
+struct InteralCollisionShapeData
+{
+	btCollisionShape* m_collisionShape;
+	void clear()
+	{
+		m_collisionShape=0;
+	}
+};
 
 struct InteralBodyData
 {
@@ -171,7 +178,7 @@ struct InteralUserConstraintData
 };
 
 typedef b3PoolBodyHandle<InteralBodyData> InternalBodyHandle;
-
+typedef b3PoolBodyHandle<InteralCollisionShapeData> InternalCollisionShapeHandle;
 
 class btCommandChunk
 {
@@ -1133,7 +1140,7 @@ struct PhysicsServerCommandProcessorInternalData
 {
 	///handle management
 	b3ResizablePool< InternalBodyHandle > m_bodyHandles;
-
+	b3ResizablePool<InternalCollisionShapeHandle> m_userCollisionShapeHandles;
 
 	bool m_allowRealTimeSimulation;
 	
@@ -1244,6 +1251,9 @@ struct PhysicsServerCommandProcessorInternalData
 
 		m_bodyHandles.exitHandles();
 		m_bodyHandles.initHandles();
+		m_userCollisionShapeHandles.exitHandles();
+		m_userCollisionShapeHandles.initHandles();
+
 #if 0
 		btAlignedObjectArray<int> bla;
 
@@ -1489,6 +1499,211 @@ void PhysicsServerCommandProcessor::logObjectStates(btScalar timeStep)
 	}
 
 }
+
+struct ProgrammaticUrdfInterface : public URDFImporterInterface
+{
+	int m_bodyUniqueId;
+
+	const b3CreateMultiBodyArgs& m_createBodyArgs;
+	mutable b3AlignedObjectArray<btCollisionShape*> m_allocatedCollisionShapes;
+	PhysicsServerCommandProcessorInternalData* m_data;
+
+	ProgrammaticUrdfInterface(const b3CreateMultiBodyArgs& bodyArgs, PhysicsServerCommandProcessorInternalData* data)
+		:m_bodyUniqueId(-1),
+		m_createBodyArgs(bodyArgs),
+		m_data(data)
+	{
+
+	}
+
+	virtual ~ProgrammaticUrdfInterface()
+	{
+
+	}
+
+	 virtual bool loadURDF(const char* fileName, bool forceFixedBase = false)
+	 {
+		 b3Assert(0);
+		 return false;
+	 }
+
+    virtual const char* getPathPrefix()
+	{
+		return "";
+	}
+    
+    ///return >=0 for the root link index, -1 if there is no root link
+    virtual int getRootLinkIndex() const
+	{
+		return m_createBodyArgs.m_baseLinkIndex;
+	}
+    
+    ///pure virtual interfaces, precondition is a valid linkIndex (you can assert/terminate if the linkIndex is out of range)
+    virtual std::string getLinkName(int linkIndex) const
+	{
+		return "link";
+	}
+
+	//various derived class in internal source code break with new pure virtual methods, so provide some default implementation
+	virtual std::string getBodyName() const
+	{
+		return m_createBodyArgs.m_bodyName;
+	}
+    
+	/// optional method to provide the link color. return true if the color is available and copied into colorRGBA, return false otherwise
+	virtual bool getLinkColor(int linkIndex, btVector4& colorRGBA) const 
+	{ 
+		b3Assert(0);
+		return false;
+	}
+
+	virtual bool getLinkColor2(int linkIndex, struct UrdfMaterialColor& matCol) const 
+	{ 
+		return false;
+	}
+
+	virtual int getCollisionGroupAndMask(int linkIndex, int& colGroup, int& colMask) const 
+	{ 
+		return 0;
+	}
+	///this API will likely change, don't override it!
+	virtual bool getLinkContactInfo(int linkIndex, URDFLinkContactInfo& contactInfo ) const  
+	{ 
+
+		return false;
+	}
+    
+	virtual bool getLinkAudioSource(int linkIndex, SDFAudioSource& audioSource) const 
+	{
+		b3Assert(0);
+		return false;
+	}
+
+    virtual std::string getJointName(int linkIndex) const
+	{
+		b3Assert(0);
+		return "joint";
+	}
+	
+    //fill mass and inertial data. If inertial data is missing, please initialize mass, inertia to sensitive values, and inertialFrame to identity.
+    virtual void  getMassAndInertia(int urdfLinkIndex, btScalar& mass,btVector3& localInertiaDiagonal, btTransform& inertialFrame) const
+	{
+		if (urdfLinkIndex>=0 && urdfLinkIndex < m_createBodyArgs.m_numLinks)
+		{
+			mass = m_createBodyArgs.m_linkMasses[urdfLinkIndex];
+			localInertiaDiagonal.setValue(
+				m_createBodyArgs.m_linkInertias[urdfLinkIndex*3+0],
+				m_createBodyArgs.m_linkInertias[urdfLinkIndex*3+1],
+				m_createBodyArgs.m_linkInertias[urdfLinkIndex*3+2]);
+			inertialFrame.setOrigin(btVector3(
+				m_createBodyArgs.m_linkInertialFramePositions[urdfLinkIndex*3+0],
+				m_createBodyArgs.m_linkInertialFramePositions[urdfLinkIndex*3+1],
+				m_createBodyArgs.m_linkInertialFramePositions[urdfLinkIndex*3+2]));
+			inertialFrame.setRotation(btQuaternion(
+				m_createBodyArgs.m_linkInertialFrameOrientations[urdfLinkIndex*4+0],
+				m_createBodyArgs.m_linkInertialFrameOrientations[urdfLinkIndex*4+1],
+				m_createBodyArgs.m_linkInertialFrameOrientations[urdfLinkIndex*4+2],
+				m_createBodyArgs.m_linkInertialFrameOrientations[urdfLinkIndex*4+3]));
+		} else
+		{		
+			mass = 0;
+			localInertiaDiagonal.setValue(0,0,0);
+			inertialFrame.setIdentity();
+		}
+	}
+    
+    ///fill an array of child link indices for this link, btAlignedObjectArray behaves like a std::vector so just use push_back and resize(0) if needed
+    virtual void getLinkChildIndices(int urdfLinkIndex, btAlignedObjectArray<int>& childLinkIndices) const
+	{
+	}
+    
+    virtual bool getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction) const
+	{
+		return false;
+	};
+
+	virtual bool getJointInfo2(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction, btScalar& jointMaxForce, btScalar& jointMaxVelocity) const 
+	{
+		//backwards compatibility for custom file importers
+		jointMaxForce = 0;
+		jointMaxVelocity = 0;
+		return getJointInfo(urdfLinkIndex, parent2joint, linkTransformInWorld, jointAxisInJointSpace, jointType, jointLowerLimit, jointUpperLimit, jointDamping, jointFriction);
+	};
+    
+    virtual bool getRootTransformInWorld(btTransform& rootTransformInWorld) const
+	{
+		rootTransformInWorld.setOrigin(btVector3(
+			m_createBodyArgs.m_baseWorldPosition[0],
+			m_createBodyArgs.m_baseWorldPosition[1],
+			m_createBodyArgs.m_baseWorldPosition[2]));
+		rootTransformInWorld.setRotation(btQuaternion(
+			m_createBodyArgs.m_baseWorldOrientation[0],
+			m_createBodyArgs.m_baseWorldOrientation[1],
+			m_createBodyArgs.m_baseWorldOrientation[2],
+			m_createBodyArgs.m_baseWorldOrientation[3]));
+		return true;
+	}
+	virtual void setRootTransformInWorld(const btTransform& rootTransformInWorld)
+	{
+		b3Assert(0);
+	}
+
+	///quick hack: need to rethink the API/dependencies of this
+    virtual int convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame) const
+	{
+		return -1;
+	}
+    
+    virtual void convertLinkVisualShapes2(int linkIndex, int urdfIndex, const char* pathPrefix, const btTransform& inertialFrame, class btCollisionObject* colObj, int objectIndex) const  
+	{
+	}
+    virtual void setBodyUniqueId(int bodyId) 
+	{
+		m_bodyUniqueId = bodyId;
+	}
+    virtual int getBodyUniqueId() const 
+	{
+		return m_bodyUniqueId;
+	}
+
+   //default implementation for backward compatibility 
+	virtual class btCompoundShape* convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const
+	{
+		btCompoundShape* compound = new btCompoundShape();
+
+		int colShapeUniqueId = m_createBodyArgs.m_linkCollisionShapeUniqueIds[linkIndex];
+		if (colShapeUniqueId>=0)
+		{
+			InternalCollisionShapeHandle* handle = m_data->m_userCollisionShapeHandles.getHandle(colShapeUniqueId);
+			if (handle)
+			{
+				btTransform childTrans;
+				childTrans.setIdentity();				
+				compound->addChildShape(localInertiaFrame.inverse()*childTrans,handle->m_collisionShape);
+			}
+		}
+		m_allocatedCollisionShapes.push_back(compound);
+		return compound;
+	}
+	
+	virtual int getNumAllocatedCollisionShapes() const 
+	{ 
+		return m_allocatedCollisionShapes.size();
+	}
+    
+	virtual class btCollisionShape* getAllocatedCollisionShape(int index) 
+	{
+		return m_allocatedCollisionShapes[index];
+	}
+	virtual int getNumModels() const 
+	{
+		return 1;
+	}
+    virtual void activateModel(int /*modelIndex*/) 
+	{
+	}
+};
+
 
 void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 {
@@ -1829,7 +2044,22 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 
 			createJointMotors(mb);
 
-
+#ifdef B3_ENABLE_TINY_AUDIO
+			{
+				SDFAudioSource audioSource;
+				int urdfRootLink = u2b.getRootLinkIndex();//LinkIndex = creation.m_mb2urdfLink[-1];
+				if (u2b.getLinkAudioSource(urdfRootLink,audioSource))
+				{
+					int flags = mb->getBaseCollider()->getCollisionFlags();
+					mb->getBaseCollider()->setCollisionFlags(flags | btCollisionObject::CF_HAS_COLLISION_SOUND_TRIGGER);
+					audioSource.m_userIndex = m_data->m_soundEngine.loadWavFile(audioSource.m_uri.c_str());
+					if (audioSource.m_userIndex>=0)
+					{
+						bodyHandle->m_audioSources.insert(-1, audioSource);
+					}
+				}
+			}
+#endif
 			//disable serialization of the collision objects (they are too big, and the client likely doesn't need them);
 
             bodyHandle->m_linkLocalInertialFrames.reserve(mb->getNumLinks());
@@ -1853,14 +2083,33 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 				m_data->m_strings.push_back(jointName);
 
 				mb->getLink(i).m_jointName = jointName->c_str();
+
+#ifdef B3_ENABLE_TINY_AUDIO
+				   {
+						SDFAudioSource audioSource;
+						int urdfLinkIndex = creation.m_mb2urdfLink[link];
+						if (u2b.getLinkAudioSource(urdfLinkIndex,audioSource))
+						{
+							int flags = mb->getLink(link).m_collider->getCollisionFlags();
+							mb->getLink(i).m_collider->setCollisionFlags(flags | btCollisionObject::CF_HAS_COLLISION_SOUND_TRIGGER);
+							audioSource.m_userIndex = m_data->m_soundEngine.loadWavFile(audioSource.m_uri.c_str());
+							if (audioSource.m_userIndex>=0)
+							{
+								bodyHandle->m_audioSources.insert(link, audioSource);
+							}
+						}
+					}
+#endif
             }
 			std::string* baseName = new std::string(u2b.getLinkName(u2b.getRootLinkIndex()));
 			m_data->m_strings.push_back(baseName);
 			mb->setBaseName(baseName->c_str());
 		} else
 		{
-			b3Warning("No multibody loaded from URDF. Could add btRigidBody+btTypedConstraint solution later.");
+			//b3Warning("No multibody loaded from URDF. Could add btRigidBody+btTypedConstraint solution later.");
             bodyHandle->m_rigidBody = rb;
+			rb->setUserIndex2(bodyUniqueId);
+			m_data->m_sdfRecentLoadedBodies.push_back(bodyUniqueId);
 		}
 
     }
@@ -1945,6 +2194,9 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
 bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVector3& pos, const btQuaternion& orn,
                              bool useMultiBody, bool useFixedBase, int* bodyUniqueIdPtr, char* bufferServerToClient, int bufferSizeInBytes, int flags)
 {
+	m_data->m_sdfRecentLoadedBodies.clear();
+	*bodyUniqueIdPtr = -1;
+
 	BT_PROFILE("loadURDF");
 	btAssert(m_data->m_dynamicsWorld);
 	if (!m_data->m_dynamicsWorld)
@@ -1962,6 +2214,25 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 
     if (loadOk)
     {
+
+#if 1
+		btTransform rootTrans;
+		rootTrans.setOrigin(pos);
+		rootTrans.setRotation(orn);
+		u2b.setRootTransformInWorld(rootTrans);
+		bool ok = processImportedObjects(fileName, bufferServerToClient, bufferSizeInBytes,  useMultiBody, flags, u2b);
+		if (ok)
+		{
+			if (m_data->m_sdfRecentLoadedBodies.size()==1)
+			{
+				*bodyUniqueIdPtr = m_data->m_sdfRecentLoadedBodies[0];
+
+			}
+			m_data->m_sdfRecentLoadedBodies.clear();
+		}
+		return ok;
+#else
+
 		//get a body index
 		int bodyUniqueId = m_data->m_bodyHandles.allocHandle();
 		if (bodyUniqueIdPtr)
@@ -2132,9 +2403,9 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
                 return true;
             }
 		}
-
+		#endif
     }
-
+	
     return false;
 }
 
@@ -3155,6 +3426,147 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						hasStatus = true;
                         break;
                     }
+				case CMD_CREATE_COLLISION_SHAPE:
+				{
+					hasStatus = true;
+					serverStatusOut.m_type = CMD_CREATE_COLLISION_SHAPE_FAILED;
+					
+					btBulletWorldImporter* worldImporter = new btBulletWorldImporter(m_data->m_dynamicsWorld);
+					btCollisionShape* shape = 0;
+
+					btCompoundShape* compound = 0;
+
+					if (clientCmd.m_createCollisionShapeArgs.m_numCollisionShapes>1)
+					{
+						compound = worldImporter->createCompoundShape();
+					}
+					for (int i=0;i<clientCmd.m_createCollisionShapeArgs.m_numCollisionShapes;i++)
+					{
+						btTransform childTransform;
+						childTransform.setIdentity();
+						if (clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_hasChildTransform)
+						{
+							childTransform.setOrigin(btVector3(clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_childPosition[0],
+								clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_childPosition[1],
+								clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_childPosition[2]));
+							childTransform.setRotation(btQuaternion(
+								clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_childOrientation[0],
+								clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_childOrientation[1],
+								clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_childOrientation[2],
+								clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_childOrientation[3]
+							));
+							if (compound==0)
+							{
+								compound = worldImporter->createCompoundShape();
+							}
+						}
+
+						switch (clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_type)
+						{
+							case GEOM_SPHERE:
+							{
+								double radius = clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_sphereRadius;
+								shape = worldImporter->createSphereShape(radius);
+								if (compound)
+								{
+									compound->addChildShape(childTransform,shape);
+								}
+								break;
+							}
+							case GEOM_BOX:
+							{
+								//double halfExtents[3] = clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_sphereRadius;
+								shape = worldImporter->createBoxShape(btVector3(
+									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_boxHalfExtents[0],
+									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_boxHalfExtents[1],
+									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_boxHalfExtents[2]));
+								if (compound)
+								{
+									compound->addChildShape(childTransform,shape);
+								}
+								break;
+							}
+						}
+					}
+					#if 0
+					shape = worldImporter->createCylinderShapeX(radius,height);
+					shape = worldImporter->createCylinderShapeY(radius,height);
+					shape = worldImporter->createCylinderShapeZ(radius,height);
+					shape = worldImporter->createCapsuleShapeX(radius,height);
+					shape = worldImporter->createCapsuleShapeY(radius,height);
+					shape = worldImporter->createCapsuleShapeZ(radius,height);
+					shape = worldImporter->createBoxShape(halfExtents);
+					#endif
+					if (compound && compound->getNumChildShapes())
+					{
+						shape = compound;
+					}
+
+					if (shape)
+					{
+						int collisionShapeUid = m_data->m_userCollisionShapeHandles.allocHandle();
+						InternalCollisionShapeHandle* handle = m_data->m_userCollisionShapeHandles.getHandle(collisionShapeUid);
+						handle->m_collisionShape = shape;
+						serverStatusOut.m_createCollisionShapeResultArgs.m_collisionShapeUniqueId = collisionShapeUid;
+						m_data->m_worldImporters.push_back(worldImporter);
+						serverStatusOut.m_type = CMD_CREATE_COLLISION_SHAPE_COMPLETED;
+					} else
+					{
+						delete worldImporter;
+					}
+
+				
+					break;
+				}
+				case CMD_CREATE_VISUAL_SHAPE:
+				{
+					hasStatus = true;
+					serverStatusOut.m_type = CMD_CREATE_VISUAL_SHAPE_FAILED;
+					break;
+				}
+				case CMD_CREATE_MULTI_BODY:
+				{
+					hasStatus = true;
+					serverStatusOut.m_type = CMD_CREATE_MULTI_BODY_FAILED;
+					if (clientCmd.m_createMultiBodyArgs.m_baseLinkIndex>=0)
+					{
+						ProgrammaticUrdfInterface u2b(clientCmd.m_createMultiBodyArgs, m_data);
+						
+						bool useMultiBody = false;
+						int flags = 0;
+						bool ok = processImportedObjects("memory", bufferServerToClient, bufferSizeInBytes, useMultiBody,  flags, u2b);
+
+						if (ok)
+						{
+							int bodyUniqueId = -1;
+
+							if (m_data->m_sdfRecentLoadedBodies.size()==1)
+							{
+								bodyUniqueId = m_data->m_sdfRecentLoadedBodies[0];
+							}
+							m_data->m_sdfRecentLoadedBodies.clear();
+							if (bodyUniqueId>=0)
+							{
+								m_data->m_guiHelper->autogenerateGraphicsObjects(this->m_data->m_dynamicsWorld);
+								serverStatusOut.m_type = CMD_CREATE_MULTI_BODY_COMPLETED;
+								
+								int streamSizeInBytes = createBodyInfoStream(bodyUniqueId, bufferServerToClient, bufferSizeInBytes);
+								if (m_data->m_urdfLinkNameMapper.size())
+								{
+									serverStatusOut.m_numDataStreamBytes = m_data->m_urdfLinkNameMapper.at(m_data->m_urdfLinkNameMapper.size()-1)->m_memSerializer->getCurrentBufferSize();
+								}
+								serverStatusOut.m_dataStreamArguments.m_bodyUniqueId = bodyUniqueId;
+								InteralBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+								strcpy(serverStatusOut.m_dataStreamArguments.m_bodyName, body->m_bodyName.c_str());
+							}
+						}
+
+						//ConvertURDF2Bullet(u2b,creation, rootTrans,m_data->m_dynamicsWorld,useMultiBody,u2b.getPathPrefix(),flags);
+
+						
+					}
+					break;
+				}
                 case CMD_LOAD_URDF:
                 {
 					BT_PROFILE("CMD_LOAD_URDF");
@@ -3193,13 +3605,16 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                                initialPos,initialOrn,
                                                useMultiBody, useFixedBase,&bodyUniqueId, bufferServerToClient, bufferSizeInBytes, urdfFlags);
 
-                    if (completedOk)
+                    if (completedOk && bodyUniqueId>=0)
                     {
+
 
 						m_data->m_guiHelper->autogenerateGraphicsObjects(this->m_data->m_dynamicsWorld);
 
 						serverStatusOut.m_type = CMD_URDF_LOADING_COMPLETED;
                        
+						int streamSizeInBytes = createBodyInfoStream(bodyUniqueId, bufferServerToClient, bufferSizeInBytes);
+
 
 						if (m_data->m_urdfLinkNameMapper.size())
 						{
@@ -6409,8 +6824,8 @@ void PhysicsServerCommandProcessor::resetSimulation()
 	m_data->m_bodyHandles.exitHandles();
 	m_data->m_bodyHandles.initHandles();
 
-	
-	
+	m_data->m_userCollisionShapeHandles.exitHandles();
+	m_data->m_userCollisionShapeHandles.initHandles();
 
 }
 

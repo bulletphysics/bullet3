@@ -4701,6 +4701,152 @@ static PyObject* pybullet_enableJointForceTorqueSensor(PyObject* self, PyObject*
 	return NULL;
 }
 
+static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+	int shapeType=-1;
+	double radius=-1;
+	PyObject* halfExtentsObj=0;
+
+	static char* kwlist[] = {"shapeType","radius","halfExtents", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|dOi", kwlist, 
+		&shapeType, &radius,&halfExtentsObj, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+	if (shapeType>=GEOM_SPHERE)
+	{
+		b3SharedMemoryStatusHandle statusHandle;
+		int statusType;
+		b3SharedMemoryCommandHandle commandHandle = b3CreateCollisionShapeCommandInit(sm);
+		if (shapeType==GEOM_SPHERE && radius>0)
+		{
+			b3CreateCollisionShapeAddSphere(commandHandle,radius);
+		}
+		if (shapeType==GEOM_BOX && halfExtentsObj)
+		{
+			double halfExtents[3] = {1,1,1};
+			pybullet_internalSetVectord(halfExtentsObj,halfExtents);
+			b3CreateCollisionShapeAddBox(commandHandle,halfExtents);
+		}
+
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+		statusType = b3GetStatusType(statusHandle);
+		if (statusType == CMD_CREATE_COLLISION_SHAPE_COMPLETED)
+		{
+			int uid = b3GetStatusCollisionShapeUniqueId(statusHandle);
+			PyObject* ob = PyLong_FromLong(uid);
+			return ob;
+		}
+	}
+	PyErr_SetString(SpamError, "createCollisionShape failed.");
+	return NULL;
+}
+#if 0
+b3SharedMemoryCommandHandle b3CreateCollisionShapeCommandInit(b3PhysicsClientHandle physClient);
+int b3GetStatusCollisionShapeUniqueId(b3SharedMemoryStatusHandle statusHandle);
+
+b3SharedMemoryCommandHandle b3CreateVisualShapeCommandInit(b3PhysicsClientHandle physClient);
+int b3GetStatusVisualShapeUniqueId(b3SharedMemoryStatusHandle statusHandle);
+
+b3SharedMemoryCommandHandle b3CreateMultiBodyCommandInit(b3PhysicsClientHandle physClient);
+int b3GetStatusMultiBodyUniqueId(b3SharedMemoryStatusHandle statusHandle);
+#endif
+
+
+static PyObject* pybullet_createVisualShape(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+	int test=-1;
+
+	static char* kwlist[] = {"test",NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|i", kwlist, &test,
+									 &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+	if (test>=0)
+	{
+		b3SharedMemoryStatusHandle statusHandle;
+		int statusType;
+		b3SharedMemoryCommandHandle commandHandle = b3CreateVisualShapeCommandInit(sm);
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+		statusType = b3GetStatusType(statusHandle);
+		if (statusType == CMD_CREATE_VISUAL_SHAPE_COMPLETED)
+		{
+			int uid = b3GetStatusVisualShapeUniqueId(statusHandle);
+			PyObject* ob = PyLong_FromLong(uid);
+			return ob;
+		}
+	}
+
+	PyErr_SetString(SpamError, "createVisualShape failed.");
+	return NULL;
+}
+
+static PyObject* pybullet_createMultiBody(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+	double baseMass = 0;
+	int baseCollisionShapeIndex=-1;
+	int baseVisualShapeIndex=-1;
+	PyObject* basePosObj=0;
+	PyObject* baseOrnObj=0;
+
+
+	static char* kwlist[] = {"baseMass","baseCollisionShapeIndex","baseVisualShapeIndex","basePosition", "baseOrientation",
+//		"linkParentIndices", "linkJointTypes","linkMasses","linkCollisionShapeIndices",
+		NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diiOOi", kwlist, &baseMass,&baseCollisionShapeIndex,&baseVisualShapeIndex,
+				&basePosObj, &baseOrnObj,&physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	{
+		b3SharedMemoryStatusHandle statusHandle;
+		int statusType;
+		b3SharedMemoryCommandHandle commandHandle = b3CreateMultiBodyCommandInit(sm);
+		double basePosition[3]={0,0,0};
+		double baseOrientation[4]={0,0,0,1};
+		pybullet_internalSetVectord(basePosObj,basePosition);
+		pybullet_internalSetVector4d(baseOrnObj,baseOrientation);
+		int baseIndex = b3CreateMultiBodyBase(commandHandle,baseMass,baseCollisionShapeIndex,baseVisualShapeIndex,basePosition,baseOrientation);
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+		statusType = b3GetStatusType(statusHandle);
+		if (statusType == CMD_CREATE_MULTI_BODY_COMPLETED)
+		{
+			int uid = b3GetStatusMultiBodyUniqueId(statusHandle);
+			PyObject* ob = PyLong_FromLong(uid);
+			return ob;
+		}
+	}
+	PyErr_SetString(SpamError, "createMultiBody failed.");
+	return NULL;
+}
+
+
 static PyObject* pybullet_createUserConstraint(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	b3SharedMemoryCommandHandle commandHandle;
@@ -6218,6 +6364,16 @@ static PyMethodDef SpamMethods[] = {
 	{"loadMJCF", (PyCFunction)pybullet_loadMJCF, METH_VARARGS | METH_KEYWORDS,
 	 "Load multibodies from an MJCF file."},
 
+	{"createCollisionShape", (PyCFunction)pybullet_createCollisionShape, METH_VARARGS | METH_KEYWORDS,
+	 "Create a collision shape. Returns a non-negative (int) unique id, if successfull, negative otherwise."},
+
+	{"createVisualShape", (PyCFunction)pybullet_createVisualShape, METH_VARARGS | METH_KEYWORDS,
+	 "Create a visual shape. Returns a non-negative (int) unique id, if successfull, negative otherwise."},
+
+	{"createMultiBody", (PyCFunction)pybullet_createMultiBody, METH_VARARGS | METH_KEYWORDS,
+	 "Create a multi body. Returns a non-negative (int) unique id, if successfull, negative otherwise."},
+
+
 	{"createConstraint", (PyCFunction)pybullet_createUserConstraint, METH_VARARGS | METH_KEYWORDS,
 	 "Create a constraint between two bodies. Returns a (int) unique id, if successfull."},
 
@@ -6651,6 +6807,15 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "B3G_CONTROL", B3G_CONTROL);
 	PyModule_AddIntConstant(m, "B3G_ALT", B3G_ALT);
 	PyModule_AddIntConstant(m, "B3G_RETURN", B3G_RETURN);
+
+	PyModule_AddIntConstant(m, "GEOM_SPHERE", GEOM_SPHERE);
+	PyModule_AddIntConstant(m, "GEOM_BOX", GEOM_BOX);
+	PyModule_AddIntConstant(m, "GEOM_CYLINDER", GEOM_CYLINDER);
+	PyModule_AddIntConstant(m, "GEOM_MESH", GEOM_MESH);
+	PyModule_AddIntConstant(m, "GEOM_PLANE", GEOM_PLANE);
+	PyModule_AddIntConstant(m, "GEOM_CAPSULE", GEOM_CAPSULE);
+
+
 
 	SpamError = PyErr_NewException("pybullet.error", NULL, NULL);
 	Py_INCREF(SpamError);

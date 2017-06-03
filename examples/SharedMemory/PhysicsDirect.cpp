@@ -835,6 +835,7 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 		}
 		break;
 	}
+	case CMD_CREATE_MULTI_BODY_COMPLETED:
 	case CMD_URDF_LOADING_COMPLETED:
 	{
 
@@ -881,6 +882,33 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 		b3Warning("createConstraint failed");
 		break;
 	}
+	
+	case CMD_CREATE_COLLISION_SHAPE_FAILED:
+	{
+		b3Warning("createCollisionShape failed");
+		break;
+	}
+	case CMD_CREATE_COLLISION_SHAPE_COMPLETED:
+	{
+		break;
+	}
+	
+	case CMD_CREATE_VISUAL_SHAPE_FAILED:
+	{
+		b3Warning("createVisualShape failed");
+		break;
+	}
+	case CMD_CREATE_VISUAL_SHAPE_COMPLETED:
+	{
+		break;
+	}
+	
+	case CMD_CREATE_MULTI_BODY_FAILED:
+	{
+		b3Warning("createMultiBody failed");
+		break;
+	}
+	
 	default:
 	{
 		//b3Warning("Unknown server status type");
