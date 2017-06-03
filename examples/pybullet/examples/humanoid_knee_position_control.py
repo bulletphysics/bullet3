@@ -13,7 +13,7 @@ p.setRealTimeSimulation(useRealTime)
 
 p.setGravity(0,0,-10)
 
-p.loadURDF("plane.urdf")
+p.loadSDF("stadium.sdf")
 
 obUids = p.loadMJCF("mjcf/humanoid_fixed.xml")
 human = obUids[0]

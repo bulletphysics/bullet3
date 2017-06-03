@@ -179,10 +179,10 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 	visualShapeOut.m_dimensions[2] = 0;
 	visualShapeOut.m_meshAssetFileName[0] = 0;
 	if (visual->m_geometry.m_hasLocalMaterial) {
-		visualShapeOut.m_rgbaColor[0] = visual->m_geometry.m_localMaterial.m_rgbaColor[0];
-		visualShapeOut.m_rgbaColor[1] = visual->m_geometry.m_localMaterial.m_rgbaColor[1];
-		visualShapeOut.m_rgbaColor[2] = visual->m_geometry.m_localMaterial.m_rgbaColor[2];
-		visualShapeOut.m_rgbaColor[3] = visual->m_geometry.m_localMaterial.m_rgbaColor[3];
+		visualShapeOut.m_rgbaColor[0] = visual->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[0];
+		visualShapeOut.m_rgbaColor[1] = visual->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[1];
+		visualShapeOut.m_rgbaColor[2] = visual->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[2];
+		visualShapeOut.m_rgbaColor[3] = visual->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[3];
 	}
 	
 	GLInstanceGraphicsShape* glmesh = 0;
@@ -555,7 +555,7 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 				{
 					for (int i=0; i<4; i++)
 					{
-						rgbaColor[i] = (*matPtr)->m_rgbaColor[i];
+						rgbaColor[i] = (*matPtr)->m_matColor.m_rgbaColor[i];
 					}
 					//printf("UrdfMaterial %s, rgba = %f,%f,%f,%f\n",mat->m_name.c_str(),mat->m_rgbaColor[0],mat->m_rgbaColor[1],mat->m_rgbaColor[2],mat->m_rgbaColor[3]);
 					//m_data->m_linkColors.insert(linkIndex,mat->m_rgbaColor);
@@ -754,7 +754,12 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
     clearColor.bgra[3] = 255;
     
     clearBuffers(clearColor);
+	float near = projMat[14]/(projMat[10]-1);
+	float far = projMat[14]/(projMat[10]+1);
 
+	m_data->m_camera.setCameraFrustumNear( near);
+	m_data->m_camera.setCameraFrustumFar(far);
+		
     
     ATTRIBUTE_ALIGNED16(btScalar modelMat[16]);
     

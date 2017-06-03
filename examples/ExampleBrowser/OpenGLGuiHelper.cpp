@@ -325,7 +325,13 @@ void OpenGLGuiHelper::changeRGBAColor(int instanceUid, const double rgbaColor[4]
 		m_data->m_glApp->m_renderer->writeSingleInstanceColorToCPU(rgbaColor,instanceUid);
 	};
 }
-
+void OpenGLGuiHelper::changeSpecularColor(int instanceUid, const double specularColor[3])
+{
+	if (instanceUid>=0)
+	{
+		m_data->m_glApp->m_renderer->writeSingleInstanceSpecularColorToCPU(specularColor,instanceUid);
+	};
+}
 int OpenGLGuiHelper::createCheckeredTexture(int red,int green, int blue)
 {
 	int texWidth=1024;

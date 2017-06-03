@@ -129,6 +129,8 @@ struct b3GraphicsInstance
 	int m_instanceOffset;
 	int m_vertexArrayOffset;
 	int	m_primitiveType;
+	float m_materialShinyNess;
+	b3Vector3 m_materialSpecularColor;
 
 	b3GraphicsInstance()
 	:m_cube_vao(-1),
@@ -139,7 +141,9 @@ struct b3GraphicsInstance
 		m_numGraphicsInstances(0),
 		m_instanceOffset(0),
 		m_vertexArrayOffset(0),
-		m_primitiveType(B3_GL_TRIANGLES)
+		m_primitiveType(B3_GL_TRIANGLES),
+		m_materialShinyNess(41),
+		m_materialSpecularColor(b3MakeVector3(.5,.5,.5))
 	{
 	}
 
@@ -204,8 +208,10 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
     
 	GLfloat m_projectionMatrix[16];
 	GLfloat m_viewMatrix[16];
+	GLfloat m_viewMatrixInverse[16];
 
 	b3Vector3 m_lightPos;
+	b3Vector3 m_lightSpecularIntensity;
 
 	GLuint				m_defaultTexturehandle;
 	b3AlignedObjectArray<InternalTextureHandle>	m_textureHandles;
@@ -225,13 +231,15 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 		m_shadowTexture(0),
 		m_renderFrameBuffer(0)
 	{
-		m_lightPos=b3MakeVector3(-50,50,50);
+		m_lightPos=b3MakeVector3(-50,30,40);
+		m_lightSpecularIntensity.setValue(1,1,1);
 
 		//clear to zero to make it obvious if the matrix is used uninitialized
 		for (int i=0;i<16;i++)
 		{
 			m_projectionMatrix[i]=0;
 			m_viewMatrix[i]=0;
+			m_viewMatrixInverse[i]=0;
 		}
 
 	}
@@ -280,9 +288,14 @@ GLuint linesVertexArrayObject=0;
 GLuint linesIndexVbo = 0;
 
 
+static GLint	useShadow_ViewMatrixInverse=0;
 static GLint	useShadow_ModelViewMatrix=0;
+static GLint	useShadow_lightSpecularIntensity = 0;
+static GLint	useShadow_materialSpecularColor = 0;
 static GLint	useShadow_MVP=0;
-static GLint  useShadow_lightDirIn=0;
+static GLint	useShadow_lightPosIn=0;
+static GLint	useShadow_cameraPositionIn = 0;
+static GLint	useShadow_materialShininessIn = 0;
 
 static GLint	useShadow_ProjectionMatrix=0;
 static GLint	useShadow_DepthBiasModelViewMatrix=0;
@@ -296,7 +309,7 @@ static GLint	ProjectionMatrix=0;
 static GLint	regularLightDirIn=0;
 
 
-static GLint                uniform_texture_diffuse = 0;
+static GLint	uniform_texture_diffuse = 0;
 
 static GLint	screenWidthPointSprite=0;
 static GLint	ModelViewMatrixPointSprite=0;
@@ -400,11 +413,15 @@ bool GLInstancingRenderer::readSingleInstanceTransformToCPU(float* position, flo
 	return false;
 }
 
-void GLInstancingRenderer::writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int bodyUniqueId)
+void GLInstancingRenderer::writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int srcIndex2)
 {
 
-	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 	b3Assert(pg);
+
+	if (pg==0)
+		return;
+
 	int srcIndex = pg->m_internalInstanceIndex;
 
 	b3Assert(srcIndex<m_data->m_totalNumInstances);
@@ -422,9 +439,9 @@ void GLInstancingRenderer::writeSingleInstanceTransformToCPU(const float* positi
 }
 
 
-void GLInstancingRenderer::readSingleInstanceTransformFromCPU(int bodyUniqueId, float* position, float* orientation)
+void GLInstancingRenderer::readSingleInstanceTransformFromCPU(int srcIndex2, float* position, float* orientation)
 {
-	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 	b3Assert(pg);
 	int srcIndex = pg->m_internalInstanceIndex;
 
@@ -440,9 +457,9 @@ void GLInstancingRenderer::readSingleInstanceTransformFromCPU(int bodyUniqueId, 
 	orientation[2] = m_data->m_instance_quaternion_ptr[srcIndex*4+2];
 	orientation[3] = m_data->m_instance_quaternion_ptr[srcIndex*4+3];
 }
-void GLInstancingRenderer::writeSingleInstanceColorToCPU(const double* color, int bodyUniqueId)
+void GLInstancingRenderer::writeSingleInstanceColorToCPU(const double* color, int srcIndex2)
 {
-	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 	b3Assert(pg);
 	int srcIndex = pg->m_internalInstanceIndex;
 
@@ -452,9 +469,9 @@ void GLInstancingRenderer::writeSingleInstanceColorToCPU(const double* color, in
 	m_data->m_instance_colors_ptr[srcIndex*4+3]=float(color[3]);
 }
 
-void GLInstancingRenderer::writeSingleInstanceColorToCPU(const float* color, int bodyUniqueId)
+void GLInstancingRenderer::writeSingleInstanceColorToCPU(const float* color, int srcIndex2)
 {
-	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 	b3Assert(pg);
 	int srcIndex = pg->m_internalInstanceIndex;
 
@@ -464,9 +481,9 @@ void GLInstancingRenderer::writeSingleInstanceColorToCPU(const float* color, int
 	m_data->m_instance_colors_ptr[srcIndex*4+3]=color[3];
 }
 
-void GLInstancingRenderer::writeSingleInstanceScaleToCPU(const float* scale, int bodyUniqueId)
+void GLInstancingRenderer::writeSingleInstanceScaleToCPU(const float* scale, int srcIndex2)
 {
-	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 	b3Assert(pg);
 	int srcIndex = pg->m_internalInstanceIndex;
 
@@ -475,9 +492,63 @@ void GLInstancingRenderer::writeSingleInstanceScaleToCPU(const float* scale, int
 	m_data->m_instance_scale_ptr[srcIndex*3+2]=scale[2];
 }
 
-void GLInstancingRenderer::writeSingleInstanceScaleToCPU(const double* scale, int bodyUniqueId)
+void GLInstancingRenderer::writeSingleInstanceSpecularColorToCPU(const double* specular, int srcIndex2)
 {
-	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
+	b3Assert(pg);
+	int graphicsIndex = pg->m_internalInstanceIndex;
+
+	int totalNumInstances = 0;
+
+	int gfxObjIndex = -1;
+
+	for (int i=0;i<m_graphicsInstances.size();i++)
+	{
+		totalNumInstances+=m_graphicsInstances[i]->m_numGraphicsInstances;
+		if (srcIndex2<totalNumInstances)
+		{
+			gfxObjIndex = i;
+			break;
+		}
+	}
+	if (gfxObjIndex>0)
+	{
+		m_graphicsInstances[gfxObjIndex]->m_materialSpecularColor[0] = specular[0];
+		m_graphicsInstances[gfxObjIndex]->m_materialSpecularColor[1] = specular[1];
+		m_graphicsInstances[gfxObjIndex]->m_materialSpecularColor[2] = specular[2];
+	}
+}
+void GLInstancingRenderer::writeSingleInstanceSpecularColorToCPU(const float* specular, int srcIndex2)
+{
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
+	b3Assert(pg);
+	int srcIndex = pg->m_internalInstanceIndex;
+
+	int totalNumInstances = 0;
+
+	int gfxObjIndex = -1;
+
+	for (int i=0;i<m_graphicsInstances.size();i++)
+	{
+		totalNumInstances+=m_graphicsInstances[i]->m_numGraphicsInstances;
+		if (srcIndex2<totalNumInstances)
+		{
+			gfxObjIndex = i;
+			break;
+		}
+	}
+	if (gfxObjIndex>0)
+	{
+		m_graphicsInstances[gfxObjIndex]->m_materialSpecularColor[0] = specular[0];
+		m_graphicsInstances[gfxObjIndex]->m_materialSpecularColor[1] = specular[1];
+		m_graphicsInstances[gfxObjIndex]->m_materialSpecularColor[2] = specular[2];
+	}
+}
+
+
+void GLInstancingRenderer::writeSingleInstanceScaleToCPU(const double* scale, int srcIndex2)
+{
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 	b3Assert(pg);
 	int srcIndex = pg->m_internalInstanceIndex;
 
@@ -694,8 +765,8 @@ void GLInstancingRenderer::rebuildGraphicsInstances()
 
 	for (int i=0;i<usedObjects.size();i++)
 	{
-		int bodyUniqueId = usedObjects[i];
-		b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+		int srcIndex2 = usedObjects[i];
+		b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 		b3Assert(pg);
 		int srcIndex = pg->m_internalInstanceIndex;
 
@@ -722,9 +793,9 @@ void GLInstancingRenderer::rebuildGraphicsInstances()
 	}
 	for (int i=0;i<usedObjects.size();i++)
 	{
-		int bodyUniqueId = usedObjects[i];
-		b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
-		m_graphicsInstances[pg->m_shapeIndex]->m_tempObjectUids.push_back(bodyUniqueId);
+		int srcIndex2 = usedObjects[i];
+		b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
+		m_graphicsInstances[pg->m_shapeIndex]->m_tempObjectUids.push_back(srcIndex2);
 	}
 
 	int curOffset = 0;
@@ -1099,13 +1170,18 @@ void GLInstancingRenderer::InitShaders()
 
 	glLinkProgram(useShadowMapInstancingShader);
 	glUseProgram(useShadowMapInstancingShader);
+	useShadow_ViewMatrixInverse = glGetUniformLocation(useShadowMapInstancingShader, "ViewMatrixInverse");
 	useShadow_ModelViewMatrix = glGetUniformLocation(useShadowMapInstancingShader, "ModelViewMatrix");
+	useShadow_lightSpecularIntensity = glGetUniformLocation(useShadowMapInstancingShader, "lightSpecularIntensityIn");
+	useShadow_materialSpecularColor = glGetUniformLocation(useShadowMapInstancingShader, "materialSpecularColorIn");
 	useShadow_MVP = 		glGetUniformLocation(useShadowMapInstancingShader, "MVP");
 	useShadow_ProjectionMatrix = glGetUniformLocation(useShadowMapInstancingShader, "ProjectionMatrix");
 	useShadow_DepthBiasModelViewMatrix = glGetUniformLocation(useShadowMapInstancingShader, "DepthBiasModelViewProjectionMatrix");
 	useShadow_uniform_texture_diffuse = glGetUniformLocation(useShadowMapInstancingShader, "Diffuse");
 	useShadow_shadowMap = glGetUniformLocation(useShadowMapInstancingShader,"shadowMap");
-	useShadow_lightDirIn = glGetUniformLocation(useShadowMapInstancingShader,"lightDirIn");
+	useShadow_lightPosIn = glGetUniformLocation(useShadowMapInstancingShader,"lightPosIn");
+	useShadow_cameraPositionIn = glGetUniformLocation(useShadowMapInstancingShader,"cameraPositionIn");
+	useShadow_materialShininessIn = glGetUniformLocation(useShadowMapInstancingShader,"materialShininessIn");
 
 	createShadowMapInstancingShader = gltLoadShaderPair(createShadowMapInstancingVertexShader,createShadowMapInstancingFragmentShader);
 	glLinkProgram(createShadowMapInstancingShader);
@@ -1272,6 +1348,15 @@ void GLInstancingRenderer::setActiveCamera(CommonCameraInterface* cam)
 	m_data->m_activeCamera = cam;
 }
 
+void GLInstancingRenderer::setLightSpecularIntensity(const float lightSpecularIntensity[3])
+{
+	m_data->m_lightSpecularIntensity[0] = lightSpecularIntensity[0];
+	m_data->m_lightSpecularIntensity[1] = lightSpecularIntensity[1];
+	m_data->m_lightSpecularIntensity[2] = lightSpecularIntensity[2];
+}
+
+
+
 void GLInstancingRenderer::setLightPosition(const float lightPos[3])
 {
 	m_data->m_lightPos[0] = lightPos[0];
@@ -1298,6 +1383,21 @@ void GLInstancingRenderer::updateCamera(int upAxis)
 	m_data->m_defaultCamera1.update();
     m_data->m_activeCamera->getCameraProjectionMatrix(m_data->m_projectionMatrix);
     m_data->m_activeCamera->getCameraViewMatrix(m_data->m_viewMatrix);
+	b3Scalar viewMat[16];
+	b3Scalar viewMatInverse[16];
+	
+	for (int i=0;i<16;i++)
+	{
+		viewMat[i] = m_data->m_viewMatrix[i];
+	}
+	b3Transform tr;
+	tr.setFromOpenGLMatrix(viewMat);
+	tr = tr.inverse();
+	tr.getOpenGLMatrix(viewMatInverse);
+	for (int i=0;i<16;i++)
+	{
+		m_data->m_viewMatrixInverse[i]=viewMatInverse[i];
+	}
 
 
 }
@@ -2127,12 +2227,24 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 							glUseProgram(useShadowMapInstancingShader);
 							glUniformMatrix4fv(useShadow_ProjectionMatrix, 1, false, &m_data->m_projectionMatrix[0]);
 							glUniformMatrix4fv(useShadow_ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
+							glUniformMatrix4fv(useShadow_ViewMatrixInverse, 1, false, &m_data->m_viewMatrixInverse[0]);
+							glUniformMatrix4fv(useShadow_ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
+
+							glUniform3f(useShadow_lightSpecularIntensity, m_data->m_lightSpecularIntensity[0],m_data->m_lightSpecularIntensity[1],m_data->m_lightSpecularIntensity[2]);
+							glUniform3f(useShadow_materialSpecularColor, gfxObj->m_materialSpecularColor[0],gfxObj->m_materialSpecularColor[1],gfxObj->m_materialSpecularColor[2]);
+
+							
+
 							float MVP[16];
 							b3Matrix4x4Mul16(m_data->m_projectionMatrix,m_data->m_viewMatrix,MVP);
 							glUniformMatrix4fv(useShadow_MVP, 1, false, &MVP[0]);
-							b3Vector3 gLightDir = m_data->m_lightPos;
-							gLightDir.normalize();
-							glUniform3f(useShadow_lightDirIn,gLightDir[0],gLightDir[1],gLightDir[2]);
+							//gLightDir.normalize();
+							glUniform3f(useShadow_lightPosIn,m_data->m_lightPos[0],m_data->m_lightPos[1],m_data->m_lightPos[2]);
+							float camPos[3];
+							m_data->m_activeCamera->getCameraPosition(camPos);
+							glUniform3f(useShadow_cameraPositionIn,camPos[0],camPos[1],camPos[2]);
+							glUniform1f(useShadow_materialShininessIn,gfxObj->m_materialShinyNess);
+						
 							glUniformMatrix4fv(useShadow_DepthBiasModelViewMatrix, 1, false, &depthBiasMVP[0][0]);
 							glActiveTexture(GL_TEXTURE1);
 							glBindTexture(GL_TEXTURE_2D, m_data->m_shadowTexture);

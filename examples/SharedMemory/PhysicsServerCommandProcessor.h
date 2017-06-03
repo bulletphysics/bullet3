@@ -15,15 +15,10 @@ struct SharedMemLines
 
 
 ///todo: naming. Perhaps PhysicsSdkCommandprocessor?
-class PhysicsServerCommandProcessor : public PhysicsCommandProcessorInterface
+class PhysicsServerCommandProcessor : public CommandProcessorInterface
 {
 
 	struct PhysicsServerCommandProcessorInternalData* m_data;
-
-	
-
-	//todo: move this to physics client side / Python
-	void createDefaultRobotAssets();
 
 	void resetSimulation();
 
@@ -91,19 +86,27 @@ public:
 	virtual void removePickingConstraint();
 
 	//logging /playback the shared memory commands
-	void enableCommandLogging(bool enable, const char* fileName);
-	void replayFromLogFile(const char* fileName);
-	void replayLogCommand(char* bufferServerToClient, int bufferSizeInBytes );
+	virtual void enableCommandLogging(bool enable, const char* fileName);
+	virtual void replayFromLogFile(const char* fileName);
+	virtual void replayLogCommand(char* bufferServerToClient, int bufferSizeInBytes );
 
 	//logging of object states (position etc)
 	void logObjectStates(btScalar timeStep);
 	void processCollisionForces(btScalar timeStep);
 
-	void stepSimulationRealTime(double dtInSec,	const struct b3VRControllerEvent* vrEvents, int numVREvents, const struct b3KeyboardEvent* keyEvents, int numKeyEvents);
-	void enableRealTimeSimulation(bool enableRealTimeSim);
+	virtual void stepSimulationRealTime(double dtInSec,	const struct b3VRControllerEvent* vrControllerEvents, int numVRControllerEvents, const struct b3KeyboardEvent* keyEvents, int numKeyEvents);
+	virtual void enableRealTimeSimulation(bool enableRealTimeSim);
+	virtual bool isRealTimeSimulationEnabled() const;
+
 	void applyJointDamping(int bodyUniqueId);
 
 	virtual void setTimeOut(double timeOutInSeconds);
+
+	virtual const btVector3& getVRTeleportPosition() const;
+	virtual void setVRTeleportPosition(const btVector3& vrTeleportPos);
+
+	virtual const btQuaternion& getVRTeleportOrientation() const;
+	virtual void setVRTeleportOrientation(const btQuaternion& vrTeleportOrn);
 };
 
 #endif //PHYSICS_SERVER_COMMAND_PROCESSOR_H

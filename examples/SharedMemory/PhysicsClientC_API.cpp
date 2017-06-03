@@ -392,6 +392,18 @@ int b3PhysicsParamSetEnableFileCaching(b3SharedMemoryCommandHandle commandHandle
 
 }
 
+int b3PhysicsParamSetRestitutionVelocityThreshold(b3SharedMemoryCommandHandle commandHandle, double restitutionVelocityThreshold)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+
+	command->m_physSimParamArgs.m_restitutionVelocityThreshold = restitutionVelocityThreshold;
+	command->m_updateFlags |= SIM_PARAM_UPDATE_RESTITUTION_VELOCITY_THRESHOLD  ;
+	return 0;
+
+}
+
+
 int b3PhysicsParamSetNumSolverIterations(b3SharedMemoryCommandHandle commandHandle, int numSolverIterations)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
@@ -1295,6 +1307,42 @@ int b3ChangeDynamicsInfoSetLateralFriction(b3SharedMemoryCommandHandle commandHa
 	command->m_changeDynamicsInfoArgs.m_lateralFriction = lateralFriction;
 	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION;
 	return 0;
+}
+
+int b3ChangeDynamicsInfoSetSpinningFriction(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double friction)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_linkIndex = linkIndex;
+	command->m_changeDynamicsInfoArgs.m_spinningFriction = friction;
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_SPINNING_FRICTION;
+	return 0;
+
+}
+int b3ChangeDynamicsInfoSetRollingFriction(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double friction)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_linkIndex = linkIndex;
+	command->m_changeDynamicsInfoArgs.m_rollingFriction = friction;
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_ROLLING_FRICTION;
+	return 0;
+
+}
+
+
+int b3ChangeDynamicsInfoSetRestitution(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double restitution)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_linkIndex = linkIndex;
+	command->m_changeDynamicsInfoArgs.m_restitution = restitution;
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_RESTITUTION;
+	return 0;
+
 }
 
 b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3PhysicsClientHandle physClient, int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, struct b3JointInfo* info)
@@ -2394,6 +2442,21 @@ void b3UpdateVisualShapeRGBAColor(b3SharedMemoryCommandHandle commandHandle, dou
 	}
 }
 
+void b3UpdateVisualShapeSpecularColor(b3SharedMemoryCommandHandle commandHandle, double specularColor[3])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_UPDATE_VISUAL_SHAPE);
+
+	if (command->m_type == CMD_UPDATE_VISUAL_SHAPE)
+	{
+		command->m_updateVisualShapeDataArguments.m_specularColor[0] = specularColor[0];
+		command->m_updateVisualShapeDataArguments.m_specularColor[1] = specularColor[1];
+		command->m_updateVisualShapeDataArguments.m_specularColor[2] = specularColor[2];
+		command->m_updateFlags |= CMD_UPDATE_VISUAL_SHAPE_SPECULAR_COLOR;
+	}
+}
+
 b3SharedMemoryCommandHandle b3ApplyExternalForceCommandInit(b3PhysicsClientHandle physClient)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;
@@ -3100,4 +3163,39 @@ double b3GetTimeOut(b3PhysicsClientHandle physClient)
 		return cl->getTimeOut();
 	}
 	return -1;
+}
+
+void b3MultiplyTransforms(const double posA[3], const double ornA[4], const double posB[3], const double ornB[4], double outPos[3], double outOrn[4])
+{
+	b3Transform trA;
+	b3Transform trB;
+	trA.setOrigin(b3MakeVector3(posA[0],posA[1],posA[2]));
+	trA.setRotation(b3Quaternion(ornA[0],ornA[1],ornA[2],ornA[3]));
+	trB.setOrigin(b3MakeVector3(posB[0],posB[1],posB[2]));
+	trB.setRotation(b3Quaternion(ornB[0],ornB[1],ornB[2],ornB[3]));
+	b3Transform res = trA*trB;
+	outPos[0] = res.getOrigin()[0];
+	outPos[1] = res.getOrigin()[1];
+	outPos[2] = res.getOrigin()[2];
+	b3Quaternion orn = res.getRotation();
+	outOrn[0] = orn[0];
+	outOrn[1] = orn[1];
+	outOrn[2] = orn[2];
+	outOrn[3] = orn[3];
+}
+
+void b3InvertTransform(const double pos[3], const double orn[4], double outPos[3], double outOrn[4])
+{
+	b3Transform tr;
+	tr.setOrigin(b3MakeVector3(pos[0],pos[1],pos[2]));
+	tr.setRotation(b3Quaternion(orn[0],orn[1],orn[2],orn[3]));
+	b3Transform trInv = tr.inverse();
+	outPos[0] = trInv.getOrigin()[0];
+	outPos[1] = trInv.getOrigin()[1];
+	outPos[2] = trInv.getOrigin()[2];
+	b3Quaternion invOrn = trInv.getRotation();
+	outOrn[0] = invOrn[0];
+	outOrn[1] = invOrn[1];
+	outOrn[2] = invOrn[2];
+	outOrn[3] = invOrn[3];
 }

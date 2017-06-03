@@ -28,11 +28,10 @@ class btCollisionShape;
 #include "btBulletCollisionCommon.h"
 
 
-#define BT_OVERRIDE
 
 static btScalar gSliderStackRows = 8.0f;
 static btScalar gSliderStackColumns = 6.0f;
-static btScalar gSliderStackHeight = 15.0f;
+static btScalar gSliderStackHeight = 10.0f;
 static btScalar gSliderGroundHorizontalAmplitude = 0.0f;
 static btScalar gSliderGroundVerticalAmplitude = 0.0f;
 
@@ -240,7 +239,7 @@ void MultiThreadedDemo::createSceneObjects()
         const btVector3 halfExtents = btVector3( 0.5f, 0.25f, 0.5f );
         int numStackRows = btMax(1, int(gSliderStackRows));
         int numStackCols = btMax(1, int(gSliderStackColumns));
-        int stackHeight = 15;
+        int stackHeight = int(gSliderStackHeight);
         float stackZSpacing = 3.0f;
         float stackXSpacing = 20.0f;
 

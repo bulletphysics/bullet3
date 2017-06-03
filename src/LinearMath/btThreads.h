@@ -19,6 +19,15 @@ subject to the following restrictions:
 
 #include "btScalar.h" // has definitions like SIMD_FORCE_INLINE
 
+#if defined (_MSC_VER) && _MSC_VER >= 1600
+// give us a compile error if any signatures of overriden methods is changed
+#define BT_OVERRIDE override
+#endif
+
+#ifndef BT_OVERRIDE
+#define BT_OVERRIDE
+#endif
+
 ///
 /// btSpinMutex -- lightweight spin-mutex implemented with atomic ops, never puts
 ///               a thread to sleep because it is designed to be used with a task scheduler
@@ -59,6 +68,7 @@ SIMD_FORCE_INLINE bool btMutexTryLock( btSpinMutex* mutex )
 
 // for internal use only
 bool btIsMainThread();
+bool btThreadsAreRunning();
 unsigned int btGetCurrentThreadIndex();
 const unsigned int BT_MAX_THREAD_COUNT = 64;
 
@@ -70,6 +80,56 @@ SIMD_FORCE_INLINE void btMutexLock( btSpinMutex* ) {}
 SIMD_FORCE_INLINE void btMutexUnlock( btSpinMutex* ) {}
 SIMD_FORCE_INLINE bool btMutexTryLock( btSpinMutex* ) {return true;}
 #endif
+
+//
+// btIParallelForBody -- subclass this to express work that can be done in parallel
+//
+class btIParallelForBody
+{
+public:
+    virtual void forLoop( int iBegin, int iEnd ) const = 0;
+};
+
+//
+// btITaskScheduler -- subclass this to implement a task scheduler that can dispatch work to
+//                     worker threads
+//
+class btITaskScheduler
+{
+    const char* m_name;
+public:
+    btITaskScheduler( const char* name ) : m_name( name ) {}
+    const char* getName() const { return m_name; }
+
+    virtual ~btITaskScheduler() {}
+    virtual int getMaxNumThreads() const = 0;
+    virtual int getNumThreads() const = 0;
+    virtual void setNumThreads( int numThreads ) = 0;
+    virtual void parallelFor( int iBegin, int iEnd, int grainSize, const btIParallelForBody& body ) = 0;
+};
+
+// set the task scheduler to use for all calls to btParallelFor()
+// NOTE: you must set this prior to using any of the multi-threaded "Mt" classes
+void btSetTaskScheduler( btITaskScheduler* ts );
+
+// get the current task scheduler
+btITaskScheduler* btGetTaskScheduler();
+
+// get non-threaded task scheduler (always available)
+btITaskScheduler* btGetSequentialTaskScheduler();
+
+// get OpenMP task scheduler (if available, otherwise returns null)
+btITaskScheduler* btGetOpenMPTaskScheduler();
+
+// get Intel TBB task scheduler (if available, otherwise returns null)
+btITaskScheduler* btGetTBBTaskScheduler();
+
+// get PPL task scheduler (if available, otherwise returns null)
+btITaskScheduler* btGetPPLTaskScheduler();
+
+// btParallelFor -- call this to dispatch work like a for-loop
+//                 (iterations may be done out of order, so no dependencies are allowed)
+void btParallelFor( int iBegin, int iEnd, int grainSize, const btIParallelForBody& body );
 
 
 #endif //BT_THREADS_H

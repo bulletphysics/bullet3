@@ -4,7 +4,9 @@
 
 #include "PhysicsClientSharedMemory.h"
 #include"../ExampleBrowser/InProcessExampleBrowser.h"
-#include "PhysicsServerExample.h"
+
+#include "PhysicsServerExampleBullet2.h"
+
 #include "../CommonInterfaces/CommonExampleInterface.h"
 #include "InProcessMemory.h"
 
@@ -142,7 +144,7 @@ public:
 		CommonExampleOptions options(guiHelper);
 		options.m_sharedMem = m_sharedMem;
 			
-		m_physicsServerExample = PhysicsServerCreateFunc(options);
+		m_physicsServerExample = PhysicsServerCreateFuncBullet2(options);
 		m_physicsServerExample ->initPhysics();
 		m_physicsServerExample ->resetCamera();
 		setSharedMemoryInterface(m_sharedMem);

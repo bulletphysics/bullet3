@@ -39,7 +39,7 @@
 #include "../FractureDemo/FractureDemo.h"
 #include "../DynamicControlDemo/MotorDemo.h"
 #include "../RollingFrictionDemo/RollingFrictionDemo.h"
-#include "../SharedMemory/PhysicsServerExample.h"
+#include "../SharedMemory/PhysicsServerExampleBullet2.h"
 #include "../SharedMemory/PhysicsClientExample.h"
 #include "../Constraints/TestHingeTorque.h"
 #include "../RenderingExamples/TimeSeriesExample.h"
@@ -138,7 +138,7 @@ static ExampleEntry gDefaultExamples[]=
 
 	ExampleEntry(0,"Physics Client-Server"),
 	ExampleEntry(1,"Physics Server", "Create a physics server that communicates with a physics client over shared memory. You can connect to the server using pybullet, a PhysicsClient or a UDP/TCP Bridge.",
-			PhysicsServerCreateFunc),
+			PhysicsServerCreateFuncBullet2),
 	ExampleEntry(1, "Physics Client (Shared Mem)", "Create a physics client that can communicate with a physics server over shared memory.", PhysicsClientCreateFunc),
 
 //	ExampleEntry(1,"Physics Server (Logging)", "Create a physics server that communicates with a physics client over shared memory. It will log all commands to a file.",
@@ -295,7 +295,7 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Fracture demo", "Create a basic custom implementation to model fracturing objects, based on a btCompoundShape. It explicitly propagates the collision impulses and breaks the rigid body into multiple rigid bodies. Press F to toggle fracture and glue mode.", FractureDemoCreateFunc),
 
 	ExampleEntry(1,"Planar 2D","Show the use of 2D collision shapes and rigid body simulation. The collision shape is wrapped into a btConvex2dShape. The rigid bodies are restricted in a plane using the 'setAngularFactor' and 'setLinearFactor' API call.",Planar2DCreateFunc),
-#if BT_USE_OPENMP || BT_USE_TBB || BT_USE_PPL
+#if BT_THREADSAFE
     // only enable MultiThreaded demo if a task scheduler is available
     ExampleEntry( 1, "Multithreaded Demo",
     "Stacks of boxes that do not sleep. Good for testing performance with large numbers of bodies and contacts. Sliders can be used to change the number of stacks (restart needed after each change)."

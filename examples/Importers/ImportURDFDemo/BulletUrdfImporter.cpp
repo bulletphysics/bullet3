@@ -42,6 +42,7 @@ struct MyTexture
 	unsigned char* textureData;
 };
 
+
 ATTRIBUTE_ALIGNED16(struct) BulletURDFInternalData
 {
 	BT_DECLARE_ALIGNED_ALLOCATOR();
@@ -51,7 +52,7 @@ ATTRIBUTE_ALIGNED16(struct) BulletURDFInternalData
 	std::string m_sourceFile;
 	char m_pathPrefix[1024];
 	int m_bodyId;
-	btHashMap<btHashInt,btVector4> m_linkColors;
+	btHashMap<btHashInt,UrdfMaterialColor> m_linkColors;
     btAlignedObjectArray<btCollisionShape*> m_allocatedCollisionShapes;
 	
 	LinkVisualShapesConverter* m_customVisualShapesConverter;
@@ -567,6 +568,15 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 
     switch (collision->m_geometry.m_type)
     {
+	case URDF_GEOM_PLANE:
+		{
+			btVector3 planeNormal = collision->m_geometry.m_planeNormal;
+			btScalar planeConstant = 0;//not available?
+			btStaticPlaneShape* plane = new btStaticPlaneShape(planeNormal,planeConstant);
+			shape = plane;
+			shape ->setMargin(gUrdfDefaultCollisionMargin);
+			break;
+		}
 		case URDF_GEOM_CAPSULE:
         {
 			btScalar radius = collision->m_geometry.m_capsuleRadius;
@@ -788,7 +798,7 @@ upAxisMat.setIdentity();
 
         default:
 		b3Warning("Error: unknown collision geometry type %i\n", collision->m_geometry.m_type);
-		// for example, URDF_GEOM_PLANE
+		
 	}
 	return shape;
 }
@@ -1094,7 +1104,10 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 			{
 				UrdfMaterial *const  mat = *matPtr;
 				//printf("UrdfMaterial %s, rgba = %f,%f,%f,%f\n",mat->m_name.c_str(),mat->m_rgbaColor[0],mat->m_rgbaColor[1],mat->m_rgbaColor[2],mat->m_rgbaColor[3]);
-				m_data->m_linkColors.insert(linkIndex,mat->m_rgbaColor);
+				UrdfMaterialColor matCol;
+				matCol.m_rgbaColor = mat->m_matColor.m_rgbaColor;
+				matCol.m_specularColor = mat->m_matColor.m_specularColor;
+				m_data->m_linkColors.insert(linkIndex,matCol);
 			}
 			convertURDFToVisualShapeInternal(&vis, pathPrefix, localInertiaFrame.inverse()*childTrans, vertices, indices,textures);
 		
@@ -1132,10 +1145,21 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 
 bool BulletURDFImporter::getLinkColor(int linkIndex, btVector4& colorRGBA) const
 {
-	const btVector4* rgbaPtr = m_data->m_linkColors[linkIndex];
-	if (rgbaPtr)
+	const UrdfMaterialColor* matColPtr = m_data->m_linkColors[linkIndex];
+	if (matColPtr)
 	{
-		colorRGBA = *rgbaPtr;
+		colorRGBA = matColPtr->m_rgbaColor;
+		return true;
+	}
+	return false;
+}
+
+bool BulletURDFImporter::getLinkColor2(int linkIndex, UrdfMaterialColor& matCol) const
+{
+	UrdfMaterialColor* matColPtr = m_data->m_linkColors[linkIndex];
+	if (matColPtr)
+	{
+		matCol = *matColPtr;
 		return true;
 	}
 	return false;

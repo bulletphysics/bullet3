@@ -114,6 +114,9 @@ enum EnumChangeDynamicsInfoFlags
 	CHANGE_DYNAMICS_INFO_SET_MASS=1,
 	CHANGE_DYNAMICS_INFO_SET_COM=2,
 	CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION=4,
+	CHANGE_DYNAMICS_INFO_SET_SPINNING_FRICTION=8,
+	CHANGE_DYNAMICS_INFO_SET_ROLLING_FRICTION=16,
+	CHANGE_DYNAMICS_INFO_SET_RESTITUTION=32,
 };
 
 struct ChangeDynamicsInfoArgs
@@ -123,6 +126,9 @@ struct ChangeDynamicsInfoArgs
 	double m_mass;
 	double m_COM[3];
 	double m_lateralFriction;
+	double m_spinningFriction;
+	double m_rollingFriction;
+	double m_restitution;
 };
 
 struct GetDynamicsInfoArgs
@@ -249,6 +255,7 @@ enum EnumUpdateVisualShapeData
 {
 	CMD_UPDATE_VISUAL_SHAPE_TEXTURE=1,
 	CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR=2,
+	CMD_UPDATE_VISUAL_SHAPE_SPECULAR_COLOR=4,
 };
 
 struct UpdateVisualShapeDataArgs
@@ -258,6 +265,7 @@ struct UpdateVisualShapeDataArgs
     int m_shapeIndex;
     int m_textureUniqueId;
 	double m_rgbaColor[4];
+	double m_specularColor[3];
 };
 
 struct LoadTextureArgs
@@ -354,6 +362,8 @@ enum EnumSimParamUpdateFlags
 	SIM_PARAM_UPDATE_CONTACT_BREAKING_THRESHOLD = 1024,
 	SIM_PARAM_MAX_CMD_PER_1MS = 2048,
 	SIM_PARAM_ENABLE_FILE_CACHING = 4096,
+	SIM_PARAM_UPDATE_RESTITUTION_VELOCITY_THRESHOLD = 8192,
+
 
 };
 
@@ -387,6 +397,7 @@ struct SendPhysicsSimulationParameters
 	double m_defaultContactERP;
 	int m_collisionFilterMode;
 	int m_enableFileCaching;
+	double m_restitutionVelocityThreshold;
 };
 
 struct LoadBunnyArgs

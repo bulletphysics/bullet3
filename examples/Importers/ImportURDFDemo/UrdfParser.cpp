@@ -100,17 +100,33 @@ bool UrdfParser::parseMaterial(UrdfMaterial& material, TiXmlElement *config, Err
 	}
 		
 	// color
-	TiXmlElement *c = config->FirstChildElement("color");
-	if (c)
 	{
-	  if (c->Attribute("rgba")) 
-	  {
-		  if (!parseVector4(material.m_rgbaColor,c->Attribute("rgba")))
+		TiXmlElement *c = config->FirstChildElement("color");
+		if (c)
+		{
+		  if (c->Attribute("rgba")) 
 		  {
-			  std::string msg = material.m_name+" has no rgba";
-			  logger->reportWarning(msg.c_str());
+			  if (!parseVector4(material.m_matColor.m_rgbaColor,c->Attribute("rgba")))
+			  {
+				  std::string msg = material.m_name+" has no rgba";
+				  logger->reportWarning(msg.c_str());
+			  }
 		  }
-	  }
+		}
+	}
+
+	{
+		// specular (non-standard)
+		TiXmlElement *s = config->FirstChildElement("specular");
+		if (s)
+		{
+		  if (s->Attribute("rgb")) 
+		  {
+			  if (!parseVector3(material.m_matColor.m_specularColor,s->Attribute("rgb"),logger))
+			  {
+			  }
+		  }
+		}
 	}
 	return true;
 
@@ -552,16 +568,29 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement*
 		if (name_char)
 			matPtr->m_name = name_char;
 		model.m_materials.insert(matPtr->m_name.c_str(),matPtr);
-        TiXmlElement *diffuse = mat->FirstChildElement("diffuse");
-        if (diffuse) {
-            std::string diffuseText = diffuse->GetText();
-            btVector4 rgba(1,0,0,1);
-            parseVector4(rgba,diffuseText);
-            matPtr->m_rgbaColor = rgba;
+		{
+			TiXmlElement *diffuse = mat->FirstChildElement("diffuse");
+			if (diffuse) {
+				std::string diffuseText = diffuse->GetText();
+				btVector4 rgba(1,0,0,1);
+				parseVector4(rgba,diffuseText);
+				matPtr->m_matColor.m_rgbaColor = rgba;
             
-            visual.m_materialName = matPtr->m_name;
-            visual.m_geometry.m_hasLocalMaterial = true;
-        }
+				visual.m_materialName = matPtr->m_name;
+				visual.m_geometry.m_hasLocalMaterial = true;
+			}
+		}
+		{
+			TiXmlElement *specular = mat->FirstChildElement("specular");
+			if (specular) {
+				std::string specularText = specular->GetText();
+				btVector3 rgba(1,1,1);
+				parseVector3(rgba,specularText,logger);
+				matPtr->m_matColor.m_specularColor = rgba;
+				visual.m_materialName = matPtr->m_name;
+				visual.m_geometry.m_hasLocalMaterial = true;
+			}
+		}
     } 
     else
       {
@@ -577,7 +606,8 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement*
           
           TiXmlElement *t = mat->FirstChildElement("texture");
           TiXmlElement *c = mat->FirstChildElement("color");
-          if (t||c)
+		  TiXmlElement *s = mat->FirstChildElement("specular");
+		  if (t||c||s)
           {
               if (parseMaterial(visual.m_geometry.m_localMaterial, mat,logger))
               {

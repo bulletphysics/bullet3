@@ -27,7 +27,8 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 	virtual void removeAllGraphicsInstances();
 	virtual void removeGraphicsInstance(int graphicsUid);
 	virtual void changeRGBAColor(int instanceUid, const double rgbaColor[4]);
-	
+	virtual void changeSpecularColor(int instanceUid, const double specularColor[3]);
+
 	virtual void createCollisionShapeGraphicsObject(btCollisionShape* collisionShape);
 
 	virtual void syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWorld);

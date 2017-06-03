@@ -184,7 +184,7 @@ void MyEnterProfileZoneFunc(const char* msg)
 		return;
 #ifndef BT_NO_PROFILE
 	int threadId = btQuickprofGetCurrentThreadIndex2();
-	if (threadId<0)
+	if (threadId<0 || threadId >= BT_QUICKPROF_MAX_THREAD_COUNT)
 		return;
 
 	if (gStackDepths[threadId] >= MAX_NESTING)
@@ -208,8 +208,8 @@ void MyLeaveProfileZoneFunc()
 		return;
 #ifndef BT_NO_PROFILE
 	int threadId = btQuickprofGetCurrentThreadIndex2();
-	if (threadId<0)
-		return;
+    if (threadId<0 || threadId >= BT_QUICKPROF_MAX_THREAD_COUNT)
+        return;
 
 	if (gStackDepths[threadId] <= 0)
 	{

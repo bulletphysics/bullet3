@@ -15,13 +15,14 @@
 		"../../examples/ThirdPartyLibs",
 		"../../examples",	
 		".",
+		"../../src"
 	}
 
 	initOpenGL()
 	initGlew()
 			
 	links {
-		"gwen",
+		"gwen","Bullet3Common"
 	}
 	
 	

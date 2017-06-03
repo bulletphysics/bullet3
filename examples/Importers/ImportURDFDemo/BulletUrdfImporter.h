@@ -41,6 +41,8 @@ public:
 
 	virtual bool getLinkColor(int linkIndex, btVector4& colorRGBA) const;
 
+	virtual bool getLinkColor2(int linkIndex, UrdfMaterialColor& matCol) const;
+
 	virtual bool getLinkContactInfo(int urdflinkIndex, URDFLinkContactInfo& contactInfo ) const;
 	
 	virtual bool getLinkAudioSource(int linkIndex, SDFAudioSource& audioSource) const;

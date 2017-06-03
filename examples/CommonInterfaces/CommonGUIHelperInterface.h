@@ -39,6 +39,8 @@ struct GUIHelperInterface
     virtual void removeAllGraphicsInstances()=0;
 	virtual void removeGraphicsInstance(int graphicsUid) {}
 	virtual void changeRGBAColor(int instanceUid, const double rgbaColor[4]) {}
+	virtual void changeSpecularColor(int instanceUid, const double specularColor[3]) {}
+
 	
 	virtual Common2dCanvasInterface* get2dCanvasInterface()=0;
 	

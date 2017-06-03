@@ -32,7 +32,6 @@ subject to the following restrictions:
 
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btTransform.h"
-#include "../MultiThreadedDemo/ParallelFor.h"
 
 class btDynamicsWorld;
 
@@ -230,7 +229,7 @@ public:
         }
     }
 
-    struct CastRaysLoopBody
+    struct CastRaysLoopBody : public btIParallelForBody
     {
         btCollisionWorld* mWorld;
 		btRaycastBar2* mRaycasts;
@@ -274,7 +273,7 @@ public:
         {
             CastRaysLoopBody rayLooper(cw, this);
             int grainSize = 20;  // number of raycasts per task
-            parallelFor( 0, NUMRAYS, grainSize, rayLooper );
+            btParallelFor( 0, NUMRAYS, grainSize, rayLooper );
         }
         else
 #endif // USE_PARALLEL_RAYCASTS

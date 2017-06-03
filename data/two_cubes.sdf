@@ -20,7 +20,7 @@
         <collision name='collision'>
           <geometry>
             <plane>
-              <normal>1 2 3</normal>
+              <normal>0 0 1</normal>
               <size>100 100</size>
             </plane>
           </geometry>
@@ -46,7 +46,7 @@
           <cast_shadows>0</cast_shadows>
           <geometry>
             <plane>
-              <normal>4 5 6</normal>
+              <normal>0 0 1</normal>
               <size>100 100</size>
             </plane>
           </geometry>
@@ -89,6 +89,7 @@
  <static>1</static>
       <pose frame=''>0.512455 -1.58317 0.5 0 -0 0</pose>
       <link name='unit_box_0::link'>
+      
         <inertial>
           <mass>1</mass>
           <inertia>
@@ -154,26 +155,7 @@
             <izz>0.166667</izz>
           </inertia>
         </inertial>
-        <collision name='collision'>
-          <geometry>
-            <box>
-              <size>1 1 1</size>
-            </box>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
+       
          <visual name='visual'>
           <geometry>
           <mesh>

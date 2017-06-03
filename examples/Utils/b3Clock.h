@@ -13,8 +13,8 @@ public:
 
 	~b3Clock();
 
-	/// Resets the initial reference time.
-	void reset();
+	/// Resets the initial reference time. If zeroReference is true, will set reference to absolute 0.
+	void reset(bool zeroReference=false);
 
 	/// Returns the time in ms since the last call to reset or since 
 	/// the b3Clock was created.

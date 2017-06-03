@@ -23,10 +23,10 @@ class btCollisionShape;
 
 #include "CommonRigidBodyMTBase.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
-#include "ParallelFor.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btPoolAllocator.h"
 #include "btBulletCollisionCommon.h"
+#include "BulletCollision/CollisionDispatch/btCollisionDispatcherMt.h"
 #include "BulletDynamics/Dynamics/btSimulationIslandManagerMt.h"  // for setSplitIslands()
 #include "BulletDynamics/Dynamics/btDiscreteDynamicsWorldMt.h"
 #include "BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolver.h"
@@ -35,21 +35,8 @@ class btCollisionShape;
 #include "BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h"
 #include "BulletDynamics/MLCPSolvers/btDantzigSolver.h"
 #include "BulletDynamics/MLCPSolvers/btLemkeSolver.h"
+#include "../MultiThreading/btTaskScheduler.h"
 
-TaskManager gTaskMgr;
-
-#define USE_PARALLEL_NARROWPHASE 1  // detect collisions in parallel
-#define USE_PARALLEL_ISLAND_SOLVER 1   // solve simulation islands in parallel
-#define USE_PARALLEL_CREATE_PREDICTIVE_CONTACTS 1
-#define USE_PARALLEL_INTEGRATE_TRANSFORMS 1
-#define USE_PARALLEL_PREDICT_UNCONSTRAINED_MOTION 1
-
-#if defined (_MSC_VER) && _MSC_VER >= 1600
-// give us a compile error if any signatures of overriden methods is changed
-#define BT_OVERRIDE override
-#else
-#define BT_OVERRIDE
-#endif
 
 static int gNumIslands = 0;
 
@@ -124,7 +111,7 @@ public:
 };
 
 
-Profiler gProfiler;
+static Profiler gProfiler;
 
 class ProfileHelper
 {
@@ -141,457 +128,84 @@ public:
     }
 };
 
-int gThreadsRunningCounter = 0;
-btSpinMutex gThreadsRunningCounterMutex;
-
-void btPushThreadsAreRunning()
+static void profileBeginCallback( btDynamicsWorld *world, btScalar timeStep )
 {
-    gThreadsRunningCounterMutex.lock();
-    gThreadsRunningCounter++;
-    gThreadsRunningCounterMutex.unlock();
+    gProfiler.begin( Profiler::kRecordInternalTimeStep );
 }
 
-void btPopThreadsAreRunning()
+static void profileEndCallback( btDynamicsWorld *world, btScalar timeStep )
 {
-    gThreadsRunningCounterMutex.lock();
-    gThreadsRunningCounter--;
-    gThreadsRunningCounterMutex.unlock();
-}
-
-bool btThreadsAreRunning()
-{
-    return gThreadsRunningCounter != 0;
+    gProfiler.end( Profiler::kRecordInternalTimeStep );
 }
 
 
-#if USE_PARALLEL_NARROWPHASE
-
-class MyCollisionDispatcher : public btCollisionDispatcher
+///
+/// MyCollisionDispatcher -- subclassed for profiling purposes
+///
+class MyCollisionDispatcher : public btCollisionDispatcherMt
 {
-    btSpinMutex m_manifoldPtrsMutex;
-
+    typedef btCollisionDispatcherMt ParentClass;
 public:
-    MyCollisionDispatcher( btCollisionConfiguration* config ) : btCollisionDispatcher( config )
+    MyCollisionDispatcher( btCollisionConfiguration* config, int grainSize ) : btCollisionDispatcherMt( config, grainSize )
     {
     }
-
-    virtual ~MyCollisionDispatcher()
-    {
-    }
-
-    btPersistentManifold* getNewManifold( const btCollisionObject* body0, const btCollisionObject* body1 ) BT_OVERRIDE
-    {
-        // added spin-locks
-        //optional relative contact breaking threshold, turned on by default (use setDispatcherFlags to switch off feature for improved performance)
-
-        btScalar contactBreakingThreshold = ( m_dispatcherFlags & btCollisionDispatcher::CD_USE_RELATIVE_CONTACT_BREAKING_THRESHOLD ) ?
-            btMin( body0->getCollisionShape()->getContactBreakingThreshold( gContactBreakingThreshold ), body1->getCollisionShape()->getContactBreakingThreshold( gContactBreakingThreshold ) )
-            : gContactBreakingThreshold;
-
-        btScalar contactProcessingThreshold = btMin( body0->getContactProcessingThreshold(), body1->getContactProcessingThreshold() );
-
-        void* mem = m_persistentManifoldPoolAllocator->allocate( sizeof( btPersistentManifold ) );
-        if (NULL == mem)
-        {
-            //we got a pool memory overflow, by default we fallback to dynamically allocate memory. If we require a contiguous contact pool then assert.
-            if ( ( m_dispatcherFlags&CD_DISABLE_CONTACTPOOL_DYNAMIC_ALLOCATION ) == 0 )
-            {
-                mem = btAlignedAlloc( sizeof( btPersistentManifold ), 16 );
-            }
-            else
-            {
-                btAssert( 0 );
-                //make sure to increase the m_defaultMaxPersistentManifoldPoolSize in the btDefaultCollisionConstructionInfo/btDefaultCollisionConfiguration
-                return 0;
-            }
-        }
-        btPersistentManifold* manifold = new(mem) btPersistentManifold( body0, body1, 0, contactBreakingThreshold, contactProcessingThreshold );
-        m_manifoldPtrsMutex.lock();
-        manifold->m_index1a = m_manifoldsPtr.size();
-        m_manifoldsPtr.push_back( manifold );
-        m_manifoldPtrsMutex.unlock();
-
-        return manifold;
-    }
-
-    void releaseManifold( btPersistentManifold* manifold ) BT_OVERRIDE
-    {
-        clearManifold( manifold );
-
-        m_manifoldPtrsMutex.lock();
-        int findIndex = manifold->m_index1a;
-        btAssert( findIndex < m_manifoldsPtr.size() );
-        m_manifoldsPtr.swap( findIndex, m_manifoldsPtr.size() - 1 );
-        m_manifoldsPtr[ findIndex ]->m_index1a = findIndex;
-        m_manifoldsPtr.pop_back();
-        m_manifoldPtrsMutex.unlock();
-
-        manifold->~btPersistentManifold();
-        if ( m_persistentManifoldPoolAllocator->validPtr( manifold ) )
-        {
-            m_persistentManifoldPoolAllocator->freeMemory( manifold );
-        }
-        else
-        {
-            btAlignedFree( manifold );
-        }
-    }
-
-    struct Updater
-    {
-        btBroadphasePair* mPairArray;
-        btNearCallback mCallback;
-        btCollisionDispatcher* mDispatcher;
-        const btDispatcherInfo* mInfo;
-
-        Updater()
-        {
-            mPairArray = NULL;
-            mCallback = NULL;
-            mDispatcher = NULL;
-            mInfo = NULL;
-        }
-        void forLoop( int iBegin, int iEnd ) const
-        {
-            for ( int i = iBegin; i < iEnd; ++i )
-            {
-                btBroadphasePair* pair = &mPairArray[ i ];
-                mCallback( *pair, *mDispatcher, *mInfo );
-            }
-        }
-    };
 
     virtual void dispatchAllCollisionPairs( btOverlappingPairCache* pairCache, const btDispatcherInfo& info, btDispatcher* dispatcher ) BT_OVERRIDE
     {
-        ProfileHelper prof(Profiler::kRecordDispatchAllCollisionPairs);
-        int grainSize = 40;  // iterations per task
-        int pairCount = pairCache->getNumOverlappingPairs();
-        Updater updater;
-        updater.mCallback = getNearCallback();
-        updater.mPairArray = pairCount > 0 ? pairCache->getOverlappingPairArrayPtr() : NULL;
-        updater.mDispatcher = this;
-        updater.mInfo = &info;
-
-        btPushThreadsAreRunning();
-        parallelFor( 0, pairCount, grainSize, updater );
-        btPopThreadsAreRunning();
-        
-        if (m_manifoldsPtr.size() < 1)
-            return;
-
-        // reconstruct the manifolds array to ensure determinism
-        m_manifoldsPtr.resizeNoInitialize(0);
-        btBroadphasePair* pairs = pairCache->getOverlappingPairArrayPtr();
-        for (int i = 0; i < pairCount; ++i)
-        {
-            btCollisionAlgorithm* algo = pairs[i].m_algorithm;
-            if (algo) algo->getAllContactManifolds(m_manifoldsPtr);
-        }
-
-        // update the indices (used when releasing manifolds)
-        for (int i = 0; i < m_manifoldsPtr.size(); ++i)
-            m_manifoldsPtr[i]->m_index1a = i;
+        ProfileHelper prof( Profiler::kRecordDispatchAllCollisionPairs );
+        ParentClass::dispatchAllCollisionPairs( pairCache, info, dispatcher );
     }
 };
 
-#endif
 
-
-#if USE_PARALLEL_ISLAND_SOLVER
 ///
-/// MyConstraintSolverPool - masquerades as a constraint solver, but really it is a threadsafe pool of them.
-///
-///  Each solver in the pool is protected by a mutex.  When solveGroup is called from a thread,
-///  the pool looks for a solver that isn't being used by another thread, locks it, and dispatches the
-///  call to the solver.
-///  So long as there are at least as many solvers as there are hardware threads, it should never need to
-///  spin wait.
-///
-class MyConstraintSolverPool : public btConstraintSolver
+/// myParallelIslandDispatch -- wrap default parallel dispatch for profiling and to get the number of simulation islands
+//
+void myParallelIslandDispatch( btAlignedObjectArray<btSimulationIslandManagerMt::Island*>* islandsPtr, btSimulationIslandManagerMt::IslandCallback* callback )
 {
-    const static size_t kCacheLineSize = 128;
-    struct ThreadSolver
-    {
-        btConstraintSolver* solver;
-        btSpinMutex mutex;
-        char _cachelinePadding[ kCacheLineSize - sizeof( btSpinMutex ) - sizeof( void* ) ];  // keep mutexes from sharing a cache line
-    };
-    btAlignedObjectArray<ThreadSolver> m_solvers;
-    btConstraintSolverType m_solverType;
-
-    ThreadSolver* getAndLockThreadSolver()
-    {
-        while ( true )
-        {
-            for ( int i = 0; i < m_solvers.size(); ++i )
-            {
-                ThreadSolver& solver = m_solvers[ i ];
-                if ( solver.mutex.tryLock() )
-                {
-                    return &solver;
-                }
-            }
-        }
-        return NULL;
-    }
-    void init( btConstraintSolver** solvers, int numSolvers )
-    {
-        m_solverType = BT_SEQUENTIAL_IMPULSE_SOLVER;
-        m_solvers.resize( numSolvers );
-        for ( int i = 0; i < numSolvers; ++i )
-        {
-            m_solvers[ i ].solver = solvers[ i ];
-        }
-        if ( numSolvers > 0 )
-        {
-            m_solverType = solvers[ 0 ]->getSolverType();
-        }
-    }
-public:
-    // create the solvers for me
-    explicit MyConstraintSolverPool( int numSolvers )
-    {
-        btAlignedObjectArray<btConstraintSolver*> solvers;
-        solvers.reserve( numSolvers );
-        for ( int i = 0; i < numSolvers; ++i )
-        {
-            btConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
-            solvers.push_back( solver );
-        }
-        init( &solvers[ 0 ], numSolvers );
-    }
-
-    // pass in fully constructed solvers (destructor will delete them)
-    MyConstraintSolverPool( btConstraintSolver** solvers, int numSolvers )
-    {
-        init( solvers, numSolvers );
-    }
-    virtual ~MyConstraintSolverPool()
-    {
-        // delete all solvers
-        for ( int i = 0; i < m_solvers.size(); ++i )
-        {
-            ThreadSolver& solver = m_solvers[ i ];
-            delete solver.solver;
-            solver.solver = NULL;
-        }
-    }
-
-    //virtual void prepareSolve( int /* numBodies */, int /* numManifolds */ ) { ; } // does nothing
-
-    ///solve a group of constraints
-    virtual btScalar solveGroup( btCollisionObject** bodies,
-                                 int numBodies,
-                                 btPersistentManifold** manifolds,
-                                 int numManifolds,
-                                 btTypedConstraint** constraints,
-                                 int numConstraints,
-                                 const btContactSolverInfo& info,
-                                 btIDebugDraw* debugDrawer,
-                                 btDispatcher* dispatcher
-                                 )
-    {
-        ThreadSolver* solver = getAndLockThreadSolver();
-        solver->solver->solveGroup( bodies, numBodies, manifolds, numManifolds, constraints, numConstraints, info, debugDrawer, dispatcher );
-        solver->mutex.unlock();
-        return 0.0f;
-    }
-
-    //virtual void allSolved( const btContactSolverInfo& /* info */, class btIDebugDraw* /* debugDrawer */ ) { ; } // does nothing
-
-    ///clear internal cached data and reset random seed
-    virtual	void reset()
-    {
-        for ( int i = 0; i < m_solvers.size(); ++i )
-        {
-            ThreadSolver& solver = m_solvers[ i ];
-            solver.mutex.lock();
-            solver.solver->reset();
-            solver.mutex.unlock();
-        }
-    }
-
-    virtual btConstraintSolverType getSolverType() const
-    {
-        return m_solverType;
-    }
-};
-
-struct UpdateIslandDispatcher
-{
-    btAlignedObjectArray<btSimulationIslandManagerMt::Island*>* islandsPtr;
-    btSimulationIslandManagerMt::IslandCallback* callback;
-
-    void forLoop( int iBegin, int iEnd ) const
-    {
-        for ( int i = iBegin; i < iEnd; ++i )
-        {
-            btSimulationIslandManagerMt::Island* island = ( *islandsPtr )[ i ];
-            btPersistentManifold** manifolds = island->manifoldArray.size() ? &island->manifoldArray[ 0 ] : NULL;
-            btTypedConstraint** constraintsPtr = island->constraintArray.size() ? &island->constraintArray[ 0 ] : NULL;
-            callback->processIsland( &island->bodyArray[ 0 ],
-                                     island->bodyArray.size(),
-                                     manifolds,
-                                     island->manifoldArray.size(),
-                                     constraintsPtr,
-                                     island->constraintArray.size(),
-                                     island->id
-                                     );
-        }
-    }
-};
-
-void parallelIslandDispatch( btAlignedObjectArray<btSimulationIslandManagerMt::Island*>* islandsPtr, btSimulationIslandManagerMt::IslandCallback* callback )
-{
-    ProfileHelper prof(Profiler::kRecordDispatchIslands);
+    ProfileHelper prof( Profiler::kRecordDispatchIslands );
     gNumIslands = islandsPtr->size();
-    int grainSize = 1;  // iterations per task
-    UpdateIslandDispatcher dispatcher;
-    dispatcher.islandsPtr = islandsPtr;
-    dispatcher.callback = callback;
-    btPushThreadsAreRunning();
-    parallelFor( 0, islandsPtr->size(), grainSize, dispatcher );
-    btPopThreadsAreRunning();
-}
-#endif //#if USE_PARALLEL_ISLAND_SOLVER
-
-
-void profileBeginCallback(btDynamicsWorld *world, btScalar timeStep)
-{
-    gProfiler.begin(Profiler::kRecordInternalTimeStep);
+    btSimulationIslandManagerMt::parallelIslandDispatch( islandsPtr, callback );
 }
 
-void profileEndCallback(btDynamicsWorld *world, btScalar timeStep)
-{
-    gProfiler.end(Profiler::kRecordInternalTimeStep);
-}
 
 ///
-/// MyDiscreteDynamicsWorld
-///
-///  Should function exactly like btDiscreteDynamicsWorld.
-///  3 methods that iterate over all of the rigidbodies can run in parallel:
-///     - predictUnconstraintMotion
-///     - integrateTransforms
-///     - createPredictiveContacts
+/// MyDiscreteDynamicsWorld -- subclassed for profiling purposes
 ///
 ATTRIBUTE_ALIGNED16( class ) MyDiscreteDynamicsWorld : public btDiscreteDynamicsWorldMt
 {
-    typedef btDiscreteDynamicsWorld ParentClass;
+    typedef btDiscreteDynamicsWorldMt ParentClass;
 
 protected:
-#if USE_PARALLEL_PREDICT_UNCONSTRAINED_MOTION
-    struct UpdaterUnconstrainedMotion
-    {
-        btScalar timeStep;
-        btRigidBody** rigidBodies;
-
-        void forLoop( int iBegin, int iEnd ) const
-        {
-            for ( int i = iBegin; i < iEnd; ++i )
-            {
-                btRigidBody* body = rigidBodies[ i ];
-                if ( !body->isStaticOrKinematicObject() )
-                {
-                    //don't integrate/update velocities here, it happens in the constraint solver
-                    body->applyDamping( timeStep );
-                    body->predictIntegratedTransform( timeStep, body->getInterpolationWorldTransform() );
-                }
-            }
-        }
-    };
 
     virtual void predictUnconstraintMotion( btScalar timeStep ) BT_OVERRIDE
     {
         ProfileHelper prof( Profiler::kRecordPredictUnconstrainedMotion );
-        BT_PROFILE( "predictUnconstraintMotion" );
-        int grainSize = 50;  // num of iterations per task for TBB
-        int bodyCount = m_nonStaticRigidBodies.size();
-        UpdaterUnconstrainedMotion update;
-        update.timeStep = timeStep;
-        update.rigidBodies = bodyCount ? &m_nonStaticRigidBodies[ 0 ] : NULL;
-        btPushThreadsAreRunning();
-        parallelFor( 0, bodyCount, grainSize, update );
-        btPopThreadsAreRunning();
+        ParentClass::predictUnconstraintMotion( timeStep );
     }
-#endif // #if USE_PARALLEL_PREDICT_UNCONSTRAINED_MOTION
-
-#if USE_PARALLEL_CREATE_PREDICTIVE_CONTACTS
-    struct UpdaterCreatePredictiveContacts
-    {
-        btScalar timeStep;
-        btRigidBody** rigidBodies;
-        MyDiscreteDynamicsWorld* world;
-
-        void forLoop( int iBegin, int iEnd ) const
-        {
-            world->createPredictiveContactsInternal( &rigidBodies[ iBegin ], iEnd - iBegin, timeStep );
-        }
-    };
-
-    virtual void createPredictiveContacts( btScalar timeStep )
+    virtual void createPredictiveContacts( btScalar timeStep ) BT_OVERRIDE
     {
         ProfileHelper prof( Profiler::kRecordCreatePredictiveContacts );
-        releasePredictiveContacts();
-        int grainSize = 50;  // num of iterations per task for TBB or OPENMP
-        if ( int bodyCount = m_nonStaticRigidBodies.size() )
-        {
-            UpdaterCreatePredictiveContacts update;
-            update.world = this;
-            update.timeStep = timeStep;
-            update.rigidBodies = &m_nonStaticRigidBodies[ 0 ];
-            btPushThreadsAreRunning();
-            parallelFor( 0, bodyCount, grainSize, update );
-            btPopThreadsAreRunning();
-        }
+        ParentClass::createPredictiveContacts( timeStep );
     }
-#endif // #if USE_PARALLEL_CREATE_PREDICTIVE_CONTACTS
-
-#if USE_PARALLEL_INTEGRATE_TRANSFORMS
-    struct UpdaterIntegrateTransforms
-    {
-        btScalar timeStep;
-        btRigidBody** rigidBodies;
-        MyDiscreteDynamicsWorld* world;
-
-        void forLoop( int iBegin, int iEnd ) const
-        {
-            world->integrateTransformsInternal( &rigidBodies[ iBegin ], iEnd - iBegin, timeStep );
-        }
-    };
-
     virtual void integrateTransforms( btScalar timeStep ) BT_OVERRIDE
     {
         ProfileHelper prof( Profiler::kRecordIntegrateTransforms );
-        BT_PROFILE( "integrateTransforms" );
-        int grainSize = 50;  // num of iterations per task for TBB or OPENMP
-        if ( int bodyCount = m_nonStaticRigidBodies.size() )
-        {
-            UpdaterIntegrateTransforms update;
-            update.world = this;
-            update.timeStep = timeStep;
-            update.rigidBodies = &m_nonStaticRigidBodies[ 0 ];
-            btPushThreadsAreRunning();
-            parallelFor( 0, bodyCount, grainSize, update );
-            btPopThreadsAreRunning();
-        }
+        ParentClass::integrateTransforms( timeStep );
     }
-#endif // #if USE_PARALLEL_INTEGRATE_TRANSFORMS
 
 public:
     BT_DECLARE_ALIGNED_ALLOCATOR();
 
     MyDiscreteDynamicsWorld( btDispatcher* dispatcher,
                              btBroadphaseInterface* pairCache,
-                             btConstraintSolver* constraintSolver,
+                             btConstraintSolverPoolMt* constraintSolver,
                              btCollisionConfiguration* collisionConfiguration
                              ) :
                              btDiscreteDynamicsWorldMt( dispatcher, pairCache, constraintSolver, collisionConfiguration )
     {
-#if USE_PARALLEL_ISLAND_SOLVER
         btSimulationIslandManagerMt* islandMgr = static_cast<btSimulationIslandManagerMt*>( m_islandManager );
-        islandMgr->setIslandDispatchFunction( parallelIslandDispatch );
-#endif //#if USE_PARALLEL_ISLAND_SOLVER
+        islandMgr->setIslandDispatchFunction( myParallelIslandDispatch );
     }
 
 };
@@ -625,8 +239,69 @@ btConstraintSolver* createSolverByType( SolverType t )
 }
 
 
+///
+/// btTaskSchedulerManager -- manage a number of task schedulers so we can switch between them
+///
+class btTaskSchedulerManager
+{
+    btAlignedObjectArray<btITaskScheduler*> m_taskSchedulers;
+    btAlignedObjectArray<btITaskScheduler*> m_allocatedTaskSchedulers;
+
+public:
+    btTaskSchedulerManager() {}
+    void init()
+    {
+        addTaskScheduler( btGetSequentialTaskScheduler() );
+#if BT_THREADSAFE
+        if ( btITaskScheduler* ts = createDefaultTaskScheduler() )
+        {
+            m_allocatedTaskSchedulers.push_back( ts );
+            addTaskScheduler( ts );
+        }
+        addTaskScheduler( btGetOpenMPTaskScheduler() );
+        addTaskScheduler( btGetTBBTaskScheduler() );
+        addTaskScheduler( btGetPPLTaskScheduler() );
+        if ( getNumTaskSchedulers() > 1 )
+        {
+            // prefer a non-sequential scheduler if available
+            btSetTaskScheduler( m_taskSchedulers[ 1 ] );
+        }
+        else
+        {
+            btSetTaskScheduler( m_taskSchedulers[ 0 ] );
+        }
+#endif // #if BT_THREADSAFE
+    }
+    void shutdown()
+    {
+        for ( int i = 0; i < m_allocatedTaskSchedulers.size(); ++i )
+        {
+            delete m_allocatedTaskSchedulers[ i ];
+        }
+        m_allocatedTaskSchedulers.clear();
+    }
+
+    void addTaskScheduler( btITaskScheduler* ts )
+    {
+        if ( ts )
+        {
+            m_taskSchedulers.push_back( ts );
+        }
+    }
+    int getNumTaskSchedulers() const { return m_taskSchedulers.size(); }
+    btITaskScheduler* getTaskScheduler( int i ) { return m_taskSchedulers[ i ]; }
+};
+
+
+static btTaskSchedulerManager gTaskSchedulerMgr;
+
+#if BT_THREADSAFE
+static bool gMultithreadedWorld = true;
+static bool gDisplayProfileInfo = true;
+#else
 static bool gMultithreadedWorld = false;
 static bool gDisplayProfileInfo = false;
+#endif
 static SolverType gSolverType = SOLVER_TYPE_SEQUENTIAL_IMPULSE;
 static int gSolverMode = SOLVER_SIMD |
                         SOLVER_USE_WARMSTARTING |
@@ -652,15 +327,17 @@ CommonRigidBodyMTBase::CommonRigidBodyMTBase( struct GUIHelperInterface* helper 
 {
     m_multithreadedWorld = false;
     m_multithreadCapable = false;
-    gTaskMgr.init();
+    if ( gTaskSchedulerMgr.getNumTaskSchedulers() == 0 )
+    {
+        gTaskSchedulerMgr.init();
+    }
 }
 
 CommonRigidBodyMTBase::~CommonRigidBodyMTBase()
 {
-    gTaskMgr.shutdown();
 }
 
-void boolPtrButtonCallback(int buttonId, bool buttonState, void* userPointer)
+static void boolPtrButtonCallback(int buttonId, bool buttonState, void* userPointer)
 {
     if (bool* val = static_cast<bool*>(userPointer))
     {
@@ -668,7 +345,7 @@ void boolPtrButtonCallback(int buttonId, bool buttonState, void* userPointer)
     }
 }
 
-void toggleSolverModeCallback(int buttonId, bool buttonState, void* userPointer)
+static void toggleSolverModeCallback(int buttonId, bool buttonState, void* userPointer)
 {
     if (buttonState)
     {
@@ -687,7 +364,7 @@ void toggleSolverModeCallback(int buttonId, bool buttonState, void* userPointer)
     }
 }
 
-void setSolverTypeCallback(int buttonId, bool buttonState, void* userPointer)
+static void setSolverTypeCallback(int buttonId, bool buttonState, void* userPointer)
 {
     if (buttonId >= 0 && buttonId < SOLVER_TYPE_COUNT)
     {
@@ -695,32 +372,34 @@ void setSolverTypeCallback(int buttonId, bool buttonState, void* userPointer)
     }
 }
 
-void apiSelectButtonCallback(int buttonId, bool buttonState, void* userPointer)
+static void setNumThreads( int numThreads )
 {
-    gTaskMgr.setApi(static_cast<TaskManager::Api>(buttonId));
-    if (gTaskMgr.getApi()==TaskManager::apiNone)
+#if BT_THREADSAFE
+    int newNumThreads = ( std::min )( numThreads, int( BT_MAX_THREAD_COUNT ) );
+    int oldNumThreads = btGetTaskScheduler()->getNumThreads();
+    // only call when the thread count is different
+    if ( newNumThreads != oldNumThreads )
     {
-        gSliderNumThreads = 1.0f;
+        btGetTaskScheduler()->setNumThreads( newNumThreads );
     }
-    else
-    {
-        gSliderNumThreads = float(gTaskMgr.getNumThreads());
-    }
+#endif // #if BT_THREADSAFE
 }
 
-void setThreadCountCallback(float val, void* userPtr)
+static void apiSelectButtonCallback(int buttonId, bool buttonState, void* userPointer)
 {
-    if (gTaskMgr.getApi()==TaskManager::apiNone)
-    {
-        gSliderNumThreads = 1.0f;
-    }
-    else
-    {
-        gTaskMgr.setNumThreads( int( gSliderNumThreads ) );
-    }
+#if BT_THREADSAFE
+    // change the task scheduler
+    btSetTaskScheduler( gTaskSchedulerMgr.getTaskScheduler( buttonId ) );
+    setNumThreads( int( gSliderNumThreads ) );
+#endif // #if BT_THREADSAFE
 }
 
-void setSolverIterationCountCallback(float val, void* userPtr)
+static void setThreadCountCallback(float val, void* userPtr)
+{
+    setNumThreads( int( gSliderNumThreads ) );
+}
+
+static void setSolverIterationCountCallback(float val, void* userPtr)
 {
     if (btDiscreteDynamicsWorld* world = reinterpret_cast<btDiscreteDynamicsWorld*>(userPtr))
     {
@@ -733,40 +412,37 @@ void CommonRigidBodyMTBase::createEmptyDynamicsWorld()
     gNumIslands = 0;
     m_solverType = gSolverType;
 #if BT_THREADSAFE && (BT_USE_OPENMP || BT_USE_PPL || BT_USE_TBB)
+    btAssert( btGetTaskScheduler() != NULL );
     m_multithreadCapable = true;
 #endif
     if ( gMultithreadedWorld )
     {
+#if BT_THREADSAFE
         m_dispatcher = NULL;
         btDefaultCollisionConstructionInfo cci;
         cci.m_defaultMaxPersistentManifoldPoolSize = 80000;
         cci.m_defaultMaxCollisionAlgorithmPoolSize = 80000;
         m_collisionConfiguration = new btDefaultCollisionConfiguration( cci );
 
-#if USE_PARALLEL_NARROWPHASE
-        m_dispatcher = new	MyCollisionDispatcher( m_collisionConfiguration );
-#else
-        m_dispatcher = new	btCollisionDispatcher( m_collisionConfiguration );
-#endif //USE_PARALLEL_NARROWPHASE
-
+        m_dispatcher = new MyCollisionDispatcher( m_collisionConfiguration, 40 );
         m_broadphase = new btDbvtBroadphase();
 
-#if BT_THREADSAFE && USE_PARALLEL_ISLAND_SOLVER
+        btConstraintSolverPoolMt* solverPool;
         {
             btConstraintSolver* solvers[ BT_MAX_THREAD_COUNT ];
-            int maxThreadCount = btMin( int(BT_MAX_THREAD_COUNT), TaskManager::getMaxNumThreads() );
+            int maxThreadCount = BT_MAX_THREAD_COUNT;
             for ( int i = 0; i < maxThreadCount; ++i )
             {
                 solvers[ i ] = createSolverByType( m_solverType );
             }
-            m_solver = new MyConstraintSolverPool( solvers, maxThreadCount );
+            solverPool = new btConstraintSolverPoolMt( solvers, maxThreadCount );
+            m_solver = solverPool;
         }
-#else
-        m_solver = createSolverByType( m_solverType );
-#endif //#if USE_PARALLEL_ISLAND_SOLVER
-        btDiscreteDynamicsWorld* world = new MyDiscreteDynamicsWorld( m_dispatcher, m_broadphase, m_solver, m_collisionConfiguration );
+        btDiscreteDynamicsWorld* world = new MyDiscreteDynamicsWorld( m_dispatcher, m_broadphase, solverPool, m_collisionConfiguration );
         m_dynamicsWorld = world;
         m_multithreadedWorld = true;
+        btAssert( btGetTaskScheduler() != NULL );
+#endif // #if BT_THREADSAFE
     }
     else
     {
@@ -885,29 +561,32 @@ void CommonRigidBodyMTBase::createDefaultParameters()
     }
     if (m_multithreadedWorld)
     {
+#if BT_THREADSAFE
         // create a button for each supported threading API
-        for (int iApi = 0; iApi < TaskManager::apiCount; ++iApi)
+        for ( int iApi = 0; iApi < gTaskSchedulerMgr.getNumTaskSchedulers(); ++iApi )
         {
-            TaskManager::Api api = static_cast<TaskManager::Api>(iApi);
-            if (gTaskMgr.isSupported(api))
-            {
-                char str[1024];
-                sprintf(str, "API %s", gTaskMgr.getApiName(api));
-                ButtonParams button( str, iApi, false );
-                button.m_callback = apiSelectButtonCallback;
-                m_guiHelper->getParameterInterface()->registerButtonParameter( button );
-            }
+            char str[ 1024 ];
+            sprintf( str, "API %s", gTaskSchedulerMgr.getTaskScheduler(iApi)->getName() );
+            ButtonParams button( str, iApi, false );
+            button.m_callback = apiSelectButtonCallback;
+            m_guiHelper->getParameterInterface()->registerButtonParameter( button );
         }
         {
             // create a slider to set the number of threads to use
-            gSliderNumThreads = float(gTaskMgr.getNumThreads());
+            int numThreads = btGetTaskScheduler()->getNumThreads();
+            // if slider has not been set yet (by another demo),
+            if ( gSliderNumThreads <= 1.0f )
+            {
+                gSliderNumThreads = float( numThreads );
+            }
 			SliderParams slider("Thread count", &gSliderNumThreads);
 			slider.m_minVal = 1.0f;
-			slider.m_maxVal = float(gTaskMgr.getMaxNumThreads()*2);
+			slider.m_maxVal = float( BT_MAX_THREAD_COUNT );
 			slider.m_callback = setThreadCountCallback;
             slider.m_clampToIntegers = true;
             m_guiHelper->getParameterInterface()->registerSliderFloatParameter( slider );
         }
+#endif // #if BT_THREADSAFE
     }
 }
 
@@ -939,6 +618,7 @@ void CommonRigidBodyMTBase::drawScreenText()
     {
         if ( m_multithreadedWorld )
         {
+#if BT_THREADSAFE
             int numManifolds = m_dispatcher->getNumManifolds();
             int numContacts = 0;
             for ( int i = 0; i < numManifolds; ++i )
@@ -946,17 +626,18 @@ void CommonRigidBodyMTBase::drawScreenText()
                 const btPersistentManifold* man = m_dispatcher->getManifoldByIndexInternal( i );
                 numContacts += man->getNumContacts();
             }
-            const char* mtApi = TaskManager::getApiName( gTaskMgr.getApi() );
+            const char* mtApi = btGetTaskScheduler()->getName();
             sprintf( msg, "islands=%d bodies=%d manifolds=%d contacts=%d [%s] threads=%d",
                      gNumIslands,
                      m_dynamicsWorld->getNumCollisionObjects(),
                      numManifolds,
                      numContacts,
                      mtApi,
-                     gTaskMgr.getApi() == TaskManager::apiNone ? 1 : gTaskMgr.getNumThreads()
+                     btGetTaskScheduler()->getNumThreads()
                      );
             m_guiHelper->getAppInterface()->drawText( msg, 100, yCoord, 0.4f );
             yCoord += yStep;
+#endif // #if BT_THREADSAFE
         }
         {
             int sm = gSolverMode;

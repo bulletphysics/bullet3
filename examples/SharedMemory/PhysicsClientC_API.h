@@ -84,7 +84,12 @@ int b3GetDynamicsInfo(b3SharedMemoryStatusHandle statusHandle, struct b3Dynamics
 b3SharedMemoryCommandHandle b3InitChangeDynamicsInfo(b3PhysicsClientHandle physClient);
 int b3ChangeDynamicsInfoSetMass(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double mass);
 int b3ChangeDynamicsInfoSetLateralFriction(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double lateralFriction);
-    
+int b3ChangeDynamicsInfoSetSpinningFriction(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double friction);
+int b3ChangeDynamicsInfoSetRollingFriction(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double friction);
+int b3ChangeDynamicsInfoSetRestitution(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double restitution);
+
+
+
 b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3PhysicsClientHandle physClient, int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, struct b3JointInfo* info);
 
 ///return a unique id for the user constraint, after successful creation, or -1 for an invalid constraint id
@@ -206,6 +211,8 @@ void b3GetVisualShapeInformation(b3PhysicsClientHandle physClient, struct b3Visu
 b3SharedMemoryCommandHandle b3InitLoadTexture(b3PhysicsClientHandle physClient, const char* filename);
 b3SharedMemoryCommandHandle b3InitUpdateVisualShape(b3PhysicsClientHandle physClient, int bodyUniqueId, int jointIndex, int shapeIndex, int textureUniqueId);
 void b3UpdateVisualShapeRGBAColor(b3SharedMemoryCommandHandle commandHandle, double rgbaColor[4]);
+void b3UpdateVisualShapeSpecularColor(b3SharedMemoryCommandHandle commandHandle, double specularColor[3]);
+
 
 b3SharedMemoryCommandHandle	b3InitPhysicsParamCommand(b3PhysicsClientHandle physClient);
 int	b3PhysicsParamSetGravity(b3SharedMemoryCommandHandle commandHandle, double gravx,double gravy, double gravz);
@@ -223,6 +230,9 @@ int b3PhysicsParamSetSplitImpulsePenetrationThreshold(b3SharedMemoryCommandHandl
 int b3PhysicsParamSetContactBreakingThreshold(b3SharedMemoryCommandHandle commandHandle, double contactBreakingThreshold);
 int b3PhysicsParamSetMaxNumCommandsPer1ms(b3SharedMemoryCommandHandle commandHandle, int maxNumCmdPer1ms);
 int b3PhysicsParamSetEnableFileCaching(b3SharedMemoryCommandHandle commandHandle, int enableFileCaching);
+int b3PhysicsParamSetRestitutionVelocityThreshold(b3SharedMemoryCommandHandle commandHandle, double restitutionVelocityThreshold);
+
+
 
 //b3PhysicsParamSetInternalSimFlags is for internal/temporary/easter-egg/experimental demo purposes
 //Use at own risk: magic things may or my not happen when calling this API
@@ -409,6 +419,8 @@ void b3SetProfileTimingDuractionInMicroSeconds(b3SharedMemoryCommandHandle comma
 void b3SetTimeOut(b3PhysicsClientHandle physClient, double timeOutInSeconds);
 double b3GetTimeOut(b3PhysicsClientHandle physClient);
 
+void b3MultiplyTransforms(const double posA[3], const double ornA[4], const double posB[3], const double ornB[4], double outPos[3], double outOrn[4]);
+void b3InvertTransform(const double pos[3], const double orn[4], double outPos[3], double outOrn[4]);
 
 #ifdef __cplusplus
 }
