@@ -887,16 +887,6 @@ b3QuatRotate(const b3Quaternion& rotation, const b3Vector3& v)
 B3_FORCE_INLINE b3Quaternion 
 b3ShortestArcQuat(const b3Vector3& v0, const b3Vector3& v1) // Game Programming Gems 2.10. make sure v0,v1 are normalized
 {
-	/*
-	b3Quaternion q;
-	b3Vector3 a = v0.cross(v1);
-	q[0] = a[0];
-	q[1] = a[1];
-	q[2] = a[2];
-	q[3] = b3Sqrt((v0.length()*v0.length()) * (v1.length()*v1.length())) + v0.dot(v1);
-	return q;
-	*/
-	
 	b3Vector3 c = v0.cross(v1);
 	b3Scalar  d = v0.dot(v1);
 

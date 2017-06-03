@@ -1930,65 +1930,6 @@ void b3RequestCameraImageSetShadow(b3SharedMemoryCommandHandle commandHandle, in
     command->m_updateFlags |= REQUEST_PIXEL_ARGS_SET_SHADOW;
 }
 
-void b3ComputeYawPitchRollFromPosition(const float cameraPosition[3], const float cameraTargetPosition[3], const float cameraUp[3], int upAxis, float& cameraDistance, float& cameraYaw, float& cameraPitch)
-{
-	b3Vector3 camPos = b3MakeVector3(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
-	b3Vector3 camTargetPos = b3MakeVector3(cameraTargetPosition[0], cameraTargetPosition[1], cameraTargetPosition[2]);
-	b3Vector3 camUpVector = b3MakeVector3(cameraUp[0], cameraUp[1], cameraUp[2]);
-	camUpVector.normalize();
-	
-	cameraDistance = (camPos - camTargetPos).length();
-	
-	b3Vector3 eyePos = camPos - camTargetPos;
-	b3Vector3 eyeInitPos = b3MakeVector3(0, 0, 0);
-	
-	int forwardAxis = -1;
-	
-	switch (upAxis)
-	{
-		case 1:
-			forwardAxis = 2;
-			break;
-		case 2:
-			forwardAxis = 1;
-			break;
-		default:
-			return;
-	};
-	
-	eyeInitPos[forwardAxis] = -cameraDistance;
-	eyeInitPos.normalize();
-	eyePos.normalize();
-	
-	eyeInitPos[0] = 0.0;
-	eyeInitPos[1] = -1.0;
-	eyeInitPos[2] = 0.0;
-	b3Quaternion rot = b3ShortestArcQuat(eyeInitPos, eyePos);
-	//rot[0] = 0.571393847;
-	//rot[1] = 0.0499904789;
-	//rot[2] = 0.0713938028;
-	//rot[3] = 0.816034972;
-	btScalar yawRad;
-	btScalar pitchRad;
-	btScalar rollRad;
-	
-	switch (upAxis)
-	{
-		case 1:
-			rot.getEulerZYX(rollRad, yawRad, pitchRad);
-			pitchRad = -pitchRad;
-			break;
-		case 2:
-			rot.getEulerZYX(yawRad, rollRad, pitchRad);
-			break;
-		default:
-			return;
-	};
-	
-	cameraYaw = yawRad/b3Scalar(0.01745329251994329547);
-	cameraPitch = pitchRad/b3Scalar(0.01745329251994329547);
-}
-
 void b3ComputePositionFromViewMatrix(const float viewMatrix[16], float cameraPosition[3], float cameraTargetPosition[3], float cameraUp[3])
 {
 	b3Matrix3x3 r(viewMatrix[0], viewMatrix[4], viewMatrix[8], viewMatrix[1], viewMatrix[5], viewMatrix[9], viewMatrix[2], viewMatrix[6], viewMatrix[10]);
@@ -2011,14 +1952,6 @@ void b3ComputePositionFromViewMatrix(const float viewMatrix[16], float cameraPos
 	cameraUp[0] = u[0];
 	cameraUp[1] = u[1];
 	cameraUp[2] = u[2];
-}
-
-void b3ComputeYawPitchRollFromViewMatrix(const float viewMatrix[16], int upAxis, float& cameraDistance, float& cameraYaw, float& cameraPitch, float cameraTargetPosition[3])
-{
-	float cameraPosition[3];
-	float cameraUp[3];
-	b3ComputePositionFromViewMatrix(viewMatrix, cameraPosition, cameraTargetPosition, cameraUp);
-	b3ComputeYawPitchRollFromPosition(cameraPosition, cameraTargetPosition, cameraUp, upAxis, cameraDistance, cameraYaw, cameraPitch);
 }
 
 void b3ComputeViewMatrixFromPositions(const float cameraPosition[3], const float cameraTargetPosition[3], const float cameraUp[3], float viewMatrix[16])
@@ -2095,9 +2028,7 @@ void b3ComputeViewMatrixFromYawPitchRoll(const float cameraTargetPosition[3], fl
 		camForward.normalize();
 	}
 	
-	eyePos[3] = 1.0;
-	//eyePos = b3Matrix3x3(eyeRot)*eyePos;
-	eyePos = b3QuatRotate(eyeRot, eyePos);
+	eyePos = b3Matrix3x3(eyeRot)*eyePos;
 	camUpVector = b3Matrix3x3(eyeRot)*camUpVector;
 	
 	camPos = eyePos;

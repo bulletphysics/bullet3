@@ -276,22 +276,6 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
             //b3RequestCameraImageSelectRenderer(commandHandle,ER_BULLET_HARDWARE_OPENGL);
             
 						float viewMatrix[16];
-			
-			float cameraTargetPosition[3] = {0.0, 0.0, 0.0};
-			float distance = 1.0;
-			float yaw = 10.0;
-			float pitch = 70.0;
-			float roll = 0.0;
-			int upAxis = 2;
-			float cameraDistance;
-			float cameraYaw;
-			float cameraPitch;
-			float cameraTargetPositionNew[3];
-			b3ComputeViewMatrixFromYawPitchRoll(cameraTargetPosition, distance, yaw, pitch, roll, upAxis, viewMatrix);
-			b3ComputeYawPitchRollFromViewMatrix(viewMatrix, upAxis, cameraDistance, cameraYaw, cameraPitch, cameraTargetPositionNew);
-			b3ComputeViewMatrixFromYawPitchRoll(cameraTargetPositionNew, cameraDistance, cameraYaw, cameraPitch, 0.0, upAxis, viewMatrix);
-			
-			
 						float projectionMatrix[16];
 						m_guiHelper->getRenderInterface()->getActiveCamera()->getCameraProjectionMatrix(projectionMatrix);
             m_guiHelper->getRenderInterface()->getActiveCamera()->getCameraViewMatrix(viewMatrix);
