@@ -160,7 +160,8 @@ public:
 	 m_filterCallback(NULL)
 	{
 		b3Clock clock;
-		srand(clock.getSystemTimeMilliseconds());					// Set random milliseconds based on system time
+		srand(clock.getTimeMilliseconds());					// Set random milliseconds based on system time
+		clock.reset(true);									// Reset clock to zero to get new random seed
 	}
 
 	virtual ~NN3DWalkersExample()

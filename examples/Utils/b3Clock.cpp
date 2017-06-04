@@ -46,7 +46,6 @@ struct b3ClockData
 
 #ifdef B3_USE_WINDOWS_TIMERS
 	LARGE_INTEGER mClockFrequency;
-	DWORD mStartTick;
 	LARGE_INTEGER mStartTime;
 #else
 #ifdef __CELLOS_LV2__
@@ -88,11 +87,24 @@ b3Clock& b3Clock::operator=(const b3Clock& other)
 
 
 	/// Resets the initial reference time.
-void b3Clock::reset()
+void b3Clock::reset(bool zeroReference)
 {
+	if (zeroReference)
+	{
+#ifdef B3_USE_WINDOWS_TIMERS
+		m_data->mStartTime.QuadPart = 0;
+#else
+	#ifdef __CELLOS_LV2__
+			m_data->mStartTime = 0;
+	#else
+			m_data->mStartTime = (struct timeval){0};
+	#endif
+#endif
+
+	} else
+	{
 #ifdef B3_USE_WINDOWS_TIMERS
 	QueryPerformanceCounter(&m_data->mStartTime);
-	m_data->mStartTick = GetTickCount();
 #else
 #ifdef __CELLOS_LV2__
 
@@ -105,6 +117,7 @@ void b3Clock::reset()
 	gettimeofday(&m_data->mStartTime, 0);
 #endif
 #endif
+	}
 }
 
 /// Returns the time in ms since the last call to reset or since 
@@ -112,14 +125,16 @@ void b3Clock::reset()
 unsigned long int b3Clock::getTimeMilliseconds()
 {
 #ifdef B3_USE_WINDOWS_TIMERS
-		LARGE_INTEGER currentTime, elapsedTime;
-		QueryPerformanceCounter(&currentTime);
-		elapsedTime.QuadPart = currentTime.QuadPart -
-				m_data->mStartTime.QuadPart;
-		elapsedTime.QuadPart *= 1000;
-		elapsedTime.QuadPart /= m_data->mClockFrequency.QuadPart;
+	LARGE_INTEGER currentTime;
+	QueryPerformanceCounter(&currentTime);
+	LONGLONG elapsedTime = currentTime.QuadPart - 
+		m_data->mStartTime.QuadPart;
+		// Compute the number of millisecond ticks elapsed.
+	unsigned long msecTicks = (unsigned long)(1000 * elapsedTime / 
+		m_data->mClockFrequency.QuadPart);
+	
 
-		return (unsigned long long) elapsedTime.QuadPart;
+		return msecTicks;
 #else
 
 #ifdef __CELLOS_LV2__
@@ -141,41 +156,8 @@ unsigned long int b3Clock::getTimeMilliseconds()
 #endif
 }
 
-/// Gets the system time in milliseconds
-unsigned long int b3Clock::getSystemTimeMilliseconds() {
-
-#ifdef B3_USE_WINDOWS_TIMERS
-	LARGE_INTEGER currentTime, elapsedTime;
-
-			QueryPerformanceCounter(&currentTime);
-			elapsedTime.QuadPart = currentTime.QuadPart;
-			elapsedTime.QuadPart *= 1000;
-			elapsedTime.QuadPart /= m_data->mClockFrequency.QuadPart;
-
-			return (unsigned long long) elapsedTime.QuadPart;
-#else
-
-#ifdef __CELLOS_LV2__
-	uint64_t freq = sys_time_get_timebase_frequency();
-	double dFreq = ((double)freq) / 1000.0;
-	typedef uint64_t  ClockSize;
-	ClockSize newTime;
-	SYS_TIMEBASE_GET(newTime);
-	//__asm __volatile__( "mftb %0" : "=r" (newTime) : : "memory");
-
-	return (unsigned long int)((double(newTime)) / dFreq);
-#else
-
-	struct timeval currentTime;
-	gettimeofday(&currentTime, 0);
-	return (currentTime.tv_sec) * 1000 +
-		(currentTime.tv_usec) / 1000;
-#endif //__CELLOS_LV2__
-#endif
-}
-
-/// Returns the time in us since the last call to reset or since
-/// the Clock was created.
+	/// Returns the time in us since the last call to reset or since 
+	/// the Clock was created.
 unsigned long long int b3Clock::getTimeMicroseconds()
 {
 #ifdef B3_USE_WINDOWS_TIMERS
