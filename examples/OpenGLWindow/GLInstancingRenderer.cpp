@@ -413,10 +413,10 @@ bool GLInstancingRenderer::readSingleInstanceTransformToCPU(float* position, flo
 	return false;
 }
 
-void GLInstancingRenderer::writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int bodyUniqueId)
+void GLInstancingRenderer::writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int srcIndex2)
 {
 
-	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 	b3Assert(pg);
 
 	if (pg==0)
@@ -439,9 +439,9 @@ void GLInstancingRenderer::writeSingleInstanceTransformToCPU(const float* positi
 }
 
 
-void GLInstancingRenderer::readSingleInstanceTransformFromCPU(int bodyUniqueId, float* position, float* orientation)
+void GLInstancingRenderer::readSingleInstanceTransformFromCPU(int srcIndex2, float* position, float* orientation)
 {
-	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 	b3Assert(pg);
 	int srcIndex = pg->m_internalInstanceIndex;
 
@@ -457,9 +457,9 @@ void GLInstancingRenderer::readSingleInstanceTransformFromCPU(int bodyUniqueId, 
 	orientation[2] = m_data->m_instance_quaternion_ptr[srcIndex*4+2];
 	orientation[3] = m_data->m_instance_quaternion_ptr[srcIndex*4+3];
 }
-void GLInstancingRenderer::writeSingleInstanceColorToCPU(const double* color, int bodyUniqueId)
+void GLInstancingRenderer::writeSingleInstanceColorToCPU(const double* color, int srcIndex2)
 {
-	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 	b3Assert(pg);
 	int srcIndex = pg->m_internalInstanceIndex;
 
@@ -469,9 +469,9 @@ void GLInstancingRenderer::writeSingleInstanceColorToCPU(const double* color, in
 	m_data->m_instance_colors_ptr[srcIndex*4+3]=float(color[3]);
 }
 
-void GLInstancingRenderer::writeSingleInstanceColorToCPU(const float* color, int bodyUniqueId)
+void GLInstancingRenderer::writeSingleInstanceColorToCPU(const float* color, int srcIndex2)
 {
-	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 	b3Assert(pg);
 	int srcIndex = pg->m_internalInstanceIndex;
 
@@ -481,9 +481,9 @@ void GLInstancingRenderer::writeSingleInstanceColorToCPU(const float* color, int
 	m_data->m_instance_colors_ptr[srcIndex*4+3]=color[3];
 }
 
-void GLInstancingRenderer::writeSingleInstanceScaleToCPU(const float* scale, int bodyUniqueId)
+void GLInstancingRenderer::writeSingleInstanceScaleToCPU(const float* scale, int srcIndex2)
 {
-	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 	b3Assert(pg);
 	int srcIndex = pg->m_internalInstanceIndex;
 
@@ -492,11 +492,11 @@ void GLInstancingRenderer::writeSingleInstanceScaleToCPU(const float* scale, int
 	m_data->m_instance_scale_ptr[srcIndex*3+2]=scale[2];
 }
 
-void GLInstancingRenderer::writeSingleInstanceSpecularColorToCPU(const double* specular, int bodyUniqueId)
+void GLInstancingRenderer::writeSingleInstanceSpecularColorToCPU(const double* specular, int srcIndex2)
 {
-	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 	b3Assert(pg);
-	int srcIndex = pg->m_internalInstanceIndex;
+	int graphicsIndex = pg->m_internalInstanceIndex;
 
 	int totalNumInstances = 0;
 
@@ -505,7 +505,7 @@ void GLInstancingRenderer::writeSingleInstanceSpecularColorToCPU(const double* s
 	for (int i=0;i<m_graphicsInstances.size();i++)
 	{
 		totalNumInstances+=m_graphicsInstances[i]->m_numGraphicsInstances;
-		if (srcIndex<totalNumInstances)
+		if (srcIndex2<totalNumInstances)
 		{
 			gfxObjIndex = i;
 			break;
@@ -518,9 +518,9 @@ void GLInstancingRenderer::writeSingleInstanceSpecularColorToCPU(const double* s
 		m_graphicsInstances[gfxObjIndex]->m_materialSpecularColor[2] = specular[2];
 	}
 }
-void GLInstancingRenderer::writeSingleInstanceSpecularColorToCPU(const float* specular, int bodyUniqueId)
+void GLInstancingRenderer::writeSingleInstanceSpecularColorToCPU(const float* specular, int srcIndex2)
 {
-	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 	b3Assert(pg);
 	int srcIndex = pg->m_internalInstanceIndex;
 
@@ -531,7 +531,7 @@ void GLInstancingRenderer::writeSingleInstanceSpecularColorToCPU(const float* sp
 	for (int i=0;i<m_graphicsInstances.size();i++)
 	{
 		totalNumInstances+=m_graphicsInstances[i]->m_numGraphicsInstances;
-		if (srcIndex<totalNumInstances)
+		if (srcIndex2<totalNumInstances)
 		{
 			gfxObjIndex = i;
 			break;
@@ -546,9 +546,9 @@ void GLInstancingRenderer::writeSingleInstanceSpecularColorToCPU(const float* sp
 }
 
 
-void GLInstancingRenderer::writeSingleInstanceScaleToCPU(const double* scale, int bodyUniqueId)
+void GLInstancingRenderer::writeSingleInstanceScaleToCPU(const double* scale, int srcIndex2)
 {
-	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 	b3Assert(pg);
 	int srcIndex = pg->m_internalInstanceIndex;
 
@@ -765,8 +765,8 @@ void GLInstancingRenderer::rebuildGraphicsInstances()
 
 	for (int i=0;i<usedObjects.size();i++)
 	{
-		int bodyUniqueId = usedObjects[i];
-		b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
+		int srcIndex2 = usedObjects[i];
+		b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
 		b3Assert(pg);
 		int srcIndex = pg->m_internalInstanceIndex;
 
@@ -793,9 +793,9 @@ void GLInstancingRenderer::rebuildGraphicsInstances()
 	}
 	for (int i=0;i<usedObjects.size();i++)
 	{
-		int bodyUniqueId = usedObjects[i];
-		b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(bodyUniqueId);
-		m_graphicsInstances[pg->m_shapeIndex]->m_tempObjectUids.push_back(bodyUniqueId);
+		int srcIndex2 = usedObjects[i];
+		b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex2);
+		m_graphicsInstances[pg->m_shapeIndex]->m_tempObjectUids.push_back(srcIndex2);
 	}
 
 	int curOffset = 0;

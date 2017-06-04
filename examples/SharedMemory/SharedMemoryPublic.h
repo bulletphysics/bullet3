@@ -286,6 +286,11 @@ struct b3OpenGLVisualizerCameraInfo
 
 	float m_horizontal[3];
 	float m_vertical[3];
+	
+	float m_yaw;
+	float m_pitch;
+	float m_dist;
+	float m_target[3];
 };
 
 enum b3VREventType

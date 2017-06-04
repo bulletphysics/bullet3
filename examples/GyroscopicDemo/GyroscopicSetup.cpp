@@ -21,10 +21,10 @@ struct GyroscopicSetup : public CommonRigidBodyBase
 	void resetCamera()
 	{
 		float dist = 20;
-		float pitch = 180;
-		float yaw = 16;
+		float pitch = -16;
+		float yaw = 180;
 		float targetPos[3]={-2.4,0.4,-0.24};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 
 };

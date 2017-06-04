@@ -201,10 +201,10 @@ struct CommonGraphicsApp
 				{
 		//			if (b3Fabs(xDelta)>b3Fabs(yDelta))
 		//			{
-						pitch -= xDelta*m_mouseMoveMultiplier;
+						pitch -= yDelta*m_mouseMoveMultiplier;
 		//			} else
 		//			{
-						yaw += yDelta*m_mouseMoveMultiplier;
+						yaw -= xDelta*m_mouseMoveMultiplier;
 		//			}
 				}
 

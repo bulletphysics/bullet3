@@ -52,7 +52,7 @@ def readLogFile(filename, verbose = True):
 #clid = p.connect(p.SHARED_MEMORY)
 p.connect(p.GUI)
 p.loadURDF("plane.urdf",[0,0,-0.3])
-p.loadURDF("kuka_iiwa/model.urdf",[0,0,0])
+p.loadURDF("kuka_iiwa/model.urdf",[0,0,1])
 p.loadURDF("cube.urdf",[2,2,5])
 p.loadURDF("cube.urdf",[-2,-2,5])
 p.loadURDF("cube.urdf",[2,-2,5])
