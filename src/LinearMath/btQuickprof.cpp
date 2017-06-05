@@ -14,7 +14,7 @@
 // Ogre (www.ogre3d.org).
 
 #include "btQuickprof.h"
-
+#include "btThreads.h"
 
 
 
@@ -685,6 +685,9 @@ void	CProfileManager::dumpAll()
 
 unsigned int btQuickprofGetCurrentThreadIndex2()
 {
+#if BT_THREADSAFE
+    return btGetCurrentThreadIndex();
+#else // #if BT_THREADSAFE
 	const unsigned int kNullIndex = ~0U;
 #ifdef _WIN32
     #if defined(__MINGW32__) || defined(__MINGW64__)
@@ -717,6 +720,7 @@ unsigned int btQuickprofGetCurrentThreadIndex2()
 		sThreadIndex = gThreadCounter++;
 	}
 	return sThreadIndex;
+#endif // #else // #if BT_THREADSAFE
 }
 
 void	btEnterProfileZoneDefault(const char* name)

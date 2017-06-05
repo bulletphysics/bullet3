@@ -28,6 +28,14 @@ subject to the following restrictions:
 #define BT_OVERRIDE
 #endif
 
+const unsigned int BT_MAX_THREAD_COUNT = 64;  // only if BT_THREADSAFE is 1
+
+// for internal use only
+bool btIsMainThread();
+bool btThreadsAreRunning();
+unsigned int btGetCurrentThreadIndex();
+void btResetThreadIndexCounter(); // notify that all worker threads have been destroyed
+
 ///
 /// btSpinMutex -- lightweight spin-mutex implemented with atomic ops, never puts
 ///               a thread to sleep because it is designed to be used with a task scheduler
@@ -48,39 +56,41 @@ public:
     bool tryLock();
 };
 
-#if BT_THREADSAFE
 
-// for internal Bullet use only
+//
+// NOTE: btMutex* is for internal Bullet use only
+//
+// If BT_THREADSAFE is undefined or 0, should optimize away to nothing.
+// This is good because for the single-threaded build of Bullet, any calls
+// to these functions will be optimized out.
+//
+// However, for users of the multi-threaded build of Bullet this is kind
+// of bad because if you call any of these functions from external code
+// (where BT_THREADSAFE is undefined) you will get unexpected race conditions.
+//
 SIMD_FORCE_INLINE void btMutexLock( btSpinMutex* mutex )
 {
+#if BT_THREADSAFE
     mutex->lock();
+#endif // #if BT_THREADSAFE
 }
 
 SIMD_FORCE_INLINE void btMutexUnlock( btSpinMutex* mutex )
 {
+#if BT_THREADSAFE
     mutex->unlock();
+#endif // #if BT_THREADSAFE
 }
 
 SIMD_FORCE_INLINE bool btMutexTryLock( btSpinMutex* mutex )
 {
+#if BT_THREADSAFE
     return mutex->tryLock();
+#else
+    return true;
+#endif // #if BT_THREADSAFE
 }
 
-// for internal use only
-bool btIsMainThread();
-bool btThreadsAreRunning();
-unsigned int btGetCurrentThreadIndex();
-const unsigned int BT_MAX_THREAD_COUNT = 64;
-
-#else
-
-// for internal Bullet use only
-// if BT_THREADSAFE is undefined or 0, should optimize away to nothing
-SIMD_FORCE_INLINE void btMutexLock( btSpinMutex* ) {}
-SIMD_FORCE_INLINE void btMutexUnlock( btSpinMutex* ) {}
-SIMD_FORCE_INLINE bool btMutexTryLock( btSpinMutex* ) {return true;}
-SIMD_FORCE_INLINE bool btThreadsAreRunning() { return false;}
-#endif
 
 //
 // btIParallelForBody -- subclass this to express work that can be done in parallel
@@ -97,16 +107,24 @@ public:
 //
 class btITaskScheduler
 {
-    const char* m_name;
 public:
-    btITaskScheduler( const char* name ) : m_name( name ) {}
+    btITaskScheduler( const char* name );
+    virtual ~btITaskScheduler() {}
     const char* getName() const { return m_name; }
 
-    virtual ~btITaskScheduler() {}
     virtual int getMaxNumThreads() const = 0;
     virtual int getNumThreads() const = 0;
     virtual void setNumThreads( int numThreads ) = 0;
     virtual void parallelFor( int iBegin, int iEnd, int grainSize, const btIParallelForBody& body ) = 0;
+
+    // internal use only
+    virtual void activate();
+    virtual void deactivate();
+
+protected:
+    const char* m_name;
+    unsigned int m_savedThreadCounter;
+    bool m_isActive;
 };
 
 // set the task scheduler to use for all calls to btParallelFor()
