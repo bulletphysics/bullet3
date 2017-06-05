@@ -20,7 +20,6 @@ subject to the following restrictions:
 #include "LinearMath/btIDebugDraw.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btHashMap.h"
-
 class btBroadphaseInterface;
 class btCollisionShape;
 class btOverlappingPairCache;
@@ -29,92 +28,21 @@ class btConstraintSolver;
 struct btCollisionAlgorithmCreateFunc;
 class btDefaultCollisionConfiguration;
 class NNWalker;
-class NNWalkerBrain;
 
 #include "NN3DWalkersTimeWarpBase.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
 
 #include "../Utils/b3ReferenceFrameHelper.hpp"
-#include "../Utils/b3Clock.h"
 #include "../RenderingExamples/TimeSeriesCanvas.h"
 
-// #### configurable parameters ####
-#ifndef NUM_WALKER_LEGS
-#define NUM_WALKER_LEGS 6 // the number of walker legs
-#endif
-
-#ifndef POPULATION_SIZE
-#define POPULATION_SIZE 10 // number of walkers in the population
-#endif
-
-#ifndef EVALUATION_DURATION
-#define EVALUATION_DURATION 10 // s (duration of one single evaluation)
-#endif
-
-#ifndef TIME_SERIES_MAX_Y
-#define TIME_SERIES_MAX_Y 20.0f // chart maximum y
-#endif
-
-#ifndef TIME_SERIES_MIN_Y
-#define TIME_SERIES_MIN_Y 0.0f // chart minimum y
-#endif
-
-// walker dimensions and properties
-static btScalar gWalkerMotorStrength = 0.5f;
-static btScalar gWalkerLegTargetFrequency = 3;
 static btScalar gRootBodyRadius  = 0.25f;
 static btScalar gRootBodyHeight = 0.1f;
 static btScalar gLegRadius = 0.1f;
 static btScalar gLegLength = 0.45f;
 static btScalar gForeLegLength = 0.75f;
 static btScalar gForeLegRadius = 0.08f;
+
 static btScalar gParallelEvaluations = 10.0f;
-
-// Evaluation configurable parameters
-#ifndef REAP_QTY
-#define REAP_QTY 0.3f 												// number of walkers reaped based on their bad performance
-#endif
-
-#ifndef SOW_CROSSOVER_QTY
-#define SOW_CROSSOVER_QTY 0.2f 										// number of walkers recreated via crossover
-#endif
-
-// this means the rest of them is randomly created: REAP_QTY-SOW_CROSSOVER_QTY = NEW_RANDOM_BREED_QTY
-
-#ifndef SOW_ELITE_QTY
-#define SOW_ELITE_QTY 0.2f 											// number of walkers kept using an elitist strategy (the best performing creatures are NOT mutated at all)
-#endif
-
-#ifndef SOW_MUTATION_QTY
-#define SOW_MUTATION_QTY 0.5f 										// SOW_ELITE_QTY + SOW_MUTATION_QTY + REAP_QTY = 1
-#endif
-
-#ifndef MUTATION_RATE
-#define MUTATION_RATE 0.5f 											// the mutation rate of for the walker with the worst performance
-#endif
-
-#ifndef SOW_ELITE_PARTNER
-#define SOW_ELITE_PARTNER 0.8f 										// the chance an elite partner is chosen for breeding
-#endif
-
-// #### debugging ####
-#ifndef DRAW_INTERPENETRATIONS
-#define DRAW_INTERPENETRATIONS false 								// DEBUG toggle: draw interpenetrations of a walker body
-#endif
-
-#ifndef REBUILD_WALKER
-#define REBUILD_WALKER true											// if the walker should be rebuilt on mutation
-#endif
-
-#ifndef TIMESTAMP_TIME
-#define TIMESTAMP_TIME 2000.0f 										// delay between speed up timestamps
-#endif
-
-// #### not to be reconfigured ####
-#define BODYPART_COUNT (2 * NUM_WALKER_LEGS + 1)
-#define JOINT_COUNT (BODYPART_COUNT - 1)
-
-void* GROUND_ID = (void*)1;
 
 #ifndef SIMD_PI_4
 #define SIMD_PI_4     0.5 * SIMD_HALF_PI
@@ -124,91 +52,96 @@ void* GROUND_ID = (void*)1;
 #define SIMD_PI_8     0.25 * SIMD_HALF_PI
 #endif
 
+#ifndef RANDOM_MOVEMENT
+#define RANDOM_MOVEMENT false
+#endif
+
+#ifndef RANDOMIZE_DIMENSIONS
+#define RANDOMIZE_DIMENSIONS false
+#endif
+
+#ifndef NUM_WALKERS
+#define NUM_WALKERS 50
+#endif
+
+#ifndef EVALUATION_TIME
+#define EVALUATION_TIME 10 // s
+#endif
+
+#ifndef REAP_QTY
+#define REAP_QTY 0.3f // number of walkers reaped based on their bad performance
+#endif
+
+#ifndef SOW_CROSSOVER_QTY
+#define SOW_CROSSOVER_QTY 0.2f // this means REAP_QTY-SOW_CROSSOVER_QTY = NEW_RANDOM_BREED_QTY
+#endif
+
+#ifndef SOW_ELITE_QTY
+#define SOW_ELITE_QTY 0.2f // number of walkers kept using an elitist strategy
+#endif
+
+#ifndef SOW_MUTATION_QTY
+#define SOW_MUTATION_QTY 0.5f // SOW_ELITE_QTY + SOW_MUTATION_QTY + REAP_QTY = 1
+#endif
+
+#ifndef MUTATION_RATE
+#define MUTATION_RATE 0.5f // the mutation rate of for the walker with the worst performance
+#endif
+
+#ifndef SOW_ELITE_PARTNER
+#define SOW_ELITE_PARTNER 0.8f
+#endif
+
+#define NUM_LEGS 6
+#define BODYPART_COUNT (2 * NUM_LEGS + 1)
+#define JOINT_COUNT (BODYPART_COUNT - 1)
+#define DRAW_INTERPENETRATIONS false
+
+void* GROUND_ID = (void*)1;
+
 class NN3DWalkersExample : public NN3DWalkersTimeWarpBase
 {
-	btScalar m_SimulationTime; 										// the current simulation time
-	btScalar m_LastSpeedupPrintTimestamp;
-	btScalar m_bestWalkerFitness; 									// to keep track of the best fitness
-
-	btVector3 m_resetPosition; 										// initial position of an evaluation
-
-	int 	 m_walkersInEvaluation; 								// number of walkers in evaluation
-	int		 m_nextReapedIndex; 									// index of the next reaped walker
+	btScalar m_Time;
+	btScalar m_SpeedupTimestamp;
+	btScalar m_targetAccumulator;
+	btScalar m_targetFrequency;
+	btScalar m_motorStrength;
+	int 	 m_evaluationsQty;
+	int		 m_nextReaped;
 	
-	btAlignedObjectArray<class NNWalker*> m_walkersInPopulation;	// walkers in the population
-	btAlignedObjectArray<class NNWalkerBrain*> m_walkerBrains;		// walker cores in the population
+	btAlignedObjectArray<class NNWalker*> m_walkersInPopulation;
 	
-	bool m_rebuildWorldNeeded; 										// if the world should be rebuilt (for determinism)
+	TimeSeriesCanvas* m_timeSeriesCanvas;
 
-	btRigidBody* m_ground; 											// reference to ground to readd if world is rebuilt
-
-	btOverlapFilterCallback * m_filterCallback; 					// the collision filter callback
-
-	TimeSeriesCanvas* m_timeSeriesCanvas; 							// A plotting canvas for the walker fitnesses
 public:
 	NN3DWalkersExample(struct GUIHelperInterface* helper)
 	:NN3DWalkersTimeWarpBase(helper),
-	 // others
-	 m_resetPosition(0,0,0),
-	 m_SimulationTime(0),
-	 m_bestWalkerFitness(0),
-	 m_LastSpeedupPrintTimestamp(0),
-	 m_walkersInEvaluation(0),
-	 m_nextReapedIndex(0),
-	 m_timeSeriesCanvas(NULL),
-	 m_ground(NULL),
-	 m_filterCallback(NULL)
+	 m_Time(0),
+	 m_SpeedupTimestamp(0),
+	 m_targetAccumulator(0),
+	m_targetFrequency(3),
+	m_motorStrength(0.5f),
+	m_evaluationsQty(0),
+	 m_nextReaped(0),
+	 m_timeSeriesCanvas(0)
 	{
-		b3Clock clock;
-		clock.reset(true);									// Reset clock to zero to get new random seed
-		srand(clock.getTimeMilliseconds());					// Set random milliseconds based on system time
 	}
 
 	virtual ~NN3DWalkersExample()
 	{
-		//m_walkersInPopulation deallocates itself
-		//m_walkerBrains deallocates itself
 		delete m_timeSeriesCanvas;
 	}
 
-	/**
-	 * Setup physics scene.
-	 */
 	void initPhysics();
 	
-	/**
-	 * Recreate the world if necessary.
-	 * @param deltaTime
-	 */
-	virtual void performModelUpdate(float deltaTime);
-
-	/**
-	 * Delete the world and recreate it anew.
-	 */
-	void recreateWorld();
-
-	/**
-	 * Shutdown physics scene.
-	 */
 	virtual void exitPhysics();
 	
-	/**
-	 * Handle keyboard inputs.
-	 * @param key
-	 * @param state
-	 * @return
-	 */
-	virtual bool keyboardCallback(int key, int state);
+	void spawnWalker(int index, const btVector3& startOffset, bool bFixed);
+	
+	virtual bool	keyboardCallback(int key, int state);
 
-	/**
-	 * Detect collisions within simulation. Used to avoid collisions happening at startup.
-	 * @return
-	 */
 	bool detectCollisions();
 
-	/**
-	 * Reset the camera to a certain position and orientation.
-	 */
 	void resetCamera()
 	{
 		float dist = 11;
@@ -220,141 +153,54 @@ public:
 
 	// Evaluation
 
-	/**
-	 * Update the simulation.
-	 * @param timeSinceLastTick
-	 */
 	void update(const btScalar timeSinceLastTick);
 
-	/**
-	 * Update all evaluations.
-	 * @param timeSinceLastTick
-	 */
 	void updateEvaluations(const btScalar timeSinceLastTick);
 
-	/**
-	 * Schedule new evaluations and tear down old ones.
-	 */
 	void scheduleEvaluations();
 
-	/**
-	 * Draw distance markings on ground.
-	 */
 	void drawMarkings();
-
-	/**
-	 * Reset a walker by deleting and rebuilding it.
-	 * @param i
-	 * @param resetPosition
-	 */
-	void resetWalkerAt(int i, const btVector3& resetPosition);
 
 	// Reaper
 
-	/**
-	 * Rate all evaluations via fitness function.
-	 */
 	void rateEvaluations();
 
-	/**
-	 * Reap the worst performing walkers.
-	 */
 	void reap();
 
-	/**
-	 * Sow new walkers.
-	 */
 	void sow();
 
-	/**
-	 * Crossover two walkers to create an offspring.
-	 * @param mother
-	 * @param father
-	 * @param offspring
-	 */
 	void crossover(NNWalker* mother, NNWalker* father, NNWalker* offspring);
 
-	/**
-	 * Mutate a walker.
-	 * @param mutant
-	 * @param mutationRate
-	 */
 	void mutate(NNWalker* mutant, btScalar mutationRate);
 
-	/**
-	 * Get a random elite walker.
-	 * @return
-	 */
 	NNWalker* getRandomElite();
 
-	/**
-	 * Get a random non elite walker.
-	 * @return
-	 */
 	NNWalker* getRandomNonElite();
 
-	/**
-	 * Get the next walker to be reaped.
-	 * @return
-	 */
 	NNWalker* getNextReaped();
 
-	/**
-	 * Print walker configurations to console.
-	 */
 	void printWalkerConfigs();
+
 };
 
 static NN3DWalkersExample* nn3DWalkers = NULL;
 
-/**
- * Neural Network Brain Weights.
- */
-class NNWalkerBrain
-{
-	btScalar m_sensoryMotorWeights[BODYPART_COUNT*JOINT_COUNT]; // Neural Network connection weights
-
-public:
-
-	NNWalkerBrain(){
-		randomizeSensoryMotorWeights();
-	}
-
-	void randomizeSensoryMotorWeights(){
-		//initialize random weights
-		for(int i = 0;i < BODYPART_COUNT;i++){
-			for(int j = 0;j < JOINT_COUNT;j++){
-				m_sensoryMotorWeights[i+j*BODYPART_COUNT] = ((double) rand() / (RAND_MAX))*2.0f-1.0f;
-			}
-		}
-	}
-
-	btScalar* getSensoryMotorWeights() {
-		return m_sensoryMotorWeights;
-	}
-};
-
-/**
- * Neural Networks Walker. A 6 legged robot moving controlled by a one-layer neural network which maps from leg ground touch sensors to leg joint positions.
- */
 class NNWalker
 {
-	btDynamicsWorld*			m_ownerWorld;
-	btCollisionShape*			m_shapes[BODYPART_COUNT];
-	btRigidBody*				m_bodies[BODYPART_COUNT];
-	btTransform					m_bodyRelativeTransforms[BODYPART_COUNT];
-	btTypedConstraint*			m_joints[JOINT_COUNT];
+	btDynamicsWorld*	m_ownerWorld;
+	btCollisionShape*	m_shapes[BODYPART_COUNT];
+	btRigidBody*		m_bodies[BODYPART_COUNT];
+	btTransform			m_bodyRelativeTransforms[BODYPART_COUNT];
+	btTypedConstraint*	m_joints[JOINT_COUNT];
 	btHashMap<btHashPtr,int>	m_bodyTouchSensorIndexMap;
-	bool 						m_touchSensors[BODYPART_COUNT];
-	NNWalkerBrain*				m_brain;
+	bool 				m_touchSensors[BODYPART_COUNT];
+	btScalar			m_sensoryMotorWeights[BODYPART_COUNT*JOINT_COUNT];
 
-
-	bool						m_inEvaluation;
-	btScalar					m_evaluationTime;
-	bool						m_reaped;
-	btVector3					m_startPosition;
-	int							m_index;
-	btScalar					m_legUpdateAccumulator;
+	bool				m_inEvaluation;
+	btScalar			m_evaluationTime;
+	bool				m_reaped;
+	btVector3			m_startPosition;
+	int					m_index;
 
 	btRigidBody* localCreateRigidBody (btScalar mass, const btTransform& startTransform, btCollisionShape* shape)
 	{
@@ -374,77 +220,76 @@ class NNWalker
 
 public:
 
-	NNWalker(int index,
-		btDynamicsWorld* ownerWorld,
-		NNWalkerBrain* core,
-		const btVector3& startingPosition,
-		const btScalar& rootBodyRadius,
-		const btScalar& rootBodyHeight,
-		const btScalar& legRadius,
-		const btScalar& legLength,
-		const btScalar& foreLegRadius,
-		const btScalar& foreLegLength,
-		bool fixedBodyPosition)
-		: m_ownerWorld(ownerWorld), 												// the world the walker walks in
-		  m_brain(core), 															// the evolution core
-		  m_inEvaluation(false), 													// the walker is not in evaluation
-		  m_evaluationTime(0), 														// reset evaluation time
-		  m_reaped(false), 															// the walker is not reaped
-		  m_startPosition(startingPosition), 										// the starting position of the walker
-		  m_legUpdateAccumulator(0),												// variable to apply rhythmic leg position updates
-		  m_index(index)
+	void randomizeSensoryMotorWeights(){
+		//initialize random weights
+		for(int i = 0;i < BODYPART_COUNT;i++){
+			for(int j = 0;j < JOINT_COUNT;j++){
+				m_sensoryMotorWeights[i+j*BODYPART_COUNT] = ((double) rand() / (RAND_MAX))*2.0f-1.0f;
+			}
+		}
+	}
+
+	NNWalker(int index, btDynamicsWorld* ownerWorld, const btVector3& positionOffset, bool bFixed)
+		: m_ownerWorld (ownerWorld),
+		  m_inEvaluation(false),
+		  m_evaluationTime(0),
+		  m_reaped(false)
 	{
-		btVector3 vUp(0, 1, 0); 													// up direction in local reference frame
+		m_index = index;
+		btVector3 vUp(0, 1, 0); // up in local reference frame
 
 		NN3DWalkersExample* nnWalkersDemo = (NN3DWalkersExample*)m_ownerWorld->getWorldUserInfo();
 
+		randomizeSensoryMotorWeights();
+
+		//
 		// Setup geometry
-		m_shapes[0] = new btCapsuleShape(rootBodyRadius, rootBodyHeight); 			// torso capsule
+		m_shapes[0] = new btCapsuleShape(gRootBodyRadius, gRootBodyHeight); // root body capsule
 		int i;
-		for (i = 0; i < NUM_WALKER_LEGS; i++)
+		for ( i=0; i<NUM_LEGS; i++)
 		{
-			m_shapes[1 + 2*i] = new btCapsuleShape(legRadius, legLength); 			// leg  capsule
-			m_shapes[2 + 2*i] = new btCapsuleShape(foreLegRadius, foreLegLength); 	// fore leg capsule
+			m_shapes[1 + 2*i] = new btCapsuleShape(gLegRadius, gLegLength); // leg  capsule
+			m_shapes[2 + 2*i] = new btCapsuleShape(gForeLegRadius, gForeLegLength); // fore leg capsule
 		}
 
+		//
 		// Setup rigid bodies
-		btScalar torsoAboveGroundHeight = foreLegLength;
+		btScalar rootAboveGroundHeight = gForeLegLength;
 		btTransform bodyOffset; bodyOffset.setIdentity();
-		bodyOffset.setOrigin(startingPosition);		
+		bodyOffset.setOrigin(positionOffset);		
 
-		// torso
-		btVector3 localTorsoPosition = btVector3(btScalar(0.), torsoAboveGroundHeight, btScalar(0.)); // torso position in local reference frame
+		// root body
+		btVector3 localRootBodyPosition = btVector3(btScalar(0.), rootAboveGroundHeight, btScalar(0.)); // root body position in local reference frame
 		btTransform transform;
 		transform.setIdentity();
-		transform.setOrigin(localTorsoPosition);
+		transform.setOrigin(localRootBodyPosition);
 
 		btTransform originTransform = transform;
 
-		m_bodies[0] = localCreateRigidBody(btScalar(fixedBodyPosition?0.:1.), bodyOffset*transform, m_shapes[0]);
+		m_bodies[0] = localCreateRigidBody(btScalar(bFixed?0.:1.), bodyOffset*transform, m_shapes[0]);
 		m_ownerWorld->addRigidBody(m_bodies[0]);
 		m_bodyRelativeTransforms[0] = btTransform::getIdentity();
 		m_bodies[0]->setUserPointer(this);
 		m_bodyTouchSensorIndexMap.insert(btHashPtr(m_bodies[0]), 0);
 
 		btHingeConstraint* hingeC;
+		//btConeTwistConstraint* coneC;
 
 		btTransform localA, localB, localC;
 
 		// legs
-		for (i = 0; i < NUM_WALKER_LEGS; i++)
+		for (i = 0; i < NUM_LEGS; i++)
 		{
-			float footAngle = 2 * SIMD_PI * i / NUM_WALKER_LEGS; 					// legs are uniformly distributed around the root body
-			float footYUnitPosition = sin(footAngle); 								// y position of the leg on the unit circle
-			float footXUnitPosition = cos(footAngle); 								// x position of the leg on the unit circle
+			float footAngle = 2 * SIMD_PI * i / NUM_LEGS; // legs are uniformly distributed around the root body
+			float footYUnitPosition = sin(footAngle); // y position of the leg on the unit circle
+			float footXUnitPosition = cos(footAngle); // x position of the leg on the unit circle
 
 			transform.setIdentity();
-			btVector3 legCOM = btVector3(btScalar(footXUnitPosition*(rootBodyRadius+0.5*legLength)),
-										 btScalar(torsoAboveGroundHeight),
-										 btScalar(footYUnitPosition*(rootBodyRadius+0.5*legLength)));
+			btVector3 legCOM = btVector3(btScalar(footXUnitPosition*(gRootBodyRadius+0.5*gLegLength)), btScalar(rootAboveGroundHeight), btScalar(footYUnitPosition*(gRootBodyRadius+0.5*gLegLength)));
 			transform.setOrigin(legCOM);
 
 			// thigh
-			btVector3 legDirection = (legCOM - localTorsoPosition).normalize();
+			btVector3 legDirection = (legCOM - localRootBodyPosition).normalize();
 			btVector3 kneeAxis = legDirection.cross(vUp);			
 			transform.setRotation(btQuaternion(kneeAxis, SIMD_HALF_PI));
 			m_bodies[1+2*i] = localCreateRigidBody(btScalar(1.), bodyOffset*transform, m_shapes[1+2*i]);
@@ -454,9 +299,7 @@ public:
 
 			// shin
 			transform.setIdentity();
-			transform.setOrigin(btVector3(btScalar(footXUnitPosition*(rootBodyRadius+legLength)),
-										  btScalar(torsoAboveGroundHeight-0.5*foreLegLength),
-										  btScalar(footYUnitPosition*(rootBodyRadius+legLength))));
+			transform.setOrigin(btVector3(btScalar(footXUnitPosition*(gRootBodyRadius+gLegLength)), btScalar(rootAboveGroundHeight-0.5*gForeLegLength), btScalar(footYUnitPosition*(gRootBodyRadius+gLegLength))));
 			m_bodies[2+2*i] = localCreateRigidBody(btScalar(1.), bodyOffset*transform, m_shapes[2+2*i]);
 			m_bodyRelativeTransforms[2+2*i] = transform;
 			m_bodies[2+2*i]->setUserPointer(this);
@@ -464,56 +307,39 @@ public:
 
 			// hip joints
 			localA.setIdentity(); localB.setIdentity();
-			localA.getBasis().setEulerZYX(0,-footAngle,0);	localA.setOrigin(btVector3(btScalar(footXUnitPosition*rootBodyRadius),
-																					   btScalar(0.),
-																					   btScalar(footYUnitPosition*rootBodyRadius)));
+			localA.getBasis().setEulerZYX(0,-footAngle,0);	localA.setOrigin(btVector3(btScalar(footXUnitPosition*gRootBodyRadius), btScalar(0.), btScalar(footYUnitPosition*gRootBodyRadius)));
 			localB = b3ReferenceFrameHelper::getTransformWorldToLocal(m_bodies[1+2*i]->getWorldTransform(), b3ReferenceFrameHelper::getTransformLocalToWorld(m_bodies[0]->getWorldTransform(),localA));
 			hingeC = new btHingeConstraint(*m_bodies[0], *m_bodies[1+2*i], localA, localB);
 			hingeC->setLimit(btScalar(-0.75 * SIMD_PI_4), btScalar(SIMD_PI_8));
+			//hingeC->setLimit(btScalar(-0.1), btScalar(0.1));
 			m_joints[2*i] = hingeC;
 
 			// knee joints
 			localA.setIdentity(); localB.setIdentity(); localC.setIdentity();
-			localA.getBasis().setEulerZYX(0,-footAngle,0);	localA.setOrigin(btVector3(btScalar(footXUnitPosition*(rootBodyRadius+legLength)),
-																					   btScalar(0.),
-																					   btScalar(footYUnitPosition*(rootBodyRadius+legLength))));
+			localA.getBasis().setEulerZYX(0,-footAngle,0);	localA.setOrigin(btVector3(btScalar(footXUnitPosition*(gRootBodyRadius+gLegLength)), btScalar(0.), btScalar(footYUnitPosition*(gRootBodyRadius+gLegLength))));
 			localB = b3ReferenceFrameHelper::getTransformWorldToLocal(m_bodies[1+2*i]->getWorldTransform(), b3ReferenceFrameHelper::getTransformLocalToWorld(m_bodies[0]->getWorldTransform(),localA));
 			localC = b3ReferenceFrameHelper::getTransformWorldToLocal(m_bodies[2+2*i]->getWorldTransform(), b3ReferenceFrameHelper::getTransformLocalToWorld(m_bodies[0]->getWorldTransform(),localA));
 			hingeC = new btHingeConstraint(*m_bodies[1+2*i], *m_bodies[2+2*i], localB, localC);
+			//hingeC->setLimit(btScalar(-0.01), btScalar(0.01));
 			hingeC->setLimit(btScalar(-SIMD_PI_8), btScalar(0.2));
 			m_joints[1+2*i] = hingeC;
 
-			//test if we cause a collision with priorly inserted bodies. This prevents the walkers from having to resolve collisions on startup
+			m_ownerWorld->addRigidBody(m_bodies[1+2*i]); // add thigh bone
 
-			m_ownerWorld->addRigidBody(m_bodies[1+2*i]); 								// add thigh bone
-			m_ownerWorld->addConstraint(m_joints[2*i], true); 							// connect thigh bone with root
+			m_ownerWorld->addConstraint(m_joints[2*i], true); // connect thigh bone with root
 
-			if(nnWalkersDemo->detectCollisions()){ 										// if thigh bone causes collision, remove it again
-				m_ownerWorld->removeConstraint(m_joints[2*i]); 							// disconnect thigh bone from root
-				delete m_joints[2*i];
-				m_joints[2*i] = NULL;
-
+			if(nnWalkersDemo->detectCollisions()){ // if thigh bone causes collision, remove it again
 				m_ownerWorld->removeRigidBody(m_bodies[1+2*i]);
-				delete m_bodies[1+2*i];
-				m_bodies[1+2*i] = NULL;
-
-				delete m_joints[1+2*i];
-				m_joints[1+2*i] = NULL;
-				delete m_bodies[2+2*i];
-				m_bodies[2+2*i] = NULL;
+				m_ownerWorld->removeConstraint(m_joints[2*i]); // disconnect thigh bone from root
 			}
 			else{
-				m_ownerWorld->addRigidBody(m_bodies[2+2*i]); 							// add shin bone
-				m_ownerWorld->addConstraint(m_joints[1+2*i], true); 					// connect shin bone with thigh
 
-				if(nnWalkersDemo->detectCollisions()){ 									// if shin bone causes collision, remove it again
-					m_ownerWorld->removeConstraint(m_joints[1+2*i]); 					// disconnect shin bone from thigh
-					delete m_joints[1+2*i];
-					m_joints[1+2*i] = NULL;
+				m_ownerWorld->addRigidBody(m_bodies[2+2*i]); // add shin bone
+				m_ownerWorld->addConstraint(m_joints[1+2*i], true); // connect shin bone with thigh
 
+				if(nnWalkersDemo->detectCollisions()){ // if shin bone causes collision, remove it again
 					m_ownerWorld->removeRigidBody(m_bodies[2+2*i]);
-					delete m_bodies[2+2*i];
-					m_bodies[2+2*i] = NULL;
+					m_ownerWorld->removeConstraint(m_joints[1+2*i]); // disconnect shin bone from thigh
 				}
 			}
 		}
@@ -521,49 +347,36 @@ public:
 		// Setup some damping on the m_bodies
 		for (i = 0; i < BODYPART_COUNT; ++i)
 		{
-			if(m_bodies[i] != NULL){
-				m_bodies[i]->setDamping(0.05, 0.85);
-				m_bodies[i]->setDeactivationTime(0.8);
-				m_bodies[i]->setSleepingThresholds(0.5f, 0.5f);
-				m_bodies[i]->setActivationState(DISABLE_DEACTIVATION);
-			}
+			m_bodies[i]->setDamping(0.05, 0.85);
+			m_bodies[i]->setDeactivationTime(0.8);
+			//m_bodies[i]->setSleepingThresholds(1.6, 2.5);
+			m_bodies[i]->setSleepingThresholds(0.5f, 0.5f);
 		}
 
-		// Properly remove rigidbodies and joints
-		removeJoints();
-		removeRigidbodies();
-
-		clearTouchSensors(); 															// set touch sensors to zero
-
-		randomizeSensoryMotorWeights(); 												// set random sensory motor weights for neural network layer
+		removeFromWorld(); // it should not yet be in the world
 	}
 
 	virtual	~NNWalker ()
 	{
 		int i;
 
-		removeFromWorld();							// remove walker from world
-
 		// Remove all constraints
 		for ( i = 0; i < JOINT_COUNT; ++i)
 		{
-			if(m_joints[i] != NULL){
-				delete m_joints[i]; m_joints[i] = 0;
-			}
+			m_ownerWorld->removeConstraint(m_joints[i]);
+			delete m_joints[i]; m_joints[i] = 0;
 		}
 
 		// Remove all bodies and shapes
 		for ( i = 0; i < BODYPART_COUNT; ++i)
 		{
-			if(m_bodies[i] != NULL){
-				delete m_bodies[i]->getMotionState();
+			m_ownerWorld->removeRigidBody(m_bodies[i]);
+			
+			delete m_bodies[i]->getMotionState();
 
-				delete m_bodies[i]; m_bodies[i] = 0;
-				delete m_shapes[i]; m_shapes[i] = 0;
-			}
+			delete m_bodies[i]; m_bodies[i] = 0;
+			delete m_shapes[i]; m_shapes[i] = 0;
 		}
-
-		m_ownerWorld = NULL;
 	}
 
 	btTypedConstraint** getJoints() {
@@ -580,47 +393,55 @@ public:
 		}
 	}
 
-	btScalar* getSensoryMotorWeights() {
-		return m_brain->getSensoryMotorWeights();
+	bool getTouchSensor(int i){
+		return m_touchSensors[i];
 	}
 
-	void randomizeSensoryMotorWeights(){
-		m_brain->randomizeSensoryMotorWeights();
+	btScalar* getSensoryMotorWeights() {
+		return m_sensoryMotorWeights;
 	}
 
 	void addToWorld() {
-		if(!isInEvaluation()){
-
-			addRigidbodies();
-			addJoints();
-
-			setInEvaluation(true);
+		int i;
+		// add all bodies and shapes
+		for ( i = 0; i < BODYPART_COUNT; ++i)
+		{
+			m_ownerWorld->addRigidBody(m_bodies[i]);
 		}
+
+		// add all constraints
+		for ( i = 0; i < JOINT_COUNT; ++i)
+		{
+			m_ownerWorld->addConstraint(m_joints[i], true); // important! If you add constraints back, you must set bullet physics to disable collision between constrained bodies
+		}
+		m_startPosition = getPosition();
 	}
 
-	void removeFromWorld() {
-		if(isInEvaluation()){
+	void removeFromWorld(){
+		int i;
 
-			removeJoints();
-			removeRigidbodies();
+		// Remove all constraints
+		for ( i = 0; i < JOINT_COUNT; ++i)
+		{
+			m_ownerWorld->removeConstraint(m_joints[i]);
+		}
 
-			setInEvaluation(false);
+		// Remove all bodies
+		for ( i = 0; i < BODYPART_COUNT; ++i)
+		{
+			m_ownerWorld->removeRigidBody(m_bodies[i]);
 		}
 	}
 
 	btVector3 getPosition() const {
 		btVector3 finalPosition(0,0,0);
 
-		int j = 0;
 		for(int i = 0; i < BODYPART_COUNT;i++)
 		{
-			if(m_bodies[i] != NULL){
-				finalPosition += m_bodies[i]->getCenterOfMassPosition();
-				j++;
-			}
+			finalPosition += m_bodies[i]->getCenterOfMassPosition();
 		}
 
-		finalPosition /= btScalar(j);
+		finalPosition /= BODYPART_COUNT;
 		return finalPosition;
 	}
 
@@ -638,35 +459,19 @@ public:
 		return getDistanceFitness(); // for now it is only distance
 	}
 
-	/**
-	 * Reset walker to a position. Does not work deterministically.
-	 * @param position
-	 */
 	void resetAt(const btVector3& position) {
-		removeFromWorld();
 		btTransform resetPosition(btQuaternion::getIdentity(), position);
-
-		for (int i = 0; i < JOINT_COUNT; i++)
-		{
-			btHingeConstraint* hingeC = static_cast<btHingeConstraint*>(getJoints()[i]);
-			hingeC->enableAngularMotor(false,0,0);
-		}
-
 		for (int i = 0; i < BODYPART_COUNT; ++i)
 		{
-			m_bodies[i]->clearForces();
-			m_bodies[i]->setAngularVelocity(btVector3(0,0,0));
-			m_bodies[i]->setLinearVelocity(btVector3(0,0,0));
-
 			m_bodies[i]->setWorldTransform(resetPosition*m_bodyRelativeTransforms[i]);
 			if(m_bodies[i]->getMotionState()){
 				m_bodies[i]->getMotionState()->setWorldTransform(resetPosition*m_bodyRelativeTransforms[i]);
 			}
+			m_bodies[i]->clearForces();
+			m_bodies[i]->setAngularVelocity(btVector3(0,0,0));
+			m_bodies[i]->setLinearVelocity(btVector3(0,0,0));
+
 		}
-
-		m_startPosition = position; // the starting position of the walker
-
-		m_legUpdateAccumulator = 0;
 
 		clearTouchSensors();
 	}
@@ -698,82 +503,10 @@ public:
 	int getIndex() const {
 		return m_index;
 	}
-
-	bool getTouchSensor(int i){
-		return m_touchSensors[i];
-	}
-
-	NNWalkerBrain* getBrain(){
-		return m_brain;
-	}
-
-	btRigidBody** getBodies(){
-		return &m_bodies[0];
-	}
-
-	btScalar getLegUpdateAccumulator() const {
-		return m_legUpdateAccumulator;
-	}
-
-	void setLegUpdateAccumulator(btScalar legUpdateAccumulator) {
-		m_legUpdateAccumulator = legUpdateAccumulator;
-	}
-
-	void setOwnerWorld(btDynamicsWorld* ownerWorld) {
-		m_ownerWorld = ownerWorld;
-	}
-
-private:
-	void addJoints(){
-		// add all constraints
-		for (int i = 0; i < JOINT_COUNT; ++i)
-		{
-			if(m_joints[i] != NULL){
-				m_ownerWorld->addConstraint(m_joints[i], true); // important! If you add constraints back, you must set bullet physics to disable collision between constrained bodies
-			}
-		}
-	}
-
-	void addRigidbodies() {
-		// add all bodies
-		for (int i = 0; i < BODYPART_COUNT; ++i)
-		{
-			if(m_bodies[i] != NULL){
-				m_ownerWorld->addRigidBody(m_bodies[i]);
-			}
-		}
-	}
-
-	void removeJoints() {
-		// remove all constraints
-		for (int i = 0; i < JOINT_COUNT; ++i)
-		{
-			if(m_joints[i] != NULL){
-				m_ownerWorld->removeConstraint(m_joints[i]);
-			}
-		}
-	}
-
-	void removeRigidbodies() {
-		// remove all bodies
-		for (int i = 0; i < BODYPART_COUNT; ++i)
-		{
-			if(m_bodies[i] != NULL){
-				m_ownerWorld->removeRigidBody(m_bodies[i]);
-			}
-		}
-	}
 };
 
 void evaluationUpdatePreTickCallback(btDynamicsWorld *world, btScalar timeStep);
 
-/**
- * Draw leg contacts on ground.
- * @param cp
- * @param body0
- * @param body1
- * @return
- */
 bool legContactProcessedCallback(btManifoldPoint& cp, void* body0, void* body1)
 {
     btCollisionObject* o1 = static_cast<btCollisionObject*>(body0);
@@ -782,28 +515,27 @@ bool legContactProcessedCallback(btManifoldPoint& cp, void* body0, void* body1)
     void* ID1 = o1->getUserPointer();
     void* ID2 = o2->getUserPointer();
 
-	if (ID1 != GROUND_ID || ID2 != GROUND_ID) { // if one of the contacts is not ground
+	if (ID1 != GROUND_ID || ID2 != GROUND_ID) {
 	    // Make a circle with a 0.9 radius at (0,0,0)
 	    // with RGB color (1,0,0).
-		if(nn3DWalkers->m_dynamicsWorld->getDebugDrawer() != NULL && !nn3DWalkers->mIsHeadless){
-			nn3DWalkers->m_dynamicsWorld->getDebugDrawer()->drawSphere(cp.getPositionWorldOnA(), 0.1, btVector3(1., 0., 0.));
+		if(nn3DWalkers->m_dynamicsWorld->getDebugDrawer() != NULL){
+			if(!nn3DWalkers->mIsHeadless){
+				nn3DWalkers->m_dynamicsWorld->getDebugDrawer()->drawSphere(cp.getPositionWorldOnA(), 0.1, btVector3(1., 0., 0.));
+			}
 		}
 
-		if(ID1 != GROUND_ID && ID1){ // if ID1 is not ground
+		if(ID1 != GROUND_ID && ID1){
 			((NNWalker*)ID1)->setTouchSensor(o1);
 		}
 
-		if(ID2 != GROUND_ID && ID2){ // if ID2 is not ground
+		if(ID2 != GROUND_ID && ID2){
 			((NNWalker*)ID2)->setTouchSensor(o2);
 		}
 	}
     return false;
 }
 
-/**
- * A filter avoiding collision between walkers.
- */
-struct WalkerFilterCallback : public btOverlapFilterCallback // avoids collisions between walkers
+struct WalkerFilterCallback : public btOverlapFilterCallback
 {
 	// return true when pairs need collision
 	virtual bool	needBroadphaseCollision(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) const
@@ -814,10 +546,9 @@ struct WalkerFilterCallback : public btOverlapFilterCallback // avoids collision
 		if (obj0->getUserPointer() == GROUND_ID || obj1->getUserPointer() == GROUND_ID) { // everything collides with ground
 			return true;
 		}
-		else if((NNWalker*)obj0->getUserPointer() && (NNWalker*)obj1->getUserPointer()){
+		else{
 			return ((NNWalker*)obj0->getUserPointer())->getIndex() == ((NNWalker*)obj1->getUserPointer())->getIndex();
 		}
-		return true;
 	}
 };
 
@@ -832,44 +563,36 @@ void NN3DWalkersExample::initPhysics()
 
 	// Setup the basic world
 
-	m_SimulationTime = 0;
+	m_Time = 0;
 
-	gWalkerLegTargetFrequency = 3; // Hz
+	createEmptyDynamicsWorld();
 
-	m_walkersInPopulation.resize(POPULATION_SIZE, NULL);
-	m_walkerBrains.resize(POPULATION_SIZE, NULL);
+	m_dynamicsWorld->setInternalTickCallback(evaluationUpdatePreTickCallback, this, true);
+	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 
-	recreateWorld(); // setup world and add ground
-
-	{ // Setup a big ground box
-		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(200.),btScalar(10.),btScalar(200.)));
-		m_collisionShapes.push_back(groundShape);
-		btTransform groundTransform;
-		groundTransform.setIdentity();
-		groundTransform.setOrigin(btVector3(0,-10,0));
-		m_ground = createRigidBody(btScalar(0.),groundTransform,groundShape);
-		m_ground->setFriction(5);
-		m_ground->setUserPointer(GROUND_ID);
-	}
+	m_targetFrequency = 3;
 
 	// new SIMD solver for joints clips accumulated impulse, so the new limits for the motor
 	// should be (numberOfsolverIterations * oldLimits)
-	gWalkerMotorStrength = 0.05f * m_dynamicsWorld->getSolverInfo().m_numIterations;
+	m_motorStrength = 0.05f * m_dynamicsWorld->getSolverInfo().m_numIterations;
+
 
 	{ // create a slider to change the motor update frequency
-		SliderParams slider("Motor update frequency", &gWalkerLegTargetFrequency);
+		SliderParams slider("Motor update frequency", &m_targetFrequency);
 		slider.m_minVal = 0;
 		slider.m_maxVal = 10;
 		slider.m_clampToNotches = false;
-		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
+			slider);
 	}
 
 	{ // create a slider to change the motor torque
-		SliderParams slider("Motor force", &gWalkerMotorStrength);
+		SliderParams slider("Motor force", &m_motorStrength);
 		slider.m_minVal = 1;
 		slider.m_maxVal = 50;
 		slider.m_clampToNotches = false;
-		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
+			slider);
 	}
 	
 	{ // create a slider to change the root body radius
@@ -877,7 +600,8 @@ void NN3DWalkersExample::initPhysics()
 		slider.m_minVal = 0.01f;
 		slider.m_maxVal = 10;
 		slider.m_clampToNotches = false;
-		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
+			slider);
 	}
 
 	{ // create a slider to change the root body height
@@ -885,7 +609,8 @@ void NN3DWalkersExample::initPhysics()
 		slider.m_minVal = 0.01f;
 		slider.m_maxVal = 10;
 		slider.m_clampToNotches = false;
-		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
+			slider);
 	}
 
 	{ // create a slider to change the leg radius
@@ -893,7 +618,8 @@ void NN3DWalkersExample::initPhysics()
 		slider.m_minVal = 0.01f;
 		slider.m_maxVal = 10;
 		slider.m_clampToNotches = false;
-		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
+			slider);
 	}
 
 	{ // create a slider to change the leg length
@@ -901,7 +627,8 @@ void NN3DWalkersExample::initPhysics()
 		slider.m_minVal = 0.01f;
 		slider.m_maxVal = 10;
 		slider.m_clampToNotches = false;
-		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
+			slider);
 	}
 
 	{ // create a slider to change the fore leg radius
@@ -909,7 +636,8 @@ void NN3DWalkersExample::initPhysics()
 		slider.m_minVal = 0.01f;
 		slider.m_maxVal = 10;
 		slider.m_clampToNotches = false;
-		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
+		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
+			slider);
 	}
 
 	{ // create a slider to change the fore leg length
@@ -917,135 +645,101 @@ void NN3DWalkersExample::initPhysics()
 		slider.m_minVal = 0.01f;
 		slider.m_maxVal = 10;
 		slider.m_clampToNotches = false;
-		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
-	}
-
-	if(POPULATION_SIZE > 1)
-	{ // create a slider to change the number of parallel evaluations
-		SliderParams slider("Parallel evaluations", &gParallelEvaluations);
-		slider.m_minVal = 1;
-		slider.m_maxVal = POPULATION_SIZE;
-		slider.m_clampToIntegers = true;
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
 			slider);
 	}
 
-	// setup data sources for walkers in time series canvas
-	m_timeSeriesCanvas = new TimeSeriesCanvas(m_guiHelper->getAppInterface()->m_2dCanvasInterface,400,300, "Fitness Performance");
-	m_timeSeriesCanvas->setupTimeSeries(TIME_SERIES_MIN_Y, TIME_SERIES_MAX_Y, 10, 0);
-	for(int i = 0; i < POPULATION_SIZE ; i++){
-		m_timeSeriesCanvas->addDataSource(" ", 100*i/POPULATION_SIZE, 100*(POPULATION_SIZE-i)/POPULATION_SIZE, 100*i/POPULATION_SIZE);
+	{ // create a slider to change the number of parallel evaluations
+		SliderParams slider("Parallel evaluations", &gParallelEvaluations);
+		slider.m_minVal = 1;
+		slider.m_maxVal = NUM_WALKERS;
+        slider.m_clampToIntegers = true;
+		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(
+			slider);
 	}
-}
 
-void NN3DWalkersExample::performModelUpdate(float deltaTime){
-	if(m_rebuildWorldNeeded){ // rebuilding the world must be performed in sync to the update cycle of the example browser
-		recreateWorld();
-		m_rebuildWorldNeeded = false;
+
+	// Setup a big ground box
+	{
+		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(200.),btScalar(10.),btScalar(200.)));
+		m_collisionShapes.push_back(groundShape);
+		btTransform groundTransform;
+		groundTransform.setIdentity();
+		groundTransform.setOrigin(btVector3(0,-10,0));
+		btRigidBody* ground = createRigidBody(btScalar(0.),groundTransform,groundShape);
+		ground->setFriction(5);
+		ground->setUserPointer(GROUND_ID);
 	}
-}
 
-/**
- * This method should really delete all remainings of the simulation except for the walker brains.
- */
-void NN3DWalkersExample::recreateWorld(){
+	for(int i = 0; i < NUM_WALKERS ; i++){
+		if(RANDOMIZE_DIMENSIONS){
+			float maxDimension = 0.2f;
 
-	for(int i = 0; i < POPULATION_SIZE ; i++){ 												// remove and delete walkers
-		if(m_walkersInPopulation[i] != NULL){
-			m_walkersInPopulation[i]->removeFromWorld();
-
-			for(int j = 0;j < BODYPART_COUNT;j++){ 											// remove all body graphics
-				btRigidBody* rb = static_cast<btRigidBody*>(m_walkersInPopulation[i]->getBodies()[j]);
-				if (rb != NULL) {
-					int graphicsUid = rb->getUserIndex();
-					m_guiHelper->removeGraphicsInstance(graphicsUid);
-				}
-			}
-
-			delete m_walkersInPopulation[i];
-			m_walkersInPopulation[i] = NULL;
+			// randomize the dimensions
+			gRootBodyRadius  = ((double) rand() / (RAND_MAX)) * (maxDimension-0.01f) + 0.01f;
+			gRootBodyHeight = ((double) rand() / (RAND_MAX)) * (maxDimension-0.01f) + 0.01f;
+			gLegRadius = ((double) rand() / (RAND_MAX)) * (maxDimension-0.01f) + 0.01f;
+			gLegLength = ((double) rand() / (RAND_MAX)) * (maxDimension-0.01f) + 0.01f;
+			gForeLegLength = ((double) rand() / (RAND_MAX)) * (maxDimension-0.01f) + 0.01f;
+			gForeLegRadius = ((double) rand() / (RAND_MAX)) * (maxDimension-0.01f) + 0.01f;
 		}
+
+		// Spawn one walker
+		btVector3 offset(0,0,0);
+		spawnWalker(i, offset, false);
 	}
 
-	if(m_dynamicsWorld != NULL && m_ground != NULL){
-		m_dynamicsWorld->removeRigidBody(m_ground); 										// remove ground
+	btOverlapFilterCallback * filterCallback = new WalkerFilterCallback();
+	m_dynamicsWorld->getPairCache()->setOverlapFilterCallback(filterCallback);
+
+	m_timeSeriesCanvas = new TimeSeriesCanvas(m_guiHelper->getAppInterface()->m_2dCanvasInterface,300,200, "Fitness Performance");
+	m_timeSeriesCanvas ->setupTimeSeries(40, NUM_WALKERS*EVALUATION_TIME, 0);
+	for(int i = 0; i < NUM_WALKERS ; i++){
+		m_timeSeriesCanvas->addDataSource(" ", 100*i/NUM_WALKERS,100*(NUM_WALKERS-i)/NUM_WALKERS,100*(i)/NUM_WALKERS);
 	}
+}
 
-	// delete world etc.
-	if(m_dynamicsWorld != NULL){
-		delete m_dynamicsWorld;
-		m_dynamicsWorld = 0;
-	}
 
-	if(m_solver != NULL){
-		delete m_solver;
-		m_solver = 0;
-	}
-
-	if(m_broadphase != NULL){
-		delete m_broadphase;
-		m_broadphase = 0;
-	}
-
-	if(m_dispatcher != NULL){
-		delete m_dispatcher;
-		m_dispatcher = 0;
-	}
-
-	if(m_collisionConfiguration != NULL){
-		delete m_collisionConfiguration;
-		m_collisionConfiguration = 0;
-	}
-
-	createEmptyDynamicsWorld(); // create new world
-
-	// add all filters and callbacks
-	m_dynamicsWorld->setInternalTickCallback(evaluationUpdatePreTickCallback, this, true); 	// set evolution update pretick callback
-	m_filterCallback = new WalkerFilterCallback();
-	m_dynamicsWorld->getPairCache()->setOverlapFilterCallback(m_filterCallback); 			// avoid collisions between walkers
-	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
-	m_dynamicsWorld->getDebugDrawer()->setDebugMode(0);
-
-	if(m_dynamicsWorld != NULL && m_ground != NULL){
-		m_dynamicsWorld->addRigidBody(m_ground); 											// readd ground
-	}
+void NN3DWalkersExample::spawnWalker(int index, const btVector3& startOffset, bool bFixed)
+{
+	NNWalker* walker = new NNWalker(index, m_dynamicsWorld, startOffset, bFixed);
+	m_walkersInPopulation.push_back(walker);
 }
 
 bool NN3DWalkersExample::detectCollisions()
 {
 	bool collisionDetected = false;
-	if (m_dynamicsWorld) {
-		m_dynamicsWorld->performDiscreteCollisionDetection(); 							// let the collisions be calculated
+	if(m_dynamicsWorld){
+		m_dynamicsWorld->performDiscreteCollisionDetection(); // let the collisions be calculated
+	}
 
-		int numManifolds = m_dynamicsWorld->getDispatcher()->getNumManifolds();
-		for (int i = 0; i < numManifolds; i++) 												// for each collision
-		{
-			btPersistentManifold* contactManifold = m_dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
-			// get collision objects of collision
-			const btCollisionObject* obA = contactManifold->getBody0();
-			const btCollisionObject* obB = contactManifold->getBody1();
+	int numManifolds = m_dynamicsWorld->getDispatcher()->getNumManifolds();
+	for (int i = 0;i < numManifolds;i++)
+	{
+		btPersistentManifold* contactManifold =  m_dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+		const btCollisionObject* obA = contactManifold->getBody0();
+		const btCollisionObject* obB = contactManifold->getBody1();
 
-			if (obA->getUserPointer() != GROUND_ID && obB->getUserPointer() != GROUND_ID && obA->getUserPointer() == obB->getUserPointer()) { 	// if one of them is not ground
+		if(obA->getUserPointer() != GROUND_ID && obB->getUserPointer() != GROUND_ID){
 
-				int numContacts = contactManifold->getNumContacts();
-				for (int j = 0; j < numContacts; j++) 											// for each collision contact
+			int numContacts = contactManifold->getNumContacts();
+			for (int j=0;j<numContacts;j++)
+			{
+				collisionDetected = true;
+				btManifoldPoint& pt = contactManifold->getContactPoint(j);
+				if (pt.getDistance()<0.f)
 				{
-					collisionDetected = true;
-					btManifoldPoint& pt = contactManifold->getContactPoint(j);
-					if (pt.getDistance() < 0.f) 											// if collision is penetrating
-					{
-						const btVector3& ptA = pt.getPositionWorldOnA();
-						const btVector3& ptB = pt.getPositionWorldOnB();
-						const btVector3& normalOnB = pt.m_normalWorldOnB;
+					//const btVector3& ptA = pt.getPositionWorldOnA();
+					//const btVector3& ptB = pt.getPositionWorldOnB();
+					//const btVector3& normalOnB = pt.m_normalWorldOnB;
 
-						if (!DRAW_INTERPENETRATIONS) {										// if no interpenetrations are drawn, break
-							break;
-						}
+					if(!DRAW_INTERPENETRATIONS){
+						return collisionDetected;
+					}
 
-						if (m_dynamicsWorld->getDebugDrawer() && !mIsHeadless) { 				// draw self collisions
-							m_dynamicsWorld->getDebugDrawer()->drawSphere(pt.getPositionWorldOnA(), 0.1, btVector3(0., 0., 1.));
-							m_dynamicsWorld->getDebugDrawer()->drawSphere(pt.getPositionWorldOnB(), 0.1, btVector3(0., 0., 1.));
-						}
+					if(m_dynamicsWorld->getDebugDrawer()){
+						m_dynamicsWorld->getDebugDrawer()->drawSphere(pt.getPositionWorldOnA(), 0.1, btVector3(0., 0., 1.));
+						m_dynamicsWorld->getDebugDrawer()->drawSphere(pt.getPositionWorldOnB(), 0.1, btVector3(0., 0., 1.));
 					}
 				}
 			}
@@ -1060,13 +754,13 @@ bool NN3DWalkersExample::keyboardCallback(int key, int state)
 	switch (key)
 	{
 	case '[':
-		gWalkerMotorStrength /= 1.1f;
+		m_motorStrength /= 1.1f;
 		return true;
 	case ']':
-		gWalkerMotorStrength *= 1.1f;
+		m_motorStrength *= 1.1f;
 		return true;
 	case 'l':
-//		printWalkerConfigs();
+		printWalkerConfigs();
 		return true;
 	default:
 		break;
@@ -1080,7 +774,9 @@ void NN3DWalkersExample::exitPhysics()
 
 	gContactProcessedCallback = NULL; // clear contact processed callback on exiting
 
-	for (int i = 0;i < POPULATION_SIZE;i++)
+	int i;
+
+	for (i = 0;i < NUM_WALKERS;i++)
 	{
 		NNWalker* walker = m_walkersInPopulation[i];
 		delete walker;
@@ -1106,61 +802,41 @@ void NN3DWalkersExample::rateEvaluations(){
 
 	b3Printf("Best performing walker: %f meters", btSqrt(m_walkersInPopulation[0]->getDistanceFitness()));
 
-	// if not all walkers are reaped and the best walker is worse than is had been in the previous round
-	if((POPULATION_SIZE-1)*(1-REAP_QTY) != 0 && btSqrt(m_walkersInPopulation[0]->getDistanceFitness()) < m_bestWalkerFitness){
-		b3Printf("################Simulation not deterministic###########################");
+	for(int i = 0; i < NUM_WALKERS;i++){
+		m_timeSeriesCanvas->insertDataAtCurrentTime(btSqrt(m_walkersInPopulation[i]->getDistanceFitness()),0,true);
 	}
-	else{
-		m_bestWalkerFitness = btSqrt(m_walkersInPopulation[0]->getDistanceFitness());
-	}
+	m_timeSeriesCanvas->nextTick();
 
-	for(int i = 0; i < POPULATION_SIZE;i++){ // plot walker fitnesses for this round
-		m_timeSeriesCanvas->insertDataAtCurrentTime(btSqrt(m_walkersInPopulation[i]->getDistanceFitness()),i,true);
-	}
-	m_timeSeriesCanvas->nextTick(); // move to next tick of graph
-
-	for(int i = 0; i < POPULATION_SIZE;i++){ // reset all walkers
+	for(int i = 0; i < NUM_WALKERS;i++){
 		m_walkersInPopulation[i]->setEvaluationTime(0);
 	}
-	m_nextReapedIndex = 0;
+	m_nextReaped = 0;
 }
 
 void NN3DWalkersExample::reap() {
 	int reaped = 0;
-	for(int i = POPULATION_SIZE-1;i >=(POPULATION_SIZE-1)*(1-REAP_QTY); i--){ // reap a certain percentage of walkers to replace them afterwards
+	for(int i = NUM_WALKERS-1;i >=(NUM_WALKERS-1)*(1-REAP_QTY); i--){ // reap a certain percentage
 		m_walkersInPopulation[i]->setReaped(true);
 		reaped++;
+		b3Printf("%i Walker(s) reaped.",reaped);
 	}
-	b3Printf("%i Walker(s) reaped.",reaped);
 }
 
-/**
- * Return a random elitist walker (one that is not mutated at all because it performs well).
- * @return Random elitist walker.
- */
 NNWalker* NN3DWalkersExample::getRandomElite(){
-	return m_walkersInPopulation[((POPULATION_SIZE-1) * SOW_ELITE_QTY) * (rand()/RAND_MAX)];
+	return m_walkersInPopulation[((NUM_WALKERS-1) * SOW_ELITE_QTY) * (rand()/RAND_MAX)];
 }
 
-/**
- * Return a random non-elitist walker (a mutated walker).
- * @return
- */
 NNWalker* NN3DWalkersExample::getRandomNonElite(){
-	return m_walkersInPopulation[(POPULATION_SIZE-1) * SOW_ELITE_QTY + (POPULATION_SIZE-1) * (1.0f-SOW_ELITE_QTY) * (rand()/RAND_MAX)];
+	return m_walkersInPopulation[(NUM_WALKERS-1) * SOW_ELITE_QTY + (NUM_WALKERS-1) * (1.0f-SOW_ELITE_QTY) * (rand()/RAND_MAX)];
 }
 
-/**
- * Get the next reaped walker to be replaced.
- * @return
- */
 NNWalker* NN3DWalkersExample::getNextReaped() {
-	if((POPULATION_SIZE-1) - m_nextReapedIndex >= (POPULATION_SIZE-1) * (1-REAP_QTY)){
-		m_nextReapedIndex++;
+	if((NUM_WALKERS-1) - m_nextReaped >= (NUM_WALKERS-1) * (1-REAP_QTY)){
+		m_nextReaped++;
 	}
 
-	if(m_walkersInPopulation[(POPULATION_SIZE-1) - m_nextReapedIndex+1]->isReaped()){
-		return m_walkersInPopulation[(POPULATION_SIZE-1) - m_nextReapedIndex+1];
+	if(m_walkersInPopulation[(NUM_WALKERS-1) - m_nextReaped+1]->isReaped()){
+		return m_walkersInPopulation[(NUM_WALKERS-1) - m_nextReaped+1];
 	}
 	else{
 		return NULL; // we asked for too many
@@ -1168,38 +844,30 @@ NNWalker* NN3DWalkersExample::getNextReaped() {
 
 }
 
-/**
- * Sow new walkers.
- */
 void NN3DWalkersExample::sow() {
 	int sow = 0;
-	for(int i = 0; i < POPULATION_SIZE * (SOW_CROSSOVER_QTY);i++){ // create number of new crossover creatures
+	for(int i = 0; i < NUM_WALKERS * (SOW_CROSSOVER_QTY);i++){ // create number of new crossover creatures
 		sow++;
+		b3Printf("%i Walker(s) sown.",sow);
 		NNWalker* mother = getRandomElite(); // Get elite partner (mother)
 		NNWalker* father = (SOW_ELITE_PARTNER < rand()/RAND_MAX)?getRandomElite():getRandomNonElite(); //Get elite or random partner (father)
 		NNWalker* offspring = getNextReaped();
 		crossover(mother,father, offspring);
 	}
 
-	for(int i = POPULATION_SIZE*SOW_ELITE_QTY; i < POPULATION_SIZE*(SOW_ELITE_QTY+SOW_MUTATION_QTY);i++){ // create mutants
-		mutate(m_walkersInPopulation[i], btScalar(MUTATION_RATE / (POPULATION_SIZE * SOW_MUTATION_QTY) * (i-POPULATION_SIZE*SOW_ELITE_QTY)));
+	for(int i = NUM_WALKERS*SOW_ELITE_QTY; i < NUM_WALKERS*(SOW_ELITE_QTY+SOW_MUTATION_QTY);i++){ // create mutants
+		mutate(m_walkersInPopulation[i], btScalar(MUTATION_RATE / (NUM_WALKERS * SOW_MUTATION_QTY) * (i-NUM_WALKERS*SOW_ELITE_QTY)));
 	}
 
-	for(int i = 0; i < (POPULATION_SIZE-1) * (REAP_QTY-SOW_CROSSOVER_QTY);i++){
+	for(int i = 0; i < (NUM_WALKERS-1) * (REAP_QTY-SOW_CROSSOVER_QTY);i++){
 		sow++;
+		b3Printf("%i Walker(s) sown.",sow);
 		NNWalker* reaped = getNextReaped();
 		reaped->setReaped(false);
 		reaped->randomizeSensoryMotorWeights();
 	}
-	b3Printf("%i Walker(s) sown.",sow);
 }
 
-/**
- * Crossover mother and father into the child.
- * @param mother
- * @param father
- * @param child
- */
 void NN3DWalkersExample::crossover(NNWalker* mother, NNWalker* father, NNWalker* child) {
 	for(int i = 0; i < BODYPART_COUNT*JOINT_COUNT;i++){
 		btScalar random = ((double) rand() / (RAND_MAX));
@@ -1214,11 +882,6 @@ void NN3DWalkersExample::crossover(NNWalker* mother, NNWalker* father, NNWalker*
 	}
 }
 
-/**
- * Mutate the mutant.
- * @param mutant
- * @param mutationRate
- */
 void NN3DWalkersExample::mutate(NNWalker* mutant, btScalar mutationRate) {
 	for(int i = 0; i < BODYPART_COUNT*JOINT_COUNT;i++){
 		btScalar random = ((double) rand() / (RAND_MAX));
@@ -1229,20 +892,12 @@ void NN3DWalkersExample::mutate(NNWalker* mutant, btScalar mutationRate) {
 	}
 }
 
-/**
- * Update the demo via pretick callback to be precise.
- * @param world
- * @param timeStep
- */
 void evaluationUpdatePreTickCallback(btDynamicsWorld *world, btScalar timeStep) {
 	NN3DWalkersExample* nnWalkersDemo = (NN3DWalkersExample*)world->getWorldUserInfo();
+
 	nnWalkersDemo->update(timeStep);
 }
 
-/**
- * Update cycle.
- * @param timeSinceLastTick
- */
 void NN3DWalkersExample::update(const btScalar timeSinceLastTick) {
 	updateEvaluations(timeSinceLastTick); /**!< We update all evaluations that are in the loop */
 
@@ -1250,16 +905,12 @@ void NN3DWalkersExample::update(const btScalar timeSinceLastTick) {
 
 	drawMarkings(); /**!< Draw markings on the ground */
 
-	if(m_SimulationTime > m_LastSpeedupPrintTimestamp + TIMESTAMP_TIME){ // print effective speedup every x seconds
+	if(m_Time > m_SpeedupTimestamp + 2.0f){ // print effective speedup
 		b3Printf("Avg Effective speedup: %f real time",calculatePerformedSpeedup());
-		m_LastSpeedupPrintTimestamp = m_SimulationTime;
+		m_SpeedupTimestamp = m_Time;
 	}
 }
 
-/**
- * Update the evaluations.
- * @param timeSinceLastTick
- */
 void NN3DWalkersExample::updateEvaluations(const btScalar timeSinceLastTick) {
 	btScalar delta = timeSinceLastTick;
 	btScalar minFPS = 1.f/60.f;
@@ -1267,185 +918,141 @@ void NN3DWalkersExample::updateEvaluations(const btScalar timeSinceLastTick) {
 		delta = minFPS;
 	}
 
-	m_SimulationTime += delta;
+	m_Time += delta;
 
-	for(int r = 0; r < POPULATION_SIZE;r++) // evaluation time passes
+	m_targetAccumulator += delta;
+
+	for(int i = 0; i < NUM_WALKERS;i++) // evaluation time passes
 	{
-		if(m_walkersInPopulation[r] != NULL && m_walkersInPopulation[r]->isInEvaluation()){
-			m_walkersInPopulation[r]->setEvaluationTime(m_walkersInPopulation[r]->getEvaluationTime()+delta); // increase evaluation time
+		if(m_walkersInPopulation[i]->isInEvaluation()){
+			m_walkersInPopulation[i]->setEvaluationTime(m_walkersInPopulation[i]->getEvaluationTime()+delta); // increase evaluation time
+		}
+	}
 
-			m_walkersInPopulation[r]->setLegUpdateAccumulator(m_walkersInPopulation[r]->getLegUpdateAccumulator() + delta);
+	if(m_targetAccumulator >= 1.0f /((double)m_targetFrequency))
+	{
+		m_targetAccumulator = 0;
 
-			if(m_walkersInPopulation[r]->getLegUpdateAccumulator() >= btScalar(1.0f) /gWalkerLegTargetFrequency) // we update the leg movement with leg target frequency
+		for (int r=0; r<NUM_WALKERS; r++)
+		{
+			if(m_walkersInPopulation[r]->isInEvaluation())
 			{
-				m_walkersInPopulation[r]->setLegUpdateAccumulator(0);
-
-				for (int i = 0; i < 2*NUM_WALKER_LEGS; i++)
+				for (int i = 0; i < 2*NUM_LEGS; i++)
 				{
-					btScalar targetAngle = 0; // angle in range [0,1]
+					btScalar targetAngle = 0;
 					btHingeConstraint* hingeC = static_cast<btHingeConstraint*>(m_walkersInPopulation[r]->getJoints()[i]);
 
+					if(RANDOM_MOVEMENT){
+						targetAngle   = ((double) rand() / (RAND_MAX));
+					}
+					else{ // neural network movement
 
-					if(hingeC != NULL){ // if hinge exists
-						for(int j = 0; j < JOINT_COUNT;j++){ // accumulate sensor inputs with weights (summate inputs)
+						// accumulate sensor inputs with weights
+						for(int j = 0; j < JOINT_COUNT;j++){
 							targetAngle += m_walkersInPopulation[r]->getSensoryMotorWeights()[i+j*BODYPART_COUNT] * m_walkersInPopulation[r]->getTouchSensor(i);
 						}
 
-						targetAngle = (tanh(targetAngle)+1.0f)*0.5f; // apply the activation function (threshold) [0;1]
-
-						btScalar targetLimitAngle 	= hingeC->getLowerLimit() + targetAngle * (hingeC->getUpperLimit() - hingeC->getLowerLimit()); // [lowerLimit;upperLimit]
-						btScalar currentAngle      	= hingeC->getHingeAngle();
-						btScalar angleError  		= targetLimitAngle - currentAngle; // target current delta
-						btScalar desiredAngularVel = angleError/((delta>0)?delta:btScalar(0.0001f)); // division by zero safety
-
-						hingeC->enableAngularMotor(true, desiredAngularVel, gWalkerMotorStrength); // set new target velocity
+						// apply the activation function
+						targetAngle = (tanh(targetAngle)+1.0f)*0.5f;
 					}
+					btScalar targetLimitAngle 	= hingeC->getLowerLimit() + targetAngle * (hingeC->getUpperLimit() - hingeC->getLowerLimit());
+					btScalar currentAngle      	= hingeC->getHingeAngle();
+					btScalar angleError  		= targetLimitAngle - currentAngle;
+					btScalar desiredAngularVel = 0;
+					if(delta){
+						desiredAngularVel = angleError/delta;
+					}
+					else{
+						desiredAngularVel = angleError/0.0001f;
+					}
+					hingeC->enableAngularMotor(true, desiredAngularVel, m_motorStrength);
 				}
-			}
 
-			// clear sensor signals after usage
-			m_walkersInPopulation[r]->clearTouchSensors();
+				// clear sensor signals after usage
+				m_walkersInPopulation[r]->clearTouchSensors();
+			}
 		}
 	}
 }
 
-/**
- * Schedule the walker evaluations.
- */
 void NN3DWalkersExample::scheduleEvaluations() {
-	for(int i = 0; i < POPULATION_SIZE;i++){
+	for(int i = 0; i < NUM_WALKERS;i++){
 
-		if(m_walkersInPopulation[i] != NULL && m_walkersInPopulation[i]->isInEvaluation() && m_walkersInPopulation[i]->getEvaluationTime() >= EVALUATION_DURATION){ /**!< tear down evaluations */
-			b3Printf("An evaluation finished at %f s. Distance: %f m", m_SimulationTime, btSqrt(m_walkersInPopulation[i]->getDistanceFitness()));
+		if(m_walkersInPopulation[i]->isInEvaluation() && m_walkersInPopulation[i]->getEvaluationTime() >= EVALUATION_TIME){ /**!< tear down evaluations */
+			b3Printf("An evaluation finished at %f s. Distance: %f m", m_Time, btSqrt(m_walkersInPopulation[i]->getDistanceFitness()));
+			m_walkersInPopulation[i]->setInEvaluation(false);
 			m_walkersInPopulation[i]->removeFromWorld();
-			m_walkersInEvaluation--;
+			m_evaluationsQty--;
 		}
 
-		if(m_walkersInEvaluation < gParallelEvaluations && (m_walkersInPopulation[i] == NULL || (!m_walkersInPopulation[i]->isInEvaluation() && m_walkersInPopulation[i]->getEvaluationTime() == 0))){ /**!< Setup the new evaluations */
-			b3Printf("An evaluation started at %f s.", m_SimulationTime);
-			m_walkersInEvaluation++;
+		if(m_evaluationsQty < gParallelEvaluations && !m_walkersInPopulation[i]->isInEvaluation() && m_walkersInPopulation[i]->getEvaluationTime() == 0){ /**!< Setup the new evaluations */
+			b3Printf("An evaluation started at %f s.",m_Time);
+			m_evaluationsQty++;
+			m_walkersInPopulation[i]->setInEvaluation(true);
 
-			if(REBUILD_WALKER){ 									// deletes and recreates the walker in the position
-				m_guiHelper->removeAllGraphicsInstances();
-				m_ground->setUserIndex(-1); 						// reset to get a new graphics object
-				m_ground->setUserIndex2(-1); 						// reset to get a new graphics object
-				m_ground->getCollisionShape()->setUserIndex(-1); 	// reset to get a new graphics object
+			if(m_walkersInPopulation[i]->getEvaluationTime() == 0){ // reset to origin if the evaluation did not yet run
+				m_walkersInPopulation[i]->resetAt(btVector3(0,0,0));
+			}
 
-				resetWalkerAt(i, m_resetPosition);
-			}
-			else{ 													// resets the position of the walker without deletion
-				m_walkersInPopulation[i]->resetAt(m_resetPosition);
-			}
 			m_walkersInPopulation[i]->addToWorld();
+			m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 		}
 	}
 
-	if(!mIsHeadless){ 												// after all changes, regenerate graphics objects
-		m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
-	}
+	if(m_evaluationsQty == 0){ // if there are no more evaluations possible
+		rateEvaluations(); // rate evaluations by sorting them based on their fitness
 
-	if(m_walkersInEvaluation == 0){ 								// if there are no more evaluations possible
-		if(REBUILD_WALKER){
-			m_rebuildWorldNeeded = true;
-		}
+		reap(); // reap worst performing walkers
 
-		rateEvaluations(); 											// rate evaluations by sorting them based on their fitness
-
-		reap(); 													// reap worst performing walkers
-
-		sow(); 														// crossover, mutate and sow new walkers
+		sow(); // crossover & mutate and sow new walkers
 		b3Printf("### A new generation started. ###");
 	}
 }
 
-/**
- * Reset the walker at position.
- * @param i
- * @param resetPosition
- */
-void NN3DWalkersExample::resetWalkerAt(int i, const btVector3& resetPosition){
-
-	// either copy core or create a new one if no previous existing
-	m_walkerBrains[i] = (m_walkerBrains[i] != NULL)?m_walkerBrains[i]:new NNWalkerBrain();
-
-	NNWalker* newWalker = new NNWalker(i,
-		m_dynamicsWorld,
-		m_walkerBrains[i],
-		resetPosition,
-		gRootBodyRadius,
-		gRootBodyHeight,
-		gLegRadius,
-		gLegLength,
-		gForeLegRadius,
-		gForeLegLength,
-		false);
-
-	if(m_walkersInPopulation[i] != NULL){
-		delete m_walkersInPopulation[i];
-	}
-
-	m_walkersInPopulation[i] = newWalker;
-}
-
-/**
- * Draw distance markings on the ground.
- */
 void NN3DWalkersExample::drawMarkings() {
-	if(!mIsHeadless){												// if the system is not running headless
-		for(int i = 0; i < POPULATION_SIZE;i++) 					// draw current distance plates of moving walkers
+	if(!mIsHeadless){
+		for(int i = 0; i < NUM_WALKERS;i++) // draw current distance plates of moving walkers
 		{
 			if(m_walkersInPopulation[i]->isInEvaluation()){
 				btVector3 walkerPosition = m_walkersInPopulation[i]->getPosition();
 				char performance[20];
 				sprintf(performance, "%.2f m", btSqrt(m_walkersInPopulation[i]->getDistanceFitness()));
-				m_guiHelper->drawText3D(performance,
-					walkerPosition.x(),
-					walkerPosition.y() + 1,
-					walkerPosition.z(),
-					1);
+				m_guiHelper->drawText3D(performance,walkerPosition.x(),walkerPosition.y()+1,walkerPosition.z(),1);
 			}
 		}
 
-		if(m_dynamicsWorld->getDebugDrawer()){
-			for(int i = 2; i < 50; i += 2){ 						// draw distance circles
-				m_dynamicsWorld->getDebugDrawer()->drawArc(
-					btVector3(0,0,0),
-					btVector3(0,1,0),
-					btVector3(1,0,0),
-					btScalar(i), btScalar(i), btScalar(0),
-					btScalar(SIMD_2_PI),
-					btVector3(10*i,0,0),
-					false);
+		for(int i = 2; i < 50; i+=2){ // draw distance circles
+			if(m_dynamicsWorld->getDebugDrawer()){
+				m_dynamicsWorld->getDebugDrawer()->drawArc(btVector3(0,0,0),btVector3(0,1,0),btVector3(1,0,0),btScalar(i), btScalar(i),btScalar(0),btScalar(SIMD_2_PI),btVector3(10*i,0,0),false);
 			}
 		}
 	}
 }
 
-/**
- * Print walker neural network layer configurations.
-*/
-//void NN3DWalkersExample::printWalkerConfigs(){
-//	char configString[25 + POPULATION_SIZE*BODYPART_COUNT*JOINT_COUNT*(3+15+1) + POPULATION_SIZE*4 + 1]; // 15 precision + [],\n
-//	char* runner = configString;
-//	sprintf(runner,"Population configuration:");
-//	runner +=25;
-//	for(int i = 0;i < POPULATION_SIZE;i++) {
-//		runner[0] = '\n';
-//		runner++;
-//		runner[0] = '[';
-//		runner++;
-//		for(int j = 0; j < BODYPART_COUNT*JOINT_COUNT;j++) {
-//			sprintf(runner,"%.15f", m_walkersInPopulation[i]->getSensoryMotorWeights()[j]);
-//			runner +=15;
-//			if(j + 1 < BODYPART_COUNT*JOINT_COUNT){
-//				runner[0] = ',';
-//			}
-//			else{
-//				runner[0] = ']';
-//			}
-//			runner++;
-//		}
-//	}
-//	runner[0] = '\0';
-//	b3Printf(configString);
-//}
+void NN3DWalkersExample::printWalkerConfigs(){
+#if 0
+	char configString[25 + NUM_WALKERS*BODYPART_COUNT*JOINT_COUNT*(3+15+1) + NUM_WALKERS*4 + 1]; // 15 precision + [],\n
+	char* runner = configString;
+	sprintf(runner,"Population configuration:");
+	runner +=25;
+	for(int i = 0;i < NUM_WALKERS;i++) {
+		runner[0] = '\n';
+		runner++;
+		runner[0] = '[';
+		runner++;
+		for(int j = 0; j < BODYPART_COUNT*JOINT_COUNT;j++) {
+			sprintf(runner,"%.15f", m_walkersInPopulation[i]->getSensoryMotorWeights()[j]);
+			runner +=15;
+			if(j + 1 < BODYPART_COUNT*JOINT_COUNT){
+				runner[0] = ',';
+			}
+			else{
+				runner[0] = ']';
+			}
+			runner++;
+		}
+	}
+	runner[0] = '\0';
+	b3Printf(configString);
+#endif
+}

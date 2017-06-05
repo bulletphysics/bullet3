@@ -208,8 +208,7 @@ struct NN3DWalkersTimeWarpBase: public CommonRigidBodyBase {
 		CommonRigidBodyBase(helper),
 		mPhysicsStepsPerSecondUpdated(false),
 		mFramesPerSecondUpdated(false),
-		mSolverIterationsUpdated(false),
-		mIsHeadless(false){
+		mSolverIterationsUpdated(false) {
 
 		 // main frame timer initialization
 		 mApplicationStart = mLoopTimer.getTimeMilliseconds(); /**!< Initialize when the application started running */
@@ -520,7 +519,7 @@ struct NN3DWalkersTimeWarpBase: public CommonRigidBodyBase {
 				m_collisionConfiguration);
 		}
 
-		changeERPCFM(); // set appropriate ERP/CFM values according to the spring and damper properties of the constraint
+		changeERPCFM(); // set appropriate ERP/CFM values according to the string and damper properties of the constraint
 
 		if (useSplitImpulse) { // If you experience strong repulsion forces in your constraints, it might help to enable the split impulse feature
 			m_dynamicsWorld->getSolverInfo().m_splitImpulse = 1; //enable split impulse feature
@@ -537,7 +536,7 @@ struct NN3DWalkersTimeWarpBase: public CommonRigidBodyBase {
 
 		m_dynamicsWorld->getSolverInfo().m_numIterations = gSolverIterations; // set the number of solver iterations for iteration based solvers
 
-		m_dynamicsWorld->setGravity(btVector3(0, btScalar(-9.81f), 0)); // set gravity to -9.81
+		m_dynamicsWorld->setGravity(btVector3(0, -9.81f, 0)); // set gravity to -9.81
 
 	}
 
@@ -552,7 +551,7 @@ struct NN3DWalkersTimeWarpBase: public CommonRigidBodyBase {
 
 
 
-	virtual void performModelUpdate(float deltaTime) // Override this
+	void timeWarpSimulation(float deltaTime) // Override this
 	{
 
 	}
@@ -560,7 +559,7 @@ struct NN3DWalkersTimeWarpBase: public CommonRigidBodyBase {
 	void stepSimulation(float deltaTime){ // customly step the simulation
 		do{
 
-			// settings
+//			// settings
 			if(mPhysicsStepsPerSecondUpdated){
 				changePhysicsStepsPerSecond(gPhysicsStepsPerSecond);
 				mPhysicsStepsPerSecondUpdated = false;
@@ -591,10 +590,10 @@ struct NN3DWalkersTimeWarpBase: public CommonRigidBodyBase {
 			//#############
 			// model update - here you perform updates of your model, be it the physics model, the game or simulation state or anything not related to graphics and input
 
-			performModelUpdate(deltaTime);
+			timeWarpSimulation(deltaTime);
 			if(mLoopTimer.getTimeSeconds() - speedUpPrintTimeStamp > 1){
 				// on reset, we calculate the performed speed up
-				double speedUp = ((double)performedTime*1000.0)/((double)(mLoopTimer.getTimeMilliseconds()-performanceTimestamp));
+				//double speedUp = ((double)performedTime*1000.0)/((double)(mLoopTimer.getTimeMilliseconds()-performanceTimestamp));
 //				b3Printf("Avg Effective speedup: %f",speedUp);
 				performedTime = 0;
 				performanceTimestamp = mLoopTimer.getTimeMilliseconds();
@@ -613,7 +612,7 @@ struct NN3DWalkersTimeWarpBase: public CommonRigidBodyBase {
 			mModelStart = mLoopTimer.getTimeMilliseconds(); /**!< Begin with the model update (in Milliseconds)*/
 			mLastGraphicsTick = mModelStart - mGraphicsStart; /**!< Update graphics timer (in Milliseconds) */
 
-			if (gMaximumSpeed) { /** If maximum speed is enabled*/
+			if (gMaximumSpeed /** If maximum speed is enabled*/) {
 				performMaxStep();
 			} else { /**!< This mode tries to progress as much time as it is expected from the game loop*/
 				performSpeedStep();
@@ -628,8 +627,8 @@ struct NN3DWalkersTimeWarpBase: public CommonRigidBodyBase {
 			mInputDt = mThisModelIteration - mInputClock;
 			if (mInputDt >= gApplicationTick) {
 				mInputClock = mThisModelIteration;
-				//mInputHandler.injectInput(); /**!< Inject input into handlers */
-				//mInputHandler.update(mInputClock); /**!< update elements that work on the current input state */
+				//	         mInputHandler.injectInput(); /**!< Inject input into handlers */
+				//	         mInputHandler.update(mInputClock); /**!< update elements that work on the current input state */
 			}
 
 			mGraphicsStart = mLoopTimer.getTimeMilliseconds(); /**!< Start the graphics update */
@@ -651,7 +650,7 @@ struct NN3DWalkersTimeWarpBase: public CommonRigidBodyBase {
 
 	}
 
-	virtual bool keyboardCallback(int key, int state)
+	virtual bool	keyboardCallback(int key, int state)
 	{
 		switch(key)
 		{
@@ -753,9 +752,10 @@ struct NN3DWalkersTimeWarpBase: public CommonRigidBodyBase {
 
 		for (int i = 0; i < subSteps; i++) { /**!< Perform the number of substeps to reach the timestep*/
 			if (timeStep && m_dynamicsWorld) {
-				int subSteps = 1; // since we want to perform all proper steps, we perform no interpolated substeps
+				// since we want to perform all proper steps, we perform no interpolated substeps
+				int subSteps = 1;
 
-				m_dynamicsWorld->stepSimulation(btScalar(fixedPhysicsStepSizeSec),
+				m_dynamicsWorld->stepSimulation(btScalar(timeStep),
 					btScalar(subSteps), btScalar(fixedPhysicsStepSizeSec));
 			}
 		}
