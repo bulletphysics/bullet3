@@ -1,0 +1,27 @@
+
+# Files
+
+*.cmake
+*.dylib
+*.a
+CMakeCache.txt
+CMakeFiles
+Makefile
+install_manifest.txt
+bullet.pc
+
+
+# Examples
+
+examples/BasicDemo/AppBasicExampleGui
+examples/BasicDemo/App_BasicExample
+examples/ExampleBrowser/App_ExampleBrowser
+examples/HelloWorld/App_HelloWorld
+
+
+# Tests
+
+test/BulletDynamics/pendulum/Test_BulletDynamics
+test/InverseDynamics/Test_BulletInverseDynamics
+test/SharedMemory/Test_PhysicsClientServer
+test/collision/Test_Collision
