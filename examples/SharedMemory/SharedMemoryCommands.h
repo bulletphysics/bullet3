@@ -792,7 +792,7 @@ struct b3CreateCollisionShape
 	double		m_meshScale;
 };
 
-#define MAX_COMPOUND_COLLISION_SHAPES 128
+#define MAX_COMPOUND_COLLISION_SHAPES 16
 
 struct b3CreateCollisionShapeArgs
 {
