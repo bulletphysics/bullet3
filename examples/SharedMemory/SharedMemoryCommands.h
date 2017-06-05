@@ -117,6 +117,8 @@ enum EnumChangeDynamicsInfoFlags
 	CHANGE_DYNAMICS_INFO_SET_SPINNING_FRICTION=8,
 	CHANGE_DYNAMICS_INFO_SET_ROLLING_FRICTION=16,
 	CHANGE_DYNAMICS_INFO_SET_RESTITUTION=32,
+	CHANGE_DYNAMICS_INFO_SET_LINEAR_DAMPING=64,
+	CHANGE_DYNAMICS_INFO_SET_ANGULAR_DAMPING=128,
 };
 
 struct ChangeDynamicsInfoArgs
@@ -129,6 +131,8 @@ struct ChangeDynamicsInfoArgs
 	double m_spinningFriction;
 	double m_rollingFriction;
 	double m_restitution;
+	double m_linearDamping;
+	double m_angularDamping;
 };
 
 struct GetDynamicsInfoArgs
@@ -761,6 +765,96 @@ struct ConfigureOpenGLVisualizerRequest
     int m_setEnabled;
 };
 
+enum 
+{
+	URDF_GEOM_HAS_RADIUS = 1,
+};
+
+struct b3CreateCollisionShape
+{
+	int m_type;//see UrdfGeomTypes	
+
+	int m_hasChildTransform;
+	double m_childPosition[3];
+	double m_childOrientation[4];
+
+	double m_sphereRadius;
+	double m_boxHalfExtents[3];	
+	double m_capsuleRadius;
+	double m_capsuleHeight;
+	int		m_hasFromTo;
+	double m_capsuleFrom[3];
+	double m_capsuleTo[3];
+	double m_planeNormal[3];
+
+	int         m_meshFileType;
+	char		m_meshFileName[1024];
+	double		m_meshScale;
+};
+
+#define MAX_COMPOUND_COLLISION_SHAPES 128
+
+struct b3CreateCollisionShapeArgs
+{
+	int m_numCollisionShapes;
+	b3CreateCollisionShape m_shapes[MAX_COMPOUND_COLLISION_SHAPES];
+};
+
+
+struct b3CreateVisualShapeArgs
+{
+	int m_visualShapeUniqueId;
+};
+
+#define MAX_CREATE_MULTI_BODY_LINKS 128
+enum eCreateMultiBodyEnum
+{
+	MULTI_BODY_HAS_BASE=1,
+	MULT_BODY_USE_MAXIMAL_COORDINATES=2,
+};
+struct b3CreateMultiBodyArgs
+{
+	char m_bodyName[1024];
+	int m_baseLinkIndex;
+
+	double m_baseWorldPosition[3];
+	double m_baseWorldOrientation[4];
+
+	int m_numLinks;
+	double m_linkMasses[MAX_CREATE_MULTI_BODY_LINKS];
+	double m_linkInertias[MAX_CREATE_MULTI_BODY_LINKS*3];
+	double m_linkInertialFramePositions[MAX_CREATE_MULTI_BODY_LINKS*3];
+	double m_linkInertialFrameOrientations[MAX_CREATE_MULTI_BODY_LINKS*4];
+	int m_linkJointTypes[MAX_CREATE_MULTI_BODY_LINKS];
+	int m_linkCollisionShapeUniqueIds[MAX_CREATE_MULTI_BODY_LINKS];
+	int m_linkVisualShapeUniqueIds[MAX_CREATE_MULTI_BODY_LINKS];
+
+	#if 0
+	std::string m_name;
+	std::string m_sourceFile;
+    btTransform m_rootTransformInWorld;
+	btHashMap<btHashString, UrdfMaterial*> m_materials;
+	btHashMap<btHashString, UrdfLink*> m_links;
+	btHashMap<btHashString, UrdfJoint*> m_joints;
+	#endif
+};
+
+struct b3CreateCollisionShapeResultArgs
+{
+	int m_collisionShapeUniqueId;
+};
+
+struct b3CreateVisualShapeResultArgs
+{
+	int m_visualShapeUniqueId;
+};
+
+struct b3CreateMultiBodyResultArgs
+{
+	int m_bodyUniqueId;
+};
+
+
 struct SharedMemoryCommand
 {
 	int m_type;
@@ -808,6 +902,9 @@ struct SharedMemoryCommand
         struct ConfigureOpenGLVisualizerRequest m_configureOpenGLVisualizerArguments;
 		struct b3ObjectArgs m_removeObjectArgs;
 		struct b3Profile m_profile;
+		struct b3CreateCollisionShapeArgs m_createCollisionShapeArgs;
+		struct b3CreateVisualShapeArgs m_createVisualShapeArgs;
+		struct b3CreateMultiBodyArgs m_createMultiBodyArgs;
 
     };
 };
@@ -874,6 +971,9 @@ struct SharedMemoryStatus
 		struct b3OpenGLVisualizerCameraInfo m_visualizerCameraResultArgs;
 		struct b3ObjectArgs m_removeObjectArgs;
 		struct b3DynamicsInfo m_dynamicsInfo;
+		struct b3CreateCollisionShapeResultArgs m_createCollisionShapeResultArgs;
+		struct b3CreateVisualShapeResultArgs m_createVisualShapeResultArgs;
+		struct b3CreateMultiBodyResultArgs m_createMultiBodyResultArgs;
 	};
 };
 

@@ -64,7 +64,8 @@ public:
 	};
     
     virtual bool getRootTransformInWorld(btTransform& rootTransformInWorld) const =0;
-    
+	virtual void setRootTransformInWorld(const btTransform& rootTransformInWorld){}
+
 	///quick hack: need to rethink the API/dependencies of this
     virtual int convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame) const { return -1;}
     
