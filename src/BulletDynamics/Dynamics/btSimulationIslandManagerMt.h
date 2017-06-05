@@ -59,7 +59,7 @@ public:
                                     ) = 0;
     };
     typedef void( *IslandDispatchFunc ) ( btAlignedObjectArray<Island*>* islands, IslandCallback* callback );
-    static void serialIslandDispatch( btAlignedObjectArray<Island*>* islands, IslandCallback* callback );
+    static void serialIslandDispatch( btAlignedObjectArray<Island*>* islandsPtr, IslandCallback* callback );
     static void parallelIslandDispatch( btAlignedObjectArray<Island*>* islandsPtr, IslandCallback* callback );
 protected:
     btAlignedObjectArray<Island*> m_allocatedIslands;  // owner of all Islands

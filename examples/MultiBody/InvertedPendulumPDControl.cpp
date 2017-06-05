@@ -244,7 +244,7 @@ btMultiBody* createInvertedPendulumMultiBody(btMultiBodyDynamicsWorld* world, GU
 
             world->addCollisionObject(col,collisionFilterGroup,collisionFilterMask);//, 2,1+2);
 
-            btVector3 color(0.0,0.0,0.5);
+            btVector4 color(0.0,0.0,0.5,1);
             guiHelper->createCollisionObjectGraphicsObject(col,color);
 
 //                col->setFriction(friction);

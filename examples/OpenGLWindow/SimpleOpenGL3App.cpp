@@ -704,9 +704,9 @@ int	SimpleOpenGL3App::registerCubeShape(float halfExtentsX,float halfExtentsY, f
 void SimpleOpenGL3App::registerGrid(int cells_x, int cells_z, float color0[4], float color1[4])
 {
 	b3Vector3 cubeExtents=b3MakeVector3(0.5,0.5,0.5);
-	cubeExtents[m_data->m_upAxis] = 0;
+	double halfHeight=0.1;
+	cubeExtents[m_data->m_upAxis] = halfHeight;
 	int cubeId = registerCubeShape(cubeExtents[0],cubeExtents[1],cubeExtents[2]);
-
 	b3Quaternion orn(0,0,0,1);
 	b3Vector3 center=b3MakeVector3(0,0,0,1);
 	b3Vector3 scaling=b3MakeVector3(1,1,1,1);
@@ -724,10 +724,10 @@ void SimpleOpenGL3App::registerGrid(int cells_x, int cells_z, float color0[4], f
 			}
 			if (this->m_data->m_upAxis==1)
 			{
-				center =b3MakeVector3((i + 0.5f) - cells_x * 0.5f, 0.f, (j + 0.5f) - cells_z * 0.5f);
+				center =b3MakeVector3((i + 0.5f) - cells_x * 0.5f, -halfHeight, (j + 0.5f) - cells_z * 0.5f);
 			} else
 			{
-				center =b3MakeVector3((i + 0.5f) - cells_x * 0.5f, (j + 0.5f) - cells_z * 0.5f,0.f );
+				center =b3MakeVector3((i + 0.5f) - cells_x * 0.5f, (j + 0.5f) - cells_z * 0.5f,-halfHeight );
 			}
 			m_instancingRenderer->registerGraphicsInstance(cubeId,center,orn,color,scaling);
 		}

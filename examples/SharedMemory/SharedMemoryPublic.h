@@ -7,6 +7,7 @@
 #define SHARED_MEMORY_MAGIC_NUMBER 201706001
 //#define SHARED_MEMORY_MAGIC_NUMBER 201703024
 
+
 enum EnumSharedMemoryClientCommand
 {
     CMD_LOAD_SDF,
@@ -60,6 +61,9 @@ enum EnumSharedMemoryClientCommand
 	CMD_CHANGE_DYNAMICS_INFO,
 	CMD_GET_DYNAMICS_INFO,
 	CMD_PROFILE_TIMING,
+	CMD_CREATE_COLLISION_SHAPE,
+	CMD_CREATE_VISUAL_SHAPE,
+	CMD_CREATE_MULTI_BODY,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -145,6 +149,12 @@ enum EnumSharedMemoryServerStatus
 		CMD_REMOVE_BODY_FAILED,
 		CMD_GET_DYNAMICS_INFO_COMPLETED,
 		CMD_GET_DYNAMICS_INFO_FAILED,
+		CMD_CREATE_COLLISION_SHAPE_FAILED,
+		CMD_CREATE_COLLISION_SHAPE_COMPLETED,
+		CMD_CREATE_VISUAL_SHAPE_FAILED,
+		CMD_CREATE_VISUAL_SHAPE_COMPLETED,
+		CMD_CREATE_MULTI_BODY_FAILED,
+		CMD_CREATE_MULTI_BODY_COMPLETED,
         //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
@@ -203,6 +213,7 @@ struct b3JointInfo
 		double m_childFrame[7]; // ^^^
 		double m_jointAxis[3]; // joint axis in parent local frame
 };
+
 
 struct b3UserConstraint
 {
@@ -536,5 +547,18 @@ enum eURDF_Flags
 	URDF_USE_SELF_COLLISION_EXCLUDE_PARENT=16,
 	URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS=32,
 };
+
+enum eUrdfGeomTypes //sync with UrdfParser UrdfGeomTypes
+{
+	GEOM_SPHERE=2,
+	GEOM_BOX,
+	GEOM_CYLINDER,
+	GEOM_MESH,
+	GEOM_PLANE,
+	GEOM_CAPSULE, //non-standard URDF?
+	GEOM_UNKNOWN, 
+};
+
+
 
 #endif//SHARED_MEMORY_PUBLIC_H

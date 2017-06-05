@@ -442,6 +442,8 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 break;
             }
 
+
+			case CMD_CREATE_MULTI_BODY_COMPLETED:
             case CMD_URDF_LOADING_COMPLETED: 
 			{
 				B3_PROFILE("CMD_URDF_LOADING_COMPLETED");
@@ -1056,6 +1058,28 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 				b3Warning("Request dynamics info failed");
 				break;
 			}
+			case CMD_CREATE_COLLISION_SHAPE_FAILED:
+			{
+				b3Warning("Request createCollisionShape failed");
+				break;
+			}
+			case CMD_CREATE_COLLISION_SHAPE_COMPLETED:
+			case CMD_CREATE_VISUAL_SHAPE_COMPLETED:
+			{
+				break;
+			}
+
+			case CMD_CREATE_MULTI_BODY_FAILED:
+			{
+				b3Warning("Request createMultiBody failed");
+				break;
+			}
+			case CMD_CREATE_VISUAL_SHAPE_FAILED:
+			{
+				b3Warning("Request createVisualShape failed");
+				break;
+			}
+
             default: {
                 b3Error("Unknown server status %d\n", serverCmd.m_type);
                 btAssert(0);
