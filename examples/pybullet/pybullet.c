@@ -4855,7 +4855,7 @@ static PyObject* pybullet_createMultiBody(PyObject* self, PyObject* args, PyObje
 		int baseIndex = b3CreateMultiBodyBase(commandHandle,baseMass,baseCollisionShapeIndex,baseVisualShapeIndex,basePosition,baseOrientation);
 		if (useMaximalCoordinates>0)
 		{
-			b3CreateMultiBodyUseMaximalCoordinates(commandHandle,useMaximalCoordinates);
+			b3CreateMultiBodyUseMaximalCoordinates(commandHandle);
 		}
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 		statusType = b3GetStatusType(statusHandle);
