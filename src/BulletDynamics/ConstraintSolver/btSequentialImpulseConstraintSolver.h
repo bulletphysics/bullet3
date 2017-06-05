@@ -95,6 +95,10 @@ protected:
 
 	void	convertContact(btPersistentManifold* manifold,const btContactSolverInfo& infoGlobal);
 
+    virtual void convertJoints(btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal);
+    void convertJoint(btSolverConstraint* destConstraintRow, btTypedConstraint* srcConstraint, const btTypedConstraint::btConstraintInfo1& info1, int solverBodyIdA, int solverBodyIdB, const btContactSolverInfo& infoGlobal);
+
+    virtual void convertBodies(btCollisionObject** bodies, int numBodies, const btContactSolverInfo& infoGlobal);
 
 	btSimdScalar	resolveSplitPenetrationSIMD(btSolverBody& bodyA,btSolverBody& bodyB, const btSolverConstraint& contactConstraint)
     {
@@ -121,7 +125,9 @@ protected:
 		
 protected:
 	
-	
+    void writeBackContacts(int iBegin, int iEnd, const btContactSolverInfo& infoGlobal);
+    void writeBackJoints(int iBegin, int iEnd, const btContactSolverInfo& infoGlobal);
+    void writeBackBodies(int iBegin, int iEnd, const btContactSolverInfo& infoGlobal);
 	virtual void solveGroupCacheFriendlySplitImpulseIterations(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer);
 	virtual btScalar solveGroupCacheFriendlyFinish(btCollisionObject** bodies,int numBodies,const btContactSolverInfo& infoGlobal);
 	virtual btScalar solveSingleIteration(int iteration, btCollisionObject** bodies ,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer);

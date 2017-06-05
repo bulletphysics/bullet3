@@ -22,6 +22,7 @@ subject to the following restrictions:
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 #include "BulletCollision/CollisionDispatch/btCollisionWorld.h"
 #include "BulletDynamics/ConstraintSolver/btTypedConstraint.h"
+#include "BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolverMt.h"  // for s_minimumContactManifoldsForBatching
 
 //#include <stdio.h>
 #include "LinearMath/btQuickprof.h"
@@ -589,14 +590,52 @@ struct UpdateIslandDispatcher : public btIParallelForBody
     }
 };
 
+
 void btSimulationIslandManagerMt::parallelIslandDispatch( btAlignedObjectArray<Island*>* islandsPtr, IslandCallback* callback )
 {
     BT_PROFILE( "parallelIslandDispatch" );
-    int grainSize = 1;  // iterations per task
+    //
+    // if there are islands with many contacts, it may be faster to submit these
+    // large islands *serially* to a single parallel constraint solver, and then later
+    // submit the remaining smaller islands in parallel to multiple sequential solvers.
+    //
+    // Some task schedulers do not deal well with nested parallelFor loops. One implementation
+    // of OpenMP was actually slower than doing everything single-threaded. Intel TBB
+    // on the other hand, seems to do a pretty respectable job with it.
+    //
+    // When solving islands in parallel, the worst case performance happens when there
+    // is one very large island and then perhaps a smattering of very small
+    // islands -- one worker thread takes the large island and the remaining workers
+    // tear through the smaller islands and then sit idle waiting for the first worker
+    // to finish. Solving islands in parallel works best when there are numerous small
+    // islands, roughly equal in size.
+    //
+    // By contrast, the other approach -- the parallel constraint solver -- is only
+    // able to deliver a worthwhile speedup when the island is large. For smaller islands,
+    // it is difficult to extract a useful amount of parallelism -- the overhead of grouping
+    // the constraints into batches and sending the batches to worker threads can nullify
+    // any gains from parallelism.
+    //
+
     UpdateIslandDispatcher dispatcher;
     dispatcher.islandsPtr = islandsPtr;
     dispatcher.callback = callback;
-    btParallelFor( 0, islandsPtr->size(), grainSize, dispatcher );
+    // We take advantage of the fact the islands are sorted in order of decreasing size
+    int iBegin = 0;
+    while (iBegin < islandsPtr->size())
+    {
+        btSimulationIslandManagerMt::Island* island = (*islandsPtr)[ iBegin ];
+        if (island->manifoldArray.size() < btSequentialImpulseConstraintSolverMt::s_minimumContactManifoldsForBatching)
+        {
+            // OK to submit the rest of the array in parallel
+            break;
+        }
+        ++iBegin;
+    }
+    // serial dispatch for large islands (if any)
+    dispatcher.forLoop(0, iBegin);
+    // parallel dispatch for rest
+    btParallelFor( iBegin, islandsPtr->size(), 1, dispatcher );
 }
 
 

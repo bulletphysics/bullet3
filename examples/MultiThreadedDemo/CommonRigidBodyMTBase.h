@@ -14,6 +14,7 @@
 enum SolverType
 {
     SOLVER_TYPE_SEQUENTIAL_IMPULSE,
+    SOLVER_TYPE_SEQUENTIAL_IMPULSE_MT,
     SOLVER_TYPE_NNCG,
     SOLVER_TYPE_MLCP_PGS,
     SOLVER_TYPE_MLCP_DANTZIG,
@@ -27,6 +28,7 @@ inline const char* getSolverTypeName( SolverType t )
     switch (t)
     {
     case SOLVER_TYPE_SEQUENTIAL_IMPULSE: return "SequentialImpulse";
+    case SOLVER_TYPE_SEQUENTIAL_IMPULSE_MT: return "SequentialImpulseMt";
     case SOLVER_TYPE_NNCG: return "NNCG";
     case SOLVER_TYPE_MLCP_PGS: return "MLCP ProjectedGaussSeidel";
     case SOLVER_TYPE_MLCP_DANTZIG: return "MLCP Dantzig";

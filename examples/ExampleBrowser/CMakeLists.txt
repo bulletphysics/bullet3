@@ -226,7 +226,6 @@ SET(BulletExampleBrowser_SRCS
 	../MultiThreading/b3PosixThreadSupport.cpp
 	../MultiThreading/b3Win32ThreadSupport.cpp
 	../MultiThreading/b3ThreadSupportInterface.cpp
-	../MultiThreading/btTaskScheduler.cpp
 	../RenderingExamples/TinyRendererSetup.cpp
 	../RenderingExamples/TimeSeriesCanvas.cpp
 	../RenderingExamples/TimeSeriesCanvas.h
