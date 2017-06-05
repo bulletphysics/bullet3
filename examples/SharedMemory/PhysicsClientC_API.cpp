@@ -877,6 +877,17 @@ int b3CreateMultiBodyBase(b3SharedMemoryCommandHandle commandHandle, double mass
 	return -2;
 }
 
+//useMaximalCoordinates are disabled by default, enabling them is experimental and not fully supported yet
+void b3CreateMultiBodyUseMaximalCoordinates(b3SharedMemoryCommandHandle commandHandle)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CREATE_MULTI_BODY);
+	if (command->m_type==CMD_CREATE_MULTI_BODY)
+	{
+		command->m_updateFlags |= MULT_BODY_USE_MAXIMAL_COORDINATES;
+	}
+}
 
 int b3GetStatusMultiBodyUniqueId(b3SharedMemoryStatusHandle statusHandle)
 {
@@ -1269,6 +1280,11 @@ int b3GetStatusBodyIndex(b3SharedMemoryStatusHandle statusHandle)
 					bodyId = status->m_rigidBodyCreateArgs.m_bodyUniqueId;
 					break;
 				}
+				case CMD_CREATE_MULTI_BODY_COMPLETED:
+				{
+					bodyId = status->m_dataStreamArguments.m_bodyUniqueId;
+					break;
+				}
 				default:
 				{
 					b3Assert(0);
@@ -1541,7 +1557,27 @@ int b3ChangeDynamicsInfoSetRestitution(b3SharedMemoryCommandHandle commandHandle
 	command->m_changeDynamicsInfoArgs.m_restitution = restitution;
 	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_RESTITUTION;
 	return 0;
+}
+int b3ChangeDynamicsInfoSetLinearDamping(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId,double linearDamping)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_linearDamping = linearDamping;
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_LINEAR_DAMPING;
+	return 0;
 
+}
+
+
+int b3ChangeDynamicsInfoSetAngularDamping(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId,double angularDamping)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_linearDamping = angularDamping;
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_ANGULAR_DAMPING;
+	return 0;
 }
 
 b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3PhysicsClientHandle physClient, int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, struct b3JointInfo* info)

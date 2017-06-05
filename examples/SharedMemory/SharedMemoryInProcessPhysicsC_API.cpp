@@ -93,22 +93,23 @@ b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectMainThread(int arg
 class InProcessPhysicsClientSharedMemory : public PhysicsClientSharedMemory
 {
 	btInProcessExampleBrowserInternalData* m_data;
-public:
+	char** m_newargv;
 
+public:
+	
 	InProcessPhysicsClientSharedMemory(int argc, char* argv[])
 	{
 		int newargc = argc+2;
-		char** newargv = (char**)malloc(sizeof(void*)*newargc);
+		m_newargv = (char**)malloc(sizeof(void*)*newargc);
 		for (int i=0;i<argc;i++)
-		newargv[i] = argv[i];
+			m_newargv[i] = argv[i];
 
 		char* t0 = (char*)"--logtostderr";
 		char* t1 = (char*)"--start_demo_name=Physics Server";
-		newargv[argc] = t0;
-		newargv[argc+1] = t1;
-		m_data = btCreateInProcessExampleBrowser(newargc,newargv);
+		m_newargv[argc] = t0;
+		m_newargv[argc+1] = t1;
+		m_data = btCreateInProcessExampleBrowser(newargc,m_newargv);
 		SharedMemoryInterface* shMem = btGetSharedMemoryInterface(m_data);
-		free(newargv);
 		setSharedMemoryInterface(shMem);
 	}
 
@@ -116,6 +117,7 @@ public:
 	{
 		setSharedMemoryInterface(0);
 		btShutDownExampleBrowser(m_data);
+		free(m_newargv);
 	}
 
 };

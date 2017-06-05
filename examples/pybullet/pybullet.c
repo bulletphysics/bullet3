@@ -623,12 +623,14 @@ static PyObject* pybullet_changeDynamicsInfo(PyObject* self, PyObject* args, PyO
 	double spinningFriction= -1;
 	double rollingFriction = -1;
 	double restitution = -1;
+	double linearDamping = -1;
+	double angularDamping = -1;
 
 	b3PhysicsClientHandle sm = 0;
 	
 	int physicsClientId = 0;
-	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "mass", "lateralFriction", "spinningFriction", "rollingFriction","restitution", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|dddddi", kwlist, &bodyUniqueId, &linkIndex,&mass, &lateralFriction, &spinningFriction, &rollingFriction, &restitution, &physicsClientId))
+	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "mass", "lateralFriction", "spinningFriction", "rollingFriction","restitution", "linearDamping", "angularDamping", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|dddddddi", kwlist, &bodyUniqueId, &linkIndex,&mass, &lateralFriction, &spinningFriction, &rollingFriction, &restitution,&linearDamping, &angularDamping, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -660,6 +662,16 @@ static PyObject* pybullet_changeDynamicsInfo(PyObject* self, PyObject* args, PyO
 		{
 			b3ChangeDynamicsInfoSetRollingFriction(command, bodyUniqueId, linkIndex,rollingFriction);
 		}
+
+		if (linearDamping>=0)
+		{
+			b3ChangeDynamicsInfoSetLinearDamping(command,bodyUniqueId, linearDamping);
+		}
+		if (angularDamping>=0)
+		{
+			b3ChangeDynamicsInfoSetAngularDamping(command,bodyUniqueId,angularDamping);
+		}
+		
 
 		if (restitution>=0)
 		{
@@ -971,6 +983,7 @@ static PyObject* pybullet_loadSDF(PyObject* self, PyObject* args, PyObject* keyw
 	int numBodies = 0;
 	int i;
 	int bodyIndicesOut[MAX_SDF_BODIES];
+	int useMaximalCoordinates = -1;
 	PyObject* pylist = 0;
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType;
@@ -978,8 +991,8 @@ static PyObject* pybullet_loadSDF(PyObject* self, PyObject* args, PyObject* keyw
 	b3PhysicsClientHandle sm = 0;
 
 	int physicsClientId = 0;
-	static char* kwlist[] = {"sdfFileName", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|i", kwlist, &sdfFileName, &physicsClientId))
+	static char* kwlist[] = {"sdfFileName", "useMaximalCoordinates", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|ii", kwlist, &sdfFileName, &useMaximalCoordinates, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -991,6 +1004,11 @@ static PyObject* pybullet_loadSDF(PyObject* self, PyObject* args, PyObject* keyw
 	}
 
 	commandHandle = b3LoadSdfCommandInit(sm, sdfFileName);
+	if (useMaximalCoordinates>0)
+	{
+		b3LoadSdfCommandSetUseMultiBody(commandHandle,0);
+	}
+
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 	statusType = b3GetStatusType(statusHandle);
 	if (statusType != CMD_SDF_LOADING_COMPLETED)
@@ -4805,15 +4823,17 @@ static PyObject* pybullet_createMultiBody(PyObject* self, PyObject* args, PyObje
 	double baseMass = 0;
 	int baseCollisionShapeIndex=-1;
 	int baseVisualShapeIndex=-1;
+	int useMaximalCoordinates = 0;
 	PyObject* basePosObj=0;
 	PyObject* baseOrnObj=0;
 
 
 	static char* kwlist[] = {"baseMass","baseCollisionShapeIndex","baseVisualShapeIndex","basePosition", "baseOrientation",
 //		"linkParentIndices", "linkJointTypes","linkMasses","linkCollisionShapeIndices",
+"useMaximalCoordinates","physicsClientId",
 		NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diiOOi", kwlist, &baseMass,&baseCollisionShapeIndex,&baseVisualShapeIndex,
-				&basePosObj, &baseOrnObj,&physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diiOOii", kwlist, &baseMass,&baseCollisionShapeIndex,&baseVisualShapeIndex,
+				&basePosObj, &baseOrnObj,&useMaximalCoordinates, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -4833,11 +4853,15 @@ static PyObject* pybullet_createMultiBody(PyObject* self, PyObject* args, PyObje
 		pybullet_internalSetVectord(basePosObj,basePosition);
 		pybullet_internalSetVector4d(baseOrnObj,baseOrientation);
 		int baseIndex = b3CreateMultiBodyBase(commandHandle,baseMass,baseCollisionShapeIndex,baseVisualShapeIndex,basePosition,baseOrientation);
+		if (useMaximalCoordinates>0)
+		{
+			b3CreateMultiBodyUseMaximalCoordinates(commandHandle,useMaximalCoordinates);
+		}
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 		statusType = b3GetStatusType(statusHandle);
 		if (statusType == CMD_CREATE_MULTI_BODY_COMPLETED)
 		{
-			int uid = b3GetStatusMultiBodyUniqueId(statusHandle);
+			int uid = b3GetStatusBodyIndex(statusHandle);
 			PyObject* ob = PyLong_FromLong(uid);
 			return ob;
 		}

@@ -117,6 +117,8 @@ enum EnumChangeDynamicsInfoFlags
 	CHANGE_DYNAMICS_INFO_SET_SPINNING_FRICTION=8,
 	CHANGE_DYNAMICS_INFO_SET_ROLLING_FRICTION=16,
 	CHANGE_DYNAMICS_INFO_SET_RESTITUTION=32,
+	CHANGE_DYNAMICS_INFO_SET_LINEAR_DAMPING=64,
+	CHANGE_DYNAMICS_INFO_SET_ANGULAR_DAMPING=128,
 };
 
 struct ChangeDynamicsInfoArgs
@@ -129,6 +131,8 @@ struct ChangeDynamicsInfoArgs
 	double m_spinningFriction;
 	double m_rollingFriction;
 	double m_restitution;
+	double m_linearDamping;
+	double m_angularDamping;
 };
 
 struct GetDynamicsInfoArgs
@@ -806,6 +810,7 @@ struct b3CreateVisualShapeArgs
 enum eCreateMultiBodyEnum
 {
 	MULTI_BODY_HAS_BASE=1,
+	MULT_BODY_USE_MAXIMAL_COORDINATES=2,
 };
 struct b3CreateMultiBodyArgs
 {

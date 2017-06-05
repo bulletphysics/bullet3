@@ -3530,9 +3530,16 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					serverStatusOut.m_type = CMD_CREATE_MULTI_BODY_FAILED;
 					if (clientCmd.m_createMultiBodyArgs.m_baseLinkIndex>=0)
 					{
+						m_data->m_sdfRecentLoadedBodies.clear();
+
 						ProgrammaticUrdfInterface u2b(clientCmd.m_createMultiBodyArgs, m_data);
 						
-						bool useMultiBody = false;
+						bool useMultiBody = true;
+						if (clientCmd.m_updateFlags & MULT_BODY_USE_MAXIMAL_COORDINATES)
+						{
+							useMultiBody = false;
+						}						
+					
 						int flags = 0;
 						bool ok = processImportedObjects("memory", bufferServerToClient, bufferSizeInBytes, useMultiBody,  flags, u2b);
 
@@ -4329,6 +4336,15 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								{
 									mb->getBaseCollider()->setRestitution(restitution);
 								}
+								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LINEAR_DAMPING)
+								{
+									mb->setLinearDamping(clientCmd.m_changeDynamicsInfoArgs.m_linearDamping);
+								}
+								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ANGULAR_DAMPING)
+								{
+									mb->setLinearDamping(clientCmd.m_changeDynamicsInfoArgs.m_angularDamping);
+								}
+
 								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION)
 								{
 									mb->getBaseCollider()->setFriction(lateralFriction);
@@ -4395,6 +4411,17 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					{
 						if (body && body->m_rigidBody)
 						{
+							if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LINEAR_DAMPING)
+							{
+								btScalar angDamping = body->m_rigidBody->getAngularDamping();
+								body->m_rigidBody->setDamping(clientCmd.m_changeDynamicsInfoArgs.m_linearDamping,angDamping);
+							}
+							if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ANGULAR_DAMPING)
+							{
+								btScalar linDamping = body->m_rigidBody->getLinearDamping();
+								body->m_rigidBody->setDamping(linDamping, clientCmd.m_changeDynamicsInfoArgs.m_angularDamping);
+							}
+
 							if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_RESTITUTION)
 							{
 								body->m_rigidBody->setRestitution(restitution);
