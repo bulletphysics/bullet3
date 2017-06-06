@@ -4850,9 +4850,10 @@ static PyObject* pybullet_createMultiBody(PyObject* self, PyObject* args, PyObje
 		b3SharedMemoryCommandHandle commandHandle = b3CreateMultiBodyCommandInit(sm);
 		double basePosition[3]={0,0,0};
 		double baseOrientation[4]={0,0,0,1};
+		int baseIndex;
 		pybullet_internalSetVectord(basePosObj,basePosition);
 		pybullet_internalSetVector4d(baseOrnObj,baseOrientation);
-		int baseIndex = b3CreateMultiBodyBase(commandHandle,baseMass,baseCollisionShapeIndex,baseVisualShapeIndex,basePosition,baseOrientation);
+		baseIndex = b3CreateMultiBodyBase(commandHandle,baseMass,baseCollisionShapeIndex,baseVisualShapeIndex,basePosition,baseOrientation);
 		if (useMaximalCoordinates>0)
 		{
 			b3CreateMultiBodyUseMaximalCoordinates(commandHandle);
