@@ -45,9 +45,9 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/left_rear_wheel.STL"/>
+        <mesh filename="meshes/left_rear_wheel.obj"/>
       </geometry>
-      <material name="black"/>
+      <material name="white"/>
     </visual>
     <collision>
       robot
@@ -85,9 +85,9 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/right_rear_wheel.STL"/>
+        <mesh filename="meshes/right_rear_wheel.obj"/>
       </geometry>
-      <material name="black"/>
+      <material name="white"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0.0225"/>
@@ -187,9 +187,9 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/left_front_wheel.STL"/>
+        <mesh filename="meshes/left_front_wheel.obj"/>
       </geometry>
-      <material name="black"/>
+      <material name="white"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 -0.0225"/>
@@ -225,9 +225,9 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/right_front_wheel.STL"/>
+        <mesh filename="meshes/right_front_wheel.obj"/>
       </geometry>
-      <material name="black"/>
+      <material name="white"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0.0225"/>
@@ -269,7 +269,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/hokuyo.dae"/>
+        <mesh filename="meshes/hokuyo.obj"/>
         <material name="grey"/>
       </geometry>
     </visual>
@@ -454,8 +454,11 @@
       </plugin>
     </sensor>
   </gazebo>
+  <material name="white">
+    <color rgba="1. 1. 1. 1.0"/>
+  </material>
   <material name="black">
-    <color rgba="0.0 0.0 0.0 1.0"/>
+    <color rgba="0. 0. 0. 1.0"/>
   </material>
   <material name="blue">
     <color rgba="0.0 0.0 0.8 1.0"/>
