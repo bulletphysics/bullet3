@@ -151,4 +151,4 @@ btITaskScheduler* btGetPPLTaskScheduler();
 void btParallelFor( int iBegin, int iEnd, int grainSize, const btIParallelForBody& body );
 
 
-#endif //BT_THREADS_H
+#endif

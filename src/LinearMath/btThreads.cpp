@@ -450,7 +450,7 @@ void btParallelFor( int iBegin, int iEnd, int grainSize, const btIParallelForBod
     btAssert( !"called btParallelFor in non-threadsafe build. enable BT_THREADSAFE" );
     body.forLoop( iBegin, iEnd );
 
-#endif #else // #if BT_THREADSAFE
+#endif// #if BT_THREADSAFE
 }
 
 
