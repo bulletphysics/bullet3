@@ -184,6 +184,7 @@ enum JointType {
 	ePlanarType = 3,
 	eFixedType = 4,
 	ePoint2PointType = 5,
+	eGearType=6
 };
 
 
@@ -227,6 +228,8 @@ struct b3UserConstraint
     int m_jointType;
     double m_maxAppliedForce;
     int m_userConstraintUniqueId;
+	double m_gearRatio;
+
 };
 
 struct b3BodyInfo

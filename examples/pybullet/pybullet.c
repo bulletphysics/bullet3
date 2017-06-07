@@ -4608,7 +4608,7 @@ static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, Py
 
 static PyObject* pybullet_changeUserConstraint(PyObject* self, PyObject* args, PyObject* keywds)
 {
-	static char* kwlist[] = {"userConstraintUniqueId", "jointChildPivot", "jointChildFrameOrientation", "maxForce", "physicsClientId", NULL};
+	static char* kwlist[] = {"userConstraintUniqueId", "jointChildPivot", "jointChildFrameOrientation", "maxForce", "gearRatio", "physicsClientId", NULL};
 	int userConstraintUniqueId = -1;
 	b3SharedMemoryCommandHandle commandHandle;
 	b3SharedMemoryStatusHandle statusHandle;
@@ -4620,8 +4620,8 @@ static PyObject* pybullet_changeUserConstraint(PyObject* self, PyObject* args, P
 	double jointChildPivot[3];
 	double jointChildFrameOrn[4];
 	double maxForce = -1;
-
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|OOdi", kwlist, &userConstraintUniqueId, &jointChildPivotObj, &jointChildFrameOrnObj, &maxForce, &physicsClientId))
+	double gearRatio = 0;
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|OOddi", kwlist, &userConstraintUniqueId, &jointChildPivotObj, &jointChildFrameOrnObj, &maxForce, &gearRatio, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -4647,7 +4647,10 @@ static PyObject* pybullet_changeUserConstraint(PyObject* self, PyObject* args, P
 	{
 		b3InitChangeUserConstraintSetMaxForce(commandHandle, maxForce);
 	}
-
+	if (gearRatio!=0)
+	{
+		b3InitChangeUserConstraintSetGearRatio(commandHandle,gearRatio);
+	}
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 	statusType = b3GetStatusType(statusHandle);
 	Py_INCREF(Py_None);
@@ -6769,6 +6772,7 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "JOINT_PLANAR", ePlanarType);            // user read
 	PyModule_AddIntConstant(m, "JOINT_FIXED", eFixedType);              // user read
 	PyModule_AddIntConstant(m, "JOINT_POINT2POINT", ePoint2PointType);  // user read
+	PyModule_AddIntConstant(m, "JOINT_GEAR", eGearType);  // user read
 
 	PyModule_AddIntConstant(m, "SENSOR_FORCE_TORQUE", eSensorForceTorqueType);  // user read
 

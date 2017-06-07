@@ -5877,7 +5877,48 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							
 								}
 							}
+						}
+						else
+						{
+							InteralBodyData* childBody = clientCmd.m_userConstraintArguments.m_childBodyIndex>=0 ? m_data->m_bodyHandles.getHandle(clientCmd.m_userConstraintArguments.m_childBodyIndex):0;
+						
+							if (parentBody && childBody)
+							{
+								if (parentBody->m_rigidBody)
+								{
+									if (clientCmd.m_userConstraintArguments.m_jointType == eGearType)
+									{
+										btRigidBody* childRb = childBody->m_rigidBody;
+										if (childRb)
+										{
+											btVector3 axisA(clientCmd.m_userConstraintArguments.m_jointAxis[0],
+												clientCmd.m_userConstraintArguments.m_jointAxis[1],
+												clientCmd.m_userConstraintArguments.m_jointAxis[2]);
+
+											//for now we use the same local axis for both objects
+											btVector3 axisB(clientCmd.m_userConstraintArguments.m_jointAxis[0],
+												clientCmd.m_userConstraintArguments.m_jointAxis[1],
+												clientCmd.m_userConstraintArguments.m_jointAxis[2]);
+
+											btScalar ratio=1;
+											btGearConstraint* gear = new btGearConstraint(*parentBody->m_rigidBody,*childRb, axisA,axisB,ratio);
+											m_data->m_dynamicsWorld->addConstraint(gear,true);
+
+											InteralUserConstraintData userConstraintData;
+											userConstraintData.m_rbConstraint = gear;
+											int uid = m_data->m_userConstraintUIDGenerator++;
+											serverCmd.m_userConstraintResultArgs = clientCmd.m_userConstraintArguments;
+											serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = uid;
+											serverCmd.m_userConstraintResultArgs.m_maxAppliedForce = defaultMaxForce;
+											userConstraintData.m_userConstraintData = serverCmd.m_userConstraintResultArgs;
+											m_data->m_userConstraints.insert(uid,userConstraintData);
+
+											serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
+										}
+									}
+								}
 							}
+						}
 					}
 
 					if (clientCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_CONSTRAINT)
@@ -5921,7 +5962,14 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							}
 							if (userConstraintPtr->m_rbConstraint)
 							{
-								//todo
+								if (clientCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_GEAR_RATIO)
+								{
+									if (userConstraintPtr->m_rbConstraint->getObjectType()==GEAR_CONSTRAINT_TYPE)
+									{
+										btGearConstraint* gear = (btGearConstraint*) userConstraintPtr->m_rbConstraint;
+										gear->setRatio(clientCmd.m_userConstraintArguments.m_gearRatio);
+									}
+								}
 							}
 							serverCmd.m_userConstraintResultArgs = clientCmd.m_userConstraintArguments;
 							serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = userConstraintUidChange;
@@ -5944,7 +5992,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							}
 							if (userConstraintPtr->m_rbConstraint)
 							{
-
+								m_data->m_dynamicsWorld->removeConstraint(userConstraintPtr->m_rbConstraint);
+								delete userConstraintPtr->m_rbConstraint;
+								m_data->m_userConstraints.remove(userConstraintUidRemove);	
 							}
 							serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = userConstraintUidRemove;
 							serverCmd.m_type = CMD_REMOVE_USER_CONSTRAINT_COMPLETED;

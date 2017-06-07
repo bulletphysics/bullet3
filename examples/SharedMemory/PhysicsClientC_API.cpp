@@ -1704,7 +1704,18 @@ int b3InitChangeUserConstraintSetMaxForce(b3SharedMemoryCommandHandle commandHan
 
 	return 0;
 }
+int b3InitChangeUserConstraintSetGearRatio(b3SharedMemoryCommandHandle commandHandle, double gearRatio)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_USER_CONSTRAINT);
+	b3Assert(command->m_updateFlags & USER_CONSTRAINT_CHANGE_CONSTRAINT);
+	
+	command->m_updateFlags |=USER_CONSTRAINT_CHANGE_GEAR_RATIO;
+	command->m_userConstraintArguments.m_gearRatio = gearRatio;
 
+	return 0;
+}
 
 b3SharedMemoryCommandHandle  b3InitRemoveUserConstraintCommand(b3PhysicsClientHandle physClient, int userConstraintUniqueId)
 {
