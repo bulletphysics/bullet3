@@ -10,6 +10,10 @@
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointFeedback.h"
 #include "BulletDynamics/Featherstone/btMultiBodyFixedConstraint.h"
+#include "BulletDynamics/Featherstone/btMultiBodyGearConstraint.h"
+
+
+
 #include "BulletDynamics/Featherstone/btMultiBodySliderConstraint.h"
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
@@ -5759,7 +5763,31 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									btMatrix3x3 frameInParent(btQuaternion(clientCmd.m_userConstraintArguments.m_parentFrame[3], clientCmd.m_userConstraintArguments.m_parentFrame[4], clientCmd.m_userConstraintArguments.m_parentFrame[5], clientCmd.m_userConstraintArguments.m_parentFrame[6]));
 									btMatrix3x3 frameInChild(btQuaternion(clientCmd.m_userConstraintArguments.m_childFrame[3], clientCmd.m_userConstraintArguments.m_childFrame[4], clientCmd.m_userConstraintArguments.m_childFrame[5], clientCmd.m_userConstraintArguments.m_childFrame[6]));
 									btVector3 jointAxis(clientCmd.m_userConstraintArguments.m_jointAxis[0], clientCmd.m_userConstraintArguments.m_jointAxis[1], clientCmd.m_userConstraintArguments.m_jointAxis[2]);
-									if (clientCmd.m_userConstraintArguments.m_jointType == eFixedType)
+									
+
+									
+									if (clientCmd.m_userConstraintArguments.m_jointType == eGearType)
+									{
+										if (childBody && childBody->m_multiBody)
+										{
+											if ((clientCmd.m_userConstraintArguments.m_childJointIndex>=-1) && (clientCmd.m_userConstraintArguments.m_childJointIndex <childBody->m_multiBody->getNumLinks()))
+											{
+												btMultiBodyGearConstraint* multibodyGear = new btMultiBodyGearConstraint(parentBody->m_multiBody,clientCmd.m_userConstraintArguments.m_parentJointIndex,childBody->m_multiBody,clientCmd.m_userConstraintArguments.m_childJointIndex,pivotInParent,pivotInChild,frameInParent,frameInChild);
+												multibodyGear->setMaxAppliedImpulse(defaultMaxForce);
+												m_data->m_dynamicsWorld->addMultiBodyConstraint(multibodyGear);
+												InteralUserConstraintData userConstraintData;
+												userConstraintData.m_mbConstraint = multibodyGear;
+												int uid = m_data->m_userConstraintUIDGenerator++;
+												serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = uid;
+												serverCmd.m_userConstraintResultArgs.m_maxAppliedForce = defaultMaxForce;
+												userConstraintData.m_userConstraintData = serverCmd.m_userConstraintResultArgs;
+												m_data->m_userConstraints.insert(uid,userConstraintData);
+												serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
+											}
+									
+										}
+									}
+									else if (clientCmd.m_userConstraintArguments.m_jointType == eFixedType)
 									{
 										if (childBody && childBody->m_multiBody)
 										{
@@ -5959,9 +5987,22 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									userConstraintPtr->m_userConstraintData.m_maxAppliedForce = clientCmd.m_userConstraintArguments.m_maxAppliedForce;
 									userConstraintPtr->m_mbConstraint->setMaxAppliedImpulse(maxImp);
 								}
+
+								if (clientCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_GEAR_RATIO)
+								{
+									userConstraintPtr->m_mbConstraint->setGearRatio(clientCmd.m_userConstraintArguments.m_gearRatio);
+								}
+
 							}
 							if (userConstraintPtr->m_rbConstraint)
 							{
+								if (clientCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_MAX_FORCE)
+								{
+									btScalar maxImp = clientCmd.m_userConstraintArguments.m_maxAppliedForce*m_data->m_physicsDeltaTime;
+									userConstraintPtr->m_userConstraintData.m_maxAppliedForce = clientCmd.m_userConstraintArguments.m_maxAppliedForce;
+									//userConstraintPtr->m_rbConstraint->setMaxAppliedImpulse(maxImp);
+								}
+
 								if (clientCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_GEAR_RATIO)
 								{
 									if (userConstraintPtr->m_rbConstraint->getObjectType()==GEAR_CONSTRAINT_TYPE)

@@ -253,6 +253,7 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["src/BulletDynamics/Featherstone/btMultiBody.cpp"]\
 +["src/BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.cpp"]\
 +["src/BulletDynamics/Featherstone/btMultiBodyJointMotor.cpp"]\
++["src/BulletDynamics/Featherstone/btMultiBodyGearConstraint.cpp"]\
 +["src/BulletDynamics/Featherstone/btMultiBodyConstraint.cpp"]\
 +["src/BulletDynamics/Featherstone/btMultiBodyFixedConstraint.cpp"]\
 +["src/BulletDynamics/Featherstone/btMultiBodyPoint2Point.cpp"]\
