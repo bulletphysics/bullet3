@@ -16,6 +16,7 @@ SET(BulletSoftBody_SRCS
 	btSoftMultiBodyDynamicsWorld.cpp
 	btSoftSoftCollisionAlgorithm.cpp
 	btDefaultSoftBodySolver.cpp
+	../LinearMath/btPolarDecomposition.cpp
 
 )
 
