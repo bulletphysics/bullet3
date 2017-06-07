@@ -1496,6 +1496,8 @@ b3SharedMemoryCommandHandle b3InitChangeDynamicsInfo(b3PhysicsClientHandle physC
 	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
 	b3Assert(command);
 	command->m_type = CMD_CHANGE_DYNAMICS_INFO;
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = -1;
+	command->m_changeDynamicsInfoArgs.m_linkIndex = -2;
 	command->m_updateFlags = 0;
 	
 	return (b3SharedMemoryCommandHandle) command;
@@ -1579,6 +1581,19 @@ int b3ChangeDynamicsInfoSetAngularDamping(b3SharedMemoryCommandHandle commandHan
 	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_ANGULAR_DAMPING;
 	return 0;
 }
+
+int b3ChangeDynamicsInfoSetContactStiffnessAndDamping(b3SharedMemoryCommandHandle commandHandle,int bodyUniqueId,int linkIndex,double contactStiffness, double contactDamping)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_linkIndex = linkIndex;
+	command->m_changeDynamicsInfoArgs.m_contactStiffness =contactStiffness;
+	command->m_changeDynamicsInfoArgs.m_contactDamping = contactDamping;
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING;
+	return 0;
+}
+
 
 b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3PhysicsClientHandle physClient, int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, struct b3JointInfo* info)
 {

@@ -4345,6 +4345,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									mb->setLinearDamping(clientCmd.m_changeDynamicsInfoArgs.m_angularDamping);
 								}
 
+								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING)
+								{
+									mb->getBaseCollider()->setContactStiffnessAndDamping(clientCmd.m_changeDynamicsInfoArgs.m_contactStiffness, clientCmd.m_changeDynamicsInfoArgs.m_contactDamping);
+								}
 								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION)
 								{
 									mb->getBaseCollider()->setFriction(lateralFriction);
@@ -4392,6 +4396,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									{
 										mb->getLinkCollider(linkIndex)->setFriction(lateralFriction);
 									}
+
+									if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING)
+									{
+										mb->getLinkCollider(linkIndex)->setContactStiffnessAndDamping(clientCmd.m_changeDynamicsInfoArgs.m_contactStiffness, clientCmd.m_changeDynamicsInfoArgs.m_contactDamping);
+									}
 								
 			
 								}
@@ -4422,6 +4431,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								body->m_rigidBody->setDamping(linDamping, clientCmd.m_changeDynamicsInfoArgs.m_angularDamping);
 							}
 
+							if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING)
+							{
+								body->m_rigidBody->setContactStiffnessAndDamping(clientCmd.m_changeDynamicsInfoArgs.m_contactStiffness, clientCmd.m_changeDynamicsInfoArgs.m_contactDamping);
+							}
 							if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_RESTITUTION)
 							{
 								body->m_rigidBody->setRestitution(restitution);

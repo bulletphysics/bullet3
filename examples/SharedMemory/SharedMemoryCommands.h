@@ -119,6 +119,8 @@ enum EnumChangeDynamicsInfoFlags
 	CHANGE_DYNAMICS_INFO_SET_RESTITUTION=32,
 	CHANGE_DYNAMICS_INFO_SET_LINEAR_DAMPING=64,
 	CHANGE_DYNAMICS_INFO_SET_ANGULAR_DAMPING=128,
+	CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING=256,
+
 };
 
 struct ChangeDynamicsInfoArgs
@@ -133,6 +135,8 @@ struct ChangeDynamicsInfoArgs
 	double m_restitution;
 	double m_linearDamping;
 	double m_angularDamping;
+	double m_contactStiffness;
+	double m_contactDamping;
 };
 
 struct GetDynamicsInfoArgs
