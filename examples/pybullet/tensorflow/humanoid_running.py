@@ -188,7 +188,7 @@ def demo_run():
 		distance=5
 		yaw = 0
 		humanPos, humanOrn = p.getBasePositionAndOrientation(human)
-		p.resetDebugVisualizerCamera(distance,yaw,20,humanPos);
+		p.resetDebugVisualizerCamera(distance,yaw,-20,humanPos);
 		frame += 1
 		
 		if frame==1000: break

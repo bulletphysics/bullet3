@@ -4360,7 +4360,18 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ROLLING_FRICTION)
 								{
 									mb->getBaseCollider()->setRollingFriction(rollingFriction);
-								}								
+								}		
+
+								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_FRICTION_ANCHOR)
+								{
+									if (clientCmd.m_changeDynamicsInfoArgs.m_frictionAnchor)
+									{
+										mb->getBaseCollider()->setCollisionFlags(mb->getBaseCollider()->getCollisionFlags() | btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+									} else
+									{
+										mb->getBaseCollider()->setCollisionFlags(mb->getBaseCollider()->getCollisionFlags() & ~btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+									}
+								}		
 							}
 							if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MASS)
 							{
@@ -4391,6 +4402,18 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									{
 										mb->getLinkCollider(linkIndex)->setRollingFriction(rollingFriction);
 									}
+
+									if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_FRICTION_ANCHOR)
+									{
+										if (clientCmd.m_changeDynamicsInfoArgs.m_frictionAnchor)
+										{
+											mb->getLinkCollider(linkIndex)->setCollisionFlags(mb->getLinkCollider(linkIndex)->getCollisionFlags() | btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+										} else
+										{
+											mb->getLinkCollider(linkIndex)->setCollisionFlags(mb->getLinkCollider(linkIndex)->getCollisionFlags() & ~btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+										}
+									}		
+
 
 									if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION)
 									{
@@ -4451,6 +4474,17 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							{
 								body->m_rigidBody->setRollingFriction(rollingFriction);
 							}
+
+							if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_FRICTION_ANCHOR)
+							{
+								if (clientCmd.m_changeDynamicsInfoArgs.m_frictionAnchor)
+								{
+									body->m_rigidBody->setCollisionFlags(body->m_rigidBody->getCollisionFlags() | btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+								} else
+								{
+									body->m_rigidBody->setCollisionFlags(body->m_rigidBody->getCollisionFlags() & ~btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+								}
+							}	
 
 							if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MASS)
 							{
@@ -4568,6 +4602,18 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     {
                         m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = clientCmd.m_physSimParamArgs.m_defaultContactERP;
                     }
+
+					if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_DEFAULT_NON_CONTACT_ERP)
+                    {
+                        m_data->m_dynamicsWorld->getSolverInfo().m_erp = clientCmd.m_physSimParamArgs.m_defaultNonContactERP;
+                    }
+
+					if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_DEFAULT_FRICTION_ERP)
+                    {
+                        m_data->m_dynamicsWorld->getSolverInfo().m_frictionERP = clientCmd.m_physSimParamArgs.m_frictionERP;
+                    }
+					
+
 					if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_RESTITUTION_VELOCITY_THRESHOLD)
                     {
                         m_data->m_dynamicsWorld->getSolverInfo().m_restitutionVelocityThreshold = clientCmd.m_physSimParamArgs.m_restitutionVelocityThreshold;

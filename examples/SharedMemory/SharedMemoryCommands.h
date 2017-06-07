@@ -120,6 +120,7 @@ enum EnumChangeDynamicsInfoFlags
 	CHANGE_DYNAMICS_INFO_SET_LINEAR_DAMPING=64,
 	CHANGE_DYNAMICS_INFO_SET_ANGULAR_DAMPING=128,
 	CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING=256,
+	CHANGE_DYNAMICS_INFO_SET_FRICTION_ANCHOR = 512,
 
 };
 
@@ -137,6 +138,7 @@ struct ChangeDynamicsInfoArgs
 	double m_angularDamping;
 	double m_contactStiffness;
 	double m_contactDamping;
+	int m_frictionAnchor;
 };
 
 struct GetDynamicsInfoArgs
@@ -371,8 +373,8 @@ enum EnumSimParamUpdateFlags
 	SIM_PARAM_MAX_CMD_PER_1MS = 2048,
 	SIM_PARAM_ENABLE_FILE_CACHING = 4096,
 	SIM_PARAM_UPDATE_RESTITUTION_VELOCITY_THRESHOLD = 8192,
-
-
+	SIM_PARAM_UPDATE_DEFAULT_NON_CONTACT_ERP=16384,
+	SIM_PARAM_UPDATE_DEFAULT_FRICTION_ERP = 32768,
 };
 
 enum EnumLoadBunnyUpdateFlags
@@ -406,6 +408,8 @@ struct SendPhysicsSimulationParameters
 	int m_collisionFilterMode;
 	int m_enableFileCaching;
 	double m_restitutionVelocityThreshold;
+	double 	m_defaultNonContactERP;
+	double m_frictionERP;
 };
 
 struct LoadBunnyArgs
