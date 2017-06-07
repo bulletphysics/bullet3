@@ -87,7 +87,8 @@ int b3ChangeDynamicsInfoSetLateralFriction(b3SharedMemoryCommandHandle commandHa
 int b3ChangeDynamicsInfoSetSpinningFriction(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double friction);
 int b3ChangeDynamicsInfoSetRollingFriction(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double friction);
 int b3ChangeDynamicsInfoSetRestitution(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double restitution);
-
+int b3ChangeDynamicsInfoSetLinearDamping(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId,double linearDamping);
+int b3ChangeDynamicsInfoSetAngularDamping(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId,double angularDamping);
 
 
 b3SharedMemoryCommandHandle b3InitCreateUserConstraintCommand(b3PhysicsClientHandle physClient, int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, struct b3JointInfo* info);
@@ -312,6 +313,29 @@ int b3JointControlSetDesiredForceTorque(b3SharedMemoryCommandHandle commandHandl
 
 ///the creation of collision shapes and rigid bodies etc is likely going to change,
 ///but good to have a b3CreateBoxShapeCommandInit for now
+
+
+b3SharedMemoryCommandHandle b3CreateCollisionShapeCommandInit(b3PhysicsClientHandle physClient);
+void b3CreateCollisionShapeAddSphere(b3SharedMemoryCommandHandle commandHandle,double radius);
+void b3CreateCollisionShapeAddBox(b3SharedMemoryCommandHandle commandHandle,double halfExtents[3]);
+
+
+void b3CreateCollisionShapeSetChildTransform(b3SharedMemoryCommandHandle commandHandle,int shapeIndex, double childPosition[3], double childOrientation[4]);
+
+int b3GetStatusCollisionShapeUniqueId(b3SharedMemoryStatusHandle statusHandle);
+
+b3SharedMemoryCommandHandle b3CreateVisualShapeCommandInit(b3PhysicsClientHandle physClient);
+int b3GetStatusVisualShapeUniqueId(b3SharedMemoryStatusHandle statusHandle);
+
+b3SharedMemoryCommandHandle b3CreateMultiBodyCommandInit(b3PhysicsClientHandle physClient);
+int b3CreateMultiBodyBase(b3SharedMemoryCommandHandle commandHandle, double mass, int collisionShapeUnique, int visualShapeUniqueId, double basePosition[3], double baseOrientation[4]);
+
+//useMaximalCoordinates are disabled by default, enabling them is experimental and not fully supported yet
+void b3CreateMultiBodyUseMaximalCoordinates(b3SharedMemoryCommandHandle commandHandle);
+
+//int b3CreateMultiBodyAddLink(b3SharedMemoryCommandHandle commandHandle, int jointType, int parentLinkIndex, double linkMass, int linkCollisionShapeUnique, int linkVisualShapeUniqueId);
+
+
 
 ///create a box of size (1,1,1) at world origin (0,0,0) at orientation quat (0,0,0,1)
 ///after that, you can optionally adjust the initial position, orientation and size

@@ -282,12 +282,11 @@ public:
     int getNumModels() const
     {
         //user should have loaded an SDF when calling this method
-        btAssert(m_parseSDF);
         if (m_parseSDF)
         {
             return m_sdfModels.size();
         }
-		return 0;
+		return 1;
     }
     
     void activateModel(int modelIndex);

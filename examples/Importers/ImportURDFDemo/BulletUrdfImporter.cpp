@@ -294,7 +294,6 @@ std::string BulletURDFImporter::getJointName(int linkIndex) const
 
 void  BulletURDFImporter::getMassAndInertia(int linkIndex, btScalar& mass,btVector3& localInertiaDiagonal, btTransform& inertialFrame) const
 {
-	//todo(erwincoumans)
 	//the link->m_inertia is NOT necessarily aligned with the inertial frame
 	//so an additional transform might need to be computed
 	UrdfLink* const* linkPtr = m_data->m_urdfParser.getModel().m_links.getAtIndex(linkIndex);
@@ -413,6 +412,13 @@ bool BulletURDFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joi
 	return getJointInfo2(urdfLinkIndex, parent2joint, linkTransformInWorld, jointAxisInJointSpace, jointType, jointLowerLimit, jointUpperLimit, jointDamping, jointFriction,jointMaxForce,jointMaxVelocity); 
 	
 }
+
+void BulletURDFImporter::setRootTransformInWorld(const btTransform& rootTransformInWorld)
+{
+    m_data->m_urdfParser.getModel().m_rootTransformInWorld = rootTransformInWorld ;
+}
+
+
 
 bool BulletURDFImporter::getRootTransformInWorld(btTransform& rootTransformInWorld) const
 {
