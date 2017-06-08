@@ -36,7 +36,7 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 		
 		//int textureIndex = -1;
 		//try to load some texture
-		for (int i=0;i<shapes.size();i++)
+		for (int i=0; meshData.m_textureImage==0  && i<shapes.size();i++)
 		{
 			const tinyobj::shape_t& shape = shapes[i];
 			if (shape.material.diffuse_texname.length()>0)
