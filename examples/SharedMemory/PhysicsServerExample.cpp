@@ -723,6 +723,11 @@ public:
 	virtual ~MultiThreadedOpenGLGuiHelper()
 	{
 		//delete m_childGuiHelper;
+		if (m_debugDraw)
+		{
+			delete m_debugDraw;
+			m_debugDraw = 0;
+		}
 	}
 
 	void setCriticalSection(b3CriticalSection* cs)
