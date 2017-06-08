@@ -64,8 +64,10 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 							meshData.m_textureHeight = height;
 						} else
 						{
+							b3Warning("Unsupported texture image format [%s]\n",relativeFileName);
 							meshData.m_textureWidth = 0;
 							meshData.m_textureHeight = 0;
+							break;
 						}
 
                     } else
