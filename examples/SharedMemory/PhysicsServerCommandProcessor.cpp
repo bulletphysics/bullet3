@@ -4528,7 +4528,15 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						else
 						{
 							serverCmd.m_dynamicsInfo.m_mass = mb->getLinkMass(linkIndex);
-							serverCmd.m_dynamicsInfo.m_lateralFrictionCoeff = mb->getLinkCollider(linkIndex)->getFriction();
+							if (mb->getLinkCollider(linkIndex))
+							{
+								serverCmd.m_dynamicsInfo.m_lateralFrictionCoeff = mb->getLinkCollider(linkIndex)->getFriction();
+							}
+							else
+							{
+								b3Warning("The dynamic info requested is not available");
+								serverCmd.m_type = CMD_GET_DYNAMICS_INFO_FAILED;
+							}
 						}
 						hasStatus = true;
 					}
