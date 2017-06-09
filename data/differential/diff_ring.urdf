@@ -1,0 +1,198 @@
+
+<?xml version="1.0" ?>
+<robot name="husky_robot" xmlns:xacro="http://ros.org/wiki/xacro">
+  <material name="White">
+    <color rgba="1.0 1.0 1.0 1.0"/>
+  </material>
+  <link name="world"/>
+	<link name="diff_ring">
+  	<contact>
+      <lateral_friction value="1.0"/>
+      <rolling_friction value="0.0"/>
+      <stiffness value="30000"/>
+      <damping value="1000"/>
+    </contact>
+    
+    <inertial>
+      <mass value="2.637"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.02467" ixy="0" ixz="0" iyy="0.02467" iyz="0" izz="0.04411"/>
+    </inertial>
+    <visual>
+      <origin rpy="1.57079632679 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh scale="0.001 0.001 0.001" filename="differential/diff_ring.stl"/>
+      </geometry>
+      <material name="DarkGrey"/>
+    </visual>
+     <visual>
+      <origin rpy="1.57079632679 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh scale="0.001 0.001 0.001" filename="differential/diff_carrier.stl"/>
+      </geometry>
+      <material name="DarkGrey"/>
+    </visual>
+    <collision>
+      <origin rpy="1.570795 0 0" xyz="0 0.025 0"/>
+      <geometry>
+        <cylinder length="0.01" radius="0.05"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="diff_ring_world" type="continuous">
+    <parent link="world"/>
+    <child link="diff_ring"/>
+    <origin rpy="0 0 0" xyz="0.256 0.2854 0.03282"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+  </joint>
+  <link name="diff_spiderA">
+  	<contact>
+      <lateral_friction value="1.0"/>
+      <rolling_friction value="0.0"/>
+      <stiffness value="30000"/>
+      <damping value="1000"/>
+    </contact>
+    
+    <inertial>
+      <mass value="2.637"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.02467" ixy="0" ixz="0" iyy="0.02467" iyz="0" izz="0.04411"/>
+    </inertial>
+    <visual>
+      <origin rpy="1.57079632679 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh scale="0.001 0.001 0.001" filename="differential/diff_spider.stl"/>
+      </geometry>
+      <material name="DarkGrey"/>
+    </visual>
+   
+    
+    
+    
+    <collision>
+      <origin rpy="1.570795 0 0" xyz="0 0.01 0"/>
+      <geometry>
+        <cylinder length="0.01" radius="0.015"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <joint name="diff_spiderA_ring" type="continuous">
+    <parent link="diff_ring"/>
+    <child link="diff_spiderA"/>
+    <origin rpy="0 0 1.570795" xyz="0.0 0.0 0.0"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+  </joint>
+ 
+ <link name="diff_spiderB">
+  	<contact>
+      <lateral_friction value="1.0"/>
+      <rolling_friction value="0.0"/>
+      <stiffness value="30000"/>
+      <damping value="1000"/>
+    </contact>
+    
+    <inertial>
+      <mass value="2.637"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.02467" ixy="0" ixz="0" iyy="0.02467" iyz="0" izz="0.04411"/>
+    </inertial>
+    <visual>
+      <origin rpy="1.57079632679 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh scale="0.001 0.001 0.001" filename="differential/diff_spider.stl"/>
+      </geometry>
+      <material name="DarkGrey"/>
+    </visual>
+   
+    
+    
+    
+    <collision>
+      <origin rpy="1.570795 0 0" xyz="0 0.01 0"/>
+      <geometry>
+        <cylinder length="0.01" radius="0.015"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <joint name="diff_spiderB_ring" type="continuous">
+    <parent link="diff_ring"/>
+    <child link="diff_spiderB"/>
+    <origin rpy="0 0 -1.570795" xyz="0.0 0.0 0.0"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+  </joint>
+  
+  
+  <link name="diff_sideA">
+  	<contact>
+      <lateral_friction value="1.0"/>
+      <rolling_friction value="0.0"/>
+      <stiffness value="30000"/>
+      <damping value="1000"/>
+    </contact>
+    
+    <inertial>
+      <mass value="2.637"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.02467" ixy="0" ixz="0" iyy="0.02467" iyz="0" izz="0.04411"/>
+    </inertial>
+    <visual>
+      <origin rpy="1.570795 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh scale="0.001 0.001 0.001" filename="differential/diff_side.stl"/>
+      </geometry>
+      <material name="DarkGrey"/>
+    </visual>
+    
+    <collision>
+      <origin rpy="1.570795 0 0" xyz="0 0.01 0"/>
+      <geometry>
+        <cylinder length="0.01" radius="0.015"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <joint name="diff_sideA_ring" type="continuous">
+    <parent link="diff_ring"/>
+    <child link="diff_sideA"/>
+    <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+  </joint>
+  
+   <link name="diff_sideB">
+  	<contact>
+      <lateral_friction value="1.0"/>
+      <rolling_friction value="0.0"/>
+      <stiffness value="30000"/>
+      <damping value="1000"/>
+    </contact>
+    
+    <inertial>
+      <mass value="2.637"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.02467" ixy="0" ixz="0" iyy="0.02467" iyz="0" izz="0.04411"/>
+    </inertial>
+    <visual>
+      <origin rpy="-1.570795 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh scale="0.001 0.001 0.001" filename="differential/diff_side.stl"/>
+      </geometry>
+      <material name="DarkGrey"/>
+    </visual>
+    
+    <collision>
+      <origin rpy="-1.570795 0 0" xyz="0 -0.01 0"/>
+      <geometry>
+        <cylinder length="0.01" radius="0.015"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <joint name="diff_sideB_ring" type="continuous">
+    <parent link="diff_ring"/>
+    <child link="diff_sideB"/>
+    <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+  </joint>
+</robot>

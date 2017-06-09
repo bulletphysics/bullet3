@@ -5,8 +5,6 @@ useMaximalCoordinates = 0
 
 p.connect(p.GUI)
 p.loadSDF("stadium.sdf",useMaximalCoordinates=useMaximalCoordinates)
-p.setPhysicsEngineParameter(numSolverIterations=10)
-p.setPhysicsEngineParameter(fixedTimeStep=1./120.)
 sphereRadius = 0.05
 colSphereId = p.createCollisionShape(p.GEOM_SPHERE,radius=sphereRadius)
 colBoxId = p.createCollisionShape(p.GEOM_BOX,halfExtents=[sphereRadius,sphereRadius,sphereRadius])
