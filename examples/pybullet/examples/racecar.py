@@ -20,7 +20,12 @@ car = p.loadURDF("racecar/racecar.urdf")
 for i in range (p.getNumJoints(car)):
 	print (p.getJointInfo(car,i))
 
-wheels = [2,3,5,7]
+inactive_wheels = [3,5,7]
+wheels = [2]
+
+for wheel in inactive_wheels:
+		p.setJointMotorControl2(car,wheel,p.VELOCITY_CONTROL,targetVelocity=0,force=0)
+	
 steering = [4,6]
 
 targetVelocitySlider = p.addUserDebugParameter("wheelVelocity",-10,10,0)

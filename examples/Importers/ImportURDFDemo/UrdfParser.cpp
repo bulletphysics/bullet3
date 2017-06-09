@@ -323,8 +323,10 @@ bool UrdfParser::parseInertia(UrdfInertia& inertia, TiXmlElement* config, ErrorL
 
 bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger* logger)
 {
-	btAssert(g);
-		
+//	btAssert(g);
+	if (g==0)
+		return false;
+
 	TiXmlElement *shape = g->FirstChildElement();
 	if (!shape)
 	{

@@ -1,0 +1,42 @@
+
+<?xml version="1.0" ?>
+<robot name="husky_robot" xmlns:xacro="http://ros.org/wiki/xacro">
+  <material name="White">
+    <color rgba="1.0 1.0 1.0 1.0"/>
+  </material>
+  <link name="world"/>
+	<link name="front_left_wheel_link">
+  	<contact>
+      <lateral_friction value="1.0"/>
+      <rolling_friction value="0.0"/>
+      <stiffness value="30000"/>
+      <damping value="1000"/>
+    </contact>
+    
+    <inertial>
+      <mass value="2.637"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0.02467" ixy="0" ixz="0" iyy="0.02467" iyz="0" izz="0.04411"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="husky/meshes/wheel.stl"/>
+      </geometry>
+      <material name="DarkGrey"/>
+    </visual>
+    <collision>
+      <origin rpy="1.570795 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1143" radius="0.17775"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <joint name="front_left_wheel" type="continuous">
+    <parent link="world"/>
+    <child link="front_left_wheel_link"/>
+    <origin rpy="0 0 0" xyz="0.256 0.2854 0.03282"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+  </joint>
+</robot>

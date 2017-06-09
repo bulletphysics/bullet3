@@ -1243,6 +1243,14 @@ btCollisionShape* BulletURDFImporter::getAllocatedCollisionShape(int index)
 			const UrdfCollision& col = link->m_collisionArray[v];
 			btCollisionShape* childShape = convertURDFToCollisionShape(&col ,pathPrefix);
 			m_data->m_allocatedCollisionShapes.push_back(childShape);
+			if (childShape->getShapeType()==COMPOUND_SHAPE_PROXYTYPE)
+			{
+				btCompoundShape* compound = (btCompoundShape*) childShape;
+				for (int i=0;i<compound->getNumChildShapes();i++)
+				{
+					m_data->m_allocatedCollisionShapes.push_back(compound->getChildShape(i));
+				}
+			}
 			
 			if (childShape)
 			{

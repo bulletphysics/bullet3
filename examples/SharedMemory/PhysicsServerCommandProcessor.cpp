@@ -10,6 +10,10 @@
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointFeedback.h"
 #include "BulletDynamics/Featherstone/btMultiBodyFixedConstraint.h"
+#include "BulletDynamics/Featherstone/btMultiBodyGearConstraint.h"
+
+
+
 #include "BulletDynamics/Featherstone/btMultiBodySliderConstraint.h"
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
@@ -4345,6 +4349,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									mb->setLinearDamping(clientCmd.m_changeDynamicsInfoArgs.m_angularDamping);
 								}
 
+								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING)
+								{
+									mb->getBaseCollider()->setContactStiffnessAndDamping(clientCmd.m_changeDynamicsInfoArgs.m_contactStiffness, clientCmd.m_changeDynamicsInfoArgs.m_contactDamping);
+								}
 								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION)
 								{
 									mb->getBaseCollider()->setFriction(lateralFriction);
@@ -4356,7 +4364,18 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ROLLING_FRICTION)
 								{
 									mb->getBaseCollider()->setRollingFriction(rollingFriction);
-								}								
+								}		
+
+								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_FRICTION_ANCHOR)
+								{
+									if (clientCmd.m_changeDynamicsInfoArgs.m_frictionAnchor)
+									{
+										mb->getBaseCollider()->setCollisionFlags(mb->getBaseCollider()->getCollisionFlags() | btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+									} else
+									{
+										mb->getBaseCollider()->setCollisionFlags(mb->getBaseCollider()->getCollisionFlags() & ~btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+									}
+								}		
 							}
 							if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MASS)
 							{
@@ -4388,9 +4407,26 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 										mb->getLinkCollider(linkIndex)->setRollingFriction(rollingFriction);
 									}
 
+									if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_FRICTION_ANCHOR)
+									{
+										if (clientCmd.m_changeDynamicsInfoArgs.m_frictionAnchor)
+										{
+											mb->getLinkCollider(linkIndex)->setCollisionFlags(mb->getLinkCollider(linkIndex)->getCollisionFlags() | btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+										} else
+										{
+											mb->getLinkCollider(linkIndex)->setCollisionFlags(mb->getLinkCollider(linkIndex)->getCollisionFlags() & ~btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+										}
+									}		
+
+
 									if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION)
 									{
 										mb->getLinkCollider(linkIndex)->setFriction(lateralFriction);
+									}
+
+									if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING)
+									{
+										mb->getLinkCollider(linkIndex)->setContactStiffnessAndDamping(clientCmd.m_changeDynamicsInfoArgs.m_contactStiffness, clientCmd.m_changeDynamicsInfoArgs.m_contactDamping);
 									}
 								
 			
@@ -4422,6 +4458,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								body->m_rigidBody->setDamping(linDamping, clientCmd.m_changeDynamicsInfoArgs.m_angularDamping);
 							}
 
+							if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING)
+							{
+								body->m_rigidBody->setContactStiffnessAndDamping(clientCmd.m_changeDynamicsInfoArgs.m_contactStiffness, clientCmd.m_changeDynamicsInfoArgs.m_contactDamping);
+							}
 							if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_RESTITUTION)
 							{
 								body->m_rigidBody->setRestitution(restitution);
@@ -4438,6 +4478,17 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							{
 								body->m_rigidBody->setRollingFriction(rollingFriction);
 							}
+
+							if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_FRICTION_ANCHOR)
+							{
+								if (clientCmd.m_changeDynamicsInfoArgs.m_frictionAnchor)
+								{
+									body->m_rigidBody->setCollisionFlags(body->m_rigidBody->getCollisionFlags() | btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+								} else
+								{
+									body->m_rigidBody->setCollisionFlags(body->m_rigidBody->getCollisionFlags() & ~btCollisionObject::CF_HAS_FRICTION_ANCHOR);
+								}
+							}	
 
 							if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_MASS)
 							{
@@ -4555,6 +4606,18 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     {
                         m_data->m_dynamicsWorld->getSolverInfo().m_erp2 = clientCmd.m_physSimParamArgs.m_defaultContactERP;
                     }
+
+					if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_DEFAULT_NON_CONTACT_ERP)
+                    {
+                        m_data->m_dynamicsWorld->getSolverInfo().m_erp = clientCmd.m_physSimParamArgs.m_defaultNonContactERP;
+                    }
+
+					if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_DEFAULT_FRICTION_ERP)
+                    {
+                        m_data->m_dynamicsWorld->getSolverInfo().m_frictionERP = clientCmd.m_physSimParamArgs.m_frictionERP;
+                    }
+					
+
 					if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_RESTITUTION_VELOCITY_THRESHOLD)
                     {
                         m_data->m_dynamicsWorld->getSolverInfo().m_restitutionVelocityThreshold = clientCmd.m_physSimParamArgs.m_restitutionVelocityThreshold;
@@ -5700,7 +5763,31 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									btMatrix3x3 frameInParent(btQuaternion(clientCmd.m_userConstraintArguments.m_parentFrame[3], clientCmd.m_userConstraintArguments.m_parentFrame[4], clientCmd.m_userConstraintArguments.m_parentFrame[5], clientCmd.m_userConstraintArguments.m_parentFrame[6]));
 									btMatrix3x3 frameInChild(btQuaternion(clientCmd.m_userConstraintArguments.m_childFrame[3], clientCmd.m_userConstraintArguments.m_childFrame[4], clientCmd.m_userConstraintArguments.m_childFrame[5], clientCmd.m_userConstraintArguments.m_childFrame[6]));
 									btVector3 jointAxis(clientCmd.m_userConstraintArguments.m_jointAxis[0], clientCmd.m_userConstraintArguments.m_jointAxis[1], clientCmd.m_userConstraintArguments.m_jointAxis[2]);
-									if (clientCmd.m_userConstraintArguments.m_jointType == eFixedType)
+									
+
+									
+									if (clientCmd.m_userConstraintArguments.m_jointType == eGearType)
+									{
+										if (childBody && childBody->m_multiBody)
+										{
+											if ((clientCmd.m_userConstraintArguments.m_childJointIndex>=-1) && (clientCmd.m_userConstraintArguments.m_childJointIndex <childBody->m_multiBody->getNumLinks()))
+											{
+												btMultiBodyGearConstraint* multibodyGear = new btMultiBodyGearConstraint(parentBody->m_multiBody,clientCmd.m_userConstraintArguments.m_parentJointIndex,childBody->m_multiBody,clientCmd.m_userConstraintArguments.m_childJointIndex,pivotInParent,pivotInChild,frameInParent,frameInChild);
+												multibodyGear->setMaxAppliedImpulse(defaultMaxForce);
+												m_data->m_dynamicsWorld->addMultiBodyConstraint(multibodyGear);
+												InteralUserConstraintData userConstraintData;
+												userConstraintData.m_mbConstraint = multibodyGear;
+												int uid = m_data->m_userConstraintUIDGenerator++;
+												serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = uid;
+												serverCmd.m_userConstraintResultArgs.m_maxAppliedForce = defaultMaxForce;
+												userConstraintData.m_userConstraintData = serverCmd.m_userConstraintResultArgs;
+												m_data->m_userConstraints.insert(uid,userConstraintData);
+												serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
+											}
+									
+										}
+									}
+									else if (clientCmd.m_userConstraintArguments.m_jointType == eFixedType)
 									{
 										if (childBody && childBody->m_multiBody)
 										{
@@ -5818,7 +5905,48 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							
 								}
 							}
+						}
+						else
+						{
+							InteralBodyData* childBody = clientCmd.m_userConstraintArguments.m_childBodyIndex>=0 ? m_data->m_bodyHandles.getHandle(clientCmd.m_userConstraintArguments.m_childBodyIndex):0;
+						
+							if (parentBody && childBody)
+							{
+								if (parentBody->m_rigidBody)
+								{
+									if (clientCmd.m_userConstraintArguments.m_jointType == eGearType)
+									{
+										btRigidBody* childRb = childBody->m_rigidBody;
+										if (childRb)
+										{
+											btVector3 axisA(clientCmd.m_userConstraintArguments.m_jointAxis[0],
+												clientCmd.m_userConstraintArguments.m_jointAxis[1],
+												clientCmd.m_userConstraintArguments.m_jointAxis[2]);
+
+											//for now we use the same local axis for both objects
+											btVector3 axisB(clientCmd.m_userConstraintArguments.m_jointAxis[0],
+												clientCmd.m_userConstraintArguments.m_jointAxis[1],
+												clientCmd.m_userConstraintArguments.m_jointAxis[2]);
+
+											btScalar ratio=1;
+											btGearConstraint* gear = new btGearConstraint(*parentBody->m_rigidBody,*childRb, axisA,axisB,ratio);
+											m_data->m_dynamicsWorld->addConstraint(gear,true);
+
+											InteralUserConstraintData userConstraintData;
+											userConstraintData.m_rbConstraint = gear;
+											int uid = m_data->m_userConstraintUIDGenerator++;
+											serverCmd.m_userConstraintResultArgs = clientCmd.m_userConstraintArguments;
+											serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = uid;
+											serverCmd.m_userConstraintResultArgs.m_maxAppliedForce = defaultMaxForce;
+											userConstraintData.m_userConstraintData = serverCmd.m_userConstraintResultArgs;
+											m_data->m_userConstraints.insert(uid,userConstraintData);
+
+											serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
+										}
+									}
+								}
 							}
+						}
 					}
 
 					if (clientCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_CONSTRAINT)
@@ -5859,10 +5987,30 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									userConstraintPtr->m_userConstraintData.m_maxAppliedForce = clientCmd.m_userConstraintArguments.m_maxAppliedForce;
 									userConstraintPtr->m_mbConstraint->setMaxAppliedImpulse(maxImp);
 								}
+
+								if (clientCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_GEAR_RATIO)
+								{
+									userConstraintPtr->m_mbConstraint->setGearRatio(clientCmd.m_userConstraintArguments.m_gearRatio);
+								}
+
 							}
 							if (userConstraintPtr->m_rbConstraint)
 							{
-								//todo
+								if (clientCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_MAX_FORCE)
+								{
+									btScalar maxImp = clientCmd.m_userConstraintArguments.m_maxAppliedForce*m_data->m_physicsDeltaTime;
+									userConstraintPtr->m_userConstraintData.m_maxAppliedForce = clientCmd.m_userConstraintArguments.m_maxAppliedForce;
+									//userConstraintPtr->m_rbConstraint->setMaxAppliedImpulse(maxImp);
+								}
+
+								if (clientCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_GEAR_RATIO)
+								{
+									if (userConstraintPtr->m_rbConstraint->getObjectType()==GEAR_CONSTRAINT_TYPE)
+									{
+										btGearConstraint* gear = (btGearConstraint*) userConstraintPtr->m_rbConstraint;
+										gear->setRatio(clientCmd.m_userConstraintArguments.m_gearRatio);
+									}
+								}
 							}
 							serverCmd.m_userConstraintResultArgs = clientCmd.m_userConstraintArguments;
 							serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = userConstraintUidChange;
@@ -5885,7 +6033,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							}
 							if (userConstraintPtr->m_rbConstraint)
 							{
-
+								m_data->m_dynamicsWorld->removeConstraint(userConstraintPtr->m_rbConstraint);
+								delete userConstraintPtr->m_rbConstraint;
+								m_data->m_userConstraints.remove(userConstraintUidRemove);	
 							}
 							serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = userConstraintUidRemove;
 							serverCmd.m_type = CMD_REMOVE_USER_CONSTRAINT_COMPLETED;
