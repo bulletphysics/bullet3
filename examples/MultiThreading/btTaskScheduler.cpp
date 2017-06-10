@@ -117,7 +117,7 @@ public:
         mBegin = iBegin;
         mEnd = iEnd;
     }
-    virtual void executeJob() override
+    virtual void executeJob() BT_OVERRIDE
     {
         BT_PROFILE( "executeJob" );
 
