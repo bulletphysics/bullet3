@@ -22,7 +22,7 @@ class Racecar:
     self.motorizedWheels = [2]
     self.steeringLinks=[4,6]
     self.speedMultiplier = 10.
-		
+    
 
   def getActionDimension(self):
     return self.nMotors
@@ -33,22 +33,25 @@ class Racecar:
   def getObservation(self):
     observation = []
     pos,orn=p.getBasePositionAndOrientation(self.racecarUniqueId)
+    
     observation.extend(list(pos))
+    observation.extend(list(orn))
+    
     return observation
 
   def applyAction(self, motorCommands):
     targetVelocity=motorCommands[0]*self.speedMultiplier
-    print("targetVelocity")
-    print(targetVelocity)
+    #print("targetVelocity")
+    #print(targetVelocity)
     steeringAngle = motorCommands[1]
-    print("steeringAngle")
-    print(steeringAngle)
-    print("maxForce")
-    print(self.maxForce)
+    #print("steeringAngle")
+    #print(steeringAngle)
+    #print("maxForce")
+    #print(self.maxForce)
     
     
     for motor in self.motorizedwheels:
-	    p.setJointMotorControl2(self.racecarUniqueId,motor,p.VELOCITY_CONTROL,targetVelocity=targetVelocity,force=self.maxForce)		
+      p.setJointMotorControl2(self.racecarUniqueId,motor,p.VELOCITY_CONTROL,targetVelocity=targetVelocity,force=self.maxForce)    
     for steer in self.steeringLinks:
       p.setJointMotorControl2(self.racecarUniqueId,steer,p.POSITION_CONTROL,targetPosition=steeringAngle)
-	
+  
