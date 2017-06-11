@@ -377,7 +377,7 @@ void setSolverTypeComboBoxCallback(int combobox, const char* item, void* userPoi
     const char** items = static_cast<const char**>(userPointer);
     for (int i = 0; i < SOLVER_TYPE_COUNT; ++i)
     {
-        if (stricmp(item, items[i]) == 0)
+        if (strcmp(item, items[i]) == 0)
         {
             gSolverType = static_cast<SolverType>(i);
             break;
@@ -406,7 +406,7 @@ void setTaskSchedulerComboBoxCallback(int combobox, const char* item, void* user
     const char** items = static_cast<const char**>( userPointer );
     for ( int i = 0; i < 20; ++i )
     {
-        if ( stricmp( item, items[ i ] ) == 0 )
+        if ( strcmp( item, items[ i ] ) == 0 )
         {
             // change the task scheduler
             btITaskScheduler* ts = gTaskSchedulerMgr.getTaskScheduler( i );
