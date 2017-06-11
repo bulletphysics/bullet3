@@ -16,9 +16,9 @@ class RacecarGymEnv(gym.Env):
 
   def __init__(self,
                urdfRoot="",
-               actionRepeat=1,
+               actionRepeat=50,
                isEnableSelfCollision=True,
-               render=True):
+               renders=True):
     print("init")
     self._timeStep = 0.01
     self._urdfRoot = urdfRoot
@@ -27,9 +27,9 @@ class RacecarGymEnv(gym.Env):
     self._observation = []
     self._ballUniqueId = -1
     self._envStepCounter = 0
-    self._render = render
+    self._renders = renders
     self._p = p
-    if self._render:
+    if self._renders:
       p.connect(p.GUI)
     else:
       p.connect(p.DIRECT)
@@ -49,9 +49,14 @@ class RacecarGymEnv(gym.Env):
     #p.setPhysicsEngineParameter(numSolverIterations=300)
     p.setTimeStep(self._timeStep)
     #p.loadURDF("%splane.urdf" % self._urdfRoot)
-    p.loadSDF("%sstadium.sdf" % self._urdfRoot)
+    stadiumobjects = p.loadSDF("%sstadium.sdf" % self._urdfRoot)
+    #move the stadium objects slightly above 0
+    for i in stadiumobjects:
+    	pos,orn = p.getBasePositionAndOrientation(i)
+    	newpos = [pos[0],pos[1],pos[2]+0.1]
+    	p.resetBasePositionAndOrientation(i,newpos,orn)
     
-    dist = 1.+10.*random.random()
+    dist = 5 +2.*random.random()
     ang = 2.*3.1415925438*random.random()
     
     ballx = dist * math.sin(ang)
@@ -75,25 +80,29 @@ class RacecarGymEnv(gym.Env):
     return [seed]
 
   def getExtendedObservation(self):
-     self._observation = self._racecar.getObservation()
-     pos,orn = p.getBasePositionAndOrientation(self._ballUniqueId)      
-     self._observation.extend(list(pos))
+     self._observation = [] #self._racecar.getObservation()
+     carpos,carorn = p.getBasePositionAndOrientation(self._racecar.racecarUniqueId)
+     ballpos,ballorn = p.getBasePositionAndOrientation(self._ballUniqueId)      
+     invCarPos,invCarOrn = p.invertTransform(carpos,carorn)
+     ballPosInCar,ballOrnInCar = p.multiplyTransforms(invCarPos,invCarOrn,ballpos,ballorn)
+    
+     self._observation.extend([ballPosInCar[0],ballPosInCar[1]])
      return self._observation
      
   def _step(self, action):
-    if (self._render):
+    if (self._renders):
       basePos,orn = p.getBasePositionAndOrientation(self._racecar.racecarUniqueId)
       #p.resetDebugVisualizerCamera(1, 30, -40, basePos)
     
-    fwd = [-1,-1,-1,0,0,0,1,1,1]
-    steerings = [-0.5,0,0.5,-0.5,0,0.5,-0.5,0,0.5]
+    fwd = [-5,-5,-5,0,0,0,5,5,5]
+    steerings = [-0.3,0,0.3,-0.3,0,0.3,-0.3,0,0.3]
     forward = fwd[action]
     steer = steerings[action]
     realaction = [forward,steer]
     self._racecar.applyAction(realaction)
     for i in range(self._actionRepeat):
       p.stepSimulation()
-      if self._render:
+      if self._renders:
         time.sleep(self._timeStep)
       self._observation = self.getExtendedObservation()
       

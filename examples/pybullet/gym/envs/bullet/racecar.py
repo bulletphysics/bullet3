@@ -12,7 +12,7 @@ class Racecar:
 
   def reset(self):
     self.racecarUniqueId = p.loadURDF("racecar/racecar.urdf", [0,0,.2])
-    self.maxForce = 10
+    self.maxForce = 20
     self.nMotors = 2
     self.motorizedwheels=[2]
     self.inactiveWheels = [3,5,7]
@@ -21,7 +21,7 @@ class Racecar:
 
     self.motorizedWheels = [2]
     self.steeringLinks=[4,6]
-    self.speedMultiplier = 10.
+    self.speedMultiplier = 4.
     
 
   def getActionDimension(self):
