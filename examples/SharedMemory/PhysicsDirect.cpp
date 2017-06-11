@@ -64,9 +64,15 @@ struct PhysicsDirectInternalData
 	PhysicsDirectInternalData()
 		:m_hasStatus(false),
 		m_verboseOutput(false),
+		m_cachedCameraPixelsWidth(0),
+		m_cachedCameraPixelsHeight(0),
+		m_commandProcessor(NULL),
 		m_ownsCommandProcessor(false),
 		m_timeOutInSeconds(1e30)
 	{
+		memset(&m_command, 0, sizeof(m_command));
+		memset(&m_serverStatus, 0, sizeof(m_serverStatus));
+		memset(m_bulletStreamDataServerToClient, 0, sizeof(m_bulletStreamDataServerToClient));
 	}
 };
 
