@@ -177,7 +177,7 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 	visualShapeOut.m_dimensions[0] = 0;
 	visualShapeOut.m_dimensions[1] = 0;
 	visualShapeOut.m_dimensions[2] = 0;
-	visualShapeOut.m_meshAssetFileName[0] = 0;
+	memset(visualShapeOut.m_meshAssetFileName, 0, sizeof(visualShapeOut.m_meshAssetFileName));
 	if (visual->m_geometry.m_hasLocalMaterial) {
 		visualShapeOut.m_rgbaColor[0] = visual->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[0];
 		visualShapeOut.m_rgbaColor[1] = visual->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[1];
