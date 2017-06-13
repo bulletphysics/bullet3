@@ -1878,8 +1878,8 @@ void	PhysicsServerExample::updateGraphics()
 						{
                             int xIndex = int(float(i)*(float(m_multiThreadedHelper->m_destinationWidth)/float(gCamVisualizerWidth)));
                             int yIndex = int(float(j)*(float(m_multiThreadedHelper->m_destinationHeight)/float(gCamVisualizerHeight)));
-							btClamp(yIndex,0,m_multiThreadedHelper->m_destinationWidth);
-							btClamp(xIndex,0,m_multiThreadedHelper->m_destinationHeight);
+							btClamp(xIndex,0,m_multiThreadedHelper->m_destinationWidth);
+							btClamp(yIndex,0,m_multiThreadedHelper->m_destinationHeight);
 							int bytesPerPixel = 4; //RGBA
 							
 							if (m_canvasRGBIndex >=0)
