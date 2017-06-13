@@ -154,6 +154,8 @@ void btMultiBody::setupFixed(int i,
 	m_links[i].m_mass = mass;
     m_links[i].m_inertiaLocal = inertia;
     m_links[i].m_parent = parent;
+	 m_links[i].setAxisTop(0, 0., 0., 0.);
+    m_links[i].setAxisBottom(0, btVector3(0,0,0));
     m_links[i].m_zeroRotParentToThis = rotParentToThis;
 	m_links[i].m_dVector = thisPivotToThisComOffset;
     m_links[i].m_eVector = parentComToThisPivotOffset;    
@@ -522,7 +524,8 @@ void btMultiBody::compTreeLinkVelocities(btVector3 *omega, btVector3 *vel) const
     omega[0] = quatRotate(m_baseQuat ,getBaseOmega());
     vel[0] = quatRotate(m_baseQuat ,getBaseVel());
     
-    for (int i = 0; i < num_links; ++i) {
+    for (int i = 0; i < num_links; ++i) 
+	{
         const int parent = m_links[i].m_parent;
 
         // transform parent vel into this frame, store in omega[i+1], vel[i+1]
@@ -531,9 +534,24 @@ void btMultiBody::compTreeLinkVelocities(btVector3 *omega, btVector3 *vel) const
                          omega[i+1], vel[i+1]);
 
         // now add qidot * shat_i
-        omega[i+1] += getJointVel(i) * m_links[i].getAxisTop(0);
-        vel[i+1] += getJointVel(i) * m_links[i].getAxisBottom(0);
-    }
+		//only supported for revolute/prismatic joints, todo: spherical and planar joints
+		switch(m_links[i].m_jointType)
+		{
+			case btMultibodyLink::ePrismatic:
+			case btMultibodyLink::eRevolute:
+			{
+				btVector3 axisTop = m_links[i].getAxisTop(0);
+				btVector3 axisBottom = m_links[i].getAxisBottom(0);
+				btScalar jointVel = getJointVel(i);
+				omega[i+1] += jointVel * axisTop;
+				vel[i+1] += jointVel * axisBottom;
+				break;
+			}
+			default:
+			{
+			}
+		}
+	}
 }
 
 btScalar btMultiBody::getKineticEnergy() const
