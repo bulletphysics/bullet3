@@ -22,8 +22,8 @@ struct MyMotorInfo2
     int     m_qIndex;
 };
 
-int camVisualizerWidth = 320;//1024/3;
-int camVisualizerHeight = 240;//768/3;
+static int camVisualizerWidth = 320;//1024/3;
+static int camVisualizerHeight = 240;//768/3;
 
 enum CustomCommands
 {

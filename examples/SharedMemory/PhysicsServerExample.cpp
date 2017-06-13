@@ -5,7 +5,7 @@
 #include "PhysicsServerExample.h"
 
 
-
+#include "../CommonInterfaces/Common2dCanvasInterface.h"
 #include "PhysicsServerSharedMemory.h"
 #include "Bullet3Common/b3CommandLineArgs.h"
 #include "SharedMemoryCommon.h"
@@ -27,6 +27,8 @@ bool gEnableTeleporting=true;
 bool gEnableRendering= true;
 bool gEnableSyncPhysicsRendering= true;
 bool gEnableUpdateDebugDrawLines = true;
+static int gCamVisualizerWidth = 320;
+static int gCamVisualizerHeight = 240;
 
 
 //extern btVector3 gLastPickPos;
@@ -114,6 +116,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIHelperCreateRigidBodyGraphicsObject,
 	eGUIHelperRemoveAllGraphicsInstances,
 	eGUIHelperCopyCameraImageData,
+	eGUIHelperDisplayCameraImageData,
 	eGUIHelperAutogenerateGraphicsObjects,
 	eGUIUserDebugAddText,
 	eGUIUserDebugAddLine,
@@ -939,7 +942,7 @@ public:
 
 	virtual Common2dCanvasInterface* get2dCanvasInterface()
 	{
-		return 0;
+		return m_childGuiHelper->get2dCanvasInterface();
 	}
 	
 	virtual CommonParameterInterface* getParameterInterface()
@@ -1014,6 +1017,32 @@ public:
 		workerThreadWait();
 	}
 	
+	virtual void debugDisplayCameraImageData(const float viewMatrix[16], const float projectionMatrix[16], 
+                                  unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, 
+                                  float* depthBuffer, int depthBufferSizeInPixels, 
+                                  int* segmentationMaskBuffer, int segmentationMaskBufferSizeInPixels,
+		  int startPixelIndex, int destinationWidth, int destinationHeight, int* numPixelsCopied)
+	{
+		 m_cs->lock();
+	    for (int i=0;i<16;i++)
+        {
+            m_viewMatrix[i] = viewMatrix[i];
+            m_projectionMatrix[i] = projectionMatrix[i];
+        }
+	    m_pixelsRGBA = pixelsRGBA;
+        m_rgbaBufferSizeInPixels = rgbaBufferSizeInPixels;
+        m_depthBuffer = depthBuffer;
+        m_depthBufferSizeInPixels = depthBufferSizeInPixels;
+        m_segmentationMaskBuffer = segmentationMaskBuffer;
+        m_segmentationMaskBufferSizeInPixels = segmentationMaskBufferSizeInPixels;
+        m_startPixelIndex = startPixelIndex;
+        m_destinationWidth = destinationWidth;
+        m_destinationHeight = destinationHeight;
+        m_numPixelsCopied = numPixelsCopied;
+	    
+		m_cs->setSharedParam(1,eGUIHelperDisplayCameraImageData);
+		workerThreadWait();
+	}
 
 	btDiscreteDynamicsWorld* m_dynamicsWorld;
 
@@ -1179,6 +1208,12 @@ class PhysicsServerExample : public SharedMemoryCommon
     bool m_isConnected;
     btClock m_clock;
 	bool m_replay;
+
+	struct Common2dCanvasInterface* m_canvas;
+	int m_canvasRGBIndex;
+	int m_canvasDepthIndex;
+	int m_canvasSegMaskIndex;
+
 //	int m_options;
 	
 #ifdef BT_ENABLE_VR
@@ -1492,7 +1527,11 @@ PhysicsServerExample::PhysicsServerExample(MultiThreadedOpenGLGuiHelper* helper,
 m_physicsServer(commandProcessorCreator,sharedMem,0),
 m_wantsShutdown(false),
 m_isConnected(false),
-m_replay(false)
+m_replay(false),
+m_canvas(0),
+m_canvasRGBIndex(-1),
+m_canvasDepthIndex(-1),
+m_canvasSegMaskIndex(-1)
 //m_options(options)
 #ifdef BT_ENABLE_VR
 ,m_tinyVrGui(0)
@@ -1507,6 +1546,15 @@ m_replay(false)
 
 PhysicsServerExample::~PhysicsServerExample()
 {
+	if (m_canvas)
+	{
+	    if (m_canvasRGBIndex>=0)
+            m_canvas->destroyCanvas(m_canvasRGBIndex);
+	    if (m_canvasDepthIndex>=0)
+            m_canvas->destroyCanvas(m_canvasDepthIndex);
+        if (m_canvasSegMaskIndex>=0)
+            m_canvas->destroyCanvas(m_canvasSegMaskIndex);
+	}
 
 #ifdef BT_ENABLE_VR
 	delete m_tinyVrGui;
@@ -1580,6 +1628,47 @@ void	PhysicsServerExample::initPhysics()
 
 
 		m_isConnected = m_physicsServer.connectSharedMemory( m_guiHelper);
+
+
+
+	{
+		m_canvas = m_guiHelper->get2dCanvasInterface();
+		if (m_canvas)
+		{
+	
+			
+			m_canvasRGBIndex = m_canvas->createCanvas("Synthetic Camera RGB data",gCamVisualizerWidth, gCamVisualizerHeight);
+			m_canvasDepthIndex = m_canvas->createCanvas("Synthetic Camera Depth data",gCamVisualizerWidth, gCamVisualizerHeight);
+			m_canvasSegMaskIndex = m_canvas->createCanvas("Synthetic Camera Segmentation Mask",gCamVisualizerWidth, gCamVisualizerHeight);
+
+			for (int i=0;i<gCamVisualizerWidth;i++)
+			{
+				for (int j=0;j<gCamVisualizerHeight;j++)
+				{
+					unsigned char red=255;
+					unsigned char green=255;
+					unsigned char blue=255;
+					unsigned char alpha=255;
+					if (i==j)
+					{
+						red = 0;
+						green=0;
+						blue=0;
+					}
+					m_canvas->setPixel(m_canvasRGBIndex,i,j,red,green,blue,alpha);
+					m_canvas->setPixel(m_canvasDepthIndex,i,j,red,green,blue,alpha);
+					m_canvas->setPixel(m_canvasSegMaskIndex,i,j,red,green,blue,alpha);
+					
+				}
+			}
+			m_canvas->refreshImageData(m_canvasRGBIndex);
+			m_canvas->refreshImageData(m_canvasDepthIndex);
+			m_canvas->refreshImageData(m_canvasSegMaskIndex);
+			
+			
+		}
+
+	}
 }
 
 
@@ -1760,7 +1849,124 @@ void	PhysicsServerExample::updateGraphics()
 		break;
 
 	}
+	case eGUIHelperDisplayCameraImageData:
+	{
+		if (m_canvas)
+		{
 
+			int numBytesPerPixel= 4;
+			int startRGBIndex = m_multiThreadedHelper->m_startPixelIndex*numBytesPerPixel;
+			int endRGBIndex = startRGBIndex + (*m_multiThreadedHelper->m_numPixelsCopied*numBytesPerPixel);
+
+			int startDepthIndex = m_multiThreadedHelper->m_startPixelIndex;
+			int endDepthIndex = startDepthIndex + (*m_multiThreadedHelper->m_numPixelsCopied);
+
+			int startSegIndex = m_multiThreadedHelper->m_startPixelIndex;
+			int endSegIndex = startSegIndex + (*m_multiThreadedHelper->m_numPixelsCopied);
+
+			btScalar frustumZNear = m_multiThreadedHelper->m_projectionMatrix[14]/(m_multiThreadedHelper->m_projectionMatrix[10]-1);
+			btScalar frustumZFar = 20;//m_multiThreadedHelper->m_projectionMatrix[14]/(m_multiThreadedHelper->m_projectionMatrix[10]+1);
+
+				for (int i=0;i<gCamVisualizerWidth;i++)
+					{
+						for (int j=0;j<gCamVisualizerHeight;j++)
+						{
+                            int xIndex = int(float(i)*(float(m_multiThreadedHelper->m_destinationWidth)/float(gCamVisualizerWidth)));
+                            int yIndex = int(float(j)*(float(m_multiThreadedHelper->m_destinationHeight)/float(gCamVisualizerHeight)));
+							btClamp(yIndex,0,m_multiThreadedHelper->m_destinationWidth);
+							btClamp(xIndex,0,m_multiThreadedHelper->m_destinationHeight);
+							int bytesPerPixel = 4; //RGBA
+							
+							if (m_canvasRGBIndex >=0)
+                            {
+                                int rgbPixelIndex = (xIndex+yIndex*m_multiThreadedHelper->m_destinationWidth)*bytesPerPixel;
+								if (rgbPixelIndex >= startRGBIndex && rgbPixelIndex < endRGBIndex)
+								{
+									m_canvas->setPixel(m_canvasRGBIndex,i,j,
+											m_multiThreadedHelper->m_pixelsRGBA[rgbPixelIndex-startRGBIndex],
+											m_multiThreadedHelper->m_pixelsRGBA[rgbPixelIndex+1-startRGBIndex],
+											m_multiThreadedHelper->m_pixelsRGBA[rgbPixelIndex+2-startRGBIndex],
+													   255); //alpha set to 255
+								}
+                            }
+                            if (m_canvasDepthIndex >=0 && 0!= m_multiThreadedHelper->m_depthBuffer)
+                            {
+                                int depthPixelIndex = (xIndex+yIndex*m_multiThreadedHelper->m_destinationWidth);
+								if (depthPixelIndex >= startDepthIndex && depthPixelIndex < endDepthIndex)
+								{
+									float depthValue = m_multiThreadedHelper->m_depthBuffer[depthPixelIndex-startDepthIndex];
+									//todo: rescale the depthValue to [0..255]
+									if (depthValue>-1e20)
+									{
+										int rgb = 0;
+										btScalar minDepthValue = 0.96;
+										btScalar maxDepthValue = 1;
+
+										if (maxDepthValue!=minDepthValue)
+										{
+											rgb =  (depthValue-minDepthValue)*(255. / (btFabs(maxDepthValue-minDepthValue)));
+											if (rgb<0 || rgb>255)
+											{
+    											//printf("rgb=%d\n",rgb);
+											}
+										}                 
+										m_canvas->setPixel(m_canvasDepthIndex,i,j,
+											rgb,
+											rgb,
+											255, 255); //alpha set to 255
+									} else
+									{
+										m_canvas->setPixel(m_canvasDepthIndex,i,j,
+											0,
+											0,
+											0, 255); //alpha set to 255
+									}
+								}
+                            }
+
+                            if (m_canvasSegMaskIndex>=0 && (0!=m_multiThreadedHelper->m_segmentationMaskBuffer))
+                            {
+                                int segmentationMaskPixelIndex = (xIndex+yIndex*m_multiThreadedHelper->m_destinationWidth);
+
+								if (segmentationMaskPixelIndex >= startSegIndex && segmentationMaskPixelIndex < endSegIndex)
+								{
+									int segmentationMask = m_multiThreadedHelper->m_segmentationMaskBuffer[segmentationMaskPixelIndex-startSegIndex];
+									btVector4 palette[4] = {btVector4(32,255,32,255),
+															btVector4(32,32,255,255),
+															btVector4(255,255,32,255),
+															btVector4(32,255,255,255)};
+									if (segmentationMask>=0)
+									{
+										btVector4 rgb = palette[segmentationMask&3];
+										 m_canvas->setPixel(m_canvasSegMaskIndex,i,j,
+											rgb.x(),
+											rgb.y(),
+											rgb.z(), 255); //alpha set to 255
+									} else
+									{
+										 m_canvas->setPixel(m_canvasSegMaskIndex,i,j,
+											0,
+											0,
+											0, 255); //alpha set to 255
+									}
+								}
+                            }
+						}
+					}
+
+					if (m_canvasRGBIndex >=0)
+                        m_canvas->refreshImageData(m_canvasRGBIndex);
+      
+					if (m_canvasDepthIndex >=0)
+                        m_canvas->refreshImageData(m_canvasDepthIndex);
+                    if (m_canvasSegMaskIndex >=0)
+                        m_canvas->refreshImageData(m_canvasSegMaskIndex);
+                        
+                        
+		}
+		m_multiThreadedHelper->mainThreadRelease();
+		break;
+	}
     case eGUIHelperCopyCameraImageData:
         {
              m_multiThreadedHelper->m_childGuiHelper->copyCameraImageData(m_multiThreadedHelper->m_viewMatrix,
@@ -1775,7 +1981,8 @@ void	PhysicsServerExample::updateGraphics()
 				 m_multiThreadedHelper->m_destinationWidth, 
 				 m_multiThreadedHelper->m_destinationHeight, 
 				 m_multiThreadedHelper->m_numPixelsCopied);
- 		m_multiThreadedHelper->mainThreadRelease();
+
+	 		m_multiThreadedHelper->mainThreadRelease();
             break;
         }
 	case eGUIHelperAutogenerateGraphicsObjects:
