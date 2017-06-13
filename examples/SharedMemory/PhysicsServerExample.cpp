@@ -1638,8 +1638,8 @@ void	PhysicsServerExample::initPhysics()
 	
 			
 			m_canvasRGBIndex = m_canvas->createCanvas("Synthetic Camera RGB data",gCamVisualizerWidth, gCamVisualizerHeight);
-			m_canvasDepthIndex = m_canvas->createCanvas("Synthetic Camera Depth data",gCamVisualizerWidth, gCamVisualizerHeight);
-			m_canvasSegMaskIndex = m_canvas->createCanvas("Synthetic Camera Segmentation Mask",gCamVisualizerWidth, gCamVisualizerHeight);
+			//m_canvasDepthIndex = m_canvas->createCanvas("Synthetic Camera Depth data",gCamVisualizerWidth, gCamVisualizerHeight);
+			//m_canvasSegMaskIndex = m_canvas->createCanvas("Synthetic Camera Segmentation Mask",gCamVisualizerWidth, gCamVisualizerHeight);
 
 			for (int i=0;i<gCamVisualizerWidth;i++)
 			{
@@ -1656,14 +1656,19 @@ void	PhysicsServerExample::initPhysics()
 						blue=0;
 					}
 					m_canvas->setPixel(m_canvasRGBIndex,i,j,red,green,blue,alpha);
-					m_canvas->setPixel(m_canvasDepthIndex,i,j,red,green,blue,alpha);
-					m_canvas->setPixel(m_canvasSegMaskIndex,i,j,red,green,blue,alpha);
+					if (m_canvasSegMaskIndex>=0)
+						m_canvas->setPixel(m_canvasDepthIndex,i,j,red,green,blue,alpha);
+					if (m_canvasSegMaskIndex>=0)
+						m_canvas->setPixel(m_canvasSegMaskIndex,i,j,red,green,blue,alpha);
 					
 				}
 			}
 			m_canvas->refreshImageData(m_canvasRGBIndex);
-			m_canvas->refreshImageData(m_canvasDepthIndex);
-			m_canvas->refreshImageData(m_canvasSegMaskIndex);
+	
+			if (m_canvasDepthIndex>=0)
+				m_canvas->refreshImageData(m_canvasDepthIndex);
+			if (m_canvasSegMaskIndex>=0)
+				m_canvas->refreshImageData(m_canvasSegMaskIndex);
 			
 			
 		}
@@ -1899,7 +1904,7 @@ void	PhysicsServerExample::updateGraphics()
 									if (depthValue>-1e20)
 									{
 										int rgb = 0;
-										btScalar minDepthValue = 0.96;
+										btScalar minDepthValue = 0.98;//todo: compute more reasonably min/max depth range
 										btScalar maxDepthValue = 1;
 
 										if (maxDepthValue!=minDepthValue)
