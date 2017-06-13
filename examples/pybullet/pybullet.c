@@ -763,7 +763,7 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 	int maxNumCmdPer1ms = -2;
 	int enableFileCaching = -1;
 	double restitutionVelocityThreshold=-1;
-	double erp;
+	double erp = -1;
 	double contactERP = -1;
 	double frictionERP = -1;
 	b3PhysicsClientHandle sm = 0;
