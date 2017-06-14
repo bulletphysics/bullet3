@@ -22,8 +22,8 @@ struct MyMotorInfo2
     int     m_qIndex;
 };
 
-int camVisualizerWidth = 320;//1024/3;
-int camVisualizerHeight = 240;//768/3;
+static int camVisualizerWidth = 320;//1024/3;
+static int camVisualizerHeight = 240;//768/3;
 
 enum CustomCommands
 {
@@ -863,8 +863,8 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 						{
                             int xIndex = int(float(i)*(float(imageData.m_pixelWidth)/float(camVisualizerWidth)));
                             int yIndex = int(float(j)*(float(imageData.m_pixelHeight)/float(camVisualizerHeight)));
-							btClamp(yIndex,0,imageData.m_pixelHeight);
 							btClamp(xIndex,0,imageData.m_pixelWidth);
+							btClamp(yIndex,0,imageData.m_pixelHeight);
 							
                             if (m_canvasDepthIndex >=0)
                             {

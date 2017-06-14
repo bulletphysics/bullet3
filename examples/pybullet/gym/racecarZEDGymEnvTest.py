@@ -1,7 +1,7 @@
 
-from envs.bullet.racecarGymEnv import RacecarGymEnv
+from envs.bullet.racecarZEDGymEnv import RacecarZEDGymEnv
 print ("hello")
-environment = RacecarGymEnv(renders=True)
+environment = RacecarZEDGymEnv(renders=True)
 
 targetVelocitySlider = environment._p.addUserDebugParameter("wheelVelocity",-1,1,0)
 steeringSlider = environment._p.addUserDebugParameter("steering",-0.5,0.5,0)
