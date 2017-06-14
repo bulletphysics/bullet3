@@ -7,7 +7,7 @@ from baselines import deepq
 def main():
     
     env = RacecarZEDGymEnv(renders=True)
-    act = deepq.load("racecar_model.pkl")
+    act = deepq.load("racecar_zed_model.pkl")
     print(act)
     while True:
         obs, done = env.reset(), False

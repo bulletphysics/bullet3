@@ -14,11 +14,14 @@ def callback(lcl, glb):
     is_solved = totalt > 2000 and total >= -50
     return is_solved
 
-
 def main():
   
     env = RacecarZEDGymEnv(renders=False)
-    model = deepq.models.mlp([64])
+    model = deepq.models.cnn_to_mlp(
+        convs=[(32, 8, 4), (64, 4, 2), (64, 3, 1)],
+        hiddens=[256],
+        dueling=False
+    )
     act = deepq.learn(
         env,
         q_func=model,
@@ -30,8 +33,8 @@ def main():
         print_freq=10,
         callback=callback
     )
-    print("Saving model to racecar_model.pkl")
-    act.save("racecar_model.pkl")
+    print("Saving model to racecar_zed_model.pkl")
+    act.save("racecar_zed_model.pkl")
 
 
 if __name__ == '__main__':
