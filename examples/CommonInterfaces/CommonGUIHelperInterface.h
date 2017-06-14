@@ -83,6 +83,12 @@ struct GUIHelperInterface
                                   float* depthBuffer, int depthBufferSizeInPixels, 
                                   int* segmentationMaskBuffer, int segmentationMaskBufferSizeInPixels,
                                   int startPixelIndex, int destinationWidth, int destinationHeight, int* numPixelsCopied)=0;
+	  virtual void debugDisplayCameraImageData(const float viewMatrix[16], const float projectionMatrix[16], 
+                                  unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, 
+                                  float* depthBuffer, int depthBufferSizeInPixels, 
+                                  int* segmentationMaskBuffer, int segmentationMaskBufferSizeInPixels,
+		  int startPixelIndex, int destinationWidth, int destinationHeight, int* numPixelsCopied){}
+
 
 	virtual void autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWorld) =0;
 	

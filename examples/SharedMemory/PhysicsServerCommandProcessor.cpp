@@ -3009,6 +3009,14 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                                 depthBuffer,numRequestedPixels,
                                                 segmentationMaskBuffer, numRequestedPixels,
                                                 startPixelIndex,width,height,&numPixelsCopied);
+
+							m_data->m_guiHelper->debugDisplayCameraImageData(clientCmd.m_requestPixelDataArguments.m_viewMatrix,
+                                                clientCmd.m_requestPixelDataArguments.m_projectionMatrix,pixelRGBA,numRequestedPixels,
+                                                depthBuffer,numRequestedPixels,
+                                                0, numRequestedPixels,
+                                                startPixelIndex,width,height,&numPixelsCopied);
+
+							
 						} else
 						{
 
@@ -3067,6 +3075,13 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                                      depthBuffer,numRequestedPixels,
                                                      segmentationMaskBuffer, numRequestedPixels,
                                                      startPixelIndex,&width,&height,&numPixelsCopied);
+
+							m_data->m_guiHelper->debugDisplayCameraImageData(clientCmd.m_requestPixelDataArguments.m_viewMatrix,
+                                                clientCmd.m_requestPixelDataArguments.m_projectionMatrix,pixelRGBA,numRequestedPixels,
+                                                depthBuffer,numRequestedPixels,
+                                                segmentationMaskBuffer, numRequestedPixels,
+                                                startPixelIndex,width,height,&numPixelsCopied);
+
 						}
 
                         //each pixel takes 4 RGBA values and 1 float = 8 bytes
