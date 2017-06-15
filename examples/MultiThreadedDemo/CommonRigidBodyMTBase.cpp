@@ -285,6 +285,14 @@ public:
     {
         if ( ts )
         {
+#if BT_THREADSAFE
+            // if initial number of threads is 0 or 1,
+            if (ts->getNumThreads() <= 1)
+            {
+                // for OpenMP, TBB, PPL set num threads to number of logical cores
+                ts->setNumThreads( ts->getMaxNumThreads() );
+            }
+#endif // #if BT_THREADSAFE
             m_taskSchedulers.push_back( ts );
         }
     }
@@ -364,13 +372,19 @@ static void toggleSolverModeCallback(int buttonId, bool buttonState, void* userP
     }
 }
 
-static void setSolverTypeCallback(int buttonId, bool buttonState, void* userPointer)
+void setSolverTypeComboBoxCallback(int combobox, const char* item, void* userPointer)
 {
-    if (buttonId >= 0 && buttonId < SOLVER_TYPE_COUNT)
+    const char** items = static_cast<const char**>(userPointer);
+    for (int i = 0; i < SOLVER_TYPE_COUNT; ++i)
     {
-        gSolverType = static_cast<SolverType>(buttonId);
+        if (strcmp(item, items[i]) == 0)
+        {
+            gSolverType = static_cast<SolverType>(i);
+            break;
+        }
     }
 }
+
 
 static void setNumThreads( int numThreads )
 {
@@ -385,18 +399,32 @@ static void setNumThreads( int numThreads )
 #endif // #if BT_THREADSAFE
 }
 
-static void apiSelectButtonCallback(int buttonId, bool buttonState, void* userPointer)
+
+void setTaskSchedulerComboBoxCallback(int combobox, const char* item, void* userPointer)
 {
 #if BT_THREADSAFE
-    // change the task scheduler
-    btSetTaskScheduler( gTaskSchedulerMgr.getTaskScheduler( buttonId ) );
-    setNumThreads( int( gSliderNumThreads ) );
+    const char** items = static_cast<const char**>( userPointer );
+    for ( int i = 0; i < 20; ++i )
+    {
+        if ( strcmp( item, items[ i ] ) == 0 )
+        {
+            // change the task scheduler
+            btITaskScheduler* ts = gTaskSchedulerMgr.getTaskScheduler( i );
+            btSetTaskScheduler( ts );
+            gSliderNumThreads = float(ts->getNumThreads());
+            break;
+        }
+    }
 #endif // #if BT_THREADSAFE
 }
 
+
 static void setThreadCountCallback(float val, void* userPtr)
 {
+#if BT_THREADSAFE
     setNumThreads( int( gSliderNumThreads ) );
+    gSliderNumThreads = float(btGetTaskScheduler()->getNumThreads());
+#endif // #if BT_THREADSAFE
 }
 
 static void setSolverIterationCountCallback(float val, void* userPtr)
@@ -490,16 +518,21 @@ void CommonRigidBodyMTBase::createDefaultParameters()
         m_guiHelper->getParameterInterface()->registerButtonParameter( button );
     }
 
-    // add buttons for switching to different solver types
-    for (int i = 0; i < SOLVER_TYPE_COUNT; ++i)
     {
-        char buttonName[256];
-        SolverType solverType = static_cast<SolverType>(i);
-        sprintf(buttonName, "Solver Type %s", getSolverTypeName(solverType));
-        ButtonParams button( buttonName, 0, false );
-        button.m_buttonId = solverType;
-        button.m_callback = setSolverTypeCallback;
-        m_guiHelper->getParameterInterface()->registerButtonParameter( button );
+        // create a combo box for selecting the solver type
+        static const char* sSolverTypeComboBoxItems[ SOLVER_TYPE_COUNT ];
+        for ( int i = 0; i < SOLVER_TYPE_COUNT; ++i )
+        {
+            SolverType solverType = static_cast<SolverType>( i );
+            sSolverTypeComboBoxItems[ i ] = getSolverTypeName( solverType );
+        }
+        ComboBoxParams comboParams;
+        comboParams.m_userPointer = sSolverTypeComboBoxItems;
+        comboParams.m_numItems = SOLVER_TYPE_COUNT;
+        comboParams.m_startItem = gSolverType;
+        comboParams.m_items = sSolverTypeComboBoxItems;
+        comboParams.m_callback = setSolverTypeComboBoxCallback;
+        m_guiHelper->getParameterInterface()->registerComboBox( comboParams );
     }
     {
         // a slider for the number of solver iterations
@@ -562,14 +595,27 @@ void CommonRigidBodyMTBase::createDefaultParameters()
     if (m_multithreadedWorld)
     {
 #if BT_THREADSAFE
-        // create a button for each supported threading API
-        for ( int iApi = 0; iApi < gTaskSchedulerMgr.getNumTaskSchedulers(); ++iApi )
+        if (gTaskSchedulerMgr.getNumTaskSchedulers() >= 1)
         {
-            char str[ 1024 ];
-            sprintf( str, "API %s", gTaskSchedulerMgr.getTaskScheduler(iApi)->getName() );
-            ButtonParams button( str, iApi, false );
-            button.m_callback = apiSelectButtonCallback;
-            m_guiHelper->getParameterInterface()->registerButtonParameter( button );
+            // create a combo box for selecting the task scheduler
+            const int maxNumTaskSchedulers = 20;
+            static const char* sTaskSchedulerComboBoxItems[ maxNumTaskSchedulers ];
+            int startingItem = 0;
+            for ( int i = 0; i < gTaskSchedulerMgr.getNumTaskSchedulers(); ++i )
+            {
+                sTaskSchedulerComboBoxItems[ i ] = gTaskSchedulerMgr.getTaskScheduler(i)->getName();
+                if (gTaskSchedulerMgr.getTaskScheduler(i) == btGetTaskScheduler())
+                {
+                    startingItem = i;
+                }
+            }
+            ComboBoxParams comboParams;
+            comboParams.m_userPointer = sTaskSchedulerComboBoxItems;
+            comboParams.m_numItems = gTaskSchedulerMgr.getNumTaskSchedulers();
+            comboParams.m_startItem = startingItem;
+            comboParams.m_items = sTaskSchedulerComboBoxItems;
+            comboParams.m_callback = setTaskSchedulerComboBoxCallback;
+            m_guiHelper->getParameterInterface()->registerComboBox( comboParams );
         }
         {
             // create a slider to set the number of threads to use
