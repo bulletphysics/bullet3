@@ -1,14 +1,17 @@
 
 from envs.bullet.kukaGymEnv import KukaGymEnv
-print ("hello")
+import time
+
+
 environment = KukaGymEnv(renders=True)
 
   
 motorsIds=[]
-for i in range (len(environment._kuka.motorNames)):
-  motor = environment._kuka.motorNames[i]
-  motorJointIndex = environment._kuka.motorIndices[i]
-  motorsIds.append(environment._p.addUserDebugParameter(motor,-3,3,environment._kuka.jointPositions[i]))
+motorsIds.append(environment._p.addUserDebugParameter("posX",0.4,0.75,0.537))
+motorsIds.append(environment._p.addUserDebugParameter("posY",-.22,.3,0.0))
+motorsIds.append(environment._p.addUserDebugParameter("posZ",0.1,1,0.2))
+motorsIds.append(environment._p.addUserDebugParameter("yaw",-3.14,3.14,0))
+motorsIds.append(environment._p.addUserDebugParameter("fingerAngle",0,0.3,.3))
 
 while (True):
     

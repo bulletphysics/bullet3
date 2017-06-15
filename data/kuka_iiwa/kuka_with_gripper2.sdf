@@ -457,10 +457,22 @@
     </joint>
 
     <!-- Attach the base of the gripper to the end of the arm -->
-    <joint name='gripper_to_arm' type='fixed'>
+    <joint name='gripper_to_arm' type='continuous'>
       <parent>lbr_iiwa_link_7</parent>
       <child>base_link</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <dynamics>
+          <damping>0.5</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
     </joint>
+
+    
+    
     <link name='base_link'>
       <pose frame=''>0 0 1.305 0 -0 0</pose>
       <inertial>

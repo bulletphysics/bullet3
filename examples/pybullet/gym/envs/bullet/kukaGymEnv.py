@@ -20,7 +20,7 @@ class KukaGymEnv(gym.Env):
                isEnableSelfCollision=True,
                renders=True):
     print("init")
-    self._timeStep = 0.01
+    self._timeStep = 1./240.
     self._urdfRoot = urdfRoot
     self._actionRepeat = actionRepeat
     self._isEnableSelfCollision = isEnableSelfCollision
@@ -45,7 +45,7 @@ class KukaGymEnv(gym.Env):
 
   def _reset(self):
     p.resetSimulation()
-    #p.setPhysicsEngineParameter(numSolverIterations=300)
+    p.setPhysicsEngineParameter(numSolverIterations=150)
     p.setTimeStep(self._timeStep)
     p.loadURDF("%splane.urdf" % self._urdfRoot,[0,0,-1])
     
