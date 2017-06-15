@@ -3,10 +3,7 @@
   <link name="block_2_base_link">
     <contact>
       <lateral_friction value="1.0"/>
-      <rolling_friction value="0.0"/>
-      <inertia_scaling value="3.0"/>
-      <contact_cfm value="0.0"/>
-      <contact_erp value="1.0"/>
+      <spinning_friction value=".001"/>
     </contact>
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>

@@ -401,7 +401,7 @@
       <pose frame=''>0 0 1.261 0 0 0</pose>
       <inertial>
         <pose frame=''>0 0 0.02 0 -0 0</pose>
-        <mass>0.3</mass>
+        <mass>1.3</mass>
         <inertia>
           <ixx>0.001</ixx>
           <ixy>0</ixy>
@@ -457,15 +457,21 @@
     </joint>
 
     <!-- Attach the base of the gripper to the end of the arm -->
-    <joint name='gripper_to_arm' type='fixed'>
+    <joint name='gripper_to_arm' type='continuous'>
       <parent>lbr_iiwa_link_7</parent>
       <child>base_link</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+      </axis>
     </joint>
+
+    
+    
     <link name='base_link'>
       <pose frame=''>0 0 1.305 0 -0 0</pose>
       <inertial>
         <pose frame=''>0 0 0 0 -0 0</pose>
-        <mass>1.2</mass>
+        <mass>0.2</mass>
         <inertia>
           <ixx>1</ixx>
           <ixy>0</ixy>
@@ -489,6 +495,20 @@
           <emissive>0 0 0 0</emissive>
         </material>
       </visual>
+        <collision name='base_link_collision'>
+        <pose frame=''>0 0 0 0 0 0</pose>
+        <geometry>
+		  <box>
+		     <size>0.05 0.05 0.1 </size>
+		  </box>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.6 0.6 0.6 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
+      </collision>
     </link>
 
     <joint name='base_left_finger_joint' type='revolute'>
@@ -514,7 +534,7 @@
       <pose frame=''>0 0.024 1.35 0 -0.05 0</pose>
       <inertial>
         <pose frame=''>0 0 0.04 0 0 0</pose>
-        <mass>0.1</mass>
+        <mass>0.2</mass>
         <inertia>
           <ixx>0.1</ixx>
           <ixy>0</ixy>
@@ -538,12 +558,25 @@
           <emissive>0 0 0 0</emissive>
         </material>
       </visual>
+       <collision name='left_finger_collision'>
+        <pose frame=''>0 0 0.04 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.01 0.01 0.08</size>
+          </box>
+        </geometry>
+        
+      </collision>
     </link>
     <joint name='left_finger_base_joint' type='fixed'>
       <parent>left_finger</parent>
       <child>left_finger_base</child>
     </joint>
     <link name='left_finger_base'>
+    <contact>
+        <lateral_friction>0.8</lateral_friction>
+        <spinning_friction>.1</spinning_friction>
+      </contact>
       <pose frame=''>-0.005 0.024 1.43 0 -0.3 0</pose>
       <inertial>
         <pose frame=''>-0.003 0 0.04 0 0 0 </pose>
@@ -604,7 +637,7 @@
     <link name='left_finger_tip'>
       <contact>
         <lateral_friction>0.8</lateral_friction>
-        <spinning_friction>1.0</spinning_friction>
+        <spinning_friction>.1</spinning_friction>
       </contact>
       <pose frame=''>-0.02 0.024 1.49 0 0.2 0</pose>
       <inertial>
@@ -664,10 +697,14 @@
       </axis>
     </joint>
     <link name='right_finger'>
+    <contact>
+        <lateral_friction>0.8</lateral_friction>
+        <spinning_friction>.1</spinning_friction>
+      </contact>
       <pose frame=''>0 0.024 1.35 0 0.05 0</pose>
       <inertial>
         <pose frame=''>0 0 0.04 0 0 0</pose>
-        <mass>0.1</mass>
+        <mass>0.2</mass>
         <inertia>
           <ixx>0.1</ixx>
           <ixy>0</ixy>
@@ -691,12 +728,30 @@
           <emissive>0 0 0 0</emissive>
         </material>
       </visual>
+      <collision name='right_finger_collision'>
+        <pose frame=''>0 0 0.04 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.01 0.01 0.08</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>0.6 0.6 0.6 1</diffuse>
+          <specular>0.5 0.5 0.5 1</specular>
+          <emissive>0 0 0 0</emissive>
+        </material>
+      </collision>
     </link>
     <joint name='right_finger_base_joint' type='fixed'>
       <parent>right_finger</parent>
       <child>right_finger_base</child>
     </joint>
     <link name='right_finger_base'>
+    <contact>
+        <lateral_friction>0.8</lateral_friction>
+        <spinning_friction>.1</spinning_friction>
+      </contact>
       <pose frame=''>0.005 0.024 1.43 0 0.3 0</pose>
       <inertial>
         <pose frame=''>0.003 0 0.04 0 0 0 </pose>
@@ -757,7 +812,7 @@
     <link name='right_finger_tip'>
       <contact>
         <lateral_friction>0.8</lateral_friction>
-        <spinning_friction>1.0</spinning_friction>
+        <spinning_friction>.1</spinning_friction>
       </contact>
       <pose frame=''>0.02 0.024 1.49 0 -0.2 0</pose>
       <inertial>
