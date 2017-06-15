@@ -10,8 +10,8 @@ class Kuka:
     self.timeStep = timeStep
     self.reset()
     self.maxForce = 90
-    self.fingerAForce = 12
-    self.fingerBForce = 10
+    self.fingerAForce = 6
+    self.fingerBForce = 5
     self.fingerTipForce = 3
     
     self.useInverseKinematics = 1
@@ -34,17 +34,18 @@ class Kuka:
     
     objects = p.loadSDF("kuka_iiwa/kuka_with_gripper2.sdf")
     self.kukaUid = objects[0]
-    for i in range (p.getNumJoints(self.kukaUid)):
-    	print(p.getJointInfo(self.kukaUid,i))
+    #for i in range (p.getNumJoints(self.kukaUid)):
+    #  print(p.getJointInfo(self.kukaUid,i))
     p.resetBasePositionAndOrientation(self.kukaUid,[-0.100000,0.000000,0.070000],[0.000000,0.000000,0.000000,1.000000])
-    self.jointPositions=[ -0.196884, 0.857586, -0.023543, -1.664977, 0.030403, 0.624786, -0.232294, 0.000000, -0.296450, 0.000000, 0.100002, 0.284399, 0.000000, -0.099999 ]
+    self.jointPositions=[ 0.006418, 0.413184, -0.011401, -1.589317, 0.005379, 1.137684, -0.006539, 0.000048, -0.299912, 0.000000, -0.000043, 0.299960, 0.000000, -0.000200 ]
     self.numJoints = p.getNumJoints(self.kukaUid)
     for jointIndex in range (self.numJoints):
       p.resetJointState(self.kukaUid,jointIndex,self.jointPositions[jointIndex])
     
     self.trayUid = p.loadURDF("tray/tray.urdf", 0.640000,0.075000,-0.190000,0.000000,0.000000,1.000000,0.000000)
-    self.blockUid =p.loadURDF("block.urdf", 0.604746,0.080626,-0.180069,0.000050,-0.000859,-0.824149,0.566372)
-    p.loadURDF("table/table.urdf", 0.5000000,0.00000,-.820000,0.000000,0.000000,0.0,1.0)
+    self.endEffectorPos = [0.537,0.0,0.5]
+    self.endEffectorAngle = 0
+    
     
     self.motorNames = []
     self.motorIndices = []
@@ -68,21 +69,47 @@ class Kuka:
 
   def getObservation(self):
     observation = []
-    pos,orn=p.getBasePositionAndOrientation(self.blockUid)
-    
+    state = p.getLinkState(self.kukaUid,self.kukaEndEffectorIndex)
+    pos = state[0]
+    orn = state[1]
+        
     observation.extend(list(pos))
     observation.extend(list(orn))
     
     return observation
 
   def applyAction(self, motorCommands):
+    
     #print ("self.numJoints")
     #print (self.numJoints)
     if (self.useInverseKinematics):
-      pos = [motorCommands[0],motorCommands[1],motorCommands[2]]
-      yaw = motorCommands[3]
+      
+      dx = motorCommands[0]
+      dy = motorCommands[1]
+      dz = motorCommands[2]
+      da = motorCommands[3]
       fingerAngle = motorCommands[4]
-      #roll = motorCommands[5]
+      
+      self.endEffectorPos[0] = self.endEffectorPos[0]+dx
+      if (self.endEffectorPos[0]>0.7):
+        self.endEffectorPos[0]=0.7
+      if (self.endEffectorPos[0]<0.45):
+        self.endEffectorPos[0]=0.45
+      self.endEffectorPos[1] = self.endEffectorPos[1]+dy
+      if (self.endEffectorPos[1]<-0.2):
+        self.endEffectorPos[1]=-0.2
+      if (self.endEffectorPos[1]>0.3):
+        self.endEffectorPos[1]=0.3
+      
+      #print (self.endEffectorPos[2])
+      self.endEffectorPos[2] = self.endEffectorPos[2]+dz
+      if (self.endEffectorPos[2]<0.1):
+        self.endEffectorPos[2] = 0.1
+      if (self.endEffectorPos[2]>0.5):
+        self.endEffectorPos[2] = 0.5
+     
+      self.endEffectorAngle = self.endEffectorAngle + da
+      pos = self.endEffectorPos
       orn = p.getQuaternionFromEuler([0,-math.pi,0]) # -math.pi,yaw])
       if (self.useNullSpace==1):
         if (self.useOrientation==1):
@@ -108,7 +135,7 @@ class Kuka:
         for i in range (self.numJoints):
           p.resetJointState(self.kukaUid,i,jointPoses[i])
       #fingers
-      p.setJointMotorControl2(self.kukaUid,7,p.POSITION_CONTROL,targetPosition=yaw,force=self.maxForce)
+      p.setJointMotorControl2(self.kukaUid,7,p.POSITION_CONTROL,targetPosition=self.endEffectorAngle,force=self.maxForce)
       p.setJointMotorControl2(self.kukaUid,8,p.POSITION_CONTROL,targetPosition=-fingerAngle,force=self.fingerAForce)
       p.setJointMotorControl2(self.kukaUid,11,p.POSITION_CONTROL,targetPosition=fingerAngle,force=self.fingerBForce)
       
