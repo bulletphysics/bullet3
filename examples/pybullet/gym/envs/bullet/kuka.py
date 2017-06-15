@@ -8,12 +8,11 @@ class Kuka:
   def __init__(self, urdfRootPath='', timeStep=0.01):
     self.urdfRootPath = urdfRootPath
     self.timeStep = timeStep
-    self.reset()
-    self.maxForce = 90
-    self.fingerAForce = 6
-    self.fingerBForce = 5
-    self.fingerTipForce = 3
     
+    self.maxForce = 200.
+    self.fingerAForce = 6
+    self.fingerBForce = 5.5
+    self.fingerTipForce = 6
     self.useInverseKinematics = 1
     self.useSimulation = 1
     self.useNullSpace = 1
@@ -29,9 +28,9 @@ class Kuka:
     self.rp=[0,0,0,0.5*math.pi,0,-math.pi*0.5*0.66,0]
     #joint damping coefficents
     self.jd=[0.1,0.1,0.1,0.1,0.1,0.1,0.1]
+    self.reset()
     
   def reset(self):
-    
     objects = p.loadSDF("kuka_iiwa/kuka_with_gripper2.sdf")
     self.kukaUid = objects[0]
     #for i in range (p.getNumJoints(self.kukaUid)):
@@ -41,6 +40,7 @@ class Kuka:
     self.numJoints = p.getNumJoints(self.kukaUid)
     for jointIndex in range (self.numJoints):
       p.resetJointState(self.kukaUid,jointIndex,self.jointPositions[jointIndex])
+      p.setJointMotorControl2(self.kukaUid,jointIndex,p.POSITION_CONTROL,targetPosition=self.jointPositions[jointIndex],force=self.maxForce)
     
     self.trayUid = p.loadURDF("tray/tray.urdf", 0.640000,0.075000,-0.190000,0.000000,0.000000,1.000000,0.000000)
     self.endEffectorPos = [0.537,0.0,0.5]
@@ -90,23 +90,33 @@ class Kuka:
       da = motorCommands[3]
       fingerAngle = motorCommands[4]
       
+      state = p.getLinkState(self.kukaUid,self.kukaEndEffectorIndex)
+      actualEndEffectorPos = state[0]
+      #print("pos[2] (getLinkState(kukaEndEffectorIndex)")
+      #print(actualEndEffectorPos[2])
+      
+    
+      
       self.endEffectorPos[0] = self.endEffectorPos[0]+dx
-      if (self.endEffectorPos[0]>0.7):
-        self.endEffectorPos[0]=0.7
+      if (self.endEffectorPos[0]>0.75):
+        self.endEffectorPos[0]=0.75
       if (self.endEffectorPos[0]<0.45):
         self.endEffectorPos[0]=0.45
       self.endEffectorPos[1] = self.endEffectorPos[1]+dy
-      if (self.endEffectorPos[1]<-0.2):
-        self.endEffectorPos[1]=-0.2
-      if (self.endEffectorPos[1]>0.3):
-        self.endEffectorPos[1]=0.3
+      if (self.endEffectorPos[1]<-0.22):
+        self.endEffectorPos[1]=-0.22
+      if (self.endEffectorPos[1]>0.22):
+        self.endEffectorPos[1]=0.22
       
+      #print ("self.endEffectorPos[2]")
       #print (self.endEffectorPos[2])
-      self.endEffectorPos[2] = self.endEffectorPos[2]+dz
-      if (self.endEffectorPos[2]<0.1):
-        self.endEffectorPos[2] = 0.1
-      if (self.endEffectorPos[2]>0.5):
-        self.endEffectorPos[2] = 0.5
+      #print("actualEndEffectorPos[2]")
+      #print(actualEndEffectorPos[2])
+      if (dz>0 or actualEndEffectorPos[2]>0.10):
+        self.endEffectorPos[2] = self.endEffectorPos[2]+dz
+      if (actualEndEffectorPos[2]<0.10):
+        self.endEffectorPos[2] = self.endEffectorPos[2]+0.0001
+    
      
       self.endEffectorAngle = self.endEffectorAngle + da
       pos = self.endEffectorPos
