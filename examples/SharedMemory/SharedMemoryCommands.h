@@ -427,10 +427,13 @@ struct RequestActualStateArgs
 struct SendActualStateArgs
 {
 	int m_bodyUniqueId;
+	int m_numLinks;
 	int m_numDegreeOfFreedomQ;
 	int m_numDegreeOfFreedomU;
 
     double m_rootLocalInertialFrame[7];
+	double m_rootWorldAABBMin[3];
+	double m_rootWorldAABBMax[3];
     
 	  //actual state is only written by the server, read-only access by client is expected
     double m_actualStateQ[MAX_DEGREE_OF_FREEDOM];
@@ -444,6 +447,8 @@ struct SendActualStateArgs
     double m_linkState[7*MAX_NUM_LINKS];
 	double m_linkWorldVelocities[6*MAX_NUM_LINKS];//linear velocity and angular velocity in world space (x/y/z each).
     double m_linkLocalInertialFrames[7*MAX_NUM_LINKS];
+	double m_linkWorldAABBsMin[3*MAX_NUM_LINKS];
+	double m_linkWorldAABBsMax[3*MAX_NUM_LINKS];
 };
 
 enum EnumSensorTypes

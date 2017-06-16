@@ -1972,6 +1972,89 @@ static int pybullet_internalGetBasePositionAndOrientation(
 	return 1;
 }
 
+static PyObject* pybullet_getAABB(PyObject* self, PyObject* args, PyObject* keywds)
+{
+
+	int bodyUniqueId = -1;
+	int linkIndex = -1;
+	
+	b3PhysicsClientHandle sm = 0;
+	int physicsClientId = 0;
+	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|ii", kwlist, &bodyUniqueId, &linkIndex, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	{
+		int status_type = 0;
+		b3SharedMemoryCommandHandle cmd_handle;
+		b3SharedMemoryStatusHandle status_handle;
+
+		if (bodyUniqueId < 0)
+		{
+			PyErr_SetString(SpamError, "getAABB failed; invalid bodyUniqueId");
+			return NULL;
+		}
+
+		if (linkIndex < -1)
+		{
+			PyErr_SetString(SpamError, "getAABB failed; invalid linkIndex");
+			return NULL;
+		}
+
+		cmd_handle =
+			b3RequestActualStateCommandInit(sm, bodyUniqueId);
+		status_handle =
+			b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
+
+		status_type = b3GetStatusType(status_handle);
+		if (status_type != CMD_ACTUAL_STATE_UPDATE_COMPLETED)
+		{
+			PyErr_SetString(SpamError, "getAABB failed.");
+			return NULL;
+		}
+
+		{
+			PyObject* pyListAabb=0;
+			PyObject* pyListAabbMin=0;
+			PyObject* pyListAabbMax=0;
+			double aabbMin[3];
+			double aabbMax[3];
+			int i=0;
+			if (b3GetStatusAABB(status_handle, linkIndex, aabbMin, aabbMax))
+			{
+				pyListAabb = PyTuple_New(2);
+				pyListAabbMin = PyTuple_New(3);
+				pyListAabbMax = PyTuple_New(3);
+
+				for (i=0;i<3;i++)
+				{
+					PyTuple_SetItem(pyListAabbMin, i, PyFloat_FromDouble(aabbMin[i]));
+					PyTuple_SetItem(pyListAabbMax, i, PyFloat_FromDouble(aabbMax[i]));
+				}
+
+				PyTuple_SetItem(pyListAabb, 0, pyListAabbMin);
+				PyTuple_SetItem(pyListAabb, 1, pyListAabbMax);
+
+				//PyFloat_FromDouble(basePosition[i]);
+
+				return pyListAabb;
+			}
+		}
+
+	}
+
+	PyErr_SetString(SpamError, "getAABB failed.");
+	return NULL;
+}
+
 // Get the positions (x,y,z) and orientation (x,y,z,w) in quaternion
 // values for the base link of your object
 // Object is retrieved based on body index, which is the order
@@ -2362,6 +2445,18 @@ static PyObject* pybullet_getNumConstraints(PyObject* self, PyObject* args, PyOb
 	return PyLong_FromLong(numConstraints);
 #else
 	return PyInt_FromLong(numConstraints);
+#endif
+}
+
+// Return the number of joints in an object based on
+// body index; body index is based on order of sequence
+// the object is loaded into simulation
+static PyObject* pybullet_getAPIVersion(PyObject* self, PyObject* args, PyObject* keywds)
+{
+#if PY_MAJOR_VERSION >= 3
+	return PyLong_FromLong(SHARED_MEMORY_MAGIC_NUMBER);
+#else
+	return PyInt_FromLong(SHARED_MEMORY_MAGIC_NUMBER);
 #endif
 }
 
@@ -6470,6 +6565,10 @@ static PyMethodDef SpamMethods[] = {
 	 "Get the world position and orientation of the base of the object. "
 	 "(x,y,z) position vector and (x,y,z,w) quaternion orientation."},
 
+	{"getAABB", (PyCFunction)pybullet_getAABB,
+	 METH_VARARGS | METH_KEYWORDS,
+	 "Get the axis aligned bound box min and max coordinates in world space."},
+
 	{"resetBasePositionAndOrientation",
 	 (PyCFunction)pybullet_resetBasePositionAndOrientation, METH_VARARGS | METH_KEYWORDS,
 	 "Reset the world position and orientation of the base of the object "
@@ -6679,6 +6778,11 @@ static PyMethodDef SpamMethods[] = {
 
 	{"setTimeOut", (PyCFunction)pybullet_setTimeOut, METH_VARARGS | METH_KEYWORDS,
 	 "Set the timeOut in seconds, used for most of the API calls."},
+
+	{"getAPIVersion", (PyCFunction)pybullet_getAPIVersion,
+	 METH_VARARGS | METH_KEYWORDS,
+	 "Get version of the API. Compatibility exists for connections using the same API version. Make sure both client and server use the same number of bits (32-bit or 64bit)."},
+
 	// todo(erwincoumans)
 	// saveSnapshot
 	// loadSnapshot

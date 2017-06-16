@@ -1308,6 +1308,40 @@ int b3GetStatusBodyIndex(b3SharedMemoryStatusHandle statusHandle)
 	return bodyId;
 }
 
+int b3GetStatusAABB(b3SharedMemoryStatusHandle statusHandle, int linkIndex, double aabbMin[3], double aabbMax[3])
+{
+	const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
+    const SendActualStateArgs &args = status->m_sendActualStateArgs;
+    btAssert(status->m_type == CMD_ACTUAL_STATE_UPDATE_COMPLETED);
+    if (status->m_type != CMD_ACTUAL_STATE_UPDATE_COMPLETED)
+        return 0;
+
+	if (linkIndex==-1)
+	{	
+		aabbMin[0] = args.m_rootWorldAABBMin[0];
+		aabbMin[1] = args.m_rootWorldAABBMin[1];
+		aabbMin[2] = args.m_rootWorldAABBMin[2];
+
+		aabbMax[0] = args.m_rootWorldAABBMax[0];
+		aabbMax[1] = args.m_rootWorldAABBMax[1];
+		aabbMax[2] = args.m_rootWorldAABBMax[2];
+		return 1;
+	}
+
+	if (linkIndex >= 0 && linkIndex < args.m_numLinks)
+	{
+		aabbMin[0] = args.m_linkWorldAABBsMin[0];
+		aabbMin[1] = args.m_linkWorldAABBsMin[1];
+		aabbMin[2] = args.m_linkWorldAABBsMin[2];
+
+		aabbMax[0] = args.m_linkWorldAABBsMax[0];
+		aabbMax[1] = args.m_linkWorldAABBsMax[1];
+		aabbMax[2] = args.m_linkWorldAABBsMax[2];
+		return 1;
+	}
+
+	return 0;
+}
 
 int b3GetStatusActualState(b3SharedMemoryStatusHandle statusHandle,
                            int* bodyUniqueId,
