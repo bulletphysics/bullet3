@@ -13,33 +13,18 @@ typedef void* ( *btThreadLocalStorageFunc )();
 
 #if BT_THREADSAFE
 
-#if defined( _WIN32 )
-
-#include "b3Win32ThreadSupport.h"
+#include "b3ThreadSupportInterface.h"
 
 b3ThreadSupportInterface* createThreadSupport( int numThreads, btThreadFunc threadFunc, btThreadLocalStorageFunc localStoreFunc, const char* uniqueName )
 {
-    b3Win32ThreadSupport::Win32ThreadConstructionInfo constructionInfo( uniqueName, threadFunc, localStoreFunc, numThreads );
+    b3ThreadSupportInterface::ConstructionInfo constructionInfo( uniqueName, threadFunc, localStoreFunc, numThreads );
     //constructionInfo.m_priority = 0;  // highest priority (the default) -- can cause erratic performance when numThreads > numCores
     //                                     we don't want worker threads to be higher priority than the main thread or the main thread could get
     //                                     totally shut out and unable to tell the workers to stop
     constructionInfo.m_priority = -1;  // normal priority
-    b3Win32ThreadSupport* threadSupport = new b3Win32ThreadSupport( constructionInfo );
+    b3ThreadSupportInterface* threadSupport = b3ThreadSupportInterface::create( constructionInfo );
     return threadSupport;
 }
-
-#else // #if defined( _WIN32 )
-
-#include "b3PosixThreadSupport.h"
-
-b3ThreadSupportInterface* createThreadSupport( int numThreads, btThreadFunc threadFunc, btThreadLocalStorageFunc localStoreFunc, const char* uniqueName)
-{
-    b3PosixThreadSupport::ThreadConstructionInfo constructionInfo( uniqueName, threadFunc, localStoreFunc, numThreads );
-    b3ThreadSupportInterface* threadSupport = new b3PosixThreadSupport( constructionInfo );
-    return threadSupport;
-}
-
-#endif // #else // #if defined( _WIN32 )
 
 
 ///

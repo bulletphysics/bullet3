@@ -31,39 +31,15 @@ void*	ExampleBrowserMemoryFunc();
 #include "../SharedMemory/PhysicsServerExampleBullet2.h"
 
 #include "../SharedMemory/PhysicsClientExample.h"
+#include "../MultiThreading/b3ThreadSupportInterface.h"
 
-#ifndef _WIN32
-#include "../MultiThreading/b3PosixThreadSupport.h"
-
-
-
-static b3ThreadSupportInterface* createExampleBrowserThreadSupport(int numThreads)
-{
-	b3PosixThreadSupport::ThreadConstructionInfo constructionInfo("testThreads",
-                                                                ExampleBrowserThreadFunc,
-                                                                ExampleBrowserMemoryFunc,
-                                                                numThreads);
-    b3ThreadSupportInterface* threadSupport = new b3PosixThreadSupport(constructionInfo);
-
-	return threadSupport;
-
-}
-
-
-
-#elif defined( _WIN32)
-#include "../MultiThreading/b3Win32ThreadSupport.h"
 
 b3ThreadSupportInterface* createExampleBrowserThreadSupport(int numThreads)
 {
-	b3Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("testThreads",ExampleBrowserThreadFunc,ExampleBrowserMemoryFunc,numThreads);
-	b3Win32ThreadSupport* threadSupport = new b3Win32ThreadSupport(threadConstructionInfo);
+	b3ThreadSupportInterface::ConstructionInfo threadConstructionInfo("testThreads",ExampleBrowserThreadFunc,ExampleBrowserMemoryFunc,numThreads);
+	b3ThreadSupportInterface* threadSupport = b3ThreadSupportInterface::create(threadConstructionInfo);
 	return threadSupport;
-
 }
-#endif
-
-
 
 
 

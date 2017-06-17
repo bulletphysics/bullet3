@@ -84,6 +84,35 @@ public:
 
 	virtual void*	getThreadLocalMemory(int taskId) { return 0; }
 
+    typedef void( *ThreadFunc )( void* userPtr, void* lsMemory );
+    typedef void* ( *MemorySetupFunc )( );
+
+    struct ConstructionInfo
+    {
+        ConstructionInfo( const char* uniqueName,
+            ThreadFunc userThreadFunc,
+            MemorySetupFunc	lsMemoryFunc,
+            int numThreads = 1,
+            int threadStackSize = 65535
+        )
+            :m_uniqueName( uniqueName ),
+            m_userThreadFunc( userThreadFunc ),
+            m_lsMemoryFunc( lsMemoryFunc ),
+            m_numThreads( numThreads ),
+            m_threadStackSize( threadStackSize ),
+            m_priority( 0 )
+        {
+        }
+
+        const char*     m_uniqueName;
+        ThreadFunc      m_userThreadFunc;
+        MemorySetupFunc m_lsMemoryFunc;
+        int             m_numThreads;
+        int             m_threadStackSize;
+        int             m_priority;
+	};
+
+    static b3ThreadSupportInterface* create(const ConstructionInfo& info);
 };
 
 #endif //B3_THREAD_SUPPORT_INTERFACE_H

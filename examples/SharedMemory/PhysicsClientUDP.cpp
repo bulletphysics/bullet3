@@ -9,38 +9,19 @@
 #include <string>
 #include "Bullet3Common/b3Logging.h"
 #include "../MultiThreading/b3ThreadSupportInterface.h"
+#include "Bullet3Common/b3AlignedObjectArray.h"
+
 void	UDPThreadFunc(void* userPtr, void* lsMemory);
 void*	UDPlsMemoryFunc();
 bool gVerboseNetworkMessagesClient = false;
 
-#ifndef _WIN32
-#include "../MultiThreading/b3PosixThreadSupport.h"
 
 b3ThreadSupportInterface* createUDPThreadSupport(int numThreads)
 {
-	b3PosixThreadSupport::ThreadConstructionInfo constructionInfo("UDPThread",
-		UDPThreadFunc,
-		UDPlsMemoryFunc,
-		numThreads);
-	b3ThreadSupportInterface* threadSupport = new b3PosixThreadSupport(constructionInfo);
-
+	b3ThreadSupportInterface::ConstructionInfo constructionInfo("UDPThread", UDPThreadFunc, UDPlsMemoryFunc, numThreads);
+	b3ThreadSupportInterface* threadSupport = b3ThreadSupportInterface::create(constructionInfo);
 	return threadSupport;
-
 }
-
-
-#elif defined( _WIN32)
-#include "../MultiThreading/b3Win32ThreadSupport.h"
-
-b3ThreadSupportInterface* createUDPThreadSupport(int numThreads)
-{
-	b3Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("UDPThread", UDPThreadFunc, UDPlsMemoryFunc, numThreads);
-	b3Win32ThreadSupport* threadSupport = new b3Win32ThreadSupport(threadConstructionInfo);
-	return threadSupport;
-
-}
-#endif
-
 
 
 struct UDPThreadLocalStorage

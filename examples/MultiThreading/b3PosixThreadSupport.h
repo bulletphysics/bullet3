@@ -33,9 +33,6 @@ subject to the following restrictions:
 #include "b3ThreadSupportInterface.h"
 
 
-typedef void (*b3PosixThreadFunc)(void* userPtr,void* lsMemory);
-typedef void* (*b3PosixlsMemorySetupFunc)();
-
 // b3PosixThreadSupport helps to initialize/shutdown libspe2, start/stop SPU tasks and communication
 class b3PosixThreadSupport : public b3ThreadSupportInterface
 {
@@ -53,7 +50,7 @@ public:
 		int	m_commandId;
 		int	m_status;
 
-		b3PosixThreadFunc	m_userThreadFunc;
+		ThreadFunc	m_userThreadFunc;
 		void*	m_userPtr; //for taskDesc etc
 		void*	m_lsMemory; //initialized using PosixLocalStoreMemorySetupFunc
 
@@ -76,32 +73,7 @@ private:
 public:
 	///Setup and initialize SPU/CELL/Libspe2
 
-
-
-	struct	ThreadConstructionInfo
-	{
-		ThreadConstructionInfo(const char* uniqueName,
-									b3PosixThreadFunc userThreadFunc,
-									b3PosixlsMemorySetupFunc	lsMemoryFunc,
-									int numThreads=1,
-									int threadStackSize=65535
-									)
-									:m_uniqueName(uniqueName),
-									m_userThreadFunc(userThreadFunc),
-									m_lsMemoryFunc(lsMemoryFunc),
-									m_numThreads(numThreads),
-									m_threadStackSize(threadStackSize)
-		{
-
-		}
-
-		const char*					m_uniqueName;
-		b3PosixThreadFunc			m_userThreadFunc;
-		b3PosixlsMemorySetupFunc	m_lsMemoryFunc;
-		int						m_numThreads;
-		int						m_threadStackSize;
-
-	};
+    typedef ConstructionInfo ThreadConstructionInfo;
 
 	b3PosixThreadSupport(ThreadConstructionInfo& threadConstructionInfo);
 

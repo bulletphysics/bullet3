@@ -447,4 +447,11 @@ void b3PosixThreadSupport::deleteCriticalSection(b3CriticalSection* cs)
 {
 	delete cs;
 }
+
+
+b3ThreadSupportInterface* b3ThreadSupportInterface::create(const ConstructionInfo& info)
+{
+    return new b3PosixThreadSupport(info);
+}
+
 #endif //_WIN32
