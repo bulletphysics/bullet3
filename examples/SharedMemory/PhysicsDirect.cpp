@@ -914,7 +914,16 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 		b3Warning("createMultiBody failed");
 		break;
 	}
-	
+	case CMD_REQUEST_COLLISION_INFO_COMPLETED:
+	{
+		break;
+	}
+	case CMD_REQUEST_COLLISION_INFO_FAILED:
+	{
+		b3Warning("Request getCollisionInfo failed");
+		break;
+	}
+
 	default:
 	{
 		//b3Warning("Unknown server status type");

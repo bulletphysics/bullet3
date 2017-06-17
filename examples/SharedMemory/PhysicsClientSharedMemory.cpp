@@ -1079,6 +1079,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 				b3Warning("Request createVisualShape failed");
 				break;
 			}
+			case CMD_REQUEST_COLLISION_INFO_COMPLETED:
+			{
+				break;
+			}
+			case CMD_REQUEST_COLLISION_INFO_FAILED:
+			{
+				b3Warning("Request getCollisionInfo failed");
+				break;
+			}
 
             default: {
                 b3Error("Unknown server status %d\n", serverCmd.m_type);
