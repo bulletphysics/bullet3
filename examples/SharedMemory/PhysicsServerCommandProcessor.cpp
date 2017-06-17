@@ -1153,7 +1153,8 @@ struct PhysicsServerCommandProcessorInternalData
 
 
 	btAlignedObjectArray<b3KeyboardEvent> m_keyboardEvents;
-	
+	btAlignedObjectArray<b3MouseEvent> m_mouseEvents;
+
 	CommandLogger* m_commandLogger;
 	CommandLogPlayback* m_logPlayback;
 
@@ -2773,6 +2774,27 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					hasStatus = true;
 					break;
 				};
+
+				case CMD_REQUEST_MOUSE_EVENTS_DATA:
+				{
+
+					serverStatusOut.m_sendMouseEvents.m_numMouseEvents = m_data->m_mouseEvents.size();
+					if (serverStatusOut.m_sendMouseEvents.m_numMouseEvents>MAX_MOUSE_EVENTS)
+					{
+						serverStatusOut.m_sendMouseEvents.m_numMouseEvents = MAX_MOUSE_EVENTS;
+					}
+					for (int i=0;i<serverStatusOut.m_sendMouseEvents.m_numMouseEvents;i++)
+					{
+						serverStatusOut.m_sendMouseEvents.m_mouseEvents[i] = m_data->m_mouseEvents[i];
+					}
+
+					m_data->m_mouseEvents.resize(0);
+					serverStatusOut.m_type = CMD_REQUEST_MOUSE_EVENTS_DATA_COMPLETED;
+					hasStatus = true;
+					break;
+				};
+
+				
 
 				case CMD_REQUEST_KEYBOARD_EVENTS_DATA:
 				{
@@ -7032,7 +7054,7 @@ bool PhysicsServerCommandProcessor::isRealTimeSimulationEnabled() const
 	return 	m_data->m_allowRealTimeSimulation;
 }
 
-void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const struct b3VRControllerEvent* vrControllerEvents, int numVRControllerEvents,const struct b3KeyboardEvent* keyEvents, int numKeyEvents)
+void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,const struct b3VRControllerEvent* vrControllerEvents, int numVRControllerEvents, const struct b3KeyboardEvent* keyEvents, int numKeyEvents, const struct b3MouseEvent* mouseEvents, int numMouseEvents)
 {
 	m_data->m_vrControllerEvents.addNewVREvents(vrControllerEvents,numVRControllerEvents);
 	for (int i=0;i<m_data->m_stateLoggers.size();i++)
@@ -7041,6 +7063,41 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const
 		{
 			VRControllerStateLogger* vrLogger = (VRControllerStateLogger*) m_data->m_stateLoggers[i];
 			vrLogger->m_vrEvents.addNewVREvents(vrControllerEvents,numVRControllerEvents);
+		}
+	}
+
+	for (int ii=0;ii<numMouseEvents;ii++)
+	{
+		const b3MouseEvent& event = mouseEvents[ii];
+		bool found = false;
+		//search a matching one first, otherwise add new event
+		for (int e=0;e<m_data->m_mouseEvents.size();e++)
+		{
+			if (event.m_eventType == m_data->m_mouseEvents[e].m_eventType)
+			{
+				if (event.m_eventType == MOUSE_MOVE_EVENT)
+				{
+					m_data->m_mouseEvents[e].m_mousePosX = event.m_mousePosX;
+					m_data->m_mouseEvents[e].m_mousePosY = event.m_mousePosY;
+					found = true;
+				} else
+				if ((event.m_eventType == MOUSE_BUTTON_EVENT) && event.m_buttonIndex == m_data->m_mouseEvents[e].m_buttonIndex)
+				{
+					m_data->m_mouseEvents[e].m_buttonState |= event.m_buttonState;
+					if (event.m_buttonState & eButtonIsDown)
+					{
+						m_data->m_mouseEvents[e].m_buttonState |= eButtonIsDown;
+					} else
+					{
+						m_data->m_mouseEvents[e].m_buttonState &= ~eButtonIsDown;
+					}
+					found = true;
+				}
+			}
+		}	
+		if (!found)
+		{
+			m_data->m_mouseEvents.push_back(event);
 		}
 	}
 

@@ -721,6 +721,11 @@ struct SendKeyboardEvents
 	b3KeyboardEvent m_keyboardEvents[MAX_KEYBOARD_EVENTS];
 };
 
+struct SendMouseEvents
+{
+	int m_numMouseEvents;
+	b3MouseEvent m_mouseEvents[MAX_MOUSE_EVENTS];
+};
 
 enum eVRCameraEnums
 {
@@ -931,7 +936,6 @@ struct SharedMemoryCommand
 		struct b3CreateVisualShapeArgs m_createVisualShapeArgs;
 		struct b3CreateMultiBodyArgs m_createMultiBodyArgs;
 		struct b3RequestCollisionInfoArgs m_requestCollisionInfoArgs;
-
     };
 };
 
@@ -1001,6 +1005,8 @@ struct SharedMemoryStatus
 		struct b3CreateVisualShapeResultArgs m_createVisualShapeResultArgs;
 		struct b3CreateMultiBodyResultArgs m_createMultiBodyResultArgs;
 		struct b3SendCollisionInfoArgs m_sendCollisionInfoArgs;
+		struct SendMouseEvents m_sendMouseEvents;
+
 	};
 };
 

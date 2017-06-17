@@ -3996,6 +3996,50 @@ static PyObject* pybullet_getKeyboardEvents(PyObject* self, PyObject* args, PyOb
 	return keyEventsObj;
 }
 
+static PyObject* pybullet_getMouseEvents(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	b3SharedMemoryCommandHandle commandHandle;
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+	struct b3MouseEventsData mouseEventsData;
+	PyObject* mouseEventsObj = 0;
+	int i = 0;
+
+	static char* kwlist[] = {"physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|i", kwlist, &physicsClientId))
+	{
+		return NULL;
+	}
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	commandHandle = b3RequestMouseEventsCommandInit(sm);
+	b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	b3GetMouseEventsData(sm, &mouseEventsData);
+
+	mouseEventsObj = PyTuple_New(mouseEventsData.m_numMouseEvents);
+
+	for (i = 0; i < mouseEventsData.m_numMouseEvents; i++)
+	{
+		PyObject* mouseEventObj = PyTuple_New(5);
+		PyTuple_SetItem(mouseEventObj,0, PyInt_FromLong(mouseEventsData.m_mouseEvents[i].m_eventType));
+		PyTuple_SetItem(mouseEventObj,1, PyFloat_FromDouble(mouseEventsData.m_mouseEvents[i].m_mousePosX));
+		PyTuple_SetItem(mouseEventObj,2, PyFloat_FromDouble(mouseEventsData.m_mouseEvents[i].m_mousePosY));
+		PyTuple_SetItem(mouseEventObj,3, PyInt_FromLong(mouseEventsData.m_mouseEvents[i].m_buttonIndex));
+		PyTuple_SetItem(mouseEventObj,4, PyInt_FromLong(mouseEventsData.m_mouseEvents[i].m_buttonState));
+		PyTuple_SetItem(mouseEventsObj,i,mouseEventObj);
+		
+	}
+	return mouseEventsObj;
+}
+
+
+
 static PyObject* pybullet_getVREvents(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	b3SharedMemoryCommandHandle commandHandle;
@@ -6756,7 +6800,10 @@ static PyMethodDef SpamMethods[] = {
 	 "Set properties of the VR Camera such as its root transform "
 	 "for teleporting or to track objects (camera inside a vehicle for example)."},
 	{"getKeyboardEvents", (PyCFunction)pybullet_getKeyboardEvents, METH_VARARGS | METH_KEYWORDS,
-	 "Get Keyboard events, keycode and state (KEY_IS_DOWN, KEY_WAS_TRIGGER, KEY_WAS_RELEASED)"},
+	 "Get keyboard events, keycode and state (KEY_IS_DOWN, KEY_WAS_TRIGGERED, KEY_WAS_RELEASED)"},
+
+	 {"getMouseEvents", (PyCFunction)pybullet_getMouseEvents, METH_VARARGS | METH_KEYWORDS,
+	 "Get mouse events, event type and button state (KEY_IS_DOWN, KEY_WAS_TRIGGERED, KEY_WAS_RELEASED)"},
 
 	{"startStateLogging", (PyCFunction)pybullet_startStateLogging, METH_VARARGS | METH_KEYWORDS,
 	 "Start logging of state, such as robot base position, orientation, joint positions etc. "
@@ -6923,6 +6970,8 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "COV_ENABLE_VR_TELEPORTING", COV_ENABLE_VR_TELEPORTING);
 	PyModule_AddIntConstant(m, "COV_ENABLE_RENDERING", COV_ENABLE_RENDERING);
 	PyModule_AddIntConstant(m, "COV_ENABLE_VR_RENDER_CONTROLLERS", COV_ENABLE_VR_RENDER_CONTROLLERS);
+	PyModule_AddIntConstant(m, "COV_ENABLE_KEYBOARD_SHORTCUTS", COV_ENABLE_KEYBOARD_SHORTCUTS);
+	PyModule_AddIntConstant(m, "COV_ENABLE_MOUSE_PICKING", COV_ENABLE_MOUSE_PICKING);
 
 
 	PyModule_AddIntConstant(m, "ER_TINY_RENDERER", ER_TINY_RENDERER);
