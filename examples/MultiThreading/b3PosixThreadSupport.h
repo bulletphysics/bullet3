@@ -75,12 +75,12 @@ public:
 
     typedef ConstructionInfo ThreadConstructionInfo;
 
-	b3PosixThreadSupport(ThreadConstructionInfo& threadConstructionInfo);
+	b3PosixThreadSupport(const ConstructionInfo& threadConstructionInfo);
 
 ///cleanup/shutdown Libspe2
 	virtual	~b3PosixThreadSupport();
 
-	void	startThreads(ThreadConstructionInfo&	threadInfo);
+	void	startThreads(const ConstructionInfo& threadInfo);
 
 
 	virtual	void runTask(int uiCommand, void* uiArgument0, int uiArgument1);

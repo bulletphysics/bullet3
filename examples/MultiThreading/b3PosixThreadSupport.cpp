@@ -29,7 +29,7 @@ subject to the following restrictions:
 // Todo: each worker should be linked to a single core, using SetThreadIdealProcessor.
 
 
-b3PosixThreadSupport::b3PosixThreadSupport(ThreadConstructionInfo& threadConstructionInfo)
+b3PosixThreadSupport::b3PosixThreadSupport(const ConstructionInfo& threadConstructionInfo)
 {
 	startThreads(threadConstructionInfo);
 }
@@ -225,7 +225,7 @@ void b3PosixThreadSupport::waitForResponse( int *puiArgument0,  int *puiArgument
 
 
 
-void b3PosixThreadSupport::startThreads(ThreadConstructionInfo& threadConstructionInfo)
+void b3PosixThreadSupport::startThreads(const ConstructionInfo& threadConstructionInfo)
 {
         printf("%s creating %i threads.\n", __FUNCTION__, threadConstructionInfo.m_numThreads);
 	m_activeThreadStatus.resize(threadConstructionInfo.m_numThreads);
