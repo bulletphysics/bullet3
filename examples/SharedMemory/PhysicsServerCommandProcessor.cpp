@@ -3066,9 +3066,29 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                                                      clientCmd.m_requestPixelDataArguments.m_projectionMatrix);
                                 } else
                                 {
-                                    m_data->m_visualConverter.render();
+									 SharedMemoryStatus tmpCmd = serverStatusOut;
+									bool result = this->m_data->m_guiHelper->getCameraInfo(
+										&tmpCmd.m_visualizerCameraResultArgs.m_width,
+										&tmpCmd.m_visualizerCameraResultArgs.m_height,
+										tmpCmd.m_visualizerCameraResultArgs.m_viewMatrix,
+										tmpCmd.m_visualizerCameraResultArgs.m_projectionMatrix,
+										tmpCmd.m_visualizerCameraResultArgs.m_camUp,
+										tmpCmd.m_visualizerCameraResultArgs.m_camForward,
+										tmpCmd.m_visualizerCameraResultArgs.m_horizontal,
+										tmpCmd.m_visualizerCameraResultArgs.m_vertical,
+										&tmpCmd.m_visualizerCameraResultArgs.m_yaw,
+										&tmpCmd.m_visualizerCameraResultArgs.m_pitch,
+										&tmpCmd.m_visualizerCameraResultArgs.m_dist,
+										tmpCmd.m_visualizerCameraResultArgs.m_target);
+									if (result)
+									{
+	                                    m_data->m_visualConverter.render(tmpCmd.m_visualizerCameraResultArgs.m_viewMatrix,
+										tmpCmd.m_visualizerCameraResultArgs.m_projectionMatrix);
+									} else
+									{
+										m_data->m_visualConverter.render();
+									}
                                 }
-
                             }
 
 							m_data->m_visualConverter.copyCameraImageData(pixelRGBA,numRequestedPixels,
