@@ -4023,6 +4023,105 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					hasStatus = true;
 					break;
 				}
+				case 		CMD_REQUEST_COLLISION_INFO:
+				{
+					SharedMemoryStatus& serverCmd = serverStatusOut;
+					serverStatusOut.m_type = CMD_REQUEST_COLLISION_INFO_FAILED;
+					hasStatus=true;
+					int bodyUniqueId = clientCmd.m_requestCollisionInfoArgs.m_bodyUniqueId;
+					InteralBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+						
+
+					if (body && body->m_multiBody)
+					{
+						btMultiBody* mb = body->m_multiBody;
+						serverStatusOut.m_type = CMD_REQUEST_COLLISION_INFO_COMPLETED;
+						serverCmd.m_sendCollisionInfoArgs.m_numLinks = body->m_multiBody->getNumLinks();
+						serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[0] = 0;
+						serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[1] = 0;
+						serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[2] = 0;
+
+						serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[0] = -1;
+						serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[1] = -1;
+						serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[2] = -1;
+
+						if (body->m_multiBody->getBaseCollider())
+						{
+							btTransform tr;
+							tr.setOrigin(mb->getBasePos());
+							tr.setRotation(mb->getWorldToBaseRot().inverse());
+
+							btVector3 aabbMin,aabbMax;
+							body->m_multiBody->getBaseCollider()->getCollisionShape()->getAabb(tr,aabbMin,aabbMax);
+							serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[0] = aabbMin[0];
+							serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[1] = aabbMin[1];
+							serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[2] = aabbMin[2];
+
+							serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[0] = aabbMax[0];
+							serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[1] = aabbMax[1];
+							serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[2] = aabbMax[2];
+						}
+						for (int l=0;l<mb->getNumLinks();l++)
+						{
+							serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMin[3*l+0] = 0;
+							serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMin[3*l+1] = 0;
+							serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMin[3*l+2] = 0;
+
+							serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMax[3*l+0] = -1;
+							serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMax[3*l+1] = -1;
+							serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMax[3*l+2] = -1;
+
+								
+
+							if (body->m_multiBody->getLink(l).m_collider)
+							{
+								btVector3 aabbMin,aabbMax;
+								body->m_multiBody->getLinkCollider(l)->getCollisionShape()->getAabb(mb->getLink(l).m_cachedWorldTransform,aabbMin,aabbMax);
+
+								serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMin[3*l+0] = aabbMin[0];
+								serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMin[3*l+1] = aabbMin[1];
+								serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMin[3*l+2] = aabbMin[2];
+								serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMax[3*l+0] = aabbMax[0];
+								serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMax[3*l+1] = aabbMax[1];
+								serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMax[3*l+2] = aabbMax[2];
+							}
+						
+						}
+					}
+					else
+					{
+						if (body && body->m_rigidBody)
+						{
+							btRigidBody* rb = body->m_rigidBody;
+							SharedMemoryStatus& serverCmd = serverStatusOut;
+							serverStatusOut.m_type = CMD_REQUEST_COLLISION_INFO_COMPLETED;
+							serverCmd.m_sendCollisionInfoArgs.m_numLinks = 0;
+							serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[0] = 0;
+							serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[1] = 0;
+							serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[2] = 0;
+
+							serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[0] = -1;
+							serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[1] = -1;
+							serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[2] = -1;
+							if (rb->getCollisionShape())
+							{
+								btTransform tr = rb->getWorldTransform();
+								
+								btVector3 aabbMin,aabbMax;
+								rb->getCollisionShape()->getAabb(tr,aabbMin,aabbMax);
+								serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[0] = aabbMin[0];
+								serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[1] = aabbMin[1];
+								serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[2] = aabbMin[2];
+
+								serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[0] = aabbMax[0];
+								serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[1] = aabbMax[1];
+								serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[2] = aabbMax[2];
+							}
+						}
+					}
+					break;
+				}
+
 				case CMD_REQUEST_ACTUAL_STATE:
 					{
 					BT_PROFILE("CMD_REQUEST_ACTUAL_STATE");
@@ -4077,28 +4176,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                 serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[6] =
                                     body->m_rootLocalInertialFrame.getRotation()[3];
 
-								serverCmd.m_sendActualStateArgs.m_rootWorldAABBMin[0] = 0;
-								serverCmd.m_sendActualStateArgs.m_rootWorldAABBMin[1] = 0;
-								serverCmd.m_sendActualStateArgs.m_rootWorldAABBMin[2] = 0;
-
-								serverCmd.m_sendActualStateArgs.m_rootWorldAABBMax[0] = -1;
-								serverCmd.m_sendActualStateArgs.m_rootWorldAABBMax[1] = -1;
-								serverCmd.m_sendActualStateArgs.m_rootWorldAABBMax[2] = -1;
-								
-
-
-								if (body->m_multiBody->getBaseCollider())
-								{
-									btVector3 aabbMin,aabbMax;
-									body->m_multiBody->getBaseCollider()->getCollisionShape()->getAabb(tr,aabbMin,aabbMax);
-									serverCmd.m_sendActualStateArgs.m_rootWorldAABBMin[0] = aabbMin[0];
-									serverCmd.m_sendActualStateArgs.m_rootWorldAABBMin[1] = aabbMin[1];
-									serverCmd.m_sendActualStateArgs.m_rootWorldAABBMin[2] = aabbMin[2];
-
-									serverCmd.m_sendActualStateArgs.m_rootWorldAABBMax[0] = aabbMax[0];
-									serverCmd.m_sendActualStateArgs.m_rootWorldAABBMax[1] = aabbMax[1];
-									serverCmd.m_sendActualStateArgs.m_rootWorldAABBMax[2] = aabbMax[2];
-								}
+							
 
 								//base position in world space, carthesian
 								serverCmd.m_sendActualStateArgs.m_actualStateQ[0] = tr.getOrigin()[0];
@@ -4200,29 +4278,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								serverCmd.m_sendActualStateArgs.m_linkState[l*7+5] = linkCOMRotation.z();
 								serverCmd.m_sendActualStateArgs.m_linkState[l*7+6] = linkCOMRotation.w();
 
-								serverCmd.m_sendActualStateArgs.m_linkWorldAABBsMin[3*l+0] = 0;
-								serverCmd.m_sendActualStateArgs.m_linkWorldAABBsMin[3*l+1] = 0;
-								serverCmd.m_sendActualStateArgs.m_linkWorldAABBsMin[3*l+2] = 0;
-
-								serverCmd.m_sendActualStateArgs.m_linkWorldAABBsMax[3*l+0] = -1;
-								serverCmd.m_sendActualStateArgs.m_linkWorldAABBsMax[3*l+1] = -1;
-								serverCmd.m_sendActualStateArgs.m_linkWorldAABBsMax[3*l+2] = -1;
-
-								
-
-								if (body->m_multiBody->getLink(l).m_collider)
-								{
-									btVector3 aabbMin,aabbMax;
-									body->m_multiBody->getLinkCollider(l)->getCollisionShape()->getAabb(mb->getLink(l).m_cachedWorldTransform,aabbMin,aabbMax);
-
-									serverCmd.m_sendActualStateArgs.m_linkWorldAABBsMin[3*l+0] = aabbMin[0];
-									serverCmd.m_sendActualStateArgs.m_linkWorldAABBsMin[3*l+1] = aabbMin[1];
-									serverCmd.m_sendActualStateArgs.m_linkWorldAABBsMin[3*l+2] = aabbMin[2];
-									serverCmd.m_sendActualStateArgs.m_linkWorldAABBsMax[3*l+0] = aabbMax[0];
-									serverCmd.m_sendActualStateArgs.m_linkWorldAABBsMax[3*l+1] = aabbMax[1];
-									serverCmd.m_sendActualStateArgs.m_linkWorldAABBsMax[3*l+2] = aabbMax[2];
-								}
-
+							
 
 								btVector3 worldLinVel(0,0,0);
 								btVector3 worldAngVel(0,0,0);

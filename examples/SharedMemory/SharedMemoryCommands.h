@@ -432,9 +432,7 @@ struct SendActualStateArgs
 	int m_numDegreeOfFreedomU;
 
     double m_rootLocalInertialFrame[7];
-	double m_rootWorldAABBMin[3];
-	double m_rootWorldAABBMax[3];
-    
+   
 	  //actual state is only written by the server, read-only access by client is expected
     double m_actualStateQ[MAX_DEGREE_OF_FREEDOM];
     double m_actualStateQdot[MAX_DEGREE_OF_FREEDOM];
@@ -447,9 +445,23 @@ struct SendActualStateArgs
     double m_linkState[7*MAX_NUM_LINKS];
 	double m_linkWorldVelocities[6*MAX_NUM_LINKS];//linear velocity and angular velocity in world space (x/y/z each).
     double m_linkLocalInertialFrames[7*MAX_NUM_LINKS];
+};
+
+struct b3SendCollisionInfoArgs
+{
+	int m_numLinks;
+	double m_rootWorldAABBMin[3];
+	double m_rootWorldAABBMax[3];
+ 
 	double m_linkWorldAABBsMin[3*MAX_NUM_LINKS];
 	double m_linkWorldAABBsMax[3*MAX_NUM_LINKS];
 };
+
+struct b3RequestCollisionInfoArgs
+{
+	int m_bodyUniqueId;
+};
+
 
 enum EnumSensorTypes
 {
@@ -918,6 +930,7 @@ struct SharedMemoryCommand
 		struct b3CreateCollisionShapeArgs m_createCollisionShapeArgs;
 		struct b3CreateVisualShapeArgs m_createVisualShapeArgs;
 		struct b3CreateMultiBodyArgs m_createMultiBodyArgs;
+		struct b3RequestCollisionInfoArgs m_requestCollisionInfoArgs;
 
     };
 };
@@ -987,6 +1000,7 @@ struct SharedMemoryStatus
 		struct b3CreateCollisionShapeResultArgs m_createCollisionShapeResultArgs;
 		struct b3CreateVisualShapeResultArgs m_createVisualShapeResultArgs;
 		struct b3CreateMultiBodyResultArgs m_createMultiBodyResultArgs;
+		struct b3SendCollisionInfoArgs m_sendCollisionInfoArgs;
 	};
 };
 

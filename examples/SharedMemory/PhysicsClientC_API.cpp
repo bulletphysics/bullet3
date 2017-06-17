@@ -1308,12 +1308,25 @@ int b3GetStatusBodyIndex(b3SharedMemoryStatusHandle statusHandle)
 	return bodyId;
 }
 
+b3SharedMemoryCommandHandle b3RequestCollisionInfoCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId)
+{
+    PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type =CMD_REQUEST_COLLISION_INFO;
+	command->m_updateFlags = 0;
+	command->m_requestCollisionInfoArgs.m_bodyUniqueId = bodyUniqueId;
+    return (b3SharedMemoryCommandHandle) command;
+}
+
 int b3GetStatusAABB(b3SharedMemoryStatusHandle statusHandle, int linkIndex, double aabbMin[3], double aabbMax[3])
 {
 	const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
-    const SendActualStateArgs &args = status->m_sendActualStateArgs;
-    btAssert(status->m_type == CMD_ACTUAL_STATE_UPDATE_COMPLETED);
-    if (status->m_type != CMD_ACTUAL_STATE_UPDATE_COMPLETED)
+    const b3SendCollisionInfoArgs &args = status->m_sendCollisionInfoArgs;
+    btAssert(status->m_type == CMD_REQUEST_COLLISION_INFO_COMPLETED);
+    if (status->m_type != CMD_REQUEST_COLLISION_INFO_COMPLETED)
         return 0;
 
 	if (linkIndex==-1)
@@ -1330,13 +1343,13 @@ int b3GetStatusAABB(b3SharedMemoryStatusHandle statusHandle, int linkIndex, doub
 
 	if (linkIndex >= 0 && linkIndex < args.m_numLinks)
 	{
-		aabbMin[0] = args.m_linkWorldAABBsMin[0];
-		aabbMin[1] = args.m_linkWorldAABBsMin[1];
-		aabbMin[2] = args.m_linkWorldAABBsMin[2];
+		aabbMin[0] = args.m_linkWorldAABBsMin[linkIndex*3+0];
+		aabbMin[1] = args.m_linkWorldAABBsMin[linkIndex*3+1];
+		aabbMin[2] = args.m_linkWorldAABBsMin[linkIndex*3+2];
 
-		aabbMax[0] = args.m_linkWorldAABBsMax[0];
-		aabbMax[1] = args.m_linkWorldAABBsMax[1];
-		aabbMax[2] = args.m_linkWorldAABBsMax[2];
+		aabbMax[0] = args.m_linkWorldAABBsMax[linkIndex*3+0];
+		aabbMax[1] = args.m_linkWorldAABBsMax[linkIndex*3+1];
+		aabbMax[2] = args.m_linkWorldAABBsMax[linkIndex*3+2];
 		return 1;
 	}
 

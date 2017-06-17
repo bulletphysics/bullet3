@@ -2010,12 +2010,12 @@ static PyObject* pybullet_getAABB(PyObject* self, PyObject* args, PyObject* keyw
 		}
 
 		cmd_handle =
-			b3RequestActualStateCommandInit(sm, bodyUniqueId);
+			b3RequestCollisionInfoCommandInit(sm, bodyUniqueId);
 		status_handle =
 			b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
 
 		status_type = b3GetStatusType(status_handle);
-		if (status_type != CMD_ACTUAL_STATE_UPDATE_COMPLETED)
+		if (status_type != CMD_REQUEST_COLLISION_INFO_COMPLETED)
 		{
 			PyErr_SetString(SpamError, "getAABB failed.");
 			return NULL;
