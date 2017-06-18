@@ -30,6 +30,9 @@ bool gEnableUpdateDebugDrawLines = true;
 static int gCamVisualizerWidth = 320;
 static int gCamVisualizerHeight = 240;
 
+static bool gEnableDefaultKeyboardShortcuts = true;
+static bool gEnableDefaultMousePicking = true;
+
 
 //extern btVector3 gLastPickPos;
 btVector3 gVRTeleportPosLocal(0,0,0);
@@ -212,7 +215,8 @@ struct	MotionArgs
 
 	btAlignedObjectArray<b3KeyboardEvent> m_keyboardEvents;
 	btAlignedObjectArray<b3KeyboardEvent> m_sendKeyEvents;
-	
+	btAlignedObjectArray<b3MouseEvent> m_allMouseEvents;
+	btAlignedObjectArray<b3MouseEvent> m_sendMouseEvents;
 	PhysicsServerSharedMemory*	m_physicsServerPtr;
 	b3AlignedObjectArray<b3Vector3> m_positions;
 
@@ -389,8 +393,52 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 				b3KeyboardEvent* keyEvents = args->m_sendKeyEvents.size()? &args->m_sendKeyEvents[0] : 0;
 
 				args->m_csGUI->unlock();
+
+				args->m_csGUI->lock();
+				if (gEnableDefaultMousePicking)
 				{
-					args->m_physicsServerPtr->stepSimulationRealTime(deltaTimeInSeconds, args->m_sendVrControllerEvents,numSendVrControllers, keyEvents, args->m_sendKeyEvents.size());
+					for (int i = 0; i < args->m_mouseCommands.size(); i++)
+					{
+						switch (args->m_mouseCommands[i].m_type)
+						{
+						case MyMouseMove:
+						{
+							args->m_physicsServerPtr->movePickedBody(args->m_mouseCommands[i].m_rayFrom, args->m_mouseCommands[i].m_rayTo);
+							break;
+						};
+						case MyMouseButtonDown:
+						{
+							args->m_physicsServerPtr->pickBody(args->m_mouseCommands[i].m_rayFrom, args->m_mouseCommands[i].m_rayTo);
+							break;
+						}
+						case MyMouseButtonUp:
+						{
+							args->m_physicsServerPtr->removePickingConstraint();
+							break;
+						}
+
+						default:
+						{
+						}
+						}
+					}
+				}
+
+				
+				args->m_sendMouseEvents.resize(args->m_allMouseEvents.size());
+				for (int i=0;i<args->m_allMouseEvents.size();i++)
+				{
+					args->m_sendMouseEvents[i] = args->m_allMouseEvents[i];
+				}
+				b3MouseEvent* mouseEvents = args->m_sendMouseEvents.size()? &args->m_sendMouseEvents[0] : 0;
+
+				args->m_allMouseEvents.clear();
+				args->m_mouseCommands.clear();
+				args->m_csGUI->unlock();
+
+
+				{
+					args->m_physicsServerPtr->stepSimulationRealTime(deltaTimeInSeconds, args->m_sendVrControllerEvents,numSendVrControllers, keyEvents, args->m_sendKeyEvents.size(), mouseEvents, args->m_sendMouseEvents.size());
 				}
 				{
 					if (gEnableUpdateDebugDrawLines)
@@ -405,35 +453,7 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 				
 			}
 
-			args->m_csGUI->lock();
-			for (int i = 0; i < args->m_mouseCommands.size(); i++)
-			{
-				switch (args->m_mouseCommands[i].m_type)
-				{
-				case MyMouseMove:
-				{
-					args->m_physicsServerPtr->movePickedBody(args->m_mouseCommands[i].m_rayFrom, args->m_mouseCommands[i].m_rayTo);
-					break;
-				};
-				case MyMouseButtonDown:
-				{
-					args->m_physicsServerPtr->pickBody(args->m_mouseCommands[i].m_rayFrom, args->m_mouseCommands[i].m_rayTo);
-					break;
-				}
-				case MyMouseButtonUp:
-				{
-					args->m_physicsServerPtr->removePickingConstraint();
-					break;
-				}
-
-				default:
-				{
-				}
-				
-				}
-			}
-			args->m_mouseCommands.clear();
-			args->m_csGUI->unlock();
+			
 
 			{
 				args->m_physicsServerPtr->processClientCommands();
@@ -1282,6 +1302,16 @@ public:
 			return false;
 		}
 
+		b3MouseEvent event;
+		event.m_buttonState = 0;
+		event.m_buttonIndex = -1;
+		event.m_mousePosX = x;
+		event.m_mousePosY = y;
+		event.m_eventType = MOUSE_MOVE_EVENT;
+		m_args[0].m_csGUI->lock();
+		m_args[0].m_allMouseEvents.push_back(event);
+		m_args[0].m_csGUI->unlock();
+
 		btVector3 rayTo = getRayTo(int(x), int(y));
 		btVector3 rayFrom;
 		renderer->getActiveCamera()->getCameraPosition(rayFrom);
@@ -1311,6 +1341,22 @@ public:
 
 		CommonWindowInterface* window = m_guiHelper->getAppInterface()->m_window;
 
+		b3MouseEvent event;
+		event.m_buttonIndex = button;
+		event.m_mousePosX = x;
+		event.m_mousePosY = y;
+		event.m_eventType = MOUSE_BUTTON_EVENT;
+		if (state)
+		{
+			event.m_buttonState = eButtonIsDown + eButtonTriggered;
+		} else
+		{
+			event.m_buttonState = eButtonReleased;
+		}
+		
+		m_args[0].m_csGUI->lock();
+		m_args[0].m_allMouseEvents.push_back(event);
+		m_args[0].m_csGUI->unlock();
 
 		if (state==1)
 		{
@@ -1415,50 +1461,52 @@ public:
 
 		btVector3 VRTeleportPos =this->m_physicsServer.getVRTeleportPosition();
 
-		if (key=='w' && state)
+		if (gEnableDefaultKeyboardShortcuts)
 		{
-			VRTeleportPos[0]+=shift;
-			m_physicsServer.setVRTeleportPosition(VRTeleportPos);
-			saveCurrentSettingsVR(VRTeleportPos);
+			if (key=='w' && state)
+			{
+				VRTeleportPos[0]+=shift;
+				m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+				saveCurrentSettingsVR(VRTeleportPos);
+			}
+			if (key=='s' && state)
+			{
+				VRTeleportPos[0]-=shift;
+				m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+				saveCurrentSettingsVR(VRTeleportPos);
+			}
+			if (key=='a' && state)
+			{
+				VRTeleportPos[1]-=shift;
+				m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+				saveCurrentSettingsVR(VRTeleportPos);
+			}
+			if (key=='d' && state)
+			{
+				VRTeleportPos[1]+=shift;
+				m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+				saveCurrentSettingsVR(VRTeleportPos);
+			}
+			if (key=='q' && state)
+			{
+				VRTeleportPos[2]+=shift;
+				m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+				saveCurrentSettingsVR(VRTeleportPos);
+			}
+			if (key=='e' && state)
+			{
+				VRTeleportPos[2]-=shift;
+				m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+				saveCurrentSettingsVR(VRTeleportPos);
+			}
+			if (key=='z' && state)
+			{
+				gVRTeleportRotZ+=shift;
+				btQuaternion VRTeleportOrn = btQuaternion(btVector3(0, 0, 1), gVRTeleportRotZ);
+				m_physicsServer.setVRTeleportOrientation(VRTeleportOrn);
+				saveCurrentSettingsVR(VRTeleportPos);
+			}
 		}
-		if (key=='s' && state)
-		{
-			VRTeleportPos[0]-=shift;
-			m_physicsServer.setVRTeleportPosition(VRTeleportPos);
-			saveCurrentSettingsVR(VRTeleportPos);
-		}
-		if (key=='a' && state)
-		{
-			VRTeleportPos[1]-=shift;
-			m_physicsServer.setVRTeleportPosition(VRTeleportPos);
-			saveCurrentSettingsVR(VRTeleportPos);
-		}
-		if (key=='d' && state)
-		{
-			VRTeleportPos[1]+=shift;
-			m_physicsServer.setVRTeleportPosition(VRTeleportPos);
-			saveCurrentSettingsVR(VRTeleportPos);
-		}
-		if (key=='q' && state)
-		{
-			VRTeleportPos[2]+=shift;
-			m_physicsServer.setVRTeleportPosition(VRTeleportPos);
-			saveCurrentSettingsVR(VRTeleportPos);
-		}
-		if (key=='e' && state)
-		{
-			VRTeleportPos[2]-=shift;
-			m_physicsServer.setVRTeleportPosition(VRTeleportPos);
-			saveCurrentSettingsVR(VRTeleportPos);
-		}
-		if (key=='z' && state)
-		{
-			gVRTeleportRotZ+=shift;
-			btQuaternion VRTeleportOrn = btQuaternion(btVector3(0, 0, 1), gVRTeleportRotZ);
-			m_physicsServer.setVRTeleportOrientation(VRTeleportOrn);
-			saveCurrentSettingsVR(VRTeleportPos);
-		}
-		
 		
 		
 		return false;
@@ -1514,8 +1562,22 @@ public:
 			m_physicsServer.enableRealTimeSimulation(true);
 		}
 
-		
-
+		if (args.CheckCmdLineFlag("disableDefaultKeyboardShortcuts"))
+		{
+			gEnableDefaultKeyboardShortcuts = false;
+		}
+		if (args.CheckCmdLineFlag("enableDefaultKeyboardShortcuts"))
+		{
+			gEnableDefaultKeyboardShortcuts = true;
+		}
+		if (args.CheckCmdLineFlag("disableDefaultMousePicking"))
+		{
+			gEnableDefaultMousePicking = false;
+		}
+		if (args.CheckCmdLineFlag("enableDefaultMousePicking"))
+		{
+			gEnableDefaultMousePicking = true;
+		}
 
 	}
 
@@ -1795,6 +1857,16 @@ void	PhysicsServerExample::updateGraphics()
 		if (flag == COV_ENABLE_RENDERING)
 		{
 			gEnableRendering = (enable!=0);
+		}
+
+		if (flag == COV_ENABLE_KEYBOARD_SHORTCUTS)
+		{
+			gEnableDefaultKeyboardShortcuts = (enable!=0);
+		}
+
+		if (flag == COV_ENABLE_MOUSE_PICKING)
+		{
+			gEnableDefaultMousePicking = (enable!=0);
 		}
 
 		m_multiThreadedHelper->m_childGuiHelper->setVisualizerFlag(m_multiThreadedHelper->m_visualizerFlag,m_multiThreadedHelper->m_visualizerEnable);
