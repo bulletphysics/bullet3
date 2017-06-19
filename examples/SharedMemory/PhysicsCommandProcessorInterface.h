@@ -40,7 +40,7 @@ public:
 	virtual ~CommandProcessorInterface(){}
 
 	virtual void syncPhysicsToGraphics()=0;
-	virtual void stepSimulationRealTime(double dtInSec,const struct b3VRControllerEvent* vrEvents, int numVREvents, const struct b3KeyboardEvent* keyEvents, int numKeyEvents)=0;
+	virtual void stepSimulationRealTime(double dtInSec,const struct b3VRControllerEvent* vrControllerEvents, int numVRControllerEvents, const struct b3KeyboardEvent* keyEvents, int numKeyEvents, const struct b3MouseEvent* mouseEvents, int numMouseEvents)=0;
 	virtual void enableRealTimeSimulation(bool enableRealTimeSim)=0;
 	virtual bool isRealTimeSimulationEnabled() const=0;
 

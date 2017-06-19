@@ -1972,6 +1972,89 @@ static int pybullet_internalGetBasePositionAndOrientation(
 	return 1;
 }
 
+static PyObject* pybullet_getAABB(PyObject* self, PyObject* args, PyObject* keywds)
+{
+
+	int bodyUniqueId = -1;
+	int linkIndex = -1;
+	
+	b3PhysicsClientHandle sm = 0;
+	int physicsClientId = 0;
+	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|ii", kwlist, &bodyUniqueId, &linkIndex, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	{
+		int status_type = 0;
+		b3SharedMemoryCommandHandle cmd_handle;
+		b3SharedMemoryStatusHandle status_handle;
+
+		if (bodyUniqueId < 0)
+		{
+			PyErr_SetString(SpamError, "getAABB failed; invalid bodyUniqueId");
+			return NULL;
+		}
+
+		if (linkIndex < -1)
+		{
+			PyErr_SetString(SpamError, "getAABB failed; invalid linkIndex");
+			return NULL;
+		}
+
+		cmd_handle =
+			b3RequestCollisionInfoCommandInit(sm, bodyUniqueId);
+		status_handle =
+			b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
+
+		status_type = b3GetStatusType(status_handle);
+		if (status_type != CMD_REQUEST_COLLISION_INFO_COMPLETED)
+		{
+			PyErr_SetString(SpamError, "getAABB failed.");
+			return NULL;
+		}
+
+		{
+			PyObject* pyListAabb=0;
+			PyObject* pyListAabbMin=0;
+			PyObject* pyListAabbMax=0;
+			double aabbMin[3];
+			double aabbMax[3];
+			int i=0;
+			if (b3GetStatusAABB(status_handle, linkIndex, aabbMin, aabbMax))
+			{
+				pyListAabb = PyTuple_New(2);
+				pyListAabbMin = PyTuple_New(3);
+				pyListAabbMax = PyTuple_New(3);
+
+				for (i=0;i<3;i++)
+				{
+					PyTuple_SetItem(pyListAabbMin, i, PyFloat_FromDouble(aabbMin[i]));
+					PyTuple_SetItem(pyListAabbMax, i, PyFloat_FromDouble(aabbMax[i]));
+				}
+
+				PyTuple_SetItem(pyListAabb, 0, pyListAabbMin);
+				PyTuple_SetItem(pyListAabb, 1, pyListAabbMax);
+
+				//PyFloat_FromDouble(basePosition[i]);
+
+				return pyListAabb;
+			}
+		}
+
+	}
+
+	PyErr_SetString(SpamError, "getAABB failed.");
+	return NULL;
+}
+
 // Get the positions (x,y,z) and orientation (x,y,z,w) in quaternion
 // values for the base link of your object
 // Object is retrieved based on body index, which is the order
@@ -2362,6 +2445,18 @@ static PyObject* pybullet_getNumConstraints(PyObject* self, PyObject* args, PyOb
 	return PyLong_FromLong(numConstraints);
 #else
 	return PyInt_FromLong(numConstraints);
+#endif
+}
+
+// Return the number of joints in an object based on
+// body index; body index is based on order of sequence
+// the object is loaded into simulation
+static PyObject* pybullet_getAPIVersion(PyObject* self, PyObject* args, PyObject* keywds)
+{
+#if PY_MAJOR_VERSION >= 3
+	return PyLong_FromLong(SHARED_MEMORY_MAGIC_NUMBER);
+#else
+	return PyInt_FromLong(SHARED_MEMORY_MAGIC_NUMBER);
 #endif
 }
 
@@ -3900,6 +3995,50 @@ static PyObject* pybullet_getKeyboardEvents(PyObject* self, PyObject* args, PyOb
 	}
 	return keyEventsObj;
 }
+
+static PyObject* pybullet_getMouseEvents(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	b3SharedMemoryCommandHandle commandHandle;
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+	struct b3MouseEventsData mouseEventsData;
+	PyObject* mouseEventsObj = 0;
+	int i = 0;
+
+	static char* kwlist[] = {"physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|i", kwlist, &physicsClientId))
+	{
+		return NULL;
+	}
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	commandHandle = b3RequestMouseEventsCommandInit(sm);
+	b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	b3GetMouseEventsData(sm, &mouseEventsData);
+
+	mouseEventsObj = PyTuple_New(mouseEventsData.m_numMouseEvents);
+
+	for (i = 0; i < mouseEventsData.m_numMouseEvents; i++)
+	{
+		PyObject* mouseEventObj = PyTuple_New(5);
+		PyTuple_SetItem(mouseEventObj,0, PyInt_FromLong(mouseEventsData.m_mouseEvents[i].m_eventType));
+		PyTuple_SetItem(mouseEventObj,1, PyFloat_FromDouble(mouseEventsData.m_mouseEvents[i].m_mousePosX));
+		PyTuple_SetItem(mouseEventObj,2, PyFloat_FromDouble(mouseEventsData.m_mouseEvents[i].m_mousePosY));
+		PyTuple_SetItem(mouseEventObj,3, PyInt_FromLong(mouseEventsData.m_mouseEvents[i].m_buttonIndex));
+		PyTuple_SetItem(mouseEventObj,4, PyInt_FromLong(mouseEventsData.m_mouseEvents[i].m_buttonState));
+		PyTuple_SetItem(mouseEventsObj,i,mouseEventObj);
+		
+	}
+	return mouseEventsObj;
+}
+
+
 
 static PyObject* pybullet_getVREvents(PyObject* self, PyObject* args, PyObject* keywds)
 {
@@ -6470,6 +6609,10 @@ static PyMethodDef SpamMethods[] = {
 	 "Get the world position and orientation of the base of the object. "
 	 "(x,y,z) position vector and (x,y,z,w) quaternion orientation."},
 
+	{"getAABB", (PyCFunction)pybullet_getAABB,
+	 METH_VARARGS | METH_KEYWORDS,
+	 "Get the axis aligned bound box min and max coordinates in world space."},
+
 	{"resetBasePositionAndOrientation",
 	 (PyCFunction)pybullet_resetBasePositionAndOrientation, METH_VARARGS | METH_KEYWORDS,
 	 "Reset the world position and orientation of the base of the object "
@@ -6657,7 +6800,10 @@ static PyMethodDef SpamMethods[] = {
 	 "Set properties of the VR Camera such as its root transform "
 	 "for teleporting or to track objects (camera inside a vehicle for example)."},
 	{"getKeyboardEvents", (PyCFunction)pybullet_getKeyboardEvents, METH_VARARGS | METH_KEYWORDS,
-	 "Get Keyboard events, keycode and state (KEY_IS_DOWN, KEY_WAS_TRIGGER, KEY_WAS_RELEASED)"},
+	 "Get keyboard events, keycode and state (KEY_IS_DOWN, KEY_WAS_TRIGGERED, KEY_WAS_RELEASED)"},
+
+	 {"getMouseEvents", (PyCFunction)pybullet_getMouseEvents, METH_VARARGS | METH_KEYWORDS,
+	 "Get mouse events, event type and button state (KEY_IS_DOWN, KEY_WAS_TRIGGERED, KEY_WAS_RELEASED)"},
 
 	{"startStateLogging", (PyCFunction)pybullet_startStateLogging, METH_VARARGS | METH_KEYWORDS,
 	 "Start logging of state, such as robot base position, orientation, joint positions etc. "
@@ -6679,6 +6825,11 @@ static PyMethodDef SpamMethods[] = {
 
 	{"setTimeOut", (PyCFunction)pybullet_setTimeOut, METH_VARARGS | METH_KEYWORDS,
 	 "Set the timeOut in seconds, used for most of the API calls."},
+
+	{"getAPIVersion", (PyCFunction)pybullet_getAPIVersion,
+	 METH_VARARGS | METH_KEYWORDS,
+	 "Get version of the API. Compatibility exists for connections using the same API version. Make sure both client and server use the same number of bits (32-bit or 64bit)."},
+
 	// todo(erwincoumans)
 	// saveSnapshot
 	// loadSnapshot
@@ -6819,6 +6970,8 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "COV_ENABLE_VR_TELEPORTING", COV_ENABLE_VR_TELEPORTING);
 	PyModule_AddIntConstant(m, "COV_ENABLE_RENDERING", COV_ENABLE_RENDERING);
 	PyModule_AddIntConstant(m, "COV_ENABLE_VR_RENDER_CONTROLLERS", COV_ENABLE_VR_RENDER_CONTROLLERS);
+	PyModule_AddIntConstant(m, "COV_ENABLE_KEYBOARD_SHORTCUTS", COV_ENABLE_KEYBOARD_SHORTCUTS);
+	PyModule_AddIntConstant(m, "COV_ENABLE_MOUSE_PICKING", COV_ENABLE_MOUSE_PICKING);
 
 
 	PyModule_AddIntConstant(m, "ER_TINY_RENDERER", ER_TINY_RENDERER);

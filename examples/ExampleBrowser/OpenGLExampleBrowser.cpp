@@ -130,6 +130,10 @@ static bool renderGrid = true;
 bool renderGui = true;
 static bool enable_experimental_opencl = false;
 
+static bool gEnableDefaultKeyboardShortcuts = true;
+static bool gEnableDefaultMousePicking = true;
+		
+
 int gDebugDrawFlags = 0;
 static bool pauseSimulation=false;
 static bool singleStepSimulation = false;
@@ -200,7 +204,7 @@ void MyKeyboardCallback(int key, int state)
 	//if (handled)
 	//	return;
 
-	//if (s_window && s_window->isModifierKeyPressed(B3G_CONTROL))
+	if (gEnableDefaultKeyboardShortcuts)
 	{
 		if (key=='a' && state)
 		{
@@ -376,6 +380,15 @@ void OpenGLExampleBrowserVisualizerFlagCallback(int flag, bool enable)
 		renderGrid = enable;
     }
     
+	if (flag == COV_ENABLE_KEYBOARD_SHORTCUTS)
+	{
+		gEnableDefaultKeyboardShortcuts = enable;
+	}
+	if (flag == COV_ENABLE_MOUSE_PICKING)
+	{
+		gEnableDefaultMousePicking = enable;
+	}
+
     if (flag == COV_ENABLE_WIREFRAME)
     {
         visualWireframe = enable;

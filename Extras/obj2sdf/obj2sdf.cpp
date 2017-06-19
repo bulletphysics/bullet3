@@ -40,7 +40,11 @@ int main(int argc, char* argv[])
 	b3CommandLineArgs args(argc,argv);
 	char* fileName;
 	args.GetCmdLineArgument("fileName",fileName);
-
+	if (fileName==0)
+	{
+		printf("required --fileName=\"name\"");
+		exit(0);
+	}
 	std::string matLibName = StripExtension(fileName);
 
 	printf("fileName = %s\n", fileName);

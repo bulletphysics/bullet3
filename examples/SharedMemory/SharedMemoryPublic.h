@@ -4,7 +4,8 @@
 #define SHARED_MEMORY_KEY 12347
 ///increase the SHARED_MEMORY_MAGIC_NUMBER whenever incompatible changes are made in the structures
 ///my convention is year/month/day/rev
-#define SHARED_MEMORY_MAGIC_NUMBER 201706001
+#define SHARED_MEMORY_MAGIC_NUMBER 201706015
+//#define SHARED_MEMORY_MAGIC_NUMBER 201706001
 //#define SHARED_MEMORY_MAGIC_NUMBER 201703024
 
 
@@ -64,6 +65,8 @@ enum EnumSharedMemoryClientCommand
 	CMD_CREATE_COLLISION_SHAPE,
 	CMD_CREATE_VISUAL_SHAPE,
 	CMD_CREATE_MULTI_BODY,
+	CMD_REQUEST_COLLISION_INFO,
+	CMD_REQUEST_MOUSE_EVENTS_DATA,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -155,6 +158,9 @@ enum EnumSharedMemoryServerStatus
 		CMD_CREATE_VISUAL_SHAPE_COMPLETED,
 		CMD_CREATE_MULTI_BODY_FAILED,
 		CMD_CREATE_MULTI_BODY_COMPLETED,
+		CMD_REQUEST_COLLISION_INFO_COMPLETED,
+		CMD_REQUEST_COLLISION_INFO_FAILED,
+		CMD_REQUEST_MOUSE_EVENTS_DATA_COMPLETED,
         //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
@@ -321,7 +327,7 @@ enum b3VREventType
 #define MAX_RAY_INTERSECTION_BATCH_SIZE 256
 #define MAX_RAY_HITS MAX_RAY_INTERSECTION_BATCH_SIZE
 #define MAX_KEYBOARD_EVENTS 256
-
+#define MAX_MOUSE_EVENTS 256
 
 
 enum b3VRButtonInfo
@@ -378,6 +384,28 @@ struct b3KeyboardEventsData
 {
 	int m_numKeyboardEvents;
 	struct b3KeyboardEvent* m_keyboardEvents;
+};
+
+
+enum eMouseEventTypeEnums
+{
+	MOUSE_MOVE_EVENT=1,
+	MOUSE_BUTTON_EVENT=2,
+};
+
+struct b3MouseEvent
+{
+	int m_eventType;
+	float m_mousePosX;
+	float m_mousePosY;
+	int m_buttonIndex;
+	int m_buttonState;
+};
+
+struct b3MouseEventsData
+{
+	int m_numMouseEvents;
+	struct b3MouseEvent* m_mouseEvents;
 };
 
 struct b3ContactPointData
@@ -490,6 +518,8 @@ struct b3LinkState
 	double m_worldLinearVelocity[3]; //only valid when ACTUAL_STATE_COMPUTE_LINKVELOCITY is set (b3RequestActualStateCommandComputeLinkVelocity)
 	double m_worldAngularVelocity[3]; //only valid when ACTUAL_STATE_COMPUTE_LINKVELOCITY is set (b3RequestActualStateCommandComputeLinkVelocity)
 
+	double m_worldAABBMin[3];//world space bounding minium and maximum box corners.
+	double m_worldAABBMax[3];
 };
 
 //todo: discuss and decide about control mode and combinations
@@ -525,6 +555,8 @@ enum b3ConfigureDebugVisualizerEnum
 	COV_ENABLE_VR_RENDER_CONTROLLERS,
 	COV_ENABLE_RENDERING,
 	COV_ENABLE_SYNC_RENDERING_INTERNAL,
+	COV_ENABLE_KEYBOARD_SHORTCUTS,
+	COV_ENABLE_MOUSE_PICKING,
 };
 
 enum b3AddUserDebugItemEnum

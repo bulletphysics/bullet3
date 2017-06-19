@@ -1153,7 +1153,8 @@ struct PhysicsServerCommandProcessorInternalData
 
 
 	btAlignedObjectArray<b3KeyboardEvent> m_keyboardEvents;
-	
+	btAlignedObjectArray<b3MouseEvent> m_mouseEvents;
+
 	CommandLogger* m_commandLogger;
 	CommandLogPlayback* m_logPlayback;
 
@@ -2774,6 +2775,27 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					break;
 				};
 
+				case CMD_REQUEST_MOUSE_EVENTS_DATA:
+				{
+
+					serverStatusOut.m_sendMouseEvents.m_numMouseEvents = m_data->m_mouseEvents.size();
+					if (serverStatusOut.m_sendMouseEvents.m_numMouseEvents>MAX_MOUSE_EVENTS)
+					{
+						serverStatusOut.m_sendMouseEvents.m_numMouseEvents = MAX_MOUSE_EVENTS;
+					}
+					for (int i=0;i<serverStatusOut.m_sendMouseEvents.m_numMouseEvents;i++)
+					{
+						serverStatusOut.m_sendMouseEvents.m_mouseEvents[i] = m_data->m_mouseEvents[i];
+					}
+
+					m_data->m_mouseEvents.resize(0);
+					serverStatusOut.m_type = CMD_REQUEST_MOUSE_EVENTS_DATA_COMPLETED;
+					hasStatus = true;
+					break;
+				};
+
+				
+
 				case CMD_REQUEST_KEYBOARD_EVENTS_DATA:
 				{
 					//BT_PROFILE("CMD_REQUEST_KEYBOARD_EVENTS_DATA");
@@ -3066,9 +3088,29 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                                                      clientCmd.m_requestPixelDataArguments.m_projectionMatrix);
                                 } else
                                 {
-                                    m_data->m_visualConverter.render();
+									 SharedMemoryStatus tmpCmd = serverStatusOut;
+									bool result = this->m_data->m_guiHelper->getCameraInfo(
+										&tmpCmd.m_visualizerCameraResultArgs.m_width,
+										&tmpCmd.m_visualizerCameraResultArgs.m_height,
+										tmpCmd.m_visualizerCameraResultArgs.m_viewMatrix,
+										tmpCmd.m_visualizerCameraResultArgs.m_projectionMatrix,
+										tmpCmd.m_visualizerCameraResultArgs.m_camUp,
+										tmpCmd.m_visualizerCameraResultArgs.m_camForward,
+										tmpCmd.m_visualizerCameraResultArgs.m_horizontal,
+										tmpCmd.m_visualizerCameraResultArgs.m_vertical,
+										&tmpCmd.m_visualizerCameraResultArgs.m_yaw,
+										&tmpCmd.m_visualizerCameraResultArgs.m_pitch,
+										&tmpCmd.m_visualizerCameraResultArgs.m_dist,
+										tmpCmd.m_visualizerCameraResultArgs.m_target);
+									if (result)
+									{
+	                                    m_data->m_visualConverter.render(tmpCmd.m_visualizerCameraResultArgs.m_viewMatrix,
+										tmpCmd.m_visualizerCameraResultArgs.m_projectionMatrix);
+									} else
+									{
+										m_data->m_visualConverter.render();
+									}
                                 }
-
                             }
 
 							m_data->m_visualConverter.copyCameraImageData(pixelRGBA,numRequestedPixels,
@@ -4023,6 +4065,105 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					hasStatus = true;
 					break;
 				}
+				case 		CMD_REQUEST_COLLISION_INFO:
+				{
+					SharedMemoryStatus& serverCmd = serverStatusOut;
+					serverStatusOut.m_type = CMD_REQUEST_COLLISION_INFO_FAILED;
+					hasStatus=true;
+					int bodyUniqueId = clientCmd.m_requestCollisionInfoArgs.m_bodyUniqueId;
+					InteralBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+						
+
+					if (body && body->m_multiBody)
+					{
+						btMultiBody* mb = body->m_multiBody;
+						serverStatusOut.m_type = CMD_REQUEST_COLLISION_INFO_COMPLETED;
+						serverCmd.m_sendCollisionInfoArgs.m_numLinks = body->m_multiBody->getNumLinks();
+						serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[0] = 0;
+						serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[1] = 0;
+						serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[2] = 0;
+
+						serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[0] = -1;
+						serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[1] = -1;
+						serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[2] = -1;
+
+						if (body->m_multiBody->getBaseCollider())
+						{
+							btTransform tr;
+							tr.setOrigin(mb->getBasePos());
+							tr.setRotation(mb->getWorldToBaseRot().inverse());
+
+							btVector3 aabbMin,aabbMax;
+							body->m_multiBody->getBaseCollider()->getCollisionShape()->getAabb(tr,aabbMin,aabbMax);
+							serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[0] = aabbMin[0];
+							serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[1] = aabbMin[1];
+							serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[2] = aabbMin[2];
+
+							serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[0] = aabbMax[0];
+							serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[1] = aabbMax[1];
+							serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[2] = aabbMax[2];
+						}
+						for (int l=0;l<mb->getNumLinks();l++)
+						{
+							serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMin[3*l+0] = 0;
+							serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMin[3*l+1] = 0;
+							serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMin[3*l+2] = 0;
+
+							serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMax[3*l+0] = -1;
+							serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMax[3*l+1] = -1;
+							serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMax[3*l+2] = -1;
+
+								
+
+							if (body->m_multiBody->getLink(l).m_collider)
+							{
+								btVector3 aabbMin,aabbMax;
+								body->m_multiBody->getLinkCollider(l)->getCollisionShape()->getAabb(mb->getLink(l).m_cachedWorldTransform,aabbMin,aabbMax);
+
+								serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMin[3*l+0] = aabbMin[0];
+								serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMin[3*l+1] = aabbMin[1];
+								serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMin[3*l+2] = aabbMin[2];
+								serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMax[3*l+0] = aabbMax[0];
+								serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMax[3*l+1] = aabbMax[1];
+								serverCmd.m_sendCollisionInfoArgs.m_linkWorldAABBsMax[3*l+2] = aabbMax[2];
+							}
+						
+						}
+					}
+					else
+					{
+						if (body && body->m_rigidBody)
+						{
+							btRigidBody* rb = body->m_rigidBody;
+							SharedMemoryStatus& serverCmd = serverStatusOut;
+							serverStatusOut.m_type = CMD_REQUEST_COLLISION_INFO_COMPLETED;
+							serverCmd.m_sendCollisionInfoArgs.m_numLinks = 0;
+							serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[0] = 0;
+							serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[1] = 0;
+							serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[2] = 0;
+
+							serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[0] = -1;
+							serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[1] = -1;
+							serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[2] = -1;
+							if (rb->getCollisionShape())
+							{
+								btTransform tr = rb->getWorldTransform();
+								
+								btVector3 aabbMin,aabbMax;
+								rb->getCollisionShape()->getAabb(tr,aabbMin,aabbMax);
+								serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[0] = aabbMin[0];
+								serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[1] = aabbMin[1];
+								serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMin[2] = aabbMin[2];
+
+								serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[0] = aabbMax[0];
+								serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[1] = aabbMax[1];
+								serverCmd.m_sendCollisionInfoArgs.m_rootWorldAABBMax[2] = aabbMax[2];
+							}
+						}
+					}
+					break;
+				}
+
 				case CMD_REQUEST_ACTUAL_STATE:
 					{
 					BT_PROFILE("CMD_REQUEST_ACTUAL_STATE");
@@ -4032,6 +4173,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						}
 						int bodyUniqueId = clientCmd.m_requestActualStateInformationCommandArgument.m_bodyUniqueId;
 						InteralBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+						
 
 						if (body && body->m_multiBody)
 						{
@@ -4040,6 +4182,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							serverStatusOut.m_type = CMD_ACTUAL_STATE_UPDATE_COMPLETED;
 
 							serverCmd.m_sendActualStateArgs.m_bodyUniqueId = bodyUniqueId;
+							serverCmd.m_sendActualStateArgs.m_numLinks = body->m_multiBody->getNumLinks();
+
 							int totalDegreeOfFreedomQ = 0;
 							int totalDegreeOfFreedomU = 0;
 
@@ -4074,7 +4218,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                 serverCmd.m_sendActualStateArgs.m_rootLocalInertialFrame[6] =
                                     body->m_rootLocalInertialFrame.getRotation()[3];
 
-
+							
 
 								//base position in world space, carthesian
 								serverCmd.m_sendActualStateArgs.m_actualStateQ[0] = tr.getOrigin()[0];
@@ -4176,6 +4320,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								serverCmd.m_sendActualStateArgs.m_linkState[l*7+5] = linkCOMRotation.z();
 								serverCmd.m_sendActualStateArgs.m_linkState[l*7+6] = linkCOMRotation.w();
 
+							
 
 								btVector3 worldLinVel(0,0,0);
 								btVector3 worldAngVel(0,0,0);
@@ -4220,6 +4365,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								serverCmd.m_type = CMD_ACTUAL_STATE_UPDATE_COMPLETED;
 
 								serverCmd.m_sendActualStateArgs.m_bodyUniqueId = bodyUniqueId;
+								serverCmd.m_sendActualStateArgs.m_numLinks = 0;
+
 								int totalDegreeOfFreedomQ = 0;
 								int totalDegreeOfFreedomU = 0;
 
@@ -6907,7 +7054,7 @@ bool PhysicsServerCommandProcessor::isRealTimeSimulationEnabled() const
 	return 	m_data->m_allowRealTimeSimulation;
 }
 
-void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const struct b3VRControllerEvent* vrControllerEvents, int numVRControllerEvents,const struct b3KeyboardEvent* keyEvents, int numKeyEvents)
+void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,const struct b3VRControllerEvent* vrControllerEvents, int numVRControllerEvents, const struct b3KeyboardEvent* keyEvents, int numKeyEvents, const struct b3MouseEvent* mouseEvents, int numMouseEvents)
 {
 	m_data->m_vrControllerEvents.addNewVREvents(vrControllerEvents,numVRControllerEvents);
 	for (int i=0;i<m_data->m_stateLoggers.size();i++)
@@ -6916,6 +7063,41 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,	const
 		{
 			VRControllerStateLogger* vrLogger = (VRControllerStateLogger*) m_data->m_stateLoggers[i];
 			vrLogger->m_vrEvents.addNewVREvents(vrControllerEvents,numVRControllerEvents);
+		}
+	}
+
+	for (int ii=0;ii<numMouseEvents;ii++)
+	{
+		const b3MouseEvent& event = mouseEvents[ii];
+		bool found = false;
+		//search a matching one first, otherwise add new event
+		for (int e=0;e<m_data->m_mouseEvents.size();e++)
+		{
+			if (event.m_eventType == m_data->m_mouseEvents[e].m_eventType)
+			{
+				if (event.m_eventType == MOUSE_MOVE_EVENT)
+				{
+					m_data->m_mouseEvents[e].m_mousePosX = event.m_mousePosX;
+					m_data->m_mouseEvents[e].m_mousePosY = event.m_mousePosY;
+					found = true;
+				} else
+				if ((event.m_eventType == MOUSE_BUTTON_EVENT) && event.m_buttonIndex == m_data->m_mouseEvents[e].m_buttonIndex)
+				{
+					m_data->m_mouseEvents[e].m_buttonState |= event.m_buttonState;
+					if (event.m_buttonState & eButtonIsDown)
+					{
+						m_data->m_mouseEvents[e].m_buttonState |= eButtonIsDown;
+					} else
+					{
+						m_data->m_mouseEvents[e].m_buttonState &= ~eButtonIsDown;
+					}
+					found = true;
+				}
+			}
+		}	
+		if (!found)
+		{
+			m_data->m_mouseEvents.push_back(event);
 		}
 	}
 

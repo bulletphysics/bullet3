@@ -57,6 +57,10 @@ int b3GetStatusActualState(b3SharedMemoryStatusHandle statusHandle,
                            const double* actualStateQdot[],
                            const double* jointReactionForces[]);
 
+
+b3SharedMemoryCommandHandle b3RequestCollisionInfoCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId);
+int b3GetStatusAABB(b3SharedMemoryStatusHandle statusHandle, int linkIndex, double aabbMin[3], double aabbMax[3]);
+
 ///If you re-connected to an existing server, or server changed otherwise, sync the body info and user constraints etc.
 b3SharedMemoryCommandHandle b3InitSyncBodyInfoCommand(b3PhysicsClientHandle physClient);
 
@@ -428,6 +432,10 @@ int b3SetVRCameraTrackingObjectFlag(b3SharedMemoryCommandHandle commandHandle, i
 
 b3SharedMemoryCommandHandle	b3RequestKeyboardEventsCommandInit(b3PhysicsClientHandle physClient);
 void b3GetKeyboardEventsData(b3PhysicsClientHandle physClient, struct b3KeyboardEventsData* keyboardEventsData);
+
+b3SharedMemoryCommandHandle	b3RequestMouseEventsCommandInit(b3PhysicsClientHandle physClient);
+void b3GetMouseEventsData(b3PhysicsClientHandle physClient, struct b3MouseEventsData* mouseEventsData);
+
 
 b3SharedMemoryCommandHandle	b3StateLoggingCommandInit(b3PhysicsClientHandle physClient);
 int b3StateLoggingStart(b3SharedMemoryCommandHandle commandHandle, int loggingType, const char* fileName);

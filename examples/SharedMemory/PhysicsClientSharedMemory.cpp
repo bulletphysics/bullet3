@@ -46,6 +46,8 @@ struct PhysicsClientSharedMemoryInternalData {
 	btAlignedObjectArray<b3VisualShapeData> m_cachedVisualShapes;
 	btAlignedObjectArray<b3VRControllerEvent> m_cachedVREvents;
 	btAlignedObjectArray<b3KeyboardEvent> m_cachedKeyboardEvents;
+	btAlignedObjectArray<b3MouseEvent> m_cachedMouseEvents;
+	
 	btAlignedObjectArray<b3RayHitInfo>	m_raycastHits;
 
     btAlignedObjectArray<int> m_bodyIdsRequestInfo;
@@ -876,6 +878,21 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 				break;
 			}
 
+			case CMD_REQUEST_MOUSE_EVENTS_DATA_COMPLETED:
+			{
+				B3_PROFILE("CMD_REQUEST_MOUSE_EVENTS_DATA_COMPLETED");
+				if (m_data->m_verboseOutput)
+				{
+					b3Printf("Request mouse events completed");
+				}
+				m_data->m_cachedMouseEvents.resize(serverCmd.m_sendMouseEvents.m_numMouseEvents);
+				for (int i=0;i<serverCmd.m_sendMouseEvents.m_numMouseEvents;i++)
+				{
+					m_data->m_cachedMouseEvents[i] = serverCmd.m_sendMouseEvents.m_mouseEvents[i];
+				}
+				break;
+			}
+
 			case CMD_REQUEST_AABB_OVERLAP_COMPLETED:
 			{
 				B3_PROFILE("CMD_REQUEST_AABB_OVERLAP_COMPLETED");
@@ -1077,6 +1094,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 			case CMD_CREATE_VISUAL_SHAPE_FAILED:
 			{
 				b3Warning("Request createVisualShape failed");
+				break;
+			}
+			case CMD_REQUEST_COLLISION_INFO_COMPLETED:
+			{
+				break;
+			}
+			case CMD_REQUEST_COLLISION_INFO_FAILED:
+			{
+				b3Warning("Request getCollisionInfo failed");
 				break;
 			}
 
@@ -1383,6 +1409,14 @@ void PhysicsClientSharedMemory::getCachedKeyboardEvents(struct b3KeyboardEventsD
 	keyboardEventsData->m_keyboardEvents = keyboardEventsData->m_numKeyboardEvents?
 		&m_data->m_cachedKeyboardEvents[0] : 0;
 }
+
+void PhysicsClientSharedMemory::getCachedMouseEvents(struct b3MouseEventsData* mouseEventsData)
+{
+	mouseEventsData->m_numMouseEvents = m_data->m_cachedMouseEvents.size();
+	mouseEventsData->m_mouseEvents = mouseEventsData->m_numMouseEvents?
+		&m_data->m_cachedMouseEvents[0] : 0;
+}
+
 
 void PhysicsClientSharedMemory::getCachedRaycastHits(struct b3RaycastInformation* raycastHits)
 {

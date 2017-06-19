@@ -1308,6 +1308,53 @@ int b3GetStatusBodyIndex(b3SharedMemoryStatusHandle statusHandle)
 	return bodyId;
 }
 
+b3SharedMemoryCommandHandle b3RequestCollisionInfoCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId)
+{
+    PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type =CMD_REQUEST_COLLISION_INFO;
+	command->m_updateFlags = 0;
+	command->m_requestCollisionInfoArgs.m_bodyUniqueId = bodyUniqueId;
+    return (b3SharedMemoryCommandHandle) command;
+}
+
+int b3GetStatusAABB(b3SharedMemoryStatusHandle statusHandle, int linkIndex, double aabbMin[3], double aabbMax[3])
+{
+	const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
+    const b3SendCollisionInfoArgs &args = status->m_sendCollisionInfoArgs;
+    btAssert(status->m_type == CMD_REQUEST_COLLISION_INFO_COMPLETED);
+    if (status->m_type != CMD_REQUEST_COLLISION_INFO_COMPLETED)
+        return 0;
+
+	if (linkIndex==-1)
+	{	
+		aabbMin[0] = args.m_rootWorldAABBMin[0];
+		aabbMin[1] = args.m_rootWorldAABBMin[1];
+		aabbMin[2] = args.m_rootWorldAABBMin[2];
+
+		aabbMax[0] = args.m_rootWorldAABBMax[0];
+		aabbMax[1] = args.m_rootWorldAABBMax[1];
+		aabbMax[2] = args.m_rootWorldAABBMax[2];
+		return 1;
+	}
+
+	if (linkIndex >= 0 && linkIndex < args.m_numLinks)
+	{
+		aabbMin[0] = args.m_linkWorldAABBsMin[linkIndex*3+0];
+		aabbMin[1] = args.m_linkWorldAABBsMin[linkIndex*3+1];
+		aabbMin[2] = args.m_linkWorldAABBsMin[linkIndex*3+2];
+
+		aabbMax[0] = args.m_linkWorldAABBsMax[linkIndex*3+0];
+		aabbMax[1] = args.m_linkWorldAABBsMax[linkIndex*3+1];
+		aabbMax[2] = args.m_linkWorldAABBsMax[linkIndex*3+2];
+		return 1;
+	}
+
+	return 0;
+}
 
 int b3GetStatusActualState(b3SharedMemoryStatusHandle statusHandle,
                            int* bodyUniqueId,
@@ -3160,6 +3207,31 @@ void b3GetKeyboardEventsData(b3PhysicsClientHandle physClient, struct b3Keyboard
 		cl->getCachedKeyboardEvents(keyboardEventsData);
 	}
 }
+
+b3SharedMemoryCommandHandle	b3RequestMouseEventsCommandInit(b3PhysicsClientHandle physClient)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+
+	command->m_type = CMD_REQUEST_MOUSE_EVENTS_DATA;
+	command->m_updateFlags = 0;
+
+	return (b3SharedMemoryCommandHandle)command;
+}
+
+void b3GetMouseEventsData(b3PhysicsClientHandle physClient, struct b3MouseEventsData* mouseEventsData)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+	if (cl)
+	{
+		cl->getCachedMouseEvents(mouseEventsData);
+	}
+}
+
+
 
 
 b3SharedMemoryCommandHandle	b3ProfileTimingCommandInit(b3PhysicsClientHandle physClient, const char* name)
