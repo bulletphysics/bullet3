@@ -95,6 +95,8 @@ public:
 
 	virtual void getCachedKeyboardEvents(struct b3KeyboardEventsData* keyboardEventsData);
 
+	virtual void getCachedMouseEvents(struct b3MouseEventsData* mouseEventsData);
+
 	virtual void getCachedRaycastHits(struct b3RaycastInformation* raycastHits);
 
 	//the following APIs are for internal use for visualization:

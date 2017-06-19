@@ -721,6 +721,11 @@ struct SendKeyboardEvents
 	b3KeyboardEvent m_keyboardEvents[MAX_KEYBOARD_EVENTS];
 };
 
+struct SendMouseEvents
+{
+	int m_numMouseEvents;
+	b3MouseEvent m_mouseEvents[MAX_MOUSE_EVENTS];
+};
 
 enum eVRCameraEnums
 {
@@ -811,10 +816,13 @@ struct b3CreateCollisionShape
 	double m_capsuleFrom[3];
 	double m_capsuleTo[3];
 	double m_planeNormal[3];
+	double m_planeConstant;
 
 	int         m_meshFileType;
-	char		m_meshFileName[1024];
-	double		m_meshScale;
+	char		m_meshFileName[VISUAL_SHAPE_MAX_PATH_LEN];
+	double		m_meshScale[3];
+	int			m_collisionFlags;
+
 };
 
 #define MAX_COMPOUND_COLLISION_SHAPES 16
@@ -842,17 +850,21 @@ struct b3CreateMultiBodyArgs
 	char m_bodyName[1024];
 	int m_baseLinkIndex;
 
-	double m_baseWorldPosition[3];
-	double m_baseWorldOrientation[4];
+	double m_linkPositions[3*MAX_CREATE_MULTI_BODY_LINKS];
+	double m_linkOrientations[4*MAX_CREATE_MULTI_BODY_LINKS];
 
 	int m_numLinks;
 	double m_linkMasses[MAX_CREATE_MULTI_BODY_LINKS];
 	double m_linkInertias[MAX_CREATE_MULTI_BODY_LINKS*3];
+
 	double m_linkInertialFramePositions[MAX_CREATE_MULTI_BODY_LINKS*3];
 	double m_linkInertialFrameOrientations[MAX_CREATE_MULTI_BODY_LINKS*4];
-	int m_linkJointTypes[MAX_CREATE_MULTI_BODY_LINKS];
+
 	int m_linkCollisionShapeUniqueIds[MAX_CREATE_MULTI_BODY_LINKS];
 	int m_linkVisualShapeUniqueIds[MAX_CREATE_MULTI_BODY_LINKS];
+	int m_linkParentIndices[MAX_CREATE_MULTI_BODY_LINKS];
+	int m_linkJointTypes[MAX_CREATE_MULTI_BODY_LINKS];
+	double m_linkJointAxis[3*MAX_CREATE_MULTI_BODY_LINKS];
 
 	#if 0
 	std::string m_name;
@@ -931,7 +943,6 @@ struct SharedMemoryCommand
 		struct b3CreateVisualShapeArgs m_createVisualShapeArgs;
 		struct b3CreateMultiBodyArgs m_createMultiBodyArgs;
 		struct b3RequestCollisionInfoArgs m_requestCollisionInfoArgs;
-
     };
 };
 
@@ -1001,6 +1012,8 @@ struct SharedMemoryStatus
 		struct b3CreateVisualShapeResultArgs m_createVisualShapeResultArgs;
 		struct b3CreateMultiBodyResultArgs m_createMultiBodyResultArgs;
 		struct b3SendCollisionInfoArgs m_sendCollisionInfoArgs;
+		struct SendMouseEvents m_sendMouseEvents;
+
 	};
 };
 
