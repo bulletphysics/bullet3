@@ -721,7 +721,8 @@ b3SharedMemoryCommandHandle b3CreateCollisionShapeCommandInit(b3PhysicsClientHan
 	}
 	return 0;
 }
-void b3CreateCollisionShapeAddSphere(b3SharedMemoryCommandHandle commandHandle,double radius)
+
+int b3CreateCollisionShapeAddSphere(b3SharedMemoryCommandHandle commandHandle,double radius)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
@@ -735,11 +736,13 @@ void b3CreateCollisionShapeAddSphere(b3SharedMemoryCommandHandle commandHandle,d
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_sphereRadius = radius;
 			command->m_createCollisionShapeArgs.m_numCollisionShapes++;
+			return shapeIndex;
 		}
 	}
+	return -1;
 }
 
-void b3CreateCollisionShapeAddBox(b3SharedMemoryCommandHandle commandHandle,double halfExtents[3])
+int b3CreateCollisionShapeAddBox(b3SharedMemoryCommandHandle commandHandle,double halfExtents[3])
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
@@ -755,6 +758,112 @@ void b3CreateCollisionShapeAddBox(b3SharedMemoryCommandHandle commandHandle,doub
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_boxHalfExtents[1] = halfExtents[1];
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_boxHalfExtents[2] = halfExtents[2];
 			command->m_createCollisionShapeArgs.m_numCollisionShapes++;
+			return shapeIndex;
+		}
+	}
+	return -1;
+}
+
+int b3CreateCollisionShapeAddCapsule(b3SharedMemoryCommandHandle commandHandle,double radius, double height)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CREATE_COLLISION_SHAPE);
+	if (command->m_type==CMD_CREATE_COLLISION_SHAPE)
+	{
+		int shapeIndex = command->m_createCollisionShapeArgs.m_numCollisionShapes;
+		if (shapeIndex <MAX_COMPOUND_COLLISION_SHAPES)
+		{
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_type = GEOM_CAPSULE;
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_capsuleRadius = radius;
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_capsuleHeight = height;
+			command->m_createCollisionShapeArgs.m_numCollisionShapes++;
+			return shapeIndex;
+		}
+	}
+	return -1;
+}
+
+int b3CreateCollisionShapeAddCylinder(b3SharedMemoryCommandHandle commandHandle,double radius, double height)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CREATE_COLLISION_SHAPE);
+	if (command->m_type==CMD_CREATE_COLLISION_SHAPE)
+	{
+		int shapeIndex = command->m_createCollisionShapeArgs.m_numCollisionShapes;
+		if (shapeIndex <MAX_COMPOUND_COLLISION_SHAPES)
+		{
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_type = GEOM_CYLINDER;
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_capsuleRadius = radius;
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_capsuleHeight = height;
+			command->m_createCollisionShapeArgs.m_numCollisionShapes++;
+			return shapeIndex;
+		}
+	}
+	return -1;
+}
+
+
+int b3CreateCollisionShapeAddPlane(b3SharedMemoryCommandHandle commandHandle, double planeNormal[3], double planeConstant)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CREATE_COLLISION_SHAPE);
+	if (command->m_type==CMD_CREATE_COLLISION_SHAPE)
+	{
+		int shapeIndex = command->m_createCollisionShapeArgs.m_numCollisionShapes;
+		if (shapeIndex <MAX_COMPOUND_COLLISION_SHAPES)
+		{
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_type = GEOM_PLANE;
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_planeNormal[0] = planeNormal[0];
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_planeNormal[1] = planeNormal[1];
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_planeNormal[2] = planeNormal[2];
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_planeConstant = planeConstant;
+			command->m_createCollisionShapeArgs.m_numCollisionShapes++;
+			return shapeIndex;
+		}
+	}
+	return -1;
+}
+
+int b3CreateCollisionShapeAddMesh(b3SharedMemoryCommandHandle commandHandle,const char* fileName, double meshScale[3])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CREATE_COLLISION_SHAPE);
+	if (command->m_type==CMD_CREATE_COLLISION_SHAPE)
+	{
+		int shapeIndex = command->m_createCollisionShapeArgs.m_numCollisionShapes;
+		if (shapeIndex <MAX_COMPOUND_COLLISION_SHAPES && strlen(fileName)<VISUAL_SHAPE_MAX_PATH_LEN)
+		{
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_type = GEOM_MESH;
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
+			strcpy(command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_meshFileName,fileName);
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_meshScale[0] = meshScale[0];
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_meshScale[1] = meshScale[1];
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_meshScale[2] = meshScale[2];
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_meshFileType = 0;
+			command->m_createCollisionShapeArgs.m_numCollisionShapes++;
+			return shapeIndex;
+		}
+	}
+	return -1;
+}
+
+void b3CreateCollisionSetFlag(b3SharedMemoryCommandHandle commandHandle,int shapeIndex, int flags)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CREATE_COLLISION_SHAPE);
+	if (command->m_type==CMD_CREATE_COLLISION_SHAPE)
+	{
+		if (shapeIndex<command->m_createCollisionShapeArgs.m_numCollisionShapes)
+		{
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_collisionFlags |= flags;
 		}
 	}
 }
@@ -857,14 +966,14 @@ int b3CreateMultiBodyBase(b3SharedMemoryCommandHandle commandHandle, double mass
 			int baseLinkIndex = numLinks;
 		    command->m_updateFlags |=MULTI_BODY_HAS_BASE;
 			command->m_createMultiBodyArgs.m_baseLinkIndex = baseLinkIndex;
-			command->m_createMultiBodyArgs.m_baseWorldPosition[0]=basePosition[0];
-			command->m_createMultiBodyArgs.m_baseWorldPosition[1]=basePosition[1];
-			command->m_createMultiBodyArgs.m_baseWorldPosition[2]=basePosition[2];
+			command->m_createMultiBodyArgs.m_linkPositions[baseLinkIndex*3+0]=basePosition[0];
+			command->m_createMultiBodyArgs.m_linkPositions[baseLinkIndex*3+1]=basePosition[1];
+			command->m_createMultiBodyArgs.m_linkPositions[baseLinkIndex*3+2]=basePosition[2];
 
-			command->m_createMultiBodyArgs.m_baseWorldOrientation[0]=baseOrientation[0];
-			command->m_createMultiBodyArgs.m_baseWorldOrientation[1]=baseOrientation[1];
-			command->m_createMultiBodyArgs.m_baseWorldOrientation[2]=baseOrientation[2];
-			command->m_createMultiBodyArgs.m_baseWorldOrientation[3]=baseOrientation[3];
+			command->m_createMultiBodyArgs.m_linkOrientations[baseLinkIndex*4+0]=baseOrientation[0];
+			command->m_createMultiBodyArgs.m_linkOrientations[baseLinkIndex*4+1]=baseOrientation[1];
+			command->m_createMultiBodyArgs.m_linkOrientations[baseLinkIndex*4+2]=baseOrientation[2];
+			command->m_createMultiBodyArgs.m_linkOrientations[baseLinkIndex*4+3]=baseOrientation[3];
 
 			command->m_createMultiBodyArgs.m_linkInertias[baseLinkIndex*3+0] = mass;
 			command->m_createMultiBodyArgs.m_linkInertias[baseLinkIndex*3+1] = mass;
@@ -883,13 +992,76 @@ int b3CreateMultiBodyBase(b3SharedMemoryCommandHandle commandHandle, double mass
 			command->m_createMultiBodyArgs.m_linkCollisionShapeUniqueIds[baseLinkIndex]= collisionShapeUnique;
 			command->m_createMultiBodyArgs.m_linkVisualShapeUniqueIds[baseLinkIndex] = visualShapeUniqueId;
 
-			command->m_createMultiBodyArgs.m_linkMasses[command->m_createMultiBodyArgs.m_numLinks] = mass;
+			command->m_createMultiBodyArgs.m_linkMasses[baseLinkIndex] = mass;
 			command->m_createMultiBodyArgs.m_numLinks++;
 		}
 		return numLinks;
 	}
 	return -2;
 }
+
+int b3CreateMultiBodyLink(b3SharedMemoryCommandHandle commandHandle, double linkMass, double linkCollisionShapeIndex, 
+									double linkVisualShapeIndex, 
+									double linkPosition[3], 
+									double linkOrientation[4],
+									int linkParentIndex,
+									int linkJointType,
+									double linkJointAxis[3])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_CREATE_MULTI_BODY);
+	if (command->m_type==CMD_CREATE_MULTI_BODY)
+	{
+		int numLinks = command->m_createMultiBodyArgs.m_numLinks;
+
+		if (numLinks<MAX_CREATE_MULTI_BODY_LINKS)
+		{
+			int linkIndex = numLinks;
+			command->m_updateFlags |=MULTI_BODY_HAS_BASE;
+			command->m_createMultiBodyArgs.m_linkPositions[linkIndex*3+0]=linkPosition[0];
+			command->m_createMultiBodyArgs.m_linkPositions[linkIndex*3+1]=linkPosition[1];
+			command->m_createMultiBodyArgs.m_linkPositions[linkIndex*3+2]=linkPosition[2];
+
+			command->m_createMultiBodyArgs.m_linkOrientations[linkIndex*4+0]=linkOrientation[0];
+			command->m_createMultiBodyArgs.m_linkOrientations[linkIndex*4+1]=linkOrientation[1];
+			command->m_createMultiBodyArgs.m_linkOrientations[linkIndex*4+2]=linkOrientation[2];
+			command->m_createMultiBodyArgs.m_linkOrientations[linkIndex*4+3]=linkOrientation[3];
+
+			command->m_createMultiBodyArgs.m_linkInertias[linkIndex*3+0] = linkMass;
+			command->m_createMultiBodyArgs.m_linkInertias[linkIndex*3+1] = linkMass;
+			command->m_createMultiBodyArgs.m_linkInertias[linkIndex*3+2] = linkMass;
+
+
+			command->m_createMultiBodyArgs.m_linkInertialFramePositions[linkIndex*3+0] = 0;
+			command->m_createMultiBodyArgs.m_linkInertialFramePositions[linkIndex*3+1] = 0;
+			command->m_createMultiBodyArgs.m_linkInertialFramePositions[linkIndex*3+2] = 0;
+
+			command->m_createMultiBodyArgs.m_linkInertialFrameOrientations[linkIndex*4+0] = 0;
+			command->m_createMultiBodyArgs.m_linkInertialFrameOrientations[linkIndex*4+1] = 0;
+			command->m_createMultiBodyArgs.m_linkInertialFrameOrientations[linkIndex*4+2] = 0;
+			command->m_createMultiBodyArgs.m_linkInertialFrameOrientations[linkIndex*4+3] = 1;
+
+			command->m_createMultiBodyArgs.m_linkCollisionShapeUniqueIds[linkIndex]= linkCollisionShapeIndex;
+			command->m_createMultiBodyArgs.m_linkVisualShapeUniqueIds[linkIndex] = linkVisualShapeIndex;
+			
+			command->m_createMultiBodyArgs.m_linkParentIndices[linkIndex] = linkParentIndex;
+			command->m_createMultiBodyArgs.m_linkJointTypes[linkIndex] = linkJointType;
+			command->m_createMultiBodyArgs.m_linkJointAxis[0] = linkJointAxis[0];
+			command->m_createMultiBodyArgs.m_linkJointAxis[1] = linkJointAxis[1];
+			command->m_createMultiBodyArgs.m_linkJointAxis[2] = linkJointAxis[2];
+
+			command->m_createMultiBodyArgs.m_linkMasses[linkIndex] = linkMass;
+			command->m_createMultiBodyArgs.m_numLinks++;
+			return numLinks;
+		}
+	}
+
+	return -1;
+}
+
+
+
 
 //useMaximalCoordinates are disabled by default, enabling them is experimental and not fully supported yet
 void b3CreateMultiBodyUseMaximalCoordinates(b3SharedMemoryCommandHandle commandHandle)

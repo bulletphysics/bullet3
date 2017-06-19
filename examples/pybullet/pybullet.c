@@ -84,6 +84,24 @@ static double pybullet_internalGetFloatFromSequence(PyObject* seq, int index)
 	return v;
 }
 
+static int pybullet_internalGetIntFromSequence(PyObject* seq, int index)
+{
+	int v = 0;
+	PyObject* item;
+
+	if (PyList_Check(seq))
+	{
+		item = PyList_GET_ITEM(seq, index);
+		v = PyLong_AsLong(item);
+	}
+	else
+	{
+		item = PyTuple_GET_ITEM(seq, index);
+		v = PyLong_AsLong(item);
+	}
+	return v;
+}
+
 // internal function to set a float matrix[16]
 // used to initialize camera position with
 // a view and projection matrix in renderImage()
@@ -196,6 +214,45 @@ static int pybullet_internalSetVector4d(PyObject* obVec, double vector[4])
 	Py_DECREF(seq);
 	return 0;
 }
+
+
+static int pybullet_internalGetVector3FromSequence(PyObject* seq, int index, double vec[3])
+{
+	int v = 0;
+	PyObject* item;
+
+	if (PyList_Check(seq))
+	{
+		item = PyList_GET_ITEM(seq, index);
+		pybullet_internalSetVectord(item,vec);
+	}
+	else
+	{
+		item = PyTuple_GET_ITEM(seq, index);		
+		pybullet_internalSetVectord(item,vec);
+	}
+	return v;
+}
+
+static int pybullet_internalGetVector4FromSequence(PyObject* seq, int index, double vec[4])
+{
+	int v = 0;
+	PyObject* item;
+
+	if (PyList_Check(seq))
+	{
+		item = PyList_GET_ITEM(seq, index);
+		pybullet_internalSetVector4d(item,vec);
+	}
+	else
+	{
+		item = PyTuple_GET_ITEM(seq, index);		
+		pybullet_internalSetVector4d(item,vec);
+	}
+	return v;
+}
+
+
 
 // Step through one timestep of the simulation
 static PyObject* pybullet_stepSimulation(PyObject* self, PyObject* args, PyObject* keywds)
@@ -4891,12 +4948,21 @@ static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, P
 	int physicsClientId = 0;
 	b3PhysicsClientHandle sm = 0;
 	int shapeType=-1;
-	double radius=-1;
+	double radius=0.5;
+	double height = 1;
+	PyObject* meshScaleObj=0;
+	double meshScale[3] = {1,1,1};
+	PyObject* planeNormalObj=0;
+	double planeNormal[3] = {0,0,1};
+
+	char* fileName=0;
+	int flags = 0;
+
 	PyObject* halfExtentsObj=0;
 
-	static char* kwlist[] = {"shapeType","radius","halfExtents", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|dOi", kwlist, 
-		&shapeType, &radius,&halfExtentsObj, &physicsClientId))
+	static char* kwlist[] = {"shapeType","radius","halfExtents", "height", "fileName", "meshScale", "planeNormal", "flags", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|dOdsOOii", kwlist, 
+		&shapeType, &radius,&halfExtentsObj, &height, &fileName, &meshScaleObj, &planeNormalObj, &flags, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -4910,16 +4976,41 @@ static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, P
 	{
 		b3SharedMemoryStatusHandle statusHandle;
 		int statusType;
+		int shapeIndex = -1;
+
 		b3SharedMemoryCommandHandle commandHandle = b3CreateCollisionShapeCommandInit(sm);
 		if (shapeType==GEOM_SPHERE && radius>0)
 		{
-			b3CreateCollisionShapeAddSphere(commandHandle,radius);
+			shapeIndex = b3CreateCollisionShapeAddSphere(commandHandle,radius);
 		}
 		if (shapeType==GEOM_BOX && halfExtentsObj)
 		{
 			double halfExtents[3] = {1,1,1};
 			pybullet_internalSetVectord(halfExtentsObj,halfExtents);
-			b3CreateCollisionShapeAddBox(commandHandle,halfExtents);
+			shapeIndex = b3CreateCollisionShapeAddBox(commandHandle,halfExtents);
+		}
+		if (shapeType==GEOM_CAPSULE && radius>0 && height>=0)
+		{
+			shapeIndex = b3CreateCollisionShapeAddCapsule(commandHandle,radius,height);
+		}
+		if (shapeType==GEOM_CYLINDER && radius>0 && height>=0)
+		{
+			shapeIndex = b3CreateCollisionShapeAddCylinder(commandHandle,radius,height);
+		}
+		if (shapeType==GEOM_MESH && fileName)
+		{
+			pybullet_internalSetVectord(meshScaleObj,meshScale);
+			shapeIndex = b3CreateCollisionShapeAddMesh(commandHandle, fileName,meshScale);
+		}
+		if (shapeType==GEOM_PLANE)
+		{
+			double planeConstant=0;
+			pybullet_internalSetVectord(planeNormalObj,planeNormal);
+			shapeIndex = b3CreateCollisionShapeAddPlane(commandHandle, planeNormal, planeConstant);
+		}
+		if (shapeIndex && flags)
+		{
+			b3CreateCollisionSetFlag(commandHandle,shapeIndex,flags);
 		}
 
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
@@ -4993,14 +5084,28 @@ static PyObject* pybullet_createMultiBody(PyObject* self, PyObject* args, PyObje
 	int useMaximalCoordinates = 0;
 	PyObject* basePosObj=0;
 	PyObject* baseOrnObj=0;
-
+	
+	PyObject* linkMassesObj=0;
+	PyObject* linkCollisionShapeIndicesObj=0;
+	PyObject* linkVisualShapeIndicesObj=0;
+	PyObject* linkPositionsObj=0;
+	PyObject* linkOrientationsObj=0;
+	PyObject* linkParentIndicesObj=0;
+	PyObject* linkJointTypesObj=0;
+	PyObject* linkJointAxisObj=0;
+	
 
 	static char* kwlist[] = {"baseMass","baseCollisionShapeIndex","baseVisualShapeIndex","basePosition", "baseOrientation",
-//		"linkParentIndices", "linkJointTypes","linkMasses","linkCollisionShapeIndices",
-"useMaximalCoordinates","physicsClientId",
+		"linkMasses","linkCollisionShapeIndices", "linkVisualShapeIndices",
+		"linkPositions", "linkOrientations","linkParentIndices", "linkJointTypes","linkJointAxis", 
+		"useMaximalCoordinates","physicsClientId",
+
 		NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diiOOii", kwlist, &baseMass,&baseCollisionShapeIndex,&baseVisualShapeIndex,
-				&basePosObj, &baseOrnObj,&useMaximalCoordinates, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diiOOOOOOOOOOii", kwlist, &baseMass,&baseCollisionShapeIndex,&baseVisualShapeIndex,
+				&basePosObj, &baseOrnObj,
+		&linkMassesObj, &linkCollisionShapeIndicesObj, &linkVisualShapeIndicesObj, &linkPositionsObj, &linkOrientationsObj,
+		&linkParentIndicesObj, &linkJointTypesObj,&linkJointAxisObj,
+		&useMaximalCoordinates, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -5012,27 +5117,148 @@ static PyObject* pybullet_createMultiBody(PyObject* self, PyObject* args, PyObje
 	}
 
 	{
-		b3SharedMemoryStatusHandle statusHandle;
-		int statusType;
-		b3SharedMemoryCommandHandle commandHandle = b3CreateMultiBodyCommandInit(sm);
-		double basePosition[3]={0,0,0};
-		double baseOrientation[4]={0,0,0,1};
-		int baseIndex;
-		pybullet_internalSetVectord(basePosObj,basePosition);
-		pybullet_internalSetVector4d(baseOrnObj,baseOrientation);
-		baseIndex = b3CreateMultiBodyBase(commandHandle,baseMass,baseCollisionShapeIndex,baseVisualShapeIndex,basePosition,baseOrientation);
-		if (useMaximalCoordinates>0)
+
+
+		int numLinkMasses = linkMassesObj?PySequence_Size(linkMassesObj):0;
+		int numLinkCollisionShapes = linkCollisionShapeIndicesObj?PySequence_Size(linkCollisionShapeIndicesObj):0;
+		int numLinkVisualShapes = linkVisualShapeIndicesObj?PySequence_Size(linkVisualShapeIndicesObj):0;
+		int numLinkPositions = linkPositionsObj? PySequence_Size(linkPositionsObj):0;
+		int numLinkOrientations = linkOrientationsObj? PySequence_Size(linkOrientationsObj):0;
+		int numLinkParentIndices = linkParentIndicesObj?PySequence_Size(linkParentIndicesObj):0;
+		int numLinkJointTypes = linkJointTypesObj?PySequence_Size(linkJointTypesObj):0;
+		int numLinkJoinAxis = linkJointAxisObj? PySequence_Size(linkJointAxisObj):0;
+
+
+		PyObject* seqLinkMasses = linkMassesObj?PySequence_Fast(linkMassesObj, "expected a sequence"):0;
+		PyObject* seqLinkCollisionShapes = linkCollisionShapeIndicesObj?PySequence_Fast(linkCollisionShapeIndicesObj, "expected a sequence"):0;
+		PyObject* seqLinkVisualShapes = linkVisualShapeIndicesObj?PySequence_Fast(linkVisualShapeIndicesObj, "expected a sequence"):0;
+		PyObject* seqLinkPositions = linkPositionsObj?PySequence_Fast(linkPositionsObj, "expected a sequence"):0;
+		PyObject* seqLinkOrientations = linkOrientationsObj?PySequence_Fast(linkOrientationsObj, "expected a sequence"):0;
+		PyObject* seqLinkParentIndices = linkParentIndicesObj?PySequence_Fast(linkParentIndicesObj, "expected a sequence"):0;
+		PyObject* seqLinkJointTypes = linkJointTypesObj?PySequence_Fast(linkJointTypesObj, "expected a sequence"):0;
+		PyObject* seqLinkJoinAxis = linkJointAxisObj?PySequence_Fast(linkJointAxisObj, "expected a sequence"):0;
+
+		if ((numLinkMasses==numLinkCollisionShapes) &&
+			(numLinkMasses==numLinkVisualShapes) &&
+			(numLinkMasses==numLinkPositions) &&
+			(numLinkMasses==numLinkOrientations) &&
+			(numLinkMasses==numLinkParentIndices) &&
+			(numLinkMasses==numLinkJointTypes) &&
+			(numLinkMasses==numLinkJoinAxis))
 		{
-			b3CreateMultiBodyUseMaximalCoordinates(commandHandle);
-		}
-		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
-		statusType = b3GetStatusType(statusHandle);
-		if (statusType == CMD_CREATE_MULTI_BODY_COMPLETED)
+			b3SharedMemoryStatusHandle statusHandle;
+			int statusType;
+			int i;
+			b3SharedMemoryCommandHandle commandHandle = b3CreateMultiBodyCommandInit(sm);
+			double basePosition[3]={0,0,0};
+			double baseOrientation[4]={0,0,0,1};
+			int baseIndex;
+			pybullet_internalSetVectord(basePosObj,basePosition);
+			pybullet_internalSetVector4d(baseOrnObj,baseOrientation);
+			baseIndex = b3CreateMultiBodyBase(commandHandle,baseMass,baseCollisionShapeIndex,baseVisualShapeIndex,basePosition,baseOrientation);
+
+			for (i=0;i<numLinkMasses;i++)
+			{
+				double linkMass = pybullet_internalGetFloatFromSequence(seqLinkMasses,i);
+				int linkCollisionShapeIndex = pybullet_internalGetIntFromSequence(seqLinkCollisionShapes,i);
+				int linkVisualShapeIndex = pybullet_internalGetIntFromSequence(seqLinkVisualShapes,i);
+				double linkPosition[3];
+				double linkOrientation[4];
+				double linkJointAxis[3];
+
+				pybullet_internalGetVector3FromSequence(seqLinkPositions,i,linkPosition);
+				pybullet_internalGetVector4FromSequence(seqLinkOrientations,i,linkOrientation);
+				pybullet_internalGetVector3FromSequence(seqLinkJoinAxis,i,linkJointAxis);
+				int linkParentIndex = pybullet_internalGetIntFromSequence(seqLinkParentIndices,i);
+				int linkJointType = pybullet_internalGetIntFromSequence(seqLinkJointTypes,i);
+
+				b3CreateMultiBodyLink(commandHandle, 
+									linkMass, 
+									linkCollisionShapeIndex, 
+									linkVisualShapeIndex, 
+									linkPosition, 
+									linkOrientation,
+									linkParentIndex,
+									linkJointType,
+									linkJointAxis
+				);
+
+			}
+
+			if (seqLinkMasses)
+				Py_DECREF(seqLinkMasses);
+			if (seqLinkCollisionShapes)
+				Py_DECREF(seqLinkCollisionShapes);
+			if (seqLinkVisualShapes)
+				Py_DECREF(seqLinkVisualShapes);
+			if (seqLinkPositions)
+				Py_DECREF(seqLinkPositions);
+			if (seqLinkOrientations)
+				Py_DECREF(seqLinkOrientations);
+			if (seqLinkParentIndices)
+				Py_DECREF(seqLinkParentIndices);
+			if (seqLinkJointTypes)
+				Py_DECREF(seqLinkJointTypes);
+			if (seqLinkJoinAxis)
+				Py_DECREF(seqLinkJoinAxis);
+
+			if (useMaximalCoordinates>0)
+			{
+				b3CreateMultiBodyUseMaximalCoordinates(commandHandle);
+			}
+			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+			statusType = b3GetStatusType(statusHandle);
+			if (statusType == CMD_CREATE_MULTI_BODY_COMPLETED)
+			{
+				int uid = b3GetStatusBodyIndex(statusHandle);
+				PyObject* ob = PyLong_FromLong(uid);
+				return ob;
+			}
+
+		} else
 		{
-			int uid = b3GetStatusBodyIndex(statusHandle);
-			PyObject* ob = PyLong_FromLong(uid);
-			return ob;
+			if (seqLinkMasses)
+				Py_DECREF(seqLinkMasses);
+			if (seqLinkCollisionShapes)
+				Py_DECREF(seqLinkCollisionShapes);
+			if (seqLinkVisualShapes)
+				Py_DECREF(seqLinkVisualShapes);
+			if (seqLinkPositions)
+				Py_DECREF(seqLinkPositions);
+			if (seqLinkOrientations)
+				Py_DECREF(seqLinkOrientations);
+			if (seqLinkParentIndices)
+				Py_DECREF(seqLinkParentIndices);
+			if (seqLinkJointTypes)
+				Py_DECREF(seqLinkJointTypes);
+			if (seqLinkJoinAxis)
+				Py_DECREF(seqLinkJoinAxis);
+
+			PyErr_SetString(SpamError, "All link arrays need to be same size.");
+			return NULL;
 		}
+			
+
+		#if 0
+		PyObject* seq;
+		seq = PySequence_Fast(objMat, "expected a sequence");
+		if (seq)
+		{
+			len = PySequence_Size(objMat);
+			if (len == 16)
+			{
+				for (i = 0; i < len; i++)
+				{
+					matrix[i] = pybullet_internalGetFloatFromSequence(seq, i);
+				}
+				Py_DECREF(seq);
+				return 1;
+			}
+			Py_DECREF(seq);
+		}
+		#endif
+
+
 	}
 	PyErr_SetString(SpamError, "createMultiBody failed.");
 	return NULL;

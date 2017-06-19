@@ -11,8 +11,9 @@
 #include "BulletDynamics/Featherstone/btMultiBodyJointFeedback.h"
 #include "BulletDynamics/Featherstone/btMultiBodyFixedConstraint.h"
 #include "BulletDynamics/Featherstone/btMultiBodyGearConstraint.h"
-
-
+#include "../Importers/ImportURDFDemo/UrdfParser.h"
+#include "../Utils/b3ResourcePath.h"
+#include "Bullet3Common/b3FileUtils.h"
 
 #include "BulletDynamics/Featherstone/btMultiBodySliderConstraint.h"
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
@@ -1620,6 +1621,14 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
     ///fill an array of child link indices for this link, btAlignedObjectArray behaves like a std::vector so just use push_back and resize(0) if needed
     virtual void getLinkChildIndices(int urdfLinkIndex, btAlignedObjectArray<int>& childLinkIndices) const
 	{
+		for (int i=0;i<m_createBodyArgs.m_numLinks;i++)
+		{
+			if (m_createBodyArgs.m_linkParents[i] == urdfLinkIndex)
+			{
+				childLinkIndices.push_back(i);
+			}
+		}
+		
 	}
     
     virtual bool getJointInfo(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction) const
@@ -1637,15 +1646,17 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
     
     virtual bool getRootTransformInWorld(btTransform& rootTransformInWorld) const
 	{
+		int baseLinkIndex = m_createBodyArgs.m_baseLinkIndex;
+
 		rootTransformInWorld.setOrigin(btVector3(
-			m_createBodyArgs.m_baseWorldPosition[0],
-			m_createBodyArgs.m_baseWorldPosition[1],
-			m_createBodyArgs.m_baseWorldPosition[2]));
+			m_createBodyArgs.m_linkPositions[baseLinkIndex*3+0],
+			m_createBodyArgs.m_linkPositions[baseLinkIndex*3+1],
+			m_createBodyArgs.m_linkPositions[baseLinkIndex*3+2]));
 		rootTransformInWorld.setRotation(btQuaternion(
-			m_createBodyArgs.m_baseWorldOrientation[0],
-			m_createBodyArgs.m_baseWorldOrientation[1],
-			m_createBodyArgs.m_baseWorldOrientation[2],
-			m_createBodyArgs.m_baseWorldOrientation[3]));
+			m_createBodyArgs.m_linkOrientations[baseLinkIndex*4+0],
+			m_createBodyArgs.m_linkOrientations[baseLinkIndex*4+1],
+			m_createBodyArgs.m_linkOrientations[baseLinkIndex*4+2],
+			m_createBodyArgs.m_linkOrientations[baseLinkIndex*4+3]));
 		return true;
 	}
 	virtual void setRootTransformInWorld(const btTransform& rootTransformInWorld)
@@ -1661,6 +1672,19 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
     
     virtual void convertLinkVisualShapes2(int linkIndex, int urdfIndex, const char* pathPrefix, const btTransform& inertialFrame, class btCollisionObject* colObj, int objectIndex) const  
 	{
+		
+		#if 0
+  			if (m_data->m_customVisualShapesConverter)
+			{
+				const UrdfModel& model = m_data->m_urdfParser.getModel();
+				UrdfLink*const* linkPtr = model.m_links.getAtIndex(urdfIndex);
+				if (linkPtr)
+				{
+					m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex,pathPrefix,localInertiaFrame, *linkPtr, &model, colObj, bodyUniqueId);
+				}
+			}
+		}
+	#endif
 	}
     virtual void setBodyUniqueId(int bodyId) 
 	{
@@ -3493,6 +3517,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					serverStatusOut.m_type = CMD_CREATE_COLLISION_SHAPE_FAILED;
 					
 					btBulletWorldImporter* worldImporter = new btBulletWorldImporter(m_data->m_dynamicsWorld);
+
 					btCollisionShape* shape = 0;
 
 					btCompoundShape* compound = 0;
@@ -3547,6 +3572,121 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								}
 								break;
 							}
+							case GEOM_CAPSULE:
+							{
+								shape = worldImporter->createCapsuleShapeZ(clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_capsuleRadius,
+									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_capsuleHeight);
+								if (compound)
+								{
+									compound->addChildShape(childTransform,shape);
+								}
+								break;
+							}
+							case GEOM_CYLINDER:
+							{
+								shape = worldImporter->createCylinderShapeZ(clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_capsuleRadius,
+									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_capsuleHeight);
+								if (compound)
+								{
+									compound->addChildShape(childTransform,shape);
+								}
+								break;
+							}
+							case GEOM_PLANE:
+							{
+								btVector3 planeNormal(clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_planeNormal[0],
+									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_planeNormal[1],
+									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_planeNormal[2]);
+
+								shape = worldImporter->createPlaneShape(planeNormal,0);
+								if (compound)
+								{
+									compound->addChildShape(childTransform,shape);
+								}
+								break;
+							}
+							case GEOM_MESH:
+							{
+								btScalar defaultCollisionMargin = 0.001;
+
+								btVector3 meshScale(clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_meshScale[0],
+									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_meshScale[1],
+									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_meshScale[2]);
+
+								const std::string& urdf_path="";
+
+								std::string fileName = clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_meshFileName;
+								
+								char relativeFileName[1024];
+								char pathPrefix[1024];
+								pathPrefix[0] = 0;
+								if (b3ResourcePath::findResourcePath(fileName.c_str(), relativeFileName, 1024))
+								{
+
+									b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
+								}
+								
+								const std::string& error_message_prefix="";
+								std::string out_found_filename; 
+								int out_type;
+
+								bool foundFile = findExistingMeshFile(pathPrefix, relativeFileName,error_message_prefix,&out_found_filename, &out_type); 
+								if (foundFile)
+								{
+									if (out_type==UrdfGeometry::FILE_OBJ)
+									{
+										std::vector<tinyobj::shape_t> shapes;
+										std::string err = tinyobj::LoadObj(shapes,out_found_filename.c_str());
+										//create a convex hull for each shape, and store it in a btCompoundShape
+
+										//shape = createConvexHullFromShapes(shapes, collision->m_geometry.m_meshScale);
+										//static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale)
+										B3_PROFILE("createConvexHullFromShapes");
+										if (compound==0)
+										{
+											compound = worldImporter->createCompoundShape();
+										}
+										compound->setMargin(defaultCollisionMargin);
+
+										for (int s = 0; s<(int)shapes.size(); s++)
+										{
+											btConvexHullShape* convexHull = worldImporter->createConvexHullShape();
+											convexHull->setMargin(defaultCollisionMargin);
+											tinyobj::shape_t& shape = shapes[s];
+											int faceCount = shape.mesh.indices.size();
+
+											for (int f = 0; f<faceCount; f += 3)
+											{
+
+												btVector3 pt;
+												pt.setValue(shape.mesh.positions[shape.mesh.indices[f] * 3 + 0],
+													shape.mesh.positions[shape.mesh.indices[f] * 3 + 1],
+													shape.mesh.positions[shape.mesh.indices[f] * 3 + 2]);
+			
+												convexHull->addPoint(pt*meshScale,false);
+
+												pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 0],
+															shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 1],
+															shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 2]);
+												convexHull->addPoint(pt*meshScale, false);
+
+												pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 0],
+															shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 1],
+															shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 2]);
+												convexHull->addPoint(pt*meshScale, false);
+											}
+
+											convexHull->recalcLocalAabb();
+											convexHull->optimizeConvexHull();
+											compound->addChildShape(childTransform,convexHull);
+										}
+									}
+								}
+								break;
+							}
+							default:
+							{
+							}
 						}
 					}
 					#if 0
@@ -3592,6 +3732,33 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					if (clientCmd.m_createMultiBodyArgs.m_baseLinkIndex>=0)
 					{
 						m_data->m_sdfRecentLoadedBodies.clear();
+
+						#if 0
+						struct UrdfModel
+						{
+							std::string m_name;
+							std::string m_sourceFile;
+							btTransform m_rootTransformInWorld;
+							btHashMap<btHashString, UrdfMaterial*> m_materials;
+							btHashMap<btHashString, UrdfLink*> m_links;
+							btHashMap<btHashString, UrdfJoint*> m_joints;
+	
+							btArray<UrdfLink*> m_rootLinks;
+							bool m_overrideFixedBase;
+
+							UrdfModel()
+						
+						clientCmd.m_createMultiBodyArgs.
+
+						char m_bodyName[1024];
+						int m_baseLinkIndex;
+
+						double m_baseWorldPosition[3];
+						double m_baseWorldOrientation[4];
+
+						UrdfModel tmpModel;
+						tmpModel.m_bodyName = 
+							#endif
 
 						ProgrammaticUrdfInterface u2b(clientCmd.m_createMultiBodyArgs, m_data);
 						
