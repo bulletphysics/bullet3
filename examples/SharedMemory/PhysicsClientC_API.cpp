@@ -993,6 +993,12 @@ int b3CreateMultiBodyBase(b3SharedMemoryCommandHandle commandHandle, double mass
 			command->m_createMultiBodyArgs.m_linkVisualShapeUniqueIds[baseLinkIndex] = visualShapeUniqueId;
 
 			command->m_createMultiBodyArgs.m_linkMasses[baseLinkIndex] = mass;
+
+			command->m_createMultiBodyArgs.m_linkParentIndices[baseLinkIndex] = -2;//no parent
+			command->m_createMultiBodyArgs.m_linkJointAxis[baseLinkIndex+0]=0;
+			command->m_createMultiBodyArgs.m_linkJointAxis[baseLinkIndex+1]=0;
+			command->m_createMultiBodyArgs.m_linkJointAxis[baseLinkIndex+2]=0;
+			command->m_createMultiBodyArgs.m_linkJointTypes[baseLinkIndex]=-1;
 			command->m_createMultiBodyArgs.m_numLinks++;
 		}
 		return numLinks;
@@ -1004,6 +1010,8 @@ int b3CreateMultiBodyLink(b3SharedMemoryCommandHandle commandHandle, double link
 									double linkVisualShapeIndex, 
 									double linkPosition[3], 
 									double linkOrientation[4],
+									double linkInertialFramePosition[3], 
+									double linkInertialFrameOrientation[4],
 									int linkParentIndex,
 									int linkJointType,
 									double linkJointAxis[3])
@@ -1033,23 +1041,23 @@ int b3CreateMultiBodyLink(b3SharedMemoryCommandHandle commandHandle, double link
 			command->m_createMultiBodyArgs.m_linkInertias[linkIndex*3+2] = linkMass;
 
 
-			command->m_createMultiBodyArgs.m_linkInertialFramePositions[linkIndex*3+0] = 0;
-			command->m_createMultiBodyArgs.m_linkInertialFramePositions[linkIndex*3+1] = 0;
-			command->m_createMultiBodyArgs.m_linkInertialFramePositions[linkIndex*3+2] = 0;
+			command->m_createMultiBodyArgs.m_linkInertialFramePositions[linkIndex*3+0] = linkInertialFramePosition[0];
+			command->m_createMultiBodyArgs.m_linkInertialFramePositions[linkIndex*3+1] = linkInertialFramePosition[1];
+			command->m_createMultiBodyArgs.m_linkInertialFramePositions[linkIndex*3+2] = linkInertialFramePosition[2];
 
-			command->m_createMultiBodyArgs.m_linkInertialFrameOrientations[linkIndex*4+0] = 0;
-			command->m_createMultiBodyArgs.m_linkInertialFrameOrientations[linkIndex*4+1] = 0;
-			command->m_createMultiBodyArgs.m_linkInertialFrameOrientations[linkIndex*4+2] = 0;
-			command->m_createMultiBodyArgs.m_linkInertialFrameOrientations[linkIndex*4+3] = 1;
+			command->m_createMultiBodyArgs.m_linkInertialFrameOrientations[linkIndex*4+0] = linkInertialFrameOrientation[0];
+			command->m_createMultiBodyArgs.m_linkInertialFrameOrientations[linkIndex*4+1] = linkInertialFrameOrientation[1];
+			command->m_createMultiBodyArgs.m_linkInertialFrameOrientations[linkIndex*4+2] = linkInertialFrameOrientation[2];
+			command->m_createMultiBodyArgs.m_linkInertialFrameOrientations[linkIndex*4+3] = linkInertialFrameOrientation[3];
 
 			command->m_createMultiBodyArgs.m_linkCollisionShapeUniqueIds[linkIndex]= linkCollisionShapeIndex;
 			command->m_createMultiBodyArgs.m_linkVisualShapeUniqueIds[linkIndex] = linkVisualShapeIndex;
 			
 			command->m_createMultiBodyArgs.m_linkParentIndices[linkIndex] = linkParentIndex;
 			command->m_createMultiBodyArgs.m_linkJointTypes[linkIndex] = linkJointType;
-			command->m_createMultiBodyArgs.m_linkJointAxis[0] = linkJointAxis[0];
-			command->m_createMultiBodyArgs.m_linkJointAxis[1] = linkJointAxis[1];
-			command->m_createMultiBodyArgs.m_linkJointAxis[2] = linkJointAxis[2];
+			command->m_createMultiBodyArgs.m_linkJointAxis[3*linkIndex+0] = linkJointAxis[0];
+			command->m_createMultiBodyArgs.m_linkJointAxis[3*linkIndex+1] = linkJointAxis[1];
+			command->m_createMultiBodyArgs.m_linkJointAxis[3*linkIndex+2] = linkJointAxis[2];
 
 			command->m_createMultiBodyArgs.m_linkMasses[linkIndex] = linkMass;
 			command->m_createMultiBodyArgs.m_numLinks++;

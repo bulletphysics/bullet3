@@ -348,6 +348,8 @@ int b3CreateMultiBodyLink(b3SharedMemoryCommandHandle commandHandle, double link
 									double linkVisualShapeIndex, 
 									double linkPosition[3], 
 									double linkOrientation[4],
+									double linkInertialFramePosition[3],
+									double linkInertialFrameOrientation[4],
 									int linkParentIndex,
 									int linkJointType,
 									double linkJointAxis[3]);

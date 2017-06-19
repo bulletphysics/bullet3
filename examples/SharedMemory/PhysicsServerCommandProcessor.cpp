@@ -1547,7 +1547,11 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
     ///pure virtual interfaces, precondition is a valid linkIndex (you can assert/terminate if the linkIndex is out of range)
     virtual std::string getLinkName(int linkIndex) const
 	{
-		return "link";
+		std::string linkName = "link";
+		char numstr[21]; // enough to hold all numbers up to 64-bits
+		sprintf(numstr, "%d", linkIndex);
+		linkName = linkName + numstr;
+		return linkName;
 	}
 
 	//various derived class in internal source code break with new pure virtual methods, so provide some default implementation
@@ -1587,8 +1591,11 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 
     virtual std::string getJointName(int linkIndex) const
 	{
-		b3Assert(0);
-		return "joint";
+		std::string jointName = "joint";
+		char numstr[21]; // enough to hold all numbers up to 64-bits
+		sprintf(numstr, "%d", linkIndex);
+		jointName = jointName + numstr;
+		return jointName;
 	}
 	
     //fill mass and inertial data. If inertial data is missing, please initialize mass, inertia to sensitive values, and inertialFrame to identity.
@@ -1623,7 +1630,7 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 	{
 		for (int i=0;i<m_createBodyArgs.m_numLinks;i++)
 		{
-			if (m_createBodyArgs.m_linkParents[i] == urdfLinkIndex)
+			if (m_createBodyArgs.m_linkParentIndices[i] == urdfLinkIndex)
 			{
 				childLinkIndices.push_back(i);
 			}
@@ -1638,10 +1645,72 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 
 	virtual bool getJointInfo2(int urdfLinkIndex, btTransform& parent2joint, btTransform& linkTransformInWorld, btVector3& jointAxisInJointSpace, int& jointType, btScalar& jointLowerLimit, btScalar& jointUpperLimit, btScalar& jointDamping, btScalar& jointFriction, btScalar& jointMaxForce, btScalar& jointMaxVelocity) const 
 	{
-		//backwards compatibility for custom file importers
-		jointMaxForce = 0;
-		jointMaxVelocity = 0;
-		return getJointInfo(urdfLinkIndex, parent2joint, linkTransformInWorld, jointAxisInJointSpace, jointType, jointLowerLimit, jointUpperLimit, jointDamping, jointFriction);
+		bool isValid = false;
+
+		int jointTypeOrg = m_createBodyArgs.m_linkJointTypes[urdfLinkIndex];
+
+		switch (jointTypeOrg)
+		{
+		case eRevoluteType:
+		{
+			isValid = true;
+			jointType = URDFRevoluteJoint;
+			break;
+		}
+		case	ePrismaticType:
+		{
+			isValid = true;
+			jointType = URDFPrismaticJoint;
+			break;
+		}
+		case	eFixedType:
+		{
+			isValid = true;
+			jointType = URDFFixedJoint;
+			break;
+		}
+		//case	eSphericalType:
+		//case	ePlanarType:
+		//case	eFixedType:
+		//case ePoint2PointType:
+		//case eGearType:
+		default:
+		{
+		}
+		};
+
+		if (isValid)
+		{
+			//backwards compatibility for custom file importers
+			jointMaxForce = 0;
+			jointMaxVelocity = 0;
+			jointFriction = 0;
+			jointDamping = 0;
+			jointLowerLimit = 1;
+			jointUpperLimit = -1;
+
+			parent2joint.setOrigin(btVector3(
+				m_createBodyArgs.m_linkPositions[urdfLinkIndex*3+0],
+				m_createBodyArgs.m_linkPositions[urdfLinkIndex*3+1],
+				m_createBodyArgs.m_linkPositions[urdfLinkIndex*3+2]));
+			parent2joint.setRotation(btQuaternion(
+				m_createBodyArgs.m_linkOrientations[urdfLinkIndex*4+0],
+				m_createBodyArgs.m_linkOrientations[urdfLinkIndex*4+1],
+				m_createBodyArgs.m_linkOrientations[urdfLinkIndex*4+2],
+				m_createBodyArgs.m_linkOrientations[urdfLinkIndex*4+3]
+			));
+
+		
+			linkTransformInWorld.setIdentity();
+
+			jointAxisInJointSpace.setValue(
+				m_createBodyArgs.m_linkJointAxis[3*urdfLinkIndex+0],
+				m_createBodyArgs.m_linkJointAxis[3*urdfLinkIndex+1],
+				m_createBodyArgs.m_linkJointAxis[3*urdfLinkIndex+2]);
+
+		
+		}
+		return isValid;
 	};
     
     virtual bool getRootTransformInWorld(btTransform& rootTransformInWorld) const

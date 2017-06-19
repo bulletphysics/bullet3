@@ -854,7 +854,6 @@ struct b3CreateMultiBodyArgs
 	double m_linkOrientations[4*MAX_CREATE_MULTI_BODY_LINKS];
 
 	int m_numLinks;
-	int m_linkParents[MAX_CREATE_MULTI_BODY_LINKS];
 	double m_linkMasses[MAX_CREATE_MULTI_BODY_LINKS];
 	double m_linkInertias[MAX_CREATE_MULTI_BODY_LINKS*3];
 
