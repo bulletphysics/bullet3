@@ -594,6 +594,12 @@ enum eUrdfGeomTypes //sync with UrdfParser UrdfGeomTypes
 	GEOM_UNKNOWN, 
 };
 
+enum eUrdfCollisionFlags
+{
+	GEOM_FORCE_CONCAVE_TRIMESH=1,
+};
+
+
 
 
 #endif//SHARED_MEMORY_PUBLIC_H
