@@ -5084,7 +5084,9 @@ static PyObject* pybullet_createMultiBody(PyObject* self, PyObject* args, PyObje
 	int useMaximalCoordinates = 0;
 	PyObject* basePosObj=0;
 	PyObject* baseOrnObj=0;
-	
+	PyObject* baseInertialFramePositionObj=0;
+	PyObject* baseInertialFrameOrientationObj=0;
+
 	PyObject* linkMassesObj=0;
 	PyObject* linkCollisionShapeIndicesObj=0;
 	PyObject* linkVisualShapeIndicesObj=0;
@@ -5096,14 +5098,13 @@ static PyObject* pybullet_createMultiBody(PyObject* self, PyObject* args, PyObje
 	PyObject* linkInertialFramePositionObj=0;
 	PyObject* linkInertialFrameOrientationObj=0;
 
-	static char* kwlist[] = {"baseMass","baseCollisionShapeIndex","baseVisualShapeIndex","basePosition", "baseOrientation",
+	static char* kwlist[] = {"baseMass","baseCollisionShapeIndex","baseVisualShapeIndex","basePosition", "baseOrientation", "baseInertialFramePosition", "baseInertialFrameOrientation",
 		"linkMasses","linkCollisionShapeIndices", "linkVisualShapeIndices",
-		"linkPositions", "linkOrientations","linkInertialFramePosition","linkInertialFrameOrientation", "linkParentIndices", "linkJointTypes","linkJointAxis", 
-		"useMaximalCoordinates","physicsClientId",
+		"linkPositions", "linkOrientations","linkInertialFramePositions","linkInertialFrameOrientations", "linkParentIndices", "linkJointTypes","linkJointAxis", 
+		"useMaximalCoordinates","physicsClientId", NULL};
 
-		NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diiOOOOOOOOOOOOii", kwlist, &baseMass,&baseCollisionShapeIndex,&baseVisualShapeIndex,
-				&basePosObj, &baseOrnObj,
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|diiOOOOOOOOOOOOOOii", kwlist, &baseMass,&baseCollisionShapeIndex,&baseVisualShapeIndex,
+				&basePosObj, &baseOrnObj,&baseInertialFramePositionObj, &baseInertialFrameOrientationObj,
 		&linkMassesObj, &linkCollisionShapeIndicesObj, &linkVisualShapeIndicesObj, &linkPositionsObj, &linkOrientationsObj,
 		&linkInertialFramePositionObj, &linkInertialFrameOrientationObj,
 		&linkParentIndicesObj, &linkJointTypesObj,&linkJointAxisObj,
@@ -5159,10 +5160,15 @@ static PyObject* pybullet_createMultiBody(PyObject* self, PyObject* args, PyObje
 			b3SharedMemoryCommandHandle commandHandle = b3CreateMultiBodyCommandInit(sm);
 			double basePosition[3]={0,0,0};
 			double baseOrientation[4]={0,0,0,1};
+			double baseInertialFramePosition[3] = {0,0,0};
+			double baseInertialFrameOrientation[4]={0,0,0,1};
 			int baseIndex;
 			pybullet_internalSetVectord(basePosObj,basePosition);
 			pybullet_internalSetVector4d(baseOrnObj,baseOrientation);
-			baseIndex = b3CreateMultiBodyBase(commandHandle,baseMass,baseCollisionShapeIndex,baseVisualShapeIndex,basePosition,baseOrientation);
+			pybullet_internalSetVectord(baseInertialFramePositionObj,baseInertialFramePosition);
+			pybullet_internalSetVector4d(baseInertialFrameOrientationObj,baseInertialFrameOrientation);
+
+			baseIndex = b3CreateMultiBodyBase(commandHandle,baseMass,baseCollisionShapeIndex,baseVisualShapeIndex, basePosition, baseOrientation, baseInertialFramePosition, baseInertialFrameOrientation );
 
 			for (i=0;i<numLinkMasses;i++)
 			{
