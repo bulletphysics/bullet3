@@ -13,10 +13,9 @@ colBoxId = p.createCollisionShape(p.GEOM_BOX,halfExtents=[sphereRadius,sphereRad
 mass = 1
 visualShapeId = -1
 
-#"linkMasses","linkCollisionShapeIndices", "linkVisualShapeIndices",
-#"linkPositions", "linkOrientations","linkParentIndices", "linkJointTypes","linkJointAxis", 
-
-linkMasses=[1]
+	
+	
+link_Masses=[1]
 linkCollisionShapeIndices=[colBoxId]
 linkVisualShapeIndices=[-1]
 linkPositions=[[0,0,0.11]]
@@ -35,7 +34,7 @@ for i in range (3):
 			if (k&2):
 				sphereUid = p.createMultiBody(mass,colSphereId,visualShapeId,basePosition,baseOrientation)
 			else:
-				sphereUid = p.createMultiBody(mass,colBoxId,visualShapeId,basePosition,baseOrientation,linkMasses,linkCollisionShapeIndices,linkVisualShapeIndices,linkPositions,linkOrientations,linkInertialFramePositions, linkInertialFrameOrientations,linkParentIndices=indices,linkJointTypes=jointTypes,linkJointAxis=axis)			
+				sphereUid = p.createMultiBody(mass,colBoxId,visualShapeId,basePosition,baseOrientation,linkMasses=link_Masses,linkCollisionShapeIndices=linkCollisionShapeIndices,linkVisualShapeIndices=linkVisualShapeIndices,linkPositions=linkPositions,linkOrientations=linkOrientations,linkInertialFramePositions=linkInertialFramePositions, linkInertialFrameOrientations=linkInertialFrameOrientations,linkParentIndices=indices,linkJointTypes=jointTypes,linkJointAxis=axis)			
 			
 			p.changeDynamics(sphereUid,-1,spinningFriction=0.001, rollingFriction=0.001,linearDamping=0.0)
 			for joint in range (p.getNumJoints(sphereUid)):
@@ -43,15 +42,12 @@ for i in range (3):
 
 
 p.setGravity(0,0,-10)
-#p.setRealTimeSimulation(1)
+p.setRealTimeSimulation(1)
 
 p.getNumJoints(sphereUid)
 for i in range (p.getNumJoints(sphereUid)):
 	p.getJointInfo(sphereUid,i)
 	
 while (1):
-	events = p.getKeyboardEvents()
-	if (len(events)):
-		p.stepSimulation()
 	time.sleep(0.01)
 	

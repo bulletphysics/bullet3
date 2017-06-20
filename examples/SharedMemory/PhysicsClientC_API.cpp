@@ -951,8 +951,7 @@ b3SharedMemoryCommandHandle b3CreateMultiBodyCommandInit(b3PhysicsClientHandle p
 	return 0;
 }
 
-
-int b3CreateMultiBodyBase(b3SharedMemoryCommandHandle commandHandle, double mass, int collisionShapeUnique, int visualShapeUniqueId, double basePosition[3], double baseOrientation[4])
+int b3CreateMultiBodyBase(b3SharedMemoryCommandHandle commandHandle, double mass, int collisionShapeUnique, int visualShapeUniqueId, double basePosition[3], double baseOrientation[4] , double baseInertialFramePosition[3], double baseInertialFrameOrientation[4])
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
@@ -975,19 +974,18 @@ int b3CreateMultiBodyBase(b3SharedMemoryCommandHandle commandHandle, double mass
 			command->m_createMultiBodyArgs.m_linkOrientations[baseLinkIndex*4+2]=baseOrientation[2];
 			command->m_createMultiBodyArgs.m_linkOrientations[baseLinkIndex*4+3]=baseOrientation[3];
 
-			command->m_createMultiBodyArgs.m_linkInertias[baseLinkIndex*3+0] = mass;
-			command->m_createMultiBodyArgs.m_linkInertias[baseLinkIndex*3+1] = mass;
-			command->m_createMultiBodyArgs.m_linkInertias[baseLinkIndex*3+2] = mass;
+			command->m_createMultiBodyArgs.m_linkInertias[baseLinkIndex*3+0] = 0;//unused, is computed automatically. Will add a method to explicitly set it (with a flag), similar to loadURDF etc.
+			command->m_createMultiBodyArgs.m_linkInertias[baseLinkIndex*3+1] = 0;
+			command->m_createMultiBodyArgs.m_linkInertias[baseLinkIndex*3+2] = 0;
 
+			command->m_createMultiBodyArgs.m_linkInertialFramePositions[baseLinkIndex*3+0] = baseInertialFramePosition[0];
+			command->m_createMultiBodyArgs.m_linkInertialFramePositions[baseLinkIndex*3+1] = baseInertialFramePosition[1];
+			command->m_createMultiBodyArgs.m_linkInertialFramePositions[baseLinkIndex*3+2] = baseInertialFramePosition[2];
 
-			command->m_createMultiBodyArgs.m_linkInertialFramePositions[baseLinkIndex*3+0] = 0;
-			command->m_createMultiBodyArgs.m_linkInertialFramePositions[baseLinkIndex*3+1] = 0;
-			command->m_createMultiBodyArgs.m_linkInertialFramePositions[baseLinkIndex*3+2] = 0;
-
-			command->m_createMultiBodyArgs.m_linkInertialFrameOrientations[baseLinkIndex*4+0] = 0;
-			command->m_createMultiBodyArgs.m_linkInertialFrameOrientations[baseLinkIndex*4+1] = 0;
-			command->m_createMultiBodyArgs.m_linkInertialFrameOrientations[baseLinkIndex*4+2] = 0;
-			command->m_createMultiBodyArgs.m_linkInertialFrameOrientations[baseLinkIndex*4+3] = 1;
+			command->m_createMultiBodyArgs.m_linkInertialFrameOrientations[baseLinkIndex*4+0] = baseInertialFrameOrientation[0];
+			command->m_createMultiBodyArgs.m_linkInertialFrameOrientations[baseLinkIndex*4+1] = baseInertialFrameOrientation[1];
+			command->m_createMultiBodyArgs.m_linkInertialFrameOrientations[baseLinkIndex*4+2] = baseInertialFrameOrientation[2];
+			command->m_createMultiBodyArgs.m_linkInertialFrameOrientations[baseLinkIndex*4+3] = baseInertialFrameOrientation[3];
 
 			command->m_createMultiBodyArgs.m_linkCollisionShapeUniqueIds[baseLinkIndex]= collisionShapeUnique;
 			command->m_createMultiBodyArgs.m_linkVisualShapeUniqueIds[baseLinkIndex] = visualShapeUniqueId;
