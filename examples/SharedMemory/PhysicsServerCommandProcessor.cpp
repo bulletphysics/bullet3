@@ -3181,24 +3181,24 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                                                      clientCmd.m_requestPixelDataArguments.m_projectionMatrix);
                                 } else
                                 {
-									 SharedMemoryStatus tmpCmd = serverStatusOut;
+									b3OpenGLVisualizerCameraInfo tmpCamResult;
 									bool result = this->m_data->m_guiHelper->getCameraInfo(
-										&tmpCmd.m_visualizerCameraResultArgs.m_width,
-										&tmpCmd.m_visualizerCameraResultArgs.m_height,
-										tmpCmd.m_visualizerCameraResultArgs.m_viewMatrix,
-										tmpCmd.m_visualizerCameraResultArgs.m_projectionMatrix,
-										tmpCmd.m_visualizerCameraResultArgs.m_camUp,
-										tmpCmd.m_visualizerCameraResultArgs.m_camForward,
-										tmpCmd.m_visualizerCameraResultArgs.m_horizontal,
-										tmpCmd.m_visualizerCameraResultArgs.m_vertical,
-										&tmpCmd.m_visualizerCameraResultArgs.m_yaw,
-										&tmpCmd.m_visualizerCameraResultArgs.m_pitch,
-										&tmpCmd.m_visualizerCameraResultArgs.m_dist,
-										tmpCmd.m_visualizerCameraResultArgs.m_target);
+										&tmpCamResult.m_width,
+										&tmpCamResult.m_height,
+										tmpCamResult.m_viewMatrix,
+										tmpCamResult.m_projectionMatrix,
+										tmpCamResult.m_camUp,
+										tmpCamResult.m_camForward,
+										tmpCamResult.m_horizontal,
+										tmpCamResult.m_vertical,
+										&tmpCamResult.m_yaw,
+										&tmpCamResult.m_pitch,
+										&tmpCamResult.m_dist,
+										tmpCamResult.m_target);
 									if (result)
 									{
-	                                    m_data->m_visualConverter.render(tmpCmd.m_visualizerCameraResultArgs.m_viewMatrix,
-										tmpCmd.m_visualizerCameraResultArgs.m_projectionMatrix);
+	                                    m_data->m_visualConverter.render(tmpCamResult.m_viewMatrix,
+										tmpCamResult.m_projectionMatrix);
 									} else
 									{
 										m_data->m_visualConverter.render();
