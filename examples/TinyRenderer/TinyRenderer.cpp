@@ -124,7 +124,7 @@ struct Shader : public IShader {
 		m_projectionLightViewMat = m_projectionMat*m_lightModelView;
     }
     virtual Vec4f vertex(int iface, int nthvert) {
-		B3_PROFILE("vertex");
+		//B3_PROFILE("vertex");
         Vec2f uv = m_model->uv(iface, nthvert);
         varying_uv.set_col(nthvert, uv);
         varying_nrm.set_col(nthvert, proj<3>(m_invModelMat*embed<4>(m_model->normal(iface, nthvert), 0.f)));
@@ -142,7 +142,7 @@ struct Shader : public IShader {
     }
     
     virtual bool fragment(Vec3f bar, TGAColor &color) {
-		B3_PROFILE("fragment");
+		//B3_PROFILE("fragment");
         Vec4f p = m_viewportMat*(varying_tri_light_view*bar);
         float depth = p[2];
         p = p/p[3];
@@ -485,6 +485,7 @@ static bool clipTriangleAgainstNearplane(const mat<4,3,float>& triangleIn, b3Ali
 
 void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
 {
+	B3_PROFILE("renderObject");
     int width = renderData.m_rgbColorBuffer.get_width();
     int height = renderData.m_rgbColorBuffer.get_height();
     
@@ -517,10 +518,11 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
         
         Shader shader(model, light_dir_local, light_color, modelViewMatrix, lightModelViewMatrix, renderData.m_projectionMatrix,renderData.m_modelMatrix, renderData.m_viewportMatrix, localScaling, model->getColorRGBA(), width, height, shadowBufferPtr, renderData.m_lightAmbientCoeff, renderData.m_lightDiffuseCoeff, renderData.m_lightSpecularCoeff);
        
-		
+		{
+		B3_PROFILE("face");
+
         for (int i=0; i<model->nfaces(); i++)
         {
-			B3_PROFILE("face");
             for (int j=0; j<3; j++) {
                 shader.vertex(i, j);
             }
@@ -552,6 +554,7 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
 				triangle(shader.varying_tri, shader, frame, &zbuffer[0], segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex);
 			}
         }
+		}
     }
     
 }
