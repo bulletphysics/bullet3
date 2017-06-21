@@ -31,6 +31,7 @@ class KukaGymEnv(gym.Env):
     self._p = p
     if self._renders:
       p.connect(p.GUI)
+      p.resetDebugVisualizerCamera(1.3,180,-41,[0.52,-0.2,-0.33])
     else:
       p.connect(p.DIRECT)
     #timinglog = p.startStateLogging(p.STATE_LOGGING_PROFILE_TIMINGS, "kukaTimings.json")
@@ -52,8 +53,7 @@ class KukaGymEnv(gym.Env):
     p.setPhysicsEngineParameter(numSolverIterations=150)
     p.setTimeStep(self._timeStep)
     p.loadURDF("%splane.urdf" % self._urdfRoot,[0,0,-1])
-    if self._renders:
-      p.resetDebugVisualizerCamera(1.3,180,-41,[0.52,-0.2,-0.33])
+    
     p.loadURDF("table/table.urdf", 0.5000000,0.00000,-.820000,0.000000,0.000000,0.0,1.0)
     
     xpos = 0.5 +0.05*random.random()
@@ -78,14 +78,21 @@ class KukaGymEnv(gym.Env):
 
   def getExtendedObservation(self):
      self._observation = self._kuka.getObservation()
-     pos,orn = p.getBasePositionAndOrientation(self.blockUid)
-     self._observation.extend(list(pos))
-     self._observation.extend(list(orn))
-      
+     eeState  = p.getLinkState(self._kuka.kukaUid,self._kuka.kukaEndEffectorIndex)
+     endEffectorPos = eeState[0]
+     endEffectorOrn = eeState[1]
+     blockPos,blockOrn = p.getBasePositionAndOrientation(self.blockUid)
+
+     invEEPos,invEEOrn = p.invertTransform(endEffectorPos,endEffectorOrn)
+     blockPosInEE,blockOrnInEE = p.multiplyTransforms(invEEPos,invEEOrn,blockPos,blockOrn)
+     blockEulerInEE = p.getEulerFromQuaternion(blockOrnInEE)
+     self._observation.extend(list(blockPosInEE))
+     self._observation.extend(list(blockEulerInEE))
+
      return self._observation
   
   def _step(self, action):
-    dv = 0.002
+    dv = 0.01
     dx = [0,-dv,dv,0,0,0,0][action]
     dy = [0,0,0,-dv,dv,0,0][action]
     da = [0,0,0,0,0,-0.1,0.1][action]
