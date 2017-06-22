@@ -34,7 +34,7 @@ subject to the following restrictions:
 #include "../Importers/ImportURDFDemo/UrdfParser.h"
 #include "../SharedMemory/SharedMemoryPublic.h"//for b3VisualShapeData
 #include "../TinyRenderer/model.h"
-#include "../ThirdPartyLibs/stb_image/stb_image.h"
+#include "stb_image/stb_image.h"
 
 struct MyTexture2
 {
