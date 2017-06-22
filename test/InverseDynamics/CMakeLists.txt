@@ -37,6 +37,7 @@ INCLUDE_DIRECTORIES(
         ../../src
         ../gtest-1.7.0/include
         ../../Extras/InverseDynamics
+        ../../examples/ThirdPartyLibs
 )
 
 
