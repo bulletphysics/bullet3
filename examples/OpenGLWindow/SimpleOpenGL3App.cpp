@@ -919,7 +919,7 @@ void SimpleOpenGL3App::getScreenPixels(unsigned char* rgbaBuffer, int bufferSize
 }
 
 //#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
+#include "stb_image/stb_image_write.h"
 static void writeTextureToFile(int textureWidth, int textureHeight, const char* fileName, FILE* ffmpegVideo)
 {
 	int numComponents = 4;

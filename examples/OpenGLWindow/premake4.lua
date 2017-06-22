@@ -9,7 +9,7 @@
 		initGlew()
 
 		includedirs {
-		 	
+		 	"../ThirdPartyLibs",
 		 	"../../src",
 		}
 		
