@@ -85,8 +85,8 @@
                 "../../examples/InverseDynamics",
                 "../../examples/ThirdPartyLibs",
                 "../../Extras/InverseDynamics",
-                "../gtest-1.7.0/include"
-
+                "../gtest-1.7.0/include",
+                "../../examples/ThirdPartyLibs",
         }
 
 
