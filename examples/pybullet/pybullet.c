@@ -5008,7 +5008,7 @@ static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, P
 			pybullet_internalSetVectord(planeNormalObj,planeNormal);
 			shapeIndex = b3CreateCollisionShapeAddPlane(commandHandle, planeNormal, planeConstant);
 		}
-		if (shapeIndex && flags)
+		if (shapeIndex>=0 && flags)
 		{
 			b3CreateCollisionSetFlag(commandHandle,shapeIndex,flags);
 		}
@@ -7274,6 +7274,8 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "GEOM_MESH", GEOM_MESH);
 	PyModule_AddIntConstant(m, "GEOM_PLANE", GEOM_PLANE);
 	PyModule_AddIntConstant(m, "GEOM_CAPSULE", GEOM_CAPSULE);
+
+	PyModule_AddIntConstant(m, "GEOM_FORCE_CONCAVE_TRIMESH", GEOM_FORCE_CONCAVE_TRIMESH);
 
 
 
