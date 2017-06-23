@@ -4,7 +4,11 @@ import time
 useMaximalCoordinates = 0
 
 p.connect(p.GUI)
-p.loadSDF("stadium.sdf",useMaximalCoordinates=useMaximalCoordinates)
+#p.loadSDF("stadium.sdf",useMaximalCoordinates=useMaximalCoordinates)
+monastryId = concaveEnv =p.createCollisionShape(p.GEOM_MESH,fileName="samurai_monastry.obj",flags=p.GEOM_FORCE_CONCAVE_TRIMESH)
+orn = p.getQuaternionFromEuler([1.5707963,0,0])
+p.createMultiBody (0,monastryId, baseOrientation=orn)
+
 sphereRadius = 0.05
 colSphereId = p.createCollisionShape(p.GEOM_SPHERE,radius=sphereRadius)
 colBoxId = p.createCollisionShape(p.GEOM_BOX,halfExtents=[sphereRadius,sphereRadius,sphereRadius])
@@ -28,5 +32,7 @@ p.setGravity(0,0,-10)
 p.setRealTimeSimulation(1)
 
 while (1):
+	keys = p.getKeyboardEvents()
+	#print(keys)
 	time.sleep(0.01)
 	

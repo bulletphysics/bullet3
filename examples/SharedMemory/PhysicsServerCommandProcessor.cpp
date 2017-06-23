@@ -14,7 +14,7 @@
 #include "../Importers/ImportURDFDemo/UrdfParser.h"
 #include "../Utils/b3ResourcePath.h"
 #include "Bullet3Common/b3FileUtils.h"
-
+#include "../OpenGLWindow/GLInstanceGraphicsShape.h"
 #include "BulletDynamics/Featherstone/btMultiBodySliderConstraint.h"
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
@@ -3704,50 +3704,102 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								{
 									if (out_type==UrdfGeometry::FILE_OBJ)
 									{
-										std::vector<tinyobj::shape_t> shapes;
-										std::string err = tinyobj::LoadObj(shapes,out_found_filename.c_str());
 										//create a convex hull for each shape, and store it in a btCompoundShape
 
-										//shape = createConvexHullFromShapes(shapes, collision->m_geometry.m_meshScale);
-										//static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale)
-										B3_PROFILE("createConvexHullFromShapes");
-										if (compound==0)
+										if (clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_collisionFlags&GEOM_FORCE_CONCAVE_TRIMESH)
 										{
-											compound = worldImporter->createCompoundShape();
-										}
-										compound->setMargin(defaultCollisionMargin);
-
-										for (int s = 0; s<(int)shapes.size(); s++)
-										{
-											btConvexHullShape* convexHull = worldImporter->createConvexHullShape();
-											convexHull->setMargin(defaultCollisionMargin);
-											tinyobj::shape_t& shape = shapes[s];
-											int faceCount = shape.mesh.indices.size();
-
-											for (int f = 0; f<faceCount; f += 3)
+											GLInstanceGraphicsShape* glmesh = LoadMeshFromObj(relativeFileName, pathPrefix);
+											
+											if (!glmesh || glmesh->m_numvertices<=0)
 											{
+												b3Warning("%s: cannot extract mesh from '%s'\n", pathPrefix, relativeFileName);
+												delete glmesh;
+												break;
+											}
+											btAlignedObjectArray<btVector3> convertedVerts;
+											convertedVerts.reserve(glmesh->m_numvertices);
+											btVector3 meshScale(clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_meshScale[0],
+												clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_meshScale[1],
+												clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_meshScale[2]);
 
-												btVector3 pt;
-												pt.setValue(shape.mesh.positions[shape.mesh.indices[f] * 3 + 0],
-													shape.mesh.positions[shape.mesh.indices[f] * 3 + 1],
-													shape.mesh.positions[shape.mesh.indices[f] * 3 + 2]);
-			
-												convexHull->addPoint(pt*meshScale,false);
-
-												pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 0],
-															shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 1],
-															shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 2]);
-												convexHull->addPoint(pt*meshScale, false);
-
-												pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 0],
-															shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 1],
-															shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 2]);
-												convexHull->addPoint(pt*meshScale, false);
+											for (int i=0; i<glmesh->m_numvertices; i++)
+											{
+												convertedVerts.push_back(btVector3(
+													glmesh->m_vertices->at(i).xyzw[0]*meshScale[0],
+													glmesh->m_vertices->at(i).xyzw[1]*meshScale[1],
+													glmesh->m_vertices->at(i).xyzw[2]*meshScale[2]));
 											}
 
-											convexHull->recalcLocalAabb();
-											convexHull->optimizeConvexHull();
-											compound->addChildShape(childTransform,convexHull);
+											BT_PROFILE("convert trimesh");
+											btTriangleMesh* meshInterface = new btTriangleMesh();
+											{
+												BT_PROFILE("convert vertices");
+
+												for (int i=0; i<glmesh->m_numIndices/3; i++)
+												{
+													const btVector3& v0 = convertedVerts[glmesh->m_indices->at(i*3)];
+													const btVector3& v1 = convertedVerts[glmesh->m_indices->at(i*3+1)];
+													const btVector3& v2 = convertedVerts[glmesh->m_indices->at(i*3+2)];
+													meshInterface->addTriangle(v0,v1,v2);
+												}
+											}
+											{
+												BT_PROFILE("create btBvhTriangleMeshShape");
+												btBvhTriangleMeshShape* trimesh = new btBvhTriangleMeshShape(meshInterface,true,true);
+												//trimesh->setLocalScaling(collision->m_geometry.m_meshScale);
+												shape = trimesh;
+												if (compound)
+												{
+													compound->addChildShape(childTransform,shape);
+												}
+											}
+										} else
+										{
+
+											std::vector<tinyobj::shape_t> shapes;
+											std::string err = tinyobj::LoadObj(shapes,out_found_filename.c_str());
+
+											//shape = createConvexHullFromShapes(shapes, collision->m_geometry.m_meshScale);
+											//static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale)
+											B3_PROFILE("createConvexHullFromShapes");
+											if (compound==0)
+											{
+												compound = worldImporter->createCompoundShape();
+											}
+											compound->setMargin(defaultCollisionMargin);
+
+											for (int s = 0; s<(int)shapes.size(); s++)
+											{
+												btConvexHullShape* convexHull = worldImporter->createConvexHullShape();
+												convexHull->setMargin(defaultCollisionMargin);
+												tinyobj::shape_t& shape = shapes[s];
+												int faceCount = shape.mesh.indices.size();
+
+												for (int f = 0; f<faceCount; f += 3)
+												{
+
+													btVector3 pt;
+													pt.setValue(shape.mesh.positions[shape.mesh.indices[f] * 3 + 0],
+														shape.mesh.positions[shape.mesh.indices[f] * 3 + 1],
+														shape.mesh.positions[shape.mesh.indices[f] * 3 + 2]);
+			
+													convexHull->addPoint(pt*meshScale,false);
+
+													pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 0],
+																shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 1],
+																shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 2]);
+													convexHull->addPoint(pt*meshScale, false);
+
+													pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 0],
+																shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 1],
+																shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 2]);
+													convexHull->addPoint(pt*meshScale, false);
+												}
+
+												convexHull->recalcLocalAabb();
+												convexHull->optimizeConvexHull();
+												compound->addChildShape(childTransform,convexHull);
+											}
 										}
 									}
 								}
