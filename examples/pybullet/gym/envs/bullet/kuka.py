@@ -72,9 +72,10 @@ class Kuka:
     state = p.getLinkState(self.kukaUid,self.kukaEndEffectorIndex)
     pos = state[0]
     orn = state[1]
+    euler = p.getEulerFromQuaternion(orn)
         
     observation.extend(list(pos))
-    observation.extend(list(orn))
+    observation.extend(list(euler))
     
     return observation
 

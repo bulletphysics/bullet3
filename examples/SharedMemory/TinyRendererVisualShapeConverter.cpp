@@ -34,7 +34,7 @@ subject to the following restrictions:
 #include "../Importers/ImportURDFDemo/UrdfParser.h"
 #include "../SharedMemory/SharedMemoryPublic.h"//for b3VisualShapeData
 #include "../TinyRenderer/model.h"
-#include "../ThirdPartyLibs/stb_image/stb_image.h"
+#include "stb_image/stb_image.h"
 
 struct MyTexture2
 {
@@ -686,17 +686,19 @@ void TinyRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int lin
 			break;
 		}
 	}
-	
-	TinyRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(start);
-	TinyRendererObjectArray* visualArray = *visualArrayPtr;
-	
-	btHashPtr colObjHash = m_data->m_swRenderInstances.getKeyAtIndex(start);
-	const btCollisionObject* colObj = (btCollisionObject*) colObjHash.getPointer();
-	
-	float rgba[4] = {rgbaColor[0], rgbaColor[1], rgbaColor[2], rgbaColor[3]};
-	for (int v=0;v<visualArray->m_renderObjects.size();v++)
+	if (start>=0)
 	{
-		visualArray->m_renderObjects[v]->m_model->setColorRGBA(rgba);
+		TinyRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(start);
+		TinyRendererObjectArray* visualArray = *visualArrayPtr;
+	
+		btHashPtr colObjHash = m_data->m_swRenderInstances.getKeyAtIndex(start);
+		const btCollisionObject* colObj = (btCollisionObject*) colObjHash.getPointer();
+	
+		float rgba[4] = {rgbaColor[0], rgbaColor[1], rgbaColor[2], rgbaColor[3]};
+		for (int v=0;v<visualArray->m_renderObjects.size();v++)
+		{
+			visualArray->m_renderObjects[v]->m_model->setColorRGBA(rgba);
+		}
 	}
 }
 

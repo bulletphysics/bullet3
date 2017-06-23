@@ -8,7 +8,7 @@ import pybullet as p
 from . import kuka
 import random
 
-class KukaGymEnv(gym.Env):
+class KukaCamGymEnv(gym.Env):
   metadata = {
       'render.modes': ['human', 'rgb_array'],
       'video.frames_per_second' : 50
@@ -27,6 +27,8 @@ class KukaGymEnv(gym.Env):
     self._observation = []
     self._envStepCounter = 0
     self._renders = renders
+    self._width = 341
+    self._height = 256
     self.terminated = 0
     self._p = p
     if self._renders:
@@ -43,7 +45,7 @@ class KukaGymEnv(gym.Env):
     
     observation_high = np.array([np.finfo(np.float32).max] * observationDim)    
     self.action_space = spaces.Discrete(7)
-    self.observation_space = spaces.Box(-observation_high, observation_high)
+    self.observation_space = spaces.Box(low=0, high=255, shape=(self._height, self._width, 4))
     self.viewer = None
 
   def _reset(self):
@@ -77,18 +79,31 @@ class KukaGymEnv(gym.Env):
     return [seed]
 
   def getExtendedObservation(self):
-     self._observation = self._kuka.getObservation()
-     eeState  = p.getLinkState(self._kuka.kukaUid,self._kuka.kukaEndEffectorIndex)
-     endEffectorPos = eeState[0]
-     endEffectorOrn = eeState[1]
-     blockPos,blockOrn = p.getBasePositionAndOrientation(self.blockUid)
-
-     invEEPos,invEEOrn = p.invertTransform(endEffectorPos,endEffectorOrn)
-     blockPosInEE,blockOrnInEE = p.multiplyTransforms(invEEPos,invEEOrn,blockPos,blockOrn)
-     blockEulerInEE = p.getEulerFromQuaternion(blockOrnInEE)
-     self._observation.extend(list(blockPosInEE))
-     self._observation.extend(list(blockEulerInEE))
-
+     
+     #camEyePos = [0.03,0.236,0.54]
+     #distance = 1.06
+     #pitch=-56
+     #yaw = 258
+     #roll=0
+     #upAxisIndex = 2
+     #camInfo = p.getDebugVisualizerCamera()
+     #print("width,height")
+     #print(camInfo[0])
+     #print(camInfo[1])
+     #print("viewMatrix")
+     #print(camInfo[2])
+     #print("projectionMatrix")
+     #print(camInfo[3])
+     #viewMat = camInfo[2]
+     #viewMat = p.computeViewMatrixFromYawPitchRoll(camEyePos,distance,yaw, pitch,roll,upAxisIndex)
+     viewMat = [-0.5120397806167603, 0.7171027660369873, -0.47284144163131714, 0.0, -0.8589617609977722, -0.42747554183006287, 0.28186774253845215, 0.0, 0.0, 0.5504802465438843, 0.8348482847213745, 0.0, 0.1925382763147354, -0.24935829639434814, -0.4401884973049164, 1.0]
+     #projMatrix = camInfo[3]#[0.7499999403953552, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0000200271606445, -1.0, 0.0, 0.0, -0.02000020071864128, 0.0]
+     projMatrix = [0.75, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0000200271606445, -1.0, 0.0, 0.0, -0.02000020071864128, 0.0]
+     
+     img_arr = p.getCameraImage(width=self._width,height=self._height,viewMatrix=viewMat,projectionMatrix=projMatrix)
+     rgb=img_arr[2]
+     np_img_arr = np.reshape(rgb, (self._height, self._width, 4))
+     self._observation = np_img_arr
      return self._observation
   
   def _step(self, action):
