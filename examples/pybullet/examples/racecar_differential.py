@@ -7,7 +7,6 @@ if (cid<0):
 	
 p.resetSimulation()
 p.setGravity(0,0,-10)
-p.setPhysicsEngineParameter(numSolverIterations=1000)
 useRealTimeSim = 1
 
 #for video recording (works best on Mac and Linux, not well on Windows)
