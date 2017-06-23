@@ -716,7 +716,6 @@ b3SharedMemoryCommandHandle b3CreateCollisionShapeCommandInit(b3PhysicsClientHan
 		b3Assert(command);
 		command->m_type = CMD_CREATE_COLLISION_SHAPE;
 		command->m_updateFlags =0;
-		command->m_createCollisionShapeArgs = {0};
 		command->m_createCollisionShapeArgs.m_numCollisionShapes = 0;
 		return (b3SharedMemoryCommandHandle) command;
 	}
