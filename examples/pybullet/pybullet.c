@@ -5185,14 +5185,16 @@ static PyObject* pybullet_createMultiBody(PyObject* self, PyObject* args, PyObje
 				double linkJointAxis[3];
 				double linkInertialFramePosition[3];
 				double linkInertialFrameOrientation[4];
-				
+				int linkParentIndex;
+				int linkJointType;
+
 				pybullet_internalGetVector3FromSequence(seqLinkInertialFramePositions,i,linkInertialFramePosition);
 				pybullet_internalGetVector4FromSequence(linkInertialFrameOrientationObj,i,linkInertialFrameOrientation);
 				pybullet_internalGetVector3FromSequence(seqLinkPositions,i,linkPosition);
 				pybullet_internalGetVector4FromSequence(seqLinkOrientations,i,linkOrientation);
 				pybullet_internalGetVector3FromSequence(seqLinkJoinAxis,i,linkJointAxis);
-				int linkParentIndex = pybullet_internalGetIntFromSequence(seqLinkParentIndices,i);
-				int linkJointType = pybullet_internalGetIntFromSequence(seqLinkJointTypes,i);
+				linkParentIndex = pybullet_internalGetIntFromSequence(seqLinkParentIndices,i);
+				linkJointType = pybullet_internalGetIntFromSequence(seqLinkJointTypes,i);
 
 				b3CreateMultiBodyLink(commandHandle, 
 									linkMass, 
