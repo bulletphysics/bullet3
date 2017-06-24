@@ -300,7 +300,6 @@ public:
 		int numBodies = 1;
 		
 		m_app->setUpAxis(1);
-		m_app->m_renderer->enableBlend(true);
 		
 		switch (m_tutorialIndex)
 		{
@@ -405,7 +404,7 @@ public:
 			{
 				int width,height,n;
 				
-				const char* filename = "data/cube.png";
+				const char* filename = "data/checker_huge.gif";
 				const unsigned char* image=0;
 				
 				const char* prefix[]={"./","../","../../","../../../","../../../../"};
@@ -427,10 +426,16 @@ public:
 			
 			//            int boxId = m_app->registerCubeShape(1,1,1,textureIndex);
 			int boxId = m_app->registerGraphicsUnitSphereShape(SPHERE_LOD_HIGH, textureIndex);
-			b3Vector4 color = b3MakeVector4(1,1,1,0.8);
+			
+			
 			b3Vector3 scaling = b3MakeVector3(SPHERE_RADIUS,SPHERE_RADIUS,SPHERE_RADIUS);
 			for (int i=0;i<m_bodies.size();i++)
 			{
+				b3Vector4 color = b3MakeVector4(1,1,1,0.6);
+				if (i%2)
+				{
+					color.setValue(1,.1,.1,0.8);
+				}
 				m_bodies[i]->m_collisionShape.m_sphere.m_radius = SPHERE_RADIUS;
 				m_bodies[i]->m_collisionShape.m_type = LW_SPHERE_TYPE;
 				
@@ -467,7 +472,6 @@ public:
 		m_timeSeriesCanvas0 = 0;
 		m_timeSeriesCanvas1 = 0;
 
-		m_app->m_renderer->enableBlend(false);
     }
     
     

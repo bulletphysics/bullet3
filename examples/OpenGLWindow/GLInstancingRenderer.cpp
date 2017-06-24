@@ -115,6 +115,10 @@ static InternalDataRenderer* sData2;
 
 GLint lineWidthRange[2]={1,1};
 
+enum
+{
+	eGfxTransparency=1
+};
 struct b3GraphicsInstance
 {
 	GLuint               m_cube_vao;
@@ -124,6 +128,7 @@ struct b3GraphicsInstance
 	int m_numIndices;
 	int m_numVertices;
 
+	
 	int m_numGraphicsInstances;
 	b3AlignedObjectArray<int> m_tempObjectUids;
 	int m_instanceOffset;
@@ -131,6 +136,7 @@ struct b3GraphicsInstance
 	int	m_primitiveType;
 	float m_materialShinyNess;
 	b3Vector3 m_materialSpecularColor;
+	int m_flags;//transparency etc
 
 	b3GraphicsInstance()
 	:m_cube_vao(-1),
@@ -143,7 +149,8 @@ struct b3GraphicsInstance
 		m_vertexArrayOffset(0),
 		m_primitiveType(B3_GL_TRIANGLES),
 		m_materialShinyNess(41),
-		m_materialSpecularColor(b3MakeVector3(.5,.5,.5))
+		m_materialSpecularColor(b3MakeVector3(.5,.5,.5)),
+		m_flags(0)
 	{
 	}
 
@@ -324,8 +331,7 @@ GLInstancingRenderer::GLInstancingRenderer(int maxNumObjectCapacity, int maxShap
 	m_textureinitialized(false),
 	m_screenWidth(0),
 	m_screenHeight(0),
-	m_upAxis(1),
-    m_enableBlend(false)
+	m_upAxis(1)
 {
 
 	m_data = new InternalDataRenderer;
@@ -865,6 +871,10 @@ int GLInstancingRenderer::registerGraphicsInstanceInternal(int newUid, const flo
 		m_data->m_instance_scale_ptr[index*3+1] = scaling[1];
 		m_data->m_instance_scale_ptr[index*3+2] = scaling[2];
 
+		if (color[3]<1 && color[3]>0)
+		{
+			gfxObj->m_flags |= eGfxTransparency;
+		}
 		gfxObj->m_numGraphicsInstances++;
 		m_data->m_totalNumInstances++;
 	} else
@@ -1898,7 +1908,24 @@ void GLInstancingRenderer::drawLine(const float from[4], const float to[4], cons
 	glUseProgram(0);
 }
 
+struct SortableTransparentInstance
+{
+	int m_shapeIndex;
+	int m_instanceId;
+	b3Vector3 m_centerPosition;
+};
 
+struct TransparentDistanceSortPredicate
+{
+	b3Vector3 m_camForwardVec;
+
+	inline bool operator() (const SortableTransparentInstance& a, const SortableTransparentInstance& b) const 
+	{
+		b3Scalar projA = a.m_centerPosition.dot(m_camForwardVec);
+		b3Scalar projB = b.m_centerPosition.dot(m_camForwardVec);
+		return (projA > projB);
+	}
+};
 
 void GLInstancingRenderer::renderSceneInternal(int renderMode)
 {
@@ -2218,8 +2245,9 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 
 					case B3_USE_SHADOWMAP_RENDERMODE:
 						{
-                            if (m_enableBlend)
+							if ( gfxObj->m_flags&eGfxTransparency)
                             {
+								glDepthMask(false);
                                 glEnable (GL_BLEND);
                                 glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                             }
@@ -2249,10 +2277,55 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 							glActiveTexture(GL_TEXTURE1);
 							glBindTexture(GL_TEXTURE_2D, m_data->m_shadowTexture);
 							glUniform1i(useShadow_shadowMap,1);
-							glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexOffset, gfxObj->m_numGraphicsInstances);
-                            if (m_enableBlend)
+							
+							//sort transparent objects
+							
+							//gfxObj->m_instanceOffset
+
+							if ( gfxObj->m_flags&eGfxTransparency)
+							{
+								b3AlignedObjectArray<SortableTransparentInstance> transparentInstances;
+								transparentInstances.reserve(gfxObj->m_numGraphicsInstances);
+
+								for (int i=0;i<gfxObj->m_numGraphicsInstances;i++)
+								{
+									SortableTransparentInstance inst;
+									
+									inst.m_shapeIndex = -1;
+									
+									inst.m_instanceId = curOffset+i;
+									inst.m_centerPosition.setValue(m_data->m_instance_positions_ptr[inst.m_instanceId*4+0],
+										m_data->m_instance_positions_ptr[inst.m_instanceId*4+1],
+										m_data->m_instance_positions_ptr[inst.m_instanceId*4+2]);
+									transparentInstances.push_back(inst);
+
+								}
+								TransparentDistanceSortPredicate sorter;
+								float fwd[3];
+								m_data->m_activeCamera->getCameraForwardVector(fwd);
+								sorter.m_camForwardVec.setValue(fwd[0],fwd[1],fwd[2]);
+								transparentInstances.quickSort(sorter);
+
+
+								for (int i=0;i<transparentInstances.size();i++)
+								{
+									int instanceId = transparentInstances[i].m_instanceId;
+									glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)((instanceId)*4*sizeof(float)+m_data->m_maxShapeCapacityInBytes));
+									glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)((instanceId)*4*sizeof(float)+m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE));
+									glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)((instanceId)*4*sizeof(float)+m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE));
+									glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid *)((instanceId)*3*sizeof(float)+m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE+COLOR_BUFFER_SIZE));
+
+									glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+								}
+							} else
+							{
+								glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexOffset, gfxObj->m_numGraphicsInstances);
+							}
+                            
+							if ( gfxObj->m_flags&eGfxTransparency)
                             {
                                 glDisable (GL_BLEND);
+								glDepthMask(true);
                             }
 							glActiveTexture(GL_TEXTURE1);
 							glBindTexture(GL_TEXTURE_2D,0);

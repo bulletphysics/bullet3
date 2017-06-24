@@ -68,7 +68,6 @@ public:
     }
     virtual ~RenderInstancingDemo()
     {
-        m_app->m_renderer->enableBlend(false);
     }
 
     

@@ -66,7 +66,6 @@ public:
     virtual ~DynamicTexturedCubeDemo()
     {
 		delete m_tinyVrGUI;
-        m_app->m_renderer->enableBlend(false);
     }
 
     
