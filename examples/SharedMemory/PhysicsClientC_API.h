@@ -107,7 +107,7 @@ int b3InitChangeUserConstraintSetPivotInB(b3SharedMemoryCommandHandle commandHan
 int b3InitChangeUserConstraintSetFrameInB(b3SharedMemoryCommandHandle commandHandle, double jointChildFrameOrn[4]);
 int b3InitChangeUserConstraintSetMaxForce(b3SharedMemoryCommandHandle commandHandle, double maxAppliedForce);
 int b3InitChangeUserConstraintSetGearRatio(b3SharedMemoryCommandHandle commandHandle, double gearRatio);
-
+int b3InitChangeUserConstraintSetGearAuxLink(b3SharedMemoryCommandHandle commandHandle, int gearAuxLink);
 
 b3SharedMemoryCommandHandle  b3InitRemoveUserConstraintCommand(b3PhysicsClientHandle physClient, int userConstraintUniqueId);
 

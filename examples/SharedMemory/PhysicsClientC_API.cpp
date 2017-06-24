@@ -1949,6 +1949,20 @@ int b3InitChangeUserConstraintSetGearRatio(b3SharedMemoryCommandHandle commandHa
 	return 0;
 }
 
+int b3InitChangeUserConstraintSetGearAuxLink(b3SharedMemoryCommandHandle commandHandle, int gearAuxLink)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_USER_CONSTRAINT);
+	b3Assert(command->m_updateFlags & USER_CONSTRAINT_CHANGE_CONSTRAINT);
+	
+	command->m_updateFlags |=USER_CONSTRAINT_CHANGE_GEAR_AUX_LINK;
+	command->m_userConstraintArguments.m_gearAuxLink = gearAuxLink;
+
+	return 0;
+}
+
+
 b3SharedMemoryCommandHandle  b3InitRemoveUserConstraintCommand(b3PhysicsClientHandle physClient, int userConstraintUniqueId)
 {
 	 PhysicsClient* cl = (PhysicsClient* ) physClient;

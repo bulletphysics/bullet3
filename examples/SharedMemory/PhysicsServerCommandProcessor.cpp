@@ -6450,6 +6450,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								{
 									userConstraintPtr->m_mbConstraint->setGearRatio(clientCmd.m_userConstraintArguments.m_gearRatio);
 								}
+								if (clientCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_GEAR_AUX_LINK)
+								{
+									userConstraintPtr->m_mbConstraint->setGearAuxLink(clientCmd.m_userConstraintArguments.m_gearAuxLink);
+								}
 
 							}
 							if (userConstraintPtr->m_rbConstraint)

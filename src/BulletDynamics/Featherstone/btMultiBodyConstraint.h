@@ -184,6 +184,9 @@ public:
 	virtual void debugDraw(class btIDebugDraw* drawer)=0;
 
 	virtual void setGearRatio(btScalar ratio) {}
+	virtual void setGearAuxLink(int gearAuxLink) {}
+
+	
 };
 
 #endif //BT_MULTIBODY_CONSTRAINT_H

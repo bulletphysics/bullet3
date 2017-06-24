@@ -12,10 +12,10 @@ useRealTimeSim = 1
 #for video recording (works best on Mac and Linux, not well on Windows)
 #p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4, "racecar.mp4")
 p.setRealTimeSimulation(useRealTimeSim) # either this
-#p.loadURDF("plane.urdf")
-p.loadSDF("stadium.sdf")
+p.loadURDF("plane.urdf")
+#p.loadSDF("stadium.sdf")
 
-car = p.loadURDF("racecar/racecar_differential.urdf")#, [0,0,2],useFixedBase=True)
+car = p.loadURDF("racecar/racecar_differential.urdf") #, [0,0,2],useFixedBase=True)
 for i in range (p.getNumJoints(car)):
 	print (p.getJointInfo(car,i))
 for wheel in range(p.getNumJoints(car)):
@@ -26,7 +26,6 @@ wheels = [8,15]
 print("----------------")
 
 #p.setJointMotorControl2(car,10,p.VELOCITY_CONTROL,targetVelocity=1,force=10)
-
 c = p.createConstraint(car,9,car,11,jointType=p.JOINT_GEAR,jointAxis =[0,1,0],parentFramePosition=[0,0,0],childFramePosition=[0,0,0])
 p.changeConstraint(c,gearRatio=1, maxForce=10000)
 
@@ -39,12 +38,17 @@ p.changeConstraint(c,gearRatio=-1, maxForce=10000)
 c = p.createConstraint(car,16,car,18,jointType=p.JOINT_GEAR,jointAxis =[0,1,0],parentFramePosition=[0,0,0],childFramePosition=[0,0,0])
 p.changeConstraint(c,gearRatio=1, maxForce=10000)
 
-c = p.createConstraint(car,17,car,19,jointType=p.JOINT_GEAR,jointAxis =[0,1,0],parentFramePosition=[0,0,0],childFramePosition=[0,0,0])
-p.changeConstraint(c,gearRatio=-1, maxForce=10000)
 
 c = p.createConstraint(car,16,car,19,jointType=p.JOINT_GEAR,jointAxis =[0,1,0],parentFramePosition=[0,0,0],childFramePosition=[0,0,0])
 p.changeConstraint(c,gearRatio=-1, maxForce=10000)
 
+c = p.createConstraint(car,17,car,19,jointType=p.JOINT_GEAR,jointAxis =[0,1,0],parentFramePosition=[0,0,0],childFramePosition=[0,0,0])
+p.changeConstraint(c,gearRatio=-1, maxForce=10000)
+
+c = p.createConstraint(car,1,car,18,jointType=p.JOINT_GEAR,jointAxis =[0,1,0],parentFramePosition=[0,0,0],childFramePosition=[0,0,0])
+p.changeConstraint(c,gearRatio=-1, gearAuxLink = 15, maxForce=10000)
+c = p.createConstraint(car,3,car,19,jointType=p.JOINT_GEAR,jointAxis =[0,1,0],parentFramePosition=[0,0,0],childFramePosition=[0,0,0])
+p.changeConstraint(c,gearRatio=-1, gearAuxLink = 15,maxForce=10000)
 
 
 steering = [0,2]
