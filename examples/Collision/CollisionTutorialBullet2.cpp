@@ -79,7 +79,6 @@ public:
 		
 		gTotalPoints = 0;
 		m_app->setUpAxis(1);
-		m_app->m_renderer->enableBlend(true);
 		
 		switch (m_tutorialIndex)
 		{
@@ -250,7 +249,6 @@ public:
 
 		m_timeSeriesCanvas0 = 0;
 
-		m_app->m_renderer->enableBlend(false);
     }
     
     

@@ -425,21 +425,23 @@ public:
 			}
 			
 			//            int boxId = m_app->registerCubeShape(1,1,1,textureIndex);
-			int boxId = m_app->registerGraphicsUnitSphereShape(SPHERE_LOD_HIGH, textureIndex);
-			
+			int sphereTransparent = m_app->registerGraphicsUnitSphereShape(SPHERE_LOD_HIGH, textureIndex);
+			int sphereOpaque= m_app->registerGraphicsUnitSphereShape(SPHERE_LOD_HIGH, textureIndex);
 			
 			b3Vector3 scaling = b3MakeVector3(SPHERE_RADIUS,SPHERE_RADIUS,SPHERE_RADIUS);
 			for (int i=0;i<m_bodies.size();i++)
 			{
-				b3Vector4 color = b3MakeVector4(1,1,1,0.6);
+				int gfxShape = sphereOpaque;
+				b3Vector4 color = b3MakeVector4(.1,.1,1,1);
 				if (i%2)
 				{
-					color.setValue(1,.1,.1,0.8);
+					color.setValue(1,.1,.1,0.1);
+					gfxShape = sphereTransparent;
 				}
 				m_bodies[i]->m_collisionShape.m_sphere.m_radius = SPHERE_RADIUS;
 				m_bodies[i]->m_collisionShape.m_type = LW_SPHERE_TYPE;
 				
-				m_bodies[i]->m_graphicsIndex = m_app->m_renderer->registerGraphicsInstance(boxId,m_bodies[i]->m_worldPose.m_position, m_bodies[i]->m_worldPose.m_orientation,color,scaling);
+				m_bodies[i]->m_graphicsIndex = m_app->m_renderer->registerGraphicsInstance(gfxShape,m_bodies[i]->m_worldPose.m_position, m_bodies[i]->m_worldPose.m_orientation,color,scaling);
 				m_app->m_renderer->writeSingleInstanceTransformToCPU(m_bodies[i]->m_worldPose.m_position, m_bodies[i]->m_worldPose.m_orientation, m_bodies[i]->m_graphicsIndex);
 			}
 		}
