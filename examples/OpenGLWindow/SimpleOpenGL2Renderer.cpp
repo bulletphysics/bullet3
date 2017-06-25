@@ -676,9 +676,6 @@ void SimpleOpenGL2Renderer::updateShape(int shapeIndex, const float* vertices)
 	}
 }
 
-void SimpleOpenGL2Renderer::enableBlend(bool blend)
-{
-}
 
 void SimpleOpenGL2Renderer::clearZBuffer()
 {

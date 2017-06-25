@@ -198,7 +198,6 @@ public:
     }
     virtual ~InverseKinematicsExample()
     {
-        m_app->m_renderer->enableBlend(false);
     }
 
     

@@ -22,7 +22,8 @@ subject to the following restrictions:
 
 btMultiBodyGearConstraint::btMultiBodyGearConstraint(btMultiBody* bodyA, int linkA, btMultiBody* bodyB, int linkB, const btVector3& pivotInA, const btVector3& pivotInB, const btMatrix3x3& frameInA, const btMatrix3x3& frameInB)
 	:btMultiBodyConstraint(bodyA,bodyB,linkA,linkB,1,false),
-	m_gearRatio(1)
+	m_gearRatio(1),
+	m_gearAuxLink(-1)
 {
    
 }
@@ -121,11 +122,18 @@ void btMultiBodyGearConstraint::createConstraintRows(btMultiBodyConstraintArray&
         int dof = 0;
         btScalar currentPosition = m_bodyA->getJointPosMultiDof(m_linkA)[dof];
         btScalar currentVelocity = m_bodyA->getJointVelMultiDof(m_linkA)[dof];
-
+		btScalar auxVel = 0;
+		
+		if (m_gearAuxLink>=0)
+		{
+			auxVel = m_bodyA->getJointVelMultiDof(m_gearAuxLink)[dof];
+		}
+		currentVelocity += auxVel;
+			
 		//btScalar positionStabiliationTerm = erp*(m_desiredPosition-currentPosition)/infoGlobal.m_timeStep;
         //btScalar velocityError = (m_desiredVelocity - currentVelocity);
 
-        btScalar desiredRelativeVelocity =   0;
+        btScalar desiredRelativeVelocity =   auxVel;
     
 		fillMultiBodyConstraint(constraintRow,data,jacobianA(row),jacobianB(row),dummy,dummy,dummy,dummy,posError,infoGlobal,-m_maxAppliedImpulse,m_maxAppliedImpulse,false,1,false,desiredRelativeVelocity);
 

@@ -176,14 +176,12 @@ public:
 		//int numBodies = 1;
 		
 		m_app->setUpAxis(1);
-		m_app->m_renderer->enableBlend(true);
 		
     }
     virtual ~MultiThreadingExample()
     {
 
 
-		m_app->m_renderer->enableBlend(false);
     }
     
    

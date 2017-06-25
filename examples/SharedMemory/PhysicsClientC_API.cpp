@@ -733,6 +733,7 @@ int b3CreateCollisionShapeAddSphere(b3SharedMemoryCommandHandle commandHandle,do
 		if (shapeIndex <MAX_COMPOUND_COLLISION_SHAPES)
 		{
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_type = GEOM_SPHERE;
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_sphereRadius = radius;
 			command->m_createCollisionShapeArgs.m_numCollisionShapes++;
@@ -753,6 +754,7 @@ int b3CreateCollisionShapeAddBox(b3SharedMemoryCommandHandle commandHandle,doubl
 		if (shapeIndex <MAX_COMPOUND_COLLISION_SHAPES)
 		{
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_type = GEOM_BOX;
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_boxHalfExtents[0] = halfExtents[0];
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_boxHalfExtents[1] = halfExtents[1];
@@ -775,6 +777,7 @@ int b3CreateCollisionShapeAddCapsule(b3SharedMemoryCommandHandle commandHandle,d
 		if (shapeIndex <MAX_COMPOUND_COLLISION_SHAPES)
 		{
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_type = GEOM_CAPSULE;
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_capsuleRadius = radius;
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_capsuleHeight = height;
@@ -796,6 +799,7 @@ int b3CreateCollisionShapeAddCylinder(b3SharedMemoryCommandHandle commandHandle,
 		if (shapeIndex <MAX_COMPOUND_COLLISION_SHAPES)
 		{
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_type = GEOM_CYLINDER;
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_capsuleRadius = radius;
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_capsuleHeight = height;
@@ -818,6 +822,7 @@ int b3CreateCollisionShapeAddPlane(b3SharedMemoryCommandHandle commandHandle, do
 		if (shapeIndex <MAX_COMPOUND_COLLISION_SHAPES)
 		{
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_type = GEOM_PLANE;
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_planeNormal[0] = planeNormal[0];
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_planeNormal[1] = planeNormal[1];
@@ -841,6 +846,7 @@ int b3CreateCollisionShapeAddMesh(b3SharedMemoryCommandHandle commandHandle,cons
 		if (shapeIndex <MAX_COMPOUND_COLLISION_SHAPES && strlen(fileName)<VISUAL_SHAPE_MAX_PATH_LEN)
 		{
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_type = GEOM_MESH;
+			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
 			strcpy(command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_meshFileName,fileName);
 			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_meshScale[0] = meshScale[0];
@@ -856,6 +862,7 @@ int b3CreateCollisionShapeAddMesh(b3SharedMemoryCommandHandle commandHandle,cons
 
 void b3CreateCollisionSetFlag(b3SharedMemoryCommandHandle commandHandle,int shapeIndex, int flags)
 {
+	
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
     b3Assert(command->m_type == CMD_CREATE_COLLISION_SHAPE);
@@ -1941,6 +1948,20 @@ int b3InitChangeUserConstraintSetGearRatio(b3SharedMemoryCommandHandle commandHa
 
 	return 0;
 }
+
+int b3InitChangeUserConstraintSetGearAuxLink(b3SharedMemoryCommandHandle commandHandle, int gearAuxLink)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_USER_CONSTRAINT);
+	b3Assert(command->m_updateFlags & USER_CONSTRAINT_CHANGE_CONSTRAINT);
+	
+	command->m_updateFlags |=USER_CONSTRAINT_CHANGE_GEAR_AUX_LINK;
+	command->m_userConstraintArguments.m_gearAuxLink = gearAuxLink;
+
+	return 0;
+}
+
 
 b3SharedMemoryCommandHandle  b3InitRemoveUserConstraintCommand(b3PhysicsClientHandle physClient, int userConstraintUniqueId)
 {

@@ -4804,11 +4804,12 @@ static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, Py
 
 static PyObject* pybullet_changeUserConstraint(PyObject* self, PyObject* args, PyObject* keywds)
 {
-	static char* kwlist[] = {"userConstraintUniqueId", "jointChildPivot", "jointChildFrameOrientation", "maxForce", "gearRatio", "physicsClientId", NULL};
+	static char* kwlist[] = {"userConstraintUniqueId", "jointChildPivot", "jointChildFrameOrientation", "maxForce", "gearRatio", "gearAuxLink", "physicsClientId", NULL};
 	int userConstraintUniqueId = -1;
 	b3SharedMemoryCommandHandle commandHandle;
 	b3SharedMemoryStatusHandle statusHandle;
 	int statusType;
+	int gearAuxLink = -1;
 	int physicsClientId = 0;
 	b3PhysicsClientHandle sm = 0;
 	PyObject* jointChildPivotObj = 0;
@@ -4817,7 +4818,7 @@ static PyObject* pybullet_changeUserConstraint(PyObject* self, PyObject* args, P
 	double jointChildFrameOrn[4];
 	double maxForce = -1;
 	double gearRatio = 0;
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|OOddi", kwlist, &userConstraintUniqueId, &jointChildPivotObj, &jointChildFrameOrnObj, &maxForce, &gearRatio, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|OOddii", kwlist, &userConstraintUniqueId, &jointChildPivotObj, &jointChildFrameOrnObj, &maxForce, &gearRatio, &gearAuxLink, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -4846,6 +4847,10 @@ static PyObject* pybullet_changeUserConstraint(PyObject* self, PyObject* args, P
 	if (gearRatio!=0)
 	{
 		b3InitChangeUserConstraintSetGearRatio(commandHandle,gearRatio);
+	}
+	if (gearAuxLink>=0)
+	{
+		b3InitChangeUserConstraintSetGearAuxLink(commandHandle,gearAuxLink);
 	}
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 	statusType = b3GetStatusType(statusHandle);
@@ -5008,7 +5013,7 @@ static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, P
 			pybullet_internalSetVectord(planeNormalObj,planeNormal);
 			shapeIndex = b3CreateCollisionShapeAddPlane(commandHandle, planeNormal, planeConstant);
 		}
-		if (shapeIndex && flags)
+		if (shapeIndex>=0 && flags)
 		{
 			b3CreateCollisionSetFlag(commandHandle,shapeIndex,flags);
 		}
@@ -5180,14 +5185,16 @@ static PyObject* pybullet_createMultiBody(PyObject* self, PyObject* args, PyObje
 				double linkJointAxis[3];
 				double linkInertialFramePosition[3];
 				double linkInertialFrameOrientation[4];
-				
+				int linkParentIndex;
+				int linkJointType;
+
 				pybullet_internalGetVector3FromSequence(seqLinkInertialFramePositions,i,linkInertialFramePosition);
 				pybullet_internalGetVector4FromSequence(linkInertialFrameOrientationObj,i,linkInertialFrameOrientation);
 				pybullet_internalGetVector3FromSequence(seqLinkPositions,i,linkPosition);
 				pybullet_internalGetVector4FromSequence(seqLinkOrientations,i,linkOrientation);
 				pybullet_internalGetVector3FromSequence(seqLinkJoinAxis,i,linkJointAxis);
-				int linkParentIndex = pybullet_internalGetIntFromSequence(seqLinkParentIndices,i);
-				int linkJointType = pybullet_internalGetIntFromSequence(seqLinkJointTypes,i);
+				linkParentIndex = pybullet_internalGetIntFromSequence(seqLinkParentIndices,i);
+				linkJointType = pybullet_internalGetIntFromSequence(seqLinkJointTypes,i);
 
 				b3CreateMultiBodyLink(commandHandle, 
 									linkMass, 
@@ -7274,6 +7281,8 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "GEOM_MESH", GEOM_MESH);
 	PyModule_AddIntConstant(m, "GEOM_PLANE", GEOM_PLANE);
 	PyModule_AddIntConstant(m, "GEOM_CAPSULE", GEOM_CAPSULE);
+
+	PyModule_AddIntConstant(m, "GEOM_FORCE_CONCAVE_TRIMESH", GEOM_FORCE_CONCAVE_TRIMESH);
 
 
 

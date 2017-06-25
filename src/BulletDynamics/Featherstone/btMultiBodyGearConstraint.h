@@ -31,10 +31,11 @@ protected:
   btMatrix3x3     m_frameInA;
   btMatrix3x3     m_frameInB;
 	btScalar			m_gearRatio;
+	int			m_gearAuxLink;
 	
 public:
 
-	btMultiBodyGearConstraint(btMultiBody* body, int link, btRigidBody* bodyB, const btVector3& pivotInA, const btVector3& pivotInB, const btMatrix3x3& frameInA, const btMatrix3x3& frameInB);
+	//btMultiBodyGearConstraint(btMultiBody* body, int link, btRigidBody* bodyB, const btVector3& pivotInA, const btVector3& pivotInB, const btMatrix3x3& frameInA, const btMatrix3x3& frameInB);
 	btMultiBodyGearConstraint(btMultiBody* bodyA, int linkA, btMultiBody* bodyB, int linkB, const btVector3& pivotInA, const btVector3& pivotInB, const btMatrix3x3& frameInA, const btMatrix3x3& frameInB);
 
 	virtual ~btMultiBodyGearConstraint();
@@ -96,6 +97,10 @@ public:
 	virtual void setGearRatio(btScalar gearRatio)
 	{
 		m_gearRatio = gearRatio;
+	}
+	virtual void setGearAuxLink(int gearAuxLink)
+	{
+		m_gearAuxLink = gearAuxLink;
 	}
 
 };

@@ -86,7 +86,7 @@ struct CommonRenderInterface
     virtual int getTotalNumInstances() const = 0;
     
 	virtual void writeTransforms()=0;
-    virtual void enableBlend(bool blend)=0;
+    
 	virtual void clearZBuffer()=0;
 
 	//This is internal access to OpenGL3+ features, mainly used for OpenCL-OpenGL interop
