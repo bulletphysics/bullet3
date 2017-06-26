@@ -234,8 +234,15 @@ void SimpleCamera::update()
 
 	b3Vector3 eyePos = b3MakeVector3(0,0,0);
 	eyePos[forwardAxis] = -m_data->m_cameraDistance;
+	eyePos = b3Matrix3x3(eyeRot)*eyePos;
 
-	m_data->m_cameraForward = b3MakeVector3(eyePos[0],eyePos[1],eyePos[2]);
+	m_data->m_cameraPosition = eyePos;
+
+	
+
+	m_data->m_cameraPosition+= m_data->m_cameraTargetPosition;
+
+	m_data->m_cameraForward = m_data->m_cameraTargetPosition-m_data->m_cameraPosition;
 	if (m_data->m_cameraForward.length2() < B3_EPSILON)
 	{
 		m_data->m_cameraForward.setValue(1.f,0.f,0.f);
@@ -243,12 +250,6 @@ void SimpleCamera::update()
 	{
 		m_data->m_cameraForward.normalize();
 	}
-	
-	eyePos = b3Matrix3x3(eyeRot)*eyePos;
-
-	m_data->m_cameraPosition = eyePos;
-	m_data->m_cameraPosition+= m_data->m_cameraTargetPosition;
-
 }
 
 void SimpleCamera::getCameraProjectionMatrix(float projectionMatrix[16]) const

@@ -49,5 +49,8 @@ for i in range (p.getNumJoints(sphereUid)):
 	p.getJointInfo(sphereUid,i)
 	
 while (1):
+	keys = p.getKeyboardEvents()
+	print(keys)
+
 	time.sleep(0.01)
 	

@@ -1,5 +1,10 @@
 import pybullet as p
 import time
+CONTROLLER_ID = 0
+POSITION=1
+ORIENTATION=2
+BUTTONS=6
+
 
 cid = p.connect(p.SHARED_MEMORY)
 if (cid<0):
@@ -56,12 +61,26 @@ steering = [0,2]
 targetVelocitySlider = p.addUserDebugParameter("wheelVelocity",-50,50,0)
 maxForceSlider = p.addUserDebugParameter("maxForce",0,50,20)
 steeringSlider = p.addUserDebugParameter("steering",-1,1,0)
+activeController = -1
+
 while (True):
+			
+	
 	maxForce = p.readUserDebugParameter(maxForceSlider)
 	targetVelocity = p.readUserDebugParameter(targetVelocitySlider)
 	steeringAngle = p.readUserDebugParameter(steeringSlider)
 	#print(targetVelocity)
-	
+	events = p.getVREvents()
+	for e in events:
+		if (e[BUTTONS][33]&p.VR_BUTTON_WAS_TRIGGERED):
+			activeController = e[CONTROLLER_ID]
+		if (activeController == e[CONTROLLER_ID]):
+			orn = e[2]
+			eul = p.getEulerFromQuaternion(orn)
+			steeringAngle=eul[0]
+			
+			targetVelocity = 20.0*e[3]
+		
 	for wheel in wheels:
 		p.setJointMotorControl2(car,wheel,p.VELOCITY_CONTROL,targetVelocity=targetVelocity,force=maxForce)
 		

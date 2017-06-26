@@ -83,8 +83,7 @@ public:
     
     virtual void updateShape(int shapeIndex, const float* vertices);
     
-    virtual void enableBlend(bool blend);
-
+    
 	virtual void clearZBuffer();
 
 

@@ -54,7 +54,6 @@ public:
     }
     virtual ~KukaGraspExample()
     {
-        m_app->m_renderer->enableBlend(false);
     }
 
     

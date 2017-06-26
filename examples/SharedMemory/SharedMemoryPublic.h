@@ -235,6 +235,7 @@ struct b3UserConstraint
     double m_maxAppliedForce;
     int m_userConstraintUniqueId;
 	double m_gearRatio;
+	int m_gearAuxLink;
 
 };
 
