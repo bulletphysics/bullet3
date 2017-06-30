@@ -506,6 +506,15 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
     
 }
 
+static btVector4 sColors[4] =
+{
+	btVector4(60./256.,186./256.,84./256.,1),
+	btVector4(244./256.,194./256.,13./256.,1),
+	btVector4(219./256.,50./256.,54./256.,1),
+	btVector4(72./256.,133./256.,237./256.,1),
+
+	//btVector4(1,1,0,1),
+};
 
 
 void TinyRendererVisualShapeConverter::convertVisualShapes(
@@ -546,7 +555,17 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 			}
 			btTransform childTrans = vis->m_linkLocalFrame;
 
-			float rgbaColor[4] = {1,1,1,1};
+			
+
+			int colorIndex = colObj? colObj->getBroadphaseHandle()->getUid() & 3 : 0;
+
+			btVector4 color;
+			color = sColors[colorIndex];
+			float rgbaColor[4] = {color[0],color[1],color[2],color[3]};
+			if (colObj->getCollisionShape()->getShapeType()==STATIC_PLANE_PROXYTYPE)
+			{
+				color.setValue(1,1,1,1);
+			}
 			if (model && useVisual)
 			{
 				btHashString matName(linkPtr->m_visualArray[v1].m_materialName.c_str());
