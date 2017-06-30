@@ -41,6 +41,9 @@ struct GUIHelperInterface
 	virtual void changeRGBAColor(int instanceUid, const double rgbaColor[4]) {}
 	virtual void changeSpecularColor(int instanceUid, const double specularColor[3]) {}
 
+	virtual int getShapeIndexFromInstance(int instanceUid){return -1;}	
+	virtual void replaceTexture(int shapeIndex, int textureUid){}
+	
 	
 	virtual Common2dCanvasInterface* get2dCanvasInterface()=0;
 	

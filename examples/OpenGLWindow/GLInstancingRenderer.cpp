@@ -392,6 +392,15 @@ GLInstancingRenderer::~GLInstancingRenderer()
 
 
 
+int GLInstancingRenderer::getShapeIndexFromInstance(int srcIndex)
+{
+	b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(srcIndex);
+	if (pg)
+	{
+		return pg->m_shapeIndex;
+	}
+	return -1;
+}
 
 
 
@@ -955,6 +964,17 @@ int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width
 }
 
 
+void    GLInstancingRenderer::replaceTexture(int shapeIndex, int textureId)
+{
+	if (shapeIndex >=0 && shapeIndex < m_data->m_textureHandles.size())
+	{
+		b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
+		if (textureId>=0)
+		{
+			gfxObj->m_texturehandle = m_data->m_textureHandles[textureId].m_glTexture;
+		}
+	}
+}
 
 void    GLInstancingRenderer::updateTexture(int textureIndex, const unsigned char* texels, bool flipPixelsY)
 {

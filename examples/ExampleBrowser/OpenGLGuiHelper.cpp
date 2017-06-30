@@ -318,6 +318,18 @@ void OpenGLGuiHelper::removeGraphicsInstance(int graphicsUid)
 	};
 }
 
+int OpenGLGuiHelper::getShapeIndexFromInstance(int instanceUid)
+{
+	return m_data->m_glApp->m_renderer->getShapeIndexFromInstance(instanceUid);
+}
+
+void OpenGLGuiHelper::replaceTexture(int shapeIndex, int textureUid)
+{
+	if (shapeIndex>=0)
+	{
+		m_data->m_glApp->m_renderer->replaceTexture(shapeIndex, textureUid);
+	};
+}
 void OpenGLGuiHelper::changeRGBAColor(int instanceUid, const double rgbaColor[4])
 {
 	if (instanceUid>=0)

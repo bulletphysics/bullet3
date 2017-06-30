@@ -67,7 +67,8 @@ public:
 	virtual int registerTexture(const unsigned char* texels, int width, int height, bool flipPixelsY=true);
     virtual void updateTexture(int textureIndex, const unsigned char* texels, bool flipPixelsY=true);
     virtual void activateTexture(int textureIndex);
-
+	virtual void replaceTexture(int shapeIndex, int textureId);
+	virtual int getShapeIndexFromInstance(int srcIndex);
 
 	///position x,y,z, quaternion x,y,z,w, color r,g,b,a, scaling x,y,z
 	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling);

@@ -2938,6 +2938,18 @@ b3SharedMemoryCommandHandle b3InitLoadTexture(b3PhysicsClientHandle physClient, 
     return (b3SharedMemoryCommandHandle) command;
 }
 
+int b3GetStatusTextureUniqueId(b3SharedMemoryStatusHandle statusHandle)
+{
+	int uid = -1;
+	const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
+	btAssert(status->m_type == CMD_LOAD_TEXTURE_COMPLETED);	
+	if (status->m_type == CMD_LOAD_TEXTURE_COMPLETED)
+	{
+		uid = status->m_loadTextureResultArguments.m_textureUniqueId;
+	}
+	return uid;
+}
+
 b3SharedMemoryCommandHandle b3InitUpdateVisualShape(b3PhysicsClientHandle physClient, int bodyUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;

@@ -4578,6 +4578,9 @@ static PyObject* pybullet_loadTexture(PyObject* self, PyObject* args, PyObject* 
 		statusType = b3GetStatusType(statusHandle);
 		if (statusType == CMD_LOAD_TEXTURE_COMPLETED)
 		{
+			PyObject* item;
+			item = PyInt_FromLong(b3GetStatusTextureUniqueId(statusHandle));
+			return item;
 		}
 		else
 		{
@@ -4586,8 +4589,8 @@ static PyObject* pybullet_loadTexture(PyObject* self, PyObject* args, PyObject* 
 		}
 	}
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	PyErr_SetString(SpamError, "Error loading texture");
+	return NULL;
 }
 
 static PyObject* MyConvertContactPoint(struct b3ContactInformation* contactPointPtr)

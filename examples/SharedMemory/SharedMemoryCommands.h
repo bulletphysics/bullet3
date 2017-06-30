@@ -283,6 +283,11 @@ struct LoadTextureArgs
     char m_textureFileName[MAX_FILENAME_LENGTH];
 };
 
+struct b3LoadTextureResultArgs
+{
+	int m_textureUniqueId;
+};
+
 struct SendVisualShapeDataArgs
 {
 	int m_bodyUniqueId;
@@ -1015,6 +1020,7 @@ struct SharedMemoryStatus
 		struct b3CreateMultiBodyResultArgs m_createMultiBodyResultArgs;
 		struct b3SendCollisionInfoArgs m_sendCollisionInfoArgs;
 		struct SendMouseEvents m_sendMouseEvents;
+		struct b3LoadTextureResultArgs m_loadTextureResultArguments;
 
 	};
 };
