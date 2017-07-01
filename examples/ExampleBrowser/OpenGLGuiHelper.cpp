@@ -292,10 +292,10 @@ int	OpenGLGuiHelper::registerTexture(const unsigned char* texels, int width, int
 	return textureId;
 }
 
-void OpenGLGuiHelper::changeTexture(int textureUniqueId, const unsigned char* texels, int width, int height)
+void OpenGLGuiHelper::changeTexture(int textureUniqueId, const unsigned char* rgbTexels, int width, int height)
 {
 	bool flipPixelsY = true;
-	m_data->m_glApp->m_renderer->updateTexture(textureUniqueId, texels,flipPixelsY);
+	m_data->m_glApp->m_renderer->updateTexture(textureUniqueId, rgbTexels,flipPixelsY);
 }
 
 

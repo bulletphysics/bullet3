@@ -118,14 +118,14 @@ GLint lineWidthRange[2]={1,1};
 enum
 {
 	eGfxTransparency=1,
+	eGfxHasTexture = 2,
 };
 
 struct b3GraphicsInstance
 {
-	GLuint               m_cube_vao;
-	GLuint               m_index_vbo;
-	GLuint				m_textureIndex;
-
+	GLuint	m_cube_vao;
+	GLuint	m_index_vbo;
+	GLuint	m_textureIndex;
 	int m_numIndices;
 	int m_numVertices;
 
@@ -974,6 +974,7 @@ void    GLInstancingRenderer::replaceTexture(int shapeIndex, int textureId)
 		if (textureId>=0)
 		{
 			gfxObj->m_textureIndex = textureId;
+			gfxObj->m_flags |= eGfxHasTexture;
 
 		}
 	}
@@ -1052,6 +1053,7 @@ int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, 
 	if (textureId>=0)
 	{
 		gfxObj->m_textureIndex = textureId;
+		gfxObj->m_flags |= eGfxHasTexture;
 	}
 
 	gfxObj->m_primitiveType = primitiveType;
@@ -2204,7 +2206,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 			{
 				glActiveTexture(GL_TEXTURE0);
 				GLuint curBindTexture = 0;
-				if (gfxObj->m_textureIndex>=0)
+				if (gfxObj->m_flags & eGfxHasTexture)
 				{
 					curBindTexture = m_data->m_textureHandles[gfxObj->m_textureIndex].m_glTexture;
 
