@@ -389,28 +389,38 @@ protected:
 	const Value* getAtIndex(int index) const
 	{
 		btAssert(index < m_valueArray.size());
-
-		return &m_valueArray[index];
+		btAssert(index>=0);
+		if (index>=0 && index < m_valueArray.size())
+		{
+			return &m_valueArray[index];
+		}
+		return 0;
 	}
 
 	Value* getAtIndex(int index)
 	{
 		btAssert(index < m_valueArray.size());
-
-		return &m_valueArray[index];
+		btAssert(index>=0);
+		if (index>=0 && index < m_valueArray.size())
+		{
+			return &m_valueArray[index];
+		}
+		return 0;
 	}
 
     Key getKeyAtIndex(int index)
     {
         btAssert(index < m_keyArray.size());
-        return m_keyArray[index];
+		btAssert(index>=0);
+		return m_keyArray[index];
     }
     
     const Key getKeyAtIndex(int index) const
     {
         btAssert(index < m_keyArray.size());
-        return m_keyArray[index];
-    }
+		btAssert(index>=0);
+		return m_keyArray[index];
+   }
 
 
 	Value* operator[](const Key& key) {

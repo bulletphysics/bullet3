@@ -70,6 +70,9 @@ struct CommonRenderInterface
     virtual int registerTexture(const unsigned char* texels, int width, int height, bool flipPixelsY=true)=0;
     virtual void updateTexture(int textureIndex, const unsigned char* texels, bool flipPixelsY=true)=0;
     virtual void activateTexture(int textureIndex)=0;
+	virtual void replaceTexture(int shapeIndex, int textureIndex){};
+
+	virtual int getShapeIndexFromInstance(int srcIndex) {return -1;}
 
 	virtual bool readSingleInstanceTransformToCPU(float* position, float* orientation, int srcIndex)=0;
 

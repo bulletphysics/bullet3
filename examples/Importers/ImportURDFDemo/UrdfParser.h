@@ -156,7 +156,8 @@ struct UrdfLink
 
 	UrdfLink()
 		:m_parentLink(0),
-		m_parentJoint(0)
+		m_parentJoint(0),
+		m_linkIndex(-2)
 	{
 	}
 	
