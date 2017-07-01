@@ -133,6 +133,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIHelperSetVisualizerFlag,
 	eGUIHelperChangeGraphicsInstanceTextureId,
 	eGUIHelperGetShapeIndexFromInstance,
+	eGUIHelperChangeTexture,
 };
 
 
@@ -955,6 +956,23 @@ public:
 		m_graphicsInstanceChangeTextureId = textureUid;
 		m_cs->lock();
 		m_cs->setSharedParam(1,eGUIHelperChangeGraphicsInstanceTextureId);
+		workerThreadWait();   
+	}
+
+
+	int m_changeTextureUniqueId;
+	const unsigned char* m_changeTextureRgbTexels;
+	int m_changeTextureWidth;
+	int m_changeTextureHeight;
+
+	virtual void changeTexture(int textureUniqueId, const unsigned char* rgbTexels, int width, int height)
+	{
+		m_changeTextureUniqueId = textureUniqueId;
+		m_changeTextureRgbTexels = rgbTexels;
+		m_changeTextureWidth = width;
+		m_changeTextureHeight = height;
+		m_cs->lock();
+		m_cs->setSharedParam(1,eGUIHelperChangeTexture);
 		workerThreadWait();   
 	}
 
@@ -1955,6 +1973,16 @@ void	PhysicsServerExample::updateGraphics()
 	}
 
 	
+	case eGUIHelperChangeTexture:
+	{
+		m_multiThreadedHelper->m_childGuiHelper->changeTexture(
+			m_multiThreadedHelper->m_changeTextureUniqueId,
+			m_multiThreadedHelper->m_changeTextureRgbTexels,
+			m_multiThreadedHelper->m_changeTextureWidth,
+			m_multiThreadedHelper->m_changeTextureHeight);
+		m_multiThreadedHelper->mainThreadRelease();
+		break;
+	}
 
 	case eGUIHelperChangeGraphicsInstanceRGBAColor:
 	{

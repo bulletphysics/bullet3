@@ -117,13 +117,14 @@ GLint lineWidthRange[2]={1,1};
 
 enum
 {
-	eGfxTransparency=1
+	eGfxTransparency=1,
 };
+
 struct b3GraphicsInstance
 {
 	GLuint               m_cube_vao;
 	GLuint               m_index_vbo;
-	GLuint				m_texturehandle;
+	GLuint				m_textureIndex;
 
 	int m_numIndices;
 	int m_numVertices;
@@ -141,7 +142,7 @@ struct b3GraphicsInstance
 	b3GraphicsInstance()
 	:m_cube_vao(-1),
 		m_index_vbo(-1),
-		m_texturehandle(0),
+		m_textureIndex(-1),
 		m_numIndices(-1),
 		m_numVertices(-1),
 		m_numGraphicsInstances(0),
@@ -188,6 +189,7 @@ struct InternalTextureHandle
     GLuint  m_glTexture;
     int m_width;
     int m_height;
+	int m_enableFiltering;
 };
 
 struct b3PublicGraphicsInstanceData
@@ -954,7 +956,7 @@ int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width
     h.m_glTexture = textureHandle;
     h.m_width = width;
     h.m_height = height;
-
+	h.m_enableFiltering = true;
 	m_data->m_textureHandles.push_back(h);
 	if (texels)
 	{
@@ -971,7 +973,8 @@ void    GLInstancingRenderer::replaceTexture(int shapeIndex, int textureId)
 		b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
 		if (textureId>=0)
 		{
-			gfxObj->m_texturehandle = m_data->m_textureHandles[textureId].m_glTexture;
+			gfxObj->m_textureIndex = textureId;
+
 		}
 	}
 }
@@ -980,9 +983,6 @@ void    GLInstancingRenderer::updateTexture(int textureIndex, const unsigned cha
 {
     if (textureIndex>=0)
     {
-		
-		
-
         glActiveTexture(GL_TEXTURE0);
         b3Assert(glGetError() ==GL_NO_ERROR);
         InternalTextureHandle& h = m_data->m_textureHandles[textureIndex];
@@ -1011,7 +1011,10 @@ void    GLInstancingRenderer::updateTexture(int textureIndex, const unsigned cha
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, h.m_width,h.m_height,0,GL_RGB,GL_UNSIGNED_BYTE,&texels[0]);
 		}
         b3Assert(glGetError() ==GL_NO_ERROR);
-        glGenerateMipmap(GL_TEXTURE_2D);
+		if (h.m_enableFiltering)
+		{
+	        glGenerateMipmap(GL_TEXTURE_2D);
+		}
         b3Assert(glGetError() ==GL_NO_ERROR);
     }
 }
@@ -1048,7 +1051,7 @@ int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, 
 
 	if (textureId>=0)
 	{
-		gfxObj->m_texturehandle = m_data->m_textureHandles[textureId].m_glTexture;
+		gfxObj->m_textureIndex = textureId;
 	}
 
 	gfxObj->m_primitiveType = primitiveType;
@@ -2201,10 +2204,26 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 			{
 				glActiveTexture(GL_TEXTURE0);
 				GLuint curBindTexture = 0;
-				if (gfxObj->m_texturehandle)
-					curBindTexture = gfxObj->m_texturehandle;
+				if (gfxObj->m_textureIndex>=0)
+				{
+					curBindTexture = m_data->m_textureHandles[gfxObj->m_textureIndex].m_glTexture;
+
+					glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_BASE_LEVEL,0);
+
+					if (m_data->m_textureHandles[gfxObj->m_textureIndex].m_enableFiltering)
+					{
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+					} else
+					{
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+					}
+				}
 				else
+				{
 					curBindTexture = m_data->m_defaultTexturehandle;
+				}
 
 	//disable lazy evaluation, it just leads to bugs
 				//if (lastBindTexture != curBindTexture)

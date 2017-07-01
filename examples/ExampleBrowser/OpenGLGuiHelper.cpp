@@ -292,6 +292,12 @@ int	OpenGLGuiHelper::registerTexture(const unsigned char* texels, int width, int
 	return textureId;
 }
 
+void OpenGLGuiHelper::changeTexture(int textureUniqueId, const unsigned char* texels, int width, int height)
+{
+	bool flipPixelsY = true;
+	m_data->m_glApp->m_renderer->updateTexture(textureUniqueId, texels,flipPixelsY);
+}
+
 
 int OpenGLGuiHelper::registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType, int textureId)
 {

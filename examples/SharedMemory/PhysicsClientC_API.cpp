@@ -2918,6 +2918,25 @@ void b3GetVisualShapeInformation(b3PhysicsClientHandle physClient, struct b3Visu
 	}
 }
 
+b3SharedMemoryCommandHandle b3CreateChangeTextureCommandInit(b3PhysicsClientHandle physClient, int textureUniqueId, int width, int height, const char* rgbPixels)
+{
+    PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    command->m_type = CMD_CHANGE_TEXTURE;
+
+	command->m_changeTextureArgs.m_textureUniqueId = textureUniqueId;
+	command->m_changeTextureArgs.m_width = width;
+	command->m_changeTextureArgs.m_height = height;
+	int numPixels = width*height;
+	cl->uploadBulletFileToSharedMemory(rgbPixels,numPixels*3);
+	command->m_updateFlags = 0;
+    return (b3SharedMemoryCommandHandle) command;
+}
+
+
 b3SharedMemoryCommandHandle b3InitLoadTexture(b3PhysicsClientHandle physClient, const char* filename)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;

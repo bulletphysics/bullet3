@@ -898,6 +898,12 @@ struct b3CreateMultiBodyResultArgs
 	int m_bodyUniqueId;
 };
 
+struct b3ChangeTextureArgs
+{
+	int m_textureUniqueId;
+	int m_width;
+	int m_height;
+};
 
 struct SharedMemoryCommand
 {
@@ -950,6 +956,7 @@ struct SharedMemoryCommand
 		struct b3CreateVisualShapeArgs m_createVisualShapeArgs;
 		struct b3CreateMultiBodyArgs m_createMultiBodyArgs;
 		struct b3RequestCollisionInfoArgs m_requestCollisionInfoArgs;
+		struct b3ChangeTextureArgs m_changeTextureArgs;
     };
 };
 

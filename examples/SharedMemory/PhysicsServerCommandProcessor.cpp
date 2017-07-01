@@ -6863,6 +6863,24 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
                     break;
                 }
+
+				case CMD_CHANGE_TEXTURE:
+				{
+					SharedMemoryStatus& serverCmd = serverStatusOut;
+					serverCmd.m_type = CMD_CHANGE_TEXTURE_COMMAND_FAILED;
+					
+					InternalTextureHandle* texH = m_data->m_textureHandles.getHandle(clientCmd.m_changeTextureArgs.m_textureUniqueId);
+					if(texH)
+					{
+						int gltex = texH->m_openglTextureId;
+						m_data->m_guiHelper->changeTexture(gltex,
+							(const unsigned char*)bufferServerToClient, clientCmd.m_changeTextureArgs.m_width,clientCmd.m_changeTextureArgs.m_height);
+
+						serverCmd.m_type = CMD_CLIENT_COMMAND_COMPLETED;
+					}
+                    hasStatus = true;
+                    break;
+				}
 				case CMD_LOAD_TEXTURE:
 				{
 					BT_PROFILE("CMD_LOAD_TEXTURE");
