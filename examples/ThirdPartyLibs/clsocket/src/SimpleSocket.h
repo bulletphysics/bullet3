@@ -49,7 +49,7 @@
 #include <stdarg.h>
 #include <errno.h>
 
-#if defined(_LINUX) || defined (_DARWIN) || defined(_BSD)
+#if defined(_LINUX) || defined (_DARWIN) || defined(_BSD) || defined(__CYGWIN__)
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -66,7 +66,7 @@
 #ifdef _DARWIN
 #include <net/if.h>
 #endif
-#if defined(_LINUX) || defined (_DARWIN) || defined(_BSD)
+#if defined(_LINUX) || defined (_DARWIN) || defined(_BSD) || defined(__CYGWIN__)
 #include <sys/time.h>
 #include <sys/uio.h>
 #include <unistd.h>

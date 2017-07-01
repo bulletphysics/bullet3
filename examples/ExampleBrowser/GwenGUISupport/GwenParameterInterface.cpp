@@ -1,3 +1,5 @@
+
+#include <cstdio>
 #include "GwenParameterInterface.h"
 #include "gwenInternalData.h"
 
@@ -237,7 +239,7 @@ void GwenParameterInterface::registerSliderFloatParameter(SliderParams& params)
     if (params.m_clampToIntegers)
     {
         pSlider->SetNotchCount( int( params.m_maxVal - params.m_minVal ) );
-        pSlider->SetClampToNotches( true );
+        pSlider->SetClampToNotches( params.m_clampToNotches );
     }
     else
     {

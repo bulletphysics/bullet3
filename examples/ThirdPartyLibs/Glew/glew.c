@@ -49,7 +49,11 @@ void* dlglXGetProcAddressARB(const GLubyte* name)
 
   if (h == NULL)
   {
+	#ifdef __CYGWIN__
+	if ((h = dlopen("cygGL-1.dll", RTLD_LAZY | RTLD_LOCAL)) == NULL)
+	#else
     if ((h = dlopen("libGL.so.1", RTLD_LAZY | RTLD_LOCAL)) == NULL)
+	#endif
     {
     		return NULL;
     }
