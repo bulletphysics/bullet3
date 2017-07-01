@@ -4651,11 +4651,6 @@ static PyObject* pybullet_loadTexture(PyObject* self, PyObject* args, PyObject* 
 			item = PyInt_FromLong(b3GetStatusTextureUniqueId(statusHandle));
 			return item;
 		}
-		else
-		{
-			PyErr_SetString(SpamError, "Error loading texture");
-			return NULL;
-		}
 	}
 
 	PyErr_SetString(SpamError, "Error loading texture");
