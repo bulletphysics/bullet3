@@ -4583,7 +4583,7 @@ static PyObject* pybullet_changeTexture(PyObject* self, PyObject* args, PyObject
 		PyObject* item;
 		int i;
 		int numPixels = width*height;
-		unsigned char* pixelBuffer = (char*) malloc (numPixels*3);
+		unsigned char* pixelBuffer = (unsigned char*) malloc (numPixels*3);
 		if (PyList_Check(seqPixels))
 		{
 			for (i=0;i<numPixels*3;i++)
@@ -4600,7 +4600,7 @@ static PyObject* pybullet_changeTexture(PyObject* self, PyObject* args, PyObject
 			}
 		}		
 
-		commandHandle = b3CreateChangeTextureCommandInit(sm,textureUniqueId, width,height,pixelBuffer);
+		commandHandle = b3CreateChangeTextureCommandInit(sm,textureUniqueId, width,height,(const char*) pixelBuffer);
 		free(pixelBuffer);
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 		statusType = b3GetStatusType(statusHandle);
