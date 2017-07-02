@@ -292,6 +292,12 @@ int	OpenGLGuiHelper::registerTexture(const unsigned char* texels, int width, int
 	return textureId;
 }
 
+void OpenGLGuiHelper::changeTexture(int textureUniqueId, const unsigned char* rgbTexels, int width, int height)
+{
+	bool flipPixelsY = true;
+	m_data->m_glApp->m_renderer->updateTexture(textureUniqueId, rgbTexels,flipPixelsY);
+}
+
 
 int OpenGLGuiHelper::registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType, int textureId)
 {
@@ -318,6 +324,18 @@ void OpenGLGuiHelper::removeGraphicsInstance(int graphicsUid)
 	};
 }
 
+int OpenGLGuiHelper::getShapeIndexFromInstance(int instanceUid)
+{
+	return m_data->m_glApp->m_renderer->getShapeIndexFromInstance(instanceUid);
+}
+
+void OpenGLGuiHelper::replaceTexture(int shapeIndex, int textureUid)
+{
+	if (shapeIndex>=0)
+	{
+		m_data->m_glApp->m_renderer->replaceTexture(shapeIndex, textureUid);
+	};
+}
 void OpenGLGuiHelper::changeRGBAColor(int instanceUid, const double rgbaColor[4])
 {
 	if (instanceUid>=0)

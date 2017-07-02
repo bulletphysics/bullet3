@@ -283,6 +283,11 @@ struct LoadTextureArgs
     char m_textureFileName[MAX_FILENAME_LENGTH];
 };
 
+struct b3LoadTextureResultArgs
+{
+	int m_textureUniqueId;
+};
+
 struct SendVisualShapeDataArgs
 {
 	int m_bodyUniqueId;
@@ -893,6 +898,12 @@ struct b3CreateMultiBodyResultArgs
 	int m_bodyUniqueId;
 };
 
+struct b3ChangeTextureArgs
+{
+	int m_textureUniqueId;
+	int m_width;
+	int m_height;
+};
 
 struct SharedMemoryCommand
 {
@@ -945,6 +956,7 @@ struct SharedMemoryCommand
 		struct b3CreateVisualShapeArgs m_createVisualShapeArgs;
 		struct b3CreateMultiBodyArgs m_createMultiBodyArgs;
 		struct b3RequestCollisionInfoArgs m_requestCollisionInfoArgs;
+		struct b3ChangeTextureArgs m_changeTextureArgs;
     };
 };
 
@@ -1015,6 +1027,7 @@ struct SharedMemoryStatus
 		struct b3CreateMultiBodyResultArgs m_createMultiBodyResultArgs;
 		struct b3SendCollisionInfoArgs m_sendCollisionInfoArgs;
 		struct SendMouseEvents m_sendMouseEvents;
+		struct b3LoadTextureResultArgs m_loadTextureResultArguments;
 
 	};
 };

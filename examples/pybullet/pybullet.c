@@ -1433,7 +1433,7 @@ static PyObject* pybullet_setJointMotorControlArray(PyObject* self, PyObject* ar
 			int i;
 			for (i = 0; i < numControlledDofs; i++)
 			{
-				int jointIndex = pybullet_internalGetFloatFromSequence(jointIndicesSeq, i);
+				int jointIndex = pybullet_internalGetIntFromSequence(jointIndicesSeq, i);
 				if ((jointIndex >= numJoints) || (jointIndex < 0))
 				{
 					Py_DECREF(jointIndicesSeq);
@@ -4551,6 +4551,75 @@ static PyObject* pybullet_changeVisualShape(PyObject* self, PyObject* args, PyOb
 	return Py_None;
 }
 
+
+static PyObject* pybullet_changeTexture(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	b3SharedMemoryCommandHandle commandHandle = 0;
+	b3SharedMemoryStatusHandle statusHandle=0;
+	int statusType = -1;
+	int textureUniqueId = -1;
+	int physicsClientId = 0;
+	int width=-1;
+	int height=-1;
+	
+	PyObject* pixelsObj = 0;
+
+	b3PhysicsClientHandle sm = 0;
+	static char* kwlist[] = {"textureUniqueId", "pixels", "width", "height", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iOii|i", kwlist, &textureUniqueId, &pixelsObj, &width, &height, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	if (textureUniqueId>=0 && width>=0 && height>=0 && pixelsObj)
+	{
+		PyObject* seqPixels = PySequence_Fast(pixelsObj, "expected a sequence");
+		PyObject* item;
+		int i;
+		int numPixels = width*height;
+		unsigned char* pixelBuffer = (unsigned char*) malloc (numPixels*3);
+		if (PyList_Check(seqPixels))
+		{
+			for (i=0;i<numPixels*3;i++)
+			{
+				item = PyList_GET_ITEM(seqPixels, i);
+				pixelBuffer[i] = PyLong_AsLong(item);
+			}
+		} else
+		{
+			for (i=0;i<numPixels*3;i++)
+			{
+				item = PyTuple_GET_ITEM(seqPixels, i);
+				pixelBuffer[i] = PyLong_AsLong(item);
+			}
+		}		
+
+		commandHandle = b3CreateChangeTextureCommandInit(sm,textureUniqueId, width,height,(const char*) pixelBuffer);
+		free(pixelBuffer);
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+		statusType = b3GetStatusType(statusHandle);
+		if (statusType == CMD_CLIENT_COMMAND_COMPLETED)
+		{
+			Py_INCREF(Py_None);
+			return Py_None;
+		} else
+		{
+			PyErr_SetString(SpamError, "Error processing changeTexture.");
+			return NULL;
+		}
+	}
+
+	PyErr_SetString(SpamError, "Error: invalid arguments in changeTexture.");
+	return NULL;
+}
+
+
 static PyObject* pybullet_loadTexture(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	const char* filename = 0;
@@ -4578,16 +4647,14 @@ static PyObject* pybullet_loadTexture(PyObject* self, PyObject* args, PyObject* 
 		statusType = b3GetStatusType(statusHandle);
 		if (statusType == CMD_LOAD_TEXTURE_COMPLETED)
 		{
-		}
-		else
-		{
-			PyErr_SetString(SpamError, "Error loading texture");
-			return NULL;
+			PyObject* item;
+			item = PyInt_FromLong(b3GetStatusTextureUniqueId(statusHandle));
+			return item;
 		}
 	}
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	PyErr_SetString(SpamError, "Error loading texture");
+	return NULL;
 }
 
 static PyObject* MyConvertContactPoint(struct b3ContactInformation* contactPointPtr)
@@ -7025,6 +7092,9 @@ static PyMethodDef SpamMethods[] = {
 
 	{"loadTexture", (PyCFunction)pybullet_loadTexture, METH_VARARGS | METH_KEYWORDS,
 	 "Load texture file."},
+
+	{"changeTexture", (PyCFunction)pybullet_changeTexture, METH_VARARGS | METH_KEYWORDS,
+	 "Change a texture file."},
 
 	{"getQuaternionFromEuler", pybullet_getQuaternionFromEuler, METH_VARARGS,
 	 "Convert Euler [roll, pitch, yaw] as in URDF/SDF convention, to "
