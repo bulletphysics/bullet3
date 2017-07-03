@@ -2,10 +2,11 @@
 // C RunTime Header Files
 #ifndef GWEN_MACROS_H
 #define GWEN_MACROS_H
-#include <stdlib.h>
 #include <stdarg.h>
-#if !defined(__APPLE__) && !defined(__OpenBSD__)
+#if !defined(__APPLE__) && !defined(__OpenBSD__) && !defined(__FreeBSD__)
 #include <malloc.h>
+#else
+#include <stdlib.h>
 #endif //__APPLE__
 #include <memory.h>
 #include <algorithm>
