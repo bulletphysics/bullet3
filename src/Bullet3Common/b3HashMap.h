@@ -102,6 +102,10 @@ public:
 		return getUid1() == other.getUid1();
 	}
 	//to our success
+#ifndef _MSC_VER
+        __attribute__((no_sanitize("shift-base")))
+        __attribute__((no_sanitize("signed-integer-overflow")))
+#endif
 	B3_FORCE_INLINE	unsigned int getHash()const
 	{
 		int key = m_uid;
@@ -140,6 +144,10 @@ public:
 	}
 
 	//to our success
+#ifndef _MSC_VER
+	__attribute__((no_sanitize("shift-base")))
+	__attribute__((no_sanitize("signed-integer-overflow")))
+#endif
 	B3_FORCE_INLINE	unsigned int getHash()const
 	{
 		const bool VOID_IS_8 = ((sizeof(void*)==8));
@@ -176,6 +184,10 @@ public:
         }
 
         //to our success
+#ifndef _MSC_VER
+        __attribute__((no_sanitize("shift-base")))
+        __attribute__((no_sanitize("signed-integer-overflow")))
+#endif
         B3_FORCE_INLINE       unsigned int getHash()const
         {
                 int key = m_uid;
@@ -208,6 +220,10 @@ public:
 		return getUid1() == other.getUid1();
 	}
 	//to our success
+#ifndef _MSC_VER
+	__attribute__((no_sanitize("shift-base")))
+	__attribute__((no_sanitize("signed-integer-overflow")))
+#endif
 	B3_FORCE_INLINE	unsigned int getHash()const
 	{
 		int key = m_uid;

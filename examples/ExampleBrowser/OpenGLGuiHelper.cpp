@@ -191,6 +191,10 @@ struct MyHashShape
 		return sameShapeType && sameSphere0 && sameSphere1 && sameRadius0 && sameRadius1 && sameTransform && sameUpAxis && sameHalfHeight;
 	}
 	//to our success
+#ifndef _MSC_VER
+	__attribute__((no_sanitize("shift-base")))
+	__attribute__((no_sanitize("signed-integer-overflow")))
+#endif
 	SIMD_FORCE_INLINE	unsigned int getHash()const
 	{
 		unsigned int key = m_shapeKey;

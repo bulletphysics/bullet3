@@ -121,8 +121,10 @@ private:
 		return pair.m_indexA == indexA && pair.m_indexB == indexB;
 	}
 
-	
-	
+#ifndef _MSC_VER
+	__attribute__((no_sanitize("shift-base")))
+	__attribute__((no_sanitize("signed-integer-overflow")))
+#endif
 	SIMD_FORCE_INLINE unsigned int getHash(unsigned int indexA, unsigned int indexB)
 	{
 		unsigned int key = indexA | (indexB << 16);

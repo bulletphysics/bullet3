@@ -214,7 +214,10 @@ private:
 	}
 	*/
 
-
+#ifndef _MSC_VER
+	__attribute__((no_sanitize("shift-base")))
+	__attribute__((no_sanitize("signed-integer-overflow")))
+#endif
 	SIMD_FORCE_INLINE unsigned int getHash(unsigned int proxyId1, unsigned int proxyId2)
 	{
 		unsigned int key = proxyId1 | (proxyId2 << 16);

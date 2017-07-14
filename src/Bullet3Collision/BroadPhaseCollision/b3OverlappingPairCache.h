@@ -210,8 +210,10 @@ private:
 	}
 	*/
 
-
-	
+#ifndef _MSC_VER
+	__attribute__((no_sanitize("shift-base")))
+	__attribute__((no_sanitize("signed-integer-overflow")))
+#endif
 	B3_FORCE_INLINE	unsigned int getHash(unsigned int proxyId1, unsigned int proxyId2)
 	{
 		int key = static_cast<int>(((unsigned int)proxyId1) | (((unsigned int)proxyId2) <<16));
