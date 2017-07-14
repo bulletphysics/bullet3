@@ -127,6 +127,8 @@ extern bool useShadowMap;
 bool visualWireframe=false;
 static bool renderVisualGeometry=true;
 static bool renderGrid = true;
+static bool gEnableRenderLoop = true;
+
 bool renderGui = true;
 static bool enable_experimental_opencl = false;
 
@@ -370,6 +372,10 @@ void OpenGLExampleBrowser::registerFileImporter(const char* extension, CommonExa
 
 void OpenGLExampleBrowserVisualizerFlagCallback(int flag, bool enable)
 {
+	if (flag == COV_ENABLE_RENDERING)
+	{
+		gEnableRenderLoop = (enable!=0);
+	}
     if (flag == COV_ENABLE_SHADOWS)
     {
         useShadowMap = enable;
@@ -1185,7 +1191,7 @@ void OpenGLExampleBrowser::updateGraphics()
 	{
 			if (!pauseSimulation || singleStepSimulation)
 			{
-				B3_PROFILE("sCurrentDemo->updateGraphics");
+				//B3_PROFILE("sCurrentDemo->updateGraphics");
 				sCurrentDemo->updateGraphics();
 			}
 	}
@@ -1193,6 +1199,9 @@ void OpenGLExampleBrowser::updateGraphics()
 
 void OpenGLExampleBrowser::update(float deltaTime)
 {
+	if (!gEnableRenderLoop)
+		return;
+
 	b3ChromeUtilsEnableProfiling();
 	
 		B3_PROFILE("OpenGLExampleBrowser::update");

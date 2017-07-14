@@ -230,6 +230,7 @@ static double gMinUpdateTimeMicroSecs = 4000.;
 
 void	ExampleBrowserThreadFunc(void* userPtr,void* lsMemory)
 {
+
 	printf("ExampleBrowserThreadFunc started\n");
 
 	ExampleBrowserThreadLocalStorage* localStorage = (ExampleBrowserThreadLocalStorage*) lsMemory;
@@ -257,7 +258,9 @@ void	ExampleBrowserThreadFunc(void* userPtr,void* lsMemory)
 
 		do
 		{
-			B3_PROFILE("ExampleBrowserThreadFunc");
+			clock.usleep(0);
+
+			//B3_PROFILE("ExampleBrowserThreadFunc");
 			float deltaTimeInSeconds = clock.getTimeMicroseconds()/1000000.f;
 			{
 				if (deltaTimeInSeconds > 0.1)
@@ -266,13 +269,13 @@ void	ExampleBrowserThreadFunc(void* userPtr,void* lsMemory)
 				}
 				if (deltaTimeInSeconds < (gMinUpdateTimeMicroSecs/1e6))
 				{
-					B3_PROFILE("clock.usleep");
-					clock.usleep(gMinUpdateTimeMicroSecs/10.);
+					//B3_PROFILE("clock.usleep");
 					exampleBrowser->updateGraphics();
 				} else
 				{
-					B3_PROFILE("exampleBrowser->update");
+					//B3_PROFILE("exampleBrowser->update");
 					clock.reset();
+					exampleBrowser->updateGraphics();
 					exampleBrowser->update(deltaTimeInSeconds);
 				}
 			}
@@ -429,6 +432,7 @@ void btUpdateInProcessExampleBrowserMainThread(btInProcessExampleBrowserMainThre
 {
     float deltaTimeInSeconds = data->m_clock.getTimeMicroseconds()/1000000.f;
     data->m_clock.reset();
+    data->m_exampleBrowser->updateGraphics();
     data->m_exampleBrowser->update(deltaTimeInSeconds);
 }
 void btShutDownExampleBrowserMainThread(btInProcessExampleBrowserMainThreadInternalData* data)

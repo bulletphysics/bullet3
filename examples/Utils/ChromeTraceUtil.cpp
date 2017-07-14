@@ -250,18 +250,25 @@ void b3ChromeUtilsStopTimingsAndWriteJsonFile(const char* fileNamePrefix)
 			static int fileCounter = 0;
 			sprintf(fileName,"%s_%d.json",fileNamePrefix, fileCounter++);
 			gTimingFile = fopen(fileName,"w");
-			fprintf(gTimingFile,"{\"traceEvents\":[\n");
-			//dump the content to file
-			for (int i=0;i<BT_QUICKPROF_MAX_THREAD_COUNT;i++)
+			if (gTimingFile)
 			{
-				if (gTimings[i].m_numTimings)
+				fprintf(gTimingFile,"{\"traceEvents\":[\n");
+				//dump the content to file
+				for (int i=0;i<BT_QUICKPROF_MAX_THREAD_COUNT;i++)
 				{
-					printf("Writing %d timings for thread %d\n", gTimings[i].m_numTimings, i);
-					gTimings[i].flush();
+					if (gTimings[i].m_numTimings)
+					{
+						printf("Writing %d timings for thread %d\n", gTimings[i].m_numTimings, i);
+						gTimings[i].flush();
+					}
 				}
+				fprintf(gTimingFile,"\n],\n\"displayTimeUnit\": \"ns\"}");
+				fclose(gTimingFile);
+			} else
+			{
+				b3Printf("Error opening file");
+				b3Printf(fileName);
 			}
-			fprintf(gTimingFile,"\n],\n\"displayTimeUnit\": \"ns\"}");
-			fclose(gTimingFile);
 			gTimingFile = 0;
 }
 
