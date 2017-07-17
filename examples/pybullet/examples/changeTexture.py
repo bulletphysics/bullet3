@@ -32,11 +32,11 @@ for i in range (100000):
 			pixels[(i+j*width)*3+2]=blue
 	blue=blue+1
 	p.changeTexture(texUid, pixels,width,height)
-	# start = time.time()
-	# p.getCameraImage(300,300,renderer=p.ER_BULLET_HARDWARE_OPENGL)
-	# end = time.time()
-	# print("rendering duraction")
-	# print(end-start)
+	start = time.time()
+	p.getCameraImage(300,300,renderer=p.ER_BULLET_HARDWARE_OPENGL)
+	end = time.time()
+	print("rendering duraction")
+	print(end-start)
 p.stopStateLogging(logId)
 #p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
 #p.configureDebugVisualizer(p.COV_ENABLE_GUI,1)
