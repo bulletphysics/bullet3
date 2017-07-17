@@ -4,6 +4,7 @@
 
 #include "PhysicsClientSharedMemory.h"
 #include"../ExampleBrowser/InProcessExampleBrowser.h"
+#include <stdio.h>
 
 #include "PhysicsServerExampleBullet2.h"
 
@@ -52,12 +53,12 @@ public:
 			}
 		}
 			{	
-	   		unsigned long int ms = m_clock.getTimeMilliseconds();
-			if (ms>20)
+	   		//unsigned long int ms = m_clock.getTimeMilliseconds();
+			//if (ms>2)
 			{ 
-				B3_PROFILE("m_clock.reset()");
+			//	B3_PROFILE("m_clock.reset()");
 
-				m_clock.reset(); 
+			//	m_clock.reset(); 
         			btUpdateInProcessExampleBrowserMainThread(m_data);
 			}
 		}
@@ -165,7 +166,8 @@ public:
 	 // return non-null if there is a status, nullptr otherwise
     virtual const struct SharedMemoryStatus* processServerStatus()
     {
-		//m_physicsServerExample->updateGraphics();
+		printf("updating graphics!\n");
+		m_physicsServerExample->updateGraphics();
 
 		unsigned long long int curTime = m_clock.getTimeMicroseconds();
 		unsigned long long int dtMicro = curTime - m_prevTime;
