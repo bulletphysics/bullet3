@@ -16,7 +16,7 @@ LINK_LIBRARIES(
  BulletInverseDynamicsUtils BulletInverseDynamics Bullet3Common LinearMath gtest 
 )
 IF (NOT WIN32)
-	LINK_LIBRARIES(		pthread	)
+	LINK_LIBRARIES(		${CMAKE_THREAD_LIBS_INIT}	)
 ENDIF()
 
 
@@ -48,7 +48,7 @@ LINK_LIBRARIES(
 BulletDynamics BulletCollision  BulletInverseDynamicsUtils BulletInverseDynamics Bullet3Common LinearMath gtest 
 )
 IF (NOT WIN32)
-        LINK_LIBRARIES(         pthread )
+        LINK_LIBRARIES(         ${CMAKE_THREAD_LIBS_INIT} )
 ENDIF()
 
 
@@ -114,7 +114,7 @@ LINK_LIBRARIES(
  BulletInverseDynamicsUtils BulletInverseDynamics Bullet3Common LinearMath gtest 
 )
 IF (NOT WIN32)
-        LINK_LIBRARIES(         pthread )
+        LINK_LIBRARIES(         ${CMAKE_THREAD_LIBS_INIT} )
 ENDIF()
 
 
