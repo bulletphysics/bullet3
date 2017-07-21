@@ -3,6 +3,7 @@
 #ifndef GWEN_MACROS_H
 #define GWEN_MACROS_H
 #include <stdlib.h>
+#include <stdio.h>
 #include <stdarg.h>
 #include <memory.h>
 #include <algorithm>
