@@ -4,9 +4,6 @@
 #define GWEN_MACROS_H
 #include <stdlib.h>
 #include <stdarg.h>
-#if !defined(__APPLE__) && !defined(__OpenBSD__)
-#include <malloc.h>
-#endif //__APPLE__
 #include <memory.h>
 #include <algorithm>
 
