@@ -331,6 +331,8 @@ public:
 	virtual void getInfo2 (btConstraintInfo2* info);
 	virtual int calculateSerializeBufferSize() const;
 	virtual const char* serialize(void* dataBuffer, btSerializer* serializer) const;
+	
+	int getFlags() const { return m_flags; }
 
 	btRotationalLimitMotor2* getRotationalLimitMotor(int index) { return &m_angularLimits[index]; }
 	btTranslationalLimitMotor2* getTranslationalLimitMotor() { return &m_linearLimits; }
@@ -471,11 +473,15 @@ public:
 	void setMaxMotorForce(int index, btScalar force);
 
 	void enableSpring(int index, bool onOff);
+	bool isSpringEnabled(int index) const;
 	void setStiffness(int index, btScalar stiffness, bool limitIfNeeded = true); // if limitIfNeeded is true the system will automatically limit the stiffness in necessary situations where otherwise the spring would move unrealistically too widely
+	btScalar getStiffness(int index) const;
 	void setDamping(int index, btScalar damping, bool limitIfNeeded = true); // if limitIfNeeded is true the system will automatically limit the damping in necessary situations where otherwise the spring would blow up
+	btScalar getDamping(int index) const;
 	void setEquilibriumPoint(); // set the current constraint position/orientation as an equilibrium point for all DOF
 	void setEquilibriumPoint(int index);  // set the current constraint position/orientation as an equilibrium point for given DOF
 	void setEquilibriumPoint(int index, btScalar val);
+	btScalar getEquilibriumPoint(int index) const;
 
 	//override the default global value of a parameter (such as ERP or CFM), optionally provide the axis (0..5). 
 	//If no axis is provided, it uses the default axis for this constraint.
