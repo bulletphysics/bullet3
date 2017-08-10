@@ -1095,6 +1095,14 @@ void PhysicsDirect::setSharedMemoryKey(int key)
 
 void PhysicsDirect::uploadBulletFileToSharedMemory(const char* data, int len)
 {
+	if (len>SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE)
+	{
+		len = SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE;
+	}
+	for (int i=0;i<len;i++)
+	{
+		m_data->m_bulletStreamDataServerToClient[i] = data[i];
+	}
 	//m_data->m_physicsClient->uploadBulletFileToSharedMemory(data,len);
 }
 

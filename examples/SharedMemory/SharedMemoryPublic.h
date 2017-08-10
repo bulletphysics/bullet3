@@ -4,7 +4,8 @@
 #define SHARED_MEMORY_KEY 12347
 ///increase the SHARED_MEMORY_MAGIC_NUMBER whenever incompatible changes are made in the structures
 ///my convention is year/month/day/rev
-#define SHARED_MEMORY_MAGIC_NUMBER 201706015
+#define SHARED_MEMORY_MAGIC_NUMBER 201707140
+//#define SHARED_MEMORY_MAGIC_NUMBER 201706015
 //#define SHARED_MEMORY_MAGIC_NUMBER 201706001
 //#define SHARED_MEMORY_MAGIC_NUMBER 201703024
 
@@ -67,6 +68,7 @@ enum EnumSharedMemoryClientCommand
 	CMD_CREATE_MULTI_BODY,
 	CMD_REQUEST_COLLISION_INFO,
 	CMD_REQUEST_MOUSE_EVENTS_DATA,
+	CMD_CHANGE_TEXTURE,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -161,6 +163,7 @@ enum EnumSharedMemoryServerStatus
 		CMD_REQUEST_COLLISION_INFO_COMPLETED,
 		CMD_REQUEST_COLLISION_INFO_FAILED,
 		CMD_REQUEST_MOUSE_EVENTS_DATA_COMPLETED,
+		CMD_CHANGE_TEXTURE_COMMAND_FAILED,
         //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
@@ -235,6 +238,7 @@ struct b3UserConstraint
     double m_maxAppliedForce;
     int m_userConstraintUniqueId;
 	double m_gearRatio;
+	int m_gearAuxLink;
 
 };
 

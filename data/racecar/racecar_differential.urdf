@@ -20,12 +20,12 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/chassis_differential.STL"/>
+        <mesh scale="1 1 1 1" filename="meshes/chassis_differential.STL"/>
       </geometry>
       <material name="blue"/>
     </collision>
     <inertial>
-      <origin rpy="0 0 0" xyz="0.1477 0 0"/>
+      <origin rpy="0 0 0" xyz="0.2 0 0."/>
       <mass value="4.0"/>
       <inertia ixx="0.010609" ixy="0" ixz="0" iyy="0.050409" iyz="0" izz="0.05865"/>
     </inertial>
@@ -33,14 +33,14 @@
   <!-- Add the left rear wheel with its joints and tranmissions -->
   <link name="left_rear_wheel">
     <contact>
-      <lateral_friction value="1.0"/>
+      <lateral_friction value=".5"/>
       <rolling_friction value="0.0"/>
       <stiffness value="30000"/>
       <damping value="1000"/>
     </contact>
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 -0.0225"/>
-      <mass value="0.034055"/>
+      <mass value="0.34055"/>
       <inertia ixx="0.00026046" ixy="0" ixz="0" iyy="0.00026046" iyz="0" izz="0.00041226"/>
     </inertial>
     <visual>
@@ -66,14 +66,14 @@
   <!-- Add the right rear wheel with its joints and tranmissions -->
   <link name="right_rear_wheel">
 <contact>
-      <lateral_friction value="1.0"/>
+      <lateral_friction value=".5"/>
       <rolling_friction value="0.0"/>
       <stiffness value="30000"/>
       <damping value="1000"/>
     </contact>
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0.0225"/>
-      <mass value="0.034055"/>
+      <mass value="0.34055"/>
       <inertia ixx="0.00026046" ixy="0" ixz="0" iyy="0.00026046" iyz="0" izz="0.00041226"/>
     </inertial>
     <visual>
@@ -163,14 +163,14 @@
   <!-- Add the left front wheel with its joints and tranmissions -->
   <link name="left_front_wheel">
 <contact>
-      <lateral_friction value="1.0"/>
+      <lateral_friction value=".8"/>
       <rolling_friction value="0.0"/>
       <stiffness value="30000"/>
       <damping value="1000"/>
     </contact>
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 -0.0225"/>
-      <mass value="0.034055"/>
+      <mass value="0.34055"/>
       <inertia ixx="0.00026046" ixy="0" ixz="0" iyy="0.00026046" iyz="0" izz="0.00041226"/>
     </inertial>
     <visual>
@@ -207,14 +207,14 @@
   <!-- Add the left front wheel with its joints and tranmissions -->
   <link name="right_front_wheel">
 <contact>
-      <lateral_friction value="1.0"/>
+      <lateral_friction value="0.8"/>
       <rolling_friction value="0.0"/>
       <stiffness value="30000"/>
       <damping value="1000"/>
     </contact>
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0.0225"/>
-      <mass value="0.034055"/>
+      <mass value="0.34055"/>
       <inertia ixx="0.00026046" ixy="0" ixz="0" iyy="0.00026046" iyz="0" izz="0.00041226"/>
     </inertial>
     <visual>
@@ -533,7 +533,7 @@
     </contact>
     
     <inertial>
-      <mass value="0.5637"/>
+      <mass value="0.0637"/>
       <origin xyz="0 0 0"/>
       <inertia ixx="0.02467" ixy="0" ixz="0" iyy="0.02467" iyz="0" izz="0.04411"/>
     </inertial>
@@ -573,7 +573,7 @@
     </contact>
     
     <inertial>
-      <mass value="0.556"/>
+      <mass value="0.056"/>
       <origin xyz="0 0 0"/>
       <inertia ixx="0.02467" ixy="0" ixz="0" iyy="0.02467" iyz="0" izz="0.04411"/>
     </inertial>
@@ -612,7 +612,7 @@
     </contact>
     
     <inertial>
-      <mass value="0.556"/>
+      <mass value="0.056"/>
       <origin xyz="0 0 0"/>
       <inertia ixx="0.02467" ixy="0" ixz="0" iyy="0.02467" iyz="0" izz="0.04411"/>
     </inertial>
@@ -650,7 +650,7 @@
     </contact>
     
     <inertial>
-      <mass value="0.556"/>
+      <mass value="0.056"/>
       <origin xyz="0 0 0"/>
       <inertia ixx="0.02467" ixy="0" ixz="0" iyy="0.02467" iyz="0" izz="0.04411"/>
     </inertial>
@@ -686,7 +686,7 @@
     </contact>
     
     <inertial>
-      <mass value="0.556"/>
+      <mass value="0.056"/>
       <origin xyz="0 0 0"/>
       <inertia ixx="0.02467" ixy="0" ixz="0" iyy="0.02467" iyz="0" izz="0.04411"/>
     </inertial>

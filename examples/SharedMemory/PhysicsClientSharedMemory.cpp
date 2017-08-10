@@ -1368,7 +1368,9 @@ void PhysicsClientSharedMemory::uploadBulletFileToSharedMemory(const char* data,
                   SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE);
     } else {
         for (int i = 0; i < len; i++) {
-            m_data->m_testBlock1->m_bulletStreamDataClientToServer[i] = data[i];
+            //m_data->m_testBlock1->m_bulletStreamDataClientToServer[i] = data[i];
+			m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor[i] = data[i];
+
         }
     }
 }

@@ -131,6 +131,9 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIHelperChangeGraphicsInstanceRGBAColor,
 	eGUIHelperChangeGraphicsInstanceSpecularColor,
 	eGUIHelperSetVisualizerFlag,
+	eGUIHelperChangeGraphicsInstanceTextureId,
+	eGUIHelperGetShapeIndexFromInstance,
+	eGUIHelperChangeTexture,
 };
 
 
@@ -931,6 +934,46 @@ public:
 		m_cs->lock();
 		m_cs->setSharedParam(1,eGUIHelperRemoveGraphicsInstance);
 		workerThreadWait();    
+	}
+	
+	int m_getShapeIndex_instance;
+	int getShapeIndex_shapeIndex;
+		
+	virtual int getShapeIndexFromInstance(int instance) 
+	{
+		m_getShapeIndex_instance = instance;
+		m_cs->lock();
+		m_cs->setSharedParam(1,eGUIHelperGetShapeIndexFromInstance);
+		workerThreadWait();		
+		return getShapeIndex_shapeIndex;
+	}
+
+	int m_graphicsInstanceChangeTextureId;
+	int m_graphicsInstanceChangeTextureShapeIndex;
+	virtual void replaceTexture(int shapeIndex, int textureUid)
+	{
+		m_graphicsInstanceChangeTextureShapeIndex = shapeIndex;
+		m_graphicsInstanceChangeTextureId = textureUid;
+		m_cs->lock();
+		m_cs->setSharedParam(1,eGUIHelperChangeGraphicsInstanceTextureId);
+		workerThreadWait();   
+	}
+
+
+	int m_changeTextureUniqueId;
+	const unsigned char* m_changeTextureRgbTexels;
+	int m_changeTextureWidth;
+	int m_changeTextureHeight;
+
+	virtual void changeTexture(int textureUniqueId, const unsigned char* rgbTexels, int width, int height)
+	{
+		m_changeTextureUniqueId = textureUniqueId;
+		m_changeTextureRgbTexels = rgbTexels;
+		m_changeTextureWidth = width;
+		m_changeTextureHeight = height;
+		m_cs->lock();
+		m_cs->setSharedParam(1,eGUIHelperChangeTexture);
+		workerThreadWait();   
 	}
 
 	double m_rgbaColor[4];
@@ -1909,6 +1952,34 @@ void	PhysicsServerExample::updateGraphics()
 	case eGUIHelperRemoveGraphicsInstance:
 	{
 		m_multiThreadedHelper->m_childGuiHelper->removeGraphicsInstance(m_multiThreadedHelper->m_graphicsInstanceRemove);
+		m_multiThreadedHelper->mainThreadRelease();
+		break;
+	}
+
+	case eGUIHelperGetShapeIndexFromInstance:
+	{
+		m_multiThreadedHelper->getShapeIndex_shapeIndex = m_multiThreadedHelper->m_childGuiHelper->getShapeIndexFromInstance(m_multiThreadedHelper->m_getShapeIndex_instance);
+		m_multiThreadedHelper->mainThreadRelease();
+		break;
+	}
+
+	case eGUIHelperChangeGraphicsInstanceTextureId:
+	{
+		m_multiThreadedHelper->m_childGuiHelper->replaceTexture(
+			m_multiThreadedHelper->m_graphicsInstanceChangeTextureShapeIndex,
+			m_multiThreadedHelper->m_graphicsInstanceChangeTextureId);
+		m_multiThreadedHelper->mainThreadRelease();
+		break;
+	}
+
+	
+	case eGUIHelperChangeTexture:
+	{
+		m_multiThreadedHelper->m_childGuiHelper->changeTexture(
+			m_multiThreadedHelper->m_changeTextureUniqueId,
+			m_multiThreadedHelper->m_changeTextureRgbTexels,
+			m_multiThreadedHelper->m_changeTextureWidth,
+			m_multiThreadedHelper->m_changeTextureHeight);
 		m_multiThreadedHelper->mainThreadRelease();
 		break;
 	}

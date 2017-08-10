@@ -41,7 +41,6 @@ public:
     }
     virtual ~R2D2GraspExample()
     {
-        m_app->m_renderer->enableBlend(false);
     }
 
     

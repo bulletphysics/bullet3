@@ -373,8 +373,8 @@ void MyKeyboardCallback(int key, int state)
 
 #include "../SharedMemory/SharedMemoryPublic.h"
 extern bool useShadowMap;
-bool gEnableVRRenderControllers=true;
-
+static bool gEnableVRRenderControllers=true;
+static bool gEnableVRRendering = true;
 
 
 void VRPhysicsServerVisualizerFlagCallback(int flag, bool enable)
@@ -391,7 +391,10 @@ void VRPhysicsServerVisualizerFlagCallback(int flag, bool enable)
 	{
 		gEnableVRRenderControllers = enable;
 	}
-	
+	if (flag == COV_ENABLE_RENDERING)
+	{
+		gEnableVRRendering = enable;
+	}
 
 
     if (flag == COV_ENABLE_WIREFRAME)
@@ -887,13 +890,18 @@ void CMainApplication::RunMainLoop()
 	while ( !bQuit && !m_app->m_window->requestedExit())
 	{
 		b3ChromeUtilsEnableProfiling();
+		if (gEnableVRRendering)
 		{
-		B3_PROFILE("main");
+			B3_PROFILE("main");
 
-		bQuit = HandleInput();
+			bQuit = HandleInput();
 
-		RenderFrame();
-	}
+			RenderFrame();
+		} else
+		{
+			b3Clock::usleep(0);
+			sExample->updateGraphics();
+		}
 	}
 
 }

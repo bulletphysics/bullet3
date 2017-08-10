@@ -14,13 +14,13 @@
 #include "../Importers/ImportURDFDemo/UrdfParser.h"
 #include "../Utils/b3ResourcePath.h"
 #include "Bullet3Common/b3FileUtils.h"
-
+#include "../OpenGLWindow/GLInstanceGraphicsShape.h"
 #include "BulletDynamics/Featherstone/btMultiBodySliderConstraint.h"
 #include "BulletDynamics/Featherstone/btMultiBodyPoint2Point.h"
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
 #include "Bullet3Common/b3HashMap.h"
 #include "../Utils/ChromeTraceUtil.h"
-
+#include "stb_image/stb_image.h"
 #include "BulletInverseDynamics/MultiBodyTree.hpp"
 #include "IKTrajectoryHelper.h"
 #include "btBulletDynamicsCommon.h"
@@ -129,16 +129,17 @@ struct SharedMemoryDebugDrawer : public btIDebugDraw
 	}
 };
 
-struct InteralCollisionShapeData
+struct InternalCollisionShapeData
 {
 	btCollisionShape* m_collisionShape;
+	b3AlignedObjectArray<UrdfCollision> m_urdfCollisionObjects;
 	void clear()
 	{
 		m_collisionShape=0;
 	}
 };
 
-struct InteralBodyData
+struct InternalBodyData
 {
 	btMultiBody* m_multiBody;
 	btRigidBody* m_rigidBody;
@@ -151,7 +152,7 @@ struct InteralBodyData
 	b3HashMap<btHashInt, SDFAudioSource> m_audioSources;
 #endif //B3_ENABLE_TINY_AUDIO
 
-	InteralBodyData()		
+	InternalBodyData()		
 	{
 		clear();
 	}
@@ -182,8 +183,20 @@ struct InteralUserConstraintData
 	}
 };
 
-typedef b3PoolBodyHandle<InteralBodyData> InternalBodyHandle;
-typedef b3PoolBodyHandle<InteralCollisionShapeData> InternalCollisionShapeHandle;
+struct InternalTextureData
+{
+	int m_tinyRendererTextureId;
+	int m_openglTextureId;
+	void clear()
+	{
+		m_tinyRendererTextureId = -1;
+		m_openglTextureId = -1;
+	}
+};
+
+typedef b3PoolBodyHandle<InternalTextureData> InternalTextureHandle;
+typedef b3PoolBodyHandle<InternalBodyData> InternalBodyHandle;
+typedef b3PoolBodyHandle<InternalCollisionShapeData> InternalCollisionShapeHandle;
 
 class btCommandChunk
 {
@@ -1144,6 +1157,7 @@ struct ContactPointsStateLogger : public InternalStateLogger
 struct PhysicsServerCommandProcessorInternalData
 {
 	///handle management
+	b3ResizablePool< InternalTextureHandle > m_textureHandles;
 	b3ResizablePool< InternalBodyHandle > m_bodyHandles;
 	b3ResizablePool<InternalCollisionShapeHandle> m_userCollisionShapeHandles;
 
@@ -1268,7 +1282,7 @@ struct PhysicsServerCommandProcessorInternalData
 			int handle = allocHandle();
 			bla.push_back(handle);
 			InternalBodyHandle* body = getHandle(handle);
-			InteralBodyData* body2 = body;
+			InternalBodyData* body2 = body;
 		}
 		for (int i=0;i<bla.size();i++)
 		{
@@ -1282,7 +1296,7 @@ struct PhysicsServerCommandProcessorInternalData
 			int handle = allocHandle();
 			bla.push_back(handle);
 			InternalBodyHandle* body = getHandle(handle);
-			InteralBodyData* body2 = body;
+			InternalBodyData* body2 = body;
 		}
 		for (int i=0;i<bla.size();i++)
 		{
@@ -1295,7 +1309,7 @@ struct PhysicsServerCommandProcessorInternalData
 			int handle = allocHandle();
 			bla.push_back(handle);
 			InternalBodyHandle* body = getHandle(handle);
-			InteralBodyData* body2 = body;
+			InternalBodyData* body2 = body;
 		}
 		for (int i=0;i<bla.size();i++)
 		{
@@ -1739,21 +1753,28 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 		return -1;
 	}
     
-    virtual void convertLinkVisualShapes2(int linkIndex, int urdfIndex, const char* pathPrefix, const btTransform& inertialFrame, class btCollisionObject* colObj, int objectIndex) const  
+    virtual void convertLinkVisualShapes2(int linkIndex, int urdfIndex, const char* pathPrefix, const btTransform& localInertiaFrame, class btCollisionObject* colObj, int bodyUniqueId) const  
 	{
-		
-		#if 0
-  			if (m_data->m_customVisualShapesConverter)
+		//if there is a visual, use it, otherwise convert collision shape back into UrdfCollision...
+
+		UrdfModel model;// = m_data->m_urdfParser.getModel();
+		UrdfLink link;
+		int colShapeUniqueId = m_createBodyArgs.m_linkCollisionShapeUniqueIds[urdfIndex];
+		if (colShapeUniqueId>=0)
+		{
+			InternalCollisionShapeHandle* handle = m_data->m_userCollisionShapeHandles.getHandle(colShapeUniqueId);
+			if (handle)
 			{
-				const UrdfModel& model = m_data->m_urdfParser.getModel();
-				UrdfLink*const* linkPtr = model.m_links.getAtIndex(urdfIndex);
-				if (linkPtr)
+				for (int i=0;i<handle->m_urdfCollisionObjects.size();i++)
 				{
-					m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex,pathPrefix,localInertiaFrame, *linkPtr, &model, colObj, bodyUniqueId);
+					link.m_collisionArray.push_back(handle->m_urdfCollisionObjects[i]);
 				}
 			}
 		}
-	#endif
+		//UrdfVisual vis;
+		//link.m_visualArray.push_back(vis);
+		//UrdfLink*const* linkPtr = model.m_links.getAtIndex(urdfIndex);
+		m_data->m_visualConverter.convertVisualShapes(linkIndex,pathPrefix,localInertiaFrame, &link, &model, colObj, bodyUniqueId);
 	}
     virtual void setBodyUniqueId(int bodyId) 
 	{
@@ -2671,7 +2692,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_OBJECT_UNIQUE_ID)&& (clientCmd.m_stateLoggingArguments.m_numBodyUniqueIds>0))
 							{
 								int bodyUniqueId = clientCmd.m_stateLoggingArguments.m_bodyUniqueIds[0];
-								InteralBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+								InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 								if (body)
 								{
 									if (body->m_multiBody)
@@ -3248,7 +3269,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					for (int i=0;i<usedHandles.size();i++)
 					{
 						int usedHandle = usedHandles[i];
-						InteralBodyData* body = m_data->m_bodyHandles.getHandle(usedHandle);
+						InternalBodyData* body = m_data->m_bodyHandles.getHandle(usedHandle);
 						if (body && (body->m_multiBody || body->m_rigidBody))
 						{
 							serverStatusOut.m_sdfLoadedArgs.m_bodyUniqueIds[actualNumBodies++] = usedHandle;
@@ -3337,7 +3358,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								{
 									{
 										int bodyUniqueId = sd.m_bodyUniqueIds[i];
-										InteralBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+										InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 										if (body)
 										{
 											 if (body->m_multiBody)
@@ -3588,6 +3609,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					btBulletWorldImporter* worldImporter = new btBulletWorldImporter(m_data->m_dynamicsWorld);
 
 					btCollisionShape* shape = 0;
+					b3AlignedObjectArray<UrdfCollision> urdfCollisionObjects;
 
 					btCompoundShape* compound = 0;
 
@@ -3597,6 +3619,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					}
 					for (int i=0;i<clientCmd.m_createCollisionShapeArgs.m_numCollisionShapes;i++)
 					{
+						UrdfCollision urdfColObj;
+
 						btTransform childTransform;
 						childTransform.setIdentity();
 						if (clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_hasChildTransform)
@@ -3616,6 +3640,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							}
 						}
 
+						urdfColObj.m_linkLocalFrame = childTransform;
+						urdfColObj.m_sourceFileLocation = "memory";
+						urdfColObj.m_name = "memory";
+						urdfColObj.m_geometry.m_type = URDF_GEOM_UNKNOWN;
+
 						switch (clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_type)
 						{
 							case GEOM_SPHERE:
@@ -3626,19 +3655,24 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								{
 									compound->addChildShape(childTransform,shape);
 								}
+								urdfColObj.m_geometry.m_type = URDF_GEOM_SPHERE;
+								urdfColObj.m_geometry.m_sphereRadius = radius;
 								break;
 							}
 							case GEOM_BOX:
 							{
 								//double halfExtents[3] = clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_sphereRadius;
-								shape = worldImporter->createBoxShape(btVector3(
+								btVector3 halfExtents(
 									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_boxHalfExtents[0],
 									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_boxHalfExtents[1],
-									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_boxHalfExtents[2]));
+									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_boxHalfExtents[2]);
+								shape = worldImporter->createBoxShape(halfExtents);
 								if (compound)
 								{
 									compound->addChildShape(childTransform,shape);
 								}
+								urdfColObj.m_geometry.m_type = URDF_GEOM_BOX;
+								urdfColObj.m_geometry.m_boxSize = 2.*halfExtents;
 								break;
 							}
 							case GEOM_CAPSULE:
@@ -3649,6 +3683,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								{
 									compound->addChildShape(childTransform,shape);
 								}
+								urdfColObj.m_geometry.m_type = URDF_GEOM_CAPSULE;
+								urdfColObj.m_geometry.m_capsuleRadius = clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_capsuleRadius;
+								urdfColObj.m_geometry.m_capsuleHeight = clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_capsuleHeight;
+
 								break;
 							}
 							case GEOM_CYLINDER:
@@ -3659,6 +3697,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								{
 									compound->addChildShape(childTransform,shape);
 								}
+								urdfColObj.m_geometry.m_type = URDF_GEOM_CYLINDER;
+								urdfColObj.m_geometry.m_capsuleRadius = clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_capsuleRadius;
+								urdfColObj.m_geometry.m_capsuleHeight = clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_capsuleHeight;
+
 								break;
 							}
 							case GEOM_PLANE:
@@ -3672,6 +3714,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								{
 									compound->addChildShape(childTransform,shape);
 								}
+								urdfColObj.m_geometry.m_type = URDF_GEOM_PLANE;
+								urdfColObj.m_geometry.m_planeNormal.setValue(
+									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_planeNormal[0],
+									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_planeNormal[1],
+									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_planeNormal[2]);
+									
 								break;
 							}
 							case GEOM_MESH:
@@ -3685,7 +3733,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								const std::string& urdf_path="";
 
 								std::string fileName = clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_meshFileName;
-								
+								urdfColObj.m_geometry.m_type = URDF_GEOM_MESH;
+								urdfColObj.m_geometry.m_meshFileName = fileName;
+							
+								urdfColObj.m_geometry.m_meshScale = meshScale;
 								char relativeFileName[1024];
 								char pathPrefix[1024];
 								pathPrefix[0] = 0;
@@ -3702,52 +3753,103 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								bool foundFile = findExistingMeshFile(pathPrefix, relativeFileName,error_message_prefix,&out_found_filename, &out_type); 
 								if (foundFile)
 								{
+									urdfColObj.m_geometry.m_meshFileType = out_type;
+
 									if (out_type==UrdfGeometry::FILE_OBJ)
 									{
-										std::vector<tinyobj::shape_t> shapes;
-										std::string err = tinyobj::LoadObj(shapes,out_found_filename.c_str());
 										//create a convex hull for each shape, and store it in a btCompoundShape
 
-										//shape = createConvexHullFromShapes(shapes, collision->m_geometry.m_meshScale);
-										//static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale)
-										B3_PROFILE("createConvexHullFromShapes");
-										if (compound==0)
+										if (clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_collisionFlags&GEOM_FORCE_CONCAVE_TRIMESH)
 										{
-											compound = worldImporter->createCompoundShape();
-										}
-										compound->setMargin(defaultCollisionMargin);
-
-										for (int s = 0; s<(int)shapes.size(); s++)
-										{
-											btConvexHullShape* convexHull = worldImporter->createConvexHullShape();
-											convexHull->setMargin(defaultCollisionMargin);
-											tinyobj::shape_t& shape = shapes[s];
-											int faceCount = shape.mesh.indices.size();
-
-											for (int f = 0; f<faceCount; f += 3)
+											GLInstanceGraphicsShape* glmesh = LoadMeshFromObj(relativeFileName, pathPrefix);
+											
+											if (!glmesh || glmesh->m_numvertices<=0)
 											{
-
-												btVector3 pt;
-												pt.setValue(shape.mesh.positions[shape.mesh.indices[f] * 3 + 0],
-													shape.mesh.positions[shape.mesh.indices[f] * 3 + 1],
-													shape.mesh.positions[shape.mesh.indices[f] * 3 + 2]);
-			
-												convexHull->addPoint(pt*meshScale,false);
-
-												pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 0],
-															shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 1],
-															shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 2]);
-												convexHull->addPoint(pt*meshScale, false);
-
-												pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 0],
-															shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 1],
-															shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 2]);
-												convexHull->addPoint(pt*meshScale, false);
+												b3Warning("%s: cannot extract mesh from '%s'\n", pathPrefix, relativeFileName);
+												delete glmesh;
+												break;
+											}
+											btAlignedObjectArray<btVector3> convertedVerts;
+											convertedVerts.reserve(glmesh->m_numvertices);
+											
+											for (int i=0; i<glmesh->m_numvertices; i++)
+											{
+												convertedVerts.push_back(btVector3(
+													glmesh->m_vertices->at(i).xyzw[0]*meshScale[0],
+													glmesh->m_vertices->at(i).xyzw[1]*meshScale[1],
+													glmesh->m_vertices->at(i).xyzw[2]*meshScale[2]));
 											}
 
-											convexHull->recalcLocalAabb();
-											convexHull->optimizeConvexHull();
-											compound->addChildShape(childTransform,convexHull);
+											BT_PROFILE("convert trimesh");
+											btTriangleMesh* meshInterface = new btTriangleMesh();
+											{
+												BT_PROFILE("convert vertices");
+
+												for (int i=0; i<glmesh->m_numIndices/3; i++)
+												{
+													const btVector3& v0 = convertedVerts[glmesh->m_indices->at(i*3)];
+													const btVector3& v1 = convertedVerts[glmesh->m_indices->at(i*3+1)];
+													const btVector3& v2 = convertedVerts[glmesh->m_indices->at(i*3+2)];
+													meshInterface->addTriangle(v0,v1,v2);
+												}
+											}
+											{
+												BT_PROFILE("create btBvhTriangleMeshShape");
+												btBvhTriangleMeshShape* trimesh = new btBvhTriangleMeshShape(meshInterface,true,true);
+												//trimesh->setLocalScaling(collision->m_geometry.m_meshScale);
+												shape = trimesh;
+												if (compound)
+												{
+													compound->addChildShape(childTransform,shape);
+												}
+											}
+										} else
+										{
+
+											std::vector<tinyobj::shape_t> shapes;
+											std::string err = tinyobj::LoadObj(shapes,out_found_filename.c_str());
+
+											//shape = createConvexHullFromShapes(shapes, collision->m_geometry.m_meshScale);
+											//static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale)
+											B3_PROFILE("createConvexHullFromShapes");
+											if (compound==0)
+											{
+												compound = worldImporter->createCompoundShape();
+											}
+											compound->setMargin(defaultCollisionMargin);
+
+											for (int s = 0; s<(int)shapes.size(); s++)
+											{
+												btConvexHullShape* convexHull = worldImporter->createConvexHullShape();
+												convexHull->setMargin(defaultCollisionMargin);
+												tinyobj::shape_t& shape = shapes[s];
+												int faceCount = shape.mesh.indices.size();
+
+												for (int f = 0; f<faceCount; f += 3)
+												{
+
+													btVector3 pt;
+													pt.setValue(shape.mesh.positions[shape.mesh.indices[f] * 3 + 0],
+														shape.mesh.positions[shape.mesh.indices[f] * 3 + 1],
+														shape.mesh.positions[shape.mesh.indices[f] * 3 + 2]);
+			
+													convexHull->addPoint(pt*meshScale,false);
+
+													pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 0],
+																shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 1],
+																shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 2]);
+													convexHull->addPoint(pt*meshScale, false);
+
+													pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 0],
+																shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 1],
+																shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 2]);
+													convexHull->addPoint(pt*meshScale, false);
+												}
+
+												convexHull->recalcLocalAabb();
+												convexHull->optimizeConvexHull();
+												compound->addChildShape(childTransform,convexHull);
+											}
 										}
 									}
 								}
@@ -3757,7 +3859,13 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							{
 							}
 						}
+						if (urdfColObj.m_geometry.m_type != URDF_GEOM_UNKNOWN)
+						{
+							urdfCollisionObjects.push_back(urdfColObj);
+						}
 					}
+
+					
 					#if 0
 					shape = worldImporter->createCylinderShapeX(radius,height);
 					shape = worldImporter->createCylinderShapeY(radius,height);
@@ -3777,6 +3885,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						int collisionShapeUid = m_data->m_userCollisionShapeHandles.allocHandle();
 						InternalCollisionShapeHandle* handle = m_data->m_userCollisionShapeHandles.getHandle(collisionShapeUid);
 						handle->m_collisionShape = shape;
+						for (int i=0;i<urdfCollisionObjects.size();i++)
+						{
+							handle->m_urdfCollisionObjects.push_back(urdfCollisionObjects[i]);
+						}
 						serverStatusOut.m_createCollisionShapeResultArgs.m_collisionShapeUniqueId = collisionShapeUid;
 						m_data->m_worldImporters.push_back(worldImporter);
 						serverStatusOut.m_type = CMD_CREATE_COLLISION_SHAPE_COMPLETED;
@@ -3860,7 +3972,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									serverStatusOut.m_numDataStreamBytes = m_data->m_urdfLinkNameMapper.at(m_data->m_urdfLinkNameMapper.size()-1)->m_memSerializer->getCurrentBufferSize();
 								}
 								serverStatusOut.m_dataStreamArguments.m_bodyUniqueId = bodyUniqueId;
-								InteralBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+								InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 								strcpy(serverStatusOut.m_dataStreamArguments.m_bodyName, body->m_bodyName.c_str());
 							}
 						}
@@ -3925,7 +4037,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							serverStatusOut.m_numDataStreamBytes = m_data->m_urdfLinkNameMapper.at(m_data->m_urdfLinkNameMapper.size()-1)->m_memSerializer->getCurrentBufferSize();
 						}
 						serverStatusOut.m_dataStreamArguments.m_bodyUniqueId = bodyUniqueId;
-						InteralBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+						InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 						strcpy(serverStatusOut.m_dataStreamArguments.m_bodyName, body->m_bodyName.c_str());
 						hasStatus = true;
 
@@ -3997,7 +4109,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						b3Printf("Processed CMD_CREATE_SENSOR");
 					}
 					int bodyUniqueId = clientCmd.m_createSensorArguments.m_bodyUniqueId;
-					InteralBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+					InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
                     if (body && body->m_multiBody)
                     {
                         btMultiBody* mb = body->m_multiBody;
@@ -4117,7 +4229,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						}
 
 							int bodyUniqueId = clientCmd.m_sendDesiredStateCommandArgument.m_bodyUniqueId;
-							InteralBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+							InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 
                             if (body && body->m_multiBody)
                             {
@@ -4307,7 +4419,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					serverStatusOut.m_type = CMD_REQUEST_COLLISION_INFO_FAILED;
 					hasStatus=true;
 					int bodyUniqueId = clientCmd.m_requestCollisionInfoArgs.m_bodyUniqueId;
-					InteralBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+					InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 						
 
 					if (body && body->m_multiBody)
@@ -4408,7 +4520,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							b3Printf("Sending the actual state (Q,U)");
 						}
 						int bodyUniqueId = clientCmd.m_requestActualStateInformationCommandArgument.m_bodyUniqueId;
-						InteralBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+						InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 						
 
 						if (body && body->m_multiBody)
@@ -4725,7 +4837,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					btAssert(bodyUniqueId >= 0);
 					btAssert(linkIndex >= -1);
 						
-					InteralBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+					InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 
 					if (body && body->m_multiBody)
 					{
@@ -4911,7 +5023,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 				{
 					int bodyUniqueId = clientCmd.m_getDynamicsInfoArgs.m_bodyUniqueId;
 					int linkIndex = clientCmd.m_getDynamicsInfoArgs.m_linkIndex;
-					InteralBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+					InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 					if (body && body->m_multiBody)
 					{
 						SharedMemoryStatus& serverCmd = serverStatusOut;
@@ -5052,7 +5164,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						b3Printf("Server Init Pose not implemented yet");
 					}
 					int bodyUniqueId = clientCmd.m_initPoseArgs.m_bodyUniqueId;
-					InteralBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+					InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 
 					btVector3 baseLinVel(0, 0, 0);
 					btVector3 baseAngVel(0, 0, 0);
@@ -5646,7 +5758,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								
 								if (bodyUniqueIdA >= 0)
 								{
-									InteralBodyData* bodyA = m_data->m_bodyHandles.getHandle(bodyUniqueIdA);
+									InternalBodyData* bodyA = m_data->m_bodyHandles.getHandle(bodyUniqueIdA);
 									if (bodyA)
 									{
 										if (bodyA->m_multiBody)
@@ -5680,7 +5792,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								}
 								if (bodyUniqueIdB>=0)
 								{
-									InteralBodyData* bodyB = m_data->m_bodyHandles.getHandle(bodyUniqueIdB);
+									InternalBodyData* bodyB = m_data->m_bodyHandles.getHandle(bodyUniqueIdB);
 									if (bodyB)
 									{
 										if (bodyB->m_multiBody)
@@ -5949,7 +6061,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     }
                     for (int i = 0; i < clientCmd.m_externalForceArguments.m_numForcesAndTorques; ++i)
                     {
-                        InteralBodyData* body = m_data->m_bodyHandles.getHandle(clientCmd.m_externalForceArguments.m_bodyUniqueIds[i]);
+                        InternalBodyData* body = m_data->m_bodyHandles.getHandle(clientCmd.m_externalForceArguments.m_bodyUniqueIds[i]);
 						bool isLinkFrame = ((clientCmd.m_externalForceArguments.m_forceFlags[i] & EF_LINK_FRAME) != 0);
 
                         if (body && body->m_multiBody)
@@ -6155,12 +6267,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					if (clientCmd.m_updateFlags & USER_CONSTRAINT_ADD_CONSTRAINT)
 					{
 						btScalar defaultMaxForce = 500.0;
-						InteralBodyData* parentBody = m_data->m_bodyHandles.getHandle(clientCmd.m_userConstraintArguments.m_parentBodyIndex);
+						InternalBodyData* parentBody = m_data->m_bodyHandles.getHandle(clientCmd.m_userConstraintArguments.m_parentBodyIndex);
 						if (parentBody && parentBody->m_multiBody)
 						{
 							if ((clientCmd.m_userConstraintArguments.m_parentJointIndex>=-1) && clientCmd.m_userConstraintArguments.m_parentJointIndex < parentBody->m_multiBody->getNumLinks())
 							{
-								InteralBodyData* childBody = clientCmd.m_userConstraintArguments.m_childBodyIndex>=0 ? m_data->m_bodyHandles.getHandle(clientCmd.m_userConstraintArguments.m_childBodyIndex):0;
+								InternalBodyData* childBody = clientCmd.m_userConstraintArguments.m_childBodyIndex>=0 ? m_data->m_bodyHandles.getHandle(clientCmd.m_userConstraintArguments.m_childBodyIndex):0;
 								//also create a constraint with just a single multibody/rigid body without child
 								//if (childBody)
 								{
@@ -6314,7 +6426,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						}
 						else
 						{
-							InteralBodyData* childBody = clientCmd.m_userConstraintArguments.m_childBodyIndex>=0 ? m_data->m_bodyHandles.getHandle(clientCmd.m_userConstraintArguments.m_childBodyIndex):0;
+							InternalBodyData* childBody = clientCmd.m_userConstraintArguments.m_childBodyIndex>=0 ? m_data->m_bodyHandles.getHandle(clientCmd.m_userConstraintArguments.m_childBodyIndex):0;
 						
 							if (parentBody && childBody)
 							{
@@ -6397,6 +6509,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								if (clientCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_GEAR_RATIO)
 								{
 									userConstraintPtr->m_mbConstraint->setGearRatio(clientCmd.m_userConstraintArguments.m_gearRatio);
+								}
+								if (clientCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_GEAR_AUX_LINK)
+								{
+									userConstraintPtr->m_mbConstraint->setGearAuxLink(clientCmd.m_userConstraintArguments.m_gearAuxLink);
 								}
 
 							}
@@ -6659,12 +6775,18 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					BT_PROFILE("CMD_UPDATE_VISUAL_SHAPE");
                     SharedMemoryStatus& serverCmd = serverStatusOut;
                     serverCmd.m_type = CMD_VISUAL_SHAPE_UPDATE_FAILED;
-                    
+                    InternalTextureHandle* texHandle = 0;
+					
 					if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_TEXTURE) 
 					{
+						texHandle = m_data->m_textureHandles.getHandle(clientCmd.m_updateVisualShapeDataArguments.m_textureUniqueId);
+
 						if (clientCmd.m_updateVisualShapeDataArguments.m_textureUniqueId>=0)
 						{
-		                    m_data->m_visualConverter.activateShapeTexture(clientCmd.m_updateVisualShapeDataArguments.m_bodyUniqueId, clientCmd.m_updateVisualShapeDataArguments.m_jointIndex, clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex, clientCmd.m_updateVisualShapeDataArguments.m_textureUniqueId);
+							if (texHandle)
+							{
+			                    m_data->m_visualConverter.activateShapeTexture(clientCmd.m_updateVisualShapeDataArguments.m_bodyUniqueId, clientCmd.m_updateVisualShapeDataArguments.m_jointIndex, clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex, texHandle->m_tinyRendererTextureId);
+							}
 						}
 					}                    
    
@@ -6681,10 +6803,18 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								{
 									if (bodyHandle->m_multiBody->getBaseCollider())
 									{
-										m_data->m_visualConverter.changeRGBAColor(bodyUniqueId,linkIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 										int graphicsIndex = bodyHandle->m_multiBody->getBaseCollider()->getUserIndex();
+										if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_TEXTURE) 
+										{
+											if (texHandle)
+											{
+												int shapeIndex = m_data->m_guiHelper->getShapeIndexFromInstance(graphicsIndex);
+												m_data->m_guiHelper->replaceTexture(shapeIndex,texHandle->m_openglTextureId);
+											}
+										}
 										if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR) 
 										{
+											m_data->m_visualConverter.changeRGBAColor(bodyUniqueId,linkIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 											m_data->m_guiHelper->changeRGBAColor(graphicsIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 										}
 										if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_SPECULAR_COLOR) 
@@ -6699,10 +6829,18 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									{
 										if (bodyHandle->m_multiBody->getLink(linkIndex).m_collider)
 										{
-											m_data->m_visualConverter.changeRGBAColor(bodyUniqueId,linkIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 											int graphicsIndex = bodyHandle->m_multiBody->getLink(linkIndex).m_collider->getUserIndex();
+											if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_TEXTURE) 
+											{
+												if (texHandle)
+												{
+													int shapeIndex = m_data->m_guiHelper->getShapeIndexFromInstance(graphicsIndex);
+													m_data->m_guiHelper->replaceTexture(shapeIndex,texHandle->m_openglTextureId);
+												}
+											}
 											if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR) 
 											{
+												m_data->m_visualConverter.changeRGBAColor(bodyUniqueId,linkIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);										
 												m_data->m_guiHelper->changeRGBAColor(graphicsIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 											}
 											if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_SPECULAR_COLOR) 
@@ -6725,25 +6863,77 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
                     break;
                 }
-                case CMD_LOAD_TEXTURE:
-                {
-					BT_PROFILE("CMD_LOAD_TEXTURE");
-                    SharedMemoryStatus& serverCmd = serverStatusOut;
-                    serverCmd.m_type = CMD_LOAD_TEXTURE_FAILED;
-                    
-                    int uid = m_data->m_visualConverter.loadTextureFile(clientCmd.m_loadTextureArguments.m_textureFileName);
-                    
-                    if (uid>=0)
-                    {
-                        serverCmd.m_type = CMD_LOAD_TEXTURE_COMPLETED;
-                    } else
-                    {
-                        serverCmd.m_type = CMD_LOAD_TEXTURE_FAILED;
-                    }
+
+				case CMD_CHANGE_TEXTURE:
+				{
+					SharedMemoryStatus& serverCmd = serverStatusOut;
+					serverCmd.m_type = CMD_CHANGE_TEXTURE_COMMAND_FAILED;
+					
+					InternalTextureHandle* texH = m_data->m_textureHandles.getHandle(clientCmd.m_changeTextureArgs.m_textureUniqueId);
+					if(texH)
+					{
+						int gltex = texH->m_openglTextureId;
+						m_data->m_guiHelper->changeTexture(gltex,
+							(const unsigned char*)bufferServerToClient, clientCmd.m_changeTextureArgs.m_width,clientCmd.m_changeTextureArgs.m_height);
+
+						serverCmd.m_type = CMD_CLIENT_COMMAND_COMPLETED;
+					}
                     hasStatus = true;
-                    
                     break;
-                }
+				}
+				case CMD_LOAD_TEXTURE:
+				{
+					BT_PROFILE("CMD_LOAD_TEXTURE");
+					SharedMemoryStatus& serverCmd = serverStatusOut;
+					serverCmd.m_type = CMD_LOAD_TEXTURE_FAILED;
+
+					char relativeFileName[1024];
+					char pathPrefix[1024];
+
+					if(b3ResourcePath::findResourcePath(clientCmd.m_loadTextureArguments.m_textureFileName,relativeFileName,1024))
+					{
+						b3FileUtils::extractPath(relativeFileName,pathPrefix,1024);
+
+						int texHandle = m_data->m_textureHandles.allocHandle();
+						InternalTextureHandle* texH = m_data->m_textureHandles.getHandle(texHandle);
+						if(texH)
+						{
+							texH->m_tinyRendererTextureId = -1;
+							texH->m_openglTextureId = -1;
+
+							int uid = m_data->m_visualConverter.loadTextureFile(relativeFileName);
+							if(uid>=0)
+							{
+								int m_tinyRendererTextureId;
+								texH->m_tinyRendererTextureId = uid;
+							}
+
+							{
+								int width,height,n;
+								unsigned char* imageData= stbi_load(relativeFileName,&width,&height,&n,3);
+
+								if(imageData)
+								{
+									texH->m_openglTextureId = m_data->m_guiHelper->registerTexture(imageData,width,height);
+									free(imageData);
+								}
+								else
+								{
+									b3Warning("Unsupported texture image format [%s]\n",relativeFileName);
+								}
+							}
+							serverCmd.m_loadTextureResultArguments.m_textureUniqueId = texHandle;
+							serverCmd.m_type = CMD_LOAD_TEXTURE_COMPLETED;
+						}
+					}
+					else
+					{
+						serverCmd.m_type = CMD_LOAD_TEXTURE_FAILED;
+					}
+					hasStatus = true;
+
+					break;
+				}
 
 				case CMD_LOAD_BULLET:
 				{
@@ -6938,7 +7128,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						if ((clientCmd.m_updateFlags & USER_DEBUG_SET_CUSTOM_OBJECT_COLOR) || (clientCmd.m_updateFlags & USER_DEBUG_REMOVE_CUSTOM_OBJECT_COLOR))
 						{
 							int bodyUniqueId = clientCmd.m_userDebugDrawArgs.m_objectUniqueId;
-							InteralBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+							InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 							if (body)
 							{
 								btCollisionObject* destColObj = 0;

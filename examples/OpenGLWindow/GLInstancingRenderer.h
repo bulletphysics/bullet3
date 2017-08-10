@@ -39,7 +39,7 @@ class GLInstancingRenderer : public CommonRenderInterface
 	int m_screenHeight;
 	
 	int m_upAxis;
-    bool m_enableBlend;
+    
     
 	int registerGraphicsInstanceInternal(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling);
 	void rebuildGraphicsInstances();
@@ -67,7 +67,8 @@ public:
 	virtual int registerTexture(const unsigned char* texels, int width, int height, bool flipPixelsY=true);
     virtual void updateTexture(int textureIndex, const unsigned char* texels, bool flipPixelsY=true);
     virtual void activateTexture(int textureIndex);
-
+	virtual void replaceTexture(int shapeIndex, int textureId);
+	virtual int getShapeIndexFromInstance(int srcIndex);
 
 	///position x,y,z, quaternion x,y,z,w, color r,g,b,a, scaling x,y,z
 	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling);
@@ -147,10 +148,7 @@ public:
 	virtual int getTotalNumInstances() const;
 	
 	virtual void enableShadowMap();
-    virtual void enableBlend(bool blend)
-    {
-        m_enableBlend = blend;
-    }
+    
 	virtual void clearZBuffer();
 
 	virtual void setRenderFrameBuffer(unsigned int renderFrameBuffer);

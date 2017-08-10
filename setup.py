@@ -386,6 +386,7 @@ if _platform == "linux" or _platform == "linux2":
     sources = sources + ["examples/ThirdPartyLibs/enet/unix.c"]\
     +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\
     +["examples/ThirdPartyLibs/Glew/glew.c"]
+    include_dirs += ["examples/ThirdPartyLibs/optionalX11"]
 elif _platform == "win32":
     print("win32!")
     libraries = ['Ws2_32','Winmm','User32','Opengl32','kernel32','glu32','Gdi32','Comdlg32']
@@ -419,7 +420,7 @@ else:
 
 setup(
 	name = 'pybullet',
-	version='1.1.8',
+	version='1.2.2',
 	description='Official Python Interface for the Bullet Physics SDK Robotics Simulator',
 	long_description='pybullet is an easy to use Python module for physics simulation, robotics and machine learning based on the Bullet Physics SDK. With pybullet you can load articulated bodies from URDF, SDF and other file formats. pybullet provides forward dynamics simulation, inverse dynamics computation, forward and inverse kinematics and collision detection and ray intersection queries. Aside from physics simulation, pybullet supports to rendering, with a CPU renderer and OpenGL visualization and support for virtual reality headsets.',
 	url='https://github.com/bulletphysics/bullet3',

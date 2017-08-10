@@ -154,7 +154,6 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 	m_app = gui->getAppInterface();
 	m_internalData = new TinyRendererSetupInternalData(gui->getAppInterface()->m_window->getWidth(),gui->getAppInterface()->m_window->getHeight());
 	
-	m_app->m_renderer->enableBlend(true);
     
 	const char* fileName = "textured_sphere_smooth.obj";
     fileName = "cube.obj";
@@ -225,7 +224,6 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 
 TinyRendererSetup::~TinyRendererSetup()
 {
-	m_app->m_renderer->enableBlend(false);
 	delete m_internalData;
 }
 

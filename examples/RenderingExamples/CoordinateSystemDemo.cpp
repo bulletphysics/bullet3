@@ -37,7 +37,6 @@ public:
     }
     virtual ~CoordinateSystemDemo()
     {
-        m_app->m_renderer->enableBlend(false);
     }
     
     
