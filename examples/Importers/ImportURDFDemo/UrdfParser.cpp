@@ -569,6 +569,15 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement*
         matPtr->m_name = "mat";
 		if (name_char)
 			matPtr->m_name = name_char;
+
+		UrdfMaterial** oldMatPtrPtr = model.m_materials[matPtr->m_name.c_str()];
+		if (oldMatPtrPtr)
+		{
+			UrdfMaterial* oldMatPtr = *oldMatPtrPtr;
+			model.m_materials.remove(matPtr->m_name.c_str());
+			if (oldMatPtr)
+				delete oldMatPtr;
+		}
 		model.m_materials.insert(matPtr->m_name.c_str(),matPtr);
 		{
 			TiXmlElement *diffuse = mat->FirstChildElement("diffuse");
