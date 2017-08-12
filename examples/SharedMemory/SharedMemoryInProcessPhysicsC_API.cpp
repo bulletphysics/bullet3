@@ -53,13 +53,13 @@ public:
 			}
 		}
 			{	
-	   		//unsigned long int ms = m_clock.getTimeMilliseconds();
-			//if (ms>2)
+	   		unsigned long int ms = m_clock.getTimeMilliseconds();
+			if (ms>2)
 			{ 
-			//	B3_PROFILE("m_clock.reset()");
+				B3_PROFILE("m_clock.reset()");
 
-			//	m_clock.reset(); 
-        			btUpdateInProcessExampleBrowserMainThread(m_data);
+				btUpdateInProcessExampleBrowserMainThread(m_data);
+				m_clock.reset(); 
 			}
 		}
 		{
