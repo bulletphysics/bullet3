@@ -929,14 +929,14 @@ static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args, PyObject* key
 	int physicsClientId = 0;
 	int flags = 0;
 
-	static char* kwlist[] = {"fileName", "basePosition", "baseOrientation", "useMaximalCoordinates", "useFixedBase", "flags","physicsClientId", NULL};
+	static char* kwlist[] = {"fileName", "basePosition", "baseOrientation", "useMaximalCoordinates", "useFixedBase", "flags","globalScaling", "physicsClientId", NULL};
 
 	static char* kwlistBackwardCompatible4[] = {"fileName", "startPosX", "startPosY", "startPosZ", NULL};
 	static char* kwlistBackwardCompatible8[] = {"fileName", "startPosX", "startPosY", "startPosZ", "startOrnX", "startOrnY", "startOrnZ", "startOrnW", NULL};
 
 	int bodyUniqueId= -1;
 	const char* urdfFileName = "";
-
+	double globalScaling = -1;
 	double startPosX = 0.0;
 	double startPosY = 0.0;
 	double startPosZ = 0.0;
@@ -976,7 +976,7 @@ static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args, PyObject* key
 		double basePos[3];
 		double baseOrn[4];
 
-		if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|OOiiii", kwlist, &urdfFileName, &basePosObj, &baseOrnObj, &useMaximalCoordinates, &useFixedBase, &flags, &physicsClientId))
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|OOiiidi", kwlist, &urdfFileName, &basePosObj, &baseOrnObj, &useMaximalCoordinates, &useFixedBase, &flags, &globalScaling, &physicsClientId))
 		{
 			return NULL;
 		}
@@ -1040,7 +1040,10 @@ static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args, PyObject* key
 		{
 			b3LoadUrdfCommandSetUseFixedBase(command, 1);
 		}
-
+		if (globalScaling>0)
+		{
+			b3LoadUrdfCommandSetGlobalScaling(command,globalScaling);
+		}
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 		statusType = b3GetStatusType(statusHandle);
 		if (statusType != CMD_URDF_LOADING_COMPLETED)
@@ -1071,10 +1074,11 @@ static PyObject* pybullet_loadSDF(PyObject* self, PyObject* args, PyObject* keyw
 	int statusType;
 	b3SharedMemoryCommandHandle commandHandle;
 	b3PhysicsClientHandle sm = 0;
+	double globalScaling = -1;
 
 	int physicsClientId = 0;
-	static char* kwlist[] = {"sdfFileName", "useMaximalCoordinates", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|ii", kwlist, &sdfFileName, &useMaximalCoordinates, &physicsClientId))
+	static char* kwlist[] = {"sdfFileName", "useMaximalCoordinates", "globalScaling", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|idi", kwlist, &sdfFileName, &useMaximalCoordinates, &globalScaling, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -1090,7 +1094,10 @@ static PyObject* pybullet_loadSDF(PyObject* self, PyObject* args, PyObject* keyw
 	{
 		b3LoadSdfCommandSetUseMultiBody(commandHandle,0);
 	}
-
+	if (globalScaling > 0)
+	{
+		b3LoadSdfCommandSetUseGlobalScaling(commandHandle,globalScaling);
+	}
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 	statusType = b3GetStatusType(statusHandle);
 	if (statusType != CMD_SDF_LOADING_COMPLETED)

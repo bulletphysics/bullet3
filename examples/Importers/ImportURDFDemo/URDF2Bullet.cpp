@@ -173,6 +173,7 @@ void processContactParameters(const URDFLinkContactInfo& contactInfo, btCollisio
 }
 
 
+btScalar tmpUrdfScaling=2;
 
 
 void ConvertURDF2BulletInternal(

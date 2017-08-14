@@ -15,9 +15,10 @@ class BulletURDFImporter : public URDFImporterInterface
 
 public:
 
-	BulletURDFImporter(struct GUIHelperInterface* guiHelper, LinkVisualShapesConverter* customConverter);
+	BulletURDFImporter::BulletURDFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter, btScalar globalScaling);
 
 	virtual ~BulletURDFImporter();
+
 
 	virtual bool loadURDF(const char* fileName, bool forceFixedBase = false);
 

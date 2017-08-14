@@ -69,6 +69,12 @@ ATTRIBUTE_ALIGNED16(struct) BulletURDFInternalData
 	{
 		m_pathPrefix[0] = 0;
 	}
+
+	void setGlobalScaling(btScalar scaling)
+	{
+		m_urdfParser.setGlobalScaling(scaling);
+	}
+
 };
 
 void BulletURDFImporter::printTree()
@@ -76,10 +82,10 @@ void BulletURDFImporter::printTree()
 //	btAssert(0);
 }
 
-BulletURDFImporter::BulletURDFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter)
+BulletURDFImporter::BulletURDFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter, btScalar globalScaling)
 {
 	m_data = new BulletURDFInternalData;
-	
+	m_data->setGlobalScaling(globalScaling);
 	m_data->m_guiHelper = helper;
 	m_data->m_customVisualShapesConverter = customConverter;
 
