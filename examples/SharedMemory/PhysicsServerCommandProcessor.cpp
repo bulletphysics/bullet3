@@ -6080,28 +6080,30 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                          
                             if ((clientCmd.m_externalForceArguments.m_forceFlags[i] & EF_FORCE)!=0)
                             {
-                                btVector3 forceLocal(clientCmd.m_externalForceArguments.m_forcesAndTorques[i*3+0],
+                                btVector3 tmpForce(clientCmd.m_externalForceArguments.m_forcesAndTorques[i*3+0],
                                                 clientCmd.m_externalForceArguments.m_forcesAndTorques[i*3+1],
                                                 clientCmd.m_externalForceArguments.m_forcesAndTorques[i*3+2]);
-                                btVector3 positionLocal(
+                                btVector3 tmpPosition(
                                                         clientCmd.m_externalForceArguments.m_positions[i*3+0],
                                                         clientCmd.m_externalForceArguments.m_positions[i*3+1],
                                                         clientCmd.m_externalForceArguments.m_positions[i*3+2]);
 
+								
                                 if (clientCmd.m_externalForceArguments.m_linkIds[i] == -1)
                                 {
-                                    btVector3 forceWorld = isLinkFrame ? forceLocal : mb->getBaseWorldTransform().getBasis()*forceLocal;
-                                    btVector3 relPosWorld = isLinkFrame ? positionLocal : mb->getBaseWorldTransform().getBasis()*positionLocal;
+                                    btVector3 forceWorld = isLinkFrame ? mb->getBaseWorldTransform().getBasis()*tmpForce : tmpForce;
+									btVector3 relPosWorld = isLinkFrame ? mb->getBaseWorldTransform().getBasis()*tmpPosition : tmpPosition - mb->getBaseWorldTransform().getOrigin();
                                     mb->addBaseForce(forceWorld);
                                     mb->addBaseTorque(relPosWorld.cross(forceWorld));
                                     //b3Printf("apply base force of %f,%f,%f at %f,%f,%f\n", forceWorld[0],forceWorld[1],forceWorld[2],positionLocal[0],positionLocal[1],positionLocal[2]);
                                 } else
                                 {
                                     int link = clientCmd.m_externalForceArguments.m_linkIds[i];
-                                    btVector3 forceWorld = mb->getLink(link).m_cachedWorldTransform.getBasis()*forceLocal;
-                                    btVector3 relPosWorld = mb->getLink(link).m_cachedWorldTransform.getBasis()*positionLocal;
-                                    mb->addLinkForce(link, forceWorld);
-                                    mb->addLinkTorque(link,relPosWorld.cross(forceWorld));
+
+									btVector3 forceWorld = isLinkFrame ? mb->getLink(link).m_cachedWorldTransform.getBasis()*tmpForce : tmpForce;
+									btVector3 relPosWorld = isLinkFrame ? mb->getLink(link).m_cachedWorldTransform.getBasis()*tmpPosition : tmpPosition - mb->getBaseWorldTransform().getOrigin();
+									mb->addLinkForce(link, forceWorld);
+									mb->addLinkTorque(link,relPosWorld.cross(forceWorld));
                                     //b3Printf("apply link force of %f,%f,%f at %f,%f,%f\n", forceWorld[0],forceWorld[1],forceWorld[2], positionLocal[0],positionLocal[1],positionLocal[2]);
                                 }
                             }

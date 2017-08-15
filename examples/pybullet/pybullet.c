@@ -338,10 +338,10 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 			int i;
 			for (i = 0; i < MAX_PHYSICS_CLIENTS; i++)
 			{
-				if (sPhysicsClientsGUI[i] == eCONNECT_GUI)
+				if ((sPhysicsClientsGUI[i] == eCONNECT_GUI) || (sPhysicsClientsGUI[i] == eCONNECT_GUI_SERVER))
 				{
 					PyErr_SetString(SpamError,
-									"Only one local in-process GUI connection allowed. Use DIRECT connection mode or start a separate GUI physics server (ExampleBrowser, App_SharedMemoryPhysics_GUI, App_SharedMemoryPhysics_VR) and connect over SHARED_MEMORY, UDP or TCP instead.");
+									"Only one local in-process GUI/GUI_SERVER connection allowed. Use DIRECT connection mode or start a separate GUI physics server (ExampleBrowser, App_SharedMemoryPhysics_GUI, App_SharedMemoryPhysics_VR) and connect over SHARED_MEMORY, UDP or TCP instead.");
 					return NULL;
 				}
 			}
