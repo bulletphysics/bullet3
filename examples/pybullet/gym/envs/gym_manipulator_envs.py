@@ -1,4 +1,4 @@
-from pybulletgym.envs.scene_abstract import SingleRobotEmptyScene
+from scene_abstract import SingleRobotEmptyScene
 from env_bases import MujocoXmlBaseBulletEnv
 import gym, gym.spaces, gym.utils, gym.utils.seeding
 import numpy as np

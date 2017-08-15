@@ -53,30 +53,23 @@ register(
 
 register(
 	id='InvertedPendulumBulletEnv-v0',
-	entry_point='envs.gym_pendula_envs:InvertedPendulumBulletEnv',
+	entry_point='envs.gym_pendulum_envs:InvertedPendulumBulletEnv',
 	max_episode_steps=1000,
 	reward_threshold=950.0,
 	)
 
 register(
 	id='InvertedDoublePendulumBulletEnv-v0',
-	entry_point='envs.gym_pendula_envs:InvertedDoublePendulumBulletEnv',
+	entry_point='envs.gym_pendulum_envs:InvertedDoublePendulumBulletEnv',
 	max_episode_steps=1000,
 	reward_threshold=9100.0,
 	)
 
 register(
 	id='InvertedPendulumSwingupBulletEnv-v0',
-	entry_point='envs.gym_pendula_envs:InvertedPendulumSwingupBulletEnv',
+	entry_point='envs.gym_pendulum_envs:InvertedPendulumSwingupBulletEnv',
 	max_episode_steps=1000,
 	reward_threshold=800.0,
-	)
-
-register(
-	id='HopperBulletEnv-v0',
-	entry_point='envs.gym_walker_envs:HopperBulletEnv',
-	max_episode_steps=1000,
-	reward_threshold=2500.0
 	)
 
 register(
@@ -109,26 +102,33 @@ register(
 
 register(
 	id='Walker2DBulletEnv-v0',
-	entry_point='envs.gym_walker_envs:Walker2DBulletEnv',
+	entry_point='envs.gym_locomotion_envs:Walker2DBulletEnv',
 	max_episode_steps=1000,
 	reward_threshold=2500.0
 	)
 register(
 	id='HalfCheetahBulletEnv-v0',
-	entry_point='envs.gym_walker_envs:HalfCheetahBulletEnv',
+	entry_point='envs.gym_locomotion_envs:HalfCheetahBulletEnv',
 	max_episode_steps=1000,
 	reward_threshold=3000.0
 	)
 
 register(
 	id='AntBulletEnv-v0',
-	entry_point='envs.gym_walker_envs:AntBulletEnv',
+	entry_point='envs.gym_locomotion_envs:AntBulletEnv',
 	max_episode_steps=1000,
 	reward_threshold=2500.0
 	)
 
 register(
 	id='HumanoidBulletEnv-v0',
-	entry_point='envs.gym_walker_envs:HumanoidBulletEnv',
+	entry_point='envs.gym_locomotion_envs:HumanoidBulletEnv',
 	max_episode_steps=1000
+	)
+
+register(
+	id='HopperBulletEnv-v0',
+	entry_point='envs.gym_locomotion_envs:HopperBulletEnv',
+	max_episode_steps=1000,
+	reward_threshold=2500.0
 	)

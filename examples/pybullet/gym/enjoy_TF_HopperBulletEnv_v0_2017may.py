@@ -8,7 +8,9 @@ def relu(x):
     return np.maximum(x, 0)
 
 class SmallReactivePolicy:
-    "Simple multi-layer perceptron policy, no internal state"
+    """
+    Simple multi-layer perceptron policy, no internal state
+    """
     def __init__(self, observation_space, action_space):
         assert weights_dense1_w.shape == (observation_space.shape[0], 128)
         assert weights_dense2_w.shape == (128, 64)
