@@ -294,6 +294,7 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 	int method = eCONNECT_GUI;
 	int i;
 	char* options="";
+
 	b3PhysicsClientHandle sm = 0;
 
 	if (sNumPhysicsClients >= MAX_PHYSICS_CLIENTS)
@@ -354,9 +355,21 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 				char* argv[2] = {"unused",options};
 
 #ifdef __APPLE__
-				sm = b3CreateInProcessPhysicsServerAndConnectMainThread(argc, argv);
+				sm = b3CreateInProcessPhysicsServerAndConnectMainThread(argc, argv,1);
 #else
-				sm = b3CreateInProcessPhysicsServerAndConnect(argc, argv);
+				sm = b3CreateInProcessPhysicsServerAndConnect(argc, argv,1);
+#endif
+				break;
+			}
+			case eCONNECT_GUI_SERVER:
+			{
+				int argc = 2;
+				char* argv[2] = {"unused",options};
+
+#ifdef __APPLE__
+				sm = b3CreateInProcessPhysicsServerAndConnectMainThread(argc, argv,0);
+#else
+				sm = b3CreateInProcessPhysicsServerAndConnect(argc, argv,0);
 #endif
 				break;
 			}
@@ -7261,6 +7274,7 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "GUI", eCONNECT_GUI);        // user read
 	PyModule_AddIntConstant(m, "UDP", eCONNECT_UDP);        // user read
 	PyModule_AddIntConstant(m, "TCP", eCONNECT_TCP);        // user read
+	PyModule_AddIntConstant(m, "GUI_SERVER", eCONNECT_GUI_SERVER);        // user read
 
 	PyModule_AddIntConstant(m, "JOINT_REVOLUTE", eRevoluteType);        // user read
 	PyModule_AddIntConstant(m, "JOINT_PRISMATIC", ePrismaticType);      // user read
