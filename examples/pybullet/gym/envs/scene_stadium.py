@@ -12,8 +12,8 @@ class StadiumScene(Scene):
 		# stadium_pose = cpp_household.Pose()
 		# if self.zero_at_running_strip_start_line:
 		#	 stadium_pose.set_xyz(27, 21, 0)  # see RUN_STARTLINE, RUN_RAD constants
-		self.stadium = p.loadSDF(os.path.join(os.path.dirname(__file__), "other_assets", "stadium.sdf"))
-		self.ground_plane_mjcf = p.loadMJCF(os.path.join(os.path.dirname(__file__), "mujoco_assets", "ground_plane.xml"))
+		self.stadium = p.loadSDF("stadium.sdf")
+		self.ground_plane_mjcf = p.loadMJCF("mjcf/ground_plane.xml")
 
 class SinglePlayerStadiumScene(StadiumScene):
 	"This scene created by environment, to work in a way as if there was no concept of scene visible to user."

@@ -1,10 +1,10 @@
 from pybulletgym.envs.scene_abstract import SingleRobotEmptyScene
-from gym_mujoco_xml_env import PybulletMujocoXmlEnv
+from env_bases import MujocoXmlBaseBulletEnv
 import gym, gym.spaces, gym.utils, gym.utils.seeding
 import numpy as np
 import os, sys
 
-class PybulletReacher(PybulletMujocoXmlEnv):
+class ReacherBulletEnv(MujocoXmlBaseBulletEnv):
 	def __init__(self):
 		PybulletMujocoXmlEnv.__init__(self, 'reacher.xml', 'body0', action_dim=2, obs_dim=9)
 
@@ -74,7 +74,7 @@ class PybulletReacher(PybulletMujocoXmlEnv):
 		self.camera.move_and_look_at(0.3, 0.3, 0.3, x, y, z)
 
 
-class PybulletPusher(PybulletMujocoXmlEnv):
+class PusherBulletEnv(MujocoXmlBaseBulletEnv):
 	def __init__(self):
 		PybulletMujocoXmlEnv.__init__(self, 'pusher.xml', 'body0', action_dim=7, obs_dim=5)
 
@@ -138,7 +138,7 @@ class PybulletPusher(PybulletMujocoXmlEnv):
 		self.camera.move_and_look_at(0.3, 0.3, 0.3, x, y, z)
 
 
-class PybulletStriker(PybulletMujocoXmlEnv):
+class StrikerBulletEnv(MujocoXmlBaseBulletEnv):
 	def __init__(self):
 		PybulletMujocoXmlEnv.__init__(self, 'striker.xml', 'body0', action_dim=7, obs_dim=5)
 		self._striked = False
@@ -230,7 +230,7 @@ class PybulletStriker(PybulletMujocoXmlEnv):
 		self.camera.move_and_look_at(0.3, 0.3, 0.3, x, y, z)
 
 
-class PybulletThrower(PybulletMujocoXmlEnv):
+class ThrowerBulletEnv(MujocoXmlBaseBulletEnv):
 	def __init__(self):
 		PybulletMujocoXmlEnv.__init__(self, 'thrower.xml', 'body0', action_dim=7, obs_dim=5)
 		self._ball_hit_ground = False

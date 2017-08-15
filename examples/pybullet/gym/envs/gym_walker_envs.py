@@ -1,15 +1,15 @@
 from distutils.command.config import config
 
-from pybulletgym.envs.scene_abstract import SingleRobotEmptyScene
-from pybulletgym.envs.scene_stadium import SinglePlayerStadiumScene
-from gym_mujoco_xml_env import PybulletMujocoXmlEnv
+from scene_abstract import SingleRobotEmptyScene
+from scene_stadium import SinglePlayerStadiumScene
+from env_bases import MujocoXmlBaseBulletEnv
 import gym, gym.spaces, gym.utils, gym.utils.seeding
 import numpy as np
 import os, sys
 
-class PybulletForwardWalkersBase(PybulletMujocoXmlEnv):
+class WalkerBaseBulletEnv(MujocoXmlBaseBulletEnv):
 	def __init__(self, fn, robot_name, action_dim, obs_dim, power):
-		PybulletMujocoXmlEnv.__init__(self, fn, robot_name, action_dim, obs_dim)
+		MujocoXmlBaseBulletEnv.__init__(self, fn, robot_name, action_dim, obs_dim)
 		self.power = power
 		self.camera_x = 0
 		self.walk_target_x = 1e3  # kilometer away
@@ -132,33 +132,33 @@ class PybulletForwardWalkersBase(PybulletMujocoXmlEnv):
 		self.camera_x = 0.98*self.camera_x + (1-0.98)*x
 		self.camera.move_and_look_at(self.camera_x, y-2.0, 1.4, x, y, 1.0)
 
-class PybulletHopper(PybulletForwardWalkersBase):
+class HopperBulletEnv(WalkerBaseBulletEnv):
 	foot_list = ["foot"]
 	def __init__(self):
-		PybulletForwardWalkersBase.__init__(self, "hopper.xml", "torso", action_dim=3, obs_dim=15, power=0.75)
+		WalkerBaseBulletEnv.__init__(self, "hopper.xml", "torso", action_dim=3, obs_dim=15, power=0.75)
 	def alive_bonus(self, z, pitch):
 		return +1 if z > 0.8 and abs(pitch) < 1.0 else -1
 
-class PybulletWalker2d(PybulletForwardWalkersBase):
+class Walker2DBulletEnv(WalkerBaseBulletEnv):
 	foot_list = ["foot", "foot_left"]
 	def __init__(self):
-		PybulletForwardWalkersBase.__init__(self, "walker2d.xml", "torso", action_dim=6, obs_dim=22, power=0.40)
+		WalkerBaseBulletEnv.__init__(self, "walker2d.xml", "torso", action_dim=6, obs_dim=22, power=0.40)
 	def alive_bonus(self, z, pitch):
 		return +1 if z > 0.8 and abs(pitch) < 1.0 else -1
 	def robot_specific_reset(self):
-		PybulletForwardWalkersBase.robot_specific_reset(self)
+		WalkerBaseBulletEnv.robot_specific_reset(self)
 		for n in ["foot_joint", "foot_left_joint"]:
 			self.jdict[n].power_coef = 30.0
 
-class PybulletHalfCheetah(PybulletForwardWalkersBase):
+class HalfCheetahBulletEnv(WalkerBaseBulletEnv):
 	foot_list = ["ffoot", "fshin", "fthigh",  "bfoot", "bshin", "bthigh"]  # track these contacts with ground
 	def __init__(self):
-		PybulletForwardWalkersBase.__init__(self, "half_cheetah.xml", "torso", action_dim=6, obs_dim=26, power=0.90)
+		WalkerBaseBulletEnv.__init__(self, "half_cheetah.xml", "torso", action_dim=6, obs_dim=26, power=0.90)
 	def alive_bonus(self, z, pitch):
 		# Use contact other than feet to terminate episode: due to a lot of strange walks using knees
 		return +1 if np.abs(pitch) < 1.0 and not self.feet_contact[1] and not self.feet_contact[2] and not self.feet_contact[4] and not self.feet_contact[5] else -1
 	def robot_specific_reset(self):
-		PybulletForwardWalkersBase.robot_specific_reset(self)
+		WalkerBaseBulletEnv.robot_specific_reset(self)
 		self.jdict["bthigh"].power_coef = 120.0
 		self.jdict["bshin"].power_coef  = 90.0
 		self.jdict["bfoot"].power_coef  = 60.0
@@ -166,28 +166,28 @@ class PybulletHalfCheetah(PybulletForwardWalkersBase):
 		self.jdict["fshin"].power_coef  = 60.0
 		self.jdict["ffoot"].power_coef  = 30.0
 
-class PybulletAnt(PybulletForwardWalkersBase):
+class AntBulletEnv(WalkerBaseBulletEnv):
 	foot_list = ['front_left_foot', 'front_right_foot', 'left_back_foot', 'right_back_foot']
 	def __init__(self):
-		PybulletForwardWalkersBase.__init__(self, "ant.xml", "torso", action_dim=8, obs_dim=28, power=10.5)
+		WalkerBaseBulletEnv.__init__(self, "ant.xml", "torso", action_dim=8, obs_dim=28, power=10.5)
 	def alive_bonus(self, z, pitch):
 		return +1 if z > 0.26 else -1  # 0.25 is central sphere rad, die if it scrapes the ground
 
 
 ## 3d Humanoid ##
 
-class PybulletHumanoid(PybulletForwardWalkersBase):
+class HumanoidBulletEnv(WalkerBaseBulletEnv):
 	self_collision = True
 	foot_list = ["right_foot", "left_foot"]  # "left_hand", "right_hand"
 
 	def __init__(self):
-		PybulletForwardWalkersBase.__init__(self, 'humanoid_symmetric.xml', 'torso', action_dim=17, obs_dim=44, power=0.41)
+		WalkerBaseBulletEnv.__init__(self, 'humanoid_symmetric.xml', 'torso', action_dim=17, obs_dim=44, power=0.41)
 		# 17 joints, 4 of them important for walking (hip, knee), others may as well be turned off, 17/4 = 4.25
-		self.electricity_cost  = 4.25*PybulletForwardWalkersBase.electricity_cost
-		self.stall_torque_cost = 4.25*PybulletForwardWalkersBase.stall_torque_cost
+		self.electricity_cost  = 4.25*WalkerBaseBulletEnv.electricity_cost
+		self.stall_torque_cost = 4.25*WalkerBaseBulletEnv.stall_torque_cost
 
 	def robot_specific_reset(self):
-		PybulletForwardWalkersBase.robot_specific_reset(self)
+		WalkerBaseBulletEnv.robot_specific_reset(self)
 		self.motor_names  = ["abdomen_z", "abdomen_y", "abdomen_x"]
 		self.motor_power  = [100, 100, 100]
 		self.motor_names += ["right_hip_x", "right_hip_z", "right_hip_y", "right_knee"]

@@ -1,7 +1,7 @@
 import gym
 import numpy as np
 import pybullet as p
-import pybulletgym.envs
+import envs
 import time
 
 def relu(x):
@@ -22,7 +22,7 @@ class SmallReactivePolicy:
         return x
 
 def demo_run():
-    env = gym.make("PybulletInvertedDoublePendulum-v0")
+    env = gym.make("InvertedDoublePendulumBulletEnv-v0")
 
     cid = p.connect(p.SHARED_MEMORY)  # only show graphics if the browser is already running....
     if cid < 0:

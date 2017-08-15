@@ -1,15 +1,15 @@
-from pybulletgym.envs.scene_abstract import SingleRobotEmptyScene
-from gym_mujoco_xml_env import PybulletMujocoXmlEnv
+from scene_abstract import SingleRobotEmptyScene
+from env_bases import MujocoXmlBaseBulletEnv
 import gym, gym.spaces, gym.utils, gym.utils.seeding
 import numpy as np
 import os, sys
 
-class PybulletInvertedPendulum(PybulletMujocoXmlEnv):
+class InvertedPendulumBulletEnv(MujocoXmlBaseBulletEnv):
 	swingup = False
 	force_gain = 12 # TODO: Try to find out why we need to scale the force
 
 	def __init__(self):
-		PybulletMujocoXmlEnv.__init__(self, 'inverted_pendulum.xml', 'cart', action_dim=1, obs_dim=5)
+		MujocoXmlBaseBulletEnv.__init__(self, 'inverted_pendulum.xml', 'cart', action_dim=1, obs_dim=5)
 
 	def create_single_player_scene(self):
 		return SingleRobotEmptyScene(gravity=9.8, timestep=0.0165, frame_skip=1)
@@ -73,13 +73,13 @@ class PybulletInvertedPendulum(PybulletMujocoXmlEnv):
 	def camera_adjust(self):
 		self.camera.move_and_look_at(0,1.2,1.0, 0,0,0.5)
 
-class PybulletInvertedPendulumSwingup(PybulletInvertedPendulum):
+class InvertedPendulumSwingupBulletEnv(InvertedPendulumBulletEnv):
 	swingup = True
 	force_gain = 2.2  # TODO: Try to find out why we need to scale the force
 
-class PybulletInvertedDoublePendulum(PybulletMujocoXmlEnv):
+class InvertedDoublePendulumBulletEnv(MujocoXmlBaseBulletEnv):
 	def __init__(self):
-		PybulletMujocoXmlEnv.__init__(self, 'inverted_double_pendulum.xml', 'cart', action_dim=1, obs_dim=9)
+		MujocoXmlBaseBulletEnv.__init__(self, 'inverted_double_pendulum.xml', 'cart', action_dim=1, obs_dim=9)
 
 	def create_single_player_scene(self):
 		return SingleRobotEmptyScene(gravity=9.8, timestep=0.0165, frame_skip=1)

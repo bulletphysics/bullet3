@@ -4,7 +4,7 @@ import pybullet as p
 import os
 
 
-class PybulletMujocoXmlEnv(gym.Env):
+class MujocoXmlBaseBulletEnv(gym.Env):
 	"""
 	Base class for MuJoCo .xml actors in a Scene.
 	These environments create single-player scenes and behave like normal Gym environments, if
@@ -107,9 +107,9 @@ class PybulletMujocoXmlEnv(gym.Env):
 		dump = 0
 
 		if self.self_collision:
-			self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(p.loadMJCF(os.path.join(os.path.dirname(__file__), "mujoco_assets", self.model_xml), flags = p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS))
+			self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(p.loadMJCF(os.path.join("mjcf", self.model_xml), flags = p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS))
 		else:
-			self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(p.loadMJCF(os.path.join(os.path.dirname(__file__), "mujoco_assets", self.model_xml)))
+			self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(p.loadMJCF(os.path.join("mjcf", self.model_xml)))
 
 		self.robot_specific_reset()
 		s = self.calc_state()	# optimization: calc_state() can calculate something in self.* for calc_potential() to use
