@@ -355,9 +355,9 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 				char* argv[2] = {"unused",options};
 
 #ifdef __APPLE__
-				sm = b3CreateInProcessPhysicsServerAndConnectMainThread(argc, argv,1);
+				sm = b3CreateInProcessPhysicsServerAndConnectMainThread(argc, argv);
 #else
-				sm = b3CreateInProcessPhysicsServerAndConnect(argc, argv,1);
+				sm = b3CreateInProcessPhysicsServerAndConnect(argc, argv);
 #endif
 				break;
 			}
@@ -367,9 +367,9 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 				char* argv[2] = {"unused",options};
 
 #ifdef __APPLE__
-				sm = b3CreateInProcessPhysicsServerAndConnectMainThread(argc, argv,0);
+				sm = b3CreateInProcessPhysicsServerAndConnectMainThreadSharedMemory(argc, argv);
 #else
-				sm = b3CreateInProcessPhysicsServerAndConnect(argc, argv,0);
+				sm = b3CreateInProcessPhysicsServerAndConnectSharedMemory(argc, argv);
 #endif
 				break;
 			}
