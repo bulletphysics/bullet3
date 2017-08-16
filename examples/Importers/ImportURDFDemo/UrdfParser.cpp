@@ -6,7 +6,8 @@
 
 UrdfParser::UrdfParser()
 :m_parseSDF(false),
-m_activeSdfModel(-1)
+m_activeSdfModel(-1),
+m_urdfScaling(1)
 {
 	m_urdf2Model.m_sourceFile = "IN_MEMORY_STRING"; // if loadUrdf() called later, source file name will be replaced with real
 }
@@ -132,22 +133,24 @@ bool UrdfParser::parseMaterial(UrdfMaterial& material, TiXmlElement *config, Err
 
 }
 
-bool parseTransform(btTransform& tr, TiXmlElement* xml, ErrorLogger* logger, bool parseSDF = false)
+bool UrdfParser::parseTransform(btTransform& tr, TiXmlElement* xml, ErrorLogger* logger, bool parseSDF )
 {
     tr.setIdentity();
     
+	btVector3 vec(0,0,0);
     if (parseSDF)
     {
-        parseVector3(tr.getOrigin(),std::string(xml->GetText()),logger);
+        parseVector3(vec,std::string(xml->GetText()),logger);
     }
     else
     {
         const char* xyz_str = xml->Attribute("xyz");
         if (xyz_str)
         {
-            parseVector3(tr.getOrigin(),std::string(xyz_str),logger);
+            parseVector3(vec,std::string(xyz_str),logger);
         }
     }
+	tr.setOrigin(vec*m_urdfScaling);
     
     if (parseSDF)
     {
@@ -344,7 +347,7 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
 			return false;
 		} else
 		{
-			geom.m_sphereRadius = urdfLexicalCast<double>(shape->Attribute("radius"));
+			geom.m_sphereRadius = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("radius"));
 		}
 	}	
 	else if (type_name == "box")
@@ -359,6 +362,7 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
                 return false;
             }
             parseVector3(geom.m_boxSize,size->GetText(),logger);
+			geom.m_boxSize *= m_urdfScaling;
         }
         else
         {
@@ -369,6 +373,7 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
               } else
               {
                   parseVector3(geom.m_boxSize,shape->Attribute("size"),logger);
+				  geom.m_boxSize *= m_urdfScaling;
               }
         }
 	}
@@ -382,8 +387,8 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
 		  return false;
 	  }
 		geom.m_hasFromTo = false;
-		geom.m_capsuleRadius = urdfLexicalCast<double>(shape->Attribute("radius"));
-		geom.m_capsuleHeight = urdfLexicalCast<double>(shape->Attribute("length"));
+		geom.m_capsuleRadius = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("radius"));
+		geom.m_capsuleHeight = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("length"));
 		
 	}
 	else if (type_name == "capsule")
@@ -396,8 +401,8 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
 			return false;
 		}
 		geom.m_hasFromTo = false;
-		geom.m_capsuleRadius = urdfLexicalCast<double>(shape->Attribute("radius"));
-		geom.m_capsuleHeight = urdfLexicalCast<double>(shape->Attribute("length"));
+		geom.m_capsuleRadius = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("radius"));
+		geom.m_capsuleHeight = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("length"));
 	}
 	else if (type_name == "mesh")
 	{
@@ -437,6 +442,8 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
 				}
 			}
 		}
+
+		geom.m_meshScale *= m_urdfScaling; 
 
 		if (fn.empty())
 		{
@@ -1031,6 +1038,11 @@ bool UrdfParser::parseJointLimits(UrdfJoint& joint, TiXmlElement* config, ErrorL
             joint.m_upperLimit = urdfLexicalCast<double>(upper_str);
         }
         
+		if (joint.m_type == URDFPrismaticJoint)
+		{
+			joint.m_lowerLimit *= m_urdfScaling;
+			joint.m_upperLimit *= m_urdfScaling;
+		}
         
         // Get joint effort limit
         const char* effort_str = config->Attribute("effort");

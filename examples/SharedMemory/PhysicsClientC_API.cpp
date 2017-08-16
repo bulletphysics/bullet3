@@ -223,6 +223,18 @@ int	b3LoadUrdfCommandSetUseMultiBody(b3SharedMemoryCommandHandle commandHandle, 
     return 0;
 }
 
+int	b3LoadUrdfCommandSetGlobalScaling(b3SharedMemoryCommandHandle commandHandle, double globalScaling)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_LOAD_URDF);
+    command->m_updateFlags |=URDF_ARGS_USE_GLOBAL_SCALING;
+    command->m_urdfArguments.m_globalScaling = globalScaling;    
+    return 0;
+}
+
+
+
 int	b3LoadSdfCommandSetUseMultiBody(b3SharedMemoryCommandHandle commandHandle, int useMultiBody)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
@@ -233,6 +245,19 @@ int	b3LoadSdfCommandSetUseMultiBody(b3SharedMemoryCommandHandle commandHandle, i
     
     return 0;
 }
+
+int	b3LoadSdfCommandSetUseGlobalScaling(b3SharedMemoryCommandHandle commandHandle, double globalScaling)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_LOAD_SDF);
+    command->m_updateFlags |=URDF_ARGS_USE_GLOBAL_SCALING;
+    command->m_sdfArguments.m_globalScaling = globalScaling;
+    
+    return 0;
+}
+
+
 
 int	b3LoadUrdfCommandSetUseFixedBase(b3SharedMemoryCommandHandle commandHandle, int useFixedBase)
 {

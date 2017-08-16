@@ -135,6 +135,17 @@ bool b3RobotSimulatorClientAPI::connect(int mode, const std::string& hostName, i
 #endif
 			break;
 		}
+		case eCONNECT_GUI_SERVER:
+		{
+			int argc = 0;
+			char* argv[1] = {0};
+#ifdef __APPLE__
+			sm = b3CreateInProcessPhysicsServerAndConnectMainThread(argc, argv);
+#else
+			sm = b3CreateInProcessPhysicsServerAndConnect(argc, argv);
+#endif
+			break;
+		}
 		case eCONNECT_DIRECT:
 		{
 			sm = b3ConnectPhysicsDirect();

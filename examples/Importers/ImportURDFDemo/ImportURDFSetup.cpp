@@ -194,7 +194,7 @@ void ImportUrdfSetup::initPhysics()
 	}
 	
 
-	BulletURDFImporter u2b(m_guiHelper, 0);
+	BulletURDFImporter u2b(m_guiHelper, 0,1);
 	
 	
 	bool loadOk = u2b.loadURDF(m_fileName);

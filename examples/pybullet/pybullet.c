@@ -294,6 +294,7 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 	int method = eCONNECT_GUI;
 	int i;
 	char* options="";
+
 	b3PhysicsClientHandle sm = 0;
 
 	if (sNumPhysicsClients >= MAX_PHYSICS_CLIENTS)
@@ -337,10 +338,10 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 			int i;
 			for (i = 0; i < MAX_PHYSICS_CLIENTS; i++)
 			{
-				if (sPhysicsClientsGUI[i] == eCONNECT_GUI)
+				if ((sPhysicsClientsGUI[i] == eCONNECT_GUI) || (sPhysicsClientsGUI[i] == eCONNECT_GUI_SERVER))
 				{
 					PyErr_SetString(SpamError,
-									"Only one local in-process GUI connection allowed. Use DIRECT connection mode or start a separate GUI physics server (ExampleBrowser, App_SharedMemoryPhysics_GUI, App_SharedMemoryPhysics_VR) and connect over SHARED_MEMORY, UDP or TCP instead.");
+									"Only one local in-process GUI/GUI_SERVER connection allowed. Use DIRECT connection mode or start a separate GUI physics server (ExampleBrowser, App_SharedMemoryPhysics_GUI, App_SharedMemoryPhysics_VR) and connect over SHARED_MEMORY, UDP or TCP instead.");
 					return NULL;
 				}
 			}
@@ -357,6 +358,18 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 				sm = b3CreateInProcessPhysicsServerAndConnectMainThread(argc, argv);
 #else
 				sm = b3CreateInProcessPhysicsServerAndConnect(argc, argv);
+#endif
+				break;
+			}
+			case eCONNECT_GUI_SERVER:
+			{
+				int argc = 2;
+				char* argv[2] = {"unused",options};
+
+#ifdef __APPLE__
+				sm = b3CreateInProcessPhysicsServerAndConnectMainThreadSharedMemory(argc, argv);
+#else
+				sm = b3CreateInProcessPhysicsServerAndConnectSharedMemory(argc, argv);
 #endif
 				break;
 			}
@@ -929,14 +942,14 @@ static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args, PyObject* key
 	int physicsClientId = 0;
 	int flags = 0;
 
-	static char* kwlist[] = {"fileName", "basePosition", "baseOrientation", "useMaximalCoordinates", "useFixedBase", "flags","physicsClientId", NULL};
+	static char* kwlist[] = {"fileName", "basePosition", "baseOrientation", "useMaximalCoordinates", "useFixedBase", "flags","globalScaling", "physicsClientId", NULL};
 
 	static char* kwlistBackwardCompatible4[] = {"fileName", "startPosX", "startPosY", "startPosZ", NULL};
 	static char* kwlistBackwardCompatible8[] = {"fileName", "startPosX", "startPosY", "startPosZ", "startOrnX", "startOrnY", "startOrnZ", "startOrnW", NULL};
 
 	int bodyUniqueId= -1;
 	const char* urdfFileName = "";
-
+	double globalScaling = -1;
 	double startPosX = 0.0;
 	double startPosY = 0.0;
 	double startPosZ = 0.0;
@@ -976,7 +989,7 @@ static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args, PyObject* key
 		double basePos[3];
 		double baseOrn[4];
 
-		if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|OOiiii", kwlist, &urdfFileName, &basePosObj, &baseOrnObj, &useMaximalCoordinates, &useFixedBase, &flags, &physicsClientId))
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|OOiiidi", kwlist, &urdfFileName, &basePosObj, &baseOrnObj, &useMaximalCoordinates, &useFixedBase, &flags, &globalScaling, &physicsClientId))
 		{
 			return NULL;
 		}
@@ -1040,7 +1053,10 @@ static PyObject* pybullet_loadURDF(PyObject* self, PyObject* args, PyObject* key
 		{
 			b3LoadUrdfCommandSetUseFixedBase(command, 1);
 		}
-
+		if (globalScaling>0)
+		{
+			b3LoadUrdfCommandSetGlobalScaling(command,globalScaling);
+		}
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 		statusType = b3GetStatusType(statusHandle);
 		if (statusType != CMD_URDF_LOADING_COMPLETED)
@@ -1071,10 +1087,11 @@ static PyObject* pybullet_loadSDF(PyObject* self, PyObject* args, PyObject* keyw
 	int statusType;
 	b3SharedMemoryCommandHandle commandHandle;
 	b3PhysicsClientHandle sm = 0;
+	double globalScaling = -1;
 
 	int physicsClientId = 0;
-	static char* kwlist[] = {"sdfFileName", "useMaximalCoordinates", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|ii", kwlist, &sdfFileName, &useMaximalCoordinates, &physicsClientId))
+	static char* kwlist[] = {"sdfFileName", "useMaximalCoordinates", "globalScaling", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|idi", kwlist, &sdfFileName, &useMaximalCoordinates, &globalScaling, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -1090,7 +1107,10 @@ static PyObject* pybullet_loadSDF(PyObject* self, PyObject* args, PyObject* keyw
 	{
 		b3LoadSdfCommandSetUseMultiBody(commandHandle,0);
 	}
-
+	if (globalScaling > 0)
+	{
+		b3LoadSdfCommandSetUseGlobalScaling(commandHandle,globalScaling);
+	}
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 	statusType = b3GetStatusType(statusHandle);
 	if (statusType != CMD_SDF_LOADING_COMPLETED)
@@ -7254,6 +7274,7 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "GUI", eCONNECT_GUI);        // user read
 	PyModule_AddIntConstant(m, "UDP", eCONNECT_UDP);        // user read
 	PyModule_AddIntConstant(m, "TCP", eCONNECT_TCP);        // user read
+	PyModule_AddIntConstant(m, "GUI_SERVER", eCONNECT_GUI_SERVER);        // user read
 
 	PyModule_AddIntConstant(m, "JOINT_REVOLUTE", eRevoluteType);        // user read
 	PyModule_AddIntConstant(m, "JOINT_PRISMATIC", ePrismaticType);      // user read

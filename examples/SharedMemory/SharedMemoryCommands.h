@@ -65,6 +65,7 @@ struct SdfArgs
 {
 	char m_sdfFileName[MAX_URDF_FILENAME_LENGTH];
     int m_useMultiBody;
+	double m_globalScaling;
 };
 
 struct FileArgs
@@ -79,7 +80,8 @@ enum EnumUrdfArgsUpdateFlags
 	URDF_ARGS_INITIAL_ORIENTATION=4,
 	URDF_ARGS_USE_MULTIBODY=8,
 	URDF_ARGS_USE_FIXED_BASE=16,
-	URDF_ARGS_HAS_CUSTOM_URDF_FLAGS = 32
+	URDF_ARGS_HAS_CUSTOM_URDF_FLAGS = 32,
+	URDF_ARGS_USE_GLOBAL_SCALING =64,
 };
 
 
@@ -91,6 +93,7 @@ struct UrdfArgs
 	int m_useMultiBody;
 	int m_useFixedBase;
 	int m_urdfFlags;
+	double m_globalScaling;
 };
 
 
