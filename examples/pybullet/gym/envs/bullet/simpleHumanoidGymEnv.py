@@ -5,10 +5,10 @@ from gym.utils import seeding
 import numpy as np
 import time
 import pybullet as p
-from . import humanoid
+from . import simpleHumanoid
 import random
 
-class HumanoidGymEnv(gym.Env):
+class SimpleHumanoidGymEnv(gym.Env):
   metadata = {
       'render.modes': ['human', 'rgb_array'],
       'video.frames_per_second' : 50
@@ -57,7 +57,7 @@ class HumanoidGymEnv(gym.Env):
     ballz = 1
         
     p.setGravity(0,0,-10)
-    self._humanoid = humanoid.Humanoid(urdfRootPath=self._urdfRoot, timeStep=self._timeStep)
+    self._humanoid = simpleHumanoid.SimpleHumanoid(urdfRootPath=self._urdfRoot, timeStep=self._timeStep)
     self._envStepCounter = 0
     p.stepSimulation()
     self._observation = self.getExtendedObservation()

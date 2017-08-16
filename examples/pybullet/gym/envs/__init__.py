@@ -30,12 +30,12 @@ register(
     reward_threshold=5.0,
 )
 
-# register(
-#     id='HumanoidBulletEnv-v0',
-#     entry_point='envs.bullet:HumanoidGymEnv',
-#     timestep_limit=1000,
-#     reward_threshold=5.0,
-# )
+register(
+    id='SimpleHumanoidBulletEnv-v0',
+    entry_point='envs.bullet:SimpleHumanoidGymEnv',
+    timestep_limit=1000,
+    reward_threshold=5.0,
+)
 
 register(
     id='KukaBulletEnv-v0',
