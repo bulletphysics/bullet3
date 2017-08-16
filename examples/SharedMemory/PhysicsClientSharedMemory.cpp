@@ -251,17 +251,23 @@ void PhysicsClientSharedMemory::resetData()
 	m_data->m_userConstraintInfoMap.clear();
                 
 }
-void PhysicsClientSharedMemory::setSharedMemoryKey(int key) { m_data->m_sharedMemoryKey = key; }
+void PhysicsClientSharedMemory::setSharedMemoryKey(int key) 
+{ 
+	m_data->m_sharedMemoryKey = key; 
+}
 
 
 void PhysicsClientSharedMemory::setSharedMemoryInterface(class SharedMemoryInterface* sharedMem)
 {
-	if (m_data->m_sharedMemory && m_data->m_ownsSharedMemory)
+	if (sharedMem)
 	{
-		delete m_data->m_sharedMemory;
-	}
-	m_data->m_ownsSharedMemory = false;
-	m_data->m_sharedMemory = sharedMem;
+		if (m_data->m_sharedMemory && m_data->m_ownsSharedMemory)
+		{
+			delete m_data->m_sharedMemory;
+		}
+		m_data->m_ownsSharedMemory = false;
+		m_data->m_sharedMemory = sharedMem;
+	};
 }
 
 void PhysicsClientSharedMemory::disconnectSharedMemory() {

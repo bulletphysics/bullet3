@@ -2284,7 +2284,7 @@ bool PhysicsServerCommandProcessor::loadMjcf(const char* fileName, char* bufferS
 	return loadOk;
 }
 
-bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferServerToClient, int bufferSizeInBytes, bool useMultiBody, int flags)
+bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferServerToClient, int bufferSizeInBytes, bool useMultiBody, int flags, btScalar globalScaling)
 {
     btAssert(m_data->m_dynamicsWorld);
 	if (!m_data->m_dynamicsWorld)
@@ -2295,7 +2295,7 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
 
 	m_data->m_sdfRecentLoadedBodies.clear();
 
-    BulletURDFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter);
+    BulletURDFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter, globalScaling);
 
 	bool forceFixedBase = false;
 	bool loadOk =u2b.loadSDF(fileName,forceFixedBase);
@@ -2311,7 +2311,7 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
 
 
 bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVector3& pos, const btQuaternion& orn,
-                             bool useMultiBody, bool useFixedBase, int* bodyUniqueIdPtr, char* bufferServerToClient, int bufferSizeInBytes, int flags)
+                             bool useMultiBody, bool useFixedBase, int* bodyUniqueIdPtr, char* bufferServerToClient, int bufferSizeInBytes, int flags, btScalar globalScaling)
 {
 	m_data->m_sdfRecentLoadedBodies.clear();
 	*bodyUniqueIdPtr = -1;
@@ -2326,7 +2326,7 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 
 
 
-    BulletURDFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter);
+    BulletURDFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter, globalScaling);
 
     bool loadOk =  u2b.loadURDF(fileName, useFixedBase);
 
@@ -3579,7 +3579,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                         bool useMultiBody=(clientCmd.m_updateFlags & URDF_ARGS_USE_MULTIBODY) ? (sdfArgs.m_useMultiBody!=0) : true;
 
 						int flags = CUF_USE_SDF; //CUF_USE_URDF_INERTIA
-                        bool completedOk = loadSdf(sdfArgs.m_sdfFileName,bufferServerToClient, bufferSizeInBytes, useMultiBody, flags);
+						btScalar globalScaling = 1.f;
+						if (clientCmd.m_updateFlags & URDF_ARGS_USE_GLOBAL_SCALING)
+						{
+							globalScaling = sdfArgs.m_globalScaling;
+						}
+                        bool completedOk = loadSdf(sdfArgs.m_sdfFileName,bufferServerToClient, bufferSizeInBytes, useMultiBody, flags, globalScaling);
                         if (completedOk)
                         {
 							m_data->m_guiHelper->autogenerateGraphicsObjects(this->m_data->m_dynamicsWorld);
@@ -4016,10 +4021,15 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					bool useMultiBody=(clientCmd.m_updateFlags & URDF_ARGS_USE_MULTIBODY) ? (urdfArgs.m_useMultiBody!=0) : true;
 					bool useFixedBase = (clientCmd.m_updateFlags & URDF_ARGS_USE_FIXED_BASE) ? (urdfArgs.m_useFixedBase!=0): false;
 					int bodyUniqueId;
+					btScalar globalScaling = 1.f;
+					if (clientCmd.m_updateFlags & URDF_ARGS_USE_GLOBAL_SCALING)
+					{
+						globalScaling = urdfArgs.m_globalScaling;
+					}
                     //load the actual URDF and send a report: completed or failed
                     bool completedOk = loadUrdf(urdfArgs.m_urdfFileName,
                                                initialPos,initialOrn,
-                                               useMultiBody, useFixedBase,&bodyUniqueId, bufferServerToClient, bufferSizeInBytes, urdfFlags);
+                                               useMultiBody, useFixedBase,&bodyUniqueId, bufferServerToClient, bufferSizeInBytes, urdfFlags, globalScaling);
 
                     if (completedOk && bodyUniqueId>=0)
                     {
@@ -6070,28 +6080,30 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                          
                             if ((clientCmd.m_externalForceArguments.m_forceFlags[i] & EF_FORCE)!=0)
                             {
-                                btVector3 forceLocal(clientCmd.m_externalForceArguments.m_forcesAndTorques[i*3+0],
+                                btVector3 tmpForce(clientCmd.m_externalForceArguments.m_forcesAndTorques[i*3+0],
                                                 clientCmd.m_externalForceArguments.m_forcesAndTorques[i*3+1],
                                                 clientCmd.m_externalForceArguments.m_forcesAndTorques[i*3+2]);
-                                btVector3 positionLocal(
+                                btVector3 tmpPosition(
                                                         clientCmd.m_externalForceArguments.m_positions[i*3+0],
                                                         clientCmd.m_externalForceArguments.m_positions[i*3+1],
                                                         clientCmd.m_externalForceArguments.m_positions[i*3+2]);
 
+								
                                 if (clientCmd.m_externalForceArguments.m_linkIds[i] == -1)
                                 {
-                                    btVector3 forceWorld = isLinkFrame ? forceLocal : mb->getBaseWorldTransform().getBasis()*forceLocal;
-                                    btVector3 relPosWorld = isLinkFrame ? positionLocal : mb->getBaseWorldTransform().getBasis()*positionLocal;
+                                    btVector3 forceWorld = isLinkFrame ? mb->getBaseWorldTransform().getBasis()*tmpForce : tmpForce;
+									btVector3 relPosWorld = isLinkFrame ? mb->getBaseWorldTransform().getBasis()*tmpPosition : tmpPosition - mb->getBaseWorldTransform().getOrigin();
                                     mb->addBaseForce(forceWorld);
                                     mb->addBaseTorque(relPosWorld.cross(forceWorld));
                                     //b3Printf("apply base force of %f,%f,%f at %f,%f,%f\n", forceWorld[0],forceWorld[1],forceWorld[2],positionLocal[0],positionLocal[1],positionLocal[2]);
                                 } else
                                 {
                                     int link = clientCmd.m_externalForceArguments.m_linkIds[i];
-                                    btVector3 forceWorld = mb->getLink(link).m_cachedWorldTransform.getBasis()*forceLocal;
-                                    btVector3 relPosWorld = mb->getLink(link).m_cachedWorldTransform.getBasis()*positionLocal;
-                                    mb->addLinkForce(link, forceWorld);
-                                    mb->addLinkTorque(link,relPosWorld.cross(forceWorld));
+
+									btVector3 forceWorld = isLinkFrame ? mb->getLink(link).m_cachedWorldTransform.getBasis()*tmpForce : tmpForce;
+									btVector3 relPosWorld = isLinkFrame ? mb->getLink(link).m_cachedWorldTransform.getBasis()*tmpPosition : tmpPosition - mb->getBaseWorldTransform().getOrigin();
+									mb->addLinkForce(link, forceWorld);
+									mb->addLinkTorque(link,relPosWorld.cross(forceWorld));
                                     //b3Printf("apply link force of %f,%f,%f at %f,%f,%f\n", forceWorld[0],forceWorld[1],forceWorld[2], positionLocal[0],positionLocal[1],positionLocal[2]);
                                 }
                             }

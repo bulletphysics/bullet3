@@ -187,7 +187,7 @@ void ImportSDFSetup::initPhysics()
 	m_dynamicsWorld->setGravity(gravity);
 
 	
-    BulletURDFImporter u2b(m_guiHelper, 0);
+    BulletURDFImporter u2b(m_guiHelper, 0,1);
     
     bool loadOk =  u2b.loadSDF(m_fileName);
 

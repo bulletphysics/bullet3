@@ -142,7 +142,7 @@
       </link>
     </model>
     <model name='unit_box_0_clone'>
-      <pose frame=''>0.105158 -4.55002 0.499995 -2.89297 -0.988287 -3.14159</pose>
+      <pose frame=''>0.105158 -4.55002 1.499995 -2.89297 -0.988287 -3.14159</pose>
       <link name='unit_box_0::link'>
         <inertial>
           <mass>1</mass>
@@ -155,7 +155,26 @@
             <izz>0.166667</izz>
           </inertia>
         </inertial>
-       
+        <collision name='collision1'>
+          <geometry>
+            <box>
+              <size>1 1 1</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
          <visual name='visual'>
           <geometry>
           <mesh>

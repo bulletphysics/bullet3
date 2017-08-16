@@ -15,18 +15,19 @@ class BulletURDFImporter : public URDFImporterInterface
 
 public:
 
-	BulletURDFImporter(struct GUIHelperInterface* guiHelper, LinkVisualShapesConverter* customConverter);
+	BulletURDFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter, btScalar globalScaling);
 
 	virtual ~BulletURDFImporter();
 
+
 	virtual bool loadURDF(const char* fileName, bool forceFixedBase = false);
 
-    //warning: some quick test to load SDF: we 'activate' a model, so we can re-use URDF code path
-    virtual bool loadSDF(const char* fileName, bool forceFixedBase = false);
-    virtual int getNumModels() const;
-    virtual void activateModel(int modelIndex);
-    virtual void setBodyUniqueId(int bodyId);
-    virtual int getBodyUniqueId() const;
+	//warning: some quick test to load SDF: we 'activate' a model, so we can re-use URDF code path
+	virtual bool loadSDF(const char* fileName, bool forceFixedBase = false);
+	virtual int getNumModels() const;
+	virtual void activateModel(int modelIndex);
+	virtual void setBodyUniqueId(int bodyId);
+	virtual int getBodyUniqueId() const;
 	const char* getPathPrefix();
 
 	void printTree(); //for debugging

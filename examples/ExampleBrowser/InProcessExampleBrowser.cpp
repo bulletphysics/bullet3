@@ -316,11 +316,12 @@ struct btInProcessExampleBrowserInternalData
 
 
 
-btInProcessExampleBrowserInternalData* btCreateInProcessExampleBrowser(int argc,char** argv2)
+btInProcessExampleBrowserInternalData* btCreateInProcessExampleBrowser(int argc,char** argv2, bool useInProcessMemory)
 {
 
 	btInProcessExampleBrowserInternalData* data = new btInProcessExampleBrowserInternalData;
-	data->m_sharedMem = new InProcessMemory;
+	
+	data->m_sharedMem = useInProcessMemory ? new InProcessMemory : 0;
 
 	int numThreads = 1;
 	int i;
@@ -410,12 +411,12 @@ struct btInProcessExampleBrowserMainThreadInternalData
     b3Clock m_clock;
 };
 
-btInProcessExampleBrowserMainThreadInternalData* btCreateInProcessExampleBrowserMainThread(int argc,char** argv)
+btInProcessExampleBrowserMainThreadInternalData* btCreateInProcessExampleBrowserMainThread(int argc,char** argv, bool useInProcessMemory)
 {
     btInProcessExampleBrowserMainThreadInternalData* data = new btInProcessExampleBrowserMainThreadInternalData;
     data->m_examples.initExampleEntries();
     data->m_exampleBrowser = new DefaultBrowser(&data->m_examples);
-    data->m_sharedMem = new InProcessMemory;
+    data->m_sharedMem = useInProcessMemory ? new InProcessMemory : 0;
     data->m_exampleBrowser->setSharedMemoryInterface(data->m_sharedMem );
 	bool init;
 	init = data->m_exampleBrowser->init(argc,argv);

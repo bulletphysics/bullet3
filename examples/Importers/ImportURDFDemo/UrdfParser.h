@@ -251,7 +251,8 @@ protected:
     bool m_parseSDF;
     int m_activeSdfModel;
 
-    
+	btScalar m_urdfScaling;
+    bool parseTransform(btTransform& tr, class TiXmlElement* xml, ErrorLogger* logger, bool parseSDF = false);
 	bool parseInertia(UrdfInertia& inertia, class TiXmlElement* config, ErrorLogger* logger);
 	bool parseGeometry(UrdfGeometry& geom, class TiXmlElement* g, ErrorLogger* logger);
 	bool parseVisual(UrdfModel& model, UrdfVisual& visual, class TiXmlElement* config, ErrorLogger* logger);
@@ -277,6 +278,11 @@ public:
     {
         return m_parseSDF;
     }
+	void setGlobalScaling(btScalar scaling)
+	{
+		m_urdfScaling = scaling;
+	}
+
     bool loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceFixedBase);
     bool loadSDF(const char* sdfText, ErrorLogger* logger);
     

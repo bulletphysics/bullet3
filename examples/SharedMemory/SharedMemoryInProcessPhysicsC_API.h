@@ -10,9 +10,9 @@ extern "C" {
 
 
 ///think more about naming. The b3ConnectPhysicsLoopback
-b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnect(int argc, char* argv[]);
+b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnect(int argc, char* argv[], int useInProcessMemory);
 
-b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectMainThread(int argc, char* argv[]);
+b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectMainThread(int argc, char* argv[], int useInProcessMemory);
 
 b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect(void* guiHelperPtr);
 
