@@ -129,9 +129,9 @@ bool b3RobotSimulatorClientAPI::connect(int mode, const std::string& hostName, i
 			int argc = 0;
 			char* argv[1] = {0};
 #ifdef __APPLE__
-			sm = b3CreateInProcessPhysicsServerAndConnectMainThread(argc, argv,1);
+			sm = b3CreateInProcessPhysicsServerAndConnectMainThread(argc, argv);
 #else
-			sm = b3CreateInProcessPhysicsServerAndConnect(argc, argv,1);
+			sm = b3CreateInProcessPhysicsServerAndConnect(argc, argv);
 #endif
 			break;
 		}
@@ -140,9 +140,9 @@ bool b3RobotSimulatorClientAPI::connect(int mode, const std::string& hostName, i
 			int argc = 0;
 			char* argv[1] = {0};
 #ifdef __APPLE__
-			sm = b3CreateInProcessPhysicsServerAndConnectMainThread(argc, argv,0);
+			sm = b3CreateInProcessPhysicsServerAndConnectMainThread(argc, argv);
 #else
-			sm = b3CreateInProcessPhysicsServerAndConnect(argc, argv,0);
+			sm = b3CreateInProcessPhysicsServerAndConnect(argc, argv);
 #endif
 			break;
 		}
