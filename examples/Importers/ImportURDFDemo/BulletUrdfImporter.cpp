@@ -82,7 +82,7 @@ void BulletURDFImporter::printTree()
 //	btAssert(0);
 }
 
-BulletURDFImporter::BulletURDFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter, btScalar globalScaling)
+BulletURDFImporter::BulletURDFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter, double globalScaling)
 {
 	m_data = new BulletURDFInternalData;
 	m_data->setGlobalScaling(globalScaling);
