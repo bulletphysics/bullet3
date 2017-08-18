@@ -1,7 +1,7 @@
 
-from envs.bullet.humanoidGymEnv import HumanoidGymEnv
+from envs.bullet.simpleHumanoidGymEnv import SimpleHumanoidGymEnv
 print ("hello")
-environment = HumanoidGymEnv(renders=True)
+environment = SimpleHumanoidGymEnv(renders=True)
 
 environment._p.setGravity(0,0,0)
 	
