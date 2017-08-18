@@ -62,7 +62,12 @@ struct btMprDistanceInfo
 #define BT_MPR_SQRT sqrt
 #endif
 #define BT_MPR_FMIN(x, y) ((x) < (y) ? (x) : (y))
+
+#if BT_USE_DOUBLE_PRECISION
 #define BT_MPR_FABS(val) static_cast<btScalar>(fabs(static_cast<btScalar>(val)))
+#else
+#define BT_MPR_FABS(val) static_cast<btScalar>(fabsf(static_cast<btScalar>(val)))
+#endif
 
 #define BT_MPR_TOLERANCE 1E-6f
 #define BT_MPR_MAX_ITERATIONS 1000

@@ -943,7 +943,7 @@ void	btWorldImporter::convertConstraintFloat(btTypedConstraintFloatData* constra
 					btVector3 axisInA,axisInB;
 					axisInA.deSerializeFloat(gearData->m_axisInA);
 					axisInB.deSerializeFloat(gearData->m_axisInB);
-					gear = createGearConstraint(*rbA, *rbB, axisInA,axisInB, gearData->m_ratio);
+					gear = createGearConstraint(*rbA, *rbB, axisInA,axisInB, static_cast<btScalar>(gearData->m_ratio));
 				} else
 				{
 					btAssert(0);
