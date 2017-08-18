@@ -1,6 +1,7 @@
 
 INCLUDE_DIRECTORIES(
 	..
+	../ThirdPartyLibs
 	../../src
 )
 

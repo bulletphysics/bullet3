@@ -4,10 +4,8 @@
 
 #include "PhysicsServerExample.h"
 
-#ifdef B3_USE_MIDI
-#include "RtMidi.h"
-#endif//B3_USE_MIDI
 
+#include "../CommonInterfaces/Common2dCanvasInterface.h"
 #include "PhysicsServerSharedMemory.h"
 #include "Bullet3Common/b3CommandLineArgs.h"
 #include "SharedMemoryCommon.h"
@@ -24,32 +22,31 @@
 
 
 //@todo(erwincoumans) those globals are hacks for a VR demo, move this to Python/pybullet!
-extern btVector3 gLastPickPos;
+bool gEnablePicking=true;
+bool gEnableTeleporting=true;
+bool gEnableRendering= true;
+bool gEnableSyncPhysicsRendering= true;
+bool gEnableUpdateDebugDrawLines = true;
+static int gCamVisualizerWidth = 320;
+static int gCamVisualizerHeight = 240;
 
+static bool gEnableDefaultKeyboardShortcuts = true;
+static bool gEnableDefaultMousePicking = true;
+
+
+//extern btVector3 gLastPickPos;
 btVector3 gVRTeleportPosLocal(0,0,0);
 btQuaternion gVRTeleportOrnLocal(0,0,0,1);
 
-extern btVector3 gVRTeleportPos1;
-extern btQuaternion gVRTeleportOrn;
+
 btScalar gVRTeleportRotZ = 0;
 
-extern btVector3 gVRGripperPos;
-extern btQuaternion gVRGripperOrn;
-extern btVector3 gVRController2Pos;
-extern btQuaternion gVRController2Orn;
-extern btScalar gVRGripperAnalog;
-extern btScalar gVRGripper2Analog;
-extern bool gCloseToKuka;
-extern bool gEnableRealTimeSimVR;
-extern bool gCreateDefaultRobotAssets;
 extern int gInternalSimFlags;
-extern int gCreateObjectSimVR;
 extern bool gResetSimulation;
-extern int gEnableKukaControl;
 int gGraspingController = -1;
 extern btScalar simTimeScalingFactor;
 bool gBatchUserDebugLines = true;
-extern bool gVRGripperClosed;
+
 
 const char* startFileNameVR = "0_VRDemoSettings.txt";
 
@@ -77,70 +74,20 @@ static void loadCurrentSettingsVR(b3CommandLineArgs& args)
 };
 
 //remember the settings (you don't want to re-tune again and again...)
-static void saveCurrentSettingsVR()
+
+
+static void saveCurrentSettingsVR(const btVector3& VRTeleportPos1)
 {
 	FILE* f = fopen(startFileNameVR, "w");
 	if (f)
 	{
-		fprintf(f, "--camPosX= %f\n", gVRTeleportPos1[0]);
-		fprintf(f, "--camPosY= %f\n", gVRTeleportPos1[1]);
-		fprintf(f, "--camPosZ= %f\n", gVRTeleportPos1[2]);
+		fprintf(f, "--camPosX= %f\n", VRTeleportPos1[0]);
+		fprintf(f, "--camPosY= %f\n", VRTeleportPos1[1]);
+		fprintf(f, "--camPosZ= %f\n", VRTeleportPos1[2]);
 		fprintf(f, "--camRotZ= %f\n", gVRTeleportRotZ);
 		fclose(f);
 	}
 };
-
-#if B3_USE_MIDI
-
-
-
-static float getParamf(float rangeMin, float rangeMax, int midiVal)
-{
-	float v = rangeMin + (rangeMax - rangeMin)* (float(midiVal / 127.));
-	return v;
-}
-void midiCallback(double deltatime, std::vector< unsigned char > *message, void *userData)
-{
-	unsigned int nBytes = message->size();
-	for (unsigned int i = 0; i<nBytes; i++)
-		std::cout << "Byte " << i << " = " << (int)message->at(i) << ", ";
-	if (nBytes > 0)
-		std::cout << "stamp = " << deltatime << std::endl;
-	
-	if (nBytes > 2)
-	{
-		
-		if (message->at(0) == 176)
-		{
-			if (message->at(1) == 16)
-			{
-				gVRTeleportRotZ= getParamf(-3.1415, 3.1415, message->at(2));
-				gVRTeleportOrn = btQuaternion(btVector3(0, 0, 1), gVRTeleportRotZ);
-				saveCurrentSettingsVR();
-//				b3Printf("gVRTeleportOrnLocal rotZ = %f\n", gVRTeleportRotZ);
-			}
-
-			if (message->at(1) == 32)
-			{
-				gCreateDefaultRobotAssets = 1;
-			}
-
-			for (int i = 0; i < 3; i++)
-			{
-				if (message->at(1) == i)
-				{
-					gVRTeleportPos1[i] = getParamf(-2, 2, message->at(2));
-					saveCurrentSettingsVR();
-//					b3Printf("gVRTeleportPos[%d] =  %f\n", i,gVRTeleportPosLocal[i]);
-
-				}
-			}
-		}
-	}
-}
-
-#endif //B3_USE_MIDI
-
 bool gDebugRenderToggle  = false;
 void	MotionThreadFunc(void* userPtr,void* lsMemory);
 void*	MotionlsMemoryFunc();
@@ -172,6 +119,7 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIHelperCreateRigidBodyGraphicsObject,
 	eGUIHelperRemoveAllGraphicsInstances,
 	eGUIHelperCopyCameraImageData,
+	eGUIHelperDisplayCameraImageData,
 	eGUIHelperAutogenerateGraphicsObjects,
 	eGUIUserDebugAddText,
 	eGUIUserDebugAddLine,
@@ -179,6 +127,13 @@ enum MultiThreadedGUIHelperCommunicationEnums
 	eGUIUserDebugRemoveItem,
 	eGUIUserDebugRemoveAllItems,
 	eGUIDumpFramesToVideo,
+	eGUIHelperRemoveGraphicsInstance,
+	eGUIHelperChangeGraphicsInstanceRGBAColor,
+	eGUIHelperChangeGraphicsInstanceSpecularColor,
+	eGUIHelperSetVisualizerFlag,
+	eGUIHelperChangeGraphicsInstanceTextureId,
+	eGUIHelperGetShapeIndexFromInstance,
+	eGUIHelperChangeTexture,
 };
 
 
@@ -230,7 +185,9 @@ struct MyMouseCommand
 struct	MotionArgs
 {
 	MotionArgs()
-		:m_physicsServerPtr(0)
+		:
+		m_debugDrawFlags(0),
+		m_physicsServerPtr(0)
 	{
 		for (int i=0;i<MAX_VR_CONTROLLERS;i++)
 		{
@@ -252,6 +209,7 @@ struct	MotionArgs
 	b3CriticalSection* m_cs3;
 	b3CriticalSection* m_csGUI;
 
+	int m_debugDrawFlags;
 
 	btAlignedObjectArray<MyMouseCommand> m_mouseCommands;
 
@@ -260,7 +218,8 @@ struct	MotionArgs
 
 	btAlignedObjectArray<b3KeyboardEvent> m_keyboardEvents;
 	btAlignedObjectArray<b3KeyboardEvent> m_sendKeyEvents;
-	
+	btAlignedObjectArray<b3MouseEvent> m_allMouseEvents;
+	btAlignedObjectArray<b3MouseEvent> m_sendMouseEvents;
 	PhysicsServerSharedMemory*	m_physicsServerPtr;
 	b3AlignedObjectArray<b3Vector3> m_positions;
 
@@ -280,7 +239,6 @@ struct MotionThreadLocalStorage
 
 
 float clampedDeltaTime  = 0.2;
-extern int gMaxNumCmdPer1ms;
 
 
 void	MotionThreadFunc(void* userPtr,void* lsMemory)
@@ -314,16 +272,7 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 
 			{
 				
-				if (gMaxNumCmdPer1ms>0)
-				{
-					if (numCmdSinceSleep1ms>gMaxNumCmdPer1ms)
-					{
-						BT_PROFILE("usleep(10)");
-						b3Clock::usleep(10);
-						numCmdSinceSleep1ms = 0;
-						sleepClock.reset();
-					}
-				}
+
 				if (sleepClock.getTimeMilliseconds()>1)
 				{
 					sleepClock.reset();
@@ -447,42 +396,67 @@ void	MotionThreadFunc(void* userPtr,void* lsMemory)
 				b3KeyboardEvent* keyEvents = args->m_sendKeyEvents.size()? &args->m_sendKeyEvents[0] : 0;
 
 				args->m_csGUI->unlock();
+
+				args->m_csGUI->lock();
+				if (gEnableDefaultMousePicking)
 				{
-					args->m_physicsServerPtr->stepSimulationRealTime(deltaTimeInSeconds, args->m_sendVrControllerEvents,numSendVrControllers, keyEvents, args->m_sendKeyEvents.size());
+					for (int i = 0; i < args->m_mouseCommands.size(); i++)
+					{
+						switch (args->m_mouseCommands[i].m_type)
+						{
+						case MyMouseMove:
+						{
+							args->m_physicsServerPtr->movePickedBody(args->m_mouseCommands[i].m_rayFrom, args->m_mouseCommands[i].m_rayTo);
+							break;
+						};
+						case MyMouseButtonDown:
+						{
+							args->m_physicsServerPtr->pickBody(args->m_mouseCommands[i].m_rayFrom, args->m_mouseCommands[i].m_rayTo);
+							break;
+						}
+						case MyMouseButtonUp:
+						{
+							args->m_physicsServerPtr->removePickingConstraint();
+							break;
+						}
+
+						default:
+						{
+						}
+						}
+					}
+				}
+
+				
+				args->m_sendMouseEvents.resize(args->m_allMouseEvents.size());
+				for (int i=0;i<args->m_allMouseEvents.size();i++)
+				{
+					args->m_sendMouseEvents[i] = args->m_allMouseEvents[i];
+				}
+				b3MouseEvent* mouseEvents = args->m_sendMouseEvents.size()? &args->m_sendMouseEvents[0] : 0;
+
+				args->m_allMouseEvents.clear();
+				args->m_mouseCommands.clear();
+				args->m_csGUI->unlock();
+
+
+				{
+					args->m_physicsServerPtr->stepSimulationRealTime(deltaTimeInSeconds, args->m_sendVrControllerEvents,numSendVrControllers, keyEvents, args->m_sendKeyEvents.size(), mouseEvents, args->m_sendMouseEvents.size());
+				}
+				{
+					if (gEnableUpdateDebugDrawLines)
+					{
+						args->m_csGUI->lock();
+							args->m_physicsServerPtr->physicsDebugDraw(args->m_debugDrawFlags);
+							gEnableUpdateDebugDrawLines=false;
+						args->m_csGUI->unlock();
+					}
 				}
 				deltaTimeInSeconds = 0;
 				
 			}
 
-			args->m_csGUI->lock();
-			for (int i = 0; i < args->m_mouseCommands.size(); i++)
-			{
-				switch (args->m_mouseCommands[i].m_type)
-				{
-				case MyMouseMove:
-				{
-					args->m_physicsServerPtr->movePickedBody(args->m_mouseCommands[i].m_rayFrom, args->m_mouseCommands[i].m_rayTo);
-					break;
-				};
-				case MyMouseButtonDown:
-				{
-					args->m_physicsServerPtr->pickBody(args->m_mouseCommands[i].m_rayFrom, args->m_mouseCommands[i].m_rayTo);
-					break;
-				}
-				case MyMouseButtonUp:
-				{
-					args->m_physicsServerPtr->removePickingConstraint();
-					break;
-				}
-
-				default:
-				{
-				}
-				
-				}
-			}
-			args->m_mouseCommands.clear();
-			args->m_csGUI->unlock();
+			
 
 			{
 				args->m_physicsServerPtr->processClientCommands();
@@ -521,6 +495,7 @@ struct UserDebugDrawLine
 	
 	double m_lifeTime;
 	int m_itemUniqueId;
+	int m_trackingVisualShapeIndex;
 };
 
 struct UserDebugParameter
@@ -535,15 +510,151 @@ struct UserDebugParameter
 struct UserDebugText
 {
 	char m_text[1024];
-	double m_textPositionXYZ[3];
+	double m_textPositionXYZ1[3];
 	double m_textColorRGB[3];
 	double textSize;
 
 	double m_lifeTime;
 	int m_itemUniqueId;
+	double m_textOrientation[4];
+	int m_trackingVisualShapeIndex;
+	int m_optionFlags;
+
 };
 
 
+  struct LineSegment
+{
+        btVector3 m_from;
+        btVector3 m_to;
+};
+
+struct ColorWidth
+{
+        btVector3FloatData m_color;
+        int width;
+        int getHash() const
+        {
+                unsigned char r = (unsigned char) m_color.m_floats[0]*255;
+                unsigned char g = (unsigned char) m_color.m_floats[1]*255;
+                unsigned char b = (unsigned char) m_color.m_floats[2]*255;
+                unsigned char w = width;
+                return r+(256*g)+(256*256*b)+(256*256*256*w);
+        }
+        bool equals(const ColorWidth& other) const
+        {
+                bool same = ((width == other.width) && (m_color.m_floats[0] == other.m_color.m_floats[0]) &&
+                        (m_color.m_floats[1] == other.m_color.m_floats[1]) &&
+                        (m_color.m_floats[2] == other.m_color.m_floats[2]));
+                return same;
+        }
+};
+
+
+
+ATTRIBUTE_ALIGNED16( class )MultithreadedDebugDrawer : public btIDebugDraw
+{
+	struct GUIHelperInterface* m_guiHelper;
+	int m_debugMode;
+
+	btAlignedObjectArray< btAlignedObjectArray<unsigned int> > m_sortedIndices;
+	btAlignedObjectArray< btAlignedObjectArray<btVector3FloatData> > m_sortedLines;
+	btHashMap<ColorWidth,int> m_hashedLines;
+
+
+	public:
+	void drawDebugDrawerLines()
+	{
+		if (m_hashedLines.size())
+		{
+			for (int i=0;i<m_hashedLines.size();i++)
+			{
+				ColorWidth cw = m_hashedLines.getKeyAtIndex(i);
+				int index = *m_hashedLines.getAtIndex(i);
+				int stride = sizeof(btVector3FloatData);
+				const float* positions = &m_sortedLines[index][0].m_floats[0];
+				int numPoints = m_sortedLines[index].size();
+				const unsigned int* indices = &m_sortedIndices[index][0];
+				int numIndices = m_sortedIndices[index].size();
+				m_guiHelper->getRenderInterface()->drawLines(positions,cw.m_color.m_floats,numPoints, stride, indices,numIndices,cw.width);
+			}
+		}
+	}
+	MultithreadedDebugDrawer(GUIHelperInterface* guiHelper)
+		:m_guiHelper(guiHelper),
+		m_debugMode(0)
+	{
+	}
+	virtual ~MultithreadedDebugDrawer()
+	{
+	}
+	virtual void	drawLine(const btVector3& from,const btVector3& to,const btVector3& color)
+	{
+		{
+			ColorWidth cw;
+			color.serializeFloat(cw.m_color);
+			cw.width = 1;
+			int index = -1;
+
+			int* indexPtr = m_hashedLines.find(cw);
+			if (indexPtr)
+			{
+				index = *indexPtr;
+			} else
+			{
+				index = m_sortedLines.size();
+				m_sortedLines.expand();
+				m_sortedIndices.expand();
+				m_hashedLines.insert(cw,index);
+			}
+			btAssert(index>=0);
+			if (index>=0)
+			{
+				btVector3FloatData from1,toX1;
+				m_sortedIndices[index].push_back(m_sortedLines[index].size());
+				from.serializeFloat(from1);
+				m_sortedLines[index].push_back(from1);
+				m_sortedIndices[index].push_back(m_sortedLines[index].size());
+				to.serializeFloat(toX1);
+				m_sortedLines[index].push_back(toX1);
+			}
+		}
+	}
+
+	virtual void	drawContactPoint(const btVector3& PointOnB,const btVector3& normalOnB,btScalar distance,int lifeTime,const btVector3& color)
+	{
+		drawLine(PointOnB,PointOnB+normalOnB*distance,color);
+		btVector3 ncolor(0, 0, 0);
+		drawLine(PointOnB, PointOnB + normalOnB*0.01, ncolor);
+	}
+
+	virtual void	reportErrorWarning(const char* warningString)
+	{
+	}
+	virtual void	draw3dText(const btVector3& location,const char* textString)
+	{
+	}
+	virtual void	setDebugMode(int debugMode)
+	{
+		m_debugMode = debugMode;
+	}
+
+	virtual int		getDebugMode() const
+	{
+		return m_debugMode;
+	}
+
+	virtual void clearLines()
+	{
+		m_hashedLines.clear();
+		m_sortedIndices.clear();
+		m_sortedLines.clear();
+	}
+	virtual void flushLines()
+	{
+		
+	}
+};
 
 class MultiThreadedOpenGLGuiHelper : public GUIHelperInterface
 {
@@ -553,17 +664,19 @@ class MultiThreadedOpenGLGuiHelper : public GUIHelperInterface
 	b3CriticalSection* m_cs2;
 	b3CriticalSection* m_cs3;
 	b3CriticalSection* m_csGUI;
-
+	
 
 public:
 
     
-    void setVisualizerFlag(int flag, int enable)
-    {
-        m_childGuiHelper->setVisualizerFlag(flag,enable);
-    }
-
-    
+   MultithreadedDebugDrawer* m_debugDraw;
+   void drawDebugDrawerLines()
+   {
+	   if (m_debugDraw)
+	   {
+		   m_debugDraw->drawDebugDrawerLines();
+	   }
+   }
 	GUIHelperInterface* m_childGuiHelper;
 
 	int m_uidGenerator;
@@ -624,17 +737,23 @@ public:
 		m_cs2(0),
 		m_cs3(0),
 		m_csGUI(0),
+		m_debugDraw(0),
 		m_uidGenerator(0),
 		m_texels(0),
 		m_textureId(-1)
 	{
-		m_childGuiHelper = guiHelper;;
+		m_childGuiHelper = guiHelper;
 
 	}
 
 	virtual ~MultiThreadedOpenGLGuiHelper()
 	{
 		//delete m_childGuiHelper;
+		if (m_debugDraw)
+		{
+			delete m_debugDraw;
+			m_debugDraw = 0;
+		}
 	}
 
 	void setCriticalSection(b3CriticalSection* cs)
@@ -725,7 +844,18 @@ public:
 
 	virtual void createPhysicsDebugDrawer( btDiscreteDynamicsWorld* rbWorld)
 	{
-		m_childGuiHelper->createPhysicsDebugDrawer(rbWorld);
+		btAssert(rbWorld);
+		if (m_debugDraw)
+		{
+			delete m_debugDraw;
+			m_debugDraw = 0;
+		}
+
+		m_debugDraw = new MultithreadedDebugDrawer(this);
+
+		rbWorld->setDebugDrawer(m_debugDraw );
+
+		//m_childGuiHelper->createPhysicsDebugDrawer(rbWorld);
 	}
 
 	virtual int	registerTexture(const unsigned char* texels, int width, int height)
@@ -757,6 +887,25 @@ public:
 
 		return m_shapeIndex;
 	}
+
+	int m_visualizerFlag;
+	int m_visualizerEnable;
+	 void setVisualizerFlag(int flag, int enable)
+    {
+		m_visualizerFlag = flag;
+		m_visualizerEnable = enable;
+
+		m_cs->lock();
+		m_cs->setSharedParam(1,eGUIHelperSetVisualizerFlag);
+		workerThreadWait();
+    }
+
+    void	setVisualizerFlagCallback(VisualizerFlagCallback callback)
+	{
+		m_childGuiHelper->setVisualizerFlagCallback(callback);
+	}
+
+
 	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling) 
 	{
 		m_shapeIndex = shapeIndex;
@@ -778,9 +927,85 @@ public:
 		workerThreadWait();
     }
 
+	int m_graphicsInstanceRemove;
+	virtual void removeGraphicsInstance(int graphicsUid)
+	{
+		m_graphicsInstanceRemove = graphicsUid;
+		m_cs->lock();
+		m_cs->setSharedParam(1,eGUIHelperRemoveGraphicsInstance);
+		workerThreadWait();    
+	}
+	
+	int m_getShapeIndex_instance;
+	int getShapeIndex_shapeIndex;
+		
+	virtual int getShapeIndexFromInstance(int instance) 
+	{
+		m_getShapeIndex_instance = instance;
+		m_cs->lock();
+		m_cs->setSharedParam(1,eGUIHelperGetShapeIndexFromInstance);
+		workerThreadWait();		
+		return getShapeIndex_shapeIndex;
+	}
+
+	int m_graphicsInstanceChangeTextureId;
+	int m_graphicsInstanceChangeTextureShapeIndex;
+	virtual void replaceTexture(int shapeIndex, int textureUid)
+	{
+		m_graphicsInstanceChangeTextureShapeIndex = shapeIndex;
+		m_graphicsInstanceChangeTextureId = textureUid;
+		m_cs->lock();
+		m_cs->setSharedParam(1,eGUIHelperChangeGraphicsInstanceTextureId);
+		workerThreadWait();   
+	}
+
+
+	int m_changeTextureUniqueId;
+	const unsigned char* m_changeTextureRgbTexels;
+	int m_changeTextureWidth;
+	int m_changeTextureHeight;
+
+	virtual void changeTexture(int textureUniqueId, const unsigned char* rgbTexels, int width, int height)
+	{
+		m_changeTextureUniqueId = textureUniqueId;
+		m_changeTextureRgbTexels = rgbTexels;
+		m_changeTextureWidth = width;
+		m_changeTextureHeight = height;
+		m_cs->lock();
+		m_cs->setSharedParam(1,eGUIHelperChangeTexture);
+		workerThreadWait();   
+	}
+
+	double m_rgbaColor[4];
+	int m_graphicsInstanceChangeColor;
+	virtual void changeRGBAColor(int instanceUid, const double rgbaColor[4])
+	{
+		m_graphicsInstanceChangeColor = instanceUid;
+		m_rgbaColor[0] = rgbaColor[0];
+		m_rgbaColor[1] = rgbaColor[1];
+		m_rgbaColor[2] = rgbaColor[2];
+		m_rgbaColor[3] = rgbaColor[3];
+		m_cs->lock();
+		m_cs->setSharedParam(1,eGUIHelperChangeGraphicsInstanceRGBAColor);
+		workerThreadWait();    
+	}
+
+	double m_specularColor[3];
+	int m_graphicsInstanceChangeSpecular;
+	virtual void changeSpecularColor(int instanceUid, const double specularColor[3])
+	{
+		m_graphicsInstanceChangeSpecular = instanceUid;
+		m_specularColor[0] = specularColor[0];
+		m_specularColor[1] = specularColor[1];
+		m_specularColor[2] = specularColor[2];
+		m_cs->lock();
+		m_cs->setSharedParam(1,eGUIHelperChangeGraphicsInstanceSpecularColor);
+		workerThreadWait(); 
+	}
+
 	virtual Common2dCanvasInterface* get2dCanvasInterface()
 	{
-		return 0;
+		return m_childGuiHelper->get2dCanvasInterface();
 	}
 	
 	virtual CommonParameterInterface* getParameterInterface()
@@ -803,14 +1028,14 @@ public:
 	{
 		m_childGuiHelper->setUpAxis(axis);
 	}
-	virtual void resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ)
+	virtual void resetCamera(float camDist, float yaw, float pitch, float camPosX,float camPosY, float camPosZ)
 	{
-	    m_childGuiHelper->resetCamera(camDist,pitch,yaw,camPosX,camPosY,camPosZ);
+	    m_childGuiHelper->resetCamera(camDist,yaw,pitch,camPosX,camPosY,camPosZ);
 	}
 
-	virtual bool getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3],float hor[3], float vert[3] ) const
+	virtual bool getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3],float hor[3], float vert[3], float* yaw, float* pitch, float* camDist, float camTarget[3]) const
 	{
-		return m_childGuiHelper->getCameraInfo(width,height,viewMatrix,projectionMatrix,camUp,camForward,hor,vert);
+		return m_childGuiHelper->getCameraInfo(width,height,viewMatrix,projectionMatrix,camUp,camForward,hor,vert,yaw,pitch,camDist,camTarget);
 	}
 
 
@@ -855,6 +1080,32 @@ public:
 		workerThreadWait();
 	}
 	
+	virtual void debugDisplayCameraImageData(const float viewMatrix[16], const float projectionMatrix[16], 
+                                  unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, 
+                                  float* depthBuffer, int depthBufferSizeInPixels, 
+                                  int* segmentationMaskBuffer, int segmentationMaskBufferSizeInPixels,
+		  int startPixelIndex, int destinationWidth, int destinationHeight, int* numPixelsCopied)
+	{
+		 m_cs->lock();
+	    for (int i=0;i<16;i++)
+        {
+            m_viewMatrix[i] = viewMatrix[i];
+            m_projectionMatrix[i] = projectionMatrix[i];
+        }
+	    m_pixelsRGBA = pixelsRGBA;
+        m_rgbaBufferSizeInPixels = rgbaBufferSizeInPixels;
+        m_depthBuffer = depthBuffer;
+        m_depthBufferSizeInPixels = depthBufferSizeInPixels;
+        m_segmentationMaskBuffer = segmentationMaskBuffer;
+        m_segmentationMaskBufferSizeInPixels = segmentationMaskBufferSizeInPixels;
+        m_startPixelIndex = startPixelIndex;
+        m_destinationWidth = destinationWidth;
+        m_destinationHeight = destinationHeight;
+        m_numPixelsCopied = numPixelsCopied;
+	    
+		m_cs->setSharedParam(1,eGUIHelperDisplayCameraImageData);
+		workerThreadWait();
+	}
 
 	btDiscreteDynamicsWorld* m_dynamicsWorld;
 
@@ -870,12 +1121,16 @@ public:
 	{
 	}
 
+	virtual void drawText3D( const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlag)
+	{
+	}
+
 
 	btAlignedObjectArray<UserDebugText> m_userDebugText;
 	
 	UserDebugText m_tmpText;
 
-	virtual int		addUserDebugText3D( const char* txt, const double positionXYZ[3], const double	textColorRGB[3], double size, double lifeTime)
+	virtual int		addUserDebugText3D( const char* txt, const double positionXYZ[3], const double orientation[4], const double	textColorRGB[3], double size, double lifeTime, int trackingVisualShapeIndex, int optionFlags)
 	{
 		
 		m_tmpText.m_itemUniqueId = m_uidGenerator++;
@@ -883,12 +1138,26 @@ public:
 		m_tmpText.textSize = size;
 		//int len = strlen(txt);
 		strcpy(m_tmpText.m_text,txt);
-		m_tmpText.m_textPositionXYZ[0] = positionXYZ[0];
-		m_tmpText.m_textPositionXYZ[1] = positionXYZ[1];
-		m_tmpText.m_textPositionXYZ[2] = positionXYZ[2];
+		m_tmpText.m_textPositionXYZ1[0] = positionXYZ[0];
+		m_tmpText.m_textPositionXYZ1[1] = positionXYZ[1];
+		m_tmpText.m_textPositionXYZ1[2] = positionXYZ[2];
+
+		m_tmpText.m_textOrientation[0] = orientation[0];
+		m_tmpText.m_textOrientation[1] = orientation[1];
+		m_tmpText.m_textOrientation[2] = orientation[2];
+		m_tmpText.m_textOrientation[3] = orientation[3];
+
 		m_tmpText.m_textColorRGB[0] = textColorRGB[0];
 		m_tmpText.m_textColorRGB[1] = textColorRGB[1];
 		m_tmpText.m_textColorRGB[2] = textColorRGB[2];
+
+		m_tmpText.m_trackingVisualShapeIndex = trackingVisualShapeIndex;
+
+		m_tmpText.m_optionFlags = optionFlags;
+		m_tmpText.m_textOrientation[0] = orientation[0];
+		m_tmpText.m_textOrientation[1] = orientation[1];
+		m_tmpText.m_textOrientation[2] = orientation[2];
+		m_tmpText.m_textOrientation[3] = orientation[3];
 
 		m_cs->lock();
 		m_cs->setSharedParam(1, eGUIUserDebugAddText);
@@ -932,7 +1201,7 @@ public:
 	btAlignedObjectArray<UserDebugDrawLine> m_userDebugLines;
 	UserDebugDrawLine m_tmpLine;
 
-	virtual int		addUserDebugLine(const double	debugLineFromXYZ[3], const double	debugLineToXYZ[3], const double	debugLineColorRGB[3], double lineWidth, double lifeTime )
+	virtual int		addUserDebugLine(const double	debugLineFromXYZ[3], const double	debugLineToXYZ[3], const double	debugLineColorRGB[3], double lineWidth, double lifeTime , int trackingVisualShapeIndex)
 	{
 		m_tmpLine.m_lifeTime = lifeTime;
 		m_tmpLine.m_lineWidth = lineWidth;
@@ -948,7 +1217,7 @@ public:
 		m_tmpLine.m_debugLineColorRGB[0] = debugLineColorRGB[0];
 		m_tmpLine.m_debugLineColorRGB[1] = debugLineColorRGB[1];
 		m_tmpLine.m_debugLineColorRGB[2] = debugLineColorRGB[2];
-		
+		m_tmpLine.m_trackingVisualShapeIndex = trackingVisualShapeIndex;
 		m_cs->lock();
 		m_cs->setSharedParam(1, eGUIUserDebugAddLine);
 		workerThreadWait();
@@ -973,6 +1242,10 @@ public:
 	
 	}
 
+	
+
+
+
 	const char* m_mp4FileName;
 	virtual void	dumpFramesToVideo(const char* mp4FileName)
 	{
@@ -994,12 +1267,16 @@ class PhysicsServerExample : public SharedMemoryCommon
 	MotionArgs m_args[MAX_MOTION_NUM_THREADS];
 	MultiThreadedOpenGLGuiHelper* m_multiThreadedHelper;
     bool m_wantsShutdown;
-#ifdef B3_USE_MIDI
-	RtMidiIn* m_midi;
-#endif
+
     bool m_isConnected;
     btClock m_clock;
 	bool m_replay;
+
+	struct Common2dCanvasInterface* m_canvas;
+	int m_canvasRGBIndex;
+	int m_canvasDepthIndex;
+	int m_canvasSegMaskIndex;
+
 //	int m_options;
 	
 #ifdef BT_ENABLE_VR
@@ -1008,7 +1285,7 @@ class PhysicsServerExample : public SharedMemoryCommon
 
 public:
 
-	PhysicsServerExample(MultiThreadedOpenGLGuiHelper* helper, SharedMemoryInterface* sharedMem=0, int options=0);
+	PhysicsServerExample(MultiThreadedOpenGLGuiHelper* helper, CommandProcessorCreationInterface* commandProcessorCreator, SharedMemoryInterface* sharedMem=0, int options=0);
 
 	virtual ~PhysicsServerExample();
 
@@ -1034,10 +1311,10 @@ public:
 	virtual void resetCamera()
 	{
 		float dist = 5;
-		float pitch = 50;
-		float yaw = 35;
+		float pitch = -35;
+		float yaw = 50;
 		float targetPos[3]={0,0,0};//-3,2.8,-2.5};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 
     virtual bool wantsTermination();
@@ -1068,6 +1345,16 @@ public:
 			return false;
 		}
 
+		b3MouseEvent event;
+		event.m_buttonState = 0;
+		event.m_buttonIndex = -1;
+		event.m_mousePosX = x;
+		event.m_mousePosY = y;
+		event.m_eventType = MOUSE_MOVE_EVENT;
+		m_args[0].m_csGUI->lock();
+		m_args[0].m_allMouseEvents.push_back(event);
+		m_args[0].m_csGUI->unlock();
+
 		btVector3 rayTo = getRayTo(int(x), int(y));
 		btVector3 rayFrom;
 		renderer->getActiveCamera()->getCameraPosition(rayFrom);
@@ -1097,6 +1384,22 @@ public:
 
 		CommonWindowInterface* window = m_guiHelper->getAppInterface()->m_window;
 
+		b3MouseEvent event;
+		event.m_buttonIndex = button;
+		event.m_mousePosX = x;
+		event.m_mousePosY = y;
+		event.m_eventType = MOUSE_BUTTON_EVENT;
+		if (state)
+		{
+			event.m_buttonState = eButtonIsDown + eButtonTriggered;
+		} else
+		{
+			event.m_buttonState = eButtonReleased;
+		}
+		
+		m_args[0].m_csGUI->lock();
+		m_args[0].m_allMouseEvents.push_back(event);
+		m_args[0].m_csGUI->unlock();
 
 		if (state==1)
 		{
@@ -1193,42 +1496,61 @@ public:
 			printf("key[%d]=%d state = %d\n",i,m_args[0].m_keyboardEvents[i].m_keyCode,m_args[0].m_keyboardEvents[i].m_keyState);
 		}
 		*/
-		if (key=='w' && state)
+		double shift=0.1;
+
+		CommonWindowInterface* window = m_guiHelper->getAppInterface()->m_window;
+		if (window->isModifierKeyPressed(B3G_SHIFT))
+			shift=0.01;
+
+		btVector3 VRTeleportPos =this->m_physicsServer.getVRTeleportPosition();
+
+		if (gEnableDefaultKeyboardShortcuts)
 		{
-			gVRTeleportPos1[0]+=0.1;
-			saveCurrentSettingsVR();
+			if (key=='w' && state)
+			{
+				VRTeleportPos[0]+=shift;
+				m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+				saveCurrentSettingsVR(VRTeleportPos);
+			}
+			if (key=='s' && state)
+			{
+				VRTeleportPos[0]-=shift;
+				m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+				saveCurrentSettingsVR(VRTeleportPos);
+			}
+			if (key=='a' && state)
+			{
+				VRTeleportPos[1]-=shift;
+				m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+				saveCurrentSettingsVR(VRTeleportPos);
+			}
+			if (key=='d' && state)
+			{
+				VRTeleportPos[1]+=shift;
+				m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+				saveCurrentSettingsVR(VRTeleportPos);
+			}
+			if (key=='q' && state)
+			{
+				VRTeleportPos[2]+=shift;
+				m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+				saveCurrentSettingsVR(VRTeleportPos);
+			}
+			if (key=='e' && state)
+			{
+				VRTeleportPos[2]-=shift;
+				m_physicsServer.setVRTeleportPosition(VRTeleportPos);
+				saveCurrentSettingsVR(VRTeleportPos);
+			}
+			if (key=='z' && state)
+			{
+				gVRTeleportRotZ+=shift;
+				btQuaternion VRTeleportOrn = btQuaternion(btVector3(0, 0, 1), gVRTeleportRotZ);
+				m_physicsServer.setVRTeleportOrientation(VRTeleportOrn);
+				saveCurrentSettingsVR(VRTeleportPos);
+			}
 		}
-		if (key=='s' && state)
-		{
-			gVRTeleportPos1[0]-=0.1;
-			saveCurrentSettingsVR();
-		}
-		if (key=='a' && state)
-		{
-			gVRTeleportPos1[1]-=0.1;
-			saveCurrentSettingsVR();
-		}
-		if (key=='d' && state)
-		{
-			gVRTeleportPos1[1]+=0.1;
-			saveCurrentSettingsVR();
-		}
-		if (key=='q' && state)
-		{
-			gVRTeleportPos1[2]+=0.1;
-			saveCurrentSettingsVR();
-		}
-		if (key=='e' && state)
-		{
-			gVRTeleportPos1[2]-=0.1;
-			saveCurrentSettingsVR();
-		}
-		if (key=='z' && state)
-		{
-			gVRTeleportRotZ+=0.1;
-			gVRTeleportOrn = btQuaternion(btVector3(0, 0, 1), gVRTeleportRotZ);
-			saveCurrentSettingsVR();
-		}
+		
 		
 		return false;
 	}
@@ -1249,33 +1571,33 @@ public:
 			setSharedMemoryKey(shmemKey);
 		}
 
-		if (args.GetCmdLineArgument("camPosX", gVRTeleportPos1[0]))
+		btVector3 vrTeleportPos = m_physicsServer.getVRTeleportPosition();
+
+		if (args.GetCmdLineArgument("camPosX", vrTeleportPos[0]))
 		{
-			printf("camPosX=%f\n", gVRTeleportPos1[0]);
+			printf("camPosX=%f\n", vrTeleportPos[0]);
 		}
 
-		if (args.GetCmdLineArgument("camPosY", gVRTeleportPos1[1]))
+		if (args.GetCmdLineArgument("camPosY", vrTeleportPos[1]))
 		{
-			printf("camPosY=%f\n", gVRTeleportPos1[1]);
+			printf("camPosY=%f\n", vrTeleportPos[1]);
 		}
 
-		if (args.GetCmdLineArgument("camPosZ", gVRTeleportPos1[2]))
+		if (args.GetCmdLineArgument("camPosZ", vrTeleportPos[2]))
 		{
-			printf("camPosZ=%f\n", gVRTeleportPos1[2]);
+			printf("camPosZ=%f\n", vrTeleportPos[2]);
 		}
+
+		m_physicsServer.setVRTeleportPosition(vrTeleportPos);
 
 		float camRotZ = 0.f;
 		if (args.GetCmdLineArgument("camRotZ", camRotZ))
 		{
 			printf("camRotZ = %f\n", camRotZ);
 			btQuaternion ornZ(btVector3(0, 0, 1), camRotZ);
-			gVRTeleportOrn = ornZ;
+			m_physicsServer.setVRTeleportOrientation(ornZ);
 		}
 
-		if (args.CheckCmdLineFlag("robotassets"))
-		{
-			gCreateDefaultRobotAssets = true;
-		}
 
 		if (args.CheckCmdLineFlag("realtimesimulation"))
 		{
@@ -1283,69 +1605,44 @@ public:
 			m_physicsServer.enableRealTimeSimulation(true);
 		}
 
-		if (args.CheckCmdLineFlag("norobotassets"))
+		if (args.CheckCmdLineFlag("disableDefaultKeyboardShortcuts"))
 		{
-			gCreateDefaultRobotAssets = false;
+			gEnableDefaultKeyboardShortcuts = false;
 		}
-
+		if (args.CheckCmdLineFlag("enableDefaultKeyboardShortcuts"))
+		{
+			gEnableDefaultKeyboardShortcuts = true;
+		}
+		if (args.CheckCmdLineFlag("disableDefaultMousePicking"))
+		{
+			gEnableDefaultMousePicking = false;
+		}
+		if (args.CheckCmdLineFlag("enableDefaultMousePicking"))
+		{
+			gEnableDefaultMousePicking = true;
+		}
 
 	}
 
 };
 
-#ifdef B3_USE_MIDI
-static bool chooseMidiPort(RtMidiIn *rtmidi)
-{
-	/*
 
-	std::cout << "\nWould you like to open a virtual input port? [y/N] ";
-
-	std::string keyHit;
-	std::getline( std::cin, keyHit );
-	if ( keyHit == "y" ) {
-	rtmidi->openVirtualPort();
-	return true;
-	}
-	*/
-
-	std::string portName;
-	unsigned int i = 0, nPorts = rtmidi->getPortCount();
-	if (nPorts == 0) {
-		std::cout << "No midi input ports available!" << std::endl;
-		return false;
-	}
-
-	if (nPorts > 0) {
-		std::cout << "\nOpening midi input port " << rtmidi->getPortName() << std::endl;
-	}
-
-	//  std::getline( std::cin, keyHit );  // used to clear out stdin
-	rtmidi->openPort(i);
-
-	return true;
-}
-#endif //B3_USE_MIDI
-
-
-PhysicsServerExample::PhysicsServerExample(MultiThreadedOpenGLGuiHelper* helper, SharedMemoryInterface* sharedMem, int options)
+PhysicsServerExample::PhysicsServerExample(MultiThreadedOpenGLGuiHelper* helper,CommandProcessorCreationInterface* commandProcessorCreator, SharedMemoryInterface* sharedMem, int options)
 :SharedMemoryCommon(helper),
-m_physicsServer(sharedMem),
+m_physicsServer(commandProcessorCreator,sharedMem,0),
 m_wantsShutdown(false),
 m_isConnected(false),
-m_replay(false)
+m_replay(false),
+m_canvas(0),
+m_canvasRGBIndex(-1),
+m_canvasDepthIndex(-1),
+m_canvasSegMaskIndex(-1)
 //m_options(options)
 #ifdef BT_ENABLE_VR
 ,m_tinyVrGui(0)
 #endif
 {
-#ifdef B3_USE_MIDI
-	m_midi = new   RtMidiIn();
-	chooseMidiPort(m_midi);
-	m_midi->setCallback(&midiCallback);
-	// Don't ignore sysex, timing, or active sensing messages.
-	m_midi->ignoreTypes(false, false, false);
 
-#endif
 	m_multiThreadedHelper = helper;
 //	b3Printf("Started PhysicsServer\n");
 }
@@ -1354,10 +1651,16 @@ m_replay(false)
 
 PhysicsServerExample::~PhysicsServerExample()
 {
-#ifdef B3_USE_MIDI
-	delete m_midi;
-	m_midi = 0;
-#endif
+	if (m_canvas)
+	{
+	    if (m_canvasRGBIndex>=0)
+            m_canvas->destroyCanvas(m_canvasRGBIndex);
+	    if (m_canvasDepthIndex>=0)
+            m_canvas->destroyCanvas(m_canvasDepthIndex);
+        if (m_canvasSegMaskIndex>=0)
+            m_canvas->destroyCanvas(m_canvasSegMaskIndex);
+	}
+
 #ifdef BT_ENABLE_VR
 	delete m_tinyVrGui;
 #endif
@@ -1430,6 +1733,52 @@ void	PhysicsServerExample::initPhysics()
 
 
 		m_isConnected = m_physicsServer.connectSharedMemory( m_guiHelper);
+
+
+
+	{
+		m_canvas = m_guiHelper->get2dCanvasInterface();
+		if (m_canvas)
+		{
+	
+			
+			m_canvasRGBIndex = m_canvas->createCanvas("Synthetic Camera RGB data",gCamVisualizerWidth, gCamVisualizerHeight);
+			//m_canvasDepthIndex = m_canvas->createCanvas("Synthetic Camera Depth data",gCamVisualizerWidth, gCamVisualizerHeight);
+			//m_canvasSegMaskIndex = m_canvas->createCanvas("Synthetic Camera Segmentation Mask",gCamVisualizerWidth, gCamVisualizerHeight);
+
+			for (int i=0;i<gCamVisualizerWidth;i++)
+			{
+				for (int j=0;j<gCamVisualizerHeight;j++)
+				{
+					unsigned char red=255;
+					unsigned char green=255;
+					unsigned char blue=255;
+					unsigned char alpha=255;
+					if (i==j)
+					{
+						red = 0;
+						green=0;
+						blue=0;
+					}
+					m_canvas->setPixel(m_canvasRGBIndex,i,j,red,green,blue,alpha);
+					if (m_canvasSegMaskIndex>=0)
+						m_canvas->setPixel(m_canvasDepthIndex,i,j,red,green,blue,alpha);
+					if (m_canvasSegMaskIndex>=0)
+						m_canvas->setPixel(m_canvasSegMaskIndex,i,j,red,green,blue,alpha);
+					
+				}
+			}
+			m_canvas->refreshImageData(m_canvasRGBIndex);
+	
+			if (m_canvasDepthIndex>=0)
+				m_canvas->refreshImageData(m_canvasDepthIndex);
+			if (m_canvasSegMaskIndex>=0)
+				m_canvas->refreshImageData(m_canvasSegMaskIndex);
+			
+			
+		}
+
+	}
 }
 
 
@@ -1527,6 +1876,48 @@ void	PhysicsServerExample::updateGraphics()
 		m_multiThreadedHelper->mainThreadRelease();
 		break;
 	}
+
+	case eGUIHelperSetVisualizerFlag:
+	{
+		int flag = m_multiThreadedHelper->m_visualizerFlag;
+		int enable = m_multiThreadedHelper->m_visualizerEnable;
+
+		if (flag==COV_ENABLE_VR_TELEPORTING)
+		{
+			gEnableTeleporting = (enable!=0);
+		}
+
+		if (flag == COV_ENABLE_VR_PICKING)
+		{
+			gEnablePicking = (enable!=0);
+		}
+    
+		if (flag ==COV_ENABLE_SYNC_RENDERING_INTERNAL)
+		{
+			gEnableSyncPhysicsRendering = (enable!=0);
+		}
+
+		if (flag == COV_ENABLE_RENDERING)
+		{
+			gEnableRendering = (enable!=0);
+		}
+
+		if (flag == COV_ENABLE_KEYBOARD_SHORTCUTS)
+		{
+			gEnableDefaultKeyboardShortcuts = (enable!=0);
+		}
+
+		if (flag == COV_ENABLE_MOUSE_PICKING)
+		{
+			gEnableDefaultMousePicking = (enable!=0);
+		}
+
+		m_multiThreadedHelper->m_childGuiHelper->setVisualizerFlag(m_multiThreadedHelper->m_visualizerFlag,m_multiThreadedHelper->m_visualizerEnable);
+		m_multiThreadedHelper->mainThreadRelease();
+		break;
+    }
+
+
 	case eGUIHelperRegisterGraphicsInstance:
 	{
 		m_multiThreadedHelper->m_instanceId = m_multiThreadedHelper->m_childGuiHelper->registerGraphicsInstance(
@@ -1540,6 +1931,13 @@ void	PhysicsServerExample::updateGraphics()
 	}
 	case eGUIHelperRemoveAllGraphicsInstances:
         {
+#ifdef BT_ENABLE_VR
+			if (m_tinyVrGui)
+			{
+				delete m_tinyVrGui;
+				m_tinyVrGui=0;
+			}
+#endif //BT_ENABLE_VR
             m_multiThreadedHelper->m_childGuiHelper->removeAllGraphicsInstances();
 			if (m_multiThreadedHelper->m_childGuiHelper->getRenderInterface())
 			{
@@ -1551,7 +1949,172 @@ void	PhysicsServerExample::updateGraphics()
 
             break;
         }
-        
+	case eGUIHelperRemoveGraphicsInstance:
+	{
+		m_multiThreadedHelper->m_childGuiHelper->removeGraphicsInstance(m_multiThreadedHelper->m_graphicsInstanceRemove);
+		m_multiThreadedHelper->mainThreadRelease();
+		break;
+	}
+
+	case eGUIHelperGetShapeIndexFromInstance:
+	{
+		m_multiThreadedHelper->getShapeIndex_shapeIndex = m_multiThreadedHelper->m_childGuiHelper->getShapeIndexFromInstance(m_multiThreadedHelper->m_getShapeIndex_instance);
+		m_multiThreadedHelper->mainThreadRelease();
+		break;
+	}
+
+	case eGUIHelperChangeGraphicsInstanceTextureId:
+	{
+		m_multiThreadedHelper->m_childGuiHelper->replaceTexture(
+			m_multiThreadedHelper->m_graphicsInstanceChangeTextureShapeIndex,
+			m_multiThreadedHelper->m_graphicsInstanceChangeTextureId);
+		m_multiThreadedHelper->mainThreadRelease();
+		break;
+	}
+
+	
+	case eGUIHelperChangeTexture:
+	{
+		m_multiThreadedHelper->m_childGuiHelper->changeTexture(
+			m_multiThreadedHelper->m_changeTextureUniqueId,
+			m_multiThreadedHelper->m_changeTextureRgbTexels,
+			m_multiThreadedHelper->m_changeTextureWidth,
+			m_multiThreadedHelper->m_changeTextureHeight);
+		m_multiThreadedHelper->mainThreadRelease();
+		break;
+	}
+
+	case eGUIHelperChangeGraphicsInstanceRGBAColor:
+	{
+		m_multiThreadedHelper->m_childGuiHelper->changeRGBAColor(m_multiThreadedHelper->m_graphicsInstanceChangeColor,m_multiThreadedHelper->m_rgbaColor);
+		m_multiThreadedHelper->mainThreadRelease();
+		break;
+	}
+	case eGUIHelperChangeGraphicsInstanceSpecularColor:
+	{
+		m_multiThreadedHelper->m_childGuiHelper->changeSpecularColor(m_multiThreadedHelper->m_graphicsInstanceChangeSpecular,m_multiThreadedHelper->m_specularColor);
+		m_multiThreadedHelper->mainThreadRelease();
+		break;
+
+	}
+	case eGUIHelperDisplayCameraImageData:
+	{
+		if (m_canvas)
+		{
+
+			int numBytesPerPixel= 4;
+			int startRGBIndex = m_multiThreadedHelper->m_startPixelIndex*numBytesPerPixel;
+			int endRGBIndex = startRGBIndex + (*m_multiThreadedHelper->m_numPixelsCopied*numBytesPerPixel);
+
+			int startDepthIndex = m_multiThreadedHelper->m_startPixelIndex;
+			int endDepthIndex = startDepthIndex + (*m_multiThreadedHelper->m_numPixelsCopied);
+
+			int startSegIndex = m_multiThreadedHelper->m_startPixelIndex;
+			int endSegIndex = startSegIndex + (*m_multiThreadedHelper->m_numPixelsCopied);
+
+			btScalar frustumZNear = m_multiThreadedHelper->m_projectionMatrix[14]/(m_multiThreadedHelper->m_projectionMatrix[10]-1);
+			btScalar frustumZFar = 20;//m_multiThreadedHelper->m_projectionMatrix[14]/(m_multiThreadedHelper->m_projectionMatrix[10]+1);
+
+				for (int i=0;i<gCamVisualizerWidth;i++)
+					{
+						for (int j=0;j<gCamVisualizerHeight;j++)
+						{
+                            int xIndex = int(float(i)*(float(m_multiThreadedHelper->m_destinationWidth)/float(gCamVisualizerWidth)));
+                            int yIndex = int(float(j)*(float(m_multiThreadedHelper->m_destinationHeight)/float(gCamVisualizerHeight)));
+							btClamp(xIndex,0,m_multiThreadedHelper->m_destinationWidth);
+							btClamp(yIndex,0,m_multiThreadedHelper->m_destinationHeight);
+							int bytesPerPixel = 4; //RGBA
+							
+							if (m_canvasRGBIndex >=0)
+                            {
+                                int rgbPixelIndex = (xIndex+yIndex*m_multiThreadedHelper->m_destinationWidth)*bytesPerPixel;
+								if (rgbPixelIndex >= startRGBIndex && rgbPixelIndex < endRGBIndex)
+								{
+									m_canvas->setPixel(m_canvasRGBIndex,i,j,
+											m_multiThreadedHelper->m_pixelsRGBA[rgbPixelIndex-startRGBIndex],
+											m_multiThreadedHelper->m_pixelsRGBA[rgbPixelIndex+1-startRGBIndex],
+											m_multiThreadedHelper->m_pixelsRGBA[rgbPixelIndex+2-startRGBIndex],
+													   255); //alpha set to 255
+								}
+                            }
+                            if (m_canvasDepthIndex >=0 && 0!= m_multiThreadedHelper->m_depthBuffer)
+                            {
+                                int depthPixelIndex = (xIndex+yIndex*m_multiThreadedHelper->m_destinationWidth);
+								if (depthPixelIndex >= startDepthIndex && depthPixelIndex < endDepthIndex)
+								{
+									float depthValue = m_multiThreadedHelper->m_depthBuffer[depthPixelIndex-startDepthIndex];
+									//todo: rescale the depthValue to [0..255]
+									if (depthValue>-1e20)
+									{
+										int rgb = 0;
+										btScalar minDepthValue = 0.98;//todo: compute more reasonably min/max depth range
+										btScalar maxDepthValue = 1;
+
+										if (maxDepthValue!=minDepthValue)
+										{
+											rgb =  (depthValue-minDepthValue)*(255. / (btFabs(maxDepthValue-minDepthValue)));
+											if (rgb<0 || rgb>255)
+											{
+    											//printf("rgb=%d\n",rgb);
+											}
+										}                 
+										m_canvas->setPixel(m_canvasDepthIndex,i,j,
+											rgb,
+											rgb,
+											255, 255); //alpha set to 255
+									} else
+									{
+										m_canvas->setPixel(m_canvasDepthIndex,i,j,
+											0,
+											0,
+											0, 255); //alpha set to 255
+									}
+								}
+                            }
+
+                            if (m_canvasSegMaskIndex>=0 && (0!=m_multiThreadedHelper->m_segmentationMaskBuffer))
+                            {
+                                int segmentationMaskPixelIndex = (xIndex+yIndex*m_multiThreadedHelper->m_destinationWidth);
+
+								if (segmentationMaskPixelIndex >= startSegIndex && segmentationMaskPixelIndex < endSegIndex)
+								{
+									int segmentationMask = m_multiThreadedHelper->m_segmentationMaskBuffer[segmentationMaskPixelIndex-startSegIndex];
+									btVector4 palette[4] = {btVector4(32,255,32,255),
+															btVector4(32,32,255,255),
+															btVector4(255,255,32,255),
+															btVector4(32,255,255,255)};
+									if (segmentationMask>=0)
+									{
+										btVector4 rgb = palette[segmentationMask&3];
+										 m_canvas->setPixel(m_canvasSegMaskIndex,i,j,
+											rgb.x(),
+											rgb.y(),
+											rgb.z(), 255); //alpha set to 255
+									} else
+									{
+										 m_canvas->setPixel(m_canvasSegMaskIndex,i,j,
+											0,
+											0,
+											0, 255); //alpha set to 255
+									}
+								}
+                            }
+						}
+					}
+
+					if (m_canvasRGBIndex >=0)
+                        m_canvas->refreshImageData(m_canvasRGBIndex);
+      
+					if (m_canvasDepthIndex >=0)
+                        m_canvas->refreshImageData(m_canvasDepthIndex);
+                    if (m_canvasSegMaskIndex >=0)
+                        m_canvas->refreshImageData(m_canvasSegMaskIndex);
+                        
+                        
+		}
+		m_multiThreadedHelper->mainThreadRelease();
+		break;
+	}
     case eGUIHelperCopyCameraImageData:
         {
              m_multiThreadedHelper->m_childGuiHelper->copyCameraImageData(m_multiThreadedHelper->m_viewMatrix,
@@ -1566,7 +2129,8 @@ void	PhysicsServerExample::updateGraphics()
 				 m_multiThreadedHelper->m_destinationWidth, 
 				 m_multiThreadedHelper->m_destinationHeight, 
 				 m_multiThreadedHelper->m_numPixelsCopied);
- 		m_multiThreadedHelper->mainThreadRelease();
+
+	 		m_multiThreadedHelper->mainThreadRelease();
             break;
         }
 	case eGUIHelperAutogenerateGraphicsObjects:
@@ -1714,35 +2278,8 @@ extern int gDroppedSimulationSteps;
 extern int gNumSteps;
 extern double gDtInSec;
 extern double gSubStep;
-extern int gVRTrackingObjectUniqueId;
 extern btTransform gVRTrackingObjectTr;
 
-  struct LineSegment
-                {
-                        btVector3 m_from;
-                        btVector3 m_to;
-                };
-
-                struct ColorWidth
-                {
-                        btVector3FloatData m_color;
-                        int width;
-                        int getHash() const
-                        {
-                                unsigned char r = (unsigned char) m_color.m_floats[0]*255;
-                                unsigned char g = (unsigned char) m_color.m_floats[1]*255;
-                                unsigned char b = (unsigned char) m_color.m_floats[2]*255;
-                                unsigned char w = width;
-                                return r+(256*g)+(256*256*b)+(256*256*256*w);
-                        }
-                        bool equals(const ColorWidth& other) const
-                        {
-                                bool same = ((width == other.width) && (m_color.m_floats[0] == other.m_color.m_floats[0]) &&
-                                        (m_color.m_floats[1] == other.m_color.m_floats[1]) &&
-                                        (m_color.m_floats[2] == other.m_color.m_floats[2]));
-                                return same;
-                        }
-                };
 
 void PhysicsServerExample::drawUserDebugLines()
 {
@@ -1767,6 +2304,11 @@ void PhysicsServerExample::drawUserDebugLines()
 
 		for (int i = 0; i<m_multiThreadedHelper->m_userDebugLines.size(); i++)
 		{
+
+			
+
+
+
 			btVector3 from;
 			from.setValue(m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[0],
 				m_multiThreadedHelper->m_userDebugLines[i].m_debugLineFromXYZ[1],
@@ -1775,6 +2317,26 @@ void PhysicsServerExample::drawUserDebugLines()
 			toX.setValue(m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[0],
 				m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[1],
 				m_multiThreadedHelper->m_userDebugLines[i].m_debugLineToXYZ[2]);
+
+			int graphicsIndex = m_multiThreadedHelper->m_userDebugLines[i].m_trackingVisualShapeIndex;
+			if (graphicsIndex>=0)
+			{
+				CommonRenderInterface* renderer = m_guiHelper->getRenderInterface();
+				if (renderer)
+				{
+					float parentPos[3];
+					float parentOrn[4];
+
+					if (renderer->readSingleInstanceTransformToCPU(parentPos,parentOrn,graphicsIndex))
+					{
+						btTransform parentTrans;
+						parentTrans.setOrigin(btVector3(parentPos[0],parentPos[1],parentPos[2]));
+						parentTrans.setRotation(btQuaternion(parentOrn[0],parentOrn[1],parentOrn[2],parentOrn[3]));
+						from = parentTrans*from;
+						toX = parentTrans*toX;
+					}
+				}
+			}
 
 			btVector3 color;
 			color.setValue(m_multiThreadedHelper->m_userDebugLines[i].m_debugLineColorRGB[0],
@@ -1834,11 +2396,77 @@ void PhysicsServerExample::drawUserDebugLines()
 
 		for (int i = 0; i<m_multiThreadedHelper->m_userDebugText.size(); i++)
 		{
+
+//			int optionFlag = CommonGraphicsApp::eDrawText3D_OrtogonalFaceCamera|CommonGraphicsApp::eDrawText3D_TrueType;
+			//int optionFlag = CommonGraphicsApp::eDrawText3D_OrtogonalFaceCamera;
+			int optionFlag = 0;
+			float orientation[4] = {0,0,0,1};
+			if (m_multiThreadedHelper->m_userDebugText[i].m_optionFlags&CommonGraphicsApp::eDrawText3D_OrtogonalFaceCamera)
+			{
+				orientation[0] = m_multiThreadedHelper->m_userDebugText[i].m_textOrientation[0];
+				orientation[1] = m_multiThreadedHelper->m_userDebugText[i].m_textOrientation[1];
+				orientation[2] = m_multiThreadedHelper->m_userDebugText[i].m_textOrientation[2];
+				orientation[3] = m_multiThreadedHelper->m_userDebugText[i].m_textOrientation[3];
+				optionFlag |= CommonGraphicsApp::eDrawText3D_TrueType;
+			} else
+			{
+				optionFlag |= CommonGraphicsApp::eDrawText3D_OrtogonalFaceCamera;
+			}
+
+			float colorRGBA[4] = {
+				m_multiThreadedHelper->m_userDebugText[i].m_textColorRGB[0],
+				m_multiThreadedHelper->m_userDebugText[i].m_textColorRGB[1],
+				m_multiThreadedHelper->m_userDebugText[i].m_textColorRGB[2],
+				1.};
+
+			float pos[3] = {m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ1[0],
+			m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ1[1],
+			m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ1[2]};
+
+			int graphicsIndex = m_multiThreadedHelper->m_userDebugText[i].m_trackingVisualShapeIndex;
+			if (graphicsIndex>=0)
+			{
+				CommonRenderInterface* renderer = m_guiHelper->getRenderInterface();
+				if (renderer)
+				{
+					float parentPos[3];
+					float parentOrn[4];
+
+					if (renderer->readSingleInstanceTransformToCPU(parentPos,parentOrn,graphicsIndex))
+					{
+						btTransform parentTrans;
+						parentTrans.setOrigin(btVector3(parentPos[0],parentPos[1],parentPos[2]));
+						parentTrans.setRotation(btQuaternion(parentOrn[0],parentOrn[1],parentOrn[2],parentOrn[3]));
+						btTransform childTr;
+						childTr.setOrigin(btVector3(pos[0],pos[1],pos[2]));
+						childTr.setRotation(btQuaternion(orientation[0],orientation[1],orientation[2],orientation[3]));
+
+						btTransform siteTr = parentTrans*childTr;
+						pos[0] = siteTr.getOrigin()[0];
+						pos[1] = siteTr.getOrigin()[1];
+						pos[2] = siteTr.getOrigin()[2];
+						btQuaternion siteOrn = siteTr.getRotation();
+						orientation[0] = siteOrn[0];
+						orientation[1] = siteOrn[1];
+						orientation[2] = siteOrn[2];
+						orientation[3] = siteOrn[3];
+					}
+				}
+			}
+
+
+
 			m_guiHelper->getAppInterface()->drawText3D(m_multiThreadedHelper->m_userDebugText[i].m_text,
+				pos,orientation,colorRGBA,
+				m_multiThreadedHelper->m_userDebugText[i].textSize,optionFlag);
+
+
+			/*m_guiHelper->getAppInterface()->drawText3D(m_multiThreadedHelper->m_userDebugText[i].m_text,
 				m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ[0],
 				m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ[1],
 				m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ[2],
 				m_multiThreadedHelper->m_userDebugText[i].textSize);
+				*/
 
 		}
 	}
@@ -1848,33 +2476,23 @@ void PhysicsServerExample::drawUserDebugLines()
 void PhysicsServerExample::renderScene()
 {
 	btTransform vrTrans;
-	//gVRTeleportPos1 = gVRTeleportPosLocal;
-	//gVRTeleportOrn = gVRTeleportOrnLocal;
 
-	///little VR test to follow/drive Husky vehicle
-	if (gVRTrackingObjectUniqueId >= 0)
-	{
-		btTransform vrTrans;
-		vrTrans.setOrigin(gVRTeleportPosLocal);
-		vrTrans.setRotation(gVRTeleportOrnLocal);
-			
-		vrTrans = vrTrans * gVRTrackingObjectTr;
 
-		gVRTeleportPos1 = vrTrans.getOrigin();
-		gVRTeleportOrn = vrTrans.getRotation();
-	}
 		
 
 	B3_PROFILE("PhysicsServerExample::RenderScene");
 
 	drawUserDebugLines();
 
-	if (gEnableRealTimeSimVR)
+	if (m_physicsServer.isRealTimeSimulationEnabled())
 	{
 		
 		static int frameCount=0;
-		//static btScalar prevTime = m_clock.getTimeSeconds();
+		static btScalar prevTime = m_clock.getTimeSeconds();
 		frameCount++;
+		
+		static char line0[1024]={0};
+		static char line1[1024]={0};
 
 #if 0
 
@@ -1882,7 +2500,8 @@ void PhysicsServerExample::renderScene()
 		int numFrames = 200;
 		static int count = 0;
 		count++;
-
+		
+			
 		if (0 == (count & 1))
 		{
 			btScalar curTime = m_clock.getTimeSeconds();
@@ -1923,14 +2542,13 @@ void PhysicsServerExample::renderScene()
 		{
 
 			b3Transform tr;tr.setIdentity();
-			tr.setOrigin(b3MakeVector3(gVRController2Pos[0],gVRController2Pos[1],gVRController2Pos[2]));
-			tr.setRotation(b3Quaternion(gVRController2Orn[0],gVRController2Orn[1],gVRController2Orn[2],gVRController2Orn[3]));
+			btVector3 VRController2Pos = m_physicsServer.getVRTeleportPosition();
+			btQuaternion VRController2Orn = m_physicsServer.getVRTeleportOrientation();
+			tr.setOrigin(b3MakeVector3(VRController2Pos[0],VRController2Pos[1],VRController2Pos[2]));
+			tr.setRotation(b3Quaternion(VRController2Orn[0],VRController2Orn[1],VRController2Orn[2],VRController2Orn[3]));
 			tr = tr*b3Transform(b3Quaternion(0,0,-SIMD_HALF_PI),b3MakeVector3(0,0,0));
 			b3Scalar dt = 0.01;
 			m_tinyVrGui->clearTextArea();
-			static char line0[1024];
-			static char line1[1024];
-
 			m_tinyVrGui->grapicalPrintf(line0,0,0,0,0,0,255);
 			m_tinyVrGui->grapicalPrintf(line1,0,16,255,255,255,255);
 
@@ -1945,8 +2563,8 @@ void PhysicsServerExample::renderScene()
 	btTransform tr2a, tr2;
 	tr2a.setIdentity();
 	tr2.setIdentity();
-	tr2.setOrigin(gVRTeleportPos1);
-	tr2a.setRotation(gVRTeleportOrn);
+	tr2.setOrigin(m_physicsServer.getVRTeleportPosition());
+	tr2a.setRotation(m_physicsServer.getVRTeleportOrientation());
 	btTransform trTotal = tr2*tr2a;
 	btTransform trInv = trTotal.inverse();
 
@@ -1969,38 +2587,48 @@ void PhysicsServerExample::renderScene()
 		m_multiThreadedHelper->m_childGuiHelper->getRenderInterface()->
 		getActiveCamera()->setVRCameraOffsetTransform(vrOffset);
 	}
-	m_physicsServer.renderScene();
-	
-	for (int i=0;i<MAX_VR_CONTROLLERS;i++)
+	if (gEnableRendering)
 	{
-		if (m_args[0].m_isVrControllerPicking[i] || m_args[0].m_isVrControllerDragging[i])
+		int renderFlags = 0;
+		if (!gEnableSyncPhysicsRendering)
 		{
-			btVector3 from = m_args[0].m_vrControllerPos[i];
-			btMatrix3x3 mat(m_args[0].m_vrControllerOrn[i]);
+			renderFlags|=1;//COV_DISABLE_SYNC_RENDERING;
+		}
+		m_physicsServer.renderScene(renderFlags);
+	}
 	
-			btVector3 toX = from+mat.getColumn(0);
-			btVector3 toY = from+mat.getColumn(1);
-			btVector3 toZ = from+mat.getColumn(2);
+	if (gEnablePicking)
+	{
+		for (int i=0;i<MAX_VR_CONTROLLERS;i++)
+		{
+			if (m_args[0].m_isVrControllerPicking[i] || m_args[0].m_isVrControllerDragging[i])
+			{
+				btVector3 from = m_args[0].m_vrControllerPos[i];
+				btMatrix3x3 mat(m_args[0].m_vrControllerOrn[i]);
 	
-			int width = 2;
+				btVector3 toX = from+mat.getColumn(0);
+				btVector3 toY = from+mat.getColumn(1);
+				btVector3 toZ = from+mat.getColumn(2);
+	
+				int width = 2;
 
 	
-			btVector4 color;
-			color=btVector4(1,0,0,1);
-			m_guiHelper->getAppInterface()->m_renderer->drawLine(from,toX,color,width);
-			color=btVector4(0,1,0,1);
-			m_guiHelper->getAppInterface()->m_renderer->drawLine(from,toY,color,width);
-			color=btVector4(0,0,1,1);
-			m_guiHelper->getAppInterface()->m_renderer->drawLine(from,toZ,color,width);
+				btVector4 color;
+				color=btVector4(1,0,0,1);
+				m_guiHelper->getAppInterface()->m_renderer->drawLine(from,toX,color,width);
+				color=btVector4(0,1,0,1);
+				m_guiHelper->getAppInterface()->m_renderer->drawLine(from,toY,color,width);
+				color=btVector4(0,0,1,1);
+				m_guiHelper->getAppInterface()->m_renderer->drawLine(from,toZ,color,width);
 	
+			}
 		}
 	}
 
 	if (m_guiHelper->getAppInterface()->m_renderer->getActiveCamera()->isVRCamera())
 	{
-		if (!gEnableRealTimeSimVR)
+		if (!m_physicsServer.isRealTimeSimulationEnabled())
 		{
-			gEnableRealTimeSimVR = true;
 			m_physicsServer.enableRealTimeSimulation(1);
 		}
 	}
@@ -2012,11 +2640,25 @@ void PhysicsServerExample::renderScene()
 
 void    PhysicsServerExample::physicsDebugDraw(int debugDrawFlags)
 {
+	if (gEnableSyncPhysicsRendering)
+	{
+		m_physicsServer.syncPhysicsToGraphics();
+	}
+
 	drawUserDebugLines();
 
-	///debug rendering
-	m_physicsServer.physicsDebugDraw(debugDrawFlags);
+	if (gEnableRendering)
+	{
+		///debug rendering
+		//m_physicsServer.physicsDebugDraw(debugDrawFlags);
+		m_args[0].m_csGUI->lock();
+		//draw stuff and flush?
+		this->m_multiThreadedHelper->m_debugDraw->drawDebugDrawerLines();
+		m_args[0].m_debugDrawFlags = debugDrawFlags;
+		gEnableUpdateDebugDrawLines = true;
+		m_args[0].m_csGUI->unlock();
 
+	}
 }
 
 
@@ -2086,33 +2728,6 @@ btVector3	PhysicsServerExample::getRayTo(int x,int y)
 }
 
 
-extern int gSharedMemoryKey;
-
-class CommonExampleInterface*    PhysicsServerCreateFunc(struct CommonExampleOptions& options)
-{
-
-	MultiThreadedOpenGLGuiHelper* guiHelperWrapper = new MultiThreadedOpenGLGuiHelper(options.m_guiHelper->getAppInterface(),options.m_guiHelper);
-
-  	PhysicsServerExample* example = new PhysicsServerExample(guiHelperWrapper, 
-		options.m_sharedMem, 
-		options.m_option);
-
-	if (gSharedMemoryKey>=0)
-	{
-		example->setSharedMemoryKey(gSharedMemoryKey);
-	}
-	if (options.m_option & PHYSICS_SERVER_ENABLE_COMMAND_LOGGING)
-	{
-		example->enableCommandLogging();
-	}
-	if (options.m_option & PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG)
-	{
-		example->replayFromLogFile();
-	}
-	return example;
-
-}
-
 
 
 void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int button, int state, float pos[4], float orn[4])
@@ -2125,7 +2740,6 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 	if (gGraspingController < 0)
 	{
 		gGraspingController = controllerId;
-		gEnableKukaControl = true;
 	}
 
 	btTransform trLocal;
@@ -2144,8 +2758,8 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 
 
 
-	tr2.setOrigin(gVRTeleportPos1);
-	tr2a.setRotation(gVRTeleportOrn);
+	tr2.setOrigin(m_physicsServer.getVRTeleportPosition());
+	tr2a.setRotation(m_physicsServer.getVRTeleportOrientation());
 
 
 	btTransform trTotal = tr2*tr2a*trOrg*trLocal;
@@ -2155,8 +2769,7 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 	{
 		if (button == 1 && state == 0)
 		{
-			//gResetSimulation = true;
-			gVRTeleportPos1 = gLastPickPos;
+			
 		}
 	} else
 	{
@@ -2197,7 +2810,6 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 
 		if (controllerId == gGraspingController)
 		{
-			gCreateObjectSimVR = 1;
 		}
 		else
 		{
@@ -2206,19 +2818,19 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 	}
 	
 
-	if (button==1)
+	if (button==1 && gEnableTeleporting)
 	{
 		m_args[0].m_isVrControllerTeleporting[controllerId] = true;
 	}
 
 	if (controllerId == gGraspingController && (button == 33))
 	{
-		gVRGripperClosed =(state!=0);
+		
 	}
 	else
 	{
 
-		if (button == 33)
+		if (button == 33 && gEnablePicking)
 		{
 			m_args[0].m_isVrControllerPicking[controllerId] = (state != 0);
 			m_args[0].m_isVrControllerReleasing[controllerId] = (state == 0);
@@ -2283,25 +2895,18 @@ void	PhysicsServerExample::vrControllerMoveCallback(int controllerId, float pos[
 
 	
 
-	tr2.setOrigin(gVRTeleportPos1);
-	tr2a.setRotation(gVRTeleportOrn);
+	tr2.setOrigin(m_physicsServer.getVRTeleportPosition());
+	tr2a.setRotation(m_physicsServer.getVRTeleportOrientation());
 
 
 	btTransform trTotal = tr2*tr2a*trOrg*trLocal;
 
 	if (controllerId == gGraspingController)
 	{
-		gVRGripperAnalog = analogAxis;
 
-		gVRGripperPos = trTotal.getOrigin();
-		gVRGripperOrn = trTotal.getRotation();
 	}
 	else
 	{
-		gVRGripper2Analog = analogAxis;
-		gVRController2Pos = trTotal.getOrigin();
-		gVRController2Orn = trTotal.getRotation();
-		
 		m_args[0].m_vrControllerPos[controllerId] = trTotal.getOrigin();
 		m_args[0].m_vrControllerOrn[controllerId] = trTotal.getRotation();
 	}
@@ -2344,8 +2949,8 @@ void	PhysicsServerExample::vrHMDMoveCallback(int controllerId, float pos[4], flo
 	tr2a.setIdentity();
 	btTransform tr2;
 	tr2.setIdentity();
-	tr2.setOrigin(gVRTeleportPos1);
-	tr2a.setRotation(gVRTeleportOrn);
+	tr2.setOrigin(m_physicsServer.getVRTeleportPosition());
+	tr2a.setRotation(m_physicsServer.getVRTeleportOrientation());
 	btTransform trTotal = tr2*tr2a*trOrg*trLocal;
 
 
@@ -2386,8 +2991,8 @@ void	PhysicsServerExample::vrGenericTrackerMoveCallback(int controllerId, float 
 	tr2a.setIdentity();
 	btTransform tr2;
 	tr2.setIdentity();
-	tr2.setOrigin(gVRTeleportPos1);
-	tr2a.setRotation(gVRTeleportOrn);
+	tr2.setOrigin(m_physicsServer.getVRTeleportPosition());
+	tr2a.setRotation(m_physicsServer.getVRTeleportOrientation());
 	btTransform trTotal = tr2*tr2a*trOrg*trLocal;
 
 	m_args[0].m_csGUI->lock();
@@ -2404,4 +3009,36 @@ void	PhysicsServerExample::vrGenericTrackerMoveCallback(int controllerId, float 
 	m_args[0].m_csGUI->unlock();
 }
 
-B3_STANDALONE_EXAMPLE(PhysicsServerCreateFunc)
+
+extern int gSharedMemoryKey;
+
+
+class CommonExampleInterface*    PhysicsServerCreateFuncInternal(struct CommonExampleOptions& options)
+{
+
+	MultiThreadedOpenGLGuiHelper* guiHelperWrapper = new MultiThreadedOpenGLGuiHelper(options.m_guiHelper->getAppInterface(),options.m_guiHelper);
+	
+
+  	PhysicsServerExample* example = new PhysicsServerExample(guiHelperWrapper, 
+		options.m_commandProcessorCreation,
+		options.m_sharedMem, 
+		options.m_option);
+
+	if (gSharedMemoryKey>=0)
+	{
+		example->setSharedMemoryKey(gSharedMemoryKey);
+	}
+	if (options.m_option & PHYSICS_SERVER_ENABLE_COMMAND_LOGGING)
+	{
+		example->enableCommandLogging();
+	}
+	if (options.m_option & PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG)
+	{
+		example->replayFromLogFile();
+	}
+	return example;
+
+}
+
+
+

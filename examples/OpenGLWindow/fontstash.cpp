@@ -37,7 +37,7 @@
 #define STB_TRUETYPE_IMPLEMENTATION
 #define STBTT_malloc(x,u)    malloc(x)
 #define STBTT_free(x,u)      free(x)
-#include "stb_truetype.h"
+#include "stb_image/stb_truetype.h"
 
 #define HASH_LUT_SIZE 256
 
@@ -487,6 +487,9 @@ error:
 	return 0;
 }
 
+
+
+
 static int get_quad(struct sth_stash* stash, struct sth_font* fnt, struct sth_glyph* glyph, short isize, float* x, float* y, struct sth_quad* q)
 {
 	float rx,ry;
@@ -514,7 +517,36 @@ static int get_quad(struct sth_stash* stash, struct sth_font* fnt, struct sth_gl
 	return 1;
 }
 
-static Vertex* setv(Vertex* v, float x, float y, float s, float t, float width, float height)
+
+static int get_quad3D(struct sth_stash* stash, struct sth_font* fnt, struct sth_glyph* glyph, short isize2, float* x, float* y, struct sth_quad* q, float fontSize, float textScale)
+{
+	short isize=1;
+	float rx,ry;
+	float scale = textScale/fontSize;//0.1;//1.0f;
+
+	if (fnt->type == BMFONT)
+        scale = isize/(glyph->size);
+
+	rx = (*x + scale * float(glyph->xoff));
+	ry = (scale * float(glyph->yoff));
+
+	q->x0 = rx;
+    q->y0 = *y -(ry);
+
+	q->x1 = rx + scale * float(glyph->x1 - glyph->x0_);
+    q->y1 = *y-(ry + scale * float(glyph->y1 - glyph->y0));
+
+	q->s0 = float(glyph->x0_) * stash->itw;
+	q->t0 = float(glyph->y0) * stash->ith;
+	q->s1 = float(glyph->x1) * stash->itw;
+	q->t1 = float(glyph->y1) * stash->ith;
+
+	*x += scale * glyph->xadv;
+
+	return 1;
+}
+
+static Vertex* setv(Vertex* v, float x, float y, float s, float t, float width, float height, float colorRGBA[4])
 {
 	bool scale=true;
 	if (scale)
@@ -532,13 +564,32 @@ static Vertex* setv(Vertex* v, float x, float y, float s, float t, float width, 
 	v->uv.p[0] = s;
     v->uv.p[1] = t;
 
-    v->colour.p[0] = 0.1f;//1.f;
-    v->colour.p[1] = 0.1f;
-    v->colour.p[2] = 0.1f;
-    v->colour.p[3] = 1.f;
+    v->colour.p[0] = 0.1;//colorRGBA[0];
+    v->colour.p[1] = 0.1;//colorRGBA[1];
+    v->colour.p[2] = 0.1;//colorRGBA[2];
+    v->colour.p[3] = 1.0;//colorRGBA[3];
 
 	return v+1;
 }
+
+
+static Vertex* setv3D(Vertex* v, float x, float y, float z, float s, float t, float colorRGBA[4])
+{
+	v->position.p[0] = x;
+	v->position.p[1] = y;
+    v->position.p[2] = z;
+    v->position.p[3] = 1.f;
+
+	v->uv.p[0] = s;
+    v->uv.p[1] = t;
+
+    v->colour.p[0] = colorRGBA[0];
+    v->colour.p[1] = colorRGBA[1];
+    v->colour.p[2] = colorRGBA[2];
+    v->colour.p[3] = colorRGBA[3];
+	return v+1;
+}
+
 
 
 
@@ -598,7 +649,7 @@ void sth_draw_texture(struct sth_stash* stash,
 				   int idx, float size,
 				   float x, float y,
 				   int screenwidth, int screenheight,
-				   const char* s, float* dx)
+				   const char* s, float* dx, float colorRGBA[4])
 {
 	int width = stash->tw;
 	int height=stash->th;
@@ -642,13 +693,13 @@ void sth_draw_texture(struct sth_stash* stash,
 		q.x1 = q.x0+width;
 		q.y1 = q.y0+height;
 
-		v = setv(v, q.x0, q.y0, 0,0,(float)screenwidth,(float)screenheight);
-		v = setv(v, q.x1, q.y0, 1,0,(float)screenwidth,(float)screenheight);
-		v = setv(v, q.x1, q.y1, 1,1,(float)screenwidth,(float)screenheight);
+		v = setv(v, q.x0, q.y0, 0,0,(float)screenwidth,(float)screenheight,colorRGBA);
+		v = setv(v, q.x1, q.y0, 1,0,(float)screenwidth,(float)screenheight,colorRGBA);
+		v = setv(v, q.x1, q.y1, 1,1,(float)screenwidth,(float)screenheight,colorRGBA);
 
-		v = setv(v, q.x0, q.y0, 0,0,(float)screenwidth,(float)screenheight);
-		v = setv(v, q.x1, q.y1, 1,1,(float)screenwidth,(float)screenheight);
-		v = setv(v, q.x0, q.y1, 0,1,(float)screenwidth,(float)screenheight);
+		v = setv(v, q.x0, q.y0, 0,0,(float)screenwidth,(float)screenheight,colorRGBA);
+		v = setv(v, q.x1, q.y1, 1,1,(float)screenwidth,(float)screenheight,colorRGBA);
+		v = setv(v, q.x0, q.y1, 0,1,(float)screenwidth,(float)screenheight,colorRGBA);
 		texture->nverts += 6;
 	}
 
@@ -667,7 +718,7 @@ void sth_flush_draw(struct sth_stash* stash)
 void sth_draw_text(struct sth_stash* stash,
 				   int idx, float size,
 				   float x, float y,
-				   const char* s, float* dx, int screenwidth, int screenheight, int measureOnly, float retinaScale)
+				   const char* s, float* dx, int screenwidth, int screenheight, int measureOnly, float retinaScale, float colorRGBA[4])
 {
 
 	unsigned int codepoint;
@@ -708,13 +759,68 @@ void sth_draw_text(struct sth_stash* stash,
         {
             v = &texture->newverts[texture->nverts];
 
-            v = setv(v, q.x0, q.y0, q.s0, q.t0,(float)screenwidth,(float)screenheight);
-            v = setv(v, q.x1, q.y0, q.s1, q.t0,(float)screenwidth,(float)screenheight);
-            v = setv(v, q.x1, q.y1, q.s1, q.t1,(float)screenwidth,(float)screenheight);
+            v = setv(v, q.x0, q.y0, q.s0, q.t0,(float)screenwidth,(float)screenheight,colorRGBA);
+            v = setv(v, q.x1, q.y0, q.s1, q.t0,(float)screenwidth,(float)screenheight,colorRGBA);
+            v = setv(v, q.x1, q.y1, q.s1, q.t1,(float)screenwidth,(float)screenheight,colorRGBA);
 
-            v = setv(v, q.x0, q.y0, q.s0, q.t0,(float)screenwidth,(float)screenheight);
-            v = setv(v, q.x1, q.y1, q.s1, q.t1,(float)screenwidth,(float)screenheight);
-            v = setv(v, q.x0, q.y1, q.s0, q.t1,(float)screenwidth,(float)screenheight);
+            v = setv(v, q.x0, q.y0, q.s0, q.t0,(float)screenwidth,(float)screenheight,colorRGBA);
+            v = setv(v, q.x1, q.y1, q.s1, q.t1,(float)screenwidth,(float)screenheight,colorRGBA);
+            v = setv(v, q.x0, q.y1, q.s0, q.t1,(float)screenwidth,(float)screenheight,colorRGBA);
+
+            texture->nverts += 6;
+        }
+	}
+
+	if (dx) *dx = x;
+}
+
+void sth_draw_text3D(struct sth_stash* stash,
+				   int idx, float fontSize,
+				   float x, float y, float z,
+				   const char* s, float* dx, float textScale, float colorRGBA[4], int unused)
+{
+
+	unsigned int codepoint;
+	struct sth_glyph* glyph = NULL;
+	struct sth_texture* texture = NULL;
+	unsigned int state = 0;
+	struct sth_quad q;
+	short isize = (short)(fontSize*10.0f);
+	Vertex* v;
+	struct sth_font* fnt = NULL;
+
+    s_retinaScale = 1;
+	if (stash == NULL) return;
+
+	if (!stash->textures) return;
+	fnt = stash->fonts;
+	while(fnt != NULL && fnt->idx != idx) fnt = fnt->next;
+	if (fnt == NULL) return;
+	if (fnt->type != BMFONT && !fnt->data) return;
+
+	for (; *s; ++s)
+	{
+		if (decutf8(&state, &codepoint, *(unsigned char*)s))
+			continue;
+		glyph = get_glyph(stash, fnt, codepoint, isize);
+		if (!glyph) continue;
+		texture = glyph->texture;
+
+        if (texture->nverts+6 >= VERT_COUNT)
+            flush_draw(stash);
+
+		if (!get_quad3D(stash, fnt, glyph, isize, &x, &y, &q, fontSize, textScale)) continue;
+
+        {
+            v = &texture->newverts[texture->nverts];
+
+            v = setv3D(v, q.x0, q.y0, z,q.s0, q.t0,colorRGBA);
+            v = setv3D(v, q.x1, q.y0, z,q.s1, q.t0,colorRGBA);
+            v = setv3D(v, q.x1, q.y1, z,q.s1, q.t1,colorRGBA);
+
+            v = setv3D(v, q.x0, q.y0, z,q.s0, q.t0,colorRGBA);
+            v = setv3D(v, q.x1, q.y1, z,q.s1, q.t1,colorRGBA);
+            v = setv3D(v, q.x0, q.y1, z,q.s0, q.t1,colorRGBA);
 
             texture->nverts += 6;
         }

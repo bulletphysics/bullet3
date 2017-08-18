@@ -29,10 +29,10 @@ public:
 	virtual void resetCamera()
 	{
 		float dist = 18;
-		float pitch = 120;
-		float yaw = 46;
+		float pitch = -46;
+		float yaw = 120;
 		float targetPos[3]={-2,-2,-2};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 
 };

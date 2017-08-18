@@ -22,7 +22,8 @@ subject to the following restrictions:
 
 enum	btMultiBodyLinkFlags
 {
-	BT_MULTIBODYLINKFLAGS_DISABLE_PARENT_COLLISION = 1
+	BT_MULTIBODYLINKFLAGS_DISABLE_PARENT_COLLISION = 1,
+	BT_MULTIBODYLINKFLAGS_DISABLE_ALL_PARENT_COLLISION = 2,
 };
 
 //both defines are now permanently enabled
@@ -95,9 +96,18 @@ struct btMultibodyLink
 	//			   m_axesBottom[1][2] = unit vectors along the translational axes on that plane		
 	btSpatialMotionVector m_axes[6];
 	void setAxisTop(int dof, const btVector3 &axis) { m_axes[dof].m_topVec = axis; }
-	void setAxisBottom(int dof, const btVector3 &axis) { m_axes[dof].m_bottomVec = axis; }
-	void setAxisTop(int dof, const btScalar &x, const btScalar &y, const btScalar &z) { m_axes[dof].m_topVec.setValue(x, y, z); }
-	void setAxisBottom(int dof, const btScalar &x, const btScalar &y, const btScalar &z) { m_axes[dof].m_bottomVec.setValue(x, y, z); }
+	void setAxisBottom(int dof, const btVector3 &axis) 
+	{ 
+		m_axes[dof].m_bottomVec = axis; 
+	}
+	void setAxisTop(int dof, const btScalar &x, const btScalar &y, const btScalar &z) 
+	{
+		m_axes[dof].m_topVec.setValue(x, y, z); 
+	}
+	void setAxisBottom(int dof, const btScalar &x, const btScalar &y, const btScalar &z) 
+	{ 
+		m_axes[dof].m_bottomVec.setValue(x, y, z); 
+	}
 	const btVector3 & getAxisTop(int dof) const { return m_axes[dof].m_topVec; }
 	const btVector3 & getAxisBottom(int dof) const { return m_axes[dof].m_bottomVec; }
 

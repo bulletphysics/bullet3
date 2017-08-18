@@ -19,10 +19,13 @@ subject to the following restrictions:
 
 #include "b3AlignedObjectArray.h"
 
+
+#include <string>
+
 ///very basic hashable string implementation, compatible with b3HashMap
 struct b3HashString
 {
-	const char* m_string;
+	std::string m_string;
 	unsigned int	m_hash;
 
 	B3_FORCE_INLINE	unsigned int getHash()const
@@ -30,17 +33,19 @@ struct b3HashString
 		return m_hash;
 	}
 
+
 	b3HashString(const char* name)
 		:m_string(name)
 	{
+
 		/* magic numbers from http://www.isthe.com/chongo/tech/comp/fnv/ */
 		static const unsigned int  InitialFNV = 2166136261u;
 		static const unsigned int FNVMultiple = 16777619u;
 
 		/* Fowler / Noll / Vo (FNV) Hash */
 		unsigned int hash = InitialFNV;
-		
-		for(int i = 0; m_string[i]; i++)
+		int len = m_string.length();
+		for(int i = 0; i<len; i++)
 		{
 			hash = hash ^ (m_string[i]);       /* xor  the low 8 bits */
 			hash = hash * FNVMultiple;  /* multiply by the magic number */
@@ -65,12 +70,11 @@ struct b3HashString
 
 	bool equals(const b3HashString& other) const
 	{
-		return (m_string == other.m_string) ||
-			(0==portableStringCompare(m_string,other.m_string));
-
+		return (m_string == other.m_string);
 	}
 
 };
+
 
 const int B3_HASH_NULL=0xffffffff;
 
@@ -394,6 +398,18 @@ protected:
 
 		return &m_valueArray[index];
 	}
+
+	 Key getKeyAtIndex(int index)
+    {
+        b3Assert(index < m_keyArray.size());
+        return m_keyArray[index];
+    }
+    
+    const Key getKeyAtIndex(int index) const
+    {
+        b3Assert(index < m_keyArray.size());
+        return m_keyArray[index];
+    }
 
 	Value* operator[](const Key& key) {
 		return find(key);

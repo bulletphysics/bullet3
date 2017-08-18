@@ -5,7 +5,7 @@
 #include "../CommonInterfaces/Common2dCanvasInterface.h"
 #include "SharedMemoryCommon.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
-
+#include "PhysicsServerCommandProcessor.h"
 #include "PhysicsClientC_API.h"
 #include "PhysicsClient.h"
 //#include "SharedMemoryCommands.h"
@@ -22,8 +22,8 @@ struct MyMotorInfo2
     int     m_qIndex;
 };
 
-int camVisualizerWidth = 320;//1024/3;
-int camVisualizerHeight = 240;//768/3;
+static int camVisualizerWidth = 320;//1024/3;
+static int camVisualizerHeight = 240;//768/3;
 
 enum CustomCommands
 {
@@ -37,6 +37,7 @@ class PhysicsClientExample : public SharedMemoryCommon
 {
 protected:
     b3PhysicsClientHandle m_physicsClientHandle;
+	
 
 	//this m_physicsServer is only used when option eCLIENTEXAMPLE_SERVER is enabled
 	PhysicsServerSharedMemory	m_physicsServer;
@@ -53,6 +54,9 @@ protected:
 	int m_canvasRGBIndex;
 	int m_canvasDepthIndex;
 	int m_canvasSegMaskIndex;
+
+	btScalar m_lightPos[3];
+	btScalar m_specularCoeff;
 	
 	void	createButton(const char* name, int id, bool isTrigger );
 
@@ -90,10 +94,10 @@ protected:
 	virtual void resetCamera()
 	{
         float dist = 3.45;
-        float pitch = 287;
-        float yaw = 16.2;
+        float pitch = -16.2;
+        float yaw = 287;
         float targetPos[3]={2.05,0.02,0.53};//-3,2.8,-2.5};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 
 	}
     
@@ -119,7 +123,8 @@ protected:
 	{
 		if (m_options == eCLIENTEXAMPLE_SERVER)
 		{
-			m_physicsServer.renderScene();
+			int renderFlags = 0;
+			m_physicsServer.renderScene(renderFlags);
 		}
 
         b3DebugLines debugLines;
@@ -267,7 +272,6 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
         case CMD_REQUEST_CAMERA_IMAGE_DATA:
         {
             ///request an image from a simulated camera, using a software renderer.
-            
             b3SharedMemoryCommandHandle commandHandle = b3InitRequestCameraImage(m_physicsClientHandle);
             //b3RequestCameraImageSelectRenderer(commandHandle,ER_BULLET_HARDWARE_OPENGL);
             
@@ -278,6 +282,12 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
             
             b3RequestCameraImageSetCameraMatrices(commandHandle, viewMatrix,projectionMatrix);
 						b3RequestCameraImageSetPixelResolution(commandHandle, camVisualizerWidth,camVisualizerHeight);
+			float lightPos[3];
+			lightPos[0] = m_lightPos[0];
+			lightPos[1] = m_lightPos[1];
+			lightPos[2] = m_lightPos[2];
+			b3RequestCameraImageSetLightDirection(commandHandle, lightPos);
+			b3RequestCameraImageSetLightSpecularCoeff(commandHandle, m_specularCoeff);
 						b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
 		        break;
         }
@@ -318,6 +328,7 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
                     //b3Printf("Joint %d: %f", i, sensorState.m_jointMotorTorque);
                 }
 			}
+			
             break;
         };
 
@@ -500,6 +511,18 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
             b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
             break;
         }
+		case CMD_UPDATE_VISUAL_SHAPE:
+		{
+			int objectUniqueId = 0;
+			int linkIndex = -1;
+			int shapeIndex = -1;
+			int textureIndex = -1;
+			double rgbaColor[4] = {0.0, 1.0, 0.0, 1.0};
+			b3SharedMemoryCommandHandle commandHandle = b3InitUpdateVisualShape(m_physicsClientHandle, objectUniqueId, linkIndex, shapeIndex, textureIndex);
+			b3UpdateVisualShapeRGBAColor(commandHandle, rgbaColor);
+			b3SubmitClientCommand(m_physicsClientHandle, commandHandle);
+			break;
+		}
 
         default:
         {
@@ -510,10 +533,26 @@ void PhysicsClientExample::prepareAndSubmitCommand(int commandId)
 }
 
 
+struct Bullet2CommandProcessorCreation3 : public CommandProcessorCreationInterface
+{
+	virtual class CommandProcessorInterface* createCommandProcessor()
+	{
+		PhysicsServerCommandProcessor* proc = new PhysicsServerCommandProcessor;
+		return proc;
+	}
+
+	virtual void deleteCommandProcessor(CommandProcessorInterface* proc)
+	{
+		delete proc;
+	}
+};
+
+static Bullet2CommandProcessorCreation3 sB2PC2;
 
 PhysicsClientExample::PhysicsClientExample(GUIHelperInterface* helper, int options)
 :SharedMemoryCommon(helper),
 m_physicsClientHandle(0),
+m_physicsServer(&sB2PC2,0,0),
 m_wantsTermination(false),
 m_sharedMemoryKey(SHARED_MEMORY_KEY),
 m_selectedBody(-1),
@@ -522,6 +561,7 @@ m_canvas(0),
 m_canvasRGBIndex(-1),
 m_canvasDepthIndex(-1),
 m_canvasSegMaskIndex(-1),
+m_specularCoeff(1.0),
 m_numMotors(0),
 m_options(options),
 m_isOptionalServerConnected(false)
@@ -554,6 +594,7 @@ PhysicsClientExample::~PhysicsClientExample()
             m_canvas->destroyCanvas(m_canvasSegMaskIndex);
 		
 	}
+	
     b3Printf("~PhysicsClientExample\n");
 }
 
@@ -577,6 +618,7 @@ void	PhysicsClientExample::createButtons()
         createButton("Load SDF",CMD_LOAD_SDF,  isTrigger);
 		createButton("Save World",CMD_SAVE_WORLD,  isTrigger);
         createButton("Set Shadow",CMD_SET_SHADOW, isTrigger);
+		createButton("Update Visual Shape",CMD_UPDATE_VISUAL_SHAPE, isTrigger);
         createButton("Get Camera Image",CMD_REQUEST_CAMERA_IMAGE_DATA,isTrigger);
         createButton("Step Sim",CMD_STEP_FORWARD_SIMULATION,  isTrigger);
 		createButton("Realtime Sim",CMD_CUSTOM_SET_REALTIME_SIMULATION,  isTrigger);
@@ -660,6 +702,29 @@ void	PhysicsClientExample::createButtons()
 				}
 			}
 		}
+		
+		{
+			SliderParams sliderLightPosX("light source position x",&m_lightPos[0]);
+			SliderParams sliderLightPosY("light source position y",&m_lightPos[1]);
+			SliderParams sliderLightPosZ("light source position z",&m_lightPos[2]);
+			SliderParams sliderSpecularCoeff("specular coefficient",&m_specularCoeff);
+			sliderLightPosX.m_minVal=-1.5;
+			sliderLightPosX.m_maxVal=1.5;
+			sliderLightPosY.m_minVal=-1.5;
+			sliderLightPosY.m_maxVal=1.5;
+			sliderLightPosZ.m_minVal=-1.5;
+			sliderLightPosZ.m_maxVal=1.5;
+			sliderSpecularCoeff.m_minVal=0;
+			sliderSpecularCoeff.m_maxVal=5.0;
+			if (m_guiHelper && m_guiHelper->getParameterInterface())
+			{
+				m_guiHelper->getParameterInterface()->registerSliderFloatParameter(sliderLightPosX);
+				m_guiHelper->getParameterInterface()->registerSliderFloatParameter(sliderLightPosY);
+				m_guiHelper->getParameterInterface()->registerSliderFloatParameter(sliderLightPosZ);
+				m_guiHelper->getParameterInterface()->registerSliderFloatParameter(sliderSpecularCoeff);
+			}
+
+		}
     }
 }
 
@@ -684,6 +749,10 @@ void	PhysicsClientExample::initPhysics()
 
 	m_selectedBody = -1;
 	m_prevSelectedBody = -1;
+	
+	m_lightPos[0] = 1.0;
+	m_lightPos[1] = 1.0;
+	m_lightPos[2] = 1.0;
 
 	{
 		m_canvas = m_guiHelper->get2dCanvasInterface();
@@ -794,8 +863,8 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
 						{
                             int xIndex = int(float(i)*(float(imageData.m_pixelWidth)/float(camVisualizerWidth)));
                             int yIndex = int(float(j)*(float(imageData.m_pixelHeight)/float(camVisualizerHeight)));
-							btClamp(yIndex,0,imageData.m_pixelHeight);
 							btClamp(xIndex,0,imageData.m_pixelWidth);
+							btClamp(yIndex,0,imageData.m_pixelHeight);
 							
                             if (m_canvasDepthIndex >=0)
                             {

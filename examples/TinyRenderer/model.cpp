@@ -167,8 +167,12 @@ Vec2f Model::uv(int iface, int nthvert) {
 }
 
 float Model::specular(Vec2f uvf) {
-    Vec2i uv(uvf[0]*specularmap_.get_width(), uvf[1]*specularmap_.get_height());
-    return specularmap_.get(uv[0], uv[1])[0]/1.f;
+	if (specularmap_.get_width() && specularmap_.get_height())
+	{
+		Vec2i uv(uvf[0]*specularmap_.get_width(), uvf[1]*specularmap_.get_height());
+		return specularmap_.get(uv[0], uv[1])[0]/1.f;
+	}
+	return 2.0;
 }
 
 Vec3f Model::normal(int iface, int nthvert) {

@@ -4,7 +4,11 @@
 #define SHARED_MEMORY_KEY 12347
 ///increase the SHARED_MEMORY_MAGIC_NUMBER whenever incompatible changes are made in the structures
 ///my convention is year/month/day/rev
-#define SHARED_MEMORY_MAGIC_NUMBER 201703024
+#define SHARED_MEMORY_MAGIC_NUMBER 201707140
+//#define SHARED_MEMORY_MAGIC_NUMBER 201706015
+//#define SHARED_MEMORY_MAGIC_NUMBER 201706001
+//#define SHARED_MEMORY_MAGIC_NUMBER 201703024
+
 
 enum EnumSharedMemoryClientCommand
 {
@@ -55,6 +59,16 @@ enum EnumSharedMemoryClientCommand
     CMD_CONFIGURE_OPENGL_VISUALIZER,
 	CMD_REQUEST_KEYBOARD_EVENTS_DATA,
 	CMD_REQUEST_OPENGL_VISUALIZER_CAMERA,
+	CMD_REMOVE_BODY,
+	CMD_CHANGE_DYNAMICS_INFO,
+	CMD_GET_DYNAMICS_INFO,
+	CMD_PROFILE_TIMING,
+	CMD_CREATE_COLLISION_SHAPE,
+	CMD_CREATE_VISUAL_SHAPE,
+	CMD_CREATE_MULTI_BODY,
+	CMD_REQUEST_COLLISION_INFO,
+	CMD_REQUEST_MOUSE_EVENTS_DATA,
+	CMD_CHANGE_TEXTURE,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -136,6 +150,20 @@ enum EnumSharedMemoryServerStatus
 		CMD_REQUEST_KEYBOARD_EVENTS_DATA_FAILED,
 		CMD_REQUEST_OPENGL_VISUALIZER_CAMERA_FAILED,
 		CMD_REQUEST_OPENGL_VISUALIZER_CAMERA_COMPLETED,
+		CMD_REMOVE_BODY_COMPLETED,
+		CMD_REMOVE_BODY_FAILED,
+		CMD_GET_DYNAMICS_INFO_COMPLETED,
+		CMD_GET_DYNAMICS_INFO_FAILED,
+		CMD_CREATE_COLLISION_SHAPE_FAILED,
+		CMD_CREATE_COLLISION_SHAPE_COMPLETED,
+		CMD_CREATE_VISUAL_SHAPE_FAILED,
+		CMD_CREATE_VISUAL_SHAPE_COMPLETED,
+		CMD_CREATE_MULTI_BODY_FAILED,
+		CMD_CREATE_MULTI_BODY_COMPLETED,
+		CMD_REQUEST_COLLISION_INFO_COMPLETED,
+		CMD_REQUEST_COLLISION_INFO_FAILED,
+		CMD_REQUEST_MOUSE_EVENTS_DATA_COMPLETED,
+		CMD_CHANGE_TEXTURE_COMMAND_FAILED,
         //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
@@ -165,6 +193,15 @@ enum JointType {
 	ePlanarType = 3,
 	eFixedType = 4,
 	ePoint2PointType = 5,
+	eGearType=6
+};
+
+
+enum b3JointInfoFlags
+{
+	eJointChangeMaxForce = 1,
+	eJointChangeChildFramePosition = 2,
+	eJointChangeChildFrameOrientation = 4,
 };
 
 struct b3JointInfo
@@ -187,6 +224,7 @@ struct b3JointInfo
 		double m_jointAxis[3]; // joint axis in parent local frame
 };
 
+
 struct b3UserConstraint
 {
     int m_parentBodyIndex;
@@ -199,6 +237,9 @@ struct b3UserConstraint
     int m_jointType;
     double m_maxAppliedForce;
     int m_userConstraintUniqueId;
+	double m_gearRatio;
+	int m_gearAuxLink;
+
 };
 
 struct b3BodyInfo
@@ -207,6 +248,12 @@ struct b3BodyInfo
 	const char* m_bodyName; // for btRigidBody, it does not have a base, but can still have a body name from urdf
 };
 
+struct b3DynamicsInfo
+{
+	double m_mass;
+	double m_localInertialPosition[3];
+	double m_lateralFrictionCoeff;
+};
 
 // copied from btMultiBodyLink.h
 enum SensorType {
@@ -263,6 +310,11 @@ struct b3OpenGLVisualizerCameraInfo
 
 	float m_horizontal[3];
 	float m_vertical[3];
+	
+	float m_yaw;
+	float m_pitch;
+	float m_dist;
+	float m_target[3];
 };
 
 enum b3VREventType
@@ -279,7 +331,7 @@ enum b3VREventType
 #define MAX_RAY_INTERSECTION_BATCH_SIZE 256
 #define MAX_RAY_HITS MAX_RAY_INTERSECTION_BATCH_SIZE
 #define MAX_KEYBOARD_EVENTS 256
-
+#define MAX_MOUSE_EVENTS 256
 
 
 enum b3VRButtonInfo
@@ -296,6 +348,11 @@ enum eVRDeviceTypeEnums
 	VR_DEVICE_CONTROLLER=1,
 	VR_DEVICE_HMD=2,
 	VR_DEVICE_GENERIC_TRACKER=4,
+};
+
+enum EVRCameraFlags
+{
+	VR_CAMERA_TRACK_OBJECT_ORIENTATION=1,
 };
 
 struct b3VRControllerEvent
@@ -317,11 +374,7 @@ struct b3VREventsData
 {
 	int m_numControllerEvents;
 	struct b3VRControllerEvent* m_controllerEvents;
-	int m_numHmdEvents;
-	struct b3VRMoveEvent* m_hmdEvents;
-
-	int  m_numGenericTrackerEvents;
-	struct b3VRMoveEvent* m_genericTrackerEvents;
+	
 };
 
 
@@ -335,6 +388,28 @@ struct b3KeyboardEventsData
 {
 	int m_numKeyboardEvents;
 	struct b3KeyboardEvent* m_keyboardEvents;
+};
+
+
+enum eMouseEventTypeEnums
+{
+	MOUSE_MOVE_EVENT=1,
+	MOUSE_BUTTON_EVENT=2,
+};
+
+struct b3MouseEvent
+{
+	int m_eventType;
+	float m_mousePosX;
+	float m_mousePosY;
+	int m_buttonIndex;
+	int m_buttonState;
+};
+
+struct b3MouseEventsData
+{
+	int m_numMouseEvents;
+	struct b3MouseEvent* m_mouseEvents;
 };
 
 struct b3ContactPointData
@@ -375,6 +450,7 @@ enum  b3StateLoggingType
 	STATE_LOGGING_VIDEO_MP4 = 3,
 	STATE_LOGGING_COMMANDS = 4,
 	STATE_LOGGING_CONTACT_POINTS = 5,
+	STATE_LOGGING_PROFILE_TIMINGS = 6,
 };
 
 
@@ -400,7 +476,7 @@ struct b3RaycastInformation
 };
 
 
-#define VISUAL_SHAPE_MAX_PATH_LEN 128
+#define VISUAL_SHAPE_MAX_PATH_LEN 1024
 
 struct b3VisualShapeData
 {
@@ -446,6 +522,8 @@ struct b3LinkState
 	double m_worldLinearVelocity[3]; //only valid when ACTUAL_STATE_COMPUTE_LINKVELOCITY is set (b3RequestActualStateCommandComputeLinkVelocity)
 	double m_worldAngularVelocity[3]; //only valid when ACTUAL_STATE_COMPUTE_LINKVELOCITY is set (b3RequestActualStateCommandComputeLinkVelocity)
 
+	double m_worldAABBMin[3];//world space bounding minium and maximum box corners.
+	double m_worldAABBMax[3];
 };
 
 //todo: discuss and decide about control mode and combinations
@@ -476,6 +554,20 @@ enum b3ConfigureDebugVisualizerEnum
     COV_ENABLE_GUI=1,
     COV_ENABLE_SHADOWS,
     COV_ENABLE_WIREFRAME,
+	COV_ENABLE_VR_TELEPORTING,
+	COV_ENABLE_VR_PICKING,
+	COV_ENABLE_VR_RENDER_CONTROLLERS,
+	COV_ENABLE_RENDERING,
+	COV_ENABLE_SYNC_RENDERING_INTERNAL,
+	COV_ENABLE_KEYBOARD_SHORTCUTS,
+	COV_ENABLE_MOUSE_PICKING,
+};
+
+enum b3AddUserDebugItemEnum
+{
+	DEB_DEBUG_TEXT_USE_ORIENTATION=1,
+	DEB_DEBUG_TEXT_USE_TRUE_TYPE_FONTS=2,
+	DEB_DEBUG_TEXT_HAS_TRACKING_OBJECT=4,
 };
 
 enum eCONNECT_METHOD {
@@ -484,12 +576,35 @@ enum eCONNECT_METHOD {
   eCONNECT_SHARED_MEMORY = 3,
   eCONNECT_UDP = 4,
   eCONNECT_TCP = 5,
+  eCONNECT_EXISTING_EXAMPLE_BROWSER=6,
+  eCONNECT_GUI_SERVER=7,
 };
 
 enum eURDF_Flags
 {
 	URDF_USE_INERTIA_FROM_FILE=2,//sync with URDF2Bullet.h 'ConvertURDFFlags'
 	URDF_USE_SELF_COLLISION=8,//see CUF_USE_SELF_COLLISION
+	URDF_USE_SELF_COLLISION_EXCLUDE_PARENT=16,
+	URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS=32,
 };
+
+enum eUrdfGeomTypes //sync with UrdfParser UrdfGeomTypes
+{
+	GEOM_SPHERE=2,
+	GEOM_BOX,
+	GEOM_CYLINDER,
+	GEOM_MESH,
+	GEOM_PLANE,
+	GEOM_CAPSULE, //non-standard URDF?
+	GEOM_UNKNOWN, 
+};
+
+enum eUrdfCollisionFlags
+{
+	GEOM_FORCE_CONCAVE_TRIMESH=1,
+};
+
+
+
 
 #endif//SHARED_MEMORY_PUBLIC_H

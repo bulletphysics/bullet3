@@ -17,14 +17,18 @@ struct TinyRendererVisualShapeConverter : public LinkVisualShapesConverter
 	virtual ~TinyRendererVisualShapeConverter();
 	
 	virtual void convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, class btCollisionObject* colShape, int objectIndex);
-	
+
 	virtual int getNumVisualShapes(int bodyUniqueId);
 
 	virtual int getVisualShapesData(int bodyUniqueId, int shapeIndex, struct b3VisualShapeData* shapeData);
 	
+	virtual void changeRGBAColor(int bodyUniqueId, int linkIndex, const double rgbaColor[4]);
+
+	virtual void removeVisualShape(class btCollisionObject* colObj);
+
 	void setUpAxis(int axis);
 	
-    void resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ);
+    void resetCamera(float camDist, float yaw, float pitch, float camPosX,float camPosY, float camPosZ);
 	
     void clearBuffers(struct TGAColor& clearColor);
 

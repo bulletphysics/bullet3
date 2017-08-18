@@ -5,6 +5,7 @@
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btHashMap.h"
 #include "URDFJointTypes.h"
+#include "SDFAudioTypes.h"
 
 #define btArray btAlignedObjectArray
 #include <string>
@@ -16,13 +17,15 @@ struct ErrorLogger
 	virtual void printMessage(const char* msg)=0;
 };
 
+
+
 struct UrdfMaterial
 {
 	std::string m_name;
 	std::string m_textureFilename;
-	btVector4 m_rgbaColor; // [0]==r [1]==g [2]==b [3]==a
-	UrdfMaterial():
-		m_rgbaColor(0.8, 0.8, 0.8, 1)
+	UrdfMaterialColor m_matColor;
+
+	UrdfMaterial()
 	{
 	}
 };
@@ -86,7 +89,16 @@ struct UrdfGeometry
 
 	UrdfGeometry()
 	:m_type(URDF_GEOM_UNKNOWN),
-	m_hasFromTo(false),
+		m_sphereRadius(1),
+		m_boxSize(1,1,1),
+		m_capsuleRadius(1),
+		m_capsuleHeight(1),
+		m_hasFromTo(0),
+		m_capsuleFrom(0,1,0),
+		m_capsuleTo(1,0,0),
+		m_planeNormal(0,0,1),
+		m_meshFileType(0),
+		m_meshScale(1,1,1),
 	m_hasLocalMaterial(false)
 	{
 	}
@@ -140,9 +152,12 @@ struct UrdfLink
 	
 	URDFLinkContactInfo m_contactInfo;
 
+	SDFAudioSource m_audioSource;
+
 	UrdfLink()
 		:m_parentLink(0),
-		m_parentJoint(0)
+		m_parentJoint(0),
+		m_linkIndex(-2)
 	{
 	}
 	
@@ -192,7 +207,37 @@ struct UrdfModel
 	{
 		m_rootTransformInWorld.setIdentity();
 	}
-	
+
+	~UrdfModel()
+	{
+		for (int i = 0; i < m_materials.size(); i++)
+		{
+			UrdfMaterial** ptr = m_materials.getAtIndex(i);
+			if (ptr)
+			{
+				UrdfMaterial* t = *ptr;
+				delete t;
+			}
+		}
+		for (int i = 0; i < m_links.size(); i++)
+		{
+			UrdfLink** ptr = m_links.getAtIndex(i);
+			if (ptr)
+			{
+				UrdfLink* t = *ptr;
+				delete t;
+			}
+		}
+		for (int i = 0; i < m_joints.size(); i++)
+		{
+			UrdfJoint** ptr = m_joints.getAtIndex(i);
+			if (ptr)
+			{
+				UrdfJoint* t = *ptr;
+				delete t;
+			}
+		}
+	}
 };
 
 class UrdfParser
@@ -206,8 +251,8 @@ protected:
     bool m_parseSDF;
     int m_activeSdfModel;
 
-    
-    void cleanModel(UrdfModel* model);
+	btScalar m_urdfScaling;
+    bool parseTransform(btTransform& tr, class TiXmlElement* xml, ErrorLogger* logger, bool parseSDF = false);
 	bool parseInertia(UrdfInertia& inertia, class TiXmlElement* config, ErrorLogger* logger);
 	bool parseGeometry(UrdfGeometry& geom, class TiXmlElement* g, ErrorLogger* logger);
 	bool parseVisual(UrdfModel& model, UrdfVisual& visual, class TiXmlElement* config, ErrorLogger* logger);
@@ -233,18 +278,22 @@ public:
     {
         return m_parseSDF;
     }
+	void setGlobalScaling(btScalar scaling)
+	{
+		m_urdfScaling = scaling;
+	}
+
     bool loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceFixedBase);
     bool loadSDF(const char* sdfText, ErrorLogger* logger);
     
     int getNumModels() const
     {
         //user should have loaded an SDF when calling this method
-        btAssert(m_parseSDF);
         if (m_parseSDF)
         {
             return m_sdfModels.size();
         }
-		return 0;
+		return 1;
     }
     
     void activateModel(int modelIndex);

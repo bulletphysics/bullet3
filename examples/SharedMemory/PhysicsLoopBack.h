@@ -51,6 +51,8 @@ public:
     virtual int getNumUserConstraints() const;
     
     virtual int getUserConstraintInfo(int constraintUniqueId, struct b3UserConstraint&info) const;
+	
+	virtual int getUserConstraintId(int serialIndex) const;
     
 	///todo: move this out of the
     virtual void setSharedMemoryKey(int key);
@@ -73,6 +75,8 @@ public:
 	virtual void getCachedVREvents(struct b3VREventsData* vrEventsData);
 
 	virtual void getCachedKeyboardEvents(struct b3KeyboardEventsData* keyboardEventsData);
+
+	virtual void getCachedMouseEvents(struct b3MouseEventsData* mouseEventsData);
 
 	virtual void getCachedRaycastHits(struct b3RaycastInformation* raycastHits);
 

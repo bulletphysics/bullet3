@@ -5,7 +5,7 @@
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btTransform.h"
 #include "URDFJointTypes.h"
-
+#include "SDFAudioTypes.h"
 
 class URDFImporterInterface
 {
@@ -36,10 +36,15 @@ public:
 	/// optional method to provide the link color. return true if the color is available and copied into colorRGBA, return false otherwise
 	virtual bool getLinkColor(int linkIndex, btVector4& colorRGBA) const { return false;}
 
+	virtual bool getLinkColor2(int linkIndex, struct UrdfMaterialColor& matCol) const { return false;}
+
+
 	virtual int getCollisionGroupAndMask(int linkIndex, int& colGroup, int& colMask) const { return 0;}
 	///this API will likely change, don't override it!
 	virtual bool getLinkContactInfo(int linkIndex, URDFLinkContactInfo& contactInfo ) const  { return false;}
     
+	virtual bool getLinkAudioSource(int linkIndex, SDFAudioSource& audioSource) const { return false;}
+
     virtual std::string getJointName(int linkIndex) const = 0;
 
     //fill mass and inertial data. If inertial data is missing, please initialize mass, inertia to sensitive values, and inertialFrame to identity.
@@ -59,7 +64,8 @@ public:
 	};
     
     virtual bool getRootTransformInWorld(btTransform& rootTransformInWorld) const =0;
-    
+	virtual void setRootTransformInWorld(const btTransform& rootTransformInWorld){}
+
 	///quick hack: need to rethink the API/dependencies of this
     virtual int convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame) const { return -1;}
     

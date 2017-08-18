@@ -1,0 +1,37 @@
+<?xml version="0.0" ?>
+<robot name="plane">
+  <link name="planeLink">
+  	<audio_source filename="wav/cardboardbox0.wav">
+  		<collision_force_threshold>0.04</collision_force_threshold>
+			<attack_rate>0.01</attack_rate>
+			<decay_rate>0.0001</decay_rate>
+			<sustain_level>0.5</sustain_level>
+			<release_rate>0.005</release_rate>
+			<gain>.5</gain>
+  	</audio_source>
+	  <contact>
+	      <lateral_friction value="1"/>
+	  </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+       <mass value=".0"/>
+       <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+				<mesh filename="plane.obj" scale="1 1 1"/>
+      </geometry>
+       <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 -5"/>
+      <geometry>
+	 	<box size="30 30 10"/>
+      </geometry>
+    </collision>
+  </link>
+</robot>
+

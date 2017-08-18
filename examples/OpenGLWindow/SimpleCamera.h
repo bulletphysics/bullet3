@@ -54,6 +54,9 @@ struct SimpleCamera : public CommonCameraInterface
     
     virtual float getCameraFrustumFar() const;
     virtual float getCameraFrustumNear() const;
+
+	virtual void setCameraFrustumFar(float far);
+    virtual void setCameraFrustumNear(float near);
 };
 
 #endif //SIMPLE_CAMERA_H

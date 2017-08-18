@@ -28,11 +28,10 @@ class btCollisionShape;
 #include "btBulletCollisionCommon.h"
 
 
-#define BT_OVERRIDE
 
 static btScalar gSliderStackRows = 8.0f;
 static btScalar gSliderStackColumns = 6.0f;
-static btScalar gSliderStackHeight = 15.0f;
+static btScalar gSliderStackHeight = 10.0f;
 static btScalar gSliderGroundHorizontalAmplitude = 0.0f;
 static btScalar gSliderGroundVerticalAmplitude = 0.0f;
 
@@ -98,8 +97,8 @@ public:
     virtual void resetCamera() BT_OVERRIDE
 	{
         m_guiHelper->resetCamera( m_cameraDist,
-                                  m_cameraPitch,
                                   m_cameraYaw,
+                                  m_cameraPitch,
                                   m_cameraTargetPos.x(),
                                   m_cameraTargetPos.y(),
                                   m_cameraTargetPos.z()
@@ -115,8 +114,8 @@ MultiThreadedDemo::MultiThreadedDemo(struct GUIHelperInterface* helper)
     m_groundBody = NULL;
     m_groundMovePhase = 0.0f;
     m_cameraTargetPos = btVector3( 0.0f, 0.0f, 0.0f );
-    m_cameraPitch = 90.0f;
-    m_cameraYaw = 30.0f;
+    m_cameraPitch = -30.0f;
+    m_cameraYaw = 90.0f;
     m_cameraDist = 48.0f;
     helper->setUpAxis( kUpAxis );
 }
@@ -240,7 +239,7 @@ void MultiThreadedDemo::createSceneObjects()
         const btVector3 halfExtents = btVector3( 0.5f, 0.25f, 0.5f );
         int numStackRows = btMax(1, int(gSliderStackRows));
         int numStackCols = btMax(1, int(gSliderStackColumns));
-        int stackHeight = 15;
+        int stackHeight = int(gSliderStackHeight);
         float stackZSpacing = 3.0f;
         float stackXSpacing = 20.0f;
 

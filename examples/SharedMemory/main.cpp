@@ -14,7 +14,8 @@ subject to the following restrictions:
 */
 
 
-#include "PhysicsServerExample.h"
+
+#include "PhysicsServerExampleBullet2.h"
 
 #include "Bullet3Common/b3CommandLineArgs.h"
 
@@ -77,7 +78,7 @@ int main(int argc, char* argv[])
 // options.m_option |= PHYSICS_SERVER_ENABLE_COMMAND_LOGGING;
 // options.m_option |= PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG;
         
-	example = (SharedMemoryCommon*)PhysicsServerCreateFunc(options);
+	example = (SharedMemoryCommon*)PhysicsServerCreateFuncBullet2(options);
 	
 	
 	example->initPhysics();

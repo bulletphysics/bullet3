@@ -42,6 +42,7 @@ struct MyTexture
 	unsigned char* textureData;
 };
 
+
 ATTRIBUTE_ALIGNED16(struct) BulletURDFInternalData
 {
 	BT_DECLARE_ALIGNED_ALLOCATOR();
@@ -51,7 +52,7 @@ ATTRIBUTE_ALIGNED16(struct) BulletURDFInternalData
 	std::string m_sourceFile;
 	char m_pathPrefix[1024];
 	int m_bodyId;
-	btHashMap<btHashInt,btVector4> m_linkColors;
+	btHashMap<btHashInt,UrdfMaterialColor> m_linkColors;
     btAlignedObjectArray<btCollisionShape*> m_allocatedCollisionShapes;
 	
 	LinkVisualShapesConverter* m_customVisualShapesConverter;
@@ -68,6 +69,12 @@ ATTRIBUTE_ALIGNED16(struct) BulletURDFInternalData
 	{
 		m_pathPrefix[0] = 0;
 	}
+
+	void setGlobalScaling(btScalar scaling)
+	{
+		m_urdfParser.setGlobalScaling(scaling);
+	}
+
 };
 
 void BulletURDFImporter::printTree()
@@ -75,10 +82,10 @@ void BulletURDFImporter::printTree()
 //	btAssert(0);
 }
 
-BulletURDFImporter::BulletURDFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter)
+BulletURDFImporter::BulletURDFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter, btScalar globalScaling)
 {
 	m_data = new BulletURDFInternalData;
-	
+	m_data->setGlobalScaling(globalScaling);
 	m_data->m_guiHelper = helper;
 	m_data->m_customVisualShapesConverter = customConverter;
 
@@ -293,7 +300,6 @@ std::string BulletURDFImporter::getJointName(int linkIndex) const
 
 void  BulletURDFImporter::getMassAndInertia(int linkIndex, btScalar& mass,btVector3& localInertiaDiagonal, btTransform& inertialFrame) const
 {
-	//todo(erwincoumans)
 	//the link->m_inertia is NOT necessarily aligned with the inertial frame
 	//so an additional transform might need to be computed
 	UrdfLink* const* linkPtr = m_data->m_urdfParser.getModel().m_links.getAtIndex(linkIndex);
@@ -412,6 +418,13 @@ bool BulletURDFImporter::getJointInfo(int urdfLinkIndex, btTransform& parent2joi
 	return getJointInfo2(urdfLinkIndex, parent2joint, linkTransformInWorld, jointAxisInJointSpace, jointType, jointLowerLimit, jointUpperLimit, jointDamping, jointFriction,jointMaxForce,jointMaxVelocity); 
 	
 }
+
+void BulletURDFImporter::setRootTransformInWorld(const btTransform& rootTransformInWorld)
+{
+    m_data->m_urdfParser.getModel().m_rootTransformInWorld = rootTransformInWorld ;
+}
+
+
 
 bool BulletURDFImporter::getRootTransformInWorld(btTransform& rootTransformInWorld) const
 {
@@ -567,6 +580,15 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 
     switch (collision->m_geometry.m_type)
     {
+	case URDF_GEOM_PLANE:
+		{
+			btVector3 planeNormal = collision->m_geometry.m_planeNormal;
+			btScalar planeConstant = 0;//not available?
+			btStaticPlaneShape* plane = new btStaticPlaneShape(planeNormal,planeConstant);
+			shape = plane;
+			shape ->setMargin(gUrdfDefaultCollisionMargin);
+			break;
+		}
 		case URDF_GEOM_CAPSULE:
         {
 			btScalar radius = collision->m_geometry.m_capsuleRadius;
@@ -634,8 +656,15 @@ btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, co
 		case UrdfGeometry::FILE_OBJ:
 			if (collision->m_flags & URDF_FORCE_CONCAVE_TRIMESH)
 			{
-				
-				glmesh = LoadMeshFromObj(collision->m_geometry.m_meshFileName.c_str(), 0);
+				char relativeFileName[1024];
+				char pathPrefix[1024];
+				pathPrefix[0] = 0;
+				if (b3ResourcePath::findResourcePath(collision->m_geometry.m_meshFileName.c_str(), relativeFileName, 1024))
+				{
+
+					b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
+				}
+				glmesh = LoadMeshFromObj(collision->m_geometry.m_meshFileName.c_str(), pathPrefix);
 			}
 			else
 			{
@@ -781,7 +810,7 @@ upAxisMat.setIdentity();
 
         default:
 		b3Warning("Error: unknown collision geometry type %i\n", collision->m_geometry.m_type);
-		// for example, URDF_GEOM_PLANE
+		
 	}
 	return shape;
 }
@@ -1087,7 +1116,10 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 			{
 				UrdfMaterial *const  mat = *matPtr;
 				//printf("UrdfMaterial %s, rgba = %f,%f,%f,%f\n",mat->m_name.c_str(),mat->m_rgbaColor[0],mat->m_rgbaColor[1],mat->m_rgbaColor[2],mat->m_rgbaColor[3]);
-				m_data->m_linkColors.insert(linkIndex,mat->m_rgbaColor);
+				UrdfMaterialColor matCol;
+				matCol.m_rgbaColor = mat->m_matColor.m_rgbaColor;
+				matCol.m_specularColor = mat->m_matColor.m_specularColor;
+				m_data->m_linkColors.insert(linkIndex,matCol);
 			}
 			convertURDFToVisualShapeInternal(&vis, pathPrefix, localInertiaFrame.inverse()*childTrans, vertices, indices,textures);
 		
@@ -1125,18 +1157,29 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 
 bool BulletURDFImporter::getLinkColor(int linkIndex, btVector4& colorRGBA) const
 {
-	const btVector4* rgbaPtr = m_data->m_linkColors[linkIndex];
-	if (rgbaPtr)
+	const UrdfMaterialColor* matColPtr = m_data->m_linkColors[linkIndex];
+	if (matColPtr)
 	{
-		colorRGBA = *rgbaPtr;
+		colorRGBA = matColPtr->m_rgbaColor;
 		return true;
 	}
 	return false;
 }
 
-bool BulletURDFImporter::getLinkContactInfo(int linkIndex, URDFLinkContactInfo& contactInfo ) const
+bool BulletURDFImporter::getLinkColor2(int linkIndex, UrdfMaterialColor& matCol) const
 {
-	UrdfLink* const* linkPtr = m_data->m_urdfParser.getModel().m_links.getAtIndex(linkIndex);
+	UrdfMaterialColor* matColPtr = m_data->m_linkColors[linkIndex];
+	if (matColPtr)
+	{
+		matCol = *matColPtr;
+		return true;
+	}
+	return false;
+}
+
+bool BulletURDFImporter::getLinkContactInfo(int urdflinkIndex, URDFLinkContactInfo& contactInfo ) const
+{
+	UrdfLink* const* linkPtr = m_data->m_urdfParser.getModel().m_links.getAtIndex(urdflinkIndex);
 	if (linkPtr)
 	{
 		const UrdfLink* link = *linkPtr;
@@ -1145,6 +1188,22 @@ bool BulletURDFImporter::getLinkContactInfo(int linkIndex, URDFLinkContactInfo& 
 	}
 	return false;
 }
+
+bool BulletURDFImporter::getLinkAudioSource(int linkIndex, SDFAudioSource& audioSource) const
+{
+	UrdfLink* const* linkPtr = m_data->m_urdfParser.getModel().m_links.getAtIndex(linkIndex);
+	if (linkPtr)
+	{
+		const UrdfLink* link = *linkPtr;
+		if (link->m_audioSource.m_flags & SDFAudioSource::SDFAudioSourceValid)
+		{
+			audioSource = link->m_audioSource;
+			return true;
+		}
+	}
+	return false;
+}
+
 
 void BulletURDFImporter::convertLinkVisualShapes2(int linkIndex, int urdfIndex, const char* pathPrefix, const btTransform& localInertiaFrame, class btCollisionObject* colObj, int bodyUniqueId) const
 {
@@ -1190,6 +1249,14 @@ btCollisionShape* BulletURDFImporter::getAllocatedCollisionShape(int index)
 			const UrdfCollision& col = link->m_collisionArray[v];
 			btCollisionShape* childShape = convertURDFToCollisionShape(&col ,pathPrefix);
 			m_data->m_allocatedCollisionShapes.push_back(childShape);
+			if (childShape->getShapeType()==COMPOUND_SHAPE_PROXYTYPE)
+			{
+				btCompoundShape* compound = (btCompoundShape*) childShape;
+				for (int i=0;i<compound->getNumChildShapes();i++)
+				{
+					m_data->m_allocatedCollisionShapes.push_back(compound->getChildShape(i));
+				}
+			}
 			
 			if (childShape)
 			{

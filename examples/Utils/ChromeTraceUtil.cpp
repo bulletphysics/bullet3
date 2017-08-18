@@ -184,7 +184,7 @@ void MyEnterProfileZoneFunc(const char* msg)
 		return;
 #ifndef BT_NO_PROFILE
 	int threadId = btQuickprofGetCurrentThreadIndex2();
-	if (threadId<0)
+	if (threadId<0 || threadId >= BT_QUICKPROF_MAX_THREAD_COUNT)
 		return;
 
 	if (gStackDepths[threadId] >= MAX_NESTING)
@@ -208,8 +208,8 @@ void MyLeaveProfileZoneFunc()
 		return;
 #ifndef BT_NO_PROFILE
 	int threadId = btQuickprofGetCurrentThreadIndex2();
-	if (threadId<0)
-		return;
+    if (threadId<0 || threadId >= BT_QUICKPROF_MAX_THREAD_COUNT)
+        return;
 
 	if (gStackDepths[threadId] <= 0)
 	{
@@ -239,7 +239,7 @@ void b3ChromeUtilsStartTimings()
 		btSetCustomLeaveProfileZoneFunc(MyLeaveProfileZoneFunc);
 }
 
-void b3ChromeUtilsStopTimingsAndWriteJsonFile()
+void b3ChromeUtilsStopTimingsAndWriteJsonFile(const char* fileNamePrefix)
 {
 		b3SetCustomEnterProfileZoneFunc(MyDummyEnterProfileZoneFunc);
 			b3SetCustomLeaveProfileZoneFunc(MyDummyLeaveProfileZoneFunc);
@@ -248,20 +248,27 @@ void b3ChromeUtilsStopTimingsAndWriteJsonFile()
 			btSetCustomLeaveProfileZoneFunc(MyDummyLeaveProfileZoneFunc);
 			char fileName[1024];
 			static int fileCounter = 0;
-			sprintf(fileName,"timings_%d.json",fileCounter++);
+			sprintf(fileName,"%s_%d.json",fileNamePrefix, fileCounter++);
 			gTimingFile = fopen(fileName,"w");
-			fprintf(gTimingFile,"{\"traceEvents\":[\n");
-			//dump the content to file
-			for (int i=0;i<BT_QUICKPROF_MAX_THREAD_COUNT;i++)
+			if (gTimingFile)
 			{
-				if (gTimings[i].m_numTimings)
+				fprintf(gTimingFile,"{\"traceEvents\":[\n");
+				//dump the content to file
+				for (int i=0;i<BT_QUICKPROF_MAX_THREAD_COUNT;i++)
 				{
-					printf("Writing %d timings for thread %d\n", gTimings[i].m_numTimings, i);
-					gTimings[i].flush();
+					if (gTimings[i].m_numTimings)
+					{
+						printf("Writing %d timings for thread %d\n", gTimings[i].m_numTimings, i);
+						gTimings[i].flush();
+					}
 				}
+				fprintf(gTimingFile,"\n],\n\"displayTimeUnit\": \"ns\"}");
+				fclose(gTimingFile);
+			} else
+			{
+				b3Printf("Error opening file");
+				b3Printf(fileName);
 			}
-			fprintf(gTimingFile,"\n],\n\"displayTimeUnit\": \"ns\"}");
-			fclose(gTimingFile);
 			gTimingFile = 0;
 }
 

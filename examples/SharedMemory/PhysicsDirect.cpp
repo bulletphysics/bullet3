@@ -54,6 +54,7 @@ struct PhysicsDirectInternalData
     btAlignedObjectArray<b3VRControllerEvent> m_cachedVREvents;
 
 	btAlignedObjectArray<b3KeyboardEvent> m_cachedKeyboardEvents;
+	btAlignedObjectArray<b3MouseEvent> m_cachedMouseEvents;
 
 	btAlignedObjectArray<b3RayHitInfo>	m_raycastHits;
 
@@ -64,9 +65,15 @@ struct PhysicsDirectInternalData
 	PhysicsDirectInternalData()
 		:m_hasStatus(false),
 		m_verboseOutput(false),
+		m_cachedCameraPixelsWidth(0),
+		m_cachedCameraPixelsHeight(0),
+		m_commandProcessor(NULL),
 		m_ownsCommandProcessor(false),
 		m_timeOutInSeconds(1e30)
 	{
+		memset(&m_command, 0, sizeof(m_command));
+		memset(&m_serverStatus, 0, sizeof(m_serverStatus));
+		memset(m_bulletStreamDataServerToClient, 0, sizeof(m_bulletStreamDataServerToClient));
 	}
 };
 
@@ -171,7 +178,8 @@ bool PhysicsDirect::connect(struct GUIHelperInterface* guiHelper)
 
 void PhysicsDirect::renderScene()
 {
-	m_data->m_commandProcessor->renderScene();
+	int renderFlags = 0;
+	m_data->m_commandProcessor->renderScene(renderFlags);
 }
 
 void PhysicsDirect::debugDraw(int debugDrawMode)
@@ -692,6 +700,21 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 		break;
 	}
 
+	case CMD_REQUEST_MOUSE_EVENTS_DATA_COMPLETED:
+	{
+		B3_PROFILE("CMD_REQUEST_MOUSE_EVENTS_DATA_COMPLETED");
+		if (m_data->m_verboseOutput)
+		{
+			b3Printf("Request mouse events completed");
+		}
+		m_data->m_cachedMouseEvents.resize(serverCmd.m_sendMouseEvents.m_numMouseEvents);
+		for (int i=0;i<serverCmd.m_sendMouseEvents.m_numMouseEvents;i++)
+		{
+			m_data->m_cachedMouseEvents[i] = serverCmd.m_sendMouseEvents.m_mouseEvents[i];
+		}
+		break;
+	}
+
 	case CMD_REQUEST_INTERNAL_DATA_COMPLETED:
 	{
 		if (serverCmd.m_numDataStreamBytes)
@@ -724,6 +747,26 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
         m_data->m_userConstraintInfoMap.remove(cid);
         break;
     }
+	case CMD_REMOVE_BODY_FAILED:
+	{
+		b3Warning("Remove body failed\n");
+		break;
+	}
+	case CMD_REMOVE_BODY_COMPLETED:
+	{
+		for (int i=0;i<serverCmd.m_removeObjectArgs.m_numBodies;i++)
+		{
+			int bodyUniqueId = serverCmd.m_removeObjectArgs.m_bodyUniqueIds[i];
+			removeCachedBody(bodyUniqueId);
+		}
+		for (int i=0;i<serverCmd.m_removeObjectArgs.m_numUserConstraints;i++)
+		{
+			int key = serverCmd.m_removeObjectArgs.m_userConstraintUniqueIds[i];
+			m_data->m_userConstraintInfoMap.remove(key);
+		}
+
+		break;
+	}
 	case CMD_CHANGE_USER_CONSTRAINT_COMPLETED:
 	{
         int cid = serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId;
@@ -814,6 +857,7 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 		}
 		break;
 	}
+	case CMD_CREATE_MULTI_BODY_COMPLETED:
 	case CMD_URDF_LOADING_COMPLETED:
 	{
 
@@ -860,6 +904,42 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 		b3Warning("createConstraint failed");
 		break;
 	}
+	
+	case CMD_CREATE_COLLISION_SHAPE_FAILED:
+	{
+		b3Warning("createCollisionShape failed");
+		break;
+	}
+	case CMD_CREATE_COLLISION_SHAPE_COMPLETED:
+	{
+		break;
+	}
+	
+	case CMD_CREATE_VISUAL_SHAPE_FAILED:
+	{
+		b3Warning("createVisualShape failed");
+		break;
+	}
+	case CMD_CREATE_VISUAL_SHAPE_COMPLETED:
+	{
+		break;
+	}
+	
+	case CMD_CREATE_MULTI_BODY_FAILED:
+	{
+		b3Warning("createMultiBody failed");
+		break;
+	}
+	case CMD_REQUEST_COLLISION_INFO_COMPLETED:
+	{
+		break;
+	}
+	case CMD_REQUEST_COLLISION_INFO_FAILED:
+	{
+		b3Warning("Request getCollisionInfo failed");
+		break;
+	}
+
 	default:
 	{
 		//b3Warning("Unknown server status type");
@@ -909,6 +989,28 @@ int PhysicsDirect::getNumBodies() const
 	return m_data->m_bodyJointMap.size();
 }
 
+void PhysicsDirect::removeCachedBody(int bodyUniqueId)
+{
+	BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
+	if (bodyJointsPtr && *bodyJointsPtr)
+	{
+		BodyJointInfoCache2* bodyJoints = *bodyJointsPtr;
+		for (int j=0;j<bodyJoints->m_jointInfo.size();j++) {
+			if (bodyJoints->m_jointInfo[j].m_jointName)
+			{
+				free(bodyJoints->m_jointInfo[j].m_jointName);
+			}
+			if (bodyJoints->m_jointInfo[j].m_linkName)
+			{
+				free(bodyJoints->m_jointInfo[j].m_linkName);
+			}
+		}
+		delete (*bodyJointsPtr);
+		m_data->m_bodyJointMap.remove(bodyUniqueId);
+	}
+}
+
+
 int PhysicsDirect::getNumUserConstraints() const
 {
     return m_data->m_userConstraintInfoMap.size();
@@ -925,7 +1027,14 @@ int PhysicsDirect::getUserConstraintInfo(int constraintUniqueId, struct b3UserCo
     return 0;
 }
 
-
+int PhysicsDirect::getUserConstraintId(int serialIndex) const
+{
+	if ((serialIndex >= 0) && (serialIndex < getNumUserConstraints()))
+	{
+		return m_data->m_userConstraintInfoMap.getKeyAtIndex(serialIndex).getUid1();
+	}
+	return -1;
+}
 
 int PhysicsDirect::getBodyUniqueId(int serialIndex) const
 {
@@ -986,6 +1095,14 @@ void PhysicsDirect::setSharedMemoryKey(int key)
 
 void PhysicsDirect::uploadBulletFileToSharedMemory(const char* data, int len)
 {
+	if (len>SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE)
+	{
+		len = SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE;
+	}
+	for (int i=0;i<len;i++)
+	{
+		m_data->m_bulletStreamDataServerToClient[i] = data[i];
+	}
 	//m_data->m_physicsClient->uploadBulletFileToSharedMemory(data,len);
 }
 
@@ -1065,6 +1182,14 @@ void PhysicsDirect::getCachedKeyboardEvents(struct b3KeyboardEventsData* keyboar
 	keyboardEventsData->m_keyboardEvents = keyboardEventsData->m_numKeyboardEvents?
 		&m_data->m_cachedKeyboardEvents[0] : 0;
 }
+
+void PhysicsDirect::getCachedMouseEvents(struct b3MouseEventsData* mouseEventsData)
+{
+	mouseEventsData->m_numMouseEvents = m_data->m_cachedMouseEvents.size();
+	mouseEventsData->m_mouseEvents = mouseEventsData->m_numMouseEvents?
+		&m_data->m_cachedMouseEvents[0] : 0;
+}
+
 
 void PhysicsDirect::getCachedRaycastHits(struct b3RaycastInformation* raycastHits)
 {

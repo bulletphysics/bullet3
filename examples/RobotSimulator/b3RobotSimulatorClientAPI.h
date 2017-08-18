@@ -17,6 +17,15 @@ struct b3RobotSimulatorLoadUrdfFileArgs
 	bool m_useMultiBody;
 	int m_flags;
 
+	b3RobotSimulatorLoadUrdfFileArgs(const b3Vector3& startPos, const b3Quaternion& startOrn)
+		: m_startPosition(startPos),
+		  m_startOrientation(startOrn),
+		  m_forceOverrideFixedBase(false),
+		  m_useMultiBody(true),
+		  m_flags(0)
+	{
+	}
+
 	b3RobotSimulatorLoadUrdfFileArgs()
 		: m_startPosition(b3MakeVector3(0, 0, 0)),
 		  m_startOrientation(b3Quaternion(0, 0, 0, 1)),
@@ -115,6 +124,17 @@ struct b3RobotSimulatorInverseKinematicsResults
 	b3AlignedObjectArray<double> m_calculatedJointPositions;
 };
 
+struct b3JointStates2
+{
+    int m_bodyUniqueId;
+    int m_numDegreeOfFreedomQ;
+    int m_numDegreeOfFreedomU;
+    b3Transform m_rootLocalInertialFrame;
+    b3AlignedObjectArray<double> m_actualStateQ;
+    b3AlignedObjectArray<double> m_actualStateQdot;
+    b3AlignedObjectArray<double> m_jointReactionForces;
+};
+
 ///The b3RobotSimulatorClientAPI is pretty much the C++ version of pybullet
 ///as documented in the pybullet Quickstart Guide
 ///https://docs.google.com/document/d/10sXEhzFRSnvFcl3XxNGhnD4N2SedqwdAvK3dsihxVUA
@@ -123,6 +143,8 @@ class b3RobotSimulatorClientAPI
 	struct b3RobotSimulatorClientAPI_InternalData* m_data;
 
 public:
+
+
 	b3RobotSimulatorClientAPI();
 	virtual ~b3RobotSimulatorClientAPI();
 
@@ -158,9 +180,15 @@ public:
 
 	bool getJointInfo(int bodyUniqueId, int jointIndex, b3JointInfo* jointInfo);
 
-	void createConstraint(int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, b3JointInfo* jointInfo);
+	int createConstraint(int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, b3JointInfo* jointInfo);
+
+	int changeConstraint(int constraintId, b3JointInfo* jointInfo);
+
+	void removeConstraint(int constraintId);
 
 	bool getJointState(int bodyUniqueId, int jointIndex, struct b3JointSensorState* state);
+
+	bool getJointStates(int bodyUniqueId, b3JointStates2& state);
 
 	bool resetJointState(int bodyUniqueId, int jointIndex, double targetValue);
 
@@ -172,11 +200,14 @@ public:
 
 	void setRealTimeSimulation(bool enableRealTimeSimulation);
 
+	void setInternalSimFlags(int flags);
+
 	void setGravity(const b3Vector3& gravityAcceleration);
 
 	void setTimeStep(double timeStepInSeconds);
 	void setNumSimulationSubSteps(int numSubSteps);
 	void setNumSolverIterations(int numIterations);
+	void setContactBreakingThreshold(double threshold);
 
 	bool calculateInverseKinematics(const struct b3RobotSimulatorInverseKinematicArgs& args, struct b3RobotSimulatorInverseKinematicsResults& results);
 
@@ -190,8 +221,26 @@ public:
 	int startStateLogging(b3StateLoggingType loggingType, const std::string& fileName, const b3AlignedObjectArray<int>& objectUniqueIds=b3AlignedObjectArray<int>(), int maxLogDof = -1);
 	void stopStateLogging(int stateLoggerUniqueId);
 
-	void getVREvents(b3VREventsData* vrEventsData);
+	void getVREvents(b3VREventsData* vrEventsData, int deviceTypeFilter);
 	void getKeyboardEvents(b3KeyboardEventsData* keyboardEventsData);
+
+	void submitProfileTiming(const std::string&  profileName, int durationInMicroSeconds=1);				
+
+
+	//////////////// INTERNAL
+
+	void loadBunny(double scale, double mass, double collisionMargin);
+
+	//setGuiHelper is only used when embedded in existing example browser
+	void setGuiHelper(struct GUIHelperInterface* guiHelper);
+	//renderScene is only used when embedded in existing example browser
+	virtual void renderScene();
+	//debugDraw is only used when embedded in existing example browser
+	virtual void debugDraw(int debugDrawMode);
+	virtual bool	mouseMoveCallback(float x,float y);
+	virtual bool	mouseButtonCallback(int button, int state, float x, float y);
+
+	////////////////INTERNAL
 };
 
 #endif  //B3_ROBOT_SIMULATOR_CLIENT_API_H

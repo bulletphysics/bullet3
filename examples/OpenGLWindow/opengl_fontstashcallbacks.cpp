@@ -10,12 +10,12 @@
 #include <stdlib.h>
 #include <string.h>
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
+#include "stb_image/stb_image_write.h"
 
 
 static unsigned int s_indexData[INDEX_COUNT];
-GLuint s_indexArrayObject, s_indexBuffer;
-GLuint s_vertexArrayObject,s_vertexBuffer;
+static GLuint s_indexArrayObject, s_indexBuffer;
+static GLuint s_vertexArrayObject,s_vertexBuffer;
 
 OpenGL2RenderCallbacks::OpenGL2RenderCallbacks(GLPrimitiveRenderer* primRender)
 	:m_primRender2(primRender)
@@ -54,7 +54,13 @@ void InternalOpenGL2RenderCallbacks::display2()
     
     
        assert(glGetError()==GL_NO_ERROR);
-  
+	 float identity[16]={1,0,0,0,
+						0,1,0,0,
+						0,0,1,0,
+						0,0,0,1};
+	glUniformMatrix4fv(data->m_viewmatUniform, 1, false, identity);
+	glUniformMatrix4fv(data->m_projMatUniform, 1, false, identity);
+
     vec2 p( 0.f,0.f);//?b?0.5f * sinf(timeValue), 0.5f * cosf(timeValue) );
     glUniform2fv(data->m_positionUniform, 1, (const GLfloat *)&p);
     

@@ -39,7 +39,7 @@
 #include "../FractureDemo/FractureDemo.h"
 #include "../DynamicControlDemo/MotorDemo.h"
 #include "../RollingFrictionDemo/RollingFrictionDemo.h"
-#include "../SharedMemory/PhysicsServerExample.h"
+#include "../SharedMemory/PhysicsServerExampleBullet2.h"
 #include "../SharedMemory/PhysicsClientExample.h"
 #include "../Constraints/TestHingeTorque.h"
 #include "../RenderingExamples/TimeSeriesExample.h"
@@ -51,6 +51,10 @@
 #include "../RoboticsLearning/KukaGraspExample.h"
 #include "../RoboticsLearning/GripperGraspExample.h"
 #include "../InverseKinematics/InverseKinematicsExample.h"
+
+#ifdef B3_ENABLE_TINY_AUDIO
+#include "../TinyAudio/TinyAudioExample.h"
+#endif //B3_ENABLE_TINY_AUDIO
 
 #ifdef ENABLE_LUA
 #include "../LuaDemo/LuaPhysicsSetup.h"
@@ -100,7 +104,6 @@ struct ExampleEntry
 
 static ExampleEntry gDefaultExamples[]=
 {
-
 	ExampleEntry(0,"API"),
 
 	ExampleEntry(1,"Basic Example","Create some rigid bodies using box collision shapes. This is a good example to familiarize with the basic initialization of Bullet. The Basic Example can also be compiled without graphical user interface, as a console application. Press W for wireframe, A to show AABBs, I to suspend/restart physics simulation. Press D to toggle auto-deactivation of the simulation. ", BasicExampleCreateFunc),
@@ -135,7 +138,7 @@ static ExampleEntry gDefaultExamples[]=
 
 	ExampleEntry(0,"Physics Client-Server"),
 	ExampleEntry(1,"Physics Server", "Create a physics server that communicates with a physics client over shared memory. You can connect to the server using pybullet, a PhysicsClient or a UDP/TCP Bridge.",
-			PhysicsServerCreateFunc),
+			PhysicsServerCreateFuncBullet2),
 	ExampleEntry(1, "Physics Client (Shared Mem)", "Create a physics client that can communicate with a physics server over shared memory.", PhysicsClientCreateFunc),
 
 //	ExampleEntry(1,"Physics Server (Logging)", "Create a physics server that communicates with a physics client over shared memory. It will log all commands to a file.",
@@ -274,9 +277,10 @@ static ExampleEntry gDefaultExamples[]=
     ExampleEntry(1,"Gripper Grasp","Grasp experiment with a gripper to improve contact model", GripperGraspExampleCreateFunc,eGRIPPER_GRASP),
     ExampleEntry(1,"Two Point Grasp","Grasp experiment with two point contact to test rolling friction", GripperGraspExampleCreateFunc, eTWO_POINT_GRASP),
 	ExampleEntry(1,"One Motor Gripper Grasp","Grasp experiment with a gripper with one motor to test slider constraint for closed loop structure", GripperGraspExampleCreateFunc, eONE_MOTOR_GRASP),
-    ExampleEntry(1,"Grasp Soft Body","Grasp soft body experiment", GripperGraspExampleCreateFunc, eGRASP_SOFT_BODY),
-    ExampleEntry(1,"Softbody Multibody Coupling","Two way coupling between soft body and multibody experiment", GripperGraspExampleCreateFunc, eSOFTBODY_MULTIBODY_COUPLING),
-
+#ifdef  USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+	ExampleEntry(1,"Grasp Soft Body","Grasp soft body experiment", GripperGraspExampleCreateFunc, eGRASP_SOFT_BODY),
+	ExampleEntry(1,"Softbody Multibody Coupling","Two way coupling between soft body and multibody experiment", GripperGraspExampleCreateFunc, eSOFTBODY_MULTIBODY_COUPLING),
+#endif //USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 
 #ifdef ENABLE_LUA
 	ExampleEntry(1,"Lua Script", "Create the dynamics world, collision shapes and rigid bodies using Lua scripting",
@@ -291,7 +295,7 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"Fracture demo", "Create a basic custom implementation to model fracturing objects, based on a btCompoundShape. It explicitly propagates the collision impulses and breaks the rigid body into multiple rigid bodies. Press F to toggle fracture and glue mode.", FractureDemoCreateFunc),
 
 	ExampleEntry(1,"Planar 2D","Show the use of 2D collision shapes and rigid body simulation. The collision shape is wrapped into a btConvex2dShape. The rigid bodies are restricted in a plane using the 'setAngularFactor' and 'setLinearFactor' API call.",Planar2DCreateFunc),
-#if BT_USE_OPENMP || BT_USE_TBB || BT_USE_PPL
+#if BT_THREADSAFE
     // only enable MultiThreaded demo if a task scheduler is available
     ExampleEntry( 1, "Multithreaded Demo",
     "Stacks of boxes that do not sleep. Good for testing performance with large numbers of bodies and contacts. Sliders can be used to change the number of stacks (restart needed after each change)."
@@ -307,7 +311,11 @@ static ExampleEntry gDefaultExamples[]=
 	ExampleEntry(1,"TinyRenderer", "Very small software renderer.", TinyRendererCreateFunc),
 	ExampleEntry(1,"Dynamic Texture", "Dynamic updated textured applied to a cube.", DynamicTexturedCubeDemoCreateFunc),
 
-		
+#ifdef B3_ENABLE_TINY_AUDIO
+	ExampleEntry(0,"Audio"),
+	ExampleEntry(1,"Simple Audio","Play some sound", TinyAudioExampleCreateFunc),
+#endif
+
 
 	//Extended Tutorials Added by Mobeen
 	ExampleEntry(0,"Extended Tutorials"),

@@ -6,55 +6,18 @@
 
 UrdfParser::UrdfParser()
 :m_parseSDF(false),
-m_activeSdfModel(-1)
+m_activeSdfModel(-1),
+m_urdfScaling(1)
 {
 	m_urdf2Model.m_sourceFile = "IN_MEMORY_STRING"; // if loadUrdf() called later, source file name will be replaced with real
 }
 
 UrdfParser::~UrdfParser()
 {
-    cleanModel(&m_urdf2Model);
-    
-    for (int i=0;i<m_tmpModels.size();i++)
-    {
-        cleanModel(m_tmpModels[i]);
+	for (int i=0;i<m_tmpModels.size();i++)
+	{
 		delete m_tmpModels[i];
-    }
-    m_sdfModels.clear();
-    m_tmpModels.clear();
-}
-
-void UrdfParser::cleanModel(UrdfModel* model)
-{
-    for (int i=0;i<model->m_materials.size();i++)
-    {
-        UrdfMaterial** matPtr = model->m_materials.getAtIndex(i);
-        if (matPtr)
-        {
-            UrdfMaterial* mat = *matPtr;
-            delete mat;
-        }
-    }
-    
-    for (int i=0;i<model->m_links.size();i++)
-    {
-        UrdfLink** linkPtr = model->m_links.getAtIndex(i);
-        if (linkPtr)
-        {
-            UrdfLink* link = *linkPtr;
-            delete link;
-        }
-    }
-    
-    for (int i=0;i<model->m_joints.size();i++)
-    {
-        UrdfJoint** jointPtr = model->m_joints.getAtIndex(i);
-        if (jointPtr)
-        {
-            UrdfJoint* joint = *jointPtr;
-            delete joint;
-        }
-    }
+	}
 }
 
 static bool parseVector4(btVector4& vec4, const std::string& vector_str)
@@ -138,38 +101,56 @@ bool UrdfParser::parseMaterial(UrdfMaterial& material, TiXmlElement *config, Err
 	}
 		
 	// color
-	TiXmlElement *c = config->FirstChildElement("color");
-	if (c)
 	{
-	  if (c->Attribute("rgba")) 
-	  {
-		  if (!parseVector4(material.m_rgbaColor,c->Attribute("rgba")))
+		TiXmlElement *c = config->FirstChildElement("color");
+		if (c)
+		{
+		  if (c->Attribute("rgba")) 
 		  {
-			  std::string msg = material.m_name+" has no rgba";
-			  logger->reportWarning(msg.c_str());
+			  if (!parseVector4(material.m_matColor.m_rgbaColor,c->Attribute("rgba")))
+			  {
+				  std::string msg = material.m_name+" has no rgba";
+				  logger->reportWarning(msg.c_str());
+			  }
 		  }
-	  }
+		}
+	}
+
+	{
+		// specular (non-standard)
+		TiXmlElement *s = config->FirstChildElement("specular");
+		if (s)
+		{
+		  if (s->Attribute("rgb")) 
+		  {
+			  if (!parseVector3(material.m_matColor.m_specularColor,s->Attribute("rgb"),logger))
+			  {
+			  }
+		  }
+		}
 	}
 	return true;
 
 }
 
-bool parseTransform(btTransform& tr, TiXmlElement* xml, ErrorLogger* logger, bool parseSDF = false)
+bool UrdfParser::parseTransform(btTransform& tr, TiXmlElement* xml, ErrorLogger* logger, bool parseSDF )
 {
     tr.setIdentity();
     
+	btVector3 vec(0,0,0);
     if (parseSDF)
     {
-        parseVector3(tr.getOrigin(),std::string(xml->GetText()),logger);
+        parseVector3(vec,std::string(xml->GetText()),logger);
     }
     else
     {
         const char* xyz_str = xml->Attribute("xyz");
         if (xyz_str)
         {
-            parseVector3(tr.getOrigin(),std::string(xyz_str),logger);
+            parseVector3(vec,std::string(xyz_str),logger);
         }
     }
+	tr.setOrigin(vec*m_urdfScaling);
     
     if (parseSDF)
     {
@@ -345,8 +326,10 @@ bool UrdfParser::parseInertia(UrdfInertia& inertia, TiXmlElement* config, ErrorL
 
 bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger* logger)
 {
-	btAssert(g);
-		
+//	btAssert(g);
+	if (g==0)
+		return false;
+
 	TiXmlElement *shape = g->FirstChildElement();
 	if (!shape)
 	{
@@ -364,7 +347,7 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
 			return false;
 		} else
 		{
-			geom.m_sphereRadius = urdfLexicalCast<double>(shape->Attribute("radius"));
+			geom.m_sphereRadius = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("radius"));
 		}
 	}	
 	else if (type_name == "box")
@@ -379,6 +362,7 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
                 return false;
             }
             parseVector3(geom.m_boxSize,size->GetText(),logger);
+			geom.m_boxSize *= m_urdfScaling;
         }
         else
         {
@@ -389,6 +373,7 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
               } else
               {
                   parseVector3(geom.m_boxSize,shape->Attribute("size"),logger);
+				  geom.m_boxSize *= m_urdfScaling;
               }
         }
 	}
@@ -402,8 +387,8 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
 		  return false;
 	  }
 		geom.m_hasFromTo = false;
-		geom.m_capsuleRadius = urdfLexicalCast<double>(shape->Attribute("radius"));
-		geom.m_capsuleHeight = urdfLexicalCast<double>(shape->Attribute("length"));
+		geom.m_capsuleRadius = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("radius"));
+		geom.m_capsuleHeight = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("length"));
 		
 	}
 	else if (type_name == "capsule")
@@ -416,8 +401,8 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
 			return false;
 		}
 		geom.m_hasFromTo = false;
-		geom.m_capsuleRadius = urdfLexicalCast<double>(shape->Attribute("radius"));
-		geom.m_capsuleHeight = urdfLexicalCast<double>(shape->Attribute("length"));
+		geom.m_capsuleRadius = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("radius"));
+		geom.m_capsuleHeight = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("length"));
 	}
 	else if (type_name == "mesh")
 	{
@@ -457,6 +442,8 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
 				}
 			}
 		}
+
+		geom.m_meshScale *= m_urdfScaling; 
 
 		if (fn.empty())
 		{
@@ -589,17 +576,39 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement*
         matPtr->m_name = "mat";
 		if (name_char)
 			matPtr->m_name = name_char;
+
+		UrdfMaterial** oldMatPtrPtr = model.m_materials[matPtr->m_name.c_str()];
+		if (oldMatPtrPtr)
+		{
+			UrdfMaterial* oldMatPtr = *oldMatPtrPtr;
+			model.m_materials.remove(matPtr->m_name.c_str());
+			if (oldMatPtr)
+				delete oldMatPtr;
+		}
 		model.m_materials.insert(matPtr->m_name.c_str(),matPtr);
-        TiXmlElement *diffuse = mat->FirstChildElement("diffuse");
-        if (diffuse) {
-            std::string diffuseText = diffuse->GetText();
-            btVector4 rgba(1,0,0,1);
-            parseVector4(rgba,diffuseText);
-            matPtr->m_rgbaColor = rgba;
+		{
+			TiXmlElement *diffuse = mat->FirstChildElement("diffuse");
+			if (diffuse) {
+				std::string diffuseText = diffuse->GetText();
+				btVector4 rgba(1,0,0,1);
+				parseVector4(rgba,diffuseText);
+				matPtr->m_matColor.m_rgbaColor = rgba;
             
-            visual.m_materialName = matPtr->m_name;
-            visual.m_geometry.m_hasLocalMaterial = true;
-        }
+				visual.m_materialName = matPtr->m_name;
+				visual.m_geometry.m_hasLocalMaterial = true;
+			}
+		}
+		{
+			TiXmlElement *specular = mat->FirstChildElement("specular");
+			if (specular) {
+				std::string specularText = specular->GetText();
+				btVector3 rgba(1,1,1);
+				parseVector3(rgba,specularText,logger);
+				matPtr->m_matColor.m_specularColor = rgba;
+				visual.m_materialName = matPtr->m_name;
+				visual.m_geometry.m_hasLocalMaterial = true;
+			}
+		}
     } 
     else
       {
@@ -615,7 +624,8 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement*
           
           TiXmlElement *t = mat->FirstChildElement("texture");
           TiXmlElement *c = mat->FirstChildElement("color");
-          if (t||c)
+		  TiXmlElement *s = mat->FirstChildElement("specular");
+		  if (t||c||s)
           {
               if (parseMaterial(visual.m_geometry.m_localMaterial, mat,logger))
               {
@@ -663,6 +673,82 @@ bool UrdfParser::parseLink(UrdfModel& model, UrdfLink& link, TiXmlElement *confi
         }
     }
 
+	{
+		//optional 'audio_source' parameters
+		//modified version of SDF audio_source specification in //http://sdformat.org/spec?ver=1.6&elem=link
+		#if 0
+		<audio_source>
+          <uri>file://media/audio/cheer.mp3</uri>
+          <pitch>2.0</pitch>
+          <gain>1.0</gain>
+          <loop>false</loop>
+          <contact>
+            <collision>collision</collision>
+          </contact>
+        </audio_source>
+		#endif
+		TiXmlElement* ci = config->FirstChildElement("audio_source");
+		if (ci)
+		{
+			link.m_audioSource.m_flags |= SDFAudioSource::SDFAudioSourceValid;
+			
+			const char* fn = ci->Attribute("filename");
+			if (fn)
+			{
+				link.m_audioSource.m_uri = fn;
+			} else
+			{
+				if (TiXmlElement* filename_xml = ci->FirstChildElement("uri"))
+				{
+					link.m_audioSource.m_uri = filename_xml->GetText();
+				}
+			}
+			if (TiXmlElement* pitch_xml = ci->FirstChildElement("pitch"))
+			{
+				link.m_audioSource.m_pitch = urdfLexicalCast<double>(pitch_xml->GetText());
+			}
+			if (TiXmlElement* gain_xml = ci->FirstChildElement("gain"))
+			{
+				link.m_audioSource.m_gain = urdfLexicalCast<double>(gain_xml->GetText());
+			}
+
+			if (TiXmlElement* attack_rate_xml = ci->FirstChildElement("attack_rate"))
+			{
+				link.m_audioSource.m_attackRate = urdfLexicalCast<double>(attack_rate_xml->GetText());
+			}
+
+			if (TiXmlElement* decay_rate_xml = ci->FirstChildElement("decay_rate"))
+			{
+				link.m_audioSource.m_decayRate = urdfLexicalCast<double>(decay_rate_xml->GetText());
+			}
+
+			if (TiXmlElement* sustain_level_xml = ci->FirstChildElement("sustain_level"))
+			{
+				link.m_audioSource.m_sustainLevel = urdfLexicalCast<double>(sustain_level_xml->GetText());
+			}
+
+			if (TiXmlElement* release_rate_xml = ci->FirstChildElement("release_rate"))
+			{
+				link.m_audioSource.m_releaseRate = urdfLexicalCast<double>(release_rate_xml->GetText());
+			}
+
+			if (TiXmlElement* loop_xml = ci->FirstChildElement("loop"))
+			{
+				std::string looptxt = loop_xml->GetText();
+				if (looptxt == "true")
+				{
+					link.m_audioSource.m_flags |= SDFAudioSource::SDFAudioSourceLooping;
+				}
+			}
+			if (TiXmlElement* forceThreshold_xml = ci->FirstChildElement("collision_force_threshold"))
+			{
+				link.m_audioSource.m_collisionForceThreshold= urdfLexicalCast<double>(forceThreshold_xml->GetText());
+			}
+			//todo: see other audio_source children
+			//pitch, gain, loop, contact
+			
+		}
+	}
 	{
 		//optional 'contact' parameters
 	 TiXmlElement* ci = config->FirstChildElement("contact");
@@ -952,6 +1038,11 @@ bool UrdfParser::parseJointLimits(UrdfJoint& joint, TiXmlElement* config, ErrorL
             joint.m_upperLimit = urdfLexicalCast<double>(upper_str);
         }
         
+		if (joint.m_type == URDFPrismaticJoint)
+		{
+			joint.m_lowerLimit *= m_urdfScaling;
+			joint.m_upperLimit *= m_urdfScaling;
+		}
         
         // Get joint effort limit
         const char* effort_str = config->Attribute("effort");
@@ -1395,6 +1486,7 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 		UrdfMaterial** mat =m_urdf2Model.m_materials.find(material->m_name.c_str());
 		if (mat)
 		{
+			delete material;
 			logger->reportWarning("Duplicate material");
 		} else
 		{
@@ -1418,6 +1510,7 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 			{
 				logger->reportError("Link name is not unique, link names in the same model have to be unique");
 				logger->reportError(link->m_name.c_str());
+				delete link;
 				return false;
 			} else
 			{
@@ -1466,6 +1559,7 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 			{
 				logger->reportError("joint '%s' is not unique.");
 				logger->reportError(joint->m_name.c_str());
+				delete joint;
 				return false;
 			}
 			else
@@ -1476,6 +1570,7 @@ bool UrdfParser::loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceF
 		else
 		{
 			logger->reportError("joint xml is not initialized correctly");
+			delete joint;
 			return false;
 		}
 	}
@@ -1590,7 +1685,8 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
             UrdfMaterial** mat =localModel->m_materials.find(material->m_name.c_str());
             if (mat)
             {
-                logger->reportWarning("Duplicate material");
+		logger->reportWarning("Duplicate material");
+		delete material;
             } else
             {
                 localModel->m_materials.insert(material->m_name.c_str(),material);
@@ -1613,6 +1709,7 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
                 {
                     logger->reportError("Link name is not unique, link names in the same model have to be unique");
                     logger->reportError(link->m_name.c_str());
+                    delete link;
                     return false;
                 } else
                 {
@@ -1661,6 +1758,7 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
                 {
                     logger->reportError("joint '%s' is not unique.");
                     logger->reportError(joint->m_name.c_str());
+                    delete joint;
                     return false;
                 }
                 else
@@ -1671,6 +1769,7 @@ bool UrdfParser::loadSDF(const char* sdfText, ErrorLogger* logger)
             else
             {
                 logger->reportError("joint xml is not initialized correctly");
+                delete joint;
                 return false;
             }
         }

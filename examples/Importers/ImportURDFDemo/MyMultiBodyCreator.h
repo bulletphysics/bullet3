@@ -4,6 +4,7 @@
 
 #include "MultiBodyCreationInterface.h"
 #include "LinearMath/btAlignedObjectArray.h"
+#include "LinearMath/btHashMap.h"
 
 struct GUIHelperInterface;
 class btMultiBody;
@@ -28,7 +29,6 @@ protected:
     
 	struct GUIHelperInterface* m_guiHelper;
 
-	
 	btAlignedObjectArray<btGeneric6DofSpring2Constraint*> m_6DofConstraints;
 
 public:
@@ -41,10 +41,12 @@ public:
 	virtual ~MyMultiBodyCreator() {}
 
     virtual void createRigidBodyGraphicsInstance(int linkIndex, class btRigidBody* body, const btVector3& colorRgba, int graphicsIndex) ;
+    virtual void createRigidBodyGraphicsInstance2(int linkIndex, class btRigidBody* body, const btVector3& colorRgba, const btVector3& specularColor, int graphicsIndex) ;
   
     ///optionally create some graphical representation from a collision object, usually for visual debugging purposes.
     virtual void createCollisionObjectGraphicsInstance(int linkIndex, class btCollisionObject* col, const btVector3& colorRgba);
-    
+    virtual void createCollisionObjectGraphicsInstance2(int linkIndex, class btCollisionObject* col, const btVector4& colorRgba, const btVector3& specularColor);
+
     virtual class btMultiBody* allocateMultiBody(int urdfLinkIndex, int totalNumJoints,btScalar mass, const btVector3& localInertiaDiagonal, bool isFixedBase, bool canSleep);
     
     virtual class btRigidBody* allocateRigidBody(int urdfLinkIndex, btScalar mass, const btVector3& localInertiaDiagonal, const btTransform& initialWorldTrans, class btCollisionShape* colShape);

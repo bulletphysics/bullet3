@@ -22,10 +22,14 @@ class CartPoleBulletEnv(gym.Env):
     'video.frames_per_second' : 50
   }
 
-  def __init__(self):
+  def __init__(self, renders=True):
     # start the bullet physics server
-    p.connect(p.GUI)
-#    p.connect(p.DIRECT)
+    self._renders = renders
+    if (renders):
+	    p.connect(p.GUI)
+    else:
+    	p.connect(p.DIRECT)
+
     observation_high = np.array([
           np.finfo(np.float32).max,
           np.finfo(np.float32).max,
@@ -33,7 +37,7 @@ class CartPoleBulletEnv(gym.Env):
           np.finfo(np.float32).max])
     action_high = np.array([0.1])
 
-    self.action_space = spaces.Box(-action_high, action_high)
+    self.action_space = spaces.Discrete(9)
     self.observation_space = spaces.Box(-observation_high, observation_high)
 
     self.theta_threshold_radians = 1
@@ -55,8 +59,11 @@ class CartPoleBulletEnv(gym.Env):
 #    time.sleep(self.timeStep)
     self.state = p.getJointState(self.cartpole, 1)[0:2] + p.getJointState(self.cartpole, 0)[0:2]
     theta, theta_dot, x, x_dot = self.state
-    force = action
-    p.setJointMotorControl2(self.cartpole, 0, p.VELOCITY_CONTROL, targetVelocity=(action + self.state[3]))
+    
+    dv = 0.1
+    deltav = [-10.*dv,-5.*dv, -2.*dv, -0.1*dv, 0, 0.1*dv, 2.*dv,5.*dv, 10.*dv][action]
+    
+    p.setJointMotorControl2(self.cartpole, 0, p.VELOCITY_CONTROL, targetVelocity=(deltav + self.state[3]))
 
     done =  x < -self.x_threshold \
                 or x > self.x_threshold \

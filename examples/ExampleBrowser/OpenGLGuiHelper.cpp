@@ -7,6 +7,7 @@
 #include "Bullet3Common/b3Scalar.h"
 #include "CollisionShape2TriangleMesh.h"
 
+#include "../OpenGLWindow/ShapeData.h"
 
 #include "../OpenGLWindow/SimpleCamera.h"
 #include "../OpenGLWindow/GLInstanceGraphicsShape.h"
@@ -35,6 +36,8 @@ ATTRIBUTE_ALIGNED16( class )MyDebugDrawer : public btIDebugDraw
 
     btAlignedObjectArray<MyDebugVec3> m_linePoints;
     btAlignedObjectArray<unsigned int> m_lineIndices;
+
+
     btVector3 m_currentLineColor;
 	DefaultColors m_ourColors;
 
@@ -48,6 +51,10 @@ public:
 	{
 		
 		
+	}
+
+	virtual ~MyDebugDrawer()
+	{
 	}
 	virtual DefaultColors	getDefaultColors() const	
 	{	
@@ -133,14 +140,67 @@ public:
 
 static btVector4 sColors[4] =
 {
-	btVector4(0.3,0.3,1,1),
-	btVector4(0.6,0.6,1,1),
-	btVector4(0,1,0,1),
-	btVector4(0,1,1,1),
+	btVector4(60./256.,186./256.,84./256.,1),
+	btVector4(244./256.,194./256.,13./256.,1),
+	btVector4(219./256.,50./256.,54./256.,1),
+	btVector4(72./256.,133./256.,237./256.,1),
+
 	//btVector4(1,1,0,1),
 };
 
 
+
+struct MyHashShape
+{
+	
+	int m_shapeKey;
+	int m_shapeType;
+	btVector3 m_sphere0Pos;
+	btVector3 m_sphere1Pos;
+	btScalar m_radius0;
+	btScalar m_radius1;
+	btTransform m_childTransform;
+	int m_deformFunc;
+	int m_upAxis;
+	btScalar m_halfHeight;
+
+	MyHashShape()
+		:m_shapeKey(0),
+		m_shapeType(0),
+		m_sphere0Pos(btVector3(0,0,0)),
+		m_sphere1Pos(btVector3(0,0,0)),
+		m_radius0(0),
+		m_radius1(0),
+		m_deformFunc(0),
+		m_upAxis(-1),
+		m_halfHeight(0)
+	{
+		m_childTransform.setIdentity();
+	}
+
+	bool equals(const MyHashShape& other) const
+	{
+		bool sameShapeType = m_shapeType==other.m_shapeType;
+		bool sameSphere0= m_sphere0Pos == other.m_sphere0Pos;
+		bool sameSphere1= m_sphere1Pos == other.m_sphere1Pos;
+		bool sameRadius0 = m_radius0== other.m_radius0;
+		bool sameRadius1 = m_radius1== other.m_radius1;
+		bool sameTransform = m_childTransform== other.m_childTransform;
+		bool sameUpAxis = m_upAxis == other.m_upAxis;
+		bool sameHalfHeight = m_halfHeight == other.m_halfHeight;
+		return sameShapeType && sameSphere0 && sameSphere1 && sameRadius0 && sameRadius1 && sameTransform && sameUpAxis && sameHalfHeight;
+	}
+	//to our success
+	SIMD_FORCE_INLINE	unsigned int getHash()const
+	{
+		unsigned int key = m_shapeKey;
+		// Thomas Wang's hash
+		key += ~(key << 15);	key ^=  (key >> 10);	key +=  (key << 3);	key ^=  (key >> 6);	key += ~(key << 11);	key ^=  (key >> 16);
+		
+		return key;
+	}
+};
+	
 struct OpenGLGuiHelperInternalData
 {
 	struct CommonGraphicsApp* m_glApp;
@@ -150,12 +210,20 @@ struct OpenGLGuiHelperInternalData
 
 	btAlignedObjectArray<unsigned char> m_rgbaPixelBuffer1;
 	btAlignedObjectArray<float> m_depthBuffer1;
-	
+	btHashMap<MyHashShape, int> m_hashShapes;
+
+
 	VisualizerFlagCallback m_visualizerFlagCallback;
+
+	int m_checkedTexture;
+	int m_checkedTextureGrey;
+
 	OpenGLGuiHelperInternalData()
 		:m_vrMode(false),
 		m_vrSkipShadowPass(0),
-		m_visualizerFlagCallback(0)
+		m_visualizerFlagCallback(0),
+		m_checkedTexture(-1),
+		m_checkedTextureGrey(-1)
 	{
 	}
 
@@ -224,6 +292,12 @@ int	OpenGLGuiHelper::registerTexture(const unsigned char* texels, int width, int
 	return textureId;
 }
 
+void OpenGLGuiHelper::changeTexture(int textureUniqueId, const unsigned char* rgbTexels, int width, int height)
+{
+	bool flipPixelsY = true;
+	m_data->m_glApp->m_renderer->updateTexture(textureUniqueId, rgbTexels,flipPixelsY);
+}
+
 
 int OpenGLGuiHelper::registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType, int textureId)
 {
@@ -238,7 +312,82 @@ int OpenGLGuiHelper::registerGraphicsInstance(int shapeIndex, const float* posit
 
 void OpenGLGuiHelper::removeAllGraphicsInstances()
 {
+	m_data->m_hashShapes.clear();
     m_data->m_glApp->m_renderer->removeAllInstances();
+}
+
+void OpenGLGuiHelper::removeGraphicsInstance(int graphicsUid)
+{
+	if (graphicsUid>=0)
+	{
+		m_data->m_glApp->m_renderer->removeGraphicsInstance(graphicsUid);
+	};
+}
+
+int OpenGLGuiHelper::getShapeIndexFromInstance(int instanceUid)
+{
+	return m_data->m_glApp->m_renderer->getShapeIndexFromInstance(instanceUid);
+}
+
+void OpenGLGuiHelper::replaceTexture(int shapeIndex, int textureUid)
+{
+	if (shapeIndex>=0)
+	{
+		m_data->m_glApp->m_renderer->replaceTexture(shapeIndex, textureUid);
+	};
+}
+void OpenGLGuiHelper::changeRGBAColor(int instanceUid, const double rgbaColor[4])
+{
+	if (instanceUid>=0)
+	{
+		m_data->m_glApp->m_renderer->writeSingleInstanceColorToCPU(rgbaColor,instanceUid);
+	};
+}
+void OpenGLGuiHelper::changeSpecularColor(int instanceUid, const double specularColor[3])
+{
+	if (instanceUid>=0)
+	{
+		m_data->m_glApp->m_renderer->writeSingleInstanceSpecularColorToCPU(specularColor,instanceUid);
+	};
+}
+int OpenGLGuiHelper::createCheckeredTexture(int red,int green, int blue)
+{
+	int texWidth=1024;
+		int texHeight=1024;
+		btAlignedObjectArray<unsigned char> texels;
+		texels.resize(texWidth*texHeight*3);
+		for (int i=0;i<texWidth*texHeight*3;i++)
+			texels[i]=255;
+		
+		
+		for (int i=0;i<texWidth;i++)
+		{
+			for (int j=0;j<texHeight;j++)
+			{
+				int a = i<texWidth/2? 1 : 0;
+				int b = j<texWidth/2? 1 : 0;
+
+				if (a==b)
+				{
+					texels[(i+j*texWidth)*3+0] = red;
+					texels[(i+j*texWidth)*3+1] = green;
+					texels[(i+j*texWidth)*3+2] = blue;
+//					texels[(i+j*texWidth)*4+3] = 255;
+
+				} 
+				/*else
+				{
+					texels[i*3+0+j*texWidth] = 255;
+					texels[i*3+1+j*texWidth] = 255;
+					texels[i*3+2+j*texWidth] = 255;
+				}
+				*/
+			}
+		}
+		
+	
+		int texId = registerTexture(&texels[0],texWidth,texHeight);
+		return texId;
 }
 
 void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* collisionShape)
@@ -247,10 +396,472 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 	if (collisionShape->getUserIndex()>=0)
 		return;
 
-	btAlignedObjectArray<GLInstanceVertex> gfxVertices;
+	if (m_data->m_checkedTexture<0)
+	{
+		m_data->m_checkedTexture = createCheckeredTexture(192,192,255);
+	}
+
+	if (m_data->m_checkedTextureGrey<0)
+	{
+		m_data->m_checkedTextureGrey = createCheckeredTexture(192,192,192);
+	}
 	
+
+	btAlignedObjectArray<GLInstanceVertex> gfxVertices;
 	btAlignedObjectArray<int> indices;
+	int strideInBytes = 9*sizeof(float);
+	//if (collisionShape->getShapeType()==BOX_SHAPE_PROXYTYPE)
+	{
+	}
+	if (collisionShape->getShapeType()==MULTI_SPHERE_SHAPE_PROXYTYPE)
+	{
+		btMultiSphereShape* ms = (btMultiSphereShape*) collisionShape;
+		if (ms->getSphereCount()==2)
+		{
+			btAlignedObjectArray<float> transformedVertices;
+			int numVertices = sizeof(textured_detailed_sphere_vertices)/strideInBytes;
+			transformedVertices.resize(numVertices*9);
+			btVector3 sphere0Pos = ms->getSpherePosition(0);
+			btVector3 sphere1Pos = ms->getSpherePosition(1);
+			btVector3 fromTo = sphere1Pos-sphere0Pos;
+			MyHashShape shape;
+			shape.m_sphere0Pos = sphere0Pos;
+			shape.m_sphere1Pos = sphere1Pos;
+			shape.m_radius0 = 2.*ms->getSphereRadius(0);
+			shape.m_radius1 = 2.*ms->getSphereRadius(1);
+			shape.m_deformFunc = 1;//vert.dot(fromTo)
+			int graphicsShapeIndex = -1;
+			int* graphicsShapeIndexPtr = m_data->m_hashShapes[shape];
+			
+			if (graphicsShapeIndexPtr)
+			{
+				//cache hit
+				graphicsShapeIndex = *graphicsShapeIndexPtr;
+			} else
+			{
+				//cache miss
+				for (int i=0;i<numVertices;i++)
+				{
+					btVector3 vert;
+					vert.setValue(textured_detailed_sphere_vertices[i*9+0],
+						textured_detailed_sphere_vertices[i*9+1],
+						textured_detailed_sphere_vertices[i*9+2]);
+
+					btVector3 trVer(0,0,0);
+
+					if (vert.dot(fromTo)>0)
+					{
+						btScalar radiusScale = 2.*ms->getSphereRadius(1);
+						trVer = radiusScale*vert;
+						trVer+=sphere1Pos;
+					} else
+					{
+						btScalar radiusScale = 2.*ms->getSphereRadius(0);
+						trVer = radiusScale*vert;
+						trVer+=sphere0Pos;
+					}
+
+					transformedVertices[i*9+0] = trVer[0];
+					transformedVertices[i*9+1] = trVer[1];
+					transformedVertices[i*9+2] = trVer[2];
+					transformedVertices[i*9+3] =textured_detailed_sphere_vertices[i*9+3];
+					transformedVertices[i*9+4] =textured_detailed_sphere_vertices[i*9+4];
+					transformedVertices[i*9+5] =textured_detailed_sphere_vertices[i*9+5];
+					transformedVertices[i*9+6] =textured_detailed_sphere_vertices[i*9+6];
+					transformedVertices[i*9+7] =textured_detailed_sphere_vertices[i*9+7];
+					transformedVertices[i*9+8] =textured_detailed_sphere_vertices[i*9+8];
+				}
+				
+				int numIndices = sizeof(textured_detailed_sphere_indices)/sizeof(int);
+				graphicsShapeIndex = registerGraphicsShape(&transformedVertices[0],numVertices,textured_detailed_sphere_indices,numIndices,B3_GL_TRIANGLES,m_data->m_checkedTextureGrey);
+			
+				m_data->m_hashShapes.insert(shape,graphicsShapeIndex);
+			}
+			collisionShape->setUserIndex(graphicsShapeIndex);
+			return;
+		}
+	}
+
+	if (collisionShape->getShapeType()==SPHERE_SHAPE_PROXYTYPE)
+	{
+			btSphereShape* sphereShape = (btSphereShape*) collisionShape;
+			btScalar radius = sphereShape->getRadius();
+			btScalar sphereSize = 2.*radius;
+			btVector3 radiusScale(sphereSize,sphereSize,sphereSize);
+			btAlignedObjectArray<float> transformedVertices;
+
+
+			MyHashShape shape;
+			shape.m_radius0 = sphereSize;
+			shape.m_deformFunc = 0;////no deform
+			int graphicsShapeIndex = -1;
+			int* graphicsShapeIndexPtr = m_data->m_hashShapes[shape];
+			
+			if (graphicsShapeIndexPtr)
+			{
+				graphicsShapeIndex = *graphicsShapeIndexPtr;
+			} else
+			{
+				int numVertices = sizeof(textured_detailed_sphere_vertices)/strideInBytes;
+				transformedVertices.resize(numVertices*9);
+				for (int i=0;i<numVertices;i++)
+				{
+
+					btVector3 vert;
+					vert.setValue(textured_detailed_sphere_vertices[i*9+0],
+						textured_detailed_sphere_vertices[i*9+1],
+						textured_detailed_sphere_vertices[i*9+2]);
+
+					btVector3 trVer = radiusScale*vert;
+					transformedVertices[i*9+0] = trVer[0];
+					transformedVertices[i*9+1] = trVer[1];
+					transformedVertices[i*9+2] = trVer[2];
+					transformedVertices[i*9+3] =textured_detailed_sphere_vertices[i*9+3];
+					transformedVertices[i*9+4] =textured_detailed_sphere_vertices[i*9+4];
+					transformedVertices[i*9+5] =textured_detailed_sphere_vertices[i*9+5];
+					transformedVertices[i*9+6] =textured_detailed_sphere_vertices[i*9+6];
+					transformedVertices[i*9+7] =textured_detailed_sphere_vertices[i*9+7];
+					transformedVertices[i*9+8] =textured_detailed_sphere_vertices[i*9+8];
+				}
+				
+				int numIndices = sizeof(textured_detailed_sphere_indices)/sizeof(int);
+				graphicsShapeIndex = registerGraphicsShape(&transformedVertices[0],numVertices,textured_detailed_sphere_indices,numIndices,B3_GL_TRIANGLES,m_data->m_checkedTextureGrey);
+				m_data->m_hashShapes.insert(shape,graphicsShapeIndex);
+			}
+
+			collisionShape->setUserIndex(graphicsShapeIndex);
+			return;
+	}
+	if (collisionShape->getShapeType()==COMPOUND_SHAPE_PROXYTYPE)
+	{
+		btCompoundShape* compound = (btCompoundShape*)collisionShape;
+		if (compound->getNumChildShapes()==1)
+		{
+			if (compound->getChildShape(0)->getShapeType()==SPHERE_SHAPE_PROXYTYPE)
+			{
+				btSphereShape* sphereShape = (btSphereShape*) compound->getChildShape(0);
+				btScalar radius = sphereShape->getRadius();
+				btScalar sphereSize = 2.*radius;
+				btVector3 radiusScale(sphereSize,sphereSize,sphereSize);
+
+				MyHashShape shape;
+				shape.m_radius0 = sphereSize;
+				shape.m_deformFunc = 0;//no deform
+				shape.m_childTransform =  compound->getChildTransform(0);
+
+				int graphicsShapeIndex = -1;
+				int* graphicsShapeIndexPtr = m_data->m_hashShapes[shape];
+			
+				if (graphicsShapeIndexPtr)
+				{
+					graphicsShapeIndex = *graphicsShapeIndexPtr;
+				} 
+				else
+				{
+
+					btAlignedObjectArray<float> transformedVertices;
+					int numVertices = sizeof(textured_detailed_sphere_vertices)/strideInBytes;
+					transformedVertices.resize(numVertices*9);
+					for (int i=0;i<numVertices;i++)
+					{
+
+						btVector3 vert;
+						vert.setValue(textured_detailed_sphere_vertices[i*9+0],
+						 textured_detailed_sphere_vertices[i*9+1],
+						 textured_detailed_sphere_vertices[i*9+2]);
+
+						btVector3 trVer = compound->getChildTransform(0)*(radiusScale*vert);
+						transformedVertices[i*9+0] = trVer[0];
+						transformedVertices[i*9+1] = trVer[1];
+						transformedVertices[i*9+2] = trVer[2];
+						transformedVertices[i*9+3] =textured_detailed_sphere_vertices[i*9+3];
+						transformedVertices[i*9+4] =textured_detailed_sphere_vertices[i*9+4];
+						transformedVertices[i*9+5] =textured_detailed_sphere_vertices[i*9+5];
+						transformedVertices[i*9+6] =textured_detailed_sphere_vertices[i*9+6];
+						transformedVertices[i*9+7] =textured_detailed_sphere_vertices[i*9+7];
+						transformedVertices[i*9+8] =textured_detailed_sphere_vertices[i*9+8];
+					}
+				
+					int numIndices = sizeof(textured_detailed_sphere_indices)/sizeof(int);
+					graphicsShapeIndex = registerGraphicsShape(&transformedVertices[0],numVertices,textured_detailed_sphere_indices,numIndices,B3_GL_TRIANGLES,m_data->m_checkedTextureGrey);
+					m_data->m_hashShapes.insert(shape,graphicsShapeIndex);
+				}
+
+				collisionShape->setUserIndex(graphicsShapeIndex);
+				return;
+			}
+			if (compound->getChildShape(0)->getShapeType()==CAPSULE_SHAPE_PROXYTYPE)
+			{
+				btCapsuleShape* sphereShape = (btCapsuleShape*)  compound->getChildShape(0);
+				int up = sphereShape->getUpAxis();
+				btScalar halfHeight = sphereShape->getHalfHeight();
+
+				btScalar radius = sphereShape->getRadius();
+				btScalar sphereSize = 2.*radius;
+				
+				btVector3 radiusScale = btVector3(sphereSize,sphereSize,sphereSize);
+
+
+				MyHashShape shape;
+				shape.m_radius0 = sphereSize;
+				shape.m_deformFunc = 2;//no deform
+				shape.m_childTransform =  compound->getChildTransform(0);
+				shape.m_upAxis = up;
+
+				int graphicsShapeIndex = -1;
+				int* graphicsShapeIndexPtr = m_data->m_hashShapes[shape];
+			
+				if (graphicsShapeIndexPtr)
+				{
+					graphicsShapeIndex = *graphicsShapeIndexPtr;
+				} 
+				else
+				{
+
+					btAlignedObjectArray<float> transformedVertices;
+					int numVertices = sizeof(textured_detailed_sphere_vertices)/strideInBytes;
+					transformedVertices.resize(numVertices*9);
+					for (int i=0;i<numVertices;i++)
+					{
+
+						btVector3 vert;
+						vert.setValue(textured_detailed_sphere_vertices[i*9+0],
+							textured_detailed_sphere_vertices[i*9+1],
+							textured_detailed_sphere_vertices[i*9+2]);
+				
+						btVector3 trVer = compound->getChildTransform(0)*(radiusScale*vert);
+						if (trVer[up]>0)
+							trVer[up]+=halfHeight;
+						else
+							trVer[up]-=halfHeight;
+
+
+						transformedVertices[i*9+0] = trVer[0];
+						transformedVertices[i*9+1] = trVer[1];
+						transformedVertices[i*9+2] = trVer[2];
+						transformedVertices[i*9+3] =textured_detailed_sphere_vertices[i*9+3];
+						transformedVertices[i*9+4] =textured_detailed_sphere_vertices[i*9+4];
+						transformedVertices[i*9+5] =textured_detailed_sphere_vertices[i*9+5];
+						transformedVertices[i*9+6] =textured_detailed_sphere_vertices[i*9+6];
+						transformedVertices[i*9+7] =textured_detailed_sphere_vertices[i*9+7];
+						transformedVertices[i*9+8] =textured_detailed_sphere_vertices[i*9+8];
+					}
+				
+					int numIndices = sizeof(textured_detailed_sphere_indices)/sizeof(int);
+					graphicsShapeIndex = registerGraphicsShape(&transformedVertices[0],numVertices,textured_detailed_sphere_indices,numIndices,B3_GL_TRIANGLES,m_data->m_checkedTextureGrey);
+					m_data->m_hashShapes.insert(shape,graphicsShapeIndex);
+				}
+
+				collisionShape->setUserIndex(graphicsShapeIndex);
+				return;
+
+			}
+
+			if (compound->getChildShape(0)->getShapeType()==MULTI_SPHERE_SHAPE_PROXYTYPE)
+			{
+				btMultiSphereShape* ms = (btMultiSphereShape*) compound->getChildShape(0);
+				if (ms->getSphereCount()==2)
+				{
+					btAlignedObjectArray<float> transformedVertices;
+					int numVertices = sizeof(textured_detailed_sphere_vertices)/strideInBytes;
+					transformedVertices.resize(numVertices*9);
+					btVector3 sphere0Pos = ms->getSpherePosition(0);
+					btVector3 sphere1Pos = ms->getSpherePosition(1);
+					btVector3 fromTo = sphere1Pos-sphere0Pos;
+					btScalar radiusScale1 = 2.0*ms->getSphereRadius(1);
+					btScalar radiusScale0 = 2.0*ms->getSphereRadius(0);
+
+					MyHashShape shape;
+					shape.m_radius0 = radiusScale0;
+					shape.m_radius1 = radiusScale1;
+					shape.m_deformFunc = 4;
+					shape.m_sphere0Pos = sphere0Pos;
+					shape.m_sphere1Pos = sphere1Pos;
+					shape.m_childTransform = compound->getChildTransform(0);
+
+					int graphicsShapeIndex = -1;
+					int* graphicsShapeIndexPtr = m_data->m_hashShapes[shape];
+			
+					if (graphicsShapeIndexPtr)
+					{
+						graphicsShapeIndex = *graphicsShapeIndexPtr;
+					} 
+					else
+					{
+						for (int i=0;i<numVertices;i++)
+						{
+
+							btVector3 vert;
+							vert.setValue(textured_detailed_sphere_vertices[i*9+0],
+								textured_detailed_sphere_vertices[i*9+1],
+								textured_detailed_sphere_vertices[i*9+2]);
+
+							btVector3 trVer(0,0,0);
+							if (vert.dot(fromTo)>0)
+							{
+
+								trVer = vert*radiusScale1;
+								trVer+=sphere1Pos;
+								trVer = compound->getChildTransform(0)*trVer;
+							} else
+							{
+								trVer = vert*radiusScale0;
+								trVer+=sphere0Pos;
+								trVer=compound->getChildTransform(0)*trVer;
+							}
+
+
+
+							transformedVertices[i*9+0] = trVer[0];
+							transformedVertices[i*9+1] = trVer[1];
+							transformedVertices[i*9+2] = trVer[2];
+							transformedVertices[i*9+3] =textured_detailed_sphere_vertices[i*9+3];
+							transformedVertices[i*9+4] =textured_detailed_sphere_vertices[i*9+4];
+							transformedVertices[i*9+5] =textured_detailed_sphere_vertices[i*9+5];
+							transformedVertices[i*9+6] =textured_detailed_sphere_vertices[i*9+6];
+							transformedVertices[i*9+7] =textured_detailed_sphere_vertices[i*9+7];
+							transformedVertices[i*9+8] =textured_detailed_sphere_vertices[i*9+8];
+						}
+				
+						int numIndices = sizeof(textured_detailed_sphere_indices)/sizeof(int);
+						graphicsShapeIndex = registerGraphicsShape(&transformedVertices[0],numVertices,textured_detailed_sphere_indices,numIndices,B3_GL_TRIANGLES,m_data->m_checkedTextureGrey);
+						m_data->m_hashShapes.insert(shape,graphicsShapeIndex);
+					}
+					collisionShape->setUserIndex(graphicsShapeIndex);
+					return;
+				}
+			}
+		}
+	}
+	if (collisionShape->getShapeType()==CAPSULE_SHAPE_PROXYTYPE)
+	{
+		btCapsuleShape* sphereShape = (btCapsuleShape*) collisionShape;//Y up
+		int up = sphereShape->getUpAxis();
+		btScalar halfHeight = sphereShape->getHalfHeight();
+
+		btScalar radius = sphereShape->getRadius();
+		btScalar sphereSize = 2.*radius;
+		btVector3 radiusScale(sphereSize,sphereSize,sphereSize);
+	
+			
+		MyHashShape shape;
+		shape.m_radius0 = sphereSize;
+		shape.m_deformFunc = 3;
+		shape.m_upAxis = up;
+		shape.m_halfHeight = halfHeight;
+		int graphicsShapeIndex = -1;
+		int* graphicsShapeIndexPtr = m_data->m_hashShapes[shape];
+			
+		if (graphicsShapeIndexPtr)
+		{
+			graphicsShapeIndex = *graphicsShapeIndexPtr;
+		} 
+		else
+		{
+			
+			btAlignedObjectArray<float> transformedVertices;
+			int numVertices = sizeof(textured_detailed_sphere_vertices)/strideInBytes;
+			transformedVertices.resize(numVertices*9);
+			for (int i=0;i<numVertices;i++)
+			{
+
+				btVector3 vert;
+				vert.setValue(textured_detailed_sphere_vertices[i*9+0],
+					textured_detailed_sphere_vertices[i*9+1],
+					textured_detailed_sphere_vertices[i*9+2]);
+				
+				btVector3 trVer = radiusScale*vert;
+				if (trVer[up]>0)
+					trVer[up]+=halfHeight;
+				else
+					trVer[up]-=halfHeight;
+
+
+
+				transformedVertices[i*9+0] = trVer[0];
+				transformedVertices[i*9+1] = trVer[1];
+				transformedVertices[i*9+2] = trVer[2];
+				transformedVertices[i*9+3] =textured_detailed_sphere_vertices[i*9+3];
+				transformedVertices[i*9+4] =textured_detailed_sphere_vertices[i*9+4];
+				transformedVertices[i*9+5] =textured_detailed_sphere_vertices[i*9+5];
+				transformedVertices[i*9+6] =textured_detailed_sphere_vertices[i*9+6];
+				transformedVertices[i*9+7] =textured_detailed_sphere_vertices[i*9+7];
+				transformedVertices[i*9+8] =textured_detailed_sphere_vertices[i*9+8];
+			}
+				
+			int numIndices = sizeof(textured_detailed_sphere_indices)/sizeof(int);
+			graphicsShapeIndex = registerGraphicsShape(&transformedVertices[0],numVertices,textured_detailed_sphere_indices,numIndices,B3_GL_TRIANGLES,m_data->m_checkedTextureGrey);
+			m_data->m_hashShapes.insert(shape,graphicsShapeIndex);
+		}
+		collisionShape->setUserIndex(graphicsShapeIndex);
+		return;
+
+	}
+	if (collisionShape->getShapeType()==STATIC_PLANE_PROXYTYPE)
+	{
+		const btStaticPlaneShape* staticPlaneShape = static_cast<const btStaticPlaneShape*>(collisionShape);
+		btScalar planeConst = staticPlaneShape->getPlaneConstant();
+		const btVector3& planeNormal = staticPlaneShape->getPlaneNormal();
+		btVector3 planeOrigin = planeNormal * planeConst;
+		btVector3 vec0,vec1;
+		btPlaneSpace1(planeNormal,vec0,vec1);
+
+		btScalar vecLen = 128;
+		btVector3 verts[4];
+
+		verts[0] = planeOrigin + vec0*vecLen + vec1*vecLen;
+		verts[1] = planeOrigin - vec0*vecLen + vec1*vecLen;
+		verts[2] = planeOrigin - vec0*vecLen - vec1*vecLen;
+		verts[3] = planeOrigin + vec0*vecLen - vec1*vecLen;
+		
+		int startIndex = 0;
+		indices.push_back(startIndex+0);
+		indices.push_back(startIndex+1);
+		indices.push_back(startIndex+2);
+		indices.push_back(startIndex+0);
+		indices.push_back(startIndex+2);
+		indices.push_back(startIndex+3);
+		btTransform parentTransform;
+		parentTransform.setIdentity();
+		btVector3 triNormal = parentTransform.getBasis()*planeNormal;
+				
+		gfxVertices.resize(4);
+
+		for (int i=0;i<4;i++)
+		{
+			btVector3 vtxPos;
+			btVector3 pos =parentTransform*verts[i];
+
+			gfxVertices[i].xyzw[0] = pos[0];
+			gfxVertices[i].xyzw[1] = pos[1];
+			gfxVertices[i].xyzw[2] = pos[2];
+			gfxVertices[i].xyzw[3] = 1;
+			gfxVertices[i].normal[0] = triNormal[0];
+			gfxVertices[i].normal[1] = triNormal[1];
+			gfxVertices[i].normal[2] = triNormal[2];
+		}
+
+		//verts[0] = planeOrigin + vec0*vecLen + vec1*vecLen;
+		//verts[1] = planeOrigin - vec0*vecLen + vec1*vecLen;
+		//verts[2] = planeOrigin - vec0*vecLen - vec1*vecLen;
+		//verts[3] = planeOrigin + vec0*vecLen - vec1*vecLen;
+
+		gfxVertices[0].uv[0] = vecLen/2;
+		gfxVertices[0].uv[1] = vecLen/2;
+		gfxVertices[1].uv[0] = -vecLen/2;
+		gfxVertices[1].uv[1] = vecLen/2;
+		gfxVertices[2].uv[0] = -vecLen/2;
+		gfxVertices[2].uv[1] = -vecLen/2;
+		gfxVertices[3].uv[0] = vecLen/2;
+		gfxVertices[3].uv[1] = -vecLen/2;
+
+		int shapeId = registerGraphicsShape(&gfxVertices[0].xyzw[0],gfxVertices.size(),&indices[0],indices.size(),B3_GL_TRIANGLES,m_data->m_checkedTexture);
+		collisionShape->setUserIndex(shapeId);
+		return;
+	}
+
 	btTransform startTrans;startTrans.setIdentity();
+	//todo: create some textured objects for popular objects, like plane, cube, sphere, capsule
 
     {
         btAlignedObjectArray<btVector3> vertexPositions;
@@ -386,7 +997,7 @@ void OpenGLGuiHelper::setVisualizerFlag(int flag, int enable)
 }
 
 
-void OpenGLGuiHelper::resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ)
+void OpenGLGuiHelper::resetCamera(float camDist, float yaw, float pitch, float camPosX,float camPosY, float camPosZ)
 {
 	if (getRenderInterface() && getRenderInterface()->getActiveCamera())
 	{
@@ -397,7 +1008,7 @@ void OpenGLGuiHelper::resetCamera(float camDist, float pitch, float yaw, float c
 	}
 }
 
-bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3],float hor[3], float vert[3] ) const
+bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3],float hor[3], float vert[3], float* yaw, float* pitch, float* camDist, float cameraTarget[3]) const
 {
 	if (getRenderInterface() && getRenderInterface()->getActiveCamera())
 	{
@@ -443,6 +1054,13 @@ bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16
 		vert[0] = vertical[0];
 		vert[1] = vertical[1];
 		vert[2] = vertical[2];
+		
+		*yaw = getRenderInterface()->getActiveCamera()->getCameraYaw();
+		*pitch = getRenderInterface()->getActiveCamera()->getCameraPitch();
+		*camDist = getRenderInterface()->getActiveCamera()->getCameraDistance();
+		cameraTarget[0] = camTarget[0];
+		cameraTarget[1] = camTarget[1];
+		cameraTarget[2] = camTarget[2];
 		return true;
 	}
 	return false;
@@ -587,7 +1205,7 @@ void OpenGLGuiHelper::autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWor
 		btCollisionObject* colObj = rbWorld->getCollisionObjectArray()[i];
 		sortedObjects.push_back(colObj);
 	}
-	sortedObjects.quickSort(shapePointerCompareFunc);
+	//sortedObjects.quickSort(shapePointerCompareFunc);
 	for (int i=0;i<sortedObjects.size();i++)
 	{
 		btCollisionObject* colObj = sortedObjects[i];
@@ -596,12 +1214,26 @@ void OpenGLGuiHelper::autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWor
 		createCollisionShapeGraphicsObject(colObj->getCollisionShape());
 		int colorIndex = colObj->getBroadphaseHandle()->getUid() & 3;
 
-		btVector3 color= sColors[colorIndex];
+		btVector4 color;
+		color = sColors[colorIndex];
+		if (colObj->getCollisionShape()->getShapeType()==STATIC_PLANE_PROXYTYPE)
+		{
+			color.setValue(1,1,1,1);
+		}
 		createCollisionObjectGraphicsObject(colObj,color);
 			
 	}
 }
     
+void OpenGLGuiHelper::drawText3D( const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlags)
+{
+	B3_PROFILE("OpenGLGuiHelper::drawText3D");
+
+    btAssert(m_data->m_glApp);
+    m_data->m_glApp->drawText3D(txt,position, orientation, color,size, optionFlags);
+
+}
+
 void OpenGLGuiHelper::drawText3D( const char* txt, float posX, float posY, float posZ, float size)
 {
 	B3_PROFILE("OpenGLGuiHelper::drawText3D");

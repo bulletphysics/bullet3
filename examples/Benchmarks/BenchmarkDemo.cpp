@@ -32,7 +32,6 @@ subject to the following restrictions:
 
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btTransform.h"
-#include "../MultiThreadedDemo/ParallelFor.h"
 
 class btDynamicsWorld;
 
@@ -110,10 +109,10 @@ class BenchmarkDemo : public CommonRigidBodyMTBase
 	void resetCamera()
 	{
 		float dist = 120;
-		float pitch = 52;
-		float yaw = 35;
+		float pitch = -35;
+		float yaw = 52;
 		float targetPos[3]={0,10.46,0};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 };
 
@@ -230,7 +229,7 @@ public:
         }
     }
 
-    struct CastRaysLoopBody
+    struct CastRaysLoopBody : public btIParallelForBody
     {
         btCollisionWorld* mWorld;
 		btRaycastBar2* mRaycasts;
@@ -274,7 +273,7 @@ public:
         {
             CastRaysLoopBody rayLooper(cw, this);
             int grainSize = 20;  // number of raycasts per task
-            parallelFor( 0, NUMRAYS, grainSize, rayLooper );
+            btParallelFor( 0, NUMRAYS, grainSize, rayLooper );
         }
         else
 #endif // USE_PARALLEL_RAYCASTS
