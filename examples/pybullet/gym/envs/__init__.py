@@ -72,33 +72,33 @@ register(
 	reward_threshold=800.0,
 	)
 
-# register(
-# 	id='ReacherBulletEnv-v0',
-# 	entry_point='envs.gym_manipulator_envs:ReacherBulletEnv',
-# 	max_episode_steps=150,
-# 	reward_threshold=18.0,
-# 	)
-#
-# register(
-# 	id='PusherBulletEnv-v0',
-# 	entry_point='envs.gym_manipulator_envs:PusherBulletEnv',
-# 	max_episode_steps=150,
-# 	reward_threshold=18.0,
-# )
-#
-# register(
-# 	id='ThrowerBulletEnv-v0',
-# 	entry_point='envs.gym_manipulator_envs:ThrowerBulletEnv',
-# 	max_episode_steps=100,
-# 	reward_threshold=18.0,
-# )
-#
-# register(
-# 	id='StrikerBulletEnv-v0',
-# 	entry_point='envs.gym_manipulator_envs:StrikerBulletEnv',
-# 	max_episode_steps=100,
-# 	reward_threshold=18.0,
-# )
+register(
+	id='ReacherBulletEnv-v0',
+	entry_point='envs.gym_manipulator_envs:ReacherBulletEnv',
+	max_episode_steps=150,
+	reward_threshold=18.0,
+	)
+
+register(
+	id='PusherBulletEnv-v0',
+	entry_point='envs.gym_manipulator_envs:PusherBulletEnv',
+	max_episode_steps=150,
+	reward_threshold=18.0,
+)
+
+register(
+	id='ThrowerBulletEnv-v0',
+	entry_point='envs.gym_manipulator_envs:ThrowerBulletEnv',
+	max_episode_steps=100,
+	reward_threshold=18.0,
+)
+
+register(
+	id='StrikerBulletEnv-v0',
+	entry_point='envs.gym_manipulator_envs:StrikerBulletEnv',
+	max_episode_steps=100,
+	reward_threshold=18.0,
+)
 
 register(
 	id='Walker2DBulletEnv-v0',
