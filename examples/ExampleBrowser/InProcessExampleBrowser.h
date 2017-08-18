@@ -17,7 +17,7 @@ class SharedMemoryInterface* btGetSharedMemoryInterface(btInProcessExampleBrowse
 
 struct btInProcessExampleBrowserMainThreadInternalData;
 
-btInProcessExampleBrowserMainThreadInternalData* btCreateInProcessExampleBrowserMainThread(int argc,char** argv2, bool useInProcessMemory);
+btInProcessExampleBrowserMainThreadInternalData* btCreateInProcessExampleBrowserMainThread(int argc,char** argv, bool useInProcessMemory);
 
 bool btIsExampleBrowserMainThreadTerminated(btInProcessExampleBrowserMainThreadInternalData* data);
 
