@@ -23,8 +23,8 @@ def createPoseMarker(position=np.array([0,0,0]),
                      textPosition=np.array([0,0,0.1]),
                      textOrientation=None,
                      lifeTime=0,
-                     parentObjectUniqueId=0,
-                     parentLinkIndex=0,
+                     parentObjectUniqueId=-1,
+                     parentLinkIndex=-1,
                      physicsClientId=0):
     '''Create a pose marker that identifies a position and orientation in space with 3 colored lines.
     '''
