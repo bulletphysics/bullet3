@@ -76,7 +76,7 @@
 #ifdef _WIN32
 #include <io.h>
 #include <winsock2.h>
-#include <Ws2tcpip.h>
+#include <ws2tcpip.h>
 
 #define IPTOS_LOWDELAY  0x10
 

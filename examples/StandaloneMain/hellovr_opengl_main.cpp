@@ -49,7 +49,7 @@ static vr::VRControllerState_t sPrevStates[vr::k_unMaxTrackedDeviceCount] = { 0 
 #include "unistd.h"
 #endif
 #ifdef _WIN32
-#include <Windows.h>
+#include <windows.h>
 #endif
 
 void ThreadSleep( unsigned long nMilliseconds )
