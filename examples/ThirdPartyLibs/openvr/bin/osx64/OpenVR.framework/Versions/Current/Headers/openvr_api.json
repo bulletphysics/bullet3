@@ -157,7 +157,6 @@
 	,{"name": "Prop_DriverDirectModeSendsVsyncEvents_Bool","value": "2043"}
 	,{"name": "Prop_DisplayDebugMode_Bool","value": "2044"}
 	,{"name": "Prop_GraphicsAdapterLuid_Uint64","value": "2045"}
-	,{"name": "Prop_DriverProvidedChaperonePath_String","value": "2048"}
 	,{"name": "Prop_AttachedDeviceId_String","value": "3000"}
 	,{"name": "Prop_SupportedButtons_Uint64","value": "3001"}
 	,{"name": "Prop_Axis0Type_Int32","value": "3002"}
@@ -239,8 +238,6 @@
 	,{"name": "VREvent_WatchdogWakeUpRequested","value": "109"}
 	,{"name": "VREvent_LensDistortionChanged","value": "110"}
 	,{"name": "VREvent_PropertyChanged","value": "111"}
-	,{"name": "VREvent_WirelessDisconnect","value": "112"}
-	,{"name": "VREvent_WirelessReconnect","value": "113"}
 	,{"name": "VREvent_ButtonPress","value": "200"}
 	,{"name": "VREvent_ButtonUnpress","value": "201"}
 	,{"name": "VREvent_ButtonTouch","value": "202"}
@@ -580,7 +577,6 @@
 	,{"name": "VRApplicationError_OldApplicationQuitting","value": "112"}
 	,{"name": "VRApplicationError_TransitionAborted","value": "113"}
 	,{"name": "VRApplicationError_IsTemplate","value": "114"}
-	,{"name": "VRApplicationError_SteamVRIsExiting","value": "115"}
 	,{"name": "VRApplicationError_BufferTooSmall","value": "200"}
 	,{"name": "VRApplicationError_PropertyNotSet","value": "201"}
 	,{"name": "VRApplicationError_UnknownProperty","value": "202"}
@@ -601,7 +597,6 @@
 	,{"name": "VRApplicationProperty_IsTemplate_Bool","value": "61"}
 	,{"name": "VRApplicationProperty_IsInstanced_Bool","value": "62"}
 	,{"name": "VRApplicationProperty_IsInternal_Bool","value": "63"}
-	,{"name": "VRApplicationProperty_WantsCompositorPauseInStandby_Bool","value": "64"}
 	,{"name": "VRApplicationProperty_LastLaunchTime_Uint64","value": "70"}
 ]}
 ,	{"enumname": "vr::EVRApplicationTransitionState","values": [ 
@@ -641,7 +636,6 @@
 	,{"name": "VRCompositorError_SharedTexturesNotSupported","value": "106"}
 	,{"name": "VRCompositorError_IndexOutOfRange","value": "107"}
 	,{"name": "VRCompositorError_AlreadySubmitted","value": "108"}
-	,{"name": "VRCompositorError_InvalidBounds","value": "109"}
 ]}
 ,	{"enumname": "vr::VROverlayInputMethod","values": [ 
 	{"name": "VROverlayInputMethod_None","value": "0"}
@@ -1081,8 +1075,6 @@
 	"constname": "k_pch_Power_ReturnToWatchdogTimeout_Float","consttype": "const char *const", "constval": "returnToWatchdogTimeout"}
 ,{
 	"constname": "k_pch_Power_AutoLaunchSteamVROnButtonPress","consttype": "const char *const", "constval": "autoLaunchSteamVROnButtonPress"}
-,{
-	"constname": "k_pch_Power_PauseCompositorOnStandby_Bool","consttype": "const char *const", "constval": "pauseCompositorOnStandby"}
 ,{
 	"constname": "k_pch_Dashboard_Section","consttype": "const char *const", "constval": "dashboard"}
 ,{

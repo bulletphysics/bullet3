@@ -315,7 +315,6 @@ enum ETrackedDeviceProperty
 	Prop_DriverDirectModeSendsVsyncEvents_Bool	= 2043,
 	Prop_DisplayDebugMode_Bool					= 2044,
 	Prop_GraphicsAdapterLuid_Uint64				= 2045,
-	Prop_DriverProvidedChaperonePath_String		= 2048,
 
 	// Properties that are unique to TrackedDeviceClass_Controller
 	Prop_AttachedDeviceId_String				= 3000,
@@ -465,8 +464,6 @@ enum EVREventType
 	VREvent_WatchdogWakeUpRequested		= 109,
 	VREvent_LensDistortionChanged		= 110,
 	VREvent_PropertyChanged				= 111,
-	VREvent_WirelessDisconnect			= 112,
-	VREvent_WirelessReconnect			= 113,
 
 	VREvent_ButtonPress					= 200, // data is controller
 	VREvent_ButtonUnpress				= 201, // data is controller
@@ -1507,7 +1504,6 @@ namespace vr
 	static const char * const k_pch_Power_TurnOffControllersTimeout_Float = "turnOffControllersTimeout";
 	static const char * const k_pch_Power_ReturnToWatchdogTimeout_Float = "returnToWatchdogTimeout";
 	static const char * const k_pch_Power_AutoLaunchSteamVROnButtonPress = "autoLaunchSteamVROnButtonPress";
-	static const char * const k_pch_Power_PauseCompositorOnStandby_Bool = "pauseCompositorOnStandby";
 
 	//-----------------------------------------------------------------------------
 	// dashboard keys
