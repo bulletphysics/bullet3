@@ -12,11 +12,16 @@ p.resetSimulation()
 
 def createPoseMarker(position=np.array([0,0,0]),
                      orientation=np.array([0,0,0,1]),
-                     x_color=np.array([1,0,0]),
-                     y_color=np.array([0,1,0]),
-                     z_color=np.array([0,0,1]),
+                     text="",
+                     xColor=np.array([1,0,0]),
+                     yColor=np.array([0,1,0]),
+                     zColor=np.array([0,0,1]),
+                     textColor=np.array([0,0,0]),
                      lineLength=0.1,
                      lineWidth=1,
+                     textSize=1,
+                     textPosition=np.array([0,0,0.1]),
+                     textOrientation=None,
                      lifeTime=0,
                      parentObjectUniqueId=0,
                      parentLinkIndex=0,
@@ -29,12 +34,19 @@ def createPoseMarker(position=np.array([0,0,0]),
     px, _ = p.multiplyTransforms(position, orientation, pts[1,:], rotIdentity)
     py, _ = p.multiplyTransforms(position, orientation, pts[2,:], rotIdentity)
     pz, _ = p.multiplyTransforms(position, orientation, pts[3,:], rotIdentity)
-    p.addUserDebugLine(po, px, x_color, lineWidth, lifeTime, parentObjectUniqueId, parentLinkIndex, physicsClientId)
-    p.addUserDebugLine(po, py, y_color, lineWidth, lifeTime, parentObjectUniqueId, parentLinkIndex, physicsClientId)
-    p.addUserDebugLine(po, pz, z_color, lineWidth, lifeTime, parentObjectUniqueId, parentLinkIndex, physicsClientId)
+    p.addUserDebugLine(po, px, xColor, lineWidth, lifeTime, parentObjectUniqueId, parentLinkIndex, physicsClientId)
+    p.addUserDebugLine(po, py, yColor, lineWidth, lifeTime, parentObjectUniqueId, parentLinkIndex, physicsClientId)
+    p.addUserDebugLine(po, pz, zColor, lineWidth, lifeTime, parentObjectUniqueId, parentLinkIndex, physicsClientId)
+    if textOrientation is None:
+        textOrientation = orientation
+    p.addUserDebugText(text, [0,0,0.1],textColorRGB=textColor,textSize=textSize,
+                       parentObjectUniqueId=parentObjectUniqueId,
+                       parentLinkIndex=parentLinkIndex,
+                       physicsClientId=physicsClientId)
 
 p.loadURDF("plane.urdf",useMaximalCoordinates=True)
 p.loadURDF("tray/traybox.urdf",useMaximalCoordinates=True)
+kuka = p.loadURDF("kuka_iiwa/model.urdf", basePosition=[0.5, 0.5, 0])
 
 gravXid = p.addUserDebugParameter("gravityX",-10,10,0)
 gravYid = p.addUserDebugParameter("gravityY",-10,10,0)
@@ -48,12 +60,21 @@ for i in range (2):
             ob = p.loadURDF("sphere_1cm.urdf", location, useMaximalCoordinates=True)
             orientation = p.getQuaternionFromEuler(location * 200)
             createPoseMarker(location, orientation)
+
+createPoseMarker(parentObjectUniqueId=kuka, parentLinkIndex=6,
+                 text="tip")
+
 p.setGravity(0,0,-10)
 p.setRealTimeSimulation(1)
+angle = 0
+angleIncrement = 0.01
 while True:
     gravX = p.readUserDebugParameter(gravXid)
     gravY = p.readUserDebugParameter(gravYid)
     gravZ = p.readUserDebugParameter(gravZid)
-    p.setGravity(gravX,gravY,gravZ)
-    time.sleep(0.01)
+    p.setGravity(gravX, gravY, gravZ)
+    p.resetJointState(kuka,2,angle)
+    p.resetJointState(kuka,3,angle)
+    angle += angleIncrement
+    time.sleep(0.001)
 
