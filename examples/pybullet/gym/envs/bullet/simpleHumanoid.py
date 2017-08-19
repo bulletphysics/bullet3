@@ -6,7 +6,7 @@ import time
 
 
 
-class Humanoid:
+class SimpleHumanoid:
 
   def __init__(self, urdfRootPath='', timeStep=0.01):
     self.urdfRootPath = urdfRootPath
