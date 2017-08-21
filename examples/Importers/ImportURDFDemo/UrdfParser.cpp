@@ -6,7 +6,8 @@
 
 UrdfParser::UrdfParser()
 :m_parseSDF(false),
-m_activeSdfModel(-1)
+m_activeSdfModel(-1),
+m_urdfScaling(1)
 {
 	m_urdf2Model.m_sourceFile = "IN_MEMORY_STRING"; // if loadUrdf() called later, source file name will be replaced with real
 }
@@ -100,38 +101,56 @@ bool UrdfParser::parseMaterial(UrdfMaterial& material, TiXmlElement *config, Err
 	}
 		
 	// color
-	TiXmlElement *c = config->FirstChildElement("color");
-	if (c)
 	{
-	  if (c->Attribute("rgba")) 
-	  {
-		  if (!parseVector4(material.m_rgbaColor,c->Attribute("rgba")))
+		TiXmlElement *c = config->FirstChildElement("color");
+		if (c)
+		{
+		  if (c->Attribute("rgba")) 
 		  {
-			  std::string msg = material.m_name+" has no rgba";
-			  logger->reportWarning(msg.c_str());
+			  if (!parseVector4(material.m_matColor.m_rgbaColor,c->Attribute("rgba")))
+			  {
+				  std::string msg = material.m_name+" has no rgba";
+				  logger->reportWarning(msg.c_str());
+			  }
 		  }
-	  }
+		}
+	}
+
+	{
+		// specular (non-standard)
+		TiXmlElement *s = config->FirstChildElement("specular");
+		if (s)
+		{
+		  if (s->Attribute("rgb")) 
+		  {
+			  if (!parseVector3(material.m_matColor.m_specularColor,s->Attribute("rgb"),logger))
+			  {
+			  }
+		  }
+		}
 	}
 	return true;
 
 }
 
-bool parseTransform(btTransform& tr, TiXmlElement* xml, ErrorLogger* logger, bool parseSDF = false)
+bool UrdfParser::parseTransform(btTransform& tr, TiXmlElement* xml, ErrorLogger* logger, bool parseSDF )
 {
     tr.setIdentity();
     
+	btVector3 vec(0,0,0);
     if (parseSDF)
     {
-        parseVector3(tr.getOrigin(),std::string(xml->GetText()),logger);
+        parseVector3(vec,std::string(xml->GetText()),logger);
     }
     else
     {
         const char* xyz_str = xml->Attribute("xyz");
         if (xyz_str)
         {
-            parseVector3(tr.getOrigin(),std::string(xyz_str),logger);
+            parseVector3(vec,std::string(xyz_str),logger);
         }
     }
+	tr.setOrigin(vec*m_urdfScaling);
     
     if (parseSDF)
     {
@@ -307,8 +326,10 @@ bool UrdfParser::parseInertia(UrdfInertia& inertia, TiXmlElement* config, ErrorL
 
 bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger* logger)
 {
-	btAssert(g);
-		
+//	btAssert(g);
+	if (g==0)
+		return false;
+
 	TiXmlElement *shape = g->FirstChildElement();
 	if (!shape)
 	{
@@ -326,7 +347,7 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
 			return false;
 		} else
 		{
-			geom.m_sphereRadius = urdfLexicalCast<double>(shape->Attribute("radius"));
+			geom.m_sphereRadius = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("radius"));
 		}
 	}	
 	else if (type_name == "box")
@@ -341,6 +362,7 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
                 return false;
             }
             parseVector3(geom.m_boxSize,size->GetText(),logger);
+			geom.m_boxSize *= m_urdfScaling;
         }
         else
         {
@@ -351,6 +373,7 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
               } else
               {
                   parseVector3(geom.m_boxSize,shape->Attribute("size"),logger);
+				  geom.m_boxSize *= m_urdfScaling;
               }
         }
 	}
@@ -364,8 +387,8 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
 		  return false;
 	  }
 		geom.m_hasFromTo = false;
-		geom.m_capsuleRadius = urdfLexicalCast<double>(shape->Attribute("radius"));
-		geom.m_capsuleHeight = urdfLexicalCast<double>(shape->Attribute("length"));
+		geom.m_capsuleRadius = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("radius"));
+		geom.m_capsuleHeight = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("length"));
 		
 	}
 	else if (type_name == "capsule")
@@ -378,8 +401,8 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
 			return false;
 		}
 		geom.m_hasFromTo = false;
-		geom.m_capsuleRadius = urdfLexicalCast<double>(shape->Attribute("radius"));
-		geom.m_capsuleHeight = urdfLexicalCast<double>(shape->Attribute("length"));
+		geom.m_capsuleRadius = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("radius"));
+		geom.m_capsuleHeight = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("length"));
 	}
 	else if (type_name == "mesh")
 	{
@@ -419,6 +442,8 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
 				}
 			}
 		}
+
+		geom.m_meshScale *= m_urdfScaling; 
 
 		if (fn.empty())
 		{
@@ -551,17 +576,39 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement*
         matPtr->m_name = "mat";
 		if (name_char)
 			matPtr->m_name = name_char;
+
+		UrdfMaterial** oldMatPtrPtr = model.m_materials[matPtr->m_name.c_str()];
+		if (oldMatPtrPtr)
+		{
+			UrdfMaterial* oldMatPtr = *oldMatPtrPtr;
+			model.m_materials.remove(matPtr->m_name.c_str());
+			if (oldMatPtr)
+				delete oldMatPtr;
+		}
 		model.m_materials.insert(matPtr->m_name.c_str(),matPtr);
-        TiXmlElement *diffuse = mat->FirstChildElement("diffuse");
-        if (diffuse) {
-            std::string diffuseText = diffuse->GetText();
-            btVector4 rgba(1,0,0,1);
-            parseVector4(rgba,diffuseText);
-            matPtr->m_rgbaColor = rgba;
+		{
+			TiXmlElement *diffuse = mat->FirstChildElement("diffuse");
+			if (diffuse) {
+				std::string diffuseText = diffuse->GetText();
+				btVector4 rgba(1,0,0,1);
+				parseVector4(rgba,diffuseText);
+				matPtr->m_matColor.m_rgbaColor = rgba;
             
-            visual.m_materialName = matPtr->m_name;
-            visual.m_geometry.m_hasLocalMaterial = true;
-        }
+				visual.m_materialName = matPtr->m_name;
+				visual.m_geometry.m_hasLocalMaterial = true;
+			}
+		}
+		{
+			TiXmlElement *specular = mat->FirstChildElement("specular");
+			if (specular) {
+				std::string specularText = specular->GetText();
+				btVector3 rgba(1,1,1);
+				parseVector3(rgba,specularText,logger);
+				matPtr->m_matColor.m_specularColor = rgba;
+				visual.m_materialName = matPtr->m_name;
+				visual.m_geometry.m_hasLocalMaterial = true;
+			}
+		}
     } 
     else
       {
@@ -577,7 +624,8 @@ bool UrdfParser::parseVisual(UrdfModel& model, UrdfVisual& visual, TiXmlElement*
           
           TiXmlElement *t = mat->FirstChildElement("texture");
           TiXmlElement *c = mat->FirstChildElement("color");
-          if (t||c)
+		  TiXmlElement *s = mat->FirstChildElement("specular");
+		  if (t||c||s)
           {
               if (parseMaterial(visual.m_geometry.m_localMaterial, mat,logger))
               {
@@ -990,6 +1038,11 @@ bool UrdfParser::parseJointLimits(UrdfJoint& joint, TiXmlElement* config, ErrorL
             joint.m_upperLimit = urdfLexicalCast<double>(upper_str);
         }
         
+		if (joint.m_type == URDFPrismaticJoint)
+		{
+			joint.m_lowerLimit *= m_urdfScaling;
+			joint.m_upperLimit *= m_urdfScaling;
+		}
         
         // Get joint effort limit
         const char* effort_str = config->Attribute("effort");

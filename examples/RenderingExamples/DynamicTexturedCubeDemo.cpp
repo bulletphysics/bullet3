@@ -66,7 +66,6 @@ public:
     virtual ~DynamicTexturedCubeDemo()
     {
 		delete m_tinyVrGUI;
-        m_app->m_renderer->enableBlend(false);
     }
 
     
@@ -121,8 +120,8 @@ public:
 	virtual void resetCamera()
 	{
 		float dist = 1.15;
-		float pitch = 396;
-		float yaw = 33.7;
+		float pitch = -33.7;
+		float yaw = 396;
 		float targetPos[3]={-0.5,0.7,1.45};
 		if (m_app->m_renderer  && m_app->m_renderer->getActiveCamera())
 		{

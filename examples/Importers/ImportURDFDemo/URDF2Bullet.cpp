@@ -173,6 +173,7 @@ void processContactParameters(const URDFLinkContactInfo& contactInfo, btCollisio
 }
 
 
+btScalar tmpUrdfScaling=2;
 
 
 void ConvertURDF2BulletInternal(
@@ -272,8 +273,15 @@ void ConvertURDF2BulletInternal(
     {
 
 
-        btVector4 color = selectColor2();
-		u2b.getLinkColor(urdfLinkIndex,color);
+		UrdfMaterialColor matColor;
+        btVector4 color2 = selectColor2();
+		btVector3 specular(0.5,0.5,0.5);
+		if (u2b.getLinkColor2(urdfLinkIndex,matColor))
+		{
+			color2 = matColor.m_rgbaColor;
+			specular = matColor.m_specularColor;
+		}
+
         /*
          if (visual->material.get())
          {
@@ -315,7 +323,7 @@ void ConvertURDF2BulletInternal(
 			u2b.getLinkContactInfo(urdfLinkIndex, contactInfo);
 
 			processContactParameters(contactInfo, body);
-            creation.createRigidBodyGraphicsInstance(urdfLinkIndex, body, color, graphicsIndex);
+            creation.createRigidBodyGraphicsInstance2(urdfLinkIndex, body, color2,specular, graphicsIndex);
             cache.registerRigidBody(urdfLinkIndex, body, inertialFrameInWorldSpace, mass, localInertiaDiagonal, compoundShape, localInertialFrame);
             
 
@@ -362,8 +370,14 @@ void ConvertURDF2BulletInternal(
 
             switch (jointType)
             {
+				case URDFFloatingJoint:
+				case URDFPlanarJoint:
                 case URDFFixedJoint:
                 {
+					if ((jointType==URDFFloatingJoint)||(jointType==URDFPlanarJoint))
+					{
+						printf("Warning: joint unsupported, creating a fixed joint instead.");
+					}
                     if (createMultiBody)
                     {
                         //todo: adjust the center of mass transform and pivot axis properly
@@ -484,9 +498,16 @@ void ConvertURDF2BulletInternal(
 				}
                 world1->addCollisionObject(col,collisionFilterGroup,collisionFilterMask);
 
-                btVector4 color = selectColor2();//(0.0,0.0,0.5);
-				u2b.getLinkColor(urdfLinkIndex,color);
-                creation.createCollisionObjectGraphicsInstance(urdfLinkIndex,col,color);
+                btVector4 color2 = selectColor2();//(0.0,0.0,0.5);
+				btVector3 specularColor(1,1,1);
+				UrdfMaterialColor matCol;
+				if (u2b.getLinkColor2(urdfLinkIndex,matCol))
+				{
+					color2 = matCol.m_rgbaColor;
+					specularColor = matCol.m_specularColor;
+				}
+
+                creation.createCollisionObjectGraphicsInstance2(urdfLinkIndex,col,color2,specularColor);
 
                 u2b.convertLinkVisualShapes2(mbLinkIndex, urdfLinkIndex, pathPrefix, localInertialFrame,col, u2b.getBodyUniqueId());
 

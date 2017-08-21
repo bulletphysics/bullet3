@@ -17,6 +17,22 @@ enum
 	B3_USE_SHADOWMAP_RENDERMODE,
 };
 
+
+struct GfxVertexFormat0
+{
+	float x,y,z,w;
+	float unused0,unused1,unused2,unused3;
+	float u,v;
+};
+
+struct GfxVertexFormat1
+{
+	float x,y,z,w;
+	float nx,ny,nz;
+	float u,v;
+};
+
+
 struct CommonRenderInterface
 {
 	virtual ~CommonRenderInterface() {}
@@ -46,24 +62,34 @@ struct CommonRenderInterface
 	virtual void drawLine(const double from[4], const double to[4], const double color[4], double lineWidth) = 0;
 	virtual void drawPoint(const float* position, const float color[4], float pointDrawSize)=0;
 	virtual void drawPoint(const double* position, const double color[4], double pointDrawSize)=0;
+	virtual void drawTexturedTriangleMesh(float worldPosition[3], float worldOrientation[4], const float* vertices, int numvertices, const unsigned int* indices, int numIndices, float color[4], int textureIndex=-1, int vertexLayout=0)=0;
+
 	virtual int registerShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType=B3_GL_TRIANGLES, int textureIndex=-1)=0;
     virtual void updateShape(int shapeIndex, const float* vertices)=0;
     
-    virtual int registerTexture(const unsigned char* texels, int width, int height)=0;
-    virtual void updateTexture(int textureIndex, const unsigned char* texels)=0;
+    virtual int registerTexture(const unsigned char* texels, int width, int height, bool flipPixelsY=true)=0;
+    virtual void updateTexture(int textureIndex, const unsigned char* texels, bool flipPixelsY=true)=0;
     virtual void activateTexture(int textureIndex)=0;
-    
+	virtual void replaceTexture(int shapeIndex, int textureIndex){};
+
+	virtual int getShapeIndexFromInstance(int srcIndex) {return -1;}
+
+	virtual bool readSingleInstanceTransformToCPU(float* position, float* orientation, int srcIndex)=0;
+
 	virtual void writeSingleInstanceTransformToCPU(const float* position, const float* orientation, int srcIndex)=0;
 	virtual void writeSingleInstanceTransformToCPU(const double* position, const double* orientation, int srcIndex)=0;
 	virtual void writeSingleInstanceColorToCPU(const float* color, int srcIndex)=0;
 	virtual void writeSingleInstanceColorToCPU(const double* color, int srcIndex)=0;
 	virtual void writeSingleInstanceScaleToCPU(const float* scale, int srcIndex)=0;
 	virtual void writeSingleInstanceScaleToCPU(const double* scale, int srcIndex)=0;
+	virtual void writeSingleInstanceSpecularColorToCPU(const double* specular, int srcIndex)=0;
+	virtual void writeSingleInstanceSpecularColorToCPU(const float* specular, int srcIndex)=0;
+	
     
     virtual int getTotalNumInstances() const = 0;
     
 	virtual void writeTransforms()=0;
-    virtual void enableBlend(bool blend)=0;
+    
 	virtual void clearZBuffer()=0;
 
 	//This is internal access to OpenGL3+ features, mainly used for OpenCL-OpenGL interop

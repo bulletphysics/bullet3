@@ -292,6 +292,12 @@ int	OpenGLGuiHelper::registerTexture(const unsigned char* texels, int width, int
 	return textureId;
 }
 
+void OpenGLGuiHelper::changeTexture(int textureUniqueId, const unsigned char* rgbTexels, int width, int height)
+{
+	bool flipPixelsY = true;
+	m_data->m_glApp->m_renderer->updateTexture(textureUniqueId, rgbTexels,flipPixelsY);
+}
+
 
 int OpenGLGuiHelper::registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType, int textureId)
 {
@@ -318,6 +324,18 @@ void OpenGLGuiHelper::removeGraphicsInstance(int graphicsUid)
 	};
 }
 
+int OpenGLGuiHelper::getShapeIndexFromInstance(int instanceUid)
+{
+	return m_data->m_glApp->m_renderer->getShapeIndexFromInstance(instanceUid);
+}
+
+void OpenGLGuiHelper::replaceTexture(int shapeIndex, int textureUid)
+{
+	if (shapeIndex>=0)
+	{
+		m_data->m_glApp->m_renderer->replaceTexture(shapeIndex, textureUid);
+	};
+}
 void OpenGLGuiHelper::changeRGBAColor(int instanceUid, const double rgbaColor[4])
 {
 	if (instanceUid>=0)
@@ -325,7 +343,13 @@ void OpenGLGuiHelper::changeRGBAColor(int instanceUid, const double rgbaColor[4]
 		m_data->m_glApp->m_renderer->writeSingleInstanceColorToCPU(rgbaColor,instanceUid);
 	};
 }
-
+void OpenGLGuiHelper::changeSpecularColor(int instanceUid, const double specularColor[3])
+{
+	if (instanceUid>=0)
+	{
+		m_data->m_glApp->m_renderer->writeSingleInstanceSpecularColorToCPU(specularColor,instanceUid);
+	};
+}
 int OpenGLGuiHelper::createCheckeredTexture(int red,int green, int blue)
 {
 	int texWidth=1024;
@@ -973,7 +997,7 @@ void OpenGLGuiHelper::setVisualizerFlag(int flag, int enable)
 }
 
 
-void OpenGLGuiHelper::resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ)
+void OpenGLGuiHelper::resetCamera(float camDist, float yaw, float pitch, float camPosX,float camPosY, float camPosZ)
 {
 	if (getRenderInterface() && getRenderInterface()->getActiveCamera())
 	{
@@ -984,7 +1008,7 @@ void OpenGLGuiHelper::resetCamera(float camDist, float pitch, float yaw, float c
 	}
 }
 
-bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3],float hor[3], float vert[3] ) const
+bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3],float hor[3], float vert[3], float* yaw, float* pitch, float* camDist, float cameraTarget[3]) const
 {
 	if (getRenderInterface() && getRenderInterface()->getActiveCamera())
 	{
@@ -1030,6 +1054,13 @@ bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16
 		vert[0] = vertical[0];
 		vert[1] = vertical[1];
 		vert[2] = vertical[2];
+		
+		*yaw = getRenderInterface()->getActiveCamera()->getCameraYaw();
+		*pitch = getRenderInterface()->getActiveCamera()->getCameraPitch();
+		*camDist = getRenderInterface()->getActiveCamera()->getCameraDistance();
+		cameraTarget[0] = camTarget[0];
+		cameraTarget[1] = camTarget[1];
+		cameraTarget[2] = camTarget[2];
 		return true;
 	}
 	return false;
@@ -1194,6 +1225,15 @@ void OpenGLGuiHelper::autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWor
 	}
 }
     
+void OpenGLGuiHelper::drawText3D( const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlags)
+{
+	B3_PROFILE("OpenGLGuiHelper::drawText3D");
+
+    btAssert(m_data->m_glApp);
+    m_data->m_glApp->drawText3D(txt,position, orientation, color,size, optionFlags);
+
+}
+
 void OpenGLGuiHelper::drawText3D( const char* txt, float posX, float posY, float posZ, float size)
 {
 	B3_PROFILE("OpenGLGuiHelper::drawText3D");

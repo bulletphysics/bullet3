@@ -55,10 +55,10 @@ struct Dof6Spring2Setup : public CommonRigidBodyBase
 	virtual void resetCamera()
 	{
 		float dist = 5;
-		float pitch = 722;
-		float yaw = 35;
+		float pitch = -35;
+		float yaw = 722;
 		float targetPos[3]={4,2,-11};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 };
 

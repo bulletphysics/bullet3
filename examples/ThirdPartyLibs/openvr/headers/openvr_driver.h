@@ -143,6 +143,9 @@ enum ETrackingResult
 	TrackingResult_Running_OutOfRange		= 201,
 };
 
+typedef uint32_t DriverId_t;
+static const uint32_t k_nDriverNone = 0xFFFFFFFF;
+
 static const uint32_t k_unMaxDriverDebugResponseSize = 32768;
 
 /** Used to pass device IDs to API calls */
@@ -309,6 +312,10 @@ enum ETrackedDeviceProperty
 	Prop_DisplayMCImageNumChannels_Int32		= 2040,
 	Prop_DisplayMCImageData_Binary				= 2041,
 	Prop_SecondsFromPhotonsToVblank_Float		= 2042,
+	Prop_DriverDirectModeSendsVsyncEvents_Bool	= 2043,
+	Prop_DisplayDebugMode_Bool					= 2044,
+	Prop_GraphicsAdapterLuid_Uint64				= 2045,
+	Prop_DriverProvidedChaperonePath_String		= 2048,
 
 	// Properties that are unique to TrackedDeviceClass_Controller
 	Prop_AttachedDeviceId_String				= 3000,
@@ -330,15 +337,15 @@ enum ETrackedDeviceProperty
 	Prop_ModeLabel_String						= 4006,
 
 	// Properties that are used for user interface like icons names
-	Prop_IconPathName_String						= 5000, // usually a directory named "icons"
-	Prop_NamedIconPathDeviceOff_String				= 5001, // PNG for static icon, or GIF for animation, 50x32 for headsets and 32x32 for others
-	Prop_NamedIconPathDeviceSearching_String		= 5002, // PNG for static icon, or GIF for animation, 50x32 for headsets and 32x32 for others
-	Prop_NamedIconPathDeviceSearchingAlert_String	= 5003, // PNG for static icon, or GIF for animation, 50x32 for headsets and 32x32 for others
-	Prop_NamedIconPathDeviceReady_String			= 5004, // PNG for static icon, or GIF for animation, 50x32 for headsets and 32x32 for others
-	Prop_NamedIconPathDeviceReadyAlert_String		= 5005, // PNG for static icon, or GIF for animation, 50x32 for headsets and 32x32 for others
-	Prop_NamedIconPathDeviceNotReady_String			= 5006, // PNG for static icon, or GIF for animation, 50x32 for headsets and 32x32 for others
-	Prop_NamedIconPathDeviceStandby_String			= 5007, // PNG for static icon, or GIF for animation, 50x32 for headsets and 32x32 for others
-	Prop_NamedIconPathDeviceAlertLow_String			= 5008, // PNG for static icon, or GIF for animation, 50x32 for headsets and 32x32 for others
+	Prop_IconPathName_String						= 5000, // DEPRECATED. Value not referenced. Now expected to be part of icon path properties.
+	Prop_NamedIconPathDeviceOff_String				= 5001, // {driver}/icons/icon_filename - PNG for static icon, or GIF for animation, 50x32 for headsets and 32x32 for others
+	Prop_NamedIconPathDeviceSearching_String		= 5002, // {driver}/icons/icon_filename - PNG for static icon, or GIF for animation, 50x32 for headsets and 32x32 for others
+	Prop_NamedIconPathDeviceSearchingAlert_String	= 5003, // {driver}/icons/icon_filename - PNG for static icon, or GIF for animation, 50x32 for headsets and 32x32 for others
+	Prop_NamedIconPathDeviceReady_String			= 5004, // {driver}/icons/icon_filename - PNG for static icon, or GIF for animation, 50x32 for headsets and 32x32 for others
+	Prop_NamedIconPathDeviceReadyAlert_String		= 5005, // {driver}/icons/icon_filename - PNG for static icon, or GIF for animation, 50x32 for headsets and 32x32 for others
+	Prop_NamedIconPathDeviceNotReady_String			= 5006, // {driver}/icons/icon_filename - PNG for static icon, or GIF for animation, 50x32 for headsets and 32x32 for others
+	Prop_NamedIconPathDeviceStandby_String			= 5007, // {driver}/icons/icon_filename - PNG for static icon, or GIF for animation, 50x32 for headsets and 32x32 for others
+	Prop_NamedIconPathDeviceAlertLow_String			= 5008, // {driver}/icons/icon_filename - PNG for static icon, or GIF for animation, 50x32 for headsets and 32x32 for others
 
 	// Properties that are used by helpers, but are opaque to applications
 	Prop_DisplayHiddenArea_Binary_Start				= 5100,
@@ -458,6 +465,8 @@ enum EVREventType
 	VREvent_WatchdogWakeUpRequested		= 109,
 	VREvent_LensDistortionChanged		= 110,
 	VREvent_PropertyChanged				= 111,
+	VREvent_WirelessDisconnect			= 112,
+	VREvent_WirelessReconnect			= 113,
 
 	VREvent_ButtonPress					= 200, // data is controller
 	VREvent_ButtonUnpress				= 201, // data is controller
@@ -539,6 +548,7 @@ enum EVREventType
 	VREvent_ModelSkinSettingsHaveChanged	= 853,
 	VREvent_EnvironmentSettingsHaveChanged	= 854,
 	VREvent_PowerSettingsHaveChanged		= 855,
+	VREvent_EnableHomeAppSettingsHaveChanged = 856,
 
 	VREvent_StatusUpdate					= 900,
 
@@ -1044,6 +1054,8 @@ enum EVRInitError
 	VRInitError_Init_WatchdogDisabledInSettings = 132,
 	VRInitError_Init_VRDashboardNotFound		= 133,
 	VRInitError_Init_VRDashboardStartupFailed	= 134,
+	VRInitError_Init_VRHomeNotFound				= 135,
+	VRInitError_Init_VRHomeStartupFailed		= 136,
 
 	VRInitError_Driver_Failed				= 200,
 	VRInitError_Driver_Unknown				= 201,
@@ -1074,6 +1086,7 @@ enum EVRInitError
 	VRInitError_Compositor_FirmwareRequiresUpdate	= 402,
 	VRInitError_Compositor_OverlayInitFailed		= 403,
 	VRInitError_Compositor_ScreenshotsInitFailed	= 404,
+	VRInitError_Compositor_UnableToCreateDevice		= 405,
 
 	VRInitError_VendorSpecific_UnableToConnectToOculusRuntime = 1000,
 
@@ -1374,7 +1387,7 @@ namespace vr
 	static const char * const k_pch_SteamVR_SpeakersForwardYawOffsetDegrees_Float = "speakersForwardYawOffsetDegrees";
 	static const char * const k_pch_SteamVR_BaseStationPowerManagement_Bool = "basestationPowerManagement";
 	static const char * const k_pch_SteamVR_NeverKillProcesses_Bool = "neverKillProcesses";
-	static const char * const k_pch_SteamVR_RenderTargetMultiplier_Float = "renderTargetMultiplier";
+	static const char * const k_pch_SteamVR_SupersampleScale_Float = "supersampleScale";
 	static const char * const k_pch_SteamVR_AllowAsyncReprojection_Bool = "allowAsyncReprojection";
 	static const char * const k_pch_SteamVR_AllowReprojection_Bool = "allowInterleavedReprojection";
 	static const char * const k_pch_SteamVR_ForceReprojection_Bool = "forceReprojection";
@@ -1387,10 +1400,10 @@ namespace vr
 	static const char * const k_pch_SteamVR_StartDashboardFromAppLaunch_Bool = "startDashboardFromAppLaunch";
 	static const char * const k_pch_SteamVR_StartOverlayAppsFromDashboard_Bool = "startOverlayAppsFromDashboard";
 	static const char * const k_pch_SteamVR_EnableHomeApp = "enableHomeApp";
-	static const char * const k_pch_SteamVR_SetInitialDefaultHomeApp = "setInitialDefaultHomeApp";
 	static const char * const k_pch_SteamVR_CycleBackgroundImageTimeSec_Int32 = "CycleBackgroundImageTimeSec";
 	static const char * const k_pch_SteamVR_RetailDemo_Bool = "retailDemo";
 	static const char * const k_pch_SteamVR_IpdOffset_Float = "ipdOffset";
+	static const char * const k_pch_SteamVR_AllowSupersampleFiltering_Bool = "allowSupersampleFiltering";
 
 	//-----------------------------------------------------------------------------
 	// lighthouse keys
@@ -1448,6 +1461,7 @@ namespace vr
 	static const char * const k_pch_Perf_AllowTimingStore_Bool = "allowTimingStore";
 	static const char * const k_pch_Perf_SaveTimingsOnExit_Bool = "saveTimingsOnExit";
 	static const char * const k_pch_Perf_TestData_Float = "perfTestData";
+	static const char * const k_pch_Perf_LinuxGPUProfiling_Bool = "linuxGPUProfiling";
 
 	//-----------------------------------------------------------------------------
 	// collision bounds keys
@@ -1493,6 +1507,7 @@ namespace vr
 	static const char * const k_pch_Power_TurnOffControllersTimeout_Float = "turnOffControllersTimeout";
 	static const char * const k_pch_Power_ReturnToWatchdogTimeout_Float = "returnToWatchdogTimeout";
 	static const char * const k_pch_Power_AutoLaunchSteamVROnButtonPress = "autoLaunchSteamVROnButtonPress";
+	static const char * const k_pch_Power_PauseCompositorOnStandby_Bool = "pauseCompositorOnStandby";
 
 	//-----------------------------------------------------------------------------
 	// dashboard keys
@@ -2278,6 +2293,9 @@ public:
 	* poses across different drivers.  Poses are indexed by their device id, and their associated driver and
 	* other properties can be looked up via IVRProperties. */
 	virtual void GetRawTrackedDevicePoses( float fPredictedSecondsFromNow, TrackedDevicePose_t *pTrackedDevicePoseArray, uint32_t unTrackedDevicePoseArrayCount ) = 0;
+
+	/** Notifies the server that a tracked device's display component transforms have been updated. */
+	virtual void TrackedDeviceDisplayTransformUpdated( uint32_t unWhichDevice, HmdMatrix34_t eyeToHeadLeft, HmdMatrix34_t eyeToHeadRight ) = 0;
 };
 
 static const char *IVRServerDriverHost_Version = "IVRServerDriverHost_004";
@@ -2385,6 +2403,49 @@ namespace vr
 }
 
 
+// ivrresources.h
+namespace vr
+{
+
+class IVRResources
+{
+public:
+
+	// ------------------------------------
+	// Shared Resource Methods
+	// ------------------------------------
+
+	/** Loads the specified resource into the provided buffer if large enough.
+	* Returns the size in bytes of the buffer required to hold the specified resource. */
+	virtual uint32_t LoadSharedResource( const char *pchResourceName, char *pchBuffer, uint32_t unBufferLen ) = 0;
+
+	/** Provides the full path to the specified resource. Resource names can include named directories for
+	* drivers and other things, and this resolves all of those and returns the actual physical path. 
+	* pchResourceTypeDirectory is the subdirectory of resources to look in. */
+	virtual uint32_t GetResourceFullPath( const char *pchResourceName, const char *pchResourceTypeDirectory, char *pchPathBuffer, uint32_t unBufferLen ) = 0;
+};
+
+static const char * const IVRResources_Version = "IVRResources_001";
+
+
+}
+// ivrdrivermanager.h
+namespace vr
+{
+
+class IVRDriverManager
+{
+public:
+	virtual uint32_t GetDriverCount() const = 0;
+
+	/** Returns the length of the number of bytes necessary to hold this string including the trailing null. */
+	virtual uint32_t GetDriverName( vr::DriverId_t nDriver, VR_OUT_STRING() char *pchValue, uint32_t unBufferSize ) = 0;
+};
+
+static const char * const IVRDriverManager_Version = "IVRDriverManager_001";
+
+} // namespace vr
+
 
 
 
@@ -2402,6 +2463,8 @@ namespace vr
 		IServerTrackedDeviceProvider_Version,
 		IVRWatchdogProvider_Version,
 		IVRVirtualDisplay_Version,
+		IVRDriverManager_Version,
+		IVRResources_Version,
 		nullptr
 	};
 
@@ -2489,14 +2552,37 @@ namespace vr
 			return VRDriverContext()->GetDriverHandle();
 		}
 
+		IVRDriverManager *VRDriverManager()
+		{
+			if ( !m_pVRDriverManager )
+			{
+				EVRInitError eError;
+				m_pVRDriverManager = (IVRDriverManager *)VRDriverContext()->GetGenericInterface( IVRDriverManager_Version, &eError );
+			}
+			return m_pVRDriverManager;
+		}
+
+		IVRResources *VRResources()
+		{
+			if ( !m_pVRResources )
+			{
+				EVRInitError eError;
+				m_pVRResources = (IVRResources *)VRDriverContext()->GetGenericInterface( IVRResources_Version, &eError );
+			}
+			return m_pVRResources;
+		}
+
 	private:
-		IVRSettings			*m_pVRSettings;
-		IVRProperties		*m_pVRProperties;
-		CVRPropertyHelpers	m_propertyHelpers;
+		CVRPropertyHelpers		m_propertyHelpers;
 		CVRHiddenAreaHelpers	m_hiddenAreaHelpers;
-		IVRServerDriverHost	*m_pVRServerDriverHost;
-		IVRWatchdogHost		*m_pVRWatchdogHost;
-		IVRDriverLog		*m_pVRDriverLog;
+
+		IVRSettings				*m_pVRSettings;
+		IVRProperties			*m_pVRProperties;
+		IVRServerDriverHost		*m_pVRServerDriverHost;
+		IVRWatchdogHost			*m_pVRWatchdogHost;
+		IVRDriverLog			*m_pVRDriverLog;
+		IVRDriverManager		*m_pVRDriverManager;
+		IVRResources			*m_pVRResources;
 	};
 
 	inline COpenVRDriverContext &OpenVRInternal_ModuleServerDriverContext()
@@ -2513,6 +2599,9 @@ namespace vr
 	inline IVRServerDriverHost *VR_CALLTYPE VRServerDriverHost() { return OpenVRInternal_ModuleServerDriverContext().VRServerDriverHost(); }
 	inline IVRWatchdogHost *VR_CALLTYPE VRWatchdogHost() { return OpenVRInternal_ModuleServerDriverContext().VRWatchdogHost(); }
 	inline DriverHandle_t VR_CALLTYPE VRDriverHandle() { return OpenVRInternal_ModuleServerDriverContext().VRDriverHandle(); }
+	inline IVRDriverManager *VR_CALLTYPE VRDriverManager() { return OpenVRInternal_ModuleServerDriverContext().VRDriverManager(); }
+	inline IVRResources *VR_CALLTYPE VRResources() { return OpenVRInternal_ModuleServerDriverContext().VRResources(); }
+
 	inline void COpenVRDriverContext::Clear()
 	{
 		m_pVRSettings = nullptr;
@@ -2520,6 +2609,8 @@ namespace vr
 		m_pVRServerDriverHost = nullptr;
 		m_pVRDriverLog = nullptr;
 		m_pVRWatchdogHost = nullptr;
+		m_pVRDriverManager = nullptr;
+		m_pVRResources = nullptr;
 	}
 
 	inline EVRInitError COpenVRDriverContext::InitServer()
@@ -2528,7 +2619,9 @@ namespace vr
 		if ( !VRServerDriverHost()
 			|| !VRSettings()
 			|| !VRProperties()
-			|| !VRDriverLog() )
+			|| !VRDriverLog() 
+			|| !VRDriverManager()
+			|| !VRResources() )
 			return VRInitError_Init_InterfaceNotFound;
 		return VRInitError_None;
 	}

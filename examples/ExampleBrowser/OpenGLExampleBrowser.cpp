@@ -127,8 +127,14 @@ extern bool useShadowMap;
 bool visualWireframe=false;
 static bool renderVisualGeometry=true;
 static bool renderGrid = true;
+static bool gEnableRenderLoop = true;
+
 bool renderGui = true;
 static bool enable_experimental_opencl = false;
+
+static bool gEnableDefaultKeyboardShortcuts = true;
+static bool gEnableDefaultMousePicking = true;
+		
 
 int gDebugDrawFlags = 0;
 static bool pauseSimulation=false;
@@ -200,7 +206,7 @@ void MyKeyboardCallback(int key, int state)
 	//if (handled)
 	//	return;
 
-	//if (s_window && s_window->isModifierKeyPressed(B3G_CONTROL))
+	if (gEnableDefaultKeyboardShortcuts)
 	{
 		if (key=='a' && state)
 		{
@@ -366,6 +372,10 @@ void OpenGLExampleBrowser::registerFileImporter(const char* extension, CommonExa
 
 void OpenGLExampleBrowserVisualizerFlagCallback(int flag, bool enable)
 {
+	if (flag == COV_ENABLE_RENDERING)
+	{
+		gEnableRenderLoop = (enable!=0);
+	}
     if (flag == COV_ENABLE_SHADOWS)
     {
         useShadowMap = enable;
@@ -376,6 +386,15 @@ void OpenGLExampleBrowserVisualizerFlagCallback(int flag, bool enable)
 		renderGrid = enable;
     }
     
+	if (flag == COV_ENABLE_KEYBOARD_SHORTCUTS)
+	{
+		gEnableDefaultKeyboardShortcuts = enable;
+	}
+	if (flag == COV_ENABLE_MOUSE_PICKING)
+	{
+		gEnableDefaultMousePicking = enable;
+	}
+
     if (flag == COV_ENABLE_WIREFRAME)
     {
         visualWireframe = enable;
@@ -1172,7 +1191,7 @@ void OpenGLExampleBrowser::updateGraphics()
 	{
 			if (!pauseSimulation || singleStepSimulation)
 			{
-				B3_PROFILE("sCurrentDemo->updateGraphics");
+				//B3_PROFILE("sCurrentDemo->updateGraphics");
 				sCurrentDemo->updateGraphics();
 			}
 	}
@@ -1180,6 +1199,9 @@ void OpenGLExampleBrowser::updateGraphics()
 
 void OpenGLExampleBrowser::update(float deltaTime)
 {
+	if (!gEnableRenderLoop)
+		return;
+
 	b3ChromeUtilsEnableProfiling();
 	
 		B3_PROFILE("OpenGLExampleBrowser::update");
@@ -1283,8 +1305,10 @@ void OpenGLExampleBrowser::update(float deltaTime)
 				float pitch = s_guiHelper->getRenderInterface()->getActiveCamera()->getCameraPitch();
 				float yaw = s_guiHelper->getRenderInterface()->getActiveCamera()->getCameraYaw();
 				float camTarget[3];
+				float camPos[3];
+				s_guiHelper->getRenderInterface()->getActiveCamera()->getCameraPosition(camPos);
 				s_guiHelper->getRenderInterface()->getActiveCamera()->getCameraTargetPosition(camTarget);
-				sprintf(msg,"dist=%f, pitch=%f, yaw=%f,target=%f,%f,%f", camDist,pitch,yaw,camTarget[0],camTarget[1],camTarget[2]);
+				sprintf(msg,"camPos=%f,%f,%f, dist=%f, pitch=%f, yaw=%f,target=%f,%f,%f", camPos[0],camPos[1],camPos[2],camDist,pitch,yaw,camTarget[0],camTarget[1],camTarget[2]);
 				gui2->setStatusBarMessage(msg, true);	
 			}
 			

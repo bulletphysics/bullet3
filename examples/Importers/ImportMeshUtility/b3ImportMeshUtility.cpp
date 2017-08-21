@@ -6,7 +6,7 @@
 #include "../ImportObjDemo/Wavefront2GLInstanceGraphicsShape.h"
 #include "../../Utils/b3ResourcePath.h"
 #include "Bullet3Common/b3FileUtils.h"
-#include "../../ThirdPartyLibs/stb_image/stb_image.h"
+#include "stb_image/stb_image.h"
 #include "../ImportObjDemo/LoadMeshFromObj.h"
 bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string& fileName, b3ImportMeshData& meshData)
 {
@@ -36,7 +36,7 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 		
 		//int textureIndex = -1;
 		//try to load some texture
-		for (int i=0;i<shapes.size();i++)
+		for (int i=0; meshData.m_textureImage==0  && i<shapes.size();i++)
 		{
 			const tinyobj::shape_t& shape = shapes[i];
 			if (shape.material.diffuse_texname.length()>0)
@@ -64,8 +64,10 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 							meshData.m_textureHeight = height;
 						} else
 						{
+							b3Warning("Unsupported texture image format [%s]\n",relativeFileName);
 							meshData.m_textureWidth = 0;
 							meshData.m_textureHeight = 0;
+							break;
 						}
 
                     } else

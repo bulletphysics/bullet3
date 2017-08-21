@@ -50,10 +50,10 @@ class AllConstraintDemo : public  CommonRigidBodyBase
 	virtual void resetCamera()
 	{
 		float dist = 27;
-		float pitch = 720;
-		float yaw = 30;
+		float pitch = -30;
+		float yaw = 720;
 		float targetPos[3]={2,0,-10};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 
 	virtual bool	keyboardCallback(int key, int state);

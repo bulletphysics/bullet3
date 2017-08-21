@@ -1,20 +1,29 @@
 import tensorflow as tf
 import sys
 import numpy as np
-
+import argparse
 import pybullet as p
 import time
-p.connect(p.GUI) #DIRECT is much faster, but GUI shows the running gait
+
+cid = p.connect(p.SHARED_MEMORY)
+if (cid<0):
+	cid = p.connect(p.GUI) #DIRECT is much faster, but GUI shows the running gait
+
 p.setGravity(0,0,-9.8)
 p.setPhysicsEngineParameter(fixedTimeStep=1.0/60., numSolverIterations=5, numSubSteps=2)
 #this mp4 recording requires ffmpeg installed
 #mp4log = p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4,"humanoid.mp4")
 
+p.loadSDF("stadium.sdf")
+#p.loadURDF("plane.urdf")
 
-plane, human  = p.loadMJCF("mjcf/humanoid_symmetric.xml",flags = p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
-
+objs = p.loadMJCF("mjcf/humanoid_symmetric_no_ground.xml",flags = p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
+human  = objs[0]
 ordered_joints = []
 ordered_joint_indices = []
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--profile')
 
 
 jdict = {}
@@ -175,11 +184,11 @@ def demo_run():
 		p.setJointMotorControlArray(human, motors,controlMode=p.TORQUE_CONTROL, forces=forces)
 
 		p.stepSimulation()
-		#time.sleep(0.01)
+		time.sleep(0.01)
 		distance=5
 		yaw = 0
 		humanPos, humanOrn = p.getBasePositionAndOrientation(human)
-		p.resetDebugVisualizerCamera(distance,yaw,20,humanPos);
+		p.resetDebugVisualizerCamera(distance,yaw,-20,humanPos);
 		frame += 1
 		
 		if frame==1000: break

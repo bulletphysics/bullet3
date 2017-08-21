@@ -137,10 +137,10 @@ struct TinyRendererSetup : public CommonExampleInterface
 	void resetCamera()
 	{
 		float dist = 11;
-		float pitch = 52;
-		float yaw = 35;
+		float pitch = -35;
+		float yaw = 52;
 		float targetPos[3]={0,0.46,0};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 
 };
@@ -154,7 +154,6 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 	m_app = gui->getAppInterface();
 	m_internalData = new TinyRendererSetupInternalData(gui->getAppInterface()->m_window->getWidth(),gui->getAppInterface()->m_window->getHeight());
 	
-	m_app->m_renderer->enableBlend(true);
     
 	const char* fileName = "textured_sphere_smooth.obj";
     fileName = "cube.obj";
@@ -225,7 +224,6 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 
 TinyRendererSetup::~TinyRendererSetup()
 {
-	m_app->m_renderer->enableBlend(false);
 	delete m_internalData;
 }
 

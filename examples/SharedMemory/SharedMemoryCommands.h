@@ -65,6 +65,7 @@ struct SdfArgs
 {
 	char m_sdfFileName[MAX_URDF_FILENAME_LENGTH];
     int m_useMultiBody;
+	double m_globalScaling;
 };
 
 struct FileArgs
@@ -79,7 +80,8 @@ enum EnumUrdfArgsUpdateFlags
 	URDF_ARGS_INITIAL_ORIENTATION=4,
 	URDF_ARGS_USE_MULTIBODY=8,
 	URDF_ARGS_USE_FIXED_BASE=16,
-	URDF_ARGS_HAS_CUSTOM_URDF_FLAGS = 32
+	URDF_ARGS_HAS_CUSTOM_URDF_FLAGS = 32,
+	URDF_ARGS_USE_GLOBAL_SCALING =64,
 };
 
 
@@ -91,6 +93,7 @@ struct UrdfArgs
 	int m_useMultiBody;
 	int m_useFixedBase;
 	int m_urdfFlags;
+	double m_globalScaling;
 };
 
 
@@ -114,6 +117,14 @@ enum EnumChangeDynamicsInfoFlags
 	CHANGE_DYNAMICS_INFO_SET_MASS=1,
 	CHANGE_DYNAMICS_INFO_SET_COM=2,
 	CHANGE_DYNAMICS_INFO_SET_LATERAL_FRICTION=4,
+	CHANGE_DYNAMICS_INFO_SET_SPINNING_FRICTION=8,
+	CHANGE_DYNAMICS_INFO_SET_ROLLING_FRICTION=16,
+	CHANGE_DYNAMICS_INFO_SET_RESTITUTION=32,
+	CHANGE_DYNAMICS_INFO_SET_LINEAR_DAMPING=64,
+	CHANGE_DYNAMICS_INFO_SET_ANGULAR_DAMPING=128,
+	CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING=256,
+	CHANGE_DYNAMICS_INFO_SET_FRICTION_ANCHOR = 512,
+
 };
 
 struct ChangeDynamicsInfoArgs
@@ -123,6 +134,14 @@ struct ChangeDynamicsInfoArgs
 	double m_mass;
 	double m_COM[3];
 	double m_lateralFriction;
+	double m_spinningFriction;
+	double m_rollingFriction;
+	double m_restitution;
+	double m_linearDamping;
+	double m_angularDamping;
+	double m_contactStiffness;
+	double m_contactDamping;
+	int m_frictionAnchor;
 };
 
 struct GetDynamicsInfoArgs
@@ -249,6 +268,7 @@ enum EnumUpdateVisualShapeData
 {
 	CMD_UPDATE_VISUAL_SHAPE_TEXTURE=1,
 	CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR=2,
+	CMD_UPDATE_VISUAL_SHAPE_SPECULAR_COLOR=4,
 };
 
 struct UpdateVisualShapeDataArgs
@@ -258,11 +278,17 @@ struct UpdateVisualShapeDataArgs
     int m_shapeIndex;
     int m_textureUniqueId;
 	double m_rgbaColor[4];
+	double m_specularColor[3];
 };
 
 struct LoadTextureArgs
 {
     char m_textureFileName[MAX_FILENAME_LENGTH];
+};
+
+struct b3LoadTextureResultArgs
+{
+	int m_textureUniqueId;
 };
 
 struct SendVisualShapeDataArgs
@@ -354,7 +380,9 @@ enum EnumSimParamUpdateFlags
 	SIM_PARAM_UPDATE_CONTACT_BREAKING_THRESHOLD = 1024,
 	SIM_PARAM_MAX_CMD_PER_1MS = 2048,
 	SIM_PARAM_ENABLE_FILE_CACHING = 4096,
-
+	SIM_PARAM_UPDATE_RESTITUTION_VELOCITY_THRESHOLD = 8192,
+	SIM_PARAM_UPDATE_DEFAULT_NON_CONTACT_ERP=16384,
+	SIM_PARAM_UPDATE_DEFAULT_FRICTION_ERP = 32768,
 };
 
 enum EnumLoadBunnyUpdateFlags
@@ -387,6 +415,9 @@ struct SendPhysicsSimulationParameters
 	double m_defaultContactERP;
 	int m_collisionFilterMode;
 	int m_enableFileCaching;
+	double m_restitutionVelocityThreshold;
+	double 	m_defaultNonContactERP;
+	double m_frictionERP;
 };
 
 struct LoadBunnyArgs
@@ -404,11 +435,12 @@ struct RequestActualStateArgs
 struct SendActualStateArgs
 {
 	int m_bodyUniqueId;
+	int m_numLinks;
 	int m_numDegreeOfFreedomQ;
 	int m_numDegreeOfFreedomU;
 
     double m_rootLocalInertialFrame[7];
-    
+   
 	  //actual state is only written by the server, read-only access by client is expected
     double m_actualStateQ[MAX_DEGREE_OF_FREEDOM];
     double m_actualStateQdot[MAX_DEGREE_OF_FREEDOM];
@@ -422,6 +454,22 @@ struct SendActualStateArgs
 	double m_linkWorldVelocities[6*MAX_NUM_LINKS];//linear velocity and angular velocity in world space (x/y/z each).
     double m_linkLocalInertialFrames[7*MAX_NUM_LINKS];
 };
+
+struct b3SendCollisionInfoArgs
+{
+	int m_numLinks;
+	double m_rootWorldAABBMin[3];
+	double m_rootWorldAABBMax[3];
+ 
+	double m_linkWorldAABBsMin[3*MAX_NUM_LINKS];
+	double m_linkWorldAABBsMax[3*MAX_NUM_LINKS];
+};
+
+struct b3RequestCollisionInfoArgs
+{
+	int m_bodyUniqueId;
+};
+
 
 enum EnumSensorTypes
 {
@@ -604,7 +652,9 @@ enum EnumUserConstraintFlags
 	USER_CONSTRAINT_CHANGE_FRAME_ORN_IN_B=16,
 	USER_CONSTRAINT_CHANGE_MAX_FORCE=32,
 	USER_CONSTRAINT_REQUEST_INFO=64,
-	
+	USER_CONSTRAINT_CHANGE_GEAR_RATIO=128,	
+	USER_CONSTRAINT_CHANGE_GEAR_AUX_LINK=256,	
+
 };
 
 enum EnumBodyChangeFlags
@@ -625,6 +675,9 @@ enum EnumUserDebugDrawFlags
 	USER_DEBUG_REMOVE_CUSTOM_OBJECT_COLOR = 32,
 	USER_DEBUG_ADD_PARAMETER=64,
 	USER_DEBUG_READ_PARAMETER=128,
+	USER_DEBUG_HAS_OPTION_FLAGS=256,
+	USER_DEBUG_HAS_TEXT_ORIENTATION = 512,
+	USER_DEBUG_HAS_PARENT_OBJECT=1024,
 
 };
 
@@ -640,8 +693,13 @@ struct UserDebugDrawArgs
 
 	char m_text[MAX_FILENAME_LENGTH];
 	double m_textPositionXYZ[3];
+	double m_textOrientation[4];
+	int m_parentObjectUniqueId;
+	int m_parentLinkIndex;
 	double m_textColorRGB[3];
 	double m_textSize;
+	int m_optionFlags;
+
 
 	double m_rangeMin;
 	double m_rangeMax;
@@ -673,6 +731,11 @@ struct SendKeyboardEvents
 	b3KeyboardEvent m_keyboardEvents[MAX_KEYBOARD_EVENTS];
 };
 
+struct SendMouseEvents
+{
+	int m_numMouseEvents;
+	b3MouseEvent m_mouseEvents[MAX_MOUSE_EVENTS];
+};
 
 enum eVRCameraEnums
 {
@@ -742,6 +805,109 @@ struct ConfigureOpenGLVisualizerRequest
     int m_setEnabled;
 };
 
+enum 
+{
+	URDF_GEOM_HAS_RADIUS = 1,
+};
+
+struct b3CreateCollisionShape
+{
+	int m_type;//see UrdfGeomTypes	
+
+	int m_hasChildTransform;
+	double m_childPosition[3];
+	double m_childOrientation[4];
+
+	double m_sphereRadius;
+	double m_boxHalfExtents[3];	
+	double m_capsuleRadius;
+	double m_capsuleHeight;
+	int		m_hasFromTo;
+	double m_capsuleFrom[3];
+	double m_capsuleTo[3];
+	double m_planeNormal[3];
+	double m_planeConstant;
+
+	int         m_meshFileType;
+	char		m_meshFileName[VISUAL_SHAPE_MAX_PATH_LEN];
+	double		m_meshScale[3];
+	int			m_collisionFlags;
+
+};
+
+#define MAX_COMPOUND_COLLISION_SHAPES 16
+
+struct b3CreateCollisionShapeArgs
+{
+	int m_numCollisionShapes;
+	b3CreateCollisionShape m_shapes[MAX_COMPOUND_COLLISION_SHAPES];
+};
+
+
+struct b3CreateVisualShapeArgs
+{
+	int m_visualShapeUniqueId;
+};
+
+#define MAX_CREATE_MULTI_BODY_LINKS 128
+enum eCreateMultiBodyEnum
+{
+	MULTI_BODY_HAS_BASE=1,
+	MULT_BODY_USE_MAXIMAL_COORDINATES=2,
+};
+struct b3CreateMultiBodyArgs
+{
+	char m_bodyName[1024];
+	int m_baseLinkIndex;
+
+	double m_linkPositions[3*MAX_CREATE_MULTI_BODY_LINKS];
+	double m_linkOrientations[4*MAX_CREATE_MULTI_BODY_LINKS];
+
+	int m_numLinks;
+	double m_linkMasses[MAX_CREATE_MULTI_BODY_LINKS];
+	double m_linkInertias[MAX_CREATE_MULTI_BODY_LINKS*3];
+
+	double m_linkInertialFramePositions[MAX_CREATE_MULTI_BODY_LINKS*3];
+	double m_linkInertialFrameOrientations[MAX_CREATE_MULTI_BODY_LINKS*4];
+
+	int m_linkCollisionShapeUniqueIds[MAX_CREATE_MULTI_BODY_LINKS];
+	int m_linkVisualShapeUniqueIds[MAX_CREATE_MULTI_BODY_LINKS];
+	int m_linkParentIndices[MAX_CREATE_MULTI_BODY_LINKS];
+	int m_linkJointTypes[MAX_CREATE_MULTI_BODY_LINKS];
+	double m_linkJointAxis[3*MAX_CREATE_MULTI_BODY_LINKS];
+
+	#if 0
+	std::string m_name;
+	std::string m_sourceFile;
+    btTransform m_rootTransformInWorld;
+	btHashMap<btHashString, UrdfMaterial*> m_materials;
+	btHashMap<btHashString, UrdfLink*> m_links;
+	btHashMap<btHashString, UrdfJoint*> m_joints;
+	#endif
+};
+
+struct b3CreateCollisionShapeResultArgs
+{
+	int m_collisionShapeUniqueId;
+};
+
+struct b3CreateVisualShapeResultArgs
+{
+	int m_visualShapeUniqueId;
+};
+
+struct b3CreateMultiBodyResultArgs
+{
+	int m_bodyUniqueId;
+};
+
+struct b3ChangeTextureArgs
+{
+	int m_textureUniqueId;
+	int m_width;
+	int m_height;
+};
+
 struct SharedMemoryCommand
 {
 	int m_type;
@@ -789,7 +955,11 @@ struct SharedMemoryCommand
         struct ConfigureOpenGLVisualizerRequest m_configureOpenGLVisualizerArguments;
 		struct b3ObjectArgs m_removeObjectArgs;
 		struct b3Profile m_profile;
-
+		struct b3CreateCollisionShapeArgs m_createCollisionShapeArgs;
+		struct b3CreateVisualShapeArgs m_createVisualShapeArgs;
+		struct b3CreateMultiBodyArgs m_createMultiBodyArgs;
+		struct b3RequestCollisionInfoArgs m_requestCollisionInfoArgs;
+		struct b3ChangeTextureArgs m_changeTextureArgs;
     };
 };
 
@@ -855,6 +1025,13 @@ struct SharedMemoryStatus
 		struct b3OpenGLVisualizerCameraInfo m_visualizerCameraResultArgs;
 		struct b3ObjectArgs m_removeObjectArgs;
 		struct b3DynamicsInfo m_dynamicsInfo;
+		struct b3CreateCollisionShapeResultArgs m_createCollisionShapeResultArgs;
+		struct b3CreateVisualShapeResultArgs m_createVisualShapeResultArgs;
+		struct b3CreateMultiBodyResultArgs m_createMultiBodyResultArgs;
+		struct b3SendCollisionInfoArgs m_sendCollisionInfoArgs;
+		struct SendMouseEvents m_sendMouseEvents;
+		struct b3LoadTextureResultArgs m_loadTextureResultArguments;
+
 	};
 };
 

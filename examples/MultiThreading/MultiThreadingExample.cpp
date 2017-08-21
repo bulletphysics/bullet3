@@ -176,14 +176,12 @@ public:
 		//int numBodies = 1;
 		
 		m_app->setUpAxis(1);
-		m_app->m_renderer->enableBlend(true);
 		
     }
     virtual ~MultiThreadingExample()
     {
 
 
-		m_app->m_renderer->enableBlend(false);
     }
     
    
@@ -304,8 +302,8 @@ public:
 	virtual void resetCamera()
 	{
 		float dist = 10.5;
-		float pitch = 136;
-		float yaw = 32;
+		float pitch = -32;
+		float yaw = 136;
 		float targetPos[3]={0,0,0};
 		if (m_app->m_renderer  && m_app->m_renderer->getActiveCamera())
 		{

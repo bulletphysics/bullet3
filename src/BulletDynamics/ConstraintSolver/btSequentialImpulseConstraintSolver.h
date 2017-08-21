@@ -56,6 +56,9 @@ protected:
 
 	btSingleConstraintRowSolver m_resolveSingleConstraintRowGeneric;
 	btSingleConstraintRowSolver m_resolveSingleConstraintRowLowerLimit;
+    btSingleConstraintRowSolver m_resolveSplitPenetrationImpulse;
+    int m_cachedSolverMode;  // used to check if SOLVER_SIMD flag has been changed
+    void setupSolverFunctions( bool useSimd );
 
 	btScalar	m_leastSquaresResidual;
 
@@ -86,20 +89,22 @@ protected:
 	unsigned long	m_btSeed2;
 
 	
-	btScalar restitutionCurve(btScalar rel_vel, btScalar restitution);
+	btScalar restitutionCurve(btScalar rel_vel, btScalar restitution, btScalar velocityThreshold);
 
 	virtual void convertContacts(btPersistentManifold** manifoldPtr, int numManifolds, const btContactSolverInfo& infoGlobal);
 
 	void	convertContact(btPersistentManifold* manifold,const btContactSolverInfo& infoGlobal);
 
 
-	btSimdScalar	resolveSplitPenetrationSIMD(
-     btSolverBody& bodyA,btSolverBody& bodyB,
-        const btSolverConstraint& contactConstraint);
+	btSimdScalar	resolveSplitPenetrationSIMD(btSolverBody& bodyA,btSolverBody& bodyB, const btSolverConstraint& contactConstraint)
+    {
+        return m_resolveSplitPenetrationImpulse( bodyA, bodyB, contactConstraint );
+    }
 
-	btScalar	resolveSplitPenetrationImpulseCacheFriendly(
-       btSolverBody& bodyA,btSolverBody& bodyB,
-        const btSolverConstraint& contactConstraint);
+	btSimdScalar	resolveSplitPenetrationImpulseCacheFriendly(btSolverBody& bodyA,btSolverBody& bodyB, const btSolverConstraint& contactConstraint)
+    {
+        return m_resolveSplitPenetrationImpulse( bodyA, bodyB, contactConstraint );
+    }
 
 	//internal method
 	int		getOrInitSolverBody(btCollisionObject& body,btScalar timeStep);
@@ -109,6 +114,10 @@ protected:
 	btSimdScalar	resolveSingleConstraintRowGenericSIMD(btSolverBody& bodyA,btSolverBody& bodyB,const btSolverConstraint& contactConstraint);
 	btSimdScalar	resolveSingleConstraintRowLowerLimit(btSolverBody& bodyA,btSolverBody& bodyB,const btSolverConstraint& contactConstraint);
 	btSimdScalar	resolveSingleConstraintRowLowerLimitSIMD(btSolverBody& bodyA,btSolverBody& bodyB,const btSolverConstraint& contactConstraint);
+	btSimdScalar	resolveSplitPenetrationImpulse(btSolverBody& bodyA,btSolverBody& bodyB, const btSolverConstraint& contactConstraint)
+    {
+        return m_resolveSplitPenetrationImpulse( bodyA, bodyB, contactConstraint );
+    }
 		
 protected:
 	

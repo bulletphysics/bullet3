@@ -144,10 +144,10 @@ class ForkLiftDemo  : public CommonExampleInterface
 	virtual void resetCamera()
 	{
 		float dist = 8;
-		float pitch = -45;
-		float yaw = 32;
+		float pitch = -32;
+		float yaw = -45;
 		float targetPos[3]={-0.33,-0.72,4.5};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 
 	/*static DemoApplication* Create()

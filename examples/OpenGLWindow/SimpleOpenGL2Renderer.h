@@ -34,21 +34,27 @@ public:
     virtual void removeAllInstances();
     virtual void removeGraphicsInstance(int instanceUid);
     
+	virtual bool readSingleInstanceTransformToCPU(float* position, float* orientation, int srcIndex);
     virtual void writeSingleInstanceColorToCPU(const float* color, int srcIndex);
     virtual void writeSingleInstanceColorToCPU(const double* color, int srcIndex);
 	virtual void writeSingleInstanceScaleToCPU(const float* scale, int srcIndex);
     virtual void writeSingleInstanceScaleToCPU(const double* scale, int srcIndex);
+	virtual void writeSingleInstanceSpecularColorToCPU(const double* specular, int srcIndex){}
+	virtual void writeSingleInstanceSpecularColorToCPU(const float* specular, int srcIndex){}
+
     virtual void	getCameraViewMatrix(float viewMat[16]) const;
     virtual void	getCameraProjectionMatrix(float projMat[16]) const;
-
+	virtual void drawTexturedTriangleMesh(float worldPosition[3], float worldOrientation[4], const float* vertices, int numvertices, const unsigned int* indices, int numIndices, float color[4], int textureIndex=-1, int vertexLayout=0)
+	{
+	}
     
     virtual void renderScene();
     
     virtual int getScreenWidth();
     virtual int getScreenHeight();
-	virtual int	registerTexture(const unsigned char* texels, int width, int height);
-	virtual void    updateTexture(int textureIndex, const unsigned char* texels);
-    virtual void activateTexture(int textureIndex);
+	virtual int	registerTexture(const unsigned char* texels, int width, int height, bool flipTexelsY);
+	virtual void	updateTexture(int textureIndex, const unsigned char* texels, bool flipTexelsY);
+    virtual void	activateTexture(int textureIndex);
 
 
     virtual int registerGraphicsInstance(int shapeIndex, const double* position, const double* quaternion, const double* color, const double* scaling);
@@ -77,8 +83,7 @@ public:
     
     virtual void updateShape(int shapeIndex, const float* vertices);
     
-    virtual void enableBlend(bool blend);
-
+    
 	virtual void clearZBuffer();
 
 

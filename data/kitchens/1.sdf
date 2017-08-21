@@ -4291,45 +4291,7 @@
 			 </visual>
 			 </link>
 			</model>
-		<model name='part110.obj'>
-			<static>1</static>
-			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>
-			<link name='link_d110'>
-			<inertial>
-			<mass>0</mass>
-			<inertia>
-			<ixx>0.166667</ixx>
-			<ixy>0</ixy>
-			<ixz>0</ixz>
-			<iyy>0.166667</iyy>
-			<iyz>0</iyz>
-			<izz>0.166667</izz>
-			</inertia>
-			</inertial>
-			<collision concave='yes' name='collision_110'>
-			<geometry>
-			<mesh>
-			<scale>.1 .1 .1</scale>
-				<uri>fatihrmutfak/part110.obj</uri>
-			</mesh>
-			</geometry>
-			  </collision>
-			<visual name='visual'>
-				<geometry>
-				<mesh>
-					<scale>.1 .1 .1</scale>
-					<uri>fatihrmutfak/part110.obj</uri>
-				</mesh>
-				</geometry>
-			<material>
-				<ambient>1 0 0 1</ambient>
-				<diffuse>1.000000 1.000000 1.000000 1</diffuse>
-				<specular>0.1 0.1 0.1 1</specular>
-				<emissive>0 0 0 0</emissive>
-			 </material>
-			 </visual>
-			 </link>
-			</model>
+	
 		<model name='part111.obj'>
 			<static>1</static>
 			<pose frame=''>-12.0 -13.9 0 0 0 0</pose>

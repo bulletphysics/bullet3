@@ -17,13 +17,15 @@ struct ErrorLogger
 	virtual void printMessage(const char* msg)=0;
 };
 
+
+
 struct UrdfMaterial
 {
 	std::string m_name;
 	std::string m_textureFilename;
-	btVector4 m_rgbaColor; // [0]==r [1]==g [2]==b [3]==a
-	UrdfMaterial():
-		m_rgbaColor(0.8, 0.8, 0.8, 1)
+	UrdfMaterialColor m_matColor;
+
+	UrdfMaterial()
 	{
 	}
 };
@@ -154,7 +156,8 @@ struct UrdfLink
 
 	UrdfLink()
 		:m_parentLink(0),
-		m_parentJoint(0)
+		m_parentJoint(0),
+		m_linkIndex(-2)
 	{
 	}
 	
@@ -248,7 +251,8 @@ protected:
     bool m_parseSDF;
     int m_activeSdfModel;
 
-    
+	btScalar m_urdfScaling;
+    bool parseTransform(btTransform& tr, class TiXmlElement* xml, ErrorLogger* logger, bool parseSDF = false);
 	bool parseInertia(UrdfInertia& inertia, class TiXmlElement* config, ErrorLogger* logger);
 	bool parseGeometry(UrdfGeometry& geom, class TiXmlElement* g, ErrorLogger* logger);
 	bool parseVisual(UrdfModel& model, UrdfVisual& visual, class TiXmlElement* config, ErrorLogger* logger);
@@ -274,18 +278,22 @@ public:
     {
         return m_parseSDF;
     }
+	void setGlobalScaling(btScalar scaling)
+	{
+		m_urdfScaling = scaling;
+	}
+
     bool loadUrdf(const char* urdfText, ErrorLogger* logger, bool forceFixedBase);
     bool loadSDF(const char* sdfText, ErrorLogger* logger);
     
     int getNumModels() const
     {
         //user should have loaded an SDF when calling this method
-        btAssert(m_parseSDF);
         if (m_parseSDF)
         {
             return m_sdfModels.size();
         }
-		return 0;
+		return 1;
     }
     
     void activateModel(int modelIndex);

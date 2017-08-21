@@ -135,6 +135,17 @@ bool b3RobotSimulatorClientAPI::connect(int mode, const std::string& hostName, i
 #endif
 			break;
 		}
+		case eCONNECT_GUI_SERVER:
+		{
+			int argc = 0;
+			char* argv[1] = {0};
+#ifdef __APPLE__
+			sm = b3CreateInProcessPhysicsServerAndConnectMainThread(argc, argv);
+#else
+			sm = b3CreateInProcessPhysicsServerAndConnect(argc, argv);
+#endif
+			break;
+		}
 		case eCONNECT_DIRECT:
 		{
 			sm = b3ConnectPhysicsDirect();
@@ -290,6 +301,7 @@ void b3RobotSimulatorClientAPI::setGravity(const b3Vector3& gravityAcceleration)
 		b3Warning("Not connected");
 		return;
 	}
+	b3Assert(b3CanSubmitCommand(m_data->m_physicsClientHandle));
 
 	b3SharedMemoryCommandHandle command = b3InitPhysicsParamCommand(m_data->m_physicsClientHandle);
 	b3SharedMemoryStatusHandle statusHandle;
@@ -1142,5 +1154,5 @@ void b3RobotSimulatorClientAPI::loadBunny(double scale, double mass, double coll
     b3LoadBunnySetScale(command, scale);
     b3LoadBunnySetMass(command, mass);
     b3LoadBunnySetCollisionMargin(command, collisionMargin);
-    b3SubmitClientCommand(m_data->m_physicsClientHandle, command);
+    b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
 }
