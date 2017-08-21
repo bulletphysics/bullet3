@@ -5,7 +5,7 @@ from gym.utils import seeding
 import numpy as np
 import time
 import pybullet as p
-import minitaur_new
+from envs.bullet.minitaur_new import Minitaur
 
 class MinitaurGymEnv(gym.Env):
   metadata = {
@@ -48,7 +48,7 @@ class MinitaurGymEnv(gym.Env):
     p.setTimeStep(self._timeStep)
     p.loadURDF("%splane.urdf" % self._urdfRoot)
     p.setGravity(0,0,-10)
-    self._minitaur = minitaur_new.Minitaur(urdfRootPath=self._urdfRoot, timeStep=self._timeStep, isEnableSelfCollision=self._isEnableSelfCollision, motorVelocityLimit=self._motorVelocityLimit)
+    self._minitaur = Minitaur(urdfRootPath=self._urdfRoot, timeStep=self._timeStep, isEnableSelfCollision=self._isEnableSelfCollision, motorVelocityLimit=self._motorVelocityLimit)
     self._envStepCounter = 0
     self._lastBasePosition = [0, 0, 0]
     for i in range(100):
