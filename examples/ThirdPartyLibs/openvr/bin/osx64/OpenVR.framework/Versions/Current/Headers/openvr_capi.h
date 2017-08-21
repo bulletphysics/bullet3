@@ -225,7 +225,6 @@ static const char * k_pch_Power_TurnOffScreensTimeout_Float = "turnOffScreensTim
 static const char * k_pch_Power_TurnOffControllersTimeout_Float = "turnOffControllersTimeout";
 static const char * k_pch_Power_ReturnToWatchdogTimeout_Float = "returnToWatchdogTimeout";
 static const char * k_pch_Power_AutoLaunchSteamVROnButtonPress = "autoLaunchSteamVROnButtonPress";
-static const char * k_pch_Power_PauseCompositorOnStandby_Bool = "pauseCompositorOnStandby";
 static const char * k_pch_Dashboard_Section = "dashboard";
 static const char * k_pch_Dashboard_EnableDashboard_Bool = "enableDashboard";
 static const char * k_pch_Dashboard_ArcadeMode_Bool = "arcadeMode";
@@ -377,7 +376,6 @@ typedef enum ETrackedDeviceProperty
 	ETrackedDeviceProperty_Prop_DriverDirectModeSendsVsyncEvents_Bool = 2043,
 	ETrackedDeviceProperty_Prop_DisplayDebugMode_Bool = 2044,
 	ETrackedDeviceProperty_Prop_GraphicsAdapterLuid_Uint64 = 2045,
-	ETrackedDeviceProperty_Prop_DriverProvidedChaperonePath_String = 2048,
 	ETrackedDeviceProperty_Prop_AttachedDeviceId_String = 3000,
 	ETrackedDeviceProperty_Prop_SupportedButtons_Uint64 = 3001,
 	ETrackedDeviceProperty_Prop_Axis0Type_Int32 = 3002,
@@ -467,8 +465,6 @@ typedef enum EVREventType
 	EVREventType_VREvent_WatchdogWakeUpRequested = 109,
 	EVREventType_VREvent_LensDistortionChanged = 110,
 	EVREventType_VREvent_PropertyChanged = 111,
-	EVREventType_VREvent_WirelessDisconnect = 112,
-	EVREventType_VREvent_WirelessReconnect = 113,
 	EVREventType_VREvent_ButtonPress = 200,
 	EVREventType_VREvent_ButtonUnpress = 201,
 	EVREventType_VREvent_ButtonTouch = 202,
@@ -842,7 +838,6 @@ typedef enum EVRApplicationError
 	EVRApplicationError_VRApplicationError_OldApplicationQuitting = 112,
 	EVRApplicationError_VRApplicationError_TransitionAborted = 113,
 	EVRApplicationError_VRApplicationError_IsTemplate = 114,
-	EVRApplicationError_VRApplicationError_SteamVRIsExiting = 115,
 	EVRApplicationError_VRApplicationError_BufferTooSmall = 200,
 	EVRApplicationError_VRApplicationError_PropertyNotSet = 201,
 	EVRApplicationError_VRApplicationError_UnknownProperty = 202,
@@ -865,7 +860,6 @@ typedef enum EVRApplicationProperty
 	EVRApplicationProperty_VRApplicationProperty_IsTemplate_Bool = 61,
 	EVRApplicationProperty_VRApplicationProperty_IsInstanced_Bool = 62,
 	EVRApplicationProperty_VRApplicationProperty_IsInternal_Bool = 63,
-	EVRApplicationProperty_VRApplicationProperty_WantsCompositorPauseInStandby_Bool = 64,
 	EVRApplicationProperty_VRApplicationProperty_LastLaunchTime_Uint64 = 70,
 } EVRApplicationProperty;
 
@@ -915,7 +909,6 @@ typedef enum EVRCompositorError
 	EVRCompositorError_VRCompositorError_SharedTexturesNotSupported = 106,
 	EVRCompositorError_VRCompositorError_IndexOutOfRange = 107,
 	EVRCompositorError_VRCompositorError_AlreadySubmitted = 108,
-	EVRCompositorError_VRCompositorError_InvalidBounds = 109,
 } EVRCompositorError;
 
 typedef enum VROverlayInputMethod

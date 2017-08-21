@@ -14,6 +14,8 @@ class StadiumScene(Scene):
 		#	 stadium_pose.set_xyz(27, 21, 0)  # see RUN_STARTLINE, RUN_RAD constants
 		self.stadium = p.loadSDF("stadium.sdf")
 		self.ground_plane_mjcf = p.loadMJCF("mjcf/ground_plane.xml")
+		for i in self.ground_plane_mjcf:
+			p.changeVisualShape(i,-1,rgbaColor=[0,0,0,0])
 
 class SinglePlayerStadiumScene(StadiumScene):
 	"This scene created by environment, to work in a way as if there was no concept of scene visible to user."

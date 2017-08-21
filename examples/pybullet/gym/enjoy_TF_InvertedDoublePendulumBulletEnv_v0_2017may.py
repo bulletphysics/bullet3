@@ -24,9 +24,7 @@ class SmallReactivePolicy:
 def demo_run():
     env = gym.make("InvertedDoublePendulumBulletEnv-v0")
 
-    cid = p.connect(p.SHARED_MEMORY)  # only show graphics if the browser is already running....
-    if cid < 0:
-        cid = p.connect(p.DIRECT)
+    cid = p.connect(p.GUI)
 
     pi = SmallReactivePolicy(env.observation_space, env.action_space)
 

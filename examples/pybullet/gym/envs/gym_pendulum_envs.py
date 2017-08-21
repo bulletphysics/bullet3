@@ -1,5 +1,5 @@
-from scene_abstract import SingleRobotEmptyScene
-from env_bases import MujocoXmlBaseBulletEnv
+from .scene_abstract import SingleRobotEmptyScene
+from .env_bases import MujocoXmlBaseBulletEnv
 from robot_pendula import InvertedPendulum, InvertedPendulumSwingup, InvertedDoublePendulum
 import gym, gym.spaces, gym.utils, gym.utils.seeding
 import numpy as np

@@ -31,7 +31,8 @@ bool gDisableDesktopGL = false;
 #include <cstdlib>
 
 #include <openvr.h>
-
+#include "strtools.h"
+#include "compat.h"
 #include "lodepng.h"
 #include "Matrices.h"
 #include "pathtools.h"
@@ -597,10 +598,10 @@ bool CMainApplication::BInitGL()
 {
 	if( m_bDebugOpenGL )
 	{
-		const GLvoid *userParam=0;
-		glDebugMessageCallback(DebugCallback,  userParam);
-		glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE );
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+		//const GLvoid *userParam=0;
+		//glDebugMessageCallback(DebugCallback,  userParam);
+		//glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE );
+		//glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	}
 
 	if( !CreateAllShaders() )
@@ -656,8 +657,8 @@ void CMainApplication::Shutdown()
 	{
 		if (m_glSceneVertBuffer)
 		{
-			glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_FALSE );
-			glDebugMessageCallback(nullptr, nullptr);
+			//glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_FALSE );
+			//glDebugMessageCallback(nullptr, nullptr);
 			glDeleteBuffers(1, &m_glSceneVertBuffer);
 			glDeleteBuffers(1, &m_glIDVertBuffer);
 			glDeleteBuffers(1, &m_glIDIndexBuffer);
@@ -1278,10 +1279,12 @@ bool CMainApplication::SetupTexturemaps()
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
 
+#ifdef WIN32
 	GLfloat fLargest;
+	
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest);
-	 	
+#endif	
 	glBindTexture( GL_TEXTURE_2D, 0 );
 
 	return ( m_iTexture != 0 );
@@ -2290,11 +2293,11 @@ bool CGLRenderModel::BInit( const vr::RenderModel_t & vrModel, const vr::RenderM
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
-
+#ifdef _WIN32
 	GLfloat fLargest;
 	glGetFloatv( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest );
 	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest );
-
+#endif
 	glBindTexture( GL_TEXTURE_2D, 0 );
 
 	m_unVertexCount = vrModel.unTriangleCount * 3;
@@ -2384,7 +2387,8 @@ int main(int argc, char *argv[])
     args.GetCmdLineArgument("mp4",gVideoFileName);
     if (gVideoFileName)
         pMainApplication->getApp()->dumpFramesToVideo(gVideoFileName);
- 
+
+#ifdef _WIN32 
 	//request disable VSYNC
 	typedef bool (APIENTRY *PFNWGLSWAPINTERVALFARPROC)(int);
 	PFNWGLSWAPINTERVALFARPROC wglSwapIntervalEXT = 0;
@@ -2392,7 +2396,14 @@ int main(int argc, char *argv[])
 		(PFNWGLSWAPINTERVALFARPROC)wglGetProcAddress("wglSwapIntervalEXT");
 	if (wglSwapIntervalEXT)
 		wglSwapIntervalEXT(0);
-			
+#endif
+
+#ifdef __APPLE__
+	GLint                       sync = 0;
+	CGLContextObj               ctx = CGLGetCurrentContext();
+	CGLSetParameter(ctx, kCGLCPSwapInterval, &sync);
+#endif
+		
 	pMainApplication->RunMainLoop();
 
 	pMainApplication->Shutdown();

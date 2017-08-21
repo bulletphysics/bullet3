@@ -1,5 +1,5 @@
-from scene_stadium import SinglePlayerStadiumScene
-from env_bases import MujocoXmlBaseBulletEnv
+from .scene_stadium import SinglePlayerStadiumScene
+from .env_bases import MujocoXmlBaseBulletEnv
 import numpy as np
 from robot_locomotors import Hopper, Walker2D, HalfCheetah, Ant, Humanoid
 

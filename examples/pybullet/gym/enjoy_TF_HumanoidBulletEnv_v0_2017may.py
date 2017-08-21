@@ -25,24 +25,37 @@ class SmallReactivePolicy:
 def demo_run():
     env = gym.make("HumanoidBulletEnv-v0")
 
-    cid = p.connect(p.SHARED_MEMORY)  # only show graphics if the browser is already running....
-    if cid < 0:
-        cid = p.connect(p.DIRECT)
-
+    cid = p.connect(p.GUI)
+    p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
     pi = SmallReactivePolicy(env.observation_space, env.action_space)
-
+    p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,0)
+    env.reset()
+    p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
+    torsoId = -1
+    for i in range (p.getNumBodies()):
+        print(p.getBodyInfo(i))
+        if (p.getBodyInfo(i)[0].decode() == "torso"):
+           torsoId=i
+           print("found humanoid torso")
     while 1:
         frame = 0
         score = 0
         restart_delay = 0
+        p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,0)
         obs = env.reset()
+        p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
 
         while 1:
-            time.sleep(0.01)
+            time.sleep(0.001)
             a = pi.act(obs)
             obs, r, done, _ = env.step(a)
             score += r
             frame += 1
+            distance=5
+            yaw = 0
+            humanPos, humanOrn = p.getBasePositionAndOrientation(torsoId)
+            p.resetDebugVisualizerCamera(distance,yaw,-20,humanPos);
+
             still_open = env.render("human")
             if still_open==False:
                 return
