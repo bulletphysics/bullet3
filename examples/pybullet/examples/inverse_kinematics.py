@@ -3,8 +3,9 @@ import time
 import math
 from datetime import datetime
 
-#clid = p.connect(p.SHARED_MEMORY)
-p.connect(p.GUI)
+clid = p.connect(p.SHARED_MEMORY)
+if (clid<0):
+	p.connect(p.GUI)
 p.loadURDF("plane.urdf",[0,0,-0.3])
 kukaId = p.loadURDF("kuka_iiwa/model.urdf",[0,0,0])
 p.resetBasePositionAndOrientation(kukaId,[0,0,0],[0,0,0,1])

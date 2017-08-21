@@ -399,7 +399,7 @@ elif _platform == "win32":
 elif _platform == "darwin":
     print("darwin!")
     os.environ['LDFLAGS'] = '-framework Cocoa -framework OpenGL'
-    CXX_FLAFS += '-DB3_NO_PYTHON_FRAMEWORK '
+    CXX_FLAGS += '-DB3_NO_PYTHON_FRAMEWORK '
     CXX_FLAGS += '-DHAS_SOCKLEN_T '
     CXX_FLAGS += '-D_DARWIN '
 #    CXX_FLAGS += '-framework Cocoa '
