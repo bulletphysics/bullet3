@@ -1,7 +1,12 @@
+#add parent dir to find package. Only needed for source code build, pip install doesn't need it.
+import os, inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(os.path.dirname(currentdir))
+os.sys.path.insert(0,parentdir)
 
-from pybullet_envs.bullet.racecarZEDGymEnv import RacecarZEDGymEnv
+from pybullet_envs.bullet.racecarGymEnv import RacecarGymEnv
 print ("hello")
-environment = RacecarZEDGymEnv(renders=True)
+environment = RacecarGymEnv(renders=True)
 
 targetVelocitySlider = environment._p.addUserDebugParameter("wheelVelocity",-1,1,0)
 steeringSlider = environment._p.addUserDebugParameter("steering",-0.5,0.5,0)
