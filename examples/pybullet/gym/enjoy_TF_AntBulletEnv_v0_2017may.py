@@ -1,7 +1,7 @@
 import gym
 import numpy as np
 import pybullet as p
-from .. import pybullet_envs
+import pybullet_envs
 import time
 
 def relu(x):
