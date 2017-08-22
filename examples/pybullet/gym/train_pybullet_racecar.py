@@ -1,5 +1,5 @@
 import gym
-from envs.bullet.racecarGymEnv import RacecarGymEnv
+from pybullet_envs.bullet.racecarGymEnv import RacecarGymEnv
 
 from baselines import deepq
 

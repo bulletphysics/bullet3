@@ -9,7 +9,7 @@ import math
 import numpy as np
 import tensorflow as tf
 
-from envs.bullet.minitaurGymEnv import MinitaurGymEnv
+from pybullet_envs.bullet.minitaurGymEnv import MinitaurGymEnv
 
 try:
   import sonnet

@@ -1,5 +1,5 @@
 
-from envs.bullet.racecarGymEnv import RacecarGymEnv
+from pybullet_envs.bullet.racecarGymEnv import RacecarGymEnv
 print ("hello")
 environment = RacecarGymEnv(renders=True)
 

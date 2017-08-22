@@ -1,7 +1,7 @@
 import gym
 
 from baselines import deepq
-from envs.bullet.cartpole_bullet import CartPoleBulletEnv
+from pybullet_envs.bullet.cartpole_bullet import CartPoleBulletEnv
 
 def main():
     env = gym.make('CartPoleBulletEnv-v0')

@@ -1,5 +1,5 @@
 import gym
-from envs.bullet.kukaCamGymEnv import KukaCamGymEnv
+from pybullet_envs.bullet.kukaCamGymEnv import KukaCamGymEnv
 
 from baselines import deepq
 

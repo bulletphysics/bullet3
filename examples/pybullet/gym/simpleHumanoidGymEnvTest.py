@@ -1,5 +1,5 @@
 
-from envs.bullet.simpleHumanoidGymEnv import SimpleHumanoidGymEnv
+from pybullet_envs.bullet.simpleHumanoidGymEnv import SimpleHumanoidGymEnv
 print ("hello")
 environment = SimpleHumanoidGymEnv(renders=True)
 

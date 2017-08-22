@@ -1,5 +1,5 @@
 
-from envs.bullet.racecarZEDGymEnv import RacecarZEDGymEnv
+from pybullet_envs.bullet.racecarZEDGymEnv import RacecarZEDGymEnv
 print ("hello")
 environment = RacecarZEDGymEnv(renders=True)
 
