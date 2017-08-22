@@ -1,3 +1,4 @@
+import os
 import math
 import gym
 from gym import spaces
@@ -48,8 +49,8 @@ class RacecarGymEnv(gym.Env):
     p.resetSimulation()
     #p.setPhysicsEngineParameter(numSolverIterations=300)
     p.setTimeStep(self._timeStep)
-    #p.loadURDF("%splane.urdf" % self._urdfRoot)
-    stadiumobjects = p.loadSDF("%sstadium.sdf" % self._urdfRoot)
+    #p.loadURDF(os.path.join(os.path.dirname(__file__),"../data","plane.urdf"))
+    stadiumobjects = p.loadSDF(os.path.join(os.path.dirname(__file__),"../data","stadium.sdf"))
     #move the stadium objects slightly above 0
     for i in stadiumobjects:
     	pos,orn = p.getBasePositionAndOrientation(i)
@@ -63,7 +64,7 @@ class RacecarGymEnv(gym.Env):
     bally = dist * math.cos(ang)
     ballz = 1
     
-    self._ballUniqueId = p.loadURDF("sphere2.urdf",[ballx,bally,ballz])
+    self._ballUniqueId = p.loadURDF(os.path.join(os.path.dirname(__file__),"../data","sphere2.urdf"),[ballx,bally,ballz])
     p.setGravity(0,0,-10)
     self._racecar = racecar.Racecar(urdfRootPath=self._urdfRoot, timeStep=self._timeStep)
     self._envStepCounter = 0

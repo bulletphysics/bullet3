@@ -1,3 +1,4 @@
+import os
 import math
 import gym
 from gym import spaces
@@ -47,7 +48,7 @@ class SimpleHumanoidGymEnv(gym.Env):
     p.resetSimulation()
     #p.setPhysicsEngineParameter(numSolverIterations=300)
     p.setTimeStep(self._timeStep)
-    p.loadURDF("%splane.urdf" % self._urdfRoot)
+    p.loadURDF(os.path.join(os.path.dirname(__file__),"../data","plane.urdf"))
     
     dist = 5 +2.*random.random()
     ang = 2.*3.1415925438*random.random()

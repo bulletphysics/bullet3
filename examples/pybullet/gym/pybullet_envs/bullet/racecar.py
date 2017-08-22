@@ -1,3 +1,4 @@
+import os
 import pybullet as p
 import numpy as np
 import copy
@@ -11,7 +12,7 @@ class Racecar:
     self.reset()
 
   def reset(self):
-    self.racecarUniqueId = p.loadURDF("racecar/racecar.urdf", [0,0,.2])
+    self.racecarUniqueId = p.loadURDF(os.path.join(os.path.dirname(__file__),"../data","racecar/racecar.urdf"), [0,0,.2])
     self.maxForce = 20
     self.nMotors = 2
     self.motorizedwheels=[2]

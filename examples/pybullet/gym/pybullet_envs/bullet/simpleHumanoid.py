@@ -1,3 +1,4 @@
+import os
 import pybullet as p
 import numpy as np
 import copy
@@ -18,7 +19,7 @@ class SimpleHumanoid:
   def reset(self):
     self.initial_z = None
    
-    objs = p.loadMJCF("mjcf/humanoid_symmetric_no_ground.xml",flags = p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
+    objs = p.loadMJCF(os.path.join(os.path.dirname(__file__),"../data","mjcf/humanoid_symmetric_no_ground.xml"),flags = p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
     self.human = objs[0]
     self.jdict = {}
     self.ordered_joints = []
