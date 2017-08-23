@@ -4,7 +4,7 @@ import numpy as np
 import os
 
 
-class MujocoXmlBasedRobot:
+class MJCFBasedRobot:
 	"""
 	Base class for mujoco .xml based agents.
 	"""

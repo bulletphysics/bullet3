@@ -1,12 +1,12 @@
 from .scene_stadium import SinglePlayerStadiumScene
-from .env_bases import MujocoXmlBaseBulletEnv
+from .env_bases import MJCFBaseBulletEnv
 import numpy as np
 from robot_locomotors import Hopper, Walker2D, HalfCheetah, Ant, Humanoid
 
 
-class WalkerBaseBulletEnv(MujocoXmlBaseBulletEnv):
+class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 	def __init__(self, robot):
-		MujocoXmlBaseBulletEnv.__init__(self, robot)
+		MJCFBaseBulletEnv.__init__(self, robot)
 		self.camera_x = 0
 		self.walk_target_x = 1e3  # kilometer away
 		self.walk_target_y = 0
@@ -16,7 +16,7 @@ class WalkerBaseBulletEnv(MujocoXmlBaseBulletEnv):
 		return self.stadium_scene
 
 	def _reset(self):
-		r = MujocoXmlBaseBulletEnv._reset(self)
+		r = MJCFBaseBulletEnv._reset(self)
 		self.parts, self.jdict, self.ordered_joints, self.robot_body = self.robot.addToScene(
 			self.stadium_scene.ground_plane_mjcf)
 		self.ground_ids = set([(self.parts[f].bodies[self.parts[f].bodyIndex], self.parts[f].bodyPartIndex) for f in
