@@ -22,7 +22,7 @@ ACTION_EPS = 0.01
 OBSERVATION_EPS = 0.01
 
 
-class MinitaurGymEnv(gym.Env):
+class MinitaurBulletEnv(gym.Env):
   """The gym environment for the minitaur.
 
   It simulates the locomotion of a minitaur, a quadruped robot. The state space
