@@ -23,7 +23,7 @@ def callback(lcl, glb):
 
 def main():
   
-    env = RacecarGymEnv(renders=False)
+    env = RacecarGymEnv(renders=False,isDiscrete=True)
     model = deepq.models.mlp([64])
     act = deepq.learn(
         env,

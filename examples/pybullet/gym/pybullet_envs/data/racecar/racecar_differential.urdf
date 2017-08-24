@@ -35,7 +35,7 @@
     <contact>
       <lateral_friction value=".5"/>
       <rolling_friction value="0.0"/>
-      <stiffness value="30000"/>
+      <stiffness value="300000"/>
       <damping value="1000"/>
     </contact>
     <inertial>
@@ -68,7 +68,7 @@
 <contact>
       <lateral_friction value=".5"/>
       <rolling_friction value="0.0"/>
-      <stiffness value="30000"/>
+      <stiffness value="300000"/>
       <damping value="1000"/>
     </contact>
     <inertial>
@@ -165,7 +165,7 @@
 <contact>
       <lateral_friction value=".8"/>
       <rolling_friction value="0.0"/>
-      <stiffness value="30000"/>
+      <stiffness value="300000"/>
       <damping value="1000"/>
     </contact>
     <inertial>
@@ -209,7 +209,7 @@
 <contact>
       <lateral_friction value="0.8"/>
       <rolling_friction value="0.0"/>
-      <stiffness value="30000"/>
+      <stiffness value="300000"/>
       <damping value="1000"/>
     </contact>
     <inertial>
@@ -337,7 +337,7 @@
   	<contact>
       <lateral_friction value="1.0"/>
       <rolling_friction value="0.0"/>
-      <stiffness value="30000"/>
+      <stiffness value="300000"/>
       <damping value="1000"/>
     </contact>
     
@@ -377,7 +377,7 @@
   	<contact>
       <lateral_friction value="1.0"/>
       <rolling_friction value="0.0"/>
-      <stiffness value="30000"/>
+      <stiffness value="300000"/>
       <damping value="1000"/>
     </contact>
     
@@ -416,7 +416,7 @@
   	<contact>
       <lateral_friction value="1.0"/>
       <rolling_friction value="0.0"/>
-      <stiffness value="30000"/>
+      <stiffness value="300000"/>
       <damping value="1000"/>
     </contact>
     
@@ -456,7 +456,7 @@
   	<contact>
       <lateral_friction value="1.0"/>
       <rolling_friction value="0.0"/>
-      <stiffness value="30000"/>
+      <stiffness value="300000"/>
       <damping value="1000"/>
     </contact>
     
@@ -492,7 +492,7 @@
   	<contact>
       <lateral_friction value="1.0"/>
       <rolling_friction value="0.0"/>
-      <stiffness value="30000"/>
+      <stiffness value="300000"/>
       <damping value="1000"/>
     </contact>
     
@@ -528,7 +528,7 @@
   	<contact>
       <lateral_friction value="1.0"/>
       <rolling_friction value="0.0"/>
-      <stiffness value="30000"/>
+      <stiffness value="300000"/>
       <damping value="1000"/>
     </contact>
     
@@ -568,7 +568,7 @@
   	<contact>
       <lateral_friction value="1.0"/>
       <rolling_friction value="0.0"/>
-      <stiffness value="30000"/>
+      <stiffness value="300000"/>
       <damping value="1000"/>
     </contact>
     
@@ -607,7 +607,7 @@
   	<contact>
       <lateral_friction value="1.0"/>
       <rolling_friction value="0.0"/>
-      <stiffness value="30000"/>
+      <stiffness value="300000"/>
       <damping value="1000"/>
     </contact>
     
@@ -645,7 +645,7 @@
   	<contact>
       <lateral_friction value="1.0"/>
       <rolling_friction value="0.0"/>
-      <stiffness value="30000"/>
+      <stiffness value="300000"/>
       <damping value="1000"/>
     </contact>
     
@@ -681,7 +681,7 @@
   	<contact>
       <lateral_friction value="1.0"/>
       <rolling_friction value="0.0"/>
-      <stiffness value="30000"/>
+      <stiffness value="300000"/>
       <damping value="1000"/>
     </contact>
     
@@ -735,9 +735,6 @@
   </material>
   <material name="red">
     <color rgba="0.8 0.0 0.0 1.0"/>
-  </material>
-  <material name="white">
-    <color rgba="1.0 1.0 1.0 1.0"/>
   </material>
 </robot>
 

@@ -3,7 +3,7 @@ import numpy as np
 import pybullet as p
 
 
-class MujocoXmlBaseBulletEnv(gym.Env):
+class MJCFBaseBulletEnv(gym.Env):
 	"""
 	Base class for MuJoCo .xml environments in a Scene.
 	These environments create single-player scenes and behave like normal Gym environments, if

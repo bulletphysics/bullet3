@@ -62,6 +62,8 @@ public:
 
     virtual void convertLinkVisualShapes2(int linkIndex, int urdfIndex, const char* pathPrefix, const btTransform& inertialFrame, class btCollisionObject* colObj, int bodyUniqueId) const;
 
+	class btCollisionShape* convertURDFToCollisionShape(const struct UrdfCollision* collision, const char* urdfPathPrefix) const;
+
     ///todo(erwincoumans) refactor this convertLinkCollisionShapes/memory allocation
     
 	virtual class btCompoundShape* convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const;
@@ -69,7 +71,9 @@ public:
     virtual int getNumAllocatedCollisionShapes() const;
     virtual class btCollisionShape* getAllocatedCollisionShape(int index);
 
-    
+	virtual int getNumAllocatedMeshInterfaces() const;
+	virtual class btStridingMeshInterface* getAllocatedMeshInterface(int index);
+
 };
 
 

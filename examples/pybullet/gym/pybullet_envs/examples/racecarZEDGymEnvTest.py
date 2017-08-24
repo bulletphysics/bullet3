@@ -9,7 +9,7 @@ print ("hello")
 environment = RacecarZEDGymEnv(renders=True)
 
 targetVelocitySlider = environment._p.addUserDebugParameter("wheelVelocity",-1,1,0)
-steeringSlider = environment._p.addUserDebugParameter("steering",-0.5,0.5,0)
+steeringSlider = environment._p.addUserDebugParameter("steering",-1,1,0)
 
 while (True):
   targetVelocity = environment._p.readUserDebugParameter(targetVelocitySlider)
@@ -27,8 +27,8 @@ while (True):
       discreteAction=discreteAction+2
     else:
       discreteAction=discreteAction+1
-    
   action=discreteAction
+    
   state, reward, done, info = environment.step(action)
   obs = environment.getExtendedObservation()
   print("obs")

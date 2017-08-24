@@ -4,7 +4,7 @@
 import copy
 import math
 import numpy as np
-import motor
+from . import motor
 import os
 
 INIT_POSITION = [0, 0, .2]
