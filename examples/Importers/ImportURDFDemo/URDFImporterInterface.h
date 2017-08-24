@@ -80,6 +80,8 @@ public:
     virtual class btCollisionShape* getAllocatedCollisionShape(int /*index*/ ) {return 0;}
 	virtual int getNumModels() const {return 0;}
     virtual void activateModel(int /*modelIndex*/) { }
+	virtual int getNumAllocatedMeshInterfaces() const { return 0;}
+	virtual class btStridingMeshInterface* getAllocatedMeshInterface(int index) {return 0;}
 
 };
 
