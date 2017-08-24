@@ -1,10 +1,10 @@
-from robot_bases import MujocoXmlBasedRobot
+from robot_bases import MujocoXmlBasedRobot, URDFBasedRobot
 import numpy as np
+import utils as ObjectHelper
 
 
 class WalkerBase(MujocoXmlBasedRobot):
-	def __init__(self, fn, robot_name, action_dim, obs_dim, power):
-		MujocoXmlBasedRobot.__init__(self, fn, robot_name, action_dim, obs_dim)
+	def __init__(self, power):
 		self.power = power
 		self.camera_x = 0
 		self.walk_target_x = 1e3  # kilometer away
@@ -65,21 +65,23 @@ class WalkerBase(MujocoXmlBasedRobot):
 		return - self.walk_target_dist / self.scene.dt
 
 
-class Hopper(WalkerBase):
+class Hopper(WalkerBase , MujocoXmlBasedRobot):
 	foot_list = ["foot"]
 
 	def __init__(self):
-		WalkerBase.__init__(self, "hopper.xml", "torso", action_dim=3, obs_dim=15, power=0.75)
+		WalkerBase.__init__(self, power=0.75)
+		MujocoXmlBasedRobot.__init__(self, "hopper.xml", "torso", action_dim=3, obs_dim=15)
 
 	def alive_bonus(self, z, pitch):
 		return +1 if z > 0.8 and abs(pitch) < 1.0 else -1
 
 
-class Walker2D(WalkerBase):
+class Walker2D(WalkerBase, MujocoXmlBasedRobot):
 	foot_list = ["foot", "foot_left"]
 
 	def __init__(self):
-		WalkerBase.__init__(self, "walker2d.xml", "torso", action_dim=6, obs_dim=22, power=0.40)
+		WalkerBase.__init__(self, power=0.40)
+		MujocoXmlBasedRobot.__init__(self, "walker2d.xml", "torso", action_dim=6, obs_dim=22)
 
 	def alive_bonus(self, z, pitch):
 		return +1 if z > 0.8 and abs(pitch) < 1.0 else -1
@@ -90,11 +92,12 @@ class Walker2D(WalkerBase):
 			self.jdict[n].power_coef = 30.0
 
 
-class HalfCheetah(WalkerBase):
+class HalfCheetah(WalkerBase, MujocoXmlBasedRobot):
 	foot_list = ["ffoot", "fshin", "fthigh",  "bfoot", "bshin", "bthigh"]  # track these contacts with ground
 
 	def __init__(self):
-		WalkerBase.__init__(self, "half_cheetah.xml", "torso", action_dim=6, obs_dim=26, power=0.90)
+		WalkerBase.__init__(self, power=0.90)
+		MujocoXmlBasedRobot.__init__(self, "half_cheetah.xml", "torso", action_dim=6, obs_dim=26)
 
 	def alive_bonus(self, z, pitch):
 		# Use contact other than feet to terminate episode: due to a lot of strange walks using knees
@@ -110,22 +113,24 @@ class HalfCheetah(WalkerBase):
 		self.jdict["ffoot"].power_coef  = 30.0
 
 
-class Ant(WalkerBase):
+class Ant(WalkerBase, MujocoXmlBasedRobot):
 	foot_list = ['front_left_foot', 'front_right_foot', 'left_back_foot', 'right_back_foot']
 
 	def __init__(self):
-		WalkerBase.__init__(self, "ant.xml", "torso", action_dim=8, obs_dim=28, power=10.5)
+		WalkerBase.__init__(self, power=10.5)
+		MujocoXmlBasedRobot.__init__(self, "ant.xml", "torso", action_dim=8, obs_dim=28)
 
 	def alive_bonus(self, z, pitch):
 		return +1 if z > 0.26 else -1  # 0.25 is central sphere rad, die if it scrapes the ground
 
 
-class Humanoid(WalkerBase):
+class Humanoid(WalkerBase, MujocoXmlBasedRobot):
 	self_collision = True
 	foot_list = ["right_foot", "left_foot"]  # "left_hand", "right_hand"
 
 	def __init__(self):
-		WalkerBase.__init__(self, 'humanoid_symmetric.xml', 'torso', action_dim=17, obs_dim=44, power=0.41)
+		WalkerBase.__init__(self, power=0.41)
+		MujocoXmlBasedRobot.__init__(self, 'humanoid_symmetric.xml', 'torso', action_dim=17, obs_dim=44)
 		# 17 joints, 4 of them important for walking (hip, knee), others may as well be turned off, 17/4 = 4.25
 
 	def robot_specific_reset(self):
@@ -173,3 +178,99 @@ class Humanoid(WalkerBase):
 	def alive_bonus(self, z, pitch):
 		return +2 if z > 0.78 else -1   # 2 here because 17 joints produce a lot of electricity cost just from policy noise, living must be better than dying
 
+class HumanoidFlagrun(Humanoid):
+	def __init__(self):
+		Humanoid.__init__(self)
+
+	def robot_specific_reset(self):
+		Humanoid.robot_specific_reset(self)
+		self.flag_reposition()
+
+	def flag_reposition(self):
+		self.walk_target_x = self.np_random.uniform(low=-self.scene.stadium_halflen,   high=+self.scene.stadium_halflen)
+		self.walk_target_y = self.np_random.uniform(low=-self.scene.stadium_halfwidth, high=+self.scene.stadium_halfwidth)
+		more_compact = 0.5  # set to 1.0 whole football field
+		self.walk_target_x *= more_compact
+		self.walk_target_y *= more_compact
+		self.flag = None
+		self.flag = ObjectHelper.get_sphere(self.walk_target_x, self.walk_target_y, 0.2)
+		self.flag_timeout = 200
+
+	def calc_state(self):
+		self.flag_timeout -= 1
+		state = Humanoid.calc_state(self)
+		if self.walk_target_dist < 1 or self.flag_timeout <= 0:
+			self.flag_reposition()
+			state = Humanoid.calc_state(self)  # caclulate state again, against new flag pos
+			self.potential = self.calc_potential()	   # avoid reward jump
+		return state
+
+class HumanoidFlagrunHarder(HumanoidFlagrun):
+	def __init__(self):
+		HumanoidFlagrun.__init__()
+
+	def robot_specific_reset(self):
+		HumanoidFlagrun.robot_specific_reset(self)
+		self.aggressive_cube = ObjectHelper.get_cube(-1.5,0,0.05)
+		self.on_ground_frame_counter = 0
+		self.crawl_start_potential = None
+		self.crawl_ignored_potential = 0.0
+		self.initial_z = 0.8
+
+	def alive_bonus(self, z, pitch):
+		if self.frame%30==0 and self.frame>100 and self.on_ground_frame_counter==0:
+			target_xyz  = np.array(self.body_xyz)
+			robot_speed = np.array(self.robot_body.speed())
+			angle = self.np_random.uniform(low=-3.14, high=3.14)
+			from_dist   = 4.0
+			attack_speed   = self.np_random.uniform(low=20.0, high=30.0)  # speed 20..30 (* mass in cube.urdf = impulse)
+			time_to_travel = from_dist / attack_speed
+			target_xyz += robot_speed*time_to_travel  # predict future position at the moment the cube hits the robot
+			cpose = [target_xyz[0] + from_dist*np.cos(angle),
+				target_xyz[1] + from_dist*np.sin(angle),
+				target_xyz[2] + 1.0]
+			attack_speed_vector = target_xyz - np.array(cpose)
+			attack_speed_vector *= attack_speed / np.linalg.norm(attack_speed_vector)
+			attack_speed_vector += self.np_random.uniform(low=-1.0, high=+1.0, size=(3,))
+			self.aggressive_cube.reset_position(cpose)
+			self.aggressive_cube.reset_velocity(linearVelocity=attack_speed_vector)
+		if z < 0.8:
+			self.on_ground_frame_counter += 1
+		elif self.on_ground_frame_counter > 0:
+			self.on_ground_frame_counter -= 1
+		# End episode if the robot can't get up in 170 frames, to save computation and decorrelate observations.
+		return self.potential_leak() if self.on_ground_frame_counter<170 else -1
+
+	def potential_leak(self):
+		z = self.body_xyz[2]		  # 0.00 .. 0.8 .. 1.05 normal walk, 1.2 when jumping
+		z = np.clip(z, 0, 0.8)
+		return z/0.8 + 1.0			# 1.00 .. 2.0
+
+	def calc_potential(self):
+		# We see alive bonus here as a leak from potential field. Value V(s) of a given state equals
+		# potential, if it is topped up with gamma*potential every frame. Gamma is assumed 0.99.
+		#
+		# 2.0 alive bonus if z>0.8, potential is 200, leak gamma=0.99, (1-0.99)*200==2.0
+		# 1.0 alive bonus on the ground z==0, potential is 100, leak (1-0.99)*100==1.0
+		#
+		# Why robot whould stand up: to receive 100 points in potential field difference.
+		flag_running_progress = Humanoid.calc_potential(self)
+
+		# This disables crawl.
+		if self.body_xyz[2] < 0.8:
+			if self.crawl_start_potential is None:
+				self.crawl_start_potential = flag_running_progress - self.crawl_ignored_potential
+				#print("CRAWL START %+0.1f %+0.1f" % (self.crawl_start_potential, flag_running_progress))
+			self.crawl_ignored_potential = flag_running_progress - self.crawl_start_potential
+			flag_running_progress  = self.crawl_start_potential
+		else:
+			#print("CRAWL STOP %+0.1f %+0.1f" % (self.crawl_ignored_potential, flag_running_progress))
+			flag_running_progress -= self.crawl_ignored_potential
+			self.crawl_start_potential = None
+
+		return flag_running_progress + self.potential_leak()*100
+
+class Atlas(WalkerBase):
+	def __init__(self):
+		WalkerBase.__init__(self, power=0.30)
+		URDFBasedRobot.__init__(self, "atlas_description/urdf/atlas_v4_with_multisense.urdf", "pelvis", action_dim=30, obs_dim=70)

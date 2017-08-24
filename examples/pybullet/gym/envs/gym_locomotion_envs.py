@@ -1,12 +1,12 @@
 from scene_stadium import SinglePlayerStadiumScene
-from env_bases import MujocoXmlBaseBulletEnv
+from env_bases import BaseBulletEnv
 import numpy as np
-from robot_locomotors import Hopper, Walker2D, HalfCheetah, Ant, Humanoid
+from robot_locomotors import Hopper, Walker2D, HalfCheetah, Ant, Humanoid, HumanoidFlagrun, Atlas
 
 
-class WalkerBaseBulletEnv(MujocoXmlBaseBulletEnv):
+class WalkerBaseBulletEnv(BaseBulletEnv):
 	def __init__(self, robot):
-		MujocoXmlBaseBulletEnv.__init__(self, robot)
+		BaseBulletEnv.__init__(self, robot)
 		self.camera_x = 0
 		self.walk_target_x = 1e3  # kilometer away
 		self.walk_target_y = 0
@@ -16,7 +16,7 @@ class WalkerBaseBulletEnv(MujocoXmlBaseBulletEnv):
 		return self.stadium_scene
 
 	def _reset(self):
-		r = MujocoXmlBaseBulletEnv._reset(self)
+		r = BaseBulletEnv._reset(self)
 		self.parts, self.jdict, self.ordered_joints, self.robot_body = self.robot.addToScene(
 			self.stadium_scene.ground_plane_mjcf)
 		self.ground_ids = set([(self.parts[f].bodies[self.parts[f].bodyIndex], self.parts[f].bodyPartIndex) for f in
@@ -108,3 +108,69 @@ class HumanoidBulletEnv(WalkerBaseBulletEnv):
 		WalkerBaseBulletEnv.__init__(self, self.robot)
 		self.electricity_cost  = 4.25*WalkerBaseBulletEnv.electricity_cost
 		self.stall_torque_cost = 4.25*WalkerBaseBulletEnv.stall_torque_cost
+
+	def __init__(self, robot):
+		self.robot = robot
+		WalkerBaseBulletEnv.__init__(self, self.robot)
+		self.electricity_cost  = 4.25*WalkerBaseBulletEnv.electricity_cost
+		self.stall_torque_cost = 4.25*WalkerBaseBulletEnv.stall_torque_cost
+
+class HumanoidFlagrunBulletEnv(HumanoidBulletEnv):
+	random_yaw = True
+
+	def __init__(self):
+		self.robot = HumanoidFlagrun()
+		HumanoidBulletEnv.__init__(self, self.robot)
+
+	def create_single_player_scene(self):
+		s = HumanoidBulletEnv.create_single_player_scene(self)
+		s.zero_at_running_strip_start_line = False
+		return s
+
+class HumanoidFlagrunHarderBulletEnv(HumanoidFlagrunBulletEnv):
+	random_lean = True  # can fall on start
+
+	def __init__(self):
+		HumanoidFlagrunBulletEnv.__init__(self)
+		self.electricity_cost /= 4   # don't care that much about electricity, just stand up!
+
+class AtlasBulletEnv(WalkerBaseBulletEnv):
+	random_yaw = False
+	foot_list = ["r_foot", "l_foot"]
+
+	def __init__(self):
+		self.robot = Atlas()
+		WalkerBaseBulletEnv.__init__(self, self.robot)
+
+	def create_single_player_scene(self):
+		return SinglePlayerStadiumScene(gravity=9.8, timestep=0.0165/8, frame_skip=8)   # 8 instead of 4 here
+
+	def alive_bonus(self, z, pitch):
+		# This is debug code to fix unwanted self-collisions:
+		#for part in self.parts.values():
+		#	contact_names = set(x.name for x in part.contact_list())
+		#	if contact_names:
+		#		print("CONTACT OF '%s' WITH '%s'" % (part.name, ",".join(contact_names)) )
+
+		x,y,z = self.head.pose().xyz()
+		# Failure mode: robot doesn't bend knees, tries to walk using hips.
+		# We fix that by a bit of reward engineering.
+		knees = np.array([j.current_relative_position() for j in [self.jdict["l_leg_kny"], self.jdict["r_leg_kny"]]], dtype=np.float32).flatten()
+		knees_at_limit = np.count_nonzero(np.abs(knees[0::2]) > 0.99)
+		return +4-knees_at_limit if z > 1.3 else -1
+
+	def robot_specific_reset(self):
+		self.robot.robot_specific_reset(self)
+		self.set_initial_orientation(yaw_center=0, yaw_random_spread=np.pi)
+		self.head = self.parts["head"]
+
+	def set_initial_orientation(self, yaw_center, yaw_random_spread):
+		if not self.random_yaw:
+			yaw = yaw_center
+		else:
+			yaw = yaw_center + self.np_random.uniform(low=-yaw_random_spread, high=yaw_random_spread)
+
+		position = [self.start_pos_x, self.start_pos_y, self.start_pos_z + 1.0]
+		orientation = [0, 0, yaw]  # just face random direction, but stay straight otherwise
+		self.robot.set_pose(position, orientation)
+		self.initial_z = 1.5

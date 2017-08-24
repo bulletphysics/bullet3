@@ -132,3 +132,15 @@ register(
 	max_episode_steps=1000,
 	reward_threshold=2500.0
 	)
+
+register(
+    id='HumanoidFlagrunBulletEnv-v0',
+    entry_point='envs.gym_locomotion_envs:HumanoidFlagrunBulletEnv',
+    max_episode_steps=1000,
+    reward_threshold=2000.0
+    )
+register(
+    id='HumanoidFlagrunHarderBulletEnv-v0',
+    entry_point='envs.gym_locomotion_envs:HumanoidFlagrunHarderBulletEnv',
+    max_episode_steps=1000
+    )
