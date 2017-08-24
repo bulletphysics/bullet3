@@ -12,7 +12,7 @@ from baselines import deepq
 
 def main():
     
-    env = RacecarGymEnv(renders=True)
+    env = RacecarGymEnv(renders=False,isDiscrete=True)
     act = deepq.load("racecar_model.pkl")
     print(act)
     while True:

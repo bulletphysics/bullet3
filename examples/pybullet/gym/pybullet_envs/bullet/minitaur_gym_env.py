@@ -8,8 +8,8 @@ from gym import spaces
 from gym.utils import seeding
 import numpy as np
 import pybullet
-import bullet_client
-import minitaur
+from . import bullet_client
+from . import minitaur
 import os
 
 NUM_SUBSTEPS = 5

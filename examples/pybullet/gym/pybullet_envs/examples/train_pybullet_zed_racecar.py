@@ -22,7 +22,7 @@ def callback(lcl, glb):
 
 def main():
   
-    env = RacecarZEDGymEnv(renders=False)
+    env = RacecarZEDGymEnv(renders=False, isDiscrete=True)
     model = deepq.models.cnn_to_mlp(
         convs=[(32, 8, 4), (64, 4, 2), (64, 3, 1)],
         hiddens=[256],

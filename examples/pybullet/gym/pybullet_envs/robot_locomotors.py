@@ -1,10 +1,10 @@
-from robot_bases import MujocoXmlBasedRobot
+from robot_bases import MJCFBasedRobot
 import numpy as np
 
 
-class WalkerBase(MujocoXmlBasedRobot):
+class WalkerBase(MJCFBasedRobot):
 	def __init__(self, fn, robot_name, action_dim, obs_dim, power):
-		MujocoXmlBasedRobot.__init__(self, fn, robot_name, action_dim, obs_dim)
+		MJCFBasedRobot.__init__(self, fn, robot_name, action_dim, obs_dim)
 		self.power = power
 		self.camera_x = 0
 		self.walk_target_x = 1e3  # kilometer away

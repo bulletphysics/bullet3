@@ -8,7 +8,7 @@ import time
 import pybullet
 from . import racecar
 import random
-import bullet_client
+from . import bullet_client
 
 class RacecarGymEnv(gym.Env):
   metadata = {
@@ -20,6 +20,7 @@ class RacecarGymEnv(gym.Env):
                urdfRoot="",
                actionRepeat=50,
                isEnableSelfCollision=True,
+               isDiscrete=False,
                renders=False):
     print("init")
     self._timeStep = 0.01
@@ -30,6 +31,7 @@ class RacecarGymEnv(gym.Env):
     self._ballUniqueId = -1
     self._envStepCounter = 0
     self._renders = renders
+    self._isDiscrete = isDiscrete
     if self._renders:
       self._p = bullet_client.BulletClient(
           connection_mode=pybullet.GUI)
@@ -42,7 +44,13 @@ class RacecarGymEnv(gym.Env):
     #print("observationDim")
     #print(observationDim) 
     observation_high = np.array([np.finfo(np.float32).max] * observationDim)    
-    self.action_space = spaces.Discrete(9)
+    if (isDiscrete):
+      self.action_space = spaces.Discrete(9)
+    else:
+       action_dim = 2
+       self._action_bound = 1
+       action_high = np.array([self._action_bound] * action_dim)
+       self.action_space = spaces.Box(-action_high, action_high) 
     self.observation_space = spaces.Box(-observation_high, observation_high)
     self.viewer = None
 
@@ -53,10 +61,10 @@ class RacecarGymEnv(gym.Env):
     #self._p.loadURDF(os.path.join(os.path.dirname(__file__),"../data","plane.urdf"))
     stadiumobjects = self._p.loadSDF(os.path.join(os.path.dirname(__file__),"../data","stadium.sdf"))
     #move the stadium objects slightly above 0
-    for i in stadiumobjects:
-    	pos,orn = self._p.getBasePositionAndOrientation(i)
-    	newpos = [pos[0],pos[1],pos[2]+0.1]
-    	self._p.resetBasePositionAndOrientation(i,newpos,orn)
+    #for i in stadiumobjects:
+    #	pos,orn = self._p.getBasePositionAndOrientation(i)
+    #	newpos = [pos[0],pos[1],pos[2]-0.1]
+    #	self._p.resetBasePositionAndOrientation(i,newpos,orn)
     
     dist = 5 +2.*random.random()
     ang = 2.*3.1415925438*random.random()
@@ -96,11 +104,15 @@ class RacecarGymEnv(gym.Env):
       basePos,orn = self._p.getBasePositionAndOrientation(self._racecar.racecarUniqueId)
       #self._p.resetDebugVisualizerCamera(1, 30, -40, basePos)
     
-    fwd = [-5,-5,-5,0,0,0,5,5,5]
-    steerings = [-0.3,0,0.3,-0.3,0,0.3,-0.3,0,0.3]
-    forward = fwd[action]
-    steer = steerings[action]
-    realaction = [forward,steer]
+    if (self._isDiscrete):
+	    fwd = [-1,-1,-1,0,0,0,1,1,1]
+	    steerings = [-0.6,0,0.6,-0.6,0,0.6,-0.6,0,0.6]
+	    forward = fwd[action]
+	    steer = steerings[action]
+	    realaction = [forward,steer]
+    else:
+      realaction = action
+
     self._racecar.applyAction(realaction)
     for i in range(self._actionRepeat):
       self._p.stepSimulation()
