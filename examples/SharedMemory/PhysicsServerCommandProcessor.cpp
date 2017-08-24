@@ -1191,6 +1191,7 @@ struct PhysicsServerCommandProcessorInternalData
 	btAlignedObjectArray<std::string*> m_strings;
 
 	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
+	btAlignedObjectArray<btStridingMeshInterface*> m_meshInterfaces;
 
 	MyOverlapFilterCallback* m_broadphaseCollisionFilterCallback;
 	btHashedOverlappingPairCache* m_pairCache;
@@ -2027,6 +2028,11 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 		btCollisionShape* shape = m_data->m_collisionShapes[j];
 		delete shape;
 	}
+	for (int j=0;j<m_data->m_meshInterfaces.size();j++)
+	{
+		delete m_data->m_meshInterfaces[j];
+	}
+	m_data->m_meshInterfaces.clear();
 	m_data->m_collisionShapes.clear();
 
 	delete m_data->m_dynamicsWorld;
@@ -2232,7 +2238,12 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 		}
 
     }
-	
+
+	for (int i=0;i<u2b.getNumAllocatedMeshInterfaces();i++)
+	{
+		m_data->m_meshInterfaces.push_back(u2b.getAllocatedMeshInterface(i));
+	}
+
 	for (int i=0;i<u2b.getNumAllocatedCollisionShapes();i++)
     {
         btCollisionShape* shape =u2b.getAllocatedCollisionShape(i);
@@ -2278,7 +2289,6 @@ bool PhysicsServerCommandProcessor::loadMjcf(const char* fileName, char* bufferS
     bool loadOk =  u2b.loadMJCF(fileName, &logger, useFixedBase);
     if (loadOk)
 	{
-		
 		processImportedObjects(fileName,bufferServerToClient,bufferSizeInBytes,useMultiBody,flags, u2b);
 	}
 	return loadOk;
@@ -3787,6 +3797,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 											BT_PROFILE("convert trimesh");
 											btTriangleMesh* meshInterface = new btTriangleMesh();
+											this->m_data->m_meshInterfaces.push_back(meshInterface);
 											{
 												BT_PROFILE("convert vertices");
 
@@ -3801,6 +3812,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 											{
 												BT_PROFILE("create btBvhTriangleMeshShape");
 												btBvhTriangleMeshShape* trimesh = new btBvhTriangleMeshShape(meshInterface,true,true);
+												m_data->m_collisionShapes.push_back(trimesh);
 												//trimesh->setLocalScaling(collision->m_geometry.m_meshScale);
 												shape = trimesh;
 												if (compound)
@@ -3808,6 +3820,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 													compound->addChildShape(childTransform,shape);
 												}
 											}
+											delete glmesh;
 										} else
 										{
 
