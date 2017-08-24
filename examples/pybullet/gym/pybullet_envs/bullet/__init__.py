@@ -1,5 +1,5 @@
 from pybullet_envs.bullet.cartpole_bullet import CartPoleBulletEnv
-from pybullet_envs.bullet.minitaur_bullet import MinitaurBulletEnv
+from pybullet_envs.bullet.minitaur_gym_env import MinitaurBulletEnv
 from pybullet_envs.bullet.racecarGymEnv import RacecarGymEnv
 from pybullet_envs.bullet.racecarZEDGymEnv import RacecarZEDGymEnv
 from pybullet_envs.bullet.simpleHumanoidGymEnv import SimpleHumanoidGymEnv

@@ -5,9 +5,10 @@ from gym import spaces
 from gym.utils import seeding
 import numpy as np
 import time
-import pybullet as p
+import pybullet
 from . import racecar
 import random
+import bullet_client
 
 class RacecarGymEnv(gym.Env):
   metadata = {
@@ -19,7 +20,7 @@ class RacecarGymEnv(gym.Env):
                urdfRoot="",
                actionRepeat=50,
                isEnableSelfCollision=True,
-               renders=True):
+               renders=False):
     print("init")
     self._timeStep = 0.01
     self._urdfRoot = urdfRoot
@@ -29,33 +30,33 @@ class RacecarGymEnv(gym.Env):
     self._ballUniqueId = -1
     self._envStepCounter = 0
     self._renders = renders
-    self._p = p
     if self._renders:
-      p.connect(p.GUI)
+      self._p = bullet_client.BulletClient(
+          connection_mode=pybullet.GUI)
     else:
-      p.connect(p.DIRECT)
+      self._p = bullet_client.BulletClient()
+
     self._seed()
-    self.reset()
-    observationDim = len(self.getExtendedObservation())
+    #self.reset()
+    observationDim = 2 #len(self.getExtendedObservation())
     #print("observationDim")
-    #print(observationDim)
-    
+    #print(observationDim) 
     observation_high = np.array([np.finfo(np.float32).max] * observationDim)    
     self.action_space = spaces.Discrete(9)
     self.observation_space = spaces.Box(-observation_high, observation_high)
     self.viewer = None
 
   def _reset(self):
-    p.resetSimulation()
+    self._p.resetSimulation()
     #p.setPhysicsEngineParameter(numSolverIterations=300)
-    p.setTimeStep(self._timeStep)
-    #p.loadURDF(os.path.join(os.path.dirname(__file__),"../data","plane.urdf"))
-    stadiumobjects = p.loadSDF(os.path.join(os.path.dirname(__file__),"../data","stadium.sdf"))
+    self._p.setTimeStep(self._timeStep)
+    #self._p.loadURDF(os.path.join(os.path.dirname(__file__),"../data","plane.urdf"))
+    stadiumobjects = self._p.loadSDF(os.path.join(os.path.dirname(__file__),"../data","stadium.sdf"))
     #move the stadium objects slightly above 0
     for i in stadiumobjects:
-    	pos,orn = p.getBasePositionAndOrientation(i)
+    	pos,orn = self._p.getBasePositionAndOrientation(i)
     	newpos = [pos[0],pos[1],pos[2]+0.1]
-    	p.resetBasePositionAndOrientation(i,newpos,orn)
+    	self._p.resetBasePositionAndOrientation(i,newpos,orn)
     
     dist = 5 +2.*random.random()
     ang = 2.*3.1415925438*random.random()
@@ -64,17 +65,17 @@ class RacecarGymEnv(gym.Env):
     bally = dist * math.cos(ang)
     ballz = 1
     
-    self._ballUniqueId = p.loadURDF(os.path.join(os.path.dirname(__file__),"../data","sphere2.urdf"),[ballx,bally,ballz])
-    p.setGravity(0,0,-10)
-    self._racecar = racecar.Racecar(urdfRootPath=self._urdfRoot, timeStep=self._timeStep)
+    self._ballUniqueId = self._p.loadURDF(os.path.join(os.path.dirname(__file__),"../data","sphere2.urdf"),[ballx,bally,ballz])
+    self._p.setGravity(0,0,-10)
+    self._racecar = racecar.Racecar(self._p,urdfRootPath=self._urdfRoot, timeStep=self._timeStep)
     self._envStepCounter = 0
     for i in range(100):
-      p.stepSimulation()
+      self._p.stepSimulation()
     self._observation = self.getExtendedObservation()
     return np.array(self._observation)
 
   def __del__(self):
-    p.disconnect()
+    self._p = 0
 
   def _seed(self, seed=None):
     self.np_random, seed = seeding.np_random(seed)
@@ -82,18 +83,18 @@ class RacecarGymEnv(gym.Env):
 
   def getExtendedObservation(self):
      self._observation = [] #self._racecar.getObservation()
-     carpos,carorn = p.getBasePositionAndOrientation(self._racecar.racecarUniqueId)
-     ballpos,ballorn = p.getBasePositionAndOrientation(self._ballUniqueId)      
-     invCarPos,invCarOrn = p.invertTransform(carpos,carorn)
-     ballPosInCar,ballOrnInCar = p.multiplyTransforms(invCarPos,invCarOrn,ballpos,ballorn)
+     carpos,carorn = self._p.getBasePositionAndOrientation(self._racecar.racecarUniqueId)
+     ballpos,ballorn = self._p.getBasePositionAndOrientation(self._ballUniqueId)      
+     invCarPos,invCarOrn = self._p.invertTransform(carpos,carorn)
+     ballPosInCar,ballOrnInCar = self._p.multiplyTransforms(invCarPos,invCarOrn,ballpos,ballorn)
     
      self._observation.extend([ballPosInCar[0],ballPosInCar[1]])
      return self._observation
      
   def _step(self, action):
     if (self._renders):
-      basePos,orn = p.getBasePositionAndOrientation(self._racecar.racecarUniqueId)
-      #p.resetDebugVisualizerCamera(1, 30, -40, basePos)
+      basePos,orn = self._p.getBasePositionAndOrientation(self._racecar.racecarUniqueId)
+      #self._p.resetDebugVisualizerCamera(1, 30, -40, basePos)
     
     fwd = [-5,-5,-5,0,0,0,5,5,5]
     steerings = [-0.3,0,0.3,-0.3,0,0.3,-0.3,0,0.3]
@@ -102,7 +103,7 @@ class RacecarGymEnv(gym.Env):
     realaction = [forward,steer]
     self._racecar.applyAction(realaction)
     for i in range(self._actionRepeat):
-      p.stepSimulation()
+      self._p.stepSimulation()
       if self._renders:
         time.sleep(self._timeStep)
       self._observation = self.getExtendedObservation()
@@ -123,7 +124,7 @@ class RacecarGymEnv(gym.Env):
     return self._envStepCounter>1000
     
   def _reward(self):
-    closestPoints = p.getClosestPoints(self._racecar.racecarUniqueId,self._ballUniqueId,10000) 
+    closestPoints = self._p.getClosestPoints(self._racecar.racecarUniqueId,self._ballUniqueId,10000) 
     
     numPt = len(closestPoints)
     reward=-1000
