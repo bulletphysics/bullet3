@@ -5,7 +5,6 @@ recursive-include Extras *.h
 recursive-include Extras *.hpp
 recursive-include src *.h
 recursive-include src *.hpp
-recursive-include data *.*
 recursive-include examples/pybullet/gym *.*
 include examples/ThirdPartyLibs/enet/unix.c
 include examples/OpenGLWindow/X11OpenGLWindow.cpp
