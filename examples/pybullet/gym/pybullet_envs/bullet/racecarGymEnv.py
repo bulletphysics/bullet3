@@ -43,7 +43,8 @@ class RacecarGymEnv(gym.Env):
     observationDim = 2 #len(self.getExtendedObservation())
     #print("observationDim")
     #print(observationDim) 
-    observation_high = np.array([np.finfo(np.float32).max] * observationDim)    
+    # observation_high = np.array([np.finfo(np.float32).max] * observationDim)    
+    observation_high = np.ones(observationDim) * 1000 #np.inf
     if (isDiscrete):
       self.action_space = spaces.Discrete(9)
     else:
@@ -130,7 +131,19 @@ class RacecarGymEnv(gym.Env):
     return np.array(self._observation), reward, done, {}
 
   def _render(self, mode='human', close=False):
-      return
+      width=320
+      height=200
+      img_arr = self._p.getCameraImage(width,height)
+      w=img_arr[0]
+      h=img_arr[1]
+      rgb=img_arr[2]
+      dep=img_arr[3]
+      #print 'width = %d height = %d' % (w,h)
+      # reshape creates np array
+      np_img_arr = np.reshape(rgb, (h, w, 4))
+      # remove alpha channel
+      np_img_arr = np_img_arr[:, :, :3]
+      return np_img_arr
 
   def _termination(self):
     return self._envStepCounter>1000
