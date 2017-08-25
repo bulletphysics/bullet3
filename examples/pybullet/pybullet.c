@@ -2530,6 +2530,14 @@ static PyObject* pybullet_getNumConstraints(PyObject* self, PyObject* args, PyOb
 // the object is loaded into simulation
 static PyObject* pybullet_getAPIVersion(PyObject* self, PyObject* args, PyObject* keywds)
 {
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+	static char* kwlist[] = {"physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|i", kwlist, &physicsClientId))
+	{
+		return NULL;
+	}
+
 #if PY_MAJOR_VERSION >= 3
 	return PyLong_FromLong(SHARED_MEMORY_MAGIC_NUMBER);
 #else
@@ -5743,11 +5751,11 @@ static PyObject* pybullet_computeViewMatrix(PyObject* self, PyObject* args, PyOb
 	float camEye[3];
 	float camTargetPosition[3];
 	float camUpVector[3];
-
+	int physicsClientId=0;
 	// set camera resolution, optionally view, projection matrix, light position
-	static char* kwlist[] = {"cameraEyePosition", "cameraTargetPosition", "cameraUpVector", NULL};
+	static char* kwlist[] = {"cameraEyePosition", "cameraTargetPosition", "cameraUpVector", "physicsClientId", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OOO", kwlist, &camEyeObj, &camTargetPositionObj, &camUpVectorObj))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OOO|i", kwlist, &camEyeObj, &camTargetPositionObj, &camUpVectorObj,&physicsClientId))
 	{
 		return NULL;
 	}
@@ -5784,11 +5792,12 @@ static PyObject* pybullet_computeViewMatrixFromYawPitchRoll(PyObject* self, PyOb
 	float viewMatrix[16];
 	PyObject* pyResultList = 0;
 	int i;
+	int physicsClientId = 0;
 
 	// set camera resolution, optionally view, projection matrix, light position
-	static char* kwlist[] = {"cameraTargetPosition", "distance", "yaw", "pitch", "roll", "upAxisIndex", NULL};
+	static char* kwlist[] = {"cameraTargetPosition", "distance", "yaw", "pitch", "roll", "upAxisIndex", "physicsClientId", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "Offffi", kwlist, &cameraTargetPositionObj, &distance, &yaw, &pitch, &roll, &upAxisIndex))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "Offffi|i", kwlist, &cameraTargetPositionObj, &distance, &yaw, &pitch, &roll, &upAxisIndex,&physicsClientId))
 	{
 		return NULL;
 	}
@@ -5822,11 +5831,12 @@ static PyObject* pybullet_computeProjectionMatrix(PyObject* self, PyObject* args
 	float farVal;
 	float projectionMatrix[16];
 	int i;
+	int physicsClientId;
 
 	// set camera resolution, optionally view, projection matrix, light position
-	static char* kwlist[] = {"left", "right", "bottom", "top", "nearVal", "farVal", NULL};
+	static char* kwlist[] = {"left", "right", "bottom", "top", "nearVal", "farVal", "physicsClientId",NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ffffff", kwlist, &left, &right, &bottom, &top, &nearVal, &farVal))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ffffff|i", kwlist, &left, &right, &bottom, &top, &nearVal, &farVal,&physicsClientId))
 	{
 		return NULL;
 	}
@@ -5848,10 +5858,11 @@ static PyObject* pybullet_computeProjectionMatrixFOV(PyObject* self, PyObject* a
 	PyObject* pyResultList = 0;
 	float projectionMatrix[16];
 	int i;
+	int physicsClientId=0;
 
-	static char* kwlist[] = {"fov", "aspect", "nearVal", "farVal", NULL};
+	static char* kwlist[] = {"fov", "aspect", "nearVal", "farVal", "physicsClientId", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ffff", kwlist, &fov, &aspect, &nearVal, &farVal))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ffff|i", kwlist, &fov, &aspect, &nearVal, &farVal,&physicsClientId))
 	{
 		return NULL;
 	}
@@ -6311,13 +6322,21 @@ static PyObject* pybullet_applyExternalTorque(PyObject* self, PyObject* args, Py
 }
 
 static PyObject* pybullet_getQuaternionFromEuler(PyObject* self,
-												 PyObject* args)
+												 PyObject* args, PyObject* keywds)
 {
 	double rpy[3];
 
 	PyObject* eulerObj;
+	int physicsClientId=0;
 
-	if (PyArg_ParseTuple(args, "O", &eulerObj))
+	static char* kwlist[] = {"eulerAngles","physicsClientId", NULL};
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|i", kwlist,  &eulerObj,&physicsClientId))
+	{
+		return NULL;
+	}
+
+	if (eulerObj)
 	{
 		PyObject* seq;
 		int len, i;
@@ -6399,9 +6418,10 @@ static PyObject* pybullet_multiplyTransforms(PyObject* self,
 	double ornA[4] = {0, 0, 0, 1};
 	double posB[3];
 	double ornB[4] = {0, 0, 0, 1};
+	int physicsClientId=0;
 
-	static char* kwlist[] = {"positionA", "orientationA", "positionB", "orientationB", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OOOO", kwlist, &posAObj, &ornAObj,&posBObj, &ornBObj))
+	static char* kwlist[] = {"positionA", "orientationA", "positionB", "orientationB", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OOOO|i", kwlist, &posAObj, &ornAObj,&posBObj, &ornBObj,&physicsClientId))
 	{
 		return NULL;
 	}
@@ -6448,9 +6468,10 @@ static PyObject* pybullet_invertTransform(PyObject* self,
 	double orn[4] = {0, 0, 0, 1};
 	int hasPos =0;
 	int hasOrn =0;
+	int physicsClientId = 0;
 
-	static char* kwlist[] = {"position", "orientation",  NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO", kwlist, &posObj, &ornObj))
+	static char* kwlist[] = {"position", "orientation", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|i", kwlist, &posObj, &ornObj,&physicsClientId))
 	{
 		return NULL;
 	}
@@ -6492,7 +6513,7 @@ static PyObject* pybullet_invertTransform(PyObject* self,
 /// quaternion <-> euler yaw/pitch/roll convention from URDF/SDF, see Gazebo
 /// https://github.com/arpg/Gazebo/blob/master/gazebo/math/Quaternion.cc
 static PyObject* pybullet_getEulerFromQuaternion(PyObject* self,
-												 PyObject* args)
+												 PyObject* args, PyObject* keywds)
 {
 	double squ;
 	double sqx;
@@ -6503,7 +6524,16 @@ static PyObject* pybullet_getEulerFromQuaternion(PyObject* self,
 
 	PyObject* quatObj;
 
-	if (PyArg_ParseTuple(args, "O", &quatObj))
+	int physicsClientId=0;
+
+	static char* kwlist[] = {"quaternion","physicsClientId", NULL};
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|i", kwlist,  &quatObj,&physicsClientId))
+	{
+		return NULL;
+	}
+
+	if (quatObj)
 	{
 		PyObject* seq;
 		int len, i;
@@ -7116,11 +7146,11 @@ static PyMethodDef SpamMethods[] = {
 	{"changeTexture", (PyCFunction)pybullet_changeTexture, METH_VARARGS | METH_KEYWORDS,
 	 "Change a texture file."},
 
-	{"getQuaternionFromEuler", pybullet_getQuaternionFromEuler, METH_VARARGS,
+	{"getQuaternionFromEuler", (PyCFunction) pybullet_getQuaternionFromEuler, METH_VARARGS | METH_KEYWORDS,
 	 "Convert Euler [roll, pitch, yaw] as in URDF/SDF convention, to "
 	 "quaternion [x,y,z,w]"},
 
-	{"getEulerFromQuaternion", pybullet_getEulerFromQuaternion, METH_VARARGS,
+	{"getEulerFromQuaternion", (PyCFunction) pybullet_getEulerFromQuaternion, METH_VARARGS | METH_KEYWORDS,
 	 "Convert quaternion [x,y,z,w] to Euler [roll, pitch, yaw] as in URDF/SDF "
 	 "convention"},
 
