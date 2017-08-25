@@ -5,7 +5,7 @@ parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0,parentdir)
 
 from pybullet_envs.bullet.racecarGymEnv import RacecarGymEnv
-isDiscrete = True
+isDiscrete = False
 
 environment = RacecarGymEnv(renders=True, isDiscrete=isDiscrete)
 environment.reset()
