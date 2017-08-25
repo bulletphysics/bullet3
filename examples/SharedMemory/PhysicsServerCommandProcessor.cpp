@@ -874,6 +874,15 @@ struct GenericRobotStateLogger : public InternalStateLogger
 			sprintf(jointName,"q%d",i);
 			structNames.push_back(jointName);
 		}
+
+		for (int i=0;i<m_maxLogDof;i++)
+		{
+			m_structTypes.append("f");
+			char jointName[256];
+			sprintf(jointName,"v%d",i);
+			structNames.push_back(jointName);
+		}
+
 		for (int i=0;i<m_maxLogDof;i++)
 		{
 			m_structTypes.append("f");
@@ -881,7 +890,7 @@ struct GenericRobotStateLogger : public InternalStateLogger
 			sprintf(jointName,"u%d",i);
 			structNames.push_back(jointName);
 		}
-        
+
         const char* fileNameC = fileName.c_str();
         
         m_logFileHandle = createMinitaurLogFile(fileNameC, structNames, m_structTypes);
@@ -970,7 +979,21 @@ struct GenericRobotStateLogger : public InternalStateLogger
                 {
                     if (mb->getLink(j).m_jointType == 0 || mb->getLink(j).m_jointType == 1)
                     {
-                        float u = mb->getJointVel(j);
+                        float v = mb->getJointVel(j);
+                        logData.m_values.push_back(v);
+                    }
+                }
+                for (int j = numDofs; j < m_maxLogDof; ++j)
+                {
+                    float v = 0.0;
+                    logData.m_values.push_back(v);
+                }
+
+                for (int j = 0; j < numJoints; ++j)
+                {
+                    if (mb->getLink(j).m_jointType == 0 || mb->getLink(j).m_jointType == 1)
+                    {
+                        float u = mb->getJointTorque(j);
                         logData.m_values.push_back(u);
                     }
                 }
