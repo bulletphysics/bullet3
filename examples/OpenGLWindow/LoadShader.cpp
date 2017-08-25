@@ -62,7 +62,7 @@ GLuint gltLoadShaderPair(const char *szVertexProg, const char *szFragmentProg)
         glGetShaderInfoLog( hFragmentShader, 256, NULL, temp);
         fprintf( stderr, "Compile failed:\n%s\n", temp);
         assert(0);
-        exit(0);
+        exit(EXIT_FAILURE);
 		glDeleteShader(hVertexShader);
 		glDeleteShader(hFragmentShader);
 		return (GLuint)NULL;
