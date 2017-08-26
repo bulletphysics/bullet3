@@ -1,12 +1,12 @@
 from .scene_stadium import SinglePlayerStadiumScene
-from .env_bases import MJCFBaseBulletEnv
+from .env_bases import BaseBulletEnv
 import numpy as np
-from robot_locomotors import Hopper, Walker2D, HalfCheetah, Ant, Humanoid
+from robot_locomotors import Hopper, Walker2D, HalfCheetah, Ant, Humanoid, HumanoidFlagrun, Atlas
 
 
-class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
+class WalkerBaseBulletEnv(BaseBulletEnv):
 	def __init__(self, robot):
-		MJCFBaseBulletEnv.__init__(self, robot)
+		BaseBulletEnv.__init__(self, robot)
 		self.camera_x = 0
 		self.walk_target_x = 1e3  # kilometer away
 		self.walk_target_y = 0
@@ -16,7 +16,7 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 		return self.stadium_scene
 
 	def _reset(self):
-		r = MJCFBaseBulletEnv._reset(self)
+		r = BaseBulletEnv._reset(self)
 		self.parts, self.jdict, self.ordered_joints, self.robot_body = self.robot.addToScene(
 			self.stadium_scene.ground_plane_mjcf)
 		self.ground_ids = set([(self.parts[f].bodies[self.parts[f].bodyIndex], self.parts[f].bodyPartIndex) for f in
@@ -103,8 +103,40 @@ class AntBulletEnv(WalkerBaseBulletEnv):
 		WalkerBaseBulletEnv.__init__(self, self.robot)
 
 class HumanoidBulletEnv(WalkerBaseBulletEnv):
-	def __init__(self):
-		self.robot = Humanoid()
+
+	def __init__(self, robot=Humanoid()):
+		self.robot = robot
 		WalkerBaseBulletEnv.__init__(self, self.robot)
 		self.electricity_cost  = 4.25*WalkerBaseBulletEnv.electricity_cost
 		self.stall_torque_cost = 4.25*WalkerBaseBulletEnv.stall_torque_cost
+
+class HumanoidFlagrunBulletEnv(HumanoidBulletEnv):
+	random_yaw = True
+
+	def __init__(self):
+		self.robot = HumanoidFlagrun()
+		HumanoidBulletEnv.__init__(self, self.robot)
+
+	def create_single_player_scene(self):
+		s = HumanoidBulletEnv.create_single_player_scene(self)
+		s.zero_at_running_strip_start_line = False
+		return s
+
+class HumanoidFlagrunHarderBulletEnv(HumanoidFlagrunBulletEnv):
+	random_lean = True  # can fall on start
+
+	def __init__(self):
+		HumanoidFlagrunBulletEnv.__init__(self)
+		self.electricity_cost /= 4   # don't care that much about electricity, just stand up!
+
+class AtlasBulletEnv(WalkerBaseBulletEnv):
+	def __init__(self):
+		self.robot = Atlas()
+		WalkerBaseBulletEnv.__init__(self, self.robot)
+
+	def create_single_player_scene(self):
+		self.stadium_scene = SinglePlayerStadiumScene(gravity=9.8, timestep=0.0165/8, frame_skip=8)   # 8 instead of 4 here
+		return self.stadium_scene
+
+	def robot_specific_reset(self):
+		self.robot.robot_specific_reset(self)

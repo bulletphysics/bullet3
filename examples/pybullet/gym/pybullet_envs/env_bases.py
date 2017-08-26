@@ -3,9 +3,9 @@ import numpy as np
 import pybullet as p
 
 
-class MJCFBaseBulletEnv(gym.Env):
+class BaseBulletEnv(gym.Env):
 	"""
-	Base class for MuJoCo .xml environments in a Scene.
+	Base class for environments in a Scene.
 	These environments create single-player scenes and behave like normal Gym environments, if
 	you don't use multiplayer.
 	"""
@@ -63,3 +63,4 @@ class Camera:
 		distance = 10
 		yaw = 10
 		p.resetDebugVisualizerCamera(distance, yaw, -20, lookat)
+

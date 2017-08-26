@@ -4,14 +4,8 @@ import numpy as np
 import os
 
 
-class MJCFBasedRobot:
-	"""
-	Base class for mujoco .xml based agents.
-	"""
-
-	self_collision = False
-
-	def __init__(self, model_xml, robot_name, action_dim, obs_dim):
+class XmlBasedRobot:
+	def __init__(self, robot_name, action_dim, obs_dim, self_collision):
 		self.parts = None
 		self.jdict = None
 		self.ordered_joints = None
@@ -22,8 +16,8 @@ class MJCFBasedRobot:
 		high = np.inf * np.ones([obs_dim])
 		self.observation_space = gym.spaces.Box(-high, high)
 
-		self.model_xml = model_xml
 		self.robot_name = robot_name
+		self.self_collision = self_collision
 
 	def addToScene(self, bodies):
 		if self.parts is not None:
@@ -41,11 +35,14 @@ class MJCFBasedRobot:
 		else:
 			ordered_joints = []
 
+		if np.isscalar(bodies):	# streamline the case where bodies is actually just one body
+			bodies = [bodies]
+
 		dump = 0
 		for i in range(len(bodies)):
 			if p.getNumJoints(bodies[i]) == 0:
 				part_name, robot_name = p.getBodyInfo(bodies[i], 0)
-				robot_name = robot_name.decode("utf8")
+				self.robot_name = robot_name.decode("utf8")
 				part_name = part_name.decode("utf8")
 				parts[part_name] = BodyPart(part_name, bodies, i, -1)
 			for j in range(p.getNumJoints(bodies[i])):
@@ -55,7 +52,7 @@ class MJCFBasedRobot:
 				part_name = part_name.decode("utf8")
 
 				if dump: print("ROBOT PART '%s'" % part_name)
-				if dump: print("ROBOT JOINT '%s'" % joint_name) # limits = %+0.2f..%+0.2f effort=%0.3f speed=%0.3f" % ((joint_name,) + j.limits()) )
+				if dump: print("ROBOT JOINT '%s'" % joint_name)  # limits = %+0.2f..%+0.2f effort=%0.3f speed=%0.3f" % ((joint_name,) + j.limits()) )
 
 				parts[part_name] = BodyPart(part_name, bodies, i, j)
 
@@ -76,7 +73,25 @@ class MJCFBasedRobot:
 
 					joints[joint_name].power_coef = 100.0
 
+				# TODO: Maybe we need this
+				# joints[joint_name].power_coef, joints[joint_name].max_velocity = joints[joint_name].limits()[2:4]
+				# self.ordered_joints.append(joints[joint_name])
+				# self.jdict[joint_name] = joints[joint_name]
+
 		return parts, joints, ordered_joints, self.robot_body
+
+	def reset_pose(self, position, orientation):
+		self.parts[self.robot_name].reset_pose(position, orientation)
+
+class MJCFBasedRobot(XmlBasedRobot):
+	"""
+	Base class for mujoco .xml based agents.
+	"""
+
+	def __init__(self, model_xml, robot_name, action_dim, obs_dim, self_collision=False):
+		XmlBasedRobot.__init__(self, robot_name, action_dim, obs_dim, self_collision)
+
+		self.model_xml = model_xml
 
 	def reset(self):
 		self.ordered_joints = []
@@ -96,6 +111,78 @@ class MJCFBasedRobot:
 
 	def calc_potential(self):
 		return 0
+
+
+class URDFBasedRobot(XmlBasedRobot):
+	"""
+	Base class for URDF .xml based robots.
+	"""
+
+	def __init__(self, model_urdf, robot_name, action_dim, obs_dim, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], fixed_base=False, self_collision=False):
+		XmlBasedRobot.__init__(self, robot_name, action_dim, obs_dim, self_collision)
+
+		self.model_urdf = model_urdf
+		self.basePosition = basePosition
+		self.baseOrientation = baseOrientation
+		self.fixed_base = fixed_base
+
+	def reset(self):
+		self.ordered_joints = []
+
+		print(os.path.join(os.path.dirname(__file__), "data", self.model_urdf))
+
+		if self.self_collision:
+			self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(
+				p.loadURDF(os.path.join(os.path.dirname(__file__), "data", self.model_urdf),
+				basePosition=self.basePosition,
+				baseOrientation=self.baseOrientation,
+				useFixedBase=self.fixed_base,
+				flags=p.URDF_USE_SELF_COLLISION))
+		else:
+			self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(
+				p.loadURDF(os.path.join(os.path.dirname(__file__), "data", self.model_urdf),
+				basePosition=self.basePosition,
+				baseOrientation=self.baseOrientation,
+				useFixedBase=self.fixed_base))
+
+		self.robot_specific_reset()
+
+		s = self.calc_state()  # optimization: calc_state() can calculate something in self.* for calc_potential() to use
+		self.potential = self.calc_potential()
+
+		return s
+
+	def calc_potential(self):
+		return 0
+
+
+class SDFBasedRobot(XmlBasedRobot):
+	"""
+	Base class for SDF robots in a Scene.
+	"""
+
+	def __init__(self, model_sdf, robot_name, action_dim, obs_dim, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], fixed_base=False, self_collision=False):
+		XmlBasedRobot.__init__(self, robot_name, action_dim, obs_dim, self_collision)
+
+		self.model_sdf = model_sdf
+		self.fixed_base = fixed_base
+
+	def reset(self):
+		self.ordered_joints = []
+
+		self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene( # TODO: Not sure if this works, try it with kuka
+			p.loadSDF(os.path.join("models_robot", self.model_sdf)))
+
+		self.robot_specific_reset()
+
+		s = self.calc_state()  # optimization: calc_state() can calculate something in self.* for calc_potential() to use
+		self.potential = self.calc_potential()
+
+		return s
+
+	def calc_potential(self):
+		return 0
+
 
 class Pose_Helper: # dummy class to comply to original interface
 	def __init__(self, body_part):
@@ -148,6 +235,9 @@ class BodyPart:
 	def reset_orientation(self, orientation):
 		p.resetBasePositionAndOrientation(self.bodies[self.bodyIndex], self.get_position(), orientation)
 
+	def reset_velocity(self, linearVelocity=[0,0,0], angularVelocity =[0,0,0]):
+		p.resetBaseVelocity(linearVelocity, angularVelocity)
+
 	def reset_pose(self, position, orientation):
 		p.resetBasePositionAndOrientation(self.bodies[self.bodyIndex], position, orientation)
 
@@ -184,6 +274,14 @@ class Joint:
 	def get_state(self):
 		x, vx,_,_ = p.getJointState(self.bodies[self.bodyIndex],self.jointIndex)
 		return x, vx
+
+	def get_position(self):
+		x, _ = self.get_state()
+		return x
+
+	def get_velocity(self):
+		_, vx = self.get_state()
+		return vx
 
 	def set_position(self, position):
 		p.setJointMotorControl2(self.bodies[self.bodyIndex],self.jointIndex,p.POSITION_CONTROL, targetPosition=position)
