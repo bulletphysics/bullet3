@@ -1,13 +1,13 @@
 from scene_abstract import SingleRobotEmptyScene
-from env_bases import MujocoXmlBaseBulletEnv
+from env_bases import BaseBulletEnv
 import numpy as np
 from robot_manipulators import Reacher, Pusher, Striker, Thrower
 
 
-class ReacherBulletEnv(MujocoXmlBaseBulletEnv):
+class ReacherBulletEnv(BaseBulletEnv):
 	def __init__(self):
 		self.robot = Reacher()
-		MujocoXmlBaseBulletEnv.__init__(self, self.robot)
+		BaseBulletEnv.__init__(self, self.robot)
 
 	def create_single_player_scene(self):
 		return SingleRobotEmptyScene(gravity=0.0, timestep=0.0165, frame_skip=1)
@@ -38,10 +38,10 @@ class ReacherBulletEnv(MujocoXmlBaseBulletEnv):
 		self.camera.move_and_look_at(0.3, 0.3, 0.3, x, y, z)
 
 
-class PusherBulletEnv(MujocoXmlBaseBulletEnv):
+class PusherBulletEnv(BaseBulletEnv):
 	def __init__(self):
 		self.robot = Pusher()
-		MujocoXmlBaseBulletEnv.__init__(self, self.robot)
+		BaseBulletEnv.__init__(self, self.robot)
 
 	def create_single_player_scene(self):
 		return SingleRobotEmptyScene(gravity=9.81, timestep=0.0020, frame_skip=5)
@@ -92,10 +92,10 @@ class PusherBulletEnv(MujocoXmlBaseBulletEnv):
 		self.camera.move_and_look_at(0.3, 0.3, 0.3, x, y, z)
 
 
-class StrikerBulletEnv(MujocoXmlBaseBulletEnv):
+class StrikerBulletEnv(BaseBulletEnv):
 	def __init__(self):
 		self.robot = Striker()
-		MujocoXmlBaseBulletEnv.__init__(self, self.robot)
+		BaseBulletEnv.__init__(self, self.robot)
 		self._striked = False
 		self._min_strike_dist = np.inf
 		self.strike_threshold = 0.1
@@ -168,10 +168,10 @@ class StrikerBulletEnv(MujocoXmlBaseBulletEnv):
 		self.camera.move_and_look_at(0.3, 0.3, 0.3, x, y, z)
 
 
-class ThrowerBulletEnv(MujocoXmlBaseBulletEnv):
+class ThrowerBulletEnv(BaseBulletEnv):
 	def __init__(self):
 		self.robot = Thrower()
-		MujocoXmlBaseBulletEnv.__init__(self, self.robot)
+		BaseBulletEnv.__init__(self, self.robot)
 
 	def create_single_player_scene(self):
 		return SingleRobotEmptyScene(gravity=0.0, timestep=0.0020, frame_skip=5)
@@ -210,12 +210,12 @@ class ThrowerBulletEnv(MujocoXmlBaseBulletEnv):
 		object_xy = self.robot.object.pose().xyz()[:2]
 		target_xy = self.robot.target.pose().xyz()[:2]
 
-		if not self._object_hit_ground and self.robot.object.pose().xyz()[2] < -0.25:						# TODO: Should the object and target really belong to the robot? Maybe split this off
-			self._object_hit_ground = True
-			self._object_hit_location = self.robot.object.pose().xyz()
+		if not self.robot._object_hit_ground and self.robot.object.pose().xyz()[2] < -0.25:						# TODO: Should the object and target really belong to the robot? Maybe split this off
+			self.robot._object_hit_ground = True
+			self.robot._object_hit_location = self.robot.object.pose().xyz()
 
-		if self._object_hit_ground:
-			object_hit_xy = self._object_hit_location[:2]
+		if self.robot._object_hit_ground:
+			object_hit_xy = self.robot._object_hit_location[:2]
 			reward_dist = -np.linalg.norm(object_hit_xy - target_xy)
 		else:
 			reward_dist = -np.linalg.norm(object_xy - target_xy)

@@ -35,7 +35,7 @@ class XmlBasedRobot:
 		else:
 			ordered_joints = []
 
-		dump = 0
+		dump = 1
 		for i in range(len(bodies)):
 			if p.getNumJoints(bodies[i]) == 0:
 				part_name, robot_name = p.getBodyInfo(bodies[i], 0)
@@ -128,14 +128,14 @@ class URDFBasedRobot(XmlBasedRobot):
 
 		if self.self_collision:
 			self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(
-				p.loadURDF(os.path.join("models_robot", self.model_urdf),
+				p.loadURDF(self.model_urdf,
 				basePosition=self.basePosition,
 				baseOrientation=self.baseOrientation,
 				useFixedBase=self.fixed_base,
 				flags=p.URDF_USE_SELF_COLLISION))
 		else:
 			self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(
-				p.loadURDF(os.path.join("models_robot", self.model_urdf),
+				p.loadURDF(self.model_urdf,
 				basePosition=self.basePosition,
 				baseOrientation=self.baseOrientation,
 				useFixedBase=self.fixed_base))
@@ -269,6 +269,14 @@ class Joint:
 	def get_state(self):
 		x, vx,_,_ = p.getJointState(self.bodies[self.bodyIndex],self.jointIndex)
 		return x, vx
+
+	def get_position(self):
+		x, _ = self.get_state()
+		return x
+
+	def get_velocity(self):
+		_, vx = self.get_state()
+		return vx
 
 	def set_position(self, position):
 		p.setJointMotorControl2(self.bodies[self.bodyIndex],self.jointIndex,p.POSITION_CONTROL, targetPosition=position)

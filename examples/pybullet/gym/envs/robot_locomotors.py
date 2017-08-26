@@ -1,9 +1,9 @@
-from robot_bases import MujocoXmlBasedRobot, URDFBasedRobot
+from robot_bases import XmlBasedRobot, MujocoXmlBasedRobot, URDFBasedRobot
 import numpy as np
-import utils as ObjectHelper
+import gym_utils as ObjectHelper
 
 
-class WalkerBase(MujocoXmlBasedRobot):
+class WalkerBase(XmlBasedRobot):
 	def __init__(self, power):
 		self.power = power
 		self.camera_x = 0
@@ -178,6 +178,7 @@ class Humanoid(WalkerBase, MujocoXmlBasedRobot):
 	def alive_bonus(self, z, pitch):
 		return +2 if z > 0.78 else -1   # 2 here because 17 joints produce a lot of electricity cost just from policy noise, living must be better than dying
 
+
 class HumanoidFlagrun(Humanoid):
 	def __init__(self):
 		Humanoid.__init__(self)
@@ -205,6 +206,7 @@ class HumanoidFlagrun(Humanoid):
 			self.potential = self.calc_potential()	   # avoid reward jump
 		return state
 
+
 class HumanoidFlagrunHarder(HumanoidFlagrun):
 	def __init__(self):
 		HumanoidFlagrun.__init__()
@@ -226,13 +228,13 @@ class HumanoidFlagrunHarder(HumanoidFlagrun):
 			attack_speed   = self.np_random.uniform(low=20.0, high=30.0)  # speed 20..30 (* mass in cube.urdf = impulse)
 			time_to_travel = from_dist / attack_speed
 			target_xyz += robot_speed*time_to_travel  # predict future position at the moment the cube hits the robot
-			cpose = [target_xyz[0] + from_dist*np.cos(angle),
+			position = [target_xyz[0] + from_dist*np.cos(angle),
 				target_xyz[1] + from_dist*np.sin(angle),
 				target_xyz[2] + 1.0]
-			attack_speed_vector = target_xyz - np.array(cpose)
+			attack_speed_vector = target_xyz - np.array(position)
 			attack_speed_vector *= attack_speed / np.linalg.norm(attack_speed_vector)
 			attack_speed_vector += self.np_random.uniform(low=-1.0, high=+1.0, size=(3,))
-			self.aggressive_cube.reset_position(cpose)
+			self.aggressive_cube.reset_position(position)
 			self.aggressive_cube.reset_velocity(linearVelocity=attack_speed_vector)
 		if z < 0.8:
 			self.on_ground_frame_counter += 1
@@ -270,7 +272,8 @@ class HumanoidFlagrunHarder(HumanoidFlagrun):
 
 		return flag_running_progress + self.potential_leak()*100
 
-class Atlas(WalkerBase):
+
+class Atlas(WalkerBase, URDFBasedRobot):
 	def __init__(self):
 		WalkerBase.__init__(self, power=0.30)
-		URDFBasedRobot.__init__(self, "atlas_description/urdf/atlas_v4_with_multisense.urdf", "pelvis", action_dim=30, obs_dim=70)
+		URDFBasedRobot.__init__(self, "atlas/atlas_description/urdf/atlas_v4_with_multisense.urdf", "pelvis", action_dim=30, obs_dim=70)

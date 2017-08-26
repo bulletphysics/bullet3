@@ -138,7 +138,7 @@ class Striker(MujocoXmlBasedRobot):
 	max_object_placement_radius = 0.8
 
 	def __init__(self):
-		MujocoXmlBasedRobot.__init__(self, 'striker.xml', 'body0', action_dim=7, obs_dim=55)
+		MujocoXmlBasedRobot.__init__(self, 'lstriker.xml', 'body0', action_dim=7, obs_dim=55)
 
 	def robot_specific_reset(self):
 		# parts
