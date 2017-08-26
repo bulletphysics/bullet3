@@ -30,14 +30,10 @@ class SmallReactivePolicy:
 
 def main():
     env = gym.make("AntBulletEnv-v0")
-
-    cid = p.connect(p.GUI)
-    p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
+    env.render(mode="human")
+    
     pi = SmallReactivePolicy(env.observation_space, env.action_space)
-
-    p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,0)
     env.reset()
-    p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
     torsoId = -1
     for i in range (p.getNumBodies()):
         print(p.getBodyInfo(i))
@@ -49,10 +45,8 @@ def main():
         frame = 0
         score = 0
         restart_delay = 0
-        p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,0)
         obs = env.reset()
-        p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
-
+     
         while 1:
             time.sleep(0.001)
             a = pi.act(obs)

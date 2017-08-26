@@ -30,8 +30,7 @@ class SmallReactivePolicy:
 def main():
     print("create env")
     env = gym.make("InvertedPendulumBulletEnv-v0")
-    print("connecting")
-    cid = p.connect(p.GUI)
+    env.render(mode="human")
     pi = SmallReactivePolicy(env.observation_space, env.action_space)
 
     while 1:
