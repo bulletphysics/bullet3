@@ -428,7 +428,7 @@ hh = setup_py_dir + "/" + datadir
 for root, dirs, files in os.walk(hh):
     for fn in files:
         ext = os.path.splitext(fn)[1][1:]
-        if ext and ext in 'png jpg urdf sdf obj mtl dae off stl STL xml '.split():
+        if ext and ext in 'png gif jpg urdf sdf obj mtl dae off stl STL xml '.split():
             fn = root + "/" + fn
             need_files.append(fn[1+len(hh):])
 
@@ -440,7 +440,7 @@ print("-----")
 
 setup(
 	name = 'pybullet',
-	version='1.2.4',
+	version='1.2.5',
 	description='Official Python Interface for the Bullet Physics SDK Robotics Simulator',
 	long_description='pybullet is an easy to use Python module for physics simulation, robotics and machine learning based on the Bullet Physics SDK. With pybullet you can load articulated bodies from URDF, SDF and other file formats. pybullet provides forward dynamics simulation, inverse dynamics computation, forward and inverse kinematics and collision detection and ray intersection queries. Aside from physics simulation, pybullet supports to rendering, with a CPU renderer and OpenGL visualization and support for virtual reality headsets.',
 	url='https://github.com/bulletphysics/bullet3',
