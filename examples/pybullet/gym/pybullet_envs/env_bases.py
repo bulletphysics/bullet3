@@ -15,11 +15,11 @@ class MJCFBaseBulletEnv(gym.Env):
 		'video.frames_per_second': 60
 		}
 
-	def __init__(self, robot):
+	def __init__(self, robot, render=False):
 		self.scene = None
-
+		self.physicsClientId=-1
 		self.camera = Camera()
-
+		self.isRender = render
 		self.robot = robot
 
 		self._seed()
@@ -33,6 +33,15 @@ class MJCFBaseBulletEnv(gym.Env):
 		return [seed]
 
 	def _reset(self):
+		print("self.isRender=")
+		print(self.isRender)
+		if (self.physicsClientId<0):
+			if (self.isRender):
+				self.physicsClientId = p.connect(p.GUI)
+			else:
+				self.physicsClientId = p.connect(p.DIRECT)
+		p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
+  
 		if self.scene is None:
 			self.scene = self.create_single_player_scene()
 		if not self.scene.multiplayer:
@@ -49,7 +58,13 @@ class MJCFBaseBulletEnv(gym.Env):
 		return s
 
 	def _render(self, mode, close):
-		pass
+		if (mode=="human"):
+			self.isRender = True
+
+	def _close(self):
+		if (self.physicsClientId>=0):
+			p.disconnect(self.physicsClientId)
+			self.physicsClientId = -1
 
 	def HUD(self, state, a, done):
 		pass

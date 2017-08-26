@@ -1,3 +1,4 @@
+import os
 import math
 import gym
 from gym import spaces
@@ -52,15 +53,15 @@ class KukaGymEnv(gym.Env):
     p.resetSimulation()
     p.setPhysicsEngineParameter(numSolverIterations=150)
     p.setTimeStep(self._timeStep)
-    p.loadURDF("%splane.urdf" % self._urdfRoot,[0,0,-1])
+    p.loadURDF(os.path.join(os.path.dirname(__file__),"../data","plane.urdf"),[0,0,-1])
     
-    p.loadURDF("table/table.urdf", 0.5000000,0.00000,-.820000,0.000000,0.000000,0.0,1.0)
+    p.loadURDF(os.path.join(os.path.dirname(__file__),"../data","table/table.urdf"), 0.5000000,0.00000,-.820000,0.000000,0.000000,0.0,1.0)
     
     xpos = 0.5 +0.05*random.random()
     ypos = 0 +0.05*random.random()
     ang = 3.1415925438*random.random()
     orn = p.getQuaternionFromEuler([0,0,ang])
-    self.blockUid =p.loadURDF("block.urdf", xpos,ypos,-0.1,orn[0],orn[1],orn[2],orn[3])
+    self.blockUid =p.loadURDF(os.path.join(os.path.dirname(__file__),"../data","block.urdf"), xpos,ypos,-0.1,orn[0],orn[1],orn[2],orn[3])
             
     p.setGravity(0,0,-10)
     self._kuka = kuka.Kuka(urdfRootPath=self._urdfRoot, timeStep=self._timeStep)

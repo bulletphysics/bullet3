@@ -5,31 +5,36 @@ parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0,parentdir)
 
 from pybullet_envs.bullet.racecarZEDGymEnv import RacecarZEDGymEnv
-print ("hello")
-environment = RacecarZEDGymEnv(renders=True)
 
-targetVelocitySlider = environment._p.addUserDebugParameter("wheelVelocity",-1,1,0)
-steeringSlider = environment._p.addUserDebugParameter("steering",-1,1,0)
+def main():
+	
+	environment = RacecarZEDGymEnv(renders=True)
+	
+	targetVelocitySlider = environment._p.addUserDebugParameter("wheelVelocity",-1,1,0)
+	steeringSlider = environment._p.addUserDebugParameter("steering",-1,1,0)
+	
+	while (True):
+	  targetVelocity = environment._p.readUserDebugParameter(targetVelocitySlider)
+	  steeringAngle = environment._p.readUserDebugParameter(steeringSlider)
+	  discreteAction = 0
+	  if (targetVelocity<-0.33):
+	    discreteAction=0
+	  else:
+	    if (targetVelocity>0.33):
+	      discreteAction=6
+	    else:
+	      discreteAction=3
+	  if (steeringAngle>-0.17):
+	    if (steeringAngle>0.17):
+	      discreteAction=discreteAction+2
+	    else:
+	      discreteAction=discreteAction+1
+	  action=discreteAction
+	    
+	  state, reward, done, info = environment.step(action)
+	  obs = environment.getExtendedObservation()
+	  print("obs")
+	  print(obs)
 
-while (True):
-  targetVelocity = environment._p.readUserDebugParameter(targetVelocitySlider)
-  steeringAngle = environment._p.readUserDebugParameter(steeringSlider)
-  discreteAction = 0
-  if (targetVelocity<-0.33):
-    discreteAction=0
-  else:
-    if (targetVelocity>0.33):
-      discreteAction=6
-    else:
-      discreteAction=3
-  if (steeringAngle>-0.17):
-    if (steeringAngle>0.17):
-      discreteAction=discreteAction+2
-    else:
-      discreteAction=discreteAction+1
-  action=discreteAction
-    
-  state, reward, done, info = environment.step(action)
-  obs = environment.getExtendedObservation()
-  print("obs")
-  print(obs)
+if __name__=="__main__":
+    main()
