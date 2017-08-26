@@ -399,7 +399,7 @@ elif _platform == "win32":
 elif _platform == "darwin":
     print("darwin!")
     os.environ['LDFLAGS'] = '-framework Cocoa -framework OpenGL'
-    CXX_FLAFS += '-DB3_NO_PYTHON_FRAMEWORK '
+    CXX_FLAGS += '-DB3_NO_PYTHON_FRAMEWORK '
     CXX_FLAGS += '-DHAS_SOCKLEN_T '
     CXX_FLAGS += '-D_DARWIN '
 #    CXX_FLAGS += '-framework Cocoa '
@@ -418,6 +418,25 @@ else:
     +["examples/ThirdPartyLibs/Glew/glew.c"]\
     + sources
 
+setup_py_dir = os.path.dirname(os.path.realpath(__file__))
+
+need_files = []
+datadir = "examples/pybullet/gym/pybullet_envs"
+
+hh = setup_py_dir + "/" + datadir
+
+for root, dirs, files in os.walk(hh):
+    for fn in files:
+        ext = os.path.splitext(fn)[1][1:]
+        if ext and ext in 'png jpg urdf sdf obj mtl dae off stl STL xml '.split():
+            fn = root + "/" + fn
+            need_files.append(fn[1+len(hh):])
+
+print("found resource files: %i" % len(need_files))
+for n in need_files: print("-- %s" % n)
+print("packages")
+print(find_packages('examples/pybullet/gym'))
+print("-----")
 
 setup(
 	name = 'pybullet',
@@ -448,9 +467,9 @@ setup(
                    'Programming Language :: Python :: 3.5',
                    'Programming Language :: Python :: 3.6',
                    'Topic :: Games/Entertainment :: Simulation',
-                   'Framework :: Robot Framework'],                   
-	package_data = {
-        'pybullet': ['data/*'],
-    },
+                   'Framework :: Robot Framework'],
+    package_dir = { '': 'examples/pybullet/gym'},
+    packages=[x for x in find_packages('examples/pybullet/gym')],
+    package_data = { 'pybullet_envs': need_files }
 )
 
