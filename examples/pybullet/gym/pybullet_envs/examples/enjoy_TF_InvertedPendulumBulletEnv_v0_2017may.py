@@ -27,7 +27,7 @@ class SmallReactivePolicy:
         x = np.dot(x, weights_final_w) + weights_final_b
         return x
 
-def demo_run():
+def main():
     print("create env")
     env = gym.make("InvertedPendulumBulletEnv-v0")
     print("connecting")
@@ -174,4 +174,4 @@ weights_final_w = np.array([
 weights_final_b = np.array([ +0.0352])
 
 if __name__=="__main__":
-    demo_run()
+    main()

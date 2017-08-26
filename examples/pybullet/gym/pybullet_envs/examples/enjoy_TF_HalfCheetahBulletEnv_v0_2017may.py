@@ -27,7 +27,7 @@ class SmallReactivePolicy:
         x = np.dot(x, weights_final_w) + weights_final_b
         return x
 
-def demo_run():
+def main():
     env = gym.make("HalfCheetahBulletEnv-v0")
 
     cid = p.connect(p.GUI)
@@ -311,4 +311,4 @@ weights_final_w = np.array([
 weights_final_b = np.array([ +0.1367, +0.1107, -0.0148, +0.1158, -0.0820, +0.3047])
 
 if __name__=="__main__":
-    demo_run()
+    main()
