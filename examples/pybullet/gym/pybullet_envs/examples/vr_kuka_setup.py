@@ -1,8 +1,9 @@
 import pybullet as p
-#p.connect(p.UDP,"192.168.86.100")
+import time
 
 import pybullet_data
 
+#cid = p.connect(p.UDP,"192.168.86.100")
 cid = p.connect(p.SHARED_MEMORY)
 if (cid<0):
 	p.connect(p.GUI)
@@ -80,7 +81,12 @@ for jointIndex in range (p.getNumJoints(ob)):
 p.setGravity(0.000000,0.000000,0.000000)
 p.setGravity(0,0,-10)
 
-for i in range (100000):
-	p.stepSimulation()
+p.setRealTimeSimulation(1)
+ref_time = time.time()
+
+running_time = 60 # seconds
+while (time.time() < ref_time+running_time):
+	p.setGravity(0,0,-10)
+	#p.stepSimulation()
 
 p.disconnect()
