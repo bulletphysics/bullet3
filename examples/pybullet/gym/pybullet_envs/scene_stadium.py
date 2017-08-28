@@ -1,11 +1,11 @@
 import os,  inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(os.path.dirname(currentdir))
+parentdir = os.path.dirname(currentdir)
 os.sys.path.insert(0,parentdir)
 import pybullet_data
 
 
-from .scene_abstract import Scene
+from pybullet_envs.scene_abstract import Scene
 import pybullet as p
 
 

@@ -482,6 +482,8 @@ void b3SetProfileTimingDuractionInMicroSeconds(b3SharedMemoryCommandHandle comma
 void b3SetTimeOut(b3PhysicsClientHandle physClient, double timeOutInSeconds);
 double b3GetTimeOut(b3PhysicsClientHandle physClient);
 
+b3SharedMemoryCommandHandle b3SetAdditionalSearchPath(b3PhysicsClientHandle physClient, char* path);
+
 void b3MultiplyTransforms(const double posA[3], const double ornA[4], const double posB[3], const double ornB[4], double outPos[3], double outOrn[4]);
 void b3InvertTransform(const double pos[3], const double orn[4], double outPos[3], double outOrn[4]);
 
