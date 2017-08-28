@@ -4001,6 +4001,14 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					}
 					break;
 				}
+				case CMD_SET_ADDITIONAL_SEARCH_PATH:
+				{
+					BT_PROFILE("CMD_SET_ADDITIONAL_SEARCH_PATH");
+					b3ResourcePath::setAdditionalSearchPath(clientCmd.m_searchPathArgs.m_path);
+					serverStatusOut.m_type = CMD_CLIENT_COMMAND_COMPLETED;
+                    hasStatus = true;
+					break;
+				}
                 case CMD_LOAD_URDF:
                 {
 					BT_PROFILE("CMD_LOAD_URDF");

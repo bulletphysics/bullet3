@@ -2,7 +2,11 @@
 Classic cart-pole system implemented by Rich Sutton et al.
 Copied from https://webdocs.cs.ualberta.ca/~sutton/book/code/pole.c
 """
-import os
+import os,  inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(os.path.dirname(currentdir))
+os.sys.path.insert(0,parentdir)
+
 import logging
 import math
 import gym
@@ -12,6 +16,7 @@ import numpy as np
 import time
 import subprocess
 import pybullet as p
+import pybullet_data
 
 
 logger = logging.getLogger(__name__)
@@ -76,7 +81,7 @@ class CartPoleBulletEnv(gym.Env):
   def _reset(self):
 #    print("-----------reset simulation---------------")
     p.resetSimulation()
-    self.cartpole = p.loadURDF(os.path.join(os.path.dirname(__file__),"../data","cartpole.urdf"),[0,0,0])
+    self.cartpole = p.loadURDF(os.path.join(pybullet_data.getDataPath(),"cartpole.urdf"),[0,0,0])
     self.timeStep = 0.01
     p.setJointMotorControl2(self.cartpole, 1, p.VELOCITY_CONTROL, force=0)
     p.setGravity(0,0, -10)

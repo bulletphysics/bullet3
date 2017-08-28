@@ -1,4 +1,3 @@
-
 #ifndef SHARED_MEMORY_COMMANDS_H
 #define SHARED_MEMORY_COMMANDS_H
 
@@ -104,6 +103,12 @@ struct MjcfArgs
 	int m_useMultiBody;
 	int m_flags;
 };
+
+struct b3SearchPathfArgs
+{
+	char m_path[MAX_FILENAME_LENGTH];
+};
+
 
 struct BulletDataStreamArgs
 {
@@ -960,6 +965,7 @@ struct SharedMemoryCommand
 		struct b3CreateMultiBodyArgs m_createMultiBodyArgs;
 		struct b3RequestCollisionInfoArgs m_requestCollisionInfoArgs;
 		struct b3ChangeTextureArgs m_changeTextureArgs;
+		struct b3SearchPathfArgs m_searchPathArgs;
     };
 };
 

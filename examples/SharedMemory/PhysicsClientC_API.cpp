@@ -3768,6 +3768,7 @@ void b3SetTimeOut(b3PhysicsClientHandle physClient, double timeOutInSeconds)
 		
 }
 
+
 double b3GetTimeOut(b3PhysicsClientHandle physClient)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
@@ -3778,6 +3779,25 @@ double b3GetTimeOut(b3PhysicsClientHandle physClient)
 	}
 	return -1;
 }
+
+b3SharedMemoryCommandHandle b3SetAdditionalSearchPath(b3PhysicsClientHandle physClient, char* path)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+	command->m_type = CMD_SET_ADDITIONAL_SEARCH_PATH;
+	command->m_updateFlags = 0;
+	int len = strlen(path);
+	if (len<MAX_FILENAME_LENGTH)
+	{
+		strcpy(command->m_searchPathArgs.m_path,path);
+	}
+
+	return (b3SharedMemoryCommandHandle)command;
+}
+
 
 void b3MultiplyTransforms(const double posA[3], const double ornA[4], const double posB[3], const double ornB[4], double outPos[3], double outOrn[4])
 {

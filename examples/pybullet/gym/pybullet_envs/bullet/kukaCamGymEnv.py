@@ -1,4 +1,9 @@
-import os
+import os,  inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(os.path.dirname(currentdir))
+os.sys.path.insert(0,parentdir)
+
+
 import math
 import gym
 from gym import spaces
@@ -8,6 +13,8 @@ import time
 import pybullet as p
 from . import kuka
 import random
+import pybullet_data
+
 
 class KukaCamGymEnv(gym.Env):
   metadata = {
@@ -16,7 +23,7 @@ class KukaCamGymEnv(gym.Env):
   }
 
   def __init__(self,
-               urdfRoot="",
+               urdfRoot=pybullet_data.getDataPath(),
                actionRepeat=1,
                isEnableSelfCollision=True,
                renders=True):
@@ -55,15 +62,15 @@ class KukaCamGymEnv(gym.Env):
     p.resetSimulation()
     p.setPhysicsEngineParameter(numSolverIterations=150)
     p.setTimeStep(self._timeStep)
-    p.loadURDF(os.path.join(os.path.dirname(__file__),"../data","plane.urdf"),[0,0,-1])
+    p.loadURDF(os.path.join(self._urdfRoot,"plane.urdf"),[0,0,-1])
     
-    p.loadURDF(os.path.join(os.path.dirname(__file__),"../data","table/table.urdf"), 0.5000000,0.00000,-.820000,0.000000,0.000000,0.0,1.0)
+    p.loadURDF(os.path.join(self._urdfRoot,"table/table.urdf"), 0.5000000,0.00000,-.820000,0.000000,0.000000,0.0,1.0)
     
     xpos = 0.5 +0.05*random.random()
     ypos = 0 +0.05*random.random()
     ang = 3.1415925438*random.random()
     orn = p.getQuaternionFromEuler([0,0,ang])
-    self.blockUid =p.loadURDF(os.path.join(os.path.dirname(__file__),"../data","block.urdf"), xpos,ypos,-0.1,orn[0],orn[1],orn[2],orn[3])
+    self.blockUid =p.loadURDF(os.path.join(self._urdfRoot,"block.urdf"), xpos,ypos,-0.1,orn[0],orn[1],orn[2],orn[3])
             
     p.setGravity(0,0,-10)
     self._kuka = kuka.Kuka(urdfRootPath=self._urdfRoot, timeStep=self._timeStep)

@@ -1,0 +1,205 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+  <model name="Amazon Pod">
+  	<static>1</static>
+  	<pose>0 1 0 0 0 0</pose>
+    <link name="pod_link">
+      <inertial>
+        <pose>0.0 .0 1.2045 0 0 0</pose>
+        <mass>0</mass>
+        <inertia>
+          <ixx>0</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <izz>0.0</izz>
+          <iyz>0.0</iyz>
+          <iyy>0.0</iyy>
+        </inertia>
+      </inertial>
+
+      <visual name="pod_visual">
+        <pose>0 0 0 1.5707 0 0 </pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/pod_lowres.stl</uri>
+          </mesh>
+        </geometry>
+         <material>
+            <diffuse>0.9 0.8 0.5 1</diffuse>
+          </material>
+      </visual>
+
+
+      <collision concave="yes" name="pod_collision">
+        <pose>0 0 1.21515 1.5707 0 0</pose>
+        <geometry>
+         		<box>
+              <size>0.875 1.754 0.03</size>
+            </box>
+        </geometry>
+      </collision>
+      
+      <collision concave="yes" name="pod_collision">
+        <pose>-0.42 0 1.18 1.5707 0 1.5707 </pose>
+        <geometry>
+         		<box>
+              <size>0.875 1.754 0.03</size>
+            </box>
+        </geometry>
+      </collision>
+      
+       <collision concave="yes" name="pod_collision">
+        <pose>0.42 0.42 1.17 1.5707 0 0</pose>
+        <geometry>
+         		<box>
+              <size>0.03 2.3 0.03</size>
+            </box>
+        </geometry>
+      </collision>
+ 			<collision concave="yes" name="pod_collision">
+        <pose>-0.42 0.42 1.17 1.5707 0 0</pose>
+        <geometry>
+         		<box>
+              <size>0.03 2.3 0.03</size>
+            </box>
+        </geometry>
+      </collision>
+      <collision concave="yes" name="pod_collision">
+        <pose>-0.42 -0.42 1.17 1.5707 0 0</pose>
+        <geometry>
+         		<box>
+              <size>0.03 2.3 0.03</size>
+            </box>
+        </geometry>
+      </collision>
+      <collision concave="yes" name="pod_collision">
+        <pose>0.42 -0.42 1.17 1.5707 0 0</pose>
+        <geometry>
+         		<box>
+              <size>0.03 2.3 0.03</size>
+            </box>
+        </geometry>
+      </collision>
+       <collision concave="yes" name="pod_collision">
+        <pose>0.15 0 1.49 1.5707 0 1.5707 </pose>
+        <geometry>
+         		<box>
+              <size>0.875 1.32 0.01</size>
+            </box>
+        </geometry>
+      </collision>
+      <collision concave="yes" name="pod_collision">
+        <pose>-0.15 0 1.49 1.5707 0 1.5707 </pose>
+        <geometry>
+         		<box>
+              <size>0.875 1.32 0.01</size>
+            </box>
+        </geometry>
+      </collision>
+       <collision concave="yes" name="pod_collision">
+        <pose>0 0 .57 1.5707 0 1.5707 </pose>
+        <geometry>
+         		<box>
+              <size>0.875 0.45 0.01</size>
+            </box>
+        </geometry>
+      </collision>
+ 			<collision concave="yes" name="pod_collision">
+        <pose>0.42 0 1.18 1.5707 0 1.5707 </pose>
+        <geometry>
+         		<box>
+              <size>0.875 1.754 0.03</size>
+            </box>
+        </geometry>
+      </collision>
+      	<collision concave="yes" name="pod_collision">
+        <pose>0 0 1.06 0 0 0 </pose>
+        <geometry>
+         		<box>
+              <size>0.905 0.856 0.028 </size>
+            </box>
+        </geometry>
+      </collision>
+      <collision concave="yes" name="pod_collision">
+        <pose>0 0 1.06 0 0 0 </pose>
+        <geometry>
+         		<box>
+              <size>0.905 0.856 0.028 </size>
+            </box>
+        </geometry>
+      </collision>
+			<collision concave="yes" name="pod_collision">
+        <pose>0 0 0.80 0 0 0 </pose>
+        <geometry>
+         		<box>
+              <size>0.905 0.856 0.028 </size>
+            </box>
+        </geometry>
+      </collision>
+      <collision concave="yes" name="pod_collision">
+        <pose>0 0.43 0.81 0 0 0 </pose>
+        <geometry>
+         		<box>
+              <size>0.856 0.018  0.028 </size>
+            </box>
+        </geometry>
+      </collision>
+       <collision concave="yes" name="pod_collision">
+        <pose>0 -0.43 0.81 0 0 0 </pose>
+        <geometry>
+         		<box>
+              <size>0.856 0.018  0.028 </size>
+            </box>
+        </geometry>
+      </collision>
+       <collision concave="yes" name="pod_collision">
+        <pose>0 0.43 1.08 0 0 0 </pose>
+        <geometry>
+         		<box>
+              <size>0.856 0.018  0.028 </size>
+            </box>
+        </geometry>
+      </collision>
+       <collision concave="yes" name="pod_collision">
+        <pose>0 -0.43 1.08 0 0 0 </pose>
+        <geometry>
+         		<box>
+              <size>0.856 0.018  0.028 </size>
+            </box>
+        </geometry>
+      </collision>
+      <collision concave="yes" name="pod_collision">
+        <pose>0 0 0.37 0 0 0 </pose>
+        <geometry>
+         		<box>
+              <size>0.905 0.856 0.028 </size>
+            </box>
+        </geometry>
+      </collision>
+       <collision concave="yes" name="pod_collision">
+        <pose>0 0 1.29 0 0 0 </pose>
+        <geometry>
+         		<box>
+              <size>0.905 0.856 0.028 </size>
+            </box>
+        </geometry>
+      </collision>
+       <collision concave="yes" name="pod_collision">
+        <pose>0 0 1.53 0 0 0 </pose>
+        <geometry>
+         		<box>
+              <size>0.905 0.856 0.028 </size>
+            </box>
+        </geometry>
+      </collision>
+      <collision concave="yes" name="pod_collision">
+        <pose>0 0 1.78 0 0 0 </pose>
+        <geometry>
+         		<box>
+              <size>0.905 0.856 0.028 </size>
+            </box>
+        </geometry>
+      </collision>
+    </link>
+  </model>
+</sdf>

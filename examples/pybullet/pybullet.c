@@ -3701,6 +3701,36 @@ static PyObject* pybullet_stopStateLogging(PyObject* self, PyObject* args, PyObj
 	return Py_None;
 }
 
+
+static PyObject* pybullet_setAdditionalSearchPath(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	static char* kwlist[] = {"path", "physicsClientId", NULL};
+	char* path = 0;
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|i", kwlist,
+									 &path, &physicsClientId))
+		return NULL;
+	if (path)
+	{
+		b3SharedMemoryCommandHandle commandHandle;
+		b3SharedMemoryStatusHandle statusHandle;
+
+		sm = getPhysicsClient(physicsClientId);
+		if (sm == 0)
+		{
+			PyErr_SetString(SpamError, "Not connected to physics server.");
+			return NULL;
+		}
+		commandHandle = b3SetAdditionalSearchPath(sm, path);
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyObject* pybullet_setTimeOut(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	static char* kwlist[] = {"timeOutInSeconds", "physicsClientId", NULL};
@@ -3958,11 +3988,20 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 	return Py_None;
 }
 
-static PyObject* pybullet_getMatrixFromQuaternion(PyObject* self, PyObject* args)
+static PyObject* pybullet_getMatrixFromQuaternion(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	PyObject* quatObj;
 	double quat[4];
-	if (PyArg_ParseTuple(args, "O", &quatObj))
+	int physicsClientId=0;
+	static char* kwlist[] = {"quaternion","physicsClientId", NULL};
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|i", kwlist,  &quatObj,&physicsClientId))
+	{
+		return NULL;
+	}
+
+
+	if (quatObj)
 	{
 		if (pybullet_internalSetVector4d(quatObj, quat))
 		{
@@ -7160,7 +7199,7 @@ static PyMethodDef SpamMethods[] = {
 	 {"invertTransform", (PyCFunction) pybullet_invertTransform, METH_VARARGS  | METH_KEYWORDS,
 	 "Invert a transform, provided as [position], [quaternion]."},
 	 
-	{"getMatrixFromQuaternion", pybullet_getMatrixFromQuaternion, METH_VARARGS,
+	{"getMatrixFromQuaternion", (PyCFunction)pybullet_getMatrixFromQuaternion, METH_VARARGS| METH_KEYWORDS,
 	 "Compute the 3x3 matrix from a quaternion, as a list of 9 values (row-major)"},
 
 	{"calculateInverseDynamics", (PyCFunction)pybullet_calculateInverseDynamics, METH_VARARGS | METH_KEYWORDS,
@@ -7205,6 +7244,10 @@ static PyMethodDef SpamMethods[] = {
 
 	{"setTimeOut", (PyCFunction)pybullet_setTimeOut, METH_VARARGS | METH_KEYWORDS,
 	 "Set the timeOut in seconds, used for most of the API calls."},
+
+	{"setAdditionalSearchPath", (PyCFunction)pybullet_setAdditionalSearchPath,
+	 METH_VARARGS | METH_KEYWORDS,
+	 "Set an additional search path, used to load URDF/SDF files."},
 
 	{"getAPIVersion", (PyCFunction)pybullet_getAPIVersion,
 	 METH_VARARGS | METH_KEYWORDS,

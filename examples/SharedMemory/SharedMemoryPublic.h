@@ -4,7 +4,9 @@
 #define SHARED_MEMORY_KEY 12347
 ///increase the SHARED_MEMORY_MAGIC_NUMBER whenever incompatible changes are made in the structures
 ///my convention is year/month/day/rev
-#define SHARED_MEMORY_MAGIC_NUMBER 201707140
+
+#define SHARED_MEMORY_MAGIC_NUMBER 201708270
+//#define SHARED_MEMORY_MAGIC_NUMBER 201707140
 //#define SHARED_MEMORY_MAGIC_NUMBER 201706015
 //#define SHARED_MEMORY_MAGIC_NUMBER 201706001
 //#define SHARED_MEMORY_MAGIC_NUMBER 201703024
@@ -69,6 +71,7 @@ enum EnumSharedMemoryClientCommand
 	CMD_REQUEST_COLLISION_INFO,
 	CMD_REQUEST_MOUSE_EVENTS_DATA,
 	CMD_CHANGE_TEXTURE,
+	CMD_SET_ADDITIONAL_SEARCH_PATH,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     

@@ -1,0 +1,394 @@
+<?xml version="1.0" ?>
+<sdf version='1.6'>
+  <world name='default'>
+  <model name='wsg50_with_gripper'>
+    
+    <pose frame=''>0 -2.3 2.1 0 0 0</pose>
+    <link name='world'>
+	<pose frame=''>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose frame=''>0 0 0 0 0 0</pose>
+        <mass>0.1</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+  
+    <joint name='base_joint' type='fixed'>
+      <parent>world</parent>
+      <child>base_link</child>
+    </joint>
+
+    <link name='base_link'>
+      <pose frame=''>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose frame=''>0 0 0 0 0 0</pose>
+        <mass>1.2</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+	  
+      <visual name='base_link_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes/WSG50_110.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+
+        </material>
+      </visual>
+	  
+    </link>
+	
+    <link name='motor'>
+      <pose frame=''>0 0 0.03 0 0 0</pose>
+      <inertial>
+        <pose frame=''>0 0 0 0 0 0</pose>
+        <mass>0.1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <visual name='motor_visual'>
+        <pose frame=''>0 0 0.01 0 0 0</pose>
+        <geometry>
+		  <box>
+            <size>0.02 0.02 0.02 </size>
+          </box>
+        </geometry>
+      </visual>
+    </link>
+	
+    <joint name='base_joint_motor' type='prismatic'>
+      <child>motor</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-0.047</lower>
+          <upper>0.001</upper>
+          <effort>10.0</effort>
+          <velocity>10.0</velocity>
+        </limit>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+	
+    <link name='left_hinge'>
+      <pose frame=''>0 0 0.04 0 0 0</pose>
+      <inertial>
+        <pose frame=''>0 0 0.035 0 0 0</pose>
+        <mass>0.1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <visual name='motor_visual'>
+        <pose frame=''>-0.03 0 0.01 0 -1.2 0</pose>
+        <geometry>
+		  <box>
+            <size>0.02 0.02 0.07 </size>
+          </box>
+        </geometry>
+      </visual>
+    </link>
+	
+    <joint name='motor_left_hinge_joint' type='revolute'>
+      <child>left_hinge</child>
+      <parent>motor</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-20.0</lower>
+          <upper>20.0</upper>
+          <effort>10</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>0</use_parent_model_frame>
+      </axis>
+    </joint>
+	
+    <link name='right_hinge'>
+      <pose frame=''>0 0 0.04 0 0 0</pose>
+      <inertial>
+        <pose frame=''>0 0 0.035 0 0 0</pose>
+        <mass>0.1</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+      <visual name='motor_visual'>
+        <pose frame=''>0.03 0 0.01 0 1.2 0</pose>
+        <geometry>
+		  <box>
+            <size>0.02 0.02 0.07 </size>
+          </box>
+        </geometry>
+      </visual>
+    </link>
+	
+    <joint name='motor_right_hinge_joint' type='revolute'>
+      <child>right_hinge</child>
+      <parent>motor</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-20.0</lower>
+          <upper>20.0</upper>
+          <effort>10</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>0</use_parent_model_frame>
+      </axis>
+    </joint>
+
+    <link name='gripper_left'>
+      <pose frame=''>-0.055 0 0.06 0 -0 0</pose>
+      <inertial>
+        <pose frame=''>0 0 0.0115 0 -0 0</pose>
+        <mass>0.2</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+	  
+      <visual name='gripper_left_visual'>
+        <pose frame=''>0 0 -0.06 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>meshes/GUIDE_WSG50_110.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name='gripper_left_fixed_joint_lump__finger_left_visual_1'>
+        <pose frame=''>0 0 -0.037 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>meshes/WSG-FMF.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+
+    </link>
+	
+    <joint name='gripper_left_hinge_joint' type='revolute'>
+      <child>gripper_left</child>
+      <parent>left_hinge</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-4.0</lower>
+          <upper>4.0</upper>
+          <effort>10</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.01</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>0</use_parent_model_frame>
+      </axis>
+    </joint>
+	
+    <link name='gripper_right'>
+      <pose frame=''>0.055 0 0.06 0 0 3.14159</pose>
+      <inertial>
+        <pose frame=''>0 0 0.0115 0 -0 0</pose>
+        <mass>0.2</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+	  
+      <visual name='gripper_right_visual'>
+        <pose frame=''>0 0 -0.06 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>meshes/GUIDE_WSG50_110.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name='gripper_right_fixed_joint_lump__finger_right_visual_1'>
+        <pose frame=''>0 0 -0.037 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>meshes/WSG-FMF.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+	
+    <joint name='gripper_right_hinge_joint' type='revolute'>
+      <child>gripper_right</child>
+      <parent>right_hinge</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-4.0</lower>
+          <upper>4.0</upper>
+          <effort>10</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.01</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>0</use_parent_model_frame>
+      </axis>
+    </joint>
+    
+    <link name='finger_right'>
+      <contact>
+        <lateral_friction value="1.0"/>
+        <spinning_friction value="1.5"/>
+      </contact>
+      <pose frame=''>0.042 0 0.145 0 0 1.5708</pose>
+      <inertial>
+        <mass>0.2</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+	  
+        <collision name='finger_right_collision'>
+  	<pose frame=''>0 0 0.042 0 0 0 </pose>
+  	<geometry>        
+         <box>
+                <size>0.02 0.02 0.15 </size>
+              </box>
+
+          </geometry>
+        </collision>
+	  
+      <visual name='finger_right_visual'>
+        <pose frame=''>0 0 0 0 0 0 </pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1 </scale>
+            <uri>meshes/l_gripper_tip_scaled.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+	
+    <joint name='gripper_finger_right' type='fixed'>
+      <parent>gripper_right</parent>
+      <child>finger_right</child>
+    </joint>
+    
+    <link name='finger_left'>
+      <contact>
+        <lateral_friction value="1.0"/>
+        <spinning_friction value="1.5"/>
+      </contact>
+      <pose frame=''>-0.042 0 0.145 0 0 4.71239</pose>
+      <inertial>
+        <mass>0.2</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.1</iyy>
+          <iyz>0</iyz>
+          <izz>0.1</izz>
+        </inertia>
+      </inertial>
+	  
+      <collision name='finger_left_collision'>
+        <pose frame=''>0 0 0.042 0 0 0 </pose>
+        <geometry>
+               <box>
+              <size>0.02 0.02 0.15 </size>
+            </box>
+
+        </geometry>
+      </collision>
+	  
+      <visual name='finger_left_visual'>
+        <pose frame=''>0 0 0 0 0 0 </pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1 </scale>
+            <uri>meshes/l_gripper_tip_scaled.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+	
+    <joint name='gripper_finger_left' type='fixed'>
+      <parent>gripper_left</parent>
+      <child>finger_left</child>
+    </joint>
+  </model>
+</world>
+</sdf>
