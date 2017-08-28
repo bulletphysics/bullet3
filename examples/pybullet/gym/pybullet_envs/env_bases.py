@@ -5,7 +5,7 @@ import pybullet as p
 
 class MJCFBaseBulletEnv(gym.Env):
 	"""
-	Base class for MuJoCo .xml environments in a Scene.
+	Base class for Bullet physics simulation loading MJCF (MuJoCo .xml) environments in a Scene.
 	These environments create single-player scenes and behave like normal Gym environments, if
 	you don't use multiplayer.
 	"""

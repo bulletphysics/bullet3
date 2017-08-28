@@ -11,8 +11,8 @@ class Racecar:
 		self._p = bullet_client
 		self.reset()
 
-	def reset(self):  	
-		car = self._p.loadURDF(os.path.join(os.path.dirname(__file__),"../data","racecar/racecar_differential.urdf"), [0,0,.2],useFixedBase=False)
+	def reset(self):
+		car = self._p.loadURDF(os.path.join(self.urdfRootPath,"racecar/racecar_differential.urdf"), [0,0,.2],useFixedBase=False)
 		self.racecarUniqueId = car
 		#for i in range (self._p.getNumJoints(car)):
 		#	print (self._p.getJointInfo(car,i))

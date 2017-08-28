@@ -1,12 +1,18 @@
-import os
+import os, inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+print ("current_dir=" + currentdir)
+os.sys.path.insert(0,currentdir)
+
 import pybullet as p
 import numpy as np
 import copy
 import math
+import pybullet_data
+
 
 class Kuka:
 
-  def __init__(self, urdfRootPath='', timeStep=0.01):
+  def __init__(self, urdfRootPath=pybullet_data.getDataPath(), timeStep=0.01):
     self.urdfRootPath = urdfRootPath
     self.timeStep = timeStep
     
@@ -32,7 +38,7 @@ class Kuka:
     self.reset()
     
   def reset(self):
-    objects = p.loadSDF(os.path.join(os.path.dirname(__file__),"../data","kuka_iiwa/kuka_with_gripper2.sdf"))
+    objects = p.loadSDF(os.path.join(self.urdfRootPath,"kuka_iiwa/kuka_with_gripper2.sdf"))
     self.kukaUid = objects[0]
     #for i in range (p.getNumJoints(self.kukaUid)):
     #  print(p.getJointInfo(self.kukaUid,i))
@@ -43,7 +49,7 @@ class Kuka:
       p.resetJointState(self.kukaUid,jointIndex,self.jointPositions[jointIndex])
       p.setJointMotorControl2(self.kukaUid,jointIndex,p.POSITION_CONTROL,targetPosition=self.jointPositions[jointIndex],force=self.maxForce)
     
-    self.trayUid = p.loadURDF(os.path.join(os.path.dirname(__file__),"../data","tray/tray.urdf"), 0.640000,0.075000,-0.190000,0.000000,0.000000,1.000000,0.000000)
+    self.trayUid = p.loadURDF(os.path.join(self.urdfRootPath,"tray/tray.urdf"), 0.640000,0.075000,-0.190000,0.000000,0.000000,1.000000,0.000000)
     self.endEffectorPos = [0.537,0.0,0.5]
     self.endEffectorAngle = 0
     

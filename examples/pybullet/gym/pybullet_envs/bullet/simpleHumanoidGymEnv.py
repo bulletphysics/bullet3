@@ -1,4 +1,9 @@
 import os
+import os, inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+print ("current_dir=" + currentdir)
+os.sys.path.insert(0,currentdir)
+
 import math
 import gym
 from gym import spaces
@@ -9,6 +14,10 @@ import pybullet as p
 from . import simpleHumanoid
 import random
 
+
+import pybullet_data
+
+
 class SimpleHumanoidGymEnv(gym.Env):
   metadata = {
       'render.modes': ['human', 'rgb_array'],
@@ -16,7 +25,7 @@ class SimpleHumanoidGymEnv(gym.Env):
   }
 
   def __init__(self,
-               urdfRoot="",
+               urdfRoot=pybullet_data.getDataPath(),
                actionRepeat=50,
                isEnableSelfCollision=True,
                renders=True):
@@ -48,7 +57,7 @@ class SimpleHumanoidGymEnv(gym.Env):
     p.resetSimulation()
     #p.setPhysicsEngineParameter(numSolverIterations=300)
     p.setTimeStep(self._timeStep)
-    p.loadURDF(os.path.join(os.path.dirname(__file__),"../data","plane.urdf"))
+    p.loadURDF(os.path.join(self._urdfRoot,"plane.urdf"))
     
     dist = 5 +2.*random.random()
     ang = 2.*3.1415925438*random.random()

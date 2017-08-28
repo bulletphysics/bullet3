@@ -1,4 +1,9 @@
 import os
+import os,  inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(os.path.dirname(currentdir))
+os.sys.path.insert(0,parentdir)
+
 import math
 import gym
 from gym import spaces
@@ -9,6 +14,7 @@ import pybullet
 from . import racecar
 import random
 from . import bullet_client
+import pybullet_data
 
 class RacecarGymEnv(gym.Env):
   metadata = {
@@ -17,7 +23,7 @@ class RacecarGymEnv(gym.Env):
   }
 
   def __init__(self,
-               urdfRoot="",
+               urdfRoot=pybullet_data.getDataPath(),
                actionRepeat=50,
                isEnableSelfCollision=True,
                isDiscrete=False,
@@ -59,8 +65,8 @@ class RacecarGymEnv(gym.Env):
     self._p.resetSimulation()
     #p.setPhysicsEngineParameter(numSolverIterations=300)
     self._p.setTimeStep(self._timeStep)
-    #self._p.loadURDF(os.path.join(os.path.dirname(__file__),"../data","plane.urdf"))
-    stadiumobjects = self._p.loadSDF(os.path.join(os.path.dirname(__file__),"../data","stadium.sdf"))
+    #self._p.loadURDF(os.path.join(self._urdfRoot,"plane.urdf"))
+    stadiumobjects = self._p.loadSDF(os.path.join(self._urdfRoot,"stadium.sdf"))
     #move the stadium objects slightly above 0
     #for i in stadiumobjects:
     #	pos,orn = self._p.getBasePositionAndOrientation(i)
@@ -74,7 +80,7 @@ class RacecarGymEnv(gym.Env):
     bally = dist * math.cos(ang)
     ballz = 1
     
-    self._ballUniqueId = self._p.loadURDF(os.path.join(os.path.dirname(__file__),"../data","sphere2.urdf"),[ballx,bally,ballz])
+    self._ballUniqueId = self._p.loadURDF(os.path.join(self._urdfRoot,"sphere2.urdf"),[ballx,bally,ballz])
     self._p.setGravity(0,0,-10)
     self._racecar = racecar.Racecar(self._p,urdfRootPath=self._urdfRoot, timeStep=self._timeStep)
     self._envStepCounter = 0

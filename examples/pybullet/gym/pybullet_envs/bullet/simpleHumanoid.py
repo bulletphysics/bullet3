@@ -5,21 +5,26 @@ import copy
 import math
 import time
 
+import os, inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+print ("current_dir=" + currentdir)
+os.sys.path.insert(0,currentdir)
+
+import pybullet_data
 
 
 class SimpleHumanoid:
 
-  def __init__(self, urdfRootPath='', timeStep=0.01):
+  def __init__(self, urdfRootPath=pybullet_data.getDataPath(), timeStep=0.01):
     self.urdfRootPath = urdfRootPath
     self.timeStep = timeStep
     self.reset()
-    
     
 
   def reset(self):
     self.initial_z = None
    
-    objs = p.loadMJCF(os.path.join(os.path.dirname(__file__),"../data","mjcf/humanoid_symmetric_no_ground.xml"),flags = p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
+    objs = p.loadMJCF(os.path.join(self.urdfRootPath,"mjcf/humanoid_symmetric_no_ground.xml"),flags = p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
     self.human = objs[0]
     self.jdict = {}
     self.ordered_joints = []

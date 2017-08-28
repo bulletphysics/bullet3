@@ -3958,11 +3958,20 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 	return Py_None;
 }
 
-static PyObject* pybullet_getMatrixFromQuaternion(PyObject* self, PyObject* args)
+static PyObject* pybullet_getMatrixFromQuaternion(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	PyObject* quatObj;
 	double quat[4];
-	if (PyArg_ParseTuple(args, "O", &quatObj))
+	int physicsClientId=0;
+	static char* kwlist[] = {"quaternion","physicsClientId", NULL};
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|i", kwlist,  &quatObj,&physicsClientId))
+	{
+		return NULL;
+	}
+
+
+	if (quatObj)
 	{
 		if (pybullet_internalSetVector4d(quatObj, quat))
 		{
@@ -7160,7 +7169,7 @@ static PyMethodDef SpamMethods[] = {
 	 {"invertTransform", (PyCFunction) pybullet_invertTransform, METH_VARARGS  | METH_KEYWORDS,
 	 "Invert a transform, provided as [position], [quaternion]."},
 	 
-	{"getMatrixFromQuaternion", pybullet_getMatrixFromQuaternion, METH_VARARGS,
+	{"getMatrixFromQuaternion", (PyCFunction)pybullet_getMatrixFromQuaternion, METH_VARARGS| METH_KEYWORDS,
 	 "Compute the 3x3 matrix from a quaternion, as a list of 9 values (row-major)"},
 
 	{"calculateInverseDynamics", (PyCFunction)pybullet_calculateInverseDynamics, METH_VARARGS | METH_KEYWORDS,
