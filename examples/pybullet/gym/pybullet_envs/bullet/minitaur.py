@@ -467,7 +467,7 @@ class Minitaur(object):
     motor_angle = copy.deepcopy(actions)
     scale_for_singularity = 1
     offset_for_singularity = 1.5
-    half_num_motors = self.num_motors / 2
+    half_num_motors = int(self.num_motors / 2)
     quater_pi = math.pi / 4
     for i in range(self.num_motors):
       action_idx = i // 2

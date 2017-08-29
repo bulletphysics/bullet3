@@ -28,7 +28,8 @@ MOTOR_TORQUE_OBSERVATION_INDEX = MOTOR_VELOCITY_OBSERVATION_INDEX + NUM_MOTORS
 BASE_ORIENTATION_OBSERVATION_INDEX = MOTOR_TORQUE_OBSERVATION_INDEX + NUM_MOTORS
 ACTION_EPS = 0.01
 OBSERVATION_EPS = 0.01
-
+RENDER_HEIGHT = 720
+RENDER_WIDTH = 960
 
 class MinitaurBulletEnv(gym.Env):
   """The gym environment for the minitaur.
@@ -258,8 +259,26 @@ class MinitaurBulletEnv(gym.Env):
     done = self._termination()
     return np.array(self._noisy_observation()), reward, done, {}
 
-  def _render(self, mode="human", close=False):
-    return
+  def _render(self, mode="rgb_array", close=False):
+    if mode != "rgb_array":
+      return np.array([])
+    base_pos = self.minitaur.GetBasePosition()
+    view_matrix = self._pybullet_client.computeViewMatrixFromYawPitchRoll(
+        cameraTargetPosition=base_pos,
+        distance=self._cam_dist,
+        yaw=self._cam_yaw,
+        pitch=self._cam_pitch,
+        roll=0,
+        upAxisIndex=2)
+    proj_matrix = self._pybullet_client.computeProjectionMatrixFOV(
+        fov=60, aspect=float(RENDER_WIDTH)/RENDER_HEIGHT,
+        nearVal=0.1, farVal=100.0)
+    (_, _, px, _, _) = self._pybullet_client.getCameraImage(
+        width=RENDER_WIDTH, height=RENDER_HEIGHT, viewMatrix=view_matrix,
+        projectionMatrix=proj_matrix)
+    rgb_array = np.array(px)
+    rgb_array = rgb_array[:, :, :3]
+    return rgb_array
 
   def get_minitaur_motor_angles(self):
     """Get the minitaur's motor angles.
