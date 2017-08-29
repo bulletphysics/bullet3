@@ -1148,6 +1148,15 @@ void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const floa
 					}
                 }
             }
+
+			if (1)
+			{
+				getRenderInterface()->getActiveCamera()->disableVRCamera();
+				DrawGridData dg;
+				dg.upAxis = m_data->m_glApp->getUpAxis();
+				getRenderInterface()->updateCamera(dg.upAxis);
+				m_data->m_glApp->m_window->startRendering();
+			}
         }
         if (pixelsRGBA)
         {
