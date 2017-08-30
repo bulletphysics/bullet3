@@ -6716,36 +6716,151 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							{
 								if (parentBody->m_rigidBody)
 								{
-									if (clientCmd.m_userConstraintArguments.m_jointType == eGearType)
+
+									btRigidBody* parentRb = 0;
+									if (clientCmd.m_userConstraintArguments.m_parentJointIndex==-1)
 									{
-										btRigidBody* childRb = childBody->m_rigidBody;
-										if (childRb)
+										parentRb = parentBody->m_rigidBody;
+									} else
+									{
+										if ((clientCmd.m_userConstraintArguments.m_parentJointIndex>=0) &&
+											(clientCmd.m_userConstraintArguments.m_parentJointIndex<parentBody->m_rigidBodyJoints.size()))
 										{
-											btVector3 axisA(clientCmd.m_userConstraintArguments.m_jointAxis[0],
-												clientCmd.m_userConstraintArguments.m_jointAxis[1],
-												clientCmd.m_userConstraintArguments.m_jointAxis[2]);
-
-											//for now we use the same local axis for both objects
-											btVector3 axisB(clientCmd.m_userConstraintArguments.m_jointAxis[0],
-												clientCmd.m_userConstraintArguments.m_jointAxis[1],
-												clientCmd.m_userConstraintArguments.m_jointAxis[2]);
-
-											btScalar ratio=1;
-											btGearConstraint* gear = new btGearConstraint(*parentBody->m_rigidBody,*childRb, axisA,axisB,ratio);
-											m_data->m_dynamicsWorld->addConstraint(gear,true);
-
-											InteralUserConstraintData userConstraintData;
-											userConstraintData.m_rbConstraint = gear;
-											int uid = m_data->m_userConstraintUIDGenerator++;
-											serverCmd.m_userConstraintResultArgs = clientCmd.m_userConstraintArguments;
-											serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = uid;
-											serverCmd.m_userConstraintResultArgs.m_maxAppliedForce = defaultMaxForce;
-											userConstraintData.m_userConstraintData = serverCmd.m_userConstraintResultArgs;
-											m_data->m_userConstraints.insert(uid,userConstraintData);
-
-											serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
+											parentRb = &parentBody->m_rigidBodyJoints[clientCmd.m_userConstraintArguments.m_parentJointIndex]->getRigidBodyB();
 										}
 									}
+												
+
+									btRigidBody* childRb = 0;
+									if (childBody->m_rigidBody)
+									{
+											
+										if (clientCmd.m_userConstraintArguments.m_childJointIndex==-1)
+										{
+											childRb = childBody->m_rigidBody;
+										}
+										else
+										{
+											if ((clientCmd.m_userConstraintArguments.m_childJointIndex>=0)
+												&& (clientCmd.m_userConstraintArguments.m_childJointIndex<childBody->m_rigidBodyJoints.size()))
+											{
+												childRb = &childBody->m_rigidBodyJoints[clientCmd.m_userConstraintArguments.m_childJointIndex]->getRigidBodyB();
+											}
+													
+										}
+									}
+
+									switch (clientCmd.m_userConstraintArguments.m_jointType)
+									{
+										case eRevoluteType:
+										{
+											break;
+										}
+										case ePrismaticType:
+										{
+											break;
+										}
+										
+										case eFixedType:
+										{
+											if (childRb && parentRb && (childRb!=parentRb))
+											{
+												btVector3 pivotInParent(clientCmd.m_userConstraintArguments.m_parentFrame[0], clientCmd.m_userConstraintArguments.m_parentFrame[1], clientCmd.m_userConstraintArguments.m_parentFrame[2]);
+												btVector3 pivotInChild(clientCmd.m_userConstraintArguments.m_childFrame[0], clientCmd.m_userConstraintArguments.m_childFrame[1], clientCmd.m_userConstraintArguments.m_childFrame[2]);
+
+												btTransform offsetTrA,offsetTrB;
+												offsetTrA.setIdentity();
+												offsetTrA.setOrigin(pivotInParent);
+												offsetTrB.setIdentity();
+												offsetTrB.setOrigin(pivotInChild);
+
+												btGeneric6DofSpring2Constraint* dof6 = new btGeneric6DofSpring2Constraint(*parentRb, *childRb,  offsetTrA, offsetTrB);
+												
+												dof6->setLinearLowerLimit(btVector3(0,0,0));
+												dof6->setLinearUpperLimit(btVector3(0,0,0));
+
+												dof6->setAngularLowerLimit(btVector3(0,0,0));
+												dof6->setAngularUpperLimit(btVector3(0,0,0));
+												m_data->m_dynamicsWorld->addConstraint(dof6);
+												InteralUserConstraintData userConstraintData;
+												userConstraintData.m_rbConstraint = dof6;
+												int uid = m_data->m_userConstraintUIDGenerator++;
+												serverCmd.m_userConstraintResultArgs = clientCmd.m_userConstraintArguments;
+												serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = uid;
+												serverCmd.m_userConstraintResultArgs.m_maxAppliedForce = defaultMaxForce;
+												userConstraintData.m_userConstraintData = serverCmd.m_userConstraintResultArgs;
+												m_data->m_userConstraints.insert(uid,userConstraintData);
+												serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
+											}
+
+											break;
+										}
+											
+										case ePoint2PointType:
+										{
+											if (childRb && parentRb && (childRb!=parentRb))
+											{
+												btVector3 pivotInParent(clientCmd.m_userConstraintArguments.m_parentFrame[0], clientCmd.m_userConstraintArguments.m_parentFrame[1], clientCmd.m_userConstraintArguments.m_parentFrame[2]);
+												btVector3 pivotInChild(clientCmd.m_userConstraintArguments.m_childFrame[0], clientCmd.m_userConstraintArguments.m_childFrame[1], clientCmd.m_userConstraintArguments.m_childFrame[2]);
+
+												btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*parentRb,*childRb,pivotInParent,pivotInChild);
+												p2p->m_setting.m_impulseClamp = defaultMaxForce;
+												m_data->m_dynamicsWorld->addConstraint(p2p);
+												InteralUserConstraintData userConstraintData;
+												userConstraintData.m_rbConstraint = p2p;
+												int uid = m_data->m_userConstraintUIDGenerator++;
+												serverCmd.m_userConstraintResultArgs = clientCmd.m_userConstraintArguments;
+												serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = uid;
+												serverCmd.m_userConstraintResultArgs.m_maxAppliedForce = defaultMaxForce;
+												userConstraintData.m_userConstraintData = serverCmd.m_userConstraintResultArgs;
+												m_data->m_userConstraints.insert(uid,userConstraintData);
+												serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
+											}
+											break;
+										}
+										
+										case eGearType:
+										{
+											
+											if (childRb && parentRb && (childRb!=parentRb))
+											{
+												btVector3 axisA(clientCmd.m_userConstraintArguments.m_jointAxis[0],
+													clientCmd.m_userConstraintArguments.m_jointAxis[1],
+													clientCmd.m_userConstraintArguments.m_jointAxis[2]);
+												//for now we use the same local axis for both objects
+												btVector3 axisB(clientCmd.m_userConstraintArguments.m_jointAxis[0],
+													clientCmd.m_userConstraintArguments.m_jointAxis[1],
+													clientCmd.m_userConstraintArguments.m_jointAxis[2]);
+												btScalar ratio=1;
+												btGearConstraint* gear = new btGearConstraint(*parentRb,*childRb, axisA,axisB,ratio);
+												m_data->m_dynamicsWorld->addConstraint(gear,true);
+												InteralUserConstraintData userConstraintData;
+												userConstraintData.m_rbConstraint = gear;
+												int uid = m_data->m_userConstraintUIDGenerator++;
+												serverCmd.m_userConstraintResultArgs = clientCmd.m_userConstraintArguments;
+												serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = uid;
+												serverCmd.m_userConstraintResultArgs.m_maxAppliedForce = defaultMaxForce;
+												userConstraintData.m_userConstraintData = serverCmd.m_userConstraintResultArgs;
+												m_data->m_userConstraints.insert(uid,userConstraintData);
+												serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
+											}
+											break;
+										}
+										case eSphericalType:
+										{
+											b3Warning("constraint type not handled yet");
+											break;
+										}
+										case ePlanarType:
+										{
+											b3Warning("constraint type not handled yet");
+											break;
+										}
+									default:
+										{
+											b3Warning("unknown constraint type");
+										}
+									};
 								}
 							}
 						}
