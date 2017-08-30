@@ -2827,8 +2827,17 @@ static PyObject* pybullet_getJointInfo(PyObject* self, PyObject* args, PyObject*
 				//          info.m_jointDamping,
 				//          info.m_jointFriction);
 				PyTuple_SetItem(pyListJointInfo, 0, PyInt_FromLong(info.m_jointIndex));
-				PyTuple_SetItem(pyListJointInfo, 1,
-								PyString_FromString(info.m_jointName));
+				
+				if (info.m_jointName)
+				{
+					PyTuple_SetItem(pyListJointInfo, 1,
+ 								PyString_FromString(info.m_jointName));
+				} else
+				{
+					PyTuple_SetItem(pyListJointInfo, 1,
+								PyString_FromString("not available"));
+				}
+				
 				PyTuple_SetItem(pyListJointInfo, 2, PyInt_FromLong(info.m_jointType));
 				PyTuple_SetItem(pyListJointInfo, 3, PyInt_FromLong(info.m_qIndex));
 				PyTuple_SetItem(pyListJointInfo, 4, PyInt_FromLong(info.m_uIndex));
@@ -2845,8 +2854,16 @@ static PyObject* pybullet_getJointInfo(PyObject* self, PyObject* args, PyObject*
 								PyFloat_FromDouble(info.m_jointMaxForce));
 				PyTuple_SetItem(pyListJointInfo, 11,
 								PyFloat_FromDouble(info.m_jointMaxVelocity));
-				PyTuple_SetItem(pyListJointInfo, 12,
-								PyString_FromString(info.m_linkName));
+				if (info.m_linkName)
+				{
+				
+					PyTuple_SetItem(pyListJointInfo, 12,
+									PyString_FromString(info.m_linkName));
+				} else
+				{
+					PyTuple_SetItem(pyListJointInfo, 12,
+									PyString_FromString("not available"));
+				}
 
 				return pyListJointInfo;
 			}

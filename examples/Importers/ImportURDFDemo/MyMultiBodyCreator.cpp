@@ -180,7 +180,7 @@ class btGeneric6DofSpring2Constraint* MyMultiBodyCreator::createFixedJoint(int u
 
     dof6->setAngularLowerLimit(btVector3(0,0,0));
     dof6->setAngularUpperLimit(btVector3(0,0,0));
-
+	m_6DofConstraints.push_back(dof6);
 	return dof6;
 }
    
@@ -188,6 +188,10 @@ class btGeneric6DofSpring2Constraint* MyMultiBodyCreator::createFixedJoint(int u
 
 void MyMultiBodyCreator::addLinkMapping(int urdfLinkIndex, int mbLinkIndex) 
 {
+	if (m_mb2urdfLink.size()<(mbLinkIndex+1))
+	{
+		m_mb2urdfLink.resize((mbLinkIndex+1),-2);
+	}
 //    m_urdf2mbLink[urdfLinkIndex] = mbLinkIndex;
     m_mb2urdfLink[mbLinkIndex] = urdfLinkIndex;
 }
