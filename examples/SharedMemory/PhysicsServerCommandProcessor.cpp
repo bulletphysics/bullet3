@@ -76,6 +76,8 @@ btScalar gRhsClamp = 1.f;
 struct UrdfLinkNameMapUtil
 {
 	btMultiBody* m_mb;
+	btAlignedObjectArray<btGeneric6DofSpring2Constraint*> m_rigidBodyJoints;
+
 	btDefaultSerializer* m_memSerializer;
 
 	UrdfLinkNameMapUtil():m_mb(0),m_memSerializer(0)
@@ -148,6 +150,10 @@ struct InternalBodyData
 
 	btTransform m_rootLocalInertialFrame;
 	btAlignedObjectArray<btTransform> m_linkLocalInertialFrames;
+	btAlignedObjectArray<btGeneric6DofSpring2Constraint*> m_rigidBodyJoints;
+	btAlignedObjectArray<std::string> m_rigidBodyJointNames;
+	btAlignedObjectArray<std::string> m_rigidBodyLinkNames;
+	
 #ifdef B3_ENABLE_TINY_AUDIO
 	b3HashMap<btHashInt, SDFAudioSource> m_audioSources;
 #endif //B3_ENABLE_TINY_AUDIO
@@ -165,6 +171,9 @@ struct InternalBodyData
 		m_bodyName="";
 		m_rootLocalInertialFrame.setIdentity();
 		m_linkLocalInertialFrames.clear();
+		m_rigidBodyJoints.clear();
+		m_rigidBodyJointNames.clear();
+		m_rigidBodyLinkNames.clear();
 	}
 
 };
@@ -2235,6 +2244,32 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
             bodyHandle->m_rigidBody = rb;
 			rb->setUserIndex2(bodyUniqueId);
 			m_data->m_sdfRecentLoadedBodies.push_back(bodyUniqueId);
+
+			std::string* baseName = new std::string(u2b.getLinkName(u2b.getRootLinkIndex()));
+			m_data->m_strings.push_back(baseName);
+			bodyHandle->m_bodyName = *baseName;
+
+			int numJoints = creation.getNum6DofConstraints();
+			bodyHandle->m_rigidBodyJoints.reserve(numJoints);
+			bodyHandle->m_rigidBodyJointNames.reserve(numJoints);
+			bodyHandle->m_rigidBodyLinkNames.reserve(numJoints);
+			for (int i=0;i<numJoints;i++)
+			{
+				int urdfLinkIndex = creation.m_mb2urdfLink[i];
+
+				btGeneric6DofSpring2Constraint* con = creation.get6DofConstraint(i);
+				
+				std::string* linkName = new std::string(u2b.getLinkName(urdfLinkIndex).c_str());
+				m_data->m_strings.push_back(linkName);
+
+				std::string* jointName = new std::string(u2b.getJointName(urdfLinkIndex).c_str());
+				m_data->m_strings.push_back(jointName);
+
+				bodyHandle->m_rigidBodyJointNames.push_back(*jointName);
+				bodyHandle->m_rigidBodyLinkNames.push_back(*linkName);
+
+				bodyHandle->m_rigidBodyJoints.push_back(con);
+			}
 		}
 
     }
@@ -2594,7 +2629,64 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
         util->m_memSerializer->finalizeChunk(chunk,structType,BT_MULTIBODY_CODE,mb);
         streamSizeInBytes = util->m_memSerializer->getCurrentBufferSize();
 
-    }
+    } else
+	{
+		btRigidBody* rb = bodyHandle? bodyHandle->m_rigidBody :0;   
+		if (rb)
+		{
+			UrdfLinkNameMapUtil* util = new UrdfLinkNameMapUtil;
+			m_data->m_urdfLinkNameMapper.push_back(util);
+			util->m_memSerializer = new btDefaultSerializer(bufferSizeInBytes ,(unsigned char*)bufferServerToClient);
+			util->m_memSerializer->startSerialization();
+			util->m_memSerializer->registerNameForPointer(bodyHandle->m_rigidBody,bodyHandle->m_bodyName.c_str());
+			//disable serialization of the collision objects (they are too big, and the client likely doesn't need them);
+			for (int i=0;i<bodyHandle->m_rigidBodyJoints.size();i++)
+			{
+				const btGeneric6DofSpring2Constraint* con = bodyHandle->m_rigidBodyJoints.at(i);
+#if 0
+				const btRigidBody& bodyA = con->getRigidBodyA();
+				const btRigidBody& bodyB = con->getRigidBodyB();
+				int len = bodyA.calculateSerializeBufferSize();
+				btChunk* chunk = util->m_memSerializer->allocate(len,1);
+				const char* structType = bodyA.serialize(chunk->m_oldPtr, util->m_memSerializer);
+				util->m_memSerializer->finalizeChunk(chunk,structType,BT_RIGIDBODY_CODE,(void*)&bodyA);
+#endif
+				util->m_memSerializer->registerNameForPointer(con,bodyHandle->m_rigidBodyJointNames[i].c_str());
+				util->m_memSerializer->registerNameForPointer(&con->getRigidBodyB(),bodyHandle->m_rigidBodyLinkNames[i].c_str());
+
+				const btRigidBody& bodyA = con->getRigidBodyA();
+
+				int len = con->calculateSerializeBufferSize();
+				btChunk* chunk = util->m_memSerializer->allocate(len,1);
+				const char* structType = con->serialize(chunk->m_oldPtr, util->m_memSerializer);
+				util->m_memSerializer->finalizeChunk(chunk,structType,BT_CONSTRAINT_CODE,(void*)con);
+			}
+
+			streamSizeInBytes = util->m_memSerializer->getCurrentBufferSize();
+#if 0
+        util->m_memSerializer->m_skipPointers.insert(mb->getBaseCollider(),0);
+		if (mb->getBaseName())
+		{
+			util->m_memSerializer->registerNameForPointer(mb->getBaseName(),mb->getBaseName());
+		}
+        bodyHandle->m_linkLocalInertialFrames.reserve(mb->getNumLinks());
+        for (int i=0;i<mb->getNumLinks();i++)
+        {
+            //disable serialization of the collision objects
+           util->m_memSerializer->m_skipPointers.insert(mb->getLink(i).m_collider,0);
+           util->m_memSerializer->registerNameForPointer(mb->getLink(i).m_linkName,mb->getLink(i).m_linkName);
+           util->m_memSerializer->registerNameForPointer(mb->getLink(i).m_jointName,mb->getLink(i).m_jointName);
+        }
+        util->m_memSerializer->registerNameForPointer(mb->getBaseName(),mb->getBaseName());
+        int len = mb->calculateSerializeBufferSize();
+        btChunk* chunk = util->m_memSerializer->allocate(len,1);
+        const char* structType = mb->serialize(chunk->m_oldPtr, util->m_memSerializer);
+        util->m_memSerializer->finalizeChunk(chunk,structType,BT_MULTIBODY_CODE,mb);
+        streamSizeInBytes = util->m_memSerializer->getCurrentBufferSize();
+#endif
+		}
+	}
+
     return streamSizeInBytes;
 }
 
@@ -4269,7 +4361,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
                                 switch (clientCmd.m_sendDesiredStateCommandArgument.m_controlMode)
                                 {
-                                case CONTROL_MODE_TORQUE:
+								 case CONTROL_MODE_TORQUE:
                                     {
 										if (m_data->m_verboseOutput)
 										{
@@ -4432,12 +4524,171 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 										break;
 									}
                                 default:
-						{
-							b3Warning("m_controlMode not implemented yet");
-							break;
-						}
+								{
+									b3Warning("m_controlMode not implemented yet");
+									break;
+								}
 
 						}
+					} else
+					{
+						//support for non-btMultiBody, such as btRigidBody
+
+						if (body && body->m_rigidBody)
+                        {
+                                btRigidBody* rb = body->m_rigidBody;
+                                btAssert(rb);
+
+                                //switch (clientCmd.m_sendDesiredStateCommandArgument.m_controlMode)
+                                {
+								 //case CONTROL_MODE_TORQUE:
+                                    {
+										if (m_data->m_verboseOutput)
+										{
+											b3Printf("Using CONTROL_MODE_TORQUE");
+										}
+                                      //  mb->clearForcesAndTorques();
+                                        int torqueIndex = 6;
+                                        //if ((clientCmd.m_updateFlags&SIM_DESIRED_STATE_HAS_MAX_FORCE)!=0)
+                                        {
+											for (int link=0;link<body->m_rigidBodyJoints.size();link++)
+                                            {
+												btGeneric6DofSpring2Constraint* con = body->m_rigidBodyJoints[link];
+												
+												btVector3 linearLowerLimit;
+												btVector3 linearUpperLimit;
+												btVector3 angularLowerLimit;
+												btVector3 angularUpperLimit;
+
+
+                                                //for (int dof=0;dof<mb->getLink(link).m_dofCount;dof++)
+                                                {
+                                                    double torque = 0.f;
+                                                    //if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[torqueIndex]&SIM_DESIRED_STATE_HAS_MAX_FORCE)!=0)
+                                                    {
+                                                        torque = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[torqueIndex];
+														btScalar qdotTarget = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[torqueIndex];
+														btScalar qTarget = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[torqueIndex];
+
+														
+														con->getLinearLowerLimit(linearLowerLimit);
+														con->getLinearUpperLimit(linearUpperLimit);
+														con->getAngularLowerLimit(angularLowerLimit);
+														con->getAngularUpperLimit(angularUpperLimit);
+
+														if (linearLowerLimit.isZero() && linearUpperLimit.isZero() && angularLowerLimit.isZero() && angularUpperLimit.isZero())
+														{
+															//fixed, don't do anything
+														} else
+														{
+															con->calculateTransforms();
+
+															if (linearLowerLimit.isZero() && linearUpperLimit.isZero())
+															{
+																//eRevoluteType;
+																btVector3 limitRange = angularLowerLimit.absolute()+angularUpperLimit.absolute();
+																int limitAxis = limitRange.maxAxis();
+																const btTransform& transA = con->getCalculatedTransformA();
+																const btTransform& transB = con->getCalculatedTransformB();
+																btVector3 axisA = transA.getBasis().getColumn(limitAxis);
+																btVector3 axisB = transB.getBasis().getColumn(limitAxis);
+
+																switch (clientCmd.m_sendDesiredStateCommandArgument.m_controlMode)
+																{
+																	case CONTROL_MODE_TORQUE:
+																		{
+																			con->getRigidBodyA().applyTorque(torque*axisA);
+																			con->getRigidBodyB().applyTorque(-torque*axisB);
+																			break;
+																		}
+																		case CONTROL_MODE_VELOCITY:
+																		{
+																			con->enableMotor(3+limitAxis,true);
+																			con->setTargetVelocity(3+limitAxis, qdotTarget);
+																			//this is max motor force impulse
+																			btScalar torqueImpulse = torque*m_data->m_dynamicsWorld->getSolverInfo().m_timeStep;
+																			con->setMaxMotorForce(3+limitAxis,torqueImpulse);
+																			break;
+																		}
+																		case CONTROL_MODE_POSITION_VELOCITY_PD:
+																		{
+																			con->setServo(3+limitAxis,true);
+																			con->setServoTarget(3+limitAxis,qTarget);
+																			//next one is the maximum velocity to reach target position.
+																			//the maximum velocity is limited by maxMotorForce
+																			con->setTargetVelocity(3+limitAxis, 100);
+																			//this is max motor force impulse
+																			btScalar torqueImpulse = torque*m_data->m_dynamicsWorld->getSolverInfo().m_timeStep;
+																			con->setMaxMotorForce(3+limitAxis,torqueImpulse);
+																			con->enableMotor(3+limitAxis,true);
+																			break;
+																		}
+																	default:
+																		{
+																		}
+																};
+
+
+																
+																
+															} else
+															{
+																//ePrismaticType; @todo
+																btVector3 limitRange = linearLowerLimit.absolute()+linearUpperLimit.absolute();
+																int limitAxis = limitRange.maxAxis();
+
+																const btTransform& transA = con->getCalculatedTransformA();
+																const btTransform& transB = con->getCalculatedTransformB();
+																btVector3 axisA = transA.getBasis().getColumn(limitAxis);
+																btVector3 axisB = transB.getBasis().getColumn(limitAxis);
+
+																switch (clientCmd.m_sendDesiredStateCommandArgument.m_controlMode)
+																{
+																	case CONTROL_MODE_TORQUE:
+																		{
+																			con->getRigidBodyA().applyForce(-torque*axisA,btVector3(0,0,0));
+																			con->getRigidBodyB().applyForce(torque*axisB,btVector3(0,0,0));
+																			break;
+																		}
+																		case CONTROL_MODE_VELOCITY:
+																		{
+																			con->enableMotor(limitAxis,true);
+																			con->setTargetVelocity(limitAxis, -qdotTarget);
+																			//this is max motor force impulse
+																			btScalar torqueImpulse = torque*m_data->m_dynamicsWorld->getSolverInfo().m_timeStep;
+																			con->setMaxMotorForce(limitAxis,torqueImpulse);
+																			break;
+																		}
+																		case CONTROL_MODE_POSITION_VELOCITY_PD:
+																		{
+																			con->setServo(limitAxis,true);
+																			con->setServoTarget(limitAxis,qTarget);
+																			//next one is the maximum velocity to reach target position.
+																			//the maximum velocity is limited by maxMotorForce
+																			con->setTargetVelocity(limitAxis, 100);
+																			//this is max motor force impulse
+																			btScalar torqueImpulse = torque*m_data->m_dynamicsWorld->getSolverInfo().m_timeStep;
+																			con->setMaxMotorForce(limitAxis,torqueImpulse);
+																			con->enableMotor(limitAxis,true);
+																			break;
+																		}
+																	default:
+																		{
+																		}
+																};
+
+															}
+														}
+                                                    }//fi
+                                                    torqueIndex++;
+                                                }
+                                            }
+                                        }//fi
+                                        //break;
+                                    }
+								
+								}
+						} //if (body && body->m_rigidBody)
 					}
 
 					serverStatusOut.m_type = CMD_DESIRED_STATE_RECEIVED_COMPLETED;
@@ -6937,7 +7188,6 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							int uid = m_data->m_visualConverter.loadTextureFile(relativeFileName);
 							if(uid>=0)
 							{
-								int m_tinyRendererTextureId;
 								texH->m_tinyRendererTextureId = uid;
 							}
 

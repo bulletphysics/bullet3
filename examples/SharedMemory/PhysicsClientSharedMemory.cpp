@@ -278,7 +278,10 @@ void PhysicsClientSharedMemory::disconnectSharedMemory() {
 
 }
 
-bool PhysicsClientSharedMemory::isConnected() const { return m_data->m_isConnected; }
+bool PhysicsClientSharedMemory::isConnected() const 
+{ 
+	return m_data->m_isConnected && (m_data->m_testBlock1->m_magicId == SHARED_MEMORY_MAGIC_NUMBER);
+}
 
 bool PhysicsClientSharedMemory::connect() {
     /// server always has to create and initialize shared memory
@@ -386,6 +389,72 @@ void PhysicsClientSharedMemory::processBodyJointInfo(int bodyUniqueId, const Sha
     }
 }
 
+template <typename T, typename U> void addJointInfoFromConstraint(int linkIndex, const T* con, U* bodyJoints, bool verboseOutput)
+{
+	b3JointInfo info;
+	info.m_jointName = 0;
+	info.m_linkName = 0;
+	info.m_flags = 0;
+	info.m_jointIndex = linkIndex;
+	info.m_qIndex = linkIndex+6;
+	info.m_uIndex = linkIndex+6;
+	//derive type from limits
+
+	if (con->m_typeConstraintData.m_name)
+	{
+		info.m_jointName = strDup(con->m_typeConstraintData.m_name);
+		//info.m_linkName = strDup(con->m_typeConstraintData.m_name);
+	}
+	
+	btVector3 linearLowerLimit(con->m_linearLowerLimit.m_floats[0],con->m_linearLowerLimit.m_floats[1],con->m_linearLowerLimit.m_floats[2]);
+	btVector3 linearUpperLimit(con->m_linearUpperLimit.m_floats[0],con->m_linearUpperLimit.m_floats[1],con->m_linearUpperLimit.m_floats[2]);
+	btVector3 angularLowerLimit(con->m_angularLowerLimit.m_floats[0],con->m_angularLowerLimit.m_floats[1],con->m_angularLowerLimit.m_floats[2]);
+	btVector3 angularUpperLimit(con->m_angularUpperLimit.m_floats[0],con->m_angularUpperLimit.m_floats[1],con->m_angularUpperLimit.m_floats[2]);
+	
+	//very simple, rudimentary extraction of constaint type, from limits
+	info.m_jointType = eFixedType;
+	info.m_jointDamping = 0;//mb->m_links[link].m_jointDamping;
+	info.m_jointFriction = 0;//mb->m_links[link].m_jointFriction;
+	info.m_jointLowerLimit = 0;//mb->m_links[link].m_jointLowerLimit;
+	info.m_jointUpperLimit = 0;//mb->m_links[link].m_jointUpperLimit;
+	info.m_jointMaxForce = 0;//mb->m_links[link].m_jointMaxForce;
+	info.m_jointMaxVelocity = 0;//mb->m_links[link].m_jointMaxVelocity;
+
+
+	if (linearLowerLimit.isZero() && linearUpperLimit.isZero() && angularLowerLimit.isZero() && angularUpperLimit.isZero())
+	{
+		info.m_jointType = eFixedType;
+	} else
+	{
+		if (linearLowerLimit.isZero() && linearUpperLimit.isZero())
+		{
+			info.m_jointType = eRevoluteType;
+			btVector3 limitRange = angularLowerLimit.absolute()+angularUpperLimit.absolute();
+			int limitAxis = limitRange.maxAxis();
+			info.m_jointLowerLimit = angularLowerLimit[limitAxis];
+			info.m_jointUpperLimit = angularUpperLimit[limitAxis];
+		} else
+		{
+			info.m_jointType = ePrismaticType;
+			btVector3 limitRange = linearLowerLimit.absolute()+linearUpperLimit.absolute();
+			int limitAxis = limitRange.maxAxis();
+			info.m_jointLowerLimit = linearLowerLimit[limitAxis];
+			info.m_jointUpperLimit = linearUpperLimit[limitAxis];
+		}
+	}
+	
+	//if (mb->m_links[link].m_linkName) {
+	
+	
+	if ((info.m_jointType == eRevoluteType) ||
+		(info.m_jointType == ePrismaticType)) {
+		info.m_flags |= JOINT_HAS_MOTORIZED_POWER;
+	}
+	bodyJoints->m_jointInfo.push_back(info);
+
+	
+};
+
 const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
    // SharedMemoryStatus* stat = 0;
 	
@@ -460,7 +529,8 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                     b3Printf("Server loading the URDF OK\n");
                 }
 
-                if (serverCmd.m_numDataStreamBytes > 0) {
+                if (serverCmd.m_numDataStreamBytes > 0) 
+				{
                     bParse::btBulletFile bf(
                         this->m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor,
                         serverCmd.m_numDataStreamBytes);
@@ -472,12 +542,31 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                     m_data->m_bodyJointMap.insert(bodyUniqueId,bodyJoints);
 					bodyJoints->m_bodyName = serverCmd.m_dataStreamArguments.m_bodyName;
 
-                    for (int i = 0; i < bf.m_multiBodies.size(); i++) {
+					for (int i = 0; i < bf.m_constraints.size(); i++) 
+					{
+						int flag = bf.getFlags();
+                        
+                        if ((flag & bParse::FD_DOUBLE_PRECISION) != 0) 
+						{
+							Bullet::btGeneric6DofSpring2ConstraintDoubleData2* con = 
+								(Bullet::btGeneric6DofSpring2ConstraintDoubleData2*) bf.m_constraints[i];
+							addJointInfoFromConstraint(i,con,bodyJoints,m_data->m_verboseOutput);
+						} else
+						{
+							Bullet::btGeneric6DofSpring2ConstraintData* con = 
+								(Bullet::btGeneric6DofSpring2ConstraintData*) bf.m_constraints[i];
+							addJointInfoFromConstraint(i,con,bodyJoints,m_data->m_verboseOutput);
+						}
+					}
+
+                    for (int i = 0; i < bf.m_multiBodies.size(); i++) 
+					{
 
 
                         int flag = bf.getFlags();
                         
-                        if ((flag & bParse::FD_DOUBLE_PRECISION) != 0) {
+                        if ((flag & bParse::FD_DOUBLE_PRECISION) != 0) 
+						{
                             Bullet::btMultiBodyDoubleData* mb =
                                 (Bullet::btMultiBodyDoubleData*)bf.m_multiBodies[i];
 							if (mb->m_baseName)
