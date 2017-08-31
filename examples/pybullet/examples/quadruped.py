@@ -19,7 +19,7 @@ if (physId<0):
 #p.resetSimulation()
 p.loadURDF("plane.urdf",0,0,0)
 p.setPhysicsEngineParameter(numSolverIterations=50)
-
+p.startStateLogging(p.STATE_LOGGING_GENERIC_ROBOT, "genericlogdata.bin", maxLogDof = 16, logFlags = p.STATE_LOG_JOINT_TORQUES)
 p.setTimeOut(4)
 
 p.setGravity(0,0,0)
@@ -156,7 +156,7 @@ t_end = t + 100
 i=0
 ref_time = time.time()
 
-while t < t_end:
+for aa in range (100):
 	if (useRealTime):
 		t = time.time()-ref_time
 	else:

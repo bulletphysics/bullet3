@@ -3657,6 +3657,22 @@ int b3StateLoggingSetMaxLogDof(b3SharedMemoryCommandHandle commandHandle, int ma
 	return 0;
 }
 
+int b3StateLoggingSetLogFlags(b3SharedMemoryCommandHandle commandHandle, int logFlags)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_STATE_LOGGING);
+	if (command->m_type == CMD_STATE_LOGGING)
+	{
+	    command->m_updateFlags |= STATE_LOGGING_LOG_FLAGS;
+		command->m_stateLoggingArguments.m_logFlags = logFlags;
+	}
+	return 0;
+}
+
+
+
+
 int b3StateLoggingSetDeviceTypeFilter(b3SharedMemoryCommandHandle commandHandle, int deviceTypeFilter)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
