@@ -844,13 +844,15 @@ struct GenericRobotStateLogger : public InternalStateLogger
     btAlignedObjectArray<int> m_bodyIdList;
     bool m_filterObjectUniqueId;
     int m_maxLogDof;
+	int m_logFlags;
 
-    GenericRobotStateLogger(int loggingUniqueId, const std::string& fileName, btMultiBodyDynamicsWorld* dynamicsWorld, int maxLogDof)
+    GenericRobotStateLogger(int loggingUniqueId, const std::string& fileName, btMultiBodyDynamicsWorld* dynamicsWorld, int maxLogDof, int logFlags)
     :m_loggingTimeStamp(0),
     m_logFileHandle(0),
     m_dynamicsWorld(dynamicsWorld),
     m_filterObjectUniqueId(false),
-	m_maxLogDof(maxLogDof)
+	m_maxLogDof(maxLogDof),
+	m_logFlags(logFlags)
     {
         m_loggingUniqueId = loggingUniqueId;
         m_loggingType = STATE_LOGGING_GENERIC_ROBOT;
@@ -883,14 +885,26 @@ struct GenericRobotStateLogger : public InternalStateLogger
 			sprintf(jointName,"q%d",i);
 			structNames.push_back(jointName);
 		}
+
 		for (int i=0;i<m_maxLogDof;i++)
 		{
 			m_structTypes.append("f");
 			char jointName[256];
-			sprintf(jointName,"u%d",i);
+			sprintf(jointName,"v%d",i);
 			structNames.push_back(jointName);
 		}
-        
+
+		if (m_logFlags & STATE_LOG_JOINT_TORQUES)
+		{
+			for (int i=0;i<m_maxLogDof;i++)
+			{
+				m_structTypes.append("f");
+				char jointName[256];
+				sprintf(jointName,"u%d",i);
+				structNames.push_back(jointName);
+			}
+		}
+
         const char* fileNameC = fileName.c_str();
         
         m_logFileHandle = createMinitaurLogFile(fileNameC, structNames, m_structTypes);
@@ -979,15 +993,49 @@ struct GenericRobotStateLogger : public InternalStateLogger
                 {
                     if (mb->getLink(j).m_jointType == 0 || mb->getLink(j).m_jointType == 1)
                     {
-                        float u = mb->getJointVel(j);
-                        logData.m_values.push_back(u);
+                        float v = mb->getJointVel(j);
+                        logData.m_values.push_back(v);
                     }
                 }
                 for (int j = numDofs; j < m_maxLogDof; ++j)
                 {
-                    float u = 0.0;
-                    logData.m_values.push_back(u);
+                    float v = 0.0;
+                    logData.m_values.push_back(v);
                 }
+
+				
+				if (m_logFlags & STATE_LOG_JOINT_TORQUES)
+				{
+					for (int j = 0; j < numJoints; ++j)
+					{
+						if (mb->getLink(j).m_jointType == 0 || mb->getLink(j).m_jointType == 1)
+						{
+							float jointTorque = 0;
+							if (m_logFlags & STATE_LOG_JOINT_MOTOR_TORQUES)
+							{
+								btMultiBodyJointMotor* motor = (btMultiBodyJointMotor*)mb->getLink(j).m_userPtr;
+								if (motor)
+								{
+									jointTorque += motor->getAppliedImpulse(0)/timeStep;
+								}
+							}
+							if (m_logFlags & STATE_LOG_JOINT_USER_TORQUES)
+							{
+								if (mb->getLink(j).m_jointType == 0 || mb->getLink(j).m_jointType == 1)
+								{
+									jointTorque += mb->getJointTorque(j);//these are the 'user' applied external torques
+								}
+							}
+							logData.m_values.push_back(jointTorque);
+						}
+
+					}
+					for (int j = numDofs; j < m_maxLogDof; ++j)
+					{
+						float u = 0.0;
+						logData.m_values.push_back(u);
+					}
+				}
                                 
                 //at the moment, appendMinitaurLogData will directly write to disk (potential delay)
                 //better to fill a huge memory buffer and once in a while write it to disk
@@ -999,7 +1047,6 @@ struct GenericRobotStateLogger : public InternalStateLogger
         }
     }
 };
-
 struct ContactPointsStateLogger : public InternalStateLogger
 {
 	int m_loggingTimeStamp;
@@ -2848,7 +2895,13 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							{
 								maxLogDof = clientCmd.m_stateLoggingArguments.m_maxLogDof;
 							}
-                            GenericRobotStateLogger* logger = new GenericRobotStateLogger(loggerUid,fileName,m_data->m_dynamicsWorld,maxLogDof);
+							
+							int logFlags = 0;
+							if (clientCmd.m_updateFlags & STATE_LOGGING_LOG_FLAGS)
+							{
+								logFlags = clientCmd.m_stateLoggingArguments.m_logFlags;
+							}
+                            GenericRobotStateLogger* logger = new GenericRobotStateLogger(loggerUid,fileName,m_data->m_dynamicsWorld,maxLogDof, logFlags);
                             
                             if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_OBJECT_UNIQUE_ID) && (clientCmd.m_stateLoggingArguments.m_numBodyUniqueIds>0))
                             {
@@ -6716,36 +6769,151 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							{
 								if (parentBody->m_rigidBody)
 								{
-									if (clientCmd.m_userConstraintArguments.m_jointType == eGearType)
+
+									btRigidBody* parentRb = 0;
+									if (clientCmd.m_userConstraintArguments.m_parentJointIndex==-1)
 									{
-										btRigidBody* childRb = childBody->m_rigidBody;
-										if (childRb)
+										parentRb = parentBody->m_rigidBody;
+									} else
+									{
+										if ((clientCmd.m_userConstraintArguments.m_parentJointIndex>=0) &&
+											(clientCmd.m_userConstraintArguments.m_parentJointIndex<parentBody->m_rigidBodyJoints.size()))
 										{
-											btVector3 axisA(clientCmd.m_userConstraintArguments.m_jointAxis[0],
-												clientCmd.m_userConstraintArguments.m_jointAxis[1],
-												clientCmd.m_userConstraintArguments.m_jointAxis[2]);
-
-											//for now we use the same local axis for both objects
-											btVector3 axisB(clientCmd.m_userConstraintArguments.m_jointAxis[0],
-												clientCmd.m_userConstraintArguments.m_jointAxis[1],
-												clientCmd.m_userConstraintArguments.m_jointAxis[2]);
-
-											btScalar ratio=1;
-											btGearConstraint* gear = new btGearConstraint(*parentBody->m_rigidBody,*childRb, axisA,axisB,ratio);
-											m_data->m_dynamicsWorld->addConstraint(gear,true);
-
-											InteralUserConstraintData userConstraintData;
-											userConstraintData.m_rbConstraint = gear;
-											int uid = m_data->m_userConstraintUIDGenerator++;
-											serverCmd.m_userConstraintResultArgs = clientCmd.m_userConstraintArguments;
-											serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = uid;
-											serverCmd.m_userConstraintResultArgs.m_maxAppliedForce = defaultMaxForce;
-											userConstraintData.m_userConstraintData = serverCmd.m_userConstraintResultArgs;
-											m_data->m_userConstraints.insert(uid,userConstraintData);
-
-											serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
+											parentRb = &parentBody->m_rigidBodyJoints[clientCmd.m_userConstraintArguments.m_parentJointIndex]->getRigidBodyB();
 										}
 									}
+												
+
+									btRigidBody* childRb = 0;
+									if (childBody->m_rigidBody)
+									{
+											
+										if (clientCmd.m_userConstraintArguments.m_childJointIndex==-1)
+										{
+											childRb = childBody->m_rigidBody;
+										}
+										else
+										{
+											if ((clientCmd.m_userConstraintArguments.m_childJointIndex>=0)
+												&& (clientCmd.m_userConstraintArguments.m_childJointIndex<childBody->m_rigidBodyJoints.size()))
+											{
+												childRb = &childBody->m_rigidBodyJoints[clientCmd.m_userConstraintArguments.m_childJointIndex]->getRigidBodyB();
+											}
+													
+										}
+									}
+
+									switch (clientCmd.m_userConstraintArguments.m_jointType)
+									{
+										case eRevoluteType:
+										{
+											break;
+										}
+										case ePrismaticType:
+										{
+											break;
+										}
+										
+										case eFixedType:
+										{
+											if (childRb && parentRb && (childRb!=parentRb))
+											{
+												btVector3 pivotInParent(clientCmd.m_userConstraintArguments.m_parentFrame[0], clientCmd.m_userConstraintArguments.m_parentFrame[1], clientCmd.m_userConstraintArguments.m_parentFrame[2]);
+												btVector3 pivotInChild(clientCmd.m_userConstraintArguments.m_childFrame[0], clientCmd.m_userConstraintArguments.m_childFrame[1], clientCmd.m_userConstraintArguments.m_childFrame[2]);
+
+												btTransform offsetTrA,offsetTrB;
+												offsetTrA.setIdentity();
+												offsetTrA.setOrigin(pivotInParent);
+												offsetTrB.setIdentity();
+												offsetTrB.setOrigin(pivotInChild);
+
+												btGeneric6DofSpring2Constraint* dof6 = new btGeneric6DofSpring2Constraint(*parentRb, *childRb,  offsetTrA, offsetTrB);
+												
+												dof6->setLinearLowerLimit(btVector3(0,0,0));
+												dof6->setLinearUpperLimit(btVector3(0,0,0));
+
+												dof6->setAngularLowerLimit(btVector3(0,0,0));
+												dof6->setAngularUpperLimit(btVector3(0,0,0));
+												m_data->m_dynamicsWorld->addConstraint(dof6);
+												InteralUserConstraintData userConstraintData;
+												userConstraintData.m_rbConstraint = dof6;
+												int uid = m_data->m_userConstraintUIDGenerator++;
+												serverCmd.m_userConstraintResultArgs = clientCmd.m_userConstraintArguments;
+												serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = uid;
+												serverCmd.m_userConstraintResultArgs.m_maxAppliedForce = defaultMaxForce;
+												userConstraintData.m_userConstraintData = serverCmd.m_userConstraintResultArgs;
+												m_data->m_userConstraints.insert(uid,userConstraintData);
+												serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
+											}
+
+											break;
+										}
+											
+										case ePoint2PointType:
+										{
+											if (childRb && parentRb && (childRb!=parentRb))
+											{
+												btVector3 pivotInParent(clientCmd.m_userConstraintArguments.m_parentFrame[0], clientCmd.m_userConstraintArguments.m_parentFrame[1], clientCmd.m_userConstraintArguments.m_parentFrame[2]);
+												btVector3 pivotInChild(clientCmd.m_userConstraintArguments.m_childFrame[0], clientCmd.m_userConstraintArguments.m_childFrame[1], clientCmd.m_userConstraintArguments.m_childFrame[2]);
+
+												btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*parentRb,*childRb,pivotInParent,pivotInChild);
+												p2p->m_setting.m_impulseClamp = defaultMaxForce;
+												m_data->m_dynamicsWorld->addConstraint(p2p);
+												InteralUserConstraintData userConstraintData;
+												userConstraintData.m_rbConstraint = p2p;
+												int uid = m_data->m_userConstraintUIDGenerator++;
+												serverCmd.m_userConstraintResultArgs = clientCmd.m_userConstraintArguments;
+												serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = uid;
+												serverCmd.m_userConstraintResultArgs.m_maxAppliedForce = defaultMaxForce;
+												userConstraintData.m_userConstraintData = serverCmd.m_userConstraintResultArgs;
+												m_data->m_userConstraints.insert(uid,userConstraintData);
+												serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
+											}
+											break;
+										}
+										
+										case eGearType:
+										{
+											
+											if (childRb && parentRb && (childRb!=parentRb))
+											{
+												btVector3 axisA(clientCmd.m_userConstraintArguments.m_jointAxis[0],
+													clientCmd.m_userConstraintArguments.m_jointAxis[1],
+													clientCmd.m_userConstraintArguments.m_jointAxis[2]);
+												//for now we use the same local axis for both objects
+												btVector3 axisB(clientCmd.m_userConstraintArguments.m_jointAxis[0],
+													clientCmd.m_userConstraintArguments.m_jointAxis[1],
+													clientCmd.m_userConstraintArguments.m_jointAxis[2]);
+												btScalar ratio=1;
+												btGearConstraint* gear = new btGearConstraint(*parentRb,*childRb, axisA,axisB,ratio);
+												m_data->m_dynamicsWorld->addConstraint(gear,true);
+												InteralUserConstraintData userConstraintData;
+												userConstraintData.m_rbConstraint = gear;
+												int uid = m_data->m_userConstraintUIDGenerator++;
+												serverCmd.m_userConstraintResultArgs = clientCmd.m_userConstraintArguments;
+												serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = uid;
+												serverCmd.m_userConstraintResultArgs.m_maxAppliedForce = defaultMaxForce;
+												userConstraintData.m_userConstraintData = serverCmd.m_userConstraintResultArgs;
+												m_data->m_userConstraints.insert(uid,userConstraintData);
+												serverCmd.m_type = CMD_USER_CONSTRAINT_COMPLETED;
+											}
+											break;
+										}
+										case eSphericalType:
+										{
+											b3Warning("constraint type not handled yet");
+											break;
+										}
+										case ePlanarType:
+										{
+											b3Warning("constraint type not handled yet");
+											break;
+										}
+									default:
+										{
+											b3Warning("unknown constraint type");
+										}
+									};
 								}
 							}
 						}

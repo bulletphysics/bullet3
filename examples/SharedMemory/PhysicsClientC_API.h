@@ -471,6 +471,7 @@ int b3StateLoggingSetLinkIndexB(b3SharedMemoryCommandHandle commandHandle, int l
 int b3StateLoggingSetBodyAUniqueId(b3SharedMemoryCommandHandle commandHandle, int bodyAUniqueId);
 int b3StateLoggingSetBodyBUniqueId(b3SharedMemoryCommandHandle commandHandle, int bodyBUniqueId);
 int b3StateLoggingSetDeviceTypeFilter(b3SharedMemoryCommandHandle commandHandle, int deviceTypeFilter);
+int b3StateLoggingSetLogFlags(b3SharedMemoryCommandHandle commandHandle, int logFlags);
 
 int b3GetStatusLoggingUniqueId(b3SharedMemoryStatusHandle statusHandle);
 int b3StateLoggingStop(b3SharedMemoryCommandHandle commandHandle, int loggingUniqueId);
