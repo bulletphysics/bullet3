@@ -844,13 +844,15 @@ struct GenericRobotStateLogger : public InternalStateLogger
     btAlignedObjectArray<int> m_bodyIdList;
     bool m_filterObjectUniqueId;
     int m_maxLogDof;
+	int m_logFlags;
 
-    GenericRobotStateLogger(int loggingUniqueId, const std::string& fileName, btMultiBodyDynamicsWorld* dynamicsWorld, int maxLogDof)
+    GenericRobotStateLogger(int loggingUniqueId, const std::string& fileName, btMultiBodyDynamicsWorld* dynamicsWorld, int maxLogDof, int logFlags)
     :m_loggingTimeStamp(0),
     m_logFileHandle(0),
     m_dynamicsWorld(dynamicsWorld),
     m_filterObjectUniqueId(false),
-	m_maxLogDof(maxLogDof)
+	m_maxLogDof(maxLogDof),
+	m_logFlags(logFlags)
     {
         m_loggingUniqueId = loggingUniqueId;
         m_loggingType = STATE_LOGGING_GENERIC_ROBOT;
@@ -883,14 +885,26 @@ struct GenericRobotStateLogger : public InternalStateLogger
 			sprintf(jointName,"q%d",i);
 			structNames.push_back(jointName);
 		}
+
 		for (int i=0;i<m_maxLogDof;i++)
 		{
 			m_structTypes.append("f");
 			char jointName[256];
-			sprintf(jointName,"u%d",i);
+			sprintf(jointName,"v%d",i);
 			structNames.push_back(jointName);
 		}
-        
+
+		if (m_logFlags & STATE_LOG_JOINT_TORQUES)
+		{
+			for (int i=0;i<m_maxLogDof;i++)
+			{
+				m_structTypes.append("f");
+				char jointName[256];
+				sprintf(jointName,"u%d",i);
+				structNames.push_back(jointName);
+			}
+		}
+
         const char* fileNameC = fileName.c_str();
         
         m_logFileHandle = createMinitaurLogFile(fileNameC, structNames, m_structTypes);
@@ -979,15 +993,49 @@ struct GenericRobotStateLogger : public InternalStateLogger
                 {
                     if (mb->getLink(j).m_jointType == 0 || mb->getLink(j).m_jointType == 1)
                     {
-                        float u = mb->getJointVel(j);
-                        logData.m_values.push_back(u);
+                        float v = mb->getJointVel(j);
+                        logData.m_values.push_back(v);
                     }
                 }
                 for (int j = numDofs; j < m_maxLogDof; ++j)
                 {
-                    float u = 0.0;
-                    logData.m_values.push_back(u);
+                    float v = 0.0;
+                    logData.m_values.push_back(v);
                 }
+
+				
+				if (m_logFlags & STATE_LOG_JOINT_TORQUES)
+				{
+					for (int j = 0; j < numJoints; ++j)
+					{
+						if (mb->getLink(j).m_jointType == 0 || mb->getLink(j).m_jointType == 1)
+						{
+							float jointTorque = 0;
+							if (m_logFlags & STATE_LOG_JOINT_MOTOR_TORQUES)
+							{
+								btMultiBodyJointMotor* motor = (btMultiBodyJointMotor*)mb->getLink(j).m_userPtr;
+								if (motor)
+								{
+									jointTorque += motor->getAppliedImpulse(0)/timeStep;
+								}
+							}
+							if (m_logFlags & STATE_LOG_JOINT_USER_TORQUES)
+							{
+								if (mb->getLink(j).m_jointType == 0 || mb->getLink(j).m_jointType == 1)
+								{
+									jointTorque += mb->getJointTorque(j);//these are the 'user' applied external torques
+								}
+							}
+							logData.m_values.push_back(jointTorque);
+						}
+
+					}
+					for (int j = numDofs; j < m_maxLogDof; ++j)
+					{
+						float u = 0.0;
+						logData.m_values.push_back(u);
+					}
+				}
                                 
                 //at the moment, appendMinitaurLogData will directly write to disk (potential delay)
                 //better to fill a huge memory buffer and once in a while write it to disk
@@ -999,7 +1047,6 @@ struct GenericRobotStateLogger : public InternalStateLogger
         }
     }
 };
-
 struct ContactPointsStateLogger : public InternalStateLogger
 {
 	int m_loggingTimeStamp;
@@ -2848,7 +2895,13 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							{
 								maxLogDof = clientCmd.m_stateLoggingArguments.m_maxLogDof;
 							}
-                            GenericRobotStateLogger* logger = new GenericRobotStateLogger(loggerUid,fileName,m_data->m_dynamicsWorld,maxLogDof);
+							
+							int logFlags = 0;
+							if (clientCmd.m_updateFlags & STATE_LOGGING_LOG_FLAGS)
+							{
+								logFlags = clientCmd.m_stateLoggingArguments.m_logFlags;
+							}
+                            GenericRobotStateLogger* logger = new GenericRobotStateLogger(loggerUid,fileName,m_data->m_dynamicsWorld,maxLogDof, logFlags);
                             
                             if ((clientCmd.m_updateFlags & STATE_LOGGING_FILTER_OBJECT_UNIQUE_ID) && (clientCmd.m_stateLoggingArguments.m_numBodyUniqueIds>0))
                             {

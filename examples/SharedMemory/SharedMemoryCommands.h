@@ -760,7 +760,8 @@ enum eStateLoggingEnums
 	STATE_LOGGING_FILTER_LINK_INDEX_B=32,
 	STATE_LOGGING_FILTER_BODY_UNIQUE_ID_A=64,
 	STATE_LOGGING_FILTER_BODY_UNIQUE_ID_B=128,
-	STATE_LOGGING_FILTER_DEVICE_TYPE=256
+	STATE_LOGGING_FILTER_DEVICE_TYPE=256,
+	STATE_LOGGING_LOG_FLAGS=512
 };
 
 struct VRCameraState
@@ -786,6 +787,7 @@ struct StateLoggingRequest
 	int m_bodyUniqueIdA; // only if STATE_LOGGING_FILTER_BODY_UNIQUE_ID_A flag is set
 	int m_bodyUniqueIdB; // only if STATE_LOGGING_FILTER_BODY_UNIQUE_ID_B flag is set
 	int m_deviceFilterType; //user to select (filter) which VR devices to log
+	int m_logFlags;
 };
 
 struct StateLoggingResultArgs

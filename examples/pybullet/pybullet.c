@@ -3573,12 +3573,13 @@ static PyObject* pybullet_startStateLogging(PyObject* self, PyObject* args, PyOb
 	int linkIndexA = -2;
 	int linkIndexB = -2;
 	int deviceTypeFilter = -1;
+	int logFlags = -1;
 
-	static char* kwlist[] = {"loggingType", "fileName", "objectUniqueIds", "maxLogDof", "bodyUniqueIdA", "bodyUniqueIdB", "linkIndexA", "linkIndexB", "deviceTypeFilter", "physicsClientId", NULL};
+	static char* kwlist[] = {"loggingType", "fileName", "objectUniqueIds", "maxLogDof", "bodyUniqueIdA", "bodyUniqueIdB", "linkIndexA", "linkIndexB", "deviceTypeFilter", "logFlags", "physicsClientId", NULL};
 	int physicsClientId = 0;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "is|Oiiiiiii", kwlist,
-									 &loggingType, &fileName, &objectUniqueIdsObj, &maxLogDof, &bodyUniqueIdA, &bodyUniqueIdB, &linkIndexA, &linkIndexB, &deviceTypeFilter, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "is|Oiiiiiiii", kwlist,
+									 &loggingType, &fileName, &objectUniqueIdsObj, &maxLogDof, &bodyUniqueIdA, &bodyUniqueIdB, &linkIndexA, &linkIndexB, &deviceTypeFilter, &logFlags, &physicsClientId))
 		return NULL;
 
 	sm = getPhysicsClient(physicsClientId);
@@ -3634,6 +3635,11 @@ static PyObject* pybullet_startStateLogging(PyObject* self, PyObject* args, PyOb
 		if (deviceTypeFilter>=0)
 		{
 			b3StateLoggingSetDeviceTypeFilter(commandHandle,deviceTypeFilter);
+		}
+
+		if (logFlags >0)
+		{
+			b3StateLoggingSetLogFlags(commandHandle, logFlags);
 		}
 
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
@@ -7472,9 +7478,11 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "GEOM_CAPSULE", GEOM_CAPSULE);
 
 	PyModule_AddIntConstant(m, "GEOM_FORCE_CONCAVE_TRIMESH", GEOM_FORCE_CONCAVE_TRIMESH);
-
-
-
+	
+	PyModule_AddIntConstant(m, "STATE_LOG_JOINT_MOTOR_TORQUES", STATE_LOG_JOINT_MOTOR_TORQUES);
+	PyModule_AddIntConstant(m, "STATE_LOG_JOINT_USER_TORQUES", STATE_LOG_JOINT_USER_TORQUES);
+	PyModule_AddIntConstant(m, "STATE_LOG_JOINT_TORQUES", STATE_LOG_JOINT_USER_TORQUES+STATE_LOG_JOINT_MOTOR_TORQUES);
+		
 	SpamError = PyErr_NewException("pybullet.error", NULL, NULL);
 	Py_INCREF(SpamError);
 	PyModule_AddObject(m, "error", SpamError);
