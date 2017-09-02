@@ -10,7 +10,7 @@ ADD_DEFINITIONS(-D_VARIADIC_MAX=10)
 LINK_LIBRARIES(BulletDynamics BulletCollision LinearMath gtest)
 
 IF (NOT WIN32)
-	LINK_LIBRARIES(pthread)
+	LINK_LIBRARIES(${CMAKE_THREAD_LIBS_INIT})
 ENDIF()
 
 ADD_EXECUTABLE(Test_btKinematicCharacterController test_btKinematicCharacterController.cpp)

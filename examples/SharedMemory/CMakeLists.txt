@@ -110,7 +110,7 @@ IF (WIN32)
         )
 ELSE(WIN32)
 			 IF(APPLE)
-			        LINK_LIBRARIES(  pthread dl )
+			        LINK_LIBRARIES( ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS} )
 			        ADD_EXECUTABLE(App_PhysicsServer_SharedMemory
 			                ${SharedMemory_SRCS}
 			                ../MultiThreading/b3PosixThreadSupport.cpp
@@ -119,7 +119,7 @@ ELSE(WIN32)
 			        )
 
         ELSE(APPLE)
-                                LINK_LIBRARIES(  pthread ${DL} )
+                                LINK_LIBRARIES(  ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS} )
 			        ADD_EXECUTABLE(App_PhysicsServer_SharedMemory
 			                ${SharedMemory_SRCS}
 			                ../MultiThreading/b3PosixThreadSupport.cpp
@@ -170,7 +170,7 @@ IF (WIN32)
         )
 ELSE(WIN32)
 			 IF(APPLE)
-			        LINK_LIBRARIES(  pthread dl )
+			        LINK_LIBRARIES(  ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS} )
 			        FIND_LIBRARY(COCOA NAMES Cocoa)
               MESSAGE(${COCOA})
               LINK_LIBRARIES(${COCOA} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
@@ -186,7 +186,7 @@ ELSE(WIN32)
 			        )
 
         ELSE(APPLE)
-				LINK_LIBRARIES(  pthread ${DL} )
+				LINK_LIBRARIES(  ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS} )
          			ADD_DEFINITIONS("-DGLEW_INIT_OPENGL11_FUNCTIONS=1")
               ADD_DEFINITIONS("-DGLEW_STATIC")
               ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
