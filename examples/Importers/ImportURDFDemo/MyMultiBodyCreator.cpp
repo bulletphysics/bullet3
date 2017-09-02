@@ -140,7 +140,7 @@ class btGeneric6DofSpring2Constraint* MyMultiBodyCreator::createRevoluteJoint(in
             dof6->setLinearUpperLimit(btVector3(0,0,0));
 
             dof6->setAngularUpperLimit(btVector3(0,0,-1));
-            dof6->setAngularLowerLimit(btVector3(0,0,0));
+            dof6->setAngularLowerLimit(btVector3(0,0,1));
 
         }
     };

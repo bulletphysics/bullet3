@@ -890,7 +890,7 @@ struct GenericRobotStateLogger : public InternalStateLogger
 		{
 			m_structTypes.append("f");
 			char jointName[256];
-			sprintf(jointName,"v%d",i);
+			sprintf(jointName,"u%d",i);
 			structNames.push_back(jointName);
 		}
 
@@ -900,7 +900,7 @@ struct GenericRobotStateLogger : public InternalStateLogger
 			{
 				m_structTypes.append("f");
 				char jointName[256];
-				sprintf(jointName,"u%d",i);
+				sprintf(jointName,"t%d",i);
 				structNames.push_back(jointName);
 			}
 		}
@@ -4601,7 +4601,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 											b3Printf("Using CONTROL_MODE_TORQUE");
 										}
                                       //  mb->clearForcesAndTorques();
-                                        int torqueIndex = 6;
+                                        ///see addJointInfoFromConstraint
+										int velIndex = 6;
+										int posIndex = 7;
                                         //if ((clientCmd.m_updateFlags&SIM_DESIRED_STATE_HAS_MAX_FORCE)!=0)
                                         {
 											for (int link=0;link<body->m_rigidBodyJoints.size();link++)
@@ -4616,14 +4618,33 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
                                                 //for (int dof=0;dof<mb->getLink(link).m_dofCount;dof++)
                                                 {
-                                                    double torque = 0.f;
-                                                    //if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[torqueIndex]&SIM_DESIRED_STATE_HAS_MAX_FORCE)!=0)
-                                                    {
-                                                        torque = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[torqueIndex];
-														btScalar qdotTarget = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[torqueIndex];
-														btScalar qTarget = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[torqueIndex];
+                                                    
 
+                                                    {
+
+														int torqueIndex = velIndex;
+														double torque = 100;
+														bool hasDesiredTorque = false;
+														if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[velIndex] & SIM_DESIRED_STATE_HAS_MAX_FORCE)!=0)
+														{
+															torque = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateForceTorque[velIndex];
+															hasDesiredTorque = true;
+														}
 														
+														bool hasDesiredPosOrVel = false;
+                                                        btScalar qdotTarget = 0.f;
+														if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[velIndex] & SIM_DESIRED_STATE_HAS_QDOT)!=0)
+                                                        {
+                                                            hasDesiredPosOrVel = true;
+															qdotTarget = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQdot[velIndex];
+                                                        }
+														btScalar qTarget = 0.f;
+														if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[posIndex] & SIM_DESIRED_STATE_HAS_Q)!=0)
+                                                        {
+                                                            hasDesiredPosOrVel = true;
+															qTarget = clientCmd.m_sendDesiredStateCommandArgument.m_desiredStateQ[posIndex];
+                                                        }
+                                                        
 														con->getLinearLowerLimit(linearLowerLimit);
 														con->getLinearUpperLimit(linearUpperLimit);
 														con->getAngularLowerLimit(angularLowerLimit);
@@ -4650,30 +4671,39 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 																{
 																	case CONTROL_MODE_TORQUE:
 																		{
-																			con->getRigidBodyA().applyTorque(torque*axisA);
-																			con->getRigidBodyB().applyTorque(-torque*axisB);
+																			if (hasDesiredTorque)
+																			{
+																				con->getRigidBodyA().applyTorque(torque*axisA);
+																				con->getRigidBodyB().applyTorque(-torque*axisB);
+																			}
 																			break;
 																		}
 																		case CONTROL_MODE_VELOCITY:
 																		{
-																			con->enableMotor(3+limitAxis,true);
-																			con->setTargetVelocity(3+limitAxis, qdotTarget);
-																			//this is max motor force impulse
-																			btScalar torqueImpulse = torque*m_data->m_dynamicsWorld->getSolverInfo().m_timeStep;
-																			con->setMaxMotorForce(3+limitAxis,torqueImpulse);
+																			if (hasDesiredPosOrVel)
+																			{
+																				con->enableMotor(3+limitAxis,true);
+																				con->setTargetVelocity(3+limitAxis, qdotTarget);
+																				//this is max motor force impulse
+																				btScalar torqueImpulse = torque*m_data->m_dynamicsWorld->getSolverInfo().m_timeStep;
+																				con->setMaxMotorForce(3+limitAxis,torqueImpulse);
+																			}
 																			break;
 																		}
 																		case CONTROL_MODE_POSITION_VELOCITY_PD:
 																		{
-																			con->setServo(3+limitAxis,true);
-																			con->setServoTarget(3+limitAxis,qTarget);
-																			//next one is the maximum velocity to reach target position.
-																			//the maximum velocity is limited by maxMotorForce
-																			con->setTargetVelocity(3+limitAxis, 100);
-																			//this is max motor force impulse
-																			btScalar torqueImpulse = torque*m_data->m_dynamicsWorld->getSolverInfo().m_timeStep;
-																			con->setMaxMotorForce(3+limitAxis,torqueImpulse);
-																			con->enableMotor(3+limitAxis,true);
+																			if (hasDesiredPosOrVel)
+																			{
+																				con->setServo(3+limitAxis,true);
+																				con->setServoTarget(3+limitAxis,-qTarget);
+																				//next one is the maximum velocity to reach target position.
+																				//the maximum velocity is limited by maxMotorForce
+																				con->setTargetVelocity(3+limitAxis, 100);
+																				//this is max motor force impulse
+																				btScalar torqueImpulse = torque*m_data->m_dynamicsWorld->getSolverInfo().m_timeStep;
+																				con->setMaxMotorForce(3+limitAxis,torqueImpulse);
+																				con->enableMotor(3+limitAxis,true);
+																			}
 																			break;
 																		}
 																	default:
@@ -4733,7 +4763,10 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 															}
 														}
                                                     }//fi
-                                                    torqueIndex++;
+													///see addJointInfoFromConstraint
+													velIndex ++;//info.m_uIndex
+													posIndex ++;//info.m_qIndex
+                                                    
                                                 }
                                             }
                                         }//fi
