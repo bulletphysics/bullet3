@@ -25,6 +25,8 @@
 bool gEnablePicking=true;
 bool gEnableTeleporting=true;
 bool gEnableRendering= true;
+bool gActivedVRRealTimeSimulation = false;
+
 bool gEnableSyncPhysicsRendering= true;
 bool gEnableUpdateDebugDrawLines = true;
 static int gCamVisualizerWidth = 320;
@@ -2627,8 +2629,10 @@ void PhysicsServerExample::renderScene()
 
 	if (m_guiHelper->getAppInterface()->m_renderer->getActiveCamera()->isVRCamera())
 	{
-		if (!m_physicsServer.isRealTimeSimulationEnabled())
+		if (!m_physicsServer.isRealTimeSimulationEnabled() && !gActivedVRRealTimeSimulation)
 		{
+			//only activate real-time simulation once (for backward compatibility)
+			gActivedVRRealTimeSimulation = true;
 			m_physicsServer.enableRealTimeSimulation(1);
 		}
 	}

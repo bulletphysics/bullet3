@@ -890,7 +890,7 @@ struct GenericRobotStateLogger : public InternalStateLogger
 		{
 			m_structTypes.append("f");
 			char jointName[256];
-			sprintf(jointName,"v%d",i);
+			sprintf(jointName,"u%d",i);
 			structNames.push_back(jointName);
 		}
 
@@ -900,7 +900,7 @@ struct GenericRobotStateLogger : public InternalStateLogger
 			{
 				m_structTypes.append("f");
 				char jointName[256];
-				sprintf(jointName,"u%d",i);
+				sprintf(jointName,"t%d",i);
 				structNames.push_back(jointName);
 			}
 		}
