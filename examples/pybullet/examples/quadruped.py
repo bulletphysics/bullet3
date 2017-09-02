@@ -3,7 +3,7 @@ import time
 import math
 
 toeConstraint = True
-useMaximalCoordinates = True
+useMaximalCoordinates = False
 useRealTime = 1
 
 #the fixedTimeStep and numSolverIterations are the most important parameters to trade-off quality versus performance
