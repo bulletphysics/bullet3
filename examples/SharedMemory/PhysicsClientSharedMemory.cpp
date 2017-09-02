@@ -396,7 +396,7 @@ template <typename T, typename U> void addJointInfoFromConstraint(int linkIndex,
 	info.m_linkName = 0;
 	info.m_flags = 0;
 	info.m_jointIndex = linkIndex;
-	info.m_qIndex = linkIndex+6;
+	info.m_qIndex = linkIndex+7;
 	info.m_uIndex = linkIndex+6;
 	//derive type from limits
 

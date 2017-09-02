@@ -221,6 +221,11 @@ void MyKeyboardCallback(int key, int state)
 			gDebugDrawFlags ^= btIDebugDraw::DBG_NoDeactivation;
 			gDisableDeactivation = ((gDebugDrawFlags & btIDebugDraw::DBG_NoDeactivation) != 0);
 		}
+		if (key == 'j' && state)
+		{
+			gDebugDrawFlags ^= btIDebugDraw::DBG_DrawFrames;
+		}
+
 		if (key == 'k' && state)
 		{
 			gDebugDrawFlags ^= btIDebugDraw::DBG_DrawConstraints;
