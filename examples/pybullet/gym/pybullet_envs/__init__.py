@@ -151,3 +151,7 @@ register(
 	entry_point='pybullet_envs.gym_locomotion_envs:AtlasBulletEnv',
 	max_episode_steps=1000
 	)
+
+def getList():
+	btenvs = ['- ' + spec.id for spec in gym.envs.registry.all() if spec.id.find('Bullet')>=0])
+	return btenvs

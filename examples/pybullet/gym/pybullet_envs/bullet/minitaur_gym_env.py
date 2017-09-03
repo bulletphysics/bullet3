@@ -1,6 +1,13 @@
 """This file implements the gym environment of minitaur.
 
 """
+
+import os, inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(os.path.dirname(currentdir))
+os.sys.path.insert(0,parentdir)
+
+
 import math
 import time
 import gym
@@ -11,6 +18,7 @@ import pybullet
 from . import bullet_client
 from . import minitaur
 import os
+import pybullet_data
 
 NUM_SUBSTEPS = 5
 NUM_MOTORS = 8
@@ -20,7 +28,8 @@ MOTOR_TORQUE_OBSERVATION_INDEX = MOTOR_VELOCITY_OBSERVATION_INDEX + NUM_MOTORS
 BASE_ORIENTATION_OBSERVATION_INDEX = MOTOR_TORQUE_OBSERVATION_INDEX + NUM_MOTORS
 ACTION_EPS = 0.01
 OBSERVATION_EPS = 0.01
-
+RENDER_HEIGHT = 720
+RENDER_WIDTH = 960
 
 class MinitaurBulletEnv(gym.Env):
   """The gym environment for the minitaur.
@@ -38,7 +47,7 @@ class MinitaurBulletEnv(gym.Env):
   }
 
   def __init__(self,
-               urdf_root=os.path.join(os.path.dirname(__file__),"../data"),
+               urdf_root=pybullet_data.getDataPath(),
                action_repeat=1,
                distance_weight=1.0,
                energy_weight=0.005,
@@ -127,6 +136,7 @@ class MinitaurBulletEnv(gym.Env):
     self._hard_reset = True
     self._kd_for_pd_controllers = kd_for_pd_controllers
     self._last_frame_time = 0.0
+    print("urdf_root=" + self._urdf_root)
     self._env_randomizer = env_randomizer
     # PD control needs smaller time step for stability.
     if pd_control_enabled or accurate_motor_model_enabled:
@@ -160,7 +170,7 @@ class MinitaurBulletEnv(gym.Env):
     if self._hard_reset:
       self._pybullet_client.resetSimulation()
       self._pybullet_client.setPhysicsEngineParameter(
-          numSolverIterations=self._num_bullet_solver_iterations)
+          numSolverIterations=int(self._num_bullet_solver_iterations))
       self._pybullet_client.setTimeStep(self._time_step)
       self._pybullet_client.loadURDF("%s/plane.urdf" % self._urdf_root)
       self._pybullet_client.setGravity(0, 0, -10)
@@ -192,7 +202,7 @@ class MinitaurBulletEnv(gym.Env):
     self._pybullet_client.resetDebugVisualizerCamera(
         self._cam_dist, self._cam_yaw, self._cam_pitch, [0, 0, 0])
     if not self._torque_control_enabled:
-      for _ in xrange(100):
+      for _ in range(100):
         if self._pd_control_enabled or self._accurate_motor_model_enabled:
           self.minitaur.ApplyAction([math.pi / 2] * 8)
         self._pybullet_client.stepSimulation()
@@ -240,7 +250,7 @@ class MinitaurBulletEnv(gym.Env):
       self._pybullet_client.resetDebugVisualizerCamera(
           self._cam_dist, self._cam_yaw, self._cam_pitch, base_pos)
     action = self._transform_action_to_motor_command(action)
-    for _ in xrange(self._action_repeat):
+    for _ in range(self._action_repeat):
       self.minitaur.ApplyAction(action)
       self._pybullet_client.stepSimulation()
 
@@ -249,8 +259,26 @@ class MinitaurBulletEnv(gym.Env):
     done = self._termination()
     return np.array(self._noisy_observation()), reward, done, {}
 
-  def _render(self, mode="human", close=False):
-    return
+  def _render(self, mode="rgb_array", close=False):
+    if mode != "rgb_array":
+      return np.array([])
+    base_pos = self.minitaur.GetBasePosition()
+    view_matrix = self._pybullet_client.computeViewMatrixFromYawPitchRoll(
+        cameraTargetPosition=base_pos,
+        distance=self._cam_dist,
+        yaw=self._cam_yaw,
+        pitch=self._cam_pitch,
+        roll=0,
+        upAxisIndex=2)
+    proj_matrix = self._pybullet_client.computeProjectionMatrixFOV(
+        fov=60, aspect=float(RENDER_WIDTH)/RENDER_HEIGHT,
+        nearVal=0.1, farVal=100.0)
+    (_, _, px, _, _) = self._pybullet_client.getCameraImage(
+        width=RENDER_WIDTH, height=RENDER_HEIGHT, viewMatrix=view_matrix,
+        projectionMatrix=proj_matrix)
+    rgb_array = np.array(px)
+    rgb_array = rgb_array[:, :, :3]
+    return rgb_array
 
   def get_minitaur_motor_angles(self):
     """Get the minitaur's motor angles.

@@ -70,7 +70,7 @@ class Minitaur(object):
       kd_for_pd_controllers: kd value for the pd controllers of the motors.
     """
     self.num_motors = 8
-    self.num_legs = self.num_motors / 2
+    self.num_legs = int(self.num_motors / 2)
     self._pybullet_client = pybullet_client
     self._urdf_root = urdf_root
     self._self_collision_enabled = self_collision_enabled
@@ -114,7 +114,7 @@ class Minitaur(object):
   def _BuildJointNameToIdDict(self):
     num_joints = self._pybullet_client.getNumJoints(self.quadruped)
     self._joint_name_to_id = {}
-    for i in xrange(num_joints):
+    for i in range(num_joints):
       joint_info = self._pybullet_client.getJointInfo(self.quadruped, i)
       self._joint_name_to_id[joint_info[1].decode("UTF-8")] = joint_info[0]
 
@@ -184,7 +184,7 @@ class Minitaur(object):
     Args:
       add_constraint: Whether to add a constraint at the joints of two feet.
     """
-    for i in xrange(self.num_legs):
+    for i in range(self.num_legs):
       self._ResetPoseForLeg(i, add_constraint)
 
   def _ResetPoseForLeg(self, leg_id, add_constraint):
@@ -368,7 +368,7 @@ class Minitaur(object):
         actual_torque, observed_torque = self._motor_model.convert_to_torque(
             motor_commands, q, qdot)
         if self._motor_overheat_protection:
-          for i in xrange(self.num_motors):
+          for i in range(self.num_motors):
             if abs(actual_torque[i]) > OVERHEAT_SHUTDOWN_TORQUE:
               self._overheat_counter[i] += 1
             else:
@@ -467,9 +467,9 @@ class Minitaur(object):
     motor_angle = copy.deepcopy(actions)
     scale_for_singularity = 1
     offset_for_singularity = 1.5
-    half_num_motors = self.num_motors / 2
+    half_num_motors = int(self.num_motors / 2)
     quater_pi = math.pi / 4
-    for i in xrange(self.num_motors):
+    for i in range(self.num_motors):
       action_idx = i // 2
       forward_backward_component = (-scale_for_singularity * quater_pi * (
           actions[action_idx + half_num_motors] + offset_for_singularity))

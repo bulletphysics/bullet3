@@ -1,6 +1,13 @@
-import os
-from .scene_abstract import Scene
+import os,  inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+os.sys.path.insert(0,parentdir)
+import pybullet_data
+
+
+from pybullet_envs.scene_abstract import Scene
 import pybullet as p
+
 
 class StadiumScene(Scene):
 	zero_at_running_strip_start_line = True   # if False, center of coordinates (0,0,0) will be at the middle of the stadium
@@ -12,10 +19,12 @@ class StadiumScene(Scene):
 		# stadium_pose = cpp_household.Pose()
 		# if self.zero_at_running_strip_start_line:
 		#	 stadium_pose.set_xyz(27, 21, 0)  # see RUN_STARTLINE, RUN_RAD constants
-		filename = os.path.join(os.path.dirname(__file__), "data", "stadium.sdf")
+		filename = os.path.join(pybullet_data.getDataPath(),"stadium.sdf")
 		print(filename)		
 		self.stadium = p.loadSDF(filename)
-		self.ground_plane_mjcf = p.loadMJCF(os.path.join(os.path.dirname(__file__), "data","mjcf/ground_plane.xml"))
+		planeName = os.path.join(pybullet_data.getDataPath(),"mjcf/ground_plane.xml")
+		
+		self.ground_plane_mjcf = p.loadMJCF(planeName)
 		for i in self.ground_plane_mjcf:
 			p.changeVisualShape(i,-1,rgbaColor=[0,0,0,0])
 

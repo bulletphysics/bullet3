@@ -1,4 +1,13 @@
+import os, inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+print ("current_dir=" + currentdir)
+parentdir = os.path.join(currentdir,"../gym")
+
+os.sys.path.insert(0,parentdir)
+
 import pybullet as p
+import pybullet_data
+
 import time
 
 cid = p.connect(p.SHARED_MEMORY)
@@ -14,9 +23,9 @@ useRealTimeSim = 1
 #p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4, "racecar.mp4")
 p.setRealTimeSimulation(useRealTimeSim) # either this
 #p.loadURDF("plane.urdf")
-p.loadSDF("stadium.sdf")
+p.loadSDF(os.path.join(pybullet_data.getDataPath(),"stadium.sdf"))
 
-car = p.loadURDF("racecar/racecar.urdf")
+car = p.loadURDF(os.path.join(pybullet_data.getDataPath(),"racecar/racecar.urdf"))
 for i in range (p.getNumJoints(car)):
 	print (p.getJointInfo(car,i))
 

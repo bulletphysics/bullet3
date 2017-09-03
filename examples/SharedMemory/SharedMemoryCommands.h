@@ -1,4 +1,3 @@
-
 #ifndef SHARED_MEMORY_COMMANDS_H
 #define SHARED_MEMORY_COMMANDS_H
 
@@ -104,6 +103,12 @@ struct MjcfArgs
 	int m_useMultiBody;
 	int m_flags;
 };
+
+struct b3SearchPathfArgs
+{
+	char m_path[MAX_FILENAME_LENGTH];
+};
+
 
 struct BulletDataStreamArgs
 {
@@ -755,7 +760,8 @@ enum eStateLoggingEnums
 	STATE_LOGGING_FILTER_LINK_INDEX_B=32,
 	STATE_LOGGING_FILTER_BODY_UNIQUE_ID_A=64,
 	STATE_LOGGING_FILTER_BODY_UNIQUE_ID_B=128,
-	STATE_LOGGING_FILTER_DEVICE_TYPE=256
+	STATE_LOGGING_FILTER_DEVICE_TYPE=256,
+	STATE_LOGGING_LOG_FLAGS=512
 };
 
 struct VRCameraState
@@ -781,6 +787,7 @@ struct StateLoggingRequest
 	int m_bodyUniqueIdA; // only if STATE_LOGGING_FILTER_BODY_UNIQUE_ID_A flag is set
 	int m_bodyUniqueIdB; // only if STATE_LOGGING_FILTER_BODY_UNIQUE_ID_B flag is set
 	int m_deviceFilterType; //user to select (filter) which VR devices to log
+	int m_logFlags;
 };
 
 struct StateLoggingResultArgs
@@ -960,6 +967,7 @@ struct SharedMemoryCommand
 		struct b3CreateMultiBodyArgs m_createMultiBodyArgs;
 		struct b3RequestCollisionInfoArgs m_requestCollisionInfoArgs;
 		struct b3ChangeTextureArgs m_changeTextureArgs;
+		struct b3SearchPathfArgs m_searchPathArgs;
     };
 };
 

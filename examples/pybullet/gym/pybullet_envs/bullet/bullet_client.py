@@ -22,8 +22,5 @@ class BulletClient(object):
     """Inject the client id into Bullet functions."""
     attribute = getattr(pybullet, name)
     if inspect.isbuiltin(attribute):
-      if name not in ["invertTransform", "computeViewMatrix","multiplyTransforms",
-                      "getMatrixFromQuaternion"]:  # A temporary hack for now.
         attribute = functools.partial(attribute, physicsClientId=self._client)
     return attribute
-

@@ -8,6 +8,7 @@ class b3ResourcePath
 public:
 	static int getExePath(char* path, int maxPathLenInBytes);
 	static int findResourcePath(const char* sourceName, char* resourcePath, int maxResourcePathLenInBytes);
+	static void setAdditionalSearchPath(const char* path);
 };
 #endif
 

@@ -1,7 +1,11 @@
 import pybullet as p
 import gym, gym.spaces, gym.utils
 import numpy as np
-import os
+import os, inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+os.sys.path.insert(0,parentdir)
+import pybullet_data
 
 
 class XmlBasedRobot:
@@ -98,10 +102,10 @@ class MJCFBasedRobot(XmlBasedRobot):
 
 		if self.self_collision:
 			self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(
-				p.loadMJCF(os.path.join(os.path.dirname(__file__),"data/mjcf", self.model_xml), flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS))
+				p.loadMJCF(os.path.join(pybullet_data.getDataPath(),"mjcf", self.model_xml), flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS))
 		else:
 			self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(
-				p.loadMJCF(os.path.join(os.path.dirname(__file__),"data/mjcf", self.model_xml)))
+				p.loadMJCF(os.path.join(pybullet_data.getDataPath(),"mjcf", self.model_xml)))
 
 		self.robot_specific_reset()
 

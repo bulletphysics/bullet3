@@ -67,6 +67,24 @@ struct TempResourcePath
 	}
 };
 
+static char sAdditionalSearchPath[B3_MAX_EXE_PATH_LEN] = {0};
+
+void b3ResourcePath::setAdditionalSearchPath(const char* path)
+{
+	if (path)
+	{
+		int len = strlen(path);
+		if (len<(B3_MAX_EXE_PATH_LEN-1))
+		{
+			strcpy(sAdditionalSearchPath,path);
+			sAdditionalSearchPath[len] = 0;
+		}
+	} else
+	{
+		sAdditionalSearchPath[0] = 0;
+	}
+}
+
 int b3ResourcePath::findResourcePath(const char* resourceName, char* resourcePathOut, int resourcePathMaxNumBytes)
 {
 	//first find in a resource/<exeName> location, then in various folders within 'data' using b3FileUtils
@@ -77,6 +95,18 @@ int b3ResourcePath::findResourcePath(const char* resourceName, char* resourcePat
     {
             return strlen(resourcePathOut);
     }
+
+	if (sAdditionalSearchPath[0])
+	{
+		TempResourcePath tmpPath(resourcePathMaxNumBytes+1024);
+		char* resourcePathIn = tmpPath.m_path;
+		sprintf(resourcePathIn,"%s/%s",sAdditionalSearchPath,resourceName);
+		//printf("try resource at %s\n", resourcePath);	
+		if (b3FileUtils::findFile(resourcePathIn, resourcePathOut, resourcePathMaxNumBytes))
+		{
+			return strlen(resourcePathOut);
+		}
+	}
 
 	int l = b3ResourcePath::getExePath(exePath, B3_MAX_EXE_PATH_LEN);
 	if (l)

@@ -2827,8 +2827,17 @@ static PyObject* pybullet_getJointInfo(PyObject* self, PyObject* args, PyObject*
 				//          info.m_jointDamping,
 				//          info.m_jointFriction);
 				PyTuple_SetItem(pyListJointInfo, 0, PyInt_FromLong(info.m_jointIndex));
-				PyTuple_SetItem(pyListJointInfo, 1,
-								PyString_FromString(info.m_jointName));
+				
+				if (info.m_jointName)
+				{
+					PyTuple_SetItem(pyListJointInfo, 1,
+ 								PyString_FromString(info.m_jointName));
+				} else
+				{
+					PyTuple_SetItem(pyListJointInfo, 1,
+								PyString_FromString("not available"));
+				}
+				
 				PyTuple_SetItem(pyListJointInfo, 2, PyInt_FromLong(info.m_jointType));
 				PyTuple_SetItem(pyListJointInfo, 3, PyInt_FromLong(info.m_qIndex));
 				PyTuple_SetItem(pyListJointInfo, 4, PyInt_FromLong(info.m_uIndex));
@@ -2845,8 +2854,16 @@ static PyObject* pybullet_getJointInfo(PyObject* self, PyObject* args, PyObject*
 								PyFloat_FromDouble(info.m_jointMaxForce));
 				PyTuple_SetItem(pyListJointInfo, 11,
 								PyFloat_FromDouble(info.m_jointMaxVelocity));
-				PyTuple_SetItem(pyListJointInfo, 12,
-								PyString_FromString(info.m_linkName));
+				if (info.m_linkName)
+				{
+				
+					PyTuple_SetItem(pyListJointInfo, 12,
+									PyString_FromString(info.m_linkName));
+				} else
+				{
+					PyTuple_SetItem(pyListJointInfo, 12,
+									PyString_FromString("not available"));
+				}
 
 				return pyListJointInfo;
 			}
@@ -3556,12 +3573,13 @@ static PyObject* pybullet_startStateLogging(PyObject* self, PyObject* args, PyOb
 	int linkIndexA = -2;
 	int linkIndexB = -2;
 	int deviceTypeFilter = -1;
+	int logFlags = -1;
 
-	static char* kwlist[] = {"loggingType", "fileName", "objectUniqueIds", "maxLogDof", "bodyUniqueIdA", "bodyUniqueIdB", "linkIndexA", "linkIndexB", "deviceTypeFilter", "physicsClientId", NULL};
+	static char* kwlist[] = {"loggingType", "fileName", "objectUniqueIds", "maxLogDof", "bodyUniqueIdA", "bodyUniqueIdB", "linkIndexA", "linkIndexB", "deviceTypeFilter", "logFlags", "physicsClientId", NULL};
 	int physicsClientId = 0;
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "is|Oiiiiiii", kwlist,
-									 &loggingType, &fileName, &objectUniqueIdsObj, &maxLogDof, &bodyUniqueIdA, &bodyUniqueIdB, &linkIndexA, &linkIndexB, &deviceTypeFilter, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "is|Oiiiiiiii", kwlist,
+									 &loggingType, &fileName, &objectUniqueIdsObj, &maxLogDof, &bodyUniqueIdA, &bodyUniqueIdB, &linkIndexA, &linkIndexB, &deviceTypeFilter, &logFlags, &physicsClientId))
 		return NULL;
 
 	sm = getPhysicsClient(physicsClientId);
@@ -3617,6 +3635,11 @@ static PyObject* pybullet_startStateLogging(PyObject* self, PyObject* args, PyOb
 		if (deviceTypeFilter>=0)
 		{
 			b3StateLoggingSetDeviceTypeFilter(commandHandle,deviceTypeFilter);
+		}
+
+		if (logFlags >0)
+		{
+			b3StateLoggingSetLogFlags(commandHandle, logFlags);
 		}
 
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
@@ -3697,6 +3720,36 @@ static PyObject* pybullet_stopStateLogging(PyObject* self, PyObject* args, PyObj
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 		statusType = b3GetStatusType(statusHandle);
 	}
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
+static PyObject* pybullet_setAdditionalSearchPath(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	static char* kwlist[] = {"path", "physicsClientId", NULL};
+	char* path = 0;
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|i", kwlist,
+									 &path, &physicsClientId))
+		return NULL;
+	if (path)
+	{
+		b3SharedMemoryCommandHandle commandHandle;
+		b3SharedMemoryStatusHandle statusHandle;
+
+		sm = getPhysicsClient(physicsClientId);
+		if (sm == 0)
+		{
+			PyErr_SetString(SpamError, "Not connected to physics server.");
+			return NULL;
+		}
+		commandHandle = b3SetAdditionalSearchPath(sm, path);
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+	}
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -3958,11 +4011,20 @@ static PyObject* pybullet_rayTestBatch(PyObject* self, PyObject* args, PyObject*
 	return Py_None;
 }
 
-static PyObject* pybullet_getMatrixFromQuaternion(PyObject* self, PyObject* args)
+static PyObject* pybullet_getMatrixFromQuaternion(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	PyObject* quatObj;
 	double quat[4];
-	if (PyArg_ParseTuple(args, "O", &quatObj))
+	int physicsClientId=0;
+	static char* kwlist[] = {"quaternion","physicsClientId", NULL};
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|i", kwlist,  &quatObj,&physicsClientId))
+	{
+		return NULL;
+	}
+
+
+	if (quatObj)
 	{
 		if (pybullet_internalSetVector4d(quatObj, quat))
 		{
@@ -7160,7 +7222,7 @@ static PyMethodDef SpamMethods[] = {
 	 {"invertTransform", (PyCFunction) pybullet_invertTransform, METH_VARARGS  | METH_KEYWORDS,
 	 "Invert a transform, provided as [position], [quaternion]."},
 	 
-	{"getMatrixFromQuaternion", pybullet_getMatrixFromQuaternion, METH_VARARGS,
+	{"getMatrixFromQuaternion", (PyCFunction)pybullet_getMatrixFromQuaternion, METH_VARARGS| METH_KEYWORDS,
 	 "Compute the 3x3 matrix from a quaternion, as a list of 9 values (row-major)"},
 
 	{"calculateInverseDynamics", (PyCFunction)pybullet_calculateInverseDynamics, METH_VARARGS | METH_KEYWORDS,
@@ -7205,6 +7267,10 @@ static PyMethodDef SpamMethods[] = {
 
 	{"setTimeOut", (PyCFunction)pybullet_setTimeOut, METH_VARARGS | METH_KEYWORDS,
 	 "Set the timeOut in seconds, used for most of the API calls."},
+
+	{"setAdditionalSearchPath", (PyCFunction)pybullet_setAdditionalSearchPath,
+	 METH_VARARGS | METH_KEYWORDS,
+	 "Set an additional search path, used to load URDF/SDF files."},
 
 	{"getAPIVersion", (PyCFunction)pybullet_getAPIVersion,
 	 METH_VARARGS | METH_KEYWORDS,
@@ -7412,9 +7478,11 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "GEOM_CAPSULE", GEOM_CAPSULE);
 
 	PyModule_AddIntConstant(m, "GEOM_FORCE_CONCAVE_TRIMESH", GEOM_FORCE_CONCAVE_TRIMESH);
-
-
-
+	
+	PyModule_AddIntConstant(m, "STATE_LOG_JOINT_MOTOR_TORQUES", STATE_LOG_JOINT_MOTOR_TORQUES);
+	PyModule_AddIntConstant(m, "STATE_LOG_JOINT_USER_TORQUES", STATE_LOG_JOINT_USER_TORQUES);
+	PyModule_AddIntConstant(m, "STATE_LOG_JOINT_TORQUES", STATE_LOG_JOINT_USER_TORQUES+STATE_LOG_JOINT_MOTOR_TORQUES);
+		
 	SpamError = PyErr_NewException("pybullet.error", NULL, NULL);
 	Py_INCREF(SpamError);
 	PyModule_AddObject(m, "error", SpamError);
