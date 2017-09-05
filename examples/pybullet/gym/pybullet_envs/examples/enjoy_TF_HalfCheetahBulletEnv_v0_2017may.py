@@ -30,7 +30,6 @@ class SmallReactivePolicy:
 def main():
     env = gym.make("HalfCheetahBulletEnv-v0")
     env.render(mode="human")
-
     pi = SmallReactivePolicy(env.observation_space, env.action_space)
     #disable rendering during reset, makes loading much faster
     env.reset()

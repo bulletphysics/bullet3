@@ -27,11 +27,9 @@ class SmallReactivePolicy:
         x = np.dot(x, weights_final_w) + weights_final_b
         return x
 
-def demo_run():
-    print("create env")
+def main():
     env = gym.make("ReacherBulletEnv-v0")
-    print("connecting")
-    cid = p.connect(p.GUI)
+    env.render(mode="human")
     pi = SmallReactivePolicy(env.observation_space, env.action_space)
 
     while 1:
@@ -39,7 +37,7 @@ def demo_run():
         score = 0
         restart_delay = 0
         obs = env.reset()
-        print("frame")
+
         while 1:
             time.sleep(0.05)
             a = pi.act(obs)
@@ -274,4 +272,4 @@ weights_final_w = np.array([
 weights_final_b = np.array([ -0.1082, -0.0330])
 
 if __name__=="__main__":
-    demo_run()
+    main()

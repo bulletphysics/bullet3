@@ -28,28 +28,24 @@ class SmallReactivePolicy:
         x = np.dot(x, weights_final_w) + weights_final_b
         return x
 
-def demo_run():
+def main():
     env = gym.make("HumanoidFlagrunBulletEnv-v0")
-
-    cid = p.connect(p.GUI)
-    p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
+    env.render(mode="human")
     pi = SmallReactivePolicy(env.observation_space, env.action_space)
-    p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,0)
+
     env.reset()
-    p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
     torsoId = -1
     for i in range (p.getNumBodies()):
         print(p.getBodyInfo(i))
         if (p.getBodyInfo(i)[0].decode() == "torso"):
            torsoId=i
            print("found humanoid torso")
+
     while 1:
         frame = 0
         score = 0
         restart_delay = 0
-        p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,0)
         obs = env.reset()
-        p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
 
         while 1:
             time.sleep(0.001)
@@ -517,4 +513,4 @@ weights_final_w = np.array([
 weights_final_b = np.array([ -0.0082, -0.0230, +0.0671, +0.1373, +0.2278, +0.0230, +0.0218, +0.2155, +0.0044, +0.3212, +0.1209, +0.2365, +0.0112, +0.0689, -0.1482, +0.0108, +0.0086])
 
 if __name__=="__main__":
-    demo_run()
+    main()
