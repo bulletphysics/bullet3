@@ -69,7 +69,7 @@
 	</body>
 
 	<!--Target-->
-	<body name="target" pos="0.0 0.0 -0.3230">
+	<body name="target" pos="0 0 -0.3230">
 	  <geom rgba="1. 1. 1. 0" pos="0 0 0" type="box" size="0.01 0.01 0.01" contype="0" conaffinity="0"/>
 	  <body pos="0 0 0">
 		<geom rgba="1. 1. 1. 1" pos="0 0.075 0.04" type="box" size="0.032 0.001 0.04" contype="0" conaffinity="1"/>

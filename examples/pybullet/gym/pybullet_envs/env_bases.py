@@ -3,9 +3,9 @@ import numpy as np
 import pybullet as p
 
 
-class MJCFBaseBulletEnv(gym.Env):
+class BaseBulletEnv(gym.Env):
 	"""
-	Base class for Bullet physics simulation loading MJCF (MuJoCo .xml) environments in a Scene.
+	Base class for Bullet physics simulation environments in a Scene.
 	These environments create single-player scenes and behave like normal Gym environments, if
 	you don't use multiplayer.
 	"""
@@ -41,7 +41,7 @@ class MJCFBaseBulletEnv(gym.Env):
 			else:
 				self.physicsClientId = p.connect(p.DIRECT)
 		p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
-  
+
 		if self.scene is None:
 			self.scene = self.create_single_player_scene()
 		if not self.scene.multiplayer:

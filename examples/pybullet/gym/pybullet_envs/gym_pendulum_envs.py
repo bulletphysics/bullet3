@@ -1,14 +1,14 @@
 from .scene_abstract import SingleRobotEmptyScene
-from .env_bases import MJCFBaseBulletEnv
-from robot_pendula import InvertedPendulum, InvertedPendulumSwingup, InvertedDoublePendulum
+from .env_bases import BaseBulletEnv
+from .robot_pendula import InvertedPendulum, InvertedPendulumSwingup, InvertedDoublePendulum
 import gym, gym.spaces, gym.utils, gym.utils.seeding
 import numpy as np
 import os, sys
 
-class InvertedPendulumBulletEnv(MJCFBaseBulletEnv):
+class InvertedPendulumBulletEnv(BaseBulletEnv):
 	def __init__(self):
 		self.robot = InvertedPendulum()
-		MJCFBaseBulletEnv.__init__(self, self.robot)
+		BaseBulletEnv.__init__(self, self.robot)
 
 	def create_single_player_scene(self):
 		return SingleRobotEmptyScene(gravity=9.8, timestep=0.0165, frame_skip=1)
@@ -34,12 +34,12 @@ class InvertedPendulumBulletEnv(MJCFBaseBulletEnv):
 class InvertedPendulumSwingupBulletEnv(InvertedPendulumBulletEnv):
 	def __init__(self):
 		self.robot = InvertedPendulumSwingup()
-		MJCFBaseBulletEnv.__init__(self, self.robot)
+		BaseBulletEnv.__init__(self, self.robot)
 
-class InvertedDoublePendulumBulletEnv(MJCFBaseBulletEnv):
+class InvertedDoublePendulumBulletEnv(BaseBulletEnv):
 	def __init__(self):
 		self.robot = InvertedDoublePendulum()
-		MJCFBaseBulletEnv.__init__(self, self.robot)
+		BaseBulletEnv.__init__(self, self.robot)
 
 	def create_single_player_scene(self):
 		return SingleRobotEmptyScene(gravity=9.8, timestep=0.0165, frame_skip=1)

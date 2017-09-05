@@ -3,52 +3,52 @@ from gym.envs.registration import registry, register, make, spec
 # ------------bullet-------------
 
 register(
-    id='CartPoleBulletEnv-v0',
-    entry_point='pybullet_envs.bullet:CartPoleBulletEnv',
-    timestep_limit=1000,
-    reward_threshold=950.0,
+	id='CartPoleBulletEnv-v0',
+	entry_point='pybullet_envs.bullet:CartPoleBulletEnv',
+	timestep_limit=1000,
+	reward_threshold=950.0,
 )
 
 register(
-    id='MinitaurBulletEnv-v0',
-    entry_point='pybullet_envs.bullet:MinitaurBulletEnv',
-    timestep_limit=1000,
-    reward_threshold=5.0,
+	id='MinitaurBulletEnv-v0',
+	entry_point='pybullet_envs.bullet:MinitaurBulletEnv',
+	timestep_limit=1000,
+	reward_threshold=5.0,
 )
 
 register(
-    id='RacecarBulletEnv-v0',
-    entry_point='pybullet_envs.bullet:RacecarGymEnv',
-    timestep_limit=1000,
-    reward_threshold=5.0,
+	id='RacecarBulletEnv-v0',
+	entry_point='pybullet_envs.bullet:RacecarBulletEnv',
+	timestep_limit=1000,
+	reward_threshold=5.0,
 )
 
 register(
-    id='RacecarZedBulletEnv-v0',
-    entry_point='pybullet_envs.bullet:RacecarZEDGymEnv',
-    timestep_limit=1000,
-    reward_threshold=5.0,
+	id='RacecarZedBulletEnv-v0',
+	entry_point='pybullet_envs.bullet:RacecarZEDGymEnv',
+	timestep_limit=1000,
+	reward_threshold=5.0,
 )
 
 register(
-    id='SimpleHumanoidBulletEnv-v0',
-    entry_point='pybullet_envs.bullet:SimpleHumanoidGymEnv',
-    timestep_limit=1000,
-    reward_threshold=5.0,
+	id='SimpleHumanoidBulletEnv-v0',
+	entry_point='pybullet_envs.bullet:SimpleHumanoidGymEnv',
+	timestep_limit=1000,
+	reward_threshold=5.0,
 )
 
 register(
-    id='KukaBulletEnv-v0',
-    entry_point='pybullet_envs.bullet:KukaGymEnv',
-    timestep_limit=1000,
-    reward_threshold=5.0,
+	id='KukaBulletEnv-v0',
+	entry_point='pybullet_envs.bullet:KukaGymEnv',
+	timestep_limit=1000,
+	reward_threshold=5.0,
 )
 
 register(
-    id='KukaCamBulletEnv-v0',
-    entry_point='pybullet_envs.bullet:KukaCamGymEnv',
-    timestep_limit=1000,
-    reward_threshold=5.0,
+	id='KukaCamBulletEnv-v0',
+	entry_point='pybullet_envs.bullet:KukaCamGymEnv',
+	timestep_limit=1000,
+	reward_threshold=5.0,
 )
 
 register(
@@ -72,33 +72,33 @@ register(
 	reward_threshold=800.0,
 	)
 
-# register(
-# 	id='ReacherBulletEnv-v0',
-# 	entry_point='pybullet_envs.gym_manipulator_envs:ReacherBulletEnv',
-# 	max_episode_steps=150,
-# 	reward_threshold=18.0,
-# 	)
-#
-# register(
-# 	id='PusherBulletEnv-v0',
-# 	entry_point='pybullet_envs.gym_manipulator_envs:PusherBulletEnv',
-# 	max_episode_steps=150,
-# 	reward_threshold=18.0,
-# )
-#
-# register(
-# 	id='ThrowerBulletEnv-v0',
-# 	entry_point='pybullet_envs.gym_manipulator_envs:ThrowerBulletEnv',
-# 	max_episode_steps=100,
-# 	reward_threshold=18.0,
-# )
-#
-# register(
-# 	id='StrikerBulletEnv-v0',
-# 	entry_point='pybullet_envs.gym_manipulator_envs:StrikerBulletEnv',
-# 	max_episode_steps=100,
-# 	reward_threshold=18.0,
-# )
+register(
+	id='ReacherBulletEnv-v0',
+	entry_point='pybullet_envs.gym_manipulator_envs:ReacherBulletEnv',
+	max_episode_steps=150,
+	reward_threshold=18.0,
+	)
+
+register(
+	id='PusherBulletEnv-v0',
+	entry_point='pybullet_envs.gym_manipulator_envs:PusherBulletEnv',
+	max_episode_steps=150,
+	reward_threshold=18.0,
+)
+
+register(
+	id='ThrowerBulletEnv-v0',
+	entry_point='pybullet_envs.gym_manipulator_envs:ThrowerBulletEnv',
+	max_episode_steps=100,
+	reward_threshold=18.0,
+)
+
+register(
+	id='StrikerBulletEnv-v0',
+	entry_point='pybullet_envs.gym_manipulator_envs:StrikerBulletEnv',
+	max_episode_steps=100,
+	reward_threshold=18.0,
+)
 
 register(
 	id='Walker2DBulletEnv-v0',
@@ -121,18 +121,37 @@ register(
 	)
 
 register(
-	id='HumanoidBulletEnv-v0',
-	entry_point='pybullet_envs.gym_locomotion_envs:HumanoidBulletEnv',
-	max_episode_steps=1000
-	)
-
-register(
 	id='HopperBulletEnv-v0',
 	entry_point='pybullet_envs.gym_locomotion_envs:HopperBulletEnv',
 	max_episode_steps=1000,
 	reward_threshold=2500.0
 	)
 
+register(
+	id='HumanoidBulletEnv-v0',
+	entry_point='pybullet_envs.gym_locomotion_envs:HumanoidBulletEnv',
+	max_episode_steps=1000
+	)
+
+register(
+	id='HumanoidFlagrunBulletEnv-v0',
+	entry_point='pybullet_envs.gym_locomotion_envs:HumanoidFlagrunBulletEnv',
+	max_episode_steps=1000,
+	reward_threshold=2000.0
+	)
+
+register(
+	id='HumanoidFlagrunHarderBulletEnv-v0',
+	entry_point='pybullet_envs.gym_locomotion_envs:HumanoidFlagrunHarderBulletEnv',
+	max_episode_steps=1000
+	)
+
+register(
+	id='AtlasBulletEnv-v0',
+	entry_point='pybullet_envs.gym_locomotion_envs:AtlasBulletEnv',
+	max_episode_steps=1000
+	)
+
 def getList():
-	btenvs = ['- ' + spec.id for spec in gym.envs.registry.all() if spec.id.find('Bullet')>=0])
+	btenvs = ['- ' + spec.id for spec in gym.envs.registry.all() if spec.id.find('Bullet')>=0]
 	return btenvs

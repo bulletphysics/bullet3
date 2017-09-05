@@ -32,6 +32,7 @@ def main():
     env = gym.make("HumanoidBulletEnv-v0")
     env.render(mode="human")
     pi = SmallReactivePolicy(env.observation_space, env.action_space)
+
     env.reset()
     torsoId = -1
     for i in range (p.getNumBodies()):

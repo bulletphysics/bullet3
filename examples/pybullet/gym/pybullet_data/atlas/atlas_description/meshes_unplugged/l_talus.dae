@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset><contributor><author></author><authoring_tool>FBX COLLADA exporter</authoring_tool><comments></comments></contributor><created>2014-12-03T19:21:54Z</created><keywords></keywords><modified>2014-12-03T19:21:54Z</modified><revision></revision><subject></subject><title></title><unit meter="1.000000" name="centimeter"></unit><up_axis>Z_UP</up_axis></asset>
+  <library_images>
+    <image id="Map #2-image" name="Map #2"><init_from>../materials/textures/extremities_diffuse.png</init_from></image>
+    <image id="Map #3-image" name="Map #3"><init_from>../materials/textures/extremities_diffuse_unplugged.jpg</init_from></image>
+  </library_images>
+  <library_materials>
+    <material id="torso_diffuse" name="torso_diffuse">
+      <instance_effect url="#torso_diffuse-fx"/>
+    </material>
+    <material id="drc_extremities_diffuse" name="drc_extremities_diffuse">
+      <instance_effect url="#drc_extremities_diffuse-fx"/>
+    </material>
+    <material id="drc_head_diffuse" name="drc_head_diffuse">
+      <instance_effect url="#drc_head_diffuse-fx"/>
+    </material>
+  </library_materials>
+  <library_effects>
+    <effect id="torso_diffuse-fx" name="torso_diffuse">
+      <profile_COMMON>
+        <technique sid="standard">
+          <phong>
+            <emission>
+              <color sid="emission">0.000000  0.000000 0.000000 1.000000</color>
+            </emission>
+            <ambient>
+              <color sid="ambient">0.588235  0.588235 0.588235 1.000000</color>
+            </ambient>
+            <diffuse>
+              <color sid="diffuse">0.588235  0.588235 0.588235 1.000000</color>
+            </diffuse>
+            <specular>
+              <color sid="specular">0.000000  0.000000 0.000000 1.000000</color>
+            </specular>
+            <shininess>
+              <float sid="shininess">2.000000</float>
+            </shininess>
+            <reflective>
+              <color sid="reflective">0.000000  0.000000 0.000000 1.000000</color>
+            </reflective>
+            <reflectivity>
+              <float sid="reflectivity">1.000000</float>
+            </reflectivity>
+            <transparent opaque="RGB_ZERO">
+              <color sid="transparent">1.000000  1.000000 1.000000 1.000000</color>
+            </transparent>
+            <transparency>
+              <float sid="transparency">0.000000</float>
+            </transparency>
+          </phong>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="drc_extremities_diffuse-fx" name="drc_extremities_diffuse">
+      <profile_COMMON>
+        <technique sid="standard">
+          <phong>
+            <emission>
+              <color sid="emission">0.000000  0.000000 0.000000 1.000000</color>
+            </emission>
+            <ambient>
+              <texture texture="Map #2-image" texcoord="CHANNEL0">
+                <extra>
+                  <technique profile="MAYA">
+                    <wrapU sid="wrapU0">TRUE</wrapU>
+                    <wrapV sid="wrapV0">TRUE</wrapV>
+                    <blend_mode>ADD</blend_mode>
+                  </technique>
+                </extra>
+              </texture>
+            </ambient>
+            <diffuse>
+              <texture texture="Map #3-image" texcoord="CHANNEL0">
+                <extra>
+                  <technique profile="MAYA">
+                    <wrapU sid="wrapU0">TRUE</wrapU>
+                    <wrapV sid="wrapV0">TRUE</wrapV>
+                    <blend_mode>ADD</blend_mode>
+                  </technique>
+                </extra>
+              </texture>
+            </diffuse>
+            <specular>
+              <color sid="specular">0.000000  0.000000 0.000000 1.000000</color>
+            </specular>
+            <shininess>
+              <float sid="shininess">2.000000</float>
+            </shininess>
+            <reflective>
+              <color sid="reflective">0.000000  0.000000 0.000000 1.000000</color>
+            </reflective>
+            <reflectivity>
+              <float sid="reflectivity">1.000000</float>
+            </reflectivity>
+            <transparent opaque="RGB_ZERO">
+              <color sid="transparent">1.000000  1.000000 1.000000 1.000000</color>
+            </transparent>
+            <transparency>
+              <float sid="transparency">0.000000</float>
+            </transparency>
+          </phong>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="drc_head_diffuse-fx" name="drc_head_diffuse">
+      <profile_COMMON>
+        <technique sid="standard">
+          <phong>
+            <emission>
+              <color sid="emission">0.000000  0.000000 0.000000 1.000000</color>
+            </emission>
+            <ambient>
+              <color sid="ambient">0.588235  0.588235 0.588235 1.000000</color>
+            </ambient>
+            <diffuse>
+              <color sid="diffuse">0.588235  0.588235 0.588235 1.000000</color>
+            </diffuse>
+            <specular>
+              <color sid="specular">0.000000  0.000000 0.000000 1.000000</color>
+            </specular>
+            <shininess>
+              <float sid="shininess">2.000000</float>
+            </shininess>
+            <reflective>
+              <color sid="reflective">0.000000  0.000000 0.000000 1.000000</color>
+            </reflective>
+            <reflectivity>
+              <float sid="reflectivity">1.000000</float>
+            </reflectivity>
+            <transparent opaque="RGB_ZERO">
+              <color sid="transparent">1.000000  1.000000 1.000000 1.000000</color>
+            </transparent>
+            <transparency>
+              <float sid="transparency">0.000000</float>
+            </transparency>
+          </phong>
+        </technique>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_geometries>
+    <geometry id="l_talus-lib" name="l_talusMesh">
+      <mesh>
+        <source id="l_talus-POSITION">
+          <float_array id="l_talus-POSITION-array" count="84">
+0.658971 -12.740382 -87.047356
+0.658971 -9.475300 -87.047356
+1.062201 -9.475300 -86.210045
+1.062201 -12.740382 -86.210045
+-0.247089 -12.740382 -87.254166
+-0.247089 -9.475300 -87.254166
+-0.973699 -12.740382 -86.674736
+-0.973699 -9.475300 -86.674736
+-0.973699 -12.740382 -85.745354
+-0.973699 -9.475300 -85.745354
+-0.247089 -12.740382 -85.165916
+-0.247089 -9.475300 -85.165916
+0.658971 -12.740382 -85.372711
+0.658971 -9.475300 -85.372711
+-1.641319 -11.835808 -87.122887
+1.623771 -11.835808 -87.122887
+1.623771 -12.275429 -86.210045
+-1.641319 -12.275429 -86.210045
+-1.641319 -10.848028 -87.348358
+1.623771 -10.848028 -87.348358
+-1.641319 -10.055888 -86.716621
+1.623771 -10.055888 -86.716621
+-1.641319 -10.055888 -85.703445
+1.623771 -10.055888 -85.703445
+-1.641319 -10.848027 -85.071732
+1.623771 -10.848027 -85.071732
+-1.641319 -11.835808 -85.297195
+1.623771 -11.835808 -85.297195
+</float_array>
+          <technique_common>
+            <accessor source="#l_talus-POSITION-array" count="28" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="l_talus-Normal0">
+          <float_array id="l_talus-Normal0-array" count="432">
+0.783614 0.621248 -0.000004
+0.783614 -0.621248 -0.000004
+0.488577 -0.621248 -0.612653
+0.783614 0.621248 -0.000004
+0.488577 -0.621248 -0.612653
+0.488577 0.621248 -0.612653
+-0.174360 -0.621248 -0.763969
+0.488577 0.621248 -0.612653
+0.488577 -0.621248 -0.612653
+0.488577 0.621248 -0.612653
+-0.174360 -0.621248 -0.763969
+-0.174360 0.621248 -0.763969
+-0.706010 -0.621246 -0.340005
+-0.174360 0.621248 -0.763969
+-0.174360 -0.621248 -0.763969
+-0.174360 0.621248 -0.763969
+-0.706010 -0.621246 -0.340005
+-0.706010 0.621246 -0.340005
+-0.706011 -0.621246 0.340002
+-0.706011 0.621246 0.340002
+-0.706010 0.621246 -0.340005
+-0.706011 -0.621246 0.340002
+-0.706010 0.621246 -0.340005
+-0.706010 -0.621246 -0.340005
+-0.174369 -0.621249 0.763967
+-0.174369 0.621249 0.763967
+-0.706011 0.621246 0.340002
+-0.706011 0.621246 0.340002
+-0.706011 -0.621246 0.340002
+-0.174369 -0.621249 0.763967
+0.488576 -0.621246 0.612655
+0.488576 0.621246 0.612655
+-0.174369 0.621249 0.763967
+-0.174369 0.621249 0.763967
+-0.174369 -0.621249 0.763967
+0.488576 -0.621246 0.612655
+0.488576 0.621246 0.612655
+0.488576 -0.621246 0.612655
+0.783614 -0.621248 -0.000004
+0.488576 0.621246 0.612655
+0.783614 -0.621248 -0.000004
+0.783614 0.621248 -0.000004
+0.783614 -0.621248 -0.000004
+-0.706010 -0.621246 -0.340005
+-0.174360 -0.621248 -0.763969
+0.783614 -0.621248 -0.000004
+-0.174360 -0.621248 -0.763969
+0.488577 -0.621248 -0.612653
+-0.706010 -0.621246 -0.340005
+-0.174369 -0.621249 0.763967
+-0.706011 -0.621246 0.340002
+-0.174369 -0.621249 0.763967
+-0.706010 -0.621246 -0.340005
+0.783614 -0.621248 -0.000004
+-0.174369 -0.621249 0.763967
+0.783614 -0.621248 -0.000004
+0.488576 -0.621246 0.612655
+-0.706010 0.621246 -0.340005
+-0.174369 0.621249 0.763967
+0.488576 0.621246 0.612655
+-0.174369 0.621249 0.763967
+-0.706010 0.621246 -0.340005
+-0.706011 0.621246 0.340002
+0.488576 0.621246 0.612655
+0.488577 0.621248 -0.612653
+-0.174360 0.621248 -0.763969
+0.488576 0.621246 0.612655
+-0.174360 0.621248 -0.763969
+-0.706010 0.621246 -0.340005
+0.488577 0.621248 -0.612653
+0.488576 0.621246 0.612655
+0.783614 0.621248 -0.000004
+0.621245 -0.783616 -0.000001
+-0.621245 -0.783616 -0.000001
+-0.621250 -0.488574 -0.612653
+0.621245 -0.783616 -0.000001
+-0.621250 -0.488574 -0.612653
+0.621250 -0.488574 -0.612653
+-0.621244 0.174373 -0.763970
+0.621250 -0.488574 -0.612653
+-0.621250 -0.488574 -0.612653
+0.621250 -0.488574 -0.612653
+-0.621244 0.174373 -0.763970
+0.621245 0.174373 -0.763970
+-0.621249 0.706015 -0.339990
+0.621245 0.174373 -0.763970
+-0.621244 0.174373 -0.763970
+0.621245 0.174373 -0.763970
+-0.621249 0.706015 -0.339990
+0.621249 0.706015 -0.339990
+-0.621248 0.706013 0.339996
+0.621248 0.706013 0.339996
+0.621249 0.706015 -0.339990
+-0.621248 0.706013 0.339996
+0.621249 0.706015 -0.339990
+-0.621249 0.706015 -0.339990
+0.621248 0.706013 0.339996
+-0.621248 0.706013 0.339996
+-0.621246 0.174369 0.763969
+0.621248 0.706013 0.339996
+-0.621246 0.174369 0.763969
+0.621246 0.174369 0.763969
+0.621246 0.174369 0.763969
+-0.621246 0.174369 0.763969
+-0.621249 -0.488573 0.612655
+0.621246 0.174369 0.763969
+-0.621249 -0.488573 0.612655
+0.621249 -0.488573 0.612655
+0.621249 -0.488573 0.612655
+-0.621249 -0.488573 0.612655
+-0.621245 -0.783616 -0.000001
+0.621249 -0.488573 0.612655
+-0.621245 -0.783616 -0.000001
+0.621245 -0.783616 -0.000001
+-0.621249 0.706015 -0.339990
+-0.621250 -0.488574 -0.612653
+-0.621245 -0.783616 -0.000001
+-0.621250 -0.488574 -0.612653
+-0.621249 0.706015 -0.339990
+-0.621244 0.174373 -0.763970
+-0.621249 0.706015 -0.339990
+-0.621246 0.174369 0.763969
+-0.621248 0.706013 0.339996
+-0.621246 0.174369 0.763969
+-0.621249 0.706015 -0.339990
+-0.621245 -0.783616 -0.000001
+-0.621246 0.174369 0.763969
+-0.621245 -0.783616 -0.000001
+-0.621249 -0.488573 0.612655
+0.621249 -0.488573 0.612655
+0.621249 0.706015 -0.339990
+0.621248 0.706013 0.339996
+0.621249 -0.488573 0.612655
+0.621248 0.706013 0.339996
+0.621246 0.174369 0.763969
+0.621250 -0.488574 -0.612653
+0.621249 0.706015 -0.339990
+0.621249 -0.488573 0.612655
+0.621249 0.706015 -0.339990
+0.621250 -0.488574 -0.612653
+0.621245 0.174373 -0.763970
+0.621250 -0.488574 -0.612653
+0.621249 -0.488573 0.612655
+0.621245 -0.783616 -0.000001
+</float_array>
+          <technique_common>
+            <accessor source="#l_talus-Normal0-array" count="144" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="l_talus-UV0">
+          <float_array id="l_talus-UV0-array" count="120">
+0.466218 0.282878
+0.466446 0.298970
+0.461866 0.299034
+0.461639 0.282943
+0.438735 0.283270
+0.438963 0.299361
+0.434384 0.299426
+0.434155 0.283335
+0.443315 0.283205
+0.443544 0.299297
+0.447895 0.283139
+0.448124 0.299230
+0.452476 0.283074
+0.452706 0.299165
+0.457057 0.283009
+0.457286 0.299100
+0.557613 0.815867
+0.547580 0.813569
+0.551163 0.810716
+0.555628 0.811738
+0.547577 0.818149
+0.551155 0.821009
+0.555623 0.819992
+0.660235 0.752270
+0.668029 0.745546
+0.668206 0.750124
+0.664737 0.753116
+0.664340 0.742830
+0.659917 0.744022
+0.658090 0.748222
+0.508720 0.282929
+0.509061 0.299018
+0.504069 0.299123
+0.503728 0.283033
+0.478764 0.283561
+0.479102 0.299650
+0.474110 0.299754
+0.473771 0.283665
+0.483757 0.283457
+0.484095 0.299545
+0.488749 0.283351
+0.489088 0.299439
+0.493742 0.283246
+0.494082 0.299334
+0.498734 0.283140
+0.499076 0.299228
+0.652719 0.670596
+0.641780 0.668089
+0.645687 0.664979
+0.650555 0.666095
+0.641777 0.673083
+0.645678 0.676199
+0.650547 0.675093
+0.604594 0.655452
+0.613377 0.648467
+0.613370 0.653460
+0.609462 0.656570
+0.609477 0.645349
+0.604607 0.646454
+0.602434 0.650950
+</float_array>
+          <technique_common>
+            <accessor source="#l_talus-UV0-array" count="60" stride="2">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="l_talus-VERTEX">
+          <input semantic="POSITION" source="#l_talus-POSITION"/>
+        </vertices>
+        <triangles count="48" material="drc_extremities_diffuse"><input semantic="VERTEX" offset="0" source="#l_talus-VERTEX"/><input semantic="NORMAL" offset="1" source="#l_talus-Normal0"/><input semantic="TEXCOORD" offset="2" set="0" source="#l_talus-UV0"/><p> 2 0 2 3 1 3 0 2 0 2 3 2 0 4 0 1 5 1 4 6 4 1 7 6 0 8 7 1 9 6 4 10 4 5 11 5 6 12 8 5 13 5 4 14 4 5 15 5 6 16 8 7 17 9 8 18 10 9 19 11 7 20 9 8 21 10 7 22 9 6 23 8 10 24 12 11 25 13 9 26 11 9 27 11 8 28 10 10 29 12 12 30 14 13 31 15 11 32 13 11 33 13 10 34 12 12 35 14 13 36 15 12 37 14 3 38 3 13 39 15 3 40 3 2 41 2 3 42 16 6 43 17 4 44 18 3 45 16 4 46 18 0 47 19 6 48 17 10 49 21 8 50 20 10 51 21 6 52 17 3 53 16 10 54 21 3 55 16 12 56 22 7 57 24 11 58 26 13 59 23 11 60 26 7 61 24 9 62 25 13 63 23 1 64 28 5 65 27 13 66 23 5 67 27 7 68 24 1 69 28 13 70 23 2 71 29 16 72 32 17 73 33 14 74 30 16 75 32 14 76 30 15 77 31 18 78 34 15 79 36 14 80 37 15 81 36 18 82 34 19 83 35 20 84 38 19 85 35 18 86 34 19 87 35 20 88 38 21 89 39 22 90 40 23 91 41 21 92 39 22 93 40 21 94 39 20 95 38 23 96 41 22 97 40 24 98 42 23 99 41 24 100 42 25 101 43 25 102 43 24 103 42 26 104 44 25 105 43 26 106 44 27 107 45 27 108 45 26 109 44 17 110 33 27 111 45 17 112 33 16 113 32 20 114 47 14 115 49 17 116 46 14 117 49 20 118 47 18 119 48 20 120 47 24 121 51 22 122 50 24 123 51 20 124 47 17 125 46 24 126 51 17 127 46 26 128 52 27 129 53 21 130 54 23 131 55 27 132 53 23 133 55 25 134 56 15 135 58 21 136 54 27 137 53 21 138 54 15 139 58 19 140 57 15 141 58 27 142 53 16 143 59</p></triangles>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_visual_scenes>
+    <visual_scene id="l_talus" name="l_talus">
+      <node name="l_talus" id="l_talus" sid="l_talus"><matrix sid="matrix">0.010000 0.000000 0.000000 0.000000 0.000000 0.010000 0.000000 0.111500 0.000000 0.000000 0.010000 0.862000 0.000000 0.000000 0.000000 1.000000</matrix><instance_geometry url="#l_talus-lib"><bind_material><technique_common><instance_material symbol="torso_diffuse" target="#torso_diffuse"/><instance_material symbol="drc_extremities_diffuse" target="#drc_extremities_diffuse"/><instance_material symbol="drc_head_diffuse" target="#drc_head_diffuse"/></technique_common></bind_material></instance_geometry><extra><technique profile="FCOLLADA"><visibility>1.000000</visibility></technique></extra></node>
+      <extra><technique profile="MAX3D"><frame_rate>30.000000</frame_rate></technique><technique profile="FCOLLADA"><start_time>0.000000</start_time><end_time>3.333333</end_time></technique></extra>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#l_talus"></instance_visual_scene>
+  </scene>
+</COLLADA>

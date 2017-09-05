@@ -1,6 +1,5 @@
 #add parent dir to find package. Only needed for source code build, pip install doesn't need it.
-import os
-import inspect
+import os, inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0,parentdir)
@@ -31,8 +30,8 @@ class SmallReactivePolicy:
 def main():
     env = gym.make("AntBulletEnv-v0")
     env.render(mode="human")
-    
     pi = SmallReactivePolicy(env.observation_space, env.action_space)
+
     env.reset()
     torsoId = -1
     for i in range (p.getNumBodies()):

@@ -14,9 +14,7 @@ def relu(x):
     return np.maximum(x, 0)
 
 class SmallReactivePolicy:
-    """
-    Simple multi-layer perceptron policy, no internal state
-    """
+    "Simple multi-layer perceptron policy, no internal state"
     def __init__(self, observation_space, action_space):
         assert weights_dense1_w.shape == (observation_space.shape[0], 128)
         assert weights_dense2_w.shape == (128, 64)
@@ -32,8 +30,8 @@ class SmallReactivePolicy:
 def main():
     env = gym.make("HopperBulletEnv-v0")
     env.render(mode="human")
-    
     pi = SmallReactivePolicy(env.observation_space, env.action_space)
+
     env.reset()
     for i in range (p.getNumBodies()):
         print(p.getBodyInfo(i))
