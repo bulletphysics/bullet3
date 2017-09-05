@@ -43,13 +43,11 @@ class Trainer:
 
 			# setup environment
 			env = gym.make(opts.env)
-			
-			if 'discrete_actions' in agent.metadata or "continuous_actions" in env.metadata:
-				print("No idea if agent/environment combination is compatible. We will see.")
+			if self.visualize:
+				mode = "human"
 			else:
-				if agent.metadata['discrete_actions'] and agent.metadata['discrete_actions'] != env.metadata['discrete_actions'] or not agent.metadata['discrete_actions'] and agent.metadata['discrete_actions'] == env.metadata['continuous_actions']:
-					print("Incompatible agent/environment pair!")
-					exit()
+				mode = "none"
+			env.render(mode=mode)
 			
 			# configurations
 			env.seed(int(time.time()))

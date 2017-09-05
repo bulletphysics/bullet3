@@ -28,6 +28,10 @@ class KerasCEMAgent(object):
 	'''
 
 	def __init__(self, opts):
+		self.metadata = {
+			'discrete_actions': True,
+		}
+
 		self.opts = opts
 
 	def configure(self, observation_space_shape, nb_actions):
@@ -83,6 +87,9 @@ class KerasDDPGAgent(object):
 	'''
 
 	def __init__(self, opts):
+		self.metadata = {
+			'discrete_actions': False,
+		}
 		self.opts = opts
 
 	def configure(self, observation_space_shape, nb_actions):
@@ -148,6 +155,10 @@ class KerasDDQNAgent(object):
 	'''
 
 	def __init__(self, opts):
+		self.metadata = {
+			'discrete_actions': True,
+		}
+
 		self.opts = opts
 
 	def configure(self, observation_space_shape, nb_actions):
@@ -190,6 +201,9 @@ class KerasDQNAgent(object):
 	'''
 
 	def __init__(self, opts):
+		self.metadata = {
+			'discrete_actions': True,
+		}
 		self.opts = opts
 
 	def configure(self, observation_space_shape, nb_actions):
@@ -232,6 +246,10 @@ class KerasNAFAgent(object):
 	'''
 
 	def __init__(self, opts):
+		self.metadata = {
+			'discrete_actions': False,
+		}
+
 		self.opts = opts
 
 	def configure(self, observation_space_shape, nb_actions):
