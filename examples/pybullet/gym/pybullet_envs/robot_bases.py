@@ -137,14 +137,14 @@ class URDFBasedRobot(XmlBasedRobot):
 
 		if self.self_collision:
 			self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(
-				p.loadURDF(os.path.join(os.path.dirname(__file__), "data", self.model_urdf),
+				p.loadURDF(os.path.join(pybullet_data.getDataPath(), self.model_urdf),
 				basePosition=self.basePosition,
 				baseOrientation=self.baseOrientation,
 				useFixedBase=self.fixed_base,
 				flags=p.URDF_USE_SELF_COLLISION))
 		else:
 			self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(
-				p.loadURDF(os.path.join(os.path.dirname(__file__), "data", self.model_urdf),
+				p.loadURDF(os.path.join(pybullet_data.getDataPath(), self.model_urdf),
 				basePosition=self.basePosition,
 				baseOrientation=self.baseOrientation,
 				useFixedBase=self.fixed_base))

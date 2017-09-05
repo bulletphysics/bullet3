@@ -19,9 +19,8 @@ class WalkerBaseBulletEnv(BaseBulletEnv):
 
 	def _reset(self):
 		r = BaseBulletEnv._reset(self)
-        p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
-
-        self.parts, self.jdict, self.ordered_joints, self.robot_body = self.robot.addToScene(
+		p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 0)
+		self.parts, self.jdict, self.ordered_joints, self.robot_body = self.robot.addToScene(
 			self.stadium_scene.ground_plane_mjcf)
 		self.ground_ids = set([(self.parts[f].bodies[self.parts[f].bodyIndex], self.parts[f].bodyPartIndex) for f in
 							   self.foot_ground_object_names])

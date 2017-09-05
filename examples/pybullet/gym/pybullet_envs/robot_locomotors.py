@@ -279,7 +279,7 @@ class Atlas(WalkerBase, URDFBasedRobot):
 	random_yaw = False
 	foot_list = ["r_foot", "l_foot"]
 	def __init__(self):
-		WalkerBase.__init__(self, power=0.30)
+		WalkerBase.__init__(self, power=2.9)
 		URDFBasedRobot.__init__(self, "atlas/atlas_description/atlas_v4_with_multisense.urdf", "pelvis", action_dim=30, obs_dim=70)
 
 	def alive_bonus(self, z, pitch):

@@ -41,9 +41,10 @@ def demo_run():
     torsoId = -1
     for i in range (p.getNumBodies()):
         print(p.getBodyInfo(i))
-        if (p.getBodyInfo(i)[0].decode() == "torso"):
+
+        if (p.getBodyInfo(i)[0].decode("utf8") == "pelvis"):
            torsoId=i
-           print("found torso")
+           print("found pelvis")
 
     while 1:
         frame = 0

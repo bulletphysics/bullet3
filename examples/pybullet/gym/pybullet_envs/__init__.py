@@ -153,5 +153,5 @@ register(
 	)
 
 def getList():
-	btenvs = ['- ' + spec.id for spec in gym.envs.registry.all() if spec.id.find('Bullet')>=0])
+	btenvs = ['- ' + spec.id for spec in gym.envs.registry.all() if spec.id.find('Bullet')>=0]
 	return btenvs
