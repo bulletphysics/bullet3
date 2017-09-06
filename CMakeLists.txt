@@ -392,7 +392,6 @@ IF(BUILD_EXTRAS)
 ENDIF(BUILD_EXTRAS)
 
 
-#Maya Dynamica plugin is moved to http://dynamica.googlecode.com
 
 SUBDIRS(src)
 
@@ -425,7 +424,7 @@ ENDIF(INSTALL_LIBS)
 
 #INSTALL of other files requires CMake 2.6
 IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
-	OPTION(INSTALL_EXTRA_LIBS "Set when you want extra libraries installed" OFF)
+	OPTION(INSTALL_EXTRA_LIBS "Set when you want extra libraries installed" ON)
 ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
 
 OPTION(BUILD_UNIT_TESTS "Build Unit Tests"	ON)
@@ -437,9 +436,8 @@ ENDIF()
 
 set (BULLET_CONFIG_CMAKE_PATH lib${LIB_SUFFIX}/cmake/bullet )
 list (APPEND BULLET_LIBRARIES LinearMath)
-IF(BUILD_BULLET3)
-    list (APPEND BULLET_LIBRARIES BulletInverseDynamics)
-ENDIF(BUILD_BULLET3)
+list (APPEND BULLET_LIBRARIES Bullet3Common)
+list (APPEND BULLET_LIBRARIES BulletInverseDynamics)
 list (APPEND BULLET_LIBRARIES BulletCollision)
 list (APPEND BULLET_LIBRARIES BulletDynamics)
 list (APPEND BULLET_LIBRARIES BulletSoftBody)

@@ -15,7 +15,15 @@ B3_DECLARE_HANDLE(b3SharedMemoryStatusHandle);
 #include "PhysicsClientSharedMemory_C_API.h"
 #include "PhysicsClientSharedMemory2_C_API.h"
 #include "PhysicsDirectC_API.h"
+
+#ifdef BT_ENABLE_ENET
 #include "PhysicsClientUDP_C_API.h"
+#endif
+
+#ifdef BT_ENABLE_CLSOCKET
+#include "PhysicsClientTCP_C_API.h"
+#endif
+
 #include "SharedMemoryInProcessPhysicsC_API.h"
 
 #ifdef __cplusplus
