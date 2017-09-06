@@ -420,7 +420,15 @@ ELSE()
 	ENDIF()
 ENDIF()
 
+
 IF(INSTALL_LIBS)
+	#INSTALL of other files requires CMake 2.6
+	IF(BUILD_EXTRAS)
+		IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
+			OPTION(INSTALL_EXTRA_LIBS "Set when you want extra libraries installed" ON)
+		ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
+	ENDIF(BUILD_EXTRAS)
+
 	SET (LIB_SUFFIX "" CACHE STRING "Define suffix of directory name (32/64)" )
 	SET (LIB_DESTINATION "lib${LIB_SUFFIX}" CACHE STRING "Library directory name")
 	## the following are directories where stuff will be installed to
@@ -434,12 +442,8 @@ IF(INSTALL_LIBS)
 		DESTINATION
 		${PKGCONFIG_INSTALL_PREFIX})
 	ENDIF(NOT MSVC)
-ENDIF(INSTALL_LIBS)
+ENDIF()
 
-#INSTALL of other files requires CMake 2.6
-IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
-	OPTION(INSTALL_EXTRA_LIBS "Set when you want extra libraries installed" ON)
-ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
 
 OPTION(BUILD_UNIT_TESTS "Build Unit Tests"	ON)
 
