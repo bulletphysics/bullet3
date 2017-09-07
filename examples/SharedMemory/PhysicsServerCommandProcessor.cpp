@@ -2416,7 +2416,8 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
         MyMultiBodyCreator creation(m_data->m_guiHelper);
 
         u2b.getRootTransformInWorld(rootTrans);
-        flags |= URDF_ORDER_TYPED_CONSTRAINT;
+		//CUF_RESERVED is a temporary flag, for backward compatibility purposes
+		flags |= CUF_RESERVED;
 		ConvertURDF2Bullet(u2b,creation, rootTrans,m_data->m_dynamicsWorld,useMultiBody,u2b.getPathPrefix(),flags);
 
 

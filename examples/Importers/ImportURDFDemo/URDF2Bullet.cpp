@@ -393,7 +393,7 @@ void ConvertURDF2BulletInternal(
 						btGeneric6DofSpring2Constraint* dof6 = 0;
 
 						//backward compatibility
-						if (flags & URDF_ORDER_TYPED_CONSTRAINT )
+						if (flags & CUF_RESERVED )
 						{
 							dof6 = creation.createFixedJoint(urdfLinkIndex,*parentRigidBody, *linkRigidBody,  offsetInA, offsetInB);
 						} else
@@ -427,7 +427,7 @@ void ConvertURDF2BulletInternal(
 
 						btGeneric6DofSpring2Constraint* dof6  = 0;
 						//backwards compatibility
-						if (flags & URDF_ORDER_TYPED_CONSTRAINT )
+						if (flags & CUF_RESERVED )
 						{
 							dof6 = creation.createRevoluteJoint(urdfLinkIndex,*parentRigidBody, *linkRigidBody,  offsetInA, offsetInB,jointAxisInJointSpace,jointLowerLimit, jointUpperLimit);
 						} else
