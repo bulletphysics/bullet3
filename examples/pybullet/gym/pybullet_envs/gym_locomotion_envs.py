@@ -15,7 +15,7 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 		self.walk_target_y = 0
 
 	def create_single_player_scene(self):
-		self.stadium_scene = SinglePlayerStadiumScene(gravity=9.8, timestep=0.0165/4, frame_skip=4)
+		self.stadium_scene = SinglePlayerStadiumScene(gravity=9.8, timestep=0.0165, frame_skip=4)
 		return self.stadium_scene
 
 	def _reset(self):

@@ -13,7 +13,7 @@ class MJCFBasedRobot:
 	Base class for mujoco .xml based agents.
 	"""
 
-	self_collision = False
+	self_collision = True
 
 	def __init__(self, model_xml, robot_name, action_dim, obs_dim):
 		self.parts = None
@@ -87,7 +87,7 @@ class MJCFBasedRobot:
 
 		if self.self_collision:
 			self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(
-				p.loadMJCF(os.path.join(pybullet_data.getDataPath(),"mjcf", self.model_xml), flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS))
+				p.loadMJCF(os.path.join(pybullet_data.getDataPath(),"mjcf", self.model_xml), flags=p.URDF_USE_SELF_COLLISION+p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS))
 		else:
 			self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(
 				p.loadMJCF(os.path.join(pybullet_data.getDataPath(),"mjcf", self.model_xml)))

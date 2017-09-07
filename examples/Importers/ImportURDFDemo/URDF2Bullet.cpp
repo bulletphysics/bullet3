@@ -390,8 +390,16 @@ void ConvertURDF2BulletInternal(
                     {
                         //b3Printf("Fixed joint\n");
 						
-						btGeneric6DofSpring2Constraint* dof6 = creation.createFixedJoint(urdfLinkIndex,*parentRigidBody, *linkRigidBody,  offsetInA, offsetInB);
-                       
+						btGeneric6DofSpring2Constraint* dof6 = 0;
+
+						//backward compatibility
+						if (flags & CUF_RESERVED )
+						{
+							dof6 = creation.createFixedJoint(urdfLinkIndex,*parentRigidBody, *linkRigidBody,  offsetInA, offsetInB);
+						} else
+						{
+							dof6 = creation.createFixedJoint(urdfLinkIndex,*linkRigidBody, *parentRigidBody,  offsetInB, offsetInA);
+						}
                         if (enableConstraints)
                             world1->addConstraint(dof6,true);
                     }
@@ -417,8 +425,15 @@ void ConvertURDF2BulletInternal(
                     } else
                     {
 
-						btGeneric6DofSpring2Constraint* dof6 = creation.createRevoluteJoint(urdfLinkIndex,*parentRigidBody, *linkRigidBody,  offsetInA, offsetInB,jointAxisInJointSpace,jointLowerLimit, jointUpperLimit);
-
+						btGeneric6DofSpring2Constraint* dof6  = 0;
+						//backwards compatibility
+						if (flags & CUF_RESERVED )
+						{
+							dof6 = creation.createRevoluteJoint(urdfLinkIndex,*parentRigidBody, *linkRigidBody,  offsetInA, offsetInB,jointAxisInJointSpace,jointLowerLimit, jointUpperLimit);
+						} else
+						{
+							dof6 = creation.createRevoluteJoint(urdfLinkIndex,*linkRigidBody, *parentRigidBody, offsetInB, offsetInA,jointAxisInJointSpace,jointLowerLimit, jointUpperLimit);
+						}
 						if (enableConstraints)
                                     world1->addConstraint(dof6,true);
                         //b3Printf("Revolute/Continuous joint\n");

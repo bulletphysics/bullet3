@@ -41,7 +41,7 @@ p.setTimeStep(fixedTimeStep)
 
 orn = p.getQuaternionFromEuler([0,0,0.4])
 p.setRealTimeSimulation(0)
-quadruped = p.loadURDF("quadruped/minitaur.urdf",[1,-1,.3],orn,useFixedBase=False, useMaximalCoordinates=useMaximalCoordinates)
+quadruped = p.loadURDF("quadruped/minitaur_v1.urdf",[1,-1,.3],orn,useFixedBase=False, useMaximalCoordinates=useMaximalCoordinates)
 nJoints = p.getNumJoints(quadruped)
 
 
