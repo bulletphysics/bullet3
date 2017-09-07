@@ -315,9 +315,6 @@ FIND_PACKAGE(PythonInterp ${PYTHON_VERSION_PYBULLET} ${EXACT_PYTHON_VERSION_FLAG
 # python library should exactly match that of the interpreter
 FIND_PACKAGE(PythonLibs ${PYTHON_VERSION_STRING} EXACT)
 SET(DEFAULT_BUILD_PYBULLET OFF)
-IF(PYTHONLIBS_FOUND)
-	SET(DEFAULT_BUILD_PYBULLET ON)
-ENDIF(PYTHONLIBS_FOUND)
 OPTION(BUILD_PYBULLET "Set when you want to build pybullet (Python bindings for Bullet)" ${DEFAULT_BUILD_PYBULLET})
 
 OPTION(BUILD_ENET "Set when you want to build apps with enet UDP networking support" ON)
