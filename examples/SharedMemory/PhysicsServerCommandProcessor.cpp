@@ -293,29 +293,108 @@ struct CommandLogger
 
 	void logCommand(const SharedMemoryCommand& command)
 	{
-		btCommandChunk chunk;
-		chunk.m_chunkCode = command.m_type;
-		chunk.m_oldPtr = 0;
-		chunk.m_dna_nr = 0;
-		chunk.m_length = sizeof(SharedMemoryCommand);
-		chunk.m_number = 1;
-		fwrite((const char*)&chunk,sizeof(btCommandChunk), 1,m_file);
-		fwrite((const char*)&command,sizeof(SharedMemoryCommand),1,m_file);
+		if (m_file)
+		{
+			btCommandChunk chunk;
+			chunk.m_chunkCode = command.m_type;
+			chunk.m_oldPtr = 0;
+			chunk.m_dna_nr = 0;
+			chunk.m_length = sizeof(SharedMemoryCommand);
+			chunk.m_number = 1;
+			fwrite((const char*)&chunk,sizeof(btCommandChunk), 1,m_file);
+			
+			switch (command.m_type)
+			{
+				
+				case CMD_LOAD_MJCF:
+				{
+					fwrite((const char*)&command.m_updateFlags,sizeof(int), 1,m_file);
+					fwrite((const char*)&command.m_mjcfArguments , sizeof(MjcfArgs),1,m_file);
+					break;
+				}
+				case CMD_REQUEST_BODY_INFO:
+                {
+					fwrite((const char*)&command.m_updateFlags,sizeof(int), 1,m_file);
+					fwrite((const char*)&command.m_sdfRequestInfoArgs, sizeof(SdfRequestInfoArgs),1,m_file);
+					break;
+				}
+				case CMD_REQUEST_VISUAL_SHAPE_INFO:
+				{
+					fwrite((const char*)&command.m_updateFlags,sizeof(int), 1,m_file);
+					fwrite((const char*)&command.m_requestVisualShapeDataArguments, sizeof(RequestVisualShapeDataArgs),1,m_file);
+					break;
+				}
+				case CMD_LOAD_URDF:
+                {
+					fwrite((const char*)&command.m_updateFlags,sizeof(int), 1,m_file);
+					fwrite((const char*)&command.m_urdfArguments, sizeof(UrdfArgs),1,m_file);
+					break;
+				 }
+				 case CMD_INIT_POSE:
+				 {
+					 fwrite((const char*)&command.m_updateFlags,sizeof(int), 1,m_file);
+					 fwrite((const char*)&command.m_initPoseArgs,sizeof(InitPoseArgs),1,m_file);
+					break;
+				 };
+				 case CMD_REQUEST_ACTUAL_STATE:
+				 {
+					 fwrite((const char*)&command.m_updateFlags,sizeof(int), 1,m_file);
+					 fwrite((const char*)&command.m_requestActualStateInformationCommandArgument,
+						 sizeof(RequestActualStateArgs),1,m_file);
+					break;
+				 };
+				 case CMD_SEND_DESIRED_STATE:
+				 {
+					 fwrite((const char*)&command.m_updateFlags,sizeof(int), 1,m_file);
+					 fwrite((const char*)&command.m_sendDesiredStateCommandArgument,sizeof(SendDesiredStateArgs),1,m_file);
+					 break;
+				 }
+				 case CMD_SEND_PHYSICS_SIMULATION_PARAMETERS:
+				 {
+					 fwrite((const char*)&command.m_updateFlags,sizeof(int), 1,m_file);
+					 fwrite((const char*)&command.m_physSimParamArgs, sizeof(SendPhysicsSimulationParameters), 1,m_file);
+					 break;
+				 }
+				 case CMD_REQUEST_CONTACT_POINT_INFORMATION:
+				 {
+					 fwrite((const char*)&command.m_updateFlags,sizeof(int), 1,m_file);
+					 fwrite((const char*)&command.m_requestContactPointArguments,sizeof(RequestContactDataArgs),1,m_file);
+					 break;
+				 }
+				case CMD_STEP_FORWARD_SIMULATION:
+				case CMD_RESET_SIMULATION:
+				case CMD_REQUEST_INTERNAL_DATA:
+				{
+					break;
+				};
+				default:
+				{
+					fwrite((const char*)&command,sizeof(SharedMemoryCommand),1,m_file);
+				}
+
+			};
+		}
 	}
 
 	CommandLogger(const char* fileName)
 	{
 		m_file = fopen(fileName,"wb");
-		unsigned char buf[15];
-		buf[12] = 12;
-		buf[13] = 13;
-		buf[14] = 14;
-		writeHeader(buf);
-		fwrite(buf,12,1,m_file);
+		if (m_file)
+		{
+			unsigned char buf[15];
+			buf[12] = 12;
+			buf[13] = 13;
+			buf[14] = 14;
+			writeHeader(buf);
+			fwrite(buf,12,1,m_file);
+		}
 	}
 	virtual ~CommandLogger()
 	{
-		fclose(m_file);
+		if (m_file)
+		{
+			fclose(m_file);
+		}
 	}
 };
 
@@ -355,28 +434,162 @@ struct CommandLogPlayback
 	}
 	bool processNextCommand(SharedMemoryCommand* cmd)
 	{
+//for a little while, keep this flag to be able to read 'old' log files
+//#define BACKWARD_COMPAT
+#if BACKWARD_COMPAT
+		SharedMemoryCommand unused;
+#endif//BACKWARD_COMPAT
+		bool result = false;
+
 		if (m_file)
 		{
 			size_t s = 0;
-
+			int commandType = -1;
 
 			if (m_fileIs64bit)
 			{
 				bCommandChunkPtr8 chunk8;
 				s = fread((void*)&chunk8,sizeof(bCommandChunkPtr8),1,m_file);
+				commandType = chunk8.code;
 			} else
 			{
 				bCommandChunkPtr4 chunk4;
 				s = fread((void*)&chunk4,sizeof(bCommandChunkPtr4),1,m_file);
+				commandType = chunk4.code;
 			}
 
 			if (s==1)
 			{
-				s = fread(cmd,sizeof(SharedMemoryCommand),1,m_file);
-				return (s==1);
+				memset(cmd,0,sizeof(SharedMemoryCommand));
+				cmd->m_type = commandType;				
+
+#ifdef BACKWARD_COMPAT
+				s = fread(&unused,sizeof(SharedMemoryCommand),1,m_file);
+				cmd->m_updateFlags = unused.m_updateFlags;
+#endif
+
+
+				switch (commandType)
+				{
+				case CMD_LOAD_MJCF:
+				{
+#ifdef BACKWARD_COMPAT
+					cmd->m_mjcfArguments = unused.m_mjcfArguments;
+#else
+					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					fread(&cmd->m_mjcfArguments,sizeof(MjcfArgs),1,m_file);
+#endif
+					result=true;
+					break;
+				}
+				case CMD_REQUEST_BODY_INFO:
+                {
+#ifdef BACKWARD_COMPAT
+					cmd->m_sdfRequestInfoArgs = unused.m_sdfRequestInfoArgs;
+#else
+					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					fread(&cmd->m_sdfRequestInfoArgs,sizeof(SdfRequestInfoArgs),1,m_file);					
+#endif
+					result=true;
+					break;
+				}
+				case CMD_REQUEST_VISUAL_SHAPE_INFO:
+				{
+#ifdef BACKWARD_COMPAT
+					cmd->m_requestVisualShapeDataArguments = unused.m_requestVisualShapeDataArguments;
+#else
+					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					fread(&cmd->m_requestVisualShapeDataArguments,sizeof(RequestVisualShapeDataArgs),1,m_file);					
+#endif
+					result=true;
+					break;
+				}
+				 case CMD_LOAD_URDF:
+                {
+#ifdef BACKWARD_COMPAT
+					 cmd->m_urdfArguments = unused.m_urdfArguments;
+#else
+					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					fread(&cmd->m_urdfArguments,sizeof(UrdfArgs),1,m_file);					
+#endif
+					result=true;
+					break;
+				 }
+				 case CMD_INIT_POSE:
+				 {
+#ifdef BACKWARD_COMPAT
+					 cmd->m_initPoseArgs = unused.m_initPoseArgs;
+#else
+					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					fread(&cmd->m_initPoseArgs,sizeof(InitPoseArgs),1,m_file);					
+
+#endif
+					 result=true;
+					break;
+				 };
+				 case CMD_REQUEST_ACTUAL_STATE:
+				 {
+#ifdef BACKWARD_COMPAT					 
+					cmd->m_requestActualStateInformationCommandArgument = unused.m_requestActualStateInformationCommandArgument;
+#else
+					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					fread(&cmd->m_requestActualStateInformationCommandArgument,sizeof(RequestActualStateArgs),1,m_file);					
+#endif
+					 result=true;
+					break;
+				 };
+				 case CMD_SEND_DESIRED_STATE:
+				 {
+#ifdef BACKWARD_COMPAT	
+					 cmd->m_sendDesiredStateCommandArgument = unused.m_sendDesiredStateCommandArgument;
+#else
+					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					fread(&cmd->m_sendDesiredStateCommandArgument ,sizeof(SendDesiredStateArgs),1,m_file);					
+
+#endif
+					 result = true;
+					 break;
+				 }
+				 case CMD_SEND_PHYSICS_SIMULATION_PARAMETERS:
+				 {
+#ifdef BACKWARD_COMPAT	
+					 cmd->m_physSimParamArgs = unused.m_physSimParamArgs;
+					 #else
+					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					fread(&cmd->m_physSimParamArgs ,sizeof(SendPhysicsSimulationParameters),1,m_file);					
+
+					 #endif
+					 result = true;
+					 break;
+				 }
+				 case CMD_REQUEST_CONTACT_POINT_INFORMATION:
+				 {
+#ifdef BACKWARD_COMPAT	
+					 cmd->m_requestContactPointArguments = unused.m_requestContactPointArguments;
+					 #else
+					 fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
+					fread(&cmd->m_requestContactPointArguments ,sizeof(RequestContactDataArgs),1,m_file);					
+
+					 #endif
+					 result = true;
+					 break;
+				 }
+				 case CMD_STEP_FORWARD_SIMULATION:
+				case CMD_RESET_SIMULATION:
+				case CMD_REQUEST_INTERNAL_DATA:
+				{
+					result=true;
+					break;
+				}
+				default:
+				{
+					s = fread(cmd,sizeof(SharedMemoryCommand),1,m_file);
+					result=(s==1);
+				}
+				};
 			}
 		}
-		return false;
+		return result;
 
 	}
 };
@@ -3458,7 +3671,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                         serverStatusOut.m_dataStreamArguments.m_bodyUniqueId = sdfInfoArgs.m_bodyUniqueId;
                         serverStatusOut.m_dataStreamArguments.m_bodyName[0] = 0;
 						
-						InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_calculateJacobianArguments.m_bodyUniqueId);
+						InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(sdfInfoArgs.m_bodyUniqueId);
 						if (bodyHandle)
 						{
 							strcpy(serverStatusOut.m_dataStreamArguments.m_bodyName,bodyHandle->m_bodyName.c_str());

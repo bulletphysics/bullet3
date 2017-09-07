@@ -133,6 +133,3 @@ register(
 	reward_threshold=2500.0
 	)
 
-def getList():
-	btenvs = ['- ' + spec.id for spec in gym.envs.registry.all() if spec.id.find('Bullet')>=0])
-	return btenvs

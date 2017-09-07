@@ -335,9 +335,9 @@ int main(int argc, char* argv[])
 #ifdef PHYSICS_IN_PROCESS_EXAMPLE_BROWSER
 
 #ifdef __APPLE__
-    b3PhysicsClientHandle sm = b3CreateInProcessPhysicsServerAndConnectMainThread(argc,argv,1);
+    b3PhysicsClientHandle sm = b3CreateInProcessPhysicsServerAndConnectMainThread(argc,argv);
 #else
-    b3PhysicsClientHandle sm = b3CreateInProcessPhysicsServerAndConnect(argc,argv,1);
+    b3PhysicsClientHandle sm = b3CreateInProcessPhysicsServerAndConnect(argc,argv);
 #endif //__APPLE__
 #endif
 

@@ -122,7 +122,7 @@ int main(int argc, char* argv[]) {
 #ifdef _WIN32
 		gets_s(message, 1024);
 #else
-		gets(message);
+		fgets(message,1024,stdin);
 #endif
 		if (strcmp(message, "exit") == 0 ||
 			strcmp(message, "quit") == 0) {

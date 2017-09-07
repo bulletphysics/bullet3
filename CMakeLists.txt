@@ -38,6 +38,20 @@ IF (BULLET2_USE_THREAD_LOCKS)
     ENDIF (MSVC)
 ENDIF (BULLET2_USE_THREAD_LOCKS)
 
+IF(NOT WIN32)
+	SET(DL dl)
+	IF(CMAKE_SYSTEM_NAME MATCHES "Linux")
+	    SET(OSDEF -D_LINUX)
+	ELSE(CMAKE_SYSTEM_NAME MATCHES "Linux")
+		IF(APPLE)
+			SET(OSDEF -D_DARWIN)
+		ELSE(APPLE)
+			SET(OSDEF -D_BSD)
+			SET(DL "")
+		ENDIF(APPLE)
+	ENDIF(CMAKE_SYSTEM_NAME MATCHES "Linux")
+ENDIF(NOT WIN32)
+
 OPTION(USE_MSVC_INCREMENTAL_LINKING "Use MSVC Incremental Linking" OFF)
 OPTION(USE_CUSTOM_VECTOR_MATH "Use custom vectormath library" OFF)
 
@@ -392,7 +406,6 @@ IF(BUILD_EXTRAS)
 ENDIF(BUILD_EXTRAS)
 
 
-#Maya Dynamica plugin is moved to http://dynamica.googlecode.com
 
 SUBDIRS(src)
 
@@ -407,7 +420,15 @@ ELSE()
 	ENDIF()
 ENDIF()
 
+
 IF(INSTALL_LIBS)
+	#INSTALL of other files requires CMake 2.6
+	IF(BUILD_EXTRAS)
+		IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
+			OPTION(INSTALL_EXTRA_LIBS "Set when you want extra libraries installed" ON)
+		ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
+	ENDIF(BUILD_EXTRAS)
+
 	SET (LIB_SUFFIX "" CACHE STRING "Define suffix of directory name (32/64)" )
 	SET (LIB_DESTINATION "lib${LIB_SUFFIX}" CACHE STRING "Library directory name")
 	## the following are directories where stuff will be installed to
@@ -421,12 +442,8 @@ IF(INSTALL_LIBS)
 		DESTINATION
 		${PKGCONFIG_INSTALL_PREFIX})
 	ENDIF(NOT MSVC)
-ENDIF(INSTALL_LIBS)
+ENDIF()
 
-#INSTALL of other files requires CMake 2.6
-IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
-	OPTION(INSTALL_EXTRA_LIBS "Set when you want extra libraries installed" OFF)
-ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
 
 OPTION(BUILD_UNIT_TESTS "Build Unit Tests"	ON)
 
@@ -437,9 +454,8 @@ ENDIF()
 
 set (BULLET_CONFIG_CMAKE_PATH lib${LIB_SUFFIX}/cmake/bullet )
 list (APPEND BULLET_LIBRARIES LinearMath)
-IF(BUILD_BULLET3)
-    list (APPEND BULLET_LIBRARIES BulletInverseDynamics)
-ENDIF(BUILD_BULLET3)
+list (APPEND BULLET_LIBRARIES Bullet3Common)
+list (APPEND BULLET_LIBRARIES BulletInverseDynamics)
 list (APPEND BULLET_LIBRARIES BulletCollision)
 list (APPEND BULLET_LIBRARIES BulletDynamics)
 list (APPEND BULLET_LIBRARIES BulletSoftBody)
