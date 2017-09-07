@@ -2416,7 +2416,8 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
         MyMultiBodyCreator creation(m_data->m_guiHelper);
 
         u2b.getRootTransformInWorld(rootTrans);
-        ConvertURDF2Bullet(u2b,creation, rootTrans,m_data->m_dynamicsWorld,useMultiBody,u2b.getPathPrefix(),flags);
+        flags |= URDF_ORDER_TYPED_CONSTRAINT;
+		ConvertURDF2Bullet(u2b,creation, rootTrans,m_data->m_dynamicsWorld,useMultiBody,u2b.getPathPrefix(),flags);
 
 
 
@@ -2694,6 +2695,8 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
         //int rootLinkIndex = u2b.getRootLinkIndex();
         //                      printf("urdf root link index = %d\n",rootLinkIndex);
 		MyMultiBodyCreator creation(m_data->m_guiHelper);
+
+		flags |= URDF_ORDER_TYPED_CONSTRAINT;
 
         ConvertURDF2Bullet(u2b,creation, tr,m_data->m_dynamicsWorld,useMultiBody,u2b.getPathPrefix(),flags);
 
