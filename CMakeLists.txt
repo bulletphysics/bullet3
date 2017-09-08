@@ -15,7 +15,6 @@ IF(COMMAND cmake_policy)
    endif(POLICY CMP0042)
 ENDIF(COMMAND cmake_policy)
 
-
 IF (NOT CMAKE_BUILD_TYPE)
 # SET(CMAKE_BUILD_TYPE "Debug")
  SET(CMAKE_BUILD_TYPE "Release")
