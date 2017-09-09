@@ -12,8 +12,9 @@ class Scene:
         self.np_random, seed = gym.utils.seeding.np_random(None)
         self.timestep = timestep
         self.frame_skip = frame_skip
+
         self.dt = self.timestep * self.frame_skip
-        self.cpp_world = World(gravity, timestep)
+        self.cpp_world = World(gravity, timestep, frame_skip)
         #self.cpp_world.set_glsl_path(os.path.join(os.path.dirname(__file__), "cpp-household/glsl"))
 
         #self.big_caption = self.cpp_world.test_window_big_caption  # that's a function you can call
@@ -60,16 +61,17 @@ class SingleRobotEmptyScene(Scene):
 
 class World:
 
-	def __init__(self, gravity, timestep):
+	def __init__(self, gravity, timestep, frame_skip):
 		self.gravity = gravity
 		self.timestep = timestep
+		self.frame_skip = frame_skip
 		self.clean_everything()
 
 	def clean_everything(self):
 		p.resetSimulation()
 		p.setGravity(0, 0, -self.gravity)
 		p.setDefaultContactERP(0.9)
-		p.setPhysicsEngineParameter(fixedTimeStep=self.timestep, numSolverIterations=5, numSubSteps=4)
+		p.setPhysicsEngineParameter(fixedTimeStep=self.timestep*self.frame_skip, numSolverIterations=5, numSubSteps=self.frame_skip)
 
 	def step(self, frame_skip):
 		p.stepSimulation()

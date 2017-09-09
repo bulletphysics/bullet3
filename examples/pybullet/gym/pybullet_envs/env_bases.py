@@ -21,20 +21,18 @@ class MJCFBaseBulletEnv(gym.Env):
 		self.camera = Camera()
 		self.isRender = render
 		self.robot = robot
-
 		self._seed()
 
 		self.action_space = robot.action_space
 		self.observation_space = robot.observation_space
-
+	def configure(self, args):
+		self.robot.args = args
 	def _seed(self, seed=None):
 		self.np_random, seed = gym.utils.seeding.np_random(seed)
 		self.robot.np_random = self.np_random # use the same np_randomizer for robot as for env
 		return [seed]
 
 	def _reset(self):
-		print("self.isRender=")
-		print(self.isRender)
 		if (self.physicsClientId<0):
 			if (self.isRender):
 				self.physicsClientId = p.connect(p.GUI)

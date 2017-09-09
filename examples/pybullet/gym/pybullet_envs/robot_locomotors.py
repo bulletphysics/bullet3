@@ -62,6 +62,16 @@ class WalkerBase(MJCFBasedRobot):
 	def calc_potential(self):
 		# progress in potential field is speed*dt, typical speed is about 2-3 meter per second, this potential will change 2-3 per frame (not per second),
 		# all rewards have rew/frame units and close to 1.0
+		debugmode=0
+		if (debugmode):
+			print("calc_potential: self.walk_target_dist")
+			print(self.walk_target_dist)
+			print("self.scene.dt")
+			print(self.scene.dt)
+			print("self.scene.frame_skip")
+			print(self.scene.frame_skip)
+			print("self.scene.timestep")
+			print(self.scene.timestep)
 		return - self.walk_target_dist / self.scene.dt
 
 
