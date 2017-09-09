@@ -9,7 +9,8 @@ class WalkerBase(MJCFBasedRobot):
 		self.camera_x = 0
 		self.walk_target_x = 1e3  # kilometer away
 		self.walk_target_y = 0
-
+		self.body_xyz=[0,0,0]
+	
 	def robot_specific_reset(self):
 		for j in self.ordered_joints:
 			j.reset_current_position(self.np_random.uniform(low=-0.1, high=0.1), 0)

@@ -22,6 +22,11 @@ class MJCFBaseBulletEnv(gym.Env):
 		self.isRender = render
 		self.robot = robot
 		self._seed()
+		self._cam_dist = 3
+		self._cam_yaw = 0
+		self._cam_pitch = -30
+		self._render_width =320
+		self._render_height = 240
 
 		self.action_space = robot.action_space
 		self.observation_space = robot.observation_space
@@ -58,6 +63,28 @@ class MJCFBaseBulletEnv(gym.Env):
 	def _render(self, mode, close):
 		if (mode=="human"):
 			self.isRender = True
+		if mode != "rgb_array":
+			return np.array([])
+		base_pos = self.robot.body_xyz
+		
+		view_matrix = p.computeViewMatrixFromYawPitchRoll(
+			cameraTargetPosition=base_pos,
+			distance=self._cam_dist,
+			yaw=self._cam_yaw,
+			pitch=self._cam_pitch,
+			roll=0,
+			upAxisIndex=2)
+		proj_matrix = p.computeProjectionMatrixFOV(
+			fov=60, aspect=float(self._render_width)/self._render_height,
+			nearVal=0.1, farVal=100.0)
+		(_, _, px, _, _) = p.getCameraImage(
+		width=self._render_width, height=self._render_height, viewMatrix=view_matrix,
+			projectionMatrix=proj_matrix,
+			#renderer=p.ER_BULLET_HARDWARE_OPENGL
+			)
+		rgb_array = np.array(px)
+		rgb_array = rgb_array[:, :, :3]
+		return rgb_array
 
 	def _close(self):
 		if (self.physicsClientId>=0):
