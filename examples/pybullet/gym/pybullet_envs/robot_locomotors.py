@@ -9,7 +9,8 @@ class WalkerBase(MJCFBasedRobot):
 		self.camera_x = 0
 		self.walk_target_x = 1e3  # kilometer away
 		self.walk_target_y = 0
-
+		self.body_xyz=[0,0,0]
+	
 	def robot_specific_reset(self):
 		for j in self.ordered_joints:
 			j.reset_current_position(self.np_random.uniform(low=-0.1, high=0.1), 0)
@@ -62,6 +63,16 @@ class WalkerBase(MJCFBasedRobot):
 	def calc_potential(self):
 		# progress in potential field is speed*dt, typical speed is about 2-3 meter per second, this potential will change 2-3 per frame (not per second),
 		# all rewards have rew/frame units and close to 1.0
+		debugmode=0
+		if (debugmode):
+			print("calc_potential: self.walk_target_dist")
+			print(self.walk_target_dist)
+			print("self.scene.dt")
+			print(self.scene.dt)
+			print("self.scene.frame_skip")
+			print(self.scene.frame_skip)
+			print("self.scene.timestep")
+			print(self.scene.timestep)
 		return - self.walk_target_dist / self.scene.dt
 
 
