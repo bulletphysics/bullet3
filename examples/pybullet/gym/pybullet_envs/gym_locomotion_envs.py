@@ -66,7 +66,7 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 			#print("CONTACT OF '%d' WITH %d" % (contact_ids, ",".join(contact_names)) )
 			if (self.ground_ids & contact_ids):
                         	#see Issue 63: https://github.com/openai/roboschool/issues/63
-				feet_collision_cost += self.foot_collision_cost
+				#feet_collision_cost += self.foot_collision_cost
 				self.robot.feet_contact[i] = 1.0
 			else:
 				self.robot.feet_contact[i] = 0.0
