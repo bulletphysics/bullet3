@@ -199,29 +199,53 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 			btTransform tr;
 			tr.setIdentity();
 			btScalar rad, len;
-			if (visual->m_geometry.m_hasFromTo) {
+			btVector3 center(0,0,0);
+			btVector3 axis(0,0,1);
+			btAlignedObjectArray<btVector3> vertices;
+			int numSteps = 32;
+
+			if (visual->m_geometry.m_hasFromTo) 
+			{
 				btVector3 v      =  p2 - p1;
-				btVector3 center = (p2 + p1) * 0.5;
-				btVector3 up_vector(0,0,1);
 				btVector3 dir  = v.normalized();
-				btVector3 axis = dir.cross(up_vector);
-				if (axis.fuzzyZero())
-				{
-					axis = btVector3(0,0,1);
-				}
-				else
-				{
-					axis.normalize();
-				}
-				btQuaternion q(axis, -acos(dir.dot(up_vector)));
-				btTransform capsule_orient(q, center);
-				tr = visual->m_linkLocalFrame * capsule_orient;
+				tr = visual->m_linkLocalFrame;
 				len = v.length();
 				rad = visual->m_geometry.m_capsuleRadius;
+				btVector3 ax1,ax2;
+				btPlaneSpace1(dir,ax1,ax2);
+
+				for (int i = 0; i<numSteps; i++)
+				{
+					{
+						btVector3 vert = p1 + ax1*rad*btSin(SIMD_2_PI*(float(i) / numSteps))+ax2*rad*btCos(SIMD_2_PI*(float(i) / numSteps));
+						vertices.push_back(vert);
+					}
+					{
+						btVector3 vert = p2 + ax1*rad*btSin(SIMD_2_PI*(float(i) / numSteps))+ax2*rad*btCos(SIMD_2_PI*(float(i) / numSteps));
+						vertices.push_back(vert);
+					}
+				}
+				btVector3 pole1 = p1 - dir * rad;
+				btVector3 pole2 = p2 + dir * rad;
+				vertices.push_back(pole1);
+				vertices.push_back(pole2);
+
 			} else {
+				//assume a capsule along the Z-axis, centered at the origin
 				tr = visual->m_linkLocalFrame;
 				len = visual->m_geometry.m_capsuleHeight;
 				rad = visual->m_geometry.m_capsuleRadius;
+				for (int i = 0; i<numSteps; i++)
+				{
+					btVector3 vert(rad*btSin(SIMD_2_PI*(float(i) / numSteps)), rad*btCos(SIMD_2_PI*(float(i) / numSteps)), len / 2.);
+					vertices.push_back(vert);
+					vert[2] = -len / 2.;
+					vertices.push_back(vert);
+				}
+				btVector3 pole1(0, 0, + len / 2. + rad);
+				btVector3 pole2(0, 0, - len / 2. - rad);
+				vertices.push_back(pole1);
+				vertices.push_back(pole2);
 			}
 			visualShapeOut.m_localVisualFrame[0] = tr.getOrigin()[0];
 			visualShapeOut.m_localVisualFrame[1] = tr.getOrigin()[1];
@@ -233,24 +257,9 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 			visualShapeOut.m_dimensions[0] = len;
 			visualShapeOut.m_dimensions[1] = rad;
 
-			btAlignedObjectArray<btVector3> vertices;
-			int numSteps = 32;
-			for (int i = 0; i<numSteps; i++)
-			{
-				btVector3 vert(rad*btSin(SIMD_2_PI*(float(i) / numSteps)), rad*btCos(SIMD_2_PI*(float(i) / numSteps)), len / 2.);
-				vertices.push_back(vert);
-				vert[2] = -len / 2.;
-				vertices.push_back(vert);
-			}
-			if (visual->m_geometry.m_type==URDF_GEOM_CAPSULE) {
-				// TODO: check if tiny renderer works with that, didn't check -- Oleg
-				btVector3 pole1(0, 0, + len / 2. + rad);
-				btVector3 pole2(0, 0, - len / 2. - rad);
-				vertices.push_back(pole1);
-				vertices.push_back(pole2);
-			}
-
 			btConvexHullShape* cylZShape = new btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
+			//btCapsuleShape* cylZShape = new btCapsuleShape(rad,len);//btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
+
 			cylZShape->setMargin(0.001);
 			convexColShape = cylZShape;
 			break;
