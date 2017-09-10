@@ -6,8 +6,6 @@
 #set(BUILD_MINOR "4")
 #set(BUILD_VERSION "3")
 
-include_directories(src)
-
 SET(CLSOCKET_HEADERS
 src/ActiveSocket.h
 src/Host.h
@@ -63,10 +61,14 @@ else()
     endif()
 endif()
 TARGET_LINK_LIBRARIES(clsocket ${PROJECT_LIBS})
+target_include_directories(clsocket PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+	$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>
+)
 
 # install into configured prefix
 if(NOT CLSOCKET_DEP_ONLY)
-    install(TARGETS clsocket ARCHIVE DESTINATION lib LIBRARY DESTINATION lib)
+    install(TARGETS clsocket EXPORT Bullet ARCHIVE DESTINATION lib LIBRARY DESTINATION lib)
     install(FILES ${CLSOCKET_HEADERS} DESTINATION include)
 else()
 

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.4.3)
+cmake_minimum_required(VERSION 2.8.11)
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
 cmake_policy(SET CMP0017 NEW)
 #this line has to appear before 'PROJECT' in order to be able to disable incremental linking
@@ -14,6 +14,9 @@ IF(COMMAND cmake_policy)
       cmake_policy(SET CMP0042 NEW)
    endif(POLICY CMP0042)
 ENDIF(COMMAND cmake_policy)
+
+include(CMakePackageConfigHelpers)
+include(GNUInstallDirs)
 
 IF (NOT CMAKE_BUILD_TYPE)
 # SET(CMAKE_BUILD_TYPE "Debug")
@@ -430,11 +433,10 @@ IF(INSTALL_LIBS)
 		ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
 	ENDIF(BUILD_EXTRAS)
 
-	SET (LIB_SUFFIX "" CACHE STRING "Define suffix of directory name (32/64)" )
-	SET (LIB_DESTINATION "lib${LIB_SUFFIX}" CACHE STRING "Library directory name")
+	SET (LIB_DESTINATION "${CMAKE_INSTALL_LIBDIR}" CACHE STRING "Library directory name")
 	## the following are directories where stuff will be installed to
-	SET(INCLUDE_INSTALL_DIR "include/bullet/" CACHE PATH "The subdirectory to the header prefix")
-	SET(PKGCONFIG_INSTALL_PREFIX "lib${LIB_SUFFIX}/pkgconfig/" CACHE STRING "Base directory for pkgconfig files")
+	SET(INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_INCLUDEDIR}/bullet/" CACHE PATH "The subdirectory to the header prefix")
+	SET(PKGCONFIG_INSTALL_PREFIX "${CMAKE_INSTALL_LIBDIR}/pkgconfig/" CACHE STRING "Base directory for pkgconfig files")
 	IF(NOT MSVC)
 	  CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/bullet.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/bullet.pc @ONLY)
   	INSTALL(
@@ -453,19 +455,34 @@ IF (BUILD_UNIT_TESTS)
 	SUBDIRS(test)
 ENDIF()
 
-set (BULLET_CONFIG_CMAKE_PATH lib${LIB_SUFFIX}/cmake/bullet )
-list (APPEND BULLET_LIBRARIES LinearMath)
-list (APPEND BULLET_LIBRARIES Bullet3Common)
-list (APPEND BULLET_LIBRARIES BulletInverseDynamics)
-list (APPEND BULLET_LIBRARIES BulletCollision)
-list (APPEND BULLET_LIBRARIES BulletDynamics)
-list (APPEND BULLET_LIBRARIES BulletSoftBody)
+set (BULLET_CONFIG_CMAKE_PATH ${CMAKE_INSTALL_LIBDIR}/cmake/bullet-${BULLET_VERSION})
+list (APPEND BULLET_LIBRARIES Bullet::LinearMath)
+list (APPEND BULLET_LIBRARIES Bullet::Bullet3Common)
+list (APPEND BULLET_LIBRARIES Bullet::BulletInverseDynamics)
+list (APPEND BULLET_LIBRARIES Bullet::BulletCollision)
+list (APPEND BULLET_LIBRARIES Bullet::BulletDynamics)
+list (APPEND BULLET_LIBRARIES Bullet::BulletSoftBody)
 set (BULLET_USE_FILE ${BULLET_CONFIG_CMAKE_PATH}/UseBullet.cmake)
-configure_file 	( ${CMAKE_CURRENT_SOURCE_DIR}/BulletConfig.cmake.in
-					${CMAKE_CURRENT_BINARY_DIR}/BulletConfig.cmake
-					@ONLY ESCAPE_QUOTES
-				)
-install ( FILES ${CMAKE_CURRENT_SOURCE_DIR}/UseBullet.cmake
-		${CMAKE_CURRENT_BINARY_DIR}/BulletConfig.cmake
-		DESTINATION ${BULLET_CONFIG_CMAKE_PATH}
-	)
+configure_package_config_file(
+	${CMAKE_CURRENT_SOURCE_DIR}/BulletConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/BulletConfig.cmake
+	INSTALL_DESTINATION ${BULLET_CONFIG_CMAKE_PATH}
+)
+install(
+	FILES ${CMAKE_CURRENT_SOURCE_DIR}/UseBullet.cmake ${CMAKE_CURRENT_BINARY_DIR}/BulletConfig.cmake
+	DESTINATION ${BULLET_CONFIG_CMAKE_PATH}
+)
+write_basic_package_version_file(
+	${CMAKE_CURRENT_BINARY_DIR}/BulletConfigVersion.cmake
+	VERSION ${BULLET_VERSION}
+	COMPATIBILITY ExactVersion
+)
+install(
+	FILES ${CMAKE_CURRENT_BINARY_DIR}/BulletConfigVersion.cmake
+	DESTINATION ${BULLET_CONFIG_CMAKE_PATH}
+)
+install(
+	EXPORT Bullet
+	DESTINATION ${BULLET_CONFIG_CMAKE_PATH}
+	NAMESPACE Bullet::
+	FILE BulletExport.cmake
+)
