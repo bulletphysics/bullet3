@@ -1,3 +1,7 @@
+INCLUDE_DIRECTORIES(
+ ${BULLET_PHYSICS_SOURCE_DIR}/Extras/ConvexDecomposition ${BULLET_PHYSICS_SOURCE_DIR}/src
+)
+
 SET(ConvexDecomposition_SRCS
 	bestfitobb.cpp
 	ConvexBuilder.cpp
@@ -34,13 +38,6 @@ ADD_LIBRARY(ConvexDecomposition ${ConvexDecomposition_SRCS} ${ConvexDecompositio
 SET_TARGET_PROPERTIES(ConvexDecomposition PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(ConvexDecomposition PROPERTIES SOVERSION ${BULLET_VERSION})
 
-target_include_directories(ConvexDecomposition PUBLIC
-	$<BUILD_INTERFACE:${BULLET_PHYSICS_SOURCE_DIR}/Extras/ConvexDecomposition>
-	$<BUILD_INTERFACE:${BULLET_PHYSICS_SOURCE_DIR}/src>
-	$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${INCLUDE_INSTALL_DIR}/ConvexDecomposition>
-	$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${INCLUDE_INSTALL_DIR}>
-)
-
 IF (BUILD_SHARED_LIBS)
   TARGET_LINK_LIBRARIES(ConvexDecomposition BulletCollision LinearMath)
 ENDIF (BUILD_SHARED_LIBS)
@@ -50,13 +47,12 @@ IF (INSTALL_EXTRA_LIBS)
 		#FILES_MATCHING requires CMake 2.6
 		IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
 			IF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
-				INSTALL(TARGETS ConvexDecomposition EXPORT Bullet DESTINATION .)
+				INSTALL(TARGETS ConvexDecomposition DESTINATION .)
 			ELSE (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
 				INSTALL(TARGETS ConvexDecomposition
-										EXPORT Bullet
-                                        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                                        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+                                        RUNTIME DESTINATION bin
+                                        LIBRARY DESTINATION lib${LIB_SUFFIX}
+                                        ARCHIVE DESTINATION lib${LIB_SUFFIX})
 				INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 DESTINATION ${INCLUDE_INSTALL_DIR} FILES_MATCHING PATTERN "*.h"  PATTERN
 ".svn" EXCLUDE PATTERN "CMakeFiles" EXCLUDE)
