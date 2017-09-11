@@ -1,9 +1,3 @@
-INCLUDE_DIRECTORIES(
-	${BULLET_PHYSICS_SOURCE_DIR}/src
-	${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletFileLoader
-	${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletWorldImporter
-)
-
 ADD_LIBRARY(
 	BulletXmlWorldImporter
 	btBulletXmlWorldImporter.cpp
@@ -21,6 +15,15 @@ ADD_LIBRARY(
 SET_TARGET_PROPERTIES(BulletXmlWorldImporter  PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(BulletXmlWorldImporter PROPERTIES SOVERSION ${BULLET_VERSION})
 
+target_include_directories(BulletXmlWorldImporter PUBLIC
+	$<BUILD_INTERFACE:${BULLET_PHYSICS_SOURCE_DIR}/src>
+	$<BUILD_INTERFACE:${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletFileLoader>
+	$<BUILD_INTERFACE:${BULLET_PHYSICS_SOURCE_DIR}/Extras/Serialize/BulletWorldImporter>
+	$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${INCLUDE_INSTALL_DIR}>
+	$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${INCLUDE_INSTALL_DIR}/BulletFileLoader>
+	$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${INCLUDE_INSTALL_DIR}/BulletWorldImporter>
+)
+
 IF (BUILD_SHARED_LIBS)
 	TARGET_LINK_LIBRARIES(BulletXmlWorldImporter BulletWorldImporter BulletDynamics BulletCollision BulletFileLoader LinearMath)
 ENDIF (BUILD_SHARED_LIBS)
@@ -30,12 +33,13 @@ IF (INSTALL_EXTRA_LIBS)
 		#FILES_MATCHING requires CMake 2.6
 		IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
 			IF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
-				INSTALL(TARGETS BulletXmlWorldImporter DESTINATION .)
+				INSTALL(TARGETS BulletXmlWorldImporter EXPORT Bullet DESTINATION .)
 			ELSE (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
 				INSTALL(TARGETS BulletXmlWorldImporter 
-                                        RUNTIME DESTINATION bin
-                                        LIBRARY DESTINATION lib${LIB_SUFFIX}
-                                        ARCHIVE DESTINATION lib${LIB_SUFFIX})
+										EXPORT Bullet
+                                        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                                        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 				INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 DESTINATION ${INCLUDE_INSTALL_DIR} FILES_MATCHING PATTERN "*.h"  PATTERN

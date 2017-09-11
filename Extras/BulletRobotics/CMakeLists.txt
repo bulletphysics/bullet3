@@ -1,12 +1,3 @@
-
-INCLUDE_DIRECTORIES(
-		${BULLET_PHYSICS_SOURCE_DIR}/src
-		${BULLET_PHYSICS_SOURCE_DIR}/examples
-		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs
-		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/enet/include
-		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/clsocket/src
-)
-
 SET(BulletRobotics_SRCS
 		../../examples/SharedMemory/IKTrajectoryHelper.cpp
 		../../examples/SharedMemory/IKTrajectoryHelper.h
@@ -158,6 +149,15 @@ ADD_LIBRARY(BulletRobotics ${BulletRobotics_SRCS})
 SET_TARGET_PROPERTIES(BulletRobotics PROPERTIES VERSION ${BULLET_VERSION})
 SET_TARGET_PROPERTIES(BulletRobotics PROPERTIES SOVERSION ${BULLET_VERSION})
 
+target_include_directories(BulletRobotics PUBLIC
+	$<BUILD_INTERFACE:${BULLET_PHYSICS_SOURCE_DIR}/src>
+	$<BUILD_INTERFACE:${BULLET_PHYSICS_SOURCE_DIR}/examples>
+	$<BUILD_INTERFACE:${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs>
+	$<BUILD_INTERFACE:${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/enet/include>
+	$<BUILD_INTERFACE:${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/clsocket/src>
+	$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${INCLUDE_INSTALL_DIR}>
+)
+
 IF (BUILD_SHARED_LIBS)
 	TARGET_LINK_LIBRARIES(BulletRobotics BulletInverseDynamicsUtils BulletWorldImporter BulletFileLoader BulletSoftBody BulletDynamics BulletCollision BulletInverseDynamics LinearMath Bullet3Common)
 ENDIF (BUILD_SHARED_LIBS)
@@ -176,8 +176,9 @@ IF (INSTALL_EXTRA_LIBS)
 		)
 	INSTALL(TARGETS
 		BulletRobotics
-		LIBRARY DESTINATION lib${LIB_SUFFIX}
-		ARCHIVE DESTINATION lib${LIB_SUFFIX}
+		EXPORT Bullet
+		LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 		)
 		
 		IF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
