@@ -467,6 +467,7 @@ setup(
                    'Programming Language :: Python :: 3.5',
                    'Programming Language :: Python :: 3.6',
                    'Topic :: Games/Entertainment :: Simulation',
+                   'Topic :: Scientific/Engineering :: Artificial Intelligence',
                    'Framework :: Robot Framework'],
     package_dir = { '': 'examples/pybullet/gym'},
     packages=[x for x in find_packages('examples/pybullet/gym')],
