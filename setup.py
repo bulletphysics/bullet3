@@ -440,7 +440,7 @@ print("-----")
 
 setup(
 	name = 'pybullet',
-	version='1.3.6',
+	version='1.3.8',
 	description='Official Python Interface for the Bullet Physics SDK specialized for Robotics Simulation and Reinforcement Learning',
 	long_description='pybullet is an easy to use Python module for physics simulation, robotics and deep reinforcement learning based on the Bullet Physics SDK. With pybullet you can load articulated bodies from URDF, SDF and other file formats. pybullet provides forward dynamics simulation, inverse dynamics computation, forward and inverse kinematics and collision detection and ray intersection queries. Aside from physics simulation, pybullet supports to rendering, with a CPU renderer and OpenGL visualization and support for virtual reality headsets.',
 	url='https://github.com/bulletphysics/bullet3',
@@ -467,6 +467,7 @@ setup(
                    'Programming Language :: Python :: 3.5',
                    'Programming Language :: Python :: 3.6',
                    'Topic :: Games/Entertainment :: Simulation',
+                   'Topic :: Scientific/Engineering :: Artificial Intelligence',
                    'Framework :: Robot Framework'],
     package_dir = { '': 'examples/pybullet/gym'},
     packages=[x for x in find_packages('examples/pybullet/gym')],

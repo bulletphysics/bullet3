@@ -166,6 +166,9 @@ class MinitaurBulletEnv(gym.Env):
   def set_env_randomizer(self, env_randomizer):
     self._env_randomizer = env_randomizer
 
+  def configure(self, args):
+    self._args = args
+
   def _reset(self):
     if self._hard_reset:
       self._pybullet_client.resetSimulation()

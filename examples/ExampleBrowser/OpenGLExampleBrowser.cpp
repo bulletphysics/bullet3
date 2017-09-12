@@ -1204,10 +1204,13 @@ void OpenGLExampleBrowser::updateGraphics()
 
 void OpenGLExampleBrowser::update(float deltaTime)
 {
-	if (!gEnableRenderLoop)
-		return;
+    b3ChromeUtilsEnableProfiling();
 
-	b3ChromeUtilsEnableProfiling();
+    if (!gEnableRenderLoop)
+    {
+        sCurrentDemo->updateGraphics();
+		return;
+    }
 	
 		B3_PROFILE("OpenGLExampleBrowser::update");
 		assert(glGetError()==GL_NO_ERROR);

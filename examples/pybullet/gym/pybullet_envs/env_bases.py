@@ -39,13 +39,13 @@ class MJCFBaseBulletEnv(gym.Env):
 
 	def _reset(self):
 		if (self.physicsClientId<0):
-			if (self.isRender):
-				self.physicsClientId = p.connect(p.SHARED_MEMORY)
-				if (self.physicsClientId<0):
+			self.physicsClientId = -1 #p.connect(p.SHARED_MEMORY)
+			if (self.physicsClientId<0):
+				if (self.isRender):
 					self.physicsClientId = p.connect(p.GUI)
-			else:
-				self.physicsClientId = p.connect(p.DIRECT)
-		#p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
+				else:
+					self.physicsClientId = p.connect(p.DIRECT)
+		p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
   
 		if self.scene is None:
 			self.scene = self.create_single_player_scene()

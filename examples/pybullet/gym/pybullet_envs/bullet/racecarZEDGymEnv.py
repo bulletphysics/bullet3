@@ -25,7 +25,7 @@ class RacecarZEDGymEnv(gym.Env):
                urdfRoot=pybullet_data.getDataPath(),
                actionRepeat=10,
                isEnableSelfCollision=True,
-               isDiscrete=True,
+               isDiscrete=False,
                renders=True):
     print("init")
     self._timeStep = 0.01
@@ -52,7 +52,13 @@ class RacecarZEDGymEnv(gym.Env):
     #print(observationDim)
     
     observation_high = np.array([np.finfo(np.float32).max] * observationDim)    
-    self.action_space = spaces.Discrete(9)
+    if (isDiscrete):
+      self.action_space = spaces.Discrete(9)
+    else:
+       action_dim = 2
+       self._action_bound = 1
+       action_high = np.array([self._action_bound] * action_dim)
+       self.action_space = spaces.Box(-action_high, action_high)
     self.observation_space = spaces.Box(low=0, high=255, shape=(self._height, self._width, 4))
 
     self.viewer = None
@@ -119,11 +125,14 @@ class RacecarZEDGymEnv(gym.Env):
       basePos,orn = self._p.getBasePositionAndOrientation(self._racecar.racecarUniqueId)
       #self._p.resetDebugVisualizerCamera(1, 30, -40, basePos)
     
-    fwd = [-1,-1,-1,0,0,0,1,1,1]
-    steerings = [-0.6,0,0.6,-0.6,0,0.6,-0.6,0,0.6]
-    forward = fwd[action]
-    steer = steerings[action]
-    realaction = [forward,steer]
+    if (self._isDiscrete):
+            fwd = [-1,-1,-1,0,0,0,1,1,1]
+            steerings = [-0.6,0,0.6,-0.6,0,0.6,-0.6,0,0.6]
+            forward = fwd[action]
+            steer = steerings[action]
+            realaction = [forward,steer]
+    else:
+      realaction = action
 
     self._racecar.applyAction(realaction)
     for i in range(self._actionRepeat):
