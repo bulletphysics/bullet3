@@ -75,3 +75,4 @@ for i in range (p.getNumJoints(r2d2)):
 
 while(1):
 	a=0
+	p.stepSimulation()

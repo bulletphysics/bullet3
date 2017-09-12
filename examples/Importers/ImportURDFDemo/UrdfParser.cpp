@@ -380,29 +380,59 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
 	else if (type_name == "cylinder")
 	{
 		geom.m_type = URDF_GEOM_CYLINDER;
-		if (!shape->Attribute("length") ||
-			!shape->Attribute("radius"))
-	  {
-		  logger->reportError("Cylinder shape must have both length and radius attributes");
-		  return false;
-	  }
 		geom.m_hasFromTo = false;
-		geom.m_capsuleRadius = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("radius"));
-		geom.m_capsuleHeight = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("length"));
+		geom.m_capsuleRadius = 0.1;
+		geom.m_capsuleHeight = 0.1;
 		
+		if (m_parseSDF)
+		{
+			if (TiXmlElement* scale = shape->FirstChildElement("radius"))
+			{
+				parseVector3(geom.m_meshScale,scale->GetText(),logger);
+				geom.m_capsuleRadius = m_urdfScaling * urdfLexicalCast<double>(scale->GetText());	
+			}
+			if (TiXmlElement* scale = shape->FirstChildElement("length"))
+			{
+				parseVector3(geom.m_meshScale,scale->GetText(),logger);
+				geom.m_capsuleHeight = m_urdfScaling * urdfLexicalCast<double>(scale->GetText());	
+			}
+		} else
+		{
+			if (!shape->Attribute("length") ||!shape->Attribute("radius"))
+			{
+				logger->reportError("Cylinder shape must have both length and radius attributes");
+				return false;
+			}
+			geom.m_capsuleRadius = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("radius"));
+			geom.m_capsuleHeight = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("length"));
+		}
 	}
 	else if (type_name == "capsule")
 	{
 		geom.m_type = URDF_GEOM_CAPSULE;
-		if (!shape->Attribute("length") ||
-			!shape->Attribute("radius"))
-		{
-			logger->reportError("Capsule shape must have both length and radius attributes");
-			return false;
-		}
 		geom.m_hasFromTo = false;
-		geom.m_capsuleRadius = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("radius"));
-		geom.m_capsuleHeight = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("length"));
+		if (m_parseSDF)
+		{
+			if (TiXmlElement* scale = shape->FirstChildElement("radius"))
+			{
+				parseVector3(geom.m_meshScale,scale->GetText(),logger);
+				geom.m_capsuleRadius = m_urdfScaling * urdfLexicalCast<double>(scale->GetText());	
+			}
+			if (TiXmlElement* scale = shape->FirstChildElement("length"))
+			{
+				parseVector3(geom.m_meshScale,scale->GetText(),logger);
+				geom.m_capsuleHeight = m_urdfScaling * urdfLexicalCast<double>(scale->GetText());	
+			}
+		} else
+		{
+			if (!shape->Attribute("length") || !shape->Attribute("radius"))
+			{
+				logger->reportError("Capsule shape must have both length and radius attributes");
+				return false;
+			}
+			geom.m_capsuleRadius = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("radius"));
+			geom.m_capsuleHeight = m_urdfScaling * urdfLexicalCast<double>(shape->Attribute("length"));
+		}
 	}
 	else if (type_name == "mesh")
 	{

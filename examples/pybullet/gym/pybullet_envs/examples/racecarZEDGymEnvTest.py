@@ -8,7 +8,7 @@ from pybullet_envs.bullet.racecarZEDGymEnv import RacecarZEDGymEnv
 
 def main():
 	
-	environment = RacecarZEDGymEnv(renders=True)
+	environment = RacecarZEDGymEnv(renders=True, isDiscrete=True)
 	
 	targetVelocitySlider = environment._p.addUserDebugParameter("wheelVelocity",-1,1,0)
 	steeringSlider = environment._p.addUserDebugParameter("steering",-1,1,0)
