@@ -3509,17 +3509,50 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                         int* segmentationMaskBuffer = (int*)(bufferServerToClient+numRequestedPixels*8);
 
 						serverStatusOut.m_numDataStreamBytes = numRequestedPixels * totalBytesPerPixel;
+						float viewMat[16];
+						float projMat[16];
+						for (int i=0;i<16;i++)
+						{
+							viewMat[i] = clientCmd.m_requestPixelDataArguments.m_viewMatrix[i];
+							projMat[i] = clientCmd.m_requestPixelDataArguments.m_projectionMatrix[i];
+						}
+						if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES)==0)
+                        {
+							b3OpenGLVisualizerCameraInfo tmpCamResult;
+							bool result = this->m_data->m_guiHelper->getCameraInfo(
+								&tmpCamResult.m_width,
+								&tmpCamResult.m_height,
+								tmpCamResult.m_viewMatrix,
+								tmpCamResult.m_projectionMatrix,
+								tmpCamResult.m_camUp,
+								tmpCamResult.m_camForward,
+								tmpCamResult.m_horizontal,
+								tmpCamResult.m_vertical,
+								&tmpCamResult.m_yaw,
+								&tmpCamResult.m_pitch,
+								&tmpCamResult.m_dist,
+								tmpCamResult.m_target);
+							if (result)
+							{
+								for (int i=0;i<16;i++)
+								{
+									viewMat[i] = tmpCamResult.m_viewMatrix[i];
+									projMat[i] = tmpCamResult.m_projectionMatrix[i];
+								}
+							}
+						 }
 
                         if ((clientCmd.m_updateFlags & ER_BULLET_HARDWARE_OPENGL)!=0)
 						{
-							m_data->m_guiHelper->copyCameraImageData(clientCmd.m_requestPixelDataArguments.m_viewMatrix,
-                                                clientCmd.m_requestPixelDataArguments.m_projectionMatrix,pixelRGBA,numRequestedPixels,
+
+							m_data->m_guiHelper->copyCameraImageData(viewMat,
+                                                projMat,pixelRGBA,numRequestedPixels,
                                                 depthBuffer,numRequestedPixels,
                                                 segmentationMaskBuffer, numRequestedPixels,
                                                 startPixelIndex,width,height,&numPixelsCopied);
 
-							m_data->m_guiHelper->debugDisplayCameraImageData(clientCmd.m_requestPixelDataArguments.m_viewMatrix,
-                                                clientCmd.m_requestPixelDataArguments.m_projectionMatrix,pixelRGBA,numRequestedPixels,
+							m_data->m_guiHelper->debugDisplayCameraImageData(viewMat,
+                                                projMat,pixelRGBA,numRequestedPixels,
                                                 depthBuffer,numRequestedPixels,
                                                 0, numRequestedPixels,
                                                 startPixelIndex,width,height,&numPixelsCopied);
