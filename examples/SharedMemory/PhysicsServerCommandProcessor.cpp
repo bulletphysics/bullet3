@@ -3541,7 +3541,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								}
 							}
 						 }
-
+                        bool handled = false;
+                        
                         if ((clientCmd.m_updateFlags & ER_BULLET_HARDWARE_OPENGL)!=0)
 						{
 
@@ -3551,14 +3552,19 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                                 segmentationMaskBuffer, numRequestedPixels,
                                                 startPixelIndex,width,height,&numPixelsCopied);
 
-							m_data->m_guiHelper->debugDisplayCameraImageData(viewMat,
+                            if (numPixelsCopied>0)
+                            {
+                                handled = true;
+                                m_data->m_guiHelper->debugDisplayCameraImageData(viewMat,
                                                 projMat,pixelRGBA,numRequestedPixels,
                                                 depthBuffer,numRequestedPixels,
                                                 0, numRequestedPixels,
                                                 startPixelIndex,width,height,&numPixelsCopied);
+                            }
 
 							
-						} else
+						}
+                        if (!handled)
 						{
 
                             if (clientCmd.m_requestPixelDataArguments.m_startPixelIndex==0)

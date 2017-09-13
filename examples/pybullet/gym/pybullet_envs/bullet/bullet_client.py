@@ -8,7 +8,7 @@ class BulletClient(object):
 
   def __init__(self, connection_mode=pybullet.DIRECT):
     """Create a simulation and connect to it."""
-    self._client = -1 #pybullet.connect(pybullet.SHARED_MEMORY)
+    self._client = pybullet.connect(pybullet.SHARED_MEMORY)
     if(self._client<0):
       self._client = pybullet.connect(connection_mode)
     self._shapes = {}

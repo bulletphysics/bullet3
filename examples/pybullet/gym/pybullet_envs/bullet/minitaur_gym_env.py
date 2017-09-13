@@ -278,7 +278,7 @@ class MinitaurBulletEnv(gym.Env):
         nearVal=0.1, farVal=100.0)
     (_, _, px, _, _) = self._pybullet_client.getCameraImage(
         width=RENDER_WIDTH, height=RENDER_HEIGHT, viewMatrix=view_matrix,
-        projectionMatrix=proj_matrix)
+        projectionMatrix=proj_matrix, renderer=pybullet.ER_BULLET_HARDWARE_OPENGL)
     rgb_array = np.array(px)
     rgb_array = rgb_array[:, :, :3]
     return rgb_array

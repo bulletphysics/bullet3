@@ -78,7 +78,7 @@ struct PhysicsClientSharedMemoryInternalData {
           m_hasLastServerStatus(false),
           m_sharedMemoryKey(SHARED_MEMORY_KEY),
           m_verboseOutput(false),
-		  m_timeOutInSeconds(1e30)
+		  m_timeOutInSeconds(5)
 	{}
 
     void processServerStatus();
@@ -311,7 +311,7 @@ bool PhysicsClientSharedMemory::connect() {
             m_data->m_isConnected = true;
         }
     } else {
-        b3Warning("Cannot connect to shared memory");
+        //b3Warning("Cannot connect to shared memory");
         return false;
     }
 #if 0

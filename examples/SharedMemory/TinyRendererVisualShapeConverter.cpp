@@ -1080,7 +1080,12 @@ void TinyRendererVisualShapeConverter::resetAll()
 			delete ptr;
 		}
 	}
-	
+
+	for (int i=0;i<m_data->m_textures.size();i++)
+	{
+		free(m_data->m_textures[i].textureData);
+	}
+	m_data->m_textures.clear();
 	m_data->m_swRenderInstances.clear();
 	m_data->m_visualShapes.clear();
 }
