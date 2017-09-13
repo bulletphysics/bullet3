@@ -448,7 +448,7 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 				sPhysicsClients1[freeIndex] = 0;
                        		sPhysicsClientsGUI[freeIndex] = 0;
                         	sNumPhysicsClients++;
-				return -1;
+				return  PyInt_FromLong(-1);
 			}
 		}
 	}
