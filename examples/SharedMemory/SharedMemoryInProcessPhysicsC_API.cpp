@@ -86,7 +86,7 @@ public:
 b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectMainThread(int argc, char* argv[])
 {
     InProcessPhysicsClientSharedMemoryMainThread* cl = new InProcessPhysicsClientSharedMemoryMainThread(argc, argv, 1);
-    cl->setSharedMemoryKey(SHARED_MEMORY_KEY);
+    cl->setSharedMemoryKey(SHARED_MEMORY_KEY+1);
     cl->connect();
     return (b3PhysicsClientHandle ) cl;
 }
@@ -94,7 +94,7 @@ b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectMainThread(int arg
 b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectMainThreadSharedMemory(int argc, char* argv[])
 {
     InProcessPhysicsClientSharedMemoryMainThread* cl = new InProcessPhysicsClientSharedMemoryMainThread(argc, argv, 0);
-    cl->setSharedMemoryKey(SHARED_MEMORY_KEY);
+    cl->setSharedMemoryKey(SHARED_MEMORY_KEY+1);
     cl->connect();
     return (b3PhysicsClientHandle ) cl;
 }

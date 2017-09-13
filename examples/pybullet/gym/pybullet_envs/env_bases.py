@@ -82,7 +82,7 @@ class MJCFBaseBulletEnv(gym.Env):
 		(_, _, px, _, _) = p.getCameraImage(
 		width=self._render_width, height=self._render_height, viewMatrix=view_matrix,
 			projectionMatrix=proj_matrix,
-			#renderer=p.ER_BULLET_HARDWARE_OPENGL
+			renderer=p.ER_BULLET_HARDWARE_OPENGL
 			)
 		rgb_array = np.array(px)
 		rgb_array = rgb_array[:, :, :3]
