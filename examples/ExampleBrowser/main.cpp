@@ -29,7 +29,6 @@ static OpenGLExampleBrowser* sExampleBrowser=0;
 #include <unistd.h>
 static void cleanup(int signo)
 {
-printf("SIG cleanup: %d\n", signo);
 
     if (interrupted) {  // this is the second time, we're hanging somewhere
       //  if (example) {
