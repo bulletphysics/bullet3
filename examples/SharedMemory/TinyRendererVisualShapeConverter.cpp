@@ -717,15 +717,18 @@ void TinyRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int lin
 	if (start>=0)
 	{
 		TinyRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(start);
-		TinyRendererObjectArray* visualArray = *visualArrayPtr;
-	
-		btHashPtr colObjHash = m_data->m_swRenderInstances.getKeyAtIndex(start);
-		const btCollisionObject* colObj = (btCollisionObject*) colObjHash.getPointer();
-	
-		float rgba[4] = {rgbaColor[0], rgbaColor[1], rgbaColor[2], rgbaColor[3]};
-		for (int v=0;v<visualArray->m_renderObjects.size();v++)
+		if (visualArrayPtr && *visualArrayPtr)
 		{
-			visualArray->m_renderObjects[v]->m_model->setColorRGBA(rgba);
+			TinyRendererObjectArray* visualArray = *visualArrayPtr;
+	
+			btHashPtr colObjHash = m_data->m_swRenderInstances.getKeyAtIndex(start);
+			const btCollisionObject* colObj = (btCollisionObject*) colObjHash.getPointer();
+	
+			float rgba[4] = {rgbaColor[0], rgbaColor[1], rgbaColor[2], rgbaColor[3]};
+			for (int v=0;v<visualArray->m_renderObjects.size();v++)
+			{
+				visualArray->m_renderObjects[v]->m_model->setColorRGBA(rgba);
+			}
 		}
 	}
 }
