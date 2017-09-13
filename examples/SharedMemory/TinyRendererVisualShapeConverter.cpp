@@ -46,6 +46,8 @@ struct MyTexture2
 struct TinyRendererObjectArray
 {
   btAlignedObjectArray<  TinyRenderObjectData*> m_renderObjects;
+  int m_objectUniqueId;
+  int m_linkIndex;
 };
 
 #define START_WIDTH 640
@@ -596,8 +598,11 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
                 m_data->m_swRenderInstances.insert(colObj,new TinyRendererObjectArray);
             }
             visualsPtr = m_data->m_swRenderInstances[colObj];
+			
             btAssert(visualsPtr);
             TinyRendererObjectArray* visuals = *visualsPtr;
+			visuals->m_objectUniqueId = bodyUniqueId;
+			visuals->m_linkIndex = linkIndex;
             
 			b3VisualShapeData visualShape;
 			visualShape.m_objectUniqueId = bodyUniqueId;
@@ -699,39 +704,40 @@ int TinyRendererVisualShapeConverter::getVisualShapesData(int bodyUniqueId, int 
 	return 0;
 }
 
+
+
 void TinyRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int linkIndex, const double rgbaColor[4])
 {
-	int start = -1;
-	for (int i = 0; i < m_data->m_visualShapes.size(); i++)
-	{
-		if (m_data->m_visualShapes[i].m_objectUniqueId == bodyUniqueId && m_data->m_visualShapes[i].m_linkIndex == linkIndex)
-		{
-			start = i;
+    int start = -1;
+    for (int i = 0; i < m_data->m_visualShapes.size(); i++)
+    {
+        if (m_data->m_visualShapes[i].m_objectUniqueId == bodyUniqueId && m_data->m_visualShapes[i].m_linkIndex == linkIndex)
+        {
 			m_data->m_visualShapes[i].m_rgbaColor[0] = rgbaColor[0];
 			m_data->m_visualShapes[i].m_rgbaColor[1] = rgbaColor[1];
 			m_data->m_visualShapes[i].m_rgbaColor[2] = rgbaColor[2];
 			m_data->m_visualShapes[i].m_rgbaColor[3] = rgbaColor[3];
-			break;
 		}
-	}
-	if (start>=0)
+    }
+    
+	for (int i=0;i<m_data->m_swRenderInstances.size();i++)
 	{
-		TinyRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(start);
-		if (visualArrayPtr && *visualArrayPtr)
+		TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(i);
+		if (ptrptr && *ptrptr)
 		{
-			TinyRendererObjectArray* visualArray = *visualArrayPtr;
-	
-			btHashPtr colObjHash = m_data->m_swRenderInstances.getKeyAtIndex(start);
-			const btCollisionObject* colObj = (btCollisionObject*) colObjHash.getPointer();
-	
 			float rgba[4] = {rgbaColor[0], rgbaColor[1], rgbaColor[2], rgbaColor[3]};
-			for (int v=0;v<visualArray->m_renderObjects.size();v++)
+			TinyRendererObjectArray* visuals = *ptrptr;
+			if ((bodyUniqueId == visuals->m_objectUniqueId) && (linkIndex == visuals->m_linkIndex))
 			{
-				visualArray->m_renderObjects[v]->m_model->setColorRGBA(rgba);
+				for (int q=0;q<visuals->m_renderObjects.size();q++)
+				{
+					visuals->m_renderObjects[q]->m_model->setColorRGBA(rgba);
+				}
 			}
 		}
 	}
 }
+
 
 void TinyRendererVisualShapeConverter::setUpAxis(int axis)
 {
