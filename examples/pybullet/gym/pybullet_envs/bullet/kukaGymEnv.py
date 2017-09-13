@@ -37,7 +37,7 @@ class KukaGymEnv(gym.Env):
     self.terminated = 0
     self._p = p
     if self._renders:
-      cid = -1 #p.connect(p.SHARED_MEMORY)
+      cid = p.connect(p.SHARED_MEMORY)
       if (cid<0):
          cid = p.connect(p.GUI)
       p.resetDebugVisualizerCamera(1.3,180,-41,[0.52,-0.2,-0.33])

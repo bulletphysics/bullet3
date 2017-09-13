@@ -39,7 +39,7 @@ class MJCFBaseBulletEnv(gym.Env):
 
 	def _reset(self):
 		if (self.physicsClientId<0):
-			self.physicsClientId = -1 #p.connect(p.SHARED_MEMORY)
+			self.physicsClientId = p.connect(p.SHARED_MEMORY)
 			if (self.physicsClientId<0):
 				if (self.isRender):
 					self.physicsClientId = p.connect(p.GUI)
