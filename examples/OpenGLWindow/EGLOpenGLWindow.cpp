@@ -135,16 +135,20 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci) {
     
     m_data->success = eglBindAPI(EGL_OPENGL_API);
     if (!m_data->success) {
-        printf("Failed to bind OpenGL API.\n");
-        exit(0);
+        // TODO: Properly handle this error (requires change to default window
+        // API to change return on all window types to bool).
+        fprintf(stderr, "Failed to bind OpenGL API.\n");
+        exit(EXIT_FAILURE);
     }
     
     m_data->success =
     eglChooseConfig(m_data->egl_display, egl_config_attribs,
                     &m_data->egl_config, 1, &m_data->num_configs);
     if (!m_data->success) {
-        printf("Failed to choose a valid an EGLConfig.\n");
-        exit(0);
+        // TODO: Properly handle this error (requires change to default window
+        // API to change return on all window types to bool).
+        fprintf(stderr, "Failed to bind OpenGL API.\n");
+        exit(EXIT_FAILURE);
     }
     
     m_data->egl_surface = eglCreatePbufferSurface(

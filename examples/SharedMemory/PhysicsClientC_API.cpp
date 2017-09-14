@@ -223,6 +223,18 @@ int	b3LoadUrdfCommandSetUseMultiBody(b3SharedMemoryCommandHandle commandHandle, 
     return 0;
 }
 
+int	b3LoadUrdfCommandSetGlobalScaling(b3SharedMemoryCommandHandle commandHandle, double globalScaling)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_LOAD_URDF);
+    command->m_updateFlags |=URDF_ARGS_USE_GLOBAL_SCALING;
+    command->m_urdfArguments.m_globalScaling = globalScaling;    
+    return 0;
+}
+
+
+
 int	b3LoadSdfCommandSetUseMultiBody(b3SharedMemoryCommandHandle commandHandle, int useMultiBody)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
@@ -233,6 +245,19 @@ int	b3LoadSdfCommandSetUseMultiBody(b3SharedMemoryCommandHandle commandHandle, i
     
     return 0;
 }
+
+int	b3LoadSdfCommandSetUseGlobalScaling(b3SharedMemoryCommandHandle commandHandle, double globalScaling)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_LOAD_SDF);
+    command->m_updateFlags |=URDF_ARGS_USE_GLOBAL_SCALING;
+    command->m_sdfArguments.m_globalScaling = globalScaling;
+    
+    return 0;
+}
+
+
 
 int	b3LoadUrdfCommandSetUseFixedBase(b3SharedMemoryCommandHandle commandHandle, int useFixedBase)
 {
@@ -3632,6 +3657,22 @@ int b3StateLoggingSetMaxLogDof(b3SharedMemoryCommandHandle commandHandle, int ma
 	return 0;
 }
 
+int b3StateLoggingSetLogFlags(b3SharedMemoryCommandHandle commandHandle, int logFlags)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert(command->m_type == CMD_STATE_LOGGING);
+	if (command->m_type == CMD_STATE_LOGGING)
+	{
+	    command->m_updateFlags |= STATE_LOGGING_LOG_FLAGS;
+		command->m_stateLoggingArguments.m_logFlags = logFlags;
+	}
+	return 0;
+}
+
+
+
+
 int b3StateLoggingSetDeviceTypeFilter(b3SharedMemoryCommandHandle commandHandle, int deviceTypeFilter)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
@@ -3743,6 +3784,7 @@ void b3SetTimeOut(b3PhysicsClientHandle physClient, double timeOutInSeconds)
 		
 }
 
+
 double b3GetTimeOut(b3PhysicsClientHandle physClient)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
@@ -3753,6 +3795,25 @@ double b3GetTimeOut(b3PhysicsClientHandle physClient)
 	}
 	return -1;
 }
+
+b3SharedMemoryCommandHandle b3SetAdditionalSearchPath(b3PhysicsClientHandle physClient, char* path)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+	command->m_type = CMD_SET_ADDITIONAL_SEARCH_PATH;
+	command->m_updateFlags = 0;
+	int len = strlen(path);
+	if (len<MAX_FILENAME_LENGTH)
+	{
+		strcpy(command->m_searchPathArgs.m_path,path);
+	}
+
+	return (b3SharedMemoryCommandHandle)command;
+}
+
 
 void b3MultiplyTransforms(const double posA[3], const double ornA[4], const double posB[3], const double ornB[4], double outPos[3], double outOrn[4])
 {

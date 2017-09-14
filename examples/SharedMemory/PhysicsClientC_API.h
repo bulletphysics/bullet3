@@ -15,7 +15,15 @@ B3_DECLARE_HANDLE(b3SharedMemoryStatusHandle);
 #include "PhysicsClientSharedMemory_C_API.h"
 #include "PhysicsClientSharedMemory2_C_API.h"
 #include "PhysicsDirectC_API.h"
+
+#ifdef BT_ENABLE_ENET
 #include "PhysicsClientUDP_C_API.h"
+#endif
+
+#ifdef BT_ENABLE_CLSOCKET
+#include "PhysicsClientTCP_C_API.h"
+#endif
+
 #include "SharedMemoryInProcessPhysicsC_API.h"
 
 #ifdef __cplusplus
@@ -267,6 +275,9 @@ int	b3LoadUrdfCommandSetStartOrientation(b3SharedMemoryCommandHandle commandHand
 int	b3LoadUrdfCommandSetUseMultiBody(b3SharedMemoryCommandHandle commandHandle, int useMultiBody);
 int	b3LoadUrdfCommandSetUseFixedBase(b3SharedMemoryCommandHandle commandHandle, int useFixedBase);
 int	b3LoadUrdfCommandSetFlags(b3SharedMemoryCommandHandle commandHandle, int flags);
+int	b3LoadUrdfCommandSetGlobalScaling(b3SharedMemoryCommandHandle commandHandle, double globalScaling);
+
+
 
 b3SharedMemoryCommandHandle	b3LoadBulletCommandInit(b3PhysicsClientHandle physClient, const char* fileName);
 b3SharedMemoryCommandHandle	b3SaveBulletCommandInit(b3PhysicsClientHandle physClient, const char* fileName);
@@ -301,6 +312,9 @@ int b3GetStatusInverseKinematicsJointPositions(b3SharedMemoryStatusHandle status
 
 b3SharedMemoryCommandHandle	b3LoadSdfCommandInit(b3PhysicsClientHandle physClient, const char* sdfFileName);
 int	b3LoadSdfCommandSetUseMultiBody(b3SharedMemoryCommandHandle commandHandle, int useMultiBody);
+int	b3LoadSdfCommandSetUseGlobalScaling(b3SharedMemoryCommandHandle commandHandle, double globalScaling);
+
+
 
 b3SharedMemoryCommandHandle	b3SaveWorldCommandInit(b3PhysicsClientHandle physClient, const char* sdfFileName);
 
@@ -465,6 +479,7 @@ int b3StateLoggingSetLinkIndexB(b3SharedMemoryCommandHandle commandHandle, int l
 int b3StateLoggingSetBodyAUniqueId(b3SharedMemoryCommandHandle commandHandle, int bodyAUniqueId);
 int b3StateLoggingSetBodyBUniqueId(b3SharedMemoryCommandHandle commandHandle, int bodyBUniqueId);
 int b3StateLoggingSetDeviceTypeFilter(b3SharedMemoryCommandHandle commandHandle, int deviceTypeFilter);
+int b3StateLoggingSetLogFlags(b3SharedMemoryCommandHandle commandHandle, int logFlags);
 
 int b3GetStatusLoggingUniqueId(b3SharedMemoryStatusHandle statusHandle);
 int b3StateLoggingStop(b3SharedMemoryCommandHandle commandHandle, int loggingUniqueId);
@@ -475,6 +490,8 @@ void b3SetProfileTimingDuractionInMicroSeconds(b3SharedMemoryCommandHandle comma
 
 void b3SetTimeOut(b3PhysicsClientHandle physClient, double timeOutInSeconds);
 double b3GetTimeOut(b3PhysicsClientHandle physClient);
+
+b3SharedMemoryCommandHandle b3SetAdditionalSearchPath(b3PhysicsClientHandle physClient, char* path);
 
 void b3MultiplyTransforms(const double posA[3], const double ornA[4], const double posB[3], const double ornB[4], double outPos[3], double outOrn[4]);
 void b3InvertTransform(const double pos[3], const double orn[4], double outPos[3], double outOrn[4]);

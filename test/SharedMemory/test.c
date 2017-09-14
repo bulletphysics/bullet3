@@ -258,6 +258,7 @@ void testSharedMemory(b3PhysicsClientHandle sm)
 			command = b3InitRequestCameraImage(sm);
 			
 			b3RequestCameraImageSetPixelResolution(command, width, height);
+            b3RequestCameraImageSelectRenderer(command,ER_BULLET_HARDWARE_OPENGL);
 			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 		}
         
@@ -298,7 +299,10 @@ void testSharedMemory(b3PhysicsClientHandle sm)
             }
         }
         
-	}
+    } else
+    {
+        b3Warning("Cannot submit commands.\n");
+    }
 
 
 	b3DisconnectSharedMemory(sm);

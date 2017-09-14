@@ -15,18 +15,19 @@ class BulletURDFImporter : public URDFImporterInterface
 
 public:
 
-	BulletURDFImporter(struct GUIHelperInterface* guiHelper, LinkVisualShapesConverter* customConverter);
+	BulletURDFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter, double globalScaling=1);
 
 	virtual ~BulletURDFImporter();
 
+
 	virtual bool loadURDF(const char* fileName, bool forceFixedBase = false);
 
-    //warning: some quick test to load SDF: we 'activate' a model, so we can re-use URDF code path
-    virtual bool loadSDF(const char* fileName, bool forceFixedBase = false);
-    virtual int getNumModels() const;
-    virtual void activateModel(int modelIndex);
-    virtual void setBodyUniqueId(int bodyId);
-    virtual int getBodyUniqueId() const;
+	//warning: some quick test to load SDF: we 'activate' a model, so we can re-use URDF code path
+	virtual bool loadSDF(const char* fileName, bool forceFixedBase = false);
+	virtual int getNumModels() const;
+	virtual void activateModel(int modelIndex);
+	virtual void setBodyUniqueId(int bodyId);
+	virtual int getBodyUniqueId() const;
 	const char* getPathPrefix();
 
 	void printTree(); //for debugging
@@ -61,6 +62,8 @@ public:
 
     virtual void convertLinkVisualShapes2(int linkIndex, int urdfIndex, const char* pathPrefix, const btTransform& inertialFrame, class btCollisionObject* colObj, int bodyUniqueId) const;
 
+	class btCollisionShape* convertURDFToCollisionShape(const struct UrdfCollision* collision, const char* urdfPathPrefix) const;
+
     ///todo(erwincoumans) refactor this convertLinkCollisionShapes/memory allocation
     
 	virtual class btCompoundShape* convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const;
@@ -68,7 +71,9 @@ public:
     virtual int getNumAllocatedCollisionShapes() const;
     virtual class btCollisionShape* getAllocatedCollisionShape(int index);
 
-    
+	virtual int getNumAllocatedMeshInterfaces() const;
+	virtual class btStridingMeshInterface* getAllocatedMeshInterface(int index);
+
 };
 
 

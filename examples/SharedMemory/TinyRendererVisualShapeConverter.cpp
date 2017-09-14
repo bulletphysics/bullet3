@@ -46,6 +46,8 @@ struct MyTexture2
 struct TinyRendererObjectArray
 {
   btAlignedObjectArray<  TinyRenderObjectData*> m_renderObjects;
+  int m_objectUniqueId;
+  int m_linkIndex;
 };
 
 #define START_WIDTH 640
@@ -199,29 +201,53 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 			btTransform tr;
 			tr.setIdentity();
 			btScalar rad, len;
-			if (visual->m_geometry.m_hasFromTo) {
+			btVector3 center(0,0,0);
+			btVector3 axis(0,0,1);
+			btAlignedObjectArray<btVector3> vertices;
+			int numSteps = 32;
+
+			if (visual->m_geometry.m_hasFromTo) 
+			{
 				btVector3 v      =  p2 - p1;
-				btVector3 center = (p2 + p1) * 0.5;
-				btVector3 up_vector(0,0,1);
 				btVector3 dir  = v.normalized();
-				btVector3 axis = dir.cross(up_vector);
-				if (axis.fuzzyZero())
-				{
-					axis = btVector3(0,0,1);
-				}
-				else
-				{
-					axis.normalize();
-				}
-				btQuaternion q(axis, -acos(dir.dot(up_vector)));
-				btTransform capsule_orient(q, center);
-				tr = visual->m_linkLocalFrame * capsule_orient;
+				tr = visual->m_linkLocalFrame;
 				len = v.length();
 				rad = visual->m_geometry.m_capsuleRadius;
+				btVector3 ax1,ax2;
+				btPlaneSpace1(dir,ax1,ax2);
+
+				for (int i = 0; i<numSteps; i++)
+				{
+					{
+						btVector3 vert = p1 + ax1*rad*btSin(SIMD_2_PI*(float(i) / numSteps))+ax2*rad*btCos(SIMD_2_PI*(float(i) / numSteps));
+						vertices.push_back(vert);
+					}
+					{
+						btVector3 vert = p2 + ax1*rad*btSin(SIMD_2_PI*(float(i) / numSteps))+ax2*rad*btCos(SIMD_2_PI*(float(i) / numSteps));
+						vertices.push_back(vert);
+					}
+				}
+				btVector3 pole1 = p1 - dir * rad;
+				btVector3 pole2 = p2 + dir * rad;
+				vertices.push_back(pole1);
+				vertices.push_back(pole2);
+
 			} else {
+				//assume a capsule along the Z-axis, centered at the origin
 				tr = visual->m_linkLocalFrame;
 				len = visual->m_geometry.m_capsuleHeight;
 				rad = visual->m_geometry.m_capsuleRadius;
+				for (int i = 0; i<numSteps; i++)
+				{
+					btVector3 vert(rad*btSin(SIMD_2_PI*(float(i) / numSteps)), rad*btCos(SIMD_2_PI*(float(i) / numSteps)), len / 2.);
+					vertices.push_back(vert);
+					vert[2] = -len / 2.;
+					vertices.push_back(vert);
+				}
+				btVector3 pole1(0, 0, + len / 2. + rad);
+				btVector3 pole2(0, 0, - len / 2. - rad);
+				vertices.push_back(pole1);
+				vertices.push_back(pole2);
 			}
 			visualShapeOut.m_localVisualFrame[0] = tr.getOrigin()[0];
 			visualShapeOut.m_localVisualFrame[1] = tr.getOrigin()[1];
@@ -233,24 +259,9 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 			visualShapeOut.m_dimensions[0] = len;
 			visualShapeOut.m_dimensions[1] = rad;
 
-			btAlignedObjectArray<btVector3> vertices;
-			int numSteps = 32;
-			for (int i = 0; i<numSteps; i++)
-			{
-				btVector3 vert(rad*btSin(SIMD_2_PI*(float(i) / numSteps)), rad*btCos(SIMD_2_PI*(float(i) / numSteps)), len / 2.);
-				vertices.push_back(vert);
-				vert[2] = -len / 2.;
-				vertices.push_back(vert);
-			}
-			if (visual->m_geometry.m_type==URDF_GEOM_CAPSULE) {
-				// TODO: check if tiny renderer works with that, didn't check -- Oleg
-				btVector3 pole1(0, 0, + len / 2. + rad);
-				btVector3 pole2(0, 0, - len / 2. - rad);
-				vertices.push_back(pole1);
-				vertices.push_back(pole2);
-			}
-
 			btConvexHullShape* cylZShape = new btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
+			//btCapsuleShape* cylZShape = new btCapsuleShape(rad,len);//btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
+
 			cylZShape->setMargin(0.001);
 			convexColShape = cylZShape;
 			break;
@@ -587,8 +598,11 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
                 m_data->m_swRenderInstances.insert(colObj,new TinyRendererObjectArray);
             }
             visualsPtr = m_data->m_swRenderInstances[colObj];
+			
             btAssert(visualsPtr);
             TinyRendererObjectArray* visuals = *visualsPtr;
+			visuals->m_objectUniqueId = bodyUniqueId;
+			visuals->m_linkIndex = linkIndex;
             
 			b3VisualShapeData visualShape;
 			visualShape.m_objectUniqueId = bodyUniqueId;
@@ -690,36 +704,40 @@ int TinyRendererVisualShapeConverter::getVisualShapesData(int bodyUniqueId, int 
 	return 0;
 }
 
+
+
 void TinyRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int linkIndex, const double rgbaColor[4])
 {
-	int start = -1;
-	for (int i = 0; i < m_data->m_visualShapes.size(); i++)
-	{
-		if (m_data->m_visualShapes[i].m_objectUniqueId == bodyUniqueId && m_data->m_visualShapes[i].m_linkIndex == linkIndex)
-		{
-			start = i;
+    int start = -1;
+    for (int i = 0; i < m_data->m_visualShapes.size(); i++)
+    {
+        if (m_data->m_visualShapes[i].m_objectUniqueId == bodyUniqueId && m_data->m_visualShapes[i].m_linkIndex == linkIndex)
+        {
 			m_data->m_visualShapes[i].m_rgbaColor[0] = rgbaColor[0];
 			m_data->m_visualShapes[i].m_rgbaColor[1] = rgbaColor[1];
 			m_data->m_visualShapes[i].m_rgbaColor[2] = rgbaColor[2];
 			m_data->m_visualShapes[i].m_rgbaColor[3] = rgbaColor[3];
-			break;
 		}
-	}
-	if (start>=0)
+    }
+    
+	for (int i=0;i<m_data->m_swRenderInstances.size();i++)
 	{
-		TinyRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(start);
-		TinyRendererObjectArray* visualArray = *visualArrayPtr;
-	
-		btHashPtr colObjHash = m_data->m_swRenderInstances.getKeyAtIndex(start);
-		const btCollisionObject* colObj = (btCollisionObject*) colObjHash.getPointer();
-	
-		float rgba[4] = {rgbaColor[0], rgbaColor[1], rgbaColor[2], rgbaColor[3]};
-		for (int v=0;v<visualArray->m_renderObjects.size();v++)
+		TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(i);
+		if (ptrptr && *ptrptr)
 		{
-			visualArray->m_renderObjects[v]->m_model->setColorRGBA(rgba);
+			float rgba[4] = {rgbaColor[0], rgbaColor[1], rgbaColor[2], rgbaColor[3]};
+			TinyRendererObjectArray* visuals = *ptrptr;
+			if ((bodyUniqueId == visuals->m_objectUniqueId) && (linkIndex == visuals->m_linkIndex))
+			{
+				for (int q=0;q<visuals->m_renderObjects.size();q++)
+				{
+					visuals->m_renderObjects[q]->m_model->setColorRGBA(rgba);
+				}
+			}
 		}
 	}
 }
+
 
 void TinyRendererVisualShapeConverter::setUpAxis(int axis)
 {
@@ -1062,7 +1080,12 @@ void TinyRendererVisualShapeConverter::resetAll()
 			delete ptr;
 		}
 	}
-	
+
+	for (int i=0;i<m_data->m_textures.size();i++)
+	{
+		free(m_data->m_textures[i].textureData);
+	}
+	m_data->m_textures.clear();
 	m_data->m_swRenderInstances.clear();
 	m_data->m_visualShapes.clear();
 }

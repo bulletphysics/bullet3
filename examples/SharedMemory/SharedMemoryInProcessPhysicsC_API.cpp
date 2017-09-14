@@ -5,7 +5,7 @@
 #include "PhysicsClientSharedMemory.h"
 #include"../ExampleBrowser/InProcessExampleBrowser.h"
 #include <stdio.h>
-
+#include <string.h>
 #include "PhysicsServerExampleBullet2.h"
 
 #include "../CommonInterfaces/CommonExampleInterface.h"
@@ -19,7 +19,7 @@ class InProcessPhysicsClientSharedMemoryMainThread : public PhysicsClientSharedM
  
 public:
     
-    InProcessPhysicsClientSharedMemoryMainThread(int argc, char* argv[])
+    InProcessPhysicsClientSharedMemoryMainThread(int argc, char* argv[], bool useInProcessMemory)
     {
         int newargc = argc+2;
         char** newargv = (char**)malloc(sizeof(void*)*newargc);
@@ -30,7 +30,7 @@ public:
         char* t1 = (char*)"--start_demo_name=Physics Server";
         newargv[argc] = t0;
         newargv[argc+1] = t1;
-        m_data = btCreateInProcessExampleBrowserMainThread(newargc,newargv);
+        m_data = btCreateInProcessExampleBrowserMainThread(newargc,newargv, useInProcessMemory);
         SharedMemoryInterface* shMem = btGetSharedMemoryInterfaceMainThread(m_data);
         
         setSharedMemoryInterface(shMem);
@@ -53,13 +53,13 @@ public:
 			}
 		}
 			{	
-	   		//unsigned long int ms = m_clock.getTimeMilliseconds();
-			//if (ms>2)
+	   		unsigned long int ms = m_clock.getTimeMilliseconds();
+			if (ms>2)
 			{ 
-			//	B3_PROFILE("m_clock.reset()");
+				B3_PROFILE("m_clock.reset()");
 
-			//	m_clock.reset(); 
-        			btUpdateInProcessExampleBrowserMainThread(m_data);
+				btUpdateInProcessExampleBrowserMainThread(m_data);
+				m_clock.reset(); 
 			}
 		}
 		{
@@ -85,11 +85,21 @@ public:
 
 b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectMainThread(int argc, char* argv[])
 {
-    InProcessPhysicsClientSharedMemoryMainThread* cl = new InProcessPhysicsClientSharedMemoryMainThread(argc, argv);
-    cl->setSharedMemoryKey(SHARED_MEMORY_KEY);
+    InProcessPhysicsClientSharedMemoryMainThread* cl = new InProcessPhysicsClientSharedMemoryMainThread(argc, argv, 1);
+    cl->setSharedMemoryKey(SHARED_MEMORY_KEY+1);
     cl->connect();
     return (b3PhysicsClientHandle ) cl;
 }
+
+b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectMainThreadSharedMemory(int argc, char* argv[])
+{
+    InProcessPhysicsClientSharedMemoryMainThread* cl = new InProcessPhysicsClientSharedMemoryMainThread(argc, argv, 0);
+    cl->setSharedMemoryKey(SHARED_MEMORY_KEY+1);
+    cl->connect();
+    return (b3PhysicsClientHandle ) cl;
+}
+
+
 
 class InProcessPhysicsClientSharedMemory : public PhysicsClientSharedMemory
 {
@@ -98,7 +108,7 @@ class InProcessPhysicsClientSharedMemory : public PhysicsClientSharedMemory
 
 public:
 	
-	InProcessPhysicsClientSharedMemory(int argc, char* argv[])
+	InProcessPhysicsClientSharedMemory(int argc, char* argv[], bool useInProcessMemory)
 	{
 		int newargc = argc+2;
 		m_newargv = (char**)malloc(sizeof(void*)*newargc);
@@ -109,7 +119,7 @@ public:
 		char* t1 = (char*)"--start_demo_name=Physics Server";
 		m_newargv[argc] = t0;
 		m_newargv[argc+1] = t1;
-		m_data = btCreateInProcessExampleBrowser(newargc,m_newargv);
+		m_data = btCreateInProcessExampleBrowser(newargc,m_newargv, useInProcessMemory);
 		SharedMemoryInterface* shMem = btGetSharedMemoryInterface(m_data);
 		setSharedMemoryInterface(shMem);
 	}
@@ -124,10 +134,18 @@ public:
 };
 
 b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnect(int argc, char* argv[])
-{
+{	
 	
-	InProcessPhysicsClientSharedMemory* cl = new InProcessPhysicsClientSharedMemory(argc, argv);
-    cl->setSharedMemoryKey(SHARED_MEMORY_KEY);
+	InProcessPhysicsClientSharedMemory* cl = new InProcessPhysicsClientSharedMemory(argc, argv, 1);
+    cl->setSharedMemoryKey(SHARED_MEMORY_KEY+1);
+    cl->connect();
+	return (b3PhysicsClientHandle ) cl;
+}
+b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectSharedMemory(int argc, char* argv[])
+{	
+	
+	InProcessPhysicsClientSharedMemory* cl = new InProcessPhysicsClientSharedMemory(argc, argv, 0);
+    cl->setSharedMemoryKey(SHARED_MEMORY_KEY+1);
     cl->connect();
 	return (b3PhysicsClientHandle ) cl;
 }

@@ -470,6 +470,10 @@ int Mac_createWindow(struct MacOpenGLWindowInternalData* m_internalData,struct M
 #else
     m_internalData->m_retinaScaleFactor=1.f;
 #endif
+        GLint                       sync = 0;
+        CGLContextObj               ctx = CGLGetCurrentContext();
+        CGLSetParameter(ctx, kCGLCPSwapInterval, &sync);
+
     [m_internalData->m_myApp finishLaunching];
     [pool release];
     

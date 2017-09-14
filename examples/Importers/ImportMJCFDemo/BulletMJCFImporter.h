@@ -78,6 +78,9 @@ public:
 	virtual int getNumModels() const;
     virtual void activateModel(int modelIndex);
 
+	virtual int getNumAllocatedMeshInterfaces() const;
+	virtual btStridingMeshInterface* getAllocatedMeshInterface(int index);
+
 
 };
 

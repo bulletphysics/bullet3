@@ -64,6 +64,20 @@ SimpleCamera::~SimpleCamera()
 void	SimpleCamera::setVRCamera(const float viewMat[16], const float projectionMatrix[16])
 {
 	m_data->m_enableVR = true;
+
+	b3Matrix3x3 vm;
+	vm.setValue(viewMat[0],viewMat[4],viewMat[8],
+		viewMat[1],viewMat[5],viewMat[9],
+		viewMat[2],viewMat[6],viewMat[10]);
+	
+	b3Vector3 vp = b3MakeVector3(viewMat[12],viewMat[13],viewMat[14]);
+	b3Transform tr;
+	tr.setBasis(vm);
+	tr.setOrigin(vp);
+	b3Transform cp = tr.inverse();
+	m_data->m_cameraPosition = cp.getOrigin();
+
+	
 	for (int i=0;i<16;i++)
 	{
 		m_data->m_viewMatrixVR[i] = viewMat[i];

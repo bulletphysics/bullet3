@@ -40,6 +40,7 @@
 #include "../DynamicControlDemo/MotorDemo.h"
 #include "../RollingFrictionDemo/RollingFrictionDemo.h"
 #include "../SharedMemory/PhysicsServerExampleBullet2.h"
+#include "../SharedMemory/PhysicsServerExample.h"
 #include "../SharedMemory/PhysicsClientExample.h"
 #include "../Constraints/TestHingeTorque.h"
 #include "../RenderingExamples/TimeSeriesExample.h"
@@ -141,10 +142,10 @@ static ExampleEntry gDefaultExamples[]=
 			PhysicsServerCreateFuncBullet2),
 	ExampleEntry(1, "Physics Client (Shared Mem)", "Create a physics client that can communicate with a physics server over shared memory.", PhysicsClientCreateFunc),
 
-//	ExampleEntry(1,"Physics Server (Logging)", "Create a physics server that communicates with a physics client over shared memory. It will log all commands to a file.",
-//			PhysicsServerCreateFunc,PHYSICS_SERVER_ENABLE_COMMAND_LOGGING),
-//	ExampleEntry(1,"Physics Server (Replay Log)", "Create a physics server that replay a command log from disk.",
-//			PhysicsServerCreateFunc,PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG),
+	ExampleEntry(1,"Physics Server (Logging)", "Create a physics server that communicates with a physics client over shared memory. It will log all commands to a file.",
+			PhysicsServerCreateFuncBullet2,PHYSICS_SERVER_ENABLE_COMMAND_LOGGING),
+	ExampleEntry(1,"Physics Server (Replay Log)", "Create a physics server that replay a command log from disk.",
+			PhysicsServerCreateFuncBullet2,PHYSICS_SERVER_REPLAY_FROM_COMMAND_LOG),
 //	
 //	ExampleEntry(1, "Physics Client (Direct)", "Create a physics client that can communicate with a physics server directly in-process.", PhysicsClientCreateFunc,eCLIENTEXAMPLE_DIRECT),
 

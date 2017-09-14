@@ -173,6 +173,7 @@ void processContactParameters(const URDFLinkContactInfo& contactInfo, btCollisio
 }
 
 
+btScalar tmpUrdfScaling=2;
 
 
 void ConvertURDF2BulletInternal(
@@ -377,18 +378,28 @@ void ConvertURDF2BulletInternal(
 					{
 						printf("Warning: joint unsupported, creating a fixed joint instead.");
 					}
+					creation.addLinkMapping(urdfLinkIndex,mbLinkIndex);
+
                     if (createMultiBody)
                     {
                         //todo: adjust the center of mass transform and pivot axis properly
                         cache.m_bulletMultiBody->setupFixed(mbLinkIndex, mass, localInertiaDiagonal, mbParentIndex,
                                                             parentRotToThis, offsetInA.getOrigin(),-offsetInB.getOrigin());
-                        creation.addLinkMapping(urdfLinkIndex,mbLinkIndex);
+                        
                     } else
                     {
                         //b3Printf("Fixed joint\n");
 						
-						btGeneric6DofSpring2Constraint* dof6 = creation.createFixedJoint(urdfLinkIndex,*linkRigidBody, *parentRigidBody,  offsetInB, offsetInA);
-                       
+						btGeneric6DofSpring2Constraint* dof6 = 0;
+
+						//backward compatibility
+						if (flags & CUF_RESERVED )
+						{
+							dof6 = creation.createFixedJoint(urdfLinkIndex,*parentRigidBody, *linkRigidBody,  offsetInA, offsetInB);
+						} else
+						{
+							dof6 = creation.createFixedJoint(urdfLinkIndex,*linkRigidBody, *parentRigidBody,  offsetInB, offsetInA);
+						}
                         if (enableConstraints)
                             world1->addConstraint(dof6,true);
                     }
@@ -397,13 +408,14 @@ void ConvertURDF2BulletInternal(
                 case URDFContinuousJoint:
                 case URDFRevoluteJoint:
                 {
+					creation.addLinkMapping(urdfLinkIndex,mbLinkIndex);
                     if (createMultiBody)
                     {
                         cache.m_bulletMultiBody->setupRevolute(mbLinkIndex, mass, localInertiaDiagonal, mbParentIndex,
                                                                   parentRotToThis, quatRotate(offsetInB.getRotation(),jointAxisInJointSpace), offsetInA.getOrigin(),//parent2joint.getOrigin(),
                                                                   -offsetInB.getOrigin(),
                                                                   disableParentCollision);
-                        creation.addLinkMapping(urdfLinkIndex,mbLinkIndex);
+                        
                         if (jointType == URDFRevoluteJoint && jointLowerLimit <= jointUpperLimit) {
                           //std::string name = u2b.getLinkName(urdfLinkIndex);
                           //printf("create btMultiBodyJointLimitConstraint for revolute link name=%s urdf link index=%d (low=%f, up=%f)\n", name.c_str(), urdfLinkIndex, jointLowerLimit, jointUpperLimit);
@@ -413,8 +425,15 @@ void ConvertURDF2BulletInternal(
                     } else
                     {
 
-						btGeneric6DofSpring2Constraint* dof6 = creation.createRevoluteJoint(urdfLinkIndex,*linkRigidBody, *parentRigidBody, offsetInB, offsetInA,jointAxisInJointSpace,jointLowerLimit, jointUpperLimit);
-
+						btGeneric6DofSpring2Constraint* dof6  = 0;
+						//backwards compatibility
+						if (flags & CUF_RESERVED )
+						{
+							dof6 = creation.createRevoluteJoint(urdfLinkIndex,*parentRigidBody, *linkRigidBody,  offsetInA, offsetInB,jointAxisInJointSpace,jointLowerLimit, jointUpperLimit);
+						} else
+						{
+							dof6 = creation.createRevoluteJoint(urdfLinkIndex,*linkRigidBody, *parentRigidBody, offsetInB, offsetInA,jointAxisInJointSpace,jointLowerLimit, jointUpperLimit);
+						}
 						if (enableConstraints)
                                     world1->addConstraint(dof6,true);
                         //b3Printf("Revolute/Continuous joint\n");
@@ -423,13 +442,15 @@ void ConvertURDF2BulletInternal(
                 }
                 case URDFPrismaticJoint:
                 {
+					creation.addLinkMapping(urdfLinkIndex,mbLinkIndex);
+
                     if (createMultiBody)
                     {
                         cache.m_bulletMultiBody->setupPrismatic(mbLinkIndex, mass, localInertiaDiagonal, mbParentIndex,
                                                                    parentRotToThis, quatRotate(offsetInB.getRotation(),jointAxisInJointSpace), offsetInA.getOrigin(),//parent2joint.getOrigin(),
                                                                    -offsetInB.getOrigin(),
                                                                    disableParentCollision);
-                        creation.addLinkMapping(urdfLinkIndex,mbLinkIndex);
+                        
 						if (jointLowerLimit <= jointUpperLimit)
 						{
 							//std::string name = u2b.getLinkName(urdfLinkIndex);
@@ -443,8 +464,7 @@ void ConvertURDF2BulletInternal(
                     } else
                     {
                         
-						btGeneric6DofSpring2Constraint* dof6 = creation.createPrismaticJoint(urdfLinkIndex,*linkRigidBody, *parentRigidBody, offsetInB, offsetInA,jointAxisInJointSpace,jointLowerLimit,jointUpperLimit);
-						
+						btGeneric6DofSpring2Constraint* dof6 = creation.createPrismaticJoint(urdfLinkIndex,*parentRigidBody, *linkRigidBody, offsetInA, offsetInB,jointAxisInJointSpace,jointLowerLimit,jointUpperLimit);
                        
                         if (enableConstraints)
                             world1->addConstraint(dof6,true);

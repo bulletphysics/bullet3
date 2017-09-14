@@ -1,0 +1,5 @@
+<mujoco model="ground_plane">
+  <worldbody>
+    <geom conaffinity="1" condim="3" name="floor" friction="0.8 0.1 0.1" pos="0 0 0" type="plane"/>
+  </worldbody>
+</mujoco>

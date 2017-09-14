@@ -3,7 +3,7 @@
 
 struct btInProcessExampleBrowserInternalData;
 
-btInProcessExampleBrowserInternalData* btCreateInProcessExampleBrowser(int argc,char** argv2);
+btInProcessExampleBrowserInternalData* btCreateInProcessExampleBrowser(int argc,char** argv2, bool useInProcessMemory);
 
 bool btIsExampleBrowserTerminated(btInProcessExampleBrowserInternalData* data);
 
@@ -17,7 +17,7 @@ class SharedMemoryInterface* btGetSharedMemoryInterface(btInProcessExampleBrowse
 
 struct btInProcessExampleBrowserMainThreadInternalData;
 
-btInProcessExampleBrowserMainThreadInternalData* btCreateInProcessExampleBrowserMainThread(int argc,char** argv2);
+btInProcessExampleBrowserMainThreadInternalData* btCreateInProcessExampleBrowserMainThread(int argc,char** argv, bool useInProcessMemory);
 
 bool btIsExampleBrowserMainThreadTerminated(btInProcessExampleBrowserMainThreadInternalData* data);
 

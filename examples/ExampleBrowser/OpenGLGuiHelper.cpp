@@ -1148,6 +1148,15 @@ void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const floa
 					}
                 }
             }
+
+			if (1)
+			{
+				getRenderInterface()->getActiveCamera()->disableVRCamera();
+				DrawGridData dg;
+				dg.upAxis = m_data->m_glApp->getUpAxis();
+				getRenderInterface()->updateCamera(dg.upAxis);
+				m_data->m_glApp->m_window->startRendering();
+			}
         }
         if (pixelsRGBA)
         {
@@ -1205,7 +1214,7 @@ void OpenGLGuiHelper::autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWor
 		btCollisionObject* colObj = rbWorld->getCollisionObjectArray()[i];
 		sortedObjects.push_back(colObj);
 	}
-	//sortedObjects.quickSort(shapePointerCompareFunc);
+	sortedObjects.quickSort(shapePointerCompareFunc);
 	for (int i=0;i<sortedObjects.size();i++)
 	{
 		btCollisionObject* colObj = sortedObjects[i];

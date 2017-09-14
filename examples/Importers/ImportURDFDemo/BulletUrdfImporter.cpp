@@ -54,6 +54,7 @@ ATTRIBUTE_ALIGNED16(struct) BulletURDFInternalData
 	int m_bodyId;
 	btHashMap<btHashInt,UrdfMaterialColor> m_linkColors;
     btAlignedObjectArray<btCollisionShape*> m_allocatedCollisionShapes;
+	mutable btAlignedObjectArray<btTriangleMesh*> m_allocatedMeshInterfaces;
 	
 	LinkVisualShapesConverter* m_customVisualShapesConverter;
 
@@ -69,6 +70,12 @@ ATTRIBUTE_ALIGNED16(struct) BulletURDFInternalData
 	{
 		m_pathPrefix[0] = 0;
 	}
+
+	void setGlobalScaling(btScalar scaling)
+	{
+		m_urdfParser.setGlobalScaling(scaling);
+	}
+
 };
 
 void BulletURDFImporter::printTree()
@@ -76,10 +83,10 @@ void BulletURDFImporter::printTree()
 //	btAssert(0);
 }
 
-BulletURDFImporter::BulletURDFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter)
+BulletURDFImporter::BulletURDFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter, double globalScaling)
 {
 	m_data = new BulletURDFInternalData;
-	
+	m_data->setGlobalScaling(globalScaling);
 	m_data->m_guiHelper = helper;
 	m_data->m_customVisualShapesConverter = customConverter;
 
@@ -566,7 +573,7 @@ bool findExistingMeshFile(
 	}
 }
 
-btCollisionShape* convertURDFToCollisionShape(const UrdfCollision* collision, const char* urdfPathPrefix)
+btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfCollision* collision, const char* urdfPathPrefix) const
 {
 	BT_PROFILE("convertURDFToCollisionShape");
 
@@ -769,6 +776,7 @@ upAxisMat.setIdentity();
 		{
 			BT_PROFILE("convert trimesh");
 			btTriangleMesh* meshInterface = new btTriangleMesh();
+			m_data->m_allocatedMeshInterfaces.push_back(meshInterface);
 			{
 				BT_PROFILE("convert vertices");
 
@@ -1222,6 +1230,19 @@ btCollisionShape* BulletURDFImporter::getAllocatedCollisionShape(int index)
 {
     return m_data->m_allocatedCollisionShapes[index];
 }
+
+int BulletURDFImporter::getNumAllocatedMeshInterfaces() const
+{
+    return m_data->m_allocatedMeshInterfaces.size();
+}
+
+
+btStridingMeshInterface* BulletURDFImporter::getAllocatedMeshInterface(int index)
+{
+    return m_data->m_allocatedMeshInterfaces[index];
+}
+
+
 
  class btCompoundShape* BulletURDFImporter::convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const
 {
