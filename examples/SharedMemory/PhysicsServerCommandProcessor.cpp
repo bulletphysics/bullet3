@@ -3477,21 +3477,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 
 
-					if ((clientCmd.m_updateFlags & ER_BULLET_HARDWARE_OPENGL)!=0)
-					{
-						//m_data->m_guiHelper->copyCameraImageData(clientCmd.m_requestPixelDataArguments.m_viewMatrix,clientCmd.m_requestPixelDataArguments.m_projectionMatrix,0,0,0,0,0,width,height,0);
-					}
-					else
-					{
-					    if ((clientCmd.m_requestPixelDataArguments.m_startPixelIndex==0) &&
+		    if ((clientCmd.m_requestPixelDataArguments.m_startPixelIndex==0) &&
                             (clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_PIXEL_WIDTH_HEIGHT)!=0)
-                        {
+                    {
                             m_data->m_visualConverter.setWidthAndHeight(clientCmd.m_requestPixelDataArguments.m_pixelWidth,
                                                                         clientCmd.m_requestPixelDataArguments.m_pixelHeight);
-                        }
-                        m_data->m_visualConverter.getWidthAndHeight(width,height);
-					}
-
+                    }
 
 
                     int numTotalPixels = width*height;
