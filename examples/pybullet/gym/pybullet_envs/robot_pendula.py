@@ -3,7 +3,6 @@ import numpy as np
 
 class InvertedPendulum(MJCFBasedRobot):
 	swingup = False
-	force_gain = 12 # TODO: Try to find out why we need to scale the force
 	def __init__(self):
 		MJCFBasedRobot.__init__(self, 'inverted_pendulum.xml', 'cart', action_dim=1, obs_dim=5)
 
@@ -16,16 +15,16 @@ class InvertedPendulum(MJCFBasedRobot):
 		self.j1.set_motor_torque(0)
 
 	def apply_action(self, a):
-		#assert( np.isfinite(a).all() )
+		assert( np.isfinite(a).all() )
 		if not np.isfinite(a).all():
 			print("a is inf")
 			a[0] = 0
-		self.slider.set_motor_torque( self.force_gain * 100*float(np.clip(a[0], -1, +1)) )
+		self.slider.set_motor_torque( 100*float(np.clip(a[0], -1, +1)) )
 
 	def calc_state(self):
 		self.theta, theta_dot = self.j1.current_position()
 		x, vx = self.slider.current_position()
-		#assert( np.isfinite(x) )
+		assert( np.isfinite(x) )
 
 		if not np.isfinite(x):
 			print("x is inf")
@@ -50,7 +49,6 @@ class InvertedPendulum(MJCFBasedRobot):
 
 class InvertedPendulumSwingup(InvertedPendulum):
 	swingup = True
-	force_gain = 2.2  # TODO: Try to find out why we need to scale the force
 
 
 class InvertedDoublePendulum(MJCFBasedRobot):
@@ -70,8 +68,7 @@ class InvertedDoublePendulum(MJCFBasedRobot):
 
 	def apply_action(self, a):
 		assert( np.isfinite(a).all() )
-		force_gain = 0.78  # TODO: Try to find out why we need to scale the force
-		self.slider.set_motor_torque( force_gain *200*float(np.clip(a[0], -1, +1)) )
+		self.slider.set_motor_torque( 200*float(np.clip(a[0], -1, +1)) )
 
 	def calc_state(self):
 		theta, theta_dot = self.j1.current_position()

@@ -46,7 +46,7 @@ class MJCFBaseBulletEnv(gym.Env):
 				else:
 					self.physicsClientId = p.connect(p.DIRECT)
 		p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
-  
+
 		if self.scene is None:
 			self.scene = self.create_single_player_scene()
 		if not self.scene.multiplayer:
