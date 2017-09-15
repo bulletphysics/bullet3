@@ -15,7 +15,7 @@ class InvertedPendulum(MJCFBasedRobot):
 		self.j1.set_motor_torque(0)
 
 	def apply_action(self, a):
-		#assert( np.isfinite(a).all() )
+		assert( np.isfinite(a).all() )
 		if not np.isfinite(a).all():
 			print("a is inf")
 			a[0] = 0
@@ -24,7 +24,7 @@ class InvertedPendulum(MJCFBasedRobot):
 	def calc_state(self):
 		self.theta, theta_dot = self.j1.current_position()
 		x, vx = self.slider.current_position()
-		#assert( np.isfinite(x) )
+		assert( np.isfinite(x) )
 
 		if not np.isfinite(x):
 			print("x is inf")

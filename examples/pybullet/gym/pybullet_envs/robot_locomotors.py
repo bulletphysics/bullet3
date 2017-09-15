@@ -152,23 +152,25 @@ class Humanoid(WalkerBase):
 		self.motor_names += ["left_shoulder1", "left_shoulder2", "left_elbow"]
 		self.motor_power += [75, 75, 75]
 		self.motors = [self.jdict[n] for n in self.motor_names]
-		# if self.random_yaw: # TODO: Make leaning work as soon as the rest works
-		# 	cpose = cpp_household.Pose()
-		# 	yaw = self.np_random.uniform(low=-3.14, high=3.14)
-		# 	if self.random_lean and self.np_random.randint(2)==0:
-		# 		cpose.set_xyz(0, 0, 1.4)
-		# 		if self.np_random.randint(2)==0:
-		# 			pitch = np.pi/2
-		# 			cpose.set_xyz(0, 0, 0.45)
-		# 		else:
-		# 			pitch = np.pi*3/2
-		# 			cpose.set_xyz(0, 0, 0.25)
-		# 		roll = 0
-		# 		cpose.set_rpy(roll, pitch, yaw)
-		# 	else:
-		# 		cpose.set_xyz(0, 0, 1.4)
-		# 		cpose.set_rpy(0, 0, yaw)  # just face random direction, but stay straight otherwise
-		# 	self.cpp_robot.set_pose_and_speed(cpose, 0,0,0)
+		if self.random_yaw:
+			position = [0,0,0]
+			orientation = [0,0,0]
+			yaw = self.np_random.uniform(low=-3.14, high=3.14)
+			if self.random_lean and self.np_random.randint(2)==0:
+				cpose.set_xyz(0, 0, 1.4)
+				if self.np_random.randint(2)==0:
+					pitch = np.pi/2
+					position = [0, 0, 0.45]
+				else:
+					pitch = np.pi*3/2
+					position = [0, 0, 0.25]
+				roll = 0
+				orientation = [roll, pitch, yaw]
+			else:
+				position = [0, 0, 1.4]
+				orientation = [0, 0, yaw]  # just face random direction, but stay straight otherwise
+			self.robot_body.reset_position(position)
+			self.robot_body.reset_orientation(orientation)
 		self.initial_z = 0.8
 
 	random_yaw = False

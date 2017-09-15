@@ -524,7 +524,7 @@ void			btSoftBody::addAeroForceToNode(const btVector3& windVelocity,int nodeInde
 				}
 				else if (m_cfg.aeromodel == btSoftBody::eAeroModel::V_Point || m_cfg.aeromodel == btSoftBody::eAeroModel::V_OneSided || m_cfg.aeromodel == btSoftBody::eAeroModel::V_TwoSided)
 				{
-					if (btSoftBody::eAeroModel::V_TwoSided)
+					if (m_cfg.aeromodel == btSoftBody::eAeroModel::V_TwoSided)
 						nrm *= (btScalar)( (btDot(nrm,rel_v) < 0) ? -1 : +1);
 
 					const btScalar dvn = btDot(rel_v,nrm);
@@ -619,7 +619,7 @@ void			btSoftBody::addAeroForceToFace(const btVector3& windVelocity,int faceInde
 			}
 			else if (m_cfg.aeromodel == btSoftBody::eAeroModel::F_OneSided || m_cfg.aeromodel == btSoftBody::eAeroModel::F_TwoSided)
 			{
-				if (btSoftBody::eAeroModel::F_TwoSided)
+				if (m_cfg.aeromodel == btSoftBody::eAeroModel::F_TwoSided)
 					nrm *= (btScalar)( (btDot(nrm,rel_v) < 0) ? -1 : +1);
 
 				const btScalar	dvn=btDot(rel_v,nrm);

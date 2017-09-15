@@ -440,7 +440,8 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 			command = b3InitSyncBodyInfoCommand(sm);
 			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 			statusType = b3GetStatusType(statusHandle);
-			if (statusType != CMD_BODY_INFO_COMPLETED) 
+
+			if (statusType != CMD_SYNC_BODY_INFO_COMPLETED) 
 			{
 				printf("Connection terminated, couldn't get body info\n");
 				b3DisconnectSharedMemory(sm);
@@ -448,7 +449,7 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 				sPhysicsClients1[freeIndex] = 0;
                        		sPhysicsClientsGUI[freeIndex] = 0;
                         	sNumPhysicsClients++;
-				return -1;
+				return  PyInt_FromLong(-1);
 			}
 		}
 	}
