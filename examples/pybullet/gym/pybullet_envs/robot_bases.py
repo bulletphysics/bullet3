@@ -61,6 +61,7 @@ class MJCFBasedRobot:
 				if dump: print("ROBOT PART '%s'" % part_name)
 				if dump: print("ROBOT JOINT '%s'" % joint_name) # limits = %+0.2f..%+0.2f effort=%0.3f speed=%0.3f" % ((joint_name,) + j.limits()) )
 
+				# part handling
 				parts[part_name] = BodyPart(part_name, bodies, i, j)
 
 				if part_name == self.robot_name:
@@ -70,14 +71,15 @@ class MJCFBasedRobot:
 					parts[self.robot_name] = BodyPart(self.robot_name, bodies, 0, -1)
 					self.robot_body = parts[self.robot_name]
 
+				# joint handling
+				p.setJointMotorControl2(bodies[i], j, p.POSITION_CONTROL, positionGain=0.1, velocityGain=0.1, force=0) # disable all motors on startup to unlock all joints
+
 				if joint_name[:6] == "ignore":
-					Joint(joint_name, bodies, i, j).disable_motor()
 					continue
 
 				if joint_name[:8] != "jointfix":
 					joints[joint_name] = Joint(joint_name, bodies, i, j)
 					ordered_joints.append(joints[joint_name])
-
 					joints[joint_name].power_coef = 100.0
 
 		return parts, joints, ordered_joints, self.robot_body
@@ -174,7 +176,7 @@ class Joint:
 	def set_state(self, x, vx):
 		p.resetJointState(self.bodies[self.bodyIndex], self.jointIndex, x, vx)
 
-	def current_position(self): # just some synonyme method
+	def current_position(self): # just some synonym method
 		return self.get_state()
 
 	def current_relative_position(self):
@@ -195,13 +197,13 @@ class Joint:
 	def set_velocity(self, velocity):
 		p.setJointMotorControl2(self.bodies[self.bodyIndex],self.jointIndex,p.VELOCITY_CONTROL, targetVelocity=velocity)
 
-	def set_motor_torque(self, torque): # just some synonyme method
+	def set_motor_torque(self, torque): # just some synonym method
 		self.set_torque(torque)
 
 	def set_torque(self, torque):
-		p.setJointMotorControl2(bodyIndex=self.bodies[self.bodyIndex], jointIndex=self.jointIndex, controlMode=p.TORQUE_CONTROL, force=torque) #, positionGain=0.1, velocityGain=0.1)
+		p.setJointMotorControl2(bodyIndex=self.bodies[self.bodyIndex], jointIndex=self.jointIndex, controlMode=p.TORQUE_CONTROL, force=torque)
 
-	def reset_current_position(self, position, velocity): # just some synonyme method
+	def reset_current_position(self, position, velocity): # just some synonym method
 		self.reset_position(position, velocity)
 
 	def reset_position(self, position, velocity):
@@ -209,4 +211,5 @@ class Joint:
 		self.disable_motor()
 
 	def disable_motor(self):
-		p.setJointMotorControl2(self.bodies[self.bodyIndex],self.jointIndex,controlMode=p.VELOCITY_CONTROL, force=0)
+		p.setJointMotorControl2(self.bodies[self.bodyIndex], self.jointIndex, controlMode=p.POSITION_CONTROL, targetPosition=0, targetVelocity=0, positionGain=0.1, velocityGain=0.1, force=0)
+
