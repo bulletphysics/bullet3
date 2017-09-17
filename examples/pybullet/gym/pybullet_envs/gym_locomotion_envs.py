@@ -41,7 +41,7 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 	stall_torque_cost	= -0.1	# cost for running electric current through a motor even at zero rotational speed, small
 	foot_collision_cost  = -1.0	# touches another leg, or other objects, that cost makes robot avoid smashing feet into itself
 	foot_ground_object_names = set(["floor"])  # to distinguish ground and other objects
-	joints_at_limit_cost = -0.1	# discourage stuck joints
+	joints_at_limit_cost = -0.2	# discourage stuck joints
 
 	def _step(self, a):
 		if not self.scene.multiplayer:  # if multiplayer, action first applied to all robots, then global step() called, then _step() for all robots with the same actions
@@ -62,22 +62,28 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 
 		feet_collision_cost = 0.0
 		for i,f in enumerate(self.robot.feet): # TODO: Maybe calculating feet contacts could be done within the robot code
-			contact_ids = set((x[2], x[4]) for x in f.contact_list())
+			contact_ids = set((x[2], x[4]) for x in f.contact_list()) # get all contact ids from contact list
 			#print("CONTACT OF '%d' WITH %d" % (contact_ids, ",".join(contact_names)) )
-			if (self.ground_ids & contact_ids):
-                        	#see Issue 63: https://github.com/openai/roboschool/issues/63
-				#feet_collision_cost += self.foot_collision_cost
-				self.robot.feet_contact[i] = 1.0
-			else:
-				self.robot.feet_contact[i] = 0.0
-
+			self.robot.feet_contact[i] = 1.0 if (self.ground_ids & contact_ids) else 0.0
+			if contact_ids - self.ground_ids:  # Subtraction is on sets, meaning contacts that are not ground
+				feet_collision_cost += self.foot_collision_cost
 
 		electricity_cost  = self.electricity_cost  * float(np.abs(a*self.robot.joint_speeds).mean())  # let's assume we have DC motor with controller, and reverse current braking
 		electricity_cost += self.stall_torque_cost * float(np.square(a).mean())
 
 		joints_at_limit_cost = float(self.joints_at_limit_cost * self.robot.joints_at_limit)
-		debugmode=0
-		if(debugmode):
+
+		self.rewards = [
+			alive,
+			progress,
+			electricity_cost,
+			joints_at_limit_cost,
+			feet_collision_cost
+			]
+
+		debugmode = 1
+		if debugmode:
+			print("##REWARDS:")
 			print("alive=")
 			print(alive)
 			print("progress")
@@ -88,19 +94,11 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 			print(joints_at_limit_cost)
 			print("feet_collision_cost")
 			print(feet_collision_cost)
-
-		self.rewards = [
-			alive,
-			progress,
-			electricity_cost,
-			joints_at_limit_cost,
-			feet_collision_cost
-			]
-		if (debugmode):
 			print("rewards=")
 			print(self.rewards)
 			print("sum rewards")
 			print(sum(self.rewards))
+
 		self.HUD(state, a, done)
 		self.reward += sum(self.rewards)
 
