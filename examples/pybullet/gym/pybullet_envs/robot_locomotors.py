@@ -22,6 +22,12 @@ class WalkerBase(MJCFBasedRobot):
 
 	def apply_action(self, a):
 		assert (np.isfinite(a).all())
+
+		debugmode=1
+		if debugmode:
+			print("##ACTIONS:")
+			print(a)
+
 		for n, j in enumerate(self.ordered_joints):
 			j.set_motor_torque(self.power * j.power_coef * float(np.clip(a[n], -1, +1)))
 
@@ -58,6 +64,27 @@ class WalkerBase(MJCFBasedRobot):
 			np.sin(angle_to_target), np.cos(angle_to_target),
 			0.3* vx , 0.3* vy , 0.3* vz ,  # 0.3 is just scaling typical speed into -1..+1, no physical sense here
 			r, p], dtype=np.float32)
+
+		debugmode=1
+		if debugmode:
+			print("##OBSERVATIONS:")
+			print("z-self.initial_z")
+			print(z-self.initial_z)
+			print("np.sin(angle_to_target)")
+			print(np.sin(angle_to_target))
+			print("np.cos(angle_to_target)")
+			print(np.cos(angle_to_target))
+			print("0.3 * vx, 0.3 * vy, 0.3 * vz")
+			print(0.3 * vx, ",",  0.3 * vy, ",", 0.3 * vz)
+			print("roll")
+			print(r)
+			print("pitch")
+			print(p)
+			print("current relative joint positions")
+			print(j)
+			print("feet contacts")
+			print(self.feet_contact)
+
 		return np.clip( np.concatenate([more] + [j] + [self.feet_contact]), -5, +5)
 
 	def calc_potential(self):

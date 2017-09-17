@@ -81,8 +81,9 @@ class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
 			feet_collision_cost
 			]
 
-		debugmode = 0
+		debugmode = 1
 		if debugmode:
+			print("##REWARDS:")
 			print("alive=")
 			print(alive)
 			print("progress")
