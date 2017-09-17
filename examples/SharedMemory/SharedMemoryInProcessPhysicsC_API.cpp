@@ -184,7 +184,6 @@ public:
 	 // return non-null if there is a status, nullptr otherwise
     virtual const struct SharedMemoryStatus* processServerStatus()
     {
-		printf("updating graphics!\n");
 		m_physicsServerExample->updateGraphics();
 
 		unsigned long long int curTime = m_clock.getTimeMicroseconds();
