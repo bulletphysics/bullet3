@@ -67,7 +67,11 @@ class MJCFBaseBulletEnv(gym.Env):
 			self.isRender = True
 		if mode != "rgb_array":
 			return np.array([])
-		base_pos = self.robot.body_xyz
+		
+		base_pos=[0,0,0]
+		if (hasattr(self,'robot')):
+			if (hasattr(self.robot,'body_xyz')):
+				base_pos = self.robot.body_xyz
 		
 		view_matrix = p.computeViewMatrixFromYawPitchRoll(
 			cameraTargetPosition=base_pos,

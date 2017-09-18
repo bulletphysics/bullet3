@@ -629,12 +629,13 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 							textured_detailed_sphere_vertices[i*9+1],
 							textured_detailed_sphere_vertices[i*9+2]);
 				
-						btVector3 trVer = compound->getChildTransform(0)*(radiusScale*vert);
+						btVector3 trVer = (radiusScale*vert);
 						if (trVer[up]>0)
 							trVer[up]+=halfHeight;
 						else
 							trVer[up]-=halfHeight;
 
+						trVer = compound->getChildTransform(0)*trVer;
 
 						transformedVertices[i*9+0] = trVer[0];
 						transformedVertices[i*9+1] = trVer[1];
