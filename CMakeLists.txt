@@ -317,7 +317,7 @@ IF(BUILD_PYBULLET)
 	# first find the python interpreter
 	FIND_PACKAGE(PythonInterp ${PYTHON_VERSION_PYBULLET} ${EXACT_PYTHON_VERSION_FLAG})
 	# python library should exactly match that of the interpreter
-	FIND_PACKAGE(PythonLibs ${PYTHON_VERSION_STRING} EXACT)
+	FIND_PACKAGE(PythonLibs)
 ENDIF()
 
 OPTION(BUILD_ENET "Set when you want to build apps with enet UDP networking support" ON)
