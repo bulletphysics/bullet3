@@ -326,7 +326,7 @@ OPTION(BUILD_CLSOCKET "Set when you want to build apps with enet TCP networking 
 
 IF(BUILD_PYBULLET)
 
-	OPTION(BUILD_PYBULLET_NUMPY "Set when you want to build pybullet with NumPy support" ON)
+	OPTION(BUILD_PYBULLET_NUMPY "Set when you want to build pybullet with NumPy support" OFF)
 	OPTION(BUILD_PYBULLET_ENET "Set when you want to build pybullet with enet UDP networking support" ON)
 	OPTION(BUILD_PYBULLET_CLSOCKET "Set when you want to build pybullet with enet TCP networking support" ON)
 
