@@ -262,8 +262,8 @@ if os.is("macosx") then
 end
 
 if os.is("Windows") then
-                default_glfw_include_dir = ""
-                default_glfw_lib_dir = ""
+                default_glfw_include_dir = "c:/glfw/include"
+                default_glfw_lib_dir = "c:/glfw/lib"
 		default_glfw_lib_name = "glfw3"
 end
 
