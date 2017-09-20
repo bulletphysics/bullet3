@@ -13,6 +13,11 @@
 #include "stdlib.h"
 #include "TwFonts.h"
 #include "SimpleOpenGL2Renderer.h"
+
+#ifdef B3_USE_GLFW
+#include "GLFWOpenGLWindow.h"
+#else
+
 #ifdef __APPLE__
 #include "MacOpenGLWindow.h"
 #else
@@ -30,6 +35,8 @@
 #endif //BT_USE_EGL
 #endif //_WIN32
 #endif//__APPLE__
+#endif //#ifdef B3_USE_GLFW
+
 #include <stdio.h>
 #include "../CommonInterfaces/CommonRenderInterface.h"
 
@@ -129,7 +136,7 @@ SimpleOpenGL2App::SimpleOpenGL2App(const char* title, int width, int height)
     glewExperimental = GL_TRUE;
 #endif //_WIN32
     
-    
+#ifndef B3_USE_GLFW
     if (glewInit() != GLEW_OK)
     {
         b3Error("glewInit failed");
@@ -140,7 +147,7 @@ SimpleOpenGL2App::SimpleOpenGL2App(const char* title, int width, int height)
         b3Error("GLEW_VERSION_2_1 needs to support 2_1");
         exit(1); // or handle the error in a nicer way
     }
-    
+#endif //B3_USE_GLFW
 #endif //__APPLE__
 #endif //NO_GLEW
 

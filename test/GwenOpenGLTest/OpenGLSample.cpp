@@ -9,6 +9,10 @@
 extern unsigned char OpenSansData[];
 
 #include "Gwen/Renderers/OpenGL_DebugFont.h"
+
+#ifdef B3_USE_GLFW
+#include "OpenGLWindow/GLFWOpenGLWindow.h"
+#else
 #ifdef __APPLE__
 #include "OpenGLWindow/MacOpenGLWindow.h"
 #else
@@ -21,7 +25,7 @@ extern unsigned char OpenSansData[];
 #include "OpenGLWindow/X11OpenGLWindow.h"
 #endif //_WIN32
 #endif//__APPLE__
-
+#endif //B3_USE_GLFW
 #include "OpenGLWindow/opengl_fontstashcallbacks.h"
 #ifndef NO_OPENGL3
 #include "OpenGLWindow/GwenOpenGL3CoreRenderer.h"
@@ -345,7 +349,7 @@ int main()
     if (majorGlVersion>=3 && wci.m_openglVersion>=3)
     {
         float retinaScale = 1.f;
-		
+#ifndef B3_USE_GLFW		
 #ifndef __APPLE__
 #ifndef _WIN32
     //we need glewExperimental on Linux
@@ -353,7 +357,7 @@ int main()
 #endif // _WIN32
         glewInit();
 #endif
-
+#endif //B3_USE_GLFW
     //we ned to call glGetError twice, because of some Ubuntu/Intel/OpenGL issue
 
     GLuint err = glGetError();

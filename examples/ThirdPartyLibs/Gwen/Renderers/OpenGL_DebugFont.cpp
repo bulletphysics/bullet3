@@ -5,6 +5,10 @@
 #include "Gwen/Texture.h"
 
 #include <math.h>
+#ifdef B3_USE_GLFW
+#include "glad/glad.h"
+#include <GLFW/glfw3.h>
+#else
 
 #if defined(__APPLE__) && !defined (VMDMESA)
 	#include <OpenGL/OpenGL.h>
@@ -22,6 +26,7 @@
 #endif //NO_GLEW
 #endif //GLEW_STATIC
 #endif//(__APPLE__)
+#endif
 
 #include "FontData.h"
 

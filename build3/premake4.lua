@@ -238,6 +238,9 @@ end
 	targetdir( _OPTIONS["targetdir"] or "../bin" )
 	location("./" .. act .. postfix)
 
+	projectRootDir = os.getcwd() .. "/../"
+	print("Project root directory: " .. projectRootDir);
+	
 	if not _OPTIONS["python_include_dir"] then
 			_OPTIONS["python_include_dir"] = default_python_include_dir
 	end
@@ -246,20 +249,73 @@ end
 			_OPTIONS["python_lib_dir"] = default_python_lib_dir
 	end
 	
+	newoption
+    {
+			trigger     = "glfw_include_dir",
+			value       = default_glfw_include_dir,
+			description = "GLFW 3.x include directory"
+    }
+    
+    newoption
+    {
+			trigger     = "glfw_lib_dir",
+			value       = default_glfw_lib_dir,
+			description = "(optional) GLFW 3.x library directory "
+    }
+    
+    newoption
+    {
+			trigger     = "enable_glfw",
+			value       = false,
+			description = "(optional) use GLFW 3.x library"
+    }
+    
+	if _OPTIONS["enable_glfw"] then
+		defines {"B3_USE_GLFW"}
+		
+			
+		
+		function initOpenGL()
+		includedirs {
+					projectRootDir .. "examples/ThirdPartyLibs/glad"
+			}
+		
+			includedirs {
+				_OPTIONS["glfw_include_dir"],
+			}
+			
+			libdirs {
+				_OPTIONS["glfw_lib_dir"]
+			}
+			links {"glfw3"}
+			files { projectRootDir .. "examples/ThirdPartyLibs/glad/glad.c" }
+		end
+		function findOpenGL3()
+			return true
+		end
+		function initGlew()
+		end
+		
+	else
+		dofile ("findOpenGLGlewGlut.lua")
+		if (not findOpenGL3()) then
+			defines {"NO_OPENGL3"}
+		end
+	end
 
-	projectRootDir = os.getcwd() .. "/../"
-	print("Project root directory: " .. projectRootDir);
+	
 
 	dofile ("findOpenCL.lua")
 	dofile ("findDirectX11.lua")
-	dofile ("findOpenGLGlewGlut.lua")
-
-	if (not findOpenGL3()) then
-		defines {"NO_OPENGL3"}
-	end
-
+	
+	
+	
 	language "C++"
 
+
+	
+	
+	
 
 	if _OPTIONS["audio"] then
 		include "../examples/TinyAudio"
