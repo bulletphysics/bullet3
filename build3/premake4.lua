@@ -248,14 +248,48 @@ end
 	if not _OPTIONS["python_lib_dir"] then
 			_OPTIONS["python_lib_dir"] = default_python_lib_dir
 	end
-	
+
+if os.is("Linux") then
+                default_glfw_include_dir = "usr/local/include/GLFW"
+                default_glfw_lib_dir = "/usr/local/lib/"
+		default_glfw_lib_name = "glfw3"
+end
+
+if os.is("macosx") then
+		default_glfw_include_dir = "/usr/local/Cellar/glfw/3.2.1/include"
+		default_glfw_lib_dir = "/usr/local/Cellar/glfw/3.2.1/lib"
+		default_glfw_lib_name = "glfw"
+end
+
+if os.is("Windows") then
+                default_glfw_include_dir = ""
+                default_glfw_lib_dir = ""
+		default_glfw_lib_name = "glfw3"
+end
+
+	if not _OPTIONS["glfw_lib_dir"] then
+		_OPTIONS["glfw_lib_dir"] = default_glfw_lib_dir
+	end
+	if not _OPTIONS["glfw_include_dir"] then
+		_OPTIONS["glfw_include_dir"] = default_glfw_include_dir
+	end
+	if not _OPTIONS["glfw_lib_name"] then
+		_OPTIONS["glfw_lib_name"] = default_glfw_lib_name
+	end	
 	newoption
     {
 			trigger     = "glfw_include_dir",
 			value       = default_glfw_include_dir,
 			description = "GLFW 3.x include directory"
     }
-    
+   
+	 newoption
+    {
+                        trigger     = "glfw_lib_name",
+                        value       = default_glfw_lib_name,
+                        description = "GLFW 3.x library name (glfw, glfw3)"
+    }
+ 
     newoption
     {
 			trigger     = "glfw_lib_dir",
@@ -287,7 +321,7 @@ end
 			libdirs {
 				_OPTIONS["glfw_lib_dir"]
 			}
-			links {"glfw3"}
+			links { _OPTIONS["glfw_lib_name"]}
 			files { projectRootDir .. "examples/ThirdPartyLibs/glad/glad.c" }
 		end
 		function findOpenGL3()
