@@ -29,6 +29,7 @@ struct GLFWOpenGLWindowInternalData
 	b3RenderCallback m_renderCallback;
 	int m_width;
 	int m_height;
+	float m_retinaScaleFactor;
 
 	GLFWwindow* m_glfwWindow;
     
@@ -48,6 +49,7 @@ struct GLFWOpenGLWindowInternalData
 		m_renderCallback(0),
 		m_width(0),
 		m_height(0),
+		m_retinaScaleFactor(1),
 		m_glfwWindow(0)
 	{
 	}
@@ -243,9 +245,8 @@ void GLFWOpenGLWindow::resizeInternal(int width,int height)
 	{
 		getResizeCallback()(width,height);
 	}
-	m_data->m_width = width;
-	m_data->m_height = height;
-	glViewport (0,0,width,height);
+	glfwGetFramebufferSize(m_data->m_glfwWindow, &m_data->m_width, &m_data->m_height);
+	glViewport (0,0,m_data->m_width,m_data->m_height);
 }
 
 void	GLFWOpenGLWindow::createDefaultWindow(int width, int height, const char* title)
@@ -260,6 +261,7 @@ void	GLFWOpenGLWindow::createDefaultWindow(int width, int height, const char* ti
 
 void	GLFWOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 {
+
 	btAssert(m_data->m_glfwWindow==0);
 	if (m_data->m_glfwWindow==0)
 	{
@@ -270,10 +272,12 @@ void	GLFWOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 
 		if (ci.m_openglVersion==2)
 		{
+			printf("V2\n");
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 		} else
 		{
+			printf("V3\n");
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -282,14 +286,12 @@ void	GLFWOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 		
 
 		m_data->m_glfwWindow = glfwCreateWindow(ci.m_width, ci.m_height, ci.m_title, NULL, NULL);
-		m_data->m_width = ci.m_width;
-		m_data->m_height = ci.m_height;
+		
 		if (!m_data->m_glfwWindow)
 		{
 			glfwTerminate();
 			exit(EXIT_FAILURE);
 		}
-		
 
 		glfwSetKeyCallback(m_data->m_glfwWindow,GLFWKeyCallback);
 		glfwSetMouseButtonCallback(m_data->m_glfwWindow,GLFWMouseButtonCallback);
@@ -304,7 +306,11 @@ void	GLFWOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 		glfwMakeContextCurrent(m_data->m_glfwWindow);
 		gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
 		glfwSwapInterval(0);//1);
-		
+		glfwGetFramebufferSize(m_data->m_glfwWindow, &m_data->m_width, &m_data->m_height);
+		int windowWidth, windowHeight;
+		glfwGetWindowSize(m_data->m_glfwWindow, &windowWidth, &windowHeight);
+		m_data->m_retinaScaleFactor = float(m_data->m_width)/float(windowWidth);
+		glViewport(0,0,m_data->m_width, m_data->m_height);
 	}
 }
 		
@@ -416,6 +422,7 @@ b3MouseButtonCallback GLFWOpenGLWindow::getMouseButtonCallback()
 void GLFWOpenGLWindow::setResizeCallback(b3ResizeCallback	resizeCallback)
 {
 	m_data->m_resizeCallback = resizeCallback;
+	getResizeCallback()(m_data->m_width/getRetinaScale(),m_data->m_height/getRetinaScale());
 }
 
 b3ResizeCallback GLFWOpenGLWindow::getResizeCallback()
@@ -460,7 +467,7 @@ void GLFWOpenGLWindow::setWindowTitle(const char* title)
 
 float	GLFWOpenGLWindow::getRetinaScale() const
 {
-	return 1.f;
+	return m_data->m_retinaScaleFactor;
 }
 void	GLFWOpenGLWindow::setAllowRetina(bool allow)
 {
@@ -472,7 +479,8 @@ int   GLFWOpenGLWindow::getWidth() const
 	{
 		glfwGetFramebufferSize(m_data->m_glfwWindow, &m_data->m_width, &m_data->m_height);
 	}
-	return m_data->m_width;
+	int width = m_data->m_width/m_data->m_retinaScaleFactor;
+	return width;
 }
 int   GLFWOpenGLWindow::getHeight() const
 {
@@ -480,7 +488,7 @@ int   GLFWOpenGLWindow::getHeight() const
 	{
 		glfwGetFramebufferSize(m_data->m_glfwWindow, &m_data->m_width, &m_data->m_height);
 	}
-	return m_data->m_height;
+	return m_data->m_height/m_data->m_retinaScaleFactor;
 }
 
 int GLFWOpenGLWindow::fileOpenDialog(char* fileName, int maxFileNameLength)
