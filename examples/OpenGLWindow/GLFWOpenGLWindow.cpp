@@ -350,15 +350,14 @@ void	GLFWOpenGLWindow::startRendering()
 {
 	if (m_data->m_glfwWindow)
 	{
-		glfwSwapBuffers(m_data->m_glfwWindow);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		
 	}
 }
 
 void	GLFWOpenGLWindow::endRendering()
 {
 	   glfwPollEvents();
+	   glfwSwapBuffers(m_data->m_glfwWindow);
 }
 
 bool	GLFWOpenGLWindow::isModifierKeyPressed(int key)
