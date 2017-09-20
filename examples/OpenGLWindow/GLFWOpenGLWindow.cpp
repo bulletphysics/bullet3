@@ -241,12 +241,14 @@ void GLFWOpenGLWindow::mouseCursorCallbackInternal(double xPos, double yPos)
 
 void GLFWOpenGLWindow::resizeInternal(int width,int height)
 {
-	if (getResizeCallback())
-	{
-		getResizeCallback()(width,height);
-	}
+	
 	glfwGetFramebufferSize(m_data->m_glfwWindow, &m_data->m_width, &m_data->m_height);
 	glViewport (0,0,m_data->m_width,m_data->m_height);
+    
+    if (getResizeCallback())
+    {
+        getResizeCallback()(m_data->m_width/m_data->m_retinaScaleFactor,m_data->m_height / m_data->m_retinaScaleFactor);
+    }
 }
 
 void	GLFWOpenGLWindow::createDefaultWindow(int width, int height, const char* title)
@@ -272,12 +274,10 @@ void	GLFWOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 
 		if (ci.m_openglVersion==2)
 		{
-			printf("V2\n");
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 		} else
 		{
-			printf("V3\n");
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -309,8 +309,8 @@ void	GLFWOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 		glfwGetFramebufferSize(m_data->m_glfwWindow, &m_data->m_width, &m_data->m_height);
 		int windowWidth, windowHeight;
 		glfwGetWindowSize(m_data->m_glfwWindow, &windowWidth, &windowHeight);
-		m_data->m_retinaScaleFactor = float(m_data->m_width)/float(windowWidth);
-		glViewport(0,0,m_data->m_width, m_data->m_height);
+        m_data->m_retinaScaleFactor = float(m_data->m_width)/float(windowWidth);
+       glViewport(0,0,m_data->m_width, m_data->m_height);
 	}
 }
 		

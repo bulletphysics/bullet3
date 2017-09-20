@@ -46,9 +46,9 @@ static void Simple2ResizeCallback( float widthf, float heightf)
 {
 	int width = (int)widthf;
 	int height = (int)heightf;
-	if (gApp2->m_renderer)
-		gApp2->m_renderer->resize(width,height);
-	//gApp2->m_renderer->setScreenSize(width,height);
+	if (gApp2->m_renderer && gApp2->m_window)
+        	gApp2->m_renderer->resize(width,height);//*gApp2->m_window->getRetinaScale(),height*gApp2->m_window->getRetinaScale());
+
 
 }
 
@@ -65,11 +65,18 @@ static void Simple2KeyboardCallback(int key, int state)
 
 void Simple2MouseButtonCallback( int button, int state, float x, float y)
 {
-	gApp2->defaultMouseButtonCallback(button,state,x,y);
+	if (gApp2 && gApp2->m_window)
+	{
+		gApp2->defaultMouseButtonCallback(button,state,x,y);
+	}
 }
 void Simple2MouseMoveCallback(  float x, float y)
 {
-	gApp2->defaultMouseMoveCallback(x,y);
+
+	if (gApp2 && gApp2->m_window)
+	{
+		gApp2->defaultMouseMoveCallback(x,y);
+	}
 }
 	
 void Simple2WheelCallback( float deltax, float deltay)

@@ -345,10 +345,12 @@ int main()
 		sprintf(title,"Gwen with OpenGL %d\n",wci.m_openglVersion);
 	}
 	window->setWindowTitle(title);
+
+	float retinaScale = window->getRetinaScale();
+
 #ifndef NO_OPENGL3
     if (majorGlVersion>=3 && wci.m_openglVersion>=3)
     {
-        float retinaScale = 1.f;
 #ifndef B3_USE_GLFW		
 #ifndef __APPLE__
 #ifndef _WIN32
@@ -365,8 +367,6 @@ int main()
     assert(err==GL_NO_ERROR);
 
 
-        retinaScale = window->getRetinaScale();
-
         primRenderer = new GLPrimitiveRenderer(sWidth,sHeight);
 
         sth_stash* font = initFont(primRenderer );
@@ -378,7 +378,7 @@ int main()
 #endif
     {
         //OpenGL 2.x
-        gwenRenderer = new Gwen::Renderer::OpenGL_DebugFont();
+        gwenRenderer = new Gwen::Renderer::OpenGL_DebugFont(retinaScale);
 
 
         skin.SetRender( gwenRenderer );
