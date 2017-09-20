@@ -5,6 +5,10 @@
 #include "Gwen/Texture.h"
 
 #include <math.h>
+#ifdef B3_USE_GLFW
+#include "glad/glad.h"
+#include <GLFW/glfw3.h>
+#else
 
 #if defined(__APPLE__) && !defined (VMDMESA)
 	#include <OpenGL/OpenGL.h>
@@ -22,6 +26,7 @@
 #endif //NO_GLEW
 #endif //GLEW_STATIC
 #endif//(__APPLE__)
+#endif
 
 #include "FontData.h"
 
@@ -148,7 +153,9 @@ namespace Gwen
 {
 	namespace Renderer
 	{
-		OpenGL_DebugFont::OpenGL_DebugFont()
+        
+		OpenGL_DebugFont::OpenGL_DebugFont(float retinaScale)
+        :m_retinaScale(retinaScale)
 		{
 			m_iVertNum = 0;
 
@@ -255,8 +262,8 @@ namespace Gwen
 				Flush();
 			}
 
-			m_Vertices[ m_iVertNum ].x = (float)x;
-			m_Vertices[ m_iVertNum ].y = (float)y;
+			m_Vertices[ m_iVertNum ].x = (float)x*m_retinaScale;
+			m_Vertices[ m_iVertNum ].y = (float)y*m_retinaScale;
 			m_Vertices[ m_iVertNum ].u = u;
 			m_Vertices[ m_iVertNum ].v = v;
 
@@ -301,16 +308,19 @@ namespace Gwen
 			Flush();
 			Gwen::Rect rect = ClipRegion();
 
-			// OpenGL's coords are from the bottom left
-			// so we need to translate them here.
-			{
-				GLint view[4];
-				glGetIntegerv( GL_VIEWPORT, &view[0] );
-				rect.y = view[3] - (rect.y + rect.h);
-			}
-
-			glScissor( rect.x * Scale(), rect.y * Scale(), rect.w * Scale(), rect.h * Scale() );
-			glEnable( GL_SCISSOR_TEST );
+            float retinaScale = m_retinaScale;
+            // OpenGL's coords are from the bottom left
+            // so we need to translate them here.
+            {
+                GLint view[4];
+                glGetIntegerv( GL_VIEWPORT, &view[0] );
+                rect.y = view[3]/retinaScale - (rect.y + rect.h);
+            }
+            
+            glScissor( retinaScale * rect.x * Scale(), retinaScale * rect.y * Scale(), retinaScale * rect.w * Scale(), retinaScale * rect.h * Scale() );
+            glEnable( GL_SCISSOR_TEST );
+            //glDisable( GL_SCISSOR_TEST );
+            
 		};
 
 		void OpenGL_DebugFont::EndClip()

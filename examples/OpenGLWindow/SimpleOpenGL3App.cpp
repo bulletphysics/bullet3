@@ -2,6 +2,11 @@
 
 #include "SimpleOpenGL3App.h"
 #include "ShapeData.h"
+
+
+#ifdef B3_USE_GLFW
+#include "GLFWOpenGLWindow.h"
+#else
 #ifdef __APPLE__
 #include "MacOpenGLWindow.h"
 #else
@@ -19,6 +24,8 @@
 #endif //BT_USE_EGL
 #endif //_WIN32
 #endif//__APPLE__
+#endif //B3_USE_GLFW
+
 #include <stdio.h>
 
 #include "GLPrimitiveRenderer.h"
@@ -321,12 +328,12 @@ SimpleOpenGL3App::SimpleOpenGL3App(	const char* title, int width,int height, boo
     glewExperimental = GL_TRUE;
 #endif //_WIN32
     
-    
+#ifndef B3_USE_GLFW
     if (glewInit() != GLEW_OK)
         exit(1); // or handle the error in a nicer way
     if (!GLEW_VERSION_2_1)  // check that the machine supports the 2.1 API.
         exit(1); // or handle the error in a nicer way
-    
+#endif //B3_USE_GLFW
 #endif //__APPLE__
 #endif //NO_GLEW
     glGetError();//don't remove this call, it is needed for Ubuntu

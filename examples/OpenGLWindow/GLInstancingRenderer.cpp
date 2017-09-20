@@ -28,7 +28,9 @@ float shadowMapWorldSize=10;
 #include "OpenGLInclude.h"
 #include "../CommonInterfaces/CommonWindowInterface.h"
 //#include "Bullet3Common/b3MinMax.h"
+#ifdef B3_USE_GLFW
 
+#else
 #ifndef __APPLE__
 #ifndef glVertexAttribDivisor
 #ifndef NO_GLEW
@@ -44,6 +46,7 @@ float shadowMapWorldSize=10;
 #endif //NO_GLEW
 #endif
 #endif //__APPLE__
+#endif//B3_USE_GLFW
 #include "GLInstancingRenderer.h"
 
 #include <string.h>

@@ -44,6 +44,9 @@
 		"**.cpp",
 		"**.h",
 	}
+	files {
+		"../../examples/OpenGLWindow/GLFWOpenGLWindow.cpp",
+		}
 	if os.is("Windows") then
 	files {
 		"../../examples/OpenGLWindow/Win32OpenGLWindow.cpp",
@@ -62,7 +65,6 @@
 	end
 	if os.is("MacOSX") then
 		links{"Cocoa.framework"}
-print("hello!")
 		files{
 		"../../examples/OpenGLWindow/MacOpenGLWindow.cpp",
 		"../../examples/OpenGLWindow/MacOpenGLWindow.h",

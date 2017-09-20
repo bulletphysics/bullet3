@@ -1,3 +1,5 @@
+#ifndef B3_USE_GLFW
+
 #include "MacOpenGLWindowObjC.h"
 
 #define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
@@ -1231,3 +1233,5 @@ b3ResizeCallback Mac_getResizeCallback(struct MacOpenGLWindowInternalData* m_int
 {
 	return [m_internalData->m_myview getResizeCallback];
 }
+#endif //B3_USE_GLFW
+
