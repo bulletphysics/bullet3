@@ -1007,7 +1007,7 @@ void CMainApplication::RenderFrame()
 		// We want to make sure the glFinish waits for the entire present to complete, not just the submission
 		// of the command. So, we do a clear here right here so the glFinish will wait fully for the swap.
 		glClearColor( 0, 0, 0, 1 );
-		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+		//glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	}
 
 	// Flush and wait for swap.
@@ -1281,9 +1281,13 @@ bool CMainApplication::SetupTexturemaps()
 
 #ifdef WIN32
 	GLfloat fLargest;
-	
+#ifdef B3_USE_GLFW
+	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &fLargest);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, fLargest);
+#else
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest);
+#endif
 #endif	
 	glBindTexture( GL_TEXTURE_2D, 0 );
 
@@ -1908,7 +1912,7 @@ void CMainApplication::RenderScene( vr::Hmd_Eye nEye )
 {
 	B3_PROFILE("RenderScene");
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 
 	if( m_bShowCubes )
@@ -2295,9 +2299,14 @@ bool CGLRenderModel::BInit( const vr::RenderModel_t & vrModel, const vr::RenderM
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
 #ifdef _WIN32
 	GLfloat fLargest;
+#ifdef B3_USE_GLFW
+	glGetFloatv( GL_MAX_TEXTURE_MAX_ANISOTROPY, &fLargest );
+	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, fLargest );
+#else
 	glGetFloatv( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest );
 	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest );
-#endif
+#endif //B3_USE_GLFW
+#endif//_WIN32
 	glBindTexture( GL_TEXTURE_2D, 0 );
 
 	m_unVertexCount = vrModel.unTriangleCount * 3;
@@ -2388,6 +2397,7 @@ int main(int argc, char *argv[])
     if (gVideoFileName)
         pMainApplication->getApp()->dumpFramesToVideo(gVideoFileName);
 
+#ifndef B3_USE_GLFW
 #ifdef _WIN32 
 	//request disable VSYNC
 	typedef bool (APIENTRY *PFNWGLSWAPINTERVALFARPROC)(int);
@@ -2397,7 +2407,7 @@ int main(int argc, char *argv[])
 	if (wglSwapIntervalEXT)
 		wglSwapIntervalEXT(0);
 #endif
-
+#endif
 #ifdef __APPLE__
 	GLint                       sync = 0;
 	CGLContextObj               ctx = CGLGetCurrentContext();
