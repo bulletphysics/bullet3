@@ -17,7 +17,10 @@ subject to the following restrictions:
 #ifndef __OPENGL_INCLUDE_H
 #define __OPENGL_INCLUDE_H
 
-
+#ifdef B3_USE_GLFW
+#include "glad/glad.h"
+#include <GLFW/glfw3.h>
+#else
 //think different
 #if defined(__APPLE__) && !defined (VMDMESA)
 #include <OpenGL/OpenGL.h>
@@ -45,7 +48,7 @@ subject to the following restrictions:
 //#include <GL/glu.h>
 #endif //_WINDOWS
 #endif //APPLE
-
+#endif //B3_USE_GLFW
 //disable glGetError
 //#undef glGetError
 //#define glGetError MyGetError

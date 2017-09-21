@@ -1,3 +1,4 @@
+#ifndef B3_USE_GLFW
 #ifdef __APPLE__
 
 #include "MacOpenGLWindow.h"
@@ -190,6 +191,6 @@ void	MacOpenGLWindow::setAllowRetina(bool allow)
 	
 
 #endif //__APPLE__
-
+#endif //B3_USE_GLFW
 	
 

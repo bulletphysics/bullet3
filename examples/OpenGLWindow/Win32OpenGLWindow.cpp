@@ -1,3 +1,4 @@
+#ifndef B3_USE_GLFW
 #ifdef _WIN32
 /*
 Copyright (c) 2012 Advanced Micro Devices, Inc.  
@@ -196,5 +197,5 @@ int Win32OpenGLWindow::getHeight() const
 
 
 #endif
-
 	
+#endif //B3_USE_GLFW
