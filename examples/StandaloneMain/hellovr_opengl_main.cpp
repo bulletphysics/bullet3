@@ -1804,6 +1804,8 @@ void CMainApplication::RenderStereoTargets()
 		m_app->m_instancingRenderer->getActiveCamera()->setCameraUpVector(mat[0],mat[1],mat[2]);
 		m_app->m_instancingRenderer->getActiveCamera()->setVRCamera(viewMatLeft.get(),m_mat4ProjectionLeft.get());
 		m_app->m_instancingRenderer->updateCamera(m_app->getUpAxis());
+		m_app->m_instancingRenderer->getActiveCamera()->setVRCamera(viewMatLeft.get(),m_mat4ProjectionLeft.get());
+
 	}
 
 	glBindFramebuffer( GL_FRAMEBUFFER, leftEyeDesc.m_nRenderFramebufferId );
@@ -1862,6 +1864,7 @@ void CMainApplication::RenderStereoTargets()
 		Matrix4 viewMatRight = m_mat4eyePosRight * m_mat4HMDPose * rotYtoZ;
 		m_app->m_instancingRenderer->getActiveCamera()->setVRCamera(viewMatRight.get(),m_mat4ProjectionRight.get());
 		m_app->m_instancingRenderer->updateCamera(m_app->getUpAxis());
+		m_app->m_instancingRenderer->getActiveCamera()->setVRCamera(viewMatRight.get(),m_mat4ProjectionRight.get());
 	}
 	
 	glBindFramebuffer( GL_FRAMEBUFFER, rightEyeDesc.m_nRenderFramebufferId );
