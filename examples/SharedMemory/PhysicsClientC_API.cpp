@@ -53,7 +53,7 @@ b3SharedMemoryCommandHandle	b3SaveWorldCommandInit(b3PhysicsClientHandle physCli
 	return (b3SharedMemoryCommandHandle) command;
 }
 
-b3SharedMemoryCommandHandle	b3LoadUrdfCommandInit(b3PhysicsClientHandle physClient, const char* urdfFileName)
+B3_SHARED_API b3SharedMemoryCommandHandle	b3LoadUrdfCommandInit(b3PhysicsClientHandle physClient, const char* urdfFileName)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;
     b3Assert(cl);
@@ -212,7 +212,7 @@ int b3LoadBunnySetCollisionMargin(b3SharedMemoryCommandHandle commandHandle, dou
     return 0;
 }
 
-int	b3LoadUrdfCommandSetUseMultiBody(b3SharedMemoryCommandHandle commandHandle, int useMultiBody)
+B3_SHARED_API int	b3LoadUrdfCommandSetUseMultiBody(b3SharedMemoryCommandHandle commandHandle, int useMultiBody)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
@@ -223,7 +223,7 @@ int	b3LoadUrdfCommandSetUseMultiBody(b3SharedMemoryCommandHandle commandHandle, 
     return 0;
 }
 
-int	b3LoadUrdfCommandSetGlobalScaling(b3SharedMemoryCommandHandle commandHandle, double globalScaling)
+B3_SHARED_API int	b3LoadUrdfCommandSetGlobalScaling(b3SharedMemoryCommandHandle commandHandle, double globalScaling)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
@@ -259,7 +259,7 @@ int	b3LoadSdfCommandSetUseGlobalScaling(b3SharedMemoryCommandHandle commandHandl
 
 
 
-int	b3LoadUrdfCommandSetUseFixedBase(b3SharedMemoryCommandHandle commandHandle, int useFixedBase)
+B3_SHARED_API int	b3LoadUrdfCommandSetUseFixedBase(b3SharedMemoryCommandHandle commandHandle, int useFixedBase)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
@@ -273,7 +273,7 @@ int	b3LoadUrdfCommandSetUseFixedBase(b3SharedMemoryCommandHandle commandHandle, 
 	return -1;
 }
 
-int	b3LoadUrdfCommandSetFlags(b3SharedMemoryCommandHandle commandHandle, int flags)
+B3_SHARED_API int	b3LoadUrdfCommandSetFlags(b3SharedMemoryCommandHandle commandHandle, int flags)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
@@ -286,7 +286,7 @@ int	b3LoadUrdfCommandSetFlags(b3SharedMemoryCommandHandle commandHandle, int fla
 	return 0;
 }
 
-int	b3LoadUrdfCommandSetStartPosition(b3SharedMemoryCommandHandle commandHandle, double startPosX,double startPosY,double startPosZ)
+B3_SHARED_API int	b3LoadUrdfCommandSetStartPosition(b3SharedMemoryCommandHandle commandHandle, double startPosX,double startPosY,double startPosZ)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
 	b3Assert(command);
@@ -305,7 +305,7 @@ int	b3LoadUrdfCommandSetStartPosition(b3SharedMemoryCommandHandle commandHandle,
 	return -1;
 }
 
-int	b3LoadUrdfCommandSetStartOrientation(b3SharedMemoryCommandHandle commandHandle, double startOrnX,double startOrnY,double startOrnZ, double startOrnW)
+B3_SHARED_API int	b3LoadUrdfCommandSetStartOrientation(b3SharedMemoryCommandHandle commandHandle, double startOrnX,double startOrnY,double startOrnZ, double startOrnW)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
 	b3Assert(command);
@@ -495,7 +495,7 @@ int	b3PhysicsParamSetDefaultFrictionERP(b3SharedMemoryCommandHandle commandHandl
 }
 
 
-b3SharedMemoryCommandHandle	b3InitStepSimulationCommand(b3PhysicsClientHandle physClient)
+B3_SHARED_API b3SharedMemoryCommandHandle	b3InitStepSimulationCommand(b3PhysicsClientHandle physClient)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;
     b3Assert(cl);
@@ -507,7 +507,7 @@ b3SharedMemoryCommandHandle	b3InitStepSimulationCommand(b3PhysicsClientHandle ph
 	 return (b3SharedMemoryCommandHandle) command;
 }
 
-b3SharedMemoryCommandHandle     b3InitResetSimulationCommand(b3PhysicsClientHandle physClient)
+B3_SHARED_API b3SharedMemoryCommandHandle     b3InitResetSimulationCommand(b3PhysicsClientHandle physClient)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;
     b3Assert(cl);
@@ -1631,7 +1631,7 @@ int	b3SubmitClientCommand(b3PhysicsClientHandle physClient, const b3SharedMemory
 #include "../Utils/b3Clock.h"
 
 
-b3SharedMemoryStatusHandle b3SubmitClientCommandAndWaitStatus(b3PhysicsClientHandle physClient, const b3SharedMemoryCommandHandle commandHandle)
+B3_SHARED_API b3SharedMemoryStatusHandle b3SubmitClientCommandAndWaitStatus(b3PhysicsClientHandle physClient, const b3SharedMemoryCommandHandle commandHandle)
 {
 	B3_PROFILE("b3SubmitClientCommandAndWaitStatus");
 	b3Clock clock;

@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-	b3PhysicsClientHandle b3ConnectSharedMemory(int key);
+B3_SHARED_API b3PhysicsClientHandle b3ConnectSharedMemory(int key);
 
 #ifdef __cplusplus
 }
