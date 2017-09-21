@@ -11,7 +11,11 @@ B3_DECLARE_HANDLE(b3SharedMemoryCommandHandle);
 B3_DECLARE_HANDLE(b3SharedMemoryStatusHandle);
 
 #ifdef _WIN32
-#define B3_SHARED_API __declspec(dllexport)
+	#define B3_SHARED_API __declspec(dllexport)
+#elif defined (__GNUC__)
+	#define B3_SHARED_API __attribute__((visibility("default")))
+#else
+	#define B3_SHARED_API
 #endif
 
 
