@@ -1053,13 +1053,13 @@ struct GenericRobotStateLogger : public InternalStateLogger
     std::string m_fileName;
     FILE* m_logFileHandle;
     std::string m_structTypes;
-    btMultiBodyDynamicsWorld* m_dynamicsWorld;
+    const btMultiBodyDynamicsWorld* m_dynamicsWorld;
     btAlignedObjectArray<int> m_bodyIdList;
     bool m_filterObjectUniqueId;
     int m_maxLogDof;
 	int m_logFlags;
 
-    GenericRobotStateLogger(int loggingUniqueId, const std::string& fileName, btMultiBodyDynamicsWorld* dynamicsWorld, int maxLogDof, int logFlags)
+    GenericRobotStateLogger(int loggingUniqueId, const std::string& fileName, const btMultiBodyDynamicsWorld* dynamicsWorld, int maxLogDof, int logFlags)
     :m_loggingTimeStamp(0),
     m_logFileHandle(0),
     m_dynamicsWorld(dynamicsWorld),
@@ -1137,7 +1137,7 @@ struct GenericRobotStateLogger : public InternalStateLogger
         {
             for (int i=0;i<m_dynamicsWorld->getNumMultibodies();i++)
             {
-                btMultiBody* mb = m_dynamicsWorld->getMultiBody(i);
+                const btMultiBody* mb = m_dynamicsWorld->getMultiBody(i);
                 int objectUniqueId = mb->getUserIndex2();
                 if (m_filterObjectUniqueId && m_bodyIdList.findLinearSearch2(objectUniqueId) < 0)
                 {
