@@ -184,7 +184,7 @@ else()
                 ${_PYTHON_PREFIX}/libs
                 ${_PYTHON_LIBRARY_DIR}/x86_64-linux-gnu/
                 NO_DEFAULT_PATH)
-              message(STATUS "PYTHON_LIBRARY:${PYTHON_LIBRARY}")
+
               if(WIN32)
                 find_library(PYTHON_DEBUG_LIBRARY
                   NAMES python${_PYTHON_SHORT_VERSION_NO_DOT}_d python
@@ -255,8 +255,8 @@ set(PYTHON_LIBRARY_DEBUG "${PYTHON_DEBUG_LIBRARY}")
 set(PYTHON_LIBRARY_RELEASE "${PYTHON_LIBRARY}")
 include(${CMAKE_CURRENT_LIST_DIR}/SelectLibraryConfigurations.cmake)
 SELECT_LIBRARY_CONFIGURATIONS(PYTHON)
-message(STATUS "${PYTHON_LIBRARY}")
-if(PYTHON_LIBRARY)
+
+if(PYTHON_LIBRARY AND NOT PYTHON_LIBRARIES)
   set(PYTHON_LIBRARIES "${PYTHON_LIBRARY}")
 endif()
 # SELECT_LIBRARY_CONFIGURATIONS() sets ${PREFIX}_FOUND if it has a library.
