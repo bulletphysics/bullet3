@@ -6726,6 +6726,9 @@ static PyObject* pybullet_executePluginCommand(PyObject* self,
 	int pluginUniqueId = -1;
 	int commandUniqueId = -1;
 	char* arguments = 0;
+	b3SharedMemoryCommandHandle command=0;
+	b3SharedMemoryStatusHandle 	statusHandle=0;
+	int statusType = -1;
 
 	b3PhysicsClientHandle sm = 0;
 	static char* kwlist[] = { "pluginUniqueId", "commandUniqueId", "arguments", "physicsClientId", NULL };
@@ -6741,9 +6744,6 @@ static PyObject* pybullet_executePluginCommand(PyObject* self,
 		return NULL;
 	}
 
-	b3SharedMemoryCommandHandle command=0;
-	b3SharedMemoryStatusHandle 	statusHandle=0;
-	int statusType = -1;
 
 	command = b3CreateCustomCommand(sm);
 	b3CustomCommandExecutePluginCommand(command, pluginUniqueId, commandUniqueId, arguments);

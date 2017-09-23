@@ -10,7 +10,7 @@ extern "C"
 
 B3_SHARED_API int initPlugin();
 B3_SHARED_API void exitPlugin();
-B3_SHARED_API int executePluginCommand();
+B3_SHARED_API int executePluginCommand(const char* arguments);
 
 #ifdef __cplusplus
 };

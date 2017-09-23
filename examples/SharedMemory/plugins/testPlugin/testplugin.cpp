@@ -10,8 +10,9 @@ B3_SHARED_API int initPlugin()
 	return SHARED_MEMORY_MAGIC_NUMBER;
 }
 
-B3_SHARED_API int executePluginCommand()
+B3_SHARED_API int executePluginCommand(const char* arguments)
 {
+	printf("arguments:%s\n",arguments);
 	return 42;
 }
 

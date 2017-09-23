@@ -12,8 +12,8 @@
 
 #if defined(_WIN32)
 #define B3_API_ENTRY
-#define B3_API_CALL     __stdcall
-#define B3_CALLBACK     __stdcall
+#define B3_API_CALL     __cdecl 
+#define B3_CALLBACK     __cdecl 
 #else
 #define B3_API_ENTRY
 #define B3_API_CALL
@@ -28,7 +28,7 @@ extern "C" {
 	/* Plugin API */
 	typedef B3_API_ENTRY int (B3_API_CALL * PFN_INIT)();
 	typedef B3_API_ENTRY void (B3_API_CALL * PFN_EXIT)();
-	typedef B3_API_ENTRY int (B3_API_CALL * PFN_EXECUTE)();
+	typedef B3_API_ENTRY int (B3_API_CALL * PFN_EXECUTE)(const char* arguments);
 
 #ifdef __cplusplus
 }

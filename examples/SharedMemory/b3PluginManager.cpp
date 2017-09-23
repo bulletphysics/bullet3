@@ -145,7 +145,7 @@ int b3PluginManager::executePluginCommand(int pluginUniqueId, const char* argume
 	b3PluginHandle* plugin = m_data->m_plugins.getHandle(pluginUniqueId);
 	if (plugin)
 	{
-		result = plugin->m_executeCommandFunc();
+		result = plugin->m_executeCommandFunc(arguments);
 	}
 	return result;
 }
