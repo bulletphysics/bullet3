@@ -1,4 +1,16 @@
 
+//test plugin, can load a URDF file, example usage on a Windows machine:
+
+/*
+import pybullet as p
+p.connect(p.GUI)
+pluginUid = p.loadPlugin("E:/develop/bullet3/bin/pybullet_testplugin_vs2010_x64_debug.dll")
+commandUid = 0
+argument = "plane.urdf"
+p.executePluginCommand(pluginUid,commandUid,argument)
+p.unloadPlugin(pluginUid)
+*/
+
 #include "testplugin.h"
 #include "../../SharedMemoryPublic.h"
 #include "../b3PluginContext.h"
