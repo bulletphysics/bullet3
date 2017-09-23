@@ -6653,6 +6653,108 @@ static PyObject* pybullet_getEulerFromQuaternion(PyObject* self,
 	return Py_None;
 }
 
+
+static PyObject* pybullet_loadPlugin(PyObject* self,
+	PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	int option = 0;
+	char* pluginPath = 0;
+	b3SharedMemoryCommandHandle command = 0;
+	b3SharedMemoryStatusHandle 	statusHandle = 0;
+	int statusType = -1;
+
+	b3PhysicsClientHandle sm = 0;
+	static char* kwlist[] = { "pluginPath", "option", "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|ii", kwlist, &pluginPath, &option, &physicsClientId))
+	{
+		return NULL;
+	}
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	command = b3CreateCustomCommand(sm);
+	b3CustomCommandLoadPlugin(command, pluginPath, option);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	statusType = b3GetStatusPluginUniqueId(statusHandle);
+	return PyInt_FromLong(statusType);
+}
+
+
+static PyObject* pybullet_unloadPlugin(PyObject* self,
+	PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	int pluginUniqueId = -1;
+
+	b3SharedMemoryCommandHandle command = 0;
+	b3SharedMemoryStatusHandle 	statusHandle = 0;
+	int statusType = -1;
+
+	b3PhysicsClientHandle sm = 0;
+	static char* kwlist[] = { "pluginUniqueId",  "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|i", kwlist, &pluginUniqueId,&physicsClientId))
+	{
+		return NULL;
+	}
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	command = b3CreateCustomCommand(sm);
+	b3CustomCommandUnloadPlugin(command, pluginUniqueId);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+
+	Py_INCREF(Py_None);
+	return Py_None;;
+}
+
+//createCustomCommand for executing commands implemented in a plugin system
+static PyObject* pybullet_executePluginCommand(PyObject* self,
+	PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	int pluginUniqueId = -1;
+	int commandUniqueId = -1;
+	char* arguments = 0;
+
+	b3PhysicsClientHandle sm = 0;
+	static char* kwlist[] = { "pluginUniqueId", "commandUniqueId", "arguments", "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|si", kwlist, &pluginUniqueId, &commandUniqueId, &arguments, &physicsClientId))
+	{
+		return NULL;
+	}
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	b3SharedMemoryCommandHandle command=0;
+	b3SharedMemoryStatusHandle 	statusHandle=0;
+	int statusType = -1;
+
+	command = b3CreateCustomCommand(sm);
+	b3CustomCommandExecutePluginCommand(command, pluginUniqueId, commandUniqueId, arguments);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	statusType = b3GetStatusPluginCommandResult(statusHandle);
+	return PyInt_FromLong(statusType);
+}
+
+
+
+
 ///Inverse Kinematics binding
 static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 													 PyObject* args, PyObject* keywds)
@@ -6946,6 +7048,7 @@ static PyObject* pybullet_calculateInverseDynamics(PyObject* self,
 	Py_INCREF(Py_None);
 	return Py_None;
 }
+
 
 static PyMethodDef SpamMethods[] = {
 
@@ -7264,6 +7367,16 @@ static PyMethodDef SpamMethods[] = {
 	{"rayTestBatch", (PyCFunction)pybullet_rayTestBatch, METH_VARARGS | METH_KEYWORDS,
 		"Cast a batch of rays and return the result for each of the rays (first object hit, if any. or -1) "
 	 "Takes two arguments (list of from_positions [x,y,z] and a list of to_positions [x,y,z] in Cartesian world coordinates"},
+
+	 { "loadPlugin", (PyCFunction)pybullet_loadPlugin, METH_VARARGS | METH_KEYWORDS,
+		 "Load a plugin, could implement custom commands etc." },
+
+	{ "unloadPlugin", (PyCFunction)pybullet_unloadPlugin, METH_VARARGS | METH_KEYWORDS,
+		"Unload a plugin, given the pluginUniqueId." },
+
+	 { "executePluginCommand", (PyCFunction)pybullet_executePluginCommand, METH_VARARGS | METH_KEYWORDS,
+		"Execute a command, implemented in a plugin." },
+
 
 	{"submitProfileTiming", (PyCFunction)pybullet_submitProfileTiming, METH_VARARGS | METH_KEYWORDS,
 	 "Add a custom profile timing that will be visible in performance profile recordings on the physics server."

@@ -70,6 +70,7 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["examples/SharedMemory/PhysicsClientUDP_C_API.cpp"]\
 +["examples/SharedMemory/PhysicsClientTCP.cpp"]\
 +["examples/SharedMemory/PhysicsClientTCP_C_API.cpp"]\
++["examples/SharedMemory/b3PluginManager.cpp"]\
 +["examples/Utils/b3ResourcePath.cpp"]\
 +["examples/Utils/RobotLoggingUtil.cpp"]\
 +["examples/Utils/ChromeTraceUtil.cpp"]\

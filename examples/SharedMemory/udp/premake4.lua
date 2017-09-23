@@ -79,6 +79,7 @@ myfiles =
 	"../SharedMemoryPublic.h",
 	"../PhysicsServerCommandProcessor.cpp",
 	"../PhysicsServerCommandProcessor.h",
+	"../b3PluginManager.cpp",
 	"../TinyRendererVisualShapeConverter.cpp",
 	"../TinyRendererVisualShapeConverter.h",
 	"../../TinyRenderer/geometry.cpp",

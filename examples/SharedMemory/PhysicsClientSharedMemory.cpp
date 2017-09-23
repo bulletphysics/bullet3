@@ -1200,6 +1200,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 				b3Warning("Request getCollisionInfo failed");
 				break;
 			}
+			case CMD_CUSTOM_COMMAND_COMPLETED:
+			{
+				break;
+			}
+			case CMD_CUSTOM_COMMAND_FAILED:
+			{
+				b3Warning("custom plugin command failed");
+				break;
+			}
 
             default: {
                 b3Error("Unknown server status %d\n", serverCmd.m_type);

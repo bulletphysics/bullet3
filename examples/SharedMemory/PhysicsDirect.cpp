@@ -940,6 +940,16 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 		break;
 	}
 
+	case CMD_CUSTOM_COMMAND_COMPLETED:
+	{
+		break;
+	}
+	case CMD_CUSTOM_COMMAND_FAILED:
+	{
+		b3Warning("custom plugin command failed");
+		break;
+	}
+
 	default:
 	{
 		//b3Warning("Unknown server status type");

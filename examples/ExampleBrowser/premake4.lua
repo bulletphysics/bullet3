@@ -109,6 +109,7 @@ project "App_BulletExampleBrowser"
 		"../SharedMemory/PhysicsLoopBackC_API.h",
 		"../SharedMemory/PhysicsServerCommandProcessor.cpp",
 		"../SharedMemory/PhysicsServerCommandProcessor.h",
+		"../SharedMemory/b3PluginManager.cpp",		
 		"../SharedMemory/TinyRendererVisualShapeConverter.cpp",
 		"../SharedMemory/TinyRendererVisualShapeConverter.h",
 		"../SharedMemory/SharedMemoryCommands.h",
