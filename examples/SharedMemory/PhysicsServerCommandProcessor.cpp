@@ -37,6 +37,8 @@
 #include "LinearMath/btRandom.h"
 #include "Bullet3Common/b3ResizablePool.h"
 #include "../Utils/b3Clock.h"
+#include "b3PluginManager.h"
+
 #ifdef B3_ENABLE_TINY_AUDIO
 #include "../TinyAudio/b3SoundEngine.h"
 #endif
@@ -1429,6 +1431,8 @@ struct PhysicsServerCommandProcessorInternalData
 	b3ResizablePool< InternalTextureHandle > m_textureHandles;
 	b3ResizablePool< InternalBodyHandle > m_bodyHandles;
 	b3ResizablePool<InternalCollisionShapeHandle> m_userCollisionShapeHandles;
+
+	b3PluginManager m_pluginManager;
 
 	bool m_allowRealTimeSimulation;
 	
@@ -7968,6 +7972,38 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 						break;        
 					}
+					case CMD_CUSTOM_COMMAND:
+					{
+						SharedMemoryStatus& serverCmd = serverStatusOut;
+						serverCmd.m_type = CMD_CUSTOM_COMMAND_FAILED;
+						serverCmd.m_customCommandResultArgs.m_pluginUniqueId = -1;
+
+						if (clientCmd.m_updateFlags & CMD_CUSTOM_COMMAND_LOAD_PLUGIN)
+						{
+							//pluginPath could be registered or load from disk
+							int pluginUniqueId = m_data->m_pluginManager.loadPlugin(clientCmd.m_customCommandArgs.m_pluginPath);
+							if (pluginUniqueId>=0)
+							{
+								serverCmd.m_customCommandResultArgs.m_pluginUniqueId = pluginUniqueId;
+								serverCmd.m_type = CMD_CUSTOM_COMMAND_COMPLETED;
+							}
+						}
+						if (clientCmd.m_updateFlags & CMD_CUSTOM_COMMAND_UNLOAD_PLUGIN)
+						{
+							m_data->m_pluginManager.unloadPlugin(clientCmd.m_customCommandArgs.m_pluginUniqueId);
+							serverCmd.m_type = CMD_CUSTOM_COMMAND_COMPLETED;
+						}
+						if (clientCmd.m_updateFlags & CMD_CUSTOM_COMMAND_EXECUTE_PLUGIN_COMMAND)
+						{
+							int result = m_data->m_pluginManager.executePluginCommand(clientCmd.m_customCommandArgs.m_pluginUniqueId, clientCmd.m_customCommandArgs.m_pluginArguments);
+							serverCmd.m_customCommandResultArgs.m_executeCommandResult = result;
+							serverCmd.m_type = CMD_CUSTOM_COMMAND_COMPLETED;
+
+						}
+
+						hasStatus = true;
+						break;
+					}
                 default:
                 {
 					BT_PROFILE("CMD_UNKNOWN");
@@ -8186,12 +8222,6 @@ void PhysicsServerCommandProcessor::replayFromLogFile(const char* fileName)
 }
 
 
-btVector3 gVRGripperPos(0.7, 0.3, 0.7);
-btQuaternion gVRGripperOrn(0,0,0,1);
-btVector3 gVRController2Pos(0,0,0.2);
-btQuaternion gVRController2Orn(0,0,0,1);
-btScalar gVRGripper2Analog = 0;
-btScalar gVRGripperAnalog = 0;
 
 
 

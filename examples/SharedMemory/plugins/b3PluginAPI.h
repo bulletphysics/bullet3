@@ -1,0 +1,37 @@
+#ifndef B3_PLUGIN_API_H
+#define B3_PLUGIN_API_H
+
+#ifdef _WIN32
+#define B3_SHARED_API __declspec(dllexport)
+#elif defined (__GNUC__)
+#define B3_SHARED_API __attribute__((visibility("default")))
+#else
+#define B3_SHARED_API
+#endif
+
+
+#if defined(_WIN32)
+#define B3_API_ENTRY
+#define B3_API_CALL     __stdcall
+#define B3_CALLBACK     __stdcall
+#else
+#define B3_API_ENTRY
+#define B3_API_CALL
+#define B3_CALLBACK
+#endif
+
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+	/* Plugin API */
+	typedef B3_API_ENTRY int (B3_API_CALL * PFN_INIT)();
+	typedef B3_API_ENTRY void (B3_API_CALL * PFN_EXIT)();
+	typedef B3_API_ENTRY int (B3_API_CALL * PFN_EXECUTE)();
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif //B3_PLUGIN_API_H

@@ -41,6 +41,7 @@ SET(SharedMemory_SRCS
 	TinyRendererVisualShapeConverter.h
 	SharedMemoryCommands.h
 	SharedMemoryPublic.h
+	b3PluginManager.cpp
 	../TinyRenderer/geometry.cpp
 	../TinyRenderer/model.cpp
 	../TinyRenderer/tgaimage.cpp
