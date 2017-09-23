@@ -1516,8 +1516,8 @@ struct PhysicsServerCommandProcessorInternalData
 
 	b3HashMap<b3HashString,  char*> m_profileEvents;
 
-	PhysicsServerCommandProcessorInternalData()
-		:
+	PhysicsServerCommandProcessorInternalData(PhysicsCommandProcessorInterface* proc)
+		:m_pluginManager(proc),
 		m_allowRealTimeSimulation(false),
 		m_commandLogger(0),
 		m_logPlayback(0),
@@ -1647,8 +1647,9 @@ void PhysicsServerCommandProcessor::setGuiHelper(struct GUIHelperInterface* guiH
 
 
 PhysicsServerCommandProcessor::PhysicsServerCommandProcessor()
+	:m_data(0)
 {
-	m_data = new PhysicsServerCommandProcessorInternalData();
+	m_data = new PhysicsServerCommandProcessorInternalData(this);
 
 	createEmptyDynamicsWorld();
 

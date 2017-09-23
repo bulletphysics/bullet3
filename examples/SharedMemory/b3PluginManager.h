@@ -7,7 +7,7 @@ class b3PluginManager
 
 	public:
 		
-		b3PluginManager();
+		b3PluginManager(class PhysicsCommandProcessorInterface* physSdk);
 		virtual ~b3PluginManager();
 		
 		int loadPlugin(const char* pluginPath);

@@ -28,7 +28,7 @@ extern "C" {
 	/* Plugin API */
 	typedef B3_API_ENTRY int (B3_API_CALL * PFN_INIT)();
 	typedef B3_API_ENTRY void (B3_API_CALL * PFN_EXIT)();
-	typedef B3_API_ENTRY int (B3_API_CALL * PFN_EXECUTE)(const char* arguments);
+	typedef B3_API_ENTRY int (B3_API_CALL * PFN_EXECUTE)(struct b3PluginContext* context);
 
 #ifdef __cplusplus
 }

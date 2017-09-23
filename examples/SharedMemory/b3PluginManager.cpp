@@ -4,6 +4,8 @@
 #include "Bullet3Common/b3ResizablePool.h"
 #include "plugins/b3PluginAPI.h"
 #include "SharedMemoryPublic.h"
+#include "PhysicsDirect.h"
+#include "plugins/b3PluginContext.h"
 
 #ifdef _WIN32
     #define WIN32_LEAN_AND_MEAN
@@ -50,15 +52,19 @@ struct b3PluginManagerInternalData
 {
 	b3ResizablePool<b3PluginHandle> m_plugins;
 	b3HashMap<b3HashString, b3PluginHandle> m_pluginMap;
+	PhysicsDirect* m_physicsDirect;
 };
 
-b3PluginManager::b3PluginManager()
+b3PluginManager::b3PluginManager(class PhysicsCommandProcessorInterface* physSdk)
 {
 	m_data = new b3PluginManagerInternalData;
+	m_data->m_physicsDirect = new PhysicsDirect(physSdk,false);
+
 }
 
 b3PluginManager::~b3PluginManager()
 {
+	delete m_data->m_physicsDirect;
 	m_data->m_pluginMap.clear();
 	m_data->m_plugins.exitHandles();
 	delete m_data;
@@ -145,7 +151,10 @@ int b3PluginManager::executePluginCommand(int pluginUniqueId, const char* argume
 	b3PluginHandle* plugin = m_data->m_plugins.getHandle(pluginUniqueId);
 	if (plugin)
 	{
-		result = plugin->m_executeCommandFunc(arguments);
+		b3PluginContext context;
+		context.m_arguments = arguments;
+		context.m_physClient = (b3PhysicsClientHandle) m_data->m_physicsDirect;
+		result = plugin->m_executeCommandFunc(&context);
 	}
 	return result;
 }
