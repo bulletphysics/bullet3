@@ -21,6 +21,9 @@ ENDIF()
 
 IF (NOT WIN32)
 	LINK_LIBRARIES(		pthread	)
+	IF (NOT APPLE)
+		LINK_LIBRARIES(${DL})
+	ENDIF()
 ENDIF()
 
 	ADD_EXECUTABLE(Test_PhysicsClientServer
