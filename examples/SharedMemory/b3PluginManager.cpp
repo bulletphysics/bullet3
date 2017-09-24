@@ -2,7 +2,6 @@
 #include "b3PluginManager.h"
 #include "Bullet3Common/b3HashMap.h"
 #include "Bullet3Common/b3ResizablePool.h"
-#include "plugins/b3PluginAPI.h"
 #include "SharedMemoryPublic.h"
 #include "PhysicsDirect.h"
 #include "plugins/b3PluginContext.h"
@@ -30,19 +29,43 @@
 struct b3Plugin
 {
 	B3_DYNLIB_HANDLE m_pluginHandle;
+	bool m_ownsPluginHandle;
 	std::string m_pluginPath;
-
+	int m_pluginUniqueId;
 	PFN_INIT m_initFunc;
 	PFN_EXIT m_exitFunc;
 	PFN_EXECUTE m_executeCommandFunc;
+	
+	PFN_TICK m_preTickFunc;
+	PFN_TICK m_postTickFunc;
 
+	void* m_userPointer;
+
+	b3Plugin()
+		:m_pluginHandle(0),
+		m_ownsPluginHandle(false),
+		m_pluginUniqueId(-1),
+		m_initFunc(0),
+		m_exitFunc(0),
+		m_executeCommandFunc(0),
+		m_postTickFunc(0),
+		m_preTickFunc(0),
+		m_userPointer(0)
+	{
+	}
 	void clear()
 	{
-		B3_DYNLIB_CLOSE(m_pluginHandle);
+		if (m_ownsPluginHandle)
+		{
+			B3_DYNLIB_CLOSE(m_pluginHandle);
+		}
 		m_pluginHandle = 0;
 		m_initFunc = 0;
 		m_exitFunc = 0;
 		m_executeCommandFunc = 0;
+		m_preTickFunc = 0;
+		m_postTickFunc = 0;
+		m_userPointer = 0;
 	}
 };
 
@@ -64,26 +87,33 @@ b3PluginManager::b3PluginManager(class PhysicsCommandProcessorInterface* physSdk
 
 b3PluginManager::~b3PluginManager()
 {
+	while (m_data->m_pluginMap.size())
+	{
+		b3PluginHandle* plugin = m_data->m_pluginMap.getAtIndex(0);
+		unloadPlugin(plugin->m_pluginUniqueId);
+	}
 	delete m_data->m_physicsDirect;
 	m_data->m_pluginMap.clear();
 	m_data->m_plugins.exitHandles();
 	delete m_data;
 }
-		
+
+
 int b3PluginManager::loadPlugin(const char* pluginPath)
 {
 	int pluginUniqueId = -1;
 
-	b3Plugin* plugin = m_data->m_pluginMap.find(pluginPath);
-	if (plugin)
+	b3Plugin* pluginOrg = m_data->m_pluginMap.find(pluginPath);
+	if (pluginOrg)
 	{
 		//already loaded
+		pluginUniqueId = pluginOrg->m_pluginUniqueId;
 	}
 	else
 	{
 		pluginUniqueId = m_data->m_plugins.allocHandle();
 		b3PluginHandle* plugin = m_data->m_plugins.getHandle(pluginUniqueId);
-
+		plugin->m_pluginUniqueId = pluginUniqueId;
 		B3_DYNLIB_HANDLE pluginHandle = B3_DYNLIB_OPEN(pluginPath);
 		bool ok = false;
 		if (pluginHandle)
@@ -92,13 +122,22 @@ int b3PluginManager::loadPlugin(const char* pluginPath)
 			plugin->m_initFunc = (PFN_INIT)B3_DYNLIB_IMPORT(pluginHandle, "initPlugin");
 			plugin->m_exitFunc = (PFN_EXIT)B3_DYNLIB_IMPORT(pluginHandle, "exitPlugin");
 			plugin->m_executeCommandFunc = (PFN_EXECUTE)B3_DYNLIB_IMPORT(pluginHandle, "executePluginCommand");
-
+			plugin->m_preTickFunc = (PFN_TICK)B3_DYNLIB_IMPORT(pluginHandle, "preTickPluginCallback");
+			plugin->m_postTickFunc = (PFN_TICK)B3_DYNLIB_IMPORT(pluginHandle, "postTickPluginCallback");
+			
 			if (plugin->m_initFunc && plugin->m_exitFunc && plugin->m_executeCommandFunc)
 			{
-				int version = plugin->m_initFunc();
+
+				b3PluginContext context;
+				context.m_userPointer = plugin->m_userPointer;
+				context.m_physClient = (b3PhysicsClientHandle) m_data->m_physicsDirect;
+				int version = plugin->m_initFunc(&context);
+				//keep the user pointer persistent
+				plugin->m_userPointer = context.m_userPointer;
 				if (version == SHARED_MEMORY_MAGIC_NUMBER)
 				{
 					ok = true;
+					plugin->m_ownsPluginHandle = true;
 					plugin->m_pluginHandle = pluginHandle;
 					plugin->m_pluginPath = pluginPath;
 					m_data->m_pluginMap.insert(pluginPath, *plugin);
@@ -137,14 +176,35 @@ void b3PluginManager::unloadPlugin(int pluginUniqueId)
 	b3PluginHandle* plugin = m_data->m_plugins.getHandle(pluginUniqueId);
 	if (plugin)
 	{
-		plugin->m_exitFunc();
+		b3PluginContext context;
+		context.m_userPointer = plugin->m_userPointer;
+		context.m_physClient = (b3PhysicsClientHandle) m_data->m_physicsDirect;
+
+		plugin->m_exitFunc(&context);
 		m_data->m_pluginMap.remove(plugin->m_pluginPath.c_str());
 		m_data->m_plugins.freeHandle(pluginUniqueId);
 	}
 }
 		
+void b3PluginManager::tickPlugins(double timeStep, bool isPreTick)
+{
+	for (int i=0;i<m_data->m_pluginMap.size();i++)
+	{
+		b3PluginHandle* plugin = m_data->m_pluginMap.getAtIndex(i);
 
-int b3PluginManager::executePluginCommand(int pluginUniqueId, const char* arguments)
+		PFN_TICK  tick = isPreTick? plugin->m_preTickFunc : plugin->m_postTickFunc;
+		if (tick)
+		{
+			b3PluginContext context;
+			context.m_userPointer = plugin->m_userPointer;
+			context.m_physClient = (b3PhysicsClientHandle) m_data->m_physicsDirect;
+			int result = tick(&context);
+			plugin->m_userPointer = context.m_userPointer;
+		}
+	}
+}
+
+int b3PluginManager::executePluginCommand(int pluginUniqueId, const b3PluginArguments* arguments)
 {
 	int result = -1;
 
@@ -152,9 +212,44 @@ int b3PluginManager::executePluginCommand(int pluginUniqueId, const char* argume
 	if (plugin)
 	{
 		b3PluginContext context;
-		context.m_arguments = arguments;
+		context.m_userPointer = plugin->m_userPointer;
 		context.m_physClient = (b3PhysicsClientHandle) m_data->m_physicsDirect;
-		result = plugin->m_executeCommandFunc(&context);
+		
+		result = plugin->m_executeCommandFunc(&context, arguments);
+		plugin->m_userPointer = context.m_userPointer;
 	}
 	return result;
+}
+
+
+int b3PluginManager::registerStaticLinkedPlugin(const char* pluginPath, PFN_INIT initFunc,PFN_EXIT exitFunc, PFN_EXECUTE executeCommandFunc, PFN_TICK preTickFunc, PFN_TICK postTickFunc)
+{
+
+	b3Plugin orgPlugin;
+
+	
+	int pluginUniqueId = m_data->m_plugins.allocHandle();
+	b3PluginHandle* pluginHandle = m_data->m_plugins.getHandle(pluginUniqueId);
+	pluginHandle->m_pluginHandle = 0;
+	pluginHandle->m_ownsPluginHandle =false;
+	pluginHandle->m_pluginUniqueId = pluginUniqueId;
+	pluginHandle->m_executeCommandFunc = executeCommandFunc;
+	pluginHandle->m_exitFunc = exitFunc;
+	pluginHandle->m_initFunc = initFunc;
+	pluginHandle->m_preTickFunc = preTickFunc;
+	pluginHandle->m_postTickFunc = postTickFunc;
+	pluginHandle->m_pluginHandle = 0;
+	pluginHandle->m_pluginPath = pluginPath;
+	pluginHandle->m_userPointer = 0;
+	
+	m_data->m_pluginMap.insert(pluginPath, *pluginHandle);
+
+	{
+		b3PluginContext context;
+		context.m_userPointer = 0;
+		context.m_physClient = (b3PhysicsClientHandle) m_data->m_physicsDirect;
+		int result = pluginHandle->m_initFunc(&context);
+		pluginHandle->m_userPointer = context.m_userPointer;
+	}
+	return pluginUniqueId;
 }

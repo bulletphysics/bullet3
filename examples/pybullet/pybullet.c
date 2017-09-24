@@ -6658,15 +6658,15 @@ static PyObject* pybullet_loadPlugin(PyObject* self,
 	PyObject* args, PyObject* keywds)
 {
 	int physicsClientId = 0;
-	int option = 0;
+	
 	char* pluginPath = 0;
 	b3SharedMemoryCommandHandle command = 0;
 	b3SharedMemoryStatusHandle 	statusHandle = 0;
 	int statusType = -1;
 
 	b3PhysicsClientHandle sm = 0;
-	static char* kwlist[] = { "pluginPath", "option", "physicsClientId", NULL };
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|ii", kwlist, &pluginPath, &option, &physicsClientId))
+	static char* kwlist[] = { "pluginPath",  "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|i", kwlist, &pluginPath, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -6679,7 +6679,7 @@ static PyObject* pybullet_loadPlugin(PyObject* self,
 	}
 
 	command = b3CreateCustomCommand(sm);
-	b3CustomCommandLoadPlugin(command, pluginPath, option);
+	b3CustomCommandLoadPlugin(command, pluginPath);
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 	statusType = b3GetStatusPluginUniqueId(statusHandle);
 	return PyInt_FromLong(statusType);
@@ -6724,15 +6724,16 @@ static PyObject* pybullet_executePluginCommand(PyObject* self,
 {
 	int physicsClientId = 0;
 	int pluginUniqueId = -1;
-	int commandUniqueId = -1;
-	char* arguments = 0;
+	char* textArgument = 0;
 	b3SharedMemoryCommandHandle command=0;
 	b3SharedMemoryStatusHandle 	statusHandle=0;
 	int statusType = -1;
+	PyObject* intArgs=0;
+	PyObject* floatArgs=0;
 
 	b3PhysicsClientHandle sm = 0;
-	static char* kwlist[] = { "pluginUniqueId", "commandUniqueId", "arguments", "physicsClientId", NULL };
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|si", kwlist, &pluginUniqueId, &commandUniqueId, &arguments, &physicsClientId))
+	static char* kwlist[] = { "pluginUniqueId", "textArgument", "intArgs", "floatArgs", "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|sOOi", kwlist, &pluginUniqueId, &textArgument, &intArgs, &floatArgs, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -6746,7 +6747,29 @@ static PyObject* pybullet_executePluginCommand(PyObject* self,
 
 
 	command = b3CreateCustomCommand(sm);
-	b3CustomCommandExecutePluginCommand(command, pluginUniqueId, commandUniqueId, arguments);
+	b3CustomCommandExecutePluginCommand(command, pluginUniqueId, textArgument);
+
+	{
+		PyObject* seqIntArgs = intArgs?PySequence_Fast(intArgs, "expected a sequence"):0;
+		PyObject* seqFloatArgs = floatArgs?PySequence_Fast(floatArgs, "expected a sequence"):0;
+		int numIntArgs = seqIntArgs?PySequence_Size(intArgs):0;
+		int numFloatArgs = seqIntArgs?PySequence_Size(floatArgs):0;
+		int i;
+		for (i=0;i<numIntArgs;i++)
+		{
+			int val = pybullet_internalGetIntFromSequence(seqIntArgs,i);
+			b3CustomCommandExecuteAddIntArgument(command, val);
+		}
+		
+
+		for (i=0;i<numFloatArgs;i++)
+		{
+			float val = pybullet_internalGetFloatFromSequence(seqFloatArgs,i);
+			b3CustomCommandExecuteAddFloatArgument(command, val);
+		}
+		
+	}
+	
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 	statusType = b3GetStatusPluginCommandResult(statusHandle);
 	return PyInt_FromLong(statusType);

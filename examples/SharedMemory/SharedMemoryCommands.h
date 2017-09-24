@@ -119,10 +119,8 @@ enum CustomCommandEnum
 struct b3CustomCommand
 {
 	int m_pluginUniqueId;
-	int m_commandUniqueId;
-	int m_options;
+	b3PluginArguments m_arguments;
 	char m_pluginPath[MAX_FILENAME_LENGTH];
-	char m_pluginArguments[MAX_FILENAME_LENGTH];
 };
 
 struct b3CustomCommandResultArgs

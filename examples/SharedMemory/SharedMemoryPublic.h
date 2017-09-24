@@ -620,6 +620,19 @@ enum eStateLoggingFlags
 	STATE_LOG_JOINT_TORQUES = STATE_LOG_JOINT_MOTOR_TORQUES+STATE_LOG_JOINT_USER_TORQUES,
 };
 
+#define B3_MAX_PLUGIN_ARG_SIZE 128
+#define B3_MAX_PLUGIN_ARG_TEXT_LEN 1024
+
+struct b3PluginArguments
+{
+	char m_text[B3_MAX_PLUGIN_ARG_TEXT_LEN];
+	int m_numInts;
+	int m_ints[B3_MAX_PLUGIN_ARG_SIZE];
+	int m_numFloats;
+	int m_floats[B3_MAX_PLUGIN_ARG_SIZE];
+
+
+};
 
 
 #endif//SHARED_MEMORY_PUBLIC_H

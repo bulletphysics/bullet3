@@ -1,5 +1,6 @@
 #include "PhysicsServerCommandProcessor.h"
 
+
 #include "../Importers/ImportURDFDemo/BulletUrdfImporter.h"
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
 #include "../Importers/ImportURDFDemo/URDF2Bullet.h"
@@ -1488,7 +1489,7 @@ struct PhysicsServerCommandProcessorInternalData
 
 
 	btAlignedObjectArray<int> m_sdfRecentLoadedBodies;
-
+	
 	btAlignedObjectArray<InternalStateLogger*>	m_stateLoggers;
 	int m_stateLoggersUniqueId;
 	int m_profileTimingLoggingUid;
@@ -1541,6 +1542,16 @@ struct PhysicsServerCommandProcessorInternalData
 		m_pickedConstraint(0),
 		m_pickingMultiBodyPoint2Point(0)
 	{
+
+		
+
+		{
+			//test to statically link a plugin
+			//#include "plugins/testPlugin/testplugin.h"
+			//register static plugins:
+			//m_pluginManager.registerStaticLinkedPlugin("path", initPlugin, exitPlugin, executePluginCommand);
+		}
+
 		m_vrControllerEvents.init();
 
 		m_bodyHandles.exitHandles();
@@ -1671,13 +1682,23 @@ PhysicsServerCommandProcessor::~PhysicsServerCommandProcessor()
 	delete m_data;
 }
 
+
+void preTickCallback(btDynamicsWorld *world, btScalar timeStep)
+{
+	PhysicsServerCommandProcessor* proc = (PhysicsServerCommandProcessor*) world->getWorldUserInfo();
+	bool isPreTick = true;
+	proc->tickPlugins(timeStep, isPreTick);
+}
+
 void logCallback(btDynamicsWorld *world, btScalar timeStep)
 {
 	//handle the logging and playing sounds
 	PhysicsServerCommandProcessor* proc = (PhysicsServerCommandProcessor*) world->getWorldUserInfo();
 	proc->processCollisionForces(timeStep);
-	
 	proc->logObjectStates(timeStep);
+	
+	bool isPreTick = false;
+	proc->tickPlugins(timeStep, isPreTick);
 
 }
 
@@ -1785,6 +1806,12 @@ void PhysicsServerCommandProcessor::processCollisionForces(btScalar timeStep)
 	}
 #endif//B3_ENABLE_TINY_AUDIO
 }
+
+void PhysicsServerCommandProcessor::tickPlugins(btScalar timeStep, bool isPreTick)
+{
+	m_data->m_pluginManager.tickPlugins(timeStep, isPreTick);
+}
+
 
 void PhysicsServerCommandProcessor::logObjectStates(btScalar timeStep)
 {
@@ -2149,7 +2176,11 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 	{
 		m_data->m_guiHelper->createPhysicsDebugDrawer(m_data->m_dynamicsWorld);
 	}
-	m_data->m_dynamicsWorld->setInternalTickCallback(logCallback,this);
+	bool isPreTick=false;
+	m_data->m_dynamicsWorld->setInternalTickCallback(logCallback,this,isPreTick);
+	isPreTick = true;
+	m_data->m_dynamicsWorld->setInternalTickCallback(preTickCallback,this,isPreTick);
+
 
 #ifdef B3_ENABLE_TINY_AUDIO
 	m_data->m_soundEngine.init(16,true);
@@ -2966,27 +2997,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 	bool hasStatus = false;
 
     {
-        ///we ignore overflow of integer for now
-
         {
-
-            //until we implement a proper ring buffer, we assume always maximum of 1 outstanding commands
-
-
-			//const SharedMemoryCommand& clientCmd =m_data->m_testBlock1->m_clientCommands[0];
-#if 1
 			if (m_data->m_commandLogger)
 			{
                 m_data->m_commandLogger->logCommand(clientCmd);
 			}
-#endif
-
-			//m_data->m_testBlock1->m_numProcessedClientCommands++;
-
-			//no timestamp yet
-            //int timeStamp = 0;
-			
-			//catch uninitialized cases
 			serverStatusOut.m_type = CMD_INVALID_STATUS;
 			serverStatusOut.m_numDataStreamBytes = 0;
 			serverStatusOut.m_dataStream = 0;
@@ -2994,32 +3009,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
             //consume the command
 			switch (clientCmd.m_type)
             {
-#if 0
-				case CMD_SEND_BULLET_DATA_STREAM:
-                {
-					if (m_data->m_verboseOutput)
-					{
-						b3Printf("Processed CMD_SEND_BULLET_DATA_STREAM length %d",clientCmd.m_dataStreamArguments.m_streamChunkLength);
-					}
 
-					btBulletWorldImporter* worldImporter = new btBulletWorldImporter(m_data->m_dynamicsWorld);
-					m_data->m_worldImporters.push_back(worldImporter);
-					bool completedOk = worldImporter->loadFileFromMemory(m_data->m_testBlock1->m_bulletStreamDataClientToServer,clientCmd.m_dataStreamArguments.m_streamChunkLength);
-
-                    if (completedOk)
-                    {
-						SharedMemoryStatus& status = m_data->createServerStatus(CMD_BULLET_DATA_STREAM_RECEIVED_COMPLETED,clientCmd.m_sequenceNumber,timeStamp);
-						m_data->m_guiHelper->autogenerateGraphicsObjects(this->m_data->m_dynamicsWorld);
-						m_data->submitServerStatus(status);
-                    } else
-                    {
-						SharedMemoryStatus& status = m_data->createServerStatus(CMD_BULLET_DATA_STREAM_RECEIVED_FAILED,clientCmd.m_sequenceNumber,timeStamp);
-                        m_data->submitServerStatus(status);
-                    }
-
-					break;
-				}
-#endif
 				case CMD_STATE_LOGGING:
 				{
 					BT_PROFILE("CMD_STATE_LOGGING");
@@ -7996,7 +7986,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						}
 						if (clientCmd.m_updateFlags & CMD_CUSTOM_COMMAND_EXECUTE_PLUGIN_COMMAND)
 						{
-							int result = m_data->m_pluginManager.executePluginCommand(clientCmd.m_customCommandArgs.m_pluginUniqueId, clientCmd.m_customCommandArgs.m_pluginArguments);
+							
+							int result = m_data->m_pluginManager.executePluginCommand(clientCmd.m_customCommandArgs.m_pluginUniqueId, &clientCmd.m_customCommandArgs.m_arguments);
 							serverCmd.m_customCommandResultArgs.m_executeCommandResult = result;
 							serverCmd.m_type = CMD_CUSTOM_COMMAND_COMPLETED;
 
@@ -8245,6 +8236,8 @@ bool PhysicsServerCommandProcessor::isRealTimeSimulationEnabled() const
 void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,const struct b3VRControllerEvent* vrControllerEvents, int numVRControllerEvents, const struct b3KeyboardEvent* keyEvents, int numKeyEvents, const struct b3MouseEvent* mouseEvents, int numMouseEvents)
 {
 	m_data->m_vrControllerEvents.addNewVREvents(vrControllerEvents,numVRControllerEvents);
+
+
 	for (int i=0;i<m_data->m_stateLoggers.size();i++)
 	{
 		if (m_data->m_stateLoggers[i]->m_loggingType==STATE_LOGGING_VR_CONTROLLERS)
