@@ -1,5 +1,4 @@
 
-
 SET(SharedMemory_SRCS
 	IKTrajectoryHelper.cpp
 	IKTrajectoryHelper.h
