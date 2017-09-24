@@ -69,7 +69,7 @@ idScalar maxAbsMat3x(const mat3x &m) {
 
 void mul(const mat33 &a, const mat3x &b, mat3x *result) {
     if (b.cols() != result->cols()) {
-        error_message("size missmatch. a.cols()= %d, b.cols()= %d\n",
+        error_message("size missmatch. b.cols()= %d, result->cols()= %d\n",
                       static_cast<int>(b.cols()), static_cast<int>(result->cols()));
         abort();
     }
