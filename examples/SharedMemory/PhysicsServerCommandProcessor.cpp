@@ -6639,9 +6639,32 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                 tree->calculateJacobians(q);
                                 btInverseDynamics::mat3x jac_t(3, numDofs + baseDofs);
                                 btInverseDynamics::mat3x jac_r(3, numDofs + baseDofs);
+                                
                                 // Note that inverse dynamics uses zero-based indexing of bodies, not starting from -1 for the base link.
                                 tree->getBodyJacobianTrans(clientCmd.m_calculateJacobianArguments.m_linkIndex + 1, &jac_t);
                                 tree->getBodyJacobianRot(clientCmd.m_calculateJacobianArguments.m_linkIndex + 1, &jac_r);
+                                // Update the translational jacobian based on the desired local point.
+                                // v_pt = v_frame + w x pt
+                                // v_pt = J_t * qd + (J_r * qd) x pt
+                                // v_pt = J_t * qd - pt x (J_r * qd)
+                                // v_pt = J_t * qd - pt_x * J_r * qd)
+                                // v_pt = (J_t - pt_x * J_r) * qd
+                                // J_t_new = J_t - pt_x * J_r
+                                btInverseDynamics::vec3 localPosition;
+                                for (int i = 0; i < 3; ++i) {
+                                    localPosition(i) = clientCmd.m_calculateJacobianArguments.m_localPosition[i];
+                                }
+                                // Only calculate if the localPosition is non-zero.
+                                if (btInverseDynamics::maxAbs(localPosition) > 0.0) {
+                                    btInverseDynamics::mat33 skewCrossProduct;
+                                    btInverseDynamics::skew(localPosition, &skewCrossProduct);
+                                    btInverseDynamics::mat3x jac_l(3, numDofs + baseDofs);
+                                    btInverseDynamics::mul(skewCrossProduct, jac_r, &jac_l);
+                                    btInverseDynamics::mat3x jac_t_new(3, numDofs + baseDofs);
+                                    btInverseDynamics::sub(jac_t, jac_l, &jac_t_new);
+                                    jac_t = jac_t_new;
+                                }
+                                // Fill in the result into the shared memory.
                                 for (int i = 0; i < 3; ++i)
                                 {
                                     for (int j = 0; j < (numDofs + baseDofs); ++j)
