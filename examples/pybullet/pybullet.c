@@ -7036,10 +7036,12 @@ static PyObject* pybullet_calculateJacobian(PyObject* self, PyObject* args, PyOb
 												angularJacobian);
 							if (linearJacobian)
 							{
+								int r;
 								PyObject* pymat = PyTuple_New(3);
-								for (int r = 0; r < 3; ++r) {
+								for (r = 0; r < 3; ++r) {
+									int c;
 									PyObject* pyrow = PyTuple_New(dofCount);
-									for (int c = 0; c < dofCount; ++c) {
+									for (c = 0; c < dofCount; ++c) {
 										int element = r * dofCount + c;
 										PyTuple_SetItem(pyrow, c,
 													PyFloat_FromDouble(linearJacobian[element]));
@@ -7050,10 +7052,12 @@ static PyObject* pybullet_calculateJacobian(PyObject* self, PyObject* args, PyOb
 							}
 							if (angularJacobian)
 							{
+								int r;
 									PyObject* pymat = PyTuple_New(3);
-								for (int r = 0; r < 3; ++r) {
+								for (r = 0; r < 3; ++r) {
+									int c;
 									PyObject* pyrow = PyTuple_New(dofCount);
-									for (int c = 0; c < dofCount; ++c) {
+									for (c = 0; c < dofCount; ++c) {
 										int element = r * dofCount + c;
 										PyTuple_SetItem(pyrow, c,
 													PyFloat_FromDouble(linearJacobian[element]));
