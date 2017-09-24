@@ -3178,13 +3178,17 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateJacobianCommandInit(b3Physi
 }
 
 
-B3_SHARED_API int b3GetStatusJacobian(b3SharedMemoryStatusHandle statusHandle, double* linearJacobian, double* angularJacobian)
+B3_SHARED_API int b3GetStatusJacobian(b3SharedMemoryStatusHandle statusHandle, int* dofCount, double* linearJacobian, double* angularJacobian)
 {
     const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
     btAssert(status->m_type == CMD_CALCULATED_JACOBIAN_COMPLETED);
     if (status->m_type != CMD_CALCULATED_JACOBIAN_COMPLETED)
         return false;
     
+    if (dofCount)
+    {
+    	*dofCount = status->m_jacobianResultArgs.m_dofCount;
+    }
     if (linearJacobian)
     {
         for (int i = 0; i < status->m_jacobianResultArgs.m_dofCount*3; i++)

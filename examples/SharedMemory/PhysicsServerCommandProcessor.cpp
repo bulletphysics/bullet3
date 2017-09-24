@@ -6623,30 +6623,37 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                         if (tree)
                         {
                             int baseDofs = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 6;
-                            const int num_dofs = bodyHandle->m_multiBody->getNumDofs();
-                            btInverseDynamics::vecx nu(num_dofs+baseDofs), qdot(num_dofs + baseDofs), q(num_dofs + baseDofs), joint_force(num_dofs + baseDofs);
-                            for (int i = 0; i < num_dofs; i++)
+                            const int numDofs = bodyHandle->m_multiBody->getNumDofs();
+                            btInverseDynamics::vecx q(numDofs + baseDofs);
+                            btInverseDynamics::vecx qdot(numDofs + baseDofs);
+                            btInverseDynamics::vecx nu(numDofs + baseDofs);
+                            btInverseDynamics::vecx joint_force(numDofs + baseDofs);
+                            for (int i = 0; i < numDofs; i++)
                             {
                                 q[i + baseDofs] = clientCmd.m_calculateJacobianArguments.m_jointPositionsQ[i];
                                 qdot[i + baseDofs] = clientCmd.m_calculateJacobianArguments.m_jointVelocitiesQdot[i];
-                                nu[i+baseDofs] = clientCmd.m_calculateJacobianArguments.m_jointAccelerations[i];
+                                nu[i + baseDofs] = clientCmd.m_calculateJacobianArguments.m_jointAccelerations[i];
                             }
                             // Set the gravity to correspond to the world gravity
                             btInverseDynamics::vec3 id_grav(m_data->m_dynamicsWorld->getGravity());
-                            
                             if (-1 != tree->setGravityInWorldFrame(id_grav) &&
                                 -1 != tree->calculateInverseDynamics(q, qdot, nu, &joint_force))
                             {
-                                serverCmd.m_jacobianResultArgs.m_dofCount = num_dofs;
+                                serverCmd.m_jacobianResultArgs.m_dofCount = numDofs + baseDofs;
                                 // Set jacobian value
                                 tree->calculateJacobians(q);
-                                btInverseDynamics::mat3x jac_t(3, num_dofs);
-                                tree->getBodyJacobianTrans(clientCmd.m_calculateJacobianArguments.m_linkIndex+1, &jac_t);
+                                btInverseDynamics::mat3x jac_t(3, numDofs + baseDofs);
+                                btInverseDynamics::mat3x jac_r(3, numDofs + baseDofs);
+                                // Note that inverse dynamics uses zero-based indexing of bodies, not starting from -1 for the base link.
+                                tree->getBodyJacobianTrans(clientCmd.m_calculateJacobianArguments.m_linkIndex + 1, &jac_t);
+                                tree->getBodyJacobianRot(clientCmd.m_calculateJacobianArguments.m_linkIndex + 1, &jac_r);
                                 for (int i = 0; i < 3; ++i)
                                 {
-                                    for (int j = 0; j < num_dofs; ++j)
+                                    for (int j = 0; j < (numDofs + baseDofs); ++j)
                                     {
-                                        serverCmd.m_jacobianResultArgs.m_linearJacobian[i*num_dofs+j] = jac_t(i,j);
+                                        int element = (numDofs + baseDofs) * i + j;
+                                        serverCmd.m_jacobianResultArgs.m_linearJacobian[element] = jac_t(i,j);
+                                        serverCmd.m_jacobianResultArgs.m_angularJacobian[element] = jac_r(i,j);
                                     }
                                 }
                                 serverCmd.m_type = CMD_CALCULATED_JACOBIAN_COMPLETED;
@@ -7370,7 +7377,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                         tree->calculateJacobians(q);
                                         btInverseDynamics::mat3x jac_t(3, numDofs);
                                         btInverseDynamics::mat3x jac_r(3,numDofs);
-										// Note that inverse dynamics uses zero-based indexing of bodies, not starting from -1 for the base link.
+	                                    // Note that inverse dynamics uses zero-based indexing of bodies, not starting from -1 for the base link.
                                         tree->getBodyJacobianTrans(endEffectorLinkIndex+1, &jac_t);
                                         tree->getBodyJacobianRot(endEffectorLinkIndex+1, &jac_r);
                                         for (int i = 0; i < 3; ++i)

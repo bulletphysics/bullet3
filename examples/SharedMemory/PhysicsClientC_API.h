@@ -304,7 +304,10 @@ B3_SHARED_API	int b3GetStatusInverseDynamicsJointForces(b3SharedMemoryStatusHand
 
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3CalculateJacobianCommandInit(b3PhysicsClientHandle physClient, int bodyIndex, int linkIndex, const double* localPosition, const double* jointPositionsQ, const double* jointVelocitiesQdot, const double* jointAccelerations);
 
-B3_SHARED_API	int b3GetStatusJacobian(b3SharedMemoryStatusHandle statusHandle, double* linearJacobian, double* angularJacobian);
+B3_SHARED_API	int b3GetStatusJacobian(b3SharedMemoryStatusHandle statusHandle,
+	int* dofCount,
+	double* linearJacobian,
+	double* angularJacobian);
 
 ///compute the joint positions to move the end effector to a desired target using inverse kinematics
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3CalculateInverseKinematicsCommandInit(b3PhysicsClientHandle physClient, int bodyIndex);
