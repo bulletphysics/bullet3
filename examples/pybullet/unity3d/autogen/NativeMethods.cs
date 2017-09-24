@@ -1119,99 +1119,80 @@ public enum eStateLoggingFlags {
     STATE_LOG_JOINT_TORQUES = (eStateLoggingFlags.STATE_LOG_JOINT_MOTOR_TORQUES + eStateLoggingFlags.STATE_LOG_JOINT_USER_TORQUES),
 }
 
-[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
-public struct b3PhysicsClientHandle__ {
-    
-    /// int
-    public int unused;
-}
 
-[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
-public struct b3SharedMemoryCommandHandle__ {
-    
-    /// int
-    public int unused;
-}
-
-[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
-public struct b3SharedMemoryStatusHandle__ {
-    
-    /// int
-    public int unused;
-}
 
 public partial class NativeMethods {
     
     /// Return Type: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///key: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3ConnectSharedMemory")]
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3ConnectSharedMemory")]
 public static extern  System.IntPtr b3ConnectSharedMemory(int key) ;
 
     
     /// Return Type: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///key: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3ConnectSharedMemory2")]
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3ConnectSharedMemory2")]
 public static extern  System.IntPtr b3ConnectSharedMemory2(int key) ;
 
     
     /// Return Type: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3ConnectPhysicsDirect")]
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3ConnectPhysicsDirect")]
 public static extern  System.IntPtr b3ConnectPhysicsDirect() ;
 
     
     /// Return Type: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///argc: int
     ///argv: char**
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateInProcessPhysicsServerAndConnect")]
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateInProcessPhysicsServerAndConnect")]
 public static extern  System.IntPtr b3CreateInProcessPhysicsServerAndConnect(int argc, ref System.IntPtr argv) ;
 
     
     /// Return Type: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///argc: int
     ///argv: char**
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateInProcessPhysicsServerAndConnectSharedMemory")]
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateInProcessPhysicsServerAndConnectSharedMemory")]
 public static extern  System.IntPtr b3CreateInProcessPhysicsServerAndConnectSharedMemory(int argc, ref System.IntPtr argv) ;
 
     
     /// Return Type: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///argc: int
     ///argv: char**
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateInProcessPhysicsServerAndConnectMainThread")]
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateInProcessPhysicsServerAndConnectMainThread")]
 public static extern  System.IntPtr b3CreateInProcessPhysicsServerAndConnectMainThread(int argc, ref System.IntPtr argv) ;
 
     
     /// Return Type: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///argc: int
     ///argv: char**
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateInProcessPhysicsServerAndConnectMainThreadSharedMemory")]
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateInProcessPhysicsServerAndConnectMainThreadSharedMemory")]
 public static extern  System.IntPtr b3CreateInProcessPhysicsServerAndConnectMainThreadSharedMemory(int argc, ref System.IntPtr argv) ;
 
     
     /// Return Type: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///guiHelperPtr: void*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect")]
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect")]
 public static extern  System.IntPtr b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect(System.IntPtr guiHelperPtr) ;
 
     
     /// Return Type: void
     ///clientHandle: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InProcessRenderSceneInternal")]
-public static extern  void b3InProcessRenderSceneInternal(ref b3PhysicsClientHandle__ clientHandle) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InProcessRenderSceneInternal")]
+public static extern  void b3InProcessRenderSceneInternal(System.IntPtr clientHandle) ;
 
     
     /// Return Type: void
     ///clientHandle: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///debugDrawMode: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InProcessDebugDrawInternal")]
-public static extern  void b3InProcessDebugDrawInternal(ref b3PhysicsClientHandle__ clientHandle, int debugDrawMode) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InProcessDebugDrawInternal")]
+public static extern  void b3InProcessDebugDrawInternal(System.IntPtr clientHandle, int debugDrawMode) ;
 
     
     /// Return Type: int
     ///clientHandle: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///x: float
     ///y: float
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InProcessMouseMoveCallback")]
-public static extern  int b3InProcessMouseMoveCallback(ref b3PhysicsClientHandle__ clientHandle, float x, float y) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InProcessMouseMoveCallback")]
+public static extern  int b3InProcessMouseMoveCallback(System.IntPtr clientHandle, float x, float y) ;
 
     
     /// Return Type: int
@@ -1220,60 +1201,60 @@ public static extern  int b3InProcessMouseMoveCallback(ref b3PhysicsClientHandle
     ///state: int
     ///x: float
     ///y: float
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InProcessMouseButtonCallback")]
-public static extern  int b3InProcessMouseButtonCallback(ref b3PhysicsClientHandle__ clientHandle, int button, int state, float x, float y) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InProcessMouseButtonCallback")]
+public static extern  int b3InProcessMouseButtonCallback(System.IntPtr clientHandle, int button, int state, float x, float y) ;
 
     
     /// Return Type: void
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3DisconnectSharedMemory")]
-public static extern  void b3DisconnectSharedMemory(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3DisconnectSharedMemory")]
+public static extern  void b3DisconnectSharedMemory(System.IntPtr physClient) ;
 
     
     /// Return Type: int
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CanSubmitCommand")]
-public static extern  int b3CanSubmitCommand(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CanSubmitCommand")]
+public static extern  int b3CanSubmitCommand(System.IntPtr physClient) ;
 
     
     /// Return Type: b3SharedMemoryStatusHandle->b3SharedMemoryStatusHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3SubmitClientCommandAndWaitStatus")]
-public static extern  System.IntPtr b3SubmitClientCommandAndWaitStatus(ref b3PhysicsClientHandle__ physClient, ref b3SharedMemoryCommandHandle__ commandHandle) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3SubmitClientCommandAndWaitStatus")]
+public static extern  System.IntPtr b3SubmitClientCommandAndWaitStatus(System.IntPtr physClient, System.IntPtr commandHandle) ;
 
     
     /// Return Type: int
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3SubmitClientCommand")]
-public static extern  int b3SubmitClientCommand(ref b3PhysicsClientHandle__ physClient, ref b3SharedMemoryCommandHandle__ commandHandle) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3SubmitClientCommand")]
+public static extern  int b3SubmitClientCommand(System.IntPtr physClient, System.IntPtr commandHandle) ;
 
     
     /// Return Type: b3SharedMemoryStatusHandle->b3SharedMemoryStatusHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3ProcessServerStatus")]
-public static extern  System.IntPtr b3ProcessServerStatus(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3ProcessServerStatus")]
+public static extern  System.IntPtr b3ProcessServerStatus(System.IntPtr physClient) ;
 
     
     /// Return Type: int
     ///statusHandle: b3SharedMemoryStatusHandle->b3SharedMemoryStatusHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetStatusType")]
-public static extern  int b3GetStatusType(ref b3SharedMemoryStatusHandle__ statusHandle) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetStatusType")]
+public static extern  int b3GetStatusType(System.IntPtr statusHandle) ;
 
     
     /// Return Type: int
     ///statusHandle: b3SharedMemoryStatusHandle->b3SharedMemoryStatusHandle__*
     ///bodyIndicesOut: int*
     ///bodyIndicesCapacity: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetStatusBodyIndices")]
-public static extern  int b3GetStatusBodyIndices(ref b3SharedMemoryStatusHandle__ statusHandle, ref int bodyIndicesOut, int bodyIndicesCapacity) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetStatusBodyIndices")]
+public static extern  int b3GetStatusBodyIndices(System.IntPtr statusHandle, ref int bodyIndicesOut, int bodyIndicesCapacity) ;
 
     
     /// Return Type: int
     ///statusHandle: b3SharedMemoryStatusHandle->b3SharedMemoryStatusHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetStatusBodyIndex")]
-public static extern  int b3GetStatusBodyIndex(ref b3SharedMemoryStatusHandle__ statusHandle) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetStatusBodyIndex")]
+public static extern  int b3GetStatusBodyIndex(System.IntPtr statusHandle) ;
 
     
     /// Return Type: int
@@ -1285,15 +1266,15 @@ public static extern  int b3GetStatusBodyIndex(ref b3SharedMemoryStatusHandle__ 
     ///actualStateQ: double**
     ///actualStateQdot: double**
     ///jointReactionForces: double**
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetStatusActualState")]
-public static extern  int b3GetStatusActualState(ref b3SharedMemoryStatusHandle__ statusHandle, ref int bodyUniqueId, ref int numDegreeOfFreedomQ, ref int numDegreeOfFreedomU, ref System.IntPtr rootLocalInertialFrame, ref System.IntPtr actualStateQ, ref System.IntPtr actualStateQdot, ref System.IntPtr jointReactionForces) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetStatusActualState")]
+public static extern  int b3GetStatusActualState(System.IntPtr statusHandle, ref int bodyUniqueId, ref int numDegreeOfFreedomQ, ref int numDegreeOfFreedomU, ref System.IntPtr rootLocalInertialFrame, ref System.IntPtr actualStateQ, ref System.IntPtr actualStateQdot, ref System.IntPtr jointReactionForces) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///bodyUniqueId: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3RequestCollisionInfoCommandInit")]
-public static extern  System.IntPtr b3RequestCollisionInfoCommandInit(ref b3PhysicsClientHandle__ physClient, int bodyUniqueId) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3RequestCollisionInfoCommandInit")]
+public static extern  System.IntPtr b3RequestCollisionInfoCommandInit(System.IntPtr physClient, int bodyUniqueId) ;
 
     
     /// Return Type: int
@@ -1301,49 +1282,49 @@ public static extern  System.IntPtr b3RequestCollisionInfoCommandInit(ref b3Phys
     ///linkIndex: int
     ///aabbMin: double*
     ///aabbMax: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetStatusAABB")]
-public static extern  int b3GetStatusAABB(ref b3SharedMemoryStatusHandle__ statusHandle, int linkIndex, ref double aabbMin, ref double aabbMax) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetStatusAABB")]
+public static extern  int b3GetStatusAABB(System.IntPtr statusHandle, int linkIndex, ref double aabbMin, ref double aabbMax) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitSyncBodyInfoCommand")]
-public static extern  System.IntPtr b3InitSyncBodyInfoCommand(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitSyncBodyInfoCommand")]
+public static extern  System.IntPtr b3InitSyncBodyInfoCommand(System.IntPtr physClient) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///bodyUniqueId: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitRemoveBodyCommand")]
-public static extern  System.IntPtr b3InitRemoveBodyCommand(ref b3PhysicsClientHandle__ physClient, int bodyUniqueId) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitRemoveBodyCommand")]
+public static extern  System.IntPtr b3InitRemoveBodyCommand(System.IntPtr physClient, int bodyUniqueId) ;
 
     
     /// Return Type: int
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetNumBodies")]
-public static extern  int b3GetNumBodies(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetNumBodies")]
+public static extern  int b3GetNumBodies(System.IntPtr physClient) ;
 
     
     /// Return Type: int
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///serialIndex: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetBodyUniqueId")]
-public static extern  int b3GetBodyUniqueId(ref b3PhysicsClientHandle__ physClient, int serialIndex) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetBodyUniqueId")]
+public static extern  int b3GetBodyUniqueId(System.IntPtr physClient, int serialIndex) ;
 
     
     /// Return Type: int
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///bodyUniqueId: int
     ///info: b3BodyInfo*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetBodyInfo")]
-public static extern  int b3GetBodyInfo(ref b3PhysicsClientHandle__ physClient, int bodyUniqueId, ref b3BodyInfo info) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetBodyInfo")]
+public static extern  int b3GetBodyInfo(System.IntPtr physClient, int bodyUniqueId, ref b3BodyInfo info) ;
 
     
     /// Return Type: int
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///bodyIndex: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetNumJoints")]
-public static extern  int b3GetNumJoints(ref b3PhysicsClientHandle__ physClient, int bodyIndex) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetNumJoints")]
+public static extern  int b3GetNumJoints(System.IntPtr physClient, int bodyIndex) ;
 
     
     /// Return Type: int
@@ -1351,29 +1332,29 @@ public static extern  int b3GetNumJoints(ref b3PhysicsClientHandle__ physClient,
     ///bodyIndex: int
     ///jointIndex: int
     ///info: b3JointInfo*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetJointInfo")]
-public static extern  int b3GetJointInfo(ref b3PhysicsClientHandle__ physClient, int bodyIndex, int jointIndex, ref b3JointInfo info) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetJointInfo")]
+public static extern  int b3GetJointInfo(System.IntPtr physClient, int bodyIndex, int jointIndex, ref b3JointInfo info) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///bodyUniqueId: int
     ///linkIndex: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetDynamicsInfoCommandInit")]
-public static extern  System.IntPtr b3GetDynamicsInfoCommandInit(ref b3PhysicsClientHandle__ physClient, int bodyUniqueId, int linkIndex) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetDynamicsInfoCommandInit")]
+public static extern  System.IntPtr b3GetDynamicsInfoCommandInit(System.IntPtr physClient, int bodyUniqueId, int linkIndex) ;
 
     
     /// Return Type: int
     ///statusHandle: b3SharedMemoryStatusHandle->b3SharedMemoryStatusHandle__*
     ///info: b3DynamicsInfo*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetDynamicsInfo")]
-public static extern  int b3GetDynamicsInfo(ref b3SharedMemoryStatusHandle__ statusHandle, ref b3DynamicsInfo info) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetDynamicsInfo")]
+public static extern  int b3GetDynamicsInfo(System.IntPtr statusHandle, ref b3DynamicsInfo info) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitChangeDynamicsInfo")]
-public static extern  System.IntPtr b3InitChangeDynamicsInfo(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitChangeDynamicsInfo")]
+public static extern  System.IntPtr b3InitChangeDynamicsInfo(System.IntPtr physClient) ;
 
     
     /// Return Type: int
@@ -1381,8 +1362,8 @@ public static extern  System.IntPtr b3InitChangeDynamicsInfo(ref b3PhysicsClient
     ///bodyUniqueId: int
     ///linkIndex: int
     ///mass: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3ChangeDynamicsInfoSetMass")]
-public static extern  int b3ChangeDynamicsInfoSetMass(ref b3SharedMemoryCommandHandle__ commandHandle, int bodyUniqueId, int linkIndex, double mass) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3ChangeDynamicsInfoSetMass")]
+public static extern  int b3ChangeDynamicsInfoSetMass(System.IntPtr commandHandle, int bodyUniqueId, int linkIndex, double mass) ;
 
     
     /// Return Type: int
@@ -1390,8 +1371,8 @@ public static extern  int b3ChangeDynamicsInfoSetMass(ref b3SharedMemoryCommandH
     ///bodyUniqueId: int
     ///linkIndex: int
     ///lateralFriction: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3ChangeDynamicsInfoSetLateralFriction")]
-public static extern  int b3ChangeDynamicsInfoSetLateralFriction(ref b3SharedMemoryCommandHandle__ commandHandle, int bodyUniqueId, int linkIndex, double lateralFriction) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3ChangeDynamicsInfoSetLateralFriction")]
+public static extern  int b3ChangeDynamicsInfoSetLateralFriction(System.IntPtr commandHandle, int bodyUniqueId, int linkIndex, double lateralFriction) ;
 
     
     /// Return Type: int
@@ -1399,8 +1380,8 @@ public static extern  int b3ChangeDynamicsInfoSetLateralFriction(ref b3SharedMem
     ///bodyUniqueId: int
     ///linkIndex: int
     ///friction: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3ChangeDynamicsInfoSetSpinningFriction")]
-public static extern  int b3ChangeDynamicsInfoSetSpinningFriction(ref b3SharedMemoryCommandHandle__ commandHandle, int bodyUniqueId, int linkIndex, double friction) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3ChangeDynamicsInfoSetSpinningFriction")]
+public static extern  int b3ChangeDynamicsInfoSetSpinningFriction(System.IntPtr commandHandle, int bodyUniqueId, int linkIndex, double friction) ;
 
     
     /// Return Type: int
@@ -1408,8 +1389,8 @@ public static extern  int b3ChangeDynamicsInfoSetSpinningFriction(ref b3SharedMe
     ///bodyUniqueId: int
     ///linkIndex: int
     ///friction: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3ChangeDynamicsInfoSetRollingFriction")]
-public static extern  int b3ChangeDynamicsInfoSetRollingFriction(ref b3SharedMemoryCommandHandle__ commandHandle, int bodyUniqueId, int linkIndex, double friction) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3ChangeDynamicsInfoSetRollingFriction")]
+public static extern  int b3ChangeDynamicsInfoSetRollingFriction(System.IntPtr commandHandle, int bodyUniqueId, int linkIndex, double friction) ;
 
     
     /// Return Type: int
@@ -1417,24 +1398,24 @@ public static extern  int b3ChangeDynamicsInfoSetRollingFriction(ref b3SharedMem
     ///bodyUniqueId: int
     ///linkIndex: int
     ///restitution: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3ChangeDynamicsInfoSetRestitution")]
-public static extern  int b3ChangeDynamicsInfoSetRestitution(ref b3SharedMemoryCommandHandle__ commandHandle, int bodyUniqueId, int linkIndex, double restitution) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3ChangeDynamicsInfoSetRestitution")]
+public static extern  int b3ChangeDynamicsInfoSetRestitution(System.IntPtr commandHandle, int bodyUniqueId, int linkIndex, double restitution) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///bodyUniqueId: int
     ///linearDamping: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3ChangeDynamicsInfoSetLinearDamping")]
-public static extern  int b3ChangeDynamicsInfoSetLinearDamping(ref b3SharedMemoryCommandHandle__ commandHandle, int bodyUniqueId, double linearDamping) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3ChangeDynamicsInfoSetLinearDamping")]
+public static extern  int b3ChangeDynamicsInfoSetLinearDamping(System.IntPtr commandHandle, int bodyUniqueId, double linearDamping) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///bodyUniqueId: int
     ///angularDamping: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3ChangeDynamicsInfoSetAngularDamping")]
-public static extern  int b3ChangeDynamicsInfoSetAngularDamping(ref b3SharedMemoryCommandHandle__ commandHandle, int bodyUniqueId, double angularDamping) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3ChangeDynamicsInfoSetAngularDamping")]
+public static extern  int b3ChangeDynamicsInfoSetAngularDamping(System.IntPtr commandHandle, int bodyUniqueId, double angularDamping) ;
 
     
     /// Return Type: int
@@ -1443,8 +1424,8 @@ public static extern  int b3ChangeDynamicsInfoSetAngularDamping(ref b3SharedMemo
     ///linkIndex: int
     ///contactStiffness: double
     ///contactDamping: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3ChangeDynamicsInfoSetContactStiffnessAndDamping")]
-public static extern  int b3ChangeDynamicsInfoSetContactStiffnessAndDamping(ref b3SharedMemoryCommandHandle__ commandHandle, int bodyUniqueId, int linkIndex, double contactStiffness, double contactDamping) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3ChangeDynamicsInfoSetContactStiffnessAndDamping")]
+public static extern  int b3ChangeDynamicsInfoSetContactStiffnessAndDamping(System.IntPtr commandHandle, int bodyUniqueId, int linkIndex, double contactStiffness, double contactDamping) ;
 
     
     /// Return Type: int
@@ -1452,8 +1433,8 @@ public static extern  int b3ChangeDynamicsInfoSetContactStiffnessAndDamping(ref 
     ///bodyUniqueId: int
     ///linkIndex: int
     ///frictionAnchor: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3ChangeDynamicsInfoSetFrictionAnchor")]
-public static extern  int b3ChangeDynamicsInfoSetFrictionAnchor(ref b3SharedMemoryCommandHandle__ commandHandle, int bodyUniqueId, int linkIndex, int frictionAnchor) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3ChangeDynamicsInfoSetFrictionAnchor")]
+public static extern  int b3ChangeDynamicsInfoSetFrictionAnchor(System.IntPtr commandHandle, int bodyUniqueId, int linkIndex, int frictionAnchor) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
@@ -1463,112 +1444,112 @@ public static extern  int b3ChangeDynamicsInfoSetFrictionAnchor(ref b3SharedMemo
     ///childBodyIndex: int
     ///childJointIndex: int
     ///info: b3JointInfo*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitCreateUserConstraintCommand")]
-public static extern  System.IntPtr b3InitCreateUserConstraintCommand(ref b3PhysicsClientHandle__ physClient, int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, ref b3JointInfo info) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitCreateUserConstraintCommand")]
+public static extern  System.IntPtr b3InitCreateUserConstraintCommand(System.IntPtr physClient, int parentBodyIndex, int parentJointIndex, int childBodyIndex, int childJointIndex, ref b3JointInfo info) ;
 
     
     /// Return Type: int
     ///statusHandle: b3SharedMemoryStatusHandle->b3SharedMemoryStatusHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetStatusUserConstraintUniqueId")]
-public static extern  int b3GetStatusUserConstraintUniqueId(ref b3SharedMemoryStatusHandle__ statusHandle) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetStatusUserConstraintUniqueId")]
+public static extern  int b3GetStatusUserConstraintUniqueId(System.IntPtr statusHandle) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///userConstraintUniqueId: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitChangeUserConstraintCommand")]
-public static extern  System.IntPtr b3InitChangeUserConstraintCommand(ref b3PhysicsClientHandle__ physClient, int userConstraintUniqueId) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitChangeUserConstraintCommand")]
+public static extern  System.IntPtr b3InitChangeUserConstraintCommand(System.IntPtr physClient, int userConstraintUniqueId) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///jointChildPivot: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitChangeUserConstraintSetPivotInB")]
-public static extern  int b3InitChangeUserConstraintSetPivotInB(ref b3SharedMemoryCommandHandle__ commandHandle, ref double jointChildPivot) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitChangeUserConstraintSetPivotInB")]
+public static extern  int b3InitChangeUserConstraintSetPivotInB(System.IntPtr commandHandle, ref double jointChildPivot) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///jointChildFrameOrn: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitChangeUserConstraintSetFrameInB")]
-public static extern  int b3InitChangeUserConstraintSetFrameInB(ref b3SharedMemoryCommandHandle__ commandHandle, ref double jointChildFrameOrn) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitChangeUserConstraintSetFrameInB")]
+public static extern  int b3InitChangeUserConstraintSetFrameInB(System.IntPtr commandHandle, ref double jointChildFrameOrn) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///maxAppliedForce: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitChangeUserConstraintSetMaxForce")]
-public static extern  int b3InitChangeUserConstraintSetMaxForce(ref b3SharedMemoryCommandHandle__ commandHandle, double maxAppliedForce) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitChangeUserConstraintSetMaxForce")]
+public static extern  int b3InitChangeUserConstraintSetMaxForce(System.IntPtr commandHandle, double maxAppliedForce) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///gearRatio: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitChangeUserConstraintSetGearRatio")]
-public static extern  int b3InitChangeUserConstraintSetGearRatio(ref b3SharedMemoryCommandHandle__ commandHandle, double gearRatio) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitChangeUserConstraintSetGearRatio")]
+public static extern  int b3InitChangeUserConstraintSetGearRatio(System.IntPtr commandHandle, double gearRatio) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///gearAuxLink: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitChangeUserConstraintSetGearAuxLink")]
-public static extern  int b3InitChangeUserConstraintSetGearAuxLink(ref b3SharedMemoryCommandHandle__ commandHandle, int gearAuxLink) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitChangeUserConstraintSetGearAuxLink")]
+public static extern  int b3InitChangeUserConstraintSetGearAuxLink(System.IntPtr commandHandle, int gearAuxLink) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///userConstraintUniqueId: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitRemoveUserConstraintCommand")]
-public static extern  System.IntPtr b3InitRemoveUserConstraintCommand(ref b3PhysicsClientHandle__ physClient, int userConstraintUniqueId) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitRemoveUserConstraintCommand")]
+public static extern  System.IntPtr b3InitRemoveUserConstraintCommand(System.IntPtr physClient, int userConstraintUniqueId) ;
 
     
     /// Return Type: int
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetNumUserConstraints")]
-public static extern  int b3GetNumUserConstraints(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetNumUserConstraints")]
+public static extern  int b3GetNumUserConstraints(System.IntPtr physClient) ;
 
     
     /// Return Type: int
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///constraintUniqueId: int
     ///info: b3UserConstraint*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetUserConstraintInfo")]
-public static extern  int b3GetUserConstraintInfo(ref b3PhysicsClientHandle__ physClient, int constraintUniqueId, ref b3UserConstraint info) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetUserConstraintInfo")]
+public static extern  int b3GetUserConstraintInfo(System.IntPtr physClient, int constraintUniqueId, ref b3UserConstraint info) ;
 
     
     /// Return Type: int
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///serialIndex: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetUserConstraintId")]
-public static extern  int b3GetUserConstraintId(ref b3PhysicsClientHandle__ physClient, int serialIndex) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetUserConstraintId")]
+public static extern  int b3GetUserConstraintId(System.IntPtr physClient, int serialIndex) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///debugMode: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitRequestDebugLinesCommand")]
-public static extern  System.IntPtr b3InitRequestDebugLinesCommand(ref b3PhysicsClientHandle__ physClient, int debugMode) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitRequestDebugLinesCommand")]
+public static extern  System.IntPtr b3InitRequestDebugLinesCommand(System.IntPtr physClient, int debugMode) ;
 
     
     /// Return Type: void
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///lines: b3DebugLines*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetDebugLines")]
-public static extern  void b3GetDebugLines(ref b3PhysicsClientHandle__ physClient, ref b3DebugLines lines) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetDebugLines")]
+public static extern  void b3GetDebugLines(System.IntPtr physClient, ref b3DebugLines lines) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitConfigureOpenGLVisualizer")]
-public static extern  System.IntPtr b3InitConfigureOpenGLVisualizer(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitConfigureOpenGLVisualizer")]
+public static extern  System.IntPtr b3InitConfigureOpenGLVisualizer(System.IntPtr physClient) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///flag: int
     ///enabled: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3ConfigureOpenGLVisualizerSetVisualizationFlags")]
-public static extern  void b3ConfigureOpenGLVisualizerSetVisualizationFlags(ref b3SharedMemoryCommandHandle__ commandHandle, int flag, int enabled) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3ConfigureOpenGLVisualizerSetVisualizationFlags")]
+public static extern  void b3ConfigureOpenGLVisualizerSetVisualizationFlags(System.IntPtr commandHandle, int flag, int enabled) ;
 
     
     /// Return Type: void
@@ -1577,21 +1558,21 @@ public static extern  void b3ConfigureOpenGLVisualizerSetVisualizationFlags(ref 
     ///cameraPitch: float
     ///cameraYaw: float
     ///cameraTargetPosition: float*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3ConfigureOpenGLVisualizerSetViewMatrix")]
-public static extern  void b3ConfigureOpenGLVisualizerSetViewMatrix(ref b3SharedMemoryCommandHandle__ commandHandle, float cameraDistance, float cameraPitch, float cameraYaw, ref float cameraTargetPosition) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3ConfigureOpenGLVisualizerSetViewMatrix")]
+public static extern  void b3ConfigureOpenGLVisualizerSetViewMatrix(System.IntPtr commandHandle, float cameraDistance, float cameraPitch, float cameraYaw, ref float cameraTargetPosition) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitRequestOpenGLVisualizerCameraCommand")]
-public static extern  System.IntPtr b3InitRequestOpenGLVisualizerCameraCommand(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitRequestOpenGLVisualizerCameraCommand")]
+public static extern  System.IntPtr b3InitRequestOpenGLVisualizerCameraCommand(System.IntPtr physClient) ;
 
     
     /// Return Type: int
     ///statusHandle: b3SharedMemoryStatusHandle->b3SharedMemoryStatusHandle__*
     ///camera: b3OpenGLVisualizerCameraInfo*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetStatusOpenGLVisualizerCamera")]
-public static extern  int b3GetStatusOpenGLVisualizerCamera(ref b3SharedMemoryStatusHandle__ statusHandle, ref b3OpenGLVisualizerCameraInfo camera) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetStatusOpenGLVisualizerCamera")]
+public static extern  int b3GetStatusOpenGLVisualizerCamera(System.IntPtr statusHandle, ref b3OpenGLVisualizerCameraInfo camera) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
@@ -1601,8 +1582,8 @@ public static extern  int b3GetStatusOpenGLVisualizerCamera(ref b3SharedMemorySt
     ///colorRGB: double*
     ///lineWidth: double
     ///lifeTime: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitUserDebugDrawAddLine3D")]
-public static extern  System.IntPtr b3InitUserDebugDrawAddLine3D(ref b3PhysicsClientHandle__ physClient, ref double fromXYZ, ref double toXYZ, ref double colorRGB, double lineWidth, double lifeTime) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitUserDebugDrawAddLine3D")]
+public static extern  System.IntPtr b3InitUserDebugDrawAddLine3D(System.IntPtr physClient, ref double fromXYZ, ref double toXYZ, ref double colorRGB, double lineWidth, double lifeTime) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
@@ -1612,30 +1593,30 @@ public static extern  System.IntPtr b3InitUserDebugDrawAddLine3D(ref b3PhysicsCl
     ///colorRGB: double*
     ///textSize: double
     ///lifeTime: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitUserDebugDrawAddText3D")]
-public static extern  System.IntPtr b3InitUserDebugDrawAddText3D(ref b3PhysicsClientHandle__ physClient, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string txt, ref double positionXYZ, ref double colorRGB, double textSize, double lifeTime) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitUserDebugDrawAddText3D")]
+public static extern  System.IntPtr b3InitUserDebugDrawAddText3D(System.IntPtr physClient, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string txt, ref double positionXYZ, ref double colorRGB, double textSize, double lifeTime) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///optionFlags: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3UserDebugTextSetOptionFlags")]
-public static extern  void b3UserDebugTextSetOptionFlags(ref b3SharedMemoryCommandHandle__ commandHandle, int optionFlags) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3UserDebugTextSetOptionFlags")]
+public static extern  void b3UserDebugTextSetOptionFlags(System.IntPtr commandHandle, int optionFlags) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///orientation: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3UserDebugTextSetOrientation")]
-public static extern  void b3UserDebugTextSetOrientation(ref b3SharedMemoryCommandHandle__ commandHandle, ref double orientation) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3UserDebugTextSetOrientation")]
+public static extern  void b3UserDebugTextSetOrientation(System.IntPtr commandHandle, ref double orientation) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///objectUniqueId: int
     ///linkIndex: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3UserDebugItemSetParentObject")]
-public static extern  void b3UserDebugItemSetParentObject(ref b3SharedMemoryCommandHandle__ commandHandle, int objectUniqueId, int linkIndex) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3UserDebugItemSetParentObject")]
+public static extern  void b3UserDebugItemSetParentObject(System.IntPtr commandHandle, int objectUniqueId, int linkIndex) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
@@ -1644,41 +1625,41 @@ public static extern  void b3UserDebugItemSetParentObject(ref b3SharedMemoryComm
     ///rangeMin: double
     ///rangeMax: double
     ///startValue: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitUserDebugAddParameter")]
-public static extern  System.IntPtr b3InitUserDebugAddParameter(ref b3PhysicsClientHandle__ physClient, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string txt, double rangeMin, double rangeMax, double startValue) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitUserDebugAddParameter")]
+public static extern  System.IntPtr b3InitUserDebugAddParameter(System.IntPtr physClient, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string txt, double rangeMin, double rangeMax, double startValue) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///debugItemUniqueId: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitUserDebugReadParameter")]
-public static extern  System.IntPtr b3InitUserDebugReadParameter(ref b3PhysicsClientHandle__ physClient, int debugItemUniqueId) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitUserDebugReadParameter")]
+public static extern  System.IntPtr b3InitUserDebugReadParameter(System.IntPtr physClient, int debugItemUniqueId) ;
 
     
     /// Return Type: int
     ///statusHandle: b3SharedMemoryStatusHandle->b3SharedMemoryStatusHandle__*
     ///paramValue: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetStatusDebugParameterValue")]
-public static extern  int b3GetStatusDebugParameterValue(ref b3SharedMemoryStatusHandle__ statusHandle, ref double paramValue) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetStatusDebugParameterValue")]
+public static extern  int b3GetStatusDebugParameterValue(System.IntPtr statusHandle, ref double paramValue) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///debugItemUniqueId: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitUserDebugDrawRemove")]
-public static extern  System.IntPtr b3InitUserDebugDrawRemove(ref b3PhysicsClientHandle__ physClient, int debugItemUniqueId) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitUserDebugDrawRemove")]
+public static extern  System.IntPtr b3InitUserDebugDrawRemove(System.IntPtr physClient, int debugItemUniqueId) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitUserDebugDrawRemoveAll")]
-public static extern  System.IntPtr b3InitUserDebugDrawRemoveAll(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitUserDebugDrawRemoveAll")]
+public static extern  System.IntPtr b3InitUserDebugDrawRemoveAll(System.IntPtr physClient) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitDebugDrawingCommand")]
-public static extern  System.IntPtr b3InitDebugDrawingCommand(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitDebugDrawingCommand")]
+public static extern  System.IntPtr b3InitDebugDrawingCommand(System.IntPtr physClient) ;
 
     
     /// Return Type: void
@@ -1686,107 +1667,107 @@ public static extern  System.IntPtr b3InitDebugDrawingCommand(ref b3PhysicsClien
     ///objectUniqueId: int
     ///linkIndex: int
     ///objectColorRGB: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3SetDebugObjectColor")]
-public static extern  void b3SetDebugObjectColor(ref b3SharedMemoryCommandHandle__ commandHandle, int objectUniqueId, int linkIndex, ref double objectColorRGB) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3SetDebugObjectColor")]
+public static extern  void b3SetDebugObjectColor(System.IntPtr commandHandle, int objectUniqueId, int linkIndex, ref double objectColorRGB) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///objectUniqueId: int
     ///linkIndex: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3RemoveDebugObjectColor")]
-public static extern  void b3RemoveDebugObjectColor(ref b3SharedMemoryCommandHandle__ commandHandle, int objectUniqueId, int linkIndex) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3RemoveDebugObjectColor")]
+public static extern  void b3RemoveDebugObjectColor(System.IntPtr commandHandle, int objectUniqueId, int linkIndex) ;
 
     
     /// Return Type: int
     ///statusHandle: b3SharedMemoryStatusHandle->b3SharedMemoryStatusHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetDebugItemUniqueId")]
-public static extern  int b3GetDebugItemUniqueId(ref b3SharedMemoryStatusHandle__ statusHandle) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetDebugItemUniqueId")]
+public static extern  int b3GetDebugItemUniqueId(System.IntPtr statusHandle) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitRequestCameraImage")]
-public static extern  System.IntPtr b3InitRequestCameraImage(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitRequestCameraImage")]
+public static extern  System.IntPtr b3InitRequestCameraImage(System.IntPtr physClient) ;
 
     
     /// Return Type: void
     ///command: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///viewMatrix: float*
     ///projectionMatrix: float*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3RequestCameraImageSetCameraMatrices")]
-public static extern  void b3RequestCameraImageSetCameraMatrices(ref b3SharedMemoryCommandHandle__ command, ref float viewMatrix, ref float projectionMatrix) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3RequestCameraImageSetCameraMatrices")]
+public static extern  void b3RequestCameraImageSetCameraMatrices(System.IntPtr command, ref float viewMatrix, ref float projectionMatrix) ;
 
     
     /// Return Type: void
     ///command: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///width: int
     ///height: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3RequestCameraImageSetPixelResolution")]
-public static extern  void b3RequestCameraImageSetPixelResolution(ref b3SharedMemoryCommandHandle__ command, int width, int height) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3RequestCameraImageSetPixelResolution")]
+public static extern  void b3RequestCameraImageSetPixelResolution(System.IntPtr command, int width, int height) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///lightDirection: float*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3RequestCameraImageSetLightDirection")]
-public static extern  void b3RequestCameraImageSetLightDirection(ref b3SharedMemoryCommandHandle__ commandHandle, ref float lightDirection) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3RequestCameraImageSetLightDirection")]
+public static extern  void b3RequestCameraImageSetLightDirection(System.IntPtr commandHandle, ref float lightDirection) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///lightColor: float*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3RequestCameraImageSetLightColor")]
-public static extern  void b3RequestCameraImageSetLightColor(ref b3SharedMemoryCommandHandle__ commandHandle, ref float lightColor) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3RequestCameraImageSetLightColor")]
+public static extern  void b3RequestCameraImageSetLightColor(System.IntPtr commandHandle, ref float lightColor) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///lightDistance: float
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3RequestCameraImageSetLightDistance")]
-public static extern  void b3RequestCameraImageSetLightDistance(ref b3SharedMemoryCommandHandle__ commandHandle, float lightDistance) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3RequestCameraImageSetLightDistance")]
+public static extern  void b3RequestCameraImageSetLightDistance(System.IntPtr commandHandle, float lightDistance) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///lightAmbientCoeff: float
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3RequestCameraImageSetLightAmbientCoeff")]
-public static extern  void b3RequestCameraImageSetLightAmbientCoeff(ref b3SharedMemoryCommandHandle__ commandHandle, float lightAmbientCoeff) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3RequestCameraImageSetLightAmbientCoeff")]
+public static extern  void b3RequestCameraImageSetLightAmbientCoeff(System.IntPtr commandHandle, float lightAmbientCoeff) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///lightDiffuseCoeff: float
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3RequestCameraImageSetLightDiffuseCoeff")]
-public static extern  void b3RequestCameraImageSetLightDiffuseCoeff(ref b3SharedMemoryCommandHandle__ commandHandle, float lightDiffuseCoeff) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3RequestCameraImageSetLightDiffuseCoeff")]
+public static extern  void b3RequestCameraImageSetLightDiffuseCoeff(System.IntPtr commandHandle, float lightDiffuseCoeff) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///lightSpecularCoeff: float
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3RequestCameraImageSetLightSpecularCoeff")]
-public static extern  void b3RequestCameraImageSetLightSpecularCoeff(ref b3SharedMemoryCommandHandle__ commandHandle, float lightSpecularCoeff) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3RequestCameraImageSetLightSpecularCoeff")]
+public static extern  void b3RequestCameraImageSetLightSpecularCoeff(System.IntPtr commandHandle, float lightSpecularCoeff) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///hasShadow: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3RequestCameraImageSetShadow")]
-public static extern  void b3RequestCameraImageSetShadow(ref b3SharedMemoryCommandHandle__ commandHandle, int hasShadow) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3RequestCameraImageSetShadow")]
+public static extern  void b3RequestCameraImageSetShadow(System.IntPtr commandHandle, int hasShadow) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///renderer: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3RequestCameraImageSelectRenderer")]
-public static extern  void b3RequestCameraImageSelectRenderer(ref b3SharedMemoryCommandHandle__ commandHandle, int renderer) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3RequestCameraImageSelectRenderer")]
+public static extern  void b3RequestCameraImageSelectRenderer(System.IntPtr commandHandle, int renderer) ;
 
     
     /// Return Type: void
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///imageData: b3CameraImageData*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetCameraImageData")]
-public static extern  void b3GetCameraImageData(ref b3PhysicsClientHandle__ physClient, ref b3CameraImageData imageData) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetCameraImageData")]
+public static extern  void b3GetCameraImageData(System.IntPtr physClient, ref b3CameraImageData imageData) ;
 
     
     /// Return Type: void
@@ -1794,7 +1775,7 @@ public static extern  void b3GetCameraImageData(ref b3PhysicsClientHandle__ phys
     ///cameraTargetPosition: float*
     ///cameraUp: float*
     ///viewMatrix: float*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3ComputeViewMatrixFromPositions")]
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3ComputeViewMatrixFromPositions")]
 public static extern  void b3ComputeViewMatrixFromPositions(ref float cameraPosition, ref float cameraTargetPosition, ref float cameraUp, ref float viewMatrix) ;
 
     
@@ -1806,7 +1787,7 @@ public static extern  void b3ComputeViewMatrixFromPositions(ref float cameraPosi
     ///roll: float
     ///upAxis: int
     ///viewMatrix: float*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3ComputeViewMatrixFromYawPitchRoll")]
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3ComputeViewMatrixFromYawPitchRoll")]
 public static extern  void b3ComputeViewMatrixFromYawPitchRoll(ref float cameraTargetPosition, float distance, float yaw, float pitch, float roll, int upAxis, ref float viewMatrix) ;
 
     
@@ -1815,7 +1796,7 @@ public static extern  void b3ComputeViewMatrixFromYawPitchRoll(ref float cameraT
     ///cameraPosition: float*
     ///cameraTargetPosition: float*
     ///cameraUp: float*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3ComputePositionFromViewMatrix")]
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3ComputePositionFromViewMatrix")]
 public static extern  void b3ComputePositionFromViewMatrix(ref float viewMatrix, ref float cameraPosition, ref float cameraTargetPosition, ref float cameraUp) ;
 
     
@@ -1827,7 +1808,7 @@ public static extern  void b3ComputePositionFromViewMatrix(ref float viewMatrix,
     ///nearVal: float
     ///farVal: float
     ///projectionMatrix: float*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3ComputeProjectionMatrix")]
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3ComputeProjectionMatrix")]
 public static extern  void b3ComputeProjectionMatrix(float left, float right, float bottom, float top, float nearVal, float farVal, ref float projectionMatrix) ;
 
     
@@ -1837,7 +1818,7 @@ public static extern  void b3ComputeProjectionMatrix(float left, float right, fl
     ///nearVal: float
     ///farVal: float
     ///projectionMatrix: float*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3ComputeProjectionMatrixFOV")]
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3ComputeProjectionMatrixFOV")]
 public static extern  void b3ComputeProjectionMatrixFOV(float fov, float aspect, float nearVal, float farVal, ref float projectionMatrix) ;
 
     
@@ -1846,8 +1827,8 @@ public static extern  void b3ComputeProjectionMatrixFOV(float fov, float aspect,
     ///cameraPosition: float*
     ///cameraTargetPosition: float*
     ///cameraUp: float*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3RequestCameraImageSetViewMatrix")]
-public static extern  void b3RequestCameraImageSetViewMatrix(ref b3SharedMemoryCommandHandle__ command, ref float cameraPosition, ref float cameraTargetPosition, ref float cameraUp) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3RequestCameraImageSetViewMatrix")]
+public static extern  void b3RequestCameraImageSetViewMatrix(System.IntPtr command, ref float cameraPosition, ref float cameraTargetPosition, ref float cameraUp) ;
 
     
     /// Return Type: void
@@ -1858,8 +1839,8 @@ public static extern  void b3RequestCameraImageSetViewMatrix(ref b3SharedMemoryC
     ///pitch: float
     ///roll: float
     ///upAxis: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3RequestCameraImageSetViewMatrix2")]
-public static extern  void b3RequestCameraImageSetViewMatrix2(ref b3SharedMemoryCommandHandle__ commandHandle, ref float cameraTargetPosition, float distance, float yaw, float pitch, float roll, int upAxis) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3RequestCameraImageSetViewMatrix2")]
+public static extern  void b3RequestCameraImageSetViewMatrix2(System.IntPtr commandHandle, ref float cameraTargetPosition, float distance, float yaw, float pitch, float roll, int upAxis) ;
 
     
     /// Return Type: void
@@ -1870,8 +1851,8 @@ public static extern  void b3RequestCameraImageSetViewMatrix2(ref b3SharedMemory
     ///top: float
     ///nearVal: float
     ///farVal: float
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3RequestCameraImageSetProjectionMatrix")]
-public static extern  void b3RequestCameraImageSetProjectionMatrix(ref b3SharedMemoryCommandHandle__ command, float left, float right, float bottom, float top, float nearVal, float farVal) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3RequestCameraImageSetProjectionMatrix")]
+public static extern  void b3RequestCameraImageSetProjectionMatrix(System.IntPtr command, float left, float right, float bottom, float top, float nearVal, float farVal) ;
 
     
     /// Return Type: void
@@ -1880,139 +1861,139 @@ public static extern  void b3RequestCameraImageSetProjectionMatrix(ref b3SharedM
     ///aspect: float
     ///nearVal: float
     ///farVal: float
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3RequestCameraImageSetFOVProjectionMatrix")]
-public static extern  void b3RequestCameraImageSetFOVProjectionMatrix(ref b3SharedMemoryCommandHandle__ command, float fov, float aspect, float nearVal, float farVal) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3RequestCameraImageSetFOVProjectionMatrix")]
+public static extern  void b3RequestCameraImageSetFOVProjectionMatrix(System.IntPtr command, float fov, float aspect, float nearVal, float farVal) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitRequestContactPointInformation")]
-public static extern  System.IntPtr b3InitRequestContactPointInformation(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitRequestContactPointInformation")]
+public static extern  System.IntPtr b3InitRequestContactPointInformation(System.IntPtr physClient) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///bodyUniqueIdA: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3SetContactFilterBodyA")]
-public static extern  void b3SetContactFilterBodyA(ref b3SharedMemoryCommandHandle__ commandHandle, int bodyUniqueIdA) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3SetContactFilterBodyA")]
+public static extern  void b3SetContactFilterBodyA(System.IntPtr commandHandle, int bodyUniqueIdA) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///bodyUniqueIdB: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3SetContactFilterBodyB")]
-public static extern  void b3SetContactFilterBodyB(ref b3SharedMemoryCommandHandle__ commandHandle, int bodyUniqueIdB) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3SetContactFilterBodyB")]
+public static extern  void b3SetContactFilterBodyB(System.IntPtr commandHandle, int bodyUniqueIdB) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///linkIndexA: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3SetContactFilterLinkA")]
-public static extern  void b3SetContactFilterLinkA(ref b3SharedMemoryCommandHandle__ commandHandle, int linkIndexA) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3SetContactFilterLinkA")]
+public static extern  void b3SetContactFilterLinkA(System.IntPtr commandHandle, int linkIndexA) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///linkIndexB: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3SetContactFilterLinkB")]
-public static extern  void b3SetContactFilterLinkB(ref b3SharedMemoryCommandHandle__ commandHandle, int linkIndexB) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3SetContactFilterLinkB")]
+public static extern  void b3SetContactFilterLinkB(System.IntPtr commandHandle, int linkIndexB) ;
 
     
     /// Return Type: void
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///contactPointInfo: b3ContactInformation*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetContactPointInformation")]
-public static extern  void b3GetContactPointInformation(ref b3PhysicsClientHandle__ physClient, ref b3ContactInformation contactPointInfo) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetContactPointInformation")]
+public static extern  void b3GetContactPointInformation(System.IntPtr physClient, ref b3ContactInformation contactPointInfo) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitClosestDistanceQuery")]
-public static extern  System.IntPtr b3InitClosestDistanceQuery(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitClosestDistanceQuery")]
+public static extern  System.IntPtr b3InitClosestDistanceQuery(System.IntPtr physClient) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///bodyUniqueIdA: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3SetClosestDistanceFilterBodyA")]
-public static extern  void b3SetClosestDistanceFilterBodyA(ref b3SharedMemoryCommandHandle__ commandHandle, int bodyUniqueIdA) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3SetClosestDistanceFilterBodyA")]
+public static extern  void b3SetClosestDistanceFilterBodyA(System.IntPtr commandHandle, int bodyUniqueIdA) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///linkIndexA: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3SetClosestDistanceFilterLinkA")]
-public static extern  void b3SetClosestDistanceFilterLinkA(ref b3SharedMemoryCommandHandle__ commandHandle, int linkIndexA) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3SetClosestDistanceFilterLinkA")]
+public static extern  void b3SetClosestDistanceFilterLinkA(System.IntPtr commandHandle, int linkIndexA) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///bodyUniqueIdB: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3SetClosestDistanceFilterBodyB")]
-public static extern  void b3SetClosestDistanceFilterBodyB(ref b3SharedMemoryCommandHandle__ commandHandle, int bodyUniqueIdB) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3SetClosestDistanceFilterBodyB")]
+public static extern  void b3SetClosestDistanceFilterBodyB(System.IntPtr commandHandle, int bodyUniqueIdB) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///linkIndexB: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3SetClosestDistanceFilterLinkB")]
-public static extern  void b3SetClosestDistanceFilterLinkB(ref b3SharedMemoryCommandHandle__ commandHandle, int linkIndexB) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3SetClosestDistanceFilterLinkB")]
+public static extern  void b3SetClosestDistanceFilterLinkB(System.IntPtr commandHandle, int linkIndexB) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///distance: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3SetClosestDistanceThreshold")]
-public static extern  void b3SetClosestDistanceThreshold(ref b3SharedMemoryCommandHandle__ commandHandle, double distance) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3SetClosestDistanceThreshold")]
+public static extern  void b3SetClosestDistanceThreshold(System.IntPtr commandHandle, double distance) ;
 
     
     /// Return Type: void
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///contactPointInfo: b3ContactInformation*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetClosestPointInformation")]
-public static extern  void b3GetClosestPointInformation(ref b3PhysicsClientHandle__ physClient, ref b3ContactInformation contactPointInfo) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetClosestPointInformation")]
+public static extern  void b3GetClosestPointInformation(System.IntPtr physClient, ref b3ContactInformation contactPointInfo) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///aabbMin: double*
     ///aabbMax: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitAABBOverlapQuery")]
-public static extern  System.IntPtr b3InitAABBOverlapQuery(ref b3PhysicsClientHandle__ physClient, ref double aabbMin, ref double aabbMax) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitAABBOverlapQuery")]
+public static extern  System.IntPtr b3InitAABBOverlapQuery(System.IntPtr physClient, ref double aabbMin, ref double aabbMax) ;
 
     
     /// Return Type: void
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///data: b3AABBOverlapData*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetAABBOverlapResults")]
-public static extern  void b3GetAABBOverlapResults(ref b3PhysicsClientHandle__ physClient, ref b3AABBOverlapData data) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetAABBOverlapResults")]
+public static extern  void b3GetAABBOverlapResults(System.IntPtr physClient, ref b3AABBOverlapData data) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///bodyUniqueIdA: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitRequestVisualShapeInformation")]
-public static extern  System.IntPtr b3InitRequestVisualShapeInformation(ref b3PhysicsClientHandle__ physClient, int bodyUniqueIdA) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitRequestVisualShapeInformation")]
+public static extern  System.IntPtr b3InitRequestVisualShapeInformation(System.IntPtr physClient, int bodyUniqueIdA) ;
 
     
     /// Return Type: void
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///visualShapeInfo: b3VisualShapeInformation*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetVisualShapeInformation")]
-public static extern  void b3GetVisualShapeInformation(ref b3PhysicsClientHandle__ physClient, ref b3VisualShapeInformation visualShapeInfo) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetVisualShapeInformation")]
+public static extern  void b3GetVisualShapeInformation(System.IntPtr physClient, ref b3VisualShapeInformation visualShapeInfo) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///filename: char*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitLoadTexture")]
-public static extern  System.IntPtr b3InitLoadTexture(ref b3PhysicsClientHandle__ physClient, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string filename) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitLoadTexture")]
+public static extern  System.IntPtr b3InitLoadTexture(System.IntPtr physClient, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string filename) ;
 
     
     /// Return Type: int
     ///statusHandle: b3SharedMemoryStatusHandle->b3SharedMemoryStatusHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetStatusTextureUniqueId")]
-public static extern  int b3GetStatusTextureUniqueId(ref b3SharedMemoryStatusHandle__ statusHandle) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetStatusTextureUniqueId")]
+public static extern  int b3GetStatusTextureUniqueId(System.IntPtr statusHandle) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
@@ -2021,8 +2002,8 @@ public static extern  int b3GetStatusTextureUniqueId(ref b3SharedMemoryStatusHan
     ///width: int
     ///height: int
     ///rgbPixels: char*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateChangeTextureCommandInit")]
-public static extern  System.IntPtr b3CreateChangeTextureCommandInit(ref b3PhysicsClientHandle__ physClient, int textureUniqueId, int width, int height, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string rgbPixels) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateChangeTextureCommandInit")]
+public static extern  System.IntPtr b3CreateChangeTextureCommandInit(System.IntPtr physClient, int textureUniqueId, int width, int height, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string rgbPixels) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
@@ -2031,28 +2012,28 @@ public static extern  System.IntPtr b3CreateChangeTextureCommandInit(ref b3Physi
     ///jointIndex: int
     ///shapeIndex: int
     ///textureUniqueId: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitUpdateVisualShape")]
-public static extern  System.IntPtr b3InitUpdateVisualShape(ref b3PhysicsClientHandle__ physClient, int bodyUniqueId, int jointIndex, int shapeIndex, int textureUniqueId) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitUpdateVisualShape")]
+public static extern  System.IntPtr b3InitUpdateVisualShape(System.IntPtr physClient, int bodyUniqueId, int jointIndex, int shapeIndex, int textureUniqueId) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///rgbaColor: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3UpdateVisualShapeRGBAColor")]
-public static extern  void b3UpdateVisualShapeRGBAColor(ref b3SharedMemoryCommandHandle__ commandHandle, ref double rgbaColor) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3UpdateVisualShapeRGBAColor")]
+public static extern  void b3UpdateVisualShapeRGBAColor(System.IntPtr commandHandle, ref double rgbaColor) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///specularColor: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3UpdateVisualShapeSpecularColor")]
-public static extern  void b3UpdateVisualShapeSpecularColor(ref b3SharedMemoryCommandHandle__ commandHandle, ref double specularColor) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3UpdateVisualShapeSpecularColor")]
+public static extern  void b3UpdateVisualShapeSpecularColor(System.IntPtr commandHandle, ref double specularColor) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitPhysicsParamCommand")]
-public static extern  System.IntPtr b3InitPhysicsParamCommand(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitPhysicsParamCommand")]
+public static extern  System.IntPtr b3InitPhysicsParamCommand(System.IntPtr physClient) ;
 
     
     /// Return Type: int
@@ -2060,132 +2041,132 @@ public static extern  System.IntPtr b3InitPhysicsParamCommand(ref b3PhysicsClien
     ///gravx: double
     ///gravy: double
     ///gravz: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3PhysicsParamSetGravity")]
-public static extern  int b3PhysicsParamSetGravity(ref b3SharedMemoryCommandHandle__ commandHandle, double gravx, double gravy, double gravz) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3PhysicsParamSetGravity")]
+public static extern  int b3PhysicsParamSetGravity(System.IntPtr commandHandle, double gravx, double gravy, double gravz) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///timeStep: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3PhysicsParamSetTimeStep")]
-public static extern  int b3PhysicsParamSetTimeStep(ref b3SharedMemoryCommandHandle__ commandHandle, double timeStep) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3PhysicsParamSetTimeStep")]
+public static extern  int b3PhysicsParamSetTimeStep(System.IntPtr commandHandle, double timeStep) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///defaultContactERP: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3PhysicsParamSetDefaultContactERP")]
-public static extern  int b3PhysicsParamSetDefaultContactERP(ref b3SharedMemoryCommandHandle__ commandHandle, double defaultContactERP) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3PhysicsParamSetDefaultContactERP")]
+public static extern  int b3PhysicsParamSetDefaultContactERP(System.IntPtr commandHandle, double defaultContactERP) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///defaultNonContactERP: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3PhysicsParamSetDefaultNonContactERP")]
-public static extern  int b3PhysicsParamSetDefaultNonContactERP(ref b3SharedMemoryCommandHandle__ commandHandle, double defaultNonContactERP) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3PhysicsParamSetDefaultNonContactERP")]
+public static extern  int b3PhysicsParamSetDefaultNonContactERP(System.IntPtr commandHandle, double defaultNonContactERP) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///frictionERP: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3PhysicsParamSetDefaultFrictionERP")]
-public static extern  int b3PhysicsParamSetDefaultFrictionERP(ref b3SharedMemoryCommandHandle__ commandHandle, double frictionERP) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3PhysicsParamSetDefaultFrictionERP")]
+public static extern  int b3PhysicsParamSetDefaultFrictionERP(System.IntPtr commandHandle, double frictionERP) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///numSubSteps: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3PhysicsParamSetNumSubSteps")]
-public static extern  int b3PhysicsParamSetNumSubSteps(ref b3SharedMemoryCommandHandle__ commandHandle, int numSubSteps) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3PhysicsParamSetNumSubSteps")]
+public static extern  int b3PhysicsParamSetNumSubSteps(System.IntPtr commandHandle, int numSubSteps) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///enableRealTimeSimulation: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3PhysicsParamSetRealTimeSimulation")]
-public static extern  int b3PhysicsParamSetRealTimeSimulation(ref b3SharedMemoryCommandHandle__ commandHandle, int enableRealTimeSimulation) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3PhysicsParamSetRealTimeSimulation")]
+public static extern  int b3PhysicsParamSetRealTimeSimulation(System.IntPtr commandHandle, int enableRealTimeSimulation) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///numSolverIterations: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3PhysicsParamSetNumSolverIterations")]
-public static extern  int b3PhysicsParamSetNumSolverIterations(ref b3SharedMemoryCommandHandle__ commandHandle, int numSolverIterations) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3PhysicsParamSetNumSolverIterations")]
+public static extern  int b3PhysicsParamSetNumSolverIterations(System.IntPtr commandHandle, int numSolverIterations) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///filterMode: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3PhysicsParamSetCollisionFilterMode")]
-public static extern  int b3PhysicsParamSetCollisionFilterMode(ref b3SharedMemoryCommandHandle__ commandHandle, int filterMode) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3PhysicsParamSetCollisionFilterMode")]
+public static extern  int b3PhysicsParamSetCollisionFilterMode(System.IntPtr commandHandle, int filterMode) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///useSplitImpulse: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3PhysicsParamSetUseSplitImpulse")]
-public static extern  int b3PhysicsParamSetUseSplitImpulse(ref b3SharedMemoryCommandHandle__ commandHandle, int useSplitImpulse) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3PhysicsParamSetUseSplitImpulse")]
+public static extern  int b3PhysicsParamSetUseSplitImpulse(System.IntPtr commandHandle, int useSplitImpulse) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///splitImpulsePenetrationThreshold: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3PhysicsParamSetSplitImpulsePenetrationThreshold")]
-public static extern  int b3PhysicsParamSetSplitImpulsePenetrationThreshold(ref b3SharedMemoryCommandHandle__ commandHandle, double splitImpulsePenetrationThreshold) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3PhysicsParamSetSplitImpulsePenetrationThreshold")]
+public static extern  int b3PhysicsParamSetSplitImpulsePenetrationThreshold(System.IntPtr commandHandle, double splitImpulsePenetrationThreshold) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///contactBreakingThreshold: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3PhysicsParamSetContactBreakingThreshold")]
-public static extern  int b3PhysicsParamSetContactBreakingThreshold(ref b3SharedMemoryCommandHandle__ commandHandle, double contactBreakingThreshold) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3PhysicsParamSetContactBreakingThreshold")]
+public static extern  int b3PhysicsParamSetContactBreakingThreshold(System.IntPtr commandHandle, double contactBreakingThreshold) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///maxNumCmdPer1ms: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3PhysicsParamSetMaxNumCommandsPer1ms")]
-public static extern  int b3PhysicsParamSetMaxNumCommandsPer1ms(ref b3SharedMemoryCommandHandle__ commandHandle, int maxNumCmdPer1ms) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3PhysicsParamSetMaxNumCommandsPer1ms")]
+public static extern  int b3PhysicsParamSetMaxNumCommandsPer1ms(System.IntPtr commandHandle, int maxNumCmdPer1ms) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///enableFileCaching: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3PhysicsParamSetEnableFileCaching")]
-public static extern  int b3PhysicsParamSetEnableFileCaching(ref b3SharedMemoryCommandHandle__ commandHandle, int enableFileCaching) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3PhysicsParamSetEnableFileCaching")]
+public static extern  int b3PhysicsParamSetEnableFileCaching(System.IntPtr commandHandle, int enableFileCaching) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///restitutionVelocityThreshold: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3PhysicsParamSetRestitutionVelocityThreshold")]
-public static extern  int b3PhysicsParamSetRestitutionVelocityThreshold(ref b3SharedMemoryCommandHandle__ commandHandle, double restitutionVelocityThreshold) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3PhysicsParamSetRestitutionVelocityThreshold")]
+public static extern  int b3PhysicsParamSetRestitutionVelocityThreshold(System.IntPtr commandHandle, double restitutionVelocityThreshold) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///flags: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3PhysicsParamSetInternalSimFlags")]
-public static extern  int b3PhysicsParamSetInternalSimFlags(ref b3SharedMemoryCommandHandle__ commandHandle, int flags) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3PhysicsParamSetInternalSimFlags")]
+public static extern  int b3PhysicsParamSetInternalSimFlags(System.IntPtr commandHandle, int flags) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitStepSimulationCommand")]
-public static extern  System.IntPtr b3InitStepSimulationCommand(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitStepSimulationCommand")]
+public static extern  System.IntPtr b3InitStepSimulationCommand(System.IntPtr physClient) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InitResetSimulationCommand")]
-public static extern  System.IntPtr b3InitResetSimulationCommand(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InitResetSimulationCommand")]
+public static extern  System.IntPtr b3InitResetSimulationCommand(System.IntPtr physClient) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///urdfFileName: char*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3LoadUrdfCommandInit")]
-public static extern  System.IntPtr b3LoadUrdfCommandInit(ref b3PhysicsClientHandle__ physClient, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string urdfFileName) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3LoadUrdfCommandInit")]
+public static extern  System.IntPtr b3LoadUrdfCommandInit(System.IntPtr physClient, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string urdfFileName) ;
 
     
     /// Return Type: int
@@ -2193,8 +2174,8 @@ public static extern  System.IntPtr b3LoadUrdfCommandInit(ref b3PhysicsClientHan
     ///startPosX: double
     ///startPosY: double
     ///startPosZ: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3LoadUrdfCommandSetStartPosition")]
-public static extern  int b3LoadUrdfCommandSetStartPosition(ref b3SharedMemoryCommandHandle__ commandHandle, double startPosX, double startPosY, double startPosZ) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3LoadUrdfCommandSetStartPosition")]
+public static extern  int b3LoadUrdfCommandSetStartPosition(System.IntPtr commandHandle, double startPosX, double startPosY, double startPosZ) ;
 
     
     /// Return Type: int
@@ -2203,64 +2184,64 @@ public static extern  int b3LoadUrdfCommandSetStartPosition(ref b3SharedMemoryCo
     ///startOrnY: double
     ///startOrnZ: double
     ///startOrnW: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3LoadUrdfCommandSetStartOrientation")]
-public static extern  int b3LoadUrdfCommandSetStartOrientation(ref b3SharedMemoryCommandHandle__ commandHandle, double startOrnX, double startOrnY, double startOrnZ, double startOrnW) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3LoadUrdfCommandSetStartOrientation")]
+public static extern  int b3LoadUrdfCommandSetStartOrientation(System.IntPtr commandHandle, double startOrnX, double startOrnY, double startOrnZ, double startOrnW) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///useMultiBody: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3LoadUrdfCommandSetUseMultiBody")]
-public static extern  int b3LoadUrdfCommandSetUseMultiBody(ref b3SharedMemoryCommandHandle__ commandHandle, int useMultiBody) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3LoadUrdfCommandSetUseMultiBody")]
+public static extern  int b3LoadUrdfCommandSetUseMultiBody(System.IntPtr commandHandle, int useMultiBody) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///useFixedBase: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3LoadUrdfCommandSetUseFixedBase")]
-public static extern  int b3LoadUrdfCommandSetUseFixedBase(ref b3SharedMemoryCommandHandle__ commandHandle, int useFixedBase) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3LoadUrdfCommandSetUseFixedBase")]
+public static extern  int b3LoadUrdfCommandSetUseFixedBase(System.IntPtr commandHandle, int useFixedBase) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///flags: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3LoadUrdfCommandSetFlags")]
-public static extern  int b3LoadUrdfCommandSetFlags(ref b3SharedMemoryCommandHandle__ commandHandle, int flags) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3LoadUrdfCommandSetFlags")]
+public static extern  int b3LoadUrdfCommandSetFlags(System.IntPtr commandHandle, int flags) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///globalScaling: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3LoadUrdfCommandSetGlobalScaling")]
-public static extern  int b3LoadUrdfCommandSetGlobalScaling(ref b3SharedMemoryCommandHandle__ commandHandle, double globalScaling) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3LoadUrdfCommandSetGlobalScaling")]
+public static extern  int b3LoadUrdfCommandSetGlobalScaling(System.IntPtr commandHandle, double globalScaling) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///fileName: char*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3LoadBulletCommandInit")]
-public static extern  System.IntPtr b3LoadBulletCommandInit(ref b3PhysicsClientHandle__ physClient, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string fileName) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3LoadBulletCommandInit")]
+public static extern  System.IntPtr b3LoadBulletCommandInit(System.IntPtr physClient, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string fileName) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///fileName: char*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3SaveBulletCommandInit")]
-public static extern  System.IntPtr b3SaveBulletCommandInit(ref b3PhysicsClientHandle__ physClient, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string fileName) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3SaveBulletCommandInit")]
+public static extern  System.IntPtr b3SaveBulletCommandInit(System.IntPtr physClient, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string fileName) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///fileName: char*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3LoadMJCFCommandInit")]
-public static extern  System.IntPtr b3LoadMJCFCommandInit(ref b3PhysicsClientHandle__ physClient, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string fileName) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3LoadMJCFCommandInit")]
+public static extern  System.IntPtr b3LoadMJCFCommandInit(System.IntPtr physClient, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string fileName) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///flags: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3LoadMJCFCommandSetFlags")]
-public static extern  void b3LoadMJCFCommandSetFlags(ref b3SharedMemoryCommandHandle__ commandHandle, int flags) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3LoadMJCFCommandSetFlags")]
+public static extern  void b3LoadMJCFCommandSetFlags(System.IntPtr commandHandle, int flags) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
@@ -2269,8 +2250,8 @@ public static extern  void b3LoadMJCFCommandSetFlags(ref b3SharedMemoryCommandHa
     ///jointPositionsQ: double*
     ///jointVelocitiesQdot: double*
     ///jointAccelerations: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CalculateInverseDynamicsCommandInit")]
-public static extern  System.IntPtr b3CalculateInverseDynamicsCommandInit(ref b3PhysicsClientHandle__ physClient, int bodyIndex, ref double jointPositionsQ, ref double jointVelocitiesQdot, ref double jointAccelerations) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CalculateInverseDynamicsCommandInit")]
+public static extern  System.IntPtr b3CalculateInverseDynamicsCommandInit(System.IntPtr physClient, int bodyIndex, ref double jointPositionsQ, ref double jointVelocitiesQdot, ref double jointAccelerations) ;
 
     
     /// Return Type: int
@@ -2278,8 +2259,8 @@ public static extern  System.IntPtr b3CalculateInverseDynamicsCommandInit(ref b3
     ///bodyUniqueId: int*
     ///dofCount: int*
     ///jointForces: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetStatusInverseDynamicsJointForces")]
-public static extern  int b3GetStatusInverseDynamicsJointForces(ref b3SharedMemoryStatusHandle__ statusHandle, ref int bodyUniqueId, ref int dofCount, ref double jointForces) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetStatusInverseDynamicsJointForces")]
+public static extern  int b3GetStatusInverseDynamicsJointForces(System.IntPtr statusHandle, ref int bodyUniqueId, ref int dofCount, ref double jointForces) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
@@ -2290,31 +2271,31 @@ public static extern  int b3GetStatusInverseDynamicsJointForces(ref b3SharedMemo
     ///jointPositionsQ: double*
     ///jointVelocitiesQdot: double*
     ///jointAccelerations: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CalculateJacobianCommandInit")]
-public static extern  System.IntPtr b3CalculateJacobianCommandInit(ref b3PhysicsClientHandle__ physClient, int bodyIndex, int linkIndex, ref double localPosition, ref double jointPositionsQ, ref double jointVelocitiesQdot, ref double jointAccelerations) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CalculateJacobianCommandInit")]
+public static extern  System.IntPtr b3CalculateJacobianCommandInit(System.IntPtr physClient, int bodyIndex, int linkIndex, ref double localPosition, ref double jointPositionsQ, ref double jointVelocitiesQdot, ref double jointAccelerations) ;
 
     
     /// Return Type: int
     ///statusHandle: b3SharedMemoryStatusHandle->b3SharedMemoryStatusHandle__*
     ///linearJacobian: double*
     ///angularJacobian: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetStatusJacobian")]
-public static extern  int b3GetStatusJacobian(ref b3SharedMemoryStatusHandle__ statusHandle, ref double linearJacobian, ref double angularJacobian) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetStatusJacobian")]
+public static extern  int b3GetStatusJacobian(System.IntPtr statusHandle, ref double linearJacobian, ref double angularJacobian) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///bodyIndex: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CalculateInverseKinematicsCommandInit")]
-public static extern  System.IntPtr b3CalculateInverseKinematicsCommandInit(ref b3PhysicsClientHandle__ physClient, int bodyIndex) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CalculateInverseKinematicsCommandInit")]
+public static extern  System.IntPtr b3CalculateInverseKinematicsCommandInit(System.IntPtr physClient, int bodyIndex) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///endEffectorLinkIndex: int
     ///targetPosition: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CalculateInverseKinematicsAddTargetPurePosition")]
-public static extern  void b3CalculateInverseKinematicsAddTargetPurePosition(ref b3SharedMemoryCommandHandle__ commandHandle, int endEffectorLinkIndex, ref double targetPosition) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CalculateInverseKinematicsAddTargetPurePosition")]
+public static extern  void b3CalculateInverseKinematicsAddTargetPurePosition(System.IntPtr commandHandle, int endEffectorLinkIndex, ref double targetPosition) ;
 
     
     /// Return Type: void
@@ -2322,8 +2303,8 @@ public static extern  void b3CalculateInverseKinematicsAddTargetPurePosition(ref
     ///endEffectorLinkIndex: int
     ///targetPosition: double*
     ///targetOrientation: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CalculateInverseKinematicsAddTargetPositionWithOrientation")]
-public static extern  void b3CalculateInverseKinematicsAddTargetPositionWithOrientation(ref b3SharedMemoryCommandHandle__ commandHandle, int endEffectorLinkIndex, ref double targetPosition, ref double targetOrientation) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CalculateInverseKinematicsAddTargetPositionWithOrientation")]
+public static extern  void b3CalculateInverseKinematicsAddTargetPositionWithOrientation(System.IntPtr commandHandle, int endEffectorLinkIndex, ref double targetPosition, ref double targetOrientation) ;
 
     
     /// Return Type: void
@@ -2335,8 +2316,8 @@ public static extern  void b3CalculateInverseKinematicsAddTargetPositionWithOrie
     ///upperLimit: double*
     ///jointRange: double*
     ///restPose: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CalculateInverseKinematicsPosWithNullSpaceVel")]
-public static extern  void b3CalculateInverseKinematicsPosWithNullSpaceVel(ref b3SharedMemoryCommandHandle__ commandHandle, int numDof, int endEffectorLinkIndex, ref double targetPosition, ref double lowerLimit, ref double upperLimit, ref double jointRange, ref double restPose) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CalculateInverseKinematicsPosWithNullSpaceVel")]
+public static extern  void b3CalculateInverseKinematicsPosWithNullSpaceVel(System.IntPtr commandHandle, int numDof, int endEffectorLinkIndex, ref double targetPosition, ref double lowerLimit, ref double upperLimit, ref double jointRange, ref double restPose) ;
 
     
     /// Return Type: void
@@ -2349,16 +2330,16 @@ public static extern  void b3CalculateInverseKinematicsPosWithNullSpaceVel(ref b
     ///upperLimit: double*
     ///jointRange: double*
     ///restPose: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CalculateInverseKinematicsPosOrnWithNullSpaceVel")]
-public static extern  void b3CalculateInverseKinematicsPosOrnWithNullSpaceVel(ref b3SharedMemoryCommandHandle__ commandHandle, int numDof, int endEffectorLinkIndex, ref double targetPosition, ref double targetOrientation, ref double lowerLimit, ref double upperLimit, ref double jointRange, ref double restPose) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CalculateInverseKinematicsPosOrnWithNullSpaceVel")]
+public static extern  void b3CalculateInverseKinematicsPosOrnWithNullSpaceVel(System.IntPtr commandHandle, int numDof, int endEffectorLinkIndex, ref double targetPosition, ref double targetOrientation, ref double lowerLimit, ref double upperLimit, ref double jointRange, ref double restPose) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///numDof: int
     ///jointDampingCoeff: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CalculateInverseKinematicsSetJointDamping")]
-public static extern  void b3CalculateInverseKinematicsSetJointDamping(ref b3SharedMemoryCommandHandle__ commandHandle, int numDof, ref double jointDampingCoeff) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CalculateInverseKinematicsSetJointDamping")]
+public static extern  void b3CalculateInverseKinematicsSetJointDamping(System.IntPtr commandHandle, int numDof, ref double jointDampingCoeff) ;
 
     
     /// Return Type: int
@@ -2366,159 +2347,159 @@ public static extern  void b3CalculateInverseKinematicsSetJointDamping(ref b3Sha
     ///bodyUniqueId: int*
     ///dofCount: int*
     ///jointPositions: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetStatusInverseKinematicsJointPositions")]
-public static extern  int b3GetStatusInverseKinematicsJointPositions(ref b3SharedMemoryStatusHandle__ statusHandle, ref int bodyUniqueId, ref int dofCount, ref double jointPositions) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetStatusInverseKinematicsJointPositions")]
+public static extern  int b3GetStatusInverseKinematicsJointPositions(System.IntPtr statusHandle, ref int bodyUniqueId, ref int dofCount, ref double jointPositions) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///sdfFileName: char*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3LoadSdfCommandInit")]
-public static extern  System.IntPtr b3LoadSdfCommandInit(ref b3PhysicsClientHandle__ physClient, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string sdfFileName) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3LoadSdfCommandInit")]
+public static extern  System.IntPtr b3LoadSdfCommandInit(System.IntPtr physClient, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string sdfFileName) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///useMultiBody: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3LoadSdfCommandSetUseMultiBody")]
-public static extern  int b3LoadSdfCommandSetUseMultiBody(ref b3SharedMemoryCommandHandle__ commandHandle, int useMultiBody) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3LoadSdfCommandSetUseMultiBody")]
+public static extern  int b3LoadSdfCommandSetUseMultiBody(System.IntPtr commandHandle, int useMultiBody) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///globalScaling: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3LoadSdfCommandSetUseGlobalScaling")]
-public static extern  int b3LoadSdfCommandSetUseGlobalScaling(ref b3SharedMemoryCommandHandle__ commandHandle, double globalScaling) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3LoadSdfCommandSetUseGlobalScaling")]
+public static extern  int b3LoadSdfCommandSetUseGlobalScaling(System.IntPtr commandHandle, double globalScaling) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///sdfFileName: char*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3SaveWorldCommandInit")]
-public static extern  System.IntPtr b3SaveWorldCommandInit(ref b3PhysicsClientHandle__ physClient, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string sdfFileName) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3SaveWorldCommandInit")]
+public static extern  System.IntPtr b3SaveWorldCommandInit(System.IntPtr physClient, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string sdfFileName) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///controlMode: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3JointControlCommandInit")]
-public static extern  System.IntPtr b3JointControlCommandInit(ref b3PhysicsClientHandle__ physClient, int controlMode) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3JointControlCommandInit")]
+public static extern  System.IntPtr b3JointControlCommandInit(System.IntPtr physClient, int controlMode) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///bodyUniqueId: int
     ///controlMode: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3JointControlCommandInit2")]
-public static extern  System.IntPtr b3JointControlCommandInit2(ref b3PhysicsClientHandle__ physClient, int bodyUniqueId, int controlMode) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3JointControlCommandInit2")]
+public static extern  System.IntPtr b3JointControlCommandInit2(System.IntPtr physClient, int bodyUniqueId, int controlMode) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///qIndex: int
     ///value: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3JointControlSetDesiredPosition")]
-public static extern  int b3JointControlSetDesiredPosition(ref b3SharedMemoryCommandHandle__ commandHandle, int qIndex, double value) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3JointControlSetDesiredPosition")]
+public static extern  int b3JointControlSetDesiredPosition(System.IntPtr commandHandle, int qIndex, double value) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///dofIndex: int
     ///value: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3JointControlSetKp")]
-public static extern  int b3JointControlSetKp(ref b3SharedMemoryCommandHandle__ commandHandle, int dofIndex, double value) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3JointControlSetKp")]
+public static extern  int b3JointControlSetKp(System.IntPtr commandHandle, int dofIndex, double value) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///dofIndex: int
     ///value: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3JointControlSetKd")]
-public static extern  int b3JointControlSetKd(ref b3SharedMemoryCommandHandle__ commandHandle, int dofIndex, double value) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3JointControlSetKd")]
+public static extern  int b3JointControlSetKd(System.IntPtr commandHandle, int dofIndex, double value) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///dofIndex: int
     ///value: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3JointControlSetDesiredVelocity")]
-public static extern  int b3JointControlSetDesiredVelocity(ref b3SharedMemoryCommandHandle__ commandHandle, int dofIndex, double value) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3JointControlSetDesiredVelocity")]
+public static extern  int b3JointControlSetDesiredVelocity(System.IntPtr commandHandle, int dofIndex, double value) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///dofIndex: int
     ///value: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3JointControlSetMaximumForce")]
-public static extern  int b3JointControlSetMaximumForce(ref b3SharedMemoryCommandHandle__ commandHandle, int dofIndex, double value) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3JointControlSetMaximumForce")]
+public static extern  int b3JointControlSetMaximumForce(System.IntPtr commandHandle, int dofIndex, double value) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///dofIndex: int
     ///value: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3JointControlSetDesiredForceTorque")]
-public static extern  int b3JointControlSetDesiredForceTorque(ref b3SharedMemoryCommandHandle__ commandHandle, int dofIndex, double value) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3JointControlSetDesiredForceTorque")]
+public static extern  int b3JointControlSetDesiredForceTorque(System.IntPtr commandHandle, int dofIndex, double value) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateCollisionShapeCommandInit")]
-public static extern  System.IntPtr b3CreateCollisionShapeCommandInit(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateCollisionShapeCommandInit")]
+public static extern  System.IntPtr b3CreateCollisionShapeCommandInit(System.IntPtr physClient) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///radius: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateCollisionShapeAddSphere")]
-public static extern  int b3CreateCollisionShapeAddSphere(ref b3SharedMemoryCommandHandle__ commandHandle, double radius) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateCollisionShapeAddSphere")]
+public static extern  int b3CreateCollisionShapeAddSphere(System.IntPtr commandHandle, double radius) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///halfExtents: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateCollisionShapeAddBox")]
-public static extern  int b3CreateCollisionShapeAddBox(ref b3SharedMemoryCommandHandle__ commandHandle, ref double halfExtents) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateCollisionShapeAddBox")]
+public static extern  int b3CreateCollisionShapeAddBox(System.IntPtr commandHandle, ref double halfExtents) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///radius: double
     ///height: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateCollisionShapeAddCapsule")]
-public static extern  int b3CreateCollisionShapeAddCapsule(ref b3SharedMemoryCommandHandle__ commandHandle, double radius, double height) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateCollisionShapeAddCapsule")]
+public static extern  int b3CreateCollisionShapeAddCapsule(System.IntPtr commandHandle, double radius, double height) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///radius: double
     ///height: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateCollisionShapeAddCylinder")]
-public static extern  int b3CreateCollisionShapeAddCylinder(ref b3SharedMemoryCommandHandle__ commandHandle, double radius, double height) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateCollisionShapeAddCylinder")]
+public static extern  int b3CreateCollisionShapeAddCylinder(System.IntPtr commandHandle, double radius, double height) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///planeNormal: double*
     ///planeConstant: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateCollisionShapeAddPlane")]
-public static extern  int b3CreateCollisionShapeAddPlane(ref b3SharedMemoryCommandHandle__ commandHandle, ref double planeNormal, double planeConstant) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateCollisionShapeAddPlane")]
+public static extern  int b3CreateCollisionShapeAddPlane(System.IntPtr commandHandle, ref double planeNormal, double planeConstant) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///fileName: char*
     ///meshScale: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateCollisionShapeAddMesh")]
-public static extern  int b3CreateCollisionShapeAddMesh(ref b3SharedMemoryCommandHandle__ commandHandle, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string fileName, ref double meshScale) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateCollisionShapeAddMesh")]
+public static extern  int b3CreateCollisionShapeAddMesh(System.IntPtr commandHandle, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string fileName, ref double meshScale) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///shapeIndex: int
     ///flags: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateCollisionSetFlag")]
-public static extern  void b3CreateCollisionSetFlag(ref b3SharedMemoryCommandHandle__ commandHandle, int shapeIndex, int flags) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateCollisionSetFlag")]
+public static extern  void b3CreateCollisionSetFlag(System.IntPtr commandHandle, int shapeIndex, int flags) ;
 
     
     /// Return Type: void
@@ -2526,32 +2507,32 @@ public static extern  void b3CreateCollisionSetFlag(ref b3SharedMemoryCommandHan
     ///shapeIndex: int
     ///childPosition: double*
     ///childOrientation: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateCollisionShapeSetChildTransform")]
-public static extern  void b3CreateCollisionShapeSetChildTransform(ref b3SharedMemoryCommandHandle__ commandHandle, int shapeIndex, ref double childPosition, ref double childOrientation) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateCollisionShapeSetChildTransform")]
+public static extern  void b3CreateCollisionShapeSetChildTransform(System.IntPtr commandHandle, int shapeIndex, ref double childPosition, ref double childOrientation) ;
 
     
     /// Return Type: int
     ///statusHandle: b3SharedMemoryStatusHandle->b3SharedMemoryStatusHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetStatusCollisionShapeUniqueId")]
-public static extern  int b3GetStatusCollisionShapeUniqueId(ref b3SharedMemoryStatusHandle__ statusHandle) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetStatusCollisionShapeUniqueId")]
+public static extern  int b3GetStatusCollisionShapeUniqueId(System.IntPtr statusHandle) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateVisualShapeCommandInit")]
-public static extern  System.IntPtr b3CreateVisualShapeCommandInit(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateVisualShapeCommandInit")]
+public static extern  System.IntPtr b3CreateVisualShapeCommandInit(System.IntPtr physClient) ;
 
     
     /// Return Type: int
     ///statusHandle: b3SharedMemoryStatusHandle->b3SharedMemoryStatusHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetStatusVisualShapeUniqueId")]
-public static extern  int b3GetStatusVisualShapeUniqueId(ref b3SharedMemoryStatusHandle__ statusHandle) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetStatusVisualShapeUniqueId")]
+public static extern  int b3GetStatusVisualShapeUniqueId(System.IntPtr statusHandle) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateMultiBodyCommandInit")]
-public static extern  System.IntPtr b3CreateMultiBodyCommandInit(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateMultiBodyCommandInit")]
+public static extern  System.IntPtr b3CreateMultiBodyCommandInit(System.IntPtr physClient) ;
 
     
     /// Return Type: int
@@ -2563,8 +2544,8 @@ public static extern  System.IntPtr b3CreateMultiBodyCommandInit(ref b3PhysicsCl
     ///baseOrientation: double*
     ///baseInertialFramePosition: double*
     ///baseInertialFrameOrientation: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateMultiBodyBase")]
-public static extern  int b3CreateMultiBodyBase(ref b3SharedMemoryCommandHandle__ commandHandle, double mass, int collisionShapeUnique, int visualShapeUniqueId, ref double basePosition, ref double baseOrientation, ref double baseInertialFramePosition, ref double baseInertialFrameOrientation) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateMultiBodyBase")]
+public static extern  int b3CreateMultiBodyBase(System.IntPtr commandHandle, double mass, int collisionShapeUnique, int visualShapeUniqueId, ref double basePosition, ref double baseOrientation, ref double baseInertialFramePosition, ref double baseInertialFrameOrientation) ;
 
     
     /// Return Type: int
@@ -2579,20 +2560,20 @@ public static extern  int b3CreateMultiBodyBase(ref b3SharedMemoryCommandHandle_
     ///linkParentIndex: int
     ///linkJointType: int
     ///linkJointAxis: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateMultiBodyLink")]
-public static extern  int b3CreateMultiBodyLink(ref b3SharedMemoryCommandHandle__ commandHandle, double linkMass, double linkCollisionShapeIndex, double linkVisualShapeIndex, ref double linkPosition, ref double linkOrientation, ref double linkInertialFramePosition, ref double linkInertialFrameOrientation, int linkParentIndex, int linkJointType, ref double linkJointAxis) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateMultiBodyLink")]
+public static extern  int b3CreateMultiBodyLink(System.IntPtr commandHandle, double linkMass, double linkCollisionShapeIndex, double linkVisualShapeIndex, ref double linkPosition, ref double linkOrientation, ref double linkInertialFramePosition, ref double linkInertialFrameOrientation, int linkParentIndex, int linkJointType, ref double linkJointAxis) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateMultiBodyUseMaximalCoordinates")]
-public static extern  void b3CreateMultiBodyUseMaximalCoordinates(ref b3SharedMemoryCommandHandle__ commandHandle) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateMultiBodyUseMaximalCoordinates")]
+public static extern  void b3CreateMultiBodyUseMaximalCoordinates(System.IntPtr commandHandle) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateBoxShapeCommandInit")]
-public static extern  System.IntPtr b3CreateBoxShapeCommandInit(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateBoxShapeCommandInit")]
+public static extern  System.IntPtr b3CreateBoxShapeCommandInit(System.IntPtr physClient) ;
 
     
     /// Return Type: int
@@ -2600,8 +2581,8 @@ public static extern  System.IntPtr b3CreateBoxShapeCommandInit(ref b3PhysicsCli
     ///startPosX: double
     ///startPosY: double
     ///startPosZ: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateBoxCommandSetStartPosition")]
-public static extern  int b3CreateBoxCommandSetStartPosition(ref b3SharedMemoryCommandHandle__ commandHandle, double startPosX, double startPosY, double startPosZ) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateBoxCommandSetStartPosition")]
+public static extern  int b3CreateBoxCommandSetStartPosition(System.IntPtr commandHandle, double startPosX, double startPosY, double startPosZ) ;
 
     
     /// Return Type: int
@@ -2610,8 +2591,8 @@ public static extern  int b3CreateBoxCommandSetStartPosition(ref b3SharedMemoryC
     ///startOrnY: double
     ///startOrnZ: double
     ///startOrnW: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateBoxCommandSetStartOrientation")]
-public static extern  int b3CreateBoxCommandSetStartOrientation(ref b3SharedMemoryCommandHandle__ commandHandle, double startOrnX, double startOrnY, double startOrnZ, double startOrnW) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateBoxCommandSetStartOrientation")]
+public static extern  int b3CreateBoxCommandSetStartOrientation(System.IntPtr commandHandle, double startOrnX, double startOrnY, double startOrnZ, double startOrnW) ;
 
     
     /// Return Type: int
@@ -2619,22 +2600,22 @@ public static extern  int b3CreateBoxCommandSetStartOrientation(ref b3SharedMemo
     ///halfExtentsX: double
     ///halfExtentsY: double
     ///halfExtentsZ: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateBoxCommandSetHalfExtents")]
-public static extern  int b3CreateBoxCommandSetHalfExtents(ref b3SharedMemoryCommandHandle__ commandHandle, double halfExtentsX, double halfExtentsY, double halfExtentsZ) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateBoxCommandSetHalfExtents")]
+public static extern  int b3CreateBoxCommandSetHalfExtents(System.IntPtr commandHandle, double halfExtentsX, double halfExtentsY, double halfExtentsZ) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///mass: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateBoxCommandSetMass")]
-public static extern  int b3CreateBoxCommandSetMass(ref b3SharedMemoryCommandHandle__ commandHandle, double mass) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateBoxCommandSetMass")]
+public static extern  int b3CreateBoxCommandSetMass(System.IntPtr commandHandle, double mass) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///collisionShapeType: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateBoxCommandSetCollisionShapeType")]
-public static extern  int b3CreateBoxCommandSetCollisionShapeType(ref b3SharedMemoryCommandHandle__ commandHandle, int collisionShapeType) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateBoxCommandSetCollisionShapeType")]
+public static extern  int b3CreateBoxCommandSetCollisionShapeType(System.IntPtr commandHandle, int collisionShapeType) ;
 
     
     /// Return Type: int
@@ -2643,15 +2624,15 @@ public static extern  int b3CreateBoxCommandSetCollisionShapeType(ref b3SharedMe
     ///green: double
     ///blue: double
     ///alpha: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateBoxCommandSetColorRGBA")]
-public static extern  int b3CreateBoxCommandSetColorRGBA(ref b3SharedMemoryCommandHandle__ commandHandle, double red, double green, double blue, double alpha) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateBoxCommandSetColorRGBA")]
+public static extern  int b3CreateBoxCommandSetColorRGBA(System.IntPtr commandHandle, double red, double green, double blue, double alpha) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///bodyIndex: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreatePoseCommandInit")]
-public static extern  System.IntPtr b3CreatePoseCommandInit(ref b3PhysicsClientHandle__ physClient, int bodyIndex) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreatePoseCommandInit")]
+public static extern  System.IntPtr b3CreatePoseCommandInit(System.IntPtr physClient, int bodyIndex) ;
 
     
     /// Return Type: int
@@ -2659,8 +2640,8 @@ public static extern  System.IntPtr b3CreatePoseCommandInit(ref b3PhysicsClientH
     ///startPosX: double
     ///startPosY: double
     ///startPosZ: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreatePoseCommandSetBasePosition")]
-public static extern  int b3CreatePoseCommandSetBasePosition(ref b3SharedMemoryCommandHandle__ commandHandle, double startPosX, double startPosY, double startPosZ) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreatePoseCommandSetBasePosition")]
+public static extern  int b3CreatePoseCommandSetBasePosition(System.IntPtr commandHandle, double startPosX, double startPosY, double startPosZ) ;
 
     
     /// Return Type: int
@@ -2669,30 +2650,30 @@ public static extern  int b3CreatePoseCommandSetBasePosition(ref b3SharedMemoryC
     ///startOrnY: double
     ///startOrnZ: double
     ///startOrnW: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreatePoseCommandSetBaseOrientation")]
-public static extern  int b3CreatePoseCommandSetBaseOrientation(ref b3SharedMemoryCommandHandle__ commandHandle, double startOrnX, double startOrnY, double startOrnZ, double startOrnW) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreatePoseCommandSetBaseOrientation")]
+public static extern  int b3CreatePoseCommandSetBaseOrientation(System.IntPtr commandHandle, double startOrnX, double startOrnY, double startOrnZ, double startOrnW) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///linVel: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreatePoseCommandSetBaseLinearVelocity")]
-public static extern  int b3CreatePoseCommandSetBaseLinearVelocity(ref b3SharedMemoryCommandHandle__ commandHandle, ref double linVel) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreatePoseCommandSetBaseLinearVelocity")]
+public static extern  int b3CreatePoseCommandSetBaseLinearVelocity(System.IntPtr commandHandle, ref double linVel) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///angVel: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreatePoseCommandSetBaseAngularVelocity")]
-public static extern  int b3CreatePoseCommandSetBaseAngularVelocity(ref b3SharedMemoryCommandHandle__ commandHandle, ref double angVel) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreatePoseCommandSetBaseAngularVelocity")]
+public static extern  int b3CreatePoseCommandSetBaseAngularVelocity(System.IntPtr commandHandle, ref double angVel) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///numJointPositions: int
     ///jointPositions: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreatePoseCommandSetJointPositions")]
-public static extern  int b3CreatePoseCommandSetJointPositions(ref b3SharedMemoryCommandHandle__ commandHandle, int numJointPositions, ref double jointPositions) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreatePoseCommandSetJointPositions")]
+public static extern  int b3CreatePoseCommandSetJointPositions(System.IntPtr commandHandle, int numJointPositions, ref double jointPositions) ;
 
     
     /// Return Type: int
@@ -2700,8 +2681,8 @@ public static extern  int b3CreatePoseCommandSetJointPositions(ref b3SharedMemor
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///jointIndex: int
     ///jointPosition: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreatePoseCommandSetJointPosition")]
-public static extern  int b3CreatePoseCommandSetJointPosition(ref b3PhysicsClientHandle__ physClient, ref b3SharedMemoryCommandHandle__ commandHandle, int jointIndex, double jointPosition) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreatePoseCommandSetJointPosition")]
+public static extern  int b3CreatePoseCommandSetJointPosition(System.IntPtr physClient, System.IntPtr commandHandle, int jointIndex, double jointPosition) ;
 
     
     /// Return Type: int
@@ -2709,8 +2690,8 @@ public static extern  int b3CreatePoseCommandSetJointPosition(ref b3PhysicsClien
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///numJointVelocities: int
     ///jointVelocities: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreatePoseCommandSetJointVelocities")]
-public static extern  int b3CreatePoseCommandSetJointVelocities(ref b3PhysicsClientHandle__ physClient, ref b3SharedMemoryCommandHandle__ commandHandle, int numJointVelocities, ref double jointVelocities) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreatePoseCommandSetJointVelocities")]
+public static extern  int b3CreatePoseCommandSetJointVelocities(System.IntPtr physClient, System.IntPtr commandHandle, int numJointVelocities, ref double jointVelocities) ;
 
     
     /// Return Type: int
@@ -2718,45 +2699,45 @@ public static extern  int b3CreatePoseCommandSetJointVelocities(ref b3PhysicsCli
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///jointIndex: int
     ///jointVelocity: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreatePoseCommandSetJointVelocity")]
-public static extern  int b3CreatePoseCommandSetJointVelocity(ref b3PhysicsClientHandle__ physClient, ref b3SharedMemoryCommandHandle__ commandHandle, int jointIndex, double jointVelocity) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreatePoseCommandSetJointVelocity")]
+public static extern  int b3CreatePoseCommandSetJointVelocity(System.IntPtr physClient, System.IntPtr commandHandle, int jointIndex, double jointVelocity) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///bodyUniqueId: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateSensorCommandInit")]
-public static extern  System.IntPtr b3CreateSensorCommandInit(ref b3PhysicsClientHandle__ physClient, int bodyUniqueId) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateSensorCommandInit")]
+public static extern  System.IntPtr b3CreateSensorCommandInit(System.IntPtr physClient, int bodyUniqueId) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///jointIndex: int
     ///enable: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateSensorEnable6DofJointForceTorqueSensor")]
-public static extern  int b3CreateSensorEnable6DofJointForceTorqueSensor(ref b3SharedMemoryCommandHandle__ commandHandle, int jointIndex, int enable) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateSensorEnable6DofJointForceTorqueSensor")]
+public static extern  int b3CreateSensorEnable6DofJointForceTorqueSensor(System.IntPtr commandHandle, int jointIndex, int enable) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///linkIndex: int
     ///enable: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateSensorEnableIMUForLink")]
-public static extern  int b3CreateSensorEnableIMUForLink(ref b3SharedMemoryCommandHandle__ commandHandle, int linkIndex, int enable) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateSensorEnableIMUForLink")]
+public static extern  int b3CreateSensorEnableIMUForLink(System.IntPtr commandHandle, int linkIndex, int enable) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///bodyUniqueId: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3RequestActualStateCommandInit")]
-public static extern  System.IntPtr b3RequestActualStateCommandInit(ref b3PhysicsClientHandle__ physClient, int bodyUniqueId) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3RequestActualStateCommandInit")]
+public static extern  System.IntPtr b3RequestActualStateCommandInit(System.IntPtr physClient, int bodyUniqueId) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///computeLinkVelocity: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3RequestActualStateCommandComputeLinkVelocity")]
-public static extern  int b3RequestActualStateCommandComputeLinkVelocity(ref b3SharedMemoryCommandHandle__ commandHandle, int computeLinkVelocity) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3RequestActualStateCommandComputeLinkVelocity")]
+public static extern  int b3RequestActualStateCommandComputeLinkVelocity(System.IntPtr commandHandle, int computeLinkVelocity) ;
 
     
     /// Return Type: int
@@ -2764,8 +2745,8 @@ public static extern  int b3RequestActualStateCommandComputeLinkVelocity(ref b3S
     ///statusHandle: b3SharedMemoryStatusHandle->b3SharedMemoryStatusHandle__*
     ///jointIndex: int
     ///state: b3JointSensorState*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetJointState")]
-public static extern  int b3GetJointState(ref b3PhysicsClientHandle__ physClient, ref b3SharedMemoryStatusHandle__ statusHandle, int jointIndex, ref b3JointSensorState state) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetJointState")]
+public static extern  int b3GetJointState(System.IntPtr physClient, System.IntPtr statusHandle, int jointIndex, ref b3JointSensorState state) ;
 
     
     /// Return Type: int
@@ -2773,8 +2754,8 @@ public static extern  int b3GetJointState(ref b3PhysicsClientHandle__ physClient
     ///statusHandle: b3SharedMemoryStatusHandle->b3SharedMemoryStatusHandle__*
     ///linkIndex: int
     ///state: b3LinkState*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetLinkState")]
-public static extern  int b3GetLinkState(ref b3PhysicsClientHandle__ physClient, ref b3SharedMemoryStatusHandle__ statusHandle, int linkIndex, ref b3LinkState state) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetLinkState")]
+public static extern  int b3GetLinkState(System.IntPtr physClient, System.IntPtr statusHandle, int linkIndex, ref b3LinkState state) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
@@ -2785,8 +2766,8 @@ public static extern  int b3GetLinkState(ref b3PhysicsClientHandle__ physClient,
     ///rayToWorldX: double
     ///rayToWorldY: double
     ///rayToWorldZ: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3PickBody")]
-public static extern  System.IntPtr b3PickBody(ref b3PhysicsClientHandle__ physClient, double rayFromWorldX, double rayFromWorldY, double rayFromWorldZ, double rayToWorldX, double rayToWorldY, double rayToWorldZ) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3PickBody")]
+public static extern  System.IntPtr b3PickBody(System.IntPtr physClient, double rayFromWorldX, double rayFromWorldY, double rayFromWorldZ, double rayToWorldX, double rayToWorldY, double rayToWorldZ) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
@@ -2797,14 +2778,14 @@ public static extern  System.IntPtr b3PickBody(ref b3PhysicsClientHandle__ physC
     ///rayToWorldX: double
     ///rayToWorldY: double
     ///rayToWorldZ: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3MovePickedBody")]
-public static extern  System.IntPtr b3MovePickedBody(ref b3PhysicsClientHandle__ physClient, double rayFromWorldX, double rayFromWorldY, double rayFromWorldZ, double rayToWorldX, double rayToWorldY, double rayToWorldZ) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3MovePickedBody")]
+public static extern  System.IntPtr b3MovePickedBody(System.IntPtr physClient, double rayFromWorldX, double rayFromWorldY, double rayFromWorldZ, double rayToWorldX, double rayToWorldY, double rayToWorldZ) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3RemovePickingConstraint")]
-public static extern  System.IntPtr b3RemovePickingConstraint(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3RemovePickingConstraint")]
+public static extern  System.IntPtr b3RemovePickingConstraint(System.IntPtr physClient) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
@@ -2815,35 +2796,35 @@ public static extern  System.IntPtr b3RemovePickingConstraint(ref b3PhysicsClien
     ///rayToWorldX: double
     ///rayToWorldY: double
     ///rayToWorldZ: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateRaycastCommandInit")]
-public static extern  System.IntPtr b3CreateRaycastCommandInit(ref b3PhysicsClientHandle__ physClient, double rayFromWorldX, double rayFromWorldY, double rayFromWorldZ, double rayToWorldX, double rayToWorldY, double rayToWorldZ) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateRaycastCommandInit")]
+public static extern  System.IntPtr b3CreateRaycastCommandInit(System.IntPtr physClient, double rayFromWorldX, double rayFromWorldY, double rayFromWorldZ, double rayToWorldX, double rayToWorldY, double rayToWorldZ) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3CreateRaycastBatchCommandInit")]
-public static extern  System.IntPtr b3CreateRaycastBatchCommandInit(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3CreateRaycastBatchCommandInit")]
+public static extern  System.IntPtr b3CreateRaycastBatchCommandInit(System.IntPtr physClient) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///rayFromWorld: double*
     ///rayToWorld: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3RaycastBatchAddRay")]
-public static extern  void b3RaycastBatchAddRay(ref b3SharedMemoryCommandHandle__ commandHandle, ref double rayFromWorld, ref double rayToWorld) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3RaycastBatchAddRay")]
+public static extern  void b3RaycastBatchAddRay(System.IntPtr commandHandle, ref double rayFromWorld, ref double rayToWorld) ;
 
     
     /// Return Type: void
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///raycastInfo: b3RaycastInformation*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetRaycastInformation")]
-public static extern  void b3GetRaycastInformation(ref b3PhysicsClientHandle__ physClient, ref b3RaycastInformation raycastInfo) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetRaycastInformation")]
+public static extern  void b3GetRaycastInformation(System.IntPtr physClient, ref b3RaycastInformation raycastInfo) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3ApplyExternalForceCommandInit")]
-public static extern  System.IntPtr b3ApplyExternalForceCommandInit(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3ApplyExternalForceCommandInit")]
+public static extern  System.IntPtr b3ApplyExternalForceCommandInit(System.IntPtr physClient) ;
 
     
     /// Return Type: void
@@ -2853,8 +2834,8 @@ public static extern  System.IntPtr b3ApplyExternalForceCommandInit(ref b3Physic
     ///force: double*
     ///position: double*
     ///flags: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3ApplyExternalForce")]
-public static extern  void b3ApplyExternalForce(ref b3SharedMemoryCommandHandle__ commandHandle, int bodyUniqueId, int linkId, ref double force, ref double position, int flags) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3ApplyExternalForce")]
+public static extern  void b3ApplyExternalForce(System.IntPtr commandHandle, int bodyUniqueId, int linkId, ref double force, ref double position, int flags) ;
 
     
     /// Return Type: void
@@ -2863,232 +2844,232 @@ public static extern  void b3ApplyExternalForce(ref b3SharedMemoryCommandHandle_
     ///linkId: int
     ///torque: double*
     ///flags: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3ApplyExternalTorque")]
-public static extern  void b3ApplyExternalTorque(ref b3SharedMemoryCommandHandle__ commandHandle, int bodyUniqueId, int linkId, ref double torque, int flags) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3ApplyExternalTorque")]
+public static extern  void b3ApplyExternalTorque(System.IntPtr commandHandle, int bodyUniqueId, int linkId, ref double torque, int flags) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3LoadBunnyCommandInit")]
-public static extern  System.IntPtr b3LoadBunnyCommandInit(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3LoadBunnyCommandInit")]
+public static extern  System.IntPtr b3LoadBunnyCommandInit(System.IntPtr physClient) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///scale: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3LoadBunnySetScale")]
-public static extern  int b3LoadBunnySetScale(ref b3SharedMemoryCommandHandle__ commandHandle, double scale) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3LoadBunnySetScale")]
+public static extern  int b3LoadBunnySetScale(System.IntPtr commandHandle, double scale) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///mass: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3LoadBunnySetMass")]
-public static extern  int b3LoadBunnySetMass(ref b3SharedMemoryCommandHandle__ commandHandle, double mass) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3LoadBunnySetMass")]
+public static extern  int b3LoadBunnySetMass(System.IntPtr commandHandle, double mass) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///collisionMargin: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3LoadBunnySetCollisionMargin")]
-public static extern  int b3LoadBunnySetCollisionMargin(ref b3SharedMemoryCommandHandle__ commandHandle, double collisionMargin) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3LoadBunnySetCollisionMargin")]
+public static extern  int b3LoadBunnySetCollisionMargin(System.IntPtr commandHandle, double collisionMargin) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3RequestVREventsCommandInit")]
-public static extern  System.IntPtr b3RequestVREventsCommandInit(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3RequestVREventsCommandInit")]
+public static extern  System.IntPtr b3RequestVREventsCommandInit(System.IntPtr physClient) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///deviceTypeFilter: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3VREventsSetDeviceTypeFilter")]
-public static extern  void b3VREventsSetDeviceTypeFilter(ref b3SharedMemoryCommandHandle__ commandHandle, int deviceTypeFilter) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3VREventsSetDeviceTypeFilter")]
+public static extern  void b3VREventsSetDeviceTypeFilter(System.IntPtr commandHandle, int deviceTypeFilter) ;
 
     
     /// Return Type: void
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///vrEventsData: b3VREventsData*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetVREventsData")]
-public static extern  void b3GetVREventsData(ref b3PhysicsClientHandle__ physClient, ref b3VREventsData vrEventsData) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetVREventsData")]
+public static extern  void b3GetVREventsData(System.IntPtr physClient, ref b3VREventsData vrEventsData) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3SetVRCameraStateCommandInit")]
-public static extern  System.IntPtr b3SetVRCameraStateCommandInit(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3SetVRCameraStateCommandInit")]
+public static extern  System.IntPtr b3SetVRCameraStateCommandInit(System.IntPtr physClient) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///rootPos: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3SetVRCameraRootPosition")]
-public static extern  int b3SetVRCameraRootPosition(ref b3SharedMemoryCommandHandle__ commandHandle, ref double rootPos) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3SetVRCameraRootPosition")]
+public static extern  int b3SetVRCameraRootPosition(System.IntPtr commandHandle, ref double rootPos) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///rootOrn: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3SetVRCameraRootOrientation")]
-public static extern  int b3SetVRCameraRootOrientation(ref b3SharedMemoryCommandHandle__ commandHandle, ref double rootOrn) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3SetVRCameraRootOrientation")]
+public static extern  int b3SetVRCameraRootOrientation(System.IntPtr commandHandle, ref double rootOrn) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///objectUniqueId: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3SetVRCameraTrackingObject")]
-public static extern  int b3SetVRCameraTrackingObject(ref b3SharedMemoryCommandHandle__ commandHandle, int objectUniqueId) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3SetVRCameraTrackingObject")]
+public static extern  int b3SetVRCameraTrackingObject(System.IntPtr commandHandle, int objectUniqueId) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///flag: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3SetVRCameraTrackingObjectFlag")]
-public static extern  int b3SetVRCameraTrackingObjectFlag(ref b3SharedMemoryCommandHandle__ commandHandle, int flag) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3SetVRCameraTrackingObjectFlag")]
+public static extern  int b3SetVRCameraTrackingObjectFlag(System.IntPtr commandHandle, int flag) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3RequestKeyboardEventsCommandInit")]
-public static extern  System.IntPtr b3RequestKeyboardEventsCommandInit(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3RequestKeyboardEventsCommandInit")]
+public static extern  System.IntPtr b3RequestKeyboardEventsCommandInit(System.IntPtr physClient) ;
 
     
     /// Return Type: void
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///keyboardEventsData: b3KeyboardEventsData*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetKeyboardEventsData")]
-public static extern  void b3GetKeyboardEventsData(ref b3PhysicsClientHandle__ physClient, ref b3KeyboardEventsData keyboardEventsData) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetKeyboardEventsData")]
+public static extern  void b3GetKeyboardEventsData(System.IntPtr physClient, ref b3KeyboardEventsData keyboardEventsData) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3RequestMouseEventsCommandInit")]
-public static extern  System.IntPtr b3RequestMouseEventsCommandInit(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3RequestMouseEventsCommandInit")]
+public static extern  System.IntPtr b3RequestMouseEventsCommandInit(System.IntPtr physClient) ;
 
     
     /// Return Type: void
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///mouseEventsData: b3MouseEventsData*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetMouseEventsData")]
-public static extern  void b3GetMouseEventsData(ref b3PhysicsClientHandle__ physClient, ref b3MouseEventsData mouseEventsData) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetMouseEventsData")]
+public static extern  void b3GetMouseEventsData(System.IntPtr physClient, ref b3MouseEventsData mouseEventsData) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3StateLoggingCommandInit")]
-public static extern  System.IntPtr b3StateLoggingCommandInit(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3StateLoggingCommandInit")]
+public static extern  System.IntPtr b3StateLoggingCommandInit(System.IntPtr physClient) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///loggingType: int
     ///fileName: char*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3StateLoggingStart")]
-public static extern  int b3StateLoggingStart(ref b3SharedMemoryCommandHandle__ commandHandle, int loggingType, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string fileName) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3StateLoggingStart")]
+public static extern  int b3StateLoggingStart(System.IntPtr commandHandle, int loggingType, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string fileName) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///objectUniqueId: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3StateLoggingAddLoggingObjectUniqueId")]
-public static extern  int b3StateLoggingAddLoggingObjectUniqueId(ref b3SharedMemoryCommandHandle__ commandHandle, int objectUniqueId) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3StateLoggingAddLoggingObjectUniqueId")]
+public static extern  int b3StateLoggingAddLoggingObjectUniqueId(System.IntPtr commandHandle, int objectUniqueId) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///maxLogDof: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3StateLoggingSetMaxLogDof")]
-public static extern  int b3StateLoggingSetMaxLogDof(ref b3SharedMemoryCommandHandle__ commandHandle, int maxLogDof) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3StateLoggingSetMaxLogDof")]
+public static extern  int b3StateLoggingSetMaxLogDof(System.IntPtr commandHandle, int maxLogDof) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///linkIndexA: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3StateLoggingSetLinkIndexA")]
-public static extern  int b3StateLoggingSetLinkIndexA(ref b3SharedMemoryCommandHandle__ commandHandle, int linkIndexA) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3StateLoggingSetLinkIndexA")]
+public static extern  int b3StateLoggingSetLinkIndexA(System.IntPtr commandHandle, int linkIndexA) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///linkIndexB: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3StateLoggingSetLinkIndexB")]
-public static extern  int b3StateLoggingSetLinkIndexB(ref b3SharedMemoryCommandHandle__ commandHandle, int linkIndexB) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3StateLoggingSetLinkIndexB")]
+public static extern  int b3StateLoggingSetLinkIndexB(System.IntPtr commandHandle, int linkIndexB) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///bodyAUniqueId: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3StateLoggingSetBodyAUniqueId")]
-public static extern  int b3StateLoggingSetBodyAUniqueId(ref b3SharedMemoryCommandHandle__ commandHandle, int bodyAUniqueId) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3StateLoggingSetBodyAUniqueId")]
+public static extern  int b3StateLoggingSetBodyAUniqueId(System.IntPtr commandHandle, int bodyAUniqueId) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///bodyBUniqueId: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3StateLoggingSetBodyBUniqueId")]
-public static extern  int b3StateLoggingSetBodyBUniqueId(ref b3SharedMemoryCommandHandle__ commandHandle, int bodyBUniqueId) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3StateLoggingSetBodyBUniqueId")]
+public static extern  int b3StateLoggingSetBodyBUniqueId(System.IntPtr commandHandle, int bodyBUniqueId) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///deviceTypeFilter: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3StateLoggingSetDeviceTypeFilter")]
-public static extern  int b3StateLoggingSetDeviceTypeFilter(ref b3SharedMemoryCommandHandle__ commandHandle, int deviceTypeFilter) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3StateLoggingSetDeviceTypeFilter")]
+public static extern  int b3StateLoggingSetDeviceTypeFilter(System.IntPtr commandHandle, int deviceTypeFilter) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///logFlags: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3StateLoggingSetLogFlags")]
-public static extern  int b3StateLoggingSetLogFlags(ref b3SharedMemoryCommandHandle__ commandHandle, int logFlags) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3StateLoggingSetLogFlags")]
+public static extern  int b3StateLoggingSetLogFlags(System.IntPtr commandHandle, int logFlags) ;
 
     
     /// Return Type: int
     ///statusHandle: b3SharedMemoryStatusHandle->b3SharedMemoryStatusHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetStatusLoggingUniqueId")]
-public static extern  int b3GetStatusLoggingUniqueId(ref b3SharedMemoryStatusHandle__ statusHandle) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetStatusLoggingUniqueId")]
+public static extern  int b3GetStatusLoggingUniqueId(System.IntPtr statusHandle) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///loggingUniqueId: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3StateLoggingStop")]
-public static extern  int b3StateLoggingStop(ref b3SharedMemoryCommandHandle__ commandHandle, int loggingUniqueId) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3StateLoggingStop")]
+public static extern  int b3StateLoggingStop(System.IntPtr commandHandle, int loggingUniqueId) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///name: char*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3ProfileTimingCommandInit")]
-public static extern  System.IntPtr b3ProfileTimingCommandInit(ref b3PhysicsClientHandle__ physClient, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string name) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3ProfileTimingCommandInit")]
+public static extern  System.IntPtr b3ProfileTimingCommandInit(System.IntPtr physClient, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string name) ;
 
     
     /// Return Type: void
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///duration: int
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3SetProfileTimingDuractionInMicroSeconds")]
-public static extern  void b3SetProfileTimingDuractionInMicroSeconds(ref b3SharedMemoryCommandHandle__ commandHandle, int duration) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3SetProfileTimingDuractionInMicroSeconds")]
+public static extern  void b3SetProfileTimingDuractionInMicroSeconds(System.IntPtr commandHandle, int duration) ;
 
     
     /// Return Type: void
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///timeOutInSeconds: double
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3SetTimeOut")]
-public static extern  void b3SetTimeOut(ref b3PhysicsClientHandle__ physClient, double timeOutInSeconds) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3SetTimeOut")]
+public static extern  void b3SetTimeOut(System.IntPtr physClient, double timeOutInSeconds) ;
 
     
     /// Return Type: double
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3GetTimeOut")]
-public static extern  double b3GetTimeOut(ref b3PhysicsClientHandle__ physClient) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3GetTimeOut")]
+public static extern  double b3GetTimeOut(System.IntPtr physClient) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///path: char*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3SetAdditionalSearchPath")]
-public static extern  System.IntPtr b3SetAdditionalSearchPath(ref b3PhysicsClientHandle__ physClient, System.IntPtr path) ;
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3SetAdditionalSearchPath")]
+public static extern  System.IntPtr b3SetAdditionalSearchPath(System.IntPtr physClient, System.IntPtr path) ;
 
     
     /// Return Type: void
@@ -3098,7 +3079,7 @@ public static extern  System.IntPtr b3SetAdditionalSearchPath(ref b3PhysicsClien
     ///ornB: double*
     ///outPos: double*
     ///outOrn: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3MultiplyTransforms")]
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3MultiplyTransforms")]
 public static extern  void b3MultiplyTransforms(ref double posA, ref double ornA, ref double posB, ref double ornB, ref double outPos, ref double outOrn) ;
 
     
@@ -3107,7 +3088,7 @@ public static extern  void b3MultiplyTransforms(ref double posA, ref double ornA
     ///orn: double*
     ///outPos: double*
     ///outOrn: double*
-    [System.Runtime.InteropServices.DllImportAttribute("<Unknown>", EntryPoint="b3InvertTransform")]
+    [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010.dll", EntryPoint="b3InvertTransform")]
 public static extern  void b3InvertTransform(ref double pos, ref double orn, ref double outPos, ref double outOrn) ;
 
 }

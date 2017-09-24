@@ -1631,6 +1631,7 @@ B3_SHARED_API	int	b3SubmitClientCommand(b3PhysicsClientHandle physClient, const 
 #include "../Utils/b3Clock.h"
 
 
+
 B3_SHARED_API b3SharedMemoryStatusHandle b3SubmitClientCommandAndWaitStatus(b3PhysicsClientHandle physClient, const b3SharedMemoryCommandHandle commandHandle)
 {
 	B3_PROFILE("b3SubmitClientCommandAndWaitStatus");
@@ -1732,6 +1733,137 @@ B3_SHARED_API	int	b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyIndex
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
 	return cl->getJointInfo(bodyIndex, jointIndex, *info);
 }
+
+
+
+B3_SHARED_API b3SharedMemoryCommandHandle b3CreateCustomCommand(b3PhysicsClientHandle physClient)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+	command->m_type = CMD_CUSTOM_COMMAND;
+	command->m_updateFlags = 0;
+	return (b3SharedMemoryCommandHandle)command;
+}
+
+B3_SHARED_API	void b3CustomCommandLoadPlugin(b3SharedMemoryCommandHandle commandHandle, const char* pluginPath)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_CUSTOM_COMMAND);
+	if (command->m_type == CMD_CUSTOM_COMMAND)
+	{
+		command->m_updateFlags |= CMD_CUSTOM_COMMAND_LOAD_PLUGIN;
+		command->m_customCommandArgs.m_pluginPath[0] = 0;
+		
+		int len = strlen(pluginPath);
+		if (len<MAX_FILENAME_LENGTH)
+		{
+			strcpy(command->m_customCommandArgs.m_pluginPath, pluginPath);
+		}
+	}
+}
+
+
+
+B3_SHARED_API int b3GetStatusPluginCommandResult(b3SharedMemoryStatusHandle statusHandle)
+{
+	int statusUniqueId = -1;
+
+	const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
+	b3Assert(status);
+	b3Assert(status->m_type == CMD_CUSTOM_COMMAND_COMPLETED);
+	if (status->m_type == CMD_CUSTOM_COMMAND_COMPLETED)
+	{
+		statusUniqueId = status->m_customCommandResultArgs.m_executeCommandResult;
+	}
+	return statusUniqueId;
+}
+
+B3_SHARED_API int b3GetStatusPluginUniqueId(b3SharedMemoryStatusHandle statusHandle)
+{
+	int statusUniqueId = -1;
+
+	const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
+	b3Assert(status);
+	b3Assert(status->m_type == CMD_CUSTOM_COMMAND_COMPLETED);
+	if (status->m_type == CMD_CUSTOM_COMMAND_COMPLETED)
+	{
+		statusUniqueId = status->m_customCommandResultArgs.m_pluginUniqueId;
+	}
+	return statusUniqueId;
+}
+
+B3_SHARED_API	void b3CustomCommandUnloadPlugin(b3SharedMemoryCommandHandle commandHandle, int pluginUniqueId)
+{
+
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_CUSTOM_COMMAND);
+	if (command->m_type == CMD_CUSTOM_COMMAND)
+	{
+		command->m_updateFlags |= CMD_CUSTOM_COMMAND_UNLOAD_PLUGIN;
+		command->m_customCommandArgs.m_pluginUniqueId = pluginUniqueId;
+	}
+}
+B3_SHARED_API	void b3CustomCommandExecutePluginCommand(b3SharedMemoryCommandHandle commandHandle, int pluginUniqueId, const char* textArguments)
+{
+
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_CUSTOM_COMMAND);
+	if (command->m_type == CMD_CUSTOM_COMMAND)
+	{
+		command->m_updateFlags |= CMD_CUSTOM_COMMAND_EXECUTE_PLUGIN_COMMAND;
+		command->m_customCommandArgs.m_pluginUniqueId = pluginUniqueId;
+		
+		command->m_customCommandArgs.m_arguments.m_numInts = 0;
+		command->m_customCommandArgs.m_arguments.m_numFloats = 0;
+		command->m_customCommandArgs.m_arguments.m_text[0] = 0;
+
+		int len = strlen(textArguments);
+
+		if (len<MAX_FILENAME_LENGTH)
+		{
+			strcpy(command->m_customCommandArgs.m_arguments.m_text, textArguments);
+		}
+	}
+}
+
+B3_SHARED_API	void b3CustomCommandExecuteAddIntArgument(b3SharedMemoryCommandHandle commandHandle, int intVal)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_CUSTOM_COMMAND);
+	b3Assert(command->m_updateFlags & CMD_CUSTOM_COMMAND_EXECUTE_PLUGIN_COMMAND);
+	if (command->m_type == CMD_CUSTOM_COMMAND && (command->m_updateFlags & CMD_CUSTOM_COMMAND_EXECUTE_PLUGIN_COMMAND))
+	{
+		int numInts = command->m_customCommandArgs.m_arguments.m_numInts;
+		if (numInts<B3_MAX_PLUGIN_ARG_SIZE)
+		{
+			command->m_customCommandArgs.m_arguments.m_ints[numInts]=intVal;
+			command->m_customCommandArgs.m_arguments.m_numInts++;
+		}
+	}
+}
+
+B3_SHARED_API	void b3CustomCommandExecuteAddFloatArgument(b3SharedMemoryCommandHandle commandHandle, float floatVal)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_CUSTOM_COMMAND);
+	b3Assert(command->m_updateFlags & CMD_CUSTOM_COMMAND_EXECUTE_PLUGIN_COMMAND);
+	if (command->m_type == CMD_CUSTOM_COMMAND && (command->m_updateFlags & CMD_CUSTOM_COMMAND_EXECUTE_PLUGIN_COMMAND))
+	{
+		int numFloats = command->m_customCommandArgs.m_arguments.m_numFloats;
+		if (numFloats<B3_MAX_PLUGIN_ARG_SIZE)
+		{
+			command->m_customCommandArgs.m_arguments.m_floats[numFloats]=floatVal;
+			command->m_customCommandArgs.m_arguments.m_numFloats++;
+		}
+	}
+}
+
+
+
+
 
 B3_SHARED_API	b3SharedMemoryCommandHandle b3GetDynamicsInfoCommandInit(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex)
 {

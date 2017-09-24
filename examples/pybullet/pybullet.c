@@ -6653,6 +6653,131 @@ static PyObject* pybullet_getEulerFromQuaternion(PyObject* self,
 	return Py_None;
 }
 
+
+static PyObject* pybullet_loadPlugin(PyObject* self,
+	PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	
+	char* pluginPath = 0;
+	b3SharedMemoryCommandHandle command = 0;
+	b3SharedMemoryStatusHandle 	statusHandle = 0;
+	int statusType = -1;
+
+	b3PhysicsClientHandle sm = 0;
+	static char* kwlist[] = { "pluginPath",  "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|i", kwlist, &pluginPath, &physicsClientId))
+	{
+		return NULL;
+	}
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	command = b3CreateCustomCommand(sm);
+	b3CustomCommandLoadPlugin(command, pluginPath);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	statusType = b3GetStatusPluginUniqueId(statusHandle);
+	return PyInt_FromLong(statusType);
+}
+
+
+static PyObject* pybullet_unloadPlugin(PyObject* self,
+	PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	int pluginUniqueId = -1;
+
+	b3SharedMemoryCommandHandle command = 0;
+	b3SharedMemoryStatusHandle 	statusHandle = 0;
+	int statusType = -1;
+
+	b3PhysicsClientHandle sm = 0;
+	static char* kwlist[] = { "pluginUniqueId",  "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|i", kwlist, &pluginUniqueId,&physicsClientId))
+	{
+		return NULL;
+	}
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	command = b3CreateCustomCommand(sm);
+	b3CustomCommandUnloadPlugin(command, pluginUniqueId);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+
+	Py_INCREF(Py_None);
+	return Py_None;;
+}
+
+//createCustomCommand for executing commands implemented in a plugin system
+static PyObject* pybullet_executePluginCommand(PyObject* self,
+	PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	int pluginUniqueId = -1;
+	char* textArgument = 0;
+	b3SharedMemoryCommandHandle command=0;
+	b3SharedMemoryStatusHandle 	statusHandle=0;
+	int statusType = -1;
+	PyObject* intArgs=0;
+	PyObject* floatArgs=0;
+
+	b3PhysicsClientHandle sm = 0;
+	static char* kwlist[] = { "pluginUniqueId", "textArgument", "intArgs", "floatArgs", "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|sOOi", kwlist, &pluginUniqueId, &textArgument, &intArgs, &floatArgs, &physicsClientId))
+	{
+		return NULL;
+	}
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+
+	command = b3CreateCustomCommand(sm);
+	b3CustomCommandExecutePluginCommand(command, pluginUniqueId, textArgument);
+
+	{
+		PyObject* seqIntArgs = intArgs?PySequence_Fast(intArgs, "expected a sequence"):0;
+		PyObject* seqFloatArgs = floatArgs?PySequence_Fast(floatArgs, "expected a sequence"):0;
+		int numIntArgs = seqIntArgs?PySequence_Size(intArgs):0;
+		int numFloatArgs = seqIntArgs?PySequence_Size(floatArgs):0;
+		int i;
+		for (i=0;i<numIntArgs;i++)
+		{
+			int val = pybullet_internalGetIntFromSequence(seqIntArgs,i);
+			b3CustomCommandExecuteAddIntArgument(command, val);
+		}
+		
+
+		for (i=0;i<numFloatArgs;i++)
+		{
+			float val = pybullet_internalGetFloatFromSequence(seqFloatArgs,i);
+			b3CustomCommandExecuteAddFloatArgument(command, val);
+		}
+		
+	}
+	
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	statusType = b3GetStatusPluginCommandResult(statusHandle);
+	return PyInt_FromLong(statusType);
+}
+
+
+
+
 ///Inverse Kinematics binding
 static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 													 PyObject* args, PyObject* keywds)
@@ -6954,8 +7079,7 @@ static PyObject* pybullet_calculateInverseDynamics(PyObject* self, PyObject* arg
 }
 
 /// Given an object id, joint positions, joint velocities and joint
-/// accelerations,
-/// compute the joint forces using Inverse Dynamics
+/// accelerations, compute the Jacobian
 static PyObject* pybullet_calculateJacobian(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	{
@@ -7430,6 +7554,16 @@ static PyMethodDef SpamMethods[] = {
 	{"rayTestBatch", (PyCFunction)pybullet_rayTestBatch, METH_VARARGS | METH_KEYWORDS,
 		"Cast a batch of rays and return the result for each of the rays (first object hit, if any. or -1) "
 	 "Takes two arguments (list of from_positions [x,y,z] and a list of to_positions [x,y,z] in Cartesian world coordinates"},
+
+	 { "loadPlugin", (PyCFunction)pybullet_loadPlugin, METH_VARARGS | METH_KEYWORDS,
+		 "Load a plugin, could implement custom commands etc." },
+
+	{ "unloadPlugin", (PyCFunction)pybullet_unloadPlugin, METH_VARARGS | METH_KEYWORDS,
+		"Unload a plugin, given the pluginUniqueId." },
+
+	 { "executePluginCommand", (PyCFunction)pybullet_executePluginCommand, METH_VARARGS | METH_KEYWORDS,
+		"Execute a command, implemented in a plugin." },
+
 
 	{"submitProfileTiming", (PyCFunction)pybullet_submitProfileTiming, METH_VARARGS | METH_KEYWORDS,
 	 "Add a custom profile timing that will be visible in performance profile recordings on the physics server."
