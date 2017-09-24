@@ -80,6 +80,8 @@ myfiles =
 	"../PhysicsServerCommandProcessor.cpp",
 	"../PhysicsServerCommandProcessor.h",
 	"../b3PluginManager.cpp",
+	"../PhysicsDirect.cpp",
+	"../PhysicsClient.cpp",
 	"../TinyRendererVisualShapeConverter.cpp",
 	"../TinyRendererVisualShapeConverter.h",
 	"../../TinyRenderer/geometry.cpp",

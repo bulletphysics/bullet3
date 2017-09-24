@@ -178,6 +178,7 @@ project ("Test_PhysicsServerLoopBack")
 			"../../examples/SharedMemory/PhysicsServerCommandProcessor.cpp",
 			"../../examples/SharedMemory/PhysicsServerCommandProcessor.h",
 			"../../examples/SharedMemory/b3PluginManager.cpp",
+			"../../examples/SharedMemory/PhysicsDirect.cpp",
 			"../../examples/SharedMemory/PhysicsLoopBack.cpp",
 			"../../examples/SharedMemory/PhysicsLoopBack.h",
 			"../../examples/SharedMemory/PhysicsLoopBackC_API.cpp",

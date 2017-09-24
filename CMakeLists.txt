@@ -449,7 +449,11 @@ configure_file 	( ${CMAKE_CURRENT_SOURCE_DIR}/BulletConfig.cmake.in
 					${CMAKE_CURRENT_BINARY_DIR}/BulletConfig.cmake
 					@ONLY ESCAPE_QUOTES
 				)
-install ( FILES ${CMAKE_CURRENT_SOURCE_DIR}/UseBullet.cmake
+OPTION(INSTALL_CMAKE_FILES "Install generated CMake files" ON)
+
+IF (INSTALL_CMAKE_FILES)
+	install ( FILES ${CMAKE_CURRENT_SOURCE_DIR}/UseBullet.cmake
 		${CMAKE_CURRENT_BINARY_DIR}/BulletConfig.cmake
 		DESTINATION ${BULLET_CONFIG_CMAKE_PATH}
 	)
+ENDIF (INSTALL_CMAKE_FILES)
