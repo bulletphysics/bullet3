@@ -33,6 +33,18 @@ void setZero(mat33 &m) {
 	m(2, 2) = 0;
 }
 
+void skew(vec3& v, mat33* result) {
+	(*result)(0, 0) = 0.0;
+	(*result)(0, 1) = -v(2);
+	(*result)(0, 2) = v(1);
+	(*result)(1, 0) = v(2);
+	(*result)(1, 1) = 0.0;
+	(*result)(1, 2) = -v(0);
+	(*result)(2, 0) = -v(1);
+	(*result)(2, 1) = v(0);
+	(*result)(2, 2) = 0.0;
+}
+
 idScalar maxAbs(const vecx &v) {
 	idScalar result = 0.0;
 	for (int i = 0; i < v.size(); i++) {
