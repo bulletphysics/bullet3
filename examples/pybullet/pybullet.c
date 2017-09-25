@@ -7184,7 +7184,7 @@ static PyObject* pybullet_calculateJacobian(PyObject* self, PyObject* args, PyOb
 									for (c = 0; c < dofCount; ++c) {
 										int element = r * dofCount + c;
 										PyTuple_SetItem(pyrow, c,
-													PyFloat_FromDouble(linearJacobian[element]));
+													PyFloat_FromDouble(angularJacobian[element]));
 									}
 									PyTuple_SetItem(pymat, r, pyrow);
 								}
@@ -7225,31 +7225,40 @@ static PyObject* pybullet_calculateJacobian(PyObject* self, PyObject* args, PyOb
 static PyMethodDef SpamMethods[] = {
 
 	{"connect", (PyCFunction)pybullet_connectPhysicsServer, METH_VARARGS | METH_KEYWORDS,
+	"connect(method, key=SHARED_MEMORY_KEY, options='')\n"
+	"connect(method, hostname='localhost', port=1234, options='')\n"
 	 "Connect to an existing physics server (using shared memory by default)."},
 
 	{"disconnect", (PyCFunction)pybullet_disconnectPhysicsServer, METH_VARARGS | METH_KEYWORDS,
+	"disconnect(physicsClientId=0)\n"
 	 "Disconnect from the physics server."},
 
 	{"resetSimulation", (PyCFunction)pybullet_resetSimulation, METH_VARARGS | METH_KEYWORDS,
+	"resetSimulation(physicsClientId=0)\n"
 	 "Reset the simulation: remove all objects and start from an empty world."},
 
 	{"stepSimulation", (PyCFunction)pybullet_stepSimulation, METH_VARARGS | METH_KEYWORDS,
+	"stepSimulation(physicsClientId=0)\n"
 	 "Step the simulation using forward dynamics."},
 
 	{"setGravity", (PyCFunction)pybullet_setGravity, METH_VARARGS | METH_KEYWORDS,
+	"setGravity(gravX, gravY, gravZ, physicsClientId=0)\n"
 	 "Set the gravity acceleration (x,y,z)."},
 
 	{"setTimeStep", (PyCFunction)pybullet_setTimeStep, METH_VARARGS | METH_KEYWORDS,
+	"setTimeStep(timestep, physicsClientId=0)\n"
 	 "Set the amount of time to proceed at each call to stepSimulation. (unit "
 	 "is seconds, typically range is 0.01 or 0.001)"},
 
 	{"setDefaultContactERP", (PyCFunction)pybullet_setDefaultContactERP, METH_VARARGS | METH_KEYWORDS,
+	 "setDefaultContactERP(defaultContactERP, physicsClientId=0)\n"
 	 "Set the amount of contact penetration Error Recovery Paramater "
 	 "(ERP) in each time step. \
 		This is an tuning parameter to control resting contact stability. "
 	 "This value depends on the time step."},
 
 	{"setRealTimeSimulation", (PyCFunction)pybullet_setRealTimeSimulation, METH_VARARGS | METH_KEYWORDS,
+	"setRealTimeSimulation(enableRealTimeSimulation, physicsClientId=0)\n"
 	 "Enable or disable real time simulation (using the real time clock,"
 	 " RTC) in the physics server. Expects one integer argument, 0 or 1"},
 
