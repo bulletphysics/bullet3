@@ -104,7 +104,7 @@ B3_SHARED_API	int b3GetBodyUniqueId(b3PhysicsClientHandle physClient, int serial
 B3_SHARED_API	int b3GetBodyInfo(b3PhysicsClientHandle physClient, int bodyUniqueId, struct b3BodyInfo* info);
 
 ///give a unique body index (after loading the body) return the number of joints.
-B3_SHARED_API	int	b3GetNumJoints(b3PhysicsClientHandle physClient, int bodyIndex);
+B3_SHARED_API	int	b3GetNumJoints(b3PhysicsClientHandle physClient, int bodyId);
 
 ///given a body and joint index, return the joint information. See b3JointInfo in SharedMemoryPublic.h
 B3_SHARED_API	int	b3GetJointInfo(b3PhysicsClientHandle physClient, int bodyIndex, int jointIndex, struct b3JointInfo* info);
@@ -187,8 +187,8 @@ B3_SHARED_API	int b3GetDebugItemUniqueId(b3SharedMemoryStatusHandle statusHandle
 
 ///request an image from a simulated camera, using a software renderer.
 B3_SHARED_API	b3SharedMemoryCommandHandle b3InitRequestCameraImage(b3PhysicsClientHandle physClient);
-B3_SHARED_API	void b3RequestCameraImageSetCameraMatrices(b3SharedMemoryCommandHandle command, float viewMatrix[/*16*/], float projectionMatrix[/*16*/]);
-B3_SHARED_API	void b3RequestCameraImageSetPixelResolution(b3SharedMemoryCommandHandle command, int width, int height );
+B3_SHARED_API	void b3RequestCameraImageSetCameraMatrices(b3SharedMemoryCommandHandle commandHandle, float viewMatrix[/*16*/], float projectionMatrix[/*16*/]);
+B3_SHARED_API	void b3RequestCameraImageSetPixelResolution(b3SharedMemoryCommandHandle commandHandle, int width, int height );
 B3_SHARED_API	void b3RequestCameraImageSetLightDirection(b3SharedMemoryCommandHandle commandHandle, const float lightDirection[/*3*/]);
 B3_SHARED_API	void b3RequestCameraImageSetLightColor(b3SharedMemoryCommandHandle commandHandle, const float lightColor[/*3*/]);
 B3_SHARED_API	void b3RequestCameraImageSetLightDistance(b3SharedMemoryCommandHandle commandHandle, float lightDistance);
@@ -210,13 +210,13 @@ B3_SHARED_API	void b3ComputeProjectionMatrixFOV(float fov, float aspect, float n
 
 
 /* obsolete, please use b3ComputeViewProjectionMatrices */
-B3_SHARED_API	void b3RequestCameraImageSetViewMatrix(b3SharedMemoryCommandHandle command, const float cameraPosition[/*3*/], const float cameraTargetPosition[/*3*/], const float cameraUp[/*3*/]);
+B3_SHARED_API	void b3RequestCameraImageSetViewMatrix(b3SharedMemoryCommandHandle commandHandle, const float cameraPosition[/*3*/], const float cameraTargetPosition[/*3*/], const float cameraUp[/*3*/]);
 /* obsolete, please use b3ComputeViewProjectionMatrices */
 B3_SHARED_API	void b3RequestCameraImageSetViewMatrix2(b3SharedMemoryCommandHandle commandHandle, const float cameraTargetPosition[/*3*/], float distance, float yaw, float pitch, float roll, int upAxis);
 /* obsolete, please use b3ComputeViewProjectionMatrices */
-B3_SHARED_API	void b3RequestCameraImageSetProjectionMatrix(b3SharedMemoryCommandHandle command, float left, float right, float bottom, float top, float nearVal, float farVal);
+B3_SHARED_API	void b3RequestCameraImageSetProjectionMatrix(b3SharedMemoryCommandHandle commandHandle, float left, float right, float bottom, float top, float nearVal, float farVal);
 /* obsolete, please use b3ComputeViewProjectionMatrices */
-B3_SHARED_API	void b3RequestCameraImageSetFOVProjectionMatrix(b3SharedMemoryCommandHandle command, float fov, float aspect, float nearVal, float farVal);
+B3_SHARED_API	void b3RequestCameraImageSetFOVProjectionMatrix(b3SharedMemoryCommandHandle commandHandle, float fov, float aspect, float nearVal, float farVal);
 
 
 ///request an contact point information
@@ -225,7 +225,7 @@ B3_SHARED_API	void b3SetContactFilterBodyA(b3SharedMemoryCommandHandle commandHa
 B3_SHARED_API	void b3SetContactFilterBodyB(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueIdB);
 B3_SHARED_API	void b3SetContactFilterLinkA(b3SharedMemoryCommandHandle commandHandle, int linkIndexA);
 B3_SHARED_API	void b3SetContactFilterLinkB(b3SharedMemoryCommandHandle commandHandle, int linkIndexB);
-B3_SHARED_API	void b3GetContactPointInformation(b3PhysicsClientHandle physClient, struct b3ContactInformation* contactPointInfo);
+B3_SHARED_API	void b3GetContactPointInformation(b3PhysicsClientHandle physClient, struct b3ContactInformation* contactPointData);
 
 ///compute the closest points between two bodies
 B3_SHARED_API	b3SharedMemoryCommandHandle b3InitClosestDistanceQuery(b3PhysicsClientHandle physClient);
@@ -465,8 +465,8 @@ B3_SHARED_API	void b3GetRaycastInformation(b3PhysicsClientHandle physClient, str
 
 /// Apply external force at the body (or link) center of mass, in world space/Cartesian coordinates.
 B3_SHARED_API	b3SharedMemoryCommandHandle b3ApplyExternalForceCommandInit(b3PhysicsClientHandle physClient);
-B3_SHARED_API	void b3ApplyExternalForce(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkId, const double force[/*3*/], const double position[/*3*/], int flags);
-B3_SHARED_API	void b3ApplyExternalTorque(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkId, const double torque[/*3*/], int flags);
+B3_SHARED_API	void b3ApplyExternalForce(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkId, const double force[/*3*/], const double position[/*3*/], int flag);
+B3_SHARED_API	void b3ApplyExternalTorque(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkId, const double torque[/*3*/], int flag);
 
 ///experiments of robots interacting with non-rigid objects (such as btSoftBody)
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3LoadBunnyCommandInit(b3PhysicsClientHandle physClient);
@@ -505,7 +505,7 @@ B3_SHARED_API	int b3StateLoggingSetDeviceTypeFilter(b3SharedMemoryCommandHandle 
 B3_SHARED_API	int b3StateLoggingSetLogFlags(b3SharedMemoryCommandHandle commandHandle, int logFlags);
 
 B3_SHARED_API	int b3GetStatusLoggingUniqueId(b3SharedMemoryStatusHandle statusHandle);
-B3_SHARED_API	int b3StateLoggingStop(b3SharedMemoryCommandHandle commandHandle, int loggingUniqueId);
+B3_SHARED_API	int b3StateLoggingStop(b3SharedMemoryCommandHandle commandHandle, int loggingUid);
 
 
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3ProfileTimingCommandInit(b3PhysicsClientHandle physClient, const char* name);

@@ -1680,20 +1680,20 @@ B3_SHARED_API int b3GetNumUserConstraints(b3PhysicsClientHandle physClient)
     return cl->getNumUserConstraints();
 }
 
-B3_SHARED_API int b3GetUserConstraintInfo(b3PhysicsClientHandle physClient, int constraintUniqueId, struct b3UserConstraint* infoPtr)
+B3_SHARED_API int b3GetUserConstraintInfo(b3PhysicsClientHandle physClient, int constraintUniqueId, struct b3UserConstraint* info)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;
     b3UserConstraint constraintInfo1;
     b3Assert(physClient);
-    b3Assert(infoPtr);
+    b3Assert(info);
     b3Assert(constraintUniqueId>=0);
     
-    if (infoPtr==0)
+    if (info==0)
         return 0;
 
     if (cl->getUserConstraintInfo(constraintUniqueId, constraintInfo1))
     {
-        *infoPtr = constraintInfo1;
+        *info = constraintInfo1;
         return 1;
     }
     return 0;
@@ -2049,7 +2049,7 @@ B3_SHARED_API	b3SharedMemoryCommandHandle  b3InitChangeUserConstraintCommand(b3P
 	return (b3SharedMemoryCommandHandle)command;
 }
 
-B3_SHARED_API int b3InitChangeUserConstraintSetPivotInB(b3SharedMemoryCommandHandle commandHandle, double pivotInB[3])
+B3_SHARED_API int b3InitChangeUserConstraintSetPivotInB(b3SharedMemoryCommandHandle commandHandle, double jointChildPivot[])
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
 	b3Assert(command);
@@ -2059,12 +2059,12 @@ B3_SHARED_API int b3InitChangeUserConstraintSetPivotInB(b3SharedMemoryCommandHan
 
 	command->m_updateFlags |= USER_CONSTRAINT_CHANGE_PIVOT_IN_B;
 
-	command->m_userConstraintArguments.m_childFrame[0] = pivotInB[0];
-	command->m_userConstraintArguments.m_childFrame[1] = pivotInB[1];
-	command->m_userConstraintArguments.m_childFrame[2] = pivotInB[2];
+	command->m_userConstraintArguments.m_childFrame[0] = jointChildPivot[0];
+	command->m_userConstraintArguments.m_childFrame[1] = jointChildPivot[1];
+	command->m_userConstraintArguments.m_childFrame[2] = jointChildPivot[2];
 	return 0;
 }
-B3_SHARED_API int b3InitChangeUserConstraintSetFrameInB(b3SharedMemoryCommandHandle commandHandle, double frameOrnInB[4])
+B3_SHARED_API int b3InitChangeUserConstraintSetFrameInB(b3SharedMemoryCommandHandle commandHandle, double jointChildFrameOrn[])
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
 	b3Assert(command);
@@ -2073,10 +2073,10 @@ B3_SHARED_API int b3InitChangeUserConstraintSetFrameInB(b3SharedMemoryCommandHan
 
 	command->m_updateFlags |= USER_CONSTRAINT_CHANGE_FRAME_ORN_IN_B;
 
-	command->m_userConstraintArguments.m_childFrame[3] = frameOrnInB[0];
-	command->m_userConstraintArguments.m_childFrame[4] = frameOrnInB[1];
-	command->m_userConstraintArguments.m_childFrame[5] = frameOrnInB[2];
-	command->m_userConstraintArguments.m_childFrame[6] = frameOrnInB[3];
+	command->m_userConstraintArguments.m_childFrame[3] = jointChildFrameOrn[0];
+	command->m_userConstraintArguments.m_childFrame[4] = jointChildFrameOrn[1];
+	command->m_userConstraintArguments.m_childFrame[5] = jointChildFrameOrn[2];
+	command->m_userConstraintArguments.m_childFrame[6] = jointChildFrameOrn[3];
 
 	return 0;
 }
