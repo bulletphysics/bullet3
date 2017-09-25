@@ -1,5 +1,7 @@
 import pybullet as p
+import time
 #p.connect(p.UDP,"192.168.86.100")
+
 
 cid = p.connect(p.SHARED_MEMORY)
 if (cid<0):
@@ -80,6 +82,12 @@ p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 1)
 p.setGravity(0.000000,0.000000,0.000000)
 p.setGravity(0,0,-10)
 
-p.stepSimulation()
+##show this for 10 seconds
+#now = time.time()
+#while (time.time() < now+10):
+#	p.stepSimulation()
+p.setRealTimeSimulation(1)
 
+while (1):
+	p.setGravity(0,0,-10)
 p.disconnect()

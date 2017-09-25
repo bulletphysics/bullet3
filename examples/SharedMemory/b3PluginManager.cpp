@@ -2,7 +2,7 @@
 #include "b3PluginManager.h"
 #include "Bullet3Common/b3HashMap.h"
 #include "Bullet3Common/b3ResizablePool.h"
-#include "SharedMemoryPublic.h"
+#include "PhysicsClientC_API.h"
 #include "PhysicsDirect.h"
 #include "plugins/b3PluginContext.h"
 
