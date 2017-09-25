@@ -171,6 +171,7 @@ SET(BulletExampleBrowser_SRCS
 	../SharedMemory/PhysicsServerCommandProcessor.h
 	../SharedMemory/SharedMemoryCommands.h
 	../SharedMemory/SharedMemoryPublic.h
+	../SharedMemory/b3PluginManager.cpp
 	../RobotSimulator/b3RobotSimulatorClientAPI.cpp
 	../RobotSimulator/b3RobotSimulatorClientAPI.h
 	../BasicDemo/BasicExample.cpp

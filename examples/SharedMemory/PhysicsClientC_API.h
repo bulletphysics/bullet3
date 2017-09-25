@@ -60,6 +60,18 @@ B3_SHARED_API	b3SharedMemoryStatusHandle	b3ProcessServerStatus(b3PhysicsClientHa
 /// Get the physics server return status type. See EnumSharedMemoryServerStatus in SharedMemoryPublic.h for error codes.
 B3_SHARED_API	int b3GetStatusType(b3SharedMemoryStatusHandle statusHandle);
 
+///Plugin system, load and unload a plugin, execute a command
+B3_SHARED_API b3SharedMemoryCommandHandle b3CreateCustomCommand(b3PhysicsClientHandle physClient);
+B3_SHARED_API	void b3CustomCommandLoadPlugin(b3SharedMemoryCommandHandle commandHandle, const char* pluginPath);
+B3_SHARED_API int b3GetStatusPluginUniqueId(b3SharedMemoryStatusHandle statusHandle);
+B3_SHARED_API int b3GetStatusPluginCommandResult(b3SharedMemoryStatusHandle statusHandle);
+
+B3_SHARED_API	void b3CustomCommandUnloadPlugin(b3SharedMemoryCommandHandle commandHandle, int pluginUniqueId);
+B3_SHARED_API	void b3CustomCommandExecutePluginCommand(b3SharedMemoryCommandHandle commandHandle, int pluginUniqueId, const char* textArguments);
+B3_SHARED_API	void b3CustomCommandExecuteAddIntArgument(b3SharedMemoryCommandHandle commandHandle, int intVal);
+B3_SHARED_API	void b3CustomCommandExecuteAddFloatArgument(b3SharedMemoryCommandHandle commandHandle, float floatVal);
+
+
 B3_SHARED_API	int b3GetStatusBodyIndices(b3SharedMemoryStatusHandle statusHandle, int* bodyIndicesOut, int bodyIndicesCapacity);
 
 B3_SHARED_API	int b3GetStatusBodyIndex(b3SharedMemoryStatusHandle statusHandle);
@@ -304,7 +316,10 @@ B3_SHARED_API	int b3GetStatusInverseDynamicsJointForces(b3SharedMemoryStatusHand
 
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3CalculateJacobianCommandInit(b3PhysicsClientHandle physClient, int bodyIndex, int linkIndex, const double* localPosition, const double* jointPositionsQ, const double* jointVelocitiesQdot, const double* jointAccelerations);
 
-B3_SHARED_API	int b3GetStatusJacobian(b3SharedMemoryStatusHandle statusHandle, double* linearJacobian, double* angularJacobian);
+B3_SHARED_API	int b3GetStatusJacobian(b3SharedMemoryStatusHandle statusHandle,
+	int* dofCount,
+	double* linearJacobian,
+	double* angularJacobian);
 
 ///compute the joint positions to move the end effector to a desired target using inverse kinematics
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3CalculateInverseKinematicsCommandInit(b3PhysicsClientHandle physClient, int bodyIndex);

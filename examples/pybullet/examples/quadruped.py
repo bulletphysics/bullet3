@@ -187,6 +187,7 @@ t = 0.0
 t_end = t + 15
 ref_time = time.time()
 while (t<t_end):
+	p.setGravity(0,0,-10)
 	if (useRealTime):
 		t = time.time()-ref_time
 	else:

@@ -91,6 +91,7 @@ public:
 	virtual void replayLogCommand(char* bufferServerToClient, int bufferSizeInBytes );
 
 	//logging of object states (position etc)
+	void tickPlugins(btScalar timeStep, bool isPreTick);
 	void logObjectStates(btScalar timeStep);
 	void processCollisionForces(btScalar timeStep);
 

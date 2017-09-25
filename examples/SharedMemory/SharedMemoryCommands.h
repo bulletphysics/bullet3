@@ -109,6 +109,26 @@ struct b3SearchPathfArgs
 	char m_path[MAX_FILENAME_LENGTH];
 };
 
+enum CustomCommandEnum
+{
+	CMD_CUSTOM_COMMAND_LOAD_PLUGIN=1,
+	CMD_CUSTOM_COMMAND_UNLOAD_PLUGIN=2,
+	CMD_CUSTOM_COMMAND_EXECUTE_PLUGIN_COMMAND=4,
+};
+
+struct b3CustomCommand
+{
+	int m_pluginUniqueId;
+	b3PluginArguments m_arguments;
+	char m_pluginPath[MAX_FILENAME_LENGTH];
+};
+
+struct b3CustomCommandResultArgs
+{
+	int m_pluginUniqueId;
+	int m_executeCommandResult;
+
+};
 
 struct BulletDataStreamArgs
 {
@@ -968,6 +988,7 @@ struct SharedMemoryCommand
 		struct b3RequestCollisionInfoArgs m_requestCollisionInfoArgs;
 		struct b3ChangeTextureArgs m_changeTextureArgs;
 		struct b3SearchPathfArgs m_searchPathArgs;
+		struct b3CustomCommand m_customCommandArgs;
     };
 };
 
@@ -1039,6 +1060,7 @@ struct SharedMemoryStatus
 		struct b3SendCollisionInfoArgs m_sendCollisionInfoArgs;
 		struct SendMouseEvents m_sendMouseEvents;
 		struct b3LoadTextureResultArgs m_loadTextureResultArguments;
+		struct b3CustomCommandResultArgs m_customCommandResultArgs;
 
 	};
 };

@@ -78,7 +78,7 @@ struct PhysicsClientSharedMemoryInternalData {
           m_hasLastServerStatus(false),
           m_sharedMemoryKey(SHARED_MEMORY_KEY),
           m_verboseOutput(false),
-		  m_timeOutInSeconds(5)
+		  m_timeOutInSeconds(30)
 	{}
 
     void processServerStatus();
@@ -1198,6 +1198,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 			case CMD_REQUEST_COLLISION_INFO_FAILED:
 			{
 				b3Warning("Request getCollisionInfo failed");
+				break;
+			}
+			case CMD_CUSTOM_COMMAND_COMPLETED:
+			{
+				break;
+			}
+			case CMD_CUSTOM_COMMAND_FAILED:
+			{
+				b3Warning("custom plugin command failed");
 				break;
 			}
 
