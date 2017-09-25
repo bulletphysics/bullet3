@@ -48,8 +48,8 @@ struct b3Plugin
 		m_initFunc(0),
 		m_exitFunc(0),
 		m_executeCommandFunc(0),
-		m_postTickFunc(0),
 		m_preTickFunc(0),
+		m_postTickFunc(0),
 		m_userPointer(0)
 	{
 	}
