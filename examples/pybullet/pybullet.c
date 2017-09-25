@@ -7138,13 +7138,14 @@ static PyObject* pybullet_calculateJacobian(PyObject* self, PyObject* args, PyOb
 						pybullet_internalGetFloatFromSequence(objAccelerations, i);
 				}
 				{
-					b3SharedMemoryStatusHandle statusHandle;					
+					b3SharedMemoryStatusHandle statusHandle;	
+					int statusType;
 					b3SharedMemoryCommandHandle commandHandle =
 						b3CalculateJacobianCommandInit(sm, bodyUniqueId,
 							linkIndex, localPoint, jointPositions,
 							jointVelocities, jointAccelerations);
 					statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
-					int statusType = b3GetStatusType(statusHandle);
+					statusType = b3GetStatusType(statusHandle);
 					if (statusType == CMD_CALCULATED_JACOBIAN_COMPLETED)
 					{
 						int dofCount;
