@@ -7416,8 +7416,9 @@ static PyMethodDef SpamMethods[] = {
 	 " frame."},
 
 	{"resetJointState", (PyCFunction)pybullet_resetJointState, METH_VARARGS | METH_KEYWORDS,
-	 "Reset the state (position, velocity etc) for a joint on a body "
-	 "instantaneously, not through physics simulation."},
+	"resetJointState(objectUniqueId, jointIndex, targetValue, targetVelocity=0, physicsClientId=0)\n"
+	"Reset the state (position, velocity etc) for a joint on a body "
+	"instantaneously, not through physics simulation."},
 	
 	{"changeDynamics", (PyCFunction)pybullet_changeDynamicsInfo, METH_VARARGS | METH_KEYWORDS,
 	 "change dynamics information such as mass, lateral friction coefficient."},
