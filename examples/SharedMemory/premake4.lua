@@ -409,3 +409,6 @@ end
 include "udp"
 include "tcp"
 include "plugins/testPlugin"
+include "plugins/vrSyncPlugin"
+
+

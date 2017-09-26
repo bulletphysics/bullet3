@@ -5,7 +5,8 @@
 ///increase the SHARED_MEMORY_MAGIC_NUMBER whenever incompatible changes are made in the structures
 ///my convention is year/month/day/rev
 
-#define SHARED_MEMORY_MAGIC_NUMBER 201708270
+#define SHARED_MEMORY_MAGIC_NUMBER 201709260
+//#define SHARED_MEMORY_MAGIC_NUMBER 201708270
 //#define SHARED_MEMORY_MAGIC_NUMBER 201707140
 //#define SHARED_MEMORY_MAGIC_NUMBER 201706015
 //#define SHARED_MEMORY_MAGIC_NUMBER 201706001
@@ -505,7 +506,8 @@ struct b3VisualShapeInformation
 
 enum eLinkStateFlags
 {
-	ACTUAL_STATE_COMPUTE_LINKVELOCITY=1
+	ACTUAL_STATE_COMPUTE_LINKVELOCITY=1,
+	ACTUAL_STATE_COMPUTE_FORWARD_KINEMATICS=2,
 };
 
 ///b3LinkState provides extra information such as the Cartesian world coordinates

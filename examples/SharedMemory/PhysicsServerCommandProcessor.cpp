@@ -5205,6 +5205,17 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							btAlignedObjectArray<btVector3> omega;
 							btAlignedObjectArray<btVector3> linVel;
 							
+							bool computeForwardKinematics = ((clientCmd.m_updateFlags & ACTUAL_STATE_COMPUTE_FORWARD_KINEMATICS)!=0);
+							if (computeForwardKinematics)
+							{
+								B3_PROFILE("compForwardKinematics");
+								btAlignedObjectArray<btQuaternion> world_to_local;
+								btAlignedObjectArray<btVector3> local_origin;
+								world_to_local.resize(mb->getNumLinks()+1);
+								local_origin.resize(mb->getNumLinks()+1);
+								mb->forwardKinematics(world_to_local,local_origin);
+							}
+
 							bool computeLinkVelocities = ((clientCmd.m_updateFlags & ACTUAL_STATE_COMPUTE_LINKVELOCITY)!=0);
 							if (computeLinkVelocities)
 							{

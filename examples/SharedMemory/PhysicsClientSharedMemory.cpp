@@ -1204,6 +1204,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 			{
 				break;
 			}
+			case CMD_CALCULATED_JACOBIAN_COMPLETED:
+			{
+				break;
+			}
+			case CMD_CALCULATED_JACOBIAN_FAILED:
+			{
+				b3Warning("jacobian calculation failed");
+				break;
+			}
 			case CMD_CUSTOM_COMMAND_FAILED:
 			{
 				b3Warning("custom plugin command failed");
