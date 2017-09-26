@@ -3373,6 +3373,8 @@ static PyObject* pybullet_addUserDebugText(PyObject* self, PyObject* args, PyObj
 	double textSize = 1.f;
 	double lifeTime = 0.f;
 	int physicsClientId = 0;
+	int debugItemUniqueId = -1;
+
 	b3PhysicsClientHandle sm = 0;
 	static char* kwlist[] = {"text", "textPosition", "textColorRGB", "textSize", "lifeTime", "textOrientation", "parentObjectUniqueId", "parentLinkIndex", "physicsClientId", NULL};
 
@@ -3425,15 +3427,14 @@ static PyObject* pybullet_addUserDebugText(PyObject* self, PyObject* args, PyObj
 
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 	statusType = b3GetStatusType(statusHandle);
+	
 	if (statusType == CMD_USER_DEBUG_DRAW_COMPLETED)
 	{
-		int debugItemUniqueId = b3GetDebugItemUniqueId(statusHandle);
-		PyObject* item = PyInt_FromLong(debugItemUniqueId);
-		return item;
+		debugItemUniqueId = b3GetDebugItemUniqueId(statusHandle);
 	}
 
-	PyErr_SetString(SpamError, "Error in addUserDebugText.");
-	return NULL;
+	PyObject* item = PyInt_FromLong(debugItemUniqueId);
+	return item;
 }
 
 static PyObject* pybullet_addUserDebugLine(PyObject* self, PyObject* args, PyObject* keywds)
@@ -3455,6 +3456,7 @@ static PyObject* pybullet_addUserDebugLine(PyObject* self, PyObject* args, PyObj
 	double lineWidth = 1.f;
 	double lifeTime = 0.f;
 	int physicsClientId = 0;
+	int debugItemUniqueId = -1;
 	b3PhysicsClientHandle sm = 0;
 	static char* kwlist[] = {"lineFromXYZ", "lineToXYZ", "lineColorRGB", "lineWidth", "lifeTime", "parentObjectUniqueId", "parentLinkIndex", "physicsClientId", NULL};
 
@@ -3498,13 +3500,10 @@ static PyObject* pybullet_addUserDebugLine(PyObject* self, PyObject* args, PyObj
 	statusType = b3GetStatusType(statusHandle);
 	if (statusType == CMD_USER_DEBUG_DRAW_COMPLETED)
 	{
-		int debugItemUniqueId = b3GetDebugItemUniqueId(statusHandle);
-		PyObject* item = PyInt_FromLong(debugItemUniqueId);
-		return item;
+		debugItemUniqueId = b3GetDebugItemUniqueId(statusHandle);
 	}
-
-	PyErr_SetString(SpamError, "Error in addUserDebugLine.");
-	return NULL;
+	PyObject* item = PyInt_FromLong(debugItemUniqueId);
+	return item;
 }
 
 static PyObject* pybullet_removeUserDebugItem(PyObject* self, PyObject* args, PyObject* keywds)
