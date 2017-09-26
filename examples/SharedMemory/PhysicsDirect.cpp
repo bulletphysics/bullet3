@@ -949,7 +949,31 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 		b3Warning("custom plugin command failed");
 		break;
 	}
-
+	case CMD_CLIENT_COMMAND_COMPLETED:
+		{
+			break;
+		}
+	case CMD_CALCULATED_JACOBIAN_COMPLETED:
+	{
+		break;
+	}
+	case CMD_CALCULATED_JACOBIAN_FAILED:
+	{
+		b3Warning("jacobian calculation failed");
+		break;
+	}
+	case CMD_ACTUAL_STATE_UPDATE_COMPLETED:
+		{
+			break;
+		}
+	case CMD_DESIRED_STATE_RECEIVED_COMPLETED:
+		{
+			break;
+		}
+	case CMD_STEP_FORWARD_SIMULATION_COMPLETED:
+		{
+			break;
+		}
 	default:
 	{
 		//b3Warning("Unknown server status type");

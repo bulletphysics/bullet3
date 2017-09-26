@@ -3126,13 +3126,14 @@ static PyObject* pybullet_getLinkState(PyObject* self, PyObject* args, PyObject*
 	int bodyUniqueId = -1;
 	int linkIndex = -1;
 	int computeLinkVelocity = 0;
+	int computeForwardKinematics = 0;
 
 	int i;
 	b3PhysicsClientHandle sm = 0;
 
 	int physicsClientId = 0;
-	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "computeLinkVelocity", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|ii", kwlist, &bodyUniqueId, &linkIndex,&computeLinkVelocity, &physicsClientId))
+	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "computeLinkVelocity", "computeForwardKinematics", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|iii", kwlist, &bodyUniqueId, &linkIndex,&computeLinkVelocity,&computeForwardKinematics,&physicsClientId))
 	{
 		return NULL;
 	}
@@ -3166,6 +3167,11 @@ static PyObject* pybullet_getLinkState(PyObject* self, PyObject* args, PyObject*
 			if (computeLinkVelocity)
 			{
 				b3RequestActualStateCommandComputeLinkVelocity(cmd_handle,computeLinkVelocity);
+			}
+
+			if (computeForwardKinematics)
+			{
+				b3RequestActualStateCommandComputeForwardKinematics(cmd_handle,computeForwardKinematics);
 			}
 
 			status_handle =

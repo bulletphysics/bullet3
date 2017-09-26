@@ -649,6 +649,18 @@ B3_SHARED_API int b3RequestActualStateCommandComputeLinkVelocity(b3SharedMemoryC
 	return 0;
 }
 
+B3_SHARED_API	int b3RequestActualStateCommandComputeForwardKinematics(b3SharedMemoryCommandHandle commandHandle, int computeForwardKinematics)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	btAssert(command->m_type == CMD_REQUEST_ACTUAL_STATE);
+	if (computeForwardKinematics && command->m_type == CMD_REQUEST_ACTUAL_STATE)
+	{
+		command->m_updateFlags |= ACTUAL_STATE_COMPUTE_FORWARD_KINEMATICS;
+	}
+	return 0;
+}
+
 
 B3_SHARED_API int b3GetJointState(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle statusHandle, int jointIndex, b3JointSensorState *state)
 {
