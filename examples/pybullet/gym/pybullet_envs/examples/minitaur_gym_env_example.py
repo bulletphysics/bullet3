@@ -1,7 +1,4 @@
 r"""An example to run of the minitaur gym environment with sine gaits.
-
-blaze run -c opt //robotics/reinforcement_learning/minitaur/\
-envs:minitaur_gym_env_example
 """
 
 import math
