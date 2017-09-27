@@ -37,20 +37,21 @@ hasPrevPose = 0
 useNullSpace = 0
 
 useOrientation = 1
-useSimulation = 1
+#If we set useSimulation=0, it sets the arm pose to be the IK result directly without using dynamic control.
+#This can be used to test the IK result accuracy.
+useSimulation = 0
 useRealTimeSimulation = 1
 p.setRealTimeSimulation(useRealTimeSimulation)
 #trailDuration is duration (in seconds) after debug lines will be removed automatically
 #use 0 for no-removal
 trailDuration = 15
-
 	
 while 1:
 	if (useRealTimeSimulation):
 		dt = datetime.now()
 		t = (dt.second/60.)*2.*math.pi
 	else:
-		t=t+0.1
+		t=t+0.001
 	
 	if (useSimulation and useRealTimeSimulation==0):
 		p.stepSimulation()
