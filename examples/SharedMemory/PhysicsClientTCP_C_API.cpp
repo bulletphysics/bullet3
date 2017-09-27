@@ -4,7 +4,7 @@
 #include "PhysicsDirect.h"
 #include <stdio.h>
 
-b3PhysicsClientHandle b3ConnectPhysicsTCP(const char* hostName, int port)
+B3_SHARED_API	b3PhysicsClientHandle b3ConnectPhysicsTCP(const char* hostName, int port)
 {
 
 	TcpNetworkedPhysicsProcessor* tcp = new TcpNetworkedPhysicsProcessor(hostName, port);

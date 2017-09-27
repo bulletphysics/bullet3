@@ -445,10 +445,10 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 			{
 				printf("Connection terminated, couldn't get body info\n");
 				b3DisconnectSharedMemory(sm);
-                		sm = 0;
+						sm = 0;
 				sPhysicsClients1[freeIndex] = 0;
-                       		sPhysicsClientsGUI[freeIndex] = 0;
-                        	sNumPhysicsClients++;
+							sPhysicsClientsGUI[freeIndex] = 0;
+							sNumPhysicsClients++;
 				return  PyInt_FromLong(-1);
 			}
 		}
@@ -2835,7 +2835,7 @@ static PyObject* pybullet_getJointInfo(PyObject* self, PyObject* args, PyObject*
 				if (info.m_jointName)
 				{
 					PyTuple_SetItem(pyListJointInfo, 1,
- 								PyString_FromString(info.m_jointName));
+								PyString_FromString(info.m_jointName));
 				} else
 				{
 					PyTuple_SetItem(pyListJointInfo, 1,
@@ -3126,13 +3126,14 @@ static PyObject* pybullet_getLinkState(PyObject* self, PyObject* args, PyObject*
 	int bodyUniqueId = -1;
 	int linkIndex = -1;
 	int computeLinkVelocity = 0;
+	int computeForwardKinematics = 0;
 
 	int i;
 	b3PhysicsClientHandle sm = 0;
 
 	int physicsClientId = 0;
-	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "computeLinkVelocity", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|ii", kwlist, &bodyUniqueId, &linkIndex,&computeLinkVelocity, &physicsClientId))
+	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "computeLinkVelocity", "computeForwardKinematics", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|iii", kwlist, &bodyUniqueId, &linkIndex,&computeLinkVelocity,&computeForwardKinematics,&physicsClientId))
 	{
 		return NULL;
 	}
@@ -3166,6 +3167,11 @@ static PyObject* pybullet_getLinkState(PyObject* self, PyObject* args, PyObject*
 			if (computeLinkVelocity)
 			{
 				b3RequestActualStateCommandComputeLinkVelocity(cmd_handle,computeLinkVelocity);
+			}
+
+			if (computeForwardKinematics)
+			{
+				b3RequestActualStateCommandComputeForwardKinematics(cmd_handle,computeForwardKinematics);
 			}
 
 			status_handle =
@@ -3367,6 +3373,8 @@ static PyObject* pybullet_addUserDebugText(PyObject* self, PyObject* args, PyObj
 	double textSize = 1.f;
 	double lifeTime = 0.f;
 	int physicsClientId = 0;
+	int debugItemUniqueId = -1;
+
 	b3PhysicsClientHandle sm = 0;
 	static char* kwlist[] = {"text", "textPosition", "textColorRGB", "textSize", "lifeTime", "textOrientation", "parentObjectUniqueId", "parentLinkIndex", "physicsClientId", NULL};
 
@@ -3419,15 +3427,16 @@ static PyObject* pybullet_addUserDebugText(PyObject* self, PyObject* args, PyObj
 
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 	statusType = b3GetStatusType(statusHandle);
+	
 	if (statusType == CMD_USER_DEBUG_DRAW_COMPLETED)
 	{
-		int debugItemUniqueId = b3GetDebugItemUniqueId(statusHandle);
-		PyObject* item = PyInt_FromLong(debugItemUniqueId);
-		return item;
+		debugItemUniqueId = b3GetDebugItemUniqueId(statusHandle);
 	}
 
-	PyErr_SetString(SpamError, "Error in addUserDebugText.");
-	return NULL;
+	{
+	PyObject* item = PyInt_FromLong(debugItemUniqueId);
+	return item;
+	}
 }
 
 static PyObject* pybullet_addUserDebugLine(PyObject* self, PyObject* args, PyObject* keywds)
@@ -3449,6 +3458,7 @@ static PyObject* pybullet_addUserDebugLine(PyObject* self, PyObject* args, PyObj
 	double lineWidth = 1.f;
 	double lifeTime = 0.f;
 	int physicsClientId = 0;
+	int debugItemUniqueId = -1;
 	b3PhysicsClientHandle sm = 0;
 	static char* kwlist[] = {"lineFromXYZ", "lineToXYZ", "lineColorRGB", "lineWidth", "lifeTime", "parentObjectUniqueId", "parentLinkIndex", "physicsClientId", NULL};
 
@@ -3492,13 +3502,12 @@ static PyObject* pybullet_addUserDebugLine(PyObject* self, PyObject* args, PyObj
 	statusType = b3GetStatusType(statusHandle);
 	if (statusType == CMD_USER_DEBUG_DRAW_COMPLETED)
 	{
-		int debugItemUniqueId = b3GetDebugItemUniqueId(statusHandle);
-		PyObject* item = PyInt_FromLong(debugItemUniqueId);
-		return item;
+		debugItemUniqueId = b3GetDebugItemUniqueId(statusHandle);
 	}
-
-	PyErr_SetString(SpamError, "Error in addUserDebugLine.");
-	return NULL;
+	{
+	PyObject* item = PyInt_FromLong(debugItemUniqueId);
+	return item;
+	}
 }
 
 static PyObject* pybullet_removeUserDebugItem(PyObject* self, PyObject* args, PyObject* keywds)
@@ -4754,21 +4763,21 @@ static PyObject* pybullet_loadTexture(PyObject* self, PyObject* args, PyObject* 
 static PyObject* MyConvertContactPoint(struct b3ContactInformation* contactPointPtr)
 {
 	/*
-     0     int m_contactFlags;
-     1     int m_bodyUniqueIdA;
-     2     int m_bodyUniqueIdB;
-     3     int m_linkIndexA;
-     4     int m_linkIndexB;
-     5		double m_positionOnAInWS[3];//contact point location on object A,
-     in world space coordinates
-     6		double m_positionOnBInWS[3];//contact point location on object
-     A, in world space coordinates
-     7		double m_contactNormalOnBInWS[3];//the separating contact
-     normal, pointing from object B towards object A
-     8		double m_contactDistance;//negative number is penetration, positive
-     is distance.
-     9		double m_normalForce;
-     */
+	 0     int m_contactFlags;
+	 1     int m_bodyUniqueIdA;
+	 2     int m_bodyUniqueIdB;
+	 3     int m_linkIndexA;
+	 4     int m_linkIndexB;
+	 5		double m_positionOnAInWS[3];//contact point location on object A,
+	 in world space coordinates
+	 6		double m_positionOnBInWS[3];//contact point location on object
+	 A, in world space coordinates
+	 7		double m_contactNormalOnBInWS[3];//the separating contact
+	 normal, pointing from object B towards object A
+	 8		double m_contactDistance;//negative number is penetration, positive
+	 is distance.
+	 9		double m_normalForce;
+	 */
 
 	int i;
 
@@ -4965,7 +4974,7 @@ static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, Py
 
 static PyObject* pybullet_changeUserConstraint(PyObject* self, PyObject* args, PyObject* keywds)
 {
-	static char* kwlist[] = {"userConstraintUniqueId", "jointChildPivot", "jointChildFrameOrientation", "maxForce", "gearRatio", "gearAuxLink", "physicsClientId", NULL};
+	static char* kwlist[] = {"userConstraintUniqueId", "jointChildPivot", "jointChildFrameOrientation", "maxForce", "gearRatio", "gearAuxLink", "relativePositionTarget", "erp", "physicsClientId", NULL};
 	int userConstraintUniqueId = -1;
 	b3SharedMemoryCommandHandle commandHandle;
 	b3SharedMemoryStatusHandle statusHandle;
@@ -4979,7 +4988,9 @@ static PyObject* pybullet_changeUserConstraint(PyObject* self, PyObject* args, P
 	double jointChildFrameOrn[4];
 	double maxForce = -1;
 	double gearRatio = 0;
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|OOddii", kwlist, &userConstraintUniqueId, &jointChildPivotObj, &jointChildFrameOrnObj, &maxForce, &gearRatio, &gearAuxLink, &physicsClientId))
+	double relativePositionTarget=1e32;
+	double erp=-1;
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|OOddiddi", kwlist, &userConstraintUniqueId, &jointChildPivotObj, &jointChildFrameOrnObj, &maxForce, &gearRatio, &gearAuxLink, &relativePositionTarget, &erp, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -5001,6 +5012,16 @@ static PyObject* pybullet_changeUserConstraint(PyObject* self, PyObject* args, P
 	{
 		b3InitChangeUserConstraintSetFrameInB(commandHandle, jointChildFrameOrn);
 	}
+
+	if (relativePositionTarget<1e10)
+	{
+		b3InitChangeUserConstraintSetRelativePositionTarget(commandHandle, relativePositionTarget);
+	}
+	if (erp>=0)
+	{
+		b3InitChangeUserConstraintSetERP(commandHandle, erp);
+	}
+
 	if (maxForce >= 0)
 	{
 		b3InitChangeUserConstraintSetMaxForce(commandHandle, maxForce);
@@ -5559,9 +5580,9 @@ static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args, Py
 {
 	int bodyUniqueIdA = -1;
 	int bodyUniqueIdB = -1;
-    int linkIndexA = -2;
-    int linkIndexB = -2;
-    
+	int linkIndexA = -2;
+	int linkIndexB = -2;
+	
 	b3SharedMemoryCommandHandle commandHandle;
 	struct b3ContactInformation contactPointData;
 	b3SharedMemoryStatusHandle statusHandle;
@@ -5583,24 +5604,24 @@ static PyObject* pybullet_getContactPointData(PyObject* self, PyObject* args, Py
 	}
 
 	commandHandle = b3InitRequestContactPointInformation(sm);
-    if (bodyUniqueIdA>=0)
-    {
-        b3SetContactFilterBodyA(commandHandle, bodyUniqueIdA);
-    }
-    if (bodyUniqueIdB>=0)
-    {
-        b3SetContactFilterBodyB(commandHandle, bodyUniqueIdB);
-    }
+	if (bodyUniqueIdA>=0)
+	{
+		b3SetContactFilterBodyA(commandHandle, bodyUniqueIdA);
+	}
+	if (bodyUniqueIdB>=0)
+	{
+		b3SetContactFilterBodyB(commandHandle, bodyUniqueIdB);
+	}
 
-    if (linkIndexA>=-1)
-    {
-        b3SetContactFilterLinkA( commandHandle, linkIndexA);
-    }
-    if (linkIndexB >=-1)
-    {
-        b3SetContactFilterLinkB( commandHandle, linkIndexB);
-    }
-    
+	if (linkIndexA>=-1)
+	{
+		b3SetContactFilterLinkA( commandHandle, linkIndexA);
+	}
+	if (linkIndexB >=-1)
+	{
+		b3SetContactFilterLinkB( commandHandle, linkIndexB);
+	}
+	
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 	statusType = b3GetStatusType(statusHandle);
 	if (statusType == CMD_CONTACT_POINT_INFORMATION_COMPLETED)
@@ -6574,7 +6595,7 @@ static PyObject* pybullet_invertTransform(PyObject* self,
 	PyErr_SetString(SpamError, "Invalid input: expected position [x,y,z] and orientation [x,y,z,w].");
 	return NULL;
 }
-	 	 
+		 
 
 /// quaternion <-> euler yaw/pitch/roll convention from URDF/SDF, see Gazebo
 /// https://github.com/arpg/Gazebo/blob/master/gazebo/math/Quaternion.cc
@@ -6652,6 +6673,131 @@ static PyObject* pybullet_getEulerFromQuaternion(PyObject* self,
 	Py_INCREF(Py_None);
 	return Py_None;
 }
+
+
+static PyObject* pybullet_loadPlugin(PyObject* self,
+	PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	
+	char* pluginPath = 0;
+	b3SharedMemoryCommandHandle command = 0;
+	b3SharedMemoryStatusHandle 	statusHandle = 0;
+	int statusType = -1;
+
+	b3PhysicsClientHandle sm = 0;
+	static char* kwlist[] = { "pluginPath",  "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|i", kwlist, &pluginPath, &physicsClientId))
+	{
+		return NULL;
+	}
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	command = b3CreateCustomCommand(sm);
+	b3CustomCommandLoadPlugin(command, pluginPath);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	statusType = b3GetStatusPluginUniqueId(statusHandle);
+	return PyInt_FromLong(statusType);
+}
+
+
+static PyObject* pybullet_unloadPlugin(PyObject* self,
+	PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	int pluginUniqueId = -1;
+
+	b3SharedMemoryCommandHandle command = 0;
+	b3SharedMemoryStatusHandle 	statusHandle = 0;
+	int statusType = -1;
+
+	b3PhysicsClientHandle sm = 0;
+	static char* kwlist[] = { "pluginUniqueId",  "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|i", kwlist, &pluginUniqueId,&physicsClientId))
+	{
+		return NULL;
+	}
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	command = b3CreateCustomCommand(sm);
+	b3CustomCommandUnloadPlugin(command, pluginUniqueId);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+
+	Py_INCREF(Py_None);
+	return Py_None;;
+}
+
+//createCustomCommand for executing commands implemented in a plugin system
+static PyObject* pybullet_executePluginCommand(PyObject* self,
+	PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	int pluginUniqueId = -1;
+	char* textArgument = 0;
+	b3SharedMemoryCommandHandle command=0;
+	b3SharedMemoryStatusHandle 	statusHandle=0;
+	int statusType = -1;
+	PyObject* intArgs=0;
+	PyObject* floatArgs=0;
+
+	b3PhysicsClientHandle sm = 0;
+	static char* kwlist[] = { "pluginUniqueId", "textArgument", "intArgs", "floatArgs", "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|sOOi", kwlist, &pluginUniqueId, &textArgument, &intArgs, &floatArgs, &physicsClientId))
+	{
+		return NULL;
+	}
+
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+
+	command = b3CreateCustomCommand(sm);
+	b3CustomCommandExecutePluginCommand(command, pluginUniqueId, textArgument);
+
+	{
+		PyObject* seqIntArgs = intArgs?PySequence_Fast(intArgs, "expected a sequence"):0;
+		PyObject* seqFloatArgs = floatArgs?PySequence_Fast(floatArgs, "expected a sequence"):0;
+		int numIntArgs = seqIntArgs?PySequence_Size(intArgs):0;
+		int numFloatArgs = seqIntArgs?PySequence_Size(floatArgs):0;
+		int i;
+		for (i=0;i<numIntArgs;i++)
+		{
+			int val = pybullet_internalGetIntFromSequence(seqIntArgs,i);
+			b3CustomCommandExecuteAddIntArgument(command, val);
+		}
+		
+
+		for (i=0;i<numFloatArgs;i++)
+		{
+			float val = pybullet_internalGetFloatFromSequence(seqFloatArgs,i);
+			b3CustomCommandExecuteAddFloatArgument(command, val);
+		}
+		
+	}
+	
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	statusType = b3GetStatusPluginCommandResult(statusHandle);
+	return PyInt_FromLong(statusType);
+}
+
+
+
 
 ///Inverse Kinematics binding
 static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
@@ -6847,8 +6993,7 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 /// Given an object id, joint positions, joint velocities and joint
 /// accelerations,
 /// compute the joint forces using Inverse Dynamics
-static PyObject* pybullet_calculateInverseDynamics(PyObject* self,
-												   PyObject* args, PyObject* keywds)
+static PyObject* pybullet_calculateInverseDynamics(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	{
 		int bodyUniqueId;
@@ -6857,14 +7002,21 @@ static PyObject* pybullet_calculateInverseDynamics(PyObject* self,
 		PyObject* objAccelerations;
 		int physicsClientId = 0;
 		b3PhysicsClientHandle sm = 0;
-		static char* kwlist[] = {"bodyUniqueId", "objPositions", "objVelocities", "objAccelerations", "physicsClientId", NULL};
-		if (!PyArg_ParseTupleAndKeywords(args, keywds, "iOOO|i", kwlist, &bodyUniqueId, &objPositionsQ,
-										 &objVelocitiesQdot, &objAccelerations, &physicsClientId))
+		static char* kwlist[] = {"bodyUniqueId", "objPositions",
+								 "objVelocities", "objAccelerations",
+								 "physicsClientId", NULL};
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "iOOO|i", kwlist,
+										 &bodyUniqueId, &objPositionsQ,
+										 &objVelocitiesQdot, &objAccelerations,
+										 &physicsClientId))
 		{
-			static char* kwlist2[] = {"bodyIndex", "objPositions", "objVelocities", "objAccelerations", "physicsClientId", NULL};
+			static char* kwlist2[] = {"bodyIndex", "objPositions",
+									  "objVelocities", "objAccelerations",
+									  "physicsClientId", NULL};
 			PyErr_Clear();
-			if (!PyArg_ParseTupleAndKeywords(args, keywds, "iOOO|i", kwlist2, &bodyUniqueId, &objPositionsQ,
-											 &objVelocitiesQdot, &objAccelerations, &physicsClientId))
+			if (!PyArg_ParseTupleAndKeywords(args, keywds, "iOOO|i", kwlist2,
+					&bodyUniqueId, &objPositionsQ, &objVelocitiesQdot,
+					&objAccelerations, &physicsClientId))
 			{
 			return NULL;
 			}
@@ -6963,34 +7115,188 @@ static PyObject* pybullet_calculateInverseDynamics(PyObject* self,
 	return Py_None;
 }
 
+/// Given an object id, joint positions, joint velocities and joint
+/// accelerations, compute the Jacobian
+static PyObject* pybullet_calculateJacobian(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	{
+		int bodyUniqueId;
+		int linkIndex;
+		PyObject* localPosition;
+		PyObject* objPositions;
+		PyObject* objVelocities;
+		PyObject* objAccelerations;
+		int physicsClientId = 0;
+		b3PhysicsClientHandle sm = 0;
+		static char* kwlist[] = {"bodyUniqueId", "linkIndex", "localPosition",
+								 "objPositions", "objVelocities",
+								 "objAccelerations", "physicsClientId", NULL};
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiOOOO|i", kwlist,
+				&bodyUniqueId, &linkIndex, &localPosition, &objPositions,
+				&objVelocities, &objAccelerations, &physicsClientId))
+		{
+			return NULL;
+		}
+		sm = getPhysicsClient(physicsClientId);
+		if (sm == 0)
+		{
+			PyErr_SetString(SpamError, "Not connected to physics server.");
+			return NULL;
+		}
+
+		{
+			int szLoPos = PySequence_Size(localPosition);
+			int szObPos = PySequence_Size(objPositions);
+			int szObVel = PySequence_Size(objVelocities);
+			int szObAcc = PySequence_Size(objAccelerations);
+			int numJoints = b3GetNumJoints(sm, bodyUniqueId);
+			if (numJoints && (szLoPos == 3) && (szObPos == numJoints) && 
+				(szObVel == numJoints) && (szObAcc == numJoints))
+			{
+				int byteSizeJoints = sizeof(double) * numJoints;
+				int byteSizeVec3 =  sizeof(double) * 3;
+				int i;
+				PyObject* pyResultList = PyTuple_New(2);
+				double* localPoint = (double*)malloc(byteSizeVec3);
+				double* jointPositions = (double*)malloc(byteSizeJoints);
+				double* jointVelocities = (double*)malloc(byteSizeJoints);
+				double* jointAccelerations = (double*)malloc(byteSizeJoints);
+				double* linearJacobian = (double*)malloc(3 * byteSizeJoints);
+				double* angularJacobian = (double*)malloc(3 * byteSizeJoints);
+
+				pybullet_internalSetVectord(localPosition, localPoint);
+				for (i = 0; i < numJoints; i++)
+				{
+					jointPositions[i] =
+						pybullet_internalGetFloatFromSequence(objPositions, i);
+					jointVelocities[i] =
+						pybullet_internalGetFloatFromSequence(objVelocities, i);
+					jointAccelerations[i] =
+						pybullet_internalGetFloatFromSequence(objAccelerations, i);
+				}
+				{
+					b3SharedMemoryStatusHandle statusHandle;	
+					int statusType;
+					b3SharedMemoryCommandHandle commandHandle =
+						b3CalculateJacobianCommandInit(sm, bodyUniqueId,
+							linkIndex, localPoint, jointPositions,
+							jointVelocities, jointAccelerations);
+					statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+					statusType = b3GetStatusType(statusHandle);
+					if (statusType == CMD_CALCULATED_JACOBIAN_COMPLETED)
+					{
+						int dofCount;
+						b3GetStatusJacobian(statusHandle, &dofCount, NULL, NULL);
+						if (dofCount)
+						{
+							int byteSizeDofCount = sizeof(double) * dofCount;
+							double* linearJacobian = (double*)malloc(3 * byteSizeDofCount);
+							double* angularJacobian = (double*)malloc(3 * byteSizeDofCount);
+							b3GetStatusJacobian(statusHandle,
+												NULL,
+												linearJacobian,
+												angularJacobian);
+							if (linearJacobian)
+							{
+								int r;
+								PyObject* pymat = PyTuple_New(3);
+								for (r = 0; r < 3; ++r) {
+									int c;
+									PyObject* pyrow = PyTuple_New(dofCount);
+									for (c = 0; c < dofCount; ++c) {
+										int element = r * dofCount + c;
+										PyTuple_SetItem(pyrow, c,
+													PyFloat_FromDouble(linearJacobian[element]));
+									}
+									PyTuple_SetItem(pymat, r, pyrow);
+								}
+								PyTuple_SetItem(pyResultList, 0, pymat);
+							}
+							if (angularJacobian)
+							{
+								int r;
+									PyObject* pymat = PyTuple_New(3);
+								for (r = 0; r < 3; ++r) {
+									int c;
+									PyObject* pyrow = PyTuple_New(dofCount);
+									for (c = 0; c < dofCount; ++c) {
+										int element = r * dofCount + c;
+										PyTuple_SetItem(pyrow, c,
+													PyFloat_FromDouble(angularJacobian[element]));
+									}
+									PyTuple_SetItem(pymat, r, pyrow);
+								}
+								PyTuple_SetItem(pyResultList, 1, pymat);
+							}
+						}
+					}
+					else
+					{
+						PyErr_SetString(SpamError,
+										"Internal error in calculateJacobian");
+					}
+				}
+				free(localPoint);
+				free(jointPositions);
+				free(jointVelocities);
+				free(jointAccelerations);
+				free(linearJacobian);
+				free(angularJacobian);
+				if (pyResultList) return pyResultList;
+			}
+			else
+			{
+				PyErr_SetString(SpamError,
+								"calculateJacobian [numJoints] needs to be "
+								"positive, [local position] needs to be of "
+								"size 3 and [joint positions], "
+								"[joint velocities], [joint accelerations] "
+								"need to match the number of joints.");
+				return NULL;
+			}
+		}
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyMethodDef SpamMethods[] = {
 
 	{"connect", (PyCFunction)pybullet_connectPhysicsServer, METH_VARARGS | METH_KEYWORDS,
+	"connect(method, key=SHARED_MEMORY_KEY, options='')\n"
+	"connect(method, hostname='localhost', port=1234, options='')\n"
 	 "Connect to an existing physics server (using shared memory by default)."},
 
 	{"disconnect", (PyCFunction)pybullet_disconnectPhysicsServer, METH_VARARGS | METH_KEYWORDS,
+	"disconnect(physicsClientId=0)\n"
 	 "Disconnect from the physics server."},
 
 	{"resetSimulation", (PyCFunction)pybullet_resetSimulation, METH_VARARGS | METH_KEYWORDS,
+	"resetSimulation(physicsClientId=0)\n"
 	 "Reset the simulation: remove all objects and start from an empty world."},
 
 	{"stepSimulation", (PyCFunction)pybullet_stepSimulation, METH_VARARGS | METH_KEYWORDS,
+	"stepSimulation(physicsClientId=0)\n"
 	 "Step the simulation using forward dynamics."},
 
 	{"setGravity", (PyCFunction)pybullet_setGravity, METH_VARARGS | METH_KEYWORDS,
+	"setGravity(gravX, gravY, gravZ, physicsClientId=0)\n"
 	 "Set the gravity acceleration (x,y,z)."},
 
 	{"setTimeStep", (PyCFunction)pybullet_setTimeStep, METH_VARARGS | METH_KEYWORDS,
+	"setTimeStep(timestep, physicsClientId=0)\n"
 	 "Set the amount of time to proceed at each call to stepSimulation. (unit "
 	 "is seconds, typically range is 0.01 or 0.001)"},
 
 	{"setDefaultContactERP", (PyCFunction)pybullet_setDefaultContactERP, METH_VARARGS | METH_KEYWORDS,
+	 "setDefaultContactERP(defaultContactERP, physicsClientId=0)\n"
 	 "Set the amount of contact penetration Error Recovery Paramater "
 	 "(ERP) in each time step. \
 		This is an tuning parameter to control resting contact stability. "
 	 "This value depends on the time step."},
 
 	{"setRealTimeSimulation", (PyCFunction)pybullet_setRealTimeSimulation, METH_VARARGS | METH_KEYWORDS,
+	"setRealTimeSimulation(enableRealTimeSimulation, physicsClientId=0)\n"
 	 "Enable or disable real time simulation (using the real time clock,"
 	 " RTC) in the physics server. Expects one integer argument, 0 or 1"},
 
@@ -7001,6 +7307,8 @@ static PyMethodDef SpamMethods[] = {
 	 "This is for experimental purposes, use at own risk, magic may or not happen"},
 
 	{"loadURDF", (PyCFunction)pybullet_loadURDF, METH_VARARGS | METH_KEYWORDS,
+	"bodyUniqueId = loadURDF(fileName, basePosition=[0.,0.,0.], baseOrientation=[0.,0.,0.,1.], "
+	"useMaximalCoordinates=0, useFixedBase=0, flags=0, globalScaling=1.0, physicsClientId=0)\n"
 	 "Create a multibody by loading a URDF file."},
 
 	{"loadSDF", (PyCFunction)pybullet_loadSDF, METH_VARARGS | METH_KEYWORDS,
@@ -7249,6 +7557,19 @@ static PyMethodDef SpamMethods[] = {
 	 "Given an object id, joint positions, joint velocities and joint "
 	 "accelerations, compute the joint forces using Inverse Dynamics"},
 
+	 {"calculateJacobian", (PyCFunction)pybullet_calculateJacobian, METH_VARARGS | METH_KEYWORDS,
+	 "Compute the jacobian for a specified local position on a body and its kinematics.\n"
+	 "Args:\n"
+	 "  bodyIndex - a scalar defining the unique object id.\n"
+	 "  linkIndex - a scalar identifying the link containing the local point.\n"
+	 "  localPosition - a list of [x, y, z] of the coordinates of the local point.\n"
+	 "  objPositions - a list of the joint positions.\n"
+	 "  objVelocities - a list of the joint velocities.\n"
+	 "  objAccelerations - a list of the joint accelerations.\n"
+	 "Returns:\n"
+	 "  linearJacobian - a list of the partial linear velocities of the jacobian.\n"
+	 "  angularJacobian - a list of the partial angular velocities of the jacobian.\n"},
+
 	{"calculateInverseKinematics", (PyCFunction)pybullet_calculateInverseKinematics,
 	 METH_VARARGS | METH_KEYWORDS,
 	 "Inverse Kinematics bindings: Given an object id, "
@@ -7280,6 +7601,16 @@ static PyMethodDef SpamMethods[] = {
 	{"rayTestBatch", (PyCFunction)pybullet_rayTestBatch, METH_VARARGS | METH_KEYWORDS,
 		"Cast a batch of rays and return the result for each of the rays (first object hit, if any. or -1) "
 	 "Takes two arguments (list of from_positions [x,y,z] and a list of to_positions [x,y,z] in Cartesian world coordinates"},
+
+	 { "loadPlugin", (PyCFunction)pybullet_loadPlugin, METH_VARARGS | METH_KEYWORDS,
+		 "Load a plugin, could implement custom commands etc." },
+
+	{ "unloadPlugin", (PyCFunction)pybullet_unloadPlugin, METH_VARARGS | METH_KEYWORDS,
+		"Unload a plugin, given the pluginUniqueId." },
+
+	 { "executePluginCommand", (PyCFunction)pybullet_executePluginCommand, METH_VARARGS | METH_KEYWORDS,
+		"Execute a command, implemented in a plugin." },
+
 
 	{"submitProfileTiming", (PyCFunction)pybullet_submitProfileTiming, METH_VARARGS | METH_KEYWORDS,
 	 "Add a custom profile timing that will be visible in performance profile recordings on the physics server."

@@ -24,7 +24,7 @@
 
   <joint name="left_gripper_joint" type="revolute">
     <axis xyz="0 0 1"/>
-    <limit effort="1000.0" lower="0.0" upper="0.548" velocity="0.5"/>
+    <limit effort="1000.0" lower="-2.0" upper="2.548" velocity="0.5"/>
     <origin rpy="0 0 0" xyz="0.2 0.01 0"/>
     <parent link="gripper_pole"/>
     <child link="left_gripper"/>
@@ -83,7 +83,7 @@
 
   <joint name="right_gripper_joint" type="revolute">
     <axis xyz="0 0 -1"/>
-    <limit effort="1000.0" lower="0.0" upper="0.548" velocity="0.5"/>
+    <limit effort="1000.0" lower="-2.0" upper="2." velocity="0.5"/>
     <origin rpy="0 0 0" xyz="0.2 -0.01 0"/>
     <parent link="gripper_pole"/>
     <child link="right_gripper"/>

@@ -5,7 +5,8 @@
 ///increase the SHARED_MEMORY_MAGIC_NUMBER whenever incompatible changes are made in the structures
 ///my convention is year/month/day/rev
 
-#define SHARED_MEMORY_MAGIC_NUMBER 201708270
+#define SHARED_MEMORY_MAGIC_NUMBER 201709260
+//#define SHARED_MEMORY_MAGIC_NUMBER 201708270
 //#define SHARED_MEMORY_MAGIC_NUMBER 201707140
 //#define SHARED_MEMORY_MAGIC_NUMBER 201706015
 //#define SHARED_MEMORY_MAGIC_NUMBER 201706001
@@ -72,6 +73,7 @@ enum EnumSharedMemoryClientCommand
 	CMD_REQUEST_MOUSE_EVENTS_DATA,
 	CMD_CHANGE_TEXTURE,
 	CMD_SET_ADDITIONAL_SEARCH_PATH,
+	CMD_CUSTOM_COMMAND,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -167,6 +169,9 @@ enum EnumSharedMemoryServerStatus
 		CMD_REQUEST_COLLISION_INFO_FAILED,
 		CMD_REQUEST_MOUSE_EVENTS_DATA_COMPLETED,
 		CMD_CHANGE_TEXTURE_COMMAND_FAILED,
+		CMD_CUSTOM_COMMAND_COMPLETED,
+		CMD_CUSTOM_COMMAND_FAILED,
+
         //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
@@ -242,6 +247,8 @@ struct b3UserConstraint
     int m_userConstraintUniqueId;
 	double m_gearRatio;
 	int m_gearAuxLink;
+	double m_relativePositionTarget;
+	double m_erp;
 
 };
 
@@ -501,7 +508,8 @@ struct b3VisualShapeInformation
 
 enum eLinkStateFlags
 {
-	ACTUAL_STATE_COMPUTE_LINKVELOCITY=1
+	ACTUAL_STATE_COMPUTE_LINKVELOCITY=1,
+	ACTUAL_STATE_COMPUTE_FORWARD_KINEMATICS=2,
 };
 
 ///b3LinkState provides extra information such as the Cartesian world coordinates
@@ -616,6 +624,19 @@ enum eStateLoggingFlags
 	STATE_LOG_JOINT_TORQUES = STATE_LOG_JOINT_MOTOR_TORQUES+STATE_LOG_JOINT_USER_TORQUES,
 };
 
+#define B3_MAX_PLUGIN_ARG_SIZE 128
+#define B3_MAX_PLUGIN_ARG_TEXT_LEN 1024
+
+struct b3PluginArguments
+{
+	char m_text[B3_MAX_PLUGIN_ARG_TEXT_LEN];
+	int m_numInts;
+	int m_ints[B3_MAX_PLUGIN_ARG_SIZE];
+	int m_numFloats;
+	int m_floats[B3_MAX_PLUGIN_ARG_SIZE];
+
+
+};
 
 
 #endif//SHARED_MEMORY_PUBLIC_H
