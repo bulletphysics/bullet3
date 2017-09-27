@@ -19,6 +19,7 @@ from . import bullet_client
 from . import minitaur
 import os
 import pybullet_data
+from . import minitaur_env_randomizer
 
 NUM_SUBSTEPS = 5
 NUM_MOTORS = 8
@@ -68,7 +69,7 @@ class MinitaurBulletEnv(gym.Env):
                on_rack=False,
                render=False,
                kd_for_pd_controllers=0.3,
-               env_randomizer=None):
+               env_randomizer=minitaur_env_randomizer.MinitaurEnvRandomizer()):
     """Initialize the minitaur gym environment.
 
     Args:

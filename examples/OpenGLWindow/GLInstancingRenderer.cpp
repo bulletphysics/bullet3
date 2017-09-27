@@ -971,10 +971,10 @@ int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width
 
 void    GLInstancingRenderer::replaceTexture(int shapeIndex, int textureId)
 {
-	if (shapeIndex >=0 && shapeIndex < m_data->m_textureHandles.size())
+	if ((shapeIndex >=0) && (shapeIndex < m_graphicsInstances.size()))
 	{
 		b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
-		if (textureId>=0)
+		if (textureId>=0 && textureId < m_data->m_textureHandles.size())
 		{
 			gfxObj->m_textureIndex = textureId;
 			gfxObj->m_flags |= eGfxHasTexture;
@@ -985,7 +985,7 @@ void    GLInstancingRenderer::replaceTexture(int shapeIndex, int textureId)
 
 void    GLInstancingRenderer::updateTexture(int textureIndex, const unsigned char* texels, bool flipPixelsY)
 {
-    if (textureIndex>=0)
+    if ((textureIndex>=0) && (textureIndex < m_data->m_textureHandles.size()))
     {
         glActiveTexture(GL_TEXTURE0);
         b3Assert(glGetError() ==GL_NO_ERROR);
@@ -1027,7 +1027,7 @@ void GLInstancingRenderer::activateTexture(int textureIndex)
 {
     glActiveTexture(GL_TEXTURE0);
     
-    if (textureIndex>=0)
+    if (textureIndex>=0 && textureIndex < m_data->m_textureHandles.size())
     {
         glBindTexture(GL_TEXTURE_2D,m_data->m_textureHandles[textureIndex].m_glTexture);
     } else

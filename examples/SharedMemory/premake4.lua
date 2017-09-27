@@ -7,7 +7,7 @@ else
 	kind "ConsoleApp"
 end
 
-includedirs {".","../../src", "../ThirdPartyLibs",}
+includedirs {".","../../src", "../ThirdPartyLibs"}
 
 links {
 	"Bullet3Common","BulletInverseDynamicsUtils", "BulletInverseDynamics",	"BulletDynamics","BulletCollision", "LinearMath", "BussIK"
@@ -53,6 +53,8 @@ myfiles =
 	"SharedMemoryCommandProcessor.h",
 	"PhysicsServerCommandProcessor.cpp",
 	"PhysicsServerCommandProcessor.h",
+	"b3PluginManager.cpp",
+	"b3PluginManager.h",
 	"TinyRendererVisualShapeConverter.cpp",
 	"TinyRendererVisualShapeConverter.h",
 	"../TinyRenderer/geometry.cpp",
@@ -99,6 +101,7 @@ myfiles =
 	"../ThirdPartyLibs/tinyxml/tinyxmlparser.cpp",
 	"../Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
 	"../ThirdPartyLibs/stb_image/stb_image.cpp",     
+
 }
 
 files {
@@ -405,4 +408,7 @@ end
 
 include "udp"
 include "tcp"
+include "plugins/testPlugin"
+include "plugins/vrSyncPlugin"
+
 

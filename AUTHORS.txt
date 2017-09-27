@@ -2,17 +2,21 @@ Bullet Physics is created by Erwin Coumans with contributions from the following
 
 AMD
 Apple
+Yunfei Bai
 Steve Baker
 Gino van den Bergen
+Jeff Bingham
 Nicola Candussi
 Erin Catto
 Lawrence Chai
 Erwin Coumans
-Christer Ericson
 Disney Animation
+Benjamin Ellenberger
+Christer Ericson
 Google
 Dirk Gregorius
 Marcus Hennix
+Jasmine Hsu
 MBSim Development Team
 Takahiro Harada
 Simon Hobbs
@@ -20,6 +24,7 @@ John Hsu
 Ole Kniemeyer
 Jay Lee
 Francisco Leon
+lunkhound
 Vsevolod Klementjev
 Phil Knight
 John McCutchan
@@ -32,9 +37,9 @@ Russel Smith
 Sony
 Jakub Stephien
 Marten Svanfeldt
+Jie Tan
 Pierre Terdiman
 Steven Thompson
 Tamas Umenhoffer
-Yunfei Bai
 
 If your name is missing, please send an email to erwin.coumans@gmail.com or file an issue at http://github.com/bulletphysics/bullet3

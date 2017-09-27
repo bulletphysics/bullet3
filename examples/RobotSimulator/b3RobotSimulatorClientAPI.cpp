@@ -988,7 +988,8 @@ bool b3RobotSimulatorClientAPI::getBodyJacobian(int bodyUniqueId, int linkIndex,
 
 	if (b3GetStatusType(statusHandle) == CMD_CALCULATED_JACOBIAN_COMPLETED)
 	{
-		b3GetStatusJacobian(statusHandle, linearJacobian, angularJacobian);
+		int dofCount;
+		b3GetStatusJacobian(statusHandle, &dofCount, linearJacobian, angularJacobian);
 		return true;
 	}
 	return false;
