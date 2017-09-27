@@ -2131,6 +2131,31 @@ B3_SHARED_API int b3InitChangeUserConstraintSetGearAuxLink(b3SharedMemoryCommand
 	return 0;
 }
 
+B3_SHARED_API	int b3InitChangeUserConstraintSetRelativePositionTarget(b3SharedMemoryCommandHandle commandHandle, double relativePositionTarget)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_USER_CONSTRAINT);
+	b3Assert(command->m_updateFlags & USER_CONSTRAINT_CHANGE_CONSTRAINT);
+	command->m_updateFlags |=USER_CONSTRAINT_CHANGE_RELATIVE_POSITION_TARGET;
+	command->m_userConstraintArguments.m_relativePositionTarget = relativePositionTarget;
+
+	return 0;
+}
+B3_SHARED_API	int b3InitChangeUserConstraintSetERP(b3SharedMemoryCommandHandle commandHandle, double erp)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_USER_CONSTRAINT);
+	b3Assert(command->m_updateFlags & USER_CONSTRAINT_CHANGE_CONSTRAINT);
+	
+	command->m_updateFlags |=USER_CONSTRAINT_CHANGE_ERP;
+	command->m_userConstraintArguments.m_erp = erp;
+
+	return 0;
+}
+
+
 
 B3_SHARED_API	b3SharedMemoryCommandHandle  b3InitRemoveUserConstraintCommand(b3PhysicsClientHandle physClient, int userConstraintUniqueId)
 {

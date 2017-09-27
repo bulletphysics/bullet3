@@ -247,6 +247,8 @@ struct b3UserConstraint
     int m_userConstraintUniqueId;
 	double m_gearRatio;
 	int m_gearAuxLink;
+	double m_relativePositionTarget;
+	double m_erp;
 
 };
 

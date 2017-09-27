@@ -3433,8 +3433,10 @@ static PyObject* pybullet_addUserDebugText(PyObject* self, PyObject* args, PyObj
 		debugItemUniqueId = b3GetDebugItemUniqueId(statusHandle);
 	}
 
+	{
 	PyObject* item = PyInt_FromLong(debugItemUniqueId);
 	return item;
+	}
 }
 
 static PyObject* pybullet_addUserDebugLine(PyObject* self, PyObject* args, PyObject* keywds)
@@ -3502,8 +3504,10 @@ static PyObject* pybullet_addUserDebugLine(PyObject* self, PyObject* args, PyObj
 	{
 		debugItemUniqueId = b3GetDebugItemUniqueId(statusHandle);
 	}
+	{
 	PyObject* item = PyInt_FromLong(debugItemUniqueId);
 	return item;
+	}
 }
 
 static PyObject* pybullet_removeUserDebugItem(PyObject* self, PyObject* args, PyObject* keywds)
@@ -4970,7 +4974,7 @@ static PyObject* pybullet_getClosestPointData(PyObject* self, PyObject* args, Py
 
 static PyObject* pybullet_changeUserConstraint(PyObject* self, PyObject* args, PyObject* keywds)
 {
-	static char* kwlist[] = {"userConstraintUniqueId", "jointChildPivot", "jointChildFrameOrientation", "maxForce", "gearRatio", "gearAuxLink", "physicsClientId", NULL};
+	static char* kwlist[] = {"userConstraintUniqueId", "jointChildPivot", "jointChildFrameOrientation", "maxForce", "gearRatio", "gearAuxLink", "relativePositionTarget", "erp", "physicsClientId", NULL};
 	int userConstraintUniqueId = -1;
 	b3SharedMemoryCommandHandle commandHandle;
 	b3SharedMemoryStatusHandle statusHandle;
@@ -4984,7 +4988,9 @@ static PyObject* pybullet_changeUserConstraint(PyObject* self, PyObject* args, P
 	double jointChildFrameOrn[4];
 	double maxForce = -1;
 	double gearRatio = 0;
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|OOddii", kwlist, &userConstraintUniqueId, &jointChildPivotObj, &jointChildFrameOrnObj, &maxForce, &gearRatio, &gearAuxLink, &physicsClientId))
+	double relativePositionTarget=1e32;
+	double erp=-1;
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|OOddiddi", kwlist, &userConstraintUniqueId, &jointChildPivotObj, &jointChildFrameOrnObj, &maxForce, &gearRatio, &gearAuxLink, &relativePositionTarget, &erp, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -5006,6 +5012,16 @@ static PyObject* pybullet_changeUserConstraint(PyObject* self, PyObject* args, P
 	{
 		b3InitChangeUserConstraintSetFrameInB(commandHandle, jointChildFrameOrn);
 	}
+
+	if (relativePositionTarget<1e10)
+	{
+		b3InitChangeUserConstraintSetRelativePositionTarget(commandHandle, relativePositionTarget);
+	}
+	if (erp>=0)
+	{
+		b3InitChangeUserConstraintSetERP(commandHandle, erp);
+	}
+
 	if (maxForce >= 0)
 	{
 		b3InitChangeUserConstraintSetMaxForce(commandHandle, maxForce);
