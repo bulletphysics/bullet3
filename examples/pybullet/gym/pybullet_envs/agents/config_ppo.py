@@ -95,9 +95,9 @@ def pybullet_racecar():
 def pybullet_minitaur():
   """Configuration specific to minitaur_gym_env.MinitaurBulletEnv class."""
   locals().update(default())
-  randomizer = (minitaur_env_randomizer.MinitaurBulletRandomizer())
+  randomizer = (minitaur_env_randomizer.MinitaurEnvRandomizer())
   env = functools.partial(
-      minitaur_gym_env.MinitaurGymEnv,
+      minitaur_gym_env.MinitaurBulletEnv,
       accurate_motor_model_enabled=True,
       motor_overheat_protection=True,
       pd_control_enabled=True,
