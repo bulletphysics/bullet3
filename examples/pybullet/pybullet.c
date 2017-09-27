@@ -3433,8 +3433,10 @@ static PyObject* pybullet_addUserDebugText(PyObject* self, PyObject* args, PyObj
 		debugItemUniqueId = b3GetDebugItemUniqueId(statusHandle);
 	}
 
+	{
 	PyObject* item = PyInt_FromLong(debugItemUniqueId);
 	return item;
+	}
 }
 
 static PyObject* pybullet_addUserDebugLine(PyObject* self, PyObject* args, PyObject* keywds)
@@ -3502,8 +3504,10 @@ static PyObject* pybullet_addUserDebugLine(PyObject* self, PyObject* args, PyObj
 	{
 		debugItemUniqueId = b3GetDebugItemUniqueId(statusHandle);
 	}
+	{
 	PyObject* item = PyInt_FromLong(debugItemUniqueId);
 	return item;
+	}
 }
 
 static PyObject* pybullet_removeUserDebugItem(PyObject* self, PyObject* args, PyObject* keywds)
