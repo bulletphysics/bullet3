@@ -136,6 +136,8 @@ B3_SHARED_API	int b3InitChangeUserConstraintSetFrameInB(b3SharedMemoryCommandHan
 B3_SHARED_API	int b3InitChangeUserConstraintSetMaxForce(b3SharedMemoryCommandHandle commandHandle, double maxAppliedForce);
 B3_SHARED_API	int b3InitChangeUserConstraintSetGearRatio(b3SharedMemoryCommandHandle commandHandle, double gearRatio);
 B3_SHARED_API	int b3InitChangeUserConstraintSetGearAuxLink(b3SharedMemoryCommandHandle commandHandle, int gearAuxLink);
+B3_SHARED_API	int b3InitChangeUserConstraintSetRelativePositionTarget(b3SharedMemoryCommandHandle commandHandle, double relativePositionTarget);
+B3_SHARED_API	int b3InitChangeUserConstraintSetERP(b3SharedMemoryCommandHandle commandHandle, double erp);
 
 B3_SHARED_API	b3SharedMemoryCommandHandle  b3InitRemoveUserConstraintCommand(b3PhysicsClientHandle physClient, int userConstraintUniqueId);
 
