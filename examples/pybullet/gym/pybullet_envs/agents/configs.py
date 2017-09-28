@@ -18,7 +18,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-# pylint: disable=unused-variable
+import functools
 
 from agents import ppo
 from agents.scripts import networks
