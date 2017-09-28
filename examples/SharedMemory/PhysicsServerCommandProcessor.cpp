@@ -6671,7 +6671,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                     btInverseDynamics::mat33 world_rotation_body;
                                     tree->getBodyTransform(clientCmd.m_calculateJacobianArguments.m_linkIndex + 1, &world_rotation_body);
                                     localPosition = world_rotation_body * localPosition;
-                                	// Correct the translational jacobian.
+                                    // Correct the translational jacobian.
                                     btInverseDynamics::mat33 skewCrossProduct;
                                     btInverseDynamics::skew(localPosition, &skewCrossProduct);
                                     btInverseDynamics::mat3x jac_l(3, numDofs + baseDofs);
