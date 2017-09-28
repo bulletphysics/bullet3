@@ -34,7 +34,7 @@ class Kuka:
     #restposes for null space
     self.rp=[0,0,0,0.5*math.pi,0,-math.pi*0.5*0.66,0]
     #joint damping coefficents
-    self.jd=[0.1,0.1,0.1,0.1,0.1,0.1,0.1]
+    self.jd=[0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001,0.00001]
     self.reset()
     
   def reset(self):

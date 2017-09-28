@@ -6881,16 +6881,32 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 			hasNullSpace = 1;
 		}
 
-		if (numJoints && (szJointDamping == numJoints))
+		if (szJointDamping > 0)
 		{
-			int szInBytes = sizeof(double) * numJoints;
-			int i;
-			jointDamping = (double*)malloc(szInBytes);
-			for (i = 0; i < numJoints; i++)
+			// We allow the number of joint damping values to be larger than
+			// the number of degrees of freedom (DOFs). On the server side, it does
+			// the check and only sets joint damping for all DOFs.
+			// We can use the number of DOFs here when that is exposed. Since the
+			// number of joints is larger than the number of DOFs (we assume the
+			// joint is either fixed joint or one DOF joint), it is safe to use
+			// number of joints here.
+			if (szJointDamping < numJoints)
 			{
-				jointDamping[i] = pybullet_internalGetFloatFromSequence(jointDampingObj, i);
+				PyErr_SetString(SpamError,
+								"calculateInverseKinematics the size of input joint damping values is smaller than the number of joints.");
+				return NULL;
 			}
-			hasJointDamping = 1;
+			else
+			{
+				int szInBytes = sizeof(double) * szJointDamping;
+				int i;
+				jointDamping = (double*)malloc(szInBytes);
+				for (i = 0; i < szJointDamping; i++)
+				{
+					jointDamping[i] = pybullet_internalGetFloatFromSequence(jointDampingObj, i);
+				}
+				hasJointDamping = 1;
+			}
 		}
 
 		if (hasPos)
@@ -6929,6 +6945,7 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 			{
 				b3CalculateInverseKinematicsSetJointDamping(command, numJoints, jointDamping);
 			}
+			free(jointDamping);
 
 			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 
