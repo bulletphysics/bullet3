@@ -7411,12 +7411,12 @@ static PyMethodDef SpamMethods[] = {
 	 "Get the state (position, velocity etc) for multiple joints on a body."},
 
 	{"getLinkState", (PyCFunction)pybullet_getLinkState, METH_VARARGS | METH_KEYWORDS,
-	"position_linkcom_world, world_rotation_linkcom, "
-	"position_linkcom_frame, frame_rotation_linkcom, "
-	"position_frame_world, world_rotation_frame, "
-	"linearVelocity_linkcom_world, angularVelocity_linkcom_world = "
-	"getLinkState(objectUniqueId, linkIndex, computeLinkVelocity=0, "
-	"computeForwardKinematics=0, physicsClientId=0)\n"
+	"position_linkcom_world, world_rotation_linkcom,\n"
+	"position_linkcom_frame, frame_rotation_linkcom,\n"
+	"position_frame_world, world_rotation_frame,\n"
+	"linearVelocity_linkcom_world, angularVelocity_linkcom_world\n"
+	"  = getLinkState(objectUniqueId, linkIndex, computeLinkVelocity=0,\n"
+	"                 computeForwardKinematics=0, physicsClientId=0)\n"
 	 "Provides extra information such as the Cartesian world coordinates"
 	 " center of mass (COM) of the link, relative to the world reference"
 	 " frame."},

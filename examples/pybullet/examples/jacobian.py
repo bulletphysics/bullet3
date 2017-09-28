@@ -1,5 +1,3 @@
-import sys
-sys.path.append('/Users/bingjeff/Documents/projects/walkman/bullet3/bin/')
 import pybullet as p
 
 
@@ -14,12 +12,9 @@ def setJointPosition(robot, position, kp=1.0, kv=0.3):
 	num_joints = p.getNumJoints(robot)
 	zero_vec = [0.0] * num_joints
 	if len(position) == num_joints:
-		p.setJointMotorControlArray(robot, range(num_joints),
-									p.POSITION_CONTROL,
-									targetPositions=position,
-									targetVelocities=zero_vec,
-									positionGains=[kp] * num_joints,
-									velocityGains=[kv] * num_joints)
+		p.setJointMotorControlArray(robot, range(num_joints), p.POSITION_CONTROL,
+			targetPositions=position, targetVelocities=zero_vec,
+			positionGains=[kp] * num_joints, velocityGains=[kv] * num_joints)
 	else:
 		print("Not setting torque. "
 			  "Expected torque vector of "
