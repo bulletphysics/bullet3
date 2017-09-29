@@ -6881,16 +6881,32 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 			hasNullSpace = 1;
 		}
 
-		if (numJoints && (szJointDamping == numJoints))
+		if (szJointDamping > 0)
 		{
-			int szInBytes = sizeof(double) * numJoints;
-			int i;
-			jointDamping = (double*)malloc(szInBytes);
-			for (i = 0; i < numJoints; i++)
+			// We allow the number of joint damping values to be larger than
+			// the number of degrees of freedom (DOFs). On the server side, it does
+			// the check and only sets joint damping for all DOFs.
+			// We can use the number of DOFs here when that is exposed. Since the
+			// number of joints is larger than the number of DOFs (we assume the
+			// joint is either fixed joint or one DOF joint), it is safe to use
+			// number of joints here.
+			if (szJointDamping < numJoints)
 			{
-				jointDamping[i] = pybullet_internalGetFloatFromSequence(jointDampingObj, i);
+				PyErr_SetString(SpamError,
+								"calculateInverseKinematics the size of input joint damping values is smaller than the number of joints.");
+				return NULL;
 			}
-			hasJointDamping = 1;
+			else
+			{
+				int szInBytes = sizeof(double) * szJointDamping;
+				int i;
+				jointDamping = (double*)malloc(szInBytes);
+				for (i = 0; i < szJointDamping; i++)
+				{
+					jointDamping[i] = pybullet_internalGetFloatFromSequence(jointDampingObj, i);
+				}
+				hasJointDamping = 1;
+			}
 		}
 
 		if (hasPos)
@@ -6929,6 +6945,7 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 			{
 				b3CalculateInverseKinematicsSetJointDamping(command, numJoints, jointDamping);
 			}
+			free(jointDamping);
 
 			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 
@@ -7394,13 +7411,20 @@ static PyMethodDef SpamMethods[] = {
 	 "Get the state (position, velocity etc) for multiple joints on a body."},
 
 	{"getLinkState", (PyCFunction)pybullet_getLinkState, METH_VARARGS | METH_KEYWORDS,
+	"position_linkcom_world, world_rotation_linkcom,\n"
+	"position_linkcom_frame, frame_rotation_linkcom,\n"
+	"position_frame_world, world_rotation_frame,\n"
+	"linearVelocity_linkcom_world, angularVelocity_linkcom_world\n"
+	"  = getLinkState(objectUniqueId, linkIndex, computeLinkVelocity=0,\n"
+	"                 computeForwardKinematics=0, physicsClientId=0)\n"
 	 "Provides extra information such as the Cartesian world coordinates"
 	 " center of mass (COM) of the link, relative to the world reference"
 	 " frame."},
 
 	{"resetJointState", (PyCFunction)pybullet_resetJointState, METH_VARARGS | METH_KEYWORDS,
-	 "Reset the state (position, velocity etc) for a joint on a body "
-	 "instantaneously, not through physics simulation."},
+	"resetJointState(objectUniqueId, jointIndex, targetValue, targetVelocity=0, physicsClientId=0)\n"
+	"Reset the state (position, velocity etc) for a joint on a body "
+	"instantaneously, not through physics simulation."},
 	
 	{"changeDynamics", (PyCFunction)pybullet_changeDynamicsInfo, METH_VARARGS | METH_KEYWORDS,
 	 "change dynamics information such as mass, lateral friction coefficient."},
@@ -7546,7 +7570,7 @@ static PyMethodDef SpamMethods[] = {
 	 "Args:\n"
 	 "  bodyIndex - a scalar defining the unique object id.\n"
 	 "  linkIndex - a scalar identifying the link containing the local point.\n"
-	 "  localPosition - a list of [x, y, z] of the coordinates of the local point.\n"
+	 "  localPosition - a list of [x, y, z] of the coordinates defined in the link frame.\n"
 	 "  objPositions - a list of the joint positions.\n"
 	 "  objVelocities - a list of the joint velocities.\n"
 	 "  objAccelerations - a list of the joint accelerations.\n"

@@ -354,6 +354,12 @@ void Jacobian::CalcDeltaThetasDLSwithNullspace(const VectorRn& desiredV)
     // Compute null space velocity
     VectorRn nullV(J.GetNumColumns());
     P.Multiply(desiredV, nullV);
+	
+	// Compute residual
+	VectorRn residual(J.GetNumRows());
+	J.Multiply(nullV, residual);
+	// TODO: Use residual to set the null space term coefficient adaptively.
+	//printf("residual: %f\n", residual.Norm());
     
     // Add null space velocity
     dTheta += nullV;
