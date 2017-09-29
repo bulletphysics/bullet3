@@ -124,7 +124,7 @@ else()
     STRING(REGEX REPLACE "^([0-9]+).*$"          "\\1" _VERSION_MAJOR "${_CURRENT_VERSION}")
     STRING(REGEX REPLACE "^[0-9]+\\.([0-9]+).*$" "\\1" _VERSION_MINOR "${_CURRENT_VERSION}")
 
-    set(_PYTHON_NAMES python)
+    set(_PYTHON_NAMES ${PYTHON_EXECUTABLE} python)
 
     if (_CURRENT_VERSION MATCHES "^[0-9]+.*$")
       list(APPEND _PYTHON_NAMES "python${_VERSION_MAJOR}")
@@ -172,7 +172,7 @@ else()
 
             if(NOT EXISTS "${PYTHON_LIBRARY}")
               set(_PYTHON_SHORT_VERSION_NO_DOT "${_PYTHON_MAJOR_VERSION}${_PYTHON_MINOR_VERSION}")
-              set(_PYTHON_LIBRARY_NAMES python${_PYTHON_SHORT_VERSION} python${_PYTHON_SHORT_VERSION_NO_DOT})
+              set(_PYTHON_LIBRARY_NAMES python${_PYTHON_SHORT_VERSION} python${_PYTHON_SHORT_VERSION_NO_DOT} python${_PYTHON_SHORT_VERSION}m python${_PYTHON_SHORT_VERSION_NO_DOT}m)
               FIND_LIBRARY(PYTHON_LIBRARY
                 NAMES ${_PYTHON_LIBRARY_NAMES}
                 PATH_SUFFIXES
