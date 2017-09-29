@@ -70,7 +70,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/link_0.stl"/>
+        <mesh filename="meshes/link_0.obj"/>
       </geometry>
       <material name="Grey"/>
     </visual>
@@ -99,7 +99,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/link_1.stl"/>
+        <mesh filename="meshes/link_1.obj"/>
       </geometry>
       <material name="Blue"/>
     </visual>
@@ -128,7 +128,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/link_2.stl"/>
+        <mesh filename="meshes/link_2.obj"/>
       </geometry>
       <material name="Blue"/>
     </visual>
@@ -157,7 +157,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/link_3.stl"/>
+        <mesh filename="meshes/link_3.obj"/>
       </geometry>
       <material name="Orange"/>
     </visual>
@@ -186,7 +186,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/link_4.stl"/>
+        <mesh filename="meshes/link_4.obj"/>
       </geometry>
       <material name="Blue"/>
     </visual>
@@ -215,7 +215,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/link_5.stl"/>
+        <mesh filename="meshes/link_5.obj"/>
       </geometry>
       <material name="Blue"/>
     </visual>
@@ -244,7 +244,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/link_6.stl"/>
+        <mesh filename="meshes/link_6.obj"/>
       </geometry>
       <material name="Orange"/>
     </visual>
@@ -273,7 +273,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/link_7.stl"/>
+        <mesh filename="meshes/link_7.obj"/>
       </geometry>
       <material name="Grey"/>
     </visual>

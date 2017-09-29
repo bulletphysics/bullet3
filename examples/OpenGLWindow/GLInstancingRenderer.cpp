@@ -622,22 +622,22 @@ void GLInstancingRenderer::writeTransforms()
 {
 
 	{
-		B3_PROFILE("b3Assert(glGetError() 1");
+		//B3_PROFILE("b3Assert(glGetError() 1");
 		b3Assert(glGetError() ==GL_NO_ERROR);
 	}
 	{
-		B3_PROFILE("glBindBuffer");
+		//B3_PROFILE("glBindBuffer");
 		glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
 	}
 
 	{
-		B3_PROFILE("glFlush()");
+		//B3_PROFILE("glFlush()");
 		//without the flush, the glBufferSubData can spike to really slow (seconds slow)
 		glFlush();
 	}
 
 	{
-		B3_PROFILE("b3Assert(glGetError() 2");
+		//B3_PROFILE("b3Assert(glGetError() 2");
 		b3Assert(glGetError() ==GL_NO_ERROR);
 	}
 	
@@ -666,22 +666,22 @@ void GLInstancingRenderer::writeTransforms()
 	{
 	//	printf("m_data->m_totalNumInstances = %d\n", m_data->m_totalNumInstances);
 		{
-		B3_PROFILE("glBufferSubData pos");
+		//B3_PROFILE("glBufferSubData pos");
 	glBufferSubData(	GL_ARRAY_BUFFER,m_data->m_maxShapeCapacityInBytes,m_data->m_totalNumInstances*sizeof(float)*4,
  						&m_data->m_instance_positions_ptr[0]);
 		}
 		{
-			B3_PROFILE("glBufferSubData orn");
+//			B3_PROFILE("glBufferSubData orn");
 	glBufferSubData(	GL_ARRAY_BUFFER,m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE,m_data->m_totalNumInstances*sizeof(float)*4,
  						&m_data->m_instance_quaternion_ptr[0]);
 		}
 		{
-			B3_PROFILE("glBufferSubData color");
+//			B3_PROFILE("glBufferSubData color");
 	glBufferSubData(	GL_ARRAY_BUFFER,m_data->m_maxShapeCapacityInBytes+ POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE, m_data->m_totalNumInstances*sizeof(float)*4,
  						&m_data->m_instance_colors_ptr[0]);
 		}
 		{
-			B3_PROFILE("glBufferSubData scale");
+//			B3_PROFILE("glBufferSubData scale");
 	glBufferSubData(	GL_ARRAY_BUFFER, m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE+COLOR_BUFFER_SIZE,m_data->m_totalNumInstances*sizeof(float)*3,
 					 	&m_data->m_instance_scale_ptr[0]);
 		}
@@ -756,12 +756,12 @@ void GLInstancingRenderer::writeTransforms()
 #endif
 
 	{
-		B3_PROFILE("glBindBuffer 2");
+//		B3_PROFILE("glBindBuffer 2");
 		glBindBuffer(GL_ARRAY_BUFFER, 0);//m_data->m_vbo);
 	}
 
 	{
-			B3_PROFILE("b3Assert(glGetError() 4");
+		//	B3_PROFILE("b3Assert(glGetError() 4");
 		b3Assert(glGetError() ==GL_NO_ERROR);
 	}
 
