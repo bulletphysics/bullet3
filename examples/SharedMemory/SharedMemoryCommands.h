@@ -638,6 +638,18 @@ struct CalculateJacobianResultArgs
     double m_angularJacobian[3*MAX_DEGREE_OF_FREEDOM];
 };
 
+struct CalculateMassMatrixArgs
+{
+	int m_bodyUniqueId;
+	double m_jointPositionsQ[MAX_DEGREE_OF_FREEDOM];
+};
+
+struct CalculateMassMatrixResultArgs
+{
+	int m_dofCount;
+	double m_massMatrix[MAX_DEGREE_OF_FREEDOM * MAX_DEGREE_OF_FREEDOM];
+};
+
 enum EnumCalculateInverseKinematicsFlags
 {
     IK_HAS_TARGET_POSITION=1,
@@ -969,6 +981,7 @@ struct SharedMemoryCommand
         struct ExternalForceArgs m_externalForceArguments;
 		struct CalculateInverseDynamicsArgs m_calculateInverseDynamicsArguments;
         struct CalculateJacobianArgs m_calculateJacobianArguments;
+        struct CalculateMassMatrixArgs m_calculateMassMatrixArguments;
         struct b3UserConstraint m_userConstraintArguments;
         struct RequestContactDataArgs m_requestContactPointArguments;
 		struct RequestOverlappingObjectsArgs m_requestOverlappingObjectsArgs;
@@ -1043,6 +1056,7 @@ struct SharedMemoryStatus
 		struct RigidBodyCreateArgs m_rigidBodyCreateArgs;
 		struct CalculateInverseDynamicsResultArgs m_inverseDynamicsResultArgs;
         struct CalculateJacobianResultArgs m_jacobianResultArgs;
+        struct CalculateMassMatrixResultArgs m_massMatrixResultArgs;
 		struct SendContactDataArgs m_sendContactPointArgs;
 		struct SendOverlappingObjectsArgs m_sendOverlappingObjectsArgs;
 		struct CalculateInverseKinematicsResultArgs m_inverseKinematicsResultArgs;

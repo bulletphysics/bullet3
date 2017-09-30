@@ -310,18 +310,23 @@ B3_SHARED_API	void b3LoadMJCFCommandSetFlags(b3SharedMemoryCommandHandle command
 ///compute the forces to achieve an acceleration, given a state q and qdot using inverse dynamics
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3CalculateInverseDynamicsCommandInit(b3PhysicsClientHandle physClient, int bodyIndex,
 	const double* jointPositionsQ, const double* jointVelocitiesQdot, const double* jointAccelerations);
-
 B3_SHARED_API	int b3GetStatusInverseDynamicsJointForces(b3SharedMemoryStatusHandle statusHandle,
 	int* bodyUniqueId,
 	int* dofCount,
 	double* jointForces);
 
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3CalculateJacobianCommandInit(b3PhysicsClientHandle physClient, int bodyIndex, int linkIndex, const double* localPosition, const double* jointPositionsQ, const double* jointVelocitiesQdot, const double* jointAccelerations);
-
 B3_SHARED_API	int b3GetStatusJacobian(b3SharedMemoryStatusHandle statusHandle,
 	int* dofCount,
 	double* linearJacobian,
 	double* angularJacobian);
+
+B3_SHARED_API	b3SharedMemoryCommandHandle	b3CalculateMassMatrixCommandInit(b3PhysicsClientHandle physClient, int bodyIndex, const double* jointPositionsQ);
+B3_SHARED_API	int b3GetStatusMassMatrix(b3SharedMemoryStatusHandle statusHandle,
+	int* dofCount,
+	double* massMatrix);
+
+
 
 ///compute the joint positions to move the end effector to a desired target using inverse kinematics
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3CalculateInverseKinematicsCommandInit(b3PhysicsClientHandle physClient, int bodyIndex);
