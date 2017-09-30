@@ -6707,6 +6707,58 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     hasStatus = true;
                     break;
                 }
+                case CMD_CALCULATE_MASS_MATRIX:
+                {
+					BT_PROFILE("CMD_CALCULATE_MASS_MATRIX");
+
+                    SharedMemoryStatus& serverCmd = serverStatusOut;
+                    InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_calculateMassMatrixArguments.m_bodyUniqueId);
+                    if (bodyHandle && bodyHandle->m_multiBody)
+                    {
+                        serverCmd.m_type = CMD_CALCULATED_MASS_MATRIX_FAILED;
+                        
+                        btInverseDynamics::MultiBodyTree* tree = m_data->findOrCreateTree(bodyHandle->m_multiBody);
+                        
+                        if (tree)
+                        {
+                            int baseDofs = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 6;
+                            const int numDofs = bodyHandle->m_multiBody->getNumDofs();
+                            const int totDofs = numDofs + baseDofs;
+                            btInverseDynamics::vecx q(totDofs);
+                            btInverseDynamics::matxx massMatrix(totDofs, totDofs);
+                            for (int i = 0; i < numDofs; i++)
+                            {
+                                q[i + baseDofs] = clientCmd.m_calculateMassMatrixArguments.m_jointPositionsQ[i];
+                            }
+                            if (-1 != tree->calculateMassMatrix(q, &massMatrix))
+                            {
+                                serverCmd.m_massMatrixResultArgs.m_dofCount = totDofs;
+                                // Fill in the result into the shared memory.
+                                for (int i = 0; i < (totDofs); ++i)
+                                {
+                                    for (int j = 0; j < (totDofs); ++j)
+                                    {
+                                        int element = (totDofs) * i + j;
+                                        serverCmd.m_massMatrixResultArgs.m_massMatrix[element] = massMatrix(i,j);
+                                    }
+                                }
+                                serverCmd.m_type = CMD_CALCULATED_MASS_MATRIX_COMPLETED;
+                            }
+                            else
+                            {
+                                serverCmd.m_type = CMD_CALCULATED_MASS_MATRIX_FAILED;
+                            }
+                        }
+                        
+                    }
+                    else
+                    {
+                        serverCmd.m_type = CMD_CALCULATED_MASS_MATRIX_FAILED;
+                    }
+                    
+                    hasStatus = true;
+                    break;
+                }
                 case CMD_APPLY_EXTERNAL_FORCE:
                 {
 					BT_PROFILE("CMD_APPLY_EXTERNAL_FORCE");
