@@ -633,9 +633,7 @@ struct b3PluginArguments
 	int m_numInts;
 	int m_ints[B3_MAX_PLUGIN_ARG_SIZE];
 	int m_numFloats;
-	int m_floats[B3_MAX_PLUGIN_ARG_SIZE];
-
-
+	double m_floats[B3_MAX_PLUGIN_ARG_SIZE];
 };
 
 
