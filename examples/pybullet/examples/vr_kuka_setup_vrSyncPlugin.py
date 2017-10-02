@@ -95,8 +95,30 @@ p.setGravity(0,0,-10)
 p.setRealTimeSimulation(1)
 
 
-plugin = p.loadPlugin("e:/develop/bullet3/bin/pybullet_vrSyncPlugin_vs2010_x64_release.dll")
-controllerId = 3
+
+
+
+CONTROLLER_ID = 0
+POSITION = 1
+ORIENTATION = 2
+BUTTONS = 6
+
+controllerId = -1
+
+print("waiting for VR controller trigger")
+while (controllerId<0):
+	events = p.getVREvents()
+	for e in (events):
+		if (e[BUTTONS][33]==p.VR_BUTTON_IS_DOWN):
+			controllerId = e[CONTROLLER_ID]
+		if (e[BUTTONS][32]==p.VR_BUTTON_IS_DOWN):
+			controllerId = e[CONTROLLER_ID]
+
+print("Using controllerId="+str(controllerId))
+
+plugin = p.loadPlugin("d:/develop/bullet3/bin/pybullet_vrSyncPlugin_vs2010_x64_release.dll")
+print("PluginId="+str(plugin))
+
 p.executePluginCommand(plugin ,"bla", [controllerId,pr2_cid, pr2_cid2,pr2_gripper],[50,3])
 
 while (1):
