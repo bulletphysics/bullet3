@@ -74,8 +74,11 @@ typedef b3PoolBodyHandle<b3Plugin> b3PluginHandle;
 struct b3PluginManagerInternalData
 {
 	b3ResizablePool<b3PluginHandle> m_plugins;
-	b3HashMap<b3HashString, b3PluginHandle> m_pluginMap;
+	b3HashMap<b3HashString, b3PluginHandle*> m_pluginMap;
 	PhysicsDirect* m_physicsDirect;
+	b3AlignedObjectArray<b3KeyboardEvent> m_keyEvents;
+	b3AlignedObjectArray<b3VRControllerEvent> m_vrEvents;
+	b3AlignedObjectArray<b3MouseEvent> m_mouseEvents;
 };
 
 b3PluginManager::b3PluginManager(class PhysicsCommandProcessorInterface* physSdk)
@@ -89,8 +92,8 @@ b3PluginManager::~b3PluginManager()
 {
 	while (m_data->m_pluginMap.size())
 	{
-		b3PluginHandle* plugin = m_data->m_pluginMap.getAtIndex(0);
-		unloadPlugin(plugin->m_pluginUniqueId);
+		b3PluginHandle** plugin = m_data->m_pluginMap.getAtIndex(0);
+		unloadPlugin((*plugin)->m_pluginUniqueId);
 	}
 	delete m_data->m_physicsDirect;
 	m_data->m_pluginMap.clear();
@@ -98,16 +101,46 @@ b3PluginManager::~b3PluginManager()
 	delete m_data;
 }
 
+void b3PluginManager::addEvents(const struct b3VRControllerEvent* vrControllerEvents, int numVRControllerEvents, const struct b3KeyboardEvent* keyEvents, int numKeyEvents, const struct b3MouseEvent* mouseEvents, int numMouseEvents)
+{
+	static int maxSize = 0;
 
-int b3PluginManager::loadPlugin(const char* pluginPath)
+	for (int i = 0; i < numKeyEvents; i++)
+	{
+		m_data->m_keyEvents.push_back(keyEvents[i]);
+	}
+
+	for (int i = 0; i < numVRControllerEvents; i++)
+	{
+		m_data->m_vrEvents.push_back(vrControllerEvents[i]);
+		if (m_data->m_vrEvents.size() > maxSize)
+		{
+			printf("maxSize=%d\n", maxSize);
+			maxSize = m_data->m_vrEvents.size();
+		}
+	}
+	for (int i = 0; i < numMouseEvents; i++)
+	{
+		m_data->m_mouseEvents.push_back(mouseEvents[i]);
+	}
+}
+
+void b3PluginManager::clearEvents()
+{
+	m_data->m_keyEvents.resize(0);
+	m_data->m_vrEvents.resize(0);
+	m_data->m_mouseEvents.resize(0);
+}
+
+int b3PluginManager::loadPlugin(const char* pluginPath, const char* postFixStr)
 {
 	int pluginUniqueId = -1;
 
-	b3Plugin* pluginOrg = m_data->m_pluginMap.find(pluginPath);
-	if (pluginOrg)
+	b3PluginHandle** pluginOrgPtr = m_data->m_pluginMap.find(pluginPath);
+	if (pluginOrgPtr)
 	{
 		//already loaded
-		pluginUniqueId = pluginOrg->m_pluginUniqueId;
+		pluginUniqueId = (*pluginOrgPtr)->m_pluginUniqueId;
 	}
 	else
 	{
@@ -118,12 +151,18 @@ int b3PluginManager::loadPlugin(const char* pluginPath)
 		bool ok = false;
 		if (pluginHandle)
 		{
+			std::string postFix = postFixStr;
+			std::string initStr = std::string("initPlugin") + postFix;
+			std::string exitStr = std::string("exitPlugin") + postFix;
+			std::string executePluginCommandStr = std::string("executePluginCommand") + postFix;
+			std::string preTickPluginCallbackStr = std::string("preTickPluginCallback") + postFix;
+			std::string postTickPluginCallback = std::string("postTickPluginCallback") + postFix;
 
-			plugin->m_initFunc = (PFN_INIT)B3_DYNLIB_IMPORT(pluginHandle, "initPlugin");
-			plugin->m_exitFunc = (PFN_EXIT)B3_DYNLIB_IMPORT(pluginHandle, "exitPlugin");
-			plugin->m_executeCommandFunc = (PFN_EXECUTE)B3_DYNLIB_IMPORT(pluginHandle, "executePluginCommand");
-			plugin->m_preTickFunc = (PFN_TICK)B3_DYNLIB_IMPORT(pluginHandle, "preTickPluginCallback");
-			plugin->m_postTickFunc = (PFN_TICK)B3_DYNLIB_IMPORT(pluginHandle, "postTickPluginCallback");
+			plugin->m_initFunc = (PFN_INIT)B3_DYNLIB_IMPORT(pluginHandle, initStr.c_str());
+			plugin->m_exitFunc = (PFN_EXIT)B3_DYNLIB_IMPORT(pluginHandle, exitStr.c_str());
+			plugin->m_executeCommandFunc = (PFN_EXECUTE)B3_DYNLIB_IMPORT(pluginHandle, executePluginCommandStr.c_str());
+			plugin->m_preTickFunc = (PFN_TICK)B3_DYNLIB_IMPORT(pluginHandle, preTickPluginCallbackStr.c_str());
+			plugin->m_postTickFunc = (PFN_TICK)B3_DYNLIB_IMPORT(pluginHandle, postTickPluginCallback.c_str());
 			
 			if (plugin->m_initFunc && plugin->m_exitFunc && plugin->m_executeCommandFunc)
 			{
@@ -140,7 +179,7 @@ int b3PluginManager::loadPlugin(const char* pluginPath)
 					plugin->m_ownsPluginHandle = true;
 					plugin->m_pluginHandle = pluginHandle;
 					plugin->m_pluginPath = pluginPath;
-					m_data->m_pluginMap.insert(pluginPath, *plugin);
+					m_data->m_pluginMap.insert(pluginPath, plugin);
 				}
 				else
 				{
@@ -190,14 +229,28 @@ void b3PluginManager::tickPlugins(double timeStep, bool isPreTick)
 {
 	for (int i=0;i<m_data->m_pluginMap.size();i++)
 	{
-		b3PluginHandle* plugin = m_data->m_pluginMap.getAtIndex(i);
-
+		b3PluginHandle** pluginPtr = m_data->m_pluginMap.getAtIndex(i);
+		b3PluginHandle* plugin = 0;
+		if (pluginPtr && *pluginPtr)
+		{
+			plugin = *pluginPtr;
+		}
+		else
+		{
+			continue;
+		}
 		PFN_TICK  tick = isPreTick? plugin->m_preTickFunc : plugin->m_postTickFunc;
 		if (tick)
 		{
 			b3PluginContext context;
 			context.m_userPointer = plugin->m_userPointer;
 			context.m_physClient = (b3PhysicsClientHandle) m_data->m_physicsDirect;
+			context.m_numMouseEvents = m_data->m_mouseEvents.size();
+			context.m_mouseEvents = m_data->m_mouseEvents.size() ? &m_data->m_mouseEvents[0] : 0;
+			context.m_numKeyEvents = m_data->m_keyEvents.size();
+			context.m_keyEvents = m_data->m_keyEvents.size() ? &m_data->m_keyEvents[0] : 0;
+			context.m_numVRControllerEvents = m_data->m_vrEvents.size();
+			context.m_vrControllerEvents = m_data->m_vrEvents.size()? &m_data->m_vrEvents[0]:0;
 			int result = tick(&context);
 			plugin->m_userPointer = context.m_userPointer;
 		}
@@ -214,7 +267,13 @@ int b3PluginManager::executePluginCommand(int pluginUniqueId, const b3PluginArgu
 		b3PluginContext context;
 		context.m_userPointer = plugin->m_userPointer;
 		context.m_physClient = (b3PhysicsClientHandle) m_data->m_physicsDirect;
-		
+		context.m_numMouseEvents = 0;
+		context.m_mouseEvents = 0;
+		context.m_numKeyEvents = 0;
+		context.m_keyEvents = 0;
+		context.m_numVRControllerEvents = 0;
+		context.m_vrControllerEvents = 0;
+
 		result = plugin->m_executeCommandFunc(&context, arguments);
 		plugin->m_userPointer = context.m_userPointer;
 	}
@@ -242,12 +301,19 @@ int b3PluginManager::registerStaticLinkedPlugin(const char* pluginPath, PFN_INIT
 	pluginHandle->m_pluginPath = pluginPath;
 	pluginHandle->m_userPointer = 0;
 	
-	m_data->m_pluginMap.insert(pluginPath, *pluginHandle);
+	m_data->m_pluginMap.insert(pluginPath, pluginHandle);
 
 	{
 		b3PluginContext context;
 		context.m_userPointer = 0;
 		context.m_physClient = (b3PhysicsClientHandle) m_data->m_physicsDirect;
+		context.m_numMouseEvents = 0;
+		context.m_mouseEvents = 0;
+		context.m_numKeyEvents = 0;
+		context.m_keyEvents = 0;
+		context.m_numVRControllerEvents = 0;
+		context.m_vrControllerEvents = 0;
+
 		int result = pluginHandle->m_initFunc(&context);
 		pluginHandle->m_userPointer = context.m_userPointer;
 	}

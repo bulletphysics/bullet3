@@ -6681,13 +6681,15 @@ static PyObject* pybullet_loadPlugin(PyObject* self,
 	int physicsClientId = 0;
 	
 	char* pluginPath = 0;
+	char* postFix = 0;
+
 	b3SharedMemoryCommandHandle command = 0;
 	b3SharedMemoryStatusHandle 	statusHandle = 0;
 	int statusType = -1;
 
 	b3PhysicsClientHandle sm = 0;
-	static char* kwlist[] = { "pluginPath",  "physicsClientId", NULL };
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|i", kwlist, &pluginPath, &physicsClientId))
+	static char* kwlist[] = { "pluginPath",  "postFix", "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|si", kwlist, &pluginPath, &postFix, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -6701,6 +6703,10 @@ static PyObject* pybullet_loadPlugin(PyObject* self,
 
 	command = b3CreateCustomCommand(sm);
 	b3CustomCommandLoadPlugin(command, pluginPath);
+	if (postFix)
+	{
+		b3CustomCommandLoadPluginSetPostFix(command, postFix);
+	}
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 	statusType = b3GetStatusPluginUniqueId(statusHandle);
 	return PyInt_FromLong(statusType);

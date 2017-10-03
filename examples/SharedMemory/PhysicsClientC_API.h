@@ -63,6 +63,7 @@ B3_SHARED_API	int b3GetStatusType(b3SharedMemoryStatusHandle statusHandle);
 ///Plugin system, load and unload a plugin, execute a command
 B3_SHARED_API b3SharedMemoryCommandHandle b3CreateCustomCommand(b3PhysicsClientHandle physClient);
 B3_SHARED_API	void b3CustomCommandLoadPlugin(b3SharedMemoryCommandHandle commandHandle, const char* pluginPath);
+B3_SHARED_API	void b3CustomCommandLoadPluginSetPostFix(b3SharedMemoryCommandHandle commandHandle, const char* postFix);
 B3_SHARED_API int b3GetStatusPluginUniqueId(b3SharedMemoryStatusHandle statusHandle);
 B3_SHARED_API int b3GetStatusPluginCommandResult(b3SharedMemoryStatusHandle statusHandle);
 

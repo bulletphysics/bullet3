@@ -116,7 +116,9 @@ while (controllerId<0):
 
 print("Using controllerId="+str(controllerId))
 
-plugin = p.loadPlugin("d:/develop/bullet3/bin/pybullet_vrSyncPlugin_vs2010_x64_release.dll")
+	
+plugin = p.loadPlugin("d:/develop/bullet3/bin/pybullet_vrSyncPlugin_vs2010_x64_release.dll","_vrSyncPlugin")
+#plugin = p.loadPlugin("vrSyncPlugin")
 print("PluginId="+str(plugin))
 
 p.executePluginCommand(plugin ,"bla", [controllerId,pr2_cid, pr2_cid2,pr2_gripper],[50,3])

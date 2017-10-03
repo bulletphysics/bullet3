@@ -40,6 +40,11 @@
 #include "../Utils/b3Clock.h"
 #include "b3PluginManager.h"
 
+
+#ifdef STATIC_LINK_VR_PLUGIN
+#include "plugins/vrSyncPlugin/vrSyncPlugin.h"
+#endif
+
 #ifdef B3_ENABLE_TINY_AUDIO
 #include "../TinyAudio/b3SoundEngine.h"
 #endif
@@ -1546,10 +1551,11 @@ struct PhysicsServerCommandProcessorInternalData
 		
 
 		{
-			//test to statically link a plugin
-			//#include "plugins/testPlugin/testplugin.h"
 			//register static plugins:
-			//m_pluginManager.registerStaticLinkedPlugin("path", initPlugin, exitPlugin, executePluginCommand);
+#ifdef STATIC_LINK_VR_PLUGIN
+			m_pluginManager.registerStaticLinkedPlugin("vrSyncPlugin", initPlugin_vrSyncPlugin, exitPlugin_vrSyncPlugin, executePluginCommand_vrSyncPlugin,preTickPluginCallback_vrSyncPlugin,0);
+#endif //STATIC_LINK_VR_PLUGIN
+
 		}
 
 		m_vrControllerEvents.init();
@@ -1699,7 +1705,6 @@ void logCallback(btDynamicsWorld *world, btScalar timeStep)
 	
 	bool isPreTick = false;
 	proc->tickPlugins(timeStep, isPreTick);
-
 }
 
 bool MyContactAddedCallback(btManifoldPoint& cp,	const btCollisionObjectWrapper* colObj0Wrap,int partId0,int index0,const btCollisionObjectWrapper* colObj1Wrap,int partId1,int index1)
@@ -1810,6 +1815,11 @@ void PhysicsServerCommandProcessor::processCollisionForces(btScalar timeStep)
 void PhysicsServerCommandProcessor::tickPlugins(btScalar timeStep, bool isPreTick)
 {
 	m_data->m_pluginManager.tickPlugins(timeStep, isPreTick);
+	if (!isPreTick)
+	{
+		//clear events after each postTick, so we don't receive events multiple ticks
+		m_data->m_pluginManager.clearEvents();
+	}
 }
 
 
@@ -8027,7 +8037,13 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						if (clientCmd.m_updateFlags & CMD_CUSTOM_COMMAND_LOAD_PLUGIN)
 						{
 							//pluginPath could be registered or load from disk
-							int pluginUniqueId = m_data->m_pluginManager.loadPlugin(clientCmd.m_customCommandArgs.m_pluginPath);
+							const char* postFix = "";
+							if (clientCmd.m_updateFlags & CMD_CUSTOM_COMMAND_LOAD_PLUGIN_POSTFIX)
+							{
+								postFix = clientCmd.m_customCommandArgs.m_postFix;
+							}
+
+							int pluginUniqueId = m_data->m_pluginManager.loadPlugin(clientCmd.m_customCommandArgs.m_pluginPath, postFix);
 							if (pluginUniqueId>=0)
 							{
 								serverCmd.m_customCommandResultArgs.m_pluginUniqueId = pluginUniqueId;
@@ -8291,7 +8307,7 @@ bool PhysicsServerCommandProcessor::isRealTimeSimulationEnabled() const
 void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,const struct b3VRControllerEvent* vrControllerEvents, int numVRControllerEvents, const struct b3KeyboardEvent* keyEvents, int numKeyEvents, const struct b3MouseEvent* mouseEvents, int numMouseEvents)
 {
 	m_data->m_vrControllerEvents.addNewVREvents(vrControllerEvents,numVRControllerEvents);
-
+	m_data->m_pluginManager.addEvents(vrControllerEvents, numVRControllerEvents, keyEvents, numKeyEvents, mouseEvents, numMouseEvents);
 
 	for (int i=0;i<m_data->m_stateLoggers.size();i++)
 	{
