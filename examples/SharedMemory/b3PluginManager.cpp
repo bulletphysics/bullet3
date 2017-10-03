@@ -103,7 +103,6 @@ b3PluginManager::~b3PluginManager()
 
 void b3PluginManager::addEvents(const struct b3VRControllerEvent* vrControllerEvents, int numVRControllerEvents, const struct b3KeyboardEvent* keyEvents, int numKeyEvents, const struct b3MouseEvent* mouseEvents, int numMouseEvents)
 {
-	static int maxSize = 0;
 
 	for (int i = 0; i < numKeyEvents; i++)
 	{
@@ -113,11 +112,6 @@ void b3PluginManager::addEvents(const struct b3VRControllerEvent* vrControllerEv
 	for (int i = 0; i < numVRControllerEvents; i++)
 	{
 		m_data->m_vrEvents.push_back(vrControllerEvents[i]);
-		if (m_data->m_vrEvents.size() > maxSize)
-		{
-			printf("maxSize=%d\n", maxSize);
-			maxSize = m_data->m_vrEvents.size();
-		}
 	}
 	for (int i = 0; i < numMouseEvents; i++)
 	{
