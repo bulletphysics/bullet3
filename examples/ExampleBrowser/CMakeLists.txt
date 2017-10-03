@@ -122,6 +122,8 @@ SET(ExtendedTutorialsSources
 	../ExtendedTutorials/SimpleBox.h
 	../ExtendedTutorials/MultipleBoxes.cpp
 	../ExtendedTutorials/MultipleBoxes.h
+	../ExtendedTutorials/CompoundBoxes.cpp
+	../ExtendedTutorials/CompoundBoxes.h
 	../ExtendedTutorials/SimpleCloth.cpp
 	../ExtendedTutorials/SimpleCloth.h
 	../ExtendedTutorials/SimpleJoint.cpp
