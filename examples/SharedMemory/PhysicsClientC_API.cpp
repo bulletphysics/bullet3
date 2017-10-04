@@ -1438,7 +1438,10 @@ B3_SHARED_API int b3CreateSensorEnableIMUForLink(b3SharedMemoryCommandHandle com
 B3_SHARED_API	void	b3DisconnectSharedMemory(b3PhysicsClientHandle physClient)
 {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
-	cl->disconnectSharedMemory();
+	if (cl)
+	{
+		cl->disconnectSharedMemory();
+	}
 	delete cl;
 }
 

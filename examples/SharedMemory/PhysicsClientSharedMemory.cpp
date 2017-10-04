@@ -108,8 +108,8 @@ bool PhysicsClientSharedMemory::getBodyInfo(int bodyUniqueId, struct b3BodyInfo&
 	if (bodyJointsPtr && *bodyJointsPtr)
 	{
 		BodyJointInfoCache* bodyJoints = *bodyJointsPtr;
-		info.m_baseName = bodyJoints->m_baseName.c_str();
-		info.m_bodyName = bodyJoints->m_bodyName.c_str();
+		strcpy(info.m_baseName,bodyJoints->m_baseName.c_str());
+		strcpy(info.m_bodyName,bodyJoints->m_bodyName.c_str());
 		return true;
 	}
 
@@ -234,16 +234,6 @@ void PhysicsClientSharedMemory::resetData()
 		if (bodyJointsPtr && *bodyJointsPtr)
 		{
 			BodyJointInfoCache* bodyJoints = *bodyJointsPtr;
-			for (int j=0;j<bodyJoints->m_jointInfo.size();j++) {
-				if (bodyJoints->m_jointInfo[j].m_jointName)
-				{
-					free(bodyJoints->m_jointInfo[j].m_jointName);
-				}
-				if (bodyJoints->m_jointInfo[j].m_linkName)
-				{
-					free(bodyJoints->m_jointInfo[j].m_linkName);
-				}
-			}
 			delete (*bodyJointsPtr);
 		}
 	}
@@ -392,8 +382,8 @@ void PhysicsClientSharedMemory::processBodyJointInfo(int bodyUniqueId, const Sha
 template <typename T, typename U> void addJointInfoFromConstraint(int linkIndex, const T* con, U* bodyJoints, bool verboseOutput)
 {
 	b3JointInfo info;
-	info.m_jointName = 0;
-	info.m_linkName = 0;
+	info.m_jointName[0] = 0;
+	info.m_linkName[0] = 0;
 	info.m_flags = 0;
 	info.m_jointIndex = linkIndex;
 	info.m_qIndex = linkIndex+7;
@@ -402,7 +392,8 @@ template <typename T, typename U> void addJointInfoFromConstraint(int linkIndex,
 
 	if (con->m_typeConstraintData.m_name)
 	{
-		info.m_jointName = strDup(con->m_typeConstraintData.m_name);
+		strcpy(info.m_jointName,con->m_typeConstraintData.m_name);
+		
 		//info.m_linkName = strDup(con->m_typeConstraintData.m_name);
 	}
 	
