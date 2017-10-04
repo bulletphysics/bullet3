@@ -37,7 +37,7 @@ struct MyClass
 	}
 };
 
-B3_SHARED_API int initPlugin(struct b3PluginContext* context)
+B3_SHARED_API int initPlugin_vrSyncPlugin(struct b3PluginContext* context)
 {
 	MyClass* obj = new MyClass();
 	context->m_userPointer = obj;
@@ -47,28 +47,17 @@ B3_SHARED_API int initPlugin(struct b3PluginContext* context)
 }
 
 
-B3_SHARED_API int preTickPluginCallback(struct b3PluginContext* context)
+B3_SHARED_API int preTickPluginCallback_vrSyncPlugin(struct b3PluginContext* context)
 {
 	MyClass* obj = (MyClass* )context->m_userPointer;
-	if (obj->m_controllerId>=0)
+	if (obj && obj->m_controllerId>=0)
 	{
-		b3SharedMemoryCommandHandle commandHandle = b3RequestVREventsCommandInit(context->m_physClient);
-		int deviceTypeFilter = VR_DEVICE_CONTROLLER;
-		b3VREventsSetDeviceTypeFilter(commandHandle, deviceTypeFilter);
-
-		b3SharedMemoryStatusHandle statusHandle = b3SubmitClientCommandAndWaitStatus(context->m_physClient, commandHandle);
-		int statusType = b3GetStatusType(statusHandle);
-		if (statusType == CMD_REQUEST_VR_EVENTS_DATA_COMPLETED)
 		{
-			struct b3VREventsData vrEvents;
-
 			int i = 0;
-			b3GetVREventsData(context->m_physClient, &vrEvents);
-			if (vrEvents.m_numControllerEvents)
 			{
-				for (int n=0;n<vrEvents.m_numControllerEvents;n++)
+				for (int n=0;n<context->m_numVRControllerEvents;n++)
 				{
-					b3VRControllerEvent& event = vrEvents.m_controllerEvents[n];
+					const b3VRControllerEvent& event = context->m_vrControllerEvents[n];
 					if (event.m_controllerId ==obj->m_controllerId)
 					{
 						if (obj->m_constraintId>=0)
@@ -171,7 +160,7 @@ B3_SHARED_API int preTickPluginCallback(struct b3PluginContext* context)
 
 
 
-B3_SHARED_API int executePluginCommand(struct b3PluginContext* context, const struct b3PluginArguments* arguments)
+B3_SHARED_API int executePluginCommand_vrSyncPlugin(struct b3PluginContext* context, const struct b3PluginArguments* arguments)
 {
 	MyClass* obj = (MyClass*) context->m_userPointer;
 	if (arguments->m_numInts>=4 && arguments->m_numFloats >= 2)
@@ -199,7 +188,7 @@ B3_SHARED_API int executePluginCommand(struct b3PluginContext* context, const st
 }
 
 
-B3_SHARED_API void exitPlugin(struct b3PluginContext* context)
+B3_SHARED_API void exitPlugin_vrSyncPlugin(struct b3PluginContext* context)
 {
 	MyClass* obj = (MyClass*) context->m_userPointer;
 	delete obj;

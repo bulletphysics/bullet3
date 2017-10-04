@@ -114,6 +114,7 @@ enum CustomCommandEnum
 	CMD_CUSTOM_COMMAND_LOAD_PLUGIN=1,
 	CMD_CUSTOM_COMMAND_UNLOAD_PLUGIN=2,
 	CMD_CUSTOM_COMMAND_EXECUTE_PLUGIN_COMMAND=4,
+	CMD_CUSTOM_COMMAND_LOAD_PLUGIN_POSTFIX=8,
 };
 
 struct b3CustomCommand
@@ -121,6 +122,8 @@ struct b3CustomCommand
 	int m_pluginUniqueId;
 	b3PluginArguments m_arguments;
 	char m_pluginPath[MAX_FILENAME_LENGTH];
+	char m_postFix[MAX_FILENAME_LENGTH];
+
 };
 
 struct b3CustomCommandResultArgs

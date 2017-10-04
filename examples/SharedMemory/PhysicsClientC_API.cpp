@@ -1438,7 +1438,10 @@ B3_SHARED_API int b3CreateSensorEnableIMUForLink(b3SharedMemoryCommandHandle com
 B3_SHARED_API	void	b3DisconnectSharedMemory(b3PhysicsClientHandle physClient)
 {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
-	cl->disconnectSharedMemory();
+	if (cl)
+	{
+		cl->disconnectSharedMemory();
+	}
 	delete cl;
 }
 
@@ -1773,6 +1776,23 @@ B3_SHARED_API	void b3CustomCommandLoadPlugin(b3SharedMemoryCommandHandle command
 		if (len<MAX_FILENAME_LENGTH)
 		{
 			strcpy(command->m_customCommandArgs.m_pluginPath, pluginPath);
+		}
+	}
+}
+
+B3_SHARED_API	void b3CustomCommandLoadPluginSetPostFix(b3SharedMemoryCommandHandle commandHandle, const char* postFix)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_CUSTOM_COMMAND);
+	if (command->m_type == CMD_CUSTOM_COMMAND)
+	{
+		command->m_updateFlags |= CMD_CUSTOM_COMMAND_LOAD_PLUGIN_POSTFIX;
+		command->m_customCommandArgs.m_postFix[0] = 0;
+
+		int len = strlen(postFix);
+		if (len<MAX_FILENAME_LENGTH)
+		{
+			strcpy(command->m_customCommandArgs.m_postFix, postFix);
 		}
 	}
 }

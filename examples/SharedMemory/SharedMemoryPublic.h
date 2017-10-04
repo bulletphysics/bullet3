@@ -214,8 +214,8 @@ enum b3JointInfoFlags
 
 struct b3JointInfo
 {
-        char* m_linkName;
-        char* m_jointName;
+        char m_linkName[1024];
+        char m_jointName[1024];
         int m_jointType;
         int m_qIndex;
         int m_uIndex;
@@ -254,8 +254,8 @@ struct b3UserConstraint
 
 struct b3BodyInfo
 {
-	const char* m_baseName;
-	const char* m_bodyName; // for btRigidBody, it does not have a base, but can still have a body name from urdf
+	char m_baseName[1024];
+	char m_bodyName[1024]; // for btRigidBody, it does not have a base, but can still have a body name from urdf
 };
 
 struct b3DynamicsInfo

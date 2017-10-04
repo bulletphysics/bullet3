@@ -425,13 +425,13 @@ public enum b3JointInfoFlags {
 
 [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
 public struct b3JointInfo {
-    
-    /// char*
-    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)]
+
+    /// char[1024]
+    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.ByValTStr, SizeConst = 1024)]
     public string m_linkName;
-    
-    /// char*
-    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)]
+
+    /// char[1024]
+    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.ByValTStr, SizeConst = 1024)]
     public string m_jointName;
     
     /// int
@@ -531,13 +531,13 @@ public struct b3UserConstraint {
 
 [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
 public struct b3BodyInfo {
-    
-    /// char*
-    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)]
+
+    /// char[1024]
+    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.ByValTStr, SizeConst = 1024)]
     public string m_baseName;
-    
-    /// char*
-    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)]
+
+    /// char[1024]
+    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.ByValTStr, SizeConst = 1024)]
     public string m_bodyName;
 }
 
@@ -624,8 +624,7 @@ public struct b3CameraImageData {
     public int m_pixelHeight;
     
     /// char*
-    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)]
-    public string m_rgbColorData;
+    public System.IntPtr m_rgbColorData;
     
     /// float*
     public System.IntPtr m_depthValues;
@@ -1444,7 +1443,7 @@ public static extern  int b3GetBodyUniqueId(IntPtr physClient, int serialIndex) 
     ///bodyUniqueId: int
     ///info: b3BodyInfo*
     [System.Runtime.InteropServices.DllImportAttribute("pybullet_vs2010_x64_release.dll", EntryPoint="b3GetBodyInfo")]
-public static extern  int b3GetBodyInfo(IntPtr physClient, int bodyUniqueId, ref b3BodyInfo info) ;
+    public static extern  int b3GetBodyInfo(IntPtr physClient, int bodyUniqueId, ref b3BodyInfo info) ;
 
     
     /// Return Type: int
