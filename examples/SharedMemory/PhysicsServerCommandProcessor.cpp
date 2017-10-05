@@ -360,7 +360,7 @@ struct CommandLogger
 				 case CMD_SEND_PHYSICS_SIMULATION_PARAMETERS:
 				 {
 					 fwrite((const char*)&command.m_updateFlags,sizeof(int), 1,m_file);
-					 fwrite((const char*)&command.m_physSimParamArgs, sizeof(SendPhysicsSimulationParameters), 1,m_file);
+					 fwrite((const char*)&command.m_physSimParamArgs, sizeof(b3PhysicsSimulationParameters), 1,m_file);
 					 break;
 				 }
 				 case CMD_REQUEST_CONTACT_POINT_INFORMATION:
@@ -564,7 +564,7 @@ struct CommandLogPlayback
 					 cmd->m_physSimParamArgs = unused.m_physSimParamArgs;
 					 #else
 					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
-					fread(&cmd->m_physSimParamArgs ,sizeof(SendPhysicsSimulationParameters),1,m_file);					
+					fread(&cmd->m_physSimParamArgs ,sizeof(b3PhysicsSimulationParameters),1,m_file);					
 
 					 #endif
 					 result = true;
@@ -1440,7 +1440,7 @@ struct PhysicsServerCommandProcessorInternalData
 
 	b3PluginManager m_pluginManager;
 
-	bool m_allowRealTimeSimulation;
+	bool m_useRealTimeSimulation;
 	
 
 	b3VRControllerEvents m_vrControllerEvents;
@@ -1524,7 +1524,7 @@ struct PhysicsServerCommandProcessorInternalData
 
 	PhysicsServerCommandProcessorInternalData(PhysicsCommandProcessorInterface* proc)
 		:m_pluginManager(proc),
-		m_allowRealTimeSimulation(false),
+		m_useRealTimeSimulation(false),
 		m_commandLogger(0),
 		m_logPlayback(0),
 		m_physicsDeltaTime(1./240.),
@@ -5690,6 +5690,33 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					}
 					break;
 				}
+
+				case CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS:
+				{
+					SharedMemoryStatus& serverCmd =serverStatusOut;
+					serverCmd.m_type = CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS_COMPLETED;
+					serverCmd.m_simulationParameterResultArgs.m_collisionFilterMode = m_data->m_broadphaseCollisionFilterCallback->m_filterMode;
+					serverCmd.m_simulationParameterResultArgs.m_contactBreakingThreshold = gContactBreakingThreshold;
+					serverCmd.m_simulationParameterResultArgs.m_defaultContactERP = m_data->m_dynamicsWorld->getSolverInfo().m_erp2;
+					serverCmd.m_simulationParameterResultArgs.m_defaultNonContactERP = m_data->m_dynamicsWorld->getSolverInfo().m_erp;
+					serverCmd.m_simulationParameterResultArgs.m_deltaTime = m_data->m_physicsDeltaTime;
+					serverCmd.m_simulationParameterResultArgs.m_enableFileCaching =  b3IsFileCachingEnabled();
+					serverCmd.m_simulationParameterResultArgs.m_frictionERP = m_data->m_dynamicsWorld->getSolverInfo().m_frictionERP;
+					btVector3 grav = m_data->m_dynamicsWorld->getGravity();
+					serverCmd.m_simulationParameterResultArgs.m_gravityAcceleration[0] = grav[0];
+					serverCmd.m_simulationParameterResultArgs.m_gravityAcceleration[1] = grav[1];
+					serverCmd.m_simulationParameterResultArgs.m_gravityAcceleration[2] = grav[2];
+					serverCmd.m_simulationParameterResultArgs.m_internalSimFlags = gInternalSimFlags;
+					serverCmd.m_simulationParameterResultArgs.m_numSimulationSubSteps = m_data->m_numSimulationSubSteps;
+					serverCmd.m_simulationParameterResultArgs.m_numSolverIterations = m_data->m_dynamicsWorld->getSolverInfo().m_numIterations;
+					serverCmd.m_simulationParameterResultArgs.m_restitutionVelocityThreshold = m_data->m_dynamicsWorld->getSolverInfo().m_restitutionVelocityThreshold;
+					serverCmd.m_simulationParameterResultArgs.m_splitImpulsePenetrationThreshold = m_data->m_dynamicsWorld->getSolverInfo().m_splitImpulsePenetrationThreshold;
+					serverCmd.m_simulationParameterResultArgs.m_useRealTimeSimulation = m_data->m_useRealTimeSimulation;
+					serverCmd.m_simulationParameterResultArgs.m_useSplitImpulse = m_data->m_dynamicsWorld->getSolverInfo().m_splitImpulse;
+					hasStatus = true;
+					break;
+				}
+
 				case CMD_SEND_PHYSICS_SIMULATION_PARAMETERS:
 				{
 					BT_PROFILE("CMD_SEND_PHYSICS_SIMULATION_PARAMETERS");
@@ -5700,7 +5727,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					}
 					if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_REAL_TIME_SIMULATION)
 					{
-						m_data->m_allowRealTimeSimulation = clientCmd.m_physSimParamArgs.m_allowRealTimeSimulation;
+						m_data->m_useRealTimeSimulation = (clientCmd.m_physSimParamArgs.m_useRealTimeSimulation!=0);
 					}
 					
 					//see 
@@ -8351,12 +8378,12 @@ double gSubStep = 0.f;
 
 void PhysicsServerCommandProcessor::enableRealTimeSimulation(bool enableRealTimeSim)
 {
-	m_data->m_allowRealTimeSimulation = enableRealTimeSim;
+	m_data->m_useRealTimeSimulation = enableRealTimeSim;
 }
 
 bool PhysicsServerCommandProcessor::isRealTimeSimulationEnabled() const
 {
-	return 	m_data->m_allowRealTimeSimulation;
+	return 	m_data->m_useRealTimeSimulation;
 }
 
 void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,const struct b3VRControllerEvent* vrControllerEvents, int numVRControllerEvents, const struct b3KeyboardEvent* keyEvents, int numKeyEvents, const struct b3MouseEvent* mouseEvents, int numMouseEvents)
@@ -8461,7 +8488,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,const 
 		}
 	}
 
-	if ((m_data->m_allowRealTimeSimulation) && m_data->m_guiHelper)
+	if ((m_data->m_useRealTimeSimulation) && m_data->m_guiHelper)
 	{
 		
 		

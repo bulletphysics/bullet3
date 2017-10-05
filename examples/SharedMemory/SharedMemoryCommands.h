@@ -428,25 +428,6 @@ enum EnumSimParamInternalSimFlags
 
 ///Controlling a robot involves sending the desired state to its joint motor controllers.
 ///The control mode determines the state variables used for motor control.
-struct SendPhysicsSimulationParameters
-{
-	double m_deltaTime;
-	double m_gravityAcceleration[3];
-	int m_numSimulationSubSteps;
-	int m_numSolverIterations;
-	bool m_allowRealTimeSimulation;
-	int m_useSplitImpulse;
-	double m_splitImpulsePenetrationThreshold;
-	double m_contactBreakingThreshold;
-	int m_maxNumCmdPer1ms;
-	int m_internalSimFlags;
-	double m_defaultContactERP;
-	int m_collisionFilterMode;
-	int m_enableFileCaching;
-	double m_restitutionVelocityThreshold;
-	double 	m_defaultNonContactERP;
-	double m_frictionERP;
-};
 
 struct LoadBunnyArgs
 {
@@ -971,7 +952,7 @@ struct SharedMemoryCommand
 		struct ChangeDynamicsInfoArgs m_changeDynamicsInfoArgs;
 		struct GetDynamicsInfoArgs m_getDynamicsInfoArgs;
 		struct InitPoseArgs m_initPoseArgs;
-		struct SendPhysicsSimulationParameters m_physSimParamArgs;
+		struct b3PhysicsSimulationParameters m_physSimParamArgs;
 		struct BulletDataStreamArgs	m_dataStreamArguments;
 		struct SendDesiredStateArgs m_sendDesiredStateCommandArgument;
 		struct RequestActualStateArgs m_requestActualStateInformationCommandArgument;
@@ -1079,7 +1060,7 @@ struct SharedMemoryStatus
 		struct SendMouseEvents m_sendMouseEvents;
 		struct b3LoadTextureResultArgs m_loadTextureResultArguments;
 		struct b3CustomCommandResultArgs m_customCommandResultArgs;
-
+		struct b3PhysicsSimulationParameters m_simulationParameterResultArgs;
 	};
 };
 

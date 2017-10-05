@@ -75,6 +75,7 @@ enum EnumSharedMemoryClientCommand
 	CMD_CHANGE_TEXTURE,
 	CMD_SET_ADDITIONAL_SEARCH_PATH,
 	CMD_CUSTOM_COMMAND,
+	CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -174,7 +175,7 @@ enum EnumSharedMemoryServerStatus
 		CMD_CHANGE_TEXTURE_COMMAND_FAILED,
 		CMD_CUSTOM_COMMAND_COMPLETED,
 		CMD_CUSTOM_COMMAND_FAILED,
-
+		CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS_COMPLETED,
         //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
@@ -638,6 +639,25 @@ struct b3PluginArguments
 	int m_ints[B3_MAX_PLUGIN_ARG_SIZE];
 	int m_numFloats;
 	double m_floats[B3_MAX_PLUGIN_ARG_SIZE];
+};
+
+struct b3PhysicsSimulationParameters
+{
+	double m_deltaTime;
+	double m_gravityAcceleration[3];
+	int m_numSimulationSubSteps;
+	int m_numSolverIterations;
+	int m_useRealTimeSimulation;
+	int m_useSplitImpulse;
+	double m_splitImpulsePenetrationThreshold;
+	double m_contactBreakingThreshold;
+	int m_internalSimFlags;
+	double m_defaultContactERP;
+	int m_collisionFilterMode;
+	int m_enableFileCaching;
+	double m_restitutionVelocityThreshold;
+	double 	m_defaultNonContactERP;
+	double m_frictionERP;
 };
 
 
