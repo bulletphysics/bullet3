@@ -323,10 +323,8 @@ B3_SHARED_API	int b3GetStatusJacobian(b3SharedMemoryStatusHandle statusHandle,
 	double* angularJacobian);
 
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3CalculateMassMatrixCommandInit(b3PhysicsClientHandle physClient, int bodyIndex, const double* jointPositionsQ);
-B3_SHARED_API	int b3GetStatusMassMatrix(b3SharedMemoryStatusHandle statusHandle,
-	int* dofCount,
-	double* massMatrix);
-
+///the mass matrix is stored in column-major layout of size dofCount*dofCount
+B3_SHARED_API	int b3GetStatusMassMatrix(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle statusHandle,	int* dofCount,	double* massMatrix);
 
 
 ///compute the joint positions to move the end effector to a desired target using inverse kinematics

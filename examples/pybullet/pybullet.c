@@ -503,6 +503,36 @@ void b3pybulletExitFunc(void)
 }
 
 
+static PyObject* pybullet_getConnectionInfo(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	int isConnected=0;
+	int method=0;
+	PyObject* pylist = 0;
+	b3PhysicsClientHandle sm = 0;
+	static char* kwlist[] = {"physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|i", kwlist, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm != 0)
+	{
+		if (b3CanSubmitCommand(sm))
+		{
+			isConnected = 1;
+			method = sPhysicsClientsGUI[physicsClientId];
+		}
+	}
+
+	pylist = PyTuple_New(2);
+	PyTuple_SetItem(pylist, 0, PyInt_FromLong(isConnected));
+	PyTuple_SetItem(pylist, 1, PyInt_FromLong(method));
+	return pylist;
+
+}
+
+
 static PyObject* pybullet_saveWorld(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	const char* worldFileName = "";
@@ -7314,13 +7344,14 @@ static PyObject* pybullet_calculateMassMatrix(PyObject* self, PyObject* args, Py
 					if (statusType == CMD_CALCULATED_MASS_MATRIX_COMPLETED)
 					{
 						int dofCount;
-						b3GetStatusMassMatrix(statusHandle, &dofCount, NULL);
+						b3GetStatusMassMatrix(sm, statusHandle, &dofCount, NULL);
 						if (dofCount)
 						{
-							pyResultList = PyTuple_New(dofCount);
 							int byteSizeDofCount = sizeof(double) * dofCount;
+							pyResultList = PyTuple_New(dofCount);
+							
 							massMatrix = (double*)malloc(dofCount * byteSizeDofCount);
-							b3GetStatusMassMatrix(statusHandle, NULL, massMatrix);
+							b3GetStatusMassMatrix(sm, statusHandle, NULL, massMatrix);
 							if (massMatrix)
 							{
 								int r;
@@ -7371,6 +7402,10 @@ static PyMethodDef SpamMethods[] = {
 	{"disconnect", (PyCFunction)pybullet_disconnectPhysicsServer, METH_VARARGS | METH_KEYWORDS,
 	"disconnect(physicsClientId=0)\n"
 	 "Disconnect from the physics server."},
+
+	 {"getConnectionInfo", (PyCFunction)pybullet_getConnectionInfo, METH_VARARGS | METH_KEYWORDS,
+	  "getConnectionInfo(physicsClientId=0)\n"
+	  "Return if a given client id is connected, and using what method."},
 
 	{"resetSimulation", (PyCFunction)pybullet_resetSimulation, METH_VARARGS | METH_KEYWORDS,
 	"resetSimulation(physicsClientId=0)\n"

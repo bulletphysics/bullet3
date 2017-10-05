@@ -376,10 +376,16 @@ void MyKeyboardCallback(int key, int state)
 extern bool useShadowMap;
 static bool gEnableVRRenderControllers=true;
 static bool gEnableVRRendering = true;
-
+static int gUpAxis = 2;
 
 void VRPhysicsServerVisualizerFlagCallback(int flag, bool enable)
 {
+	if (flag == COV_ENABLE_Y_AXIS_UP)
+	{
+		//either Y = up or Z
+		gUpAxis = enable? 1:2;
+	}
+
     if (flag == COV_ENABLE_SHADOWS)
     {
         useShadowMap = enable;
@@ -890,6 +896,7 @@ void CMainApplication::RunMainLoop()
 
 	while ( !bQuit && !m_app->m_window->requestedExit())
 	{
+		this->m_app->setUpAxis(gUpAxis);
 		b3ChromeUtilsEnableProfiling();
 		if (gEnableVRRendering)
 		{

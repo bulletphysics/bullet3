@@ -377,6 +377,13 @@ void OpenGLExampleBrowser::registerFileImporter(const char* extension, CommonExa
 
 void OpenGLExampleBrowserVisualizerFlagCallback(int flag, bool enable)
 {
+	if (flag == COV_ENABLE_Y_AXIS_UP)
+	{
+		//either Y = up or Z
+		int upAxis = enable? 1:2;
+		s_app->setUpAxis(upAxis);
+	}
+
 	if (flag == COV_ENABLE_RENDERING)
 	{
 		gEnableRenderLoop = (enable!=0);
