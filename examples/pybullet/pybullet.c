@@ -7168,8 +7168,8 @@ static PyObject* pybullet_calculateJacobian(PyObject* self, PyObject* args, PyOb
 				double* jointPositions = (double*)malloc(byteSizeJoints);
 				double* jointVelocities = (double*)malloc(byteSizeJoints);
 				double* jointAccelerations = (double*)malloc(byteSizeJoints);
-				double* linearJacobian = (double*)malloc(3 * byteSizeJoints);
-				double* angularJacobian = (double*)malloc(3 * byteSizeJoints);
+				double* linearJacobian = NULL;
+				double* angularJacobian = NULL;
 
 				pybullet_internalSetVectord(localPosition, localPoint);
 				for (i = 0; i < numJoints; i++)
@@ -7258,6 +7258,100 @@ static PyObject* pybullet_calculateJacobian(PyObject* self, PyObject* args, PyOb
 								"positive, [local position] needs to be of "
 								"size 3 and [joint positions], "
 								"[joint velocities], [joint accelerations] "
+								"need to match the number of joints.");
+				return NULL;
+			}
+		}
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+/// Given an object id, joint positions, joint velocities and joint
+/// accelerations, compute the Jacobian
+static PyObject* pybullet_calculateMassMatrix(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	{
+		int bodyUniqueId;
+		PyObject* objPositions;
+		int physicsClientId = 0;
+		b3PhysicsClientHandle sm = 0;
+		static char* kwlist[] = {"bodyUniqueId", "objPositions", "physicsClientId", NULL};
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "iO|i", kwlist,
+				&bodyUniqueId, &objPositions, &physicsClientId))
+		{
+			return NULL;
+		}
+		sm = getPhysicsClient(physicsClientId);
+		if (sm == 0)
+		{
+			PyErr_SetString(SpamError, "Not connected to physics server.");
+			return NULL;
+		}
+
+		{
+			int szObPos = PySequence_Size(objPositions);
+			int numJoints = b3GetNumJoints(sm, bodyUniqueId);
+			if (numJoints && (szObPos == numJoints))
+			{
+				int byteSizeJoints = sizeof(double) * numJoints;
+				PyObject* pyResultList;
+				double* jointPositions = (double*)malloc(byteSizeJoints);
+				double* massMatrix = NULL;
+				int i;
+				for (i = 0; i < numJoints; i++)
+				{
+					jointPositions[i] =
+						pybullet_internalGetFloatFromSequence(objPositions, i);
+				}
+				{
+					b3SharedMemoryStatusHandle statusHandle;	
+					int statusType;
+					b3SharedMemoryCommandHandle commandHandle =
+						b3CalculateMassMatrixCommandInit(sm, bodyUniqueId, jointPositions);
+					statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+					statusType = b3GetStatusType(statusHandle);
+					if (statusType == CMD_CALCULATED_MASS_MATRIX_COMPLETED)
+					{
+						int dofCount;
+						b3GetStatusMassMatrix(statusHandle, &dofCount, NULL);
+						if (dofCount)
+						{
+							pyResultList = PyTuple_New(dofCount);
+							int byteSizeDofCount = sizeof(double) * dofCount;
+							massMatrix = (double*)malloc(dofCount * byteSizeDofCount);
+							b3GetStatusMassMatrix(statusHandle, NULL, massMatrix);
+							if (massMatrix)
+							{
+								int r;
+								for (r = 0; r < dofCount; ++r) {
+									int c;
+									PyObject* pyrow = PyTuple_New(dofCount);
+									for (c = 0; c < dofCount; ++c) {
+										int element = r * dofCount + c;
+										PyTuple_SetItem(pyrow, c,
+													PyFloat_FromDouble(massMatrix[element]));
+									}
+									PyTuple_SetItem(pyResultList, r, pyrow);
+								}
+							}
+						}
+					}
+					else
+					{
+						PyErr_SetString(SpamError,
+										"Internal error in calculateJacobian");
+					}
+				}
+				free(jointPositions);
+				free(massMatrix);
+				if (pyResultList) return pyResultList;
+			}
+			else
+			{
+				PyErr_SetString(SpamError,
+								"calculateMassMatrix [numJoints] needs to be "
+								"positive and [joint positions] "
 								"need to match the number of joints.");
 				return NULL;
 			}
@@ -7572,6 +7666,8 @@ static PyMethodDef SpamMethods[] = {
 	 "accelerations, compute the joint forces using Inverse Dynamics"},
 
 	 {"calculateJacobian", (PyCFunction)pybullet_calculateJacobian, METH_VARARGS | METH_KEYWORDS,
+	 "linearJacobian, angularJacobian = calculateJacobian(bodyUniqueId, "
+	 "linkIndex, localPosition, objPositions, objVelocities, objAccelerations, physicsClientId=0)\n"
 	 "Compute the jacobian for a specified local position on a body and its kinematics.\n"
 	 "Args:\n"
 	 "  bodyIndex - a scalar defining the unique object id.\n"
@@ -7583,6 +7679,15 @@ static PyMethodDef SpamMethods[] = {
 	 "Returns:\n"
 	 "  linearJacobian - a list of the partial linear velocities of the jacobian.\n"
 	 "  angularJacobian - a list of the partial angular velocities of the jacobian.\n"},
+	
+	{"calculateMassMatrix", (PyCFunction)pybullet_calculateMassMatrix, METH_VARARGS | METH_KEYWORDS,
+	"massMatrix = calculateMassMatrix(bodyUniqueId, objPositions, physicsClientId=0)\n"
+	 "Compute the mass matrix for an object and its chain of bodies.\n"
+	 "Args:\n"
+	 "  bodyIndex - a scalar defining the unique object id.\n"
+	 "  objPositions - a list of the joint positions.\n"
+	 "Returns:\n"
+	 "  massMatrix - a list of lists of the mass matrix components.\n"},
 
 	{"calculateInverseKinematics", (PyCFunction)pybullet_calculateInverseKinematics,
 	 METH_VARARGS | METH_KEYWORDS,

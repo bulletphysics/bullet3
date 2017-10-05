@@ -3397,6 +3397,50 @@ B3_SHARED_API int b3GetStatusJacobian(b3SharedMemoryStatusHandle statusHandle, i
     return true;
 }
 
+B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateMassMatrixCommandInit(b3PhysicsClientHandle physClient, int bodyIndex, const double* jointPositionsQ)
+{
+    PhysicsClient* cl = (PhysicsClient*)physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    
+    command->m_type = CMD_CALCULATE_MASS_MATRIX;
+    command->m_updateFlags = 0;
+    int numJoints = cl->getNumJoints(bodyIndex);
+    for (int i = 0; i < numJoints; i++)
+    {
+        command->m_calculateMassMatrixArguments.m_jointPositionsQ[i] = jointPositionsQ[i];
+    }
+    
+    return (b3SharedMemoryCommandHandle)command;
+}
+
+
+B3_SHARED_API int b3GetStatusMassMatrix(b3SharedMemoryStatusHandle statusHandle, int* dofCount, double* massMatrix)
+{
+    const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
+    btAssert(status->m_type == CMD_CALCULATED_MASS_MATRIX_COMPLETED);
+    if (status->m_type != CMD_CALCULATED_MASS_MATRIX_COMPLETED)
+        return false;
+    
+    if (dofCount)
+    {
+    	*dofCount = status->m_massMatrixResultArgs.m_dofCount;
+    }
+    if (massMatrix)
+    {
+    	int numElements = status->m_massMatrixResultArgs.m_dofCount * status->m_massMatrixResultArgs.m_dofCount;
+        for (int i = 0; i < numElements; i++)
+        {
+            massMatrix[i] = status->m_massMatrixResultArgs.m_massMatrix[i];
+        }
+
+    }
+    
+    return true;
+}
+
 ///compute the joint positions to move the end effector to a desired target using inverse kinematics
 B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateInverseKinematicsCommandInit(b3PhysicsClientHandle physClient, int bodyIndex)
 {

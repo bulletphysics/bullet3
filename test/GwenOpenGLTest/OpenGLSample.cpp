@@ -331,7 +331,7 @@ int main()
 
     int majorGlVersion, minorGlVersion;
 
-    if (!sscanf((const char*)glGetString(GL_VERSION), "%d.%d", &majorGlVersion, &minorGlVersion)==2)
+    if (!(sscanf((const char*)glGetString(GL_VERSION), "%d.%d", &majorGlVersion, &minorGlVersion)==2))
     {
         printf("Exit: Error cannot extract OpenGL version from GL_VERSION string\n");
         exit(0);
