@@ -205,6 +205,11 @@ void PhysicsLoopBack::getCachedRaycastHits(struct b3RaycastInformation* raycastH
 	return m_data->m_physicsClient->getCachedRaycastHits(raycastHits);
 }
 
+void PhysicsLoopBack::getCachedMassMatrix(int dofCountCheck, double* massMatrix)
+{
+	m_data->m_physicsClient->getCachedMassMatrix(dofCountCheck,massMatrix);
+}
+
 void PhysicsLoopBack::setTimeOut(double timeOutInSeconds)
 {
 	m_data->m_physicsClient->setTimeOut(timeOutInSeconds);

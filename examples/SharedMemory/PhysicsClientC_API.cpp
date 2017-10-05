@@ -3417,8 +3417,11 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateMassMatrixCommandInit(b3Phy
 }
 
 
-B3_SHARED_API int b3GetStatusMassMatrix(b3SharedMemoryStatusHandle statusHandle, int* dofCount, double* massMatrix)
+B3_SHARED_API int b3GetStatusMassMatrix(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle statusHandle, int* dofCount, double* massMatrix)
 {
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+
     const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
     btAssert(status->m_type == CMD_CALCULATED_MASS_MATRIX_COMPLETED);
     if (status->m_type != CMD_CALCULATED_MASS_MATRIX_COMPLETED)
@@ -3430,12 +3433,7 @@ B3_SHARED_API int b3GetStatusMassMatrix(b3SharedMemoryStatusHandle statusHandle,
     }
     if (massMatrix)
     {
-    	int numElements = status->m_massMatrixResultArgs.m_dofCount * status->m_massMatrixResultArgs.m_dofCount;
-        for (int i = 0; i < numElements; i++)
-        {
-            massMatrix[i] = status->m_massMatrixResultArgs.m_massMatrix[i];
-        }
-
+		cl->getCachedMassMatrix(status->m_massMatrixResultArgs.m_dofCount, massMatrix);
     }
     
     return true;

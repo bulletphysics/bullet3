@@ -66,6 +66,8 @@ public:
 
 	virtual void getCachedRaycastHits(struct b3RaycastInformation* raycastHits) = 0;
 
+	virtual void getCachedMassMatrix(int dofCountCheck, double* massMatrix) = 0;
+
 	virtual void setTimeOut(double timeOutInSeconds) = 0;
 	virtual double getTimeOut() const  = 0;
 

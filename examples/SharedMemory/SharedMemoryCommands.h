@@ -650,7 +650,6 @@ struct CalculateMassMatrixArgs
 struct CalculateMassMatrixResultArgs
 {
 	int m_dofCount;
-	double m_massMatrix[MAX_DEGREE_OF_FREEDOM * MAX_DEGREE_OF_FREEDOM];
 };
 
 enum EnumCalculateInverseKinematicsFlags

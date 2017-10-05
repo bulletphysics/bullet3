@@ -5,7 +5,7 @@
 ///increase the SHARED_MEMORY_MAGIC_NUMBER whenever incompatible changes are made in the structures
 ///my convention is year/month/day/rev
 
-#define SHARED_MEMORY_MAGIC_NUMBER 201709260
+#define SHARED_MEMORY_MAGIC_NUMBER 201710050
 //#define SHARED_MEMORY_MAGIC_NUMBER 201708270
 //#define SHARED_MEMORY_MAGIC_NUMBER 201707140
 //#define SHARED_MEMORY_MAGIC_NUMBER 201706015
@@ -575,6 +575,7 @@ enum b3ConfigureDebugVisualizerEnum
 	COV_ENABLE_SYNC_RENDERING_INTERNAL,
 	COV_ENABLE_KEYBOARD_SHORTCUTS,
 	COV_ENABLE_MOUSE_PICKING,
+	COV_ENABLE_Y_AXIS_UP,
 };
 
 enum b3AddUserDebugItemEnum

@@ -47,7 +47,7 @@ struct PhysicsClientSharedMemoryInternalData {
 	btAlignedObjectArray<b3VRControllerEvent> m_cachedVREvents;
 	btAlignedObjectArray<b3KeyboardEvent> m_cachedKeyboardEvents;
 	btAlignedObjectArray<b3MouseEvent> m_cachedMouseEvents;
-	
+	btAlignedObjectArray<double> m_cachedMassMatrix;
 	btAlignedObjectArray<b3RayHitInfo>	m_raycastHits;
 
     btAlignedObjectArray<int> m_bodyIdsRequestInfo;
@@ -1210,6 +1210,22 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 				break;
 			}
 
+			case CMD_CALCULATED_MASS_MATRIX_FAILED:
+			{
+				b3Warning("calculate mass matrix failed");
+				break;
+			}
+			case CMD_CALCULATED_MASS_MATRIX_COMPLETED:
+			{
+				double* matrixData = (double*)&this->m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor[0];
+				m_data->m_cachedMassMatrix.resize(serverCmd.m_massMatrixResultArgs.m_dofCount*serverCmd.m_massMatrixResultArgs.m_dofCount);
+				for (int i=0;i<serverCmd.m_massMatrixResultArgs.m_dofCount*serverCmd.m_massMatrixResultArgs.m_dofCount;i++)
+				{
+					m_data->m_cachedMassMatrix[i] = matrixData[i];
+				}
+				break;
+			}
+
             default: {
                 b3Error("Unknown server status %d\n", serverCmd.m_type);
                 btAssert(0);
@@ -1529,6 +1545,21 @@ void PhysicsClientSharedMemory::getCachedRaycastHits(struct b3RaycastInformation
 	raycastHits->m_numRayHits = m_data->m_raycastHits.size();
 	raycastHits->m_rayHits = raycastHits->m_numRayHits? &m_data->m_raycastHits[0] : 0;
 }
+
+
+void PhysicsClientSharedMemory::getCachedMassMatrix(int dofCountCheck, double* massMatrix)
+{
+	int sz = dofCountCheck*dofCountCheck;
+	if (sz == m_data->m_cachedMassMatrix.size())
+	{
+		for (int i=0;i<sz;i++)
+		{
+			massMatrix[i] = m_data->m_cachedMassMatrix[i];
+		}
+	}
+}
+
+
 
 
 void PhysicsClientSharedMemory::getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo)
