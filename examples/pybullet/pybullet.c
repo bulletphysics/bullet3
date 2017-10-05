@@ -509,6 +509,7 @@ static PyObject* pybullet_getConnectionInfo(PyObject* self, PyObject* args, PyOb
 	int isConnected=0;
 	int method=0;
 	PyObject* pylist = 0;
+	PyObject* val = 0;
 	b3PhysicsClientHandle sm = 0;
 	static char* kwlist[] = {"physicsClientId", NULL};
 	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|i", kwlist, &physicsClientId))
@@ -525,10 +526,8 @@ static PyObject* pybullet_getConnectionInfo(PyObject* self, PyObject* args, PyOb
 		}
 	}
 
-	pylist = PyTuple_New(2);
-	PyTuple_SetItem(pylist, 0, PyInt_FromLong(isConnected));
-	PyTuple_SetItem(pylist, 1, PyInt_FromLong(method));
-	return pylist;
+	val = Py_BuildValue("{s:i,s:i}","isConnected", isConnected, "connectionMethod", method);
+	return val;
 
 }
 
@@ -948,19 +947,10 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 		{
 			b3PhysicsParamSetDefaultFrictionERP(command,frictionERP);
 		}
-		//ret = b3PhysicsParamSetRealTimeSimulation(command, enableRealTimeSimulation);
 
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 	}
-#if 0
-	b3SharedMemoryCommandHandle	b3InitPhysicsParamCommand(b3PhysicsClientHandle physClient);
-	int	b3PhysicsParamSetGravity(b3SharedMemoryCommandHandle commandHandle, double gravx, double gravy, double gravz);
-	int	b3PhysicsParamSetTimeStep(b3SharedMemoryCommandHandle commandHandle, double timeStep);
-	int	b3PhysicsParamSetDefaultContactERP(b3SharedMemoryCommandHandle commandHandle, double defaultContactERP);
-	int	b3PhysicsParamSetNumSubSteps(b3SharedMemoryCommandHandle commandHandle, int numSubSteps);
-	int b3PhysicsParamSetRealTimeSimulation(b3SharedMemoryCommandHandle commandHandle, int enableRealTimeSimulation);
-	int b3PhysicsParamSetNumSolverIterations(b3SharedMemoryCommandHandle commandHandle, int numSolverIterations);
-#endif
+
 
 	Py_INCREF(Py_None);
 	return Py_None;

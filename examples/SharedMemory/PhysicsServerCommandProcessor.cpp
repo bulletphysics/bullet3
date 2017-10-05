@@ -3003,39 +3003,7 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
 bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes )
 {
 //	BT_PROFILE("processCommand");
-	int szc = sizeof(SharedMemoryCommand);
-	int sz = sizeof(SharedMemoryStatus);
-
-	int sz1 = sizeof(BulletDataStreamArgs);
-		int sz2 = sizeof(SdfLoadedArgs);
-		int sz3 = sizeof(SendActualStateArgs);//30k
-		int sz4= sizeof(SendDebugLinesArgs);
-		int sz5= sizeof(SendPixelDataArgs);
-		int sz6 = sizeof(RigidBodyCreateArgs);
-		int sz7 = sizeof(CalculateInverseDynamicsResultArgs);
-        int sz8 = sizeof(CalculateJacobianResultArgs);
-        int sz9 = sizeof(CalculateMassMatrixResultArgs);//130k
-		int sz10 = sizeof(SendContactDataArgs);
-		int sz11 = sizeof(SendOverlappingObjectsArgs);
-		int sz12 = sizeof(CalculateInverseKinematicsResultArgs);
-		int sz13 = sizeof(SendVisualShapeDataArgs);
-		int sz14 = sizeof(UserDebugDrawResultArgs);
-		int sz15 = sizeof(b3UserConstraint);
-		int sz16 = sizeof(SendVREvents);
-		int sz17 = sizeof(SendKeyboardEvents);
-		int sz18 = sizeof(SendRaycastHits);
-		int sz19 = sizeof(StateLoggingResultArgs);
-		int sz20 = sizeof(b3OpenGLVisualizerCameraInfo);
-		int sz21 = sizeof(b3ObjectArgs);
-		int sz22 = sizeof(b3DynamicsInfo);
-		int sz23 = sizeof(b3CreateCollisionShapeResultArgs);
-		int sz24 = sizeof(b3CreateVisualShapeResultArgs);
-		int sz25 = sizeof(b3CreateMultiBodyResultArgs);
-		int sz26 = sizeof(b3SendCollisionInfoArgs);
-		int sz27 = sizeof(SendMouseEvents);
-		int sz28 = sizeof(b3LoadTextureResultArgs);
-		int sz29 = sizeof(b3CustomCommandResultArgs);
-
+	
 	bool hasStatus = false;
 
     {
