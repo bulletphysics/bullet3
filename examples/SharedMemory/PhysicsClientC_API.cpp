@@ -325,6 +325,32 @@ B3_SHARED_API int	b3LoadUrdfCommandSetStartOrientation(b3SharedMemoryCommandHand
 	return -1;
 }
 
+B3_SHARED_API	b3SharedMemoryCommandHandle     b3InitRequestPhysicsParamCommand(b3PhysicsClientHandle physClient)
+{
+    PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+	command->m_type = CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS;
+	command->m_updateFlags = 0;
+    return (b3SharedMemoryCommandHandle) command;
+}
+
+B3_SHARED_API	int b3GetStatusPhysicsSimulationParameters(b3SharedMemoryStatusHandle statusHandle,struct b3PhysicsSimulationParameters* params)
+{
+	const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
+	b3Assert(status);
+	b3Assert(status->m_type == CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS_COMPLETED);
+	if (status && status->m_type == CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS_COMPLETED)
+	{
+		*params = status->m_simulationParameterResultArgs;
+		return 1;
+	}
+	return 0;
+}
+
+
 B3_SHARED_API	b3SharedMemoryCommandHandle     b3InitPhysicsParamCommand(b3PhysicsClientHandle physClient)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;
@@ -352,7 +378,7 @@ B3_SHARED_API	int     b3PhysicsParamSetRealTimeSimulation(b3SharedMemoryCommandH
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
 	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
-	command->m_physSimParamArgs.m_allowRealTimeSimulation = (enableRealTimeSimulation!=0);
+	command->m_physSimParamArgs.m_useRealTimeSimulation = (enableRealTimeSimulation!=0);
 	command->m_updateFlags |= SIM_PARAM_UPDATE_REAL_TIME_SIMULATION;
 	return 0;
 }
@@ -395,15 +421,11 @@ B3_SHARED_API int b3PhysicsParamSetContactBreakingThreshold(b3SharedMemoryComman
 	command->m_updateFlags |= SIM_PARAM_UPDATE_CONTACT_BREAKING_THRESHOLD;
 	return 0;
 }
+
 B3_SHARED_API int b3PhysicsParamSetMaxNumCommandsPer1ms(b3SharedMemoryCommandHandle commandHandle, int maxNumCmdPer1ms)
 {
-	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
-	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
-
-	command->m_physSimParamArgs.m_maxNumCmdPer1ms = maxNumCmdPer1ms;
-	command->m_updateFlags |= SIM_PARAM_MAX_CMD_PER_1MS;
+	//obsolete command
 	return 0;
-
 }
 
 B3_SHARED_API int b3PhysicsParamSetEnableFileCaching(b3SharedMemoryCommandHandle commandHandle, int enableFileCaching)
@@ -3417,8 +3439,11 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateMassMatrixCommandInit(b3Phy
 }
 
 
-B3_SHARED_API int b3GetStatusMassMatrix(b3SharedMemoryStatusHandle statusHandle, int* dofCount, double* massMatrix)
+B3_SHARED_API int b3GetStatusMassMatrix(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle statusHandle, int* dofCount, double* massMatrix)
 {
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+
     const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
     btAssert(status->m_type == CMD_CALCULATED_MASS_MATRIX_COMPLETED);
     if (status->m_type != CMD_CALCULATED_MASS_MATRIX_COMPLETED)
@@ -3430,12 +3455,7 @@ B3_SHARED_API int b3GetStatusMassMatrix(b3SharedMemoryStatusHandle statusHandle,
     }
     if (massMatrix)
     {
-    	int numElements = status->m_massMatrixResultArgs.m_dofCount * status->m_massMatrixResultArgs.m_dofCount;
-        for (int i = 0; i < numElements; i++)
-        {
-            massMatrix[i] = status->m_massMatrixResultArgs.m_massMatrix[i];
-        }
-
+		cl->getCachedMassMatrix(status->m_massMatrixResultArgs.m_dofCount, massMatrix);
     }
     
     return true;

@@ -30,19 +30,16 @@ static OpenGLExampleBrowser* sExampleBrowser=0;
 static void cleanup(int signo)
 {
 
-    if (interrupted) {  // this is the second time, we're hanging somewhere
-      //  if (example) {
-      //      example->abort();
-      //  }
-
+    if (!interrupted) {  // this is the second time, we're hanging somewhere
         b3Printf("Aborting and deleting SharedMemoryCommon object");
-        sleep(1);
         delete sExampleBrowser;
-	sExampleBrowser = 0;
+		sleep(1);
+		sExampleBrowser = 0;
         errx(EXIT_FAILURE, "aborted example on signal %d", signo);
     } else
     {
-	b3Printf("no action");
+		b3Printf("no action");
+		exit(EXIT_FAILURE);
     }
     interrupted = true;
     warnx("caught signal %d", signo);

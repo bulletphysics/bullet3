@@ -5,7 +5,7 @@
 ///increase the SHARED_MEMORY_MAGIC_NUMBER whenever incompatible changes are made in the structures
 ///my convention is year/month/day/rev
 
-#define SHARED_MEMORY_MAGIC_NUMBER 201709260
+#define SHARED_MEMORY_MAGIC_NUMBER 201710050
 //#define SHARED_MEMORY_MAGIC_NUMBER 201708270
 //#define SHARED_MEMORY_MAGIC_NUMBER 201707140
 //#define SHARED_MEMORY_MAGIC_NUMBER 201706015
@@ -75,6 +75,7 @@ enum EnumSharedMemoryClientCommand
 	CMD_CHANGE_TEXTURE,
 	CMD_SET_ADDITIONAL_SEARCH_PATH,
 	CMD_CUSTOM_COMMAND,
+	CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -174,7 +175,7 @@ enum EnumSharedMemoryServerStatus
 		CMD_CHANGE_TEXTURE_COMMAND_FAILED,
 		CMD_CUSTOM_COMMAND_COMPLETED,
 		CMD_CUSTOM_COMMAND_FAILED,
-
+		CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS_COMPLETED,
         //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
@@ -338,6 +339,7 @@ enum b3VREventType
 	VR_GENERIC_TRACKER_MOVE_EVENT=8,
 };
 
+#define MAX_VR_ANALOG_AXIS 5
 #define MAX_VR_BUTTONS 64
 #define MAX_VR_CONTROLLERS 8
 
@@ -379,7 +381,7 @@ struct b3VRControllerEvent
 	float m_orn[4];//valid for VR_CONTROLLER_MOVE_EVENT and VR_CONTROLLER_BUTTON_EVENT
 
 	float m_analogAxis;//valid if VR_CONTROLLER_MOVE_EVENT
-
+	float m_auxAnalogAxis[MAX_VR_ANALOG_AXIS*2];//store x,y per axis, only valid if VR_CONTROLLER_MOVE_EVENT
 	int m_buttons[MAX_VR_BUTTONS];//valid if VR_CONTROLLER_BUTTON_EVENT, see b3VRButtonInfo
 };
 
@@ -575,6 +577,7 @@ enum b3ConfigureDebugVisualizerEnum
 	COV_ENABLE_SYNC_RENDERING_INTERNAL,
 	COV_ENABLE_KEYBOARD_SHORTCUTS,
 	COV_ENABLE_MOUSE_PICKING,
+	COV_ENABLE_Y_AXIS_UP,
 };
 
 enum b3AddUserDebugItemEnum
@@ -637,6 +640,25 @@ struct b3PluginArguments
 	int m_ints[B3_MAX_PLUGIN_ARG_SIZE];
 	int m_numFloats;
 	double m_floats[B3_MAX_PLUGIN_ARG_SIZE];
+};
+
+struct b3PhysicsSimulationParameters
+{
+	double m_deltaTime;
+	double m_gravityAcceleration[3];
+	int m_numSimulationSubSteps;
+	int m_numSolverIterations;
+	int m_useRealTimeSimulation;
+	int m_useSplitImpulse;
+	double m_splitImpulsePenetrationThreshold;
+	double m_contactBreakingThreshold;
+	int m_internalSimFlags;
+	double m_defaultContactERP;
+	int m_collisionFilterMode;
+	int m_enableFileCaching;
+	double m_restitutionVelocityThreshold;
+	double 	m_defaultNonContactERP;
+	double m_frictionERP;
 };
 
 

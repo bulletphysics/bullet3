@@ -263,14 +263,10 @@ B3_SHARED_API	int	b3PhysicsParamSetTimeStep(b3SharedMemoryCommandHandle commandH
 B3_SHARED_API	int	b3PhysicsParamSetDefaultContactERP(b3SharedMemoryCommandHandle commandHandle, double defaultContactERP);
 B3_SHARED_API	int	b3PhysicsParamSetDefaultNonContactERP(b3SharedMemoryCommandHandle commandHandle, double defaultNonContactERP);
 B3_SHARED_API	int	b3PhysicsParamSetDefaultFrictionERP(b3SharedMemoryCommandHandle commandHandle, double frictionERP);
-
 B3_SHARED_API	int	b3PhysicsParamSetNumSubSteps(b3SharedMemoryCommandHandle commandHandle, int numSubSteps);
 B3_SHARED_API	int b3PhysicsParamSetRealTimeSimulation(b3SharedMemoryCommandHandle commandHandle, int enableRealTimeSimulation);
 B3_SHARED_API	int b3PhysicsParamSetNumSolverIterations(b3SharedMemoryCommandHandle commandHandle, int numSolverIterations);
 B3_SHARED_API	int b3PhysicsParamSetCollisionFilterMode(b3SharedMemoryCommandHandle commandHandle, int filterMode);
-
-
-	
 B3_SHARED_API	int b3PhysicsParamSetUseSplitImpulse(b3SharedMemoryCommandHandle commandHandle, int useSplitImpulse);
 B3_SHARED_API	int b3PhysicsParamSetSplitImpulsePenetrationThreshold(b3SharedMemoryCommandHandle commandHandle, double splitImpulsePenetrationThreshold);
 B3_SHARED_API	int b3PhysicsParamSetContactBreakingThreshold(b3SharedMemoryCommandHandle commandHandle, double contactBreakingThreshold);
@@ -278,6 +274,9 @@ B3_SHARED_API	int b3PhysicsParamSetMaxNumCommandsPer1ms(b3SharedMemoryCommandHan
 B3_SHARED_API	int b3PhysicsParamSetEnableFileCaching(b3SharedMemoryCommandHandle commandHandle, int enableFileCaching);
 B3_SHARED_API	int b3PhysicsParamSetRestitutionVelocityThreshold(b3SharedMemoryCommandHandle commandHandle, double restitutionVelocityThreshold);
 
+
+B3_SHARED_API	b3SharedMemoryCommandHandle	b3InitRequestPhysicsParamCommand(b3PhysicsClientHandle physClient);
+B3_SHARED_API	int b3GetStatusPhysicsSimulationParameters(b3SharedMemoryStatusHandle statusHandle,struct b3PhysicsSimulationParameters* params);
 
 
 //b3PhysicsParamSetInternalSimFlags is for internal/temporary/easter-egg/experimental demo purposes
@@ -323,10 +322,8 @@ B3_SHARED_API	int b3GetStatusJacobian(b3SharedMemoryStatusHandle statusHandle,
 	double* angularJacobian);
 
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3CalculateMassMatrixCommandInit(b3PhysicsClientHandle physClient, int bodyIndex, const double* jointPositionsQ);
-B3_SHARED_API	int b3GetStatusMassMatrix(b3SharedMemoryStatusHandle statusHandle,
-	int* dofCount,
-	double* massMatrix);
-
+///the mass matrix is stored in column-major layout of size dofCount*dofCount
+B3_SHARED_API	int b3GetStatusMassMatrix(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle statusHandle,	int* dofCount,	double* massMatrix);
 
 
 ///compute the joint positions to move the end effector to a desired target using inverse kinematics
