@@ -55,7 +55,7 @@ public:
 	virtual bool	mouseButtonCallback(int button, int state, float x, float y)=0;
 	virtual bool	keyboardCallback(int key, int state)=0;
 
-	virtual void	vrControllerMoveCallback(int controllerId, float pos[4], float orientation[4], float analogAxis) {}
+	virtual void	vrControllerMoveCallback(int controllerId, float pos[4], float orientation[4], float analogAxis, float auxAnalogAxes[10]) {}
 	virtual void	vrControllerButtonCallback(int controllerId, int button, int state, float pos[4], float orientation[4]){}
 	virtual void	vrHMDMoveCallback(int controllerId, float pos[4], float orientation[4]){}
 	virtual void	vrGenericTrackerMoveCallback(int controllerId, float pos[4], float orientation[4]){}

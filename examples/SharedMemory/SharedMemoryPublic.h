@@ -339,6 +339,7 @@ enum b3VREventType
 	VR_GENERIC_TRACKER_MOVE_EVENT=8,
 };
 
+#define MAX_VR_ANALOG_AXIS 5
 #define MAX_VR_BUTTONS 64
 #define MAX_VR_CONTROLLERS 8
 
@@ -380,7 +381,7 @@ struct b3VRControllerEvent
 	float m_orn[4];//valid for VR_CONTROLLER_MOVE_EVENT and VR_CONTROLLER_BUTTON_EVENT
 
 	float m_analogAxis;//valid if VR_CONTROLLER_MOVE_EVENT
-
+	float m_auxAnalogAxis[MAX_VR_ANALOG_AXIS*2];//store x,y per axis, only valid if VR_CONTROLLER_MOVE_EVENT
 	int m_buttons[MAX_VR_BUTTONS];//valid if VR_CONTROLLER_BUTTON_EVENT, see b3VRButtonInfo
 };
 

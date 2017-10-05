@@ -814,7 +814,15 @@ bool CMainApplication::HandleInput()
 				for (int button = 0; button < vr::k_EButton_Max; button++)
 				{
 					uint64_t trigger = vr::ButtonMaskFromId((vr::EVRButtonId)button);
-
+					
+					btAssert(vr::k_unControllerStateAxisCount>=5);
+					float allAxis[10];//store x,y times 5 controllers
+					int index=0;
+					for (int i=0;i<5;i++)
+					{
+						allAxis[index++]=state.rAxis[i].x;
+						allAxis[index++]=state.rAxis[i].y;
+					}
 					bool isTrigger = (state.ulButtonPressed&trigger) != 0;
 					if (isTrigger)
 					{
@@ -824,31 +832,15 @@ bool CMainApplication::HandleInput()
 						if ((sPrevStates[unDevice].ulButtonPressed&trigger)==0)
 						{
 //							printf("Device PRESSED: %d, button %d\n", unDevice, button);
-							if (button==2)
-							{
-								//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-
-								///todo(erwincoumans) can't use reguar debug drawer, because physics/graphics are not in sync
-								///so it can (and likely will) cause crashes
-								///add a special debug drawer that deals with this
-									//gDebugDrawFlags = btIDebugDraw::DBG_DrawWireframe+btIDebugDraw::DBG_DrawContactPoints+
-									//btIDebugDraw::DBG_DrawConstraintLimits+
-									//btIDebugDraw::DBG_DrawConstraints
-									//;
-								//gDebugDrawFlags = btIDebugDraw::DBG_DrawFrames;
-									
-
-
-							}
-
 							sExample->vrControllerButtonCallback(unDevice, button, 1, pos, orn);
 
 						}
 						else
 						{
 							
+							
 //							printf("Device MOVED: %d\n", unDevice);
-							sExample->vrControllerMoveCallback(unDevice, pos, orn, state.rAxis[1].x);
+							sExample->vrControllerMoveCallback(unDevice, pos, orn, state.rAxis[1].x, allAxis);
 						}
 					}
 					else
@@ -871,7 +863,7 @@ bool CMainApplication::HandleInput()
 							} else
 							{
 
-								sExample->vrControllerMoveCallback(unDevice, pos, orn, state.rAxis[1].x);
+								sExample->vrControllerMoveCallback(unDevice, pos, orn, state.rAxis[1].x,allAxis);
 							}
 						}
 					}

@@ -889,8 +889,18 @@ struct b3VRControllerEvents
 			if (vrEvents[i].m_numMoveEvents)
 			{
 				m_vrEvents[controlledId].m_analogAxis = vrEvents[i].m_analogAxis;
+				for (int a=0;a<10;a++)
+				{
+					m_vrEvents[controlledId].m_auxAnalogAxis[a] = vrEvents[i].m_auxAnalogAxis[a];
+				}
+			} else
+			{
+				m_vrEvents[controlledId].m_analogAxis = 0;
+				for (int a=0;a<10;a++)
+				{
+					m_vrEvents[controlledId].m_auxAnalogAxis[a] = 0;
+				}
 			}
-
 			if (vrEvents[i].m_numMoveEvents+vrEvents[i].m_numButtonEvents)
 			{
 				m_vrEvents[controlledId].m_controllerId = vrEvents[i].m_controllerId;

@@ -4277,9 +4277,10 @@ static PyObject* pybullet_getVREvents(PyObject* self, PyObject* args, PyObject* 
 	int statusType;
 	int deviceTypeFilter = VR_DEVICE_CONTROLLER;
 	int physicsClientId = 0;
+	int allAnalogAxes = 0;
 	b3PhysicsClientHandle sm = 0;
-	static char* kwlist[] = {"deviceTypeFilter", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|ii", kwlist, &deviceTypeFilter, &physicsClientId))
+	static char* kwlist[] = {"deviceTypeFilter", "allAnalogAxes", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iii", kwlist, &deviceTypeFilter, &allAnalogAxes, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -4307,7 +4308,8 @@ static PyObject* pybullet_getVREvents(PyObject* self, PyObject* args, PyObject* 
 		vrEventsObj = PyTuple_New(vrEvents.m_numControllerEvents);
 		for (i = 0; i < vrEvents.m_numControllerEvents; i++)
 		{
-			PyObject* vrEventObj = PyTuple_New(8);
+			int numFields = allAnalogAxes? 9 : 8;
+			PyObject* vrEventObj = PyTuple_New(numFields);
 
 			PyTuple_SetItem(vrEventObj, 0, PyInt_FromLong(vrEvents.m_controllerEvents[i].m_controllerId));
 			{
@@ -4340,6 +4342,19 @@ static PyObject* pybullet_getVREvents(PyObject* self, PyObject* args, PyObject* 
 				PyTuple_SetItem(vrEventObj, 6, buttonsObj);
 			}
 			PyTuple_SetItem(vrEventObj, 7, PyInt_FromLong(vrEvents.m_controllerEvents[i].m_deviceType));
+
+			if (allAnalogAxes)
+			{
+				PyObject* buttonsObj = PyTuple_New(MAX_VR_ANALOG_AXIS*2);
+				int b;
+				for (b = 0; b < MAX_VR_ANALOG_AXIS*2; b++)
+				{
+					PyObject* axisVal = PyFloat_FromDouble(vrEvents.m_controllerEvents[i].m_auxAnalogAxis[b]);
+					PyTuple_SetItem(buttonsObj, b, axisVal);
+				}
+				PyTuple_SetItem(vrEventObj, 8, buttonsObj);
+			}
+
 			PyTuple_SetItem(vrEventsObj, i, vrEventObj);
 		}
 		return vrEventsObj;
