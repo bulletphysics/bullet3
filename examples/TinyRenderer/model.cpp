@@ -4,6 +4,7 @@
 #include <sstream>
 #include "model.h"
 #include "Bullet3Common/b3Logging.h"
+#include <string.h> // memcpy
 Model::Model(const char *filename) : verts_(), faces_(), norms_(), uv_(), diffusemap_(), normalmap_(), specularmap_() {
     std::ifstream in;
     in.open (filename, std::ifstream::in);
