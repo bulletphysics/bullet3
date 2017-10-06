@@ -419,7 +419,7 @@
           izz="0.0000036030"/>
     </inertial>
   </link>
-  <joint name="hip_front_rightR_link" type="fixed">
+  <joint name="hip_front_rightR_joint" type="fixed">
     <axis xyz="0 0 1"/>
     <parent link="motor_front_rightR_link"/>
     <child link="upper_leg_front_rightR_link"/>
@@ -458,7 +458,7 @@
       <inertia ixx="0.00032459" ixy="0.0" ixz="0.0" iyy="0.00032637" iyz="0.0" izz="0.000002178"/>
     </inertial>
   </link>
-  <joint name="knee_front_rightR_link" type="continuous">
+  <joint name="knee_front_rightR_joint" type="continuous">
     <axis xyz="0 1 0"/>
     <parent link="upper_leg_front_rightR_link"/>
     <child link="lower_leg_front_rightR_link"/>
@@ -487,7 +487,7 @@
           izz="0.0000036030"/>
     </inertial>
   </link>
-  <joint name="motor_front_rightL_link" type="fixed">
+  <joint name="hip_front_rightL_joint" type="fixed">
     <axis xyz="0 0 1"/>
     <parent link="motor_front_rightL_link"/>
     <child link="upper_leg_front_rightL_link"/>
@@ -526,7 +526,7 @@
       <inertia ixx="0.00023166" ixy="0.0" ixz="0.0" iyy="0.00023325" iyz="0.0" izz="0.00000198"/>
     </inertial>
   </link>
-  <joint name="knee_front_rightL_link" type="continuous">
+  <joint name="knee_front_rightL_joint" type="continuous">
     <axis xyz="0 1 0"/>
     <parent link="upper_leg_front_rightL_link"/>
     <child link="lower_leg_front_rightL_link"/>
@@ -556,7 +556,7 @@
           izz="0.0000036030"/>
     </inertial>
   </link>
-  <joint name="hip_front_leftR_link" type="fixed">
+  <joint name="hip_front_leftR_joint" type="fixed">
     <axis xyz="0 0 1"/>
     <parent link="motor_front_leftR_link"/>
     <child link="upper_leg_front_leftR_link"/>
@@ -595,7 +595,7 @@
       <inertia ixx="0.00023166" ixy="0.0" ixz="0.0" iyy="0.00023325" iyz="0.0" izz="0.00000198"/>
     </inertial>
   </link>
-  <joint name="knee_front_leftR_link" type="continuous">
+  <joint name="knee_front_leftR_joint" type="continuous">
     <axis xyz="0 1 0"/>
     <parent link="upper_leg_front_leftR_link"/>
     <child link="lower_leg_front_leftR_link"/>
@@ -624,7 +624,7 @@
           izz="0.0000036030"/>
     </inertial>
   </link>
-  <joint name="motor_front_leftL_link" type="fixed">
+  <joint name="hip_front_leftL_joint" type="fixed">
     <axis xyz="0 0 1"/>
     <parent link="motor_front_leftL_link"/>
     <child link="upper_leg_front_leftL_link"/>
@@ -663,7 +663,7 @@
       <inertia ixx="0.00032459" ixy="0.0" ixz="0.0" iyy="0.00032637" iyz="0.0" izz="0.000002178"/>
     </inertial>
   </link>
-  <joint name="knee_front_leftL_link" type="continuous">
+  <joint name="knee_front_leftL_joint" type="continuous">
     <axis xyz="0 1 0"/>
     <parent link="upper_leg_front_leftL_link"/>
     <child link="lower_leg_front_leftL_link"/>
@@ -693,7 +693,7 @@
           izz="0.0000036030"/>
     </inertial>
   </link>
-  <joint name="hip_rightR_link" type="fixed">
+  <joint name="hip_back_rightR_joint" type="fixed">
     <axis xyz="0 0 1"/>
     <parent link="motor_back_rightR_link"/>
     <child link="upper_leg_back_rightR_link"/>
@@ -732,7 +732,7 @@
       <inertia ixx="0.00032459" ixy="0.0" ixz="0.0" iyy="0.00032637" iyz="0.0" izz="0.000002178"/>
     </inertial>
   </link>
-  <joint name="knee_back_rightR_link" type="continuous">
+  <joint name="knee_back_rightR_joint" type="continuous">
     <axis xyz="0 1 0"/>
     <parent link="upper_leg_back_rightR_link"/>
     <child link="lower_leg_back_rightR_link"/>
@@ -761,7 +761,7 @@
           izz="0.0000036030"/>
     </inertial>
   </link>
-  <joint name="motor_back_rightL_link" type="fixed">
+  <joint name="hip_back_rightL_joint" type="fixed">
     <axis xyz="0 0 1"/>
     <parent link="motor_back_rightL_link"/>
     <child link="upper_leg_back_rightL_link"/>
@@ -800,7 +800,7 @@
       <inertia ixx="0.00023166" ixy="0.0" ixz="0.0" iyy="0.00023325" iyz="0.0" izz="0.00000198"/>
     </inertial>
   </link>
-  <joint name="knee_back_rightL_link" type="continuous">
+  <joint name="knee_back_rightL_joint" type="continuous">
     <axis xyz="0 1 0"/>
     <parent link="upper_leg_back_rightL_link"/>
     <child link="lower_leg_back_rightL_link"/>
@@ -830,7 +830,7 @@
           izz="0.0000036030"/>
     </inertial>
   </link>
-  <joint name="hip_leftR_link" type="fixed">
+  <joint name="hip_back_leftR_joint" type="fixed">
     <axis xyz="0 0 1"/>
     <parent link="motor_back_leftR_link"/>
     <child link="upper_leg_back_leftR_link"/>
@@ -869,7 +869,7 @@
       <inertia ixx="0.00023166" ixy="0.0" ixz="0.0" iyy="0.00023325" iyz="0.0" izz="0.00000198"/>
     </inertial>
   </link>
-  <joint name="knee_back_leftR_link" type="continuous">
+  <joint name="knee_back_leftR_joint" type="continuous">
     <axis xyz="0 1 0"/>
     <parent link="upper_leg_back_leftR_link"/>
     <child link="lower_leg_back_leftR_link"/>
@@ -898,7 +898,7 @@
           izz="0.0000036030"/>
     </inertial>
   </link>
-  <joint name="motor_back_leftL_link" type="fixed">
+  <joint name="hip_back_leftL_joint" type="fixed">
     <axis xyz="0 0 1"/>
     <parent link="motor_back_leftL_link"/>
     <child link="upper_leg_back_leftL_link"/>
@@ -937,7 +937,7 @@
       <inertia ixx="0.00032459" ixy="0.0" ixz="0.0" iyy="0.00032637" iyz="0.0" izz="0.000002178"/>
     </inertial>
   </link>
-  <joint name="knee_back_leftL_link" type="continuous">
+  <joint name="knee_back_leftL_joint" type="continuous">
     <axis xyz="0 1 0"/>
     <parent link="upper_leg_back_leftL_link"/>
     <child link="lower_leg_back_leftL_link"/>
@@ -947,4 +947,3 @@
   </joint>
 
 </robot>
-
