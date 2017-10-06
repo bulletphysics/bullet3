@@ -619,7 +619,10 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 			visualShape.m_rgbaColor[2] = rgbaColor[2];
 			visualShape.m_rgbaColor[3] = rgbaColor[3];
             
-			convertURDFToVisualShape(vis, pathPrefix, localInertiaFrame.inverse()*childTrans, vertices, indices,textures, visualShape);
+			{
+				B3_PROFILE("convertURDFToVisualShape");
+				convertURDFToVisualShape(vis, pathPrefix, localInertiaFrame.inverse()*childTrans, vertices, indices, textures, visualShape);
+			}
 			m_data->m_visualShapes.push_back(visualShape);
 
             if (vertices.size() && indices.size())
@@ -635,8 +638,12 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 					textureHeight = textures[0].m_height;
 				}
 				
-                tinyObj->registerMeshShape(&vertices[0].xyzw[0],vertices.size(),&indices[0],indices.size(),rgbaColor,
-										   textureImage,textureWidth,textureHeight);
+				{
+					B3_PROFILE("registerMeshShape");
+
+					tinyObj->registerMeshShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size(), rgbaColor,
+						textureImage, textureWidth, textureHeight);
+				}
                 visuals->m_renderObjects.push_back(tinyObj);
             }
 			for (int i=0;i<textures.size();i++)
@@ -1145,6 +1152,7 @@ int TinyRendererVisualShapeConverter::registerTexture(unsigned char* texels, int
 
 int TinyRendererVisualShapeConverter::loadTextureFile(const char* filename)
 {
+	B3_PROFILE("loadTextureFile");
     int width,height,n;
     unsigned char* image=0;
     image = stbi_load(filename, &width, &height, &n, 3);

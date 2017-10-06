@@ -1512,6 +1512,7 @@ struct PhysicsServerCommandProcessorInternalData
 
 	struct GUIHelperInterface* m_guiHelper;
 	int m_sharedMemoryKey;
+	bool m_enableTinyRenderer;
 
 	bool m_verboseOutput;
 
@@ -1553,6 +1554,7 @@ struct PhysicsServerCommandProcessorInternalData
 		m_guiHelper(0),
 		m_sharedMemoryKey(SHARED_MEMORY_KEY),
 		m_verboseOutput(false),
+		m_enableTinyRenderer(true),
 		m_pickedBody(0),
 		m_pickedConstraint(0),
 		m_pickingMultiBodyPoint2Point(0)
@@ -2659,6 +2661,7 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
 	m_data->m_sdfRecentLoadedBodies.clear();
 
     BulletURDFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter, globalScaling);
+	u2b.setEnableTinyRenderer(m_data->m_enableTinyRenderer);
 
 	bool forceFixedBase = false;
 	bool loadOk =u2b.loadSDF(fileName,forceFixedBase);
@@ -2690,7 +2693,7 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 
 
     BulletURDFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter, globalScaling);
-
+	u2b.setEnableTinyRenderer(m_data->m_enableTinyRenderer);
     bool loadOk =  u2b.loadURDF(fileName, useFixedBase);
 
 
@@ -6253,8 +6256,13 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     serverCmd.m_type =CMD_CLIENT_COMMAND_COMPLETED;
                     
                     hasStatus = true;
-                    if (clientCmd.m_updateFlags&COV_SET_FLAGS)
-                    {
+
+					if (clientCmd.m_updateFlags&COV_SET_FLAGS)
+					{
+						if (clientCmd.m_configureOpenGLVisualizerArguments.m_setFlag == COV_ENABLE_TINY_RENDERER)
+						{
+							m_data->m_enableTinyRenderer = clientCmd.m_configureOpenGLVisualizerArguments.m_setEnabled!=0;
+						}
                         m_data->m_guiHelper->setVisualizerFlag(clientCmd.m_configureOpenGLVisualizerArguments.m_setFlag,
                                                            clientCmd.m_configureOpenGLVisualizerArguments.m_setEnabled);
                     }

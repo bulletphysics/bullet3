@@ -74,6 +74,7 @@ public:
 	virtual int getNumAllocatedMeshInterfaces() const;
 	virtual class btStridingMeshInterface* getAllocatedMeshInterface(int index);
 
+	virtual void setEnableTinyRenderer(bool enable);
 };
 
 
