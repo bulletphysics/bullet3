@@ -945,6 +945,7 @@ int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const float* 
 
 int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width, int height, bool flipPixelsY)
 {
+	B3_PROFILE("GLInstancingRenderer::registerTexture");
 	b3Assert(glGetError() ==GL_NO_ERROR);
 	glActiveTexture(GL_TEXTURE0);
 	int textureIndex = m_data->m_textureHandles.size();
@@ -963,6 +964,7 @@ int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width
 	m_data->m_textureHandles.push_back(h);
 	if (texels)
 	{
+		B3_PROFILE("updateTexture");
 		updateTexture(textureIndex, texels, flipPixelsY);
 	}
 	return textureIndex;
@@ -985,6 +987,7 @@ void    GLInstancingRenderer::replaceTexture(int shapeIndex, int textureId)
 
 void    GLInstancingRenderer::updateTexture(int textureIndex, const unsigned char* texels, bool flipPixelsY)
 {
+	B3_PROFILE("updateTexture");
     if ((textureIndex>=0) && (textureIndex < m_data->m_textureHandles.size()))
     {
         glActiveTexture(GL_TEXTURE0);
@@ -995,13 +998,14 @@ void    GLInstancingRenderer::updateTexture(int textureIndex, const unsigned cha
 
 		if (flipPixelsY)
 		{
+			B3_PROFILE("flipPixelsY");
 			//textures need to be flipped for OpenGL...
 			b3AlignedObjectArray<unsigned char> flippedTexels;
 			flippedTexels.resize(h.m_width* h.m_height * 3);
 
-			for (int i = 0; i < h.m_width; i++)
+			for (int j = 0; j < h.m_height; j++)
 			{
-				for (int j = 0; j < h.m_height; j++)
+				for (int i = 0; i < h.m_width; i++)
 				{
 					flippedTexels[(i + j*h.m_width) * 3] =      texels[(i + (h.m_height - 1 -j )*h.m_width) * 3];
 					flippedTexels[(i + j*h.m_width) * 3+1] =    texels[(i + (h.m_height - 1 - j)*h.m_width) * 3+1];
@@ -1017,6 +1021,7 @@ void    GLInstancingRenderer::updateTexture(int textureIndex, const unsigned cha
         b3Assert(glGetError() ==GL_NO_ERROR);
 		if (h.m_enableFiltering)
 		{
+			B3_PROFILE("glGenerateMipmap");
 	        glGenerateMipmap(GL_TEXTURE_2D);
 		}
         b3Assert(glGetError() ==GL_NO_ERROR);

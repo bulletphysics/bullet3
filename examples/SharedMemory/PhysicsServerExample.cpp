@@ -1840,12 +1840,15 @@ void	PhysicsServerExample::updateGraphics()
 	{
 	case eGUIHelperCreateCollisionShapeGraphicsObject:
 	{
+		B3_PROFILE("eGUIHelperCreateCollisionShapeGraphicsObject");
 		m_multiThreadedHelper->m_childGuiHelper->createCollisionShapeGraphicsObject(m_multiThreadedHelper->m_colShape);
 		m_multiThreadedHelper->mainThreadRelease();
 		break;
 	}
 	case eGUIHelperCreateCollisionObjectGraphicsObject:
 	{
+		B3_PROFILE("eGUIHelperCreateCollisionObjectGraphicsObject");
+
 		m_multiThreadedHelper->m_childGuiHelper->createCollisionObjectGraphicsObject(m_multiThreadedHelper->m_obj,
 			m_multiThreadedHelper->m_color2);
 		m_multiThreadedHelper->mainThreadRelease();
@@ -1854,13 +1857,14 @@ void	PhysicsServerExample::updateGraphics()
 	}
 	case eGUIHelperCreateRigidBodyGraphicsObject:
 	{
+		B3_PROFILE("eGUIHelperCreateRigidBodyGraphicsObject");
 		m_multiThreadedHelper->m_childGuiHelper->createRigidBodyGraphicsObject(m_multiThreadedHelper->m_body,m_multiThreadedHelper->m_color3);
 		m_multiThreadedHelper->mainThreadRelease();
 		break;
 	}
 	case eGUIHelperRegisterTexture:
 	{
-		
+		B3_PROFILE("eGUIHelperRegisterTexture");
 		m_multiThreadedHelper->m_textureId = m_multiThreadedHelper->m_childGuiHelper->registerTexture(m_multiThreadedHelper->m_texels,
 						m_multiThreadedHelper->m_textureWidth,m_multiThreadedHelper->m_textureHeight);
 		m_multiThreadedHelper->mainThreadRelease();
@@ -1868,6 +1872,7 @@ void	PhysicsServerExample::updateGraphics()
 	}
 	case eGUIHelperRegisterGraphicsShape:
 	{
+		B3_PROFILE("eGUIHelperRegisterGraphicsShape");
 		m_multiThreadedHelper->m_shapeIndex = m_multiThreadedHelper->m_childGuiHelper->registerGraphicsShape(
 				m_multiThreadedHelper->m_vertices,
 				m_multiThreadedHelper->m_numvertices,
@@ -1881,6 +1886,7 @@ void	PhysicsServerExample::updateGraphics()
 
 	case eGUIHelperSetVisualizerFlag:
 	{
+		B3_PROFILE("eGUIHelperSetVisualizerFlag");
 		int flag = m_multiThreadedHelper->m_visualizerFlag;
 		int enable = m_multiThreadedHelper->m_visualizerEnable;
 
@@ -1922,6 +1928,7 @@ void	PhysicsServerExample::updateGraphics()
 
 	case eGUIHelperRegisterGraphicsInstance:
 	{
+		B3_PROFILE("eGUIHelperRegisterGraphicsInstance");
 		m_multiThreadedHelper->m_instanceId = m_multiThreadedHelper->m_childGuiHelper->registerGraphicsInstance(
 				m_multiThreadedHelper->m_shapeIndex,
 				m_multiThreadedHelper->m_position,
@@ -1933,6 +1940,7 @@ void	PhysicsServerExample::updateGraphics()
 	}
 	case eGUIHelperRemoveAllGraphicsInstances:
         {
+		B3_PROFILE("eGUIHelperRemoveAllGraphicsInstances");
 #ifdef BT_ENABLE_VR
 			if (m_tinyVrGui)
 			{
@@ -1953,6 +1961,7 @@ void	PhysicsServerExample::updateGraphics()
         }
 	case eGUIHelperRemoveGraphicsInstance:
 	{
+		B3_PROFILE("eGUIHelperRemoveGraphicsInstance");
 		m_multiThreadedHelper->m_childGuiHelper->removeGraphicsInstance(m_multiThreadedHelper->m_graphicsInstanceRemove);
 		m_multiThreadedHelper->mainThreadRelease();
 		break;
@@ -1960,6 +1969,7 @@ void	PhysicsServerExample::updateGraphics()
 
 	case eGUIHelperGetShapeIndexFromInstance:
 	{
+		B3_PROFILE("eGUIHelperGetShapeIndexFromInstance");
 		m_multiThreadedHelper->getShapeIndex_shapeIndex = m_multiThreadedHelper->m_childGuiHelper->getShapeIndexFromInstance(m_multiThreadedHelper->m_getShapeIndex_instance);
 		m_multiThreadedHelper->mainThreadRelease();
 		break;
@@ -1967,6 +1977,8 @@ void	PhysicsServerExample::updateGraphics()
 
 	case eGUIHelperChangeGraphicsInstanceTextureId:
 	{
+		B3_PROFILE("eGUIHelperChangeGraphicsInstanceTextureId");
+
 		m_multiThreadedHelper->m_childGuiHelper->replaceTexture(
 			m_multiThreadedHelper->m_graphicsInstanceChangeTextureShapeIndex,
 			m_multiThreadedHelper->m_graphicsInstanceChangeTextureId);
@@ -1977,6 +1989,8 @@ void	PhysicsServerExample::updateGraphics()
 	
 	case eGUIHelperChangeTexture:
 	{
+		B3_PROFILE("eGUIHelperChangeTexture");
+
 		m_multiThreadedHelper->m_childGuiHelper->changeTexture(
 			m_multiThreadedHelper->m_changeTextureUniqueId,
 			m_multiThreadedHelper->m_changeTextureRgbTexels,
@@ -1988,12 +2002,16 @@ void	PhysicsServerExample::updateGraphics()
 
 	case eGUIHelperChangeGraphicsInstanceRGBAColor:
 	{
+		B3_PROFILE("eGUIHelperChangeGraphicsInstanceRGBAColor");
+
 		m_multiThreadedHelper->m_childGuiHelper->changeRGBAColor(m_multiThreadedHelper->m_graphicsInstanceChangeColor,m_multiThreadedHelper->m_rgbaColor);
 		m_multiThreadedHelper->mainThreadRelease();
 		break;
 	}
 	case eGUIHelperChangeGraphicsInstanceSpecularColor:
 	{
+		B3_PROFILE("eGUIHelperChangeGraphicsInstanceSpecularColor");
+
 		m_multiThreadedHelper->m_childGuiHelper->changeSpecularColor(m_multiThreadedHelper->m_graphicsInstanceChangeSpecular,m_multiThreadedHelper->m_specularColor);
 		m_multiThreadedHelper->mainThreadRelease();
 		break;
@@ -2001,6 +2019,8 @@ void	PhysicsServerExample::updateGraphics()
 	}
 	case eGUIHelperDisplayCameraImageData:
 	{
+		B3_PROFILE("eGUIHelperDisplayCameraImageData");
+
 		if (m_canvas)
 		{
 
@@ -2119,6 +2139,8 @@ void	PhysicsServerExample::updateGraphics()
 	}
     case eGUIHelperCopyCameraImageData:
         {
+		B3_PROFILE("eGUIHelperCopyCameraImageData");
+
              m_multiThreadedHelper->m_childGuiHelper->copyCameraImageData(m_multiThreadedHelper->m_viewMatrix,
 				 m_multiThreadedHelper->m_projectionMatrix,
 				 m_multiThreadedHelper->m_pixelsRGBA,
@@ -2137,6 +2159,8 @@ void	PhysicsServerExample::updateGraphics()
         }
 	case eGUIHelperAutogenerateGraphicsObjects:
 	{
+		B3_PROFILE("eGUIHelperAutogenerateGraphicsObjects");
+
 		m_multiThreadedHelper->m_childGuiHelper->autogenerateGraphicsObjects(m_multiThreadedHelper->m_dynamicsWorld);
 		m_multiThreadedHelper->mainThreadRelease();
 		break;
@@ -2144,12 +2168,16 @@ void	PhysicsServerExample::updateGraphics()
 
 	case eGUIUserDebugAddText:
 	{
+		B3_PROFILE("eGUIUserDebugAddText");
+
 		m_multiThreadedHelper->m_userDebugText.push_back(m_multiThreadedHelper->m_tmpText);
 		m_multiThreadedHelper->mainThreadRelease();
 		break;
 	}
 	case eGUIUserDebugAddParameter:
 	{
+		B3_PROFILE("eGUIUserDebugAddParameter");
+
 		UserDebugParameter* param = new UserDebugParameter(m_multiThreadedHelper->m_tmpParam);
 		m_multiThreadedHelper->m_userDebugParams.push_back(param);
 
@@ -2168,12 +2196,16 @@ void	PhysicsServerExample::updateGraphics()
 	}
 	case eGUIUserDebugAddLine:
 	{
+		B3_PROFILE("eGUIUserDebugAddLine");
+
 		m_multiThreadedHelper->m_userDebugLines.push_back(m_multiThreadedHelper->m_tmpLine);
 		m_multiThreadedHelper->mainThreadRelease();
 			break;
 	}
 	case eGUIUserDebugRemoveItem:
 	{
+		B3_PROFILE("eGUIUserDebugRemoveItem");
+
 		for (int i=0;i<m_multiThreadedHelper->m_userDebugLines.size();i++)
 		{
 			if (m_multiThreadedHelper->m_userDebugLines[i].m_itemUniqueId == m_multiThreadedHelper->m_removeDebugItemUid)
@@ -2200,6 +2232,8 @@ void	PhysicsServerExample::updateGraphics()
 	}
 	case eGUIUserDebugRemoveAllItems:
 	{
+		B3_PROFILE("eGUIUserDebugRemoveAllItems");
+
 		m_multiThreadedHelper->m_userDebugLines.clear();
 		m_multiThreadedHelper->m_userDebugText.clear();
 		m_multiThreadedHelper->m_uidGenerator = 0;
@@ -2209,6 +2243,8 @@ void	PhysicsServerExample::updateGraphics()
 
 	case eGUIDumpFramesToVideo:
 	{
+		B3_PROFILE("eGUIDumpFramesToVideo");
+
 		m_multiThreadedHelper->m_childGuiHelper->dumpFramesToVideo(m_multiThreadedHelper->m_mp4FileName);
 		m_multiThreadedHelper->mainThreadRelease();
 		break;

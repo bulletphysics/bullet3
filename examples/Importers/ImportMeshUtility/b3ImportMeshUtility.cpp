@@ -33,47 +33,51 @@ bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string&
 		}
 		
 		GLInstanceGraphicsShape* gfxShape = btgCreateGraphicsShapeFromWavefrontObj(shapes);
-		
-		//int textureIndex = -1;
-		//try to load some texture
-		for (int i=0; meshData.m_textureImage==0  && i<shapes.size();i++)
 		{
-			const tinyobj::shape_t& shape = shapes[i];
-			if (shape.material.diffuse_texname.length()>0)
+			B3_PROFILE("Load Texture");
+			//int textureIndex = -1;
+			//try to load some texture
+			for (int i = 0; meshData.m_textureImage == 0 && i < shapes.size(); i++)
 			{
-
-				int width,height,n;
-				const char* filename = shape.material.diffuse_texname.c_str();
-				unsigned char* image=0;
-
-				const char* prefix[]={ pathPrefix,"./","./data/","../data/","../../data/","../../../data/","../../../../data/"};
-				int numprefix = sizeof(prefix)/sizeof(const char*);
-		
-				for (int i=0;!image && i<numprefix;i++)
+				const tinyobj::shape_t& shape = shapes[i];
+				if (shape.material.diffuse_texname.length() > 0)
 				{
-					char relativeFileName[1024];
-					sprintf(relativeFileName,"%s%s",prefix[i],filename);
-					char  relativeFileName2[1024];
-					if (b3ResourcePath::findResourcePath(relativeFileName, relativeFileName2, 1024))
-                    {
-                        image = stbi_load(relativeFileName, &width, &height, &n, 3);
-						meshData.m_textureImage = image;
-						if (image)
-						{
-							meshData.m_textureWidth = width;
-							meshData.m_textureHeight = height;
-						} else
-						{
-							b3Warning("Unsupported texture image format [%s]\n",relativeFileName);
-							meshData.m_textureWidth = 0;
-							meshData.m_textureHeight = 0;
-							break;
-						}
 
-                    } else
-                    {
-                        b3Warning("not found [%s]\n",relativeFileName);
-                    }
+					int width, height, n;
+					const char* filename = shape.material.diffuse_texname.c_str();
+					unsigned char* image = 0;
+
+					const char* prefix[] = { pathPrefix, "./", "./data/", "../data/", "../../data/", "../../../data/", "../../../../data/" };
+					int numprefix = sizeof(prefix) / sizeof(const char*);
+
+					for (int i = 0; !image && i < numprefix; i++)
+					{
+						char relativeFileName[1024];
+						sprintf(relativeFileName, "%s%s", prefix[i], filename);
+						char  relativeFileName2[1024];
+						if (b3ResourcePath::findResourcePath(relativeFileName, relativeFileName2, 1024))
+						{
+							image = stbi_load(relativeFileName, &width, &height, &n, 3);
+							meshData.m_textureImage = image;
+							if (image)
+							{
+								meshData.m_textureWidth = width;
+								meshData.m_textureHeight = height;
+							}
+							else
+							{
+								b3Warning("Unsupported texture image format [%s]\n", relativeFileName);
+								meshData.m_textureWidth = 0;
+								meshData.m_textureHeight = 0;
+								break;
+							}
+
+						}
+						else
+						{
+							b3Warning("not found [%s]\n", relativeFileName);
+						}
+					}
 				}
 			}
 

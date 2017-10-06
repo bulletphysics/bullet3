@@ -57,6 +57,7 @@ ATTRIBUTE_ALIGNED16(struct) BulletURDFInternalData
 	mutable btAlignedObjectArray<btTriangleMesh*> m_allocatedMeshInterfaces;
 	
 	LinkVisualShapesConverter* m_customVisualShapesConverter;
+	bool m_enableTinyRenderer;
 
 	void setSourceFile(const std::string& relativeFileName, const std::string& prefix)
 	{
@@ -68,6 +69,7 @@ ATTRIBUTE_ALIGNED16(struct) BulletURDFInternalData
 
 	BulletURDFInternalData()
 	{
+		m_enableTinyRenderer = true;
 		m_pathPrefix[0] = 0;
 	}
 
@@ -1143,7 +1145,10 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 				
 				textureIndex = m_data->m_guiHelper->registerTexture(textures[0].textureData,textures[0].m_width,textures[0].m_height);
 			}
-			graphicsIndex = m_data->m_guiHelper->registerGraphicsShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size(),B3_GL_TRIANGLES,textureIndex);
+			{
+				B3_PROFILE("registerGraphicsShape");
+				graphicsIndex = m_data->m_guiHelper->registerGraphicsShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size(), B3_GL_TRIANGLES, textureIndex);
+			}
 			
 		}
 	}
@@ -1151,6 +1156,7 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 	//delete textures
 	for (int i=0;i<textures.size();i++)
 	{
+		B3_PROFILE("free textureData");
 		free( textures[i].textureData);
 	}
 	return graphicsIndex;
@@ -1206,10 +1212,15 @@ bool BulletURDFImporter::getLinkAudioSource(int linkIndex, SDFAudioSource& audio
 	return false;
 }
 
+void BulletURDFImporter::setEnableTinyRenderer(bool enable)
+{
+	m_data->m_enableTinyRenderer = enable;
+}
+
 
 void BulletURDFImporter::convertLinkVisualShapes2(int linkIndex, int urdfIndex, const char* pathPrefix, const btTransform& localInertiaFrame, class btCollisionObject* colObj, int bodyUniqueId) const
 {
-  	if (m_data->m_customVisualShapesConverter)
+  	if (m_data->m_enableTinyRenderer && m_data->m_customVisualShapesConverter)
 	{
 		const UrdfModel& model = m_data->m_urdfParser.getModel();
 		UrdfLink*const* linkPtr = model.m_links.getAtIndex(urdfIndex);
