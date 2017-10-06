@@ -5,7 +5,7 @@
 ///increase the SHARED_MEMORY_MAGIC_NUMBER whenever incompatible changes are made in the structures
 ///my convention is year/month/day/rev
 
-#define SHARED_MEMORY_MAGIC_NUMBER 201709260
+#define SHARED_MEMORY_MAGIC_NUMBER 201710050
 //#define SHARED_MEMORY_MAGIC_NUMBER 201708270
 //#define SHARED_MEMORY_MAGIC_NUMBER 201707140
 //#define SHARED_MEMORY_MAGIC_NUMBER 201706015
@@ -43,6 +43,7 @@ enum EnumSharedMemoryClientCommand
 	CMD_CALCULATE_INVERSE_DYNAMICS,
     CMD_CALCULATE_INVERSE_KINEMATICS,
     CMD_CALCULATE_JACOBIAN,
+    CMD_CALCULATE_MASS_MATRIX,
     CMD_USER_CONSTRAINT,
     CMD_REQUEST_CONTACT_POINT_INFORMATION,
     CMD_REQUEST_RAY_CAST_INTERSECTIONS,
@@ -74,6 +75,7 @@ enum EnumSharedMemoryClientCommand
 	CMD_CHANGE_TEXTURE,
 	CMD_SET_ADDITIONAL_SEARCH_PATH,
 	CMD_CUSTOM_COMMAND,
+	CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -120,6 +122,8 @@ enum EnumSharedMemoryServerStatus
 		CMD_CALCULATED_INVERSE_DYNAMICS_FAILED,
         CMD_CALCULATED_JACOBIAN_COMPLETED,
         CMD_CALCULATED_JACOBIAN_FAILED,
+        CMD_CALCULATED_MASS_MATRIX_COMPLETED,
+        CMD_CALCULATED_MASS_MATRIX_FAILED,
 		CMD_CONTACT_POINT_INFORMATION_COMPLETED,
 		CMD_CONTACT_POINT_INFORMATION_FAILED,
 		CMD_REQUEST_AABB_OVERLAP_COMPLETED,
@@ -171,7 +175,7 @@ enum EnumSharedMemoryServerStatus
 		CMD_CHANGE_TEXTURE_COMMAND_FAILED,
 		CMD_CUSTOM_COMMAND_COMPLETED,
 		CMD_CUSTOM_COMMAND_FAILED,
-
+		CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS_COMPLETED,
         //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
@@ -214,8 +218,8 @@ enum b3JointInfoFlags
 
 struct b3JointInfo
 {
-        char* m_linkName;
-        char* m_jointName;
+        char m_linkName[1024];
+        char m_jointName[1024];
         int m_jointType;
         int m_qIndex;
         int m_uIndex;
@@ -254,8 +258,8 @@ struct b3UserConstraint
 
 struct b3BodyInfo
 {
-	const char* m_baseName;
-	const char* m_bodyName; // for btRigidBody, it does not have a base, but can still have a body name from urdf
+	char m_baseName[1024];
+	char m_bodyName[1024]; // for btRigidBody, it does not have a base, but can still have a body name from urdf
 };
 
 struct b3DynamicsInfo
@@ -335,6 +339,7 @@ enum b3VREventType
 	VR_GENERIC_TRACKER_MOVE_EVENT=8,
 };
 
+#define MAX_VR_ANALOG_AXIS 5
 #define MAX_VR_BUTTONS 64
 #define MAX_VR_CONTROLLERS 8
 
@@ -376,7 +381,7 @@ struct b3VRControllerEvent
 	float m_orn[4];//valid for VR_CONTROLLER_MOVE_EVENT and VR_CONTROLLER_BUTTON_EVENT
 
 	float m_analogAxis;//valid if VR_CONTROLLER_MOVE_EVENT
-
+	float m_auxAnalogAxis[MAX_VR_ANALOG_AXIS*2];//store x,y per axis, only valid if VR_CONTROLLER_MOVE_EVENT
 	int m_buttons[MAX_VR_BUTTONS];//valid if VR_CONTROLLER_BUTTON_EVENT, see b3VRButtonInfo
 };
 
@@ -572,6 +577,7 @@ enum b3ConfigureDebugVisualizerEnum
 	COV_ENABLE_SYNC_RENDERING_INTERNAL,
 	COV_ENABLE_KEYBOARD_SHORTCUTS,
 	COV_ENABLE_MOUSE_PICKING,
+	COV_ENABLE_Y_AXIS_UP,
 };
 
 enum b3AddUserDebugItemEnum
@@ -633,9 +639,26 @@ struct b3PluginArguments
 	int m_numInts;
 	int m_ints[B3_MAX_PLUGIN_ARG_SIZE];
 	int m_numFloats;
-	int m_floats[B3_MAX_PLUGIN_ARG_SIZE];
+	double m_floats[B3_MAX_PLUGIN_ARG_SIZE];
+};
 
-
+struct b3PhysicsSimulationParameters
+{
+	double m_deltaTime;
+	double m_gravityAcceleration[3];
+	int m_numSimulationSubSteps;
+	int m_numSolverIterations;
+	int m_useRealTimeSimulation;
+	int m_useSplitImpulse;
+	double m_splitImpulsePenetrationThreshold;
+	double m_contactBreakingThreshold;
+	int m_internalSimFlags;
+	double m_defaultContactERP;
+	int m_collisionFilterMode;
+	int m_enableFileCaching;
+	double m_restitutionVelocityThreshold;
+	double 	m_defaultNonContactERP;
+	double m_frictionERP;
 };
 
 

@@ -40,6 +40,11 @@
 #include "../Utils/b3Clock.h"
 #include "b3PluginManager.h"
 
+
+#ifdef STATIC_LINK_VR_PLUGIN
+#include "plugins/vrSyncPlugin/vrSyncPlugin.h"
+#endif
+
 #ifdef B3_ENABLE_TINY_AUDIO
 #include "../TinyAudio/b3SoundEngine.h"
 #endif
@@ -355,7 +360,7 @@ struct CommandLogger
 				 case CMD_SEND_PHYSICS_SIMULATION_PARAMETERS:
 				 {
 					 fwrite((const char*)&command.m_updateFlags,sizeof(int), 1,m_file);
-					 fwrite((const char*)&command.m_physSimParamArgs, sizeof(SendPhysicsSimulationParameters), 1,m_file);
+					 fwrite((const char*)&command.m_physSimParamArgs, sizeof(b3PhysicsSimulationParameters), 1,m_file);
 					 break;
 				 }
 				 case CMD_REQUEST_CONTACT_POINT_INFORMATION:
@@ -559,7 +564,7 @@ struct CommandLogPlayback
 					 cmd->m_physSimParamArgs = unused.m_physSimParamArgs;
 					 #else
 					fread(&cmd->m_updateFlags,sizeof(int),1,m_file);
-					fread(&cmd->m_physSimParamArgs ,sizeof(SendPhysicsSimulationParameters),1,m_file);					
+					fread(&cmd->m_physSimParamArgs ,sizeof(b3PhysicsSimulationParameters),1,m_file);					
 
 					 #endif
 					 result = true;
@@ -884,8 +889,18 @@ struct b3VRControllerEvents
 			if (vrEvents[i].m_numMoveEvents)
 			{
 				m_vrEvents[controlledId].m_analogAxis = vrEvents[i].m_analogAxis;
+				for (int a=0;a<10;a++)
+				{
+					m_vrEvents[controlledId].m_auxAnalogAxis[a] = vrEvents[i].m_auxAnalogAxis[a];
+				}
+			} else
+			{
+				m_vrEvents[controlledId].m_analogAxis = 0;
+				for (int a=0;a<10;a++)
+				{
+					m_vrEvents[controlledId].m_auxAnalogAxis[a] = 0;
+				}
 			}
-
 			if (vrEvents[i].m_numMoveEvents+vrEvents[i].m_numButtonEvents)
 			{
 				m_vrEvents[controlledId].m_controllerId = vrEvents[i].m_controllerId;
@@ -1435,7 +1450,7 @@ struct PhysicsServerCommandProcessorInternalData
 
 	b3PluginManager m_pluginManager;
 
-	bool m_allowRealTimeSimulation;
+	bool m_useRealTimeSimulation;
 	
 
 	b3VRControllerEvents m_vrControllerEvents;
@@ -1519,7 +1534,7 @@ struct PhysicsServerCommandProcessorInternalData
 
 	PhysicsServerCommandProcessorInternalData(PhysicsCommandProcessorInterface* proc)
 		:m_pluginManager(proc),
-		m_allowRealTimeSimulation(false),
+		m_useRealTimeSimulation(false),
 		m_commandLogger(0),
 		m_logPlayback(0),
 		m_physicsDeltaTime(1./240.),
@@ -1546,10 +1561,11 @@ struct PhysicsServerCommandProcessorInternalData
 		
 
 		{
-			//test to statically link a plugin
-			//#include "plugins/testPlugin/testplugin.h"
 			//register static plugins:
-			//m_pluginManager.registerStaticLinkedPlugin("path", initPlugin, exitPlugin, executePluginCommand);
+#ifdef STATIC_LINK_VR_PLUGIN
+			m_pluginManager.registerStaticLinkedPlugin("vrSyncPlugin", initPlugin_vrSyncPlugin, exitPlugin_vrSyncPlugin, executePluginCommand_vrSyncPlugin,preTickPluginCallback_vrSyncPlugin,0);
+#endif //STATIC_LINK_VR_PLUGIN
+
 		}
 
 		m_vrControllerEvents.init();
@@ -1699,7 +1715,6 @@ void logCallback(btDynamicsWorld *world, btScalar timeStep)
 	
 	bool isPreTick = false;
 	proc->tickPlugins(timeStep, isPreTick);
-
 }
 
 bool MyContactAddedCallback(btManifoldPoint& cp,	const btCollisionObjectWrapper* colObj0Wrap,int partId0,int index0,const btCollisionObjectWrapper* colObj1Wrap,int partId1,int index1)
@@ -1810,6 +1825,11 @@ void PhysicsServerCommandProcessor::processCollisionForces(btScalar timeStep)
 void PhysicsServerCommandProcessor::tickPlugins(btScalar timeStep, bool isPreTick)
 {
 	m_data->m_pluginManager.tickPlugins(timeStep, isPreTick);
+	if (!isPreTick)
+	{
+		//clear events after each postTick, so we don't receive events multiple ticks
+		m_data->m_pluginManager.clearEvents();
+	}
 }
 
 
@@ -2993,7 +3013,7 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
 bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes )
 {
 //	BT_PROFILE("processCommand");
-
+	
 	bool hasStatus = false;
 
     {
@@ -5680,6 +5700,33 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					}
 					break;
 				}
+
+				case CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS:
+				{
+					SharedMemoryStatus& serverCmd =serverStatusOut;
+					serverCmd.m_type = CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS_COMPLETED;
+					serverCmd.m_simulationParameterResultArgs.m_collisionFilterMode = m_data->m_broadphaseCollisionFilterCallback->m_filterMode;
+					serverCmd.m_simulationParameterResultArgs.m_contactBreakingThreshold = gContactBreakingThreshold;
+					serverCmd.m_simulationParameterResultArgs.m_defaultContactERP = m_data->m_dynamicsWorld->getSolverInfo().m_erp2;
+					serverCmd.m_simulationParameterResultArgs.m_defaultNonContactERP = m_data->m_dynamicsWorld->getSolverInfo().m_erp;
+					serverCmd.m_simulationParameterResultArgs.m_deltaTime = m_data->m_physicsDeltaTime;
+					serverCmd.m_simulationParameterResultArgs.m_enableFileCaching =  b3IsFileCachingEnabled();
+					serverCmd.m_simulationParameterResultArgs.m_frictionERP = m_data->m_dynamicsWorld->getSolverInfo().m_frictionERP;
+					btVector3 grav = m_data->m_dynamicsWorld->getGravity();
+					serverCmd.m_simulationParameterResultArgs.m_gravityAcceleration[0] = grav[0];
+					serverCmd.m_simulationParameterResultArgs.m_gravityAcceleration[1] = grav[1];
+					serverCmd.m_simulationParameterResultArgs.m_gravityAcceleration[2] = grav[2];
+					serverCmd.m_simulationParameterResultArgs.m_internalSimFlags = gInternalSimFlags;
+					serverCmd.m_simulationParameterResultArgs.m_numSimulationSubSteps = m_data->m_numSimulationSubSteps;
+					serverCmd.m_simulationParameterResultArgs.m_numSolverIterations = m_data->m_dynamicsWorld->getSolverInfo().m_numIterations;
+					serverCmd.m_simulationParameterResultArgs.m_restitutionVelocityThreshold = m_data->m_dynamicsWorld->getSolverInfo().m_restitutionVelocityThreshold;
+					serverCmd.m_simulationParameterResultArgs.m_splitImpulsePenetrationThreshold = m_data->m_dynamicsWorld->getSolverInfo().m_splitImpulsePenetrationThreshold;
+					serverCmd.m_simulationParameterResultArgs.m_useRealTimeSimulation = m_data->m_useRealTimeSimulation;
+					serverCmd.m_simulationParameterResultArgs.m_useSplitImpulse = m_data->m_dynamicsWorld->getSolverInfo().m_splitImpulse;
+					hasStatus = true;
+					break;
+				}
+
 				case CMD_SEND_PHYSICS_SIMULATION_PARAMETERS:
 				{
 					BT_PROFILE("CMD_SEND_PHYSICS_SIMULATION_PARAMETERS");
@@ -5690,7 +5737,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					}
 					if (clientCmd.m_updateFlags & SIM_PARAM_UPDATE_REAL_TIME_SIMULATION)
 					{
-						m_data->m_allowRealTimeSimulation = clientCmd.m_physSimParamArgs.m_allowRealTimeSimulation;
+						m_data->m_useRealTimeSimulation = (clientCmd.m_physSimParamArgs.m_useRealTimeSimulation!=0);
 					}
 					
 					//see 
@@ -6702,6 +6749,61 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                     else
                     {
                         serverCmd.m_type = CMD_CALCULATED_JACOBIAN_FAILED;
+                    }
+                    
+                    hasStatus = true;
+                    break;
+                }
+                case CMD_CALCULATE_MASS_MATRIX:
+                {
+					BT_PROFILE("CMD_CALCULATE_MASS_MATRIX");
+
+                    SharedMemoryStatus& serverCmd = serverStatusOut;
+					serverCmd.m_type = CMD_CALCULATED_MASS_MATRIX_FAILED;
+                    InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_calculateMassMatrixArguments.m_bodyUniqueId);
+                    if (bodyHandle && bodyHandle->m_multiBody)
+                    {
+                        
+                        btInverseDynamics::MultiBodyTree* tree = m_data->findOrCreateTree(bodyHandle->m_multiBody);
+                        
+                        if (tree)
+                        {
+                            int baseDofs = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 6;
+                            const int numDofs = bodyHandle->m_multiBody->getNumDofs();
+                            const int totDofs = numDofs + baseDofs;
+                            btInverseDynamics::vecx q(totDofs);
+                            btInverseDynamics::matxx massMatrix(totDofs, totDofs);
+                            for (int i = 0; i < numDofs; i++)
+                            {
+                                q[i + baseDofs] = clientCmd.m_calculateMassMatrixArguments.m_jointPositionsQ[i];
+                            }
+                            if (-1 != tree->calculateMassMatrix(q, &massMatrix))
+                            {
+                                serverCmd.m_massMatrixResultArgs.m_dofCount = totDofs;
+                                // Fill in the result into the shared memory.
+								double* sharedBuf = (double*)bufferServerToClient;
+								int sizeInBytes = totDofs*totDofs*sizeof(double);
+								if (sizeInBytes < bufferSizeInBytes)
+								{
+									for (int i = 0; i < (totDofs); ++i)
+									{
+										for (int j = 0; j < (totDofs); ++j)
+										{
+											int element = (totDofs) * i + j;
+                                        
+											sharedBuf[element] = massMatrix(i,j);
+										}
+									}
+									serverCmd.m_type = CMD_CALCULATED_MASS_MATRIX_COMPLETED;
+								}
+                            }
+                            
+                        }
+                        
+                    }
+                    else
+                    {
+                        serverCmd.m_type = CMD_CALCULATED_MASS_MATRIX_FAILED;
                     }
                     
                     hasStatus = true;
@@ -8027,7 +8129,13 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						if (clientCmd.m_updateFlags & CMD_CUSTOM_COMMAND_LOAD_PLUGIN)
 						{
 							//pluginPath could be registered or load from disk
-							int pluginUniqueId = m_data->m_pluginManager.loadPlugin(clientCmd.m_customCommandArgs.m_pluginPath);
+							const char* postFix = "";
+							if (clientCmd.m_updateFlags & CMD_CUSTOM_COMMAND_LOAD_PLUGIN_POSTFIX)
+							{
+								postFix = clientCmd.m_customCommandArgs.m_postFix;
+							}
+
+							int pluginUniqueId = m_data->m_pluginManager.loadPlugin(clientCmd.m_customCommandArgs.m_pluginPath, postFix);
 							if (pluginUniqueId>=0)
 							{
 								serverCmd.m_customCommandResultArgs.m_pluginUniqueId = pluginUniqueId;
@@ -8280,18 +8388,18 @@ double gSubStep = 0.f;
 
 void PhysicsServerCommandProcessor::enableRealTimeSimulation(bool enableRealTimeSim)
 {
-	m_data->m_allowRealTimeSimulation = enableRealTimeSim;
+	m_data->m_useRealTimeSimulation = enableRealTimeSim;
 }
 
 bool PhysicsServerCommandProcessor::isRealTimeSimulationEnabled() const
 {
-	return 	m_data->m_allowRealTimeSimulation;
+	return 	m_data->m_useRealTimeSimulation;
 }
 
 void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,const struct b3VRControllerEvent* vrControllerEvents, int numVRControllerEvents, const struct b3KeyboardEvent* keyEvents, int numKeyEvents, const struct b3MouseEvent* mouseEvents, int numMouseEvents)
 {
 	m_data->m_vrControllerEvents.addNewVREvents(vrControllerEvents,numVRControllerEvents);
-
+	m_data->m_pluginManager.addEvents(vrControllerEvents, numVRControllerEvents, keyEvents, numKeyEvents, mouseEvents, numMouseEvents);
 
 	for (int i=0;i<m_data->m_stateLoggers.size();i++)
 	{
@@ -8390,7 +8498,7 @@ void PhysicsServerCommandProcessor::stepSimulationRealTime(double dtInSec,const 
 		}
 	}
 
-	if ((m_data->m_allowRealTimeSimulation) && m_data->m_guiHelper)
+	if ((m_data->m_useRealTimeSimulation) && m_data->m_guiHelper)
 	{
 		
 		

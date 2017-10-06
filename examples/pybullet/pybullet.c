@@ -503,6 +503,35 @@ void b3pybulletExitFunc(void)
 }
 
 
+static PyObject* pybullet_getConnectionInfo(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	int isConnected=0;
+	int method=0;
+	PyObject* pylist = 0;
+	PyObject* val = 0;
+	b3PhysicsClientHandle sm = 0;
+	static char* kwlist[] = {"physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|i", kwlist, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm != 0)
+	{
+		if (b3CanSubmitCommand(sm))
+		{
+			isConnected = 1;
+			method = sPhysicsClientsGUI[physicsClientId];
+		}
+	}
+
+	val = Py_BuildValue("{s:i,s:i}","isConnected", isConnected, "connectionMethod", method);
+	return val;
+
+}
+
+
 static PyObject* pybullet_saveWorld(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	const char* worldFileName = "";
@@ -824,6 +853,56 @@ static PyObject* pybullet_getDynamicsInfo(PyObject* self, PyObject* args, PyObje
 	return NULL;
 }
 
+static PyObject* pybullet_getPhysicsEngineParameters(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	b3PhysicsClientHandle sm = 0;
+	PyObject* val=0;
+	int physicsClientId = 0;
+	static char* kwlist[] = {"physicsClientId", NULL};
+
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|i", kwlist, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	{
+		b3SharedMemoryCommandHandle command = b3InitRequestPhysicsParamCommand(sm);
+		b3SharedMemoryStatusHandle statusHandle;
+		struct b3PhysicsSimulationParameters params;
+		int statusType;
+
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+		statusType = b3GetStatusType(statusHandle);
+		if (statusType!=CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS_COMPLETED)
+		{
+			PyErr_SetString(SpamError, "Couldn't get physics simulation parameters.");
+			return NULL;
+		}
+		b3GetStatusPhysicsSimulationParameters(statusHandle,&params);
+
+		//for now, return a subset, expose more/all on request
+		val = Py_BuildValue("{s:d,s:i,s:i,s:i,s:d,s:d,s:d}",
+						"fixedTimeStep", params.m_deltaTime, 
+						"numSubSteps", params.m_numSimulationSubSteps, 
+						"numSolverIterations", params.m_numSolverIterations,
+						"useRealTimeSimulation", params.m_useRealTimeSimulation,
+						"gravityAccelerationX", params.m_gravityAcceleration[0],
+						"gravityAccelerationY", params.m_gravityAcceleration[1],
+						"gravityAccelerationZ", params.m_gravityAcceleration[2]
+						);
+		return val;
+	}
+	//"fixedTimeStep", "numSolverIterations", "useSplitImpulse", "splitImpulsePenetrationThreshold", "numSubSteps", "collisionFilterMode", "contactBreakingThreshold", "maxNumCmdPer1ms", "enableFileCaching","restitutionVelocityThreshold", "erp", "contactERP", "frictionERP", 
+	//val = Py_BuildValue("{s:i,s:i}","isConnected", isConnected, "connectionMethod", method);
+	
+
+}
 
 static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* args, PyObject* keywds)
 {
@@ -918,19 +997,10 @@ static PyObject* pybullet_setPhysicsEngineParameter(PyObject* self, PyObject* ar
 		{
 			b3PhysicsParamSetDefaultFrictionERP(command,frictionERP);
 		}
-		//ret = b3PhysicsParamSetRealTimeSimulation(command, enableRealTimeSimulation);
 
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 	}
-#if 0
-	b3SharedMemoryCommandHandle	b3InitPhysicsParamCommand(b3PhysicsClientHandle physClient);
-	int	b3PhysicsParamSetGravity(b3SharedMemoryCommandHandle commandHandle, double gravx, double gravy, double gravz);
-	int	b3PhysicsParamSetTimeStep(b3SharedMemoryCommandHandle commandHandle, double timeStep);
-	int	b3PhysicsParamSetDefaultContactERP(b3SharedMemoryCommandHandle commandHandle, double defaultContactERP);
-	int	b3PhysicsParamSetNumSubSteps(b3SharedMemoryCommandHandle commandHandle, int numSubSteps);
-	int b3PhysicsParamSetRealTimeSimulation(b3SharedMemoryCommandHandle commandHandle, int enableRealTimeSimulation);
-	int b3PhysicsParamSetNumSolverIterations(b3SharedMemoryCommandHandle commandHandle, int numSolverIterations);
-#endif
+
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -4207,9 +4277,10 @@ static PyObject* pybullet_getVREvents(PyObject* self, PyObject* args, PyObject* 
 	int statusType;
 	int deviceTypeFilter = VR_DEVICE_CONTROLLER;
 	int physicsClientId = 0;
+	int allAnalogAxes = 0;
 	b3PhysicsClientHandle sm = 0;
-	static char* kwlist[] = {"deviceTypeFilter", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|ii", kwlist, &deviceTypeFilter, &physicsClientId))
+	static char* kwlist[] = {"deviceTypeFilter", "allAnalogAxes", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|iii", kwlist, &deviceTypeFilter, &allAnalogAxes, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -4237,7 +4308,8 @@ static PyObject* pybullet_getVREvents(PyObject* self, PyObject* args, PyObject* 
 		vrEventsObj = PyTuple_New(vrEvents.m_numControllerEvents);
 		for (i = 0; i < vrEvents.m_numControllerEvents; i++)
 		{
-			PyObject* vrEventObj = PyTuple_New(8);
+			int numFields = allAnalogAxes? 9 : 8;
+			PyObject* vrEventObj = PyTuple_New(numFields);
 
 			PyTuple_SetItem(vrEventObj, 0, PyInt_FromLong(vrEvents.m_controllerEvents[i].m_controllerId));
 			{
@@ -4270,6 +4342,19 @@ static PyObject* pybullet_getVREvents(PyObject* self, PyObject* args, PyObject* 
 				PyTuple_SetItem(vrEventObj, 6, buttonsObj);
 			}
 			PyTuple_SetItem(vrEventObj, 7, PyInt_FromLong(vrEvents.m_controllerEvents[i].m_deviceType));
+
+			if (allAnalogAxes)
+			{
+				PyObject* buttonsObj = PyTuple_New(MAX_VR_ANALOG_AXIS*2);
+				int b;
+				for (b = 0; b < MAX_VR_ANALOG_AXIS*2; b++)
+				{
+					PyObject* axisVal = PyFloat_FromDouble(vrEvents.m_controllerEvents[i].m_auxAnalogAxis[b]);
+					PyTuple_SetItem(buttonsObj, b, axisVal);
+				}
+				PyTuple_SetItem(vrEventObj, 8, buttonsObj);
+			}
+
 			PyTuple_SetItem(vrEventsObj, i, vrEventObj);
 		}
 		return vrEventsObj;
@@ -6681,13 +6766,15 @@ static PyObject* pybullet_loadPlugin(PyObject* self,
 	int physicsClientId = 0;
 	
 	char* pluginPath = 0;
+	char* postFix = 0;
+
 	b3SharedMemoryCommandHandle command = 0;
 	b3SharedMemoryStatusHandle 	statusHandle = 0;
 	int statusType = -1;
 
 	b3PhysicsClientHandle sm = 0;
-	static char* kwlist[] = { "pluginPath",  "physicsClientId", NULL };
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|i", kwlist, &pluginPath, &physicsClientId))
+	static char* kwlist[] = { "pluginPath",  "postFix", "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|si", kwlist, &pluginPath, &postFix, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -6701,6 +6788,10 @@ static PyObject* pybullet_loadPlugin(PyObject* self,
 
 	command = b3CreateCustomCommand(sm);
 	b3CustomCommandLoadPlugin(command, pluginPath);
+	if (postFix)
+	{
+		b3CustomCommandLoadPluginSetPostFix(command, postFix);
+	}
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 	statusType = b3GetStatusPluginUniqueId(statusHandle);
 	return PyInt_FromLong(statusType);
@@ -7162,8 +7253,8 @@ static PyObject* pybullet_calculateJacobian(PyObject* self, PyObject* args, PyOb
 				double* jointPositions = (double*)malloc(byteSizeJoints);
 				double* jointVelocities = (double*)malloc(byteSizeJoints);
 				double* jointAccelerations = (double*)malloc(byteSizeJoints);
-				double* linearJacobian = (double*)malloc(3 * byteSizeJoints);
-				double* angularJacobian = (double*)malloc(3 * byteSizeJoints);
+				double* linearJacobian = NULL;
+				double* angularJacobian = NULL;
 
 				pybullet_internalSetVectord(localPosition, localPoint);
 				for (i = 0; i < numJoints; i++)
@@ -7261,6 +7352,101 @@ static PyObject* pybullet_calculateJacobian(PyObject* self, PyObject* args, PyOb
 	return Py_None;
 }
 
+/// Given an object id, joint positions, joint velocities and joint
+/// accelerations, compute the Jacobian
+static PyObject* pybullet_calculateMassMatrix(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	{
+		int bodyUniqueId;
+		PyObject* objPositions;
+		int physicsClientId = 0;
+		b3PhysicsClientHandle sm = 0;
+		static char* kwlist[] = {"bodyUniqueId", "objPositions", "physicsClientId", NULL};
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "iO|i", kwlist,
+				&bodyUniqueId, &objPositions, &physicsClientId))
+		{
+			return NULL;
+		}
+		sm = getPhysicsClient(physicsClientId);
+		if (sm == 0)
+		{
+			PyErr_SetString(SpamError, "Not connected to physics server.");
+			return NULL;
+		}
+
+		{
+			int szObPos = PySequence_Size(objPositions);
+			int numJoints = b3GetNumJoints(sm, bodyUniqueId);
+			if (numJoints && (szObPos == numJoints))
+			{
+				int byteSizeJoints = sizeof(double) * numJoints;
+				PyObject* pyResultList;
+				double* jointPositions = (double*)malloc(byteSizeJoints);
+				double* massMatrix = NULL;
+				int i;
+				for (i = 0; i < numJoints; i++)
+				{
+					jointPositions[i] =
+						pybullet_internalGetFloatFromSequence(objPositions, i);
+				}
+				{
+					b3SharedMemoryStatusHandle statusHandle;	
+					int statusType;
+					b3SharedMemoryCommandHandle commandHandle =
+						b3CalculateMassMatrixCommandInit(sm, bodyUniqueId, jointPositions);
+					statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+					statusType = b3GetStatusType(statusHandle);
+					if (statusType == CMD_CALCULATED_MASS_MATRIX_COMPLETED)
+					{
+						int dofCount;
+						b3GetStatusMassMatrix(sm, statusHandle, &dofCount, NULL);
+						if (dofCount)
+						{
+							int byteSizeDofCount = sizeof(double) * dofCount;
+							pyResultList = PyTuple_New(dofCount);
+							
+							massMatrix = (double*)malloc(dofCount * byteSizeDofCount);
+							b3GetStatusMassMatrix(sm, statusHandle, NULL, massMatrix);
+							if (massMatrix)
+							{
+								int r;
+								for (r = 0; r < dofCount; ++r) {
+									int c;
+									PyObject* pyrow = PyTuple_New(dofCount);
+									for (c = 0; c < dofCount; ++c) {
+										int element = r * dofCount + c;
+										PyTuple_SetItem(pyrow, c,
+													PyFloat_FromDouble(massMatrix[element]));
+									}
+									PyTuple_SetItem(pyResultList, r, pyrow);
+								}
+							}
+						}
+					}
+					else
+					{
+						PyErr_SetString(SpamError,
+										"Internal error in calculateJacobian");
+					}
+				}
+				free(jointPositions);
+				free(massMatrix);
+				if (pyResultList) return pyResultList;
+			}
+			else
+			{
+				PyErr_SetString(SpamError,
+								"calculateMassMatrix [numJoints] needs to be "
+								"positive and [joint positions] "
+								"need to match the number of joints.");
+				return NULL;
+			}
+		}
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyMethodDef SpamMethods[] = {
 
 	{"connect", (PyCFunction)pybullet_connectPhysicsServer, METH_VARARGS | METH_KEYWORDS,
@@ -7271,6 +7457,10 @@ static PyMethodDef SpamMethods[] = {
 	{"disconnect", (PyCFunction)pybullet_disconnectPhysicsServer, METH_VARARGS | METH_KEYWORDS,
 	"disconnect(physicsClientId=0)\n"
 	 "Disconnect from the physics server."},
+
+	 {"getConnectionInfo", (PyCFunction)pybullet_getConnectionInfo, METH_VARARGS | METH_KEYWORDS,
+	  "getConnectionInfo(physicsClientId=0)\n"
+	  "Return if a given client id is connected, and using what method."},
 
 	{"resetSimulation", (PyCFunction)pybullet_resetSimulation, METH_VARARGS | METH_KEYWORDS,
 	"resetSimulation(physicsClientId=0)\n"
@@ -7303,6 +7493,9 @@ static PyMethodDef SpamMethods[] = {
 
 	{"setPhysicsEngineParameter", (PyCFunction)pybullet_setPhysicsEngineParameter, METH_VARARGS | METH_KEYWORDS,
 	 "Set some internal physics engine parameter, such as cfm or erp etc."},
+
+	 {"getPhysicsEngineParameters", (PyCFunction)pybullet_getPhysicsEngineParameters, METH_VARARGS | METH_KEYWORDS,
+	 "Get the current values of internal physics engine parameters"},
 
 	{"setInternalSimFlags", (PyCFunction)pybullet_setInternalSimFlags, METH_VARARGS | METH_KEYWORDS,
 	 "This is for experimental purposes, use at own risk, magic may or not happen"},
@@ -7566,6 +7759,8 @@ static PyMethodDef SpamMethods[] = {
 	 "accelerations, compute the joint forces using Inverse Dynamics"},
 
 	 {"calculateJacobian", (PyCFunction)pybullet_calculateJacobian, METH_VARARGS | METH_KEYWORDS,
+	 "linearJacobian, angularJacobian = calculateJacobian(bodyUniqueId, "
+	 "linkIndex, localPosition, objPositions, objVelocities, objAccelerations, physicsClientId=0)\n"
 	 "Compute the jacobian for a specified local position on a body and its kinematics.\n"
 	 "Args:\n"
 	 "  bodyIndex - a scalar defining the unique object id.\n"
@@ -7577,6 +7772,15 @@ static PyMethodDef SpamMethods[] = {
 	 "Returns:\n"
 	 "  linearJacobian - a list of the partial linear velocities of the jacobian.\n"
 	 "  angularJacobian - a list of the partial angular velocities of the jacobian.\n"},
+	
+	{"calculateMassMatrix", (PyCFunction)pybullet_calculateMassMatrix, METH_VARARGS | METH_KEYWORDS,
+	"massMatrix = calculateMassMatrix(bodyUniqueId, objPositions, physicsClientId=0)\n"
+	 "Compute the mass matrix for an object and its chain of bodies.\n"
+	 "Args:\n"
+	 "  bodyIndex - a scalar defining the unique object id.\n"
+	 "  objPositions - a list of the joint positions.\n"
+	 "Returns:\n"
+	 "  massMatrix - a list of lists of the mass matrix components.\n"},
 
 	{"calculateInverseKinematics", (PyCFunction)pybullet_calculateInverseKinematics,
 	 METH_VARARGS | METH_KEYWORDS,

@@ -1330,7 +1330,7 @@ public:
 	btVector3	getRayTo(int x,int y);
 
 	virtual void	vrControllerButtonCallback(int controllerId, int button, int state, float pos[4], float orientation[4]);
-	virtual void	vrControllerMoveCallback(int controllerId, float pos[4], float orientation[4], float analogAxis);
+	virtual void	vrControllerMoveCallback(int controllerId, float pos[4], float orientation[4], float analogAxis, float auxAnalogAxes[10]);
 	virtual void	vrHMDMoveCallback(int controllerId, float pos[4], float orientation[4]);
 	virtual void	vrGenericTrackerMoveCallback(int controllerId, float pos[4], float orientation[4]);
 
@@ -2874,7 +2874,7 @@ void	PhysicsServerExample::vrControllerButtonCallback(int controllerId, int butt
 }
 
 
-void	PhysicsServerExample::vrControllerMoveCallback(int controllerId, float pos[4], float orn[4], float analogAxis)
+void	PhysicsServerExample::vrControllerMoveCallback(int controllerId, float pos[4], float orn[4], float analogAxis, float auxAnalogAxes[10])
 {
 
 	if (controllerId < 0 || controllerId >= MAX_VR_CONTROLLERS)
@@ -2927,6 +2927,11 @@ void	PhysicsServerExample::vrControllerMoveCallback(int controllerId, float pos[
 	m_args[0].m_vrControllerEvents[controllerId].m_orn[3] = trTotal.getRotation()[3];
 	m_args[0].m_vrControllerEvents[controllerId].m_numMoveEvents++;
 	m_args[0].m_vrControllerEvents[controllerId].m_analogAxis = analogAxis;
+	for (int i=0;i<10;i++)
+	{
+		m_args[0].m_vrControllerEvents[controllerId].m_auxAnalogAxis[i] = auxAnalogAxes[i];
+	}
+	
 	m_args[0].m_csGUI->unlock();
 
 }

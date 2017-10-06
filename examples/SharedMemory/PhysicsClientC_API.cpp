@@ -325,6 +325,32 @@ B3_SHARED_API int	b3LoadUrdfCommandSetStartOrientation(b3SharedMemoryCommandHand
 	return -1;
 }
 
+B3_SHARED_API	b3SharedMemoryCommandHandle     b3InitRequestPhysicsParamCommand(b3PhysicsClientHandle physClient)
+{
+    PhysicsClient* cl = (PhysicsClient* ) physClient;
+    b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+	command->m_type = CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS;
+	command->m_updateFlags = 0;
+    return (b3SharedMemoryCommandHandle) command;
+}
+
+B3_SHARED_API	int b3GetStatusPhysicsSimulationParameters(b3SharedMemoryStatusHandle statusHandle,struct b3PhysicsSimulationParameters* params)
+{
+	const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
+	b3Assert(status);
+	b3Assert(status->m_type == CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS_COMPLETED);
+	if (status && status->m_type == CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS_COMPLETED)
+	{
+		*params = status->m_simulationParameterResultArgs;
+		return 1;
+	}
+	return 0;
+}
+
+
 B3_SHARED_API	b3SharedMemoryCommandHandle     b3InitPhysicsParamCommand(b3PhysicsClientHandle physClient)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;
@@ -352,7 +378,7 @@ B3_SHARED_API	int     b3PhysicsParamSetRealTimeSimulation(b3SharedMemoryCommandH
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
 	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
-	command->m_physSimParamArgs.m_allowRealTimeSimulation = (enableRealTimeSimulation!=0);
+	command->m_physSimParamArgs.m_useRealTimeSimulation = (enableRealTimeSimulation!=0);
 	command->m_updateFlags |= SIM_PARAM_UPDATE_REAL_TIME_SIMULATION;
 	return 0;
 }
@@ -395,15 +421,11 @@ B3_SHARED_API int b3PhysicsParamSetContactBreakingThreshold(b3SharedMemoryComman
 	command->m_updateFlags |= SIM_PARAM_UPDATE_CONTACT_BREAKING_THRESHOLD;
 	return 0;
 }
+
 B3_SHARED_API int b3PhysicsParamSetMaxNumCommandsPer1ms(b3SharedMemoryCommandHandle commandHandle, int maxNumCmdPer1ms)
 {
-	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
-	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
-
-	command->m_physSimParamArgs.m_maxNumCmdPer1ms = maxNumCmdPer1ms;
-	command->m_updateFlags |= SIM_PARAM_MAX_CMD_PER_1MS;
+	//obsolete command
 	return 0;
-
 }
 
 B3_SHARED_API int b3PhysicsParamSetEnableFileCaching(b3SharedMemoryCommandHandle commandHandle, int enableFileCaching)
@@ -1438,7 +1460,10 @@ B3_SHARED_API int b3CreateSensorEnableIMUForLink(b3SharedMemoryCommandHandle com
 B3_SHARED_API	void	b3DisconnectSharedMemory(b3PhysicsClientHandle physClient)
 {
 	PhysicsClient* cl = (PhysicsClient* ) physClient;
-	cl->disconnectSharedMemory();
+	if (cl)
+	{
+		cl->disconnectSharedMemory();
+	}
 	delete cl;
 }
 
@@ -1773,6 +1798,23 @@ B3_SHARED_API	void b3CustomCommandLoadPlugin(b3SharedMemoryCommandHandle command
 		if (len<MAX_FILENAME_LENGTH)
 		{
 			strcpy(command->m_customCommandArgs.m_pluginPath, pluginPath);
+		}
+	}
+}
+
+B3_SHARED_API	void b3CustomCommandLoadPluginSetPostFix(b3SharedMemoryCommandHandle commandHandle, const char* postFix)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_CUSTOM_COMMAND);
+	if (command->m_type == CMD_CUSTOM_COMMAND)
+	{
+		command->m_updateFlags |= CMD_CUSTOM_COMMAND_LOAD_PLUGIN_POSTFIX;
+		command->m_customCommandArgs.m_postFix[0] = 0;
+
+		int len = strlen(postFix);
+		if (len<MAX_FILENAME_LENGTH)
+		{
+			strcpy(command->m_customCommandArgs.m_postFix, postFix);
 		}
 	}
 }
@@ -3372,6 +3414,48 @@ B3_SHARED_API int b3GetStatusJacobian(b3SharedMemoryStatusHandle statusHandle, i
             angularJacobian[i] = status->m_jacobianResultArgs.m_angularJacobian[i];
         }
 
+    }
+    
+    return true;
+}
+
+B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateMassMatrixCommandInit(b3PhysicsClientHandle physClient, int bodyIndex, const double* jointPositionsQ)
+{
+    PhysicsClient* cl = (PhysicsClient*)physClient;
+    b3Assert(cl);
+    b3Assert(cl->canSubmitCommand());
+    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+    b3Assert(command);
+    
+    command->m_type = CMD_CALCULATE_MASS_MATRIX;
+    command->m_updateFlags = 0;
+    int numJoints = cl->getNumJoints(bodyIndex);
+    for (int i = 0; i < numJoints; i++)
+    {
+        command->m_calculateMassMatrixArguments.m_jointPositionsQ[i] = jointPositionsQ[i];
+    }
+    
+    return (b3SharedMemoryCommandHandle)command;
+}
+
+
+B3_SHARED_API int b3GetStatusMassMatrix(b3PhysicsClientHandle physClient, b3SharedMemoryStatusHandle statusHandle, int* dofCount, double* massMatrix)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+
+    const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
+    btAssert(status->m_type == CMD_CALCULATED_MASS_MATRIX_COMPLETED);
+    if (status->m_type != CMD_CALCULATED_MASS_MATRIX_COMPLETED)
+        return false;
+    
+    if (dofCount)
+    {
+    	*dofCount = status->m_massMatrixResultArgs.m_dofCount;
+    }
+    if (massMatrix)
+    {
+		cl->getCachedMassMatrix(status->m_massMatrixResultArgs.m_dofCount, massMatrix);
     }
     
     return true;

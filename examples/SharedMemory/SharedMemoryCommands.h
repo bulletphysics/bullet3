@@ -114,6 +114,7 @@ enum CustomCommandEnum
 	CMD_CUSTOM_COMMAND_LOAD_PLUGIN=1,
 	CMD_CUSTOM_COMMAND_UNLOAD_PLUGIN=2,
 	CMD_CUSTOM_COMMAND_EXECUTE_PLUGIN_COMMAND=4,
+	CMD_CUSTOM_COMMAND_LOAD_PLUGIN_POSTFIX=8,
 };
 
 struct b3CustomCommand
@@ -121,6 +122,8 @@ struct b3CustomCommand
 	int m_pluginUniqueId;
 	b3PluginArguments m_arguments;
 	char m_pluginPath[MAX_FILENAME_LENGTH];
+	char m_postFix[MAX_FILENAME_LENGTH];
+
 };
 
 struct b3CustomCommandResultArgs
@@ -425,25 +428,6 @@ enum EnumSimParamInternalSimFlags
 
 ///Controlling a robot involves sending the desired state to its joint motor controllers.
 ///The control mode determines the state variables used for motor control.
-struct SendPhysicsSimulationParameters
-{
-	double m_deltaTime;
-	double m_gravityAcceleration[3];
-	int m_numSimulationSubSteps;
-	int m_numSolverIterations;
-	bool m_allowRealTimeSimulation;
-	int m_useSplitImpulse;
-	double m_splitImpulsePenetrationThreshold;
-	double m_contactBreakingThreshold;
-	int m_maxNumCmdPer1ms;
-	int m_internalSimFlags;
-	double m_defaultContactERP;
-	int m_collisionFilterMode;
-	int m_enableFileCaching;
-	double m_restitutionVelocityThreshold;
-	double 	m_defaultNonContactERP;
-	double m_frictionERP;
-};
 
 struct LoadBunnyArgs
 {
@@ -636,6 +620,17 @@ struct CalculateJacobianResultArgs
     int m_dofCount;
     double m_linearJacobian[3*MAX_DEGREE_OF_FREEDOM];
     double m_angularJacobian[3*MAX_DEGREE_OF_FREEDOM];
+};
+
+struct CalculateMassMatrixArgs
+{
+	int m_bodyUniqueId;
+	double m_jointPositionsQ[MAX_DEGREE_OF_FREEDOM];
+};
+
+struct CalculateMassMatrixResultArgs
+{
+	int m_dofCount;
 };
 
 enum EnumCalculateInverseKinematicsFlags
@@ -957,7 +952,7 @@ struct SharedMemoryCommand
 		struct ChangeDynamicsInfoArgs m_changeDynamicsInfoArgs;
 		struct GetDynamicsInfoArgs m_getDynamicsInfoArgs;
 		struct InitPoseArgs m_initPoseArgs;
-		struct SendPhysicsSimulationParameters m_physSimParamArgs;
+		struct b3PhysicsSimulationParameters m_physSimParamArgs;
 		struct BulletDataStreamArgs	m_dataStreamArguments;
 		struct SendDesiredStateArgs m_sendDesiredStateCommandArgument;
 		struct RequestActualStateArgs m_requestActualStateInformationCommandArgument;
@@ -969,6 +964,7 @@ struct SharedMemoryCommand
         struct ExternalForceArgs m_externalForceArguments;
 		struct CalculateInverseDynamicsArgs m_calculateInverseDynamicsArguments;
         struct CalculateJacobianArgs m_calculateJacobianArguments;
+        struct CalculateMassMatrixArgs m_calculateMassMatrixArguments;
         struct b3UserConstraint m_userConstraintArguments;
         struct RequestContactDataArgs m_requestContactPointArguments;
 		struct RequestOverlappingObjectsArgs m_requestOverlappingObjectsArgs;
@@ -1043,6 +1039,7 @@ struct SharedMemoryStatus
 		struct RigidBodyCreateArgs m_rigidBodyCreateArgs;
 		struct CalculateInverseDynamicsResultArgs m_inverseDynamicsResultArgs;
         struct CalculateJacobianResultArgs m_jacobianResultArgs;
+        struct CalculateMassMatrixResultArgs m_massMatrixResultArgs;
 		struct SendContactDataArgs m_sendContactPointArgs;
 		struct SendOverlappingObjectsArgs m_sendOverlappingObjectsArgs;
 		struct CalculateInverseKinematicsResultArgs m_inverseKinematicsResultArgs;
@@ -1063,7 +1060,7 @@ struct SharedMemoryStatus
 		struct SendMouseEvents m_sendMouseEvents;
 		struct b3LoadTextureResultArgs m_loadTextureResultArguments;
 		struct b3CustomCommandResultArgs m_customCommandResultArgs;
-
+		struct b3PhysicsSimulationParameters m_simulationParameterResultArgs;
 	};
 };
 
