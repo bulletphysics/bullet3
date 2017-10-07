@@ -1553,8 +1553,8 @@ struct PhysicsServerCommandProcessorInternalData
 		m_profileTimingLoggingUid(-1),
 		m_guiHelper(0),
 		m_sharedMemoryKey(SHARED_MEMORY_KEY),
-		m_verboseOutput(false),
 		m_enableTinyRenderer(true),
+		m_verboseOutput(false),
 		m_pickedBody(0),
 		m_pickedConstraint(0),
 		m_pickingMultiBodyPoint2Point(0)
