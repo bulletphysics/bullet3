@@ -206,19 +206,6 @@ void PhysicsClientSharedMemory::removeCachedBody(int bodyUniqueId)
 	BodyJointInfoCache** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
 	if (bodyJointsPtr && *bodyJointsPtr)
 	{
-
-		BodyJointInfoCache* bodyJoints = *bodyJointsPtr;
-		for (int j=0;j<bodyJoints->m_jointInfo.size();j++) 
-		{
-			if (bodyJoints->m_jointInfo[j].m_jointName)
-			{
-				free(bodyJoints->m_jointInfo[j].m_jointName);
-			}
-			if (bodyJoints->m_jointInfo[j].m_linkName)
-			{
-				free(bodyJoints->m_jointInfo[j].m_linkName);
-			}
-		}
 		delete (*bodyJointsPtr);
 		m_data->m_bodyJointMap.remove(bodyUniqueId);
 	}

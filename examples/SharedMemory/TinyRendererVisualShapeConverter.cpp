@@ -1097,45 +1097,31 @@ void TinyRendererVisualShapeConverter::resetAll()
 	m_data->m_visualShapes.clear();
 }
 
-void TinyRendererVisualShapeConverter::activateShapeTexture(int shapeUniqueId, int textureUniqueId)
-{
-    btAssert(textureUniqueId < m_data->m_textures.size());
-	if (textureUniqueId>=0 && textureUniqueId<m_data->m_textures.size())
-	{
-		TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances.getAtIndex(shapeUniqueId);
-		if (ptrptr && *ptrptr)
-		{
-			TinyRendererObjectArray* ptr = *ptrptr;
-			ptr->m_renderObjects[0]->m_model->setDiffuseTextureFromData(m_data->m_textures[textureUniqueId].textureData,m_data->m_textures[textureUniqueId].m_width,m_data->m_textures[textureUniqueId].m_height);
-		}
-	}
-}
 
 void TinyRendererVisualShapeConverter::activateShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)
 {
-    int start = -1;
-    for (int i = 0; i < m_data->m_visualShapes.size(); i++)
-    {
-        if (m_data->m_visualShapes[i].m_objectUniqueId == objectUniqueId && m_data->m_visualShapes[i].m_linkIndex == jointIndex)
-        {
-			if (shapeIndex<0)
-			{
-				activateShapeTexture(i, textureUniqueId);		
-			} else
-			{
-	            start = i;
-		        break;
-			}
-        }
-    }
-    if (shapeIndex>=0)
+	btAssert(textureUniqueId < m_data->m_textures.size());
+	if (textureUniqueId >= 0 && textureUniqueId < m_data->m_textures.size())
 	{
-		if (start >= 0)
+		for (int n = 0; n < m_data->m_swRenderInstances.size(); n++)
 		{
-			if (start + shapeIndex < m_data->m_visualShapes.size())
+			TinyRendererObjectArray** visualArrayPtr = m_data->m_swRenderInstances.getAtIndex(n);
+			if (0 == visualArrayPtr)
+				continue;//can this ever happen?
+			TinyRendererObjectArray* visualArray = *visualArrayPtr;
+
+			if (visualArray->m_objectUniqueId == objectUniqueId && visualArray->m_linkIndex == jointIndex)
 			{
-				activateShapeTexture(start + shapeIndex, textureUniqueId);
+				for (int v = 0; v < visualArray->m_renderObjects.size(); v++)
+				{
+					TinyRenderObjectData* renderObj = visualArray->m_renderObjects[v];
+					if ((shapeIndex < 0) || (shapeIndex == v))
+					{
+						renderObj->m_model->setDiffuseTextureFromData(m_data->m_textures[textureUniqueId].textureData, m_data->m_textures[textureUniqueId].m_width, m_data->m_textures[textureUniqueId].m_height);
+					}
+				}
 			}
+
 		}
 	}
 }

@@ -1329,8 +1329,8 @@ public:
 
 	btVector3	getRayTo(int x,int y);
 
-	virtual void	vrControllerButtonCallback(int controllerId, int button, int state, float pos[4], float orientation[4]);
-	virtual void	vrControllerMoveCallback(int controllerId, float pos[4], float orientation[4], float analogAxis, float auxAnalogAxes[10]);
+	virtual void	vrControllerButtonCallback(int controllerId, int button, int state, float pos[4], float orn[4]);
+	virtual void	vrControllerMoveCallback(int controllerId, float pos[4], float orn[4], float analogAxis, float auxAnalogAxes[10]);
 	virtual void	vrHMDMoveCallback(int controllerId, float pos[4], float orientation[4]);
 	virtual void	vrGenericTrackerMoveCallback(int controllerId, float pos[4], float orientation[4]);
 
