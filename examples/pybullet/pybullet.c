@@ -2902,7 +2902,7 @@ static PyObject* pybullet_getJointInfo(PyObject* self, PyObject* args, PyObject*
 				//          info.m_jointFriction);
 				PyTuple_SetItem(pyListJointInfo, 0, PyInt_FromLong(info.m_jointIndex));
 				
-				if (info.m_jointName)
+				if (info.m_jointName[0])
 				{
 					PyTuple_SetItem(pyListJointInfo, 1,
 								PyString_FromString(info.m_jointName));
@@ -2928,7 +2928,7 @@ static PyObject* pybullet_getJointInfo(PyObject* self, PyObject* args, PyObject*
 								PyFloat_FromDouble(info.m_jointMaxForce));
 				PyTuple_SetItem(pyListJointInfo, 11,
 								PyFloat_FromDouble(info.m_jointMaxVelocity));
-				if (info.m_linkName)
+				if (info.m_linkName[0])
 				{
 				
 					PyTuple_SetItem(pyListJointInfo, 12,
