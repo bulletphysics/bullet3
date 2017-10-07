@@ -1154,11 +1154,12 @@ public:
 		if (m_floats[2] > maxVal)
 		{
 			maxIndex = 2;
-			maxVal =m_floats[2];
+			maxVal = m_floats[2];
 		}
 		if (m_floats[3] > maxVal)
 		{
 			maxIndex = 3;
+			maxVal = m_floats[3];
 		}
 
 		return maxIndex;
