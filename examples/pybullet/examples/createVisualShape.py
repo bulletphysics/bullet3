@@ -3,22 +3,19 @@ import time
 p.connect(p.GUI)
 p.setPhysicsEngineParameter(numSolverIterations=10)
 p.setTimeStep(1./120.)
-
 logId = p.startStateLogging(p.STATE_LOGGING_PROFILE_TIMINGS, "visualShapeBench.json")
 #useMaximalCoordinates is much faster then the default reduced coordinates (Featherstone)
 p.loadURDF("plane100.urdf", useMaximalCoordinates=True)
 #disable rendering during creation.
 p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,0)
+p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
 #disable tinyrenderer, software (CPU) renderer, we don't use it here
 p.configureDebugVisualizer(p.COV_ENABLE_TINY_RENDERER,0)
 
 shift = [0,-0.02,0]
 meshScale=[0.1,0.1,0.1]
+#the visual shape and collision shape can be re-used by all createMultiBody instances (instancing)
 visualShapeId = p.createVisualShape(shapeType=p.GEOM_MESH,fileName="duck.obj", rgbaColor=[1,1,1,1], specularColor=[0.4,.4,0], visualFramePosition=shift, meshScale=meshScale)
-#boxHalfWidth=.5
-#boxHalfHeight=.5
-#boxHalfLength=.5
-#collisionShapeId = p.createCollisionShape(shapeType=p.GEOM_BOX, halfExtents=[boxHalfLength,boxHalfWidth,boxHalfHeight])
 collisionShapeId = p.createCollisionShape(shapeType=p.GEOM_MESH, fileName="duck_vhacd.obj", collisionFramePosition=shift,meshScale=meshScale)
 
 rangex = 40
