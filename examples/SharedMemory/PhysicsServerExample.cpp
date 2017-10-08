@@ -2712,7 +2712,7 @@ btVector3	PhysicsServerExample::getRayTo(int x,int y)
 		btAssert(0);
 		return btVector3(0,0,0);
 	}
-
+	
 	float top = 1.f;
 	float bottom = -1.f;
 	float nearPlane = 1.f;

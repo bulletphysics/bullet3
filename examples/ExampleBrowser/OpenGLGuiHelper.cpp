@@ -1019,12 +1019,10 @@ bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16
 		getRenderInterface()->getActiveCamera()->getCameraProjectionMatrix(projectionMatrix);
 		getRenderInterface()->getActiveCamera()->getCameraUpVector(camUp);
 		getRenderInterface()->getActiveCamera()->getCameraForwardVector(camForward);
-		float frustumNearPlane =     getRenderInterface()->getActiveCamera()->getCameraFrustumNear();
-		float frustumFarPlane =     getRenderInterface()->getActiveCamera()->getCameraFrustumFar();
-
+		
 		float top = 1.f;
 		float bottom = -1.f;
-		float tanFov = (top-bottom)*0.5f / frustumNearPlane;
+		float tanFov = (top-bottom)*0.5f / 1;
 		float fov = btScalar(2.0) * btAtan(tanFov);
 		btVector3 camPos,camTarget;
 		getRenderInterface()->getActiveCamera()->getCameraPosition(camPos);
@@ -1046,7 +1044,7 @@ bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16
 		float tanfov = tanf(0.5f*fov);
 		hori *= 2.f * farPlane * tanfov;
 		vertical *= 2.f * farPlane * tanfov;
-		btScalar aspect =  *width / *height;
+		btScalar aspect =  float(*width) / float(*height);
 		hori*=aspect;
 		//compute 'hor' and 'vert' vectors, useful to generate raytracer rays
 		hor[0] = hori[0];

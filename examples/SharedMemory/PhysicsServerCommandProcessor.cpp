@@ -7890,7 +7890,27 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								}
 							} else
 							{
-								//todo: change color for rigid body
+								if (bodyHandle->m_rigidBody)
+								{
+									int graphicsIndex = bodyHandle->m_rigidBody->getUserIndex();
+									if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_TEXTURE) 
+									{
+										if (texHandle)
+										{
+											int shapeIndex = m_data->m_guiHelper->getShapeIndexFromInstance(graphicsIndex);
+											m_data->m_guiHelper->replaceTexture(shapeIndex,texHandle->m_openglTextureId);
+										}
+									}
+									if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR) 
+									{
+										m_data->m_visualConverter.changeRGBAColor(bodyUniqueId,linkIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);										
+										m_data->m_guiHelper->changeRGBAColor(graphicsIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
+									}
+									if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_SPECULAR_COLOR) 
+									{
+										m_data->m_guiHelper->changeSpecularColor(graphicsIndex,clientCmd.m_updateVisualShapeDataArguments.m_specularColor);
+									}
+								}
 							}
 						}
 					}
