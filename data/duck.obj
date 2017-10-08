@@ -1,6 +1,6 @@
 # Blender v2.68 (sub 0) OBJ File: ''
 # www.blender.org
-mtllib duck_smooth.mtl
+mtllib duck.mtl
 o LOD3sp_LOD3spShape
 v 0.096715 0.101379 -0.190519
 v 0.141171 0.101501 -0.158543

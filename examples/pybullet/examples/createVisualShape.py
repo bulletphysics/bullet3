@@ -14,7 +14,7 @@ p.configureDebugVisualizer(p.COV_ENABLE_TINY_RENDERER,0)
 
 shift = [0,-0.02,0]
 meshScale=[0.1,0.1,0.1]
-visualShapeId = p.createVisualShape(shapeType=p.GEOM_MESH,fileName="duck_smooth.obj", rgbaColor=[1,1,1,1], specularColor=[0.4,.4,0], visualFramePosition=shift, meshScale=meshScale)
+visualShapeId = p.createVisualShape(shapeType=p.GEOM_MESH,fileName="duck.obj", rgbaColor=[1,1,1,1], specularColor=[0.4,.4,0], visualFramePosition=shift, meshScale=meshScale)
 #boxHalfWidth=.5
 #boxHalfHeight=.5
 #boxHalfLength=.5
