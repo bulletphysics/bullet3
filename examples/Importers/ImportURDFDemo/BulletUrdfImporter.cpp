@@ -35,12 +35,6 @@ static btScalar gUrdfDefaultCollisionMargin = 0.001;
 #include <list>
 #include "UrdfParser.h"
 
-struct MyTexture
-{
-	int m_width;
-	int m_height;
-	unsigned char* textureData;
-};
 
 
 ATTRIBUTE_ALIGNED16(struct) BulletURDFInternalData
@@ -820,7 +814,7 @@ upAxisMat.setIdentity();
 }
 
 
-static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MyTexture>& texturesOut)
+void BulletURDFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<BulletURDFTexture>& texturesOut) const
 {
 	BT_PROFILE("convertURDFToVisualShapeInternal");
 
@@ -886,7 +880,7 @@ static void convertURDFToVisualShapeInternal(const UrdfVisual* visual, const cha
 
 						if (meshData.m_textureImage)
 						{
-							MyTexture texData;
+							BulletURDFTexture texData;
 							texData.m_width = meshData.m_textureWidth;
 							texData.m_height = meshData.m_textureHeight;
 							texData.textureData = meshData.m_textureImage;
@@ -1101,7 +1095,7 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
     btAlignedObjectArray<GLInstanceVertex> vertices;
 	btAlignedObjectArray<int> indices;
 	btTransform startTrans; startTrans.setIdentity();
-	btAlignedObjectArray<MyTexture> textures;
+	btAlignedObjectArray<BulletURDFTexture> textures;
 	
     const UrdfModel& model = m_data->m_urdfParser.getModel();
 	UrdfLink* const* linkPtr = model.m_links.getAtIndex(linkIndex);
