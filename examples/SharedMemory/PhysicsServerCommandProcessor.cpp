@@ -1,5 +1,6 @@
 #include "PhysicsServerCommandProcessor.h"
 
+#include "../CommonInterfaces/CommonRenderInterface.h"
 
 #include "../Importers/ImportURDFDemo/BulletUrdfImporter.h"
 #include "../Importers/ImportURDFDemo/MyMultiBodyCreator.h"
@@ -139,6 +140,24 @@ struct SharedMemoryDebugDrawer : public btIDebugDraw
 	}
 };
 
+struct InternalVisualShapeData
+{
+	int m_tinyRendererVisualShapeIndex;
+	int m_OpenGLGraphicsIndex;
+
+	UrdfVisual m_visualShape;
+	btTransform m_localInertiaFrame;
+	std::string m_pathPrefix;
+
+	void clear()
+	{
+		m_tinyRendererVisualShapeIndex = 0;
+		m_OpenGLGraphicsIndex = 0;
+		m_localInertiaFrame.setIdentity();
+		m_pathPrefix = "";
+	}
+};
+
 struct InternalCollisionShapeData
 {
 	btCollisionShape* m_collisionShape;
@@ -214,6 +233,9 @@ struct InternalTextureData
 typedef b3PoolBodyHandle<InternalTextureData> InternalTextureHandle;
 typedef b3PoolBodyHandle<InternalBodyData> InternalBodyHandle;
 typedef b3PoolBodyHandle<InternalCollisionShapeData> InternalCollisionShapeHandle;
+typedef b3PoolBodyHandle<InternalVisualShapeData> InternalVisualShapeHandle;
+
+
 
 class btCommandChunk
 {
@@ -1447,6 +1469,9 @@ struct PhysicsServerCommandProcessorInternalData
 	b3ResizablePool< InternalTextureHandle > m_textureHandles;
 	b3ResizablePool< InternalBodyHandle > m_bodyHandles;
 	b3ResizablePool<InternalCollisionShapeHandle> m_userCollisionShapeHandles;
+	b3ResizablePool<InternalVisualShapeHandle> m_userVisualShapeHandles;
+	
+
 
 	b3PluginManager m_pluginManager;
 
@@ -1576,6 +1601,9 @@ struct PhysicsServerCommandProcessorInternalData
 		m_bodyHandles.initHandles();
 		m_userCollisionShapeHandles.exitHandles();
 		m_userCollisionShapeHandles.initHandles();
+
+		m_userVisualShapeHandles.exitHandles();
+		m_userVisualShapeHandles.initHandles();
 
 #if 0
 		btAlignedObjectArray<int> bla;
@@ -1907,6 +1935,18 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 
 	virtual bool getLinkColor2(int linkIndex, struct UrdfMaterialColor& matCol) const 
 	{ 
+		if (m_createBodyArgs.m_linkVisualShapeUniqueIds[linkIndex]>=0)
+		{
+			const InternalVisualShapeHandle* visHandle = m_data->m_userVisualShapeHandles.getHandle(m_createBodyArgs.m_linkVisualShapeUniqueIds[linkIndex]);
+			if (visHandle)
+			{
+				if (visHandle->m_visualShape.m_geometry.m_hasLocalMaterial)
+				{
+					matCol = visHandle->m_visualShape.m_geometry.m_localMaterial.m_matColor;
+					return true;
+				}
+			}
+		}
 		return false;
 	}
 
@@ -2074,12 +2114,24 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 	///quick hack: need to rethink the API/dependencies of this
     virtual int convertLinkVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& inertialFrame) const
 	{
+		if (m_createBodyArgs.m_linkVisualShapeUniqueIds[linkIndex]>=0)
+		{
+			const InternalVisualShapeHandle* visHandle = m_data->m_userVisualShapeHandles.getHandle(m_createBodyArgs.m_linkVisualShapeUniqueIds[linkIndex]);
+			if (visHandle)
+			{
+				
+				return visHandle->m_OpenGLGraphicsIndex;
+			}
+		}
 		return -1;
 	}
     
     virtual void convertLinkVisualShapes2(int linkIndex, int urdfIndex, const char* pathPrefix, const btTransform& localInertiaFrame, class btCollisionObject* colObj, int bodyUniqueId) const  
 	{
 		//if there is a visual, use it, otherwise convert collision shape back into UrdfCollision...
+
+		
+
 
 		UrdfModel model;// = m_data->m_urdfParser.getModel();
 		UrdfLink link;
@@ -4038,26 +4090,26 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 					btCompoundShape* compound = 0;
 
-					if (clientCmd.m_createCollisionShapeArgs.m_numCollisionShapes>1)
+					if (clientCmd.m_createUserShapeArgs.m_numUserShapes>1)
 					{
 						compound = worldImporter->createCompoundShape();
 					}
-					for (int i=0;i<clientCmd.m_createCollisionShapeArgs.m_numCollisionShapes;i++)
+					for (int i=0;i<clientCmd.m_createUserShapeArgs.m_numUserShapes;i++)
 					{
 						UrdfCollision urdfColObj;
 
 						btTransform childTransform;
 						childTransform.setIdentity();
-						if (clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_hasChildTransform)
+						if (clientCmd.m_createUserShapeArgs.m_shapes[i].m_hasChildTransform)
 						{
-							childTransform.setOrigin(btVector3(clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_childPosition[0],
-								clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_childPosition[1],
-								clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_childPosition[2]));
+							childTransform.setOrigin(btVector3(clientCmd.m_createUserShapeArgs.m_shapes[i].m_childPosition[0],
+								clientCmd.m_createUserShapeArgs.m_shapes[i].m_childPosition[1],
+								clientCmd.m_createUserShapeArgs.m_shapes[i].m_childPosition[2]));
 							childTransform.setRotation(btQuaternion(
-								clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_childOrientation[0],
-								clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_childOrientation[1],
-								clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_childOrientation[2],
-								clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_childOrientation[3]
+								clientCmd.m_createUserShapeArgs.m_shapes[i].m_childOrientation[0],
+								clientCmd.m_createUserShapeArgs.m_shapes[i].m_childOrientation[1],
+								clientCmd.m_createUserShapeArgs.m_shapes[i].m_childOrientation[2],
+								clientCmd.m_createUserShapeArgs.m_shapes[i].m_childOrientation[3]
 							));
 							if (compound==0)
 							{
@@ -4070,11 +4122,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						urdfColObj.m_name = "memory";
 						urdfColObj.m_geometry.m_type = URDF_GEOM_UNKNOWN;
 
-						switch (clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_type)
+						switch (clientCmd.m_createUserShapeArgs.m_shapes[i].m_type)
 						{
 							case GEOM_SPHERE:
 							{
-								double radius = clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_sphereRadius;
+								double radius = clientCmd.m_createUserShapeArgs.m_shapes[i].m_sphereRadius;
 								shape = worldImporter->createSphereShape(radius);
 								if (compound)
 								{
@@ -4086,11 +4138,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							}
 							case GEOM_BOX:
 							{
-								//double halfExtents[3] = clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_sphereRadius;
+								//double halfExtents[3] = clientCmd.m_createUserShapeArgs.m_shapes[i].m_sphereRadius;
 								btVector3 halfExtents(
-									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_boxHalfExtents[0],
-									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_boxHalfExtents[1],
-									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_boxHalfExtents[2]);
+									clientCmd.m_createUserShapeArgs.m_shapes[i].m_boxHalfExtents[0],
+									clientCmd.m_createUserShapeArgs.m_shapes[i].m_boxHalfExtents[1],
+									clientCmd.m_createUserShapeArgs.m_shapes[i].m_boxHalfExtents[2]);
 								shape = worldImporter->createBoxShape(halfExtents);
 								if (compound)
 								{
@@ -4102,37 +4154,37 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							}
 							case GEOM_CAPSULE:
 							{
-								shape = worldImporter->createCapsuleShapeZ(clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_capsuleRadius,
-									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_capsuleHeight);
+								shape = worldImporter->createCapsuleShapeZ(clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleRadius,
+									clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleHeight);
 								if (compound)
 								{
 									compound->addChildShape(childTransform,shape);
 								}
 								urdfColObj.m_geometry.m_type = URDF_GEOM_CAPSULE;
-								urdfColObj.m_geometry.m_capsuleRadius = clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_capsuleRadius;
-								urdfColObj.m_geometry.m_capsuleHeight = clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_capsuleHeight;
+								urdfColObj.m_geometry.m_capsuleRadius = clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleRadius;
+								urdfColObj.m_geometry.m_capsuleHeight = clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleHeight;
 
 								break;
 							}
 							case GEOM_CYLINDER:
 							{
-								shape = worldImporter->createCylinderShapeZ(clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_capsuleRadius,
-									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_capsuleHeight);
+								shape = worldImporter->createCylinderShapeZ(clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleRadius,
+									clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleHeight);
 								if (compound)
 								{
 									compound->addChildShape(childTransform,shape);
 								}
 								urdfColObj.m_geometry.m_type = URDF_GEOM_CYLINDER;
-								urdfColObj.m_geometry.m_capsuleRadius = clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_capsuleRadius;
-								urdfColObj.m_geometry.m_capsuleHeight = clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_capsuleHeight;
+								urdfColObj.m_geometry.m_capsuleRadius = clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleRadius;
+								urdfColObj.m_geometry.m_capsuleHeight = clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleHeight;
 
 								break;
 							}
 							case GEOM_PLANE:
 							{
-								btVector3 planeNormal(clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_planeNormal[0],
-									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_planeNormal[1],
-									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_planeNormal[2]);
+								btVector3 planeNormal(clientCmd.m_createUserShapeArgs.m_shapes[i].m_planeNormal[0],
+									clientCmd.m_createUserShapeArgs.m_shapes[i].m_planeNormal[1],
+									clientCmd.m_createUserShapeArgs.m_shapes[i].m_planeNormal[2]);
 
 								shape = worldImporter->createPlaneShape(planeNormal,0);
 								if (compound)
@@ -4141,9 +4193,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								}
 								urdfColObj.m_geometry.m_type = URDF_GEOM_PLANE;
 								urdfColObj.m_geometry.m_planeNormal.setValue(
-									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_planeNormal[0],
-									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_planeNormal[1],
-									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_planeNormal[2]);
+									clientCmd.m_createUserShapeArgs.m_shapes[i].m_planeNormal[0],
+									clientCmd.m_createUserShapeArgs.m_shapes[i].m_planeNormal[1],
+									clientCmd.m_createUserShapeArgs.m_shapes[i].m_planeNormal[2]);
 									
 								break;
 							}
@@ -4151,13 +4203,13 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							{
 								btScalar defaultCollisionMargin = 0.001;
 
-								btVector3 meshScale(clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_meshScale[0],
-									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_meshScale[1],
-									clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_meshScale[2]);
+								btVector3 meshScale(clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshScale[0],
+									clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshScale[1],
+									clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshScale[2]);
 
 								const std::string& urdf_path="";
 
-								std::string fileName = clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_meshFileName;
+								std::string fileName = clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshFileName;
 								urdfColObj.m_geometry.m_type = URDF_GEOM_MESH;
 								urdfColObj.m_geometry.m_meshFileName = fileName;
 							
@@ -4184,7 +4236,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									{
 										//create a convex hull for each shape, and store it in a btCompoundShape
 
-										if (clientCmd.m_createCollisionShapeArgs.m_shapes[i].m_collisionFlags&GEOM_FORCE_CONCAVE_TRIMESH)
+										if (clientCmd.m_createUserShapeArgs.m_shapes[i].m_collisionFlags&GEOM_FORCE_CONCAVE_TRIMESH)
 										{
 											GLInstanceGraphicsShape* glmesh = LoadMeshFromObj(relativeFileName, pathPrefix);
 											
@@ -4293,16 +4345,6 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						}
 					}
 
-					
-					#if 0
-					shape = worldImporter->createCylinderShapeX(radius,height);
-					shape = worldImporter->createCylinderShapeY(radius,height);
-					shape = worldImporter->createCylinderShapeZ(radius,height);
-					shape = worldImporter->createCapsuleShapeX(radius,height);
-					shape = worldImporter->createCapsuleShapeY(radius,height);
-					shape = worldImporter->createCapsuleShapeZ(radius,height);
-					shape = worldImporter->createBoxShape(halfExtents);
-					#endif
 					if (compound && compound->getNumChildShapes())
 					{
 						shape = compound;
@@ -4317,7 +4359,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						{
 							handle->m_urdfCollisionObjects.push_back(urdfCollisionObjects[i]);
 						}
-						serverStatusOut.m_createCollisionShapeResultArgs.m_collisionShapeUniqueId = collisionShapeUid;
+						serverStatusOut.m_createUserShapeResultArgs.m_userShapeUniqueId = collisionShapeUid;
 						m_data->m_worldImporters.push_back(worldImporter);
 						serverStatusOut.m_type = CMD_CREATE_COLLISION_SHAPE_COMPLETED;
 					} else
@@ -4332,6 +4374,136 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 				{
 					hasStatus = true;
 					serverStatusOut.m_type = CMD_CREATE_VISUAL_SHAPE_FAILED;
+					{
+						double globalScaling = 1.f;
+
+						BulletURDFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter, globalScaling);
+						u2b.setEnableTinyRenderer(m_data->m_enableTinyRenderer);
+						btTransform localInertiaFrame;
+						localInertiaFrame.setIdentity();
+						btTransform childTrans;
+						childTrans.setIdentity();
+						const char* pathPrefix = "";
+						if (clientCmd.m_createUserShapeArgs.m_numUserShapes == 1)
+						{
+							int userShapeIndex = 0;
+
+							UrdfVisual visualShape;
+							visualShape.m_geometry.m_type = (UrdfGeomTypes)clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_type;
+							char relativeFileName[1024];
+							char pathPrefix[1024];
+							pathPrefix[0] = 0;
+
+							if (visualShape.m_geometry.m_type == URDF_GEOM_MESH)
+							{
+								
+								std::string fileName = clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshFileName;
+								const std::string& error_message_prefix="";
+								std::string out_found_filename; 
+								int out_type;
+								if (b3ResourcePath::findResourcePath(fileName.c_str(), relativeFileName, 1024))
+								{
+									b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
+								}
+								
+								bool foundFile = findExistingMeshFile(pathPrefix, relativeFileName,error_message_prefix,&out_found_filename, &out_type); 
+								visualShape.m_geometry.m_meshFileType = out_type;
+								visualShape.m_geometry.m_meshFileName=fileName;
+
+								visualShape.m_geometry.m_meshScale.setValue(clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshScale[0],
+									clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshScale[1],
+									clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshScale[2]);
+							}
+							visualShape.m_name = "bla";
+							visualShape.m_materialName="";
+							visualShape.m_sourceFileLocation="blaat_line_10";
+							visualShape.m_linkLocalFrame.setIdentity();
+							visualShape.m_geometry.m_hasLocalMaterial = false;
+							
+							
+							btAlignedObjectArray<GLInstanceVertex> vertices;
+							btAlignedObjectArray<int> indices;
+							btTransform startTrans; startTrans.setIdentity();
+							btAlignedObjectArray<BulletURDFTexture> textures;
+							bool hasRGBA = (clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_visualFlags&GEOM_VISUAL_HAS_RGBA_COLOR)!=0;;
+							bool hasSpecular = (clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_visualFlags&GEOM_VISUAL_HAS_SPECULAR_COLOR)!=0;;
+							visualShape.m_geometry.m_hasLocalMaterial = hasRGBA|hasSpecular;
+							if (visualShape.m_geometry.m_hasLocalMaterial)
+							{
+								if (hasRGBA)
+								{
+								visualShape.m_geometry.m_localMaterial.m_matColor.m_rgbaColor.setValue(
+									clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_rgbaColor[0],
+									clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_rgbaColor[1],
+									clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_rgbaColor[2],
+									clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_rgbaColor[3]);
+								} else
+								{
+									
+								}
+								if (hasSpecular)
+								{
+									visualShape.m_geometry.m_localMaterial.m_matColor.m_specularColor.setValue(
+										clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_specularColor[0],
+										clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_specularColor[1],
+										clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_specularColor[2]);
+								} else
+								{
+									visualShape.m_geometry.m_localMaterial.m_matColor.m_specularColor.setValue(0.4,0.4,0.4);
+								}
+							}
+							
+							if (clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_hasChildTransform !=0)
+							{
+								childTrans.setOrigin(btVector3(clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_childPosition[0],
+									clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_childPosition[1],
+									clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_childPosition[2]));
+								childTrans.setRotation(btQuaternion(
+									clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_childOrientation[0],
+									clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_childOrientation[1],
+									clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_childOrientation[2],
+									clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_childOrientation[3]));
+							}
+
+							
+
+							u2b.convertURDFToVisualShapeInternal(&visualShape, pathPrefix, localInertiaFrame.inverse()*childTrans, vertices, indices,textures);
+					
+							if (vertices.size() && indices.size())
+							{
+								if (1)
+								{
+									int textureIndex = -1;
+									if (textures.size())
+									{
+				
+										textureIndex = m_data->m_guiHelper->registerTexture(textures[0].textureData,textures[0].m_width,textures[0].m_height);
+									}
+									int graphicsIndex = -1;
+									{
+										B3_PROFILE("registerGraphicsShape");
+										graphicsIndex = m_data->m_guiHelper->registerGraphicsShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size(), B3_GL_TRIANGLES, textureIndex);
+										if (graphicsIndex>=0)
+										{
+											int visualShapeUniqueId = m_data->m_userVisualShapeHandles.allocHandle();
+											InternalVisualShapeHandle* visualHandle = m_data->m_userVisualShapeHandles.getHandle(visualShapeUniqueId);
+											visualHandle->m_OpenGLGraphicsIndex = graphicsIndex;
+											visualHandle->m_tinyRendererVisualShapeIndex = -1;
+											//tinyrenderer doesn't separate shape versus instance, so create it when creating the multibody instance
+											//store needed info for tinyrenderer
+											visualHandle->m_localInertiaFrame = localInertiaFrame;
+											visualHandle->m_visualShape = visualShape;
+											visualHandle->m_pathPrefix = pathPrefix ? pathPrefix : "";
+
+											serverStatusOut.m_createUserShapeResultArgs.m_userShapeUniqueId = visualShapeUniqueId;
+											serverStatusOut.m_type = CMD_CREATE_VISUAL_SHAPE_COMPLETED;
+										}
+									}
+								}
+							}
+						}
+					}
+
 					break;
 				}
 				case CMD_CREATE_MULTI_BODY:
@@ -4341,33 +4513,6 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					if (clientCmd.m_createMultiBodyArgs.m_baseLinkIndex>=0)
 					{
 						m_data->m_sdfRecentLoadedBodies.clear();
-
-						#if 0
-						struct UrdfModel
-						{
-							std::string m_name;
-							std::string m_sourceFile;
-							btTransform m_rootTransformInWorld;
-							btHashMap<btHashString, UrdfMaterial*> m_materials;
-							btHashMap<btHashString, UrdfLink*> m_links;
-							btHashMap<btHashString, UrdfJoint*> m_joints;
-	
-							btArray<UrdfLink*> m_rootLinks;
-							bool m_overrideFixedBase;
-
-							UrdfModel()
-						
-						clientCmd.m_createMultiBodyArgs.
-
-						char m_bodyName[1024];
-						int m_baseLinkIndex;
-
-						double m_baseWorldPosition[3];
-						double m_baseWorldOrientation[4];
-
-						UrdfModel tmpModel;
-						tmpModel.m_bodyName = 
-							#endif
 
 						ProgrammaticUrdfInterface u2b(clientCmd.m_createMultiBodyArgs, m_data);
 						

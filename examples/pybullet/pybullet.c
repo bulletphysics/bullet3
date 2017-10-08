@@ -5226,15 +5226,18 @@ static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, P
 	double meshScale[3] = {1,1,1};
 	PyObject* planeNormalObj=0;
 	double planeNormal[3] = {0,0,1};
-
+	PyObject* collisionFramePositionObj=0;
+	double collisionFramePosition[3]={0,0,0};
+	PyObject* collisionFrameOrientationObj=0;
+	double collisionFrameOrientation[4]={0,0,0,1};
 	char* fileName=0;
 	int flags = 0;
 
 	PyObject* halfExtentsObj=0;
 
-	static char* kwlist[] = {"shapeType","radius","halfExtents", "height", "fileName", "meshScale", "planeNormal", "flags", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|dOdsOOii", kwlist, 
-		&shapeType, &radius,&halfExtentsObj, &height, &fileName, &meshScaleObj, &planeNormalObj, &flags, &physicsClientId))
+	static char* kwlist[] = {"shapeType","radius","halfExtents", "height", "fileName", "meshScale", "planeNormal", "flags", "collisionFramePosition", "collisionFrameOrientation", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|dOdsOOiOOi", kwlist, 
+		&shapeType, &radius,&halfExtentsObj, &height, &fileName, &meshScaleObj, &planeNormalObj, &flags,&collisionFramePositionObj, &collisionFrameOrientationObj, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -5284,7 +5287,20 @@ static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, P
 		{
 			b3CreateCollisionSetFlag(commandHandle,shapeIndex,flags);
 		}
+		if (shapeIndex>=0)
+		{
+			if (collisionFramePositionObj)
+			{
+				pybullet_internalSetVectord(collisionFramePositionObj,collisionFramePosition);
+			}
 
+			if (collisionFrameOrientationObj)
+			{
+				pybullet_internalSetVectord(collisionFrameOrientationObj,collisionFrameOrientation);
+			}
+			b3CreateVisualShapeSetChildTransform(commandHandle, shapeIndex, collisionFramePosition,collisionFrameOrientation);
+
+		}
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 		statusType = b3GetStatusType(statusHandle);
 		if (statusType == CMD_CREATE_COLLISION_SHAPE_COMPLETED)
@@ -5297,41 +5313,124 @@ static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, P
 	PyErr_SetString(SpamError, "createCollisionShape failed.");
 	return NULL;
 }
-#if 0
-b3SharedMemoryCommandHandle b3CreateCollisionShapeCommandInit(b3PhysicsClientHandle physClient);
-int b3GetStatusCollisionShapeUniqueId(b3SharedMemoryStatusHandle statusHandle);
-
-b3SharedMemoryCommandHandle b3CreateVisualShapeCommandInit(b3PhysicsClientHandle physClient);
-int b3GetStatusVisualShapeUniqueId(b3SharedMemoryStatusHandle statusHandle);
-
-b3SharedMemoryCommandHandle b3CreateMultiBodyCommandInit(b3PhysicsClientHandle physClient);
-int b3GetStatusMultiBodyUniqueId(b3SharedMemoryStatusHandle statusHandle);
-#endif
 
 
 static PyObject* pybullet_createVisualShape(PyObject* self, PyObject* args, PyObject* keywds)
 {
+	
 	int physicsClientId = 0;
 	b3PhysicsClientHandle sm = 0;
-	int test=-1;
 
-	static char* kwlist[] = {"test",NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|i", kwlist, &test,
-									 &physicsClientId))
+	int shapeType=-1;
+	double radius=0.5;
+	double height = 1;
+	PyObject* meshScaleObj=0;
+	double meshScale[3] = {1,1,1};
+	PyObject* planeNormalObj=0;
+	double planeNormal[3] = {0,0,1};
+
+	PyObject* rgbaColorObj=0;
+	double rgbaColor[4] = {1,1,1,1};
+
+	PyObject* specularColorObj=0;
+	double specularColor[3] = {1,1,1};
+
+	char* fileName=0;
+	int flags = 0;
+
+	PyObject* visualFramePositionObj=0;
+	double visualFramePosition[3]={0,0,0};
+	PyObject* visualFrameOrientationObj=0;
+	double visualFrameOrientation[4]={0,0,0,1};
+	
+	PyObject* halfExtentsObj=0;
+
+	static char* kwlist[] = {"shapeType","radius","halfExtents", "height", "fileName", "meshScale", "planeNormal", "flags", "rgbaColor", "specularColor", "visualFramePosition", "visualFrameOrientation", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|dOdsOOiOOOOi", kwlist, 
+		&shapeType, &radius,&halfExtentsObj, &height, &fileName, &meshScaleObj, &planeNormalObj, &flags, &rgbaColorObj, &specularColorObj, &visualFramePositionObj, &visualFrameOrientationObj, &physicsClientId))
 	{
 		return NULL;
 	}
+
 	sm = getPhysicsClient(physicsClientId);
 	if (sm == 0)
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	if (test>=0)
+	
+	if (shapeType>=GEOM_SPHERE)
 	{
 		b3SharedMemoryStatusHandle statusHandle;
 		int statusType;
 		b3SharedMemoryCommandHandle commandHandle = b3CreateVisualShapeCommandInit(sm);
+		int shapeIndex = -1;
+
+		if (shapeType==GEOM_SPHERE && radius>0)
+		{
+			shapeIndex = b3CreateVisualShapeAddSphere(commandHandle,radius);
+		}
+		if (shapeType==GEOM_BOX && halfExtentsObj)
+		{
+			double halfExtents[3] = {1,1,1};
+			pybullet_internalSetVectord(halfExtentsObj,halfExtents);
+			shapeIndex = b3CreateVisualShapeAddBox(commandHandle,halfExtents);
+		}
+	
+		if (shapeType==GEOM_CAPSULE && radius>0 && height>=0)
+		{
+			shapeIndex = b3CreateVisualShapeAddCapsule(commandHandle,radius,height);
+		}
+		if (shapeType==GEOM_CYLINDER && radius>0 && height>=0)
+		{
+			shapeIndex = b3CreateVisualShapeAddCylinder(commandHandle,radius,height);
+		}
+		if (shapeType==GEOM_MESH && fileName)
+		{
+			pybullet_internalSetVectord(meshScaleObj,meshScale);
+			shapeIndex = b3CreateVisualShapeAddMesh(commandHandle, fileName,meshScale);
+		}
+		if (shapeType==GEOM_PLANE)
+		{
+			double planeConstant=0;
+			pybullet_internalSetVectord(planeNormalObj,planeNormal);
+			shapeIndex = b3CreateVisualShapeAddPlane(commandHandle, planeNormal, planeConstant);
+		}
+		if (shapeIndex>=0 && flags)
+		{
+			b3CreateVisualSetFlag(commandHandle,shapeIndex,flags);
+		}
+
+		if (shapeIndex>=0)
+		{
+			double rgbaColor[4] = {1,1,1,1};
+			double specularColor[3] = {1,1,1};
+			if (rgbaColorObj)
+			{
+				pybullet_internalSetVector4d(rgbaColorObj,rgbaColor);
+			}
+			b3CreateVisualShapeSetRGBAColor(commandHandle,shapeIndex, rgbaColor);
+
+			if (specularColorObj)
+			{
+				pybullet_internalSetVectord(specularColorObj,specularColor);
+			}
+			b3CreateVisualShapeSetSpecularColor(commandHandle,shapeIndex,specularColor);
+
+			if (visualFramePositionObj)
+			{
+				pybullet_internalSetVectord(visualFramePositionObj,visualFramePosition);
+			}
+
+			if (visualFrameOrientationObj)
+			{
+				pybullet_internalSetVectord(visualFrameOrientationObj,visualFrameOrientation);
+			}
+			b3CreateVisualShapeSetChildTransform(commandHandle, shapeIndex, visualFramePosition,visualFrameOrientation);
+
+		}
+	
+
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
 		statusType = b3GetStatusType(statusHandle);
 		if (statusType == CMD_CREATE_VISUAL_SHAPE_COMPLETED)
@@ -5341,7 +5440,6 @@ static PyObject* pybullet_createVisualShape(PyObject* self, PyObject* args, PyOb
 			return ob;
 		}
 	}
-
 	PyErr_SetString(SpamError, "createVisualShape failed.");
 	return NULL;
 }

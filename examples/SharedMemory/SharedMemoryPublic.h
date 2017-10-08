@@ -624,6 +624,13 @@ enum eUrdfCollisionFlags
 	GEOM_FORCE_CONCAVE_TRIMESH=1,
 };
 
+enum eUrdfVisualFlags
+{
+	GEOM_VISUAL_HAS_RGBA_COLOR=1,
+	GEOM_VISUAL_HAS_SPECULAR_COLOR=2,
+};
+
+
 enum eStateLoggingFlags
 {
 	STATE_LOG_JOINT_MOTOR_TORQUES=1,

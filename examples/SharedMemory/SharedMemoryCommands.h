@@ -834,7 +834,7 @@ enum
 	URDF_GEOM_HAS_RADIUS = 1,
 };
 
-struct b3CreateCollisionShape
+struct b3CreateUserShapeData
 {
 	int m_type;//see UrdfGeomTypes	
 
@@ -856,22 +856,26 @@ struct b3CreateCollisionShape
 	char		m_meshFileName[VISUAL_SHAPE_MAX_PATH_LEN];
 	double		m_meshScale[3];
 	int			m_collisionFlags;
+	int			m_visualFlags;
+
+	double		m_rgbaColor[4];
+	double		m_specularColor[3];
 
 };
 
 #define MAX_COMPOUND_COLLISION_SHAPES 16
 
-struct b3CreateCollisionShapeArgs
+struct b3CreateUserShapeArgs
 {
-	int m_numCollisionShapes;
-	b3CreateCollisionShape m_shapes[MAX_COMPOUND_COLLISION_SHAPES];
+	int m_numUserShapes;
+	b3CreateUserShapeData m_shapes[MAX_COMPOUND_COLLISION_SHAPES];
 };
 
-
-struct b3CreateVisualShapeArgs
+struct b3CreateUserShapeResultArgs
 {
-	int m_visualShapeUniqueId;
+	int m_userShapeUniqueId;
 };
+
 
 #define MAX_CREATE_MULTI_BODY_LINKS 128
 enum eCreateMultiBodyEnum
@@ -908,16 +912,6 @@ struct b3CreateMultiBodyArgs
 	btHashMap<btHashString, UrdfLink*> m_links;
 	btHashMap<btHashString, UrdfJoint*> m_joints;
 	#endif
-};
-
-struct b3CreateCollisionShapeResultArgs
-{
-	int m_collisionShapeUniqueId;
-};
-
-struct b3CreateVisualShapeResultArgs
-{
-	int m_visualShapeUniqueId;
 };
 
 struct b3CreateMultiBodyResultArgs
@@ -980,8 +974,7 @@ struct SharedMemoryCommand
         struct ConfigureOpenGLVisualizerRequest m_configureOpenGLVisualizerArguments;
 		struct b3ObjectArgs m_removeObjectArgs;
 		struct b3Profile m_profile;
-		struct b3CreateCollisionShapeArgs m_createCollisionShapeArgs;
-		struct b3CreateVisualShapeArgs m_createVisualShapeArgs;
+		struct b3CreateUserShapeArgs m_createUserShapeArgs;
 		struct b3CreateMultiBodyArgs m_createMultiBodyArgs;
 		struct b3RequestCollisionInfoArgs m_requestCollisionInfoArgs;
 		struct b3ChangeTextureArgs m_changeTextureArgs;
@@ -1053,8 +1046,7 @@ struct SharedMemoryStatus
 		struct b3OpenGLVisualizerCameraInfo m_visualizerCameraResultArgs;
 		struct b3ObjectArgs m_removeObjectArgs;
 		struct b3DynamicsInfo m_dynamicsInfo;
-		struct b3CreateCollisionShapeResultArgs m_createCollisionShapeResultArgs;
-		struct b3CreateVisualShapeResultArgs m_createVisualShapeResultArgs;
+		struct b3CreateUserShapeResultArgs m_createUserShapeResultArgs;
 		struct b3CreateMultiBodyResultArgs m_createMultiBodyResultArgs;
 		struct b3SendCollisionInfoArgs m_sendCollisionInfoArgs;
 		struct SendMouseEvents m_sendMouseEvents;

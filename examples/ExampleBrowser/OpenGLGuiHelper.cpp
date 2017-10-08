@@ -905,7 +905,7 @@ void OpenGLGuiHelper::syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWor
 		B3_PROFILE("write all InstanceTransformToCPU");
 		for (int i = 0; i<numCollisionObjects; i++)
 		{
-			B3_PROFILE("writeSingleInstanceTransformToCPU");
+			//B3_PROFILE("writeSingleInstanceTransformToCPU");
 			btCollisionObject* colObj = rbWorld->getCollisionObjectArray()[i];
 			btVector3 pos = colObj->getWorldTransform().getOrigin();
 			btQuaternion orn = colObj->getWorldTransform().getRotation();

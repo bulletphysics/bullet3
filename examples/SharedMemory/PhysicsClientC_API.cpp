@@ -775,7 +775,7 @@ B3_SHARED_API	b3SharedMemoryCommandHandle b3CreateCollisionShapeCommandInit(b3Ph
 		b3Assert(command);
 		command->m_type = CMD_CREATE_COLLISION_SHAPE;
 		command->m_updateFlags =0;
-		command->m_createCollisionShapeArgs.m_numCollisionShapes = 0;
+		command->m_createUserShapeArgs.m_numUserShapes = 0;
 		return (b3SharedMemoryCommandHandle) command;
 	}
 	return 0;
@@ -785,138 +785,170 @@ B3_SHARED_API int b3CreateCollisionShapeAddSphere(b3SharedMemoryCommandHandle co
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
-    b3Assert(command->m_type == CMD_CREATE_COLLISION_SHAPE);
-	if (command->m_type==CMD_CREATE_COLLISION_SHAPE)
+    b3Assert((command->m_type == CMD_CREATE_COLLISION_SHAPE)|| (command->m_type == CMD_CREATE_VISUAL_SHAPE));
+	if ((command->m_type == CMD_CREATE_COLLISION_SHAPE)|| (command->m_type == CMD_CREATE_VISUAL_SHAPE))
 	{
-		int shapeIndex = command->m_createCollisionShapeArgs.m_numCollisionShapes;
+		int shapeIndex = command->m_createUserShapeArgs.m_numUserShapes;
 		if (shapeIndex <MAX_COMPOUND_COLLISION_SHAPES)
 		{
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_type = GEOM_SPHERE;
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_sphereRadius = radius;
-			command->m_createCollisionShapeArgs.m_numCollisionShapes++;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_type = GEOM_SPHERE;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_visualFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_sphereRadius = radius;
+			command->m_createUserShapeArgs.m_numUserShapes++;
 			return shapeIndex;
 		}
 	}
 	return -1;
+}
+
+B3_SHARED_API	int b3CreateVisualShapeAddSphere(b3SharedMemoryCommandHandle commandHandle,double radius)
+{
+	return b3CreateCollisionShapeAddSphere(commandHandle,radius);
 }
 
 B3_SHARED_API int b3CreateCollisionShapeAddBox(b3SharedMemoryCommandHandle commandHandle,double halfExtents[3])
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
-    b3Assert(command->m_type == CMD_CREATE_COLLISION_SHAPE);
-	if (command->m_type==CMD_CREATE_COLLISION_SHAPE)
+    b3Assert((command->m_type == CMD_CREATE_COLLISION_SHAPE)|| (command->m_type == CMD_CREATE_VISUAL_SHAPE));
+	if ((command->m_type == CMD_CREATE_COLLISION_SHAPE)|| (command->m_type == CMD_CREATE_VISUAL_SHAPE))
 	{
-		int shapeIndex = command->m_createCollisionShapeArgs.m_numCollisionShapes;
+		int shapeIndex = command->m_createUserShapeArgs.m_numUserShapes;
 		if (shapeIndex <MAX_COMPOUND_COLLISION_SHAPES)
 		{
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_type = GEOM_BOX;
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_boxHalfExtents[0] = halfExtents[0];
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_boxHalfExtents[1] = halfExtents[1];
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_boxHalfExtents[2] = halfExtents[2];
-			command->m_createCollisionShapeArgs.m_numCollisionShapes++;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_type = GEOM_BOX;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_visualFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_boxHalfExtents[0] = halfExtents[0];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_boxHalfExtents[1] = halfExtents[1];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_boxHalfExtents[2] = halfExtents[2];
+			command->m_createUserShapeArgs.m_numUserShapes++;
 			return shapeIndex;
 		}
 	}
 	return -1;
+}
+
+B3_SHARED_API	int b3CreateVisualShapeAddBox(b3SharedMemoryCommandHandle commandHandle,double halfExtents[/*3*/])
+{
+	return b3CreateCollisionShapeAddBox(commandHandle,halfExtents);
 }
 
 B3_SHARED_API int b3CreateCollisionShapeAddCapsule(b3SharedMemoryCommandHandle commandHandle,double radius, double height)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
-    b3Assert(command->m_type == CMD_CREATE_COLLISION_SHAPE);
-	if (command->m_type==CMD_CREATE_COLLISION_SHAPE)
+    b3Assert((command->m_type == CMD_CREATE_COLLISION_SHAPE)|| (command->m_type == CMD_CREATE_VISUAL_SHAPE));
+	if ((command->m_type == CMD_CREATE_COLLISION_SHAPE)|| (command->m_type == CMD_CREATE_VISUAL_SHAPE))
 	{
-		int shapeIndex = command->m_createCollisionShapeArgs.m_numCollisionShapes;
+		int shapeIndex = command->m_createUserShapeArgs.m_numUserShapes;
 		if (shapeIndex <MAX_COMPOUND_COLLISION_SHAPES)
 		{
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_type = GEOM_CAPSULE;
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_capsuleRadius = radius;
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_capsuleHeight = height;
-			command->m_createCollisionShapeArgs.m_numCollisionShapes++;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_type = GEOM_CAPSULE;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_visualFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_capsuleRadius = radius;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_capsuleHeight = height;
+			command->m_createUserShapeArgs.m_numUserShapes++;
 			return shapeIndex;
 		}
 	}
 	return -1;
+}
+
+B3_SHARED_API	int b3CreateVisualShapeAddCapsule(b3SharedMemoryCommandHandle commandHandle,double radius, double height)
+{
+	return b3CreateCollisionShapeAddCapsule(commandHandle,radius,height);
 }
 
 B3_SHARED_API int b3CreateCollisionShapeAddCylinder(b3SharedMemoryCommandHandle commandHandle,double radius, double height)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
-    b3Assert(command->m_type == CMD_CREATE_COLLISION_SHAPE);
-	if (command->m_type==CMD_CREATE_COLLISION_SHAPE)
+    b3Assert((command->m_type == CMD_CREATE_COLLISION_SHAPE)|| (command->m_type == CMD_CREATE_VISUAL_SHAPE));
+	if ((command->m_type == CMD_CREATE_COLLISION_SHAPE)|| (command->m_type == CMD_CREATE_VISUAL_SHAPE))
 	{
-		int shapeIndex = command->m_createCollisionShapeArgs.m_numCollisionShapes;
+		int shapeIndex = command->m_createUserShapeArgs.m_numUserShapes;
 		if (shapeIndex <MAX_COMPOUND_COLLISION_SHAPES)
 		{
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_type = GEOM_CYLINDER;
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_capsuleRadius = radius;
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_capsuleHeight = height;
-			command->m_createCollisionShapeArgs.m_numCollisionShapes++;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_type = GEOM_CYLINDER;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_visualFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_capsuleRadius = radius;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_capsuleHeight = height;
+			command->m_createUserShapeArgs.m_numUserShapes++;
 			return shapeIndex;
 		}
 	}
 	return -1;
 }
-
+B3_SHARED_API	int b3CreateVisualShapeAddCylinder(b3SharedMemoryCommandHandle commandHandle,double radius, double height)
+{
+	return b3CreateCollisionShapeAddCylinder(commandHandle,radius,height);
+}
 
 B3_SHARED_API int b3CreateCollisionShapeAddPlane(b3SharedMemoryCommandHandle commandHandle, double planeNormal[3], double planeConstant)
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
-    b3Assert(command->m_type == CMD_CREATE_COLLISION_SHAPE);
-	if (command->m_type==CMD_CREATE_COLLISION_SHAPE)
+    b3Assert((command->m_type == CMD_CREATE_COLLISION_SHAPE)|| (command->m_type == CMD_CREATE_VISUAL_SHAPE));
+	if ((command->m_type == CMD_CREATE_COLLISION_SHAPE)|| (command->m_type == CMD_CREATE_VISUAL_SHAPE))
 	{
-		int shapeIndex = command->m_createCollisionShapeArgs.m_numCollisionShapes;
+		int shapeIndex = command->m_createUserShapeArgs.m_numUserShapes;
 		if (shapeIndex <MAX_COMPOUND_COLLISION_SHAPES)
 		{
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_type = GEOM_PLANE;
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_planeNormal[0] = planeNormal[0];
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_planeNormal[1] = planeNormal[1];
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_planeNormal[2] = planeNormal[2];
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_planeConstant = planeConstant;
-			command->m_createCollisionShapeArgs.m_numCollisionShapes++;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_type = GEOM_PLANE;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_visualFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_planeNormal[0] = planeNormal[0];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_planeNormal[1] = planeNormal[1];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_planeNormal[2] = planeNormal[2];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_planeConstant = planeConstant;
+			command->m_createUserShapeArgs.m_numUserShapes++;
+			return shapeIndex;
+		}
+	}
+	return -1;
+}
+B3_SHARED_API	int b3CreateVisualShapeAddPlane(b3SharedMemoryCommandHandle commandHandle, double planeNormal[/*3*/], double planeConstant)
+{
+	return b3CreateCollisionShapeAddPlane(commandHandle,planeNormal,planeConstant);
+}
+B3_SHARED_API int b3CreateCollisionShapeAddMesh(b3SharedMemoryCommandHandle commandHandle,const char* fileName, double meshScale[3])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert((command->m_type == CMD_CREATE_COLLISION_SHAPE)|| (command->m_type == CMD_CREATE_VISUAL_SHAPE));
+	if ((command->m_type == CMD_CREATE_COLLISION_SHAPE)|| (command->m_type == CMD_CREATE_VISUAL_SHAPE))
+	{
+		int shapeIndex = command->m_createUserShapeArgs.m_numUserShapes;
+		if (shapeIndex <MAX_COMPOUND_COLLISION_SHAPES && strlen(fileName)<VISUAL_SHAPE_MAX_PATH_LEN)
+		{
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_type = GEOM_MESH;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_visualFlags = 0;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
+			strcpy(command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshFileName,fileName);
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[0] = meshScale[0];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[1] = meshScale[1];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshScale[2] = meshScale[2];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_meshFileType = 0;
+			command->m_createUserShapeArgs.m_numUserShapes++;
 			return shapeIndex;
 		}
 	}
 	return -1;
 }
 
-B3_SHARED_API int b3CreateCollisionShapeAddMesh(b3SharedMemoryCommandHandle commandHandle,const char* fileName, double meshScale[3])
+B3_SHARED_API	int b3CreateVisualShapeAddMesh(b3SharedMemoryCommandHandle commandHandle,const char* fileName, double meshScale[/*3*/])
 {
-	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
-    b3Assert(command);
-    b3Assert(command->m_type == CMD_CREATE_COLLISION_SHAPE);
-	if (command->m_type==CMD_CREATE_COLLISION_SHAPE)
-	{
-		int shapeIndex = command->m_createCollisionShapeArgs.m_numCollisionShapes;
-		if (shapeIndex <MAX_COMPOUND_COLLISION_SHAPES && strlen(fileName)<VISUAL_SHAPE_MAX_PATH_LEN)
-		{
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_type = GEOM_MESH;
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_collisionFlags = 0;
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 0;
-			strcpy(command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_meshFileName,fileName);
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_meshScale[0] = meshScale[0];
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_meshScale[1] = meshScale[1];
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_meshScale[2] = meshScale[2];
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_meshFileType = 0;
-			command->m_createCollisionShapeArgs.m_numCollisionShapes++;
-			return shapeIndex;
-		}
-	}
-	return -1;
+	return b3CreateCollisionShapeAddMesh(commandHandle,fileName,meshScale);
 }
 
 B3_SHARED_API void b3CreateCollisionSetFlag(b3SharedMemoryCommandHandle commandHandle,int shapeIndex, int flags)
@@ -924,38 +956,80 @@ B3_SHARED_API void b3CreateCollisionSetFlag(b3SharedMemoryCommandHandle commandH
 	
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
-    b3Assert(command->m_type == CMD_CREATE_COLLISION_SHAPE);
-	if (command->m_type==CMD_CREATE_COLLISION_SHAPE)
+    b3Assert((command->m_type == CMD_CREATE_COLLISION_SHAPE)|| (command->m_type == CMD_CREATE_VISUAL_SHAPE));
+	if ((command->m_type == CMD_CREATE_COLLISION_SHAPE)|| (command->m_type == CMD_CREATE_VISUAL_SHAPE))
 	{
-		if (shapeIndex<command->m_createCollisionShapeArgs.m_numCollisionShapes)
+		if (shapeIndex<command->m_createUserShapeArgs.m_numUserShapes)
 		{
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_collisionFlags |= flags;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_collisionFlags |= flags;
 		}
 	}
 }
-
+B3_SHARED_API	void b3CreateVisualSetFlag(b3SharedMemoryCommandHandle commandHandle,int shapeIndex, int flags)
+{
+	b3CreateCollisionSetFlag(commandHandle,shapeIndex,flags);
+}
 
 B3_SHARED_API void b3CreateCollisionShapeSetChildTransform(b3SharedMemoryCommandHandle commandHandle,int shapeIndex, double childPosition[3], double childOrientation[4])
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
     b3Assert(command);
-    b3Assert(command->m_type == CMD_CREATE_COLLISION_SHAPE);
-	if (command->m_type==CMD_CREATE_COLLISION_SHAPE)
+    b3Assert((command->m_type == CMD_CREATE_COLLISION_SHAPE)|| (command->m_type == CMD_CREATE_VISUAL_SHAPE));
+	if ((command->m_type == CMD_CREATE_COLLISION_SHAPE)|| (command->m_type == CMD_CREATE_VISUAL_SHAPE))
 	{
-		if (shapeIndex<command->m_createCollisionShapeArgs.m_numCollisionShapes)
+		if (shapeIndex<command->m_createUserShapeArgs.m_numUserShapes)
 		{
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 1;
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_childPosition[0] = childPosition[0];
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_childPosition[1] = childPosition[1];
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_childPosition[2] = childPosition[2];
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_childOrientation[0] = childOrientation[0];
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_childOrientation[1] = childOrientation[1];
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_childOrientation[2] = childOrientation[2];
-			command->m_createCollisionShapeArgs.m_shapes[shapeIndex].m_childOrientation[3] = childOrientation[3];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_hasChildTransform = 1;
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_childPosition[0] = childPosition[0];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_childPosition[1] = childPosition[1];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_childPosition[2] = childPosition[2];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_childOrientation[0] = childOrientation[0];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_childOrientation[1] = childOrientation[1];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_childOrientation[2] = childOrientation[2];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_childOrientation[3] = childOrientation[3];
 		}
 	}
 }
 
+B3_SHARED_API	void b3CreateVisualShapeSetChildTransform(b3SharedMemoryCommandHandle commandHandle,int shapeIndex, double childPosition[/*3*/], double childOrientation[/*4*/])
+{
+	b3CreateCollisionShapeSetChildTransform(commandHandle,shapeIndex,childPosition,childOrientation);
+}
+
+B3_SHARED_API	void b3CreateVisualShapeSetRGBAColor(b3SharedMemoryCommandHandle commandHandle,int shapeIndex, double rgbaColor[/*4*/])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert((command->m_type == CMD_CREATE_COLLISION_SHAPE)|| (command->m_type == CMD_CREATE_VISUAL_SHAPE));
+	if ((command->m_type == CMD_CREATE_COLLISION_SHAPE)|| (command->m_type == CMD_CREATE_VISUAL_SHAPE))
+	{
+		if (shapeIndex<command->m_createUserShapeArgs.m_numUserShapes)
+		{
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_rgbaColor[0] = rgbaColor[0];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_rgbaColor[1] = rgbaColor[1];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_rgbaColor[2] = rgbaColor[2];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_rgbaColor[3] = rgbaColor[3];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_visualFlags |= GEOM_VISUAL_HAS_RGBA_COLOR;
+		}
+	}
+}
+
+B3_SHARED_API	void b3CreateVisualShapeSetSpecularColor(b3SharedMemoryCommandHandle commandHandle,int shapeIndex, double specularColor[/*3*/])
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+    b3Assert((command->m_type == CMD_CREATE_COLLISION_SHAPE)|| (command->m_type == CMD_CREATE_VISUAL_SHAPE));
+	if ((command->m_type == CMD_CREATE_COLLISION_SHAPE)|| (command->m_type == CMD_CREATE_VISUAL_SHAPE))
+	{
+		if (shapeIndex<command->m_createUserShapeArgs.m_numUserShapes)
+		{
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_specularColor[0] = specularColor[0];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_specularColor[1] = specularColor[1];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_specularColor[2] = specularColor[2];
+			command->m_createUserShapeArgs.m_shapes[shapeIndex].m_visualFlags |= GEOM_VISUAL_HAS_SPECULAR_COLOR;
+		}
+	}
+}
 
 B3_SHARED_API int b3GetStatusCollisionShapeUniqueId(b3SharedMemoryStatusHandle statusHandle)
 {
@@ -964,7 +1038,7 @@ B3_SHARED_API int b3GetStatusCollisionShapeUniqueId(b3SharedMemoryStatusHandle s
 	b3Assert(status->m_type == CMD_CREATE_COLLISION_SHAPE_COMPLETED);
 	if (status && status->m_type == CMD_CREATE_COLLISION_SHAPE_COMPLETED)
 	{
-		return status->m_createCollisionShapeResultArgs.m_collisionShapeUniqueId;
+		return status->m_createUserShapeResultArgs.m_userShapeUniqueId;
 	}
 	return -1;
 }
@@ -981,10 +1055,19 @@ B3_SHARED_API	b3SharedMemoryCommandHandle b3CreateVisualShapeCommandInit(b3Physi
 		b3Assert(command);
 		command->m_type = CMD_CREATE_VISUAL_SHAPE;
 		command->m_updateFlags =0;
+		command->m_createUserShapeArgs.m_numUserShapes= 0;
 		return (b3SharedMemoryCommandHandle) command;
 	}
 	return 0;
 }
+
+
+
+
+
+
+
+
 
 B3_SHARED_API int b3GetStatusVisualShapeUniqueId(b3SharedMemoryStatusHandle statusHandle)
 {
@@ -993,7 +1076,7 @@ B3_SHARED_API int b3GetStatusVisualShapeUniqueId(b3SharedMemoryStatusHandle stat
 	b3Assert(status->m_type == CMD_CREATE_VISUAL_SHAPE_COMPLETED);
 	if (status && status->m_type == CMD_CREATE_VISUAL_SHAPE_COMPLETED)
 	{
-		return status->m_createVisualShapeResultArgs.m_visualShapeUniqueId;
+		return status->m_createUserShapeResultArgs.m_userShapeUniqueId;
 	}
 	return -1;
 }
