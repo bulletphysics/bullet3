@@ -4493,7 +4493,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 											//store needed info for tinyrenderer
 											visualHandle->m_localInertiaFrame = localInertiaFrame;
 											visualHandle->m_visualShape = visualShape;
-											visualHandle->m_pathPrefix = pathPrefix ? pathPrefix : "";
+											visualHandle->m_pathPrefix = pathPrefix[0] ? pathPrefix : "";
 
 											serverStatusOut.m_createUserShapeResultArgs.m_userShapeUniqueId = visualShapeUniqueId;
 											serverStatusOut.m_type = CMD_CREATE_VISUAL_SHAPE_COMPLETED;
