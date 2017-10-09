@@ -7209,6 +7209,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 												InteralUserConstraintData userConstraintData;
 												userConstraintData.m_mbConstraint = multibodyGear;
 												int uid = m_data->m_userConstraintUIDGenerator++;
+                                                serverCmd.m_userConstraintResultArgs = clientCmd.m_userConstraintArguments;
 												serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = uid;
 												serverCmd.m_userConstraintResultArgs.m_maxAppliedForce = defaultMaxForce;
 												userConstraintData.m_userConstraintData = serverCmd.m_userConstraintResultArgs;
@@ -7230,6 +7231,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 												InteralUserConstraintData userConstraintData;
 												userConstraintData.m_mbConstraint = multibodyFixed;
 												int uid = m_data->m_userConstraintUIDGenerator++;
+                                                serverCmd.m_userConstraintResultArgs = clientCmd.m_userConstraintArguments;
 												serverCmd.m_userConstraintResultArgs.m_userConstraintUniqueId = uid;
 												serverCmd.m_userConstraintResultArgs.m_maxAppliedForce = defaultMaxForce;
 												userConstraintData.m_userConstraintData = serverCmd.m_userConstraintResultArgs;
