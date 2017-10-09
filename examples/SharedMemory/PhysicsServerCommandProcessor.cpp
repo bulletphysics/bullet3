@@ -3977,7 +3977,13 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 											case ePoint2PointType:
 											{
 												sprintf(jointTypeStr,"p.JOINT_POINT2POINT");
-												break;											}
+												break;
+                                            }
+                                            case eGearType:
+                                            {
+                                                sprintf(jointTypeStr,"p.JOINT_GEAR");
+                                                break;
+                                            }
 											default:
 											{
 												hasKnownJointType = false;
