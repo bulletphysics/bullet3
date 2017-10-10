@@ -1131,7 +1131,7 @@ public:
 	btAlignedObjectArray<UserDebugText> m_userDebugText;
 	
 	UserDebugText m_tmpText;
-
+	int m_resultUserDebugTextUid;
 	virtual int		addUserDebugText3D( const char* txt, const double positionXYZ[3], const double orientation[4], const double	textColorRGB[3], double size, double lifeTime, int trackingVisualShapeIndex, int optionFlags)
 	{
 		
@@ -1165,7 +1165,7 @@ public:
 		m_cs->setSharedParam(1, eGUIUserDebugAddText);
 		workerThreadWait();
 
-		return m_userDebugText[m_userDebugText.size()-1].m_itemUniqueId;
+		return m_resultUserDebugTextUid;
 	}
 
 	btAlignedObjectArray<UserDebugParameter*> m_userDebugParams;
@@ -1183,6 +1183,7 @@ public:
 		}
 		return 0;
 	}
+	int m_userDebugParamUid;
 
 	virtual int		addUserDebugParameter(const char* txt, double	rangeMin, double	rangeMax, double startValue)
 	{
@@ -1196,13 +1197,13 @@ public:
 		m_cs->setSharedParam(1, eGUIUserDebugAddParameter);
 		workerThreadWait();
 
-		return (*m_userDebugParams[m_userDebugParams.size()-1]).m_itemUniqueId;
+		return m_userDebugParamUid;
 	}
 
 
 	btAlignedObjectArray<UserDebugDrawLine> m_userDebugLines;
 	UserDebugDrawLine m_tmpLine;
-
+	int m_resultDebugLineUid;
 	virtual int		addUserDebugLine(const double	debugLineFromXYZ[3], const double	debugLineToXYZ[3], const double	debugLineColorRGB[3], double lineWidth, double lifeTime , int trackingVisualShapeIndex)
 	{
 		m_tmpLine.m_lifeTime = lifeTime;
@@ -1223,7 +1224,7 @@ public:
 		m_cs->lock();
 		m_cs->setSharedParam(1, eGUIUserDebugAddLine);
 		workerThreadWait();
-		return m_userDebugLines[m_userDebugLines.size()-1].m_itemUniqueId;
+		return m_resultDebugLineUid;
 	}
 
 	int m_removeDebugItemUid;
@@ -1788,6 +1789,7 @@ void    PhysicsServerExample::exitPhysics()
 {
 		for (int i=0;i<MAX_MOTION_NUM_THREADS;i++)
 		{
+			m_args[i].m_cs2->unlock();
 			m_args[i].m_cs->lock();
 			m_args[i].m_cs->setSharedParam(0,eRequestTerminateMotion);
 			m_args[i].m_cs->unlock();
@@ -1804,7 +1806,7 @@ void    PhysicsServerExample::exitPhysics()
 
                         } else
                         {
-							b3Clock::usleep(1000);
+							b3Clock::usleep(0);
                         }
 						//we need to call 'stepSimulation' to make sure that
 						//other threads get out of blocking state (workerThreadWait)
@@ -2171,6 +2173,7 @@ void	PhysicsServerExample::updateGraphics()
 		B3_PROFILE("eGUIUserDebugAddText");
 
 		m_multiThreadedHelper->m_userDebugText.push_back(m_multiThreadedHelper->m_tmpText);
+		m_multiThreadedHelper->m_resultUserDebugTextUid = m_multiThreadedHelper->m_userDebugText[m_multiThreadedHelper->m_userDebugText.size()-1].m_itemUniqueId;
 		m_multiThreadedHelper->mainThreadRelease();
 		break;
 	}
@@ -2190,6 +2193,8 @@ void	PhysicsServerExample::updateGraphics()
 	        m_multiThreadedHelper->m_childGuiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 		}
 
+		m_multiThreadedHelper->m_userDebugParamUid = (*m_multiThreadedHelper->m_userDebugParams[m_multiThreadedHelper->m_userDebugParams.size()-1]).m_itemUniqueId;
+
 		//also add actual menu
 		m_multiThreadedHelper->mainThreadRelease();
 		break;
@@ -2199,6 +2204,7 @@ void	PhysicsServerExample::updateGraphics()
 		B3_PROFILE("eGUIUserDebugAddLine");
 
 		m_multiThreadedHelper->m_userDebugLines.push_back(m_multiThreadedHelper->m_tmpLine);
+		m_multiThreadedHelper->m_resultDebugLineUid = m_multiThreadedHelper->m_userDebugLines[m_multiThreadedHelper->m_userDebugLines.size()-1].m_itemUniqueId;
 		m_multiThreadedHelper->mainThreadRelease();
 			break;
 	}

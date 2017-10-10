@@ -1654,6 +1654,9 @@ B3_SHARED_API	b3SharedMemoryCommandHandle b3RequestCollisionInfoCommandInit(b3Ph
 B3_SHARED_API int b3GetStatusAABB(b3SharedMemoryStatusHandle statusHandle, int linkIndex, double aabbMin[3], double aabbMax[3])
 {
 	const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
+	btAssert(status);
+	if (status==0)
+		return 0;
     const b3SendCollisionInfoArgs &args = status->m_sendCollisionInfoArgs;
     btAssert(status->m_type == CMD_REQUEST_COLLISION_INFO_COMPLETED);
     if (status->m_type != CMD_REQUEST_COLLISION_INFO_COMPLETED)
@@ -1695,6 +1698,9 @@ B3_SHARED_API int b3GetStatusActualState(b3SharedMemoryStatusHandle statusHandle
                            const double* actualStateQdot[],
                            const double* jointReactionForces[]) {
     const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
+	btAssert(status);
+	if (status==0)
+		return 0;
     const SendActualStateArgs &args = status->m_sendActualStateArgs;
     btAssert(status->m_type == CMD_ACTUAL_STATE_UPDATE_COMPLETED);
     if (status->m_type != CMD_ACTUAL_STATE_UPDATE_COMPLETED)
@@ -1910,6 +1916,8 @@ B3_SHARED_API int b3GetStatusPluginCommandResult(b3SharedMemoryStatusHandle stat
 
 	const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
 	b3Assert(status);
+	if (status==0)
+		return statusUniqueId;
 	b3Assert(status->m_type == CMD_CUSTOM_COMMAND_COMPLETED);
 	if (status->m_type == CMD_CUSTOM_COMMAND_COMPLETED)
 	{
@@ -1924,10 +1932,13 @@ B3_SHARED_API int b3GetStatusPluginUniqueId(b3SharedMemoryStatusHandle statusHan
 
 	const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
 	b3Assert(status);
-	b3Assert(status->m_type == CMD_CUSTOM_COMMAND_COMPLETED);
-	if (status->m_type == CMD_CUSTOM_COMMAND_COMPLETED)
+	if (status)
 	{
-		statusUniqueId = status->m_customCommandResultArgs.m_pluginUniqueId;
+		b3Assert(status->m_type == CMD_CUSTOM_COMMAND_COMPLETED);
+		if (status->m_type == CMD_CUSTOM_COMMAND_COMPLETED)
+		{
+			statusUniqueId = status->m_customCommandResultArgs.m_pluginUniqueId;
+		}
 	}
 	return statusUniqueId;
 }
@@ -2317,12 +2328,14 @@ B3_SHARED_API int b3GetStatusUserConstraintUniqueId(b3SharedMemoryStatusHandle s
 {
 	const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
 	b3Assert(status);
-	b3Assert(status->m_type == CMD_USER_CONSTRAINT_COMPLETED);
-	if (status && status->m_type == CMD_USER_CONSTRAINT_COMPLETED)
+	if (status)
 	{
-		return status->m_userConstraintResultArgs.m_userConstraintUniqueId;
+		b3Assert(status->m_type == CMD_USER_CONSTRAINT_COMPLETED);
+		if (status && status->m_type == CMD_USER_CONSTRAINT_COMPLETED)
+		{
+			return status->m_userConstraintResultArgs.m_userConstraintUniqueId;
+		}
 	}
-
 	return -1;
 
 }
@@ -2635,11 +2648,14 @@ B3_SHARED_API	b3SharedMemoryCommandHandle b3InitUserDebugReadParameter(b3Physics
 B3_SHARED_API int b3GetStatusDebugParameterValue(b3SharedMemoryStatusHandle statusHandle, double* paramValue)
 {
 	const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
-	btAssert(status->m_type == CMD_USER_DEBUG_DRAW_PARAMETER_COMPLETED);
-	if (paramValue && (status->m_type == CMD_USER_DEBUG_DRAW_PARAMETER_COMPLETED))
+	if (status)
 	{
-		*paramValue = status->m_userDebugDrawArgs.m_parameterValue;
-		return 1;
+		btAssert(status->m_type == CMD_USER_DEBUG_DRAW_PARAMETER_COMPLETED);
+		if (paramValue && (status->m_type == CMD_USER_DEBUG_DRAW_PARAMETER_COMPLETED))
+		{
+			*paramValue = status->m_userDebugDrawArgs.m_parameterValue;
+			return 1;
+		}
 	}
 	return 0;
 }
@@ -3280,10 +3296,13 @@ B3_SHARED_API int b3GetStatusTextureUniqueId(b3SharedMemoryStatusHandle statusHa
 {
 	int uid = -1;
 	const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
-	btAssert(status->m_type == CMD_LOAD_TEXTURE_COMPLETED);	
-	if (status->m_type == CMD_LOAD_TEXTURE_COMPLETED)
+	if (status)
 	{
-		uid = status->m_loadTextureResultArguments.m_textureUniqueId;
+		btAssert(status->m_type == CMD_LOAD_TEXTURE_COMPLETED);	
+		if (status->m_type == CMD_LOAD_TEXTURE_COMPLETED)
+		{
+			uid = status->m_loadTextureResultArguments.m_textureUniqueId;
+		}
 	}
 	return uid;
 }
@@ -3420,6 +3439,9 @@ B3_SHARED_API int b3GetStatusInverseDynamicsJointForces(b3SharedMemoryStatusHand
 	double* jointForces)
 {
 	const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
+	if (status==0)
+		return false;
+
 	btAssert(status->m_type == CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED);
 	if (status->m_type != CMD_CALCULATED_INVERSE_DYNAMICS_COMPLETED)
 		return false;
@@ -3475,6 +3497,9 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3CalculateJacobianCommandInit(b3Physi
 B3_SHARED_API int b3GetStatusJacobian(b3SharedMemoryStatusHandle statusHandle, int* dofCount, double* linearJacobian, double* angularJacobian)
 {
     const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
+	if (status==0)
+		return false;
+
     btAssert(status->m_type == CMD_CALCULATED_JACOBIAN_COMPLETED);
     if (status->m_type != CMD_CALCULATED_JACOBIAN_COMPLETED)
         return false;
@@ -3528,6 +3553,9 @@ B3_SHARED_API int b3GetStatusMassMatrix(b3PhysicsClientHandle physClient, b3Shar
 	b3Assert(cl);
 
     const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
+	if (status==0)
+		return false;
+
     btAssert(status->m_type == CMD_CALCULATED_MASS_MATRIX_COMPLETED);
     if (status->m_type != CMD_CALCULATED_MASS_MATRIX_COMPLETED)
         return false;
@@ -3661,9 +3689,12 @@ B3_SHARED_API int b3GetStatusInverseKinematicsJointPositions(b3SharedMemoryStatu
 	double* jointPositions)
 {
 	const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
+	btAssert(status);
+	if (status==0)
+		return 0;
 	btAssert(status->m_type == CMD_CALCULATE_INVERSE_KINEMATICS_COMPLETED);
 	if (status->m_type != CMD_CALCULATE_INVERSE_KINEMATICS_COMPLETED)
-		return false;
+		return 0;
 
 
 	if (dofCount)
@@ -3682,7 +3713,7 @@ B3_SHARED_API int b3GetStatusInverseKinematicsJointPositions(b3SharedMemoryStatu
 		}
 	}
 
-	return true;
+	return 1;
 }
 
 B3_SHARED_API b3SharedMemoryCommandHandle b3RequestVREventsCommandInit(b3PhysicsClientHandle physClient)
