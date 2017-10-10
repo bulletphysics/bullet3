@@ -7667,14 +7667,16 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                     
                                     
                                     btInverseDynamics::vecx nu(numDofs+baseDofs), qdot(numDofs + baseDofs), q(numDofs + baseDofs), joint_force(numDofs + baseDofs);
-                                    for (int i = 0; i < numDofs; i++)
-                                    {
-                                        q_current[i] = bodyHandle->m_multiBody->getJointPos(i);
-                                        q[i+baseDofs] = bodyHandle->m_multiBody->getJointPos(i);
-                                        qdot[i + baseDofs] = 0;
-                                        nu[i+baseDofs] = 0;
-                                    }
-                                    // Set the gravity to correspond to the world gravity
+									int DofIndex = 0;
+									for (int i = 0; i < bodyHandle->m_multiBody->getNumLinks(); ++i) {
+										if (bodyHandle->m_multiBody->getLink(i).m_jointType >= 0 && bodyHandle->m_multiBody->getLink(i).m_jointType <= 2) { // 0, 1, 2 represent revolute, prismatic, and spherical joint types respectively. Skip the fixed joints.
+											q_current[DofIndex] = bodyHandle->m_multiBody->getJointPos(i);
+											q[DofIndex+baseDofs] = bodyHandle->m_multiBody->getJointPos(i);
+											qdot[DofIndex+baseDofs] = 0;
+											nu[DofIndex+baseDofs] = 0;
+											DofIndex++;
+										}
+									}                                    // Set the gravity to correspond to the world gravity
                                     btInverseDynamics::vec3 id_grav(m_data->m_dynamicsWorld->getGravity());
                                     
                                     if (-1 != tree->setGravityInWorldFrame(id_grav) &&
