@@ -1789,6 +1789,7 @@ void    PhysicsServerExample::exitPhysics()
 {
 		for (int i=0;i<MAX_MOTION_NUM_THREADS;i++)
 		{
+			m_args[i].m_cs2->unlock();
 			m_args[i].m_cs->lock();
 			m_args[i].m_cs->setSharedParam(0,eRequestTerminateMotion);
 			m_args[i].m_cs->unlock();
@@ -1805,7 +1806,7 @@ void    PhysicsServerExample::exitPhysics()
 
                         } else
                         {
-							b3Clock::usleep(1000);
+							b3Clock::usleep(0);
                         }
 						//we need to call 'stepSimulation' to make sure that
 						//other threads get out of blocking state (workerThreadWait)
