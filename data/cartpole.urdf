@@ -62,6 +62,12 @@
       <mass value="10"/>
       <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
+     <collision>
+      <geometry>
+        <box size="0.05 0.05 1.0"/>	
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0.5"/>
+    </collision>
   </link>
 
   <joint name="cart_to_pole" type="continuous">
