@@ -4499,7 +4499,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 											//store needed info for tinyrenderer
 											visualHandle->m_localInertiaFrame = localInertiaFrame;
 											visualHandle->m_visualShape = visualShape;
-											visualHandle->m_pathPrefix = pathPrefix ? pathPrefix : "";
+											visualHandle->m_pathPrefix = pathPrefix[0] ? pathPrefix : "";
 
 											serverStatusOut.m_createUserShapeResultArgs.m_userShapeUniqueId = visualShapeUniqueId;
 											serverStatusOut.m_type = CMD_CREATE_VISUAL_SHAPE_COMPLETED;
@@ -7659,7 +7659,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                 btAlignedObjectArray<double> q_current;
 								q_current.resize(numDofs);
                                 
-                                if (tree)
+								if (tree && (numDofs == tree->numDoFs()))
                                 {
                                     jacSize = jacobian_linear.size();
                                     // Set jacobian value
@@ -7697,92 +7697,93 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                             }
                                         }
                                     }
-                                }
                                 
                                 
-                                btAlignedObjectArray<double> q_new;
-								q_new.resize(numDofs);
-                                int ikMethod = 0;
-                                if ((clientCmd.m_updateFlags& IK_HAS_TARGET_ORIENTATION)&&(clientCmd.m_updateFlags&IK_HAS_NULL_SPACE_VELOCITY))
-                                {
-                                    ikMethod = IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE;
-                                }
-                                else if (clientCmd.m_updateFlags& IK_HAS_TARGET_ORIENTATION)
-                                {
-                                    ikMethod = IK2_VEL_DLS_WITH_ORIENTATION;
-                                }
-                                else if (clientCmd.m_updateFlags& IK_HAS_NULL_SPACE_VELOCITY)
-                                {
-                                    ikMethod = IK2_VEL_DLS_WITH_NULLSPACE;
-                                }
-                                else
-                                {
-                                    ikMethod = IK2_VEL_DLS;
-                                }
                                 
-                                if (clientCmd.m_updateFlags& IK_HAS_NULL_SPACE_VELOCITY)
-                                {
-                                    btAlignedObjectArray<double> lower_limit;
-                                    btAlignedObjectArray<double> upper_limit;
-                                    btAlignedObjectArray<double> joint_range;
-                                    btAlignedObjectArray<double> rest_pose;
-                                    lower_limit.resize(numDofs);
-                                    upper_limit.resize(numDofs);
-                                    joint_range.resize(numDofs);
-                                    rest_pose.resize(numDofs);
-                                    for (int i = 0; i < numDofs; ++i)
-                                    {
-                                        lower_limit[i] = clientCmd.m_calculateInverseKinematicsArguments.m_lowerLimit[i];
-                                        upper_limit[i] = clientCmd.m_calculateInverseKinematicsArguments.m_upperLimit[i];
-                                        joint_range[i] = clientCmd.m_calculateInverseKinematicsArguments.m_jointRange[i];
-                                        rest_pose[i] = clientCmd.m_calculateInverseKinematicsArguments.m_restPose[i];
-                                    }
-									ikHelperPtr->computeNullspaceVel(numDofs, &q_current[0], &lower_limit[0], &upper_limit[0], &joint_range[0], &rest_pose[0]);
-                                }
+									btAlignedObjectArray<double> q_new;
+									q_new.resize(numDofs);
+									int ikMethod = 0;
+									if ((clientCmd.m_updateFlags& IK_HAS_TARGET_ORIENTATION)&&(clientCmd.m_updateFlags&IK_HAS_NULL_SPACE_VELOCITY))
+									{
+										ikMethod = IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE;
+									}
+									else if (clientCmd.m_updateFlags& IK_HAS_TARGET_ORIENTATION)
+									{
+										ikMethod = IK2_VEL_DLS_WITH_ORIENTATION;
+									}
+									else if (clientCmd.m_updateFlags& IK_HAS_NULL_SPACE_VELOCITY)
+									{
+										ikMethod = IK2_VEL_DLS_WITH_NULLSPACE;
+									}
+									else
+									{
+										ikMethod = IK2_VEL_DLS;
+									}
                                 
-                                btTransform endEffectorTransformWorld = bodyHandle->m_multiBody->getLink(endEffectorLinkIndex).m_cachedWorldTransform * bodyHandle->m_linkLocalInertialFrames[endEffectorLinkIndex].inverse();
+									if (clientCmd.m_updateFlags& IK_HAS_NULL_SPACE_VELOCITY)
+									{
+										btAlignedObjectArray<double> lower_limit;
+										btAlignedObjectArray<double> upper_limit;
+										btAlignedObjectArray<double> joint_range;
+										btAlignedObjectArray<double> rest_pose;
+										lower_limit.resize(numDofs);
+										upper_limit.resize(numDofs);
+										joint_range.resize(numDofs);
+										rest_pose.resize(numDofs);
+										for (int i = 0; i < numDofs; ++i)
+										{
+											lower_limit[i] = clientCmd.m_calculateInverseKinematicsArguments.m_lowerLimit[i];
+											upper_limit[i] = clientCmd.m_calculateInverseKinematicsArguments.m_upperLimit[i];
+											joint_range[i] = clientCmd.m_calculateInverseKinematicsArguments.m_jointRange[i];
+											rest_pose[i] = clientCmd.m_calculateInverseKinematicsArguments.m_restPose[i];
+										}
+										ikHelperPtr->computeNullspaceVel(numDofs, &q_current[0], &lower_limit[0], &upper_limit[0], &joint_range[0], &rest_pose[0]);
+									}
+                                
+									btTransform endEffectorTransformWorld = bodyHandle->m_multiBody->getLink(endEffectorLinkIndex).m_cachedWorldTransform * bodyHandle->m_linkLocalInertialFrames[endEffectorLinkIndex].inverse();
                                
-                                btVector3DoubleData endEffectorWorldPosition;
-                                btVector3DoubleData endEffectorWorldOrientation;
+									btVector3DoubleData endEffectorWorldPosition;
+									btVector3DoubleData endEffectorWorldOrientation;
                                 
-                                btVector3 endEffectorPosWorld =  endEffectorTransformWorld.getOrigin();
-                                btQuaternion endEffectorOriWorld = endEffectorTransformWorld.getRotation();
-                                btVector4 endEffectorOri(endEffectorOriWorld.x(),endEffectorOriWorld.y(),endEffectorOriWorld.z(),endEffectorOriWorld.w());
+									btVector3 endEffectorPosWorld =  endEffectorTransformWorld.getOrigin();
+									btQuaternion endEffectorOriWorld = endEffectorTransformWorld.getRotation();
+									btVector4 endEffectorOri(endEffectorOriWorld.x(),endEffectorOriWorld.y(),endEffectorOriWorld.z(),endEffectorOriWorld.w());
                                 
-                                endEffectorPosWorld.serializeDouble(endEffectorWorldPosition);
-                                endEffectorOri.serializeDouble(endEffectorWorldOrientation);
+									endEffectorPosWorld.serializeDouble(endEffectorWorldPosition);
+									endEffectorOri.serializeDouble(endEffectorWorldOrientation);
                                 
-                                // Set joint damping coefficents. A small default
-                                // damping constant is added to prevent singularity
-                                // with pseudo inverse. The user can set joint damping
-                                // coefficients differently for each joint. The larger
-                                // the damping coefficient is, the less we rely on
-                                // this joint to achieve the IK target.
-                                btAlignedObjectArray<double> joint_damping;
-                                joint_damping.resize(numDofs,0.5);
-                                if (clientCmd.m_updateFlags& IK_HAS_JOINT_DAMPING)
-                                {
-                                    for (int i = 0; i < numDofs; ++i)
-                                    {
-                                        joint_damping[i] = clientCmd.m_calculateInverseKinematicsArguments.m_jointDamping[i];
-                                    }
-                                }
-                                ikHelperPtr->setDampingCoeff(numDofs, &joint_damping[0]);
+									// Set joint damping coefficents. A small default
+									// damping constant is added to prevent singularity
+									// with pseudo inverse. The user can set joint damping
+									// coefficients differently for each joint. The larger
+									// the damping coefficient is, the less we rely on
+									// this joint to achieve the IK target.
+									btAlignedObjectArray<double> joint_damping;
+									joint_damping.resize(numDofs,0.5);
+									if (clientCmd.m_updateFlags& IK_HAS_JOINT_DAMPING)
+									{
+										for (int i = 0; i < numDofs; ++i)
+										{
+											joint_damping[i] = clientCmd.m_calculateInverseKinematicsArguments.m_jointDamping[i];
+										}
+									}
+									ikHelperPtr->setDampingCoeff(numDofs, &joint_damping[0]);
                                 
-								double targetDampCoeff[6] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
-                                ikHelperPtr->computeIK(clientCmd.m_calculateInverseKinematicsArguments.m_targetPosition, clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation,
-                                                       endEffectorWorldPosition.m_floats, endEffectorWorldOrientation.m_floats,
-                                                       &q_current[0],
-                                                       numDofs, clientCmd.m_calculateInverseKinematicsArguments.m_endEffectorLinkIndex,
-									&q_new[0], ikMethod, &jacobian_linear[0], &jacobian_angular[0], jacSize*2, targetDampCoeff);
+									double targetDampCoeff[6] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
+									ikHelperPtr->computeIK(clientCmd.m_calculateInverseKinematicsArguments.m_targetPosition, clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation,
+														   endEffectorWorldPosition.m_floats, endEffectorWorldOrientation.m_floats,
+														   &q_current[0],
+														   numDofs, clientCmd.m_calculateInverseKinematicsArguments.m_endEffectorLinkIndex,
+										&q_new[0], ikMethod, &jacobian_linear[0], &jacobian_angular[0], jacSize*2, targetDampCoeff);
                                 
-                                serverCmd.m_inverseKinematicsResultArgs.m_bodyUniqueId =clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId;
-                                for (int i=0;i<numDofs;i++)
-                                {
-                                    serverCmd.m_inverseKinematicsResultArgs.m_jointPositions[i] = q_new[i];
-                                }
-                                serverCmd.m_inverseKinematicsResultArgs.m_dofCount = numDofs;
-                                serverCmd.m_type = CMD_CALCULATE_INVERSE_KINEMATICS_COMPLETED;
+									serverCmd.m_inverseKinematicsResultArgs.m_bodyUniqueId =clientCmd.m_calculateInverseDynamicsArguments.m_bodyUniqueId;
+									for (int i=0;i<numDofs;i++)
+									{
+										serverCmd.m_inverseKinematicsResultArgs.m_jointPositions[i] = q_new[i];
+									}
+									serverCmd.m_inverseKinematicsResultArgs.m_dofCount = numDofs;
+									serverCmd.m_type = CMD_CALCULATE_INVERSE_KINEMATICS_COMPLETED;
+								}
 							}
 						}
 						hasStatus = true;
