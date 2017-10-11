@@ -56,7 +56,7 @@ public struct IVRSystem
 	internal _GetDXGIOutputInfo GetDXGIOutputInfo;
 
 	[UnmanagedFunctionPointer(CallingConvention.StdCall)]
-	internal delegate void _GetOutputDevice(ref ulong pnDevice, ETextureType textureType);
+	internal delegate void _GetOutputDevice(ref ulong pnDevice, ETextureType textureType, IntPtr pInstance);
 	[MarshalAs(UnmanagedType.FunctionPtr)]
 	internal _GetOutputDevice GetOutputDevice;
 
@@ -845,6 +845,16 @@ public struct IVRCompositor
 	[MarshalAs(UnmanagedType.FunctionPtr)]
 	internal _GetVulkanDeviceExtensionsRequired GetVulkanDeviceExtensionsRequired;
 
+	[UnmanagedFunctionPointer(CallingConvention.StdCall)]
+	internal delegate void _SetExplicitTimingMode(bool bExplicitTimingMode);
+	[MarshalAs(UnmanagedType.FunctionPtr)]
+	internal _SetExplicitTimingMode SetExplicitTimingMode;
+
+	[UnmanagedFunctionPointer(CallingConvention.StdCall)]
+	internal delegate EVRCompositorError _SubmitExplicitTimingData();
+	[MarshalAs(UnmanagedType.FunctionPtr)]
+	internal _SubmitExplicitTimingData SubmitExplicitTimingData;
+
 }
 
 [StructLayout(LayoutKind.Sequential)]
@@ -1250,6 +1260,11 @@ public struct IVROverlay
 	[MarshalAs(UnmanagedType.FunctionPtr)]
 	internal _ShowMessageOverlay ShowMessageOverlay;
 
+	[UnmanagedFunctionPointer(CallingConvention.StdCall)]
+	internal delegate void _CloseMessageOverlay();
+	[MarshalAs(UnmanagedType.FunctionPtr)]
+	internal _CloseMessageOverlay CloseMessageOverlay;
+
 }
 
 [StructLayout(LayoutKind.Sequential)]
@@ -1551,10 +1566,10 @@ public class CVRSystem
 		pnAdapterIndex = 0;
 		FnTable.GetDXGIOutputInfo(ref pnAdapterIndex);
 	}
-	public void GetOutputDevice(ref ulong pnDevice,ETextureType textureType)
+	public void GetOutputDevice(ref ulong pnDevice,ETextureType textureType,IntPtr pInstance)
 	{
 		pnDevice = 0;
-		FnTable.GetOutputDevice(ref pnDevice,textureType);
+		FnTable.GetOutputDevice(ref pnDevice,textureType,pInstance);
 	}
 	public bool IsDisplayOnDesktop()
 	{
@@ -2445,6 +2460,15 @@ public class CVRCompositor
 		uint result = FnTable.GetVulkanDeviceExtensionsRequired(pPhysicalDevice,pchValue,unBufferSize);
 		return result;
 	}
+	public void SetExplicitTimingMode(bool bExplicitTimingMode)
+	{
+		FnTable.SetExplicitTimingMode(bExplicitTimingMode);
+	}
+	public EVRCompositorError SubmitExplicitTimingData()
+	{
+		EVRCompositorError result = FnTable.SubmitExplicitTimingData();
+		return result;
+	}
 }
 
 
@@ -2902,6 +2926,10 @@ public class CVROverlay
 	{
 		VRMessageOverlayResponse result = FnTable.ShowMessageOverlay(pchText,pchCaption,pchButton0Text,pchButton1Text,pchButton2Text,pchButton3Text);
 		return result;
+	}
+	public void CloseMessageOverlay()
+	{
+		FnTable.CloseMessageOverlay();
 	}
 }
 
@@ -3412,6 +3440,7 @@ public enum EVRSubmitFlags
 	Submit_LensDistortionAlreadyApplied = 1,
 	Submit_GlRenderBuffer = 2,
 	Submit_Reserved = 4,
+	Submit_TextureWithPose = 8,
 }
 public enum EVRState
 {
@@ -3539,6 +3568,7 @@ public enum EVREventType
 	VREvent_PerformanceTest_DisableCapture = 1601,
 	VREvent_PerformanceTest_FidelityLevel = 1602,
 	VREvent_MessageOverlay_Closed = 1650,
+	VREvent_MessageOverlayCloseRequested = 1651,
 	VREvent_VendorSpecific_Reserved_Start = 10000,
 	VREvent_VendorSpecific_Reserved_End = 19999,
 }
@@ -3696,6 +3726,9 @@ public enum EVRInitError
 	Init_VRDashboardStartupFailed = 134,
 	Init_VRHomeNotFound = 135,
 	Init_VRHomeStartupFailed = 136,
+	Init_RebootingBusy = 137,
+	Init_FirmwareUpdateBusy = 138,
+	Init_FirmwareRecoveryBusy = 139,
 	Driver_Failed = 200,
 	Driver_Unknown = 201,
 	Driver_HmdUnknown = 202,
@@ -4135,6 +4168,10 @@ public enum EVRScreenshotError
 	public float vMin;
 	public float uMax;
 	public float vMax;
+}
+[StructLayout(LayoutKind.Sequential)] public struct VRTextureWithPose_t
+{
+	public HmdMatrix34_t mDeviceToAbsoluteTracking;
 }
 [StructLayout(LayoutKind.Sequential)] public struct VRVulkanTextureData_t
 {
@@ -4617,7 +4654,7 @@ public class OpenVR
 	public const uint k_unControllerStateAxisCount = 5;
 	public const ulong k_ulOverlayHandleInvalid = 0;
 	public const uint k_unScreenshotHandleInvalid = 0;
-	public const string IVRSystem_Version = "IVRSystem_016";
+	public const string IVRSystem_Version = "IVRSystem_017";
 	public const string IVRExtendedDisplay_Version = "IVRExtendedDisplay_001";
 	public const string IVRTrackedCamera_Version = "IVRTrackedCamera_003";
 	public const uint k_unMaxApplicationKeyLength = 128;
@@ -4626,7 +4663,7 @@ public class OpenVR
 	public const string IVRApplications_Version = "IVRApplications_006";
 	public const string IVRChaperone_Version = "IVRChaperone_003";
 	public const string IVRChaperoneSetup_Version = "IVRChaperoneSetup_005";
-	public const string IVRCompositor_Version = "IVRCompositor_020";
+	public const string IVRCompositor_Version = "IVRCompositor_021";
 	public const uint k_unVROverlayMaxKeyLength = 128;
 	public const uint k_unVROverlayMaxNameLength = 128;
 	public const uint k_unMaxOverlayCount = 64;
@@ -4685,6 +4722,7 @@ public class OpenVR
 	public const string k_pch_SteamVR_RetailDemo_Bool = "retailDemo";
 	public const string k_pch_SteamVR_IpdOffset_Float = "ipdOffset";
 	public const string k_pch_SteamVR_AllowSupersampleFiltering_Bool = "allowSupersampleFiltering";
+	public const string k_pch_SteamVR_EnableLinuxVulkanAsync_Bool = "enableLinuxVulkanAsync";
 	public const string k_pch_Lighthouse_Section = "driver_lighthouse";
 	public const string k_pch_Lighthouse_DisableIMU_Bool = "disableimu";
 	public const string k_pch_Lighthouse_UseDisambiguation_String = "usedisambiguation";
