@@ -315,6 +315,7 @@ enum ETrackedDeviceProperty
 	Prop_DriverDirectModeSendsVsyncEvents_Bool	= 2043,
 	Prop_DisplayDebugMode_Bool					= 2044,
 	Prop_GraphicsAdapterLuid_Uint64				= 2045,
+	Prop_DriverProvidedChaperonePath_String		= 2048,
 
 	// Properties that are unique to TrackedDeviceClass_Controller
 	Prop_AttachedDeviceId_String				= 3000,
@@ -392,6 +393,11 @@ struct VRTextureBounds_t
 	float uMax, vMax;
 };
 
+/** Allows specifying pose used to render provided scene texture (if different from value returned by WaitGetPoses). */
+struct VRTextureWithPose_t : public Texture_t
+{
+	HmdMatrix34_t mDeviceToAbsoluteTracking; // Actual pose used to render scene textures.
+};
 
 /** Allows the application to control how scene textures are used by the compositor when calling Submit. */
 enum EVRSubmitFlags
@@ -409,6 +415,9 @@ enum EVRSubmitFlags
 
 	// Do not use
 	Submit_Reserved = 0x04,
+
+	// Set to indicate that pTexture is a pointer to a VRTextureWithPose_t.
+	Submit_TextureWithPose = 0x08,
 };
 
 /** Data required for passing Vulkan textures to IVRCompositor::Submit.
@@ -464,6 +473,8 @@ enum EVREventType
 	VREvent_WatchdogWakeUpRequested		= 109,
 	VREvent_LensDistortionChanged		= 110,
 	VREvent_PropertyChanged				= 111,
+	VREvent_WirelessDisconnect			= 112,
+	VREvent_WirelessReconnect			= 113,
 
 	VREvent_ButtonPress					= 200, // data is controller
 	VREvent_ButtonUnpress				= 201, // data is controller
@@ -583,6 +594,7 @@ enum EVREventType
 	VREvent_PerformanceTest_FidelityLevel	= 1602,
 
 	VREvent_MessageOverlay_Closed			= 1650,
+	VREvent_MessageOverlayCloseRequested	= 1651,
 	
 	// Vendors are free to expose private events in this reserved region
 	VREvent_VendorSpecific_Reserved_Start	= 10000,
@@ -1016,65 +1028,69 @@ enum EVRInitError
 	VRInitError_None	= 0,
 	VRInitError_Unknown = 1,
 
-	VRInitError_Init_InstallationNotFound		= 100,
-	VRInitError_Init_InstallationCorrupt		= 101,
-	VRInitError_Init_VRClientDLLNotFound		= 102,
-	VRInitError_Init_FileNotFound				= 103,
-	VRInitError_Init_FactoryNotFound			= 104,
-	VRInitError_Init_InterfaceNotFound			= 105,
-	VRInitError_Init_InvalidInterface			= 106,
-	VRInitError_Init_UserConfigDirectoryInvalid = 107,
-	VRInitError_Init_HmdNotFound				= 108,
-	VRInitError_Init_NotInitialized				= 109,
-	VRInitError_Init_PathRegistryNotFound		= 110,
-	VRInitError_Init_NoConfigPath				= 111,
-	VRInitError_Init_NoLogPath					= 112,
-	VRInitError_Init_PathRegistryNotWritable	= 113,
-	VRInitError_Init_AppInfoInitFailed			= 114,
-	VRInitError_Init_Retry						= 115, // Used internally to cause retries to vrserver
-	VRInitError_Init_InitCanceledByUser			= 116, // The calling application should silently exit. The user canceled app startup
-	VRInitError_Init_AnotherAppLaunching		= 117, 
-	VRInitError_Init_SettingsInitFailed			= 118, 
-	VRInitError_Init_ShuttingDown				= 119,
-	VRInitError_Init_TooManyObjects				= 120,
-	VRInitError_Init_NoServerForBackgroundApp	= 121,
-	VRInitError_Init_NotSupportedWithCompositor	= 122,
-	VRInitError_Init_NotAvailableToUtilityApps	= 123,
-	VRInitError_Init_Internal				 	= 124,
-	VRInitError_Init_HmdDriverIdIsNone		 	= 125,
-	VRInitError_Init_HmdNotFoundPresenceFailed 	= 126,
-	VRInitError_Init_VRMonitorNotFound			= 127,
-	VRInitError_Init_VRMonitorStartupFailed		= 128,
-	VRInitError_Init_LowPowerWatchdogNotSupported = 129, 
-	VRInitError_Init_InvalidApplicationType		= 130,
-	VRInitError_Init_NotAvailableToWatchdogApps = 131,
-	VRInitError_Init_WatchdogDisabledInSettings = 132,
-	VRInitError_Init_VRDashboardNotFound		= 133,
-	VRInitError_Init_VRDashboardStartupFailed	= 134,
-	VRInitError_Init_VRHomeNotFound				= 135,
-	VRInitError_Init_VRHomeStartupFailed		= 136,
+	VRInitError_Init_InstallationNotFound			= 100,
+	VRInitError_Init_InstallationCorrupt			= 101,
+	VRInitError_Init_VRClientDLLNotFound			= 102,
+	VRInitError_Init_FileNotFound					= 103,
+	VRInitError_Init_FactoryNotFound				= 104,
+	VRInitError_Init_InterfaceNotFound				= 105,
+	VRInitError_Init_InvalidInterface				= 106,
+	VRInitError_Init_UserConfigDirectoryInvalid		= 107,
+	VRInitError_Init_HmdNotFound					= 108,
+	VRInitError_Init_NotInitialized					= 109,
+	VRInitError_Init_PathRegistryNotFound			= 110,
+	VRInitError_Init_NoConfigPath					= 111,
+	VRInitError_Init_NoLogPath						= 112,
+	VRInitError_Init_PathRegistryNotWritable		= 113,
+	VRInitError_Init_AppInfoInitFailed				= 114,
+	VRInitError_Init_Retry							= 115, // Used internally to cause retries to vrserver
+	VRInitError_Init_InitCanceledByUser				= 116, // The calling application should silently exit. The user canceled app startup
+	VRInitError_Init_AnotherAppLaunching			= 117, 
+	VRInitError_Init_SettingsInitFailed				= 118, 
+	VRInitError_Init_ShuttingDown					= 119,
+	VRInitError_Init_TooManyObjects					= 120,
+	VRInitError_Init_NoServerForBackgroundApp		= 121,
+	VRInitError_Init_NotSupportedWithCompositor		= 122,
+	VRInitError_Init_NotAvailableToUtilityApps		= 123,
+	VRInitError_Init_Internal				 		= 124,
+	VRInitError_Init_HmdDriverIdIsNone		 		= 125,
+	VRInitError_Init_HmdNotFoundPresenceFailed 		= 126,
+	VRInitError_Init_VRMonitorNotFound				= 127,
+	VRInitError_Init_VRMonitorStartupFailed			= 128,
+	VRInitError_Init_LowPowerWatchdogNotSupported	= 129, 
+	VRInitError_Init_InvalidApplicationType			= 130,
+	VRInitError_Init_NotAvailableToWatchdogApps		= 131,
+	VRInitError_Init_WatchdogDisabledInSettings		= 132,
+	VRInitError_Init_VRDashboardNotFound			= 133,
+	VRInitError_Init_VRDashboardStartupFailed		= 134,
+	VRInitError_Init_VRHomeNotFound					= 135,
+	VRInitError_Init_VRHomeStartupFailed			= 136,
+	VRInitError_Init_RebootingBusy					= 137,
+	VRInitError_Init_FirmwareUpdateBusy				= 138,
+	VRInitError_Init_FirmwareRecoveryBusy			= 139,
 
-	VRInitError_Driver_Failed				= 200,
-	VRInitError_Driver_Unknown				= 201,
-	VRInitError_Driver_HmdUnknown			= 202,
-	VRInitError_Driver_NotLoaded			= 203,
-	VRInitError_Driver_RuntimeOutOfDate		= 204,
-	VRInitError_Driver_HmdInUse				= 205,
-	VRInitError_Driver_NotCalibrated		= 206,
-	VRInitError_Driver_CalibrationInvalid	= 207,
-	VRInitError_Driver_HmdDisplayNotFound	= 208,
+
+	VRInitError_Driver_Failed						= 200,
+	VRInitError_Driver_Unknown						= 201,
+	VRInitError_Driver_HmdUnknown					= 202,
+	VRInitError_Driver_NotLoaded					= 203,
+	VRInitError_Driver_RuntimeOutOfDate				= 204,
+	VRInitError_Driver_HmdInUse						= 205,
+	VRInitError_Driver_NotCalibrated				= 206,
+	VRInitError_Driver_CalibrationInvalid			= 207,
+	VRInitError_Driver_HmdDisplayNotFound			= 208,
 	VRInitError_Driver_TrackedDeviceInterfaceUnknown = 209,
-	// VRInitError_Driver_HmdDisplayNotFoundAfterFix	 = 210, // not needed: here for historic reasons
-	VRInitError_Driver_HmdDriverIdOutOfBounds = 211,
-	VRInitError_Driver_HmdDisplayMirrored  = 212,
+	// VRInitError_Driver_HmdDisplayNotFoundAfterFix = 210, // not needed: here for historic reasons
+	VRInitError_Driver_HmdDriverIdOutOfBounds		= 211,
+	VRInitError_Driver_HmdDisplayMirrored			= 212,
 
-	VRInitError_IPC_ServerInitFailed		= 300,
-	VRInitError_IPC_ConnectFailed			= 301,
-	VRInitError_IPC_SharedStateInitFailed	= 302,
-	VRInitError_IPC_CompositorInitFailed	= 303,
-	VRInitError_IPC_MutexInitFailed			= 304,
-	VRInitError_IPC_Failed					= 305,
-	VRInitError_IPC_CompositorConnectFailed	= 306,
+	VRInitError_IPC_ServerInitFailed				= 300,
+	VRInitError_IPC_ConnectFailed					= 301,
+	VRInitError_IPC_SharedStateInitFailed			= 302,
+	VRInitError_IPC_CompositorInitFailed			= 303,
+	VRInitError_IPC_MutexInitFailed					= 304,
+	VRInitError_IPC_Failed							= 305,
+	VRInitError_IPC_CompositorConnectFailed			= 306,
 	VRInitError_IPC_CompositorInvalidConnectResponse = 307,
 	VRInitError_IPC_ConnectFailedAfterMultipleAttempts = 308,
 
@@ -1085,7 +1101,7 @@ enum EVRInitError
 	VRInitError_Compositor_ScreenshotsInitFailed	= 404,
 	VRInitError_Compositor_UnableToCreateDevice		= 405,
 
-	VRInitError_VendorSpecific_UnableToConnectToOculusRuntime = 1000,
+	VRInitError_VendorSpecific_UnableToConnectToOculusRuntime		= 1000,
 
 	VRInitError_VendorSpecific_HmdFound_CantOpenDevice 				= 1101,
 	VRInitError_VendorSpecific_HmdFound_UnableToRequestConfigStart	= 1102,
@@ -1280,17 +1296,20 @@ public:
 	 * Returns platform- and texture-type specific adapter identification so that applications and the
 	 * compositor are creating textures and swap chains on the same GPU. If an error occurs the device
 	 * will be set to 0.
+	 * pInstance is an optional parameter that is required only when textureType is TextureType_Vulkan.
 	 * [D3D10/11/12 Only (D3D9 Not Supported)]
 	 *  Returns the adapter LUID that identifies the GPU attached to the HMD. The user should
 	 *  enumerate all adapters using IDXGIFactory::EnumAdapters and IDXGIAdapter::GetDesc to find
 	 *  the adapter with the matching LUID, or use IDXGIFactory4::EnumAdapterByLuid.
 	 *  The discovered IDXGIAdapter should be used to create the device and swap chain.
 	 * [Vulkan Only]
-	 *  Returns the vk::PhysicalDevice that should be used by the application.
+	 *  Returns the VkPhysicalDevice that should be used by the application.
+	 *  pInstance must be the instance the application will use to query for the VkPhysicalDevice.  The application
+	 *  must create the VkInstance with extensions returned by IVRCompositor::GetVulkanInstanceExtensionsRequired enabled.
 	 * [macOS Only]
 	 *  Returns an id<MTLDevice> that should be used by the application.
 	 */
-	virtual void GetOutputDevice( uint64_t *pnDevice, ETextureType textureType ) = 0;
+	virtual void GetOutputDevice( uint64_t *pnDevice, ETextureType textureType, VkInstance_T *pInstance = nullptr ) = 0;
 
 	// ------------------------------------
 	// Display Mode methods
@@ -1508,7 +1527,7 @@ public:
 
 };
 
-static const char * const IVRSystem_Version = "IVRSystem_016";
+static const char * const IVRSystem_Version = "IVRSystem_017";
 
 }
 
@@ -1537,6 +1556,7 @@ namespace vr
 		VRApplicationError_OldApplicationQuitting = 112, 
 		VRApplicationError_TransitionAborted = 113,
 		VRApplicationError_IsTemplate = 114, // error when you try to call LaunchApplication() on a template type app (use LaunchTemplateApplication)
+		VRApplicationError_SteamVRIsExiting = 115,
 
 		VRApplicationError_BufferTooSmall = 200,		// The provided buffer was too small to fit the requested data
 		VRApplicationError_PropertyNotSet = 201,		// The requested property was not set
@@ -1567,6 +1587,7 @@ namespace vr
 		VRApplicationProperty_IsTemplate_Bool			= 61,
 		VRApplicationProperty_IsInstanced_Bool			= 62,
 		VRApplicationProperty_IsInternal_Bool			= 63,
+		VRApplicationProperty_WantsCompositorPauseInStandby_Bool = 64,
 
 		VRApplicationProperty_LastLaunchTime_Uint64		= 70,
 	};
@@ -1813,6 +1834,7 @@ namespace vr
 	static const char * const k_pch_SteamVR_RetailDemo_Bool = "retailDemo";
 	static const char * const k_pch_SteamVR_IpdOffset_Float = "ipdOffset";
 	static const char * const k_pch_SteamVR_AllowSupersampleFiltering_Bool = "allowSupersampleFiltering";
+	static const char * const k_pch_SteamVR_EnableLinuxVulkanAsync_Bool = "enableLinuxVulkanAsync";
 
 	//-----------------------------------------------------------------------------
 	// lighthouse keys
@@ -1916,6 +1938,7 @@ namespace vr
 	static const char * const k_pch_Power_TurnOffControllersTimeout_Float = "turnOffControllersTimeout";
 	static const char * const k_pch_Power_ReturnToWatchdogTimeout_Float = "returnToWatchdogTimeout";
 	static const char * const k_pch_Power_AutoLaunchSteamVROnButtonPress = "autoLaunchSteamVROnButtonPress";
+	static const char * const k_pch_Power_PauseCompositorOnStandby_Bool = "pauseCompositorOnStandby";
 
 	//-----------------------------------------------------------------------------
 	// dashboard keys
@@ -2114,6 +2137,7 @@ enum EVRCompositorError
 	VRCompositorError_SharedTexturesNotSupported = 106,
 	VRCompositorError_IndexOutOfRange			= 107,
 	VRCompositorError_AlreadySubmitted			= 108,
+	VRCompositorError_InvalidBounds				= 109,
 };
 
 const uint32_t VRCompositor_ReprojectionReason_Cpu = 0x01;
@@ -2362,9 +2386,36 @@ public:
 	* null.  The string will be a space separated list of required device extensions to enable in VkCreateDevice */
 	virtual uint32_t GetVulkanDeviceExtensionsRequired( VkPhysicalDevice_T *pPhysicalDevice, VR_OUT_STRING() char *pchValue, uint32_t unBufferSize ) = 0;
 
+	/** [ Vulkan/D3D12 Only ]
+	* There are two purposes for SetExplicitTimingMode:
+	*	1. To get a more accurate GPU timestamp for when the frame begins in Vulkan/D3D12 applications.
+	*	2. (Optional) To avoid having WaitGetPoses access the Vulkan queue so that the queue can be accessed from
+	*	another thread while WaitGetPoses is executing.
+	*
+	* More accurate GPU timestamp for the start of the frame is achieved by the application calling
+	* SubmitExplicitTimingData immediately before its first submission to the Vulkan/D3D12 queue.
+	* This is more accurate because normally this GPU timestamp is recorded during WaitGetPoses.  In D3D11, 
+	* WaitGetPoses queues a GPU timestamp write, but it does not actually get submitted to the GPU until the 
+	* application flushes.  By using SubmitExplicitTimingData, the timestamp is recorded at the same place for 
+	* Vulkan/D3D12 as it is for D3D11, resulting in a more accurate GPU time measurement for the frame.
+	*
+	* Avoiding WaitGetPoses accessing the Vulkan queue can be achieved using SetExplicitTimingMode as well.  If this is desired,
+	* the application *MUST* call PostPresentHandoff itself prior to WaitGetPoses.  If SetExplicitTimingMode is true and the
+	* application calls PostPresentHandoff, then WaitGetPoses is guaranteed not to access the queue.  Note that PostPresentHandoff
+	* and SubmitExplicitTimingData will access the queue, so only WaitGetPoses becomes safe for accessing the queue from another
+	* thread. */
+	virtual void SetExplicitTimingMode( bool bExplicitTimingMode ) = 0;
+
+	/** [ Vulkan/D3D12 Only ]
+	* Submit explicit timing data.  When SetExplicitTimingMode is true, this must be called immediately before
+	* the application's first vkQueueSubmit (Vulkan) or ID3D12CommandQueue::ExecuteCommandLists (D3D12) of each frame.
+	* This function will insert a GPU timestamp write just before the application starts its rendering.  This function
+	* will perform a vkQueueSubmit on Vulkan so must not be done simultaneously with VkQueue operations on another thread.
+	* Returns VRCompositorError_RequestFailed if SetExplicitTimingMode is not enabled. */
+	virtual EVRCompositorError SubmitExplicitTimingData() = 0;
 };
 
-static const char * const IVRCompositor_Version = "IVRCompositor_020";
+static const char * const IVRCompositor_Version = "IVRCompositor_021";
 
 } // namespace vr
 
@@ -2949,6 +3000,9 @@ namespace vr
 
 		/** Show the message overlay. This will block and return you a result. **/
 		virtual VRMessageOverlayResponse ShowMessageOverlay( const char* pchText, const char* pchCaption, const char* pchButton0Text, const char* pchButton1Text = nullptr, const char* pchButton2Text = nullptr, const char* pchButton3Text = nullptr ) = 0;
+
+		/** If the calling process owns the overlay and it's open, this will close it. **/
+		virtual void CloseMessageOverlay() = 0;
 	};
 
 	static const char * const IVROverlay_Version = "IVROverlay_016";
@@ -3409,8 +3463,10 @@ namespace vr
 	*
 	* This path is to the "root" of the VR API install. That's the directory with
 	* the "drivers" directory and a platform (i.e. "win32") directory in it, not the directory with the DLL itself.
+	*
+	* pStartupInfo is reserved for future use.
 	*/
-	inline IVRSystem *VR_Init( EVRInitError *peError, EVRApplicationType eApplicationType );
+	inline IVRSystem *VR_Init( EVRInitError *peError, EVRApplicationType eApplicationType, const char *pStartupInfo = nullptr );
 
 	/** unloads vrclient.dll. Any interface pointers from the interface are
 	* invalid after this point */
@@ -3680,17 +3736,17 @@ namespace vr
 		m_pVRScreenshots = nullptr;
 		m_pVRDriverManager = nullptr;
 	}
-
-	VR_INTERFACE uint32_t VR_CALLTYPE VR_InitInternal( EVRInitError *peError, EVRApplicationType eApplicationType );
+	
+	VR_INTERFACE uint32_t VR_CALLTYPE VR_InitInternal2( EVRInitError *peError, EVRApplicationType eApplicationType, const char *pStartupInfo );
 	VR_INTERFACE void VR_CALLTYPE VR_ShutdownInternal();
 
 	/** Finds the active installation of vrclient.dll and initializes it */
-	inline IVRSystem *VR_Init( EVRInitError *peError, EVRApplicationType eApplicationType )
+	inline IVRSystem *VR_Init( EVRInitError *peError, EVRApplicationType eApplicationType, const char *pStartupInfo )
 	{
 		IVRSystem *pVRSystem = nullptr;
 
 		EVRInitError eError;
-		VRToken() = VR_InitInternal( &eError, eApplicationType );
+		VRToken() = VR_InitInternal2( &eError, eApplicationType, pStartupInfo );
 		COpenVRContext &ctx = OpenVRInternal_ModuleContext();
 		ctx.Clear();
 
