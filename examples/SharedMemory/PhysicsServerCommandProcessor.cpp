@@ -8246,9 +8246,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 
 							int optionFlags = clientCmd.m_userDebugDrawArgs.m_optionFlags;
 
-							if (clientCmd.m_updateFlags & USER_DEBUG_HAS_TEXT_ORIENTATION)
+							if ((clientCmd.m_updateFlags & USER_DEBUG_HAS_TEXT_ORIENTATION)==0)
 							{
-								optionFlags |= DEB_DEBUG_TEXT_USE_ORIENTATION;
+								optionFlags |= DEB_DEBUG_TEXT_ALWAYS_FACE_CAMERA;
 							}
 
 

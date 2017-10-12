@@ -20,7 +20,9 @@ def getRayFromTo(mouseX,mouseY):
 					rayFrom[2]+rayForward[2]  - 0.5 * horizon[2] + 0.5 * vertical[2]+float(mouseX)*dHor[2]-float(mouseY)*dVer[2]]
 	return rayFrom,rayTo
 
-p.connect(p.GUI)
+cid = p.connect(p.SHARED_MEMORY)
+if (cid<0):
+	p.connect(p.GUI)
 p.setPhysicsEngineParameter(numSolverIterations=10)
 p.setTimeStep(1./120.)
 logId = p.startStateLogging(p.STATE_LOGGING_PROFILE_TIMINGS, "visualShapeBench.json")

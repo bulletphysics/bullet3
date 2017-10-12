@@ -157,6 +157,7 @@
 	,{"name": "Prop_DriverDirectModeSendsVsyncEvents_Bool","value": "2043"}
 	,{"name": "Prop_DisplayDebugMode_Bool","value": "2044"}
 	,{"name": "Prop_GraphicsAdapterLuid_Uint64","value": "2045"}
+	,{"name": "Prop_DriverProvidedChaperonePath_String","value": "2048"}
 	,{"name": "Prop_AttachedDeviceId_String","value": "3000"}
 	,{"name": "Prop_SupportedButtons_Uint64","value": "3001"}
 	,{"name": "Prop_Axis0Type_Int32","value": "3002"}
@@ -212,6 +213,7 @@
 	,{"name": "Submit_LensDistortionAlreadyApplied","value": "1"}
 	,{"name": "Submit_GlRenderBuffer","value": "2"}
 	,{"name": "Submit_Reserved","value": "4"}
+	,{"name": "Submit_TextureWithPose","value": "8"}
 ]}
 ,	{"enumname": "vr::EVRState","values": [ 
 	{"name": "VRState_Undefined","value": "-1"}
@@ -238,6 +240,8 @@
 	,{"name": "VREvent_WatchdogWakeUpRequested","value": "109"}
 	,{"name": "VREvent_LensDistortionChanged","value": "110"}
 	,{"name": "VREvent_PropertyChanged","value": "111"}
+	,{"name": "VREvent_WirelessDisconnect","value": "112"}
+	,{"name": "VREvent_WirelessReconnect","value": "113"}
 	,{"name": "VREvent_ButtonPress","value": "200"}
 	,{"name": "VREvent_ButtonUnpress","value": "201"}
 	,{"name": "VREvent_ButtonTouch","value": "202"}
@@ -335,6 +339,7 @@
 	,{"name": "VREvent_PerformanceTest_DisableCapture","value": "1601"}
 	,{"name": "VREvent_PerformanceTest_FidelityLevel","value": "1602"}
 	,{"name": "VREvent_MessageOverlay_Closed","value": "1650"}
+	,{"name": "VREvent_MessageOverlayCloseRequested","value": "1651"}
 	,{"name": "VREvent_VendorSpecific_Reserved_Start","value": "10000"}
 	,{"name": "VREvent_VendorSpecific_Reserved_End","value": "19999"}
 ]}
@@ -480,6 +485,9 @@
 	,{"name": "VRInitError_Init_VRDashboardStartupFailed","value": "134"}
 	,{"name": "VRInitError_Init_VRHomeNotFound","value": "135"}
 	,{"name": "VRInitError_Init_VRHomeStartupFailed","value": "136"}
+	,{"name": "VRInitError_Init_RebootingBusy","value": "137"}
+	,{"name": "VRInitError_Init_FirmwareUpdateBusy","value": "138"}
+	,{"name": "VRInitError_Init_FirmwareRecoveryBusy","value": "139"}
 	,{"name": "VRInitError_Driver_Failed","value": "200"}
 	,{"name": "VRInitError_Driver_Unknown","value": "201"}
 	,{"name": "VRInitError_Driver_HmdUnknown","value": "202"}
@@ -577,6 +585,7 @@
 	,{"name": "VRApplicationError_OldApplicationQuitting","value": "112"}
 	,{"name": "VRApplicationError_TransitionAborted","value": "113"}
 	,{"name": "VRApplicationError_IsTemplate","value": "114"}
+	,{"name": "VRApplicationError_SteamVRIsExiting","value": "115"}
 	,{"name": "VRApplicationError_BufferTooSmall","value": "200"}
 	,{"name": "VRApplicationError_PropertyNotSet","value": "201"}
 	,{"name": "VRApplicationError_UnknownProperty","value": "202"}
@@ -597,6 +606,7 @@
 	,{"name": "VRApplicationProperty_IsTemplate_Bool","value": "61"}
 	,{"name": "VRApplicationProperty_IsInstanced_Bool","value": "62"}
 	,{"name": "VRApplicationProperty_IsInternal_Bool","value": "63"}
+	,{"name": "VRApplicationProperty_WantsCompositorPauseInStandby_Bool","value": "64"}
 	,{"name": "VRApplicationProperty_LastLaunchTime_Uint64","value": "70"}
 ]}
 ,	{"enumname": "vr::EVRApplicationTransitionState","values": [ 
@@ -636,6 +646,7 @@
 	,{"name": "VRCompositorError_SharedTexturesNotSupported","value": "106"}
 	,{"name": "VRCompositorError_IndexOutOfRange","value": "107"}
 	,{"name": "VRCompositorError_AlreadySubmitted","value": "108"}
+	,{"name": "VRCompositorError_InvalidBounds","value": "109"}
 ]}
 ,	{"enumname": "vr::VROverlayInputMethod","values": [ 
 	{"name": "VROverlayInputMethod_None","value": "0"}
@@ -794,7 +805,7 @@
 ,{
 	"constname": "k_unScreenshotHandleInvalid","consttype": "const uint32_t", "constval": "0"}
 ,{
-	"constname": "IVRSystem_Version","consttype": "const char *const", "constval": "IVRSystem_016"}
+	"constname": "IVRSystem_Version","consttype": "const char *const", "constval": "IVRSystem_017"}
 ,{
 	"constname": "IVRExtendedDisplay_Version","consttype": "const char *const", "constval": "IVRExtendedDisplay_001"}
 ,{
@@ -812,7 +823,7 @@
 ,{
 	"constname": "IVRChaperoneSetup_Version","consttype": "const char *const", "constval": "IVRChaperoneSetup_005"}
 ,{
-	"constname": "IVRCompositor_Version","consttype": "const char *const", "constval": "IVRCompositor_020"}
+	"constname": "IVRCompositor_Version","consttype": "const char *const", "constval": "IVRCompositor_021"}
 ,{
 	"constname": "k_unVROverlayMaxKeyLength","consttype": "const uint32_t", "constval": "128"}
 ,{
@@ -929,6 +940,8 @@
 	"constname": "k_pch_SteamVR_IpdOffset_Float","consttype": "const char *const", "constval": "ipdOffset"}
 ,{
 	"constname": "k_pch_SteamVR_AllowSupersampleFiltering_Bool","consttype": "const char *const", "constval": "allowSupersampleFiltering"}
+,{
+	"constname": "k_pch_SteamVR_EnableLinuxVulkanAsync_Bool","consttype": "const char *const", "constval": "enableLinuxVulkanAsync"}
 ,{
 	"constname": "k_pch_Lighthouse_Section","consttype": "const char *const", "constval": "driver_lighthouse"}
 ,{
@@ -1076,6 +1089,8 @@
 ,{
 	"constname": "k_pch_Power_AutoLaunchSteamVROnButtonPress","consttype": "const char *const", "constval": "autoLaunchSteamVROnButtonPress"}
 ,{
+	"constname": "k_pch_Power_PauseCompositorOnStandby_Bool","consttype": "const char *const", "constval": "pauseCompositorOnStandby"}
+,{
 	"constname": "k_pch_Dashboard_Section","consttype": "const char *const", "constval": "dashboard"}
 ,{
 	"constname": "k_pch_Dashboard_EnableDashboard_Bool","consttype": "const char *const", "constval": "enableDashboard"}
@@ -1139,6 +1154,8 @@
 { "fieldname": "vMin", "fieldtype": "float"},
 { "fieldname": "uMax", "fieldtype": "float"},
 { "fieldname": "vMax", "fieldtype": "float"}]}
+,{"struct": "vr::VRTextureWithPose_t","fields": [
+{ "fieldname": "mDeviceToAbsoluteTracking", "fieldtype": "struct vr::HmdMatrix34_t"}]}
 ,{"struct": "vr::VRVulkanTextureData_t","fields": [
 { "fieldname": "m_nImage", "fieldtype": "uint64_t"},
 { "fieldname": "m_pDevice", "fieldtype": "struct VkDevice_T *"},
@@ -1458,7 +1475,8 @@
 	"returntype": "void",
 	"params": [ 
 {	"paramname": "pnDevice" ,"paramtype": "uint64_t *"},
-{	"paramname": "textureType" ,"paramtype": "vr::ETextureType"}
+{	"paramname": "textureType" ,"paramtype": "vr::ETextureType"},
+{	"paramname": "pInstance" ,"paramtype": "struct VkInstance_T *"}
 	 ]
 }
 ,{
@@ -2715,6 +2733,19 @@
 	 ]
 }
 ,{
+	"classname": "vr::IVRCompositor",
+	"methodname": "SetExplicitTimingMode",
+	"returntype": "void",
+	"params": [ 
+{	"paramname": "bExplicitTimingMode" ,"paramtype": "bool"}
+	 ]
+}
+,{
+	"classname": "vr::IVRCompositor",
+	"methodname": "SubmitExplicitTimingData",
+	"returntype": "vr::EVRCompositorError"
+}
+,{
 	"classname": "vr::IVROverlay",
 	"methodname": "FindOverlay",
 	"returntype": "vr::EVROverlayError",
@@ -3465,6 +3496,11 @@
 {	"paramname": "pchButton2Text" ,"paramtype": "const char *"},
 {	"paramname": "pchButton3Text" ,"paramtype": "const char *"}
 	 ]
+}
+,{
+	"classname": "vr::IVROverlay",
+	"methodname": "CloseMessageOverlay",
+	"returntype": "void"
 }
 ,{
 	"classname": "vr::IVRRenderModels",

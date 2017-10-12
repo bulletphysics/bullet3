@@ -2441,22 +2441,26 @@ void PhysicsServerExample::drawUserDebugLines()
 		for (int i = 0; i<m_multiThreadedHelper->m_userDebugText.size(); i++)
 		{
 
-//			int optionFlag = CommonGraphicsApp::eDrawText3D_OrtogonalFaceCamera|CommonGraphicsApp::eDrawText3D_TrueType;
+			//int optionFlag = 0;//CommonGraphicsApp::eDrawText3D_OrtogonalFaceCamera|CommonGraphicsApp::eDrawText3D_TrueType;
+			//int optionFlag = CommonGraphicsApp::eDrawText3D_TrueType;
+			float orientation[4] = {0,0,0,1};
+			
 			//int optionFlag = CommonGraphicsApp::eDrawText3D_OrtogonalFaceCamera;
 			int optionFlag = 0;
-			float orientation[4] = {0,0,0,1};
+			
 			if (m_multiThreadedHelper->m_userDebugText[i].m_optionFlags&CommonGraphicsApp::eDrawText3D_OrtogonalFaceCamera)
+			{
+				optionFlag |= CommonGraphicsApp::eDrawText3D_OrtogonalFaceCamera;
+			} else
 			{
 				orientation[0] = m_multiThreadedHelper->m_userDebugText[i].m_textOrientation[0];
 				orientation[1] = m_multiThreadedHelper->m_userDebugText[i].m_textOrientation[1];
 				orientation[2] = m_multiThreadedHelper->m_userDebugText[i].m_textOrientation[2];
 				orientation[3] = m_multiThreadedHelper->m_userDebugText[i].m_textOrientation[3];
 				optionFlag |= CommonGraphicsApp::eDrawText3D_TrueType;
-			} else
-			{
-				optionFlag |= CommonGraphicsApp::eDrawText3D_OrtogonalFaceCamera;
+				
 			}
-
+			
 			float colorRGBA[4] = {
 				m_multiThreadedHelper->m_userDebugText[i].m_textColorRGB[0],
 				m_multiThreadedHelper->m_userDebugText[i].m_textColorRGB[1],
@@ -2526,7 +2530,6 @@ void PhysicsServerExample::renderScene()
 
 	B3_PROFILE("PhysicsServerExample::RenderScene");
 
-	drawUserDebugLines();
 
 	if (m_physicsServer.isRealTimeSimulationEnabled())
 	{
@@ -2679,6 +2682,7 @@ void PhysicsServerExample::renderScene()
 		}
 	}
 
+	drawUserDebugLines();
 
 
 	//m_args[0].m_cs->unlock();
