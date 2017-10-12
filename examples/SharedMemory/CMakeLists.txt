@@ -227,7 +227,7 @@ INCLUDE_DIRECTORIES(
 
 
 LINK_LIBRARIES(
- openvr_api Bullet3Common BulletWorldImporter BulletInverseDynamicsUtils BulletInverseDynamics BulletDynamics BulletCollision LinearMath BussIK OpenGLWindow
+ Bullet3Common BulletWorldImporter BulletInverseDynamicsUtils BulletInverseDynamics BulletDynamics BulletCollision LinearMath BussIK openvr_api OpenGLWindow
 )
 
 
@@ -259,11 +259,14 @@ LINK_LIBRARIES(
                                         ../MultiThreading/b3PosixThreadSupport.cpp
                                         ../MultiThreading/b3PosixThreadSupport.h
                                 	)
-					IF (CMAKE_CL_64)
-						LINK_DIRECTORIES(${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/openvr/lib/osx64)
+
+					IF (CMAKE_SIZEOF_VOID_P MATCHES 8)
+						MESSAGE("CL64")
+						LINK_DIRECTORIES(${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/openvr/bin/osx64)
 					ELSE()
+						MESSAGE("CL32")
 						set(ARCH_TARGET osx32)
-						LINK_DIRECTORIES(${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/openvr/lib/osx32)
+						LINK_DIRECTORIES(${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/openvr/bin/osx32)
 					ENDIF()
 					add_definitions(-DOSX -DPOSIX)
 
