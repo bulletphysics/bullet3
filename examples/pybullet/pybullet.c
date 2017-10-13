@@ -7222,11 +7222,49 @@ static PyObject* pybullet_calculateInverseDynamics(PyObject* self, PyObject* arg
 			int szObPos = PySequence_Size(objPositionsQ);
 			int szObVel = PySequence_Size(objVelocitiesQdot);
 			int szObAcc = PySequence_Size(objAccelerations);
-			int numJoints = b3GetNumJoints(sm, bodyUniqueId);
-			if (numJoints && (szObPos == numJoints) && (szObVel == numJoints) &&
-				(szObAcc == numJoints))
+			int nj = b3GetNumJoints(sm, bodyUniqueId);
+			int j=0;
+			int dofCountOrg = 0;
+			for (j=0;j<nj;j++)
 			{
-				int szInBytes = sizeof(double) * numJoints;
+				struct b3JointInfo info;
+				b3GetJointInfo(sm, bodyUniqueId, j, &info);
+				switch (info.m_jointType)
+				{
+				case eRevoluteType:
+					{
+						dofCountOrg+=1;
+						break;
+					}
+				case ePrismaticType:
+					{
+						dofCountOrg+=1;
+						break;
+					}
+				case eSphericalType:
+					{
+						PyErr_SetString(SpamError,
+								"Spherirical joints are not supported in the pybullet binding");
+						return NULL;
+					}
+				case ePlanarType:
+					{
+						PyErr_SetString(SpamError,
+								"Planar joints are not supported in the pybullet binding");
+						return NULL;
+					}
+					default:
+					{
+						//fixed joint has 0-dof and at the moment, we don't deal with planar, spherical etc
+					}
+				}
+			}
+			
+
+			if (dofCountOrg && (szObPos == dofCountOrg) && (szObVel == dofCountOrg) &&
+				(szObAcc == dofCountOrg))
+			{
+				int szInBytes = sizeof(double) * dofCountOrg;
 				int i;
 				PyObject* pylist = 0;
 				double* jointPositionsQ = (double*)malloc(szInBytes);
@@ -7234,7 +7272,7 @@ static PyObject* pybullet_calculateInverseDynamics(PyObject* self, PyObject* arg
 				double* jointAccelerations = (double*)malloc(szInBytes);
 				double* jointForcesOutput = (double*)malloc(szInBytes);
 
-				for (i = 0; i < numJoints; i++)
+				for (i = 0; i < dofCountOrg; i++)
 				{
 					jointPositionsQ[i] =
 						pybullet_internalGetFloatFromSequence(objPositionsQ, i);
@@ -7263,6 +7301,7 @@ static PyObject* pybullet_calculateInverseDynamics(PyObject* self, PyObject* arg
 						b3GetStatusInverseDynamicsJointForces(statusHandle, &bodyUniqueId,
 															  &dofCount, 0);
 
+						
 						if (dofCount)
 						{
 							b3GetStatusInverseDynamicsJointForces(statusHandle, 0, 0,
@@ -7293,10 +7332,10 @@ static PyObject* pybullet_calculateInverseDynamics(PyObject* self, PyObject* arg
 			else
 			{
 				PyErr_SetString(SpamError,
-								"calculateInverseDynamics numJoints needs to be "
+								"calculateInverseDynamics numDofs needs to be "
 								"positive and [joint positions], [joint velocities], "
 								"[joint accelerations] need to match the number of "
-								"joints.");
+								"degrees of freedom.");
 				return NULL;
 			}
 		}
