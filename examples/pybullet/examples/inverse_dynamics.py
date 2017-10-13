@@ -1,5 +1,6 @@
 import pybullet as bullet
 plot = True
+import time
 
 if (plot):
 	import matplotlib.pyplot as plt
@@ -141,7 +142,10 @@ if plot:
 	ax_tor.plot(t, q_tor[1], '-b', lw=2, label='Torque q1')
 	ax_tor.set_ylim(-20., 20.)
 	ax_tor.legend()
-	
-	plt.show()
 
-	
+        plt.pause(0.01)	
+
+
+while (1):
+    bullet.stepSimulation()
+    time.sleep(0.01)	
