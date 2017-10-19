@@ -601,6 +601,10 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 
                 break;
             }
+			case CMD_USER_CONSTRAINT_REQUEST_STATE_COMPLETED:
+			{
+				break;
+			}
 			case CMD_USER_CONSTRAINT_INFO_COMPLETED:
 			{
 				B3_PROFILE("CMD_USER_CONSTRAINT_INFO_COMPLETED");

@@ -143,6 +143,11 @@ B3_SHARED_API	int b3InitChangeUserConstraintSetERP(b3SharedMemoryCommandHandle c
 B3_SHARED_API	b3SharedMemoryCommandHandle  b3InitRemoveUserConstraintCommand(b3PhysicsClientHandle physClient, int userConstraintUniqueId);
 
 B3_SHARED_API	int b3GetNumUserConstraints(b3PhysicsClientHandle physClient);
+
+B3_SHARED_API	b3SharedMemoryCommandHandle b3InitGetUserConstraintStateCommand(b3PhysicsClientHandle physClient, int constraintUniqueId);
+B3_SHARED_API	int b3GetStatusUserConstraintState(b3SharedMemoryStatusHandle statusHandle, struct b3UserConstraintState* constraintState);
+
+
 B3_SHARED_API	int b3GetUserConstraintInfo(b3PhysicsClientHandle physClient, int constraintUniqueId, struct b3UserConstraint* info);
 /// return the user constraint id, given the index in range [0 , b3GetNumUserConstraints() )
 B3_SHARED_API	int b3GetUserConstraintId(b3PhysicsClientHandle physClient, int serialIndex);
