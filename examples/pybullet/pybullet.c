@@ -2470,7 +2470,7 @@ static PyObject* pybullet_getConstraintInfo(PyObject* self, PyObject* args, PyOb
 		b3PhysicsClientHandle sm = 0;
 
 		int physicsClientId = 0;
-		static char* kwlist[] = {"constraintUniqueId", "physicsClientId", NULL};
+		static char* kwlist[] = { "constraintUniqueId", "physicsClientId", NULL };
 		if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|i", kwlist, &constraintUniqueId, &physicsClientId))
 		{
 			return NULL;
@@ -2539,7 +2539,58 @@ static PyObject* pybullet_getConstraintInfo(PyObject* self, PyObject* args, PyOb
 		}
 	}
 
+
 	PyErr_SetString(SpamError, "Couldn't get user constraint info");
+	return NULL;
+}
+
+static PyObject* pybullet_getConstraintState(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	{
+		int constraintUniqueId = -1;
+		b3PhysicsClientHandle sm = 0;
+
+		int physicsClientId = 0;
+		static char* kwlist[] = { "constraintUniqueId", "physicsClientId", NULL };
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|i", kwlist, &constraintUniqueId, &physicsClientId))
+		{
+			return NULL;
+		}
+		sm = getPhysicsClient(physicsClientId);
+		if (sm == 0)
+		{
+			PyErr_SetString(SpamError, "Not connected to physics server.");
+			return NULL;
+		}
+
+		{
+			b3SharedMemoryCommandHandle cmd_handle;
+			b3SharedMemoryStatusHandle statusHandle;
+			int statusType;
+			if (b3CanSubmitCommand(sm))
+			{
+				struct b3UserConstraintState constraintState;
+				cmd_handle = b3InitGetUserConstraintStateCommand(sm, constraintUniqueId);
+				statusHandle = b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
+				statusType = b3GetStatusType(statusHandle);
+
+				if (b3GetStatusUserConstraintState(statusHandle, &constraintState))
+				{
+					if (constraintState.m_numDofs)
+					{
+						PyObject* appliedConstraintForces = PyTuple_New(constraintState.m_numDofs);
+						int i = 0;
+						for (i = 0; i < constraintState.m_numDofs; i++)
+						{
+							PyTuple_SetItem(appliedConstraintForces, i, PyFloat_FromDouble(constraintState.m_appliedConstraintForces[i]));
+						}
+						return appliedConstraintForces;
+					}
+				}
+			}
+		}
+	}
+	PyErr_SetString(SpamError, "Couldn't getConstraintState.");
 	return NULL;
 }
 
@@ -7698,6 +7749,9 @@ static PyMethodDef SpamMethods[] = {
 
 	{"getConstraintInfo", (PyCFunction)pybullet_getConstraintInfo, METH_VARARGS | METH_KEYWORDS,
 	 "Get the user-created constraint info, given a constraint unique id."},
+
+	 { "getConstraintState", (PyCFunction)pybullet_getConstraintState, METH_VARARGS | METH_KEYWORDS,
+		"Get the user-created constraint state (applied forces), given a constraint unique id." },
 
 	{"getConstraintUniqueId", (PyCFunction)pybullet_getConstraintUniqueId, METH_VARARGS | METH_KEYWORDS,
 	 "Get the unique id of the constraint, given a integer index in range [0.. number of constraints)."},
