@@ -3683,6 +3683,14 @@ B3_SHARED_API void b3CalculateInverseKinematicsSetJointDamping(b3SharedMemoryCom
     }
 }
 
+B3_SHARED_API void b3CalculateInverseKinematicsSelectSolver(b3SharedMemoryCommandHandle commandHandle, int solver)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_CALCULATE_INVERSE_KINEMATICS);
+	command->m_updateFlags |= solver;
+}
+
 B3_SHARED_API int b3GetStatusInverseKinematicsJointPositions(b3SharedMemoryStatusHandle statusHandle,
 	int* bodyUniqueId,
 	int* dofCount,

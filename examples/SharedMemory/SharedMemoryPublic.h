@@ -565,6 +565,18 @@ enum EnumRenderer
     //ER_FIRE_RAYS=(1<<18),
 };
 
+///flags to pick the IK solver and other options
+enum EnumCalculateInverseKinematicsFlags
+{
+	IK_DLS=0,
+	IK_SDLS=1, //TODO: can add other IK solvers
+	IK_HAS_TARGET_POSITION=16,
+	IK_HAS_TARGET_ORIENTATION=32,
+	IK_HAS_NULL_SPACE_VELOCITY=64,
+	IK_HAS_JOINT_DAMPING=128,
+	//IK_HAS_CURRENT_JOINT_POSITIONS=256,//not used yet
+};
+
 enum b3ConfigureDebugVisualizerEnum
 {
     COV_ENABLE_GUI=1,
