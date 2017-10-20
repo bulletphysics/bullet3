@@ -7731,19 +7731,35 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									int ikMethod = 0;
 									if ((clientCmd.m_updateFlags& IK_HAS_TARGET_ORIENTATION)&&(clientCmd.m_updateFlags&IK_HAS_NULL_SPACE_VELOCITY))
 									{
+										//Nullspace task only works with DLS now. TODO: add nullspace task to SDLS.
 										ikMethod = IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE;
 									}
 									else if (clientCmd.m_updateFlags& IK_HAS_TARGET_ORIENTATION)
 									{
-										ikMethod = IK2_VEL_DLS_WITH_ORIENTATION;
+										if (clientCmd.m_updateFlags & IK_SDLS)
+										{
+											ikMethod = IK2_VEL_SDLS_WITH_ORIENTATION;
+										}
+										else
+										{
+											ikMethod = IK2_VEL_DLS_WITH_ORIENTATION;
+										}
 									}
 									else if (clientCmd.m_updateFlags& IK_HAS_NULL_SPACE_VELOCITY)
 									{
+										//Nullspace task only works with DLS now. TODO: add nullspace task to SDLS.
 										ikMethod = IK2_VEL_DLS_WITH_NULLSPACE;
 									}
 									else
 									{
-										ikMethod = IK2_VEL_DLS;
+										if (clientCmd.m_updateFlags & IK_SDLS)
+										{
+											ikMethod = IK2_VEL_SDLS;
+										}
+										else
+										{
+											ikMethod = IK2_VEL_DLS;;
+										}
 									}
                                 
 									if (clientCmd.m_updateFlags& IK_HAS_NULL_SPACE_VELOCITY)
