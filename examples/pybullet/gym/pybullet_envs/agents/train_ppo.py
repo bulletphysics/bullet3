@@ -101,8 +101,6 @@ def train(config, env_processes):
   """
   tf.reset_default_graph()
   with config.unlocked:
-    config.network = functools.partial(
-        utility.define_network, config.network, config)
     config.policy_optimizer = getattr(tf.train, config.policy_optimizer)
     config.value_optimizer = getattr(tf.train, config.value_optimizer)
   if config.update_every % config.num_agents:
