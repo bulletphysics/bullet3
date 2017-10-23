@@ -418,7 +418,8 @@ void	btCollisionWorld::rayTestSingleInternal(const btTransform& rayFromTrans,con
 				btVector3 scale = scaledTriangleMesh->getLocalScaling();
 				btVector3 rayFromLocalScaled = rayFromLocal / scale;
 				btVector3 rayToLocalScaled = rayToLocal / scale;
-
+				
+				//perform raycast in the underlying btBvhTriangleMeshShape
 				BridgeTriangleRaycastCallback rcb(rayFromLocalScaled, rayToLocalScaled, &resultCallback, collisionObjectWrap->getCollisionObject(), triangleMesh, colObjWorldTransform);
 				rcb.m_hitFraction = resultCallback.m_closestHitFraction;
 				triangleMesh->performRaycast(&rcb, rayFromLocalScaled, rayToLocalScaled);
