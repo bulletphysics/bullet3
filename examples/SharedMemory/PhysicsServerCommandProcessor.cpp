@@ -5630,13 +5630,22 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					double rollingFriction = clientCmd.m_changeDynamicsInfoArgs.m_rollingFriction;
 					double restitution = clientCmd.m_changeDynamicsInfoArgs.m_restitution;
 					btAssert(bodyUniqueId >= 0);
-					btAssert(linkIndex >= -1);
 						
 					InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 
 					if (body && body->m_multiBody)
 					{
 						btMultiBody* mb = body->m_multiBody;
+
+						if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LINEAR_DAMPING)
+						{
+							mb->setLinearDamping(clientCmd.m_changeDynamicsInfoArgs.m_linearDamping);
+						}
+						if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ANGULAR_DAMPING)
+						{
+							mb->setAngularDamping(clientCmd.m_changeDynamicsInfoArgs.m_angularDamping);
+						}
+
 						if (linkIndex == -1)
 						{
 							if (mb->getBaseCollider())
@@ -5645,14 +5654,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								{
 									mb->getBaseCollider()->setRestitution(restitution);
 								}
-								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LINEAR_DAMPING)
-								{
-									mb->setLinearDamping(clientCmd.m_changeDynamicsInfoArgs.m_linearDamping);
-								}
-								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_ANGULAR_DAMPING)
-								{
-									mb->setLinearDamping(clientCmd.m_changeDynamicsInfoArgs.m_angularDamping);
-								}
+								
 
 								if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING)
 								{
@@ -7173,6 +7175,29 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 					SharedMemoryStatus& serverCmd =serverStatusOut;
                     serverCmd.m_type = CMD_USER_CONSTRAINT_FAILED;
                     hasStatus = true;
+					if (clientCmd.m_updateFlags & USER_CONSTRAINT_REQUEST_STATE)
+					{
+						int constraintUid = clientCmd.m_userConstraintArguments.m_userConstraintUniqueId;
+						InteralUserConstraintData* userConstraintPtr = m_data->m_userConstraints.find(constraintUid);
+						if (userConstraintPtr)
+						{
+							serverCmd.m_userConstraintStateResultArgs.m_numDofs = 0;
+							for (int i = 0; i < 6; i++)
+							{
+								serverCmd.m_userConstraintStateResultArgs.m_appliedConstraintForces[i] = 0;
+							}
+							if (userConstraintPtr->m_mbConstraint)
+							{
+								serverCmd.m_userConstraintStateResultArgs.m_numDofs = userConstraintPtr->m_mbConstraint->getNumRows();
+								for (int i = 0; i < userConstraintPtr->m_mbConstraint->getNumRows(); i++)
+								{
+									serverCmd.m_userConstraintStateResultArgs.m_appliedConstraintForces[i] = userConstraintPtr->m_mbConstraint->getAppliedImpulse(i) / m_data->m_dynamicsWorld->getSolverInfo().m_timeStep;
+								}
+								serverCmd.m_type = CMD_USER_CONSTRAINT_REQUEST_STATE_COMPLETED;
+							}
+						}
+
+					};
 					if (clientCmd.m_updateFlags & USER_CONSTRAINT_REQUEST_INFO)
 					{
 						int userConstraintUidChange = clientCmd.m_userConstraintArguments.m_userConstraintUniqueId;
@@ -7180,6 +7205,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						if (userConstraintPtr)
 						{
 							serverCmd.m_userConstraintResultArgs = userConstraintPtr->m_userConstraintData;
+							
 							serverCmd.m_type = CMD_USER_CONSTRAINT_INFO_COMPLETED;
 						}
 					}

@@ -98,8 +98,6 @@ def visualize(
   """
   config = utility.load_config(logdir)
   with config.unlocked:
-    config.network = functools.partial(
-        utility.define_network, config.network, config)
     config.policy_optimizer = getattr(tf.train, config.policy_optimizer)
     config.value_optimizer = getattr(tf.train, config.value_optimizer)
   with tf.device('/cpu:0'):
