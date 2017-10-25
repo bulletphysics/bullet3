@@ -156,7 +156,7 @@ if not _OPTIONS["no-enet"] then
 			"../../examples/MultiThreading/b3ThreadSupportInterface.cpp",
 			}
 			
-if (_OPTIONS["enable_static_plugins"]) then
+if (_OPTIONS["enable_static_vr_plugin"]) then
 		files {"../../examples/SharedMemory/plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
 end
 
