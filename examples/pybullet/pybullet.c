@@ -2470,7 +2470,7 @@ static PyObject* pybullet_getConstraintInfo(PyObject* self, PyObject* args, PyOb
 		b3PhysicsClientHandle sm = 0;
 
 		int physicsClientId = 0;
-		static char* kwlist[] = {"constraintUniqueId", "physicsClientId", NULL};
+		static char* kwlist[] = { "constraintUniqueId", "physicsClientId", NULL };
 		if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|i", kwlist, &constraintUniqueId, &physicsClientId))
 		{
 			return NULL;
@@ -2487,7 +2487,7 @@ static PyObject* pybullet_getConstraintInfo(PyObject* self, PyObject* args, PyOb
 
 			if (b3GetUserConstraintInfo(sm, constraintUniqueId, &constraintInfo))
 			{
-				PyObject* pyListConstraintInfo = PyTuple_New(11);
+				PyObject* pyListConstraintInfo = PyTuple_New(15);
 
 				PyTuple_SetItem(pyListConstraintInfo, 0, PyLong_FromLong(constraintInfo.m_parentBodyIndex));
 				PyTuple_SetItem(pyListConstraintInfo, 1, PyLong_FromLong(constraintInfo.m_parentJointIndex));
@@ -2533,13 +2533,68 @@ static PyObject* pybullet_getConstraintInfo(PyObject* self, PyObject* args, PyOb
 					PyTuple_SetItem(pyListConstraintInfo, 9, childFrameOrientation);
 				}
 				PyTuple_SetItem(pyListConstraintInfo, 10, PyFloat_FromDouble(constraintInfo.m_maxAppliedForce));
+				PyTuple_SetItem(pyListConstraintInfo, 11, PyFloat_FromDouble(constraintInfo.m_gearRatio));
+				PyTuple_SetItem(pyListConstraintInfo, 12, PyLong_FromLong(constraintInfo.m_gearAuxLink));
+				PyTuple_SetItem(pyListConstraintInfo, 13, PyFloat_FromDouble(constraintInfo.m_relativePositionTarget));
+				PyTuple_SetItem(pyListConstraintInfo, 14, PyFloat_FromDouble(constraintInfo.m_erp));
 
 				return pyListConstraintInfo;
 			}
 		}
 	}
 
+
 	PyErr_SetString(SpamError, "Couldn't get user constraint info");
+	return NULL;
+}
+
+static PyObject* pybullet_getConstraintState(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	{
+		int constraintUniqueId = -1;
+		b3PhysicsClientHandle sm = 0;
+
+		int physicsClientId = 0;
+		static char* kwlist[] = { "constraintUniqueId", "physicsClientId", NULL };
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|i", kwlist, &constraintUniqueId, &physicsClientId))
+		{
+			return NULL;
+		}
+		sm = getPhysicsClient(physicsClientId);
+		if (sm == 0)
+		{
+			PyErr_SetString(SpamError, "Not connected to physics server.");
+			return NULL;
+		}
+
+		{
+			b3SharedMemoryCommandHandle cmd_handle;
+			b3SharedMemoryStatusHandle statusHandle;
+			int statusType;
+			if (b3CanSubmitCommand(sm))
+			{
+				struct b3UserConstraintState constraintState;
+				cmd_handle = b3InitGetUserConstraintStateCommand(sm, constraintUniqueId);
+				statusHandle = b3SubmitClientCommandAndWaitStatus(sm, cmd_handle);
+				statusType = b3GetStatusType(statusHandle);
+
+				if (b3GetStatusUserConstraintState(statusHandle, &constraintState))
+				{
+					if (constraintState.m_numDofs)
+					{
+						PyObject* appliedConstraintForces = PyTuple_New(constraintState.m_numDofs);
+						int i = 0;
+						for (i = 0; i < constraintState.m_numDofs; i++)
+						{
+							PyTuple_SetItem(appliedConstraintForces, i, PyFloat_FromDouble(constraintState.m_appliedConstraintForces[i]));
+						}
+						return appliedConstraintForces;
+					}
+				}
+			}
+		}
+	}
+	PyErr_SetString(SpamError, "Couldn't getConstraintState.");
 	return NULL;
 }
 
@@ -7004,7 +7059,8 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 
 	PyObject* targetPosObj = 0;
 	PyObject* targetOrnObj = 0;
-
+	
+	int solver = 0; // the default IK solver is DLS
 	int physicsClientId = 0;
 	b3PhysicsClientHandle sm = 0;
 	PyObject* lowerLimitsObj = 0;
@@ -7013,8 +7069,8 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 	PyObject* restPosesObj = 0;
 	PyObject* jointDampingObj = 0;
 
-	static char* kwlist[] = {"bodyUniqueId", "endEffectorLinkIndex", "targetPosition", "targetOrientation", "lowerLimits", "upperLimits", "jointRanges", "restPoses", "jointDamping", "physicsClientId",  NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiO|OOOOOOi", kwlist, &bodyUniqueId, &endEffectorLinkIndex, &targetPosObj, &targetOrnObj, &lowerLimitsObj, &upperLimitsObj, &jointRangesObj, &restPosesObj, &jointDampingObj, &physicsClientId))
+	static char* kwlist[] = {"bodyUniqueId", "endEffectorLinkIndex", "targetPosition", "targetOrientation", "lowerLimits", "upperLimits", "jointRanges", "restPoses", "jointDamping", "solver", "physicsClientId",  NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iiO|OOOOOOii", kwlist, &bodyUniqueId, &endEffectorLinkIndex, &targetPosObj, &targetOrnObj, &lowerLimitsObj, &upperLimitsObj, &jointRangesObj, &restPosesObj, &jointDampingObj, &solver, &physicsClientId))
 	{
 		//backward compatibility bodyIndex -> bodyUniqueId. don't update keywords, people need to migrate to bodyUniqueId version
 		static char* kwlist2[] = {"bodyIndex", "endEffectorLinkIndex", "targetPosition", "targetOrientation", "lowerLimits", "upperLimits", "jointRanges", "restPoses", "jointDamping", "physicsClientId",  NULL};
@@ -7112,6 +7168,7 @@ static PyObject* pybullet_calculateInverseKinematics(PyObject* self,
 			int result;
 
 			b3SharedMemoryCommandHandle command = b3CalculateInverseKinematicsCommandInit(sm, bodyUniqueId);
+			b3CalculateInverseKinematicsSelectSolver(command, solver);
 
 			if (hasNullSpace)
 			{
@@ -7705,6 +7762,9 @@ static PyMethodDef SpamMethods[] = {
 	{"getConstraintInfo", (PyCFunction)pybullet_getConstraintInfo, METH_VARARGS | METH_KEYWORDS,
 	 "Get the user-created constraint info, given a constraint unique id."},
 
+	 { "getConstraintState", (PyCFunction)pybullet_getConstraintState, METH_VARARGS | METH_KEYWORDS,
+		"Get the user-created constraint state (applied forces), given a constraint unique id." },
+
 	{"getConstraintUniqueId", (PyCFunction)pybullet_getConstraintUniqueId, METH_VARARGS | METH_KEYWORDS,
 	 "Get the unique id of the constraint, given a integer index in range [0.. number of constraints)."},
 
@@ -8139,6 +8199,13 @@ initpybullet(void)
 
 	PyModule_AddIntConstant(m, "ER_TINY_RENDERER", ER_TINY_RENDERER);
 	PyModule_AddIntConstant(m, "ER_BULLET_HARDWARE_OPENGL", ER_BULLET_HARDWARE_OPENGL);
+	
+	PyModule_AddIntConstant(m, "IK_DLS", IK_DLS);
+	PyModule_AddIntConstant(m, "IK_SDLS", IK_SDLS);
+	PyModule_AddIntConstant(m, "IK_HAS_TARGET_POSITION", IK_HAS_TARGET_POSITION);
+	PyModule_AddIntConstant(m, "IK_HAS_TARGET_ORIENTATION", IK_HAS_TARGET_ORIENTATION);
+	PyModule_AddIntConstant(m, "IK_HAS_NULL_SPACE_VELOCITY", IK_HAS_NULL_SPACE_VELOCITY);
+	PyModule_AddIntConstant(m, "IK_HAS_JOINT_DAMPING", IK_HAS_JOINT_DAMPING);
 
 	PyModule_AddIntConstant(m, "URDF_USE_INERTIA_FROM_FILE", URDF_USE_INERTIA_FROM_FILE);
 	PyModule_AddIntConstant(m, "URDF_USE_SELF_COLLISION", URDF_USE_SELF_COLLISION);

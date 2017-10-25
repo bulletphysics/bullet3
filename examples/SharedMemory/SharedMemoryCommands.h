@@ -633,15 +633,6 @@ struct CalculateMassMatrixResultArgs
 	int m_dofCount;
 };
 
-enum EnumCalculateInverseKinematicsFlags
-{
-    IK_HAS_TARGET_POSITION=1,
-	IK_HAS_TARGET_ORIENTATION=2,
-    IK_HAS_NULL_SPACE_VELOCITY=4,
-    IK_HAS_JOINT_DAMPING=8,
-    //IK_HAS_CURRENT_JOINT_POSITIONS=16,//not used yet
-};
-
 struct CalculateInverseKinematicsArgs
 {
 	int m_bodyUniqueId;
@@ -676,7 +667,7 @@ enum EnumUserConstraintFlags
 	USER_CONSTRAINT_CHANGE_GEAR_AUX_LINK=256,
 	USER_CONSTRAINT_CHANGE_RELATIVE_POSITION_TARGET=512,
 	USER_CONSTRAINT_CHANGE_ERP=1024,
-
+	USER_CONSTRAINT_REQUEST_STATE=2048,
 };
 
 enum EnumBodyChangeFlags
@@ -1039,6 +1030,7 @@ struct SharedMemoryStatus
 		struct SendVisualShapeDataArgs m_sendVisualShapeArgs;
 		struct UserDebugDrawResultArgs m_userDebugDrawArgs;
 		struct b3UserConstraint m_userConstraintResultArgs;
+		struct b3UserConstraintState m_userConstraintStateResultArgs;
 		struct SendVREvents m_sendVREvents;
 		struct SendKeyboardEvents m_sendKeyboardEvents;
 		struct SendRaycastHits m_raycastHits;

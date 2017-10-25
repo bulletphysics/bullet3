@@ -2128,7 +2128,7 @@ B3_SHARED_API int b3ChangeDynamicsInfoSetAngularDamping(b3SharedMemoryCommandHan
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
 	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
 	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
-	command->m_changeDynamicsInfoArgs.m_linearDamping = angularDamping;
+	command->m_changeDynamicsInfoArgs.m_angularDamping = angularDamping;
 	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_ANGULAR_DAMPING;
 	return 0;
 }
@@ -2292,10 +2292,47 @@ B3_SHARED_API	int b3InitChangeUserConstraintSetERP(b3SharedMemoryCommandHandle c
 }
 
 
+B3_SHARED_API	b3SharedMemoryCommandHandle b3InitGetUserConstraintStateCommand(b3PhysicsClientHandle physClient, int constraintUniqueId)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+
+	command->m_type = CMD_USER_CONSTRAINT;
+	command->m_updateFlags = USER_CONSTRAINT_REQUEST_STATE;
+	command->m_userConstraintArguments.m_userConstraintUniqueId = constraintUniqueId;
+	return (b3SharedMemoryCommandHandle)command;
+}
+
+B3_SHARED_API	int b3GetStatusUserConstraintState(b3SharedMemoryStatusHandle statusHandle, struct b3UserConstraintState* constraintState)
+{
+	const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
+	if (status)
+	{
+		btAssert(status->m_type == CMD_USER_CONSTRAINT_REQUEST_STATE_COMPLETED);
+		if (status && status->m_type == CMD_USER_CONSTRAINT_REQUEST_STATE_COMPLETED)
+		{
+			int i = 0;
+			constraintState->m_numDofs = status->m_userConstraintStateResultArgs.m_numDofs;
+			for (i = 0; i < constraintState->m_numDofs; i++)
+			{
+				constraintState->m_appliedConstraintForces[i] = status->m_userConstraintStateResultArgs.m_appliedConstraintForces[i];
+			}
+			for (; i < 6; i++)
+			{
+				constraintState->m_appliedConstraintForces[i] = 0;
+			}
+			return 1;
+		}
+	}
+	return 0;
+}
 
 B3_SHARED_API	b3SharedMemoryCommandHandle  b3InitRemoveUserConstraintCommand(b3PhysicsClientHandle physClient, int userConstraintUniqueId)
 {
-	 PhysicsClient* cl = (PhysicsClient* ) physClient;
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
     b3Assert(cl);
     b3Assert(cl->canSubmitCommand());
     struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
@@ -2339,6 +2376,7 @@ B3_SHARED_API int b3GetStatusUserConstraintUniqueId(b3SharedMemoryStatusHandle s
 	return -1;
 
 }
+
 
 
 B3_SHARED_API	b3SharedMemoryCommandHandle b3PickBody(b3PhysicsClientHandle physClient, double rayFromWorldX,
@@ -3612,6 +3650,12 @@ B3_SHARED_API void b3CalculateInverseKinematicsAddTargetPurePosition(b3SharedMem
 	command->m_calculateInverseKinematicsArguments.m_targetPosition[0] = targetPosition[0];
 	command->m_calculateInverseKinematicsArguments.m_targetPosition[1] = targetPosition[1];
 	command->m_calculateInverseKinematicsArguments.m_targetPosition[2] = targetPosition[2];
+
+
+	command->m_calculateInverseKinematicsArguments.m_targetOrientation[0] = 0;
+	command->m_calculateInverseKinematicsArguments.m_targetOrientation[1] = 0;
+	command->m_calculateInverseKinematicsArguments.m_targetOrientation[2] = 0;
+	command->m_calculateInverseKinematicsArguments.m_targetOrientation[3] = 1;
    
 
 }
@@ -3693,6 +3737,14 @@ B3_SHARED_API void b3CalculateInverseKinematicsSetJointDamping(b3SharedMemoryCom
     {
         command->m_calculateInverseKinematicsArguments.m_jointDamping[i] = jointDampingCoeff[i];
     }
+}
+
+B3_SHARED_API void b3CalculateInverseKinematicsSelectSolver(b3SharedMemoryCommandHandle commandHandle, int solver)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_CALCULATE_INVERSE_KINEMATICS);
+	command->m_updateFlags |= solver;
 }
 
 B3_SHARED_API int b3GetStatusInverseKinematicsJointPositions(b3SharedMemoryStatusHandle statusHandle,

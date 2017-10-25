@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import pybullet
 
 pybullet.connect(pybullet.GUI)
+pybullet.loadURDF("plane.urdf")
 pybullet.loadURDF("r2d2.urdf")
 
 camTargetPos = [0.,0.,0.]
@@ -18,8 +19,8 @@ pixelWidth = 320
 pixelHeight = 240
 nearPlane = 0.01
 farPlane = 1000
-lightDirection = [0,1,0]
-lightColor = [1,1,1]#optional argument
+lightDirection = [0.4,0.4,0]
+lightColor = [.3,.3,.3]#1,1,1]#optional argument
 fov = 60
 
 #img_arr = pybullet.renderImage(pixelWidth, pixelHeight)
@@ -30,7 +31,7 @@ for pitch in range (0,360,10) :
     aspect = pixelWidth / pixelHeight;
     projectionMatrix = pybullet.computeProjectionMatrixFOV(fov, aspect, nearPlane, farPlane);
     #getCameraImage can also use renderer=pybullet.ER_BULLET_HARDWARE_OPENGL
-    img_arr = pybullet.getCameraImage(pixelWidth, pixelHeight, viewMatrix,projectionMatrix, lightDirection,lightColor,renderer=pybullet.ER_TINY_RENDERER)
+    img_arr = pybullet.getCameraImage(pixelWidth, pixelHeight, viewMatrix,projectionMatrix, lightAmbientCoeff = 0.3, lightDiffuseCoeff = 0.4, shadow=1, renderer=pybullet.ER_TINY_RENDERER)
     w=img_arr[0]
     h=img_arr[1]
     rgb=img_arr[2]

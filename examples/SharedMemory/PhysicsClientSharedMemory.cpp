@@ -601,6 +601,10 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 
                 break;
             }
+			case CMD_USER_CONSTRAINT_REQUEST_STATE_COMPLETED:
+			{
+				break;
+			}
 			case CMD_USER_CONSTRAINT_INFO_COMPLETED:
 			{
 				B3_PROFILE("CMD_USER_CONSTRAINT_INFO_COMPLETED");
@@ -648,6 +652,22 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 					if (serverCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_MAX_FORCE)
 					{
 						userConstraintPtr->m_maxAppliedForce = serverConstraint->m_maxAppliedForce;
+					}
+					if (serverCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_GEAR_RATIO)
+					{
+						userConstraintPtr->m_gearRatio = serverConstraint->m_gearRatio;
+					}
+					if (serverCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_RELATIVE_POSITION_TARGET)
+					{
+						userConstraintPtr->m_relativePositionTarget = serverConstraint->m_relativePositionTarget;
+					}
+					if (serverCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_ERP)
+					{
+						userConstraintPtr->m_erp = serverConstraint->m_erp;
+					}
+					if (serverCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_GEAR_AUX_LINK)
+					{
+						userConstraintPtr->m_gearAuxLink = serverConstraint->m_gearAuxLink;
 					}
 				}
 				break;
