@@ -700,7 +700,7 @@ enum EnumUserDebugDrawFlags
 	USER_DEBUG_HAS_OPTION_FLAGS=256,
 	USER_DEBUG_HAS_TEXT_ORIENTATION = 512,
 	USER_DEBUG_HAS_PARENT_OBJECT=1024,
-
+	USER_DEBUG_HAS_REPLACE_ITEM_UNIQUE_ID=2048,
 };
 
 struct UserDebugDrawArgs
@@ -721,7 +721,7 @@ struct UserDebugDrawArgs
 	double m_textColorRGB[3];
 	double m_textSize;
 	int m_optionFlags;
-
+	int m_replaceItemUniqueId;
 
 	double m_rangeMin;
 	double m_rangeMax;

@@ -210,6 +210,7 @@ void SimpleOpenGL2App::setBackgroundColor(float red, float green, float blue)
 
 void SimpleOpenGL2App::drawGrid(DrawGridData data)
 {
+	glEnable(GL_COLOR_MATERIAL);
 	 int gridSize = data.gridSize;
     float upOffset = data.upOffset;
     int upAxis = data.upAxis;

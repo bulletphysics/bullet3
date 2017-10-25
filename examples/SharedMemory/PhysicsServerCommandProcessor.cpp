@@ -1,5 +1,4 @@
 #include "PhysicsServerCommandProcessor.h"
-
 #include "../CommonInterfaces/CommonRenderInterface.h"
 
 #include "../Importers/ImportURDFDemo/BulletUrdfImporter.h"
@@ -4483,7 +4482,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									if (textures.size())
 									{
 				
-										textureIndex = m_data->m_guiHelper->registerTexture(textures[0].textureData,textures[0].m_width,textures[0].m_height);
+										textureIndex = m_data->m_guiHelper->registerTexture(textures[0].textureData1,textures[0].m_width,textures[0].m_height);
 									}
 									int graphicsIndex = -1;
 									{
@@ -8146,27 +8145,35 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 						if (clientCmd.m_userDebugDrawArgs.m_parentObjectUniqueId>=0)
 						{
 							InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(clientCmd.m_userDebugDrawArgs.m_parentObjectUniqueId);
-							if (bodyHandle && bodyHandle->m_multiBody)
+							if (bodyHandle)
 							{
-								int linkIndex = clientCmd.m_userDebugDrawArgs.m_parentLinkIndex;
-								if (linkIndex ==-1)
+								int linkIndex  = -1;
+
+								if (bodyHandle->m_multiBody)
 								{
-									if (bodyHandle->m_multiBody->getBaseCollider())
+									int linkIndex = clientCmd.m_userDebugDrawArgs.m_parentLinkIndex;
+									if (linkIndex ==-1)
 									{
-										trackingVisualShapeIndex  = bodyHandle->m_multiBody->getBaseCollider()->getUserIndex();
-									}
-								} else
-								{
-									if (linkIndex >=0 && linkIndex < bodyHandle->m_multiBody->getNumLinks())
-									{
-										if (bodyHandle->m_multiBody->getLink(linkIndex).m_collider)
+										if (bodyHandle->m_multiBody->getBaseCollider())
 										{
-											trackingVisualShapeIndex  = bodyHandle->m_multiBody->getLink(linkIndex).m_collider->getUserIndex();
+											trackingVisualShapeIndex  = bodyHandle->m_multiBody->getBaseCollider()->getUserIndex();
 										}
+									} else
+									{
+										if (linkIndex >=0 && linkIndex < bodyHandle->m_multiBody->getNumLinks())
+										{
+											if (bodyHandle->m_multiBody->getLink(linkIndex).m_collider)
+											{
+												trackingVisualShapeIndex  = bodyHandle->m_multiBody->getLink(linkIndex).m_collider->getUserIndex();
+											}
+										}
+
 									}
-
 								}
-
+								if (bodyHandle->m_rigidBody)
+								{
+									trackingVisualShapeIndex = bodyHandle->m_rigidBody->getUserIndex();
+								}
 							}
 						}
 
@@ -8252,7 +8259,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							}
 
 
-							
+							int replaceItemUniqueId = -1;
+							if ((clientCmd.m_updateFlags & USER_DEBUG_HAS_REPLACE_ITEM_UNIQUE_ID)!=0)
+							{
+								replaceItemUniqueId = clientCmd.m_userDebugDrawArgs.m_replaceItemUniqueId;
+							}
 
 
 							int uid = m_data->m_guiHelper->addUserDebugText3D(clientCmd.m_userDebugDrawArgs.m_text,
@@ -8262,7 +8273,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								clientCmd.m_userDebugDrawArgs.m_textSize,
 								clientCmd.m_userDebugDrawArgs.m_lifeTime,
 								trackingVisualShapeIndex,
-								optionFlags);
+								optionFlags,
+								replaceItemUniqueId);
 
 							if (uid>=0)
 							{

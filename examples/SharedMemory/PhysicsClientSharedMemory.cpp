@@ -78,7 +78,7 @@ struct PhysicsClientSharedMemoryInternalData {
           m_hasLastServerStatus(false),
           m_sharedMemoryKey(SHARED_MEMORY_KEY),
           m_verboseOutput(false),
-		  m_timeOutInSeconds(30)
+		  m_timeOutInSeconds(1e30)
 	{}
 
     void processServerStatus();

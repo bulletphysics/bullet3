@@ -2594,6 +2594,18 @@ B3_SHARED_API void b3UserDebugTextSetOrientation(b3SharedMemoryCommandHandle com
 
 }
 
+B3_SHARED_API void b3UserDebugItemSetReplaceItemUniqueId(b3SharedMemoryCommandHandle commandHandle, int replaceItemUniqueId)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_USER_DEBUG_DRAW);
+	b3Assert(command->m_updateFlags & USER_DEBUG_HAS_TEXT);
+	command->m_userDebugDrawArgs.m_replaceItemUniqueId = replaceItemUniqueId;
+	command->m_updateFlags |= USER_DEBUG_HAS_REPLACE_ITEM_UNIQUE_ID;
+}
+
+
+
 
 B3_SHARED_API void b3UserDebugItemSetParentObject(b3SharedMemoryCommandHandle commandHandle, int objectUniqueId, int linkIndex)
 {

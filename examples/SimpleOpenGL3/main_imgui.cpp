@@ -73,6 +73,7 @@ void ImGui_ImplBullet_CreateDeviceObjects()
 
 void ImGui_ImplBullet_RenderDrawLists(ImDrawData* draw_data)
 {
+	glEnable(GL_COLOR_MATERIAL);
    // Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
     ImGuiIO& io = ImGui::GetIO();
     int fb_width = (int)(io.DisplaySize.x * io.DisplayFramebufferScale.x);
@@ -96,7 +97,7 @@ void ImGui_ImplBullet_RenderDrawLists(ImDrawData* draw_data)
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     glEnable(GL_TEXTURE_2D);
-    //glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context
+    glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context
 
     // Setup viewport, orthographic projection matrix
     glViewport(0, 0, (GLsizei)fb_width, (GLsizei)fb_height);

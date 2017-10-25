@@ -170,6 +170,8 @@ B3_SHARED_API	b3SharedMemoryCommandHandle b3InitUserDebugDrawAddLine3D(b3Physics
 B3_SHARED_API	b3SharedMemoryCommandHandle b3InitUserDebugDrawAddText3D(b3PhysicsClientHandle physClient, const char* txt, double positionXYZ[/*3*/], double colorRGB[/*3*/], double textSize, double lifeTime);
 B3_SHARED_API	void b3UserDebugTextSetOptionFlags(b3SharedMemoryCommandHandle commandHandle, int optionFlags);
 B3_SHARED_API	void b3UserDebugTextSetOrientation(b3SharedMemoryCommandHandle commandHandle, double orientation[/*4*/]);
+B3_SHARED_API	void b3UserDebugItemSetReplaceItemUniqueId(b3SharedMemoryCommandHandle commandHandle, int replaceItem);
+
 
 B3_SHARED_API	void b3UserDebugItemSetParentObject(b3SharedMemoryCommandHandle commandHandle, int objectUniqueId, int linkIndex);
 
