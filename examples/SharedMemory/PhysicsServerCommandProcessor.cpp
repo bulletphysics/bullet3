@@ -7671,7 +7671,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							if (ikHelperPtr && (endEffectorLinkIndex<bodyHandle->m_multiBody->getNumLinks()))
 							{
 								const int numDofs = bodyHandle->m_multiBody->getNumDofs();
-
+								int baseDofs = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 6;
                                 b3AlignedObjectArray<double> jacobian_linear;
                                 jacobian_linear.resize(3*numDofs);
                                 b3AlignedObjectArray<double> jacobian_angular;
@@ -7685,11 +7685,13 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                 btAlignedObjectArray<double> q_current;
 								q_current.resize(numDofs);
                                 
-								if (tree && (numDofs == tree->numDoFs()))
+								
+
+								if (tree && ((numDofs+ baseDofs) == tree->numDoFs()))
                                 {
                                     jacSize = jacobian_linear.size();
                                     // Set jacobian value
-                                    int baseDofs = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 6;
+                                   
                                     
                                     
                                     btInverseDynamics::vecx nu(numDofs+baseDofs), qdot(numDofs + baseDofs), q(numDofs + baseDofs), joint_force(numDofs + baseDofs);
@@ -7709,8 +7711,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                         -1 != tree->calculateInverseDynamics(q, qdot, nu, &joint_force))
                                     {
                                         tree->calculateJacobians(q);
-                                        btInverseDynamics::mat3x jac_t(3, numDofs);
-                                        btInverseDynamics::mat3x jac_r(3,numDofs);
+                                        btInverseDynamics::mat3x jac_t(3, numDofs+ baseDofs);
+                                        btInverseDynamics::mat3x jac_r(3,numDofs + baseDofs);
 	                                    // Note that inverse dynamics uses zero-based indexing of bodies, not starting from -1 for the base link.
                                         tree->getBodyJacobianTrans(endEffectorLinkIndex+1, &jac_t);
                                         tree->getBodyJacobianRot(endEffectorLinkIndex+1, &jac_r);
@@ -7718,8 +7720,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                         {
                                             for (int j = 0; j < numDofs; ++j)
                                             {
-                                                jacobian_linear[i*numDofs+j] = jac_t(i,j);
-                                                jacobian_angular[i*numDofs+j] = jac_r(i,j);
+                                                jacobian_linear[i*numDofs+j] = jac_t(i,(baseDofs+j));
+                                                jacobian_angular[i*numDofs+j] = jac_r(i,(baseDofs+j));
                                             }
                                         }
                                     }
