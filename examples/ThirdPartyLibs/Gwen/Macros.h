@@ -30,27 +30,18 @@
 	#define GwenUtil_OutputDebugWideString( lpOutputString ) OutputDebugStringW( lpOutputString )
 	#define GwenUtil_WideStringToFloat( _Str ) _wtof( _Str )
 
-#elif defined(__APPLE__)
-
-	#include <CoreFoundation/CoreFoundation.h>
-
-	#define GwenUtil_VSNPrintFSafe( _DstBuf, _DstSize, _MaxCount, _Format, _ArgList ) vsnprintf( _DstBuf, _DstSize, _Format, _ArgList )
-	#define GwenUtil_VSWPrintFSafe( _DstBuf, _SizeInWords, _Format, _ArgList ) vswprintf( _DstBuf, _SizeInWords, _Format, _ArgList )
-	#define GwenUtil_OutputDebugCharString( lpOutputString ) //printf( lpOutputString )
-	#define GwenUtil_OutputDebugWideString( lpOutputString ) //wprintf( lpOutputString  )
-	#define GwenUtil_WideStringToFloat( _Str ) wcstof(_Str, NULL)
-
-#elif defined(__linux__) || defined(__OpenBSD__)
-
-	#define GwenUtil_VSNPrintFSafe( _DstBuf, _DstSize, _MaxCount, _Format, _ArgList ) vsnprintf( _DstBuf, _DstSize, _Format, _ArgList )
-	#define GwenUtil_VSWPrintFSafe( _DstBuf, _SizeInWords, _Format, _ArgList ) vswprintf( _DstBuf, _SizeInWords, _Format, _ArgList )
-	#define GwenUtil_OutputDebugCharString( lpOutputString ) //printf( lpOutputString )
-	#define GwenUtil_OutputDebugWideString( lpOutputString ) //wprintf( lpOutputString  )
-	#define GwenUtil_WideStringToFloat( _Str ) wcstof(_Str, NULL)
-
 #else
+	#if defined(__APPLE__)
 
-	#error MUST_IMPLEMENT_PLATFORM
+		#include <CoreFoundation/CoreFoundation.h>
+
+	#endif
+
+	#define GwenUtil_VSNPrintFSafe( _DstBuf, _DstSize, _MaxCount, _Format, _ArgList ) vsnprintf( _DstBuf, _DstSize, _Format, _ArgList )
+	#define GwenUtil_VSWPrintFSafe( _DstBuf, _SizeInWords, _Format, _ArgList ) vswprintf( _DstBuf, _SizeInWords, _Format, _ArgList )
+	#define GwenUtil_OutputDebugCharString( lpOutputString ) //printf( lpOutputString )
+	#define GwenUtil_OutputDebugWideString( lpOutputString ) //wprintf( lpOutputString  )
+	#define GwenUtil_WideStringToFloat( _Str ) wcstof(_Str, NULL)
 
 #endif
 
