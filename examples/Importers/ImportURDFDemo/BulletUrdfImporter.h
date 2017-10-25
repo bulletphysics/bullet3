@@ -9,7 +9,8 @@ struct BulletURDFTexture
 {
 	int m_width;
 	int m_height;
-	unsigned char* textureData;
+	unsigned char* textureData1;
+	bool m_isCached;
 };
 
 

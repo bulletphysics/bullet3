@@ -3499,11 +3499,12 @@ static PyObject* pybullet_addUserDebugText(PyObject* self, PyObject* args, PyObj
 	double lifeTime = 0.f;
 	int physicsClientId = 0;
 	int debugItemUniqueId = -1;
+	int replaceItemUniqueId = -1;
 
 	b3PhysicsClientHandle sm = 0;
-	static char* kwlist[] = {"text", "textPosition", "textColorRGB", "textSize", "lifeTime", "textOrientation", "parentObjectUniqueId", "parentLinkIndex", "physicsClientId", NULL};
+	static char* kwlist[] = {"text", "textPosition", "textColorRGB", "textSize", "lifeTime", "textOrientation", "parentObjectUniqueId", "parentLinkIndex", "replaceItemUniqueId", "physicsClientId", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "sO|OddOiii", kwlist, &text, &textPositionObj, &textColorRGBObj, &textSize, &lifeTime, &textOrientationObj, &parentObjectUniqueId, &parentLinkIndex, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "sO|OddOiiii", kwlist, &text, &textPositionObj, &textColorRGBObj, &textSize, &lifeTime, &textOrientationObj, &parentObjectUniqueId, &parentLinkIndex, &replaceItemUniqueId, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -3548,6 +3549,11 @@ static PyObject* pybullet_addUserDebugText(PyObject* self, PyObject* args, PyObj
 		{
 			b3UserDebugTextSetOrientation(commandHandle,textOrientation);
 		}
+	}
+
+	if (replaceItemUniqueId>=0)
+	{
+		b3UserDebugItemSetReplaceItemUniqueId(commandHandle,replaceItemUniqueId);
 	}
 
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);

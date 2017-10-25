@@ -197,6 +197,11 @@ if not _OPTIONS["no-enet"] then
 			"MinitaurSetup.h",
 			myfiles
 		}
+
+if (_OPTIONS["enable_static_vr_plugin"]) then
+	files {"../../examples/SharedMemory/plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
+
 	if os.is("Linux") then
        		initX11()
 	end
@@ -280,6 +285,11 @@ project ("App_VRGloveHandSimulator")
 			"b3RobotSimulatorClientAPI.h",
 			myfiles
 		}
+
+if (_OPTIONS["enable_static_vr_plugin"]) then
+	files {"../../examples/SharedMemory/plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
+
 	if os.is("Linux") then
        		initX11()
 	end

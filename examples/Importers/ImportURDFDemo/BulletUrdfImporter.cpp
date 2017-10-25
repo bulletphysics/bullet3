@@ -878,12 +878,13 @@ void BulletURDFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 					if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(visual->m_geometry.m_meshFileName, meshData))
 					{
 
-						if (meshData.m_textureImage)
+						if (meshData.m_textureImage1)
 						{
 							BulletURDFTexture texData;
 							texData.m_width = meshData.m_textureWidth;
 							texData.m_height = meshData.m_textureHeight;
-							texData.textureData = meshData.m_textureImage;
+							texData.textureData1 = meshData.m_textureImage1;
+							texData.m_isCached = meshData.m_isCached;
 							texturesOut.push_back(texData);
 						}
 						glmesh = meshData.m_gfxShape;
@@ -1137,7 +1138,7 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 			if (textures.size())
 			{
 				
-				textureIndex = m_data->m_guiHelper->registerTexture(textures[0].textureData,textures[0].m_width,textures[0].m_height);
+				textureIndex = m_data->m_guiHelper->registerTexture(textures[0].textureData1,textures[0].m_width,textures[0].m_height);
 			}
 			{
 				B3_PROFILE("registerGraphicsShape");
@@ -1151,7 +1152,10 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 	for (int i=0;i<textures.size();i++)
 	{
 		B3_PROFILE("free textureData");
-		free( textures[i].textureData);
+		if (!textures[i].m_isCached)
+		{
+			free( textures[i].textureData1);
+		}
 	}
 	return graphicsIndex;
 }
