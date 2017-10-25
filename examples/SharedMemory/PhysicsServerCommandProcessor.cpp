@@ -7769,15 +7769,44 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									btTransform endEffectorTransformWorld = bodyHandle->m_multiBody->getLink(endEffectorLinkIndex).m_cachedWorldTransform * bodyHandle->m_linkLocalInertialFrames[endEffectorLinkIndex].inverse();
                                
 									btVector3DoubleData endEffectorWorldPosition;
-									btVector3DoubleData endEffectorWorldOrientation;
+									btQuaternionDoubleData endEffectorWorldOrientation;
                                 
-									btVector3 endEffectorPosWorld =  endEffectorTransformWorld.getOrigin();
-									btQuaternion endEffectorOriWorld = endEffectorTransformWorld.getRotation();
-									btVector4 endEffectorOri(endEffectorOriWorld.x(),endEffectorOriWorld.y(),endEffectorOriWorld.z(),endEffectorOriWorld.w());
+									btVector3 endEffectorPosWorldOrg =  endEffectorTransformWorld.getOrigin();
+									btQuaternion endEffectorOriWorldOrg = endEffectorTransformWorld.getRotation();
+									btTransform endEffectorWorld;
+									endEffectorWorld.setOrigin(endEffectorPosWorldOrg);
+									endEffectorWorld.setRotation(endEffectorOriWorldOrg);
+
+									btTransform tr = bodyHandle->m_multiBody->getBaseWorldTransform();
+
+									btTransform endEffectorBaseCoord = tr.inverse()*endEffectorWorld;
+
+									btQuaternion endEffectorOriBaseCoord= endEffectorBaseCoord.getRotation();
+
+									btVector4 endEffectorOri(endEffectorOriBaseCoord.x(), endEffectorOriBaseCoord.y(), endEffectorOriBaseCoord.z(), endEffectorOriBaseCoord.w());
                                 
-									endEffectorPosWorld.serializeDouble(endEffectorWorldPosition);
-									endEffectorOri.serializeDouble(endEffectorWorldOrientation);
+									endEffectorBaseCoord.getOrigin().serializeDouble(endEffectorWorldPosition);
+									endEffectorBaseCoord.getRotation().serializeDouble(endEffectorWorldOrientation);
                                 
+									btVector3 targetPosWorld(clientCmd.m_calculateInverseKinematicsArguments.m_targetPosition[0],
+										clientCmd.m_calculateInverseKinematicsArguments.m_targetPosition[1],
+										clientCmd.m_calculateInverseKinematicsArguments.m_targetPosition[2]);
+
+									btQuaternion targetOrnWorld(clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation[0],
+										clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation[1],
+										clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation[2],
+										clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation[3]);
+									btTransform targetWorld;
+									targetWorld.setOrigin(targetPosWorld);
+									targetWorld.setRotation(targetOrnWorld);
+									btTransform targetBaseCoord;
+									targetBaseCoord = tr.inverse()*targetWorld;
+
+									btVector3DoubleData targetPosBaseCoord;
+									btQuaternionDoubleData targetOrnBaseCoord;
+									targetBaseCoord.getOrigin().serializeDouble(targetPosBaseCoord);
+									targetBaseCoord.getRotation().serializeDouble(targetOrnBaseCoord);
+
 									// Set joint damping coefficents. A small default
 									// damping constant is added to prevent singularity
 									// with pseudo inverse. The user can set joint damping
@@ -7796,7 +7825,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									ikHelperPtr->setDampingCoeff(numDofs, &joint_damping[0]);
                                 
 									double targetDampCoeff[6] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
-									ikHelperPtr->computeIK(clientCmd.m_calculateInverseKinematicsArguments.m_targetPosition, clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation,
+									ikHelperPtr->computeIK(targetPosBaseCoord.m_floats, targetOrnBaseCoord.m_floats,
 														   endEffectorWorldPosition.m_floats, endEffectorWorldOrientation.m_floats,
 														   &q_current[0],
 														   numDofs, clientCmd.m_calculateInverseKinematicsArguments.m_endEffectorLinkIndex,
