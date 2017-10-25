@@ -7675,7 +7675,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 							if (ikHelperPtr && (endEffectorLinkIndex<bodyHandle->m_multiBody->getNumLinks()))
 							{
 								const int numDofs = bodyHandle->m_multiBody->getNumDofs();
-
+								int baseDofs = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 6;
                                 b3AlignedObjectArray<double> jacobian_linear;
                                 jacobian_linear.resize(3*numDofs);
                                 b3AlignedObjectArray<double> jacobian_angular;
@@ -7689,11 +7689,13 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                 btAlignedObjectArray<double> q_current;
 								q_current.resize(numDofs);
                                 
-								if (tree && (numDofs == tree->numDoFs()))
+								
+
+								if (tree && ((numDofs+ baseDofs) == tree->numDoFs()))
                                 {
                                     jacSize = jacobian_linear.size();
                                     // Set jacobian value
-                                    int baseDofs = bodyHandle->m_multiBody->hasFixedBase() ? 0 : 6;
+                                   
                                     
                                     
                                     btInverseDynamics::vecx nu(numDofs+baseDofs), qdot(numDofs + baseDofs), q(numDofs + baseDofs), joint_force(numDofs + baseDofs);
@@ -7713,8 +7715,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                         -1 != tree->calculateInverseDynamics(q, qdot, nu, &joint_force))
                                     {
                                         tree->calculateJacobians(q);
-                                        btInverseDynamics::mat3x jac_t(3, numDofs);
-                                        btInverseDynamics::mat3x jac_r(3,numDofs);
+                                        btInverseDynamics::mat3x jac_t(3, numDofs+ baseDofs);
+                                        btInverseDynamics::mat3x jac_r(3,numDofs + baseDofs);
 	                                    // Note that inverse dynamics uses zero-based indexing of bodies, not starting from -1 for the base link.
                                         tree->getBodyJacobianTrans(endEffectorLinkIndex+1, &jac_t);
                                         tree->getBodyJacobianRot(endEffectorLinkIndex+1, &jac_r);
@@ -7722,8 +7724,8 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
                                         {
                                             for (int j = 0; j < numDofs; ++j)
                                             {
-                                                jacobian_linear[i*numDofs+j] = jac_t(i,j);
-                                                jacobian_angular[i*numDofs+j] = jac_r(i,j);
+                                                jacobian_linear[i*numDofs+j] = jac_t(i,(baseDofs+j));
+                                                jacobian_angular[i*numDofs+j] = jac_r(i,(baseDofs+j));
                                             }
                                         }
                                     }
@@ -7789,15 +7791,44 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									btTransform endEffectorTransformWorld = bodyHandle->m_multiBody->getLink(endEffectorLinkIndex).m_cachedWorldTransform * bodyHandle->m_linkLocalInertialFrames[endEffectorLinkIndex].inverse();
                                
 									btVector3DoubleData endEffectorWorldPosition;
-									btVector3DoubleData endEffectorWorldOrientation;
+									btQuaternionDoubleData endEffectorWorldOrientation;
                                 
-									btVector3 endEffectorPosWorld =  endEffectorTransformWorld.getOrigin();
-									btQuaternion endEffectorOriWorld = endEffectorTransformWorld.getRotation();
-									btVector4 endEffectorOri(endEffectorOriWorld.x(),endEffectorOriWorld.y(),endEffectorOriWorld.z(),endEffectorOriWorld.w());
+									btVector3 endEffectorPosWorldOrg =  endEffectorTransformWorld.getOrigin();
+									btQuaternion endEffectorOriWorldOrg = endEffectorTransformWorld.getRotation();
+									btTransform endEffectorWorld;
+									endEffectorWorld.setOrigin(endEffectorPosWorldOrg);
+									endEffectorWorld.setRotation(endEffectorOriWorldOrg);
+
+									btTransform tr = bodyHandle->m_multiBody->getBaseWorldTransform();
+
+									btTransform endEffectorBaseCoord = tr.inverse()*endEffectorWorld;
+
+									btQuaternion endEffectorOriBaseCoord= endEffectorBaseCoord.getRotation();
+
+									btVector4 endEffectorOri(endEffectorOriBaseCoord.x(), endEffectorOriBaseCoord.y(), endEffectorOriBaseCoord.z(), endEffectorOriBaseCoord.w());
                                 
-									endEffectorPosWorld.serializeDouble(endEffectorWorldPosition);
-									endEffectorOri.serializeDouble(endEffectorWorldOrientation);
+									endEffectorBaseCoord.getOrigin().serializeDouble(endEffectorWorldPosition);
+									endEffectorBaseCoord.getRotation().serializeDouble(endEffectorWorldOrientation);
                                 
+									btVector3 targetPosWorld(clientCmd.m_calculateInverseKinematicsArguments.m_targetPosition[0],
+										clientCmd.m_calculateInverseKinematicsArguments.m_targetPosition[1],
+										clientCmd.m_calculateInverseKinematicsArguments.m_targetPosition[2]);
+
+									btQuaternion targetOrnWorld(clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation[0],
+										clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation[1],
+										clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation[2],
+										clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation[3]);
+									btTransform targetWorld;
+									targetWorld.setOrigin(targetPosWorld);
+									targetWorld.setRotation(targetOrnWorld);
+									btTransform targetBaseCoord;
+									targetBaseCoord = tr.inverse()*targetWorld;
+
+									btVector3DoubleData targetPosBaseCoord;
+									btQuaternionDoubleData targetOrnBaseCoord;
+									targetBaseCoord.getOrigin().serializeDouble(targetPosBaseCoord);
+									targetBaseCoord.getRotation().serializeDouble(targetOrnBaseCoord);
+
 									// Set joint damping coefficents. A small default
 									// damping constant is added to prevent singularity
 									// with pseudo inverse. The user can set joint damping
@@ -7816,7 +7847,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 									ikHelperPtr->setDampingCoeff(numDofs, &joint_damping[0]);
                                 
 									double targetDampCoeff[6] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
-									ikHelperPtr->computeIK(clientCmd.m_calculateInverseKinematicsArguments.m_targetPosition, clientCmd.m_calculateInverseKinematicsArguments.m_targetOrientation,
+									ikHelperPtr->computeIK(targetPosBaseCoord.m_floats, targetOrnBaseCoord.m_floats,
 														   endEffectorWorldPosition.m_floats, endEffectorWorldOrientation.m_floats,
 														   &q_current[0],
 														   numDofs, clientCmd.m_calculateInverseKinematicsArguments.m_endEffectorLinkIndex,

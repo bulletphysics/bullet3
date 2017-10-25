@@ -143,7 +143,7 @@ if plot:
 	ax_tor.set_ylim(-20., 20.)
 	ax_tor.legend()
 
-        plt.pause(0.01)	
+	plt.pause(0.01)	
 
 
 while (1):
