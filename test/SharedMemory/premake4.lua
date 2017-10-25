@@ -226,6 +226,10 @@ project ("Test_PhysicsServerLoopBack")
 			"../../examples/Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
                         "../../examples/ThirdPartyLibs/stb_image/stb_image.cpp",
 	}
+	
+if (_OPTIONS["enable_static_plugins"]) then
+		files {"../../examples/SharedMemory/plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
 		
 		project ("Test_PhysicsServerDirect")
 
@@ -306,7 +310,9 @@ project ("Test_PhysicsServerLoopBack")
 			"../../examples/Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
                         "../../examples/ThirdPartyLibs/stb_image/stb_image.cpp",     	
 		}
-		
+if (_OPTIONS["enable_static_plugins"]) then
+		files {"../../examples/SharedMemory/plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
 
 project ("Test_PhysicsServerInProcessExampleBrowser")
 
@@ -414,6 +420,10 @@ project ("Test_PhysicsServerInProcessExampleBrowser")
 			"../../examples/Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
 			"../../examples/ThirdPartyLibs/stb_image/stb_image.cpp",
 	}
+if (_OPTIONS["enable_static_vr_plugin"]) then
+		files {"../../examples/SharedMemory/plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
+
 	if os.is("Linux") then
        		initX11()
 	end
