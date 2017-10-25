@@ -61,7 +61,7 @@ extern "C"
   #define __WORDSIZE 32
 #endif
 
-#if defined(_LINUX) || defined(_DARWIN) || defined(_BSD)
+#if defined(_LINUX) || defined(_DARWIN) || defined(_BSD) || defined(__CYGWIN__)
     typedef unsigned char  uint8;
     typedef char           int8;
     typedef unsigned short uint16;
@@ -176,7 +176,7 @@ extern "C"
 #define GETHOSTBYNAME(a)       gethostbyname(a)
 #endif
 
-#if defined(_LINUX) || defined(_DARWIN) || defined(_BSD)
+#if defined(_LINUX) || defined(_DARWIN) || defined(_BSD) || defined(__CYGWIN__)
 #define ACCEPT(a,b,c)          accept(a,b,c)
 #define CONNECT(a,b,c)         connect(a,b,c)
 #define CLOSE(a)               close(a)

@@ -97,7 +97,11 @@ typedef int (*PFNXPEEKEVENT) (Display* a,XEvent* b);
 typedef KeySym (*PFNXLOOKUPKEYSYM) (XKeyEvent* a,int b);
 typedef Status (*PFNXGETWINDOWATTRIBUTES) (Display* a,Window b,XWindowAttributes* c);
 
+#ifdef __CYGWIN__
+#define X11_LIBRARY "cygX11-6.dll"
+#else
 #define X11_LIBRARY "libX11.so.6"
+#endif
 
 #define MyXSync m_data->m_x11_XSync
 #define MyXGetKeyboardMapping m_data->m_x11_XGetKeyboardMapping
@@ -497,9 +501,10 @@ void X11OpenGLWindow::enableOpenGL()
 
 //Access pthreads as a workaround for a bug in Linux/Ubuntu
 //See https://bugs.launchpad.net/ubuntu/+source/nvidia-graphics-drivers-319/+bug/1248642
-
+#ifndef __CYGWIN__ 
 	int i=pthread_getconcurrency();
         printf("pthread_getconcurrency()=%d\n",i);
+#endif
 
 //    const GLubyte* ext = glGetString(GL_EXTENSIONS);
 //    printf("GL_EXTENSIONS=%s\n", ext);

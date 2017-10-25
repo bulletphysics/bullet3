@@ -4,7 +4,7 @@
 	See license in Gwen.h
 */
 
-
+#include <cstdio>
 #include "Gwen/Gwen.h"
 
 
