@@ -951,7 +951,7 @@ struct btSingleRayCallback : public btBroadphaseRayCallback
 	btVector3	m_rayToWorld;
 	btTransform	m_rayFromTrans;
 	btTransform	m_rayToTrans;
-	btVector3	m_hitNormal;
+	//btVector3	m_hitNormal; // unused
 
 	const btCollisionWorld*	m_world;
 	btCollisionWorld::RayResultCallback&	m_resultCallback;
@@ -1046,7 +1046,7 @@ struct btSingleSweepCallback : public btBroadphaseRayCallback
 
 	btTransform	m_convexFromTrans;
 	btTransform	m_convexToTrans;
-	btVector3	m_hitNormal;
+	//btVector3	m_hitNormal;  // unused
 	const btCollisionWorld*	m_world;
 	btCollisionWorld::ConvexResultCallback&	m_resultCallback;
 	btScalar	m_allowedCcdPenetration;
