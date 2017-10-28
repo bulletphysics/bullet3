@@ -15,7 +15,10 @@ IF(NOT WIN32 AND NOT APPLE)
         ADD_DEFINITIONS("-DDYNAMIC_LOAD_X11_FUNCTIONS=1")
 ENDIF()
 
-ADD_DEFINITIONS( -DGLEW_STATIC -DGWEN_COMPILE_STATIC -D_HAS_EXCEPTIONS=0 -D_STATIC_CPPLIB )
+ADD_DEFINITIONS( -DGLEW_STATIC -DGWEN_COMPILE_STATIC -D_HAS_EXCEPTIONS=0 )
+if( MSVC_VERSION LESS 1900 )
+   ADD_DEFINITIONS( -D_STATIC_CPPLIB )
+endif( MSVC_VERSION LESS 1900 )
 
 FILE(GLOB gwen_SRCS "*.cpp" "Controls/*.cpp" "Controls/Dialog/*.cpp" "Controls/Dialogs/*.cpp" "Controls/Layout/*.cpp" "Controls/Property/*.cpp" "Input/*.cpp" "Platforms/*.cpp" "Renderers/*.cpp" "Skins/*.cpp")
 FILE(GLOB gwen_HDRS "*.h" "Controls/*.h" "Controls/Dialog/*.h" "Controls/Dialogs/*.h" "Controls/Layout/*.h" "Controls/Property/*.h" "Input/*.h" "Platforms/*.h" "Renderers/*.h" "Skins/*.h")
