@@ -32,6 +32,9 @@ OBSERVATION_EPS = 0.01
 RENDER_HEIGHT = 720
 RENDER_WIDTH = 960
 
+duckStartPos = [0,0,0.25]
+duckStartOrn = [0.5,0.5,0.5,0.5]
+
 class MinitaurBulletEnv(gym.Env):
   """The gym environment for the minitaur.
 
@@ -133,6 +136,7 @@ class MinitaurBulletEnv(gym.Env):
     self._on_rack = on_rack
     self._cam_dist = 1.0
     self._cam_yaw = 0
+    self._duckId = -1
     self._cam_pitch = -30
     self._hard_reset = True
     self._kd_for_pd_controllers = kd_for_pd_controllers
@@ -176,7 +180,8 @@ class MinitaurBulletEnv(gym.Env):
       self._pybullet_client.setPhysicsEngineParameter(
           numSolverIterations=int(self._num_bullet_solver_iterations))
       self._pybullet_client.setTimeStep(self._time_step)
-      self._pybullet_client.loadURDF("%s/plane.urdf" % self._urdf_root)
+      self._groundId = self._pybullet_client.loadURDF("%s/plane.urdf" % self._urdf_root)
+      self._duckId = self._pybullet_client.loadURDF("%s/duck_vhacd.urdf" % self._urdf_root,duckStartPos,duckStartOrn)
       self._pybullet_client.setGravity(0, 0, -10)
       acc_motor = self._accurate_motor_model_enabled
       motor_protect = self._motor_overheat_protection
@@ -196,7 +201,7 @@ class MinitaurBulletEnv(gym.Env):
           kd_for_pd_controllers=self._kd_for_pd_controllers))
     else:
       self.minitaur.Reset(reload_urdf=False)
-
+      self._pybullet_client.resetBasePositionAndOrientation(self._duckId,duckStartPos,duckStartOrn)
     if self._env_randomizer is not None:
       self._env_randomizer.randomize_env(self)
 
@@ -322,6 +327,10 @@ class MinitaurBulletEnv(gym.Env):
     """
     return np.array(self._observation[BASE_ORIENTATION_OBSERVATION_INDEX:])
 
+  def lost_duck(self):
+    points = self._pybullet_client.getContactPoints(self._duckId, self._groundId);
+    return len(points)>0
+
   def is_fallen(self):
     """Decide whether the minitaur has fallen.
 
@@ -342,7 +351,7 @@ class MinitaurBulletEnv(gym.Env):
   def _termination(self):
     position = self.minitaur.GetBasePosition()
     distance = math.sqrt(position[0]**2 + position[1]**2)
-    return self.is_fallen() or distance > self._distance_limit
+    return self.lost_duck() or self.is_fallen() or distance > self._distance_limit
 
   def _reward(self):
     current_base_position = self.minitaur.GetBasePosition()

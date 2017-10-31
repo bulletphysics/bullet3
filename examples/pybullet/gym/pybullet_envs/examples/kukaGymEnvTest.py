@@ -9,7 +9,7 @@ import time
 
 def main():
 
-	environment = KukaGymEnv(renders=True)
+	environment = KukaGymEnv(renders=True,isDiscrete=False)
 	
 	  
 	motorsIds=[]
@@ -19,10 +19,10 @@ def main():
 	#motorsIds.append(environment._p.addUserDebugParameter("yaw",-3.14,3.14,0))
 	#motorsIds.append(environment._p.addUserDebugParameter("fingerAngle",0,0.3,.3))
 	
-	dv = 0.001
+	dv = 1 
 	motorsIds.append(environment._p.addUserDebugParameter("posX",-dv,dv,0))
 	motorsIds.append(environment._p.addUserDebugParameter("posY",-dv,dv,0))
-	motorsIds.append(environment._p.addUserDebugParameter("posZ",-dv,dv,-dv))
+	motorsIds.append(environment._p.addUserDebugParameter("posZ",-dv,dv,0))
 	motorsIds.append(environment._p.addUserDebugParameter("yaw",-dv,dv,0))
 	motorsIds.append(environment._p.addUserDebugParameter("fingerAngle",0,0.3,.3))
 	
@@ -33,7 +33,7 @@ def main():
 	  for motorId in motorsIds:
 	    action.append(environment._p.readUserDebugParameter(motorId))
 	  
-	  state, reward, done, info = environment.step2(action)
+	  state, reward, done, info = environment.step(action)
 	  obs = environment.getExtendedObservation()
 	  
 if __name__=="__main__":
