@@ -100,6 +100,16 @@ def pybullet_ant():
   steps = 5e7  # 50M
   return locals()
 
+def pybullet_kuka_grasping():
+  """Configuration for Bullet Kuka grasping task."""
+  locals().update(default())
+  # Environment
+  env = 'KukaBulletEnv-v0'
+  max_length = 10
+  steps = 1e7  # 10M
+  return locals()
+
+
 def pybullet_racecar():
   """Configuration for Bullet MIT Racecar task."""
   locals().update(default())

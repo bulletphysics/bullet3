@@ -16,7 +16,6 @@ register(
     reward_threshold=5.0,
 )
 
-MinitaurBulletDuckEnv
 
 register(
     id='RacecarBulletEnv-v0',
