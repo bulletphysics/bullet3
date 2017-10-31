@@ -23,6 +23,7 @@ import functools
 from agents import ppo
 from agents.scripts import networks
 from pybullet_envs.bullet import minitaur_gym_env
+from pybullet_envs.bullet import minitaur_duck_gym_env
 from pybullet_envs.bullet import minitaur_env_randomizer
 import pybullet_envs.bullet.minitaur_gym_env as minitaur_gym_env
 import pybullet_envs
@@ -115,6 +116,21 @@ def pybullet_minitaur():
   randomizer = (minitaur_env_randomizer.MinitaurEnvRandomizer())
   env = functools.partial(
       minitaur_gym_env.MinitaurBulletEnv,
+      accurate_motor_model_enabled=True,
+      motor_overheat_protection=True,
+      pd_control_enabled=True,
+      env_randomizer=randomizer,
+      render=False)
+  max_length = 1000
+  steps = 3e7  # 30M
+  return locals()
+
+def pybullet_duck_minitaur():
+  """Configuration specific to minitaur_gym_env.MinitaurBulletDuckEnv class."""
+  locals().update(default())
+  randomizer = (minitaur_env_randomizer.MinitaurEnvRandomizer())
+  env = functools.partial(
+      minitaur_gym_env.MinitaurBulletDuckEnv,
       accurate_motor_model_enabled=True,
       motor_overheat_protection=True,
       pd_control_enabled=True,

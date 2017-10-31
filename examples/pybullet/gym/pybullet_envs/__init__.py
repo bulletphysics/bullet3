@@ -10,6 +10,15 @@ register(
 )
 
 register(
+    id='MinitaurBulletDuckEnv-v0',
+    entry_point='pybullet_envs.bullet:MinitaurBulletDuckEnv',
+    timestep_limit=1000,
+    reward_threshold=5.0,
+)
+
+MinitaurBulletDuckEnv
+
+register(
     id='RacecarBulletEnv-v0',
     entry_point='pybullet_envs.bullet:RacecarGymEnv',
     timestep_limit=1000,
