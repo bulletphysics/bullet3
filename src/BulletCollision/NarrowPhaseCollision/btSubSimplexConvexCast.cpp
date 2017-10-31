@@ -65,11 +65,6 @@ bool	btSubsimplexConvexCast::calcTimeOfImpact(
 
 	btVector3 n;
 	n.setValue(btScalar(0.),btScalar(0.),btScalar(0.));
-	
-	btVector3 c;
-
-	
-
 
 	btScalar dist2 = v.length2();
 #ifdef BT_USE_DOUBLE_PRECISION
@@ -101,7 +96,7 @@ bool	btSubsimplexConvexCast::calcTimeOfImpact(
 				return false;
 			else
 			{
-				lambda = lambda - VdotW / VdotR;
+				lambda -= VdotW / VdotR;
 				//interpolate to next lambda
 				//	x = s + lambda * r;
 				interpolatedTransA.getOrigin().setInterpolate3(fromA.getOrigin(),toA.getOrigin(),lambda);
