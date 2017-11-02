@@ -25,6 +25,7 @@ class Kuka:
     self.useNullSpace =21
     self.useOrientation = 1
     self.kukaEndEffectorIndex = 6
+    self.kukaGripperIndex = 7
     #lower limits for null space
     self.ll=[-.967,-2 ,-2.96,0.19,-2.96,-2.09,-3.05]
     #upper limits for null space
@@ -76,7 +77,7 @@ class Kuka:
 
   def getObservation(self):
     observation = []
-    state = p.getLinkState(self.kukaUid,self.kukaEndEffectorIndex)
+    state = p.getLinkState(self.kukaUid,self.kukaGripperIndex)
     pos = state[0]
     orn = state[1]
     euler = p.getEulerFromQuaternion(orn)
@@ -106,13 +107,13 @@ class Kuka:
     
       
       self.endEffectorPos[0] = self.endEffectorPos[0]+dx
-      if (self.endEffectorPos[0]>0.75):
-        self.endEffectorPos[0]=0.75
-      if (self.endEffectorPos[0]<0.45):
-        self.endEffectorPos[0]=0.45
+      if (self.endEffectorPos[0]>0.65):
+        self.endEffectorPos[0]=0.65
+      if (self.endEffectorPos[0]<0.50):
+        self.endEffectorPos[0]=0.50
       self.endEffectorPos[1] = self.endEffectorPos[1]+dy
-      if (self.endEffectorPos[1]<-0.22):
-        self.endEffectorPos[1]=-0.22
+      if (self.endEffectorPos[1]<-0.17):
+        self.endEffectorPos[1]=-0.17
       if (self.endEffectorPos[1]>0.22):
         self.endEffectorPos[1]=0.22
       

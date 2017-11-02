@@ -16,6 +16,9 @@ import random
 import pybullet_data
 maxSteps = 1000
 
+RENDER_HEIGHT = 720
+RENDER_WIDTH = 960
+
 class KukaCamGymEnv(gym.Env):
   metadata = {
       'render.modes': ['human', 'rgb_array'],
@@ -24,9 +27,9 @@ class KukaCamGymEnv(gym.Env):
 
   def __init__(self,
                urdfRoot=pybullet_data.getDataPath(),
-               actionRepeat=25,
+               actionRepeat=1,
                isEnableSelfCollision=True,
-               renders=True,
+               renders=False,
                isDiscrete=False):
     self._timeStep = 1./240.
     self._urdfRoot = urdfRoot
@@ -163,7 +166,25 @@ class KukaCamGymEnv(gym.Env):
     return np.array(self._observation), reward, done, {}
 
   def _render(self, mode='human', close=False):
-      return
+    if mode != "rgb_array":
+      return np.array([])
+    base_pos,orn = self._p.getBasePositionAndOrientation(self._racecar.racecarUniqueId)
+    view_matrix = self._p.computeViewMatrixFromYawPitchRoll(
+        cameraTargetPosition=base_pos,
+        distance=self._cam_dist,
+        yaw=self._cam_yaw,
+        pitch=self._cam_pitch,
+        roll=0,
+        upAxisIndex=2)
+    proj_matrix = self._p.computeProjectionMatrixFOV(
+        fov=60, aspect=float(RENDER_WIDTH)/RENDER_HEIGHT,
+        nearVal=0.1, farVal=100.0)
+    (_, _, px, _, _) = self._p.getCameraImage(
+        width=RENDER_WIDTH, height=RENDER_HEIGHT, viewMatrix=view_matrix,
+        projectionMatrix=proj_matrix, renderer=pybullet.ER_BULLET_HARDWARE_OPENGL)
+    rgb_array = np.array(px)
+    rgb_array = rgb_array[:, :, :3]
+    return rgb_array
 
   def _termination(self):
     #print (self._kuka.endEffectorPos[2])

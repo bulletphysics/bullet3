@@ -34,7 +34,7 @@ def default():
   # General
   algorithm = ppo.PPOAlgorithm
   num_agents = 10
-  eval_episodes = 25
+  eval_episodes = 20
   use_gpu = False
   # Network
   network = networks.feed_forward_gaussian
@@ -47,7 +47,7 @@ def default():
   init_mean_factor = 0.05
   init_logstd = -1
   # Optimization
-  update_every = 25
+  update_every = 20
   policy_optimizer = 'AdamOptimizer'
   value_optimizer = 'AdamOptimizer'
   update_epochs_policy = 50
@@ -105,7 +105,7 @@ def pybullet_kuka_grasping():
   locals().update(default())
   # Environment
   env = 'KukaBulletEnv-v0'
-  max_length = 10
+  max_length = 1000
   steps = 1e7  # 10M
   return locals()
 
