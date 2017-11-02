@@ -680,46 +680,60 @@ void	CProfileManager::dumpAll()
 	CProfileManager::Release_Iterator(profileIterator);
 }
 
+// BT_HAVE_TLS is defined to 1 when __thread should be supported.
+// We assume __thread is supported on Linux when compiled with Clang or compiled
+// against libstdc++ with _GLIBCXX_HAVE_TLS defined.
+#ifdef BT_HAVE_TLS
+#error BT_HAVE_TLS cannot be directly set
+#elif defined(__linux__) && (defined(__clang__) || defined(_GLIBCXX_HAVE_TLS))
+#define BT_HAVE_TLS 1
+#endif
 
-
+// There are platforms for which TLS should not be used even though the compiler
+// makes it seem like it's supported (Android NDK < r12b for example).
+// This is primarily because of linker problems and toolchain misconfiguration:
+// TLS isn't supported until NDK r12b per
+// https://developer.android.com/ndk/downloads/revision_history.html
+// Since NDK r16, `__NDK_MAJOR__` and `__NDK_MINOR__` are defined in
+// <android/ndk-version.h>. For NDK < r16, users should define these macros,
+// e.g. `-D__NDK_MAJOR__=11 -D__NKD_MINOR__=0` for NDK r11.
+#if defined(__ANDROID__) && defined(__clang__)
+#if __has_include(<android/ndk-version.h>)
+#include <android/ndk-version.h>
+#endif  // __has_include(<android/ndk-version.h>)
+#if defined(__ANDROID__) && defined(__clang__) && defined(__NDK_MAJOR__) && \
+    defined(__NDK_MINOR__) &&                                               \
+    ((__NDK_MAJOR__ < 12) || ((__NDK_MAJOR__ == 12) && (__NDK_MINOR__ < 1)))
+#undef BT_HAVE_TLS
+#endif
+#endif  // defined(__ANDROID__) && defined(__clang__)
 
 unsigned int btQuickprofGetCurrentThreadIndex2()
 {
 #if BT_THREADSAFE
     return btGetCurrentThreadIndex();
-#else // #if BT_THREADSAFE
-	const unsigned int kNullIndex = ~0U;
+#else
+  const unsigned int kNullIndex = ~0U;
 #ifdef _WIN32
-    #if defined(__MINGW32__) || defined(__MINGW64__)
-        static __thread unsigned int sThreadIndex = kNullIndex;
-    #else
-        __declspec( thread ) static unsigned int sThreadIndex = kNullIndex;
-    #endif
+#if defined(__MINGW32__) || defined(__MINGW64__)
+  static __thread unsigned int sThreadIndex = kNullIndex;
 #else
-#ifdef __APPLE__
-	#if TARGET_OS_IPHONE
-		unsigned int sThreadIndex = 0;
-		return -1;
-	#else
-		static __thread unsigned int sThreadIndex = kNullIndex;
-	#endif
-#else//__APPLE__
-#if __linux__
-	static __thread unsigned int sThreadIndex = kNullIndex;
+  __declspec(thread) static unsigned int sThreadIndex = kNullIndex;
+#endif
+#elif defined(BT_HAVE_TLS)
+  static __thread unsigned int sThreadIndex = kNullIndex;
 #else
-	unsigned int sThreadIndex = 0;
-	return -1;
-#endif
-#endif//__APPLE__
-	
-#endif
-	static int gThreadCounter=0;
+  unsigned int sThreadIndex = 0;
+  return -1;
+#endif  //_WIN32
 
-	if ( sThreadIndex == kNullIndex )
-	{
-		sThreadIndex = gThreadCounter++;
-	}
-	return sThreadIndex;
+  // TODO: Use std::atomic? Not sure if c++11 is a prereq for this library.
+  static int gThreadCounter = 0;
+
+  if (sThreadIndex == kNullIndex) {
+    sThreadIndex = gThreadCounter++;
+  }
+  return sThreadIndex;
 #endif // #else // #if BT_THREADSAFE
 }
 
