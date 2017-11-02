@@ -615,7 +615,7 @@ void	btRaycastVehicle::updateFriction(btScalar	timeStep)
 					btScalar defaultRollingFrictionImpulse = 0.f;
 					btScalar maxImpulse = wheelInfo.m_brake ? wheelInfo.m_brake : defaultRollingFrictionImpulse;
 					btWheelContactPoint contactPt(m_chassisBody,groundObject,wheelInfo.m_raycastInfo.m_contactPointWS,m_forwardWS[wheel],maxImpulse);
-					rollingFriction = calcRollingFriction(contactPt);
+					rollingFriction = calcRollingFriction(contactPt)/btScalar(getNumWheels());
 				}
 			}
 
