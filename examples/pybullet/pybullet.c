@@ -1,5 +1,4 @@
 
-
 #include "../SharedMemory/PhysicsClientC_API.h"
 #include "../SharedMemory/PhysicsDirectC_API.h"
 #include "../SharedMemory/SharedMemoryInProcessPhysicsC_API.h"
@@ -571,7 +570,6 @@ static PyObject* pybullet_saveWorld(PyObject* self, PyObject* args, PyObject* ke
 	return NULL;
 }
 
-#define MAX_SDF_BODIES 512
 static PyObject* pybullet_loadBullet(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	const char* bulletFileName = "";
@@ -701,7 +699,9 @@ static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args, PyObject* key
 		b3GetStatusBodyIndices(statusHandle, bodyIndicesOut, MAX_SDF_BODIES);
 	if (numBodies > MAX_SDF_BODIES)
 	{
-		PyErr_SetString(SpamError, "SDF exceeds body capacity");
+		char str[1024];
+		sprintf(str,"SDF exceeds body capacity: %d > %d", numBodies, MAX_SDF_BODIES);
+		PyErr_SetString(SpamError, str);
 		return NULL;
 	}
 
@@ -1197,7 +1197,9 @@ static PyObject* pybullet_loadSDF(PyObject* self, PyObject* args, PyObject* keyw
 		b3GetStatusBodyIndices(statusHandle, bodyIndicesOut, MAX_SDF_BODIES);
 	if (numBodies > MAX_SDF_BODIES)
 	{
-		PyErr_SetString(SpamError, "SDF exceeds body capacity");
+		char str[1024];
+                sprintf(str,"SDF exceeds body capacity: %d > %d", numBodies, MAX_SDF_BODIES);
+		PyErr_SetString(SpamError, str);
 		return NULL;
 	}
 
@@ -8191,6 +8193,7 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "COV_ENABLE_VR_TELEPORTING", COV_ENABLE_VR_TELEPORTING);
 	PyModule_AddIntConstant(m, "COV_ENABLE_RENDERING", COV_ENABLE_RENDERING);
 	PyModule_AddIntConstant(m, "COV_ENABLE_TINY_RENDERER", COV_ENABLE_TINY_RENDERER);
+	PyModule_AddIntConstant(m, "COV_ENABLE_Y_AXIS_UP", COV_ENABLE_Y_AXIS_UP);
 
 	PyModule_AddIntConstant(m, "COV_ENABLE_VR_RENDER_CONTROLLERS", COV_ENABLE_VR_RENDER_CONTROLLERS);
 	PyModule_AddIntConstant(m, "COV_ENABLE_KEYBOARD_SHORTCUTS", COV_ENABLE_KEYBOARD_SHORTCUTS);
