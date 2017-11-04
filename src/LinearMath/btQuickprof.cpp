@@ -287,7 +287,7 @@ static btClock gProfileClock;
 
 inline void Profile_Get_Ticks(unsigned long int * ticks)
 {
-	*ticks = (unsigned long int)gProfileClock.getTimeMicroseconds();
+	*ticks = static_cast<unsigned long int>(gProfileClock.getTimeMicroseconds());
 }
 
 inline float Profile_Get_Tick_Rate(void)
