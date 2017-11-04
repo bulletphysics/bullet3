@@ -59,7 +59,7 @@ public:
     virtual btConstraintSolverType getSolverType() const BT_OVERRIDE { return m_solverType; }
 
 private:
-    const static size_t kCacheLineSize = 128;
+    static const size_t kCacheLineSize = 128;
     struct ThreadSolver
     {
         btConstraintSolver* solver;
