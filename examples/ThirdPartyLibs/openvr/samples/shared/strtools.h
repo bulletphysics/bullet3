@@ -37,13 +37,15 @@ std::string StringToLower( const std::string & sString );
 
 // we stricmp (from WIN) but it isn't POSIX - OSX/LINUX have strcasecmp so just inline bridge to it
 #if defined( OSX ) || defined( LINUX )
-#include <strings.h>
-inline int stricmp(const char *pStr1, const char *pStr2) { return strcasecmp(pStr1,pStr2); }
-#ifndef _stricmp
-#define _stricmp stricmp
+#ifndef __THROW // If __THROW is defined, these will clash with throw() versions on gcc
+	#include <strings.h>
+	inline int stricmp(const char *pStr1, const char *pStr2) { return strcasecmp(pStr1,pStr2); }
+	#ifndef _stricmp
+	#define _stricmp stricmp
+	#endif
+	inline int strnicmp( const char *pStr1, const char *pStr2, size_t unBufferLen ) { return strncasecmp( pStr1,pStr2, unBufferLen ); }
+	#define _strnicmp strnicmp
 #endif
-inline int strnicmp( const char *pStr1, const char *pStr2, size_t unBufferLen ) { return strncasecmp( pStr1,pStr2, unBufferLen ); }
-#define _strnicmp strnicmp
 
 #ifndef _vsnprintf_s
 #define _vsnprintf_s vsnprintf
@@ -51,7 +53,7 @@ inline int strnicmp( const char *pStr1, const char *pStr2, size_t unBufferLen ) 
 
 #define _TRUNCATE ((size_t)-1)
 
-#endif
+#endif // defined( OSX ) || defined( LINUX )
 
 #if defined( OSX )
 // behaviors ensure NULL-termination at least as well as _TRUNCATE does, but

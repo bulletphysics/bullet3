@@ -65,9 +65,9 @@ int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterf
 	{
 		int textureIndex = -1;
 		
-		if (meshData.m_textureImage)
+		if (meshData.m_textureImage1)
 		{
-			textureIndex = renderer->registerTexture(meshData.m_textureImage,meshData.m_textureWidth,meshData.m_textureHeight);
+			textureIndex = renderer->registerTexture(meshData.m_textureImage1,meshData.m_textureWidth,meshData.m_textureHeight);
 		}
 		
 		shapeId = renderer->registerShape(&meshData.m_gfxShape->m_vertices->at(0).xyzw[0], 
@@ -77,7 +77,10 @@ int loadAndRegisterMeshFromFile2(const std::string& fileName, CommonRenderInterf
 										  B3_GL_TRIANGLES,
 										  textureIndex);
 		delete meshData.m_gfxShape;
-		delete meshData.m_textureImage;
+		if (!meshData.m_isCached)
+		{
+			delete meshData.m_textureImage1;
+		}
 	}
 	return shapeId;
 }

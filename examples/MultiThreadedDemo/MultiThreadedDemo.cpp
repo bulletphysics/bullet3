@@ -13,28 +13,35 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "btBulletDynamicsCommon.h"
-#include "LinearMath/btQuickprof.h"
-#include "LinearMath/btIDebugDraw.h"
+#include "MultiThreadedDemo.h"
+#include "CommonRigidBodyMTBase.h"
 #include "../CommonInterfaces/CommonParameterInterface.h"
+#include "btBulletDynamicsCommon.h"
+#include "btBulletCollisionCommon.h"
+#include "LinearMath/btAlignedObjectArray.h"
+
 #include <stdio.h> //printf debugging
 #include <algorithm>
-
-class btCollisionShape;
-
-#include "CommonRigidBodyMTBase.h"
-#include "MultiThreadedDemo.h"
-#include "LinearMath/btAlignedObjectArray.h"
-#include "btBulletCollisionCommon.h"
 
 
 
 static btScalar gSliderStackRows = 8.0f;
 static btScalar gSliderStackColumns = 6.0f;
 static btScalar gSliderStackHeight = 10.0f;
+static btScalar gSliderStackWidth = 1.0f;
 static btScalar gSliderGroundHorizontalAmplitude = 0.0f;
 static btScalar gSliderGroundVerticalAmplitude = 0.0f;
+static btScalar gSliderGroundTilt = 0.0f;
+static btScalar gSliderRollingFriction = 0.0f;
+static bool gSpheresNotBoxes = false;
 
+static void boolPtrButtonCallback( int buttonId, bool buttonState, void* userPointer )
+{
+    if ( bool* val = static_cast<bool*>( userPointer ) )
+    {
+        *val = !*val;
+    }
+}
 
 /// MultiThreadedDemo shows how to setup and use multithreading
 class MultiThreadedDemo  : public CommonRigidBodyMTBase
@@ -50,8 +57,9 @@ class MultiThreadedDemo  : public CommonRigidBodyMTBase
     btRigidBody* m_groundBody;
     btTransform m_groundStartXf;
     float m_groundMovePhase;
+    float m_prevRollingFriction;
 
-    void createStack( const btVector3& pos, btCollisionShape* boxShape, const btVector3& halfBoxSize, int size );
+    void createStack( const btTransform& trans, btCollisionShape* boxShape, const btVector3& halfBoxSize, int size, int width );
     void createSceneObjects();
     void destroySceneObjects();
 
@@ -62,10 +70,25 @@ public:
 
 	virtual ~MultiThreadedDemo() {}
 
+    btQuaternion getGroundRotation() const
+    {
+        btScalar tilt = gSliderGroundTilt * SIMD_2_PI / 360.0f;
+        return btQuaternion( btVector3( 1.0f, 0.0f, 0.0f ), tilt );
+    }
     virtual void stepSimulation( float deltaTime ) BT_OVERRIDE
     {
         if ( m_dynamicsWorld )
         {
+            if ( m_prevRollingFriction != gSliderRollingFriction )
+            {
+                m_prevRollingFriction = gSliderRollingFriction;
+                btCollisionObjectArray& objArray = m_dynamicsWorld->getCollisionObjectArray();
+                for ( int i = 0; i < objArray.size(); ++i )
+                {
+                    btCollisionObject* obj = objArray[ i ];
+                    obj->setRollingFriction( gSliderRollingFriction );
+                }
+            }
             if (m_groundBody)
             {
                 // update ground
@@ -85,6 +108,7 @@ public:
                 offset[kUpAxis] = gndVOffset;
                 vel[kUpAxis] = gndVVel;
                 xf.setOrigin(xf.getOrigin() + offset);
+                xf.setRotation( getGroundRotation() );
                 m_groundBody->setWorldTransform( xf );
                 m_groundBody->setLinearVelocity( vel );
             }
@@ -117,6 +141,7 @@ MultiThreadedDemo::MultiThreadedDemo(struct GUIHelperInterface* helper)
     m_cameraPitch = -30.0f;
     m_cameraYaw = 90.0f;
     m_cameraDist = 48.0f;
+    m_prevRollingFriction = -1.0f;
     helper->setUpAxis( kUpAxis );
 }
 
@@ -129,6 +154,13 @@ void MultiThreadedDemo::initPhysics()
 
     {
         SliderParams slider( "Stack height", &gSliderStackHeight );
+        slider.m_minVal = 1.0f;
+        slider.m_maxVal = 30.0f;
+        slider.m_clampToIntegers = true;
+        m_guiHelper->getParameterInterface()->registerSliderFloatParameter( slider );
+    }
+    {
+        SliderParams slider( "Stack width", &gSliderStackWidth );
         slider.m_minVal = 1.0f;
         slider.m_maxVal = 30.0f;
         slider.m_clampToIntegers = true;
@@ -164,7 +196,30 @@ void MultiThreadedDemo::initPhysics()
         slider.m_clampToNotches = false;
         m_guiHelper->getParameterInterface()->registerSliderFloatParameter( slider );
     }
-	
+    {
+        // ground tilt
+        SliderParams slider( "Ground tilt", &gSliderGroundTilt );
+        slider.m_minVal = -45.0f;
+        slider.m_maxVal = 45.0f;
+        slider.m_clampToNotches = false;
+        m_guiHelper->getParameterInterface()->registerSliderFloatParameter( slider );
+    }
+    {
+        // rolling friction
+        SliderParams slider( "Rolling friction", &gSliderRollingFriction );
+        slider.m_minVal = 0.0f;
+        slider.m_maxVal = 1.0f;
+        slider.m_clampToNotches = false;
+        m_guiHelper->getParameterInterface()->registerSliderFloatParameter( slider );
+    }
+    {
+        ButtonParams button( "Spheres not boxes", 0, false );
+        button.m_initialState = gSpheresNotBoxes;
+        button.m_userPointer = &gSpheresNotBoxes;
+        button.m_callback = boolPtrButtonCallback;
+        m_guiHelper->getParameterInterface()->registerButtonParameter( button );
+    }
+
     createSceneObjects();
 
     m_guiHelper->createPhysicsDebugDrawer( m_dynamicsWorld );
@@ -184,29 +239,36 @@ btRigidBody* MultiThreadedDemo::localCreateRigidBody(btScalar mass, const btTran
 }
 
 
-void MultiThreadedDemo::createStack( const btVector3& center, btCollisionShape* boxShape, const btVector3& halfBoxSize, int size )
+void MultiThreadedDemo::createStack( const btTransform& parentTrans, btCollisionShape* boxShape, const btVector3& halfBoxSize, int height, int width )
 {
     btTransform trans;
     trans.setIdentity();
+    trans.setRotation( parentTrans.getRotation() );
     float halfBoxHeight = halfBoxSize.y();
     float halfBoxWidth = halfBoxSize.x();
 
-    for ( int i = 0; i<size; i++ )
+    btVector3 offset = btVector3( 0, 0, -halfBoxSize.z() * (width - 1) );
+    for ( int iZ = 0; iZ < width; iZ++ )
     {
-        // This constructs a row, from left to right
-        int rowSize = size - i;
-        for ( int j = 0; j< rowSize; j++ )
+        offset += btVector3( 0, 0, halfBoxSize.z()*2.0f );
+        for ( int iY = 0; iY < height; iY++ )
         {
-            btVector3 pos = center + btVector3( halfBoxWidth*( 1 + j * 2 - rowSize ),
-                halfBoxHeight * ( 1 + i * 2),
-                0.0f
+            // This constructs a row, from left to right
+            int rowSize = height - iY;
+            for ( int iX = 0; iX < rowSize; iX++ )
+            {
+                btVector3 pos = offset + btVector3( halfBoxWidth*( 1 + iX * 2 - rowSize ),
+                    halfBoxHeight * ( 1 + iY * 2 ),
+                    0.0f
                 );
 
-            trans.setOrigin( pos );
-            btScalar mass = 1.f;
+                trans.setOrigin( parentTrans(pos) );
+                btScalar mass = 1.f;
 
-            btRigidBody* body = localCreateRigidBody( mass, trans, boxShape );
-            body->setFriction(1.0f);
+                btRigidBody* body = localCreateRigidBody( mass, trans, boxShape );
+                body->setFriction( 1.0f );
+                body->setRollingFriction( gSliderRollingFriction );
+            }
         }
     }
 }
@@ -216,10 +278,8 @@ void MultiThreadedDemo::createSceneObjects()
 {
     {
         // create ground box
-        btTransform tr;
-        tr.setIdentity();
-        tr.setOrigin( btVector3( 0.f, -3.f, 0.f ) );
-        m_groundStartXf = tr;
+        m_groundStartXf.setOrigin( btVector3( 0.f, -3.f, 0.f ) );
+        m_groundStartXf.setRotation( getGroundRotation() );
 
         //either use heightfield or triangle mesh
 
@@ -240,18 +300,33 @@ void MultiThreadedDemo::createSceneObjects()
         int numStackRows = btMax(1, int(gSliderStackRows));
         int numStackCols = btMax(1, int(gSliderStackColumns));
         int stackHeight = int(gSliderStackHeight);
-        float stackZSpacing = 3.0f;
+        int stackWidth = int( gSliderStackWidth );
+        float stackZSpacing = 2.0f + stackWidth*halfExtents.x()*2.0f;
         float stackXSpacing = 20.0f;
 
         btBoxShape* boxShape = new btBoxShape( halfExtents );
         m_collisionShapes.push_back( boxShape );
 
+        btSphereShape* sphereShape = new btSphereShape( 0.5f );
+        m_collisionShapes.push_back( sphereShape );
+
+        btCollisionShape* shape = boxShape;
+        if ( gSpheresNotBoxes )
+        {
+            shape = sphereShape;
+        }
+
+        btTransform groundTrans;
+        groundTrans.setIdentity();
+        groundTrans.setRotation( getGroundRotation() );
         for ( int iX = 0; iX < numStackCols; ++iX )
         {
             for ( int iZ = 0; iZ < numStackRows; ++iZ )
             {
                 btVector3 center = btVector3( iX * stackXSpacing, 0.0f, ( iZ - numStackRows / 2 ) * stackZSpacing );
-                createStack( center, boxShape, halfExtents, stackHeight );
+                btTransform trans = groundTrans;
+                trans.setOrigin( groundTrans( center ) );
+                createStack( trans, shape, halfExtents, stackHeight, stackWidth );
             }
         }
     }

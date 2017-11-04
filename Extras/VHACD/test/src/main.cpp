@@ -38,6 +38,14 @@
 using namespace VHACD;
 using namespace std;
 
+bool replace(std::string& str, const std::string& from, const std::string& to) {
+    size_t start_pos = str.find(from);
+    if(start_pos == std::string::npos)
+        return false;
+    str.replace(start_pos, from.length(), to);
+    return true;
+}
+
 class MyCallback : public IVHACD::IUserCallback {
 public:
     MyCallback(void) {}
@@ -293,7 +301,16 @@ void ParseParameters(int argc, char* argv[], Parameters& params)
     for (int i = 1; i < argc; ++i) {
         if (!strcmp(argv[i], "--input")) {
             if (++i < argc)
+		{
                 params.m_fileNameIn = argv[i];
+		//come up with some default output name, if not provided
+		if (params.m_fileNameOut.length()==0)
+		{
+                	string tmp = argv[i];
+			replace(tmp,".obj",".vhacd.obj");
+			params.m_fileNameOut = tmp;
+		}
+		}
         }
         else if (!strcmp(argv[i], "--output")) {
             if (++i < argc)

@@ -34,8 +34,8 @@ template <typename T, typename U> void addJointInfoFromMultiBodyData(const T* mb
 	{
 		{
 			b3JointInfo info;
-			info.m_jointName = 0;
-			info.m_linkName = 0;
+			info.m_jointName[0] = 0;
+			info.m_linkName[0] = 0;
 			info.m_flags = 0;
 			info.m_jointIndex = link;
 			info.m_qIndex =
@@ -48,14 +48,16 @@ template <typename T, typename U> void addJointInfoFromMultiBodyData(const T* mb
 					b3Printf("mb->m_links[%d].m_linkName = %s\n", link,
 								mb->m_links[link].m_linkName);
 				}
-				info.m_linkName = strDup(mb->m_links[link].m_linkName);
+				strcpy(info.m_linkName,mb->m_links[link].m_linkName);
+				
 			}
 			if (mb->m_links[link].m_jointName) {
 				if (verboseOutput) {
 					b3Printf("mb->m_links[%d].m_jointName = %s\n", link,
 								mb->m_links[link].m_jointName);
 				}
-				info.m_jointName = strDup(mb->m_links[link].m_jointName);
+				strcpy(info.m_jointName,mb->m_links[link].m_jointName);
+				//info.m_jointName = strDup(mb->m_links[link].m_jointName);
 			}
 
 			info.m_jointType = mb->m_links[link].m_jointType;

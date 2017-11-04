@@ -28,7 +28,9 @@ float shadowMapWorldSize=10;
 #include "OpenGLInclude.h"
 #include "../CommonInterfaces/CommonWindowInterface.h"
 //#include "Bullet3Common/b3MinMax.h"
+#ifdef B3_USE_GLFW
 
+#else
 #ifndef __APPLE__
 #ifndef glVertexAttribDivisor
 #ifndef NO_GLEW
@@ -44,6 +46,7 @@ float shadowMapWorldSize=10;
 #endif //NO_GLEW
 #endif
 #endif //__APPLE__
+#endif//B3_USE_GLFW
 #include "GLInstancingRenderer.h"
 
 #include <string.h>
@@ -619,22 +622,22 @@ void GLInstancingRenderer::writeTransforms()
 {
 
 	{
-		B3_PROFILE("b3Assert(glGetError() 1");
+		//B3_PROFILE("b3Assert(glGetError() 1");
 		b3Assert(glGetError() ==GL_NO_ERROR);
 	}
 	{
-		B3_PROFILE("glBindBuffer");
+		//B3_PROFILE("glBindBuffer");
 		glBindBuffer(GL_ARRAY_BUFFER, m_data->m_vbo);
 	}
 
 	{
-		B3_PROFILE("glFlush()");
+		//B3_PROFILE("glFlush()");
 		//without the flush, the glBufferSubData can spike to really slow (seconds slow)
 		glFlush();
 	}
 
 	{
-		B3_PROFILE("b3Assert(glGetError() 2");
+		//B3_PROFILE("b3Assert(glGetError() 2");
 		b3Assert(glGetError() ==GL_NO_ERROR);
 	}
 	
@@ -663,22 +666,22 @@ void GLInstancingRenderer::writeTransforms()
 	{
 	//	printf("m_data->m_totalNumInstances = %d\n", m_data->m_totalNumInstances);
 		{
-		B3_PROFILE("glBufferSubData pos");
+		//B3_PROFILE("glBufferSubData pos");
 	glBufferSubData(	GL_ARRAY_BUFFER,m_data->m_maxShapeCapacityInBytes,m_data->m_totalNumInstances*sizeof(float)*4,
  						&m_data->m_instance_positions_ptr[0]);
 		}
 		{
-			B3_PROFILE("glBufferSubData orn");
+//			B3_PROFILE("glBufferSubData orn");
 	glBufferSubData(	GL_ARRAY_BUFFER,m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE,m_data->m_totalNumInstances*sizeof(float)*4,
  						&m_data->m_instance_quaternion_ptr[0]);
 		}
 		{
-			B3_PROFILE("glBufferSubData color");
+//			B3_PROFILE("glBufferSubData color");
 	glBufferSubData(	GL_ARRAY_BUFFER,m_data->m_maxShapeCapacityInBytes+ POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE, m_data->m_totalNumInstances*sizeof(float)*4,
  						&m_data->m_instance_colors_ptr[0]);
 		}
 		{
-			B3_PROFILE("glBufferSubData scale");
+//			B3_PROFILE("glBufferSubData scale");
 	glBufferSubData(	GL_ARRAY_BUFFER, m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE+COLOR_BUFFER_SIZE,m_data->m_totalNumInstances*sizeof(float)*3,
 					 	&m_data->m_instance_scale_ptr[0]);
 		}
@@ -753,12 +756,12 @@ void GLInstancingRenderer::writeTransforms()
 #endif
 
 	{
-		B3_PROFILE("glBindBuffer 2");
+//		B3_PROFILE("glBindBuffer 2");
 		glBindBuffer(GL_ARRAY_BUFFER, 0);//m_data->m_vbo);
 	}
 
 	{
-			B3_PROFILE("b3Assert(glGetError() 4");
+		//	B3_PROFILE("b3Assert(glGetError() 4");
 		b3Assert(glGetError() ==GL_NO_ERROR);
 	}
 
@@ -942,6 +945,7 @@ int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const float* 
 
 int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width, int height, bool flipPixelsY)
 {
+	B3_PROFILE("GLInstancingRenderer::registerTexture");
 	b3Assert(glGetError() ==GL_NO_ERROR);
 	glActiveTexture(GL_TEXTURE0);
 	int textureIndex = m_data->m_textureHandles.size();
@@ -960,6 +964,7 @@ int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width
 	m_data->m_textureHandles.push_back(h);
 	if (texels)
 	{
+		B3_PROFILE("updateTexture");
 		updateTexture(textureIndex, texels, flipPixelsY);
 	}
 	return textureIndex;
@@ -968,10 +973,10 @@ int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width
 
 void    GLInstancingRenderer::replaceTexture(int shapeIndex, int textureId)
 {
-	if (shapeIndex >=0 && shapeIndex < m_data->m_textureHandles.size())
+	if ((shapeIndex >=0) && (shapeIndex < m_graphicsInstances.size()))
 	{
 		b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
-		if (textureId>=0)
+		if (textureId>=0 && textureId < m_data->m_textureHandles.size())
 		{
 			gfxObj->m_textureIndex = textureId;
 			gfxObj->m_flags |= eGfxHasTexture;
@@ -982,7 +987,8 @@ void    GLInstancingRenderer::replaceTexture(int shapeIndex, int textureId)
 
 void    GLInstancingRenderer::updateTexture(int textureIndex, const unsigned char* texels, bool flipPixelsY)
 {
-    if (textureIndex>=0)
+	B3_PROFILE("updateTexture");
+    if ((textureIndex>=0) && (textureIndex < m_data->m_textureHandles.size()))
     {
         glActiveTexture(GL_TEXTURE0);
         b3Assert(glGetError() ==GL_NO_ERROR);
@@ -992,13 +998,14 @@ void    GLInstancingRenderer::updateTexture(int textureIndex, const unsigned cha
 
 		if (flipPixelsY)
 		{
+			B3_PROFILE("flipPixelsY");
 			//textures need to be flipped for OpenGL...
 			b3AlignedObjectArray<unsigned char> flippedTexels;
 			flippedTexels.resize(h.m_width* h.m_height * 3);
 
-			for (int i = 0; i < h.m_width; i++)
+			for (int j = 0; j < h.m_height; j++)
 			{
-				for (int j = 0; j < h.m_height; j++)
+				for (int i = 0; i < h.m_width; i++)
 				{
 					flippedTexels[(i + j*h.m_width) * 3] =      texels[(i + (h.m_height - 1 -j )*h.m_width) * 3];
 					flippedTexels[(i + j*h.m_width) * 3+1] =    texels[(i + (h.m_height - 1 - j)*h.m_width) * 3+1];
@@ -1014,6 +1021,7 @@ void    GLInstancingRenderer::updateTexture(int textureIndex, const unsigned cha
         b3Assert(glGetError() ==GL_NO_ERROR);
 		if (h.m_enableFiltering)
 		{
+			B3_PROFILE("glGenerateMipmap");
 	        glGenerateMipmap(GL_TEXTURE_2D);
 		}
         b3Assert(glGetError() ==GL_NO_ERROR);
@@ -1024,7 +1032,7 @@ void GLInstancingRenderer::activateTexture(int textureIndex)
 {
     glActiveTexture(GL_TEXTURE0);
     
-    if (textureIndex>=0)
+    if (textureIndex>=0 && textureIndex < m_data->m_textureHandles.size())
     {
         glBindTexture(GL_TEXTURE_2D,m_data->m_textureHandles[textureIndex].m_glTexture);
     } else

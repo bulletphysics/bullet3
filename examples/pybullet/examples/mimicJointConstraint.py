@@ -23,6 +23,7 @@ p.changeConstraint(c,gearRatio=-1, maxForce=10000)
 
 p.setRealTimeSimulation(1)
 while(1):
+	p.setGravity(0,0,-10)
 	time.sleep(0.01)
 #p.removeConstraint(c)
 	

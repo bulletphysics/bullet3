@@ -4,8 +4,11 @@
 #define GWEN_MACROS_H
 #include <stdlib.h>
 #include <stdarg.h>
-#if !defined(__APPLE__) && !defined(__OpenBSD__)
-#include <malloc.h>
+#include <stdio.h> // vsnprintf
+#if !defined(__APPLE__) && !defined(__OpenBSD__) && !defined(__FreeBSD__)
+	#include <malloc.h>
+#else
+	#include <stdlib.h>
 #endif //__APPLE__
 #include <memory.h>
 #include <algorithm>
@@ -15,7 +18,7 @@
 #define GwenUtil_Max( a, b ) ( ( (a) > (b) ) ? (a) : (b) )
 #define GwenUtil_VSWPrintFSafeSized( _DstBuf_ARRAY_, _Format, _ArgList ) GwenUtil_VSWPrintFSafe( _DstBuf_ARRAY_, sizeof( _DstBuf_ARRAY_ ) / sizeof( wchar_t ), _Format, _ArgList )
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 
 	#ifndef NOMINMAX
         #define NOMINMAX
@@ -38,10 +41,15 @@
 	#define GwenUtil_OutputDebugWideString( lpOutputString ) //wprintf( lpOutputString  )
 	#define GwenUtil_WideStringToFloat( _Str ) wcstof(_Str, NULL)
 
-#elif defined(__linux__) || defined(__OpenBSD__)
+
+#elif defined(__linux__) || defined( __GNUC__ )
 
 	#define GwenUtil_VSNPrintFSafe( _DstBuf, _DstSize, _MaxCount, _Format, _ArgList ) vsnprintf( _DstBuf, _DstSize, _Format, _ArgList )
-	#define GwenUtil_VSWPrintFSafe( _DstBuf, _SizeInWords, _Format, _ArgList ) vswprintf( _DstBuf, _SizeInWords, _Format, _ArgList )
+	#ifdef _WIN32
+		#define GwenUtil_VSWPrintFSafe( _DstBuf, _SizeInWords, _Format, _ArgList ) vsnwprintf( _DstBuf, _SizeInWords, _Format, _ArgList )
+	#else
+		#define GwenUtil_VSWPrintFSafe( _DstBuf, _SizeInWords, _Format, _ArgList ) vswprintf( _DstBuf, _SizeInWords, _Format, _ArgList )
+	#endif
 	#define GwenUtil_OutputDebugCharString( lpOutputString ) //printf( lpOutputString )
 	#define GwenUtil_OutputDebugWideString( lpOutputString ) //wprintf( lpOutputString  )
 	#define GwenUtil_WideStringToFloat( _Str ) wcstof(_Str, NULL)

@@ -1,0 +1,49 @@
+<robot name="tabletop">
+  <link name="base_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="tray_textured.obj" scale="0.5 0.5 0.5"/>
+      </geometry>
+      <material name="tray_material">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+     <collision>
+      <origin rpy="0 0 0" xyz="0 0 0.005"/>
+      <geometry>
+	 			<box size=".6 .6 .02"/>
+      </geometry>
+    </collision>
+     <collision>
+      <origin rpy="0 0.575469961 0" xyz="0.25 0 0.059"/>
+      <geometry>
+	 			<box size=".02 .6 .15"/>
+      </geometry>
+    </collision>
+		<collision>
+      <origin rpy="0 -0.575469961 0" xyz="-0.25 0 0.059"/>
+      <geometry>
+	 			<box size=".02 .6 .15"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0.575469961 0 0" xyz="0 -0.25 0.059"/>
+      <geometry>
+	 			<box size=".6 .02 .15"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="-0.575469961 0 0" xyz="0 0.25 0.059"/>
+      <geometry>
+	 			<box size=".6 .02 .15"/>
+      </geometry>
+    </collision>
+
+  </link>
+</robot>

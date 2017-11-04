@@ -40,7 +40,7 @@ struct PhysicsDirectInternalData
     btHashMap<btHashInt,b3UserConstraint> m_userConstraintInfoMap;
 	
 	char    m_bulletStreamDataServerToClient[SHARED_MEMORY_MAX_STREAM_CHUNK_SIZE];
-
+	btAlignedObjectArray<double> m_cachedMassMatrix;
 	int m_cachedCameraPixelsWidth;
 	int m_cachedCameraPixelsHeight;
 	btAlignedObjectArray<unsigned char> m_cachedCameraPixelsRGBA;
@@ -112,17 +112,6 @@ void PhysicsDirect::resetData()
 		BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap.getAtIndex(i);
 		if (bodyJointsPtr && *bodyJointsPtr)
 		{
-			BodyJointInfoCache2* bodyJoints = *bodyJointsPtr;
-			for (int j = 0; j<bodyJoints->m_jointInfo.size(); j++) {
-				if (bodyJoints->m_jointInfo[j].m_jointName)
-				{
-					free(bodyJoints->m_jointInfo[j].m_jointName);
-				}
-				if (bodyJoints->m_jointInfo[j].m_linkName)
-				{
-					free(bodyJoints->m_jointInfo[j].m_linkName);
-				}
-			}
 			delete (*bodyJointsPtr);
 		}
 	}
@@ -791,10 +780,29 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 			{
 				userConstraintPtr->m_maxAppliedForce = serverConstraint->m_maxAppliedForce;
 			}
+			if (serverCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_GEAR_RATIO)
+			{
+				userConstraintPtr->m_gearRatio = serverConstraint->m_gearRatio;
+			}
+			if (serverCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_RELATIVE_POSITION_TARGET)
+			{
+				userConstraintPtr->m_relativePositionTarget = serverConstraint->m_relativePositionTarget;
+			}
+			if (serverCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_ERP)
+			{
+				userConstraintPtr->m_erp = serverConstraint->m_erp;
+			}
+			if (serverCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_GEAR_AUX_LINK)
+			{
+				userConstraintPtr->m_gearAuxLink = serverConstraint->m_gearAuxLink;
+			}
 		}
 		break;
 	}
-
+	case CMD_USER_CONSTRAINT_REQUEST_STATE_COMPLETED:
+	{
+		break;
+	}
 	case CMD_SYNC_BODY_INFO_COMPLETED:
 	case CMD_MJCF_LOADING_COMPLETED:
 	case CMD_SDF_LOADING_COMPLETED:
@@ -940,6 +948,59 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 		break;
 	}
 
+	case CMD_CUSTOM_COMMAND_COMPLETED:
+	{
+		break;
+	}
+	case CMD_CUSTOM_COMMAND_FAILED:
+	{
+		b3Warning("custom plugin command failed");
+		break;
+	}
+	case CMD_CLIENT_COMMAND_COMPLETED:
+		{
+			break;
+		}
+	case CMD_CALCULATED_JACOBIAN_COMPLETED:
+	{
+		break;
+	}
+	case CMD_CALCULATED_JACOBIAN_FAILED:
+	{
+		b3Warning("jacobian calculation failed");
+		break;
+	}
+	case CMD_CALCULATED_MASS_MATRIX_FAILED:
+		{
+			b3Warning("calculate mass matrix failed");
+			break;
+		}
+	case CMD_CALCULATED_MASS_MATRIX_COMPLETED:
+		{
+			double* matrixData = (double*)&m_data->m_bulletStreamDataServerToClient[0];
+			m_data->m_cachedMassMatrix.resize(serverCmd.m_massMatrixResultArgs.m_dofCount*serverCmd.m_massMatrixResultArgs.m_dofCount);
+			for (int i=0;i<serverCmd.m_massMatrixResultArgs.m_dofCount*serverCmd.m_massMatrixResultArgs.m_dofCount;i++)
+			{
+				m_data->m_cachedMassMatrix[i] = matrixData[i];
+			}
+			break;
+		}
+	case CMD_ACTUAL_STATE_UPDATE_COMPLETED:
+		{
+			break;
+		}
+	case CMD_DESIRED_STATE_RECEIVED_COMPLETED:
+		{
+			break;
+		}
+	case CMD_STEP_FORWARD_SIMULATION_COMPLETED:
+		{
+			break;
+		}
+	case CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS_COMPLETED:
+		{
+			break;
+		}
 	default:
 	{
 		//b3Warning("Unknown server status type");
@@ -994,17 +1055,6 @@ void PhysicsDirect::removeCachedBody(int bodyUniqueId)
 	BodyJointInfoCache2** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
 	if (bodyJointsPtr && *bodyJointsPtr)
 	{
-		BodyJointInfoCache2* bodyJoints = *bodyJointsPtr;
-		for (int j=0;j<bodyJoints->m_jointInfo.size();j++) {
-			if (bodyJoints->m_jointInfo[j].m_jointName)
-			{
-				free(bodyJoints->m_jointInfo[j].m_jointName);
-			}
-			if (bodyJoints->m_jointInfo[j].m_linkName)
-			{
-				free(bodyJoints->m_jointInfo[j].m_linkName);
-			}
-		}
 		delete (*bodyJointsPtr);
 		m_data->m_bodyJointMap.remove(bodyUniqueId);
 	}
@@ -1051,8 +1101,8 @@ bool PhysicsDirect::getBodyInfo(int bodyUniqueId, struct b3BodyInfo& info) const
 	if (bodyJointsPtr && *bodyJointsPtr)
 	{
 		BodyJointInfoCache2* bodyJoints = *bodyJointsPtr;
-		info.m_baseName = bodyJoints->m_baseName.c_str();
-		info.m_bodyName = bodyJoints->m_bodyName.c_str();
+		strcpy(info.m_baseName,bodyJoints->m_baseName.c_str());
+		strcpy(info.m_bodyName ,bodyJoints->m_bodyName .c_str());
 		return true;
 	}
 	
@@ -1195,6 +1245,18 @@ void PhysicsDirect::getCachedRaycastHits(struct b3RaycastInformation* raycastHit
 {
 	raycastHits->m_numRayHits = m_data->m_raycastHits.size();
 	raycastHits->m_rayHits = raycastHits->m_numRayHits? &m_data->m_raycastHits[0] : 0;
+}
+
+void PhysicsDirect::getCachedMassMatrix(int dofCountCheck, double* massMatrix)
+{
+	int sz = dofCountCheck*dofCountCheck;
+	if (sz == m_data->m_cachedMassMatrix.size())
+	{
+		for (int i=0;i<sz;i++)
+		{
+			massMatrix[i] = m_data->m_cachedMassMatrix[i];
+		}
+	}
 }
 
 void PhysicsDirect::setTimeOut(double timeOutInSeconds)

@@ -7,7 +7,7 @@
 
 
 //think more about naming. The b3ConnectPhysicsLoopback
-b3PhysicsClientHandle b3ConnectPhysicsDirect()
+B3_SHARED_API	b3PhysicsClientHandle b3ConnectPhysicsDirect()
 {
 	PhysicsServerCommandProcessor* sdk = new PhysicsServerCommandProcessor;
 

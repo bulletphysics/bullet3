@@ -168,7 +168,10 @@ bool TinyVRGui::init()
                 
 						
 				delete meshData.m_gfxShape;
-				delete meshData.m_textureImage;
+				if (!meshData.m_isCached)
+				{
+					free(meshData.m_textureImage1);
+				}
 			}
 				
 			

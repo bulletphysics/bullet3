@@ -391,7 +391,7 @@ void btShutDownExampleBrowser(btInProcessExampleBrowserInternalData* data)
                         } else
                         {
 //                              printf("polling..");
-							b3Clock::usleep(1000);
+							b3Clock::usleep(0);
                         }
                 };
 

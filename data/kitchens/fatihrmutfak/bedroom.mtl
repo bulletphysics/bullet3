@@ -9,7 +9,8 @@ newmtl wire_028089177
 	illum 2
 	Ka 0.0000 0.0000 0.0000
 	Kd 0.1098 0.3490 0.6941
-	Ks 0.3500 0.3500 0.3500
+	  Ks 0.3500 0.3500 0.3500
+  map_Kd Concrete.jpg
 
 newmtl wire_214229166
 	Ns 32
@@ -19,7 +20,8 @@ newmtl wire_214229166
 	illum 2
 	Ka 0.0000 0.0000 0.0000
 	Kd 0.8392 0.8980 0.6510
-	Ks 0.3500 0.3500 0.3500
+	  Ks 0.3500 0.3500 0.3500
+  map_Kd Concrete.jpg
 
 newmtl Rubi
 	Ns 10.0000
@@ -54,6 +56,7 @@ newmtl wire_115115115
 	Ka 0.0000 0.0000 0.0000
 	Kd 0.4510 0.4510 0.4510
 	Ks 0.3500 0.3500 0.3500
+  map_Kd Concrete.jpg
 
 newmtl wire_087224198
 	Ns 32
@@ -63,7 +66,8 @@ newmtl wire_087224198
 	illum 2
 	Ka 0.0000 0.0000 0.0000
 	Kd 0.3412 0.8784 0.7765
-	Ks 0.3500 0.3500 0.3500
+  Ks 0.3500 0.3500 0.3500
+  map_Kd Concrete.jpg
 
 newmtl wire_086086086
 	Ns 32
@@ -73,7 +77,8 @@ newmtl wire_086086086
 	illum 2
 	Ka 0.0000 0.0000 0.0000
 	Kd 0.3373 0.3373 0.3373
-	Ks 0.3500 0.3500 0.3500
+	  Ks 0.3500 0.3500 0.3500
+  map_Kd Concrete.jpg
 
 newmtl wire_026177088
 	Ns 32
@@ -83,7 +88,8 @@ newmtl wire_026177088
 	illum 2
 	Ka 0.0000 0.0000 0.0000
 	Kd 0.1020 0.6941 0.3451
-	Ks 0.3500 0.3500 0.3500
+	  Ks 0.3500 0.3500 0.3500
+  map_Kd Concrete.jpg
 
 newmtl wire_000000000
 	Ns 32
@@ -93,7 +99,8 @@ newmtl wire_000000000
 	illum 2
 	Ka 0.0000 0.0000 0.0000
 	Kd 0.0000 0.0000 0.0000
-	Ks 0.3500 0.3500 0.3500
+	  Ks 0.3500 0.3500 0.3500
+  map_Kd Concrete.jpg
 
 newmtl wire_153228153
 	Ns 32
@@ -103,7 +110,8 @@ newmtl wire_153228153
 	illum 2
 	Ka 0.0000 0.0000 0.0000
 	Kd 0.6000 0.8941 0.6000
-	Ks 0.3500 0.3500 0.3500
+	  Ks 0.3500 0.3500 0.3500
+  map_Kd Concrete.jpg
 
 newmtl wire_176026026
 	Ns 32
@@ -113,7 +121,8 @@ newmtl wire_176026026
 	illum 2
 	Ka 0.0000 0.0000 0.0000
 	Kd 0.6902 0.1020 0.1020
-	Ks 0.3500 0.3500 0.3500
+	  Ks 0.3500 0.3500 0.3500
+  map_Kd Concrete.jpg
 
 newmtl wire_255255255
 	Ns 32
@@ -123,7 +132,19 @@ newmtl wire_255255255
 	illum 2
 	Ka 0.0000 0.0000 0.0000
 	Kd 1.0000 1.0000 1.0000
-	Ks 0.3500 0.3500 0.3500
+	  Ks 0.3500 0.3500 0.3500
+  map_Kd WoodFine0010_M.jpg
+
+newmtl marble_255255255
+	Ns 32
+	d 1
+	Tr 1
+	Tf 1 1 1
+	illum 2
+	Ka 0.0000 0.0000 0.0000
+	Kd 1.0000 1.0000 1.0000
+	  Ks 0.3500 0.3500 0.3500
+  map_Kd Seamless_Aegean_Marble_Texture.jpg
 
 newmtl wire_165000082
 	Ns 32
@@ -133,7 +154,7 @@ newmtl wire_165000082
 	illum 2
 	Ka 0.0000 0.0000 0.0000
 	Kd 1 1 1
-	Ks 0.3500 0.3500 0.3500
+	  Ks 0.3500 0.3500 0.3500
   map_Kd 48x48copsy.png
 
 newmtl wire_255223127
@@ -144,7 +165,8 @@ newmtl wire_255223127
 	illum 2
 	Ka 0.0000 0.0000 0.0000
 	Kd 1.0000 0.8745 0.4980
-	Ks 0.3500 0.3500 0.3500
+	  Ks 0.3500 0.3500 0.3500
+  map_Kd Concrete.jpg
 
 newmtl wire_165103082
 	Ns 32
@@ -154,7 +176,8 @@ newmtl wire_165103082
 	illum 2
 	Ka 0.0000 0.0000 0.0000
 	Kd 0.6471 0.4039 0.3216
-	Ks 0.3500 0.3500 0.3500
+	  Ks 0.3500 0.3500 0.3500
+  map_Kd Concrete.jpg
 
 newmtl 02___Default
 	Ns 32.0000

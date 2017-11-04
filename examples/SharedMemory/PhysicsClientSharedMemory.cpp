@@ -47,7 +47,7 @@ struct PhysicsClientSharedMemoryInternalData {
 	btAlignedObjectArray<b3VRControllerEvent> m_cachedVREvents;
 	btAlignedObjectArray<b3KeyboardEvent> m_cachedKeyboardEvents;
 	btAlignedObjectArray<b3MouseEvent> m_cachedMouseEvents;
-	
+	btAlignedObjectArray<double> m_cachedMassMatrix;
 	btAlignedObjectArray<b3RayHitInfo>	m_raycastHits;
 
     btAlignedObjectArray<int> m_bodyIdsRequestInfo;
@@ -108,8 +108,8 @@ bool PhysicsClientSharedMemory::getBodyInfo(int bodyUniqueId, struct b3BodyInfo&
 	if (bodyJointsPtr && *bodyJointsPtr)
 	{
 		BodyJointInfoCache* bodyJoints = *bodyJointsPtr;
-		info.m_baseName = bodyJoints->m_baseName.c_str();
-		info.m_bodyName = bodyJoints->m_bodyName.c_str();
+		strcpy(info.m_baseName,bodyJoints->m_baseName.c_str());
+		strcpy(info.m_bodyName,bodyJoints->m_bodyName.c_str());
 		return true;
 	}
 
@@ -206,19 +206,6 @@ void PhysicsClientSharedMemory::removeCachedBody(int bodyUniqueId)
 	BodyJointInfoCache** bodyJointsPtr = m_data->m_bodyJointMap[bodyUniqueId];
 	if (bodyJointsPtr && *bodyJointsPtr)
 	{
-
-		BodyJointInfoCache* bodyJoints = *bodyJointsPtr;
-		for (int j=0;j<bodyJoints->m_jointInfo.size();j++) 
-		{
-			if (bodyJoints->m_jointInfo[j].m_jointName)
-			{
-				free(bodyJoints->m_jointInfo[j].m_jointName);
-			}
-			if (bodyJoints->m_jointInfo[j].m_linkName)
-			{
-				free(bodyJoints->m_jointInfo[j].m_linkName);
-			}
-		}
 		delete (*bodyJointsPtr);
 		m_data->m_bodyJointMap.remove(bodyUniqueId);
 	}
@@ -234,16 +221,6 @@ void PhysicsClientSharedMemory::resetData()
 		if (bodyJointsPtr && *bodyJointsPtr)
 		{
 			BodyJointInfoCache* bodyJoints = *bodyJointsPtr;
-			for (int j=0;j<bodyJoints->m_jointInfo.size();j++) {
-				if (bodyJoints->m_jointInfo[j].m_jointName)
-				{
-					free(bodyJoints->m_jointInfo[j].m_jointName);
-				}
-				if (bodyJoints->m_jointInfo[j].m_linkName)
-				{
-					free(bodyJoints->m_jointInfo[j].m_linkName);
-				}
-			}
 			delete (*bodyJointsPtr);
 		}
 	}
@@ -278,7 +255,10 @@ void PhysicsClientSharedMemory::disconnectSharedMemory() {
 
 }
 
-bool PhysicsClientSharedMemory::isConnected() const { return m_data->m_isConnected; }
+bool PhysicsClientSharedMemory::isConnected() const 
+{ 
+	return m_data->m_isConnected && (m_data->m_testBlock1->m_magicId == SHARED_MEMORY_MAGIC_NUMBER);
+}
 
 bool PhysicsClientSharedMemory::connect() {
     /// server always has to create and initialize shared memory
@@ -308,7 +288,7 @@ bool PhysicsClientSharedMemory::connect() {
             m_data->m_isConnected = true;
         }
     } else {
-        b3Warning("Cannot connect to shared memory");
+        //b3Warning("Cannot connect to shared memory");
         return false;
     }
 #if 0
@@ -386,6 +366,73 @@ void PhysicsClientSharedMemory::processBodyJointInfo(int bodyUniqueId, const Sha
     }
 }
 
+template <typename T, typename U> void addJointInfoFromConstraint(int linkIndex, const T* con, U* bodyJoints, bool verboseOutput)
+{
+	b3JointInfo info;
+	info.m_jointName[0] = 0;
+	info.m_linkName[0] = 0;
+	info.m_flags = 0;
+	info.m_jointIndex = linkIndex;
+	info.m_qIndex = linkIndex+7;
+	info.m_uIndex = linkIndex+6;
+	//derive type from limits
+
+	if (con->m_typeConstraintData.m_name)
+	{
+		strcpy(info.m_jointName,con->m_typeConstraintData.m_name);
+		
+		//info.m_linkName = strDup(con->m_typeConstraintData.m_name);
+	}
+	
+	btVector3 linearLowerLimit(con->m_linearLowerLimit.m_floats[0],con->m_linearLowerLimit.m_floats[1],con->m_linearLowerLimit.m_floats[2]);
+	btVector3 linearUpperLimit(con->m_linearUpperLimit.m_floats[0],con->m_linearUpperLimit.m_floats[1],con->m_linearUpperLimit.m_floats[2]);
+	btVector3 angularLowerLimit(con->m_angularLowerLimit.m_floats[0],con->m_angularLowerLimit.m_floats[1],con->m_angularLowerLimit.m_floats[2]);
+	btVector3 angularUpperLimit(con->m_angularUpperLimit.m_floats[0],con->m_angularUpperLimit.m_floats[1],con->m_angularUpperLimit.m_floats[2]);
+	
+	//very simple, rudimentary extraction of constaint type, from limits
+	info.m_jointType = eFixedType;
+	info.m_jointDamping = 0;//mb->m_links[link].m_jointDamping;
+	info.m_jointFriction = 0;//mb->m_links[link].m_jointFriction;
+	info.m_jointLowerLimit = 0;//mb->m_links[link].m_jointLowerLimit;
+	info.m_jointUpperLimit = 0;//mb->m_links[link].m_jointUpperLimit;
+	info.m_jointMaxForce = 0;//mb->m_links[link].m_jointMaxForce;
+	info.m_jointMaxVelocity = 0;//mb->m_links[link].m_jointMaxVelocity;
+
+
+	if (linearLowerLimit.isZero() && linearUpperLimit.isZero() && angularLowerLimit.isZero() && angularUpperLimit.isZero())
+	{
+		info.m_jointType = eFixedType;
+	} else
+	{
+		if (linearLowerLimit.isZero() && linearUpperLimit.isZero())
+		{
+			info.m_jointType = eRevoluteType;
+			btVector3 limitRange = angularLowerLimit.absolute()+angularUpperLimit.absolute();
+			int limitAxis = limitRange.maxAxis();
+			info.m_jointLowerLimit = angularLowerLimit[limitAxis];
+			info.m_jointUpperLimit = angularUpperLimit[limitAxis];
+		} else
+		{
+			info.m_jointType = ePrismaticType;
+			btVector3 limitRange = linearLowerLimit.absolute()+linearUpperLimit.absolute();
+			int limitAxis = limitRange.maxAxis();
+			info.m_jointLowerLimit = linearLowerLimit[limitAxis];
+			info.m_jointUpperLimit = linearUpperLimit[limitAxis];
+		}
+	}
+	
+	//if (mb->m_links[link].m_linkName) {
+	
+	
+	if ((info.m_jointType == eRevoluteType) ||
+		(info.m_jointType == ePrismaticType)) {
+		info.m_flags |= JOINT_HAS_MOTORIZED_POWER;
+	}
+	bodyJoints->m_jointInfo.push_back(info);
+
+	
+};
+
 const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
    // SharedMemoryStatus* stat = 0;
 	
@@ -460,7 +507,8 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                     b3Printf("Server loading the URDF OK\n");
                 }
 
-                if (serverCmd.m_numDataStreamBytes > 0) {
+                if (serverCmd.m_numDataStreamBytes > 0) 
+				{
                     bParse::btBulletFile bf(
                         this->m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor,
                         serverCmd.m_numDataStreamBytes);
@@ -472,12 +520,31 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                     m_data->m_bodyJointMap.insert(bodyUniqueId,bodyJoints);
 					bodyJoints->m_bodyName = serverCmd.m_dataStreamArguments.m_bodyName;
 
-                    for (int i = 0; i < bf.m_multiBodies.size(); i++) {
+					for (int i = 0; i < bf.m_constraints.size(); i++) 
+					{
+						int flag = bf.getFlags();
+                        
+                        if ((flag & bParse::FD_DOUBLE_PRECISION) != 0) 
+						{
+							Bullet::btGeneric6DofSpring2ConstraintDoubleData2* con = 
+								(Bullet::btGeneric6DofSpring2ConstraintDoubleData2*) bf.m_constraints[i];
+							addJointInfoFromConstraint(i,con,bodyJoints,m_data->m_verboseOutput);
+						} else
+						{
+							Bullet::btGeneric6DofSpring2ConstraintData* con = 
+								(Bullet::btGeneric6DofSpring2ConstraintData*) bf.m_constraints[i];
+							addJointInfoFromConstraint(i,con,bodyJoints,m_data->m_verboseOutput);
+						}
+					}
+
+                    for (int i = 0; i < bf.m_multiBodies.size(); i++) 
+					{
 
 
                         int flag = bf.getFlags();
                         
-                        if ((flag & bParse::FD_DOUBLE_PRECISION) != 0) {
+                        if ((flag & bParse::FD_DOUBLE_PRECISION) != 0) 
+						{
                             Bullet::btMultiBodyDoubleData* mb =
                                 (Bullet::btMultiBodyDoubleData*)bf.m_multiBodies[i];
 							if (mb->m_baseName)
@@ -534,6 +601,10 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
                 
                 break;
             }
+			case CMD_USER_CONSTRAINT_REQUEST_STATE_COMPLETED:
+			{
+				break;
+			}
 			case CMD_USER_CONSTRAINT_INFO_COMPLETED:
 			{
 				B3_PROFILE("CMD_USER_CONSTRAINT_INFO_COMPLETED");
@@ -581,6 +652,22 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 					if (serverCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_MAX_FORCE)
 					{
 						userConstraintPtr->m_maxAppliedForce = serverConstraint->m_maxAppliedForce;
+					}
+					if (serverCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_GEAR_RATIO)
+					{
+						userConstraintPtr->m_gearRatio = serverConstraint->m_gearRatio;
+					}
+					if (serverCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_RELATIVE_POSITION_TARGET)
+					{
+						userConstraintPtr->m_relativePositionTarget = serverConstraint->m_relativePositionTarget;
+					}
+					if (serverCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_ERP)
+					{
+						userConstraintPtr->m_erp = serverConstraint->m_erp;
+					}
+					if (serverCmd.m_updateFlags & USER_CONSTRAINT_CHANGE_GEAR_AUX_LINK)
+					{
+						userConstraintPtr->m_gearAuxLink = serverConstraint->m_gearAuxLink;
 					}
 				}
 				break;
@@ -1111,7 +1198,44 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 				b3Warning("Request getCollisionInfo failed");
 				break;
 			}
+			case CMD_CUSTOM_COMMAND_COMPLETED:
+			{
+				break;
+			}
+			case CMD_CALCULATED_JACOBIAN_COMPLETED:
+			{
+				break;
+			}
+			case CMD_CALCULATED_JACOBIAN_FAILED:
+			{
+				b3Warning("jacobian calculation failed");
+				break;
+			}
+			case CMD_CUSTOM_COMMAND_FAILED:
+			{
+				b3Warning("custom plugin command failed");
+				break;
+			}
 
+			case CMD_CALCULATED_MASS_MATRIX_FAILED:
+			{
+				b3Warning("calculate mass matrix failed");
+				break;
+			}
+			case CMD_CALCULATED_MASS_MATRIX_COMPLETED:
+			{
+				double* matrixData = (double*)&this->m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor[0];
+				m_data->m_cachedMassMatrix.resize(serverCmd.m_massMatrixResultArgs.m_dofCount*serverCmd.m_massMatrixResultArgs.m_dofCount);
+				for (int i=0;i<serverCmd.m_massMatrixResultArgs.m_dofCount*serverCmd.m_massMatrixResultArgs.m_dofCount;i++)
+				{
+					m_data->m_cachedMassMatrix[i] = matrixData[i];
+				}
+				break;
+			}
+			case CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS_COMPLETED:
+			{
+				break;
+			}
             default: {
                 b3Error("Unknown server status %d\n", serverCmd.m_type);
                 btAssert(0);
@@ -1431,6 +1555,21 @@ void PhysicsClientSharedMemory::getCachedRaycastHits(struct b3RaycastInformation
 	raycastHits->m_numRayHits = m_data->m_raycastHits.size();
 	raycastHits->m_rayHits = raycastHits->m_numRayHits? &m_data->m_raycastHits[0] : 0;
 }
+
+
+void PhysicsClientSharedMemory::getCachedMassMatrix(int dofCountCheck, double* massMatrix)
+{
+	int sz = dofCountCheck*dofCountCheck;
+	if (sz == m_data->m_cachedMassMatrix.size())
+	{
+		for (int i=0;i<sz;i++)
+		{
+			massMatrix[i] = m_data->m_cachedMassMatrix[i];
+		}
+	}
+}
+
+
 
 
 void PhysicsClientSharedMemory::getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo)
