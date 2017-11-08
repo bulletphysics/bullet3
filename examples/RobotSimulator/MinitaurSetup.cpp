@@ -128,7 +128,7 @@ int MinitaurSetup::setupMinitaur(class b3RobotSimulatorClientAPI* sim, const b3V
 	{
 		b3JointInfo jointInfo;
 		sim->getJointInfo(m_data->m_quadrupedUniqueId,i,&jointInfo);
-		if (jointInfo.m_jointName)
+		if (jointInfo.m_jointName[0])
 		{
 			m_data->m_jointNameToId.insert(jointInfo.m_jointName,i);
 		}
