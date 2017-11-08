@@ -355,6 +355,8 @@ enum b3VREventType
 #define MAX_KEYBOARD_EVENTS 256
 #define MAX_MOUSE_EVENTS 256
 
+#define MAX_SDF_BODIES 1024
+
 
 enum b3VRButtonInfo
 {
