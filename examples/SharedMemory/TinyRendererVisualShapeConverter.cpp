@@ -1142,6 +1142,7 @@ int TinyRendererVisualShapeConverter::registerTexture(unsigned char* texels, int
     texData.m_width = width;
     texData.m_height = height;
     texData.textureData1 = texels;
+	texData.m_isCached = false;
     m_data->m_textures.push_back(texData);
     return m_data->m_textures.size()-1;
 }
