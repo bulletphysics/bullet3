@@ -411,6 +411,8 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 
 	BT_PROFILE("solveConstraints");
 	
+	clearMultiBodyConstraintForces();
+
 	m_sortedConstraints.resize( m_constraints.size());
 	int i; 
 	for (i=0;i<getNumConstraints();i++)
@@ -669,7 +671,7 @@ void	btMultiBodyDynamicsWorld::solveConstraints(btContactSolverInfo& solverInfo)
 		}
 	}
 
-	clearMultiBodyConstraintForces();
+	
 
 	m_solverMultiBodyIslandCallback->processConstraints();
 	

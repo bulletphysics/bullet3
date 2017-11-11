@@ -136,6 +136,9 @@ btMultiBody::btMultiBody(int n_links,
 
     m_baseForce.setValue(0, 0, 0);
     m_baseTorque.setValue(0, 0, 0);
+
+	clearConstraintForces();
+	clearForcesAndTorques();
 }
 
 btMultiBody::~btMultiBody()
