@@ -200,17 +200,20 @@ static int pybullet_internalSetVector4d(PyObject* obVec, double vector[4])
 		return 0;
 
 	seq = PySequence_Fast(obVec, "expected a sequence");
-	len = PySequence_Size(obVec);
-	if (len == 4)
+	if (seq)
 	{
-		for (i = 0; i < len; i++)
+		len = PySequence_Size(obVec);
+		if (len == 4)
 		{
-			vector[i] = pybullet_internalGetFloatFromSequence(seq, i);
+			for (i = 0; i < len; i++)
+			{
+				vector[i] = pybullet_internalGetFloatFromSequence(seq, i);
+			}
+			Py_DECREF(seq);
+			return 1;
 		}
 		Py_DECREF(seq);
-		return 1;
 	}
-	Py_DECREF(seq);
 	return 0;
 }
 
@@ -5155,10 +5158,16 @@ static PyObject* pybullet_changeUserConstraint(PyObject* self, PyObject* args, P
 	if (pybullet_internalSetVectord(jointChildPivotObj, jointChildPivot))
 	{
 		b3InitChangeUserConstraintSetPivotInB(commandHandle, jointChildPivot);
+	} else
+	{
+		return NULL;
 	}
 	if (pybullet_internalSetVector4d(jointChildFrameOrnObj, jointChildFrameOrn))
 	{
 		b3InitChangeUserConstraintSetFrameInB(commandHandle, jointChildFrameOrn);
+	} else
+	{
+		return NULL;
 	}
 
 	if (relativePositionTarget<1e10)

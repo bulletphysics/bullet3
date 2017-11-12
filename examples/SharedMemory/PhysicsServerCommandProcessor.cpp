@@ -5542,7 +5542,7 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 								hasStatus = true;
 							} else
 							{
-								b3Warning("Request state but no multibody or rigid body available");
+								//b3Warning("Request state but no multibody or rigid body available");
 								SharedMemoryStatus& serverCmd = serverStatusOut;
 								serverCmd.m_type = CMD_ACTUAL_STATE_UPDATE_FAILED;
 								hasStatus = true;
