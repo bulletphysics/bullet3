@@ -18,6 +18,7 @@ class MJCFBaseBulletEnv(gym.Env):
 	def __init__(self, robot, render=False):
 		self.scene = None
 		self.physicsClientId=-1
+		self.ownsPhysicsClient = 0
 		self.camera = Camera()
 		self.isRender = render
 		self.robot = robot
@@ -39,17 +40,24 @@ class MJCFBaseBulletEnv(gym.Env):
 
 	def _reset(self):
 		if (self.physicsClientId<0):
-			self.physicsClientId = p.connect(p.SHARED_MEMORY)
-			if (self.physicsClientId<0):
-				if (self.isRender):
-					self.physicsClientId = p.connect(p.GUI)
-				else:
-					self.physicsClientId = p.connect(p.DIRECT)
-		p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
+			conInfo = p.getConnectionInfo()
+			if (conInfo['isConnected']):
+				self.ownsPhysicsClient = False
+				
+				self.physicsClientId = 0
+			else:
+				self.ownsPhysicsClient = True
+				self.physicsClientId = p.connect(p.SHARED_MEMORY)
+				if (self.physicsClientId<0):
+					if (self.isRender):
+						self.physicsClientId = p.connect(p.GUI)
+					else:
+						self.physicsClientId = p.connect(p.DIRECT)
+				p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
 
 		if self.scene is None:
 			self.scene = self.create_single_player_scene()
-		if not self.scene.multiplayer:
+		if not self.scene.multiplayer and self.ownsPhysicsClient:
 			self.scene.episode_restart()
 
 		self.robot.scene = self.scene
@@ -93,9 +101,10 @@ class MJCFBaseBulletEnv(gym.Env):
 		return rgb_array
 
 	def _close(self):
-		if (self.physicsClientId>=0):
-			p.disconnect(self.physicsClientId)
-			self.physicsClientId = -1
+		if (self.ownsPhysicsClient):
+			if (self.physicsClientId>=0):
+				p.disconnect(self.physicsClientId)
+		self.physicsClientId = -1
 
 	def HUD(self, state, a, done):
 		pass
