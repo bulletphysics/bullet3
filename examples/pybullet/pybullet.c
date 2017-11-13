@@ -130,6 +130,7 @@ static int pybullet_internalSetMatrix(PyObject* objMat, float matrix[16])
 		}
 		Py_DECREF(seq);
 	}
+	PyErr_Clear();
 	return 0;
 }
 
@@ -162,6 +163,7 @@ static int pybullet_internalSetVector(PyObject* objVec, float vector[3])
 		}
 		Py_DECREF(seq);
 	}
+	PyErr_Clear();
 	return 0;
 }
 
@@ -188,6 +190,7 @@ static int pybullet_internalSetVectord(PyObject* obVec, double vector[3])
 		}
 		Py_DECREF(seq);
 	}
+	PyErr_Clear();
 	return 0;
 }
 
@@ -214,6 +217,7 @@ static int pybullet_internalSetVector4d(PyObject* obVec, double vector[4])
 		}
 		Py_DECREF(seq);
 	}
+	PyErr_Clear();
 	return 0;
 }
 
@@ -5158,16 +5162,11 @@ static PyObject* pybullet_changeUserConstraint(PyObject* self, PyObject* args, P
 	if (pybullet_internalSetVectord(jointChildPivotObj, jointChildPivot))
 	{
 		b3InitChangeUserConstraintSetPivotInB(commandHandle, jointChildPivot);
-	} else
-	{
-		return NULL;
 	}
+
 	if (pybullet_internalSetVector4d(jointChildFrameOrnObj, jointChildFrameOrn))
 	{
 		b3InitChangeUserConstraintSetFrameInB(commandHandle, jointChildFrameOrn);
-	} else
-	{
-		return NULL;
 	}
 
 	if (relativePositionTarget<1e10)
