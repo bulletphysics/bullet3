@@ -772,12 +772,13 @@ void TinyRendererVisualShapeConverter::resetCamera(float camDist, float yaw, flo
 
 void TinyRendererVisualShapeConverter::clearBuffers(TGAColor& clearColor)
 {
+	float farPlane = m_data->m_camera.getCameraFrustumFar();
     for(int y=0;y<m_data->m_swHeight;++y)
     {
         for(int x=0;x<m_data->m_swWidth;++x)
         {
             m_data->m_rgbColorBuffer.set(x,y,clearColor);
-            m_data->m_depthBuffer[x+y*m_data->m_swWidth] = -1e30f;
+            m_data->m_depthBuffer[x+y*m_data->m_swWidth] = -farPlane;
             m_data->m_shadowBuffer[x+y*m_data->m_swWidth] = -1e30f;
             m_data->m_segmentationMaskBuffer[x+y*m_data->m_swWidth] = -1;
         }
@@ -806,13 +807,13 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
     clearColor.bgra[2] = 255;
     clearColor.bgra[3] = 255;
     
-    clearBuffers(clearColor);
 	float near = projMat[14]/(projMat[10]-1);
 	float far = projMat[14]/(projMat[10]+1);
 
 	m_data->m_camera.setCameraFrustumNear( near);
 	m_data->m_camera.setCameraFrustumFar(far);
-		
+
+	clearBuffers(clearColor);	
     
     ATTRIBUTE_ALIGNED16(btScalar modelMat[16]);
     
