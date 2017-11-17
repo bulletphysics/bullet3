@@ -1031,12 +1031,15 @@ void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixels
 				
 				// TinyRenderer returns clip coordinates, transform to eye coordinates first
 				float z_c = -m_data->m_depthBuffer[i+startPixelIndex];
-				float distance = (farPlane - nearPlane) / (farPlane + nearPlane) * (z_c + 2. * farPlane * nearPlane / (farPlane - nearPlane));
+				// float distance = (farPlane - nearPlane) / (farPlane + nearPlane) * (z_c + 2. * farPlane * nearPlane / (farPlane - nearPlane));
 				                
-                // the depth buffer value is between 0 and 1
-                float a = farPlane / (farPlane - nearPlane);
-                float b = farPlane * nearPlane / (nearPlane - farPlane);
-                depthBuffer[i] = a + b / distance;
+                // The depth buffer value is between 0 and 1
+                // float a = farPlane / (farPlane - nearPlane);
+                // float b = farPlane * nearPlane / (nearPlane - farPlane);
+                // depthBuffer[i] = a + b / distance;
+
+				// Simply the above expressions
+				depthBuffer[i] = farPlane * (nearPlane + z_c) / (2. * farPlane * nearPlane + farPlane * z_c - nearPlane * z_c);
 			}
 			if (segmentationMaskBuffer)
             {
