@@ -91,7 +91,7 @@ public:
 	VectorR4& operator*= ( double m ) 
 		{ x*=m; y*=m; z*=m; w*=m;  return(*this); }
 	VectorR4& operator/= ( double m ) 
-			{ register double mInv = 1.0/m; 
+			{  double mInv = 1.0/m; 
 			  x*=mInv; y*=mInv; z*=mInv; w*=mInv;
 			  return(*this); }
 	VectorR4 operator- () const { return ( VectorR4(-x, -y, -z, -w) ); }
@@ -109,10 +109,10 @@ public:
 	inline VectorR4& MakeUnit();		// Normalize() with error checking
 	inline VectorR4& ReNormalize();
 	bool IsUnit( ) const
-		{ register double norm = Norm();
+		{  double norm = Norm();
 		  return ( 1.000001>=norm && norm>=0.999999 ); }
 	bool IsUnit( double tolerance ) const
-		{ register double norm = Norm();
+		{  double norm = Norm();
 		  return ( 1.0+tolerance>=norm && norm>=1.0-tolerance ); }
 	bool IsZero() const { return ( x==0.0 && y==0.0 && z==0.0 && w==0.0); }
 	bool NearZero(double tolerance) const { return( MaxAbs()<=tolerance );}
@@ -428,17 +428,17 @@ inline VectorR4 operator-( const VectorR4& u, const VectorR4& v )
 { 
 	return VectorR4(u.x-v.x, u.y-v.y, u.z-v.z, u.w-v.w); 
 }
-inline VectorR4 operator*( const VectorR4& u, register double m) 
+inline VectorR4 operator*( const VectorR4& u,  double m) 
 { 
 	return VectorR4( u.x*m, u.y*m, u.z*m, u.w*m ); 
 }
-inline VectorR4 operator*( register double m, const VectorR4& u) 
+inline VectorR4 operator*(  double m, const VectorR4& u) 
 { 
 	return VectorR4( u.x*m, u.y*m, u.z*m, u.w*m ); 
 }
 inline VectorR4 operator/( const VectorR4& u, double m) 
 { 
-	register double mInv = 1.0/m;
+	 double mInv = 1.0/m;
 	return VectorR4( u.x*mInv, u.y*mInv, u.z*mInv, u.w*mInv ); 
 }
 
@@ -486,14 +486,14 @@ inline VectorR4& VectorR4::AddScaled( const VectorR4& u, double s )
 inline VectorR4& VectorR4::ReNormalize()			// Convert near unit back to unit
 {
 	double nSq = NormSq();
-	register double mFact = 1.0-0.5*(nSq-1.0);	// Multiplicative factor
+	 double mFact = 1.0-0.5*(nSq-1.0);	// Multiplicative factor
 	*this *= mFact;
 	return *this;
 }
 
 inline double NormalizeError (const VectorR4& u)
 {
-	register double discrepancy;
+	 double discrepancy;
 	discrepancy = u.x*u.x + u.y*u.y + u.z*u.z + u.w*u.w - 1.0;
 	if ( discrepancy < 0.0 ) {
 		discrepancy = -discrepancy;
@@ -796,7 +796,7 @@ inline double Matrix4x4::Diagonal( int i )
 
 inline void Matrix4x4::MakeTranspose()	// Transposes it.
 {
-	register double temp;
+	 double temp;
 	temp = m12;
 	m12 = m21;
 	m21=temp;
@@ -924,7 +924,7 @@ inline LinearMapR4 operator- (const LinearMapR4& A, const LinearMapR4& B)
 						 A.m14-B.m14, A.m24-B.m24, A.m34-B.m34, A.m44-B.m44 ) );
 }
 
-inline LinearMapR4& LinearMapR4::operator*= (register double b)
+inline LinearMapR4& LinearMapR4::operator*= ( double b)
 {
 	m11 *= b;
 	m12 *= b;
@@ -945,7 +945,7 @@ inline LinearMapR4& LinearMapR4::operator*= (register double b)
 	return ( *this);
 }
 
-inline LinearMapR4 operator* ( const LinearMapR4& A, register double b)
+inline LinearMapR4 operator* ( const LinearMapR4& A,  double b)
 {
 	return( LinearMapR4( A.m11*b, A.m21*b, A.m31*b, A.m41*b,
 						 A.m12*b, A.m22*b, A.m32*b, A.m42*b,
@@ -953,7 +953,7 @@ inline LinearMapR4 operator* ( const LinearMapR4& A, register double b)
 						 A.m14*b, A.m24*b, A.m34*b, A.m44*b) );
 }
 
-inline LinearMapR4 operator* ( register double b, const LinearMapR4& A)
+inline LinearMapR4 operator* (  double b, const LinearMapR4& A)
 {
 	return( LinearMapR4( A.m11*b, A.m21*b, A.m31*b, A.m41*b,
 						 A.m12*b, A.m22*b, A.m32*b, A.m42*b,
@@ -963,13 +963,13 @@ inline LinearMapR4 operator* ( register double b, const LinearMapR4& A)
 
 inline LinearMapR4 operator/ ( const LinearMapR4& A, double b)
 {
-	register double bInv = 1.0/b;
+	 double bInv = 1.0/b;
 	return ( A*bInv );
 }
 
-inline LinearMapR4& LinearMapR4::operator/= (register double b)
+inline LinearMapR4& LinearMapR4::operator/= ( double b)
 {
-	register double bInv = 1.0/b;
+	 double bInv = 1.0/b;
 	return ( *this *= bInv );
 }
 

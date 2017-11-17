@@ -1752,8 +1752,8 @@ void	PhysicsServerExample::initPhysics()
 	
 			
 			m_canvasRGBIndex = m_canvas->createCanvas("Synthetic Camera RGB data",gCamVisualizerWidth, gCamVisualizerHeight);
-			//m_canvasDepthIndex = m_canvas->createCanvas("Synthetic Camera Depth data",gCamVisualizerWidth, gCamVisualizerHeight);
-			//m_canvasSegMaskIndex = m_canvas->createCanvas("Synthetic Camera Segmentation Mask",gCamVisualizerWidth, gCamVisualizerHeight);
+			m_canvasDepthIndex = m_canvas->createCanvas("Synthetic Camera Depth data",gCamVisualizerWidth, gCamVisualizerHeight);
+			m_canvasSegMaskIndex = m_canvas->createCanvas("Synthetic Camera Segmentation Mask",gCamVisualizerWidth, gCamVisualizerHeight);
 
 			for (int i=0;i<gCamVisualizerWidth;i++)
 			{
@@ -1898,6 +1898,60 @@ void	PhysicsServerExample::updateGraphics()
 		int flag = m_multiThreadedHelper->m_visualizerFlag;
 		int enable = m_multiThreadedHelper->m_visualizerEnable;
 
+		if (flag == COV_ENABLE_RGB_BUFFER_PREVIEW)
+		{
+			if (enable)
+			{
+				if (m_canvasRGBIndex<0)
+				{
+					m_canvasRGBIndex = m_canvas->createCanvas("Synthetic Camera RGB data",gCamVisualizerWidth, gCamVisualizerHeight);
+				}
+			} else
+			{
+				if (m_canvasRGBIndex>=0)
+				{
+					m_canvas->destroyCanvas(m_canvasRGBIndex);
+					m_canvasRGBIndex = -1;
+				}
+			}
+		}
+
+		if (flag == COV_ENABLE_DEPTH_BUFFER_PREVIEW)
+		{
+			if (enable)
+			{
+				if (m_canvasDepthIndex<0)
+				{
+					m_canvasDepthIndex = m_canvas->createCanvas("Synthetic Camera Depth data",gCamVisualizerWidth, gCamVisualizerHeight);
+				}
+			} else
+			{
+				if (m_canvasDepthIndex>=0)
+				{
+					m_canvas->destroyCanvas(m_canvasDepthIndex);
+					m_canvasDepthIndex = -1;
+				}
+			}
+		}
+
+		if (flag == COV_ENABLE_SEGMENTATION_MARK_PREVIEW)
+		{
+			if (enable)
+			{
+				if (m_canvasSegMaskIndex<0)
+				{
+					m_canvasSegMaskIndex = m_canvas->createCanvas("Synthetic Camera Segmentation Mask",gCamVisualizerWidth, gCamVisualizerHeight);
+				}
+			} else
+			{
+				if (m_canvasSegMaskIndex>=0)
+				{
+					m_canvas->destroyCanvas(m_canvasSegMaskIndex);
+					m_canvasSegMaskIndex = -1;
+				}
+			}
+		}
+		
 		if (flag==COV_ENABLE_VR_TELEPORTING)
 		{
 			gEnableTeleporting = (enable!=0);
