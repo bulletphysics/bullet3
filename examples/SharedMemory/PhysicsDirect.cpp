@@ -903,7 +903,7 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 	}
 	case CMD_CHANGE_USER_CONSTRAINT_FAILED:
 	{
-		b3Warning("changeConstraint failed");
+		//b3Warning("changeConstraint failed");
 		break;
 	}
 

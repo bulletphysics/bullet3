@@ -688,7 +688,7 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 			case CMD_CHANGE_USER_CONSTRAINT_FAILED:
 			{
 				B3_PROFILE("CMD_CHANGE_USER_CONSTRAINT_FAILED");
-				b3Warning("changeConstraint failed");
+				//b3Warning("changeConstraint failed");
 				break;
 			}
 			case CMD_ACTUAL_STATE_UPDATE_FAILED:

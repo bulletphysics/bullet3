@@ -12,12 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Executable scripts for reinforcement learning."""
+"""Proximal Policy Optimization algorithm."""
 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from . import train_ppo
-from . import utility
-from . import visualize
+from .algorithm import PPOAlgorithm

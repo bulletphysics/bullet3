@@ -17,6 +17,7 @@ class MJCFBasedRobot:
 
 	def __init__(self, model_xml, robot_name, action_dim, obs_dim):
 		self.parts = None
+		self.objects = []
 		self.jdict = None
 		self.ordered_joints = None
 		self.robot_body = None
@@ -85,13 +86,15 @@ class MJCFBasedRobot:
 
 	def reset(self):
 		self.ordered_joints = []
-
+		for ob in self.objects:
+			p.removeBody(ob)
+		
 		if self.self_collision:
-			self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(
-				p.loadMJCF(os.path.join(pybullet_data.getDataPath(),"mjcf", self.model_xml), flags=p.URDF_USE_SELF_COLLISION+p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS))
+			self.objects = p.loadMJCF(os.path.join(pybullet_data.getDataPath(),"mjcf", self.model_xml), flags=p.URDF_USE_SELF_COLLISION+p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
+			self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(self.objects	)
 		else:
-			self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(
-				p.loadMJCF(os.path.join(pybullet_data.getDataPath(),"mjcf", self.model_xml)))
+			self.objects = p.loadMJCF(os.path.join(pybullet_data.getDataPath(),"mjcf", self.model_xml))
+			self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(self.objects)
 
 		self.robot_specific_reset()
 
