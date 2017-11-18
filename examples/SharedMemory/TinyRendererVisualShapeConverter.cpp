@@ -772,12 +772,13 @@ void TinyRendererVisualShapeConverter::resetCamera(float camDist, float yaw, flo
 
 void TinyRendererVisualShapeConverter::clearBuffers(TGAColor& clearColor)
 {
+	float farPlane = m_data->m_camera.getCameraFrustumFar();
     for(int y=0;y<m_data->m_swHeight;++y)
     {
         for(int x=0;x<m_data->m_swWidth;++x)
         {
             m_data->m_rgbColorBuffer.set(x,y,clearColor);
-            m_data->m_depthBuffer[x+y*m_data->m_swWidth] = -1e30f;
+            m_data->m_depthBuffer[x+y*m_data->m_swWidth] = -farPlane;
             m_data->m_shadowBuffer[x+y*m_data->m_swWidth] = -1e30f;
             m_data->m_segmentationMaskBuffer[x+y*m_data->m_swWidth] = -1;
         }
@@ -806,13 +807,13 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
     clearColor.bgra[2] = 255;
     clearColor.bgra[3] = 255;
     
-    clearBuffers(clearColor);
 	float near = projMat[14]/(projMat[10]-1);
 	float far = projMat[14]/(projMat[10]+1);
 
 	m_data->m_camera.setCameraFrustumNear( near);
 	m_data->m_camera.setCameraFrustumFar(far);
-		
+
+	clearBuffers(clearColor);	
     
     ATTRIBUTE_ALIGNED16(btScalar modelMat[16]);
     
@@ -1025,16 +1026,20 @@ void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixels
         {
 			if (depthBuffer)
 			{
-                float distance = -m_data->m_depthBuffer[i+startPixelIndex];
                 float farPlane = m_data->m_camera.getCameraFrustumFar();
                 float nearPlane = m_data->m_camera.getCameraFrustumNear();
-                
-                btClamp(distance,nearPlane,farPlane);
-                
-                // the depth buffer value is between 0 and 1
-                float a = farPlane / (farPlane - nearPlane);
-                float b = farPlane * nearPlane / (nearPlane - farPlane);
-                depthBuffer[i] = a + b / distance;
+				
+				// TinyRenderer returns clip coordinates, transform to eye coordinates first
+				float z_c = -m_data->m_depthBuffer[i+startPixelIndex];
+				// float distance = (farPlane - nearPlane) / (farPlane + nearPlane) * (z_c + 2. * farPlane * nearPlane / (farPlane - nearPlane));
+				                
+                // The depth buffer value is between 0 and 1
+                // float a = farPlane / (farPlane - nearPlane);
+                // float b = farPlane * nearPlane / (nearPlane - farPlane);
+                // depthBuffer[i] = a + b / distance;
+
+				// Simply the above expressions
+				depthBuffer[i] = farPlane * (nearPlane + z_c) / (2. * farPlane * nearPlane + farPlane * z_c - nearPlane * z_c);
 			}
 			if (segmentationMaskBuffer)
             {
