@@ -30,8 +30,8 @@ bool gActivedVRRealTimeSimulation = false;
 
 bool gEnableSyncPhysicsRendering= true;
 bool gEnableUpdateDebugDrawLines = true;
-static int gCamVisualizerWidth = 320;
-static int gCamVisualizerHeight = 240;
+static int gCamVisualizerWidth = 228;
+static int gCamVisualizerHeight = 192;
 
 static bool gEnableDefaultKeyboardShortcuts = true;
 static bool gEnableDefaultMousePicking = true;
@@ -1751,9 +1751,9 @@ void	PhysicsServerExample::initPhysics()
 		{
 	
 			
-			m_canvasRGBIndex = m_canvas->createCanvas("Synthetic Camera RGB data",gCamVisualizerWidth, gCamVisualizerHeight);
-			m_canvasDepthIndex = m_canvas->createCanvas("Synthetic Camera Depth data",gCamVisualizerWidth, gCamVisualizerHeight);
-			m_canvasSegMaskIndex = m_canvas->createCanvas("Synthetic Camera Segmentation Mask",gCamVisualizerWidth, gCamVisualizerHeight);
+			m_canvasRGBIndex = m_canvas->createCanvas("Synthetic Camera RGB data",gCamVisualizerWidth, gCamVisualizerHeight, 8,55);
+			m_canvasDepthIndex = m_canvas->createCanvas("Synthetic Camera Depth data",gCamVisualizerWidth, gCamVisualizerHeight,8,75+gCamVisualizerHeight);
+			m_canvasSegMaskIndex = m_canvas->createCanvas("Synthetic Camera Segmentation Mask",gCamVisualizerWidth, gCamVisualizerHeight,8,95+gCamVisualizerHeight*2);
 
 			for (int i=0;i<gCamVisualizerWidth;i++)
 			{
@@ -1904,7 +1904,7 @@ void	PhysicsServerExample::updateGraphics()
 			{
 				if (m_canvasRGBIndex<0)
 				{
-					m_canvasRGBIndex = m_canvas->createCanvas("Synthetic Camera RGB data",gCamVisualizerWidth, gCamVisualizerHeight);
+					m_canvasRGBIndex = m_canvas->createCanvas("Synthetic Camera RGB data",gCamVisualizerWidth, gCamVisualizerHeight, 8,55);
 				}
 			} else
 			{
@@ -1922,7 +1922,7 @@ void	PhysicsServerExample::updateGraphics()
 			{
 				if (m_canvasDepthIndex<0)
 				{
-					m_canvasDepthIndex = m_canvas->createCanvas("Synthetic Camera Depth data",gCamVisualizerWidth, gCamVisualizerHeight);
+					m_canvasDepthIndex = m_canvas->createCanvas("Synthetic Camera Depth data",gCamVisualizerWidth, gCamVisualizerHeight,8,75+gCamVisualizerHeight);
 				}
 			} else
 			{
@@ -1940,7 +1940,7 @@ void	PhysicsServerExample::updateGraphics()
 			{
 				if (m_canvasSegMaskIndex<0)
 				{
-					m_canvasSegMaskIndex = m_canvas->createCanvas("Synthetic Camera Segmentation Mask",gCamVisualizerWidth, gCamVisualizerHeight);
+					m_canvasSegMaskIndex = m_canvas->createCanvas("Synthetic Camera Segmentation Mask",gCamVisualizerWidth, gCamVisualizerHeight,8,95+gCamVisualizerHeight*2);
 				}
 			} else
 			{

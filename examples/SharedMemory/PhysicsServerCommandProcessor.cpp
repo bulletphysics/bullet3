@@ -60,9 +60,6 @@
 #endif
 
 
-//@todo(erwincoumans) those globals are hacks for a VR demo, move this to Python/pybullet!
-btVector3 gLastPickPos(0, 0, 0);
-
 
 int gInternalSimFlags = 0;
 bool gResetSimulation = 0;
@@ -1604,49 +1601,6 @@ struct PhysicsServerCommandProcessorInternalData
 		m_userVisualShapeHandles.exitHandles();
 		m_userVisualShapeHandles.initHandles();
 
-#if 0
-		btAlignedObjectArray<int> bla;
-
-		for (int i=0;i<1024;i++)
-		{
-			int handle = allocHandle();
-			bla.push_back(handle);
-			InternalBodyHandle* body = getHandle(handle);
-			InternalBodyData* body2 = body;
-		}
-		for (int i=0;i<bla.size();i++)
-		{
-			freeHandle(bla[i]);
-		}
-
-		bla.resize(0);
-
-		for (int i=0;i<1024;i++)
-		{
-			int handle = allocHandle();
-			bla.push_back(handle);
-			InternalBodyHandle* body = getHandle(handle);
-			InternalBodyData* body2 = body;
-		}
-		for (int i=0;i<bla.size();i++)
-		{
-			freeHandle(bla[i]);
-		}
-		bla.resize(0);
-
-		for (int i=0;i<1024;i++)
-		{
-			int handle = allocHandle();
-			bla.push_back(handle);
-			InternalBodyHandle* body = getHandle(handle);
-			InternalBodyData* body2 = body;
-		}
-		for (int i=0;i<bla.size();i++)
-		{
-			freeHandle(bla[i]);
-		}
-#endif
-
 	}
 
     btInverseDynamics::MultiBodyTree* findOrCreateTree(btMultiBody* multiBody)
@@ -2747,11 +2701,8 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 	u2b.setEnableTinyRenderer(m_data->m_enableTinyRenderer);
     bool loadOk =  u2b.loadURDF(fileName, useFixedBase);
 
-
     if (loadOk)
     {
-
-#if 1
 		btTransform rootTrans;
 		rootTrans.setOrigin(pos);
 		rootTrans.setRotation(orn);
@@ -2762,188 +2713,11 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 			if (m_data->m_sdfRecentLoadedBodies.size()==1)
 			{
 				*bodyUniqueIdPtr = m_data->m_sdfRecentLoadedBodies[0];
-
 			}
 			m_data->m_sdfRecentLoadedBodies.clear();
 		}
 		return ok;
-#else
-
-		//get a body index
-		int bodyUniqueId = m_data->m_bodyHandles.allocHandle();
-		if (bodyUniqueIdPtr)
-			*bodyUniqueIdPtr= bodyUniqueId;
-
-		//quick prototype of 'save world' for crude world editing
-		{
-			SaveWorldObjectData sd;
-			sd.m_fileName = fileName;
-			sd.m_bodyUniqueIds.push_back(bodyUniqueId);
-			m_data->m_saveWorldBodyData.push_back(sd);
-		}
-
-        u2b.setBodyUniqueId(bodyUniqueId);
-		InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(bodyUniqueId);
-		
-
-
-        {
-            btScalar mass = 0;
-            bodyHandle->m_rootLocalInertialFrame.setIdentity();
-            btVector3 localInertiaDiagonal(0,0,0);
-            int urdfLinkIndex = u2b.getRootLinkIndex();
-            u2b.getMassAndInertia(urdfLinkIndex, mass,localInertiaDiagonal,bodyHandle->m_rootLocalInertialFrame);
-        }
-		if (m_data->m_verboseOutput)
-		{
-			b3Printf("loaded %s OK!", fileName);
-		}
-
-        btTransform tr;
-        tr.setIdentity();
-        tr.setOrigin(pos);
-        tr.setRotation(orn);
-        //int rootLinkIndex = u2b.getRootLinkIndex();
-        //                      printf("urdf root link index = %d\n",rootLinkIndex);
-		MyMultiBodyCreator creation(m_data->m_guiHelper);
-
-		flags |= URDF_ORDER_TYPED_CONSTRAINT;
-
-        ConvertURDF2Bullet(u2b,creation, tr,m_data->m_dynamicsWorld,useMultiBody,u2b.getPathPrefix(),flags);
-
-        for (int i=0;i<u2b.getNumAllocatedCollisionShapes();i++)
-        {
-            btCollisionShape* shape =u2b.getAllocatedCollisionShape(i);
-            m_data->m_collisionShapes.push_back(shape);
-        }
-
-        btMultiBody* mb = creation.getBulletMultiBody();
-        btRigidBody* rb = creation.getRigidBody();
-		
-		bodyHandle->m_bodyName = u2b.getBodyName();
-
-		if (useMultiBody)
-		{
-
-
-			if (mb)
-			{
-				mb->setUserIndex2(bodyUniqueId);
-				bodyHandle->m_multiBody = mb;
-
-				if (flags & URDF_USE_SELF_COLLISION)
-				{
-					mb->setHasSelfCollision(true);
-				}
-				createJointMotors(mb);
-
-#ifdef B3_ENABLE_TINY_AUDIO
-				{
-					SDFAudioSource audioSource;
-					int urdfRootLink = u2b.getRootLinkIndex();//LinkIndex = creation.m_mb2urdfLink[-1];
-					if (u2b.getLinkAudioSource(urdfRootLink,audioSource))
-					{
-						int flags = mb->getBaseCollider()->getCollisionFlags();
-						mb->getBaseCollider()->setCollisionFlags(flags | btCollisionObject::CF_HAS_COLLISION_SOUND_TRIGGER);
-						audioSource.m_userIndex = m_data->m_soundEngine.loadWavFile(audioSource.m_uri.c_str());
-						if (audioSource.m_userIndex>=0)
-						{
-							bodyHandle->m_audioSources.insert(-1, audioSource);
-						}
-					}
-				}
-#endif
-
-				//serialize the btMultiBody and send the data to the client. This is one way to get the link/joint names across the (shared memory) wire
-			    UrdfLinkNameMapUtil* util = new UrdfLinkNameMapUtil;
-			    m_data->m_urdfLinkNameMapper.push_back(util);
-			    util->m_mb = mb;
-				for (int i = 0; i < bufferSizeInBytes; i++)
-				{
-					bufferServerToClient[i] = 0;//0xcc;
-				}
-			    util->m_memSerializer = new btDefaultSerializer(bufferSizeInBytes ,(unsigned char*)bufferServerToClient);
-			    //disable serialization of the collision objects (they are too big, and the client likely doesn't need them);
-				util->m_memSerializer->m_skipPointers.insert(mb->getBaseCollider(),0);
-
-				util->m_memSerializer->startSerialization();
-
-
-                bodyHandle->m_linkLocalInertialFrames.reserve(mb->getNumLinks());
-			    for (int i=0;i<mb->getNumLinks();i++)
-                {
-					int link=i;
-					//disable serialization of the collision objects
-                   util->m_memSerializer->m_skipPointers.insert(mb->getLink(i).m_collider,0);
-				   int urdfLinkIndex = creation.m_mb2urdfLink[i];
-				   btScalar mass;
-                   btVector3 localInertiaDiagonal(0,0,0);
-                   btTransform localInertialFrame;
-				   u2b.getMassAndInertia(urdfLinkIndex, mass,localInertiaDiagonal,localInertialFrame);
-				   bodyHandle->m_linkLocalInertialFrames.push_back(localInertialFrame);
-
-				   std::string* linkName = new std::string(u2b.getLinkName(urdfLinkIndex).c_str());
-				   m_data->m_strings.push_back(linkName);
-				   util->m_memSerializer->registerNameForPointer(linkName->c_str(),linkName->c_str());
-				   mb->getLink(i).m_linkName = linkName->c_str();
-
-				   std::string* jointName = new std::string(u2b.getJointName(urdfLinkIndex).c_str());
-				   m_data->m_strings.push_back(jointName);
-				   util->m_memSerializer->registerNameForPointer(jointName->c_str(),jointName->c_str());
-				   mb->getLink(i).m_jointName = jointName->c_str();
-#ifdef B3_ENABLE_TINY_AUDIO
-				   {
-						SDFAudioSource audioSource;
-						int urdfLinkIndex = creation.m_mb2urdfLink[link];
-						if (u2b.getLinkAudioSource(urdfLinkIndex,audioSource))
-						{
-							int flags = mb->getLink(link).m_collider->getCollisionFlags();
-							mb->getLink(i).m_collider->setCollisionFlags(flags | btCollisionObject::CF_HAS_COLLISION_SOUND_TRIGGER);
-							audioSource.m_userIndex = m_data->m_soundEngine.loadWavFile(audioSource.m_uri.c_str());
-							if (audioSource.m_userIndex>=0)
-							{
-								bodyHandle->m_audioSources.insert(link, audioSource);
-							}
-						}
-					}
-#endif
-				}
-
-			   std::string* baseName = new std::string(u2b.getLinkName(u2b.getRootLinkIndex()));
-				m_data->m_strings.push_back(baseName);
-
-				mb->setBaseName(baseName->c_str());
-
-				util->m_memSerializer->registerNameForPointer(baseName->c_str(),baseName->c_str());
-
-				
-
-                int len = mb->calculateSerializeBufferSize();
-                btChunk* chunk = util->m_memSerializer->allocate(len,1);
-                const char* structType = mb->serialize(chunk->m_oldPtr, util->m_memSerializer);
-                util->m_memSerializer->finalizeChunk(chunk,structType,BT_MULTIBODY_CODE,mb);
-
-				
-				
-                return true;
-			} else
-			{
-				b3Warning("No multibody loaded from URDF. Could add btRigidBody+btTypedConstraint solution later.");
-				return false;
-			}
-
-		} else
-		{
-            if (rb)
-            {
-                bodyHandle->m_rigidBody = rb;
-				rb->setUserIndex2(bodyUniqueId);
-                return true;
-            }
-		}
-		#endif
     }
-	
     return false;
 }
 
@@ -3017,14 +2791,7 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
 			for (int i=0;i<bodyHandle->m_rigidBodyJoints.size();i++)
 			{
 				const btGeneric6DofSpring2Constraint* con = bodyHandle->m_rigidBodyJoints.at(i);
-#if 0
-				const btRigidBody& bodyA = con->getRigidBodyA();
-				const btRigidBody& bodyB = con->getRigidBodyB();
-				int len = bodyA.calculateSerializeBufferSize();
-				btChunk* chunk = util->m_memSerializer->allocate(len,1);
-				const char* structType = bodyA.serialize(chunk->m_oldPtr, util->m_memSerializer);
-				util->m_memSerializer->finalizeChunk(chunk,structType,BT_RIGIDBODY_CODE,(void*)&bodyA);
-#endif
+
 				util->m_memSerializer->registerNameForPointer(con,bodyHandle->m_rigidBodyJointNames[i].c_str());
 				util->m_memSerializer->registerNameForPointer(&con->getRigidBodyB(),bodyHandle->m_rigidBodyLinkNames[i].c_str());
 
@@ -3037,27 +2804,7 @@ int PhysicsServerCommandProcessor::createBodyInfoStream(int bodyUniqueId, char* 
 			}
 
 			streamSizeInBytes = util->m_memSerializer->getCurrentBufferSize();
-#if 0
-        util->m_memSerializer->m_skipPointers.insert(mb->getBaseCollider(),0);
-		if (mb->getBaseName())
-		{
-			util->m_memSerializer->registerNameForPointer(mb->getBaseName(),mb->getBaseName());
-		}
-        bodyHandle->m_linkLocalInertialFrames.reserve(mb->getNumLinks());
-        for (int i=0;i<mb->getNumLinks();i++)
-        {
-            //disable serialization of the collision objects
-           util->m_memSerializer->m_skipPointers.insert(mb->getLink(i).m_collider,0);
-           util->m_memSerializer->registerNameForPointer(mb->getLink(i).m_linkName,mb->getLink(i).m_linkName);
-           util->m_memSerializer->registerNameForPointer(mb->getLink(i).m_jointName,mb->getLink(i).m_jointName);
-        }
-        util->m_memSerializer->registerNameForPointer(mb->getBaseName(),mb->getBaseName());
-        int len = mb->calculateSerializeBufferSize();
-        btChunk* chunk = util->m_memSerializer->allocate(len,1);
-        const char* structType = mb->serialize(chunk->m_oldPtr, util->m_memSerializer);
-        util->m_memSerializer->finalizeChunk(chunk,structType,BT_MULTIBODY_CODE,mb);
-        streamSizeInBytes = util->m_memSerializer->getCurrentBufferSize();
-#endif
+
 		}
 	}
 
@@ -8847,7 +8594,7 @@ bool PhysicsServerCommandProcessor::pickBody(const btVector3& rayFromWorld, cons
 	{
 
 		btVector3 pickPos = rayCallback.m_hitPointWorld;
-		gLastPickPos = pickPos;
+		
 		btRigidBody* body = (btRigidBody*)btRigidBody::upcast(rayCallback.m_collisionObject);
 		if (body)
 		{
