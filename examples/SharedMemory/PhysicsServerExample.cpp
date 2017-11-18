@@ -2096,8 +2096,9 @@ void	PhysicsServerExample::updateGraphics()
 			int startSegIndex = m_multiThreadedHelper->m_startPixelIndex;
 			int endSegIndex = startSegIndex + (*m_multiThreadedHelper->m_numPixelsCopied);
 
-			btScalar frustumZNear = m_multiThreadedHelper->m_projectionMatrix[14]/(m_multiThreadedHelper->m_projectionMatrix[10]-1);
-			btScalar frustumZFar = 20;//m_multiThreadedHelper->m_projectionMatrix[14]/(m_multiThreadedHelper->m_projectionMatrix[10]+1);
+			//btScalar frustumZNear = m_multiThreadedHelper->m_projectionMatrix[14]/(m_multiThreadedHelper->m_projectionMatrix[10]-1);
+			//btScalar frustumZFar = m_multiThreadedHelper->m_projectionMatrix[14]/(m_multiThreadedHelper->m_projectionMatrix[10]+1);
+			
 
 				for (int i=0;i<gCamVisualizerWidth;i++)
 					{
@@ -2131,17 +2132,16 @@ void	PhysicsServerExample::updateGraphics()
 									if (depthValue>-1e20)
 									{
 										int rgb = 0;
-										btScalar minDepthValue = 0.98;//todo: compute more reasonably min/max depth range
-										btScalar maxDepthValue = 1;
+										btScalar frustumZNear = 0.1;
+										btScalar frustumZFar = 30;
+										btScalar minDepthValue = frustumZNear;//todo: compute more reasonably min/max depth range
+										btScalar maxDepthValue = frustumZFar;
 
-										if (maxDepthValue!=minDepthValue)
-										{
-											rgb =  (depthValue-minDepthValue)*(255. / (btFabs(maxDepthValue-minDepthValue)));
-											if (rgb<0 || rgb>255)
-											{
-    											//printf("rgb=%d\n",rgb);
-											}
-										}                 
+										float depth = depthValue;
+										double linearDepth = 255.*(2.0 * frustumZNear) / (frustumZFar + frustumZNear - depth * (frustumZFar - frustumZNear));
+										btClamp(linearDepth, btScalar(0),btScalar(255));
+										rgb =  linearDepth;
+										
 										m_canvas->setPixel(m_canvasDepthIndex,i,j,
 											rgb,
 											rgb,
