@@ -2138,7 +2138,7 @@ void	PhysicsServerExample::updateGraphics()
 										btScalar maxDepthValue = frustumZFar;
 
 										float depth = depthValue;
-										double linearDepth = 255.*(2.0 * frustumZNear) / (frustumZFar + frustumZNear - depth * (frustumZFar - frustumZNear));
+										btScalar linearDepth = 255.*(2.0 * frustumZNear) / (frustumZFar + frustumZNear - depth * (frustumZFar - frustumZNear));
 										btClamp(linearDepth, btScalar(0),btScalar(255));
 										rgb =  linearDepth;
 										
