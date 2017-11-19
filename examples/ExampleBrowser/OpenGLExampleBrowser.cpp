@@ -732,12 +732,11 @@ struct QuickCanvas : public Common2dCanvasInterface
 	MyGraphWindow* m_gw[MAX_GRAPH_WINDOWS];
 	GraphingTexture* m_gt[MAX_GRAPH_WINDOWS];
 	int m_curNumGraphWindows;
-	int m_curXpos;
+	
 
 	QuickCanvas(GL3TexLoader* myTexLoader)
 		:m_myTexLoader(myTexLoader),
-		m_curNumGraphWindows(0),
-		m_curXpos(0)
+		m_curNumGraphWindows(0)
 	{
 		for (int i=0;i<MAX_GRAPH_WINDOWS;i++)
 		{
@@ -746,7 +745,7 @@ struct QuickCanvas : public Common2dCanvasInterface
 		}
 	}
 	virtual ~QuickCanvas() {}
-	virtual int createCanvas(const char* canvasName, int width, int height)
+	virtual int createCanvas(const char* canvasName, int width, int height, int xPos, int yPos)
 	{
 		if (m_curNumGraphWindows<MAX_GRAPH_WINDOWS)
 		{
@@ -761,9 +760,8 @@ struct QuickCanvas : public Common2dCanvasInterface
 			MyGraphInput input(gui2->getInternalData());
 			input.m_width=width;
 			input.m_height=height;
-			input.m_xPos = m_curXpos;//GUI will clamp it to the right//300;
-			m_curXpos+=width+20;
-			input.m_yPos = 10000;//GUI will clamp it to bottom
+			input.m_xPos = xPos;
+			input.m_yPos = yPos;
 			input.m_name=canvasName;
 			input.m_texName = canvasName;
 			m_gt[slot] = new GraphingTexture;
@@ -778,7 +776,6 @@ struct QuickCanvas : public Common2dCanvasInterface
 	}
 	virtual void destroyCanvas(int canvasId)
 	{
-	    m_curXpos = 0;
 		btAssert(canvasId>=0);
 		delete m_gt[canvasId];
 		m_gt[canvasId] = 0;
@@ -1329,7 +1326,7 @@ void OpenGLExampleBrowser::update(float deltaTime)
 				float camPos[3];
 				s_guiHelper->getRenderInterface()->getActiveCamera()->getCameraPosition(camPos);
 				s_guiHelper->getRenderInterface()->getActiveCamera()->getCameraTargetPosition(camTarget);
-				sprintf(msg,"camPos=%f,%f,%f, dist=%f, pitch=%f, yaw=%f,target=%f,%f,%f", camPos[0],camPos[1],camPos[2],camDist,pitch,yaw,camTarget[0],camTarget[1],camTarget[2]);
+				sprintf(msg,"camTargetPos=%2.2f,%2.2f,%2.2f, dist=%2.2f, pitch=%2.2f, yaw=%2.2f", camPos[0],camPos[1],camPos[2],camDist,pitch,yaw);
 				gui2->setStatusBarMessage(msg, true);	
 			}
 			
