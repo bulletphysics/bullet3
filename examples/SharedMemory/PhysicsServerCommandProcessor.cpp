@@ -4531,6 +4531,10 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 
 							if (motor)
 							{
+								if ((clientCmd.m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[velIndex]&SIM_DESIRED_STATE_HAS_RHS_CLAMP)!=0)
+								{
+									motor->setRhsClamp(clientCmd.m_sendDesiredStateCommandArgument.m_rhsClamp[velIndex]);
+								}
 
 								bool hasDesiredPosOrVel = false;
 								btScalar kp = 0.f;
