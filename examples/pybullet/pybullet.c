@@ -1748,12 +1748,13 @@ static PyObject* pybullet_setJointMotorControl2(PyObject* self, PyObject* args, 
 	double force = 100000.0;
 	double kp = 0.1;
 	double kd = 1.0;
+	double maxVelocity = -1;
 	b3PhysicsClientHandle sm = 0;
 
 	int physicsClientId = 0;
-	static char* kwlist[] = {"bodyUniqueId", "jointIndex", "controlMode", "targetPosition", "targetVelocity", "force", "positionGain", "velocityGain", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iii|dddddi", kwlist, &bodyUniqueId, &jointIndex, &controlMode,
-									 &targetPosition, &targetVelocity, &force, &kp, &kd, &physicsClientId))
+	static char* kwlist[] = {"bodyUniqueId", "jointIndex", "controlMode", "targetPosition", "targetVelocity", "force", "positionGain", "velocityGain", "maxVelocity", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "iii|ddddddi", kwlist, &bodyUniqueId, &jointIndex, &controlMode,
+									 &targetPosition, &targetVelocity, &force, &kp, &kd, &maxVelocity, &physicsClientId))
 	{
 		//backward compatibility, bodyIndex -> bodyUniqueId, don't need to update this function: people have to migrate to bodyUniqueId
 		static char* kwlist2[] = {"bodyIndex", "jointIndex", "controlMode", "targetPosition", "targetVelocity", "force", "positionGain", "velocityGain", "physicsClientId", NULL};
@@ -1816,6 +1817,10 @@ static PyObject* pybullet_setJointMotorControl2(PyObject* self, PyObject* args, 
 
 			case CONTROL_MODE_POSITION_VELOCITY_PD:
 			{
+				if (maxVelocity>0)
+				{
+					b3JointControlSetMaximumVelocity(commandHandle, info.m_uIndex, maxVelocity);
+				}
 				b3JointControlSetDesiredPosition(commandHandle, info.m_qIndex,
 												 targetPosition);
 				b3JointControlSetKp(commandHandle, info.m_uIndex, kp);
