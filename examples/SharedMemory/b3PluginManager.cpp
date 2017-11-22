@@ -13,7 +13,7 @@
 
     typedef HMODULE             B3_DYNLIB_HANDLE;
 
-    #define B3_DYNLIB_OPEN    LoadLibrary
+    #define B3_DYNLIB_OPEN    LoadLibraryA
     #define B3_DYNLIB_CLOSE   FreeLibrary
     #define B3_DYNLIB_IMPORT  GetProcAddress
 #else
