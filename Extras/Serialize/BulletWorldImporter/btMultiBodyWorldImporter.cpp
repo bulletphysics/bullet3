@@ -6,7 +6,7 @@
 #include "btBulletDynamicsCommon.h"
 #include "BulletDynamics/Featherstone/btMultiBody.h"
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
-#include "BulletDynamics/Featherstone/btMultibodyLinkCollider.h"
+#include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 
 struct btMultiBodyWorldImporterInternalData
 {
