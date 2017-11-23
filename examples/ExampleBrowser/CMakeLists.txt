@@ -259,6 +259,7 @@ SET(BulletExampleBrowser_SRCS
 	../Importers/ImportMeshUtility/b3ImportMeshUtility.cpp
 ../Importers/ImportMeshUtility/b3ImportMeshUtility.h
 	../../Extras/Serialize/BulletWorldImporter/btWorldImporter.cpp
+	../../Extras/Serialize/BulletWorldImporter/btMultiBodyWorldImporter.cpp
 	../../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.cpp
 	../../Extras/Serialize/BulletFileLoader/bChunk.cpp		
 	../../Extras/Serialize/BulletFileLoader/bFile.cpp
