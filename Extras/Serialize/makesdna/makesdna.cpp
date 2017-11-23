@@ -149,6 +149,7 @@ typedef unsigned __int64 uint64_t;
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "BulletSoftBody/btSoftBodyData.h"
 #include "BulletDynamics/Featherstone/btMultiBody.h"
+#include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -198,6 +199,7 @@ char *includefiles[] = {
 	
 	"../../../src/BulletSoftBody/btSoftBodyData.h",
 	"../../../src/BulletDynamics/Featherstone/btMultiBody.h",
+	"../../../src/BulletDynamics/Featherstone/btMultiBodyLinkCollider.h",
 	// empty string to indicate end of includefiles
 	""
 };

@@ -274,6 +274,7 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["Extras/Serialize/BulletFileLoader/bDNA.cpp"]\
 +["Extras/Serialize/BulletFileLoader/bFile.cpp"]\
 +["Extras/Serialize/BulletFileLoader/btBulletFile.cpp"]\
++["Extras/Serialize/BulletWorldImporter/btMultiBodyWorldImporter.cpp"]\
 +["Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.cpp"]\
 +["Extras/Serialize/BulletWorldImporter/btWorldImporter.cpp"]\
 +["Extras/InverseDynamics/CloneTreeCreator.cpp"]\

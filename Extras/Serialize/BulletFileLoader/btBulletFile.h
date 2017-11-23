@@ -41,6 +41,8 @@ namespace bParse {
 
 		btAlignedObjectArray<bStructHandle*>	m_multiBodies;
 
+		btAlignedObjectArray<bStructHandle*>	m_multiBodyLinkColliders;
+
 		btAlignedObjectArray<bStructHandle*>	m_softBodies;
 
 		btAlignedObjectArray<bStructHandle*>	m_rigidBodies;

@@ -29,7 +29,7 @@
 #include "LinearMath/btTransform.h"
 #include "../Importers/ImportMJCFDemo/BulletMJCFImporter.h"
 #include "../Importers/ImportObjDemo/LoadMeshFromObj.h"
-#include "../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.h"
+#include "../Extras/Serialize/BulletWorldImporter/btMultiBodyWorldImporter.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointMotor.h"
 #include "LinearMath/btSerializer.h"
 #include "Bullet3Common/b3Logging.h"
@@ -1496,7 +1496,7 @@ struct PhysicsServerCommandProcessorInternalData
 	b3AlignedObjectArray<SaveWorldObjectData> m_saveWorldBodyData;
 
 
-	btAlignedObjectArray<btBulletWorldImporter*> m_worldImporters;
+	btAlignedObjectArray<btMultiBodyWorldImporter*> m_worldImporters;
 	btAlignedObjectArray<UrdfLinkNameMapUtil*> m_urdfLinkNameMapper;
 	btAlignedObjectArray<std::string*> m_strings;
 
@@ -3458,7 +3458,7 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 	bool hasStatus = true;
 	serverStatusOut.m_type = CMD_CREATE_COLLISION_SHAPE_FAILED;
 					
-	btBulletWorldImporter* worldImporter = new btBulletWorldImporter(m_data->m_dynamicsWorld);
+	btMultiBodyWorldImporter* worldImporter = new btMultiBodyWorldImporter(m_data->m_dynamicsWorld);
 
 	btCollisionShape* shape = 0;
 	b3AlignedObjectArray<UrdfCollision> urdfCollisionObjects;
@@ -6505,7 +6505,7 @@ bool PhysicsServerCommandProcessor::processCreateRigidBodyCommand(const struct S
 		shapeType = clientCmd.m_createBoxShapeArguments.m_collisionShapeType;
 	}
 
-	btBulletWorldImporter* worldImporter = new btBulletWorldImporter(m_data->m_dynamicsWorld);
+	btMultiBodyWorldImporter* worldImporter = new btMultiBodyWorldImporter(m_data->m_dynamicsWorld);
 	m_data->m_worldImporters.push_back(worldImporter);
 
 	btCollisionShape* shape = 0;
@@ -8092,7 +8092,8 @@ bool PhysicsServerCommandProcessor::processLoadBulletCommand(const struct Shared
 	SharedMemoryStatus& serverCmd = serverStatusOut;
 	serverCmd.m_type = CMD_BULLET_LOADING_FAILED;
 		
-	btBulletWorldImporter* importer = new btBulletWorldImporter(m_data->m_dynamicsWorld);
+	//btBulletWorldImporter* importer = new btBulletWorldImporter(m_data->m_dynamicsWorld);
+	btMultiBodyWorldImporter* importer = new btMultiBodyWorldImporter(m_data->m_dynamicsWorld);
 
 	const char* prefix[] = { "", "./", "./data/", "../data/", "../../data/", "../../../data/", "../../../../data/" };
 	int numPrefixes = sizeof(prefix) / sizeof(const char*);
@@ -8120,8 +8121,6 @@ bool PhysicsServerCommandProcessor::processLoadBulletCommand(const struct Shared
 		bool ok = importer->loadFile(relativeFileName);
 		if (ok)
 		{
-							
-							
 			int numRb = importer->getNumRigidBodies();
 			serverStatusOut.m_sdfLoadedArgs.m_numBodies = 0;
 			serverStatusOut.m_sdfLoadedArgs.m_numUserConstraints = 0;
@@ -8213,6 +8212,7 @@ bool PhysicsServerCommandProcessor::processSaveBulletCommand(const struct Shared
 		fclose(f);
 		serverCmd.m_type = CMD_BULLET_SAVING_COMPLETED;
 		delete ser;
+		return hasStatus;
 	}
 	serverCmd.m_type = CMD_BULLET_SAVING_FAILED;
 	return hasStatus;
