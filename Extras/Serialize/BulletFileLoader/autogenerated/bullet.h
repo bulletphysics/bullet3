@@ -110,6 +110,8 @@ typedef struct bInvalidHandle {
     class btMultiBodyLinkFloatData;
     class btMultiBodyDoubleData;
     class btMultiBodyFloatData;
+    class btMultiBodyLinkColliderFloatData;
+    class btMultiBodyLinkColliderDoubleData;
 // -------------------------------------------------- //
     class PointerArray
     {
@@ -1437,6 +1439,28 @@ typedef struct bInvalidHandle {
         btVector3FloatData m_baseInertia;
         float m_baseMass;
         int m_numLinks;
+    };
+
+
+// -------------------------------------------------- //
+    class btMultiBodyLinkColliderFloatData
+    {
+    public:
+        btCollisionObjectFloatData m_colObjData;
+        void *m_multiBody;
+        int m_link;
+        char m_padding[4];
+    };
+
+
+// -------------------------------------------------- //
+    class btMultiBodyLinkColliderDoubleData
+    {
+    public:
+        btCollisionObjectDoubleData m_colObjData;
+        void *m_multiBody;
+        int m_link;
+        char m_padding[4];
     };
 
 
