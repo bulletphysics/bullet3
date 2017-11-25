@@ -78,7 +78,7 @@ TimeSeriesCanvas::TimeSeriesCanvas(struct Common2dCanvasInterface* canvasInterfa
 
 	if (canvasInterface)
 	{
-		m_internalData->m_canvasIndex = m_internalData->m_canvasInterface->createCanvas(windowTitle,m_internalData->m_width,m_internalData->m_height);
+		m_internalData->m_canvasIndex = m_internalData->m_canvasInterface->createCanvas(windowTitle,m_internalData->m_width,m_internalData->m_height,20,50);
 	}
 }
 

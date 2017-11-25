@@ -47,6 +47,13 @@
 
 	newoption
 	{
+		trigger = "enable_static_vr_plugin",
+		description = "Statically link vr plugin (in examples/SharedMemory/plugins/vrSyncPlugin)"
+	}
+
+
+	newoption
+	{
 		trigger = "noopengl3",
 		description = "Don't compile any OpenGL3+ code"
 	}
@@ -276,6 +283,9 @@ end
 	if not _OPTIONS["glfw_lib_name"] then
 		_OPTIONS["glfw_lib_name"] = default_glfw_lib_name
 	end	
+
+	
+
 	newoption
     {
 			trigger     = "glfw_include_dir",

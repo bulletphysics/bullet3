@@ -5,7 +5,8 @@
 ///increase the SHARED_MEMORY_MAGIC_NUMBER whenever incompatible changes are made in the structures
 ///my convention is year/month/day/rev
 
-#define SHARED_MEMORY_MAGIC_NUMBER 201710050
+#define SHARED_MEMORY_MAGIC_NUMBER 201710180
+//#define SHARED_MEMORY_MAGIC_NUMBER 201710050
 //#define SHARED_MEMORY_MAGIC_NUMBER 201708270
 //#define SHARED_MEMORY_MAGIC_NUMBER 201707140
 //#define SHARED_MEMORY_MAGIC_NUMBER 201706015
@@ -143,6 +144,7 @@ enum EnumSharedMemoryServerStatus
 		CMD_USER_DEBUG_DRAW_FAILED,
 		CMD_USER_CONSTRAINT_COMPLETED,
 		CMD_USER_CONSTRAINT_INFO_COMPLETED,
+		CMD_USER_CONSTRAINT_REQUEST_STATE_COMPLETED,
         CMD_REMOVE_USER_CONSTRAINT_COMPLETED,
         CMD_CHANGE_USER_CONSTRAINT_COMPLETED,
 		CMD_REMOVE_USER_CONSTRAINT_FAILED,
@@ -253,7 +255,6 @@ struct b3UserConstraint
 	int m_gearAuxLink;
 	double m_relativePositionTarget;
 	double m_erp;
-
 };
 
 struct b3BodyInfo
@@ -331,6 +332,12 @@ struct b3OpenGLVisualizerCameraInfo
 	float m_target[3];
 };
 
+struct b3UserConstraintState
+{
+	double m_appliedConstraintForces[6];
+	int m_numDofs;
+};
+
 enum b3VREventType
 {
 	VR_CONTROLLER_MOVE_EVENT=1,
@@ -347,6 +354,8 @@ enum b3VREventType
 #define MAX_RAY_HITS MAX_RAY_INTERSECTION_BATCH_SIZE
 #define MAX_KEYBOARD_EVENTS 256
 #define MAX_MOUSE_EVENTS 256
+
+#define MAX_SDF_BODIES 512
 
 
 enum b3VRButtonInfo
@@ -565,6 +574,18 @@ enum EnumRenderer
     //ER_FIRE_RAYS=(1<<18),
 };
 
+///flags to pick the IK solver and other options
+enum EnumCalculateInverseKinematicsFlags
+{
+	IK_DLS=0,
+	IK_SDLS=1, //TODO: can add other IK solvers
+	IK_HAS_TARGET_POSITION=16,
+	IK_HAS_TARGET_ORIENTATION=32,
+	IK_HAS_NULL_SPACE_VELOCITY=64,
+	IK_HAS_JOINT_DAMPING=128,
+	//IK_HAS_CURRENT_JOINT_POSITIONS=256,//not used yet
+};
+
 enum b3ConfigureDebugVisualizerEnum
 {
     COV_ENABLE_GUI=1,
@@ -579,6 +600,10 @@ enum b3ConfigureDebugVisualizerEnum
 	COV_ENABLE_MOUSE_PICKING,
 	COV_ENABLE_Y_AXIS_UP,
 	COV_ENABLE_TINY_RENDERER,
+	COV_ENABLE_RGB_BUFFER_PREVIEW,
+	COV_ENABLE_DEPTH_BUFFER_PREVIEW,
+	COV_ENABLE_SEGMENTATION_MARK_PREVIEW,
+	
 };
 
 enum b3AddUserDebugItemEnum

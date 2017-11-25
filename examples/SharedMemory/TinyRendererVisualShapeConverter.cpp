@@ -38,9 +38,10 @@ subject to the following restrictions:
 
 struct MyTexture2
 {
-	unsigned char* textureData;
+	unsigned char* textureData1;
 	int m_width;
 	int m_height;
+	bool m_isCached;
 };
 
 struct TinyRendererObjectArray
@@ -308,12 +309,13 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 					if (b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(visual->m_geometry.m_meshFileName, meshData))
 					{
 
-						if (meshData.m_textureImage)
+						if (meshData.m_textureImage1)
 						{
 							MyTexture2 texData;
 							texData.m_width = meshData.m_textureWidth;
 							texData.m_height = meshData.m_textureHeight;
-							texData.textureData = meshData.m_textureImage;
+							texData.textureData1 = meshData.m_textureImage1;
+							texData.m_isCached = meshData.m_isCached;
 							texturesOut.push_back(texData);
 						}
 						glmesh = meshData.m_gfxShape;
@@ -628,27 +630,32 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
             if (vertices.size() && indices.size())
             {
                 TinyRenderObjectData* tinyObj = new TinyRenderObjectData(m_data->m_rgbColorBuffer,m_data->m_depthBuffer, &m_data->m_shadowBuffer, &m_data->m_segmentationMaskBuffer, bodyUniqueId);
-				unsigned char* textureImage=0;
+				unsigned char* textureImage1=0;
 				int textureWidth=0;
 				int textureHeight=0;
+				bool isCached = false;
 				if (textures.size())
 				{
-					textureImage = textures[0].textureData;
+					textureImage1 = textures[0].textureData1;
 					textureWidth = textures[0].m_width;
 					textureHeight = textures[0].m_height;
+					isCached = textures[0].m_isCached;
 				}
 				
 				{
 					B3_PROFILE("registerMeshShape");
 
 					tinyObj->registerMeshShape(&vertices[0].xyzw[0], vertices.size(), &indices[0], indices.size(), rgbaColor,
-						textureImage, textureWidth, textureHeight);
+						textureImage1, textureWidth, textureHeight);
 				}
                 visuals->m_renderObjects.push_back(tinyObj);
             }
 			for (int i=0;i<textures.size();i++)
 			{
-				free(textures[i].textureData);
+				if (!textures[i].m_isCached)
+				{
+					free(textures[i].textureData1);
+				}
 			}
 		}
 	}
@@ -765,12 +772,13 @@ void TinyRendererVisualShapeConverter::resetCamera(float camDist, float yaw, flo
 
 void TinyRendererVisualShapeConverter::clearBuffers(TGAColor& clearColor)
 {
+	float farPlane = m_data->m_camera.getCameraFrustumFar();
     for(int y=0;y<m_data->m_swHeight;++y)
     {
         for(int x=0;x<m_data->m_swWidth;++x)
         {
             m_data->m_rgbColorBuffer.set(x,y,clearColor);
-            m_data->m_depthBuffer[x+y*m_data->m_swWidth] = -1e30f;
+            m_data->m_depthBuffer[x+y*m_data->m_swWidth] = -farPlane;
             m_data->m_shadowBuffer[x+y*m_data->m_swWidth] = -1e30f;
             m_data->m_segmentationMaskBuffer[x+y*m_data->m_swWidth] = -1;
         }
@@ -799,13 +807,13 @@ void TinyRendererVisualShapeConverter::render(const float viewMat[16], const flo
     clearColor.bgra[2] = 255;
     clearColor.bgra[3] = 255;
     
-    clearBuffers(clearColor);
 	float near = projMat[14]/(projMat[10]-1);
 	float far = projMat[14]/(projMat[10]+1);
 
 	m_data->m_camera.setCameraFrustumNear( near);
 	m_data->m_camera.setCameraFrustumFar(far);
-		
+
+	clearBuffers(clearColor);	
     
     ATTRIBUTE_ALIGNED16(btScalar modelMat[16]);
     
@@ -1018,16 +1026,20 @@ void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixels
         {
 			if (depthBuffer)
 			{
-                float distance = -m_data->m_depthBuffer[i+startPixelIndex];
                 float farPlane = m_data->m_camera.getCameraFrustumFar();
                 float nearPlane = m_data->m_camera.getCameraFrustumNear();
-                
-                btClamp(distance,nearPlane,farPlane);
-                
-                // the depth buffer value is between 0 and 1
-                float a = farPlane / (farPlane - nearPlane);
-                float b = farPlane * nearPlane / (nearPlane - farPlane);
-                depthBuffer[i] = a + b / distance;
+				
+				// TinyRenderer returns clip coordinates, transform to eye coordinates first
+				float z_c = -m_data->m_depthBuffer[i+startPixelIndex];
+				// float distance = (farPlane - nearPlane) / (farPlane + nearPlane) * (z_c + 2. * farPlane * nearPlane / (farPlane - nearPlane));
+				                
+                // The depth buffer value is between 0 and 1
+                // float a = farPlane / (farPlane - nearPlane);
+                // float b = farPlane * nearPlane / (nearPlane - farPlane);
+                // depthBuffer[i] = a + b / distance;
+
+				// Simply the above expressions
+				depthBuffer[i] = farPlane * (nearPlane + z_c) / (2. * farPlane * nearPlane + farPlane * z_c - nearPlane * z_c);
 			}
 			if (segmentationMaskBuffer)
             {
@@ -1090,7 +1102,10 @@ void TinyRendererVisualShapeConverter::resetAll()
 
 	for (int i=0;i<m_data->m_textures.size();i++)
 	{
-		free(m_data->m_textures[i].textureData);
+		if (!m_data->m_textures[i].m_isCached)
+		{
+			free(m_data->m_textures[i].textureData1);
+		}
 	}
 	m_data->m_textures.clear();
 	m_data->m_swRenderInstances.clear();
@@ -1117,7 +1132,7 @@ void TinyRendererVisualShapeConverter::activateShapeTexture(int objectUniqueId, 
 					TinyRenderObjectData* renderObj = visualArray->m_renderObjects[v];
 					if ((shapeIndex < 0) || (shapeIndex == v))
 					{
-						renderObj->m_model->setDiffuseTextureFromData(m_data->m_textures[textureUniqueId].textureData, m_data->m_textures[textureUniqueId].m_width, m_data->m_textures[textureUniqueId].m_height);
+						renderObj->m_model->setDiffuseTextureFromData(m_data->m_textures[textureUniqueId].textureData1, m_data->m_textures[textureUniqueId].m_width, m_data->m_textures[textureUniqueId].m_height);
 					}
 				}
 			}
@@ -1131,7 +1146,8 @@ int TinyRendererVisualShapeConverter::registerTexture(unsigned char* texels, int
     MyTexture2 texData;
     texData.m_width = width;
     texData.m_height = height;
-    texData.textureData = texels;
+    texData.textureData1 = texels;
+	texData.m_isCached = false;
     m_data->m_textures.push_back(texData);
     return m_data->m_textures.size()-1;
 }

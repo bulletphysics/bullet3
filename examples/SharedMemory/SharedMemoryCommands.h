@@ -32,7 +32,6 @@
 #define MAX_SDF_FILENAME_LENGTH 1024
 #define MAX_FILENAME_LENGTH MAX_URDF_FILENAME_LENGTH
 #define MAX_NUM_LINKS MAX_DEGREE_OF_FREEDOM
-#define MAX_SDF_BODIES 512
 
 struct TmpFloat3 
 {
@@ -359,10 +358,11 @@ struct SendDesiredStateArgs
 {
 	int m_bodyUniqueId;
 	int m_controlMode;
-
+	
 	//PD parameters in case m_controlMode == CONTROL_MODE_POSITION_VELOCITY_PD
 	double m_Kp[MAX_DEGREE_OF_FREEDOM];//indexed by degree of freedom, 6 for base, and then the dofs for each link
 	double m_Kd[MAX_DEGREE_OF_FREEDOM];//indexed by degree of freedom, 6 for base, and then the dofs for each link
+	double m_rhsClamp[MAX_DEGREE_OF_FREEDOM];
 
     int m_hasDesiredStateFlags[MAX_DEGREE_OF_FREEDOM];
     
@@ -390,6 +390,7 @@ enum EnumSimDesiredStateUpdateFlags
 	SIM_DESIRED_STATE_HAS_KD=4,
 	SIM_DESIRED_STATE_HAS_KP=8,
 	SIM_DESIRED_STATE_HAS_MAX_FORCE=16,
+	SIM_DESIRED_STATE_HAS_RHS_CLAMP=32
 };
 
 
@@ -633,15 +634,6 @@ struct CalculateMassMatrixResultArgs
 	int m_dofCount;
 };
 
-enum EnumCalculateInverseKinematicsFlags
-{
-    IK_HAS_TARGET_POSITION=1,
-	IK_HAS_TARGET_ORIENTATION=2,
-    IK_HAS_NULL_SPACE_VELOCITY=4,
-    IK_HAS_JOINT_DAMPING=8,
-    //IK_HAS_CURRENT_JOINT_POSITIONS=16,//not used yet
-};
-
 struct CalculateInverseKinematicsArgs
 {
 	int m_bodyUniqueId;
@@ -676,7 +668,7 @@ enum EnumUserConstraintFlags
 	USER_CONSTRAINT_CHANGE_GEAR_AUX_LINK=256,
 	USER_CONSTRAINT_CHANGE_RELATIVE_POSITION_TARGET=512,
 	USER_CONSTRAINT_CHANGE_ERP=1024,
-
+	USER_CONSTRAINT_REQUEST_STATE=2048,
 };
 
 enum EnumBodyChangeFlags
@@ -700,7 +692,7 @@ enum EnumUserDebugDrawFlags
 	USER_DEBUG_HAS_OPTION_FLAGS=256,
 	USER_DEBUG_HAS_TEXT_ORIENTATION = 512,
 	USER_DEBUG_HAS_PARENT_OBJECT=1024,
-
+	USER_DEBUG_HAS_REPLACE_ITEM_UNIQUE_ID=2048,
 };
 
 struct UserDebugDrawArgs
@@ -721,7 +713,7 @@ struct UserDebugDrawArgs
 	double m_textColorRGB[3];
 	double m_textSize;
 	int m_optionFlags;
-
+	int m_replaceItemUniqueId;
 
 	double m_rangeMin;
 	double m_rangeMax;
@@ -1039,6 +1031,7 @@ struct SharedMemoryStatus
 		struct SendVisualShapeDataArgs m_sendVisualShapeArgs;
 		struct UserDebugDrawResultArgs m_userDebugDrawArgs;
 		struct b3UserConstraint m_userConstraintResultArgs;
+		struct b3UserConstraintState m_userConstraintStateResultArgs;
 		struct SendVREvents m_sendVREvents;
 		struct SendKeyboardEvents m_sendKeyboardEvents;
 		struct SendRaycastHits m_raycastHits;

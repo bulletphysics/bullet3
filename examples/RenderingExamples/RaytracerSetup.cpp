@@ -142,7 +142,7 @@ void RaytracerPhysicsSetup::initPhysics()
 	if (m_internalData->m_canvas)
 	{
 		
-		m_internalData->m_canvasIndex = m_internalData->m_canvas->createCanvas("raytracer",m_internalData->m_width,m_internalData->m_height);
+		m_internalData->m_canvasIndex = m_internalData->m_canvas->createCanvas("raytracer",m_internalData->m_width,m_internalData->m_height, 15,55);
 		for (int i=0;i<m_internalData->m_width;i++)
 		{
 			for (int j=0;j<m_internalData->m_height;j++)

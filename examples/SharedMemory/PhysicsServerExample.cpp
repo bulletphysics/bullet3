@@ -13,13 +13,14 @@
 #include "../Utils/b3Clock.h"
 #include "../MultiThreading/b3ThreadSupportInterface.h"
 #include "SharedMemoryPublic.h"
+//#define BT_ENABLE_VR
 #ifdef BT_ENABLE_VR
 #include "../RenderingExamples/TinyVRGui.h"
 #endif//BT_ENABLE_VR
 
 
 #include "../CommonInterfaces/CommonParameterInterface.h"
-
+#include "../Importers/ImportURDFDemo/urdfStringSplit.h"
 
 //@todo(erwincoumans) those globals are hacks for a VR demo, move this to Python/pybullet!
 bool gEnablePicking=true;
@@ -29,16 +30,14 @@ bool gActivedVRRealTimeSimulation = false;
 
 bool gEnableSyncPhysicsRendering= true;
 bool gEnableUpdateDebugDrawLines = true;
-static int gCamVisualizerWidth = 320;
-static int gCamVisualizerHeight = 240;
+static int gCamVisualizerWidth = 228;
+static int gCamVisualizerHeight = 192;
 
 static bool gEnableDefaultKeyboardShortcuts = true;
 static bool gEnableDefaultMousePicking = true;
 
 
-//extern btVector3 gLastPickPos;
-btVector3 gVRTeleportPosLocal(0,0,0);
-btQuaternion gVRTeleportOrnLocal(0,0,0,1);
+
 
 
 btScalar gVRTeleportRotZ = 0;
@@ -1132,10 +1131,17 @@ public:
 	
 	UserDebugText m_tmpText;
 	int m_resultUserDebugTextUid;
-	virtual int		addUserDebugText3D( const char* txt, const double positionXYZ[3], const double orientation[4], const double	textColorRGB[3], double size, double lifeTime, int trackingVisualShapeIndex, int optionFlags)
+	
+	virtual int		addUserDebugText3D( const char* txt, const double positionXYZ[3], const double orientation[4], const double	textColorRGB[3], double size, double lifeTime, int trackingVisualShapeIndex, int optionFlags, int replaceItemUid)
 	{
 		
-		m_tmpText.m_itemUniqueId = m_uidGenerator++;
+		if (replaceItemUid>=0)
+		{
+			m_tmpText.m_itemUniqueId = replaceItemUid;
+		} else
+		{
+			m_tmpText.m_itemUniqueId = m_uidGenerator++;
+		}
 		m_tmpText.m_lifeTime = lifeTime;
 		m_tmpText.textSize = size;
 		//int len = strlen(txt);
@@ -1745,9 +1751,9 @@ void	PhysicsServerExample::initPhysics()
 		{
 	
 			
-			m_canvasRGBIndex = m_canvas->createCanvas("Synthetic Camera RGB data",gCamVisualizerWidth, gCamVisualizerHeight);
-			//m_canvasDepthIndex = m_canvas->createCanvas("Synthetic Camera Depth data",gCamVisualizerWidth, gCamVisualizerHeight);
-			//m_canvasSegMaskIndex = m_canvas->createCanvas("Synthetic Camera Segmentation Mask",gCamVisualizerWidth, gCamVisualizerHeight);
+			m_canvasRGBIndex = m_canvas->createCanvas("Synthetic Camera RGB data",gCamVisualizerWidth, gCamVisualizerHeight, 8,55);
+			m_canvasDepthIndex = m_canvas->createCanvas("Synthetic Camera Depth data",gCamVisualizerWidth, gCamVisualizerHeight,8,75+gCamVisualizerHeight);
+			m_canvasSegMaskIndex = m_canvas->createCanvas("Synthetic Camera Segmentation Mask",gCamVisualizerWidth, gCamVisualizerHeight,8,95+gCamVisualizerHeight*2);
 
 			for (int i=0;i<gCamVisualizerWidth;i++)
 			{
@@ -1892,6 +1898,60 @@ void	PhysicsServerExample::updateGraphics()
 		int flag = m_multiThreadedHelper->m_visualizerFlag;
 		int enable = m_multiThreadedHelper->m_visualizerEnable;
 
+		if (flag == COV_ENABLE_RGB_BUFFER_PREVIEW)
+		{
+			if (enable)
+			{
+				if (m_canvasRGBIndex<0)
+				{
+					m_canvasRGBIndex = m_canvas->createCanvas("Synthetic Camera RGB data",gCamVisualizerWidth, gCamVisualizerHeight, 8,55);
+				}
+			} else
+			{
+				if (m_canvasRGBIndex>=0)
+				{
+					m_canvas->destroyCanvas(m_canvasRGBIndex);
+					m_canvasRGBIndex = -1;
+				}
+			}
+		}
+
+		if (flag == COV_ENABLE_DEPTH_BUFFER_PREVIEW)
+		{
+			if (enable)
+			{
+				if (m_canvasDepthIndex<0)
+				{
+					m_canvasDepthIndex = m_canvas->createCanvas("Synthetic Camera Depth data",gCamVisualizerWidth, gCamVisualizerHeight,8,75+gCamVisualizerHeight);
+				}
+			} else
+			{
+				if (m_canvasDepthIndex>=0)
+				{
+					m_canvas->destroyCanvas(m_canvasDepthIndex);
+					m_canvasDepthIndex = -1;
+				}
+			}
+		}
+
+		if (flag == COV_ENABLE_SEGMENTATION_MARK_PREVIEW)
+		{
+			if (enable)
+			{
+				if (m_canvasSegMaskIndex<0)
+				{
+					m_canvasSegMaskIndex = m_canvas->createCanvas("Synthetic Camera Segmentation Mask",gCamVisualizerWidth, gCamVisualizerHeight,8,95+gCamVisualizerHeight*2);
+				}
+			} else
+			{
+				if (m_canvasSegMaskIndex>=0)
+				{
+					m_canvas->destroyCanvas(m_canvasSegMaskIndex);
+					m_canvasSegMaskIndex = -1;
+				}
+			}
+		}
+		
 		if (flag==COV_ENABLE_VR_TELEPORTING)
 		{
 			gEnableTeleporting = (enable!=0);
@@ -2036,8 +2096,9 @@ void	PhysicsServerExample::updateGraphics()
 			int startSegIndex = m_multiThreadedHelper->m_startPixelIndex;
 			int endSegIndex = startSegIndex + (*m_multiThreadedHelper->m_numPixelsCopied);
 
-			btScalar frustumZNear = m_multiThreadedHelper->m_projectionMatrix[14]/(m_multiThreadedHelper->m_projectionMatrix[10]-1);
-			btScalar frustumZFar = 20;//m_multiThreadedHelper->m_projectionMatrix[14]/(m_multiThreadedHelper->m_projectionMatrix[10]+1);
+			//btScalar frustumZNear = m_multiThreadedHelper->m_projectionMatrix[14]/(m_multiThreadedHelper->m_projectionMatrix[10]-1);
+			//btScalar frustumZFar = m_multiThreadedHelper->m_projectionMatrix[14]/(m_multiThreadedHelper->m_projectionMatrix[10]+1);
+			
 
 				for (int i=0;i<gCamVisualizerWidth;i++)
 					{
@@ -2071,17 +2132,16 @@ void	PhysicsServerExample::updateGraphics()
 									if (depthValue>-1e20)
 									{
 										int rgb = 0;
-										btScalar minDepthValue = 0.98;//todo: compute more reasonably min/max depth range
-										btScalar maxDepthValue = 1;
+										btScalar frustumZNear = 0.1;
+										btScalar frustumZFar = 30;
+										btScalar minDepthValue = frustumZNear;//todo: compute more reasonably min/max depth range
+										btScalar maxDepthValue = frustumZFar;
 
-										if (maxDepthValue!=minDepthValue)
-										{
-											rgb =  (depthValue-minDepthValue)*(255. / (btFabs(maxDepthValue-minDepthValue)));
-											if (rgb<0 || rgb>255)
-											{
-    											//printf("rgb=%d\n",rgb);
-											}
-										}                 
+										float depth = depthValue;
+										btScalar linearDepth = 255.*(2.0 * frustumZNear) / (frustumZFar + frustumZNear - depth * (frustumZFar - frustumZNear));
+										btClamp(linearDepth, btScalar(0),btScalar(255));
+										rgb =  linearDepth;
+										
 										m_canvas->setPixel(m_canvasDepthIndex,i,j,
 											rgb,
 											rgb,
@@ -2171,10 +2231,26 @@ void	PhysicsServerExample::updateGraphics()
 	case eGUIUserDebugAddText:
 	{
 		B3_PROFILE("eGUIUserDebugAddText");
+		
+		bool replaced = false;
 
-		m_multiThreadedHelper->m_userDebugText.push_back(m_multiThreadedHelper->m_tmpText);
-		m_multiThreadedHelper->m_resultUserDebugTextUid = m_multiThreadedHelper->m_userDebugText[m_multiThreadedHelper->m_userDebugText.size()-1].m_itemUniqueId;
+		for (int i=0;i<m_multiThreadedHelper->m_userDebugText.size();i++)
+		{
+			if (m_multiThreadedHelper->m_userDebugText[i].m_itemUniqueId == m_multiThreadedHelper->m_tmpText.m_itemUniqueId)
+			{
+				m_multiThreadedHelper->m_userDebugText[i] = m_multiThreadedHelper->m_tmpText;
+				m_multiThreadedHelper->m_resultUserDebugTextUid = m_multiThreadedHelper->m_tmpText.m_itemUniqueId;
+				replaced = true;
+			}
+		}
+
+		if (!replaced)
+		{
+			m_multiThreadedHelper->m_userDebugText.push_back(m_multiThreadedHelper->m_tmpText);
+			m_multiThreadedHelper->m_resultUserDebugTextUid = m_multiThreadedHelper->m_userDebugText[m_multiThreadedHelper->m_userDebugText.size()-1].m_itemUniqueId;
+		}
 		m_multiThreadedHelper->mainThreadRelease();
+		
 		break;
 	}
 	case eGUIUserDebugAddParameter:
@@ -2503,10 +2579,35 @@ void PhysicsServerExample::drawUserDebugLines()
 			}
 
 
+			{
+				btAlignedObjectArray<std::string> pieces;
+				btAlignedObjectArray<std::string> separators;
+				separators.push_back("\n");
+				urdfStringSplit(pieces,m_multiThreadedHelper->m_userDebugText[i].m_text,separators);
+				
+				double sz = m_multiThreadedHelper->m_userDebugText[i].textSize;
+				
+				btTransform tr;
+				tr.setIdentity();
+				tr.setOrigin(btVector3(pos[0],pos[1],pos[2]));
+				tr.setRotation(btQuaternion(orientation[0],orientation[1],orientation[2],orientation[3]));
 
-			m_guiHelper->getAppInterface()->drawText3D(m_multiThreadedHelper->m_userDebugText[i].m_text,
-				pos,orientation,colorRGBA,
-				m_multiThreadedHelper->m_userDebugText[i].textSize,optionFlag);
+				//float newpos[3]={pos[0]-float(t)*sz,pos[1],pos[2]};
+
+				for (int t=0;t<pieces.size();t++)
+				{
+					btTransform offset;
+					offset.setIdentity();
+					offset.setOrigin(btVector3(0,-float(t)*sz,0));
+					btTransform result = tr*offset;
+					float newpos[3] = {result.getOrigin()[0],result.getOrigin()[1],result.getOrigin()[2]};
+					
+					m_guiHelper->getAppInterface()->drawText3D(pieces[t].c_str(),
+						newpos,orientation,colorRGBA,
+						sz,optionFlag);
+					
+				}
+			}
 
 
 			/*m_guiHelper->getAppInterface()->drawText3D(m_multiThreadedHelper->m_userDebugText[i].m_text,

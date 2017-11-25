@@ -63,7 +63,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0.0455 0"/>
       <geometry>
-        <box size=".307 0.009 .050"/>
+        <box size=".356 0.009 .050"/>
       </geometry>
       <material name="grey">
         <color rgba="0.65 0.65 0.75 1"/>
@@ -72,12 +72,49 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 -0.0455 0"/>
       <geometry>
-        <box size=".307 0.009 .050"/>
+        <box size=".356 0.009 .050"/>
       </geometry>
       <material name="grey">
         <color rgba="0.65 0.65 0.75 1"/>
       </material>
     </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.212 -0.05915 0"/>
+      <geometry>
+        <box size=".068 0.0373 .060"/>
+      </geometry>
+      <material name="grey">
+        <color rgba="0.65 0.65 0.75 1"/>
+      </material>
+    </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.212 0.05915 0"/>
+      <geometry>
+        <box size=".068 0.0373 .060"/>
+      </geometry>
+      <material name="grey">
+        <color rgba="0.65 0.65 0.75 1"/>
+      </material>
+    </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.212 -0.05915 0"/>
+      <geometry>
+        <box size=".068 0.0373 .060"/>
+      </geometry>
+      <material name="grey">
+        <color rgba="0.65 0.65 0.75 1"/>
+      </material>
+    </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.212 0.05915 0"/>
+      <geometry>
+        <box size=".068 0.0373 .060"/>
+      </geometry>
+      <material name="grey">
+        <color rgba="0.65 0.65 0.75 1"/>
+      </material>
+    </visual>
+
 
     <collision>
       <origin rpy="0 0 0" xyz="0 0.1165 0"/>
@@ -88,18 +125,43 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0.0455 0"/>
       <geometry>
-        <box size=".307 0.009 .050"/>
+        <box size=".356 0.009 .050"/>
       </geometry>
     </collision>
     <collision>
       <origin rpy="0 0 0" xyz="0 -0.0455 0"/>
       <geometry>
-        <box size=".307 0.009 .050"/>
+        <box size=".356 0.009 .050"/>
       </geometry>
     </collision>
+    <collision>
+      <origin rpy="0 0 0" xyz="0.212 -0.05915 0"/>
+      <geometry>
+        <box size=".068 0.0373 .060"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 0" xyz="0.212 0.05915 0"/>
+      <geometry>
+        <box size=".068 0.0373 .060"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 0" xyz="-0.212 -0.05915 0"/>
+      <geometry>
+        <box size=".068 0.0373 .060"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 0" xyz="-0.212 0.05915 0"/>
+      <geometry>
+        <box size=".068 0.0373 .060"/>
+      </geometry>
+    </collision>
+
     <inertial>
-      <mass value=".72277"/>
-      <inertia ixx="0.00125923" ixy="0.0" ixz="0.0" iyy="0.00346491" iyz="0.0" izz="0.00420849"/>
+      <mass value="1.3668"/>
+      <inertia ixx="0.0038077" ixy="0.0" ixz="0.0" iyy="0.0328502" iyz="0.0" izz="0.03575585"/>
     </inertial>
   </link>
 
@@ -125,7 +187,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0.0455 0"/>
       <geometry>
-        <box size=".307 0.009 .050"/>
+        <box size=".356 0.009 .050"/>
       </geometry>
       <material name="grey">
         <color rgba="0.65 0.65 0.75 1"/>
@@ -134,12 +196,49 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 -0.0455 0"/>
       <geometry>
-        <box size=".307 0.009 .050"/>
+        <box size=".356 0.009 .050"/>
       </geometry>
       <material name="grey">
         <color rgba="0.65 0.65 0.75 1"/>
       </material>
     </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.212 -0.05915 0"/>
+      <geometry>
+        <box size=".068 0.0373 .060"/>
+      </geometry>
+      <material name="grey">
+        <color rgba="0.65 0.65 0.75 1"/>
+      </material>
+    </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.212 0.05915 0"/>
+      <geometry>
+        <box size=".068 0.0373 .060"/>
+      </geometry>
+      <material name="grey">
+        <color rgba="0.65 0.65 0.75 1"/>
+      </material>
+    </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.212 -0.05915 0"/>
+      <geometry>
+        <box size=".068 0.0373 .060"/>
+      </geometry>
+      <material name="grey">
+        <color rgba="0.65 0.65 0.75 1"/>
+      </material>
+    </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.212 0.05915 0"/>
+      <geometry>
+        <box size=".068 0.0373 .060"/>
+      </geometry>
+      <material name="grey">
+        <color rgba="0.65 0.65 0.75 1"/>
+      </material>
+    </visual>
+
 
     <collision>
       <origin rpy="0 0 0" xyz="0 0.1165 0"/>
@@ -150,18 +249,43 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0.0455 0"/>
       <geometry>
-        <box size=".307 0.009 .050"/>
+        <box size=".356 0.009 .050"/>
       </geometry>
     </collision>
     <collision>
       <origin rpy="0 0 0" xyz="0 -0.0455 0"/>
       <geometry>
-        <box size=".307 0.009 .050"/>
+        <box size=".356 0.009 .050"/>
       </geometry>
     </collision>
+    <collision>
+      <origin rpy="0 0 0" xyz="0.212 -0.05915 0"/>
+      <geometry>
+        <box size=".068 0.0373 .060"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 0" xyz="0.212 0.05915 0"/>
+      <geometry>
+        <box size=".068 0.0373 .060"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 0" xyz="-0.212 -0.05915 0"/>
+      <geometry>
+        <box size=".068 0.0373 .060"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 0" xyz="-0.212 0.05915 0"/>
+      <geometry>
+        <box size=".068 0.0373 .060"/>
+      </geometry>
+    </collision>
+
     <inertial>
-      <mass value=".72277"/>
-      <inertia ixx="0.00125923" ixy="0.0" ixz="0.0" iyy="0.00346491" iyz="0.0" izz="0.00420849"/>
+      <mass value="1.3668"/>
+      <inertia ixx="0.0038077" ixy="0.0" ixz="0.0" iyy="0.0328502" iyz="0.0" izz="0.03575585"/>
     </inertial>
   </link>
 
@@ -185,19 +309,19 @@
     </visual>
     <collision>
       <geometry>
-        <cylinder length="0.059" radius="0.05268"/>
+        <cylinder length="0.0165" radius="0.0425"/>
       </geometry>
     </collision>
     <inertial>
-      <mass value="0.402"/>
-      <inertia ixx="0.0003378" ixy="0.0" ixz="0.0" iyy="0.0012213" iyz="0.0" izz="0.001058"/>
+      <mass value="0.241"/>
+      <inertia ixx="0.00011397" ixy="0.0" ixz="0.0" iyy="0.00011397" iyz="0.0" izz="0.00021765"/>
     </inertial>
   </link>
   <joint name="motor_front_rightR_joint" type="continuous">
     <axis xyz="0 0 1"/>
     <parent link="chassis_right"/>
     <child link="motor_front_rightR_link"/>
-    <origin rpy="1.57075 0 0" xyz="0.20268 -0.0455 0"/>
+    <origin rpy="1.57075 0 0" xyz="0.20268 -0.03275 0"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -213,19 +337,19 @@
     </visual>
     <collision>
       <geometry>
-        <cylinder length="0.059" radius="0.05268"/>
+        <cylinder length="0.0165" radius="0.0425"/>
       </geometry>
     </collision>
     <inertial>
-      <mass value="0.402"/>
-      <inertia ixx="0.0003378" ixy="0.0" ixz="0.0" iyy="0.0012213" iyz="0.0" izz="0.001058"/>
+      <mass value="0.241"/>
+      <inertia ixx="0.00011397" ixy="0.0" ixz="0.0" iyy="0.00011397" iyz="0.0" izz="0.00021765"/>
     </inertial>
   </link>
   <joint name="motor_front_rightL_joint" type="continuous">
     <axis xyz="0 0 1"/>
     <parent link="chassis_right"/>
     <child link="motor_front_rightL_link"/>
-    <origin rpy="1.57075 0 3.141592" xyz="0.20268 0.0455 0"/>
+    <origin rpy="1.57075 0 3.141592" xyz="0.20268 0.03275 0"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -241,19 +365,19 @@
     </visual>
     <collision>
       <geometry>
-        <cylinder length="0.059" radius="0.05268"/>
+        <cylinder length="0.0165" radius="0.0425"/>
       </geometry>
     </collision>
     <inertial>
-      <mass value="0.402"/>
-      <inertia ixx="0.0003378" ixy="0.0" ixz="0.0" iyy="0.0012213" iyz="0.0" izz="0.001058"/>
+      <mass value="0.241"/>
+      <inertia ixx="0.00011397" ixy="0.0" ixz="0.0" iyy="0.00011397" iyz="0.0" izz="0.00021765"/>
     </inertial>
   </link>
   <joint name="motor_front_leftL_joint" type="continuous">
     <axis xyz="0 0 1"/>
     <parent link="chassis_left"/>
     <child link="motor_front_leftL_link"/>
-    <origin rpy="1.57075 0 3.141592" xyz="0.20268 0.0455 0"/>
+    <origin rpy="1.57075 0 3.141592" xyz="0.20268 0.03275 0"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -269,19 +393,19 @@
     </visual>
     <collision>
       <geometry>
-        <cylinder length="0.059" radius="0.05268"/>
+        <cylinder length="0.0165" radius="0.0425"/>
       </geometry>
     </collision>
     <inertial>
-      <mass value="0.402"/>
-      <inertia ixx="0.0003378" ixy="0.0" ixz="0.0" iyy="0.0012213" iyz="0.0" izz="0.001058"/>
+      <mass value="0.241"/>
+      <inertia ixx="0.00011397" ixy="0.0" ixz="0.0" iyy="0.00011397" iyz="0.0" izz="0.00021765"/>
     </inertial>
   </link>
   <joint name="motor_front_leftR_joint" type="continuous">
     <axis xyz="0 0 1"/>
     <parent link="chassis_left"/>
     <child link="motor_front_leftR_link"/>
-    <origin rpy="1.57075 0 0" xyz="0.20268 -0.0455 0"/>
+    <origin rpy="1.57075 0 0" xyz="0.20268 -0.03275 0"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -297,19 +421,19 @@
     </visual>
     <collision>
       <geometry>
-        <cylinder length="0.059" radius="0.05268"/>
+        <cylinder length="0.0165" radius="0.0425"/>
       </geometry>
     </collision>
     <inertial>
-      <mass value="0.402"/>
-      <inertia ixx="0.0003378" ixy="0.0" ixz="0.0" iyy="0.0012213" iyz="0.0" izz="0.001058"/>
+      <mass value="0.241"/>
+      <inertia ixx="0.00011397" ixy="0.0" ixz="0.0" iyy="0.00011397" iyz="0.0" izz="0.00021765"/>
     </inertial>
   </link>
   <joint name="motor_back_rightR_joint" type="continuous">
     <axis xyz="0 0 1"/>
     <parent link="chassis_right"/>
     <child link="motor_back_rightR_link"/>
-    <origin rpy="1.57075 0 0" xyz="-0.20268 -0.0455 0"/>
+    <origin rpy="1.57075 0 0" xyz="-0.20268 -0.03275 0"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -325,19 +449,19 @@
     </visual>
     <collision>
       <geometry>
-        <cylinder length="0.059" radius="0.05268"/>
+        <cylinder length="0.0165" radius="0.0425"/>
       </geometry>
     </collision>
     <inertial>
-      <mass value="0.402"/>
-      <inertia ixx="0.0003378" ixy="0.0" ixz="0.0" iyy="0.0012213" iyz="0.0" izz="0.001058"/>
+      <mass value="0.241"/>
+      <inertia ixx="0.00011397" ixy="0.0" ixz="0.0" iyy="0.00011397" iyz="0.0" izz="0.00021765"/>
     </inertial>
   </link>
   <joint name="motor_back_rightL_joint" type="continuous">
     <axis xyz="0 0 1"/>
     <parent link="chassis_right"/>
     <child link="motor_back_rightL_link"/>
-    <origin rpy="1.57075 0 3.141592" xyz="-0.20268 0.0455 0"/>
+    <origin rpy="1.57075 0 3.141592" xyz="-0.20268 0.03275 0"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -353,19 +477,19 @@
     </visual>
     <collision>
       <geometry>
-        <cylinder length="0.059" radius="0.05268"/>
+        <cylinder length="0.0165" radius="0.0425"/>
       </geometry>
     </collision>
     <inertial>
-      <mass value="0.402"/>
-      <inertia ixx="0.0003378" ixy="0.0" ixz="0.0" iyy="0.0012213" iyz="0.0" izz="0.001058"/>
+      <mass value="0.241"/>
+      <inertia ixx="0.00011397" ixy="0.0" ixz="0.0" iyy="0.00011397" iyz="0.0" izz="0.00021765"/>
     </inertial>
   </link>
   <joint name="motor_back_leftL_joint" type="continuous">
     <axis xyz="0 0 1"/>
     <parent link="chassis_left"/>
     <child link="motor_back_leftL_link"/>
-    <origin rpy="1.57075 0 3.141592" xyz="-0.20268 0.0455 0"/>
+    <origin rpy="1.57075 0 3.141592" xyz="-0.20268 0.03275 0"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -381,19 +505,19 @@
     </visual>
     <collision>
       <geometry>
-        <cylinder length="0.059" radius="0.05268"/>
+        <cylinder length="0.0165" radius="0.0425"/>
       </geometry>
     </collision>
     <inertial>
-      <mass value="0.402"/>
-      <inertia ixx="0.0003378" ixy="0.0" ixz="0.0" iyy="0.0012213" iyz="0.0" izz="0.001058"/>
+      <mass value="0.241"/>
+      <inertia ixx="0.00011397" ixy="0.0" ixz="0.0" iyy="0.00011397" iyz="0.0" izz="0.00021765"/>
     </inertial>
   </link>
   <joint name="motor_back_leftR_joint" type="continuous">
     <axis xyz="0 0 1"/>
     <parent link="chassis_left"/>
     <child link="motor_back_leftR_link"/>
-    <origin rpy="1.57075 0 0" xyz="-0.20268 -0.0455 0"/>
+    <origin rpy="1.57075 0 0" xyz="-0.20268 -0.03275 0"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -423,7 +547,7 @@
     <axis xyz="0 0 1"/>
     <parent link="motor_front_rightR_link"/>
     <child link="upper_leg_front_rightR_link"/>
-    <origin rpy="-1.57075 0 0" xyz="0.0 0.045 -0.030"/>
+    <origin rpy="-1.57075 0 0" xyz="0.0 0.045 -0.01725"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -491,7 +615,7 @@
     <axis xyz="0 0 1"/>
     <parent link="motor_front_rightL_link"/>
     <child link="upper_leg_front_rightL_link"/>
-    <origin rpy="-1.57075 0 0" xyz="0.0 0.045 -0.030"/>
+    <origin rpy="-1.57075 0 0" xyz="0.0 0.045 -0.01725"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -560,7 +684,7 @@
     <axis xyz="0 0 1"/>
     <parent link="motor_front_leftR_link"/>
     <child link="upper_leg_front_leftR_link"/>
-    <origin rpy="-1.57075 0 0" xyz="0.0 0.045 -0.030"/>
+    <origin rpy="-1.57075 0 0" xyz="0.0 0.045 -0.01725"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -628,7 +752,7 @@
     <axis xyz="0 0 1"/>
     <parent link="motor_front_leftL_link"/>
     <child link="upper_leg_front_leftL_link"/>
-    <origin rpy="-1.57075 0 0" xyz="0.0 0.045 -0.030"/>
+    <origin rpy="-1.57075 0 0" xyz="0.0 0.045 -0.01725"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -697,7 +821,7 @@
     <axis xyz="0 0 1"/>
     <parent link="motor_back_rightR_link"/>
     <child link="upper_leg_back_rightR_link"/>
-    <origin rpy="-1.57075 0 0" xyz="0.0 0.045 -0.030"/>
+    <origin rpy="-1.57075 0 0" xyz="0.0 0.045 -0.01725"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -765,7 +889,7 @@
     <axis xyz="0 0 1"/>
     <parent link="motor_back_rightL_link"/>
     <child link="upper_leg_back_rightL_link"/>
-    <origin rpy="-1.57075 0 0" xyz="0.0 0.045 -0.030"/>
+    <origin rpy="-1.57075 0 0" xyz="0.0 0.045 -0.01725"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -834,7 +958,7 @@
     <axis xyz="0 0 1"/>
     <parent link="motor_back_leftR_link"/>
     <child link="upper_leg_back_leftR_link"/>
-    <origin rpy="-1.57075 0 0" xyz="0.0 0.045 -0.030"/>
+    <origin rpy="-1.57075 0 0" xyz="0.0 0.045 -0.01725"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
@@ -902,7 +1026,7 @@
     <axis xyz="0 0 1"/>
     <parent link="motor_back_leftL_link"/>
     <child link="upper_leg_back_leftL_link"/>
-    <origin rpy="-1.57075 0 0" xyz="0.0 0.045 -0.030"/>
+    <origin rpy="-1.57075 0 0" xyz="0.0 0.045 -0.01725"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>

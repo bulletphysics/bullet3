@@ -48,6 +48,10 @@ for jointIndex in range (p.getNumJoints(kuka_gripper)):
 
 kuka_cid = p.createConstraint(kuka,   6,  kuka_gripper,0,p.JOINT_FIXED, [0,0,0], [0,0,0.05],[0,0,0])
 
+pr2_cid2 = p.createConstraint(kuka_gripper,4,kuka_gripper,6,jointType=p.JOINT_GEAR,jointAxis =[1,1,1],parentFramePosition=[0,0,0],childFramePosition=[0,0,0])
+p.changeConstraint(pr2_cid2,gearRatio=-1, erp=0.5, relativePositionTarget=0, maxForce=100)
+
+
 objects = [p.loadURDF("jenga/jenga.urdf", 1.300000,-0.700000,0.750000,0.000000,0.707107,0.000000,0.707107)]
 objects = [p.loadURDF("jenga/jenga.urdf", 1.200000,-0.700000,0.750000,0.000000,0.707107,0.000000,0.707107)]
 objects = [p.loadURDF("jenga/jenga.urdf", 1.100000,-0.700000,0.750000,0.000000,0.707107,0.000000,0.707107)]

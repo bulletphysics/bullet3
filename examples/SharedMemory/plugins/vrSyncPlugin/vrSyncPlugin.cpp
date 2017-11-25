@@ -62,33 +62,41 @@ B3_SHARED_API int preTickPluginCallback_vrSyncPlugin(struct b3PluginContext* con
 					{
 						if (obj->m_constraintId>=0)
 						{
-							//this is basically equivalent to doing this in Python/pybullet:
-							//p.changeConstraint(pr2_cid, e[POSITION], e[ORIENTATION], maxForce=...)
-							b3SharedMemoryCommandHandle commandHandle;
-							int userConstraintUniqueId = obj->m_constraintId;
-							commandHandle = b3InitChangeUserConstraintCommand(context->m_physClient, userConstraintUniqueId);
-							double pos[4] = {event.m_pos[0],event.m_pos[1],event.m_pos[2],1};
-							b3InitChangeUserConstraintSetPivotInB(commandHandle, pos);
-							double orn[4] = {event.m_orn[0],event.m_orn[1],event.m_orn[2],event.m_orn[3]};
-							b3InitChangeUserConstraintSetFrameInB(commandHandle, orn);
-							b3InitChangeUserConstraintSetMaxForce(commandHandle, obj->m_maxForce);
-							b3SharedMemoryStatusHandle statusHandle = b3SubmitClientCommandAndWaitStatus(context->m_physClient, commandHandle);
+							struct b3UserConstraint constraintInfo;
+							if (b3GetUserConstraintInfo(context->m_physClient, obj->m_constraintId, &constraintInfo))
+							{
+								//this is basically equivalent to doing this in Python/pybullet:
+								//p.changeConstraint(pr2_cid, e[POSITION], e[ORIENTATION], maxForce=...)
+								b3SharedMemoryCommandHandle commandHandle;
+								int userConstraintUniqueId = obj->m_constraintId;
+								commandHandle = b3InitChangeUserConstraintCommand(context->m_physClient, userConstraintUniqueId);
+								double pos[4] = {event.m_pos[0],event.m_pos[1],event.m_pos[2],1};
+								b3InitChangeUserConstraintSetPivotInB(commandHandle, pos);
+								double orn[4] = {event.m_orn[0],event.m_orn[1],event.m_orn[2],event.m_orn[3]};
+								b3InitChangeUserConstraintSetFrameInB(commandHandle, orn);
+								b3InitChangeUserConstraintSetMaxForce(commandHandle, obj->m_maxForce);
+								b3SharedMemoryStatusHandle statusHandle = b3SubmitClientCommandAndWaitStatus(context->m_physClient, commandHandle);
+							}
 						}
 						// apply the analogue button to close the constraint, using a gear constraint with position target
 						if (obj->m_constraintId2>=0)
 						{
-							//this block is similar to
-							//p.changeConstraint(c,gearRatio=1, erp=..., relativePositionTarget=relPosTarget, maxForce=...)
-							//printf("obj->m_constraintId2=%d\n", obj->m_constraintId2);
-							b3SharedMemoryCommandHandle commandHandle;
-							commandHandle = b3InitChangeUserConstraintCommand(context->m_physClient, obj->m_constraintId2);
+							struct b3UserConstraint constraintInfo;
+							if (b3GetUserConstraintInfo(context->m_physClient, obj->m_constraintId2, &constraintInfo))
+							{
+								//this block is similar to
+								//p.changeConstraint(c,gearRatio=1, erp=..., relativePositionTarget=relPosTarget, maxForce=...)
+								//printf("obj->m_constraintId2=%d\n", obj->m_constraintId2);
+								b3SharedMemoryCommandHandle commandHandle;
+								commandHandle = b3InitChangeUserConstraintCommand(context->m_physClient, obj->m_constraintId2);
 
-							//0 -> open, 1 = closed
-							double openPos = 1.;
-							double relPosTarget = openPos - (event.m_analogAxis*openPos);
-							b3InitChangeUserConstraintSetRelativePositionTarget(commandHandle, relPosTarget);
-							b3InitChangeUserConstraintSetERP(commandHandle,1);
-							b3SharedMemoryStatusHandle statusHandle = b3SubmitClientCommandAndWaitStatus(context->m_physClient, commandHandle);
+								//0 -> open, 1 = closed
+								double openPos = 1.;
+								double relPosTarget = openPos - (event.m_analogAxis*openPos);
+								b3InitChangeUserConstraintSetRelativePositionTarget(commandHandle, relPosTarget);
+								b3InitChangeUserConstraintSetERP(commandHandle,1);
+								b3SharedMemoryStatusHandle statusHandle = b3SubmitClientCommandAndWaitStatus(context->m_physClient, commandHandle);
+							}
 						}
 						//printf("event.m_analogAxis=%f\n", event.m_analogAxis);
 

@@ -104,10 +104,16 @@ myfiles =
 
 }
 
+
 files {
 	myfiles,
 	"main.cpp",
 }
+
+if (_OPTIONS["enable_static_vr_plugin"]) then
+	defines("STATIC_LINK_VR_PLUGIN")
+	files {"plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
 
 
 files {
@@ -202,6 +208,11 @@ files {
 				"../ExampleBrowser/GL_ShapeDrawer.cpp",
 				"../ExampleBrowser/CollisionShape2TriangleMesh.cpp",
 }
+if (_OPTIONS["enable_static_vr_plugin"]) then
+	defines("STATIC_LINK_VR_PLUGIN")
+	files {"plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
+
 
 if os.is("Linux") then initX11() end
 
@@ -353,6 +364,11 @@ if os.is("Windows") then
 					"../ThirdPartyLibs/openvr/samples/shared/pathtools.h",
 					"../ThirdPartyLibs/openvr/samples/shared/Vectors.h",
 	}
+if (_OPTIONS["enable_static_vr_plugin"]) then
+	defines("STATIC_LINK_VR_PLUGIN")
+	files {"plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
+
 	if os.is("Windows") then 
 		configuration {"x32"}
 			libdirs {"../ThirdPartyLibs/openvr/lib/win32"}

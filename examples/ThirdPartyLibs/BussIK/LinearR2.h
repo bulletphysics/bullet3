@@ -90,7 +90,7 @@ public:
 	VectorR2& operator*= ( double m ) 
 		{ x*=m; y*=m; return(*this); }
 	VectorR2& operator/= ( double m ) 
-			{ register double mInv = 1.0/m; 
+			{  double mInv = 1.0/m; 
 			  x*=mInv; y*=mInv;
 			  return(*this); }
 	VectorR2 operator- () const { return ( VectorR2(-x, -y) ); }
@@ -108,7 +108,7 @@ public:
 	VectorR2& MakeUnit();		// Normalize() with error checking
 	VectorR2& ReNormalize();
 	bool IsUnit( double tolerance = 1.0e-15 ) const
-		{ register double norm = Norm();
+		{  double norm = Norm();
 		  return ( 1.0+tolerance>=norm && norm>=1.0-tolerance ); }
 	bool IsZero() const { return ( x==0.0 && y==0.0 ); }
 	bool NearZero(double tolerance) const { return( MaxAbs()<=tolerance );}
@@ -369,7 +369,7 @@ inline VectorR2& VectorR2::MakeUnit ()	 // Convert to unit vector (or leave zero
 inline VectorR2& VectorR2::ReNormalize()			// Convert near unit back to unit
 {
 	double nSq = NormSq();
-	register double mFact = 1.0-0.5*(nSq-1.0);	// Multiplicative factor
+	 double mFact = 1.0-0.5*(nSq-1.0);	// Multiplicative factor
 	*this *= mFact;
 	return *this;
 }
@@ -395,7 +395,7 @@ inline VectorR2& VectorR2::Rotate( double costheta, double sintheta )
 
 inline double VectorR2::MaxAbs() const
 {
-	register double m;
+	 double m;
 	m = (x>=0.0) ? x : -x;
 	if ( y>m ) m=y;
 	else if ( -y >m ) m = -y;
@@ -410,17 +410,17 @@ inline VectorR2 operator-( const VectorR2& u, const VectorR2& v )
 { 
 	return VectorR2(u.x-v.x, u.y-v.y ); 
 }
-inline VectorR2 operator*( const VectorR2& u, register double m) 
+inline VectorR2 operator*( const VectorR2& u,  double m) 
 { 
 	return VectorR2( u.x*m, u.y*m ); 
 }
-inline VectorR2 operator*( register double m, const VectorR2& u) 
+inline VectorR2 operator*(  double m, const VectorR2& u) 
 { 
 	return VectorR2( u.x*m, u.y*m ); 
 }
 inline VectorR2 operator/( const VectorR2& u, double m) 
 { 
-	register double mInv = 1.0/m;
+	 double mInv = 1.0/m;
 	return VectorR2( u.x*mInv, u.y*mInv ); 
 }
 
@@ -454,7 +454,7 @@ inline VectorR2::VectorR2( const VectorHgR2& uH )
 
 inline double NormalizeError (const VectorR2& u)
 {
-	register double discrepancy;
+	 double discrepancy;
 	discrepancy = u.x*u.x + u.y*u.y - 1.0;
 	if ( discrepancy < 0.0 ) {
 		discrepancy = -discrepancy;
@@ -626,7 +626,7 @@ inline double Matrix2x2::Diagonal( int i )
 }
 inline void Matrix2x2::MakeTranspose()	// Transposes it.
 {
-	register double temp;
+	 double temp;
 	temp = m12;
 	m12 = m21;
 	m21=temp;
@@ -647,8 +647,8 @@ inline void Matrix2x2::operator*= (const Matrix2x2& B)	// Matrix product
 
 inline Matrix2x2& Matrix2x2::ReNormalize()	// Re-normalizes nearly orthonormal matrix
 {
-	register double alpha = m11*m11+m21*m21;	// First column's norm squared
-	register double beta  = m12*m12+m22*m22;	// Second column's norm squared
+	 double alpha = m11*m11+m21*m21;	// First column's norm squared
+	 double beta  = m12*m12+m22*m22;	// Second column's norm squared
 	alpha = 1.0 - 0.5*(alpha-1.0);				// Get mult. factor
 	beta  = 1.0 - 0.5*(beta-1.0);
 	m11 *= alpha;								// Renormalize first column
@@ -657,7 +657,7 @@ inline Matrix2x2& Matrix2x2::ReNormalize()	// Re-normalizes nearly orthonormal m
 	m22 *= beta;
 	alpha = m11*m12+m21*m22;					// Columns' inner product
 	alpha *= 0.5;								//    times 1/2
-	register double temp;
+	 double temp;
 	temp = m11-alpha*m12;						// Subtract alpha times other column
 	m12 -= alpha*m11;
 	m11 = temp;
@@ -671,8 +671,8 @@ inline Matrix2x2& Matrix2x2::ReNormalize()	// Re-normalizes nearly orthonormal m
 //		Mostly intended for diagnostic purposes.
 inline double NormalizeError( const Matrix2x2& A)
 {
-	register double discrepancy;
-	register double newdisc;
+	 double discrepancy;
+	 double newdisc;
 	discrepancy = A.m11*A.m11 + A.m21*A.m21 -1.0;	// First column - inner product - 1
 	if (discrepancy<0.0) {
 		discrepancy = -discrepancy;
@@ -780,7 +780,7 @@ inline LinearMapR2 operator- (const LinearMapR2& A, const LinearMapR2& B)
 						 A.m12-B.m12, A.m22-B.m22 ) );
 }
 
-inline LinearMapR2& LinearMapR2::operator*= (register double b)
+inline LinearMapR2& LinearMapR2::operator*= ( double b)
 {
 	m11 *= b;
 	m12 *= b;
@@ -789,13 +789,13 @@ inline LinearMapR2& LinearMapR2::operator*= (register double b)
 	return ( *this);
 }
 
-inline LinearMapR2 operator* ( const LinearMapR2& A, register double b)
+inline LinearMapR2 operator* ( const LinearMapR2& A,  double b)
 {
 	return( LinearMapR2( A.m11*b, A.m21*b,
 						 A.m12*b, A.m22*b ) );
 }
 
-inline LinearMapR2 operator* ( register double b, const LinearMapR2& A)
+inline LinearMapR2 operator* (  double b, const LinearMapR2& A)
 {
 	return( LinearMapR2( A.m11*b, A.m21*b,
 						 A.m12*b, A.m22*b ) );
@@ -803,13 +803,13 @@ inline LinearMapR2 operator* ( register double b, const LinearMapR2& A)
 
 inline LinearMapR2 operator/ ( const LinearMapR2& A, double b)
 {
-	register double bInv = 1.0/b;
+	 double bInv = 1.0/b;
 	return ( A*bInv );
 }
 
-inline LinearMapR2& LinearMapR2::operator/= (register double b)
+inline LinearMapR2& LinearMapR2::operator/= ( double b)
 {
-	register double bInv = 1.0/b;
+	 double bInv = 1.0/b;
 	return ( *this *= bInv );
 }
 

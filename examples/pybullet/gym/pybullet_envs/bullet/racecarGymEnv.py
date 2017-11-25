@@ -15,6 +15,9 @@ import random
 from . import bullet_client
 import pybullet_data
 
+RENDER_HEIGHT = 720
+RENDER_WIDTH = 960
+
 class RacecarGymEnv(gym.Env):
   metadata = {
       'render.modes': ['human', 'rgb_array'],
@@ -136,20 +139,27 @@ class RacecarGymEnv(gym.Env):
     return np.array(self._observation), reward, done, {}
 
   def _render(self, mode='human', close=False):
-      width=320
-      height=200
-      img_arr = self._p.getCameraImage(width,height)
-      w=img_arr[0]
-      h=img_arr[1]
-      rgb=img_arr[2]
-      dep=img_arr[3]
-      #print 'width = %d height = %d' % (w,h)
-      # reshape creates np array
-      np_img_arr = np.reshape(rgb, (h, w, 4))
-      # remove alpha channel
-      np_img_arr = np_img_arr[:, :, :3]
-      return np_img_arr
+    if mode != "rgb_array":
+      return np.array([])
+    base_pos,orn = self._p.getBasePositionAndOrientation(self._racecar.racecarUniqueId)
+    view_matrix = self._p.computeViewMatrixFromYawPitchRoll(
+        cameraTargetPosition=base_pos,
+        distance=self._cam_dist,
+        yaw=self._cam_yaw,
+        pitch=self._cam_pitch,
+        roll=0,
+        upAxisIndex=2)
+    proj_matrix = self._p.computeProjectionMatrixFOV(
+        fov=60, aspect=float(RENDER_WIDTH)/RENDER_HEIGHT,
+        nearVal=0.1, farVal=100.0)
+    (_, _, px, _, _) = self._p.getCameraImage(
+        width=RENDER_WIDTH, height=RENDER_HEIGHT, viewMatrix=view_matrix,
+        projectionMatrix=proj_matrix, renderer=pybullet.ER_BULLET_HARDWARE_OPENGL)
+    rgb_array = np.array(px)
+    rgb_array = rgb_array[:, :, :3]
+    return rgb_array
 
+    
   def _termination(self):
     return self._envStepCounter>1000
     
