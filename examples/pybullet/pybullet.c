@@ -5987,7 +5987,7 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 		statusType = b3GetStatusType(statusHandle);
 		if (statusType == CMD_CAMERA_IMAGE_COMPLETED)
 		{
-			PyObject* item2;
+
 			PyObject* pyResultList;  // store 4 elements in this result: width,
 									 // height, rgbData, depth
 
@@ -5996,13 +5996,12 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 			PyObject* pyDep;
 			PyObject* pySeg;
 
-			int i, j, p;
 			int bytesPerPixel = 4;  // Red, Green, Blue, and Alpha each 8 bit values
 
 
 			b3GetCameraImageData(sm, &imageData);
 			// TODO(hellojas): error handling if image size is 0
-			
+			{
 			npy_intp rgb_dims[3] = {imageData.m_pixelHeight, imageData.m_pixelWidth,
 									bytesPerPixel};
 			npy_intp dep_dims[2] = {imageData.m_pixelHeight, imageData.m_pixelWidth};
@@ -6027,7 +6026,9 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 			PyTuple_SetItem(pyResultList, 2, pyRGB);
 			PyTuple_SetItem(pyResultList, 3, pyDep);
 			PyTuple_SetItem(pyResultList, 4, pySeg);
+			}
 #else   //PYBULLET_USE_NUMPY
+			PyObject* item2;
 			PyObject* pylistRGB;
 			PyObject* pylistDep;
 			PyObject* pylistSeg;
@@ -6417,7 +6418,7 @@ static PyObject* pybullet_renderImageObsolete(PyObject* self, PyObject* args)
 		statusType = b3GetStatusType(statusHandle);
 		if (statusType == CMD_CAMERA_IMAGE_COMPLETED)
 		{
-			PyObject* item2;
+			
 			PyObject* pyResultList;  // store 4 elements in this result: width,
 									 // height, rgbData, depth
 
@@ -6426,7 +6427,7 @@ static PyObject* pybullet_renderImageObsolete(PyObject* self, PyObject* args)
 			PyObject* pyDep;
 			PyObject* pySeg;
 
-			int i, j, p;
+			
 			int bytesPerPixel = 4;  // Red, Green, Blue, and Alpha each 8 bit values
 
 			b3GetCameraImageData(sm, &imageData);
@@ -6434,7 +6435,7 @@ static PyObject* pybullet_renderImageObsolete(PyObject* self, PyObject* args)
 			pyResultList = PyTuple_New(5);
 			PyTuple_SetItem(pyResultList, 0, PyInt_FromLong(imageData.m_pixelWidth));
 			PyTuple_SetItem(pyResultList, 1, PyInt_FromLong(imageData.m_pixelHeight));
-
+			{
 			npy_intp rgb_dims[3] = {imageData.m_pixelHeight, imageData.m_pixelWidth,
 									bytesPerPixel};
 			npy_intp dep_dims[2] = {imageData.m_pixelHeight, imageData.m_pixelWidth};
@@ -6454,7 +6455,9 @@ static PyObject* pybullet_renderImageObsolete(PyObject* self, PyObject* args)
 			PyTuple_SetItem(pyResultList, 2, pyRGB);
 			PyTuple_SetItem(pyResultList, 3, pyDep);
 			PyTuple_SetItem(pyResultList, 4, pySeg);
+			}
 #else   //PYBULLET_USE_NUMPY
+			PyObject* item2;
 			PyObject* pylistRGB;
 			PyObject* pylistDep;
 			PyObject* pylistSeg;
