@@ -1,37 +1,48 @@
 
-#make sure to compile pybullet with PYBULLET_USE_NUMPY enabled, otherwise use testrender.py (slower but compatible without numpy)
+#make sure to compile pybullet with PYBULLET_USE_NUMPY enabled
+#otherwise use testrender.py (slower but compatible without numpy)
+#you can also use GUI mode, for faster OpenGL rendering (instead of TinyRender CPU)
 
 import numpy as np
 import matplotlib.pyplot as plt
 import pybullet
 import time
+from pylab import *
 
-pybullet.connect(pybullet.GUI)
+ion()
+img = standard_normal((50,100))
+image = imshow(img,interpolation='none',animated=True,label="blah")
+
+    
+#pybullet.connect(pybullet.GUI)
+pybullet.connect(pybullet.DIRECT)
+pybullet.loadURDF("plane.urdf",[0,0,-1])
 pybullet.loadURDF("r2d2.urdf")
 
 camTargetPos = [0,0,0]
 cameraUp = [0,0,1]
 cameraPos = [1,1,1]
-yaw = 40
-pitch = 10.0
+
+pitch = -10.0
 
 roll=0
 upAxisIndex = 2
 camDistance = 4
-pixelWidth = 1024
-pixelHeight = 768
+pixelWidth = 320
+pixelHeight = 200
 nearPlane = 0.01
-farPlane = 1000
+farPlane = 100
 
 fov = 60
 
 main_start = time.time()
-for pitch in range (0,360,10) :
+while (1):
+  for yaw in range (0,360,10):
     start = time.time()
     viewMatrix = pybullet.computeViewMatrixFromYawPitchRoll(camTargetPos, camDistance, yaw, pitch, roll, upAxisIndex)
     aspect = pixelWidth / pixelHeight;
     projectionMatrix = pybullet.computeProjectionMatrixFOV(fov, aspect, nearPlane, farPlane);
-    img_arr = pybullet.getCameraImage(pixelWidth, pixelHeight, viewMatrix,projectionMatrix, [0,1,0],renderer=pybullet.ER_BULLET_HARDWARE_OPENGL)
+    img_arr = pybullet.getCameraImage(pixelWidth, pixelHeight, viewMatrix,projectionMatrix, shadow=1,lightDirection=[1,1,1],renderer=pybullet.ER_BULLET_HARDWARE_OPENGL)
     stop = time.time()
     print ("renderImage %f" % (stop - start))
 
@@ -44,8 +55,13 @@ for pitch in range (0,360,10) :
 
     #note that sending the data to matplotlib is really slow
 
-    plt.imshow(rgb,interpolation='none')
-    plt.pause(0.001)
+    np_img_arr = np.reshape(rgb, (h, w, 4))
+    np_img_arr = np_img_arr*(1./255.)
+    #show
+    #plt.imshow(np_img_arr,interpolation='none',extent=(0,1600,0,1200))
+    image.set_data(np_img_arr)
+    #draw()
+    plt.pause(0.0001)
 
 main_stop = time.time()
 
