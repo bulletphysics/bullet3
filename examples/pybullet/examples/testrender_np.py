@@ -7,12 +7,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pybullet
 import time
-from pylab import *
 
-ion()
-img = standard_normal((50,100))
-image = imshow(img,interpolation='none',animated=True,label="blah")
 
+plt.ion()
+
+img = np.random.rand(200, 320)
+#img = [tandard_normal((50,100))
+image = plt.imshow(img,interpolation='none',animated=True,label="blah")
+ax = plt.gca()
     
 #pybullet.connect(pybullet.GUI)
 pybullet.connect(pybullet.DIRECT)
@@ -22,6 +24,7 @@ pybullet.loadURDF("r2d2.urdf")
 camTargetPos = [0,0,0]
 cameraUp = [0,0,1]
 cameraPos = [1,1,1]
+pybullet.setGravity(0,0,-10)
 
 pitch = -10.0
 
@@ -38,7 +41,9 @@ fov = 60
 main_start = time.time()
 while (1):
   for yaw in range (0,360,10):
+    pybullet.stepSimulation()
     start = time.time()
+    
     viewMatrix = pybullet.computeViewMatrixFromYawPitchRoll(camTargetPos, camDistance, yaw, pitch, roll, upAxisIndex)
     aspect = pixelWidth / pixelHeight;
     projectionMatrix = pybullet.computeProjectionMatrixFOV(fov, aspect, nearPlane, farPlane);
@@ -55,13 +60,21 @@ while (1):
 
     #note that sending the data to matplotlib is really slow
 
-    np_img_arr = np.reshape(rgb, (h, w, 4))
-    np_img_arr = np_img_arr*(1./255.)
+    #reshape is not needed
+    #np_img_arr = np.reshape(rgb, (h, w, 4))
+    #np_img_arr = np_img_arr*(1./255.)
+    
     #show
     #plt.imshow(np_img_arr,interpolation='none',extent=(0,1600,0,1200))
-    image.set_data(np_img_arr)
-    #draw()
-    plt.pause(0.0001)
+    #image = plt.imshow(np_img_arr,interpolation='none',animated=True,label="blah")
+
+    image.set_data(rgb)#np_img_arr)
+    ax.plot([0])
+    #plt.draw()
+    #plt.show()
+    plt.pause(0.01)
+    #image.draw()
+    
 
 main_stop = time.time()
 
