@@ -1,8 +1,6 @@
 #include <map>
-#include <string>
-#include <chrono>
-#include <thread>
-
+#include <stdio.h>
+#include "../Utils/b3Clock.h"
 #include "SharedMemory/PhysicsClientC_API.h"
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Common/b3Quaternion.h"
@@ -117,7 +115,7 @@ int main(int argc, char* argv[]) {
 
 		// debugging output
 		printf("%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n", simTimeS, q[0], q[1], v[0], v[1]);
-		std::this_thread::sleep_for(std::chrono::microseconds(dtus1));
+		b3Clock::usleep(1000.*1000.*FIXED_TIMESTEP);
 	}
 	b3DisconnectSharedMemory(kPhysClient);
 	return 0;
