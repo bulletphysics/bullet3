@@ -1,3 +1,7 @@
+/**
+ * License: Bullet3 license
+ * Author: Avik De <avikde@gmail.com>
+ */
 #include <map>
 #include <string>
 #include <stdio.h>

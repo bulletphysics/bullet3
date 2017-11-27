@@ -1,3 +1,5 @@
+% License: Bullet3 license
+% Author: Avik De <avikde@gmail.com>
 
 robot = importrobot('../../data/TwoJointRobot_wo_fixedJoints.urdf');
 show(robot)
