@@ -221,9 +221,6 @@ void	btOptimizedBvh::refit(btStridingMeshInterface* meshInterface,const btVector
 			subtree.setAabbFromQuantizeNode(m_quantizedContiguousNodes[subtree.m_rootNodeIndex]);
 		}
 
-	} else
-	{
-
 	}
 }
 
