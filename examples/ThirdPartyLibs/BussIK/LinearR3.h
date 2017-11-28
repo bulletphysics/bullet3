@@ -110,7 +110,7 @@ public:
 	VectorR3& operator*= ( double m ) 
 		{ x*=m; y*=m; z*=m; return(*this); }
 	VectorR3& operator/= ( double m ) 
-			{ register double mInv = 1.0/m; 
+			{  double mInv = 1.0/m; 
 			  x*=mInv; y*=mInv; z*=mInv; 
 			  return(*this); }
 	VectorR3 operator- () const { return ( VectorR3(-x, -y, -z) ); }
@@ -130,10 +130,10 @@ public:
 	inline VectorR3& MakeUnit();		// Normalize() with error checking
 	inline VectorR3& ReNormalize();
 	bool IsUnit( ) const
-		{ register double norm = Norm();
+		{  double norm = Norm();
 		  return ( 1.000001>=norm && norm>=0.999999 ); }
 	bool IsUnit( double tolerance ) const
-		{ register double norm = Norm();
+		{  double norm = Norm();
 		  return ( 1.0+tolerance>=norm && norm>=1.0-tolerance ); }
 	bool NearZero(double tolerance) const { return( MaxAbs()<=tolerance );}
 							// tolerance should be non-negative
@@ -646,17 +646,17 @@ inline VectorR3 operator-( const VectorR3& u, const VectorR3& v )
 { 
 	return VectorR3(u.x-v.x, u.y-v.y, u.z-v.z); 
 }
-inline VectorR3 operator*( const VectorR3& u, register double m) 
+inline VectorR3 operator*( const VectorR3& u,  double m) 
 { 
 	return VectorR3( u.x*m, u.y*m, u.z*m); 
 }
-inline VectorR3 operator*( register double m, const VectorR3& u) 
+inline VectorR3 operator*(  double m, const VectorR3& u) 
 { 
 	return VectorR3( u.x*m, u.y*m, u.z*m); 
 }
 inline VectorR3 operator/( const VectorR3& u, double m) 
 { 
-	register double mInv = 1.0/m;
+	 double mInv = 1.0/m;
 	return VectorR3( u.x*mInv, u.y*mInv, u.z*mInv); 
 }
 
@@ -716,14 +716,14 @@ inline VectorR3::VectorR3( const VectorHgR3& uH )
 inline VectorR3& VectorR3::ReNormalize()			// Convert near unit back to unit
 {
 	double nSq = NormSq();
-	register double mFact = 1.0-0.5*(nSq-1.0);	// Multiplicative factor
+	 double mFact = 1.0-0.5*(nSq-1.0);	// Multiplicative factor
 	*this *= mFact;
 	return *this;
 }
 
 inline double NormalizeError (const VectorR3& u)
 {
-	register double discrepancy;
+	 double discrepancy;
 	discrepancy = u.x*u.x + u.y*u.y + u.z*u.z - 1.0;
 	if ( discrepancy < 0.0 ) {
 		discrepancy = -discrepancy;
@@ -1000,7 +1000,7 @@ inline double Matrix3x3::Diagonal( int i )
 
 inline void Matrix3x3::MakeTranspose()	// Transposes it.
 {
-	register double temp;
+	 double temp;
 	temp = m12;
 	m12 = m21;
 	m21=temp;
@@ -1515,7 +1515,7 @@ inline LinearMapR3 operator- (const LinearMapR3& A, const Matrix3x3& B)
 						 A.m13-B.m13, A.m23-B.m23, A.m33-B.m33 ) );
 }
 
-inline LinearMapR3& LinearMapR3::operator*= (register double b)
+inline LinearMapR3& LinearMapR3::operator*= ( double b)
 {
 	m11 *= b;
 	m12 *= b;
@@ -1529,14 +1529,14 @@ inline LinearMapR3& LinearMapR3::operator*= (register double b)
 	return ( *this);
 }
 
-inline LinearMapR3 operator* ( const LinearMapR3& A, register double b)
+inline LinearMapR3 operator* ( const LinearMapR3& A,  double b)
 {
 	return( LinearMapR3( A.m11*b, A.m21*b, A.m31*b,
 						 A.m12*b, A.m22*b, A.m32*b,
 						 A.m13*b, A.m23*b, A.m33*b ) );
 }
 
-inline LinearMapR3 operator* ( register double b, const LinearMapR3& A)
+inline LinearMapR3 operator* (  double b, const LinearMapR3& A)
 {
 	return( LinearMapR3( A.m11*b, A.m21*b, A.m31*b,
 						 A.m12*b, A.m22*b, A.m32*b,
@@ -1545,15 +1545,15 @@ inline LinearMapR3 operator* ( register double b, const LinearMapR3& A)
 
 inline LinearMapR3 operator/ ( const LinearMapR3& A, double b)
 {
-	register double bInv = 1.0/b;
+	 double bInv = 1.0/b;
 	return( LinearMapR3( A.m11*bInv, A.m21*bInv, A.m31*bInv,
 						 A.m12*bInv, A.m22*bInv, A.m32*bInv,
 						 A.m13*bInv, A.m23*bInv, A.m33*bInv ) );
 }
 
-inline LinearMapR3& LinearMapR3::operator/= (register double b)
+inline LinearMapR3& LinearMapR3::operator/= ( double b)
 {
-	register double bInv = 1.0/b;
+	 double bInv = 1.0/b;
 	return ( *this *= bInv );
 }
 
@@ -1730,7 +1730,7 @@ inline AffineMapR3 operator- (const LinearMapR3& B, const AffineMapR3& A)
 }
 
 
-inline AffineMapR3& AffineMapR3::operator*= (register double b)
+inline AffineMapR3& AffineMapR3::operator*= ( double b)
 {
 	m11 *= b;
 	m12 *= b;
@@ -1747,7 +1747,7 @@ inline AffineMapR3& AffineMapR3::operator*= (register double b)
 	return (*this);
 }
 
-inline AffineMapR3 operator* (const AffineMapR3& A, register double b)
+inline AffineMapR3 operator* (const AffineMapR3& A,  double b)
 {
 	return(AffineMapR3( A.m11*b, A.m21*b, A.m31*b,
 						A.m12*b, A.m22*b, A.m32*b,
@@ -1755,7 +1755,7 @@ inline AffineMapR3 operator* (const AffineMapR3& A, register double b)
 						A.m14*b, A.m24*b, A.m34*b ) );
 }
 
-inline AffineMapR3 operator* (register double b, const AffineMapR3& A)
+inline AffineMapR3 operator* ( double b, const AffineMapR3& A)
 {
 	return(AffineMapR3( A.m11*b, A.m21*b, A.m31*b,
 						A.m12*b, A.m22*b, A.m32*b,
@@ -1765,14 +1765,14 @@ inline AffineMapR3 operator* (register double b, const AffineMapR3& A)
 
 inline AffineMapR3& AffineMapR3::operator/= (double b)
 {
-	register double bInv = 1.0/b;
+	 double bInv = 1.0/b;
 	*this *= bInv;
 	return( *this );
 }
 
 inline AffineMapR3 operator/ (const AffineMapR3& A, double b) 
 {
-	register double bInv = 1.0/b;
+	 double bInv = 1.0/b;
 	return(AffineMapR3( A.m11*bInv, A.m21*bInv, A.m31*bInv,
 						A.m12*bInv, A.m22*bInv, A.m32*bInv,
 						A.m13*bInv, A.m23*bInv, A.m33*bInv,
@@ -1823,7 +1823,7 @@ inline RotationMapR3 RotationMapR3::Inverse() const		// Returns inverse
 
 inline RotationMapR3& RotationMapR3::Invert()			// Converts into inverse.
 {
-	register double temp;
+	 double temp;
 	temp = m12;
 	m12 = m21;
 	m21 = temp;
@@ -1934,7 +1934,7 @@ inline RigidMapR3& RigidMapR3::Invert()			// Converts into inverse.
 	m14 = new14;
 	m24 = new24;
 
-	register double temp;
+	 double temp;
 	temp = m12;
 	m12 = m21;
 	m21 = temp;

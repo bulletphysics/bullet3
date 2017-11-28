@@ -284,9 +284,7 @@ end
 		_OPTIONS["glfw_lib_name"] = default_glfw_lib_name
 	end	
 
-	if (_OPTIONS["enable_static_vr_plugin"]) then
-		defines("STATIC_LINK_VR_PLUGIN")
-	end
+	
 
 	newoption
     {

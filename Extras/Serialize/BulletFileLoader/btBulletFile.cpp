@@ -181,6 +181,11 @@ void btBulletFile::parseData()
 					m_multiBodies.push_back((bStructHandle*)id);
 				}
 
+				if (dataChunk.code == BT_MB_LINKCOLLIDER_CODE)
+				{
+					m_multiBodyLinkColliders.push_back((bStructHandle*)id);
+				}
+
 				if (dataChunk.code == BT_SOFTBODY_CODE)
 				{
 					m_softBodies.push_back((bStructHandle*) id);

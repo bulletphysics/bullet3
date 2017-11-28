@@ -111,6 +111,7 @@ files {
 }
 
 if (_OPTIONS["enable_static_vr_plugin"]) then
+	defines("STATIC_LINK_VR_PLUGIN")
 	files {"plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
 end
 
@@ -208,6 +209,7 @@ files {
 				"../ExampleBrowser/CollisionShape2TriangleMesh.cpp",
 }
 if (_OPTIONS["enable_static_vr_plugin"]) then
+	defines("STATIC_LINK_VR_PLUGIN")
 	files {"plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
 end
 
@@ -363,6 +365,7 @@ if os.is("Windows") then
 					"../ThirdPartyLibs/openvr/samples/shared/Vectors.h",
 	}
 if (_OPTIONS["enable_static_vr_plugin"]) then
+	defines("STATIC_LINK_VR_PLUGIN")
 	files {"plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
 end
 

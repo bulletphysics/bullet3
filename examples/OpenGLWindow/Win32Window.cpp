@@ -440,7 +440,7 @@ void Win32Window::setWindowTitle(const char* titleChar)
 {
 	
 #ifdef _WIN64
-		SetWindowText(m_data->m_hWnd, titleChar);
+		SetWindowTextA(m_data->m_hWnd, titleChar);
 #else
 		DWORD dwResult;
 		SendMessageTimeout(m_data->m_hWnd, WM_SETTEXT, 0,

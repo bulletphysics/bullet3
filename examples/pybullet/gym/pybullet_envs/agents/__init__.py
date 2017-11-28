@@ -20,4 +20,4 @@ from __future__ import print_function
 
 from . import train_ppo
 from . import utility
-from . import visualize
+from . import visualize_ppo

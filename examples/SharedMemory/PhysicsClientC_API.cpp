@@ -606,6 +606,19 @@ B3_SHARED_API int b3JointControlSetKd(b3SharedMemoryCommandHandle commandHandle,
     return 0;
 }
 
+B3_SHARED_API	int b3JointControlSetMaximumVelocity(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double maximumVelocity)
+{
+    struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+    b3Assert(command);
+	if ((dofIndex>=0) && (dofIndex < MAX_DEGREE_OF_FREEDOM))
+	{
+		command->m_sendDesiredStateCommandArgument.m_rhsClamp[dofIndex] = maximumVelocity;
+		command->m_updateFlags |= SIM_DESIRED_STATE_HAS_RHS_CLAMP;
+	    command->m_sendDesiredStateCommandArgument.m_hasDesiredStateFlags[dofIndex] |= SIM_DESIRED_STATE_HAS_RHS_CLAMP;
+	}
+    return 0;
+}
+
 B3_SHARED_API int b3JointControlSetDesiredVelocity(b3SharedMemoryCommandHandle commandHandle, int dofIndex, double value)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
