@@ -205,13 +205,9 @@ void	btQuantizedBvh::buildTree	(int startIndex,int endIndex)
 		{
 			updateSubtreeHeaders(leftChildNodexIndex,rightChildNodexIndex);
 		}
-	} else
-	{
-
 	}
 
 	setInternalNodeEscapeIndex(internalNodeIndex,escapeIndex);
-
 }
 
 void	btQuantizedBvh::updateSubtreeHeaders(int leftChildNodexIndex,int rightChildNodexIndex)
