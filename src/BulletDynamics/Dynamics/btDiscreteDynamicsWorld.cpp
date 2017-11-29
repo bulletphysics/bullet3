@@ -186,10 +186,10 @@ struct InplaceSolverIslandCallback : public btSimulationIslandManager::IslandCal
 	{
 
 		btCollisionObject** bodies = m_bodies.size()? &m_bodies[0]:0;
-		btPersistentManifold** manifold = m_manifolds.size()?&m_manifolds[0]:0;
+		btPersistentManifold** manifolds = m_manifolds.size()?&m_manifolds[0]:0;
 		btTypedConstraint** constraints = m_constraints.size()?&m_constraints[0]:0;
 
-		m_solver->solveGroup( bodies,m_bodies.size(),manifold, m_manifolds.size(),constraints, m_constraints.size() ,*m_solverInfo,m_debugDrawer,m_dispatcher);
+		m_solver->solveGroup( bodies,m_bodies.size(),manifolds, m_manifolds.size(),constraints, m_constraints.size() ,*m_solverInfo,m_debugDrawer,m_dispatcher);
 		m_bodies.resize(0);
 		m_manifolds.resize(0);
 		m_constraints.resize(0);
