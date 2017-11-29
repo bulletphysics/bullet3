@@ -10,6 +10,7 @@ addons:
     packages:
       - python3
 
+
 script:
   - echo "CXX="$CXX
   - echo "CC="$CC
@@ -25,3 +26,5 @@ script:
   - make -j8
   - ctest -j8 --output-on-failure
   - sudo make install
+  - sudo python3 setup.py install
+  - python3 examples/pybullet/unittests/unittests.py
