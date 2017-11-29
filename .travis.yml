@@ -18,7 +18,7 @@ script:
   - sudo pip3 install -U pip wheel
   - sudo pip3 install setuptools
   - sudo python3 setup.py install
-  - python3 examples/pybullet/unittests/unittests.py
+  - python3 examples/pybullet/unittests/unittests.py --verbose
   - cmake . -DBUILD_PYBULLET=ON -G"Unix Makefiles" #-DCMAKE_CXX_FLAGS=-Werror
   - make -j8
   - ctest -j8 --output-on-failure
