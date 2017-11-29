@@ -14,6 +14,10 @@ addons:
 script:
   - echo "CXX="$CXX
   - echo "CC="$CC
+  - pip install -U pip wheel
+  - pip install setuptools
+  - sudo python3 setup.py install
+  - python3 examples/pybullet/unittests/unittests.py
   - cmake . -DBUILD_PYBULLET=ON -G"Unix Makefiles" #-DCMAKE_CXX_FLAGS=-Werror
   - make -j8
   - ctest -j8 --output-on-failure
@@ -26,5 +30,3 @@ script:
   - make -j8
   - ctest -j8 --output-on-failure
   - sudo make install
-  - sudo python3 setup.py install
-  - python3 examples/pybullet/unittests/unittests.py
