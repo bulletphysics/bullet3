@@ -102,8 +102,8 @@ bool btMinkowskiPenetrationDepthSolver::calcPenDepth(btSimplexSolverInterface& s
 				convexA->getPreferredPenetrationDirection(i,norm);
 				norm  = transA.getBasis() * norm;
 				getPenetrationDirections()[numSampleDirections] = norm;
-				seperatingAxisInABatch[numSampleDirections] = (-norm) * transA.getBasis();
-				seperatingAxisInBBatch[numSampleDirections] = norm * transB.getBasis();
+				separatingAxisInABatch[numSampleDirections] = (-norm) * transA.getBasis();
+				separatingAxisInBBatch[numSampleDirections] = norm * transB.getBasis();
 				numSampleDirections++;
 			}
 		}
