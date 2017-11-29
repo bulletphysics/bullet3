@@ -14,6 +14,7 @@ addons:
 script:
   - echo "CXX="$CXX
   - echo "CC="$CC
+  - sudo apt-get install python3-pip
   - sudo pip3 install -U pip wheel
   - sudo pip3 install setuptools
   - sudo python3 setup.py install
