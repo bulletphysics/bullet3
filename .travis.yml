@@ -14,8 +14,8 @@ addons:
 script:
   - echo "CXX="$CXX
   - echo "CC="$CC
-  - pip install -U pip wheel
-  - pip install setuptools
+  - sudo pip3 install -U pip wheel
+  - sudo pip3 install setuptools
   - sudo python3 setup.py install
   - python3 examples/pybullet/unittests/unittests.py
   - cmake . -DBUILD_PYBULLET=ON -G"Unix Makefiles" #-DCMAKE_CXX_FLAGS=-Werror
