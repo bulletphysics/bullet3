@@ -692,6 +692,7 @@ struct b3PhysicsSimulationParameters
 	double m_restitutionVelocityThreshold;
 	double 	m_defaultNonContactERP;
 	double m_frictionERP;
+	int m_enableConeFriction;
 };
 
 

@@ -78,7 +78,7 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 			btMultiBodySolverConstraint& frictionConstraint = m_multiBodyLateralFrictionContactConstraints[index];
 			
 			btScalar totalImpulse = m_multiBodyNormalContactConstraints[frictionConstraint.m_frictionIndex].m_appliedImpulse;
-			if (infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS)
+			if (infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS && ((infoGlobal.m_solverMode&SOLVER_DISABLE_IMPLICIT_CONE_FRICTION)==0))
 			{
 				j1++;
 				int index2 = j1;//iteration&1? j1 : m_multiBodyFrictionContactConstraints.size()-1-j1;
@@ -91,7 +91,11 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 					frictionConstraint.m_upperLimit = frictionConstraint.m_friction*totalImpulse;
 					frictionConstraintB.m_lowerLimit = -(frictionConstraintB.m_friction*totalImpulse);
 					frictionConstraintB.m_upperLimit = frictionConstraintB.m_friction*totalImpulse;
-					resolveConeFrictionConstraintRows(frictionConstraint,frictionConstraintB);
+					leastSquaredResidual += resolveConeFrictionConstraintRows(frictionConstraint,frictionConstraintB);
+					if(frictionConstraint.m_multiBodyA) 
+						frictionConstraint.m_multiBodyA->setPosUpdated(false);
+					if(frictionConstraint.m_multiBodyB) 
+						frictionConstraint.m_multiBodyB->setPosUpdated(false);
 				}
 			}
 			else
@@ -109,6 +113,30 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 					if (frictionConstraint.m_multiBodyB)
 						frictionConstraint.m_multiBodyB->setPosUpdated(false);
 				}
+			}
+		}
+	}
+
+	for (int j1=0;j1<this->m_multiBodyTorsionalFrictionContactConstraints.size();j1++)
+	{
+		if (iteration < infoGlobal.m_numIterations)
+		{
+			int index = j1;//iteration&1? j1 : m_multiBodyFrictionContactConstraints.size()-1-j1;
+
+			btMultiBodySolverConstraint& frictionConstraint = m_multiBodyTorsionalFrictionContactConstraints[index];
+			btScalar totalImpulse = m_multiBodyNormalContactConstraints[frictionConstraint.m_frictionIndex].m_appliedImpulse;
+			//adjust friction limits here
+			if (totalImpulse>btScalar(0))
+			{
+				frictionConstraint.m_lowerLimit = -(frictionConstraint.m_friction*totalImpulse);
+				frictionConstraint.m_upperLimit = frictionConstraint.m_friction*totalImpulse;
+				btScalar residual = resolveSingleConstraintRowGeneric(frictionConstraint);
+				leastSquaredResidual += residual*residual;
+
+				if(frictionConstraint.m_multiBodyA) 
+					frictionConstraint.m_multiBodyA->setPosUpdated(false);
+				if(frictionConstraint.m_multiBodyB) 
+					frictionConstraint.m_multiBodyB->setPosUpdated(false);
 			}
 		}
 	}

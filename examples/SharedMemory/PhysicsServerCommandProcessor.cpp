@@ -6201,6 +6201,16 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 
 	BT_PROFILE("CMD_SEND_PHYSICS_SIMULATION_PARAMETERS");
 
+	if (clientCmd.m_updateFlags & SIM_PARAM_ENABLE_CONE_FRICTION)
+	{
+		if (clientCmd.m_physSimParamArgs.m_enableConeFriction)
+		{
+			m_data->m_dynamicsWorld->getSolverInfo().m_solverMode &=~SOLVER_DISABLE_IMPLICIT_CONE_FRICTION;
+		} else
+		{
+			m_data->m_dynamicsWorld->getSolverInfo().m_solverMode |=SOLVER_DISABLE_IMPLICIT_CONE_FRICTION;
+		}
+	}
 	if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_DELTA_TIME)
 	{
 		m_data->m_physicsDeltaTime = clientCmd.m_physSimParamArgs.m_deltaTime;
