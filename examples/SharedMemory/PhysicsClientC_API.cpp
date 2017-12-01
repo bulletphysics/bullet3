@@ -450,6 +450,15 @@ B3_SHARED_API int b3PhysicsParamSetRestitutionVelocityThreshold(b3SharedMemoryCo
 
 }
 
+B3_SHARED_API	int b3PhysicsParamSetEnableConeFriction(b3SharedMemoryCommandHandle commandHandle, int enableConeFriction)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+	command->m_physSimParamArgs.m_enableConeFriction = enableConeFriction;
+	command->m_updateFlags |= SIM_PARAM_ENABLE_CONE_FRICTION;
+	return 0;
+}
+
 
 B3_SHARED_API int b3PhysicsParamSetNumSolverIterations(b3SharedMemoryCommandHandle commandHandle, int numSolverIterations)
 {

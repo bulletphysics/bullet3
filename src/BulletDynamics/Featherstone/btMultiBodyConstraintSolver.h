@@ -35,7 +35,7 @@ protected:
 	btMultiBodyConstraintArray			m_multiBodyNonContactConstraints;
 
 	btMultiBodyConstraintArray			m_multiBodyNormalContactConstraints;
-	btMultiBodyConstraintArray			m_multiBodyLateralFrictionContactConstraints;
+	btMultiBodyConstraintArray			m_multiBodyFrictionContactConstraints;
 	btMultiBodyConstraintArray			m_multiBodyTorsionalFrictionContactConstraints;
 
 	btMultiBodyJacobianData				m_data;

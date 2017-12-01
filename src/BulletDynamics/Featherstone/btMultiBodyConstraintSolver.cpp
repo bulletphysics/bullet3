@@ -67,22 +67,45 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 		if(constraint.m_multiBodyB) 
 			constraint.m_multiBodyB->setPosUpdated(false);
 	}
-	
-	//solve featherstone frictional contact
 
-	for (int j1=0;j1<this->m_multiBodyLateralFrictionContactConstraints.size();j1++)
+	//solve featherstone frictional contact
+	if (infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS && ((infoGlobal.m_solverMode&SOLVER_DISABLE_IMPLICIT_CONE_FRICTION) == 0))
 	{
-		if (iteration < infoGlobal.m_numIterations)
+		for (int j1 = 0; j1<this->m_multiBodyTorsionalFrictionContactConstraints.size(); j1++)
 		{
-			int index = j1;//iteration&1? j1 : m_multiBodyFrictionContactConstraints.size()-1-j1;
-			btMultiBodySolverConstraint& frictionConstraint = m_multiBodyLateralFrictionContactConstraints[index];
-			
-			btScalar totalImpulse = m_multiBodyNormalContactConstraints[frictionConstraint.m_frictionIndex].m_appliedImpulse;
-			if (infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS && ((infoGlobal.m_solverMode&SOLVER_DISABLE_IMPLICIT_CONE_FRICTION)==0))
+			if (iteration < infoGlobal.m_numIterations)
 			{
+				int index = j1;//iteration&1? j1 : m_multiBodyTorsionalFrictionContactConstraints.size()-1-j1;
+
+				btMultiBodySolverConstraint& frictionConstraint = m_multiBodyTorsionalFrictionContactConstraints[index];
+				btScalar totalImpulse = m_multiBodyNormalContactConstraints[frictionConstraint.m_frictionIndex].m_appliedImpulse;
+				//adjust friction limits here
+				if (totalImpulse>btScalar(0))
+				{
+					frictionConstraint.m_lowerLimit = -(frictionConstraint.m_friction*totalImpulse);
+					frictionConstraint.m_upperLimit = frictionConstraint.m_friction*totalImpulse;
+					btScalar residual = resolveSingleConstraintRowGeneric(frictionConstraint);
+					leastSquaredResidual += residual*residual;
+
+					if (frictionConstraint.m_multiBodyA)
+						frictionConstraint.m_multiBodyA->setPosUpdated(false);
+					if (frictionConstraint.m_multiBodyB)
+						frictionConstraint.m_multiBodyB->setPosUpdated(false);
+				}
+			}
+		}
+
+		for (int j1 = 0; j1 < this->m_multiBodyFrictionContactConstraints.size(); j1++)
+		{
+			if (iteration < infoGlobal.m_numIterations)
+			{
+				int index = j1;//iteration&1? j1 : m_multiBodyFrictionContactConstraints.size()-1-j1;
+				btMultiBodySolverConstraint& frictionConstraint = m_multiBodyFrictionContactConstraints[index];
+
+				btScalar totalImpulse = m_multiBodyNormalContactConstraints[frictionConstraint.m_frictionIndex].m_appliedImpulse;
 				j1++;
 				int index2 = j1;//iteration&1? j1 : m_multiBodyFrictionContactConstraints.size()-1-j1;
-				btMultiBodySolverConstraint& frictionConstraintB = m_multiBodyLateralFrictionContactConstraints[index2];
+				btMultiBodySolverConstraint& frictionConstraintB = m_multiBodyFrictionContactConstraints[index2];
 				btAssert(frictionConstraint.m_frictionIndex == frictionConstraintB.m_frictionIndex);
 
 				if (frictionConstraint.m_frictionIndex == frictionConstraintB.m_frictionIndex)
@@ -91,17 +114,29 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 					frictionConstraint.m_upperLimit = frictionConstraint.m_friction*totalImpulse;
 					frictionConstraintB.m_lowerLimit = -(frictionConstraintB.m_friction*totalImpulse);
 					frictionConstraintB.m_upperLimit = frictionConstraintB.m_friction*totalImpulse;
-					leastSquaredResidual += resolveConeFrictionConstraintRows(frictionConstraint,frictionConstraintB);
-					if(frictionConstraint.m_multiBodyA) 
+					leastSquaredResidual += resolveConeFrictionConstraintRows(frictionConstraint, frictionConstraintB);
+					if (frictionConstraint.m_multiBodyA)
 						frictionConstraint.m_multiBodyA->setPosUpdated(false);
-					if(frictionConstraint.m_multiBodyB) 
+					if (frictionConstraint.m_multiBodyB)
 						frictionConstraint.m_multiBodyB->setPosUpdated(false);
 				}
 			}
-			else
+		}
+
+		
+	}
+	else
+	{
+		for (int j1 = 0; j1<this->m_multiBodyFrictionContactConstraints.size(); j1++)
+		{
+			if (iteration < infoGlobal.m_numIterations)
 			{
+				int index = j1;//iteration&1? j1 : m_multiBodyFrictionContactConstraints.size()-1-j1;
+
+				btMultiBodySolverConstraint& frictionConstraint = m_multiBodyFrictionContactConstraints[index];
+				btScalar totalImpulse = m_multiBodyNormalContactConstraints[frictionConstraint.m_frictionIndex].m_appliedImpulse;
 				//adjust friction limits here
-				if (totalImpulse > btScalar(0))
+				if (totalImpulse>btScalar(0))
 				{
 					frictionConstraint.m_lowerLimit = -(frictionConstraint.m_friction*totalImpulse);
 					frictionConstraint.m_upperLimit = frictionConstraint.m_friction*totalImpulse;
@@ -116,30 +151,6 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 			}
 		}
 	}
-
-	for (int j1=0;j1<this->m_multiBodyTorsionalFrictionContactConstraints.size();j1++)
-	{
-		if (iteration < infoGlobal.m_numIterations)
-		{
-			int index = j1;//iteration&1? j1 : m_multiBodyFrictionContactConstraints.size()-1-j1;
-
-			btMultiBodySolverConstraint& frictionConstraint = m_multiBodyTorsionalFrictionContactConstraints[index];
-			btScalar totalImpulse = m_multiBodyNormalContactConstraints[frictionConstraint.m_frictionIndex].m_appliedImpulse;
-			//adjust friction limits here
-			if (totalImpulse>btScalar(0))
-			{
-				frictionConstraint.m_lowerLimit = -(frictionConstraint.m_friction*totalImpulse);
-				frictionConstraint.m_upperLimit = frictionConstraint.m_friction*totalImpulse;
-				btScalar residual = resolveSingleConstraintRowGeneric(frictionConstraint);
-				leastSquaredResidual += residual*residual;
-
-				if(frictionConstraint.m_multiBodyA) 
-					frictionConstraint.m_multiBodyA->setPosUpdated(false);
-				if(frictionConstraint.m_multiBodyB) 
-					frictionConstraint.m_multiBodyB->setPosUpdated(false);
-			}
-		}
-	}
 	return leastSquaredResidual;
 }
 
@@ -147,7 +158,7 @@ btScalar btMultiBodyConstraintSolver::solveGroupCacheFriendlySetup(btCollisionOb
 {
 	m_multiBodyNonContactConstraints.resize(0);
 	m_multiBodyNormalContactConstraints.resize(0);
-	m_multiBodyLateralFrictionContactConstraints.resize(0);
+	m_multiBodyFrictionContactConstraints.resize(0);
 	m_multiBodyTorsionalFrictionContactConstraints.resize(0);
 	
 	m_data.m_jacobians.resize(0);
@@ -1103,7 +1114,7 @@ void btMultiBodyConstraintSolver::setupMultiBodyTorsionalFrictionConstraint(btMu
 btMultiBodySolverConstraint&	btMultiBodyConstraintSolver::addMultiBodyFrictionConstraint(const btVector3& normalAxis,btPersistentManifold* manifold,int frictionIndex,btManifoldPoint& cp,btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, const btContactSolverInfo& infoGlobal, btScalar desiredVelocity, btScalar cfmSlip)
 {
 	BT_PROFILE("addMultiBodyFrictionConstraint");
-	btMultiBodySolverConstraint& solverConstraint = m_multiBodyLateralFrictionContactConstraints.expandNonInitializing();
+	btMultiBodySolverConstraint& solverConstraint = m_multiBodyFrictionContactConstraints.expandNonInitializing();
     solverConstraint.m_orgConstraint = 0;
     solverConstraint.m_orgDofIndex = -1;
     
@@ -1140,7 +1151,10 @@ btMultiBodySolverConstraint&	btMultiBodyConstraintSolver::addMultiBodyTorsionalF
                                                                                                      btCollisionObject* colObj0,btCollisionObject* colObj1, btScalar relaxation, const btContactSolverInfo& infoGlobal, btScalar desiredVelocity, btScalar cfmSlip)
 {
     BT_PROFILE("addMultiBodyRollingFrictionConstraint");
-    btMultiBodySolverConstraint& solverConstraint = m_multiBodyTorsionalFrictionContactConstraints.expandNonInitializing();
+
+	bool useTorsionalAndConeFriction = (infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS && ((infoGlobal.m_solverMode&SOLVER_DISABLE_IMPLICIT_CONE_FRICTION) == 0));
+
+    btMultiBodySolverConstraint& solverConstraint = useTorsionalAndConeFriction? m_multiBodyTorsionalFrictionContactConstraints.expandNonInitializing() : m_multiBodyFrictionContactConstraints.expandNonInitializing();
     solverConstraint.m_orgConstraint = 0;
     solverConstraint.m_orgDofIndex = -1;
     
@@ -1507,11 +1521,11 @@ btScalar btMultiBodyConstraintSolver::solveGroupCacheFriendlyFinish(btCollisionO
 		btMultiBodySolverConstraint& solverConstraint = m_multiBodyNormalContactConstraints[i];
 		writeBackSolverBodyToMultiBody(solverConstraint,infoGlobal.m_timeStep);
 
-		writeBackSolverBodyToMultiBody(m_multiBodyLateralFrictionContactConstraints[solverConstraint.m_frictionIndex],infoGlobal.m_timeStep);
+		writeBackSolverBodyToMultiBody(m_multiBodyFrictionContactConstraints[solverConstraint.m_frictionIndex],infoGlobal.m_timeStep);
 
 		if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
 		{
-			writeBackSolverBodyToMultiBody(m_multiBodyLateralFrictionContactConstraints[solverConstraint.m_frictionIndex+1],infoGlobal.m_timeStep);
+			writeBackSolverBodyToMultiBody(m_multiBodyFrictionContactConstraints[solverConstraint.m_frictionIndex+1],infoGlobal.m_timeStep);
 		}
 	}
 
@@ -1532,12 +1546,12 @@ btScalar btMultiBodyConstraintSolver::solveGroupCacheFriendlyFinish(btCollisionO
 			btManifoldPoint* pt = (btManifoldPoint*) solverConstraint.m_originalContactPoint;
 			btAssert(pt);
 			pt->m_appliedImpulse = solverConstraint.m_appliedImpulse;
-			pt->m_appliedImpulseLateral1 = m_multiBodyLateralFrictionContactConstraints[solverConstraint.m_frictionIndex].m_appliedImpulse;
+			pt->m_appliedImpulseLateral1 = m_multiBodyFrictionContactConstraints[solverConstraint.m_frictionIndex].m_appliedImpulse;
 			
 			//printf("pt->m_appliedImpulseLateral1 = %f\n", pt->m_appliedImpulseLateral1);
 			if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
 			{
-				pt->m_appliedImpulseLateral2 = m_multiBodyLateralFrictionContactConstraints[solverConstraint.m_frictionIndex+1].m_appliedImpulse;
+				pt->m_appliedImpulseLateral2 = m_multiBodyFrictionContactConstraints[solverConstraint.m_frictionIndex+1].m_appliedImpulse;
 			}
 			//do a callback here?
 		}

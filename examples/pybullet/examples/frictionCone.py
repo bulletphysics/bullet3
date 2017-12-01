@@ -16,6 +16,7 @@ num = 40
 p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
 p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)#disable this to make it faster
 p.configureDebugVisualizer(p.COV_ENABLE_TINY_RENDERER,0)
+p.setPhysicsEngineParameter(enableConeFriction=1)
 
 for i in range (num):
 	print("progress:",i,num)

@@ -14,11 +14,11 @@ addons:
 script:
   - echo "CXX="$CXX
   - echo "CC="$CC
-  - if [ "$CXX" = "g++" ]; then sudo apt-get install python3-pip; fi
-  - if [ "$CXX" = "g++" ]; then sudo pip3 install -U pip wheel; fi
-  - if [ "$CXX" = "g++" ]; then sudo pip3 install setuptools; fi
-  - if [ "$CXX" = "g++" ]; then sudo python3 setup.py install; fi
-  - if [ "$CXX" = "g++" ]; then python3 examples/pybullet/unittests/unittests.py --verbose; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" && "$CXX" = "g++" ]]; then sudo apt-get install python3-pip; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" && "$CXX" = "g++" ]]; then sudo pip3 install -U pip wheel; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" && "$CXX" = "g++" ]]; then sudo pip3 install setuptools; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" && "$CXX" = "g++" ]]; then sudo python3 setup.py install; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" && "$CXX" = "g++" ]]; then python3 examples/pybullet/unittests/unittests.py --verbose; fi
   - cmake . -DBUILD_PYBULLET=ON -G"Unix Makefiles" #-DCMAKE_CXX_FLAGS=-Werror
   - make -j8
   - ctest -j8 --output-on-failure
