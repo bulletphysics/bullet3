@@ -47,7 +47,7 @@ protected:
 	btScalar resolveSingleConstraintRowGeneric(const btMultiBodySolverConstraint& c);
 	
 	//solve 2 friction directions and clamp against the implicit friction cone
-	btScalar resolveConeFrictionConstraintRows(const btMultiBodySolverConstraint& cA, const btMultiBodySolverConstraint& cB);
+	btScalar resolveConeFrictionConstraintRows(const btMultiBodySolverConstraint& cA1, const btMultiBodySolverConstraint& cB);
 	
 
 	void convertContacts(btPersistentManifold** manifoldPtr,int numManifolds, const btContactSolverInfo& infoGlobal);
