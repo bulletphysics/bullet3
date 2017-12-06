@@ -273,10 +273,132 @@ stepSimulation input arguments are optional:
 | optional | physicsClientId | int  | if you are connected to multiple servers, you can pick one. |
 
 
+stepSimulation has no return values.
+
+See also setRealTimeSimulation to automatically let the physics server run forward dynamics simulation based on its real-time clock.
+
+setRealTimeSimulation
+--------------------------------------------------------------------------------------------
+
+By default, the physics server will not step the simulation, unless you explicitly send a 'stepSimulation' command. This way you can maintain control determinism of the simulation. It is possible to run the simulation in real-time by letting the physics server automatically step the simulation according to its real-time-clock (RTC) using the setRealTimeSimulation command. If you enable the real-time simulation, you don't need to call 'stepSimulation'.
+
+Note that setRealTimeSimulation has no effect in DIRECT mode: in DIRECT mode the physics server and client happen in the same thread and you trigger every command. In GUI mode and in Virtual Reality mode, and TCP/UDP mode, the physics server runs in a separate thread from the client (pybullet), and setRealTimeSimulation allows the physicsserver  thread to add additional calls to stepSimulation.
 
 
+The input parameters are:
+
+| option   | name                     | type | description                                                 |
+|----------|--------------------------|------|-------------------------------------------------------------|
+| required | enableRealTimeSimulation | int  | 0 to disable real-time simulation, 1 to enable              |
+| optional | physicsClientId          | int  | if you are connected to multiple servers, you can pick one. |
 
 
+getBasePositionAndOrientation
+--------------------------------------------------------------------------------------------
+getBasePositionAndOrientation reports the current position and orientation of the base (or root link) of the body in Cartesian world coordinates. The orientation is a quaternion in [x,y,z,w] format.
+
+The getBasePositionAndOrientation input parameters are:
+
+| option   | name                     | type | description                                                 |
+|----------|--------------------------|------|-------------------------------------------------------------|
+| required | objectUniqueId           | int  | object unique id, as returned from loadURDF.                |
+| optional | physicsClientId          | int  | if you are connected to multiple servers, you can pick one. |
+
+
+getBasePositionAndOrientation returns the position list of 3 floats and orientation as list of 4 floats in [x,y,z,w] order. Use getEulerFromQuaternion to convert the quaternion to Euler if needed.
+
+See also resetBasePositionAndOrientation to reset the position and orientation of the object.
+
+This completes the first pybullet script. Bullet ships with several URDF files in the Bullet/data folder.
+
+resetBasePositionAndOrientation
+--------------------------------------------------------------------------------------------
+You can reset the position and orientation of the base (root) of each object. It is best only to do this at the start, and not during a running simulation, since the command will override the effect of all physics simulation. The linear and angular velocity is set to zero. You can use resetBaseVelocity to reset to a non-zero linear and/or angular velocity.
+
+The input arguments to resetBasePositionAndOrientation are:
+
+| required | objectUniqueId  | int  | object unique id, as returned from loadURDF.                                                  |
+|----------|-----------------|------|-----------------------------------------------------------------------------------------------|
+| required | posObj          | vec3 | reset the base of the object at the specified position in world space coordinates [X,Y,Z]     |
+| required | ornObj          | vec4 | reset the base of the object at the specified orientation as world space quaternion [X,Y,Z,W] |
+| optional | physicsClientId | int  | if you are connected to multiple servers, you can pick one.                                   |
+
+There are no return arguments.
+
+Transforms: Position and Orientation
+--------------------------------------------------------------------------------------------
+The position of objects can be expressed in Cartesian world space coordinates [x,y,z]. The orientation (or rotation) of objects can be expressed using quaternions [x,y,z,w], euler angles [yaw, pitch, roll] or 3x3 matrices. pybullet provides a few helper functions to convert between quaternions, euler angles and 3x3 matrices. In additions there are some functions to multiply and invert transforms.
+
+getQuaternionFromEuler and getEulerFromQuaternion
+--------------------------------------------------------------------------------------------
+The pybullet API uses quaternions to represent orientations. Since quaternions are not very intuitive for people, there are two APIs to convert between quaternions and Euler angles.
+The getQuaternionFromEuler input arguments are:
+
+
+| option   | name            | type                   | description                                                                                                                                 |
+|----------|-----------------|------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| required | eulerAngle      | vec3: list of 3 floats | The X,Y,Z Euler angles are in radians, accumulating 3 rotations expressing the roll around the X, pitch around Y and yaw around the Z axis. |
+| optional | physicsClientId | int                    | unused, added for API consistency.                                                                                                          |
+
+
+getQuaternionFromEuler returns a quaternion, vec4 list of 4 floating point values [X,Y,Z,W].
+
+getEulerFromQuaternion
+--------------------------------------------------------------------------------------------
+The getEulerFromQuaternion input arguments are:
+
+| option   | name            | type                   | description                        |
+|----------|-----------------|------------------------|------------------------------------|
+| required | quaternion      | vec4: list of 4 floats | The quaternion format is [x,y,z,w] |
+| optional | physicsClientId | int                    | unused, added for API consistency. |
+
+getEulerFromQuaternion returns alist of 3 floating point values, a vec3.
+
+getMatrixFromQuaternion 
+--------------------------------------------------------------------------------------------
+getMatrixFromQuaternion is a utility API to create a 3x3 matrix from a quaternion. The input is a quaternion and output a list of 9 floats, representing the matrix.
+
+multiplyTransforms, invertTransform
+--------------------------------------------------------------------------------------------
+pybullet provides a few helper functions to multiply and inverse transforms. This can be helpful to transform coordinates from one to the other coordinate system.
+
+The input parameters of multiplyTransforms are:
+
+| option   | name            | type                   | description                        |
+|----------|-----------------|------------------------|------------------------------------|
+| required | positionA       | vec3, list of 3 floats | position A                         |
+| required | orientationA    | vec4, list of 4 floats | quaternion [x,y,z,w]               |
+| required | positionB       | vec3, list of 3 floats | position B                         |
+| required | orientationB    | vec4, list of 4 floats | quaternion [x,y,z,w]               |
+| optional | physicsClientId | int                    | unused, added for API consistency. |
+
+The return value is a list of position (vec3) and orientation (vec4, quaternion x,y,x,w).
+
+The input and output parameters of invertTransform are:
+
+| option   | name        | type                   | description          |
+|----------|-------------|------------------------|----------------------|
+| required | position    | vec3, list of 3 floats |                      |
+| required | orientation | vec4, list of 4 floats | quaternion [x,y,z,w] |
+
+
+The output of invertTransform is a position (vec3) and orientation (vec4, quaternion x,y,x,w).
+getAPIVersion
+You can query for the API version in a year-month-0-day format. You can only connect between physics client/server of the same API version, with the same number of bits (32-bit / 64bit). There is a optional unused argument physicsClientId, added for API consistency.
+
+| option   | name            | type | description                        |
+|----------|-----------------|------|------------------------------------|
+| optional | physicsClientId | int  | unused, added for API consistency. |
+
+Controlling a robot
+======================================================================================
+
+In the Introduction we already showed how to initialize pybullet and load some objects. If you replace the file name in the loadURDF command with "r2d2.urdf" you can simulate a R2D2 robot from the ROS tutorial. Let's control this R2D2 robot to move, look around and control the gripper. For this we need to know how to access its joint motors.
+
+Base, Joints, Links
+--------------------------------------------------------------------------------------------
+
+![<small>Base, Joints and Links</small>](images/joints_and_links.png width="80%" border="0")
 
 
 
