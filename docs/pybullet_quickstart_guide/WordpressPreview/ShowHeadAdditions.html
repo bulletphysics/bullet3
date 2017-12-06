@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en-US">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<meta charset="UTF-8">
+	<body>
+		<script>window.markdeepOptions={mode:"script"};</script>
+		<script src="./markdeep.min.js"></script>
+		<div>Document &lt;head&gt; additions:<br/>
+		<textarea cols="80" rows="40" id="HeadDisplayBox"></textarea></div>
+		<script>
+			// Get the complete Markdeep and hljs stylesheet
+			FullStylesheet=window.markdeep.stylesheet();
+			// It should consist of three <style> tags which we pick apart
+			StyleTagList=FullStylesheet.split("<style>");
+			// The second one defines section number, which we do not want, so we 
+			// just drop it. The other two are Markdeep and hljs styles.
+			MarkdeepStylesheet="<style>"+StyleTagList[1];
+			HLJSStylesheet="<style>"+StyleTagList[3];
+			// Now lets show the user what we found
+			document.getElementById("HeadDisplayBox").textContent=
+				 "<!-- Markdeep styles -->\r\n"
+				+MarkdeepStylesheet
+				+"\r\n\r\n<!-- hljs styles -->\r\n"
+				+HLJSStylesheet
+				+"\r\n\r\n<!-- MathJax invocation -->\r\n<script type=\"text/javascript\" async=\"\" src=\"https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\">\r\n";
+		</script>
+	</body>
+</html>
