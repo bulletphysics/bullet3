@@ -7,7 +7,7 @@ if (location.href.indexOf('?') == -1) {
     location = location.href.substring(0, i) + '?' + location.href.substring(i);
 }
 
-markdeepOptions = {tocStyle: 'short'};
+markdeepOptions = {tocStyle: 'long'};
 
 document.write("<link href='https://fonts.googleapis.com/css?family=Roboto:400,300,100,100italic,300italic,400italic,700' rel='stylesheet' type='text/css'>" +
                "<link rel='stylesheet' type='text/css' href='cs371.css'>");
@@ -19,6 +19,6 @@ if (/^file:\/{3}/i.test(window.location.href)) {
     document.write('<style>li.plus { display: none; }</style>');
 }
 
-document.write('<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>');
+document.write('<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src="markdeep.js"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>');
 
 

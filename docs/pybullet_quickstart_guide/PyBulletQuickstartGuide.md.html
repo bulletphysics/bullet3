@@ -400,6 +400,59 @@ Base, Joints, Links
 
 ![<small>Base, Joints and Links</small>](images/joints_and_links.png width="80%" border="0")
 
+A simulated robot as described in a URDF file has a base, and optionally links connected by joints. Each joint connects one parent link to a child link. At the root of the hierarchy there is a single root parent that we call base. The base can be either fully fixed, 0 degrees of freedom, or fully free, with 6 degrees of freedom. Since each link is connected to a parent with a single joint, the number of joints is equal to the number of links. Regular links have link indices in the range [0..getNumJoints()] Since the base is not a regular 'link', we use the convention of -1 as its link index. We use the convention that joint frames are expressed relative to the parents center of mass inertial frame, which is aligned with the principle axis of inertia.
+
+getNumJoints, getJointInfo
+--------------------------------------------------------------------------------------------
+After you load a robot you can query the number of joints using the getNumJoints API. For the r2d2.urdf this should return 15.
+
+getNumJoints input parameters:
+
+| option   | name            | type | description                                                 |
+|----------|-----------------|------|-------------------------------------------------------------|
+| required | bodyUniqueId    | int  | the body unique id, as returned by loadURDF etc.            |
+| optional | physicsClientId | int  | if you are connected to multiple servers, you can pick one. |
+
+getNumJoints returns an integer value representing the number of joints.
+
+getJointInfo
+--------------------------------------------------------------------------------------------
+For each joint we can query some information, such as its name and type.
+
+getJointInfo input parameters:
+
+| option   | name            | type | description                                                 |
+|----------|-----------------|------|-------------------------------------------------------------|
+| required | bodyUniqueId    | int  | the body unique id, as returned by loadURDF etc.            |
+| required | jointIndex      | int  | an index in the range [0 .. getNumJoints(bodyUniqueId))     |
+| optional | physicsClientId | int  | if you are connected to multiple servers, you can pick one. |
+
+getJointInfo returns a list of information:
+
+| name             | type   | description                                                                                                                                                                                                                   |
+|------------------|--------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| jointIndex       | int    | the same joint index as the input parameter                                                                                                                                                                                   |
+| jointName        | string | the name of the joint, as specified in the URDF (or SDF etc) file                                                                                                                                                             |
+| jointType        | int    | "type of the joint, this also implies the number of position and velocity variables. JOINT_REVOLUTE, JOINT_PRISMATIC, JOINT_SPHERICAL, JOINT_PLANAR, JOINT_FIXED. See the section on Base, Joint and Links for more details." |
+| qIndex           | int    | the first position index in the positional state variables for this body                                                                                                                                                      |
+| uIndex           | int    | the first velocity index in the velocity state variables for this body                                                                                                                                                        |
+| flags            | int    | reserved                                                                                                                                                                                                                      |
+| jointDamping     | float  | the joint damping value, as specified in the URDF file                                                                                                                                                                        |
+| jointFriction    | float  | the joint friction value, as specified in the URDF file                                                                                                                                                                       |
+| jointLowerLimit  | float  | Positional lower limit for slider and revolute (hinge) joints.                                                                                                                                                                |
+| jointUpperLimit  | float  | Positional upper limit for slider and revolute joints. Values ignored in case upper limit smaller than lower limit..                                                                                                                       |
+| jointMaxForce    | float  | Maximum force specified in URDF (possibly other file formats) Note that this value is not automatically used. You can use maxForce in 'setJointMotorControl2'.                                                                |
+| jointMaxVelocity | float  | Maximum velocity specified in URDF. Note that the maximum velocity is not used in actual motor control commands at the moment.                                                                                                |
+| linkName         | string | the name of the link, as specified in the URDF (or SDF etc.) file                                                                                                                                                             |
+
+setJointMotorControl2/Array
+--------------------------------------------------------------------------------------------
+Note: setJointMotorControl is obsolete and replaced by setJointMotorControl2 API. (Or even better use setJointMotorControlArray).
+
+We can control a robot by setting a desired control mode for one or more joint motors. During the stepSimulation the physics engine will simulate the motors to reach the given target value that can be reached within the maximum motor forces and other constraints. Each revolute joint and prismatic joint is motorized by default. There are 3 different motor control modes: position control, velocity control and torque control.
+
+You can effectively disable the motor by using a force of 0. You need to disable motor in order to use direct torque control. For example:
+
 
 
 
@@ -407,5 +460,7 @@ Base, Joints, Links
 \[f(0)=\frac{1}{2\cdot\pi\cdot i}\cdot \oint_{|z|=1} \frac{f(z)}{z} \textrm{d}z\]
 -->
 
-<script src="cs371-common.js"></script>
+
+<script window.markdeepOptions={};
+window.markdeepOptions.tocStyle="long"; src="cs371-common.js"></script>
 
