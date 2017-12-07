@@ -1,3 +1,5 @@
+#ifndef B3_USE_GLFW
+
 #include "MacOpenGLWindowObjC.h"
 
 #define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
@@ -470,6 +472,10 @@ int Mac_createWindow(struct MacOpenGLWindowInternalData* m_internalData,struct M
 #else
     m_internalData->m_retinaScaleFactor=1.f;
 #endif
+        GLint                       sync = 0;
+        CGLContextObj               ctx = CGLGetCurrentContext();
+        CGLSetParameter(ctx, kCGLCPSwapInterval, &sync);
+
     [m_internalData->m_myApp finishLaunching];
     [pool release];
     
@@ -1227,3 +1233,5 @@ b3ResizeCallback Mac_getResizeCallback(struct MacOpenGLWindowInternalData* m_int
 {
 	return [m_internalData->m_myview getResizeCallback];
 }
+#endif //B3_USE_GLFW
+

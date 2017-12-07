@@ -81,6 +81,7 @@ project "App_BulletExampleBrowser"
 		"../SharedMemory/PhysicsClientC_API.cpp",
 		"../SharedMemory/PhysicsClientC_API.h",
 		"../SharedMemory/PhysicsServerExample.cpp",
+		"../SharedMemory/PhysicsServerExampleBullet2.cpp",
 		"../SharedMemory/PhysicsClientExample.cpp",
 		"../SharedMemory/PhysicsServer.cpp",
 		"../SharedMemory/PhysicsServerSharedMemory.cpp",
@@ -108,6 +109,7 @@ project "App_BulletExampleBrowser"
 		"../SharedMemory/PhysicsLoopBackC_API.h",
 		"../SharedMemory/PhysicsServerCommandProcessor.cpp",
 		"../SharedMemory/PhysicsServerCommandProcessor.h",
+		"../SharedMemory/b3PluginManager.cpp",		
 		"../SharedMemory/TinyRendererVisualShapeConverter.cpp",
 		"../SharedMemory/TinyRendererVisualShapeConverter.h",
 		"../SharedMemory/SharedMemoryCommands.h",
@@ -173,6 +175,11 @@ if (hasCL and findOpenGL3()) then
 				"../OpenCL/rigidbody/GpuRigidBodyDemo.cpp",
 			}
 		end
+		
+if (_OPTIONS["enable_static_vr_plugin"]) then
+		files {"../../examples/SharedMemory/plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
+
 if os.is("Linux") then
         initX11()
 end

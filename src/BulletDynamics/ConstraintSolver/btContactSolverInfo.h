@@ -29,7 +29,8 @@ enum	btSolverMode
 	SOLVER_CACHE_FRIENDLY = 128,
 	SOLVER_SIMD = 256,
 	SOLVER_INTERLEAVE_CONTACT_AND_FRICTION_CONSTRAINTS = 512,
-	SOLVER_ALLOW_ZERO_LENGTH_FRICTION_DIRECTIONS = 1024
+	SOLVER_ALLOW_ZERO_LENGTH_FRICTION_DIRECTIONS = 1024,
+	SOLVER_DISABLE_IMPLICIT_CONE_FRICTION = 2048
 };
 
 struct btContactSolverInfoData
@@ -62,6 +63,7 @@ struct btContactSolverInfoData
 	btScalar	m_maxGyroscopicForce;
 	btScalar	m_singleAxisRollingFrictionThreshold;
 	btScalar	m_leastSquaresResidualThreshold;
+	btScalar	m_restitutionVelocityThreshold;
 
 };
 
@@ -97,6 +99,7 @@ struct btContactSolverInfo : public btContactSolverInfoData
 		m_maxGyroscopicForce = 100.f; ///it is only used for 'explicit' version of gyroscopic force
 		m_singleAxisRollingFrictionThreshold = 1e30f;///if the velocity is above this threshold, it will use a single constraint row (axis), otherwise 3 rows.
 		m_leastSquaresResidualThreshold = 0.f;
+		m_restitutionVelocityThreshold = 0.2f;//if the relative velocity is below this threshold, there is zero restitution
 	}
 };
 

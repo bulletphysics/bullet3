@@ -292,6 +292,12 @@ int	OpenGLGuiHelper::registerTexture(const unsigned char* texels, int width, int
 	return textureId;
 }
 
+void OpenGLGuiHelper::changeTexture(int textureUniqueId, const unsigned char* rgbTexels, int width, int height)
+{
+	bool flipPixelsY = true;
+	m_data->m_glApp->m_renderer->updateTexture(textureUniqueId, rgbTexels,flipPixelsY);
+}
+
 
 int OpenGLGuiHelper::registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType, int textureId)
 {
@@ -318,6 +324,18 @@ void OpenGLGuiHelper::removeGraphicsInstance(int graphicsUid)
 	};
 }
 
+int OpenGLGuiHelper::getShapeIndexFromInstance(int instanceUid)
+{
+	return m_data->m_glApp->m_renderer->getShapeIndexFromInstance(instanceUid);
+}
+
+void OpenGLGuiHelper::replaceTexture(int shapeIndex, int textureUid)
+{
+	if (shapeIndex>=0)
+	{
+		m_data->m_glApp->m_renderer->replaceTexture(shapeIndex, textureUid);
+	};
+}
 void OpenGLGuiHelper::changeRGBAColor(int instanceUid, const double rgbaColor[4])
 {
 	if (instanceUid>=0)
@@ -325,7 +343,13 @@ void OpenGLGuiHelper::changeRGBAColor(int instanceUid, const double rgbaColor[4]
 		m_data->m_glApp->m_renderer->writeSingleInstanceColorToCPU(rgbaColor,instanceUid);
 	};
 }
-
+void OpenGLGuiHelper::changeSpecularColor(int instanceUid, const double specularColor[3])
+{
+	if (instanceUid>=0)
+	{
+		m_data->m_glApp->m_renderer->writeSingleInstanceSpecularColorToCPU(specularColor,instanceUid);
+	};
+}
 int OpenGLGuiHelper::createCheckeredTexture(int red,int green, int blue)
 {
 	int texWidth=1024;
@@ -605,12 +629,13 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 							textured_detailed_sphere_vertices[i*9+1],
 							textured_detailed_sphere_vertices[i*9+2]);
 				
-						btVector3 trVer = compound->getChildTransform(0)*(radiusScale*vert);
+						btVector3 trVer = (radiusScale*vert);
 						if (trVer[up]>0)
 							trVer[up]+=halfHeight;
 						else
 							trVer[up]-=halfHeight;
 
+						trVer = compound->getChildTransform(0)*trVer;
 
 						transformedVertices[i*9+0] = trVer[0];
 						transformedVertices[i*9+1] = trVer[1];
@@ -880,7 +905,7 @@ void OpenGLGuiHelper::syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWor
 		B3_PROFILE("write all InstanceTransformToCPU");
 		for (int i = 0; i<numCollisionObjects; i++)
 		{
-			B3_PROFILE("writeSingleInstanceTransformToCPU");
+			//B3_PROFILE("writeSingleInstanceTransformToCPU");
 			btCollisionObject* colObj = rbWorld->getCollisionObjectArray()[i];
 			btVector3 pos = colObj->getWorldTransform().getOrigin();
 			btQuaternion orn = colObj->getWorldTransform().getRotation();
@@ -973,7 +998,7 @@ void OpenGLGuiHelper::setVisualizerFlag(int flag, int enable)
 }
 
 
-void OpenGLGuiHelper::resetCamera(float camDist, float pitch, float yaw, float camPosX,float camPosY, float camPosZ)
+void OpenGLGuiHelper::resetCamera(float camDist, float yaw, float pitch, float camPosX,float camPosY, float camPosZ)
 {
 	if (getRenderInterface() && getRenderInterface()->getActiveCamera())
 	{
@@ -984,7 +1009,7 @@ void OpenGLGuiHelper::resetCamera(float camDist, float pitch, float yaw, float c
 	}
 }
 
-bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3],float hor[3], float vert[3] ) const
+bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16], float projectionMatrix[16], float camUp[3], float camForward[3],float hor[3], float vert[3], float* yaw, float* pitch, float* camDist, float cameraTarget[3]) const
 {
 	if (getRenderInterface() && getRenderInterface()->getActiveCamera())
 	{
@@ -994,12 +1019,10 @@ bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16
 		getRenderInterface()->getActiveCamera()->getCameraProjectionMatrix(projectionMatrix);
 		getRenderInterface()->getActiveCamera()->getCameraUpVector(camUp);
 		getRenderInterface()->getActiveCamera()->getCameraForwardVector(camForward);
-		float frustumNearPlane =     getRenderInterface()->getActiveCamera()->getCameraFrustumNear();
-		float frustumFarPlane =     getRenderInterface()->getActiveCamera()->getCameraFrustumFar();
-
+		
 		float top = 1.f;
 		float bottom = -1.f;
-		float tanFov = (top-bottom)*0.5f / frustumNearPlane;
+		float tanFov = (top-bottom)*0.5f / 1;
 		float fov = btScalar(2.0) * btAtan(tanFov);
 		btVector3 camPos,camTarget;
 		getRenderInterface()->getActiveCamera()->getCameraPosition(camPos);
@@ -1021,7 +1044,7 @@ bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16
 		float tanfov = tanf(0.5f*fov);
 		hori *= 2.f * farPlane * tanfov;
 		vertical *= 2.f * farPlane * tanfov;
-		btScalar aspect =  *width / *height;
+		btScalar aspect =  float(*width) / float(*height);
 		hori*=aspect;
 		//compute 'hor' and 'vert' vectors, useful to generate raytracer rays
 		hor[0] = hori[0];
@@ -1030,6 +1053,13 @@ bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16
 		vert[0] = vertical[0];
 		vert[1] = vertical[1];
 		vert[2] = vertical[2];
+		
+		*yaw = getRenderInterface()->getActiveCamera()->getCameraYaw();
+		*pitch = getRenderInterface()->getActiveCamera()->getCameraPitch();
+		*camDist = getRenderInterface()->getActiveCamera()->getCameraDistance();
+		cameraTarget[0] = camTarget[0];
+		cameraTarget[1] = camTarget[1];
+		cameraTarget[2] = camTarget[2];
 		return true;
 	}
 	return false;
@@ -1117,6 +1147,15 @@ void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const floa
 					}
                 }
             }
+
+			if (1)
+			{
+				getRenderInterface()->getActiveCamera()->disableVRCamera();
+				DrawGridData dg;
+				dg.upAxis = m_data->m_glApp->getUpAxis();
+				getRenderInterface()->updateCamera(dg.upAxis);
+				m_data->m_glApp->m_window->startRendering();
+			}
         }
         if (pixelsRGBA)
         {
@@ -1174,7 +1213,7 @@ void OpenGLGuiHelper::autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWor
 		btCollisionObject* colObj = rbWorld->getCollisionObjectArray()[i];
 		sortedObjects.push_back(colObj);
 	}
-	//sortedObjects.quickSort(shapePointerCompareFunc);
+	sortedObjects.quickSort(shapePointerCompareFunc);
 	for (int i=0;i<sortedObjects.size();i++)
 	{
 		btCollisionObject* colObj = sortedObjects[i];
@@ -1194,6 +1233,15 @@ void OpenGLGuiHelper::autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWor
 	}
 }
     
+void OpenGLGuiHelper::drawText3D( const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlags)
+{
+	B3_PROFILE("OpenGLGuiHelper::drawText3D");
+
+    btAssert(m_data->m_glApp);
+    m_data->m_glApp->drawText3D(txt,position, orientation, color,size, optionFlags);
+
+}
+
 void OpenGLGuiHelper::drawText3D( const char* txt, float posX, float posY, float posZ, float size)
 {
 	B3_PROFILE("OpenGLGuiHelper::drawText3D");

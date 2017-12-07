@@ -140,7 +140,7 @@ class btGeneric6DofSpring2Constraint* MyMultiBodyCreator::createRevoluteJoint(in
             dof6->setLinearUpperLimit(btVector3(0,0,0));
 
             dof6->setAngularUpperLimit(btVector3(0,0,-1));
-            dof6->setAngularLowerLimit(btVector3(0,0,0));
+            dof6->setAngularLowerLimit(btVector3(0,0,1));
 
         }
     };
@@ -180,7 +180,7 @@ class btGeneric6DofSpring2Constraint* MyMultiBodyCreator::createFixedJoint(int u
 
     dof6->setAngularLowerLimit(btVector3(0,0,0));
     dof6->setAngularUpperLimit(btVector3(0,0,0));
-
+	m_6DofConstraints.push_back(dof6);
 	return dof6;
 }
    
@@ -188,20 +188,46 @@ class btGeneric6DofSpring2Constraint* MyMultiBodyCreator::createFixedJoint(int u
 
 void MyMultiBodyCreator::addLinkMapping(int urdfLinkIndex, int mbLinkIndex) 
 {
+	if (m_mb2urdfLink.size()<(mbLinkIndex+1))
+	{
+		m_mb2urdfLink.resize((mbLinkIndex+1),-2);
+	}
 //    m_urdf2mbLink[urdfLinkIndex] = mbLinkIndex;
     m_mb2urdfLink[mbLinkIndex] = urdfLinkIndex;
 }
 
 void MyMultiBodyCreator::createRigidBodyGraphicsInstance(int linkIndex, btRigidBody* body, const btVector3& colorRgba, int graphicsIndex) 
 {
-        
     m_guiHelper->createRigidBodyGraphicsObject(body, colorRgba);
 }
+
+void MyMultiBodyCreator::createRigidBodyGraphicsInstance2(int linkIndex, class btRigidBody* body, const btVector3& colorRgba, const btVector3& specularColor, int graphicsIndex)
+{        
+    m_guiHelper->createRigidBodyGraphicsObject(body, colorRgba);
+	int graphicsInstanceId = body->getUserIndex();
+	btVector3DoubleData speculard;
+	specularColor.serializeDouble(speculard);
+	m_guiHelper->changeSpecularColor(graphicsInstanceId,speculard.m_floats);
+}
+
+
+
     
 void MyMultiBodyCreator::createCollisionObjectGraphicsInstance(int linkIndex, class btCollisionObject* colObj, const btVector3& colorRgba) 
 {
     m_guiHelper->createCollisionObjectGraphicsObject(colObj,colorRgba);
 }
+
+void MyMultiBodyCreator::createCollisionObjectGraphicsInstance2(int linkIndex, class btCollisionObject* col, const btVector4& colorRgba, const btVector3& specularColor)
+{
+	createCollisionObjectGraphicsInstance(linkIndex,col,colorRgba);
+	int graphicsInstanceId = col->getUserIndex();
+	btVector3DoubleData speculard;
+	specularColor.serializeDouble(speculard);
+	m_guiHelper->changeSpecularColor(graphicsInstanceId,speculard.m_floats);
+
+}
+
 
 btMultiBody* MyMultiBodyCreator::getBulletMultiBody()
 {

@@ -13,6 +13,11 @@
 #include "stdlib.h"
 #include "TwFonts.h"
 #include "SimpleOpenGL2Renderer.h"
+
+#ifdef B3_USE_GLFW
+#include "GLFWOpenGLWindow.h"
+#else
+
 #ifdef __APPLE__
 #include "MacOpenGLWindow.h"
 #else
@@ -30,6 +35,8 @@
 #endif //BT_USE_EGL
 #endif //_WIN32
 #endif//__APPLE__
+#endif //#ifdef B3_USE_GLFW
+
 #include <stdio.h>
 #include "../CommonInterfaces/CommonRenderInterface.h"
 
@@ -39,9 +46,9 @@ static void Simple2ResizeCallback( float widthf, float heightf)
 {
 	int width = (int)widthf;
 	int height = (int)heightf;
-	if (gApp2->m_renderer)
-		gApp2->m_renderer->resize(width,height);
-	//gApp2->m_renderer->setScreenSize(width,height);
+	if (gApp2->m_renderer && gApp2->m_window)
+        	gApp2->m_renderer->resize(width,height);//*gApp2->m_window->getRetinaScale(),height*gApp2->m_window->getRetinaScale());
+
 
 }
 
@@ -58,11 +65,18 @@ static void Simple2KeyboardCallback(int key, int state)
 
 void Simple2MouseButtonCallback( int button, int state, float x, float y)
 {
-	gApp2->defaultMouseButtonCallback(button,state,x,y);
+	if (gApp2 && gApp2->m_window)
+	{
+		gApp2->defaultMouseButtonCallback(button,state,x,y);
+	}
 }
 void Simple2MouseMoveCallback(  float x, float y)
 {
-	gApp2->defaultMouseMoveCallback(x,y);
+
+	if (gApp2 && gApp2->m_window)
+	{
+		gApp2->defaultMouseMoveCallback(x,y);
+	}
 }
 	
 void Simple2WheelCallback( float deltax, float deltay)
@@ -129,7 +143,7 @@ SimpleOpenGL2App::SimpleOpenGL2App(const char* title, int width, int height)
     glewExperimental = GL_TRUE;
 #endif //_WIN32
     
-    
+#ifndef B3_USE_GLFW
     if (glewInit() != GLEW_OK)
     {
         b3Error("glewInit failed");
@@ -140,7 +154,7 @@ SimpleOpenGL2App::SimpleOpenGL2App(const char* title, int width, int height)
         b3Error("GLEW_VERSION_2_1 needs to support 2_1");
         exit(1); // or handle the error in a nicer way
     }
-    
+#endif //B3_USE_GLFW
 #endif //__APPLE__
 #endif //NO_GLEW
 
@@ -196,6 +210,7 @@ void SimpleOpenGL2App::setBackgroundColor(float red, float green, float blue)
 
 void SimpleOpenGL2App::drawGrid(DrawGridData data)
 {
+	glEnable(GL_COLOR_MATERIAL);
 	 int gridSize = data.gridSize;
     float upOffset = data.upOffset;
     int upAxis = data.upAxis;
@@ -297,13 +312,14 @@ void SimpleOpenGL2App::swapBuffer()
 	m_window->startRendering();
 
 }
-void SimpleOpenGL2App::drawText( const char* txt, int posX, int posY, float size)
+
+void SimpleOpenGL2App::drawText( const char* txt, int posXi, int posYi, float size, float colorRGBA[4])
 {
 
 }
 
 
-		static		void	restoreOpenGLState()
+static		void	restoreOpenGLState()
 			{
 				
 				
@@ -338,6 +354,11 @@ void SimpleOpenGL2App::drawText( const char* txt, int posX, int posY, float size
 				glDisable(GL_TEXTURE_2D);
 
 			}
+
+void SimpleOpenGL2App::drawText3D( const char* txt, float position[3], float orientation[4], float color[4], float size, int optionFlag)
+{
+
+}
 
 void SimpleOpenGL2App::drawText3D( const char* txt, float worldPosX, float worldPosY, float worldPosZ, float size1)
 {
@@ -475,7 +496,8 @@ void SimpleOpenGL2App::drawText3D( const char* txt, float worldPosX, float world
 void SimpleOpenGL2App::registerGrid(int cells_x, int cells_z, float color0[4], float color1[4])
 {
 	b3Vector3 cubeExtents=b3MakeVector3(0.5,0.5,0.5);
-	cubeExtents[m_data->m_upAxis] = 0;
+	double halfHeight=0.1;
+	cubeExtents[m_data->m_upAxis] = halfHeight;
 	int cubeId = registerCubeShape(cubeExtents[0],cubeExtents[1],cubeExtents[2]);
 
 	b3Quaternion orn(0,0,0,1);
@@ -495,10 +517,10 @@ void SimpleOpenGL2App::registerGrid(int cells_x, int cells_z, float color0[4], f
 			}
 			if (this->m_data->m_upAxis==1)
 			{
-				center =b3MakeVector3((i + 0.5f) - cells_x * 0.5f, 0.f, (j + 0.5f) - cells_z * 0.5f);
+				center =b3MakeVector3((i + 0.5f) - cells_x * 0.5f, -halfHeight, (j + 0.5f) - cells_z * 0.5f);
 			} else
 			{
-				center =b3MakeVector3((i + 0.5f) - cells_x * 0.5f, (j + 0.5f) - cells_z * 0.5f,0.f );
+				center =b3MakeVector3((i + 0.5f) - cells_x * 0.5f, (j + 0.5f) - cells_z * 0.5f,-halfHeight );
 			}
 			m_renderer->registerGraphicsInstance(cubeId,center,orn,color,scaling);
 		}

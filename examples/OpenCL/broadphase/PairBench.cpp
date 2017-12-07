@@ -71,10 +71,10 @@ public:
 			dist = 130;
 		}
 
-		float pitch = 62;
-		float yaw = 33;
+		float pitch = -33;
+		float yaw = 62;
 		float targetPos[4]={15.5,12.5,15.5,0};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 	
 };

@@ -11,9 +11,17 @@ public:
 
     
     virtual void createRigidBodyGraphicsInstance(int linkIndex, class btRigidBody* body, const btVector3& colorRgba, int graphicsIndex) = 0;
-  
+	virtual void createRigidBodyGraphicsInstance2(int linkIndex, class btRigidBody* body, const btVector3& colorRgba, const btVector3& specularColor, int graphicsIndex)
+	{
+		createRigidBodyGraphicsInstance(linkIndex,body,colorRgba,graphicsIndex);
+	}
+
     ///optionally create some graphical representation from a collision object, usually for visual debugging purposes.
     virtual void createCollisionObjectGraphicsInstance(int linkIndex, class btCollisionObject* col, const btVector3& colorRgba) = 0;
+    virtual void createCollisionObjectGraphicsInstance2(int linkIndex, class btCollisionObject* col, const btVector4& colorRgba, const btVector3& specularColor)
+	{
+		createCollisionObjectGraphicsInstance(linkIndex,col,colorRgba);
+	}
     
     virtual class btMultiBody* allocateMultiBody(int urdfLinkIndex, int totalNumJoints,btScalar mass, const btVector3& localInertiaDiagonal, bool isFixedBase, bool canSleep)  =0;
     

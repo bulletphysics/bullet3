@@ -50,10 +50,10 @@ public:
 	virtual void resetCamera()
 	{
 		float dist = 3.5;
-		float pitch = -136;
-		float yaw = 28;
+		float pitch = -28;
+		float yaw = -136;
 		float targetPos[3]={0.47,0,-0.64};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 };
 
@@ -187,7 +187,7 @@ void ImportSDFSetup::initPhysics()
 	m_dynamicsWorld->setGravity(gravity);
 
 	
-    BulletURDFImporter u2b(m_guiHelper, 0);
+    BulletURDFImporter u2b(m_guiHelper, 0,1);
     
     bool loadOk =  u2b.loadSDF(m_fileName);
 

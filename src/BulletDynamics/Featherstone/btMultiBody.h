@@ -142,7 +142,11 @@ public:
 
 	btMultiBodyLinkCollider* getLinkCollider(int index)
 	{
-		return m_colliders[index];
+		if (index >= 0 && index < getNumLinks())
+		{
+			return getLink(index).m_collider;
+		}
+		return 0;
 	}
 
     //
@@ -655,7 +659,6 @@ private:
     btVector3 m_baseConstraintTorque;    // external torque applied to base. World frame.
  
     btAlignedObjectArray<btMultibodyLink> m_links;    // array of m_links, excluding the base. index from 0 to num_links-1.
-	btAlignedObjectArray<btMultiBodyLinkCollider*> m_colliders;
 
     
     //

@@ -1,6 +1,7 @@
 
 INCLUDE_DIRECTORIES(
 	..
+	../ThirdPartyLibs
 	../../src
 )
 
@@ -49,7 +50,7 @@ ENDIF()
 
 ADD_LIBRARY(OpenGLWindow ${OpenGLWindow_SRCS} ${OpenGLWindow_HDRS})
 if (UNIX AND NOT APPLE)
-  target_link_libraries(OpenGLWindow )
+  target_link_libraries(OpenGLWindow ${DL})
 elseif (APPLE)
   target_link_libraries(OpenGLWindow ${COCOA_LIBRARY})
 endif ()
@@ -61,7 +62,7 @@ if (BUILD_SHARED_LIBS)
   else()
 	set (CMAKE_THREAD_PREFER_PTHREAD TRUE)
 	FIND_PACKAGE(Threads)
-	target_link_libraries(OpenGLWindow ${DL} ${CMAKE_THREAD_LIBS_INIT})
+	target_link_libraries(OpenGLWindow ${CMAKE_THREAD_LIBS_INIT})
   endif()
 endif()
 

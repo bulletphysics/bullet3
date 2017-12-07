@@ -21,6 +21,8 @@ namespace Gwen
 
 		class OpenGL_DebugFont : public Gwen::Renderer::Base
 		{
+            float m_retinaScale;
+            
 			public:
 
 					struct Vertex
@@ -32,8 +34,8 @@ namespace Gwen
 
 					
 					static const int	MaxVerts = 1024;
-
-				OpenGL_DebugFont();
+            
+				OpenGL_DebugFont(float retinaScale);
 				~OpenGL_DebugFont();
 
 				void RenderText( Gwen::Font* pFont, Gwen::Point pos, const Gwen::UnicodeString& text );

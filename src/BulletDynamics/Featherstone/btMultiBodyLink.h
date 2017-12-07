@@ -96,9 +96,18 @@ struct btMultibodyLink
 	//			   m_axesBottom[1][2] = unit vectors along the translational axes on that plane		
 	btSpatialMotionVector m_axes[6];
 	void setAxisTop(int dof, const btVector3 &axis) { m_axes[dof].m_topVec = axis; }
-	void setAxisBottom(int dof, const btVector3 &axis) { m_axes[dof].m_bottomVec = axis; }
-	void setAxisTop(int dof, const btScalar &x, const btScalar &y, const btScalar &z) { m_axes[dof].m_topVec.setValue(x, y, z); }
-	void setAxisBottom(int dof, const btScalar &x, const btScalar &y, const btScalar &z) { m_axes[dof].m_bottomVec.setValue(x, y, z); }
+	void setAxisBottom(int dof, const btVector3 &axis) 
+	{ 
+		m_axes[dof].m_bottomVec = axis; 
+	}
+	void setAxisTop(int dof, const btScalar &x, const btScalar &y, const btScalar &z) 
+	{
+		m_axes[dof].m_topVec.setValue(x, y, z); 
+	}
+	void setAxisBottom(int dof, const btScalar &x, const btScalar &y, const btScalar &z) 
+	{ 
+		m_axes[dof].m_bottomVec.setValue(x, y, z); 
+	}
 	const btVector3 & getAxisTop(int dof) const { return m_axes[dof].m_topVec; }
 	const btVector3 & getAxisBottom(int dof) const { return m_axes[dof].m_bottomVec; }
 
@@ -173,6 +182,8 @@ btVector3 m_appliedConstraintForce;    // In WORLD frame
 		m_cachedRVector.setValue(0, 0, 0);
 		m_appliedForce.setValue( 0, 0, 0);
 		m_appliedTorque.setValue(0, 0, 0);
+		m_appliedConstraintForce.setValue(0,0,0);
+		m_appliedConstraintTorque.setValue(0,0,0);
 		//		
 		m_jointPos[0] = m_jointPos[1] = m_jointPos[2] = m_jointPos[4] = m_jointPos[5] = m_jointPos[6] = 0.f;
 		m_jointPos[3] = 1.f;			//"quat.w"

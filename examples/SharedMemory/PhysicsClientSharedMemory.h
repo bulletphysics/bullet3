@@ -72,7 +72,11 @@ public:
 
 	virtual void getCachedKeyboardEvents(struct b3KeyboardEventsData* keyboardEventsData);
 
+	virtual void getCachedMouseEvents(struct b3MouseEventsData* mouseEventsData);
+
 	virtual void getCachedRaycastHits(struct b3RaycastInformation* raycastHits);
+
+	virtual void getCachedMassMatrix(int dofCountCheck, double* massMatrix);
 
 	virtual void setTimeOut(double timeOutInSeconds);
 	virtual double getTimeOut() const;

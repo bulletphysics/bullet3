@@ -10,11 +10,13 @@ extern "C" {
 
 
 ///think more about naming. The b3ConnectPhysicsLoopback
-b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnect(int argc, char* argv[]);
+B3_SHARED_API	b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnect(int argc, char* argv[]);
+B3_SHARED_API	b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectSharedMemory(int argc, char* argv[]);
 
-b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectMainThread(int argc, char* argv[]);
+B3_SHARED_API	b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectMainThread(int argc, char* argv[]);
+B3_SHARED_API	b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectMainThreadSharedMemory(int argc, char* argv[]);
 
-b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect(void* guiHelperPtr);
+B3_SHARED_API	b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect(void* guiHelperPtr);
 
 ///ignore the following APIs, they are for internal use for example browser
 void b3InProcessRenderSceneInternal(b3PhysicsClientHandle clientHandle);

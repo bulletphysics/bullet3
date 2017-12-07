@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.4.3)
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
-
+cmake_policy(SET CMP0017 NEW)
 #this line has to appear before 'PROJECT' in order to be able to disable incremental linking
 SET(MSVC_INCREMENTAL_DEFAULT ON)
 
@@ -15,7 +15,6 @@ IF(COMMAND cmake_policy)
    endif(POLICY CMP0042)
 ENDIF(COMMAND cmake_policy)
 
-
 IF (NOT CMAKE_BUILD_TYPE)
 # SET(CMAKE_BUILD_TYPE "Debug")
  SET(CMAKE_BUILD_TYPE "Release")
@@ -27,8 +26,33 @@ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 OPTION(USE_DOUBLE_PRECISION "Use double precision"	OFF)
 OPTION(USE_GRAPHICAL_BENCHMARK "Use Graphical Benchmark" ON)
 OPTION(BUILD_SHARED_LIBS "Use shared libraries" OFF)
-OPTION(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD "Use btSoftMultiBodyDynamicsWorld" OFF)	
-OPTION(BULLET2_USE_THREAD_LOCKS "Build Bullet 2 libraries with mutex locking around certain operations" OFF)
+OPTION(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD "Use btSoftMultiBodyDynamicsWorld" OFF)
+
+OPTION(BULLET2_USE_THREAD_LOCKS "Build Bullet 2 libraries with mutex locking around certain operations (required for multi-threading)" OFF)
+IF (BULLET2_USE_THREAD_LOCKS)
+    OPTION(BULLET2_USE_OPEN_MP_MULTITHREADING "Build Bullet 2 with support for multi-threading with OpenMP (requires a compiler with OpenMP support)" OFF)
+    OPTION(BULLET2_USE_TBB_MULTITHREADING "Build Bullet 2 with support for multi-threading with Intel Threading Building Blocks (requires the TBB library to be already installed)" OFF)
+    IF (MSVC)
+        OPTION(BULLET2_USE_PPL_MULTITHREADING "Build Bullet 2 with support for multi-threading with Microsoft Parallel Patterns Library (requires MSVC compiler)" OFF)
+    ENDIF (MSVC)
+ENDIF (BULLET2_USE_THREAD_LOCKS)
+
+
+IF(NOT WIN32)
+	SET(DL ${CMAKE_DL_LIBS})
+	IF(CMAKE_SYSTEM_NAME MATCHES "Linux")
+		MESSAGE("Linux")
+		SET(OSDEF -D_LINUX)
+	ELSE(CMAKE_SYSTEM_NAME MATCHES "Linux")
+		IF(APPLE)
+			MESSAGE("Apple")
+			SET(OSDEF -D_DARWIN)
+		ELSE(APPLE)
+			MESSAGE("BSD?")
+			SET(OSDEF -D_BSD)
+		ENDIF(APPLE)
+	ENDIF(CMAKE_SYSTEM_NAME MATCHES "Linux")
+ENDIF(NOT WIN32)
 
 OPTION(USE_MSVC_INCREMENTAL_LINKING "Use MSVC Incremental Linking" OFF)
 OPTION(USE_CUSTOM_VECTOR_MATH "Use custom vectormath library" OFF)
@@ -123,22 +147,22 @@ IF(MSVC)
 
 	OPTION(USE_MSVC_EXEPTIONS "Use MSVC C++ exceptions option"	OFF)
 
-	
+
 
 	OPTION(USE_MSVC_COMDAT_FOLDING "Use MSVC /OPT:ICF COMDAT folding option"	ON)
-		
+
 	IF(USE_MSVC_COMDAT_FOLDING)
 		set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /OPT:ICF")
 		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /OPT:ICF")
 	ENDIF()
-	
+
 	OPTION(USE_MSVC_DISABLE_RTTI "Use MSVC /GR- disabled RTTI flags option"	ON)
 	IF(USE_MSVC_DISABLE_RTTI)
 	  STRING(REGEX REPLACE "/GR" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}) # Disable RTTI
 		SET(CMAKE_C_FLAGS "/GR- ${CMAKE_C_FLAGS}")
 		SET(CMAKE_CXX_FLAGS "/GR- ${CMAKE_CXX_FLAGS}")
 	ENDIF(USE_MSVC_DISABLE_RTTI)
-	
+
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244 /wd4267")
 ENDIF(MSVC)
 
@@ -208,6 +232,30 @@ IF(BULLET2_USE_THREAD_LOCKS)
 	ENDIF (NOT MSVC)
 ENDIF (BULLET2_USE_THREAD_LOCKS)
 
+IF (BULLET2_USE_OPEN_MP_MULTITHREADING)
+    ADD_DEFINITIONS("-DBT_USE_OPENMP=1")
+    IF (MSVC)
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /openmp")
+    ELSE (MSVC)
+        # GCC, Clang
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+    ENDIF (MSVC)
+ENDIF (BULLET2_USE_OPEN_MP_MULTITHREADING)
+
+IF (BULLET2_USE_TBB_MULTITHREADING)
+    SET (BULLET2_TBB_INCLUDE_DIR "not found" CACHE PATH "Directory for Intel TBB includes.")
+    SET (BULLET2_TBB_LIB_DIR "not found" CACHE PATH "Directory for Intel TBB libraries.")
+    find_library(TBB_LIBRARY tbb PATHS ${BULLET2_TBB_LIB_DIR})
+    find_library(TBBMALLOC_LIBRARY tbbmalloc PATHS ${BULLET2_TBB_LIB_DIR})
+    ADD_DEFINITIONS("-DBT_USE_TBB=1")
+    INCLUDE_DIRECTORIES( ${BULLET2_TBB_INCLUDE_DIR} )
+    LINK_LIBRARIES( ${TBB_LIBRARY} ${TBBMALLOC_LIBRARY} )
+ENDIF (BULLET2_USE_TBB_MULTITHREADING)
+
+IF (BULLET2_USE_PPL_MULTITHREADING)
+    ADD_DEFINITIONS("-DBT_USE_PPL=1")
+ENDIF (BULLET2_USE_PPL_MULTITHREADING)
+
 IF (WIN32)
 OPTION(USE_GLUT "Use Glut"	ON)
 ADD_DEFINITIONS( -D_CRT_SECURE_NO_WARNINGS )
@@ -254,24 +302,40 @@ ENDIF()
 
 OPTION(BUILD_BULLET3 "Set when you want to build Bullet 3" ON)
 
+# Optional Python configuration
+# Will not probe environment for Python configuration (which can abort the
+# build process) unless you explicitly turn on BUILD_PYBULLET.
 OPTION(BUILD_PYBULLET "Set when you want to build pybullet (Python bindings for Bullet)" OFF)
-	
+IF(BUILD_PYBULLET)
+	SET(PYTHON_VERSION_PYBULLET "" CACHE STRING "Python version pybullet will use.")
+	SET(Python_ADDITIONAL_VERSIONS 3 3.6 3.5 3.4 3.3 3.2 3.1 3.0 2.7 2.7.12 2.7.10 2.7.3 )
+	SET_PROPERTY(CACHE PYTHON_VERSION_PYBULLET PROPERTY STRINGS ${Python_ADDITIONAL_VERSIONS})
+	SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build3/cmake ${CMAKE_MODULE_PATH})
+	OPTION(EXACT_PYTHON_VERSION "Require Python and match PYTHON_VERSION_PYBULLET exactly, e.g. 2.7.12" OFF)
+	IF(EXACT_PYTHON_VERSION)
+	set(EXACT_PYTHON_VERSION_FLAG EXACT REQUIRED)
+	ENDIF(EXACT_PYTHON_VERSION)
+	# first find the python interpreter
+	FIND_PACKAGE(PythonInterp ${PYTHON_VERSION_PYBULLET} ${EXACT_PYTHON_VERSION_FLAG})
+	# python library should exactly match that of the interpreter
+	# the following can result in fatal error if you don't have the right python configuration
+	FIND_PACKAGE(PythonLibs ${PYTHON_VERSION_STRING} EXACT)
+ENDIF(BUILD_PYBULLET)
+
 OPTION(BUILD_ENET "Set when you want to build apps with enet UDP networking support" ON)
 OPTION(BUILD_CLSOCKET "Set when you want to build apps with enet TCP networking support" ON)
-	
+
 
 IF(BUILD_PYBULLET)
-
 	FIND_PACKAGE(PythonLibs)
 
 	OPTION(BUILD_PYBULLET_NUMPY "Set when you want to build pybullet with NumPy support" OFF)
 	OPTION(BUILD_PYBULLET_ENET "Set when you want to build pybullet with enet UDP networking support" ON)
 	OPTION(BUILD_PYBULLET_CLSOCKET "Set when you want to build pybullet with enet TCP networking support" ON)
 
-	OPTION(BUILD_PYBULLET_MAC_USE_PYTHON_FRAMEWORK "Set when you want to use the Python Framework on Mac" ON)
+	OPTION(BUILD_PYBULLET_MAC_USE_PYTHON_FRAMEWORK "Set when you want to use the Python Framework on Mac" OFF)
 
-	IF(BUILD_PYBULLET_NUMPY)	
-		set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/build3/cmake)
+	IF(BUILD_PYBULLET_NUMPY)
 		#include(FindNumPy)
 		FIND_PACKAGE(NumPy)
 		if (PYTHON_NUMPY_FOUND)
@@ -281,7 +345,6 @@ IF(BUILD_PYBULLET)
 			message("NumPy not found")
 		endif()
 	ENDIF()
-	OPTION(BUILD_PYBULLET "Set when you want to build pybullet (experimental Python bindings for Bullet)" OFF)
 
 	IF(WIN32)
 		SET(BUILD_SHARED_LIBS OFF CACHE BOOL "Shared Libs" FORCE)
@@ -336,14 +399,6 @@ IF(BUILD_BULLET2_DEMOS)
 		SUBDIRS(examples)
 	ENDIF()
 
-        IF (BULLET2_USE_THREAD_LOCKS)
-            OPTION(BULLET2_MULTITHREADED_OPEN_MP_DEMO "Build Bullet 2 MultithreadedDemo using OpenMP (requires a compiler with OpenMP support)" OFF)
-            OPTION(BULLET2_MULTITHREADED_TBB_DEMO "Build Bullet 2 MultithreadedDemo using Intel Threading Building Blocks (requires the TBB library to be already installed)" OFF)
-            IF (MSVC)
-                OPTION(BULLET2_MULTITHREADED_PPL_DEMO "Build Bullet 2 MultithreadedDemo using Microsoft Parallel Patterns Library (requires MSVC compiler)" OFF)
-            ENDIF (MSVC)
-        ENDIF (BULLET2_USE_THREAD_LOCKS)
-
 ENDIF(BUILD_BULLET2_DEMOS)
 
 
@@ -354,7 +409,6 @@ IF(BUILD_EXTRAS)
 ENDIF(BUILD_EXTRAS)
 
 
-#Maya Dynamica plugin is moved to http://dynamica.googlecode.com
 
 SUBDIRS(src)
 
@@ -369,7 +423,15 @@ ELSE()
 	ENDIF()
 ENDIF()
 
+
 IF(INSTALL_LIBS)
+	#INSTALL of other files requires CMake 2.6
+	IF(BUILD_EXTRAS)
+		IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
+			OPTION(INSTALL_EXTRA_LIBS "Set when you want extra libraries installed" ON)
+		ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
+	ENDIF(BUILD_EXTRAS)
+
 	SET (LIB_SUFFIX "" CACHE STRING "Define suffix of directory name (32/64)" )
 	SET (LIB_DESTINATION "lib${LIB_SUFFIX}" CACHE STRING "Library directory name")
 	## the following are directories where stuff will be installed to
@@ -383,12 +445,8 @@ IF(INSTALL_LIBS)
 		DESTINATION
 		${PKGCONFIG_INSTALL_PREFIX})
 	ENDIF(NOT MSVC)
-ENDIF(INSTALL_LIBS)
+ENDIF()
 
-#INSTALL of other files requires CMake 2.6
-IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
-	OPTION(INSTALL_EXTRA_LIBS "Set when you want extra libraries installed" OFF)
-ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.5)
 
 OPTION(BUILD_UNIT_TESTS "Build Unit Tests"	ON)
 
@@ -399,9 +457,8 @@ ENDIF()
 
 set (BULLET_CONFIG_CMAKE_PATH lib${LIB_SUFFIX}/cmake/bullet )
 list (APPEND BULLET_LIBRARIES LinearMath)
-IF(BUILD_BULLET3)
-    list (APPEND BULLET_LIBRARIES BulletInverseDynamics)
-ENDIF(BUILD_BULLET3)
+list (APPEND BULLET_LIBRARIES Bullet3Common)
+list (APPEND BULLET_LIBRARIES BulletInverseDynamics)
 list (APPEND BULLET_LIBRARIES BulletCollision)
 list (APPEND BULLET_LIBRARIES BulletDynamics)
 list (APPEND BULLET_LIBRARIES BulletSoftBody)
@@ -410,7 +467,11 @@ configure_file 	( ${CMAKE_CURRENT_SOURCE_DIR}/BulletConfig.cmake.in
 					${CMAKE_CURRENT_BINARY_DIR}/BulletConfig.cmake
 					@ONLY ESCAPE_QUOTES
 				)
-install ( FILES ${CMAKE_CURRENT_SOURCE_DIR}/UseBullet.cmake
+OPTION(INSTALL_CMAKE_FILES "Install generated CMake files" ON)
+
+IF (INSTALL_CMAKE_FILES)
+	install ( FILES ${CMAKE_CURRENT_SOURCE_DIR}/UseBullet.cmake
 		${CMAKE_CURRENT_BINARY_DIR}/BulletConfig.cmake
 		DESTINATION ${BULLET_CONFIG_CMAKE_PATH}
 	)
+ENDIF (INSTALL_CMAKE_FILES)

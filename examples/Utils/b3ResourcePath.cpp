@@ -53,10 +53,60 @@ int b3ResourcePath::getExePath(char* path, int maxPathLenInBytes)
 	return numBytes;
 }
 
-int b3ResourcePath::findResourcePath(const char* resourceName, char* resourcePath, int resourcePathMaxNumBytes)
+struct TempResourcePath
+{
+	char* m_path;
+	TempResourcePath(int len)
+	{
+		m_path = (char*)malloc(len);
+		memset(m_path,0,len);
+	}
+	virtual ~TempResourcePath()
+	{
+		free(m_path);
+	}
+};
+
+static char sAdditionalSearchPath[B3_MAX_EXE_PATH_LEN] = {0};
+
+void b3ResourcePath::setAdditionalSearchPath(const char* path)
+{
+	if (path)
+	{
+		int len = strlen(path);
+		if (len<(B3_MAX_EXE_PATH_LEN-1))
+		{
+			strcpy(sAdditionalSearchPath,path);
+			sAdditionalSearchPath[len] = 0;
+		}
+	} else
+	{
+		sAdditionalSearchPath[0] = 0;
+	}
+}
+
+int b3ResourcePath::findResourcePath(const char* resourceName, char* resourcePathOut, int resourcePathMaxNumBytes)
 {
 	//first find in a resource/<exeName> location, then in various folders within 'data' using b3FileUtils
 	char exePath[B3_MAX_EXE_PATH_LEN];
+
+	bool res = b3FileUtils::findFile(resourceName, resourcePathOut, resourcePathMaxNumBytes);
+	if (res)
+    {
+            return strlen(resourcePathOut);
+    }
+
+	if (sAdditionalSearchPath[0])
+	{
+		TempResourcePath tmpPath(resourcePathMaxNumBytes+1024);
+		char* resourcePathIn = tmpPath.m_path;
+		sprintf(resourcePathIn,"%s/%s",sAdditionalSearchPath,resourceName);
+		//printf("try resource at %s\n", resourcePath);	
+		if (b3FileUtils::findFile(resourcePathIn, resourcePathOut, resourcePathMaxNumBytes))
+		{
+			return strlen(resourcePathOut);
+		}
+	}
 
 	int l = b3ResourcePath::getExePath(exePath, B3_MAX_EXE_PATH_LEN);
 	if (l)
@@ -66,33 +116,31 @@ int b3ResourcePath::findResourcePath(const char* resourceName, char* resourcePat
         	int exeNamePos = b3FileUtils::extractPath(exePath,pathToExe,B3_MAX_EXE_PATH_LEN);
         	if (exeNamePos)
         	{
-				sprintf(resourcePath,"%s../data/%s",pathToExe,resourceName);
+				TempResourcePath tmpPath(resourcePathMaxNumBytes+1024);
+				char* resourcePathIn = tmpPath.m_path;
+				sprintf(resourcePathIn,"%s../data/%s",pathToExe,resourceName);
 				//printf("try resource at %s\n", resourcePath);	
-				if (b3FileUtils::findFile(resourcePath, resourcePath, resourcePathMaxNumBytes))
+				if (b3FileUtils::findFile(resourcePathIn, resourcePathOut, resourcePathMaxNumBytes))
 				{
-					return strlen(resourcePath);
+					return strlen(resourcePathOut);
 				}
 
-				sprintf(resourcePath,"%s../resources/%s/%s",pathToExe,&exePath[exeNamePos],resourceName);
+				sprintf(resourcePathIn,"%s../resources/%s/%s",pathToExe,&exePath[exeNamePos],resourceName);
 				//printf("try resource at %s\n", resourcePath);	
-				if (b3FileUtils::findFile(resourcePath, resourcePath, resourcePathMaxNumBytes))
+				if (b3FileUtils::findFile(resourcePathIn, resourcePathOut, resourcePathMaxNumBytes))
 				{
-					return strlen(resourcePath);
+					return strlen(resourcePathOut);
 				}
-         sprintf(resourcePath,"%s.runfiles/google3/third_party/bullet/data/%s",exePath,resourceName);
+				sprintf(resourcePathIn,"%s.runfiles/google3/third_party/bullet/data/%s",exePath,resourceName);
 				//printf("try resource at %s\n", resourcePath);	
-				if (b3FileUtils::findFile(resourcePath, resourcePath, resourcePathMaxNumBytes))
+				if (b3FileUtils::findFile(resourcePathIn, resourcePathOut, resourcePathMaxNumBytes))
 				{
-					return strlen(resourcePath);
+					return strlen(resourcePathOut);
 				}  
         	}
 	}
 
-	bool res = b3FileUtils::findFile(resourceName, resourcePath, resourcePathMaxNumBytes);
-	if (res)
-        {
-                return strlen(resourcePath);
-        }
+
 
 	return 0;
 }

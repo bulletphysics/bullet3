@@ -45,7 +45,6 @@ public:
     }
     virtual ~GripperGraspExample()
     {
-        m_app->m_renderer->enableBlend(false);
     }
 
     
@@ -496,8 +495,8 @@ public:
 	virtual void resetCamera()
 	{
 		float dist = 1.5;
-        float pitch = 18;
-        float yaw = 10;
+        float pitch = -10;
+        float yaw = 18;
 		float targetPos[3]={-0.2,0.8,0.3};
 		if (m_app->m_renderer  && m_app->m_renderer->getActiveCamera())
 		{

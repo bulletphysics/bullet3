@@ -1,5 +1,4 @@
 
-
 SET(SharedMemory_SRCS
 	IKTrajectoryHelper.cpp
 	IKTrajectoryHelper.h
@@ -7,6 +6,7 @@ SET(SharedMemory_SRCS
 	PhysicsClientSharedMemory.cpp
 	PhysicsClientExample.cpp
 	PhysicsServerExample.cpp
+	PhysicsServerExampleBullet2.cpp
 	PhysicsServerSharedMemory.cpp
 	PhysicsServerSharedMemory.h
 	PhysicsServer.cpp
@@ -40,6 +40,7 @@ SET(SharedMemory_SRCS
 	TinyRendererVisualShapeConverter.h
 	SharedMemoryCommands.h
 	SharedMemoryPublic.h
+	b3PluginManager.cpp
 	../TinyRenderer/geometry.cpp
 	../TinyRenderer/model.cpp
 	../TinyRenderer/tgaimage.cpp
@@ -212,7 +213,8 @@ IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
 ENDIF(INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
 
 
-IF (WIN32)
+#VR/OpenVR only on Windows and Mac OSX for now
+IF (WIN32 OR APPLE)
 
 INCLUDE_DIRECTORIES(
 	${BULLET_PHYSICS_SOURCE_DIR}/src
@@ -225,7 +227,7 @@ INCLUDE_DIRECTORIES(
 
 
 LINK_LIBRARIES(
- openvr_api Bullet3Common BulletWorldImporter BulletInverseDynamicsUtils BulletInverseDynamics BulletDynamics BulletCollision LinearMath BussIK OpenGLWindow
+ Bullet3Common BulletWorldImporter BulletInverseDynamicsUtils BulletInverseDynamics BulletDynamics BulletCollision LinearMath BussIK openvr_api OpenGLWindow
 )
 
 
@@ -233,13 +235,45 @@ LINK_LIBRARIES(
 
  				ADD_DEFINITIONS(-DGLEW_STATIC)
 				LINK_LIBRARIES( ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} )
+				IF(WIN32)
+				SET(Platform_SRCS
+					../MultiThreading/b3Win32ThreadSupport.cpp
+					../MultiThreading/b3Win32ThreadSupport.h
+					${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc
+				)
 				IF (CMAKE_CL_64)
 					LINK_DIRECTORIES(${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/openvr/lib/win64)
 				ELSE(CMAKE_CL_64)
 					LINK_DIRECTORIES(${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/openvr/lib/win32)
 				ENDIF(CMAKE_CL_64)
+				ELSE(WIN32)
+
+					set_source_files_properties(../ThirdPartyLibs/openvr/samples/shared/pathtools.cpp ../StandaloneMain/hellovr_opengl_main.cpp  PROPERTIES COMPILE_FLAGS "-x objective-c++")
+    					find_library(FOUNDATION_FRAMEWORK Foundation)
+    					mark_as_advanced(FOUNDATION_FRAMEWORK)
+    					set(EXTRA_LIBS ${EXTRA_LIBS} ${FOUNDATION_FRAMEWORK})
+
+					set(CMAKE_MACOSX_RPATH 0)
+  					
+					SET(Platform_SRCS
+                                        ../MultiThreading/b3PosixThreadSupport.cpp
+                                        ../MultiThreading/b3PosixThreadSupport.h
+                                	)
+
+					IF (CMAKE_SIZEOF_VOID_P MATCHES 8)
+						MESSAGE("CL64")
+						LINK_DIRECTORIES(${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/openvr/bin/osx64)
+					ELSE()
+						MESSAGE("CL32")
+						set(ARCH_TARGET osx32)
+						LINK_DIRECTORIES(${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/openvr/bin/osx32)
+					ENDIF()
+					add_definitions(-DOSX -DPOSIX)
+
+				ENDIF(WIN32)
         ADD_EXECUTABLE(App_PhysicsServer_SharedMemory_VR
                 ${SharedMemory_SRCS}
+		${Platform_SRCS}
           ../StandaloneMain/hellovr_opengl_main.cpp
 					../ExampleBrowser/OpenGLGuiHelper.cpp
 					../ExampleBrowser/GL_ShapeDrawer.cpp
@@ -256,9 +290,6 @@ LINK_LIBRARIES(
 					../ThirdPartyLibs/openvr/samples/shared/strtools.cpp
 					../ThirdPartyLibs/openvr/samples/shared/strtools.h
 					../ThirdPartyLibs/openvr/samples/shared/Vectors.h
-						../MultiThreading/b3Win32ThreadSupport.cpp
-						../MultiThreading/b3Win32ThreadSupport.h
-	          ${BULLET_PHYSICS_SOURCE_DIR}/build3/bullet.rc
         )
 
 
@@ -296,4 +327,4 @@ IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
                         SET_TARGET_PROPERTIES(App_PhysicsServer_SharedMemory_VR PROPERTIES  RELWITHDEBINFO_POSTFIX "_RelWithDebugInfo")
 ENDIF(INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)
 
-ENDIF(WIN32)
+ENDIF(WIN32 OR APPLE)

@@ -300,7 +300,6 @@ public:
 		int numBodies = 1;
 		
 		m_app->setUpAxis(1);
-		m_app->m_renderer->enableBlend(true);
 		
 		switch (m_tutorialIndex)
 		{
@@ -405,7 +404,7 @@ public:
 			{
 				int width,height,n;
 				
-				const char* filename = "data/cube.png";
+				const char* filename = "data/checker_huge.gif";
 				const unsigned char* image=0;
 				
 				const char* prefix[]={"./","../","../../","../../../","../../../../"};
@@ -426,15 +425,23 @@ public:
 			}
 			
 			//            int boxId = m_app->registerCubeShape(1,1,1,textureIndex);
-			int boxId = m_app->registerGraphicsUnitSphereShape(SPHERE_LOD_HIGH, textureIndex);
-			b3Vector4 color = b3MakeVector4(1,1,1,0.8);
+			int sphereTransparent = m_app->registerGraphicsUnitSphereShape(SPHERE_LOD_HIGH, textureIndex);
+			int sphereOpaque= m_app->registerGraphicsUnitSphereShape(SPHERE_LOD_HIGH, textureIndex);
+			
 			b3Vector3 scaling = b3MakeVector3(SPHERE_RADIUS,SPHERE_RADIUS,SPHERE_RADIUS);
 			for (int i=0;i<m_bodies.size();i++)
 			{
+				int gfxShape = sphereOpaque;
+				b3Vector4 color = b3MakeVector4(.1,.1,1,1);
+				if (i%2)
+				{
+					color.setValue(1,.1,.1,0.1);
+					gfxShape = sphereTransparent;
+				}
 				m_bodies[i]->m_collisionShape.m_sphere.m_radius = SPHERE_RADIUS;
 				m_bodies[i]->m_collisionShape.m_type = LW_SPHERE_TYPE;
 				
-				m_bodies[i]->m_graphicsIndex = m_app->m_renderer->registerGraphicsInstance(boxId,m_bodies[i]->m_worldPose.m_position, m_bodies[i]->m_worldPose.m_orientation,color,scaling);
+				m_bodies[i]->m_graphicsIndex = m_app->m_renderer->registerGraphicsInstance(gfxShape,m_bodies[i]->m_worldPose.m_position, m_bodies[i]->m_worldPose.m_orientation,color,scaling);
 				m_app->m_renderer->writeSingleInstanceTransformToCPU(m_bodies[i]->m_worldPose.m_position, m_bodies[i]->m_worldPose.m_orientation, m_bodies[i]->m_graphicsIndex);
 			}
 		}
@@ -467,7 +474,6 @@ public:
 		m_timeSeriesCanvas0 = 0;
 		m_timeSeriesCanvas1 = 0;
 
-		m_app->m_renderer->enableBlend(false);
     }
     
     
@@ -614,8 +620,8 @@ public:
 	virtual void resetCamera()
 	{
 		float dist = 10.5;
-		float pitch = 136;
-		float yaw = 32;
+		float pitch = -32;
+		float yaw = 136;
 		float targetPos[3]={0,0,0};
 		if (m_app->m_renderer  && m_app->m_renderer->getActiveCamera())
 		{

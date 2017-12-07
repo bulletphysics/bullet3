@@ -177,6 +177,8 @@ project ("Test_PhysicsServerLoopBack")
 			"../../examples/SharedMemory/PhysicsServerSharedMemory.h",
 			"../../examples/SharedMemory/PhysicsServerCommandProcessor.cpp",
 			"../../examples/SharedMemory/PhysicsServerCommandProcessor.h",
+			"../../examples/SharedMemory/b3PluginManager.cpp",
+			"../../examples/SharedMemory/PhysicsDirect.cpp",
 			"../../examples/SharedMemory/PhysicsLoopBack.cpp",
 			"../../examples/SharedMemory/PhysicsLoopBack.h",
 			"../../examples/SharedMemory/PhysicsLoopBackC_API.cpp",
@@ -224,6 +226,10 @@ project ("Test_PhysicsServerLoopBack")
 			"../../examples/Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
                         "../../examples/ThirdPartyLibs/stb_image/stb_image.cpp",
 	}
+	
+if (_OPTIONS["enable_static_plugins"]) then
+		files {"../../examples/SharedMemory/plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
 		
 		project ("Test_PhysicsServerDirect")
 
@@ -261,6 +267,7 @@ project ("Test_PhysicsServerLoopBack")
 			"../../examples/SharedMemory/PhysicsDirectC_API.h",
 			"../../examples/SharedMemory/PhysicsServerCommandProcessor.cpp",
 			"../../examples/SharedMemory/PhysicsServerCommandProcessor.h",
+			"../../examples/SharedMemory/b3PluginManager.cpp",
 			"../../examples/SharedMemory/PhysicsClientSharedMemory.cpp",
 			"../../examples/SharedMemory/PhysicsClientSharedMemory.h",
 			"../../examples/SharedMemory/PhysicsClientC_API.cpp",
@@ -303,7 +310,9 @@ project ("Test_PhysicsServerLoopBack")
 			"../../examples/Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
                         "../../examples/ThirdPartyLibs/stb_image/stb_image.cpp",     	
 		}
-		
+if (_OPTIONS["enable_static_plugins"]) then
+		files {"../../examples/SharedMemory/plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
 
 project ("Test_PhysicsServerInProcessExampleBrowser")
 
@@ -360,6 +369,7 @@ project ("Test_PhysicsServerInProcessExampleBrowser")
 			"../../examples/SharedMemory/PhysicsServer.cpp",
 			"../../examples/SharedMemory/PhysicsServer.h",
 			"../../examples/SharedMemory/PhysicsServerExample.cpp",
+			"../../examples/SharedMemory/PhysicsServerExampleBullet2.cpp",
 			"../../examples/SharedMemory/SharedMemoryInProcessPhysicsC_API.cpp",
 			"../../examples/SharedMemory/PhysicsServerSharedMemory.cpp",
 			"../../examples/SharedMemory/PhysicsServerSharedMemory.h",
@@ -369,6 +379,7 @@ project ("Test_PhysicsServerInProcessExampleBrowser")
 			"../../examples/SharedMemory/PhysicsDirectC_API.h",
 			"../../examples/SharedMemory/PhysicsServerCommandProcessor.cpp",
 			"../../examples/SharedMemory/PhysicsServerCommandProcessor.h",
+			"../../examples/SharedMemory/b3PluginManager.cpp",
 			"../../examples/SharedMemory/PhysicsClientSharedMemory.cpp",
 			"../../examples/SharedMemory/PhysicsClientSharedMemory.h",
 			"../../examples/SharedMemory/PhysicsClientC_API.cpp",
@@ -409,6 +420,10 @@ project ("Test_PhysicsServerInProcessExampleBrowser")
 			"../../examples/Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
 			"../../examples/ThirdPartyLibs/stb_image/stb_image.cpp",
 	}
+if (_OPTIONS["enable_static_vr_plugin"]) then
+		files {"../../examples/SharedMemory/plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
+
 	if os.is("Linux") then
        		initX11()
 	end

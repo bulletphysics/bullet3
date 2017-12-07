@@ -33,6 +33,7 @@ SET(pybullet_SRCS
 		../../examples/SharedMemory/PhysicsServer.cpp
 		../../examples/SharedMemory/PhysicsServer.h
 		../../examples/SharedMemory/PhysicsServerExample.cpp
+		../../examples/SharedMemory/PhysicsServerExampleBullet2.cpp
 		../../examples/SharedMemory/SharedMemoryInProcessPhysicsC_API.cpp
 		../../examples/SharedMemory/PhysicsServerSharedMemory.cpp
 		../../examples/SharedMemory/PhysicsServerSharedMemory.h
@@ -42,6 +43,9 @@ SET(pybullet_SRCS
 		../../examples/SharedMemory/PhysicsDirectC_API.h
 		../../examples/SharedMemory/PhysicsServerCommandProcessor.cpp
 		../../examples/SharedMemory/PhysicsServerCommandProcessor.h
+		../../examples/SharedMemory/b3PluginManager.cpp
+		../../examples/SharedMemory/b3PluginManager.h
+		
 		../../examples/SharedMemory/PhysicsClientSharedMemory.cpp
 		../../examples/SharedMemory/PhysicsClientSharedMemory.h
 		../../examples/SharedMemory/PhysicsClientSharedMemory_C_API.cpp

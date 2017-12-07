@@ -187,6 +187,7 @@ struct BulletMJCFImporterInternalData
 
 	//those collision shapes are deleted by caller (todo: make sure this happens!)
 	btAlignedObjectArray<btCollisionShape*> m_allocatedCollisionShapes;
+	mutable btAlignedObjectArray<btTriangleMesh*> m_allocatedMeshInterfaces;
 
 	BulletMJCFImporterInternalData()
 		:m_activeModel(-1),
@@ -706,7 +707,7 @@ struct BulletMJCFImporterInternalData
 		if (!rgba.empty())
 		{
 			// "0 0.7 0.7 1"
-			parseVector4(geom.m_localMaterial.m_rgbaColor, rgba);
+			parseVector4(geom.m_localMaterial.m_matColor.m_rgbaColor, rgba);
 			geom.m_hasLocalMaterial = true;
 			geom.m_localMaterial.m_name = rgba;
 		}
@@ -1855,6 +1856,8 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes( int linkI
 					{
 
 						btTriangleMesh* meshInterface = new btTriangleMesh();
+						m_data->m_allocatedMeshInterfaces.push_back(meshInterface);
+
 						for (int i=0;i<glmesh->m_numIndices/3;i++)
 						{
 							float* v0 = glmesh->m_vertices->at(glmesh->m_indices->at(i*3)).xyzw;
@@ -1926,6 +1929,15 @@ class btCollisionShape* BulletMJCFImporter::getAllocatedCollisionShape(int index
 	return m_data->m_allocatedCollisionShapes[index];
 }
 
+int BulletMJCFImporter::getNumAllocatedMeshInterfaces() const
+{
+    return m_data->m_allocatedMeshInterfaces.size();
+}
+
+btStridingMeshInterface* BulletMJCFImporter::getAllocatedMeshInterface(int index)
+{
+    return m_data->m_allocatedMeshInterfaces[index];
+}
 
 int BulletMJCFImporter::getNumModels() const
 {

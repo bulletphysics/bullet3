@@ -39,10 +39,10 @@ struct BasicExample : public CommonRigidBodyBase
 	void resetCamera()
 	{
 		float dist = 4;
-		float pitch = 52;
-		float yaw = 35;
+		float pitch = -35;
+		float yaw = 52;
 		float targetPos[3]={0,0,0};
-		m_guiHelper->resetCamera(dist,pitch,yaw,targetPos[0],targetPos[1],targetPos[2]);
+		m_guiHelper->resetCamera(dist,yaw,pitch,targetPos[0],targetPos[1],targetPos[2]);
 	}
 };
 

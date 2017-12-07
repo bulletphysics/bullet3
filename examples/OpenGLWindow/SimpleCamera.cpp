@@ -64,6 +64,20 @@ SimpleCamera::~SimpleCamera()
 void	SimpleCamera::setVRCamera(const float viewMat[16], const float projectionMatrix[16])
 {
 	m_data->m_enableVR = true;
+
+	b3Matrix3x3 vm;
+	vm.setValue(viewMat[0],viewMat[4],viewMat[8],
+		viewMat[1],viewMat[5],viewMat[9],
+		viewMat[2],viewMat[6],viewMat[10]);
+	
+	b3Vector3 vp = b3MakeVector3(viewMat[12],viewMat[13],viewMat[14]);
+	b3Transform tr;
+	tr.setBasis(vm);
+	tr.setOrigin(vp);
+	b3Transform cp = tr.inverse();
+	m_data->m_cameraPosition = cp.getOrigin();
+
+	
 	for (int i=0;i<16;i++)
 	{
 		m_data->m_viewMatrixVR[i] = viewMat[i];
@@ -205,7 +219,11 @@ int		SimpleCamera::getCameraUpAxis() const
 
 void SimpleCamera::update()
 {
-
+	b3Scalar yawRad = m_data->m_yaw * b3Scalar(0.01745329251994329547);// rads per deg
+	b3Scalar pitchRad = m_data->m_pitch * b3Scalar(0.01745329251994329547);// rads per deg
+	b3Scalar rollRad = 0.0;
+	b3Quaternion eyeRot;
+	
 	int forwardAxis(-1);
 	switch (m_data->m_cameraUpAxis)
 	{
@@ -213,11 +231,13 @@ void SimpleCamera::update()
     	forwardAxis = 2;
     	m_data->m_cameraUp = b3MakeVector3(0,1,0);
     	//gLightPos = b3MakeVector3(-50.f,100,30);
+		eyeRot.setEulerZYX(rollRad, yawRad, -pitchRad);
     	break;
     case 2:
 		forwardAxis = 1;
 		m_data->m_cameraUp = b3MakeVector3(0,0,1);
 		//gLightPos = b3MakeVector3(-50.f,30,100);
+		eyeRot.setEulerZYX(yawRad, rollRad, pitchRad);
 		break;
     default:
 		{
@@ -228,8 +248,15 @@ void SimpleCamera::update()
 
 	b3Vector3 eyePos = b3MakeVector3(0,0,0);
 	eyePos[forwardAxis] = -m_data->m_cameraDistance;
+	eyePos = b3Matrix3x3(eyeRot)*eyePos;
 
-	m_data->m_cameraForward = b3MakeVector3(eyePos[0],eyePos[1],eyePos[2]);
+	m_data->m_cameraPosition = eyePos;
+
+	
+
+	m_data->m_cameraPosition+= m_data->m_cameraTargetPosition;
+
+	m_data->m_cameraForward = m_data->m_cameraTargetPosition-m_data->m_cameraPosition;
 	if (m_data->m_cameraForward.length2() < B3_EPSILON)
 	{
 		m_data->m_cameraForward.setValue(1.f,0.f,0.f);
@@ -237,24 +264,6 @@ void SimpleCamera::update()
 	{
 		m_data->m_cameraForward.normalize();
 	}
-	
-
-//    m_azi=m_azi+0.01;
-	b3Scalar rele = m_data->m_yaw * b3Scalar(0.01745329251994329547);// rads per deg
-	b3Scalar razi = m_data->m_pitch * b3Scalar(0.01745329251994329547);// rads per deg
-
-
-	b3Quaternion rot(m_data->m_cameraUp,razi);
-
-	
-	b3Vector3 right = m_data->m_cameraUp.cross(m_data->m_cameraForward);
-	b3Quaternion roll(right,-rele);
-
-	eyePos = b3Matrix3x3(rot) * b3Matrix3x3(roll) * eyePos;
-
-	m_data->m_cameraPosition = eyePos;
-	m_data->m_cameraPosition+= m_data->m_cameraTargetPosition;
-
 }
 
 void SimpleCamera::getCameraProjectionMatrix(float projectionMatrix[16]) const
@@ -420,4 +429,14 @@ float SimpleCamera::getCameraFrustumFar() const
 float SimpleCamera::getCameraFrustumNear() const
 {
     return m_data->m_frustumZNear;
+}
+
+void SimpleCamera::setCameraFrustumFar(float far)
+{
+	m_data->m_frustumZFar = far;
+}
+
+void SimpleCamera::setCameraFrustumNear(float near)
+{
+	m_data->m_frustumZNear = near;
 }

@@ -2,25 +2,44 @@
 #include "PhysicsServerSharedMemory.h"
 #include "PhysicsClientSharedMemory.h"
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
-
+#include "PhysicsServerCommandProcessor.h"
+#include "../CommonInterfaces/CommonExampleInterface.h"
 struct PhysicsLoopBackInternalData
 {
+	CommandProcessorInterface* m_commandProcessor;
 	PhysicsClientSharedMemory* m_physicsClient;
 	PhysicsServerSharedMemory* m_physicsServer;
 	DummyGUIHelper m_noGfx;
 	
 
 	PhysicsLoopBackInternalData()
-		:m_physicsClient(0),
+		:m_commandProcessor(0),
+		m_physicsClient(0),
 		m_physicsServer(0)
 	{
 	}
 };
 
+struct Bullet2CommandProcessorCreation2 : public CommandProcessorCreationInterface
+{
+	virtual class CommandProcessorInterface* createCommandProcessor()
+	{
+		PhysicsServerCommandProcessor* proc = new PhysicsServerCommandProcessor;
+		return proc;
+	}
+
+	virtual void deleteCommandProcessor(CommandProcessorInterface* proc)
+	{
+		delete proc;
+	}
+};
+
+static Bullet2CommandProcessorCreation2 sB2Proc;
+
 PhysicsLoopBack::PhysicsLoopBack()
 {
 	m_data = new PhysicsLoopBackInternalData;
-	m_data->m_physicsServer = new PhysicsServerSharedMemory();
+	m_data->m_physicsServer = new PhysicsServerSharedMemory(&sB2Proc, 0,0);
 	m_data->m_physicsClient = new PhysicsClientSharedMemory();
 }
 
@@ -28,6 +47,7 @@ PhysicsLoopBack::~PhysicsLoopBack()
 {
 	delete m_data->m_physicsClient;
 	delete m_data->m_physicsServer;
+	delete m_data->m_commandProcessor;
 	delete m_data;
 }
 
@@ -170,6 +190,11 @@ void PhysicsLoopBack::getCachedKeyboardEvents(struct b3KeyboardEventsData* keybo
 	return m_data->m_physicsClient->getCachedKeyboardEvents(keyboardEventsData);
 }
 
+void PhysicsLoopBack::getCachedMouseEvents(struct b3MouseEventsData* mouseEventsData)
+{
+	return m_data->m_physicsClient->getCachedMouseEvents(mouseEventsData);
+}
+
 void PhysicsLoopBack::getCachedOverlappingObjects(struct b3AABBOverlapData* overlappingObjects)
 {
 	return m_data->m_physicsClient->getCachedOverlappingObjects(overlappingObjects);
@@ -178,6 +203,11 @@ void PhysicsLoopBack::getCachedOverlappingObjects(struct b3AABBOverlapData* over
 void PhysicsLoopBack::getCachedRaycastHits(struct b3RaycastInformation* raycastHits)
 {
 	return m_data->m_physicsClient->getCachedRaycastHits(raycastHits);
+}
+
+void PhysicsLoopBack::getCachedMassMatrix(int dofCountCheck, double* massMatrix)
+{
+	m_data->m_physicsClient->getCachedMassMatrix(dofCountCheck,massMatrix);
 }
 
 void PhysicsLoopBack::setTimeOut(double timeOutInSeconds)

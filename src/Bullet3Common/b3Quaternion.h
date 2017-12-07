@@ -901,6 +901,7 @@ b3ShortestArcQuat(const b3Vector3& v0, const b3Vector3& v1) // Game Programming 
 	b3Scalar rs = 1.0f / s;
 
 	return b3Quaternion(c.getX()*rs,c.getY()*rs,c.getZ()*rs,s * 0.5f);
+	
 }
 
 B3_FORCE_INLINE b3Quaternion 

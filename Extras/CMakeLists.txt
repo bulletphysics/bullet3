@@ -1,8 +1,6 @@
-SUBDIRS( obj2sdf Serialize ConvexDecomposition HACD GIMPACTUtils )
+SUBDIRS( InverseDynamics BulletRobotics obj2sdf Serialize ConvexDecomposition HACD GIMPACTUtils )
 
-IF(BUILD_BULLET3)
-	SUBDIRS( InverseDynamics)
-ENDIF()
+
 
 #Maya Dynamica plugin is moved to http://dynamica.googlecode.com
 

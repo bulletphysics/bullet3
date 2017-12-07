@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 					break;
 
 				case ENET_EVENT_TYPE_RECEIVE:
-					printf("A packet of length %u containing '%s' was "
+					printf("A packet of length %lu containing '%s' was "
 						"received from %s on channel %u.\n",
 						event.packet->dataLength,
 						event.packet->data,
@@ -83,6 +83,8 @@ int main(int argc, char *argv[])
 
 					event.peer->data = NULL;
 
+					break;
+				case ENET_EVENT_TYPE_NONE:
 					break;
 				}
 			}

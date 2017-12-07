@@ -91,7 +91,7 @@ void*   PosixSharedMemory::allocateSharedMemory(int key, int size,  bool allowCr
     int id = shmget((key_t) key, (size_t) size,flags);
     if (id < 0)
     {
-        b3Error("shmget error");
+        //b3Warning("shmget error1");
     } else
     {
         btPointerCaster result;

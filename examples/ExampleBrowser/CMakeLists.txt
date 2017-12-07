@@ -110,29 +110,6 @@ ELSE(WIN32)
 	ENDIF(APPLE)
 ENDIF(WIN32)
 
-IF (BULLET2_MULTITHREADED_OPEN_MP_DEMO)
-    ADD_DEFINITIONS("-DBT_USE_OPENMP=1")
-    IF (MSVC)
-        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /openmp")
-    ELSE (MSVC)
-        # GCC, Clang
-        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
-    ENDIF (MSVC)
-ENDIF (BULLET2_MULTITHREADED_OPEN_MP_DEMO)
-
-IF (BULLET2_MULTITHREADED_PPL_DEMO)
-    ADD_DEFINITIONS("-DBT_USE_PPL=1")
-ENDIF (BULLET2_MULTITHREADED_PPL_DEMO)
-
-IF (BULLET2_MULTITHREADED_TBB_DEMO)
-    SET (BULLET2_TBB_INCLUDE_DIR "not found" CACHE PATH "Directory for Intel TBB includes.")
-    SET (BULLET2_TBB_LIB_DIR "not found" CACHE PATH "Directory for Intel TBB libraries.")
-    find_library(TBB_LIBRARY tbb PATHS ${BULLET2_TBB_LIB_DIR})
-    find_library(TBBMALLOC_LIBRARY tbbmalloc PATHS ${BULLET2_TBB_LIB_DIR})
-    ADD_DEFINITIONS("-DBT_USE_TBB=1")
-    INCLUDE_DIRECTORIES( ${BULLET2_TBB_INCLUDE_DIR} )
-    LINK_LIBRARIES( ${TBB_LIBRARY} ${TBBMALLOC_LIBRARY} )
-ENDIF (BULLET2_MULTITHREADED_TBB_DEMO)
 
 SET(ExtendedTutorialsSources
 	../ExtendedTutorials/Chain.cpp 
@@ -145,6 +122,8 @@ SET(ExtendedTutorialsSources
 	../ExtendedTutorials/SimpleBox.h
 	../ExtendedTutorials/MultipleBoxes.cpp
 	../ExtendedTutorials/MultipleBoxes.h
+	../ExtendedTutorials/CompoundBoxes.cpp
+	../ExtendedTutorials/CompoundBoxes.h
 	../ExtendedTutorials/SimpleCloth.cpp
 	../ExtendedTutorials/SimpleCloth.h
 	../ExtendedTutorials/SimpleJoint.cpp
@@ -175,6 +154,7 @@ SET(BulletExampleBrowser_SRCS
 	../SharedMemory/PhysicsClient.cpp
 	../SharedMemory/PhysicsClientC_API.cpp
 	../SharedMemory/PhysicsServerExample.cpp
+	../SharedMemory/PhysicsServerExampleBullet2.cpp
 	../SharedMemory/PhysicsClientExample.cpp
 	../SharedMemory/PosixSharedMemory.cpp
 	../SharedMemory/Win32SharedMemory.cpp
@@ -193,6 +173,7 @@ SET(BulletExampleBrowser_SRCS
 	../SharedMemory/PhysicsServerCommandProcessor.h
 	../SharedMemory/SharedMemoryCommands.h
 	../SharedMemory/SharedMemoryPublic.h
+	../SharedMemory/b3PluginManager.cpp
 	../RobotSimulator/b3RobotSimulatorClientAPI.cpp
 	../RobotSimulator/b3RobotSimulatorClientAPI.h
 	../BasicDemo/BasicExample.cpp
@@ -207,7 +188,6 @@ SET(BulletExampleBrowser_SRCS
 	../MultiThreadedDemo/MultiThreadedDemo.h
 	../MultiThreadedDemo/CommonRigidBodyMTBase.cpp
 	../MultiThreadedDemo/CommonRigidBodyMTBase.h
-	../MultiThreadedDemo/ParallelFor.h
 	../Tutorial/Tutorial.cpp
 	../Tutorial/Tutorial.h
 	../Tutorial/Dof6ConstraintTutorial.cpp
@@ -244,6 +224,7 @@ SET(BulletExampleBrowser_SRCS
 	../MultiThreading/b3PosixThreadSupport.cpp
 	../MultiThreading/b3Win32ThreadSupport.cpp
 	../MultiThreading/b3ThreadSupportInterface.cpp
+	../MultiThreading/btTaskScheduler.cpp
 	../RenderingExamples/TinyRendererSetup.cpp
 	../RenderingExamples/TimeSeriesCanvas.cpp
 	../RenderingExamples/TimeSeriesCanvas.h
@@ -278,6 +259,7 @@ SET(BulletExampleBrowser_SRCS
 	../Importers/ImportMeshUtility/b3ImportMeshUtility.cpp
 ../Importers/ImportMeshUtility/b3ImportMeshUtility.h
 	../../Extras/Serialize/BulletWorldImporter/btWorldImporter.cpp
+	../../Extras/Serialize/BulletWorldImporter/btMultiBodyWorldImporter.cpp
 	../../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.cpp
 	../../Extras/Serialize/BulletFileLoader/bChunk.cpp		
 	../../Extras/Serialize/BulletFileLoader/bFile.cpp
@@ -386,7 +368,7 @@ ADD_CUSTOM_COMMAND(
                 COMMAND ${CMAKE_COMMAND} ARGS -E copy_directory ${BULLET_PHYSICS_SOURCE_DIR}/data ${PROJECT_BINARY_DIR}/data
         )
 
-IF (BULLET2_MULTITHREADED_TBB_DEMO AND WIN32)
+IF (BULLET2_USE_TBB_MULTITHREADING AND WIN32)
     # add a post build command to copy some dlls to the executable directory
     set(TBB_VC_VER "vc12")
     set(TBB_VC_ARCH "ia32")
@@ -400,7 +382,7 @@ IF (BULLET2_MULTITHREADED_TBB_DEMO AND WIN32)
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${BULLET2_TBB_INCLUDE_DIR}/../bin/${TBB_VC_ARCH}/${TBB_VC_VER}/tbbmalloc.dll"
         $<TARGET_FILE_DIR:App_ExampleBrowser>)
-ENDIF (BULLET2_MULTITHREADED_TBB_DEMO AND WIN32)
+ENDIF (BULLET2_USE_TBB_MULTITHREADING AND WIN32)
 
 
 IF (INTERNAL_ADD_POSTFIX_EXECUTABLE_NAMES)

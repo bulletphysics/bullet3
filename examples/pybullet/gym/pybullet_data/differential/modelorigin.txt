@@ -1,0 +1,2 @@
+stl files were copied from http://www.otvinta.com/download09.html
+URDF file was manually created, along with mimicJointConstraint.py

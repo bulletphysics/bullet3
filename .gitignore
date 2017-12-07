@@ -1,2 +1,23 @@
 
 build_cmake
+=======
+/bin
+/build3/gmake
+/build_cmake/
+
+*.pyc
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Pip
+pip-selfcheck.json
+*.whl
+*.egg
+*.egg-info
+
+# Setuptools
+/build
+/dist
+*.eggs

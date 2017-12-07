@@ -47,7 +47,8 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
                const double* q_current, int numQ,int endEffectorIndex,
                double* q_new, int ikMethod, const double* linear_jacobian, const double* angular_jacobian, int jacobian_size, const double dampIk[6])
 {
-	bool useAngularPart = (ikMethod==IK2_VEL_DLS_WITH_ORIENTATION || ikMethod==IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE) ? true : false;
+	bool useAngularPart = (ikMethod==IK2_VEL_DLS_WITH_ORIENTATION || ikMethod==IK2_VEL_DLS_WITH_ORIENTATION_NULLSPACE
+						   || ikMethod==IK2_VEL_SDLS_WITH_ORIENTATION) ? true : false;
 
     Jacobian ikJacobian(useAngularPart,numQ);
 
@@ -136,8 +137,8 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
             ikJacobian.CalcDeltaThetasTranspose();		// Jacobian transpose method
             break;
 		case IK2_DLS:
-        case IK2_VEL_DLS:
 		case IK2_VEL_DLS_WITH_ORIENTATION:
+		case IK2_VEL_DLS:
             //ikJacobian.CalcDeltaThetasDLS();			// Damped least squares method
             assert(m_data->m_dampingCoeff.GetLength()==numQ);
             ikJacobian.CalcDeltaThetasDLS2(m_data->m_dampingCoeff);
@@ -154,6 +155,8 @@ bool IKTrajectoryHelper::computeIK(const double endEffectorTargetPosition[3],
             ikJacobian.CalcDeltaThetasPseudoinverse();	// Pure pseudoinverse method
             break;
         case IK2_SDLS:
+		case IK2_VEL_SDLS:
+		case IK2_VEL_SDLS_WITH_ORIENTATION:
             ikJacobian.CalcDeltaThetasSDLS();			// Selectively damped least squares method
             break;
         default:
@@ -185,7 +188,9 @@ bool IKTrajectoryHelper::computeNullspaceVel(int numQ, const double* q_current, 
 {
     m_data->m_nullSpaceVelocity.SetLength(numQ);
     m_data->m_nullSpaceVelocity.SetZero();
-    double stayCloseToZeroGain = 0.1;
+	// TODO: Expose the coefficents of the null space term so that the user can choose to balance the null space task and the IK target task.
+	// Can also adaptively adjust the coefficients based on the residual of the null space velocity in the IK target task space.
+    double stayCloseToZeroGain = 0.001;
     double stayAwayFromLimitsGain = 10.0;
 
     // Stay close to zero
