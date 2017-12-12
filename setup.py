@@ -410,6 +410,7 @@ elif _platform == "darwin":
     +["examples/OpenGLWindow/MacOpenGLWindowObjC.m"]
 else:
     print("bsd!")
+    libraries = ['GL','GLEW','pthread']
     os.environ['LDFLAGS'] = '-L/usr/X11R6/lib'
     CXX_FLAGS += '-D_BSD '
     CXX_FLAGS += '-I/usr/X11R6/include '
