@@ -1,0 +1,466 @@
+<meta charset="utf-8"><!-- -*- markdown -*- -->
+
+
+            **PyBullet Quickstart Guide**
+   [Erwin Coumans](http://twitter.com/erwincoumans), [Google Brain Robotics](https://research.google.com/teams/brain/robotics), <erwincoumans@google.com>
+   [Yunfei Bai](http://yunfei-bai.com), [X](https://x.company), <yunfeibai@x.team>
+
+
+
+Introduction
+======================================================================================
+
+pybullet is an easy to use Python module for physics simulation for robotics, games, visual effects and machine learning. With pybullet you can load articulated bodies from URDF, SDF, MJCF and other file formats. pybullet provides forward dynamics simulation, inverse dynamics computation, forward and inverse kinematics, collision detection and ray intersection queries. The Bullet Physics SDK includes pybullet robotic examples such as a simulated Minitaur quadruped, humanoids running using TensorFlow inference and KUKA arms grasping objects.
+
+![<small>[CoRL VR BotLab demo](https://github.com/erwincoumans/pybullet_robots/tree/master/corl_demo)
+  </small>](images/CoRL_VR_demo.png width="80%" border="2")
+
+Aside from physics simulation, there are bindings to rendering, with a CPU renderer (TinyRenderer) and OpenGL visualization and support for Virtual Reality headsets such as HTC Vive and Oculus Rift. pybullet also has functionality to perform collision detection queries (closest points, overlapping pairs, ray intersection test etc) and to add debug rendering (debug lines and text). pybullet has cross-platform built-in client-server support for shared memory, UDP and TCP networking. So you can run pybullet on Linux connecting to a Windows VR server.
+
+pybullet wraps the new Bullet C-API, which is designed to be independent from the underlying physics engine and render engine, so we can easily migrate to newer versions of Bullet, or use a different physics engine or render engine. By default, pybullet uses the Bullet 2.x API on the CPU. We will expose Bullet 3.x running on GPU using OpenCL as well. There is also a C++ API similar to pybullet, see b3RobotSimulatorClientAPI.
+
+pybullet can be easily used with TensorFlow and frameworks such as OpenAI Gym. Researchers from Google Brain [1,2], X, Stanford AI Lab and OpenAI use pybullet/Bullet C-API.
+
+The installation of pybullet is as simple as (sudo) pip install pybullet (Python 2.x), pip3 install pybullet. This will expose the pybullet module as well as pybullet_envs Gym environments.
+
+Hello pybullet World
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ python
+import pybullet as p
+import pybullet_data
+physicsClient = p.connect(p.GUI)#or p.DIRECT for non-graphical version
+p.setAdditionalSearchPath(pybullet_data.getDataPath()) #used by loadURDF
+p.setGravity(0,0,-10)
+planeId = p.loadURDF("plane.urdf")
+cubeStartPos = [0,0,1]
+cubeStartOrientation = p.getQuaternionFromEuler([0,0,0])
+boxId = p.loadURDF("r2d2.urdf",cubeStartPos, cubeStartOrientation)
+p.stepSimulation()
+cubePos, cubeOrn = p.getBasePositionAndOrientation(boxId)
+print(cubePos,cubeOrn)
+p.disconnect()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+connect, disconnect
+--------------------------------------------------------------------------------------------
+After importing the pybullet module, the first thing to do is 'connecting' to the physics simulation. pybullet is designed around a client-server driven API, with a client sending commands and a physics server returning the status. pybullet has some built-in physics servers: DIRECT and GUI. Both GUI and DIRECT connections will execute the physics simulation and rendering in the same process as pybullet.
+
+Note that in DIRECT mode you cannot access the OpenGL and VR hardware features, as described in the "Virtual Reality" and "Debug GUI, Lines, Text, Parameters" chapters. DIRECT mode does allow rendering of images using the built-in software renderer through the 'getCameraImage' API. This can be useful for running simulations in the cloud on servers without GPU.
+
+You can provide your own data files, or you can use the pybullet_data package that ships with pybullet. For this, import pybullet_data and register the directory using pybullet.setAdditionalSearchPath(pybullet_data.getDataPath()).
+
+getConnectionInfo
+--------------------------------------------------------------------------------------------
+Given a physicsClientId will return the list [isConnected, connectionMethod]
+
+connect using DIRECT, GUI
+--------------------------------------------------------------------------------------------
+
+The DIRECT connection sends the commands directly to the physics engine, without using any transport layer and no graphics visualization window, and directly returns the status after executing the command.
+
+The GUI connection will create a new graphical user interface (GUI) with 3D OpenGL rendering, within the same process space as pybullet. On Linux and Windows this GUI runs in a separate thread, while on OSX it runs in the same thread due to operating system limitations. On Mac OSX you may see a spinning wheel in the OpenGL Window, until you run a 'stepSimulation' or other pybullet command.
+The commands and status messages are sent between pybullet client and the GUI physics simulation server using an ordinary memory buffer.
+
+It is also possible to connect to a physics server in a different process on the same machine or on a remote machine using SHARED_MEMORY, UDP or TCP networking. See the section about Shared Memory, UDP and TCP for details.
+
+Unlike almost all other methods, this method doesn't parse keyword arguments, due to backward compatibility.
+
+The connect input arguments are:
+
+
+| field    | name                            | type                                          | description                                                                                                                                                                                                                                                                                                                                                                            |
+|----------|---------------------------------|-----------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| required | connection mode                 | integer: DIRECT, GUI, SHARED_MEMORY, UDP, TCP | DIRECT mode create a new physics engine and directly communicates with it. GUI will create a physics engine with graphical GUI frontend and communicates with it. SHARED_MEMORY will connect to an existing physics engine process on the same machine, and communicates with it over shared memory. TCP or UDP will connect to an existing physics server over TCP or UDP networking. |
+| optional | key                             | int                                           | in SHARED_MEMORY mode, optional shared memory key. When starting ExampleBrowser or SharedMemoryPhysics_* you can use optional command-line --shared_memory_key to set the key. This allows to run multiple servers on the same machine.                                                                                                                                                |
+| optional | UdpNetworkAddress (UDP and TCP) | string                                        | IP address or host name, for example "127.0.0.1" or "localhost" or "mymachine.domain.com"                                                                                                                                                                                                                                                                                              |
+| optional | UdpNetworkPort (UDP and TCP)    | integer                                       | UDP port number. Default UDP port is 1234, default TCP port is 6667 (matching the defaults in the server)                                                                                                                                                                                                                                                                              |
+| optional | options                         | string                                        | command-line option passed into the GUI server. At the moment, only the --opengl2 flag is enabled: by default, Bullet uses OpenGL3, but some environments such as virtual machines or remote desktop clients only support OpenGL2. Only one command-line argument can be passed on at the moment.                                                                                      |
+
+connect returns a physics client id or -1 if not connected. The physics client Id is an optional argument to most of the other pybullet commands. If you don't provide it, it will assume physics client id = 0. You can connect to multiple different physics servers, except for GUI.
+
+For example:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ python
+pybullet.connect(pybullet.DIRECT)
+pybullet.connect(pybullet.GUI, options="--opengl2")
+pybullet.connect(pybullet.SHARED_MEMORY,1234)
+pybullet.connect(pybullet.UDP,"192.168.0.1")
+pybullet.connect(pybullet.UDP,"localhost", 1234)
+pybullet.connect(pybullet.TCP,"localhost", 6667)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+connect using Shared Memory
+--------------------------------------------------------------------------------------------
+There are a few physics servers that allow shared memory connection: the App_SharedMemoryPhysics, App_SharedMemoryPhysics_GUI and the Bullet Example Browser has one example under Experimental/Physics Server that allows shared memory connection. This will let you execute the physics simulation and rendering in a separate process.
+
+You can also connect over shared memory to the App_SharedMemoryPhysics_VR, the Virtual Reality application with support for head-mounted display and 6-dof tracked controllers such as HTC Vive and Oculus Rift with Touch controllers. Since the Valve OpenVR SDK only works properly under Windows, the App_SharedMemoryPhysics_VR can only be build under Windows using premake (preferably) or cmake.
+
+connect using UDP or TCP networking
+--------------------------------------------------------------------------------------------
+For UDP networking, there is a App_PhysicsServerUDP that listens to a certain UDP port. It uses the open source enet library for reliable UDP networking. This allows you to execute the physics simulation and rendering on a separate machine. For TCP pybullet uses the clsocket library. This can be useful when using SSH tunneling from a machine behind a firewall to a robot simulation. For example you can run a control stack or machine learning using pybullet on Linux, while running the physics server on Windows in Virtual Reality using HTC Vive or Rift.
+
+One more UDP application is the App_PhysicsServerSharedMemoryBridgeUDP application that acts as a bridge to an existing physics server: you can connect over UDP to this bridge, and the bridge connects to a physics server using shared memory: the bridge passes messages between client and server. In a similar way there is a TCP version (replace UDP by TCP).
+
+Note: at the moment, both client and server need to be either 32bit or 64bit builds!
+
+disconnect
+--------------------------------------------------------------------------------------------
+You can disconnect from a physics server, using the physics client Id returned by the connect call (if non-negative). A 'DIRECT' or 'GUI' physics server will shutdown. A separate (out-of-process) physics server will keep on running. See also 'resetSimulation' to remove all items.
+
+Parameters of disconnect:
+
+| field    | name            | type | description                                                         |
+|----------|-----------------|------|---------------------------------------------------------------------|
+| optional | physicsClientId | int  | if you connect to multiple physics servers, you can pick which one. |
+
+setGravity
+--------------------------------------------------------------------------------------------
+By default, there is no gravitational force enabled. setGravity lets you set the default gravity force for all objects.
+The setGravity input parameters are: (no return value)
+
+| field    | name            | type  | description                                                         |
+|----------|-----------------|-------|---------------------------------------------------------------------|
+| required | gravityX        | float | gravity force along the X world axis                                |
+| required | gravityY        | float | gravity force along the Y world axis                                |
+| required | gravityZ        | float | gravity force along the Z world axis                                |
+| required | physicsClientId | int   | if you connect to multiple physics servers, you can pick which one. |
+
+
+loadURDF
+--------------------------------------------------------------------------------------------
+The loadURDF will send a command to the physics server to load a physics model from a Universal Robot Description File (URDF). The URDF file is used by the ROS project (Robot Operating System) to describe robots and other objects, it was created by the WillowGarage and the Open Source Robotics Foundation (OSRF). Many robots have public URDF files, you can find a description and tutorial here: http://wiki.ros.org/urdf/Tutorials
+
+Important note: most joints (slider, revolute, continuous) have motors enabled by default that prevent free motion. This is similar to a robot joint with a very high-friction harmonic drive. You should set the joint motor control mode and target settings using pybullet.setJointMotorControl2. See the setJointMotorControl2 API for more information.
+
+Warning: by default, pybullet will cache some files to speed up loading. You can disable file caching using setPhysicsEngineParameter(enableFileCaching=0).
+
+The loadURDF arguments are:
+
+
+| option   | name                  | type   | description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|----------|-----------------------|--------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| required | fileName              | string | a relative or absolute path to the URDF file on the file system of the physics server.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| optional | basePosition          | vec3   | create the base of the object at the specified position in world space coordinates [X,Y,Z]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| optional | baseOrientation       | vec4   | create the base of the object at the specified orientation as world space quaternion [X,Y,Z,W]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| optional | useMaximalCoordinates | int    | Experimental. By default, the joints in the URDF file are created using the reduced coordinate method: the joints are simulated using the Featherstone Articulated Body algorithm (btMultiBody in Bullet 2.x). The useMaximalCoordinates option will create a 6 degree of freedom rigid body for each link, and constraints between those rigid bodies are used to model joints.                                                                                                                                                                                                                                                                                                |
+| optional | useFixedBase          | int    | force the base of the loaded object to be static                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| optional | flags                 | int    | URDF_USE_INERTIA_FROM_FILE: by default, Bullet recomputed the inertia tensor based on mass and volume of the collision shape. If you can provide more accurate inertia tensor, use this flag.URDF_USE_SELF_COLLISION: by default, Bullet disables self-collision. This flag let's you enable it. You can customize the self-collision behavior using the following flags: URDF_USE_SELF_COLLISION_EXCLUDE_PARENT will discard self-collision between links that are directly connected (parent and child).URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS will discard self-collisions between a child link and any of its ancestors (parents, parents of parents, up to the base). |
+| optional | globalScaling         | float  | globalScaling will apply a scale factor to the URDF model.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| optional | physicsClientId       | int    | if you are connected to multiple servers, you can pick one.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+loadURDF returns a body unique id, a non-negative integer value. If the URDF file cannot be loaded, this integer will be negative and not a valid body unique id.
+
+loadBullet, loadSDF, loadMJCF
+--------------------------------------------------------------------------------------------
+You can also load objects from other file formats, such as .bullet, .sdf and .mjcf. Those file formats support multiple objects, so the return value is a list of object unique ids. The SDF format is explained in detail at http://sdformat.org. The loadSDF command only extracts some essential parts of the SDF related to the robot models and geometry, and ignores many elements related to cameras, lights and so on. The loadMJCF command performs basic import of MuJoCo MJCF xml files, used in OpenAI Gym. See also the Important note under loadURDF related to default joint motor settings, and make sure to use setJointMotorControl2.
+
+
+| option   | name                  | type   | description                                                                                                                   |
+|----------|-----------------------|--------|-------------------------------------------------------------------------------------------------------------------------------|
+| required | fileName              | string | a relative or absolute path to the URDF file on the file system of the physics server.                                        |
+| optional | useMaximalCoordinates | int    | Experimental. See loadURDF for more details.                                                                                  |
+| optional | globalScaling         | float  | every object will be scaled using this scale factor (including links, link frames, joint attachments and linear joint limits) |
+| optional | physicsClientId       | int    | if you are connected to multiple servers, you can pick one.                                                                   |
+
+loadBullet, loadSDF and loadMJCF will return an array of object unique ids:
+
+| name            | type        | description                                                    |
+|-----------------|-------------|----------------------------------------------------------------|
+| objectUniqueIds | list of int | the list includes the object unique id for each object loaded. |
+
+
+createCollisionShape/VisualShape
+--------------------------------------------------------------------------------------------
+Although the recommended and easiest way to create stuff in the world is using the loading functions (loadURDF/SDF/MJCF/Bullet), you can also create collision and visual shapes programmatically and use them to create a multi body using createMultiBody. See the createMultiBodyLinks.py and createVisualShape.py example in the Bullet Physics SDK.
+
+The input parameters for createCollisionShape are
+
+| option   | name            | type                  | description                                                                                                                                                                            |
+|----------|-----------------|-----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| required | shapeType       | int                   | GEOM_SPHERE, GEOM_BOX, GEOM_CAPSULE, GEOM_CYLINDER, GEOM_PLANE, GEOM_MESH                                                                                                              |
+| optional | radius          | float                 | default 0.5: GEOM_SPHERE, GEOM_CAPSULE, GEOM_CYLINDER                                                                                                                                  |
+| optional | halfExtents     | vec3 list of 3 floats | default [1,1,1]: for GEOM_BOX                                                                                                                                                          |
+| optional | height          | float                 | default: 1: for GEOM_CAPSULE, GEOM_CYLINDER                                                                                                                                            |
+| optional | fileName        | string                | Filename for GEOM_MESH, currently only Wavefront .obj. Will create convex hulls for each object (marked as 'o') in the .obj file.                                                      |
+| optional | meshScale       | vec3 list of 3 floats | default: [1,1,1], for GEOM_MESH                                                                                                                                                        |
+| optional | planeNormal     | vec3 list of 3 floats | default: [0,0,1] for GEOM_PLANE                                                                                                                                                        |
+| optional | flags           | int                   | GEOM_FORCE_CONCAVE_TRIMESH: for GEOM_MESH, this will create a concave static triangle mesh. This should not be used with dynamic / moving objects, only for static (mass = 0) terrain. |
+| optional | physicsClientId | int                   | If you are connected to multiple servers, you can pick one.                                                                                                                            |
+
+The return value is a non-negative int unique id for the collision shape or -1 if the call failed.
+
+createVisualShape
+--------------------------------------------------------------------------------------------
+You can create a visual shape in a similar way to creating a collision shape, with some additional arguments to control the visual appearance, such as diffuse and specular color. When you use the GEOM_MESH type, you can point to a Wavefront OBJ file, and the visual shape will parse some parameters from the material file (.mtl) and load a texture. Note that large textures (above 1024x1024 pixels) can slow down the loading and run-time performance.
+
+The input parameters are
+
+| option   | name                   | type                   | description                                                                                                                       |
+|----------|------------------------|------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| required | shapeType              | int                    | GEOM_SPHERE, GEOM_BOX, GEOM_CAPSULE, GEOM_CYLINDER, GEOM_PLANE, GEOM_MESH                                                         |
+| optional | radius                 | float                  | default 0.5: GEOM_SPHERE, GEOM_CAPSULE, GEOM_CYLINDER                                                                             |
+| optional | halfExtents            | vec3 list of 3 floats  | default [1,1,1]: for GEOM_BOX                                                                                                     |
+| optional | height                 | float                  | default: 1: for GEOM_CAPSULE, GEOM_CYLINDER                                                                                       |
+| optional | fileName               | string                 | Filename for GEOM_MESH, currently only Wavefront .obj. Will create convex hulls for each object (marked as 'o') in the .obj file. |
+| optional | meshScale              | vec3 list of 3 floats  | default: [1,1,1], for GEOM_MESH                                                                                                   |
+| optional | planeNormal            | vec3 list of 3 floats  | default: [0,0,1] for GEOM_PLANE                                                                                                   |
+| optional | flags                  | int                    | unused at the moment                                                                                                              |
+| optional | rgbaColor              | vec4, list of 4 floats | color components for red, green, blue and alpha, each in range [0..1].                                                            |
+| optional | specularColor          | vec3, list of 3 floats | specular reflection color, red, green, blue components in range [0..1]                                                            |
+| optional | visualFramePosition    | vec3, list of 3 floats | translational offset of the visual shape with respect to the link frame                                                           |
+| optional | visualFrameOrientation | vec4, list of 4 floats | rotational offset (quaternion x,y,z,w) of the visual shape with respect to the link frame                                         |
+| optional | physicsClientId        | int                    | If you are connected to multiple servers, you can pick one.                                                                       |
+
+The return value is a non-negative int unique id for the visual shape or -1 if the call failed.
+
+createMultiBody
+--------------------------------------------------------------------------------------------
+Although the easiest way to create stuff in the world is using the loading functions (loadURDF/SDF/MJCF/Bullet), you can create a multi body using createMultiBody. 
+See the createMultiBodyLinks.py example in the Bullet Physics SDK. The parameters of createMultiBody are very similar to URDF and SDF parameters.
+
+You can create a multi body with only a single base without joints/child links or you can create a multi body with joints/child links. If you provide links, make sure the size of every list is the same (len(linkMasses) == len(linkCollisionShapeIndices) etc). The input parameters for createMultiBody are:
+
+| option   | name                          | type                   | description                                                                                                               |
+|----------|-------------------------------|------------------------|---------------------------------------------------------------------------------------------------------------------------|
+| optional | baseMass                      | float                  | mass of the base, in kg (if using SI units)                                                                               |
+| optional | baseCollisionShapeIndex       | int                    | unique id from createCollisionShape or -1. You can re-use the collision shape for multiple multibodies (instancing)       |
+| optional | baseVisualShapeIndex          | int                    | unique id from createVisualShape or -1. You can reuse the visual shape (instancing)                                       |
+| optional | basePosition                  | vec3, list of 3 floats | Cartesian world position of the base                                                                                      |
+| optional | baseOrientation               | vec4, list of 4 floats | Orientation of base as quaternion [x,y,z,w]                                                                               |
+| optional | baseInertialFramePosition     | vec3, list of 3 floats | Local position of inertial frame                                                                                          |
+| optional | baseInertialFrameOrientation  | vec4, list of 4 floats | Local orientation of inertial frame, [x,y,z,w]                                                                            |
+| optional | linkMasses                    | list of float          | List of the mass values, one for each link.                                                                               |
+| optional | linkCollisionShapeIndices     | list of int            | List of the unique id, one for each link.                                                                                 |
+| optional | linkVisualShapeIndices        | list of int            | list of the visual shape unique id for each link                                                                          |
+| optional | linkPositions                 | list of vec3           | list of local link positions, with respect to parent                                                                      |
+| optional | linkOrientations              | list of vec4           | list of local link orientations, w.r.t. parent                                                                            |
+| optional | linkInertialFramePositions    | list of vec3           | list of local inertial frame pos. in link frame                                                                           |
+| optional | linkInertialFrameOrientations | list of vec4           | list of local inertial frame orn. in link frame                                                                           |
+| optional | linkParentIndices             | list of int            | Link index of the parent link or 0 for the base.                                                                          |
+| optional | linkJointTypes                | list of int            | list of joint types, one for each link. Only JOINT_REVOLUTE, JOINT_PRISMATIC, and JOINT_FIXED is supported at the moment. |
+| optional | linkJointAxis                 | list of vec3           | Joint axis in local frame                                                                                                 |
+| optional | useMaximalCoordinates         | int                    | experimental, best to leave it 0/false.                                                                                   |
+| optional | physicsClientId               | int                    | If you are connected to multiple servers, you can pick one.                                                               |
+
+
+The return value of createMultiBody is a non-negative unique id or -1 for failure. Example:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ python
+cuid = pybullet.createCollisionShape(pybullet.GEOM_BOX, halfExtents = [1, 1, 1])
+mass= 0 #static box
+pybullet.createMultiBody(mass,cuid)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+See also createMultiBodyLinks.py, createObstacleCourse.py and createVisualShape.py in the Bullet/examples/pybullet/examples folder.
+
+saveWorld
+--------------------------------------------------------------------------------------------
+You can create a snapshot of the current world as a pybullet Python file, stored on the server. saveWorld can be useful as a basic editing feature, setting up the robot, joint angles, object positions and environment for example in VR. Later you can just load the pybullet Python file to re-create the world. Note that not all settings are stored in the world file at the moment.
+The input arguments are:
+
+| option   | name           | type   | description                                                |
+|----------|----------------|--------|------------------------------------------------------------|
+| required | fileName       | string | filename of the pybullet file.                             |
+| optional | clientServerId | int    | if you are connected to multiple servers, you can pick one |
+
+stepSimulation
+--------------------------------------------------------------------------------------------
+stepSimulation will perform all the actions in a single forward dynamics simulation step such as collision detection, constraint solving and integration. 
+
+stepSimulation input arguments are optional:
+
+| option   | name            | type | description                                                 |
+|----------|-----------------|------|-------------------------------------------------------------|
+| optional | physicsClientId | int  | if you are connected to multiple servers, you can pick one. |
+
+
+stepSimulation has no return values.
+
+See also setRealTimeSimulation to automatically let the physics server run forward dynamics simulation based on its real-time clock.
+
+setRealTimeSimulation
+--------------------------------------------------------------------------------------------
+
+By default, the physics server will not step the simulation, unless you explicitly send a 'stepSimulation' command. This way you can maintain control determinism of the simulation. It is possible to run the simulation in real-time by letting the physics server automatically step the simulation according to its real-time-clock (RTC) using the setRealTimeSimulation command. If you enable the real-time simulation, you don't need to call 'stepSimulation'.
+
+Note that setRealTimeSimulation has no effect in DIRECT mode: in DIRECT mode the physics server and client happen in the same thread and you trigger every command. In GUI mode and in Virtual Reality mode, and TCP/UDP mode, the physics server runs in a separate thread from the client (pybullet), and setRealTimeSimulation allows the physicsserver  thread to add additional calls to stepSimulation.
+
+
+The input parameters are:
+
+| option   | name                     | type | description                                                 |
+|----------|--------------------------|------|-------------------------------------------------------------|
+| required | enableRealTimeSimulation | int  | 0 to disable real-time simulation, 1 to enable              |
+| optional | physicsClientId          | int  | if you are connected to multiple servers, you can pick one. |
+
+
+getBasePositionAndOrientation
+--------------------------------------------------------------------------------------------
+getBasePositionAndOrientation reports the current position and orientation of the base (or root link) of the body in Cartesian world coordinates. The orientation is a quaternion in [x,y,z,w] format.
+
+The getBasePositionAndOrientation input parameters are:
+
+| option   | name                     | type | description                                                 |
+|----------|--------------------------|------|-------------------------------------------------------------|
+| required | objectUniqueId           | int  | object unique id, as returned from loadURDF.                |
+| optional | physicsClientId          | int  | if you are connected to multiple servers, you can pick one. |
+
+
+getBasePositionAndOrientation returns the position list of 3 floats and orientation as list of 4 floats in [x,y,z,w] order. Use getEulerFromQuaternion to convert the quaternion to Euler if needed.
+
+See also resetBasePositionAndOrientation to reset the position and orientation of the object.
+
+This completes the first pybullet script. Bullet ships with several URDF files in the Bullet/data folder.
+
+resetBasePositionAndOrientation
+--------------------------------------------------------------------------------------------
+You can reset the position and orientation of the base (root) of each object. It is best only to do this at the start, and not during a running simulation, since the command will override the effect of all physics simulation. The linear and angular velocity is set to zero. You can use resetBaseVelocity to reset to a non-zero linear and/or angular velocity.
+
+The input arguments to resetBasePositionAndOrientation are:
+
+| required | objectUniqueId  | int  | object unique id, as returned from loadURDF.                                                  |
+|----------|-----------------|------|-----------------------------------------------------------------------------------------------|
+| required | posObj          | vec3 | reset the base of the object at the specified position in world space coordinates [X,Y,Z]     |
+| required | ornObj          | vec4 | reset the base of the object at the specified orientation as world space quaternion [X,Y,Z,W] |
+| optional | physicsClientId | int  | if you are connected to multiple servers, you can pick one.                                   |
+
+There are no return arguments.
+
+Transforms: Position and Orientation
+--------------------------------------------------------------------------------------------
+The position of objects can be expressed in Cartesian world space coordinates [x,y,z]. The orientation (or rotation) of objects can be expressed using quaternions [x,y,z,w], euler angles [yaw, pitch, roll] or 3x3 matrices. pybullet provides a few helper functions to convert between quaternions, euler angles and 3x3 matrices. In additions there are some functions to multiply and invert transforms.
+
+getQuaternionFromEuler and getEulerFromQuaternion
+--------------------------------------------------------------------------------------------
+The pybullet API uses quaternions to represent orientations. Since quaternions are not very intuitive for people, there are two APIs to convert between quaternions and Euler angles.
+The getQuaternionFromEuler input arguments are:
+
+
+| option   | name            | type                   | description                                                                                                                                 |
+|----------|-----------------|------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| required | eulerAngle      | vec3: list of 3 floats | The X,Y,Z Euler angles are in radians, accumulating 3 rotations expressing the roll around the X, pitch around Y and yaw around the Z axis. |
+| optional | physicsClientId | int                    | unused, added for API consistency.                                                                                                          |
+
+
+getQuaternionFromEuler returns a quaternion, vec4 list of 4 floating point values [X,Y,Z,W].
+
+getEulerFromQuaternion
+--------------------------------------------------------------------------------------------
+The getEulerFromQuaternion input arguments are:
+
+| option   | name            | type                   | description                        |
+|----------|-----------------|------------------------|------------------------------------|
+| required | quaternion      | vec4: list of 4 floats | The quaternion format is [x,y,z,w] |
+| optional | physicsClientId | int                    | unused, added for API consistency. |
+
+getEulerFromQuaternion returns alist of 3 floating point values, a vec3.
+
+getMatrixFromQuaternion 
+--------------------------------------------------------------------------------------------
+getMatrixFromQuaternion is a utility API to create a 3x3 matrix from a quaternion. The input is a quaternion and output a list of 9 floats, representing the matrix.
+
+multiplyTransforms, invertTransform
+--------------------------------------------------------------------------------------------
+pybullet provides a few helper functions to multiply and inverse transforms. This can be helpful to transform coordinates from one to the other coordinate system.
+
+The input parameters of multiplyTransforms are:
+
+| option   | name            | type                   | description                        |
+|----------|-----------------|------------------------|------------------------------------|
+| required | positionA       | vec3, list of 3 floats | position A                         |
+| required | orientationA    | vec4, list of 4 floats | quaternion [x,y,z,w]               |
+| required | positionB       | vec3, list of 3 floats | position B                         |
+| required | orientationB    | vec4, list of 4 floats | quaternion [x,y,z,w]               |
+| optional | physicsClientId | int                    | unused, added for API consistency. |
+
+The return value is a list of position (vec3) and orientation (vec4, quaternion x,y,x,w).
+
+The input and output parameters of invertTransform are:
+
+| option   | name        | type                   | description          |
+|----------|-------------|------------------------|----------------------|
+| required | position    | vec3, list of 3 floats |                      |
+| required | orientation | vec4, list of 4 floats | quaternion [x,y,z,w] |
+
+
+The output of invertTransform is a position (vec3) and orientation (vec4, quaternion x,y,x,w).
+getAPIVersion
+You can query for the API version in a year-month-0-day format. You can only connect between physics client/server of the same API version, with the same number of bits (32-bit / 64bit). There is a optional unused argument physicsClientId, added for API consistency.
+
+| option   | name            | type | description                        |
+|----------|-----------------|------|------------------------------------|
+| optional | physicsClientId | int  | unused, added for API consistency. |
+
+Controlling a robot
+======================================================================================
+
+In the Introduction we already showed how to initialize pybullet and load some objects. If you replace the file name in the loadURDF command with "r2d2.urdf" you can simulate a R2D2 robot from the ROS tutorial. Let's control this R2D2 robot to move, look around and control the gripper. For this we need to know how to access its joint motors.
+
+Base, Joints, Links
+--------------------------------------------------------------------------------------------
+
+![<small>Base, Joints and Links</small>](images/joints_and_links.png width="80%" border="0")
+
+A simulated robot as described in a URDF file has a base, and optionally links connected by joints. Each joint connects one parent link to a child link. At the root of the hierarchy there is a single root parent that we call base. The base can be either fully fixed, 0 degrees of freedom, or fully free, with 6 degrees of freedom. Since each link is connected to a parent with a single joint, the number of joints is equal to the number of links. Regular links have link indices in the range [0..getNumJoints()] Since the base is not a regular 'link', we use the convention of -1 as its link index. We use the convention that joint frames are expressed relative to the parents center of mass inertial frame, which is aligned with the principle axis of inertia.
+
+getNumJoints, getJointInfo
+--------------------------------------------------------------------------------------------
+After you load a robot you can query the number of joints using the getNumJoints API. For the r2d2.urdf this should return 15.
+
+getNumJoints input parameters:
+
+| option   | name            | type | description                                                 |
+|----------|-----------------|------|-------------------------------------------------------------|
+| required | bodyUniqueId    | int  | the body unique id, as returned by loadURDF etc.            |
+| optional | physicsClientId | int  | if you are connected to multiple servers, you can pick one. |
+
+getNumJoints returns an integer value representing the number of joints.
+
+getJointInfo
+--------------------------------------------------------------------------------------------
+For each joint we can query some information, such as its name and type.
+
+getJointInfo input parameters:
+
+| option   | name            | type | description                                                 |
+|----------|-----------------|------|-------------------------------------------------------------|
+| required | bodyUniqueId    | int  | the body unique id, as returned by loadURDF etc.            |
+| required | jointIndex      | int  | an index in the range [0 .. getNumJoints(bodyUniqueId))     |
+| optional | physicsClientId | int  | if you are connected to multiple servers, you can pick one. |
+
+getJointInfo returns a list of information:
+
+| name             | type   | description                                                                                                                                                                                                                   |
+|------------------|--------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| jointIndex       | int    | the same joint index as the input parameter                                                                                                                                                                                   |
+| jointName        | string | the name of the joint, as specified in the URDF (or SDF etc) file                                                                                                                                                             |
+| jointType        | int    | "type of the joint, this also implies the number of position and velocity variables. JOINT_REVOLUTE, JOINT_PRISMATIC, JOINT_SPHERICAL, JOINT_PLANAR, JOINT_FIXED. See the section on Base, Joint and Links for more details." |
+| qIndex           | int    | the first position index in the positional state variables for this body                                                                                                                                                      |
+| uIndex           | int    | the first velocity index in the velocity state variables for this body                                                                                                                                                        |
+| flags            | int    | reserved                                                                                                                                                                                                                      |
+| jointDamping     | float  | the joint damping value, as specified in the URDF file                                                                                                                                                                        |
+| jointFriction    | float  | the joint friction value, as specified in the URDF file                                                                                                                                                                       |
+| jointLowerLimit  | float  | Positional lower limit for slider and revolute (hinge) joints.                                                                                                                                                                |
+| jointUpperLimit  | float  | Positional upper limit for slider and revolute joints. Values ignored in case upper limit smaller than lower limit..                                                                                                                       |
+| jointMaxForce    | float  | Maximum force specified in URDF (possibly other file formats) Note that this value is not automatically used. You can use maxForce in 'setJointMotorControl2'.                                                                |
+| jointMaxVelocity | float  | Maximum velocity specified in URDF. Note that the maximum velocity is not used in actual motor control commands at the moment.                                                                                                |
+| linkName         | string | the name of the link, as specified in the URDF (or SDF etc.) file                                                                                                                                                             |
+
+setJointMotorControl2/Array
+--------------------------------------------------------------------------------------------
+Note: setJointMotorControl is obsolete and replaced by setJointMotorControl2 API. (Or even better use setJointMotorControlArray).
+
+We can control a robot by setting a desired control mode for one or more joint motors. During the stepSimulation the physics engine will simulate the motors to reach the given target value that can be reached within the maximum motor forces and other constraints. Each revolute joint and prismatic joint is motorized by default. There are 3 different motor control modes: position control, velocity control and torque control.
+
+You can effectively disable the motor by using a force of 0. You need to disable motor in order to use direct torque control. For example:
+
+
+
+
+<!--Hello MathJax:
+\[f(0)=\frac{1}{2\cdot\pi\cdot i}\cdot \oint_{|z|=1} \frac{f(z)}{z} \textrm{d}z\]
+-->
+
+
+<script window.markdeepOptions={};
+window.markdeepOptions.tocStyle="long"; src="cs371-common.js"></script>
+
