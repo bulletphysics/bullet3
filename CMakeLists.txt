@@ -108,7 +108,7 @@ IF(MSVC)
 	IF (CMAKE_CL_64)
 	  ADD_DEFINITIONS(-D_WIN64)
 	ELSE()
-	  OPTION(USE_MSVC_SSE "Use MSVC /arch:sse option"	ON)
+	  OPTION(USE_MSVC_SSE "Use MSVC /arch:sse option"	OFF)
 	  option(USE_MSVC_SSE2 "Compile your program with SSE2 instructions" ON)
 
 	  IF (USE_MSVC_SSE)
