@@ -808,11 +808,13 @@ static PyObject* pybullet_getDynamicsInfo(PyObject* self, PyObject* args, PyObje
 	{
 		int bodyUniqueId = -1;
 		int linkIndex = -2;
+		int flags = 0;
+
 		b3PhysicsClientHandle sm = 0;
 		
 		int physicsClientId = 0;
-		static char* kwlist[] = {"bodyUniqueId", "linkIndex", "physicsClientId", NULL};
-		if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|i", kwlist, &bodyUniqueId, &linkIndex, &physicsClientId))
+		static char* kwlist[] = {"bodyUniqueId", "linkIndex", "flags", "physicsClientId", NULL};
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|ii", kwlist, &bodyUniqueId, &linkIndex, &flags, &physicsClientId))
 		{
 			return NULL;
 		}
@@ -827,6 +829,12 @@ static PyObject* pybullet_getDynamicsInfo(PyObject* self, PyObject* args, PyObje
 			b3SharedMemoryCommandHandle cmd_handle;
 			b3SharedMemoryStatusHandle status_handle;
 			struct b3DynamicsInfo info;
+			int numFields = 2;
+			if (flags & eDYNAMICS_INFO_REPORT_INERTIA)
+			{
+				numFields++;
+			}
+
 			if (bodyUniqueId < 0)
 			{
 				PyErr_SetString(SpamError, "getDynamicsInfo failed; invalid bodyUniqueId");
@@ -846,11 +854,25 @@ static PyObject* pybullet_getDynamicsInfo(PyObject* self, PyObject* args, PyObje
 				return NULL;
 			}
 			
+			
+			
+
 			if (b3GetDynamicsInfo(status_handle, &info))
 			{
-				PyObject* pyDynamicsInfo = PyTuple_New(2);
+			
+				PyObject* pyDynamicsInfo = PyTuple_New(numFields);
 				PyTuple_SetItem(pyDynamicsInfo, 0, PyFloat_FromDouble(info.m_mass));
 				PyTuple_SetItem(pyDynamicsInfo, 1, PyFloat_FromDouble(info.m_lateralFrictionCoeff));
+				
+				if (flags & eDYNAMICS_INFO_REPORT_INERTIA)
+				{
+					PyObject* pyInertiaDiag = PyTuple_New(3);
+					PyTuple_SetItem(pyInertiaDiag,0,PyFloat_FromDouble(info.m_localInertialDiagonal[0]));
+					PyTuple_SetItem(pyInertiaDiag,1,PyFloat_FromDouble(info.m_localInertialDiagonal[1]));
+					PyTuple_SetItem(pyInertiaDiag,2,PyFloat_FromDouble(info.m_localInertialDiagonal[2]));
+					PyTuple_SetItem(pyDynamicsInfo, 2, pyInertiaDiag);
+				}
+				
 				return pyDynamicsInfo;
 			}
 		}
@@ -8168,6 +8190,8 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "JOINT_FIXED", eFixedType);              // user read
 	PyModule_AddIntConstant(m, "JOINT_POINT2POINT", ePoint2PointType);  // user read
 	PyModule_AddIntConstant(m, "JOINT_GEAR", eGearType);  // user read
+	
+	PyModule_AddIntConstant(m, "DYNAMICS_INFO_REPORT_INERTIA", eDYNAMICS_INFO_REPORT_INERTIA);  // report local inertia in 'getDynamicsInfo'
 
 	PyModule_AddIntConstant(m, "SENSOR_FORCE_TORQUE", eSensorForceTorqueType);  // user read
 

@@ -6148,11 +6148,18 @@ bool PhysicsServerCommandProcessor::processGetDynamicsInfoCommand(const struct S
 		if (linkIndex == -1)
 		{
 			serverCmd.m_dynamicsInfo.m_mass = mb->getBaseMass();
+			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[0] = mb->getBaseInertia()[0];
+			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[1] = mb->getBaseInertia()[1];
+			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[2] = mb->getBaseInertia()[2];
 			serverCmd.m_dynamicsInfo.m_lateralFrictionCoeff = mb->getBaseCollider()->getFriction();
 		}
 		else
 		{
 			serverCmd.m_dynamicsInfo.m_mass = mb->getLinkMass(linkIndex);
+			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[0] = mb->getLinkInertia(linkIndex)[0];
+			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[1] = mb->getLinkInertia(linkIndex)[1];
+			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[2] = mb->getLinkInertia(linkIndex)[2];
+
 			if (mb->getLinkCollider(linkIndex))
 			{
 				serverCmd.m_dynamicsInfo.m_lateralFrictionCoeff = mb->getLinkCollider(linkIndex)->getFriction();
