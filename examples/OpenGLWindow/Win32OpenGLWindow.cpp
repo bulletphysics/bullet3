@@ -30,6 +30,11 @@ static void printGLString(const char *name, GLenum s) {
   printf("%s = %s\n",name, v);
 }
 
+// Request NVidia discrete GPU if both are available
+extern "C" {
+__declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+}
+
 bool sOpenGLVerbose = true;
 
 void Win32OpenGLWindow::enableOpenGL()
