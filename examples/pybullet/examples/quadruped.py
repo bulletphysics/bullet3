@@ -114,11 +114,6 @@ motor_back_leftL_link = jointNameToId['motor_back_leftL_link']
 knee_back_leftL_link = jointNameToId['knee_back_leftL_link']
 
 
-drawInertiaBox(quadruped,-1, [1,0,0])
-#drawInertiaBox(quadruped,motor_front_rightR_joint, [1,0,0])
-
-for i in range (nJoints):
-	drawInertiaBox(quadruped,i, [0,1,0])
 
 
 #fixtorso = p.createConstraint(-1,-1,quadruped,-1,p.JOINT_FIXED,[0,0,0],[0,0,0],[0,0,0])
@@ -127,6 +122,22 @@ motordir=[-1,-1,-1,-1,1,1,1,1]
 halfpi = 1.57079632679
 twopi = 4*halfpi
 kneeangle = -2.1834
+
+mass, friction, localInertiaDiagonal = p.getDynamicsInfo(quadruped,-1, flags=p.DYNAMICS_INFO_REPORT_INERTIA )
+print("localInertiaDiagonal",localInertiaDiagonal)
+
+#this is a no-op, just to show the API
+p.changeDynamics(quadruped,-1,localInertiaDiagonal=localInertiaDiagonal)
+
+#for i in range (nJoints):
+#	p.changeDynamics(quadruped,i,localInertiaDiagonal=[0.000001,0.000001,0.000001])
+
+
+drawInertiaBox(quadruped,-1, [1,0,0])
+#drawInertiaBox(quadruped,motor_front_rightR_joint, [1,0,0])
+
+for i in range (nJoints):
+	drawInertiaBox(quadruped,i, [0,1,0])
 
 
 if (useMaximalCoordinates):
