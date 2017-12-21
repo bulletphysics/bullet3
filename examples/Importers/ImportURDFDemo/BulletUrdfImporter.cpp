@@ -613,18 +613,19 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
                 vertices.push_back(vert);
 
             }
-            btConvexHullShape* convexHull = new btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
-            convexHull->setMargin(gUrdfDefaultCollisionMargin);
-			convexHull->initializePolyhedralFeatures();
-			convexHull->optimizeConvexHull();
+            btConvexHullShape* cylZShape = new btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
+            cylZShape->setMargin(gUrdfDefaultCollisionMargin);
+			cylZShape->recalcLocalAabb();
+			cylZShape->initializePolyhedralFeatures();
+			cylZShape->optimizeConvexHull();
 			
-			//btConvexShape* cylZShape = new btConeShapeZ(cyl->radius,cyl->length);//(vexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
+			//btConvexShape* cylZShape = new btConeShapeZ(cylRadius,cylLength);//(vexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
             
-            //btVector3 halfExtents(cyl->radius,cyl->radius,cyl->length/2.);
+            //btVector3 halfExtents(cylRadius,cylRadius,cylLength);
             //btCylinderShapeZ* cylZShape = new btCylinderShapeZ(halfExtents);
             
 
-            shape = convexHull;
+            shape = cylZShape;
             break;
         }
         case URDF_GEOM_BOX:
@@ -798,6 +799,7 @@ upAxisMat.setIdentity();
 			convexHull->optimizeConvexHull();
 			//convexHull->initializePolyhedralFeatures();
 			convexHull->setMargin(gUrdfDefaultCollisionMargin);
+			convexHull->recalcLocalAabb();
 			//convexHull->setLocalScaling(collision->m_geometry.m_meshScale);
 			shape = convexHull;
 		}
@@ -845,6 +847,7 @@ void BulletURDFImporter::convertURDFToVisualShapeInternal(const UrdfVisual* visu
 
 			btConvexHullShape* cylZShape = new btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
 			cylZShape->setMargin(gUrdfDefaultCollisionMargin);
+			cylZShape->recalcLocalAabb();
 			convexColShape = cylZShape;
 			break;
 		}

@@ -210,6 +210,10 @@ enum JointType {
 	eGearType=6
 };
 
+enum b3RequestDynamicsInfoFlags
+{
+	eDYNAMICS_INFO_REPORT_INERTIA=1,
+};
 
 enum b3JointInfoFlags
 {
@@ -266,7 +270,7 @@ struct b3BodyInfo
 struct b3DynamicsInfo
 {
 	double m_mass;
-	double m_localInertialPosition[3];
+	double m_localInertialDiagonal[3];
 	double m_lateralFrictionCoeff;
 };
 

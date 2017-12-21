@@ -2052,11 +2052,15 @@ B3_SHARED_API int b3GetDynamicsInfo(b3SharedMemoryStatusHandle statusHandle, str
 {
 	const SharedMemoryStatus* status = (const SharedMemoryStatus* ) statusHandle;
 	const b3DynamicsInfo &dynamicsInfo = status->m_dynamicsInfo;
-	btAssert(status->m_type == CMD_GET_DYNAMICS_INFO);
+	btAssert(status->m_type == CMD_GET_DYNAMICS_INFO_COMPLETED);
 	if (status->m_type != CMD_GET_DYNAMICS_INFO_COMPLETED)
 		return false;
 
 	info->m_mass = dynamicsInfo.m_mass;
+	info->m_localInertialDiagonal[0] = dynamicsInfo.m_localInertialDiagonal[0];
+	info->m_localInertialDiagonal[1] = dynamicsInfo.m_localInertialDiagonal[1];
+	info->m_localInertialDiagonal[2] = dynamicsInfo.m_localInertialDiagonal[2];
+
 	info->m_lateralFrictionCoeff = dynamicsInfo.m_lateralFrictionCoeff;
 	return true;
 }
