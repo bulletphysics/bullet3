@@ -737,12 +737,13 @@ static PyObject* pybullet_changeDynamicsInfo(PyObject* self, PyObject* args, PyO
 	double contactStiffness = -1;
 	double contactDamping = -1;
 	int frictionAnchor = -1;
+	PyObject* localInertiaDiagonalObj=0;
 
 	b3PhysicsClientHandle sm = 0;
 	
 	int physicsClientId = 0;
-	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "mass", "lateralFriction", "spinningFriction", "rollingFriction","restitution", "linearDamping", "angularDamping", "contactStiffness", "contactDamping", "frictionAnchor", "physicsClientId", NULL};
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|dddddddddii", kwlist, &bodyUniqueId, &linkIndex,&mass, &lateralFriction, &spinningFriction, &rollingFriction, &restitution,&linearDamping, &angularDamping, &contactStiffness, &contactDamping, &frictionAnchor, &physicsClientId))
+	static char* kwlist[] = {"bodyUniqueId", "linkIndex", "mass", "lateralFriction", "spinningFriction", "rollingFriction","restitution", "linearDamping", "angularDamping", "contactStiffness", "contactDamping", "frictionAnchor", "localInertiaDiagonal", "physicsClientId", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|dddddddddiOi", kwlist, &bodyUniqueId, &linkIndex,&mass, &lateralFriction, &spinningFriction, &rollingFriction, &restitution,&linearDamping, &angularDamping, &contactStiffness, &contactDamping, &frictionAnchor, &localInertiaDiagonalObj, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -761,6 +762,12 @@ static PyObject* pybullet_changeDynamicsInfo(PyObject* self, PyObject* args, PyO
 		if (mass >= 0)
 		{
 			b3ChangeDynamicsInfoSetMass(command, bodyUniqueId, linkIndex, mass);
+		}
+		if (localInertiaDiagonalObj)
+		{
+			double localInertiaDiagonal[3];
+			pybullet_internalSetVectord(localInertiaDiagonalObj, localInertiaDiagonal);
+			b3ChangeDynamicsInfoSetLocalInertiaDiagonal(command, bodyUniqueId, linkIndex, localInertiaDiagonal);
 		}
 		if (lateralFriction >= 0)
 		{

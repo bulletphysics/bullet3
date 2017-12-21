@@ -5933,6 +5933,10 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 	double spinningFriction = clientCmd.m_changeDynamicsInfoArgs.m_spinningFriction;
 	double rollingFriction = clientCmd.m_changeDynamicsInfoArgs.m_rollingFriction;
 	double restitution = clientCmd.m_changeDynamicsInfoArgs.m_restitution;
+	btVector3 newLocalInertiaDiagonal(clientCmd.m_changeDynamicsInfoArgs.m_localInertiaDiagonal[0],
+						clientCmd.m_changeDynamicsInfoArgs.m_localInertiaDiagonal[1],
+						clientCmd.m_changeDynamicsInfoArgs.m_localInertiaDiagonal[2]);
+
 	btAssert(bodyUniqueId >= 0);
 						
 	InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
@@ -5998,6 +6002,10 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 					mb->setBaseInertia(localInertia);
 				}
 			}
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL)
+			{
+				mb->setBaseInertia(newLocalInertiaDiagonal);
+			}
 		}
 		else
 		{
@@ -6051,6 +6059,10 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 						mb->getLinkCollider(linkIndex)->getCollisionShape()->calculateLocalInertia(mass,localInertia);
 						mb->getLink(linkIndex).m_inertiaLocal = localInertia;
 					}
+				}
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL)
+				{
+					mb->getLink(linkIndex).m_inertiaLocal = newLocalInertiaDiagonal;
 				}
 			}
 		}
@@ -6109,6 +6121,14 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 					body->m_rigidBody->getCollisionShape()->calculateLocalInertia(mass,localInertia);
 				}
 				body->m_rigidBody->setMassProps(mass,localInertia);
+			}
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL)
+			{
+				btScalar orgMass = body->m_rigidBody->getInvMass();
+				if (orgMass>0)
+				{
+					body->m_rigidBody->setMassProps(mass,newLocalInertiaDiagonal);
+				}
 			}
 		}
 	}

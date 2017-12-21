@@ -151,6 +151,7 @@ enum EnumChangeDynamicsInfoFlags
 	CHANGE_DYNAMICS_INFO_SET_ANGULAR_DAMPING=128,
 	CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING=256,
 	CHANGE_DYNAMICS_INFO_SET_FRICTION_ANCHOR = 512,
+	CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL = 1024,
 
 };
 
@@ -168,6 +169,7 @@ struct ChangeDynamicsInfoArgs
 	double m_angularDamping;
 	double m_contactStiffness;
 	double m_contactDamping;
+	double m_localInertiaDiagonal[3];
 	int m_frictionAnchor;
 };
 
