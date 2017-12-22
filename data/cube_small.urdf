@@ -2,8 +2,8 @@
 <robot name="cube.urdf">
   <link name="baseLink">
     <contact>
-      <lateral_friction value="1.0"/>
-      <inertia_scaling value="3.0"/>
+    	<friction_anchor/>
+    	   <lateral_friction value="1.0"/>
     </contact>
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
