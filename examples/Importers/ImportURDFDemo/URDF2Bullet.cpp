@@ -296,7 +296,9 @@ void ConvertURDF2BulletInternal(
          */
         if (mass)
         {
-            if (!(flags & CUF_USE_URDF_INERTIA))
+            if (!(flags & CUF_USE_URDF_INERTIA) && (localInertiaDiagonal[0] == 0.0 ||
+													localInertiaDiagonal[1] == 0.0 ||
+													localInertiaDiagonal[2] == 0.0))
             {
                 compoundShape->calculateLocalInertia(mass, localInertiaDiagonal);
                 btAssert(localInertiaDiagonal[0] < 1e10);
