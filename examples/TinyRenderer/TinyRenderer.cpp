@@ -285,11 +285,18 @@ void TinyRenderObjectData::registerMeshShape(const float* vertices, int numVerti
 {
 	if (0==m_model)
     {
-        m_model = new Model();
-        m_model->setColorRGBA(rgbaColor);
+		{
+			B3_PROFILE("setColorRGBA");
+
+			m_model = new Model();
+			m_model->setColorRGBA(rgbaColor);
+		}
 		if (textureImage)
 		{
-			m_model->setDiffuseTextureFromData(textureImage,textureWidth,textureHeight);
+			{
+				B3_PROFILE("setDiffuseTextureFromData");
+				m_model->setDiffuseTextureFromData(textureImage, textureWidth, textureHeight);
+			}
 		} else
 		{
 			/*char relativeFileName[1024];
@@ -299,25 +306,33 @@ void TinyRenderObjectData::registerMeshShape(const float* vertices, int numVerti
 			}
              */
 		}
-		
-		m_model->reserveMemory(numVertices,numIndices);
-        for (int i=0;i<numVertices;i++)
-        {
-            m_model->addVertex(vertices[i*9],
-                         vertices[i*9+1],
-                         vertices[i*9+2],
-                         vertices[i*9+4],
-                         vertices[i*9+5],
-                         vertices[i*9+6],
-                         vertices[i*9+7],
-                         vertices[i*9+8]);
-        }
-        for (int i=0;i<numIndices;i+=3)
-        {
-            m_model->addTriangle(indices[i],indices[i],indices[i],
-                                 indices[i+1],indices[i+1],indices[i+1],
-                                 indices[i+2],indices[i+2],indices[i+2]);
-        }
+		{
+			B3_PROFILE("reserveMemory");
+			m_model->reserveMemory(numVertices, numIndices);
+		}
+		{
+			B3_PROFILE("addVertex");
+			for (int i = 0; i < numVertices; i++)
+			{
+				m_model->addVertex(vertices[i * 9],
+					vertices[i * 9 + 1],
+					vertices[i * 9 + 2],
+					vertices[i * 9 + 4],
+					vertices[i * 9 + 5],
+					vertices[i * 9 + 6],
+					vertices[i * 9 + 7],
+					vertices[i * 9 + 8]);
+			}
+		}
+		{
+			B3_PROFILE("addTriangle");
+			for (int i = 0; i < numIndices; i += 3)
+			{
+				m_model->addTriangle(indices[i], indices[i], indices[i],
+					indices[i + 1], indices[i + 1], indices[i + 1],
+					indices[i + 2], indices[i + 2], indices[i + 2]);
+			}
+		}
     }
 }
 

@@ -136,6 +136,9 @@ btMultiBody::btMultiBody(int n_links,
 
     m_baseForce.setValue(0, 0, 0);
     m_baseTorque.setValue(0, 0, 0);
+
+	clearConstraintForces();
+	clearForcesAndTorques();
 }
 
 btMultiBody::~btMultiBody()
@@ -345,7 +348,10 @@ void btMultiBody::finalizeMultiDof()
 	m_deltaV.resize(6 + m_dofCount);
 	m_realBuf.resize(6 + m_dofCount + m_dofCount*m_dofCount + 6 + m_dofCount);			//m_dofCount for joint-space vels + m_dofCount^2 for "D" matrices + delta-pos vector (6 base "vels" + joint "vels")
 	m_vectorBuf.resize(2 * m_dofCount);													//two 3-vectors (i.e. one six-vector) for each system dof	("h" matrices)
-
+	for (int i=0;i<m_vectorBuf.size();i++)
+	{
+		m_vectorBuf[i].setValue(0,0,0);
+	}
 	updateLinksDofOffsets();
 }
 	
@@ -980,7 +986,13 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
 			case btMultibodyLink::ePrismatic:
 			case btMultibodyLink::eRevolute:
 			{
-				invDi[0] = 1.0f / D[0];
+				if (D[0]>=SIMD_EPSILON)
+				{
+					invDi[0] = 1.0f / D[0];
+				} else
+				{
+					invDi[0] = 0;
+				}
 				break;
 			}
 			case btMultibodyLink::eSpherical:
@@ -1263,12 +1275,29 @@ void btMultiBody::solveImatrix(const btVector3& rhs_top, const btVector3& rhs_bo
     if (num_links == 0) 
 	{
 		// in the case of 0 m_links (i.e. a plain rigid body, not a multibody) rhs * invI is easier
-        result[0] = rhs_bot[0] / m_baseInertia[0];
-        result[1] = rhs_bot[1] / m_baseInertia[1];
-        result[2] = rhs_bot[2] / m_baseInertia[2];
-        result[3] = rhs_top[0] / m_baseMass;
-        result[4] = rhs_top[1] / m_baseMass;
-        result[5] = rhs_top[2] / m_baseMass;
+   
+	if ((m_baseInertia[0] >= SIMD_EPSILON) && (m_baseInertia[1] >= SIMD_EPSILON) && (m_baseInertia[2] >= SIMD_EPSILON))
+	{
+		result[0] = rhs_bot[0] / m_baseInertia[0];
+		result[1] = rhs_bot[1] / m_baseInertia[1];
+        	result[2] = rhs_bot[2] / m_baseInertia[2];
+	} else
+	{
+		result[0] = 0;
+		result[1] = 0;
+		result[2] = 0;
+	}
+	if (m_baseMass>=SIMD_EPSILON)
+	{
+        	result[3] = rhs_top[0] / m_baseMass;
+        	result[4] = rhs_top[1] / m_baseMass;
+        	result[5] = rhs_top[2] / m_baseMass;
+	} else
+	{
+		result[3] = 0;
+		result[4] = 0;
+		result[5] = 0;
+	}
     } else 
 	{
 		if (!m_cachedInertiaValid)
@@ -1319,9 +1348,21 @@ void btMultiBody::solveImatrix(const btSpatialForceVector &rhs, btSpatialMotionV
     if (num_links == 0) 
 	{
 		// in the case of 0 m_links (i.e. a plain rigid body, not a multibody) rhs * invI is easier
-		result.setAngular(rhs.getAngular() / m_baseInertia);
-		result.setLinear(rhs.getLinear() / m_baseMass);		
-    } else 
+		if ((m_baseInertia[0] >= SIMD_EPSILON) && (m_baseInertia[1] >= SIMD_EPSILON) && (m_baseInertia[2] >= SIMD_EPSILON))
+        	{
+			result.setAngular(rhs.getAngular() / m_baseInertia);       
+        	} else  
+        	{       
+                	result.setAngular(btVector3(0,0,0));
+        	}
+        	if (m_baseMass>=SIMD_EPSILON)
+        	{       
+			result.setLinear(rhs.getLinear() / m_baseMass);               	 	
+        	} else  
+        	{       
+                	result.setLinear(btVector3(0,0,0));
+        	}
+    	} else 
 	{
 		/// Special routine for calculating the inverse of a spatial inertia matrix
 		///the 6x6 matrix is stored as 4 blocks of 3x3 matrices

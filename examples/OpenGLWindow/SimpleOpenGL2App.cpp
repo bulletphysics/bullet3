@@ -13,6 +13,11 @@
 #include "stdlib.h"
 #include "TwFonts.h"
 #include "SimpleOpenGL2Renderer.h"
+
+#ifdef B3_USE_GLFW
+#include "GLFWOpenGLWindow.h"
+#else
+
 #ifdef __APPLE__
 #include "MacOpenGLWindow.h"
 #else
@@ -30,6 +35,8 @@
 #endif //BT_USE_EGL
 #endif //_WIN32
 #endif//__APPLE__
+#endif //#ifdef B3_USE_GLFW
+
 #include <stdio.h>
 #include "../CommonInterfaces/CommonRenderInterface.h"
 
@@ -39,9 +46,9 @@ static void Simple2ResizeCallback( float widthf, float heightf)
 {
 	int width = (int)widthf;
 	int height = (int)heightf;
-	if (gApp2->m_renderer)
-		gApp2->m_renderer->resize(width,height);
-	//gApp2->m_renderer->setScreenSize(width,height);
+	if (gApp2->m_renderer && gApp2->m_window)
+        	gApp2->m_renderer->resize(width,height);//*gApp2->m_window->getRetinaScale(),height*gApp2->m_window->getRetinaScale());
+
 
 }
 
@@ -58,11 +65,18 @@ static void Simple2KeyboardCallback(int key, int state)
 
 void Simple2MouseButtonCallback( int button, int state, float x, float y)
 {
-	gApp2->defaultMouseButtonCallback(button,state,x,y);
+	if (gApp2 && gApp2->m_window)
+	{
+		gApp2->defaultMouseButtonCallback(button,state,x,y);
+	}
 }
 void Simple2MouseMoveCallback(  float x, float y)
 {
-	gApp2->defaultMouseMoveCallback(x,y);
+
+	if (gApp2 && gApp2->m_window)
+	{
+		gApp2->defaultMouseMoveCallback(x,y);
+	}
 }
 	
 void Simple2WheelCallback( float deltax, float deltay)
@@ -129,7 +143,7 @@ SimpleOpenGL2App::SimpleOpenGL2App(const char* title, int width, int height)
     glewExperimental = GL_TRUE;
 #endif //_WIN32
     
-    
+#ifndef B3_USE_GLFW
     if (glewInit() != GLEW_OK)
     {
         b3Error("glewInit failed");
@@ -140,7 +154,7 @@ SimpleOpenGL2App::SimpleOpenGL2App(const char* title, int width, int height)
         b3Error("GLEW_VERSION_2_1 needs to support 2_1");
         exit(1); // or handle the error in a nicer way
     }
-    
+#endif //B3_USE_GLFW
 #endif //__APPLE__
 #endif //NO_GLEW
 
@@ -196,6 +210,7 @@ void SimpleOpenGL2App::setBackgroundColor(float red, float green, float blue)
 
 void SimpleOpenGL2App::drawGrid(DrawGridData data)
 {
+	glEnable(GL_COLOR_MATERIAL);
 	 int gridSize = data.gridSize;
     float upOffset = data.upOffset;
     int upAxis = data.upAxis;

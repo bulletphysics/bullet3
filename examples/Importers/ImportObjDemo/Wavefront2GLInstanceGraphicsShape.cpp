@@ -55,7 +55,7 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(std::vector<tiny
 							vtx0.uv[1] = shape.mesh.texcoords[uv1Index];
 						} else
 						{
-							b3Warning("obj texture coordinate out-of-range!");
+						//	b3Warning("obj texture coordinate out-of-range!");
 							vtx0.uv[0] = 0;
 							vtx0.uv[1] = 0;
 						}
@@ -82,7 +82,7 @@ GLInstanceGraphicsShape* btgCreateGraphicsShapeFromWavefrontObj(std::vector<tiny
 							vtx1.uv[1] = shape.mesh.texcoords[uv1Index];
 						} else
 						{
-							b3Warning("obj texture coordinate out-of-range!");
+						//	b3Warning("obj texture coordinate out-of-range!");
 							vtx1.uv[0] = 0;
 							vtx1.uv[1] = 0;
 						}

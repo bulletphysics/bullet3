@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
 			b3Vector3 basePos;
 			b3Quaternion baseOrn;
 			sim->getBasePositionAndOrientation(minitaurUid,basePos,baseOrn);
-			sim->resetDebugVisualizerCamera(distance,yaw,20,basePos);
+			sim->resetDebugVisualizerCamera(distance,-20, yaw,basePos);
 		}
 		b3Clock::usleep(1000.*1000.*fixedTimeStep);
 	}

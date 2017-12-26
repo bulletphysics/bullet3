@@ -5,6 +5,7 @@ INCLUDE_DIRECTORIES(
 
 ADD_LIBRARY(
 BulletWorldImporter
+btMultiBodyWorldImporter.cpp
 btBulletWorldImporter.cpp
 btBulletWorldImporter.h
 btWorldImporter.cpp
@@ -25,7 +26,10 @@ IF (INSTALL_EXTRA_LIBS)
 			IF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
 				INSTALL(TARGETS BulletWorldImporter DESTINATION .)
 			ELSE (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
-				INSTALL(TARGETS BulletWorldImporter DESTINATION lib${LIB_SUFFIX})
+				INSTALL(TARGETS BulletWorldImporter
+                                        RUNTIME DESTINATION bin
+                                        LIBRARY DESTINATION lib${LIB_SUFFIX}
+                                        ARCHIVE DESTINATION lib${LIB_SUFFIX})
 				INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 DESTINATION ${INCLUDE_INSTALL_DIR} FILES_MATCHING PATTERN "*.h"  PATTERN
 ".svn" EXCLUDE PATTERN "CMakeFiles" EXCLUDE)

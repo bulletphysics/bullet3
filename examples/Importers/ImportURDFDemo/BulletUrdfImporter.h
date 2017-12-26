@@ -5,6 +5,14 @@
 
 #include "LinkVisualShapesConverter.h"
 
+struct BulletURDFTexture
+{
+	int m_width;
+	int m_height;
+	unsigned char* textureData1;
+	bool m_isCached;
+};
+
 
 ///BulletURDFImporter can deal with URDF and (soon) SDF files
 class BulletURDFImporter : public URDFImporterInterface
@@ -62,6 +70,8 @@ public:
 
     virtual void convertLinkVisualShapes2(int linkIndex, int urdfIndex, const char* pathPrefix, const btTransform& inertialFrame, class btCollisionObject* colObj, int bodyUniqueId) const;
 
+	class btCollisionShape* convertURDFToCollisionShape(const struct UrdfCollision* collision, const char* urdfPathPrefix) const;
+
     ///todo(erwincoumans) refactor this convertLinkCollisionShapes/memory allocation
     
 	virtual class btCompoundShape* convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const;
@@ -69,7 +79,13 @@ public:
     virtual int getNumAllocatedCollisionShapes() const;
     virtual class btCollisionShape* getAllocatedCollisionShape(int index);
 
-    
+	virtual int getNumAllocatedMeshInterfaces() const;
+	virtual class btStridingMeshInterface* getAllocatedMeshInterface(int index);
+
+	virtual void setEnableTinyRenderer(bool enable);
+	void convertURDFToVisualShapeInternal(const struct UrdfVisual* visual, const char* urdfPathPrefix, const class btTransform& visualTransform, btAlignedObjectArray<struct GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<struct BulletURDFTexture>& texturesOut) const;
+
+
 };
 
 

@@ -7,7 +7,7 @@ else
 	kind "ConsoleApp"
 end
 
-includedirs {".","../../src", "../ThirdPartyLibs",}
+includedirs {".","../../src", "../ThirdPartyLibs"}
 
 links {
 	"Bullet3Common","BulletInverseDynamicsUtils", "BulletInverseDynamics",	"BulletDynamics","BulletCollision", "LinearMath", "BussIK"
@@ -53,6 +53,8 @@ myfiles =
 	"SharedMemoryCommandProcessor.h",
 	"PhysicsServerCommandProcessor.cpp",
 	"PhysicsServerCommandProcessor.h",
+	"b3PluginManager.cpp",
+	"b3PluginManager.h",
 	"TinyRendererVisualShapeConverter.cpp",
 	"TinyRendererVisualShapeConverter.h",
 	"../TinyRenderer/geometry.cpp",
@@ -99,12 +101,19 @@ myfiles =
 	"../ThirdPartyLibs/tinyxml/tinyxmlparser.cpp",
 	"../Importers/ImportMeshUtility/b3ImportMeshUtility.cpp",
 	"../ThirdPartyLibs/stb_image/stb_image.cpp",     
+
 }
+
 
 files {
 	myfiles,
 	"main.cpp",
 }
+
+if (_OPTIONS["enable_static_vr_plugin"]) then
+	defines("STATIC_LINK_VR_PLUGIN")
+	files {"plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
 
 
 files {
@@ -199,6 +208,11 @@ files {
 				"../ExampleBrowser/GL_ShapeDrawer.cpp",
 				"../ExampleBrowser/CollisionShape2TriangleMesh.cpp",
 }
+if (_OPTIONS["enable_static_vr_plugin"]) then
+	defines("STATIC_LINK_VR_PLUGIN")
+	files {"plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
+
 
 if os.is("Linux") then initX11() end
 
@@ -350,6 +364,11 @@ if os.is("Windows") then
 					"../ThirdPartyLibs/openvr/samples/shared/pathtools.h",
 					"../ThirdPartyLibs/openvr/samples/shared/Vectors.h",
 	}
+if (_OPTIONS["enable_static_vr_plugin"]) then
+	defines("STATIC_LINK_VR_PLUGIN")
+	files {"plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
+
 	if os.is("Windows") then 
 		configuration {"x32"}
 			libdirs {"../ThirdPartyLibs/openvr/lib/win32"}
@@ -405,4 +424,7 @@ end
 
 include "udp"
 include "tcp"
+include "plugins/testPlugin"
+include "plugins/vrSyncPlugin"
+
 

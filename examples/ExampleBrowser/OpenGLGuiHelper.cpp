@@ -629,12 +629,13 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 							textured_detailed_sphere_vertices[i*9+1],
 							textured_detailed_sphere_vertices[i*9+2]);
 				
-						btVector3 trVer = compound->getChildTransform(0)*(radiusScale*vert);
+						btVector3 trVer = (radiusScale*vert);
 						if (trVer[up]>0)
 							trVer[up]+=halfHeight;
 						else
 							trVer[up]-=halfHeight;
 
+						trVer = compound->getChildTransform(0)*trVer;
 
 						transformedVertices[i*9+0] = trVer[0];
 						transformedVertices[i*9+1] = trVer[1];
@@ -904,7 +905,7 @@ void OpenGLGuiHelper::syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWor
 		B3_PROFILE("write all InstanceTransformToCPU");
 		for (int i = 0; i<numCollisionObjects; i++)
 		{
-			B3_PROFILE("writeSingleInstanceTransformToCPU");
+			//B3_PROFILE("writeSingleInstanceTransformToCPU");
 			btCollisionObject* colObj = rbWorld->getCollisionObjectArray()[i];
 			btVector3 pos = colObj->getWorldTransform().getOrigin();
 			btQuaternion orn = colObj->getWorldTransform().getRotation();
@@ -1018,12 +1019,10 @@ bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16
 		getRenderInterface()->getActiveCamera()->getCameraProjectionMatrix(projectionMatrix);
 		getRenderInterface()->getActiveCamera()->getCameraUpVector(camUp);
 		getRenderInterface()->getActiveCamera()->getCameraForwardVector(camForward);
-		float frustumNearPlane =     getRenderInterface()->getActiveCamera()->getCameraFrustumNear();
-		float frustumFarPlane =     getRenderInterface()->getActiveCamera()->getCameraFrustumFar();
-
+		
 		float top = 1.f;
 		float bottom = -1.f;
-		float tanFov = (top-bottom)*0.5f / frustumNearPlane;
+		float tanFov = (top-bottom)*0.5f / 1;
 		float fov = btScalar(2.0) * btAtan(tanFov);
 		btVector3 camPos,camTarget;
 		getRenderInterface()->getActiveCamera()->getCameraPosition(camPos);
@@ -1045,7 +1044,7 @@ bool OpenGLGuiHelper::getCameraInfo(int* width, int* height, float viewMatrix[16
 		float tanfov = tanf(0.5f*fov);
 		hori *= 2.f * farPlane * tanfov;
 		vertical *= 2.f * farPlane * tanfov;
-		btScalar aspect =  *width / *height;
+		btScalar aspect =  float(*width) / float(*height);
 		hori*=aspect;
 		//compute 'hor' and 'vert' vectors, useful to generate raytracer rays
 		hor[0] = hori[0];
@@ -1148,6 +1147,15 @@ void OpenGLGuiHelper::copyCameraImageData(const float viewMatrix[16], const floa
 					}
                 }
             }
+
+			if (1)
+			{
+				getRenderInterface()->getActiveCamera()->disableVRCamera();
+				DrawGridData dg;
+				dg.upAxis = m_data->m_glApp->getUpAxis();
+				getRenderInterface()->updateCamera(dg.upAxis);
+				m_data->m_glApp->m_window->startRendering();
+			}
         }
         if (pixelsRGBA)
         {
@@ -1205,7 +1213,7 @@ void OpenGLGuiHelper::autogenerateGraphicsObjects(btDiscreteDynamicsWorld* rbWor
 		btCollisionObject* colObj = rbWorld->getCollisionObjectArray()[i];
 		sortedObjects.push_back(colObj);
 	}
-	//sortedObjects.quickSort(shapePointerCompareFunc);
+	sortedObjects.quickSort(shapePointerCompareFunc);
 	for (int i=0;i<sortedObjects.size();i++)
 	{
 		btCollisionObject* colObj = sortedObjects[i];

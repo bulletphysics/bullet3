@@ -376,10 +376,16 @@ void MyKeyboardCallback(int key, int state)
 extern bool useShadowMap;
 static bool gEnableVRRenderControllers=true;
 static bool gEnableVRRendering = true;
-
+static int gUpAxis = 2;
 
 void VRPhysicsServerVisualizerFlagCallback(int flag, bool enable)
 {
+	if (flag == COV_ENABLE_Y_AXIS_UP)
+	{
+		//either Y = up or Z
+		gUpAxis = enable? 1:2;
+	}
+
     if (flag == COV_ENABLE_SHADOWS)
     {
         useShadowMap = enable;
@@ -808,7 +814,15 @@ bool CMainApplication::HandleInput()
 				for (int button = 0; button < vr::k_EButton_Max; button++)
 				{
 					uint64_t trigger = vr::ButtonMaskFromId((vr::EVRButtonId)button);
-
+					
+					btAssert(vr::k_unControllerStateAxisCount>=5);
+					float allAxis[10];//store x,y times 5 controllers
+					int index=0;
+					for (int i=0;i<5;i++)
+					{
+						allAxis[index++]=state.rAxis[i].x;
+						allAxis[index++]=state.rAxis[i].y;
+					}
 					bool isTrigger = (state.ulButtonPressed&trigger) != 0;
 					if (isTrigger)
 					{
@@ -818,31 +832,15 @@ bool CMainApplication::HandleInput()
 						if ((sPrevStates[unDevice].ulButtonPressed&trigger)==0)
 						{
 //							printf("Device PRESSED: %d, button %d\n", unDevice, button);
-							if (button==2)
-							{
-								//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-
-								///todo(erwincoumans) can't use reguar debug drawer, because physics/graphics are not in sync
-								///so it can (and likely will) cause crashes
-								///add a special debug drawer that deals with this
-									//gDebugDrawFlags = btIDebugDraw::DBG_DrawWireframe+btIDebugDraw::DBG_DrawContactPoints+
-									//btIDebugDraw::DBG_DrawConstraintLimits+
-									//btIDebugDraw::DBG_DrawConstraints
-									//;
-								//gDebugDrawFlags = btIDebugDraw::DBG_DrawFrames;
-									
-
-
-							}
-
 							sExample->vrControllerButtonCallback(unDevice, button, 1, pos, orn);
 
 						}
 						else
 						{
 							
+							
 //							printf("Device MOVED: %d\n", unDevice);
-							sExample->vrControllerMoveCallback(unDevice, pos, orn, state.rAxis[1].x);
+							sExample->vrControllerMoveCallback(unDevice, pos, orn, state.rAxis[1].x, allAxis);
 						}
 					}
 					else
@@ -865,7 +863,7 @@ bool CMainApplication::HandleInput()
 							} else
 							{
 
-								sExample->vrControllerMoveCallback(unDevice, pos, orn, state.rAxis[1].x);
+								sExample->vrControllerMoveCallback(unDevice, pos, orn, state.rAxis[1].x,allAxis);
 							}
 						}
 					}
@@ -890,6 +888,7 @@ void CMainApplication::RunMainLoop()
 
 	while ( !bQuit && !m_app->m_window->requestedExit())
 	{
+		this->m_app->setUpAxis(gUpAxis);
 		b3ChromeUtilsEnableProfiling();
 		if (gEnableVRRendering)
 		{
@@ -1007,7 +1006,7 @@ void CMainApplication::RenderFrame()
 		// We want to make sure the glFinish waits for the entire present to complete, not just the submission
 		// of the command. So, we do a clear here right here so the glFinish will wait fully for the swap.
 		glClearColor( 0, 0, 0, 1 );
-		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+		//glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	}
 
 	// Flush and wait for swap.
@@ -1281,9 +1280,13 @@ bool CMainApplication::SetupTexturemaps()
 
 #ifdef WIN32
 	GLfloat fLargest;
-	
+#ifdef B3_USE_GLFW
+	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &fLargest);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, fLargest);
+#else
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest);
+#endif
 #endif	
 	glBindTexture( GL_TEXTURE_2D, 0 );
 
@@ -1804,6 +1807,8 @@ void CMainApplication::RenderStereoTargets()
 		m_app->m_instancingRenderer->getActiveCamera()->setCameraUpVector(mat[0],mat[1],mat[2]);
 		m_app->m_instancingRenderer->getActiveCamera()->setVRCamera(viewMatLeft.get(),m_mat4ProjectionLeft.get());
 		m_app->m_instancingRenderer->updateCamera(m_app->getUpAxis());
+		m_app->m_instancingRenderer->getActiveCamera()->setVRCamera(viewMatLeft.get(),m_mat4ProjectionLeft.get());
+
 	}
 
 	glBindFramebuffer( GL_FRAMEBUFFER, leftEyeDesc.m_nRenderFramebufferId );
@@ -1862,6 +1867,7 @@ void CMainApplication::RenderStereoTargets()
 		Matrix4 viewMatRight = m_mat4eyePosRight * m_mat4HMDPose * rotYtoZ;
 		m_app->m_instancingRenderer->getActiveCamera()->setVRCamera(viewMatRight.get(),m_mat4ProjectionRight.get());
 		m_app->m_instancingRenderer->updateCamera(m_app->getUpAxis());
+		m_app->m_instancingRenderer->getActiveCamera()->setVRCamera(viewMatRight.get(),m_mat4ProjectionRight.get());
 	}
 	
 	glBindFramebuffer( GL_FRAMEBUFFER, rightEyeDesc.m_nRenderFramebufferId );
@@ -1908,7 +1914,7 @@ void CMainApplication::RenderScene( vr::Hmd_Eye nEye )
 {
 	B3_PROFILE("RenderScene");
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 
 	if( m_bShowCubes )
@@ -2295,9 +2301,14 @@ bool CGLRenderModel::BInit( const vr::RenderModel_t & vrModel, const vr::RenderM
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
 #ifdef _WIN32
 	GLfloat fLargest;
+#ifdef B3_USE_GLFW
+	glGetFloatv( GL_MAX_TEXTURE_MAX_ANISOTROPY, &fLargest );
+	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, fLargest );
+#else
 	glGetFloatv( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest );
 	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest );
-#endif
+#endif //B3_USE_GLFW
+#endif//_WIN32
 	glBindTexture( GL_TEXTURE_2D, 0 );
 
 	m_unVertexCount = vrModel.unTriangleCount * 3;
@@ -2388,6 +2399,7 @@ int main(int argc, char *argv[])
     if (gVideoFileName)
         pMainApplication->getApp()->dumpFramesToVideo(gVideoFileName);
 
+#ifndef B3_USE_GLFW
 #ifdef _WIN32 
 	//request disable VSYNC
 	typedef bool (APIENTRY *PFNWGLSWAPINTERVALFARPROC)(int);
@@ -2397,7 +2409,7 @@ int main(int argc, char *argv[])
 	if (wglSwapIntervalEXT)
 		wglSwapIntervalEXT(0);
 #endif
-
+#endif
 #ifdef __APPLE__
 	GLint                       sync = 0;
 	CGLContextObj               ctx = CGLGetCurrentContext();

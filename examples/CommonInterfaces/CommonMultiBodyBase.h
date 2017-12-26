@@ -233,6 +233,19 @@ struct CommonMultiBodyBase : public CommonExampleInterface
 
 	virtual bool	keyboardCallback(int key, int state)
 	{
+		if ((key==B3G_F3) && state && m_dynamicsWorld)
+		{
+			btDefaultSerializer*	serializer = new btDefaultSerializer();
+			m_dynamicsWorld->serialize(serializer);
+
+			FILE* file = fopen("testFile.bullet","wb");
+			fwrite(serializer->getBufferPointer(),serializer->getCurrentBufferSize(),1, file);
+			fclose(file);
+			//b3Printf("btDefaultSerializer wrote testFile.bullet");
+			delete serializer;
+			return true;
+
+		}
 		return false;//don't handle this key
 	}
 

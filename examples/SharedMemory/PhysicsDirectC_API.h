@@ -9,7 +9,7 @@ extern "C" {
 
 
 ///think more about naming. Directly execute commands without transport (no shared memory, UDP, socket, grpc etc)
-b3PhysicsClientHandle b3ConnectPhysicsDirect();
+B3_SHARED_API	b3PhysicsClientHandle b3ConnectPhysicsDirect();
 
     
 #ifdef __cplusplus

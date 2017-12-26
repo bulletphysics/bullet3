@@ -45,7 +45,7 @@ const Matrix4x4 Matrix4x4::Identity(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
 
 double VectorR4::MaxAbs() const
 {
-	register double m;
+	 double m;
 	m = (x>0.0) ? x : -x;
 	if ( y>m ) m=y;
 	else if ( -y >m ) m = -y;
@@ -99,7 +99,7 @@ void Matrix4x4::operator*= (const Matrix4x4& B)	// Matrix product
 
 inline void ReNormalizeHelper ( double &a, double &b, double &c, double &d )
 {
-	register double scaleF = a*a+b*b+c*c+d*d;		// Inner product of Vector-R4
+	 double scaleF = a*a+b*b+c*c+d*d;		// Inner product of Vector-R4
 	scaleF = 1.0-0.5*(scaleF-1.0);
 	a *= scaleF;
 	b *= scaleF;
@@ -212,7 +212,7 @@ LinearMapR4 LinearMapR4::Inverse() const			// Returns inverse
 	double sd44 = m11*Tbt23C23 - m12*Tbt23C13 + m13*Tbt23C12;
 
 
-	register double detInv = 1.0/(m11*sd11 - m12*sd12 + m13*sd13 - m14*sd14);
+	 double detInv = 1.0/(m11*sd11 - m12*sd12 + m13*sd13 - m14*sd14);
 
 	return( LinearMapR4( sd11*detInv, -sd12*detInv, sd13*detInv, -sd14*detInv,
 						 -sd21*detInv, sd22*detInv, -sd23*detInv, sd24*detInv,
@@ -258,7 +258,7 @@ LinearMapR4& LinearMapR4::Invert() 			// Converts into inverse.
 	double sd43 = m11*Tbt23C24 - m12*Tbt23C14 + m14*Tbt23C12;
 	double sd44 = m11*Tbt23C23 - m12*Tbt23C13 + m13*Tbt23C12;
 
-	register double detInv = 1.0/(m11*sd11 - m12*sd12 + m13*sd13 - m14*sd14);
+	 double detInv = 1.0/(m11*sd11 - m12*sd12 + m13*sd13 - m14*sd14);
 
 	m11 = sd11*detInv;
 	m12 = -sd21*detInv;

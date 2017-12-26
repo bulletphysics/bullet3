@@ -17,6 +17,10 @@ struct CachedObjResult
 static b3HashMap<b3HashString, CachedObjResult> gCachedObjResults;
 static int gEnableFileCaching = 1;
 
+int b3IsFileCachingEnabled()
+{
+	return gEnableFileCaching;
+}
 void b3EnableFileCaching(int enable)
 {
 	gEnableFileCaching  = enable;

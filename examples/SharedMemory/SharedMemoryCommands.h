@@ -1,4 +1,3 @@
-
 #ifndef SHARED_MEMORY_COMMANDS_H
 #define SHARED_MEMORY_COMMANDS_H
 
@@ -33,7 +32,6 @@
 #define MAX_SDF_FILENAME_LENGTH 1024
 #define MAX_FILENAME_LENGTH MAX_URDF_FILENAME_LENGTH
 #define MAX_NUM_LINKS MAX_DEGREE_OF_FREEDOM
-#define MAX_SDF_BODIES 512
 
 struct TmpFloat3 
 {
@@ -105,6 +103,35 @@ struct MjcfArgs
 	int m_flags;
 };
 
+struct b3SearchPathfArgs
+{
+	char m_path[MAX_FILENAME_LENGTH];
+};
+
+enum CustomCommandEnum
+{
+	CMD_CUSTOM_COMMAND_LOAD_PLUGIN=1,
+	CMD_CUSTOM_COMMAND_UNLOAD_PLUGIN=2,
+	CMD_CUSTOM_COMMAND_EXECUTE_PLUGIN_COMMAND=4,
+	CMD_CUSTOM_COMMAND_LOAD_PLUGIN_POSTFIX=8,
+};
+
+struct b3CustomCommand
+{
+	int m_pluginUniqueId;
+	b3PluginArguments m_arguments;
+	char m_pluginPath[MAX_FILENAME_LENGTH];
+	char m_postFix[MAX_FILENAME_LENGTH];
+
+};
+
+struct b3CustomCommandResultArgs
+{
+	int m_pluginUniqueId;
+	int m_executeCommandResult;
+
+};
+
 struct BulletDataStreamArgs
 {
 	char m_bulletFileName[MAX_FILENAME_LENGTH];
@@ -124,6 +151,7 @@ enum EnumChangeDynamicsInfoFlags
 	CHANGE_DYNAMICS_INFO_SET_ANGULAR_DAMPING=128,
 	CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING=256,
 	CHANGE_DYNAMICS_INFO_SET_FRICTION_ANCHOR = 512,
+	CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL = 1024,
 
 };
 
@@ -141,6 +169,7 @@ struct ChangeDynamicsInfoArgs
 	double m_angularDamping;
 	double m_contactStiffness;
 	double m_contactDamping;
+	double m_localInertiaDiagonal[3];
 	int m_frictionAnchor;
 };
 
@@ -331,10 +360,11 @@ struct SendDesiredStateArgs
 {
 	int m_bodyUniqueId;
 	int m_controlMode;
-
+	
 	//PD parameters in case m_controlMode == CONTROL_MODE_POSITION_VELOCITY_PD
 	double m_Kp[MAX_DEGREE_OF_FREEDOM];//indexed by degree of freedom, 6 for base, and then the dofs for each link
 	double m_Kd[MAX_DEGREE_OF_FREEDOM];//indexed by degree of freedom, 6 for base, and then the dofs for each link
+	double m_rhsClamp[MAX_DEGREE_OF_FREEDOM];
 
     int m_hasDesiredStateFlags[MAX_DEGREE_OF_FREEDOM];
     
@@ -362,8 +392,11 @@ enum EnumSimDesiredStateUpdateFlags
 	SIM_DESIRED_STATE_HAS_KD=4,
 	SIM_DESIRED_STATE_HAS_KP=8,
 	SIM_DESIRED_STATE_HAS_MAX_FORCE=16,
+	SIM_DESIRED_STATE_HAS_RHS_CLAMP=32
 };
 
+
+	
 
 enum EnumSimParamUpdateFlags
 {
@@ -378,7 +411,7 @@ enum EnumSimParamUpdateFlags
 	SIM_PARAM_UPDATE_SPLIT_IMPULSE_PENETRATION_THRESHOLD = 256,
 	SIM_PARAM_UPDATE_COLLISION_FILTER_MODE=512,
 	SIM_PARAM_UPDATE_CONTACT_BREAKING_THRESHOLD = 1024,
-	SIM_PARAM_MAX_CMD_PER_1MS = 2048,
+	SIM_PARAM_ENABLE_CONE_FRICTION = 2048,
 	SIM_PARAM_ENABLE_FILE_CACHING = 4096,
 	SIM_PARAM_UPDATE_RESTITUTION_VELOCITY_THRESHOLD = 8192,
 	SIM_PARAM_UPDATE_DEFAULT_NON_CONTACT_ERP=16384,
@@ -400,25 +433,6 @@ enum EnumSimParamInternalSimFlags
 
 ///Controlling a robot involves sending the desired state to its joint motor controllers.
 ///The control mode determines the state variables used for motor control.
-struct SendPhysicsSimulationParameters
-{
-	double m_deltaTime;
-	double m_gravityAcceleration[3];
-	int m_numSimulationSubSteps;
-	int m_numSolverIterations;
-	bool m_allowRealTimeSimulation;
-	int m_useSplitImpulse;
-	double m_splitImpulsePenetrationThreshold;
-	double m_contactBreakingThreshold;
-	int m_maxNumCmdPer1ms;
-	int m_internalSimFlags;
-	double m_defaultContactERP;
-	int m_collisionFilterMode;
-	int m_enableFileCaching;
-	double m_restitutionVelocityThreshold;
-	double 	m_defaultNonContactERP;
-	double m_frictionERP;
-};
 
 struct LoadBunnyArgs
 {
@@ -613,13 +627,15 @@ struct CalculateJacobianResultArgs
     double m_angularJacobian[3*MAX_DEGREE_OF_FREEDOM];
 };
 
-enum EnumCalculateInverseKinematicsFlags
+struct CalculateMassMatrixArgs
 {
-    IK_HAS_TARGET_POSITION=1,
-	IK_HAS_TARGET_ORIENTATION=2,
-    IK_HAS_NULL_SPACE_VELOCITY=4,
-    IK_HAS_JOINT_DAMPING=8,
-    //IK_HAS_CURRENT_JOINT_POSITIONS=16,//not used yet
+	int m_bodyUniqueId;
+	double m_jointPositionsQ[MAX_DEGREE_OF_FREEDOM];
+};
+
+struct CalculateMassMatrixResultArgs
+{
+	int m_dofCount;
 };
 
 struct CalculateInverseKinematicsArgs
@@ -653,8 +669,10 @@ enum EnumUserConstraintFlags
 	USER_CONSTRAINT_CHANGE_MAX_FORCE=32,
 	USER_CONSTRAINT_REQUEST_INFO=64,
 	USER_CONSTRAINT_CHANGE_GEAR_RATIO=128,	
-	USER_CONSTRAINT_CHANGE_GEAR_AUX_LINK=256,	
-
+	USER_CONSTRAINT_CHANGE_GEAR_AUX_LINK=256,
+	USER_CONSTRAINT_CHANGE_RELATIVE_POSITION_TARGET=512,
+	USER_CONSTRAINT_CHANGE_ERP=1024,
+	USER_CONSTRAINT_REQUEST_STATE=2048,
 };
 
 enum EnumBodyChangeFlags
@@ -678,7 +696,7 @@ enum EnumUserDebugDrawFlags
 	USER_DEBUG_HAS_OPTION_FLAGS=256,
 	USER_DEBUG_HAS_TEXT_ORIENTATION = 512,
 	USER_DEBUG_HAS_PARENT_OBJECT=1024,
-
+	USER_DEBUG_HAS_REPLACE_ITEM_UNIQUE_ID=2048,
 };
 
 struct UserDebugDrawArgs
@@ -699,7 +717,7 @@ struct UserDebugDrawArgs
 	double m_textColorRGB[3];
 	double m_textSize;
 	int m_optionFlags;
-
+	int m_replaceItemUniqueId;
 
 	double m_rangeMin;
 	double m_rangeMax;
@@ -755,7 +773,8 @@ enum eStateLoggingEnums
 	STATE_LOGGING_FILTER_LINK_INDEX_B=32,
 	STATE_LOGGING_FILTER_BODY_UNIQUE_ID_A=64,
 	STATE_LOGGING_FILTER_BODY_UNIQUE_ID_B=128,
-	STATE_LOGGING_FILTER_DEVICE_TYPE=256
+	STATE_LOGGING_FILTER_DEVICE_TYPE=256,
+	STATE_LOGGING_LOG_FLAGS=512
 };
 
 struct VRCameraState
@@ -781,6 +800,7 @@ struct StateLoggingRequest
 	int m_bodyUniqueIdA; // only if STATE_LOGGING_FILTER_BODY_UNIQUE_ID_A flag is set
 	int m_bodyUniqueIdB; // only if STATE_LOGGING_FILTER_BODY_UNIQUE_ID_B flag is set
 	int m_deviceFilterType; //user to select (filter) which VR devices to log
+	int m_logFlags;
 };
 
 struct StateLoggingResultArgs
@@ -810,7 +830,7 @@ enum
 	URDF_GEOM_HAS_RADIUS = 1,
 };
 
-struct b3CreateCollisionShape
+struct b3CreateUserShapeData
 {
 	int m_type;//see UrdfGeomTypes	
 
@@ -832,22 +852,26 @@ struct b3CreateCollisionShape
 	char		m_meshFileName[VISUAL_SHAPE_MAX_PATH_LEN];
 	double		m_meshScale[3];
 	int			m_collisionFlags;
+	int			m_visualFlags;
+
+	double		m_rgbaColor[4];
+	double		m_specularColor[3];
 
 };
 
 #define MAX_COMPOUND_COLLISION_SHAPES 16
 
-struct b3CreateCollisionShapeArgs
+struct b3CreateUserShapeArgs
 {
-	int m_numCollisionShapes;
-	b3CreateCollisionShape m_shapes[MAX_COMPOUND_COLLISION_SHAPES];
+	int m_numUserShapes;
+	b3CreateUserShapeData m_shapes[MAX_COMPOUND_COLLISION_SHAPES];
 };
 
-
-struct b3CreateVisualShapeArgs
+struct b3CreateUserShapeResultArgs
 {
-	int m_visualShapeUniqueId;
+	int m_userShapeUniqueId;
 };
+
 
 #define MAX_CREATE_MULTI_BODY_LINKS 128
 enum eCreateMultiBodyEnum
@@ -886,16 +910,6 @@ struct b3CreateMultiBodyArgs
 	#endif
 };
 
-struct b3CreateCollisionShapeResultArgs
-{
-	int m_collisionShapeUniqueId;
-};
-
-struct b3CreateVisualShapeResultArgs
-{
-	int m_visualShapeUniqueId;
-};
-
 struct b3CreateMultiBodyResultArgs
 {
 	int m_bodyUniqueId;
@@ -928,7 +942,7 @@ struct SharedMemoryCommand
 		struct ChangeDynamicsInfoArgs m_changeDynamicsInfoArgs;
 		struct GetDynamicsInfoArgs m_getDynamicsInfoArgs;
 		struct InitPoseArgs m_initPoseArgs;
-		struct SendPhysicsSimulationParameters m_physSimParamArgs;
+		struct b3PhysicsSimulationParameters m_physSimParamArgs;
 		struct BulletDataStreamArgs	m_dataStreamArguments;
 		struct SendDesiredStateArgs m_sendDesiredStateCommandArgument;
 		struct RequestActualStateArgs m_requestActualStateInformationCommandArgument;
@@ -940,6 +954,7 @@ struct SharedMemoryCommand
         struct ExternalForceArgs m_externalForceArguments;
 		struct CalculateInverseDynamicsArgs m_calculateInverseDynamicsArguments;
         struct CalculateJacobianArgs m_calculateJacobianArguments;
+        struct CalculateMassMatrixArgs m_calculateMassMatrixArguments;
         struct b3UserConstraint m_userConstraintArguments;
         struct RequestContactDataArgs m_requestContactPointArguments;
 		struct RequestOverlappingObjectsArgs m_requestOverlappingObjectsArgs;
@@ -955,11 +970,12 @@ struct SharedMemoryCommand
         struct ConfigureOpenGLVisualizerRequest m_configureOpenGLVisualizerArguments;
 		struct b3ObjectArgs m_removeObjectArgs;
 		struct b3Profile m_profile;
-		struct b3CreateCollisionShapeArgs m_createCollisionShapeArgs;
-		struct b3CreateVisualShapeArgs m_createVisualShapeArgs;
+		struct b3CreateUserShapeArgs m_createUserShapeArgs;
 		struct b3CreateMultiBodyArgs m_createMultiBodyArgs;
 		struct b3RequestCollisionInfoArgs m_requestCollisionInfoArgs;
 		struct b3ChangeTextureArgs m_changeTextureArgs;
+		struct b3SearchPathfArgs m_searchPathArgs;
+		struct b3CustomCommand m_customCommandArgs;
     };
 };
 
@@ -1012,12 +1028,14 @@ struct SharedMemoryStatus
 		struct RigidBodyCreateArgs m_rigidBodyCreateArgs;
 		struct CalculateInverseDynamicsResultArgs m_inverseDynamicsResultArgs;
         struct CalculateJacobianResultArgs m_jacobianResultArgs;
+        struct CalculateMassMatrixResultArgs m_massMatrixResultArgs;
 		struct SendContactDataArgs m_sendContactPointArgs;
 		struct SendOverlappingObjectsArgs m_sendOverlappingObjectsArgs;
 		struct CalculateInverseKinematicsResultArgs m_inverseKinematicsResultArgs;
 		struct SendVisualShapeDataArgs m_sendVisualShapeArgs;
 		struct UserDebugDrawResultArgs m_userDebugDrawArgs;
 		struct b3UserConstraint m_userConstraintResultArgs;
+		struct b3UserConstraintState m_userConstraintStateResultArgs;
 		struct SendVREvents m_sendVREvents;
 		struct SendKeyboardEvents m_sendKeyboardEvents;
 		struct SendRaycastHits m_raycastHits;
@@ -1025,13 +1043,13 @@ struct SharedMemoryStatus
 		struct b3OpenGLVisualizerCameraInfo m_visualizerCameraResultArgs;
 		struct b3ObjectArgs m_removeObjectArgs;
 		struct b3DynamicsInfo m_dynamicsInfo;
-		struct b3CreateCollisionShapeResultArgs m_createCollisionShapeResultArgs;
-		struct b3CreateVisualShapeResultArgs m_createVisualShapeResultArgs;
+		struct b3CreateUserShapeResultArgs m_createUserShapeResultArgs;
 		struct b3CreateMultiBodyResultArgs m_createMultiBodyResultArgs;
 		struct b3SendCollisionInfoArgs m_sendCollisionInfoArgs;
 		struct SendMouseEvents m_sendMouseEvents;
 		struct b3LoadTextureResultArgs m_loadTextureResultArguments;
-
+		struct b3CustomCommandResultArgs m_customCommandResultArgs;
+		struct b3PhysicsSimulationParameters m_simulationParameterResultArgs;
 	};
 };
 

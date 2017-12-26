@@ -115,6 +115,7 @@ public:
 
 
 #define BT_MULTIBODY_CODE       BT_MAKE_ID('M','B','D','Y')
+#define BT_MB_LINKCOLLIDER_CODE BT_MAKE_ID('M','B','L','C')
 #define BT_SOFTBODY_CODE		BT_MAKE_ID('S','B','D','Y')
 #define BT_COLLISIONOBJECT_CODE BT_MAKE_ID('C','O','B','J')
 #define BT_RIGIDBODY_CODE		BT_MAKE_ID('R','B','D','Y')
@@ -505,7 +506,7 @@ public:
 
 			buffer[9] = '2';
 			buffer[10] = '8';
-			buffer[11] = '7';
+			buffer[11] = '8';
 
 		}
 

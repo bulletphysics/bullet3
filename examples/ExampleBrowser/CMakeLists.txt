@@ -122,6 +122,8 @@ SET(ExtendedTutorialsSources
 	../ExtendedTutorials/SimpleBox.h
 	../ExtendedTutorials/MultipleBoxes.cpp
 	../ExtendedTutorials/MultipleBoxes.h
+	../ExtendedTutorials/CompoundBoxes.cpp
+	../ExtendedTutorials/CompoundBoxes.h
 	../ExtendedTutorials/SimpleCloth.cpp
 	../ExtendedTutorials/SimpleCloth.h
 	../ExtendedTutorials/SimpleJoint.cpp
@@ -171,6 +173,7 @@ SET(BulletExampleBrowser_SRCS
 	../SharedMemory/PhysicsServerCommandProcessor.h
 	../SharedMemory/SharedMemoryCommands.h
 	../SharedMemory/SharedMemoryPublic.h
+	../SharedMemory/b3PluginManager.cpp
 	../RobotSimulator/b3RobotSimulatorClientAPI.cpp
 	../RobotSimulator/b3RobotSimulatorClientAPI.h
 	../BasicDemo/BasicExample.cpp
@@ -256,6 +259,7 @@ SET(BulletExampleBrowser_SRCS
 	../Importers/ImportMeshUtility/b3ImportMeshUtility.cpp
 ../Importers/ImportMeshUtility/b3ImportMeshUtility.h
 	../../Extras/Serialize/BulletWorldImporter/btWorldImporter.cpp
+	../../Extras/Serialize/BulletWorldImporter/btMultiBodyWorldImporter.cpp
 	../../Extras/Serialize/BulletWorldImporter/btBulletWorldImporter.cpp
 	../../Extras/Serialize/BulletFileLoader/bChunk.cpp		
 	../../Extras/Serialize/BulletFileLoader/bFile.cpp

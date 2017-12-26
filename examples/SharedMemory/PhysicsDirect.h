@@ -99,6 +99,8 @@ public:
 
 	virtual void getCachedRaycastHits(struct b3RaycastInformation* raycastHits);
 
+	virtual void getCachedMassMatrix(int dofCountCheck, double* massMatrix);
+
 	//the following APIs are for internal use for visualization:
 	virtual bool connect(struct GUIHelperInterface* guiHelper);
 	virtual void renderScene();

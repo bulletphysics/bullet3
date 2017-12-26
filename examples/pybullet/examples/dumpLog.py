@@ -31,29 +31,35 @@ def readLogFile(filename, verbose = True):
     print('Columns:'),
     print(ncols)
 
-  # Read data
-  wholeFile = f.read()
-  # split by alignment word
-  chunks = wholeFile.split(b'\xaa\xbb')
+  lenChunk = sz
   log = list()
-  if verbose:
-  	print("num chunks:")
-  	print(len(chunks))
   chunkIndex = 0
-  for chunk in chunks:
-    print("len(chunk)=",len(chunk)," sz = ", sz)
-    if len(chunk) == sz:
-      print("chunk #",chunkIndex)
-      chunkIndex=chunkIndex+1
-      values = struct.unpack(fmt, chunk)
-      record = list()
-      for i in range(ncols):
-        record.append(values[i])
-        if verbose:
-        	print("    ",keys[i],"=",values[i])
-
-      log.append(record)
-
+  while (lenChunk):
+    check = f.read(2)
+    lenChunk = 0
+    if (check == b'\xaa\xbb'):
+      mychunk = f.read(sz)
+      lenChunk = len(mychunk)
+      chunks = [mychunk]
+      if verbose:
+        print("num chunks:")
+        print(len(chunks))
+      
+      for chunk in chunks:
+        print("len(chunk)=",len(chunk)," sz = ", sz)
+        if len(chunk) == sz:
+          print("chunk #",chunkIndex)
+          chunkIndex=chunkIndex+1
+          values = struct.unpack(fmt, chunk)
+          record = list()
+          for i in range(ncols):
+            record.append(values[i])
+            if verbose:
+              print("    ",keys[i],"=",values[i])
+    
+          log.append(record)
+    else:
+      print("Error, expected aabb terminal")
   return log
 
 
@@ -64,11 +70,11 @@ print ('Argument List:', str(sys.argv))
 fileName = "log.bin"
 
 if (numArgs>1):
-	fileName = sys.argv[1]
+  fileName = sys.argv[1]
 
 print("filename=")
 print(fileName)
 
 verbose = True
-	
+  
 readLogFile(fileName,verbose)

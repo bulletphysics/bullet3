@@ -28,7 +28,7 @@ struct TestCanvasInterface2 : public Common2dCanvasInterface
 
 	virtual ~TestCanvasInterface2() 
 	{}
-	virtual int createCanvas(const char* canvasName, int width, int height)
+	virtual int createCanvas(const char* canvasName, int width, int height,int posX,int posY)
 	{
 		return 0;
 	}
@@ -168,7 +168,10 @@ bool TinyVRGui::init()
                 
 						
 				delete meshData.m_gfxShape;
-				delete meshData.m_textureImage;
+				if (!meshData.m_isCached)
+				{
+					free(meshData.m_textureImage1);
+				}
 			}
 				
 			

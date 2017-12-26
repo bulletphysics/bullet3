@@ -27,7 +27,9 @@ int btMultiBodyTreeCreator::createFromBtMultiBody(const btMultiBody *btmb, const
         } else {
             link.joint_type = FLOATING;
         }
-        btTransform transform(btmb->getBaseWorldTransform());
+		btTransform transform=(btmb->getBaseWorldTransform());
+		//compute inverse dynamics in body-fixed frame
+		transform.setIdentity();
 
         link.parent_r_parent_body_ref(0) = transform.getOrigin()[0];
         link.parent_r_parent_body_ref(1) = transform.getOrigin()[1];

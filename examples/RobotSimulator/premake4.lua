@@ -20,6 +20,8 @@ myfiles =
 			"../../examples/SharedMemory/PhysicsDirectC_API.h",
 			"../../examples/SharedMemory/PhysicsServerCommandProcessor.cpp",
 			"../../examples/SharedMemory/PhysicsServerCommandProcessor.h",
+			"../../examples/SharedMemory/b3PluginManager.cpp",
+
 			"../../examples/SharedMemory/PhysicsClientSharedMemory.cpp",
 			"../../examples/SharedMemory/PhysicsClientSharedMemory.h",
 			"../../examples/SharedMemory/PhysicsClientSharedMemory_C_API.cpp",
@@ -195,6 +197,11 @@ if not _OPTIONS["no-enet"] then
 			"MinitaurSetup.h",
 			myfiles
 		}
+
+if (_OPTIONS["enable_static_vr_plugin"]) then
+	files {"../../examples/SharedMemory/plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
+
 	if os.is("Linux") then
        		initX11()
 	end
@@ -278,6 +285,11 @@ project ("App_VRGloveHandSimulator")
 			"b3RobotSimulatorClientAPI.h",
 			myfiles
 		}
+
+if (_OPTIONS["enable_static_vr_plugin"]) then
+	files {"../../examples/SharedMemory/plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
+end
+
 	if os.is("Linux") then
        		initX11()
 	end

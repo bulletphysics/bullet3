@@ -3,7 +3,8 @@
 #include <fstream>
 #include <sstream>
 #include "model.h"
-
+#include "Bullet3Common/b3Logging.h"
+#include <string.h> // memcpy
 Model::Model(const char *filename) : verts_(), faces_(), norms_(), uv_(), diffusemap_(), normalmap_(), specularmap_() {
     std::ifstream in;
     in.open (filename, std::ifstream::in);
@@ -51,24 +52,22 @@ Model::Model():verts_(), faces_(), norms_(), uv_(), diffusemap_(), normalmap_(),
 
 void Model::setDiffuseTextureFromData(unsigned char* textureImage,int textureWidth,int textureHeight)
 {
-	diffusemap_ = TGAImage(textureWidth, textureHeight, TGAImage::RGB);
-	for (int i=0;i<textureWidth;i++)
 	{
-		for (int j=0;j<textureHeight;j++)
-		{
-			TGAColor color;
-            color.bgra[0] = textureImage[(i+j*textureWidth)*3+0];
-            color.bgra[1] = textureImage[(i+j*textureWidth)*3+1];
-            color.bgra[2] = textureImage[(i+j*textureWidth)*3+2];
-			color.bgra[3] = 255;
-
-			color.bytespp = 3;
-			diffusemap_.set(i,j,color);
-			
-		}
+		B3_PROFILE("new TGAImage");
+		diffusemap_ = TGAImage(textureWidth, textureHeight, TGAImage::RGB);
 	}
-	
-	diffusemap_.flip_vertically();
+	TGAColor color;
+	color.bgra[3] = 255;
+
+	color.bytespp = 3;
+	{
+		B3_PROFILE("copy texels");
+		memcpy(diffusemap_.buffer(), textureImage, textureHeight*textureWidth * 3);
+	}
+	{
+		B3_PROFILE("flip_vertically");
+		diffusemap_.flip_vertically();
+	}
 }
 
 void Model::loadDiffuseTexture(const char* relativeFileName)

@@ -83,18 +83,18 @@ public:
     
 };
 
-b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectMainThread(int argc, char* argv[])
+B3_SHARED_API b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectMainThread(int argc, char* argv[])
 {
     InProcessPhysicsClientSharedMemoryMainThread* cl = new InProcessPhysicsClientSharedMemoryMainThread(argc, argv, 1);
-    cl->setSharedMemoryKey(SHARED_MEMORY_KEY);
+    cl->setSharedMemoryKey(SHARED_MEMORY_KEY+1);
     cl->connect();
     return (b3PhysicsClientHandle ) cl;
 }
 
-b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectMainThreadSharedMemory(int argc, char* argv[])
+B3_SHARED_API	b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectMainThreadSharedMemory(int argc, char* argv[])
 {
     InProcessPhysicsClientSharedMemoryMainThread* cl = new InProcessPhysicsClientSharedMemoryMainThread(argc, argv, 0);
-    cl->setSharedMemoryKey(SHARED_MEMORY_KEY);
+    cl->setSharedMemoryKey(SHARED_MEMORY_KEY+1);
     cl->connect();
     return (b3PhysicsClientHandle ) cl;
 }
@@ -133,7 +133,7 @@ public:
 
 };
 
-b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnect(int argc, char* argv[])
+B3_SHARED_API	b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnect(int argc, char* argv[])
 {	
 	
 	InProcessPhysicsClientSharedMemory* cl = new InProcessPhysicsClientSharedMemory(argc, argv, 1);
@@ -141,7 +141,7 @@ b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnect(int argc, char* a
     cl->connect();
 	return (b3PhysicsClientHandle ) cl;
 }
-b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectSharedMemory(int argc, char* argv[])
+B3_SHARED_API	b3PhysicsClientHandle b3CreateInProcessPhysicsServerAndConnectSharedMemory(int argc, char* argv[])
 {	
 	
 	InProcessPhysicsClientSharedMemory* cl = new InProcessPhysicsClientSharedMemory(argc, argv, 0);
@@ -184,7 +184,6 @@ public:
 	 // return non-null if there is a status, nullptr otherwise
     virtual const struct SharedMemoryStatus* processServerStatus()
     {
-		printf("updating graphics!\n");
 		m_physicsServerExample->updateGraphics();
 
 		unsigned long long int curTime = m_clock.getTimeMicroseconds();
@@ -249,7 +248,7 @@ int b3InProcessMouseButtonCallback(b3PhysicsClientHandle clientHandle, int butto
 }
 
 
-b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect(void* guiHelperPtr)
+B3_SHARED_API	b3PhysicsClientHandle b3CreateInProcessPhysicsServerFromExistingExampleBrowserAndConnect(void* guiHelperPtr)
 {
 	GUIHelperInterface* guiHelper = (GUIHelperInterface*) guiHelperPtr;
 	InProcessPhysicsClientExistingExampleBrowser* cl  = new InProcessPhysicsClientExistingExampleBrowser(guiHelper);
