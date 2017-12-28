@@ -149,8 +149,10 @@ bool btMultiBodyWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletF
 						bool disableParentCollision = true;//todo
 						mb->setupSpherical(i, mbd->m_links[i].m_linkMass, localInertiaDiagonal, mbd->m_links[i].m_parentIndex,
 							parentRotToThis, parentComToThisPivotOffset, thisPivotToThisComOffset, disableParentCollision);
-						mb->setJointPosMultiDof(i, mbd->m_links[i].m_jointPos);
-						mb->setJointVelMultiDof(i, mbd->m_links[i].m_jointVel);
+						btScalar jointPos[3] = { mbd->m_links[i].m_jointPos[0], mbd->m_links[i].m_jointPos[1], mbd->m_links[i].m_jointPos[2] };
+						btScalar jointVel[3] = { mbd->m_links[i].m_jointVel[0], mbd->m_links[i].m_jointVel[1], mbd->m_links[i].m_jointVel[2] };
+						mb->setJointPosMultiDof(i, jointPos);
+						mb->setJointVelMultiDof(i, jointVel);
 
 						break;
 					}
