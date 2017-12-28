@@ -358,9 +358,10 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 		char** argv=0;
 		if (options)
 		{
+			int i;
 			argv = urdfStrSplit(options, " ");
 			argc = urdfStrArrayLen(argv);
-			for (int i = 0; i < argc; i++)
+			for (i = 0; i < argc; i++)
 			{
 				printf("argv[%d]=%s\n", i, argv[i]);
 			}
