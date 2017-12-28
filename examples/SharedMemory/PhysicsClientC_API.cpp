@@ -2940,6 +2940,20 @@ B3_SHARED_API void b3RequestCameraImageSelectRenderer(b3SharedMemoryCommandHandl
 	}
 }
 
+B3_SHARED_API	void b3RequestCameraImageSetFlags(b3SharedMemoryCommandHandle commandHandle, int flags)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command);
+	b3Assert(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA);
+	if(command->m_type == CMD_REQUEST_CAMERA_IMAGE_DATA)
+	{
+		command->m_requestPixelDataArguments.m_flags = flags;
+		command->m_updateFlags |= REQUEST_PIXEL_ARGS_HAS_FLAGS;
+	}
+}
+
+
+
 B3_SHARED_API void b3RequestCameraImageSetCameraMatrices(b3SharedMemoryCommandHandle commandHandle, float viewMatrix[16], float projectionMatrix[16])
 {
 	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;

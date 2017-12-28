@@ -3017,7 +3017,12 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 			m_data->m_visualConverter.setWidthAndHeight(clientCmd.m_requestPixelDataArguments.m_pixelWidth,
 														clientCmd.m_requestPixelDataArguments.m_pixelHeight);
 	}
-
+	int flags = 0;
+	if (clientCmd.m_updateFlags&REQUEST_PIXEL_ARGS_HAS_FLAGS)
+	{
+		flags = clientCmd.m_requestPixelDataArguments.m_flags;
+	}
+	m_data->m_visualConverter.setFlags(flags);
 
 	int numTotalPixels = width*height;
 	int numRemainingPixels = numTotalPixels - startPixelIndex;

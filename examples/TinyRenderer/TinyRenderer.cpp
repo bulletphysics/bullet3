@@ -562,12 +562,12 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
 			{
 				for (int t=0;t<clippedTriangles.size();t++)
 				{
-					triangleClipped(clippedTriangles[t], shader.varying_tri, shader, frame, &zbuffer[0], segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex+((renderData.m_linkIndex+1)<<24));
+					triangleClipped(clippedTriangles[t], shader.varying_tri, shader, frame, &zbuffer[0], segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex+((renderData.m_linkIndex + 1) << 24));
 				}
 			}
 			else
 			{
-				triangle(shader.varying_tri, shader, frame, &zbuffer[0], segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex+((renderData.m_linkIndex+1)<<24));
+				triangle(shader.varying_tri, shader, frame, &zbuffer[0], segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex+((renderData.m_linkIndex + 1) << 24));
 			}
         }
 		}

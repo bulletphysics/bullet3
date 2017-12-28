@@ -43,6 +43,7 @@ struct TinyRendererVisualShapeConverter : public LinkVisualShapesConverter
     void setLightDiffuseCoeff(float diffuseCoeff);
     void setLightSpecularCoeff(float specularCoeff);
     void setShadow(bool hasShadow);
+	void setFlags(int flags);
 
     void copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels,int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,  int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied);
     

@@ -6046,16 +6046,16 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 	float lightAmbientCoeff = -1;
 	float lightDiffuseCoeff = -1;
 	float lightSpecularCoeff = -1;
-
+	int flags = -1;
 	int renderer = -1;
 	// inialize cmd
 	b3SharedMemoryCommandHandle command;
 	int physicsClientId = 0;
 	b3PhysicsClientHandle sm = 0;
 	// set camera resolution, optionally view, projection matrix, light direction, light color, light distance, shadow
-	static char* kwlist[] = {"width", "height", "viewMatrix", "projectionMatrix", "lightDirection", "lightColor", "lightDistance", "shadow", "lightAmbientCoeff", "lightDiffuseCoeff", "lightSpecularCoeff", "renderer", "physicsClientId", NULL};
+	static char* kwlist[] = {"width", "height", "viewMatrix", "projectionMatrix", "lightDirection", "lightColor", "lightDistance", "shadow", "lightAmbientCoeff", "lightDiffuseCoeff", "lightSpecularCoeff", "renderer", "flags", "physicsClientId", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|OOOOfifffii", kwlist, &width, &height, &objViewMat, &objProjMat, &lightDirObj, &lightColorObj, &lightDist, &hasShadow, &lightAmbientCoeff, &lightDiffuseCoeff, &lightSpecularCoeff, &renderer, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|OOOOfifffiii", kwlist, &width, &height, &objViewMat, &objProjMat, &lightDirObj, &lightColorObj, &lightDist, &hasShadow, &lightAmbientCoeff, &lightDiffuseCoeff, &lightSpecularCoeff, &renderer, &flags, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -6107,6 +6107,10 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 		b3RequestCameraImageSetLightSpecularCoeff(command, lightSpecularCoeff);
 	}
 
+	if (flags >= 0)
+	{
+		b3RequestCameraImageSetFlags(command, flags);
+	}
 	if (renderer>=0)
 	{
 		b3RequestCameraImageSelectRenderer(command, renderer);//renderer could be ER_BULLET_HARDWARE_OPENGL
@@ -8365,7 +8369,8 @@ initpybullet(void)
 
 	PyModule_AddIntConstant(m, "ER_TINY_RENDERER", ER_TINY_RENDERER);
 	PyModule_AddIntConstant(m, "ER_BULLET_HARDWARE_OPENGL", ER_BULLET_HARDWARE_OPENGL);
-	
+	PyModule_AddIntConstant(m, "ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX", ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX);
+
 	PyModule_AddIntConstant(m, "IK_DLS", IK_DLS);
 	PyModule_AddIntConstant(m, "IK_SDLS", IK_SDLS);
 	PyModule_AddIntConstant(m, "IK_HAS_TARGET_POSITION", IK_HAS_TARGET_POSITION);

@@ -940,7 +940,7 @@ void	PhysicsClientExample::stepSimulation(float deltaTime)
                                                         btVector4(32,255,255,255)};
                                 if (segmentationMask>=0)
                                 {
-									int obIndex = segmentationMask&(0x1e24-1);
+									int obIndex = segmentationMask&((1<<24)-1);
 									int linkIndex = (segmentationMask>>24)-1;
 									
 									btVector4 rgb = palette[(obIndex+linkIndex)&3];

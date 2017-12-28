@@ -9,21 +9,22 @@ for i in range (10):
 p.setGravity(0,0,-10)
 
 
-for i in range (500):
-	p.stepSimulation()
+#for i in range (500):
+#	p.stepSimulation()
+
+
+
+saveState = 1
+
+if saveState:
+	for i in range (500):
+		p.stepSimulation()
+	p.saveBullet("state.bullet")
+else:
+	p.restoreState(fileName="state.bullet")
 
 for i in range (10):
 	print("pos[",i,"]=",p.getBasePositionAndOrientation(i))
-
-#saveState = 0
-
-#if saveState:
-#	for i in range (500):
-#		p.stepSimulation()
-#	p.saveBullet("state.bullet")
-#else:
-#	p.restoreState(fileName="state.bullet")
-
-
+	
 while (p.getConnectionInfo()["isConnected"]):
 	time.sleep(1)

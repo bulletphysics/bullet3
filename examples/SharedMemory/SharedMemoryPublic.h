@@ -584,6 +584,10 @@ enum EnumRenderer
     //ER_FIRE_RAYS=(1<<18),
 };
 
+enum EnumRendererAuxFlags
+{
+	ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX=1,
+};
 ///flags to pick the IK solver and other options
 enum EnumCalculateInverseKinematicsFlags
 {

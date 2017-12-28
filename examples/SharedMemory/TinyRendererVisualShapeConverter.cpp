@@ -82,6 +82,7 @@ struct TinyRendererVisualShapeConverterInternalData
     float m_lightSpecularCoeff;
     bool m_hasLightSpecularCoeff;
     bool m_hasShadow;
+	int m_flags;
 	SimpleCamera m_camera;
 	
 	
@@ -102,7 +103,8 @@ struct TinyRendererVisualShapeConverterInternalData
     m_hasLightDiffuseCoeff(false),
 	m_lightSpecularCoeff(0.05),
     m_hasLightSpecularCoeff(false),
-	m_hasShadow(false)
+	m_hasShadow(false),
+	m_flags(0)
 	{
 	    m_depthBuffer.resize(m_swWidth*m_swHeight);
         m_shadowBuffer.resize(m_swWidth*m_swHeight);
@@ -154,6 +156,11 @@ void TinyRendererVisualShapeConverter::setShadow(bool hasShadow)
 {
     m_data->m_hasShadow = hasShadow;
 }
+void TinyRendererVisualShapeConverter::setFlags(int flags)
+{
+	m_data->m_flags = flags;
+}
+
 
 void TinyRendererVisualShapeConverter::setLightAmbientCoeff(float ambientCoeff)
 {
@@ -1043,7 +1050,17 @@ void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixels
 			}
 			if (segmentationMaskBuffer)
             {
-                segmentationMaskBuffer[i] = m_data->m_segmentationMaskBuffer[i+startPixelIndex];
+				int segMask = m_data->m_segmentationMaskBuffer[i + startPixelIndex];
+				if ((m_data->m_flags & ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX)==0)
+				{
+					//if we don't explicitly request link index, clear it out
+					//object index are the lower 24bits
+					if (segMask >= 0)
+					{
+						segMask &= ((1 << 24) - 1);
+					}
+				}
+				segmentationMaskBuffer[i] = segMask;
             }
 			
             if (pixelsRGBA)

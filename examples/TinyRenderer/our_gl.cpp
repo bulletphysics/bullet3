@@ -189,14 +189,7 @@ void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zb
                 zbuffer[P.x+P.y*image.get_width()] = frag_depth;
                 if (segmentationMaskBuffer)
                 {
-					if (objectAndLinkIndex)
-					{
-                    segmentationMaskBuffer[P.x+P.y*image.get_width()] = objectAndLinkIndex;
-					} else
-					{
-						segmentationMaskBuffer[P.x+P.y*image.get_width()] = 0;
-
-					}
+						segmentationMaskBuffer[P.x+P.y*image.get_width()] = objectAndLinkIndex;
                 }
                 image.set(P.x, P.y, color);
             }

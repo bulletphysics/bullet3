@@ -209,6 +209,9 @@ B3_SHARED_API	void b3RequestCameraImageSetLightDiffuseCoeff(b3SharedMemoryComman
 B3_SHARED_API	void b3RequestCameraImageSetLightSpecularCoeff(b3SharedMemoryCommandHandle commandHandle, float lightSpecularCoeff);
 B3_SHARED_API	void b3RequestCameraImageSetShadow(b3SharedMemoryCommandHandle commandHandle, int hasShadow);
 B3_SHARED_API	void b3RequestCameraImageSelectRenderer(b3SharedMemoryCommandHandle commandHandle, int renderer);
+B3_SHARED_API	void b3RequestCameraImageSetFlags(b3SharedMemoryCommandHandle commandHandle, int flags);
+
+
 B3_SHARED_API	void b3GetCameraImageData(b3PhysicsClientHandle physClient, struct b3CameraImageData* imageData);
 
 ///compute a view matrix, helper function for b3RequestCameraImageSetCameraMatrices
