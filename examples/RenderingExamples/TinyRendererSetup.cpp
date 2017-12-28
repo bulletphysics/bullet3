@@ -195,7 +195,7 @@ TinyRendererSetup::TinyRendererSetup(struct GUIHelperInterface* gui)
 					m_internalData->m_depthBuffer,
                     &m_internalData->m_shadowBuffer,
 					&m_internalData->m_segmentationMaskBuffer,
-					m_internalData->m_renderObjects.size());
+					m_internalData->m_renderObjects.size(), -1);
                 
                 meshData.m_gfxShape->m_scaling[0] = scaling[0];
                 meshData.m_gfxShape->m_scaling[1] = scaling[1];
