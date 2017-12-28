@@ -313,7 +313,16 @@ B3_SHARED_API int	b3LoadUrdfCommandSetGlobalScaling(b3SharedMemoryCommandHandle 
 
 
 
+
+B3_SHARED_API b3SharedMemoryCommandHandle b3SaveStateCommandInit(b3PhysicsClientHandle physClient);
+B3_SHARED_API int b3GetStatusGetStateId(b3SharedMemoryStatusHandle statusHandle);
+
+B3_SHARED_API	b3SharedMemoryCommandHandle	b3LoadStateCommandInit(b3PhysicsClientHandle physClient);
+B3_SHARED_API int	b3LoadStateSetStateId(b3SharedMemoryCommandHandle commandHandle, int stateId);
+B3_SHARED_API int	b3LoadStateSetFileName(b3SharedMemoryCommandHandle commandHandle, const char* fileName);
+
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3LoadBulletCommandInit(b3PhysicsClientHandle physClient, const char* fileName);
+
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3SaveBulletCommandInit(b3PhysicsClientHandle physClient, const char* fileName);
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3LoadMJCFCommandInit(b3PhysicsClientHandle physClient, const char* fileName);
 B3_SHARED_API	void b3LoadMJCFCommandSetFlags(b3SharedMemoryCommandHandle commandHandle, int flags);

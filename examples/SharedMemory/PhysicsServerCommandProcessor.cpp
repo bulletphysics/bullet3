@@ -8121,6 +8121,62 @@ bool PhysicsServerCommandProcessor::processLoadTextureCommand(const struct Share
 	return hasStatus;
 }
 
+bool PhysicsServerCommandProcessor::processRestoreStateCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	BT_PROFILE("CMD_RESTORE_STATE");
+	bool hasStatus = true;
+	SharedMemoryStatus& serverCmd = serverStatusOut;
+	serverCmd.m_type = CMD_RESTORE_STATE_FAILED;
+
+	btMultiBodyWorldImporter* importer = new btMultiBodyWorldImporter(m_data->m_dynamicsWorld);
+	importer->setImporterFlags(eRESTORE_EXISTING_OBJECTS);
+
+	bool ok = false;
+
+	if (clientCmd.m_loadStateArguments.m_stateId >= 0)
+	{
+		char* memoryBuffer = 0;
+		int len = 0;
+		ok = importer->loadFileFromMemory(memoryBuffer, len);
+	}
+	else
+	{
+		const char* prefix[] = { "", "./", "./data/", "../data/", "../../data/", "../../../data/", "../../../../data/" };
+		int numPrefixes = sizeof(prefix) / sizeof(const char*);
+		char relativeFileName[1024];
+		FILE* f = 0;
+		bool found = false;
+
+		for (int i = 0; !f && i<numPrefixes; i++)
+		{
+			sprintf(relativeFileName, "%s%s", prefix[i], clientCmd.m_fileArguments.m_fileName);
+			f = fopen(relativeFileName, "rb");
+			if (f)
+			{
+				found = true;
+				break;
+			}
+		}
+		if (f)
+		{
+			fclose(f);
+		}
+
+		if (found)
+		{
+			ok = importer->loadFile(relativeFileName);
+		}
+	}
+
+	if (ok)
+	{
+		serverCmd.m_type = CMD_RESTORE_STATE_COMPLETED;
+	}
+	
+
+	return hasStatus;
+}
+
 bool PhysicsServerCommandProcessor::processLoadBulletCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	BT_PROFILE("CMD_LOAD_BULLET");
@@ -8541,6 +8597,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 			hasStatus = processLoadTextureCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
+	case CMD_RESTORE_STATE:
+	{
+		hasStatus = processRestoreStateCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+		break;
+	}
+
 	case CMD_LOAD_BULLET:
 		{
 			hasStatus = processLoadBulletCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);

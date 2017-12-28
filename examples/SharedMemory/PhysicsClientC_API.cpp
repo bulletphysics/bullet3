@@ -107,6 +107,91 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3LoadBulletCommandInit(b3PhysicsClien
 	return 0;
 }
 
+
+B3_SHARED_API	b3SharedMemoryCommandHandle	b3LoadStateCommandInit(b3PhysicsClientHandle physClient)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+
+	if (cl->canSubmitCommand())
+	{
+		struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+		b3Assert(command);
+		command->m_type = CMD_RESTORE_STATE;
+		command->m_updateFlags = 0;
+		command->m_loadStateArguments.m_fileName[0] = 0;
+		command->m_loadStateArguments.m_stateId = -1;
+		return (b3SharedMemoryCommandHandle)command;
+	}
+	return 0;
+}
+
+B3_SHARED_API int	b3LoadStateSetStateId(b3SharedMemoryCommandHandle commandHandle, int stateId)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_RESTORE_STATE);
+	if (command->m_type == CMD_RESTORE_STATE)
+	{
+		command->m_loadStateArguments.m_stateId = stateId;
+		command->m_updateFlags |= CMD_LOAD_STATE_HAS_STATEID;
+	}
+	return 0;
+
+}
+
+B3_SHARED_API int	b3LoadStateSetFileName(b3SharedMemoryCommandHandle commandHandle, const char* fileName)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_RESTORE_STATE);
+	if (command->m_type == CMD_RESTORE_STATE)
+	{
+		int len = strlen(fileName);
+		if (len < MAX_URDF_FILENAME_LENGTH)
+		{
+			strcpy(command->m_loadStateArguments.m_fileName, fileName);
+		}
+		else
+		{
+			command->m_loadStateArguments.m_fileName[0] = 0;
+		}
+		command->m_updateFlags |= CMD_LOAD_STATE_HAS_FILENAME;
+	}
+	return 0;
+}
+
+
+B3_SHARED_API b3SharedMemoryCommandHandle b3SaveStateCommandInit(b3PhysicsClientHandle physClient)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+
+	if (cl->canSubmitCommand())
+	{
+		struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+		b3Assert(command);
+		command->m_type = CMD_SAVE_STATE;
+		command->m_updateFlags = 0;
+		return (b3SharedMemoryCommandHandle)command;
+	}
+	return 0;
+}
+
+B3_SHARED_API int b3GetStatusGetStateId(b3SharedMemoryStatusHandle statusHandle)
+{
+	int stateId = -1;
+
+	const SharedMemoryStatus* status = (const SharedMemoryStatus*)statusHandle;
+	b3Assert(status);
+	b3Assert(status->m_type == CMD_SAVE_STATE_COMPLETED);
+	if (status && status->m_type == CMD_SAVE_STATE_COMPLETED)
+	{
+		stateId =  status->m_saveStateResultArgs.m_stateId;
+	}
+	return stateId;
+}
+
 B3_SHARED_API b3SharedMemoryCommandHandle b3SaveBulletCommandInit(b3PhysicsClientHandle physClient, const char* fileName)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;

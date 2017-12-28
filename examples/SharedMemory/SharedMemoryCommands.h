@@ -69,6 +69,13 @@ struct SdfArgs
 struct FileArgs
 {
 	char m_fileName[MAX_URDF_FILENAME_LENGTH];
+	int m_stateId;
+};
+
+enum EnumLoadStateArgsUpdateFlags
+{
+	CMD_LOAD_STATE_HAS_STATEID=1,
+	CMD_LOAD_STATE_HAS_FILENAME=2,
 };
 
 enum EnumUrdfArgsUpdateFlags
@@ -922,6 +929,12 @@ struct b3ChangeTextureArgs
 	int m_height;
 };
 
+struct b3StateSerializationArguments
+{
+	char m_fileName[MAX_URDF_FILENAME_LENGTH];
+	int m_stateId;
+};
+
 struct SharedMemoryCommand
 {
 	int m_type;
@@ -976,6 +989,7 @@ struct SharedMemoryCommand
 		struct b3ChangeTextureArgs m_changeTextureArgs;
 		struct b3SearchPathfArgs m_searchPathArgs;
 		struct b3CustomCommand m_customCommandArgs;
+		struct b3StateSerializationArguments m_loadStateArguments;
     };
 };
 
@@ -1050,6 +1064,7 @@ struct SharedMemoryStatus
 		struct b3LoadTextureResultArgs m_loadTextureResultArguments;
 		struct b3CustomCommandResultArgs m_customCommandResultArgs;
 		struct b3PhysicsSimulationParameters m_simulationParameterResultArgs;
+		struct b3StateSerializationArguments m_saveStateResultArgs;
 	};
 };
 
