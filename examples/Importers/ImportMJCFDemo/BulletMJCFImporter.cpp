@@ -172,10 +172,11 @@ struct BulletMJCFImporterInternalData
 
 	btAlignedObjectArray<UrdfModel*>	m_models;
 
-	//<compiler angle="radian" meshdir="mesh/" texturedir="texture/"/>
+	//<compiler angle="radian" meshdir="mesh/" texturedir="texture/" inertiafromgeom="true"/>
 	std::string m_meshDir;
 	std::string m_textureDir;
 	std::string m_angleUnits;
+	bool m_inertiaFromGeom;
 
 
 	int m_activeModel;
@@ -190,7 +191,8 @@ struct BulletMJCFImporterInternalData
 	mutable btAlignedObjectArray<btTriangleMesh*> m_allocatedMeshInterfaces;
 
 	BulletMJCFImporterInternalData()
-		:m_activeModel(-1),
+		:m_inertiaFromGeom(true),
+		m_activeModel(-1),
 		m_activeBodyUniqueId(-1)
 	{
 		m_pathPrefix[0] = 0;
@@ -248,12 +250,12 @@ struct BulletMJCFImporterInternalData
 		}
 		const char* angle = root_xml->Attribute("angle");
 		m_angleUnits = angle ? angle : "degree";  // degrees by default, http://www.mujoco.org/book/modeling.html#compiler
-#if 0
-		for (TiXmlElement* child_xml = root_xml->FirstChildElement() ; child_xml ; child_xml = child_xml->NextSiblingElement())
+		const char* inertiaFromGeom = root_xml->Attribute("inertiafromgeom");
+		if(inertiaFromGeom[0] == 'f')  // false, other values assumed `true`.
 		{
-			std::string n = child_xml->Value();
+			m_inertiaFromGeom = false;
 		}
-#endif
+
 	}
 	
 	void parseAssets(TiXmlElement* root_xml, MJCFErrorLogger* logger)
@@ -1134,8 +1136,16 @@ struct BulletMJCFImporterInternalData
 				}
 				
 				massDefined = true;
-
 				handled = true;
+
+				if (!m_inertiaFromGeom) {
+					linkPtr->m_inertia.m_mass = mass;
+					linkPtr->m_inertia.m_linkLocalFrame = localInertialFrame;
+					linkPtr->m_inertia.m_ixx = localInertiaDiag[0];
+					linkPtr->m_inertia.m_iyy = localInertiaDiag[1];
+					linkPtr->m_inertia.m_izz = localInertiaDiag[2];
+				}
+
 			}
 
 			if (n=="joint")
