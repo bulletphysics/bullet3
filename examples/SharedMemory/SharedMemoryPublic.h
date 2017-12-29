@@ -77,6 +77,8 @@ enum EnumSharedMemoryClientCommand
 	CMD_SET_ADDITIONAL_SEARCH_PATH,
 	CMD_CUSTOM_COMMAND,
 	CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS,
+	CMD_SAVE_STATE,
+	CMD_RESTORE_STATE,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -178,7 +180,11 @@ enum EnumSharedMemoryServerStatus
 		CMD_CUSTOM_COMMAND_COMPLETED,
 		CMD_CUSTOM_COMMAND_FAILED,
 		CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS_COMPLETED,
-        //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
+		CMD_SAVE_STATE_FAILED,
+		CMD_SAVE_STATE_COMPLETED,
+		CMD_RESTORE_STATE_FAILED,
+		CMD_RESTORE_STATE_COMPLETED,
+		//don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
 
@@ -578,6 +584,10 @@ enum EnumRenderer
     //ER_FIRE_RAYS=(1<<18),
 };
 
+enum EnumRendererAuxFlags
+{
+	ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX=1,
+};
 ///flags to pick the IK solver and other options
 enum EnumCalculateInverseKinematicsFlags
 {

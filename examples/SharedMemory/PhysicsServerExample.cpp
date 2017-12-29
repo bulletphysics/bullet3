@@ -2169,7 +2169,11 @@ void	PhysicsServerExample::updateGraphics()
 															btVector4(32,255,255,255)};
 									if (segmentationMask>=0)
 									{
-										btVector4 rgb = palette[segmentationMask&3];
+										int obIndex = segmentationMask&((1<<24)-1);
+										int linkIndex = (segmentationMask>>24)-1;
+										
+										btVector4 rgb = palette[(obIndex+linkIndex)&3];
+										
 										 m_canvas->setPixel(m_canvasSegMaskIndex,i,j,
 											rgb.x(),
 											rgb.y(),

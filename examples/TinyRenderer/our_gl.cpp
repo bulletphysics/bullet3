@@ -75,7 +75,7 @@ void triangleClipped(mat<4,3,float> &clipc, mat<4,3,float> &orgClipc, IShader &s
     triangleClipped(clipc, orgClipc,shader,image,zbuffer,0,viewPortMatrix,0);
 }
 
-void triangleClipped(mat<4,3,float> &clipc, mat<4,3,float> &orgClipc, IShader &shader, TGAImage &image, float *zbuffer, int* segmentationMaskBuffer, const Matrix& viewPortMatrix, int objectIndex) 
+void triangleClipped(mat<4,3,float> &clipc, mat<4,3,float> &orgClipc, IShader &shader, TGAImage &image, float *zbuffer, int* segmentationMaskBuffer, const Matrix& viewPortMatrix, int objectAndLinkIndex)
 {
 
 	mat<3,4,float> screenSpacePts  = (viewPortMatrix*clipc).transpose(); // transposed to ease access to each of the points
@@ -135,7 +135,7 @@ void triangleClipped(mat<4,3,float> &clipc, mat<4,3,float> &orgClipc, IShader &s
                 zbuffer[P.x+P.y*image.get_width()] = frag_depth;
                 if (segmentationMaskBuffer)
                 {
-                    segmentationMaskBuffer[P.x+P.y*image.get_width()] = objectIndex;
+                    segmentationMaskBuffer[P.x+P.y*image.get_width()] = objectAndLinkIndex;
                 }
                 image.set(P.x, P.y, color);
             }
@@ -149,7 +149,7 @@ void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zb
     triangle(clipc,shader,image,zbuffer,0,viewPortMatrix,0);
 }
 
-void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zbuffer, int* segmentationMaskBuffer, const Matrix& viewPortMatrix, int objectIndex) {
+void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zbuffer, int* segmentationMaskBuffer, const Matrix& viewPortMatrix, int objectAndLinkIndex) {
 	mat<3,4,float> pts  = (viewPortMatrix*clipc).transpose(); // transposed to ease access to each of the points
     
 	
@@ -189,7 +189,7 @@ void triangle(mat<4,3,float> &clipc, IShader &shader, TGAImage &image, float *zb
                 zbuffer[P.x+P.y*image.get_width()] = frag_depth;
                 if (segmentationMaskBuffer)
                 {
-                    segmentationMaskBuffer[P.x+P.y*image.get_width()] = objectIndex;
+						segmentationMaskBuffer[P.x+P.y*image.get_width()] = objectAndLinkIndex;
                 }
                 image.set(P.x, P.y, color);
             }

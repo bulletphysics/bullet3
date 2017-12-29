@@ -15,6 +15,8 @@
 #include <Python.h>
 #endif
 
+#include "../Importers/ImportURDFDemo/urdfStringSplit.h"
+
 #ifdef B3_DUMP_PYTHON_VERSION
 #define B3_VALUE_TO_STRING(x) #x
 #define B3_VALUE(x) B3_VALUE_TO_STRING(x)
@@ -298,7 +300,7 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 	int freeIndex = -1;
 	int method = eCONNECT_GUI;
 	int i;
-	char* options="";
+	char* options=0;
 
 	b3PhysicsClientHandle sm = 0;
 
@@ -352,12 +354,23 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 			}
 		}
 
+		int argc = 0;
+		char** argv=0;
+		if (options)
+		{
+			int i;
+			argv = urdfStrSplit(options, " ");
+			argc = urdfStrArrayLen(argv);
+			for (i = 0; i < argc; i++)
+			{
+				printf("argv[%d]=%s\n", i, argv[i]);
+			}
+		}
 		switch (method)
 		{
 			case eCONNECT_GUI:
 			{
-				int argc = 2;
-				char* argv[2] = {"unused",options};
+				
 
 #ifdef __APPLE__
 				sm = b3CreateInProcessPhysicsServerAndConnectMainThread(argc, argv);
@@ -368,9 +381,7 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 			}
 			case eCONNECT_GUI_SERVER:
 			{
-				int argc = 2;
-				char* argv[2] = {"unused",options};
-
+				
 #ifdef __APPLE__
 				sm = b3CreateInProcessPhysicsServerAndConnectMainThreadSharedMemory(argc, argv);
 #else
@@ -419,6 +430,11 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 				return NULL;
 			}
 		};
+
+		if (options)
+		{
+			urdfStrArrayFree(argv);
+		}
 	}
 
 	if (sm && b3CanSubmitCommand(sm))
@@ -588,7 +604,7 @@ static PyObject* pybullet_loadBullet(PyObject* self, PyObject* args, PyObject* k
 	b3PhysicsClientHandle sm = 0;
 
 	int physicsClientId = 0;
-	static char* kwlist[] = {"bulletFileName", "physicsClientId", NULL};
+	static char* kwlist[] = {"bulletFileName",  "physicsClientId", NULL};
 	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|i", kwlist, &bulletFileName, &physicsClientId))
 	{
 		return NULL;
@@ -660,6 +676,93 @@ static PyObject* pybullet_saveBullet(PyObject* self, PyObject* args, PyObject* k
 	}
 	Py_INCREF(Py_None);
 	return Py_None;
+}
+
+
+static PyObject* pybullet_restoreState(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	const char* fileName = "";
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	int stateId = -1;
+	b3SharedMemoryCommandHandle command;
+
+	PyObject* pylist = 0;
+	b3PhysicsClientHandle sm = 0;
+
+	int physicsClientId = 0;
+	static char* kwlist[] = { "stateId", "fileName", "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|isi", kwlist, &stateId, &fileName, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	command = b3LoadStateCommandInit(sm);
+	if (stateId >= 0)
+	{
+		b3LoadStateSetStateId(command, stateId);
+	}
+	if (fileName)
+	{
+		b3LoadStateSetFileName(command, fileName);
+	}
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	statusType = b3GetStatusType(statusHandle);
+	if (statusType != CMD_RESTORE_STATE_COMPLETED)
+	{
+		PyErr_SetString(SpamError, "Couldn't restore state.");
+		return NULL;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+
+}
+
+static PyObject* pybullet_saveState(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	b3SharedMemoryCommandHandle command;
+	b3PhysicsClientHandle sm = 0;
+	int stateId = -1;
+
+	int physicsClientId = 0;
+	static char* kwlist[] = { "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|i", kwlist, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	command = b3SaveStateCommandInit(sm);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	statusType = b3GetStatusType(statusHandle);
+
+	if (statusType != CMD_SAVE_STATE_COMPLETED)
+	{
+		PyErr_SetString(SpamError, "Couldn't save state");
+		return NULL;
+	}
+
+	{
+		stateId = b3GetStatusGetStateId(statusHandle);
+		PyObject* pylist = 0;
+		pylist = PyTuple_New(1);
+		PyTuple_SetItem(pylist, 0, PyInt_FromLong(stateId));
+		return pylist;
+	}
 }
 
 static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args, PyObject* keywds)
@@ -5944,16 +6047,16 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 	float lightAmbientCoeff = -1;
 	float lightDiffuseCoeff = -1;
 	float lightSpecularCoeff = -1;
-
+	int flags = -1;
 	int renderer = -1;
 	// inialize cmd
 	b3SharedMemoryCommandHandle command;
 	int physicsClientId = 0;
 	b3PhysicsClientHandle sm = 0;
 	// set camera resolution, optionally view, projection matrix, light direction, light color, light distance, shadow
-	static char* kwlist[] = {"width", "height", "viewMatrix", "projectionMatrix", "lightDirection", "lightColor", "lightDistance", "shadow", "lightAmbientCoeff", "lightDiffuseCoeff", "lightSpecularCoeff", "renderer", "physicsClientId", NULL};
+	static char* kwlist[] = {"width", "height", "viewMatrix", "projectionMatrix", "lightDirection", "lightColor", "lightDistance", "shadow", "lightAmbientCoeff", "lightDiffuseCoeff", "lightSpecularCoeff", "renderer", "flags", "physicsClientId", NULL};
 
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|OOOOfifffii", kwlist, &width, &height, &objViewMat, &objProjMat, &lightDirObj, &lightColorObj, &lightDist, &hasShadow, &lightAmbientCoeff, &lightDiffuseCoeff, &lightSpecularCoeff, &renderer, &physicsClientId))
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|OOOOfifffiii", kwlist, &width, &height, &objViewMat, &objProjMat, &lightDirObj, &lightColorObj, &lightDist, &hasShadow, &lightAmbientCoeff, &lightDiffuseCoeff, &lightSpecularCoeff, &renderer, &flags, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -6005,6 +6108,10 @@ static PyObject* pybullet_getCameraImage(PyObject* self, PyObject* args, PyObjec
 		b3RequestCameraImageSetLightSpecularCoeff(command, lightSpecularCoeff);
 	}
 
+	if (flags >= 0)
+	{
+		b3RequestCameraImageSetFlags(command, flags);
+	}
 	if (renderer>=0)
 	{
 		b3RequestCameraImageSelectRenderer(command, renderer);//renderer could be ER_BULLET_HARDWARE_OPENGL
@@ -7761,10 +7868,16 @@ static PyMethodDef SpamMethods[] = {
 	 "Load multibodies from an SDF file."},
 
 	{"loadBullet", (PyCFunction)pybullet_loadBullet, METH_VARARGS | METH_KEYWORDS,
-	 "Restore the full state of the world from a .bullet file."},
+	 "Load a world from a .bullet file."},
 
 	{"saveBullet", (PyCFunction)pybullet_saveBullet, METH_VARARGS | METH_KEYWORDS,
 	 "Save the full state of the world to a .bullet file."},
+
+	 { "restoreState", (PyCFunction)pybullet_restoreState, METH_VARARGS | METH_KEYWORDS,
+	"Restore the full state of an existing world." },
+
+//	{ "saveState", (PyCFunction)pybullet_saveState, METH_VARARGS | METH_KEYWORDS,
+//	"Save the full state of the world to memory." },
 
 	{"loadMJCF", (PyCFunction)pybullet_loadMJCF, METH_VARARGS | METH_KEYWORDS,
 	 "Load multibodies from an MJCF file."},
@@ -8257,7 +8370,8 @@ initpybullet(void)
 
 	PyModule_AddIntConstant(m, "ER_TINY_RENDERER", ER_TINY_RENDERER);
 	PyModule_AddIntConstant(m, "ER_BULLET_HARDWARE_OPENGL", ER_BULLET_HARDWARE_OPENGL);
-	
+	PyModule_AddIntConstant(m, "ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX", ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX);
+
 	PyModule_AddIntConstant(m, "IK_DLS", IK_DLS);
 	PyModule_AddIntConstant(m, "IK_SDLS", IK_SDLS);
 	PyModule_AddIntConstant(m, "IK_HAS_TARGET_POSITION", IK_HAS_TARGET_POSITION);
