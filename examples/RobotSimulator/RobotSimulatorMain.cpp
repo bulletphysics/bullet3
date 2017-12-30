@@ -7,6 +7,7 @@
 #include <assert.h>
 #define ASSERT_EQ(a,b) assert((a)==(b));
 #include "MinitaurSetup.h"
+
 int main(int argc, char* argv[])
 {
 	b3RobotSimulatorClientAPI* sim = new b3RobotSimulatorClientAPI();
@@ -33,7 +34,7 @@ int main(int argc, char* argv[])
 	//b3BodyInfo bodyInfo;
 	//sim->getBodyInfo(blockId,&bodyInfo);
 
-	sim->loadURDF("plane.urdf");
+	int groundid = sim->loadURDF("plane.urdf");
 
 	MinitaurSetup minitaur;
 	int minitaurUid = minitaur.setupMinitaur(sim, b3MakeVector3(0,0,.3));
@@ -115,6 +116,17 @@ int main(int argc, char* argv[])
 			}
 		}
 		sim->stepSimulation();
+
+		// Test: get contact forces
+		b3Vector3 normalForces[4];
+		minitaur.getToeForces(sim, groundid, normalForces);
+		printf("Normal forces: ");
+		for (int i=0; i<4; ++i)
+		{
+			printf("(%.1f,%.1f,%.1f)\t", normalForces[i].x, normalForces[i].y, normalForces[i].z);
+		}
+		printf("total Fz: %.2f", normalForces[0].z + normalForces[1].z + normalForces[2].z + normalForces[3].z);
+		printf("\n");
 
 		if (rotateCamera)
 		{
