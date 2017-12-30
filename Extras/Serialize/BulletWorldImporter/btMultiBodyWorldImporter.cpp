@@ -52,10 +52,11 @@ bool btMultiBodyWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletF
 		result = true;
 
 		//convert all multibodies
-		for (int i = 0; i < bulletFile2->m_multiBodies.size(); i++)
+		if (bulletFile2->getFlags() & bParse::FD_DOUBLE_PRECISION)
 		{
 
-			if (bulletFile2->getFlags() & bParse::FD_DOUBLE_PRECISION)
+			//for (int i = 0; i < bulletFile2->m_multiBodies.size(); i++)
+			for (int i = bulletFile2->m_multiBodies.size()-1; i >=0; i--)
 			{
 				btMultiBodyDoubleData* mbd = (btMultiBodyDoubleData*)bulletFile2->m_multiBodies[i];
 				bool isFixedBase = mbd->m_baseMass == 0;
@@ -63,9 +64,20 @@ bool btMultiBodyWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletF
 				btVector3 baseInertia;
 				baseInertia.deSerializeDouble(mbd->m_baseInertia);
 
-				btTransform tr; tr.deSerializeDouble(mbd->m_baseWorldTransform);
 				btMultiBody* mb = m_data->m_mbDynamicsWorld->getMultiBody(i);
-				mb->setBaseWorldTransform(tr);
+				btVector3 baseWorldPos;
+				baseWorldPos.deSerializeDouble(mbd->m_baseWorldPosition);
+				mb->setBasePos(baseWorldPos);
+				btQuaternion baseWorldRot;
+				baseWorldRot.deSerializeDouble(mbd->m_baseWorldOrientation);
+				mb->setWorldToBaseRot(baseWorldRot.inverse());
+				btVector3 baseLinVal;
+				baseLinVal.deSerializeDouble(mbd->m_baseLinearVelocity);
+				btVector3 baseAngVel;
+				baseAngVel.deSerializeDouble(mbd->m_baseAngularVelocity);
+				mb->setBaseVel(baseLinVal);
+				mb->setBaseOmega(baseAngVel);
+
 				for (int i = 0; i < mbd->m_numLinks; i++)
 				{
 				}
@@ -73,6 +85,74 @@ bool btMultiBodyWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletF
 				btVector3 angvel = mb->getBaseOmega();
 				mb->forwardKinematics(scratchQ, scratchM);
 				mb->updateCollisionObjectWorldTransforms(scratchQ, scratchM);
+			}
+
+			//todo: check why body1 pointer is not properly deserialized
+			for (int i = 0; i < bulletFile2->m_contactManifolds.size(); i++)
+			{
+				btPersistentManifoldDoubleData* manifoldData = (btPersistentManifoldDoubleData*)bulletFile2->m_contactManifolds[i];
+				void* ptr = bulletFile2->findLibPointer(manifoldData->m_body1);
+				if (ptr)
+				{
+					manifoldData->m_body1 = ptr;
+					btCollisionObjectDoubleData* cdd = (btCollisionObjectDoubleData*)ptr;
+				}
+			}
+
+			btDispatcherInfo& dispatchInfo = m_data->m_mbDynamicsWorld->getDispatchInfo();
+
+			{
+				m_data->m_mbDynamicsWorld->updateAabbs();
+				m_data->m_mbDynamicsWorld->computeOverlappingPairs();
+				btDispatcher* dispatcher = m_data->m_mbDynamicsWorld->getDispatcher();
+				
+				if (dispatcher)
+				{
+					btOverlappingPairCache* pairCache = m_data->m_mbDynamicsWorld->getBroadphase()->getOverlappingPairCache();
+					if (dispatcher)
+					{
+						dispatcher->dispatchAllCollisionPairs(pairCache, dispatchInfo, dispatcher);
+					}
+					int numExistingManifolds = m_data->m_mbDynamicsWorld->getDispatcher()->getNumManifolds();
+					btManifoldArray manifoldArray;
+					for (int i = 0; i < pairCache->getNumOverlappingPairs(); i++)
+					{
+						btBroadphasePair& pair = pairCache->getOverlappingPairArray()[i];
+						if (pair.m_algorithm)
+						{
+							pair.m_algorithm->getAllContactManifolds(manifoldArray);
+							//for each existing manifold, search a matching manifoldData and reconstruct
+							for (int m = 0; m < manifoldArray.size(); m++)
+							{
+								btPersistentManifold* existingManifold = manifoldArray[m];
+								int uid0 = existingManifold->getBody0()->getBroadphaseHandle()->m_uniqueId;
+								int uid1 = existingManifold->getBody1()->getBroadphaseHandle()->m_uniqueId;
+								int matchingManifoldIndex = -1;
+								for (int q= 0; q < bulletFile2->m_contactManifolds.size(); q++)
+								{
+									btPersistentManifoldDoubleData* manifoldData = (btPersistentManifoldDoubleData*)bulletFile2->m_contactManifolds[q];
+									btCollisionObjectDoubleData* cdd0 = (btCollisionObjectDoubleData*)manifoldData->m_body0;
+									btCollisionObjectDoubleData* cdd1 = (btCollisionObjectDoubleData*)manifoldData->m_body1;
+									if (uid0 == cdd0->m_uniqueId && uid1 == cdd1->m_uniqueId)
+									{
+										matchingManifoldIndex = q;
+									}
+								}
+								if (matchingManifoldIndex >= 0)
+								{
+									btPersistentManifoldDoubleData* manifoldData = (btPersistentManifoldDoubleData*)bulletFile2->m_contactManifolds[matchingManifoldIndex];
+									existingManifold->deSerializeDouble(manifoldData);
+								}
+								else
+								{
+									printf("Issue: cannot find maching contact manifold (%d, %d), may cause issues in determinism.\n", uid0, uid1);
+								}
+
+								manifoldArray.clear();
+							}
+						}
+					}
+				}
 			}
 		}
 	}
@@ -94,8 +174,14 @@ bool btMultiBodyWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletF
 				baseInertia.deSerializeDouble(mbd->m_baseInertia);
 				btMultiBody* mb = new btMultiBody(mbd->m_numLinks, mbd->m_baseMass, baseInertia, isFixedBase, canSleep);
 				mb->setHasSelfCollision(false);
-				btTransform tr; tr.deSerializeDouble(mbd->m_baseWorldTransform);
-				mb->setBaseWorldTransform(tr);
+				
+				btVector3 baseWorldPos;
+				baseWorldPos.deSerializeDouble(mbd->m_baseWorldPosition);
+
+				btQuaternion baseWorldOrn;
+				baseWorldOrn.deSerializeDouble(mbd->m_baseWorldOrientation);
+				mb->setBasePos(baseWorldPos);
+				mb->setWorldToBaseRot(baseWorldOrn.inverse());
 
 				m_data->m_mbMap.insert(mbd, mb);
 				for (int i = 0; i < mbd->m_numLinks; i++)

@@ -7876,8 +7876,8 @@ static PyMethodDef SpamMethods[] = {
 	 { "restoreState", (PyCFunction)pybullet_restoreState, METH_VARARGS | METH_KEYWORDS,
 	"Restore the full state of an existing world." },
 
-//	{ "saveState", (PyCFunction)pybullet_saveState, METH_VARARGS | METH_KEYWORDS,
-//	"Save the full state of the world to memory." },
+	{ "saveState", (PyCFunction)pybullet_saveState, METH_VARARGS | METH_KEYWORDS,
+	"Save the full state of the world to memory." },
 
 	{"loadMJCF", (PyCFunction)pybullet_loadMJCF, METH_VARARGS | METH_KEYWORDS,
 	 "Load multibodies from an MJCF file."},

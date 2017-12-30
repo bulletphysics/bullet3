@@ -2172,9 +2172,12 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 	m_data->m_pairCache = new btHashedOverlappingPairCache();
 	
 	m_data->m_pairCache->setOverlapFilterCallback(m_data->m_broadphaseCollisionFilterCallback);
-	
+
+	//int maxProxies = 32768;
+	//m_data->m_broadphase = new btSimpleBroadphase(maxProxies, m_data->m_pairCache);
     m_data->m_broadphase = new btDbvtBroadphase(m_data->m_pairCache);
     
+
     m_data->m_solver = new btMultiBodyConstraintSolver;
     
 #ifdef USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
@@ -2183,7 +2186,7 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
     m_data->m_dynamicsWorld = new btMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
 #endif
     
-    //Workaround: in a VR application, where we avoid synchronizaing between GFX/Physics threads, we don't want to resize this array, so pre-allocate it
+    //Workaround: in a VR application, where we avoid synchronizing between GFX/Physics threads, we don't want to resize this array, so pre-allocate it
     m_data->m_dynamicsWorld->getCollisionObjectArray().reserve(32768);
     
     m_data->m_remoteDebugDrawer = new SharedMemoryDebugDrawer();
@@ -8305,6 +8308,9 @@ bool PhysicsServerCommandProcessor::processSaveBulletCommand(const struct Shared
 	if (f)
 	{
 		btDefaultSerializer* ser = new btDefaultSerializer();
+		int currentFlags = ser->getSerializationFlags();
+		ser->setSerializationFlags(currentFlags | BT_SERIALIZE_CONTACT_MANIFOLDS);
+
 		m_data->m_dynamicsWorld->serialize(ser);
 		fwrite(ser->getBufferPointer(), ser->getCurrentBufferSize(), 1, f);
 		fclose(f);
