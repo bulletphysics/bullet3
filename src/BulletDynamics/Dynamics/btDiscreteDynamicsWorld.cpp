@@ -1533,6 +1533,8 @@ void	btDiscreteDynamicsWorld::serialize(btSerializer* serializer)
 
 	serializeRigidBodies(serializer);
 
+	serializeContactManifolds(serializer);
+
 	serializer->finishSerialization();
 }
 
