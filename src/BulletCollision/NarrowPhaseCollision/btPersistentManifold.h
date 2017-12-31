@@ -261,7 +261,8 @@ public:
 
 	int	calculateSerializeBufferSize()	const;
 	const char*	serialize(const class btPersistentManifold* manifold, void* dataBuffer, class btSerializer* serializer) const;
-	void deSerializeDouble(const struct btPersistentManifoldDoubleData* manifoldDataPtr);
+	void deSerialize(const struct btPersistentManifoldDoubleData* manifoldDataPtr);
+	void deSerialize(const struct btPersistentManifoldFloatData* manifoldDataPtr);
 
 
 };
@@ -321,8 +322,8 @@ struct btPersistentManifoldFloatData
 	btVector3FloatData m_pointCachePositionWorldOnA[4];
 	btVector3FloatData m_pointCachePositionWorldOnB[4];
 	btVector3FloatData m_pointCacheNormalWorldOnB[4];
-	btVector3FloatData	m_pointCacheLateralFrictionDir1;
-	btVector3FloatData	m_pointCacheLateralFrictionDir2;
+	btVector3FloatData	m_pointCacheLateralFrictionDir1[4];
+	btVector3FloatData	m_pointCacheLateralFrictionDir2[4];
 	float m_pointCacheDistance[4];
 	float m_pointCacheAppliedImpulse[4];
 	float m_pointCacheCombinedFriction[4];
