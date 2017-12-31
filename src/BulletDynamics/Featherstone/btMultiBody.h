@@ -702,13 +702,13 @@ private:
 	int	m_companionId;
 	btScalar	m_linearDamping;
 	btScalar	m_angularDamping;
-	bool	m_useGyroTerm;
+	bool		m_useGyroTerm;
 	btScalar	m_maxAppliedImpulse;
 	btScalar	m_maxCoordinateVelocity;
 	bool		m_hasSelfCollision;
 	
-		bool __posUpdated;
-		int m_dofCount, m_posVarCnt;
+	bool __posUpdated;
+	int m_dofCount, m_posVarCnt;
 	bool m_useRK4, m_useGlobalVelocities;
 	
 	///the m_needsJointFeedback gets updated/computed during the stepVelocitiesMultiDof and it for internal usage only
@@ -784,29 +784,38 @@ struct btMultiBodyLinkFloatData
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
 struct	btMultiBodyDoubleData
 {
-	btTransformDoubleData m_baseWorldTransform;
+	btVector3DoubleData m_baseWorldPosition;
+	btQuaternionDoubleData m_baseWorldOrientation;
+	btVector3DoubleData m_baseLinearVelocity;
+	btVector3DoubleData m_baseAngularVelocity;
 	btVector3DoubleData m_baseInertia;   // inertia of the base (in local frame; diagonal)
 	double	m_baseMass;
+	int		m_numLinks;
+	char	m_padding[4];
 
 	char	*m_baseName;
 	btMultiBodyLinkDoubleData	*m_links;
 	btCollisionObjectDoubleData	*m_baseCollider;
-	char	*m_paddingPtr;
-	int		m_numLinks;
-	char	m_padding[4];
+	
+	
 };
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
 struct	btMultiBodyFloatData
 {
+	btVector3FloatData m_baseWorldPosition;
+	btQuaternionFloatData m_baseWorldOrientation;
+	btVector3FloatData m_baseLinearVelocity;
+	btVector3FloatData m_baseAngularVelocity;
+
+	btVector3FloatData m_baseInertia;   // inertia of the base (in local frame; diagonal)
+	float	m_baseMass;
+	int		m_numLinks;
+
 	char	*m_baseName;
 	btMultiBodyLinkFloatData	*m_links;
 	btCollisionObjectFloatData	*m_baseCollider;
-	btTransformFloatData m_baseWorldTransform;
-	btVector3FloatData m_baseInertia;   // inertia of the base (in local frame; diagonal)
-	
-	float	m_baseMass;
-	int		m_numLinks;
+
 };
 
 

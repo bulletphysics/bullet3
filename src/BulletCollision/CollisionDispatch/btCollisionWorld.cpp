@@ -1654,12 +1654,36 @@ void	btCollisionWorld::serializeCollisionObjects(btSerializer* serializer)
 }
 
 
+
+void btCollisionWorld::serializeContactManifolds(btSerializer* serializer)
+{
+	if (serializer->getSerializationFlags() & BT_SERIALIZE_CONTACT_MANIFOLDS)
+	{
+		int numManifolds = getDispatcher()->getNumManifolds();
+		for (int i = 0; i < numManifolds; i++)
+		{
+			const btPersistentManifold* manifold = getDispatcher()->getInternalManifoldPointer()[i];
+			//don't serialize empty manifolds, they just take space 
+			//(may have to do it anyway if it destroys determinism)
+			//if (manifold->getNumContacts() == 0)
+			//	continue;
+
+			btChunk* chunk = serializer->allocate(manifold->calculateSerializeBufferSize(), 1);
+			const char* structType = manifold->serialize(manifold, chunk->m_oldPtr, serializer);
+			serializer->finalizeChunk(chunk, structType, BT_CONTACTMANIFOLD_CODE, (void*)manifold);
+		}
+	}
+}
+
+
 void	btCollisionWorld::serialize(btSerializer* serializer)
 {
 
 	serializer->startSerialization();
 	
 	serializeCollisionObjects(serializer);
+
+	serializeContactManifolds(serializer);
 	
 	serializer->finishSerialization();
 }

@@ -62,7 +62,8 @@ enum	btSerializationFlags
 {
 	BT_SERIALIZE_NO_BVH = 1,
 	BT_SERIALIZE_NO_TRIANGLEINFOMAP = 2,
-	BT_SERIALIZE_NO_DUPLICATE_ASSERT = 4
+	BT_SERIALIZE_NO_DUPLICATE_ASSERT = 4,
+	BT_SERIALIZE_CONTACT_MANIFOLDS = 8,
 };
 
 class	btSerializer
@@ -128,8 +129,8 @@ public:
 #define BT_SBMATERIAL_CODE		BT_MAKE_ID('S','B','M','T')
 #define BT_SBNODE_CODE			BT_MAKE_ID('S','B','N','D')
 #define BT_DYNAMICSWORLD_CODE	BT_MAKE_ID('D','W','L','D')
+#define BT_CONTACTMANIFOLD_CODE BT_MAKE_ID('C','O','N','T')
 #define BT_DNA_CODE				BT_MAKE_ID('D','N','A','1')
-
 
 struct	btPointerUid
 {
