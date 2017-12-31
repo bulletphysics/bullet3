@@ -1007,6 +1007,10 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 		{
 			break;
 		}
+	case CMD_SAVE_STATE_COMPLETED:
+	{
+		break;
+	}
 	case CMD_RESTORE_STATE_FAILED:
 	{
 		b3Warning("restoreState failed");

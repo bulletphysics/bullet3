@@ -1236,6 +1236,10 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 			{
 				break;
 			}
+			case CMD_SAVE_STATE_COMPLETED:
+			{
+				break;
+			}
 			case CMD_RESTORE_STATE_FAILED:
 			{
 				b3Warning("restoreState failed");

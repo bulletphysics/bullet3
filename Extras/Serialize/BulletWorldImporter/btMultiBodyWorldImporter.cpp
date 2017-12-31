@@ -268,7 +268,7 @@ bool btMultiBodyWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletF
 	{
 		//check if the snapshot is valid for the existing world
 		//equal number of objects, # links etc
-		if (bulletFile2->m_multiBodies.size() != m_data->m_mbDynamicsWorld->getNumMultibodies())
+		if ((bulletFile2->m_multiBodies.size() != m_data->m_mbDynamicsWorld->getNumMultibodies()))
 		{
 			result = false;
 			return result;
@@ -285,6 +285,44 @@ bool btMultiBodyWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletF
 				btMultiBodyDoubleData* mbd = (btMultiBodyDoubleData*)bulletFile2->m_multiBodies[i];
 				btMultiBody* mb = m_data->m_mbDynamicsWorld->getMultiBody(i);
 				syncMultiBody(mbd, mb, m_data, scratchQ, scratchM);
+			}
+
+			for (int i = bulletFile2->m_rigidBodies.size() - 1; i >= 0; i--)
+			{
+				btRigidBodyDoubleData* rbd = (btRigidBodyDoubleData*)bulletFile2->m_rigidBodies[i];
+				int foundRb = -1;
+				int uid = rbd->m_collisionObjectData.m_uniqueId;
+				for (int i = 0; i < m_data->m_mbDynamicsWorld->getNumCollisionObjects(); i++)
+				{
+					if (uid == m_data->m_mbDynamicsWorld->getCollisionObjectArray()[i]->getBroadphaseHandle()->m_uniqueId)
+					{
+						foundRb = i;
+						break;
+					}
+				}
+				if (foundRb >= 0)
+				{
+					btRigidBody* rb = btRigidBody::upcast(m_data->m_mbDynamicsWorld->getCollisionObjectArray()[foundRb]);
+					if (rb)
+					{
+						btTransform tr;
+						tr.deSerializeDouble(rbd->m_collisionObjectData.m_worldTransform);
+						rb->setWorldTransform(tr);
+						btVector3 linVel, angVel;
+						linVel.deSerializeDouble(rbd->m_linearVelocity);
+						angVel.deSerializeDouble(rbd->m_angularVelocity);
+						rb->setLinearVelocity(linVel);
+						rb->setAngularVelocity(angVel);
+					}
+					else
+					{
+						result = false;
+					}
+				}
+				else
+				{
+					result = false;
+				}
 			}
 
 			//todo: check why body1 pointer is not properly deserialized
