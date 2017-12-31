@@ -82,10 +82,9 @@ file.close()
 
 file1 = open("saveFile.txt","r") 
 file2 = open("restoreFile.txt","r") 
-#file3 = open("saveFile.txt","r")#saveFileReorder.txt","r") 
+
 
 compareFiles(file1,file2)
-#compareFiles(file1,file3)
             
 
 while (p.getConnectionInfo()["isConnected"]):

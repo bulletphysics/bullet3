@@ -3776,29 +3776,78 @@ bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct
 		char pathPrefix[1024];
 		pathPrefix[0] = 0;
 
-		if (visualShape.m_geometry.m_type == URDF_GEOM_MESH)
-		{
-								
-			std::string fileName = clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshFileName;
-			const std::string& error_message_prefix="";
-			std::string out_found_filename; 
-			int out_type;
-			if (b3ResourcePath::findResourcePath(fileName.c_str(), relativeFileName, 1024))
-			{
-				b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
-			}
-								
-			bool foundFile = findExistingMeshFile(pathPrefix, relativeFileName,error_message_prefix,&out_found_filename, &out_type); 
-			visualShape.m_geometry.m_meshFileType = out_type;
-			visualShape.m_geometry.m_meshFileName=fileName;
+		const b3CreateUserShapeData& visShape = clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex];
 
-			visualShape.m_geometry.m_meshScale.setValue(clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshScale[0],
-				clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshScale[1],
-				clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshScale[2]);
-		}
-		visualShape.m_name = "bla";
+		switch (visualShape.m_geometry.m_type)
+		{
+			case URDF_GEOM_CYLINDER:
+			{
+				visualShape.m_geometry.m_capsuleHeight = visShape.m_capsuleHeight;
+				visualShape.m_geometry.m_capsuleRadius = visShape.m_capsuleRadius;
+				break;
+			}
+			case URDF_GEOM_BOX:
+			{
+				visualShape.m_geometry.m_boxSize.setValue(2.*visShape.m_boxHalfExtents[0],
+					2.*visShape.m_boxHalfExtents[1],
+					2.*visShape.m_boxHalfExtents[2]);
+				break;
+			}
+			case URDF_GEOM_SPHERE:
+			{
+				visualShape.m_geometry.m_sphereRadius = visShape.m_sphereRadius;
+				break;
+
+			}
+			case URDF_GEOM_CAPSULE:
+			{
+				visualShape.m_geometry.m_hasFromTo = visShape.m_hasFromTo;
+				if (visualShape.m_geometry.m_hasFromTo)
+				{
+					visualShape.m_geometry.m_capsuleFrom.setValue(visShape.m_capsuleFrom[0],
+						visShape.m_capsuleFrom[1],
+						visShape.m_capsuleFrom[2]);				
+					visualShape.m_geometry.m_capsuleTo.setValue(visShape.m_capsuleTo[0],
+						visShape.m_capsuleTo[1],
+						visShape.m_capsuleTo[2]);
+				}
+				else
+				{
+					visualShape.m_geometry.m_capsuleHeight = visShape.m_capsuleHeight;
+					visualShape.m_geometry.m_capsuleRadius = visShape.m_capsuleRadius;
+				}
+				break;
+			}
+			case URDF_GEOM_MESH:
+			{
+
+				std::string fileName = clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshFileName;
+				const std::string& error_message_prefix = "";
+				std::string out_found_filename;
+				int out_type;
+				if (b3ResourcePath::findResourcePath(fileName.c_str(), relativeFileName, 1024))
+				{
+					b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
+				}
+
+				bool foundFile = findExistingMeshFile(pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
+				visualShape.m_geometry.m_meshFileType = out_type;
+				visualShape.m_geometry.m_meshFileName = fileName;
+
+				visualShape.m_geometry.m_meshScale.setValue(clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshScale[0],
+					clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshScale[1],
+					clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshScale[2]);
+				break;
+
+			}
+
+			default:
+			{
+			}
+		};
+		visualShape.m_name = "in_memory";
 		visualShape.m_materialName="";
-		visualShape.m_sourceFileLocation="blaat_line_10";
+		visualShape.m_sourceFileLocation="in_memory_unknown_line";
 		visualShape.m_linkLocalFrame.setIdentity();
 		visualShape.m_geometry.m_hasLocalMaterial = false;
 							
@@ -3848,7 +3897,6 @@ bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct
 		}
 
 							
-
 		u2b.convertURDFToVisualShapeInternal(&visualShape, pathPrefix, localInertiaFrame.inverse()*childTrans, vertices, indices,textures);
 					
 		if (vertices.size() && indices.size())
