@@ -3,16 +3,20 @@ import math, time
 import difflib,sys
 
 numSteps = 500
-numSteps2 = 3
+numSteps2 = 30
 p.connect(p.GUI, options="--width=1024 --height=768")
-numObjects = 10
+numObjects = 50
 verbose = 0
 
 def setupWorld():
 	p.resetSimulation()
 	p.loadURDF("planeMesh.urdf")
+	kukaId = p.loadURDF("kuka_iiwa/model_free_base.urdf",[0,0,10])
+	for i in range (p.getNumJoints(kukaId)):
+		p.setJointMotorControl2(kukaId,i,p.POSITION_CONTROL,force=0)
 	for i in range (numObjects):
-		cube = p.loadURDF("cube_small.urdf",0,0,(i+1)*0.5)
+		cube = p.loadURDF("cube_small.urdf",0,i*0.02,(i+1)*0.2)
+		#p.changeDynamics(cube,-1,mass=100)
 	p.stepSimulation()
 	p.setGravity(0,0,-10)
 
@@ -80,15 +84,35 @@ file = open("restoreFile.txt","w")
 dumpStateToFile(file)
 file.close() 
 
+p.restoreState(fileName="state.bullet")
+if verbose:
+	p.setInternalSimFlags(1)
+p.stepSimulation()
+if verbose:
+	p.setInternalSimFlags(0)
+	print("contact points restored=")
+	for q in p.getContactPoints():
+		print(q)
+for i in range (numSteps2):
+	p.stepSimulation()
+
+	
+file = open("restoreFile2.txt","w")
+dumpStateToFile(file)
+file.close() 
+
 file1 = open("saveFile.txt","r") 
 file2 = open("restoreFile.txt","r") 
-
-
 compareFiles(file1,file2)
-            
+file1.close()
+file2.close()
+
+file1 = open("saveFile.txt","r") 
+file2 = open("restoreFile2.txt","r") 
+compareFiles(file1,file2)
+file1.close()
+file2.close()        
 
 while (p.getConnectionInfo()["isConnected"]):
 	time.sleep(1)
 
-file1.close()
-file2.close()

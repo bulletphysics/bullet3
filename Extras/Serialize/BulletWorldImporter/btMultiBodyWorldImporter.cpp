@@ -80,9 +80,42 @@ bool btMultiBodyWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletF
 
 				for (int i = 0; i < mbd->m_numLinks; i++)
 				{
+					switch (mbd->m_links[i].m_jointType)
+					{
+					case btMultibodyLink::eFixed:
+					{
+						break;
+					}
+					case btMultibodyLink::ePrismatic:
+					{
+						mb->setJointPos(i, mbd->m_links[i].m_jointPos[0]);
+						mb->setJointVel(i, mbd->m_links[i].m_jointVel[0]);
+						break;
+					}
+					case btMultibodyLink::eRevolute:
+					{
+						mb->setJointPos(i, mbd->m_links[i].m_jointPos[0]);
+						mb->setJointVel(i, mbd->m_links[i].m_jointVel[0]);
+						break;
+					}
+					case btMultibodyLink::eSpherical:
+					{
+						btScalar jointPos[3] = { mbd->m_links[i].m_jointPos[0], mbd->m_links[i].m_jointPos[1], mbd->m_links[i].m_jointPos[2] };
+						btScalar jointVel[3] = { mbd->m_links[i].m_jointVel[0], mbd->m_links[i].m_jointVel[1], mbd->m_links[i].m_jointVel[2] };
+						mb->setJointPosMultiDof(i, jointPos);
+						mb->setJointVelMultiDof(i, jointVel);
+
+						break;
+					}
+					case btMultibodyLink::ePlanar:
+					{
+						break;
+					}
+					default:
+					{
+					}
+					}
 				}
-				btVector3 linvel = mb->getBaseVel();
-				btVector3 angvel = mb->getBaseOmega();
 				mb->forwardKinematics(scratchQ, scratchM);
 				mb->updateCollisionObjectWorldTransforms(scratchQ, scratchM);
 			}
@@ -145,7 +178,8 @@ bool btMultiBodyWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletF
 								}
 								else
 								{
-									printf("Issue: cannot find maching contact manifold (%d, %d), may cause issues in determinism.\n", uid0, uid1);
+									existingManifold->setNumContacts(0);
+									//printf("Issue: cannot find maching contact manifold (%d, %d), may cause issues in determinism.\n", uid0, uid1);
 								}
 
 								manifoldArray.clear();
