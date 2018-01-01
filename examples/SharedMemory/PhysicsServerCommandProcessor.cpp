@@ -39,6 +39,7 @@
 #include "Bullet3Common/b3ResizablePool.h"
 #include "../Utils/b3Clock.h"
 #include "b3PluginManager.h"
+#include "../Extras/Serialize/BulletFileLoader/btBulletFile.h"
 
 
 #ifdef STATIC_LINK_VR_PLUGIN
@@ -1459,6 +1460,12 @@ struct ContactPointsStateLogger : public InternalStateLogger
 	}
 };
 
+struct SaveStateData
+{
+	bParse::btBulletFile* m_bulletFile;
+	btSerializer* m_serializer;
+};
+
 struct PhysicsServerCommandProcessorInternalData
 {
 	///handle management
@@ -1475,6 +1482,8 @@ struct PhysicsServerCommandProcessorInternalData
 	
 
 	b3VRControllerEvents m_vrControllerEvents;
+
+	btAlignedObjectArray<SaveStateData> m_savedStates;
 
 
 	btAlignedObjectArray<b3KeyboardEvent> m_keyboardEvents;
@@ -8177,6 +8186,32 @@ bool PhysicsServerCommandProcessor::processLoadTextureCommand(const struct Share
 	return hasStatus;
 }
 
+bool PhysicsServerCommandProcessor::processSaveStateCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	BT_PROFILE("CMD_RESTORE_STATE");
+	bool hasStatus = true;
+	SharedMemoryStatus& serverCmd = serverStatusOut;
+	serverCmd.m_type = CMD_SAVE_STATE_FAILED;
+
+	btDefaultSerializer* ser = new btDefaultSerializer();
+	int currentFlags = ser->getSerializationFlags();
+	ser->setSerializationFlags(currentFlags | BT_SERIALIZE_CONTACT_MANIFOLDS);
+	m_data->m_dynamicsWorld->serialize(ser);
+	bParse::btBulletFile* bulletFile = new bParse::btBulletFile((char*)ser->getBufferPointer(), ser->getCurrentBufferSize());
+	bulletFile->parse(false);
+	if (bulletFile->ok())
+	{
+		serverCmd.m_type = CMD_SAVE_STATE_COMPLETED;
+		serverCmd.m_saveStateResultArgs.m_stateId = m_data->m_savedStates.size();
+		SaveStateData sd;
+		sd.m_bulletFile = bulletFile;
+		sd.m_serializer = ser;
+		m_data->m_savedStates.push_back(sd);
+	}
+	return hasStatus;
+}
+
+
 bool PhysicsServerCommandProcessor::processRestoreStateCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	BT_PROFILE("CMD_RESTORE_STATE");
@@ -8191,9 +8226,11 @@ bool PhysicsServerCommandProcessor::processRestoreStateCommand(const struct Shar
 
 	if (clientCmd.m_loadStateArguments.m_stateId >= 0)
 	{
-		char* memoryBuffer = 0;
-		int len = 0;
-		ok = importer->loadFileFromMemory(memoryBuffer, len);
+		if (clientCmd.m_loadStateArguments.m_stateId < m_data->m_savedStates.size())
+		{
+			bParse::btBulletFile* bulletFile = m_data->m_savedStates[clientCmd.m_loadStateArguments.m_stateId].m_bulletFile;
+			ok = importer->convertAllObjects(bulletFile);
+		}
 	}
 	else
 	{
@@ -8227,8 +8264,7 @@ bool PhysicsServerCommandProcessor::processRestoreStateCommand(const struct Shar
 	if (ok)
 	{
 		serverCmd.m_type = CMD_RESTORE_STATE_COMPLETED;
-	}
-	
+	}	
 
 	return hasStatus;
 }
@@ -8662,6 +8698,12 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 		break;
 	}
 
+	case CMD_SAVE_STATE:
+	{
+		hasStatus = processSaveStateCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+		break;
+	}
+
 	case CMD_LOAD_BULLET:
 		{
 			hasStatus = processLoadBulletCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
@@ -9060,6 +9102,12 @@ void PhysicsServerCommandProcessor::resetSimulation()
 	if (m_data)
 	{
 		m_data->m_visualConverter.resetAll();
+		for (int i = 0; i < m_data->m_savedStates.size(); i++)
+		{
+			delete m_data->m_savedStates[i].m_bulletFile;
+			delete m_data->m_savedStates[i].m_serializer;
+		}
+		m_data->m_savedStates.clear();
 	}
 
 	removePickingConstraint();

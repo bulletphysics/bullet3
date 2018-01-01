@@ -8,6 +8,8 @@ p.connect(p.GUI, options="--width=1024 --height=768")
 numObjects = 50
 verbose = 0
 
+logId = p.startStateLogging(p.STATE_LOGGING_PROFILE_TIMINGS, "saveRestoreTimings.log")
+
 def setupWorld():
 	p.resetSimulation()
 	p.loadURDF("planeMesh.urdf")
@@ -15,7 +17,7 @@ def setupWorld():
 	for i in range (p.getNumJoints(kukaId)):
 		p.setJointMotorControl2(kukaId,i,p.POSITION_CONTROL,force=0)
 	for i in range (numObjects):
-		cube = p.loadURDF("cube_small.urdf",0,i*0.02,(i+1)*0.2)
+		cube = p.loadURDF("cube_small.urdf",[0,i*0.02,(i+1)*0.2])
 		#p.changeDynamics(cube,-1,mass=100)
 	p.stepSimulation()
 	p.setGravity(0,0,-10)
@@ -41,8 +43,14 @@ def compareFiles(file1,file2):
             fromfile='saveFile.txt',
             tofile='restoreFile.txt',
         )
+	numDifferences = 0
 	for line in diff:
+		numDifferences = numDifferences+1
 		sys.stdout.write(line)
+	if (numDifferences>0):
+		print("Error:", numDifferences, " lines are different between files.")
+	else:
+		print("OK, files are identical")
 	
 setupWorld()
 for i in range (numSteps):
@@ -67,7 +75,11 @@ file.close()
 
 #################################
 setupWorld()
+
+#both restore from file or from in-memory state should work
 p.restoreState(fileName="state.bullet")
+stateId = p.saveState()
+
 if verbose:
 	p.setInternalSimFlags(1)
 p.stepSimulation()
@@ -84,7 +96,7 @@ file = open("restoreFile.txt","w")
 dumpStateToFile(file)
 file.close() 
 
-p.restoreState(fileName="state.bullet")
+p.restoreState(stateId)
 if verbose:
 	p.setInternalSimFlags(1)
 p.stepSimulation()
@@ -113,6 +125,8 @@ compareFiles(file1,file2)
 file1.close()
 file2.close()        
 
-while (p.getConnectionInfo()["isConnected"]):
-	time.sleep(1)
+p.stopStateLogging(logId)
+
+#while (p.getConnectionInfo()["isConnected"]):
+#	time.sleep(1)
 

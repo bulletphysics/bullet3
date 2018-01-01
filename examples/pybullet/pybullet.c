@@ -756,13 +756,8 @@ static PyObject* pybullet_saveState(PyObject* self, PyObject* args, PyObject* ke
 		return NULL;
 	}
 
-	{
-		stateId = b3GetStatusGetStateId(statusHandle);
-		PyObject* pylist = 0;
-		pylist = PyTuple_New(1);
-		PyTuple_SetItem(pylist, 0, PyInt_FromLong(stateId));
-		return pylist;
-	}
+	stateId = b3GetStatusGetStateId(statusHandle);
+	return PyInt_FromLong(stateId);		
 }
 
 static PyObject* pybullet_loadMJCF(PyObject* self, PyObject* args, PyObject* keywds)

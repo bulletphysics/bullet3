@@ -1665,8 +1665,8 @@ void btCollisionWorld::serializeContactManifolds(btSerializer* serializer)
 			const btPersistentManifold* manifold = getDispatcher()->getInternalManifoldPointer()[i];
 			//don't serialize empty manifolds, they just take space 
 			//(may have to do it anyway if it destroys determinism)
-			//if (manifold->getNumContacts() == 0)
-			//	continue;
+			if (manifold->getNumContacts() == 0)
+				continue;
 
 			btChunk* chunk = serializer->allocate(manifold->calculateSerializeBufferSize(), 1);
 			const char* structType = manifold->serialize(manifold, chunk->m_oldPtr, serializer);
