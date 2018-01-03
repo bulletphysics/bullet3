@@ -114,7 +114,14 @@ btScalar btMultiBodyConstraintSolver::solveSingleIteration(int iteration, btColl
 					frictionConstraint.m_upperLimit = frictionConstraint.m_friction*totalImpulse;
 					frictionConstraintB.m_lowerLimit = -(frictionConstraintB.m_friction*totalImpulse);
 					frictionConstraintB.m_upperLimit = frictionConstraintB.m_friction*totalImpulse;
-					leastSquaredResidual += resolveConeFrictionConstraintRows(frictionConstraint, frictionConstraintB);
+					btScalar residual = resolveConeFrictionConstraintRows(frictionConstraint, frictionConstraintB);
+					leastSquaredResidual += residual*residual;
+					
+					if (frictionConstraintB.m_multiBodyA)
+						frictionConstraintB.m_multiBodyA->setPosUpdated(false);
+					if (frictionConstraintB.m_multiBodyB)
+						frictionConstraintB.m_multiBodyB->setPosUpdated(false);
+				
 					if (frictionConstraint.m_multiBodyA)
 						frictionConstraint.m_multiBodyA->setPosUpdated(false);
 					if (frictionConstraint.m_multiBodyB)

@@ -59,6 +59,10 @@ struct btRigidBodyFloatData;
 #define btRigidBodyData btRigidBodyFloatData
 #endif//BT_USE_DOUBLE_PRECISION
 
+enum btWorldImporterFlags
+{
+	eRESTORE_EXISTING_OBJECTS=1,//don't create new objects
+};
 
 class btWorldImporter
 {
@@ -66,6 +70,7 @@ protected:
 	btDynamicsWorld* m_dynamicsWorld;
 	
 	int m_verboseMode;
+	int m_importerFlags;
 
 	btAlignedObjectArray<btCollisionShape*>  m_allocatedCollisionShapes;
 	btAlignedObjectArray<btCollisionObject*> m_allocatedRigidBodies;
@@ -130,6 +135,18 @@ public:
 	{
 		return m_verboseMode;
 	}
+
+	void	setImporterFlags(int importerFlags)
+	{
+		m_importerFlags = importerFlags;
+	}
+
+	int getImporterFlags() const
+	{
+		return m_importerFlags;
+	}
+
+	
 
 		// query for data
 	int	getNumCollisionShapes() const;

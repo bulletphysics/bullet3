@@ -69,6 +69,13 @@ struct SdfArgs
 struct FileArgs
 {
 	char m_fileName[MAX_URDF_FILENAME_LENGTH];
+	int m_stateId;
+};
+
+enum EnumLoadStateArgsUpdateFlags
+{
+	CMD_LOAD_STATE_HAS_STATEID=1,
+	CMD_LOAD_STATE_HAS_FILENAME=2,
 };
 
 enum EnumUrdfArgsUpdateFlags
@@ -151,6 +158,7 @@ enum EnumChangeDynamicsInfoFlags
 	CHANGE_DYNAMICS_INFO_SET_ANGULAR_DAMPING=128,
 	CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING=256,
 	CHANGE_DYNAMICS_INFO_SET_FRICTION_ANCHOR = 512,
+	CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL = 1024,
 
 };
 
@@ -168,6 +176,7 @@ struct ChangeDynamicsInfoArgs
 	double m_angularDamping;
 	double m_contactStiffness;
 	double m_contactDamping;
+	double m_localInertiaDiagonal[3];
 	int m_frictionAnchor;
 };
 
@@ -229,6 +238,7 @@ struct RequestPixelDataArgs
     float m_lightDiffuseCoeff;
     float m_lightSpecularCoeff;
     int m_hasShadow;
+	int m_flags;
 };
 
 enum EnumRequestPixelDataUpdateFlags
@@ -242,6 +252,8 @@ enum EnumRequestPixelDataUpdateFlags
     REQUEST_PIXEL_ARGS_SET_AMBIENT_COEFF=64,
     REQUEST_PIXEL_ARGS_SET_DIFFUSE_COEFF=128,
     REQUEST_PIXEL_ARGS_SET_SPECULAR_COEFF=256,
+	REQUEST_PIXEL_ARGS_HAS_FLAGS = 512,
+
 	//don't exceed (1<<15), because this enum is shared with EnumRenderer in SharedMemoryPublic.h
 	
 };
@@ -920,6 +932,12 @@ struct b3ChangeTextureArgs
 	int m_height;
 };
 
+struct b3StateSerializationArguments
+{
+	char m_fileName[MAX_URDF_FILENAME_LENGTH];
+	int m_stateId;
+};
+
 struct SharedMemoryCommand
 {
 	int m_type;
@@ -974,6 +992,7 @@ struct SharedMemoryCommand
 		struct b3ChangeTextureArgs m_changeTextureArgs;
 		struct b3SearchPathfArgs m_searchPathArgs;
 		struct b3CustomCommand m_customCommandArgs;
+		struct b3StateSerializationArguments m_loadStateArguments;
     };
 };
 
@@ -1048,6 +1067,7 @@ struct SharedMemoryStatus
 		struct b3LoadTextureResultArgs m_loadTextureResultArguments;
 		struct b3CustomCommandResultArgs m_customCommandResultArgs;
 		struct b3PhysicsSimulationParameters m_simulationParameterResultArgs;
+		struct b3StateSerializationArguments m_saveStateResultArgs;
 	};
 };
 

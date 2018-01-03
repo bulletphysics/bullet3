@@ -5,7 +5,8 @@
 ///increase the SHARED_MEMORY_MAGIC_NUMBER whenever incompatible changes are made in the structures
 ///my convention is year/month/day/rev
 
-#define SHARED_MEMORY_MAGIC_NUMBER 201710180
+#define SHARED_MEMORY_MAGIC_NUMBER 201801010
+//#define SHARED_MEMORY_MAGIC_NUMBER 201710180
 //#define SHARED_MEMORY_MAGIC_NUMBER 201710050
 //#define SHARED_MEMORY_MAGIC_NUMBER 201708270
 //#define SHARED_MEMORY_MAGIC_NUMBER 201707140
@@ -77,6 +78,8 @@ enum EnumSharedMemoryClientCommand
 	CMD_SET_ADDITIONAL_SEARCH_PATH,
 	CMD_CUSTOM_COMMAND,
 	CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS,
+	CMD_SAVE_STATE,
+	CMD_RESTORE_STATE,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -178,7 +181,11 @@ enum EnumSharedMemoryServerStatus
 		CMD_CUSTOM_COMMAND_COMPLETED,
 		CMD_CUSTOM_COMMAND_FAILED,
 		CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS_COMPLETED,
-        //don't go beyond 'CMD_MAX_SERVER_COMMANDS!
+		CMD_SAVE_STATE_FAILED,
+		CMD_SAVE_STATE_COMPLETED,
+		CMD_RESTORE_STATE_FAILED,
+		CMD_RESTORE_STATE_COMPLETED,
+		//don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
 
@@ -210,6 +217,10 @@ enum JointType {
 	eGearType=6
 };
 
+enum b3RequestDynamicsInfoFlags
+{
+	eDYNAMICS_INFO_REPORT_INERTIA=1,
+};
 
 enum b3JointInfoFlags
 {
@@ -266,7 +277,7 @@ struct b3BodyInfo
 struct b3DynamicsInfo
 {
 	double m_mass;
-	double m_localInertialPosition[3];
+	double m_localInertialDiagonal[3];
 	double m_lateralFrictionCoeff;
 };
 
@@ -574,6 +585,10 @@ enum EnumRenderer
     //ER_FIRE_RAYS=(1<<18),
 };
 
+enum EnumRendererAuxFlags
+{
+	ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX=1,
+};
 ///flags to pick the IK solver and other options
 enum EnumCalculateInverseKinematicsFlags
 {

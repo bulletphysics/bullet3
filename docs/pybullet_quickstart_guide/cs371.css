@@ -1,0 +1,21 @@
+.md table  {
+  font-size: 6px;
+}
+
+body {
+    font-family: "Roboto", sans-serif;
+    background: #FFFDF9;
+}
+
+body, table {
+    font-weight: 300;
+    color: #555;
+}
+
+
+em.asterisk { 
+    font-style: normal; 
+    font-weight: 500;
+   /* color: #333;  */
+}
+

@@ -1994,7 +1994,11 @@ int	btMultiBody::calculateSerializeBufferSize()	const
 const char*	btMultiBody::serialize(void* dataBuffer, class btSerializer* serializer) const
 {
 		btMultiBodyData* mbd = (btMultiBodyData*) dataBuffer;
-		getBaseWorldTransform().serialize(mbd->m_baseWorldTransform);
+		getBasePos().serialize(mbd->m_baseWorldPosition);
+		getWorldToBaseRot().inverse().serialize(mbd->m_baseWorldOrientation);
+		getBaseVel().serialize(mbd->m_baseLinearVelocity);
+		getBaseOmega().serialize(mbd->m_baseAngularVelocity);
+
 		mbd->m_baseMass = this->getBaseMass();
 		getBaseInertia().serialize(mbd->m_baseInertia);
 		{

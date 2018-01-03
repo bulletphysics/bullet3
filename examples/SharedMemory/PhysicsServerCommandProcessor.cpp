@@ -39,6 +39,7 @@
 #include "Bullet3Common/b3ResizablePool.h"
 #include "../Utils/b3Clock.h"
 #include "b3PluginManager.h"
+#include "../Extras/Serialize/BulletFileLoader/btBulletFile.h"
 
 
 #ifdef STATIC_LINK_VR_PLUGIN
@@ -1459,6 +1460,12 @@ struct ContactPointsStateLogger : public InternalStateLogger
 	}
 };
 
+struct SaveStateData
+{
+	bParse::btBulletFile* m_bulletFile;
+	btSerializer* m_serializer;
+};
+
 struct PhysicsServerCommandProcessorInternalData
 {
 	///handle management
@@ -1475,6 +1482,8 @@ struct PhysicsServerCommandProcessorInternalData
 	
 
 	b3VRControllerEvents m_vrControllerEvents;
+
+	btAlignedObjectArray<SaveStateData> m_savedStates;
 
 
 	btAlignedObjectArray<b3KeyboardEvent> m_keyboardEvents;
@@ -2172,9 +2181,12 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 	m_data->m_pairCache = new btHashedOverlappingPairCache();
 	
 	m_data->m_pairCache->setOverlapFilterCallback(m_data->m_broadphaseCollisionFilterCallback);
-	
+
+	//int maxProxies = 32768;
+	//m_data->m_broadphase = new btSimpleBroadphase(maxProxies, m_data->m_pairCache);
     m_data->m_broadphase = new btDbvtBroadphase(m_data->m_pairCache);
     
+
     m_data->m_solver = new btMultiBodyConstraintSolver;
     
 #ifdef USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
@@ -2183,7 +2195,7 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
     m_data->m_dynamicsWorld = new btMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
 #endif
     
-    //Workaround: in a VR application, where we avoid synchronizaing between GFX/Physics threads, we don't want to resize this array, so pre-allocate it
+    //Workaround: in a VR application, where we avoid synchronizing between GFX/Physics threads, we don't want to resize this array, so pre-allocate it
     m_data->m_dynamicsWorld->getCollisionObjectArray().reserve(32768);
     
     m_data->m_remoteDebugDrawer = new SharedMemoryDebugDrawer();
@@ -3017,7 +3029,12 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 			m_data->m_visualConverter.setWidthAndHeight(clientCmd.m_requestPixelDataArguments.m_pixelWidth,
 														clientCmd.m_requestPixelDataArguments.m_pixelHeight);
 	}
-
+	int flags = 0;
+	if (clientCmd.m_updateFlags&REQUEST_PIXEL_ARGS_HAS_FLAGS)
+	{
+		flags = clientCmd.m_requestPixelDataArguments.m_flags;
+	}
+	m_data->m_visualConverter.setFlags(flags);
 
 	int numTotalPixels = width*height;
 	int numRemainingPixels = numTotalPixels - startPixelIndex;
@@ -3768,29 +3785,78 @@ bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct
 		char pathPrefix[1024];
 		pathPrefix[0] = 0;
 
-		if (visualShape.m_geometry.m_type == URDF_GEOM_MESH)
-		{
-								
-			std::string fileName = clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshFileName;
-			const std::string& error_message_prefix="";
-			std::string out_found_filename; 
-			int out_type;
-			if (b3ResourcePath::findResourcePath(fileName.c_str(), relativeFileName, 1024))
-			{
-				b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
-			}
-								
-			bool foundFile = findExistingMeshFile(pathPrefix, relativeFileName,error_message_prefix,&out_found_filename, &out_type); 
-			visualShape.m_geometry.m_meshFileType = out_type;
-			visualShape.m_geometry.m_meshFileName=fileName;
+		const b3CreateUserShapeData& visShape = clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex];
 
-			visualShape.m_geometry.m_meshScale.setValue(clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshScale[0],
-				clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshScale[1],
-				clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshScale[2]);
-		}
-		visualShape.m_name = "bla";
+		switch (visualShape.m_geometry.m_type)
+		{
+			case URDF_GEOM_CYLINDER:
+			{
+				visualShape.m_geometry.m_capsuleHeight = visShape.m_capsuleHeight;
+				visualShape.m_geometry.m_capsuleRadius = visShape.m_capsuleRadius;
+				break;
+			}
+			case URDF_GEOM_BOX:
+			{
+				visualShape.m_geometry.m_boxSize.setValue(2.*visShape.m_boxHalfExtents[0],
+					2.*visShape.m_boxHalfExtents[1],
+					2.*visShape.m_boxHalfExtents[2]);
+				break;
+			}
+			case URDF_GEOM_SPHERE:
+			{
+				visualShape.m_geometry.m_sphereRadius = visShape.m_sphereRadius;
+				break;
+
+			}
+			case URDF_GEOM_CAPSULE:
+			{
+				visualShape.m_geometry.m_hasFromTo = visShape.m_hasFromTo;
+				if (visualShape.m_geometry.m_hasFromTo)
+				{
+					visualShape.m_geometry.m_capsuleFrom.setValue(visShape.m_capsuleFrom[0],
+						visShape.m_capsuleFrom[1],
+						visShape.m_capsuleFrom[2]);				
+					visualShape.m_geometry.m_capsuleTo.setValue(visShape.m_capsuleTo[0],
+						visShape.m_capsuleTo[1],
+						visShape.m_capsuleTo[2]);
+				}
+				else
+				{
+					visualShape.m_geometry.m_capsuleHeight = visShape.m_capsuleHeight;
+					visualShape.m_geometry.m_capsuleRadius = visShape.m_capsuleRadius;
+				}
+				break;
+			}
+			case URDF_GEOM_MESH:
+			{
+
+				std::string fileName = clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshFileName;
+				const std::string& error_message_prefix = "";
+				std::string out_found_filename;
+				int out_type;
+				if (b3ResourcePath::findResourcePath(fileName.c_str(), relativeFileName, 1024))
+				{
+					b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
+				}
+
+				bool foundFile = findExistingMeshFile(pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
+				visualShape.m_geometry.m_meshFileType = out_type;
+				visualShape.m_geometry.m_meshFileName = fileName;
+
+				visualShape.m_geometry.m_meshScale.setValue(clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshScale[0],
+					clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshScale[1],
+					clientCmd.m_createUserShapeArgs.m_shapes[userShapeIndex].m_meshScale[2]);
+				break;
+
+			}
+
+			default:
+			{
+			}
+		};
+		visualShape.m_name = "in_memory";
 		visualShape.m_materialName="";
-		visualShape.m_sourceFileLocation="blaat_line_10";
+		visualShape.m_sourceFileLocation="in_memory_unknown_line";
 		visualShape.m_linkLocalFrame.setIdentity();
 		visualShape.m_geometry.m_hasLocalMaterial = false;
 							
@@ -3840,7 +3906,6 @@ bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct
 		}
 
 							
-
 		u2b.convertURDFToVisualShapeInternal(&visualShape, pathPrefix, localInertiaFrame.inverse()*childTrans, vertices, indices,textures);
 					
 		if (vertices.size() && indices.size())
@@ -5933,6 +5998,10 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 	double spinningFriction = clientCmd.m_changeDynamicsInfoArgs.m_spinningFriction;
 	double rollingFriction = clientCmd.m_changeDynamicsInfoArgs.m_rollingFriction;
 	double restitution = clientCmd.m_changeDynamicsInfoArgs.m_restitution;
+	btVector3 newLocalInertiaDiagonal(clientCmd.m_changeDynamicsInfoArgs.m_localInertiaDiagonal[0],
+						clientCmd.m_changeDynamicsInfoArgs.m_localInertiaDiagonal[1],
+						clientCmd.m_changeDynamicsInfoArgs.m_localInertiaDiagonal[2]);
+
 	btAssert(bodyUniqueId >= 0);
 						
 	InternalBodyData* body = m_data->m_bodyHandles.getHandle(bodyUniqueId);
@@ -5998,6 +6067,10 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 					mb->setBaseInertia(localInertia);
 				}
 			}
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL)
+			{
+				mb->setBaseInertia(newLocalInertiaDiagonal);
+			}
 		}
 		else
 		{
@@ -6051,6 +6124,10 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 						mb->getLinkCollider(linkIndex)->getCollisionShape()->calculateLocalInertia(mass,localInertia);
 						mb->getLink(linkIndex).m_inertiaLocal = localInertia;
 					}
+				}
+				if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL)
+				{
+					mb->getLink(linkIndex).m_inertiaLocal = newLocalInertiaDiagonal;
 				}
 			}
 		}
@@ -6110,6 +6187,14 @@ bool PhysicsServerCommandProcessor::processChangeDynamicsInfoCommand(const struc
 				}
 				body->m_rigidBody->setMassProps(mass,localInertia);
 			}
+			if (clientCmd.m_updateFlags & CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL)
+			{
+				btScalar orgMass = body->m_rigidBody->getInvMass();
+				if (orgMass>0)
+				{
+					body->m_rigidBody->setMassProps(mass,newLocalInertiaDiagonal);
+				}
+			}
 		}
 	}
 					
@@ -6148,11 +6233,18 @@ bool PhysicsServerCommandProcessor::processGetDynamicsInfoCommand(const struct S
 		if (linkIndex == -1)
 		{
 			serverCmd.m_dynamicsInfo.m_mass = mb->getBaseMass();
+			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[0] = mb->getBaseInertia()[0];
+			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[1] = mb->getBaseInertia()[1];
+			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[2] = mb->getBaseInertia()[2];
 			serverCmd.m_dynamicsInfo.m_lateralFrictionCoeff = mb->getBaseCollider()->getFriction();
 		}
 		else
 		{
 			serverCmd.m_dynamicsInfo.m_mass = mb->getLinkMass(linkIndex);
+			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[0] = mb->getLinkInertia(linkIndex)[0];
+			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[1] = mb->getLinkInertia(linkIndex)[1];
+			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[2] = mb->getLinkInertia(linkIndex)[2];
+
 			if (mb->getLinkCollider(linkIndex))
 			{
 				serverCmd.m_dynamicsInfo.m_lateralFrictionCoeff = mb->getLinkCollider(linkIndex)->getFriction();
@@ -8094,6 +8186,89 @@ bool PhysicsServerCommandProcessor::processLoadTextureCommand(const struct Share
 	return hasStatus;
 }
 
+bool PhysicsServerCommandProcessor::processSaveStateCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	BT_PROFILE("CMD_RESTORE_STATE");
+	bool hasStatus = true;
+	SharedMemoryStatus& serverCmd = serverStatusOut;
+	serverCmd.m_type = CMD_SAVE_STATE_FAILED;
+
+	btDefaultSerializer* ser = new btDefaultSerializer();
+	int currentFlags = ser->getSerializationFlags();
+	ser->setSerializationFlags(currentFlags | BT_SERIALIZE_CONTACT_MANIFOLDS);
+	m_data->m_dynamicsWorld->serialize(ser);
+	bParse::btBulletFile* bulletFile = new bParse::btBulletFile((char*)ser->getBufferPointer(), ser->getCurrentBufferSize());
+	bulletFile->parse(false);
+	if (bulletFile->ok())
+	{
+		serverCmd.m_type = CMD_SAVE_STATE_COMPLETED;
+		serverCmd.m_saveStateResultArgs.m_stateId = m_data->m_savedStates.size();
+		SaveStateData sd;
+		sd.m_bulletFile = bulletFile;
+		sd.m_serializer = ser;
+		m_data->m_savedStates.push_back(sd);
+	}
+	return hasStatus;
+}
+
+
+bool PhysicsServerCommandProcessor::processRestoreStateCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	BT_PROFILE("CMD_RESTORE_STATE");
+	bool hasStatus = true;
+	SharedMemoryStatus& serverCmd = serverStatusOut;
+	serverCmd.m_type = CMD_RESTORE_STATE_FAILED;
+
+	btMultiBodyWorldImporter* importer = new btMultiBodyWorldImporter(m_data->m_dynamicsWorld);
+	importer->setImporterFlags(eRESTORE_EXISTING_OBJECTS);
+
+	bool ok = false;
+
+	if (clientCmd.m_loadStateArguments.m_stateId >= 0)
+	{
+		if (clientCmd.m_loadStateArguments.m_stateId < m_data->m_savedStates.size())
+		{
+			bParse::btBulletFile* bulletFile = m_data->m_savedStates[clientCmd.m_loadStateArguments.m_stateId].m_bulletFile;
+			ok = importer->convertAllObjects(bulletFile);
+		}
+	}
+	else
+	{
+		const char* prefix[] = { "", "./", "./data/", "../data/", "../../data/", "../../../data/", "../../../../data/" };
+		int numPrefixes = sizeof(prefix) / sizeof(const char*);
+		char relativeFileName[1024];
+		FILE* f = 0;
+		bool found = false;
+
+		for (int i = 0; !f && i<numPrefixes; i++)
+		{
+			sprintf(relativeFileName, "%s%s", prefix[i], clientCmd.m_fileArguments.m_fileName);
+			f = fopen(relativeFileName, "rb");
+			if (f)
+			{
+				found = true;
+				break;
+			}
+		}
+		if (f)
+		{
+			fclose(f);
+		}
+
+		if (found)
+		{
+			ok = importer->loadFile(relativeFileName);
+		}
+	}
+
+	if (ok)
+	{
+		serverCmd.m_type = CMD_RESTORE_STATE_COMPLETED;
+	}	
+
+	return hasStatus;
+}
+
 bool PhysicsServerCommandProcessor::processLoadBulletCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	BT_PROFILE("CMD_LOAD_BULLET");
@@ -8217,6 +8392,9 @@ bool PhysicsServerCommandProcessor::processSaveBulletCommand(const struct Shared
 	if (f)
 	{
 		btDefaultSerializer* ser = new btDefaultSerializer();
+		int currentFlags = ser->getSerializationFlags();
+		ser->setSerializationFlags(currentFlags | BT_SERIALIZE_CONTACT_MANIFOLDS);
+
 		m_data->m_dynamicsWorld->serialize(ser);
 		fwrite(ser->getBufferPointer(), ser->getCurrentBufferSize(), 1, f);
 		fclose(f);
@@ -8514,6 +8692,18 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 			hasStatus = processLoadTextureCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
+	case CMD_RESTORE_STATE:
+	{
+		hasStatus = processRestoreStateCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+		break;
+	}
+
+	case CMD_SAVE_STATE:
+	{
+		hasStatus = processSaveStateCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+		break;
+	}
+
 	case CMD_LOAD_BULLET:
 		{
 			hasStatus = processLoadBulletCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
@@ -8912,6 +9102,12 @@ void PhysicsServerCommandProcessor::resetSimulation()
 	if (m_data)
 	{
 		m_data->m_visualConverter.resetAll();
+		for (int i = 0; i < m_data->m_savedStates.size(); i++)
+		{
+			delete m_data->m_savedStates[i].m_bulletFile;
+			delete m_data->m_savedStates[i].m_serializer;
+		}
+		m_data->m_savedStates.clear();
 	}
 
 	removePickingConstraint();

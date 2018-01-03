@@ -112,12 +112,13 @@ public:
 	{
 		int newargc = argc+2;
 		m_newargv = (char**)malloc(sizeof(void*)*newargc);
-		for (int i=0;i<argc;i++)
-			m_newargv[i] = argv[i];
+		char* t0 = (char*)"--unused";
+		m_newargv[0] = t0;
 
-		char* t0 = (char*)"--logtostderr";
+		for (int i=0;i<argc;i++)
+			m_newargv[i+1] = argv[i];
+		
 		char* t1 = (char*)"--start_demo_name=Physics Server";
-		m_newargv[argc] = t0;
 		m_newargv[argc+1] = t1;
 		m_data = btCreateInProcessExampleBrowser(newargc,m_newargv, useInProcessMemory);
 		SharedMemoryInterface* shMem = btGetSharedMemoryInterface(m_data);

@@ -199,7 +199,7 @@ m_objectIndex(-1)
     
 }
 
-TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer, b3AlignedObjectArray<float>* shadowBuffer, b3AlignedObjectArray<int>* segmentationMaskBuffer, int objectIndex)
+TinyRenderObjectData::TinyRenderObjectData(TGAImage& rgbColorBuffer,b3AlignedObjectArray<float>&depthBuffer, b3AlignedObjectArray<float>* shadowBuffer, b3AlignedObjectArray<int>* segmentationMaskBuffer, int objectIndex, int linkIndex)
 :m_model(0),
 m_rgbColorBuffer(rgbColorBuffer),
 m_depthBuffer(depthBuffer),
@@ -207,7 +207,8 @@ m_shadowBuffer(shadowBuffer),
 m_segmentationMaskBufferPtr(segmentationMaskBuffer),
 m_userData(0),
 m_userIndex(-1),
-m_objectIndex(objectIndex)
+m_objectIndex(objectIndex),
+m_linkIndex(linkIndex)
 {
     Vec3f       eye(1,1,3);
     Vec3f    center(0,0,0);
@@ -561,12 +562,12 @@ void TinyRenderer::renderObject(TinyRenderObjectData& renderData)
 			{
 				for (int t=0;t<clippedTriangles.size();t++)
 				{
-					triangleClipped(clippedTriangles[t], shader.varying_tri, shader, frame, &zbuffer[0], segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex);
+					triangleClipped(clippedTriangles[t], shader.varying_tri, shader, frame, &zbuffer[0], segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex+((renderData.m_linkIndex + 1) << 24));
 				}
 			}
 			else
 			{
-				triangle(shader.varying_tri, shader, frame, &zbuffer[0], segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex);
+				triangle(shader.varying_tri, shader, frame, &zbuffer[0], segmentationMaskBufferPtr, renderData.m_viewportMatrix, renderData.m_objectIndex+((renderData.m_linkIndex + 1) << 24));
 			}
         }
 		}

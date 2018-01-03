@@ -116,6 +116,8 @@ B3_SHARED_API	int b3GetDynamicsInfo(b3SharedMemoryStatusHandle statusHandle, str
 	
 B3_SHARED_API	b3SharedMemoryCommandHandle b3InitChangeDynamicsInfo(b3PhysicsClientHandle physClient);
 B3_SHARED_API	int b3ChangeDynamicsInfoSetMass(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double mass);
+B3_SHARED_API	int b3ChangeDynamicsInfoSetLocalInertiaDiagonal(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double localInertiaDiagonal[3]);
+
 B3_SHARED_API	int b3ChangeDynamicsInfoSetLateralFriction(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double lateralFriction);
 B3_SHARED_API	int b3ChangeDynamicsInfoSetSpinningFriction(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double friction);
 B3_SHARED_API	int b3ChangeDynamicsInfoSetRollingFriction(b3SharedMemoryCommandHandle commandHandle, int bodyUniqueId, int linkIndex, double friction);
@@ -207,6 +209,9 @@ B3_SHARED_API	void b3RequestCameraImageSetLightDiffuseCoeff(b3SharedMemoryComman
 B3_SHARED_API	void b3RequestCameraImageSetLightSpecularCoeff(b3SharedMemoryCommandHandle commandHandle, float lightSpecularCoeff);
 B3_SHARED_API	void b3RequestCameraImageSetShadow(b3SharedMemoryCommandHandle commandHandle, int hasShadow);
 B3_SHARED_API	void b3RequestCameraImageSelectRenderer(b3SharedMemoryCommandHandle commandHandle, int renderer);
+B3_SHARED_API	void b3RequestCameraImageSetFlags(b3SharedMemoryCommandHandle commandHandle, int flags);
+
+
 B3_SHARED_API	void b3GetCameraImageData(b3PhysicsClientHandle physClient, struct b3CameraImageData* imageData);
 
 ///compute a view matrix, helper function for b3RequestCameraImageSetCameraMatrices
@@ -311,7 +316,16 @@ B3_SHARED_API int	b3LoadUrdfCommandSetGlobalScaling(b3SharedMemoryCommandHandle 
 
 
 
+
+B3_SHARED_API b3SharedMemoryCommandHandle b3SaveStateCommandInit(b3PhysicsClientHandle physClient);
+B3_SHARED_API int b3GetStatusGetStateId(b3SharedMemoryStatusHandle statusHandle);
+
+B3_SHARED_API	b3SharedMemoryCommandHandle	b3LoadStateCommandInit(b3PhysicsClientHandle physClient);
+B3_SHARED_API int	b3LoadStateSetStateId(b3SharedMemoryCommandHandle commandHandle, int stateId);
+B3_SHARED_API int	b3LoadStateSetFileName(b3SharedMemoryCommandHandle commandHandle, const char* fileName);
+
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3LoadBulletCommandInit(b3PhysicsClientHandle physClient, const char* fileName);
+
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3SaveBulletCommandInit(b3PhysicsClientHandle physClient, const char* fileName);
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3LoadMJCFCommandInit(b3PhysicsClientHandle physClient, const char* fileName);
 B3_SHARED_API	void b3LoadMJCFCommandSetFlags(b3SharedMemoryCommandHandle commandHandle, int flags);

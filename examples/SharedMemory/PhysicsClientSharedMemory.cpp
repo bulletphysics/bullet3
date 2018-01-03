@@ -1236,6 +1236,23 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 			{
 				break;
 			}
+			case CMD_SAVE_STATE_COMPLETED:
+			{
+				break;
+			}
+			case CMD_RESTORE_STATE_FAILED:
+			{
+				b3Warning("restoreState failed");
+				break;
+			}
+			case CMD_RESTORE_STATE_COMPLETED:
+			{
+				break;
+			}
+			case CMD_BULLET_SAVING_COMPLETED:
+			{
+				break;
+			}
             default: {
                 b3Error("Unknown server status %d\n", serverCmd.m_type);
                 btAssert(0);

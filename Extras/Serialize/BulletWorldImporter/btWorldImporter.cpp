@@ -20,7 +20,8 @@ subject to the following restrictions:
 #endif
 btWorldImporter::btWorldImporter(btDynamicsWorld* world)
 :m_dynamicsWorld(world),
-m_verboseMode(0)
+m_verboseMode(0),
+m_importerFlags(0)
 {
 
 }
