@@ -84,7 +84,7 @@ protected:
 	bool processRestoreStateCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes);
 	bool processSaveStateCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes);
 
-	int extractCollisionShapes(const class btCollisionShape* colShape, const class btTransform& childTransform, struct b3CollisionShapeData* collisionShapeBuffer, int maxCollisionShapes);
+	int extractCollisionShapes(const class btCollisionShape* colShape, const class btTransform& transform, struct b3CollisionShapeData* collisionShapeBuffer, int maxCollisionShapes);
 
 	bool loadSdf(const char* fileName, char* bufferServerToClient, int bufferSizeInBytes, bool useMultiBody, int flags, btScalar globalScaling);
 

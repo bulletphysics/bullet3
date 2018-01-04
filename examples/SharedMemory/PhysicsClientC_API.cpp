@@ -3417,7 +3417,7 @@ B3_SHARED_API void b3GetClosestPointInformation(b3PhysicsClientHandle physClient
 }
 
 
-B3_SHARED_API	b3SharedMemoryCommandHandle b3InitRequestCollisionShapeInformation(b3PhysicsClientHandle physClient, int bodyUniqueIdA, int linkIndex)
+B3_SHARED_API	b3SharedMemoryCommandHandle b3InitRequestCollisionShapeInformation(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex)
 {
 	PhysicsClient* cl = (PhysicsClient*)physClient;
 	b3Assert(cl);
@@ -3425,7 +3425,7 @@ B3_SHARED_API	b3SharedMemoryCommandHandle b3InitRequestCollisionShapeInformation
 	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
 	b3Assert(command);
 	command->m_type = CMD_REQUEST_COLLISION_SHAPE_INFO;
-	command->m_requestCollisionShapeDataArguments.m_bodyUniqueId = bodyUniqueIdA;
+	command->m_requestCollisionShapeDataArguments.m_bodyUniqueId = bodyUniqueId;
 	command->m_requestCollisionShapeDataArguments.m_linkIndex = linkIndex;
 
 	command->m_updateFlags = 0;
