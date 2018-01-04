@@ -67,6 +67,32 @@ template <typename T, typename U> void addJointInfoFromMultiBodyData(const T* mb
 			info.m_jointUpperLimit = mb->m_links[link].m_jointUpperLimit;
 			info.m_jointMaxForce = mb->m_links[link].m_jointMaxForce;
 			info.m_jointMaxVelocity = mb->m_links[link].m_jointMaxVelocity;
+			
+			info.m_parentFrame[0] = mb->m_links[link].m_parentComToThisComOffset.m_floats[0];
+			info.m_parentFrame[1] = mb->m_links[link].m_parentComToThisComOffset.m_floats[1];
+			info.m_parentFrame[2] = mb->m_links[link].m_parentComToThisComOffset.m_floats[2];
+			info.m_parentFrame[3] = mb->m_links[link].m_zeroRotParentToThis.m_floats[0];
+			info.m_parentFrame[4] = mb->m_links[link].m_zeroRotParentToThis.m_floats[1];
+			info.m_parentFrame[5] = mb->m_links[link].m_zeroRotParentToThis.m_floats[2];
+			info.m_parentFrame[6] = mb->m_links[link].m_zeroRotParentToThis.m_floats[3];
+
+			info.m_jointAxis[0] = 0;
+			info.m_jointAxis[1] = 0;
+			info.m_jointAxis[2] = 0;
+			info.m_parentIndex = mb->m_links[link].m_parentIndex;
+
+			if (info.m_jointType == eRevoluteType)
+			{
+				info.m_jointAxis[0] = mb->m_links[link].m_jointAxisTop[0].m_floats[0];
+				info.m_jointAxis[1] = mb->m_links[link].m_jointAxisTop[0].m_floats[1];
+				info.m_jointAxis[2] = mb->m_links[link].m_jointAxisTop[0].m_floats[2];
+			}
+			if (info.m_jointType == ePrismaticType)
+			{
+				info.m_jointAxis[0] = mb->m_links[link].m_jointAxisBottom[0].m_floats[0];
+				info.m_jointAxis[1] = mb->m_links[link].m_jointAxisBottom[0].m_floats[1];
+				info.m_jointAxis[2] = mb->m_links[link].m_jointAxisBottom[0].m_floats[2];
+			}
 
 			if ((mb->m_links[link].m_jointType == eRevoluteType) ||
 				(mb->m_links[link].m_jointType == ePrismaticType)) {

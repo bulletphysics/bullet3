@@ -303,6 +303,12 @@ struct RequestVisualShapeDataArgs
 	int m_startingVisualShapeIndex;
 };
 
+struct RequestCollisionShapeDataArgs
+{
+	int m_bodyUniqueId;
+	int m_linkIndex;
+};
+
 enum EnumUpdateVisualShapeData
 {
 	CMD_UPDATE_VISUAL_SHAPE_TEXTURE=1,
@@ -338,7 +344,12 @@ struct SendVisualShapeDataArgs
     int m_numRemainingVisualShapes;
 };
 
-
+struct SendCollisionShapeDataArgs
+{
+	int m_bodyUniqueId;
+	int m_linkIndex;
+	int m_numCollisionShapes;
+};
 
 struct SendDebugLinesArgs
 {
@@ -993,6 +1004,7 @@ struct SharedMemoryCommand
 		struct b3SearchPathfArgs m_searchPathArgs;
 		struct b3CustomCommand m_customCommandArgs;
 		struct b3StateSerializationArguments m_loadStateArguments;
+		struct RequestCollisionShapeDataArgs m_requestCollisionShapeDataArguments;		
     };
 };
 
@@ -1068,6 +1080,7 @@ struct SharedMemoryStatus
 		struct b3CustomCommandResultArgs m_customCommandResultArgs;
 		struct b3PhysicsSimulationParameters m_simulationParameterResultArgs;
 		struct b3StateSerializationArguments m_saveStateResultArgs;
+		struct SendCollisionShapeDataArgs m_sendCollisionShapeArgs;
 	};
 };
 

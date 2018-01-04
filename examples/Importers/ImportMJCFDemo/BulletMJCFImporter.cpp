@@ -251,7 +251,7 @@ struct BulletMJCFImporterInternalData
 		const char* angle = root_xml->Attribute("angle");
 		m_angleUnits = angle ? angle : "degree";  // degrees by default, http://www.mujoco.org/book/modeling.html#compiler
 		const char* inertiaFromGeom = root_xml->Attribute("inertiafromgeom");
-		if(inertiaFromGeom[0] == 'f')  // false, other values assumed `true`.
+		if(inertiaFromGeom && inertiaFromGeom[0] == 'f')  // false, other values assumed `true`.
 		{
 			m_inertiaFromGeom = false;
 		}

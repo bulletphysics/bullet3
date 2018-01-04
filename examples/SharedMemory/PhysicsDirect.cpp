@@ -54,6 +54,8 @@ struct PhysicsDirectInternalData
 	btAlignedObjectArray<b3OverlappingObject> m_cachedOverlappingObjects;
 
 	btAlignedObjectArray<b3VisualShapeData> m_cachedVisualShapes;
+	btAlignedObjectArray<b3CollisionShapeData> m_cachedCollisionShapes;
+
     btAlignedObjectArray<b3VRControllerEvent> m_cachedVREvents;
 
 	btAlignedObjectArray<b3KeyboardEvent> m_cachedKeyboardEvents;
@@ -1011,6 +1013,27 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 	{
 		break;
 	}
+	case CMD_COLLISION_SHAPE_INFO_FAILED:
+	{
+		b3Warning("getCollisionShapeData failed");
+		break;
+	}
+	case CMD_COLLISION_SHAPE_INFO_COMPLETED:
+	{
+		B3_PROFILE("CMD_COLLISION_SHAPE_INFO_COMPLETED");
+		if (m_data->m_verboseOutput)
+		{
+			b3Printf("Collision Shape Information Request OK\n");
+		}
+		int numCollisionShapesCopied = serverCmd.m_sendCollisionShapeArgs.m_numCollisionShapes;
+		m_data->m_cachedCollisionShapes.resize(numCollisionShapesCopied);
+		b3CollisionShapeData* shapeData = (b3CollisionShapeData*)&m_data->m_bulletStreamDataServerToClient[0];
+		for (int i = 0; i < numCollisionShapesCopied; i++)
+		{
+			m_data->m_cachedCollisionShapes[i] = shapeData[i];
+		}
+		break;
+	}
 	case CMD_RESTORE_STATE_FAILED:
 	{
 		b3Warning("restoreState failed");
@@ -1241,6 +1264,14 @@ void PhysicsDirect::getCachedVisualShapeInformation(struct b3VisualShapeInformat
 	visualShapesInfo->m_numVisualShapes = m_data->m_cachedVisualShapes.size();
 	visualShapesInfo->m_visualShapeData = visualShapesInfo->m_numVisualShapes ? &m_data->m_cachedVisualShapes[0] : 0;
 }
+
+void PhysicsDirect::getCachedCollisionShapeInformation(struct b3CollisionShapeInformation* collisionShapesInfo)
+{
+	collisionShapesInfo->m_numCollisionShapes = m_data->m_cachedCollisionShapes.size();
+	collisionShapesInfo->m_collisionShapeData = collisionShapesInfo->m_numCollisionShapes ? &m_data->m_cachedCollisionShapes[0] : 0;
+}
+
+
 
 void PhysicsDirect::getCachedVREvents(struct b3VREventsData* vrEventsData)
 {

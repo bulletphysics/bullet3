@@ -80,6 +80,7 @@ enum EnumSharedMemoryClientCommand
 	CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS,
 	CMD_SAVE_STATE,
 	CMD_RESTORE_STATE,
+	CMD_REQUEST_COLLISION_SHAPE_INFO,
     //don't go beyond this command!
     CMD_MAX_CLIENT_COMMANDS,
     
@@ -185,6 +186,8 @@ enum EnumSharedMemoryServerStatus
 		CMD_SAVE_STATE_COMPLETED,
 		CMD_RESTORE_STATE_FAILED,
 		CMD_RESTORE_STATE_COMPLETED,
+		CMD_COLLISION_SHAPE_INFO_COMPLETED,
+		CMD_COLLISION_SHAPE_INFO_FAILED,
 		//don't go beyond 'CMD_MAX_SERVER_COMMANDS!
         CMD_MAX_SERVER_COMMANDS
 };
@@ -217,10 +220,6 @@ enum JointType {
 	eGearType=6
 };
 
-enum b3RequestDynamicsInfoFlags
-{
-	eDYNAMICS_INFO_REPORT_INERTIA=1,
-};
 
 enum b3JointInfoFlags
 {
@@ -247,6 +246,7 @@ struct b3JointInfo
 		double m_parentFrame[7]; // position and orientation (quaternion)
 		double m_childFrame[7]; // ^^^
 		double m_jointAxis[3]; // joint axis in parent local frame
+		int m_parentIndex;
 };
 
 
@@ -278,7 +278,14 @@ struct b3DynamicsInfo
 {
 	double m_mass;
 	double m_localInertialDiagonal[3];
+	double m_localInertialFrame[7];
 	double m_lateralFrictionCoeff;
+
+	double m_rollingFrictionCoeff;
+	double m_spinningFrictionCoeff;
+	double m_restitution;
+	double m_contactStiffness;
+	double m_contactDamping;
 };
 
 // copied from btMultiBodyLink.h
@@ -529,6 +536,23 @@ struct b3VisualShapeInformation
 {
 	int m_numVisualShapes;
 	struct b3VisualShapeData* m_visualShapeData;
+};
+
+
+struct b3CollisionShapeData
+{
+	int m_objectUniqueId;
+	int m_linkIndex;
+	int m_collisionGeometryType;//GEOM_BOX, GEOM_SPHERE etc
+	double m_dimensions[3];//meaning depends on m_visualGeometryType GEOM_BOX: extents, GEOM_SPHERE: radius, GEOM_CAPSULE:
+	double m_localCollisionFrame[7];//pos[3], orn[4]
+	char m_meshAssetFileName[VISUAL_SHAPE_MAX_PATH_LEN];
+};
+
+struct b3CollisionShapeInformation
+{
+	int m_numCollisionShapes;
+	struct b3CollisionShapeData* m_collisionShapeData;
 };
 
 enum eLinkStateFlags
