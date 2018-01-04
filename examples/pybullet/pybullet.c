@@ -913,13 +913,12 @@ static PyObject* pybullet_getDynamicsInfo(PyObject* self, PyObject* args, PyObje
 	{
 		int bodyUniqueId = -1;
 		int linkIndex = -2;
-		int flags = 0;
 
 		b3PhysicsClientHandle sm = 0;
 		
 		int physicsClientId = 0;
-		static char* kwlist[] = {"bodyUniqueId", "linkIndex", "flags", "physicsClientId", NULL};
-		if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|ii", kwlist, &bodyUniqueId, &linkIndex, &flags, &physicsClientId))
+		static char* kwlist[] = {"bodyUniqueId", "linkIndex", "physicsClientId", NULL};
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|i", kwlist, &bodyUniqueId, &linkIndex,  &physicsClientId))
 		{
 			return NULL;
 		}
@@ -934,11 +933,7 @@ static PyObject* pybullet_getDynamicsInfo(PyObject* self, PyObject* args, PyObje
 			b3SharedMemoryCommandHandle cmd_handle;
 			b3SharedMemoryStatusHandle status_handle;
 			struct b3DynamicsInfo info;
-			int numFields = 2;
-			if (flags & eDYNAMICS_INFO_REPORT_INERTIA)
-			{
-				numFields++;
-			}
+			
 
 			if (bodyUniqueId < 0)
 			{
@@ -959,25 +954,41 @@ static PyObject* pybullet_getDynamicsInfo(PyObject* self, PyObject* args, PyObje
 				return NULL;
 			}
 			
-			
-			
-
 			if (b3GetDynamicsInfo(status_handle, &info))
 			{
 			
+				int numFields = 10;
 				PyObject* pyDynamicsInfo = PyTuple_New(numFields);
 				PyTuple_SetItem(pyDynamicsInfo, 0, PyFloat_FromDouble(info.m_mass));
 				PyTuple_SetItem(pyDynamicsInfo, 1, PyFloat_FromDouble(info.m_lateralFrictionCoeff));
 				
-				if (flags & eDYNAMICS_INFO_REPORT_INERTIA)
 				{
 					PyObject* pyInertiaDiag = PyTuple_New(3);
-					PyTuple_SetItem(pyInertiaDiag,0,PyFloat_FromDouble(info.m_localInertialDiagonal[0]));
-					PyTuple_SetItem(pyInertiaDiag,1,PyFloat_FromDouble(info.m_localInertialDiagonal[1]));
-					PyTuple_SetItem(pyInertiaDiag,2,PyFloat_FromDouble(info.m_localInertialDiagonal[2]));
+					PyTuple_SetItem(pyInertiaDiag, 0, PyFloat_FromDouble(info.m_localInertialDiagonal[0]));
+					PyTuple_SetItem(pyInertiaDiag, 1, PyFloat_FromDouble(info.m_localInertialDiagonal[1]));
+					PyTuple_SetItem(pyInertiaDiag, 2, PyFloat_FromDouble(info.m_localInertialDiagonal[2]));
 					PyTuple_SetItem(pyDynamicsInfo, 2, pyInertiaDiag);
 				}
-				
+				{
+					PyObject* pyInertiaPos= PyTuple_New(3);
+					PyTuple_SetItem(pyInertiaPos, 0, PyFloat_FromDouble(info.m_localInertialFrame[0]));
+					PyTuple_SetItem(pyInertiaPos, 1, PyFloat_FromDouble(info.m_localInertialFrame[1]));
+					PyTuple_SetItem(pyInertiaPos, 2, PyFloat_FromDouble(info.m_localInertialFrame[2]));
+					PyTuple_SetItem(pyDynamicsInfo, 3, pyInertiaPos);
+				}
+				{
+					PyObject* pyInertiaOrn= PyTuple_New(4);
+					PyTuple_SetItem(pyInertiaOrn, 0, PyFloat_FromDouble(info.m_localInertialFrame[3]));
+					PyTuple_SetItem(pyInertiaOrn, 1, PyFloat_FromDouble(info.m_localInertialFrame[4]));
+					PyTuple_SetItem(pyInertiaOrn, 2, PyFloat_FromDouble(info.m_localInertialFrame[5]));
+					PyTuple_SetItem(pyInertiaOrn, 3, PyFloat_FromDouble(info.m_localInertialFrame[6]));
+					PyTuple_SetItem(pyDynamicsInfo, 4, pyInertiaOrn);
+				}
+				PyTuple_SetItem(pyDynamicsInfo, 5, PyFloat_FromDouble(info.m_restitution));
+				PyTuple_SetItem(pyDynamicsInfo, 6, PyFloat_FromDouble(info.m_rollingFrictionCoeff));
+				PyTuple_SetItem(pyDynamicsInfo, 7, PyFloat_FromDouble(info.m_spinningFrictionCoeff));
+				PyTuple_SetItem(pyDynamicsInfo, 8, PyFloat_FromDouble(info.m_contactDamping));
+				PyTuple_SetItem(pyDynamicsInfo, 9, PyFloat_FromDouble(info.m_contactStiffness));
 				return pyDynamicsInfo;
 			}
 		}
@@ -3067,7 +3078,7 @@ static PyObject* pybullet_getJointInfo(PyObject* self, PyObject* args, PyObject*
 
 	int bodyUniqueId = -1;
 	int jointIndex = -1;
-	int jointInfoSize = 13;  // size of struct b3JointInfo
+	int jointInfoSize = 17;  // size of struct b3JointInfo
 	b3PhysicsClientHandle sm = 0;
 	int physicsClientId = 0;
 	static char* kwlist[] = {"bodyUniqueId", "jointIndex", "physicsClientId", NULL};
@@ -3138,6 +3149,30 @@ static PyObject* pybullet_getJointInfo(PyObject* self, PyObject* args, PyObject*
 					PyTuple_SetItem(pyListJointInfo, 12,
 									PyString_FromString("not available"));
 				}
+				{
+					PyObject* axis = PyTuple_New(3);
+					PyTuple_SetItem(axis, 0, PyFloat_FromDouble(info.m_jointAxis[0]));
+					PyTuple_SetItem(axis, 1, PyFloat_FromDouble(info.m_jointAxis[1]));
+					PyTuple_SetItem(axis, 2, PyFloat_FromDouble(info.m_jointAxis[2]));
+					PyTuple_SetItem(pyListJointInfo, 13, axis);
+				}
+				{
+					PyObject* pos = PyTuple_New(3);
+					PyTuple_SetItem(pos, 0, PyFloat_FromDouble(info.m_parentFrame[0]));
+					PyTuple_SetItem(pos, 1, PyFloat_FromDouble(info.m_parentFrame[1]));
+					PyTuple_SetItem(pos, 2, PyFloat_FromDouble(info.m_parentFrame[2]));
+					PyTuple_SetItem(pyListJointInfo, 14, pos);
+				}
+				{
+					PyObject* orn = PyTuple_New(4);
+					PyTuple_SetItem(orn, 0, PyFloat_FromDouble(info.m_parentFrame[3]));
+					PyTuple_SetItem(orn, 1, PyFloat_FromDouble(info.m_parentFrame[4]));
+					PyTuple_SetItem(orn, 2, PyFloat_FromDouble(info.m_parentFrame[5]));
+					PyTuple_SetItem(orn, 3, PyFloat_FromDouble(info.m_parentFrame[6]));
+					PyTuple_SetItem(pyListJointInfo, 15, orn);
+				}
+				PyTuple_SetItem(pyListJointInfo, 16, PyInt_FromLong(info.m_parentIndex));
+
 
 				return pyListJointInfo;
 			}
@@ -4772,6 +4807,107 @@ static PyObject* pybullet_setDebugObjectColor(PyObject* self, PyObject* args, Py
 	Py_INCREF(Py_None);
 	return Py_None;
 }
+
+static PyObject* pybullet_getCollisionShapeData(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	int objectUniqueId = -1;
+	b3SharedMemoryCommandHandle commandHandle;
+	b3SharedMemoryStatusHandle statusHandle;
+	struct b3CollisionShapeInformation collisionShapeInfo;
+	int statusType;
+	int i;
+	int linkIndex;
+	PyObject* pyResultList = 0;
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+	static char* kwlist[] = { "objectUniqueId", "linkIndex", "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|i", kwlist, &objectUniqueId, &linkIndex, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	{
+		commandHandle = b3InitRequestCollisionShapeInformation(sm, objectUniqueId, linkIndex);
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+		statusType = b3GetStatusType(statusHandle);
+		if (statusType == CMD_COLLISION_SHAPE_INFO_COMPLETED)
+		{
+			b3GetCollisionShapeInformation(sm, &collisionShapeInfo);
+			pyResultList = PyTuple_New(collisionShapeInfo.m_numCollisionShapes);
+			for (i = 0; i < collisionShapeInfo.m_numCollisionShapes; i++)
+			{
+				PyObject* collisionShapeObList = PyTuple_New(7);
+				PyObject* item;
+
+				item = PyInt_FromLong(collisionShapeInfo.m_collisionShapeData[i].m_objectUniqueId);
+				PyTuple_SetItem(collisionShapeObList, 0, item);
+
+				item = PyInt_FromLong(collisionShapeInfo.m_collisionShapeData[i].m_linkIndex);
+				PyTuple_SetItem(collisionShapeObList, 1, item);
+
+				item = PyInt_FromLong(collisionShapeInfo.m_collisionShapeData[i].m_collisionGeometryType);
+				PyTuple_SetItem(collisionShapeObList, 2, item);
+
+				{
+					PyObject* vec = PyTuple_New(3);
+					item = PyFloat_FromDouble(collisionShapeInfo.m_collisionShapeData[i].m_dimensions[0]);
+					PyTuple_SetItem(vec, 0, item);
+					item = PyFloat_FromDouble(collisionShapeInfo.m_collisionShapeData[i].m_dimensions[1]);
+					PyTuple_SetItem(vec, 1, item);
+					item = PyFloat_FromDouble(collisionShapeInfo.m_collisionShapeData[i].m_dimensions[2]);
+					PyTuple_SetItem(vec, 2, item);
+					PyTuple_SetItem(collisionShapeObList, 3, vec);
+				}
+
+				item = PyString_FromString(collisionShapeInfo.m_collisionShapeData[i].m_meshAssetFileName);
+				PyTuple_SetItem(collisionShapeObList, 4, item);
+
+				{
+					PyObject* vec = PyTuple_New(3);
+					item = PyFloat_FromDouble(collisionShapeInfo.m_collisionShapeData[i].m_localCollisionFrame[0]);
+					PyTuple_SetItem(vec, 0, item);
+					item = PyFloat_FromDouble(collisionShapeInfo.m_collisionShapeData[i].m_localCollisionFrame[1]);
+					PyTuple_SetItem(vec, 1, item);
+					item = PyFloat_FromDouble(collisionShapeInfo.m_collisionShapeData[i].m_localCollisionFrame[2]);
+					PyTuple_SetItem(vec, 2, item);
+					PyTuple_SetItem(collisionShapeObList, 5, vec);
+				}
+
+				{
+					PyObject* vec = PyTuple_New(4);
+					item = PyFloat_FromDouble(collisionShapeInfo.m_collisionShapeData[i].m_localCollisionFrame[3]);
+					PyTuple_SetItem(vec, 0, item);
+					item = PyFloat_FromDouble(collisionShapeInfo.m_collisionShapeData[i].m_localCollisionFrame[4]);
+					PyTuple_SetItem(vec, 1, item);
+					item = PyFloat_FromDouble(collisionShapeInfo.m_collisionShapeData[i].m_localCollisionFrame[5]);
+					PyTuple_SetItem(vec, 2, item);
+					item = PyFloat_FromDouble(collisionShapeInfo.m_collisionShapeData[i].m_localCollisionFrame[6]);
+					PyTuple_SetItem(vec, 3, item);
+					PyTuple_SetItem(collisionShapeObList, 6, vec);
+				}
+
+				
+				PyTuple_SetItem(pyResultList, i, collisionShapeObList);
+			}
+			return pyResultList;
+		}
+		else
+		{
+			PyErr_SetString(SpamError, "Error receiving collision shape info");
+			return NULL;
+		}
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 
 static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args, PyObject* keywds)
 {
@@ -8088,6 +8224,9 @@ static PyMethodDef SpamMethods[] = {
 	{"getVisualShapeData", (PyCFunction)pybullet_getVisualShapeData, METH_VARARGS | METH_KEYWORDS,
 	 "Return the visual shape information for one object."},
 
+	{ "getCollisionShapeData", (PyCFunction)pybullet_getCollisionShapeData, METH_VARARGS | METH_KEYWORDS,
+		"Return the collision shape information for one object." },
+
 	{"changeVisualShape", (PyCFunction)pybullet_changeVisualShape, METH_VARARGS | METH_KEYWORDS,
 	 "Change part of the visual shape information for one object."},
 	
@@ -8306,8 +8445,7 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "JOINT_POINT2POINT", ePoint2PointType);  // user read
 	PyModule_AddIntConstant(m, "JOINT_GEAR", eGearType);  // user read
 	
-	PyModule_AddIntConstant(m, "DYNAMICS_INFO_REPORT_INERTIA", eDYNAMICS_INFO_REPORT_INERTIA);  // report local inertia in 'getDynamicsInfo'
-
+	
 	PyModule_AddIntConstant(m, "SENSOR_FORCE_TORQUE", eSensorForceTorqueType);  // user read
 
 	PyModule_AddIntConstant(m, "TORQUE_CONTROL", CONTROL_MODE_TORQUE);

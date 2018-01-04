@@ -44,6 +44,8 @@ struct PhysicsClientSharedMemoryInternalData {
     btAlignedObjectArray<b3ContactPointData> m_cachedContactPoints;
 	btAlignedObjectArray<b3OverlappingObject> m_cachedOverlappingObjects;
 	btAlignedObjectArray<b3VisualShapeData> m_cachedVisualShapes;
+	btAlignedObjectArray<b3CollisionShapeData> m_cachedCollisionShapes;
+
 	btAlignedObjectArray<b3VRControllerEvent> m_cachedVREvents;
 	btAlignedObjectArray<b3KeyboardEvent> m_cachedKeyboardEvents;
 	btAlignedObjectArray<b3MouseEvent> m_cachedMouseEvents;
@@ -1253,6 +1255,27 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 			{
 				break;
 			}
+			case CMD_COLLISION_SHAPE_INFO_FAILED:
+			{
+				b3Warning("getCollisionShapeData failed");
+				break;
+			}
+			case CMD_COLLISION_SHAPE_INFO_COMPLETED:
+			{
+				B3_PROFILE("CMD_COLLISION_SHAPE_INFO_COMPLETED");
+				if (m_data->m_verboseOutput)
+				{
+					b3Printf("Collision Shape Information Request OK\n");
+				}
+				int numCollisionShapesCopied = serverCmd.m_sendCollisionShapeArgs.m_numCollisionShapes;
+				m_data->m_cachedCollisionShapes.resize(numCollisionShapesCopied);
+				b3CollisionShapeData* shapeData = (b3CollisionShapeData*)m_data->m_testBlock1->m_bulletStreamDataServerToClientRefactor;
+				for (int i = 0; i < numCollisionShapesCopied; i++)
+				{
+					m_data->m_cachedCollisionShapes[i] = shapeData[i];
+				}
+				break;
+			}
             default: {
                 b3Error("Unknown server status %d\n", serverCmd.m_type);
                 btAssert(0);
@@ -1594,6 +1617,13 @@ void PhysicsClientSharedMemory::getCachedVisualShapeInformation(struct b3VisualS
 	visualShapesInfo->m_numVisualShapes = m_data->m_cachedVisualShapes.size();
 	visualShapesInfo->m_visualShapeData = visualShapesInfo->m_numVisualShapes ? &m_data->m_cachedVisualShapes[0] : 0;
 }
+
+void PhysicsClientSharedMemory::getCachedCollisionShapeInformation(struct b3CollisionShapeInformation* collisionShapesInfo)
+{
+	collisionShapesInfo->m_numCollisionShapes = m_data->m_cachedCollisionShapes.size();
+	collisionShapesInfo->m_collisionShapeData = collisionShapesInfo->m_numCollisionShapes? &m_data->m_cachedCollisionShapes[0] : 0;
+}
+
 
 
 const float* PhysicsClientSharedMemory::getDebugLinesFrom() const {

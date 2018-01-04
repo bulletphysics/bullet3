@@ -599,8 +599,8 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
         case URDF_GEOM_CYLINDER:
         {
 			btScalar cylRadius = collision->m_geometry.m_capsuleRadius;
-			btScalar cylLength = collision->m_geometry.m_capsuleHeight;
-			
+			btScalar cylHalfLength = 0.5*collision->m_geometry.m_capsuleHeight;
+#if 0
             btAlignedObjectArray<btVector3> vertices;
             //int numVerts = sizeof(barrel_vertices)/(9*sizeof(float));
             int numSteps = 32;
@@ -620,10 +620,10 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
 			cylZShape->optimizeConvexHull();
 			
 			//btConvexShape* cylZShape = new btConeShapeZ(cylRadius,cylLength);//(vexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
-            
-            //btVector3 halfExtents(cylRadius,cylRadius,cylLength);
-            //btCylinderShapeZ* cylZShape = new btCylinderShapeZ(halfExtents);
-            
+#else       
+            btVector3 halfExtents(cylRadius,cylRadius, cylHalfLength);
+            btCylinderShapeZ* cylZShape = new btCylinderShapeZ(halfExtents);
+#endif       
 
             shape = cylZShape;
             break;

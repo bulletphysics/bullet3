@@ -6237,6 +6237,29 @@ bool PhysicsServerCommandProcessor::processGetDynamicsInfoCommand(const struct S
 			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[1] = mb->getBaseInertia()[1];
 			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[2] = mb->getBaseInertia()[2];
 			serverCmd.m_dynamicsInfo.m_lateralFrictionCoeff = mb->getBaseCollider()->getFriction();
+
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[0] = body->m_rootLocalInertialFrame.getOrigin()[0];
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[1] = body->m_rootLocalInertialFrame.getOrigin()[1];
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[2] = body->m_rootLocalInertialFrame.getOrigin()[2];
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[3] = body->m_rootLocalInertialFrame.getRotation()[0];
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[4] = body->m_rootLocalInertialFrame.getRotation()[1];
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[5] = body->m_rootLocalInertialFrame.getRotation()[2];
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[6] = body->m_rootLocalInertialFrame.getRotation()[3];
+		
+			serverCmd.m_dynamicsInfo.m_restitution = mb->getBaseCollider()->getRestitution();
+			serverCmd.m_dynamicsInfo.m_rollingFrictionCoeff = mb->getBaseCollider()->getRollingFriction();
+			serverCmd.m_dynamicsInfo.m_spinningFrictionCoeff = mb->getBaseCollider()->getSpinningFriction();
+
+			if (mb->getBaseCollider()->getCollisionFlags() & btCollisionObject::CF_HAS_CONTACT_STIFFNESS_DAMPING)
+			{
+				serverCmd.m_dynamicsInfo.m_contactStiffness = mb->getBaseCollider()->getContactStiffness();
+				serverCmd.m_dynamicsInfo.m_contactDamping = mb->getBaseCollider()->getContactDamping();
+			}
+			else
+			{
+				serverCmd.m_dynamicsInfo.m_contactStiffness = -1;
+				serverCmd.m_dynamicsInfo.m_contactDamping = -1;
+			}
 		}
 		else
 		{
@@ -6245,9 +6268,31 @@ bool PhysicsServerCommandProcessor::processGetDynamicsInfoCommand(const struct S
 			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[1] = mb->getLinkInertia(linkIndex)[1];
 			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[2] = mb->getLinkInertia(linkIndex)[2];
 
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[0] = body->m_linkLocalInertialFrames[linkIndex].getOrigin()[0];
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[1] = body->m_linkLocalInertialFrames[linkIndex].getOrigin()[1];
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[2] = body->m_linkLocalInertialFrames[linkIndex].getOrigin()[2];
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[3] = body->m_linkLocalInertialFrames[linkIndex].getRotation()[0];
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[4] = body->m_linkLocalInertialFrames[linkIndex].getRotation()[1];
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[5] = body->m_linkLocalInertialFrames[linkIndex].getRotation()[2];
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[6] = body->m_linkLocalInertialFrames[linkIndex].getRotation()[3];
+
 			if (mb->getLinkCollider(linkIndex))
 			{
 				serverCmd.m_dynamicsInfo.m_lateralFrictionCoeff = mb->getLinkCollider(linkIndex)->getFriction();
+				serverCmd.m_dynamicsInfo.m_restitution = mb->getLinkCollider(linkIndex)->getRestitution();
+				serverCmd.m_dynamicsInfo.m_rollingFrictionCoeff = mb->getLinkCollider(linkIndex)->getRollingFriction();
+				serverCmd.m_dynamicsInfo.m_spinningFrictionCoeff = mb->getLinkCollider(linkIndex)->getSpinningFriction();
+
+				if (mb->getLinkCollider(linkIndex)->getCollisionFlags() & btCollisionObject::CF_HAS_CONTACT_STIFFNESS_DAMPING)
+				{
+					serverCmd.m_dynamicsInfo.m_contactStiffness = mb->getLinkCollider(linkIndex)->getContactStiffness();
+					serverCmd.m_dynamicsInfo.m_contactDamping = mb->getLinkCollider(linkIndex)->getContactDamping();
+				}
+				else
+				{
+					serverCmd.m_dynamicsInfo.m_contactStiffness = -1;
+					serverCmd.m_dynamicsInfo.m_contactDamping = -1;
+				}
 			}
 			else
 			{
@@ -7967,7 +8012,144 @@ bool PhysicsServerCommandProcessor::processCalculateInverseKinematicsCommand(con
 	return hasStatus;
 }
 
+//		PyModule_AddIntConstant(m, "GEOM_SPHERE", GEOM_SPHERE);
+//		PyModule_AddIntConstant(m, "GEOM_BOX", GEOM_BOX);
+//		PyModule_AddIntConstant(m, "GEOM_CYLINDER", GEOM_CYLINDER);
+//		PyModule_AddIntConstant(m, "GEOM_MESH", GEOM_MESH);
+//		PyModule_AddIntConstant(m, "GEOM_PLANE", GEOM_PLANE);
+//		PyModule_AddIntConstant(m, "GEOM_CAPSULE", GEOM_CAPSULE);
 
+int PhysicsServerCommandProcessor::extractCollisionShapes(const btCollisionShape* colShape, const btTransform& transform, b3CollisionShapeData* collisionShapeBuffer, int maxCollisionShapes)
+{
+	if (maxCollisionShapes <= 0)
+	{
+		b3Warning("No space in buffer");
+		return 0;
+	}
+
+	int numConverted = 0;
+
+	collisionShapeBuffer[0].m_localCollisionFrame[0] = transform.getOrigin()[0];
+	collisionShapeBuffer[0].m_localCollisionFrame[1] = transform.getOrigin()[1];
+	collisionShapeBuffer[0].m_localCollisionFrame[2] = transform.getOrigin()[2];
+	collisionShapeBuffer[0].m_localCollisionFrame[3] = transform.getRotation()[0];
+	collisionShapeBuffer[0].m_localCollisionFrame[4] = transform.getRotation()[1];
+	collisionShapeBuffer[0].m_localCollisionFrame[5] = transform.getRotation()[2];
+	collisionShapeBuffer[0].m_localCollisionFrame[6] = transform.getRotation()[3];
+	collisionShapeBuffer[0].m_meshAssetFileName[0] = 0;
+
+	switch (colShape->getShapeType())
+	{
+	case CONVEX_HULL_SHAPE_PROXYTYPE:
+	{
+		collisionShapeBuffer[0].m_collisionGeometryType = GEOM_MESH;
+		sprintf( collisionShapeBuffer[0].m_meshAssetFileName, "unknown_file");
+		collisionShapeBuffer[0].m_dimensions[0] = 1;
+		collisionShapeBuffer[0].m_dimensions[1] = 1;
+		collisionShapeBuffer[0].m_dimensions[2] = 1;
+		numConverted++;
+		break;
+	}
+	case CYLINDER_SHAPE_PROXYTYPE:
+	{
+		btCylinderShapeZ* cyl = (btCylinderShapeZ*)colShape;
+		collisionShapeBuffer[0].m_collisionGeometryType = GEOM_CYLINDER;
+		collisionShapeBuffer[0].m_dimensions[0] = 2.*cyl->getHalfExtentsWithMargin().getZ(); 
+		collisionShapeBuffer[0].m_dimensions[1] = cyl->getHalfExtentsWithMargin().getX();
+		collisionShapeBuffer[0].m_dimensions[2] = 0;
+		numConverted++;
+		break;
+	}
+	case BOX_SHAPE_PROXYTYPE:
+	{
+		btBoxShape* box = (btBoxShape*)colShape;
+		btVector3 halfExtents = box->getHalfExtentsWithMargin();
+		collisionShapeBuffer[0].m_collisionGeometryType = GEOM_BOX;
+		collisionShapeBuffer[0].m_dimensions[0] = 2.*halfExtents[0];
+		collisionShapeBuffer[0].m_dimensions[1] = 2.*halfExtents[1];
+		collisionShapeBuffer[0].m_dimensions[2] = 2.*halfExtents[2];
+		numConverted++;
+		break;
+	}
+	case SPHERE_SHAPE_PROXYTYPE:
+	{
+		btSphereShape* sphere = (btSphereShape*)colShape;
+		collisionShapeBuffer[0].m_collisionGeometryType = GEOM_SPHERE;
+		collisionShapeBuffer[0].m_dimensions[0] = sphere->getRadius();
+		collisionShapeBuffer[0].m_dimensions[1] = sphere->getRadius();
+		collisionShapeBuffer[0].m_dimensions[2] = sphere->getRadius();
+		numConverted++;
+		break;
+	}
+	case COMPOUND_SHAPE_PROXYTYPE:
+	{
+		//recurse, accumulate childTransform
+		btCompoundShape* compound = (btCompoundShape*)colShape;
+		for (int i = 0; i < compound->getNumChildShapes(); i++)
+		{
+			btTransform childTrans = transform*compound->getChildTransform(i);
+			int remain = maxCollisionShapes - numConverted;
+			int converted = extractCollisionShapes(compound->getChildShape(i), childTrans, &collisionShapeBuffer[numConverted], remain);
+			numConverted += converted;
+		}
+		break;
+	}
+	default:
+	{
+		b3Warning("Unexpected collision shape type in PhysicsServerCommandProcessor::extractCollisionShapes");
+	}
+	};
+	
+	return numConverted;
+}
+
+
+bool PhysicsServerCommandProcessor::processRequestCollisionShapeInfoCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	bool hasStatus = true;
+
+	BT_PROFILE("CMD_REQUEST_COLLISION_SHAPE_INFO");
+	SharedMemoryStatus& serverCmd = serverStatusOut;
+	serverCmd.m_type = CMD_COLLISION_SHAPE_INFO_FAILED;
+	int bodyUniqueId = clientCmd.m_requestCollisionShapeDataArguments.m_bodyUniqueId;
+	int linkIndex = clientCmd.m_requestCollisionShapeDataArguments.m_linkIndex;
+	InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+	if (bodyHandle)
+	{
+		if (bodyHandle->m_multiBody)
+		{
+			b3CollisionShapeData* collisionShapeStoragePtr = (b3CollisionShapeData*)bufferServerToClient;
+			int totalBytesPerObject = sizeof(b3CollisionShapeData);
+			int maxNumColObjects = bufferSizeInBytes / totalBytesPerObject - 1;
+			btTransform childTrans;
+			childTrans.setIdentity();
+			serverCmd.m_sendCollisionShapeArgs.m_bodyUniqueId = bodyUniqueId;
+			serverCmd.m_sendCollisionShapeArgs.m_linkIndex = linkIndex;
+
+			if (linkIndex == -1)
+			{
+				if (bodyHandle->m_multiBody->getBaseCollider())
+				{
+					//extract shape info from base collider
+					int numConvertedCollisionShapes = extractCollisionShapes(bodyHandle->m_multiBody->getBaseCollider()->getCollisionShape(), childTrans, collisionShapeStoragePtr, maxNumColObjects);
+					serverCmd.m_sendCollisionShapeArgs.m_numCollisionShapes = numConvertedCollisionShapes;
+					serverCmd.m_type = CMD_COLLISION_SHAPE_INFO_COMPLETED;
+				}
+			}
+			else
+			{
+				if (linkIndex >= 0 && linkIndex < bodyHandle->m_multiBody->getNumLinks() && bodyHandle->m_multiBody->getLinkCollider(linkIndex))
+				{
+					int numConvertedCollisionShapes = extractCollisionShapes(bodyHandle->m_multiBody->getLinkCollider(linkIndex)->getCollisionShape(), childTrans, collisionShapeStoragePtr, maxNumColObjects);
+					serverCmd.m_sendCollisionShapeArgs.m_numCollisionShapes = numConvertedCollisionShapes;
+					serverCmd.m_type = CMD_COLLISION_SHAPE_INFO_COMPLETED;
+				}
+			}
+		}
+	}
+
+	return hasStatus;
+}
 bool PhysicsServerCommandProcessor::processRequestVisualShapeInfoCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	bool hasStatus = true;
@@ -8677,6 +8859,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 			hasStatus = processRequestVisualShapeInfoCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
+	case CMD_REQUEST_COLLISION_SHAPE_INFO:
+	{
+		hasStatus = processRequestCollisionShapeInfoCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+		break;
+	}
 	case CMD_UPDATE_VISUAL_SHAPE:
 		{
 			hasStatus = processUpdateVisualShapeCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);

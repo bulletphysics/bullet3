@@ -2141,13 +2141,12 @@ B3_SHARED_API int b3GetDynamicsInfo(b3SharedMemoryStatusHandle statusHandle, str
 	if (status->m_type != CMD_GET_DYNAMICS_INFO_COMPLETED)
 		return false;
 
-	info->m_mass = dynamicsInfo.m_mass;
-	info->m_localInertialDiagonal[0] = dynamicsInfo.m_localInertialDiagonal[0];
-	info->m_localInertialDiagonal[1] = dynamicsInfo.m_localInertialDiagonal[1];
-	info->m_localInertialDiagonal[2] = dynamicsInfo.m_localInertialDiagonal[2];
-
-	info->m_lateralFrictionCoeff = dynamicsInfo.m_lateralFrictionCoeff;
-	return true;
+	if (info)
+	{
+		*info = dynamicsInfo;
+		return true;
+	}
+	return false;
 }
 
 B3_SHARED_API	b3SharedMemoryCommandHandle b3InitChangeDynamicsInfo(b3PhysicsClientHandle physClient)
@@ -3415,6 +3414,30 @@ B3_SHARED_API void b3GetContactPointInformation(b3PhysicsClientHandle physClient
 B3_SHARED_API void b3GetClosestPointInformation(b3PhysicsClientHandle physClient, struct b3ContactInformation* contactPointInfo)
 {
 	b3GetContactPointInformation(physClient,contactPointInfo);
+}
+
+
+B3_SHARED_API	b3SharedMemoryCommandHandle b3InitRequestCollisionShapeInformation(b3PhysicsClientHandle physClient, int bodyUniqueIdA, int linkIndex)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+	b3Assert(command);
+	command->m_type = CMD_REQUEST_COLLISION_SHAPE_INFO;
+	command->m_requestCollisionShapeDataArguments.m_bodyUniqueId = bodyUniqueIdA;
+	command->m_requestCollisionShapeDataArguments.m_linkIndex = linkIndex;
+
+	command->m_updateFlags = 0;
+	return (b3SharedMemoryCommandHandle)command;
+}
+B3_SHARED_API	void b3GetCollisionShapeInformation(b3PhysicsClientHandle physClient, struct b3CollisionShapeInformation* collisionShapeInfo)
+{
+	PhysicsClient* cl = (PhysicsClient*)physClient;
+	if (cl)
+	{
+		cl->getCachedCollisionShapeInformation(collisionShapeInfo);
+	}
 }
 
 

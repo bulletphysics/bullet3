@@ -2542,14 +2542,14 @@ void PhysicsServerExample::drawUserDebugLines()
 			}
 			
 			float colorRGBA[4] = {
-				m_multiThreadedHelper->m_userDebugText[i].m_textColorRGB[0],
-				m_multiThreadedHelper->m_userDebugText[i].m_textColorRGB[1],
-				m_multiThreadedHelper->m_userDebugText[i].m_textColorRGB[2],
-				1.};
+				(float)m_multiThreadedHelper->m_userDebugText[i].m_textColorRGB[0],
+				(float)m_multiThreadedHelper->m_userDebugText[i].m_textColorRGB[1],
+				(float)m_multiThreadedHelper->m_userDebugText[i].m_textColorRGB[2],
+				(float)1.};
 
-			float pos[3] = {m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ1[0],
-			m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ1[1],
-			m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ1[2]};
+			float pos[3] = { (float)m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ1[0],
+				(float)m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ1[1],
+				(float)m_multiThreadedHelper->m_userDebugText[i].m_textPositionXYZ1[2]};
 
 			int graphicsIndex = m_multiThreadedHelper->m_userDebugText[i].m_trackingVisualShapeIndex;
 			if (graphicsIndex>=0)
@@ -2604,7 +2604,9 @@ void PhysicsServerExample::drawUserDebugLines()
 					offset.setIdentity();
 					offset.setOrigin(btVector3(0,-float(t)*sz,0));
 					btTransform result = tr*offset;
-					float newpos[3] = {result.getOrigin()[0],result.getOrigin()[1],result.getOrigin()[2]};
+					float newpos[3] = { (float)result.getOrigin()[0],
+						(float)result.getOrigin()[1],
+						(float)result.getOrigin()[2]};
 					
 					m_guiHelper->getAppInterface()->drawText3D(pieces[t].c_str(),
 						newpos,orientation,colorRGBA,
