@@ -4633,6 +4633,11 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 									}
 
 									motor->setVelocityTarget(desiredVelocity,kd);
+									//clamp position
+									if (mb->getLink(link).m_jointLowerLimit <= mb->getLink(link).m_jointUpperLimit)
+									{
+										btClamp(desiredPosition, mb->getLink(link).m_jointLowerLimit, mb->getLink(link).m_jointUpperLimit);
+									}
 									motor->setPositionTarget(desiredPosition,kp);
 
 									btScalar maxImp = 1000000.f*m_data->m_physicsDeltaTime;
