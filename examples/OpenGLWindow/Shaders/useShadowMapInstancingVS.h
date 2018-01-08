@@ -9,8 +9,6 @@ static const char* useShadowMapInstancingVertexShader= \
 "layout (location = 4) in vec3 vertexnormal;\n"
 "layout (location = 5) in vec4 instance_color;\n"
 "layout (location = 6) in vec3 instance_scale;\n"
-"uniform mat4 ModelViewMatrix;\n"
-"uniform mat4 ProjectionMatrix;\n"
 "uniform mat4 DepthBiasModelViewProjectionMatrix;\n"
 "uniform mat4 MVP;\n"
 "uniform vec3 lightPosIn;\n"

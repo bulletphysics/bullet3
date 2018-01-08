@@ -5,7 +5,8 @@
 ///increase the SHARED_MEMORY_MAGIC_NUMBER whenever incompatible changes are made in the structures
 ///my convention is year/month/day/rev
 
-#define SHARED_MEMORY_MAGIC_NUMBER 201801010
+#define SHARED_MEMORY_MAGIC_NUMBER 201801080
+//#define SHARED_MEMORY_MAGIC_NUMBER 201801010
 //#define SHARED_MEMORY_MAGIC_NUMBER 201710180
 //#define SHARED_MEMORY_MAGIC_NUMBER 201710050
 //#define SHARED_MEMORY_MAGIC_NUMBER 201708270
@@ -544,7 +545,7 @@ struct b3CollisionShapeData
 	int m_objectUniqueId;
 	int m_linkIndex;
 	int m_collisionGeometryType;//GEOM_BOX, GEOM_SPHERE etc
-	double m_dimensions[3];//meaning depends on m_visualGeometryType GEOM_BOX: extents, GEOM_SPHERE: radius, GEOM_CAPSULE:
+	double m_dimensions[3];//meaning depends on m_visualGeometryType GEOM_BOX: extents, GEOM_SPHERE: radius, GEOM_CAPSULE+GEOM_CYLINDER:length, radius, GEOM_MESH: mesh scale 
 	double m_localCollisionFrame[7];//pos[3], orn[4]
 	char m_meshAssetFileName[VISUAL_SHAPE_MAX_PATH_LEN];
 };

@@ -68,9 +68,9 @@ template <typename T, typename U> void addJointInfoFromMultiBodyData(const T* mb
 			info.m_jointMaxForce = mb->m_links[link].m_jointMaxForce;
 			info.m_jointMaxVelocity = mb->m_links[link].m_jointMaxVelocity;
 			
-			info.m_parentFrame[0] = mb->m_links[link].m_parentComToThisComOffset.m_floats[0];
-			info.m_parentFrame[1] = mb->m_links[link].m_parentComToThisComOffset.m_floats[1];
-			info.m_parentFrame[2] = mb->m_links[link].m_parentComToThisComOffset.m_floats[2];
+			info.m_parentFrame[0] = mb->m_links[link].m_parentComToThisPivotOffset.m_floats[0];
+			info.m_parentFrame[1] = mb->m_links[link].m_parentComToThisPivotOffset.m_floats[1];
+			info.m_parentFrame[2] = mb->m_links[link].m_parentComToThisPivotOffset.m_floats[2];
 			info.m_parentFrame[3] = mb->m_links[link].m_zeroRotParentToThis.m_floats[0];
 			info.m_parentFrame[4] = mb->m_links[link].m_zeroRotParentToThis.m_floats[1];
 			info.m_parentFrame[5] = mb->m_links[link].m_zeroRotParentToThis.m_floats[2];
