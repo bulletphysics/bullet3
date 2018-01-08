@@ -10,7 +10,6 @@ make -j $(command nproc 2>/dev/null || echo 12)
 cd examples
 cd pybullet
 if [ -e pybullet.dylib ]; then
-  rm pybullet.so
-  ln -s pybullet.dylib pybullet.so
+  ln -f -s pybullet.dylib pybullet.so
 fi
 
