@@ -430,9 +430,10 @@ enum EnumSimParamUpdateFlags
 
 enum EnumLoadSoftBodyUpdateFlags
 {
-    LOAD_SOFT_BODY_UPDATE_SCALE=1,
-    LOAD_SOFT_BODY_UPDATE_MASS=2,
-    LOAD_SOFT_BODY_UPDATE_COLLISION_MARGIN=4
+	LOAD_SOFT_BODY_FILE_NAME=1,
+    LOAD_SOFT_BODY_UPDATE_SCALE=2,
+    LOAD_SOFT_BODY_UPDATE_MASS=4,
+    LOAD_SOFT_BODY_UPDATE_COLLISION_MARGIN=8
 };
 
 enum EnumSimParamInternalSimFlags
@@ -446,6 +447,7 @@ enum EnumSimParamInternalSimFlags
 
 struct LoadSoftBodyArgs
 {
+	char m_fileName[MAX_FILENAME_LENGTH];
     double m_scale;
     double m_mass;
     double m_collisionMargin;

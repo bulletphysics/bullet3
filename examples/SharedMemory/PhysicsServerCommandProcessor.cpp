@@ -5668,6 +5668,14 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
     double scale = 0.1;
     double mass = 0.1;
     double collisionMargin = 0.02;
+	const LoadSoftBodyArgs& loadSoftBodyArgs = clientCmd.m_loadSoftBodyArguments;
+	if (m_data->m_verboseOutput)
+	{
+		b3Printf("Processed CMD_LOAD_SOFT_BODY:%s", loadSoftBodyArgs.m_fileName);
+	}
+	btAssert((clientCmd.m_updateFlags & LOAD_SOFT_BODY_FILE_NAME) !=0);
+	btAssert(loadSoftBodyArgs.m_fileName);
+
     if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_UPDATE_SCALE)
     {
         scale = clientCmd.m_loadSoftBodyArguments.m_scale;
@@ -5693,7 +5701,7 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 		char relativeFileName[1024];
 		char pathPrefix[1024];
 		pathPrefix[0] = 0;
-		if (b3ResourcePath::findResourcePath("bunny.obj", relativeFileName, 1024))
+		if (b3ResourcePath::findResourcePath(loadSoftBodyArgs.m_fileName, relativeFileName, 1024))
 		{
 			b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
 		}

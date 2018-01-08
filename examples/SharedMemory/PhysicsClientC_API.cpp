@@ -256,18 +256,31 @@ B3_SHARED_API void b3LoadMJCFCommandSetFlags(b3SharedMemoryCommandHandle command
 	}
 }
 
-B3_SHARED_API b3SharedMemoryCommandHandle b3LoadSoftBodyCommandInit(b3PhysicsClientHandle physClient)
+B3_SHARED_API b3SharedMemoryCommandHandle b3LoadSoftBodyCommandInit(b3PhysicsClientHandle physClient, const char* fileName)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;
     b3Assert(cl);
     b3Assert(cl->canSubmitCommand());
-    
-    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
-    b3Assert(command);
-    command->m_type = CMD_LOAD_SOFT_BODY;
-    command->m_updateFlags = 0;
-    
-    return (b3SharedMemoryCommandHandle) command;
+	
+	if (cl->canSubmitCommand())
+	{
+		struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+		b3Assert(command);
+		command->m_type = CMD_LOAD_SOFT_BODY;
+		int len = strlen(fileName);
+		if (len < MAX_FILENAME_LENGTH)
+		{
+			strcpy(command->m_loadSoftBodyArguments.m_fileName, fileName);
+		}
+		else
+		{
+			command->m_loadSoftBodyArguments.m_fileName[0] = 0;
+		}
+		command->m_updateFlags = LOAD_SOFT_BODY_FILE_NAME;
+		
+		return (b3SharedMemoryCommandHandle) command;
+	}
+	return 0;
 }
 
 B3_SHARED_API int b3LoadSoftBodySetScale(b3SharedMemoryCommandHandle commandHandle, double scale)
