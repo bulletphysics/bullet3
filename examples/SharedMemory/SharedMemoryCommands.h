@@ -451,6 +451,11 @@ struct LoadBunnyArgs
     double m_collisionMargin;
 };
 
+struct b3LoadBunnyResultArgs
+{
+	int m_objectUniqueId;
+};
+
 struct RequestActualStateArgs
 {
 	int m_bodyUniqueId;
@@ -1068,6 +1073,7 @@ struct SharedMemoryStatus
 		struct b3CustomCommandResultArgs m_customCommandResultArgs;
 		struct b3PhysicsSimulationParameters m_simulationParameterResultArgs;
 		struct b3StateSerializationArguments m_saveStateResultArgs;
+		struct b3LoadBunnyResultArgs m_loadBunnyResultArguments;
 	};
 };
 
