@@ -1527,6 +1527,7 @@ void GLInstancingRenderer::renderScene()
 
 		renderSceneInternal(B3_CREATE_SHADOWMAP_RENDERMODE);
 		//glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+		//renderSceneInternal(B3_USE_SHADOWMAP_RENDERMODE_REFLECTION);
 		renderSceneInternal(B3_USE_SHADOWMAP_RENDERMODE);
 
 	} else
@@ -1960,8 +1961,15 @@ struct TransparentDistanceSortPredicate
 	}
 };
 
-void GLInstancingRenderer::renderSceneInternal(int renderMode)
+void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 {
+	int renderMode=orgRenderMode;
+	bool reflectionPass = false;
+	if (orgRenderMode==B3_USE_SHADOWMAP_RENDERMODE_REFLECTION)
+	{
+		reflectionPass = true;
+		renderMode = B3_USE_SHADOWMAP_RENDERMODE;
+	}
 
 	if (!useShadowMap)
 	{
@@ -2385,9 +2393,10 @@ b3Assert(glGetError() ==GL_NO_ERROR);
                             
 								glUseProgram(useShadowMapInstancingShader);
 								glUniformMatrix4fv(useShadow_ProjectionMatrix, 1, false, &m_data->m_projectionMatrix[0]);
-								glUniformMatrix4fv(useShadow_ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
-								glUniformMatrix4fv(useShadow_ViewMatrixInverse, 1, false, &m_data->m_viewMatrixInverse[0]);
-								glUniformMatrix4fv(useShadow_ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
+								//glUniformMatrix4fv(useShadow_ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
+								//glUniformMatrix4fv(useShadow_ViewMatrixInverse, 1, false, &m_data->m_viewMatrix[0]);
+								//glUniformMatrix4fv(useShadow_ViewMatrixInverse, 1, false, &m_data->m_viewMatrixInverse[0]);
+								//glUniformMatrix4fv(useShadow_ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
 
 								glUniform3f(useShadow_lightSpecularIntensity, m_data->m_lightSpecularIntensity[0],m_data->m_lightSpecularIntensity[1],m_data->m_lightSpecularIntensity[2]);
 								glUniform3f(useShadow_materialSpecularColor, gfxObj->m_materialSpecularColor[0],gfxObj->m_materialSpecularColor[1],gfxObj->m_materialSpecularColor[2]);
@@ -2395,7 +2404,22 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 							
 
 								float MVP[16];
-								b3Matrix4x4Mul16(m_data->m_projectionMatrix,m_data->m_viewMatrix,MVP);
+								if (reflectionPass)
+								{
+									float tmp[16];
+									float reflectionMatrix[16] = {1,0,0,0,
+										0,1,0,0,
+										0,0,-1,0,
+										0,0,0,1};
+									glCullFace(GL_FRONT);
+									b3Matrix4x4Mul16(m_data->m_viewMatrix,reflectionMatrix,tmp);
+									b3Matrix4x4Mul16(m_data->m_projectionMatrix,tmp,MVP);
+								} else
+								{
+									b3Matrix4x4Mul16(m_data->m_projectionMatrix,m_data->m_viewMatrix,MVP);
+									glCullFace(GL_BACK);
+								}
+								
 								glUniformMatrix4fv(useShadow_MVP, 1, false, &MVP[0]);
 								//gLightDir.normalize();
 								glUniform3f(useShadow_lightPosIn,m_data->m_lightPos[0],m_data->m_lightPos[1],m_data->m_lightPos[2]);

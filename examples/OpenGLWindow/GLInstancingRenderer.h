@@ -52,7 +52,7 @@ public:
 	virtual void init();
 
 	virtual void renderScene();
-	virtual void renderSceneInternal(int renderMode=B3_DEFAULT_RENDERMODE);
+	virtual void renderSceneInternal(int orgRenderMode=B3_DEFAULT_RENDERMODE);
 
 	void InitShaders();
 	void CleanupShaders();

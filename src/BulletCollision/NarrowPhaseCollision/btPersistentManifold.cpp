@@ -18,6 +18,11 @@ subject to the following restrictions:
 #include "LinearMath/btTransform.h"
 #include "LinearMath/btSerializer.h"
 
+#ifdef BT_USE_DOUBLE_PRECISION
+#define btCollisionObjectData btCollisionObjectDoubleData
+#else
+#define btCollisionObjectData btCollisionObjectFloatData
+#endif
 
 btScalar					gContactBreakingThreshold = btScalar(0.02);
 ContactDestroyedCallback	gContactDestroyedCallback = 0;
@@ -316,8 +321,8 @@ const char*	btPersistentManifold::serialize(const class btPersistentManifold* ma
 	btPersistentManifoldData* dataOut = (btPersistentManifoldData*)dataBuffer;
 	memset(dataOut, 0, sizeof(btPersistentManifoldData));
 
-	dataOut->m_body0 = serializer->getUniquePointer((void*)manifold->getBody0());
-	dataOut->m_body1 = serializer->getUniquePointer((void*)manifold->getBody1());
+	dataOut->m_body0 = (btCollisionObjectData*)serializer->getUniquePointer((void*)manifold->getBody0());
+	dataOut->m_body1 = (btCollisionObjectData*)serializer->getUniquePointer((void*)manifold->getBody1());
 	dataOut->m_contactBreakingThreshold = manifold->getContactBreakingThreshold();
 	dataOut->m_contactProcessingThreshold = manifold->getContactProcessingThreshold();
 	dataOut->m_numCachedPoints = manifold->getNumContacts();

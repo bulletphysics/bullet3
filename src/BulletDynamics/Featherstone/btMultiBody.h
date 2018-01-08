@@ -718,7 +718,7 @@ private:
 struct btMultiBodyLinkDoubleData
 {
 	btQuaternionDoubleData	m_zeroRotParentToThis;
-	btVector3DoubleData		m_parentComToThisComOffset;
+	btVector3DoubleData		m_parentComToThisPivotOffset;
 	btVector3DoubleData		m_thisPivotToThisComOffset;
 	btVector3DoubleData		m_jointAxisTop[6];
 	btVector3DoubleData		m_jointAxisBottom[6];
@@ -751,7 +751,7 @@ struct btMultiBodyLinkDoubleData
 struct btMultiBodyLinkFloatData
 {
 	btQuaternionFloatData	m_zeroRotParentToThis;
-	btVector3FloatData		m_parentComToThisComOffset;
+	btVector3FloatData		m_parentComToThisPivotOffset;
 	btVector3FloatData		m_thisPivotToThisComOffset;
 	btVector3FloatData		m_jointAxisTop[6];
 	btVector3FloatData		m_jointAxisBottom[6];

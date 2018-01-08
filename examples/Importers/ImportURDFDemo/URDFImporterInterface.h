@@ -75,6 +75,10 @@ public:
 
    //default implementation for backward compatibility 
 	virtual class btCompoundShape* convertLinkCollisionShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame) const  = 0;
+	virtual int getUrdfFromCollisionShape(const class btCollisionShape* collisionShape, struct UrdfCollision& collision) const
+	{
+		return 0;
+	}
 
 	virtual int getNumAllocatedCollisionShapes() const { return 0;}
     virtual class btCollisionShape* getAllocatedCollisionShape(int /*index*/ ) {return 0;}

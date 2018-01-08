@@ -2033,7 +2033,7 @@ const char*	btMultiBody::serialize(void* dataBuffer, class btSerializer* seriali
 				memPtr->m_jointMaxForce = getLink(i).m_jointMaxForce;
 				memPtr->m_jointMaxVelocity = getLink(i).m_jointMaxVelocity;
 
-				getLink(i).m_eVector.serialize(memPtr->m_parentComToThisComOffset);
+				getLink(i).m_eVector.serialize(memPtr->m_parentComToThisPivotOffset);
 				getLink(i).m_dVector.serialize(memPtr->m_thisPivotToThisComOffset);
 				getLink(i).m_zeroRotParentToThis.serialize(memPtr->m_zeroRotParentToThis);
 				btAssert(memPtr->m_dofCount<=3);

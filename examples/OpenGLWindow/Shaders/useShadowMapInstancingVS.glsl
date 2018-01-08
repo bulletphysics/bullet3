@@ -11,8 +11,6 @@ layout (location = 5) in vec4 instance_color;
 layout (location = 6) in vec3 instance_scale;
 
 
-uniform mat4 ModelViewMatrix;
-uniform mat4 ProjectionMatrix;
 uniform mat4 DepthBiasModelViewProjectionMatrix;
 uniform mat4 MVP;
 uniform vec3 lightPosIn;

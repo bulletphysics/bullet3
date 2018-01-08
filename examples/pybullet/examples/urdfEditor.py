@@ -1,9 +1,7 @@
 import pybullet as p
 import time
 
-p.connect(p.GUI)
 
-door = p.loadURDF("door.urdf")
 
 class UrdfInertial(object):
 	def __init__(self):
@@ -33,7 +31,8 @@ class UrdfVisual(object):
 		self.geom_radius = 1
 		self.geom_extents = [7,8,9]
 		self.geom_length=[10]
-		self.geom_meshfile = "meshfile"
+		self.geom_meshfilename = "meshfile"
+		self.geom_meshscale=[1,1,1]
 		self.material_rgba = [1,0,0,1]
 		self.material_name = ""
 		
@@ -43,11 +42,13 @@ class UrdfCollision(object):
 		self.origin_xyz = [4,5,6]
 		self.geom_type = p.GEOM_BOX
 		self.geom_radius = 1
+		self.geom_length = 2
 		self.geom_extents = [7,8,9]
-		self.geom_meshfile = "meshfile"
-	
+		self.geom_meshfilename = "meshfile"
+		self.geom_meshscale = [1,1,1]
 class UrdfJoint(object):
 	def __init__(self):
+		self.link = UrdfLink()
 		self.joint_name = "joint_dummy"
 		self.joint_type = p.JOINT_REVOLUTE
 		self.joint_lower_limit = 0
@@ -55,6 +56,7 @@ class UrdfJoint(object):
 		self.parent_name = "parentName"
 		self.child_name = "childName"
 		self.joint_origin_xyz = [1,2,3]
+		self.joint_origin_rpy = [1,2,3]
 		self.joint_axis_xyz = [1,2,3]
 		 
 class UrdfEditor(object):
@@ -65,13 +67,14 @@ class UrdfEditor(object):
 		self.urdfLinks=[]
 		self.urdfJoints=[]
 		self.robotName = ""
+		self.linkNameToIndex={}
+		self.jointTypeToName={p.JOINT_FIXED:"JOINT_FIXED" ,\
+													p.JOINT_REVOLUTE:"JOINT_REVOLUTE",\
+													p.JOINT_PRISMATIC:"JOINT_PRISMATIC" }
 		
-	#def addLink(...)
-
-	#def createMultiBody(self):
 		
-	def convertLinkFromMultiBody(self, bodyUid, linkIndex, urdfLink):
-		dyn = p.getDynamicsInfo(bodyUid,linkIndex)
+	def convertLinkFromMultiBody(self, bodyUid, linkIndex, urdfLink, physicsClientId):
+		dyn = p.getDynamicsInfo(bodyUid,linkIndex,physicsClientId=physicsClientId)
 		urdfLink.urdf_inertial.mass = dyn[0]
 		urdfLink.urdf_inertial.inertia_xxyyzz = dyn[2]
 		#todo
@@ -79,11 +82,11 @@ class UrdfEditor(object):
 		rpy = p.getEulerFromQuaternion(dyn[4])
 		urdfLink.urdf_inertial.origin_rpy = rpy
 		
-		visualShapes = p.getVisualShapeData(bodyUid)
+		visualShapes = p.getVisualShapeData(bodyUid,physicsClientId=physicsClientId)
 		matIndex = 0
 		for v in visualShapes:
 			if (v[1]==linkIndex):
-				print("visualShape base:",v)
+				#print("visualShape base:",v)
 				urdfVisual = UrdfVisual()
 				urdfVisual.geom_type = v[2]
 				if (v[2]==p.GEOM_BOX):
@@ -91,10 +94,16 @@ class UrdfEditor(object):
 				if (v[2]==p.GEOM_SPHERE):
 					urdfVisual.geom_radius = v[3][0]	
 				if (v[2]==p.GEOM_MESH):
-					urdfVisual.geom_meshfile = v[4].decode("utf-8")
+					urdfVisual.geom_meshfilename = v[4].decode("utf-8")
+					urdfVisual.geom_meshscale = v[3]
 				if (v[2]==p.GEOM_CYLINDER):
-					urdfVisual.geom_radius=v[3][1]
 					urdfVisual.geom_length=v[3][0]
+					urdfVisual.geom_radius=v[3][1]
+				if (v[2]==p.GEOM_CAPSULE):
+					urdfVisual.geom_length=v[3][0]
+					urdfVisual.geom_radius=v[3][1]
+					#print("Capsule length=",urdfVisual.geom_length)
+					#print("Capsule radius=",urdfVisual.geom_radius)
 					
 				urdfVisual.origin_xyz = v[5]
 				urdfVisual.origin_rpy = p.getEulerFromQuaternion(v[6])
@@ -105,9 +114,9 @@ class UrdfEditor(object):
 				urdfLink.urdf_visual_shapes.append(urdfVisual)
 				matIndex=matIndex+1
 				
-		collisionShapes = p.getCollisionShapeData(bodyUid, linkIndex)
+		collisionShapes = p.getCollisionShapeData(bodyUid, linkIndex,physicsClientId=physicsClientId)
 		for v in collisionShapes:
-			print("collisionShape base:",v)
+			#print("collisionShape base:",v)
 			urdfCollision = UrdfCollision()
 			print("geom type=",v[0])
 			urdfCollision.geom_type = v[2]
@@ -116,61 +125,77 @@ class UrdfEditor(object):
 			if (v[2]==p.GEOM_SPHERE):
 				urdfCollision.geom_radius = v[3][0]
 			if (v[2]==p.GEOM_MESH):
-					urdfCollision.geom_meshfile = v[4].decode("utf-8")
-			#localInertiaFrame*childTrans
+					urdfCollision.geom_meshfilename = v[4].decode("utf-8")
+					urdfCollision.geom_meshscale = v[3]
+					print("p.GEOM_MESH filename=",urdfCollision.geom_meshfilename)
 			if (v[2]==p.GEOM_CYLINDER):
-				urdfCollision.geom_radius=v[3][1]
 				urdfCollision.geom_length=v[3][0]
-
+				urdfCollision.geom_radius=v[3][1]
+			if (v[2]==p.GEOM_CAPSULE):
+					urdfCollision.geom_length=v[3][0]
+					urdfCollision.geom_radius=v[3][1]
+					print("Capsule length=",urdfCollision.geom_length)
+					print("Capsule radius=",urdfCollision.geom_radius)
 			pos,orn = p.multiplyTransforms(dyn[3],dyn[4],\
 				v[5], v[6])
 			urdfCollision.origin_xyz = pos
 			urdfCollision.origin_rpy = p.getEulerFromQuaternion(orn)
 			urdfLink.urdf_collision_shapes.append(urdfCollision)
 
-	def initializeFromBulletBody(self, bodyUid):
+	def initializeFromBulletBody(self, bodyUid, physicsClientId):
 		self.initialize()
 
 		#always create a base link
 		baseLink = UrdfLink()
 		baseLinkIndex = -1
-		self.convertLinkFromMultiBody(bodyUid, baseLinkIndex, baseLink)
-		baseLink.link_name = 	p.getBodyInfo(bodyUid)[0].decode("utf-8") 		
+		self.convertLinkFromMultiBody(bodyUid, baseLinkIndex, baseLink, physicsClientId)
+		baseLink.link_name = 	p.getBodyInfo(bodyUid, physicsClientId=physicsClientId)[0].decode("utf-8") 		
+		self.linkNameToIndex[baseLink.link_name]=len(self.urdfLinks)
 		self.urdfLinks.append(baseLink)
+		
 	
 		#print(visualShapes)
 		#optionally create child links and joints
-		for j in range(p.getNumJoints(bodyUid)):
-			jointInfo = p.getJointInfo(bodyUid,j)
+		for j in range(p.getNumJoints(bodyUid,physicsClientId=physicsClientId)):
+			jointInfo = p.getJointInfo(bodyUid,j,physicsClientId=physicsClientId)
 			urdfLink = UrdfLink()
-			self.convertLinkFromMultiBody(bodyUid, j, urdfLink)
+			self.convertLinkFromMultiBody(bodyUid, j, urdfLink,physicsClientId)
 			urdfLink.link_name = jointInfo[12].decode("utf-8")
+			self.linkNameToIndex[urdfLink.link_name]=len(self.urdfLinks)
 			self.urdfLinks.append(urdfLink)
 	
 			urdfJoint = UrdfJoint()
+			urdfJoint.link = urdfLink
 			urdfJoint.joint_name = jointInfo[1].decode("utf-8")
 			urdfJoint.joint_type = jointInfo[2]
 			urdfJoint.joint_axis_xyz = jointInfo[13]
-			parentIndex = jointInfo[16]
-			if (parentIndex<0):
+			orgParentIndex = jointInfo[16]
+			if (orgParentIndex<0):
 				urdfJoint.parent_name = baseLink.link_name
 			else:
-				parentJointInfo = p.getJointInfo(bodyUid,parentIndex)
+				parentJointInfo = p.getJointInfo(bodyUid,orgParentIndex,physicsClientId=physicsClientId)
 				urdfJoint.parent_name = parentJointInfo[12].decode("utf-8")
-
 			urdfJoint.child_name = urdfLink.link_name
 
 			#todo, compensate for inertia/link frame offset
-			dyn = p.getDynamicsInfo(bodyUid,parentIndex)
-			parentInertiaPos = dyn[3]
-			parentInertiaOrn = dyn[4]
 			
-			pos,orn = p.multiplyTransforms(dyn[3],dyn[4],\
-				jointInfo[14], jointInfo[15])
+			dynChild = p.getDynamicsInfo(bodyUid,j,physicsClientId=physicsClientId)
+			childInertiaPos = dynChild[3]
+			childInertiaOrn = dynChild[4]
+			parentCom2JointPos=jointInfo[14] 
+			parentCom2JointOrn=jointInfo[15]
+			tmpPos,tmpOrn = p.multiplyTransforms(childInertiaPos,childInertiaOrn,parentCom2JointPos,parentCom2JointOrn)
+			tmpPosInv,tmpOrnInv = p.invertTransform(tmpPos,tmpOrn)
+			dynParent = p.getDynamicsInfo(bodyUid,orgParentIndex,physicsClientId=physicsClientId)
+			parentInertiaPos = dynParent[3]
+			parentInertiaOrn = dynParent[4]
+			
+			pos,orn = p.multiplyTransforms(parentInertiaPos,parentInertiaOrn, tmpPosInv, tmpOrnInv)
+			pos,orn_unused=p.multiplyTransforms(parentInertiaPos,parentInertiaOrn, parentCom2JointPos,[0,0,0,1])
+			
 			urdfJoint.joint_origin_xyz = pos
 			urdfJoint.joint_origin_rpy = p.getEulerFromQuaternion(orn)
-
-				
+			
 			self.urdfJoints.append(urdfJoint)
 			
 	def writeInertial(self,file,urdfInertial, precision=5):
@@ -204,11 +229,15 @@ class UrdfEditor(object):
 				prec=precision)
 			file.write(str)
 		if urdfVisual.geom_type == p.GEOM_MESH:
-			str = '\t\t\t\t<mesh filename=\"{}\"/>\n'.format(urdfVisual.geom_meshfile,\
+			str = '\t\t\t\t<mesh filename=\"{}\"/>\n'.format(urdfVisual.geom_meshfilename,\
 				prec=precision)
 			file.write(str)
 		if urdfVisual.geom_type == p.GEOM_CYLINDER:
 			str = '\t\t\t\t<cylinder length=\"{:.{prec}f}\" radius=\"{:.{prec}f}\"/>\n'.format(\
+				urdfVisual.geom_length, urdfVisual.geom_radius, prec=precision)
+			file.write(str)
+		if urdfVisual.geom_type == p.GEOM_CAPSULE:
+			str = '\t\t\t\t<capsule length=\"{:.{prec}f}\" radius=\"{:.{prec}f}\"/>\n'.format(\
 				urdfVisual.geom_length, urdfVisual.geom_radius, prec=precision)
 			file.write(str)
 
@@ -237,14 +266,17 @@ class UrdfEditor(object):
 				prec=precision)
 			file.write(str)
 		if urdfCollision.geom_type == p.GEOM_MESH:
-			str = '\t\t\t\t<mesh filename=\"{}\"/>\n'.format(urdfCollision.geom_meshfile,\
+			str = '\t\t\t\t<mesh filename=\"{}\"/>\n'.format(urdfCollision.geom_meshfilename,\
 				prec=precision)
 			file.write(str)
 		if urdfCollision.geom_type == p.GEOM_CYLINDER:
 			str = '\t\t\t\t<cylinder length=\"{:.{prec}f}\" radius=\"{:.{prec}f}\"/>\n'.format(\
 				urdfCollision.geom_length, urdfCollision.geom_radius, prec=precision)
 			file.write(str)
-	
+		if urdfCollision.geom_type == p.GEOM_CAPSULE:
+			str = '\t\t\t\t<capsule length=\"{:.{prec}f}\" radius=\"{:.{prec}f}\"/>\n'.format(\
+				urdfCollision.geom_length, urdfCollision.geom_radius, prec=precision)
+			file.write(str)
 		file.write("\t\t\t</geometry>\n")
 		file.write("\t\t</collision>\n")
 		
@@ -278,6 +310,14 @@ class UrdfEditor(object):
 		file.write(str)
 		str = '\t\t<child link=\"{}\"/>\n'.format(urdfJoint.child_name)
 		file.write(str)
+
+		if urdfJoint.joint_type == p.JOINT_PRISMATIC:
+			#todo: handle limits
+			lowerLimit=-0.5
+			upperLimit=0.5
+			str='<limit effort="1000.0" lower="{:.{prec}f}" upper="{:.{prec}f}" velocity="0.5"/>'.format(lowerLimit,upperLimit,prec=precision)
+			file.write(str)
+	
 		file.write("\t\t<dynamics damping=\"1.0\" friction=\"0.0001\"/>\n")
 		str = '\t\t<origin xyz=\"{:.{prec}f} {:.{prec}f} {:.{prec}f}\"/>\n'.format(urdfJoint.joint_origin_xyz[0],\
 			urdfJoint.joint_origin_xyz[1],urdfJoint.joint_origin_xyz[2], prec=precision)
@@ -303,23 +343,224 @@ class UrdfEditor(object):
 		file.write("</robot>\n")
 		file.close()
   	
+  	#def addLink(...)
+
+	def createMultiBody(self, basePosition=[0,0,0],physicsClientId=0):
+		#assume link[0] is base
+		if (len(self.urdfLinks)==0):
+			return -1
+			
+		base = self.urdfLinks[0]
+		
+		#v.tmp_collision_shape_ids=[]
+		baseMass = base.urdf_inertial.mass
+		print("baseMass=",baseMass)
+		baseCollisionShapeIndex = -1
+
+		baseShapeTypeArray=[]
+		baseRadiusArray=[]
+		baseHalfExtentsArray=[]
+		lengthsArray=[]
+		fileNameArray=[]
+		meshScaleArray=[]
+		basePositionsArray=[]
+		baseOrientationsArray=[]
+		
+		for v in base.urdf_collision_shapes:
+			print("base v.origin_xyz=",v.origin_xyz)
+			print("base v.origin_rpy=",v.origin_rpy)
+			shapeType = v.geom_type
+			baseShapeTypeArray.append(shapeType)
+			baseHalfExtentsArray.append([0.5*v.geom_extents[0],0.5*v.geom_extents[1],0.5*v.geom_extents[2]])
+			baseRadiusArray.append(v.geom_radius)
+			lengthsArray.append(v.geom_length)
+			fileNameArray.append(v.geom_meshfilename)
+			meshScaleArray.append(v.geom_meshscale)
+			basePositionsArray.append(v.origin_xyz)
+			print("v.origin_rpy=",v.origin_rpy)
+			orn=p.getQuaternionFromEuler(v.origin_rpy)
+			baseOrientationsArray.append(orn)
+			
+		print("baseHalfExtentsArray=",baseHalfExtentsArray)
+		if (len(baseShapeTypeArray)):
+			baseCollisionShapeIndex = p.createCollisionShapeArray(shapeTypes=baseShapeTypeArray,
+					radii=baseRadiusArray,
+					halfExtents=baseHalfExtentsArray,
+					lengths=lengthsArray,
+					fileNames=fileNameArray,
+					meshScales=meshScaleArray,
+					collisionFramePositions=basePositionsArray,
+					collisionFrameOrientations=baseOrientationsArray,
+					physicsClientId=physicsClientId)
+
+
+		print("baseCollisionShapeIndex=",baseCollisionShapeIndex)
+			
+			
+		linkMasses=[]
+		linkCollisionShapeIndices=[]
+		linkVisualShapeIndices=[]
+		linkPositions=[]
+		linkOrientations=[]
+		linkMeshScaleArray=[]
+		linkInertialFramePositions=[]
+		linkInertialFrameOrientations=[]
+		linkParentIndices=[]
+		linkJointTypes=[]
+		linkJointAxis=[]
+		
+		for joint in self.urdfJoints:
+			link = joint.link
+			linkMass = link.urdf_inertial.mass
+			
+			print("linkMass=",linkMass)
+
+			linkCollisionShapeIndex=-1
+			linkVisualShapeIndex=-1
+			linkPosition=[0,0,0]
+			linkOrientation=[0,0,0]
+			linkInertialFramePosition=[0,0,0]
+			linkInertialFrameOrientation=[0,0,0]
+			linkParentIndex=self.linkNameToIndex[joint.parent_name]
+			print("parentId=",linkParentIndex)
+			
+			linkJointType=joint.joint_type
+			print("linkJointType=",linkJointType, self.jointTypeToName[linkJointType]	)
+			
+			linkJointAx = joint.joint_axis_xyz
+			
+			linkShapeTypeArray=[]
+			linkRadiusArray=[]
+			linkHalfExtentsArray=[]
+			lengthsArray=[]
+			fileNameArray=[]
+			linkPositionsArray=[]
+			linkOrientationsArray=[]
+			
+			for v in link.urdf_collision_shapes:
+				print("link v.origin_xyz=",v.origin_xyz)
+				print("link v.origin_rpy=",v.origin_rpy)
+				shapeType = v.geom_type
+				linkShapeTypeArray.append(shapeType)
+				linkHalfExtentsArray.append([0.5*v.geom_extents[0],0.5*v.geom_extents[1],0.5*v.geom_extents[2]])
+				linkRadiusArray.append(v.geom_radius)
+				lengthsArray.append(v.geom_length)
+				fileNameArray.append(v.geom_meshfilename)
+				linkMeshScaleArray.append(v.geom_meshscale)
+				linkPositionsArray.append(v.origin_xyz)
+				linkOrientationsArray.append(p.getQuaternionFromEuler(v.origin_rpy))
+			
+			print("linkHalfExtentsArray=",linkHalfExtentsArray)
+			if (len(linkShapeTypeArray)):
+				linkCollisionShapeIndex = p.createCollisionShapeArray(shapeTypes=linkShapeTypeArray,
+					radii=linkRadiusArray,
+					halfExtents=linkHalfExtentsArray,
+					lengths=lengthsArray,
+					fileNames=fileNameArray,
+					meshScales=linkMeshScaleArray,
+					collisionFramePositions=linkPositionsArray,
+					collisionFrameOrientations=linkOrientationsArray,
+					physicsClientId=physicsClientId)
+			
+			linkMasses.append(linkMass)
+			linkCollisionShapeIndices.append(linkCollisionShapeIndex)
+			linkVisualShapeIndices.append(linkVisualShapeIndex)
+			linkPositions.append(joint.joint_origin_xyz)
+			linkOrientations.append(p.getQuaternionFromEuler(joint.joint_origin_rpy))
+			linkInertialFramePositions.append(link.urdf_inertial.origin_xyz)
+			linkInertialFrameOrientations.append(p.getQuaternionFromEuler(link.urdf_inertial.origin_rpy))
+			linkParentIndices.append(linkParentIndex)
+			linkJointTypes.append(joint.joint_type)
+			linkJointAxis.append(joint.joint_axis_xyz)
+		print("\n\n\nlinkMasses=",linkMasses)
+		obUid = p.createMultiBody(baseMass,\
+					baseCollisionShapeIndex= baseCollisionShapeIndex,
+					basePosition=basePosition,
+					baseInertialFramePosition=base.urdf_inertial.origin_xyz,
+					baseInertialFrameOrientation=base.urdf_inertial.origin_rpy,
+					linkMasses=linkMasses,
+					linkCollisionShapeIndices=linkCollisionShapeIndices,
+					linkVisualShapeIndices=linkVisualShapeIndices,
+					linkPositions=linkPositions,
+					linkOrientations=linkOrientations,
+					linkInertialFramePositions=linkInertialFramePositions,
+					linkInertialFrameOrientations=linkInertialFrameOrientations,
+					linkParentIndices=linkParentIndices,
+					linkJointTypes=linkJointTypes,
+					linkJointAxis=linkJointAxis,
+					physicsClientId=physicsClientId)
+		return obUid
+		#create visual and collision shapes
+		#for link in self.urdfLinks:
+		#	for v in link.urdf_visual_shapes:
+		#		v.tmp_visual_shape_ids=[]
+		#		shapeType = v[0]
+		#		if shapeType==p.GEOM_BOX:
+		#			p.createVisualShape(physicsClientId=physId)
+		
+			
+		#for joint in self.urdfJoints:
+		#	self.writeJoint(file,joint)
+			
+		
+		
 	def __del__(self):
 		pass
       
+      
+      
+##########################################
+org2 = p.connect(p.DIRECT)
+org = p.connect(p.SHARED_MEMORY)
+if (org<0):
+	org = p.connect(p.DIRECT)
+	
+gui = p.connect(p.GUI)
+
+p.resetSimulation(physicsClientId=org)
+
+#door.urdf, hinge.urdf, duck_vhacd.urdf, r2d2.urdf, quadruped/quadruped.urdf
+
+
+
+mb = p.loadURDF("r2d2.urdf", physicsClientId=org)
+for i in range(p.getNumJoints(mb,physicsClientId=org)):
+	p.setJointMotorControl2(mb,i,p.VELOCITY_CONTROL,force=0,physicsClientId=org)
+	
+#print("numJoints:",p.getNumJoints(mb,physicsClientId=org))
+
+#print("base name:",p.getBodyInfo(mb,physicsClientId=org))
+
+#for i in range(p.getNumJoints(mb,physicsClientId=org)):
+#	print("jointInfo(",i,"):",p.getJointInfo(mb,i,physicsClientId=org))
+#	print("linkState(",i,"):",p.getLinkState(mb,i,physicsClientId=org))
+
 parser = UrdfEditor()
-parser.initializeFromBulletBody(door)
+parser.initializeFromBulletBody(mb,physicsClientId=org)
 parser.saveUrdf("test.urdf")
-parser=0
 
-p.setRealTimeSimulation(1)
-print("numJoints:",p.getNumJoints(door))
+if (1):
+	print("\ncreatingMultiBody...................n")
 
-print("base name:",p.getBodyInfo(door))
+	obUid = parser.createMultiBody(physicsClientId=gui)
 
-for i in range(p.getNumJoints(door)):
-	print("jointInfo(",i,"):",p.getJointInfo(door,i))
-	print("linkState(",i,"):",p.getLinkState(door,i))
+	parser2 = UrdfEditor()
+	print("\n###########################################\n")
+	
+	parser2.initializeFromBulletBody(obUid,physicsClientId=gui)
+	parser2.saveUrdf("test2.urdf")
 
-while (p.getConnectionInfo()["isConnected"]):
+
+	for i in range (p.getNumJoints(obUid, physicsClientId=gui)):
+		p.setJointMotorControl2(obUid,i,p.VELOCITY_CONTROL,targetVelocity=0.1,force=1,physicsClientId=gui)
+		print(p.getJointInfo(obUid,i,physicsClientId=gui))
+
+
+	parser=0
+
+p.setRealTimeSimulation(1,physicsClientId=gui)
+
+
+while (p.getConnectionInfo(physicsClientId=gui)["isConnected"]):
 	time.sleep(0.01)
 		
