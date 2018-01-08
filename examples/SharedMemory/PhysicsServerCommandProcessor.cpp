@@ -5660,7 +5660,7 @@ bool PhysicsServerCommandProcessor::processLoadURDFCommand(const struct SharedMe
 	return hasStatus;
 }
 
-bool PhysicsServerCommandProcessor::processLoadBunnyCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	serverStatusOut.m_type = CMD_UNKNOWN_COMMAND_FLUSHED;
 	bool hasStatus = true;
@@ -5668,17 +5668,17 @@ bool PhysicsServerCommandProcessor::processLoadBunnyCommand(const struct SharedM
     double scale = 0.1;
     double mass = 0.1;
     double collisionMargin = 0.02;
-    if (clientCmd.m_updateFlags & LOAD_BUNNY_UPDATE_SCALE)
+    if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_UPDATE_SCALE)
     {
-        scale = clientCmd.m_loadBunnyArguments.m_scale;
+        scale = clientCmd.m_loadSoftBodyArguments.m_scale;
     }
-    if (clientCmd.m_updateFlags & LOAD_BUNNY_UPDATE_MASS)
+    if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_UPDATE_MASS)
     {
-        mass = clientCmd.m_loadBunnyArguments.m_mass;
+        mass = clientCmd.m_loadSoftBodyArguments.m_mass;
     }
-    if (clientCmd.m_updateFlags & LOAD_BUNNY_UPDATE_COLLISION_MARGIN)
+    if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_UPDATE_COLLISION_MARGIN)
     {
-        collisionMargin = clientCmd.m_loadBunnyArguments.m_collisionMargin;
+        collisionMargin = clientCmd.m_loadSoftBodyArguments.m_collisionMargin;
     }
 	
     m_data->m_softBodyWorldInfo.air_density		=	(btScalar)1.2;
@@ -5688,24 +5688,6 @@ bool PhysicsServerCommandProcessor::processLoadBunnyCommand(const struct SharedM
     m_data->m_softBodyWorldInfo.m_gravity.setValue(0,0,-10);
     m_data->m_softBodyWorldInfo.m_broadphase = m_data->m_broadphase;
     m_data->m_softBodyWorldInfo.m_sparsesdf.Initialize();
-	/*
-    btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(m_data->m_softBodyWorldInfo,gVerticesBunny,                                                       &gIndicesBunny[0][0],                                                         BUNNY_NUM_TRIANGLES);
-                    
-    btSoftBody::Material*	pm=psb->appendMaterial();
-    pm->m_kLST				=	1.0;
-    pm->m_flags				-=	btSoftBody::fMaterial::DebugDraw;
-    psb->generateBendingConstraints(2,pm);
-    psb->m_cfg.piterations	=	50;
-    psb->m_cfg.kDF			=	0.5;
-    psb->randomizeConstraints();
-    psb->rotate(btQuaternion(0.70711,0,0,0.70711));
-    psb->translate(btVector3(0,0,1.0));
-    psb->scale(btVector3(scale,scale,scale));
-    psb->setTotalMass(mass,true);
-    psb->getCollisionShape()->setMargin(collisionMargin);
-                    
-    m_data->m_dynamicsWorld->addSoftBody(psb);
-	*/
 	
 	{
 		char relativeFileName[1024];
@@ -5754,7 +5736,7 @@ bool PhysicsServerCommandProcessor::processLoadBunnyCommand(const struct SharedM
 				int bodyUniqueId = m_data->m_bodyHandles.allocHandle();
 				InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 				bodyHandle->m_softBody = psb;
-				serverStatusOut.m_loadBunnyResultArguments.m_objectUniqueId = bodyUniqueId;
+				serverStatusOut.m_loadSoftBodyResultArguments.m_objectUniqueId = bodyUniqueId;
 			}
 		}
 	}
@@ -8584,9 +8566,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 			hasStatus = processLoadURDFCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
-	case CMD_LOAD_BUNNY:
+	case CMD_LOAD_SOFT_BODY:
 		{
-			hasStatus = processLoadBunnyCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+			hasStatus = processLoadSoftBodyCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
 	case CMD_CREATE_SENSOR:
