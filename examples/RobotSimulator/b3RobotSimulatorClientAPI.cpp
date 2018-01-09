@@ -1143,7 +1143,7 @@ void b3RobotSimulatorClientAPI::submitProfileTiming(const std::string&  profileN
 	b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
 }
 
-void b3RobotSimulatorClientAPI::loadBunny(double scale, double mass, double collisionMargin)
+void b3RobotSimulatorClientAPI::loadSoftBody(const std::string& fileName, double scale, double mass, double collisionMargin)
 {
 	if (!isConnected())
 	{
@@ -1151,9 +1151,9 @@ void b3RobotSimulatorClientAPI::loadBunny(double scale, double mass, double coll
 		return;
 	}
 
-    b3SharedMemoryCommandHandle command = b3LoadBunnyCommandInit(m_data->m_physicsClientHandle);
-    b3LoadBunnySetScale(command, scale);
-    b3LoadBunnySetMass(command, mass);
-    b3LoadBunnySetCollisionMargin(command, collisionMargin);
+    b3SharedMemoryCommandHandle command = b3LoadSoftBodyCommandInit(m_data->m_physicsClientHandle, fileName.c_str());
+    b3LoadSoftBodySetScale(command, scale);
+    b3LoadSoftBodySetMass(command, mass);
+    b3LoadSoftBodySetCollisionMargin(command, collisionMargin);
     b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
 }

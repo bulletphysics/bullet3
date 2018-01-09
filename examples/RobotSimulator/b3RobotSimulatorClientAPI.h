@@ -229,7 +229,7 @@ public:
 
 	//////////////// INTERNAL
 
-	void loadBunny(double scale, double mass, double collisionMargin);
+	void loadSoftBody(const std::string& fileName, double scale, double mass, double collisionMargin);
 
 	//setGuiHelper is only used when embedded in existing example browser
 	void setGuiHelper(struct GUIHelperInterface* guiHelper);

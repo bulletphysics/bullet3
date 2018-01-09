@@ -256,44 +256,57 @@ B3_SHARED_API void b3LoadMJCFCommandSetFlags(b3SharedMemoryCommandHandle command
 	}
 }
 
-B3_SHARED_API b3SharedMemoryCommandHandle b3LoadBunnyCommandInit(b3PhysicsClientHandle physClient)
+B3_SHARED_API b3SharedMemoryCommandHandle b3LoadSoftBodyCommandInit(b3PhysicsClientHandle physClient, const char* fileName)
 {
     PhysicsClient* cl = (PhysicsClient* ) physClient;
     b3Assert(cl);
     b3Assert(cl->canSubmitCommand());
-    
-    struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
-    b3Assert(command);
-    command->m_type = CMD_LOAD_BUNNY;
-    command->m_updateFlags = 0;
-    
-    return (b3SharedMemoryCommandHandle) command;
+	
+	if (cl->canSubmitCommand())
+	{
+		struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+		b3Assert(command);
+		command->m_type = CMD_LOAD_SOFT_BODY;
+		int len = strlen(fileName);
+		if (len < MAX_FILENAME_LENGTH)
+		{
+			strcpy(command->m_loadSoftBodyArguments.m_fileName, fileName);
+		}
+		else
+		{
+			command->m_loadSoftBodyArguments.m_fileName[0] = 0;
+		}
+		command->m_updateFlags = LOAD_SOFT_BODY_FILE_NAME;
+		
+		return (b3SharedMemoryCommandHandle) command;
+	}
+	return 0;
 }
 
-B3_SHARED_API int b3LoadBunnySetScale(b3SharedMemoryCommandHandle commandHandle, double scale)
+B3_SHARED_API int b3LoadSoftBodySetScale(b3SharedMemoryCommandHandle commandHandle, double scale)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
-    b3Assert(command->m_type == CMD_LOAD_BUNNY);
-    command->m_loadBunnyArguments.m_scale = scale;
-    command->m_updateFlags |= LOAD_BUNNY_UPDATE_SCALE;
+    b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+    command->m_loadSoftBodyArguments.m_scale = scale;
+    command->m_updateFlags |= LOAD_SOFT_BODY_UPDATE_SCALE;
     return 0;
 }
 
-B3_SHARED_API int b3LoadBunnySetMass(b3SharedMemoryCommandHandle commandHandle, double mass)
+B3_SHARED_API int b3LoadSoftBodySetMass(b3SharedMemoryCommandHandle commandHandle, double mass)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
-    b3Assert(command->m_type == CMD_LOAD_BUNNY);
-    command->m_loadBunnyArguments.m_mass = mass;
-    command->m_updateFlags |= LOAD_BUNNY_UPDATE_MASS;
+    b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+    command->m_loadSoftBodyArguments.m_mass = mass;
+    command->m_updateFlags |= LOAD_SOFT_BODY_UPDATE_MASS;
     return 0;
 }
 
-B3_SHARED_API int b3LoadBunnySetCollisionMargin(b3SharedMemoryCommandHandle commandHandle, double collisionMargin)
+B3_SHARED_API int b3LoadSoftBodySetCollisionMargin(b3SharedMemoryCommandHandle commandHandle, double collisionMargin)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
-    b3Assert(command->m_type == CMD_LOAD_BUNNY);
-    command->m_loadBunnyArguments.m_collisionMargin = collisionMargin;
-    command->m_updateFlags |= LOAD_BUNNY_UPDATE_COLLISION_MARGIN;
+    b3Assert(command->m_type == CMD_LOAD_SOFT_BODY);
+    command->m_loadSoftBodyArguments.m_collisionMargin = collisionMargin;
+    command->m_updateFlags |= LOAD_SOFT_BODY_UPDATE_COLLISION_MARGIN;
     return 0;
 }
 

@@ -51,7 +51,7 @@
 #include "../TinyAudio/b3SoundEngine.h"
 #endif
 
-#ifdef USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 #include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
 #include "BulletSoftBody/btSoftBodySolvers.h"
 #include "BulletSoftBody/btSoftBodyHelpers.h"
@@ -170,6 +170,9 @@ struct InternalBodyData
 {
 	btMultiBody* m_multiBody;
 	btRigidBody* m_rigidBody;
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+	btSoftBody* m_softBody;
+#endif
 	int m_testData;
 	std::string m_bodyName;
 
@@ -192,6 +195,9 @@ struct InternalBodyData
 	{
 		m_multiBody=0;
 		m_rigidBody=0;
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+		m_softBody = 0;
+#endif
 		m_testData=0;
 		m_bodyName="";
 		m_rootLocalInertialFrame.setIdentity();
@@ -1521,7 +1527,7 @@ struct PhysicsServerCommandProcessorInternalData
 	btMultiBodyConstraintSolver*	m_solver;
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
     
-#ifdef USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	btSoftMultiBodyDynamicsWorld* m_dynamicsWorld;
     btSoftBodySolver* m_softbodySolver;
     btSoftBodyWorldInfo	m_softBodyWorldInfo;
@@ -2182,7 +2188,7 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 {
     ///collision configuration contains default setup for memory, collision setup
     //m_collisionConfiguration->setConvexConvexMultipointIterations();
-#ifdef USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
     m_data->m_collisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
 #else
     m_data->m_collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -2205,7 +2211,7 @@ void PhysicsServerCommandProcessor::createEmptyDynamicsWorld()
 
     m_data->m_solver = new btMultiBodyConstraintSolver;
     
-#ifdef USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
     m_data->m_dynamicsWorld = new btSoftMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
 #else
     m_data->m_dynamicsWorld = new btMultiBodyDynamicsWorld(m_data->m_dispatcher, m_data->m_broadphase, m_data->m_solver, m_data->m_collisionConfiguration);
@@ -2370,6 +2376,14 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
             m_data->m_dynamicsWorld->removeMultiBody(mb);
             delete mb;
         }
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+		for (i=m_data->m_dynamicsWorld->getSoftBodyArray().size()-1;i>=0;i--)
+		{
+			btSoftBody* sb = m_data->m_dynamicsWorld->getSoftBodyArray()[i];
+			m_data->m_dynamicsWorld->removeSoftBody(sb);
+			delete sb;
+		}
+#endif
 	}
 
     for (int i=0;i<constraints.size();i++)
@@ -5741,26 +5755,35 @@ bool PhysicsServerCommandProcessor::processLoadURDFCommand(const struct SharedMe
 	return hasStatus;
 }
 
-bool PhysicsServerCommandProcessor::processLoadBunnyCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	serverStatusOut.m_type = CMD_UNKNOWN_COMMAND_FLUSHED;
 	bool hasStatus = true;
-#ifdef USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
     double scale = 0.1;
     double mass = 0.1;
     double collisionMargin = 0.02;
-    if (clientCmd.m_updateFlags & LOAD_BUNNY_UPDATE_SCALE)
+	const LoadSoftBodyArgs& loadSoftBodyArgs = clientCmd.m_loadSoftBodyArguments;
+	if (m_data->m_verboseOutput)
+	{
+		b3Printf("Processed CMD_LOAD_SOFT_BODY:%s", loadSoftBodyArgs.m_fileName);
+	}
+	btAssert((clientCmd.m_updateFlags & LOAD_SOFT_BODY_FILE_NAME) !=0);
+	btAssert(loadSoftBodyArgs.m_fileName);
+
+    if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_UPDATE_SCALE)
     {
-        scale = clientCmd.m_loadBunnyArguments.m_scale;
+        scale = clientCmd.m_loadSoftBodyArguments.m_scale;
     }
-    if (clientCmd.m_updateFlags & LOAD_BUNNY_UPDATE_MASS)
+    if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_UPDATE_MASS)
     {
-        mass = clientCmd.m_loadBunnyArguments.m_mass;
+        mass = clientCmd.m_loadSoftBodyArguments.m_mass;
     }
-    if (clientCmd.m_updateFlags & LOAD_BUNNY_UPDATE_COLLISION_MARGIN)
+    if (clientCmd.m_updateFlags & LOAD_SOFT_BODY_UPDATE_COLLISION_MARGIN)
     {
-        collisionMargin = clientCmd.m_loadBunnyArguments.m_collisionMargin;
+        collisionMargin = clientCmd.m_loadSoftBodyArguments.m_collisionMargin;
     }
+	
     m_data->m_softBodyWorldInfo.air_density		=	(btScalar)1.2;
     m_data->m_softBodyWorldInfo.water_density	=	0;
     m_data->m_softBodyWorldInfo.water_offset	=	0;
@@ -5768,23 +5791,59 @@ bool PhysicsServerCommandProcessor::processLoadBunnyCommand(const struct SharedM
     m_data->m_softBodyWorldInfo.m_gravity.setValue(0,0,-10);
     m_data->m_softBodyWorldInfo.m_broadphase = m_data->m_broadphase;
     m_data->m_softBodyWorldInfo.m_sparsesdf.Initialize();
-                    
-    btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(m_data->m_softBodyWorldInfo,gVerticesBunny,                                                       &gIndicesBunny[0][0],                                                         BUNNY_NUM_TRIANGLES);
-                    
-    btSoftBody::Material*	pm=psb->appendMaterial();
-    pm->m_kLST				=	1.0;
-    pm->m_flags				-=	btSoftBody::fMaterial::DebugDraw;
-    psb->generateBendingConstraints(2,pm);
-    psb->m_cfg.piterations	=	50;
-    psb->m_cfg.kDF			=	0.5;
-    psb->randomizeConstraints();
-    psb->rotate(btQuaternion(0.70711,0,0,0.70711));
-    psb->translate(btVector3(0,0,1.0));
-    psb->scale(btVector3(scale,scale,scale));
-    psb->setTotalMass(mass,true);
-    psb->getCollisionShape()->setMargin(collisionMargin);
-                    
-    m_data->m_dynamicsWorld->addSoftBody(psb);
+	
+	{
+		char relativeFileName[1024];
+		char pathPrefix[1024];
+		pathPrefix[0] = 0;
+		if (b3ResourcePath::findResourcePath(loadSoftBodyArgs.m_fileName, relativeFileName, 1024))
+		{
+			b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
+		}
+		const std::string& error_message_prefix="";
+		std::string out_found_filename;
+		int out_type;
+		bool foundFile = findExistingMeshFile(pathPrefix, relativeFileName,error_message_prefix,&out_found_filename, &out_type);
+		std::vector<tinyobj::shape_t> shapes;
+		std::string err = tinyobj::LoadObj(shapes,out_found_filename.c_str());
+		if (shapes.size()>0)
+		{
+			const tinyobj::shape_t& shape = shapes[0];
+			btAlignedObjectArray<btScalar> vertices;
+			btAlignedObjectArray<int> indices;
+			for (int i=0;i<shape.mesh.positions.size();i++)
+			{
+				vertices.push_back(shape.mesh.positions[i]);
+			}
+			for (int i=0;i<shape.mesh.indices.size();i++)
+			{
+				indices.push_back(shape.mesh.indices[i]);
+			}
+			int numTris = indices.size()/3;
+			if (numTris>0)
+			{
+				btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(m_data->m_softBodyWorldInfo,&vertices[0],&indices[0],numTris);
+				btSoftBody::Material*	pm=psb->appendMaterial();
+				pm->m_kLST				=	0.5;
+				pm->m_flags				-=	btSoftBody::fMaterial::DebugDraw;
+				psb->generateBendingConstraints(2,pm);
+				psb->m_cfg.piterations	=	20;
+				psb->m_cfg.kDF			=	0.5;
+				psb->randomizeConstraints();
+				psb->rotate(btQuaternion(0.70711,0,0,0.70711));
+				psb->translate(btVector3(-0.05,0,1.0));
+				psb->scale(btVector3(scale,scale,scale));
+				psb->setTotalMass(mass,true);
+				psb->getCollisionShape()->setMargin(collisionMargin);
+				m_data->m_dynamicsWorld->addSoftBody(psb);
+				int bodyUniqueId = m_data->m_bodyHandles.allocHandle();
+				InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+				bodyHandle->m_softBody = psb;
+				serverStatusOut.m_loadSoftBodyResultArguments.m_objectUniqueId = bodyUniqueId;
+			}
+		}
+	}
+	
 	serverStatusOut.m_type = CMD_CLIENT_COMMAND_COMPLETED;
 #endif
 	return hasStatus;
@@ -8831,9 +8890,9 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 			hasStatus = processLoadURDFCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
-	case CMD_LOAD_BUNNY:
+	case CMD_LOAD_SOFT_BODY:
 		{
-			hasStatus = processLoadBunnyCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+			hasStatus = processLoadSoftBodyCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
 	case CMD_CREATE_SENSOR:
@@ -9079,7 +9138,7 @@ void PhysicsServerCommandProcessor::renderScene(int renderFlags)
 
 		m_data->m_guiHelper->render(m_data->m_dynamicsWorld);
 	}
-#ifdef USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
     for (  int i=0;i<m_data->m_dynamicsWorld->getSoftBodyArray().size();i++)
     {
         btSoftBody*	psb=(btSoftBody*)m_data->m_dynamicsWorld->getSoftBodyArray()[i];

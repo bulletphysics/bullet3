@@ -439,11 +439,12 @@ enum EnumSimParamUpdateFlags
 	SIM_PARAM_UPDATE_DEFAULT_FRICTION_ERP = 32768,
 };
 
-enum EnumLoadBunnyUpdateFlags
+enum EnumLoadSoftBodyUpdateFlags
 {
-    LOAD_BUNNY_UPDATE_SCALE=1,
-    LOAD_BUNNY_UPDATE_MASS=2,
-    LOAD_BUNNY_UPDATE_COLLISION_MARGIN=4
+	LOAD_SOFT_BODY_FILE_NAME=1,
+    LOAD_SOFT_BODY_UPDATE_SCALE=2,
+    LOAD_SOFT_BODY_UPDATE_MASS=4,
+    LOAD_SOFT_BODY_UPDATE_COLLISION_MARGIN=8
 };
 
 enum EnumSimParamInternalSimFlags
@@ -455,11 +456,17 @@ enum EnumSimParamInternalSimFlags
 ///Controlling a robot involves sending the desired state to its joint motor controllers.
 ///The control mode determines the state variables used for motor control.
 
-struct LoadBunnyArgs
+struct LoadSoftBodyArgs
 {
+	char m_fileName[MAX_FILENAME_LENGTH];
     double m_scale;
     double m_mass;
     double m_collisionMargin;
+};
+
+struct b3LoadSoftBodyResultArgs
+{
+	int m_objectUniqueId;
 };
 
 struct RequestActualStateArgs
@@ -991,7 +998,7 @@ struct SharedMemoryCommand
 		struct CalculateInverseKinematicsArgs m_calculateInverseKinematicsArguments;
 		struct UserDebugDrawArgs m_userDebugDrawArgs;
 		struct RequestRaycastIntersections m_requestRaycastIntersections;
-        struct LoadBunnyArgs m_loadBunnyArguments;
+        struct LoadSoftBodyArgs m_loadSoftBodyArguments;
 		struct VRCameraState m_vrCameraStateArguments;
 		struct StateLoggingRequest m_stateLoggingArguments;
         struct ConfigureOpenGLVisualizerRequest m_configureOpenGLVisualizerArguments;
@@ -1080,6 +1087,7 @@ struct SharedMemoryStatus
 		struct b3CustomCommandResultArgs m_customCommandResultArgs;
 		struct b3PhysicsSimulationParameters m_simulationParameterResultArgs;
 		struct b3StateSerializationArguments m_saveStateResultArgs;
+		struct b3LoadSoftBodyResultArgs m_loadSoftBodyResultArguments;
 		struct SendCollisionShapeDataArgs m_sendCollisionShapeArgs;
 	};
 };
