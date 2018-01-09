@@ -552,7 +552,7 @@ if (1):
 
 
 	for i in range (p.getNumJoints(obUid, physicsClientId=gui)):
-		p.setJointMotorControl2(obUid,i,p.VELOCITY_CONTROL,targetVelocity=0.1,force=1,physicsClientId=gui)
+		p.setJointMotorControl2(obUid,i,p.VELOCITY_CONTROL,targetVelocity=0,force=1,physicsClientId=gui)
 		print(p.getJointInfo(obUid,i,physicsClientId=gui))
 
 
@@ -562,5 +562,6 @@ p.setRealTimeSimulation(1,physicsClientId=gui)
 
 
 while (p.getConnectionInfo(physicsClientId=gui)["isConnected"]):
+	p.stepSimulation(physicsClientId=gui)
 	time.sleep(0.01)
 		
