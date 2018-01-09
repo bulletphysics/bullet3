@@ -318,6 +318,8 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 		int key = SHARED_MEMORY_KEY;
 		int udpPort = 1234;
 		int tcpPort = 6667;
+		int argc = 0;
+		char** argv=0;
 
 		const char* hostName = "localhost";
 
@@ -357,8 +359,6 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 			}
 		}
 
-		int argc = 0;
-		char** argv=0;
 		if (options)
 		{
 			int i;
@@ -5754,9 +5754,10 @@ static PyObject* pybullet_createCollisionShapeArray(PyObject* self, PyObject* ar
 	}
 
 
-	b3SharedMemoryCommandHandle commandHandle = b3CreateCollisionShapeCommandInit(sm);
+	
 
 	{
+		b3SharedMemoryCommandHandle commandHandle = b3CreateCollisionShapeCommandInit(sm);
 		int numShapeTypes = 0;
 		int numRadius = 0;
 		int numHalfExtents = 0;
