@@ -61,7 +61,7 @@ defines { "NO_SHARED_MEMORY" }
 includedirs {"..","../../../src", "../../ThirdPartyLibs","../../ThirdPartyLibs/enet/include"}
 
 links {
-	"enet","Bullet3Common","BulletInverseDynamicsUtils", "BulletInverseDynamics",	"BulletDynamics","BulletCollision", "LinearMath", "BussIK"
+	"enet","Bullet3Common","BulletInverseDynamicsUtils", "BulletInverseDynamics",	"BulletSoftBody",  "BulletDynamics","BulletCollision", "LinearMath", "BussIK"
 }
 
 if os.is("Windows") then 

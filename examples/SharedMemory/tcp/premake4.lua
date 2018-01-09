@@ -62,7 +62,7 @@ defines { "NO_SHARED_MEMORY" }
 includedirs {"..","../../../src", "../../ThirdPartyLibs","../../ThirdPartyLibs/clsocket/src"}
 
 links {
-	"clsocket","Bullet3Common","BulletInverseDynamicsUtils", "BulletInverseDynamics",	"BulletDynamics","BulletCollision", "LinearMath", "BussIK"
+	"clsocket","Bullet3Common","BulletInverseDynamicsUtils", "BulletInverseDynamics",	"BulletSoftBody", "BulletDynamics","BulletCollision", "LinearMath", "BussIK"
 }
 
 
