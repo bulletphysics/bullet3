@@ -334,8 +334,11 @@ void btSimulationIslandManager::buildIslands(btDispatcher* dispatcher,btCollisio
 	for (i=0;i<maxNumManifolds ;i++)
 	{
 		 btPersistentManifold* manifold = dispatcher->getManifoldByIndexInternal(i);
-		 if (manifold->getNumContacts() == 0)
-			 continue;
+		 if (collisionWorld->getDispatchInfo().m_deterministicOverlappingPairs)
+		 {
+			if (manifold->getNumContacts() == 0)
+				continue;
+		 }
 
 		 const btCollisionObject* colObj0 = static_cast<const btCollisionObject*>(manifold->getBody0());
 		 const btCollisionObject* colObj1 = static_cast<const btCollisionObject*>(manifold->getBody1());
@@ -397,12 +400,15 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 
 		//tried a radix sort, but quicksort/heapsort seems still faster
 		//@todo rewrite island management
-
-		//m_islandmanifold.quickSort(btPersistentManifoldSortPredicate());
-
 		//btPersistentManifoldSortPredicateDeterministic sorts contact manifolds based on islandid,
 		//but also based on object0 unique id and object1 unique id
-		m_islandmanifold.quickSort(btPersistentManifoldSortPredicateDeterministic());
+		if (collisionWorld->getDispatchInfo().m_deterministicOverlappingPairs)
+		{
+			m_islandmanifold.quickSort(btPersistentManifoldSortPredicateDeterministic());
+		} else
+		{
+			m_islandmanifold.quickSort(btPersistentManifoldSortPredicate());
+		}
 
 		//m_islandmanifold.heapSort(btPersistentManifoldSortPredicate());
 

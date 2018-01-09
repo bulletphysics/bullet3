@@ -23,7 +23,7 @@ class BulletURDFImporter : public URDFImporterInterface
 
 public:
 
-	BulletURDFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter, double globalScaling=1);
+	BulletURDFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter, double globalScaling, int flags);
 
 	virtual ~BulletURDFImporter();
 

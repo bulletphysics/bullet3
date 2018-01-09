@@ -2727,7 +2727,7 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
 
 	m_data->m_sdfRecentLoadedBodies.clear();
 
-    BulletURDFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter, globalScaling);
+    BulletURDFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter, globalScaling, flags);
 	u2b.setEnableTinyRenderer(m_data->m_enableTinyRenderer);
 
 	bool forceFixedBase = false;
@@ -2759,7 +2759,7 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 
 
 
-    BulletURDFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter, globalScaling);
+    BulletURDFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter, globalScaling, flags);
 	u2b.setEnableTinyRenderer(m_data->m_enableTinyRenderer);
     bool loadOk =  u2b.loadURDF(fileName, useFixedBase);
 
@@ -3770,12 +3770,12 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 				btAlignedObjectArray<btVector3> convertedVerts;
 				convertedVerts.reserve(glmesh->m_numvertices);
 
-				for (int i = 0; i < glmesh->m_numvertices; i++)
+				for (int v = 0; v < glmesh->m_numvertices; v++)
 				{
 					convertedVerts.push_back(btVector3(
-						glmesh->m_vertices->at(i).xyzw[0] * meshScale[0],
-						glmesh->m_vertices->at(i).xyzw[1] * meshScale[1],
-						glmesh->m_vertices->at(i).xyzw[2] * meshScale[2]));
+						glmesh->m_vertices->at(v).xyzw[0] * meshScale[0],
+						glmesh->m_vertices->at(v).xyzw[1] * meshScale[1],
+						glmesh->m_vertices->at(v).xyzw[2] * meshScale[2]));
 				}
 
 				if (clientCmd.m_createUserShapeArgs.m_shapes[i].m_collisionFlags&GEOM_FORCE_CONCAVE_TRIMESH)
@@ -3868,8 +3868,8 @@ bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct
 	bool hasStatus = true;
 	serverStatusOut.m_type = CMD_CREATE_VISUAL_SHAPE_FAILED;
 	double globalScaling = 1.f;
-
-	BulletURDFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter, globalScaling);
+	int flags=0;
+	BulletURDFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter, globalScaling, flags);
 	u2b.setEnableTinyRenderer(m_data->m_enableTinyRenderer);
 	btTransform localInertiaFrame;
 	localInertiaFrame.setIdentity();
@@ -6501,6 +6501,10 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 		{
 			m_data->m_dynamicsWorld->getSolverInfo().m_solverMode |=SOLVER_DISABLE_IMPLICIT_CONE_FRICTION;
 		}
+	}
+	if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_DETERMINISTIC_OVERLAPPING_PAIRS)
+	{
+		m_data->m_dynamicsWorld->getDispatchInfo().m_deterministicOverlappingPairs = clientCmd.m_physSimParamArgs.m_deterministicOverlappingPairs;
 	}
 	if (clientCmd.m_updateFlags&SIM_PARAM_UPDATE_DELTA_TIME)
 	{

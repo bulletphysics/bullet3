@@ -670,7 +670,7 @@ enum eURDF_Flags
 	URDF_USE_SELF_COLLISION_EXCLUDE_PARENT=16,
 	URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS=32,
 	URDF_RESERVED=64,
-
+	URDF_USE_IMPLICIT_CYLINDER =128,
 };
 
 enum eUrdfGeomTypes //sync with UrdfParser UrdfGeomTypes
@@ -733,6 +733,7 @@ struct b3PhysicsSimulationParameters
 	double 	m_defaultNonContactERP;
 	double m_frictionERP;
 	int m_enableConeFriction;
+	int m_deterministicOverlappingPairs;
 };
 
 
