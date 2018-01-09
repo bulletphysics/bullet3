@@ -66,6 +66,7 @@ b3PhysicsClientHandle getPhysicsClient(int physicsClientId)
 	return 0;
 }
 
+
 static double pybullet_internalGetFloatFromSequence(PyObject* seq, int index)
 {
 	double v = 0.0;
@@ -153,6 +154,7 @@ static int pybullet_internalSetVector(PyObject* objVec, float vector[3])
 	if (seq)
 	{
 		len = PySequence_Size(objVec);
+		assert(len == 3);
 		if (len == 3)
 		{
 			for (i = 0; i < len; i++)
@@ -180,6 +182,7 @@ static int pybullet_internalSetVectord(PyObject* obVec, double vector[3])
 	if (seq)
 	{
 		len = PySequence_Size(obVec);
+		assert(len == 3);
 		if (len == 3)
 		{
 			for (i = 0; i < len; i++)
@@ -913,13 +916,12 @@ static PyObject* pybullet_getDynamicsInfo(PyObject* self, PyObject* args, PyObje
 	{
 		int bodyUniqueId = -1;
 		int linkIndex = -2;
-		int flags = 0;
 
 		b3PhysicsClientHandle sm = 0;
 		
 		int physicsClientId = 0;
-		static char* kwlist[] = {"bodyUniqueId", "linkIndex", "flags", "physicsClientId", NULL};
-		if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|ii", kwlist, &bodyUniqueId, &linkIndex, &flags, &physicsClientId))
+		static char* kwlist[] = {"bodyUniqueId", "linkIndex", "physicsClientId", NULL};
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|i", kwlist, &bodyUniqueId, &linkIndex,  &physicsClientId))
 		{
 			return NULL;
 		}
@@ -934,11 +936,7 @@ static PyObject* pybullet_getDynamicsInfo(PyObject* self, PyObject* args, PyObje
 			b3SharedMemoryCommandHandle cmd_handle;
 			b3SharedMemoryStatusHandle status_handle;
 			struct b3DynamicsInfo info;
-			int numFields = 2;
-			if (flags & eDYNAMICS_INFO_REPORT_INERTIA)
-			{
-				numFields++;
-			}
+			
 
 			if (bodyUniqueId < 0)
 			{
@@ -959,25 +957,41 @@ static PyObject* pybullet_getDynamicsInfo(PyObject* self, PyObject* args, PyObje
 				return NULL;
 			}
 			
-			
-			
-
 			if (b3GetDynamicsInfo(status_handle, &info))
 			{
 			
+				int numFields = 10;
 				PyObject* pyDynamicsInfo = PyTuple_New(numFields);
 				PyTuple_SetItem(pyDynamicsInfo, 0, PyFloat_FromDouble(info.m_mass));
 				PyTuple_SetItem(pyDynamicsInfo, 1, PyFloat_FromDouble(info.m_lateralFrictionCoeff));
 				
-				if (flags & eDYNAMICS_INFO_REPORT_INERTIA)
 				{
 					PyObject* pyInertiaDiag = PyTuple_New(3);
-					PyTuple_SetItem(pyInertiaDiag,0,PyFloat_FromDouble(info.m_localInertialDiagonal[0]));
-					PyTuple_SetItem(pyInertiaDiag,1,PyFloat_FromDouble(info.m_localInertialDiagonal[1]));
-					PyTuple_SetItem(pyInertiaDiag,2,PyFloat_FromDouble(info.m_localInertialDiagonal[2]));
+					PyTuple_SetItem(pyInertiaDiag, 0, PyFloat_FromDouble(info.m_localInertialDiagonal[0]));
+					PyTuple_SetItem(pyInertiaDiag, 1, PyFloat_FromDouble(info.m_localInertialDiagonal[1]));
+					PyTuple_SetItem(pyInertiaDiag, 2, PyFloat_FromDouble(info.m_localInertialDiagonal[2]));
 					PyTuple_SetItem(pyDynamicsInfo, 2, pyInertiaDiag);
 				}
-				
+				{
+					PyObject* pyInertiaPos= PyTuple_New(3);
+					PyTuple_SetItem(pyInertiaPos, 0, PyFloat_FromDouble(info.m_localInertialFrame[0]));
+					PyTuple_SetItem(pyInertiaPos, 1, PyFloat_FromDouble(info.m_localInertialFrame[1]));
+					PyTuple_SetItem(pyInertiaPos, 2, PyFloat_FromDouble(info.m_localInertialFrame[2]));
+					PyTuple_SetItem(pyDynamicsInfo, 3, pyInertiaPos);
+				}
+				{
+					PyObject* pyInertiaOrn= PyTuple_New(4);
+					PyTuple_SetItem(pyInertiaOrn, 0, PyFloat_FromDouble(info.m_localInertialFrame[3]));
+					PyTuple_SetItem(pyInertiaOrn, 1, PyFloat_FromDouble(info.m_localInertialFrame[4]));
+					PyTuple_SetItem(pyInertiaOrn, 2, PyFloat_FromDouble(info.m_localInertialFrame[5]));
+					PyTuple_SetItem(pyInertiaOrn, 3, PyFloat_FromDouble(info.m_localInertialFrame[6]));
+					PyTuple_SetItem(pyDynamicsInfo, 4, pyInertiaOrn);
+				}
+				PyTuple_SetItem(pyDynamicsInfo, 5, PyFloat_FromDouble(info.m_restitution));
+				PyTuple_SetItem(pyDynamicsInfo, 6, PyFloat_FromDouble(info.m_rollingFrictionCoeff));
+				PyTuple_SetItem(pyDynamicsInfo, 7, PyFloat_FromDouble(info.m_spinningFrictionCoeff));
+				PyTuple_SetItem(pyDynamicsInfo, 8, PyFloat_FromDouble(info.m_contactDamping));
+				PyTuple_SetItem(pyDynamicsInfo, 9, PyFloat_FromDouble(info.m_contactStiffness));
 				return pyDynamicsInfo;
 			}
 		}
@@ -3128,7 +3142,7 @@ static PyObject* pybullet_getJointInfo(PyObject* self, PyObject* args, PyObject*
 
 	int bodyUniqueId = -1;
 	int jointIndex = -1;
-	int jointInfoSize = 13;  // size of struct b3JointInfo
+	int jointInfoSize = 17;  // size of struct b3JointInfo
 	b3PhysicsClientHandle sm = 0;
 	int physicsClientId = 0;
 	static char* kwlist[] = {"bodyUniqueId", "jointIndex", "physicsClientId", NULL};
@@ -3199,6 +3213,30 @@ static PyObject* pybullet_getJointInfo(PyObject* self, PyObject* args, PyObject*
 					PyTuple_SetItem(pyListJointInfo, 12,
 									PyString_FromString("not available"));
 				}
+				{
+					PyObject* axis = PyTuple_New(3);
+					PyTuple_SetItem(axis, 0, PyFloat_FromDouble(info.m_jointAxis[0]));
+					PyTuple_SetItem(axis, 1, PyFloat_FromDouble(info.m_jointAxis[1]));
+					PyTuple_SetItem(axis, 2, PyFloat_FromDouble(info.m_jointAxis[2]));
+					PyTuple_SetItem(pyListJointInfo, 13, axis);
+				}
+				{
+					PyObject* pos = PyTuple_New(3);
+					PyTuple_SetItem(pos, 0, PyFloat_FromDouble(info.m_parentFrame[0]));
+					PyTuple_SetItem(pos, 1, PyFloat_FromDouble(info.m_parentFrame[1]));
+					PyTuple_SetItem(pos, 2, PyFloat_FromDouble(info.m_parentFrame[2]));
+					PyTuple_SetItem(pyListJointInfo, 14, pos);
+				}
+				{
+					PyObject* orn = PyTuple_New(4);
+					PyTuple_SetItem(orn, 0, PyFloat_FromDouble(info.m_parentFrame[3]));
+					PyTuple_SetItem(orn, 1, PyFloat_FromDouble(info.m_parentFrame[4]));
+					PyTuple_SetItem(orn, 2, PyFloat_FromDouble(info.m_parentFrame[5]));
+					PyTuple_SetItem(orn, 3, PyFloat_FromDouble(info.m_parentFrame[6]));
+					PyTuple_SetItem(pyListJointInfo, 15, orn);
+				}
+				PyTuple_SetItem(pyListJointInfo, 16, PyInt_FromLong(info.m_parentIndex));
+
 
 				return pyListJointInfo;
 			}
@@ -4834,6 +4872,107 @@ static PyObject* pybullet_setDebugObjectColor(PyObject* self, PyObject* args, Py
 	return Py_None;
 }
 
+static PyObject* pybullet_getCollisionShapeData(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	int objectUniqueId = -1;
+	b3SharedMemoryCommandHandle commandHandle;
+	b3SharedMemoryStatusHandle statusHandle;
+	struct b3CollisionShapeInformation collisionShapeInfo;
+	int statusType;
+	int i;
+	int linkIndex;
+	PyObject* pyResultList = 0;
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+	static char* kwlist[] = { "objectUniqueId", "linkIndex", "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "ii|i", kwlist, &objectUniqueId, &linkIndex, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+	{
+		commandHandle = b3InitRequestCollisionShapeInformation(sm, objectUniqueId, linkIndex);
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+		statusType = b3GetStatusType(statusHandle);
+		if (statusType == CMD_COLLISION_SHAPE_INFO_COMPLETED)
+		{
+			b3GetCollisionShapeInformation(sm, &collisionShapeInfo);
+			pyResultList = PyTuple_New(collisionShapeInfo.m_numCollisionShapes);
+			for (i = 0; i < collisionShapeInfo.m_numCollisionShapes; i++)
+			{
+				PyObject* collisionShapeObList = PyTuple_New(7);
+				PyObject* item;
+
+				item = PyInt_FromLong(collisionShapeInfo.m_collisionShapeData[i].m_objectUniqueId);
+				PyTuple_SetItem(collisionShapeObList, 0, item);
+
+				item = PyInt_FromLong(collisionShapeInfo.m_collisionShapeData[i].m_linkIndex);
+				PyTuple_SetItem(collisionShapeObList, 1, item);
+
+				item = PyInt_FromLong(collisionShapeInfo.m_collisionShapeData[i].m_collisionGeometryType);
+				PyTuple_SetItem(collisionShapeObList, 2, item);
+
+				{
+					PyObject* vec = PyTuple_New(3);
+					item = PyFloat_FromDouble(collisionShapeInfo.m_collisionShapeData[i].m_dimensions[0]);
+					PyTuple_SetItem(vec, 0, item);
+					item = PyFloat_FromDouble(collisionShapeInfo.m_collisionShapeData[i].m_dimensions[1]);
+					PyTuple_SetItem(vec, 1, item);
+					item = PyFloat_FromDouble(collisionShapeInfo.m_collisionShapeData[i].m_dimensions[2]);
+					PyTuple_SetItem(vec, 2, item);
+					PyTuple_SetItem(collisionShapeObList, 3, vec);
+				}
+
+				item = PyString_FromString(collisionShapeInfo.m_collisionShapeData[i].m_meshAssetFileName);
+				PyTuple_SetItem(collisionShapeObList, 4, item);
+
+				{
+					PyObject* vec = PyTuple_New(3);
+					item = PyFloat_FromDouble(collisionShapeInfo.m_collisionShapeData[i].m_localCollisionFrame[0]);
+					PyTuple_SetItem(vec, 0, item);
+					item = PyFloat_FromDouble(collisionShapeInfo.m_collisionShapeData[i].m_localCollisionFrame[1]);
+					PyTuple_SetItem(vec, 1, item);
+					item = PyFloat_FromDouble(collisionShapeInfo.m_collisionShapeData[i].m_localCollisionFrame[2]);
+					PyTuple_SetItem(vec, 2, item);
+					PyTuple_SetItem(collisionShapeObList, 5, vec);
+				}
+
+				{
+					PyObject* vec = PyTuple_New(4);
+					item = PyFloat_FromDouble(collisionShapeInfo.m_collisionShapeData[i].m_localCollisionFrame[3]);
+					PyTuple_SetItem(vec, 0, item);
+					item = PyFloat_FromDouble(collisionShapeInfo.m_collisionShapeData[i].m_localCollisionFrame[4]);
+					PyTuple_SetItem(vec, 1, item);
+					item = PyFloat_FromDouble(collisionShapeInfo.m_collisionShapeData[i].m_localCollisionFrame[5]);
+					PyTuple_SetItem(vec, 2, item);
+					item = PyFloat_FromDouble(collisionShapeInfo.m_collisionShapeData[i].m_localCollisionFrame[6]);
+					PyTuple_SetItem(vec, 3, item);
+					PyTuple_SetItem(collisionShapeObList, 6, vec);
+				}
+
+				
+				PyTuple_SetItem(pyResultList, i, collisionShapeObList);
+			}
+			return pyResultList;
+		}
+		else
+		{
+			PyErr_SetString(SpamError, "Error receiving collision shape info");
+			return NULL;
+		}
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
 static PyObject* pybullet_getVisualShapeData(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	int objectUniqueId = -1;
@@ -5564,7 +5703,7 @@ static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, P
 
 			if (collisionFrameOrientationObj)
 			{
-				pybullet_internalSetVectord(collisionFrameOrientationObj,collisionFrameOrientation);
+				pybullet_internalSetVector4d(collisionFrameOrientationObj,collisionFrameOrientation);
 			}
 			b3CreateVisualShapeSetChildTransform(commandHandle, shapeIndex, collisionFramePosition,collisionFrameOrientation);
 
@@ -5582,6 +5721,233 @@ static PyObject* pybullet_createCollisionShape(PyObject* self, PyObject* args, P
 	return NULL;
 }
 
+static PyObject* pybullet_createCollisionShapeArray(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	b3PhysicsClientHandle sm = 0;
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+
+	PyObject* shapeTypeArray = 0;
+	PyObject* radiusArray = 0;
+	PyObject* halfExtentsObjArray = 0;
+	PyObject* lengthArray = 0;
+	PyObject* fileNameArray = 0;
+	PyObject* meshScaleObjArray = 0;
+	PyObject* planeNormalObjArray = 0;
+	PyObject* flagsArray = 0;
+	PyObject* collisionFramePositionObjArray = 0;
+	PyObject* collisionFrameOrientationObjArray = 0;
+	
+	static char* kwlist[] = { "shapeTypes", "radii", "halfExtents", "lengths", "fileNames", "meshScales", "planeNormals", 
+								"flags", "collisionFramePositions", "collisionFrameOrientations", "physicsClientId", NULL };
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOOOOOOOi", kwlist,
+		&shapeTypeArray, &radiusArray, &halfExtentsObjArray, &lengthArray, &fileNameArray, &meshScaleObjArray, &planeNormalObjArray, &flagsArray, &collisionFramePositionObjArray, &collisionFrameOrientationObjArray, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+
+
+	b3SharedMemoryCommandHandle commandHandle = b3CreateCollisionShapeCommandInit(sm);
+
+	{
+		int numShapeTypes = 0;
+		int numRadius = 0;
+		int numHalfExtents = 0;
+		int numLengths = 0;
+		int numFileNames = 0;
+		int numMeshScales = 0;
+		int numPlaneNormals = 0;
+		int numFlags = 0;
+		int numPositions = 0;
+		int numOrientations = 0;
+
+		int s;
+		PyObject* shapeTypeArraySeq = shapeTypeArray?PySequence_Fast(shapeTypeArray, "expected a sequence of shape types"):0;
+		PyObject* radiusArraySeq = radiusArray?PySequence_Fast(radiusArray, "expected a sequence of radii"):0;
+		PyObject* halfExtentsArraySeq = halfExtentsObjArray?PySequence_Fast(halfExtentsObjArray, "expected a sequence of half extents"):0;
+		PyObject* lengthArraySeq = lengthArray ?PySequence_Fast(lengthArray, "expected a sequence of lengths"):0;
+		PyObject* fileNameArraySeq = fileNameArray?PySequence_Fast(fileNameArray, "expected a sequence of filename"):0;
+		PyObject* meshScaleArraySeq = meshScaleObjArray?PySequence_Fast(meshScaleObjArray, "expected a sequence of mesh scale"):0;
+		PyObject* planeNormalArraySeq = planeNormalObjArray?PySequence_Fast(planeNormalObjArray, "expected a sequence of plane normal"):0;
+		PyObject* flagsArraySeq = flagsArray?PySequence_Fast(flagsArray, "expected a sequence of flags"):0;
+		PyObject* positionArraySeq = collisionFramePositionObjArray?PySequence_Fast(collisionFramePositionObjArray, "expected a sequence of collision frame positions"):0;
+		PyObject* orientationArraySeq = collisionFrameOrientationObjArray?PySequence_Fast(collisionFrameOrientationObjArray, "expected a sequence of collision frame orientations"):0;
+
+		if (shapeTypeArraySeq == 0)
+		{
+			PyErr_SetString(SpamError, "expected a sequence of shape types");
+			return NULL;
+		}
+
+		numShapeTypes = shapeTypeArray?PySequence_Size(shapeTypeArray):0;
+		numRadius = radiusArraySeq?PySequence_Size(radiusArraySeq):0;
+		numHalfExtents = halfExtentsArraySeq?PySequence_Size(halfExtentsArraySeq):0;
+		numLengths = lengthArraySeq?PySequence_Size(lengthArraySeq):0;
+		numFileNames = fileNameArraySeq?PySequence_Size(fileNameArraySeq):0;
+		numMeshScales = meshScaleArraySeq?PySequence_Size(meshScaleArraySeq):0;
+		numPlaneNormals = planeNormalArraySeq?PySequence_Size(planeNormalArraySeq):0;
+
+		for (s=0;s<numShapeTypes;s++)
+		{
+			int shapeType = pybullet_internalGetIntFromSequence(shapeTypeArraySeq, s);
+			if (shapeType >= GEOM_SPHERE)
+			{
+
+				int shapeIndex = -1;
+
+				if (shapeType == GEOM_SPHERE && s <= numRadius)
+				{
+					double radius = pybullet_internalGetFloatFromSequence(radiusArraySeq, s);
+					if (radius > 0)
+					{
+						shapeIndex = b3CreateCollisionShapeAddSphere(commandHandle, radius);
+					}
+				}
+				if (shapeType == GEOM_BOX)
+				{
+					PyObject* halfExtentsObj = 0;
+					double halfExtents[3] = { 1, 1, 1 };
+
+					if (halfExtentsArraySeq && s<= numHalfExtents)
+					{
+						if (PyList_Check(halfExtentsArraySeq))
+						{
+							halfExtentsObj = PyList_GET_ITEM(halfExtentsArraySeq, s);
+						}
+						else
+						{
+							halfExtentsObj = PyTuple_GET_ITEM(halfExtentsArraySeq, s);
+						}
+					}
+					pybullet_internalSetVectord(halfExtentsObj, halfExtents);
+					shapeIndex = b3CreateCollisionShapeAddBox(commandHandle, halfExtents);
+				}
+				if (shapeType == GEOM_CAPSULE && s<=numRadius)
+				{
+					double radius = pybullet_internalGetFloatFromSequence(radiusArraySeq, s);
+					double height = pybullet_internalGetFloatFromSequence(lengthArraySeq, s);
+					if (radius > 0 && height >= 0)
+					{
+						shapeIndex = b3CreateCollisionShapeAddCapsule(commandHandle, radius, height);
+					}
+				}
+				if (shapeType == GEOM_CYLINDER  && s <= numRadius && s<numLengths)
+				{
+					double radius = pybullet_internalGetFloatFromSequence(radiusArraySeq, s);
+					double height = pybullet_internalGetFloatFromSequence(lengthArraySeq, s);
+					if (radius > 0 && height >= 0)
+					{
+						shapeIndex = b3CreateCollisionShapeAddCylinder(commandHandle, radius, height);
+					}
+				}
+				if (shapeType == GEOM_MESH)
+				{
+					double meshScale[3] = { 1, 1, 1 };
+
+					PyObject* meshScaleObj = meshScaleArraySeq?PyList_GET_ITEM(meshScaleArraySeq, s):0;
+					PyObject* fileNameObj = fileNameArraySeq?PyList_GET_ITEM(fileNameArraySeq, s):0;
+					const char* fileName = 0;
+
+					if (fileNameObj)
+					{
+#if PY_MAJOR_VERSION >= 3
+						PyObject* ob = PyUnicode_AsASCIIString(fileNameObj);
+						fileName = PyBytes_AS_STRING(ob);
+#else
+						fileName = PyString_AsString(fileNameObj);
+#endif
+					}
+					if (meshScaleObj)
+					{
+						pybullet_internalSetVectord(meshScaleObj, meshScale);
+					}
+					if (fileName)
+					{
+						shapeIndex = b3CreateCollisionShapeAddMesh(commandHandle, fileName, meshScale);
+					}
+					
+				}
+				if (shapeType == GEOM_PLANE)
+				{
+					PyObject* planeNormalObj = planeNormalArraySeq?PyList_GET_ITEM(planeNormalArraySeq, s):0;
+					double planeNormal[3];
+					double planeConstant = 0;
+					pybullet_internalSetVectord(planeNormalObj, planeNormal);
+					shapeIndex = b3CreateCollisionShapeAddPlane(commandHandle, planeNormal, planeConstant);
+				}
+				if (flagsArraySeq)
+				{
+					int flags = pybullet_internalGetIntFromSequence(flagsArraySeq, s);
+					b3CreateCollisionSetFlag(commandHandle, shapeIndex, flags);
+				}
+				if (positionArraySeq || orientationArraySeq)
+				{
+					PyObject* collisionFramePositionObj = positionArraySeq?PyList_GET_ITEM(positionArraySeq, s):0;
+					PyObject* collisionFrameOrientationObj = orientationArraySeq?PyList_GET_ITEM(orientationArraySeq, s):0;
+					double collisionFramePosition[3] = { 0, 0, 0 };
+					double collisionFrameOrientation[4] = { 0, 0, 0, 1 };
+					if (collisionFramePositionObj)
+					{
+						pybullet_internalSetVectord(collisionFramePositionObj, collisionFramePosition);
+					}
+
+					if (collisionFrameOrientationObj)
+					{
+						pybullet_internalSetVector4d(collisionFrameOrientationObj, collisionFrameOrientation);
+					}
+					if (shapeIndex >= 0)
+					{
+						b3CreateCollisionShapeSetChildTransform(commandHandle, shapeIndex, collisionFramePosition, collisionFrameOrientation);
+					}
+
+				}
+			}
+
+
+
+		}
+
+		if (shapeTypeArraySeq)
+			Py_DECREF(shapeTypeArraySeq);
+		if (radiusArraySeq)
+			Py_DECREF(radiusArraySeq);
+		if (halfExtentsArraySeq)
+			Py_DECREF(halfExtentsArraySeq);
+		if (lengthArraySeq)
+			Py_DECREF(lengthArraySeq);
+		if (fileNameArraySeq)
+			Py_DECREF(fileNameArraySeq);
+		if (meshScaleArraySeq)
+			Py_DECREF(meshScaleArraySeq);
+		if (planeNormalArraySeq)
+			Py_DECREF(planeNormalArraySeq);
+		if (flagsArraySeq)
+			Py_DECREF(flagsArraySeq);
+		if (positionArraySeq)
+			Py_DECREF(positionArraySeq);
+		if (orientationArraySeq)
+			Py_DECREF(orientationArraySeq);
+
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, commandHandle);
+		statusType = b3GetStatusType(statusHandle);
+		if (statusType == CMD_CREATE_COLLISION_SHAPE_COMPLETED)
+		{
+			int uid = b3GetStatusCollisionShapeUniqueId(statusHandle);
+			PyObject* ob = PyLong_FromLong(uid);
+			return ob;
+		}
+	}
+
+	PyErr_SetString(SpamError, "createCollisionShapeArray failed.");
+	return NULL;
+}
 
 static PyObject* pybullet_createVisualShape(PyObject* self, PyObject* args, PyObject* keywds)
 {
@@ -5591,7 +5957,7 @@ static PyObject* pybullet_createVisualShape(PyObject* self, PyObject* args, PyOb
 
 	int shapeType=-1;
 	double radius=0.5;
-	double height = 1;
+	double length = 1;
 	PyObject* meshScaleObj=0;
 	double meshScale[3] = {1,1,1};
 	PyObject* planeNormalObj=0;
@@ -5613,9 +5979,9 @@ static PyObject* pybullet_createVisualShape(PyObject* self, PyObject* args, PyOb
 	
 	PyObject* halfExtentsObj=0;
 
-	static char* kwlist[] = {"shapeType","radius","halfExtents", "height", "fileName", "meshScale", "planeNormal", "flags", "rgbaColor", "specularColor", "visualFramePosition", "visualFrameOrientation", "physicsClientId", NULL};
+	static char* kwlist[] = {"shapeType","radius","halfExtents", "length", "fileName", "meshScale", "planeNormal", "flags", "rgbaColor", "specularColor", "visualFramePosition", "visualFrameOrientation", "physicsClientId", NULL};
 	if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|dOdsOOiOOOOi", kwlist, 
-		&shapeType, &radius,&halfExtentsObj, &height, &fileName, &meshScaleObj, &planeNormalObj, &flags, &rgbaColorObj, &specularColorObj, &visualFramePositionObj, &visualFrameOrientationObj, &physicsClientId))
+		&shapeType, &radius,&halfExtentsObj, &length, &fileName, &meshScaleObj, &planeNormalObj, &flags, &rgbaColorObj, &specularColorObj, &visualFramePositionObj, &visualFrameOrientationObj, &physicsClientId))
 	{
 		return NULL;
 	}
@@ -5645,13 +6011,13 @@ static PyObject* pybullet_createVisualShape(PyObject* self, PyObject* args, PyOb
 			shapeIndex = b3CreateVisualShapeAddBox(commandHandle,halfExtents);
 		}
 	
-		if (shapeType==GEOM_CAPSULE && radius>0 && height>=0)
+		if (shapeType==GEOM_CAPSULE && radius>0 && length>=0)
 		{
-			shapeIndex = b3CreateVisualShapeAddCapsule(commandHandle,radius,height);
+			shapeIndex = b3CreateVisualShapeAddCapsule(commandHandle,radius,length);
 		}
-		if (shapeType==GEOM_CYLINDER && radius>0 && height>=0)
+		if (shapeType==GEOM_CYLINDER && radius>0 && length>=0)
 		{
-			shapeIndex = b3CreateVisualShapeAddCylinder(commandHandle,radius,height);
+			shapeIndex = b3CreateVisualShapeAddCylinder(commandHandle,radius,length);
 		}
 		if (shapeType==GEOM_MESH && fileName)
 		{
@@ -5692,7 +6058,7 @@ static PyObject* pybullet_createVisualShape(PyObject* self, PyObject* args, PyOb
 
 			if (visualFrameOrientationObj)
 			{
-				pybullet_internalSetVectord(visualFrameOrientationObj,visualFrameOrientation);
+				pybullet_internalSetVector4d(visualFrameOrientationObj,visualFrameOrientation);
 			}
 			b3CreateVisualShapeSetChildTransform(commandHandle, shapeIndex, visualFramePosition,visualFrameOrientation);
 
@@ -7944,6 +8310,9 @@ static PyMethodDef SpamMethods[] = {
 	{"createCollisionShape", (PyCFunction)pybullet_createCollisionShape, METH_VARARGS | METH_KEYWORDS,
 	 "Create a collision shape. Returns a non-negative (int) unique id, if successfull, negative otherwise."},
 
+	{ "createCollisionShapeArray", (PyCFunction)pybullet_createCollisionShapeArray, METH_VARARGS | METH_KEYWORDS,
+	"Create a collision shape. Returns a non-negative (int) unique id, if successfull, negative otherwise." },
+
 	{"createVisualShape", (PyCFunction)pybullet_createVisualShape, METH_VARARGS | METH_KEYWORDS,
 	 "Create a visual shape. Returns a non-negative (int) unique id, if successfull, negative otherwise."},
 
@@ -8151,6 +8520,9 @@ static PyMethodDef SpamMethods[] = {
 
 	{"getVisualShapeData", (PyCFunction)pybullet_getVisualShapeData, METH_VARARGS | METH_KEYWORDS,
 	 "Return the visual shape information for one object."},
+
+	{ "getCollisionShapeData", (PyCFunction)pybullet_getCollisionShapeData, METH_VARARGS | METH_KEYWORDS,
+		"Return the collision shape information for one object." },
 
 	{"changeVisualShape", (PyCFunction)pybullet_changeVisualShape, METH_VARARGS | METH_KEYWORDS,
 	 "Change part of the visual shape information for one object."},
@@ -8370,8 +8742,7 @@ initpybullet(void)
 	PyModule_AddIntConstant(m, "JOINT_POINT2POINT", ePoint2PointType);  // user read
 	PyModule_AddIntConstant(m, "JOINT_GEAR", eGearType);  // user read
 	
-	PyModule_AddIntConstant(m, "DYNAMICS_INFO_REPORT_INERTIA", eDYNAMICS_INFO_REPORT_INERTIA);  // report local inertia in 'getDynamicsInfo'
-
+	
 	PyModule_AddIntConstant(m, "SENSOR_FORCE_TORQUE", eSensorForceTorqueType);  // user read
 
 	PyModule_AddIntConstant(m, "TORQUE_CONTROL", CONTROL_MODE_TORQUE);

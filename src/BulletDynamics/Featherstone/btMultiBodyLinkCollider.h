@@ -141,7 +141,7 @@ public:
 struct	btMultiBodyLinkColliderFloatData
 {
 	btCollisionObjectFloatData m_colObjData;
-	void		*m_multiBody;
+	btMultiBodyFloatData	*m_multiBody;
 	int			m_link;
 	char		m_padding[4];
 };
@@ -149,7 +149,7 @@ struct	btMultiBodyLinkColliderFloatData
 struct	btMultiBodyLinkColliderDoubleData
 {
 	btCollisionObjectDoubleData m_colObjData;
-	void		*m_multiBody;
+	btMultiBodyDoubleData		*m_multiBody;
 	int			m_link;
 	char		m_padding[4];
 };
@@ -165,7 +165,7 @@ SIMD_FORCE_INLINE	const char*	btMultiBodyLinkCollider::serialize(void* dataBuffe
 	btCollisionObject::serialize(&dataOut->m_colObjData,serializer);
 	
 	dataOut->m_link = this->m_link;
-	dataOut->m_multiBody = serializer->getUniquePointer(m_multiBody);
+	dataOut->m_multiBody = (btMultiBodyData*)serializer->getUniquePointer(m_multiBody);
 
 	// Fill padding with zeros to appease msan.
 	memset(dataOut->m_padding, 0, sizeof(dataOut->m_padding));

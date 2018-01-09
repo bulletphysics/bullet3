@@ -49,7 +49,8 @@ ATTRIBUTE_ALIGNED16(struct) BulletURDFInternalData
 	btHashMap<btHashInt,UrdfMaterialColor> m_linkColors;
     btAlignedObjectArray<btCollisionShape*> m_allocatedCollisionShapes;
 	mutable btAlignedObjectArray<btTriangleMesh*> m_allocatedMeshInterfaces;
-	
+	btHashMap<btHashPtr, UrdfCollision> m_bulletCollisionShape2UrdfCollision;
+
 	LinkVisualShapesConverter* m_customVisualShapesConverter;
 	bool m_enableTinyRenderer;
 
@@ -569,6 +570,17 @@ bool findExistingMeshFile(
 	}
 }
 
+int BulletURDFImporter::getUrdfFromCollisionShape(const btCollisionShape* collisionShape, UrdfCollision& collision) const
+{
+	UrdfCollision* col = m_data->m_bulletCollisionShape2UrdfCollision.find(collisionShape);
+	if (col)
+	{
+		collision = *col;
+		return 1;
+	}
+	return 0;
+}
+
 btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfCollision* collision, const char* urdfPathPrefix) const
 {
 	BT_PROFILE("convertURDFToCollisionShape");
@@ -599,8 +611,8 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
         case URDF_GEOM_CYLINDER:
         {
 			btScalar cylRadius = collision->m_geometry.m_capsuleRadius;
-			btScalar cylLength = collision->m_geometry.m_capsuleHeight;
-			
+			btScalar cylHalfLength = 0.5*collision->m_geometry.m_capsuleHeight;
+#if 0
             btAlignedObjectArray<btVector3> vertices;
             //int numVerts = sizeof(barrel_vertices)/(9*sizeof(float));
             int numSteps = 32;
@@ -620,10 +632,10 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
 			cylZShape->optimizeConvexHull();
 			
 			//btConvexShape* cylZShape = new btConeShapeZ(cylRadius,cylLength);//(vexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
-            
-            //btVector3 halfExtents(cylRadius,cylRadius,cylLength);
-            //btCylinderShapeZ* cylZShape = new btCylinderShapeZ(halfExtents);
-            
+#else       
+            btVector3 halfExtents(cylRadius,cylRadius, cylHalfLength);
+            btCylinderShapeZ* cylZShape = new btCylinderShapeZ(halfExtents);
+#endif       
 
             shape = cylZShape;
             break;
@@ -671,6 +683,7 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
 				//create a convex hull for each shape, and store it in a btCompoundShape
 
 				shape = createConvexHullFromShapes(shapes, collision->m_geometry.m_meshScale);
+				m_data->m_bulletCollisionShape2UrdfCollision.insert(shape, *collision);
 				return shape;
 			}
 			break;
@@ -811,6 +824,10 @@ upAxisMat.setIdentity();
         default:
 		b3Warning("Error: unknown collision geometry type %i\n", collision->m_geometry.m_type);
 		
+	}
+	if (shape && collision->m_geometry.m_type==URDF_GEOM_MESH)
+	{
+		m_data->m_bulletCollisionShape2UrdfCollision.insert(shape, *collision);
 	}
 	return shape;
 }

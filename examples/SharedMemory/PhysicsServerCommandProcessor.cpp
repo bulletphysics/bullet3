@@ -29,6 +29,7 @@
 #include "LinearMath/btTransform.h"
 #include "../Importers/ImportMJCFDemo/BulletMJCFImporter.h"
 #include "../Importers/ImportObjDemo/LoadMeshFromObj.h"
+#include "../Importers/ImportSTLDemo/LoadMeshFromSTL.h"
 #include "../Extras/Serialize/BulletWorldImporter/btMultiBodyWorldImporter.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointMotor.h"
 #include "LinearMath/btSerializer.h"
@@ -1516,6 +1517,7 @@ struct PhysicsServerCommandProcessorInternalData
 	btAlignedObjectArray<std::string*> m_strings;
 
 	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
+	btHashMap<btHashPtr, UrdfCollision> m_bulletCollisionShape2UrdfCollision;
 	btAlignedObjectArray<btStridingMeshInterface*> m_meshInterfaces;
 
 	MyOverlapFilterCallback* m_broadphaseCollisionFilterCallback;
@@ -2138,11 +2140,25 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 		if (colShapeUniqueId>=0)
 		{
 			InternalCollisionShapeHandle* handle = m_data->m_userCollisionShapeHandles.getHandle(colShapeUniqueId);
-			if (handle)
+			if (handle && handle->m_collisionShape)
 			{
-				btTransform childTrans;
-				childTrans.setIdentity();				
-				compound->addChildShape(localInertiaFrame.inverse()*childTrans,handle->m_collisionShape);
+				if (handle->m_collisionShape->getShapeType() == COMPOUND_SHAPE_PROXYTYPE)
+				{
+					btCompoundShape* childCompound = (btCompoundShape*)handle->m_collisionShape;
+					for (int c = 0; c < childCompound->getNumChildShapes(); c++)
+					{
+						btTransform childTrans = childCompound->getChildTransform(c);
+						btCollisionShape* childShape = childCompound->getChildShape(c);
+						btTransform tr = localInertiaFrame.inverse()*childTrans;
+						compound->addChildShape(tr, childShape);
+					}
+				}
+				else
+				{
+					btTransform childTrans;
+					childTrans.setIdentity();
+					compound->addChildShape(localInertiaFrame.inverse()*childTrans, handle->m_collisionShape);
+				}
 			}
 		}
 		m_allocatedCollisionShapes.push_back(compound);
@@ -2392,6 +2408,7 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 	}
 	m_data->m_meshInterfaces.clear();
 	m_data->m_collisionShapes.clear();
+	m_data->m_bulletCollisionShape2UrdfCollision.clear();
 
 	delete m_data->m_dynamicsWorld;
 	m_data->m_dynamicsWorld=0;
@@ -2634,6 +2651,25 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
     {
         btCollisionShape* shape =u2b.getAllocatedCollisionShape(i);
         m_data->m_collisionShapes.push_back(shape);
+		UrdfCollision  urdfCollision;
+		if (u2b.getUrdfFromCollisionShape(shape, urdfCollision))
+		{
+			m_data->m_bulletCollisionShape2UrdfCollision.insert(shape, urdfCollision);
+		}
+		if (shape->getShapeType() == COMPOUND_SHAPE_PROXYTYPE)
+		{
+			btCompoundShape* compound = (btCompoundShape*)shape;
+			for (int c = 0; c < compound->getNumChildShapes(); c++)
+			{
+				btCollisionShape* childShape = compound->getChildShape(c);
+				if (u2b.getUrdfFromCollisionShape(childShape, urdfCollision))
+				{
+					m_data->m_bulletCollisionShape2UrdfCollision.insert(childShape, urdfCollision);
+				}
+			}
+		}
+
+
     }
 
 	m_data->m_saveWorldBodyData.push_back(sd);
@@ -3488,7 +3524,8 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 {
 	bool hasStatus = true;
 	serverStatusOut.m_type = CMD_CREATE_COLLISION_SHAPE_FAILED;
-					
+	btScalar defaultCollisionMargin = 0.001;
+
 	btMultiBodyWorldImporter* worldImporter = new btMultiBodyWorldImporter(m_data->m_dynamicsWorld);
 
 	btCollisionShape* shape = 0;
@@ -3500,8 +3537,11 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 	{
 		compound = worldImporter->createCompoundShape();
 	}
-	for (int i=0;i<clientCmd.m_createUserShapeArgs.m_numUserShapes;i++)
+	for (int i = 0; i < clientCmd.m_createUserShapeArgs.m_numUserShapes; i++)
 	{
+		GLInstanceGraphicsShape* glmesh = 0;
+		char pathPrefix[1024] = "";
+		char relativeFileName[1024] = "";
 		UrdfCollision urdfColObj;
 
 		btTransform childTransform;
@@ -3517,7 +3557,7 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 				clientCmd.m_createUserShapeArgs.m_shapes[i].m_childOrientation[2],
 				clientCmd.m_createUserShapeArgs.m_shapes[i].m_childOrientation[3]
 			));
-			if (compound==0)
+			if (compound == 0)
 			{
 				compound = worldImporter->createCompoundShape();
 			}
@@ -3530,227 +3570,274 @@ bool PhysicsServerCommandProcessor::processCreateCollisionShapeCommand(const str
 
 		switch (clientCmd.m_createUserShapeArgs.m_shapes[i].m_type)
 		{
-			case GEOM_SPHERE:
+		case GEOM_SPHERE:
+		{
+			double radius = clientCmd.m_createUserShapeArgs.m_shapes[i].m_sphereRadius;
+			shape = worldImporter->createSphereShape(radius);
+			if (compound)
 			{
-				double radius = clientCmd.m_createUserShapeArgs.m_shapes[i].m_sphereRadius;
-				shape = worldImporter->createSphereShape(radius);
-				if (compound)
-				{
-					compound->addChildShape(childTransform,shape);
-				}
-				urdfColObj.m_geometry.m_type = URDF_GEOM_SPHERE;
-				urdfColObj.m_geometry.m_sphereRadius = radius;
-				break;
+				compound->addChildShape(childTransform, shape);
 			}
-			case GEOM_BOX:
+			urdfColObj.m_geometry.m_type = URDF_GEOM_SPHERE;
+			urdfColObj.m_geometry.m_sphereRadius = radius;
+			break;
+		}
+		case GEOM_BOX:
+		{
+			//double halfExtents[3] = clientCmd.m_createUserShapeArgs.m_shapes[i].m_sphereRadius;
+			btVector3 halfExtents(
+				clientCmd.m_createUserShapeArgs.m_shapes[i].m_boxHalfExtents[0],
+				clientCmd.m_createUserShapeArgs.m_shapes[i].m_boxHalfExtents[1],
+				clientCmd.m_createUserShapeArgs.m_shapes[i].m_boxHalfExtents[2]);
+			shape = worldImporter->createBoxShape(halfExtents);
+			if (compound)
 			{
-				//double halfExtents[3] = clientCmd.m_createUserShapeArgs.m_shapes[i].m_sphereRadius;
-				btVector3 halfExtents(
-					clientCmd.m_createUserShapeArgs.m_shapes[i].m_boxHalfExtents[0],
-					clientCmd.m_createUserShapeArgs.m_shapes[i].m_boxHalfExtents[1],
-					clientCmd.m_createUserShapeArgs.m_shapes[i].m_boxHalfExtents[2]);
-				shape = worldImporter->createBoxShape(halfExtents);
-				if (compound)
-				{
-					compound->addChildShape(childTransform,shape);
-				}
-				urdfColObj.m_geometry.m_type = URDF_GEOM_BOX;
-				urdfColObj.m_geometry.m_boxSize = 2.*halfExtents;
-				break;
+				compound->addChildShape(childTransform, shape);
 			}
-			case GEOM_CAPSULE:
+			urdfColObj.m_geometry.m_type = URDF_GEOM_BOX;
+			urdfColObj.m_geometry.m_boxSize = 2.*halfExtents;
+			break;
+		}
+		case GEOM_CAPSULE:
+		{
+			shape = worldImporter->createCapsuleShapeZ(clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleRadius,
+				clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleHeight);
+			if (compound)
 			{
-				shape = worldImporter->createCapsuleShapeZ(clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleRadius,
-					clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleHeight);
-				if (compound)
-				{
-					compound->addChildShape(childTransform,shape);
-				}
-				urdfColObj.m_geometry.m_type = URDF_GEOM_CAPSULE;
-				urdfColObj.m_geometry.m_capsuleRadius = clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleRadius;
-				urdfColObj.m_geometry.m_capsuleHeight = clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleHeight;
-
-				break;
+				compound->addChildShape(childTransform, shape);
 			}
-			case GEOM_CYLINDER:
-			{
-				shape = worldImporter->createCylinderShapeZ(clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleRadius,
-					clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleHeight);
-				if (compound)
-				{
-					compound->addChildShape(childTransform,shape);
-				}
-				urdfColObj.m_geometry.m_type = URDF_GEOM_CYLINDER;
-				urdfColObj.m_geometry.m_capsuleRadius = clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleRadius;
-				urdfColObj.m_geometry.m_capsuleHeight = clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleHeight;
+			urdfColObj.m_geometry.m_type = URDF_GEOM_CAPSULE;
+			urdfColObj.m_geometry.m_capsuleRadius = clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleRadius;
+			urdfColObj.m_geometry.m_capsuleHeight = clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleHeight;
 
-				break;
+			break;
+		}
+		case GEOM_CYLINDER:
+		{
+			shape = worldImporter->createCylinderShapeZ(clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleRadius,
+				0.5*clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleHeight);
+			if (compound)
+			{
+				compound->addChildShape(childTransform, shape);
 			}
-			case GEOM_PLANE:
-			{
-				btVector3 planeNormal(clientCmd.m_createUserShapeArgs.m_shapes[i].m_planeNormal[0],
-					clientCmd.m_createUserShapeArgs.m_shapes[i].m_planeNormal[1],
-					clientCmd.m_createUserShapeArgs.m_shapes[i].m_planeNormal[2]);
+			urdfColObj.m_geometry.m_type = URDF_GEOM_CYLINDER;
+			urdfColObj.m_geometry.m_capsuleRadius = clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleRadius;
+			urdfColObj.m_geometry.m_capsuleHeight = clientCmd.m_createUserShapeArgs.m_shapes[i].m_capsuleHeight;
 
-				shape = worldImporter->createPlaneShape(planeNormal,0);
-				if (compound)
-				{
-					compound->addChildShape(childTransform,shape);
-				}
-				urdfColObj.m_geometry.m_type = URDF_GEOM_PLANE;
-				urdfColObj.m_geometry.m_planeNormal.setValue(
-					clientCmd.m_createUserShapeArgs.m_shapes[i].m_planeNormal[0],
-					clientCmd.m_createUserShapeArgs.m_shapes[i].m_planeNormal[1],
-					clientCmd.m_createUserShapeArgs.m_shapes[i].m_planeNormal[2]);
-									
-				break;
+			break;
+		}
+		case GEOM_PLANE:
+		{
+			btVector3 planeNormal(clientCmd.m_createUserShapeArgs.m_shapes[i].m_planeNormal[0],
+				clientCmd.m_createUserShapeArgs.m_shapes[i].m_planeNormal[1],
+				clientCmd.m_createUserShapeArgs.m_shapes[i].m_planeNormal[2]);
+
+			shape = worldImporter->createPlaneShape(planeNormal, 0);
+			if (compound)
+			{
+				compound->addChildShape(childTransform, shape);
 			}
-			case GEOM_MESH:
-			{
-				btScalar defaultCollisionMargin = 0.001;
+			urdfColObj.m_geometry.m_type = URDF_GEOM_PLANE;
+			urdfColObj.m_geometry.m_planeNormal.setValue(
+				clientCmd.m_createUserShapeArgs.m_shapes[i].m_planeNormal[0],
+				clientCmd.m_createUserShapeArgs.m_shapes[i].m_planeNormal[1],
+				clientCmd.m_createUserShapeArgs.m_shapes[i].m_planeNormal[2]);
 
-				btVector3 meshScale(clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshScale[0],
-					clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshScale[1],
-					clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshScale[2]);
+			break;
+		}
+		case GEOM_MESH:
+		{
 
-				const std::string& urdf_path="";
+			btVector3 meshScale(clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshScale[0],
+				clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshScale[1],
+				clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshScale[2]);
 
-				std::string fileName = clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshFileName;
-				urdfColObj.m_geometry.m_type = URDF_GEOM_MESH;
-				urdfColObj.m_geometry.m_meshFileName = fileName;
-							
-				urdfColObj.m_geometry.m_meshScale = meshScale;
-				char relativeFileName[1024];
-				char pathPrefix[1024];
-				pathPrefix[0] = 0;
-				if (b3ResourcePath::findResourcePath(fileName.c_str(), relativeFileName, 1024))
-				{
+			const std::string& urdf_path = "";
 
-					b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
-				}
-								
-				const std::string& error_message_prefix="";
-				std::string out_found_filename; 
-				int out_type;
+			std::string fileName = clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshFileName;
+			urdfColObj.m_geometry.m_type = URDF_GEOM_MESH;
+			urdfColObj.m_geometry.m_meshFileName = fileName;
 
-				bool foundFile = findExistingMeshFile(pathPrefix, relativeFileName,error_message_prefix,&out_found_filename, &out_type); 
-				if (foundFile)
-				{
-					urdfColObj.m_geometry.m_meshFileType = out_type;
-
-					if (out_type==UrdfGeometry::FILE_OBJ)
-					{
-						//create a convex hull for each shape, and store it in a btCompoundShape
-
-						if (clientCmd.m_createUserShapeArgs.m_shapes[i].m_collisionFlags&GEOM_FORCE_CONCAVE_TRIMESH)
-						{
-							GLInstanceGraphicsShape* glmesh = LoadMeshFromObj(relativeFileName, pathPrefix);
-											
-							if (!glmesh || glmesh->m_numvertices<=0)
-							{
-								b3Warning("%s: cannot extract mesh from '%s'\n", pathPrefix, relativeFileName);
-								delete glmesh;
-								break;
-							}
-							btAlignedObjectArray<btVector3> convertedVerts;
-							convertedVerts.reserve(glmesh->m_numvertices);
-											
-							for (int i=0; i<glmesh->m_numvertices; i++)
-							{
-								convertedVerts.push_back(btVector3(
-									glmesh->m_vertices->at(i).xyzw[0]*meshScale[0],
-									glmesh->m_vertices->at(i).xyzw[1]*meshScale[1],
-									glmesh->m_vertices->at(i).xyzw[2]*meshScale[2]));
-							}
-
-							BT_PROFILE("convert trimesh");
-							btTriangleMesh* meshInterface = new btTriangleMesh();
-							this->m_data->m_meshInterfaces.push_back(meshInterface);
-							{
-								BT_PROFILE("convert vertices");
-
-								for (int i=0; i<glmesh->m_numIndices/3; i++)
-								{
-									const btVector3& v0 = convertedVerts[glmesh->m_indices->at(i*3)];
-									const btVector3& v1 = convertedVerts[glmesh->m_indices->at(i*3+1)];
-									const btVector3& v2 = convertedVerts[glmesh->m_indices->at(i*3+2)];
-									meshInterface->addTriangle(v0,v1,v2);
-								}
-							}
-							{
-								BT_PROFILE("create btBvhTriangleMeshShape");
-								btBvhTriangleMeshShape* trimesh = new btBvhTriangleMeshShape(meshInterface,true,true);
-								m_data->m_collisionShapes.push_back(trimesh);
-								//trimesh->setLocalScaling(collision->m_geometry.m_meshScale);
-								shape = trimesh;
-								if (compound)
-								{
-									compound->addChildShape(childTransform,shape);
-								}
-							}
-							delete glmesh;
-						} else
-						{
-
-							std::vector<tinyobj::shape_t> shapes;
-							std::string err = tinyobj::LoadObj(shapes,out_found_filename.c_str());
-
-							//shape = createConvexHullFromShapes(shapes, collision->m_geometry.m_meshScale);
-							//static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale)
-							B3_PROFILE("createConvexHullFromShapes");
-							if (compound==0)
-							{
-								compound = worldImporter->createCompoundShape();
-							}
-							compound->setMargin(defaultCollisionMargin);
-
-							for (int s = 0; s<(int)shapes.size(); s++)
-							{
-								btConvexHullShape* convexHull = worldImporter->createConvexHullShape();
-								convexHull->setMargin(defaultCollisionMargin);
-								tinyobj::shape_t& shape = shapes[s];
-								int faceCount = shape.mesh.indices.size();
-
-								for (int f = 0; f<faceCount; f += 3)
-								{
-
-									btVector3 pt;
-									pt.setValue(shape.mesh.positions[shape.mesh.indices[f] * 3 + 0],
-										shape.mesh.positions[shape.mesh.indices[f] * 3 + 1],
-										shape.mesh.positions[shape.mesh.indices[f] * 3 + 2]);
+			urdfColObj.m_geometry.m_meshScale = meshScale;
 			
-									convexHull->addPoint(pt*meshScale,false);
+			
+			pathPrefix[0] = 0;
+			if (b3ResourcePath::findResourcePath(fileName.c_str(), relativeFileName, 1024))
+			{
 
-									pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 0],
-												shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 1],
-												shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 2]);
-									convexHull->addPoint(pt*meshScale, false);
+				b3FileUtils::extractPath(relativeFileName, pathPrefix, 1024);
+			}
 
-									pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 0],
-												shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 1],
-												shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 2]);
-									convexHull->addPoint(pt*meshScale, false);
-								}
+			const std::string& error_message_prefix = "";
+			std::string out_found_filename;
+			int out_type;
 
-								convexHull->recalcLocalAabb();
-								convexHull->optimizeConvexHull();
-								compound->addChildShape(childTransform,convexHull);
+			bool foundFile = findExistingMeshFile(pathPrefix, relativeFileName, error_message_prefix, &out_found_filename, &out_type);
+			if (foundFile)
+			{
+				urdfColObj.m_geometry.m_meshFileType = out_type;
+
+				if (out_type == UrdfGeometry::FILE_STL)
+				{
+					glmesh = LoadMeshFromSTL(relativeFileName);
+
+				}
+				if (out_type == UrdfGeometry::FILE_OBJ)
+				{
+					//create a convex hull for each shape, and store it in a btCompoundShape
+
+					if (clientCmd.m_createUserShapeArgs.m_shapes[i].m_collisionFlags&GEOM_FORCE_CONCAVE_TRIMESH)
+					{
+						glmesh = LoadMeshFromObj(relativeFileName, pathPrefix);
+
+					}
+					else
+					{
+
+						std::vector<tinyobj::shape_t> shapes;
+						std::string err = tinyobj::LoadObj(shapes, out_found_filename.c_str());
+
+						//shape = createConvexHullFromShapes(shapes, collision->m_geometry.m_meshScale);
+						//static btCollisionShape* createConvexHullFromShapes(std::vector<tinyobj::shape_t>& shapes, const btVector3& geomScale)
+						B3_PROFILE("createConvexHullFromShapes");
+						if (compound == 0)
+						{
+							compound = worldImporter->createCompoundShape();
+						}
+						compound->setMargin(defaultCollisionMargin);
+
+						for (int s = 0; s < (int)shapes.size(); s++)
+						{
+							btConvexHullShape* convexHull = worldImporter->createConvexHullShape();
+							convexHull->setMargin(defaultCollisionMargin);
+							tinyobj::shape_t& shape = shapes[s];
+							int faceCount = shape.mesh.indices.size();
+
+							for (int f = 0; f < faceCount; f += 3)
+							{
+
+								btVector3 pt;
+								pt.setValue(shape.mesh.positions[shape.mesh.indices[f] * 3 + 0],
+									shape.mesh.positions[shape.mesh.indices[f] * 3 + 1],
+									shape.mesh.positions[shape.mesh.indices[f] * 3 + 2]);
+
+								convexHull->addPoint(pt*meshScale, false);
+
+								pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 0],
+									shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 1],
+									shape.mesh.positions[shape.mesh.indices[f + 1] * 3 + 2]);
+								convexHull->addPoint(pt*meshScale, false);
+
+								pt.setValue(shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 0],
+									shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 1],
+									shape.mesh.positions[shape.mesh.indices[f + 2] * 3 + 2]);
+								convexHull->addPoint(pt*meshScale, false);
 							}
+
+							convexHull->recalcLocalAabb();
+							convexHull->optimizeConvexHull();
+							compound->addChildShape(childTransform, convexHull);
 						}
 					}
 				}
-				break;
 			}
-			default:
-			{
-			}
+			break;
+		}
+		default:
+		{
+		}
 		}
 		if (urdfColObj.m_geometry.m_type != URDF_GEOM_UNKNOWN)
 		{
 			urdfCollisionObjects.push_back(urdfColObj);
 		}
-	}
 
+		if (glmesh)
+		{
+			btVector3 meshScale(clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshScale[0],
+				clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshScale[1],
+				clientCmd.m_createUserShapeArgs.m_shapes[i].m_meshScale[2]);
+
+
+			if (!glmesh || glmesh->m_numvertices <= 0)
+			{
+				b3Warning("%s: cannot extract mesh from '%s'\n", pathPrefix, relativeFileName);
+				delete glmesh;
+			}
+			else
+			{
+
+				btAlignedObjectArray<btVector3> convertedVerts;
+				convertedVerts.reserve(glmesh->m_numvertices);
+
+				for (int i = 0; i < glmesh->m_numvertices; i++)
+				{
+					convertedVerts.push_back(btVector3(
+						glmesh->m_vertices->at(i).xyzw[0] * meshScale[0],
+						glmesh->m_vertices->at(i).xyzw[1] * meshScale[1],
+						glmesh->m_vertices->at(i).xyzw[2] * meshScale[2]));
+				}
+
+				if (clientCmd.m_createUserShapeArgs.m_shapes[i].m_collisionFlags&GEOM_FORCE_CONCAVE_TRIMESH)
+				{
+					
+
+					BT_PROFILE("convert trimesh");
+					btTriangleMesh* meshInterface = new btTriangleMesh();
+					this->m_data->m_meshInterfaces.push_back(meshInterface);
+					{
+						BT_PROFILE("convert vertices");
+
+						for (int i = 0; i < glmesh->m_numIndices / 3; i++)
+						{
+							const btVector3& v0 = convertedVerts[glmesh->m_indices->at(i * 3)];
+							const btVector3& v1 = convertedVerts[glmesh->m_indices->at(i * 3 + 1)];
+							const btVector3& v2 = convertedVerts[glmesh->m_indices->at(i * 3 + 2)];
+							meshInterface->addTriangle(v0, v1, v2);
+						}
+					}
+					{
+						BT_PROFILE("create btBvhTriangleMeshShape");
+						btBvhTriangleMeshShape* trimesh = new btBvhTriangleMeshShape(meshInterface, true, true);
+						m_data->m_collisionShapes.push_back(trimesh);
+						//trimesh->setLocalScaling(collision->m_geometry.m_meshScale);
+						shape = trimesh;
+						if (compound)
+						{
+							compound->addChildShape(childTransform, shape);
+						}
+					}
+					delete glmesh;
+				}
+				else
+				{
+					//convex mesh
+
+					if (compound == 0)
+					{
+						compound = worldImporter->createCompoundShape();
+					}
+					compound->setMargin(defaultCollisionMargin);
+
+					{
+						btConvexHullShape* convexHull = worldImporter->createConvexHullShape();
+						convexHull->setMargin(defaultCollisionMargin);
+
+						for (int v = 0; v < convertedVerts.size(); v++)
+						{
+
+							btVector3 pt = convertedVerts[v];
+							convexHull->addPoint(pt, false);
+						}
+
+						convexHull->recalcLocalAabb();
+						convexHull->optimizeConvexHull();
+						compound->addChildShape(childTransform, convexHull);
+					}
+				}
+			}
+		}	
+	}
 	if (compound && compound->getNumChildShapes())
 	{
 		shape = compound;
@@ -4647,6 +4734,14 @@ bool PhysicsServerCommandProcessor::processSendDesiredStateCommand(const struct 
 									}
 
 									motor->setVelocityTarget(desiredVelocity,kd);
+									//todo: instead of clamping, combine the motor and limit
+									//and combine handling of limit force and motor force.
+									
+									//clamp position
+									if (mb->getLink(link).m_jointLowerLimit <= mb->getLink(link).m_jointUpperLimit)
+									{
+										btClamp(desiredPosition, mb->getLink(link).m_jointLowerLimit, mb->getLink(link).m_jointUpperLimit);
+									}
 									motor->setPositionTarget(desiredPosition,kp);
 
 									btScalar maxImp = 1000000.f*m_data->m_physicsDeltaTime;
@@ -6296,6 +6391,29 @@ bool PhysicsServerCommandProcessor::processGetDynamicsInfoCommand(const struct S
 			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[1] = mb->getBaseInertia()[1];
 			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[2] = mb->getBaseInertia()[2];
 			serverCmd.m_dynamicsInfo.m_lateralFrictionCoeff = mb->getBaseCollider()->getFriction();
+
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[0] = body->m_rootLocalInertialFrame.getOrigin()[0];
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[1] = body->m_rootLocalInertialFrame.getOrigin()[1];
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[2] = body->m_rootLocalInertialFrame.getOrigin()[2];
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[3] = body->m_rootLocalInertialFrame.getRotation()[0];
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[4] = body->m_rootLocalInertialFrame.getRotation()[1];
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[5] = body->m_rootLocalInertialFrame.getRotation()[2];
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[6] = body->m_rootLocalInertialFrame.getRotation()[3];
+		
+			serverCmd.m_dynamicsInfo.m_restitution = mb->getBaseCollider()->getRestitution();
+			serverCmd.m_dynamicsInfo.m_rollingFrictionCoeff = mb->getBaseCollider()->getRollingFriction();
+			serverCmd.m_dynamicsInfo.m_spinningFrictionCoeff = mb->getBaseCollider()->getSpinningFriction();
+
+			if (mb->getBaseCollider()->getCollisionFlags() & btCollisionObject::CF_HAS_CONTACT_STIFFNESS_DAMPING)
+			{
+				serverCmd.m_dynamicsInfo.m_contactStiffness = mb->getBaseCollider()->getContactStiffness();
+				serverCmd.m_dynamicsInfo.m_contactDamping = mb->getBaseCollider()->getContactDamping();
+			}
+			else
+			{
+				serverCmd.m_dynamicsInfo.m_contactStiffness = -1;
+				serverCmd.m_dynamicsInfo.m_contactDamping = -1;
+			}
 		}
 		else
 		{
@@ -6304,9 +6422,31 @@ bool PhysicsServerCommandProcessor::processGetDynamicsInfoCommand(const struct S
 			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[1] = mb->getLinkInertia(linkIndex)[1];
 			serverCmd.m_dynamicsInfo.m_localInertialDiagonal[2] = mb->getLinkInertia(linkIndex)[2];
 
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[0] = body->m_linkLocalInertialFrames[linkIndex].getOrigin()[0];
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[1] = body->m_linkLocalInertialFrames[linkIndex].getOrigin()[1];
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[2] = body->m_linkLocalInertialFrames[linkIndex].getOrigin()[2];
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[3] = body->m_linkLocalInertialFrames[linkIndex].getRotation()[0];
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[4] = body->m_linkLocalInertialFrames[linkIndex].getRotation()[1];
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[5] = body->m_linkLocalInertialFrames[linkIndex].getRotation()[2];
+			serverCmd.m_dynamicsInfo.m_localInertialFrame[6] = body->m_linkLocalInertialFrames[linkIndex].getRotation()[3];
+
 			if (mb->getLinkCollider(linkIndex))
 			{
 				serverCmd.m_dynamicsInfo.m_lateralFrictionCoeff = mb->getLinkCollider(linkIndex)->getFriction();
+				serverCmd.m_dynamicsInfo.m_restitution = mb->getLinkCollider(linkIndex)->getRestitution();
+				serverCmd.m_dynamicsInfo.m_rollingFrictionCoeff = mb->getLinkCollider(linkIndex)->getRollingFriction();
+				serverCmd.m_dynamicsInfo.m_spinningFrictionCoeff = mb->getLinkCollider(linkIndex)->getSpinningFriction();
+
+				if (mb->getLinkCollider(linkIndex)->getCollisionFlags() & btCollisionObject::CF_HAS_CONTACT_STIFFNESS_DAMPING)
+				{
+					serverCmd.m_dynamicsInfo.m_contactStiffness = mb->getLinkCollider(linkIndex)->getContactStiffness();
+					serverCmd.m_dynamicsInfo.m_contactDamping = mb->getLinkCollider(linkIndex)->getContactDamping();
+				}
+				else
+				{
+					serverCmd.m_dynamicsInfo.m_contactStiffness = -1;
+					serverCmd.m_dynamicsInfo.m_contactDamping = -1;
+				}
 			}
 			else
 			{
@@ -8026,7 +8166,183 @@ bool PhysicsServerCommandProcessor::processCalculateInverseKinematicsCommand(con
 	return hasStatus;
 }
 
+//		PyModule_AddIntConstant(m, "GEOM_SPHERE", GEOM_SPHERE);
+//		PyModule_AddIntConstant(m, "GEOM_BOX", GEOM_BOX);
+//		PyModule_AddIntConstant(m, "GEOM_CYLINDER", GEOM_CYLINDER);
+//		PyModule_AddIntConstant(m, "GEOM_MESH", GEOM_MESH);
+//		PyModule_AddIntConstant(m, "GEOM_PLANE", GEOM_PLANE);
+//		PyModule_AddIntConstant(m, "GEOM_CAPSULE", GEOM_CAPSULE);
 
+int PhysicsServerCommandProcessor::extractCollisionShapes(const btCollisionShape* colShape, const btTransform& transform, b3CollisionShapeData* collisionShapeBuffer, int maxCollisionShapes)
+{
+	if (maxCollisionShapes <= 0)
+	{
+		b3Warning("No space in buffer");
+		return 0;
+	}
+
+	int numConverted = 0;
+
+	collisionShapeBuffer[0].m_localCollisionFrame[0] = transform.getOrigin()[0];
+	collisionShapeBuffer[0].m_localCollisionFrame[1] = transform.getOrigin()[1];
+	collisionShapeBuffer[0].m_localCollisionFrame[2] = transform.getOrigin()[2];
+	collisionShapeBuffer[0].m_localCollisionFrame[3] = transform.getRotation()[0];
+	collisionShapeBuffer[0].m_localCollisionFrame[4] = transform.getRotation()[1];
+	collisionShapeBuffer[0].m_localCollisionFrame[5] = transform.getRotation()[2];
+	collisionShapeBuffer[0].m_localCollisionFrame[6] = transform.getRotation()[3];
+	collisionShapeBuffer[0].m_meshAssetFileName[0] = 0;
+
+	switch (colShape->getShapeType())
+	{
+	case CONVEX_HULL_SHAPE_PROXYTYPE:
+	{
+		UrdfCollision* urdfCol = m_data->m_bulletCollisionShape2UrdfCollision.find(colShape);
+		if (urdfCol && (urdfCol->m_geometry.m_type == GEOM_MESH))
+		{
+			collisionShapeBuffer[0].m_collisionGeometryType = GEOM_MESH;
+			collisionShapeBuffer[0].m_dimensions[0] = urdfCol->m_geometry.m_meshScale[0];
+			collisionShapeBuffer[0].m_dimensions[1] = urdfCol->m_geometry.m_meshScale[1];
+			collisionShapeBuffer[0].m_dimensions[2] = urdfCol->m_geometry.m_meshScale[2];
+			strcpy(collisionShapeBuffer[0].m_meshAssetFileName, urdfCol->m_geometry.m_meshFileName.c_str());
+			numConverted += 1;
+		}
+		else
+		{
+			collisionShapeBuffer[0].m_collisionGeometryType = GEOM_MESH;
+			sprintf(collisionShapeBuffer[0].m_meshAssetFileName, "unknown_file");
+			collisionShapeBuffer[0].m_dimensions[0] = 1;
+			collisionShapeBuffer[0].m_dimensions[1] = 1;
+			collisionShapeBuffer[0].m_dimensions[2] = 1;
+			numConverted++;
+		}
+		
+		break;
+	}
+	case CAPSULE_SHAPE_PROXYTYPE:
+	{
+		btCapsuleShapeZ* capsule = (btCapsuleShapeZ*)colShape;
+		collisionShapeBuffer[0].m_collisionGeometryType = GEOM_CAPSULE;
+		collisionShapeBuffer[0].m_dimensions[0] = 2.*capsule->getHalfHeight();
+		collisionShapeBuffer[0].m_dimensions[1] = capsule->getRadius();
+		collisionShapeBuffer[0].m_dimensions[2] = 0;
+		numConverted++;
+		break;
+	}
+	case CYLINDER_SHAPE_PROXYTYPE:
+	{
+		btCylinderShapeZ* cyl = (btCylinderShapeZ*)colShape;
+		collisionShapeBuffer[0].m_collisionGeometryType = GEOM_CYLINDER;
+		collisionShapeBuffer[0].m_dimensions[0] = 2.*cyl->getHalfExtentsWithMargin().getZ(); 
+		collisionShapeBuffer[0].m_dimensions[1] = cyl->getHalfExtentsWithMargin().getX();
+		collisionShapeBuffer[0].m_dimensions[2] = 0;
+		numConverted++;
+		break;
+	}
+	case BOX_SHAPE_PROXYTYPE:
+	{
+		btBoxShape* box = (btBoxShape*)colShape;
+		btVector3 halfExtents = box->getHalfExtentsWithMargin();
+		collisionShapeBuffer[0].m_collisionGeometryType = GEOM_BOX;
+		collisionShapeBuffer[0].m_dimensions[0] = 2.*halfExtents[0];
+		collisionShapeBuffer[0].m_dimensions[1] = 2.*halfExtents[1];
+		collisionShapeBuffer[0].m_dimensions[2] = 2.*halfExtents[2];
+		numConverted++;
+		break;
+	}
+	case SPHERE_SHAPE_PROXYTYPE:
+	{
+		btSphereShape* sphere = (btSphereShape*)colShape;
+		collisionShapeBuffer[0].m_collisionGeometryType = GEOM_SPHERE;
+		collisionShapeBuffer[0].m_dimensions[0] = sphere->getRadius();
+		collisionShapeBuffer[0].m_dimensions[1] = sphere->getRadius();
+		collisionShapeBuffer[0].m_dimensions[2] = sphere->getRadius();
+		numConverted++;
+		break;
+	}
+	case COMPOUND_SHAPE_PROXYTYPE:
+	{
+		//it could be a compound mesh from a wavefront OBJ, check it
+		UrdfCollision* urdfCol = m_data->m_bulletCollisionShape2UrdfCollision.find(colShape);
+		if (urdfCol && (urdfCol->m_geometry.m_type == GEOM_MESH))
+		{
+			collisionShapeBuffer[0].m_collisionGeometryType = GEOM_MESH;
+			collisionShapeBuffer[0].m_dimensions[0] = urdfCol->m_geometry.m_meshScale[0];
+			collisionShapeBuffer[0].m_dimensions[1] = urdfCol->m_geometry.m_meshScale[1];
+			collisionShapeBuffer[0].m_dimensions[2] = urdfCol->m_geometry.m_meshScale[2];
+			strcpy(collisionShapeBuffer[0].m_meshAssetFileName, urdfCol->m_geometry.m_meshFileName.c_str());
+			numConverted += 1;
+		}
+		else
+		{
+
+			//recurse, accumulate childTransform
+			btCompoundShape* compound = (btCompoundShape*)colShape;
+			for (int i = 0; i < compound->getNumChildShapes(); i++)
+			{
+				btTransform childTrans = transform*compound->getChildTransform(i);
+				int remain = maxCollisionShapes - numConverted;
+				int converted = extractCollisionShapes(compound->getChildShape(i), childTrans, &collisionShapeBuffer[numConverted], remain);
+				numConverted += converted;
+			}
+		}
+		break;
+	}
+	default:
+	{
+		b3Warning("Unexpected collision shape type in PhysicsServerCommandProcessor::extractCollisionShapes");
+	}
+	};
+	
+	return numConverted;
+}
+
+
+bool PhysicsServerCommandProcessor::processRequestCollisionShapeInfoCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	bool hasStatus = true;
+
+	BT_PROFILE("CMD_REQUEST_COLLISION_SHAPE_INFO");
+	SharedMemoryStatus& serverCmd = serverStatusOut;
+	serverCmd.m_type = CMD_COLLISION_SHAPE_INFO_FAILED;
+	int bodyUniqueId = clientCmd.m_requestCollisionShapeDataArguments.m_bodyUniqueId;
+	int linkIndex = clientCmd.m_requestCollisionShapeDataArguments.m_linkIndex;
+	InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+	if (bodyHandle)
+	{
+		if (bodyHandle->m_multiBody)
+		{
+			b3CollisionShapeData* collisionShapeStoragePtr = (b3CollisionShapeData*)bufferServerToClient;
+			int totalBytesPerObject = sizeof(b3CollisionShapeData);
+			int maxNumColObjects = bufferSizeInBytes / totalBytesPerObject - 1;
+			btTransform childTrans;
+			childTrans.setIdentity();
+			serverCmd.m_sendCollisionShapeArgs.m_bodyUniqueId = bodyUniqueId;
+			serverCmd.m_sendCollisionShapeArgs.m_linkIndex = linkIndex;
+
+			if (linkIndex == -1)
+			{
+				if (bodyHandle->m_multiBody->getBaseCollider())
+				{
+					//extract shape info from base collider
+					int numConvertedCollisionShapes = extractCollisionShapes(bodyHandle->m_multiBody->getBaseCollider()->getCollisionShape(), childTrans, collisionShapeStoragePtr, maxNumColObjects);
+					serverCmd.m_sendCollisionShapeArgs.m_numCollisionShapes = numConvertedCollisionShapes;
+					serverCmd.m_type = CMD_COLLISION_SHAPE_INFO_COMPLETED;
+				}
+			}
+			else
+			{
+				if (linkIndex >= 0 && linkIndex < bodyHandle->m_multiBody->getNumLinks() && bodyHandle->m_multiBody->getLinkCollider(linkIndex))
+				{
+					int numConvertedCollisionShapes = extractCollisionShapes(bodyHandle->m_multiBody->getLinkCollider(linkIndex)->getCollisionShape(), childTrans, collisionShapeStoragePtr, maxNumColObjects);
+					serverCmd.m_sendCollisionShapeArgs.m_numCollisionShapes = numConvertedCollisionShapes;
+					serverCmd.m_type = CMD_COLLISION_SHAPE_INFO_COMPLETED;
+				}
+			}
+		}
+	}
+
+	return hasStatus;
+}
 bool PhysicsServerCommandProcessor::processRequestVisualShapeInfoCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	bool hasStatus = true;
@@ -8736,6 +9052,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 			hasStatus = processRequestVisualShapeInfoCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
+	case CMD_REQUEST_COLLISION_SHAPE_INFO:
+	{
+		hasStatus = processRequestCollisionShapeInfoCommand(clientCmd, serverStatusOut, bufferServerToClient, bufferSizeInBytes);
+		break;
+	}
 	case CMD_UPDATE_VISUAL_SHAPE:
 		{
 			hasStatus = processUpdateVisualShapeCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);

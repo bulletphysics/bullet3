@@ -24,6 +24,8 @@ class btCollisionObject;
 #include "LinearMath/btAlignedAllocator.h"
 
 struct btCollisionResult;
+struct btCollisionObjectDoubleData;
+struct btCollisionObjectFloatData;
 
 ///maximum contact breaking and merging threshold
 extern btScalar gContactBreakingThreshold;
@@ -310,8 +312,8 @@ struct btPersistentManifoldDoubleData
 	double	m_contactProcessingThreshold;
 	int m_padding;
 
-	void *m_body0;
-	void *m_body1;
+	btCollisionObjectDoubleData *m_body0;
+	btCollisionObjectDoubleData *m_body1;
 };
 
 
@@ -356,8 +358,8 @@ struct btPersistentManifoldFloatData
 	float	m_contactProcessingThreshold;
 	int m_padding;
 
-	void *m_body0;
-	void *m_body1;
+	btCollisionObjectFloatData *m_body0;
+	btCollisionObjectFloatData *m_body1;
 };
 
 #ifdef BT_USE_DOUBLE_PRECISION

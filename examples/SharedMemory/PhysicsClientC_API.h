@@ -259,6 +259,11 @@ B3_SHARED_API	void b3GetAABBOverlapResults(b3PhysicsClientHandle physClient, str
 B3_SHARED_API	b3SharedMemoryCommandHandle b3InitRequestVisualShapeInformation(b3PhysicsClientHandle physClient, int bodyUniqueIdA);
 B3_SHARED_API	void b3GetVisualShapeInformation(b3PhysicsClientHandle physClient, struct b3VisualShapeInformation* visualShapeInfo);
 
+B3_SHARED_API	b3SharedMemoryCommandHandle b3InitRequestCollisionShapeInformation(b3PhysicsClientHandle physClient, int bodyUniqueId, int linkIndex);
+B3_SHARED_API	void b3GetCollisionShapeInformation(b3PhysicsClientHandle physClient, struct b3CollisionShapeInformation* collisionShapeInfo);
+
+
+
 B3_SHARED_API	b3SharedMemoryCommandHandle b3InitLoadTexture(b3PhysicsClientHandle physClient, const char* filename);
 B3_SHARED_API	int b3GetStatusTextureUniqueId(b3SharedMemoryStatusHandle statusHandle);
 

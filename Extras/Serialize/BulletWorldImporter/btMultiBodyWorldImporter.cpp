@@ -194,7 +194,7 @@ template<class T>  void convertMultiBody(T* mbd, btMultiBodyWorldImporterInterna
 		btQuaternion parentRotToThis;
 		parentRotToThis.deSerialize(mbd->m_links[i].m_zeroRotParentToThis);
 		btVector3 parentComToThisPivotOffset;
-		parentComToThisPivotOffset.deSerialize(mbd->m_links[i].m_parentComToThisComOffset);
+		parentComToThisPivotOffset.deSerialize(mbd->m_links[i].m_parentComToThisPivotOffset);
 		btVector3 thisPivotToThisComOffset;
 		thisPivotToThisComOffset.deSerialize(mbd->m_links[i].m_thisPivotToThisComOffset);
 
@@ -333,7 +333,7 @@ bool btMultiBodyWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletF
 					void* ptr = bulletFile2->findLibPointer(manifoldData->m_body0);
 					if (ptr)
 					{
-						manifoldData->m_body0 = ptr;
+						manifoldData->m_body0 = (btCollisionObjectDoubleData*)ptr;
 					}
 				}
 
@@ -341,7 +341,7 @@ bool btMultiBodyWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletF
 					void* ptr = bulletFile2->findLibPointer(manifoldData->m_body1);
 					if (ptr)
 					{
-						manifoldData->m_body1 = ptr;
+						manifoldData->m_body1 = (btCollisionObjectDoubleData*)ptr;
 					}
 				}
 			}
@@ -371,14 +371,14 @@ bool btMultiBodyWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletF
 					void* ptr = bulletFile2->findLibPointer(manifoldData->m_body0);
 					if (ptr)
 					{
-						manifoldData->m_body0 = ptr;
+						manifoldData->m_body0 = (btCollisionObjectFloatData*)ptr;
 					}
 				}
 				{
 					void* ptr = bulletFile2->findLibPointer(manifoldData->m_body1);
 					if (ptr)
 					{
-						manifoldData->m_body1 = ptr;
+						manifoldData->m_body1 = (btCollisionObjectFloatData*)ptr;
 					}
 				}
 			}
