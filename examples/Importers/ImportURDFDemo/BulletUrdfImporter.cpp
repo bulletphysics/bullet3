@@ -25,7 +25,7 @@ subject to the following restrictions:
 #include "Bullet3Common/b3FileUtils.h"
 #include <string>
 #include "../../Utils/b3ResourcePath.h"
-
+#include "URDF2Bullet.h"//for flags 
 #include "../ImportMeshUtility/b3ImportMeshUtility.h"
 
 static btScalar gUrdfDefaultCollisionMargin = 0.001;
@@ -53,6 +53,7 @@ ATTRIBUTE_ALIGNED16(struct) BulletURDFInternalData
 
 	LinkVisualShapesConverter* m_customVisualShapesConverter;
 	bool m_enableTinyRenderer;
+	int m_flags;
 
 	void setSourceFile(const std::string& relativeFileName, const std::string& prefix)
 	{
@@ -66,6 +67,7 @@ ATTRIBUTE_ALIGNED16(struct) BulletURDFInternalData
 	{
 		m_enableTinyRenderer = true;
 		m_pathPrefix[0] = 0;
+		m_flags=0;
 	}
 
 	void setGlobalScaling(btScalar scaling)
@@ -80,10 +82,11 @@ void BulletURDFImporter::printTree()
 //	btAssert(0);
 }
 
-BulletURDFImporter::BulletURDFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter, double globalScaling)
+BulletURDFImporter::BulletURDFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter, double globalScaling, int flags)
 {
 	m_data = new BulletURDFInternalData;
 	m_data->setGlobalScaling(globalScaling);
+	m_data->m_flags = flags;
 	m_data->m_guiHelper = helper;
 	m_data->m_customVisualShapesConverter = customConverter;
 
@@ -612,32 +615,33 @@ btCollisionShape* BulletURDFImporter::convertURDFToCollisionShape(const UrdfColl
         {
 			btScalar cylRadius = collision->m_geometry.m_capsuleRadius;
 			btScalar cylHalfLength = 0.5*collision->m_geometry.m_capsuleHeight;
-#if 0
-            btAlignedObjectArray<btVector3> vertices;
-            //int numVerts = sizeof(barrel_vertices)/(9*sizeof(float));
-            int numSteps = 32;
-            for (int i=0;i<numSteps;i++)
-            {
+			if (m_data->m_flags & CUF_USE_IMPLICIT_CYLINDER)
+			{
+				btVector3 halfExtents(cylRadius,cylRadius, cylHalfLength);
+				btCylinderShapeZ* cylZShape = new btCylinderShapeZ(halfExtents);
+				shape = cylZShape;
+			} else
+			{
+				btAlignedObjectArray<btVector3> vertices;
+				//int numVerts = sizeof(barrel_vertices)/(9*sizeof(float));
+				int numSteps = 32;
+				for (int i=0;i<numSteps;i++)
+				{
 
-                btVector3 vert(cylRadius*btSin(SIMD_2_PI*(float(i)/numSteps)),cylRadius*btCos(SIMD_2_PI*(float(i)/numSteps)),cylLength/2.);
-                vertices.push_back(vert);
-                vert[2] = -cylLength/2.;
-                vertices.push_back(vert);
+					btVector3 vert(cylRadius*btSin(SIMD_2_PI*(float(i)/numSteps)),cylRadius*btCos(SIMD_2_PI*(float(i)/numSteps)),cylHalfLength);
+					vertices.push_back(vert);
+					vert[2] = -cylHalfLength;
+					vertices.push_back(vert);
 
-            }
-            btConvexHullShape* cylZShape = new btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
-            cylZShape->setMargin(gUrdfDefaultCollisionMargin);
-			cylZShape->recalcLocalAabb();
-			cylZShape->initializePolyhedralFeatures();
-			cylZShape->optimizeConvexHull();
-			
-			//btConvexShape* cylZShape = new btConeShapeZ(cylRadius,cylLength);//(vexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
-#else       
-            btVector3 halfExtents(cylRadius,cylRadius, cylHalfLength);
-            btCylinderShapeZ* cylZShape = new btCylinderShapeZ(halfExtents);
-#endif       
-
-            shape = cylZShape;
+				}
+				btConvexHullShape* cylZShape = new btConvexHullShape(&vertices[0].x(), vertices.size(), sizeof(btVector3));
+				cylZShape->setMargin(gUrdfDefaultCollisionMargin);
+				cylZShape->recalcLocalAabb();
+				cylZShape->initializePolyhedralFeatures();
+				cylZShape->optimizeConvexHull();
+				shape = cylZShape;
+			}
+           
             break;
         }
         case URDF_GEOM_BOX:

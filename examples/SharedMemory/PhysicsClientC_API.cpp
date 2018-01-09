@@ -557,6 +557,15 @@ B3_SHARED_API	int b3PhysicsParamSetEnableConeFriction(b3SharedMemoryCommandHandl
 	return 0;
 }
 
+B3_SHARED_API	int b3PhysicsParameterSetDeterministicOverlappingPairs(b3SharedMemoryCommandHandle commandHandle, int deterministicOverlappingPairs)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+	command->m_physSimParamArgs.m_deterministicOverlappingPairs = deterministicOverlappingPairs;
+	command->m_updateFlags |= SIM_PARAM_UPDATE_DETERMINISTIC_OVERLAPPING_PAIRS;
+	return 0;
+}
+
 
 B3_SHARED_API int b3PhysicsParamSetNumSolverIterations(b3SharedMemoryCommandHandle commandHandle, int numSolverIterations)
 {

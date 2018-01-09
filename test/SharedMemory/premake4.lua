@@ -152,7 +152,7 @@ project ("Test_PhysicsServerLoopBack")
 
 		includedirs {"../../src", "../../examples",
 		"../../examples/ThirdPartyLibs"}
-		defines {"PHYSICS_LOOP_BACK"}
+		defines {"PHYSICS_LOOP_BACK", "SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD"}
 		links {
 			"BulletInverseDynamicsUtils",
 			"BulletInverseDynamics",
@@ -238,7 +238,7 @@ end
 
 		includedirs {"../../src", "../../examples",
 		"../../examples/ThirdPartyLibs"}
-		defines {"PHYSICS_SERVER_DIRECT"}
+		defines {"PHYSICS_SERVER_DIRECT","SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD"}
 		links {
 			"BulletInverseDynamicsUtils",
 			"BulletInverseDynamics",
@@ -321,7 +321,7 @@ project ("Test_PhysicsServerInProcessExampleBrowser")
 
 		includedirs {"../../src", "../../examples",
 		"../../examples/ThirdPartyLibs"}
-		defines {"PHYSICS_IN_PROCESS_EXAMPLE_BROWSER"}
+		defines {"PHYSICS_IN_PROCESS_EXAMPLE_BROWSER", "SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD"}
 --		links {
 --			"BulletExampleBrowserLib",
 --			"BulletFileLoader",

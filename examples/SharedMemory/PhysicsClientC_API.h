@@ -291,6 +291,8 @@ B3_SHARED_API	int b3PhysicsParamSetMaxNumCommandsPer1ms(b3SharedMemoryCommandHan
 B3_SHARED_API	int b3PhysicsParamSetEnableFileCaching(b3SharedMemoryCommandHandle commandHandle, int enableFileCaching);
 B3_SHARED_API	int b3PhysicsParamSetRestitutionVelocityThreshold(b3SharedMemoryCommandHandle commandHandle, double restitutionVelocityThreshold);
 B3_SHARED_API	int b3PhysicsParamSetEnableConeFriction(b3SharedMemoryCommandHandle commandHandle, int enableConeFriction);
+B3_SHARED_API	int b3PhysicsParameterSetDeterministicOverlappingPairs(b3SharedMemoryCommandHandle commandHandle, int deterministicOverlappingPairs);
+
 
 
 
