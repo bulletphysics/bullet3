@@ -1353,6 +1353,67 @@ static PyObject* pybullet_loadSDF(PyObject* self, PyObject* args, PyObject* keyw
 	return pylist;
 }
 
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+// Load a softbody from an obj file
+static PyObject* pybullet_loadSoftBody(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	int flags = 0;
+	
+	static char* kwlist[] = {"fileName", "scale", "mass", "collisionMargin", "physicsClientId", NULL};
+	
+	int bodyUniqueId= -1;
+	const char* fileName = "";
+	double scale = -1;
+	double mass = -1;
+	double collisionMargin = -1;
+	
+	b3PhysicsClientHandle sm = 0;
+	
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|dddi", kwlist, &fileName, &scale, &mass, &collisionMargin, &physicsClientId))
+	{
+		return NULL;
+	}
+	
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+	
+	if (strlen(fileName))
+	{
+		b3SharedMemoryStatusHandle statusHandle;
+		int statusType;
+		b3SharedMemoryCommandHandle command =
+		b3LoadSoftBodyCommandInit(sm, fileName);
+
+		if (scale>0)
+		{
+			b3LoadSoftBodySetScale(command,scale);
+		}
+		if (mass>0)
+		{
+			b3LoadSoftBodySetMass(command,mass);
+		}
+		if (collisionMargin>0)
+		{
+			b3LoadSoftBodySetCollisionMargin(command,collisionMargin);
+		}
+		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+		statusType = b3GetStatusType(statusHandle);
+		if (statusType != CMD_CLIENT_COMMAND_COMPLETED)
+		{
+			PyErr_SetString(SpamError, "Cannot load soft body.");
+			return NULL;
+		}
+		bodyUniqueId = b3GetStatusBodyIndex(statusHandle);
+	}
+	return PyLong_FromLong(bodyUniqueId);
+}
+#endif
+
 // Reset the simulation to remove all loaded objects
 static PyObject* pybullet_resetSimulation(PyObject* self, PyObject* args, PyObject* keywds)
 {
@@ -7861,7 +7922,10 @@ static PyMethodDef SpamMethods[] = {
 
 	{"loadSDF", (PyCFunction)pybullet_loadSDF, METH_VARARGS | METH_KEYWORDS,
 	 "Load multibodies from an SDF file."},
-
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+	{"loadSoftBody", (PyCFunction)pybullet_loadSoftBody, METH_VARARGS | METH_KEYWORDS,
+	 "Load a softbody from an obj file."},
+#endif
 	{"loadBullet", (PyCFunction)pybullet_loadBullet, METH_VARARGS | METH_KEYWORDS,
 	 "Load a world from a .bullet file."},
 
