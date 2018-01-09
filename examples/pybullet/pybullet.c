@@ -5800,7 +5800,7 @@ static PyObject* pybullet_createCollisionShapeArray(PyObject* self, PyObject* ar
 						PyObject* ob = PyUnicode_AsASCIIString(fileNameObj);
 						fileName = PyBytes_AS_STRING(ob);
 #else
-						fileName = PyString_AsString(objectsRepresentation);
+						fileName = PyString_AsString(fileNameObj);
 #endif
 					}
 					if (meshScaleObj)
