@@ -1157,3 +1157,31 @@ void b3RobotSimulatorClientAPI::loadBunny(double scale, double mass, double coll
     b3LoadBunnySetCollisionMargin(command, collisionMargin);
     b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, command);
 }
+
+int b3RobotSimulatorClientAPI::getContactNormalForce(int bodyA, int linkA, int bodyB, int linkB, b3Vector3* normalForceOut)
+{
+	b3SharedMemoryCommandHandle commandHandle = b3InitRequestContactPointInformation(m_data->m_physicsClientHandle);
+	b3SetContactFilterBodyA(commandHandle, bodyA);
+	b3SetContactFilterLinkA(commandHandle, linkA);
+	b3SetContactFilterBodyB(commandHandle, bodyB);
+	b3SetContactFilterLinkB(commandHandle, linkB);
+
+	b3SharedMemoryStatusHandle statusHandle = b3SubmitClientCommandAndWaitStatus(m_data->m_physicsClientHandle, commandHandle);
+	int statusType = b3GetStatusType(statusHandle);
+	if (statusType == CMD_CONTACT_POINT_INFORMATION_COMPLETED)
+	{
+		b3ContactInformation contactInfo;
+		b3GetContactPointInformation(m_data->m_physicsClientHandle, &contactInfo);
+		// printf("nc: %d\n", contactInfo.m_numContactPoints);
+		// often returns multiple contact points with similar forces? -- try the first one
+		if (contactInfo.m_numContactPoints > 0)
+		{
+			b3ContactPointData* c = &contactInfo.m_contactPointData[0];
+			normalForceOut->x = c->m_contactNormalOnBInWS[0] * c->m_normalForce;
+			normalForceOut->y = c->m_contactNormalOnBInWS[1] * c->m_normalForce;
+			normalForceOut->z = c->m_contactNormalOnBInWS[2] * c->m_normalForce;
+			return 0;//c->m_normalForce;
+		}
+	}
+	return -1;
+}
