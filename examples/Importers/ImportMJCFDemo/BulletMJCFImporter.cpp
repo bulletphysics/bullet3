@@ -1897,6 +1897,7 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes( int linkI
 			{
 				if (col->m_geometry.m_hasFromTo)
 				{
+#if 0
 					btVector3 f = col->m_geometry.m_capsuleFrom;
 					btVector3 t = col->m_geometry.m_capsuleTo;
 					btVector3 fromto[2] = {f,t};
@@ -1905,6 +1906,34 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes( int linkI
 
 					btMultiSphereShape* ms = new btMultiSphereShape(fromto,radii,2);
 					childShape = ms;
+#else
+						btVector3 f = col->m_geometry.m_capsuleFrom;
+					btVector3 t = col->m_geometry.m_capsuleTo;
+					
+					//compute the local 'fromto' transform
+					btVector3 localPosition = btScalar(0.5)*(t+f);
+					btQuaternion localOrn;
+					localOrn = btQuaternion::getIdentity();
+
+					btVector3 diff = t-f;
+					btScalar lenSqr = diff.length2();
+					btScalar height = 0.f;
+
+					if (lenSqr > SIMD_EPSILON)
+					{
+						height = btSqrt(lenSqr);
+						btVector3 ax = diff / height;
+
+						btVector3 zAxis(0,0,1);
+						localOrn = shortestArcQuat(zAxis,ax);
+					}
+					btCapsuleShapeZ* capsule= new btCapsuleShapeZ(col->m_geometry.m_capsuleRadius,height);
+
+					btCompoundShape* compound = new btCompoundShape();
+					btTransform localTransform(localOrn,localPosition);
+					compound->addChildShape(localTransform,capsule);
+					childShape = compound;
+#endif
 				} else
 				{
 					btCapsuleShapeZ* cap = new btCapsuleShapeZ(col->m_geometry.m_capsuleRadius,

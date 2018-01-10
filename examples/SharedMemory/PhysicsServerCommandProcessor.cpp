@@ -5757,7 +5757,7 @@ bool PhysicsServerCommandProcessor::processLoadURDFCommand(const struct SharedMe
 
 bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
-	serverStatusOut.m_type = CMD_UNKNOWN_COMMAND_FLUSHED;
+	serverStatusOut.m_type = CMD_LOAD_SOFT_BODY_FAILED;
 	bool hasStatus = true;
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
     double scale = 0.1;
@@ -5840,11 +5840,12 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 				InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 				bodyHandle->m_softBody = psb;
 				serverStatusOut.m_loadSoftBodyResultArguments.m_objectUniqueId = bodyUniqueId;
+				serverStatusOut.m_type = CMD_LOAD_SOFT_BODY_COMPLETED;
 			}
 		}
 	}
 	
-	serverStatusOut.m_type = CMD_CLIENT_COMMAND_COMPLETED;
+	
 #endif
 	return hasStatus;
 }
@@ -9142,17 +9143,7 @@ void PhysicsServerCommandProcessor::renderScene(int renderFlags)
 
 		m_data->m_guiHelper->render(m_data->m_dynamicsWorld);
 	}
-#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
-    for (  int i=0;i<m_data->m_dynamicsWorld->getSoftBodyArray().size();i++)
-    {
-        btSoftBody*	psb=(btSoftBody*)m_data->m_dynamicsWorld->getSoftBodyArray()[i];
-        if (m_data->m_dynamicsWorld->getDebugDrawer() && !(m_data->m_dynamicsWorld->getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe)))
-        {
-            //btSoftBodyHelpers::DrawFrame(psb,m_data->m_dynamicsWorld->getDebugDrawer());
-            btSoftBodyHelpers::Draw(psb,m_data->m_dynamicsWorld->getDebugDrawer(),m_data->m_dynamicsWorld->getDrawFlags());
-        }
-    }
-#endif
+
 }
 
 void    PhysicsServerCommandProcessor::physicsDebugDraw(int debugDrawFlags)
@@ -9163,6 +9154,18 @@ void    PhysicsServerCommandProcessor::physicsDebugDraw(int debugDrawFlags)
 		{
 			m_data->m_dynamicsWorld->getDebugDrawer()->setDebugMode(debugDrawFlags);
 			m_data->m_dynamicsWorld->debugDrawWorld();
+
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+			for (  int i=0;i<m_data->m_dynamicsWorld->getSoftBodyArray().size();i++)
+			{
+				btSoftBody*	psb=(btSoftBody*)m_data->m_dynamicsWorld->getSoftBodyArray()[i];
+				if (m_data->m_dynamicsWorld->getDebugDrawer() && !(m_data->m_dynamicsWorld->getDebugDrawer()->getDebugMode() & (btIDebugDraw::DBG_DrawWireframe)))
+				{
+					//btSoftBodyHelpers::DrawFrame(psb,m_data->m_dynamicsWorld->getDebugDrawer());
+					btSoftBodyHelpers::Draw(psb,m_data->m_dynamicsWorld->getDebugDrawer(),m_data->m_dynamicsWorld->getDrawFlags());
+				}
+			}
+#endif
 		}
 	}
 }

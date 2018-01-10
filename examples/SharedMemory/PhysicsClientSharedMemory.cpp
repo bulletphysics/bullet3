@@ -1276,6 +1276,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 				}
 				break;
 			}
+			case CMD_LOAD_SOFT_BODY_FAILED:
+				{
+					b3Warning("loadSoftBody failed");
+					break;
+				}
+			case CMD_LOAD_SOFT_BODY_COMPLETED:
+				{
+					break;
+				}
             default: {
                 b3Error("Unknown server status %d\n", serverCmd.m_type);
                 btAssert(0);

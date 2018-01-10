@@ -1422,7 +1422,7 @@ static PyObject* pybullet_loadSoftBody(PyObject* self, PyObject* args, PyObject*
 		}
 		statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 		statusType = b3GetStatusType(statusHandle);
-		if (statusType != CMD_CLIENT_COMMAND_COMPLETED)
+		if (statusType != CMD_LOAD_SOFT_BODY_COMPLETED)
 		{
 			PyErr_SetString(SpamError, "Cannot load soft body.");
 			return NULL;
@@ -8817,7 +8817,8 @@ initpybullet(void)
 
 	PyModule_AddIntConstant(m, "URDF_USE_INERTIA_FROM_FILE", URDF_USE_INERTIA_FROM_FILE);
 	PyModule_AddIntConstant(m, "URDF_USE_IMPLICIT_CYLINDER", URDF_USE_IMPLICIT_CYLINDER);
-	
+	PyModule_AddIntConstant(m, "URDF_NO_GLOBAL_VELOCITIES_MB", URDF_NO_GLOBAL_VELOCITIES_MB);
+		
 	PyModule_AddIntConstant(m, "URDF_USE_SELF_COLLISION", URDF_USE_SELF_COLLISION);
 	PyModule_AddIntConstant(m, "URDF_USE_SELF_COLLISION_EXCLUDE_PARENT", URDF_USE_SELF_COLLISION_EXCLUDE_PARENT);
 	PyModule_AddIntConstant(m, "URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS", URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS);

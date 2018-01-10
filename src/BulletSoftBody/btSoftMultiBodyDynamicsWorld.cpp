@@ -357,6 +357,8 @@ void	btSoftMultiBodyDynamicsWorld::serialize(btSerializer* serializer)
 
 	serializeSoftBodies(serializer);
 
+	serializeMultiBodies(serializer);
+
 	serializeRigidBodies(serializer);
 
 	serializeCollisionObjects(serializer);
