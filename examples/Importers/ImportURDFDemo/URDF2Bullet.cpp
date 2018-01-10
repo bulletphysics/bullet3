@@ -344,6 +344,10 @@ void ConvertURDF2BulletInternal(
                 bool isFixedBase = (mass==0);//todo: figure out when base is fixed
                 int totalNumJoints = cache.m_totalNumJoints1;
                 cache.m_bulletMultiBody = creation.allocateMultiBody(urdfLinkIndex, totalNumJoints,mass, localInertiaDiagonal, isFixedBase, canSleep);
+				if (flags & CUF_GLOBAL_VELOCITIES_MB)
+				{
+					cache.m_bulletMultiBody->useGlobalVelocities(true);
+				}
 				if (flags & CUF_USE_MJCF)
 				{
 					cache.m_bulletMultiBody->setBaseWorldTransform(linkTransformInWorldSpace);

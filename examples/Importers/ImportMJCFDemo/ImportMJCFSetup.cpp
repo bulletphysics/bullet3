@@ -216,7 +216,8 @@ void ImportMJCFSetup::initPhysics()
 		m_guiHelper->getParameterInterface()->registerSliderFloatParameter(slider);
 	}
 
-	BulletMJCFImporter importer(m_guiHelper, 0);
+	int flags=0;
+	BulletMJCFImporter importer(m_guiHelper, 0,flags);
 	MyMJCFLogger logger;
 	bool result = importer.loadMJCF(m_fileName,&logger);
 	if (result)

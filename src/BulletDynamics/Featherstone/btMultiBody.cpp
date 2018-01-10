@@ -115,11 +115,11 @@ btMultiBody::btMultiBody(int n_links,
 		m_linearDamping(0.04f),
 		m_angularDamping(0.04f),
 		m_useGyroTerm(true),
-			m_maxAppliedImpulse(1000.f),
+		m_maxAppliedImpulse(1000.f),
 		m_maxCoordinateVelocity(100.f),
-			m_hasSelfCollision(true),		
+		m_hasSelfCollision(true),		
 		__posUpdated(false),
-			m_dofCount(0),
+		m_dofCount(0),
 		m_posVarCnt(0),
 		m_useRK4(false), 	
 		m_useGlobalVelocities(false),
@@ -1280,7 +1280,7 @@ void btMultiBody::solveImatrix(const btVector3& rhs_top, const btVector3& rhs_bo
 	{
 		result[0] = rhs_bot[0] / m_baseInertia[0];
 		result[1] = rhs_bot[1] / m_baseInertia[1];
-        	result[2] = rhs_bot[2] / m_baseInertia[2];
+        result[2] = rhs_bot[2] / m_baseInertia[2];
 	} else
 	{
 		result[0] = 0;
@@ -2024,6 +2024,12 @@ const char*	btMultiBody::serialize(void* dataBuffer, class btSerializer* seriali
 				memPtr->m_posVarCount = getLink(i).m_posVarCount;
 				
 				getLink(i).m_inertiaLocal.serialize(memPtr->m_linkInertia);
+
+				getLink(i).m_absFrameTotVelocity.m_topVec.serialize(memPtr->m_absFrameTotVelocityTop);
+				getLink(i).m_absFrameTotVelocity.m_bottomVec.serialize(memPtr->m_absFrameTotVelocityBottom);
+				getLink(i).m_absFrameLocVelocity.m_topVec.serialize(memPtr->m_absFrameLocVelocityTop);
+				getLink(i).m_absFrameLocVelocity.m_bottomVec.serialize(memPtr->m_absFrameLocVelocityBottom);
+
 				memPtr->m_linkMass = getLink(i).m_mass;
 				memPtr->m_parentIndex = getLink(i).m_parent;
 				memPtr->m_jointDamping = getLink(i).m_jointDamping;

@@ -19,7 +19,7 @@ class BulletMJCFImporter : public URDFImporterInterface
 	struct BulletMJCFImporterInternalData* m_data;
 
 public:
-	BulletMJCFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter);
+	BulletMJCFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter, int flags);
 	virtual ~BulletMJCFImporter();
 	
 	virtual bool parseMJCFString(const char* xmlString, MJCFErrorLogger* logger);

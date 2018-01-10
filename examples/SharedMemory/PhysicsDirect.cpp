@@ -1047,6 +1047,15 @@ void PhysicsDirect::postProcessStatus(const struct SharedMemoryStatus& serverCmd
 	{
 		break;
 	}
+	case CMD_LOAD_SOFT_BODY_FAILED:
+	{
+		b3Warning("loadSoftBody failed");
+		break;
+	}
+	case CMD_LOAD_SOFT_BODY_COMPLETED:
+	{
+		break;
+	}
 	default:
 	{
 		//b3Warning("Unknown server status type");

@@ -1456,6 +1456,10 @@ typedef struct bInvalidHandle {
         btVector3DoubleData m_jointAxisTop[6];
         btVector3DoubleData m_jointAxisBottom[6];
         btVector3DoubleData m_linkInertia;
+        btVector3DoubleData m_absFrameTotVelocityTop;
+        btVector3DoubleData m_absFrameTotVelocityBottom;
+        btVector3DoubleData m_absFrameLocVelocityTop;
+        btVector3DoubleData m_absFrameLocVelocityBottom;
         double m_linkMass;
         int m_parentIndex;
         int m_jointType;
@@ -1487,6 +1491,10 @@ typedef struct bInvalidHandle {
         btVector3FloatData m_jointAxisTop[6];
         btVector3FloatData m_jointAxisBottom[6];
         btVector3FloatData m_linkInertia;
+        btVector3FloatData m_absFrameTotVelocityTop;
+        btVector3FloatData m_absFrameTotVelocityBottom;
+        btVector3FloatData m_absFrameLocVelocityTop;
+        btVector3FloatData m_absFrameLocVelocityBottom;
         int m_dofCount;
         float m_linkMass;
         int m_parentIndex;

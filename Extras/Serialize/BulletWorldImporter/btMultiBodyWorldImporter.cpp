@@ -129,6 +129,12 @@ template<class T>  void syncMultiBody(T* mbd, btMultiBody* mb, btMultiBodyWorldI
 
 	for (int i = 0; i < mbd->m_numLinks; i++)
 	{
+
+		mb->getLink(i).m_absFrameTotVelocity.m_topVec.deSerialize(mbd->m_links[i].m_absFrameTotVelocityTop);
+		mb->getLink(i).m_absFrameTotVelocity.m_bottomVec.deSerialize(mbd->m_links[i].m_absFrameTotVelocityBottom);
+		mb->getLink(i).m_absFrameLocVelocity.m_topVec.deSerialize(mbd->m_links[i].m_absFrameLocVelocityTop);
+		mb->getLink(i).m_absFrameLocVelocity.m_bottomVec.deSerialize(mbd->m_links[i].m_absFrameLocVelocityBottom);
+
 		switch (mbd->m_links[i].m_jointType)
 		{
 		case btMultibodyLink::eFixed:
