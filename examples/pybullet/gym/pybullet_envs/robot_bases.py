@@ -55,7 +55,9 @@ class MJCFBasedRobot:
 				parts[part_name] = BodyPart(part_name, bodies, i, -1)
 			for j in range(p.getNumJoints(bodies[i])):
 				p.setJointMotorControl2(bodies[i],j,p.POSITION_CONTROL,positionGain=0.1,velocityGain=0.1,force=0)
-				_,joint_name,_,_,_,_,_,_,_,_,_,_,part_name = p.getJointInfo(bodies[i], j)
+				jointInfo = p.getJointInfo(bodies[i], j)
+				joint_name=jointInfo[1]
+				part_name=jointInfo[12]
 
 				joint_name = joint_name.decode("utf8")
 				part_name = part_name.decode("utf8")
@@ -172,7 +174,11 @@ class Joint:
 		self.bodyIndex = bodyIndex
 		self.jointIndex = jointIndex
 		self.joint_name = joint_name
-		_,_,_,_,_,_,_,_,self.lowerLimit, self.upperLimit,_,_,_ = p.getJointInfo(self.bodies[self.bodyIndex], self.jointIndex)
+		
+		jointInfo = p.getJointInfo(self.bodies[self.bodyIndex], self.jointIndex)
+		self.lowerLimit = jointInfo[8]
+		self.upperLimit = jointInfo[9]
+		
 		self.power_coeff = 0
 
 	def set_state(self, x, vx):

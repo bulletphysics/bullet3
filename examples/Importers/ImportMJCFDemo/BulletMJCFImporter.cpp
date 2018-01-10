@@ -7,6 +7,7 @@
 #include "../../Utils/b3ResourcePath.h"
 #include <iostream>
 #include <fstream>
+#include "../ImportURDFDemo/URDF2Bullet.h"
 #include "../ImportURDFDemo/UrdfParser.h"
 #include "../ImportURDFDemo/urdfStringSplit.h"
 #include "../ImportURDFDemo/urdfLexicalCast.h"
@@ -190,10 +191,13 @@ struct BulletMJCFImporterInternalData
 	btAlignedObjectArray<btCollisionShape*> m_allocatedCollisionShapes;
 	mutable btAlignedObjectArray<btTriangleMesh*> m_allocatedMeshInterfaces;
 
+	int m_flags;
+
 	BulletMJCFImporterInternalData()
 		:m_inertiaFromGeom(true),
 		m_activeModel(-1),
-		m_activeBodyUniqueId(-1)
+		m_activeBodyUniqueId(-1),
+		m_flags(0)
 	{
 		m_pathPrefix[0] = 0;
 	}
@@ -1370,11 +1374,12 @@ struct BulletMJCFImporterInternalData
 
 };
 
-BulletMJCFImporter::BulletMJCFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter)
+BulletMJCFImporter::BulletMJCFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter, int flags)
 {
 	m_data = new BulletMJCFImporterInternalData();
 	m_data->m_guiHelper = helper;
 	m_data->m_customVisualShapesConverter = customConverter;
+	m_data->m_flags = flags;
 }
 
 BulletMJCFImporter::~BulletMJCFImporter()
@@ -1897,43 +1902,45 @@ class btCompoundShape* BulletMJCFImporter::convertLinkCollisionShapes( int linkI
 			{
 				if (col->m_geometry.m_hasFromTo)
 				{
-#if 0
-					btVector3 f = col->m_geometry.m_capsuleFrom;
-					btVector3 t = col->m_geometry.m_capsuleTo;
-					btVector3 fromto[2] = {f,t};
-					btScalar radii[2] = {btScalar(col->m_geometry.m_capsuleRadius)
-										,btScalar(col->m_geometry.m_capsuleRadius)};
-
-					btMultiSphereShape* ms = new btMultiSphereShape(fromto,radii,2);
-					childShape = ms;
-#else
-						btVector3 f = col->m_geometry.m_capsuleFrom;
-					btVector3 t = col->m_geometry.m_capsuleTo;
-					
-					//compute the local 'fromto' transform
-					btVector3 localPosition = btScalar(0.5)*(t+f);
-					btQuaternion localOrn;
-					localOrn = btQuaternion::getIdentity();
-
-					btVector3 diff = t-f;
-					btScalar lenSqr = diff.length2();
-					btScalar height = 0.f;
-
-					if (lenSqr > SIMD_EPSILON)
+					if (m_data->m_flags&CUF_USE_IMPLICIT_CYLINDER)
 					{
-						height = btSqrt(lenSqr);
-						btVector3 ax = diff / height;
+						btVector3 f = col->m_geometry.m_capsuleFrom;
+						btVector3 t = col->m_geometry.m_capsuleTo;
+					
+						//compute the local 'fromto' transform
+						btVector3 localPosition = btScalar(0.5)*(t+f);
+						btQuaternion localOrn;
+						localOrn = btQuaternion::getIdentity();
 
-						btVector3 zAxis(0,0,1);
-						localOrn = shortestArcQuat(zAxis,ax);
+						btVector3 diff = t-f;
+						btScalar lenSqr = diff.length2();
+						btScalar height = 0.f;
+
+						if (lenSqr > SIMD_EPSILON)
+						{
+							height = btSqrt(lenSqr);
+							btVector3 ax = diff / height;
+
+							btVector3 zAxis(0,0,1);
+							localOrn = shortestArcQuat(zAxis,ax);
+						}
+						btCapsuleShapeZ* capsule= new btCapsuleShapeZ(col->m_geometry.m_capsuleRadius,height);
+
+						btCompoundShape* compound = new btCompoundShape();
+						btTransform localTransform(localOrn,localPosition);
+						compound->addChildShape(localTransform,capsule);
+						childShape = compound;
+					} else
+					{
+						btVector3 f = col->m_geometry.m_capsuleFrom;
+						btVector3 t = col->m_geometry.m_capsuleTo;
+						btVector3 fromto[2] = {f,t};
+						btScalar radii[2] = {btScalar(col->m_geometry.m_capsuleRadius)
+											,btScalar(col->m_geometry.m_capsuleRadius)};
+
+						btMultiSphereShape* ms = new btMultiSphereShape(fromto,radii,2);
+						childShape = ms;
 					}
-					btCapsuleShapeZ* capsule= new btCapsuleShapeZ(col->m_geometry.m_capsuleRadius,height);
-
-					btCompoundShape* compound = new btCompoundShape();
-					btTransform localTransform(localOrn,localPosition);
-					compound->addChildShape(localTransform,capsule);
-					childShape = compound;
-#endif
 				} else
 				{
 					btCapsuleShapeZ* cap = new btCapsuleShapeZ(col->m_geometry.m_capsuleRadius,

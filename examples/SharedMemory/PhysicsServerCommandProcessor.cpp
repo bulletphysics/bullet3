@@ -2704,7 +2704,7 @@ bool PhysicsServerCommandProcessor::loadMjcf(const char* fileName, char* bufferS
 
 	m_data->m_sdfRecentLoadedBodies.clear();
 
-    BulletMJCFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter);
+    BulletMJCFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter, flags);
 
 	bool useFixedBase = false;
 	MyMJCFLogger2 logger;
