@@ -16,8 +16,6 @@ public:
 
 	void setDesiredMotorAngle(class b3RobotSimulatorClientAPI* sim, const char* motorName, double desiredAngle, double maxTorque=3,double kp=0.1, double kd=0.9);
 
-	// Added for testing
-	int getToeForces(class b3RobotSimulatorClientAPI* sim, int groundid, b3Vector3 normalForcesOut[4]);
 };
 #endif //MINITAUR_SIMULATION_SETUP_H
  

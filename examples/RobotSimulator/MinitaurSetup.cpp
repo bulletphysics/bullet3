@@ -280,16 +280,3 @@ int MinitaurSetup::setupMinitaur(class b3RobotSimulatorClientAPI* sim, const b3V
 	return m_data->m_quadrupedUniqueId;
 }
 
-int MinitaurSetup::getToeForces(class b3RobotSimulatorClientAPI* sim, int groundid, b3Vector3 normalForcesOut[4])
-{
-	sim->getContactNormalForce(m_data->m_quadrupedUniqueId, *m_data->m_jointNameToId[kneeNames[0]], groundid, -1, &normalForcesOut[0]);
-	sim->getContactNormalForce(m_data->m_quadrupedUniqueId, *m_data->m_jointNameToId[kneeNames[2]], groundid, -1, &normalForcesOut[1]);
-	sim->getContactNormalForce(m_data->m_quadrupedUniqueId, *m_data->m_jointNameToId[kneeNames[4]], groundid, -1, &normalForcesOut[2]);
-	sim->getContactNormalForce(m_data->m_quadrupedUniqueId, *m_data->m_jointNameToId[kneeNames[5]], groundid, -1, &normalForcesOut[3]);
-	sim->getContactNormalForce(m_data->m_quadrupedUniqueId, *m_data->m_jointNameToId[kneeNames[1]], groundid, -1, &normalForcesOut[4]);
-	sim->getContactNormalForce(m_data->m_quadrupedUniqueId, *m_data->m_jointNameToId[kneeNames[3]], groundid, -1, &normalForcesOut[5]);
-	sim->getContactNormalForce(m_data->m_quadrupedUniqueId, *m_data->m_jointNameToId[kneeNames[6]], groundid, -1, &normalForcesOut[6]);
-	sim->getContactNormalForce(m_data->m_quadrupedUniqueId, *m_data->m_jointNameToId[kneeNames[7]], groundid, -1, &normalForcesOut[7]);
-
-	return 0;
-}
