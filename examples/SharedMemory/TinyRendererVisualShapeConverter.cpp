@@ -470,12 +470,14 @@ void convertURDFToVisualShape(const UrdfShape* visual, const char* urdfPathPrefi
 				vtx.xyzw[1] = pos.y();
 				vtx.xyzw[2] = pos.z();
 				vtx.xyzw[3] = 1.f;
-				pos.normalize();
-				vtx.normal[0] = pos.x();
-				vtx.normal[1] = pos.y();
-				vtx.normal[2] = pos.z();
-				vtx.uv[0] = 0.5f;
-				vtx.uv[1] = 0.5f;
+				btVector3 normal = pos.safeNormalize();
+				vtx.normal[0] = normal.x();
+				vtx.normal[1] = normal.y();
+				vtx.normal[2] = normal.z();
+				btScalar u = btAtan2(normal[0], normal[2]) / (2 * SIMD_PI) + 0.5;
+				btScalar v = normal[1] * 0.5 + 0.5;
+				vtx.uv[0] = u;
+				vtx.uv[1] = v;
 				glmesh->m_vertices->push_back(vtx);
 			}
 
@@ -586,18 +588,33 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 			{
 				color.setValue(1,1,1,1);
 			}
-			if (model && useVisual)
+			if (model)
 			{
-				btHashString matName(linkPtr->m_visualArray[v1].m_materialName.c_str());
-				UrdfMaterial*const* matPtr = model->m_materials[matName];
-				if (matPtr)
+				if (useVisual)
 				{
-					for (int i=0; i<4; i++)
+					btHashString matName(linkPtr->m_visualArray[v1].m_materialName.c_str());
+					UrdfMaterial*const* matPtr = model->m_materials[matName];
+					if (matPtr)
 					{
-						rgbaColor[i] = (*matPtr)->m_matColor.m_rgbaColor[i];
+						for (int i = 0; i < 4; i++)
+						{
+							rgbaColor[i] = (*matPtr)->m_matColor.m_rgbaColor[i];
+						}
+						//printf("UrdfMaterial %s, rgba = %f,%f,%f,%f\n",mat->m_name.c_str(),mat->m_rgbaColor[0],mat->m_rgbaColor[1],mat->m_rgbaColor[2],mat->m_rgbaColor[3]);
+						//m_data->m_linkColors.insert(linkIndex,mat->m_rgbaColor);
 					}
-					//printf("UrdfMaterial %s, rgba = %f,%f,%f,%f\n",mat->m_name.c_str(),mat->m_rgbaColor[0],mat->m_rgbaColor[1],mat->m_rgbaColor[2],mat->m_rgbaColor[3]);
-					//m_data->m_linkColors.insert(linkIndex,mat->m_rgbaColor);
+				}
+				
+			}
+			else
+			{
+
+				if (vis && vis->m_geometry.m_hasLocalMaterial)
+				{
+					for (int i = 0; i < 4; i++)
+					{
+						rgbaColor[i] = vis->m_geometry.m_localMaterial.m_matColor.m_rgbaColor[i];
+					}
 				}
 			}
 			

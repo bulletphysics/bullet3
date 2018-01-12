@@ -4,7 +4,10 @@ import math
 
 
 def drawInertiaBox(parentUid, parentLinkIndex, color):
-	mass,frictionCoeff, inertia =p.getDynamicsInfo(bodyUniqueId=parentUid,linkIndex=parentLinkIndex, flags = p.DYNAMICS_INFO_REPORT_INERTIA)
+	dyn = p.getDynamicsInfo(parentUid, parentLinkIndex)
+	mass=dyn[0]
+	frictionCoeff=dyn[1]
+	inertia = dyn[2]
 	if (mass>0):
 		Ixx = inertia[0]
 		Iyy = inertia[1]
@@ -79,7 +82,7 @@ p.setTimeStep(fixedTimeStep)
 
 orn = p.getQuaternionFromEuler([0,0,0.4])
 p.setRealTimeSimulation(0)
-quadruped = p.loadURDF("quadruped/minitaur_v1.urdf",[1,-1,.3],orn,useFixedBase=False, useMaximalCoordinates=useMaximalCoordinates)
+quadruped = p.loadURDF("quadruped/minitaur_v1.urdf",[1,-1,.3],orn,useFixedBase=False, useMaximalCoordinates=useMaximalCoordinates, flags=p.URDF_USE_IMPLICIT_CYLINDER)
 nJoints = p.getNumJoints(quadruped)
 
 jointNameToId = {}
@@ -123,7 +126,11 @@ halfpi = 1.57079632679
 twopi = 4*halfpi
 kneeangle = -2.1834
 
-mass, friction, localInertiaDiagonal = p.getDynamicsInfo(quadruped,-1, flags=p.DYNAMICS_INFO_REPORT_INERTIA )
+dyn = p.getDynamicsInfo(quadruped,-1)
+mass=dyn[0]
+friction=dyn[1]
+localInertiaDiagonal = dyn[2]
+
 print("localInertiaDiagonal",localInertiaDiagonal)
 
 #this is a no-op, just to show the API

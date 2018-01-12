@@ -674,6 +674,7 @@ enum eURDF_Flags
 	URDF_RESERVED=64,
 	URDF_USE_IMPLICIT_CYLINDER =128,
 	URDF_GLOBAL_VELOCITIES_MB =256,
+	MJCF_COLORS_FROM_FILE=512,
 };
 
 enum eUrdfGeomTypes //sync with UrdfParser UrdfGeomTypes
