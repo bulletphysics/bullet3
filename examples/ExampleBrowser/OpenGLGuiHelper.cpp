@@ -301,6 +301,15 @@ void OpenGLGuiHelper::changeTexture(int textureUniqueId, const unsigned char* rg
 
 int OpenGLGuiHelper::registerGraphicsShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType, int textureId)
 {
+	if (textureId == -2)
+	{
+		if (m_data->m_checkedTextureGrey<0)
+		{
+			m_data->m_checkedTextureGrey = createCheckeredTexture(192, 192, 192);
+		}
+		textureId = m_data->m_checkedTextureGrey;
+	}
+
 	int shapeId = m_data->m_glApp->m_renderer->registerShape(vertices, numvertices,indices,numIndices,primitiveType, textureId);
 	return shapeId;
 }

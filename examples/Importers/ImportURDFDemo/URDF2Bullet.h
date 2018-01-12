@@ -25,6 +25,7 @@ enum ConvertURDFFlags {
   CUF_RESERVED=64,
   CUF_USE_IMPLICIT_CYLINDER=128,
   CUF_GLOBAL_VELOCITIES_MB=256,
+  CUF_MJCF_COLORS_FROM_FILE=512,
 };
 
 void ConvertURDF2Bullet(const URDFImporterInterface& u2b,
