@@ -1,0 +1,31 @@
+<robot name="blob262">
+  <link name="random_obj_262">
+    <contact>
+      <lateral_friction value="1.0"/>
+      <rolling_friction value="0.0"/>
+      <inertia_scaling value="3.0"/>
+      <contact_cfm value="0.0"/>
+      <contact_erp value="1.0"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.1"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="262.obj" scale="0.015 0.015 0.015"/>
+      </geometry>
+      <material name="blockmat">
+        <color rgba="0.96 0.84 0.26 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="262.obj" scale="0.015 0.015 0.015"/>
+      </geometry>
+    </collision>
+  </link>
+</robot>
