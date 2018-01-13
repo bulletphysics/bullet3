@@ -493,30 +493,43 @@ bool UrdfParser::parseGeometry(UrdfGeometry& geom, TiXmlElement* g, ErrorLogger*
   }
   else
   {
-      if (this->m_parseSDF)
-      {
-          if (type_name == "plane")
-          {
-              geom.m_type = URDF_GEOM_PLANE;
-             
-              TiXmlElement *n = shape->FirstChildElement("normal");
-              TiXmlElement *s = shape->FirstChildElement("size");
+		  if (type_name == "plane")
+		  {
+			geom.m_type = URDF_GEOM_PLANE;
+			if (this->m_parseSDF)
+			{
+				TiXmlElement *n = shape->FirstChildElement("normal");
+				TiXmlElement *s = shape->FirstChildElement("size");
 
-              if ((0==n)||(0==s))
-              {
-                  logger->reportError("Plane shape must have both normal and size attributes");
-                  return false;
-              }
+				if ((0==n)||(0==s))
+				{
+					logger->reportError("Plane shape must have both normal and size attributes");
+					return false;
+				}
             
-              parseVector3(geom.m_planeNormal,n->GetText(),logger);
-          }
-      } else
-      {
-          logger->reportError("Unknown geometry type:");
-          logger->reportError(type_name.c_str());
-          return false;
-      }
-  }
+				parseVector3(geom.m_planeNormal,n->GetText(),logger);
+		  } else
+		  {
+			  if (!shape->Attribute("normal"))
+				  {
+					  logger->reportError("plane requires a normal attribute");
+					  return false;
+				  } else
+				  {
+					parseVector3(geom.m_planeNormal,shape->Attribute("normal"),logger);
+					  
+				  }
+          
+		  }
+	  
+		} 
+		else
+		{
+			 logger->reportError("Unknown geometry type:");
+			  logger->reportError(type_name.c_str());
+			  return false;
+		}
+	}
   
 	return true;
 }
