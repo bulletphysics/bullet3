@@ -21,7 +21,7 @@ if (cid<0):
 
 #p.setGravity(1,2,-9.8)
 #p.setDefaultContactERP (0.4)
-#p.setGravity(0,0,-9.8)
+p.setGravity(0,0,-9.8)
 #numSubSteps=4 and fixedTimeStep=1.0/60. is an effective internal fixed step of 1./240
 #recommended to not go below 50 solver iterations
 p.setPhysicsEngineParameter(fixedTimeStep=1.0/60., numSolverIterations=550, numSubSteps=8)
@@ -29,7 +29,7 @@ p.setPhysicsEngineParameter(fixedTimeStep=1.0/60., numSolverIterations=550, numS
 #mp4log = p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4,"humanoid.mp4")
 
 #p.loadSDF("stadium.sdf")
-p.loadURDF("plane.urdf")
+p.loadURDF("plane_implicit.urdf")
 
 objs = p.loadMJCF("mjcf/humanoid_symmetric_no_ground.xml",flags = p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
 human  = objs[0]
