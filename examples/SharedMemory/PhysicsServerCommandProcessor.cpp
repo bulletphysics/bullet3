@@ -7474,9 +7474,10 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 				bodyHandle->m_rigidBody=0;
 				serverCmd.m_type = CMD_REMOVE_BODY_COMPLETED;
 			}
+			m_data->m_bodyHandles.freeHandle(bodyUniqueId);
 		}
 
-		m_data->m_bodyHandles.freeHandle(bodyUniqueId);
+		
 	}
 	m_data->m_guiHelper->setVisualizerFlag(COV_ENABLE_SYNC_RENDERING_INTERNAL,1);
 	
