@@ -7394,6 +7394,12 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 			{
 				serverCmd.m_removeObjectArgs.m_bodyUniqueIds[serverCmd.m_removeObjectArgs.m_numBodies++] = bodyUniqueId;
 
+				if (m_data->m_pickingMultiBodyPoint2Point && m_data->m_pickingMultiBodyPoint2Point->getMultiBodyA()==bodyHandle->m_multiBody)
+				{
+					//memory will be deleted in the code that follows
+					m_data->m_pickingMultiBodyPoint2Point = 0;
+				}
+
 				//also remove user constraints...
 				for (int i=m_data->m_dynamicsWorld->getNumMultiBodyConstraints()-1;i>=0;i--)
 				{
@@ -7420,7 +7426,8 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 
 					}
 				}
-								
+				
+
 				if (bodyHandle->m_multiBody->getBaseCollider())
 				{
 					m_data->m_visualConverter.removeVisualShape(bodyHandle->m_multiBody->getBaseCollider());
@@ -7452,6 +7459,13 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 			{
 				m_data->m_visualConverter.removeVisualShape(bodyHandle->m_rigidBody);
 				serverCmd.m_removeObjectArgs.m_bodyUniqueIds[serverCmd.m_removeObjectArgs.m_numBodies++] = bodyUniqueId;
+				
+				if (m_data->m_pickedConstraint && m_data->m_pickedBody==bodyHandle->m_rigidBody)
+				{
+					m_data->m_pickedConstraint=0;
+					m_data->m_pickedBody=0;
+				}
+
 				//todo: clear all other remaining data...
 				m_data->m_dynamicsWorld->removeRigidBody(bodyHandle->m_rigidBody);
 				int graphicsInstance = bodyHandle->m_rigidBody->getUserIndex2();
