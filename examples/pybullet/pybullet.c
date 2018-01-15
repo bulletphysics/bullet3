@@ -440,41 +440,47 @@ static PyObject* pybullet_connectPhysicsServer(PyObject* self, PyObject* args, P
 		}
 	}
 
-	if (sm && b3CanSubmitCommand(sm))
+	if (sm)
 	{
-		for (i = 0; i < MAX_PHYSICS_CLIENTS; i++)
+		if (b3CanSubmitCommand(sm))
 		{
-			if (sPhysicsClients1[i] == 0)
+			for (i = 0; i < MAX_PHYSICS_CLIENTS; i++)
 			{
-				freeIndex = i;
-				break;
+				if (sPhysicsClients1[i] == 0)
+				{
+					freeIndex = i;
+					break;
+				}
 			}
-		}
 
-		if (freeIndex >= 0)
+			if (freeIndex >= 0)
+			{
+				b3SharedMemoryCommandHandle command;
+				b3SharedMemoryStatusHandle statusHandle;
+				int statusType;
+
+				sPhysicsClients1[freeIndex] = sm;
+				sPhysicsClientsGUI[freeIndex] = method;
+				sNumPhysicsClients++;
+
+				command = b3InitSyncBodyInfoCommand(sm);
+				statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+				statusType = b3GetStatusType(statusHandle);
+
+				if (statusType != CMD_SYNC_BODY_INFO_COMPLETED) 
+				{
+					printf("Connection terminated, couldn't get body info\n");
+					b3DisconnectSharedMemory(sm);
+							sm = 0;
+					sPhysicsClients1[freeIndex] = 0;
+								sPhysicsClientsGUI[freeIndex] = 0;
+								sNumPhysicsClients++;
+					return  PyInt_FromLong(-1);
+				}
+			}
+		} else
 		{
-			b3SharedMemoryCommandHandle command;
-			b3SharedMemoryStatusHandle statusHandle;
-			int statusType;
-
-			sPhysicsClients1[freeIndex] = sm;
-			sPhysicsClientsGUI[freeIndex] = method;
-			sNumPhysicsClients++;
-
-			command = b3InitSyncBodyInfoCommand(sm);
-			statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
-			statusType = b3GetStatusType(statusHandle);
-
-			if (statusType != CMD_SYNC_BODY_INFO_COMPLETED) 
-			{
-				printf("Connection terminated, couldn't get body info\n");
-				b3DisconnectSharedMemory(sm);
-						sm = 0;
-				sPhysicsClients1[freeIndex] = 0;
-							sPhysicsClientsGUI[freeIndex] = 0;
-							sNumPhysicsClients++;
-				return  PyInt_FromLong(-1);
-			}
+			b3DisconnectSharedMemory(sm);
 		}
 	}
 	return PyInt_FromLong(freeIndex);
@@ -1995,10 +2001,10 @@ static PyObject* pybullet_setJointMotorControl2(PyObject* self, PyObject* args, 
 									 &targetPosition, &targetVelocity, &force, &kp, &kd, &maxVelocity, &physicsClientId))
 	{
 		//backward compatibility, bodyIndex -> bodyUniqueId, don't need to update this function: people have to migrate to bodyUniqueId
-		static char* kwlist2[] = {"bodyIndex", "jointIndex", "controlMode", "targetPosition", "targetVelocity", "force", "positionGain", "velocityGain", "physicsClientId", NULL};
+		static char* kwlist2[] = {"bodyIndex", "jointIndex", "controlMode", "targetPosition", "targetVelocity", "force", "positionGain", "velocityGain", "maxVelocity","physicsClientId", NULL};
 		PyErr_Clear();
-		if (!PyArg_ParseTupleAndKeywords(args, keywds, "iii|dddddi", kwlist2, &bodyUniqueId, &jointIndex, &controlMode,
-									 &targetPosition, &targetVelocity, &force, &kp, &kd, &physicsClientId))
+		if (!PyArg_ParseTupleAndKeywords(args, keywds, "iii|ddddddi", kwlist2, &bodyUniqueId, &jointIndex, &controlMode,
+									 &targetPosition, &targetVelocity, &force, &kp, &kd, &maxVelocity, &physicsClientId))
 		{
 			return NULL;
 		}
