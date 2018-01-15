@@ -9186,6 +9186,22 @@ void    PhysicsServerCommandProcessor::physicsDebugDraw(int debugDrawFlags)
 }
 
 
+struct MyResultCallback : public btCollisionWorld::ClosestRayResultCallback
+{
+	MyResultCallback(const btVector3&	rayFromWorld,const btVector3&	rayToWorld)
+	:btCollisionWorld::ClosestRayResultCallback(rayFromWorld, rayToWorld)
+	{
+	}
+					   
+	virtual bool needsCollision(btBroadphaseProxy* proxy0) const
+	{
+		return true;
+	}
+
+};
+
+
+
 
 bool PhysicsServerCommandProcessor::pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld)
 {
@@ -9193,8 +9209,8 @@ bool PhysicsServerCommandProcessor::pickBody(const btVector3& rayFromWorld, cons
 	if (m_data->m_dynamicsWorld==0)
 		return false;
 
-	btCollisionWorld::ClosestRayResultCallback rayCallback(rayFromWorld, rayToWorld);
-
+	//btCollisionWorld::ClosestRayResultCallback rayCallback(rayFromWorld, rayToWorld);
+	MyResultCallback rayCallback(rayFromWorld, rayToWorld);
 	m_data->m_dynamicsWorld->rayTest(rayFromWorld, rayToWorld, rayCallback);
 	if (rayCallback.hasHit())
 	{

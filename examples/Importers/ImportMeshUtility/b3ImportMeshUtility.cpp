@@ -30,6 +30,27 @@ struct CachedTextureResult
 };
 
 static b3HashMap<b3HashString, CachedTextureResult> gCachedTextureResults;
+struct CachedTextureManager
+{
+	CachedTextureManager()
+	{
+	}
+	virtual ~CachedTextureManager()
+	{
+		for (int i=0;i<gCachedTextureResults.size();i++)
+		{
+			CachedTextureResult* res = gCachedTextureResults.getAtIndex(i);
+			if (res)
+			{
+				free(res->m_pixels);
+			}
+		}
+	}
+};
+static CachedTextureManager sTexCacheMgr;
+
+
+
 
 bool b3ImportMeshUtility::loadAndRegisterMeshFromFileInternal(const std::string& fileName, b3ImportMeshData& meshData)
 {
