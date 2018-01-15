@@ -6,15 +6,23 @@ os.sys.path.insert(0,parentdir)
 import pybullet_envs
 import gym
 import argparse
+import pybullet as p
 
 
 def test(args):
-
+	count = 0
 	env = gym.make(args.env)
 	env.env.configure(args)
-	if (args.render):
+	print("args.render=",args.render)
+	if (args.render==1):
 		env.render(mode="human")
 	env.reset()
+	if (args.resetbenchmark):
+		while (1):
+			env.reset()
+			print("p.getNumBodies()=",p.getNumBodies())
+			print("count=",count)
+			count+=1
 	print("action space:")
 	sample = env.action_space.sample()
 	action = sample*0.0
@@ -39,8 +47,9 @@ def main():
     parser.add_argument('--seed', help='RNG seed', type=int, default=0)
     parser.add_argument('--render', help='OpenGL Visualizer', type=int, default=0)
     parser.add_argument('--rgb',help='rgb_array gym rendering',type=int, default=0)
+    parser.add_argument('--resetbenchmark',help='Repeat reset to show reset performance',type=int, default=0)
     parser.add_argument('--steps', help='Number of steps', type=int, default=1)
-    parser.add_argument('--bla',help='bla',type=int, default=42)
+    
     args = parser.parse_args()
     test(args)
 
