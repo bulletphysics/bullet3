@@ -749,7 +749,7 @@ void btMultiBody::computeAccelerationsArticulatedBodyAlgorithmMultiDof(btScalar 
     // Temporary matrices/vectors -- use scratch space from caller
     // so that we don't have to keep reallocating every frame
 
-    scratch_r.resize(2*m_dofCount + 6);				//multidof? ("Y"s use it and it is used to store qdd) => 2 x m_dofCount
+    scratch_r.resize(2*m_dofCount + 7);				//multidof? ("Y"s use it and it is used to store qdd) => 2 x m_dofCount
     scratch_v.resize(8*num_links + 6);
     scratch_m.resize(4*num_links + 4);
 
