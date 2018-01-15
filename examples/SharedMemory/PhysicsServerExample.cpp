@@ -2533,10 +2533,10 @@ void PhysicsServerExample::drawUserDebugLines()
 				optionFlag |= CommonGraphicsApp::eDrawText3D_OrtogonalFaceCamera;
 			} else
 			{
-				orientation[0] = m_multiThreadedHelper->m_userDebugText[i].m_textOrientation[0];
-				orientation[1] = m_multiThreadedHelper->m_userDebugText[i].m_textOrientation[1];
-				orientation[2] = m_multiThreadedHelper->m_userDebugText[i].m_textOrientation[2];
-				orientation[3] = m_multiThreadedHelper->m_userDebugText[i].m_textOrientation[3];
+				orientation[0] = (float)m_multiThreadedHelper->m_userDebugText[i].m_textOrientation[0];
+				orientation[1] = (float)m_multiThreadedHelper->m_userDebugText[i].m_textOrientation[1];
+				orientation[2] = (float)m_multiThreadedHelper->m_userDebugText[i].m_textOrientation[2];
+				orientation[3] = (float)m_multiThreadedHelper->m_userDebugText[i].m_textOrientation[3];
 				optionFlag |= CommonGraphicsApp::eDrawText3D_TrueType;
 				
 			}

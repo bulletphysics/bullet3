@@ -59,7 +59,14 @@ def main():
             distance=5
             yaw = 0
             humanPos = p.getLinkState(torsoId,4)[0]
-            p.resetDebugVisualizerCamera(distance,yaw,-20,humanPos);
+            camInfo = p.getDebugVisualizerCamera()
+            curTargetPos = camInfo[11]
+            distance=camInfo[10]
+            yaw = camInfo[8]
+            pitch=camInfo[9]
+            targetPos = [0.95*curTargetPos[0]+0.05*humanPos[0],0.95*curTargetPos[1]+0.05*humanPos[1],curTargetPos[2]]
+            p.resetDebugVisualizerCamera(distance,yaw,pitch,targetPos);
+
             still_open = env.render("human")
             if still_open==False:
                 return

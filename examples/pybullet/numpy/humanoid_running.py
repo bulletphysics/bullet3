@@ -169,9 +169,13 @@ def demo_run():
 		#p.setJointMotorControl2(human1, motors[m], controlMode=p.TORQUE_CONTROL, force=motor_power[m]*actions[m]*0.082)
 			
 		forces = [0.] * len(motors)
+		batch = True
 		for m in range(len(motors)):
 			forces[m] = motor_power[m]*actions[m]*0.082
-		p.setJointMotorControlArray(human, motors,controlMode=p.TORQUE_CONTROL, forces=forces)
+			if (not batch):
+				p.setJointMotorControl2(human, motors[m],controlMode=p.TORQUE_CONTROL, force=forces[m])
+		if (batch):
+			p.setJointMotorControlArray(human, motors,controlMode=p.TORQUE_CONTROL, forces=forces)
 
 		p.stepSimulation()
 		
