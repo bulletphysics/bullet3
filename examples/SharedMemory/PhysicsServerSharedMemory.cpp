@@ -12,7 +12,8 @@
 #include "../CommonInterfaces/CommonGUIHelperInterface.h"
 #include "SharedMemoryBlock.h"
 
-#include "PhysicsServerCommandProcessor.h"
+
+#include "PhysicsCommandProcessorInterface.h"
 
 //number of shared memory blocks == number of simultaneous connections
 #define MAX_SHARED_MEMORY_BLOCKS 2
