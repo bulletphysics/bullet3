@@ -8217,7 +8217,7 @@ int PhysicsServerCommandProcessor::extractCollisionShapes(const btCollisionShape
 	case CONVEX_HULL_SHAPE_PROXYTYPE:
 	{
 		UrdfCollision* urdfCol = m_data->m_bulletCollisionShape2UrdfCollision.find(colShape);
-		if (urdfCol && (urdfCol->m_geometry.m_type == GEOM_MESH))
+		if (urdfCol && (urdfCol->m_geometry.m_type == URDF_GEOM_MESH))
 		{
 			collisionShapeBuffer[0].m_collisionGeometryType = GEOM_MESH;
 			collisionShapeBuffer[0].m_dimensions[0] = urdfCol->m_geometry.m_meshScale[0];
@@ -8283,7 +8283,7 @@ int PhysicsServerCommandProcessor::extractCollisionShapes(const btCollisionShape
 	{
 		//it could be a compound mesh from a wavefront OBJ, check it
 		UrdfCollision* urdfCol = m_data->m_bulletCollisionShape2UrdfCollision.find(colShape);
-		if (urdfCol && (urdfCol->m_geometry.m_type == GEOM_MESH))
+		if (urdfCol && (urdfCol->m_geometry.m_type == URDF_GEOM_MESH))
 		{
 			collisionShapeBuffer[0].m_collisionGeometryType = GEOM_MESH;
 			collisionShapeBuffer[0].m_dimensions[0] = urdfCol->m_geometry.m_meshScale[0];

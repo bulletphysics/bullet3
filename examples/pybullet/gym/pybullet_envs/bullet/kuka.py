@@ -15,7 +15,7 @@ class Kuka:
   def __init__(self, urdfRootPath=pybullet_data.getDataPath(), timeStep=0.01):
     self.urdfRootPath = urdfRootPath
     self.timeStep = timeStep
-    
+    self.maxVelocity = .35
     self.maxForce = 200.
     self.fingerAForce = 2 
     self.fingerBForce = 2.5
@@ -146,7 +146,7 @@ class Kuka:
       if (self.useSimulation):
         for i in range (self.kukaEndEffectorIndex+1):
           #print(i)
-          p.setJointMotorControl2(bodyIndex=self.kukaUid,jointIndex=i,controlMode=p.POSITION_CONTROL,targetPosition=jointPoses[i],targetVelocity=0,force=self.maxForce,positionGain=0.3,velocityGain=1)
+          p.setJointMotorControl2(bodyUniqueId=self.kukaUid,jointIndex=i,controlMode=p.POSITION_CONTROL,targetPosition=jointPoses[i],targetVelocity=0,force=self.maxForce,maxVelocity=self.maxVelocity, positionGain=0.3,velocityGain=1)
       else:
         #reset the joint state (ignoring all dynamics, not recommended to use during simulation)
         for i in range (self.numJoints):
