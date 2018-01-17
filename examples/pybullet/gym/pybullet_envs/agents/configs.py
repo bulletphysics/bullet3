@@ -124,7 +124,7 @@ def pybullet_humanoid():
   randomizer = (minitaur_env_randomizer.MinitaurEnvRandomizer())
   env = 'HumanoidBulletEnv-v0'
   max_length = 1000
-  steps = 3e7  # 30M
+  steps = 3e8  # 300M
   return locals()
 
 
