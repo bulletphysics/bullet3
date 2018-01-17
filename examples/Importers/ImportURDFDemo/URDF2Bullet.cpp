@@ -566,7 +566,9 @@ void ConvertURDF2BulletInternal(
             }
         } else
         {
-            //u2b.convertLinkVisualShapes2(urdfLinkIndex,urdfIndex,pathPrefix,localInertialFrame,compoundShape);
+		    int mbLinkIndex =cache.getMbIndexFromUrdfIndex(urdfLinkIndex);
+			//u2b.convertLinkVisualShapes2(mbLinkIndex, urdfLinkIndex, pathPrefix, localInertialFrame, col, u2b.getBodyUniqueId());
+            u2b.convertLinkVisualShapes2(-1,urdfLinkIndex,pathPrefix,localInertialFrame,linkRigidBody,u2b.getBodyUniqueId());
         }
     }
 

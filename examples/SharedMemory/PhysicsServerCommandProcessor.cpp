@@ -1564,7 +1564,8 @@ struct PhysicsServerCommandProcessorInternalData
 	btVector3 m_hitPos;
 	btScalar m_oldPickingDist;
 	bool m_prevCanSleep;
-	TinyRendererVisualShapeConverter  m_visualConverter;
+	TinyRendererVisualShapeConverter  m_tempVisualConverter;//we may move this into a plugin
+	LinkVisualShapesConverter* m_visualConverterPtr;
 #ifdef B3_ENABLE_TINY_AUDIO
 	b3SoundEngine m_soundEngine;
 #endif
@@ -1598,7 +1599,7 @@ struct PhysicsServerCommandProcessorInternalData
 		m_pickingMultiBodyPoint2Point(0)
 	{
 
-		
+		m_visualConverterPtr=&m_tempVisualConverter;
 
 		{
 			//register static plugins:
@@ -2120,7 +2121,10 @@ struct ProgrammaticUrdfInterface : public URDFImporterInterface
 		//UrdfVisual vis;
 		//link.m_visualArray.push_back(vis);
 		//UrdfLink*const* linkPtr = model.m_links.getAtIndex(urdfIndex);
-		m_data->m_visualConverter.convertVisualShapes(linkIndex,pathPrefix,localInertiaFrame, &link, &model, colObj, bodyUniqueId);
+		if (m_data->m_visualConverterPtr)
+		{
+			m_data->m_visualConverterPtr->convertVisualShapes(linkIndex,pathPrefix,localInertiaFrame, &link, &model, colObj->getBroadphaseHandle()->getUid(), bodyUniqueId);
+		}
 	}
     virtual void setBodyUniqueId(int bodyId) 
 	{
@@ -2704,7 +2708,7 @@ bool PhysicsServerCommandProcessor::loadMjcf(const char* fileName, char* bufferS
 
 	m_data->m_sdfRecentLoadedBodies.clear();
 
-    BulletMJCFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter, flags);
+    BulletMJCFImporter u2b(m_data->m_guiHelper, m_data->m_visualConverterPtr, flags);
 
 	bool useFixedBase = false;
 	MyMJCFLogger2 logger;
@@ -2727,7 +2731,7 @@ bool PhysicsServerCommandProcessor::loadSdf(const char* fileName, char* bufferSe
 
 	m_data->m_sdfRecentLoadedBodies.clear();
 
-    BulletURDFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter, globalScaling, flags);
+    BulletURDFImporter u2b(m_data->m_guiHelper, m_data->m_visualConverterPtr, globalScaling, flags);
 	u2b.setEnableTinyRenderer(m_data->m_enableTinyRenderer);
 
 	bool forceFixedBase = false;
@@ -2759,7 +2763,7 @@ bool PhysicsServerCommandProcessor::loadUrdf(const char* fileName, const btVecto
 
 
 
-    BulletURDFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter, globalScaling, flags);
+    BulletURDFImporter u2b(m_data->m_guiHelper, m_data->m_visualConverterPtr, globalScaling, flags);
 	u2b.setEnableTinyRenderer(m_data->m_enableTinyRenderer);
     bool loadOk =  u2b.loadURDF(fileName, useFixedBase);
 
@@ -3076,15 +3080,21 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 	if ((clientCmd.m_requestPixelDataArguments.m_startPixelIndex==0) &&
 			(clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_PIXEL_WIDTH_HEIGHT)!=0)
 	{
-			m_data->m_visualConverter.setWidthAndHeight(clientCmd.m_requestPixelDataArguments.m_pixelWidth,
+		if (m_data->m_visualConverterPtr)
+		{
+			m_data->m_visualConverterPtr->setWidthAndHeight(clientCmd.m_requestPixelDataArguments.m_pixelWidth,
 														clientCmd.m_requestPixelDataArguments.m_pixelHeight);
+		}
 	}
 	int flags = 0;
 	if (clientCmd.m_updateFlags&REQUEST_PIXEL_ARGS_HAS_FLAGS)
 	{
 		flags = clientCmd.m_requestPixelDataArguments.m_flags;
 	}
-	m_data->m_visualConverter.setFlags(flags);
+	if (m_data->m_visualConverterPtr)
+	{
+		m_data->m_visualConverterPtr->setFlags(flags);
+	}
 
 	int numTotalPixels = width*height;
 	int numRemainingPixels = numTotalPixels - startPixelIndex;
@@ -3158,82 +3168,92 @@ bool PhysicsServerCommandProcessor::processRequestCameraImageCommand(const struc
 		}
 		if (!handled)
 		{
-
-			if (clientCmd.m_requestPixelDataArguments.m_startPixelIndex==0)
+			if (m_data->m_visualConverterPtr)
 			{
-				//   printf("-------------------------------\nRendering\n");
+				if (clientCmd.m_requestPixelDataArguments.m_startPixelIndex==0)
+				{
+					//   printf("-------------------------------\nRendering\n");
 
-				if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_LIGHT_DIRECTION) != 0)
-				{
-					m_data->m_visualConverter.setLightDirection(clientCmd.m_requestPixelDataArguments.m_lightDirection[0], clientCmd.m_requestPixelDataArguments.m_lightDirection[1], clientCmd.m_requestPixelDataArguments.m_lightDirection[2]);
-				}
-                                
-				if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_LIGHT_COLOR) != 0)
-				{
-					m_data->m_visualConverter.setLightColor(clientCmd.m_requestPixelDataArguments.m_lightColor[0], clientCmd.m_requestPixelDataArguments.m_lightColor[1], clientCmd.m_requestPixelDataArguments.m_lightColor[2]);
-				}
-                                
-				if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_LIGHT_DISTANCE) != 0)
-				{
-					m_data->m_visualConverter.setLightDistance(clientCmd.m_requestPixelDataArguments.m_lightDistance);
-				}
-                                
-				if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_SHADOW) != 0)
-				{
-					m_data->m_visualConverter.setShadow((clientCmd.m_requestPixelDataArguments.m_hasShadow!=0));
-				}
-                                
-				if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_AMBIENT_COEFF) != 0)
-				{
-					m_data->m_visualConverter.setLightAmbientCoeff(clientCmd.m_requestPixelDataArguments.m_lightAmbientCoeff);
-				}
-                                
-				if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_DIFFUSE_COEFF) != 0)
-				{
-					m_data->m_visualConverter.setLightDiffuseCoeff(clientCmd.m_requestPixelDataArguments.m_lightDiffuseCoeff);
-				}
-                                
-				if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_SPECULAR_COEFF) != 0)
-				{
-					m_data->m_visualConverter.setLightSpecularCoeff(clientCmd.m_requestPixelDataArguments.m_lightSpecularCoeff);
-				}
-
-				if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES)!=0)
-				{
-					m_data->m_visualConverter.render(
-														clientCmd.m_requestPixelDataArguments.m_viewMatrix,
-														clientCmd.m_requestPixelDataArguments.m_projectionMatrix);
-				} else
-				{
-					b3OpenGLVisualizerCameraInfo tmpCamResult;
-					bool result = this->m_data->m_guiHelper->getCameraInfo(
-						&tmpCamResult.m_width,
-						&tmpCamResult.m_height,
-						tmpCamResult.m_viewMatrix,
-						tmpCamResult.m_projectionMatrix,
-						tmpCamResult.m_camUp,
-						tmpCamResult.m_camForward,
-						tmpCamResult.m_horizontal,
-						tmpCamResult.m_vertical,
-						&tmpCamResult.m_yaw,
-						&tmpCamResult.m_pitch,
-						&tmpCamResult.m_dist,
-						tmpCamResult.m_target);
-					if (result)
+					if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_LIGHT_DIRECTION) != 0)
 					{
-						m_data->m_visualConverter.render(tmpCamResult.m_viewMatrix,
-						tmpCamResult.m_projectionMatrix);
+						m_data->m_visualConverterPtr->setLightDirection(clientCmd.m_requestPixelDataArguments.m_lightDirection[0], clientCmd.m_requestPixelDataArguments.m_lightDirection[1], clientCmd.m_requestPixelDataArguments.m_lightDirection[2]);
+					}
+                                
+					if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_LIGHT_COLOR) != 0)
+					{
+						m_data->m_visualConverterPtr->setLightColor(clientCmd.m_requestPixelDataArguments.m_lightColor[0], clientCmd.m_requestPixelDataArguments.m_lightColor[1], clientCmd.m_requestPixelDataArguments.m_lightColor[2]);
+					}
+                                
+					if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_LIGHT_DISTANCE) != 0)
+					{
+						m_data->m_visualConverterPtr->setLightDistance(clientCmd.m_requestPixelDataArguments.m_lightDistance);
+					}
+                                
+					if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_SHADOW) != 0)
+					{
+						m_data->m_visualConverterPtr->setShadow((clientCmd.m_requestPixelDataArguments.m_hasShadow!=0));
+					}
+                                
+					if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_AMBIENT_COEFF) != 0)
+					{
+						m_data->m_visualConverterPtr->setLightAmbientCoeff(clientCmd.m_requestPixelDataArguments.m_lightAmbientCoeff);
+					}
+                                
+					if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_DIFFUSE_COEFF) != 0)
+					{
+						m_data->m_visualConverterPtr->setLightDiffuseCoeff(clientCmd.m_requestPixelDataArguments.m_lightDiffuseCoeff);
+					}
+                                
+					if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_SET_SPECULAR_COEFF) != 0)
+					{
+						m_data->m_visualConverterPtr->setLightSpecularCoeff(clientCmd.m_requestPixelDataArguments.m_lightSpecularCoeff);
+					}
+
+					for (int i=0;i<m_data->m_dynamicsWorld->getNumCollisionObjects();i++)
+					{
+						const btCollisionObject* colObj = m_data->m_dynamicsWorld->getCollisionObjectArray()[i];
+						m_data->m_visualConverterPtr->syncTransform(colObj->getBroadphaseHandle()->getUid(),colObj->getWorldTransform(),colObj->getCollisionShape()->getLocalScaling());
+					}
+
+					if ((clientCmd.m_updateFlags & REQUEST_PIXEL_ARGS_HAS_CAMERA_MATRICES)!=0)
+					{
+						m_data->m_visualConverterPtr->render(
+															clientCmd.m_requestPixelDataArguments.m_viewMatrix,
+															clientCmd.m_requestPixelDataArguments.m_projectionMatrix);
 					} else
 					{
-						m_data->m_visualConverter.render();
+						b3OpenGLVisualizerCameraInfo tmpCamResult;
+						bool result = this->m_data->m_guiHelper->getCameraInfo(
+							&tmpCamResult.m_width,
+							&tmpCamResult.m_height,
+							tmpCamResult.m_viewMatrix,
+							tmpCamResult.m_projectionMatrix,
+							tmpCamResult.m_camUp,
+							tmpCamResult.m_camForward,
+							tmpCamResult.m_horizontal,
+							tmpCamResult.m_vertical,
+							&tmpCamResult.m_yaw,
+							&tmpCamResult.m_pitch,
+							&tmpCamResult.m_dist,
+							tmpCamResult.m_target);
+						if (result)
+						{
+							m_data->m_visualConverterPtr->render(tmpCamResult.m_viewMatrix,tmpCamResult.m_projectionMatrix);
+						} else
+						{
+							m_data->m_visualConverterPtr->render();
+						}
 					}
 				}
 			}
 
-			m_data->m_visualConverter.copyCameraImageData(pixelRGBA,numRequestedPixels,
+			if (m_data->m_visualConverterPtr)
+			{
+				m_data->m_visualConverterPtr->copyCameraImageData(pixelRGBA,numRequestedPixels,
 										depthBuffer,numRequestedPixels,
 										segmentationMaskBuffer, numRequestedPixels,
 										startPixelIndex,&width,&height,&numPixelsCopied);
+			}
 
 			m_data->m_guiHelper->debugDisplayCameraImageData(clientCmd.m_requestPixelDataArguments.m_viewMatrix,
 								clientCmd.m_requestPixelDataArguments.m_projectionMatrix,pixelRGBA,numRequestedPixels,
@@ -3869,7 +3889,7 @@ bool PhysicsServerCommandProcessor::processCreateVisualShapeCommand(const struct
 	serverStatusOut.m_type = CMD_CREATE_VISUAL_SHAPE_FAILED;
 	double globalScaling = 1.f;
 	int flags=0;
-	BulletURDFImporter u2b(m_data->m_guiHelper, &m_data->m_visualConverter, globalScaling, flags);
+	BulletURDFImporter u2b(m_data->m_guiHelper, m_data->m_visualConverterPtr, globalScaling, flags);
 	u2b.setEnableTinyRenderer(m_data->m_enableTinyRenderer);
 	btTransform localInertiaFrame;
 	localInertiaFrame.setIdentity();
@@ -7430,7 +7450,10 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 
 				if (bodyHandle->m_multiBody->getBaseCollider())
 				{
-					m_data->m_visualConverter.removeVisualShape(bodyHandle->m_multiBody->getBaseCollider());
+					if (m_data->m_visualConverterPtr)
+					{
+						m_data->m_visualConverterPtr->removeVisualShape(bodyHandle->m_multiBody->getBaseCollider()->getBroadphaseHandle()->getUid());
+					}
 					m_data->m_dynamicsWorld->removeCollisionObject(bodyHandle->m_multiBody->getBaseCollider());
 					int graphicsIndex = bodyHandle->m_multiBody->getBaseCollider()->getUserIndex();
 					m_data->m_guiHelper->removeGraphicsInstance(graphicsIndex);
@@ -7440,7 +7463,10 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 									
 					if (bodyHandle->m_multiBody->getLink(link).m_collider)
 					{
-						m_data->m_visualConverter.removeVisualShape(bodyHandle->m_multiBody->getLink(link).m_collider);
+						if (m_data->m_visualConverterPtr)
+						{
+							m_data->m_visualConverterPtr->removeVisualShape(bodyHandle->m_multiBody->getLink(link).m_collider->getBroadphaseHandle()->getUid());
+						}
 						m_data->m_dynamicsWorld->removeCollisionObject(bodyHandle->m_multiBody->getLink(link).m_collider);
 						int graphicsIndex = bodyHandle->m_multiBody->getLink(link).m_collider->getUserIndex();
 						m_data->m_guiHelper->removeGraphicsInstance(graphicsIndex);
@@ -7457,7 +7483,10 @@ bool PhysicsServerCommandProcessor::processRemoveBodyCommand(const struct Shared
 			}
 			if (bodyHandle->m_rigidBody)
 			{
-				m_data->m_visualConverter.removeVisualShape(bodyHandle->m_rigidBody);
+				if (m_data->m_visualConverterPtr)
+				{
+					m_data->m_visualConverterPtr->removeVisualShape(bodyHandle->m_rigidBody->getBroadphaseHandle()->getUid());
+				}
 				serverCmd.m_removeObjectArgs.m_bodyUniqueIds[serverCmd.m_removeObjectArgs.m_numBodies++] = bodyUniqueId;
 				
 				if (m_data->m_pickedConstraint && m_data->m_pickedBody==bodyHandle->m_rigidBody)
@@ -8372,24 +8401,27 @@ bool PhysicsServerCommandProcessor::processRequestVisualShapeInfoCommand(const s
     serverCmd.m_type = CMD_VISUAL_SHAPE_INFO_FAILED;
     //retrieve the visual shape information for a specific body
                     
-	int totalNumVisualShapes = m_data->m_visualConverter.getNumVisualShapes(clientCmd.m_requestVisualShapeDataArguments.m_bodyUniqueId);
-	//int totalBytesPerVisualShape = sizeof (b3VisualShapeData);
-	//int visualShapeStorage = bufferSizeInBytes / totalBytesPerVisualShape - 1;
-	b3VisualShapeData* visualShapeStoragePtr = (b3VisualShapeData*)bufferServerToClient;
+	if (m_data->m_visualConverterPtr)
+	{
+		int totalNumVisualShapes = m_data->m_visualConverterPtr->getNumVisualShapes(clientCmd.m_requestVisualShapeDataArguments.m_bodyUniqueId);
+		//int totalBytesPerVisualShape = sizeof (b3VisualShapeData);
+		//int visualShapeStorage = bufferSizeInBytes / totalBytesPerVisualShape - 1;
+		b3VisualShapeData* visualShapeStoragePtr = (b3VisualShapeData*)bufferServerToClient;
 
-	int remain = totalNumVisualShapes - clientCmd.m_requestVisualShapeDataArguments.m_startingVisualShapeIndex;
-	int shapeIndex = clientCmd.m_requestVisualShapeDataArguments.m_startingVisualShapeIndex;
+		int remain = totalNumVisualShapes - clientCmd.m_requestVisualShapeDataArguments.m_startingVisualShapeIndex;
+		int shapeIndex = clientCmd.m_requestVisualShapeDataArguments.m_startingVisualShapeIndex;
 
-	int success = m_data->m_visualConverter.getVisualShapesData(clientCmd.m_requestVisualShapeDataArguments.m_bodyUniqueId,
-		shapeIndex,
-		visualShapeStoragePtr);
-	if (success) {
-		serverCmd.m_sendVisualShapeArgs.m_numRemainingVisualShapes = remain-1;
-		serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied = 1;
-		serverCmd.m_sendVisualShapeArgs.m_startingVisualShapeIndex = clientCmd.m_requestVisualShapeDataArguments.m_startingVisualShapeIndex;
-		serverCmd.m_sendVisualShapeArgs.m_bodyUniqueId = clientCmd.m_requestVisualShapeDataArguments.m_bodyUniqueId;
-		serverCmd.m_numDataStreamBytes = sizeof(b3VisualShapeData)*serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied;
-		serverCmd.m_type = CMD_VISUAL_SHAPE_INFO_COMPLETED;
+		int success = m_data->m_visualConverterPtr->getVisualShapesData(clientCmd.m_requestVisualShapeDataArguments.m_bodyUniqueId,
+			shapeIndex,
+			visualShapeStoragePtr);
+		if (success) {
+			serverCmd.m_sendVisualShapeArgs.m_numRemainingVisualShapes = remain-1;
+			serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied = 1;
+			serverCmd.m_sendVisualShapeArgs.m_startingVisualShapeIndex = clientCmd.m_requestVisualShapeDataArguments.m_startingVisualShapeIndex;
+			serverCmd.m_sendVisualShapeArgs.m_bodyUniqueId = clientCmd.m_requestVisualShapeDataArguments.m_bodyUniqueId;
+			serverCmd.m_numDataStreamBytes = sizeof(b3VisualShapeData)*serverCmd.m_sendVisualShapeArgs.m_numVisualShapesCopied;
+			serverCmd.m_type = CMD_VISUAL_SHAPE_INFO_COMPLETED;
+		}
 	}
 	return hasStatus;
 }
@@ -8412,7 +8444,10 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 		{
 			if (texHandle)
 			{
-			    m_data->m_visualConverter.activateShapeTexture(clientCmd.m_updateVisualShapeDataArguments.m_bodyUniqueId, clientCmd.m_updateVisualShapeDataArguments.m_jointIndex, clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex, texHandle->m_tinyRendererTextureId);
+				if (m_data->m_visualConverterPtr)
+				{
+					m_data->m_visualConverterPtr->activateShapeTexture(clientCmd.m_updateVisualShapeDataArguments.m_bodyUniqueId, clientCmd.m_updateVisualShapeDataArguments.m_jointIndex, clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex, texHandle->m_tinyRendererTextureId);
+				}
 			}
 		}
 	}                    
@@ -8441,7 +8476,10 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 						}
 						if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR) 
 						{
-							m_data->m_visualConverter.changeRGBAColor(bodyUniqueId,linkIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
+							if (m_data->m_visualConverterPtr)
+							{
+								m_data->m_visualConverterPtr->changeRGBAColor(bodyUniqueId,linkIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
+							}
 							m_data->m_guiHelper->changeRGBAColor(graphicsIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 						}
 						if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_SPECULAR_COLOR) 
@@ -8467,7 +8505,10 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 							}
 							if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR) 
 							{
-								m_data->m_visualConverter.changeRGBAColor(bodyUniqueId,linkIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);										
+								if (m_data->m_visualConverterPtr)
+								{
+									m_data->m_visualConverterPtr->changeRGBAColor(bodyUniqueId,linkIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);										
+								}
 								m_data->m_guiHelper->changeRGBAColor(graphicsIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 							}
 							if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_SPECULAR_COLOR) 
@@ -8493,7 +8534,10 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 					}
 					if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_RGBA_COLOR) 
 					{
-						m_data->m_visualConverter.changeRGBAColor(bodyUniqueId,linkIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);										
+						if (m_data->m_visualConverterPtr)
+						{
+							m_data->m_visualConverterPtr->changeRGBAColor(bodyUniqueId,linkIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);										
+						}
 						m_data->m_guiHelper->changeRGBAColor(graphicsIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 					}
 					if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_SPECULAR_COLOR) 
@@ -8550,7 +8594,11 @@ bool PhysicsServerCommandProcessor::processLoadTextureCommand(const struct Share
 			texH->m_tinyRendererTextureId = -1;
 			texH->m_openglTextureId = -1;
 
-			int uid = m_data->m_visualConverter.loadTextureFile(relativeFileName);
+			int uid = -1;
+			if (m_data->m_visualConverterPtr)
+			{
+				m_data->m_visualConverterPtr->loadTextureFile(relativeFileName);
+			}
 			if(uid>=0)
 			{
 				texH->m_tinyRendererTextureId = uid;
@@ -9519,7 +9567,10 @@ void PhysicsServerCommandProcessor::resetSimulation()
 	}
 	if (m_data)
 	{
-		m_data->m_visualConverter.resetAll();
+		if (m_data->m_visualConverterPtr)
+		{
+			m_data->m_visualConverterPtr->resetAll();
+		}
 		for (int i = 0; i < m_data->m_savedStates.size(); i++)
 		{
 			delete m_data->m_savedStates[i].m_bulletFile;

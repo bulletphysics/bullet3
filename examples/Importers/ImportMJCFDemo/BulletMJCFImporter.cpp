@@ -21,7 +21,7 @@
 
 #include"../../ThirdPartyLibs/Wavefront/tiny_obj_loader.h"
 #include "../ImportMeshUtility/b3ImportMeshUtility.h"
-
+#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 #include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
 #include "BulletCollision/CollisionShapes/btBoxShape.h"
@@ -2277,7 +2277,7 @@ void BulletMJCFImporter::convertLinkVisualShapes2(int linkIndex, int urdfIndex, 
 	if (m_data->m_customVisualShapesConverter)
 	{
 		const UrdfLink* link = m_data->getLink(m_data->m_activeModel, urdfIndex);
-		m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex,pathPrefix,inertialFrame, link, 0, colObj, objectIndex);
+		m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex,pathPrefix,inertialFrame, link, 0, colObj->getBroadphaseHandle()->getUid(), objectIndex);
 	}
 }
 

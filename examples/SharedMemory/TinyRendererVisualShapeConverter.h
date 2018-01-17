@@ -16,45 +16,47 @@ struct TinyRendererVisualShapeConverter : public LinkVisualShapesConverter
 	
 	virtual ~TinyRendererVisualShapeConverter();
 	
-	virtual void convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, class btCollisionObject* colShape, int objectIndex);
-
+	virtual void convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, int shapeUid, int objectIndex);
+	
 	virtual int getNumVisualShapes(int bodyUniqueId);
 
 	virtual int getVisualShapesData(int bodyUniqueId, int shapeIndex, struct b3VisualShapeData* shapeData);
 	
 	virtual void changeRGBAColor(int bodyUniqueId, int linkIndex, const double rgbaColor[4]);
 
-	virtual void removeVisualShape(class btCollisionObject* colObj);
+	virtual void removeVisualShape(int shapeUid);
 
-	void setUpAxis(int axis);
+	virtual void setUpAxis(int axis);
 	
-    void resetCamera(float camDist, float yaw, float pitch, float camPosX,float camPosY, float camPosZ);
+    virtual void resetCamera(float camDist, float yaw, float pitch, float camPosX,float camPosY, float camPosZ);
 	
-    void clearBuffers(struct TGAColor& clearColor);
+    virtual void clearBuffers(struct TGAColor& clearColor);
 
-	void resetAll();
+	virtual void resetAll();
 
-    void getWidthAndHeight(int& width, int& height);
-	void setWidthAndHeight(int width, int height);
-	void setLightDirection(float x, float y, float z);
-    void setLightColor(float x, float y, float z);
-    void setLightDistance(float dist);
-    void setLightAmbientCoeff(float ambientCoeff);
-    void setLightDiffuseCoeff(float diffuseCoeff);
-    void setLightSpecularCoeff(float specularCoeff);
-    void setShadow(bool hasShadow);
-	void setFlags(int flags);
+    virtual void getWidthAndHeight(int& width, int& height);
+	virtual void setWidthAndHeight(int width, int height);
+	virtual void setLightDirection(float x, float y, float z);
+    virtual void setLightColor(float x, float y, float z);
+    virtual void setLightDistance(float dist);
+    virtual void setLightAmbientCoeff(float ambientCoeff);
+    virtual void setLightDiffuseCoeff(float diffuseCoeff);
+    virtual void setLightSpecularCoeff(float specularCoeff);
+    virtual void setShadow(bool hasShadow);
+	virtual void setFlags(int flags);
 
-    void copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels,int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,  int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied);
+    virtual void copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels,int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,  int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied);
     
-	void render();
-	void render(const float viewMat[16], const float projMat[16]);
+	virtual void render();
+	virtual void render(const float viewMat[16], const float projMat[16]);
     
-    int loadTextureFile(const char* filename);
-    int registerTexture(unsigned char* texels, int width, int height);
+    virtual int loadTextureFile(const char* filename);
+    virtual int registerTexture(unsigned char* texels, int width, int height);
    
-    void activateShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId);
-	
+    virtual void activateShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId);
+
+	virtual void syncTransform(int shapeUid, const class btTransform& worldTransform, const class btVector3& localScaling);
+
 };
 
 
