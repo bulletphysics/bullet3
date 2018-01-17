@@ -2,7 +2,7 @@
 #define PHYSICS_CLIENT_UDP_H
 
 #include "PhysicsDirect.h"
-#include "PhysicsServerCommandProcessor.h"
+#include "PhysicsCommandProcessorInterface.h"
 
 class UdpNetworkedPhysicsProcessor : public PhysicsCommandProcessorInterface
 {
