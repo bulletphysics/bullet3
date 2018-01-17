@@ -4,11 +4,11 @@
 /*
 import pybullet as p
 p.connect(p.GUI)
-pluginUid = p.loadPlugin("E:/develop/bullet3/bin/pybullet_testplugin_vs2010_x64_debug.dll")
-commandUid = 0
-argument = "plane.urdf"
-p.executePluginCommand(pluginUid,commandUid,argument)
-p.unloadPlugin(pluginUid)
+plugin = p.loadPlugin("e:/develop/bullet3/bin/pybullet_tinyRendererPlugin_vs2010_x64_debug.dll","_tinyRendererPlugin")
+print("plugin=",plugin)
+p.loadURDF("r2d2.urdf")
+while (1):
+	p.getCameraImage(320,200)
 */
 
 #include "tinyRendererPlugin.h"
