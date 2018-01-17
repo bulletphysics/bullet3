@@ -11,26 +11,26 @@ class btTransform;
 ///There is an implementation in 
 ///bullet3\examples\SharedMemory\plugins\tinyRendererPlugin\TinyRendererVisualShapeConverter.cpp
 struct UrdfRenderingInterface
-{
+	{
 	///given a URDF link, convert all visual shapes into internal renderer (loading graphics meshes, textures etc)
 	///use the shapeUid as a unique identified to remove it
 	virtual void convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, int shapeUid, int objectIndex) =0;
 	
 	///remove a visual shapes, based on the shape unique id (shapeUid)
 	virtual void removeVisualShape(int shapeUid)=0;
-
+	
 	///update the world transform + scaling of the visual shape, using the shapeUid
 	virtual void syncTransform(int shapeUid, const class btTransform& worldTransform, const class btVector3& localScaling)=0;
-
+	
 	///return the number of visual shapes, for a particular body unique id
 	virtual int getNumVisualShapes(int bodyUniqueId)=0;
-
+	
 	///return the visual shape information, for a particular body unique id and 'shape index'
 	virtual int getVisualShapesData(int bodyUniqueId, int shapeIndex, struct b3VisualShapeData* shapeData)=0;
 	
 	///change the RGBA color for a body unique id and link index
 	virtual void changeRGBAColor(int bodyUniqueId, int linkIndex, const double rgbaColor[4])=0;
-
+	
 	///pick the up-axis, either Y (1) or Z (2)
 	virtual void setUpAxis(int axis)=0;
 	
@@ -39,10 +39,10 @@ struct UrdfRenderingInterface
 	
 	///clear the render buffer with a particular color.
 	virtual void clearBuffers(struct TGAColor& clearColor)=0;
-
+	
 	///remove all visual shapes.
 	virtual void resetAll()=0;
-
+	
 	///return the frame buffer width and height for the renderer
 	virtual void getWidthAndHeight(int& width, int& height)=0;
 	
@@ -72,23 +72,23 @@ struct UrdfRenderingInterface
 	
 	///some undocumented flags for experimentation (todo: document)
 	virtual void setFlags(int flags)=0;
-
+	
 	///provide the image pixels as a part of a stream.
 	virtual void copyCameraImageData(unsigned char* pixelsRGBA, int rgbaBufferSizeInPixels, float* depthBuffer, int depthBufferSizeInPixels,int* segmentationMaskBuffer, int segmentationMaskSizeInPixels,  int startPixelIndex, int* widthPtr, int* heightPtr, int* numPixelsCopied)=0;
-    
-  ///render an image, using some arbitraty view and projection matrix
+	
+	///render an image, using some arbitraty view and projection matrix
 	virtual void render()=0;
 	
 	///render an image using the provided view and projection matrix
 	virtual void render(const float viewMat[16], const float projMat[16])=0;
-    
-  ///load a texture from file, in png or other popular/supported format
+	
+	///load a texture from file, in png or other popular/supported format
 	virtual int loadTextureFile(const char* filename)=0;
 	
 	///register a texture using an in-memory pixel buffer of a given width and height
 	virtual int registerTexture(unsigned char* texels, int width, int height)=0;
-   
-  ///select a given texture for some visual shape.
+	
+	///select a given texture for some visual shape.
 	virtual void activateShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)=0;
 
 };
