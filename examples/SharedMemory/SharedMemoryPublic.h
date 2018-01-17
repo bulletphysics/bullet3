@@ -5,7 +5,8 @@
 ///increase the SHARED_MEMORY_MAGIC_NUMBER whenever incompatible changes are made in the structures
 ///my convention is year/month/day/rev
 
-#define SHARED_MEMORY_MAGIC_NUMBER 201801080
+#define SHARED_MEMORY_MAGIC_NUMBER 201801170
+//#define SHARED_MEMORY_MAGIC_NUMBER 201801080
 //#define SHARED_MEMORY_MAGIC_NUMBER 201801010
 //#define SHARED_MEMORY_MAGIC_NUMBER 201710180
 //#define SHARED_MEMORY_MAGIC_NUMBER 201710050
