@@ -9,7 +9,7 @@ struct b3PluginContext
 
 	//plugin can modify the m_userPointer to store persistent object pointer (class or struct instance etc)
 	void* m_userPointer;
-
+	
 	const struct b3VRControllerEvent* m_vrControllerEvents;
 	int m_numVRControllerEvents;
 	const struct b3KeyboardEvent* m_keyEvents;

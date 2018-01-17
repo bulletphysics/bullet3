@@ -66,8 +66,8 @@ ENDIF()
 												../../examples/Utils/ChromeTraceUtil.h
 						../../examples/Utils/RobotLoggingUtil.cpp
                         ../../examples/Utils/RobotLoggingUtil.h
-					    ../../examples/SharedMemory/TinyRendererVisualShapeConverter.cpp
-						../../examples/SharedMemory/TinyRendererVisualShapeConverter.h
+					    ../../examples/SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp
+							../../examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp
 						../../examples/OpenGLWindow/SimpleCamera.cpp
 						../../examples/OpenGLWindow/SimpleCamera.h
 						../../examples/TinyRenderer/geometry.cpp

@@ -1,6 +1,7 @@
 #ifndef URDF_JOINT_TYPES_H
 #define URDF_JOINT_TYPES_H
 
+#include "LinearMath/btScalar.h"
 
 enum UrdfJointTypes
 {
@@ -11,7 +12,6 @@ enum UrdfJointTypes
 		URDFPlanarJoint,
 		URDFFixedJoint,
 };
-#include "LinearMath/btScalar.h"
 
 enum URDF_LinkContactFlags
 {

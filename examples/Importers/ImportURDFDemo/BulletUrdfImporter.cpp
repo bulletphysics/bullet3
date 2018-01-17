@@ -51,7 +51,7 @@ ATTRIBUTE_ALIGNED16(struct) BulletURDFInternalData
 	mutable btAlignedObjectArray<btTriangleMesh*> m_allocatedMeshInterfaces;
 	btHashMap<btHashPtr, UrdfCollision> m_bulletCollisionShape2UrdfCollision;
 
-	LinkVisualShapesConverter* m_customVisualShapesConverter;
+	UrdfRenderingInterface* m_customVisualShapesConverter;
 	bool m_enableTinyRenderer;
 	int m_flags;
 
@@ -82,7 +82,7 @@ void BulletURDFImporter::printTree()
 //	btAssert(0);
 }
 
-BulletURDFImporter::BulletURDFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter, double globalScaling, int flags)
+BulletURDFImporter::BulletURDFImporter(struct GUIHelperInterface* helper, UrdfRenderingInterface* customConverter, double globalScaling, int flags)
 {
 	m_data = new BulletURDFInternalData;
 	m_data->setGlobalScaling(globalScaling);
@@ -1248,7 +1248,7 @@ void BulletURDFImporter::convertLinkVisualShapes2(int linkIndex, int urdfIndex, 
 		UrdfLink*const* linkPtr = model.m_links.getAtIndex(urdfIndex);
 		if (linkPtr)
 		{
-			m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex,pathPrefix,localInertiaFrame, *linkPtr, &model, colObj, bodyUniqueId);
+			m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex,pathPrefix,localInertiaFrame, *linkPtr, &model, colObj->getBroadphaseHandle()->getUid(), bodyUniqueId);
 		}
 	}
 }

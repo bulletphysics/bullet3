@@ -6,9 +6,9 @@
 #include "LinearMath/btHashMap.h"
 #include "URDFJointTypes.h"
 #include "SDFAudioTypes.h"
+#include <string>
 
 #define btArray btAlignedObjectArray
-#include <string>
 
 struct ErrorLogger
 {

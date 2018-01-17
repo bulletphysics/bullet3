@@ -36,9 +36,9 @@ SET(SharedMemory_SRCS
 	SharedMemoryCommandProcessor.h
 	PhysicsServerCommandProcessor.cpp
 	PhysicsServerCommandProcessor.h
-	TinyRendererVisualShapeConverter.cpp
-	TinyRendererVisualShapeConverter.h
-	SharedMemoryCommands.h
+	plugins/tinyRendererPlugin/tinyRendererPlugin.cpp
+	plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp
+SharedMemoryCommands.h
 	SharedMemoryPublic.h
 	b3PluginManager.cpp
 	../TinyRenderer/geometry.cpp

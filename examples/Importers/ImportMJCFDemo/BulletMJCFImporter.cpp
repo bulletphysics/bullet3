@@ -21,7 +21,7 @@
 
 #include"../../ThirdPartyLibs/Wavefront/tiny_obj_loader.h"
 #include "../ImportMeshUtility/b3ImportMeshUtility.h"
-
+#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
 #include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
 #include "BulletCollision/CollisionShapes/btBoxShape.h"
@@ -184,7 +184,7 @@ struct MyMJCFDefaults
 struct BulletMJCFImporterInternalData
 {
 	GUIHelperInterface* m_guiHelper;
-	struct LinkVisualShapesConverter* m_customVisualShapesConverter;
+	struct UrdfRenderingInterface* m_customVisualShapesConverter;
 	char m_pathPrefix[1024];
 
 	std::string m_sourceFileName; // with path
@@ -1419,7 +1419,7 @@ struct BulletMJCFImporterInternalData
 
 };
 
-BulletMJCFImporter::BulletMJCFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter, int flags)
+BulletMJCFImporter::BulletMJCFImporter(struct GUIHelperInterface* helper, UrdfRenderingInterface* customConverter, int flags)
 {
 	m_data = new BulletMJCFImporterInternalData();
 	m_data->m_guiHelper = helper;
@@ -2277,7 +2277,7 @@ void BulletMJCFImporter::convertLinkVisualShapes2(int linkIndex, int urdfIndex, 
 	if (m_data->m_customVisualShapesConverter)
 	{
 		const UrdfLink* link = m_data->getLink(m_data->m_activeModel, urdfIndex);
-		m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex,pathPrefix,inertialFrame, link, 0, colObj, objectIndex);
+		m_data->m_customVisualShapesConverter->convertVisualShapes(linkIndex,pathPrefix,inertialFrame, link, 0, colObj->getBroadphaseHandle()->getUid(), objectIndex);
 	}
 }
 

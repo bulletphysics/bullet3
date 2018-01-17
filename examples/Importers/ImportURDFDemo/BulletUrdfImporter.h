@@ -3,7 +3,7 @@
 
 #include "URDFImporterInterface.h"
 
-#include "LinkVisualShapesConverter.h"
+#include "UrdfRenderingInterface.h"
 
 struct BulletURDFTexture
 {
@@ -23,7 +23,7 @@ class BulletURDFImporter : public URDFImporterInterface
 
 public:
 
-	BulletURDFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter, double globalScaling=1, int flags=0);
+	BulletURDFImporter(struct GUIHelperInterface* helper, UrdfRenderingInterface* customConverter, double globalScaling=1, int flags=0);
 
 	virtual ~BulletURDFImporter();
 
