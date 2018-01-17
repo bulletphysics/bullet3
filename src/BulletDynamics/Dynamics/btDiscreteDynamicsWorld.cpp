@@ -1146,7 +1146,7 @@ void	btDiscreteDynamicsWorld::predictUnconstraintMotion(btScalar timeStep)
 	for ( int i=0;i<m_nonStaticRigidBodies.size();i++)
 	{
 		btRigidBody* body = m_nonStaticRigidBodies[i];
-		if (!body->isStaticOrKinematicObject())
+		if (!body->isStaticOrKinematicObject() && body->isActive())
 		{
 			//don't integrate/update velocities here, it happens in the constraint solver
 
