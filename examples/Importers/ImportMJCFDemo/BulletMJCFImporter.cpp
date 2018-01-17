@@ -184,7 +184,7 @@ struct MyMJCFDefaults
 struct BulletMJCFImporterInternalData
 {
 	GUIHelperInterface* m_guiHelper;
-	struct LinkVisualShapesConverter* m_customVisualShapesConverter;
+	struct UrdfRenderingInterface* m_customVisualShapesConverter;
 	char m_pathPrefix[1024];
 
 	std::string m_sourceFileName; // with path
@@ -1419,7 +1419,7 @@ struct BulletMJCFImporterInternalData
 
 };
 
-BulletMJCFImporter::BulletMJCFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter, int flags)
+BulletMJCFImporter::BulletMJCFImporter(struct GUIHelperInterface* helper, UrdfRenderingInterface* customConverter, int flags)
 {
 	m_data = new BulletMJCFImporterInternalData();
 	m_data->m_guiHelper = helper;

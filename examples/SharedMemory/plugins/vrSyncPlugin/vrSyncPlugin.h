@@ -13,9 +13,8 @@ B3_SHARED_API int initPlugin_vrSyncPlugin(struct b3PluginContext* context);
 B3_SHARED_API void exitPlugin_vrSyncPlugin(struct b3PluginContext* context);
 B3_SHARED_API int executePluginCommand_vrSyncPlugin(struct b3PluginContext* context, const struct b3PluginArguments* arguments);
 
-//preTickPluginCallback and postTickPluginCallback are optional.
+//optional APIs
 B3_SHARED_API int preTickPluginCallback_vrSyncPlugin(struct b3PluginContext* context);
-
 
 
 #ifdef __cplusplus

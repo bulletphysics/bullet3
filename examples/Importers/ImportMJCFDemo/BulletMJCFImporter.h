@@ -2,7 +2,7 @@
 #define BULLET_MJCF_IMPORTER_H
 
 #include "../ImportURDFDemo/URDFImporterInterface.h"
-#include "../ImportURDFDemo/LinkVisualShapesConverter.h"
+#include "../ImportURDFDemo/UrdfRenderingInterface.h"
 
 
 struct MJCFErrorLogger
@@ -27,7 +27,7 @@ class BulletMJCFImporter : public URDFImporterInterface
 	void convertURDFToVisualShapeInternal(const struct UrdfVisual* visual, const char* urdfPathPrefix, const btTransform& visualTransform, btAlignedObjectArray<struct GLInstanceVertex>& verticesOut, btAlignedObjectArray<int>& indicesOut, btAlignedObjectArray<MJCFURDFTexture>& texturesOut) const;
 
 public:
-	BulletMJCFImporter(struct GUIHelperInterface* helper, LinkVisualShapesConverter* customConverter, int flags);
+	BulletMJCFImporter(struct GUIHelperInterface* helper, UrdfRenderingInterface* customConverter, int flags);
 	virtual ~BulletMJCFImporter();
 	
 	virtual bool parseMJCFString(const char* xmlString, MJCFErrorLogger* logger);

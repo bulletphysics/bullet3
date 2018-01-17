@@ -13,10 +13,10 @@ B3_SHARED_API int initPlugin(struct b3PluginContext* context);
 B3_SHARED_API void exitPlugin(struct b3PluginContext* context);
 B3_SHARED_API int executePluginCommand(struct b3PluginContext* context, const struct b3PluginArguments* arguments);
 
-//preTickPluginCallback and postTickPluginCallback are optional.
+//all the APIs below are optional
 B3_SHARED_API int preTickPluginCallback(struct b3PluginContext* context);
 B3_SHARED_API int postTickPluginCallback(struct b3PluginContext* context);
-
+B3_SHARED_API struct UrdfRenderingInterface* getRenderInterface(struct b3PluginContext* context);
 
 
 #ifdef __cplusplus

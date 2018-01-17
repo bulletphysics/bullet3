@@ -39,8 +39,10 @@ struct b3Plugin
 	PFN_TICK m_preTickFunc;
 	PFN_TICK m_postTickFunc;
 
+	PFN_GET_RENDER_INTERFACE m_getRendererFunc;
+	
 	void* m_userPointer;
-
+	
 	b3Plugin()
 		:m_pluginHandle(0),
 		m_ownsPluginHandle(false),
@@ -50,6 +52,7 @@ struct b3Plugin
 		m_executeCommandFunc(0),
 		m_preTickFunc(0),
 		m_postTickFunc(0),
+		m_getRendererFunc(0),
 		m_userPointer(0)
 	{
 	}
@@ -66,6 +69,7 @@ struct b3Plugin
 		m_preTickFunc = 0;
 		m_postTickFunc = 0;
 		m_userPointer = 0;
+		m_getRendererFunc = 0;
 	}
 };
 
@@ -79,6 +83,12 @@ struct b3PluginManagerInternalData
 	b3AlignedObjectArray<b3KeyboardEvent> m_keyEvents;
 	b3AlignedObjectArray<b3VRControllerEvent> m_vrEvents;
 	b3AlignedObjectArray<b3MouseEvent> m_mouseEvents;
+	int m_activeRendererPluginUid;
+
+	b3PluginManagerInternalData()
+		:m_activeRendererPluginUid(-1)
+	{
+	}
 };
 
 b3PluginManager::b3PluginManager(class PhysicsCommandProcessorInterface* physSdk)
@@ -151,12 +161,14 @@ int b3PluginManager::loadPlugin(const char* pluginPath, const char* postFixStr)
 			std::string executePluginCommandStr = std::string("executePluginCommand") + postFix;
 			std::string preTickPluginCallbackStr = std::string("preTickPluginCallback") + postFix;
 			std::string postTickPluginCallback = std::string("postTickPluginCallback") + postFix;
-
+			std::string getRendererStr = std::string("getRenderInterface") + postFix;
+			
 			plugin->m_initFunc = (PFN_INIT)B3_DYNLIB_IMPORT(pluginHandle, initStr.c_str());
 			plugin->m_exitFunc = (PFN_EXIT)B3_DYNLIB_IMPORT(pluginHandle, exitStr.c_str());
 			plugin->m_executeCommandFunc = (PFN_EXECUTE)B3_DYNLIB_IMPORT(pluginHandle, executePluginCommandStr.c_str());
 			plugin->m_preTickFunc = (PFN_TICK)B3_DYNLIB_IMPORT(pluginHandle, preTickPluginCallbackStr.c_str());
 			plugin->m_postTickFunc = (PFN_TICK)B3_DYNLIB_IMPORT(pluginHandle, postTickPluginCallback.c_str());
+			plugin->m_getRendererFunc =  (PFN_GET_RENDER_INTERFACE)B3_DYNLIB_IMPORT(pluginHandle, getRendererStr.c_str());
 			
 			if (plugin->m_initFunc && plugin->m_exitFunc && plugin->m_executeCommandFunc)
 			{
@@ -201,6 +213,17 @@ int b3PluginManager::loadPlugin(const char* pluginPath, const char* postFixStr)
 			pluginUniqueId = -1;
 		}
 	}
+
+	//for now, automatically select the loaded plugin as active renderer. If wanted, we can add some 'select' mechanism.
+	if (pluginUniqueId>=0)
+	{
+		b3PluginHandle* plugin = m_data->m_plugins.getHandle(pluginUniqueId);
+		if (plugin && plugin->m_getRendererFunc)
+		{
+			selectPluginRenderer(pluginUniqueId);
+		}
+	}
+
 	return pluginUniqueId;
 }
 
@@ -275,11 +298,10 @@ int b3PluginManager::executePluginCommand(int pluginUniqueId, const b3PluginArgu
 }
 
 
-int b3PluginManager::registerStaticLinkedPlugin(const char* pluginPath, PFN_INIT initFunc,PFN_EXIT exitFunc, PFN_EXECUTE executeCommandFunc, PFN_TICK preTickFunc, PFN_TICK postTickFunc)
+int b3PluginManager::registerStaticLinkedPlugin(const char* pluginPath, PFN_INIT initFunc,PFN_EXIT exitFunc, PFN_EXECUTE executeCommandFunc, PFN_TICK preTickFunc, PFN_TICK postTickFunc, PFN_GET_RENDER_INTERFACE getRendererFunc)
 {
 
 	b3Plugin orgPlugin;
-
 	
 	int pluginUniqueId = m_data->m_plugins.allocHandle();
 	b3PluginHandle* pluginHandle = m_data->m_plugins.getHandle(pluginUniqueId);
@@ -291,10 +313,12 @@ int b3PluginManager::registerStaticLinkedPlugin(const char* pluginPath, PFN_INIT
 	pluginHandle->m_initFunc = initFunc;
 	pluginHandle->m_preTickFunc = preTickFunc;
 	pluginHandle->m_postTickFunc = postTickFunc;
+	pluginHandle->m_getRendererFunc = getRendererFunc;
 	pluginHandle->m_pluginHandle = 0;
 	pluginHandle->m_pluginPath = pluginPath;
 	pluginHandle->m_userPointer = 0;
 	
+
 	m_data->m_pluginMap.insert(pluginPath, pluginHandle);
 
 	{
@@ -313,3 +337,34 @@ int b3PluginManager::registerStaticLinkedPlugin(const char* pluginPath, PFN_INIT
 	}
 	return pluginUniqueId;
 }
+
+void b3PluginManager::selectPluginRenderer(int pluginUniqueId)
+{
+	m_data->m_activeRendererPluginUid = pluginUniqueId;
+}
+
+UrdfRenderingInterface* b3PluginManager::getRenderInterface()
+{
+	UrdfRenderingInterface* renderer = 0;
+
+	if (m_data->m_activeRendererPluginUid>=0)
+	{
+		b3PluginHandle* plugin = m_data->m_plugins.getHandle(m_data->m_activeRendererPluginUid);
+		if (plugin)
+		{
+			b3PluginContext context;
+			context.m_userPointer = plugin->m_userPointer;
+			context.m_physClient = (b3PhysicsClientHandle) m_data->m_physicsDirect;
+			context.m_numMouseEvents = 0;
+			context.m_mouseEvents = 0;
+			context.m_numKeyEvents = 0;
+			context.m_keyEvents = 0;
+			context.m_numVRControllerEvents = 0;
+			context.m_vrControllerEvents = 0;
+
+			renderer = plugin->m_getRendererFunc(&context);
+		}
+	}
+	return renderer;
+}
+

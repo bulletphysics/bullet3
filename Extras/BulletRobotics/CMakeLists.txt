@@ -10,8 +10,8 @@ INCLUDE_DIRECTORIES(
 SET(BulletRobotics_SRCS
 		../../examples/SharedMemory/IKTrajectoryHelper.cpp
 		../../examples/SharedMemory/IKTrajectoryHelper.h
-		../../examples/SharedMemory/TinyRendererVisualShapeConverter.cpp
-		../../examples/SharedMemory/TinyRendererVisualShapeConverter.h
+		../../examples/SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp
+		../../examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp
 		../../examples/OpenGLWindow/SimpleCamera.cpp
 		../../examples/OpenGLWindow/SimpleCamera.h
 		../../examples/TinyRenderer/geometry.cpp

@@ -1,12 +1,12 @@
-#ifndef LINK_VISUAL_SHAPES_CONVERTER_H
-#define LINK_VISUAL_SHAPES_CONVERTER_H
+#ifndef URDF_RENDERING_INTERFACE_H
+#define URDF_RENDERING_INTERFACE_H
 
 struct UrdfLink;
 struct UrdfModel;
 class btTransform;
-class btCollisionObject;
 
-struct LinkVisualShapesConverter
+
+struct UrdfRenderingInterface
 {
 	virtual void convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, int shapeUid, int objectIndex) =0;
 	

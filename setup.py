@@ -65,7 +65,8 @@ sources = ["examples/pybullet/pybullet.c"]\
 +["examples/SharedMemory/PhysicsClientC_API.cpp"]\
 +["examples/SharedMemory/Win32SharedMemory.cpp"]\
 +["examples/SharedMemory/PosixSharedMemory.cpp"]\
-+["examples/SharedMemory/TinyRendererVisualShapeConverter.cpp"]\
++["examples/SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp"]\
++["examples/SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp"]\
 +["examples/SharedMemory/PhysicsClientUDP.cpp"]\
 +["examples/SharedMemory/PhysicsClientUDP_C_API.cpp"]\
 +["examples/SharedMemory/PhysicsClientTCP.cpp"]\

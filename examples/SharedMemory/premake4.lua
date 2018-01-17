@@ -55,13 +55,6 @@ myfiles =
 	"PhysicsServerCommandProcessor.h",
 	"b3PluginManager.cpp",
 	"b3PluginManager.h",
-	"TinyRendererVisualShapeConverter.cpp",
-	"TinyRendererVisualShapeConverter.h",
-	"../TinyRenderer/geometry.cpp",
-	"../TinyRenderer/model.cpp",
-	"../TinyRenderer/tgaimage.cpp",
-	"../TinyRenderer/our_gl.cpp",
-	"../TinyRenderer/TinyRenderer.cpp",
 	"../OpenGLWindow/SimpleCamera.cpp",
 	"../OpenGLWindow/SimpleCamera.h",
 	"../Importers/ImportURDFDemo/ConvertRigidBodies2MultiBody.h",
@@ -115,6 +108,20 @@ if (_OPTIONS["enable_static_vr_plugin"]) then
 	files {"plugins/vrSyncPlugin/vrSyncPlugin.cpp"}
 end
 
+if (not _OPTIONS["disable_static_tinyrenderer_plugin"]) then
+	files 
+		{
+		"plugins/tinyRendererPlugin/tinyRendererPlugin.cpp",
+		"plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp",
+		"../TinyRenderer/geometry.cpp",
+		"../TinyRenderer/model.cpp",
+		"../TinyRenderer/tgaimage.cpp",
+		"../TinyRenderer/our_gl.cpp",
+		"../TinyRenderer/TinyRenderer.cpp"
+		}
+else
+	defines("SKIP_STATIC_TINYRENDERER_PLUGIN")
+end
 
 files {
 		"../MultiThreading/b3ThreadSupportInterface.cpp",
@@ -199,6 +206,21 @@ language "C++"
 			end
 		
 	end
+
+if (not _OPTIONS["disable_static_tinyrenderer_plugin"]) then
+	files 
+		{
+		"plugins/tinyRendererPlugin/tinyRendererPlugin.cpp",
+		"plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp",
+		"../TinyRenderer/geometry.cpp",
+		"../TinyRenderer/model.cpp",
+		"../TinyRenderer/tgaimage.cpp",
+		"../TinyRenderer/our_gl.cpp",
+		"../TinyRenderer/TinyRenderer.cpp"
+		}
+else
+	defines("SKIP_STATIC_TINYRENDERER_PLUGIN")
+end
 
 
 files {
@@ -344,7 +366,22 @@ if os.is("Windows") then
 		initOpenGL()
 	  initGlew()
 	
-	
+	if (not _OPTIONS["disable_static_tinyrenderer_plugin"]) then
+	files 
+		{
+		"plugins/tinyRendererPlugin/tinyRendererPlugin.cpp",
+		"plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp",
+		"../TinyRenderer/geometry.cpp",
+		"../TinyRenderer/model.cpp",
+		"../TinyRenderer/tgaimage.cpp",
+		"../TinyRenderer/our_gl.cpp",
+		"../TinyRenderer/TinyRenderer.cpp"
+		}
+else
+	defines("SKIP_STATIC_TINYRENDERER_PLUGIN")
+end
+
+
 	files
 	{
 		myfiles,
@@ -426,5 +463,6 @@ include "udp"
 include "tcp"
 include "plugins/testPlugin"
 include "plugins/vrSyncPlugin"
+include "plugins/tinyRendererPlugin"
 
 

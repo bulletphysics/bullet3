@@ -143,11 +143,10 @@ SET(BulletExampleBrowser_SRCS
 	../TinyRenderer/tgaimage.cpp
 	../TinyRenderer/our_gl.cpp
 	../TinyRenderer/TinyRenderer.cpp
-	../SharedMemory/TinyRendererVisualShapeConverter.cpp
-	../SharedMemory/TinyRendererVisualShapeConverter.h
+	../SharedMemory/plugins/tinyRendererPlugin/tinyRendererPlugin.cpp
+	../SharedMemory/plugins/tinyRendererPlugin/TinyRendererVisualShapeConverter.cpp
 	../SharedMemory/IKTrajectoryHelper.cpp
 	../SharedMemory/IKTrajectoryHelper.h
-	
 	../SharedMemory/PhysicsServer.cpp
 	../SharedMemory/PhysicsClientSharedMemory.cpp
 	../SharedMemory/PhysicsClientSharedMemory_C_API.cpp
