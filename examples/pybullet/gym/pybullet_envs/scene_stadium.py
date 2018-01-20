@@ -28,7 +28,7 @@ class StadiumScene(Scene):
 			self.stadium = p.loadSDF(filename)
 			planeName = os.path.join(pybullet_data.getDataPath(),"mjcf/ground_plane.xml")
 			
-			self.ground_plane_mjcf = p.loadMJCF(planeName)
+			self.ground_plane_mjcf = p.loadMJCF(planeName,  flags=p.URDF_USE_SELF_COLLISION|p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
 			for i in self.ground_plane_mjcf:
 				p.changeVisualShape(i,-1,rgbaColor=[0,0,0,0])
 		
