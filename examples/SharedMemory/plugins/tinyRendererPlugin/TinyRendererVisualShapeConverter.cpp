@@ -550,7 +550,7 @@ static btVector4 sColors[4] =
 void TinyRendererVisualShapeConverter::convertVisualShapes(
 	int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame,
 	const UrdfLink* linkPtr, const UrdfModel* model,
-	int shapeUid, int bodyUniqueId)
+	int collisionObjectUniqueId, int bodyUniqueId)
 {
 	btAssert(linkPtr); // TODO: remove if (not doing it now, because diff will be 50+ lines)
 	if (linkPtr)
@@ -627,12 +627,12 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 				}
 			}
 			
-			TinyRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[shapeUid];
+			TinyRendererObjectArray** visualsPtr = m_data->m_swRenderInstances[collisionObjectUniqueId];
             if (visualsPtr==0)
             {
-                m_data->m_swRenderInstances.insert(shapeUid,new TinyRendererObjectArray);
+                m_data->m_swRenderInstances.insert(collisionObjectUniqueId,new TinyRendererObjectArray);
             }
-            visualsPtr = m_data->m_swRenderInstances[shapeUid];
+            visualsPtr = m_data->m_swRenderInstances[collisionObjectUniqueId];
 			
             btAssert(visualsPtr);
             TinyRendererObjectArray* visuals = *visualsPtr;
@@ -753,7 +753,7 @@ int TinyRendererVisualShapeConverter::getVisualShapesData(int bodyUniqueId, int 
 
 
 
-void TinyRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int linkIndex, const double rgbaColor[4])
+void TinyRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int linkIndex, int shapeIndex, const double rgbaColor[4])
 {
     int start = -1;
     for (int i = 0; i < m_data->m_visualShapes.size(); i++)
@@ -778,12 +778,16 @@ void TinyRendererVisualShapeConverter::changeRGBAColor(int bodyUniqueId, int lin
 			{
 				for (int q=0;q<visuals->m_renderObjects.size();q++)
 				{
-					visuals->m_renderObjects[q]->m_model->setColorRGBA(rgba);
+					if (shapeIndex<0 || q==shapeIndex)
+					{
+						visuals->m_renderObjects[q]->m_model->setColorRGBA(rgba);
+					}
 				}
 			}
 		}
 	}
 }
+
 
 
 void TinyRendererVisualShapeConverter::setUpAxis(int axis)
@@ -832,9 +836,9 @@ void TinyRendererVisualShapeConverter::render()
 }    
 
 
-void TinyRendererVisualShapeConverter::syncTransform(int shapeUid, const btTransform& worldTransform, const btVector3& localScaling)
+void TinyRendererVisualShapeConverter::syncTransform(int collisionObjectUniqueId, const btTransform& worldTransform, const btVector3& localScaling)
 {
-	TinyRendererObjectArray** renderObjPtr = m_data->m_swRenderInstances[shapeUid];
+	TinyRendererObjectArray** renderObjPtr = m_data->m_swRenderInstances[collisionObjectUniqueId];
 	if (renderObjPtr)
 	{
 		TinyRendererObjectArray* renderObj = *renderObjPtr;
@@ -1109,9 +1113,9 @@ void TinyRendererVisualShapeConverter::copyCameraImageData(unsigned char* pixels
     }    
 }
 
-void TinyRendererVisualShapeConverter::removeVisualShape(int shapeUid)
+void TinyRendererVisualShapeConverter::removeVisualShape(int collisionObjectUniqueId)
 {
-	TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances[shapeUid];
+	TinyRendererObjectArray** ptrptr = m_data->m_swRenderInstances[collisionObjectUniqueId];
 	if (ptrptr && *ptrptr)
 	{
 		TinyRendererObjectArray* ptr = *ptrptr;
@@ -1123,7 +1127,7 @@ void TinyRendererVisualShapeConverter::removeVisualShape(int shapeUid)
 			}
 		}
 		delete ptr;
-		m_data->m_swRenderInstances.remove(shapeUid);
+		m_data->m_swRenderInstances.remove(collisionObjectUniqueId);
 	}
 }
 
@@ -1160,7 +1164,7 @@ void TinyRendererVisualShapeConverter::resetAll()
 }
 
 
-void TinyRendererVisualShapeConverter::activateShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)
+void TinyRendererVisualShapeConverter::changeShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)
 {
 	btAssert(textureUniqueId < m_data->m_textures.size());
 	if (textureUniqueId >= 0 && textureUniqueId < m_data->m_textures.size())

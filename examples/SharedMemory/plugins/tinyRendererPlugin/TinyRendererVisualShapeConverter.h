@@ -18,7 +18,9 @@ struct TinyRendererVisualShapeConverter : public UrdfRenderingInterface
 
 	virtual int getVisualShapesData(int bodyUniqueId, int shapeIndex, struct b3VisualShapeData* shapeData);
 	
-	virtual void changeRGBAColor(int bodyUniqueId, int linkIndex, const double rgbaColor[4]);
+	virtual void changeRGBAColor(int bodyUniqueId, int linkIndex, int shapeIndex, const double rgbaColor[4]);
+
+	virtual void changeShapeTexture(int objectUniqueId, int linkIndex, int shapeIndex, int textureUniqueId);
 
 	virtual void removeVisualShape(int shapeUid);
 
@@ -49,7 +51,7 @@ struct TinyRendererVisualShapeConverter : public UrdfRenderingInterface
 	virtual int loadTextureFile(const char* filename);
 	virtual int registerTexture(unsigned char* texels, int width, int height);
    
-	virtual void activateShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId);
+	
 
 	virtual void syncTransform(int shapeUid, const class btTransform& worldTransform, const class btVector3& localScaling);
 
