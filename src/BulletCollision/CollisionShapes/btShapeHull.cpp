@@ -49,7 +49,7 @@ btShapeHull::buildHull (btScalar /*margin*/, int highres)
 			{
 				btVector3 norm;
 				m_shape->getPreferredPenetrationDirection(i,norm);
-				getUnitSpherePoints()[numSampleDirections] = norm;
+				getUnitSpherePoints(highres)[numSampleDirections] = norm;
 				numSampleDirections++;
 			}
 		}
