@@ -202,7 +202,7 @@ def get_cube(x, y, z):
 
 
 def get_sphere(x, y, z):
-	body = p.loadURDF(os.path.join(pybullet_data.getDataPath(),"sphere2red.urdf"), x, y, z)
+	body = p.loadURDF(os.path.join(pybullet_data.getDataPath(),"sphere2red_nocol.urdf"), x, y, z)
 	part_name, _ = p.getBodyInfo(body, 0)
 	part_name = part_name.decode("utf8")
 	bodies = [body]
