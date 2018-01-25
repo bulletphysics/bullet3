@@ -2,7 +2,7 @@ from .scene_stadium import SinglePlayerStadiumScene
 from .env_bases import MJCFBaseBulletEnv
 import numpy as np
 import pybullet as p
-from robot_locomotors import Hopper, Walker2D, HalfCheetah, Ant, Humanoid, HumanoidFlagrun
+from robot_locomotors import Hopper, Walker2D, HalfCheetah, Ant, Humanoid, HumanoidFlagrun, HumanoidFlagrunHarder
 
 
 class WalkerBaseBulletEnv(MJCFBaseBulletEnv):
@@ -160,10 +160,16 @@ class HumanoidFlagrunBulletEnv(HumanoidBulletEnv):
 		s.zero_at_running_strip_start_line = False
 		return s
 
-class HumanoidFlagrunHarderBulletEnv(HumanoidFlagrunBulletEnv):
+class HumanoidFlagrunHarderBulletEnv(HumanoidBulletEnv):
 	random_lean = True  # can fall on start
 
 	def __init__(self):
-		HumanoidFlagrunBulletEnv.__init__(self)
+		self.robot = HumanoidFlagrunHarder()
 		self.electricity_cost /= 4   # don't care that much about electricity, just stand up!
+		HumanoidBulletEnv.__init__(self, self.robot)
+
+	def create_single_player_scene(self):
+		s = HumanoidBulletEnv.create_single_player_scene(self)
+		s.zero_at_running_strip_start_line = False
+		return s
 

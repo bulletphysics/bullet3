@@ -13,14 +13,14 @@ class btTransform;
 struct UrdfRenderingInterface
 	{
 	///given a URDF link, convert all visual shapes into internal renderer (loading graphics meshes, textures etc)
-	///use the shapeUid as a unique identified to remove it
-	virtual void convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, int shapeUid, int objectIndex) =0;
+	///use the collisionObjectUid as a unique identifier to synchronize the world transform and to remove the visual shape.
+	virtual void convertVisualShapes(int linkIndex, const char* pathPrefix, const btTransform& localInertiaFrame, const UrdfLink* linkPtr, const UrdfModel* model, int collisionObjectUid, int bodyUniqueId) =0;
 	
 	///remove a visual shapes, based on the shape unique id (shapeUid)
-	virtual void removeVisualShape(int shapeUid)=0;
+	virtual void removeVisualShape(int collisionObjectUid)=0;
 	
 	///update the world transform + scaling of the visual shape, using the shapeUid
-	virtual void syncTransform(int shapeUid, const class btTransform& worldTransform, const class btVector3& localScaling)=0;
+	virtual void syncTransform(int collisionObjectUid, const class btTransform& worldTransform, const class btVector3& localScaling)=0;
 	
 	///return the number of visual shapes, for a particular body unique id
 	virtual int getNumVisualShapes(int bodyUniqueId)=0;
@@ -28,9 +28,12 @@ struct UrdfRenderingInterface
 	///return the visual shape information, for a particular body unique id and 'shape index'
 	virtual int getVisualShapesData(int bodyUniqueId, int shapeIndex, struct b3VisualShapeData* shapeData)=0;
 	
-	///change the RGBA color for a body unique id and link index
-	virtual void changeRGBAColor(int bodyUniqueId, int linkIndex, const double rgbaColor[4])=0;
-	
+	///change the RGBA color for some visual shape.
+	virtual void changeRGBAColor(int bodyUniqueId, int linkIndex, int shapeIndex, const double rgbaColor[4])=0;
+
+	///select a given texture for some visual shape.
+	virtual void changeShapeTexture(int objectUniqueId, int linkIndex, int shapeIndex, int textureUniqueId)=0;
+
 	///pick the up-axis, either Y (1) or Z (2)
 	virtual void setUpAxis(int axis)=0;
 	
@@ -88,8 +91,7 @@ struct UrdfRenderingInterface
 	///register a texture using an in-memory pixel buffer of a given width and height
 	virtual int registerTexture(unsigned char* texels, int width, int height)=0;
 	
-	///select a given texture for some visual shape.
-	virtual void activateShapeTexture(int objectUniqueId, int jointIndex, int shapeIndex, int textureUniqueId)=0;
+	
 
 };
 

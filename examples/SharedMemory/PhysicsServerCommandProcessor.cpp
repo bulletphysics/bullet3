@@ -8453,7 +8453,10 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 			{
 				if (m_data->m_pluginManager.getRenderInterface())
 				{
-					m_data->m_pluginManager.getRenderInterface()->activateShapeTexture(clientCmd.m_updateVisualShapeDataArguments.m_bodyUniqueId, clientCmd.m_updateVisualShapeDataArguments.m_jointIndex, clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex, texHandle->m_tinyRendererTextureId);
+					m_data->m_pluginManager.getRenderInterface()->changeShapeTexture(clientCmd.m_updateVisualShapeDataArguments.m_bodyUniqueId, 
+						clientCmd.m_updateVisualShapeDataArguments.m_jointIndex, 
+						clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex, 
+						texHandle->m_tinyRendererTextureId);
 				}
 			}
 		}
@@ -8485,12 +8488,15 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 						{
 							if (m_data->m_pluginManager.getRenderInterface())
 							{
-								m_data->m_pluginManager.getRenderInterface()->changeRGBAColor(bodyUniqueId,linkIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
+								m_data->m_pluginManager.getRenderInterface()->changeRGBAColor(bodyUniqueId,linkIndex,
+									clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex,
+									clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 							}
 							m_data->m_guiHelper->changeRGBAColor(graphicsIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 						}
 						if (clientCmd.m_updateFlags & CMD_UPDATE_VISUAL_SHAPE_SPECULAR_COLOR) 
 						{
+							
 							m_data->m_guiHelper->changeSpecularColor(graphicsIndex,clientCmd.m_updateVisualShapeDataArguments.m_specularColor);
 						}
 										
@@ -8514,7 +8520,8 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 							{
 								if (m_data->m_pluginManager.getRenderInterface())
 								{
-									m_data->m_pluginManager.getRenderInterface()->changeRGBAColor(bodyUniqueId,linkIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);										
+									m_data->m_pluginManager.getRenderInterface()->changeRGBAColor(bodyUniqueId,linkIndex,
+										clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex, clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);										
 								}
 								m_data->m_guiHelper->changeRGBAColor(graphicsIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 							}
@@ -8543,7 +8550,8 @@ bool PhysicsServerCommandProcessor::processUpdateVisualShapeCommand(const struct
 					{
 						if (m_data->m_pluginManager.getRenderInterface())
 						{
-							m_data->m_pluginManager.getRenderInterface()->changeRGBAColor(bodyUniqueId,linkIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);										
+							m_data->m_pluginManager.getRenderInterface()->changeRGBAColor(bodyUniqueId,linkIndex,
+								clientCmd.m_updateVisualShapeDataArguments.m_shapeIndex, clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);										
 						}
 						m_data->m_guiHelper->changeRGBAColor(graphicsIndex,clientCmd.m_updateVisualShapeDataArguments.m_rgbaColor);
 					}

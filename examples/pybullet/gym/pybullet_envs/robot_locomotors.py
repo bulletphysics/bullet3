@@ -184,8 +184,7 @@ class Humanoid(WalkerBase):
 		assert( np.isfinite(a).all() )
 		force_gain = 1
 		for i, m, power in zip(range(17), self.motors, self.motor_power):
-			m.set_motor_torque( float(force_gain * power*self.power*a[i]) )
-			#m.set_motor_torque(float(force_gain * power * self.power * np.clip(a[i], -1, +1)))
+			m.set_motor_torque(float(force_gain * power * self.power * np.clip(a[i], -1, +1)))
 
 	def alive_bonus(self, z, pitch):
 		return +2 if z > 0.78 else -1   # 2 here because 17 joints produce a lot of electricity cost just from policy noise, living must be better than dying
@@ -195,6 +194,7 @@ class Humanoid(WalkerBase):
 
 def get_cube(x, y, z):	
 	body = p.loadURDF(os.path.join(pybullet_data.getDataPath(),"cube_small.urdf"), x, y, z)
+	p.changeDynamics(body,-1, mass=1.2)#match Roboschool
 	part_name, _ = p.getBodyInfo(body, 0)
 	part_name = part_name.decode("utf8")
 	bodies = [body]
@@ -202,7 +202,7 @@ def get_cube(x, y, z):
 
 
 def get_sphere(x, y, z):
-	body = p.loadURDF(os.path.join(pybullet_data.getDataPath(),"sphere2red.urdf"), x, y, z)
+	body = p.loadURDF(os.path.join(pybullet_data.getDataPath(),"sphere2red_nocol.urdf"), x, y, z)
 	part_name, _ = p.getBodyInfo(body, 0)
 	part_name = part_name.decode("utf8")
 	bodies = [body]
@@ -231,7 +231,7 @@ class HumanoidFlagrun(Humanoid):
 			p.resetBasePositionAndOrientation(self.flag.bodies[0],[self.walk_target_x, self.walk_target_y, 0.7],[0,0,0,1])
 		else:
 			self.flag = get_sphere(self.walk_target_x, self.walk_target_y, 0.7)
-		self.flag_timeout = 200
+		self.flag_timeout = 600/self.scene.frame_skip #match Roboschool 
 
 	def calc_state(self):
 		self.flag_timeout -= 1
@@ -245,10 +245,15 @@ class HumanoidFlagrun(Humanoid):
 
 class HumanoidFlagrunHarder(HumanoidFlagrun):
 	def __init__(self):
-		HumanoidFlagrun.__init__()
+		HumanoidFlagrun.__init__(self)
+		self.flag = None
+		self.aggressive_cube = None
+		self.frame = 0
 
 	def robot_specific_reset(self):
 		HumanoidFlagrun.robot_specific_reset(self)
+		
+		self.frame = 0
 		if (self.aggressive_cube):
 			p.resetBasePositionAndOrientation(self.aggressive_cube.bodies[0],[-1.5,0,0.05],[0,0,0,1])
 		else:
@@ -280,6 +285,7 @@ class HumanoidFlagrunHarder(HumanoidFlagrun):
 		elif self.on_ground_frame_counter > 0:
 			self.on_ground_frame_counter -= 1
 		# End episode if the robot can't get up in 170 frames, to save computation and decorrelate observations.
+		self.frame += 1
 		return self.potential_leak() if self.on_ground_frame_counter<170 else -1
 
 	def potential_leak(self):

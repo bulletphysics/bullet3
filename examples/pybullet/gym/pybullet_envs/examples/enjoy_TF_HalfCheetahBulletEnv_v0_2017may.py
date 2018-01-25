@@ -49,9 +49,8 @@ def main():
         score = 0
         restart_delay = 0
         obs = env.reset()
-     
         while 1:
-            time.sleep(0.01)
+            time.sleep(1./60.)
             a = pi.act(obs)
             obs, r, done, _ = env.step(a)
             score += r

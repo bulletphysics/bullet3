@@ -40,7 +40,7 @@ def main():
         obs = env.reset()
         print("frame")
         while 1:
-            time.sleep(0.005)
+            time.sleep(1./60.)
             a = pi.act(obs)
             obs, r, done, _ = env.step(a)
             score += r

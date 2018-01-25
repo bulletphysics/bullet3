@@ -103,7 +103,7 @@ class MJCFBasedRobot(XmlBasedRobot):
 	Base class for mujoco .xml based agents.
 	"""
 
-	def __init__(self, model_xml, robot_name, action_dim, obs_dim, self_collision=False):
+	def __init__(self, model_xml, robot_name, action_dim, obs_dim, self_collision=True):
 		XmlBasedRobot.__init__(self, robot_name, action_dim, obs_dim, self_collision)
 		self.model_xml = model_xml
 		self.doneLoading=0
@@ -114,12 +114,9 @@ class MJCFBasedRobot(XmlBasedRobot):
 			self.ordered_joints = []
 			self.doneLoading=1
 			if self.self_collision:
-				print("self_collision enabled loadMJCF")
-				#self.objects = p.loadMJCF(os.path.join(pybullet_data.getDataPath(),"mjcf", self.model_xml), flags=p.URDF_USE_SELF_COLLISION+p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
-				self.objects = p.loadMJCF(os.path.join(pybullet_data.getDataPath(),"mjcf", self.model_xml))
+				self.objects = p.loadMJCF(os.path.join(pybullet_data.getDataPath(),"mjcf", self.model_xml), flags=p.URDF_USE_SELF_COLLISION|p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
 				self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(self.objects	)
 			else:
-				print("no self_collision enabled loadMJCF")
 				self.objects = p.loadMJCF(os.path.join(pybullet_data.getDataPath(),"mjcf", self.model_xml))
 				self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(self.objects)
 		self.robot_specific_reset()
@@ -248,6 +245,9 @@ class BodyPart:
 	def current_orientation(self):
 		return self.get_pose()[3:]
 
+	def get_orientation(self):
+		return self.current_orientation()
+
 	def reset_position(self, position):
 		p.resetBasePositionAndOrientation(self.bodies[self.bodyIndex], position, self.get_orientation())
 
@@ -255,7 +255,7 @@ class BodyPart:
 		p.resetBasePositionAndOrientation(self.bodies[self.bodyIndex], self.get_position(), orientation)
 
 	def reset_velocity(self, linearVelocity=[0,0,0], angularVelocity =[0,0,0]):
-		p.resetBaseVelocity(linearVelocity, angularVelocity)
+		p.resetBaseVelocity(self.bodies[self.bodyIndex], linearVelocity, angularVelocity)
 
 	def reset_pose(self, position, orientation):
 		p.resetBasePositionAndOrientation(self.bodies[self.bodyIndex], position, orientation)
@@ -301,6 +301,10 @@ class Joint:
 	def get_position(self):
 		x, _ = self.get_state()
 		return x
+
+	def get_orientation(self):
+		_,r = self.get_state()
+		return r
 
 	def get_velocity(self):
 		_, vx = self.get_state()
