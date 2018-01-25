@@ -12,7 +12,6 @@ import gym
 from pybullet_envs.bullet.kuka_diverse_object_gym_env import KukaDiverseObjectEnv
 from gym import spaces
 
-from baselines import deepq
 
 
 class ContinuousDownwardBiasPolicy(object):
