@@ -60,6 +60,13 @@ register(
 )
 
 register(
+	id='KukaDiverseObjectGrasping-v0',
+	entry_point='pybullet_envs.bullet:KukaDiverseObjectEnv',
+	timestep_limit=1000,
+	reward_threshold=5.0,
+)
+
+register(
 	id='InvertedPendulumBulletEnv-v0',
 	entry_point='pybullet_envs.gym_pendulum_envs:InvertedPendulumBulletEnv',
 	max_episode_steps=1000,
