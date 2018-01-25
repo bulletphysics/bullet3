@@ -21,7 +21,7 @@ class KukaDiverseObjectEnv(KukaGymEnv):
 
   def __init__(self,
                urdfRoot=pybullet_data.getDataPath(),
-               actionRepeat=50,
+               actionRepeat=80,
                isEnableSelfCollision=True,
                renders=False,
                isDiscrete=False,
@@ -117,7 +117,7 @@ class KukaDiverseObjectEnv(KukaGymEnv):
         look, distance, yaw, pitch, roll, 2)
     fov = 20. + self._cameraRandom*np.random.uniform(-2, 2)
     aspect = self._width / self._height
-    near = 0.1
+    near = 0.01
     far = 10
     self._proj_matrix = p.computeProjectionMatrixFOV(
         fov, aspect, near, far)
@@ -254,6 +254,8 @@ class KukaDiverseObjectEnv(KukaGymEnv):
         grasp_action = [0, 0, 0, 0, finger_angle]
         self._kuka.applyAction(grasp_action)
         p.stepSimulation()
+        #if self._renders:
+        #  time.sleep(self._timeStep)
         finger_angle -= 0.3/100.
         if finger_angle < 0:
           finger_angle = 0
@@ -261,6 +263,8 @@ class KukaDiverseObjectEnv(KukaGymEnv):
         grasp_action = [0, 0, 0.001, 0, finger_angle]
         self._kuka.applyAction(grasp_action)
         p.stepSimulation()
+        if self._renders:
+          time.sleep(self._timeStep)
         finger_angle -= 0.3/100.
         if finger_angle < 0:
           finger_angle = 0
