@@ -38,12 +38,6 @@ register(
 	reward_threshold=5.0,
 )
 
-register(
-	id='SimpleHumanoidBulletEnv-v0',
-	entry_point='pybullet_envs.bullet:SimpleHumanoidGymEnv',
-	timestep_limit=1000,
-	reward_threshold=5.0,
-)
 
 register(
 	id='KukaBulletEnv-v0',
