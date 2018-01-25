@@ -41,7 +41,7 @@ class ReacherBulletEnv(MJCFBaseBulletEnv):
 class PusherBulletEnv(MJCFBaseBulletEnv):
 	def __init__(self):
 		self.robot = Pusher()
-		BaseBulletEnv.__init__(self, self.robot)
+		MJCFBaseBulletEnv.__init__(self, self.robot)
 
 	def create_single_player_scene(self):
 		return SingleRobotEmptyScene(gravity=9.81, timestep=0.0020, frame_skip=5)
@@ -95,7 +95,7 @@ class PusherBulletEnv(MJCFBaseBulletEnv):
 class StrikerBulletEnv(MJCFBaseBulletEnv):
 	def __init__(self):
 		self.robot = Striker()
-		BaseBulletEnv.__init__(self, self.robot)
+		MJCFBaseBulletEnv.__init__(self, self.robot)
 		self._striked = False
 		self._min_strike_dist = np.inf
 		self.strike_threshold = 0.1
@@ -171,7 +171,7 @@ class StrikerBulletEnv(MJCFBaseBulletEnv):
 class ThrowerBulletEnv(MJCFBaseBulletEnv):
 	def __init__(self):
 		self.robot = Thrower()
-		BaseBulletEnv.__init__(self, self.robot)
+		MJCFBaseBulletEnv.__init__(self, self.robot)
 
 	def create_single_player_scene(self):
 		return SingleRobotEmptyScene(gravity=0.0, timestep=0.0020, frame_skip=5)
