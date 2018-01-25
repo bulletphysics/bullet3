@@ -245,6 +245,9 @@ class BodyPart:
 	def current_orientation(self):
 		return self.get_pose()[3:]
 
+	def get_orientation(self):
+		return self.current_orientation()
+
 	def reset_position(self, position):
 		p.resetBasePositionAndOrientation(self.bodies[self.bodyIndex], position, self.get_orientation())
 
@@ -252,7 +255,7 @@ class BodyPart:
 		p.resetBasePositionAndOrientation(self.bodies[self.bodyIndex], self.get_position(), orientation)
 
 	def reset_velocity(self, linearVelocity=[0,0,0], angularVelocity =[0,0,0]):
-		p.resetBaseVelocity(linearVelocity, angularVelocity)
+		p.resetBaseVelocity(self.bodies[self.bodyIndex], linearVelocity, angularVelocity)
 
 	def reset_pose(self, position, orientation):
 		p.resetBasePositionAndOrientation(self.bodies[self.bodyIndex], position, orientation)
@@ -298,6 +301,10 @@ class Joint:
 	def get_position(self):
 		x, _ = self.get_state()
 		return x
+
+	def get_orientation(self):
+		_,r = self.get_state()
+		return r
 
 	def get_velocity(self):
 		_, vx = self.get_state()

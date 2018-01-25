@@ -25,12 +25,13 @@ class StadiumScene(Scene):
 			# if self.zero_at_running_strip_start_line:
 			#	 stadium_pose.set_xyz(27, 21, 0)  # see RUN_STARTLINE, RUN_RAD constants
 			filename = os.path.join(pybullet_data.getDataPath(),"stadium_no_collision.sdf")
-			self.stadium = p.loadSDF(filename)
-			planeName = os.path.join(pybullet_data.getDataPath(),"mjcf/ground_plane.xml")
+			self.ground_plane_mjcf = p.loadSDF(filename)
 			
-			self.ground_plane_mjcf = p.loadMJCF(planeName,  flags=p.URDF_USE_SELF_COLLISION|p.URDF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS)
 			for i in self.ground_plane_mjcf:
-				p.changeVisualShape(i,-1,rgbaColor=[0,0,0,0])
+				p.changeDynamics(i,-1,lateralFriction=0.8, restitution=0.5)
+				for j in range(p.getNumJoints(i)):
+					p.changeDynamics(i,j,lateralFriction=0)
+			#despite the name (stadium_no_collision), it DID have collision, so don't add duplicate ground
 		
 class SinglePlayerStadiumScene(StadiumScene):
 	"This scene created by environment, to work in a way as if there was no concept of scene visible to user."

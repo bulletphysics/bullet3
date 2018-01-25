@@ -194,6 +194,7 @@ class Humanoid(WalkerBase):
 
 def get_cube(x, y, z):	
 	body = p.loadURDF(os.path.join(pybullet_data.getDataPath(),"cube_small.urdf"), x, y, z)
+	p.changeDynamics(body,-1, mass=1.2)#match Roboschool
 	part_name, _ = p.getBodyInfo(body, 0)
 	part_name = part_name.decode("utf8")
 	bodies = [body]
@@ -244,10 +245,15 @@ class HumanoidFlagrun(Humanoid):
 
 class HumanoidFlagrunHarder(HumanoidFlagrun):
 	def __init__(self):
-		HumanoidFlagrun.__init__()
+		HumanoidFlagrun.__init__(self)
+		self.flag = None
+		self.aggressive_cube = None
+		self.frame = 0
 
 	def robot_specific_reset(self):
 		HumanoidFlagrun.robot_specific_reset(self)
+		
+		self.frame = 0
 		if (self.aggressive_cube):
 			p.resetBasePositionAndOrientation(self.aggressive_cube.bodies[0],[-1.5,0,0.05],[0,0,0,1])
 		else:
@@ -279,6 +285,7 @@ class HumanoidFlagrunHarder(HumanoidFlagrun):
 		elif self.on_ground_frame_counter > 0:
 			self.on_ground_frame_counter -= 1
 		# End episode if the robot can't get up in 170 frames, to save computation and decorrelate observations.
+		self.frame += 1
 		return self.potential_leak() if self.on_ground_frame_counter<170 else -1
 
 	def potential_leak(self):

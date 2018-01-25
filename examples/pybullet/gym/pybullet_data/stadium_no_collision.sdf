@@ -32,10 +32,10 @@
 			 </visual>
 			 </link>
 			</model>
-		<model name='roboschool/models_outdoor/stadium/part1.obj'>
+		<model name='floor_obj'>
 			<static>1</static>
 			<pose frame=''>0 0 0 0 0 0</pose>
-			<link name='link_d1'>
+			<link name='floor'>
 			<inertial>
 			<mass>0</mass>
 			<inertia>

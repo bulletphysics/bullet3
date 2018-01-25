@@ -73,7 +73,7 @@ def demo_run():
                 print("score=%0.2f in %i frames" % (score, frame))
                 if still_open!=True:      # not True in multiplayer or non-Roboschool environment
                     break
-                restart_delay = 123460*2  # 2 sec at 60 fps
+                restart_delay = 60*2  # 2 sec at 60 fps
             restart_delay -= 1
             if restart_delay==0: break
 
