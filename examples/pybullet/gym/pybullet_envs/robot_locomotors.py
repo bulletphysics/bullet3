@@ -184,8 +184,7 @@ class Humanoid(WalkerBase):
 		assert( np.isfinite(a).all() )
 		force_gain = 1
 		for i, m, power in zip(range(17), self.motors, self.motor_power):
-			m.set_motor_torque( float(force_gain * power*self.power*a[i]) )
-			#m.set_motor_torque(float(force_gain * power * self.power * np.clip(a[i], -1, +1)))
+			m.set_motor_torque(float(force_gain * power * self.power * np.clip(a[i], -1, +1)))
 
 	def alive_bonus(self, z, pitch):
 		return +2 if z > 0.78 else -1   # 2 here because 17 joints produce a lot of electricity cost just from policy noise, living must be better than dying
@@ -231,7 +230,7 @@ class HumanoidFlagrun(Humanoid):
 			p.resetBasePositionAndOrientation(self.flag.bodies[0],[self.walk_target_x, self.walk_target_y, 0.7],[0,0,0,1])
 		else:
 			self.flag = get_sphere(self.walk_target_x, self.walk_target_y, 0.7)
-		self.flag_timeout = 200
+		self.flag_timeout = 600/self.scene.frame_skip #match Roboschool 
 
 	def calc_state(self):
 		self.flag_timeout -= 1

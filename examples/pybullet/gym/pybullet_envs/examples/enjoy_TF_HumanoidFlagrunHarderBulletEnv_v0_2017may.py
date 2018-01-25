@@ -58,7 +58,7 @@ def main():
             yaw = 0
             humanPos, humanOrn = p.getBasePositionAndOrientation(torsoId)
             if (gui):
-              time.sleep(0.005)	
+              time.sleep(1./60.)	
               print("frame=",frame)
               camInfo = p.getDebugVisualizerCamera()
               curTargetPos = camInfo[11]

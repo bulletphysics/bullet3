@@ -52,7 +52,7 @@ def main():
             frame += 1
             distance=5
             yaw = 0
-            time.sleep(0.005)
+            time.sleep(1./60.)
             humanPos, humanOrn = p.getBasePositionAndOrientation(torsoId)
             camInfo = p.getDebugVisualizerCamera()
             curTargetPos = camInfo[11]
