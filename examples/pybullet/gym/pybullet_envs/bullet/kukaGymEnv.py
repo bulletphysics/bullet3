@@ -275,3 +275,11 @@ class KukaGymEnv(gym.Env):
      #print("reward")
     #print(reward)
     return reward
+
+    def reset(self):
+        """Resets the state of the environment and returns an initial observation.
+
+        Returns: observation (object): the initial observation of the
+            space.
+        """
+        return self._reset()
