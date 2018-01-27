@@ -314,13 +314,11 @@ void btSimulationIslandManagerMt::buildIslands( btDispatcher* dispatcher, btColl
 			btAssert((colObj0->getIslandTag() == islandId) || (colObj0->getIslandTag() == -1));
 			if (colObj0->getIslandTag() == islandId)
 			{
-				if (colObj0->getActivationState()== ACTIVE_TAG)
+				if (colObj0->getActivationState()== ACTIVE_TAG ||
+				   colObj0->getActivationState()== DISABLE_DEACTIVATION)
 				{
 					allSleeping = false;
-				}
-				if (colObj0->getActivationState()== DISABLE_DEACTIVATION)
-				{
-					allSleeping = false;
+					break;
 				}
 			}
 		}
