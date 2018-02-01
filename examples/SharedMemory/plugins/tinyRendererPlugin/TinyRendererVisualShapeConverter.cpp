@@ -590,6 +590,7 @@ void TinyRendererVisualShapeConverter::convertVisualShapes(
 			int colorIndex = linkIndex;//colObj? colObj->getBroadphaseHandle()->getUid() & 3 : 0;
 			if (colorIndex<0)
 				colorIndex=0;
+			colorIndex &=3;
 			btVector4 color;
 			color = sColors[colorIndex];
 			float rgbaColor[4] = {color[0],color[1],color[2],color[3]};

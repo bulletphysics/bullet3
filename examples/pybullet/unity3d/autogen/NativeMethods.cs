@@ -21,8 +21,11 @@ public partial class NativeConstants {
     /// SHARED_MEMORY_KEY -> 12347
     public const int SHARED_MEMORY_KEY = 12347;
     
-    /// SHARED_MEMORY_MAGIC_NUMBER -> 201709260
-    public const int SHARED_MEMORY_MAGIC_NUMBER = 201709260;
+    /// SHARED_MEMORY_MAGIC_NUMBER -> 201801170
+    public const int SHARED_MEMORY_MAGIC_NUMBER = 201801170;
+    
+    /// MAX_VR_ANALOG_AXIS -> 5
+    public const int MAX_VR_ANALOG_AXIS = 5;
     
     /// MAX_VR_BUTTONS -> 64
     public const int MAX_VR_BUTTONS = 64;
@@ -41,6 +44,9 @@ public partial class NativeConstants {
     
     /// MAX_MOUSE_EVENTS -> 256
     public const int MAX_MOUSE_EVENTS = 256;
+    
+    /// MAX_SDF_BODIES -> 512
+    public const int MAX_SDF_BODIES = 512;
     
     /// VISUAL_SHAPE_MAX_PATH_LEN -> 1024
     public const int VISUAL_SHAPE_MAX_PATH_LEN = 1024;
@@ -92,7 +98,7 @@ public enum EnumSharedMemoryClientCommand {
     
     CMD_LOAD_MJCF,
     
-    CMD_LOAD_BUNNY,
+    CMD_LOAD_SOFT_BODY,
     
     CMD_SEND_BULLET_DATA_STREAM,
     
@@ -137,6 +143,8 @@ public enum EnumSharedMemoryClientCommand {
     CMD_CALCULATE_INVERSE_KINEMATICS,
     
     CMD_CALCULATE_JACOBIAN,
+    
+    CMD_CALCULATE_MASS_MATRIX,
     
     CMD_USER_CONSTRAINT,
     
@@ -195,6 +203,14 @@ public enum EnumSharedMemoryClientCommand {
     CMD_SET_ADDITIONAL_SEARCH_PATH,
     
     CMD_CUSTOM_COMMAND,
+    
+    CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS,
+    
+    CMD_SAVE_STATE,
+    
+    CMD_RESTORE_STATE,
+    
+    CMD_REQUEST_COLLISION_SHAPE_INFO,
     
     CMD_MAX_CLIENT_COMMANDS,
 }
@@ -276,6 +292,10 @@ public enum EnumSharedMemoryServerStatus {
     
     CMD_CALCULATED_JACOBIAN_FAILED,
     
+    CMD_CALCULATED_MASS_MATRIX_COMPLETED,
+    
+    CMD_CALCULATED_MASS_MATRIX_FAILED,
+    
     CMD_CONTACT_POINT_INFORMATION_COMPLETED,
     
     CMD_CONTACT_POINT_INFORMATION_FAILED,
@@ -313,6 +333,8 @@ public enum EnumSharedMemoryServerStatus {
     CMD_USER_CONSTRAINT_COMPLETED,
     
     CMD_USER_CONSTRAINT_INFO_COMPLETED,
+    
+    CMD_USER_CONSTRAINT_REQUEST_STATE_COMPLETED,
     
     CMD_REMOVE_USER_CONSTRAINT_COMPLETED,
     
@@ -378,6 +400,24 @@ public enum EnumSharedMemoryServerStatus {
     
     CMD_CUSTOM_COMMAND_FAILED,
     
+    CMD_REQUEST_PHYSICS_SIMULATION_PARAMETERS_COMPLETED,
+    
+    CMD_SAVE_STATE_FAILED,
+    
+    CMD_SAVE_STATE_COMPLETED,
+    
+    CMD_RESTORE_STATE_FAILED,
+    
+    CMD_RESTORE_STATE_COMPLETED,
+    
+    CMD_COLLISION_SHAPE_INFO_COMPLETED,
+    
+    CMD_COLLISION_SHAPE_INFO_FAILED,
+    
+    CMD_LOAD_SOFT_BODY_FAILED,
+    
+    CMD_LOAD_SOFT_BODY_COMPLETED,
+    
     CMD_MAX_SERVER_COMMANDS,
 }
 
@@ -423,15 +463,15 @@ public enum b3JointInfoFlags {
     eJointChangeChildFrameOrientation = 4,
 }
 
-[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential, CharSet=System.Runtime.InteropServices.CharSet.Ansi)]
 public struct b3JointInfo {
-
+    
     /// char[1024]
-    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.ByValTStr, SizeConst = 1024)]
+    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.ByValTStr, SizeConst=1024)]
     public string m_linkName;
-
+    
     /// char[1024]
-    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.ByValTStr, SizeConst = 1024)]
+    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.ByValTStr, SizeConst=1024)]
     public string m_jointName;
     
     /// int
@@ -478,6 +518,9 @@ public struct b3JointInfo {
     /// double[3]
     [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.ByValArray, SizeConst=3, ArraySubType=System.Runtime.InteropServices.UnmanagedType.R8)]
     public double[] m_jointAxis;
+    
+    /// int
+    public int m_parentIndex;
 }
 
 [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
@@ -529,15 +572,15 @@ public struct b3UserConstraint {
     public double m_erp;
 }
 
-[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential, CharSet=System.Runtime.InteropServices.CharSet.Ansi)]
 public struct b3BodyInfo {
-
+    
     /// char[1024]
-    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.ByValTStr, SizeConst = 1024)]
+    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.ByValTStr, SizeConst=1024)]
     public string m_baseName;
-
+    
     /// char[1024]
-    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.ByValTStr, SizeConst = 1024)]
+    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.ByValTStr, SizeConst=1024)]
     public string m_bodyName;
 }
 
@@ -549,10 +592,29 @@ public struct b3DynamicsInfo {
     
     /// double[3]
     [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.ByValArray, SizeConst=3, ArraySubType=System.Runtime.InteropServices.UnmanagedType.R8)]
-    public double[] m_localInertialPosition;
+    public double[] m_localInertialDiagonal;
+    
+    /// double[7]
+    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.ByValArray, SizeConst=7, ArraySubType=System.Runtime.InteropServices.UnmanagedType.R8)]
+    public double[] m_localInertialFrame;
     
     /// double
     public double m_lateralFrictionCoeff;
+    
+    /// double
+    public double m_rollingFrictionCoeff;
+    
+    /// double
+    public double m_spinningFrictionCoeff;
+    
+    /// double
+    public double m_restitution;
+    
+    /// double
+    public double m_contactStiffness;
+    
+    /// double
+    public double m_contactDamping;
 }
 
 public enum SensorType {
@@ -624,7 +686,8 @@ public struct b3CameraImageData {
     public int m_pixelHeight;
     
     /// char*
-    public System.IntPtr m_rgbColorData;
+    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)]
+    public string m_rgbColorData;
     
     /// float*
     public System.IntPtr m_depthValues;
@@ -678,6 +741,17 @@ public struct b3OpenGLVisualizerCameraInfo {
     /// float[3]
     [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.ByValArray, SizeConst=3, ArraySubType=System.Runtime.InteropServices.UnmanagedType.R4)]
     public float[] m_target;
+}
+
+[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+public struct b3UserConstraintState {
+    
+    /// double[6]
+    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.ByValArray, SizeConst=6, ArraySubType=System.Runtime.InteropServices.UnmanagedType.R8)]
+    public double[] m_appliedConstraintForces;
+    
+    /// int
+    public int m_numDofs;
 }
 
 public enum b3VREventType {
@@ -750,6 +824,9 @@ public struct b3VRControllerEvent {
     
     /// float
     public float m_analogAxis;
+    
+    /// float[]
+    public float[] m_auxAnalogAxis;
     
     /// int[64]
     [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.ByValArray, SizeConst=64, ArraySubType=System.Runtime.InteropServices.UnmanagedType.I4)]
@@ -965,6 +1042,41 @@ public struct b3VisualShapeInformation {
     public System.IntPtr m_visualShapeData;
 }
 
+[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential, CharSet=System.Runtime.InteropServices.CharSet.Ansi)]
+public struct b3CollisionShapeData {
+    
+    /// int
+    public int m_objectUniqueId;
+    
+    /// int
+    public int m_linkIndex;
+    
+    /// int
+    public int m_collisionGeometryType;
+    
+    /// double[3]
+    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.ByValArray, SizeConst=3, ArraySubType=System.Runtime.InteropServices.UnmanagedType.R8)]
+    public double[] m_dimensions;
+    
+    /// double[7]
+    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.ByValArray, SizeConst=7, ArraySubType=System.Runtime.InteropServices.UnmanagedType.R8)]
+    public double[] m_localCollisionFrame;
+    
+    /// char[1024]
+    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.ByValTStr, SizeConst=1024)]
+    public string m_meshAssetFileName;
+}
+
+[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+public struct b3CollisionShapeInformation {
+    
+    /// int
+    public int m_numCollisionShapes;
+    
+    /// b3CollisionShapeData*
+    public System.IntPtr m_collisionShapeData;
+}
+
 public enum eLinkStateFlags {
     
     /// ACTUAL_STATE_COMPUTE_LINKVELOCITY -> 1
@@ -1036,6 +1148,33 @@ public enum EnumRenderer {
     ER_BULLET_HARDWARE_OPENGL = (1) << (17),
 }
 
+public enum EnumRendererAuxFlags {
+    
+    /// ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX -> 1
+    ER_SEGMENTATION_MASK_OBJECT_AND_LINKINDEX = 1,
+}
+
+public enum EnumCalculateInverseKinematicsFlags {
+    
+    /// IK_DLS -> 0
+    IK_DLS = 0,
+    
+    /// IK_SDLS -> 1
+    IK_SDLS = 1,
+    
+    /// IK_HAS_TARGET_POSITION -> 16
+    IK_HAS_TARGET_POSITION = 16,
+    
+    /// IK_HAS_TARGET_ORIENTATION -> 32
+    IK_HAS_TARGET_ORIENTATION = 32,
+    
+    /// IK_HAS_NULL_SPACE_VELOCITY -> 64
+    IK_HAS_NULL_SPACE_VELOCITY = 64,
+    
+    /// IK_HAS_JOINT_DAMPING -> 128
+    IK_HAS_JOINT_DAMPING = 128,
+}
+
 public enum b3ConfigureDebugVisualizerEnum {
     
     /// COV_ENABLE_GUI -> 1
@@ -1058,12 +1197,22 @@ public enum b3ConfigureDebugVisualizerEnum {
     COV_ENABLE_KEYBOARD_SHORTCUTS,
     
     COV_ENABLE_MOUSE_PICKING,
+    
+    COV_ENABLE_Y_AXIS_UP,
+    
+    COV_ENABLE_TINY_RENDERER,
+    
+    COV_ENABLE_RGB_BUFFER_PREVIEW,
+    
+    COV_ENABLE_DEPTH_BUFFER_PREVIEW,
+    
+    COV_ENABLE_SEGMENTATION_MARK_PREVIEW,
 }
 
 public enum b3AddUserDebugItemEnum {
     
-    /// DEB_DEBUG_TEXT_USE_ORIENTATION -> 1
-    DEB_DEBUG_TEXT_USE_ORIENTATION = 1,
+    /// DEB_DEBUG_TEXT_ALWAYS_FACE_CAMERA -> 1
+    DEB_DEBUG_TEXT_ALWAYS_FACE_CAMERA = 1,
     
     /// DEB_DEBUG_TEXT_USE_TRUE_TYPE_FONTS -> 2
     DEB_DEBUG_TEXT_USE_TRUE_TYPE_FONTS = 2,
@@ -1112,6 +1261,15 @@ public enum eURDF_Flags {
     
     /// URDF_RESERVED -> 64
     URDF_RESERVED = 64,
+    
+    /// URDF_USE_IMPLICIT_CYLINDER -> 128
+    URDF_USE_IMPLICIT_CYLINDER = 128,
+    
+    /// URDF_GLOBAL_VELOCITIES_MB -> 256
+    URDF_GLOBAL_VELOCITIES_MB = 256,
+    
+    /// MJCF_COLORS_FROM_FILE -> 512
+    MJCF_COLORS_FROM_FILE = 512,
 }
 
 public enum eUrdfGeomTypes {
@@ -1136,6 +1294,15 @@ public enum eUrdfCollisionFlags {
     
     /// GEOM_FORCE_CONCAVE_TRIMESH -> 1
     GEOM_FORCE_CONCAVE_TRIMESH = 1,
+}
+
+public enum eUrdfVisualFlags {
+    
+    /// GEOM_VISUAL_HAS_RGBA_COLOR -> 1
+    GEOM_VISUAL_HAS_RGBA_COLOR = 1,
+    
+    /// GEOM_VISUAL_HAS_SPECULAR_COLOR -> 2
+    GEOM_VISUAL_HAS_SPECULAR_COLOR = 2,
 }
 
 public enum eStateLoggingFlags {
@@ -1167,9 +1334,65 @@ public struct b3PluginArguments {
     /// int
     public int m_numFloats;
     
-    /// int[128]
-    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.ByValArray, SizeConst=128, ArraySubType=System.Runtime.InteropServices.UnmanagedType.I4)]
-    public int[] m_floats;
+    /// double[128]
+    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.ByValArray, SizeConst=128, ArraySubType=System.Runtime.InteropServices.UnmanagedType.R8)]
+    public double[] m_floats;
+}
+
+[System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+public struct b3PhysicsSimulationParameters {
+    
+    /// double
+    public double m_deltaTime;
+    
+    /// double[3]
+    [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.ByValArray, SizeConst=3, ArraySubType=System.Runtime.InteropServices.UnmanagedType.R8)]
+    public double[] m_gravityAcceleration;
+    
+    /// int
+    public int m_numSimulationSubSteps;
+    
+    /// int
+    public int m_numSolverIterations;
+    
+    /// int
+    public int m_useRealTimeSimulation;
+    
+    /// int
+    public int m_useSplitImpulse;
+    
+    /// double
+    public double m_splitImpulsePenetrationThreshold;
+    
+    /// double
+    public double m_contactBreakingThreshold;
+    
+    /// int
+    public int m_internalSimFlags;
+    
+    /// double
+    public double m_defaultContactERP;
+    
+    /// int
+    public int m_collisionFilterMode;
+    
+    /// int
+    public int m_enableFileCaching;
+    
+    /// double
+    public double m_restitutionVelocityThreshold;
+    
+    /// double
+    public double m_defaultNonContactERP;
+    
+    /// double
+    public double m_frictionERP;
+    
+    /// int
+    public int m_enableConeFriction;
+    
+    /// int
+    public int m_deterministicOverlappingPairs;
 }
 
 [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
@@ -1194,9 +1417,8 @@ public struct b3SharedMemoryStatusHandle__ {
 }
 
 public partial class NativeMethods {
-
+    
     const string dllName = "pybullet_vs2010_x64_release.dll";
-
     /// Return Type: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///key: int
     [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3ConnectSharedMemory")]
@@ -1330,6 +1552,13 @@ public static extern  System.IntPtr b3CreateCustomCommand(IntPtr physClient) ;
 public static extern  void b3CustomCommandLoadPlugin(IntPtr commandHandle, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string pluginPath) ;
 
     
+    /// Return Type: void
+    ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///postFix: char*
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3CustomCommandLoadPluginSetPostFix")]
+public static extern  void b3CustomCommandLoadPluginSetPostFix(IntPtr commandHandle, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string postFix) ;
+
+    
     /// Return Type: int
     ///statusHandle: b3SharedMemoryStatusHandle->b3SharedMemoryStatusHandle__*
     [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3GetStatusPluginUniqueId")]
@@ -1445,7 +1674,7 @@ public static extern  int b3GetBodyUniqueId(IntPtr physClient, int serialIndex) 
     ///bodyUniqueId: int
     ///info: b3BodyInfo*
     [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3GetBodyInfo")]
-    public static extern  int b3GetBodyInfo(IntPtr physClient, int bodyUniqueId, ref b3BodyInfo info) ;
+public static extern  int b3GetBodyInfo(IntPtr physClient, int bodyUniqueId, ref b3BodyInfo info) ;
 
     
     /// Return Type: int
@@ -1492,6 +1721,15 @@ public static extern  System.IntPtr b3InitChangeDynamicsInfo(IntPtr physClient) 
     ///mass: double
     [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3ChangeDynamicsInfoSetMass")]
 public static extern  int b3ChangeDynamicsInfoSetMass(IntPtr commandHandle, int bodyUniqueId, int linkIndex, double mass) ;
+
+    
+    /// Return Type: int
+    ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///bodyUniqueId: int
+    ///linkIndex: int
+    ///localInertiaDiagonal: double*
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3ChangeDynamicsInfoSetLocalInertiaDiagonal")]
+public static extern  int b3ChangeDynamicsInfoSetLocalInertiaDiagonal(IntPtr commandHandle, int bodyUniqueId, int linkIndex, ref double localInertiaDiagonal) ;
 
     
     /// Return Type: int
@@ -1651,6 +1889,20 @@ public static extern  System.IntPtr b3InitRemoveUserConstraintCommand(IntPtr phy
 public static extern  int b3GetNumUserConstraints(IntPtr physClient) ;
 
     
+    /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
+    ///constraintUniqueId: int
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3InitGetUserConstraintStateCommand")]
+public static extern  System.IntPtr b3InitGetUserConstraintStateCommand(IntPtr physClient, int constraintUniqueId) ;
+
+    
+    /// Return Type: int
+    ///statusHandle: b3SharedMemoryStatusHandle->b3SharedMemoryStatusHandle__*
+    ///constraintState: b3UserConstraintState*
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3GetStatusUserConstraintState")]
+public static extern  int b3GetStatusUserConstraintState(IntPtr statusHandle, ref b3UserConstraintState constraintState) ;
+
+    
     /// Return Type: int
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///constraintUniqueId: int
@@ -1751,6 +2003,13 @@ public static extern  void b3UserDebugTextSetOptionFlags(IntPtr commandHandle, i
     ///orientation: double*
     [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3UserDebugTextSetOrientation")]
 public static extern  void b3UserDebugTextSetOrientation(IntPtr commandHandle, ref double orientation) ;
+
+    
+    /// Return Type: void
+    ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///replaceItem: int
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3UserDebugItemSetReplaceItemUniqueId")]
+public static extern  void b3UserDebugItemSetReplaceItemUniqueId(IntPtr commandHandle, int replaceItem) ;
 
     
     /// Return Type: void
@@ -1903,6 +2162,13 @@ public static extern  void b3RequestCameraImageSetShadow(IntPtr commandHandle, i
     ///renderer: int
     [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3RequestCameraImageSelectRenderer")]
 public static extern  void b3RequestCameraImageSelectRenderer(IntPtr commandHandle, int renderer) ;
+
+    
+    /// Return Type: void
+    ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///flags: int
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3RequestCameraImageSetFlags")]
+public static extern  void b3RequestCameraImageSetFlags(IntPtr commandHandle, int flags) ;
 
     
     /// Return Type: void
@@ -2127,6 +2393,21 @@ public static extern  void b3GetVisualShapeInformation(IntPtr physClient, ref b3
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
+    ///bodyUniqueId: int
+    ///linkIndex: int
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3InitRequestCollisionShapeInformation")]
+public static extern  System.IntPtr b3InitRequestCollisionShapeInformation(IntPtr physClient, int bodyUniqueId, int linkIndex) ;
+
+    
+    /// Return Type: void
+    ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
+    ///collisionShapeInfo: b3CollisionShapeInformation*
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3GetCollisionShapeInformation")]
+public static extern  void b3GetCollisionShapeInformation(IntPtr physClient, ref b3CollisionShapeInformation collisionShapeInfo) ;
+
+    
+    /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///filename: char*
     [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3InitLoadTexture")]
 public static extern  System.IntPtr b3InitLoadTexture(IntPtr physClient, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string filename) ;
@@ -2287,6 +2568,33 @@ public static extern  int b3PhysicsParamSetRestitutionVelocityThreshold(IntPtr c
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///enableConeFriction: int
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3PhysicsParamSetEnableConeFriction")]
+public static extern  int b3PhysicsParamSetEnableConeFriction(IntPtr commandHandle, int enableConeFriction) ;
+
+    
+    /// Return Type: int
+    ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///deterministicOverlappingPairs: int
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3PhysicsParameterSetDeterministicOverlappingPairs")]
+public static extern  int b3PhysicsParameterSetDeterministicOverlappingPairs(IntPtr commandHandle, int deterministicOverlappingPairs) ;
+
+    
+    /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3InitRequestPhysicsParamCommand")]
+public static extern  System.IntPtr b3InitRequestPhysicsParamCommand(IntPtr physClient) ;
+
+    
+    /// Return Type: int
+    ///statusHandle: b3SharedMemoryStatusHandle->b3SharedMemoryStatusHandle__*
+    ///params: b3PhysicsSimulationParameters*
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3GetStatusPhysicsSimulationParameters")]
+public static extern  int b3GetStatusPhysicsSimulationParameters(IntPtr statusHandle, ref b3PhysicsSimulationParameters @params) ;
+
+    
+    /// Return Type: int
+    ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///flags: int
     [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3PhysicsParamSetInternalSimFlags")]
 public static extern  int b3PhysicsParamSetInternalSimFlags(IntPtr commandHandle, int flags) ;
@@ -2360,6 +2668,38 @@ public static extern  int b3LoadUrdfCommandSetGlobalScaling(IntPtr commandHandle
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3SaveStateCommandInit")]
+public static extern  System.IntPtr b3SaveStateCommandInit(IntPtr physClient) ;
+
+    
+    /// Return Type: int
+    ///statusHandle: b3SharedMemoryStatusHandle->b3SharedMemoryStatusHandle__*
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3GetStatusGetStateId")]
+public static extern  int b3GetStatusGetStateId(IntPtr statusHandle) ;
+
+    
+    /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3LoadStateCommandInit")]
+public static extern  System.IntPtr b3LoadStateCommandInit(IntPtr physClient) ;
+
+    
+    /// Return Type: int
+    ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///stateId: int
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3LoadStateSetStateId")]
+public static extern  int b3LoadStateSetStateId(IntPtr commandHandle, int stateId) ;
+
+    
+    /// Return Type: int
+    ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///fileName: char*
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3LoadStateSetFileName")]
+public static extern  int b3LoadStateSetFileName(IntPtr commandHandle, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string fileName) ;
+
+    
+    /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///fileName: char*
     [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3LoadBulletCommandInit")]
 public static extern  System.IntPtr b3LoadBulletCommandInit(IntPtr physClient, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string fileName) ;
@@ -2429,6 +2769,23 @@ public static extern  int b3GetStatusJacobian(IntPtr statusHandle, ref int dofCo
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     ///bodyIndex: int
+    ///jointPositionsQ: double*
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3CalculateMassMatrixCommandInit")]
+public static extern  System.IntPtr b3CalculateMassMatrixCommandInit(IntPtr physClient, int bodyIndex, ref double jointPositionsQ) ;
+
+    
+    /// Return Type: int
+    ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
+    ///statusHandle: b3SharedMemoryStatusHandle->b3SharedMemoryStatusHandle__*
+    ///dofCount: int*
+    ///massMatrix: double*
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3GetStatusMassMatrix")]
+public static extern  int b3GetStatusMassMatrix(IntPtr physClient, IntPtr statusHandle, ref int dofCount, ref double massMatrix) ;
+
+    
+    /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
+    ///bodyIndex: int
     [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3CalculateInverseKinematicsCommandInit")]
 public static extern  System.IntPtr b3CalculateInverseKinematicsCommandInit(IntPtr physClient, int bodyIndex) ;
 
@@ -2483,6 +2840,13 @@ public static extern  void b3CalculateInverseKinematicsPosOrnWithNullSpaceVel(In
     ///jointDampingCoeff: double*
     [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3CalculateInverseKinematicsSetJointDamping")]
 public static extern  void b3CalculateInverseKinematicsSetJointDamping(IntPtr commandHandle, int numDof, ref double jointDampingCoeff) ;
+
+    
+    /// Return Type: void
+    ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///solver: int
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3CalculateInverseKinematicsSelectSolver")]
+public static extern  void b3CalculateInverseKinematicsSelectSolver(IntPtr commandHandle, int solver) ;
 
     
     /// Return Type: int
@@ -2559,6 +2923,14 @@ public static extern  int b3JointControlSetKp(IntPtr commandHandle, int dofIndex
     ///value: double
     [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3JointControlSetKd")]
 public static extern  int b3JointControlSetKd(IntPtr commandHandle, int dofIndex, double value) ;
+
+    
+    /// Return Type: int
+    ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///dofIndex: int
+    ///maximumVelocity: double
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3JointControlSetMaximumVelocity")]
+public static extern  int b3JointControlSetMaximumVelocity(IntPtr commandHandle, int dofIndex, double maximumVelocity) ;
 
     
     /// Return Type: int
@@ -2664,6 +3036,85 @@ public static extern  int b3GetStatusCollisionShapeUniqueId(IntPtr statusHandle)
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
     [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3CreateVisualShapeCommandInit")]
 public static extern  System.IntPtr b3CreateVisualShapeCommandInit(IntPtr physClient) ;
+
+    
+    /// Return Type: int
+    ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///radius: double
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3CreateVisualShapeAddSphere")]
+public static extern  int b3CreateVisualShapeAddSphere(IntPtr commandHandle, double radius) ;
+
+    
+    /// Return Type: int
+    ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///halfExtents: double*
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3CreateVisualShapeAddBox")]
+public static extern  int b3CreateVisualShapeAddBox(IntPtr commandHandle, ref double halfExtents) ;
+
+    
+    /// Return Type: int
+    ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///radius: double
+    ///height: double
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3CreateVisualShapeAddCapsule")]
+public static extern  int b3CreateVisualShapeAddCapsule(IntPtr commandHandle, double radius, double height) ;
+
+    
+    /// Return Type: int
+    ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///radius: double
+    ///height: double
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3CreateVisualShapeAddCylinder")]
+public static extern  int b3CreateVisualShapeAddCylinder(IntPtr commandHandle, double radius, double height) ;
+
+    
+    /// Return Type: int
+    ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///planeNormal: double*
+    ///planeConstant: double
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3CreateVisualShapeAddPlane")]
+public static extern  int b3CreateVisualShapeAddPlane(IntPtr commandHandle, ref double planeNormal, double planeConstant) ;
+
+    
+    /// Return Type: int
+    ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///fileName: char*
+    ///meshScale: double*
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3CreateVisualShapeAddMesh")]
+public static extern  int b3CreateVisualShapeAddMesh(IntPtr commandHandle, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string fileName, ref double meshScale) ;
+
+    
+    /// Return Type: void
+    ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///shapeIndex: int
+    ///flags: int
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3CreateVisualSetFlag")]
+public static extern  void b3CreateVisualSetFlag(IntPtr commandHandle, int shapeIndex, int flags) ;
+
+    
+    /// Return Type: void
+    ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///shapeIndex: int
+    ///childPosition: double*
+    ///childOrientation: double*
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3CreateVisualShapeSetChildTransform")]
+public static extern  void b3CreateVisualShapeSetChildTransform(IntPtr commandHandle, int shapeIndex, ref double childPosition, ref double childOrientation) ;
+
+    
+    /// Return Type: void
+    ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///shapeIndex: int
+    ///specularColor: double*
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3CreateVisualShapeSetSpecularColor")]
+public static extern  void b3CreateVisualShapeSetSpecularColor(IntPtr commandHandle, int shapeIndex, ref double specularColor) ;
+
+    
+    /// Return Type: void
+    ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
+    ///shapeIndex: int
+    ///rgbaColor: double*
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3CreateVisualShapeSetRGBAColor")]
+public static extern  void b3CreateVisualShapeSetRGBAColor(IntPtr commandHandle, int shapeIndex, ref double rgbaColor) ;
 
     
     /// Return Type: int
@@ -3000,29 +3451,30 @@ public static extern  void b3ApplyExternalTorque(IntPtr commandHandle, int bodyU
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///physClient: b3PhysicsClientHandle->b3PhysicsClientHandle__*
-    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3LoadBunnyCommandInit")]
-public static extern  System.IntPtr b3LoadBunnyCommandInit(IntPtr physClient) ;
+    ///fileName: char*
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3LoadSoftBodyCommandInit")]
+public static extern  System.IntPtr b3LoadSoftBodyCommandInit(IntPtr physClient, [System.Runtime.InteropServices.InAttribute()] [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPStr)] string fileName) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///scale: double
-    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3LoadBunnySetScale")]
-public static extern  int b3LoadBunnySetScale(IntPtr commandHandle, double scale) ;
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3LoadSoftBodySetScale")]
+public static extern  int b3LoadSoftBodySetScale(IntPtr commandHandle, double scale) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///mass: double
-    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3LoadBunnySetMass")]
-public static extern  int b3LoadBunnySetMass(IntPtr commandHandle, double mass) ;
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3LoadSoftBodySetMass")]
+public static extern  int b3LoadSoftBodySetMass(IntPtr commandHandle, double mass) ;
 
     
     /// Return Type: int
     ///commandHandle: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*
     ///collisionMargin: double
-    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3LoadBunnySetCollisionMargin")]
-public static extern  int b3LoadBunnySetCollisionMargin(IntPtr commandHandle, double collisionMargin) ;
+    [System.Runtime.InteropServices.DllImportAttribute(dllName, EntryPoint="b3LoadSoftBodySetCollisionMargin")]
+public static extern  int b3LoadSoftBodySetCollisionMargin(IntPtr commandHandle, double collisionMargin) ;
 
     
     /// Return Type: b3SharedMemoryCommandHandle->b3SharedMemoryCommandHandle__*

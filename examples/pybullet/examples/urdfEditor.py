@@ -523,7 +523,7 @@ p.resetSimulation(physicsClientId=org)
 
 
 
-mb = p.loadURDF("r2d2.urdf", physicsClientId=org)
+mb = p.loadURDF("r2d2.urdf", flags=p.URDF_USE_IMPLICIT_CYLINDER, physicsClientId=org)
 for i in range(p.getNumJoints(mb,physicsClientId=org)):
 	p.setJointMotorControl2(mb,i,p.VELOCITY_CONTROL,force=0,physicsClientId=org)
 	
