@@ -44,7 +44,7 @@ class KukaGymEnv(gym.Env):
     self._maxSteps = maxSteps
     self.terminated = 0
     self._cam_dist = 1.3
-    self._cam_yaw = 180 
+    self._cam_yaw = 180
     self._cam_pitch = -40
 
     self._p = p
@@ -61,8 +61,8 @@ class KukaGymEnv(gym.Env):
     observationDim = len(self.getExtendedObservation())
     #print("observationDim")
     #print(observationDim)
-    
-    observation_high = np.array([largeValObservation] * observationDim)    
+
+    observation_high = np.array([largeValObservation] * observationDim)
     if (self._isDiscrete):
       self.action_space = spaces.Discrete(7)
     else:
@@ -80,15 +80,15 @@ class KukaGymEnv(gym.Env):
     p.setPhysicsEngineParameter(numSolverIterations=150)
     p.setTimeStep(self._timeStep)
     p.loadURDF(os.path.join(self._urdfRoot,"plane.urdf"),[0,0,-1])
-    
+
     p.loadURDF(os.path.join(self._urdfRoot,"table/table.urdf"), 0.5000000,0.00000,-.820000,0.000000,0.000000,0.0,1.0)
-    
+
     xpos = 0.55 +0.12*random.random()
     ypos = 0 +0.2*random.random()
     ang = 3.14*0.5+3.1415925438*random.random()
     orn = p.getQuaternionFromEuler([0,0,ang])
     self.blockUid =p.loadURDF(os.path.join(self._urdfRoot,"block.urdf"), xpos,ypos,-0.15,orn[0],orn[1],orn[2],orn[3])
-            
+
     p.setGravity(0,0,-10)
     self._kuka = kuka.Kuka(urdfRootPath=self._urdfRoot, timeStep=self._timeStep)
     self._envStepCounter = 0
@@ -115,7 +115,7 @@ class KukaGymEnv(gym.Env):
      dir0 = [gripperMat[0],gripperMat[3],gripperMat[6]]
      dir1 = [gripperMat[1],gripperMat[4],gripperMat[7]]
      dir2 = [gripperMat[2],gripperMat[5],gripperMat[8]]
-             
+
      gripperEul =  p.getEulerFromQuaternion(gripperOrn)
      #print("gripperEul")
      #print(gripperEul)
@@ -126,17 +126,17 @@ class KukaGymEnv(gym.Env):
      #print(projectedBlockPos2D)
      #print("blockEulerInGripper")
      #print(blockEulerInGripper)
-     
+
      #we return the relative x,y position and euler angle of block in gripper space
      blockInGripperPosXYEulZ =[blockPosInGripper[0],blockPosInGripper[1],blockEulerInGripper[2]]
-     
+
      #p.addUserDebugLine(gripperPos,[gripperPos[0]+dir0[0],gripperPos[1]+dir0[1],gripperPos[2]+dir0[2]],[1,0,0],lifeTime=1)
      #p.addUserDebugLine(gripperPos,[gripperPos[0]+dir1[0],gripperPos[1]+dir1[1],gripperPos[2]+dir1[2]],[0,1,0],lifeTime=1)
      #p.addUserDebugLine(gripperPos,[gripperPos[0]+dir2[0],gripperPos[1]+dir2[1],gripperPos[2]+dir2[2]],[0,0,1],lifeTime=1)
-     
+
      self._observation.extend(list(blockInGripperPosXYEulZ))
      return self._observation
-  
+
   def _step(self, action):
     if (self._isDiscrete):
       dv = 0.005
@@ -154,7 +154,7 @@ class KukaGymEnv(gym.Env):
       f = 0.3
       realAction = [dx,dy,-0.002,da,f]
     return self.step2( realAction)
-     
+
   def step2(self, action):
     for i in range(self._actionRepeat):
       self._kuka.applyAction(action)
@@ -168,7 +168,7 @@ class KukaGymEnv(gym.Env):
 
     #print("self._envStepCounter")
     #print(self._envStepCounter)
-    
+
     done = self._termination()
     npaction = np.array([action[3]]) #only penalize rotation until learning works well [action[0],action[1],action[3]])
     actionCost = np.linalg.norm(npaction)*10.
@@ -177,9 +177,9 @@ class KukaGymEnv(gym.Env):
     reward = self._reward()-actionCost
     #print("reward")
     #print(reward)
- 
+
     #print("len=%r" % len(self._observation))
-    
+
     return np.array(self._observation), reward, done, {}
 
   def _render(self, mode="rgb_array", close=False):
@@ -208,18 +208,18 @@ class KukaGymEnv(gym.Env):
     #print (self._kuka.endEffectorPos[2])
     state = p.getLinkState(self._kuka.kukaUid,self._kuka.kukaEndEffectorIndex)
     actualEndEffectorPos = state[0]
-      
+
     #print("self._envStepCounter")
     #print(self._envStepCounter)
     if (self.terminated or self._envStepCounter>self._maxSteps):
       self._observation = self.getExtendedObservation()
       return True
-    maxDist = 0.005 
+    maxDist = 0.005
     closestPoints = p.getClosestPoints(self._kuka.trayUid, self._kuka.kukaUid,maxDist)
-     
+
     if (len(closestPoints)):#(actualEndEffectorPos[2] <= -0.43):
       self.terminated = 1
-      
+
       #print("terminating, closing gripper, attempting grasp")
       #start grasp and terminate
       fingerAngle = 0.3
@@ -230,7 +230,7 @@ class KukaGymEnv(gym.Env):
         fingerAngle = fingerAngle-(0.3/100.)
         if (fingerAngle<0):
           fingerAngle=0
-    
+
       for i in range (1000):
         graspAction = [0,0,0.001,0,fingerAngle]
         self._kuka.applyAction(graspAction)
@@ -245,19 +245,19 @@ class KukaGymEnv(gym.Env):
         if (actualEndEffectorPos[2]>0.5):
           break
 
-    
+
       self._observation = self.getExtendedObservation()
       return True
     return False
-    
+
   def _reward(self):
-    
+
     #rewards is height of target object
     blockPos,blockOrn=p.getBasePositionAndOrientation(self.blockUid)
-    closestPoints = p.getClosestPoints(self.blockUid,self._kuka.kukaUid,1000, -1, self._kuka.kukaEndEffectorIndex) 
+    closestPoints = p.getClosestPoints(self.blockUid,self._kuka.kukaUid,1000, -1, self._kuka.kukaEndEffectorIndex)
 
     reward = -1000
-    
+
     numPt = len(closestPoints)
     #print(numPt)
     if (numPt>0):
@@ -276,10 +276,7 @@ class KukaGymEnv(gym.Env):
     #print(reward)
     return reward
 
-    def reset(self):
-        """Resets the state of the environment and returns an initial observation.
-
-        Returns: observation (object): the initial observation of the
-            space.
-        """
-        return self._reset()
+  render = _render
+  reset = _reset
+  seed = _seed
+  step = _step
