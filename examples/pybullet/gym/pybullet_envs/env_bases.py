@@ -43,7 +43,7 @@ class MJCFBaseBulletEnv(gym.Env):
 			conInfo = p.getConnectionInfo()
 			if (conInfo['isConnected']):
 				self.ownsPhysicsClient = False
-				
+
 				self.physicsClientId = 0
 			else:
 				self.ownsPhysicsClient = True
@@ -75,12 +75,12 @@ class MJCFBaseBulletEnv(gym.Env):
 			self.isRender = True
 		if mode != "rgb_array":
 			return np.array([])
-		
+
 		base_pos=[0,0,0]
 		if (hasattr(self,'robot')):
 			if (hasattr(self.robot,'body_xyz')):
 				base_pos = self.robot.body_xyz
-		
+
 		view_matrix = p.computeViewMatrixFromYawPitchRoll(
 			cameraTargetPosition=base_pos,
 			distance=self._cam_dist,
@@ -100,6 +100,7 @@ class MJCFBaseBulletEnv(gym.Env):
 		rgb_array = rgb_array[:, :, :3]
 		return rgb_array
 
+
 	def _close(self):
 		if (self.ownsPhysicsClient):
 			if (self.physicsClientId>=0):
@@ -108,6 +109,17 @@ class MJCFBaseBulletEnv(gym.Env):
 
 	def HUD(self, state, a, done):
 		pass
+
+	# backwards compatibility for gym >= v0.9.x
+	# for extension of this class.
+	def step(self, *args, **kwargs):
+		return self._step(*args, **kwargs)
+
+	close = _close
+	render = _render
+	reset = _reset
+	seed = _seed
+
 
 class Camera:
 	def __init__(self):
