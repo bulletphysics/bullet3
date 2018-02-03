@@ -32,7 +32,6 @@ B3_DECLARE_HANDLE(b3SharedMemoryStatusHandle);
 #include "PhysicsClientTCP_C_API.h"
 #endif
 
-#include "SharedMemoryInProcessPhysicsC_API.h"
 
 #ifdef __cplusplus
 extern "C" { 

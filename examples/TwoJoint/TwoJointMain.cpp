@@ -9,6 +9,7 @@
 #include "SharedMemory/PhysicsClientC_API.h"
 #include "Bullet3Common/b3Vector3.h"
 #include "Bullet3Common/b3Quaternion.h"
+#include "SharedMemory/SharedMemoryInProcessPhysicsC_API.h"
 
 extern const int CONTROL_RATE;
 const int CONTROL_RATE = 500;

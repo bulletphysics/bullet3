@@ -1,5 +1,5 @@
 #include "MinitaurSetup.h"
-#include "b3RobotSimulatorClientAPI.h"
+#include "b3RobotSimulatorClientAPI_NoGUI.h"
 
 #include "Bullet3Common/b3HashMap.h"
 
@@ -27,7 +27,7 @@ MinitaurSetup::~MinitaurSetup()
 	delete m_data;
 }
 
-void MinitaurSetup::setDesiredMotorAngle(class b3RobotSimulatorClientAPI* sim, const char* motorName, double desiredAngle, double maxTorque, double kp, double kd)
+void MinitaurSetup::setDesiredMotorAngle(class b3RobotSimulatorClientAPI_NoGUI* sim, const char* motorName, double desiredAngle, double maxTorque, double kp, double kd)
 {
 	b3RobotSimulatorJointMotorArgs controlArgs(CONTROL_MODE_POSITION_VELOCITY_PD);
 	controlArgs.m_maxTorqueValue = maxTorque;
@@ -158,7 +158,7 @@ static const char* minitaurURDF="quadruped/minitaur_rainbow_dash_v1.urdf";
 #endif
 
 
-void MinitaurSetup::resetPose(class b3RobotSimulatorClientAPI* sim)
+void MinitaurSetup::resetPose(class b3RobotSimulatorClientAPI_NoGUI* sim)
 {
 	//release all motors
 	int numJoints = sim->getNumJoints(m_data->m_quadrupedUniqueId);
@@ -255,7 +255,7 @@ void MinitaurSetup::resetPose(class b3RobotSimulatorClientAPI* sim)
 
 }
 
-int MinitaurSetup::setupMinitaur(class b3RobotSimulatorClientAPI* sim, const b3Vector3& startPos, const b3Quaternion& startOrn)
+int MinitaurSetup::setupMinitaur(class b3RobotSimulatorClientAPI_NoGUI* sim, const b3Vector3& startPos, const b3Quaternion& startOrn)
 {
 	
 	b3RobotSimulatorLoadUrdfFileArgs args;
