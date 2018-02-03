@@ -122,6 +122,8 @@ project "App_BulletExampleBrowser"
 		"../InverseDynamics/InverseDynamicsExample.h",
 		"../RobotSimulator/b3RobotSimulatorClientAPI.cpp",
 		"../RobotSimulator/b3RobotSimulatorClientAPI.h",		
+		"../RobotSimulator/b3RobotSimulatorClientAPI_NoGUI.cpp",
+		"../RobotSimulator/b3RobotSimulatorClientAPI_NoGUI.h",		
 		"../BasicDemo/BasicExample.*",
 		"../Tutorial/*",
 		"../ExtendedTutorials/*",
