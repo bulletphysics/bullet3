@@ -193,6 +193,8 @@ if not _OPTIONS["no-enet"] then
 			"RobotSimulatorMain.cpp",
 			"b3RobotSimulatorClientAPI.cpp",
 			"b3RobotSimulatorClientAPI.h",
+			"b3RobotSimulatorClientAPI_NoGUI.cpp",
+			"b3RobotSimulatorClientAPI_NoGUI.h",
 			"MinitaurSetup.cpp",
 			"MinitaurSetup.h",
 			myfiles
@@ -283,6 +285,8 @@ project ("App_VRGloveHandSimulator")
 			"VRGloveSimulatorMain.cpp",
 			"b3RobotSimulatorClientAPI.cpp",
 			"b3RobotSimulatorClientAPI.h",
+			"b3RobotSimulatorClientAPI_NoGUI.cpp",
+			"b3RobotSimulatorClientAPI_NoGUI.h",
 			myfiles
 		}
 

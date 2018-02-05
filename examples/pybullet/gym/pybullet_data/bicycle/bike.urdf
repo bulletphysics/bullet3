@@ -1,0 +1,143 @@
+<?xml version="0.0" ?>
+<robot name="frame">
+  <link name="frameLink">
+    <inertial>
+      <origin rpy="1.57 0 0" xyz="0 0 0"/>
+       <mass value="5.0"/>
+       <inertia ixx="0.1" ixy="0" ixz="0" iyy="0.1" iyz="0" izz="0.1"/>
+    </inertial>
+    <visual>
+      <origin rpy="1.57 0 0" xyz="0 0 0"/>
+      <geometry>
+      <mesh filename="files/frame_scaled_right.stl"/>
+      </geometry>
+	<material name="framemat0">
+      		<color rgba="0.9 0.4 0. 1" />
+	</material>
+    </visual>
+     <visual>
+      <origin rpy="1.57 0 0" xyz="0 0 0"/>
+      <geometry>
+      <mesh filename="files/frame_scaled_left.stl"/>
+      </geometry>
+        <material name="framemat0">
+                <color rgba="0.9 0.4 0. 1" />
+        </material>
+    </visual>
+    <collision>
+      <origin rpy="1.57 0 0" xyz="0 0 0"/>
+      <geometry>
+       <mesh filename="files/frame_scaled_right.stl"/>
+      </geometry>
+    </collision>
+<collision>
+      <origin rpy="1.57 0 0" xyz="0 0 0"/>
+      <geometry>
+       <mesh filename="files/frame_scaled_left.stl"/>
+      </geometry>
+    </collision>
+  </link>
+
+
+ <link name="handlebarLink">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+       <mass value=".5"/>
+       <inertia ixx="0.1" ixy="0" ixz="0" iyy="0.1" iyz="0" izz="0.1"/>
+    </inertial>
+
+ <visual>
+<origin rpy=" -1.5089523943366046 0.017064611667450248 -1.57454489647697 " xyz=" -0.03313875198364258 0.0 -0.23958677053451538"/>
+<geometry>
+ <mesh filename="files/handlebar_scaled.stl"/>
+      </geometry>
+        <material name="framemat0">
+                <color rgba="0.9 0.4 0. 1" />
+        </material>
+    </visual>
+     <collision>
+<origin rpy=" -1.5089523943366046 0.017064611667450248 -1.57454489647697 " xyz=" -0.03313875198364258 0.0 -0.23958677053451538"/>
+      <geometry>
+       <mesh filename="files/handlebar_scaled.stl"/>
+      </geometry>
+    </collision>
+  </link>
+
+ <joint name="frame_to_handlebar" type="continuous">
+    <axis xyz="0 0 1"/>
+    <parent link="frameLink"/>
+    <child link="handlebarLink"/>
+    <origin rpy="0 -0.261799387799149 0" xyz="0.70  0  0.22"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+
+<link name="frontWheelLink">
+    <inertial>
+      <origin rpy="1.57 0 0" xyz="0 0 0"/>
+       <mass value="1.0"/>
+       <inertia ixx="0.1" ixy="0" ixz="0" iyy="0.1" iyz="0" izz="0.1"/>
+    </inertial>
+    <visual>
+      <origin rpy="1.57 0 0" xyz="0 0 0"/>
+      <geometry>
+      <mesh filename="files/wheel_scaled.stl"/>
+      </geometry>
+        <material name="framemat0">
+                <color rgba="0.9 0.4 0. 1" />
+        </material>
+    </visual>
+    <collision>
+      <origin rpy="1.57 0 0" xyz="0 0 0"/>
+      <geometry>
+       <mesh filename="files/wheel_scaled.stl"/>
+      </geometry>
+    </collision>
+  </link>
+
+
+ <joint name="handlebar_to_frontwheel" type="continuous">
+    <axis xyz="0 1 0"/>
+    <parent link="handlebarLink"/>
+    <child link="frontWheelLink"/>
+    <origin rpy="0 0 0" xyz="0.07, 0, -0.69"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+
+
+<link name="backWheelLink">
+    <inertial>
+      <origin rpy="1.57 0 0" xyz="0 0 0"/>
+       <mass value="1.0"/>
+       <inertia ixx="0.1" ixy="0" ixz="0" iyy="0.1" iyz="0" izz="0.1"/>
+    </inertial>
+    <visual>
+      <origin rpy="1.57 0 0" xyz="0 0 0"/>
+      <geometry>
+      <mesh filename="files/wheel_scaled.stl"/>
+      </geometry>
+        <material name="framemat0">
+                <color rgba="0.9 0.4 0. 1" />
+        </material>
+    </visual>
+    <collision>
+      <origin rpy="1.57 0 0" xyz="0 0 0"/>
+      <geometry>
+       <mesh filename="files/wheel_scaled.stl"/>
+      </geometry>
+    </collision>
+  </link>
+
+ <joint name="frame_to_backwheel" type="continuous">
+    <axis xyz="0 1 0"/>
+    <parent link="frameLink"/>
+    <child link="backWheelLink"/>
+    <origin rpy="0 0 0" xyz="-0.69, 0, -0.42"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+
+
+</robot>
+

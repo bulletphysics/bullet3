@@ -376,3 +376,8 @@ class MinitaurBulletEnv(gym.Env):
           scale=self._observation_noise_stdev, size=observation.shape) *
                       self.minitaur.GetObservationUpperBound())
     return observation
+
+  render = _render
+  reset = _reset
+  seed = _seed
+  step = _step
