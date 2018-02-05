@@ -1,6 +1,6 @@
 #include "GwenParameterInterface.h"
 #include "gwenInternalData.h"
-
+#incldue <cstring>
 struct MyButtonEventHandler : public Gwen::Event::Handler
 {
     Gwen::Controls::Button* m_buttonControl;
@@ -51,7 +51,7 @@ struct MySliderEventHandler : public Gwen::Event::Handler
 	m_showValue(true)
 
 	{
-		memcpy(m_variableName,varName,strlen(varName)+1);
+		memcpy(m_variableName,varName,std::strlen(varName)+1);
 	}
 
 
