@@ -1942,22 +1942,21 @@ void GLInstancingRenderer::drawLine(const float from[4], const float to[4], cons
 	glUseProgram(0);
 }
 
-struct SortableTransparentInstance
+B3_ATTRIBUTE_ALIGNED16(struct) SortableTransparentInstance
 {
+	b3Scalar m_projection;
+
 	int m_shapeIndex;
 	int m_instanceId;
-	b3Vector3 m_centerPosition;
 };
 
-struct TransparentDistanceSortPredicate
+B3_ATTRIBUTE_ALIGNED16(struct) TransparentDistanceSortPredicate
 {
-	b3Vector3 m_camForwardVec;
 
 	inline bool operator() (const SortableTransparentInstance& a, const SortableTransparentInstance& b) const 
 	{
-		b3Scalar projA = a.m_centerPosition.dot(m_camForwardVec);
-		b3Scalar projB = b.m_centerPosition.dot(m_camForwardVec);
-		return (projA > projB);
+		
+		return (a.m_projection > b.m_projection);
 	}
 };
 
@@ -2152,13 +2151,18 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 	}
 	
 	b3AlignedObjectArray<SortableTransparentInstance> transparentInstances;
-	
 	{
 		int curOffset = 0;
 		//GLuint lastBindTexture = 0;
 
 		transparentInstances.reserve(totalNumInstances);
 
+		float fwd[3];
+		m_data->m_activeCamera->getCameraForwardVector(fwd);
+		b3Vector3 camForwardVec;
+		camForwardVec.setValue(fwd[0],fwd[1],fwd[2]);
+		
+		
 		for (int obj=0;obj<m_graphicsInstances.size();obj++)
 		{
 			b3GraphicsInstance* gfxObj = m_graphicsInstances[obj];
@@ -2172,19 +2176,24 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 				if ((gfxObj->m_flags&eGfxTransparency)==0)
 				{
 					inst.m_instanceId = curOffset;
-					inst.m_centerPosition.setValue(m_data->m_instance_positions_ptr[inst.m_instanceId*4+0],
+					b3Vector3 centerPosition;
+					centerPosition.setValue(m_data->m_instance_positions_ptr[inst.m_instanceId*4+0],
 								m_data->m_instance_positions_ptr[inst.m_instanceId*4+1],
 								m_data->m_instance_positions_ptr[inst.m_instanceId*4+2]);
-					inst.m_centerPosition *= -1;//reverse sort opaque instances
+					centerPosition *= -1;//reverse sort opaque instances
+					inst.m_projection = centerPosition.dot(camForwardVec);
 					transparentInstances.push_back(inst);
 				} else
 				{
 					for (int i=0;i<gfxObj->m_numGraphicsInstances;i++)
 					{
 						inst.m_instanceId = curOffset+i;
-						inst.m_centerPosition.setValue(m_data->m_instance_positions_ptr[inst.m_instanceId*4+0],
+						b3Vector3 centerPosition;
+
+						centerPosition.setValue(m_data->m_instance_positions_ptr[inst.m_instanceId*4+0],
 										m_data->m_instance_positions_ptr[inst.m_instanceId*4+1],
 										m_data->m_instance_positions_ptr[inst.m_instanceId*4+2]);
+						inst.m_projection = centerPosition.dot(camForwardVec);
 						transparentInstances.push_back(inst);
 					}
 				}
@@ -2192,10 +2201,9 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 			}
 		}
 		TransparentDistanceSortPredicate sorter;
-		float fwd[3];
-		m_data->m_activeCamera->getCameraForwardVector(fwd);
-		sorter.m_camForwardVec.setValue(fwd[0],fwd[1],fwd[2]);
+		
 		transparentInstances.quickSort(sorter);
+		
 	}
 
 	
