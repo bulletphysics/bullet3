@@ -3,225 +3,220 @@ Bullet Continuous Collision Detection and Physics Library
 Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
 
 This software is provided 'as-is', without any express or implied warranty.
-In no event will the authors be held liable for any damages arising from the use of this software.
-Permission is granted to anyone to use this software for any purpose, 
-including commercial applications, and to alter it and redistribute it freely, 
-subject to the following restrictions:
+In no event will the authors be held liable for any damages arising from the use
+of this software. Permission is granted to anyone to use this software for any
+purpose, including commercial applications, and to alter it and redistribute it
+freely, subject to the following restrictions:
 
-1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
-2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+1. The origin of this software must not be misrepresented; you must not claim
+that you wrote the original software. If you use this software in a product, an
+acknowledgment in the product documentation would be appreciated but is not
+required.
+2. Altered source versions must be plainly marked as such, and must not be
+misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
 
-
 #include "btContinuousConvexCollision.h"
 #include "BulletCollision/CollisionShapes/btConvexShape.h"
+#include "BulletCollision/CollisionShapes/btSphereShape.h"
 #include "BulletCollision/NarrowPhaseCollision/btSimplexSolverInterface.h"
 #include "LinearMath/btTransformUtil.h"
-#include "BulletCollision/CollisionShapes/btSphereShape.h"
 
+#include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
 #include "btGjkPairDetector.h"
 #include "btPointCollector.h"
-#include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
 
+btContinuousConvexCollision::btContinuousConvexCollision(
+    const btConvexShape* convexA, const btConvexShape* convexB,
+    btSimplexSolverInterface* simplexSolver,
+    btConvexPenetrationDepthSolver* penetrationDepthSolver)
+    : m_simplexSolver(simplexSolver),
+      m_penetrationDepthSolver(penetrationDepthSolver),
+      m_convexA(convexA),
+      m_convexB1(convexB),
+      m_planeShape(0) {}
 
+btContinuousConvexCollision::btContinuousConvexCollision(
+    const btConvexShape* convexA, const btStaticPlaneShape* plane)
+    : m_simplexSolver(0),
+      m_penetrationDepthSolver(0),
+      m_convexA(convexA),
+      m_convexB1(0),
+      m_planeShape(plane) {}
 
-btContinuousConvexCollision::btContinuousConvexCollision ( const btConvexShape*	convexA,const btConvexShape*	convexB,btSimplexSolverInterface* simplexSolver, btConvexPenetrationDepthSolver* penetrationDepthSolver)
-:m_simplexSolver(simplexSolver),
-m_penetrationDepthSolver(penetrationDepthSolver),
-m_convexA(convexA),m_convexB1(convexB),m_planeShape(0)
-{
-}
-
-
-btContinuousConvexCollision::btContinuousConvexCollision( const btConvexShape*	convexA,const btStaticPlaneShape*	plane)
-:m_simplexSolver(0),
-m_penetrationDepthSolver(0),
-m_convexA(convexA),m_convexB1(0),m_planeShape(plane)
-{
-}
-
-
-/// This maximum should not be necessary. It allows for untested/degenerate cases in production code.
-/// You don't want your game ever to lock-up.
+/// This maximum should not be necessary. It allows for untested/degenerate
+/// cases in production code. You don't want your game ever to lock-up.
 #define MAX_ITERATIONS 64
 
-void btContinuousConvexCollision::computeClosestPoints( const btTransform& transA, const btTransform& transB,btPointCollector& pointCollector)
-{
-	if (m_convexB1)
-	{
-		m_simplexSolver->reset();
-		btGjkPairDetector gjk(m_convexA,m_convexB1,m_convexA->getShapeType(),m_convexB1->getShapeType(),m_convexA->getMargin(),m_convexB1->getMargin(),m_simplexSolver,m_penetrationDepthSolver);		
-		btGjkPairDetector::ClosestPointInput input;
-		input.m_transformA = transA;
-		input.m_transformB = transB;
-		gjk.getClosestPoints(input,pointCollector,0);
-	} else
-	{
-		//convex versus plane
-		const btConvexShape* convexShape = m_convexA;
-		const btStaticPlaneShape* planeShape = m_planeShape;
-		
-		const btVector3& planeNormal = planeShape->getPlaneNormal();
-		const btScalar& planeConstant = planeShape->getPlaneConstant();
-		
-		btTransform convexWorldTransform = transA;
-		btTransform convexInPlaneTrans;
-		convexInPlaneTrans= transB.inverse() * convexWorldTransform;
-		btTransform planeInConvex;
-		planeInConvex= convexWorldTransform.inverse() * transB;
-		
-		btVector3 vtx = convexShape->localGetSupportingVertex(planeInConvex.getBasis()*-planeNormal);
+void btContinuousConvexCollision::computeClosestPoints(
+    const btTransform& transA, const btTransform& transB,
+    btPointCollector& pointCollector) {
+  if (m_convexB1) {
+    m_simplexSolver->reset();
+    btGjkPairDetector gjk(m_convexA, m_convexB1, m_convexA->getShapeType(),
+                          m_convexB1->getShapeType(), m_convexA->getMargin(),
+                          m_convexB1->getMargin(), m_simplexSolver,
+                          m_penetrationDepthSolver);
+    btGjkPairDetector::ClosestPointInput input;
+    input.m_transformA = transA;
+    input.m_transformB = transB;
+    gjk.getClosestPoints(input, pointCollector, 0);
+  } else {
+    // convex versus plane
+    const btConvexShape* convexShape = m_convexA;
+    const btStaticPlaneShape* planeShape = m_planeShape;
 
-		btVector3 vtxInPlane = convexInPlaneTrans(vtx);
-		btScalar distance = (planeNormal.dot(vtxInPlane) - planeConstant);
+    const btVector3& planeNormal = planeShape->getPlaneNormal();
+    const btScalar& planeConstant = planeShape->getPlaneConstant();
 
-		btVector3 vtxInPlaneProjected = vtxInPlane - distance*planeNormal;
-		btVector3 vtxInPlaneWorld = transB * vtxInPlaneProjected;
-		btVector3 normalOnSurfaceB = transB.getBasis() * planeNormal;
+    btTransform convexWorldTransform = transA;
+    btTransform convexInPlaneTrans;
+    convexInPlaneTrans = transB.inverse() * convexWorldTransform;
+    btTransform planeInConvex;
+    planeInConvex = convexWorldTransform.inverse() * transB;
 
-		pointCollector.addContactPoint(
-			normalOnSurfaceB,
-			vtxInPlaneWorld,
-			distance);
-	}
+    btVector3 vtx = convexShape->localGetSupportingVertex(
+        planeInConvex.getBasis() * -planeNormal);
+
+    btVector3 vtxInPlane = convexInPlaneTrans(vtx);
+    btScalar distance = (planeNormal.dot(vtxInPlane) - planeConstant);
+
+    btVector3 vtxInPlaneProjected = vtxInPlane - distance * planeNormal;
+    btVector3 vtxInPlaneWorld = transB * vtxInPlaneProjected;
+    btVector3 normalOnSurfaceB = transB.getBasis() * planeNormal;
+
+    pointCollector.addContactPoint(normalOnSurfaceB, vtxInPlaneWorld, distance);
+  }
 }
 
-bool	btContinuousConvexCollision::calcTimeOfImpact(
-				const btTransform& fromA,
-				const btTransform& toA,
-				const btTransform& fromB,
-				const btTransform& toB,
-				CastResult& result)
-{
+bool btContinuousConvexCollision::calcTimeOfImpact(const btTransform& fromA,
+                                                   const btTransform& toA,
+                                                   const btTransform& fromB,
+                                                   const btTransform& toB,
+                                                   CastResult& result) {
+  /// compute linear and angular velocity for this interval, to interpolate
+  btVector3 linVelA, angVelA, linVelB, angVelB;
+  btTransformUtil::calculateVelocity(fromA, toA, btScalar(1.), linVelA,
+                                     angVelA);
+  btTransformUtil::calculateVelocity(fromB, toB, btScalar(1.), linVelB,
+                                     angVelB);
 
+  btScalar boundingRadiusA = m_convexA->getAngularMotionDisc();
+  btScalar boundingRadiusB =
+      m_convexB1 ? m_convexB1->getAngularMotionDisc() : 0.f;
 
-	/// compute linear and angular velocity for this interval, to interpolate
-	btVector3 linVelA,angVelA,linVelB,angVelB;
-	btTransformUtil::calculateVelocity(fromA,toA,btScalar(1.),linVelA,angVelA);
-	btTransformUtil::calculateVelocity(fromB,toB,btScalar(1.),linVelB,angVelB);
+  btScalar maxAngularProjectedVelocity =
+      angVelA.length() * boundingRadiusA + angVelB.length() * boundingRadiusB;
+  btVector3 relLinVel = (linVelB - linVelA);
 
+  btScalar relLinVelocLength = (linVelB - linVelA).length();
 
-	btScalar boundingRadiusA = m_convexA->getAngularMotionDisc();
-	btScalar boundingRadiusB = m_convexB1?m_convexB1->getAngularMotionDisc():0.f;
+  if ((relLinVelocLength + maxAngularProjectedVelocity) == 0.f) return false;
 
-	btScalar maxAngularProjectedVelocity = angVelA.length() * boundingRadiusA + angVelB.length() * boundingRadiusB;
-	btVector3 relLinVel = (linVelB-linVelA);
+  btScalar lambda = btScalar(0.);
 
-	btScalar relLinVelocLength = (linVelB-linVelA).length();
-	
-	if ((relLinVelocLength+maxAngularProjectedVelocity) == 0.f)
-		return false;
+  btVector3 n;
+  n.setValue(btScalar(0.), btScalar(0.), btScalar(0.));
+  bool hasResult = false;
+  btVector3 c;
 
-	btScalar lambda = btScalar(0.);
+  btScalar lastLambda = lambda;
+  // btScalar epsilon = btScalar(0.001);
 
-	btVector3 n;
-	n.setValue(btScalar(0.),btScalar(0.),btScalar(0.));
-	bool hasResult = false;
-	btVector3 c;
+  int numIter = 0;
+  // first solution, using GJK
 
-	btScalar lastLambda = lambda;
-	//btScalar epsilon = btScalar(0.001);
+  btScalar radius = 0.001f;
+  //	result.drawCoordSystem(sphereTr);
 
-	int numIter = 0;
-	//first solution, using GJK
+  btPointCollector pointCollector1;
 
+  {
+    computeClosestPoints(fromA, fromB, pointCollector1);
 
-	btScalar radius = 0.001f;
-//	result.drawCoordSystem(sphereTr);
+    hasResult = pointCollector1.m_hasResult;
+    c = pointCollector1.m_pointInWorld;
+  }
 
-	btPointCollector	pointCollector1;
+  if (hasResult) {
+    btScalar dist;
+    dist = pointCollector1.m_distance + result.m_allowedPenetration;
+    n = pointCollector1.m_normalOnBInWorld;
+    btScalar projectedLinearVelocity = relLinVel.dot(n);
+    if ((projectedLinearVelocity + maxAngularProjectedVelocity) <= SIMD_EPSILON)
+      return false;
 
-	{	
-		computeClosestPoints(fromA,fromB,pointCollector1);
+    // not close enough
+    while (dist > radius) {
+      if (result.m_debugDrawer) {
+        result.m_debugDrawer->drawSphere(c, 0.2f, btVector3(1, 1, 1));
+      }
+      btScalar dLambda = btScalar(0.);
 
-		hasResult = pointCollector1.m_hasResult;
-		c = pointCollector1.m_pointInWorld;
-	}
+      projectedLinearVelocity = relLinVel.dot(n);
 
-	if (hasResult)
-	{
-		btScalar dist;
-		dist = pointCollector1.m_distance + result.m_allowedPenetration;
-		n = pointCollector1.m_normalOnBInWorld;
-		btScalar projectedLinearVelocity = relLinVel.dot(n);
-		if ((projectedLinearVelocity+ maxAngularProjectedVelocity)<=SIMD_EPSILON)
-			return false;
+      // don't report time of impact for motion away from the contact normal (or
+      // causes minor penetration)
+      if ((projectedLinearVelocity + maxAngularProjectedVelocity) <=
+          SIMD_EPSILON)
+        return false;
 
-		//not close enough
-		while (dist > radius)
-		{
-			if (result.m_debugDrawer)
-			{
-				result.m_debugDrawer->drawSphere(c,0.2f,btVector3(1,1,1));
-			}
-			btScalar dLambda = btScalar(0.);
+      dLambda = dist / (projectedLinearVelocity + maxAngularProjectedVelocity);
 
-			projectedLinearVelocity = relLinVel.dot(n);
+      lambda += dLambda;
 
-			
-			//don't report time of impact for motion away from the contact normal (or causes minor penetration)
-			if ((projectedLinearVelocity+ maxAngularProjectedVelocity)<=SIMD_EPSILON)
-				return false;
-			
-			dLambda = dist / (projectedLinearVelocity+ maxAngularProjectedVelocity);
+      if (lambda > btScalar(1.) || lambda < btScalar(0.)) return false;
 
-			lambda += dLambda;
+      // todo: next check with relative epsilon
+      if (lambda <= lastLambda) {
+        return false;
+        // n.setValue(0,0,0);
+        // break;
+      }
+      lastLambda = lambda;
 
-			if (lambda > btScalar(1.) || lambda < btScalar(0.))
-				return false;
+      // interpolate to next lambda
+      btTransform interpolatedTransA, interpolatedTransB, relativeTrans;
 
-			//todo: next check with relative epsilon
-			if (lambda <= lastLambda)
-			{
-				return false;
-				//n.setValue(0,0,0);
-				//break;
-			}
-			lastLambda = lambda;
+      btTransformUtil::integrateTransform(fromA, linVelA, angVelA, lambda,
+                                          interpolatedTransA);
+      btTransformUtil::integrateTransform(fromB, linVelB, angVelB, lambda,
+                                          interpolatedTransB);
+      relativeTrans = interpolatedTransB.inverseTimes(interpolatedTransA);
 
-			//interpolate to next lambda
-			btTransform interpolatedTransA,interpolatedTransB,relativeTrans;
+      if (result.m_debugDrawer) {
+        result.m_debugDrawer->drawSphere(interpolatedTransA.getOrigin(), 0.2f,
+                                         btVector3(1, 0, 0));
+      }
 
-			btTransformUtil::integrateTransform(fromA,linVelA,angVelA,lambda,interpolatedTransA);
-			btTransformUtil::integrateTransform(fromB,linVelB,angVelB,lambda,interpolatedTransB);
-			relativeTrans = interpolatedTransB.inverseTimes(interpolatedTransA);
+      result.DebugDraw(lambda);
 
-			if (result.m_debugDrawer)
-			{
-				result.m_debugDrawer->drawSphere(interpolatedTransA.getOrigin(),0.2f,btVector3(1,0,0));
-			}
+      btPointCollector pointCollector;
+      computeClosestPoints(interpolatedTransA, interpolatedTransB,
+                           pointCollector);
 
-			result.DebugDraw( lambda );
+      if (pointCollector.m_hasResult) {
+        dist = pointCollector.m_distance + result.m_allowedPenetration;
+        c = pointCollector.m_pointInWorld;
+        n = pointCollector.m_normalOnBInWorld;
+      } else {
+        result.reportFailure(-1, numIter);
+        return false;
+      }
 
-			btPointCollector	pointCollector;
-			computeClosestPoints(interpolatedTransA,interpolatedTransB,pointCollector);
+      numIter++;
+      if (numIter > MAX_ITERATIONS) {
+        result.reportFailure(-2, numIter);
+        return false;
+      }
+    }
 
-			if (pointCollector.m_hasResult)
-			{
-				dist = pointCollector.m_distance+result.m_allowedPenetration;
-				c = pointCollector.m_pointInWorld;		
-				n = pointCollector.m_normalOnBInWorld;
-			} else
-			{
-				result.reportFailure(-1, numIter);
-				return false;
-			}
+    result.m_fraction = lambda;
+    result.m_normal = n;
+    result.m_hitPoint = c;
+    return true;
+  }
 
-			numIter++;
-			if (numIter > MAX_ITERATIONS)
-			{
-				result.reportFailure(-2, numIter);
-				return false;
-			}
-		}
-	
-		result.m_fraction = lambda;
-		result.m_normal = n;
-		result.m_hitPoint = c;
-		return true;
-	}
-
-	return false;
+  return false;
 }
-

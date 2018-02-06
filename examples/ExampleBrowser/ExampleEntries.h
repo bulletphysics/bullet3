@@ -4,36 +4,30 @@
 
 #include "../CommonInterfaces/CommonExampleInterface.h"
 
+class ExampleEntriesAll : public ExampleEntries {
+  struct ExampleEntriesInternalData* m_data;
 
+ public:
+  ExampleEntriesAll();
+  virtual ~ExampleEntriesAll();
 
-class ExampleEntriesAll : public ExampleEntries
-{
+  static void registerExampleEntry(
+      int menuLevel, const char* name, const char* description,
+      CommonExampleInterface::CreateFunc* createFunc, int option = 0);
 
-	struct ExampleEntriesInternalData* m_data;
+  virtual void initExampleEntries();
 
-public:
+  virtual void initOpenCLExampleEntries();
 
-	ExampleEntriesAll();
-	virtual ~ExampleEntriesAll();
+  virtual int getNumRegisteredExamples();
 
-	static void registerExampleEntry(int menuLevel, const char* name,const char* description, CommonExampleInterface::CreateFunc* createFunc, int option=0);
-	
-	virtual void initExampleEntries();
+  virtual CommonExampleInterface::CreateFunc* getExampleCreateFunc(int index);
 
-	virtual void initOpenCLExampleEntries();
-	
-	virtual int getNumRegisteredExamples();
+  virtual const char* getExampleName(int index);
 
-	virtual CommonExampleInterface::CreateFunc* getExampleCreateFunc(int index);
+  virtual const char* getExampleDescription(int index);
 
-	virtual const char* getExampleName(int index);
-	
-	virtual const char* getExampleDescription(int index);
-
-	virtual int	getExampleOption(int index);
-
+  virtual int getExampleOption(int index);
 };
 
-
-
-#endif //EXAMPLE_ENTRIES_H
+#endif  // EXAMPLE_ENTRIES_H

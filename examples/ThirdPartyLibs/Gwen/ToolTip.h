@@ -1,9 +1,8 @@
 /*
-	GWEN
-	Copyright (c) 2010 Facepunch Studios
-	See license in Gwen.h
+        GWEN
+        Copyright (c) 2010 Facepunch Studios
+        See license in Gwen.h
 */
-
 
 #pragma once
 #ifndef GWEN_TOOLTIP_H
@@ -16,14 +15,13 @@
 using namespace Gwen;
 using namespace Gwen::Controls;
 
-namespace ToolTip
-{
-	GWEN_EXPORT void Enable	( Controls::Base* pControl );
-	GWEN_EXPORT void Disable ( Controls::Base* pControl );
+namespace ToolTip {
+GWEN_EXPORT void Enable(Controls::Base* pControl);
+GWEN_EXPORT void Disable(Controls::Base* pControl);
 
-	GWEN_EXPORT void ControlDeleted	( Controls::Base* pControl );
+GWEN_EXPORT void ControlDeleted(Controls::Base* pControl);
 
-	GWEN_EXPORT void RenderToolTip	( Skin::Base* skin );
-}
+GWEN_EXPORT void RenderToolTip(Skin::Base* skin);
+}  // namespace ToolTip
 
 #endif

@@ -1,7 +1,7 @@
 /*
-	GWEN
-	Copyright (c) 2010 Facepunch Studios
-	See license in Gwen.h
+        GWEN
+        Copyright (c) 2010 Facepunch Studios
+        See license in Gwen.h
 */
 
 #pragma once
@@ -10,53 +10,38 @@
 
 #include "Gwen/Controls/Base.h"
 #include "Gwen/Controls/Label.h"
+#include "Gwen/Controls/Properties.h"
+#include "Gwen/Controls/TreeControl.h"
 #include "Gwen/Gwen.h"
 #include "Gwen/Skin.h"
-#include "Gwen/Controls/TreeControl.h"
-#include "Gwen/Controls/Properties.h"
 
+namespace Gwen {
+namespace Controls {
+class PropertyTreeNode : public TreeNode {
+ public:
+  GWEN_CONTROL_INLINE(PropertyTreeNode, TreeNode) {}
 
-namespace Gwen 
-{
-	namespace Controls
-	{
-		class PropertyTreeNode : public TreeNode
-		{
-			public:
+  virtual void Render(Skin::Base* skin) {
+    skin->DrawPropertyTreeNode(this, m_InnerPanel->X(), m_InnerPanel->Y());
+  }
+};
 
-				GWEN_CONTROL_INLINE( PropertyTreeNode, TreeNode )
-				{
-				}
+class PropertyTree : public TreeControl {
+ public:
+  GWEN_CONTROL_INLINE(PropertyTree, TreeControl) {}
 
-				virtual void Render( Skin::Base* skin )
-				{
-					skin->DrawPropertyTreeNode( this, m_InnerPanel->X(), m_InnerPanel->Y() );
-				}
+  Properties* Add(const UnicodeString& text) {
+    TreeNode* node = new PropertyTreeNode(this);
+    node->SetText(text);
+    node->Dock(Pos::Top);
 
-		};
+    Properties* props = new Properties(node);
+    props->Dock(Pos::Top);
 
-		class PropertyTree : public TreeControl
-		{
-			public:
+    return props;
+  }
+};
 
-				GWEN_CONTROL_INLINE( PropertyTree, TreeControl )
-				{
-
-				}
-
-				Properties* Add( const UnicodeString& text )
-				{
-					TreeNode* node = new PropertyTreeNode( this );
-						node->SetText( text );
-						node->Dock( Pos::Top );
-
-					Properties* props = new Properties( node );
-						props->Dock( Pos::Top );
-
-					return props;
-				}
-		};
-
-	}
-}
+}  // namespace Controls
+}  // namespace Gwen
 #endif

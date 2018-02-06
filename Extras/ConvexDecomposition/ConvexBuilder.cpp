@@ -1,103 +1,91 @@
-#include "float_math.h"
 #include "ConvexBuilder.h"
-#include "meshvolume.h"
-#include "bestfit.h"
 #include <assert.h>
+#include "bestfit.h"
 #include "cd_hull.h"
+#include "float_math.h"
+#include "meshvolume.h"
 
-#include "fitsphere.h"
 #include "bestfitobb.h"
+#include "fitsphere.h"
 
-unsigned int MAXDEPTH = 8 ;
-float CONCAVE_PERCENT = 1.0f ;
-float MERGE_PERCENT   = 2.0f ;
+unsigned int MAXDEPTH = 8;
+float CONCAVE_PERCENT = 1.0f;
+float MERGE_PERCENT = 2.0f;
 
-CHull::CHull(const ConvexDecomposition::ConvexResult &result)
-{
-	mResult = new ConvexDecomposition::ConvexResult(result);
-	mVolume = computeMeshVolume( result.mHullVertices, result.mHullTcount, result.mHullIndices );
+CHull::CHull(const ConvexDecomposition::ConvexResult &result) {
+  mResult = new ConvexDecomposition::ConvexResult(result);
+  mVolume = computeMeshVolume(result.mHullVertices, result.mHullTcount,
+                              result.mHullIndices);
 
-	mDiagonal = getBoundingRegion( result.mHullVcount, result.mHullVertices, sizeof(float)*3, mMin, mMax );
+  mDiagonal = getBoundingRegion(result.mHullVcount, result.mHullVertices,
+                                sizeof(float) * 3, mMin, mMax);
 
-	float dx = mMax[0] - mMin[0];
-	float dy = mMax[1] - mMin[1];
-	float dz = mMax[2] - mMin[2];
+  float dx = mMax[0] - mMin[0];
+  float dy = mMax[1] - mMin[1];
+  float dz = mMax[2] - mMin[2];
 
-	dx*=0.1f; // inflate 1/10th on each edge
-	dy*=0.1f; // inflate 1/10th on each edge
-	dz*=0.1f; // inflate 1/10th on each edge
+  dx *= 0.1f;  // inflate 1/10th on each edge
+  dy *= 0.1f;  // inflate 1/10th on each edge
+  dz *= 0.1f;  // inflate 1/10th on each edge
 
-	mMin[0]-=dx;
-	mMin[1]-=dy;
-	mMin[2]-=dz;
+  mMin[0] -= dx;
+  mMin[1] -= dy;
+  mMin[2] -= dz;
 
-	mMax[0]+=dx;
-	mMax[1]+=dy;
-	mMax[2]+=dz;
-
-
+  mMax[0] += dx;
+  mMax[1] += dy;
+  mMax[2] += dz;
 }
 
-CHull::~CHull(void)
-{
-	delete mResult;
+CHull::~CHull(void) { delete mResult; }
+
+bool CHull::overlap(const CHull &h) const {
+  return overlapAABB(mMin, mMax, h.mMin, h.mMax);
 }
 
-bool CHull::overlap(const CHull &h) const
-{
-	return overlapAABB(mMin,mMax, h.mMin, h.mMax );
+ConvexBuilder::ConvexBuilder(ConvexDecompInterface *callback) {
+  mCallback = callback;
 }
 
-
-
-
-ConvexBuilder::ConvexBuilder(ConvexDecompInterface *callback)
-{
-	mCallback = callback;
+ConvexBuilder::~ConvexBuilder(void) {
+  int i;
+  for (i = 0; i < mChulls.size(); i++) {
+    CHull *cr = mChulls[i];
+    delete cr;
+  }
 }
 
-ConvexBuilder::~ConvexBuilder(void)
-{
-	int i;
-	for (i=0;i<mChulls.size();i++)
-	{
-		CHull *cr = mChulls[i];
-		delete cr;
-	}
+bool ConvexBuilder::isDuplicate(unsigned int i1, unsigned int i2,
+                                unsigned int i3, unsigned int ci1,
+                                unsigned int ci2, unsigned int ci3) {
+  unsigned int dcount = 0;
+
+  assert(i1 != i2 && i1 != i3 && i2 != i3);
+  assert(ci1 != ci2 && ci1 != ci3 && ci2 != ci3);
+
+  if (i1 == ci1 || i1 == ci2 || i1 == ci3) dcount++;
+  if (i2 == ci1 || i2 == ci2 || i2 == ci3) dcount++;
+  if (i3 == ci1 || i3 == ci2 || i3 == ci3) dcount++;
+
+  return dcount == 3;
 }
 
-bool ConvexBuilder::isDuplicate(unsigned int i1,unsigned int i2,unsigned int i3,
-								unsigned int ci1,unsigned int ci2,unsigned int ci3)
-{
-	unsigned int dcount = 0;
+void ConvexBuilder::getMesh(const ConvexDecomposition::ConvexResult &cr,
+                            VertexLookup vc, UintVector &indices) {
+  unsigned int *src = cr.mHullIndices;
 
-	assert( i1 != i2 && i1 != i3 && i2 != i3 );
-	assert( ci1 != ci2 && ci1 != ci3 && ci2 != ci3 );
+  for (unsigned int i = 0; i < cr.mHullTcount; i++) {
+    unsigned int i1 = *src++;
+    unsigned int i2 = *src++;
+    unsigned int i3 = *src++;
 
-	if ( i1 == ci1 || i1 == ci2 || i1 == ci3 ) dcount++;
-	if ( i2 == ci1 || i2 == ci2 || i2 == ci3 ) dcount++;
-	if ( i3 == ci1 || i3 == ci2 || i3 == ci3 ) dcount++;
+    const float *p1 = &cr.mHullVertices[i1 * 3];
+    const float *p2 = &cr.mHullVertices[i2 * 3];
+    const float *p3 = &cr.mHullVertices[i3 * 3];
 
-	return dcount == 3;
-}
-
-void ConvexBuilder::getMesh(const ConvexDecomposition::ConvexResult &cr,VertexLookup vc,UintVector &indices)
-{
-	unsigned int *src = cr.mHullIndices;
-
-	for (unsigned int i=0; i<cr.mHullTcount; i++)
-	{
-		unsigned int i1 = *src++;
-		unsigned int i2 = *src++;
-		unsigned int i3 = *src++;
-
-		const float *p1 = &cr.mHullVertices[i1*3];
-		const float *p2 = &cr.mHullVertices[i2*3];
-		const float *p3 = &cr.mHullVertices[i3*3];
-
-		i1 = Vl_getIndex(vc,p1);
-		i2 = Vl_getIndex(vc,p2);
-		i3 = Vl_getIndex(vc,p3);
+    i1 = Vl_getIndex(vc, p1);
+    i2 = Vl_getIndex(vc, p2);
+    i3 = Vl_getIndex(vc, p3);
 
 #if 0
 		bool duplicate = false;
@@ -122,252 +110,237 @@ void ConvexBuilder::getMesh(const ConvexDecomposition::ConvexResult &cr,VertexLo
 			indices.push_back(i3);
 		}
 #endif
-
-	}
+  }
 }
 
-CHull * ConvexBuilder::canMerge(CHull *a,CHull *b)
-{
+CHull *ConvexBuilder::canMerge(CHull *a, CHull *b) {
+  if (!a->overlap(*b))
+    return 0;  // if their AABB's (with a little slop) don't overlap, then
+               // return.
 
-	if ( !a->overlap(*b) ) return 0; // if their AABB's (with a little slop) don't overlap, then return.
+  CHull *ret = 0;
 
-	CHull *ret = 0;
+  // ok..we are going to combine both meshes into a single mesh
+  // and then we are going to compute the concavity...
 
-	// ok..we are going to combine both meshes into a single mesh
-	// and then we are going to compute the concavity...
+  VertexLookup vc = Vl_createVertexLookup();
 
-	VertexLookup vc = Vl_createVertexLookup();
+  UintVector indices;
 
-	UintVector indices;
+  getMesh(*a->mResult, vc, indices);
+  getMesh(*b->mResult, vc, indices);
 
-	getMesh( *a->mResult, vc, indices );
-	getMesh( *b->mResult, vc, indices );
+  unsigned int vcount = Vl_getVcount(vc);
+  const float *vertices = Vl_getVertices(vc);
+  unsigned int tcount = indices.size() / 3;
 
-	unsigned int vcount = Vl_getVcount(vc);
-	const float *vertices = Vl_getVertices(vc);
-	unsigned int tcount = indices.size()/3;
-	
-	//don't do anything if hull is empty
-	if (!tcount)
-	{
-		Vl_releaseVertexLookup (vc);
-		return 0;
-	}
+  // don't do anything if hull is empty
+  if (!tcount) {
+    Vl_releaseVertexLookup(vc);
+    return 0;
+  }
 
-	ConvexDecomposition::HullResult hresult;
-	ConvexDecomposition::HullLibrary hl;
-	ConvexDecomposition::HullDesc   desc;
+  ConvexDecomposition::HullResult hresult;
+  ConvexDecomposition::HullLibrary hl;
+  ConvexDecomposition::HullDesc desc;
 
-	desc.SetHullFlag(ConvexDecomposition::QF_TRIANGLES);
+  desc.SetHullFlag(ConvexDecomposition::QF_TRIANGLES);
 
-	desc.mVcount       = vcount;
-	desc.mVertices     = vertices;
-	desc.mVertexStride = sizeof(float)*3;
+  desc.mVcount = vcount;
+  desc.mVertices = vertices;
+  desc.mVertexStride = sizeof(float) * 3;
 
-	ConvexDecomposition::HullError hret = hl.CreateConvexHull(desc,hresult);
+  ConvexDecomposition::HullError hret = hl.CreateConvexHull(desc, hresult);
 
-	if ( hret == ConvexDecomposition::QE_OK )
-	{
+  if (hret == ConvexDecomposition::QE_OK) {
+    float combineVolume = computeMeshVolume(
+        hresult.mOutputVertices, hresult.mNumFaces, hresult.mIndices);
+    float sumVolume = a->mVolume + b->mVolume;
 
-		float combineVolume  = computeMeshVolume( hresult.mOutputVertices, hresult.mNumFaces, hresult.mIndices );
-		float sumVolume      = a->mVolume + b->mVolume;
+    float percent = (sumVolume * 100) / combineVolume;
+    if (percent >= (100.0f - MERGE_PERCENT)) {
+      ConvexDecomposition::ConvexResult cr(hresult.mNumOutputVertices,
+                                           hresult.mOutputVertices,
+                                           hresult.mNumFaces, hresult.mIndices);
+      ret = new CHull(cr);
+    }
+  }
 
-		float percent = (sumVolume*100) / combineVolume;
-		if ( percent >= (100.0f-MERGE_PERCENT) )
-		{
-			ConvexDecomposition::ConvexResult cr(hresult.mNumOutputVertices, hresult.mOutputVertices, hresult.mNumFaces, hresult.mIndices);
-			ret = new CHull(cr);
-		}
-	}
+  Vl_releaseVertexLookup(vc);
 
-
-	Vl_releaseVertexLookup(vc);
-
-	return ret;
+  return ret;
 }
 
-bool ConvexBuilder::combineHulls(void)
-{
+bool ConvexBuilder::combineHulls(void) {
+  bool combine = false;
 
-	bool combine = false;
+  sortChulls(mChulls);  // sort the convex hulls, largest volume to least...
 
-	sortChulls(mChulls); // sort the convex hulls, largest volume to least...
+  CHullVector output;  // the output hulls...
 
-	CHullVector output; // the output hulls...
+  int i;
 
+  for (i = 0; i < mChulls.size() && !combine; ++i) {
+    CHull *cr = mChulls[i];
 
-	int i;
+    int j;
+    for (j = 0; j < mChulls.size(); j++) {
+      CHull *match = mChulls[j];
 
-	for (i=0;i<mChulls.size() && !combine; ++i)
-	{
-		CHull *cr = mChulls[i];
+      if (cr !=
+          match)  // don't try to merge a hull with itself, that be stoopid
+      {
+        CHull *merge = canMerge(cr, match);  // if we can merge these two....
 
-		int j;
-		for (j=0;j<mChulls.size();j++)
-		{
-			CHull *match = mChulls[j];
+        if (merge) {
+          output.push_back(merge);
 
-			if ( cr != match ) // don't try to merge a hull with itself, that be stoopid
-			{
+          ++i;
+          while (i != mChulls.size()) {
+            CHull *cr = mChulls[i];
+            if (cr != match) {
+              output.push_back(cr);
+            }
+            i++;
+          }
 
-				CHull *merge = canMerge(cr,match); // if we can merge these two....
+          delete cr;
+          delete match;
+          combine = true;
+          break;
+        }
+      }
+    }
 
-				if ( merge )
-				{
+    if (combine) {
+      break;
+    } else {
+      output.push_back(cr);
+    }
+  }
 
-					output.push_back(merge);
+  if (combine) {
+    mChulls.clear();
+    mChulls.copyFromArray(output);
+    output.clear();
+  }
 
-
-					++i;
-					while ( i != mChulls.size() )
-					{
-						CHull *cr = mChulls[i];
-						if ( cr != match )
-						{
-							output.push_back(cr);
-						}
-						i++;
-					}
-
-					delete cr;
-					delete match;
-					combine = true;
-					break;
-				}
-			}
-		}
-
-		if ( combine )
-		{
-			break;
-		}
-		else
-		{
-			output.push_back(cr);
-		}
-
-	}
-
-	if ( combine )
-	{
-		mChulls.clear();
-		mChulls.copyFromArray(output);
-		output.clear();
-	}
-
-
-	return combine;
+  return combine;
 }
 
-unsigned int ConvexBuilder::process(const ConvexDecomposition::DecompDesc &desc)
-{
+unsigned int ConvexBuilder::process(
+    const ConvexDecomposition::DecompDesc &desc) {
+  unsigned int ret = 0;
 
-	unsigned int ret = 0;
+  MAXDEPTH = desc.mDepth;
+  CONCAVE_PERCENT = desc.mCpercent;
+  MERGE_PERCENT = desc.mPpercent;
 
-	MAXDEPTH        = desc.mDepth;
-	CONCAVE_PERCENT = desc.mCpercent;
-	MERGE_PERCENT   = desc.mPpercent;
+  calcConvexDecomposition(desc.mVcount, desc.mVertices, desc.mTcount,
+                          desc.mIndices, this, 0, 0);
 
+  while (combineHulls())
+    ;  // keep combinging hulls until I can't combine any more...
 
-	calcConvexDecomposition(desc.mVcount, desc.mVertices, desc.mTcount, desc.mIndices,this,0,0);
+  int i;
+  for (i = 0; i < mChulls.size(); i++) {
+    CHull *cr = mChulls[i];
 
+    // before we hand it back to the application, we need to regenerate the hull
+    // based on the limits given by the user.
 
-	while ( combineHulls() ); // keep combinging hulls until I can't combine any more...
+    const ConvexDecomposition::ConvexResult &c =
+        *cr->mResult;  // the high resolution hull...
 
-	int i;
-	for (i=0;i<mChulls.size();i++)
-	{
-		CHull *cr = mChulls[i];
+    ConvexDecomposition::HullResult result;
+    ConvexDecomposition::HullLibrary hl;
+    ConvexDecomposition::HullDesc hdesc;
 
-		// before we hand it back to the application, we need to regenerate the hull based on the
-		// limits given by the user.
+    hdesc.SetHullFlag(ConvexDecomposition::QF_TRIANGLES);
 
-		const ConvexDecomposition::ConvexResult &c = *cr->mResult; // the high resolution hull...
+    hdesc.mVcount = c.mHullVcount;
+    hdesc.mVertices = c.mHullVertices;
+    hdesc.mVertexStride = sizeof(float) * 3;
+    hdesc.mMaxVertices =
+        desc.mMaxVertices;  // maximum number of vertices allowed in the output
 
-		ConvexDecomposition::HullResult result;
-		ConvexDecomposition::HullLibrary hl;
-		ConvexDecomposition::HullDesc   hdesc;
+    if (desc.mSkinWidth) {
+      hdesc.mSkinWidth = desc.mSkinWidth;
+      hdesc.SetHullFlag(
+          ConvexDecomposition::QF_SKIN_WIDTH);  // do skin width computation.
+    }
 
-		hdesc.SetHullFlag(ConvexDecomposition::QF_TRIANGLES);
+    ConvexDecomposition::HullError ret = hl.CreateConvexHull(hdesc, result);
 
-		hdesc.mVcount       = c.mHullVcount;
-		hdesc.mVertices     = c.mHullVertices;
-		hdesc.mVertexStride = sizeof(float)*3;
-		hdesc.mMaxVertices  = desc.mMaxVertices; // maximum number of vertices allowed in the output
+    if (ret == ConvexDecomposition::QE_OK) {
+      ConvexDecomposition::ConvexResult r(result.mNumOutputVertices,
+                                          result.mOutputVertices,
+                                          result.mNumFaces, result.mIndices);
 
-		if ( desc.mSkinWidth  )
-		{
-			hdesc.mSkinWidth = desc.mSkinWidth;
-			hdesc.SetHullFlag(ConvexDecomposition::QF_SKIN_WIDTH); // do skin width computation.
-		}
+      r.mHullVolume =
+          computeMeshVolume(result.mOutputVertices, result.mNumFaces,
+                            result.mIndices);  // the volume of the hull.
 
-		ConvexDecomposition::HullError ret = hl.CreateConvexHull(hdesc,result);
+      // compute the best fit OBB
+      computeBestFitOBB(result.mNumOutputVertices, result.mOutputVertices,
+                        sizeof(float) * 3, r.mOBBSides, r.mOBBTransform);
 
-		if ( ret == ConvexDecomposition::QE_OK )
-		{
-			ConvexDecomposition::ConvexResult r(result.mNumOutputVertices, result.mOutputVertices, result.mNumFaces, result.mIndices);
+      r.mOBBVolume = r.mOBBSides[0] * r.mOBBSides[1] *
+                     r.mOBBSides[2];  // compute the OBB volume.
 
-			r.mHullVolume = computeMeshVolume( result.mOutputVertices, result.mNumFaces, result.mIndices ); // the volume of the hull.
+      fm_getTranslation(
+          r.mOBBTransform,
+          r.mOBBCenter);  // get the translation component of the 4x4 matrix.
 
-			// compute the best fit OBB
-			computeBestFitOBB( result.mNumOutputVertices, result.mOutputVertices, sizeof(float)*3, r.mOBBSides, r.mOBBTransform );
+      fm_matrixToQuat(
+          r.mOBBTransform,
+          r.mOBBOrientation);  // extract the orientation as a quaternion.
 
-			r.mOBBVolume = r.mOBBSides[0] * r.mOBBSides[1] *r.mOBBSides[2]; // compute the OBB volume.
+      r.mSphereRadius = computeBoundingSphere(
+          result.mNumOutputVertices, result.mOutputVertices, r.mSphereCenter);
+      r.mSphereVolume = fm_sphereVolume(r.mSphereRadius);
 
-			fm_getTranslation( r.mOBBTransform, r.mOBBCenter );      // get the translation component of the 4x4 matrix.
+      mCallback->ConvexDecompResult(r);
+    }
 
-			fm_matrixToQuat( r.mOBBTransform, r.mOBBOrientation );   // extract the orientation as a quaternion.
+    hl.ReleaseResult(result);
 
-			r.mSphereRadius = computeBoundingSphere( result.mNumOutputVertices, result.mOutputVertices, r.mSphereCenter );
-			r.mSphereVolume = fm_sphereVolume( r.mSphereRadius );
+    delete cr;
+  }
 
+  ret = mChulls.size();
 
-			mCallback->ConvexDecompResult(r);
-		}
+  mChulls.clear();
 
-		hl.ReleaseResult (result);
-
-
-		delete cr;
-	}
-
-	ret = mChulls.size();
-
-	mChulls.clear();
-
-	return ret;
+  return ret;
 }
 
-
-void ConvexBuilder::ConvexDebugTri(const float *p1,const float *p2,const float *p3,unsigned int color)
-{
-	mCallback->ConvexDebugTri(p1,p2,p3,color);
+void ConvexBuilder::ConvexDebugTri(const float *p1, const float *p2,
+                                   const float *p3, unsigned int color) {
+  mCallback->ConvexDebugTri(p1, p2, p3, color);
 }
 
-void ConvexBuilder::ConvexDebugOBB(const float *sides, const float *matrix,unsigned int color)
-{
-	mCallback->ConvexDebugOBB(sides,matrix,color);
+void ConvexBuilder::ConvexDebugOBB(const float *sides, const float *matrix,
+                                   unsigned int color) {
+  mCallback->ConvexDebugOBB(sides, matrix, color);
 }
-void ConvexBuilder::ConvexDebugPoint(const float *p,float dist,unsigned int color)
-{
-	mCallback->ConvexDebugPoint(p,dist,color);
-}
-
-void ConvexBuilder::ConvexDebugBound(const float *bmin,const float *bmax,unsigned int color)
-{
-	mCallback->ConvexDebugBound(bmin,bmax,color);
+void ConvexBuilder::ConvexDebugPoint(const float *p, float dist,
+                                     unsigned int color) {
+  mCallback->ConvexDebugPoint(p, dist, color);
 }
 
-void ConvexBuilder::ConvexDecompResult(ConvexDecomposition::ConvexResult &result)
-{
-	CHull *ch = new CHull(result);
-	mChulls.push_back(ch);
+void ConvexBuilder::ConvexDebugBound(const float *bmin, const float *bmax,
+                                     unsigned int color) {
+  mCallback->ConvexDebugBound(bmin, bmax, color);
 }
 
-void ConvexBuilder::sortChulls(CHullVector &hulls)
-{
-	hulls.quickSort(CHullSort());
-	//hulls.heapSort(CHullSort());
+void ConvexBuilder::ConvexDecompResult(
+    ConvexDecomposition::ConvexResult &result) {
+  CHull *ch = new CHull(result);
+  mChulls.push_back(ch);
 }
 
-
+void ConvexBuilder::sortChulls(CHullVector &hulls) {
+  hulls.quickSort(CHullSort());
+  // hulls.heapSort(CHullSort());
+}

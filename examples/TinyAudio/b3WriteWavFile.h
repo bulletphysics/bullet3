@@ -6,27 +6,24 @@
 // by Perry R. Cook and Gary P. Scavone, 1995--2014.
 #include <string>
 
-class b3WriteWavFile
-{
-	void incrementFrame( void );
-	void flush();
+class b3WriteWavFile {
+  void incrementFrame(void);
+  void flush();
 
-	struct b3WriteWavFileInternalData* m_data;
+  struct b3WriteWavFileInternalData* m_data;
 
-	void flushData(int bufferSize);
+  void flushData(int bufferSize);
 
-public:
+ public:
+  b3WriteWavFile();
+  virtual ~b3WriteWavFile();
 
-	b3WriteWavFile();
-	virtual ~b3WriteWavFile();
+  bool setWavFile(std::string fileName, int sampleRate, int numChannels,
+                  bool useDoublePrecision = true);
 
-	bool setWavFile(std::string fileName, int sampleRate, int numChannels, bool useDoublePrecision=true);
+  void closeWavFile();
 
-	void closeWavFile();
-
-	void tick( double* values, int numValues );
-	
-
+  void tick(double* values, int numValues);
 };
 
-#endif  //B3_WRITE_WAV_FILE_H
+#endif  // B3_WRITE_WAV_FILE_H

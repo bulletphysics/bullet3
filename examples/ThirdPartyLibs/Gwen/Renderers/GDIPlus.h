@@ -1,15 +1,14 @@
 /*
-	GWEN
-	Copyright (c) 2011 Facepunch Studios
-	See license in Gwen.h
+        GWEN
+        Copyright (c) 2011 Facepunch Studios
+        See license in Gwen.h
 */
 
 #ifndef GWEN_RENDERERS_GDIPLUS_H
 #define GWEN_RENDERERS_GDIPLUS_H
 
-#include "Gwen/Gwen.h"
 #include "Gwen/BaseRender.h"
-
+#include "Gwen/Gwen.h"
 
 /*
 
@@ -26,70 +25,65 @@
 
 */
 
-namespace Gwen 
-{
-	namespace Renderer 
-	{
+namespace Gwen {
+namespace Renderer {
 
-		class GDIPlus : public Gwen::Renderer::Base
-		{
-			public:
+class GDIPlus : public Gwen::Renderer::Base {
+ public:
+  GDIPlus(HWND pHWND);
+  ~GDIPlus();
 
-				GDIPlus( HWND pHWND );
-				~GDIPlus();
+  virtual void Begin();
+  virtual void End();
 
-				virtual void Begin();
-				virtual void End();
+  virtual void SetDrawColor(Gwen::Color color);
 
-				virtual void SetDrawColor(Gwen::Color color);
+  virtual void DrawLine(int x, int y, int a, int b);
+  virtual void DrawFilledRect(Gwen::Rect rect);
 
-				virtual void DrawLine( int x, int y, int a, int b );
-				virtual void DrawFilledRect( Gwen::Rect rect );
+  virtual void LoadFont(Gwen::Font* pFont);
+  virtual void FreeFont(Gwen::Font* pFont);
+  virtual void RenderText(Gwen::Font* pFont, Gwen::Point pos,
+                          const Gwen::UnicodeString& text);
+  virtual Gwen::Point MeasureText(Gwen::Font* pFont,
+                                  const Gwen::UnicodeString& text);
 
-				virtual void LoadFont( Gwen::Font* pFont );
-				virtual void FreeFont( Gwen::Font* pFont );
-				virtual void RenderText( Gwen::Font* pFont, Gwen::Point pos, const Gwen::UnicodeString& text );
-				virtual Gwen::Point MeasureText( Gwen::Font* pFont, const Gwen::UnicodeString& text );
+  void StartClip();
+  void EndClip();
 
-				void StartClip();
-				void EndClip();
+  void DrawTexturedRect(Gwen::Texture* pTexture, Gwen::Rect pTargetRect,
+                        float u1 = 0.0f, float v1 = 0.0f, float u2 = 1.0f,
+                        float v2 = 1.0f);
+  void LoadTexture(Gwen::Texture* pTexture);
+  void FreeTexture(Gwen::Texture* pTexture);
 
-				void DrawTexturedRect( Gwen::Texture* pTexture, Gwen::Rect pTargetRect, float u1=0.0f, float v1=0.0f, float u2=1.0f, float v2=1.0f );
-				void LoadTexture( Gwen::Texture* pTexture );
-				void FreeTexture( Gwen::Texture* pTexture );
+ protected:
+  int m_iWidth;
+  int m_iHeight;
 
-			protected:
+  Gdiplus::Color m_Colour;
 
-				int m_iWidth;
-				int m_iHeight;
+  HWND m_HWND;
+  HDC m_hDC;
+  ULONG_PTR m_gdiplusToken;
 
-				Gdiplus::Color	m_Colour;
+  Gdiplus::Graphics* graphics;
+};
 
-				HWND			m_HWND;
-				HDC				m_hDC;
-				ULONG_PTR       m_gdiplusToken;
+class GDIPlusBuffered : public GDIPlus {
+ public:
+  GDIPlusBuffered(HWND pHWND);
+  ~GDIPlusBuffered();
 
-				Gdiplus::Graphics*		graphics;
-		};
+  virtual void Begin();
+  virtual void End();
 
-		class GDIPlusBuffered : public GDIPlus
-		{
-			public:
+ private:
+  void CreateBackbuffer();
+  void DestroyBackbuffer();
 
-				GDIPlusBuffered( HWND pHWND );
-				~GDIPlusBuffered();
-
-				virtual void Begin();
-				virtual void End();
-
-			private:
-
-				void CreateBackbuffer();
-				void DestroyBackbuffer();
-
-				Gdiplus::Bitmap*			m_Bitmap;
-
-		};
-	}
-}
+  Gdiplus::Bitmap* m_Bitmap;
+};
+}  // namespace Renderer
+}  // namespace Gwen
 #endif

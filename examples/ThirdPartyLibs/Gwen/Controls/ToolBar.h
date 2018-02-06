@@ -1,7 +1,7 @@
 /*
-	GWEN
-	Copyright (c) 2011 Facepunch Studios
-	See license in Gwen.h
+        GWEN
+        Copyright (c) 2011 Facepunch Studios
+        See license in Gwen.h
 */
 
 #pragma once
@@ -12,40 +12,24 @@
 #include "Gwen/Controls/Base.h"
 #include "Gwen/Skin.h"
 
-namespace Gwen 
-{
-	namespace Controls
-	{
-		/*
+namespace Gwen {
+namespace Controls {
+/*
 
-		TODO!
+TODO!
 
-		*/
+*/
 
-		class ToolBarStrip : public Base
-		{
-			GWEN_CONTROL_INLINE( ToolBarStrip, Base )
-			{
-				SetPadding( Padding( 2, 2, 2, 2 ) );
-			}
+class ToolBarStrip : public Base {
+  GWEN_CONTROL_INLINE(ToolBarStrip, Base) { SetPadding(Padding(2, 2, 2, 2)); }
 
-			virtual void Render( Skin::Base* skin )
-			{
-				skin->DrawMenuStrip( this );
-			}
+  virtual void Render(Skin::Base* skin) { skin->DrawMenuStrip(this); }
 
-			virtual void RenderUnder( Skin::Base* skin )
-			{
+  virtual void RenderUnder(Skin::Base* skin) {}
 
-			}
+  virtual void Layout(Skin::Base* skin) {}
+};
+}  // namespace Controls
 
-			virtual void Layout( Skin::Base* skin )
-			{
-
-			}
-
-		};
-	}
-
-}
+}  // namespace Gwen
 #endif

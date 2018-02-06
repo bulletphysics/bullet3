@@ -8,44 +8,41 @@ class btFractureBody;
 class btCompoundShape;
 class btTransform;
 
+/// The btFractureDynamicsWorld class enabled basic glue and fracture of
+/// objects. If/once this implementation is stablized/tested we might merge it
+/// into btDiscreteDynamicsWorld and remove the class.
+class btFractureDynamicsWorld : public btDiscreteDynamicsWorld {
+  btAlignedObjectArray<btFractureBody*> m_fractureBodies;
 
-///The btFractureDynamicsWorld class enabled basic glue and fracture of objects. 
-///If/once this implementation is stablized/tested we might merge it into btDiscreteDynamicsWorld and remove the class.
-class btFractureDynamicsWorld : public btDiscreteDynamicsWorld
-{
-	btAlignedObjectArray<btFractureBody*> m_fractureBodies;
+  bool m_fracturingMode;
 
-	bool	m_fracturingMode;
+  btFractureBody* addNewBody(const btTransform& oldTransform, btScalar* masses,
+                             btCompoundShape* oldCompound);
 
-	btFractureBody* addNewBody(const btTransform& oldTransform,btScalar* masses, btCompoundShape* oldCompound);
+  void breakDisconnectedParts(btFractureBody* fracObj);
 
-	void	breakDisconnectedParts( btFractureBody* fracObj);
+ public:
+  btFractureDynamicsWorld(btDispatcher* dispatcher,
+                          btBroadphaseInterface* pairCache,
+                          btConstraintSolver* constraintSolver,
+                          btCollisionConfiguration* collisionConfiguration);
 
-public:
+  virtual void addRigidBody(btRigidBody* body);
 
-	btFractureDynamicsWorld ( btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btConstraintSolver* constraintSolver,btCollisionConfiguration* collisionConfiguration);
+  virtual void removeRigidBody(btRigidBody* body);
 
-	virtual void	addRigidBody(btRigidBody* body);
+  void solveConstraints(btContactSolverInfo& solverInfo);
 
-	virtual void	removeRigidBody(btRigidBody* body);
+  /// either fracture or glue (!fracture)
+  void setFractureMode(bool fracture) { m_fracturingMode = fracture; }
 
-	void	solveConstraints(btContactSolverInfo& solverInfo);
+  bool getFractureMode() const { return m_fracturingMode; }
 
-	///either fracture or glue (!fracture)
-	void	setFractureMode(bool fracture)
-	{
-		m_fracturingMode = fracture;
-	}
+  /// normally those callbacks are called internally by the 'solveConstraints'
+  void glueCallback();
 
-	bool getFractureMode() const { return m_fracturingMode;}
-
-	///normally those callbacks are called internally by the 'solveConstraints'
-	void glueCallback();
-
-	///normally those callbacks are called internally by the 'solveConstraints'
-	void fractureCallback();
-
+  /// normally those callbacks are called internally by the 'solveConstraints'
+  void fractureCallback();
 };
 
-#endif //_BT_FRACTURE_DYNAMICS_WORLD_H
-
+#endif  //_BT_FRACTURE_DYNAMICS_WORLD_H

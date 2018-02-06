@@ -5,75 +5,67 @@
 
 #define b3gDefaultOpenGLWindow MacOpenGLWindow
 
-class MacOpenGLWindow : public CommonWindowInterface
-{
-    struct MacOpenGLWindowInternalData* m_internalData;
-	
-public:
-    
-    MacOpenGLWindow();
-    virtual ~MacOpenGLWindow();
-    
-    void init(int width, int height, const char* windowTitle);
+class MacOpenGLWindow : public CommonWindowInterface {
+  struct MacOpenGLWindowInternalData* m_internalData;
 
-    void closeWindow();
-    
-    void startRendering();
-    
-    void endRendering();//swap buffers
-    
-	virtual bool	requestedExit() const;
+ public:
+  MacOpenGLWindow();
+  virtual ~MacOpenGLWindow();
 
-	virtual	void	setRequestExit();
-    
-    void getMouseCoordinates(int& x, int& y);
-    
-    void runMainLoop();
+  void init(int width, int height, const char* windowTitle);
 
-    virtual bool    isModifierKeyPressed(int key);
-    
-    void setMouseButtonCallback(b3MouseButtonCallback	mouseCallback);
+  void closeWindow();
 
-    void setMouseMoveCallback(b3MouseMoveCallback	mouseCallback);
-    
-    void setResizeCallback(b3ResizeCallback resizeCallback);
-   
- 
-	void setKeyboardCallback( b3KeyboardCallback	keyboardCallback);
+  void startRendering();
 
-	virtual b3MouseMoveCallback getMouseMoveCallback();
+  void endRendering();  // swap buffers
 
-	virtual b3MouseButtonCallback getMouseButtonCallback();
+  virtual bool requestedExit() const;
 
-	virtual b3ResizeCallback getResizeCallback();
+  virtual void setRequestExit();
 
-	virtual b3WheelCallback getWheelCallback();
+  void getMouseCoordinates(int& x, int& y);
 
-   b3KeyboardCallback getKeyboardCallback();
-	  
-	void setWheelCallback (b3WheelCallback wheelCallback);
+  void runMainLoop();
 
-    float getRetinaScale() const;
-    
-   virtual	void	setAllowRetina(bool allow);
-	
-	virtual	void	createWindow(const b3gWindowConstructionInfo& ci);
-	
-	virtual	float	getTimeInSeconds();
-	
+  virtual bool isModifierKeyPressed(int key);
 
-    virtual int   getWidth() const;
-    virtual int   getHeight() const;
+  void setMouseButtonCallback(b3MouseButtonCallback mouseCallback);
 
-	
-	virtual void setRenderCallback( b3RenderCallback renderCallback);
-	
-	virtual void setWindowTitle(const char* title);
+  void setMouseMoveCallback(b3MouseMoveCallback mouseCallback);
 
-    int fileOpenDialog(char* filename, int maxNameLength);
+  void setResizeCallback(b3ResizeCallback resizeCallback);
 
+  void setKeyboardCallback(b3KeyboardCallback keyboardCallback);
+
+  virtual b3MouseMoveCallback getMouseMoveCallback();
+
+  virtual b3MouseButtonCallback getMouseButtonCallback();
+
+  virtual b3ResizeCallback getResizeCallback();
+
+  virtual b3WheelCallback getWheelCallback();
+
+  b3KeyboardCallback getKeyboardCallback();
+
+  void setWheelCallback(b3WheelCallback wheelCallback);
+
+  float getRetinaScale() const;
+
+  virtual void setAllowRetina(bool allow);
+
+  virtual void createWindow(const b3gWindowConstructionInfo& ci);
+
+  virtual float getTimeInSeconds();
+
+  virtual int getWidth() const;
+  virtual int getHeight() const;
+
+  virtual void setRenderCallback(b3RenderCallback renderCallback);
+
+  virtual void setWindowTitle(const char* title);
+
+  int fileOpenDialog(char* filename, int maxNameLength);
 };
 
-
 #endif
-

@@ -9,7 +9,7 @@
 #define BulletTest_Test_maxdot_h
 
 #ifdef __cplusplus
-extern "C" { 
+extern "C" {
 #endif
 
 int Test_maxdot(void);
@@ -18,5 +18,4 @@ int Test_maxdot(void);
 }
 #endif
 
-    
 #endif

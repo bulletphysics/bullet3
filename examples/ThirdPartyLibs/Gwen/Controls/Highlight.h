@@ -1,7 +1,7 @@
 /*
-	GWEN
-	Copyright (c) 2010 Facepunch Studios
-	See license in Gwen.h
+        GWEN
+        Copyright (c) 2010 Facepunch Studios
+        See license in Gwen.h
 */
 
 #pragma once
@@ -12,25 +12,15 @@
 #include "Gwen/Controls/Base.h"
 #include "Gwen/Skin.h"
 
-namespace Gwen 
-{
-	namespace ControlsInternal
-	{
-		class GWEN_EXPORT Highlight : public Controls::Base
-		{
-			public:
+namespace Gwen {
+namespace ControlsInternal {
+class GWEN_EXPORT Highlight : public Controls::Base {
+ public:
+  GWEN_CONTROL_INLINE(Highlight, Controls::Base) {}
 
-				GWEN_CONTROL_INLINE( Highlight, Controls::Base )
-				{
+  void Render(Skin::Base* skin) { skin->DrawHighlight(this); }
+};
+}  // namespace ControlsInternal
 
-				}
-
-				void Render( Skin::Base* skin )
-				{
-					skin->DrawHighlight( this );
-				}
-		};
-	}
-
-}
+}  // namespace Gwen
 #endif

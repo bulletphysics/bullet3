@@ -3,15 +3,10 @@
 
 #include <stdlib.h>
 
-
-template <typename T> T urdfLexicalCast(const char* txt)
-{
-	double result = atof(txt);
-	return result;
+template <typename T>
+T urdfLexicalCast(const char* txt) {
+  double result = atof(txt);
+  return result;
 };
 
-
-	
-
 #endif
-

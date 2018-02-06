@@ -100,8 +100,8 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "gtest/internal/gtest-port.h"
 #include "gtest/internal/gtest-internal.h"
+#include "gtest/internal/gtest-port.h"
 
 namespace testing {
 
@@ -112,8 +112,7 @@ namespace internal2 {
 // Prints the given number of bytes in the given object to the given
 // ostream.
 GTEST_API_ void PrintBytesInObjectTo(const unsigned char* obj_bytes,
-                                     size_t count,
-                                     ::std::ostream* os);
+                                     size_t count, ::std::ostream* os);
 
 // For selecting which printer to use when a given type has neither <<
 // nor PrintTo().
@@ -149,8 +148,9 @@ class TypeWithoutFormatter<T, kProtobuf> {
   static void PrintValue(const T& value, ::std::ostream* os) {
     const ::testing::internal::string short_str = value.ShortDebugString();
     const ::testing::internal::string pretty_str =
-        short_str.length() <= kProtobufOneLinerMaxLength ?
-        short_str : ("\n" + value.DebugString());
+        short_str.length() <= kProtobufOneLinerMaxLength
+            ? short_str
+            : ("\n" + value.DebugString());
     *os << ("<" + pretty_str + ">");
   }
 };
@@ -198,10 +198,12 @@ class TypeWithoutFormatter<T, kConvertibleToInteger> {
 template <typename Char, typename CharTraits, typename T>
 ::std::basic_ostream<Char, CharTraits>& operator<<(
     ::std::basic_ostream<Char, CharTraits>& os, const T& x) {
-  TypeWithoutFormatter<T,
-      (internal::IsAProtocolMessage<T>::value ? kProtobuf :
-       internal::ImplicitlyConvertible<const T&, internal::BiggestInt>::value ?
-       kConvertibleToInteger : kOtherType)>::PrintValue(x, &os);
+  TypeWithoutFormatter<T, (internal::IsAProtocolMessage<T>::value
+                               ? kProtobuf
+                               : internal::ImplicitlyConvertible<
+                                     const T&, internal::BiggestInt>::value
+                                     ? kConvertibleToInteger
+                                     : kOtherType)>::PrintValue(x, &os);
   return os;
 }
 
@@ -266,14 +268,13 @@ void UniversalPrint(const T& value, ::std::ostream* os);
 // Used to print an STL-style container when the user doesn't define
 // a PrintTo() for it.
 template <typename C>
-void DefaultPrintTo(IsContainer /* dummy */,
-                    false_type /* is not a pointer */,
+void DefaultPrintTo(IsContainer /* dummy */, false_type /* is not a pointer */,
                     const C& container, ::std::ostream* os) {
   const size_t kMaxCount = 32;  // The maximum number of elements to print.
   *os << '{';
   size_t count = 0;
-  for (typename C::const_iterator it = container.begin();
-       it != container.end(); ++it, ++count) {
+  for (typename C::const_iterator it = container.begin(); it != container.end();
+       ++it, ++count) {
     if (count > 0) {
       *os << ',';
       if (count == kMaxCount) {  // Enough has been printed.
@@ -300,8 +301,7 @@ void DefaultPrintTo(IsContainer /* dummy */,
 // implementation-defined.  Therefore they will be printed as raw
 // bytes.)
 template <typename T>
-void DefaultPrintTo(IsNotContainer /* dummy */,
-                    true_type /* is a pointer */,
+void DefaultPrintTo(IsNotContainer /* dummy */, true_type /* is a pointer */,
                     T* p, ::std::ostream* os) {
   if (p == NULL) {
     *os << "NULL";
@@ -333,8 +333,8 @@ void DefaultPrintTo(IsNotContainer /* dummy */,
 // doesn't define PrintTo() for it.
 template <typename T>
 void DefaultPrintTo(IsNotContainer /* dummy */,
-                    false_type /* is not a pointer */,
-                    const T& value, ::std::ostream* os) {
+                    false_type /* is not a pointer */, const T& value,
+                    ::std::ostream* os) {
   ::testing_internal::DefaultPrintNonContainerTo(value, os);
 }
 
@@ -454,27 +454,27 @@ void PrintRawArrayTo(const T a[], size_t count, ::std::ostream* os) {
 
 // Overloads for ::string and ::std::string.
 #if GTEST_HAS_GLOBAL_STRING
-GTEST_API_ void PrintStringTo(const ::string&s, ::std::ostream* os);
+GTEST_API_ void PrintStringTo(const ::string& s, ::std::ostream* os);
 inline void PrintTo(const ::string& s, ::std::ostream* os) {
   PrintStringTo(s, os);
 }
 #endif  // GTEST_HAS_GLOBAL_STRING
 
-GTEST_API_ void PrintStringTo(const ::std::string&s, ::std::ostream* os);
+GTEST_API_ void PrintStringTo(const ::std::string& s, ::std::ostream* os);
 inline void PrintTo(const ::std::string& s, ::std::ostream* os) {
   PrintStringTo(s, os);
 }
 
 // Overloads for ::wstring and ::std::wstring.
 #if GTEST_HAS_GLOBAL_WSTRING
-GTEST_API_ void PrintWideStringTo(const ::wstring&s, ::std::ostream* os);
+GTEST_API_ void PrintWideStringTo(const ::wstring& s, ::std::ostream* os);
 inline void PrintTo(const ::wstring& s, ::std::ostream* os) {
   PrintWideStringTo(s, os);
 }
 #endif  // GTEST_HAS_GLOBAL_WSTRING
 
 #if GTEST_HAS_STD_WSTRING
-GTEST_API_ void PrintWideStringTo(const ::std::wstring&s, ::std::ostream* os);
+GTEST_API_ void PrintWideStringTo(const ::std::wstring& s, ::std::ostream* os);
 inline void PrintTo(const ::std::wstring& s, ::std::ostream* os) {
   PrintWideStringTo(s, os);
 }
@@ -581,9 +581,9 @@ class UniversalPrinter {
   // MSVC warns about adding const to a function type, so we want to
   // disable the warning.
 #ifdef _MSC_VER
-# pragma warning(push)          // Saves the current warning state.
-# pragma warning(disable:4180)  // Temporarily disables warning 4180.
-#endif  // _MSC_VER
+#pragma warning(push)            // Saves the current warning state.
+#pragma warning(disable : 4180)  // Temporarily disables warning 4180.
+#endif                           // _MSC_VER
 
   // Note: we deliberately don't call this PrintTo(), as that name
   // conflicts with ::testing::internal::PrintTo in the body of the
@@ -601,8 +601,8 @@ class UniversalPrinter {
   }
 
 #ifdef _MSC_VER
-# pragma warning(pop)           // Restores the warning state.
-#endif  // _MSC_VER
+#pragma warning(pop)  // Restores the warning state.
+#endif                // _MSC_VER
 };
 
 // UniversalPrintArray(begin, len, os) prints an array of 'len'
@@ -630,12 +630,12 @@ void UniversalPrintArray(const T* begin, size_t len, ::std::ostream* os) {
   }
 }
 // This overload prints a (const) char array compactly.
-GTEST_API_ void UniversalPrintArray(
-    const char* begin, size_t len, ::std::ostream* os);
+GTEST_API_ void UniversalPrintArray(const char* begin, size_t len,
+                                    ::std::ostream* os);
 
 // This overload prints a (const) wchar_t array compactly.
-GTEST_API_ void UniversalPrintArray(
-    const wchar_t* begin, size_t len, ::std::ostream* os);
+GTEST_API_ void UniversalPrintArray(const wchar_t* begin, size_t len,
+                                    ::std::ostream* os);
 
 // Implements printing an array type T[N].
 template <typename T, size_t N>
@@ -655,9 +655,9 @@ class UniversalPrinter<T&> {
   // MSVC warns about adding const to a function type, so we want to
   // disable the warning.
 #ifdef _MSC_VER
-# pragma warning(push)          // Saves the current warning state.
-# pragma warning(disable:4180)  // Temporarily disables warning 4180.
-#endif  // _MSC_VER
+#pragma warning(push)            // Saves the current warning state.
+#pragma warning(disable : 4180)  // Temporarily disables warning 4180.
+#endif                           // _MSC_VER
 
   static void Print(const T& value, ::std::ostream* os) {
     // Prints the address of the value.  We use reinterpret_cast here
@@ -669,8 +669,8 @@ class UniversalPrinter<T&> {
   }
 
 #ifdef _MSC_VER
-# pragma warning(pop)           // Restores the warning state.
-#endif  // _MSC_VER
+#pragma warning(pop)  // Restores the warning state.
+#endif                // _MSC_VER
 };
 
 // Prints a value tersely: for a reference type, the referenced value
@@ -774,8 +774,8 @@ struct TuplePrefixPrinter {
   static void PrintPrefixTo(const Tuple& t, ::std::ostream* os) {
     TuplePrefixPrinter<N - 1>::PrintPrefixTo(t, os);
     *os << ", ";
-    UniversalPrinter<typename ::std::tr1::tuple_element<N - 1, Tuple>::type>
-        ::Print(::std::tr1::get<N - 1>(t), os);
+    UniversalPrinter<typename ::std::tr1::tuple_element<N - 1, Tuple>::type>::
+        Print(::std::tr1::get<N - 1>(t), os);
   }
 
   // Tersely prints the first N fields of a tuple to a string vector,
@@ -807,8 +807,8 @@ template <>
 struct TuplePrefixPrinter<1> {
   template <typename Tuple>
   static void PrintPrefixTo(const Tuple& t, ::std::ostream* os) {
-    UniversalPrinter<typename ::std::tr1::tuple_element<0, Tuple>::type>::
-        Print(::std::tr1::get<0>(t), os);
+    UniversalPrinter<typename ::std::tr1::tuple_element<0, Tuple>::type>::Print(
+        ::std::tr1::get<0>(t), os);
   }
 
   template <typename Tuple>
@@ -824,8 +824,7 @@ struct TuplePrefixPrinter<1> {
 template <typename T>
 void PrintTupleTo(const T& t, ::std::ostream* os) {
   *os << "(";
-  TuplePrefixPrinter< ::std::tr1::tuple_size<T>::value>::
-      PrintPrefixTo(t, os);
+  TuplePrefixPrinter< ::std::tr1::tuple_size<T>::value>::PrintPrefixTo(t, os);
   *os << ")";
 }
 
@@ -835,8 +834,9 @@ void PrintTupleTo(const T& t, ::std::ostream* os) {
 template <typename Tuple>
 Strings UniversalTersePrintTupleFieldsToStrings(const Tuple& value) {
   Strings result;
-  TuplePrefixPrinter< ::std::tr1::tuple_size<Tuple>::value>::
-      TersePrintPrefixToStrings(value, &result);
+  TuplePrefixPrinter<
+      ::std::tr1::tuple_size<Tuple>::value>::TersePrintPrefixToStrings(value,
+                                                                       &result);
   return result;
 }
 #endif  // GTEST_HAS_TR1_TUPLE

@@ -9,11 +9,11 @@
 #define BulletTest_Test_btDbvt_h
 
 #ifdef __cplusplus
-extern "C" { 
+extern "C" {
 #endif
-    
-    int Test_btDbvt(void);
-    
+
+int Test_btDbvt(void);
+
 #ifdef __cplusplus
 }
 #endif

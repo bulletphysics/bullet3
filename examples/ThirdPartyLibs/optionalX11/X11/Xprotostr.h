@@ -30,13 +30,13 @@ Copyright 1987 by Digital Equipment Corporation, Maynard, Massachusetts.
 
                         All Rights Reserved
 
-Permission to use, copy, modify, and distribute this software and its 
-documentation for any purpose and without fee is hereby granted, 
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
 provided that the above copyright notice appear in all copies and that
-both that copyright notice and this permission notice appear in 
+both that copyright notice and this permission notice appear in
 supporting documentation, and that the name of Digital not be
 used in advertising or publicity pertaining to distribution of the
-software without specific, written prior permission.  
+software without specific, written prior permission.
 
 DIGITAL DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
 ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL
@@ -52,26 +52,26 @@ SOFTWARE.
 /* Used by PolySegment */
 
 typedef struct _xSegment {
-    INT16 x1 B16, y1 B16, x2 B16, y2 B16;
+  INT16 x1 B16, y1 B16, x2 B16, y2 B16;
 } xSegment;
 
 /* POINT */
 
 typedef struct _xPoint {
-	INT16		x B16, y B16;
+  INT16 x B16, y B16;
 } xPoint;
 
 typedef struct _xRectangle {
-    INT16 x B16, y B16;
-    CARD16  width B16, height B16;
+  INT16 x B16, y B16;
+  CARD16 width B16, height B16;
 } xRectangle;
 
 /*  ARC  */
 
 typedef struct _xArc {
-    INT16 x B16, y B16;
-    CARD16   width B16, height B16;
-    INT16   angle1 B16, angle2 B16;
+  INT16 x B16, y B16;
+  CARD16 width B16, height B16;
+  INT16 angle1 B16, angle2 B16;
 } xArc;
 
 #endif /* XPROTOSTRUCTS_H */

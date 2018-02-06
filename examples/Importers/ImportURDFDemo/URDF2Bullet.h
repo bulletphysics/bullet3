@@ -1,41 +1,36 @@
 #ifndef _URDF2BULLET_H
 #define _URDF2BULLET_H
+#include <string>
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btTransform.h"
-#include <string>
 class btVector3;
 class btTransform;
 class btMultiBodyDynamicsWorld;
 class btTransform;
 
-
 class URDFImporterInterface;
 class MultiBodyCreationInterface;
 
-
-//manually sync with eURDF_Flags in SharedMemoryPublic.h!
+// manually sync with eURDF_Flags in SharedMemoryPublic.h!
 enum ConvertURDFFlags {
   CUF_USE_SDF = 1,
-  // Use inertia values in URDF instead of recomputing them from collision shape.
+  // Use inertia values in URDF instead of recomputing them from collision
+  // shape.
   CUF_USE_URDF_INERTIA = 2,
   CUF_USE_MJCF = 4,
-  CUF_USE_SELF_COLLISION=8,
-  CUF_USE_SELF_COLLISION_EXCLUDE_PARENT=16,
-  CUF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS=32,
-  CUF_RESERVED=64,
-  CUF_USE_IMPLICIT_CYLINDER=128,
-  CUF_GLOBAL_VELOCITIES_MB=256,
-  CUF_MJCF_COLORS_FROM_FILE=512,
+  CUF_USE_SELF_COLLISION = 8,
+  CUF_USE_SELF_COLLISION_EXCLUDE_PARENT = 16,
+  CUF_USE_SELF_COLLISION_EXCLUDE_ALL_PARENTS = 32,
+  CUF_RESERVED = 64,
+  CUF_USE_IMPLICIT_CYLINDER = 128,
+  CUF_GLOBAL_VELOCITIES_MB = 256,
+  CUF_MJCF_COLORS_FROM_FILE = 512,
 };
 
 void ConvertURDF2Bullet(const URDFImporterInterface& u2b,
-			MultiBodyCreationInterface& creationCallback,
-			const btTransform& rootTransformInWorldSpace,
-			btMultiBodyDynamicsWorld* world,
-			bool createMultiBody,
-			const char* pathPrefix,
-            int flags = 0);
+                        MultiBodyCreationInterface& creationCallback,
+                        const btTransform& rootTransformInWorldSpace,
+                        btMultiBodyDynamicsWorld* world, bool createMultiBody,
+                        const char* pathPrefix, int flags = 0);
 
-
-#endif //_URDF2BULLET_H
-
+#endif  //_URDF2BULLET_H

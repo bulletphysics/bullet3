@@ -3,21 +3,17 @@
 
 #include "../CommonInterfaces/CommonExampleInterface.h"
 
-class ExampleBrowserInterface
-{
-	public:
+class ExampleBrowserInterface {
+ public:
+  virtual ~ExampleBrowserInterface() {}
 
-	virtual ~ExampleBrowserInterface() {}
+  virtual CommonExampleInterface* getCurrentExample() = 0;
 
-	virtual CommonExampleInterface* getCurrentExample() = 0;
-	
-	virtual bool init(int argc, char* argv[])=0;
+  virtual bool init(int argc, char* argv[]) = 0;
 
-	virtual void update(float deltaTime)=0;
+  virtual void update(float deltaTime) = 0;
 
-	virtual bool requestedExit()=0;
+  virtual bool requestedExit() = 0;
 };
 
-
-
-#endif //EXAMPLE_BROWSER_GUI_H
+#endif  // EXAMPLE_BROWSER_GUI_H

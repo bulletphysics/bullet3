@@ -9,7 +9,7 @@
 #define BulletTest_Test_3x3mulM_h
 
 #ifdef __cplusplus
-extern "C" { 
+extern "C" {
 #endif
 
 int Test_3x3mulM(void);
@@ -18,5 +18,4 @@ int Test_3x3mulM(void);
 }
 #endif
 
-    
 #endif

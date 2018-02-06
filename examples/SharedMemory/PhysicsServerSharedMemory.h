@@ -1,67 +1,64 @@
 #ifndef PHYSICS_SERVER_SHARED_MEMORY_H
 #define PHYSICS_SERVER_SHARED_MEMORY_H
 
-#include "PhysicsServer.h"
 #include "LinearMath/btQuaternion.h"
+#include "PhysicsServer.h"
 
-class PhysicsServerSharedMemory : public PhysicsServer
-{
-	struct PhysicsServerSharedMemoryInternalData* m_data;
+class PhysicsServerSharedMemory : public PhysicsServer {
+  struct PhysicsServerSharedMemoryInternalData* m_data;
 
-protected:
+ protected:
+  void releaseSharedMemory();
 
-	
-	void	releaseSharedMemory();
-	
-	
-public:
-	PhysicsServerSharedMemory(struct CommandProcessorCreationInterface* commandProcessorCreator, class SharedMemoryInterface* sharedMem, int bla);
-	virtual ~PhysicsServerSharedMemory();
+ public:
+  PhysicsServerSharedMemory(
+      struct CommandProcessorCreationInterface* commandProcessorCreator,
+      class SharedMemoryInterface* sharedMem, int bla);
+  virtual ~PhysicsServerSharedMemory();
 
-	virtual void setSharedMemoryKey(int key);
-	
-	//todo: implement option to allocated shared memory from client 
-	virtual bool connectSharedMemory( struct GUIHelperInterface* guiHelper);
+  virtual void setSharedMemoryKey(int key);
 
-	virtual void disconnectSharedMemory (bool deInitializeSharedMemory);
+  // todo: implement option to allocated shared memory from client
+  virtual bool connectSharedMemory(struct GUIHelperInterface* guiHelper);
 
-	virtual void processClientCommands();
+  virtual void disconnectSharedMemory(bool deInitializeSharedMemory);
 
-	virtual void stepSimulationRealTime(double dtInSec,const struct b3VRControllerEvent* vrEvents, int numVREvents, const struct b3KeyboardEvent* keyEvents, int numKeyEvents, const struct b3MouseEvent* mouseEvents, int numMouseEvents);
+  virtual void processClientCommands();
 
-	virtual void enableRealTimeSimulation(bool enableRealTimeSim);
-	virtual bool isRealTimeSimulationEnabled() const;
+  virtual void stepSimulationRealTime(
+      double dtInSec, const struct b3VRControllerEvent* vrEvents,
+      int numVREvents, const struct b3KeyboardEvent* keyEvents,
+      int numKeyEvents, const struct b3MouseEvent* mouseEvents,
+      int numMouseEvents);
 
-	//bool	supportsJointMotor(class btMultiBody* body, int linkIndex);
+  virtual void enableRealTimeSimulation(bool enableRealTimeSim);
+  virtual bool isRealTimeSimulationEnabled() const;
 
-	
-	///The pickBody method will try to pick the first body along a ray, return true if succeeds, false otherwise
-	virtual bool pickBody(const btVector3& rayFromWorld, const btVector3& rayToWorld);
-	virtual bool movePickedBody(const btVector3& rayFromWorld, const btVector3& rayToWorld);
-	virtual void removePickingConstraint();
+  // bool	supportsJointMotor(class btMultiBody* body, int linkIndex);
 
-	virtual const btVector3& getVRTeleportPosition() const;
-	virtual void setVRTeleportPosition(const btVector3& vrTeleportPos);
+  /// The pickBody method will try to pick the first body along a ray, return
+  /// true if succeeds, false otherwise
+  virtual bool pickBody(const btVector3& rayFromWorld,
+                        const btVector3& rayToWorld);
+  virtual bool movePickedBody(const btVector3& rayFromWorld,
+                              const btVector3& rayToWorld);
+  virtual void removePickingConstraint();
 
-	virtual const btQuaternion& getVRTeleportOrientation() const;
-	virtual void setVRTeleportOrientation(const btQuaternion& vrTeleportOrn);
+  virtual const btVector3& getVRTeleportPosition() const;
+  virtual void setVRTeleportPosition(const btVector3& vrTeleportPos);
 
-	
+  virtual const btQuaternion& getVRTeleportOrientation() const;
+  virtual void setVRTeleportOrientation(const btQuaternion& vrTeleportOrn);
 
-	//for physicsDebugDraw and renderScene are mainly for debugging purposes
-	//and for physics visualization. The idea is that physicsDebugDraw can also send wireframe
-	//to a physics client, over shared memory
-	void    physicsDebugDraw(int debugDrawFlags);
-	void    renderScene(int renderFlags);
-	void	syncPhysicsToGraphics();
+  // for physicsDebugDraw and renderScene are mainly for debugging purposes
+  // and for physics visualization. The idea is that physicsDebugDraw can also
+  // send wireframe to a physics client, over shared memory
+  void physicsDebugDraw(int debugDrawFlags);
+  void renderScene(int renderFlags);
+  void syncPhysicsToGraphics();
 
-	void enableCommandLogging(bool enable, const char* fileName);
-	void replayFromLogFile(const char* fileName);
-	
-
+  void enableCommandLogging(bool enable, const char* fileName);
+  void replayFromLogFile(const char* fileName);
 };
 
-
-#endif //PHYSICS_SERVER_EXAMPLESHARED_MEMORY_H
-
-
+#endif  // PHYSICS_SERVER_EXAMPLESHARED_MEMORY_H

@@ -5,74 +5,67 @@
 
 #include "../CommonInterfaces/CommonWindowInterface.h"
 
-class X11OpenGLWindow : public CommonWindowInterface
-{
+class X11OpenGLWindow : public CommonWindowInterface {
+  struct InternalData2* m_data;
+  bool m_OpenGLInitialized;
+  bool m_requestedExit;
 
-	struct InternalData2*   m_data;
-        bool m_OpenGLInitialized;
-	bool m_requestedExit;
+ protected:
+  void enableOpenGL();
 
-protected:
+  void disableOpenGL();
 
-        void enableOpenGL();
+  void pumpMessage();
 
-        void disableOpenGL();
+  int getAsciiCodeFromVirtualKeycode(int orgCode);
 
-        void pumpMessage();
+ public:
+  X11OpenGLWindow();
 
-        int getAsciiCodeFromVirtualKeycode(int orgCode);
+  virtual ~X11OpenGLWindow();
 
-public:
+  virtual void createWindow(const b3gWindowConstructionInfo& ci);
 
-        X11OpenGLWindow();
+  virtual void closeWindow();
 
-        virtual ~X11OpenGLWindow();
+  virtual void startRendering();
 
-        virtual void    createWindow(const b3gWindowConstructionInfo& ci);
+  virtual void renderAllObjects();
 
-        virtual void    closeWindow();
+  virtual void endRendering();
 
-        virtual void    startRendering();
+  virtual float getRetinaScale() const { return 1.f; }
+  virtual void setAllowRetina(bool /*allowRetina*/){};
 
-        virtual void    renderAllObjects();
+  virtual void runMainLoop();
+  virtual float getTimeInSeconds();
 
-        virtual void    endRendering();
+  virtual bool requestedExit() const;
+  virtual void setRequestExit();
 
-        virtual float getRetinaScale() const {return 1.f;}
-	virtual void setAllowRetina(bool /*allowRetina*/) {};
+  virtual bool isModifierKeyPressed(int key);
 
-	virtual void    runMainLoop();
-        virtual float   getTimeInSeconds();
+  virtual void setMouseMoveCallback(b3MouseMoveCallback mouseCallback);
+  virtual void setMouseButtonCallback(b3MouseButtonCallback mouseCallback);
+  virtual void setResizeCallback(b3ResizeCallback resizeCallback);
+  virtual void setWheelCallback(b3WheelCallback wheelCallback);
+  virtual void setKeyboardCallback(b3KeyboardCallback keyboardCallback);
 
-        virtual bool    requestedExit() const;
-        virtual void    setRequestExit() ;
+  virtual b3MouseMoveCallback getMouseMoveCallback();
+  virtual b3MouseButtonCallback getMouseButtonCallback();
+  virtual b3ResizeCallback getResizeCallback();
+  virtual b3WheelCallback getWheelCallback();
+  virtual b3KeyboardCallback getKeyboardCallback();
 
-	virtual bool isModifierKeyPressed(int key);
+  virtual void setRenderCallback(b3RenderCallback renderCallback);
 
-        virtual void setMouseMoveCallback(b3MouseMoveCallback   mouseCallback);
-        virtual void setMouseButtonCallback(b3MouseButtonCallback       mouseCallback);
-        virtual void setResizeCallback(b3ResizeCallback resizeCallback);
-        virtual void setWheelCallback(b3WheelCallback wheelCallback);
-        virtual void setKeyboardCallback( b3KeyboardCallback    keyboardCallback);
+  virtual void setWindowTitle(const char* title);
 
-		virtual b3MouseMoveCallback getMouseMoveCallback();
-		virtual b3MouseButtonCallback getMouseButtonCallback();
-		virtual b3ResizeCallback getResizeCallback();
-		virtual b3WheelCallback getWheelCallback();
-		virtual b3KeyboardCallback      getKeyboardCallback();
+  virtual int getWidth() const;
 
-        virtual void setRenderCallback( b3RenderCallback renderCallback);
+  virtual int getHeight() const;
 
-        virtual void setWindowTitle(const char* title);
-
-        virtual int   getWidth() const;
-
-        virtual int   getHeight() const;
-
-	int fileOpenDialog(char* filename, int maxNameLength);
+  int fileOpenDialog(char* filename, int maxNameLength);
 };
 
-
-
 #endif
-

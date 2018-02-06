@@ -1,5 +1,3 @@
 #include "PhysicsServer.h"
 
-PhysicsServer::~PhysicsServer()
-{
-}
+PhysicsServer::~PhysicsServer() {}

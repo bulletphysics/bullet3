@@ -30,19 +30,15 @@ in this Software without prior written authorization from The Open Group.
 
 _XFUNCPROTOBEGIN
 
-typedef int (*XextErrorHandler) (
-    Display *		/* dpy */,
-    _Xconst char*	/* ext_name */,
-    _Xconst char*	/* reason */
+typedef int (*XextErrorHandler)(Display* /* dpy */,
+                                _Xconst char* /* ext_name */,
+                                _Xconst char* /* reason */
 );
 
-extern XextErrorHandler XSetExtensionErrorHandler(
-    XextErrorHandler	/* handler */
+extern XextErrorHandler XSetExtensionErrorHandler(XextErrorHandler /* handler */
 );
 
-extern int XMissingExtension(
-    Display*		/* dpy */,
-    _Xconst char*	/* ext_name */
+extern int XMissingExtension(Display* /* dpy */, _Xconst char* /* ext_name */
 );
 
 _XFUNCPROTOEND

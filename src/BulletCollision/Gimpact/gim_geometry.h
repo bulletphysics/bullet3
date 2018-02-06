@@ -28,15 +28,16 @@ email: projectileman@yahoo.com
  This library is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the files
- GIMPACT-LICENSE-LGPL.TXT, GIMPACT-LICENSE-ZLIB.TXT and GIMPACT-LICENSE-BSD.TXT for more details.
+ GIMPACT-LICENSE-LGPL.TXT, GIMPACT-LICENSE-ZLIB.TXT and GIMPACT-LICENSE-BSD.TXT
+for more details.
 
 -----------------------------------------------------------------------------
 */
 
-///Additional Headers for Collision
+/// Additional Headers for Collision
 #include "gim_basic_geometry_operations.h"
-#include "gim_clip_polygon.h"
 #include "gim_box_collision.h"
+#include "gim_clip_polygon.h"
 #include "gim_tri_collision.h"
 
-#endif // GIM_VECTOR_H_INCLUDED
+#endif  // GIM_VECTOR_H_INCLUDED

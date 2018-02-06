@@ -3,17 +3,14 @@
 #include "PhysicsDirect.h"
 #include "SharedMemoryCommandProcessor.h"
 
-b3PhysicsClientHandle b3ConnectSharedMemory2(int key)
-{
+b3PhysicsClientHandle b3ConnectSharedMemory2(int key) {
+  SharedMemoryCommandProcessor* cmdProc = new SharedMemoryCommandProcessor();
+  cmdProc->setSharedMemoryKey(key);
+  PhysicsDirect* cl = new PhysicsDirect(cmdProc, true);
 
-	SharedMemoryCommandProcessor* cmdProc = new SharedMemoryCommandProcessor();
-	cmdProc->setSharedMemoryKey(key);
-	PhysicsDirect* cl = new PhysicsDirect(cmdProc,true);
+  cl->setSharedMemoryKey(key);
 
-	cl->setSharedMemoryKey(key);
+  cl->connect();
 
-	cl->connect();
-
-	return (b3PhysicsClientHandle)cl;
+  return (b3PhysicsClientHandle)cl;
 }
-

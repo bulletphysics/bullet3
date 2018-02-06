@@ -1,7 +1,7 @@
 /*
-	GWEN
-	Copyright (c) 2010 Facepunch Studios
-	See license in Gwen.h
+        GWEN
+        Copyright (c) 2010 Facepunch Studios
+        See license in Gwen.h
 */
 
 #pragma once
@@ -12,32 +12,26 @@
 #include "Gwen/Gwen.h"
 #include "Gwen/Skin.h"
 
+namespace Gwen {
+namespace ControlsInternal {
+class GWEN_EXPORT Dragger : public Controls::Base {
+ public:
+  GWEN_CONTROL(Dragger, Controls::Base);
 
-namespace Gwen 
-{
-	namespace ControlsInternal
-	{
-		class GWEN_EXPORT Dragger : public Controls::Base
-		{
-			public:
+  virtual void OnMouseMoved(int x, int y, int deltaX, int deltaY);
 
-				GWEN_CONTROL( Dragger, Controls::Base );
+  virtual void OnMouseClickLeft(int x, int y, bool bDown);
+  virtual void Render(Skin::Base* skin);
 
-				virtual void OnMouseMoved( int x, int y, int deltaX, int deltaY );
+  virtual void SetTarget(Controls::Base* pBase) { m_pTarget = pBase; }
 
-				virtual void OnMouseClickLeft( int x, int y, bool bDown );
-				virtual void Render( Skin::Base* skin );
+  Gwen::Event::Caller onDragged;
 
-				virtual void SetTarget( Controls::Base* pBase ){ m_pTarget = pBase; }
-
-				Gwen::Event::Caller	onDragged;
-
-			protected:
-
-				bool				m_bDepressed;
-				Gwen::Point				m_HoldPos;
-				Controls::Base*		m_pTarget;
-		};
-	}
-}
+ protected:
+  bool m_bDepressed;
+  Gwen::Point m_HoldPos;
+  Controls::Base* m_pTarget;
+};
+}  // namespace ControlsInternal
+}  // namespace Gwen
 #endif

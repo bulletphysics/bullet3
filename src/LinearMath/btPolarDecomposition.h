@@ -11,46 +11,44 @@
  * required to be a square 3x3 matrix with real elements. This means that U will
  * be an orthogonal matrix and H with be a positive-definite, symmetric matrix.
  */
-class btPolarDecomposition
-{
-  public:
-   
+class btPolarDecomposition {
+ public:
+  /**
+   * Creates an instance with optional parameters.
+   *
+   * @param tolerance     - the tolerance used to determine convergence of the
+   *                        algorithm
+   * @param maxIterations - the maximum number of iterations used to achieve
+   *                        convergence
+   */
+  btPolarDecomposition(btScalar tolerance = btScalar(0.0001),
+                       unsigned int maxIterations = 16);
 
-    /**
-     * Creates an instance with optional parameters.
-     *
-     * @param tolerance     - the tolerance used to determine convergence of the
-     *                        algorithm
-     * @param maxIterations - the maximum number of iterations used to achieve
-     *                        convergence
-     */
-    btPolarDecomposition(btScalar tolerance = btScalar(0.0001),
-      unsigned int maxIterations = 16);
+  /**
+   * Decomposes a matrix into orthogonal and symmetric, positive-definite
+   * parts. If the number of iterations returned by this function is equal to
+   * the maximum number of iterations, the algorithm has failed to converge.
+   *
+   * @param a - the original matrix
+   * @param u - the resulting orthogonal matrix
+   * @param h - the resulting symmetric matrix
+   *
+   * @return the number of iterations performed by the algorithm.
+   */
+  unsigned int decompose(const btMatrix3x3& a, btMatrix3x3& u,
+                         btMatrix3x3& h) const;
 
-    /**
-     * Decomposes a matrix into orthogonal and symmetric, positive-definite
-     * parts. If the number of iterations returned by this function is equal to
-     * the maximum number of iterations, the algorithm has failed to converge.
-     *
-     * @param a - the original matrix
-     * @param u - the resulting orthogonal matrix
-     * @param h - the resulting symmetric matrix
-     *
-     * @return the number of iterations performed by the algorithm.
-     */
-    unsigned int decompose(const btMatrix3x3& a, btMatrix3x3& u, btMatrix3x3& h) const; 
+  /**
+   * Returns the maximum number of iterations that this algorithm will perform
+   * to achieve convergence.
+   *
+   * @return maximum number of iterations
+   */
+  unsigned int maxIterations() const;
 
-    /**
-     * Returns the maximum number of iterations that this algorithm will perform
-     * to achieve convergence.
-     *
-     * @return maximum number of iterations
-     */
-    unsigned int maxIterations() const;
-
-  private:
-    btScalar m_tolerance;
-    unsigned int m_maxIterations;
+ private:
+  btScalar m_tolerance;
+  unsigned int m_maxIterations;
 };
 
 /**
@@ -66,7 +64,7 @@ class btPolarDecomposition
  *
  * @return the number of iterations performed by the algorithm.
  */
-unsigned int polarDecompose(const btMatrix3x3& a, btMatrix3x3& u, btMatrix3x3& h); 
+unsigned int polarDecompose(const btMatrix3x3& a, btMatrix3x3& u,
+                            btMatrix3x3& h);
 
-#endif // POLARDECOMPOSITION_H
-
+#endif  // POLARDECOMPOSITION_H

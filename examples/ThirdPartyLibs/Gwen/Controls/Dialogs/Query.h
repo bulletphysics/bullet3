@@ -4,11 +4,9 @@
 
 #include "Gwen/Gwen.h"
 
-namespace Gwen 
-{
-	namespace Dialogs
-	{
-		//TODO. YesNo, Ok etc
-	}
+namespace Gwen {
+namespace Dialogs {
+// TODO. YesNo, Ok etc
 }
+}  // namespace Gwen
 #endif

@@ -3,29 +3,27 @@
 
 #include "ExampleBrowserInterface.h"
 
-class OpenGLExampleBrowser : public ExampleBrowserInterface
-{
-	
-	struct OpenGLExampleBrowserInternalData* m_internalData;
+class OpenGLExampleBrowser : public ExampleBrowserInterface {
+  struct OpenGLExampleBrowserInternalData* m_internalData;
 
-public:
+ public:
+  OpenGLExampleBrowser(class ExampleEntries* examples);
+  virtual ~OpenGLExampleBrowser();
 
-	OpenGLExampleBrowser(class ExampleEntries* examples);
-	virtual ~OpenGLExampleBrowser();
-	
-	virtual CommonExampleInterface* getCurrentExample();
-	
-	virtual bool init(int argc, char* argv[]);
+  virtual CommonExampleInterface* getCurrentExample();
 
-	virtual void update(float deltaTime);
+  virtual bool init(int argc, char* argv[]);
 
-	virtual void updateGraphics();
+  virtual void update(float deltaTime);
 
-	virtual bool requestedExit();
+  virtual void updateGraphics();
 
-	virtual void setSharedMemoryInterface(class SharedMemoryInterface* sharedMem);
-	
-	static void registerFileImporter(const char* extension, CommonExampleInterface::CreateFunc*		createFunc);
+  virtual bool requestedExit();
+
+  virtual void setSharedMemoryInterface(class SharedMemoryInterface* sharedMem);
+
+  static void registerFileImporter(
+      const char* extension, CommonExampleInterface::CreateFunc* createFunc);
 };
 
-#endif //OPENGL_BROWSER_GUI_H
+#endif  // OPENGL_BROWSER_GUI_H

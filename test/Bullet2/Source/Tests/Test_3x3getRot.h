@@ -9,7 +9,7 @@
 #define BulletTest_Test_3x3getRot_h
 
 #ifdef __cplusplus
-extern "C" { 
+extern "C" {
 #endif
 
 int Test_3x3getRot(void);
@@ -18,5 +18,4 @@ int Test_3x3getRot(void);
 }
 #endif
 
-    
 #endif

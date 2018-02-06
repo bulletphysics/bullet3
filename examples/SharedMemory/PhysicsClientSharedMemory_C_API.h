@@ -13,4 +13,4 @@ B3_SHARED_API b3PhysicsClientHandle b3ConnectSharedMemory(int key);
 }
 #endif
 
-#endif //PHYSICS_CLIENT_SHARED_MEMORY_H
+#endif  // PHYSICS_CLIENT_SHARED_MEMORY_H

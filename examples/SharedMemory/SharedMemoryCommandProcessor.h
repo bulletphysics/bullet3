@@ -3,35 +3,35 @@
 
 #include "PhysicsCommandProcessorInterface.h"
 
-class SharedMemoryCommandProcessor : public PhysicsCommandProcessorInterface
-{
+class SharedMemoryCommandProcessor : public PhysicsCommandProcessorInterface {
+  struct SharedMemoryCommandProcessorInternalData* m_data;
 
-	struct SharedMemoryCommandProcessorInternalData* m_data;
+ public:
+  SharedMemoryCommandProcessor();
 
-public:
-	SharedMemoryCommandProcessor();
+  virtual ~SharedMemoryCommandProcessor();
 
-	virtual ~SharedMemoryCommandProcessor();
+  virtual bool connect();
 
-	virtual bool connect();
+  virtual void disconnect();
 
-	virtual void disconnect();
+  virtual bool isConnected() const;
 
-	virtual bool isConnected() const;
+  virtual bool processCommand(const struct SharedMemoryCommand& clientCmd,
+                              struct SharedMemoryStatus& serverStatusOut,
+                              char* bufferServerToClient,
+                              int bufferSizeInBytes);
 
-	virtual bool processCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes);
+  virtual bool receiveStatus(struct SharedMemoryStatus& serverStatusOut,
+                             char* bufferServerToClient, int bufferSizeInBytes);
 
-	virtual bool receiveStatus(struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes);
+  virtual void renderScene(int renderFlags);
+  virtual void physicsDebugDraw(int debugDrawFlags);
+  virtual void setGuiHelper(struct GUIHelperInterface* guiHelper);
 
-	virtual void renderScene(int renderFlags);
-	virtual void   physicsDebugDraw(int debugDrawFlags);
-	virtual void setGuiHelper(struct GUIHelperInterface* guiHelper);
-
-	void setSharedMemoryInterface(class SharedMemoryInterface* sharedMem);
-	void setSharedMemoryKey(int key);
-	virtual void setTimeOut(double timeOutInSeconds);
-
+  void setSharedMemoryInterface(class SharedMemoryInterface* sharedMem);
+  void setSharedMemoryKey(int key);
+  virtual void setTimeOut(double timeOutInSeconds);
 };
 
-#endif //SHARED_MEMORY_COMMAND_PROCESSOR_H
-
+#endif  // SHARED_MEMORY_COMMAND_PROCESSOR_H

@@ -3,89 +3,94 @@
 
 //#include "SharedMemoryCommands.h"
 
-
-#include "PhysicsClient.h"
 #include "LinearMath/btVector3.h"
+#include "PhysicsClient.h"
 
-///todo: the PhysicsClient API was designed with shared memory in mind, 
-///now it become more general we need to move out the shared memory specifics away
-///for example naming [disconnectSharedMemory -> disconnect] [ move setSharedMemoryKey to shared memory specific subclass ]
+/// todo: the PhysicsClient API was designed with shared memory in mind,
+/// now it become more general we need to move out the shared memory specifics
+/// away for example naming [disconnectSharedMemory -> disconnect] [ move
+/// setSharedMemoryKey to shared memory specific subclass ]
 
-class PhysicsLoopBack : public PhysicsClient 
-{
-	struct PhysicsLoopBackInternalData* m_data;
+class PhysicsLoopBack : public PhysicsClient {
+  struct PhysicsLoopBackInternalData* m_data;
 
-public:
+ public:
+  PhysicsLoopBack();
 
-	PhysicsLoopBack();
+  virtual ~PhysicsLoopBack();
 
-	virtual ~PhysicsLoopBack();
+  // return true if connection succesfull, can also check 'isConnected'
+  virtual bool connect();
 
-	  // return true if connection succesfull, can also check 'isConnected'
-    virtual bool connect();
+  ////todo: rename to 'disconnect'
+  virtual void disconnectSharedMemory();
 
-	////todo: rename to 'disconnect'
-    virtual void disconnectSharedMemory();
+  virtual bool isConnected() const;
 
-    virtual bool isConnected() const;
+  // return non-null if there is a status, nullptr otherwise
+  virtual const SharedMemoryStatus* processServerStatus();
 
-    // return non-null if there is a status, nullptr otherwise
-    virtual const  SharedMemoryStatus* processServerStatus();
+  virtual SharedMemoryCommand* getAvailableSharedMemoryCommand();
 
-    virtual  SharedMemoryCommand* getAvailableSharedMemoryCommand();
+  virtual bool canSubmitCommand() const;
 
-    virtual bool canSubmitCommand() const;
+  virtual bool submitClientCommand(const struct SharedMemoryCommand& command);
 
-    virtual bool submitClientCommand(const struct SharedMemoryCommand& command);
+  virtual int getNumBodies() const;
 
-	virtual int getNumBodies() const;
+  virtual int getBodyUniqueId(int serialIndex) const;
 
-	virtual int getBodyUniqueId(int serialIndex) const;
+  virtual bool getBodyInfo(int bodyUniqueId, struct b3BodyInfo& info) const;
 
-	virtual bool getBodyInfo(int bodyUniqueId, struct b3BodyInfo& info) const;
+  virtual int getNumJoints(int bodyIndex) const;
 
-    virtual int getNumJoints(int bodyIndex) const;
+  virtual bool getJointInfo(int bodyIndex, int jointIndex,
+                            struct b3JointInfo& info) const;
 
-    virtual bool getJointInfo(int bodyIndex, int jointIndex, struct b3JointInfo& info) const;
+  virtual int getNumUserConstraints() const;
 
-    virtual int getNumUserConstraints() const;
-    
-    virtual int getUserConstraintInfo(int constraintUniqueId, struct b3UserConstraint&info) const;
-	
-	virtual int getUserConstraintId(int serialIndex) const;
-    
-	///todo: move this out of the
-    virtual void setSharedMemoryKey(int key);
+  virtual int getUserConstraintInfo(int constraintUniqueId,
+                                    struct b3UserConstraint& info) const;
 
-    void uploadBulletFileToSharedMemory(const char* data, int len);
+  virtual int getUserConstraintId(int serialIndex) const;
 
-    virtual int getNumDebugLines() const;
+  /// todo: move this out of the
+  virtual void setSharedMemoryKey(int key);
 
-    virtual const float* getDebugLinesFrom() const;
-    virtual const float* getDebugLinesTo() const;
-    virtual const float* getDebugLinesColor() const;
-	virtual void getCachedCameraImage(struct b3CameraImageData* cameraData);
-	
-	virtual void getCachedContactPointInformation(struct b3ContactInformation* contactPointData);
+  void uploadBulletFileToSharedMemory(const char* data, int len);
 
-	virtual void getCachedOverlappingObjects(struct b3AABBOverlapData* overlappingObjects);
+  virtual int getNumDebugLines() const;
 
-	virtual void getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo);
+  virtual const float* getDebugLinesFrom() const;
+  virtual const float* getDebugLinesTo() const;
+  virtual const float* getDebugLinesColor() const;
+  virtual void getCachedCameraImage(struct b3CameraImageData* cameraData);
 
-	virtual void getCachedCollisionShapeInformation(struct b3CollisionShapeInformation* collisionShapesInfo);
+  virtual void getCachedContactPointInformation(
+      struct b3ContactInformation* contactPointData);
 
-	virtual void getCachedVREvents(struct b3VREventsData* vrEventsData);
+  virtual void getCachedOverlappingObjects(
+      struct b3AABBOverlapData* overlappingObjects);
 
-	virtual void getCachedKeyboardEvents(struct b3KeyboardEventsData* keyboardEventsData);
+  virtual void getCachedVisualShapeInformation(
+      struct b3VisualShapeInformation* visualShapesInfo);
 
-	virtual void getCachedMouseEvents(struct b3MouseEventsData* mouseEventsData);
+  virtual void getCachedCollisionShapeInformation(
+      struct b3CollisionShapeInformation* collisionShapesInfo);
 
-	virtual void getCachedRaycastHits(struct b3RaycastInformation* raycastHits);
+  virtual void getCachedVREvents(struct b3VREventsData* vrEventsData);
 
-	virtual void getCachedMassMatrix(int dofCountCheck, double* massMatrix);
+  virtual void getCachedKeyboardEvents(
+      struct b3KeyboardEventsData* keyboardEventsData);
 
-	virtual void setTimeOut(double timeOutInSeconds);
-	virtual double getTimeOut() const;
+  virtual void getCachedMouseEvents(struct b3MouseEventsData* mouseEventsData);
+
+  virtual void getCachedRaycastHits(struct b3RaycastInformation* raycastHits);
+
+  virtual void getCachedMassMatrix(int dofCountCheck, double* massMatrix);
+
+  virtual void setTimeOut(double timeOutInSeconds);
+  virtual double getTimeOut() const;
 };
 
-#endif //PHYSICS_LOOP_BACK_H
+#endif  // PHYSICS_LOOP_BACK_H

@@ -1,7 +1,7 @@
 /*
-	GWEN
-	Copyright (c) 2010 Facepunch Studios
-	See license in Gwen.h
+        GWEN
+        Copyright (c) 2010 Facepunch Studios
+        See license in Gwen.h
 */
 
 #pragma once
@@ -13,48 +13,38 @@
 #include "Gwen/Skin.h"
 #include "Gwen/Utility.h"
 
+namespace Gwen {
+namespace Controls {
+namespace Property {
+class GWEN_EXPORT Base : public Gwen::Controls::Base {
+ public:
+  GWEN_CONTROL_INLINE(Base, Gwen::Controls::Base) {}
 
-namespace Gwen 
-{
-	namespace Controls
-	{
-		namespace Property
-		{
-			class GWEN_EXPORT Base : public Gwen::Controls::Base
-			{
-				public:
+  virtual String GetPropertyValueAnsi() {
+    return Gwen::Utility::UnicodeToString(GetPropertyValue());
+  }
 
-					GWEN_CONTROL_INLINE( Base, Gwen::Controls::Base ){}
+  virtual void SetPropertyValue(const String& v,
+                                bool bFireChangeEvents = false) {
+    SetPropertyValue(Gwen::Utility::StringToUnicode(v), bFireChangeEvents);
+  }
 
-					virtual String GetPropertyValueAnsi()
-					{
-						return Gwen::Utility::UnicodeToString( GetPropertyValue() );
-					}
+  virtual UnicodeString GetPropertyValue() = 0;
 
-					virtual void SetPropertyValue( const String& v, bool bFireChangeEvents = false )
-					{
-						SetPropertyValue( Gwen::Utility::StringToUnicode( v ), bFireChangeEvents );
-					}
+  virtual void SetPropertyValue(const UnicodeString& v,
+                                bool bFireChangeEvents = false) = 0;
 
-					virtual UnicodeString GetPropertyValue() = 0;
+  virtual bool IsEditing() = 0;
 
-					virtual void SetPropertyValue( const UnicodeString& v, bool bFireChangeEvents = false ) = 0;
+  virtual void DoChanged() { onChange.Call(this); }
 
-					virtual bool IsEditing() = 0;
+  virtual void OnPropertyValueChanged(Gwen::Controls::Base* /*control*/) {
+    DoChanged();
+  }
 
-					virtual void DoChanged()
-					{
-						onChange.Call( this );
-					}
-
-					virtual void OnPropertyValueChanged( Gwen::Controls::Base* /*control*/ )
-					{
-						DoChanged();
-					}
-
-					Event::Caller	onChange;
-			};
-		}
-	}
-}
+  Event::Caller onChange;
+};
+}  // namespace Property
+}  // namespace Controls
+}  // namespace Gwen
 #endif

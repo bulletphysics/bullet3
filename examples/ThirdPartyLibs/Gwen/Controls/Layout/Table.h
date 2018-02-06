@@ -1,7 +1,7 @@
 /*
-	GWEN
-	Copyright (c) 2010 Facepunch Studios
-	See license in Gwen.h
+        GWEN
+        Copyright (c) 2010 Facepunch Studios
+        See license in Gwen.h
 */
 
 #pragma once
@@ -11,307 +11,242 @@
 #include "Gwen/Controls/Label.h"
 #include "Gwen/Utility.h"
 
+namespace Gwen {
+namespace Controls {
+namespace Layout {
+class Table;
 
-namespace Gwen 
-{
-	namespace Controls
-	{
-		namespace Layout
-		{
-			class Table;
+class GWEN_EXPORT TableRow : public Base {
+  static const int MaxColumns = 5;
 
-			class GWEN_EXPORT TableRow : public Base
-			{
-				static const int MaxColumns = 5;
+  GWEN_CONTROL_INLINE(TableRow, Base) {
+    for (int i = 0; i < MaxColumns; i++) m_Columns[i] = NULL;
 
-				GWEN_CONTROL_INLINE( TableRow, Base )
-				{
-					for ( int i=0; i<MaxColumns; i++ )
-						m_Columns[i] = NULL;
+    m_ColumnCount = 0;
+  }
 
-					m_ColumnCount = 0;
-				}
+  virtual class TableRow* DynamicCastLayoutTableRow() { return this; }
+  virtual const class TableRow* DynamicCastLayoutTableRow() const {
+    return this;
+  }
 
-				virtual class TableRow* DynamicCastLayoutTableRow() 
-				{ 
-					return this;
-				}
-				virtual const class TableRow* DynamicCastLayoutTableRow() const 
-				{ 
-					return this;
-				}
+  void SetColumnCount(int iCount) {
+    if (iCount == m_ColumnCount) return;
 
+    if (iCount >= MaxColumns) m_ColumnCount = MaxColumns;
 
-				void SetColumnCount( int iCount )
-				{
-					if ( iCount == m_ColumnCount ) return;
+    for (int i = 0; i < MaxColumns; i++) {
+      if (i < iCount) {
+        if (!m_Columns[i]) {
+          m_Columns[i] = new Label(this);
+          m_Columns[i]->Dock(Pos::Left);
+          m_Columns[i]->SetPadding(Padding(3, 3, 3, 3));
+        }
+      } else if (m_Columns[i]) {
+        m_Columns[i]->DelayedDelete();
+        m_Columns[i] = NULL;
+      }
 
-					if ( iCount >= MaxColumns ) 
-						m_ColumnCount = MaxColumns;
+      m_ColumnCount = iCount;
+    }
+  }
 
-					for ( int i=0; i<MaxColumns; i++ )
-					{
-						if ( i < iCount )
-						{
-							if ( !m_Columns[i] )
-							{
-								m_Columns[i] = new Label( this );
-								m_Columns[i]->Dock( Pos::Left );
-								m_Columns[i]->SetPadding( Padding( 3, 3, 3, 3 ) );
-							}
-						}
-						else if ( m_Columns[i] )
-						{
-							m_Columns[i]->DelayedDelete();
-							m_Columns[i] = NULL;
-						}
+  void SetColumnWidth(int i, int iWidth) {
+    if (!m_Columns[i]) return;
+    if (m_Columns[i]->Width() == iWidth) return;
 
-						m_ColumnCount = iCount;
-					}
-				}
+    m_Columns[i]->SetWidth(iWidth);
+  }
 
-				void SetColumnWidth( int i, int iWidth )
-				{
-					if ( !m_Columns[i] ) return;
-					if ( m_Columns[i]->Width() == iWidth ) return;
+  template <typename T>
+  void SetCellText(int i, const T& strString) {
+    if (!m_Columns[i]) return;
+    m_Columns[i]->SetText(strString);
+  }
 
-					m_Columns[i]->SetWidth( iWidth );
-				}
+  void SetCellContents(int i, Base* pControl, bool bEnableMouseInput = false) {
+    if (!m_Columns[i]) return;
+    pControl->SetParent(m_Columns[i]);
 
-				template <typename T>
-				void SetCellText( int i, const T& strString )
-				{
-					if ( !m_Columns[i] ) return;
-					m_Columns[i]->SetText( strString );
-				}
+    m_Columns[i]->SetMouseInputEnabled(bEnableMouseInput);
+  }
 
-				void SetCellContents( int i, Base* pControl, bool bEnableMouseInput = false )
-				{
-					if ( !m_Columns[i] ) return;
-					pControl->SetParent( m_Columns[i] );
+  Label* GetCellContents(int i) { return m_Columns[i]; }
 
-					m_Columns[i]->SetMouseInputEnabled( bEnableMouseInput );
-				}
+  void SizeToContents() {
+    int iHeight = 0;
 
-				Label* GetCellContents( int i )
-				{
-					return m_Columns[i];
-				}
+    for (int i = 0; i < m_ColumnCount; i++) {
+      if (!m_Columns[i]) continue;
 
-				void SizeToContents()
-				{
-					int iHeight = 0;
+      // Note, more than 1 child here, because the
+      // label has a child built in ( The Text )
+      if (m_Columns[i]->NumChildren() > 1) {
+        m_Columns[i]->SizeToChildren();
+      } else {
+        m_Columns[i]->SizeToContents();
+      }
 
-					for ( int i=0; i<m_ColumnCount; i++ )
-					{
-						if ( !m_Columns[i] ) continue;
+      iHeight = Utility::Max(iHeight, m_Columns[i]->Height());
+    }
 
-						// Note, more than 1 child here, because the 
-						// label has a child built in ( The Text )
-						if ( m_Columns[i]->NumChildren() > 1 )
-						{
-							m_Columns[i]->SizeToChildren();
-						}
-						else
-						{
-							m_Columns[i]->SizeToContents();
-						}
+    SetHeight(iHeight);
+  }
 
-						iHeight = Utility::Max( iHeight, m_Columns[i]->Height() );
-					}
+  void SetTextColor(const Gwen::Color& color) {
+    for (int i = 0; i < m_ColumnCount; i++) {
+      if (!m_Columns[i]) continue;
+      m_Columns[i]->SetTextColor(color);
+    }
+  }
 
-					SetHeight( iHeight );
-				}
+  // You might hate this. Actually I know you will
+  virtual UnicodeString GetText(int i) { return m_Columns[i]->GetText(); }
+  virtual void SetSelected(bool /*b*/) {}
 
-				void SetTextColor( const Gwen::Color& color )
-				{
-					for ( int i=0; i<m_ColumnCount; i++ )
-					{
-						if ( !m_Columns[i] ) continue;
-						m_Columns[i]->SetTextColor( color );
-					}
-				}
+  //
+  // This is sometimes called by derivatives.
+  //
+  Gwen::Event::Caller onRowSelected;
 
-				//You might hate this. Actually I know you will
-				virtual UnicodeString GetText( int i )
-				{
-					return m_Columns[i]->GetText();
-				}
-				virtual void SetSelected( bool /*b*/ ) {}
+ private:
+  int m_ColumnCount;
+  Label* m_Columns[MaxColumns];
 
-				//
-				// This is sometimes called by derivatives.
-				//
-				Gwen::Event::Caller	onRowSelected;
+  friend class Table;
+};
 
-			private:
+class GWEN_EXPORT Table : public Base {
+ public:
+  GWEN_CONTROL_INLINE(Table, Base) {
+    m_iColumnCount = 1;
+    m_iDefaultRowHeight = 22;
 
-				int		m_ColumnCount;
-				Label*	m_Columns[MaxColumns];
+    for (int i = 0; i < TableRow::MaxColumns; i++) {
+      m_ColumnWidth[i] = 20;
+    }
 
-				friend class Table;
+    m_bSizeToContents = false;
+  }
 
+  void SetColumnCount(int i) {
+    if (m_iColumnCount == i) return;
 
-			};
+    for (Base::List::iterator it = Children.begin(); it != Children.end();
+         ++it) {
+      if (!*it) continue;
 
-			class GWEN_EXPORT Table : public Base
-			{
-				public:
+      TableRow* pRow = (*it)->DynamicCastLayoutTableRow();
+      if (!pRow) continue;
 
-					GWEN_CONTROL_INLINE( Table, Base )
-					{
-						m_iColumnCount = 1;
-						m_iDefaultRowHeight = 22;
+      pRow->SetColumnCount(i);
+    }
 
-						for (int i=0; i<TableRow::MaxColumns; i++)
-						{
-							m_ColumnWidth[i] = 20;
-						}
+    m_iColumnCount = i;
+  }
 
+  void SetColumnWidth(int i, int iWidth) {
+    if (m_ColumnWidth[i] == iWidth) return;
 
-						m_bSizeToContents = false;
-					}
+    m_ColumnWidth[i] = iWidth;
+    Invalidate();
+  }
 
-					void SetColumnCount( int i )
-					{
-						if ( m_iColumnCount == i ) return;
+  TableRow* AddRow() {
+    TableRow* row = new TableRow(this);
+    row->SetColumnCount(m_iColumnCount);
+    row->SetHeight(m_iDefaultRowHeight);
+    row->Dock(Pos::Top);
+    return row;
+  }
 
-						for ( Base::List::iterator it = Children.begin(); it != Children.end(); ++it )
-						{
-							if (!*it)
-								continue;
+  void AddRow(TableRow* pRow) {
+    pRow->SetParent(this);
+    pRow->SetColumnCount(m_iColumnCount);
+    pRow->SetHeight(m_iDefaultRowHeight);
+    pRow->Dock(Pos::Top);
+  }
 
-							TableRow* pRow = (*it)->DynamicCastLayoutTableRow();
-							if ( !pRow ) continue;
+  void Remove(TableRow* pRow) { pRow->DelayedDelete(); }
 
-							pRow->SetColumnCount( i );
-						}
+  void Clear() {
+    for (Base::List::iterator it = Children.begin(); it != Children.end();
+         ++it) {
+      if (!(*it)) continue;
 
-						m_iColumnCount = i;
-					}
+      TableRow* pRow = (*it)->DynamicCastLayoutTableRow();
 
-					void SetColumnWidth( int i, int iWidth )
-					{
-						if ( m_ColumnWidth[i] == iWidth ) return;
+      if (!pRow) continue;
+      Remove(pRow);
+    }
+  }
 
-						m_ColumnWidth[i] = iWidth;
-						Invalidate();
-					}
+  void Layout(Skin::Base* skin) {
+    BaseClass::Layout(skin);
 
-					TableRow* AddRow()
-					{
-						TableRow* row = new TableRow( this );
-						row->SetColumnCount( m_iColumnCount );
-						row->SetHeight( m_iDefaultRowHeight );
-						row->Dock( Pos::Top );
-						return row;
-					}
+    if (m_bSizeToContents) {
+      DoSizeToContents();
+    }
 
-					void AddRow( TableRow* pRow )
-					{
-						pRow->SetParent( this );
-						pRow->SetColumnCount( m_iColumnCount );
-						pRow->SetHeight( m_iDefaultRowHeight );
-						pRow->Dock( Pos::Top );
-					}
+    for (Base::List::iterator it = Children.begin(); it != Children.end();
+         ++it) {
+      if (!*it) continue;
 
-					void Remove( TableRow* pRow )
-					{ 
-						pRow->DelayedDelete();
-					}
+      TableRow* pRow = (*it)->DynamicCastLayoutTableRow();
+      if (!pRow) continue;
 
-					void Clear()
-					{
-						for ( Base::List::iterator it = Children.begin(); it != Children.end(); ++it )
-						{
-							if (!(*it))
-								continue;
+      for (int i = 0; i < TableRow::MaxColumns && i < m_iColumnCount; i++) {
+        pRow->SetColumnWidth(i, m_ColumnWidth[i]);
+      }
+    }
+  }
 
-							TableRow* pRow = (*it)->DynamicCastLayoutTableRow();
+  void PostLayout(Skin::Base* /*skin*/) {
+    if (m_bSizeToContents) {
+      SizeToChildren();
+      m_bSizeToContents = false;
+    }
+  }
 
-							if ( !pRow ) continue;
-								Remove( pRow );
-						}
-					}
+  void SizeToContents() {
+    m_bSizeToContents = true;
+    Invalidate();
+  }
 
-					void Layout( Skin::Base* skin )
-					{
-						BaseClass::Layout( skin );
+  void DoSizeToContents() {
+    for (int i = 0; i < TableRow::MaxColumns; i++) {
+      m_ColumnWidth[i] = 10;
+    }
 
-						if ( m_bSizeToContents )
-						{
-							DoSizeToContents();
-						}
+    for (Base::List::iterator it = Children.begin(); it != Children.end();
+         ++it) {
+      if (!*it) continue;
 
-						for ( Base::List::iterator it = Children.begin(); it != Children.end(); ++it )
-						{
-							if (!*it)
-								continue;
+      TableRow* pRow = (*it)->DynamicCastLayoutTableRow();
+      if (!pRow) continue;
 
-							TableRow* pRow = (*it)->DynamicCastLayoutTableRow();
-							if ( !pRow ) continue;
+      pRow->SizeToContents();
 
-							for (int i=0; i<TableRow::MaxColumns && i < m_iColumnCount; i++)
-							{
-								pRow->SetColumnWidth( i, m_ColumnWidth[i] );
-							}
-						}
-					}
+      for (int i = 0; i < TableRow::MaxColumns; i++) {
+        if (pRow->m_Columns[i]) {
+          m_ColumnWidth[i] =
+              Utility::Max(m_ColumnWidth[i], pRow->m_Columns[i]->Width());
+        }
+      }
+      // iBottom += pRow->Height();
+    }
 
-					void PostLayout( Skin::Base* /*skin*/ )
-					{
-						if ( m_bSizeToContents )
-						{
-							SizeToChildren();
-							m_bSizeToContents = false;
-						}
-					}
+    InvalidateParent();
+  }
 
-					void SizeToContents()
-					{
-						m_bSizeToContents = true;
-						Invalidate();
-					}
+ private:
+  bool m_bSizeToContents;
+  int m_iColumnCount;
+  int m_iDefaultRowHeight;
 
-					void DoSizeToContents()
-					{
-						for (int i=0; i<TableRow::MaxColumns; i++)
-						{
-							m_ColumnWidth[i] = 10;
-						}
-
-						for ( Base::List::iterator it = Children.begin(); it != Children.end(); ++it )
-						{
-							if (!*it)
-								continue;
-
-							TableRow* pRow = (*it)->DynamicCastLayoutTableRow();
-							if ( !pRow ) continue;
-
-							pRow->SizeToContents();
-
-							for (int i=0; i<TableRow::MaxColumns; i++)
-							{
-								if ( pRow->m_Columns[i] )
-								{
-									m_ColumnWidth[i] = Utility::Max( m_ColumnWidth[i], pRow->m_Columns[i]->Width() );
-								}
-							}
-							//iBottom += pRow->Height();
-						}
-
-						InvalidateParent();
-					}
-
-				private:
-
-					bool	m_bSizeToContents;
-					int		m_iColumnCount;
-					int		m_iDefaultRowHeight;
-
-					int		m_ColumnWidth[ TableRow::MaxColumns ];
-			};
-		}
-	}
-}
+  int m_ColumnWidth[TableRow::MaxColumns];
+};
+}  // namespace Layout
+}  // namespace Controls
+}  // namespace Gwen
 #endif

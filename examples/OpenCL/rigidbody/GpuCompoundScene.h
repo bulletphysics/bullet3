@@ -3,48 +3,33 @@
 
 #include "GpuRigidBodyDemo.h"
 
-class GpuCompoundScene : public GpuRigidBodyDemo
-{
-public:
+class GpuCompoundScene : public GpuRigidBodyDemo {
+ public:
+  GpuCompoundScene() {}
+  virtual ~GpuCompoundScene() {}
+  virtual const char* getName() { return "CompoundOnSphere"; }
 
-	GpuCompoundScene(){}
-	virtual ~GpuCompoundScene(){}
-	virtual const char* getName()
-	{
-		return "CompoundOnSphere";
-	}
+  static GpuDemo* MyCreateFunc() {
+    GpuDemo* demo = new GpuCompoundScene;
+    return demo;
+  }
 
-	static GpuDemo* MyCreateFunc()
-	{
-		GpuDemo* demo = new GpuCompoundScene;
-		return demo;
-	}
+  virtual void setupScene(const ConstructionInfo& ci);
 
-	virtual void setupScene(const ConstructionInfo& ci);
-
-	virtual void createStaticEnvironment(const ConstructionInfo& ci);
-
+  virtual void createStaticEnvironment(const ConstructionInfo& ci);
 };
 
+class GpuCompoundPlaneScene : public GpuCompoundScene {
+ public:
+  GpuCompoundPlaneScene() {}
+  virtual ~GpuCompoundPlaneScene() {}
+  virtual const char* getName() { return "CompoundOnPlane"; }
 
-class GpuCompoundPlaneScene : public GpuCompoundScene
-{
-public:
+  static GpuDemo* MyCreateFunc() {
+    GpuDemo* demo = new GpuCompoundPlaneScene;
+    return demo;
+  }
 
-	GpuCompoundPlaneScene(){}
-	virtual ~GpuCompoundPlaneScene(){}
-	virtual const char* getName()
-	{
-		return "CompoundOnPlane";
-	}
-
-	static GpuDemo* MyCreateFunc()
-	{
-		GpuDemo* demo = new GpuCompoundPlaneScene;
-		return demo;
-	}
-
-	virtual void createStaticEnvironment(const ConstructionInfo& ci);
-
+  virtual void createStaticEnvironment(const ConstructionInfo& ci);
 };
-#endif //GPU_COMPOUND_SCENE_H
+#endif  // GPU_COMPOUND_SCENE_H

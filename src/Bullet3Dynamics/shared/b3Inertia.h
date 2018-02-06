@@ -5,11 +5,9 @@
 
 #include "Bullet3Common/shared/b3Mat3x3.h"
 
-struct b3Inertia
-{
-	b3Mat3x3 m_invInertiaWorld;
-	b3Mat3x3 m_initInvInertia;
+struct b3Inertia {
+  b3Mat3x3 m_invInertiaWorld;
+  b3Mat3x3 m_initInvInertia;
 };
 
-
-#endif //B3_INERTIA_H
+#endif  // B3_INERTIA_H

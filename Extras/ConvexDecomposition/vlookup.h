@@ -2,32 +2,36 @@
 
 #define VLOOKUP_H
 
-
 /*----------------------------------------------------------------------
-		Copyright (c) 2004 Open Dynamics Framework Group
-					www.physicstools.org
-		All rights reserved.
+                Copyright (c) 2004 Open Dynamics Framework Group
+                                        www.physicstools.org
+                All rights reserved.
 
-		Redistribution and use in source and binary forms, with or without modification, are permitted provided
-		that the following conditions are met:
+                Redistribution and use in source and binary forms, with or
+without modification, are permitted provided that the following conditions are
+met:
 
-		Redistributions of source code must retain the above copyright notice, this list of conditions
-		and the following disclaimer.
+                Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
 
-		Redistributions in binary form must reproduce the above copyright notice,
-		this list of conditions and the following disclaimer in the documentation
-		and/or other materials provided with the distribution.
+                Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
 
-		Neither the name of the Open Dynamics Framework Group nor the names of its contributors may
-		be used to endorse or promote products derived from this software without specific prior written permission.
+                Neither the name of the Open Dynamics Framework Group nor the
+names of its contributors may be used to endorse or promote products derived
+from this software without specific prior written permission.
 
-		THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES,
-		INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-		DISCLAIMED. IN NO EVENT SHALL THE INTEL OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-		EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-		LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-		IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-		THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+                THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+CONTRIBUTORS 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE INTEL OR CONTRIBUTORS
+BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -----------------------------------------------------------------------*/
 
 // http://codesuppository.blogspot.com
@@ -36,7 +40,6 @@
 //
 // http://www.amillionpixels.us
 //
-
 
 // CodeSnippet provided by John W. Ratcliff
 // on March 23, 2006.
@@ -105,15 +108,13 @@
 // Uses an STL set to create an index table for a bunch of vertex positions
 // used typically to re-index a collection of raw triangle data.
 
+typedef void *VertexLookup;
 
-typedef void * VertexLookup;
+VertexLookup Vl_createVertexLookup(void);
+void Vl_releaseVertexLookup(VertexLookup vlook);
 
-VertexLookup  Vl_createVertexLookup(void);
-void          Vl_releaseVertexLookup(VertexLookup vlook);
-
-unsigned int  Vl_getIndex(VertexLookup vlook,const float *pos);  // get index.
-const float * Vl_getVertices(VertexLookup vlook);
-unsigned int  Vl_getVcount(VertexLookup vlook);
-
+unsigned int Vl_getIndex(VertexLookup vlook, const float *pos);  // get index.
+const float *Vl_getVertices(VertexLookup vlook);
+unsigned int Vl_getVcount(VertexLookup vlook);
 
 #endif

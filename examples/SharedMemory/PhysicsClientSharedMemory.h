@@ -7,82 +7,90 @@
 #include "LinearMath/btVector3.h"
 
 class PhysicsClientSharedMemory : public PhysicsClient {
-    struct PhysicsClientSharedMemoryInternalData* m_data;
+  struct PhysicsClientSharedMemoryInternalData* m_data;
 
-protected:
-	virtual void setSharedMemoryInterface(class SharedMemoryInterface* sharedMem);
-    void processBodyJointInfo(int bodyUniqueId, const struct SharedMemoryStatus& serverCmd);
-    void resetData();
-	void removeCachedBody(int bodyUniqueId);
-	virtual void renderSceneInternal() {};
-public:
-    PhysicsClientSharedMemory();
-    virtual ~PhysicsClientSharedMemory();
+ protected:
+  virtual void setSharedMemoryInterface(class SharedMemoryInterface* sharedMem);
+  void processBodyJointInfo(int bodyUniqueId,
+                            const struct SharedMemoryStatus& serverCmd);
+  void resetData();
+  void removeCachedBody(int bodyUniqueId);
+  virtual void renderSceneInternal(){};
 
-    // return true if connection succesfull, can also check 'isConnected'
-    virtual bool connect();
+ public:
+  PhysicsClientSharedMemory();
+  virtual ~PhysicsClientSharedMemory();
 
-    virtual void disconnectSharedMemory();
+  // return true if connection succesfull, can also check 'isConnected'
+  virtual bool connect();
 
-    virtual bool isConnected() const;
+  virtual void disconnectSharedMemory();
 
-    // return non-null if there is a status, nullptr otherwise
-    virtual const struct SharedMemoryStatus* processServerStatus();
+  virtual bool isConnected() const;
 
-    virtual struct SharedMemoryCommand* getAvailableSharedMemoryCommand();
+  // return non-null if there is a status, nullptr otherwise
+  virtual const struct SharedMemoryStatus* processServerStatus();
 
-    virtual bool canSubmitCommand() const;
+  virtual struct SharedMemoryCommand* getAvailableSharedMemoryCommand();
 
-    virtual bool submitClientCommand(const struct SharedMemoryCommand& command);
+  virtual bool canSubmitCommand() const;
 
-	virtual int getNumBodies() const;
+  virtual bool submitClientCommand(const struct SharedMemoryCommand& command);
 
-	virtual int getBodyUniqueId(int serialIndex) const;
+  virtual int getNumBodies() const;
 
-	virtual bool getBodyInfo(int bodyUniqueId, struct b3BodyInfo& info) const;
+  virtual int getBodyUniqueId(int serialIndex) const;
 
-    virtual int getNumJoints(int bodyUniqueId) const;
+  virtual bool getBodyInfo(int bodyUniqueId, struct b3BodyInfo& info) const;
 
-    virtual bool getJointInfo(int bodyUniqueId, int jointIndex, struct b3JointInfo& info) const;
+  virtual int getNumJoints(int bodyUniqueId) const;
 
-    virtual int getNumUserConstraints() const;
-    
-    virtual int getUserConstraintInfo(int constraintUniqueId, struct b3UserConstraint& info) const;
-	
-	virtual int getUserConstraintId(int serialIndex) const;
-    
-    virtual void setSharedMemoryKey(int key);
+  virtual bool getJointInfo(int bodyUniqueId, int jointIndex,
+                            struct b3JointInfo& info) const;
 
-    virtual void uploadBulletFileToSharedMemory(const char* data, int len);
+  virtual int getNumUserConstraints() const;
 
-    virtual int getNumDebugLines() const;
+  virtual int getUserConstraintInfo(int constraintUniqueId,
+                                    struct b3UserConstraint& info) const;
 
-    virtual const float* getDebugLinesFrom() const;
-    virtual const float* getDebugLinesTo() const;
-    virtual const float* getDebugLinesColor() const;
-	virtual void getCachedCameraImage(struct b3CameraImageData* cameraData);
-	
-	virtual void getCachedContactPointInformation(struct b3ContactInformation* contactPointData);
+  virtual int getUserConstraintId(int serialIndex) const;
 
-	virtual void getCachedOverlappingObjects(struct b3AABBOverlapData* overlappingObjects);
+  virtual void setSharedMemoryKey(int key);
 
-	virtual void getCachedVisualShapeInformation(struct b3VisualShapeInformation* visualShapesInfo);
+  virtual void uploadBulletFileToSharedMemory(const char* data, int len);
 
-	virtual void getCachedCollisionShapeInformation(struct b3CollisionShapeInformation* collisionShapesInfo);
+  virtual int getNumDebugLines() const;
 
-	virtual void getCachedVREvents(struct b3VREventsData* vrEventsData);
+  virtual const float* getDebugLinesFrom() const;
+  virtual const float* getDebugLinesTo() const;
+  virtual const float* getDebugLinesColor() const;
+  virtual void getCachedCameraImage(struct b3CameraImageData* cameraData);
 
-	virtual void getCachedKeyboardEvents(struct b3KeyboardEventsData* keyboardEventsData);
+  virtual void getCachedContactPointInformation(
+      struct b3ContactInformation* contactPointData);
 
-	virtual void getCachedMouseEvents(struct b3MouseEventsData* mouseEventsData);
+  virtual void getCachedOverlappingObjects(
+      struct b3AABBOverlapData* overlappingObjects);
 
-	virtual void getCachedRaycastHits(struct b3RaycastInformation* raycastHits);
+  virtual void getCachedVisualShapeInformation(
+      struct b3VisualShapeInformation* visualShapesInfo);
 
-	virtual void getCachedMassMatrix(int dofCountCheck, double* massMatrix);
+  virtual void getCachedCollisionShapeInformation(
+      struct b3CollisionShapeInformation* collisionShapesInfo);
 
-	virtual void setTimeOut(double timeOutInSeconds);
-	virtual double getTimeOut() const;
+  virtual void getCachedVREvents(struct b3VREventsData* vrEventsData);
 
+  virtual void getCachedKeyboardEvents(
+      struct b3KeyboardEventsData* keyboardEventsData);
+
+  virtual void getCachedMouseEvents(struct b3MouseEventsData* mouseEventsData);
+
+  virtual void getCachedRaycastHits(struct b3RaycastInformation* raycastHits);
+
+  virtual void getCachedMassMatrix(int dofCountCheck, double* massMatrix);
+
+  virtual void setTimeOut(double timeOutInSeconds);
+  virtual double getTimeOut() const;
 };
 
 #endif  // BT_PHYSICS_CLIENT_API_H

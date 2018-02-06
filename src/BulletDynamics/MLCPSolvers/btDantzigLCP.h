@@ -4,7 +4,7 @@
  * All rights reserved.  Email: russ@q12.org   Web: www.q12.org          *
  *                                                                       *
  * This library is free software; you can redistribute it and/or         *
- * modify it under the terms of                                          * 
+ * modify it under the terms of                                          *
  *   The BSD-style license that is included with this library in         *
  *   the file LICENSE-BSD.TXT.                                           *
  *                                                                       *
@@ -19,9 +19,9 @@
 
 given (A,b,lo,hi), solve the LCP problem: A*x = b+w, where each x(i),w(i)
 satisfies one of
-	(1) x = lo, w >= 0
-	(2) x = hi, w <= 0
-	(3) lo < x < hi, w = 0
+        (1) x = lo, w >= 0
+        (2) x = hi, w <= 0
+        (3) lo < x < hi, w = 0
 A is a matrix of dimension n*n, everything else is a vector of size n*1.
 lo and hi can be +/- dInfinity as needed. the first `nub' variables are
 unbounded, i.e. hi and lo are assumed to be +/- dInfinity.
@@ -41,37 +41,33 @@ to be implemented. the first `nub' variables are assumed to have findex < 0.
 
 */
 
-
 #ifndef _BT_LCP_H_
 #define _BT_LCP_H_
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-
-#include "LinearMath/btScalar.h"
 #include "LinearMath/btAlignedObjectArray.h"
+#include "LinearMath/btScalar.h"
 
-struct btDantzigScratchMemory
-{
-	btAlignedObjectArray<btScalar> m_scratch;
-	btAlignedObjectArray<btScalar> L;
-	btAlignedObjectArray<btScalar> d;
-	btAlignedObjectArray<btScalar> delta_w;
-	btAlignedObjectArray<btScalar> delta_x;
-	btAlignedObjectArray<btScalar> Dell;
-	btAlignedObjectArray<btScalar> ell;
-	btAlignedObjectArray<btScalar*> Arows;
-	btAlignedObjectArray<int> p;
-	btAlignedObjectArray<int> C;
-	btAlignedObjectArray<bool> state;
+struct btDantzigScratchMemory {
+  btAlignedObjectArray<btScalar> m_scratch;
+  btAlignedObjectArray<btScalar> L;
+  btAlignedObjectArray<btScalar> d;
+  btAlignedObjectArray<btScalar> delta_w;
+  btAlignedObjectArray<btScalar> delta_x;
+  btAlignedObjectArray<btScalar> Dell;
+  btAlignedObjectArray<btScalar> ell;
+  btAlignedObjectArray<btScalar *> Arows;
+  btAlignedObjectArray<int> p;
+  btAlignedObjectArray<int> C;
+  btAlignedObjectArray<bool> state;
 };
 
-//return false if solving failed
-bool btSolveDantzigLCP (int n, btScalar *A, btScalar *x, btScalar *b, btScalar *w,
-	int nub, btScalar *lo, btScalar *hi, int *findex,btDantzigScratchMemory& scratch);
+// return false if solving failed
+bool btSolveDantzigLCP(int n, btScalar *A, btScalar *x, btScalar *b,
+                       btScalar *w, int nub, btScalar *lo, btScalar *hi,
+                       int *findex, btDantzigScratchMemory &scratch);
 
-
-
-#endif //_BT_LCP_H_
+#endif  //_BT_LCP_H_

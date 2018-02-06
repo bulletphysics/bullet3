@@ -20,276 +20,248 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-
-
 #ifndef BSP_LOADER_H
 #define BSP_LOADER_H
 
 #include "LinearMath/btAlignedObjectArray.h"
 
-#define	BSPMAXTOKEN	1024
-#define	BSPMAX_KEY				32
-#define	BSPMAX_VALUE			1024
-#define	BSPCONTENTS_SOLID			1
-#define	BSPCONTENTS_AREAPORTAL		0x8000
-#define	BSPLUMP_ENTITIES		0
-#define	BSPLUMP_SHADERS		1
-#define	BSPLUMP_PLANES			2
-#define	BSPLUMP_NODES			3
-#define	BSPLUMP_LEAFS			4
-#define	BSPLUMP_LEAFSURFACES	5
-#define	BSPLUMP_LEAFBRUSHES	6
-#define	LUMP_MODELS			7
-#define	LUMP_BRUSHES		8
-#define	LUMP_BRUSHSIDES		9
-#define	LUMP_DRAWVERTS		10
-#define	LUMP_DRAWINDEXES	11
-#define	LUMP_SURFACES		13
-#define	LUMP_LIGHTMAPS		14
-#define	LUMP_LIGHTGRID		15
-#define	LUMP_VISIBILITY		16
-#define	HEADER_LUMPS		17
-#define	MAX_QPATH		64
-
-
+#define BSPMAXTOKEN 1024
+#define BSPMAX_KEY 32
+#define BSPMAX_VALUE 1024
+#define BSPCONTENTS_SOLID 1
+#define BSPCONTENTS_AREAPORTAL 0x8000
+#define BSPLUMP_ENTITIES 0
+#define BSPLUMP_SHADERS 1
+#define BSPLUMP_PLANES 2
+#define BSPLUMP_NODES 3
+#define BSPLUMP_LEAFS 4
+#define BSPLUMP_LEAFSURFACES 5
+#define BSPLUMP_LEAFBRUSHES 6
+#define LUMP_MODELS 7
+#define LUMP_BRUSHES 8
+#define LUMP_BRUSHSIDES 9
+#define LUMP_DRAWVERTS 10
+#define LUMP_DRAWINDEXES 11
+#define LUMP_SURFACES 13
+#define LUMP_LIGHTMAPS 14
+#define LUMP_LIGHTGRID 15
+#define LUMP_VISIBILITY 16
+#define HEADER_LUMPS 17
+#define MAX_QPATH 64
 
 typedef struct {
-	int		fileofs, filelen;
+  int fileofs, filelen;
 } BSPLump;
 
 typedef float BSPVector3[3];
 
 typedef struct {
-	int			ident;
-	int			version;
-	
-	BSPLump		lumps[HEADER_LUMPS];
+  int ident;
+  int version;
+
+  BSPLump lumps[HEADER_LUMPS];
 } BSPHeader;
 
-
 typedef struct {
-	float		mins[3], maxs[3];
-	int			firstSurface, numSurfaces;
-	int			firstBrush, numBrushes;
+  float mins[3], maxs[3];
+  int firstSurface, numSurfaces;
+  int firstBrush, numBrushes;
 } BSPModel;
 
 typedef struct {
-	char		shader[MAX_QPATH];
-	int			surfaceFlags;
-	int			contentFlags;
+  char shader[MAX_QPATH];
+  int surfaceFlags;
+  int contentFlags;
 } BSPShader;
 
 typedef struct {
-	float		normal[3];
-	float		dist;
+  float normal[3];
+  float dist;
 } BSPPlane;
 
 typedef struct {
-	int			planeNum;
-	int			children[2];
-	int			mins[3];
-	int			maxs[3];
+  int planeNum;
+  int children[2];
+  int mins[3];
+  int maxs[3];
 } BSPNode;
 
 typedef struct {
-	int			cluster;	
-	int			area;
-	
-	int			mins[3];	
-	int			maxs[3];
-	
-	int			firstLeafSurface;
-	int			numLeafSurfaces;
-	
-	int			firstLeafBrush;
-	int			numLeafBrushes;
+  int cluster;
+  int area;
+
+  int mins[3];
+  int maxs[3];
+
+  int firstLeafSurface;
+  int numLeafSurfaces;
+
+  int firstLeafBrush;
+  int numLeafBrushes;
 } BSPLeaf;
 
 typedef struct {
-	int			planeNum;	
-	int			shaderNum;
+  int planeNum;
+  int shaderNum;
 } BSPBrushSide;
 
 typedef struct {
-	int			firstSide;
-	int			numSides;
-	int			shaderNum;	
+  int firstSide;
+  int numSides;
+  int shaderNum;
 } BSPBrush;
 
-
-
-
 typedef struct BSPPair {
-	struct BSPPair	*next;
-	char	*key;
-	char	*value;
+  struct BSPPair *next;
+  char *key;
+  char *value;
 } BSPKeyValuePair;
 
 typedef struct {
-	BSPVector3		origin;
-	struct bspbrush_s	*brushes;
-	struct parseMesh_s	*patches;
-	int			firstDrawSurf;
-	BSPKeyValuePair		*epairs;
+  BSPVector3 origin;
+  struct bspbrush_s *brushes;
+  struct parseMesh_s *patches;
+  int firstDrawSurf;
+  BSPKeyValuePair *epairs;
 } BSPEntity;
 
 typedef enum {
-	MST_BAD,
-		MST_PLANAR,
-		MST_PATCH,
-		MST_TRIANGLE_SOUP,
-		MST_FLARE
+  MST_BAD,
+  MST_PLANAR,
+  MST_PATCH,
+  MST_TRIANGLE_SOUP,
+  MST_FLARE
 } BSPMapSurface;
 
 typedef struct {
-	int			shaderNum;
-	int			fogNum;
-	int			surfaceType;
-	
-	int			firstVert;
-	int			numVerts;
-	
-	int			firstIndex;
-	int			numIndexes;
-	
-	int			lightmapNum;
-	int			lightmapX, lightmapY;
-	int			lightmapWidth, lightmapHeight;
-	
-	BSPVector3		lightmapOrigin;
-	BSPVector3		lightmapVecs[3];
-	
-	int			patchWidth;
-	int			patchHeight;
+  int shaderNum;
+  int fogNum;
+  int surfaceType;
+
+  int firstVert;
+  int numVerts;
+
+  int firstIndex;
+  int numIndexes;
+
+  int lightmapNum;
+  int lightmapX, lightmapY;
+  int lightmapWidth, lightmapHeight;
+
+  BSPVector3 lightmapOrigin;
+  BSPVector3 lightmapVecs[3];
+
+  int patchWidth;
+  int patchHeight;
 } BSPSurface;
 
+/// GPL code from IdSofware to parse a Quake 3 BSP file
+/// check that your platform define __BIG_ENDIAN__ correctly (in BspLoader.cpp)
+class BspLoader {
+  int m_Endianness;
 
+ public:
+  BspLoader();
 
-///GPL code from IdSofware to parse a Quake 3 BSP file
-///check that your platform define __BIG_ENDIAN__ correctly (in BspLoader.cpp)
-class BspLoader
-{
-	int m_Endianness;
+  bool loadBSPFile(void *memoryBuffer);
 
-	public:
+  const char *getValueForKey(const BSPEntity *ent, const char *key) const;
 
-		BspLoader();
+  bool getVectorForKey(const BSPEntity *ent, const char *key, BSPVector3 vec);
 
-		bool	loadBSPFile( void* memoryBuffer);
+  float getFloatForKey(const BSPEntity *ent, const char *key);
 
-		const char* getValueForKey( const BSPEntity *ent, const char *key ) const;
+  void parseEntities(void);
 
-		bool	getVectorForKey( const BSPEntity *ent, const char *key, BSPVector3 vec );
-		
-		float	getFloatForKey( const BSPEntity *ent, const char *key );
+  bool findVectorByName(float *outvec, const char *name);
 
-		void parseEntities( void );
+  const BSPEntity *getEntityByValue(const char *name, const char *value);
 
-		bool findVectorByName(float* outvec,const char* name);
+ protected:
+  void parseFromMemory(char *buffer, int size);
 
-		const BSPEntity * getEntityByValue( const char* name, const char* value);
+  bool isEndOfScript(bool crossline);
 
+  bool getToken(bool crossline);
 
-	protected:
+  char *copystring(const char *s);
 
-		void parseFromMemory (char *buffer, int size);
-		
+  void stripTrailing(char *e);
 
+  BSPKeyValuePair *parseEpair(void);
 
-		bool isEndOfScript (bool crossline);
+  bool parseEntity(void);
 
-		bool getToken (bool crossline);
+  short isLittleShort(short l);
+  int isLittleLong(int l);
+  float isLittleFloat(float l);
 
-		char *copystring(const char *s);
-	
-		void stripTrailing( char *e );
+  int isBigLong(int l);
+  short isBigShort(short l);
+  float isBigFloat(float l);
 
-		BSPKeyValuePair * parseEpair( void );
+  void swapBlock(int *block, int sizeOfBlock);
 
-		bool	parseEntity( void );
+  int copyLump(BSPHeader *header, int lump, void *dest, int size);
 
-		short   isLittleShort (short l);
-		int    isLittleLong (int l);
-		float	isLittleFloat (float l);
+  void swapBSPFile(void);
 
-		int    isBigLong (int l);
-		short   isBigShort (short l);
-		float	isBigFloat (float l);
+ public:  // easier for conversion
+  int m_num_entities;
+  btAlignedObjectArray<BSPEntity> m_entities;
 
-		void swapBlock( int *block, int sizeOfBlock );
+  int m_nummodels;
+  btAlignedObjectArray<BSPModel> m_dmodels;
 
-		int copyLump( BSPHeader	*header, int lump, void *dest, int size );
+  int m_numShaders;
+  btAlignedObjectArray<BSPShader> m_dshaders;
 
-		void swapBSPFile( void );
-		
-	
+  int m_entdatasize;
+  btAlignedObjectArray<char> m_dentdata;
 
-	
-	public: //easier for conversion
-		int			m_num_entities;
-		btAlignedObjectArray<BSPEntity>	m_entities;
-		
-		int			m_nummodels;
-		btAlignedObjectArray<BSPModel>	m_dmodels;
+  int m_numleafs;
+  btAlignedObjectArray<BSPLeaf> m_dleafs;
 
-		int			m_numShaders;
-		btAlignedObjectArray<BSPShader>	m_dshaders;
+  int m_numplanes;
+  btAlignedObjectArray<BSPPlane> m_dplanes;
 
-		int			m_entdatasize;
-		btAlignedObjectArray<char>		m_dentdata;
+  int m_numnodes;
+  btAlignedObjectArray<BSPNode> m_dnodes;
 
-		int			m_numleafs;
-		btAlignedObjectArray<BSPLeaf>		m_dleafs;
+  int m_numleafsurfaces;
+  btAlignedObjectArray<int> m_dleafsurfaces;
 
-		int			m_numplanes;
-		btAlignedObjectArray<BSPPlane>	m_dplanes;
+  int m_numleafbrushes;
+  btAlignedObjectArray<int> m_dleafbrushes;
 
-		int			m_numnodes;
-		btAlignedObjectArray<BSPNode>		m_dnodes;
+  int m_numbrushes;
+  btAlignedObjectArray<BSPBrush> m_dbrushes;
 
-		int			m_numleafsurfaces;
-		btAlignedObjectArray<int>			m_dleafsurfaces;
+  int m_numbrushsides;
+  btAlignedObjectArray<BSPBrushSide> m_dbrushsides;
 
-		int			m_numleafbrushes;
-		btAlignedObjectArray<int>			m_dleafbrushes;
+  int m_numLightBytes;
+  btAlignedObjectArray<unsigned char> m_lightBytes;
 
-		int			m_numbrushes;
-		btAlignedObjectArray<BSPBrush>	m_dbrushes;
+  int m_numGridPoints;
+  btAlignedObjectArray<unsigned char> m_gridData;
 
-		int			m_numbrushsides;
-		btAlignedObjectArray<BSPBrushSide>	m_dbrushsides;
+  int m_numVisBytes;
+  btAlignedObjectArray<unsigned char> m_visBytes;
 
-		int			m_numLightBytes;
-		btAlignedObjectArray<unsigned char>		m_lightBytes;
+  int m_numDrawIndexes;
+  btAlignedObjectArray<int> m_drawIndexes;
 
-		int			m_numGridPoints;
-		btAlignedObjectArray<unsigned char>		m_gridData;
+  int m_numDrawSurfaces;
+  btAlignedObjectArray<BSPSurface> m_drawSurfaces;
 
-		int			m_numVisBytes;
-		btAlignedObjectArray<unsigned char>		m_visBytes;
+  enum { BSP_LITTLE_ENDIAN = 0, BSP_BIG_ENDIAN = 1 };
 
-		
-		int			m_numDrawIndexes;
-		btAlignedObjectArray<int>			m_drawIndexes;
+  // returns machines big endian / little endian
+  //
+  int getMachineEndianness();
 
-		int			m_numDrawSurfaces;
-		btAlignedObjectArray<BSPSurface>	m_drawSurfaces;
-
-		enum
-		{
-			BSP_LITTLE_ENDIAN  = 0,
-			BSP_BIG_ENDIAN    =  1
-		};
-
-		//returns machines big endian / little endian
-		//
-		int getMachineEndianness();
-
-		inline int	machineEndianness()
-		{
-			return m_Endianness;
-		}
-
+  inline int machineEndianness() { return m_Endianness; }
 };
 
-#endif //BSP_LOADER_H
+#endif  // BSP_LOADER_H

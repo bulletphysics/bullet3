@@ -2,10 +2,12 @@
 **
 ** Copyright (c) 2009 by John W. Ratcliff mailto:jratcliffscarab@gmail.com
 **
-** Portions of this source has been released with the PhysXViewer application, as well as
+** Portions of this source has been released with the PhysXViewer application,
+as well as
 ** Rocket, CreateDynamics, ODF, and as a number of sample code snippets.
 **
-** If you find this code useful or you are feeling particularily generous I would
+** If you find this code useful or you are feeling particularily generous I
+would
 ** ask that you please go to http://www.amillionpixels.us and make a donation
 ** to Troy DeMolay.
 **
@@ -31,17 +33,21 @@
 ** of this software and associated documentation files (the "Software"), to deal
 ** in the Software without restriction, including without limitation the rights
 ** to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-** copies of the Software, and to permit persons to whom the Software is furnished
+** copies of the Software, and to permit persons to whom the Software is
+furnished
 ** to do so, subject to the following conditions:
 **
-** The above copyright notice and this permission notice shall be included in all
+** The above copyright notice and this permission notice shall be included in
+all
 ** copies or substantial portions of the Software.
 
 ** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 ** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 ** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-** WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY,
+** WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+IN
 ** CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
@@ -84,63 +90,59 @@
 
 namespace VHACD {
 class Mutex {
-public:
-    Mutex(void)
-    {
+ public:
+  Mutex(void) {
 #if defined(WIN32) || defined(_XBOX)
-        InitializeCriticalSection(&m_mutex);
+    InitializeCriticalSection(&m_mutex);
 #elif defined(__APPLE__) || defined(__linux__)
-        pthread_mutexattr_t mutexAttr; // Mutex Attribute
-        VHACD_VERIFY(pthread_mutexattr_init(&mutexAttr) == 0);
-        VHACD_VERIFY(pthread_mutexattr_settype(&mutexAttr, PTHREAD_MUTEX_RECURSIVE_NP) == 0);
-        VHACD_VERIFY(pthread_mutex_init(&m_mutex, &mutexAttr) == 0);
-        VHACD_VERIFY(pthread_mutexattr_destroy(&mutexAttr) == 0);
+    pthread_mutexattr_t mutexAttr;  // Mutex Attribute
+    VHACD_VERIFY(pthread_mutexattr_init(&mutexAttr) == 0);
+    VHACD_VERIFY(
+        pthread_mutexattr_settype(&mutexAttr, PTHREAD_MUTEX_RECURSIVE_NP) == 0);
+    VHACD_VERIFY(pthread_mutex_init(&m_mutex, &mutexAttr) == 0);
+    VHACD_VERIFY(pthread_mutexattr_destroy(&mutexAttr) == 0);
 #endif
-    }
-    ~Mutex(void)
-    {
+  }
+  ~Mutex(void) {
 #if defined(WIN32) || defined(_XBOX)
-        DeleteCriticalSection(&m_mutex);
+    DeleteCriticalSection(&m_mutex);
 #elif defined(__APPLE__) || defined(__linux__)
-        VHACD_VERIFY(pthread_mutex_destroy(&m_mutex) == 0);
+    VHACD_VERIFY(pthread_mutex_destroy(&m_mutex) == 0);
 #endif
-    }
-    void Lock(void)
-    {
+  }
+  void Lock(void) {
 #if defined(WIN32) || defined(_XBOX)
-        EnterCriticalSection(&m_mutex);
+    EnterCriticalSection(&m_mutex);
 #elif defined(__APPLE__) || defined(__linux__)
-        VHACD_VERIFY(pthread_mutex_lock(&m_mutex) == 0);
+    VHACD_VERIFY(pthread_mutex_lock(&m_mutex) == 0);
 #endif
-    }
-    bool TryLock(void)
-    {
+  }
+  bool TryLock(void) {
 #if defined(WIN32) || defined(_XBOX)
-        bool bRet = false;
-        //assert(("TryEnterCriticalSection seems to not work on XP???", 0));
-        bRet = TryEnterCriticalSection(&m_mutex) ? true : false;
-        return bRet;
+    bool bRet = false;
+    // assert(("TryEnterCriticalSection seems to not work on XP???", 0));
+    bRet = TryEnterCriticalSection(&m_mutex) ? true : false;
+    return bRet;
 #elif defined(__APPLE__) || defined(__linux__)
-        int result = pthread_mutex_trylock(&m_mutex);
-        return (result == 0);
+    int result = pthread_mutex_trylock(&m_mutex);
+    return (result == 0);
 #endif
-    }
+  }
 
-    void Unlock(void)
-    {
+  void Unlock(void) {
 #if defined(WIN32) || defined(_XBOX)
-        LeaveCriticalSection(&m_mutex);
+    LeaveCriticalSection(&m_mutex);
 #elif defined(__APPLE__) || defined(__linux__)
-        VHACD_VERIFY(pthread_mutex_unlock(&m_mutex) == 0);
+    VHACD_VERIFY(pthread_mutex_unlock(&m_mutex) == 0);
 #endif
-    }
+  }
 
-private:
+ private:
 #if defined(WIN32) || defined(_XBOX)
-    CRITICAL_SECTION m_mutex;
+  CRITICAL_SECTION m_mutex;
 #elif defined(__APPLE__) || defined(__linux__)
-    pthread_mutex_t m_mutex;
+  pthread_mutex_t m_mutex;
 #endif
 };
-}
-#endif // VHACD_MUTEX_H
+}  // namespace VHACD
+#endif  // VHACD_MUTEX_H

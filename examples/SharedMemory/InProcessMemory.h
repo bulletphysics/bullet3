@@ -3,17 +3,15 @@
 
 #include "SharedMemoryInterface.h"
 
-class InProcessMemory : public SharedMemoryInterface
-{
-	struct InProcessMemoryInternalData* m_data;
+class InProcessMemory : public SharedMemoryInterface {
+  struct InProcessMemoryInternalData* m_data;
 
-public:
+ public:
+  InProcessMemory();
+  virtual ~InProcessMemory();
 
-	InProcessMemory();
-	virtual ~InProcessMemory();
-
-	virtual void*	allocateSharedMemory(int key, int size, bool allowCreation);
-	virtual void	releaseSharedMemory(int key, int size);
+  virtual void* allocateSharedMemory(int key, int size, bool allowCreation);
+  virtual void releaseSharedMemory(int key, int size);
 };
 
 #endif

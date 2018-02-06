@@ -1,7 +1,7 @@
 /*
-	GWEN
-	Copyright (c) 2010 Facepunch Studios
-	See license in Gwen.h
+        GWEN
+        Copyright (c) 2010 Facepunch Studios
+        See license in Gwen.h
 */
 
 #pragma once
@@ -13,45 +13,36 @@
 #include "Gwen/BaseRender.h"
 #include "Gwen/TextObject.h"
 
-namespace Gwen
-{
-	//
-	// Texture
-	//
-	struct Texture
-	{
-		TextObject	name;
-		void*	data;
-		int m_intData;
-		
-		bool	failed;
-		int		width;
-		int		height;
+namespace Gwen {
+//
+// Texture
+//
+struct Texture {
+  TextObject name;
+  void* data;
+  int m_intData;
 
-		Texture()
-		{
-			data = NULL;
-			m_intData = 0;
-			width = 4;
-			height = 4;
-			failed = false;
-		}
+  bool failed;
+  int width;
+  int height;
 
-		~Texture()
-		{
-		}
+  Texture() {
+    data = NULL;
+    m_intData = 0;
+    width = 4;
+    height = 4;
+    failed = false;
+  }
 
-		void Load( const TextObject& str, Gwen::Renderer::Base* render )
-		{
-			name = str;
-			render->LoadTexture( this );
-		}
+  ~Texture() {}
 
-		void Release( Gwen::Renderer::Base* render )
-		{
-			render->FreeTexture( this );
-		}
-	};
+  void Load(const TextObject& str, Gwen::Renderer::Base* render) {
+    name = str;
+    render->LoadTexture(this);
+  }
 
-}
+  void Release(Gwen::Renderer::Base* render) { render->FreeTexture(this); }
+};
+
+}  // namespace Gwen
 #endif

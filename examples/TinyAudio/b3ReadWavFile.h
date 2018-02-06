@@ -1,57 +1,48 @@
 #ifndef B3_READ_WAV_FILE_H
 #define B3_READ_WAV_FILE_H
 
-
-#include "Bullet3Common/b3AlignedObjectArray.h"
 #include <stdio.h>
 #include <string.h>
+#include "Bullet3Common/b3AlignedObjectArray.h"
 
-struct b3WavTicker
-{
-	b3AlignedObjectArray<double> lastFrame_;
-	bool finished_;
-	double time_;
-	double rate_;
+struct b3WavTicker {
+  b3AlignedObjectArray<double> lastFrame_;
+  bool finished_;
+  double time_;
+  double rate_;
 };
 
+class b3ReadWavFile {
+  bool byteswap_;
+  bool wavFile_;
+  unsigned long m_numFrames;
+  unsigned long dataType_;
+  double fileDataRate_;
+  FILE *fd_;
+  unsigned long dataOffset_;
+  unsigned int channels_;
+  bool m_machineIsLittleEndian;
 
+ public:
+  b3ReadWavFile();
+  virtual ~b3ReadWavFile();
 
-class b3ReadWavFile
-{
-	bool byteswap_;
-	bool wavFile_;
-	unsigned long m_numFrames;
-	unsigned long dataType_;
-	double fileDataRate_;
-	FILE *fd_;
-	unsigned long dataOffset_;
-	unsigned int channels_;
-	bool m_machineIsLittleEndian;
-public:
+  b3AlignedObjectArray<double> m_frames;
 
-	b3ReadWavFile();
-	virtual ~b3ReadWavFile();
+  bool getWavInfo(const char *fileName);
 
-	b3AlignedObjectArray<double> m_frames;
+  void normalize(double peak);
 
-	bool getWavInfo(const char *fileName);
+  double interpolate(double frame, unsigned int channel) const;
+  double tick(unsigned int channel, b3WavTicker *ticker);
 
-	void normalize(double peak);
+  void resize();
 
-	double interpolate(double frame, unsigned int channel) const;
-	double tick(unsigned int channel, b3WavTicker *ticker);
+  b3WavTicker createWavTicker(double sampleRate);
 
-	void resize();
+  bool read(unsigned long startFrame, bool doNormalize);
 
-	b3WavTicker createWavTicker(double sampleRate);
-
-	bool read(unsigned long startFrame, bool doNormalize);
-
-	int getNumFrames() const 
-	{
-		return m_numFrames;
-	}
+  int getNumFrames() const { return m_numFrames; }
 };
 
-
-#endif  //B3_READ_WAV_FILE_H
+#endif  // B3_READ_WAV_FILE_H
