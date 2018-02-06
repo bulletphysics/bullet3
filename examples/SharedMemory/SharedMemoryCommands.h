@@ -470,6 +470,19 @@ struct b3LoadSoftBodyResultArgs
 	int m_objectUniqueId;
 };
 
+struct CreateClothArgs
+{
+	char m_fileName[MAX_FILENAME_LENGTH];
+	double m_scale;
+	double m_mass;
+	double m_collisionMargin;
+};
+
+struct b3CreateClothResultArgs
+{
+	int m_objectUniqueId;
+};
+
 struct RequestActualStateArgs
 {
 	int m_bodyUniqueId;
@@ -1000,6 +1013,7 @@ struct SharedMemoryCommand
 		struct UserDebugDrawArgs m_userDebugDrawArgs;
 		struct RequestRaycastIntersections m_requestRaycastIntersections;
         struct LoadSoftBodyArgs m_loadSoftBodyArguments;
+        struct CreateClothArgs m_createClothArguments;
 		struct VRCameraState m_vrCameraStateArguments;
 		struct StateLoggingRequest m_stateLoggingArguments;
         struct ConfigureOpenGLVisualizerRequest m_configureOpenGLVisualizerArguments;
@@ -1089,6 +1103,7 @@ struct SharedMemoryStatus
 		struct b3PhysicsSimulationParameters m_simulationParameterResultArgs;
 		struct b3StateSerializationArguments m_saveStateResultArgs;
 		struct b3LoadSoftBodyResultArgs m_loadSoftBodyResultArguments;
+		struct b3CreateClothResultArgs m_createClothResultArguments;
 		struct SendCollisionShapeDataArgs m_sendCollisionShapeArgs;
 	};
 };

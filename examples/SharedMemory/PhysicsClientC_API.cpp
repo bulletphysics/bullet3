@@ -283,6 +283,21 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3LoadSoftBodyCommandInit(b3PhysicsCli
 	return 0;
 }
 
+B3_SHARED_API b3SharedMemoryCommandHandle b3CreateClothCommandInit(b3PhysicsClientHandle physClient)
+{
+	PhysicsClient* cl = (PhysicsClient* ) physClient;
+	b3Assert(cl);
+	b3Assert(cl->canSubmitCommand());
+	if (cl->canSubmitCommand())
+	{
+		struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+		b3Assert(command);
+		command->m_type = CMD_CREATE_CLOTH;
+		return (b3SharedMemoryCommandHandle) command;
+	}
+	return 0;
+}
+
 B3_SHARED_API int b3LoadSoftBodySetScale(b3SharedMemoryCommandHandle commandHandle, double scale)
 {
     struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
@@ -1761,6 +1776,11 @@ B3_SHARED_API int b3GetStatusBodyIndex(b3SharedMemoryStatusHandle statusHandle)
 				case CMD_LOAD_SOFT_BODY_COMPLETED:
 				{
 					bodyId  = status->m_loadSoftBodyResultArguments.m_objectUniqueId;
+					break;
+				}
+				case CMD_CREATE_CLOTH_COMPLETED:
+				{
+					bodyId  = status->m_createClothResultArguments.m_objectUniqueId;
 					break;
 				}
 				default:

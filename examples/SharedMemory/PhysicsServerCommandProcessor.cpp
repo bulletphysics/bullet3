@@ -5782,6 +5782,52 @@ bool PhysicsServerCommandProcessor::processLoadURDFCommand(const struct SharedMe
 	return hasStatus;
 }
 
+bool PhysicsServerCommandProcessor::processCreateClothCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
+{
+	serverStatusOut.m_type = CMD_CREATE_CLOTH_FAILED;
+	bool hasStatus = true;
+	#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+	const CreateClothArgs& createClothArgs = clientCmd.m_createClothArguments;
+	if (m_data->m_verboseOutput)
+	{
+		b3Printf("Processed CMD_CREATE_CLOTH");
+	}
+	m_data->m_softBodyWorldInfo.air_density		=	(btScalar)5;
+	m_data->m_softBodyWorldInfo.water_density	=	0;
+	m_data->m_softBodyWorldInfo.water_offset	=	0;
+	m_data->m_softBodyWorldInfo.water_normal	=	btVector3(0,0,0);
+	m_data->m_softBodyWorldInfo.m_gravity.setValue(0,0,-10);
+	m_data->m_softBodyWorldInfo.m_broadphase = m_data->m_broadphase;
+	m_data->m_softBodyWorldInfo.m_sparsesdf.Initialize();
+	{
+		const btScalar	s=0.3;
+		btSoftBody* psb=btSoftBodyHelpers::CreatePatch(	m_data->m_softBodyWorldInfo,btVector3(s,s,1),
+			btVector3(+s,0,1),
+			btVector3(0,s,1),
+			btVector3(0,0,1),
+			30,30,
+			0,true
+		);
+		psb->getCollisionShape()->setMargin(0.02);
+		psb->getCollisionShape()->setUserPointer((void*) psb);
+		btSoftBody::Material* pm=psb->appendMaterial();
+		pm->m_kLST = 0.1;
+		pm->m_kAST = 0.1;
+		psb->generateBendingConstraints(2,pm);
+		psb->setTotalMass(0.5);
+		psb->m_cfg.kDP = 0.01;
+		m_data->m_dynamicsWorld->addSoftBody(psb);
+		int bodyUniqueId = m_data->m_bodyHandles.allocHandle();
+		InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(bodyUniqueId);
+		bodyHandle->m_softBody = psb;
+		serverStatusOut.m_createClothResultArguments.m_objectUniqueId = bodyUniqueId;
+		serverStatusOut.m_type = CMD_CREATE_CLOTH_COMPLETED;
+	}
+	#endif
+	return hasStatus;
+}
+
+
 bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct SharedMemoryCommand& clientCmd, struct SharedMemoryStatus& serverStatusOut, char* bufferServerToClient, int bufferSizeInBytes)
 {
 	serverStatusOut.m_type = CMD_LOAD_SOFT_BODY_FAILED;
@@ -8976,6 +9022,11 @@ bool PhysicsServerCommandProcessor::processCommand(const struct SharedMemoryComm
 	case CMD_LOAD_SOFT_BODY:
 		{
 			hasStatus = processLoadSoftBodyCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
+			break;
+		}
+	case CMD_CREATE_CLOTH:
+		{
+			hasStatus = processCreateClothCommand(clientCmd,serverStatusOut,bufferServerToClient, bufferSizeInBytes);
 			break;
 		}
 	case CMD_CREATE_SENSOR:

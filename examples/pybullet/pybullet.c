@@ -1464,6 +1464,41 @@ static PyObject* pybullet_loadSoftBody(PyObject* self, PyObject* args, PyObject*
 	}
 	return PyLong_FromLong(bodyUniqueId);
 }
+
+static PyObject* pybullet_createCloth(PyObject* self, PyObject* args, PyObject* keywds)
+{
+	int physicsClientId = 0;
+	int flags = 0;
+	static char* kwlist[] = {"scale", "mass", "collisionMargin", "physicsClientId", NULL};
+	int bodyUniqueId = -1;
+	double scale = -1;
+	double mass = -1;
+	double collisionMargin = -1;
+	b3PhysicsClientHandle sm = 0;
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|dddi", kwlist, &scale, &mass, &collisionMargin, &physicsClientId))
+	{
+		return NULL;
+	}
+	sm = getPhysicsClient(physicsClientId);
+	if (sm == 0)
+	{
+		PyErr_SetString(SpamError, "Not connected to physics server.");
+		return NULL;
+	}
+	b3SharedMemoryStatusHandle statusHandle;
+	int statusType;
+	b3SharedMemoryCommandHandle command =
+		b3CreateClothCommandInit(sm);
+	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
+	statusType = b3GetStatusType(statusHandle);
+	if (statusType != CMD_CREATE_CLOTH_COMPLETED)
+	{
+		PyErr_SetString(SpamError, "Cannot load soft body.");
+		return NULL;
+	}
+	bodyUniqueId = b3GetStatusBodyIndex(statusHandle);
+	return PyLong_FromLong(bodyUniqueId);
+}
 #endif
 
 // Reset the simulation to remove all loaded objects
@@ -8334,6 +8369,8 @@ static PyMethodDef SpamMethods[] = {
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	{"loadSoftBody", (PyCFunction)pybullet_loadSoftBody, METH_VARARGS | METH_KEYWORDS,
 	 "Load a softbody from an obj file."},
+	{"createCloth", (PyCFunction)pybullet_createCloth, METH_VARARGS | METH_KEYWORDS,
+	 "Create a 2D cloth."},
 #endif
 	{"loadBullet", (PyCFunction)pybullet_loadBullet, METH_VARARGS | METH_KEYWORDS,
 	 "Load a world from a .bullet file."},

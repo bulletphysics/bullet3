@@ -1285,6 +1285,15 @@ const SharedMemoryStatus* PhysicsClientSharedMemory::processServerStatus() {
 				{
 					break;
 				}
+			case CMD_CREATE_CLOTH_FAILED:
+				{
+					b3Warning("createCloth failed");
+					break;
+				}
+			case CMD_CREATE_CLOTH_COMPLETED:
+				{
+					break;
+				}
             default: {
                 b3Error("Unknown server status %d\n", serverCmd.m_type);
                 btAssert(0);
