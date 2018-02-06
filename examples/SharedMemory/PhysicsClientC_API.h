@@ -523,7 +523,12 @@ B3_SHARED_API	int b3LoadSoftBodySetScale(b3SharedMemoryCommandHandle commandHand
 B3_SHARED_API	int b3LoadSoftBodySetMass(b3SharedMemoryCommandHandle commandHandle, double mass);
 B3_SHARED_API	int b3LoadSoftBodySetCollisionMargin(b3SharedMemoryCommandHandle commandHandle, double collisionMargin);
 
-B3_SHARED_API  b3SharedMemoryCommandHandle   b3CreateClothCommandInit(b3PhysicsClientHandle physClient);
+B3_SHARED_API b3SharedMemoryCommandHandle b3CreateClothCommandInit(b3PhysicsClientHandle physClient, double corners[], int resolution[], int fixedCorners);
+B3_SHARED_API int b3CreateClothSetMass(b3SharedMemoryCommandHandle commandHandle, double mass);
+B3_SHARED_API int b3CreateClothSetCollisionMargin(b3SharedMemoryCommandHandle commandHandle, double collisionMargin);
+B3_SHARED_API int b3CreateClothSetDamping(b3SharedMemoryCommandHandle commandHandle, double damping);
+B3_SHARED_API int b3CreateClothSetAngularStiffness(b3SharedMemoryCommandHandle commandHandle, double angularStiffness);
+B3_SHARED_API int b3CreateClothSetLinearStiffness(b3SharedMemoryCommandHandle commandHandle, double linearStiffness);
 
 B3_SHARED_API	b3SharedMemoryCommandHandle	b3RequestVREventsCommandInit(b3PhysicsClientHandle physClient);
 B3_SHARED_API	void b3VREventsSetDeviceTypeFilter(b3SharedMemoryCommandHandle commandHandle, int deviceTypeFilter);

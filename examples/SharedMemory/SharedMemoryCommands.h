@@ -448,6 +448,15 @@ enum EnumLoadSoftBodyUpdateFlags
     LOAD_SOFT_BODY_UPDATE_COLLISION_MARGIN=8
 };
 
+enum EnumCreateClothUpdateFlags
+{
+	CREATE_CLOTH_UPDATE_MASS = 1,
+	CREATE_CLOTH_UPDATE_COLLISION_MARGIN = 2,
+	CREATE_CLOTH_UPDATE_DAMPING = 4,
+	CREATE_CLOTH_UPDATE_ANGULAR_STIFFNESS = 8,
+	CREATE_CLOTH_UPDATE_LINEAR_STIFFNESS = 16
+};
+
 enum EnumSimParamInternalSimFlags
 {
 	SIM_PARAM_INTERNAL_CREATE_ROBOT_ASSETS=1,
@@ -472,8 +481,12 @@ struct b3LoadSoftBodyResultArgs
 
 struct CreateClothArgs
 {
-	char m_fileName[MAX_FILENAME_LENGTH];
-	double m_scale;
+	double m_corners[12];  // 4 corners with 3 coords each
+	int m_resolution[2];
+	int m_fixedCorners;
+	double m_angularStiffness;
+	double m_linearStiffness;
+	double m_damping;
 	double m_mass;
 	double m_collisionMargin;
 };

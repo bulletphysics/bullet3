@@ -1468,27 +1468,91 @@ static PyObject* pybullet_loadSoftBody(PyObject* self, PyObject* args, PyObject*
 static PyObject* pybullet_createCloth(PyObject* self, PyObject* args, PyObject* keywds)
 {
 	int physicsClientId = 0;
-	int flags = 0;
-	static char* kwlist[] = {"scale", "mass", "collisionMargin", "physicsClientId", NULL};
-	int bodyUniqueId = -1;
-	double scale = -1;
+	PyObject* cornersObj = 0;
+	PyObject* resolutionObj = 0;
+	int resolution[2];
+	double corners[12];
+	int fixedCorners;
+	double angularStiffness = -1;
+	double linearStiffness = -1;
+	double damping = -1;
 	double mass = -1;
 	double collisionMargin = -1;
-	b3PhysicsClientHandle sm = 0;
-	if (!PyArg_ParseTupleAndKeywords(args, keywds, "|dddi", kwlist, &scale, &mass, &collisionMargin, &physicsClientId))
+	static char* kwlist[] = {"corners", "resolution", "fixedCorners", "mass", "linearStiffness", "angularStiffness", "damping", "collisionMargin", "physicsClientId", NULL};
+	int bodyUniqueId = -1;
+	if (!PyArg_ParseTupleAndKeywords(args, keywds, "OOi|dddddi", kwlist, &cornersObj, &resolutionObj, &fixedCorners, &mass, &linearStiffness, &angularStiffness, &damping, &collisionMargin, &physicsClientId))
 	{
 		return NULL;
 	}
+	b3PhysicsClientHandle sm = 0;
 	sm = getPhysicsClient(physicsClientId);
 	if (sm == 0)
 	{
 		PyErr_SetString(SpamError, "Not connected to physics server.");
 		return NULL;
 	}
-	b3SharedMemoryStatusHandle statusHandle;
+	PyObject* cornersSeq = 0;
+	PyObject* resolutionSeq = 0;
+
+	// Corners handling
+	cornersSeq = PySequence_Fast(cornersObj, "expected a sequence of corner point coordinates");
+	if (cornersSeq == 0)
+	{
+		PyErr_SetString(SpamError, "expected a sequence of corner point coordinates");
+		return NULL;
+	}
+	if (PySequence_Size(cornersSeq) != 12)
+	{
+		Py_DECREF(cornersSeq);
+		PyErr_SetString(SpamError, "Number of elements in corners sequence must be 12 (4 times 3 xyz coordinates).");
+		return NULL;
+	}
+	for (int i = 0; i < 12; i++)
+	{
+		corners[i] = pybullet_internalGetFloatFromSequence(cornersSeq, i);
+	}
+
+	// Resolution handling
+	if (resolutionObj == 0)
+	{
+		PyErr_SetString(SpamError, "expected resolution in a sequence");
+		return NULL;
+	}
+	resolutionSeq = PySequence_Fast(resolutionObj, "expected resolution in a sequence");
+	if (PySequence_Size(resolutionSeq) != 2)
+	{
+		Py_DECREF(resolutionSeq);
+		PyErr_SetString(SpamError, "Number of elements in resolution sequence must be 2.");
+		return NULL;
+	}
+	for (int i = 0; i < 2; i++)
+	{
+		resolution[i] = pybullet_internalGetIntFromSequence(resolutionSeq, i);
+	}
+
 	int statusType;
-	b3SharedMemoryCommandHandle command =
-		b3CreateClothCommandInit(sm);
+	b3SharedMemoryCommandHandle command = b3CreateClothCommandInit(sm, corners, resolution, fixedCorners);
+	if (angularStiffness > 0)
+	{
+		b3CreateClothSetAngularStiffness(command, angularStiffness);
+	}
+	if (linearStiffness > 0)
+	{
+		b3CreateClothSetLinearStiffness(command, linearStiffness);
+	}
+	if (collisionMargin > 0)
+	{
+		b3CreateClothSetCollisionMargin(command, collisionMargin);
+	}
+	if (mass > 0)
+	{
+		b3CreateClothSetMass(command, mass);
+	}
+	if (damping > 0)
+	{
+		b3CreateClothSetDamping(command, damping);
+	}
+	b3SharedMemoryStatusHandle statusHandle;
 	statusHandle = b3SubmitClientCommandAndWaitStatus(sm, command);
 	statusType = b3GetStatusType(statusHandle);
 	if (statusType != CMD_CREATE_CLOTH_COMPLETED)

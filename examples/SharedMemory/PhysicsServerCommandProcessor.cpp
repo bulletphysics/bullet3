@@ -5786,36 +5786,72 @@ bool PhysicsServerCommandProcessor::processCreateClothCommand(const struct Share
 {
 	serverStatusOut.m_type = CMD_CREATE_CLOTH_FAILED;
 	bool hasStatus = true;
-	#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	const CreateClothArgs& createClothArgs = clientCmd.m_createClothArguments;
 	if (m_data->m_verboseOutput)
 	{
 		b3Printf("Processed CMD_CREATE_CLOTH");
 	}
-	m_data->m_softBodyWorldInfo.air_density		=	(btScalar)5;
-	m_data->m_softBodyWorldInfo.water_density	=	0;
-	m_data->m_softBodyWorldInfo.water_offset	=	0;
-	m_data->m_softBodyWorldInfo.water_normal	=	btVector3(0,0,0);
-	m_data->m_softBodyWorldInfo.m_gravity.setValue(0,0,-10);
+	float linearStiffness = 0.1;
+	float angularStiffness = 0.1;
+	float mass = 0.5;
+	float collisionMargin = 0.002;
+	float damping = 0.01;
+
+	if (clientCmd.m_updateFlags & CREATE_CLOTH_UPDATE_LINEAR_STIFFNESS)
+	{
+		linearStiffness = clientCmd.m_createClothArguments.m_linearStiffness;
+	}
+
+	if (clientCmd.m_updateFlags & CREATE_CLOTH_UPDATE_ANGULAR_STIFFNESS)
+	{
+		angularStiffness = clientCmd.m_createClothArguments.m_angularStiffness;
+	}
+	if (clientCmd.m_updateFlags & CREATE_CLOTH_UPDATE_MASS)
+	{
+		mass = clientCmd.m_createClothArguments.m_mass;
+	}
+	if (clientCmd.m_updateFlags & CREATE_CLOTH_UPDATE_DAMPING)
+	{
+		damping = clientCmd.m_createClothArguments.m_damping;
+	}
+	if (clientCmd.m_updateFlags & CREATE_CLOTH_UPDATE_COLLISION_MARGIN)
+	{
+		collisionMargin = clientCmd.m_createClothArguments.m_collisionMargin;
+	}
+
+	m_data->m_softBodyWorldInfo.air_density = (btScalar)5;
+	m_data->m_softBodyWorldInfo.water_density = 0;
+	m_data->m_softBodyWorldInfo.water_offset = 0;
+	m_data->m_softBodyWorldInfo.water_normal = btVector3(0, 0, 0);
+	m_data->m_softBodyWorldInfo.m_gravity.setValue(0, 0, -10);
 	m_data->m_softBodyWorldInfo.m_broadphase = m_data->m_broadphase;
 	m_data->m_softBodyWorldInfo.m_sparsesdf.Initialize();
+	btVector3 corners[4];
+
+	for (int i = 0; i < 4; i++)
 	{
-		const btScalar	s=0.3;
-		btSoftBody* psb=btSoftBodyHelpers::CreatePatch(	m_data->m_softBodyWorldInfo,btVector3(s,s,1),
-			btVector3(+s,0,1),
-			btVector3(0,s,1),
-			btVector3(0,0,1),
-			30,30,
-			0,true
-		);
-		psb->getCollisionShape()->setMargin(0.02);
-		psb->getCollisionShape()->setUserPointer((void*) psb);
-		btSoftBody::Material* pm=psb->appendMaterial();
-		pm->m_kLST = 0.1;
-		pm->m_kAST = 0.1;
-		psb->generateBendingConstraints(2,pm);
-		psb->setTotalMass(0.5);
-		psb->m_cfg.kDP = 0.01;
+		for (int j = 0; j < 3; j++)
+		{
+			corners[i][j] = clientCmd.m_createClothArguments.m_corners[i * 3 + j];
+		}
+	}
+
+	{
+		btSoftBody* psb = btSoftBodyHelpers::CreatePatch(
+			m_data->m_softBodyWorldInfo,
+			corners[0], corners[1], corners[2], corners[3],
+			clientCmd.m_createClothArguments.m_resolution[0], clientCmd.m_createClothArguments.m_resolution[1],
+			clientCmd.m_createClothArguments.m_fixedCorners,
+			true);
+		psb->getCollisionShape()->setMargin(collisionMargin);
+		psb->getCollisionShape()->setUserPointer((void*)psb);
+		btSoftBody::Material* pm = psb->appendMaterial();
+		pm->m_kLST = linearStiffness;
+		pm->m_kAST = angularStiffness;
+		psb->generateBendingConstraints(2, pm);
+		psb->setTotalMass(mass);
+		psb->m_cfg.kDP = damping;
 		m_data->m_dynamicsWorld->addSoftBody(psb);
 		int bodyUniqueId = m_data->m_bodyHandles.allocHandle();
 		InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(bodyUniqueId);
@@ -5823,7 +5859,7 @@ bool PhysicsServerCommandProcessor::processCreateClothCommand(const struct Share
 		serverStatusOut.m_createClothResultArguments.m_objectUniqueId = bodyUniqueId;
 		serverStatusOut.m_type = CMD_CREATE_CLOTH_COMPLETED;
 	}
-	#endif
+#endif
 	return hasStatus;
 }
 
