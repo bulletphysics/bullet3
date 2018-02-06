@@ -78,7 +78,7 @@ typedef b3PoolBodyHandle<b3Plugin> b3PluginHandle;
 struct b3PluginManagerInternalData
 {
 	b3ResizablePool<b3PluginHandle> m_plugins;
-	b3HashMap<b3HashString, b3PluginHandle*> m_pluginMap;
+	b3HashMap<b3HashString, int> m_pluginMap;
 	PhysicsDirect* m_physicsDirect;
 	b3AlignedObjectArray<b3KeyboardEvent> m_keyEvents;
 	b3AlignedObjectArray<b3VRControllerEvent> m_vrEvents;
@@ -102,8 +102,12 @@ b3PluginManager::~b3PluginManager()
 {
 	while (m_data->m_pluginMap.size())
 	{
-		b3PluginHandle** plugin = m_data->m_pluginMap.getAtIndex(0);
-		unloadPlugin((*plugin)->m_pluginUniqueId);
+		int* pluginUidPtr = m_data->m_pluginMap.getAtIndex(0);
+		if (pluginUidPtr)
+		{
+			int pluginUid = *pluginUidPtr;
+			unloadPlugin(*pluginUidPtr);
+		}
 	}
 	delete m_data->m_physicsDirect;
 	m_data->m_pluginMap.clear();
@@ -140,11 +144,11 @@ int b3PluginManager::loadPlugin(const char* pluginPath, const char* postFixStr)
 {
 	int pluginUniqueId = -1;
 
-	b3PluginHandle** pluginOrgPtr = m_data->m_pluginMap.find(pluginPath);
-	if (pluginOrgPtr)
+	int* pluginUidPtr = m_data->m_pluginMap.find(pluginPath);
+	if (pluginUidPtr)
 	{
 		//already loaded
-		pluginUniqueId = (*pluginOrgPtr)->m_pluginUniqueId;
+		pluginUniqueId = *pluginUidPtr;
 	}
 	else
 	{
@@ -185,7 +189,7 @@ int b3PluginManager::loadPlugin(const char* pluginPath, const char* postFixStr)
 					plugin->m_ownsPluginHandle = true;
 					plugin->m_pluginHandle = pluginHandle;
 					plugin->m_pluginPath = pluginPath;
-					m_data->m_pluginMap.insert(pluginPath, plugin);
+					m_data->m_pluginMap.insert(pluginPath, pluginUniqueId);
 				}
 				else
 				{
@@ -246,16 +250,19 @@ void b3PluginManager::tickPlugins(double timeStep, bool isPreTick)
 {
 	for (int i=0;i<m_data->m_pluginMap.size();i++)
 	{
-		b3PluginHandle** pluginPtr = m_data->m_pluginMap.getAtIndex(i);
+		int* pluginUidPtr = m_data->m_pluginMap.getAtIndex(i);
 		b3PluginHandle* plugin = 0;
-		if (pluginPtr && *pluginPtr)
+
+		if (pluginUidPtr)
 		{
-			plugin = *pluginPtr;
+			int pluginUid = *pluginUidPtr;
+			plugin = m_data->m_plugins.getHandle(pluginUid);
 		}
 		else
 		{
 			continue;
 		}
+		
 		PFN_TICK  tick = isPreTick? plugin->m_preTickFunc : plugin->m_postTickFunc;
 		if (tick)
 		{
@@ -319,7 +326,7 @@ int b3PluginManager::registerStaticLinkedPlugin(const char* pluginPath, PFN_INIT
 	pluginHandle->m_userPointer = 0;
 	
 
-	m_data->m_pluginMap.insert(pluginPath, pluginHandle);
+	m_data->m_pluginMap.insert(pluginPath, pluginUniqueId);
 
 	{
 		b3PluginContext context;
