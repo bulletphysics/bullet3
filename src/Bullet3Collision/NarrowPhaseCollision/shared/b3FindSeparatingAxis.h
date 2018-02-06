@@ -1,5 +1,6 @@
 #ifndef B3_FIND_SEPARATING_AXIS_H
 #define B3_FIND_SEPARATING_AXIS_H
+#include "b3ConvexPolyhedronData.h"
 
 inline void b3ProjectAxis(const b3ConvexPolyhedronData& hull,
                           const b3Float4& pos, const b3Quaternion& orn,

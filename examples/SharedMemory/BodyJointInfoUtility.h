@@ -2,6 +2,7 @@
 #define BODY_JOINT_INFO_UTILITY_H
 
 #include "Bullet3Common/b3Logging.h"
+#include "SharedMemoryPublic.h"
 
 namespace Bullet {
 class btMultiBodyDoubleData;

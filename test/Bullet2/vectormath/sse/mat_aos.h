@@ -29,6 +29,7 @@
 
 #ifndef _VECTORMATH_MAT_AOS_CPP_H
 #define _VECTORMATH_MAT_AOS_CPP_H
+#include "vec_aos.h"
 
 namespace Vectormath {
 namespace Aos {
