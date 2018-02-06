@@ -24,6 +24,7 @@ misrepresented as being the original software.
 
 #include "LinearMath/btQuaternion.h"
 #include "LinearMath/btVector3.h"
+#include "LinearMath/btMatrix3x3.h"
 
 /// This 4x4 matrix class is extremely limited, just created for the purpose of
 /// accumulating transform matrices in COLLADA .dae files
