@@ -14,6 +14,7 @@ from . import bullet_client
 from . import racecar
 import random
 import pybullet_data
+from pkg_resources import parse_version
 
 RENDER_HEIGHT = 720
 RENDER_WIDTH = 960
@@ -190,7 +191,8 @@ class RacecarZEDGymEnv(gym.Env):
       #print(reward)
     return reward
 
-  render = _render
-  reset = _reset
-  seed = _seed
-  step = _step
+  if parse_version(gym.__version__)>=parse_version('0.9.6'):
+    render = _render
+    reset = _reset
+    seed = _seed
+    step = _step

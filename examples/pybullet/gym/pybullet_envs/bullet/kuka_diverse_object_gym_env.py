@@ -10,7 +10,8 @@ import pybullet_data
 import pdb
 import distutils.dir_util
 import glob
-
+from pkg_resources import parse_version
+import gym
 
 class KukaDiverseObjectEnv(KukaGymEnv):
   """Class for Kuka environment with diverse objects.
@@ -324,3 +325,9 @@ class KukaDiverseObjectEnv(KukaGymEnv):
     for object_index in selected_objects:
       selected_objects_filenames += [found_object_directories[object_index]]
     return selected_objects_filenames
+  
+  if parse_version(gym.__version__)>=parse_version('0.9.6'):
+    
+    reset = _reset
+    
+    step = _step

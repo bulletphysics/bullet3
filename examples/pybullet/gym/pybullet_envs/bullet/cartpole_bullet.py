@@ -17,7 +17,7 @@ import time
 import subprocess
 import pybullet as p
 import pybullet_data
-
+from pkg_resources import parse_version
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +100,8 @@ class CartPoleBulletEnv(gym.Env):
   def _render(self, mode='human', close=False):
       return
 
-  render = _render
-  reset = _reset
-  seed = _seed
-  step = _step
+  if parse_version(gym.__version__)>=parse_version('0.9.6'):
+    render = _render
+    reset = _reset
+    seed = _seed
+    step = _step
