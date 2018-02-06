@@ -13,6 +13,7 @@ import pybullet as p
 from . import kuka
 import random
 import pybullet_data
+from pkg_resources import parse_version
 
 largeValObservation = 100
 
@@ -185,6 +186,7 @@ class KukaGymEnv(gym.Env):
   def _render(self, mode="rgb_array", close=False):
     if mode != "rgb_array":
       return np.array([])
+    
     base_pos,orn = self._p.getBasePositionAndOrientation(self._kuka.kukaUid)
     view_matrix = self._p.computeViewMatrixFromYawPitchRoll(
         cameraTargetPosition=base_pos,
@@ -199,7 +201,12 @@ class KukaGymEnv(gym.Env):
     (_, _, px, _, _) = self._p.getCameraImage(
         width=RENDER_WIDTH, height=RENDER_HEIGHT, viewMatrix=view_matrix,
         projectionMatrix=proj_matrix, renderer=self._p.ER_BULLET_HARDWARE_OPENGL)
-    rgb_array = np.array(px)
+        #renderer=self._p.ER_TINY_RENDERER)
+
+        
+    rgb_array = np.array(px, dtype=np.uint8)
+    rgb_array = np.reshape(rgb_array, (RENDER_WIDTH, RENDER_HEIGHT, 4))
+		
     rgb_array = rgb_array[:, :, :3]
     return rgb_array
 
@@ -276,7 +283,8 @@ class KukaGymEnv(gym.Env):
     #print(reward)
     return reward
 
-  render = _render
-  reset = _reset
-  seed = _seed
-  step = _step
+  if parse_version(gym.__version__)>=parse_version('0.9.6'):
+    render = _render
+    reset = _reset
+    seed = _seed
+    step = _step

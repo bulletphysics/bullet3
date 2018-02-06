@@ -1,7 +1,7 @@
 import gym, gym.spaces, gym.utils, gym.utils.seeding
 import numpy as np
 import pybullet as p
-
+from pkg_resources import parse_version
 
 class MJCFBaseBulletEnv(gym.Env):
 	"""
@@ -115,10 +115,11 @@ class MJCFBaseBulletEnv(gym.Env):
 	def step(self, *args, **kwargs):
 		return self._step(*args, **kwargs)
 
-	close = _close
-	render = _render
-	reset = _reset
-	seed = _seed
+	if parse_version(gym.__version__)>=parse_version('0.9.6'):
+		close = _close
+		render = _render
+		reset = _reset
+		seed = _seed
 
 
 class Camera:
