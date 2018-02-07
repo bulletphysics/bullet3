@@ -1507,7 +1507,8 @@ static PyObject* pybullet_createCloth(PyObject* self, PyObject* args, PyObject* 
 		PyErr_SetString(SpamError, "Number of elements in corners sequence must be 12 (4 times 3 xyz coordinates).");
 		return NULL;
 	}
-	for (int i = 0; i < 12; i++)
+	int i;
+	for (i = 0; i < 12; i++)
 	{
 		corners[i] = pybullet_internalGetFloatFromSequence(cornersSeq, i);
 	}
@@ -1525,7 +1526,7 @@ static PyObject* pybullet_createCloth(PyObject* self, PyObject* args, PyObject* 
 		PyErr_SetString(SpamError, "Number of elements in resolution sequence must be 2.");
 		return NULL;
 	}
-	for (int i = 0; i < 2; i++)
+	for (i = 0; i < 2; i++)
 	{
 		resolution[i] = pybullet_internalGetIntFromSequence(resolutionSeq, i);
 	}

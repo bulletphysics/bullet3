@@ -5827,10 +5827,11 @@ bool PhysicsServerCommandProcessor::processCreateClothCommand(const struct Share
 	m_data->m_softBodyWorldInfo.m_broadphase = m_data->m_broadphase;
 	m_data->m_softBodyWorldInfo.m_sparsesdf.Initialize();
 	btVector3 corners[4];
-
-	for (int i = 0; i < 4; i++)
+	int i;
+	for (i = 0; i < 4; i++)
 	{
-		for (int j = 0; j < 3; j++)
+		int j;
+		for (j = 0; j < 3; j++)
 		{
 			corners[i][j] = clientCmd.m_createClothArguments.m_corners[i * 3 + j];
 		}
