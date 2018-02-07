@@ -318,6 +318,7 @@ B3_SHARED_API b3SharedMemoryCommandHandle b3CreateClothCommandInit(b3PhysicsClie
 	if (cl->canSubmitCommand())
 	{
 		struct SharedMemoryCommand* command = cl->getAvailableSharedMemoryCommand();
+		command->m_updateFlags = 0;
 		b3Assert(command);
 		command->m_type = CMD_CREATE_CLOTH;
 		for (int i = 0; i < 12; ++i) {

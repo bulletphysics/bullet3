@@ -5795,9 +5795,8 @@ bool PhysicsServerCommandProcessor::processCreateClothCommand(const struct Share
 	float linearStiffness = 0.1;
 	float angularStiffness = 0.1;
 	float mass = 0.5;
-	float collisionMargin = 0.002;
+	float collisionMargin = 0.02;
 	float damping = 0.01;
-
 	if (clientCmd.m_updateFlags & CREATE_CLOTH_UPDATE_LINEAR_STIFFNESS)
 	{
 		linearStiffness = clientCmd.m_createClothArguments.m_linearStiffness;
