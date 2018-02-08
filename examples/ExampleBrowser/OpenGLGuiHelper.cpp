@@ -6,12 +6,11 @@
 #include "../CommonInterfaces/CommonRenderInterface.h"
 #include "Bullet3Common/b3Scalar.h"
 #include "CollisionShape2TriangleMesh.h"
+#include "BulletSoftBody/btSoftBodyHelpers.h"
 
 #include "../OpenGLWindow/ShapeData.h"
 
 #include "../OpenGLWindow/SimpleCamera.h"
-#include "../OpenGLWindow/GLInstanceGraphicsShape.h"
-
 
 #define BT_LINE_BATCH_SIZE 512
 
@@ -421,6 +420,14 @@ void OpenGLGuiHelper::createCollisionShapeGraphicsObject(btCollisionShape* colli
 	int strideInBytes = 9*sizeof(float);
 	//if (collisionShape->getShapeType()==BOX_SHAPE_PROXYTYPE)
 	{
+	}
+	if (collisionShape->getShapeType() == SOFTBODY_SHAPE_PROXYTYPE)
+	{
+		computeSoftBodyVertices(collisionShape, gfxVertices, indices);
+		int shapeId = registerGraphicsShape(&gfxVertices[0].xyzw[0], gfxVertices.size(), &indices[0], indices.size(), B3_GL_TRIANGLES,
+											m_data->m_checkedTexture);
+		b3Assert(shapeId >= 0);
+		collisionShape->setUserIndex(shapeId);
 	}
 	if (collisionShape->getShapeType()==MULTI_SPHERE_SHAPE_PROXYTYPE)
 	{
@@ -916,6 +923,14 @@ void OpenGLGuiHelper::syncPhysicsToGraphics(const btDiscreteDynamicsWorld* rbWor
 		{
 			//B3_PROFILE("writeSingleInstanceTransformToCPU");
 			btCollisionObject* colObj = rbWorld->getCollisionObjectArray()[i];
+			btCollisionShape* collisionShape = colObj->getCollisionShape();
+			if (collisionShape->getShapeType()==SOFTBODY_SHAPE_PROXYTYPE && collisionShape->getUserIndex() >=0) {
+				btAlignedObjectArray<GLInstanceVertex> gfxVertices;
+				btAlignedObjectArray<int> indices;
+				computeSoftBodyVertices(collisionShape, gfxVertices, indices);
+				m_data->m_glApp->m_renderer->updateShape(collisionShape->getUserIndex(), &gfxVertices[0].xyzw[0]);
+				continue;
+			}
 			btVector3 pos = colObj->getWorldTransform().getOrigin();
 			btQuaternion orn = colObj->getWorldTransform().getRotation();
 			int index = colObj->getUserIndex();
@@ -1269,5 +1284,35 @@ void	OpenGLGuiHelper::dumpFramesToVideo(const char* mp4FileName)
 	if (m_data->m_glApp)
 	{
 		m_data->m_glApp->dumpFramesToVideo(mp4FileName);
+	}
+}
+
+void OpenGLGuiHelper::computeSoftBodyVertices(btCollisionShape* collisionShape,
+											  btAlignedObjectArray<GLInstanceVertex>& gfxVertices,
+											  btAlignedObjectArray<int>& indices)
+{
+	b3Assert(collisionShape->getUserPointer());
+	btSoftBody* psb = (btSoftBody*)collisionShape->getUserPointer();
+	gfxVertices.resize(psb->m_faces.size() * 3);
+	int i, j, k;
+	for (i = 0; i < psb->m_faces.size(); i++)  // Foreach face
+	{
+		for (k = 0; k < 3; k++)  // Foreach vertex on a face
+		{
+			int currentIndex = i * 3 + k;
+			for (int j = 0; j < 3; j++)
+			{
+				gfxVertices[currentIndex].xyzw[j] = psb->m_faces[i].m_n[k]->m_x[j];
+			}
+			for (int j = 0; j < 3; j++)
+			{
+				gfxVertices[currentIndex].normal[j] = psb->m_faces[i].m_n[k]->m_n[j];
+			}
+			for (int j = 0; j < 2; j++)
+			{
+				gfxVertices[currentIndex].uv[j] = 0.5;  //we don't have UV info...
+			}
+			indices.push_back(currentIndex);
+		}
 	}
 }
