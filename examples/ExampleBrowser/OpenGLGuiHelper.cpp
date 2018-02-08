@@ -1291,8 +1291,8 @@ void OpenGLGuiHelper::computeSoftBodyVertices(btCollisionShape* collisionShape,
 											  btAlignedObjectArray<GLInstanceVertex>& gfxVertices,
 											  btAlignedObjectArray<int>& indices)
 {
-	b3Assert(collisionShape->getUserPointer());
-	btSoftBody* psb = (btSoftBody*)collisionShape->getUserPointer();
+	b3Assert(collisionShape->getBodyPointer());
+	btSoftBody* psb = (btSoftBody*)collisionShape->getBodyPointer();
 	gfxVertices.resize(psb->m_faces.size() * 3);
 	int i, j, k;
 	for (i = 0; i < psb->m_faces.size(); i++)  // Foreach face

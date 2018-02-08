@@ -30,6 +30,7 @@ protected:
 	int m_shapeType;
 	void* m_userPointer;
 	int m_userIndex;
+	void* m_bodyPointer;
 
 public:
 
@@ -131,6 +132,18 @@ public:
 	{
 		return m_userPointer;
 	}
+
+	/// optional pointer to body the shape represents
+	void	setBodyPointer(void*  bodyPointer)
+	{
+		m_bodyPointer = bodyPointer;
+	}
+
+	void*	getBodyPointer() const
+	{
+		return m_bodyPointer;
+	}
+
 	void setUserIndex(int index)
 	{
 		m_userIndex = index;
