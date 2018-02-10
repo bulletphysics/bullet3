@@ -1,7 +1,7 @@
 	project "BulletXmlWorldImporter"
 		
 	kind "StaticLib"
-	targetdir "../../lib"
+	--targetdir "../../lib"
 	includedirs {
 		"../BulletWorldImporter",
 		"../BulletFileLoader",

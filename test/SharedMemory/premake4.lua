@@ -164,6 +164,9 @@ project ("Test_PhysicsServerLoopBack")
 			"BussIK",
 			"LinearMath"
 		}
+        if os.is("Linux") then
+            links{"dl"}
+        end
 			
 		files {
 			"test.c",
@@ -250,6 +253,9 @@ end
 			"BussIK",
 			"LinearMath"
 		}
+        if os.is("Linux") then
+            links{"dl"}
+        end
 			
 		files {
 			"test.c",

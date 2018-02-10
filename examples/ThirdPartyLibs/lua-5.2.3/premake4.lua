@@ -18,6 +18,9 @@
 	includedirs {
 		"src"
 	}
+    if os.is("Linux") then
+        buildoptions{"-fPIC"}
+    end
 	files {
 		"src/*.c",
 		"src/*.h"
