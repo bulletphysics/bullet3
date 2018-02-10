@@ -12,6 +12,9 @@ includedirs {".","../../src", "../ThirdPartyLibs"}
 links {
 	"BulletSoftBody", "Bullet3Common","BulletInverseDynamicsUtils", "BulletInverseDynamics",	"BulletDynamics","BulletCollision", "LinearMath", "BussIK"
 }
+if os.is("Linux") then
+    links{"dl"}
+end
 
 language "C++"
 

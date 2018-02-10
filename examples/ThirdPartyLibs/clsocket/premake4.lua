@@ -16,6 +16,9 @@
 	includedirs {
 		".","include","src"
 	}
+    if os.is("Linux") then
+        buildoptions{"-fPIC"}
+    end
 	files {
 		"src/SimpleSocket.cpp",
 		"src/ActiveSocket.cpp",
