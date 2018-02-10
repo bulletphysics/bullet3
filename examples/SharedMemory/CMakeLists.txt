@@ -92,13 +92,14 @@ INCLUDE_DIRECTORIES(
 	${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs
 )
 
+IF (USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD)
+	LINK_LIBRARIES(BulletSoftBody)
+ENDIF()
+
 LINK_LIBRARIES(
  Bullet3Common BulletWorldImporter BulletFileLoader BulletInverseDynamicsUtils BulletInverseDynamics BulletDynamics BulletCollision LinearMath BussIK
 )
 
-IF (USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD)
-	LINK_LIBRARIES(BulletSoftBody)
-ENDIF()
 
 IF (WIN32)
         ADD_EXECUTABLE(App_PhysicsServer_SharedMemory
@@ -149,7 +150,7 @@ INCLUDE_DIRECTORIES(
 ADD_DEFINITIONS(-DB3_USE_STANDALONE_EXAMPLE)
 
 LINK_LIBRARIES(
- Bullet3Common BulletWorldImporter BulletInverseDynamicsUtils BulletInverseDynamics BulletDynamics BulletCollision LinearMath BussIK OpenGLWindow
+	BulletSoftBody Bullet3Common BulletWorldImporter BulletInverseDynamicsUtils BulletInverseDynamics BulletDynamics BulletCollision LinearMath BussIK OpenGLWindow
 )
 
 
