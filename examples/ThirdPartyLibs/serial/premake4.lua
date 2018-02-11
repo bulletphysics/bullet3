@@ -4,6 +4,9 @@
 	
 	includedirs {"include"}
 	
+    if os.is("Linux") then
+        buildoptions{"-fPIC"}
+    end
 	if os.is("Windows") then 
 		files{
 			 "src/impl/win.cc",

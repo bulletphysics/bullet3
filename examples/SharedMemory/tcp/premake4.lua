@@ -73,6 +73,7 @@ links {
         end
         if os.is("Linux") then
                 defines {"_LINUX"}
+                links{"dl"}
         end
         if os.is("MacOSX") then
                 defines {"_DARWIN"}

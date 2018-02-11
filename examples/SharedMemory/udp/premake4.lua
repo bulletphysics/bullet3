@@ -14,6 +14,7 @@ project ("App_PhysicsServerSharedMemoryBridgeUDP")
 		links {"Ws2_32","Winmm"}
 	end
 	if os.is("Linux") then
+	    links{"dl"}
 	end
 	if os.is("MacOSX") then
 	end		
@@ -68,6 +69,9 @@ if os.is("Windows") then
 	defines { "WIN32" }
 	links {"Ws2_32","Winmm"}
 end
+	if os.is("Linux") then
+	    links{"dl"}
+	end
 
 language "C++"
 

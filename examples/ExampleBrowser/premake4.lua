@@ -3,7 +3,11 @@ project "App_BulletExampleBrowser"
         language "C++"
 
         kind "ConsoleApp"
-
+        
+        if os.is("Linux") then
+	        buildoptions{"-fPIC"}
+	    end
+        
         hasCL = findOpenCL("clew")
 
         if (hasCL) then
@@ -209,6 +213,10 @@ project "BulletExampleBrowserLib"
                 "../../src",
                 "../ThirdPartyLibs",
                 }
+                
+        if os.is("Linux") then
+            buildoptions{"-fPIC"}
+        end
 
 	if _OPTIONS["lua"] then
 		includedirs{"../ThirdPartyLibs/lua-5.2.3/src"}
