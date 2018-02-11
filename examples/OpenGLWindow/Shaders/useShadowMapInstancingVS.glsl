@@ -91,9 +91,9 @@ void main(void)
 	
 	vec4 vertexLoc = MVP* vec4((instance_position+localcoord).xyz,1);
 	gl_Position = vertexLoc;
-	ShadowCoord = DepthBiasModelViewProjectionMatrix * vec4((instance_position+localcoord).xyz,1);
 
 	fragment.color = instance_color;
-	vert.texcoord = uvcoords;
+	vec4 projcoords = DepthBiasModelViewProjectionMatrix * vec4((instance_position+localcoord).xyz,1);
+	vert.texcoord = projcoords.xy;
 }
 

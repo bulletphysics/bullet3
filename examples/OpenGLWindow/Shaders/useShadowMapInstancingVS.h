@@ -79,8 +79,8 @@ static const char* useShadowMapInstancingVertexShader= \
 "	\n"
 "	vec4 vertexLoc = MVP* vec4((instance_position+localcoord).xyz,1);\n"
 "	gl_Position = vertexLoc;\n"
-"	ShadowCoord = DepthBiasModelViewProjectionMatrix * vec4((instance_position+localcoord).xyz,1);\n"
 "	fragment.color = instance_color;\n"
-"	vert.texcoord = uvcoords;\n"
+"	vec4 projcoords = DepthBiasModelViewProjectionMatrix * vec4((instance_position+localcoord).xyz,1);\n"
+"	vert.texcoord = projcoords.xy;\n"
 "}\n"
 ;

@@ -16,7 +16,9 @@ subject to the following restrictions:
 
 
 ///todo: make this configurable in the gui
-bool useShadowMap = true;// true;//false;//true;
+bool useShadowMap = false;// true;//false;//true;
+float projectiveTextureViewSize = 10;
+bool useProjectiveTexture = true;
 int shadowMapWidth= 4096;
 int shadowMapHeight= 4096;
 float shadowMapWorldSize=10;
@@ -224,6 +226,9 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 
 	b3Vector3 m_lightPos;
 	b3Vector3 m_lightSpecularIntensity;
+	
+	b3Vector3 m_projectorPos;
+	b3Vector3 m_projectorDir;
 
 	GLuint				m_defaultTexturehandle;
 	b3AlignedObjectArray<InternalTextureHandle>	m_textureHandles;
@@ -1530,7 +1535,13 @@ void GLInstancingRenderer::renderScene()
 		//renderSceneInternal(B3_USE_SHADOWMAP_RENDERMODE_REFLECTION);
 		renderSceneInternal(B3_USE_SHADOWMAP_RENDERMODE);
 
-	} else
+	}
+	else if (useProjectiveTexture)
+	{
+		renderSceneInternal(B3_CREATE_SHADOWMAP_RENDERMODE);
+		renderSceneInternal(B3_USE_PROJECTIVE_TEXTURE_RENDERMODE);
+	}
+	else
 	{
 		renderSceneInternal();
 	}
@@ -1970,10 +1981,15 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 		reflectionPass = true;
 		renderMode = B3_USE_SHADOWMAP_RENDERMODE;
 	}
-
+	
 	if (!useShadowMap)
 	{
 		renderMode = B3_DEFAULT_RENDERMODE;
+	}
+	
+	if (orgRenderMode==B3_USE_PROJECTIVE_TEXTURE_RENDERMODE)
+	{
+		renderMode = B3_USE_PROJECTIVE_TEXTURE_RENDERMODE;
 	}
 
 //	glEnable(GL_DEPTH_TEST);
@@ -2003,6 +2019,10 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 	float depthProjectionMatrix[4][4];
 	GLfloat depthModelViewMatrix[4][4];
 	//GLfloat depthModelViewMatrix2[4][4];
+	
+	// For projective texture mapping
+	float textureProjectionMatrix[4][4];
+	GLfloat textureModelViewMatrix[4][4];
 
 	// Compute the MVP matrix from the light's point of view
 	if (renderMode==B3_CREATE_SHADOWMAP_RENDERMODE)
@@ -2113,6 +2133,18 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 	GLfloat depthBiasMVP[4][4];
 	b3Matrix4x4Mul(biasMatrix,depthMVP,depthBiasMVP);
 
+	// Compute projection matrix for texture projector
+	float textureViewMatrix[4][4];
+	b3Vector3 projectorDir = m_data->m_projectorDir.normalize();
+	float projectorDist = 3.0;
+	b3Vector3 projectorUp = b3MakeVector3(0,0,1.0);
+	b3CreateLookAt(m_data->m_projectorPos, m_data->m_projectorDir*projectorDist, projectorUp, &textureViewMatrix[0][0]);
+	GLfloat textureModelMatrix[4][4];
+	b3CreateDiagonalMatrix(1.f, textureModelMatrix);
+	b3Matrix4x4Mul(textureViewMatrix, textureModelMatrix, textureModelViewMatrix);
+	b3CreateOrtho(-projectiveTextureViewSize,projectiveTextureViewSize,-projectiveTextureViewSize,projectiveTextureViewSize,1,300,textureProjectionMatrix);
+	GLfloat textureMVP[4][4];
+	b3Matrix4x4Mul(textureProjectionMatrix, textureModelViewMatrix, textureMVP);
 
 	//float m_frustumZNear=0.1;
     //float m_frustumZFar=100.f;
@@ -2459,6 +2491,75 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 								glActiveTexture(GL_TEXTURE1);
 								glBindTexture(GL_TEXTURE_2D,0);
 
+								glActiveTexture(GL_TEXTURE0);
+								glBindTexture(GL_TEXTURE_2D,0);
+								break;
+							}
+							case B3_USE_PROJECTIVE_TEXTURE_RENDERMODE:
+							{
+								if ( gfxObj->m_flags&eGfxTransparency)
+								{
+									glDepthMask(false);
+									glEnable (GL_BLEND);
+									glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+								}
+								
+								glUseProgram(useShadowMapInstancingShader);
+								glUniformMatrix4fv(useShadow_ProjectionMatrix, 1, false, &m_data->m_projectionMatrix[0]);
+								glUniform3f(useShadow_lightSpecularIntensity, m_data->m_lightSpecularIntensity[0],m_data->m_lightSpecularIntensity[1],m_data->m_lightSpecularIntensity[2]);
+								glUniform3f(useShadow_materialSpecularColor, gfxObj->m_materialSpecularColor[0],gfxObj->m_materialSpecularColor[1],gfxObj->m_materialSpecularColor[2]);
+								
+								float MVP[16];
+								if (reflectionPass)
+								{
+									float tmp[16];
+									float reflectionMatrix[16] = {1,0,0,0,
+										0,1,0,0,
+										0,0,-1,0,
+										0,0,0,1};
+									glCullFace(GL_FRONT);
+									b3Matrix4x4Mul16(m_data->m_viewMatrix,reflectionMatrix,tmp);
+									b3Matrix4x4Mul16(m_data->m_projectionMatrix,tmp,MVP);
+								} else
+								{
+									b3Matrix4x4Mul16(m_data->m_projectionMatrix,m_data->m_viewMatrix,MVP);
+									glCullFace(GL_BACK);
+								}
+								
+								glUniformMatrix4fv(useShadow_MVP, 1, false, &MVP[0]);
+								glUniform3f(useShadow_lightPosIn,m_data->m_lightPos[0],m_data->m_lightPos[1],m_data->m_lightPos[2]);
+								float camPos[3];
+								m_data->m_activeCamera->getCameraPosition(camPos);
+								glUniform3f(useShadow_cameraPositionIn,camPos[0],camPos[1],camPos[2]);
+								glUniform1f(useShadow_materialShininessIn,gfxObj->m_materialShinyNess);
+								
+								glUniformMatrix4fv(useShadow_DepthBiasModelViewMatrix, 1, false, &textureMVP[0][0]);
+								glActiveTexture(GL_TEXTURE1);
+								glBindTexture(GL_TEXTURE_2D, m_data->m_shadowTexture);
+								glUniform1i(useShadow_shadowMap,1);
+								
+								//sort transparent objects
+								if ( gfxObj->m_flags&eGfxTransparency)
+								{
+									int instanceId = transparentInstances[i].m_instanceId;
+									glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)((instanceId)*4*sizeof(float)+m_data->m_maxShapeCapacityInBytes));
+									glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)((instanceId)*4*sizeof(float)+m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE));
+									glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)((instanceId)*4*sizeof(float)+m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE));
+									glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid *)((instanceId)*3*sizeof(float)+m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE+COLOR_BUFFER_SIZE));
+									glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+								} else
+								{
+									glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexOffset, gfxObj->m_numGraphicsInstances);
+								}
+								
+								if ( gfxObj->m_flags&eGfxTransparency)
+								{
+									glDisable (GL_BLEND);
+									glDepthMask(true);
+								}
+								glActiveTexture(GL_TEXTURE1);
+								glBindTexture(GL_TEXTURE_2D,0);
+								
 								glActiveTexture(GL_TEXTURE0);
 								glBindTexture(GL_TEXTURE_2D,0);
 								break;

@@ -10,7 +10,7 @@ newmtl cube
   Ks 0.0000 0.0000 0.0000
   Ke 0.0000 0.0000 0.0000
   map_Ka cube.tga
-  map_Kd cube.png
+  map_Kd checker_blue.png
   
   
 
