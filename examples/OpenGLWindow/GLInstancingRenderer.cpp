@@ -16,9 +16,9 @@ subject to the following restrictions:
 
 
 ///todo: make this configurable in the gui
-bool useShadowMap = false;// true;//false;//true;
+bool useShadowMap = true;// true;//false;//true;
 float projectiveTextureViewSize = 10;
-bool useProjectiveTexture = true;
+bool useProjectiveTexture = false;
 int shadowMapWidth= 4096;
 int shadowMapHeight= 4096;
 float shadowMapWorldSize=10;
@@ -74,6 +74,8 @@ float shadowMapWorldSize=10;
 #include "Shaders/createShadowMapInstancingPS.h"
 #include "Shaders/useShadowMapInstancingVS.h"
 #include "Shaders/useShadowMapInstancingPS.h"
+#include "Shaders/projectiveTextureInstancingVS.h"
+#include "Shaders/projectiveTextureInstancingPS.h"
 #include "Shaders/linesPS.h"
 #include "Shaders/linesVS.h"
 
@@ -250,6 +252,8 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 	{
 		m_lightPos=b3MakeVector3(-50,30,40);
 		m_lightSpecularIntensity.setValue(1,1,1);
+		
+		m_projectorPos=b3MakeVector3(-50,30,40);
 
 		//clear to zero to make it obvious if the matrix is used uninitialized
 		for (int i=0;i<16;i++)
@@ -284,6 +288,7 @@ static GLuint	triangleIndexVbo=0;
 static GLuint               linesShader;        // The line renderer
 static GLuint               useShadowMapInstancingShader;        // The shadow instancing renderer
 static GLuint               createShadowMapInstancingShader;        // The shadow instancing renderer
+static GLuint				projectiveTextureInstancingShader;        // The projective texture instancing renderer
 static GLuint               instancingShader;        // The instancing renderer
 static GLuint               instancingShaderPointSprite;        // The point sprite instancing renderer
 
@@ -320,6 +325,20 @@ static GLint    useShadow_uniform_texture_diffuse = 0;
 static GLint	useShadow_shadowMap = 0;
 
 static GLint	createShadow_depthMVP=0;
+
+static GLint	projectiveTexture_ViewMatrixInverse=0;
+static GLint	projectiveTexture_ModelViewMatrix=0;
+static GLint	projectiveTexture_lightSpecularIntensity = 0;
+static GLint	projectiveTexture_materialSpecularColor = 0;
+static GLint	projectiveTexture_MVP=0;
+static GLint	projectiveTexture_lightPosIn=0;
+static GLint	projectiveTexture_cameraPositionIn = 0;
+static GLint	projectiveTexture_materialShininessIn = 0;
+
+static GLint	projectiveTexture_ProjectionMatrix=0;
+static GLint	projectiveTexture_DepthBiasModelViewMatrix=0;
+static GLint    projectiveTexture_uniform_texture_diffuse = 0;
+static GLint	projectiveTexture_shadowMap = 0;
 
 static GLint	ModelViewMatrix=0;
 static GLint	ProjectionMatrix=0;
@@ -1212,7 +1231,24 @@ void GLInstancingRenderer::InitShaders()
 	glGetIntegerv(GL_SMOOTH_LINE_WIDTH_RANGE, lineWidthRange);
 
 
-
+	projectiveTextureInstancingShader = gltLoadShaderPair(projectiveTextureInstancingVertexShader,projectiveTextureInstancingFragmentShader);
+	
+	glLinkProgram(projectiveTextureInstancingShader);
+	glUseProgram(projectiveTextureInstancingShader);
+	projectiveTexture_ViewMatrixInverse = glGetUniformLocation(projectiveTextureInstancingShader, "ViewMatrixInverse");
+	projectiveTexture_ModelViewMatrix = glGetUniformLocation(projectiveTextureInstancingShader, "ModelViewMatrix");
+	projectiveTexture_lightSpecularIntensity = glGetUniformLocation(projectiveTextureInstancingShader, "lightSpecularIntensityIn");
+	projectiveTexture_materialSpecularColor = glGetUniformLocation(projectiveTextureInstancingShader, "materialSpecularColorIn");
+	projectiveTexture_MVP = 		glGetUniformLocation(projectiveTextureInstancingShader, "MVP");
+	projectiveTexture_ProjectionMatrix = glGetUniformLocation(projectiveTextureInstancingShader, "ProjectionMatrix");
+	projectiveTexture_DepthBiasModelViewMatrix = glGetUniformLocation(projectiveTextureInstancingShader, "DepthBiasModelViewProjectionMatrix");
+	projectiveTexture_uniform_texture_diffuse = glGetUniformLocation(projectiveTextureInstancingShader, "Diffuse");
+	projectiveTexture_shadowMap = glGetUniformLocation(projectiveTextureInstancingShader,"shadowMap");
+	projectiveTexture_lightPosIn = glGetUniformLocation(projectiveTextureInstancingShader,"lightPosIn");
+	projectiveTexture_cameraPositionIn = glGetUniformLocation(projectiveTextureInstancingShader,"cameraPositionIn");
+	projectiveTexture_materialShininessIn = glGetUniformLocation(projectiveTextureInstancingShader,"materialShininessIn");
+	
+	glUseProgram(0);
 
 	useShadowMapInstancingShader = gltLoadShaderPair(useShadowMapInstancingVertexShader,useShadowMapInstancingFragmentShader);
 
@@ -1538,7 +1574,7 @@ void GLInstancingRenderer::renderScene()
 	}
 	else if (useProjectiveTexture)
 	{
-		renderSceneInternal(B3_CREATE_SHADOWMAP_RENDERMODE);
+		//renderSceneInternal(B3_CREATE_SHADOWMAP_RENDERMODE);
 		renderSceneInternal(B3_USE_PROJECTIVE_TEXTURE_RENDERMODE);
 	}
 	else
@@ -2136,9 +2172,8 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 	// Compute projection matrix for texture projector
 	float textureViewMatrix[4][4];
 	b3Vector3 projectorDir = m_data->m_projectorDir.normalize();
-	float projectorDist = 3.0;
-	b3Vector3 projectorUp = b3MakeVector3(0,0,1.0);
-	b3CreateLookAt(m_data->m_projectorPos, m_data->m_projectorDir*projectorDist, projectorUp, &textureViewMatrix[0][0]);
+	float projectorDist = 0;
+	b3CreateLookAt(m_data->m_projectorPos,center,up, &textureViewMatrix[0][0]);
 	GLfloat textureModelMatrix[4][4];
 	b3CreateDiagonalMatrix(1.f, textureModelMatrix);
 	b3Matrix4x4Mul(textureViewMatrix, textureModelMatrix, textureModelViewMatrix);
@@ -2497,6 +2532,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 							}
 							case B3_USE_PROJECTIVE_TEXTURE_RENDERMODE:
 							{
+								printf("PROJECTIVE TEXTURE!!\n");
 								if ( gfxObj->m_flags&eGfxTransparency)
 								{
 									glDepthMask(false);
@@ -2504,10 +2540,10 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 									glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 								}
 								
-								glUseProgram(useShadowMapInstancingShader);
-								glUniformMatrix4fv(useShadow_ProjectionMatrix, 1, false, &m_data->m_projectionMatrix[0]);
-								glUniform3f(useShadow_lightSpecularIntensity, m_data->m_lightSpecularIntensity[0],m_data->m_lightSpecularIntensity[1],m_data->m_lightSpecularIntensity[2]);
-								glUniform3f(useShadow_materialSpecularColor, gfxObj->m_materialSpecularColor[0],gfxObj->m_materialSpecularColor[1],gfxObj->m_materialSpecularColor[2]);
+								glUseProgram(projectiveTextureInstancingShader);
+								glUniformMatrix4fv(projectiveTexture_ProjectionMatrix, 1, false, &m_data->m_projectionMatrix[0]);
+								glUniform3f(projectiveTexture_lightSpecularIntensity, m_data->m_lightSpecularIntensity[0],m_data->m_lightSpecularIntensity[1],m_data->m_lightSpecularIntensity[2]);
+								glUniform3f(projectiveTexture_materialSpecularColor, gfxObj->m_materialSpecularColor[0],gfxObj->m_materialSpecularColor[1],gfxObj->m_materialSpecularColor[2]);
 								
 								float MVP[16];
 								if (reflectionPass)
@@ -2526,17 +2562,17 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 									glCullFace(GL_BACK);
 								}
 								
-								glUniformMatrix4fv(useShadow_MVP, 1, false, &MVP[0]);
-								glUniform3f(useShadow_lightPosIn,m_data->m_lightPos[0],m_data->m_lightPos[1],m_data->m_lightPos[2]);
+								glUniformMatrix4fv(projectiveTexture_MVP, 1, false, &MVP[0]);
+								glUniform3f(projectiveTexture_lightPosIn,m_data->m_lightPos[0],m_data->m_lightPos[1],m_data->m_lightPos[2]);
 								float camPos[3];
 								m_data->m_activeCamera->getCameraPosition(camPos);
-								glUniform3f(useShadow_cameraPositionIn,camPos[0],camPos[1],camPos[2]);
-								glUniform1f(useShadow_materialShininessIn,gfxObj->m_materialShinyNess);
+								glUniform3f(projectiveTexture_cameraPositionIn,camPos[0],camPos[1],camPos[2]);
+								glUniform1f(projectiveTexture_materialShininessIn,gfxObj->m_materialShinyNess);
 								
-								glUniformMatrix4fv(useShadow_DepthBiasModelViewMatrix, 1, false, &textureMVP[0][0]);
+								glUniformMatrix4fv(projectiveTexture_DepthBiasModelViewMatrix, 1, false, &textureMVP[0][0]);
 								glActiveTexture(GL_TEXTURE1);
 								glBindTexture(GL_TEXTURE_2D, m_data->m_shadowTexture);
-								glUniform1i(useShadow_shadowMap,1);
+								glUniform1i(projectiveTexture_shadowMap,1);
 								
 								//sort transparent objects
 								if ( gfxObj->m_flags&eGfxTransparency)
