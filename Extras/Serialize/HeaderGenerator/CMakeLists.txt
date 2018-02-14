@@ -13,7 +13,7 @@ SET(includes
 
 
 LINK_LIBRARIES(
-	 BulletFileLoader BlenderSerialize LinearMath
+	 BulletFileLoader  LinearMath
 )
 
 INCLUDE_DIRECTORIES(${includes})
