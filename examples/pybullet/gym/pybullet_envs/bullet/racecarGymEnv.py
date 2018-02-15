@@ -14,6 +14,7 @@ from . import racecar
 import random
 from . import bullet_client
 import pybullet_data
+from pkg_resources import parse_version
 
 RENDER_HEIGHT = 720
 RENDER_WIDTH = 960
@@ -50,8 +51,8 @@ class RacecarGymEnv(gym.Env):
     #self.reset()
     observationDim = 2 #len(self.getExtendedObservation())
     #print("observationDim")
-    #print(observationDim) 
-    # observation_high = np.array([np.finfo(np.float32).max] * observationDim)    
+    #print(observationDim)
+    # observation_high = np.array([np.finfo(np.float32).max] * observationDim)
     observation_high = np.ones(observationDim) * 1000 #np.inf
     if (isDiscrete):
       self.action_space = spaces.Discrete(9)
@@ -59,7 +60,7 @@ class RacecarGymEnv(gym.Env):
        action_dim = 2
        self._action_bound = 1
        action_high = np.array([self._action_bound] * action_dim)
-       self.action_space = spaces.Box(-action_high, action_high) 
+       self.action_space = spaces.Box(-action_high, action_high)
     self.observation_space = spaces.Box(-observation_high, observation_high)
     self.viewer = None
 
@@ -74,14 +75,14 @@ class RacecarGymEnv(gym.Env):
     #	pos,orn = self._p.getBasePositionAndOrientation(i)
     #	newpos = [pos[0],pos[1],pos[2]-0.1]
     #	self._p.resetBasePositionAndOrientation(i,newpos,orn)
-    
+
     dist = 5 +2.*random.random()
     ang = 2.*3.1415925438*random.random()
-    
+
     ballx = dist * math.sin(ang)
     bally = dist * math.cos(ang)
     ballz = 1
-    
+
     self._ballUniqueId = self._p.loadURDF(os.path.join(self._urdfRoot,"sphere2.urdf"),[ballx,bally,ballz])
     self._p.setGravity(0,0,-10)
     self._racecar = racecar.Racecar(self._p,urdfRootPath=self._urdfRoot, timeStep=self._timeStep)
@@ -101,18 +102,18 @@ class RacecarGymEnv(gym.Env):
   def getExtendedObservation(self):
      self._observation = [] #self._racecar.getObservation()
      carpos,carorn = self._p.getBasePositionAndOrientation(self._racecar.racecarUniqueId)
-     ballpos,ballorn = self._p.getBasePositionAndOrientation(self._ballUniqueId)      
+     ballpos,ballorn = self._p.getBasePositionAndOrientation(self._ballUniqueId)
      invCarPos,invCarOrn = self._p.invertTransform(carpos,carorn)
      ballPosInCar,ballOrnInCar = self._p.multiplyTransforms(invCarPos,invCarOrn,ballpos,ballorn)
-    
+
      self._observation.extend([ballPosInCar[0],ballPosInCar[1]])
      return self._observation
-     
+
   def _step(self, action):
     if (self._renders):
       basePos,orn = self._p.getBasePositionAndOrientation(self._racecar.racecarUniqueId)
       #self._p.resetDebugVisualizerCamera(1, 30, -40, basePos)
-    
+
     if (self._isDiscrete):
 	    fwd = [-1,-1,-1,0,0,0,1,1,1]
 	    steerings = [-0.6,0,0.6,-0.6,0,0.6,-0.6,0,0.6]
@@ -128,14 +129,14 @@ class RacecarGymEnv(gym.Env):
       if self._renders:
         time.sleep(self._timeStep)
       self._observation = self.getExtendedObservation()
-      
+
       if self._termination():
         break
       self._envStepCounter += 1
     reward = self._reward()
     done = self._termination()
     #print("len=%r" % len(self._observation))
-    
+
     return np.array(self._observation), reward, done, {}
 
   def _render(self, mode='human', close=False):
@@ -159,13 +160,13 @@ class RacecarGymEnv(gym.Env):
     rgb_array = rgb_array[:, :, :3]
     return rgb_array
 
-    
+
   def _termination(self):
     return self._envStepCounter>1000
-    
+
   def _reward(self):
-    closestPoints = self._p.getClosestPoints(self._racecar.racecarUniqueId,self._ballUniqueId,10000) 
-    
+    closestPoints = self._p.getClosestPoints(self._racecar.racecarUniqueId,self._ballUniqueId,10000)
+
     numPt = len(closestPoints)
     reward=-1000
     #print(numPt)
@@ -174,3 +175,9 @@ class RacecarGymEnv(gym.Env):
       reward = -closestPoints[0][8]
       #print(reward)
     return reward
+
+  if parse_version(gym.__version__)>=parse_version('0.9.6'):
+    render = _render
+    reset = _reset
+    seed = _seed
+    step = _step

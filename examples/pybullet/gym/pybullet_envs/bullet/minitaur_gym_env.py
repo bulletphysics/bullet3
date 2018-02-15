@@ -20,6 +20,7 @@ from . import minitaur
 import os
 import pybullet_data
 from . import minitaur_env_randomizer
+from pkg_resources import parse_version
 
 NUM_SUBSTEPS = 5
 NUM_MOTORS = 8
@@ -376,3 +377,9 @@ class MinitaurBulletEnv(gym.Env):
           scale=self._observation_noise_stdev, size=observation.shape) *
                       self.minitaur.GetObservationUpperBound())
     return observation
+
+  if parse_version(gym.__version__)>=parse_version('0.9.6'):
+    render = _render
+    reset = _reset
+    seed = _seed
+    step = _step

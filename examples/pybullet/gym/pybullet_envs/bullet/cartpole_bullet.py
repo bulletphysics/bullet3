@@ -17,7 +17,7 @@ import time
 import subprocess
 import pybullet as p
 import pybullet_data
-
+from pkg_resources import parse_version
 
 logger = logging.getLogger(__name__)
 
@@ -64,10 +64,10 @@ class CartPoleBulletEnv(gym.Env):
 #    time.sleep(self.timeStep)
     self.state = p.getJointState(self.cartpole, 1)[0:2] + p.getJointState(self.cartpole, 0)[0:2]
     theta, theta_dot, x, x_dot = self.state
-    
+
     dv = 0.1
     deltav = [-10.*dv,-5.*dv, -2.*dv, -0.1*dv, 0, 0.1*dv, 2.*dv,5.*dv, 10.*dv][action]
-    
+
     p.setJointMotorControl2(self.cartpole, 0, p.VELOCITY_CONTROL, targetVelocity=(deltav + self.state[3]))
 
     done =  x < -self.x_threshold \
@@ -99,3 +99,9 @@ class CartPoleBulletEnv(gym.Env):
 
   def _render(self, mode='human', close=False):
       return
+
+  if parse_version(gym.__version__)>=parse_version('0.9.6'):
+    render = _render
+    reset = _reset
+    seed = _seed
+    step = _step

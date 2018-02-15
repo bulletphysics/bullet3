@@ -1,6 +1,12 @@
 r"""An example to run of the minitaur gym environment with sine gaits.
 """
 
+import os
+import inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(os.path.dirname(currentdir))
+os.sys.path.insert(0,parentdir)
+
 import math
 import numpy as np
 from pybullet_envs.bullet import minitaur_gym_env

@@ -14,6 +14,8 @@ import pybullet as p
 from . import kuka
 import random
 import pybullet_data
+from pkg_resources import parse_version
+
 maxSteps = 1000
 
 RENDER_HEIGHT = 720
@@ -56,8 +58,8 @@ class KukaCamGymEnv(gym.Env):
     observationDim = len(self.getExtendedObservation())
     #print("observationDim")
     #print(observationDim)
-    
-    observation_high = np.array([np.finfo(np.float32).max] * observationDim)    
+
+    observation_high = np.array([np.finfo(np.float32).max] * observationDim)
     if (self._isDiscrete):
       self.action_space = spaces.Discrete(7)
     else:
@@ -74,15 +76,15 @@ class KukaCamGymEnv(gym.Env):
     p.setPhysicsEngineParameter(numSolverIterations=150)
     p.setTimeStep(self._timeStep)
     p.loadURDF(os.path.join(self._urdfRoot,"plane.urdf"),[0,0,-1])
-    
+
     p.loadURDF(os.path.join(self._urdfRoot,"table/table.urdf"), 0.5000000,0.00000,-.820000,0.000000,0.000000,0.0,1.0)
-    
+
     xpos = 0.5 +0.2*random.random()
     ypos = 0 +0.25*random.random()
     ang = 3.1415925438*random.random()
     orn = p.getQuaternionFromEuler([0,0,ang])
     self.blockUid =p.loadURDF(os.path.join(self._urdfRoot,"block.urdf"), xpos,ypos,-0.1,orn[0],orn[1],orn[2],orn[3])
-            
+
     p.setGravity(0,0,-10)
     self._kuka = kuka.Kuka(urdfRootPath=self._urdfRoot, timeStep=self._timeStep)
     self._envStepCounter = 0
@@ -98,7 +100,7 @@ class KukaCamGymEnv(gym.Env):
     return [seed]
 
   def getExtendedObservation(self):
-     
+
      #camEyePos = [0.03,0.236,0.54]
      #distance = 1.06
      #pitch=-56
@@ -118,13 +120,13 @@ class KukaCamGymEnv(gym.Env):
      viewMat = [-0.5120397806167603, 0.7171027660369873, -0.47284144163131714, 0.0, -0.8589617609977722, -0.42747554183006287, 0.28186774253845215, 0.0, 0.0, 0.5504802465438843, 0.8348482847213745, 0.0, 0.1925382763147354, -0.24935829639434814, -0.4401884973049164, 1.0]
      #projMatrix = camInfo[3]#[0.7499999403953552, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0000200271606445, -1.0, 0.0, 0.0, -0.02000020071864128, 0.0]
      projMatrix = [0.75, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0000200271606445, -1.0, 0.0, 0.0, -0.02000020071864128, 0.0]
-     
+
      img_arr = p.getCameraImage(width=self._width,height=self._height,viewMatrix=viewMat,projectionMatrix=projMatrix)
      rgb=img_arr[2]
      np_img_arr = np.reshape(rgb, (self._height, self._width, 4))
      self._observation = np_img_arr
      return self._observation
-  
+
   def _step(self, action):
     if (self._isDiscrete):
       dv = 0.01
@@ -142,7 +144,7 @@ class KukaCamGymEnv(gym.Env):
       realAction = [dx,dy,-0.002,da,f]
 
     return self.step2( realAction)
-     
+
   def step2(self, action):
     for i in range(self._actionRepeat):
       self._kuka.applyAction(action)
@@ -158,11 +160,11 @@ class KukaCamGymEnv(gym.Env):
 
     #print("self._envStepCounter")
     #print(self._envStepCounter)
-    
+
     done = self._termination()
     reward = self._reward()
     #print("len=%r" % len(self._observation))
-    
+
     return np.array(self._observation), reward, done, {}
 
   def _render(self, mode='human', close=False):
@@ -190,18 +192,18 @@ class KukaCamGymEnv(gym.Env):
     #print (self._kuka.endEffectorPos[2])
     state = p.getLinkState(self._kuka.kukaUid,self._kuka.kukaEndEffectorIndex)
     actualEndEffectorPos = state[0]
-      
+
     #print("self._envStepCounter")
     #print(self._envStepCounter)
     if (self.terminated or self._envStepCounter>maxSteps):
       self._observation = self.getExtendedObservation()
       return True
-    maxDist = 0.005 
+    maxDist = 0.005
     closestPoints = p.getClosestPoints(self._kuka.trayUid, self._kuka.kukaUid,maxDist)
-     
+
     if (len(closestPoints)):#(actualEndEffectorPos[2] <= -0.43):
       self.terminated = 1
-      
+
       #print("closing gripper, attempting grasp")
       #start grasp and terminate
       fingerAngle = 0.3
@@ -212,7 +214,7 @@ class KukaCamGymEnv(gym.Env):
         fingerAngle = fingerAngle-(0.3/100.)
         if (fingerAngle<0):
           fingerAngle=0
-    
+
       for i in range (1000):
         graspAction = [0,0,0.001,0,fingerAngle]
         self._kuka.applyAction(graspAction)
@@ -227,18 +229,18 @@ class KukaCamGymEnv(gym.Env):
         if (actualEndEffectorPos[2]>0.5):
           break
 
-    
+
       self._observation = self.getExtendedObservation()
       return True
     return False
-    
+
   def _reward(self):
-    
+
     #rewards is height of target object
     blockPos,blockOrn=p.getBasePositionAndOrientation(self.blockUid)
-    closestPoints = p.getClosestPoints(self.blockUid,self._kuka.kukaUid,1000, -1, self._kuka.kukaEndEffectorIndex) 
+    closestPoints = p.getClosestPoints(self.blockUid,self._kuka.kukaUid,1000, -1, self._kuka.kukaEndEffectorIndex)
 
-    reward = -1000    
+    reward = -1000
     numPt = len(closestPoints)
     #print(numPt)
     if (numPt>0):
@@ -254,3 +256,8 @@ class KukaCamGymEnv(gym.Env):
     #print(reward)
     return reward
 
+  if parse_version(gym.__version__)>=parse_version('0.9.6'):  
+    render = _render
+    reset = _reset
+    seed = _seed
+    step = _step

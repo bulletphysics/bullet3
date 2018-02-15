@@ -47,7 +47,7 @@ def main():
         print(obs)
         episode_rew = 0
         while not done:
-            env.render()
+            env.render(mode='human')
             act = policy.sample_action(obs, .1)
             print("Action")
             print(act)
