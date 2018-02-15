@@ -21,15 +21,15 @@ public:
     
     InProcessPhysicsClientSharedMemoryMainThread(int argc, char* argv[], bool useInProcessMemory)
     {
-        int newargc = argc+2;
+        int newargc = argc+3;
         char** newargv = (char**)malloc(sizeof(void*)*newargc);
-        for (int i=0;i<argc;i++)
-            newargv[i] = argv[i];
+		char* t0 = (char*)"--unused";
+        newargv[0] = t0;
+		for (int i=0;i<argc;i++)
+            newargv[i+1] = argv[i];
+        newargv[argc+1]=(char*)"--logtostderr";
+		newargv[argc+2]=(char*)"--start_demo_name=Physics Server";
         
-        char* t0 = (char*)"--logtostderr";
-        char* t1 = (char*)"--start_demo_name=Physics Server";
-        newargv[argc] = t0;
-        newargv[argc+1] = t1;
         m_data = btCreateInProcessExampleBrowserMainThread(newargc,newargv, useInProcessMemory);
         SharedMemoryInterface* shMem = btGetSharedMemoryInterfaceMainThread(m_data);
         
