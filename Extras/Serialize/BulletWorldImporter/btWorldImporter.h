@@ -50,6 +50,7 @@ struct btContactSolverInfo;
 struct btTypedConstraintData;
 struct btTypedConstraintFloatData;
 struct btTypedConstraintDoubleData;
+class btRaycastVehicle;
 
 struct btRigidBodyDoubleData;
 struct btRigidBodyFloatData;
@@ -101,6 +102,7 @@ protected:
 
 	btHashMap<btHashPtr,btCollisionShape*>	m_shapeMap;
 	btHashMap<btHashPtr,btCollisionObject*>	m_bodyMap;
+	btHashMap<btHashPtr,btRaycastVehicle*>	m_vehicleMap;
 
 
 	//methods

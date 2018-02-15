@@ -131,6 +131,7 @@ public:
 #define BT_DYNAMICSWORLD_CODE	BT_MAKE_ID('D','W','L','D')
 #define BT_CONTACTMANIFOLD_CODE BT_MAKE_ID('C','O','N','T')
 #define BT_ACTIONINTERFACE_CODE BT_MAKE_ID('A','C','T','N')
+#define BT_WHEELS_CODE          BT_MAKE_ID('W','H','L','S')
 #define BT_DNA_CODE				BT_MAKE_ID('D','N','A','1')
 
 struct	btPointerUid

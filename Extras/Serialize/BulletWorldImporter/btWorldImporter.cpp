@@ -166,6 +166,7 @@ void btWorldImporter::convertAction(btActionInterfaceData* action)
 			btRaycastVehicle* vehicle = new btRaycastVehicle(tuning, chassis, raycaster);
 			vehicle->deserialize(data);
 			m_dynamicsWorld->addVehicle(vehicle);
+			m_vehicleMap.insert(action, vehicle);
 		}
 		default:break;
 	}

@@ -54,3 +54,30 @@ void	btWheelInfo::updateWheel(const btRigidBody& chassis,RaycastInfo& raycastInf
 		m_clippedInvContactDotSuspension = btScalar(1.0);
 	}
 }
+
+
+const char * btWheelInfo::serialize (void * dataBuffer, btSerializer * serializer) const
+{
+	btWheelDoubleData * data = reinterpret_cast<btWheelDoubleData*>(dataBuffer);
+	m_chassisConnectionPointCS.serializeDouble(data->m_chassisConnectionCS);
+	m_wheelDirectionCS.serializeDouble(data->m_wheelDirectionCS);
+	m_wheelAxleCS.serializeDouble(data->m_wheelAxleCS);
+	data->m_suspensionRestLength = m_suspensionRestLength1;
+	data->m_maxSuspensionTravelCm = m_maxSuspensionTravelCm;
+	data->m_wheelRadius = m_wheelsRadius;
+	data->m_suspensionStiffness = m_suspensionStiffness;
+	data->m_wheelsDampingCompression = m_wheelsDampingCompression;
+	data->m_wheelsDampingRelaxation = m_wheelsDampingRelaxation;
+	data->m_frictionSlip = m_frictionSlip;
+	data->m_maxSuspensionForce = m_maxSuspensionForce;
+	data->m_bIsFrontWheel = m_bIsFrontWheel;
+
+	// other parameters
+	data->m_steering = m_steering;
+	data->m_engineForce = m_engineForce;
+	data->m_rotation = m_rotation;
+	data->m_deltaRotation = m_deltaRotation;
+	data->m_brake = m_brake;
+	data->m_rollInfluence = m_rollInfluence;
+	return "btWheelDoubleData";
+}

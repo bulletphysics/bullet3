@@ -15,6 +15,7 @@
 #include "LinearMath/btTransform.h"
 
 class btRigidBody;
+class btSerializer;
 
 struct btWheelInfoConstructionInfo
 {
@@ -35,8 +36,9 @@ struct btWheelInfoConstructionInfo
 };
 
 /// btWheelInfo contains information per wheel about friction and suspension.
-struct btWheelInfo
+class btWheelInfo
 {
+public:
 	struct RaycastInfo
 	{
 		//set by raycaster
@@ -115,6 +117,34 @@ struct btWheelInfo
 	btScalar	m_wheelsSuspensionForce;
 	btScalar	m_skidInfo;
 
+	const char * serialize (void * dataBuffer, btSerializer * serializer) const;
+
+};
+
+struct btWheelDoubleData
+{
+	// keep these consistent with btWheelInfoConstructionInfo so that memcpy can be used
+	btVector3DoubleData m_chassisConnectionCS;
+	btVector3DoubleData m_wheelDirectionCS;
+	btVector3DoubleData m_wheelAxleCS;
+	double m_suspensionRestLength;
+	double m_maxSuspensionTravelCm;
+	double m_wheelRadius;
+	double m_suspensionStiffness;
+	double m_wheelsDampingCompression;
+	double m_wheelsDampingRelaxation;
+	double m_frictionSlip;
+	double m_maxSuspensionForce;
+	char m_bIsFrontWheel;
+
+	char m_pad[7]; // keep things aligned to 8 bytes.
+	double m_steering;
+	double m_engineForce;
+	double m_rotation;
+	double m_deltaRotation;
+	double m_brake;
+	double m_rollInfluence;
+	void *associatedVehicle;
 };
 
 #endif //BT_WHEEL_INFO_H

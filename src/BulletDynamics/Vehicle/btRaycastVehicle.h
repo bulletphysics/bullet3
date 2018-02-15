@@ -121,6 +121,7 @@ public:
 //	void	setRaycastWheelInfo( int wheelIndex , bool isInContact, const btVector3& hitPoint, const btVector3& hitNormal,btScalar depth);
 
 	btWheelInfo&	addWheel( const btVector3& connectionPointCS0, const btVector3& wheelDirectionCS0,const btVector3& wheelAxleCS,btScalar suspensionRestLength,btScalar wheelRadius,const btVehicleTuning& tuning, bool isFrontWheel);
+    void addWheel(btWheelInfo * wheelInfo);
 
 	inline int		getNumWheels() const {
 		return int (m_wheelInfo.size());

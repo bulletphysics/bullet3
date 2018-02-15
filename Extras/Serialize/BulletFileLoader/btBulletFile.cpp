@@ -235,6 +235,11 @@ void btBulletFile::parseData()
 					m_actions.push_back((bStructHandle*) id);
 				}
 
+				if (dataChunk.code == BT_WHEELS_CODE)
+				{
+					m_wheels.push_back((bStructHandle*) id);
+				}
+
 		//		if (dataChunk.code == GLOB)
 		//		{
 		//			m_glob = (bStructHandle*) id;

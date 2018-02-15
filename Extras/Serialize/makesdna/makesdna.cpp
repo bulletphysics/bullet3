@@ -193,6 +193,7 @@ char *includefiles[] = {
 	"../../../src/BulletDynamics/Dynamics/btRigidBody.h",
 	"../../../src/BulletDynamics/Dynamics/btActionInterface.h",
 	"../../../src/BulletDynamics/Vehicle/btRaycastVehicle.h",
+	"../../../src/BulletDynamics/Vehicle/btWheelInfo.h",
 	"../../../src/BulletDynamics/ConstraintSolver/btTypedConstraint.h",
 	"../../../src/BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h",
 	"../../../src/BulletDynamics/ConstraintSolver/btHingeConstraint.h",
