@@ -12,7 +12,7 @@ cubeStartPos = [0,0,1]
 cubeStartOrientation = p.getQuaternionFromEuler([0,0,0])
 boxId = p.loadURDF("cube.urdf",cubeStartPos, cubeStartOrientation)
 cubePos, cubeOrn = p.getBasePositionAndOrientation(boxId)
-textureId = p.loadTexture("checker_blue_test.png")
+textureId = p.loadTexture("checker_blue.png")
 p.changeVisualShape(objectUniqueId=0, linkIndex=-1, textureUniqueId=textureId)
 p.changeVisualShape(objectUniqueId=1, linkIndex=-1, textureUniqueId=textureId)
 
