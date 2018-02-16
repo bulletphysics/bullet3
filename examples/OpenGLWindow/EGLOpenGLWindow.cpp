@@ -35,12 +35,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <iostream>
+using namespace std;
 
-#include "OpenGLInclude.h"
-
-#include "third_party/GL/EGL/egl.h"
-#include "third_party/GL/gl/include/EGL/eglext.h"
-#include "third_party/GL/gl/include/GL/gl.h"
+#include <glad/glad.h>
+#include <glad/glad_egl.h>
 
 #include "EGLOpenGLWindow.h"
 
@@ -49,6 +48,7 @@ struct EGLInternalData2 {
     
     int m_windowWidth;
     int m_windowHeight;
+    int m_renderDevice;
     
     b3KeyboardCallback m_keyboardCallback;
     b3WheelCallback m_wheelCallback;
@@ -82,6 +82,8 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci) {
     m_data->m_windowWidth = ci.m_width;
     m_data->m_windowHeight = ci.m_height;
     
+    m_data->m_renderDevice = ci.m_renderDevice;
+
     EGLint egl_config_attribs[] = {EGL_RED_SIZE,
         8,
         EGL_GREEN_SIZE,
@@ -101,29 +103,41 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci) {
         EGL_NONE,
     };
     
+    gladLoadEGL();
+
     // Initialize EGL display
-    PFNEGLQUERYDEVICESEXTPROC eglQueryDevicesEXT =
-    (PFNEGLQUERYDEVICESEXTPROC)eglGetProcAddress("eglQueryDevicesEXT");
-    if (eglQueryDevicesEXT == nullptr) m_data->egl_display = EGL_NO_DISPLAY;
-    
-    PFNEGLGETPLATFORMDISPLAYEXTPROC eglGetPlatformDisplayEXT =
-    (PFNEGLGETPLATFORMDISPLAYEXTPROC)eglGetProcAddress(
-                                                       "eglGetPlatformDisplayEXT");
-    if (eglGetPlatformDisplayEXT == nullptr) m_data->egl_display = EGL_NO_DISPLAY;
-    
     const int max_devices = 32;
     EGLDeviceEXT egl_devices[max_devices];
     EGLint num_devices = 0;
     EGLint egl_error = eglGetError();
-    if (!eglQueryDevicesEXT(max_devices, egl_devices, &num_devices) ||
+    if (!glad_eglQueryDevicesEXT(max_devices, egl_devices, &num_devices) ||
         egl_error != EGL_SUCCESS) {
         printf("eglQueryDevicesEXT Failed.\n");
         m_data->egl_display = EGL_NO_DISPLAY;
     }
-    
-    for (EGLint i = 0; i < num_devices; ++i) {
-        EGLDisplay display = eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT,
-                                                      egl_devices[i], nullptr);
+    // Discover devices
+    if(m_data->m_renderDevice == -1) {
+        // Original Code
+        for (EGLint i = 0; i < num_devices; ++i) {
+            EGLDisplay display = glad_eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT,
+                                                          egl_devices[i], nullptr);
+            if (eglGetError() == EGL_SUCCESS && display != EGL_NO_DISPLAY) {
+                int major, minor;
+                EGLBoolean initialized = eglInitialize(display, &major, &minor);
+                if (eglGetError() == EGL_SUCCESS && initialized == EGL_TRUE) {
+                    m_data->egl_display = display;
+                }
+            }
+        }
+    } else {
+        if (m_data->m_renderDevice < 0 || m_data->m_renderDevice >= num_devices) {
+            fprintf(stderr, "Invalid render_device choice: %d < %d.\n", m_data->m_renderDevice, num_devices);
+            exit(EXIT_FAILURE);
+        }
+
+        // Go back to setting display
+        EGLDisplay display = glad_eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT,
+                                                      egl_devices[m_data->m_renderDevice], nullptr);
         if (eglGetError() == EGL_SUCCESS && display != EGL_NO_DISPLAY) {
             int major, minor;
             EGLBoolean initialized = eglInitialize(display, &major, &minor);
@@ -156,11 +170,20 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci) {
     
     m_data->egl_context = eglCreateContext(
                                            m_data->egl_display, m_data->egl_config, EGL_NO_CONTEXT, nullptr);
+    if (!m_data->egl_context) {
+        fprintf(stderr, "Failed to create ELG context.\n");
+        exit(EXIT_FAILURE);
+    }
     
     eglMakeCurrent(m_data->egl_display, m_data->egl_surface, m_data->egl_surface,
                    m_data->egl_context);
     printf("Finish creating EGL OpenGL window.\n");
     
+    // TODO(max): when is this needed?
+    if (!gladLoadGL()) {
+        fprintf(stderr, "failed to GL with glad.\n");
+        exit(EXIT_FAILURE);
+    }
     const GLubyte* ven = glGetString(GL_VENDOR);
     printf("GL_VENDOR=%s\n", ven);
     
