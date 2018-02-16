@@ -2223,7 +2223,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 		//GLuint lastBindTexture = 0;
 
 		transparentInstances.reserve(totalNumInstances);
-		
+
 		float fwd[3];
 		m_data->m_activeCamera->getCameraForwardVector(fwd);
 		b3Vector3 camForwardVec;
