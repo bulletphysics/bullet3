@@ -356,6 +356,12 @@ bool	btBulletWorldImporter::convertAllObjects(  bParse::btBulletFile* bulletFile
 
 	}
 
+	for (i=0;i<bulletFile2->m_actions.size();i++)
+	{
+		btActionInterfaceData* data = reinterpret_cast<btActionInterfaceData*>(bulletFile2->m_actions[i]);
+		convertAction(data);
+	}
+
 	return true;
 }
 

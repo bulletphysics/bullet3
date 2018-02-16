@@ -19,6 +19,7 @@
 #include "btVehicleRaycaster.h"
 #include "btWheelInfo.h"
 #include "LinearMath/btMinMax.h"
+#include "LinearMath/btSerializer.h"
 #include "LinearMath/btIDebugDraw.h"
 #include "BulletDynamics/ConstraintSolver/btContactConstraint.h"
 
@@ -32,27 +33,36 @@ btRigidBody& btActionInterface::getFixedBody()
 	return s_fixed;
 }
 
+const char * btRaycastVehicle::serialize(void * dataBuffer, btSerializer * serializer) const
+{
+    btRaycastVehicleData * data = static_cast<btRaycastVehicleData*>(dataBuffer);
+    data->m_chassisBody = serializer->getUniquePointer(m_chassisBody);
+    data->m_indexRightAxis = m_indexRightAxis;
+    data->m_indexUpAxis = m_indexUpAxis;
+    data->m_indexForwardAxis = m_indexForwardAxis;
+    data->base.m_actionType = RAYCASTVEHICLE;
+    return "btRaycastVehicleData";
+}
+
+void btRaycastVehicle::deserialize(void * dataBuffer)
+{
+    btRaycastVehicleData * data = static_cast<btRaycastVehicleData*>(dataBuffer);
+    m_indexRightAxis = data->m_indexRightAxis;
+    m_indexUpAxis = data->m_indexUpAxis;
+    m_indexForwardAxis = data->m_indexForwardAxis;
+}
+
 btRaycastVehicle::btRaycastVehicle(const btVehicleTuning& tuning,btRigidBody* chassis,	btVehicleRaycaster* raycaster )
-:m_vehicleRaycaster(raycaster),
-m_pitchControl(btScalar(0.))
+:m_vehicleRaycaster(raycaster)
 {
 	m_chassisBody = chassis;
 	m_indexRightAxis = 0;
 	m_indexUpAxis = 2;
 	m_indexForwardAxis = 1;
-	defaultInit(tuning);
-}
-
-
-void btRaycastVehicle::defaultInit(const btVehicleTuning& tuning)
-{
-	(void)tuning;
 	m_currentVehicleSpeedKmHour = btScalar(0.);
-	m_steeringValue = btScalar(0.);
-	
 }
 
-	
+
 
 btRaycastVehicle::~btRaycastVehicle()
 {
@@ -551,46 +561,43 @@ void	btRaycastVehicle::updateFriction(btScalar	timeStep)
 			m_forwardImpulse[i] = btScalar(0.);
 
 		}
-	
+
+		for (int i=0;i<getNumWheels();i++)
 		{
-	
-			for (int i=0;i<getNumWheels();i++)
+
+			btWheelInfo& wheelInfo = m_wheelInfo[i];
+
+			class btRigidBody* groundObject = (class btRigidBody*) wheelInfo.m_raycastInfo.m_groundObject;
+
+			if (groundObject)
 			{
 
-				btWheelInfo& wheelInfo = m_wheelInfo[i];
-					
-				class btRigidBody* groundObject = (class btRigidBody*) wheelInfo.m_raycastInfo.m_groundObject;
+				const btTransform& wheelTrans = getWheelTransformWS( i );
 
-				if (groundObject)
-				{
+				btMatrix3x3 wheelBasis0 = wheelTrans.getBasis();
+				m_axle[i] = btVector3(
+					wheelBasis0[0][m_indexRightAxis],
+					wheelBasis0[1][m_indexRightAxis],
+					wheelBasis0[2][m_indexRightAxis]);
 
-					const btTransform& wheelTrans = getWheelTransformWS( i );
+				const btVector3& surfNormalWS = wheelInfo.m_raycastInfo.m_contactNormalWS;
+				btScalar proj = m_axle[i].dot(surfNormalWS);
+				m_axle[i] -= surfNormalWS * proj;
+				m_axle[i] = m_axle[i].normalize();
 
-					btMatrix3x3 wheelBasis0 = wheelTrans.getBasis();
-					m_axle[i] = btVector3(	
-						wheelBasis0[0][m_indexRightAxis],
-						wheelBasis0[1][m_indexRightAxis],
-						wheelBasis0[2][m_indexRightAxis]);
-					
-					const btVector3& surfNormalWS = wheelInfo.m_raycastInfo.m_contactNormalWS;
-					btScalar proj = m_axle[i].dot(surfNormalWS);
-					m_axle[i] -= surfNormalWS * proj;
-					m_axle[i] = m_axle[i].normalize();
-					
-					m_forwardWS[i] = surfNormalWS.cross(m_axle[i]);
-					m_forwardWS[i].normalize();
+				m_forwardWS[i] = surfNormalWS.cross(m_axle[i]);
+				m_forwardWS[i].normalize();
 
-				
-					resolveSingleBilateral(*m_chassisBody, wheelInfo.m_raycastInfo.m_contactPointWS,
-							  *groundObject, wheelInfo.m_raycastInfo.m_contactPointWS,
-							  btScalar(0.), m_axle[i],m_sideImpulse[i],timeStep);
 
-					m_sideImpulse[i] *= sideFrictionStiffness2;
-						
-				}
-				
+				resolveSingleBilateral(*m_chassisBody, wheelInfo.m_raycastInfo.m_contactPointWS,
+						  *groundObject, wheelInfo.m_raycastInfo.m_contactPointWS,
+						  btScalar(0.), m_axle[i],m_sideImpulse[i],timeStep);
+
+				m_sideImpulse[i] *= sideFrictionStiffness2;
 
 			}
+
+
 		}
 
 	btScalar sideFactor = btScalar(1.);

@@ -18,6 +18,9 @@ subject to the following restrictions:
 #ifdef USE_GIMPACT
 #include "BulletCollision/Gimpact/btGImpactShape.h"
 #endif
+#include "BulletDynamics/Dynamics/btActionInterface.h"
+#include "BulletDynamics/Vehicle/btRaycastVehicle.h"
+
 btWorldImporter::btWorldImporter(btDynamicsWorld* world)
 :m_dynamicsWorld(world),
 m_verboseMode(0),
@@ -145,6 +148,28 @@ void btWorldImporter::deleteAllData()
 
 }
 
+void btWorldImporter::convertAction(btActionInterfaceData* action)
+{
+	switch (action->m_actionType)
+	{
+		case btActionInterface::RAYCASTVEHICLE:
+		{
+			btRaycastVehicleData* data = reinterpret_cast<btRaycastVehicleData*>(action);
+			btDefaultVehicleRaycaster* raycaster = new btDefaultVehicleRaycaster(this->m_dynamicsWorld);
+			btRaycastVehicle::btVehicleTuning tuning; // unused, but necessary for the interface
+			btCollisionObject ** obj = m_bodyMap.find(data->m_chassisBody);
+			btRigidBody * chassis = 0;
+			if (obj && *obj)
+			{
+				chassis = btRigidBody::upcast(*obj);
+			}
+			btRaycastVehicle* vehicle = new btRaycastVehicle(tuning, chassis, raycaster);
+			vehicle->deserialize(data);
+			m_dynamicsWorld->addVehicle(vehicle);
+		}
+		default:break;
+	}
+}
 
 
 btCollisionShape* btWorldImporter::convertCollisionShape(  btCollisionShapeData* shapeData  )

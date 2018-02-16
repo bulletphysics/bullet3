@@ -61,6 +61,8 @@ namespace bParse {
 
 		btAlignedObjectArray<bStructHandle*>	m_contactManifolds;
 
+		btAlignedObjectArray<bStructHandle*>	m_actions;
+
 		btAlignedObjectArray<char*>				m_dataBlocks;
 		btBulletFile();
 
