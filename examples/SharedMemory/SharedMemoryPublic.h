@@ -693,6 +693,7 @@ enum eUrdfGeomTypes //sync with UrdfParser UrdfGeomTypes
 enum eUrdfCollisionFlags
 {
 	GEOM_FORCE_CONCAVE_TRIMESH=1,
+	GEOM_CONCAVE_INTERNAL_EDGE=2,
 };
 
 enum eUrdfVisualFlags
@@ -740,6 +741,7 @@ struct b3PhysicsSimulationParameters
 	double m_frictionERP;
 	int m_enableConeFriction;
 	int m_deterministicOverlappingPairs;
+	double m_allowedCcdPenetration;
 };
 
 

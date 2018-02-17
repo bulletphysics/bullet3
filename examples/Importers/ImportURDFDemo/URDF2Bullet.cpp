@@ -2,6 +2,9 @@
 #include "LinearMath/btTransform.h"
 #include "BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h"
 #include "BulletCollision/CollisionShapes/btCompoundShape.h"
+#include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
+
+
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "BulletDynamics/Featherstone/btMultiBodyLinkCollider.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointLimitConstraint.h"
@@ -501,6 +504,15 @@ void ConvertURDF2BulletInternal(
                 compoundShape->setUserIndex(graphicsIndex);
 
                 col->setCollisionShape(compoundShape);
+
+				if (compoundShape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
+				{
+					btBvhTriangleMeshShape* trimeshShape = (btBvhTriangleMeshShape*)compoundShape;
+					if (trimeshShape->getTriangleInfoMap())
+					{
+						col->setCollisionFlags(col->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+					}
+				}
 
                 btTransform tr;
                 tr.setIdentity();

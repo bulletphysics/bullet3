@@ -159,7 +159,7 @@ enum EnumChangeDynamicsInfoFlags
 	CHANGE_DYNAMICS_INFO_SET_CONTACT_STIFFNESS_AND_DAMPING=256,
 	CHANGE_DYNAMICS_INFO_SET_FRICTION_ANCHOR = 512,
 	CHANGE_DYNAMICS_INFO_SET_LOCAL_INERTIA_DIAGONAL = 1024,
-
+	CHANGE_DYNAMICS_INFO_SET_CCD_SWEPT_SPHERE_RADIUS = 2048,
 };
 
 struct ChangeDynamicsInfoArgs
@@ -178,6 +178,7 @@ struct ChangeDynamicsInfoArgs
 	double m_contactDamping;
 	double m_localInertiaDiagonal[3];
 	int m_frictionAnchor;
+	double m_ccdSweptSphereRadius;
 };
 
 struct GetDynamicsInfoArgs
@@ -438,6 +439,7 @@ enum EnumSimParamUpdateFlags
 	SIM_PARAM_UPDATE_DEFAULT_NON_CONTACT_ERP=16384,
 	SIM_PARAM_UPDATE_DEFAULT_FRICTION_ERP = 32768,
 	SIM_PARAM_UPDATE_DETERMINISTIC_OVERLAPPING_PAIRS = 65536,
+	SIM_PARAM_UPDATE_CCD_ALLOWED_PENETRATION = 131072,
 };
 
 enum EnumLoadSoftBodyUpdateFlags
