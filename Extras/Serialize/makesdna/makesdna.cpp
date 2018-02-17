@@ -86,10 +86,12 @@ typedef unsigned __int64 uint64_t;
 
 	/* Linux-i386, Linux-Alpha, Linux-ppc */
 #include <stdint.h>
+typedef intptr_t btintptr_t;
 
 #elif defined (__APPLE__)
 
 #include <inttypes.h>
+typedef intptr_t btintptr_t;
 
 #elif defined(FREE_WINDOWS)
 

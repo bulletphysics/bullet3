@@ -566,6 +566,14 @@ B3_SHARED_API	int b3PhysicsParameterSetDeterministicOverlappingPairs(b3SharedMem
 	return 0;
 }
 
+B3_SHARED_API	int b3PhysicsParameterSetAllowedCcdPenetration(b3SharedMemoryCommandHandle commandHandle, double allowedCcdPenetration)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_SEND_PHYSICS_SIMULATION_PARAMETERS);
+	command->m_physSimParamArgs.m_allowedCcdPenetration = allowedCcdPenetration;
+	command->m_updateFlags |= SIM_PARAM_UPDATE_CCD_ALLOWED_PENETRATION ;
+	return 0;
+}
 
 B3_SHARED_API int b3PhysicsParamSetNumSolverIterations(b3SharedMemoryCommandHandle commandHandle, int numSolverIterations)
 {
@@ -2305,6 +2313,17 @@ B3_SHARED_API int b3ChangeDynamicsInfoSetFrictionAnchor(b3SharedMemoryCommandHan
 	command->m_changeDynamicsInfoArgs.m_linkIndex = linkIndex;
 	command->m_changeDynamicsInfoArgs.m_frictionAnchor = frictionAnchor;
 	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_FRICTION_ANCHOR;
+	return 0;
+}
+
+B3_SHARED_API	int b3ChangeDynamicsInfoSetCcdSweptSphereRadius(b3SharedMemoryCommandHandle commandHandle,int bodyUniqueId,int linkIndex, double ccdSweptSphereRadius)
+{
+	struct SharedMemoryCommand* command = (struct SharedMemoryCommand*) commandHandle;
+	b3Assert(command->m_type == CMD_CHANGE_DYNAMICS_INFO);
+	command->m_changeDynamicsInfoArgs.m_bodyUniqueId = bodyUniqueId;
+	command->m_changeDynamicsInfoArgs.m_linkIndex = linkIndex;
+	command->m_changeDynamicsInfoArgs.m_ccdSweptSphereRadius = ccdSweptSphereRadius;
+	command->m_updateFlags |= CHANGE_DYNAMICS_INFO_SET_CCD_SWEPT_SPHERE_RADIUS;
 	return 0;
 }
 
