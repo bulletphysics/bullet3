@@ -1538,7 +1538,6 @@ struct PhysicsServerCommandProcessorInternalData
 #ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 	btSoftMultiBodyDynamicsWorld* m_dynamicsWorld;
     btSoftBodySolver* m_softbodySolver;
-    btSoftBodyWorldInfo	m_softBodyWorldInfo;
 #else
     btMultiBodyDynamicsWorld* m_dynamicsWorld;
 #endif
@@ -5833,13 +5832,6 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
         collisionMargin = clientCmd.m_loadSoftBodyArguments.m_collisionMargin;
     }
 	
-    m_data->m_softBodyWorldInfo.air_density		=	(btScalar)1.2;
-    m_data->m_softBodyWorldInfo.water_density	=	0;
-    m_data->m_softBodyWorldInfo.water_offset	=	0;
-    m_data->m_softBodyWorldInfo.water_normal	=	btVector3(0,0,0);
-    m_data->m_softBodyWorldInfo.m_gravity.setValue(0,0,-10);
-    m_data->m_softBodyWorldInfo.m_broadphase = m_data->m_broadphase;
-    m_data->m_softBodyWorldInfo.m_sparsesdf.Initialize();
 	
 	{
 		char relativeFileName[1024];
@@ -5871,7 +5863,7 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 			int numTris = indices.size()/3;
 			if (numTris>0)
 			{
-				btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(m_data->m_softBodyWorldInfo,&vertices[0],&indices[0],numTris);
+				btSoftBody*	psb=btSoftBodyHelpers::CreateFromTriMesh(m_data->m_dynamicsWorld->getWorldInfo(),&vertices[0],&indices[0],numTris);
 				btSoftBody::Material*	pm=psb->appendMaterial();
 				pm->m_kLST				=	0.5;
 				pm->m_flags				-=	btSoftBody::fMaterial::DebugDraw;
@@ -5882,6 +5874,7 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 				psb->rotate(btQuaternion(0.70711,0,0,0.70711));
 				psb->translate(btVector3(-0.05,0,1.0));
 				psb->scale(btVector3(scale,scale,scale));
+				
 				psb->setTotalMass(mass,true);
 				psb->getCollisionShape()->setMargin(collisionMargin);
 				psb->getCollisionShape()->setUserPointer(psb);
@@ -6594,6 +6587,7 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 						clientCmd.m_physSimParamArgs.m_gravityAcceleration[1],
 						clientCmd.m_physSimParamArgs.m_gravityAcceleration[2]);
 		this->m_data->m_dynamicsWorld->setGravity(grav);
+		m_data->m_dynamicsWorld->getWorldInfo().m_gravity=grav;
 		if (m_data->m_verboseOutput)
 		{
 			b3Printf("Updated Gravity: %f,%f,%f",grav[0],grav[1],grav[2]);
