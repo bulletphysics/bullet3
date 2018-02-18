@@ -5,6 +5,7 @@
 class btCollisionShape;
 class btTransform;
 #include "LinearMath/btAlignedObjectArray.h"
+#include "../OpenGLWindow/GLInstanceGraphicsShape.h"
 
 struct OpenGLGuiHelper : public GUIHelperInterface
 {
@@ -99,6 +100,10 @@ struct OpenGLGuiHelper : public GUIHelperInterface
 	virtual void	dumpFramesToVideo(const char* mp4FileName);
 
 	int createCheckeredTexture(int r,int g, int b);
+
+	void computeSoftBodyVertices(btCollisionShape* collisionShape,
+											  btAlignedObjectArray<GLInstanceVertex>& gfxVertices,
+											  btAlignedObjectArray<int>& indices);
 };
 
 #endif //OPENGL_GUI_HELPER_H

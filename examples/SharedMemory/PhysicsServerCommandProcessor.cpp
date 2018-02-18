@@ -5884,7 +5884,10 @@ bool PhysicsServerCommandProcessor::processLoadSoftBodyCommand(const struct Shar
 				psb->scale(btVector3(scale,scale,scale));
 				psb->setTotalMass(mass,true);
 				psb->getCollisionShape()->setMargin(collisionMargin);
+				psb->getCollisionShape()->setUserPointer(psb);
 				m_data->m_dynamicsWorld->addSoftBody(psb);
+				m_data->m_guiHelper->createCollisionShapeGraphicsObject(psb->getCollisionShape());
+				m_data->m_guiHelper->autogenerateGraphicsObjects(this->m_data->m_dynamicsWorld);
 				int bodyUniqueId = m_data->m_bodyHandles.allocHandle();
 				InternalBodyHandle* bodyHandle = m_data->m_bodyHandles.getHandle(bodyUniqueId);
 				bodyHandle->m_softBody = psb;
