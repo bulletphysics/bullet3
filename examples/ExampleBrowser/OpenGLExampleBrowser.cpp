@@ -1303,7 +1303,7 @@ void OpenGLExampleBrowser::update(float deltaTime)
                 BT_PROFILE("Render Scene");
                 sCurrentDemo->renderScene();
             }
-			//else
+			else
             {
 				B3_PROFILE("physicsDebugDraw");
 				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
