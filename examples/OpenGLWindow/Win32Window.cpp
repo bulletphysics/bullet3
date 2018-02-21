@@ -413,7 +413,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					sData->m_fullWindowHeight = wr.bottom-wr.top;//LOWORD (lParam) HIWORD (lParam);
 					sData->m_openglViewportWidth = clientRect.right;
 					sData->m_openglViewportHeight = clientRect.bottom;
-					glViewport(0, 0, sData->m_openglViewportWidth, sData->m_openglViewportHeight);
+					//glViewport(0, 0, sData->m_openglViewportWidth, sData->m_openglViewportHeight);
 
 					if (sData->m_resizeCallback)
 						(*sData->m_resizeCallback)(sData->m_openglViewportWidth,sData->m_openglViewportHeight);

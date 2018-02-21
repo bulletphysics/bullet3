@@ -44,6 +44,8 @@ static SimpleOpenGL2App* gApp2=0;
 
 static void Simple2ResizeCallback( float widthf, float heightf)
 {
+	glViewport(0, 0, widthf, heightf);
+
 	int width = (int)widthf;
 	int height = (int)heightf;
 	if (gApp2->m_renderer && gApp2->m_window)
@@ -141,12 +143,15 @@ SimpleOpenGL2App::SimpleOpenGL2App(const char* title, int width, int height)
 #ifndef _WIN32
 #ifndef B3_USE_GLFW
     //some Linux implementations need the 'glewExperimental' to be true
-    glewExperimental = GL_TRUE;
 #endif//B3_USE_GLFW
 #endif //_WIN32
     
 #ifndef B3_USE_GLFW
-    if (glewInit() != GLEW_OK)
+	//gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
+
+	
+#if 0
+	if (glewInit() != GLEW_OK)
     {
         b3Error("glewInit failed");
         exit(1);
@@ -156,6 +161,7 @@ SimpleOpenGL2App::SimpleOpenGL2App(const char* title, int width, int height)
         b3Error("GLEW_VERSION_2_1 needs to support 2_1");
         exit(1); // or handle the error in a nicer way
     }
+#endif
 #endif //B3_USE_GLFW
 #endif //__APPLE__
 #endif //NO_GLEW

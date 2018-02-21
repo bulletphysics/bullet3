@@ -170,17 +170,19 @@ void dumpInfo(void)
         if (m_resizeCallback)
         {
             (*m_resizeCallback)(width,height);
-        }
-    #ifndef NO_OPENGL3 
-		NSRect backingBounds = [self convertRectToBacking:[self bounds]];
-        GLsizei backingPixelWidth  = (GLsizei)(backingBounds.size.width),
-        backingPixelHeight = (GLsizei)(backingBounds.size.height);
-        
-        // Set viewport
-        glViewport(0, 0, backingPixelWidth, backingPixelHeight);
-	#else	
-       glViewport(0,0,(GLsizei)width,(GLsizei)height);
+    
+#ifndef NO_OPENGL3
+            NSRect backingBounds = [self convertRectToBacking:[self bounds]];
+            GLsizei backingPixelWidth  = (GLsizei)(backingBounds.size.width),
+            backingPixelHeight = (GLsizei)(backingBounds.size.height);
+            
+            // Set viewport
+            glViewport(0, 0, backingPixelWidth, backingPixelHeight);
+#else
+            glViewport(0,0,(GLsizei)width,(GLsizei)height);
 #endif
+        }
+ 
 	}
 	
 	[m_context setView: self];
@@ -236,7 +238,7 @@ void dumpInfo(void)
 	[fmt release];
 	[m_context makeCurrentContext];
     
-	checkError("makeCurrentContext");
+	//checkError("makeCurrentContext");
 }
 
 -(void) MakeCurrent
@@ -420,7 +422,7 @@ int Mac_createWindow(struct MacOpenGLWindowInternalData* m_internalData,struct M
     
     //  float newBackingScaleFactor = [m_internalData->m_window backingScaleFactor];
     
-    dumpInfo();
+    //dumpInfo();
     
     
     

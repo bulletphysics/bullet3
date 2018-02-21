@@ -21,56 +21,8 @@ subject to the following restrictions:
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #else
-//think different
-#if defined(__APPLE__) && !defined (VMDMESA)
-#include <OpenGL/OpenGL.h>
-//#include <OpenGL/gl.h>
-//#include <OpenGL/glu.h>
-//#import <Cocoa/Cocoa.h>
-#if defined (USE_OPENGL2) || defined (NO_OPENGL3)
-#include <OpenGL/gl.h>
-#else
-#include <OpenGL/gl3.h>
-#endif
-#else
-
-
-#ifdef GLEW_STATIC
-#include "CustomGL/glew.h"
-#else
-#ifdef NO_GLEW
-#define GL_GLEXT_LEGACY
-#include "third_party/GL/gl/include/GL/gl.h"
-#include "third_party/GL/gl/include/GL/glext.h"
-#else
-#include <GL/glew.h>
-#endif //NO_GLEW
-#endif //GLEW_STATIC
-
-#ifdef _WINDOWS
-#include <windows.h>
-//#include <GL/gl.h>
-//#include <GL/glu.h>
-#else
-//#include <GL/gl.h>
-//#include <GL/glu.h>
-#endif //_WINDOWS
-#endif //APPLE
-#endif
-//disable glGetError
-//#undef glGetError
-//#define glGetError MyGetError
-//
-//GLenum inline MyGetError()
-//{
-//	return 0;
-//}
-
-///on Linux only glDrawElementsInstancedARB is defined?!?
-//#ifdef __linux
-//#define glDrawElementsInstanced glDrawElementsInstancedARB
-//
-//#endif //__linux
+#include "glad/glad.h"
+#endif //B3_USE_GLFW
 
 #endif //__OPENGL_INCLUDE_H
 
