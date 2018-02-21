@@ -1,3 +1,3 @@
-from . import boxstack_pybullet_sim.py
-from . import pybullet_sim_gym_env.py
+from . import boxstack_pybullet_sim
+from . import pybullet_sim_gym_env
 
