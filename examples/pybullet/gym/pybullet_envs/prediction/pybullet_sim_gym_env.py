@@ -190,7 +190,7 @@ class PyBulletSimGymEnv(gym.Env):
     proj_matrix=[1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0000200271606445, -1.0, 0.0, 0.0, -0.02000020071864128, 0.0]
     (_, _, px, _, _) = self._pybullet_client.getCameraImage(
         width=self._render_width, height=self._render_height, viewMatrix=view_matrix,
-        projectionMatrix=proj_matrix, renderer=pybullet.ER_TINY_RENDERER)
+        projectionMatrix=proj_matrix, renderer=pybullet.ER_BULLET_HARDWARE_OPENGL)#ER_TINY_RENDERER)
     rgb_array = np.array(px, dtype=np.uint8)
     rgb_array = np.reshape(rgb_array, (self._render_height, self._render_width, 4))
     rgb_array = rgb_array[:, :, :3]
