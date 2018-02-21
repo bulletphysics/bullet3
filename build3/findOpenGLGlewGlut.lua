@@ -54,6 +54,13 @@
 			}
 			files { projectRootDir .. "examples/ThirdPartyLibs/glad/glad.c"}
 		end
+		if os.is("MacOSX") then
+			 includedirs {
+                                        projectRootDir .. "examples/ThirdPartyLibs/glad"
+                                }
+                                files { projectRootDir .. "examples/ThirdPartyLibs/glad/glad.c"}
+		end
+
 		if os.is("Linux") then
 			configuration{"Linux"}
 				print("Using glad and dynamic loading of glx functions")

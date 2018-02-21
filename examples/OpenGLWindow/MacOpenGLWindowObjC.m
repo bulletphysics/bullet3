@@ -402,7 +402,9 @@ int Mac_createWindow(struct MacOpenGLWindowInternalData* m_internalData,struct M
     ///ci.m_resizeCallback];
     
     [m_internalData->m_myview initWithFrame: frame];
-    
+   
+ 
+ 
     // OpenGL init!
     [m_internalData->m_myview MakeContext : ci->m_openglVersion];
     
@@ -480,6 +482,11 @@ int Mac_createWindow(struct MacOpenGLWindowInternalData* m_internalData,struct M
 
     [m_internalData->m_myApp finishLaunching];
     [pool release];
+    
+    if(!gladLoadGL()) {
+        printf("gladLoadGL failed!\n");
+        exit(-1);
+    }
     
     return 0;
 }
