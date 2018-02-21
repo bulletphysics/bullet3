@@ -18,13 +18,14 @@ subject to the following restrictions:
 
 #include "Win32OpenGLWindow.h"
 
+
 #include "OpenGLInclude.h"
 
 //#include "Bullet3Common/b3Vector3.h"
 
 #include "Win32InternalWindowData.h"
 #include <stdio.h>
-
+#include <stdlib.h>
 
 void Win32OpenGLWindow::enableOpenGL()
 {
@@ -82,6 +83,12 @@ void	Win32OpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 
 	//VideoDriver = video::createOpenGLDriver(CreationParams, FileSystem, this);
 	enableOpenGL();
+
+	if(!gladLoadGL()) {
+        printf("gladLoadGL failed!\n");
+		exit(-1);
+    }
+
 
 }
 
