@@ -20,10 +20,10 @@
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h"
 
-
+#ifdef __APPLE__
 #define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
 #import <Cocoa/Cocoa.h>
-
+#endif//__APPLE__
 
 
 #include "LinearMath/btIDebugDraw.h"
