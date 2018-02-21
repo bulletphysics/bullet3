@@ -1,3 +1,6 @@
+
+#ifndef B3_USE_GLFW
+
 #include "X11OpenGLWindow.h"
 #include "OpenGLInclude.h"
 
@@ -1121,3 +1124,4 @@ int X11OpenGLWindow::fileOpenDialog(char* filename, int maxNameLength)
 	return len;
 
 }
+#endif

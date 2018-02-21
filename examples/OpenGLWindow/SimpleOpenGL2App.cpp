@@ -139,8 +139,10 @@ SimpleOpenGL2App::SimpleOpenGL2App(const char* title, int width, int height)
 #ifndef NO_GLEW
 #ifndef __APPLE__
 #ifndef _WIN32
+#ifndef B3_USE_GLFW
     //some Linux implementations need the 'glewExperimental' to be true
     glewExperimental = GL_TRUE;
+#endif//B3_USE_GLFW
 #endif //_WIN32
     
 #ifndef B3_USE_GLFW
