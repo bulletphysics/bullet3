@@ -17,7 +17,6 @@ subject to the following restrictions:
 
 ///todo: make this configurable in the gui
 bool useShadowMap = true;// true;//false;//true;
-float projectiveTextureViewSize = 10;
 bool useProjectiveTexture = false;
 int shadowMapWidth= 4096;
 int shadowMapHeight= 4096;
@@ -228,9 +227,6 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 
 	b3Vector3 m_lightPos;
 	b3Vector3 m_lightSpecularIntensity;
-	
-	b3Vector3 m_projectorPos;
-	b3Vector3 m_projectorDir;
 
 	GLuint				m_defaultTexturehandle;
 	b3AlignedObjectArray<InternalTextureHandle>	m_textureHandles;
@@ -252,8 +248,6 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 	{
 		m_lightPos=b3MakeVector3(-50,30,40);
 		m_lightSpecularIntensity.setValue(1,1,1);
-		
-		m_projectorPos=b3MakeVector3(-50,30,40);
 
 		//clear to zero to make it obvious if the matrix is used uninitialized
 		for (int i=0;i<16;i++)
@@ -336,7 +330,7 @@ static GLint	projectiveTexture_cameraPositionIn = 0;
 static GLint	projectiveTexture_materialShininessIn = 0;
 
 static GLint	projectiveTexture_ProjectionMatrix=0;
-static GLint	projectiveTexture_DepthBiasModelViewMatrix=0;
+static GLint	projectiveTexture_TextureMVP=0;
 static GLint    projectiveTexture_uniform_texture_diffuse = 0;
 static GLint	projectiveTexture_shadowMap = 0;
 
@@ -1241,7 +1235,7 @@ void GLInstancingRenderer::InitShaders()
 	projectiveTexture_materialSpecularColor = glGetUniformLocation(projectiveTextureInstancingShader, "materialSpecularColorIn");
 	projectiveTexture_MVP = 		glGetUniformLocation(projectiveTextureInstancingShader, "MVP");
 	projectiveTexture_ProjectionMatrix = glGetUniformLocation(projectiveTextureInstancingShader, "ProjectionMatrix");
-	projectiveTexture_DepthBiasModelViewMatrix = glGetUniformLocation(projectiveTextureInstancingShader, "DepthBiasModelViewProjectionMatrix");
+	projectiveTexture_TextureMVP = glGetUniformLocation(projectiveTextureInstancingShader, "TextureMVP");
 	projectiveTexture_uniform_texture_diffuse = glGetUniformLocation(projectiveTextureInstancingShader, "Diffuse");
 	projectiveTexture_shadowMap = glGetUniformLocation(projectiveTextureInstancingShader,"shadowMap");
 	projectiveTexture_lightPosIn = glGetUniformLocation(projectiveTextureInstancingShader,"lightPosIn");
@@ -2168,17 +2162,9 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 	GLfloat depthBiasMVP[4][4];
 	b3Matrix4x4Mul(biasMatrix,depthMVP,depthBiasMVP);
 
-	// Compute projection matrix for texture projector
-	float textureViewMatrix[4][4];
-	b3Vector3 projectorDir = m_data->m_projectorDir.normalize();
-	float projectorDist = 0;
-	b3CreateLookAt(m_data->m_projectorPos,center,up, &textureViewMatrix[0][0]);
-	GLfloat textureModelMatrix[4][4];
-	b3CreateDiagonalMatrix(1.f, textureModelMatrix);
-	b3Matrix4x4Mul(textureViewMatrix, textureModelMatrix, textureModelViewMatrix);
-	b3CreateOrtho(-projectiveTextureViewSize,projectiveTextureViewSize,-projectiveTextureViewSize,projectiveTextureViewSize,1,300,textureProjectionMatrix);
-	GLfloat textureMVP[4][4];
-	b3Matrix4x4Mul(textureProjectionMatrix, textureModelViewMatrix, textureMVP);
+	// TODO: Expose the projective texture matrix setup. Temporarily set it to be the same as camera view projection matrix.
+	GLfloat textureMVP[16];
+	b3Matrix4x4Mul16(m_data->m_projectionMatrix,m_data->m_viewMatrix,textureMVP);
 
 	//float m_frustumZNear=0.1;
     //float m_frustumZFar=100.f;
@@ -2576,10 +2562,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 								glUniform3f(projectiveTexture_cameraPositionIn,camPos[0],camPos[1],camPos[2]);
 								glUniform1f(projectiveTexture_materialShininessIn,gfxObj->m_materialShinyNess);
 								
-								glUniformMatrix4fv(projectiveTexture_DepthBiasModelViewMatrix, 1, false, &textureMVP[0][0]);
-								glActiveTexture(GL_TEXTURE1);
-								glBindTexture(GL_TEXTURE_2D, m_data->m_shadowTexture);
-								glUniform1i(projectiveTexture_shadowMap,1);
+								glUniformMatrix4fv(projectiveTexture_TextureMVP, 1, false, &textureMVP[0]);
 								
 								//sort transparent objects
 								if ( gfxObj->m_flags&eGfxTransparency)
@@ -2600,8 +2583,6 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 									glDisable (GL_BLEND);
 									glDepthMask(true);
 								}
-								glActiveTexture(GL_TEXTURE1);
-								glBindTexture(GL_TEXTURE_2D,0);
 								
 								glActiveTexture(GL_TEXTURE0);
 								glBindTexture(GL_TEXTURE_2D,0);

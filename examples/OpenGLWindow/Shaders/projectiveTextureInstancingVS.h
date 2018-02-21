@@ -9,7 +9,7 @@ static const char* projectiveTextureInstancingVertexShader= \
 "layout (location = 4) in vec3 vertexnormal;\n"
 "layout (location = 5) in vec4 instance_color;\n"
 "layout (location = 6) in vec3 instance_scale;\n"
-"uniform mat4 DepthBiasModelViewProjectionMatrix;\n"
+"uniform mat4 TextureMVP;\n"
 "uniform mat4 MVP;\n"
 "uniform vec3 lightPosIn;\n"
 "uniform vec3 cameraPositionIn;\n"
@@ -80,7 +80,7 @@ static const char* projectiveTextureInstancingVertexShader= \
 "	vec4 vertexLoc = MVP* vec4((instance_position+localcoord).xyz,1);\n"
 "	gl_Position = vertexLoc;\n"
 "	fragment.color = instance_color;\n"
-"	vec4 projcoords = DepthBiasModelViewProjectionMatrix * vec4((instance_position+localcoord).xyz,1);\n"
-"	vert.texcoord = projcoords.xy;\n"
+"	vec4 projcoords = TextureMVP * vec4((instance_position+localcoord).xyz,1);\n"
+"	vert.texcoord = projcoords.xy/projcoords.z;\n"
 "}\n"
 ;
