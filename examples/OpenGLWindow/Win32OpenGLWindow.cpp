@@ -18,19 +18,14 @@ subject to the following restrictions:
 
 #include "Win32OpenGLWindow.h"
 
+
 #include "OpenGLInclude.h"
 
 //#include "Bullet3Common/b3Vector3.h"
 
 #include "Win32InternalWindowData.h"
 #include <stdio.h>
-
-static void printGLString(const char *name, GLenum s) {
-    const char *v = (const char *) glGetString(s);
-  printf("%s = %s\n",name, v);
-}
-
-bool sOpenGLVerbose = true;
+#include <stdlib.h>
 
 void Win32OpenGLWindow::enableOpenGL()
 {
@@ -63,12 +58,7 @@ void Win32OpenGLWindow::enableOpenGL()
 	m_data->m_hRC = wglCreateContext( m_data->m_hDC );
 	wglMakeCurrent( m_data->m_hDC, m_data->m_hRC );
 
-	if (sOpenGLVerbose)
-	{
-		 printGLString("Version", GL_VERSION);
-		printGLString("Vendor", GL_VENDOR);
-		printGLString("Renderer", GL_RENDERER);
-	}
+	
     //printGLString("Extensions", GL_EXTENSIONS);
 
 }
@@ -93,6 +83,12 @@ void	Win32OpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci)
 
 	//VideoDriver = video::createOpenGLDriver(CreationParams, FileSystem, this);
 	enableOpenGL();
+
+	if(!gladLoadGL()) {
+        printf("gladLoadGL failed!\n");
+		exit(-1);
+    }
+
 
 }
 
@@ -147,6 +143,7 @@ void	Win32OpenGLWindow::endRendering()
 
 int Win32OpenGLWindow::fileOpenDialog(char* fileName, int maxFileNameLength)
 {
+#if 0
 	//wchar_t wideChars[1024];
 
 		OPENFILENAME ofn ;
@@ -176,9 +173,9 @@ int Win32OpenGLWindow::fileOpenDialog(char* fileName, int maxFileNameLength)
 	ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
 	GetOpenFileName( &ofn );
 	return strlen(fileName);
-
-
-	//return 0;
+#else
+	return 0;
+#endif
 }
 
 int Win32OpenGLWindow::getWidth() const

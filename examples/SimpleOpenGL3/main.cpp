@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
 		b3CommandLineArgs myArgs(argc, argv);
 
 
-		SimpleOpenGLApp* app = new SimpleOpenGLApp("SimpleOpenGL3App", gWidth, gHeight);
+		SimpleOpenGLApp* app = new SimpleOpenGLApp("SimpleOpenGL3App", 1024, 768);
 
 		app->m_renderer->getActiveCamera()->setCameraDistance(13);
 		app->m_renderer->getActiveCamera()->setCameraPitch(0);

@@ -15,7 +15,7 @@
 	#include <OpenGL/gl.h>
 #else
 #ifdef GLEW_STATIC
-#include "CustomGL/glew.h"
+#include "glad/glad.h"
 #else
 #ifdef NO_GLEW
 #define GL_GLEXT_LEGACY

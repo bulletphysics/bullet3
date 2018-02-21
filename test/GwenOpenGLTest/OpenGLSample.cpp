@@ -355,9 +355,8 @@ int main()
 #ifndef __APPLE__
 #ifndef _WIN32
     //we need glewExperimental on Linux
-    glewExperimental = GL_TRUE;
 #endif // _WIN32
-        glewInit();
+	gladLoadGL();
 #endif
 #endif //B3_USE_GLFW
     //we ned to call glGetError twice, because of some Ubuntu/Intel/OpenGL issue

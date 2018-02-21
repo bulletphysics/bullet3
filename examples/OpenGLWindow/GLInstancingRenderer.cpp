@@ -33,7 +33,9 @@ float shadowMapWorldSize=10;
 #else
 #ifndef __APPLE__
 #ifndef glVertexAttribDivisor
+
 #ifndef NO_GLEW
+
 #define glVertexAttribDivisor glVertexAttribDivisorARB
 #endif //NO_GLEW
 #endif //glVertexAttribDivisor
@@ -132,7 +134,7 @@ struct b3GraphicsInstance
 	int m_numIndices;
 	int m_numVertices;
 
-	
+
 	int m_numGraphicsInstances;
 	b3AlignedObjectArray<int> m_tempObjectUids;
 	int m_instanceOffset;
@@ -217,7 +219,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 
 	SimpleCamera	m_defaultCamera1;
     CommonCameraInterface* m_activeCamera;
-    
+
 	GLfloat m_projectionMatrix[16];
 	GLfloat m_viewMatrix[16];
 	GLfloat m_viewMatrixInverse[16];
@@ -230,9 +232,9 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 
 	GLRenderToTexture*	m_shadowMap;
 	GLuint				m_shadowTexture;
-	
+
 	GLuint				m_renderFrameBuffer;
-	
+
 
 
 	b3ResizablePool< b3PublicGraphicsInstance> m_publicGraphicsInstances;
@@ -256,7 +258,7 @@ struct InternalDataRenderer : public GLInstanceRendererInternalData
 
 	}
 
-	
+
 
 };
 
@@ -471,7 +473,7 @@ void GLInstancingRenderer::readSingleInstanceTransformFromCPU(int srcIndex2, flo
 	position[0] = m_data->m_instance_positions_ptr[srcIndex*4+0];
 	position[1] = m_data->m_instance_positions_ptr[srcIndex*4+1];
 	position[2] = m_data->m_instance_positions_ptr[srcIndex*4+2];
-	
+
 	orientation[0] = m_data->m_instance_quaternion_ptr[srcIndex*4+0];
 	orientation[1] = m_data->m_instance_quaternion_ptr[srcIndex*4+1];
 	orientation[2] = m_data->m_instance_quaternion_ptr[srcIndex*4+2];
@@ -640,11 +642,11 @@ void GLInstancingRenderer::writeTransforms()
 		//B3_PROFILE("b3Assert(glGetError() 2");
 		b3Assert(glGetError() ==GL_NO_ERROR);
 	}
-	
+
 
 #ifdef B3_DEBUG
 	{
-		
+
 		//B3_PROFILE("m_data->m_totalNumInstances == totalNumInstances");
 
 		int totalNumInstances= 0;
@@ -693,8 +695,8 @@ void GLInstancingRenderer::writeTransforms()
 	{
 
 
-		
-		
+
+
 
 		for (int k=0;k<m_graphicsInstances.size();k++)
 		{
@@ -703,7 +705,7 @@ void GLInstancingRenderer::writeTransforms()
 
 
 
-			
+
 
 			char* base = orgBase;
 
@@ -831,7 +833,7 @@ void GLInstancingRenderer::rebuildGraphicsInstances()
 			curOffset++;
 			int objectUniqueId = m_graphicsInstances[i]->m_tempObjectUids[g];
 			b3PublicGraphicsInstance* pg = m_data->m_publicGraphicsInstances.getHandle(objectUniqueId);
-			
+
 			registerGraphicsInstanceInternal(objectUniqueId,pg->m_position,pg->m_orientation,pg->m_color,pg->m_scale);
 		}
 	}
@@ -857,7 +859,7 @@ int GLInstancingRenderer::registerGraphicsInstanceInternal(int newUid, const flo
 //	b3Assert(pg);
 //	int objectIndex = pg->m_internalInstanceIndex;
 
-	
+
 
 	b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
 	int index = gfxObj->m_numGraphicsInstances + gfxObj->m_instanceOffset;
@@ -949,7 +951,7 @@ int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width
 	b3Assert(glGetError() ==GL_NO_ERROR);
 	glActiveTexture(GL_TEXTURE0);
 	int textureIndex = m_data->m_textureHandles.size();
-  //  const GLubyte*	image= (const GLubyte*)texels;	
+  //  const GLubyte*	image= (const GLubyte*)texels;
 	GLuint textureHandle;
 	glGenTextures(1,(GLuint*)&textureHandle);
 	glBindTexture(GL_TEXTURE_2D,textureHandle);
@@ -1031,7 +1033,7 @@ void    GLInstancingRenderer::updateTexture(int textureIndex, const unsigned cha
 void GLInstancingRenderer::activateTexture(int textureIndex)
 {
     glActiveTexture(GL_TEXTURE0);
-    
+
     if (textureIndex>=0 && textureIndex < m_data->m_textureHandles.size())
     {
         glBindTexture(GL_TEXTURE_2D,m_data->m_textureHandles[textureIndex].m_glTexture);
@@ -1057,7 +1059,7 @@ void GLInstancingRenderer::updateShape(int shapeIndex, const float* vertices)
 	glBufferSubData(	GL_ARRAY_BUFFER,vertexStrideInBytes*gfxObj->m_vertexArrayOffset,sz,
  						vertices);
 #endif
-	
+
 }
 
 int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, const int* indices, int numIndices,int primitiveType, int textureId)
@@ -1087,7 +1089,7 @@ int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, 
 	gfxObj->m_numVertices = numvertices;
 
 
-	
+
 	int vertexStrideInBytes = 9*sizeof(float);
 	int sz = numvertices*vertexStrideInBytes;
 	int totalUsed = vertexStrideInBytes*gfxObj->m_vertexArrayOffset+sz;
@@ -1102,10 +1104,10 @@ int GLInstancingRenderer::registerShape(const float* vertices, int numvertices, 
 #if 0
 
 	char* dest=  (char*)glMapBuffer( GL_ARRAY_BUFFER,GL_WRITE_ONLY);//GL_WRITE_ONLY
-	
-	
+
+
 #ifdef B3_DEBUG
-	
+
 #endif//B3_DEBUG
 
 	memcpy(dest+vertexStrideInBytes*gfxObj->m_vertexArrayOffset,vertices,sz);
@@ -1148,13 +1150,13 @@ void GLInstancingRenderer::InitShaders()
 
 	{
 		triangleShaderProgram = gltLoadShaderPair(triangleVertexShaderText,triangleFragmentShader);
-		
+
 		//triangle_vpos_location = glGetAttribLocation(triangleShaderProgram, "vPos");
 		//triangle_vUV_location = glGetAttribLocation(triangleShaderProgram, "vUV");
 
 		triangle_mvp_location = glGetUniformLocation(triangleShaderProgram, "MVP");
 		triangle_vcol_location = glGetUniformLocation(triangleShaderProgram, "vCol");
-	
+
 		glLinkProgram(triangleShaderProgram);
 		glUseProgram(triangleShaderProgram);
 
@@ -1434,7 +1436,7 @@ void GLInstancingRenderer::updateCamera(int upAxis)
     m_data->m_activeCamera->getCameraViewMatrix(m_data->m_viewMatrix);
 	b3Scalar viewMat[16];
 	b3Scalar viewMatInverse[16];
-	
+
 	for (int i=0;i<16;i++)
 	{
 		viewMat[i] = m_data->m_viewMatrix[i];
@@ -1688,7 +1690,7 @@ void GLInstancingRenderer::drawTexturedTriangleMesh(float worldPosition[3], floa
 	b3Quaternion orn(worldOrientation[0],worldOrientation[1],worldOrientation[2],worldOrientation[3]);
 	b3Vector3 pos = b3MakeVector3(worldPosition[0],worldPosition[1],worldPosition[2]);
 
-	
+
 	b3Transform worldTrans(orn,pos);
 	b3Scalar worldMatUnk[16];
 	worldTrans.getOpenGLMatrix(worldMatUnk);
@@ -1706,7 +1708,7 @@ void GLInstancingRenderer::drawTexturedTriangleMesh(float worldPosition[3], floa
 
 	glUniform3f(triangle_vcol_location,colorRGBA[0],colorRGBA[1],colorRGBA[2]);
 	checkError("glUniform3f");
-	
+
 	glBindVertexArray(triangleVertexArrayObject);
 	checkError("glBindVertexArray");
 
@@ -1721,15 +1723,15 @@ void GLInstancingRenderer::drawTexturedTriangleMesh(float worldPosition[3], floa
 	PointerCaster uvCast;
 	uvCast.m_baseIndex = 8*sizeof(float);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GfxVertexFormat0), posCast.m_pointer);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GfxVertexFormat0), uvCast.m_pointer);		
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GfxVertexFormat0), uvCast.m_pointer);
 	checkError("glVertexAttribPointer");
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-	
+
 	glVertexAttribDivisor(0,0);
 	glVertexAttribDivisor(1,0);
 	checkError("glVertexAttribDivisor");
-	
+
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triangleIndexVbo);
 	int indexBufferSizeInBytes = numIndices*sizeof(int);
 
@@ -1881,7 +1883,7 @@ void GLInstancingRenderer::drawLine(const double fromIn[4], const double toIn[4]
 }
 void GLInstancingRenderer::drawLine(const float from[4], const float to[4], const float color[4], float lineWidth)
 {
-		
+
 	b3Assert(glGetError() ==GL_NO_ERROR);
 
 	glActiveTexture(GL_TEXTURE0);
@@ -1959,9 +1961,9 @@ B3_ATTRIBUTE_ALIGNED16(struct) SortableTransparentInstance
 B3_ATTRIBUTE_ALIGNED16(struct) TransparentDistanceSortPredicate
 {
 
-	inline bool operator() (const SortableTransparentInstance& a, const SortableTransparentInstance& b) const 
+	inline bool operator() (const SortableTransparentInstance& a, const SortableTransparentInstance& b) const
 	{
-		
+
 		return (a.m_projection > b.m_projection);
 	}
 };
@@ -2029,7 +2031,7 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 #else//OLD_SHADOWMAP_INIT
 			//Reduce size of shadowMap if glTexImage2D call fails as may happen in some cases
 			//https://github.com/bulletphysics/bullet3/issues/40
-			
+
 			int size;
 			glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
 			if (size < shadowMapWidth){
@@ -2040,8 +2042,8 @@ void GLInstancingRenderer::renderSceneInternal(int orgRenderMode)
 			}
 			GLuint err;
 			do {
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 
-					shadowMapWidth, shadowMapHeight, 
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16,
+					shadowMapWidth, shadowMapHeight,
 					0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 				err = glGetError();
 				if (err!=GL_NO_ERROR){
@@ -2155,7 +2157,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 	{
 		totalNumInstances+=m_graphicsInstances[i]->m_numGraphicsInstances;
 	}
-	
+
 	b3AlignedObjectArray<SortableTransparentInstance> transparentInstances;
 	{
 		int curOffset = 0;
@@ -2167,18 +2169,18 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 		m_data->m_activeCamera->getCameraForwardVector(fwd);
 		b3Vector3 camForwardVec;
 		camForwardVec.setValue(fwd[0],fwd[1],fwd[2]);
-		
-		
+
+
 		for (int obj=0;obj<m_graphicsInstances.size();obj++)
 		{
 			b3GraphicsInstance* gfxObj = m_graphicsInstances[obj];
 			if (gfxObj->m_numGraphicsInstances)
 			{
 				SortableTransparentInstance inst;
-									
+
 				inst.m_shapeIndex = obj;
-			
-			
+
+
 				if ((gfxObj->m_flags&eGfxTransparency)==0)
 				{
 					inst.m_instanceId = curOffset;
@@ -2207,12 +2209,12 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 			}
 		}
 		TransparentDistanceSortPredicate sorter;
-		
+
 		transparentInstances.quickSort(sorter);
-		
+
 	}
 
-	
+
 	//two passes: first for opaque instances, second for transparent ones.
 	for (int pass = 0; pass<2;pass++)
 	{
@@ -2222,17 +2224,17 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 			int shapeIndex = transparentInstances[i].m_shapeIndex;
 
 			b3GraphicsInstance* gfxObj = m_graphicsInstances[shapeIndex];
-			
+
 			//only draw stuff (opaque/transparent) if it is the right pass
 			int drawThisPass = (pass==0) == ((gfxObj->m_flags&eGfxTransparency)==0);
 
 			//transparent objects don't cast shadows (to simplify things)
-			if (gfxObj->m_flags&eGfxTransparency) 
+			if (gfxObj->m_flags&eGfxTransparency)
 			{
 				if (renderMode==B3_CREATE_SHADOWMAP_RENDERMODE)
 					drawThisPass = 0;
 			}
-			
+
 			if (drawThisPass && gfxObj->m_numGraphicsInstances)
 			{
 				glActiveTexture(GL_TEXTURE0);
@@ -2358,7 +2360,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 								glUseProgram(instancingShader);
 								glUniformMatrix4fv(ProjectionMatrix, 1, false, &m_data->m_projectionMatrix[0]);
 								glUniformMatrix4fv(ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
-							
+
 								b3Vector3 gLightDir = m_data->m_lightPos;
 								gLightDir.normalize();
 								glUniform3f(regularLightDirIn,gLightDir[0],gLightDir[1],gLightDir[2]);
@@ -2367,7 +2369,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 
 								if ( gfxObj->m_flags&eGfxTransparency)
 								{
-									
+
 									int instanceId = transparentInstances[i].m_instanceId;
 									glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)((instanceId)*4*sizeof(float)+m_data->m_maxShapeCapacityInBytes));
 									glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)((instanceId)*4*sizeof(float)+m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE));
@@ -2375,18 +2377,18 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 									glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid *)((instanceId)*3*sizeof(float)+m_data->m_maxShapeCapacityInBytes+POSITION_BUFFER_SIZE+ORIENTATION_BUFFER_SIZE+COLOR_BUFFER_SIZE));
 
 									glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
-									
+
 								} else
 								{
 									glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexOffset, gfxObj->m_numGraphicsInstances);
 								}
-                            
+
 								if ( gfxObj->m_flags&eGfxTransparency)
 								{
 									glDisable (GL_BLEND);
 									glDepthMask(true);
 								}
-								
+
 								break;
 							}
 							case B3_CREATE_SHADOWMAP_RENDERMODE:
@@ -2405,7 +2407,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 									glEnable (GL_BLEND);
 									glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 								}
-                            
+
 								glUseProgram(useShadowMapInstancingShader);
 								glUniformMatrix4fv(useShadow_ProjectionMatrix, 1, false, &m_data->m_projectionMatrix[0]);
 								//glUniformMatrix4fv(useShadow_ModelViewMatrix, 1, false, &m_data->m_viewMatrix[0]);
@@ -2416,7 +2418,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 								glUniform3f(useShadow_lightSpecularIntensity, m_data->m_lightSpecularIntensity[0],m_data->m_lightSpecularIntensity[1],m_data->m_lightSpecularIntensity[2]);
 								glUniform3f(useShadow_materialSpecularColor, gfxObj->m_materialSpecularColor[0],gfxObj->m_materialSpecularColor[1],gfxObj->m_materialSpecularColor[2]);
 
-							
+
 
 								float MVP[16];
 								if (reflectionPass)
@@ -2434,7 +2436,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 									b3Matrix4x4Mul16(m_data->m_projectionMatrix,m_data->m_viewMatrix,MVP);
 									glCullFace(GL_BACK);
 								}
-								
+
 								glUniformMatrix4fv(useShadow_MVP, 1, false, &MVP[0]);
 								//gLightDir.normalize();
 								glUniform3f(useShadow_lightPosIn,m_data->m_lightPos[0],m_data->m_lightPos[1],m_data->m_lightPos[2]);
@@ -2442,14 +2444,14 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 								m_data->m_activeCamera->getCameraPosition(camPos);
 								glUniform3f(useShadow_cameraPositionIn,camPos[0],camPos[1],camPos[2]);
 								glUniform1f(useShadow_materialShininessIn,gfxObj->m_materialShinyNess);
-						
+
 								glUniformMatrix4fv(useShadow_DepthBiasModelViewMatrix, 1, false, &depthBiasMVP[0][0]);
 								glActiveTexture(GL_TEXTURE1);
 								glBindTexture(GL_TEXTURE_2D, m_data->m_shadowTexture);
 								glUniform1i(useShadow_shadowMap,1);
-							
+
 								//sort transparent objects
-							
+
 								//gfxObj->m_instanceOffset
 
 								if ( gfxObj->m_flags&eGfxTransparency)
@@ -2464,7 +2466,7 @@ b3Assert(glGetError() ==GL_NO_ERROR);
 								{
 									glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexOffset, gfxObj->m_numGraphicsInstances);
 								}
-                            
+
 								if ( gfxObj->m_flags&eGfxTransparency)
 								{
 									glDisable (GL_BLEND);

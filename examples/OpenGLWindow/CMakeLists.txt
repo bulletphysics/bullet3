@@ -3,6 +3,7 @@ INCLUDE_DIRECTORIES(
 	..
 	../ThirdPartyLibs
 	../../src
+	../ThirdPartyLibs/glad
 )
 
 FILE(GLOB OpenGLWindow_HDRS "*.h" )
@@ -22,28 +23,28 @@ LIST(REMOVE_ITEM OpenGLWindowCommon_CPP MacOpenGLWindow.cpp )
 #MESSAGE (${OpenGLWindowCommon_CPP})
 
 IF (WIN32)
-	SET(OpenGLWindow_SRCS ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew/glew.c ${OpenGLWindowWin32_CPP} ${OpenGLWindowCommon_CPP})
+	SET(OpenGLWindow_SRCS ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/glad/glad.c ${OpenGLWindowWin32_CPP} ${OpenGLWindowCommon_CPP})
 	INCLUDE_DIRECTORIES(
-				${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew
+				${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/glad
 	)
 	ADD_DEFINITIONS(-DGLEW_STATIC)
 ENDIF(WIN32)
 
 IF (APPLE)
-	SET(OpenGLWindow_SRCS ${OpenGLWindowMac_CPP} ${OpenGLWindowMacObjC_CPP}  ${OpenGLWindowCommon_CPP} )
+	SET(OpenGLWindow_SRCS ${OpenGLWindowMac_CPP} ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/glad/glad.c ${OpenGLWindowMacObjC_CPP}  ${OpenGLWindowCommon_CPP} )
 ENDIF(APPLE)
 
 #no Linux detection?
 IF(NOT WIN32 AND NOT APPLE)
 	INCLUDE_DIRECTORIES(
-		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew
+		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/glad
 		${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/optionalX11
         )
 	ADD_DEFINITIONS(-DGLEW_STATIC)
 	ADD_DEFINITIONS("-DGLEW_INIT_OPENGL11_FUNCTIONS=1")
        	ADD_DEFINITIONS("-DGLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1")
 	ADD_DEFINITIONS("-DDYNAMIC_LOAD_X11_FUNCTIONS=1")
-	SET(OpenGLWindow_SRCS ${OpenGLWindowLinux_CPP} ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew/glew.c ${OpenGLWindowCommon_CPP} )
+	SET(OpenGLWindow_SRCS ${OpenGLWindowLinux_CPP}  ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/glad/glad_glx.c ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/glad/glad.c ${OpenGLWindowCommon_CPP} )
 ENDIF()
 
 

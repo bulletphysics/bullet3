@@ -6587,7 +6587,10 @@ bool PhysicsServerCommandProcessor::processSendPhysicsParametersCommand(const st
 						clientCmd.m_physSimParamArgs.m_gravityAcceleration[1],
 						clientCmd.m_physSimParamArgs.m_gravityAcceleration[2]);
 		this->m_data->m_dynamicsWorld->setGravity(grav);
+#ifndef SKIP_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD
 		m_data->m_dynamicsWorld->getWorldInfo().m_gravity=grav;
+		
+#endif
 		if (m_data->m_verboseOutput)
 		{
 			b3Printf("Updated Gravity: %f,%f,%f",grav[0],grav[1],grav[2]);

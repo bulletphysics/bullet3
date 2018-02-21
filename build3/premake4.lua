@@ -339,6 +339,10 @@ end
 		end
 		function initGlew()
 		end
+		function initX11()
+		links {"X11", "dl","pthread"}
+
+		end
 		
 	else
 		dofile ("findOpenGLGlewGlut.lua")

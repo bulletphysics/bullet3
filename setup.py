@@ -388,7 +388,8 @@ if _platform == "linux" or _platform == "linux2":
     CXX_FLAGS += '-fno-inline-functions-called-once'
     sources = sources + ["examples/ThirdPartyLibs/enet/unix.c"]\
     +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\
-    +["examples/ThirdPartyLibs/Glew/glew.c"]
+    +["examples/ThirdPartyLibs/glad/glad.c"]\
+    +["examples/ThirdPartyLibs/glad/glad_glx.c"]
     include_dirs += ["examples/ThirdPartyLibs/optionalX11"]
 elif _platform == "win32":
     print("win32!")
@@ -398,7 +399,7 @@ elif _platform == "win32":
     sources = sources + ["examples/ThirdPartyLibs/enet/win32.c"]\
     +["examples/OpenGLWindow/Win32Window.cpp"]\
     +["examples/OpenGLWindow/Win32OpenGLWindow.cpp"]\
-    +["examples/ThirdPartyLibs/Glew/glew.c"]
+    +["examples/ThirdPartyLibs/glad/glad.c"]
 elif _platform == "darwin":
     print("darwin!")
     os.environ['LDFLAGS'] = '-framework Cocoa -framework OpenGL'
@@ -408,6 +409,7 @@ elif _platform == "darwin":
 #    CXX_FLAGS += '-framework Cocoa '
     sources = sources + ["examples/ThirdPartyLibs/enet/unix.c"]\
     +["examples/OpenGLWindow/MacOpenGLWindow.cpp"]\
+    +["examples/ThirdPartyLibs/glad/glad.c"]\
     +["examples/OpenGLWindow/MacOpenGLWindowObjC.m"]
 else:
     print("bsd!")
@@ -419,7 +421,7 @@ else:
     CXX_FLAGS += '-fno-inline-functions-called-once'
     sources = ["examples/ThirdPartyLibs/enet/unix.c"]\
     +["examples/OpenGLWindow/X11OpenGLWindow.cpp"]\
-    +["examples/ThirdPartyLibs/Glew/glew.c"]\
+    +["examples/ThirdPartyLibs/glad/glad.c"]\
     + sources
 
 setup_py_dir = os.path.dirname(os.path.realpath(__file__))
@@ -444,7 +446,7 @@ print("-----")
 
 setup(
 	name = 'pybullet',
-	version='1.8.6',
+	version='1.8.9',
 	description='Official Python Interface for the Bullet Physics SDK specialized for Robotics Simulation and Reinforcement Learning',
 	long_description='pybullet is an easy to use Python module for physics simulation, robotics and deep reinforcement learning based on the Bullet Physics SDK. With pybullet you can load articulated bodies from URDF, SDF and other file formats. pybullet provides forward dynamics simulation, inverse dynamics computation, forward and inverse kinematics and collision detection and ray intersection queries. Aside from physics simulation, pybullet supports to rendering, with a CPU renderer and OpenGL visualization and support for virtual reality headsets.',
 	url='https://github.com/bulletphysics/bullet3',
@@ -457,7 +459,7 @@ setup(
 	sources =  sources,
 	libraries = libraries,
 	extra_compile_args=CXX_FLAGS.split(),
-	include_dirs = include_dirs + ["src","examples/ThirdPartyLibs","examples/ThirdPartyLibs/Glew", "examples/ThirdPartyLibs/enet/include","examples/ThirdPartyLibs/clsocket/src"]
+	include_dirs = include_dirs + ["src","examples/ThirdPartyLibs","examples/ThirdPartyLibs/glad", "examples/ThirdPartyLibs/enet/include","examples/ThirdPartyLibs/clsocket/src"]
      ) ],
      classifiers=['Development Status :: 5 - Production/Stable',
                    'License :: OSI Approved :: zlib/libpng License',
