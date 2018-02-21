@@ -190,7 +190,7 @@ int gladLoadGLX(Display *dpy, int screen) {
 
     if(open_gl()) {
         status = gladLoadGLXLoader((GLADloadproc)get_proc, dpy, screen);
-        close_gl();
+        //close_gl();
     }
 
     return status;
@@ -777,13 +777,6 @@ static int find_extensionsGLX(void) {
 
 static void find_coreGLX(Display *dpy, int screen) {
 	int major = 0, minor = 0;
-	if(dpy == 0 && GLADGLXDisplay == 0) {
-		dpy = XOpenDisplay(0);
-		screen = XScreenNumberOfScreen(XDefaultScreenOfDisplay(dpy));
-	} else if(dpy == 0) {
-		dpy = GLADGLXDisplay;
-		screen = GLADGLXscreen;
-	}
 	glXQueryVersion(dpy, &major, &minor);
 	GLADGLXDisplay = dpy;
 	GLADGLXscreen = screen;
