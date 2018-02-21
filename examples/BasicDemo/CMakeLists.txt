@@ -42,7 +42,7 @@ INCLUDE_DIRECTORIES(
         ${BULLET_PHYSICS_SOURCE_DIR}/src
         ${BULLET_PHYSICS_SOURCE_DIR}/btgui
         ${BULLET_PHYSICS_SOURCE_DIR}/examples
-        ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/Glew
+        ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/glad
 )
 
 
