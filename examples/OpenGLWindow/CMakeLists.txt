@@ -3,6 +3,7 @@ INCLUDE_DIRECTORIES(
 	..
 	../ThirdPartyLibs
 	../../src
+	../ThirdPartyLibs/glad
 )
 
 FILE(GLOB OpenGLWindow_HDRS "*.h" )
@@ -30,7 +31,7 @@ IF (WIN32)
 ENDIF(WIN32)
 
 IF (APPLE)
-	SET(OpenGLWindow_SRCS ${OpenGLWindowMac_CPP} ${OpenGLWindowMacObjC_CPP}  ${OpenGLWindowCommon_CPP} )
+	SET(OpenGLWindow_SRCS ${OpenGLWindowMac_CPP} ${BULLET_PHYSICS_SOURCE_DIR}/examples/ThirdPartyLibs/glad/glad.c ${OpenGLWindowMacObjC_CPP}  ${OpenGLWindowCommon_CPP} )
 ENDIF(APPLE)
 
 #no Linux detection?
