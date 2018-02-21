@@ -12,11 +12,9 @@ in Vert
 } vert;
 
 uniform sampler2D Diffuse;
-uniform sampler2DShadow shadowMap;
 uniform mat4 ViewMatrixInverse;
 
 in vec3 lightPos,cameraPosition, normal,ambient;
-in vec4 ShadowCoord;
 in vec4 vertexPos;
 in float materialShininess;
 in vec3 lightSpecularIntensity;
@@ -28,7 +26,7 @@ out vec4 color;
 
 void main(void)
 {
-	vec4 texel = fragment.color*texture(Diffuse,vert.texcoord);
+	vec4 texel = fragment.color*texture(Diffuse,vert.texcoord.xy);
 	vec3 ct,cf;
 	float intensity,at,af;
 	if (fragment.color.w==0)
@@ -65,9 +63,7 @@ void main(void)
 	}
     
 
-	float visibility = texture(shadowMap, vec3(ShadowCoord.xy,(ShadowCoord.z)/ShadowCoord.w));
-	if (intensity<0.5)
-		visibility = 0;
+	float visibility = 1.0;
 
 	intensity = 0.7*intensity  + 0.3*intensity*visibility;
 	

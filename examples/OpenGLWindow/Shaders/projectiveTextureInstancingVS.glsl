@@ -11,9 +11,7 @@ layout (location = 5) in vec4 instance_color;
 layout (location = 6) in vec3 instance_scale;
 
 
-uniform mat4 ModelViewMatrix;
-uniform mat4 ProjectionMatrix;
-uniform mat4 DepthBiasModelViewProjectionMatrix;
+uniform mat4 TextureMVP;
 uniform mat4 MVP;
 uniform vec3 lightPosIn;
 uniform vec3 cameraPositionIn;
@@ -93,9 +91,9 @@ void main(void)
 	
 	vec4 vertexLoc = MVP* vec4((instance_position+localcoord).xyz,1);
 	gl_Position = vertexLoc;
-	ShadowCoord = DepthBiasModelViewProjectionMatrix * vec4((instance_position+localcoord).xyz,1);
 
 	fragment.color = instance_color;
-	vert.texcoord = uvcoords;
+	vec4 projcoords = TextureMVP * vec4((instance_position+localcoord).xyz,1);
+	vert.texcoord = projcoords.xy/projcoords.z;
 }
 
