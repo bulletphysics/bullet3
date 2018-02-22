@@ -73,6 +73,7 @@ struct CommonRenderInterface
     virtual void updateTexture(int textureIndex, const unsigned char* texels, bool flipPixelsY=true)=0;
     virtual void activateTexture(int textureIndex)=0;
 	virtual void replaceTexture(int shapeIndex, int textureIndex){};
+	virtual void removeTexture(int textureIndex) = 0;
 
 	virtual int getShapeIndexFromInstance(int srcIndex) {return -1;}
 

@@ -460,6 +460,14 @@ void    SimpleOpenGL2Renderer::updateTexture(int textureIndex, const unsigned ch
     }
 }
 
+void SimpleOpenGL2Renderer::removeTexture(int textureIndex)
+{
+	if ((textureIndex >= 0) && (textureIndex < m_data->m_textureHandles.size()))
+	{
+		glDeleteTextures(1, &m_data->m_textureHandles[textureIndex].m_glTexture);
+	}
+	
+}
 void SimpleOpenGL2Renderer::activateTexture(int textureIndex)
 {
     glActiveTexture(GL_TEXTURE0);

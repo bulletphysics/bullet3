@@ -69,6 +69,7 @@ public:
     virtual void activateTexture(int textureIndex);
 	virtual void replaceTexture(int shapeIndex, int textureId);
 	virtual int getShapeIndexFromInstance(int srcIndex);
+	virtual void removeTexture(int textureIndex);
 
 	///position x,y,z, quaternion x,y,z,w, color r,g,b,a, scaling x,y,z
 	virtual int registerGraphicsInstance(int shapeIndex, const float* position, const float* quaternion, const float* color, const float* scaling);

@@ -48,6 +48,7 @@ ATTRIBUTE_ALIGNED16(struct) BulletURDFInternalData
 	int m_bodyId;
 	btHashMap<btHashInt,UrdfMaterialColor> m_linkColors;
     btAlignedObjectArray<btCollisionShape*> m_allocatedCollisionShapes;
+	btAlignedObjectArray<int> m_allocatedTextures;
 	mutable btAlignedObjectArray<btTriangleMesh*> m_allocatedMeshInterfaces;
 	btHashMap<btHashPtr, UrdfCollision> m_bulletCollisionShape2UrdfCollision;
 
@@ -1163,6 +1164,10 @@ int BulletURDFImporter::convertLinkVisualShapes(int linkIndex, const char* pathP
 			{
 				
 				textureIndex = m_data->m_guiHelper->registerTexture(textures[0].textureData1,textures[0].m_width,textures[0].m_height);
+				if (textureIndex >= 0)
+				{
+					m_data->m_allocatedTextures.push_back(textureIndex);
+				}
 			}
 			{
 				B3_PROFILE("registerGraphicsShape");
@@ -1270,9 +1275,20 @@ int BulletURDFImporter::getNumAllocatedMeshInterfaces() const
 }
 
 
+
 btStridingMeshInterface* BulletURDFImporter::getAllocatedMeshInterface(int index)
 {
     return m_data->m_allocatedMeshInterfaces[index];
+}
+
+int BulletURDFImporter::getNumAllocatedTextures() const
+{
+	return m_data->m_allocatedTextures.size();
+}
+
+int BulletURDFImporter::getAllocatedTexture(int index) const
+{
+	return m_data->m_allocatedTextures[index];
 }
 
 
