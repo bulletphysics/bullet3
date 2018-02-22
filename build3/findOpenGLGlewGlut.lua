@@ -63,13 +63,22 @@
 
 		if os.is("Linux") then
 			configuration{"Linux"}
-				print("Using glad and dynamic loading of glx functions")
-			 	defines { "GLEW_STATIC","GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1"}
+				if  _OPTIONS["enable_system_glx"] then --# and (os.isdir("/usr/include") and os.isfile("/usr/include/GL/glx.h")) then
+                                	links{"X11","pthread"}
+					print("Using system GL/glx.h")
+                        	else
+					print("Using glad_glx")
+				 	defines { "GLEW_DYNAMIC_LOAD_ALL_GLX_FUNCTIONS=1"}	
+				 	files { 
+					projectRootDir .. "examples/ThirdPartyLibs/glad/glad_glx.c"}
+				end
+
+				print("Using glad and dynamic loading of GL functions")
+			 	defines { "GLEW_STATIC"}
                         	includedirs {
                                         projectRootDir .. "examples/ThirdPartyLibs/glad"
                         	}
-                        	files { projectRootDir .. "examples/ThirdPartyLibs/glad/glad.c",
-					projectRootDir .. "examples/ThirdPartyLibs/glad/glad_glx.c"}
+                        	files { projectRootDir .. "examples/ThirdPartyLibs/glad/glad.c"}
 				links {"dl"}
 
 		end
