@@ -944,9 +944,18 @@ int GLInstancingRenderer::registerGraphicsInstance(int shapeIndex, const float* 
 	return newUid;
 }
 
+void GLInstancingRenderer::removeTexture(int textureIndex)
+{
+	if ((textureIndex >= 0) && (textureIndex < m_data->m_textureHandles.size()))
+	{
+		InternalTextureHandle& h = m_data->m_textureHandles[textureIndex];
+		glDeleteTextures(1, &h.m_glTexture);
+	}
+}
 
 int	GLInstancingRenderer::registerTexture(const unsigned char* texels, int width, int height, bool flipPixelsY)
 {
+	
 	B3_PROFILE("GLInstancingRenderer::registerTexture");
 	b3Assert(glGetError() ==GL_NO_ERROR);
 	glActiveTexture(GL_TEXTURE0);

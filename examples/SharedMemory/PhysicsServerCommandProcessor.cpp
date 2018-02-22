@@ -190,6 +190,7 @@ struct InternalBodyData
 	btAlignedObjectArray<std::string> m_rigidBodyJointNames;
 	btAlignedObjectArray<std::string> m_rigidBodyLinkNames;
 	
+	
 #ifdef B3_ENABLE_TINY_AUDIO
 	b3HashMap<btHashInt, SDFAudioSource> m_audioSources;
 #endif //B3_ENABLE_TINY_AUDIO
@@ -1525,6 +1526,7 @@ struct PhysicsServerCommandProcessorInternalData
 	btAlignedObjectArray<std::string*> m_strings;
 
 	btAlignedObjectArray<btCollisionShape*>	m_collisionShapes;
+	btAlignedObjectArray<int> m_allocatedTextures;
 	btHashMap<btHashPtr, UrdfCollision> m_bulletCollisionShape2UrdfCollision;
 	btAlignedObjectArray<btStridingMeshInterface*> m_meshInterfaces;
 
@@ -2431,6 +2433,16 @@ void PhysicsServerCommandProcessor::deleteDynamicsWorld()
 	{
 		delete m_data->m_meshInterfaces[j];
 	}
+
+	if (m_data->m_guiHelper)
+	{
+		for (int j = 0; j < m_data->m_allocatedTextures.size(); j++)
+		{
+			int texId = m_data->m_allocatedTextures[j];
+			m_data->m_guiHelper->removeTexture(texId);
+		}
+	}
+	m_data->m_allocatedTextures.clear();
 	m_data->m_meshInterfaces.clear();
 	m_data->m_collisionShapes.clear();
 	m_data->m_bulletCollisionShape2UrdfCollision.clear();
@@ -2666,6 +2678,15 @@ bool PhysicsServerCommandProcessor::processImportedObjects(const char* fileName,
 		}
 
     }
+
+	
+	for (int i = 0; i < u2b.getNumAllocatedTextures(); i++)
+	{
+		int texId = u2b.getAllocatedTexture(i);
+		m_data->m_allocatedTextures.push_back(texId);
+	}
+		
+
 
 	for (int i=0;i<u2b.getNumAllocatedMeshInterfaces();i++)
 	{
