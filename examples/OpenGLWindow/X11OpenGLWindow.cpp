@@ -2,7 +2,6 @@
 #ifndef B3_USE_GLFW
 
 #include "X11OpenGLWindow.h"
-#include "OpenGLInclude.h"
 
 #include<stdio.h>
 #include<stdlib.h>
