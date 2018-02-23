@@ -397,7 +397,7 @@ if _platform == "linux" or _platform == "linux2":
         CXX_FLAGS += '-std=c++11 '
         sources += ['examples/ThirdPartyLibs/glad/glad_egl.c']
         sources += ['examples/OpenGLWindow/EGLOpenGLWindow.cpp']
-        libraries += ['EGL', 'GL']
+        libraries += ['EGL']
 
 elif _platform == "win32":
     print("win32!")

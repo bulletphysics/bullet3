@@ -103,14 +103,16 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci) {
         EGL_NONE,
     };
     
-    gladLoadEGL();
+    if(!gladLoadEGL()) {
+        printf("gladLoadEGL failed!\n");
+    };
 
     // Initialize EGL display
     const int max_devices = 32;
     EGLDeviceEXT egl_devices[max_devices];
     EGLint num_devices = 0;
     EGLint egl_error = eglGetError();
-    if (!glad_eglQueryDevicesEXT(max_devices, egl_devices, &num_devices) ||
+    if (!eglQueryDevicesEXT(max_devices, egl_devices, &num_devices) ||
         egl_error != EGL_SUCCESS) {
         printf("eglQueryDevicesEXT Failed.\n");
         m_data->egl_display = EGL_NO_DISPLAY;
@@ -119,7 +121,7 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci) {
     if(m_data->m_renderDevice == -1) {
         // Original Code
         for (EGLint i = 0; i < num_devices; ++i) {
-            EGLDisplay display = glad_eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT,
+            EGLDisplay display = eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT,
                                                           egl_devices[i], nullptr);
             if (eglGetError() == EGL_SUCCESS && display != EGL_NO_DISPLAY) {
                 int major, minor;
@@ -136,7 +138,7 @@ void EGLOpenGLWindow::createWindow(const b3gWindowConstructionInfo& ci) {
         }
 
         // Go back to setting display
-        EGLDisplay display = glad_eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT,
+        EGLDisplay display = eglGetPlatformDisplayEXT(EGL_PLATFORM_DEVICE_EXT,
                                                       egl_devices[m_data->m_renderDevice], nullptr);
         if (eglGetError() == EGL_SUCCESS && display != EGL_NO_DISPLAY) {
             int major, minor;
