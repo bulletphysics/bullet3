@@ -349,7 +349,11 @@ btCollisionShape* btWorldImporter::convertCollisionShape(  btCollisionShapeData*
 							int i;
 							for ( i=0;i<numSpheres;i++)
 							{
+#if defined(BT_USE_DOUBLE_PRECISION)
+								tmpPos[i].deSerializeDouble(mss->m_localPositionArrayPtr[i].m_pos);
+#else
 								tmpPos[i].deSerializeFloat(mss->m_localPositionArrayPtr[i].m_pos);
+#endif
 								radii[i] = mss->m_localPositionArrayPtr[i].m_radius;
 							}
 							shape = createMultiSphereShape(&tmpPos[0],&radii[0],numSpheres);

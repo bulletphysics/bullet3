@@ -21,7 +21,17 @@ subject to the following restrictions:
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btAabbUtil2.h"
 
-
+#if defined(BT_USE_DOUBLE_PRECISION)
+#define btMultiSphereShapeData btMultiSphereShapeDoubleData
+#define btMultiSphereShapeName "btMultiSphereShapeDoubleData"
+#define btPositionAndRadius btPositionAndRadiusDouble
+#define btPositionAndRadiusName "btPositionAndRadiusDouble"
+#else
+#define btMultiSphereShapeData btMultiSphereShapeFloatData
+#define btMultiSphereShapeName "btMultiSphereShapeFloatData"
+#define btPositionAndRadius btPositionAndRadiusFloat
+#define btPositionAndRadiusName "btPositionAndRadiusFloat"
+#endif
 
 ///The btMultiSphereShape represents the convex hull of a collection of spheres. You can create special capsules or other smooth volumes.
 ///It is possible to animate the spheres for deformation, but call 'recalcLocalAabb' after changing any sphere position/radius
@@ -73,22 +83,40 @@ public:
 
 };
 
+#ifdef BT_USE_DOUBLE_PRECISION
+struct	btPositionAndRadiusDouble
+{
+	btVector3DoubleData	m_pos;
+	double		m_radius;
+};
 
-struct	btPositionAndRadius
+struct	btMultiSphereShapeDoubleData
+{
+	btConvexInternalShapeDoubleData	m_convexInternalShapeData;
+
+	btPositionAndRadiusDouble	*m_localPositionArrayPtr;
+	int				m_localPositionArraySize;
+	char	m_padding[4];
+};
+
+#else
+
+struct	btPositionAndRadiusFloat
 {
 	btVector3FloatData	m_pos;
 	float		m_radius;
 };
 
-struct	btMultiSphereShapeData
+struct	btMultiSphereShapeFloatData
 {
-	btConvexInternalShapeData	m_convexInternalShapeData;
+	btConvexInternalShapeFloatData	m_convexInternalShapeData;
 
-	btPositionAndRadius	*m_localPositionArrayPtr;
+	btPositionAndRadiusFloat	*m_localPositionArrayPtr;
 	int				m_localPositionArraySize;
 	char	m_padding[4];
 };
 
+#endif
 
 
 SIMD_FORCE_INLINE	int	btMultiSphereShape::calculateSerializeBufferSize() const
