@@ -1483,6 +1483,8 @@ void	btDiscreteDynamicsWorld::serializeDynamicsWorldInfo(btSerializer* serialize
 
 		memset(worldInfo ,0x00,len);
 
+		worldInfo->m_localTime = m_localTime;
+
 		m_gravity.serialize(worldInfo->m_gravity);
 		worldInfo->m_solverInfo.m_tau = getSolverInfo().m_tau;
 		worldInfo->m_solverInfo.m_damping = getSolverInfo().m_damping;
