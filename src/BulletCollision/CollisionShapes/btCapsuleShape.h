@@ -19,6 +19,13 @@ subject to the following restrictions:
 #include "btConvexInternalShape.h"
 #include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h" // for the types
 
+#if defined(BT_USE_DOUBLE_PRECISION)
+#define btCapsuleShapeData btCapsuleShapeDoubleData
+#define btCapsuleShapeDataName "btCapsuleShapeDoubleData"
+#else
+#define btCapsuleShapeData btCapsuleShapeFloatData
+#define btCapsuleShapeDataName "btCapsuleShapeFloatData"
+#endif
 
 ///The btCapsuleShape represents a capsule around the Y axis, there is also the btCapsuleShapeX aligned around the X axis and btCapsuleShapeZ around the Z axis.
 ///The total height is height+2*radius, so the height is just the height between the center of each 'sphere' of the capsule caps.
@@ -108,7 +115,7 @@ public:
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
 	virtual	const char*	serialize(void* dataBuffer, btSerializer* serializer) const;
 
-	SIMD_FORCE_INLINE	void	deSerializeFloat(struct btCapsuleShapeData* dataBuffer);
+	SIMD_FORCE_INLINE	void	deSerialize(struct btCapsuleShapeData* dataBuffer);
 
 };
 
@@ -146,15 +153,26 @@ public:
 	
 };
 
+#if defined(BT_USE_DOUBLE_PRECISION)
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
-struct	btCapsuleShapeData
+struct	btCapsuleShapeDoubleData
 {
-	btConvexInternalShapeData	m_convexInternalShapeData;
+	btConvexInternalShapeDoubleData	m_convexInternalShapeData;
 
 	int	m_upAxis;
 
 	char	m_padding[4];
 };
+#else
+struct	btCapsuleShapeFloatData
+{
+	btConvexInternalShapeFloatData	m_convexInternalShapeData;
+
+	int	m_upAxis;
+
+	char	m_padding[4];
+};
+#endif
 
 SIMD_FORCE_INLINE	int	btCapsuleShape::calculateSerializeBufferSize() const
 {
@@ -176,10 +194,10 @@ SIMD_FORCE_INLINE	const char*	btCapsuleShape::serialize(void* dataBuffer, btSeri
 	shapeData->m_padding[2] = 0;
 	shapeData->m_padding[3] = 0;
 
-	return "btCapsuleShapeData";
+	return btCapsuleShapeDataName;
 }
 
-SIMD_FORCE_INLINE	void	btCapsuleShape::deSerializeFloat(btCapsuleShapeData* dataBuffer)
+SIMD_FORCE_INLINE	void	btCapsuleShape::deSerialize(btCapsuleShapeData* dataBuffer)
 {
 #if defined(BT_USE_DOUBLE_PRECISION)
 	m_implicitShapeDimensions.deSerializeDouble(dataBuffer->m_convexInternalShapeData.m_implicitShapeDimensions);

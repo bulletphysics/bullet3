@@ -345,7 +345,7 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(  btCollisionS
 			if (shape)
 			{
 				btCapsuleShape* cap = (btCapsuleShape*) shape;
-				cap->deSerializeFloat(capData);
+				cap->deSerialize(capData);
 			}
 			break;
 		}
