@@ -358,9 +358,14 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(  btCollisionS
 			{
 				btConvexInternalShapeData* bsd = (btConvexInternalShapeData*)shapeData;
 				btVector3 implicitShapeDimensions;
-				implicitShapeDimensions.deSerializeFloat(bsd->m_implicitShapeDimensions);
 				btVector3 localScaling;
+#ifdef BT_USE_DOUBLE_PRECISION
+				implicitShapeDimensions.deSerializeDouble(bsd->m_implicitShapeDimensions);
+				localScaling.deSerializeDouble(bsd->m_localScaling);
+#else
+				implicitShapeDimensions.deSerializeFloat(bsd->m_implicitShapeDimensions);
 				localScaling.deSerializeFloat(bsd->m_localScaling);
+#endif
 				btVector3 margin(bsd->m_collisionMargin,bsd->m_collisionMargin,bsd->m_collisionMargin);
 				switch (shapeData->m_shapeType)
 				{
@@ -506,7 +511,11 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(  btCollisionS
 					shape->setMargin(bsd->m_collisionMargin);
 
 					btVector3 localScaling;
+#ifdef BT_USE_DOUBLE_PRECISION
+					localScaling.deSerializeDouble(bsd->m_localScaling);
+#else
 					localScaling.deSerializeFloat(bsd->m_localScaling);
+#endif
 					shape->setLocalScaling(localScaling);
 
 				}

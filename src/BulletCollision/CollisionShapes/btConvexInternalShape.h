@@ -19,6 +19,14 @@ subject to the following restrictions:
 #include "btConvexShape.h"
 #include "LinearMath/btAabbUtil2.h"
 
+#if defined(BT_USE_DOUBLE_PRECISION)
+#define btConvexInternalShapeData btConvexInternalShapeDoubleData
+#define btConvexInternalShapeDataName "btConvexInternalShapeDoubleData"
+#else
+#define btConvexInternalShapeData btConvexInternalShapeFloatData
+#define btConvexInternalShapeDataName "btConvexInternalShapeFloatData"
+#endif
+
 
 ///The btConvexInternalShape is an internal base class, shared by most convex shape implementations.
 ///The btConvexInternalShape uses a default collision margin set to CONVEX_DISTANCE_MARGIN.
@@ -141,18 +149,21 @@ public:
 };
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
-struct	btConvexInternalShapeData
+struct	btConvexInternalShapeFloatData
 {
 	btCollisionShapeData	m_collisionShapeData;
-
 	btVector3FloatData	m_localScaling;
-
 	btVector3FloatData	m_implicitShapeDimensions;
-	
 	float			m_collisionMargin;
-
 	int	m_padding;
+};
 
+struct btConvexInternalShapeDoubleData
+{
+	btCollisionShapeData	m_collisionShapeData;
+	btVector3DoubleData	m_localScaling;
+	btVector3DoubleData	m_implicitShapeDimensions;
+	double			m_collisionMargin;
 };
 
 
@@ -168,14 +179,21 @@ SIMD_FORCE_INLINE	const char*	btConvexInternalShape::serialize(void* dataBuffer,
 	btConvexInternalShapeData* shapeData = (btConvexInternalShapeData*) dataBuffer;
 	btCollisionShape::serialize(&shapeData->m_collisionShapeData, serializer);
 
+#if defined(BT_USE_DOUBLE_PRECISION)
+	m_implicitShapeDimensions.serializeDouble(shapeData->m_implicitShapeDimensions);
+	m_localScaling.serializeDouble(shapeData->m_localScaling);
+	shapeData->m_collisionMargin = m_collisionMargin;
+#else
 	m_implicitShapeDimensions.serializeFloat(shapeData->m_implicitShapeDimensions);
 	m_localScaling.serializeFloat(shapeData->m_localScaling);
 	shapeData->m_collisionMargin = float(m_collisionMargin);
 
 	// Fill padding with zeros to appease msan.
 	shapeData->m_padding = 0;
+#endif
 
-	return "btConvexInternalShapeData";
+
+	return btConvexInternalShapeDataName;
 }
 
 

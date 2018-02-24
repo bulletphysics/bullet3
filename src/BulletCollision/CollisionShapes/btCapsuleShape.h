@@ -181,9 +181,14 @@ SIMD_FORCE_INLINE	const char*	btCapsuleShape::serialize(void* dataBuffer, btSeri
 
 SIMD_FORCE_INLINE	void	btCapsuleShape::deSerializeFloat(btCapsuleShapeData* dataBuffer)
 {
+#if defined(BT_USE_DOUBLE_PRECISION)
+	m_implicitShapeDimensions.deSerializeDouble(dataBuffer->m_convexInternalShapeData.m_implicitShapeDimensions);
+	m_localScaling.deSerializeDouble(dataBuffer->m_convexInternalShapeData.m_localScaling);
+#else
 	m_implicitShapeDimensions.deSerializeFloat(dataBuffer->m_convexInternalShapeData.m_implicitShapeDimensions);
-	m_collisionMargin = dataBuffer->m_convexInternalShapeData.m_collisionMargin;
 	m_localScaling.deSerializeFloat(dataBuffer->m_convexInternalShapeData.m_localScaling);
+#endif
+	m_collisionMargin = dataBuffer->m_convexInternalShapeData.m_collisionMargin;
 	//it is best to already pre-allocate the matching btCapsuleShape*(X/Z) version to match m_upAxis
 	m_upAxis = dataBuffer->m_upAxis;
 }
