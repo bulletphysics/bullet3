@@ -308,9 +308,18 @@ btCollisionShape* btWorldImporter::convertCollisionShape(btCollisionShapeData* s
 				}
 				case CONE_SHAPE_PROXYTYPE:
 				{
-					btConeShapeData* conData = (btConeShapeData*)shapeData;
 					btVector3 halfExtents = implicitShapeDimensions;  //+margin;
-					switch (conData->m_upIndex)
+					int upIndex = 0;
+					if(isDouble)
+					{
+						upIndex = ((btConeShapeDoubleData*)shapeData)->m_upIndex;
+					}
+					else
+					{
+						upIndex = ((btConeShapeFloatData*)shapeData)->m_upIndex;
+					}
+
+					switch (upIndex)
 					{
 						case 0:
 						{
