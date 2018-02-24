@@ -152,6 +152,9 @@ public:
 		m_debugDrawer = debugDrawer;
 	}
 
+	// Adding this here as a virtual function to avoid doing a dynamic_cast in btBulletWorldImporter when deserializing time
+	virtual void setLocalTime(btScalar localTime) {}
+
 	virtual btIDebugDraw* getDebugDrawer()
 	{
 		return m_debugDrawer;
