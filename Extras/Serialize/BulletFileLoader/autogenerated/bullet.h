@@ -45,9 +45,12 @@ typedef struct bInvalidHandle {
     class btQuantizedBvhDoubleData;
     class btCollisionShapeData;
     class btStaticPlaneShapeData;
-    class btConvexInternalShapeData;
-    class btPositionAndRadius;
-    class btMultiSphereShapeData;
+    class btConvexInternalShapeFloatData;
+    class btConvexInternalShapeDoubleData;
+    class btPositionAndRadiusDouble;
+    class btMultiSphereShapeDoubleData;
+    class btPositionAndRadiusFloat;
+    class btMultiSphereShapeFloatData;
     class btIntIndexData;
     class btShortIntIndexData;
     class btShortIntIndexTripletData;
@@ -58,15 +61,19 @@ typedef struct bInvalidHandle {
     class btScaledTriangleMeshShapeData;
     class btCompoundShapeChildData;
     class btCompoundShapeData;
-    class btCylinderShapeData;
-    class btConeShapeData;
-    class btCapsuleShapeData;
+    class btCylinderShapeDoubleData;
+    class btCylinderShapeFloatData;
+    class btConeShapeDoubleData;
+    class btConeShapeFloatData;
+    class btCapsuleShapeDoubleData;
+    class btCapsuleShapeFloatData;
     class btTriangleInfoData;
     class btTriangleInfoMapData;
     class btPersistentManifoldDoubleData;
     class btPersistentManifoldFloatData;
     class btGImpactMeshShapeData;
-    class btConvexHullShapeData;
+    class btConvexHullShapeDoubleData;
+    class btConvexHullShapeFloatData;
     class btCollisionObjectDoubleData;
     class btCollisionObjectFloatData;
     class btContactSolverInfoDoubleData;
@@ -317,7 +324,7 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btConvexInternalShapeData
+    class btConvexInternalShapeFloatData
     {
     public:
         btCollisionShapeData m_collisionShapeData;
@@ -329,7 +336,38 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btPositionAndRadius
+    class btConvexInternalShapeDoubleData
+    {
+    public:
+        btCollisionShapeData m_collisionShapeData;
+        btVector3DoubleData m_localScaling;
+        btVector3DoubleData m_implicitShapeDimensions;
+        double m_collisionMargin;
+    };
+
+
+// -------------------------------------------------- //
+    class btPositionAndRadiusDouble
+    {
+    public:
+        btVector3DoubleData m_pos;
+        double m_radius;
+    };
+
+
+// -------------------------------------------------- //
+    class btMultiSphereShapeDoubleData
+    {
+    public:
+        btConvexInternalShapeDoubleData m_convexInternalShapeData;
+        btPositionAndRadiusDouble *m_localPositionArrayPtr;
+        int m_localPositionArraySize;
+        char m_padding[4];
+    };
+
+
+// -------------------------------------------------- //
+    class btPositionAndRadiusFloat
     {
     public:
         btVector3FloatData m_pos;
@@ -338,11 +376,11 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btMultiSphereShapeData
+    class btMultiSphereShapeFloatData
     {
     public:
-        btConvexInternalShapeData m_convexInternalShapeData;
-        btPositionAndRadius *m_localPositionArrayPtr;
+        btConvexInternalShapeFloatData m_convexInternalShapeData;
+        btPositionAndRadiusFloat *m_localPositionArrayPtr;
         int m_localPositionArraySize;
         char m_padding[4];
     };
@@ -455,30 +493,60 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btCylinderShapeData
+    class btCylinderShapeDoubleData
     {
     public:
-        btConvexInternalShapeData m_convexInternalShapeData;
+        btConvexInternalShapeDoubleData m_convexInternalShapeData;
         int m_upAxis;
         char m_padding[4];
     };
 
 
 // -------------------------------------------------- //
-    class btConeShapeData
+    class btCylinderShapeFloatData
     {
     public:
-        btConvexInternalShapeData m_convexInternalShapeData;
+        btConvexInternalShapeFloatData m_convexInternalShapeData;
+        int m_upAxis;
+        char m_padding[4];
+    };
+
+
+// -------------------------------------------------- //
+    class btConeShapeDoubleData
+    {
+    public:
+        btConvexInternalShapeDoubleData m_convexInternalShapeData;
         int m_upIndex;
         char m_padding[4];
     };
 
 
 // -------------------------------------------------- //
-    class btCapsuleShapeData
+    class btConeShapeFloatData
     {
     public:
-        btConvexInternalShapeData m_convexInternalShapeData;
+        btConvexInternalShapeFloatData m_convexInternalShapeData;
+        int m_upIndex;
+        char m_padding[4];
+    };
+
+
+// -------------------------------------------------- //
+    class btCapsuleShapeDoubleData
+    {
+    public:
+        btConvexInternalShapeDoubleData m_convexInternalShapeData;
+        int m_upAxis;
+        char m_padding[4];
+    };
+
+
+// -------------------------------------------------- //
+    class btCapsuleShapeFloatData
+    {
+    public:
+        btConvexInternalShapeFloatData m_convexInternalShapeData;
         int m_upAxis;
         char m_padding[4];
     };
@@ -621,12 +689,22 @@ typedef struct bInvalidHandle {
 
 
 // -------------------------------------------------- //
-    class btConvexHullShapeData
+    class btConvexHullShapeDoubleData
     {
     public:
-        btConvexInternalShapeData m_convexInternalShapeData;
-        btVector3FloatData *m_unscaledPointsFloatPtr;
-        btVector3DoubleData *m_unscaledPointsDoublePtr;
+        btConvexInternalShapeDoubleData m_convexInternalShapeData;
+        btVector3DoubleData *m_unscaledPointsPtr;
+        int m_numUnscaledPoints;
+        char m_padding3[4];
+    };
+
+
+// -------------------------------------------------- //
+    class btConvexHullShapeFloatData
+    {
+    public:
+        btConvexInternalShapeFloatData m_convexInternalShapeData;
+        btVector3FloatData *m_unscaledPointsPtr;
         int m_numUnscaledPoints;
         char m_padding3[4];
     };
@@ -760,7 +838,6 @@ typedef struct bInvalidHandle {
         int m_restingContactRestitutionThreshold;
         int m_minimumSolverBatchSize;
         int m_splitImpulse;
-        char m_padding[4];
     };
 
 
@@ -770,6 +847,7 @@ typedef struct bInvalidHandle {
     public:
         btContactSolverInfoDoubleData m_solverInfo;
         btVector3DoubleData m_gravity;
+        double m_localTime;
     };
 
 
@@ -779,6 +857,7 @@ typedef struct bInvalidHandle {
     public:
         btContactSolverInfoFloatData m_solverInfo;
         btVector3FloatData m_gravity;
+        float m_localTime;
     };
 
 
