@@ -1649,9 +1649,10 @@ btRigidBody*  btWorldImporter::createRigidBody(bool isDynamic, btScalar mass, co
 
 	if (mass)
 		shape->calculateLocalInertia(mass,localInertia);
-	
-	btRigidBody* body = new btRigidBody(mass,0,shape,localInertia);	
-	body->setWorldTransform(startTransform);
+
+	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+	btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape, localInertia);
+	btRigidBody* body = new btRigidBody(cInfo);
 
 	if (m_dynamicsWorld)
 		m_dynamicsWorld->addRigidBody(body);
@@ -2054,6 +2055,11 @@ void	btWorldImporter::convertRigidBodyFloat( btRigidBodyFloatData* colObjData)
 		angularFactor.deSerializeFloat(colObjData->m_angularFactor);
 		body->setLinearFactor(linearFactor);
 		body->setAngularFactor(angularFactor);
+		btVector3 linearVelocity, angularVelocity;
+		linearVelocity.deSerializeFloat(colObjData->m_linearVelocity);
+		angularVelocity.deSerializeFloat(colObjData->m_angularVelocity);
+		body->setLinearVelocity(linearVelocity);
+		body->setAngularVelocity(angularVelocity);
 
 #ifdef USE_INTERNAL_EDGE_UTILITY
 		if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
@@ -2103,6 +2109,11 @@ void	btWorldImporter::convertRigidBodyDouble( btRigidBodyDoubleData* colObjData)
 		angularFactor.deSerializeDouble(colObjData->m_angularFactor);
 		body->setLinearFactor(linearFactor);
 		body->setAngularFactor(angularFactor);
+		btVector3 linearVelocity, angularVelocity;
+		linearVelocity.deSerializeDouble(colObjData->m_linearVelocity);
+		angularVelocity.deSerializeDouble(colObjData->m_angularVelocity);
+		body->setLinearVelocity(linearVelocity);
+		body->setAngularVelocity(angularVelocity);
 				
 
 #ifdef USE_INTERNAL_EDGE_UTILITY
