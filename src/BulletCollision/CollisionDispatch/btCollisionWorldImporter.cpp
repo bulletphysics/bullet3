@@ -370,9 +370,18 @@ btCollisionShape* btCollisionWorldImporter::convertCollisionShape(btCollisionSha
 
 				case CYLINDER_SHAPE_PROXYTYPE:
 				{
-					btCylinderShapeData* cylData = (btCylinderShapeData*)shapeData;
 					btVector3 halfExtents = implicitShapeDimensions + margin;
-					switch (cylData->m_upAxis)
+					int upAxis = 0;
+					if(isDouble)
+					{
+						upAxis = ((btCylinderShapeDoubleData*)shapeData)->m_upAxis;
+					}
+					else
+					{
+						upAxis = ((btCylinderShapeFloatData*)shapeData)->m_upAxis;
+					}
+
+					switch (upAxis)
 					{
 						case 0:
 						{
